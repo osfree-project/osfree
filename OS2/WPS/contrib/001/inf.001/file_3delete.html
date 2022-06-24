@@ -1,0 +1,49 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Replacing "True Delete"
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3. -->
+<BODY>
+<B>Classes: XFldObject</B><HR>
+
+Starting with V0.9.3, &xwp; can replace the regular "delete" mechanism of the
+Workplace Shell as well. I call this "true delete", as opposed to moving objects
+into the trash can. "True delete" will immediately destroy the objects with no
+chance to recover.
+
+<P>"True delete" can be replaced by enabling the respective setting
+on the "Features" page in the <A HREF="sys_2global.html">"&xwp; Setup" object.</A>
+This is also initially disabled.
+
+<P>Compared to the WPS's delete operations, &xwp;'s "true delete" has a number
+of advantages. For one, you get a proper progress bar which shows you the progress of
+the delete operation. Secondly, when you delete a folder with many sub-objects,
+you finally get a change to cancel deletion, which isn't possible with the WPS.
+I've had this a number of times... pressing the "Delete" key over a folder by
+accident, and 100 MB of files got deleted, with no chance to interrupt. Not a good
+idea.
+
+<P>If "true delete" is replaced, the following actions will be taken over by
+&xwp;:
+
+<!-- V0.9.7: rewrote the following three paragraphs -->
+<UL><LI>If the &xwp; trash can is enabled, all regular "delete" operations
+will still go to the trash can (as described on the
+<A HREF="file_2trashcan.html">previous page</A>), so these operations won't be
+affected.
+
+<P>This will however affect "true delete" from a context menu (if you hold
+down the "Shift" key while clicking on a "Delete" context menu item) and the
+"Destroy object" and "Empty trashcan" commands in the trash can itself.
+
+<P><LI>If the &xwp; trash can is not enabled, this will affect all
+WPS delete operations (i.e. every "Delete" context menu item and "Delete"
+key press).
+
+</UL>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,61 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The NLS DLL
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+<P><B>Files that need to be changed:</B>
+
+<UL><LI><CODE>xfldr001.def:</CODE> The module definition file.
+Required changes are noted in the file itself.
+
+<P><LI><CODE>makefile:</CODE> Makefile for IBM NMAKE.
+Required changes are noted in the file itself.
+
+<P><LI><CODE>xfldr001.rc, xfldr001.dlg:</CODE>
+These are the main resource files which need <I>lots</I> of
+changes.
+<P>I've documented everything you need to change
+in the <CODE>.RC</CODE> file.
+<P>The <CODE>.DLG</CODE> file is included when the RC files is recompiled. It
+contains all the XWorkplace dialogs (i.e. notebook pages and other dialog windows).
+Sorry, there are no comments in there because I'm using <CODE>DLGEDIT.EXE</CODE>
+to create the dialogs, which rewrites the DLG file at every change, so all comments
+in there get lost.
+
+<P><B>Note:</B> Because of this stupid limitation, I am currently trying to get
+rid of all the dialog resources and eventually the <CODE>.DLG</CODE> file altogether.
+Starting with V0.9.16, more and more dialog resources are converted so that XWorkplace
+only loads the strings for the dialog elements from the string tables in the
+<CODE>.RC</CODE> file any more and creates the dialog dynamically at run time. This
+also saves you from realigning the controls if you don't have enough space.
+</UL>
+
+For the remaining dialogs,
+you can use <CODE>DLGEDIT.EXE</CODE>, the IBM dialog editor from the Developer's Toolkit,
+to change the dialogs. (This will not affect the <CODE>.RC</CODE> file.) For this,
+you will need to create the <CODE>.RES</CODE> file first. This is done by
+<CODE>nmake nls</CODE>; alternatively, you can start <CODE>RC.EXE</CODE> with the "-r" option,
+which creates a <CODE>.RES</CODE> instead of linking the resources to an
+executable.
+
+<P>If you then open the <CODE>.RES</CODE> file with the dialog editor, you can
+choose <CODE>include/dlgids.h</CODE> as an include file so that all the numerical ID's
+have a more meaningful name.
+
+<P>When you then save the file, the <CODE>.RES</CODE> and <CODE>.DLG</CODE> files will be
+recreated by DLGEDIT.
+The <CODE>.RC</CODE> file remains untouched though.
+
+<P>The dialog editor has a helpful &quot;Translate mode&quot; in its &quot;Options&quot;
+menu which disables a lot of menu items so you don't accidentally change dlg ID's
+or other important stuff.
+
+<P>I don't know if you can use the URE editor also, I have not tried that.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,54 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduction
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.7. -->
+<BODY>
+Starting with V0.9.7, &xwp; contains a replacement to &warp4;'s &warpcenter;.
+This is called the "&xcenter;".
+
+<P>Technically, this is not a &warpcenter; replacement... it does not replace the
+"SmartCenter" WPS class, since that class is completely undocumented in the first place.
+Instead, the &xcenter; is a new implementation from scratch. It is not compatible with
+the &warpcenter; and does not take over its settings, but it can do pretty much the same...
+and more.
+
+<P>Compared to the &warpcenter;, the &xcenter; offers you the following advantages:
+
+<UL><LI>It is <B>fully configurable.</B> You can add items to the &xcenter; at your free will,
+while the &warpcenter; will always contain fixed items at fixed locations.
+
+<P>The items in the &xcenter; are called "widgets". You can add widgets to the &xcenter;
+in any order.
+
+<P>See <A HREF="ctr_2addwgt.html">"Adding and removing widgets"</A> for details.
+
+<P><LI>You can have <B>more than one &xcenter;</B> on your system. Each &xcenter; stores its
+widgets and their settings separately so that they will never conflict.
+
+<P><LI>The &xcenter; offers you <B>more display styles</B> than the &warpcenter;. You can drag
+and drop fonts and colors onto the widgets, which will retain these settings
+individually. Besides, the &xcenter; has an "auto-hide" option so that it will reduce
+itself to a tiny bar at the bottom of the screen, similar to the task bar on
+Windows 95. You can set those display options in the &xcenter;'s settings notebook.
+
+<P><LI>The &xcenter; supports <B>plug-in DLLs.</B> Any programmer can add new widget types
+to the &xcenter; by writing a DLL and put it into the <CODE>plugins\xcenter</CODE>
+directory of the &xwp; installation directory.
+
+<P>See <A HREF="ctr_9plugin.html">"About plug-in DLLs"</A> for details.
+
+<P><LI>The &xcenter; runs on a <B>separate thread</B> within the WPS and can thus run with
+a higher priority than other programs. You can set the priority in the &xcenter;'s
+settings notebook.
+
+<P>While this cannot fix the PM single input queue (SIQ) problems, this can still
+give you access to the &xcenter; if some program uses up all CPU time.
+
+</UL>
+</BODY>
+</HTML>
+
+

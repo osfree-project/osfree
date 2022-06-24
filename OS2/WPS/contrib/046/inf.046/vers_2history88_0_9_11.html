@@ -1,0 +1,69 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.11
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.11 (April 26, 2001)</B>
+
+<P>New features:
+<UL><LI>The &pgr; window can now be dragged itself if the drag starts on an
+empty space in the pager itself.
+<P><LI>Added &pgr; context menu.
+<P><LI>Added new <A HREF="0632intro_statbars.html">status bar codes:</A>
+$zb etc. for total disk size, $L for disk label.
+<P><LI>Really added diskfree widget to the distribution this time.
+<P><LI>Made Health widget a separate package in the distribution.
+<P><LI>Widgets can now be deleted from "Widgets" page in &xcenter; settings notebook.
+Properties dialogs can be opened from there too, but this has not been extensively
+tested yet.
+
+</UL>Miscellaneous changes:
+<UL><LI>Christian Langanke added 16x16 resolutions to the default replacement icons.
+<P><LI>Optimized the status bar text composition routines for speed.
+<P><LI>Rewrote large parts of the window list widget. This now displays the buttons
+in the proper order (new windows appear to the right). Besides, restoring to maximized
+should now work for all session types.
+<P><LI>Added termination exception handler to XWPDAEMN.EXE for proper hook cleanup,
+should the daemon get killed for any reason.
+<P><LI>Changed default widget menu item IDs to above 0x7f00 to avoid conflicts with
+WPS menu item IDs. I hope this won't break any existing widgets.
+
+</UL>Bugfixes:
+<UL><LI>Config.sys routines never found lines that had leading spaces. Fixed.
+<P><LI>Added an extra check for floppies in the routines that checked for whether
+a drive is ready. Maybe this fixes hangs with non-DOS disks.
+<P><LI>Removed useless shadow populate for internal "populate folders only" call,
+which was used from, among other places, the trash can routines.
+<P><LI>Toggling the folder status bar state via the "View" context menu rarely
+saved the change. Fixed.
+<P><LI>Removed a number of useless settings pages for DLL and driver files.
+<P><LI>Opening objects from the &xcenter; made them run on the &xcenter; thread, which
+caused a forced close when the &xcenter; thread terminated (because the &xcenter; was
+closed). Fixed; now routing all open requests to thread 1.
+<P><LI>&xcenter; "Run" command couldn't handle parameters and fully qualified
+executables. Fixed.
+<P><LI>&xcenter; "Run" entry fields were limited to 30 some characters. Fixed.
+<P><LI>Standard widget menu items ("Remove", "Help") never worked for object button
+widgets. Fixed.
+<P><LI>"Immediate hilite" handling for sliding menus was completely rewritten.
+Works much better now.
+<P><LI>Killing XWPDAEMN.EXE would only work about a dozen times before hanging the
+system for good. Added thread-granular termination handling now, which should
+properly clean up now (still looks like a PM bug for me).
+<P><LI>&pgr; "Sticky" page in "Screen" object listed invisible switchlist entries.
+Fixed, only listing visible ones now.
+<P><LI>New XShutdown save-object routines from V0.9.8 attempted to save objects
+which no longer existed, which could hang shutdown in certain situations. Fixed.
+<P><LI>XShutdown hung the system if print jobs were still pending. Fixed; XShutdown
+will now simply tell the user to remove those first.
+
+</UL>
+</BODY>
+</HTML>
+

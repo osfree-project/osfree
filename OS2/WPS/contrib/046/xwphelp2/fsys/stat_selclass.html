@@ -1,0 +1,55 @@
+<HTML RESID=&ID_XFH_SELECTCLASS;>
+<HEAD>
+    <TITLE>
+        V„lj Objektklass
+    </TITLE>
+</HEAD>
+<!-- V0.9.0: see notes below -->
+<BODY>
+I det h„r f”nstret kan du v„lja den objektklass f”r vilken du ”nskar st„lla
+in statusf„ltinformation n„r endast ett objekt „r valt i mappen.
+
+<P>Det h„r f”nstret visar dig alla installerade
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS klasser</A> f”r att ge dig en
+”versikt om vilken klass den „r deriverad fr†n.
+
+<P>F”r att best„mma statusf„ltskoder d„remot kan du endast v„lja en klass som
+kan processa den h„r informationen. S†dana klasser „r †tergivna i svart, medan
+klasser som inte st”der detta upptr„der i gr†tt och kan inte v„ljas.
+
+<!-- V0.9.0: added the following -->
+<P>Tr„dvisningen har ut”kats s† att alla klasser vilka st”der statusf„ltsinformation
+„r initialt synliga.
+
+<!-- V0.9.0: added the following -->
+<!-- V0.9.13: moved this down
+Note that status bar information is independent of the additional
+&xwp; classes. That is, it is not only &xwp; classes which support
+status bar information, but on the other hand, not all &xwp; classes
+support this either. -->
+
+<P>Den generiska statusf„ltsinformation best„ms av klassen <B>XFldObject.</B> Det betyder,
+att om du v„ljer ett enstaka objekt f”r vilket ingen klass definierar mer specifik
+statusf„ltsinformation (ett exempel p† det skulle kunna vara ett skrivarobjekt), anv„nds
+koderna av XFldObject klassen.
+
+<!-- V0.9.0: changed the following -->
+<P>Mera specifika nycklar „r d„remot erbjudna av klasserna <B>XFldDisk</B>
+(f”r "disk" objekt, som i <!-- V0.9.20: added link -->
+&link_drivesfdr;), <B>WPProgram</B> (f”r abstrakta
+programobjekt), <B>WPFileSystem</B> (f”r mappar och datafiler), och <B>WPUrl</B>.
+<!-- V0.9.19: removed this (for URL objects, which exist on Warp 4 only). -->
+
+<!-- V0.9.13: begin moved text -->
+<P>Notera att statusf„ltsinformation „r <I>oberoende</I> av ytterligare &xwp; klasser.
+Det betyder, det „r inte bara &xwp;'s klasser som st”der statusf„ltsinformation,
+men † andra sidan, st”der inte alla &xwp; klasser detta heller.
+<!-- V0.9.13: removed this
+Please look into the &xwp;_User_Guide to see a complete list
+of all the different codes for the different classes, which are too complex to
+be shown here. -->
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,37 @@
+
+;
+; sentinel.def:
+;       module definition file for SENTINEL.DLL, an XCenter
+;       plug-in widget DLL.
+;
+;       Note that we better name the DLL XTHESEUS because
+;       we will run into name conflicts otherwise.
+;
+;       Copyright (C) 2001-2013 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software; you can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY; without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+LIBRARY SENTINEL INITINSTANCE TERMINSTANCE
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace memory sentinel plugin DLL'
+
+DATA              MULTIPLE READWRITE LOADONCALL NONSHARED
+
+SEGMENTS
+    CODE32 CLASS 'CODE'       NONSHARED LOADONCALL
+    CODE16 CLASS 'CODE'       NONSHARED LOADONCALL
+
+CODE              LOADONCALL
+
+EXPORTS
+    TwgtInitModule      @1
+    TwgtUnInitModule    @2
+    TwgtQueryVersion    @3
+

@@ -1,0 +1,256 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Regul„re Ausdrcke
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Regul„re Ausdrcke (Regular Expressions, REs) werden blicherweise
+benutzt, um einen komplexen Suchbegriff auf eine Gruppe von
+Zeichenketten anzuwenden. Sie sind daher viel flexibler als das
+Suchen nach reinen Zeichenketten.
+ 
+<P>&xwp; verwendet eine Kombination verschiedener Standards fr
+RE-Syntaxen.
+Benutzern der Unix-Programme
+<CODE>egrep</CODE> und <CODE>awk</CODE> werden diese REs bekannt vorkommen.
+Erweiterungen, die durch POSIX sowie die Unix-Programme
+<CODE>ex</CODE> und <CODE>vi</CODE> und weitere GNU-Programme eingefhrt
+wurden, werden ebenfalls untersttzt.
+ 
+<P>Es gelten die folgenden Regeln (siehe die
+<A HREF="glossary/gls_regexps_bnf.html">BNF-Definition</A> fr eine
+formale Beschreibung):
+ 
+<P><B>Einfache Zeichen</B>
+ 
+<UL>
+<LI>Die meisten Zeichen in einer RE werden 1:1 umgesetzt.
+Beispielsweise findet <CODE>abc</CODE> die Zeichenkette <CODE>a</CODE>,
+dann <CODE>b</CODE>, dann <CODE>c</CODE>.
+ 
+<P><LI>Einige Zeichen haben eine besondere Bedeutung und mssen,
+wenn nach ihnen ausdrcklich gesucht wird, durch das Escape-Zeichen
+"Schr„gstrich rckw„rts" (<code>\</code>) eingeleitet werden.
+Dies betrifft die folgenden Zeichen:
+ 
+<PRE>
+    ~ . ^ $ ( ) { } [ ] ? + * |
+</PRE>
+Beispielsweise findet <CODE>1\*2</CODE> die Zeichenkette
+<CODE>1</CODE>, dann <CODE>*</CODE>, dann <CODE>2</CODE>.
+ 
+<P><LI>Um nach dem Schr„gstrich rckw„rts selbst zu suchen, geben
+Sie ihn zweimal ein. Beispielsweise findet
+<CODE>c:\\config\.sys</CODE> die Zeichenkette <CODE>c:\config.sys</CODE>.
+ 
+<P><LI>Der Schr„gstrich rckw„rts kann auáerdem benutzt werden, um
+nach Zeichen zu suchen, die sonst schwierig einzugeben w„ren:
+ 
+<PRE>
+  \n    newline           ASCII 10
+  \t    tab               ASCII  9
+  \r    carriage return   ASCII 13
+  \b    backspace         ASCII  8
+  \f    formfeed
+  \e    escape            ASCII 27
+  \x07  bel               ASCII  7
+</PRE>
+ 
+C- und C++-Programmierern wird diese Syntax bekannt vorkommen.
+Strenggenommen máte nach POSIX die Suchfolge <CODE>\x2e</CODE> jedes
+beliebige Zeichen finden, denn das ASCII-Zeichen 0x2e ist der Punkt (siehe
+unten), aber diese Implementierung behandelt es als "suche nach einem Punkt".
+ 
+<P><LI>Der Schr„gstrich rckw„rts kann auáerdem benutzt werden, um
+eine besondere RE-Funktion einzuleiten. Beispielsweise bedeutet
+<CODE>\&lt;</CODE> "Beginn eines Wortes" (siehe unten).
+ 
+</UL><B>Zeichengruppen</B>
+ 
+<P>Zeichengruppen werden in eckigen Klammern angegeben und bezeichnen
+eine Gruppe von Zeichen, die entweder an dieser Stelle m”glich sind
+oder nicht m”glich sein drfen.
+ 
+<PRE>
+  [abc]   findet ein Zeichen, das a, b oder c sein darf
+  [^abc]  findet jedes Zeichen, das nicht a, b oder c ist
+  [a-z]   findet jedes Zeichen im Bereich 'a' bis 'z'
+  [a-j-t] findet jedes Zeichen im Bereich 'a' bis 't'
+</PRE>
+ 
+Um in den eckigen Klammern auch die Zeichen <CODE>-</CODE>, <CODE>^</CODE> oder
+<CODE>]</CODE> angeben zu k”nnen, setzt man wieder einen Schr„gstrich rckw„rts
+davor. Beispielsweise findet
+<CODE>[\])}]</CODE> die Zeichen <CODE>]</CODE> oder <CODE>)</CODE> oder <CODE>}</CODE>.
+ 
+<P>Sie k”nnen auch eine komplette POSIX-Zeichenklasse in einem <i>zus„tzlichen</i>
+Paar von eckigen Klammern mit Doppelpunkten angeben. In diesem Kontext bedeutet
+ 
+<PRE>
+  [:alnum:]   alle alphanumerischen Zeichen
+              (bei ASCII: dasselbe wie A-Za-z0-9)
+  [:lower:]   alle Kleinbuchstaben
+  ... etc.
+</PRE>
+ 
+Geben Sie beispielsweise <CODE>[[:alnum:] \t]</CODE> an, um nach allen alphanumerischen
+Zeichen plus Leerzeichen plus Tab zu suchen.
+ 
+<P><B>Beliebiges Zeichen</B>
+ 
+<P>Der Punkt (<CODE>.</CODE>) findet jedes beliebige einzelne Zeichen.
+Beispielsweise findet der Ausdruck <CODE>k.nnen</CODE> das Wort
+<CODE>kennen</CODE> und <code>k”nnen</code>, aber nicht <CODE>koennen</CODE>.
+ 
+<P><B>Wortzeichen</B>
+ 
+<P>Ein "Wortzeichen" wird definiert als ein Zeichen, das entweder alphanumerisch
+ist oder ein Unterstrich (<CODE>_</CODE>).
+ 
+<P><code>\w</code> kann benutzt werden,
+um ein Wortzeichen zu finden, um sich etwas Tipparbeit zu sparen. Dies entspricht
+dem Ausdruck <CODE>[[:alnum:]_]</CODE> oder <CODE>[A-Za-z0-9_]</CODE>.
+<CODE>\W</CODE> ist das Gegenteil und entspricht dem Ausdruck
+<CODE>[^[:alnum:]_]</CODE> oder <CODE>[^A-Za-z0-9_]</CODE>.
+ 
+<P>Diese Kurzformen sind in Zeichengruppen (in eckigen Klammern) nicht erlaubt.
+ 
+<P><B>"Kein Zeichen"</B>
+ 
+<P>Microsoft hat eine Erweiterung zu REs definiert, womit man mit einer
+vorangestellten
+Tilde (<CODE>~</CODE>) nach jedem Zeichen bis auf das nachstehende suchen
+kann. Dies ist eine Abkrzung fr die entsprechende Zeichengruppe in
+eckigen Klammern: <CODE>~a</CODE> ist krzer als <CODE>[^a]</CODE>.
+Bespielsweise findet <CODE>k~ennen</CODE> die Kette
+<CODE>k”nnen</CODE>, aber nicht <CODE>kennen</CODE>.
+ 
+<P><B>Anker</B>
+ 
+<P>Anker geben eine Bedingung an, wo ein Ausdruck stehen darf:
+ 
+<PRE>
+  ^       findet den Ausdruck, wenn er am Anfang steht
+  $       findet den Ausdruck, wenn er am Ende steht
+  \`      GNU-Alternative zu ^
+  \'      GNU-Alternative zu $
+  \&lt;      findet den Ausdruck, wenn er am Anfang eines Wortes steht
+  \&gt;      findet den Ausdruck, wenn er am Ende eines Wortes steht
+  \B      findet den Ausdruck, wenn er innerhalb eines Wortes steht
+  \y      findet den Ausdruck, wenn er am Anfang oder am Ende eines Wortes steht
+</PRE>
+ 
+Ein "Wort" f„llt hier unter die gleiche Definition wie oben angegeben.
+ 
+<P>Beispielsweise findet <CODE>^xyz</CODE> die Kette <CODE>xyz</CODE> nur, wenn
+sie am Anfang einer Zeile steht.
+<CODE>\&lt;fred</CODE> findet <CODE>fred</CODE> und
+<CODE>freddy</CODE>, aber nicht <CODE>alfred</CODE>.
+ 
+<P><B>Wiederholungen</B>
+ 
+<P>Mit den Zeichen <CODE>?</CODE>, <CODE>+</CODE>, <CODE>{M}</CODE> oder <CODE>{M,N}</CODE>
+kann nach Wiederholungen gesucht werden.
+ 
+<PRE>
+  ab?c      a, dann keine oder eine Wiederholung von b, dann c
+  ab+c      a, dann eine oder mehrere Wiederholungen von b, dann c
+  ab*c      a, dann keine oder beliebige Wiederholungen von b, dann c
+  ab{M}c    a, dann M Wiederholungen von b, dann c
+  ab{M,}c   a, dann M oder mehr Wiederholungen von b, dann c
+  ab{M,N}c  a, dann zwischen M und N Wiederholungen von b, dann c
+</PRE>
+ 
+M und N mssen dabei dezimale Ziffern sein, und wenn sowohl M als auch
+N angegeben ist, muá M &lt;= N sein.
+ 
+<P>Beispiel: <CODE>[A-Za-z_][A-Za-z0-9_]*</CODE> findet jeden erlaubten
+C- oder C++-Bezeichner. <CODE>\w{10,}</CODE> findet eine Zeichenkette,
+wenn diese aus wenigstens 10 Wortzeichen besteht.
+<CODE>\&lt;[0-9]{5}\&gt;</CODE> findet eine fnfstellige Zahl.
+ 
+<P><B>Alternativen</B>
+ 
+<P>Mit dem <code>|</code>-Zeichen kann man nach etwas <i>oder</i> etwas anderem
+suchen. Beispielsweise findet <CODE>fred|bill</CODE> die Kette
+<CODE>fred</CODE> oder <CODE>bill</CODE>.
+<CODE>fred|bill|rob</CODE> findet jeden der drei Namen.
+ 
+<P><B>Verschachtelte Ausdrcke</B>
+ 
+<P>Mit runden Klammern k”nnen REs gruppiert werden, um Operatoren wie
+Wiederholungen oder Alternativen genau zu bezeichnen.
+Beispielsweise findet <CODE>(frosch|kr”te)+</CODE> eine oder mehrere Wiederholungen
+von entweder
+<CODE>frosch</CODE> oder <CODE>kr”te</CODE>.
+ 
+<P>Klammern k”nnen mehrfach geschachtelt werden.
+ 
+<P><B>Rckbeziehung</B>
+ 
+<P>Jedesmal, wenn ein RE auf eine Zeichenkette paát, wird die
+gefundene Zeichenkette intern gespeichert. Sie k”nnen sich
+auf diese gespeicherte Zeichenkette rckbeziehen, d.h. was vorher
+gepaát hat, soll noch einmal passen, indem Sie einen Schr„gstrich
+rckw„rts mit einer Dezimalziffer eingeben.
+So kann auf bis zu 9 REs zugegriffen werden.
+ 
+<P>Beispielsweise besagt <CODE>\2</CODE>, daá der zweite Klammersatz
+noch einmal vorkommen muá. So findet der Ausdruck
+<CODE>(a|b)(c|d)\2\1</CODE> die Zeichenkette <CODE>acca</CODE> oder
+<CODE>adda</CODE> oder <CODE>bcca</CODE> oder <CODE>bddb</CODE>.
+ 
+<P>Beachten Sie, daá das obige Beispiel <i>keine</i> Abkrzung fr
+<CODE>(a|b)(c|d)(c|d)(a|b)</CODE> ist. Die Rckbeziehungen beziehen
+sich nicht auf den Ausdruck, sondern dasjenige, was von dem Ausdruck
+gefunden wurde.
+ 
+<P>Rckbeziehungen k”nnen ebenfalls geschachtelt werden.
+Beispielsweise findet <CODE>frosch|((a|bc)d\1)</CODE> die Zeichenketten
+<CODE>frosch</CODE> oder <CODE>ada</CODE> oder <CODE>bcdbc</CODE>, aber
+nicht <CODE>adbc</CODE>.
+ 
+<!--
+<P><B>Substitutions</B>
+ 
+<P>Sometimes EREs are used to find or match information, and sometimes they
+are used as the 'find' part of a 'find and replace' operation.
+Programs providing 'find and replace' are provided with the extent of
+each match, and also the extents of the top level sub-EREs within them.
+So a replacement pattern can easily refer to these, (typically by using the
+backreference <CODE>\N</CODE> notation in the replacement string).
+ 
+<PRE>
+  eg: find                   ([0-9]+),"(~"*)"
+      replace-with           set \2 = \1
+      given-input            23,"Age"
+      gives-output           set Age = 23
+</PRE>
+ 
+<P>Consider using the ERE <CODE>(.+)(.+)</CODE> against the string
+<CODE>abcd</CODE>.
+Clearly there will be a match of length 4 characters, as an ERE matches
+the longest string it can.
+What isn't clear is what <CODE>\1</CODE> and <CODE>\2</CODE> are in the
+substitution, afterwards.
+eg: We could have any one of :-
+ 
+<P>
+<PRE>
+  \1 = a    \2 = bcd
+  \1 = ab   \2 = cd
+  \1 = abc  \2 = d
+</PRE>
+ 
+<P>Which you get is <I>undefined</I> in this implementation of EREs.
+-->
+ 
+<BR>
+</BODY>
+</HTML>
+ 

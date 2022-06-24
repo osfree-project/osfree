@@ -1,0 +1,73 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Systemstart- und Systemabschluáordner
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- Changed with V0.81 -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klassen: XFldObject, XFldDesktop, XFolder, XFldStartup, XFldShutdown</B><HR>
+<!-- V0.9.0 -->
+&xwp; bietet separate Ordner fr Systemstart- und Systemabschluá.
+ 
+<!-- this paragraph inserted with V0.81; changed with V0.9.0 -->
+<P><B>Hinweis:</B> Die Ordner fr Systemstart- und Systemabschluá werden nicht
+automatisch durch das Installationsprogramm erzeugt, um Verwirrung zu vermeiden.
+™ffnen Sie bitte das Objekt <A HREF="sys_1intro.html">"&xwp; Konfiguration"</A>,
+um sie manuell zu erzeugen.
+ 
+<P>Wenn &xwp; einen <STRONG>&xwp;-Systemstartordner</STRONG> beim Start der Arbeitsoberfl„che
+findet, wird der Inhalt etwa wie beim Standard-Systemstartordner abgearbeitet. Die
+wesentlichen Unterschiede sind:
+<UL><LI>Man kann eine bestimmte Zeit angeben, die &xwp; zwischen den zu startenden 
+Objekten warten soll. Der normale Systemstartordner hat manchmal Probleme, wenn zu
+viele Objekte darin enthalten sind, die alle zur selben Zeit gestartet werden,
+was dazu fhrt, daá die WPS beim Start h„ngt.
+<!-- V0.9.0: changed the following line -->
+Diese Wartezeit wird im Einstellungsnotizbuch des &xwp;-Systemstartordners eingestellt.
+<BR><LI>Sie k”nnen in einem dafr vorgesehenen Fenster verfolgen, wie der Start der
+einzelnen Objekte voranschreitet.
+<!-- V0.9.0: changed the following line -->
+(Dies kann ebenfalls im Einstellungsnotizbuch des &xwp;-Systemstartordners abgeschaltet
+werden, wenn Sie es nicht m”chten.)
+<BR><LI>Der Startvorgang kann abgebrochen werden, w„hrend er l„uft.
+<!-- V0.9.0: changed the following -->
+<BR><LI>Der Startvorgang kann komplett bersprungen werden, indem man die "Umschalt"-Taste
+w„hrend des WPS-Starts gedrckt h„lt, was den <A HREF="xsd_01intro.html">"Panik"-Dialog</A>
+aktiviert.
+<BR><LI>Der &xwp;-Systemstartordner wird auch nach einem Neustart der Arbeitsoberfl„che
+abgearbeitet, was beim normalen Systemstartordner nicht geschieht.
+<!-- this paragraph modified with V0.81 -->
+Dies gilt nur, wenn vorher das entsprechende Feld im Dialogfenster "WPS neu starten"
+markiert wurde.
+ 
+<BR><LI>Der &xwp;-Systemstartordner hat seit Version 0.80 einen Meneintrag "Ordnerinhalt
+ausfhren", der es erlaubt, sogar dann den Inhalt zu starten, wenn die Arbeitsoberfl„che
+schon vollst„ndig gestartet ist.
+ 
+</UL>Auf der anderen Seite wird der <STRONG>&xwp;-Systemabschluáordner</STRONG> vor dem 
+erweiterten Systemabschluá (aber nicht vor dem standardm„áigen Systemabschluá) abgearbeitet.
+Anders als beim Systemstartordner k”nnen hier keine Wartezeit angegeben werden, statt dessen
+wartet &xwp; vor dem Start des n„chsten Objektes darauf, daá das vorhergehende Objekt
+wieder geschlossen wird. Nur wenn alle Objekte aus dem Systemabschluáordner geschlossen
+sind, startet der Erweiterte Systemabschluá.
+<P>Der Systemabschluáordner kann ntzlich sein, wenn Sie bestimmte Programme starten 
+wollen, bevor Sie das System abschalten.
+<!-- V0.9.19: removed this (Ich habe dafr keine Verwendung, aber anscheinend haben sie viele andere Personen.) -->
+Sie k”nnen etwa REXX-Skripte zum 
+"Aufr„umen" erzeugen, etwa um sich von Netzwerk abzumelden, tempor„re Dateien zu l”schen, 
+oder was immer Sie sich vorstellen k”nnen.
+ 
+<P>Sowohl fr den Systemstart- als auch den Systemabschluáordner l„át sich die Reihenfolge
+festlegen, in der die Objekte gestartet werden. Das funktioniert genauso, wie es auf der
+<A HREF="menu_5order.html">entsprechenden Seite</A> fr die &xwp;-Konfigurationsordner
+erkl„rt wird.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

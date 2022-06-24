@@ -1,0 +1,133 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.0
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.0 (November 28, 1999)</B>
+<P>Obviously, I've renamed the whole thing. This version was never released
+as a binary version, but only uploaded in source to the Netlabs CVS server.
+
+<P>New features (lots of major ones):
+<UL><LI><A HREF="sys_1intro.html">"&xwp; Setup" object</A> with more general settings.
+<P><LI>Extended association mechanism.
+<P><LI><A HREF="file_2trashcan.html">&xwp; trash can.</A>
+<P><LI>New <A HREF="06341intro_mousekey.html">&xwp; PM hook</A> for mouse and keyboard
+features (object hotkeys, sliding focus, screen corner objects).
+<P><LI>The "WPS Class List" has been greatly enhanced.
+This is now in a separate object, with a split view for a more lucid display.
+We now have a new "Create object" context menu item for each installed class,
+and method information can be displayed.
+<P><LI>New "Sound" object replacement (by replacing the WPSound class).
+This has much better sound selections now, with full sound scheme support, even on Warp 3.
+<P><LI>"System paths" page in "OS/2 Kernel".
+<P><LI>"Drivers" page in "OS/2 Kernel".
+<P><LI>"File" pages in file-system object settings notebooks can be replaced
+with a new, single page.
+<P><LI>"Details" page in disk objects can also be replaced.
+<P><LI>All-new "Module" page in program file settings objects, which retrieves
+additional information from the executable direcly.
+<P><LI><A HREF="menu_7selectsome.html">"Select by name" dialog</A>
+now has a history of the last 10 file masks which were entered.
+<P><LI>Status bars can now dereference shadows (new setting in "Workplace Shell").
+<P><LI>New "Menu bar" setting in Warp 4's "View" context submenu.
+<P><LI>New "&xwp; panic" dialog when Shift key is held down during Desktop startup,
+which allows you to selectively disable &xwp; features.
+<P><LI>New "Startup" and "Shutdown" pages in Desktop's settings notebook. Startup
+page allows you to configure the <A HREF="xsd_03bootlogo.html">boot logo</A> now.
+There are now two boot logo styles,
+for many people preferred the old blow-up style over the transparent boot logos.
+<P><LI>XFldDesktop can now switch between several shutdown menu styles. Also,
+"Sort" and "Arrange" can be disabled for the Desktop only.
+<P><LI>New "Partitions" button in user-reboot items dialog to automatically add
+BootManager partitions.
+<P><LI>Per popular request, exception handler beeping can be disabled now
+("&xwp; Setup", "Paranoia" page).
+<P><LI>Treesize: is now NLS enabled and dynamically updates the directory sizes even
+while collecting files (instead of just displaying "working...").
+
+</UL>Miscellaneous changes:
+<UL><LI>I've finally found the time to rework all the functions in
+the linklist.* files. This should speed up a number of internal
+functions significantly.
+<P><LI>The code for building folder context menus from the Configuration Folder
+contents has been mostly rewritten. This now uses less memory and implements
+a cache for the objects in the contents folder so that they need not be rebuilt
+every time a context menu is opened, but only if the .ICONPOS EAs changed.
+Lots of new function in menus.c for this.
+<P><LI>Restructured settings pages all over the place.
+<P><LI>Raised default "variable menu item ID offset" to 700 for
+<A HREF="vers_1compat.html">Object Desktop compatibility</A>.
+<P><LI>Included Christian Langanke's new TMF functions for message handling.
+&xwp; message files are now plain text; MKMSGF.EXE is no longer needed
+to translate message files.
+<P><LI>Removed the "default class title" for the XFolder class. Folder default
+titles are no longer changed.
+<P><LI>Improved multithreading all over the place. Introduced new "File" thread
+with regular priority which takes over some functionality from the Worker thread.
+<P><LI>Also, "Refresh now" now operates in the "File" thread (which blocked
+the user interface previously).
+<P><LI>"File exists" dialog now displays file sizes in bytes, not KB.
+<P><LI>&xshutdown; now writes time information into the XSHUTDWN.LOG file with each
+line.
+
+</UL>Bugfixes:
+<UL><LI>Fixed a minor problem when NLS strings were not found (cmnLoadString).
+<P><LI>Fixed the ancient check box double-click bug. ;-) Double-clicks on
+check boxes are no longer ignored (fnwpNotebookCommon, notebook.c).
+<P><LI>Some users reported that the Configuration Folder was no longer found
+with certain configurations when it was moved away from the location where the install
+program creates it. Fixed; since the WPS method which has been defined for this doesn't
+seem to be working with all Warp versions and fixpak levels (esp. not on Aurora), I
+have written my own (wpshQueryObjectFromID).
+<P><LI>When folder auto-sort was off but status bars enabled, folder contents
+would keep scrolling up when opened in Icon view, adding ugly scroll bars to
+the folder window even if not necessary. Fixed (now zeroing SUBCLASSEDLISTITEM
+properly, cmnSubclassFolderFrame, common.c).
+<P><LI>Folder content menus would sometimes crash with titles > 100 chars.
+<P><LI>"View" pulldown in Warp 4 folder menu bars lacked the additional items.
+I'm not sure if this was broken in V0.85 already or if I broke this since then,
+but it's working now anyway. ;-)
+<P><LI>Right-click on status bars opened the closed-view context menu (open-view
+items were missing). Fixed (fnwpStatusBar, xfldr.c).
+<P><LI>The "Select by name" dialog had problems finding files according to
+wildcards like "*html" (without dots). Fixed (new function strhMatch, stringh.c).
+<P><LI>The boot logo would remain on the screen forever if startup folder processing
+was cancelled or errors occured during startup. Fixed.
+<P><LI>Fixed a few small memory leaks (XFldObject "Object" settings page,
+"Auto-close items" and "User reboot" dialogs).
+<P><LI>For drives > 4 GB, XFolder still returned garbage status bar information.
+Fixed, thanks to RÅdiger Ihle who found the bug in the sources.
+<P><LI>Error message 99 when opening a disk object had a "%1" string in there. Fixed;
+this now displays the drive letter.
+<P><LI>The WPS class list produced an exception every time a class was deregistered
+using the context menus. Fixed; container record cores are now freed before the
+corresponding data is freed.
+<P><LI>Previous versions sometimes forgot to process the contents of the &xwp;
+startup folder upon first bootup. This has been completely reworked, now using the
+&xwp; daemon (XWPDAEMN.EXE).
+<P><LI>&xshutdown; would crash when the INI file names were specified in lower case
+in &cfgsys;. Fixed.
+<P><LI>&xshutdown; sent WM_CLOSE to some applications instead of just WM_QUIT. For
+example, Program Commander didn't like this too much. Fixed; all PM apps get
+WM_QUIT now.
+<P><LI>For some reason, XFldObject::wpObjectReady does not get called for WPFolder
+instances (at least on my Warp 4 FP 10), so that the Worker thread was unable to
+track awake folders.Fixed; we now override XFolder::wpObjectReady also.
+<P><LI>Finally made the global and kernel settings thread-safe in really all possible
+situations (hopefully). This fixes a number of problems with folder windows which
+are not running on thread 1, which happens sometimes (e.g. folders opened from REXX
+or TREESIZE.EXE).
+<P><LI>Reworked exception handlers once again. This fixes hangs in the Worker thread
+when PMSHELL.EXE got killed or trapped somewhere, which used to require a system reboot.
+<P><LI>I have reorganized large portions of the &xshutdown; code, which should help
+with some hung systems during &xshutdown;.
+</UL>
+</BODY>
+</HTML>
+

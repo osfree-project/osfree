@@ -1,0 +1,127 @@
+<HTML HIDDEN RESID=9005>
+<HEAD>
+    <TITLE>
+        &xwp;: Command Operators and Redirection
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Command operators are special characters that the command processors
+interpret as specific commands rather than regular input characters.
+These operators can be typed at a command prompt or be included in a
+batch or command file.
+
+<P>If you intend to use a character that is normally interpreted as
+a command operator as a regular character, you must <B>escape</B> it
+by preceding it with the <CODE>^</CODE> character.
+Some command operators are valid at the OS/2 command prompt only, not
+in DOS sessions.
+
+<P>The following lists the command operators in the order in which the
+command processors recognize them:
+
+<UL><LI>The <CODE>^</CODE> character escapes a command operator to be
+recognized as regular input or output characters
+(OS/2 sessions only).
+
+For example, to display the following output on the screen:
+<PRE>TYPE YOUR AGE &amp; SOCIAL SECURITY NUMBER ==&gt;</PRE>
+type:
+<PRE>ECHO TYPE YOUR AGE ^&amp; SOCIAL SECURITY NUMBER ==^&gt;</PRE>
+
+<LI>Parentheses <CODE>()</CODE> group commands so that they override
+the regular order of precedence recognized by the command processor
+(OS/2 sessions only).
+
+<P><LI><CODE>&gt;</CODE> redirects output to a file or device. If the file
+exists, it is overwritten.
+
+<P><CODE>&gt;&gt;</CODE> redirects output to a file and appends to
+it, if it exists.
+
+<P><CODE>&lt;</CODE> retrieves and redirects input from the standard
+input device.
+
+<P>The input source and the output targets of a program are predefined
+and identified by a number (called a <B>handle</B>). The following three
+exist:
+
+<UL><LI>Standard input is called <CODE>STDIN</CODE>, whose handle is 0.
+By default, this is the keyboard.
+<LI>Standard output is called <CODE>STDOUT</CODE>, whose handle is 1.
+By default, this is the screen.
+<LI>For error messages, a different output is used (<CODE>STDERR</CODE>),
+whose handle is 2. By default this is the screen also, but this allows
+for redirecting error messages separately.
+
+</UL>You can redirect input and output for a program only if the program
+is reading from <CODE>STDIN</CODE> and writing to <CODE>STDOUT</CODE>,
+including <CODE>STDERR</CODE>. If the
+program does not implement these standard conventions, for example if
+it is not a text-mode program or directly reads from and writes to the
+hardware, redirection does not work.
+
+<P>If more than one operation is specified, only the last
+one is recognized.
+
+<P><B>Example 1:</B> To redirect the output of the
+<A HREF="cmdref.inf#DIR"><CODE>DIR</CODE></A> command to the printer,
+type:
+<PRE>DIR &gt; PRN</PRE>
+
+<B>Example 2:</B> To redirect the output of the <CODE>DIR</CODE> command
+to a new file called <CODE>listing.txt</CODE>, type:
+<PRE>DIR &gt; listing.txt</PRE>
+The file <CODE>listing.txt</CODE> will be created automatically or
+overwritten, if it exists already.
+
+<P><B>Example 3:</B> To redirect both <CODE>STDERR</CODE> and
+<CODE>STDOUT</CODE>, you redirect <CODE>STDOUT</CODE> first and
+then redirect <CODE>STDERR</CODE> to <CODE>STDOUT</CODE>. Redirection handles
+used in place of file names must be preceded by an <CODE>&amp;</CODE>
+character. So to send all output and error listings from the <CODE>DIR</CODE>
+command to a new file named <CODE>listing.txt</CODE>, type:
+<PRE>DIR *.* &gt;listing.txt 2&gt;&amp;1</PRE>
+
+<LI>The solid vertical bar (<CODE>|</CODE>), ASCII character 124,
+is used for separating two commands for <B>piping.</B> A pipe intercepts
+the output of one running program and sends it as input to another running program.
+
+<P>Pipes are most frequently used with <B>filters.</B> Filters are system
+utilities that intercept data from <CODE>STDIN</CODE>,
+process it, and send it to <CODE>STDOUT</CODE>.
+
+<P>&os2; provides three filters:
+<A HREF="cmdref.inf#SORT"><CODE>SORT</CODE></A>,
+<A HREF="cmdref.inf#FIND"><CODE>FIND</CODE></A>, and
+<A HREF="cmdref.inf#MORE"><CODE>MORE</CODE></A>. Many additional filters
+are available from third parties.
+
+<P><B>Example:</B> To display the current directory list sorted and send the output
+to a file named <code>sorted.txt</code>, type:
+<PRE>DIR | SORT &gt; sorted.txt</PRE>
+
+<B>Note:</B> When there is an invalid command
+on the left side of the pipe, the command on the right side of the pipe
+will not take effect.  For example:
+<PRE>xxxx 2&gt;&amp;1 | MORE
+</PRE>will not pipe the error output to <CODE>MORE</CODE> because <CODE>xxxx</CODE>
+is an invalid program.
+
+<P><LI><CODE>&amp;&amp;</CODE> conditionally processes a sequence of
+commands.  A command in the sequence can be processed only if the preceding
+command runs successfully
+(OS/2 sessions only).
+
+<P><LI><CODE>||</CODE> conditionally processes a sequence of commands.
+A command in the sequence can be processed only if the preceding command
+fails to run successfully
+(OS/2 sessions only).
+
+<P><LI><CODE>&amp;</CODE> unconditionally processes individual commands in
+a sequence, regardless of the success or failure of preceding commands in
+the sequence
+(OS/2 sessions only).
+</UL>
+</BODY>
+</HTML>

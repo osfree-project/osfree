@@ -1,0 +1,563 @@
+;
+; This file contains additions to XFLDR0049.TMF (see remarks there).
+; Many definitions have been moved here because they are presently
+; not needed for eComStation and should thus be separated.
+;
+; This applies to the following messages (V0.9.16, IIRC):
+;
+;   --  FEATURES_*
+;
+;   --  XWPCLS_*
+;
+; With V0.9.20, more items were moved into this file (without
+; changing the actual messages):
+;
+;   --  S506DLG_*
+;
+;       Copyright (C) 1997-2015 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+;
+; this item added with V0.9.20 (2002-08-10) [umoeller]
+;
+;
+
+<--PRODUCTINFO-->: XWorkplace
+Version &version;
+Erstellt am &date;
+
+
+;
+; the following item has changed V0.9.20  (2002-08-10) [umoeller]
+;
+
+<--XFL0140-->: &copy;&nbsp;1997-2005 Ulrich M”ller.
+<BR>Deutsche Sprachuntersttzung: &copy;&nbsp;2004 Frank Berke, Christian Hennecke, Thomas Klein, Ingo Maurer, Ulrich M”ller, Michael Riethdorf, Peter Weilbacher.
+<P>
+Enth„lt Teile &copy;&nbsp;2000-2015 Martin Lafaix, Paul Ratcliffe und andere.
+<BR>Enth„lt Teile der Standard Function Library &copy;&nbsp;1991-99 iMatix Corporation.
+<BR>Enth„lt Teile von expat 1.95.1 &copy;&nbsp;1998-2000 Thai Open Source Software Center Ltd.
+<P>
+&xwp;s Heimat im Internet ist <A HREF="http://www.xworkplace.org">http://www.xworkplace.org</A>.
+<P>
+Fehlerberichte und Vorschl„ge richten Sie bitte an &contact-user;.
+<BR>Wenn Sie mit dem &xwp;-Code vertraut sind (oder es werden wollen), wenden Sie sich an &contact-dev;.
+<P>
+&xwp; ist freie Software unter GNU General Public Licence (GPL), die Sie in der Datei <A HREF="copying">COPYING</A> im &xwp;-Installationsverzeichnis finden. Aus diesem Grund wird fr &xwp; <B>keine Haftung jedweder Art</B> bernommen.
+
+<P>Der komplette Quellcode ist bei Netlabs CVS erh„ltlich. Siehe <A HREF="http://www.xworkplace.org/cvs.html">http://www.xworkplace.org/cvs.html</A> fr weitere Informationen.
+Sie k”nnen &xwp; unter den Bedingungen der GPL gern weitervertreiben und/oder modifizieren.
+<P>
+Details entnehmen Sie bitte der Sektion "Bemerkungen" des <A HREF="inf">&xwp;-Handbuches</A>.
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new IBM1S506/DANIS506.ADD dialog
+; in "OS/2 Kernel".
+; Each item starts with "S506DLG_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--S506DLG_1621-->: "Quiet" bedeutet, daá der Treiber beim Systemstart keinerlei Ausgabe produziert. Dies ist die Voreinstellung.
+
+<--S506DLG_1622-->: "Verbose" (/V) zeigt Informationen zum Treiber, dem Adapter und den Ger„ten beim Systemstart an.
+
+<--S506DLG_1623-->: "Wait" (/W) zeigt diegleichen Informationen an wie "/V", aber nicht alles auf einmal (was sonst dazu fhrt, daá die Ausgabe weggerollt wird), sondern es wird nach jedem Stck von Informationen ein Tastendruck abgewartet.
+Verfgbarkeit: DANIS506.ADD und neuere IBM1S506.ADD-Versionen.
+
+<--S506DLG_1624-->: Dieses Markierungsfeld bestimmt, ob DMA Scatter/Gather aktiviert ist.
+Laut &os2;-Referenzhandbuch ist der Standardwert "aktiviert".
+
+<--S506DLG_1625-->: Hiermit werden Adapter 0 (dem "prim„ren" Controller) die unteren Adaptereinstellungen zugeordnet.
+Beachten Sie, daá "/A:0" nur zur Parameterliste hinzugefgt wird, wenn fr den Adapter oder eines seiner Ger„te (Laufwerke) nicht-standardm„áige Einstellungen festgelegt werden.
+
+<--S506DLG_1626-->: Hiermit werden Adapter 1 (dem "sekund„ren" Controller) die unteren Adaptereinstellungen zugeordnet.
+Beachten Sie, daá "/A:1" nur zur Parameterliste hinzugefgt wird, wenn fr den Adapter oder eines seiner Ger„te (Laufwerke) nicht-standardm„áige Einstellungen festgelegt werden.
+
+<--S506DLG_1627-->: Durch Markieren dieses Feldes wird der Treiber veranlaát, den gew„hlten Adapter nicht zu bercksichtigen. Alle an diesem Adapter angeschlossenen Ger„te werden vom Treiber ignoriert.
+Dies ist wahrscheinlich nur notwendig, wenn das System mehr als zwei Adapter besitzt und der IDE-Treiber mehrmals geladen werden muá.
+
+<--S506DLG_1628-->: Diese Einstellung bestimmt, ob der Treiber einen Adapter im Falle des Auftretens eines Hardwarefehlers zurcksetzen darf.
+Laut &os2;-Referenzhandbuch kann es helfen, wenn der Adapter zurckgesetzt wird, falls ein Fehler auftritt (verlorener Interrupt, šberschreitung des Befehlszeitlimits, ungltiger Befehl). Manche Adapter mit nicht-standardgem„áen Befehlen k”nnen beim Zurcksetzen jedoch Daten verlieren.
+Deselektieren Sie dieses Markierungsfeld, um das Zurcksetzen des aktuellen Adapters zu verbieten.
+Selektieren Sie dieses Markierungsfeld, um das Zurcksetzen ausdrcklich zu erlauben.
+Wenn das Markierungsfeld grau ist (unbestimmter Status), wird kein Parameter hinzugefgt.
+
+<--S506DLG_1629-->: Markieren Sie dieses Feld, um die Standardbasisportadresse dieses Adapters zu berschreiben.
+Dies ist wahrscheinlich nur notwendig, wenn das System mehr als zwei Adapter besitzt und der IDE-Treiber mehrmals geladen werden muá.
+
+<--S506DLG_1630-->: Wenn das Markierungsfeld zur linken ausgew„hlt ist, kann hier die Basisportadresse fr den aktuellen Adapter angegeben werden.
+Der Wert ist hexadezimal.
+Standard ist 1F0 fr Adapter 0 und 170 fr Adapter 1.
+
+<--S506DLG_1631-->: Selektieren Sie dieses Markierungsfeld, um den Standard-Interrupt (IRQ) fr diesen Adapter zu berschreiben.
+Dies ist wahrscheinlich nur notwendig, wenn das System mehr als zwei Adapter besitzt und der IDE-Treiber mehrmals geladen werden muá.
+
+<--S506DLG_1632-->: Wenn das Markierungsfeld zur linken ausgew„hlt ist, kann hier der Interrupt (IRQ) fr den aktuellen Adapter angegeben werden.
+Standard ist IRQ 14 fr Adapter 0 und IRQ 15 fr Adapter 1.
+
+<--S506DLG_1634-->: Selektieren Sie dieses Markierungsfeld, um den Standard-DMA-Kanal, der fr diesen Adapter verwendet wird, zu berschreiben.
+Dies ist wahrscheinlich nur notwendig, wenn das System mehr als zwei Adapter besitzt und der IDE-Treiber mehrmals geladen werden muá.
+
+<--S506DLG_1635-->: Wenn das Markierungsfeld zur linken selektiert ist, kann hier der DMA-Kanal fr den aktuellen Adapter angegeben werden.
+In der Dokumentation war kein Standardwert hierfr zu finden.
+
+<--S506DLG_1636-->: Selektieren Sie dieses Markierungsfeld, um die DMA-Scatter/Gather-Portadresse fr diesen Adapter zu berschreiben.
+Dies ist wahrscheinlich nur notwendig, wenn das System mehr als zwei Adapter besitzt und der IDE-Treiber mehrmals geladen werden muá.
+
+<--S506DLG_1637-->: Wenn das Markierungsfeld zur linken selektiert ist, k”nnen Sie hier die Portadresse fr DMA Scatter/Gather fr den aktuellen Adapter angeben.
+Dies ist ein hexadezimaler Wert.
+Laut &os2;-Referenzhandbuch ist der Standardwert immer 400.
+
+<--S506DLG_1638-->: Hiermit wird ausgew„hlt, ob Busmastering (direct memory access, DMA) fr den kompletten aktuellen Adapter aktiviert wird (/BM oder /!BM in den Adapterparametern).
+DANIS506.ADD und neuere Version von IBM1S506.ADD untersttzen die Angabe dieses Parameters auch auf Ger„tebasis (siehe rechte Seite dieses Dialoges).
+Allgemeine Hinweise zu Busmastering erhalten Sie nach Drcken der Schaltfl„che "Hilfe".
+Markieren Sie dieses Feld, um Busmastering fr alle am aktuellen Adapter angeschlossenen Ger„te explizit zu aktivieren (/BM).
+Deselektieren Sie dieses Feld, um Busmastering fr alle an diesem Adapter angeschlossenen Ger„te explizit zu deaktivieren (/!BM). Dies kann bei „lteren Festplatten, die Busmastering nicht untersttzen, erforderlich sein.
+Ist das Markierungsfeld grau (unbestimmter Status), entscheidet der Treiber selbstst„ndig, ob Busmastering verwendet werden kann.
+Beachten Sie, daá dies bei den mit Warp 3 und 4 ausgelieferten IBM1S506.ADD-Standardtreibern standardm„áig ausgeschaltet ist, w„hrend die Funktion bei allen Treibern neuerer Fixpaks aktiviert ist.
+Im Gegensatz dazu ist DANIS506.ADD intelligent genug, vor der Aktivierung des Busmasterings ein paar Dinge zu berprfen. Details erhalten Sie durch Drcken der Schaltfl„che "Hilfe".
+
+<--S506DLG_1639-->: Hiermit wird Adapter 0, Einheit 0 (die "Prim„r-Master"-Einheit) fr die untere Einheitenkonfiguration ausgew„hlt.
+Beachten Sie, daá "/A:0 /U:0" der Parameterliste nur hinzugefgt wird, wenn eine nicht-standardm„áige Einstellung fr diese Einheit gesetzt wird.
+
+<--S506DLG_1640-->: Hiermit wird Adapter 0, Einheit 1 (die "Prim„r-Slave"-Einheit) fr die untere Einheitenkonfiguration ausgew„hlt.
+Beachten Sie, daá "/A:0 /U:1" der Parameterliste nur hinzugefgt wird, wenn eine nicht-standardm„áige Einstellung fr diese Einheit gesetzt wird.
+
+<--S506DLG_1641-->: Hiermit wird Adapter 1, Einheit 0 (die "Sekund„r-Master"-Einheit) fr die untere Einheitenkonfiguration ausgew„hlt.
+Beachten Sie, daá "/A:1 /U:0" der Parameterliste nur hinzugefgt wird, wenn eine nicht-standardm„áige Einstellung fr diese Einheit gesetzt wird.
+
+<--S506DLG_1642-->: Hiermit wird Adapter 1, Einheit 1 (die "Sekund„r-Slave"-Einheit) fr die untere Einheitenkonfiguration ausgew„hlt.
+Beachten Sie, daá "/A:1 /U:1" der Parameterliste nur hinzugefgt wird, wenn eine nicht-standardm„áige Einstellung fr diese Einheit gesetzt wird.
+
+<--S506DLG_1643-->: Hiermit wird ausgew„hlt, ob Busmastering (direct memory access, DMA) nur fr die aktuelle Einheit aktiviert oder deaktiviert wird (/BM oder /!BM mit dem Einheitenparameter).
+Die Angabe dieses Parameters fr einzelne Einheiten wird nur von DANIS506.ADD und neueren IBM1S506.ADD-Versionen untersttzt.
+Andernfalls muá dies fr den ganzen Adapter angegeben werden, wozu sie eines der Markierungsfelder links benutzen k”nnen. Beachten Sie die Hinweise dazu.
+Allgemeine Hinweise zum Busmastering erhalten Sie durch Drcken der Schaltfl„che "Hilfe".
+
+<--S506DLG_1644-->: Selektieren Sie dieses Markierungsfeld, um die standardm„áige Fehlerwartezeit fr die aktuelle Einheit zu berschreiben (/T:xxx).
+
+<--S506DLG_1645-->: Wenn dieses Markierungsfeld aktiviert ist, kann die Fehlerwartezeit fr die momentan gew„hlte Einheit berschrieben werden (in Sekunden).
+Laut &os2;-Referenzhandbuch betr„gt der Standardwert 30 Sekunden. Niedrigere Werte k”nnen fr fehlertolerante Applikationen wnschenswert sein. Bei diesem Treiber k”nnen keine Werte unter fnf Sekunden angegeben werden.
+
+<--S506DLG_1647-->: Markieren Sie dieses Feld, um die Laufwerksgeometrie fr die aktuell ausgew„hlt Einheit explizit angeben zu k”nnen. Andernfalls ermittelt der Treiber die Geometrie selbst aus der BIOS-Konfiguration, was in den meisten F„llen in Ordnung ist.
+Da heutzutage alle BIOSse eingebaute automatische IDE-Erkennung und LBA-Untersttzung besitzen, drfte dieser Parameter nicht mehr sonderlich ntzlich sein.
+
+<--S506DLG_1648-->: Wenn das obere Markierungsfeld ausgew„hlt ist, kann hier die Laufwerksgeometrie angeben werden.
+Es war mir nicht m”glich, vernnftige Informationen ber die Syntax des Parameters /GEO:xxx zu finden, weshalb der "xxx" Teil hier manuell eingegeben werden muá.
+Laut der "Storage Device Driver Reference" aus dem IBM Device Driver Development Kit (DDK) kann dies entweder eine einzige dezimale Zahl (0-47) sein, die sich auf einen der Standard-BIOS-Laufwerkstypen bezieht, was bei Laufwerken, die vor ca. 1985 gebaut wurden, ntzlich sein drfte, oder ein Wert im Format "(c,h,s)", der mit drei dezimalen Zahlen die Anzahl der Zylinder, K”pfe und Sektoren des Laufwerkes angibt.
+Lassen Sie jedoch Vorsicht walten, ich habe dies nicht getestet.
+
+<--S506DLG_1652-->: Hiermit wird festgelegt, ob Set Multiple Support (SMS, block mode) fr die aktuelle Einheit aktiviert wird.
+SMS bedeutet, daá mehr als ein Datenblock (Laufwerkssektor) auf einmal bertragen werden kann, wodurch die Leistung erh”ht wird.
+Ist das Markierungsfeld grau (unbestimmter Status), entscheidet der Treiber selbstt„tig, ob ein Laufwerk SMS untersttzt.
+W„hlen Sie dieses Feld, um SMS fr eine Einheit explizit zu aktivieren (/SMS), falls der Treiber die SMS-Untersttzung nicht automatisch erkennt.
+Deselektieren Sie dieses Feld, um SMS fr eine Einheit explizit zu deaktivieren (/!SMS). Beachten Sie, daá neuere Versionen von IBM1S506.ADD SMS immer aktivieren, wenn der Treiber dies fr angebracht h„lt und daá /!SMS ignoriert wird, was zu Problemen fhren kann. Verwenden Sie DANIS506.ADD, um SMS abzuschalten.
+Laut DANIS506.DOC besitzt jede Festplatte eine maximale Laufl„nge fr SMS, die vom Hersteller fr jedes Modell getrennt festgelegt und vom Treiber abgefragt wird.
+
+<--S506DLG_1653-->: Markieren Sie dieses Feld, um Logical Block Addressing (LBA) fr die aktuelle Einheit explizit zu aktivieren, falls der Treiber dies nicht selbst richtig feststellt.
+LBA ist eine BIOS-Funktion, die vor ein paar Jahren eingefhrt wurde, um groáe Festplatten (ber 504MB) ansprechen zu k”nnen, indem die Laufwerksgeometrie auf eine logische Ebene bertragen wird. Bei modernen Festplatten sollte dies immer im BIOS eingeschaltet sein und normalerweise wird dies ordnungsgem„á von &os2; festgestellt.
+
+<--S506DLG_1654-->: Diese Einstellung legt fest, ob eine Einheit an den &os2; Storage Device Manager (OS2DASD.DMD) weitergereicht wird.
+Dieser Managertreiber stellt die Schnittstelle zwischen den vielen Adapter-Treibern (*.ADD) und den &os2;-Dateisystemen (FAT, HPFS, ...) dar. Dieser Treiber meldet beim Systemstart logische Laufwerke an den &os2;-Kernel, so daá Laufwerksbuchstaben zugewiesen werden k”nnen.
+Deselektieren Sie dieses Feld, um die &os2;-Untersttzung fr das aktuelle Laufwerk zu deaktivieren (so daá kein Laufwerksbuchstabe zugewiesen wird).
+Selektieren Sie dieses Feld, um die &os2;-Untersttzung fr das aktuelle Laufwerk explizit zu aktivieren.
+Wenn das Markierungsfeld grau ist (unbestimmter Status), entscheidet der IDE-Treiber selbstt„tig, ob das Laufwerk von &os2; untersttzt wird, was in den meisten F„llen auch angebracht ist.
+
+<--S506DLG_1655-->: Markieren Sie dieses Feld, um die Verfgbarkeit der aktuellen Einheit zu erzwingen, auch wenn der Treiber nicht erkennt, daá die Einheit installiert ist.
+Diese Funktion ist praktisch fr externe Ger„te, die getrennt ausgeschaltet werden k”nnen, wie z.B. externe CD-ROM-Laufwerke. Fr diese sollten Sie auch das Markierungsfeld "ATAPI" aktivieren.
+
+<--S506DLG_1656-->: Ist dieses Feld markiert, wird die aktuelle Einheit stets als ATAPI CD-ROM-Laufwerk angesehen.
+Wenn das Markierungsfeld deselektiert ist, wird die aktuelle Einheit auf keinen Fall als ATAPI CD-ROM-Laufwerk betrachtet.
+Wenn das Markierungsfeld grau ist (unbestimmter Status), erkennt der Treiber automatisch, ob die Einheit ein ATAPI CD-ROM-Laufwerk ist.
+Die Auswahl dieses Markierungsfeldes ist ntzlich fr externe CD-ROMs, die separat abgeschaltet werden k”nnen. Aktivieren Sie fr diese auch das Markierungsfeld "Erzwingen".
+
+<--S506DLG_1657-->: In dieses Eingabefeld kann nichts eingegeben werden. Es zeigt an, wie die Parameter des Treibers in der CONFIG.SYS aussehen werden.
+Dieses Feld wird bei nderung der Einstellung im Dialog automatisch aktualisiert.
+Mit Bet„tigen der Schaltfl„che "OK" werden die Parameter auf die Seite "Treiber" des Einstellungsbuchs "&os2;-Kernel" kopiert.
+
+<--S506DLG_1660-->: Aktivieren Sie dieses Markierungsfeld, wenn Sie die Taktfrequenz des PCI-Busses Ihres Systems angeben wollen.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1661-->: Ist das Markierungsfeld links aktiviert, kann die Taktfrequenz des PCI-Busses angegeben werden.
+Aus DANIS506.DOC: "Einige Anwender sind gezwungen (oder zwingen sich selbst ;-)), den PCI-Bus Ihres Motherboards mit h”herer Geschwindigkeit als den optimalen 33MHz zu betreiben. Beispielsweise ben”tigen viele Cyrix Prozessoren sehr ungew”hnliche Frontside-Bustakte, die nicht so einfach durch 33MHz geteilt werden k”nnen. Dies fhrt entweder zu zu langsamem oder zu schnellem EIDE-Timing. Der erstere Fall mag entt„uschend sein, aber der letztere bertaktet das EIDE-Interface und kann zu Datenverf„lschungen fhren.
+Wenn Sie die wirkliche PCI-Taktfrequenz Ihres Motherboards kennen, k”nnen Sie einen optionalen Paramter /PCLK:x angeben (x ist der PCI-Takt in MHz). Kennen Sie den PCI-Bustakt nicht, setzen Sie x auf Null. Der Treiber wird dann versuchen, den PCI-Bustakt zu bestimmen. Der PCI-Takt (entweder wie festgestellt oder angegeben) wird in vier Geschwindigkeitsklassen eingeteilt (25MHz, 33MHz, 37MHz und 41MHz), die beim Systemstart gemeldet werden. Fr jede dieser Geschwindigkeitsklassen *versucht* der Treiber die optimalen Chiptimingwerte auszuw„hlen, auch wenn dies aufgrund von Einschr„nkungen der Chips„tze nicht in allen F„llen m”glich ist.
+Da die meisten Motherboards den PCI-Bus heutzutage beim optimalen Wert von 33MHz betreiben, sollten Sie diesen Parameter nur verwenden, wenn es unbedingt notwendig ist!"
+Weitere Details und Angaben zum technischen Hintergrund finden Sie in DANIS506.DOC.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1663-->: Markieren Sie dieses Feld, um die allgemeine Busmastering-Untersttzung fr weniger bekannte Chips zu aktivieren.
+Weitere Informationen zum Busmastering erhalten Sie durch Drcken der Schaltfl„che "Hilfe".
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1664-->: Ist dieses Markierungsfeld markiert, werden alle EIDE-Chips als "weniger bekannt" behandelt.
+Weitere Informationen zum Busmastering erhalten Sie durch Drcken der Schaltfl„che "Hilfe".
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1665-->: Mit diesem Markierungsfeld kann der DANIS506.ADD "Matrox Fix" aktiviert werden.
+Aus DANIS506.DOC: "Wenn sich ein PCI-EIDE-Controller in Ihrem System befindet und Sie zuf„llig eine Matrox Grafikkarte haben, kann es dazu kommen, daá der Systemstart anh„lt oder mit einem TRAP 8 fehlschl„gt. Dies liegt am schrecklich ungezogenen Verhalten des Matrox-Treibers, der alle Ports mit Adresse Cx0yh (x = 0..F, y = 0..3) bei der Initialisierung der Basisvideohandler scannt, sogar wenn diese Adressen der Grafikkarte nicht zugewiesen sind. Ich wrde es nicht gerade als "nach den Regel spielen" bezeichnen, dieses "auf den Busch schlagen und schauen, ob eine Sorte MGA herausf„llt".
+Wenn irgendein anderes PCI-Ger„t Adressen zugewiesen bekommt, die dem oberen Muster entsprechen, kann *alles* passieren. Um dieses Problem zu vermeiden, habe ich eine neue Option /MGAFIX hinzugefgt, die EIDE-Hardware mit betroffenen Adressen erkennt und versucht, sie etwas zu verschieben, indem die Adressdecoder reprogrammiert werden, so daá sie nicht l„nger potentielles Ziel des Scans sind.
+Achtung: Dies ist sozusagen die letzte Rettung. Verwenden Sie die Option nur, wenn es *absolut notwendig* ist!
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1666-->: Durch Markieren dieses Feldes kann ein Inaktivit„ts-Timeout fr die aktuelle Einheit angegeben werden, nach dessen Ablauf das Laufwerk gestoppt wird.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1667-->: Wenn das Markierungsfeld links ausgew„hlt ist, wird hier die Zeitspanne fr das Inaktivit„ts-Timeout in Minuten angegeben. Durch Angeben von 0 (Null) wird das Stoppen komplett deaktiviert.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1668-->: Nach Markieren dieses Feldes kann die fr das DMA-Busmastering erlaubte Datenrate feineingestellt werden.
+Aus DANIS506.DOC: "viele EIDE-Controller bieten nicht die M”glichkeit, PIO-Modi und Multiwort-DMA-Modi unabh„ngig voneinander einzustellen, da sich diese Modi dieselben Timingregister teilen. Die Grnde liegen in der Geschichte und den hnlichkeit der Zyklustimings. Es trifft auf alle untersttzten Controllerchips auáer Promis Ultra Promise Ultra und Cyrix MediaGX zu.
+Um mit dieser Situation zurechtzukommen, w„hlt der Treiber die langsamere Zykluszeit fr die vorgeschlagenen PIO- und MW-DMA-Modi."
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1670-->: Ist das obige Markierungfeld ausgew„hlt, kann hier der fr die aktuelle Einheit erlaubte Ultra-DMA-Modus explizit festgelegt werden.
+Laut DANIS506.DOC sind gltige Werte:
+    0  -  deaktiviere Ultra DMA
+    1  -  Begrenzung auf Ultra DMA mode 0
+    2  -  Begrenzung auf Ultra DMA mode 1
+    3  -  Begrenzung auf Ultra DMA mode 2
+    4  -  Begrenzung auf Ultra DMA mode 3 (44MB/s)
+    5  -  Begrenzung auf Ultra DMA mode 4 (66MB/s)
+Wenn UDMA=0 und MWDMA=0 gesetzt wird, wird das Busmastering fr die aktuelle Einheit effektiv deaktiviert, da kein anderer DMA-Modus mehr verfgbar ist.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1672-->: Ist das obige Markierungsfeld ausgew„hlt, kann hier der fr die aktuelle Einheit erlaubte Multiword-DMA-Modus explizit festgelegt werden.
+Laut DANIS506.DOC sind gltige Werte:
+    0  -  deaktiviere MW DMA
+    1  -  Begrenzung auf MW DMA mode 0 (bei S506.ADD dasselbe wie 0)
+    2  -  Begrenzung auf MW DMA mode 1
+    3  -  Begrenzung auf MW DMA mode 2
+Wenn UDMA=0 und MWDMA=0 gesetzt wird, wird das Busmastering fr die aktuelle Einheit effektiv deaktiviert, da kein anderer DMA-Modus mehr verfgbar ist.
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1674-->: Ist das obige Markierungsfeld ausgew„hlt, kann hier der fr die aktuelle Einheit erlaubte Programmed I/O (PIO)-Modus explizit festgelegt werden.
+Laut DANIS506.DOC sind gltige Werte:
+    0  -  Begrenzung auf PIO mode 0
+    1  -  Begrenzung auf PIO mode 1 (in S506.ADD effectively PIO 0)
+    2  -  Begrenzung auf PIO mode 2 (in S506.ADD effectively PIO 0)
+    3  -  Begrenzung auf PIO mode 3 (with flow control)
+    4  -  Begrenzung auf PIO mode 4 (with flow control)
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_1675-->: Diese Einstellung bestimmt, ob ein Laufwerk als Wechsellaufwerk behandelt wird.
+Aus DANIS506.DOC: "Wenn Sie ein Wechsellaufwerk haben und von diesem starten m”chten, schl„gt dies fehl, wie berichtet wird. Um von dieser Einheit booten zu k”nnen, muá es als normales Laufwerk behandelt werden. Dies kann erreicht werde, indem die Option /!RMV fr das Laufwerk angegeben wird.
+Es wird berichtet, daá manche Syquest-Laufwerke fehlerhafte Firmware besitzen, welche die Untersttzung der Wechselfunktionen nicht ordnungsgem„á meldet. Um diese Laufwerke bei &os2; als Wechsellaufwerke anzumelden, fgen Sie fr das entsprechende Ger„t die Option /RMV hinzu."
+Verfgbarkeit: ausschlieálich DANIS506.ADD.
+
+<--S506DLG_0001-->: Durch Drcken von "OK" wird der Dialog geschlossen und die aktuelle Parameterliste wird wie im Feld "Neue Parameter" angezeigt in die Seite "Treiber" des Einstellungsnotizbuches "&os2;-Kernel" bernommen.
+
+<--S506DLG_0002-->: Durch Drcken von "Abbruch" wird der Dialog geschlossen und es werden keine nderungen an der Seite "Treiber" des Einstellungsnotizbuches "&os2;-Kernel" vorgenommen.
+
+<--S506DLG_0095-->: Durch Drcken von "Alles zurcksetzen" wird der Dialog in den Standardzustand versetzt als ob in der CONFIG.SYS keine Parameter angegeben w„ren.
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "Features" page (XWPSetup).
+; Each item starts with "FEATURES_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--FEATURES_6000-->: Wenn "Symbole ersetzen" aktiviert ist, ersetzt &xwp; die WPS-Standardsymbole mit besser aussehenden (aus meiner Sicht jedenfalls). Diese Symbole k”nnen frei konfiguriert werden.
+Dies wurde mit XFolder 0.84 eingefhrt.
+Details finden Sie im &xwp;-Handbuch.
+<--FEATURES_6002-->: Wenn "Seite Symbol ersetzen..." aktiviert ist, ersetzt &xwp die Seite "Symbol" im Einstellungsnotizbuch eines jeden Objektes durch eine neue, erweiterte Version.
+Auf dieser Seite kann das Symbol nun auf etwas komfortablere Weise ersetzt werden. Zudem k”nnen Sie Objektinterna anschauen und ein globales Tastenkrzel fr ein Objekt setzen, wenn der &xwp;-Hook auch aktiviert ist (siehe "Maus- und Tastaturfunktionen" unten).
+Dies wurde mit &xwp; 0.9.16 eingefhrt und ersetzt die Seite "Objekt" frherer &xwp;-Versionen.
+<--FEATURES_6003-->: Wenn dies aktiviert ist, kombiniert &xwp; die drei standardm„áigen "Datei"-Seiten der Einstellungsnotizbcher von Ordnern und Dateien zu einer einzigen, komfortableren "Datei"-Seite.
+Auáerdem wird eine zweite Seite zur Anzeige erweiterter Attribute hinzugefgt.
+Weiter wird hierdurch die Seite "Details" von Datentr„gerobjekten durch eine Anzeige mit einem Tortendiagramm ersetzt.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+<--FEATURES_6004-->: "Erweiterte Systemkl„nge" erlaubt es, mehr Kl„nge zu definieren als die WPS normalerweise bietet.
+Damit erhalten Sie zus„tzliche Kl„nge fr Kontextmens, die Auswahl von Objekten, und mehr.
+Diese neuen Kl„nge k”nnen wie gew”hnlich mit Hilfe des normalen Objektes "Warnton" eingerichtet werden.
+Dies wurde mit XFolder 0.70 eingefhrt.
+
+; FEATURES_6001 added with V0.9.4
+
+<--FEATURES_6001-->: Wenn "Einstellungsseiten anpassen..." ausgew„hlt ist, kann &xwp; die Gr”áe bestimmter Einstellungsseiten anpassen, wenn das ganze Einstellungsnotizbuch in der Gr”áe ver„ndert wurde. Dies kann recht praktisch bei einigen der komplexeren &xwp;-Seiten sein, um mehr Daten auf einmal ansehen zu k”nnen.
+Beachten Sie, daá dies nur einige der neuen &xwp;-Seiten betrifft, aber nicht die WPS-Standardseiten.
+Dies wurde mit &xwp; 0.9.4 eingefhrt.
+
+; FEATURES_6005 added with V0.9.12
+
+<--FEATURES_6005-->: Ist "Klassennamen korrigieren" markiert, berschreibt &xwp; die Klassennamen der Klassen Ordner, Datei und Datentr„ger.
+Die Klassennamen werden in der dritten Spalte der Detailanzeige angezeigt (und auch in Statuszeilen, falls Sie dies so eingestellt haben).
+Wenn die WPS-Netzwerkklassen installiert wurden, sind diese Namen leider nicht mehr sehr aussagekr„ftig. &xwp; kann sie dann wieder auf "Ordner", "Datendatei" und "Datentr„ger" zurcksetzen.
+
+; FEATURES_6006 added with V0.9.20 (2002-07-19) [umoeller]
+
+<--FEATURES_6006-->: Ist "Standard-Hilfeseiten ersetzen" markiert, so ersetzt &xwp; viele Seiten der standardm„áigen Online-Hilfe der WPS mit neu geschriebenen, die meiner Meinung nach informativer sind. Wenigstens sind sie nicht so veraltet.
+Die trifft gr”átenteils auf die Hilfeseiten vieler Standardobjekte der WPS zu, also wenn Sie ein Objekt in einem Ordner ausw„hlen und F1 drcken.
+Diese Funktion wurde mit XWorkplace 0.9.20 eingefhrt.
+
+<--FEATURES_6011-->: Ist "Statuszeilen aktivieren" markiert, k”nnen Ordner so konfiguriert werden, daá eine Statuszeile mit detaillierten Informationen ber die ausgew„hlten Objekte im Ordner angezeigt wird.
+Wenn diese Einstellung aktiviert ist, werden &xwp;s "Workplace Shell"-Objekt zwei weitere Einstellungsseiten hinzugefgt, ber welche die Statuszeilen im Detail konfiguriert werden k”nnen.
+Auáerdem kann fr jeden einzelnen Ordner festlegt werden, ob eine Statuszeile angezeigt werden soll.
+Nachdem Sie diese Funktion eingeschaltet haben, sollten Sie also das Objekt "Workplace Shell" ”ffnen und die Seite "Statuszeile" ausw„hlen.
+Weitere Details, insbesondere dazu, wie Sie die Statuszeilen genau an Ihre Bedrfnisse anpassen, finden Sie im &xwp;-Handbuch.
+Dies wurde mit XFolder 0.70 eingefhrt.
+<--FEATURES_6012-->: Nach Auswahl von "Am Gitter ausrichten aktivieren" kann dem Kontextmen der Ordner ein Punkt "Am Gitter ausrichten" hinzugefgt werden.
+Dieser Eintrag richtet alle Objekte im Ordner an den Linien eines unsichtbaren Gitters aus und vereinfacht so die Plazierung von Objekten.
+Mit dem Einschalten dieser Funktion wird dem Objekt "Workplace Shell" auch eine Seite "Gitter" hinzugefgt, auf der das zu verwendende Gitter definiert werden kann.
+Eine Einfhrung hierzu finden Sie im &xwp;-Handbuch.
+Dies wurde mit XFolder 0.50 eingefhrt.
+<--FEATURES_6013-->: Sind "Ordner-Tastenkrzel" aktiviert, k”nnen mehr als 30 h„ufig verwendeten Ordnerfunktionen (wie z.B. "Alles ausw„hlen") im &xwp;-Objekt "Workplace Shell" neue Tastenkrzel zugewiesen werden.
+Dies wurde mit XFolder 0.50 eingefhrt.
+Details und die Standardeinstellungen fr Tastenkrzel entnehmen Sie bitte dem &xwp;-Handbuch.
+<--FEATURES_6014-->: "Erweitertes Sortieren in Ordnern" ersetzt die Standardsortierfunktionen der WPS fr Ordner. Ist diese Funktion aktiviert, k”nnen im &xwp;-Objekt "Workplace Shell" endlich globale Einstellungen fr das Sortieren vorgenommen werden. Diese Standardeinstellungen k”nnen aber immer noch fr jeden Ordner individuell berschrieben werden.
+Weiterhin werden neue Sortierkriterien eingefhrt, wie z.B. "Sortieren nach Erweiterung" oder "Sortiere Ordner zuerst".
+Dies wurde mit XFolder 0.70 eingefhrt.
+Details finden Sie im &xwp;-Handbuch.
+;
+; FEATURES_6015 added with V0.9.16
+;
+<--FEATURES_6015-->: Die Funktion "Turbo-Ordner" ersetzt die interne Verwaltung wacher Objekte fr alle Ordner des Systems.
+&xwp; implementiert Hochgeschwindigkeitsalgorithmen, so daá die Suche nach Objekten in Ordnern wesentlich schneller vonstatten geht als bei der Standard-WPS.
+Ist diese Einstellung aktiviert, werden Sie wahrscheinlich eine Geschwindigkeitszunahme beim erstmaligen ™ffnen von Ordnern, die dann bev”lkert werden mssen, feststellen - insbesondere bei Ordnern, die viele Objekte enthalten.
+Auáerdem profitieren die Hintergrundthreads fr die ersetzte automatische Aktualisierung von dieser Einstellung.
+Hierzu muá die Ersatzklasse XWPFileSystem installiert sein. Eine nderung dieser Einstellung erfordert einen Neustart der WPS.
+;
+; FEATURES_6016 added with V1.0.0 (2002-09-09) [umoeller]
+;
+<--FEATURES_6016-->: Die Einstellung "Geteilte Ordneransichten" bestimmt, ob &xwp; eine weitere Standard-Ordneransicht zum "™ffnen"-Men eines jeden Ordners hinzufgt.
+Eine geteilte Ordneransicht besteht aus zwei Ordneransichten, n„mlich einer Strukturanzeige links und einer weiteren Anzeige rechts, welche die Objekte im dem Ordner anzeigt, der gerade in der Baumstruktur ausgew„hlt ist.
+Vielleicht haben Sie diese Funktion schon einmal unter Windows gesehen.
+
+<--FEATURES_6051-->: Der "&xwp;-Hook" ist ein globaler PM-Hook, der einige der Funktionen der Programme NPS WPS und WarpEnhancer implementiert.
+Aktivieren Sie diese Einstellung, um Funktionen wie das automatische Aktivieren von Fenstern, Scrollen im Fenster mit Mausknopf 3, Bildschirmeckenobjekte und einige weitere Mausfunktionen nutzen m”chten.
+Zudem ist der &xwp;-Hook fr globale Tastenkrzel fr Objekte erforderlich.
+Ist diese Einstellung aktiv, werden den Objekten "Tastatur" und "Maus" im Ordner "Systemkonfiguration" zus„tzliche Einstellungsseiten hinzugefgt.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+<--FEATURES_6052-->: "Animierte Mauszeiger" ersetzt die Seite "Zeiger" im Objekt "Maus" (im Ordner "Systemkonfiguration") mit einer neuen Seite, ber die animierte Mauszeiger anstelle der standardm„áigen statischen von &os2; definiert werden k”nnen.
+Diese Funktion war frher Teil des separaten Programmes "Animierte Mauszeiger fr &os2;", ist nun aber Teil von &xwp; 0.9.0.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+<--FEATURES_6053-->: Wenn diese Einstellung aktiviert ist, kann jedem WPS-Objekt ein globales Tastenkrzel zugewiesen werden. Wann immer dieses Tastenkrzel eingegeben wird, wird das Objekt in seiner Standardansicht ge”ffnet.
+Ein Tastenkrzel fr ein Objekt kann auf der Seite "Symbol" im Einstellungsnotizbuch eines jeden Objektes gesetzt werden.
+Auáerdem wurde dem Einstellungsobjekt "Tastatur" im Ordner "Systemkonfiguration" eine Seite "Tastenkrzel" hinzugefgt, auf der eine šbersicht aller Tastenkrzel gegeben wird.
+Dieser Eintrag ist nicht verfgbar, wenn der &xwp;-Hook nicht installiert ist.
+;Make sure that you also have the "Object page" setting in the "General features" group enabled, or you won't be able to configure hotkeys.
+Dies wurde mit &xwp; V0.9.1 eingefhrt.
+<--FEATURES_6054-->: "&pgr;" bietet virtuelle Arbeitsoberfl„chen. Dies bedeutet, daá &xwp; aus der aktuellen Arbeitsoberfl„che eine von vielen macht, zwischen denen hin- und hergeschaltet werden kann.
+Ist diese Funktion aktiviert, so wird dem Einstellungsobjekt "Bildschirm" eine neue Seite hinzugefgt, auf der Feineinstellungen fr &pgr; vorgenommen werden k”nnen.
+Dieser Eintrag ist nicht verfgbar, wenn der &xwp;-Hook nicht installiert wurde.
+Dies wurde mit &xwp; V0.9.2 eingefhrt.
+
+<--FEATURES_6021-->: Hiermit wird die Seite "Archivieren" im Einstellungsnotizbuch der Arbeitsoberfl„che ersetzt. Ist diese Funktion aktiviert, k”nnen die Bedingungen, unter denen die Workplace Shell automatisch gesichert wird, pr„zise eingestellt werden - anstelle der M”glichkeit, die Archivierung nur ganz an- oder abschalten zu k”nnen.
+Diese Funktionen geh”rten frher zum separaten Programm "WPSArcO", sind nun aber Teil von &xwp; und k”nnen einfacher konfiguriert werden.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+<--FEATURES_6022-->: "WPS neu starten" ist ein Meneintrag im Einstellungsnotizbuch der Arbeitsoberfl„che, der nur die Workplace Shell neu startet anstatt des ganzen Systems.
+Im Gegensatz zu anderen Hilfsprogrammen sichert &xwp; den Status der WPS bevor sie neu gestartet wird.
+Hiermit wird dem Einstellungsnotizbuch der Arbeitsoberfl„che eine neue Seite "&xsd;" hinzugefgt, ber die diese Funktion konfiguriert werden kann.
+Dies wurde mit XFolder 0.60 eingefhrt.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+<--FEATURES_6023-->: "&xsd;" ist eine komplette Neuimplementation der standardm„áigen &os2;-Systemabschluásequenz.
+Ist diese Einstellung aktiviert, so wird &xsd; anstatt des Standardsystemabschlusses von &os2; ausgefhrt, wenn "Systemabschluá" aus dem Kontextmen der Arbeitsoberfl„che ausgew„hlt wird.
+Diese Funktion erlaubt es, den Systemabschluá w„hrend der Durchfhrung abzubrechen, h„ngende Programme zu berspringen, etc.
+Hiermit wird dem Einstellungsnotizbuch der Arbeitsoberfl„che eine Seite "&xsd;" hinzugefgt, ber welche die Funktion konfiguriert werden kann.
+Dies wurde mit XFolder 0.60 eingefhrt.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+;
+; the following two were added with V0.9.18
+;
+<--FEATURES_6024-->: Wenn "Integrit„t der WPS prfen" aktiviert ist, prft &xwp; die Integrit„t der Arbeitsoberfl„che bei jedem WPS-Start, bevor die WPS den gefrchteten Dialog "Die Arbeitsoberfl„che kann nicht gefunden werden" anzeigen kann.
+Falls &xwp; Probleme mit der Arbeitsoberfl„che entdeckt (wie z.B. eine besch„digte Dateihandles-Tabelle oder eine verlorene <WP_DESKTOP>-ID), kann es versuchen, diese Probleme zu reparieren.
+Sie k”nnen diese Funktion deaktivieren, wenn &xwp; wiederholt Probleme meldet, Ihre Arbeitsoberfl„che jedoch offensichtlich problemlos arbeitet.
+<--FEATURES_6025-->: Wenn "Arbeitsoberfl„che vorzeitig laden" aktiviert ist, l„dt &xwp; s„mtliche Objekte der Arbeitsoberfl„che bereits beim Starten der WPS, bevor sich das Hauptfenster der Arbeitsoberfl„che ”ffnet.
+Diese Funktion kann m”glicherweise Systemh„nger beim Starten der WPS beheben, wenn die Arbeitsoberfl„che viele Objekte enth„lt und die WPS sich beim Initialisieren verheddert.
+
+<--FEATURES_6041-->: "Erweiterte Dateizuordnungen" lassen die WPS nur noch Dateitypen zur Zuordnung von Programmen zu Datendateien verwenden.
+Seien Sie nicht beunruhigt, Dateifilter gibt es immer noch. Der Unterschied besteht darin, daá den Dateien basierend auf Dateifiltern automatisch ein Dateityp zugewiesen wird, anstatt Programme direkt auf Filterbasis zuzuordnen.
+Auáerdem k”nnen hierarchische Dateitypen definiert werden, so daá beispielsweise alle Dateien vom Typ "C Code" automatisch auch als "Plain text" angesehen werden.
+Wenn diese Funktion aktiviert ist, erh„lt &xwp;s "Workplace Shell"-Objekt eine neue Seite zur Festlegung der Dateitypen.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+
+;
+; FEATURES_6042 was changed with V0.9.20
+;
+
+<--FEATURES_6042-->: Bei Aktivierung ersetzt diese Funktion den Dialog "Einfgen", der angezeigt wird, wenn man im Kontextmen (oder im Pulldown-Men der Menleiste) eines Ordners "Einfgen" ausw„hlt.
+Im Gegensatz zur WPS-Version pflegt dieser Dialog eine Liste von Objekt-Titeln und beh„lt das zuletzt beim Einfgen verwendete Format und die WPS-Klasse.
+Zus„tzlich dient er als ein Betrachter fr die Zwischenablage mit eingeschr„nkter Funktionalit„t und ist in der Lage festzustellen, wenn sich der Inhalt der Zwischenablage „ndert, w„hrend der Dialog ge”ffnet ist.
+Diese Funktion wurde mit &xwp; V0.9.20 eingefhrt.
+
+<--FEATURES_6043-->: Diese Funktion ersetzt den Dialog "Objektnamenkonflikt", der erscheint, wenn eine Datei in einen Ordner verschoben oder kopiert wird, in dem bereits ein anderes Objekt mit dem gleichen Namen existiert.
+Dieser Ersatzdialog ist ein wenig ntzlicher und zeigt mehr Informationen an als der Standarddialog von &os2;.
+Dies wurde mit XFolder 0.80 eingefhrt.
+<--FEATURES_6044-->: Hiermit wird der h„áliche System-modale Hardwarefehlerdialog ersetzt, der erscheint, wenn man ein Laufwerksobjekt ”ffnet und dieses nicht bereit ist.
+Ist diese Funktion aktiviert, erscheint ein normaler Dialog, der auch eine Schaltfl„che "Wiederholen" bietet.
+Dies wurde mit XFolder 0.85 eingefhrt.
+;
+; the following was changed with V0.9.5
+;
+<--FEATURES_6047-->: Durch diese Funktion wird die Verwaltung der Dateisystem-Handles der WPS in OS2SYS.INI ersetzt und versucht, die Anzahl unn”tig erzeugter Handles zu reduzieren.
+Eine Einfhrung zu dieser Funktion finden Sie im &xwp;-Handbuch.
+Dies wurde mit &xwp; 0.9.5 eingefhrt.
+
+;
+; the following was added with V0.9.9
+;
+<--FEATURES_6048-->: Ist "Automatische Aktualisierung von Ordnern ersetzen" aktiviert, so schaltet &xwp; die internen WPS-Threads ab, welche die Aktivit„t des Dateisystems berwachen, um ggf. Ordner automatisch zu aktualisieren. Stattdessen wird fr diese Aufgabe ein eigener Thread gestartet.
+Die Implementierung von &xwp; hat den Vorteil, daá sie nicht exzessiv Dateisystem-Handles erzeugt.
+Die Aktivierung oder Deaktivierung dieser Ersetzung erfordert einen Neustart der WPS. Wenn jedoch die Ersetzung einmal aktiviert ist, kann die automatische Aktualisierung der Ordner auf der Seite "Anzeige" im Objekt "Workplace Shell" dynamisch an- und ausgeschaltet werden.
+Eine Einfhrung zu dieser Funktion finden Sie im &xwp;-Handbuch.
+Dies wurde mit &xwp; 0.9.9 eingefhrt.
+
+;
+; the following was added with V0.9.16
+;
+<--FEATURES_6049-->: Ist "Dateidialog ersetzen" aktiviert, so verwendet &xwp; einen eigenen Ersatzdialog anstelle des standardm„áigen &os2;-Dateidialoges.
+Beachten Sie bitte, daá dies nur Dateidialoge von WPS-Prozessen betrifft. Zu diesem Zeitpunkt kann &xwp; noch nicht alle Dateidialoge Ihres Systems ersetzen.
+
+;
+; the following was changed with V0.9.19
+;
+<--FEATURES_6045-->: Ist diese Funktion aktiviert, bernimmt &xwp; s„mtliche "L”schen"-Operationen der WPS-Objekte.
+Dies schlieát auch die Taste "Entf" und die Auswahl des Meneintrages "L”schen" aus dem Kontextmen fr alle Objekte des Systems ein.
+&xwp; kann dann entweder die Objekte in den neuen &xwp;-Papierkorb verschieben (der erstellt wird, wenn Sie diese Funktion anw„hlen) oder sofort l”schen, wenn Sie die Umschalttaste beim Starten der L”schoperation gedrckt halten.
+Wenn Sie m”chten, daá &xwp; die Objekte stets sofort l”scht, gibt es hierfr eine Option im Einstellungsnotizbuch des neuen Papierkorbs.
+Details entnehmen Sie bitte dem &xwp;-Handbuch.
+Dies wurde mit &xwp; 0.9.1 eingefhrt.
+;
+; the following was removed with V0.9.19
+;
+; <--FEATURES_6046-->: replace true delete
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "&xwp; classes" dialog
+; (XWPSetup).
+; Each item starts with "XWPCLS_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value.
+;
+; ---------------------------------------------------------------------------------
+
+<--XWPCLS_1251-->: "XFldObject" ist der &xwp;-Ersatz fr die Klasse WPObject und fr den Betrieb von &xwp; zwingend erforderlich. Sie kann nicht deselektiert werden.
+
+<--XWPCLS_1252-->: "XFolder" ist der &xwp;-Ersatz fr die Klasse WPFolder.
+Sie fhrt all die Ordner-Erweiterungen ein, die &xwp; bietet, wie z.B. erweiterte Kontextmens, erweitertes Sortieren, Statuszeilen fr Ordner, und so weiter.
+
+<--XWPCLS_1253-->: "XFldDisk" ist der &xwp;-Ersatz fr die Klasse WPDisk, die von der WPS fr Datentr„ger-Objekte verwendet wird, wie man sie im Ordner "Laufwerke" findet.
+Diese Ersatzklasse fhrt eine Reihe von Erweiterungen des Datentr„gerhandlings ein und gibt auáerdem die Erweiterungen fr Ordner an Datentr„gerobjekte weiter.
+Wenn diese Klasse installiert werden soll, muá auch XFolder installiert sein.
+
+<--XWPCLS_1254-->: "XFldDesktop" ist der &xwp;-Ersatz fr die Klasse WPDesktop, welche die Arbeitsoberfl„che implementiert.
+Diese Ersatzklasse bietet Erweiterungen der Arbeitsoberfl„che, wie z.B. den erweiterten Systemstart (Startlogos, Archivierung) und den erweiterten Systemabschluá.
+
+<--XWPCLS_1255-->: "XFldDataFile" ist der &xwp;-Ersatz fr die Klasse WPDataFile, welche fr alle physischen Datei im System verwendet wird.
+Diese Ersatzklasse bietet Erweiterungen des Zuordnungsmechanismus der WPS, die Ersetzung der Standardsymbole und die Funktion "Dateiname in Zwischenablage kopieren".
+
+; V0.9.16: changed the following one
+<--XWPCLS_1256-->: "XWPProgramFile" ist der &xwp;-Ersatz fr die Klasse WPProgramFile, welche fr alle ausfhrbaren physischen Dateien (.EXE, .COM, etc.) verwendet wird.
+Diese Klasse fgt dem Einstellungsnotizbuch der ausfhrbaren Datei eine neue Seite "Module" hinzu und bietet die M”glichkeit, die Standardsymbole zu ersetzen.
+
+<--XWPCLS_1257-->: "XWPSound" ist der &xwp;-Ersatz fr die Klasse WPSound, welche das Objekt "Warnton" bzw. "Ton" implementiert, das sich im Ordner "Systemkonfiguration" befindet.
+Diese Ersatzklasse bietet eine verbesserte Version der Seite "Kl„nge" im Einstellungsnotizbuch dieses Objektes und erlaubt es nun, Klangschemata zu bearbeiten.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+
+;
+; V1.0.0: replaced this silly description
+;
+<--XWPCLS_1258-->: "XWPMouse" ist der &xwp;-Ersatz fr die Klasse WPMouse, welche das Objekt "Maus" im Ordner "Systemkonfiguration" implementiert.
+Diese Ersatzklasse fgt neue Einstellungsseiten zur Konfiguration der &xwp;-Hook Mausfunktionen hinzu, z.B. des automatischen Aktivierens von Fenstern und der Bildschirmeckenobjekte.
+
+<--XWPCLS_1259-->: "XWPKeyboard" ist der &xwp;-Ersatz fr die Klasse WPKeyboard, welche das Objekt "Tastatur" im Ordner "Systemkonfiguration" implementiert.
+Diese Ersatzklasse fgt neue Einstellungsseiten zur Konfiguration der &xwp;-Hook Tastaturfunktionen hinzu, wie z.B. der globalen Tastenkrzel fr Objekte.
+
+<--XWPCLS_1260-->: "XWPSetup" implementiert das Einstellungsobjekt "&xwp;-Konfiguration" und ist fr den Betrieb von &xwp; zwingend erforderlich. Diese Klasse kann nicht deselektiert werden.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+
+<--XWPCLS_1261-->: "XFldSystem" implementiert das Einstellungsobjekt "&os2;-Kernel", welches die einfache Konfiguration diverser CONFIG.SYS-Einstellungen erlaubt.
+
+<--XWPCLS_1262-->: "XFldWPS" implementiert das Objekt "Workplace Shell", welches alle Einstellungsseiten des normalen Objektes "System" bezglich der WPS enth„lt sowie viele neue Einstellungsseiten fr &xwp;.
+Die Installation dieser Klasse wird dringend empfohlen, da es ohne sie kaum m”glich ist, &xwp; zu konfigurieren.
+
+<--XWPCLS_1263-->: "XFldStartup" ist eine spezielle Klasse fr den neuen &xwp; Systemstart-Ordner, der gegenber dem standardm„áigen Systemstart-Ordner der WPS viele Erweiterungen bietet.
+Der alte Ordner Systemstart funktioniert jedoch weiterhin, so daá beide zusammen genutzt werden k”nnen.
+Wenn diese Klasse installiert werden soll, muá auch XFolder installiert sein.
+
+<--XWPCLS_1264-->: "XFldShutdown" ist eine spezielle Klasse fr den neuen &xwp; Systemabschluá-Ordner, der w„hrend des erweiterten Systemabschlusses von &xwp; abgearbeitet wird.
+Wenn diese Klasse installiert werden soll, mssen auch XFolder und XFldDesktop installiert sein.
+
+<--XWPCLS_1265-->: "XWPClassList" implementiert ein vollkommen neues abstraktes Objekt zum Bearbeiten der WPS-Klassenliste.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+Bei frheren Versionen von XFolder war diese Funktion Teil des Objektes "Workplace Shell". Sie wurde aber nun ausgelagert und zu diesem neuen Objekt ausgebaut, das eine komplett neue Anzeige festlegt.
+Sie kann nun sogar Informationen zu WPS-Methoden anzeigen, was hilfreich fr WPS-Programmierer ist.
+
+<--XWPCLS_1266-->: "XWPTrashCan" wurde mit &xwp; 0.9.0 eingefhrt und implementiert endlich ein besonderes "Papierkorb"-Ordnerobjekt, „hnlich dem, das man bei Macintosh-, KDE- und Win95-Systemen finden kann.
+"XWPTrashObject" implementiert die "Papierkorb-Objekte", die sich in diesem Ordner befinden und wird automatisch mit XWPTrashCan installiert.
+Dies wurde mit &xwp; 0.9.0 eingefhrt.
+
+<--XWPCLS_1267-->: "XWPScreen" implementiert das Objekt "Bildschirm", welches alle Bildschirm-bezogenen Seiten des alten Objektes "System" beinhaltet, ebenso wie neue &xwp;-Bildschirmeinstellungen,
+wie z.B. die &pgr;-Konfiguration.
+Dies wurde mit &xwp; 0.9.2 eingefhrt.
+
+;
+; the following was added with V0.9.3
+;
+
+<--XWPCLS_1268-->: "XWPString" ist eine praktische Klasse, um WPS-Strings fr beliebige Objekte zu setzen. Indem Sie ein Objekt dieser Klasse erzeugen und einen beliebigen Konfigurationsstring eingeben, k”nnen Sie diesen sp„ter jedem beliebigen Objekt zuweisen.
+Dies wurde mit &xwp; 0.9.3 eingefhrt.
+
+;
+; the following was added with V0.9.5
+;
+
+<--XWPCLS_1269-->: "XWPMedia" implementiert ein neues Einstellungsobjekt namens "Multimedia", welches die Anzeige einiger Interna des &os2;-Multimediasubsystems erlaubt.
+Dies wurde mit &xwp; 0.9.4 eingefhrt.
+
+<--XWPCLS_0001-->: Bei Drcken von "OK" werden entsprechend den nderungen, die Sie in der &xwp;-Klassenkonfiguration vorgenommen haben, Klassen registriert, deregistriert, ersetzt sowie Ersetzungen rckg„ngig gemacht.
+
+<--XWPCLS_0002-->: Bei Drcken von "Abbruch" wird dieser Dialog geschlossen, ohne daá irgendwelche nderungen an der &xwp;-Klassenkonfiguration vorgenommen werden.
+
+;
+; the following was added with V0.9.7
+;
+
+<--XWPCLS_1270-->: "XCenter" implementiert eine neue Systemleiste am oberen oder unteren Rand der Arbeitsoberfl„che. Diese kann als Ersatz fr den &warpcenter; verwendet werden oder auch zusammen mit dem &warpcenter;.
+
+
+;
+; the following was added with V0.9.10
+;
+
+<--XWPCLS_1271-->: "XWPFontFolder" implementiert einen neuen Ordner, der alle Ihre Schriftarten beinhaltet.
+"XWPFontObject" implementiert die "Schriftartenobjekte", die sich in diesem Ordner befinden und wird automatisch mit XWPFontFolder installiert.
+"XWPFontFile" ist eine neue Unterklasse von WPDataFile und wird also automatisch mit XWPFontFolder installiert. Alle Dateien, die echte Schriftartdateien sind, werden automatisch zu Instanzen dieser Klasse.
+
+;
+; the following was added with V0.9.16
+;
+
+<--XWPCLS_1272-->: "XWPFileSystem" kann die Klasse WPFileSystem ersetzen, um einige WPS-interne Funktionen zu beschleunigen, besonders die Bev”lkerung von Ordnern.
+Diese Klasse muá installiert sein, damit die Einstellung "Turbo-Ordner" funktioniert.
+
+<--XWPCLS_1273-->: "XWPProgram" kann die Klasse WPProgram ersetzen und ein paar Probleme mit dieser Klasse beheben sowie einige interne Modifikationen vornehmen.
+
+<--XWPCLS_1274-->: "XWPVCard" ist eine besondere Unterklasse von WPDataFile fr vCard (*.vcf)-Dateien, mit der man vCard-Informationen ansehen und „ndern kann.
+
+<--DUMMY_END_MARKER-->:
+
+

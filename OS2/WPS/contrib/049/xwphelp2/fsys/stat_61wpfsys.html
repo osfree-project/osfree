@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statuszeilen: Zus„tzliche Codes fr Objekte des Dateisystems
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+ 
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<B>Objekte des Dateisystems</B> (Klasse WPFileSystem, d.h. Ordner und Datendateien)
+untersttzen die folgenden <I>zus„tzlichen</I> Codes:
+<BR><DL>
+<DT><CITE>  $r  1)  </CITE><DD>"Echter Name" des Objekts
+<DT><CITE>  $y  1)  </CITE><DD>Objekttyp (erweitertes Attribut .TYPE)
+<!-- V0.9.20: added link -->
+<DT><CITE>  $a  1)  </CITE><DD> <A HREF="glossary/gls_fattrs.html">Dateiattribute</A>
+des Objekts; hierdurch
+werden vier Buchstaben ("ahrs") fr die Dateisystemattribute Archiv, versteckt,
+schreibgeschtzt und System eingefgt, wobei diejenigen groá geschrieben werden,
+die bei der Datei gesetzt sind (z.B. "Ahrs")
+<DT><CITE>  $D  1)  </CITE><DD>Datum des letzten Schreibzugriffs auf das Objekt
+<DT><CITE>  $T  1)  </CITE><DD>Zeit des letzten Schreibzugriffs auf das Objekt
+<DT><CITE>  $Eb 1,2)</CITE><DD>Gr”áe der erweiterten Attribute in Bytes
+<DT><CITE>  $Ek 1,2)</CITE><DD>Gr”áe der erweiterten Attribute in kBytes, d.h. Bytes / 1000
+<DT><CITE>  $EK 1,2)</CITE><DD>Gr”áe der erweiterten Attribute in KBytes, d.h. Bytes / 1024
+<!-- V0.9.6: added the following two -->
+<DT><CITE>  $Ea 1,2)</CITE><DD>Gr”áe der erweiterten Attribute in Bytes/kBytes;
+hierbei wird abh„ngig vom Betrag automatisch das optimale Format gew„hlt
+<DT><CITE>  $EA 1,2)</CITE><DD>Gr”áe der erweiterten Attribute in Bytes/KBytes;
+hierbei wird abh„ngig vom Betrag automatisch das optimale Format gew„hlt
+</DL>
+<BR><B>Hinweise:</B>
+<P>1) Diese Codes zeigen die Daten nur so an, wie sie sich im internen Puffer der WPS befinden.
+Das bedeutet, daá, falls sich diese Daten „ndern, weil beispielsweise eine Datei von einem
+anderen Programm ge„ndert wurde, sich die Informationen in der Statuszeile nur dann „ndern,
+wenn die Daten im Puffer der WPS zuvor aktualisiert wurden, beispielsweise durch Auswahl von
+"Sofort aktualisieren".
+<P>2) Die WPS hat seit jeher einen Fehler, aufgrund dessen eine Gr”áe der erweiterten Attribute von mehr als 32767
+stets als 32767 gemeldet wird, auch wenn eine Gr”áe von 64 KB technisch m”glich ist.
+Infolgedessen meldet auch &xwp; diesen falschen Wert.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

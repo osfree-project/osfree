@@ -1,0 +1,266 @@
+ 
+XWorkplace 1.0.0 README
+ 
+(W) Ulrich M”ller, Feb 7, 2000
+ 
+Zuletzt aktualisiert am 23. November 2002
+ 
+ 
+0. INHALT DIESER DATEI
+======================
+ 
+    1. EINFšHRUNG
+ 
+    2. ERFORDERNISSE
+ 
+    3. INSTALLATION
+ 
+    4. AKTUALISIERUNG
+ 
+    5. SPRACHUNTERSTšTZUNG
+ 
+    6. ZU ANFANG
+ 
+    7. BEKANNTE EINSCHRNKUNGEN
+ 
+    8. LIZENZ, COPYRIGHT, HAFTUNGSAUSSCHLUSS
+ 
+    9. KONTAKT
+ 
+ 
+1. EINFšHRUNG
+=============
+ 
+    Willkommen bei XWorkplace V1.0.0.
+ 
+    XWorkplace ist eine umfangreiches Paket von Ersatzklassen fr
+    die OS/2 Workplace Shell, welches das Verhalten der WPS in
+    vielerlei Hinsicht erweitert.
+ 
+    Dieses README umfaát zus„tzliche Informationen, die nicht im
+    XWorkplace-Benutzerhandbuch enthalten sind. Lesen Sie bitte
+    all dies vollst„ndig durch, bevor Sie mit der Installation
+    beginnen.
+ 
+    Nach der Installation finden Sie dieses README im Haupt-
+    Installationsverzeichnis.
+ 
+ 
+    šber diese Version
+    ------------------
+ 
+    Dies ist mein erster Versuch einer "stabilen" XWorkplace-
+    Version. Da der Code mit den letzten Versionen doch einige
+    Verbesserungen erfahren hat, war ich der Meinung, daá es
+    endlich an der Zeit w„re.
+ 
+    Das bedeutet nicht, daá XWorkplace fehlerfrei ist. Ich bin
+    jedoch zuversichtlich, daá, falls Probleme auftauchen sollten,
+    diese umgangen werden k”nnen.
+ 
+    Details entnehmen Sie bitte den "Versionsinformationen" im
+    "XWorkplace-Benutzerhandbuch". Um nur die Dokumentation zu
+    entpacken, siehe unter "3. INSTALLATION".
+ 
+ 
+2. ERFORDERNISSE
+================
+ 
+    XWorkplace wird nur unter eComStation 1.0 entwickelt und
+    getestet, welches -- soweit es die OS/2-Codebasis betrifft --
+    dem Merlin Convenience Package 1 (MCP1) entspricht.
+ 
+    HINWEIS: Im Gegensatz zu vorangegangenen Version funktioniert
+    XWorkplace 1.0.0 NICHT MEHR unter OS/2 Warp 3. Ich habe
+    schlieálich die Untersttzung fr Warp 3 absichtlich
+    fallengelassen, weil ich erstens nicht mehr unter Warp 3
+    testen konnte, und zweitens weil ich es mde wurde, st„ndig
+    die vielen Fehler und Einschr„nkungen der Menuntersttzung
+    von Warp 3 umgehen zu mssen.
+ 
+    INSTALLIEREN SIE DIESE VERSION ALSO NICHT UNTER WARP 3.
+ 
+    Mit den folgenden OS/2-Versionen sollten Sie auf der sicheren
+    Seite sein, da sie alle auf demselben IBM-Code basieren:
+ 
+    --  Warp 4 FP 15
+ 
+    --  WarpServer for e-Business
+ 
+    --  Merlin/Aurora Convenience Packages
+ 
+    --  eComStation 1.0
+ 
+ 
+3. INSTALLATION
+===============
+ 
+    XWorkplace muá mit WarpIN installiert werden. Nachdem alle
+    Dateien kopiert wurden, wird WarpIN die Workplace Shell neu
+    starten, damit die nderungen aktiv werden k”nnen. Ein Neustart
+    des Systems sollte nicht notwendig sein.
+ 
+    WARNUNG: Es wurde berichtet, daá sich die Workplace Shell nach
+    dem Neustart aufh„ngt, wenn die Einstellung "Beim Starten sperren"
+    eingeschaltet ist. In diesem Fall deaktivieren Sie die
+    Einstellung, bevor Sie WarpIN erlauben, die WPS neu zu starten.
+ 
+    ---> FERTIGEN SIE AUF JEDEN FALL EINE SICHERUNGSKOPIE DER WPS
+         AN, bevor Sie mit der Installation beginnen.
+ 
+    Wenn Sie sich derzeit noch nicht sicher sind, ob Sie XWorkplace
+    benutzen sollten, k”nnen Sie nur das Paket "Documentation"
+    ausw„hlen. Auf diese Weise k”nnen Sie zuerst die Dokumentation
+    von XWorkplace durchlesen und dann entscheiden, ob Sie es
+    wirklich vollst„ndig installieren wollen. Um es zu einem
+    sp„teren Zeitpunkt zu installieren, doppelklicken Sie einfach
+    nochmals auf das WarpIN-Paket fr XWorkplace.
+ 
+ 
+4. AKTUALISIERUNG
+=================
+ 
+    Aktualisierung von XWorkplace aus
+    ---------------------------------
+ 
+    WICHTIG: Wenn Sie die Installation durchfhren, w„hrend die
+    WPS l„uft (was h”chstwahrscheinlich der Fall ist), wird
+    WarpIN Best„tigungsdialoge fr diverse Dateien anzeigen, die
+    zur Zeit benutzt werden, besonders XFLDR.DLL. Das ist normal,
+    weil diese Module geladen sind, w„hrend die WPS (und damit
+    XWorkplace) l„uft.
+ 
+    In diesen Dialogen MšSSEN Sie "Unlock (DosReplaceModule)"
+    ausw„hlen, oder Ihre Installation wird nicht vollst„ndig auf
+    den neuesten Stand gebracht.
+ 
+    Sollten Sie diese Nachricht fr eine Hilfedatei (Erweiterung
+    .HLP) erhalten, so wird die XWorkplace-Hilfedatei momentan
+    von der WPS offen gehalten. Bei OS/2 ist es leider unm”glich,
+    die Sperre bei Datendateien automatisch aufzuheben. Um die
+    Hilfedatei zu entsperren w„hrend der "Gesperrt"-Dialog
+    angezeigt wird, ”ffnen Sie einfach eine Standardhilfeseite
+    der WPS (z.B. indem Sie auf einen leeren Bereich der WPS
+    klicken und F1 drcken), wodurch die XWorkplace-Hilfedatei
+    freigegeben werden sollte.
+ 
+    Daneben werden Sie wahrscheinlich eine Nachricht erhalten, daá
+    XWPDAEMN.EXE liefe und beendet werden msse. Lassen Sie WarpIN
+    dieses Programmen beenden (bei dem es sich um den XWorkplace-
+    Daemon handelt).
+ 
+    Falls die Aktualisierung nicht funktionieren sollte, lassen Sie
+    WarpIN die installierte XWorkplace-Version zuerst entfernen,
+    starten Sie dann die WPS neu und installieren Sie dann die
+    neue Version.
+ 
+ 
+    Aktualisierung von XFolder aus
+    ------------------------------
+ 
+    XWorkplace ist der Nachfolger von XFolder (die letzte
+    XFolder-Version war V0.85).
+ 
+    XWorkplace und XFolder k”nnen nicht gleichzeitig installiert
+    sein, da XWorkplace alle Funktionen von XFolder 0.85 bereit-
+    stellt und viele Fehlerkorrekturen und sogar weitere Funktionen
+    umfaát.
+ 
+    Infolgedessen deaktiviert XWorkplace Ihre XFolder-Installation,
+    falls XFolder installiert sein sollte.
+ 
+    Sie sollten XWorkplace in ein ANDERES als das vorhandene
+    XFolder-Verzeichnis installieren um sicherzustellen, daá
+    es nicht zu Dateikonflikten kommt. Mehrere Personen haben
+    berichtet, daá die Installation in dasselbe Verzeichnis
+    die WPS aufh„ngen kann.
+ 
+    XWorkplace kann Ihre vorhandene XFolder 0.85 Konfiguration
+    bernehmen, falls vorhanden. Beim ersten Neustart der WPS
+    nach der Installation werden Sie danach gefragt. Allerdings
+    sind viele neue Einstellungsm”glichkeiten hinzugekommen,
+    weswegen viele anf„nglich deaktiviert sein werden.
+ 
+    Falls Sie es sp„ter vorziehen, wieder auf Ihre vorhandene
+    XFolder-Installation zurckzugehen (trotz allem ist dies
+    eine Entwicklerversion), lassen Sie WarpIN XWorkplace
+    deinstallieren und installieren Sie XFolder nochmals unter
+    Verwendung von INSTALL.CMD im XFolder-Verzeichnis. Ihre
+    alte XFolder-Konfiguration sind von XWorkplace nicht berhrt
+    worden.
+ 
+ 
+5. SPRACHUNTERSTšTZUNG
+======================
+ 
+    Dieses Archiv enth„lt nur die deutsche Sprachuntersttzung
+    (NLS) fr XWorkplace.
+ 
+    XWorkplace ist jedoch auf die Untersttzung weiterer Sprachen
+    ber zus„tzliche NLS-Pakete vorbereitet, die von anderen
+    Leuten als mir gepflegt und herausgegeben werden.
+ 
+    Einige sind auf www.xworkplace.org auf der Download-Seite
+    aufgefhrt, aber Sie werden wahrscheinich aktuellere Informationen
+    ber NLS-Pakete in den Mailinglisten finden (siehe KONTAKT unten).
+ 
+ 
+6. ZU ANFANG
+============
+ 
+    Nach der Installation sollten Sie auf jeden Fall zuerst das neue
+    Objekt "XWorkplace-Konfiguration" ”ffnen und die Seite "Funtionalit„t"
+    aufrufen. Dies ist der zentrale Ort, um XWorkplace-Funktionen zu
+    aktivieren. Bet„tigen Sie dort die Schaltfl„che "Hilfe", um
+    weitere Informationen zu erhalten.
+ 
+ 
+7. BEKANNTE EINSCHRNKUNGEN
+===========================
+ 
+    Lesen Sie bitte auch die Datei BUGS und FEATURES in diesem Paket,
+    bevor Sie Fehler melden oder Funktionen vorschlagen. Vielen Dank.
+ 
+ 
+8. LIZENZ, COPYRIGHT, HAFTUNGSAUSSCHLUSS
+========================================
+ 
+    Copyright (C) 1997-2002 Ulrich M”ller,
+                            Martin Lafaix,
+                            Paul Ratcliffe,
+                            und andere.
+ 
+    Dieses Programm ist freie Software; Sie k”nnen es unter den Bedingungen
+    der GNU General Public License, wie in der Datei COPYING im
+    Installationsverzeichnis enthalten, weiterverbreiten und/oder
+    modifizieren.
+ 
+    Der Quellcode ist vollst„ndig verfgbar. Siehe XFLDR049.INF fr Details.
+ 
+    Dieses Programm wird in der Hoffnung vertrieben, daá es ntzlich ist,
+    aber OHNE JEDWEDE HAFTUNG und ohne implizite Garantie der
+    MARKFHIGKEIT oder der BENUTZBARKEIT FšR EINEN BESTIMMTEN ZWECK.
+ 
+    Fr Details siehe den Abschnitt "Hinweise" in XFLDR049.INF.
+ 
+ 
+9. KONTAKT
+==========
+ 
+    Wir haben als Kontaktadressen zwei Mailinglisten bei yahoogroups.com
+    eingerichtet. Bitte benutzen Sie ab jetzt diese Listen fr
+    Fragen, Vorschl„ge und Fehlermeldungen.
+ 
+    Fr XWorkplace-Anwender:
+        xworkplace-user@yahoogroups.com
+ 
+    Fr XWorkplace-Entwickler und Interessierte:
+        xworkplace-dev@yahoogroups.com
+ 
+    Fr Details siehe "Hinweise" --> "Kontakt" in XFLDR049.INF.
+ 
+    Zur Zeit der Erstellung dieser Datei wird ein Bug-Tracking-System
+    eingerichtet. Achten Sie bitte in den blichen Kan„len fr
+    "OS/2-Neuigkeiten" auf aktuelle Ankndigungen diesbezglich.
+ 
+ 

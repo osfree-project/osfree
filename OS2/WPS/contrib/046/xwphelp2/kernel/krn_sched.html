@@ -1,0 +1,100 @@
+<HTML RESID=&ID_XSH_SETTINGS_KERNEL1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Schemal„ggare
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+P† den h„r sidan kan du modifiera de &cfgsys; inst„llningar vilka p†verkar 
+&os2;'s schemal„ggare.
+
+<!-- V0.9.13: changed this -->
+<P>Se <A HREF="glossary/gls_scheduler.html">"Processer och tr†dar"</A> f”r en introducerande
+f”rklaring till vad en schemal„ggare g”r.
+<!-- end V0.9.13 -->
+
+<P>Den h„r hj„lpsidan kommer endast att f”rklara de olika inst„llningarna och
+relatera dom till respektive &cfgsys; kommandon. Om informationen p† den h„r sidan 
+ang†ende de olika inst„llningarna i &cfgsys; inte „r tillr„ckliga f”r dig, kan
+du hitta ytterligare f”rklaringar i respektive kapitel hos <I>&os2;'s Kommandoreferens.</I>
+
+<P>Tryck <B>"Verkst„ll"</B> f”r att f† de „ndringar du har gjort skrivna till &cfgsys; filen.
+Detta kommer endast att „ndra de rader som korresponderar till inst„llningarna p† den h„r 
+sidan. Raderna som korresponderar mot andra sidor i "&os2; K„rna" objektet kommer inte 
+att „ndras. Var v„nlig notera att du m†ste starta om datorn f”r att l†ta „ndringarna 
+f† effekt. En omstart av Skrivbordet „r <I>inte</I> tillr„ckligt.
+
+<P>Tryck <B>"Optimera"</B> f”r att l†ta &xwp; f”resl† dig nya inst„llningar i enlighet
+med ditt systems karakt„ristik. &cfgsys; kommer att „ndras bara om du tryckt "Verkst„ll" ocks†.
+
+<P>Tryck <B>"Standard"</B> f”r att f† &os2;'s standardinst„llningar visade p† 
+notbokssidan. &cfgsys; kommer att „ndras bara om du tryckt "Verkst„ll" ocks†.
+
+<!-- V0.9.7: added this line; made the following an unordered list -->
+<P>F”ljande f„lt „r tillg„ngliga:
+
+<UL><LI><B>"Aktuell tr†dr„kning"</B> visar dig det totala antalet f”r n„rvarande k”rande
+tr†dar i ditt system. Den h„r visningen uppdateras regelbundet: om du startar ett nytt program
+kommer du att se att antalet tr†dar kommer att ”ka.
+
+<P><LI>Inst„llningen <B>"Maximala antalet tr†dar r„knade"</B> representerar 
+<CITE>THREADS</CITE> i &cfgsys;. H„r kan du best„mma hur m†nga tr†dar &os2; kommer att
+kunna hantera tillsammans. Det maximala v„rdet „r 4096. Du kan reducera schemal„ggarens 
+overhead och minneskonsumtion genom att reducera det h„r antalet.
+<!-- V0.9.13: added this -->
+&os2; anv„nder †tminstone en minnessida (4 KB) f”r varje tr†d. Det betyder, att om du
+specificerade 1024 tr†dar, har du redan anv„nt upp till 4 MB av minnet.
+<!-- end V0.9.13 -->
+Om du inte anv„nder n†gra n„tverksfunktioner, b”r ett antal av 256 vara tillr„ckligt.
+<P>Var v„nlig och notera att ditt system kan krascha utan f”reg†ende varning om 
+du s„tter det h„r antalet f”r l†gt. Som en tumregel, kan du anv„nda den visade 
+"Aktuell tr†dr„kning" och l„gga p† 50% till den siffran.
+<!-- V0.9.0: added the following -->
+Detta b”r ge tillr„cklig s„kerhet, d„rf”r att majoriteten av tr†dar startas av systemet
+vid uppbootningen och de flesta ytterligare processer anv„nder endast en eller tv† tr†dar var.
+
+<!-- V0.9.7: added this line -->
+<P>Se <A HREF="cmdref.inf#threads">dokumentationen</A> i
+<I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P><LI>Inst„llningen <B>"Till†t prioritetsboost"</B> representerar <CITE>MAXWAIT</CITE>
+inst„llningen i &cfgsys;. Den h„r inst„llningen best„mmer hur m†nga sekunder en tr†d
+som „r f„rdig f”r att exekveras skall f† processortid om andra tr†dar har en h”gre
+prioritetsniv†. Inst„llningen p†verkar bara tr†dar hos den "regulj„ra" prioritetsklassen.
+Standardv„rdet „r tre sekunder.
+<!-- V0.9.16 , which I consider
+an appropriate value for fast computers (Pentium or better). However, if you have
+a slower system (486) you might experience a better system response if you lower this
+setting to 2 or 1 second(s). --> Genom att s„nka v„rdet, kommer "bakgrunds" tr†darna att ges 
+mer processortid, men p† bekostnad av "f”rgrunds" tr†darna, vilka kommer att avbrytas oftare.
+Experimentera med den h„r inst„llningen f”r att r„kna ut vilka v„rden som b„st passar ditt system.
+Du b”r dock inte s„tta ett l„gre v„rde „n 3 sekunder. IBM har rekommenderat att du skall s„nka 
+v„rdet om du anv„nder m†nga DOS/Windows applikationer, med du skall INTE s„nka det om du 
+inte har tillr„ckligt med minne p† ditt system och d„rmed kommer &os2; att f† arbeta en del
+med swapfilen.
+
+<!-- V0.9.7: added this line -->
+<P>Se <A HREF="cmdref.inf#maxwait">dokumentationen</A> i <I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P><LI>Inst„llningen <B>"Priviliera f”rgrundsdisk I/O"</B> representerar 
+<CITE>PRIORITY_DISK_IO</CITE> inst„llningen i &cfgsys;. Om den h„r inst„llningen „r aktiverad
+(vilket „r standard),
+<!-- V0.9.12: rewrote the following -->
+kommer den aktuella f”rgrundsapplikationen att erh†lla en prioritetsboost n„r dess diskoperation
+„r klar. Detta g„ller den f”rsta tidsdelning som g†r till tr†den efter att diskoperationen
+„r klar. Efter den tidsdelningen, nollst„lls statusen f”r tr†den och prioritetsboost tas bort.
+Som ett resultat, kommer en f”rgrundsession att f† b„ttre responstid, †tminstone n„r den accessar
+diskarna p† ditt system.
+<!-- end V0.9.12  -->
+<P>Du kanske vill avaktivera den h„r inst„llningen om du ofta anv„nder programvaror som k”rs
+i bakgrunden med h”g diskacces, som t.ex. kompilatorer.
+
+<!-- V0.9.7: added this line -->
+<P>Se <A HREF="cmdref.inf#priority_disk_io">dokumentationen</A> i
+<I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+</UL>
+</BODY>
+</HTML>
+

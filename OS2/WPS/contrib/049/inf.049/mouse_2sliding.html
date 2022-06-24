@@ -1,0 +1,78 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Automatische Aktivieren von Fenstern
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Klasses: XWPSetup, XWPMouse</B>
+<HR>
+&xwp;s Funktion "Automatisches Aktivieren von Fenstern" ist der von anderen
+PM-Hooks angebotenen sehr „hnlich.
+ 
+<P>Grunds„tzlich bedeutet diese Funktion, daá der Tastaturfokus immer dem
+Mauszeiger folgt. Das heiát, wenn Sie die Maus bewegen, erh„lt das Fenster,
+welches sich unter dem Mauszeiger befindet, den Eingabefokus (was bedeutet,
+daá auch die Titelleiste aktiviert wird).
+ 
+<P>Dieses Verhalten ist bei den diversen mit dem X-Window-Fenstersystem laufenden
+Fenstermanagern weit verbreitet, die unter den vielen Unix-"Geschmacksrichtungen"
+verwendet werden, und Linux hat dies auch geerbt. Da viele Personen dieses
+Verhalten auch bei &os2; bevorzugen (mich selbst eingeschlossen), wurde es
+in &xwp; eingebaut.
+ 
+<P>Diese Funktion kann ber das Objekt "Maus" <B>konfiguriert</B> werden, welches
+sich gew”hnlich im Ordner "Systemkonfiguration" befindet. Auf der Seite "Bewegung"
+dieses Objektes finden sich mehrere Einstellungsm”glichkeiten. Drcken Sie die
+Schaltfl„che "Hilfe" auf dieser Seite, um mehr darber zu erfahren.
+ 
+<P><B>Hinweis:</B> Diese Seite ist nur sichtbar, wenn die Klasse XWPMouse installiert
+und der &xwp;-Hook ber
+<A HREF="sys_1intro.html">"&xwp;-Konfiguration"</A> aktiviert wurde.
+ 
+<P>Der Hauptvorteil dieser Funktion ist, daá man erstens nicht auf ein Fenster
+klicken muá, um die Tastatur darin verwenden zu k”nnen. Und wenn man die
+Einstellung "Fenster nach vorne holen" auf der Seite "Bewegung" deaktiviert
+hat, kann man sogar etwas in ein Fenster eingeben, das sich nicht im
+Vordergrund befindet, was ohne die Funktion "Automatisches Aktivieren von Fenstern"
+nicht m”glich w„re. Es braucht ein wenig Zeit, sich daran zu gew”hnen, aber
+es kann sehr praktisch sein, wenn mehrere Fenster ge”ffnet sind und man die
+Informationen in einem Fenster sehen k”nnen muá, w„hrend man in ein anderes
+etwas eingibt.
+ 
+<P><B>Hinweise</B>
+ 
+<OL><LI>Diese Funktion kann nicht mit
+<B>integrierten &winos2;-Fenstern</B> funktionieren. Das Grafiksubsystem des 16-Bit Windows
+(Graphical Device Interface, GDI) ist nicht in der Lage,
+zwischen einem "im Vordergrund befindlichen" und einem "aktiven" Fenster zu unterscheiden;
+es nimmt einfach an, daá das oberste Fenster immer auch das aktive ist.
+Diese Einschr„nkung trifft auch auf integrierte &winos2;-Fenster zu, die intern
+das Grafiksubsystem des 16-Bit Windows verwenden.
+ 
+<P>Aus diesem Grund gibt es auf der Seite "Bewegung" des "Maus"-Einstellungsnotizbuchs
+eine spezielle Einstellungsm”glichkeit fr &winos2;-Fenster. Sie k”nnen sich entscheiden,
+&winos2;-Fenster entweder immer nach vorne holen zu lassen, oder sie komplett zu
+ignorieren. Es ist jedoch nicht m”glich, sie zu aktivieren, ohne sie in den
+Vordergrund zu holen.
+Andernfalls erschienen sehr seltsame Grafikfehler auf dem Bildschirm,
+weil die GDI ein aktives &winos2;-Fenster in G„nze neu zeichnete, obwohl
+sich andere Fenster davor bef„nden (weil sie ann„hme, daá es das vorderste Fenster
+sei).
+ 
+<P>Natrlich hat &xwp; keinerlei Einfluá auf &winos2;-Vollbildschirmsitzungen,
+da der &xwp;-PM-Hook nicht mit &winos2;-Vollbildschirmsitzungen arbeitet.
+ 
+<P><LI>W„hrend die <B>PM-Fensterliste</B> (oder Taskliste) auf dem Bildschirm angezeigt
+wird, wird die Aktivierungsfunktion zeitweilig abgeschaltet. Dies ist notwendig, da
+die Fensterliste automatisch verschwindet, sobald sie den Tastaturfokus verliert.
+Wrde die automatische Aktivierung nicht deaktiviert, solange die Fensterliste
+angezeigt wird, wrde es zu schwierig, berhaupt damit arbeiten zu k”nnen, weil sie
+immer verschw„nde, sobald der Mauszeiger sich nicht darber bef„nde.
+ 
+</OL>
+</BODY>
+</HTML>
+ 
+ 

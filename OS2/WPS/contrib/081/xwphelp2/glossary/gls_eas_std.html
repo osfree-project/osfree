@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Standard Extended Attributes
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+&os2; predefines a number of
+<A HREF="glossary/gls_eas.html">extended attributes (EAs)</A>. These
+are called "standard EAs". The most frequently used standard EAs are:
+
+<UL><LI><CODE>.CLASSINFO</CODE> is used by the Workplace Shell
+to store its object-specific data with file-system objects.
+This is binary data and contains things like the object's class
+name and most of the settings if they were changed from the defaults
+in the object's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<P><LI><CODE>.COMMENTS</CODE>, <CODE>.KEYWORDS</CODE>, and <CODE>.SUBJECT</CODE>
+are used to store additional information about the file-system object
+and correspond to the respective fields on the "File" page of the
+object's properties notebook.
+
+<P><LI><CODE>.ICON</CODE> is used if a file-system object
+has been assigned a non-default icon, which will then also
+be displayed by the Workplace Shell. If you change a file-system
+object's icon on the "Icon" page of its properties notebook,
+the icon is stored in this EA. (For folders, in addition,
+<CODE>.ICON1</CODE> contains the folder's "open folder" icon.)
+
+<P><LI><CODE>.LONGNAME</CODE> is used by the Workplace Shell to
+store an object's title, if it does not conform to the naming
+rules of the <A HREF="glossary/gls_fs.html">file system</A> where the
+object resides. See
+<A HREF="glossary/gls_realnames.html">"Real names"</A> for details.
+
+<P><LI><CODE>.TYPE</CODE> contains the object's file type if it
+has been changed from the default in its properties notebook.
+
+</UL>
+</BODY>
+</HTML>
+

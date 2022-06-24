@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sitzungsarten
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Unter &os2; laufen Programme in <b>Sitzungen.</b>
+Eine Sitzung besteht aus einem oder mehreren
+<A HREF="glossary/gls_scheduler.html">Prozessen</A>
+und l„uft entweder in einem Fenster oder im Vollbildmodus.
+Jede Sitzung hat auáerdem einen bestimmten Typ, je nachdem
+fr welches Betriebssystem ein Programm geschrieben wurde.
+ 
+<P>Auch wenn Programme normalerweise fr ein bestimmtes Betriebssystem
+geschrieben werden, hat &os2; Untersttzung fr eine Reihe fremder
+Betriebssysteme eingebaut. &os2; untersttzt daher die folgenden
+<b>Sitzungsarten:</b>
+ 
+<UL><LI>Die <B>Presentation-Manager- (PM)</B> Sitzung.
+PM ist das Grafik-Subsystem von &os2; und verwaltet die vielen Fenster
+auf dem Bildschirm, untersttzt Grafikausgabe wie Symbole und Bilder,
+Maus- und Tastatureingaben sowie Standard-Kontrollen wie Mens und
+Titelleisten. Beispielsweise ist das Hilfefenster, in dem Sie diesen
+Text lesen, ein PM-Fenster. Die &os2;-Arbeitsoberfl„che ist ebenfalls
+ein PM-Programm.
+ 
+<P>PM-Programme laufen stets in der einen (und einzigen) PM-Sitzung,
+die zusammen mit dem System gestartet wird. Es kann keine zweite PM-Sitzung
+gestartet werden. Sie k”nnen jedoch mit Hilfe des
+<A HREF="hook/pager_intro.html">&pgr;</A> Ihre Arbeitsfl„che vergr”áern,
+indem Sie zwischen mehreren virtuellen Arbeitsoberfl„chen umschalten.
+ 
+<P><LI>
+Viele OS/2-Programme benutzen jedoch nicht PM, sondern laufen im sogenannten
+<b>Textmodus.</b> Jedes solche Textmodus-Programm einschlieálich
+der
+<A HREF="objects/obj_pgmf_batch.html">Stapel- und Befehlsdateien</A>
+(<CODE>.CMD</CODE>-Erweiterung) wird in einer getrennten Sitzung
+gestartet, die entweder als Fenster oder im Vollbild angezeigt wird.
+ 
+<BR><P><B>Fenstersitzungen</B> <IMG SRC="img/os2_os2win.gif"> sind
+auf dem Bildschirm sichtbar, als w„ren Sie Bestandteil der PM-Sitzung.
+Sie k”nnen also alle anderen Fenster weiterhin sehen.
+ 
+<BR>Im Gegensatz dazu belegen <b>Vollbildsitzungen</b>
+<IMG SRC="img/os2_os2full.gif"> den gesamten Bildschirm.
+Ihre anderen Fenster sind zwar weiterhin ge”ffnet, und andere Programme
+laufen weiter, aber im Hintergrund. Um diese Programme wieder sichtbar
+zu machen, mssen Sie in die PM-Sitzung zurckschalten, indem Sie die
+Systemtastenkombinationen <CODE>Alt+Esc</CODE> oder <CODE>Strg+Esc</CODE>
+bet„tigen.
+ 
+<P><LI>&os2; kann auch die allermeisten <B>DOS-Programme</B> starten.
+DOS ist das Betriebssystem, welches ursprnglich mit dem ersten
+IBM-PC geliefert wurde, und war lange Jahre das dominierende Betriebssystem.
+DOS-Programme (<A HREF="objects/obj_pgmf_batch.html">Stapeldateien</A>
+mit der <CODE>.BAT</CODE>-Erweiterung  eingeschlossen) laufen blicherweise
+ebenfalls im Textmodus und k”nnen ebenfalls im Fenster oder im
+Vollbild laufen.
+ 
+<BR><B>DOS-Sitzungen im Fenster</B> <IMG SRC="img/os2_doswin.gif"> sind
+neben anderen Fenstern in der PM-Sitzung sichtbar.
+ 
+<BR><B>Vollbild-DOS-Sitzungen</B> <IMG SRC="img/os2_dosfull.gif">
+belegen, wie andere Vollbildsitzungen, den gesamten Bildschirm.
+ 
+<P><LI>Auáerdem kann &os2; auch nativ fast alle 16-Bit-Anwendungen ausfhren,
+die fr Microsoft Windows 3.x geschrieben wurden.
+ 
+<BR>Diese laufen in sogenannten <B>&winos2;-Sitzungen</B>,
+<IMG SRC="img/os2_win16.gif"> welche wiederum im Fenster oder
+als Vollbild gestartet werden k”nnen. Wird ein &winos2;-Programm als
+Fenster gestartet, so wird es auf der &os2;-Arbeitsoberfl„che angezeigt,
+als w„re es ein PM-Programm (auch wenn es ein wenig anders aussieht).
+Sie k”nnen jedoch jedes &winos2;-Programm auch als Vollbild-Sitzung
+ausfhren.
+ 
+</UL>
+Weitere Informationen erhalten Sie durch Auswahl eines Themas aus der nachstehenden Liste:
+ 
+<UL>
+<LI><A HREF="glossary/gls_sessions_win16.html">&winos2;-Sitzungen</A>
+<LI><A HREF="glossary/gls_sessions_win.html">Fenster-Sitzungen</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Vollbild-Sitzungen</A>
+<LI><A HREF="glossary/gls_scheduler.html">Prozesse und Threads</A>
+<LI><A HREF="glossary/gls_cmd.html">šber Befehlszeilen</A>
+<LI><A HREF="objects/obj_pgmf_batch.html">Stapel- und Befehlsdateien</A>
+</UL>
+</BODY>
+</HTML>

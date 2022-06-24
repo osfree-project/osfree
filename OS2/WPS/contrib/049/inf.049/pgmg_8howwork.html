@@ -1,0 +1,37 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>Wie es funktioniert</TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+<B>Klasse: XWPScreen</B>
+<HR>
+&pgr; ben”tigt fr die Implementierung der virtuellen Arbeitsoberfl„chen <B>keine
+besondere Hardware</B>. W„hrend die diversen Implementierungen auf dem Unix-X-Window-System
+(eines davon ist XFree86/OS2, das unter &os2; l„uft) tats„chlich zus„tzlichen
+Speicher Ihrer Grafikkarte verwenden k”nnen, um Platz fr mehrere Desktops zu haben,
+verschiebt &pgr; einfach die Fenster auf Ihrem System.
+ 
+<P>Um es klarzustellen: Bei &pgr; haben Sie, technisch gesehen, immer noch einen Bildschirm.
+Weder PM noch Ihr Grafiktreiber weiá irgendetwas ber virtuelle Arbeitsoberfl„chen.
+Alles, was &pgr; macht, ist, Fenster auf den einen sichtbaren Bildschirm und davon
+herunter zu schieben. D.h. wenn Sie eine Arbeitsoberfl„che nach rechts schalten,
+schiebt &pgr; alle Fenster um die Gr”áe Ihres physischen Bildschirms nach links
+(was sie natrlich unsichtbar macht).
+Infolgedessen ist keine besondere Hardware, Software oder ein Treiber erforderlich. Wenn
+Ihr Rechner in der Lage ist, Fenster zu verschieben, kann er &pgr; benutzen.
+ 
+<P>Das kleine &pgr;-Pager-Fenster fhrt dann eine Reihe von Berechnungen aus, damit die
+Fenster so aussehen, als w„ren sie Teil eines riesigen virtuellen Bildschirms, aber
+der physische Bildschirm „ndert sich wirklich nicht - es sind die Fenster, die verschoben
+werden.
+ 
+<P>Auch &pgr; ben”tigt den &xwp;-PM-Hook, um die Bewegung der Fenster verwalten zu k”nnen -
+erstens, um die nderungen bei Fenstern im &pgr;-Fenster anzuzeigen, zweitens, um
+benachrichtigt zu werden, wenn Fenster aus irgendeinem Grund angelegt oder entfernt werden.
+Er kann dann beispielsweise automatisch die Arbeitsoberfl„che wechseln (d.h. alle Fenster
+verschieben), wenn ein Fenster auf einer anderen Arbeitsoberfl„che den Fokus erh„lt.
+ 
+<BR>
+</BODY>
+</HTML>

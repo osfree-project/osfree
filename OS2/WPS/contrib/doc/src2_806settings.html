@@ -1,0 +1,30 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Settings
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+XWorkplace uses two kinds of settings: global and instance settings.
+
+<P>The <B>global settings</B> are set both in the &quot;Workplace Shell&quot; object and
+on the &quot;XDesktop&quot; notebook page and are stored in the &quot;XWorkplace&quot; app
+in <CODE>OS2.INI</CODE>. All the global notebook logic is in <CODE>src\shared\notebook.c</CODE>.
+
+<P>Note that the large structure called
+<CODE>GLOBALSETTINGS</CODE> that was used from XFolder 0.1 until XWorkplace 0.9.16 is
+gone now. Yes, it almost broke my heart, but I got sick of it. Instead, global settings
+are implemented via <CODE>cmnQuerySetting</CODE> and <CODE>cmnSetSetting</CODE> in
+<CODE>src\shared\common.c</CODE> now.
+
+<P>By contrast, the <B>individual object settings</B> are stored in
+instance data, which is declared in the <CODE>.IDL</CODE> files. Most of these are
+stored and retrieved using the normal WPS mechanism
+(<CODE>wpSaveDeferred</CODE>/<CODE>wpRestoreData</CODE>) and can have
+a certain &quot;transparent&quot;
+value, which means that the global setting is to be used instead.
+
+<BR>
+</BODY>
+</HTML>

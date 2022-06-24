@@ -1,0 +1,93 @@
+<HTML RESID=&ID_XSH_SETTINGS_SB2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Status Bars Page 2
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+With the text fields in the <B>"Content of status bars"</B> group,
+you can determine what will be displayed in the status bars.
+
+<!-- V0.9.13: removed this
+XFolder uses certain (not very intuitive, however flexible) codes to
+display variable Desktop object information.
+Please look into the &xwp;_User_Guide
+to learn more about all the different supported codes.
+All codes start with the "$" character. If &xwp; does not recognize
+a certain text you enter here as a status bar code, it will simply be copied into the
+status bar display, so you can also add informative text here. -->
+
+<P>&xwp;'s status bars operate in <B>three different modes,</B> depending on whether
+no object, just one object or several objects are currently selected in the folder.
+For each of these three modes, you may enter any text you like into the respective
+text field.
+
+<UL><LI>The keys in the field <B>"No object selected"</B> determine what information
+will be displayed if no object at all is currently selected in a folder.
+
+<!-- V0.9.13: rewrote the following -->
+<P><LI>In <B>"one-object mode",</B> &xwp; supports specific status bar
+information depending on the <A HREF="glossary/gls_wpsclasses.html">class</A>
+of the currently selected object. For example, if you select a program object,
+the information will be different compared to a selected data file object
+or folder.
+<!-- end V0.9.13 -->
+
+<P>Press the <B>"Select class..."</B> button to select the WPS class for
+which you wish to set status bar information. The codes you then enter into the
+entry field affect objects of this class only.
+
+<!-- V0.9.5: changed the following paragraph -->
+<P>If the <B>"Dereference Shadows"</B> setting in this group is enabled,
+&xwp; will, if a single shadow object is currently selected, not display the
+information for the shadow
+object (which is pretty useless), but for the object which the shadow points to
+instead.
+
+<P><LI>The codes in the field <B>"Several objects selected"</B> determine
+the information to be displayed when more than one object is currently selected.
+
+<!-- V0.9.5: added the following paragraph -->
+<P>If the <B>"Dereference Shadows"</B> setting in this group is enabled
+and multiple objects are selected, among which are shadows, &xwp; will
+use the information of the object which the shadows point to for computing
+the "selected objects" sizes. Of course, this may give you a size for the
+selected objects which can be larger than the size of the objects in the folder,
+since the shadowed objects don't really belong to the folder.
+<!-- V0.9.16 I added this per
+user request with V0.9.5. -->
+
+</UL>Note that all changes take effect immediately so that you can view the results
+in an open folder while you experiment with the different status bar codes.
+
+<!-- V0.9.13: added the following -->
+<P>&xwp; uses special <B>codes</B> to display variable Desktop object information.
+All codes start with the <CODE>"$"</CODE> character. If &xwp; does not recognize
+a certain text you enter here as a status bar code, it will simply be copied into the
+status bar display, so you can also add informative text here.
+
+<P>The codes that can be used in the status bar content descriptions depend on
+the mode that the status bar currently operates in. For detailed descriptions
+of the various codes, select from the following list:
+
+<UL><LI><A HREF="fsys/stat_4common.html">Common codes for all three modes</A>
+<LI><A HREF="fsys/stat_5wpobject.html">Common codes for one-object mode only</A>
+<LI><A HREF="fsys/stat_61wpfsys.html">Codes for WPFileSystem objects in one-object mode</A>
+<LI><A HREF="fsys/stat_62wpdisk.html">Codes for WPDisk objects in one-object mode</A>
+<LI><A HREF="fsys/stat_63wppgm.html">Codes for WPProgram objects in one-object mode</A>
+<LI><A HREF="fsys/stat_64wpurl.html">Codes for WPUrl objects in one-object mode</A>
+</UL>
+<!-- end V0.9.13 -->
+
+<!-- V0.9.0: the following is unchanged -->
+Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state.
+
+<BR>
+</BODY>
+</HTML>
+

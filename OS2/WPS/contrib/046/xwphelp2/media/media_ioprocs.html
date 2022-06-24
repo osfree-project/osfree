@@ -1,0 +1,54 @@
+<HTML RESID=&ID_XSH_MEDIA_IOPROCS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Media IOProcs
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+"IOProcs" „r input/output procedurer. MMPM/2 anv„nder dessa saker f”r att kunna
+f”rst† olika filformat och lagringstyper.
+
+<P>IOProcs „r verkligen ett mycket abstrakt koncept och sv†rt att f”rst†. Grundl„ggande,
+detta koncept till†ter att MMPM/2 f”rst†r nya mediaformat utan att en programmerare m†ste 
+skriva om MMPM/2 helt och h†llet. S† f”r att g”ra alla &os2; applikationer medvetna om 
+och f”rst† ett nytt mediaformat, beh”ver endast "en" skriva en IOProc. Dessa m†ste finnas i 
+en DLL och sedan bli registrerade hos MMPM/2 genom MINSTALL programmet.
+
+<P>IOProcs kan antingen l„sa filer, eller skriva dom, eller b†da, beroende p† hur lat
+programmeraren var.
+
+<P><B>"FourCC"</B> st†r f”r "fyra-teckens kod" och anv„nds f”r att motsvara en IOProc till
+ett filformat och hitta en codec f”r en IOProc, om n”dv„ndigt. Se n„sta sida f”r detaljer.
+
+<P>Det finns †tskilliga <B>"IOProc typer"</B>:
+<UL><LI><B>"Fil"</B> IOProcs hanterar ett speciellt filformat. Dessa anv„nds f”r att ”ppna 
+och tolka en fil. Se de olika mediatyperna nedanf”r.
+
+<P><LI><B>"Lagrings"</B> IOProcs „r en speciell typ vilken till†ter MMPM/2's filinterface 
+att vara v„ldigt generiskt till sin natur. Eftersom IOProcs kan vara organiserade i lager, 
+kan vissa IOProcs anropa andra IOProcs om de inte f”rst†r filformatet sj„lva och beh”ver
+viss assistans. Till exempel, "Fil" formats IOProcs anropar "Lagrings" IOProcs i sin tur f”r
+att verkligen accessa en fil. Som ett resultat, kan samma fil IOProc anv„ndas f”r att hantera data 
+p† disk eller i minnet, beroende p† den lagrings IOProc som anv„nds.
+
+</UL>Med <B>"fil" IOProcs,</B> finns det tre huvud <B>mediatyper</B>:
+
+<UL><LI><B>Audio</B> „r f”r audiofiler, uppenbart. Notera att med audiofiler, 
+hanterar IOProcs endast <I>filformatet</I> (t.ex. <CODE>.WAV</CODE>), men inte <I>inneh†llet</I>
+i filen. De flesta audiofiler „r komprimerade, s† f”r att verkligen f”rst† filens inneh†ll, 
+m†ste MMPM/2 ocks† ha en codec f”r filen. Se n„sta sida f”r detaljer.
+
+<P><LI><B>Movie</B> „r f”r videofiler. Samma som hos audiofiler, beh”ver MMPM/2 codecs f”r att
+kunna hantera filens <I>inneh†ll.</I> Se n„sta sida f”r detaljer.
+
+<P><LI><B>Image</B> IOProcs hanterar bild (bitmaps) filer. Detta har blivit ordentligt
+f”rb„ttrat med Warp 4, vilken kommer med IOProcs f”r de vanligaste bildfilstyperna. N†gra saknas
+dock fortfarande, och n†gra av implementeringarna „r lite skakiga. (F”rs”k spara en 
+20 MB komprimerad TIFF fil med Warp 4's bildvisare). Till skillnad mot de tv† tidigare typerna,
+„r inga codecs inblandade n„r det g„ller att hantera bildfiler.
+
+</UL>
+</BODY>
+</HTML>
+

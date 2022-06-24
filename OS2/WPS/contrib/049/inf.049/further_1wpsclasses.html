@@ -1,0 +1,139 @@
+<HTML SUBLINKS="wps" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Was sind WPS-Klassen?
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.13:
+First, please take a look at the <A HREF="sys_4wpsclasses.html">"WPS classes"</A>
+page in the "Introduction" section of this
+document, if you don't have a general understanding of WPS classes yet.
+-->
+ 
+<P>Im allgemeinen, in der objekt-orientierten Programmierung, ist eine <B>Klasse</b> eine
+abstrakte Definition von (1.) Daten-Typen und (2.) Aktionen, die auf diese Daten angewendet
+werden k”nnen. Die letzteren sind auch als Objekt-<STRONG>Methoden</STRONG> bekannt.
+<P>W„hrend Klassen den Objekt-Typ nur auf eine abstrakte Art beschreiben, werden die Objekte,
+die wirklich in einem Programm existieren, <STRONG>Instanzen</STRONG> einer bestimmten
+Klasse genannt.
+ 
+<P>Nehmen wir beispielsweise ein WPS-Programm-Objekt: Jedes Programm ist eine
+Instanz der Klasse WPProgram, die von der WPS definiert wurde. Die (1.)
+Daten des Programm-Objekts wrden, neben anderen, die mit ihm verbundene
+ausfhrbare Datei sein (z.B. "CMD.EXE"), w„hrend (2.) Methoden
+(die auf diese Daten angewendet werden k”nnten) das Starten des Programms
+(durch Doppelklick oder den Meneintrag "™ffnen") oder das ndern
+der Einstellungen im entsprechenden Meneintrag w„ren. Obwohl man
+die Methoden nicht "sehen" kann, werden sie trotzdem intern immer verwendet,
+wenn die WPS irgendetwas tut. Wenn Sie Erfahrung mit dem Begriff haben,
+kann man Methoden mehr oder weniger als "Application Programmer's Interface"
+(API, auf deutsch etwa: Programmentwicklerschnittstelle) fr ein Objekt
+beschreiben. Falls Sie in REXX programmieren: Jedes Mal, wenn Sie eines
+dieser Objekt-<A HREF="xices_30wpsstrings.html">Einstellungs-Strings</A>
+verwenden, um die Daten eines Objektes zu ver„ndern, wenden Sie
+eine Methode auf ein Objekt an.
+<P>Da Methoden fr jede Klasse einzeln definiert werden, h„ngt die
+Anzahl der Methoden, die auf ein Objekt angewendet werden k”nnen, von
+der Klasse des Objekts ab. Ich habe sie nicht gez„hlt, aber schon WPObject,
+die fundamentalste WPS-Klasse, definiert mehr als 100 Methoden.
+<P>Was die objekt-orientierte Programmierung so flexibel (und popul„r)
+macht, ist die M”glichkeit der Definition von Verwandschaften zwischen
+Objekten. Um dies zu verstehen, sind folgende zwei Konzepte hilfreich:
+ 
+<UL>
+<LI><STRONG>Vererbung.</STRONG> Dieses Konzept erlaubt es, eine
+Objekt-Klasse zu definieren, die alle Daten-Typen und Methoden von anderen
+Objekt-Klassen bernimmt, ohne daá der Programmierer wissen muá,
+wie die Original-Klasse programmiert worden ist. Man kann einfach die Eigenschaften
+der existierenden Klasse bernehmen und nur das neu schreiben, was
+man implementieren m”chte. Die ursprngliche Klasse wird "Stamm-"
+oder "Eltern-Klasse" der "abgeleiteten" Klasse genannt.
+ 
+<P>Die Arbeitsoberfl„chen-Klasse ("WPDesktop" genannt) wird von der Ordner-Klasse abgeleitet.
+D.h. daá die Arbeitsoberfl„che nur eine spezielle Sorte Ordner
+ist.
+ 
+<P>Grunds„tzlich gesehen hat die Arbeitsoberfl„che alle
+M”glichkeiten eines normalen Ordners: Man kann andere Objekte hineintun,
+ihren Inhalt sortieren, eine Baum- oder Detail-Ansicht ”ffnen usw.
+Aber zus„tzlich bietet WPDesktop einige Dinge mehr: Das Kontextmen
+enth„lt mehr Eintr„ge (wie "Systemabschluá" und "Systemkonfiguration"),
+sein Einstellungsnotizbuch hat ein paar Reiter mehr etc. Offensichtlich
+besitzt die Arbeitsoberfl„che Ordner-Charakteristiken, aber fgt
+auch neue Eigenschaften hinzu. Auf der anderen Seite sind einige Ordner- Eigenschaften
+nicht vorhanden: Beispielsweise kann man die aktive Arbeitsoberfl„che
+nicht schlieáen, und sie hat auch keine Titelzeile.
+ 
+<P>Die WPS stellt eine Ableitungsstruktur zur Verfgung, so daá
+alle Objekte logisch gruppiert und abh„ngig voneinander sind. Auf einer
+weit abstrakteren Ebene sind alle Objekt-Klassen der WPS Ableitungen einer
+EINZIGEN KLASSE mit Namen "WPObject", die bestimmte Funktionen bietet, die
+alle WPS-Objekte brauchen: haupts„chlich die M”glichkeit, Kontextmens,
+Einstellungsnotizbcher und derartige Dinge anzuzeigen. Dies ist typisch
+fr objekt-orientierte Programmierung; solch eine globale Ursprungsklasse
+wird auch "Wurzelklasse" einer "Klassenhierarchie" genannt.
+ 
+<P> Auf WPObject baut die WPS einen kompletten Baum von Klassen auf, der als
+<A HREF="xices_1wpsclasses.html">WPS-Klassenhierarchie</A> bekannt
+ist. Sie k”nnen unter dem Reiter "WPS-Klassen" in &xwp;s Objekt
+<A HREF="sys_1intro.html">"WPS-Klassenliste"</A> einen Blick darauf werfen.
+ 
+<P> Eine solche Klassenhierarchie hat den Vorteil, daá man nur die Eigenschaften
+der Wurzelklasse „ndern muá, um alle davon abgeleiteten Klassen
+ebenfalls zu „ndern. (Der Nachteil aus Sicht eines Programmierers ist,
+daá man sehr genau die Zusammenh„nge der verschiedenen Klassen
+und Methoden analysieren muá, um eine solche Klassenhierarchie aufzubauen.
+H„ufig passiert es, daá die Planung nicht ganz optimal war. Aber
+wenn die Hierarchie erst einmal gut durchdacht ist -- Dank an IBM, daá
+es im Falle der WPS so ist --, sind die Vorteile berragend.)
+<BR><LI><STRONG>Polymorphie.</STRONG> Dieses Konzept bedeutet, daá
+man trotz Vererbung bestimmte Eigenschaften einer abgeleiteten Klasse mit
+neuen ERSETZEN kann. Das Verhalten der originalen Objekt-Klasse kann ge„ndert
+("bersteuert") werden. Wenn jetzt irgendeine Methode auf eine Ableitung
+angewendet wird, wird die neu definierte Methode anstatt derjenigen der Stamm-Klasse
+benutzt.
+<P>Nur als ein Beispiel m”chte ich den Punkt "Hilfe" erw„hnen, der
+im Kontextmen eines jeden Objekts vorhanden ist. Durch Auswahl von "Erweiterte
+Hilfe" wird die <CITE>wpDisplayHelp</CITE>-Methode des Objekts
+aufgerufen. Diese Methode wird von der WPS Wurzel-Klasse ("WPObject") bereitgestellt,
+so daá alle WPS-Objekte die Hilfe anzeigen k”nnen: Der OS/2-Hilfemanager
+wird initialisiert, das Hilfefenster wird dargestellt usw. Die anzuzeigende
+Hilfeseite wird aber von beinahe jeder WPS-Klasse ge„ndert (dem
+Konzept der Polymorphie folgend). Also bringt die Auswahl von "Hilfe" aus dem Kontextmen
+eines Ordners etwas anderes zum Vorschein als etwa bei der Auswahl aus dem Men
+eines Programm-Objekts.
+</UL>
+<!-- V0.9.13
+For details on what <B>class replacements</B> are, please refer to the
+<A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the "Introduction"
+section also.
+<P>-->
+W„hrend die Konzepte von Vererbung und Ver„nderlichkeit Teil jeder
+objekt-orientierten Programmierumgebung (und also auch jeder objekt-orientierten
+Sprache, wie z.B. C++) sind, ist es der Workplace Shell sogar m”glich,
+ihre Vorteile fr verschiedene Applikationen zur Verfgung zu
+stellen. Die WPS besteht aus vielen DLLs, die zum Teil unabh„ngig voneinander
+sind, und auch Nicht-IBM-Programmierer k”nnen die WPS mit diesen M”glichkeiten
+erweitern, ohne den Quellcode der WPS zu besitzen. Mit "normalen" objekt-orientierten
+Sprachen w„re dies nicht m”glich.
+<P>Dieses System funktioniert nur, weil die WPS IBMs eigenes <B>System Object
+Model (SOM)</B> benutzt, ein komplexes System, das objekt-orientierte Programmierschnittstellen
+sogar zwischen verschiedenen Codemodulen und sprachenunabh„ngig bietet.
+SOM ist so m„chtig, da Klassen zur Laufzeit anstatt zur Kompilierzeit
+instantiiert und aufrechterhalten werden.
+<P>Hier kommt brigens die WPS-Klassenliste ins Spiel: Wenn die WPS hochgefahren
+wird, erzeugt sie alle Klassen (die, in SOM, auch Objekte sind, aber das
+ist eine sehr komplexe Angelegenheit) und richtet die Verwandtschaften erst
+zu diesem Zeitpunkt ein. Nur deswegen ist es m”glich, Klassen ohne
+IBM, die die Orginale erschaffen hat, zu modifizieren.
+<P>Meiner Meinung nach ist dies immer noch etwas, das OS/2 in der heutigen
+Computer-Welt einzigartig macht. Mit der Zeit sind alle anderen Vorteile
+als Alleinstellungsmerkmale verschwunden, wie z.B. das verl„áliche
+Multitasking (Linux ist darin auch wirklich gut), aber die Benutzerschnittstelle
+wurde bisher noch von keinem anderen Betriebssystem, das ich kenne, erreicht.
+Besonders nicht von Windows 95.
+<BR>
+</BODY>
+</HTML>

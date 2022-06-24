@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sliding Focus
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text which was previously
+     in 0987mouse_hook.html -->
+<BODY>
+If the <B>"Enable"</B> setting in the "Sliding focus" group is checked, the "sliding focus"
+feature of the
+<!-- V0.9.13: changed rest of this paragraph -->
+<A HREF="glossary/gls_hook.html" TARGET="_top">&xwp; PM hook</A>
+becomes enabled. After this, &xwp; will always make the window which is currently
+under the mouse pointer active, even if you have not clicked on it. This feature
+is most prominent under X Window systems (where it is usually called "Focus follows mouse"),
+but is very helpful on &os2; as well.
+<!-- end V0.9.13 -->
+
+<P>The other items in the
+"Sliding focus" group can then be used to influence the behavior of this feature:
+
+<!-- V0.9.2: moved the following paragraph here from the bottom -->
+<UL><LI>With the <B>"Activation delay"</B> slider, you can tell &xwp; to delay switching the
+focus for a certain amount of time (specified in milliseconds) after the mouse has
+moved. This might be useful if you wish to avoid too much window flickering when
+the mouse is moved over many windows. If the delay is set
+to 0, focus will be switched immediately when the mouse is moved (i.e. there will be no delay).
+
+<P><LI>If <B>"Bring windows to top"</B> is checked, &xwp; will always make the
+window under the mouse pointer the topmost window, as if you had clicked inside
+of it (or on its titlebar). As a result, the active window and the topmost window
+will always be identical.
+
+<P>If this setting is disabled, &xwp; will only give
+the window under the mouse pointer the keyboard focus, without raising the window
+itself. As a result, the active window and the topmost window need not be the same.
+This allows you, for example, to type into a window in the background.
+
+<P><LI>The <B>"Ignore seamless &winos2;"</B> setting determines the special treatment
+which is required for seamless &winos2; windows (that is, those appearing on the
+PM desktop together with other PM windows). See the <I>&xwp; User Guide</I>
+for details about this problem.
+
+<!-- V0.9.4: updated the following two paragraphs -->
+<P>If this setting is <B>checked,</B> seamless &winos2; windows will never be given focus when the
+mouse is moved over them. This effectively restores the original &os2; behavior for seamless
+&winos2; windows. You thus have to click into them to have them activated.
+
+<P>If this setting is <B>unchecked,</B> &winos2; windows will always be
+brought to the foreground when the mouse is moved over them, no matter whether the
+"Bring windows to top" setting is checked.
+
+<P><LI>If <B>"Ignore Desktop"</B> is checked, the Desktop window will never be given
+focus by the "sliding focus" feature. To give the Desktop the focus, you will still
+have to click upon it. (Note that "Desktop" here means both the WPS Desktop window,
+which is a special folder window, as well as the PM Desktop, which is invisible
+as soon as the Desktop starts.)
+
+<!-- V0.9.2: added the following paragraph -->
+<!-- V0.9.19: removed it again
+<P><LI>If <B>"Ignore &pgr;"</B> is checked, the &xwp; &pgr; window will
+never be given the sliding focus. This item is disabled if &pgr; itself is not enabled.
+-->
+</UL>
+</BODY>
+</HTML>
+

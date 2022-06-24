@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Paging
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+The concept of paging allows &os2; to give
+memory to applications even though no more physical memory
+is available. This is sometimes referred to as "virtual memory"
+(which should not be confused with the term "virtual address space"
+-- see <A HREF="glossary/gls_mem_himem.html">&os2; Virtual Address Space</A> for more
+on that).
+
+<P>If paging is enabled, &os2; will temporarily
+move data from physical RAM to a special swap file on a hard disk.
+The &os2; swap file is always
+called <CODE>SWAPPER.DAT</CODE>. Unless changed through
+&cfgsys;, this file resides in the
+<CODE>\OS2\SYSTEM</CODE> directory.
+
+<P>In detail, the following happens:
+
+<OL><LI>If an &os2; application allocates memory and not enough
+physical memory is available, &os2; takes a chunk of the main
+memory (RAM) which has not been accessed for a while and writes it
+into <CODE>SWAPPER.DAT</CODE>. This part of memory is then
+available and given to the requesting application.
+As a result,
+applications may use more memory than what is physically
+installed in the computer.
+
+<P><LI>Now, if some application accesses the memory chunk that
+was swapped out,
+&os2; intercepts this memory access (because that "memory"
+now resides on the hard disk) and loads that region back into
+memory from the hard disk before the application actually
+accesses it. (If necessary, &os2; will have to swap another
+memory region to the swap file first to make room for the
+memory region which is to be loaded back into memory.)
+
+</OL>Naturally, a hard disk is much slower than physical RAM,
+typically by a ratio of 1:100, depending on your processor speed
+and on whether that portion of memory has already been loaded
+into the processor memory caches.
+
+<P>This is why plenty of RAM is the most important prerequisite
+for an acceptably fast &os2; installation. Even though you may
+install &os2; with only 8 MB of RAM (&warp; 3 allegedly
+even with 4), you will then only hear the hard disk rattle
+because &os2; has to permanently swap in and out.
+
+<P>Even if you have a relatively large amount of RAM installed
+(say, 128 MB or more), &os2; may suddenly start swapping.
+Since growing the swap file is an expensive operation, you
+should choose your <CODE>SWAPPATH</CODE> settings carefully.
+
+<P>If you are using the
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>,
+you can also use the
+<A HREF="xcenter/xc_sentinel.html">"Sentinel" widget</A>
+to monitor &os2;'s memory management.
+
+<BR>
+</BODY>
+</HTML>
+

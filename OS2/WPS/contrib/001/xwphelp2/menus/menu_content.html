@@ -1,0 +1,63 @@
+<HTML RESID=&ID_XMH_FOLDERCONTENT;>
+<HEAD>
+    <TITLE>
+        &xwp;: Folder Content Menus
+    </TITLE>
+</HEAD>
+<BODY>
+With &xwp;'s folder content menus, you may take a look at the contents of a
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">folder</A>
+without actually having to open a folder view. This may save some room on your
+display.
+
+<!-- V0.9.19: rewrote all the following -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P>Folder content menus are added according to the following:
+
+<UL><LI>If you have enabled "Add folder content menu" on the "Menu" pages in
+the &link_wpsobj;, every folder
+will receive a folder content menu which displays its own content.
+
+<P><LI>In addition, you can declare any folder to be a <B>"favorite folder"</B>
+on the "View" page in each folder's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+All such favorite folders will be added to all folder menus on the system as
+well. For example, if you would like the Desktop's contents to show in all
+menus, declare the Desktop to be a "favorite folder".
+
+<P><LI>Finally, folder content menus are also displayed from the
+<A HREF="xcenter/xc_main.html">&xcenter;</A> for
+<A HREF="xcenter/xc_objbtn.html">object button widgets</A> that represent
+folders. To remove an object button from an &xcenter;,
+click on it with mouse button 2 and select "Remove widget".
+
+</UL>
+&xwp; can also <B>display icons</B> of the objects that were collected in
+the folder content menus. Whether this happens is determined by the
+respective setting of the "Menu" pages in the "Workplace Shell" objects,
+which affects all content menus on the system.
+</IFNDEF>
+
+<P>Folder content menus behave similar to those of the &warpcenter;.
+<!-- V0.9.19: removed this... that was introduced with &warp4;. -->
+Any object that is contained in the folder whose contents are displayed is turned
+into a menu item. Subfolders of the folder are turned into submenus. As a result,
+you can browse through all of the folders contents, including all subfolders, by
+opening the respective submenus.
+
+<P>The following special <B>mouse actions</B> are available in folder content
+menus:
+
+<UL><LI>If you click on any icon that is not a submenu (that is, not a subfolder),
+the corresponding object will be opened in its default view (as if you had
+double-clicked on it in a regular folder view).
+<P><LI>If you open a submenu, the submenu will fill itself with the corresponding
+subfolder's contents, possibly including more subfolders.
+<P><LI>If you click on a folder menu with mouse button 2, the folder will be
+opened in its default view as a window (as if you had
+double-clicked on it in a regular folder view).
+</UL>
+</BODY>
+</HTML>
+

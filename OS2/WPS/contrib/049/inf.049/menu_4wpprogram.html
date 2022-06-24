@@ -1,0 +1,111 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Zusatzfunktionen fr Programmobjekte
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasse: XFolder</B><HR>
+Auch wenn Sie alle Arten von Objekten in die Konfigurationsordner stellen
+k”nnen, so wird doch die Benutzung von Programmobjekten empfohlen,
+um Programme aus Kontextmens zu starten. Ich meine hiermit "echte"
+Programmobjekte (im Gegensatz zu Referenzen von Programmen).
+<P>Der Grund hierfr ist der folgende: Immer wenn XFolder ein Programmobjekt
+aus den Konfigurationsordnern startet (d.h. wenn Sie den entsprechenden Menpunkt
+in einem Kontextmen gew„hlt haben), kann es einige Tricks mit
+ihnen anstellen.
+<P>Diese Tricks werden im folgenden erl„utert:
+<OL>
+<LI>Wenn das <STRONG>Arbeitsverzeichnis</STRONG> des Programmobjekts
+leer ist, so wird XFolder vorbergehend das Verzeichnis desjenigen
+Ordners hier einfgen, dessen Kontextmen ge”ffnet wurde.
+Dies bedeutet, daá Sie das gleiche Programm von allen Kontextmens
+starten k”nnen, aber mit einem variablen Arbeitsverzeichnis, n„mlich
+dem des benutzen Ordners.
+<P>Nehmen wir erneut die Standardkonfiguration: die vier Objekte fr
+Befehlszeilen haben leere Arbeitsverzeichnisse; genau deswegen k”nnen
+Sie Befehlszeilen "in" dem Ordner starten, dessen Kontextmen Sie benutzt
+haben.
+<P>Wenn Sie dieses Verhalten nicht wnschen, so geben Sie einfach in einem
+Programmobjekt ein Arbeitsverzeichnis an (z.B. <CITE>"C:\"</CITE>), und XFolder l„át
+das Objekt in Ruhe. Statt dessen wird dieses Arbeitsverzeichnis benutzt.
+ 
+<BR><LI>Wenn die <STRONG>Parameterliste</STRONG> des Programmobjektes
+nicht mit einem Prozentzeichen (<CITE>"%"</CITE>) endet, so wird das Verzeichnis des
+Ordners als Parameter an die Parameterliste angeh„ngt.
+<P>Dies wird von dem "Netscape"-Meneintrag der Standardkonfiguration benutzt:
+auf diese Weise zeigt Netscape nach dem Start den Inhalt des Ordners an,
+von dem aus es gestartet wurde.
+<!-- V0.9.0: change XFolder to &xwp; -->
+<P>Sie k”nnen diese Funktion in den <A HREF="sys_2global.html">Globalen
+&xwp;-Einstellungen</A> komplett abschalten.
+<P>Wenn Sie dieses Verhalten nur fr einen bestimmten Menpunkt deaktivieren
+m”chten (weil nicht alle Programme Verzeichnisse als Parameter akzeptieren),
+so fgen Sie einfach ein <CITE>"%"</CITE> an die Parameterliste des entsprechenden
+Programmobjektes an. XFolder wird dann das Verzeichnis nicht anh„ngen.
+Dies ist z.B. bei den vier Befehlszeilen-Objekten der Standardkonfiguration
+der Fall.
+<P>Beispiele: Ein alleinstehendes <CITE>"%"</CITE> in der Parameterliste schickt berhaupt
+keine Parameter an das Programm; ein <CITE>"text.txt %"</CITE> schickt nur <CITE>"text.txt"</CITE>
+ohne einen Verzeichnisnamen als Parameter.
+<P>Mir ist bewuát, daá diese Konfiguration vielleicht nicht sehr
+intuitiv erscheint, aber ich habe sie auf diese Weise implementiert, um
+Kompatibilit„t mit der WPS zu wahren, die genauso arbeitet, wenn Sie
+Menpunkte ber die "Men"-Seite in einem Einstellungsnotizbuch
+hinzufgen. Ich fand dann heraus, daá es auch mit Netscape funktioniert,
+was umso besser ist.
+ 
+<BR><LI>Sie k”nnen den <STRONG>Inhalt der Zwischenablage</STRONG>
+in die Parameterliste aufnehmen, indem Sie den Platzhalter <CITE>"%**C"</CITE> in
+die Parameterliste stellen. Dies kann an beliebiger Stelle in der Parameterliste
+stehen; Groá- und Kleinschreibung wird hier unterschieden ("%**c"
+funktioniert NICHT).
+<P>Beispiel: Pfad und Dateiname = <CITE>"e.exe"</CITE>; Parameter = <CITE>"%**C"</CITE>
+startet den Systemeditor und interpretiert den Inhalt der Zwischenablage als Dateinamen.
+<P>
+Beachten Sie, daá der Inhalt der Zwischenablage bei der maximalen L„nge der
+Parameterliste abgeschnitten wird. Bei &os2; betr„gt die maximale Pfadl„nge 260 Zeichen.
+Durch diese Einschr„nkung wird vermieden, daá schlimmstenfalls 64 KB an das Programm
+gesendet werden.
+ 
+<BR><LI>Falls der <STRONG>Programmtitel</STRONG> ein "~"-Zeichen
+enth„lt (was Sie wahrscheinlich eingefgt haben, um ein Men-Tastenkrzel
+zu erm”glichen wie auf der <A HREF="menu_3config.html">vorigen Seite</A> beschrieben),
+so wird XFolder dieses Zeichen beim Programmstart vorbergehend entfernen. Dieses Verhalten
+k”nnen Sie ebenfalls in den <A HREF="sys_2global.html">Globalen Einstellungen</A> abschalten,
+wo Sie auch weiterfhrende Hilfe hierzu erhalten.
+ 
+<BR><LI>Sie k”nnen jetzt (V0.51) auch einen <STRONG>Men-Trennstrich</STRONG>
+in ein Men einfgen, indem Sie einfach ein Programmobjekt
+mit dem Titel <CITE>"---"</CITE> (drei Trennstriche) erstellen. Ein Mentrennstrich
+erscheint als horizontale Linie im Men, um verschiedene Menpunkt-Gruppen
+optisch zu trennen. In einem solchen Fall ignoriert XFolder die Einstellungen des Programmobjekts
+(wie z.B. die ausfhrbare Datei, Parameter, etc.) und fgt nur den Trennstrich in das
+Men ein. Dies funktioniert sowohl beim Hauptkontextmen als auch dessen Untermens.
+<P><B>Hinweis:</B> Falls Sie die (hervorragenden) WPTOOLS von Henk Kelder benutzen,
+sollten Sie auch bei den Trennstrich-Objekten irgendein gltiges Programm
+eintragen, damit diese Objekte von CHECKINI nicht als fehlerhaft erkannt
+werden. XFolder wird auch bei einem gltigen Programm nur einen Trennstrich
+eintragen.
+ 
+</OL>Die Funktionen 1. bis 4. werden von XFolder verwirklicht, indem die
+Einstellungen des Programmobjekts tats„chlich fr eine Zehntelsekunde
+ge„ndert werden: zun„chst werden die Einstellungen ge„ndert,
+dann das Programmobjekt ge”ffnet, und schlieálich die Einstellungen
+auf die Originalwerte zurckgesetzt.
+<P>Beachten Sie, daá XFolder dies nur mit "echten" Programmobjekten in
+den Konfigurationsordnern macht, <I>nicht</I> mit Referenzen, die auf andere Programmobjekte
+zeigen. Ich habe nicht vor, diese Beschr„nkung aufzuheben, weil ich nicht Programmobjekte
+„ndern m”chte, die auáerhalb der Konfigurationsordner-Hierarchie
+auf Ihrer Arbeitsoberfl„che liegen.
+<P>Folglich sollten Sie <I>Kopien</I> Ihrer Programmobjekte in die Konfigurationsordner
+stellen, keine Referenzen. Noch einmal: Referenzen werden zwar auch ge”ffnet,
+aber ohne die Einstellungen zu „ndern.
+<P>
+Siehe auch die Seite <A HREF="070faq.html">"Frequently Asked Questions"</A> fr
+einige weitere Hinweise zur Erstellung von Programmobjekten.
+<BR>
+</BODY>
+</HTML>

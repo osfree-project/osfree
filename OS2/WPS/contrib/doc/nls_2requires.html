@@ -1,0 +1,58 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Required Tools
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+Even though all
+the source files in this package can be edited using any editor (because
+they're all plain text files), you will need some extra utilities to create
+the actual NLS files.
+<P>
+<B>In any case, a C compiler is</B> <I>not</I> <B>required</B>.
+<P>
+To be more precise:
+
+<UL><LI>I have written my own utility which converts the HTML sources for
+the INF and HLP files to IPF format for IPFC (see below). This is in the
+<CODE>xwphelpers</CODE> repository on Netlabs, so in addition to the
+XWorkplace sources, you will need to check out <CODE>xwphelpers</CODE>
+as well. The utility is called <CODE>h2i.exe</CODE> and gets called
+automatically by the makefiles.
+
+<P><LI>The makefiles also convert the GIF files for the INF and HLP files
+to BMP format automatically. For this to work, you will need the
+&quot;Generalized Bitmap Module&quot; (GBM) package from Hobbes.
+The makefiles assume that <CODE>gbmsize.exe</CODE> is on your PATH.
+
+<P><LI>In order to create INF and HLP
+files, you need IBM's "Information Presentation Facility Compiler" (<CODE>IPFC.EXE</CODE>).
+This thing is part of the OS/2 Developer's Toolkit, which is finally
+included with eComStation and the IBM Convenience Packs.
+
+<P>If you don't have the Toolkit, IPFC is contained in the
+<B>Device Driver Development Kit (DDK)</B>, which IBM has put online at
+<A HREF="http://service.boulder.ibm.com/dl/ddk/priv/ddk-d">http://service.boulder.ibm.com/dl/ddk/priv/ddk-d</A>.
+You will need to register, but then downloads are free. Download <CODE>combase.zip</CODE>,
+which has IPFC plus a number of other tools. (Note: I was reportes that apparently
+this is now in <CODE>tools.zip</CODE>.) After unpacking, IPFC is in the
+<CODE>DDK\base\tools</CODE> directory, which you should include in your PATH.
+
+<P><LI>The makefiles in this package were written for <B>IBM NMAKE,</B> which comes
+with all the IBM compilers (and also with the DDK mentioned above).
+I'm not sure these will work with other MAKE utilities, such as
+DMAKE or GNU make. I'd be grateful for feedback.
+<P>The makefiles are only for conveniently updating the target NLS files.
+If you don't have NMAKE, you can still assemble the files manually. See the
+following pages for details.
+
+<P><LI>XWorkplace V0.9.0 and above can read the TMF message file directly,
+so <CODE>MKMSGF.EXE</CODE> is no longer needed to compile message files.
+
+</UL>
+<BR>
+
+</BODY>
+</HTML>

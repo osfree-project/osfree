@@ -1,0 +1,97 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        XCENTERGLOBALS
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung der Einleitung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Hinweis:</B> Dies ist ein Ausschnitt aus der Datei <CODE>center.h</CODE>.
+Diese Definition ist nicht unbedingt aktuell. Benutzen Sie immer
+<CODE>center.h</CODE> im Verzeichnis der Widget-Quellen statt dieser
+Definition.
+
+<PRE>
+    /*
+     *@@ XCENTERGLOBALS:
+     *      global data for a running &xcenter; instance.
+     *      A pointer to this structure exists in each
+     *      XCENTERWIDGET instance so that the widgets
+     *      can access some of the global data.
+     *
+     *      In this structure, an &xcenter; instance
+     *      passes a number of variables to its member
+     *      widgets so that they can access some things
+     *      more quickly for convenience. This structure
+     *      is fully initialized at the time the widgets
+     *      are created.
+     *
+     *      "Globals" isn't really a good name since
+     *      one of these structures is created for
+     *      each open &xcenter; (and there can be several),
+     *      but this is definitely more global than the
+     *      widget-specific structures.
+     */
+
+    typedef struct _XCENTERGLOBALS
+    {
+        HAB                 hab;                // anchor block of frame and client
+        HWND                hwndFrame,          // &xcenter; frame window
+                            hwndClient;         // client (child of &xcenter; frame)
+
+        PVOID               pCountrySettings;
+                    // country settings; this points to a COUNTRYSETTINGS
+                    // structure (prfh.h)
+
+        ULONG               cyTallestWidget;
+                    // height of client (same as height of all widgets!)
+
+        ULONG               cxMiniIcon;
+                    // system mini-icon size (for convenience); either 16 or 20
+
+        LONG                lcol3DDark,
+                            lcol3DLight;
+                    // system colors for 3D frames (for convenience; RGB!)
+
+        // the following are the width settings from the second "View"
+        // settings page;
+        // a widget may or may not want to consider these.
+        ULONG               flDisplayStyle;
+                    // &xcenter; display style flags;
+                    // a widget may or may not want to consider these.
+                    // These flags can be any combination of the following:
+                    // -- XCS_FLATBUTTONS: paint buttons flat. If not set,
+                    //      paint them raised.
+                    // -- XCS_SUNKBORDERS: paint static controls (e.g. CPU meter)
+                    //      with a "sunk" 3D frame. If not set, do not.
+                    // -- XCS_SIZINGBARS: &xcenter; should automatically paint
+                    //      sizing bars for sizeable widgets.
+                    // -- XCS_ALL3DBORDERS: &xcenter; should draw all four 3D
+                    //      borders around itself. If not set, it will only
+                    //      draw one border (the one towards the screen).
+
+        ULONG               ulPosition;
+                    // &xcenter; position on screen, if a widget cares...
+                    // This is _one_ of the following:
+                    // -- XCENTER_BOTTOM
+                    // -- XCENTER_TOP
+                    // Left and right are not yet supported.
+
+        ULONG               ul3DBorderWidth;
+                    // 3D border width
+        ULONG               ulBorderSpacing;
+                    // border spacing (added to 3D border width)
+        ULONG               ulSpacing;
+                    // spacing between widgets
+
+    } XCENTERGLOBALS, *PXCENTERGLOBALS;
+
+</PRE>
+
+
+<BR>
+</BODY>
+</HTML>
+
+

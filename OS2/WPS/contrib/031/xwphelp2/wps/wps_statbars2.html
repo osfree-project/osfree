@@ -1,0 +1,91 @@
+<HTML RESID=&ID_XSH_SETTINGS_SB2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Statusbalken pagina 2
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+Met de tekst velden in de <B>"Inhoud van de statusbalken"</B> groep,
+kunt u bepalen wat getoond zal worden in de statusbalken.
+
+<!-- V0.9.13: removed this
+XFolder uses certain (not very intuitive, however flexible) codes to
+display variable Desktop object information.
+Please look into the &xwp;_User_Guide
+to learn more about all the different supported codes.
+All codes start with the "$" character. If &xwp; does not recognize
+a certain text you enter here as a status bar code, it will simply be copied into the
+status bar display, so you can also add informative text here. -->
+
+<P>De statusbalken van &xwp; werken in <B>drie verschillende modi,</B> afhankelijk van
+of er geen, slechts ‚‚n of meerdere objecten momenteel geselecteerd zijn in de map.
+Voor elk van deze drie modi, kunt u elke tekst invoeren die u in het respectievelijke
+tekstveld wilt hebben.
+
+<UL><LI>De toetsen in het veld <B>"Geen object geselecteerd"</B> bepalen wat voor informatie
+er getoond zal worden als er momenteel helemaal geen object geselecteerd is in de map.
+
+<!-- V0.9.13: rewrote the following -->
+<P><LI>In <B>"‚‚n object mode",</B> ondersteunt &xwp; specifieke statusbalk
+informatie, afhankelijk van de <A HREF="glossary/gls_wpsclasses.html">class</A>
+van het momenteel geselecteerde object. Bijvoorbeeld, als u een programma object selecteert,
+zal de informatie anders zijn in vergelijking met een geselecteerd gegevensbestand of map.
+<!-- end V0.9.13 -->
+
+<P>Druk de <B>"Kies class..."</B> knop in om de WPS class te selecteren waarvoor u
+statusbalk informatie wilt hebben. De codes die u dan invoert in het invoerveld
+hebben alleen invloed op de objecten van die class.
+
+<!-- V0.9.5: changed the following paragraph -->
+<P>Als de <B>"Loskoppelen reflecties"</B> instelling in deze groep is geactiveerd.
+zal &xwp;, als momenteel een enkel reflectie object is geselecteerd, niet de informatie
+van het reflectie object tonen (wat behoorlijk nutteloos is), maar van het object waarnaar
+de reflectie verwijst.
+
+<P><LI>De codes in het veld <B>"Meerdere objecten geselecteerd"</B> bepalen
+de informatie die getoond zal worden wanneer meer dan ‚‚n object geselecteerd is.
+
+<!-- V0.9.5: added the following paragraph -->
+<P>Als de  <B>"Loskoppelen reflecties"</B> instelling in deze groep is geactiveerd
+en er zijn meerdere objecten geselecteerd, waaronder reflecties, zal &xwp; de informatie
+gebruiken van het object waarnaar de reflecties verwijzen om de grootte van de
+"geselecteerde objecten" te berekenen. Natuurlijk kan dit een grootte van de geselecteerde
+objecten geven die groter kan zijn, dan de grootte van de objecten in de map,
+omdat de reflectie objecten niet echt bij de map horen.
+<!-- V0.9.16 I added this per
+user request with V0.9.5. -->
+
+</UL>Let op dat alle aanpassingen direct effect hebben zodat u kunt zien wat het resultaat
+in een open map is terwijl u experimenteert met de verschillende statusbalk codes.
+
+<!-- V0.9.13: added the following -->
+<P>&xwp; gebruikt speciale <B>codes</B> om variabele Werkplek object informatie te tonen.
+Alle codes beginnen met een <CODE>"$"</CODE> karakter. Als &xwp; een bepaalde tekst niet
+herkend die u hier invoert, zal het simpelweg gekopieerd worden in de statusbalk, dus
+u kunt hier ook informatieve tekst toevoegen.
+
+<P>De codes die gebruikt kunnen worden in de statusbalk inhoud beschrijvingen zijn afhankelijk van
+de mode waarin de statusbalk momenteel draait. Zie voor uitgebreide beschrijvingen
+van de verschillende codes, de volgende lijst:
+
+<UL><LI><A HREF="fsys/stat_4common.html">Algemene codes voor alle drie modi</A>
+<LI><A HREF="fsys/stat_5wpobject.html">Algemene codes voor ‚‚n object mode alleen</A>
+<LI><A HREF="fsys/stat_61wpfsys.html">Codes voor WPFileSystem objecten in ‚‚n object mode</A>
+<LI><A HREF="fsys/stat_62wpdisk.html">Codes voor WPDisk objecten in ‚‚n object mode</A>
+<LI><A HREF="fsys/stat_63wppgm.html">Codes voor WPProgram objecten in ‚‚n object mode</A>
+<LI><A HREF="fsys/stat_64wpurl.html">Codes voor WPUrl objecten in ‚‚n object mode</A>
+</UL>
+<!-- end V0.9.13 -->
+
+<!-- V0.9.0: the following is unchanged -->
+<P>Druk op <B>"Ongedaan maken"</B> om de instellingen te herstellen
+naar die welke in gebruik waren voordat u deze notitieblok pagina opende.
+
+<P>Druk op <B>"Standaard"</B> om de instellingen te herstellen
+naar die welke in gebruik waren op het moment van installatie.
+
+<BR>
+</BODY>
+</HTML>
+

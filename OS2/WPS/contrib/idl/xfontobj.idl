@@ -1,0 +1,200 @@
+
+/*
+ * xfontobj.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPFontObject: a subclass of WPTransient. One instance
+ *                          of this class is created by XWPFontFolder
+ *                          for every font on the system.
+ *
+ *      See src\classes\xfontobj.c for details.
+ */
+
+/*
+ *      Copyright (C) 2001-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wptrans.idl>          // this is SOM for WPTransient
+
+/*
+   CLASS: XWPFontObject
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject [ = XFldObject ]
+               ÀÄÄ WPTransient
+                     ÀÄÄ XWPFontObject
+*/
+
+interface M_XWPFontObject;            // forward reference to metaclass
+
+interface XWPFontObject : WPTransient
+{
+
+    /*
+     * New instance methods for XWPFontObject:
+     *
+     */
+
+    BOOL xwpSetFontFile(in PSZ pszFontFile);
+    BOOL xwpQueryFontFile(in PSZ pszFontFile);
+
+    BOOL xwpSetFontFamily(in PSZ pszFontFamily);
+    BOOL xwpQueryFontFamily(in PSZ pszFontFamily);
+
+    BOOL xwpSetFontFileError(in ULONG arc);
+    ULONG xwpQueryFontFileError();
+
+    ULONG xwpValidateFont();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpSetFontFile,
+            xwpQueryFontFile,
+            xwpSetFontFamily,
+            xwpQueryFontFamily,
+            xwpSetFontFileError,
+            xwpQueryFontFileError,
+            xwpValidateFont;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = fono_;
+        externalstem = fono;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfontobj;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPFontObject;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPFontObject:
+         *
+         */
+
+        PSZ     pszFontFile;        // full font file specification (as in OS2.INI, "PM_Fonts" data)
+
+        PSZ     pszFontFamily;      // family name, as returned by GpiQueryFontFileDescriptions
+
+        ULONG   arcFontFileError;   // if font file is invalid, this has the error code
+
+        PSZ     pszFontFileError;   // error description or NULL.
+
+        BOOL    fShowingOpenViewMenu;  // TRUE if context menu on XCenter client
+
+        /*
+         * WPTransient methods overridden by XWPFontObject:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        wpSetupOnce: override;
+
+        wpQueryDetailsData: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+        wpQueryDefaultView: override;
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpOpen: override;
+
+        wpFormatDragItem: override;     //# added V1.0.2 (2003-12-03) [umoeller]
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPFontObject : M_WPTransient
+{
+
+    /*
+     * New class methods for M_XWPFontObject:
+     *
+     */
+
+    ULONG xwpclsQueryFontSampleHints();
+    BOOL xwpclsSetFontSampleHints(in ULONG ulHints);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsQueryFontSampleHints,
+            xwpclsSetFontSampleHints;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = fonoM_;
+        externalstem = fonoM;
+        functionprefix = fonoM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfontobj;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPFontObject:
+         *
+         */
+
+        /*
+         * M_WPTransient methods overridden by M_XWPFontObject:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryDetailsInfo: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

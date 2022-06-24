@@ -1,0 +1,202 @@
+
+/*
+ * xwpstring.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPString
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpstring.c for details.
+ */
+
+/*
+ *      Copyright (C) 2000-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpabs.idl>         // this is SOM for WPAbstract
+
+/*
+   CLASS: XWPString
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ XWPString
+*/
+
+interface M_XWPString;            // forward reference to metaclass
+
+interface XWPString : WPAbstract
+{
+    /*
+     * New instance methods for XWPString:
+     *
+     */
+
+    PSZ xwpQueryString();
+
+    BOOL xwpSetString(in PSZ pszSetupString);
+
+    WPObject xwpQueryStaticObject();
+    BOOL xwpSetStaticObject(in WPObject pObject);
+
+    ULONG xwpAddXWPStringPages(in HWND hwndNotebook);
+
+    BOOL xwpInvokeString(in ULONG cObjects,
+                         in WPObject apObjects[1]);
+
+    //# BOOL xwpQuerySetup2(in PVOID pstrSetup);        V1.0.1 (2002-12-08) [umoeller]
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpQueryString,
+            xwpSetString,
+            xwpQueryStaticObject,
+            xwpSetStaticObject,
+            xwpAddXWPStringPages,
+            xwpInvokeString;
+            //# xwpQuerySetup2;       //# V1.0.1 (2002-12-08) [umoeller]
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwstr_;
+        externalstem = xwstr;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpstring;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPString;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPString:
+         *
+         */
+
+        PSZ         pWszSetupString;    // setup string to be invoked on member
+                                        // object or other object dropped on instance;
+                                        // WARNING: allocated using wpAllocMem
+
+        HOBJECT     hobjStatic;         // static object to invoke pszSetupString
+                                        // upon on double-click or hotkey press
+
+        BOOL        fConfirm;           // display confirmation box before
+                                        // invoking setup string?
+
+        BOOL        fNoStringPage;      // if TRUE, do not show "string" page
+                                        // V0.9.20 (2002-07-12) [umoeller]
+
+        PVOID       pvtiSetupThread;    // PTHREADINFO of setup thread
+
+        ULONG       tidRunning;         // or NULLHANDLE
+
+        /*
+         * WPAbstract methods overridden by XWPString:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+        wpObjectReady: override;
+
+        wpSetup: override;
+
+        xwpQuerySetup2: override;            //# V1.0.1 (2002-12-08) [umoeller]
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpModifyPopupMenu: override;
+
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+        wpOpen: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+        wpQueryDefaultView: override;
+
+        wpAddObjectWindowPage: override;
+
+        wpAddSettingsPages: override;
+
+        wpDragOver: override;
+        wpDrop: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPString : M_WPAbstract
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwstrM_;
+        externalstem = xwstrM;
+        functionprefix = xwstrM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpstring;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPAbstract methods overridden by M_XWPString:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+
+        //# wpclsCreateDefaultTemplates: override;  removed V1.0.1 (2002-12-11) [umoeller]
+    };
+#endif
+};
+
+

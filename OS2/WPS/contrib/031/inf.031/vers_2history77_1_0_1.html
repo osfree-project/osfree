@@ -1,0 +1,104 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 1.0.1
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+Pure bugfix release off the 1.0 branch.
+"Bug #" numbers refer to the official XWorkplace bugtracker at
+<a href="http://xtracker.netlabs.org">http://xtracker.netlabs.org</a>.
+
+<P><B>&xwp; 1.0.1 (February 2, 2003)</B>
+
+<p>
+
+Miscellaneous changes:
+
+<UL><LI>Common: Removed global "resize settings pages" setting, which is always enabled now.
+(Bug #285, 286)
+
+<P><LI>Common: Removed the annoying "hwndDaemonObject is NULLHANDLE" log message on every
+startup.
+(Bug #64)
+
+<P><LI>Turbo folders: Removed the "extended associations" setting, which is now combined
+with the "turbo folders" setting. Using only one of them proved to make the system
+unstable, and this turned out to be impossible to fix without a lot of effort.
+
+<P><LI>Folder split views: Sped up emptying containers on folder change.
+(Bug #270)
+
+<P><LI>Pager: Adjusted default window position to not overlap eCenter.
+
+<P><LI>XCenter: made introductory help a global setting.
+
+<P><LI>XCenter: Removed the xwhealth widget from the distribution, since the author has
+a more up-to-date version on his web page and no longer supplies me with updates. The one
+from previous versions should still work.
+
+</ul>Bugfixes:
+
+<UL><LI>Common: Fixed XWPProgram class breaking the entire WPS class setup during initialization.
+(Bug #266)
+
+<P><LI>Common: Mouse pointer was sometimes set wrong over my containers with checkboxes. Fixed.
+(Bug #266)
+
+<P><LI>Folder split views: Fixed a dangling pointer in folder background loading.
+
+<P><LI>Folder split views: Preventing the Desktop from ever opening in split view.
+(Bug #325)
+
+<P><LI>Folder split views: Folders created with "Create New" under disk object did not appear immediately.
+Fixed.
+(Bug #284)
+
+<P><LI>Batch-rename objects: Raised internal buffer size to avoid "string too long" messages
+for longer filenames.
+
+<P><LI>Lazy icon loading/shadow icons: Fixed blank icons of shadows to folders. (Bug #329)
+
+<P><LI>Lazy icon loading/shadow icons: Fixed ICO/PTR files being reset to assoc icons.
+(Bug #293)
+
+<P><LI>Folder refresh: &xwp; now correctly detects when a .LONGNAME EA has changed.
+(Bug #238)
+
+<P><LI>Font folder: Fixed wrong error message.
+(Bug #36)
+
+<P><LI>File operations: "Title clash" dialog frequently had no checkbox enabled, even though
+it worked correctly otherwise.
+(Bug #229)
+
+<P><LI>WPS class list: fixed trap on open.
+(Bug #243)
+
+<P><LI>OS/2 kernel: POPUPLOG drive was wrong. Fixed by Paul Ratcliffe.
+(Bug #37)
+
+<P><LI>OS/2 kernel: CLASSPATH system path was wrong. Fixed by Paul Ratcliffe.
+(Bug #272)
+
+<P><LI>XCenter: "Reduce desktop workarea" finally positions maximized windows without overlapping.
+(Bug #246)
+
+<P><LI>XCenter: Object buttons that pointed to now invalid objects would cause internal
+traps in PM because the icon handle was wrong. Fixed.
+
+<P><LI>XCenter: Tray widget now remembers background color.
+(Bug #58)
+
+<P><LI>XCenter: Changing top/bottom location of XCenter wrongly set a screen border action.
+Fixed.
+(Bug #252)
+
+</UL>
+</BODY>
+</HTML>
+

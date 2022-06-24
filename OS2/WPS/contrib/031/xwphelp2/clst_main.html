@@ -1,0 +1,89 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPSCLASSES;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Class List
+    </TITLE>
+</HEAD>
+<BODY>
+Het "WPS Class List" object toont u de complete WPS class list als een hi‰rarchische boomstructuur,
+met zeer veel additionele WPS en SOM informatie.
+Door dit object te gebruiken, kunt u zowel WPS classes registreren/deregistreren en vervangen en
+vervanging van classes ongedaan maken, die reeds zijn geregistreerd.
+
+<P>Zie <A HREF="glossary/gls_wpsclasses.html">"WPS classes"</A> voor een introductie wat
+WPS classes inhouden.
+
+<P><B>Waarschuwing:</B> Het WPS Class List object maakt het u mogelijk wijzigingen aan te brengen
+die uw systeem onbruikbaar maken. Als u de betekenis van een bepaalde class niet weet, of als u niet
+weet waar WPS classes allemaal voor dienen, moet u hierin <I>geen</I> wijzigingen aanbrengen.
+U kunt veilig alle informatie bekijken, maar u moet de WPS class list niet bewerken indien u niet
+precies weet wat u doet.
+Veel wijzigingen die deze pagina mogelijk maakt kunnen uw systeem instabiel maken (als u geluk hebt)
+of maken het starten van de Workplace Shell geheel onmogelijk zodat u misschien &os2; geheel opnieuw
+moet installeren.
+<B>Zorg er in ieder geval voordat u een backup van de WPS maakt voordat ook maar iets gaat wijzigen.</B>
+
+<P> Het class list venster is gesplitst in drie sub-vensters, waarvan de scheidingen d.m.v. de muis verplaatst
+kunnen worden.
+
+<P>Als u <B>een class selecteert in de class boom in het linker venster</B>, tonen de twee sub-vensters rechts additionele
+informatie over deze class.
+
+<OL><LI><B>Rechtsboven,</B> vindt u WPS gerelateerde informatie, zoals naam van de class,
+de standaard class titel (zoals getoond in de derde kolom van een gedetailleerde kijk op een map),
+en de
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+die de class bevat.
+<P>Als deze DLL in het
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A> staat,
+is in de meeste gevallen geen extra informatie te zien.
+Dit is speciaal van toepassing voor de meeste standaard WPS classes, die zijn opgeslagen in
+<CITE>\OS2\DLL\PMWP.DLL</CITE>.
+<P>Ook is het "class default" pictogram te zien, dat gewoonlijk 'hard-coded' in de class zit.
+Dit is het pictogram dat standaard wordt afgebeeld indien geen eigen pictogram is aangemaakt
+voor een object op de "Pictogram" notitieblok pagina.
+<P>In de meeste gevallen, als de geselecteerde class bekend is bij &xwp; zijn maker, ontvangt u ook
+een korte beschrijving van de class.
+
+<P><LI><B>Rechts onder,</B> wordt veel methode informatie getoond die direct uit de
+SOM kernel wordt gehaald (waarop de Workplace Shell afgaat om zijn classes te verenigen). Deze informatie
+is ongetwijfeld alleen van belang voor WPS programmeurs en praktisch gelijk aan de output van de befaamde
+"RWX" hulpprogramma.
+<P>
+Afhankelijk van de bovenin gemaakte selectie, laat dit sub-venster de instantie methodes van de class methodes
+van de zojuist geselecteerde class zien.
+<P>Voor iedere methode, krijgt u de volgende <B>methode informatie</B>
+(het kan zijn dat u de scheidingsbalk van de verzamelplaats moet verplaatsen om alle velden te kunnen zien):
+<BR><OL><LI><B>Methode index.</B> Dit wordt intern door SOM gebruikt om snel methodes overeenstemmend
+met de methode tabellen te verklaren. Dit is de index waarin de methode is opgeslagen in de class methode tabel.
+Bedenk dat dezelfde methode niet noodzakelijk dezelfde index heeft in verschillende classes.
+<P><LI><B>Methode naam.</B> Dat is dus de naam van de methode.
+<P><LI><B>Adres.</B> De procedure pointer die SOM heeft teruggegeven toen de methode werd ingevuld.
+Deze pointer is natuurlijk afwijkend voor verschillende classes als een class een methode heeft opgeheven.
+<P><LI><B>Class.</B> De class die de methode introduceerde (het eerst definieerde).
+<P><LI><B>Overschreven door. </B>Een lijst van classes die deze methode hebben overschreven.
+Bedenk dat alleen classes tot de huidige geselecteerde class worden getoond. Als andere
+overge‰rfde classes van de huidige class deze methode overschrijven, wordt dat niet getoond.
+Selecteer de overerfde classes om die informatie te zien.
+
+</OL><BR>Bedenk dat u de methode informatie kunt <B>sorteren</B> op vier verschillende criteria voor
+extra duidelijkheid.
+Klik rechts in het titel gebied van het methode scherm (waar de kolom titels staan), en u krijgt een
+&popmenu; met de sorteer opties.
+
+</OL>U kunt de WPS class lijst <B>wijzigen</B> door
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A> te gebruiken.
+Druk met muistoets 2 op iedere class naam in de class boom, en er zal een &popmenu;
+verschijnen, die u de aanwezige opties voor deze class toont.
+Bepaalde opties worden uitgeschakeld als &xwp; denkt dat u bepaalde wijzigingen niet moet maken.
+
+<P>Als u muis toets 2 in een <B>leeg gebied</B> van de linker window indrukt, verschijnt een ander
+&popmenu;. Dit geeft u de mogelijkheid om een nieuwe class te registreren .
+
+<BR>
+</BODY>
+</HTML>
+

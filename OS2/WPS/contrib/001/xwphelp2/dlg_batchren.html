@@ -1,0 +1,68 @@
+<HTML RESID=&ID_XFH_BATCHRENAME;>
+<HEAD>
+    <TITLE>
+        &xwp;: Rename Objects
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+The "Rename objects" menu item allows you to rename many objects at once,
+using <A HREF="glossary/gls_regexps.html">extended regular expressions</A>
+("batch renaming").
+Note that simple <A HREF="glossary/gls_wildcards.html">wildcard</A>
+expressions are not supported in this dialog.
+
+<P>Batch renaming can be very useful if you have to rename many objects at
+once according to the same criteria -- for example, if you would like to
+rename all files ending in <CODE>.JPEG</CODE> to <CODE>.jpg</CODE>.
+
+<P>To do a batch rename, do the following:
+
+<!-- V0.9.20: replace UL with OL tag and /UL with /OL -->
+<OL><LI>Enter a <B>"find" regular expression</B> in the top entry field. This
+is the match string against with objects will be tested according to
+the rules specified under
+<A HREF="glossary/gls_regexps.html">extended regular expressions</A>.
+
+<P>For example, if you specify <CODE>(.*)\.JPEG</CODE> here, all files
+ending in <CODE>.JPEG</CODE> will be affected by the rename.
+
+<P>Make sure that each string component that you would like to replace with
+a different string is specified in brackets. Otherwise you cannot reference
+the component from the "rename to" expression.
+
+<P><LI>Enter a <B>"rename to" expression</B> into the second entry field.
+This specifies the rule according to
+which each object is renamed.
+
+<P>Note that the replacement string is not a full regular expression because
+it is not used for matching objects. As a result, you do not have to escape
+special characters such as dots. However, a backslash with a decimal number
+specifies is considered a reference into a bracket expression in the search
+string.
+
+<P>With the above example, to rename the files
+ending in <CODE>.JPEG</CODE> to <CODE>.jpg</CODE>, specify
+<CODE>\1.jpg</CODE>. With an object called <CODE>FILE.JPEG</CODE>
+matched against the <CODE>(.*)\.JPEG</CODE> find string, <CODE>\1</CODE>
+in the object title would yield <CODE>FILE</CODE>, so the object would be
+renamed to <CODE>FILE.jpg</CODE>.
+
+<P><LI>Select or deselect the <B>"Case sensitive match"</B> box, depending on
+whether the search string should be applied irrespective of case.
+
+<P><LI>If you select <B>"Match selected objects only"</B>, the find operation
+will only apply to objects that are currently selected in the folder. Otherwise
+all objects in the folder will be tested against the "find" string.
+
+<P><LI>Press the <B>"Start renaming..."</B> button. This will then ask
+you for each object that matches the source string and give you the
+proposed title for renaming it so you can verify whether the strings
+you entered actually do what you were intending to achieve.
+
+</OL>The dialog maintains a history of the last ten valid source and
+target regular expressions, respectively. You can access this history
+by accessing the drop-down list for each entry field.
+</BODY>
+</HTML>
+

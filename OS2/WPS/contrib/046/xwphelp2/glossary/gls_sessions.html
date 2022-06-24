@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sessionstyper
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Under &os2;, k”rs program i <B>sessioner.</B> En session best†r av en eller flera
+<A HREF="glossary/gls_scheduler.html">processer</A> och kan k”ras i f”nster eller
+fullsk„rmsl„ge. Som till„gg, varje session har en speciell typ, beroende p† det
+operativsystem som programmet skrevs f”r.
+
+<P>Žven om program normalt „r skrivna f”r att k”ras under ett specifikt operativsystem,
+har &os2; inbyggt st”d f”r att kunna k”ra program f”r andra operativsystem ocks†.
+&os2; st”der f”ljande <B>sessionstyper:</B>
+
+<UL><LI><B>Presentation Manager (PM)</B> sessioner. PM „r det grafiska subsystemet
+hos &os2; och „r ansvarigt f”r att hantera multipla f”nster p† sk„rmen, st”der
+grafisk visning som ikoner och bilder, mus och tangentbordsinmatning, och
+standardkontroller som menyer och rubrikrader. Till exempel, hj„lpf”nstret
+vilket visar den text som du f”r n„rvarande l„ser i ett PM f”nster. &os2;'s Workplace Shell,
+vilket visar ditt Skrivbord, „r ocks† ett PM program.
+
+<P>PM program k”rs alltid i en och samma PM session som startades n„r systemet startades
+upp. Du kan inte starta en andra PM session. D„remot, kan du ut”ka din sk„rmyta genom att
+anv„nda <A HREF="hook/pager_intro.html">&pgr;</A>, vilken till†ter dig att v„xla mellan olika
+virtuella skrivbord.
+
+<P><LI>M†nga OS/2 program anv„nder d„remot inte PM, utan k”rs i textl„ge ist„llet.
+Vilket <B>OS/2 textl„ges</B> program som helst, inklusive
+<A HREF="objects/obj_pgmf_batch.html">kommandofiler</A> (<CODE>.CMD</CODE> „ndelse),
+kommer att startas i en separat session som antingen kan vara f”nster eller fullsk„rms.
+
+<BR><P><B>F”nster kommandosessioner</B> <IMG SRC="img/os2_os2win.gif"> „r synliga p† ditt
+Skrivbord samtidigt som de „r en del av PM sessionen, s† du kan fortfarande se alla andra
+f”nster som „r ”ppna.
+
+<BR>Som kontrast, en <B>fullsk„rmssession</B> <IMG SRC="img/os2_os2full.gif"> kommer att
+ockupera hela sk„rmen. Dina andra f”nster „r fortfarande ”ppna och andra program k”rs
+fortfarande, men f”r att kunna se dom, m†ste du v„xla tillbaka till PM sessionen genom
+att anv„nda <CODE>Alt+Esc</CODE> eller <CODE>Ctrl+Esc</CODE> systemsnabbkommandona.
+
+<P><LI>&os2; kan ocks† k”ra merparten av alla <B>DOS program</B>. DOS „r originaloperativsystemet
+f”r persondatorer som skeppades f”rst med IBM PC. DOS program, inklusive
+<A HREF="objects/obj_pgmf_batch.html">batchfiler</A>
+(<CODE>.BAT</CODE> „ndelse), vanligtvis som textl„ge och kan k”ra b†de som f”nster eller
+fullsk„rmssession.
+
+<BR><B>F”nster DOS sessioner</B> <IMG SRC="img/os2_doswin.gif"> „r ocks† synliga p† ditt
+Skrivbord.
+
+<BR><B>Fullsk„rms DOS sessioner</B> <IMG SRC="img/os2_dosfull.gif"> kommer att ockupera
+hela sk„rmen, liknande andra fullsk„rmssessioner.
+
+<P><LI>&os2; kan ocks† p† egen hand exekvera den stora majoriteten av
+16-bitars Windowsapplikationer skrivna f”r Microsoft Windows 3.x.
+
+<BR>Dessa k”rs i s†-kallade <B>&winos2; sessioner</B> <IMG SRC="img/os2_win16.gif"> vilka
+kan vara f”nster eller fullsk„rmssessioner. Om ett &winos2; program startas som ett f”nster,
+k”rs det s”ml”st p† &os2;'s Skrivbord som om det vore ett PM program, „ven om det kommer att
+ha ett n†got annorlunda upptr„dande. Emellertid, kan du ocks† v„lja att k”ra ett &winos2; program
+i en separat fullsk„rmssession.
+
+</UL>
+F”r mer information, v„lj fr†n f”ljande lista:
+
+<UL>
+<LI><A HREF="glossary/gls_sessions_win16.html">&winos2; sessioner</A>
+<LI><A HREF="glossary/gls_sessions_win.html">F”nstersessioner</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Fullsk„rmssessioner</A>
+<LI><A HREF="glossary/gls_scheduler.html">Processer och tr†dar</A>
+<LI><A HREF="glossary/gls_cmd.html">Om kommandosessioner</A>
+<LI><A HREF="objects/obj_pgmf_batch.html">Batch och kommandofiler</A>
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,68 @@
+<HTML RESID=&ID_XSH_SETTINGS_XC_THREADS;>
+<HEAD>
+    <TITLE>
+        &xwp; Instellingen: Threads
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+De "Threads" pagina laat u informatie zien over de aanvullende threads die
+&xwp; momenteel draaiende heeft in het WPS proces. Dit kan interessant zijn
+voor debugging doeleinden en foutrapportage.
+
+<P>Elke regel in deze lijst laat u de interne <B>thread naam</B> zien, die
+alleen gebruikt wordt door &xwp; om threads te identificeren anders dan met een
+arbitrair nummer.
+De <B>"TID"</B> waarde is een "thread ID" van de respectievelijke thread (die uniek is
+binnen het WPS proces). De <B>"Prioriteit"</B> waarde is de respectievelijke thread prioriteit:
+de hoge byte kan een waarde van 1 tot 4 hebben (aangevende dat de class prioriteit: wachtend,
+normaal, tijdkritisch of voorgrond server is), terwijl de lage byte het "verschil"
+van de prioriteit laat zien binnen een prioriteitsclass.
+(Zie <A HREF="glossary/gls_scheduler.html">"Processen en threads"</A> voor details.)
+<!-- end V0.9.13 -->
+
+<P>&xwp; kan de volgende threads op uw systeem starten:
+
+<!-- V0.9.13: updated the thread names -->
+<UL><LI><B>NotifySentinel, RefreshFindFolder, RefreshNotificationPump:</B>
+deze draaien als u "vervang map automatisch bijwerken" ingeschakeld hebt op
+de "Mogelijkheden" pagina en zijn verantwoordelijk voor het op de achtergrond in de gaten houden van
+het bestandssysteem.
+
+<!-- V0.9.18: renamed media thread to Party -->
+<P><LI><B>Party:</B> De &xwp; "Party" thread is verantwoordelijk voor multimedia,
+zoals het afspelen van systeemgeluiden.
+
+<P><LI><B>Worker:</B> De &xwp; Worker thread is verantwoordelijk voor enig achtergrond
+onderhoudswerkzaamheden die niet tijdkritisch zijn.
+
+<!-- V0.9.18: renamed Speedy thread to Bush -->
+<P><LI><B>Bush:</B> De &xwp; "Bush" thread is meestal slapende,
+maar ontwaakt spontaan voor enkele cosmetische, maar hoge prioriteit taken die
+onmiddellijke aandacht nodig hebben, zoals het laten zien van het &xwp; boot logo.
+
+<!-- V0.9.18: added Wimp thread -->
+<P><LI><B>Wimp:</B> nog een slapende thread die slechts elke paar minuten ontwaakt om
+wat geheugen op te ruimen en zulk soort dingen.
+
+<P><LI><B>File:</B> De &xwp; "Bestand" thread wordt actief als &xwp; bestandsoperaties
+uitvoert, zoals bestanden verplaatsen naar de prullenbak of het verwijderen van bestanden.
+
+<P><LI><B>&xcenter;:</B> Omdat elk
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+draait op zijn eigen thread, zult u voor elke actieve
+&xcenter; zo'n thread zien.
+
+<!-- V0.9.13: added this -->
+<P><LI><B>PulseWidgetCollect:</B> deze is alleen zichtbaar als u de
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_pulse.html">"Hartslag" widget</A>
+actief hebt in een open &xcenter;. De hartslag widget start een tweede thread op
+om CPU gebruik informatie te verzamelen van de &os2; kernel om er voor te zorgen
+dat het niet geblokkeerd wordt als een programma de PM single input queue monopoliseert.
+
+</UL>
+</BODY>
+</HTML>
+

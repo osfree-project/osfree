@@ -1,0 +1,99 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPProgram Strings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<!-- V0.9.19: title was wrong, fixed -->
+<BODY>
+<CODE>WPProgram</CODE> is the WPS class for all
+<!-- V0.9.20: added link -->
+&link_progobjs;
+(see <A HREF="glossary/gls_wpsclasses.html">WPS classes</A> for details).
+In addition to the settings strings
+recognized by the <CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> class,
+<CODE>WPProgram</CODE> recognizes the following strings:
+
+<DL>
+<DT><P><CITE><B>ASSOCFILTER</B>=<I>filters</I></CITE>
+<DD>Sets <I>filters</I> for data files to be associated with a program
+object. Multiple filters are separated by commas.
+
+<!-- V0.9.19: added ifndef, replaced entities here -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>Note: If &xwp;'s extended associations are enabled, the filter is
+stored in the INI files, but the change will have no effect until extended
+associations are disabled again because &xwp; completely ignores
+WPS associations by filter.
+</IFNDEF>
+
+<DT><P><CITE><B>ASSOCTYPE</B>=<I>types</I></CITE>
+<DD>Sets <I>types</I> for data files to be associated with a program
+object. Multiple types are separated by commas.
+
+<DT><P><CITE><B>EXENAME</B>=<I>filename</I></CITE>
+<DD>Sets the executable that the program object should point to.
+This must either be fully qualified (i.e. include the full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+of the executable) or be an executable on the <CODE>PATH</CODE>, or
+executing the program will fail.
+
+<DT><P><CITE><B>MAXIMIZED</B>={YES|NO}</CITE>
+<DD>Determines whether the executable pointed to by this program object
+should be started maximized. This will normally have no effect on PM programs.
+
+<DT><P><CITE><B>MINIMIZED</B>={YES|NO}</CITE>
+<DD>Determines whether the executable pointed to by this program object
+should be started minimized. This will normally have no effect on PM programs.
+
+<DT><P><CITE><B>PROGTYPE</B>=<I>type</I></CITE>
+<DD>Explicitly sets the session type of the executable pointed to by
+the program object. <CODE><I>type</I></CODE> must be one of the following:
+
+<UL><LI><CODE>DOSMODE</CODE>: stand-alone DOS mode.
+<LI><CODE>FULLSCREEN</CODE>: &os2; full-screen mode.
+<LI><CODE>PM</CODE>: Presentation Manager (PM).
+<LI><CODE>PROG_30_STD</CODE>: &winos2; standard compatibility full screen mode.
+<LI><CODE>PROG_31_ENH</CODE>: &winos2; enhanced compatibility full screen mode.
+<LI><CODE>PROG_31_ENHSEAMLESSCOMMON</CODE>: &winos2; window in the &winos2; enhanced
+compatibility common session.
+<LI><CODE>PROG_31_ENHSEAMLESSVDM</CODE>: &winos2; window in a separate session enhanced
+compatibility mode.
+<LI><CODE>PROG_31_STD</CODE>: standard compatibility full screen mode.
+<LI><CODE>PROG_31_STDSEAMLESSCOMMON</CODE>: &winos2; window in the &winos2; standard
+compatibility common session.
+<LI><CODE>PROG_31_STDSEAMLESSVDM</CODE>: &winos2; window in a separate session standard
+compatibility mode.
+<LI><CODE>SEPARATEWIN</CODE>: &winos2; window running in a separate VDM.
+<LI><CODE>VDM</CODE>: DOS full-screen.
+<LI><CODE>WIN</CODE>: &winos2; full screen.
+<LI><CODE>WINDOWABLEVIO</CODE>: &os2; windowed.
+<LI><CODE>WINDOWEDVDM</CODE>: DOS windowed.
+<LI><CODE>WINDOWEDWIN</CODE>: &winos2; window.
+</UL>
+
+<DT><P><CITE><B>NOAUTOCLOSE</B>={YES|NO}</CITE>
+<DD>Determines whether the session should be left open when the program terminates.
+Note that this does not affect PM programs. The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>PARAMETERS</B>=<I>params</I></CITE>
+<DD>Sets the parameters to be given to the executable pointed to by the program
+object. This may contain the standard program object substitution macros.
+
+<DT><P><CITE><B>SET </B> <I>variable</I>=<I>value</I></CITE>
+<DD>Sets an
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">environment variable</A>
+for the executable's session.
+Note that &os2; uses environment variables also to pass DOS settings to
+DOS and &winos2; sessions.
+
+<DT><P><CITE><B>STARTUPDIR</B>=<I>path</I></CITE>
+<DD>Sets the working directory for the session to be started.
+
+</DL>
+</BODY>
+</HTML>
+

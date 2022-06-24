@@ -1,0 +1,199 @@
+<HTML RESID=&ID_XSH_SETTINGS_HPFS;>
+<HEAD>
+    <TITLE>
+        &xwp;: FAT Instellingen
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     -- V0.81: Added /UL tag at bottom which was missing.
+     -- V0.9.2: changed title; also see notes below.
+-->
+Op de <!-- V0.9.2: removed this: "HPFS" and -->
+"FAT" pagina van het "&os2; Kernel" object kunt u de
+&cfgsys; instellingen aanpassen die het
+<!-- V0.9.13: replaced the following -->
+FAT bestandssysteem be‹nvloeden.
+
+<!-- V0.9.13: changed these 3 lines -->
+<P>Zie voor introductie informatie over bestandssystemen, de volgende lijst:
+<UL><LI><A HREF="glossary/gls_fs.html">Bestandssystemen</A>
+<LI><A HREF="glossary/gls_caches.html">Bestandssysteem buffers</A>
+
+</UL>Deze hulp pagina zal de verschillende instellingen alleen verklaren en ze relateren aan
+<!-- V0.9.7: changed the following -->
+de parameters van de <CODE>DISKCACHE</CODE> opdracht in het &cfgsys; bestand.
+
+<!-- V0.9.7: replaced this
+If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective chapters
+of the &os2; Command Reference. -->
+
+<!-- V0.9.7: added this line -->
+<P>Zie de <A HREF="cmdref.inf#diskcache">documentatie</A> in de
+<I>Handleiding bij &os2; Opdrachten</I> voor details.
+
+<P>Druk op <B>"Toepassen"</B> om de door u aangebrachte aanpassingen weg te schrijven in het
+&cfgsys; bestand.
+Dit zal de &cfgsys; regels aanpassen die overeenkomen met de instellingen op deze
+pagina. De regels die overeenkomen met de andere pagina's in het "&os2; Kernel" object zullen
+niet aangepast worden.
+Let a.u.b. op dat u de computer moet herstarten om de aanpassingen te effectueren.
+Een Werkplek herstart is <I>niet</I> voldoende.
+<P>Druk op <B>"Optimaliseer"</B> om &xwp; u nieuwe instellingen voor te stellen op basis van
+uw systeem karakteristieken.
+&cfgsys; zal alleen aangepast worden nadat u op "Toepassen" gedrukt heeft.
+<P>Druk op <B>"Standaard"</B> om de standaard &os2; instellingen getoond te krijgen op de
+notitieblok pagina.
+&cfgsys; zal alleen aangepast worden nadat u op "Toepassen" gedrukt heeft.
+
+<!-- V0.9.2: removed this
+On the "HPFS" page you will find a setting called "HPFS installed".
+If you do not have any HPFS drives, you can save several hundred KB of memory by
+deactivating this setting, which will not load the driver HPFS.IFS at
+system startup. If &xwp; has detected HPFS drives on your system, this setting
+is deactivated to prevent accidents.
+
+On both settings pages you'll find the following settings:
+
+
+and added the following line:
+-->
+
+<P>Deze pagina biedt u de mogelijkheid om de volgende FAT instellingen aan te passen:
+
+<UL><LI><B>Buffer grootte</B> bepaalt hoeveel KB van het hoofd geheugen gereserveerd zal worden
+voor de buffer van het betreffende bestandssysteem.
+Dit komt overeen met deze &cfgsys; parameter
+<!-- V0.9.2: removed this
+/CACHE:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+
+<CITE>DISKCACHE=xxx</CITE> voor FAT schijven.
+<!-- V0.9.20: rewrote this -->
+<P>De maximale buffer grootte voor FAT volumes is 14440 KB.
+
+<!-- V0.9.5: changed the following -->
+<P>U kunt &os2; verzoeken om <B>automatisch</B> de buffer grootte te bepalen.
+In de meeste gevallen zal dit resulteren in ongeveer 10% van het ge‹nstalleerde
+geheugen, maar in het algemeen is het gebruik van deze instelling niet aan te raden.
+
+<!-- V0.9.5: moved the following text to a separate file -->
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Zie <A HREF="glossary/gls_caches.html">"Bestandssysteem buffers"</A> voor een introductie
+in bestandssysteem buffers in het algemeen.
+
+<BR><LI>De instelling <B>"Buffer alleen bestanden kleiner dan"</B> bepaalt (in KB) de
+maximale grootte van objecten die opgeslagen worden in de buffers. Dit komt overeen met
+<!-- V0.9.2: removed this
+the &cfgsys; parameter
+/CRECL:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+de tweede parameter in <CITE>DISKCACHE=xxx</CITE> voor FAT
+<!-- V0.9.20: replace drives with volumes -->
+volumes.
+Deze instelling is bedoeld om te voorkomen dat grote bestanden die normaliter slechts eenmalig
+geladen worden de gehele buffer opslokken.
+Echter, de standaard waarde van 4 KB is veel te laag. Het is aan te bevelen om deze waardes
+voor beide bestandssystemen te verhogen naar 32 KB (&xwp; zal
+automatisch de FAT waarde vertalen naar de sector grootte die verwacht wordt in de &cfgsys;.)
+
+<BR><LI>Het <B>"Automatische controle"</B> invoerveld
+komt overeen met de
+<!-- V0.9.2: &cfgsys; parameter
+/AUTOCHECK:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and the -->
+
+<CITE>/AC:xxx</CITE> parameter in <CITE>DISKCACHE=xxx</CITE> voor FAT
+<!-- V0.9.20: replace drives with volumes -->
+volumes.
+Hier kunt u bepalen voor welke
+<!-- V0.9.20: replace drives with volumes -->
+volumes &os2; automatisch een
+<CITE>CHKDSK</CITE> moet uitvoeren bij het systeem opstarten.
+<P>Voer hier simpelweg de respectievelijke stationsletters in (zonder de afsluitende "<CITE>:</CITE>").
+&os2; zal elk station dat u hier opgeeft controleren tijdens het opstarten van het systeem als u
+uw systeem niet netjes afgesloten heeft. Als u hier een plus teken opgeeft ("<CITE>+</CITE>")
+<I>voor</I> een stationsletter, dan zal dat station altijd gecontroleerd worden, wat niet echt
+aan te raden is.
+<P>Bijvoorbeeld: Als u invoert "<CITE>C+DE</CITE>", zal station D: altijd gecontroleerd worden, terwijl
+C: en E: alleen gecontroleerd worden indien nodig.
+
+
+<!-- V0.9.2: removed this
+
+For HPFS drives, the auto-check is absolutely necessary because accessing "dirty"
+HPFS partitions will result in system errors. You should enter all your
+HPFS drives here because &os2; will print error messages at startup otherwise. This
+applies especially to your boot drive, or &os2; will refuse to boot altogether if you
+forgot to shut down or the system crashed.
+For FAT drives, auto-check is not obligatory though.
+
+and added the following line: -->
+
+<P>In tegenstelling tot HPFS stations, is automatische controle voor FAT <!-- V0.9.20: replace drives with volumes -->
+niet noodzakelijk.
+
+<P>Druk op de <B>"Voorstel"</B> knop om al de <!-- V0.9.2: HPFS or -->
+FAT <!-- V0.9.20: replace drives with volumes -->
+volumes op uw systeem
+toegevoegd te krijgen aan het invoerveld.
+
+<BR><LI>De <B>"Vertraagd schrijven"</B> instelling bepaald of &os2; gebruik mag maken van
+vertraagd schrijven naar de schijf.
+<!-- V0.9.13: replaced the following with a link -->
+Zie <A HREF="glossary/gls_caches.html">"Bestandssysteem buffers"</A> voor een verklaring.
+
+<P>Deze instelling komt overeen met
+<!-- V0.9.2: the parameter
+/LAZY:x in the command RUN=?:\OS2\CACHE.EXE for HPFS drives
+and the parameter -->
+<CITE>LW</CITE> in de <CITE>DISKCACHE</CITE> opdracht voor FAT <!-- V0.9.20: replace drives with volumes -->
+volumes.
+Standaard is vertraagd schrijven geactiveerd.
+
+<!-- V0.9.2: removed all the following, which is related to HPFS caching only
+
+For HPFS drives you may influence lazy writing in a more detailed way.
+The following values all belong to the line RUN=?:\OS2\CACHE.EXE,
+which can optionally be written into &cfgsys; (and will always be written
+if you let &xwp; modify your &cfgsys;).
+
+The "Maximum delay" setting corresponds to the
+/MAXAGE:xxx parameter and determines the maximum time that data may be
+held back in the caches before
+it will be queued for being written to disk.
+The default value is 5.000 milliseconds; several sources recommend
+to raise this to more than 7.000 milliseconds.
+Since increasing this value also increases the
+risk of data loss, you should only set this value much higher if you never experience
+any system crashes. Note that if you shut down your system or press Ctrl+Alt+Del,
+all the cache buffers are written to disk, so there's no danger here. "System crashes"
+in this context mean complete system halts or power failures which will cause
+a CHKDSK at the next bootup.
+The "Cache idle time" and "Drive idle time" settings together
+determine the write delay in relation to drive activity. These settings
+correspond to the /BUFFERIDLE:xxx and /DISKIDLE:xxx
+parameters. There seems to be much confusion about these settings, and the explanation
+in the &os2; Command Reference really leaves you even more confused.
+The best explanation I've found for this is from
+IBM in the Toolkit documentation:
+
+When no disk request has been made for the time specified with "Drive idle time",
+i.e. a disk has not been accessed for that time, all cache blocks that
+have not been modified for the time specified with "Cache idle time"
+will we written to disk. As a result, raising
+these two numbers will increase the chance that redundant disk accesses can be avoided.
+
+Some sources recommend raising both of these values to as much as 60.000 milliseconds;
+however, IBM also recommends that the "Disk idle time" value be set greater than the
+"Cache idle time" value, which, in my view, makes sense, because otherwise some cache
+areas might not be written at all.
+The default values for these are 1000 and 500 milliseconds,
+respectively.
+-->
+
+</UL>
+</BODY>
+</HTML>
+

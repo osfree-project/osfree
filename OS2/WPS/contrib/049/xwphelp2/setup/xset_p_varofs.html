@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;-Meneintrags-ID-Ausgleich
+    </TITLE>
+</HEAD>
+<BODY>
+Mit dieser Zahl wird festgelegt, welche Men-IDs fr die von
+&xwp; eingefgten Meneintr„ge verwendet werden. ndern Sie
+diese Zahl, wenn &xwp; mit anderer WPS-Software, die ebenfalls
+neue Eintr„ge in &popmenu;s einfgt, nicht zu funktionieren
+scheint.
+<P>Diese Einstellung wird sofort wirksam.
+<P><B>Ausfhrliche Erl„uterung:</B>
+<P>Bei &os2; ben”tigt jeder Meneintrag (sei es ein Untermen oder ein "echter"
+Meneintrag) eine innerhalb eines Mens eindeutige Men-ID. Dies ist eine
+Zahl von 0 bis 0xFFFF, die den Meneintrag dem System gegenber identifiziert,
+damit der "Eigner" des Mens reagieren kann, wenn ein Meneintrag ausgew„hlt
+wird.
+<P>IBM empfiehlt allen WPS-Entwicklern, fr Erweiterungen des &popmenu;s
+eine Zahl h”her als WPMENUID_USER zu verwenden (bei Warp 3 und 4 gleich
+0x6500).
+<P>Frhere Versionen von XFolder verwendeten immer WPMENUID_USER+100
+(dezimal) und darber fr die variablen Meneintr„ge, aber dadurch
+kam es zu Konflikten mit anderer Software.
+Da &xwp; keine M”glichkeit hat herauszufinden, welchen Wert andere
+WPS-Software verwendet, kann diese Einstellung nun konfiguriert werden;
+&xwp; verwendet nun Meneintr„ge mit wenigstens WPMENUID_USER plus
+der Zahl, die hier festgelegt wird.
+<BR>
+</BODY>
+</HTML>
+ 

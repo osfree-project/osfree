@@ -1,0 +1,30 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Schritt 3: Tooltips hinzufÅgen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Um Ihr Widget auch Tooltips (die Hilfe bei darÅberstehendem Mauszeiger) unterstÅtzen
+zu lassen, setzen Sie das Attribut <CODE>WGTF_TOOLTIP</CODE> im Feld
+<CODE>ulClassFlags</CODE> von
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>.
+ 
+<P>Nur wenn diese Bit gesetzt ist, empfÑngt Ihr Widget die
+<CODE>WM_CONTROL</CODE>-Nachricht mit der <CODE>TTN_NEEDTEXT</CODE> Meldung und
+<CODE>XCENTER_TOOLTIP</CODE> als Kontroll-ID.
+ 
+<P>Sie werden Sie die Headerdatei <CODE>include\helpers\comctl.h</CODE> aus den
+&xwp;-Helferlein fÅr die Definitionen der &xwp;-Tooltip-Kontrollen einbinden mÅssen.
+ 
+<P>Wenn Sie den gesamten &xwp;-Quellcode haben, kînnen Sie bei den Widgets im
+Verzeichnis <CODE>src\widgets</CODE> sehen, wie es gemacht wird.
+ 
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

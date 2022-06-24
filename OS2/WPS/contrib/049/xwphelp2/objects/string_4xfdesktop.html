@@ -1,0 +1,202 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPDesktop-Konfigurationsstrings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.7 -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<!-- V0.9.20: title changed; replace all XFldDesktop with WPDesktop;
+    added "&xwp; only" after each old entry -->
+<BODY>
+<!-- V0.9.20: replaced this first paragraph -->
+<CODE>WPDesktop</CODE> implementiert die &os2;-Arbeitsoberfl„che.
+Da die Arbeitsoberfl„che nur eine besondere Art von Ordner ist,
+untersttzt sie neben den unten aufgelisteten Strings diejenigen
+fr die Klassen
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+und <CODE><A HREF="objects/string_2wpfolder.html">WPFolder</A></CODE>.
+ 
+<P>Um die momentan ge”ffnete Arbeitsoberfl„che anzusprechen, verwendet
+man die Strings zusammen mit der ID <CODE>&lt;WP_DESKTOP&gt;</CODE>.
+ 
+<DL>
+ 
+<!-- V0.9.20: added AUTOLOCKUP -->
+<DT><P><CITE><B>AUTOLOCKUP</B>={YES|NO}</CITE>
+<DD>Legt fest, ob die Funktion fr das automatische Sperren
+aktiviert ist (ob Tastatur und Maus nach einem Zeitraum ohne
+Aktivit„t gesperrt werden - siehe <CODE>LOCKUPTIMEOUT</CODE>).
+Standard ist <CODE>NO</CODE>.
+ 
+<!-- V0.9.20: added LOCKUPAUTODIM -->
+<DT><P><CITE><B>LOCKUPAUTODIM</B>={YES|NO}</CITE>
+<DD>Legt fest, ob die Funktion fr das automatische Ausblenden aktiviert ist
+(ob der Bildschirm schwarz wird und zwei Minuten nach Sperren der Tastatur und Maus
+ein wanderndes Schloásymbol angezeigt wird).
+Standard ist <CODE>YES</CODE>.
+ 
+<!-- V0.9.20: added LOCKUPBACKGROUND -->
+<DT><P><CODE><B>LOCKUPBACKGROUND</B>=<I>name</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>Legt den Hintergrund fr die Funktion Sperren fest. Das Format ist das gleiche wie beim String
+<A HREF="objects/string_2wpfolder.html">WPFolder</A> <CODE>BACKGROUND</CODE>.
+ 
+<!-- V0.9.20: added LOCKUPFULLSCREEN -->
+<DT><P><CITE><B>LOCKUPFULLSCREEN</B>={YES|NO}</CITE>
+<DD>Legt fest, ob die Funktion Sperren den gesamten Bildschirm nutzt.
+Falls <CODE>YES</CODE>, wird der durch <CODE>LOCKUPBACKGROUND</CODE> bestimmte
+Hintergrund angezeigt, wenn das System gesperrt wird. Falls <CODE>NO</CODE>, wird
+nur ein Dialog angezeigt, der zur Eingabe eines Passwortes auffordert.
+Standard ist <CODE>YES</CODE>.
+ 
+<!-- V0.9.20: added LOCKUPONSTARTUP -->
+<DT><P><CITE><B>LOCKUPONSTARTUP</B>={YES|NO}</CITE>
+<DD>Legt fest, ob das System direkt nach dem Systemstart automatisch gesperrt
+werden soll (oder nachdem es erneut gestartet wurde).
+Standard ist <CODE>NO</CODE>.
+ 
+<!-- V0.9.20: added LOCKUPTIMEOUT -->
+<DT><P><CITE><B>LOCKUPTIMEOUT</B>=<I>n</I></CITE>
+<DD>Gibt die Anzahl Minuten der Inaktivit„t von Tastatur und Maus an,
+nach der das System automatisch gesperrt wird. Die Einstellung wird
+ignoriert, wenn <CODE>AUTOLOCKUP</CODE> nicht aktiviert ist.
+ 
+<!-- V0.9.20: SHOWHELPPANEL added -->
+<DT><P><CITE><B>SHOWHELPPANEL</B>=[XWP|<I>filename</I>,]<I>panelid</I></CITE> (nur &xwp;)
+<DD>Zeigt eine beliebige Hilfeseite ("panel") aus einer beliebigen <CODE>.HLP</CODE>-Datei
+an. Dieser String kann von Anwendungen oder REXX-Skripten verwendet werden, um
+Hilfen entweder aus der Systemhilfe oder einer speziellen, mit einer Anwendung gelieferten
+Hilfe anzuzeigen.
+ 
+<P>Bei &os2; wird jeder Seite in einer .HLP-Datei eine eindeutige Nummer zugewiesen, die
+<I><CODE>panelid</CODE></I>.
+Infolgedessen kann jedes Hilfe-Panel mit Hilfe des Dateinamens der Hilfedatei und
+der ID identifiziert werden.
+Bei <CODE>SHOWHELPPANEL</CODE> kann die anzuzeigende Seite auf verschiedene Arten
+angegeben werden:
+ 
+<UL><LI><CODE>XWP,<I>panelid</I></CODE> gibt eine Panel aus &xwp;s eigener Hilfedatei,
+XFLDRxxx.HLP, an. <CODE>XWP</CODE> ist eine Abkrzung fr den Dateinamen, die verhindert,
+daá der Code der aktuellen Sprachversion bekannt sein muá. Die von &xwp; benutzten
+Hilfe-Panel-IDs befinden sich in der Datei <CODE>helpids.h</CODE> im Verzeichnis
+<CODE>toolkit\shared</CODE>.
+ 
+<P><LI>Falls nur <CODE><I>panelid</I></CODE> angegeben wird, wird angenommen,
+daá ein Hilfe-Panel aus &os2;s <CODE>WPHELP.HLP</CODE>-Datei angesprochen werden soll.
+ 
+<P><LI>Gibt man auch einen <CODE><I>filename</I></CODE> an, kann jede Hilfedatei im
+System ge”ffnet werden. Befindet sich diese Datei in einem der Verzeichnisse des
+<CODE>HELP</CODE>-<A HREF="glossary/gls_path_sys.html">Systempfads</A>, so kann
+der <A HREF="glossary/gls_path.html">komplette Pfad</A> der Datei weggelassen werden.
+ 
+</UL>
+ 
+<!-- V0.9.14: SHOWRUNDLG added -->
+<DT><CITE><B>SHOWRUNDLG</B>=<I>startupdir</I></CITE> (nur &xwp;)
+<DD>Zeigt &xwp;s Dialog "Ausfhren" an, wie beim Befehl "Ausfhren..."
+aus dem
+<!-- V0.9.19: added links -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>-Widget
+<A HREF="xcenter/xc_xbtn1.html">&xbutton;</A> heraus.
+ 
+<P>Ist <CITE><I>startupdir</I></CITE> auf <CITE>DEFAULT</CITE> gesetzt, bleibt
+das Eingabefeld des Dialogs fr das Arbeitsverzeichnis anfangs leer
+(was bedeutet, daá das Wurzelverzeichnis des Startlaufwerks benutzt werden
+sollte). Jeder andere Wert wird als Voreinstellung fr das Arbeitsverzeichnis
+verwendet.
+ 
+<P><B>Hinweis 1:</B> Dieser Konfigurationsstring „ndert keine Einstellungen,
+sondern ist eigentlich ein Befehl, der sofort ausgefhrt wird.
+ 
+<P><B>Hinweis 2:</B> Wenn dieser Konfigurationsstring aus einem Programm heraus
+ausgefhrt wird (entweder durch <CODE>WinSetObjectData</CODE> oder <CODE>SysSetObjectData</CODE>),
+kehrt die Funktion nicht eher zurck, als bis der Dialog geschlossen worden ist.
+ 
+<P><B>Beispiel:</B> <CITE>SHOWRUNDLG=F:\OS2</CITE> zeigt den Dialog "Ausfhren" an,
+wobei das Arbeitsverzeichnis-Feld den Wert <CITE>F:\OS2</CITE> enth„lt.
+<!-- end V0.9.14 -->
+ 
+<!-- V0.9.20: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<DT><P><CITE><B>XSHUTDOWNNOW</B>=<I>settings</I></CITE> (nur &xwp;)
+<DD>Startet sofort &xshutdown; mit den angegebenen <I>settings</I>, die den diversen
+Einstellungen auf der Seite "&xshutdown;" im Einstellungenotizbuch der Arbeitsoberfl„che
+entsprechen.
+ 
+<P><B>Hinweis 1:</B> Dieser Konfigurationsstring „ndert keine Einstellungen,
+sondern ist eigentlich ein Befehl, der sofort ausgefhrt wird.
+Die unten genannten <CODE><I>settings</I></CODE> haben nur Auswirkingen auf diesen
+einen Systemabschluá.
+ 
+<P><B>Hinweis 2:</B> Wenn dieser Konfigurationsstring aus einem Programm heraus
+ausgefhrt wird (entweder durch <CODE>WinSetObjectData</CODE> oder <CODE>SysSetObjectData</CODE>)
+und Best„tigungen aktiviert sind, kehrt die Funktion nicht eher zurck, als bis der
+Best„tigungsdialog geschlossen worden ist.
+ 
+<P><CODE><I>settings</I></CODE> ist eine durch Kommata getrennt Liste von Einstellungen
+fr &xshutdown; oder der Wert <CODE>DEFAULT</CODE>. Hier kann eine beliebige Kombination
+der unten genannten Werte verwendet werden.
+Allgemein gilt, daá "&xshutdown;" die jeweils auf der Seite "&xshutdown;" des Einstellungsnotizbuches
+der Arbeitsoberfl„che festgelegten Einstellungen benutzt, falls eines der
+Schlsselworte nicht angegeben wird.
+ 
+<P>Um das vorkonfigurierte Verhalten nach Abschluá des &xshutdown; zu
+berschreiben, k”nnen folgende Werte benutzt werden:
+ 
+<UL><LI><CODE>HALT</CODE> fhrt einen kompletten Systemabschluá durch
+und zeigt nach dessen Abschluá die Nachricht "Sie k”nnen die Datenstation..."
+an und stoppt das System.
+ 
+<LI><CODE>REBOOT</CODE> fhrt einen kompletten Systemabschluá durch und startet
+dann das System normal neu.
+ 
+<LI><CODE>USERREBOOT(<I>cmd</I>)</CODE> fhrt
+einen kompletten Systemabschluá durch und
+versucht dann, einen benutzerdefinierten Neustart
+mit der Neustart-Aktion <CODE><I>cmd</I></CODE>.
+ 
+<LI><CODE>POWEROFF</CODE> fhrt
+einen kompletten Systemabschluá durch und versucht
+dann, das System per APM abzuschalten, falls dies
+vom System untersttzt wird.
+ 
+<LI><CODE>RESTARTWPS</CODE> fhrt keinen Abschluá des Systems durch,
+sondern startet nur die WPS neu.
+ 
+<LI><CODE>FULLRESTARTWPS</CODE> fhrt keinen Abschluá des Systems durch,
+sondern startet nur die WPS neu, allerdings werden alle offenen Sitzungen
+beendet und beim Start der Arbeitsoberfl„che wird der &xwp;-Systemstartordner
+abgearbeitet.
+ 
+</UL><BR>Die voreingestellte Behandlung der VIO-Fenster kann mit
+<CODE>AUTOCLOSEVIO</CODE> oder <CODE>NOAUTOCLOSEVIO</CODE> berschrieben werden.
+ 
+<P>Die Voreinstellung fr <CODE>XSHUTDWN.LOG</CODE> kann mit
+<CODE>LOG</CODE> oder <CODE>NOLOG</CODE> berschrieben werden.
+ 
+<P>Die Voreinstellung fr die Animation kann mit
+<CODE>ANIMATE</CODE> oder <CODE>NOANIMATE</CODE> berschrieben werden.
+ 
+<P>Um die Voreinstellung fr Best„tigungen zu berschreiben, wird entweder
+<CODE>CONFIRM</CODE> oder <CODE>NOCONFIRM</CODE> verwendet. Beachten Sie, daá, falls
+Best„tigungen aktiviert sind (entweder weil <CODE>CONFIRM</CODE> angegeben wurde oder
+weil es so voreingestellt war und nicht berschrieben wurde), die meisten mit
+<CODE>XSHUTDOWNNOW</CODE> angegebenen Einstellungen nur dazu fhren, daá der
+Best„tigungsdialog andere Standardwerte verwendet.
+ 
+<P>Sollen keine Einstellungen berschrieben werden, gibt man <CODE>DEFAULT</CODE> an.
+ 
+<P>Beispiele:
+ 
+<BR><UL><LI><CODE>XSHUTDOWNNOW=DEFAULT</CODE> leitet &xshutdown; mit den voreingestellten
+Werten ein.
+ 
+<P><LI><CODE>XSHUTDOWNNOW=RESTARTWPS,NOCONFIRM,LOG</CODE> startet sofort die WPS neu,
+dieses Mal ohne Best„tigungsabfrage, aber mit aktiviertem Protokoll.
+ 
+</UL>
+</IFNDEF>   <!-- V0.9.20 -->
+</DL>
+</BODY>
+</HTML>
+ 

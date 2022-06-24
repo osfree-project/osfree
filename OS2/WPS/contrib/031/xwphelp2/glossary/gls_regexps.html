@@ -1,0 +1,203 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Vaste Uitdrukkingen
+    </TITLE>
+</HEAD>
+<BODY>
+Vaste Uitdrukkingen (Regular Expressions (REs)) worden gewoonlijk gebruikt om te bepalen
+of een karakter reeks van belang ergens past in een aantal karakter reeksen.
+Zij staan het specificeren toe van complexe overeenkomst criteria en zijn dus veel flexibeler
+dan de normale zoek reeksen.
+
+<P>&xwp; gebruikt een combinatie van veel standaarden voor RE syntaxis.
+Het functionaliteit niveau is het meest naaste gemodelleerd in uitgebreide vaste uitdrukkingen
+(extended regular expressions (ERE's)) zoals ondersteund wordt door de UNIX <CODE>egrep</CODE>
+en <CODE>awk</CODE> programma's.
+Sommige verbeteringen door POSIX ge‹ntroduceerd, die typisch gevonden worden in UNIX
+<CODE>ex</CODE> en <CODE>vi</CODE>, en het meest gevonden in GNU programmatuur worden ook ondersteund.
+
+<P>Er gelden de volgende regels (zie
+<A HREF="glossary/gls_regexps_bnf.html">BNF definitie</A> voor een formele definitie):
+
+<P><B>Basis karakters</B>
+
+<UL>
+<LI>De meeste karakters in een ERE kunnen worden opgegeven door ze gewoon te typen.
+B.v., <CODE>abc</CODE> komt overeen met <CODE>a</CODE>, dan <CODE>b</CODE>,
+dan <CODE>c</CODE>.
+
+<P><LI>Bepaalde karakters hebben een speciale betekenis en zullen moeten worden
+overgeslagen door hen vooraf te laten gaan door een backslash <CODE>\</CODE>.
+Dit geldt voor de volgende karakters:
+
+<PRE>
+    ~ . ^ $ ( ) { } [ ] ? + * |
+</PRE>
+B.v. <CODE>1\*2</CODE> komt overeen met <CODE>1</CODE>, dan <CODE>*</CODE>,
+dan <CODE>2</CODE>.
+
+<P><LI>Om overeen te komen met de backslash <CODE>\</CODE> zelf, moet ook deze worden
+overgeslagen. B.v. <CODE>c:\\config\.sys</CODE> komt overeen met <CODE>c:\config.sys</CODE>.
+
+<P><LI>De backslash kan worden gebruikt om karakters te beschrijven die moeilijk kunnen
+worden getypt.
+
+<PRE>
+  \n    nieuwe regel      ASCII 10
+  \t    tab               ASCII  9
+  \r    regelterugloop    ASCII 13
+  \b    spatie terug      ASCII  8
+  \f    papier invoer
+  \e    escape            ASCII 27
+  \x07  signaal           ASCII  7
+</PRE>
+
+C en C++ programmeurs zal deze notatie bekend voorkomen.
+Strikt genomen, overeenkomend met POSIX, als <CODE>\x2e</CODE> in een ERE werd geplaatst
+betekende dat "ieder karakter" (ASCII karakter 0x2e is de punt, wat betekent ieder karakter,
+zie verderop), maar deze implementatie behandelt het als "een volledig rondje"
+
+<P><LI>Soms wordt de backslash gebruikt om een speciale ERE voorziening te introduceren.
+B.v. <CODE>\&lt;</CODE> betekent 'Start van een woord' (zie verderop).
+Het karakter achter de backslash wordt meestal gekozen voor iets dat u niet nodig vindt
+om over te slaan, dus deze syntaxis mag geen enkel probleem veroorzaken.
+
+</UL><B>Karakter reeksen</B>
+
+<P>Karakter reeksen worden gespecificeerd tussen vierkante haken '[ ]' en geven een reeks
+van geaccepteerde karakters aan, of mogelijk een reeks van onacceptabele karakters.
+
+<PRE>
+  [abc]   komt overeen met ieder karakter dat kan a, b of c zijn
+  [^abc]  komt overeen met ieder karakter dat noch  a, b, noch c is
+  [a-z]   is de reeks karakters in het bereik 'a' tot 'z'
+  [a-j-t] is de reeks karakters in het bereik 'a' tot 't'
+</PRE>
+
+Om overeen te komen met een <CODE>-</CODE>, <CODE>^</CODE>, <CODE>]</CODE>
+karakter tussen rechte haken, sla het met een backslash over, B.v.
+<CODE>[\])}]</CODE> komt overeen met <CODE>]</CODE>, of <CODE>)</CODE>, of <CODE>}</CODE>.
+
+U kunt ook complete POSIX karakter classes opgeven in een <I>toegevoegd</I> paar haken
+met dubbele punt. In deze context,
+
+<PRE>
+  [:alnum:]   betekent alle alfa numerieke karakters
+              (met ASCII, hetzelfde als A-Za-z0-9)
+  [:lower:]   betekent alle kakraters met kleine letter
+  ... enz.
+</PRE>
+
+B.v., het opgeven van <CODE>[[:alnum:] \t]</CODE> staat alle alfanumeriek
+karaters toe plus spatie plus tab.
+
+<P><B>Ieder karakter</B>
+
+<P>De punt (<CODE>.</CODE>) komt overeen met ieder enkel karakter, zonder zich druk te maken
+wat het eigenlijk is. B.v. <CODE>t.e</CODE> komt overeen met <CODE>the</CODE>, maar niet met
+<CODE>tree</CODE>.
+
+<P><B>Woord samenstellende karakters</B>
+
+<P>GNU ERE's beschrijven de term "woord samenstellend karakter" om ieder alfanummeriek karakter
+in op te nemen, of het onderstreep <CODE>_</CODE> karakter om wat typen te besparen.
+
+<P><CODE>\w</CODE> is stenografie voor ieder woord samenstellende karakter en staat gelijk met
+<CODE>[[:alnum:]_]</CODE> of <CODE>[A-Za-z0-9_]</CODE>
+<CODE>\W</CODE> voor ieder niet woord samenstellende karakter en staat gelijk met
+<CODE>[^[:alnum:]_]</CODE> of <CODE>[^A-Za-z0-9_]</CODE>.
+
+<P>Deze stenografie is ongeldig in karakter reeksen binnen vierkante haken
+
+<P><B>Niet een karakter</B>
+
+<P>Een uitbreing van Microsoft op ERE's is om u toe te staan om te zeggen
+"ieder karakter behalve dit karakter" door het vooraf te laten gaan door een tilde <CODE>~</CODE>.
+Dat is eenvoudig korter om te typen dan de equivalente vierkante haken karakter reeks
+(<CODE>~a</CODE> is korter om te typen dan <CODE>[^a]</CODE>).
+B.v. <CODE>t~he</CODE> komt overeen met <CODE>tie</CODE>, maar niet met <CODE>the</CODE>.
+
+<P><B>Ankers</B>
+
+<P>Ankers geven condities aan waar een uitdrukking kan voorkomen:
+
+<PRE>
+  ^       past als we aan het begin van een reeks zijn
+  $       past als we aan het einde van een reeks zijn
+  \`      GNU alternatieve manier om ^ te schrijven
+  \'      GNU alternatieve manier om $ te schrijven
+  \&lt;   past als we aan het begin zijn van een woord (of de gehele reeks)
+  \&gt;   past als we aan het einde zijn van een woord (of de gehele reeks)
+  \B      past als we in een woord zijn
+  \y      past als we aan het begin zijn van een woord (of gehele reeks)
+</PRE>
+
+Hier is "woord" gelijk aan de GNU definitie zoals boven gegeven.
+
+<P>B.v., <CODE>^xyz</CODE> past alleen op <CODE>xyz</CODE> als het aan het begin van
+een regel is. <CODE>\&lt;fred</CODE> past in <CODE>fred</CODE>,
+<CODE>freddy</CODE>, maar niet in <CODE>alfred</CODE>.
+
+<P><B>Herhalingen</B>
+
+<P>Door gebruik te maken van <CODE>?</CODE>, <CODE>+</CODE>, <CODE>{M}</CODE>, of
+<CODE>{M,N}</CODE> kunt u naar herhalingern zoeken.
+
+<PRE>
+  in ab?c   past a, dan nul of ‚‚n voorkomen van b, dan c
+  ab+c      past a, dan ‚‚n of meer maal voorkomen van b, dan c
+  ab*c      past a, dan nul of meer maal voorkomen van b, dan c
+  ab{M}c    past a, dan M maal voorkomen van b, dan c
+  ab{M,}c   past a, dan M of meer maal voorkomen van b, dann c
+  ab{M,N}c  past a, dan tussen het M en N maal voorkomen van b, dan c
+</PRE>
+
+<P>In het bovenstaande zijn M en N getallen in decimalen, waar indien beide gegeven worden,
+M  &lt;= N moet zijn.
+
+<P>B.v., <CODE>[A-Za-z_][A-Za-z0-9_]*</CODE> past op ieder wettige C of C++ ID.
+<CODE>\w{10,}</CODE> past op minstens 10 woord samenstellende karakters.
+<CODE>\&lt;[0-9]{5}\&gt;</CODE> past op een getal van 5 cijfers.
+
+<P><B>Verwisseling</B>
+
+<P>U kunt naar het ‚‚n of het andere iets zoeken door gebruik te maken van het
+<CODE>|</CODE> symbool. B.v., <CODE>fred|bill</CODE> past op <CODE>fred</CODE>
+of <CODE>bill</CODE>. <CODE>fred|bill|rob</CODE> past op elk van de 3 namen.
+
+<P><B>Geneste ERE's</B>
+
+<P>Vierkante haken kunnen worden gebruikt om ERE's te groeperen in sub-ERE's, zo dat
+bewerkingstekens zoals de herhalings- of de verwissel- bewerking op hen kunnen worden
+toegepast.
+B.v., <CODE>(kikker|zalm)+</CODE> past op ‚‚n of meer voorkomens van <CODE>kikker</CODE>
+of <CODE>zalm</CODE>.
+
+<P>Nesten kan verschillende niveaus diep worden uitgevoerd.
+
+<P><B>Terug verwijzingen</B>
+
+<P>Iedere keer dat een geneste ERE past, wordt, wat paste, vastgelegd.
+U kunt naderhand een terug verwijzing doen in de hoofd ERE (wat betekent
+dat wat er ook paste in het begin ook later weer moet passen) door een backslash
+op te geven met een enkel decimaal getal. Tot in 9 geneste ERE's kan dus worden
+terug verwezen.
+
+<P>B.v., <CODE>\2</CODE> zegt de tweede geneste ERE moet opnieuw passen.
+Met als resultaat, <CODE>(a|b)(c|d)\2\1</CODE> zal passen op  <CODE>acca</CODE>,
+of <CODE>adda</CODE> of <CODE>bcca</CODE> of <CODE>bddb</CODE>.
+
+<P>Merk op dat het bovenstaande voorbeeld <B>geen</B> stenografie is voor het schrijven
+van  <CODE>(a|b)(c|d)(c|d)(a|b)</CODE>. Terug verwijzingen referen niet naar de ERE,
+maar naar dat wat er op paste.
+
+<P>Terug verwijzingen kunnen in geneste ERE's worden gedaan om terug te verwijzen
+naar geneste ERE's. B.v. <CODE>kikker|((a|bc)d\1)</CODE> past op
+<CODE>kikker</CODE>, of <CODE>ada</CODE>, of <CODE>bcdbc</CODE>,
+maar niet op <CODE>adbc</CODE>.
+
+<BR>
+</BODY>
+</HTML>
+

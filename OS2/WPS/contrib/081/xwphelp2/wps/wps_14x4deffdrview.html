@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Default Folder View
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.12 -->
+<BODY>
+The selections in the "Default folder view" group allow you to set the
+default folder view for all folders on your system.
+
+<P>This setting applies
+only if a default view has not been explicitly set for a folder.
+You can set an explicit default view for a folder on the "Menu" page
+in a folder's properties notebook. In addition, special folder classes might
+override the standard WPS folder behavior so that this setting won't
+apply either.
+
+<UL><LI>If <B>"Inherit from parent"</B> is selected, a folder will inherit
+its default view from its parent folder.
+
+<P>This is the standard WPS behavior. For example, if you open
+<CODE>C:\folder\subfolder</CODE> and <CODE>subfolder</CODE> doesn't have
+an explicit default view set, the WPS will look if <CODE>folder</CODE> has
+a default view set, and so on, until the root of the drive is reached.
+<!-- V0.9.19: removed this Only
+if the WPS still hasn't found a default view then, the setting from the
+third "Window" page in the "Workplace Shell" (or "System") object applies. -->
+
+<P><LI>If you don't like this behavior, &xwp; allows you to set the
+default view for folders globally now -- without the inheritance from
+the parent folder. The inheritance will be disabled if you select one of
+the <B>"icon", "tree", or "details"</B> view buttons from the group.
+</UL>
+</BODY>
+</HTML>
+

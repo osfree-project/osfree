@@ -1,0 +1,110 @@
+<HTML RESID=&ID_XSH_DRIVER_S506;>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: IBM1S506.ADD / DANIS506.ADD
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+Den h„r dialogen anv„nds f”r konfiguration av tv† IDE diskenheter:
+
+<OL><LI><CODE>IBM1S506.ADD</CODE> „r den IBM drivrutin som skeppas med &os2;.
+IBM har uppdaterat den drivrutinen ett stort antal g†nger. En nyare drivrutin „r
+n”dv„ndig f”r OS/2 Warp 3 och 4 om du ”nskar anv„nda h†rddiskar st”rre „n 8 GB.
+
+<P>Med den drivrutinen, blir m†nga av dialogens poster avaktiverade d„rf”r att de
+anv„nds bara med <CODE>DANIS506.ADD</CODE> (nedanf”r).
+
+<P><LI><CODE>DANIS506.ADD</CODE> „r en ers„ttningsdrivrutin, skriven av Daniela Engert.
+Den „r till 99% kommandoradskompatibel med IBM's drivrutin, men har lagt till massor av
+f”rb„ttringar. Eftersom IBM's drivrutin inte kan aktivera st”d f”r busmastering med
+m†nga av de nyare chipseten, rekommenderas det starkt att anv„nda den h„r f”rb„ttrade
+drivrutinen, vilken kraftigt kan f”rb„ttra h†rddiskprestandan. Dessutom, till†ter den
+nya drivrutinen dig att kunna konfigurera dina h†rddisk controllers mycket mer i detalj f”r
+att l”sa problem med systeminst„llningar.
+
+</OL>Detaljerad hj„lp f”r var och en av inst„llningarna „r tillg„nglig i form av
+<B>bubbelhj„lp (verktygstips)</B>. F”r din muspekare ”ver en dialogpost och v„nta omkring
+1 sekund, och en text med information kommer att dyka upp.
+
+<P>Det „r dock n”dv„ndigt att i allm„nhet k„nna tilI hur de b†da drivrutinerna skiljer
+sig mellan <B>tre typer av optioner:</B>
+
+<OL><LI><B>Globala optioner</B> p†verkar operationer i allm„nhet. Dessa finns ”verst till
+v„nster hos dialogen och inkluderar inst„llningar som startupmeddelanden och (med
+<CODE>DANIS506.ADD</CODE>) hur h†rvaran s”ks vid bootningen.
+
+<P><LI><B>Adapterinst„llningar</B> p†verkar en adapter (controller) enbart. Med IDE
+och EIDE buss system, finns det en adapter f”r tv† h†rddiskenheter. Datorer har
+vanligtvis tv† adapters inbyggda, s† det inneb„r en summa av fyra enheter vilka kan
+anslutas p† en standarddator. I dialogen, finns adapteroptionerna nederst till v„nster.
+
+<P>Med b†de <CODE>IBM1S506.ADD</CODE> och <CODE>DANIS506.ADD</CODE> drivrutinerna, m†ste
+adapterinst„llningar specificeras enbart efter en <CODE>/A:x</CODE> option, med
+<CODE>x</CODE> specificerande den adapter som skall konfigureras av alla f”ljande 
+optioner (antingen 0 eller 1). Dialogen l„gger till den h„r optionen automatiskt om du
+„ndrar n†gon adapterparameter fr†n ett icke-standardv„rde. Alla inst„llningar i
+<B>"Adapter (controller) inst„llningar"</B> gruppen p†verkar d„rf”r endast den adapter
+vilken „r vald i <B>"Aktuell adapter"</B> gruppen.
+
+<P>Varje adapter beh”ver n†gra f† systemresurser som ett interrupt (IRQ), en
+Direct Memory Access (DMA) kanal, och portadresser (basadress) f”r datautbyte mellan adaptern
+och datorn. Om dessa optioner inte „r satta, anv„nder drivrutinen standard vilket fungerar
+p† de flesta system.
+
+<P>Se anm„rkningarna nedanf”r f”r detaljer om bus-mastering (DMA) st”d.
+
+<P><LI><B>Enhetsinst„llningar</B> p†verkar endast en enhet (h†rddisk). Varje adapter kan
+ha tv† enheter, vilka vanligtvis kallas "Master" och "Slave". I dialogen, finns enhetsoptionerna
+p† den h”gra halvan.
+
+<P>Med b†de <CODE>IBM1S506.ADD</CODE> och <CODE>DANIS506.ADD</CODE> drivrutinerna,
+m†ste enhetsinst„llningarna specificeras endast efter en <CODE>/A:x</CODE> option f”rst
+(vilken specificerar adaptern) och en <CODE>/U:x</CODE> option d„refter (vilken specificerar
+enheten i adaptern), med <CODE>x</CODE> varande 0 eller 1 varje g†ng. Dialogen kommer att 
+l„gga till dessa optioner automatiskt om du „ndrar n†gon enhetsparameter fr†n ett icke-standardv„rde.
+Alla inst„llningar i <B>"Enhet (drive) inst„llnings"</B> gruppen p†verkar d„rmed endast den enhet
+vilken f”r n„rvarande „r vald i gruppen <B>"Aktuell enhet"</B>.
+
+</OL><B>Busmastering, Direct Memory Access (DMA).</B> Modern h†rvara till†ter
+EIDE controllers att l„sa och skriva data direkt fr†n huvudminnet utan n†gon
+hj„lp av huvudprocessorn. Detta ”kar diskprestandan rej„lt eftersom under tiden
+data utbyts med disken, kan processorn g”ra n†got annat.
+
+<P>Medan de „ldre Programmerade I/O (PIO) l„gena 3 och 4 fortfarande kr„vde kontroll av 
+huvudprocessorn, introducerade EIDE standarden †tskilliga multi-ords DMA l„gen. I dessa
+l„gen, tar enheten ”ver kontrollen av bussen (bus-mastering) och placerar data direkt
+i huvudminnet (DMA). Standard <CODE>IBM1S506.ADD</CODE> misslyckas med att k„nna igen vissa
+chipsets och kan d„rmed inte aktivera busmastering p† m†nga system. <CODE>DANIS506.ADD</CODE>
+g”r ett mycket b„ttre jobb med detta och l†ter dig fortfarande fintrimma uppt„cktsprocessen.
+
+<P><B>Ultra-DMA</B> „r ytterligare en ut”kning till original DMA protokollet. Tidigare,
+„gde datautbyte rum endast i den stigande delen av strobesignalen. Ultra DMA modifierar 
+protokollet f”r att till†ta att data skickas ut „ven i den sjunkande delen av strobesignalen, 
+och p† det s„ttet dubblera ”verf”ringskapaciteten. Dessutom, p† grund av risken f”r 
+datakorruption, har feluppt„ckt lagts till. Som ett resultat, „r Ultra-DMA b†de snabbare
+och s„krare „n regulj„r DMA eller ren PIO.
+
+<P>DMA med h†rddiskar kan ocks† orsaka problem p† viss h†rdvara. Den kan bero
+p† „ldre controller h†rdvara som inte kan hantera detta ”verhuvudtaget, eller d†liga
+kablar vilka orsakar s† mycket st”rningar p† bussen att data blir korrupt vid h”ga
+hastigheter. Žven, m†nga „ldre enheter kan inte hantera DMA s„rskilt bra eller endast vid l†ga
+hastigheter. Av det sk„let, kan busmastering avaktiveras helt och h†llet eller 
+(med <CODE>DANIS506.ADD</CODE>) begr„nsas till en fast data”verf”ring.
+
+<P><B>Adapter <CODE>/BM</CODE></B> inst„llningarna aktiverar eller avaktiverar busmastering f”r
+en hel adapter (det vill s„ga, b†da enheterna som anslutna till den adaptern). Den optionen har varit
+tillg„nglig i alla versioner av <CODE>IBM1S506.ADD</CODE> och „r ocks† 
+st”dd av <CODE>DANIS506.ADD</CODE>.
+
+<P><B>Enhets <CODE>/BM</CODE></B> inst„llningarna aktiverar eller avaktiverar busmastering f”r
+endast en enhet. Den optionen „r bara tillg„nglig i nyare versioner av <CODE>IBM1S506.ADD</CODE>
+och „r ocks† st”dd av <CODE>DANIS506.ADD</CODE>.
+
+<P>Med <CODE>DANIS506.ADD</CODE>, kan du ocks† begr„nsa data”verf”ringen f”r en speciell enhet
+genom att direkt specificera vilket protokoll som skall anv„ndas.
+
+<BR>
+</BODY>
+</HTML>
+

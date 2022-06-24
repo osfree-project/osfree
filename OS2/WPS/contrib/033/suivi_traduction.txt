@@ -1,0 +1,67 @@
+Traduction de XWorkplace - Suivi d'avancement
+
+Rappel fichiers de suivi du projet :
+Instructions_traduction.txt
+suivi_traduction.txt
+lexique.txt
+
+ModŠle de traduction des clauses d'en-tˆte concernant les conditions de license
+clause_gnu.txt
+
+Phase 1 - fichiers n‚cessaires … la compilation de xfldr033.dll (dans 033\dll)
+
+Nom du fichier          Traducteur                      Etat   Remarque   Relecteur (Nom+"OK" ou nøde remarque)
+--------------------------------------------------------------------------------
+xfldr033.def            Laurent Catinaud
+                        Guillaume Gay                   100%
+makefile                Laurent Catinaud                100%
+..\makefile             Laurent Catinaud                100%
+
+xfldr033.rc             Laurent Catinaud
+                        Ren‚ Louisor-Marchini
+                        Guillaume Gay                   100%
+
+xfldr033.dlg            Laurent Catinaud
+                        Ren‚ Louisor-Marchini
+                        Guillaume Gay                   100%
+--------------------------------------------------------------------------------
+
+Phase 2 - xworkplace message file (dans 033\misc)
+
+Nom du fichier		Traducteur			Etat
+--------------------------------------------------------------------------------
+xfldr033.tmf            Ren‚ Louisor-Marchini
+                        Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+xwpfull033.tmf          Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+xwplite.tmf             Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11 
+--------------------------------------------------------------------------------
+
+Phase 3 - WPS Classes description (dans 033\misc)
+
+Nom du fichier		Traducteur			Etat
+--------------------------------------------------------------------------------
+XFCLS033.txt            Guillaume Gay                   99% 
+
+Phase 4 - Scripts REXX et autres (dans 033\misc)
+Nom du fichier		Traducteur			Etat
+crobj033.cmd            Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11 
+crobj033_lite.cmd       Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+drvrs033.txt            Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+inst033.msg             Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+instl033.cmd            Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+instl033_lite.cmd       Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+sound033.cmd            Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+xfldr033.sgs            Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+makefile                Guillaume Gay                   100%              Guillaume Gay OK ? le 2006-02-11
+--------------------------------------------------------------------------------
+
+Phase 5 - Fichiers INF
+A lancer aprŠs phase 4
+
+Phase 6 - Fichier HLP
+A lancer aprŠs phase 4
+
+Remarques :
+G‚n‚rales : 
+V‚rif fichiers makefile avec Martin (dans \033 et dans \033\dll)
+

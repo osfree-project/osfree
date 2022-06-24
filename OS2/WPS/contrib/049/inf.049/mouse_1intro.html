@@ -1,0 +1,59 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Einfhrung
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Klassen: XFldObject, XWPSetup, XWPMouse, XWPKeyboard</B>
+<HR>
+Seit V0.9.0 fhrt &xwp; auch eine Reihe von Erweiterungen fr Maus- und
+Tastaturfunktionen ein, indem es einen Presentation-Manager-Hook installiert, wie
+es „hnlich auch andere bekannte Erweiterungen wie FeelX, NPS WPS und WarpEnhancer tun.
+<P>
+Auch &xwp; erh„lt damit Funktionen wie "Automatisches Aktivieren von Fenstern",
+"Ecken- und Randobjekte" sowie "Ordner-Tastenkrzel". Diese werden auf den
+folgenden Seiten im Detail erl„utert.
+<P>
+Das endgltige Ziel dieser &xwp;-Komponente ist es, eines Tages alle anderen
+PM-Hook-Hilfsprogramme zu ersetzen. Aus meiner Sichtweise heraus gibt es
+mit diesen Hilfsprogrammen mehrere Probleme:
+ 
+<OL><LI>Vor allem werden die meisten von ihnen seit Jahren nicht mehr gepflegt.
+Dies trifft besonders auf FeelX und NPS WPS zu, die ich beide jahrelang genutzt
+habe. Beide unterliegen jedoch ein paar Einschr„nkungen, die niemals berwunden
+werden k”nnen, weil sie wahrscheinlich niemals wieder aktualisiert werden.
+ 
+<P><LI>Beide Hilfsprogramme sind nicht gut in die WPS integriert. Das bedeutet, daá
+ihre Konfiguration nicht ber die Standardeinstellungsnotizbcher der WPS
+ge„ndert werden kann. &xwp; erlaubt es Ihnen, seinen PM-Hook ber die Objekte
+"Maus" und "Tastatur" im Ordner "Systemkonfiguration" zu konfigurieren. NPS WPS
+beendet sich zudem immer selbst, wenn die WPS neu gestartet wird, was ziemlich
+entnervend ist.
+ 
+<P><LI>Keines der bekannten PM-Hook-Hilfsprogramme ist OpenSource, auáer
+ProgramCommander/2 (welches sogar Public Domain ist). &xwp; ist OpenSource,
+deswegen k”nnen Fehler von Anwendern gemeldet und/oder behoben werden.
+ 
+<P><LI>Schieálich hasse ich es einfach, drei verschiedene PM-Hooks installieren
+zu mssen, wenn ich von jedem nur eine einzelne Funktion ben”tige. Jeder installierte
+PM-Hook verlangsamt das System, da jede einzelne Nachricht, die von &os2; erzeugt
+und an ein Fenster verschickt wird, ber alle diese Hooks laufen muá, wobei jeder
+davon eine Menge Berechnungen fr die Nachricht anstellt. Und wir reden hier ber
+m”glicherweise hunderte von Nachrichten pro Sekunde. Anstatt also drei Hooks
+zu installieren, von denen jeder nur teilweise genutzt wird, versucht &xwp;, die
+gebr„uchlichsten Funktionen in einem Hook zusammenzufassen.
+ 
+</OL>Beachten Sie bitte, daá der &xwp;-PM-Hook eine vollkommen optionale Funktion
+ist. Wenn sie Ihnen nicht zusagt und Sie lieber andere Hilfsprogramme weiterhin nutzen
+m”chten, steht es Ihnen frei, dies zu tun.
+ 
+<P>Aus diesem Grunde ist der &xwp;-Hook standardm„áig deaktiviert.
+Er muá zuerst ber das Objekt "&xwp;-Konfiguration" aktiviert werden.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

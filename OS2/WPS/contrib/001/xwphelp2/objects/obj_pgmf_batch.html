@@ -1,0 +1,55 @@
+<HTML RESID=&ID_XSH_PROGRAMFILE_BATCH;>
+<HEAD>
+    <TITLE>
+        &xwp;: Batch and Command Files
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_os2win.gif">
+<IMG SRC="img/os2_doswin.gif">
+
+<P>Batch and command files, or <B>"scripts",</B> are plain text files that contain
+a series of <A HREF="glossary/gls_cmd.html">commands for a command processor.</A>
+They are processed in sequence when the file is executed.
+
+<P>Batch and command files are executed by a command processor. Which one is used
+depends on the file extension:
+
+<UL><LI>If the extension is <CODE>.CMD</CODE> <B>(command file),</B> it is run
+via the &os2; command processor, <CODE>CMD.EXE</CODE>.
+The file is assumed to be a sequence of commands, unless it starts with a REXX
+comment (<CODE>/* ... */</CODE>). In that case, it is interpreted
+as a <A HREF="glossary/gls_cmd_rexx.html">REXX</A> script.
+
+<P><LI>Files with the <CODE>.BAT</CODE> extension <B>(batch files)</B> are run
+in <A HREF="glossary/gls_sessions.html">DOS sessions</A>
+via the DOS command processor, <CODE>COMMAND.COM</CODE>.
+Note that the &os2; command processor (<CODE>CMD.EXE</CODE>) recognizes the
+<CODE>.BAT</CODE> file extension as well. If you are at a command prompt
+and enter the name of a <CODE>.BAT</CODE> file, it will automatically launch a
+DOS session.
+
+</UL>Batch and command files are useful to automate tasks. For example, if
+you find yourself entering the same sequence of commands over and over at a
+command prompt, you can put that sequence in a batch or command file and execute
+that script instead to save yourself time.
+You can create such files with any text editor, for example, the &os2; &eexe;.
+
+<P>Note that once you have created a batch or command file, you can
+also start it from the Workplace Shell. You can also create
+&link_progobjs; for batch or
+command files.
+
+<P>For additional information, select from the list below:
+
+<UL>
+<LI><A HREF="glossary/gls_cmd.html">About command prompts</A>
+<LI><A HREF="glossary/gls_cmdopers.html">Command operators and redirection</A>
+<LI><A HREF="glossary/gls_cmdsubvars.html">Substitution variables</A>
+<LI><A HREF="objects/obj_pgmf_batch_expl.html">Batch file examples</A>
+<LI><A HREF="objects/obj_pgmf_autoexec.html">AUTOEXEC.BAT</A>
+<LI><A HREF="glossary/gls_sessions.html">Session types</A>
+</UL>
+</BODY>
+</HTML>

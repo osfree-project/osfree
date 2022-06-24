@@ -1,0 +1,300 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPFolder Teksten
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<BODY>
+<CODE>WPFolder</CODE> is de WPS class voor alle mappen
+<!-- V0.9.16: added this bracket with link -->
+(zie <A HREF="glossary/gls_wpsclasses.html">WPS classes</A> voor details).
+In aanvulling op de instellingen teksten die ondersteund worden door de
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> class,
+ondersteund <CODE>WPFolder</CODE> de volgende teksten:
+
+<DL>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<DT><CODE><B>ACCELERATORS</B>={YES|NO|DEFAULT}</CODE> (&xwp; alleen)
+<DD>Bepaald voor een individuele map of die reageert op map sneltoetsen of niet.
+Deze instelling komt overeen met die op de
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Beeld" pagina in de map zijn instellingen notitieblok.
+YES of NO zal deze instelling bepalen voor deze map ongeacht wat opgegeven is in de
+globale instellingen, terwijl DEFAULT dit zal aanpassen aan de globale waarde.
+
+<!-- V0.9.20: rewrote ALWAYSSORT -->
+<P><DT><CODE><B>ALWAYSSORT</B>={YES|NO|DEFAULT}</CODE>
+<DD>Bepaald voor een individuele map of die altijd de sorteervolgorde zal vasthouden of niet.
+Het openen en toevoegen van een object aan deze map kan langer duren als de sorteervolgorde
+bijgehouden moet worden.
+Denk er om dat de <CODE>DEFAULT</CODE> optie alleen beschikbaar is bij &xwp;,
+wat de instelling zal herstellen naar hetgeen u gekozen hebt op de "Sorteer" pagina in het
+"Workplace Shell" object.
+
+<P><DT><CODE><B>BACKGROUND</B>=<I>naam</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>Dit bepaald de achtergrond van de map, waarbij:
+
+<P><CODE><I>naam</I></CODE> = De bestandsnaam van het plaatje. Deze
+naam dient volledige gekwalificeerd te worden met het
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">pad</A>
+van het plaatjes bestand. "?:\" is
+toegestaan om de boot schijf aan te geven.
+
+<P><CODE><I>mode</I></CODE> = Plaatjes mode. Deze mode kan
+‚‚n van de volgende zijn:
+<BR><CODE>N</CODE> = Normaal plaatje
+<BR><CODE>T</CODE> = Getegeld plaatje
+<BR><CODE>S</CODE> = Geschaald plaatje
+
+<P><CODE><I>factor</I></CODE> = Schaal factor.
+
+<P><CODE><I>bgtype</I></CODE> = Achtergrondtype. Dit kan
+een van de volgende zijn:
+<BR><CODE>I</CODE> = Plaatje
+<BR><CODE>C</CODE> = Alleen kleur
+
+<P><CODE><I>bgcol</I></CODE> = Achtergrond kleur. Deze
+kleur heeft 3 nummers die RGB waarden vertegenwoordigen, afgescheiden door
+spaties (<CODE>r g b</CODE>, voor rood, groen, en blauw waarden).
+<P>Bijvoorbeeld:
+<CODE>BACKGROUND=C:\OS2\BITMAP\OS2LOGO.BMP,S,3,I
+</CODE>of
+<CODE>BACKGROUND=(none),,,C,0 128 128</CODE>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>DEFAULTSORT</B>=<I>crit</I></CODE> (&xwp; alleen)
+<DD>Dit zal de standaard sorteer criteria aanpassen voor een individuele map naar iets
+anders dan de globale sorteer criteria.
+<CODE><I>crit</I></CODE> mag een van de volgende zijn:
+<BR><CODE>  -1   </CODE>sorteer op type
+<BR><CODE>  -2   </CODE>sorteer op naam
+<BR><CODE>  -3   </CODE>sorteer op object class
+<BR><CODE>  -4   </CODE>sorteer op bestandsnaam uitbreiding
+<BR><CODE>  255  </CODE>herstel naar globale standaard sorteer criteria
+<P>Denk er om dat afhankelijk van de map sorteer class, waarden tussen 0 en 100 ook ondersteund
+kunnen worden. Die waarden komen overeen met indices voor object detail kolommen in Details overzicht en zijn
+class specifiek. Experimenteer met de instellingen tekst waarden die genoemd worden
+in een map zijn instellingen notitieblok.
+
+<P><DT><CODE><B>DEFAULTVIEW</B>=DEFAULT</CODE>
+<DD>Stelt het standaard open overzicht in naar wat opgegeven is in het
+<!-- V0.9.20: replaced system with workplace shell, dammit -->
+"Workplace Shell" object.
+Dit is de standaard waarde.
+<P>Let er op dat <CODE>DEFAULTVIEW</CODE> werkelijk een
+<A HREF="objects/string_1wpobject.html">WPObject instellingen tekst</A> is, maar de
+betekenis van de overzicht instelling heeft alleen betekenis voor WPOBject subclasses, zoals
+WPFolder.
+
+<P><DT><CODE>DEFAULTVIEW={SETTINGS|ICON|TREE|DETAILS}</CODE>
+<DD>Stelt het standaard open overzicht in voor het specifieke map overzicht.
+
+<P>Let er op dat <CODE>DEFAULTVIEW</CODE> werkelijk een
+<A HREF="objects/string_1wpobject.html">WPObject instellingen tekst</A> is, maar de
+betekenis van de overzicht instelling heeft alleen betekenis voor WPObject subclasses, zoals de
+WPFolder.
+
+<P><DT><CODE><B>DETAILSCLASS</B>=<I>classname</I></CODE>
+<DD>Dit stelt de object class in voor welke de details getoond worden in het details overzicht.
+De standaard object class is WPFileSystem. U kunt hier beter niet mee rommelen.
+
+<P><DT><CODE><B>DETAILSFONT</B>=<I>grootte</I>.<I>facename</I></CODE>
+<DD>Wijzig het lettertype dat gebruikt wordt voor het details overzicht.
+Bijvoorbeeld: <CODE>9.WarpSans Bold</CODE>.
+De standaard waarde is <CODE>8.Helv</CODE> (op Warp 3)
+
+<P><DT><CODE><B>DETAILSSHADOWCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4; en hoger)
+<DD>Tekst kleur voor een reflectie object in het Details overzicht.
+<CODE><I>kleur</I></CODE> mag een standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>DETAILSTEXTCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4; en hoger)
+<DD>Tekst kleur voor normale objecten
+in het Details Overzicht. <CODE><I>kleur</I></CODE> mag een standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>DETAILSVIEW</B>=<I>stijl</I></CODE>
+<DD>Dit zet details overzicht naar de opgegeven stijl. Mogelijke waarden zijn:
+<BR><CODE>MINI</CODE> kleine pictogrammen; dit is de standaard waarde.
+<BR><CODE>NORMAL</CODE> gewone grootte pictogrammen.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifdef  -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P><DT><CODE><B>FAVORITEFOLDER</B>={YES|NO}</CODE> (&xwp; alleen)
+<DD>Stelt voor een individuele map in of zijn inhoud bekeken kan worden vanuit
+alle &popmenu;'s op uw systeem.
+Deze instelling komt overeen met degene op de
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Beeld" pagina in de map zijn instellingen notitieblok.
+Standaard is NO. Er is geen globale waarde voor deze instelling.
+</IFNDEF>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>FULLPATH</B>={YES|NO|DEFAULT}</CODE> (&xwp; alleen)
+<DD>Stelt voor een individuele map in of zijn volledige pad wel of niet getoond wordt in zijn venstertitel.
+Deze instelling komt overeen met degene op de
+"Beeld" pagina in de map zijn instellingen notitieblok.
+YES of NO zal deze instelling voor deze map ongeacht wat er ingesteld is in de globale instelling,
+terwijl DEFAULT de instelling op de globale waarde zal zetten.
+
+<P><DT><CODE><B>ICONFONT</B>=<I>grootte</I>.<I>facename</I></CODE>
+<DD>Instellingen tekst die gebruikt wordt om het lettertype van een pictogram overzicht
+aan te passen. Bij voorbeeld:  <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>ICONNFILE</B>=<I>index</I>,<I>bestandsnaam</I></CODE>
+<DD>Dit stelt de bestandsnaam voor het bewegende (open map) pictogram in.
+De <CODE><I>index</I></CODE> waarde moet op 1 gezet worden.
+Het standaard bestand (".ICO") bevat de map zijn open map pictogram.
+
+<P><DT><CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfile</I></CODE>
+<DD>Stelt het bewegende (open map) pictogram in op gegevens in het bronbestand.
+De <CODE><I>index</I></CODE> waarde moet op 1 gezet worden.
+De <CODE><I>id</I></CODE> is de identiteit van een
+pictogram bron in de
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfile</I></CODE>.
+De opgegeven bron is de map zijn open map pictogram.
+
+<P><DT><CODE><B>ICONSHADOWCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4; en hoger)
+<DD>Tekst kleur voor reflectie pictogrammen in het Pictogram overzicht.
+<CODE><I>kleur</I></CODE> mag elke standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>ICONTEXTBACKGROUNDCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4; en hoger)
+<DD>Achtergrond kleur voor normale tekst in de Pictogram, Boomstructuur en Details overzicht.
+<CODE><I>kleur</I></CODE> mag een standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>ICONTEXTCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4; en hoger)
+<DD>Tekst kleur voor normale pictogrammen in het Pictogrammen overzicht.
+<CODE><I>kleur</I></CODE> mag een van de standaard kleuren namen zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>ICONTEXTVISIBLE</B>={YES|NO}</CODE>
+<DD>De namen van objecten in een map worden wel of niet getoond in een Pictogrammen Overzicht.
+
+<P><DT><CODE><B>ICONVIEW</B>=<I>stijl1</I>[,<I>stijl2</I>...]</CODE>
+<DD>Dit stelt het pictogram overzicht in naar de opgegeven stijlen. Mogelijke waarden zijn:
+<CODE>FLOWED NOGRID INVISIBLE NONFLOWED MINI NORMAL</CODE>
+<BR>De standaard waarde is <CODE>NOGRID,NORMAL</CODE>
+<BR>Deze instellingen komen overeen met de "Pictogram overzicht" pagina in een
+map zijn instellingen notitieblok.
+
+<P><DT><CODE><B>ICONVIEWPOS</B>=<I>x</I>,<I>y</I>,<I>cx</I>,<I>cy</I></CODE>
+<DD>Dit stelt de initi‰le pictogram overzicht positie en grootte van de map in op het scherm.
+Deze waarden zijn percentages (0-100) van de schermgrootte.
+
+<P><DT><CODE><B>MENUBAR</B>={YES|NO}</CODE> (alleen &warp4; en hoger)
+<DD>De menubalk van de map wordt getoond of niet.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+    added ifdef -->
+<IFNDEF __NOQUICKOPEN__>
+<P><DT><CODE><B>QUICKOPEN</B>={YES|NO|IMMEDIATE}</CODE> (&xwp; alleen)
+<DD>Bepaald voor een individuele map of die wel of niet vooraf opgebouwd wordt bij
+het opstarten van de Werkplek. Deze instelling komt overeen met degene in de "Beeld"
+pagina in de map zijn instellingen notitieblok.
+YES of NO bepaald de instelling voor deze map.
+Standaard is NO. Er is geen globale waarde voor deze instelling.
+<P>Als een speciale opdracht, <CODE>QUICKOPEN=IMMEDIATE</CODE> zal de map
+direct opgebouwd worden. Dit kan gebruikt worden in een
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script om de opbouw van een map te forceren zonder het te hoeven openen.
+Als gevolg daarvan is <CODE>QUICKOPEN=IMMEDIATE</CODE> geen instelling, maar
+meer een opdracht dat uitgevoerd wordt op een map.
+</IFNDEF>
+
+<P><DT><CODE><B>REMOVEFONTS</B>={YES|NO}</CODE>
+<DD>Dit kan alle instantie lettertypes verwijderen van de map,
+diegene die alleen van toepassing zijn op deze map (gespecificeerd door
+de betreffende object instellingen teksten of in de map instellingen notitieblok).
+Standaard is <CODE>NO</CODE>.
+<BR>Dit is niet echt een "instelling", maar meer een opdracht dat uitgevoerd wordt op een map.
+
+<P><DT><CODE><B>SHOWALLINTREEVIEW</B>={YES|NO}</CODE> (alleen &warp4; en hoger)
+<DD>Laat alle objecten in een open Boomstructuur zien of alleen mappen.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifndef -->
+<IFNDEF __NOSNAPTOGRID__>
+<P><DT><CODE><B>SNAPTOGRID</B>={YES|NO|DEFAULT|EXEC}</CODE> (&xwp; alleen)
+<DD>Stelt voor een individuele map in of de "Uitlijn" optie te zien zal zijn in
+de map zijn &popmenu;.
+Deze instelling komt overeen met degene op de
+"Beeld" pagina in de map zijn instellingen notitieblok.
+YES of NO zal deze instelling voor de map bepalen ongeacht wat er opgegeven is in de
+globale instellingen, terwijl DEFAULT de instelling de globale waarde zal geven.
+EXEC zal de "Uitlijn" functie uitvoeren op de map, net alsof u die keuze gemaakt had
+vanuit de &popmenu;; EXEC is dus geen instelling, maar een opdracht die uitgevoerd kan worden
+op een map.
+</IFNDEF>
+
+<P><DT><CODE><B>SORTCLASS</B>=<I>classname</I></CODE>
+<DD>Dit bepaald het class object om op te sorteren.
+Het standaard class object is WPFileSystem.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTFOLDERSFIRST</B>={YES|NO|DEFAULT}</CODE> (&xwp; alleen)
+<DD>Stelt voor een individuele map in of mappen altijd voorop gesorteerd worden of niet.
+Deze instelling komt overeen met degene op de "Sorteer" pagina
+in de map zijn instellingen notitieblok.
+YES of NO zal de instelling voor deze map bepalen ongeacht wat er opgegeven is in de
+globale instellingen, terwijl DEFAULT de instelling de globale waarde zal geven.
+<!-- end V0.9.12 -->
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTNOW</B>=<I>crit</I></CODE> (&xwp; alleen)
+<DD>Dit zal alle momenteel openstaande overzichten of een individuele map sorteren zonder de
+map zijn instelling aan te passen (in tegenstelling tot <CODE>DEFAULTSORT</CODE>).
+Dit is niet echt een "instelling", maar meer een opdracht dat uitgevoerd kan worden op een map.
+<CODE><I>crit</I></CODE> heeft dezelfde betekenis als met <CODE>DEFAULTSORT</CODE>.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>STATUSBAR</B>={YES|NO|DEFAULT}</CODE> (&xwp; alleen)
+<DD>Stelt de zichtbare status van een individuele status balk in.
+Deze instelling komt overeen met degene op de
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Beeld" pagina in de map zijn instellingen notitieblok.
+YES of NO zal de instelling van deze map bepalen ongeacht de opgegeven keuze in de
+globale instellingen, terwijl DEFAULT de instelling de globale waarde zal geven.
+
+<P><DT><CODE><B>TREEFONT</B>=<I>grootte</I>.<I>facename</I></CODE>
+<DD>Instellingen tekst gebruikt om de lettertype aan te passen dat gebruikt
+wordt voor een Boomstructuur.
+Bij voorbeeld: <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>TREESHADOWCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4;)
+<DD>Tekst kleur voor reflectie pictogrammen in de
+Boomstructuur. <CODE><I>kleur</I></CODE> mag een standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>TREETEXTCOLOR</B>=<I>kleur</I></CODE> (alleen &warp4;)
+<DD>Tekst kleur voor normale pictogrammen in de Boomstructuur.
+<CODE><I>kleur</I></CODE> mag een standaard kleur naam zijn of een
+<CODE><I>r g b</I></CODE> set van waarden (voor rood, groen, blauw waarden).
+
+<P><DT><CODE><B>TREETEXTVISIBLE</B>={YES|NO}</CODE> (alleen &warp4;)
+<DD>De namen van objecten in een map worden wel of niet getoond in een Boomstructuur.
+
+<P><DT><CODE><B>TREEVIEW</B>=<I>stijl1</I>[,<I>stijl2</I>...]</CODE>
+<DD>Dit stelt de boomstructuur in op de opgegeven stijlen. Mogelijke waarden zijn:
+<CODE>INVISIBLE LINES MINI NOLINES NORMAL</CODE>
+<BR>De standaard waarde is <CODE>LINES, NORMAL</CODE>
+<BR>Deze instelling komt overeen met de "Boomstructuur" pagina in een
+map zijn instellingen notitieblok.
+
+<P><DT><CODE><B>WORKAREA</B>={YES|NO}</CODE>
+<DD>Dit stelt de map in als een werkgebied.
+Standaard is <CODE>NO</CODE>.
+</DL>
+</BODY>
+</HTML>
+

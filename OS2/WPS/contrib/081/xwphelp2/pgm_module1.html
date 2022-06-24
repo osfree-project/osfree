@@ -1,0 +1,52 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE1;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Imported modules" page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.20: rewrote the entire page -->
+The "Module" pages appear in the properties notebooks of all executable
+files to display additional information about an executable module.
+
+<P>This page shows you the submodules imported by the module.
+
+<P>The page only lists the submodule names which are explicitly listed as
+imports in the module header for load-time linking.
+These imports are resolved already at the time the module gets loaded, as
+opposed to run-time linking (see below).
+The module names are the names of the
+<A HREF="glossary/gls_dll.html">dynamic link libraries</A> to be imported,
+usually without the <CODE>.DLL</CODE> file name extension, and are expected
+to be on the <CODE>LIBPATH</CODE> (see
+<A HREF="glossary/gls_path_sys.html">"System paths"</A> for more information).
+
+<P>If an executable fails to load, the information on this page can be useful
+to find out what submodule might have failed.
+
+<P>However, as a result of the above, this page does <I>not</I> show:
+
+<UL><LI><B>Run-time imports,</B> when an application calls specific &os2; APIs to
+import code dynamically after it has been completely loaded. This information
+is not specified in the executable headers because it is the actual program
+code that performs the import.
+See the documentation for
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in the Toolkit documentation.<A HREF="_toolkitlink.html">*</A>
+
+<P><LI><B>Indirect imports,</B> that is, sub-imports performed by the modules
+listed on this page. Those imports depend on the execution context: for
+example, the currently active <CODE>LIBPATH</CODE>, <CODE>BEGINLIBPATH</CODE>,
+and <CODE>ENDLIBPATH</CODE>
+<A HREF="glossary/gls_path_sys.html">system paths</A>
+all determine which modules would be actually loaded.
+
+</UL>To find out which module is really used by a given program file, you can
+use the <CODE>PSTAT /L</CODE> command from an &os2; command prompt while that
+specific program is running.
+
+<BR>
+</BODY>
+</HTML>
+

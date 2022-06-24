@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Minne
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13; however, this contains information from
+     the old 090settings15kernel2.html -->
+<BODY>
+Inst„llningarna i "Swapfils" gruppen till†ter dig att ha inflytande ”ver hur 
+&os2; hanterar sin swapfil. Alla dessa inst„llningar korresponderar till
+<CODE>SWAPPATH</CODE> kommandot i &cfgsys;. Se <A HREF="cmdref.inf#swappath">SWAPPATH dokumentationen</A>
+i <I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P>F”r mer information om det h„r „mnet, se <A HREF="glossary/gls_mem_paging.html">Paging</A>.
+
+<UL><LI>F„ltet <B>"Aktuell storlek"</B> visar dig den aktuella storleken hos &os2;'s swapfil
+(<CODE>SWAPPER.DAT</CODE>). Denna visning blir kontinuerligt uppdaterad n„r swapfilen 
+storlek „ndras.
+
+<P><LI>F„ltet <B>"Huvudminne storlek"</B> visar dig hur mycket fysiskt huvudminne (RAM) som du har 
+installerat p† ditt system. Den siffran plus storleken p† swapfilen (ovanf”r) utg”r m„ngden av det
+virtuella minne vilket f”r n„rvarande anv„nds av &os2;.
+
+<P><LI>F„ltet <B>"Minimum storlek"</B> l†ter dig best„mma vilken storlek swapfilen aldrig kommer
+att underskrida. Du b”r s„tta detta till resonabelt h”gt v„rde annars kommmer &os2; att beh”va justera
+swapfilens storlek, vilket kostar en hel del tid.
+
+<P>Standardv„rdet p† 2 MB „r definitivt f”r l†gt f”r de flesta system, om du inte har m„ngder 
+av minne installerat. Till exempel, om den aktuella storleken p† swapfilen „r 20 MB och du har
+en minimumstorlek p† 2 MB satt, b”r du ”ka det v„rdet till 32 MB f”r att undvika on”diga
+swapfils storleksjusteringar.
+
+<P>Den h„r inst„llningen korresponderar till den tredje parametern i <CITE>SWAPPATH</CITE>
+&cfgsys; kommandot.
+
+<P><LI>F„ltet <B>"Varning tr”skelv„rde"</B> l†ter dig best„mma n„r &os2; kommer att 
+varna dig f”r att du h†ller p† att f† slut p† det diskutrymme som h†ller swapfilen n„r
+den f”rs”ker att ”ka sin storlek. Till exempel, om du har satt 20 MB h„r och &os2; m„rker
+att det endast finns 19 MB diskutrymme kvar p† swapfilsenheten, f†r du ett varningsmeddelande.
+
+<P>Den h„r inst„llningen korresponderar till den andra parametern i <CITE>SWAPPATH</CITE>
+&cfgsys; kommandot.
+
+<P><LI>Inmatningsf„ltet <B>"S”kv„g"</B> till†ter dig att specificera plats f”r swapfilen. 
+Du kan ange n†gon giltig katalog h„r. Notera d„remot att du inte kan „ndra namnet
+p† swapfilen, vilket alltid kommer att vara <CITE>SWAPPER.DAT</CITE>.
+
+<P>I allm„nhet, b”r du f”rs”ka l„gga swapfilen p† en HPFS enhet, d„rf”r att den motverkar
+fragmentering och „r generellt sett snabbare. Som till„gg, b”r du l„gga swapfilen p† den
+mest anv„nda partitionen hos den minst anv„nda h†rddisken (om du har flera h†rddiskar 
+inbyggda i din dator). Detta undviker on”diga r”relser hos l„s/skriv- huvudena p† h†rddiskarna
+n„r swapfilen accessas.  andra sidan, om den partionen finns p† en h†rddisk vilken „r mycket
+l†ngsammare „n de andra, kanske en annan h†rddisk „r att f”redra.
+
+<P>Den h„r inst„llningen korresponderar till den f”rsta parametern i <CITE>SWAPPATH</CITE>
+&cfgsys; kommandot.
+
+<P>Var v„nlig och notera att om du „ndrar placering av swapfilen, kommer den gamla swapfilen inte
+att bli automatiskt raderad under n„sta ombootning. Du m†ste d„rf”r komma ih†g den gamla 
+placeringen och manuellt radera den gamla swapfilen efter att systemet har bootats om, eller
+annars kommer en avsev„rd massa MB av h†rddiskutrymmet att vara upptaget i on”dan.
+</UL>
+</BODY>
+</HTML>
+

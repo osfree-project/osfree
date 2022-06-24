@@ -1,0 +1,81 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Registrering av Extra Funktionstangenter
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.3. -->
+<BODY>
+<B>Klasser: XWPKeyboard</B>
+<HR>
+Startande med V0.9.3, till†ter dig &xwp; att ge speciella tangenter som normalt inte fungerar under
+&os2; en s„rskild mening. Du kan anv„nda dessa extra tangenter som objektsnabbkommandon ocks†. 
+F”r att det skall fungera, m†ste du registera tangenterna p† sidan "Funktionstangenter" i
+det ut”kade "Tangentbords" objektet.
+
+<P>Den h„r funktionen „r ocks† implementerad med &xwp; PM hook. F”r att f”rst† hur det fungerar
+(och innan du anv„nder "Funktionstangent" sidan), finns f”ljande f”rklaringar.
+
+<P>Tangentbordsprocessning „r ett komplicerat „mne under alla operativsystem. Det involverar
+tolkning av h†rdvarumeddelanden och ”vers„ttning av dessa i enlighet med de aktuella
+spr†kinst„llningarna.
+
+<P>Under &os2;, utf”rs den h„r processningen i flera olika lager hos systemet. F”r det f”rsta,
+finns det en drivrutin f”r tangentbordsh†rdvaran vilken laddas genom ett BASEDEV p†st†ende
+i &cfgsys;. Den reagerar p† h†rdvaruavbrott som kommer fr†n det fysiska tangentbordet och genom att den
+erh†ller varje enskild tangenttryckning p† systemet.
+
+<P>&os2; K„rnan processar sedan dessa tangenttryckningar f”r applikationerna som f”r n„rvarande har
+inmatningsfokus. Ytterligare processning „r olika beroende p† typen av applikation. Presentation Manager (PM)
+applikationer (inklusive Workplace Shell) erh†ller vanligtvis ett meddelande att en tangent har tryckts eller 
+sl„ppts. &xwp; PM hook kan sedan snappa upp dessa meddelanden och manipulera dem. 
+(Detta „r hur <A HREF="mouse_81objhotkeys.html">objektsnabbkommandon</A> fungerar, f”rresten.)
+
+<P>Olyckligtvis, „r standard i &os2;'s tangentbordsprocessning fortfarande baserad p† original 101/102-tangenters
+IBM-kompatibla AT tangentbord introducerade p† 1980-talet. Idag n„r m†nga tangentbord har ytterligare tangenter
+vilka inte k„nns igen av alls av &os2; eller helt enkelt producerar ett tecken „ven om de inte var t„nkta
+att g”ra det.
+
+<P>Dessa extra funktionstangenter kan vara de tre "Windows" tangenterna som finns p† de flesta
+tangentbord som s„ljs idag. Som till„gg, det finns vissa ut”kade tangentbord som har ytterligare
+"multimedia" tangenter. Žven m†nga laptops har n†gra extra tangenter.
+
+<P>&xwp; PM hook kan identifiera den fysiska tangenten vilken har tryckts genom att utv„rdera
+<B>h†rdvaruscankoden</B> hos tangenten, vilken ges till n†gon PM applikation direkt fr†n
+tangentbordsh†rdvaran. P† varje tangentbord, b”r varje tangent ha en s†dan unik kod. Den koden
+har ingenting att g”ra med ASCII koden hos ett tecken. Det „r endast ett unikt nummer tilldelat
+varje fysisk tangent p† tangentbordet. Till exempel, "Shift" tangenten kommer att ha en s†dan kod 
+likav„l som "A" tangenten, „ven om "Shift" tangenten ensam inte kommer att producera n†got 
+ASCII (tecken).
+
+<P>S† &xwp; hook beh”ver k„nna till h†rdvaruscankoden hos dina funktionstangenter f”r att 
+veta hur den skall reagera p† dom. Som ett resultat, m†ste du <B>registrera</B> dina extra
+tangenter hos &xwp;. Dessa tangenter anropar sedan <B>"&xwp; funktionstangenter"</B> och kommer
+att k„nnas igen av &xwp;. Du kan, till exempel, anv„nda dom som
+<A HREF="mouse_81objhotkeys.html">objektsnabbtangenter</A> efter att du registrerat dom.
+
+<P>F”r att <B>registrera en s†n funktionstangent med &xwp;,</B> g† till den ut”kade
+"Tangentbords" objektet och v„xla till den nya sidan "Funktionstangenter". H”ger-klicka p† 
+containerns tomma yta och v„lj "L„gg till funktionstangent". Du kan f† ytterligare hj„lp genom att
+trycka p† "Hj„lp" knappen h„r.
+
+<P><B>Varningar.</B>
+
+<OL><LI>Det finns verkligen <B>ingen felkontroll</B> n„r du registrerar en funktionstangent med
+&xwp;. Scankoder „r h†rdvaru-beroende, s† det finns inget s„tt f”r &xwp; att tala om ifall en viss
+scankod inte borde registreras. Till exempel, du kan ocks† registrera "Enter" eller n†got annat tecken som
+en funktionstangent, vilket verkligen inte „r n†gon bra id‚. <B>S† registrera endast "riktiga" extratangenter
+med &xwp;, eller kanske tangenten inte l„ngre kommer att fungera.</B>
+
+<P><LI>Vissa tangenter kommer att v„gra att l†ta sig registreras. Om det h„nder, betyder det att
+tangentbordsh†rdvaran inte producerar en scankod f”r den tangenten. Jag har ett Fujitsu multimedia
+tangentbord med omkring 15 extra tangenter, och tre av dom v„grar att fungera. Jag antar att vi beh”ver
+en drivrutin f”r att tolka dessa ytterligare tre tangenter, men det ligger utanf”r min k„nnedom.
+
+<P><LI>Som vanligt, funktionstangenterna kommer bara att uppt„ckas n„r ett PM f”nster har fokus. De kommer
+inte att fungera i en fullsk„rms DOS eller fullsk„rms &winos2; session.
+</OL>
+</BODY>
+</HTML>
+
+

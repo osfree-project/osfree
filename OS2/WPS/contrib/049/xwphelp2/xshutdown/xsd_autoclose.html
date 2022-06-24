@@ -1,0 +1,80 @@
+<HTML RESID=&ID_XFH_AUTOCLOSEDETAILS;>
+<HEAD>
+    <TITLE>
+        Automatisches Schlieáen von Nicht-PM-Sitzungen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<BODY>
+Im diesem Dialog kann festgelegt werden, welche
+<!-- V0.9.20: added link -->
+Nicht-PM-<A HREF="glossary/gls_sessions.html">Sitzungen</A> w„hrend eines
+Neustarts der Arbeitsoberfl„che oder eines erweiterten Systemabschlusses
+automatisch geschlossen werden sollen und welche Methode dazu benutzt werden soll.
+ 
+<P>Beachten Sie, daá die Angaben nur auf Nicht-PM-Sitzungen angewendet
+werden. PM-Fenster werden niemals mit den hier festgelegten Methoden.
+ 
+<P>"Nicht-PM-Sitzungen" ist der Begriff, der fr alle Programme benutzt wird,
+die nicht vom Presentation Manager (PM) kontrolliert werden, also
+&os2;- und DOS-Sitzungen
+im Textmodus in einem VIO-Fenster oder im Vollbildmodus sowie &winos2;-Sitzungen.
+<!-- V0.9.20: added this -->
+Weitere Informationen siehe <A HREF="glossary/gls_sessions.html">Sitzungsarten</A>.
+ 
+<P>Die hier vorgenommenen Einstellungen haben Vorrang vor der Einstellung,
+die im Einstellungsnotizbuch der Arbeitsoberfl„che als "Nicht-PM-Sitzungen
+automatisch schlieáen" festgelegt ist.
+ 
+<P>Um eine spezielle Methode fr eine bestimmte Sitzung festzulegen, fhren Sie
+folgende Schritte aus:
+ 
+<OL><LI>Drcken Sie die Schaltfl„che <B>"Neu"</B>, um einen neuen Eintrag zu
+erzeugen, der zuerst mit "???" betitelt wird.
+ 
+<BR><LI>Geben Sie im entsprechenden Feld den <B>Titel</B> der Sitzung an, die Sie
+konfigurieren m”chten. Sie mssen den Sitzungstitel genau so eingeben, wie er im
+der &os2;-Fensterliste (oder dem Titel des VIO-Fensters) erscheint. Die beste
+Methode, das zu erreichen, ist, die Sitzung zu ”ffnen und den Titel in diesem
+Feld genau zu bernehmen.
+<P>Sie k”nnen den Titel allerdings auch abkrzen; der Vergleich der Sitzungstitel
+w„hrend des Systemabschlusses und des Neustarts der Arbeitsoberfl„che ist
+unabh„ngig von Groá- und Kleinschreibung.
+<P>Hier ein Beispiel: Wenn Sie eine Sitzung mit dem Titel
+<CITE>"&os2;-Fenster (CMD.EXE)"</CITE> schlieáen wollen,
+k”nnen Sie entweder <CITE>"&os2;"</CITE>, <CITE>"&os2;-Fenster (cmd.exe)"</CITE>
+oder <CITE>"&os2;-FeNsTer"</CITE> angeben. Alle diese Eintr„ge werden
+funktionieren. Sie sollten aber mehr als nur ein paar Zeichen eingeben, weil sonst
+&xshutdown; Ihre Einstellung auf eine andere Sitzung anwenden wrde, wenn sie die
+gleichen Anfangsbuchstaben hat.
+<BR><LI>Sie k”nnen dann ausw„hlen, was &xshutdown; mit dieser Sitzung tun soll:
+ 
+<UL><BR><LI><B>"Sitzung berspringen"</B> <I>schlieát</I> die Sitzung <I>nicht</I>,
+sondern berspringt sie, als wenn Sie die Schaltfl„che "šberspringen" im
+Statusfenster des &xshutdown; gedrckt h„tten.
+ 
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"PM-Fenster schlieáen"</B> simuliert die Auswahl des Menpunktes
+"Schlieáen" im Systemmen der Sitzung. Dies sollte genauso fr VIO-Fenster
+und Vollbild-Sitzungen funktionieren, da letzterer Sitzungstyp auch von einem
+minimierten Symbol auf der Arbeitsoberfl„che repr„sentiert wird. Das kann
+allerdings ein zus„tzliches (normales &os2;-)Best„tigungsfenster zur Folge
+haben, das nachfragt, ob die Sitzung wirklich geschlossen werden soll.
+ 
+<!-- V1.0.0: removed the ctrl+c stuff -->
+ 
+<BR><LI><B>"Sitzung killen"</B> schlieát die Sitzung ohne weitere Diskussion. Dies
+wendet das API
+<A HREF="cpref.inf#DosKillProcess"><CODE>DosKillProcess</CODE></A>
+auf den Prozeá der Sitzung an.<A HREF="_toolkitlink.html">*</A>
+ 
+</UL>Beachten Sie, daá keine dieser Methoden die Daten dieser Sitzung sichert.
+Wenn Sie die Daten einer bestimmten Sitzung sichern m”chten, sollten Sie deren
+Titel nicht in diesem Dialog angeben, und Sie sollten auch "Nicht-PM-Sitzungen
+automatisch schlieáen" im Einstellungsnotizbuch der Arbeitsoberfl„che nicht
+aktivieren.
+</OL><BR>
+ 
+</BODY>
+</HTML>
+ 

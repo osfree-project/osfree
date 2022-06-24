@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Automatische Aktualisierung von Ordnern aktivieren
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- V0.9.16: page has been rewritten -->
+<BODY>
+Diese Einstellung erlaubt es, die automatische Aktualisierung von Ordnern sofort
+zu aktivieren oder deaktivieren. Man muá dazu nicht die &cfgsys; modifizieren
+oder das System neu starten.
+ 
+<P>Wenn diese Einstellung <B>aktiviert</B> ist, werden alle Ordner des Systems
+nderungen im Dateisystem nach kurzer Wartezeit automatisch bernehmen. Wenn 
+bespielsweise ein Programm eine Datei in einem Ordner erzeugt, der gerade offen ist,
+wird die Datei automatisch in diesem Ordner erscheinen.
+ 
+<P>Wenn diese Einstellung <B>deaktiviert</B> ist, werden solche nderungen nicht
+automatisch von der WPS erkannt. Um die nderungen in offenen Ordnern dann anzeigen
+zu lassen, mssen Sie den Meneintrag "Sofort aktualisieren" fr diesen Ordner
+anw„hlen.
+ 
+<IFNDEF __NOXWPSETUP__>
+<P>Beachten Sie, daá dies nur dann funktioniert, wenn die Ersetzung der
+automatischen Aktualisierung durch &xwp; im
+<A HREF="objects/obj_xwpsetup.html">Objekt "&xwp;-Konfiguration"</A>
+aktiviert und danach die WPS neu gestartet wurde.
+ 
+<P>Diese Option ist deaktiviert, wenn die Ersetzung der automatischen Aktualisierung 
+noch nicht ausgew„hlt wurde, oder wenn Sie die WPS nach Ausw„hlen der Ersetzung
+noch nicht neu gestartet haben.
+</IFNDEF>
+ 
+<BR>
+</BODY>
+</HTML>
+ 

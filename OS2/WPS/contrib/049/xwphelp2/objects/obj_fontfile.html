@@ -1,0 +1,48 @@
+<HTML RESID=&ID_XSH_FONTFILE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Schriftartdatei
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Wenn der <A HREF="objects/obj_fontfdr.html">Ordner Schriftarten</A> installiert ist,
+macht &xwp; automatisch alle Datendateien, die Schriftarten zu enthalten
+scheinen, zu "Schriftartdateien".
+ 
+<P>Schriftartdateien verhalten sich nicht sehr unterschiedlich von normalen Datendateien...
+bis auf die folgende Ausnahme:
+ 
+<UL><LI>Sie erhalten automatisch den Standarddateityp "Schriftartdatei".
+ 
+<P><LI>Falls fr diesen Typ keine Verknpfungen existieren (oder fr die Dateinamenerweiterung),
+wird den Schriftartdateien ein anderes Standardsymbol zugewiesen.
+ 
+<P><LI>Es k”nnen ausschlieálich Schriftartdateien an den Schriftartenordner bergeben werden,
+um zgig Schriften zu installieren.
+ 
+</UL>Zur Zeit werden Dateien mit folgenden Erweiterungen zu Schriftartdateien erkl„rt:
+ 
+<UL><LI><CODE>.TTF</CODE>, <CODE>.TTC</CODE>: Hierbei handelt es sich um die Erweiterungen fr
+TrueType-Schriften.
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+Es wird vorausgesetzt, daá das &os2;-System TrueType-Schriften anzeigen kann. Dies ist
+bei Warp 4 (und neuer) der Fall, ohne daá irgendwelche besonderen Maánahmen ergriffen werden
+máten. Bei Warp 3 muá die FreeType/2-Engine installiert werden - was allerdings auch bei
+Warp 4 zu empfehlen ist, da sie eine bessere Anzeigequalit„t besitzt.
+</IFNDEF>
+ 
+<P><LI><CODE>.OFM</CODE>: Hierbei handelt es sich um die speziellen Dateien, mit deren Hilfe
+&os2; auf Adobe-Type-1-Schriftarten zugreifen kann (zusammen mit der Erweiterung <CODE>.PFB</CODE>).
+Damit &os2; eine Type-1-Schriftartdatei installieren kann, sind sowohl eine
+<CODE>.OFM</CODE>-Datei als auch eine <CODE>.PFB</CODE>-Datei erforderlich,
+aber nur die <CODE>.OFM</CODE>-Datei wird im Schriftartregister des Systems gespeichert
+(und aus diesem Grunde macht &xwp; nur die <CODE>.OFM</CODE>-Datei zu einer Schriftartdatei).
+ 
+<P><LI><CODE>.FON</CODE>-Dateien stellen Bitmap-Schriften dar. Auch wenn sie im Schriftartenordner
+ordnungsgem„á aufgelistet werden, kann es Probleme mit der Beispielanzeige dieser Dateien geben.
+</UL>
+</BODY>
+</HTML>
+ 

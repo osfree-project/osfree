@@ -1,0 +1,116 @@
+<HTML RESID=&ID_XSH_WIDGET_PULSE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Puls Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;'s</A>
+<B>"Puls" widgeten</B> visar den aktuella CPU lasten tillsammans med en graf ”ver den 
+tidigare CPU aktiviteten. Detta uppdateras en g†ng i sekunden „r liknande den respektive
+monitorn i &warpcenter;.
+
+<!-- V0.9.9: added the following -->
+<P>Displayen kommer grovt s„tt att likna f”ljande:
+<BR><IMG SRC="img/xc_pulse.gif">
+
+<P>Den cyanf„rgade delen av grafen representerar "anv„ndarens" last p† systemet, medan den
+bl†f„rgade delen represents "IRQ" lasten. Den procentsats som skrivs ut i centrum representerar 
+alltid de kombinerade "anv„ndar" och "IRQ" lasterna.
+<!-- V0.9.19: added this -->
+Om du k”r det h„r p† ett multi-processor system, kommer du att f† "anv„ndar" graf f”r varje
+CPU. D„remot, kan du „ven d† att f† endast en "IRQ" graf d„rf”r att per definition, 
+processar &os2; alla interrupt p† den f”rsta CPU'n i systemet. Se anm„rkningerna nedanf”r
+f”r detaljer om detta.
+<!-- end V0.9.9 -->
+
+<!-- V0.9.19: changed the following -->
+<P>Notera att du kan
+<A HREF="glossary/gls_dropfonts.html">dra och sl„ppa fonter och f„rger</A> p†
+pulswidgeten. Dessutom, „r den
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">storleksf”r„ndringsbar</A>.
+
+<!-- V0.9.19: removed
+Presently, the pulse widget can only display the load of the first CPU, in
+case you are running &os2; on a multi-processor system. -->
+
+<P><B>Implementering Detaljer</B>
+
+<!-- V0.9.9: rewrote most of the following -->
+<P>Internt, anv„nder pulswidgeten <CODE>DosPerfSysCall</CODE> API
+(se dokumentationen f”r
+<A HREF="cpref.inf#DosPerfSysCall"><CODE>DosPerfSysCall</CODE></A>
+i Toolkit's dokumentation<A HREF="_toolkitlink.html">*</A>).
+
+Denna API har f”rdelen att kunna m„ta CPU aktivitet genom att direkt accessa
+prestandar„knarna i &os2;'s k„rna ist„llet f”r att k”ra en andra ledig-tids tr†d vilken
+konsumerar all †terst†ende CPU tid sj„lv (och d„rmed ytterligare batterikraft p† laptops).
+
+<P>Som ett resultat, att k”ra pulswidgeten konsumerar <I>inte</I> ytterligare CPU tid 
+undantaget f”r den tid som det tar att rita upp sj„lva widgeten. Med andra ord, pulswidgeten
+bidrar inte sj„lv med n†gon egen CPU last, den f”rfr†gar endast &os2; k„rnan efter den aktuella
+lasten och visar den som en graf.
+
+<P>Widgetens egen overhead f”r att rita upp „r ocks† orsaken till du troligtvis aldrig kommer
+att se en CPU last p† noll, „ven om du f”r n„rvarande inte g”r n†gonting med ditt system. P†
+f”rfattarens system (en Pentium II-400), g†r CPU lasten aldrig ner under 0.7% med 
+standard widgetstorlek.
+
+<!-- V0.9.9: added all the following -->
+<P><B>Krav</B>
+
+<!-- V0.9.19: refreshed this -->
+<IFNDEF __EWORKPLACE__>
+<P><CODE>DosPerfSysCall</CODE> API'n har nyligen introducerats och kanske inte 
+fungerar p† ditt system. Den b”r fungera med Warp 4 och h”gre (eller Warp 3
+med en ekvivalent fixpaksniv†; b”r vara fixpak 26).
+</IFNDEF>
+
+<P>IBM's dokumentation f”r <CODE>DosPerfSysCall</CODE> p†st†r att en Pentiumprocessor
+„r n”dv„ndig f”r att k„rnans prestandar„knare skall fungera.
+<!-- end V0.9.19 -->
+
+<P>Om widgeten inte visa n†gon graf utan endast <CODE>"E xxx"</CODE> 
+(med <CODE>xxx</CODE> varande en standard &os2; felkod), har ett fel intr„ffat. Mest troligt,
+kommer du att f† <CODE>"E 182"</CODE>, vilket betyder att <CODE>DosPerfSysCall</CODE> API', inte 
+hittades p† ditt system. F”r andra felkoder, kan du f”rs”ka skriva <CODE>HELP SYSxxx</CODE> p†
+en kommandorad.
+
+<P><B>"Anv„ndare" och "IRQ" last</B>
+
+<P>F”r varje prestanda snapshot, returnerar <CODE>DosPerfSysCall</CODE> v„rden f”r "anv„ndare"
+och "IRQ" laster, respektive.
+
+<P><B>"Anv„ndar" lasten</B> „r den tid som spenderades p† "uppdragstid" kod. V„sentligen,
+betyder det att CPU'n var upptagen med att exekvera kod i antingen en applikation eller
+med &os2; k„rnan eller en device drivrutin i den regulj„ra exekveringen hos fl”det av processer 
+och tr†dar, som kontrolleras av schemal„ggaren i &os2;'s k„rna.
+<!-- V0.9.13: changed this -->
+(Se <A HREF="glossary/gls_scheduler.html">"Processer och tr†dar"</A> f”r detaljer.)
+
+<P>Som kontrast, <B>"IRQ" lasten</B> representerar den tid som var n”dv„ndig f”r att 
+processa interupts. Som du kanske k„nner till, interrupt „r ett s„tt f”r h†rdvarukomponenter att 
+signalera till CPU'n att n†gon viktig h„ndelse har intr„ffat som m†ste †tg„rdas omedelbart.
+Mest vanligt, „r interrupts fr†n h†rddiskar, ljudkort, n„tverkskort, seriella och
+<!-- V0.9.19: added serials and printers-->
+skrivarkommunikationer. Dessa devicer har inte r†d att v„nta tills &os2;'s schemal„ggare har avslutat
+en process tidscykel och „r redo att v„xla till en annan uppgift. Ist„llet, n„r ett IRQ kommer in,
+avbryter &os2;'s k„rna den regulj„ra schemal„ggningssekvensen och anropar en interrupthanterare
+ist„llet, vilket, i de flesta fall, kommer att vara kod fr†n n†gon device drivrutin. (I allm„nhet, kan
+endast &os2; device drivrutiner installera interrupthanterare.) Till exempel, om en interrupt 
+fr†n h†rddisken kommer in, kommer koden i <CODE>IBM1S506.ADD</CODE> att bli anropad direkt f”r att 
+betj„na interruptet.
+
+<P>Om du aldrig ser n†gon IRQ last hos ditt system, „r detta normalt. Det „r troligtvis
+fallet om du inte har n†gra n„tverksadapters installerade och du har aktiverat
+busmastering f”r dina h†rddiskar. Emellertid, om du har en h”g IRQ last, kan du ”verv„ga
+att f”rs”ka reducera den -- aktivera busmastering f”r dina h†rddiskar och/eller skaffa
+en n„tverksadapter som kan hantera busmastering.
+
+<BR>
+</BODY>
+</HTML>
+

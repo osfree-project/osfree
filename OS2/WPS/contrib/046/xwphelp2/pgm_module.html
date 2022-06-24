@@ -1,0 +1,82 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE;>
+<HEAD>
+    <TITLE>
+        &xwp;: sidan "Moduler"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.20: rewrote this -->
+Sidan "Modul" upptr„der i notboken med egenskaper hos alla exekverbara filer f”r att
+visa ytterligare information om en exekverbar modul.
+
+<!-- V0.9.20: added this -->
+<P>En <B>"modul"</B> „r &os2; k„rnans representation om att en exekverbar fil
+har laddats problemfritt. Det kan antingen vara en
+<A HREF="objects/obj_pgmf.html">programfil</A> eller en
+<A HREF="glossary/gls_dll.html">DLL</A>.
+
+<P>Informationen p† den h„r sidan h„mtas direkt fr†n den exekverbara filen och
+kan inte „ndras. All exekverbara filer p† operativsystem vilka uppr„tth†ller en
+viss kompatibilitet med DOS (som &os2; och Windows) anv„nder fortfarande samma
+EXE header som DOS 3.x. Emellertid, f”r de "ut”kade" EXE formaten som anv„nds av
+&os2; och Windows, efter den gamla DOS headern, finns ytterligare exekverbara 
+headers i filerna. &xwp; f”rs”ker att analysera olika headers i filerna och visar
+resultaten p† den h„r sidan.
+
+<P>I <B>"Modul format"</B> gruppen, „r <B>"Exekverbart format"</B> ett av f”ljande:
+
+<UL><LI><B>"DOS 3.x":</B> Endast den h„r filen har den gamla DOS EXE headern, s† det „r 
+troligtvis en DOS fil.
+
+<P><LI><B>"Linear Executable (LX)":</B>
+<!-- V0.9.16: rewrote this section, moved this up -->
+Detta „r ett „kta exekverbart OS/2 format som anv„nds av 32-bitars moduler, inklusive
+32-bitars kataloger. De flesta OS/2 EXE och
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<!-- V0.9.20: modified the following -->
+filer som k”rs p† OS/2 version 2.x eller h”gre har det h„r formatet.
+<!-- end V0.9.16 -->
+
+<P><LI><B>"New Executable (NE)"</B>:
+<!-- V0.9.16: rewrote this section -->
+Det h„r formatet introducerades av IBM och Microsoft med OS/2 1.x och „r fortfarande 
+i anv„ndning f”r 16-bitars exekverbara under b†de Windows och OS/2. De flesta Windows 3.x 
+applikationer har det h„r formatet, s†v„l som 16-bitars OS/2 applikationer 
+(inklusive 16-bitars kataloger). Eftersom de flesta OS/2 drivrutiner fortfarande „r
+16-bitars idag, kommer dom att ha det h„r formatet ocks†.
+<!-- end V0.9.16 -->
+
+<P><LI><B>"Portable Executable (PE)":</B> Det h„r formatet introducerades
+<!-- V0.9.16: rewrote this  --> 
+av Microsoft f”r 32-bitars Windowsapplikationer och anv„nds betydande under
+alla Windowsversioner sedan Windows 95 (inklusive derivat av Windows NT).
+<!-- end V0.9.16 -->
+Žven vissa Win32s applikationer, (t.ex. 32-bitars applikationer som k”rs under Windows 3.x)
+kommer att ha det h„r formatet.
+<!-- V0.9.9: added the following -->
+OS/2 varken anv„nder eller f”rst†r det h„r formatet som standard, men om du har Odin
+installerat, kan OS/2 ladda s†dana exekverbara filer.
+<!-- end V0.9.9 -->
+
+</UL><B>"M†l OS"</B> visar f”r vilket operativsystem som det exekverbara programmet skrevs.
+Detta kommer att visa ett av "DOS 3.x", "DOS 4.x", "OS/2", "Win16", "Win386",
+eller "Win32". F”r vissa exekverbara format, kommer &xwp; att visa det m†l OS som
+specificerades i den exekverbara filen, f”r andra kommer den att g”ra en uppskattning.
+
+<P>Gruppen <B>"Modul beskrivning"</B> visar dig ytterligare information om den
+exekverbara filen som specificerades av dess skapare.
+<!-- V0.9.5: updated the following phrase -->
+Detta kan inh„mtas f”r LX och NE formaten. Den h„r informationen kommer att vara den samma som
+returnerades av <CODE>BLDLEVEL.EXE</CODE> kommandoradstillbeh”ret, vilket „r bifogat med OS/2.
+
+<!-- V0.9.20: rewrote this -->
+<P>M†nga exekverbara OS/2 filer anv„nder ett speciellt IBM "bldlevel" format f”r att specificera 
+tillverkare, version, och beskrivning allt i samma str„ng; om formatet „r h”rsammat, kommer &xwp; att visa
+informationen, annars kommer endast f„ltet "Beskrivning" att st„llas in.
+
+<BR>
+</BODY>
+</HTML>
+

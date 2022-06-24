@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: How Can I...
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Here are some typical tasks that xfix can help you with.
+
+<UL><LI><B>Finding outdated file handles</B>
+
+<P>In order to have xfix check all file handles for whether they still point
+to valid physical files, select "Find invalid files" from the "Actions" menu.
+
+<P>This task can take a while since xfix will have to check each of the "long names"
+in the handles list for whether the file name is valid. You will hear your hard
+disk rattle, but don't worry, xfix is only looking for files and will not alter them.
+
+<P>When xfix is done with this, all outdated handles will be marked invalid
+(with a gray emphasis) and their status will be set to "File not found".
+
+<P>Read on at the bottom of this text for how to remove these.
+
+<P><LI><B>Fixing duplicate handles</B>
+
+<P>This task was the real reason why this program was written in the first place,
+since my file handles were messed up so badly at one point that not even CHECKINI
+was able to fix this any more.
+
+<P>When duplicate file handles exist, the WPS gets totally confused pretty soon,
+and more and more duplicates are added to the file handle blocks, until one day
+the WPS won't even find your Desktop any more.
+
+<P>When xfix is initially started, it will automatically detect duplicate file handles.
+Those are marked invalid (with a gray emphasis), and you will find a "duplicate"
+string in the second column for those entries.
+
+</UL>To <B>remove invalid entries</B> after having performed one of the above
+steps, do this:
+
+<OL><LI>Select "Status" from the "Sort" menu to have all entries with an invalid status
+moved to the bottom. (Again, these are given a gray background.)
+
+<LI>Scroll down to find those entries.
+
+<LI>Select all invalid entries manually, or use "Select all invalid" from
+the menu.
+
+<LI>Right-click on one of the selected items and choose "Delete".
+
+<LI>From the "xfix" menu, select "Write back to OS2.INI".
+
+</OL>
+</BODY>
+</HTML>
+

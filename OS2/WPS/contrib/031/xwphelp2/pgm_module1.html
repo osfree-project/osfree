@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Ge‹mporteerde modules pagina
+    </TITLE>
+</HEAD>
+<BODY>
+De "Module" pagina's bevinden zich in de instellingen notitieblokken van alle uitvoerbare bestanden
+om extra informatie te laten zien van een uitvoerbare module.
+
+<P>Deze pagina toont u de submodules die door de module zijn ge‹mporteerd.
+
+<P>De pagina maakt alleen een lijst van de submodules die expliciet zijn genoteerd als
+ge‹mporteerd in de module header voor 'load-time linking'.
+Deze ge‹mporteerde submodules zijn reeds verdwenen op het moment dat de module geladen wordt,
+in tegenstelling tot 'run-time linking' (zie beneden).
+De namen van de modules zijn de namen van de
+<A HREF="glossary/gls_dll.html">dynamic link libraries</A> die moeten worden ge‹mporteerd
+meestal zonder de <CODE>.DLL</CODE> bestandsnaam toevoeging, en worden verwacht in het
+<CODE>LIBPATH</CODE> (zie <A HREF="glossary/gls_path_sys.html">"Systeempaden"</A>
+voor meer informatie).
+
+<P>Als een uitvoerbaar bestand niet kan worden geladen, kan de informatie op deze pagina handig zijn
+om uit te vinden welke submodule gefaald heeft.
+
+<P>Echter, als resultaat van het bovenstaande, laat deze pagina <I>niet</I> zien de:
+
+<UL><LI><B>Importeren tijdens Run-time, </B>als een applicatie specifieke &os2; API's aanroept
+om code dynamisch te importeren nadat die compleet geladen is.
+Deze informatie wordt niet in de header van het uitvoerbare bestand gespecificeerd omdat het de actuele
+programma code is die het importeren uitvoert.
+Zie de documentatie over
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in de Toolkit documentatie. <A HREF="_toolkitlink.html">*</A>
+
+<P><LI><B>Indirecte importen, </B>d.w.z., subimporten uitgevoerd door de modules
+genoteerd op deze pagina.
+Deze importen hangen af van de uitvoeringsinhoud: b.v., de werkelijke actieve
+<CODE>LIBPATH</CODE>, <CODE>BEGINLIBPATH</CODE>, en <CODE>ENDLIBPATH</CODE>
+<A HREF="glossary/gls_path_sys.html">systeem paden</A>
+bepalen allemaal welke modules werkelijk zullen worden geladen.
+
+</UL>Om te bepalen welke module echt wordt gebruikt door een bepaald programma, kunt U
+de <CODE>PSTAT /L</CODE> opdracht uitvoeren vanaf een &os2; opdrachtaanwijzing terwijl het
+specifieke programma draait.
+
+<BR>
+</BODY>
+</HTML>
+

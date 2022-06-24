@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+The <B>"Autocheck"</B> parameter determines for which
+<!-- V0.9.20: replace drives with volumes -->
+volumes JFS will automatically perform a <CITE>CHKDSK</CITE> at system startup.
+
+<P>Simply enter the respective drive letters here (without the trailing "<CITE>:</CITE>").
+
+<P>Note however that the meaning of this parameter is slightly different compared to
+the corresponding parameter of <CODE>HPFS.IFS</CODE>:
+
+<UL><LI>If you specify <CODE>*</CODE> only (which is the default), all JFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes will automatically be checked by replaying the journal log. Note that JFS will
+not only check <!-- V0.9.20: replace drives with volumes -->
+volumes that have been marked as "dirty" (i.e. not properly shut
+down), but replay the journal log <I>always</I> on startup.
+
+<LI>If you specify a plus sign (<CITE>+</CITE>) <I>before</I> a drive letter here,
+JFS will not only replay the journal log on that drive, but will perform a full
+integrity check as well.
+
+<LI>If the list ends with <CODE>+*</CODE>, JFS will perform a full integrity check
+on all <!-- V0.9.20: replace drives with volumes -->
+volumes that were not specified in the list.
+
+</UL>Example: If you enter <CITE>C+DE</CITE>, drive D: will receive a full check,
+while C: and E: will only have their journal logs replayed.
+
+<BR>
+</BODY>
+</HTML>
+

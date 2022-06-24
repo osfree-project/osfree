@@ -1,0 +1,171 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Compatibility with Other Software
+    </TITLE>
+</HEAD>
+<!-- changes in V0.81 and V0.84: noted below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;; also see notes below -->
+<BODY>
+As you might have experienced, sometimes several WPS enhancers don't seem to like each other
+too much. Or maybe they do like each other, but just don't get along.
+<P>However, I have tested &xwp; with several system utilities that I could
+reach at this time
+(on both Warp 3 and 4), and a number of users reported other utilities to me.
+The following programs
+seemed to be cooperative:
+<UL>
+<LI>CandyBarZ 1.01 / 1.10
+<LI>CommandFolder 1.50
+<!-- next item changed with V0.81 -->
+<LI>Desktop Wizard 1.41 (mind the notes below)
+<LI>DragText 2.5
+<LI>Extended Desktop 1.4
+<LI>FeelX (installs a WPS class)
+<!-- next item changed with V0.9.0 -->
+<LI>Hot Scroll 0.80 / 1.00 / 1.10
+<LI>NPS WPS 1.81 / 1.82 (mind the notes below)
+<!-- next item changed with V0.9.0 -->
+<LI>Object Desktop Professional 1.5.2 / 2.0 (mind the notes below)
+<LI>WatchCat 2.1 (installs a WPS class)
+<LI>WPAnimatedMousePointer 1.01
+<LI>X.file 1.1 / 1.2
+<LI>X.it 2.4 / 2.5
+
+</UL><B>General note.</B> As &xwp; is providing more features with
+every released version, chances increase that features conflict with other
+parties' WPS replacement classes.
+Depending on which software was installed first (and thus appears first
+in the WPS class replacement list), &xwp; or the other product may not get a chance
+to actually change the WPS's behavior.
+<P>Moreover, since &xwp; offers a number of features which are also contained in
+other WPS packages (mostly PM hooks), you should make sure that these features are
+not enabled in several packages at the same time.
+For example, you should not enable folder status bars in
+both &xwp; and Object Desktop, which can only lead to
+<!-- V0.9.0: added the following -->
+problems, or activate the
+&xwp; trash can while another trash can software is also installed.
+
+<P><B>Warnings.</B> The following list of incompatibilities is based on
+reports by users of &xwp;. I have not verified these yet and include them only
+to save you from trouble.
+
+<!--- the following updated with V0.84 -->
+<UL><LI><B>Object Desktop.</B> OD manipulates the WPS just as intensively as
+&xwp; does (maybe even more), so it's just natural that most problems have arised
+with this software.
+<P><B>Note:</B> I do not have Object Desktop. The following is all I know. If you find out
+something, you're welcome to tell me, and I'll add that to this section.
+But please do not write me that OD does
+not cooperate well with &xwp;.
+<I>I know,</I> and there's little I can do about it.
+<P>For all versions, the following rule applies: If you have trouble,
+&xwp; probably conflicts with OD's folder replacement class, TSEnhFolder.
+If nothing else works, you can always deregister that class (using the
+&xwp; "WPS Class list" object),
+<!-- V0.9.0: remove this: in the "Workplace Shell" object), -->
+and you'll probably get &xwp; to work.
+<P>But before that, mind the following notes:
+<!-- V0.9.6: remove the following
+The install program now offers you to alter the order of &xwp; and
+the "TSEnhFolder" class in the WPS class list
+which is the WPS class responsible for most of the Object Desktop folder functions.
+I believe this should help, because then &xwp; gets the chance to subclass
+the folder windows before Object Desktop. -->
+
+<!-- added the headline with V0.84 -->
+<!-- changed the headline with V0.9.0 -->
+<P><B>All Object Desktop versions.</B>
+<!-- the following is unchanged -->
+<P>I was reported that &xwp; does not cooperate with the <B>"Browse mode"</B>
+feature of Object Desktop. You will have to switch this feature off, sorry.
+
+<P>Also, you should make sure to have the <B>"Folder status bars"</B> disabled
+in Object Desktop before enabling the respective &xwp; function, or the funniest
+things might happen.
+
+<P>Finally, I was reported that XFolder keeps adding status bars to Object Desktop's
+<B>"Launchpads"</B> even where they don't belong. Apparently, these things are
+derived from the WPFolder class also; they have an "XFolder" page in their settings
+notebooks though, so you can turn off XFolder's status bars for them.
+<!-- V0.9.6: added this -->
+If the object doesn't have an "XFolder" page, you can try to manually use the
+<CODE>STATUSBAR=NO</CODE> folder setup string <!-- V0.9.16: removed link here -->
+of the XFolder class.
+
+<!-- added the following with V0.84 -->
+<P><B>Object Desktop 2.0.</B>
+<A HREF="mailto:e9425324@student.tuwien.ac.at">Stefan Zechmeister</A>
+got OD 2.0 to work with &xwp; doing this:
+<OL><LI>Install OD 2.0.
+<LI>Install OD fixkit #1.
+<LI>Install &xwp;.
+<!-- V0.9.6: removed this: Reverse the order of TSEnhFolder class as proposed by
+the install script. -->
+<!-- V0.9.0: changed the following -->
+<LI>Go to the "&xwp; Setup" object, "Paranoia" page, and raise the
+"Menu item ID offset" to 700 or above. Starting with V0.9.0, the default is now 700.
+</OL>If you then move &xwp;'s installation folder to another
+folder, make sure the target folder has OD's extra features turned off.
+Otherwise &xwp; will complain that its Configuration Folder does not
+exist.
+
+<!-- the following is unchanged -->
+<BR><LI>If you are using <B>NPS WPS,</B> you must make sure to have its
+"Select by name" and "Sort by extension" features disabled, because &xwp; offers
+these features also and gets confused if these features are added by NPS WPS also.
+
+<P>&xwp; does <I>not</I> work with the automatic menu selection of NPS WPS, at least
+not if you are using the "Folder content" functions. This might lead to bad PM hangs.
+<!-- V0.9.6: added this -->
+Use &xwp;'s "Sliding menu" feature instead.
+
+<BR><LI>I was reported that &xwp; seems to have problems cooperating with
+<B>Program Commander/2.</B> Apparently, this can be solved by switching off
+the "SmartIcons" feature for title bars.
+
+<BR><LI>&xwp; also seemed to have problems with <B>DragText</B> on some systems.
+There must be a setting somewhere in that software to start DragText delayed, which
+should solve this.
+
+<BR><LI>I was told by Hauke Laging that
+<B>Extended Clipboard (EClip)</B> by Hinnerk Becker
+does not cooperate with &xwp;.
+On Hauke's Warp 4 system, the WPS hung at startup and did not
+respond to anything. Hauke then told me that the problem can be resolved by
+removing EClip from the startup folder. (I was unable to reproduce all this,
+but I'm reporting this to you anyway.)
+
+<BR><LI>Several users also reported that the "Snap to grid" function did not seem
+to work. I have tested both Warp 3 and 4 and encountered no problems; these users
+all had some version of Object Desktop installed, so I suspect in respect to the
+"Snap to grid" feature, &xwp; and Object Desktop seem to be colliding somehow.
+
+<BR><LI>Bernd Schemmer reported that &xwp; seems to be using the same menu ID's as the <B>LAN
+Server GUI</B>. If you're using LAN Server (or other software
+that might suffer from this), you can now change &xwp;'s menu IDs
+<!-- V0.9.0: change "Workplace Shell" to "&xwp; Setup" -->
+in the <A HREF="sys_2global.html">"&xwp; Setup"</A> object. The default menu ID offset
+has now (V0.51) been raised from 100 to 300 to avoid these conflicts.
+
+<BR><LI>Michael Holzapfel reported that installing GRADD drivers for the
+<B>ELSA Winner 2000FC</B> video card
+crashed his system when &xwp; V0.71 was installed, causing a CHKDSK at
+the next reboot, which in turn damaged the newly installed drivers, so the system
+wouldn't start at all. He told me that de-installing &xwp; helped.
+
+<!-- this item added with V0.81 -->
+<BR><LI>Dirk Schulz reported that Desktop Wizard and &xwp; don't like each other
+too much. On his system, he was able to increase the WPS's stability by de-installing
+Desktop Wizard. Glad he didn't de-install &xwp;. ;-)
+
+<!-- V0.9.13: added this -->
+<P>I was also reported that Prompt ver. 1.12 by Gary L. Robinson, which appears to
+implement a subset of the Desktop Wizard features, appears to work fine though.
+
+</UL>
+</BODY>
+</HTML>
+
+

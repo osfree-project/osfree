@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_WIDGET_MEMORY_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Memory Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+The
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Memory" widget</B> shows approximately how much
+physical RAM is left for applications to use. This is displayed in kilobytes (KB)
+and updated once a second.
+
+<!-- V0.9.19: added img -->
+<BR><IMG SRC="img/xc_mem.gif">
+
+<BR>The number displayed here is less than the amount of memory that applications can
+actually use. So if the number displayed here goes towards zero, this does
+not mean that your applications will not be able to allocate more memory.
+Instead, this widget displays how much physical memory can be allocated before the
+system would have to swap out other data to make room for a new allocation.
+So when this amount becomes too small, this only means that your swap file will
+probably have to be expanded.
+
+<!-- V0.9.19: changed the following -->
+<P>Note that you can
+<A HREF="glossary/gls_dropfonts.html">drag and drop fonts and colors</A>
+onto the memory widget.
+
+<IFNDEF __NOOS2KERNEL__>
+<P>You can also double-click on the widget to have the
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object opened quickly, which,
+among other things, allows you to change the system's memory widget.
+</IFNDEF>
+
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+<P><B>Implementation Details</B>
+
+<P>Internally, this widget uses the <CODE>Dos16MemAvail</CODE> API,
+an old 16-bit API that is no longer documented by IBM.
+
+<P>The documentation for OS/2 1.3 says that this reports
+"the size of the largest block of free memory". This is obviously not
+true any more, since all 32-bit OS/2 versions (since 2.0) no longer
+allocate memory in blocks, but with 4 KB page granularity instead.
+
+<P>From my experience, this API now does indeed show the amount of free
+physical memory in the system, that is, the amount of RAM that is currently
+not used by OS/2, either because it has never been used or swapped out
+or released again by a process. (From my testing, this API returns the same
+values as Theseus does for the free physical RAM.)
+This free RAM can be used by applications immediately
+without &os2; having to make room by swapping out other memory pages.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

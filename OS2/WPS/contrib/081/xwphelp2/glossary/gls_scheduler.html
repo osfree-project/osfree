@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Processes And Threads
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Since you will normally have only one processor, but expect several tasks to
+run at the same time, &os2; switches between tasks
+several dozen times a second. As a result, these programs appear to run in
+parallel. This is called <B>multitasking.</B>
+
+<P>But even if you have a multi-processor (SMP) system, there will
+always be more tasks than processors on your system, so switching is
+still required.
+
+<P>A <B>thread</B> is &os2;'s unit for administrating task switches.
+A program can contain several threads, but per definition,
+it will have at least one. But since a program can have more than one
+thread, switching can take place even between threads in the same
+program. This is called <B>multithreading.</B> As opposed to many
+other operating systems, &os2; fully supports this, and it even does
+so in a very fancy and reliable way.
+
+<P>The part of the &os2; kernel which switches between threads is called
+the <B>"scheduler".</B>
+
+<P>The term "thread" was chosen because within one thread
+program instructions are executed sequentially, while between threads you
+may never be sure which instruction of one thread will be executed before
+or after an instruction of another thread. It is only &os2; which keeps
+switching between threads without the thread even knowing about it (or, on
+SMP systems, threads might actually run concurrently on several processors).
+
+<P>Well-programmed
+<!-- V0.9.20: removed &os2; -->
+software uses several threads to ensure that the
+user gets a quick response to his input and mouse actions. For example, if
+you execute a command in a program which will take a long time, a
+program should start a secondary thread for this task. While this new thread
+is working in the background, the user interface (on the main thread of the
+program) is ready again for new input.
+
+<P>Not-so-well-programmed
+<!-- V0.9.20: removed &os2; -->
+software uses only one thread for both the
+user interface and executing tasks. As a result, while executing a task, the
+user interface is blocked.
+
+<P>Threads can have different <B>priorities.</B>
+<!-- V0.9.20: moved all the text about prties to gls_sched_prty.html and
+replaced it with the link -->
+See <A HREF="glossary/gls_sched_prty.html">"Thread priorities"</A> for details.
+
+<P>On the other hand, a <B>process</B> is the &os2; term for an
+application which has been loaded into memory. Each process must have at
+least one thread.
+
+<P>Each process contains common data as well as controls access to system
+resources. Processes are protected against each other in that &os2; prohibits
+access to memory which does not belong to the process attempting to
+access it ("memory protection").
+
+<P>By contrast, several threads within a
+process may all access the process's memory, because memory is
+administered on a per-process basis. The same applies to other system
+resources such as open files.
+
+<!-- V0.9.20: rewrote summary and added links -->
+<P>To summarize: A <B>thread</B> is the &os2; kernel concept for managing
+CPU ownership.
+By contrast, a <B>process</B> is the concept for owning everything else:
+files, devices, and memory.
+
+<P>For more information, select from the following list:
+
+<UL><LI><A HREF="glossary/gls_sessions.html">Session types</A>
+<LI><A HREF="glossary/gls_cmd.html">About command prompts</A>
+</UL>
+</BODY>
+</HTML>
+

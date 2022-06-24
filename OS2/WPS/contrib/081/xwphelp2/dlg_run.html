@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_RUN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Run Command
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+The &xwp; "Run" dialog allows you to quickly run a command in the
+specified startup directory.
+
+<!--V0.9.16: added UL LI etc -->
+<UL><LI>In the <B>top entry field,</B> enter the command to run. You can specify any
+EXE, COM, or CMD executable file. If the file is on the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A>,
+you do not
+have to specify the file's full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>,
+but you may do so if you wish.
+
+<P>The dialog maintains a history of the last 20 executables that were entered.
+In addition, you may use the <B>"Browse"</B> button on the bottom to look for
+a file in a standard &os2; "File open" dialog.
+
+<P>While you are entering the path, you will notice that &xwp; validates
+your input. The "OK" button will only be enabled if the executable file was
+found. If so, right below the top entry field, &xwp; shows you the executable
+file that would be executed when you then press OK.
+
+<P><LI>With the <B>check boxes</B>, you may optionally specify whether the executable
+should be started
+minimized and whether it should automatically close on exit. This will only
+have an effect with text-mode sessions.
+
+<P>In addition, if you have entered a &winos2; executable, the check boxes
+in the <B>&winos2; settings</B> settings group are enabled. This allows you
+to specify whether the &winos2; executable should be started in enhanced mode
+and/or in a separate &winos2; session.
+
+<P><LI>In the bottom entry field, you may also specify a <B>working directory.</B>
+If this is specified, &os2; will change to that directory before starting
+the executable. This might be necessary if the executable requires access to
+files in its own directory and that directory is not on the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A>
+or
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>.
+If none is specified, the root directory of your boot drive will be used.
+
+</UL>
+</BODY>
+</HTML>
+

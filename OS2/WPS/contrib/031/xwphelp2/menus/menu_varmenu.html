@@ -1,0 +1,77 @@
+<HTML RESID=&ID_XMH_VARIABLE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Variabele Menu Onderdelen
+    </TITLE>
+</HEAD>
+<!-- Changes:
+    V0.9.16: replace XFolder with &xwp;
+-->
+<BODY>
+&xwp; biedt u de mogelijkheid om globaal menu onderdelen toe te voegen aan de &popmenu;'s van alle
+<!-- V0.9.19: link added -->
+&link_folders;
+op het systeem. U heeft net een van die variabele menu onderdelen ontdekt.
+
+<P>Zie <A HREF="menus/menu_3config.html">Configureren &popmenu;'s</A> voor
+instructies over het aanpassen van de standaard instelling met het gebruik van de
+speciale &cfgfdr;.
+
+<P>Als u nog steeds de standaard menu configuratie heeft, die ingesteld was tijdens de installatie,
+zijn de volgende nieuwe menu onderdelen beschikbaar:
+
+<UL>
+<!-- V0.9.20: rewrote command prompts -->
+<LI>Het <B>"Opdrachtregels" submenu</B> bevat onderdelen voor het openen van
+<A HREF="glossary/gls_cmd.html">opdrachtregels</A>.
+Als u een van de onderdelen in dit submenu kiest, zal er een opdrachtregel
+getoond worden met de directory alvast aangepast aan die van de huidige map.
+
+<P><LI>Het <B>"Aanmaken nieuw"</B> submenu bevat onderdelen voor het aanmaken van
+nieuwe objecten in de map waarvan u het &popmenu; heeft geselecteerd.
+<!-- V0.9.20: link name changed -->
+<P>Zie <A HREF="menus/menu_2template.html">"Aanmaken objecten met Aanmaken Nieuw"</A> voor meer.
+
+<!-- V0.9.20: added this section for eWP -->
+<IFDEF __EWORKPLACE__>
+<P><LI>Het <B>"Map acties" submenu</B> bevat handige onderdelen voor het beheren van mappen.
+
+<P><B>"Toon boomgrootte"</B> zal het <A HREF="treesize.html">Boomgrootte</A> programma starten,
+die de totale ruimte berekend dat in beslag genomen worden door deze map en al zijn submappen op
+de schijf.
+
+<P><B>"Comprimeer boomstructuur (ZIP)"</B> zal de map met al zijn submappen en bestanden comprimeren
+in een ZIP bestand. Het zip bestand zal aangemaakt worden in de ouder map van de huidige map en
+de map zijn naam dragen met een <CODE>.ZIP</CODE> uitbreiding. Bijvoorbeeld, als u "Comprimeer boomstructuur (ZIP)"
+selecteert voor de <CODE>C:\FOLDER\SUBFOLDER</CODE> map, zal dit een
+<CODE>C:\FOLDER\SUBFOLDER.ZIP</CODE> bestand aanmaken.
+<!-- end V0.9.20: added this section for eWP -->
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+<P><LI>Het <B>"Snelle instellingen" submenu</B> bevat onderdelen waarmee u snel
+bepaalde map instellingen kunt instellen zonder zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A> te hoeven openen.
+
+<BR><LI>Het <B>"&xwp;" submenu</B> bevat onderdelen voor het openen van de
+<I>&xwp; Gebruikershandleiding</I>
+en de &cfgfdr;.
+Verder zult u hier snelle wegen vinden naar het nieuwe
+<!-- V0.9.4: link added -->
+&link_wpsobj;,
+die veel &xwp; globale instellingen bevat en ook het nieuwe "&os2; Kernel" object.
+
+<!-- the following paragraph was added with V0.81 -->
+<BR><LI>Het <B>"Boomgrootte" menu onderdeel</B> zal een programma starten dat de totale
+schijf ruimte zal berekenen dat gebruikt wordt door deze map en zijn submappen.
+<!-- V0.9.16: added this line -->
+Zie <A HREF="treesize.html">"Boomgrootte"</A> voor meer toelichting.
+
+<BR><LI>Het <B>"Netscape" menu onderdeel</B> zal Netscape opstarten, die dan de directory
+zal laten zien van de map waarvan u het &popmenu; heeft geselecteerd.
+<!-- V0.9.20: moved this ifdef DOWN -->
+</IFNDEF>
+
+</UL>
+</BODY>
+</HTML>
+

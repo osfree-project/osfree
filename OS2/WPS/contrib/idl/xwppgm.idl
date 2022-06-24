@@ -1,0 +1,204 @@
+
+/*
+ * xwppgm.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPProgram
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwppgm.c for details.
+ */
+
+/*
+ *      Copyright (C) 2001-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wppgm.idl>         // this is SOM for WPProgram
+
+/*
+   CLASS: XWPProgram
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPProgram
+                           ÀÄÄ XWPProgram
+*/
+
+interface M_XWPProgram;             // forward reference to XWPProgram metaclass
+
+interface XWPProgram : WPProgram
+{
+
+    /*
+     * New instance methods for XWPProgram:
+     *
+     */
+
+    ULONG xwpAddAssociationsPage(in HWND hwndNotebook);
+
+    //# BOOL xwpQuerySetup2(in PVOID pstrSetup);        V1.0.1 (2002-12-08) [umoeller]
+
+    BOOL xwpQueryExecutable(in PSZ pszBuffer);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddAssociationsPage,
+            //# xwpQuerySetup2,   V1.0.1 (2002-12-08) [umoeller]
+            xwpQueryExecutable;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xpg_;
+        externalstem = xpg;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwppgm;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPProgram;
+        dllname = "xfldr.dll";
+        callstyle = oidl;            //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPProgram:
+         *
+         */
+
+        BOOL        fNeedsSetProgIcon;      // flag for WPProgram::wpSetProgIcon
+
+        PSZ         pWszUsingIconFile;      // if we are using an .ICO file for the
+                                            // icon, this holds the icon filename
+                                            // V0.9.18 (2002-03-19) [umoeller]
+
+        // pointer WPProgram instance data (see wpInitData)
+        // all the following replaced V0.9.18 (2002-03-16) [umoeller]
+
+        PVOID       pvWPProgramData;
+
+        BOOL        fWeAllocatedExecutable; // if TRUE, we set the executable PSZ and
+                                            // should free it
+        BOOL        fWeAllocatedParameters; // if TRUE, we set the parameters PSZ and
+                                            // should free it
+        BOOL        fWeAllocatedEnvironment;
+
+        /*
+         * WPProgram methods overridden by XWPProgram:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpInitData: override;
+
+        wpUnInitData: override;
+        wpDestroyObject: override;
+
+        wpObjectReady: override;
+
+        //# 2)  WPObject query/set methods
+
+        xwpQuerySetup2: override;            //# V1.0.1 (2002-12-08) [umoeller]
+
+        //# 3)  icon methods
+
+        wpQueryIcon: override;
+        wpSetProgIcon: override;
+        wpQueryIconData: override;
+        wpSetIconData: override;
+
+        //# 4)  class-specific query/set methods
+
+        wpQueryProgDetails: override;
+        wpSetProgDetails: override;
+
+        //# 5)  menu methods
+
+        //# 6)  open view methods
+
+        wpOpen: override;
+
+        wpAddProgramPage: override;
+        wpAddProgramSessionPage: override;
+        wpAddProgramAssociationPage: override;
+
+        //# 7)  file operation methods
+
+        wpMoveObject: override;
+        wpCopyObject: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPProgram : M_WPProgram
+{
+
+    /*
+     * New class methods for M_XWPProgram:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xpgM_;
+        externalstem = xpgM;
+        functionprefix = xpgM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwppgm;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPProgram:
+         *
+         */
+
+        /*
+         * M_WPProgram methods overridden by M_XWPProgram:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

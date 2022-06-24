@@ -1,0 +1,24 @@
+<HTML RESID=&ID_XSH_WIDGET_HEALTH_SETTINGS;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Health Widget Properties
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+The "Health Monitor Settings" dialog allows you to specify what is displayed
+in the Health widget.
+<P>You'll have to enter a setup string here. There are several special "tokens" that
+are replaced by specific values.
+<P>Currently valid replacement values are:
+<P>%T&lt;n&gt; Replaced by temperature value in Celsius of sensor n (0-9)
+<P>%TF&lt;n&gt; Replaced by temperature value in Fahrenheit of sensor n (0-9)
+<P>%F&lt;n&gt; Replaced by fan value of sensor n (0-9)
+<P>%V&lt;n&gt; Replaced by voltage value of sensor n (0-9)
+<P>If a sensor is not supported the value will be shown as "[ERR]"
+<P>Example: "Temperature %T0 øC and Fan %F2 RPM"
+<P>Sample output: "Temperature 30.00 øC and Fan 4818 RPM"
+<BR>
+</BODY>
+</HTML>
+

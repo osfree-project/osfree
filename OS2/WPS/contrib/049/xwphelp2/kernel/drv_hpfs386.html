@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_DRIVER_HPFS386;>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: HPFS386.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+Dieser Dialog dient zur Konfiguration von <CODE>HPFS386.IFS</CODE>,
+bei dem es sich um die 32-Bit-Version des High Performance File System
+handelt, das standardm„áig mit &os2; ausgeliefert wird.
+ 
+<!-- V0.9.13
+ 
+Gegenber dem regul„ren HPFS bietet HPFS386 folgende Vorteile:
+ 
+<UL><LI>Es wurde teilweise in 32-Bit Assembler entwickelt.
+<LI>HPFS386 besitzt die F„higkeit, Daten direkt an Netzwerkadaptertreiber
+zu bertragen. Daraus resultiert die M”glichkeit, Daten direkt in Ring0 zu
+bertragen, ohne dafr eine Ringbrcke verwenden zu mssen, was HPFS386
+ideal fr den EInsatz auf Servern macht.
+<LI>Ein weiterer wesentlicher Unterschied ist, daá man Cachegr”áen von
+mehr als 2048 KB angeben kann - der Obergrenze beim regul„ren HPFS.
+<LI>HPFS386 kann auch zur Implementierung der lokalen Sicherheit auf
+Dateisystemebene eingesetzt werden. Zugriffskontrollisten (ACL, "Access
+Control Lists" ACL) k”nnen direkt innerhalb der Datei/Verzeichnisstrukturen
+des Dateisystems abgelegt werden.
+ 
+</UL>Leider wird HPFS386 ausschlieálich mit der Serverversion von &os2;
+geliefert, so daá sich nur wenige Leute dessen Vorteile leisten k”nnen.
+ 
+and added this: -->
+ 
+<P>Einfhrende Informationen zu Dateisystemen erhalten Sie ber
+einen der folgenden Verweise:
+<UL><LI><A HREF="glossary/gls_fs.html">Dateisysteme</A>
+<LI><A HREF="glossary/gls_caches.html">Cache-Speicher fr Dateisysteme</A></UL>
+ 
+<P>Durch Klicken auf <B>"OK"</B> werden Ihre Einstellungen in
+entsprechende Treiberparameter umgesetzt, die in das Feld "Parameter" auf der Seite
+"Treiber" im Dialog
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2;-Kernel"</A>
+bernommen werden. Die &cfgsys; wird hierdurch allerdings noch nicht
+ge„ndert. Um dies zu bewirken, klicken Sie auf "Anwenden" auf der Seite
+"Treiber", nachdem Sie im aktuellen Einstellungsdialog die Schaltfl„che
+"OK" geklickt haben.
+ 
+<P>Ausfhrliche Erl„uterungen der einzelnen Felder erhalten Sie durch Auswahl
+eines der folgenden Verweise:
+<UL><LI><A HREF="kernel/hpfs_ini.html">HPFS386.INI</A>
+<LI><A HREF="kernel/hpfs_autocheck.html">Automatisch prfen</A>
+</UL>
+</BODY>
+</HTML>
+ 

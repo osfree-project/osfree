@@ -1,0 +1,64 @@
+<HTML RESID=&ID_XSH_MEDIA_IOPROCS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Medien-IOProcs
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+"IOProcs" sind "input/output procedures" (Eingabe-/Ausgabe-Prozeduren). Bei MMPM/2
+dienen sie dazu, die vielen verschiedenen Dateitypen und Arten der Speicherung
+verstehen zu k”nnen.
+ 
+<P>IOProcs sind ein wirklich abstraktes Konzept und schwer zu verstehen.
+Grunds„tzlich erlaubt dieses Konzept MMPM/2, neue Medienformate zu verstehen, ohne daá
+ein Programmierer MMPM/2 komplett neu schreiben máte. Man muá also "nur" eine IOProc
+schreiben, damit alle &os2;-Anwendungen ein neues Medienformat verstehen. Diese muá
+sich innerhalb einer
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+befinden, die dann bei MMPM/2 mit Hilfe des Programms MINSTALL angemeldet wird.
+ 
+<P>IOProcs k”nnen Dateien lesen, schreiben oder beides tun, abh„ngig davon, wie faul
+der Programmierer gewesen ist.
+ 
+<P><B>"FourCC"</B> steht fr "four-character code" (Code aus vier Zeichen) und wird benutzt,
+um eine IOProc mit einem Dateiformat zu verbinden und, falls erforderlich, einen Codec fr
+eine IOProc zu finden. Details siehe n„chste Seite.
+ 
+<P>Es gibt mehrere <B>"IOProc-Typen"</B>:
+<UL><LI><B>"Datei"</B>-IOProcs handhaben ein bestimmtes Dateiformat. Sie werden zum ™ffnen
+und Interpretieren einer Datei benutzt. Siehe die verschiedenen Medientypen unten.
+ 
+<P><LI>Bei <B>"Speichermedien"</B>-IOProcs handelt es sich um einen besonderen Typ,
+durch den das MMPM/2-Datei-Interface sehr allgemein gehalten werden kann.
+Da IOProcs in Schichten angeordnet werden k”nnen, k”nnen bestimmte IOProcs andere
+IOProcs aufrufen, wenn sie ein Dateiformat nicht selbst verstehen oder Hilfe ben”tigen.
+Die IOProcs vom Format "Datei" beispielsweise rufen ihrerseits die "Speichermedien"-IOProcs
+auf, um wirklich auf eine Datei zuzugreifen. Infolgedessen kann dieselbe Datei-IOProc
+verwendet werden, um auf Daten auf einer Festplatte oder im Speicher zuzugreifen,
+abh„ngig von den verwendeten Speichermedien-IOProcs.
+ 
+</UL>Bei den <B>"Datei"-IOProcs</B> gibt es in der Hauptsache drei <B>Medientypen</B>:
+ 
+<UL><LI><B>Audio</B> ist offensichtlich fr Audiodateien gedacht. Beachten Sie, daá
+IOProcs bei Audiodateien nur fr das <I>Dateiformat</I> zust„ndig sind
+(z.B. <CODE>.WAV</CODE>), aber nicht fr den <I>Inhalt</I> einer Datei.
+Die meisten Audiodateien sind komprimiert, um also den eigentlichen Inhalt einer solchen
+Datei verstehen zu k”nnen, ben”tigt MMPM/2 einen Codec fr die Datei. Details siehe
+n„chste Seite.
+ 
+<P><LI><B>Film</B> ist fr Videodateien gedacht. Genau wie bei Audiodateien ben”tigt MMPM/2
+einen Codec, um den <I>Inhalt</I> einer solchen Datei handhaben zu k”nnen. Details siehe
+n„chste Seite.
+ 
+<P><LI><B>Bild</B>-IOProcs kmmern sich um Bild- (Bitmap-) Dateien. Sie wurden mit Warp 4
+wesentlich erweitert, das mit IOProcs fr die gebr„uchlichsten Bilddateitypen
+geliefert wird. Dennoch fehlen einige und manche der Implementationen sind etwas instabil.
+(Versuchen Sie einmal, eine komprimierte TIFF-Datei von 20MB mit dem Bildeditor von Warp 4 zu speichern.)
+Im Gegensatz zu den zwei vorherigen Typen sind bei der Handhabung von Bilddateien keine Codecs beteiligt.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

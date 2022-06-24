@@ -1,0 +1,148 @@
+
+# code from classes\
+XFLDR_OBJS_CLASSES = \
+!ifdef ANIMATED_MOUSE_POINTERS
+$(OUTPUTDIR)\anand.obj \
+$(OUTPUTDIR)\anos2ptr.obj \
+$(OUTPUTDIR)\anwani.obj \
+$(OUTPUTDIR)\anwcur.obj \
+!endif
+$(OUTPUTDIR)\xcenter.obj \
+$(OUTPUTDIR)\xclslist.obj \
+$(OUTPUTDIR)\xfdataf.obj \
+$(OUTPUTDIR)\xfdesk.obj \
+$(OUTPUTDIR)\xfdisk.obj \
+$(OUTPUTDIR)\xfldr.obj \
+$(OUTPUTDIR)\xfont.obj \
+$(OUTPUTDIR)\xfontfile.obj \
+$(OUTPUTDIR)\xfontobj.obj \
+$(OUTPUTDIR)\xfobj.obj \
+$(OUTPUTDIR)\xwppgmf.obj \
+$(OUTPUTDIR)\xfsys.obj \
+$(OUTPUTDIR)\xfwps.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\xfstart.obj \
+!endif
+$(OUTPUTDIR)\xfshut.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\xmmcdplay.obj \
+!endif
+$(OUTPUTDIR)\xmmvolume.obj \
+$(OUTPUTDIR)\xtrash.obj \
+$(OUTPUTDIR)\xtrashobj.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\xwpadmin.obj \
+!endif
+$(OUTPUTDIR)\xwpfsys.obj \
+$(OUTPUTDIR)\xwpimage.obj \
+$(OUTPUTDIR)\xwpkeybd.obj \
+$(OUTPUTDIR)\xwplink.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\xwpmedia.obj \
+!endif
+$(OUTPUTDIR)\xwpmouse.obj \
+$(OUTPUTDIR)\xwpnetwork.obj \
+$(OUTPUTDIR)\xwpnetsrv.obj \
+$(OUTPUTDIR)\xwppgm.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\xwpsetup.obj \
+!endif
+$(OUTPUTDIR)\xwpscreen.obj \
+$(OUTPUTDIR)\xwpsound.obj \
+$(OUTPUTDIR)\xwpstring.obj \
+$(OUTPUTDIR)\xwpvcard.obj
+
+# code from shared \
+XFLDR_OBJS_SHARED = \
+$(OUTPUTDIR)\center.obj \
+$(OUTPUTDIR)\classes.obj \
+$(OUTPUTDIR)\classtest.obj \
+$(OUTPUTDIR)\cnrsort.obj \
+$(OUTPUTDIR)\common.obj \
+$(OUTPUTDIR)\contentmenus.obj \
+$(OUTPUTDIR)\init.obj \
+$(OUTPUTDIR)\notebook.obj \
+$(OUTPUTDIR)\plugins.obj \
+$(OUTPUTDIR)\kernel.obj \
+#$(OUTPUTDIR)\xsecapi.obj \
+$(OUTPUTDIR)\xsetup.obj \
+$(OUTPUTDIR)\wpsh.obj
+
+# code from config\
+XFLDR_OBJS_CONFIG = \
+$(OUTPUTDIR)\cfgsys.obj \
+$(OUTPUTDIR)\classlst.obj \
+$(OUTPUTDIR)\drivexports.obj \
+$(OUTPUTDIR)\drivdlgs.obj \
+$(OUTPUTDIR)\drivers.obj \
+$(OUTPUTDIR)\fonts.obj \
+$(OUTPUTDIR)\hookintf.obj \
+$(OUTPUTDIR)\pager.obj \
+#$(OUTPUTDIR)\partitions.obj \
+$(OUTPUTDIR)\sound.obj
+
+# code from filesys\
+XFLDR_OBJS_FILESYS = \
+$(OUTPUTDIR)\desktop.obj \
+$(OUTPUTDIR)\disk.obj \
+$(OUTPUTDIR)\fdrcommand.obj \
+$(OUTPUTDIR)\fdrcontent.obj \
+$(OUTPUTDIR)\fdrhotky.obj \
+$(OUTPUTDIR)\fdrnotebooks.obj \
+$(OUTPUTDIR)\fdrsort.obj \
+$(OUTPUTDIR)\fdrsplit.obj \
+$(OUTPUTDIR)\fdrsubclass.obj \
+$(OUTPUTDIR)\fdrmenus.obj \
+$(OUTPUTDIR)\fdrviews.obj \
+#$(OUTPUTDIR)\fhandles.obj \
+$(OUTPUTDIR)\filedlg.obj \
+$(OUTPUTDIR)\fileops.obj \
+$(OUTPUTDIR)\filesys.obj \
+$(OUTPUTDIR)\filesys_pages.obj \
+$(OUTPUTDIR)\filetype.obj \
+!ifndef XWPLITE
+$(OUTPUTDIR)\filetype_page.obj \
+!endif
+$(OUTPUTDIR)\folder.obj \
+$(OUTPUTDIR)\fops_bottom.obj \
+$(OUTPUTDIR)\fops_top.obj \
+$(OUTPUTDIR)\iconmgr.obj \
+$(OUTPUTDIR)\iconpage.obj \
+$(OUTPUTDIR)\icons.obj \
+$(OUTPUTDIR)\object.obj \
+$(OUTPUTDIR)\object_dtl.obj \
+$(OUTPUTDIR)\program.obj \
+$(OUTPUTDIR)\refresh.obj \
+$(OUTPUTDIR)\statbars.obj \
+$(OUTPUTDIR)\statbar_pages.obj \
+$(OUTPUTDIR)\trash.obj \
+$(OUTPUTDIR)\xthreads.obj
+
+# code from media\
+XFLDR_OBJS_MEDIA = \
+!ifndef XWPLITE
+$(OUTPUTDIR)\mmcdplay.obj \
+!endif
+$(OUTPUTDIR)\mmhelp.obj \
+$(OUTPUTDIR)\mmthread.obj \
+$(OUTPUTDIR)\mmvolume.obj
+
+# code from startshut\
+XFLDR_OBJS_STARTSHUT = \
+$(OUTPUTDIR)\apm.obj \
+$(OUTPUTDIR)\archives.obj \
+$(OUTPUTDIR)\shutdown.obj \
+$(OUTPUTDIR)\shut_dlg.obj \
+$(OUTPUTDIR)\shut_pages.obj \
+$(OUTPUTDIR)\winlist.obj
+
+# code from xcenter\
+XFLDR_OBJS_XCENTER = \
+$(OUTPUTDIR)\ctr_engine.obj \
+$(OUTPUTDIR)\ctr_model.obj \
+$(OUTPUTDIR)\ctr_notebook.obj \
+$(OUTPUTDIR)\ctr_setup.obj \
+$(OUTPUTDIR)\w_objbutton.obj \
+$(OUTPUTDIR)\w_pulse.obj \
+$(OUTPUTDIR)\w_tray.obj
+

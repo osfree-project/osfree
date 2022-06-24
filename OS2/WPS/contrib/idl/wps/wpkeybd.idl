@@ -1,0 +1,116 @@
+
+/*
+ * wpkeybd.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPKeyboard
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpkeybd_idl
+#define wpkeybd_idl
+
+#include "wpabs.idl"
+#include <somcls.idl>
+
+interface M_WPKeyboard;
+
+interface WPKeyboard : WPAbstract
+{
+    ULONG wpAddKeyboardMappingsPage(in HWND hwndNotebook);
+
+    ULONG wpAddKeyboardTimingPage(in HWND hwndNotebook);
+
+    ULONG wpAddKeyboardSpecialNeedsPage(in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddKeyboardMappingsPage,
+            wpAddKeyboardTimingPage,
+            wpAddKeyboardSpecialNeedsPage;
+
+        externalstem = WPkbd;
+        local;
+        externalprefix = kbd_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpkeybd;
+        metaclass = M_WPKeyboard;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+        passthru C_h =     ""
+""
+"/***********************************************************/"
+"/* Defines for wpclsQuerySetting and wpclsSetSetting       */"
+"/***********************************************************/"
+""
+"#define REPEATRATE_DEFAULT        0"
+"#define REPEATRATE_MAX           20"
+"#define REPEATRATE_MIN            1"
+"#define REPEATDELAY_DEFAULT      -1"
+"#define REPEATDELAY_MAX         890"
+"#define REPEATDELAY_MIN           0"
+"#define CURSORBLINK_DEFAULT      -1"
+"#define CURSORBLINK_MAX         890"
+"#define CURSORBLINK_MIN           0"
+"#define POPUPKEY_DEFAULT          0"
+"#define TEXTEDITKEY_DEFAULT       0"
+""
+"";
+
+        wpAddSettingsPages: override;
+        wpAddObjectWindowPage: override;
+        wpFilterPopupMenu: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPKeyboard : M_WPAbstract
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = WPkbd;
+        local;
+        externalprefix = kbdM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpkeybd;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryStyle: override;
+        wpclsQueryIconData: override;
+        wpclsQuerySetting: override;
+        wpclsSetSetting: override;
+    };
+#endif
+};
+#endif

@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Umgebungsvariablen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Unter fast allen Betriebssystem laufen Programme in einer
+sogenannten <b>Umgebung,</b> welche als ein Satz von
+<b>Umgebungsvariablen</b> definiert ist. Jede Umgebungsvariable
+ist dabei ein Paar von Schlsselw”rtern mit Werten in der
+Form <code>SCHLšSSEL=WERT</code>.
+ 
+<P>Die Umgebung dient mehreren Zwecken:
+ 
+<UL><LI>Einige Umgebungsvariablen definieren, wie sich
+das Betriebssystem selbst in bezug auf das laufende
+Programm verhalten soll. Zum Beispiel sind die
+<A HREF="glossary/gls_path_sys.html">Systempfade</A>
+gr”átenteils als Umgebungsvariablen definiert. Sie k”nnen
+daher diese Pfade setzen, wenn Sie ein Programm starten,
+und damit beeinflussen, wo das Betriebssystem nach Dateien
+fr das Programm sucht.
+ 
+<P>Die System-Umgebungsvariablen sind im
+<I>&os2;-Referenzhandbuch</I>
+(<A HREF="cmdref.inf"><CODE>CMDREF.INF</CODE></A>) aufgefhrt
+und werden meist bereits beim Systemstart in der Datei
+&cfgsys; gesetzt.
+ 
+<P><LI>Zus„tzlich kann ein Programm eigene Umgebungsvariablen
+definieren und entsprechend reagieren. Um herauszufinden, ob
+dies fr ein Programm der Fall ist und, falls ja, welche
+Variablen fr ein bestimmtes Programm definiert sind, mssen
+Sie die Dokumentation des jeweiligen Programms konsultieren.
+&os2; weiá nichts ber diese Definitionen, es stellt lediglich
+die Infrastruktur fr das Setzen und Lesen von Umgebungsvariablen
+zur Verfgung.
+ 
+</UL>Um den Wert einer Umgebungsvariable an einer Befehlszeile
+zu lesen oder zu setzen, benutzen Sie den Befehl
+<A HREF="cmdref.inf#SET"><CODE>SET</CODE></A>.
+ 
+<P>Sie k”nnen den Wert einer Umgebungsvariable in einem Befehlsausdruck
+aufl”sen, indem Sie den Namen der Umgebungsvariable umgeben von zwei
+Prozentzeichen (<CODE>%</CODE>) angeben. Dieser Ausdruck wird vom
+Befehlsinterpreter dynamisch
+durch den Wert der Variable ersetzt.
+ 
+<P>Wenn Sie z.B. einen neuen Eintrag zur aktuellen Liste des
+Systempfades <A HREF="cmdref.inf#PATH"><CODE>PATH</CODE></A>
+hinzufgen wollen, k”nnen Sie eingeben:
+<PRE>SET PATH=%PATH%;C:\NEWDIR</PRE>
+ 
+<P>Mit dem Befehl <A HREF="cmdref.inf#SETLOCAL">SETLOCAL</A>
+k”nnen Sie eine Kopie der aktuellen Umgebung, des aktuellen
+Verzeichnisses und des aktuellen Laufwerks puffern, um vorbergehende
+nderungen vorzunehmen. Diese Einstellungen werden mit dem
+Befehl
+<A HREF="cmdref.inf#ENDLOCAL"><CODE>ENDLOCAL</CODE></A> aus dem
+Puffer zurckgeholt und wieder aktiv.
+<BR>
+ 
+</BODY>
+</HTML>

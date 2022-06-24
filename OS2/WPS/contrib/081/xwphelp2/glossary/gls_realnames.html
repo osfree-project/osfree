@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Real Names
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+While, per definition, every WPS object has a title associated with it,
+only file-system objects (that is,
+<!-- V0.9.19: link added -->
+&link_folders;
+and
+<!-- V0.9.19: link added -->
+&link_datafiles;
+which physically reside in a
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_fs.html">file system</A>)
+also carry a so-called "real name".
+<!-- V0.9.19 : added this -->
+This is the name of the file that the file-system object represents
+on disk, as visible with the
+<!-- V1.0.0: link added -->
+<a href="cmdref.inf#dir"><CODE>DIR</CODE></a>
+command on an &os2;
+<!-- V1.0.0: link added -->
+<a href="glossary/gls_cmd.html">command line</a>.
+
+<P>In many cases, the real name is identical to the object title
+(as displayed on the "Icon" page); however, file-system names have
+certain limitations.
+
+<P>For object <I>titles,</I> the only restriction is that they cannot
+be longer than 256 characters, and that the backslash (<CODE>\</CODE>)
+character is forbidden.
+
+<P>By contrast, depending on the object's <A HREF="glossary/gls_fs.html">file system</A>,
+the following restrictions apply to the object's <I>real name</I>:
+
+<UL><LI>With the FAT file system, file names are restricted to 8 characters,
+plus a 3-character file extension. In addition, the following characters
+are not allowed in FAT file names:
+
+<P><CODE>&lt; &gt; | + = : ; , " / [ ]</CODE>
+
+<P>In addition, the FAT file system is not case-preserving.
+
+<P><LI>With installable file systems (IFS's) such as HPFS or JFS, the
+file name can be up to 254 characters in length, and there are no rules
+about file-name extensions. However, the following characters are still
+invalid:
+
+<P><CODE>&lt; &gt; | : " / </CODE>
+
+</UL>Naturally, the backslash character (<CODE>\</CODE>) is invalid
+with every file system because it is used as the
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+separator in &os2;.
+
+<P>If the title of the file-system object obeys these restrictions, the
+real name is identical to the title.
+However, <I>if not,</I> the WPS modifies the
+title to match these restrictions by truncating it to the allowed file-name
+length and replacing illegal characters with exclamation marks (<CODE>!</CODE>).
+The original title is then stored with the object in the <CODE>.LONGNAME</CODE>
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attribute.</A>
+
+<P>In that case, the "real name" that is displayed with the
+<CODE>DIR</CODE> command from the &os2; command line is different from the
+title displayed in the WPS folder.
+
+<P>Examples:
+
+<OL><LI>The folder title is <CITE>LongFolderTitle</CITE>,
+but the folder resides on a FAT drive, so the
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+on the folder's "File"
+page will display <CITE>C:\LONGFOLD</CITE> only.
+
+<P><LI>The folder title is <CITE>Accounting/Taxes</CITE>, but the real name
+is  <CITE>Accounting!Taxes</CITE> (assuming the folder is on an HPFS or JFS
+drive).
+</OL>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,105 @@
+<HTML RESID=&ID_XSH_NETSCAPEDDE;>
+<HEAD>
+    <TITLE>
+        Netscape DDE
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.16 -->
+<BODY>
+Netscape DDE (eller kort NetscDDE) till†ter dig att ”ppna HTML sidor eller URLs
+<!-- V0.9.19: modified the following -->
+med din favoritbrowser. Trots sitt namn, st”der NetscDDE f”ljande browsers:
+<UL><LI>Netscape 2.02 och 4.61 f”r OS/2;
+<LI>Mozilla och IBM Web Browser (se anm„rkningar nedanf”r);
+<LI>OS/2 portningen av Opera.
+</UL>
+
+<!-- end V0.9.19 -->
+Med anv„ndning av NetscDDE, kan du instruera en instans av en browser som „r ig†ng att
+visa en speciell sida ist„llet f”r att k”ra en separat kopia f”r den nya sidan.
+
+<P>Vid start av NetscDDE, m†ste du †tminstone ge en URL att ”ppnas fr†n kommandoraden.
+Den h„r URL'n kan ocks† vara en lokal HTML fil.
+
+<P>NetscDDE kommer sedan f”rst att se efter om browsern redan „r ig†ng. Om s† „r fallet,
+kommer den startade browsern att instrueras att ”ppna den specificerade URL'n
+i ett existerande f”nster. Om inte, kommer NetscDDE att fr†ga dig om browsern skall startas.
+Om inte det h„r ”verskrids av argument fr†n kommandoraden, kommer NetscDDE att f”rs”ka starta
+<!-- V0.9.19: changed this -->
+den standardbrowser som „r specificerad i dina URL objekt; om det inte finns n†gon, kommer den
+att f”rs”ka starta <CODE>NETSCAPE.EXE</CODE> fr†n din 
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A>.
+
+<P>Detta kommer att fungera med alla k„nda versioner av Netscape f”r &os2;. F”r att f†
+det att fungera med Mozilla ocks†, m†ste du anv„nda parametern <CODE>-S</CODE> d„rf”r att
+Mozilla anv„nder ett annat DDE servernamn.
+P† &os2;, har Mozilla haft st”d f”r DDE sedan version 0.9.3.
+
+<P>Netscape DDE f”rst†r f”ljande kommandorads parametrar:
+
+<DL>
+<DT><CODE>-q</CODE>
+<DD>Om det h„r „r specificerat, kommer NetscDDE inte att visa sitt "Kontaktar..." etc.
+f”nster (<B>quiet</B> mode).
+
+<DT><CODE>-n</CODE>
+<!-- V0.9.19: rewrote the following chunk -->
+<DD>Specificerar att ett <B>nytt browserf”nster</B> skall ”ppnas n„r browsern redan „r
+ig†ng. Om det h„r „r specificerat, kommer ett nytt f”nster att ”ppnas.
+Som standard, laddar ett existerande browserf”nster URL'n.
+
+<DT><CODE>-x</CODE> eller <CODE>-X</CODE>
+<DD>De h„r optionerna kontrollerar NetscDDE's beteende om DDE uppkopplingen misslyckas,
+det vill s„ga, om Netscape inte „r ig†ng. Om varken <CODE>-x</CODE> eller <CODE>-X</CODE>
+„r specificerat, kommer NetscDDE att <B>fr†ga</B> dig om en ny upplaga skall startas.
+Om <CODE>-x</CODE> „r specificerat, kommer NetscDDE inte att fr†ga och <B>startar aldrig</B>
+n†gon ny kopia. Om <CODE>-X</CODE> „r specificerat, kommer NetscDDE inte att fr†ga och <B>startar alltid</B>
+en ny kopia.
+
+<DT><CODE>-p <I>full s”kv„g</I></CODE>
+<DD>Det h„r specificerar vilken <B>exekverbar</B> som skall startas om DDE uppkopplingen misslyckas.
+<!-- V0.9.19: rewrote the following chunk -->
+Om inget av detta „r specificerat, kommer NetscDDE att s”ka efter dina standardinst„llningar
+f”r webl„sare fr†n ett WPUrl objekt. Om det inte finns n†got, kommer <CODE>NETSCAPE.EXE</CODE>
+i din
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A> att anv„ndas. Om du vill anv„nda Mozilla,
+kan du specificera full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„g</A> f”r <CODE>MOZILLA.EXE</CODE>, till exempel. 
+Du kan ocks† starta en batchfil.
+
+<DT><CODE>-P <I>parametrar</I></CODE>
+<DD>Detta specificerar ytterligare parameterar f”r den browser som skall startas. Den URL
+som ges p† kommandoraden kommer att l„ggas till efter <CODE><I>parametrar</I></CODE>.
+
+<DT><CODE>-s <I>katalog</I></CODE>
+<DD>Detta specificerar <B>startup katalogen</B> som skall anv„ndas om DDE uppkopplingen misslyckas.
+Det „r anv„ndbart om browserns exekverbara fil inte finns i <CODE>LIBPATH</CODE> och browsern
+inte kan hitta sina 
+<!-- V0.9.20 added link -->
+<A HREF="glossary/gls_dll.html">DLL'er</A> annars.
+<!-- V0.9.19: added the following chunk -->
+Om det h„r inte „r specificerat, kommer NetscDDE att s”ka efter dina standardinst„llningar
+f”r webl„sare fr†n ett WPUrl objekt. Om det inte finns n†got h„r, kommer ingen startup katalog att anv„ndas.
+
+<DT><CODE>-S <I>server</I></CODE>
+<DD>Detta specificerar <B>DDE servernamn</B> som skall anv„ndas. Om de inte „r specificerat, kommer
+NetscDDE att anv„nda <CODE>NETSCAPE</CODE>, p† vilket alla &os2; versioner av Netscape kommer att reagera.
+Emellertid, eftersom Mozilla anv„nder servernamnet <CODE>Mozilla</CODE>, m†ste du specificera den
+h„r optionen direkt att anv„nda Mozilla med NetscDDE.
+
+<DT><CODE>-h</CODE>
+<DD>Om det h„r „r specificerat, kommer browsern att startas i l„get <B>dold.</B> Det kan vara
+anv„ndbart om du har anv„nt <CODE>-p</CODE> optionen med en batchfil.
+
+<DT><CODE>-m</CODE>
+<DD>Om det h„r „r specificerat, kommer browsern att startas <B>minimerad.</B> Det kan vara
+anv„ndbart om du har anv„nt <CODE>-p</CODE> optionen med en batchfil.
+
+</DL>
+
+<BR>
+</BODY>
+</HTML>

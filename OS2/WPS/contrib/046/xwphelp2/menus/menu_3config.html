@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Konfigurering av Pop-Up Menyer
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+&xwp; till†ter dig att globalt l„gga till menyposter hos
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;er</A>
+hos alla
+<!-- V0.9.19: link added -->
+&link_folders; p† systemet med anv„ndning av en speciell
+<B>&cfgfdr;,</B> vilken ser ut som n†gon normal WPS mapp.
+
+<P>Den h„r mappen „r placerad i din
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: changed this -->
+&link_lookfdr;.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+"XWorkplace Installations" mapp.
+</IFNDEF>
+
+<P>Vad som helst som du l„gger i den mappen kommer omedelbart att dyka upp i &popmenu;er
+hos alla mappar p† ditt system. Notera d„remot att vissa objektklasser har en speciell
+inneb”rd i kontexten hos &cfgfdr;en:
+
+<OL><LI><B>Programobjekt</B> i &cfgfdr;en kommer att startas n„r den korresponderande menyposten
+„r vald. (Faktiskt, det „r inte programobjektet som kommer att startas, utan det program som 
+definierats i programmets objekt <A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>.)
+
+<P>&xwp; kan utf”ra ett antal anv„ndbara tricks p† programobjekt. 
+Se <A HREF="menus/menu_4wpprogram.html">"Extra funktioner f”r programobjekt"</A> f”r mer information.
+
+<BR><LI>Att l„gga in en <B>ytterligare mapp</B> i &cfgfdr;en kommer att skapa kaskadsubmenyer i
+&popmenu;er. I den h„r submappen, kan du placera flera objekt och mappar. P† det h„r s„ttet kan
+du skapa en hel &popmenu; hierarki (som kan ses i standardsetupen). Det finns ingen gr„ns f”r att
+n„stla mappar, s† du kan skapa hierarkier som har flera niv†ers djup.
+
+<!-- V0.9.20: added link -->
+<BR><LI>En <B><A HREF="tasks/tsk_templates.html">mall</A> eller skugga av en mall</B> kommer att
+resultera i skapandet av ett nytt objekt fr†n den n„r respektive menypost „r vald. Det nya objektet
+kommer att skapas i mappen vars &popmenu; anv„ndes.
+<P>Till exempel, om du har skapat en mappmall med speciella inst„llningar f”r fonter, f„rger, etc., 
+kan du l„gga en skugga av den i Konfigurationsmappen, och n„r du v„ljer dess korresponderande 
+menypost fr†n en mapps &popmenu;, kommer en ny mapp att skapas i den h„r mappen, just som om du hade
+dragit en mapp fr†n en mall.
+<!-- V0.9.20: link name changed -->
+<P>Se <A HREF="menus/menu_2template.html">"Skapa objekt med Skapa ny"</A> f”r mera.
+
+<BR><LI>Ett <A HREF="objects/obj_string.html">setupstr„ngobjekt</A> kommer att anropa den 
+setupstr„ng vilken „r lagrad i setupstr„ngobjektet p† en mapp vars &popmenu;post valdes.
+
+<BR><LI><B>Alla andra objekt</B> kommer helt enkelt att bli ”ppnade n„r deras korresponderande 
+menypost valdes. Detta inkluderar skuggor av programobjekt, skuggor av mappar, "riktiga" filer, skuggor av dem,
+och s† vidare.
+<P>Till exempel, kan du l„gga en skugga av din favoritdatafil (t.ex. "Att-g”ra lista") i &popmenu;er.
+
+<BR><LI>Som om s„rskild funktion, kan du infoga <B>menyseparatorer</B> genom att l„gga ett programobjekt
+med exakt rubrik av <CITE>"---"</CITE> (tre bindestreck) i en &cfgfdr;. Igen, 
+se <A HREF="menus/menu_4wpprogram.html">"Extra funktioner f”r programobjekt"</A> f”r detaljer.
+
+</OL>Notera att <CITE>"~"</CITE> tecknet inom ett objekts rubrik f”rvandlas till ett understruket tecken
+i en &popmenu;, vilket till†ter snabbkommandon fr†n tangentbordet.
+<BR>
+</BODY>
+</HTML>
+

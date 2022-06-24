@@ -1,0 +1,136 @@
+
+/*
+ * xfshut.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFldShutdown
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfshut.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2009 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <xfldr.idl>         // this is SOM for XFolder
+
+/*
+   CLASS: XFldShutdown
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPFolder = XFolder
+                                      ÀÄÄ XFldShutdown
+
+   Note that the class is derived from XFolder directly, not
+   WPFolder, because we need some of the new XFolder methods.
+*/
+
+interface M_XFldShutdown;           // forward reference to metaclass
+
+interface XFldShutdown : XFolder
+{
+
+    /*
+     * New instance methods for XFldShutdown:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfshut_;
+        externalstem = xfshut;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfshut;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFldShutdown;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * Internal instance variables for XFldShutdown:
+         *
+         */
+
+        /*
+         * XFolder methods overridden by XFldShutdown:
+         *
+         */
+
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFldShutdown : M_XFolder
+{
+
+    /*
+     * New class methods for M_XFldShutdown:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfshutM_;
+        externalstem = xfshutM;
+        functionprefix = xfshutM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfshut;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XFldShutdown:
+         *
+         */
+
+        /*
+         * M_XFolder methods overridden by M_XFldShutdown:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+        wpclsQueryIconDataN: override;
+    };
+#endif
+};
+

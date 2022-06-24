@@ -1,0 +1,83 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Installation Questions
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- changes for V0.83 and V0.84: see below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL><LI><B>The WPS crashes/keeps rebooting after the Desktop restart. What is this?</B>
+<P>Difficult to say. If it keeps rebooting, this is a sure sign that the WPS is
+trapping, i.e. exceptions occur when it's booting up. Same thing as
+on the <A HREF="faq_01general.html">previous page</A>, &xwp;
+seems to be conflicting with other WPS extensions.
+<P>Otherwise, it might simply be that restarting the WPS is not working on your system.
+The Desktop restart is only intended as a shortcut, but if it doesn't
+work, try rebooting instead.
+<!-- this paragraph added with V0.82 -->
+<P>Some people have reported that removing &xwp; INI keys seems to help. Take some
+INI editor and look in OS2.INI for application names starting with "XFolder". Delete
+them all. &xwp; does not <I>rely</I> on INI keys any more. This will
+delete all your settings and reset the language to English, but maybe &xwp; will
+run.
+<!-- this paragraph added with V0.82 -->
+<P>In addition, it is always recommended to have more recent &os2; fixpaks applied,
+that is, at least Fixpak 35 for Warp 3 and fixpak 5 for Warp 4. &xwp; will run
+without fixpaks, but this might lead to problems.
+IBM has changed many things with the SOM kernel over time, which the WPS uses for
+its class management. I have tried my best to enhance compatibility, but I cannot
+test all possible configurations myself. I have found, for example, that the
+standard Warp 3 SOM kernel is extremely buggy,
+so at least for Warp 3 I <I>strongly</I> recommend applying
+fixpaks.
+<!-- V0.9.13: removed this
+(Although since XFolder V0.82, I am checking installation on Warp 3 without
+fixpaks.) -->
+
+<!-- this item added with V0.82 -->
+<!-- modified for V0.83 -->
+<!-- modified for V0.9.0 -->
+<!-- V0.9.13: removed this finally
+<P><LI><B>The install program says that some of the classes could not be installed.
+What can I do?</B>
+<P>There were serious installation problems with the previous V0.8x versions.
+Apparently, with V0.82, things have become much better since I've removed
+SOM multiple inheritance, which the WPS apparently doesn't like too much on some
+systems.
+<P>&xwp; 0.9.0's classes have been redesigned to allow for installation of
+only some of the classes, which was not possible with previous versions. Only two
+classes are required now (XFldObject, which replaces WPObject, and XWPSetup,
+the "&xwp; Setup" object). Open "&xwp; Setup" and
+press the "Classes" button on the "Features" page. This will show you all the
+classes which have been properly installed and allows you to change the class
+setup. Maybe this helps.
+
+<P><LI><B>The install program does not create the "&os2; Kernel" and "Workplace Shell"
+objects.</B>
+<P>With V0.80, the install script failed to create the
+new system objects if the XFolder config folder already existed. This should be
+fixed now, but if problems persist, simply delete your config
+folder, and all the objects should be created.
+<P>Otherwise, you can still execute the
+<CODE>INSTLxxx.CMD</CODE> and <CODE>CROBJxxx.CMD</CODE> scripts in the
+<CODE>INSTALL</CODE> subdirectory, with "xxx" being your three-digit language code,
+as described on the <A HREF="inst_4nls.html">"NLS"</A> page.
+<P>However, this might also be due to the fact that the "XFldSystem" and "XFldWPS"
+classes could not be properly registered. I have seen this happen on a Warp 3
+system without any fixpaks installed. -->
+
+
+<P><LI><B>What &os2; versions and fixpak levels has &xwp; been tested on?</B>
+<P>See <A HREF="inst_0req.html">"Requirements".</A>
+<!-- end V0.9.13 -->
+
+</OL>
+<BR>
+</BODY>
+</HTML>
+
+
+

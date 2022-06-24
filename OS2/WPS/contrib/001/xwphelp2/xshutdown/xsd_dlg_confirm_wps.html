@@ -1,0 +1,57 @@
+<HTML RESID=&ID_XSH_RESTARTWPS_CONFIRM;>
+<HEAD>
+    <TITLE>
+        Restart Desktop Confirmation
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+In the <B>confirmation window</B>
+<IFNDEF __NOXSHUTDOWN__>
+(which is displayed if you have enabled
+confirmations in the Desktop's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>)
+</IFNDEF>
+the following settings are available:
+
+<UL><LI>You may determine whether &xwp; should <B>close all sessions</B> before
+restarting the WPS. If so, &xwp; will not only close the WPS windows, but all
+other programs also.
+
+<IFNDEF __NOXWPSTARTUP__>
+<P><LI>You may also determine whether after the Desktop restart &xwp; should
+<B>process all startup folders</B> again. If this is enabled, &xwp; will
+process <I>all</I> &xwp; startup folders after the Desktop restart. By contrast,
+if this setting is disabled, only those startup folders will be processed which
+have the "Every Desktop restart" setting enabled in their respective
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<P><B>Note:</B> You should only enable this setting
+if you have either "Close all sessions" enabled also or if you're sure that
+the programs in the startup folder are not currently running, because otherwise
+they might be started twice.
+
+<P>This setting does not affect the regular &os2; startup folder. That folder is
+never processed after a Desktop restart.
+</IFNDEF>
+
+<P><LI>If you select <B>"Archive desktop once after restart",</B> &xwp; will
+enable the "Archiving" feature once before the restart and disable it again
+after the Desktop has restarted. This is just a shortcut to manually enabling
+the archiving settings in the Desktop's
+<A HREF="glossary/gls_notebook.html">properties notebook</A> and then disabling
+them again.
+
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<P><LI>If you deselect the <B>"Show this message next time"</B> setting,
+confirmations will be disabled for eXtended Shutdown and Desktop restarts.
+You can then re-enable the confirmations in the Desktop's
+<A HREF="glossary/gls_notebook.html">properties notebook</A> on
+the "&xshutdown;" page.
+</IFNDEF>
+</UL>
+
+</BODY>
+</HTML>
+

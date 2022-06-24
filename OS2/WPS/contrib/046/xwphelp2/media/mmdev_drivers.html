@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Devicer
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+Kolumnen "Drivrutiner" visar dig detaljerade data om de drivrutiner som implementerar
+devicet.
+
+<P>Beroende p† typ av device, kan f”ljande information visas:
+
+<UL><LI><B>Media control drivrutin:</B> MCD „r ansvarig f”r tolkningen av
+multimediakommandon som skickas fr†n en applikation till ett device. Det „r upp
+till MCD att vidta ytterligare aktioner beroende p† det kommando som skickades.
+Namnet som listan h„r kommer att korrespondera till „r en DLL i MMOS2 katalogen.
+
+<P><LI><B>Tillverkar-specifik drivrutin:</B> Om installerad, kommer VSD normalt att
+anropas fr†n MCD f”r att implementera funktioner f”r en speciell h†rdvara. Den
+arkitekturen till†ter MMPM/2 att beh†lla MCD's relativt generiska, medan den h†rdvaru-specifika
+koden kommer att vara i VSD.
+
+<P>Till exempel, "waveaudio" devicer „r vanligtvis implementerade med en generisk MCD,
+medan det verkliga arbetet med ljudkortet utf”rs i en VSD (vilken i sin tur kommunicerar 
+med en device drivrutin).
+
+<P><LI><B>Fysiskt device drivrutin:</B> PDD „r ansvarig f”r det verkliga arbetet med
+h†rdvaran. Eftersom detta m†ste g”ras i ring 0, speciellt om interrupts m†ste processas, 
+„r det h„r lagret n”dv„ndigt.
+
+<P>Inte alla devicer beh”ver n†gon PDD. Typiskt „r detta fallet f”r ljudkort, som m†ste
+hantera interrupts och DMA.
+
+<P><LI><B>Parametrar:</B> dessa „r ytterligare parametrar fr†n ASCII <CODE>MMPM2.INI</CODE> filen
+i din MMOS2 katalog som specificerades f”r detta device. Detta „r device-specifikt, men verkar vara
+relaterad till vad som specificerades f”r ett device i "Multimedia Setup" objektet.
+
+</UL>
+</BODY>
+</HTML>
+

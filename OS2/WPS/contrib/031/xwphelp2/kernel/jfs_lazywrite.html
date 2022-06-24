@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+Als de <B>"Vertraagd schrijven"</B> keuze aangekruist is, zal JFS het terugschrijven van gegevens
+naar de schijf delegeren naar een achtergrond thread.
+Zie <A HREF="glossary/gls_caches.html">"Bestandssysteem buffers"</A> voor een toelichting.
+
+<P>Als vertraagd schrijven geactiveerd is, kunt u het JFS buffer gedrag fijn afstemmen met de
+drie instellingen er onder (alle waarden zijn in seconden):
+
+<OL><LI>De <B>"Synch. tijd"</B> instelling bepaald het interval waarop de
+JFS-interne synchronisatie thread werkt. Dit is standaard 64.
+
+<P><LI>De <B>"Max. leeftijd"</B> instelling bepaald de maximum tijd dat gegevens
+in de buffer gehouden mogen worden. Dit is standaard 256.
+
+<P><LI>De <B>"Buffer leegloop"</B> waarde bepaald de tijdsduur gedurende welke JFS
+een aanpassing als zijnde "recent" beschouwd. Aanpassingen nieuwer dan deze waarde worden
+niet weggeschreven tenzij het laatst geschrevene ouder is dan "Max. leeftijd". Dit is standaard 8.
+
+</OL>
+</BODY>
+</HTML>
+

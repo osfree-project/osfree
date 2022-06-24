@@ -1,0 +1,158 @@
+
+/*
+ * wppgm.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPProgram
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wppgm_idl
+#define wppgm_idl
+
+#include "wpabs.idl"
+#include <somcls.idl>
+
+interface M_WPProgram;
+
+interface WPProgram : WPAbstract
+{
+    ULONG wpAddProgramAssociationPage(in HWND hwndNotebook);
+
+    BOOL wpQueryProgDetails(in PPROGDETAILS pProgDetails,
+                            in PULONG pulSize);
+
+    BOOL wpSetProgDetails(in PPROGDETAILS pProgDetails);
+
+    ULONG wpAddProgramPage(in HWND hwndNotebook);
+
+    ULONG wpAddProgramSessionPage(in HWND hwndNotebook);
+
+    PSZ wpQueryAssociationFilter();
+
+    PSZ wpQueryAssociationType();
+
+    BOOL wpSetAssociationFilter(in PSZ pszFilter);
+
+    BOOL wpSetAssociationType(in PSZ pszType);
+
+    PSZ wpQueryProgramAssociations( in    PBYTE ptr,
+                                    in    PSZ pszAssoc,
+                                    in    BOOL fFilter );
+
+    BOOL wpSetProgramAssociations( in PSZ pszAssoc,
+                                   in BOOL fFilter );
+
+    BOOL wpSetProgIcon(in PFEA2LIST pfeal);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddProgramPage,
+            wpAddProgramSessionPage,
+            wpQueryProgDetails,
+            wpSetProgDetails,
+            wpSetHPROGRAM,
+            wpQueryHPROGRAM,
+            wpAddProgramAssociationPage,
+            wpSetProgIcon,
+            wpQueryAssociationFilter,
+            wpQueryAssociationType,
+            wpSetAssociationFilter,
+            wpSetAssociationType,
+            wpQueryProgramAssociations,
+            wpSetProgramAssociations;
+
+        externalstem = wppgmref;
+        local;
+        externalprefix = ref_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wppgm;
+        metaclass = M_WPProgram;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpAddProgramAssociationPage: namelookup;
+        wpQueryProgDetails: namelookup;
+        wpSetProgDetails: namelookup;
+        wpAddProgramPage: namelookup;
+        wpAddProgramSessionPage: namelookup;
+        wpQueryAssociationFilter: namelookup;
+        wpQueryAssociationType: namelookup;
+        wpSetAssociationFilter: namelookup;
+        wpSetAssociationType: namelookup;
+        wpQueryProgramAssociations: namelookup;
+        wpSetProgramAssociations: namelookup;
+
+        wpQueryDefaultHelp: override;
+        wpInitData: override;
+        wpSetup: override;
+        wpUnInitData: override;
+        wpSaveState: override;
+        wpRestoreState: override;
+        wpAddSettingsPages: override;
+        wpOpen: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+        wpCreateFromTemplate: override;
+        wpCreateAnother: override;
+        wpQueryIconData: override;
+        wpSetIconData: override;
+        wpQueryIcon: override;
+        wpMoveObject: override;
+        wpCopyObject: override;
+        wpDragOver: override;
+        wpDrop: override;
+        wpSetTitle: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPProgram : M_WPAbstract
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = wppgmref;
+        local;
+        externalprefix = refM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wppgm;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryIconData: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryDefaultView: override;
+    };
+#endif
+};
+#endif

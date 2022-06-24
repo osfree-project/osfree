@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: About Drives, Volumes, and Partitions
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+With &os2;, the following terminology is used when dealing with
+storage devices:
+
+<OL><LI>A <B>drive</B> is a logical entity that has been assigned a drive
+letter by the &os2; kernel. You can therefore have up to 26 drives, which
+are named from <CODE>A:</CODE> to <CODE>Z:</CODE>.
+
+<P>The &link_drivesfdr; shows all drives that currently exist on your system.
+Drives <CODE>A:</CODE> and <CODE>B:</CODE> will always be
+diskette drives per definition. Other drive letters will either be
+hard disk volumes (see below), CD-ROM or DVD drives, network resources
+that have been assigned a drive letter, or other storage hardware.
+
+<P><LI>A <B>volume</B> is a concept specific to hard disks
+and consists of one or more partitions (see below). A volume must be
+formatted with a specific <A HREF="glossary/gls_fs.html">file system</A>
+in order to be able to hold data.
+
+<P><LI>A <B>partition</B> is a physical segment of a hard disk. In order
+to be used with personal computers, each hard disk must at least have
+one partition, but can be divided into several, for example if you want
+to use more than one operating system or several file systems.
+
+</OL>&os2;'s <B>Logical Volume Manager (LVM)</B> allows you to create, delete,
+and edit volumes and partitions. Use LVM also to assign a drive letter
+to a volume and thus make it a drive or to hide a volume from &os2;.
+<IFDEF __EWORKPLACE__>
+See <A HREF="lvmhelp.inf"><I>"Introduction to LVM"</I></A> for details.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+See <A HREF="usinglvm.inf"><I>"Using LVM"</I></A> for details.
+</IFNDEF>
+
+<P>There are several options to start LVM:
+
+<UL><LI>From the &link_drivesfdr;, select "Manage volumes" in the
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<P><LI>In the &link_syssetupfdr;, start the "Logical Volume Manger" object.
+
+<P><LI>Open a <A HREF="glossary/gls_cmd.html">command prompt</A> and
+type <CODE>LVM</CODE>. As opposed to the previous two options, this will
+start the text-mode version of LVM.
+
+</UL>For related information, select from the list below:
+
+<UL>
+<LI>&link_syssetupfdr;
+<LI><A HREF="tasks/tsk_format.html">Formatting media</A>
+<LI><A HREF="glossary/gls_cmd.html">About command prompts</A>
+</UL>
+</BODY>
+</HTML>
+

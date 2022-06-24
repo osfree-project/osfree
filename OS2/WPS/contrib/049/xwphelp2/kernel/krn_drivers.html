@@ -1,0 +1,81 @@
+<HTML RESID=&ID_XSH_SETTINGS_DRIVERS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Seite "Treiber"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+Die Seite "Treiber" wird von &xwp; zu den Einstellungsseiten hinzugefgt,
+um Informationen ber die Treiber zur Verfgung zu stellen, die
+ber die &cfgsys;-Datei geladen wurden. Mittels dieser ntzlichen
+šbersicht k”nnen die installierten Treiber und deren Parameter sehr komfortabel
+bearbeitet werden.
+
+<P>Um die einzelnen Eintr„ge einer der <B>Treiberkategorien</B> zu erhalten,
+klappen Sie den entsprechenden Zweig auf der linken Seite des Dialogs auf.
+Sobald Sie innerhalb einer Kategorie einen Treiber <B>ausw„hlen</B>, werden
+dazu auf der rechten Seite zus„tzliche Informationen angezeigt.
+
+<UL><LI>Die Angaben zu <B>Version</B> und <B>Hersteller</B> werden direkt
+aus der Treiberdatei geladen, „hnlich wie es vom Hilfsprogramm BLDLEVEL
+auf Befehlszeilenebene durchgefhrt wird.
+
+<P><LI>Das Feld <B>Parameter</B> zeigt die Parameter an, die in der
+&cfgsys;-Datei fr diesen Treiber eingetragen sind.
+
+<!-- update the following for the new ConfigTool and global
+     search support with V1.0.4 (2005-06-16) [chennecke] -->
+</UL>Zu jedem Treibereintrag in der Kategorienstruktur auf der linken
+Seite steht ein <B>&popmenu;</B> bereit, mit dem zus„tzliche Hilfe fr den
+jeweiligen Treiber erh„ltlich ist:
+
+<UL><LI>Wenn es sich um einen der Treiber aus
+dem Lieferumfang von &os2; handelt, k”nnen Sie unter Umst„nden direkt die
+zugeh”rige Seite aus dem <I>&os2;-Referenzhandbuch</I> (<CODE>CMDREF.INF</CODE>)
+einsehen. W„hlen Sie dazu den Meneintrag <B>"Hilfe in OS/2-Referenzhandbuch
+anzeigen"</B>.
+
+<P><LI>Die <I>Datenbank ConfigTool</I>, ein separat erh„ltliches Freeware-Paket,
+enth„lt ebenfalls Informationen ber viele Treiber. W„hlen Sie <B>"Hilfe in
+ConfigTool-Datenbank anzeigen"</B>, um eine Hilfeseite fr den jeweiligen Treiber
+aufzurufen. Der Meneintrag ist nur ausw„hlbar, wenn sich die INF-Datei <CODE>CFGDAT.INF</CODE>
+der ConfigTool-Datenbank in dem
+<a href="glossary/gls_path_sys.html">Systempfad</a>
+befindet, der in der &cfgsys; ber die
+<a href="glossary/gls_env.html">Umgebungsvariable</a>
+<CODE>BOOKSHELF</CODE> definiert wird.
+
+<P><LI>Bei einige Treiber geh”ren eigene Hilfedateien zum Lieferumfang. H„ufig
+enthalten auch Hilfedateien, die sich nicht direkt damit besch„ftigen, Informationen
+zu Treibern. Durch Auswahl von <B>"In allen Hilfedateien suchen"</B>
+wird eine globale Suche nach dem Treibernamen in s„mtlichen Hilfedateien durchgefhrt,
+die sich in den Systempfaden <CODE>BOOKSHELF</CODE> und <CODE>HELP</CODE>
+befinden. Nach Abschluá der Suche k”nnen die Treffer durchgesehen werden.
+Dieser Meneintrag ist nur ausw„hlbar, wenn der separat und gratis erh„ltliche
+Hilfebetrachter <I>NewView</I> installiert ist, und zwar entweder als vollst„ndiger
+Ersatz fr <CODE>view.exe</CODE> oder als eigenst„ndige Anwendung, bei der sich
+ausfhrbare Datei und DLL in <CODE>PATH</CODE> und <CODE>LIBPATH</CODE> befinden.
+
+</UL><!-- end V1.0.4 -->Bei den meisten Treibern - mit Ausnahme derer, die keine Parameter
+verwenden - lassen sich im Eingabebereich auf der rechten Seite die verwendeten
+<B>Parameter „ndern</B>.
+
+<P>Fr einige Treiber wurden zus„tzliche Dialoge fr eine vereinfachte
+Konfiguration bereitgestellt. Wenn die Schaltfl„che <B>Konfigurieren</B>
+aktiviert ist, k”nnen Sie durch Klicken darauf den Konfigurationsdialog fr
+die Parameter des aktuellen Treibers aufrufen. Ein solcher Dialog „ndert
+dann fr Sie auf komfortable Weise die Eintr„ge im Feld "Parameter".
+
+<P>Sie mssen die Schaltfl„che <B>Anwenden</B> bet„tigen, um die ge„nderten
+Treiberparameter in die &cfgsys; zu bernehmen, nachdem Sie sie entweder
+manuell oder ber einen erweiterten Konfigurationsdialog bearbeitet haben.
+Die Verwendung der Schaltfl„che "Anwenden" „ndert nur die Zeile der Datei
+&cfgsys;, die den aktuellen Treiber betrifft. Wenn Sie zuvor einen anderen
+Treiber anw„hlen, gehen eventuelle Parameter„nderungen am aktuellen Treiber
+verloren.
+
+<BR>
+</BODY>
+</HTML>
+

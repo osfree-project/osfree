@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: File and Print Client
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Typically, the following &link_peer; services will be started on your system:
+
+<UL><LI>The <CODE>REQUESTER</CODE> service allows your computer to
+see other resources on the LAN. The "requester" is a synonym for "client",
+really. After the requester has been started, you can access remote
+files and printers on the LAN. In addition, you can assign directories
+that are shared by other computers to a driver letter on your own system.
+
+<P><LI>The <CODE>PEER</CODE> service is a stripped-down version
+of the server services that are only part of server versions of
+&os2;. After the peer service has started, your computer can share
+local directories, files, and printers with other computers on the
+LAN.
+
+<P>This service requires that the <CODE>REQUESTER</CODE> service
+is active too.
+
+</UL>Use a <A HREF="glossary/gls_cmd.html">command prompt</A> for dealing
+with services in detail:
+
+<UL><LI>To start a service explicitly, use
+<CODE>NET START <I>service</I></CODE>, for example, <CODE>NET START REQUESTER</CODE>.
+
+<P><LI>To stop a service explicitly, use
+<CODE>NET STOP <I>service</I></CODE>, for example, <CODE>NET STOP REQUESTER</CODE>.
+
+<P><LI>To find out which services are currently running, type
+<CODE>NET START</CODE>, without a service name.
+
+</UL>
+</BODY>
+</HTML>
+

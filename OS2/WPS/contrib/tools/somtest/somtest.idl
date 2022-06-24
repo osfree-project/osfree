@@ -1,0 +1,50 @@
+
+#include <somobj.idl>
+#include <sombacls.idl>
+
+interface XWPTest : SOMObject
+{
+
+    long test1(in long lBlah);
+    long test2(in long lBlah);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            test1,
+            test2;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = t_;
+        externalstem = t;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = somtest;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * Internal instance variables for XWPObjList:
+         *
+         */
+
+        long    longvar;
+
+        void    *pvoid;
+
+        /*
+         * SOMObject methods overridden by XWPObjList:
+         *
+         */
+
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+

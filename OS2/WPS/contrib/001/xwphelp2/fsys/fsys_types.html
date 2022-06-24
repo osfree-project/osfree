@@ -1,0 +1,44 @@
+<HTML RESID=&ID_XSH_DATAFILE_TYPES;>
+<HEAD>
+    <TITLE>
+        Data File Types
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.16: reordered the following -->
+<IFNDEF __NOXWPSETUP__>
+<!-- V1.0.2: replaced "extended file types" with "turbo folders" -->
+If turbo folders have been enabled in the
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>,
+&xwp; replaces the original "Types" page in data file properties
+notebooks with an enhanced version.
+</IFNDEF>
+
+<P>This page displays all file types in a tree, as they were defined
+on the "File types" page in the
+&link_wpsobj;. As opposed
+to that page, each file type on this page has a check box next to it
+which determines whether the data file has that type currently set.
+
+<P>See <A HREF="glossary/gls_assocs.html">Types and associations</A>
+for an introduction to associations between data files and programs.
+
+<UL><LI>If a box is <B>checked,</B> the respective type is currently
+set for the data file. To remove the type from the file, click onto the
+check box.
+
+<P><LI>If a box is <B>unchecked,</B> the respective type is not
+currently set for the data file. Click onto the check box to add the
+type to the file.
+
+<P><LI>If a box is <B>checked, but disabled,</B> this means that
+the respective type has automatically been set for the data file
+according to a type filter, as defined in the "Workplace Shell" object.
+For example, if the "Plain text" type has the <CODE>*.txt</CODE> filter
+associated with it and the data file's title has a trailing <CODE>.txt</CODE>
+string, "Plain text" becomes an automatic file type for this file.
+
+</UL>
+</BODY>
+</HTML>

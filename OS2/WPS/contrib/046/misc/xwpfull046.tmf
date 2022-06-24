@@ -1,0 +1,547 @@
+;
+; This file contains additions to XFLDR046.TMF (see remarks there).
+; Many definitions have been moved here because they are presently
+; not needed for eComStation and should thus be separated.
+;
+; This applies to the following messages (V0.9.16, IIRC):
+;
+;   --  FEATURES_*
+;
+;   --  XWPCLS_*
+;
+; With V0.9.20, more items were moved into this file (without
+; changing the actual messages):
+;
+;   --  S506DLG_*
+;
+;       Copyright (C) 1997-2015 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+;
+; this item added with V0.9.20 (2002-08-10) [umoeller]
+;
+
+<--PRODUCTINFO-->: XWorkplace
+Version &version;
+Byggd &datum;
+
+;
+; the following item has changed V0.9.20 (2002-08-10) [umoeller]
+;
+
+
+<--XFL0140-->: &copy;&nbsp;1997-2005 Ulrich M”ller.
+<BR>Svenskt Nationellt Spr†kst”d: (C) 2002 Bj”rn S”derstr”m, Roger Lindmark.
+<P>Inneh†ller delar av (C) 2000-2015 Martin Lafaix, Paul Ratcliffe, och andra.
+<BR>Inneh†ller delar fr†n Standard Function Library (C) 1991-99 iMatix corporation.
+<BR>Inneh†ller delar fr†n expat 1.95.1 (C) 1998-2000 Thai Open Source Software Center Ltd.
+<P>
+&xwp;'s hemsida p† Internet „r <A HREF="http://www.xworkplace.org">http://www.xworkplace.org</A>.
+<P>
+Kontakta &contact-user; f”r buggrapporter och f”rslag.
+<BR>Kontakta &contact-dev; om du „r (eller vill bli) bekant med &xwp;'s k„llkod.
+
+<P>
+&xwp; „r fri programvara under GNU General Public Licens (GPL), vilken finns i inneh†llet
+hos <A HREF="copying">COPYING filen</A> i &xwp; installationskatalog. &xwp; kommer d„rf”r utan
+n†gon som helst <B>garanti.</B>
+
+<P>Den kompletta k„llkoden „r tillg„nglig fr†n Netlabs CVS.
+Se <A HREF="http://www.xworkplace.org/cvs.html">http://www.xworkplace.org/cvs.html</A> f”r detaljer.
+Du „r v„lkommen att †terdistribuera och/eller modifiera &xwp; under villkoren i GPL.
+
+<P>F”r mer information, refereras till sektionen "Notiser" i <A HREF="inf">&xwp; Anv„ndarguide</A>.
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "Features" page (XWPSetup).
+; Each item starts with "FEATURES_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+
+<--S506DLG_1621-->: "Tyst" betyder att drivrutinen inte kommer att producera n†got p† sk„rmen alls under systemstarten. Detta „r standard.
+
+<--S506DLG_1622-->: "Verbose" (/V) kommer att visa drivrutin, adapter, och enhetsinformation under systemstarten.
+
+<--S506DLG_1623-->: "V„nta" (/W) visar samma information som "/V", men kommer inte att visa allting p† en g†ng (vilket normalt scrollar fram p† sk„rmen), utan ber dig trycka p† n†gon tangent efter varje avsnitt med information.
+Tillg„nglighet: DANIS506.ADD och nyare IBM1S506.ADD versioner.
+
+<--S506DLG_1624-->: Checkboxen best„mmer om DMA Spridning/Samling „r aktiverad.
+Enligt &os2; Kommandoreferens „r standard "aktiverad".
+
+<--S506DLG_1625-->: Detta v„ljer adapter 0 ("prim„r" kontroller") f”r adapterinst„llningarna nedanf”r.
+Notera att "/A:0" endast „r adderat till parameterlistan om n†gon icke-standard inst„llning „r satt f”r den h„r adaptern eller n†gon av dess enheter (diskar).
+
+<--S506DLG_1626-->: Detta v„ljer adapter 1 ("sekund„r" kontroller") f”r adapterinst„llningarna nedanf”r.
+Notera att "/A:1" endast „r adderat till parameterlistan om n†gon icke-standard inst„llning „r satt f”r den h„r adaptern eller n†gon av dess enheter (diskar).
+
+<--S506DLG_1627-->: F”rbockning av den checkboxen kommer att tala om f”r drivrutinen att l„mna den adapter ifred som har valts. Alla devicer som „r kopplade till adaptern kommer att ignoreras av drivrutinen.
+Detta „r troligtvis endast n”dv„ndigt om du har fler „n tv† adapters i ditt system och beh”ver ladda IDE drivrutiner fler „n en g†ng.
+
+<--S506DLG_1628-->: Den h„r inst„llningen avg”r om drivrutinen f†r nollst„lla en adapter n„r h†rdvarufel uppst†r.
+Enligt &os2's Kommandoreferens, om fel uppst†r (f”rlorade interrupts, kommando timeouts, ogiltiga kommandon), kan nollst„llning av adaptern hj„lpa. Emellertid, vissa adapters med icke-standard kommandon kan kanske f”rlora data vid nollst„llning.
+Avbocka checkboxen f”r att f”rhindra adapter nollst„llningar f”r den aktuella adaptern.
+Bocka f”r checkboxen f”r att till†ta direkta adapter nollst„llningar.
+Om checkboxen „r gr† (obest„mt tillst†nd), kommer ingen parameter att l„ggas till.
+
+<--S506DLG_1629-->: Bocka f”r den h„r checkboxen f”r att direkt ”verskrida standard baseport-adressen f”r adaptern.
+Detta „r troligtvis endast n”dv„ndigt om du har fler „n tv† adapters i ditt system och beh”ver ladda IDE drivrutiner fler „n en g†ng.
+
+<--S506DLG_1630-->: Om checkboxen p† v„nster sida „r f”rbockad, kan du specificera baseport-adressen f”r den aktuella adaptern h„r.
+Detta „r ett hexadecimalt v„rde.
+Standard „r 1F0 f”r adapter 0 och 170 f”r adapter 1.
+
+<--S506DLG_1631-->: Bocka f”r den h„r checkboxen f”r att direkt ”verskrida standard interrupt (IRQ) f”r adaptern.
+Detta „r troligtvis endast n”dv„ndigt om du har fler „n tv† adapters i ditt system och beh”ver ladda IDE drivrutiner fler „n en g†ng.
+
+<--S506DLG_1632-->: Om checkboxen till v„nster „r f”rbockad, kan du specificera interrupt (IRQ) f”r den aktuella adaptern h„r.
+Standard „r IRQ 14 f”r adapter 0 och IRQ 15 f”r adapter 1.
+
+<--S506DLG_1634-->: Bocka f”r den h„r checkboxen f”r att direkt ”verskrida standard DMA kanal vilken anv„nds av den aktuella adaptern.
+Detta „r troligtvis endast n”dv„ndigt om du har fler „n tv† adapters i ditt system och beh”ver ladda IDE drivrutiner fler „n en g†ng.
+
+<--S506DLG_1635-->: Om checkboxen p† v„nster sida „r f”rbockad, kan du specificera DMA kanal f”r den aktuella adaptern h„r.
+Jag kunde inte hitta standardv„rden f”r detta i dokumentationen.
+
+<--S506DLG_1636-->: Bocka f”r den h„r checkboxen f”r att direkt ”verskrida standard DMA Spridning/Samlings port-adressen f”r den aktuella adaptern.
+Detta „r troligtvis endast n”dv„ndigt om du har fler „n tv† adapters i ditt system och beh”ver ladda IDE drivrutiner fler „n en g†ng.
+
+<--S506DLG_1637-->: Om checkboxen p† v„nster sida „r f”rbockad, kan du specificera port-adressen f”r DMA spridning/samling av den aktuella adaptern h„r.
+Detta „r ett hexadecimalt v„rde.
+Enligt &os2;'s Kommandoreferens, „r standard alltid 400.
+
+<--S506DLG_1638-->: Detta v„ljer om busmastering (direkt minnes access, DMA) skall vara aktiverat f”r den aktuella adaptern (/BM eller /!BM med adapter parametrar).
+DANIS506.ADD och nyare versioner av IBM1S506.ADD st”der specificering av den h„r parametern p† en per-enhet basis ocks† (se till h”ger om den h„r dialogen).
+F”r generalla kommentarer om busmastering, tryck p† "Hj„lp" knappen.
+Bocka f”r checkboxen f”r att direkt aktivera busmastering f”r alla enheter som „r anslutna till den aktuella adaptern (/BM).
+Avbocka checkboxen f”r atat direkt avaktivera busmastering f”r alla enheter som „r anslutna till den aktuella adaptern (/!BM). Det kan vara n”dv„ndigt f”r „ldre h†rddiskar som inte st”der busmastering.
+Om checkboxen „r gr† (obest„mt tillst†nd), kommer drivrutinen sj„lv att avg”ra om busmastering kan aktiveras.
+Notera att standard IBM1S506.ADD drivrutine levererade med Warp 3 och 4 har detta avaktiverat som standard, medan alla drivrutiner fr†n nyare fixpaks har detta aktiverat.
+Som kontrast, DANIS506.ADD „r smart nog att utf”ra n†gra tester innan busmastering blir aktiverat. Tryck "Hj„lp" knappen f”r detaljer.
+
+<--S506DLG_1639-->: Detta v„ljer adapter 0, enhet 0 ("prim„r master" enhet) f”r enhetsinst„llningarna nedanf”r.
+Notera att "/A:0 /U:0" l„ggs endast till i parameterlistan om n†gra icke-standardinst„llningar „r satta f”r enheten.
+
+<--S506DLG_1640-->: Detta v„ljer adapter 0, enhet 0 ("prim„r slav" enhet) f”r enhetsinst„llningarna nedanf”r.
+Notera att "/A:0 /U:1" l„ggs endast till i parameterlistan om n†gra icke-standardinst„llningar „r satta f”r enheten.
+
+<--S506DLG_1641-->: Detta v„ljer adapter 1, enhet 0 ("sekund„r master" enhet) f”r enhetsinst„llningarna nedanf”r.
+Notera att "/A:1 /U:0" l„ggs endast till i parameterlistan om n†gra icke-standardinst„llningar „r satta f”r enheten.
+
+<--S506DLG_1642-->: Detta v„ljer adapter 0, enhet 0 ("sekund„r slav" enhet) f”r enhetsinst„llningarna nedanf”r.
+Notera att "/A:1 /U:1" l„ggs endast till i parameterlistan om n†gra icke-standardinst„llningar „r satta f”r enheten.
+
+<--S506DLG_1643-->: Detta v„ljer om busmastering (direkt minnes access, DMA) kommer att vara aktiverat eller avaktiverat f”r endast den aktuella enheten (/BM eller /!BM med enhetsparametrar).
+Specificering av detta f”r en enstaka enhet har endast st”d hos DANIS506.ADD eller en nyare version av IBM1S506.ADD.
+Annars, m†ste du specificera det f”r en hel adapter, f”r vilken en checkbox finns till v„nster. Se anm„rkningarna d„r.
+F”r generella kommentarer om busmastering, tryck p† "Hj„lp" knappen.
+
+<--S506DLG_1644-->: Bocka f”r checkboxen f”r att direkt ”verskrida standard fel†terh„mtningstid f”r den aktuella enheten (/T:xxx).
+
+<--S506DLG_1645-->: Om checkboxen ovanf”r har bockats f”r, till†ter det dig att ”verskrida standard fel†terh„mtningstid f”r den aktuella valda enheten (i sekunder).
+Enligt &os2;'s Kommandoreferens, „r standardtiden 30 sekunder. L„gre v„rden kan vara ”nskv„rda f”r fel-toleranta applikationer. V„rden under fem sekunder kan inte specificeras med drivrutinen.
+
+<--S506DLG_1647-->: Bocka f”r den h„r checkboxen f”r att direkt specificera diskgeometri f”r den aktuellt valda enheten. Annars, kommer drivrutinen sj„lv att best„mma geometrin i ”verensst„mmelse med BIOS setup, vilket „r OK i de flesta fall.
+Jag antar att den h„r parametern inte „r anv„ndbar l„ngre, nu n„r alla BIOS'ar har inbyggt IDE auto-uppt„ckt och LBA st”d.
+
+<--S506DLG_1648-->: Om checkboxen ovanf”r har bockats f”r, kan du specificera diskgeometrin h„r.
+Jag kunde inte hitta n†gon ”versk†dlig information om syntaxen f”r /GEO:xxx parametern, s† du m†ste ange "xxx" delen manuellt h„r.
+Enligt "Storage Device Driver Reference" i IBM Device Driver Development Kit (DDK), kan det antingen vara ett enkelt decimalt tal (0-47) f”r att referera till en av standard BIOS disktyperna, vilket troligtvis var anv„ndbart med diskar byggda f”re 1985 eller s†, eller ett v„rde i formatet "(c,h,s)", med tre decimaler specificerande cylinderar, huvuden, och sektorer hos disken.
+Bli dock varnad, jag har inte testat det h„r.
+
+<--S506DLG_1652-->: Detta best„mmer om Set Multiple Support (SMS, block mode) „r aktiverat f”r den aktuella enheten.
+SMS betyder att mer „n ett block (disk-sektor) kan transfereras samtidigt, vilket kommer att ”ka prestandan.
+Om checkboxen „r gr† (obest„mt tillst†nd), kommer drivrutinen att best„mma automatiskt om disken st”der SMS.
+Bocka f”r checkboxen f”r att direkt aktivera SMS f”r en enhet (/SMS), om drivrutinen inte uppt„cker SMS st”det automatiskt.
+Avbockning av checkboxen direkt avaktiverar SMS f”r en enhet (/!SMS). Notera att nyare versioner av IBM1S506.ADD alltid kommer aktivera SMS om drivrutinen ycker att det „r l„mpligt, och /!SMS kommer d† alltid att ignoreras, vilket kan orsaka vissa problem. Anv„nd DANIS506.ADD f”r att direkt avaktivera SMS.
+Enligt DANIS506.DOC, har varje h†rddisk en maximum SMS k”rtid definierat av tillverkaren f”r varje modell, vilket „r efterfr†gat av drivrutinen.
+
+<--S506DLG_1653-->: Bocka f”r den h„r checkboxen direkt f”r att aktivera Logical Block Addressing (LBA) f”r en aktuell enhet, om drivrutinen inte g”r det riktigt.
+LBA „r en BIOS funktion vilken har blivit introducerad ett antal †r tillbaka f”r att accessa stora h†rdiskar (”ver 504 MB) genom att mappa om diskgeometrin logiskt. Moderna h†rddiskar skall alltid ha detta aktiverat i BIOS setup, och normalt, uppt„cks detta utan problem av &os2;.
+
+<--S506DLG_1654-->: Denna inst„llning best„mmer om en enhet skall passeras till &os2; storage device manager (OS2DASD.DMD).
+Den manager drivrutinen „r ett interface mellan de olika adapterdrivrutinerna (*.ADD) och &os2;'s filsystem (FAT, HPFS, ...). Det „r den drivrutinen som rapporterar logiska enheter till &os2;'s K„rna vid bootning s† att enhetsbokst„ver kan tilldelas.
+Avbockning av checkboxen direkt avaktiverar &os2;'s st”d f”r den aktuella disken (s† att ingen enhetsbeteckning kommer att tilldelas).
+Bocka f”r checkboxen direkt f”r att aktivera &os2;'s st”d f”r den aktuella disken.
+Om checkboxem „r gr† (obest„mt tillst†nd), kommer IDE drivrutinen sj„lv att best„mma om disken skall st”djas av &os2;, vilket „r l„mpligast i de flesta fall.
+
+<--S506DLG_1655-->: Bocka f”r den h„r checkboxen f”r att uppr„tth†lla tillg„ngligheten hos den aktuella enheten, „ven om drivrutinen uppt„cker att enheten inte „r installerad.
+Detta „r anv„ndbart f”r externa devicer vilka kan bli str”ml”sa separat, t.ex. externa CD-ROM enheter. F”r dessa, aktivera ocks† "ATAPI" checkboxen.
+
+<--S506DLG_1656-->: Om den h„r boxen „r f”rbockad, kommer den aktuella enheten att bli behandlad som en ATAPI CD-ROM enhet.
+Om boxen „r avbockad, kommer de aktuella enheten aldrig att bli behandlad som en ATAPI CD-ROM enhet.
+Om checkboxen „r gr† (obest„mt tillst†nd), kommer drivrutinen att automatiskt att uppt„cka om enheten „r en ATAPI CD-ROM enhet.
+F”rbockning av den h„r boxen „r anv„ndbart f”r externa CD-ROM's vilka kan bli str”ml”sa separat. F”r dessa, aktivera checkboxen "Tvinga" ocks†.
+
+<--S506DLG_1657-->: Det h„r inmatningsf„ltet „r endast l„sbart och visar hur parametrarna hos en IDE drivrutin kommer att se ut i CONFIG.SYS.
+Det h„r f„ltet „r dynamiskt uppdaterat om du „ndrar p† n†gon inst„llning i dialogen.
+Om du trycker p† "OK" knappen, kommer parametrarna att kopieras till sidan "Drivrutiner" i "&os2;'s K„rna" notbok.
+
+<--S506DLG_1660-->: Aktivera checkboxen f”r att direkt specificera klockhastigheten hos PCI bussen p† ditt system.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1661-->: Om checkboxen p† v„nster sidan har aktiverats, till†ter detta dig att specificera PCI klockhastigheten.
+Fr†n DANIS506.DOC: "Vissa anv„ndare „r tvingade (eller k„nner sig tvingade ;-) att k”ra PCI bussen p† sina moderkort i hastigheter andra „n optimala 33MHz. Till exempel, m†nga Cyrix processorer beh”ver v„ldigt ovanliga front side busshastigheter vilka inte enkelt kan delas med 33MHz. Detta leder till antingen f”r l†ngsamma EIDE timings eller f”r snabba. De f”reg†ende kan verka som besvikelser, medan de senare ”verklockar EIDE interfacen och kan introducera datadistortion.
+Om du k„nner till den aktuella PCI klockan hos ditt moderkort, kan du l„gga till en option ytterligare hos drivrutinen /PCLK:x (x „r PCI klockan i MHz). Om du inte k„nner till PCI klockhastigheten, s„tt x till noll, och drivrutinen kommer att f”rs”ka best„mma PCI klockan. PCI klockan (antingen derivad eller anv„ndarinst„lld) „r sedan indelad i fyra hastighetsklasser (25MHz, 33MHz, 37MHz, och 41MHz) vilket rapporteras vid tidpunkten f”r bootning. F”r var och en av dessa hastighetsklasser, *f”rs”ker* drivrutinen att v„lja den optimala chip timingen, man tack vare begr„nsningar i chipseten „r det inte m”jligt i alla fall.
+Eftersom de flesta moderkort k”r sin PCI buss i den optimala 33MHz klockningen i dag, skall du anv„nda den h„r switchen endast om det verlkigen „r n”dv„ndigt!"
+F”r mera detaljer och en teknisk bakgrund, var v„nlig och referera till DANIS506.DOC.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1663-->: Bocka f”r den h„r checkboxen f”r att aktivera generiskt busmastering st”d f”r icke "v„lk„nda" chips.
+Tryck "Hj„lp" knappen f”r mer information om busmastering.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1664-->: Bocka f”r den h„r checkboxen f”r att behandla all EIDE chips som "icke v„lk„nda".
+Tryck "Hj„lp" knappen f”r mer information om busmastering.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1665-->: Bocka f”r den h„r checkboxen f”r att aktivera DANIS506.ADD "Matrox fix".
+Fr†n DANIS506.DOC: "Om det finns en PCI EIDE kontroller i ditt system, och du r†kar ha ett Matrox videokort, d† kanske bootprocessen avstannar vid en s„rskild punkt eller misslyckas med en trap 8. Detta beror p† en otroligt dumt beteende hos Matrox drivrutin vilken scannar alla portar med adresserna Cx0yh (x = 0..F, y = 0..3) vid initialiseringen av bas videohandlern „ven om dessa adresser inte „r tilldelade till n†got videokort. Jag skulle inte kalla det att h†lla sig till spelreglerna och och undrar om MGA kommer att sluta med det.
+Om n†gra andra PCI devicer f†r tilldelade adresser matchande ovanst†ende m”nster, kan *vad som helst* h„nda. F”r att komma runt problemet, har jag lagt till en ny option /MGAFIX vilket uppt„cker EIDE h†rdvara med adresser som p†verkas av det, och f”rs”ker „ndra lite p† dem genom att knuffa bort dem lite genom omprogrammering av adressdecoders s† att de inte l„ngre utg”r n†gra potentiella scanningsm†l.
+Varning: detta „r en typ av sista utv„g. Anv„nd den *endast om n”dv„ndigt*!"
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1666-->: Bocka f”r den h„r checkboxen f”r att direkt specificera en inaktivitets timeout f”r den aktuella enheten, efter vilken disken kommer att avstanna.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1667-->: Om den h„r checkbox p† v„nstra sidan har aktiverats, specificerar det inaktivitets timeouten i minuter. Specificering till 0 kommer att avaktivera spin-down helt och h†llet.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1668-->: Bocka f”r den h„r checkboxen f”r att fintrimma datahastigheten vilken skall vara till†ten vid DMA busmastering.
+Fr†n DANIS506.DOC: "m†nga EIDE kontrollers har inte kapacitet att v„lja PIO modes och multiword DMA modes oberoende av varandra d„rf”r att dessa l„gen delar samma timing register. Detta „r av historiska sk„l och likheten i cykeltimingen. Detta g„ller alla st”dda kontrollerchips undantaget Promise Ultra och Cyrix MediaGX.
+F”r att hantera situationen v„ljer drivrutinen den l†ngsammare cykel tiden fr†n de f”rslagna PIO och MW-DMA modes."
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1670-->: Om checkboxen ovanf”r har aktiverats, till†ts du att direkt specificera Ultra-DMA mode som „r till†tet f”r den aktuella enheten.
+Enligt DANIS506.DOC, „r giltiga v„rden:
+    0  -  avaktivera  Ultra DMA
+    1  -  begr„nsat till Ultra DMA mode 0
+    2  -  begr„nsat till Ultra DMA mode 1
+    3  -  begr„nsat till Ultra DMA mode 2
+    4  -  begr„nsat till Ultra DMA mode 3 (44MB/s)
+    5  -  begr„nsat till Ultra DMA mode 4 (66MB/s)
+Om du st„ller in UDMA=0 och MWDMA=0, kommer det att effektivt avaktivera busmastering f”r den aktuella enheten eftersom inga DMA mode finns kvar att anv„nda.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1672-->: Om checkboxen ovanf”r har aktiverats, till†ts du att direkt specificera Multiword-DMA mode vilket „r till†tet f”r den aktuella enheten.
+Enligt DANIS506.DOC, „r giltiga v„rden:
+    0  -  avaktivera  MW DMA
+    1  -  begr„nsat till MW DMA mode 0 (i S506.ADD effektivt samma som 0)
+    2  -  begr„nsat till MW DMA mode 1
+    3  -  begr„nsat till MW DMA mode 2
+Om du st„ller in UDMA=0 och MWDMA=0, kommer det att effektivt avaktivera busmastering f”r den aktuella enheten eftersom inga DMA mode finns kvar att anv„nda.
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1674-->: Om checkboxen ovanf”r har aktiverats, till†ts du att direkt specificera Programmerade I/O (PIO) mode vilket „r till†tet f”r den aktuella enheten.
+Enligt DANIS506.DOC, „r giltiga v„rden:
+    0  -  begr„nsat till PIO mode 0
+    1  -  begr„nsat till PIO mode 1 (i S506.ADD effektivt PIO 0)
+    2  -  begr„nsat till PIO mode 2 (i S506.ADD effektivt PIO 0)
+    3  -  begr„nsat till PIO mode 3 (med fl”deskontroll)
+    4  -  begr„nsat till PIO mode 4 (med fl”deskontroll)
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_1675-->: Den h„r inst„llningen avg”r om en enhet skall behandlas som en flyttbar disk.
+Fr†n DANIS506.DOC: "Om du har en flyttbar disk vilken du ”nskar boota fr†n, kommer detta att misslyckas. F”r att aktivera bootning fr†n den enheten m†ste den behandlas som en fast. Detta kan g”ras med optionen /!RMV applicerad till r„tt enhet.
+Det rapporteras ocks† att vissa Syquest diskar har buggig h†rdvara vilken inte rapporterar st”d f”r flyttbara enheter. F”r att annonsera dessa enheter f”r &os2; l„gg till optionen /RMV f”r den flyttbara diskendrivrutinen och den aktuella enheten."
+Tillg„nglighet: endast DANIS506.ADD.
+
+<--S506DLG_0001-->: Tryck p† "OK" kommer att st„nga dialogen och kopiera den aktuella parameterlistan som visas i f„ltet "Nya parametrar" hos sidan "Drivrutiner" i "&os2; K„rna" notbok med inst„llningar.
+
+<--S506DLG_0002-->: Tryck p† "Avbryt" kommer att st„nga dialogen men inte „ndra sidan "Drivrutiner" i "&os2;'s K„rna" notbok med inst„llningar.
+
+<--S506DLG_0095-->: Tryck p† "Allt standard" kommer att †terst„lla dialogen till standardl„ge, som om inga drivrutinsparametrar hade specificerats i CONFIG.SYS.
+
+;
+; V0.9.16: next come the toolinfos (fly-over help) for the "Features" page (XWPSetup).
+; This has been moved to xwpfull001.tmf with V0.9.16 and is appended to this file
+; by the makefile automatically now.
+;
+
+<--FEATURES_6000-->: Om "Byta ut ikoner" „r aktiverat, kommer &xwp; att byta ut standardikonerna hos WPS mot s†dana som „r snyggare (enligt min †sikt, i varje fall). Dessa ikoner „r fritt konfigureringsbara.
+Detta var nytt med XFolder 0.84.
+Se &xwp; Anv„ndarguide f”r detaljer.
+<--FEATURES_6002-->: Om sidan "Byta ut ikoner..." „r aktiverad, kommer &xwp att byta ut sidan "Ikon" i varje objekts notbok med inst„llningar mot en ny, f”rb„ttrad version.
+P† den sidan, „r byte av ikon lite mer komfortabelt. Som till„gg, kan du visa objektets interna egenskaper och st„lla in en global snabbtangent f”r ett objekt, om &xwp; Hook ocks† „r aktiverat (se "Mus och Tangentbord funktioner" nedanf”r).
+Detta lades till i &xwp; version 0.9.16 och ers„tter sidan "Objekt" vilken fanns i tidigare &xwp; versioner.
+<--FEATURES_6003-->: Om detta „r aktiverat, kombinerar &xwp; de tre standard "Fil" sidorna i notboken f”r mappar och datafiler att integreras i en mera praktisk ensam "Fil" sida.
+En andra sida, f”r att visa ut”kade attribut har lagts till.
+Detta ers„tter ocks†, sidan med "Detaljer" f”r diskobjekt med en grafiskt †tergivet cirkeldiagram.
+Detta lades till i &xwp; 0.9.0.
+<--FEATURES_6004-->: "Ut”kade systemljud" till†ter dig att definiera flera systemljud „n vad WPS normalt erbjuder.
+Du f†r ytterligare ljud f”r kontextmenyer, objektval, och mer.
+Du kan st„lla in de nya ljuden i "Ljud" objektet, som vanligt.
+Detta var nytt i XFolder 0.70.
+
+; FEATURES_6001 tillagt i V0.9.4
+
+<--FEATURES_6001-->: Om "Justera inst„llningssidor..." „r f”rbockat, kan &xwp; justera storleken p† vissa inst„llningssidor om hela notboken storleks„ndras. Det kan vara praktiskt f”r vissa av de mera komplexa &xwp; sidorna att kunna visa mera data samtidigt.
+Notera att det h„r ber”r endast vissa sidor f”r &xwp;, men inte standardsidorna hos WPS.
+Detta lades till i &xwp; 0.9.4.
+
+; FEATURES_6005 tillagt i V0.9.12
+
+<--FEATURES_6005-->: Om "Fixa klasstitlar" „r f”rbockat, kommer &xwp; att ”verskrida klasstitlarna i en mapp, fil, och enhetsklasser.
+Klasstitlarna visas i den tredje kolumnen i visningen av Detaljer (och „ven i statusf„ltet, om du har talat om f”r dem att g”ra s†).
+Olyckligtvis, om WPS n„tverksklasser „r installerade, kommer dessa rubriker inte l„ngre att vara meningsfulla, och &xwp; kan †terst„lla dom till "mapp", "datafil", och "enhet" igen.
+
+<--FEATURES_6011-->: Om "Aktivera statusf„lt" „r f”rbockat, kan du konfigurera mappar att visa statusf„lt med detaljerad information f”r de valda objekten i en mapp.
+Om det „r aktiverat, f†r du tv† ytterligare sidor med inst„llningar i &xwp;'s "Workplace Shell" objekt, vilket till†ter dig att konfigurera statusf„lten i detalj.
+Du kan ocks†, definiera om statusf„ltet skall vara synliga f”r varje mapp individuellt.
+S† efter att ha aktiverat det, g† till "Workplace Shell" objektet och sl† p† sidorna med "Statusf„lt".
+Se &xwp; Anv„ndarguide f”r detaljer, speciellt f”r att se hur statusf„lten skall fintrimmas f”r dina behov.
+Detta var nytt med XFolder 0.70.
+<--FEATURES_6012-->: Kontrollera "Ordna i rutn„t" f”r att kunna l„gga till en "Ordna i rutn„t" post till mapparnas kontextmeny.
+Posten g”r det m”jligt att l†ta alla objekt i en mapp ordnas i ett rutn„t med osynliga linjer, vilket g”r objektplaceringen enklare.
+Aktiveringen kommer ocks† att l„gga till en "Ordna i rutn„t" sida till objektet "Workplace Shell", d„r du kan definiera att n„tet skall anv„ndas.
+Se &xwp; Anv„ndarguide f”r en introduktion om vad det betyder.
+Detta var nytt med XFolder 0.50.
+<--FEATURES_6013-->: Om "Mappsnabbkommandon" „r aktiverade, kommer du att kunna definiera ny skuggor till mer „n 30 frekvent anv„nda mappfunktioner (som "markera alla") i &xwp;'s "Workplace Shell" objekt.
+Detta var nytt med XFolder 0.50.
+Se the &xwp; Anv„ndarguide f”r detaljer och standardsetup f”r snabbkommandon.
+<--FEATURES_6014-->: "Ut”kad mappsortering" ers„tter standard WPS sorteringsfunktionen f”r mappar. Om det „r aktiverat, kan du „ntligen definiera globala sorteringsoptioner i &xwp;'s "Workplace Shell" objekt, men du kan fortfarande ”verskrida standarinst„llningarna f”r varje mapp.
+Dessutom, introduceras sorteringskriteria, s†dana som "Sortera p† „ndelser" eller "Sortera mappar f”rst".
+Detta var nytt med XFolder 0.70.
+Se &xwp; Anv„ndarguide f”r detaljer.
+;
+; FEATURES_6015 tillagda med V0.9.16
+;
+<--FEATURES_6015-->: Funktionen "Turbomappar" ers„tter intern lagring av uppv„ckta objekt f”r alla mappar p† systemet.
+&xwp; implementerar h”g-hastighets algoritmer f”r att kunna hitta objekt i mappar mycket snabbare „n standard WPS.
+Om du aktiverar den inst„llningen, kommer du troligtvis att notera en hastighetsf”rb„ttring n„r mapparna f”rst ”ppnas och sedan beh”ver befolkas, speciellt med mappar som inneh†ller m†nga objekt.
+Ocks†, „ven bakgrundstr†darna f”r utbytet av auto-f”rnya kommer att dra nytta av den h„r inst„llningen.
+Detta kr„ver att XWPFileSystem utbytesklassen m†ste vara installerad. Žndring av inst„llningen erfordrar en omstart av WPS.
+
+<--FEATURES_6051-->: "&xwp; Hook" „r en global PM hook vilken implemenerar vissa funktioner som fanns i NPS WPS och WarpEnhancer.
+Aktivera den h„r inst„llningen om du vill anv„nda saker som glidande fokus, mus-knapp-3 f”nsterscrollning, sk„rmkantsobjekt, och n†gra ytterligare musfunktioner.
+Ocks†, &xwp; Hook „r n”dv„ndig f”r att globala objektsnabbkommandon skall fungera.
+Om detta „r aktiverat, kommer du att f† ytterligare inst„llningssidor i "Tangentbords" och "Mus" objekten i din mapp "Systemkonfiguration".
+Detta lades till i &xwp; 0.9.0.
+Se &xwp; anv„ndarguide f”r detaljer.
+<--FEATURES_6052-->: "Animerade muspekare" byter ut sidan med "Pekare" i "Mus" objektet (i din mapp "Systemprogram") med en ny sida som till†ter dig att definiera animerade muspekare, ist„llet f”r statiska standardpekare hos &os2;.
+Denna funktion var tidigare ett separat program "Animerade Muspekare f”r &os2;", men „r nu en del av &xwp; 0.9.0.
+Se &xwp; Anv„ndarguide f”r detaljer.
+<--FEATURES_6053-->: Om dett „r aktiverat, kan du tilldela ett globalt snabbkommando till n†got WPS objekt. N„rhelst du trycker det snabbkommandot, kommer objektet att ”ppnas i sin standardvisning.
+Du kan st„lla in ett objekts snabbkommando p† sidan "Objekt" i varje objekts notbok med inst„llningar.
+Ocks†, en "Snabbkommando" sida „r tillagd hos inst„llningsobjektet "Tangentbord" i din mapp "Systemkonfiguration" d„r du kan se alla snabbkommandon samtidigt.
+Den posten „r inte tillg„nglig om &xwp; hook inte „r installerad.
+Se till att du ocks† har "Objekt sida" inst„llningen i "Allm„nna funktioner" gruppen aktiverad, eller s† kommer du inte att kunna konfigurera snabbkommandon.
+Detta lades till i &xwp; V0.9.1.
+<--FEATURES_6054-->: "&pgr;" erbjuder dig virtuella skrivbord. Det betyder att &xwp; g”r ditt aktuella skrivbord till ett av flera, och du kan v„xla mellan dessa.
+Aktivering kommer att l„gga till en inst„llningssida hos det nya "Sk„rm" inst„llningsobjektet d„r du kan fininst„lla &pgr;.
+Den posten „r otillg„nglig om &xwp; hook inte „r installerad.
+Detta lades till i &xwp; V0.9.2.
+
+<--FEATURES_6021-->: Detta ers„tter sidan "Arkiv" hos Skrivbordets notbok med inst„llningar. Om det „r aktiverat, kan du definierna precisa konditioner f”r n„r Workplace Shell skall backas upp automatiskt -- ist„llet f”r att bara kunna antingen aktivera eller avaktivera arkivering helt och h†llet.
+Den h„r funktionaliteten fanns ursprungligen i ett separat "WPSArcO" program, men „r nu en del av &xwp; 0.9.0, och kan konfigureras betydligt enklare.
+Se the &xwp; Anv„ndarguide f”r detaljer.
+<--FEATURES_6022-->: "Omstarta WPS" „r en ny menypost hos Skrivbordets notbok med inst„llningar, vilken kommer att starta om Workplace Shell enbart, ist„llet f”r att beh”va boota om hela systemet.
+Till skillnad fr†n andra utilities, sparar &xwp; WPS's status innan det startar om det.
+Dett kommer att l„gga till en "&xsd;" sidan hos Skrivbordets notbok med inst„llningar vilken till†ter dig att konfigurera denna funktion.
+Detta var nytt med XFolder 0.60.
+Se &xwp; anv„ndarguide f”r detaljer.
+<--FEATURES_6023-->: "&xsd;" „r en komplett omskrivning f”r &os2;'s standard avst„ngingssekvens.
+Om den h„r inst„llningen „r aktiverad, kommer &xsd; att exekveras ist„llet f”r &os2;'s standardavst„ngning om du valde "St„nga av" fr†n Skrivbordets kontextmeny.
+Detta till†ter dig att avbryta avst„ngningen n„r den k”rs, ignorera h„ngande program, och mer.
+Detta kommer att l„gga till en "&xsd;" sida hos Skrivbordets notbok med inst„llningar vilken till†ter dig att konfigurera den h„r funktionen.
+Detta var nytt med XFolder 0.60.
+Se &xwp; Anv„ndarguide f”r detaljer.
+;
+; the following two were added with V0.9.18
+;
+<--FEATURES_6024-->: Om "Kontrollera Skrivbordets integritet" „r aktiverat, kommer &xwp; att kontrollera Skrivbordets integritet vid varje startup innan WPS kan visa den luddiga "Kan inte hitta Skrivbordet" dialogen, vilken inte „r s„rskilt hj„lpsam.
+Om &xwp; hittar problem med sitt Skrivbords integriter (som en bruten fil-systems handtagstabell, eller borttappat <WP_DESKTOP> object ID), kan den f”rs”ka reparera dessa problem.
+Du kan f”rs”ka avaktivera den h„r funktionen om &xwp; forts„tter att rapportera problem vid startup och ditt Skrivbord verkar fungera fint.
+<--FEATURES_6025-->: Om "F”r-befolka Skrivbordet" „r f”rbockat n„r WPS startas upp, kommer &xwp; att befolka Skrivbordet fullt ut innan det ”ppnas.
+Detta kan eventuellt fixa Skrivbordsh„ngningar som m†nga personer r†kar ut f”r n„r Skrivbordet inneh†ller m†nga objekt och WPS blir f”rvirrat av att initialisera dom i r„tt ordning.
+
+<--FEATURES_6041-->: "Ut”kade filassociationer" kommer att l†ta WPS anv„nda endast filtyper f”r association av program med datafiler.
+Bli inte chockerad, filfilter existerar fortfarande. Skillnaden „r att filer kommer att ges automatiska filtyper baserade p† filfilter, ist„llet f”r att associera program baserade p† filter direkt.
+Ocks†, du kan definiera hierarkiska filtyper, s†dana som att alla filer av typen "C Kod" automatiskt kommer att betraktas ocks† som "Ren text".
+Om detta „r aktiverat, kommer du att f† nya inst„llningssidor f”r filtyper i  &xwp;'s "Workplace Shell" objekt.
+Detta lades till i &xwp; 0.9.0.
+Se &xwp; anv„ndarguide f”r detaljer.
+
+;
+; FEATURES_6042 was changed with V0.9.20
+;
+
+<--FEATURES_6042-->: Om aktiverat, byter den h„r inst„llningen ut "Klista in" dialogen som kommer upp n„r du v„ljer "Klistra in" fr†n en mapps popupmeny (eller "Editera" posten fr†n en mapps menyrad).
+I motsats till WPS versionen, beh†ller utbytesdialogen en historik ”ver objektrubriker och kommer ih†g det senaste formatet och WPS klassen f”r inklistring.
+Som till„gg, den tj„nstg”r som en begr„nsad klippbordsvisare och „r smart nog att notera ifall klippbordets data „ndras under tiden dialogen „r ”ppen.
+Detta lades till med &xwp; V0.9.20.
+
+<--FEATURES_6043-->: Detta byter ut "Filen existera" dialogen vilken upptr„der om du flyttar eller kopierar filer till en mapp d„r andra objekt redan har samma namn.
+Denna utbytesdialog Th„r lite mer anv„ndbar och visar mycket mer information „n &os2;'s standard g”r.
+Detta var nytt i XFolder 0.80.
+<--FEATURES_6044-->: Detta ers„tter den fula vita system-modal h†rdvaru-fel popupboxen vilken upptr„der om du ”ppnar ett enhetsobjekt vilket inte „r f„rdigt.
+Om detta „r aktiverat, kommer du att erh†lla en regulj„r dialogbox, vilken ocks† har en "f”rs”k igen" knapp.
+Detta var nytt i XFolder 0.85.
+;
+; the following was changed with V0.9.5
+;
+<--FEATURES_6047-->: Detta kommer att ers„tta Workplace Shell's filsystems handtagshantering i OS2SYS.INI, med ambition att reducera antalet on”diga handtag som skapas.
+Var v„nlig se i &xwp; Anv„ndarguide f”r en introduktion till den h„r funktionen.
+Detta lades till i &xwp; 0.9.5.
+
+;
+; the following was added with V0.9.9
+;
+<--FEATURES_6048-->: Om "Byt ut mappars auto-f”rnyelse" „r aktiverad, kommer &xwp; att avaktivera interna WPS tr†dar vilka monitorerar filsystemet aktivitet att automatiskt f”rnya mappar. Ist„llet, kommer det att starta sina egna tr†dar f”r det h„r jobbet.
+&xwp;'s implementation har f”rdelen att det inte skapar om†ttligt med fil-systems handtag.
+Aktivering eller avaktivering av detta utbyte kr„ver en WPS omstart. Emellertid, n„r v„l &xwp; utbyte „r aktiverat, kan du dynamiskt aktivera eller avaktivera mappars auto-f”rnyelse p† sidan "Visning" i "Workplace Shell" objektet.
+Var v„nlig se &xwp; Anv„ndarguide f”r en introduktion till den h„r funktionen.
+Detta lades till i &xwp; 0.9.9.
+
+;
+; the following was added with V0.9.16
+;
+<--FEATURES_6049-->: Om "Byt ut fildialogen" „r aktierad, kommer &xwp; att anv„nda sin egen ers„ttare f”r OS/2's standard fildialog.
+Notera att detta endast p†verkar fildialoger i WPS processer. Vid den h„r tidpunkten, kan &xwp; inte byta ut alla fildialoger i ditt system „nnu.
+
+;
+; the following was changed with V0.9.19
+;
+<--FEATURES_6045-->: Om detta „r aktiverat, kan alla Workplace Shell's "Radera" operationer tas ”ver av &xwp;.
+Detta inkluderar tryckning av "Del" tangenten och val av kontextmenyposten "Radera" f”r alla object p† ditt system.
+&xwp; kan sedan antingen flytta objecten till den nya &xwp; papperskorg (vilken kommer att skapas n„r du v„ljer den h„r funktionen) eller omedelbart radera dom, om du h†ller ner shifttangenten n„r du startar raderingsoperationen.
+Om du vill att &xwp; alltid skall radera objekten omedelbart utan att flytta dom till papperskorgen f”rst, finns det en inst„llning f”r det i papperskorgens notbok med egenskaper.
+Se &xwp; Anv„ndarguide f”r detaljer.
+Detta lades till i &xwp; 0.9.1.
+;
+; the following was removed with V0.9.19
+;
+; <--FEATURES_6046-->: replace true delete
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "&xwp; Classes" dialog
+; (XWPSetup).
+; Each item starts with "XWPCLS_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value.
+;
+; ---------------------------------------------------------------------------------
+
+<--XWPCLS_1251-->: "XFldObject" „r &xwp; utbyte av WPObject klassen och „r n”dv„ndigt f”r &xwp;'s anv„ndning. Denna kan inte v„ljas bort.
+
+<--XWPCLS_1252-->: "XFolder" „r ett &xwp; utbyte av WPFolder klassen.
+Detta introducerar alla mappf”rb„ttringar som &xwp; erbjuder, s†dana som ut”kade kontextmenyer, ut”kad sortering, mappar statusf„lt, och mycket mer.
+
+<--XWPCLS_1253-->: "XFldDisk" „r &xwp; utbyte av WPDisk klassen, vilken anv„nds av WPS f”r "disk" objekt, s†dana som finns i mappen "Enheter".
+Detta utbyte introducerar ett antal f”rb„ttringar av diskhantering och routar ocks† mapparnas f”rb„ttringar till enhetsobjekten.
+Om den h„r klassen skaIl installeras, m†ste ocks† XFolder vara installerad.
+
+<--XWPCLS_1254-->: "XFldDesktop" „r &xwp; utbyte av WPDesktop klassen, vilken implementerar Skrivbordet.
+Detta utbyte erbjuder f”rb„ttringar av Skrivbordet, s†dana som ut”kad startup (bootlogos, arkivering) och ut”kad avst„ngning.
+
+<--XWPCLS_1255-->: "XFldDataFile" „r &xwp; utbyte av WPDataFile klassen, vilken anv„nds f”r alla fysiska filer p† ditt system.
+Detta utbyte erbjuder f”rb„ttringar av WPS associationsmekanism, utbyte av standardikoner, och "Kopiera filnamn till klippbord" funktioner.
+
+; V0.9.16: changed the following one
+<--XWPCLS_1256-->: "XWPProgramFile" „r &xwp; utbyte av WPProgramFile klassen, vilken anv„nds f”r alla fysiska exekverbara filer (.EXE, .COM, etc.).
+Den h„r klassen l„gger till en ny sida "Modul" till den exekverbara filens notbok med inst„llningar och erbjuder utbyte av standardikon.
+
+<--XWPCLS_1257-->: "XWPSound" „r ett &xwp; utbyte av WPSound klassen, vilken implementerar "Ljud" objektet som finns i din mapp "Systemkonfiguration".
+Detta erbjuder en b„ttre version av sidan "Ljud" i det objektets notbok med inst„llningar, vilket nu till†ter editering av ljudschemor.
+This was added with &xwp; 0.9.0.
+
+<--XWPCLS_1258-->: "XWPMouse" „r ett &xwp; utbyte av WPMouse klassen, vilken implementerar "Mus" objektet som finns i mappen "Systemkonfiguration".
+Detta utbyte ers„tter "Animerade Muspekare f”r &os2;" funktionaliteten, vilken nu „r en del av &xwp;.
+Ocks†, detta utbyte l„gger till inst„llningssidor f”r konfiguration av &xwp; hook musfunktioner, s†dana som glidande fokus och sk„rmkantsobjekt.
+
+<--XWPCLS_1259-->: "XWPKeyboard" „r &xwp; utbyte av WPKeyboard klassen, vilken implementerar "Tangentbords" objekt som finns i mappen "Systemkonfiguration".
+Denna ers„ttning l„gger till inst„llningssidor f”r konfiguration av &xwp; hook tangentbordsfunktioner, s†dana som globala objektsnabbkommandon.
+
+<--XWPCLS_1260-->: "XWPSetup" implementerar inst„llningsobjektet "&xwp; Setup" och „r n”dv„ndigt f”r &xwp;'s funktion. Det kan inte v„ljas bort.
+Detta lades till med &xwp; 0.9.0.
+
+<--XWPCLS_1261-->: "XFldSystem" implementerar inst„llningsobjektet "&os2; K„rna", vilket till†ter dig att enkelt konfigurera diverse CONFIG.SYS inst„llningar.
+
+<--XWPCLS_1262-->: "XFldWPS" implementerar ett "Workplace Shell" objekt, vilket inneh†ller alla WPS inst„llningssidor fr†n standard "System" objektet plus †tskilliga nya inst„llningssidor f”r &xwp;.
+Installation av den h„r klassen „r starkt rekommenderad, d„rf”r att utan den, kan du inte konfigurera &xwp; s„rskilt mycket.
+
+<--XWPCLS_1263-->: "XFldStartup" „r en special mappklass f”r den nya &xwp; Startup mappen, vilken erbjuder dig m†nga nya f”rb„ttringar j„mf”rt med standard WPS startup mappen.
+Den gamla startup mappen forts„tter ocks† att fungera, s† att du kan anv„nda b†da tillsammans.
+Om den h„r klassen skall installeras, m†ste „ven &xwp; vara det.
+
+<--XWPCLS_1264-->: "XFldShutdown" „r en special mappklass f”r den nya &xwp; St„nga av mappen, vilken processas under &xwp;'s ut”kade avst„ngning.
+Om den h„r klassen skall installeras, m†ste &xwp; och XFldDesktop vara installerade ocks†.
+
+<--XWPCLS_1265-->: "XWPClassList" implementerar ett alldeles nytt abstrakt objekt f”r editering av WPS klasslistan.
+Detta lades till med &xwp; 0.9.0.
+Hos tidigare versioner av XFolder, var den h„r funktionaliteten inbyggd i "Workplace Shell" objektet, men har nu flyttas och ut”kats till ett nytt objekt vilket definierar en helt ny visning.
+Den kan „ven visa WPS metodinformation, vilket kan vara nyttigt f”r WPS programmerare.
+
+<--XWPCLS_1266-->: "XWPTrashCan" „r nytt med &xwp; 0.9.0 och implementerar till slut ett speciellt mappobjekt "papperskorg", liknande det som finns p† Macintosh, KDE och Win95 system.
+"XWPTrashObject" implementerar ett "skr„pobjekt" som finns i den mappen och kommer automatiskt att bli installerat med XWPTrashCan.
+Detta lades till med &xwp; 0.9.0.
+
+<--XWPCLS_1267-->: "XWPScreen" implementerar ett inst„llningsobjekt f”r "Sk„rm", vilket inneh†ller all de
+sk„rm-relaterade sidorna fr†n det gamla "System" objektet plus nya &xwp; sk„rminst„llningar, s†dana som &pgr; konfiguration.
+Detta lades till med &xwp; 0.9.2.
+
+;
+; f”ljande lades till med V0.9.3
+;
+
+<--XWPCLS_1268-->: "XWPString" „r en praktisk klass f”r att anropa WPS setupstr„ngar f”r n†got objekt.
+Genom att skapa ett objekt av den h„r klassen och ange n†gon setupstr„ng, kan du senare anropa den setupstr„ngen f”r n†got objekt.
+Detta lades till med &xwp; 0.9.3.
+
+;
+; f”ljande lades till med V0.9.5
+;
+
+<--XWPCLS_1269-->: "XWPMedia" implementerar ett inst„llningsobjekt kallat "Multimedia", vilket till†ter dig att visa n†gra interna funktioner hos &os2;'s multimediasubsystem.
+Detta lades till med &xwp; 0.9.4.
+
+<--XWPCLS_0001-->: Tryck p† "OK" kommer att registrera, avregistrera, byta ut och †ngra byta ut klasser i f”rh†llande till de „ndringar du gjort i &xwp; klass setup.
+
+<--XWPCLS_0002-->: Tryck p† "Avbryt" kommer att st„nga dialogen utan att g”ra n†gra „ndringar i &xwp; klass setup.
+
+;
+; f”ljande lades till med V0.9.7
+;
+
+<--XWPCLS_1270-->: "XCenter" implementerar ett nytt statusf„lt (list) i toppen eller botten av ditt Skrivbord. Den kan anv„ndas som ett utbyte av &warpcenter;, eller ocks† tillsammans med &warpcenter;.
+
+
+;
+; f”ljande lades till med V0.9.10
+;
+
+<--XWPCLS_1271-->: "XWPFontFolder" implementerar en ny mapp inneh†llande alla dina fonter.
+"XWPFontObject" implementerar "fontobjekt" som hittas i den mappen och kommer automatiskt att installeras med XWPFontMapp.
+"XWPFontFile" „r en ny subklass av WPDataFile och kommer ocks† att bli automatiskt installerad med XWPFontMapp. Alla filer som „r riktiga fontfiler kommer automatiskt att bli exempel i den h„r klassen.
+
+;
+; f”ljande lades till med V0.9.16
+;
+
+<--XWPCLS_1272-->: "XWPFileSystem" kan byta ut WPFileSystem klassen f”r att snabba upp vissa interna WPS funktioner, speciellt mappinneh†ll.
+Klassen m†ste installerad f”r att inst„llningen "Turbomappar" skall fungera.
+
+<--XWPCLS_1273-->: "XWPProgram" kan byta ut WPProgram klassen f”r att fixa ett antal problem med WPProgram klass och f”r vissa interna modificeringar.
+
+<--XWPCLS_1274-->: "XWPVCard" „r en special WPDataFile subklass f”r vCard (*.vcf) filer vilka till†ter dig att visa och st„lla in vCard information.
+
+<--DUMMY_END_MARKER-->:
+
+

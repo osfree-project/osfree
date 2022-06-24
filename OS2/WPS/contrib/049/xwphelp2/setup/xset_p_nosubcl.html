@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Jegliche Ordnersubklassierung deaktivieren
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     V0.81:
+        -- Updated the list below which &xwp; items don't work
+           without subclassing.
+     V0.9.0: see notes below
+-->
+Mit dieser Einstellung k”nnen Sie &xwp; anweisen, keinerlei Ordner zu subklassieren.
+<P><B>Wichtiger Hinweis:</B> Fr viele der Funktionen &xwp;s ist die Subklassierung
+von Ordnern ERFORDERLICH. Durch die Aktivierung dieser Einstellung werden &xwp;s
+F„higkeiten stark eingeschr„nkt. Diese Einstellung ist nur als "Notausgang" fr
+den Fall gedacht, daá &xwp; auf Ihrem System nicht ordnungsgem„á funktioniert.
+<P>Durch Aktivierung dieser Einstellung werden folgende &xwp;-Funktionen
+automatisch deaktiviert:
+<UL><LI>Ordner-Tastenkrzel;
+<BR><LI>Strukturanzeigen automatisch rollen;
+<BR><LI>die
+<!-- V0.9.19: link added -->
+<A HREF="menus/menu_content.html">Ordnerinhaltsmens</A>;
+<BR><LI>Ordner-Statuszeilen;
+<BR><LI>Systemkl„nge fr Ordner und Mens.
+ 
+</UL>Davon sind nur Ordner betroffen, die nach der nderung dieser Einstellung
+ge”ffnet werden.
+<!-- V0.9.0: added the following phrase -->
+Das heiát, daá die Subklassierung bereits ge”ffneter Ordner nicht rckg„ngig
+gemacht wird. Dies gilt besonders fr die Arbeitsoberfl„che (die auch ein Ordner
+ist). Wenn Sie schwerwiegende Probleme mit &xwp; haben sollten, mssen Sie das
+System oder die WPS neu starten.
+ 
+<P><B>Ausfhrliche Erl„uterung:</B>
+ 
+<P>Wie Sie vielleicht wissen, kommunizieren Fenster bei &os2; (und auch Windows)
+mit Hilfe von "Nachrichten", um einander auf bestimmte Ereignisse aufmerksam zu
+machen.
+Das Basisbetriebssystem benutzt ebenfalls Nachrichten, um Fenster von
+bestimmten Ereignissen zu unterrichten. Beispielsweise erh„lt ein Fenster jedesmal,
+wenn Sie die Maus bewegen, damit klicken oder eine Taste drcken, eine Benachrichtigung,
+damit es darauf reagieren kann.
+<P>Die "Subklassierung" ist nun eine sehr leistungsf„hige Funktion von &os2;. Sie erlaubt
+es einem Programm, Nachrichten fr ein bestimmtes Fenster oder eine Fensterklasse
+abzufangen und damit das Fenster anders reagieren zu lassen.
+&xwp; benutzt diese Funktion st„ndig, beispielsweise um Tastaturnachrichten fr Ordner
+abzufangen. Auf diese Weise funktionieren die Ordner-Tastenkrzel: wenn &xwp; eine
+Tastaturnachricht fr einen Ordner abgefangen hat und herausfindet, daá fr diese
+Taste ein Tastenkrzel definiert wurde, wird die entsprechende Aktion im Ordner
+ausgefhrt.
+<!-- V0.9.0: rewritten the following -->
+<P>Die Subklassierung kann jedoch zu Problemen fhren, falls mehrere Programme
+versuchen, ein Fenster zu subklassieren und nichts voneinander wissen. Beispielsweise
+verwendet die WPS selbst intensiv Subklassierung (was nicht sehr gut dokumentiert ist)
+und auch andere WPS-Erweiterungen als &xwp; (z.B. Object Desktop) implementieren auf
+diese Weise einige ihrer Funktionen. Leider gibt es kein allgemeines "Register", das
+Informationen dazu, welche Software welches Fenster subklassiert hat, bereitstellen
+k”nnte. Aufgrund dessen hat &xwp; keine M”glichkeit herauszufinden, was andere
+Programme getan haben.
+<P>Falls Sie also denken, daá irgendetwas nicht in Ordnung ist, k”nnen Sie &xwp;
+anweisen, Ordnerfenster in Ruhe zu lassen.
+<BR>
+</BODY>
+</HTML>
+ 

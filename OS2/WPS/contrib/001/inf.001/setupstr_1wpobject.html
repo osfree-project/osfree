@@ -1,0 +1,171 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPObject Strings
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: this page is no longer active since all setup string info was
+             moved to the HLP file. If you have translated this page already,
+             you can reuse that translation for the respective page in xwphelp2. -->
+<BODY>
+WPObject is the WPS base class for all objects. It is not used directly, but all
+other WPS classes are derived from it. As a result, all Desktop objects (including
+files, folders, and program objects) support the following setup strings:
+<DL>
+<DT><CODE><B>CCVIEW</B>=DEFAULT</CODE>
+<DD>Uses the default value of the
+concurrent view setting of the
+system, when the user selects
+open. This is the default
+value.
+
+<P><DT><CODE>CCVIEW=YES</CODE>
+<DD>Creates new views of the
+object every time the user
+selects open.
+
+<P><DT><CODE>CCVIEW=NO</CODE>
+<DD>Resurfaces open views of
+object, when the user selects
+open.
+
+<P><DT><CODE><B>HELPLIBRARY</B>=<I>filename</I></CODE>
+<DD>Sets the help library.
+
+<P><DT><CODE><B>HELPPANEL</B>=<I>id</I></CODE>
+<DD>Sets the object's default help
+panel within the help library. You better not mess with these settings, for you have
+to know the WPS internal help resource IDs.
+
+<P><DT><CODE><B>HIDEBUTTON</B>={YES|NO}</CODE>
+<DD>Determine whether
+views of this object have a
+hide button as opposed to a
+minimize button.
+The default is the current
+system Button appearance for
+windows setting. This cannot
+be specified here.
+
+<P><DT><CODE><B>ICONFILE</B>=<I>filename</I></CODE>
+<DD>Sets the object's icon. <CODE><I>filename</I></CODE>
+must be a ".ICO" file.
+For folders, this specifies the "closed" icon.
+
+<P><DT><CODE><B>ICONPOS</B>=<I>x</I>,<I>y</I></CODE>
+<DD>Sets the object's initial icon
+position in the parent folder. The x
+and y values represent the
+position in the folder in
+percentage coordinates.
+
+<P><DT><CODE><B>ICONRESOURCE</B>=<I>id</I>,<I>dllfile</I></CODE>
+<DD>Sets the object's icon to data residing in a resource file.
+The <CODE><I>id</I></CODE> is the
+icon resource ID in the dynamic link library (DLL)
+<CODE><I>dllfile</I></CODE>.
+For folders, this specifies the "closed" icon.
+
+<P><DT><CODE><B>LOCKEDINPLACE</B>={YES|NO}</CODE> (&warp4; and higher only)
+<DD>Specifies whether the object is fixed or not fixed in position.
+
+<P><DT><CODE><B>MENUITEMSELECTED</B> <I>menu-item-id</I></CODE> (&warp4; and higher only)
+<DD>Simulates selecting the specified
+menu item from the object's popup menu.
+<CODE><I>menu-item-id</I></CODE> must be a numeric value.
+<BR>You may obtain the <CODE><I>menu-item-id</I></CODE> with the <CODE>XRAY</CODE> tool which
+is available on the Internet. Or look on the respective
+<A HREF="xices_4wpsmenuids.html">"WPS Menu IDs"</A> page.
+(Hey, this setting works for XFolder menu items also, BTW.)
+<BR>This is not really a "setting", but rather a command to be performed on the folder.
+
+<P><DT><CODE><B>MENUS</B>={SHORT|LONG}</CODE> (&warp4; and higher only)
+<DD>Determine whether this object has a short popup menu
+(without menu entries that duplicate
+drag 'n' drop functions) or the full one.
+
+<P><DT><CODE><B>MINWIN</B>={HIDE|VIEWER|DESKTOP}</CODE>
+<DD>Determine whether the minimized object will be hidden, placed into
+the "Minimized Windows" view, or minimized to the desktop.
+<P>The default is the current
+Minimize button setting. This
+cannot be specified here.
+
+<P><DT><CODE><B>NOCOPY</B>={YES|NO}</CODE>
+<DD>The object cannot be copied.
+
+<P><DT><CODE><B>NODELETE</B>={YES|NO}</CODE>
+<DD>The object cannot be deleted. Be careful
+with this one.
+
+<P><DT><CODE><B>NODRAG</B>={YES|NO}</CODE>
+<DD>The object cannot be dragged with the mouse.
+
+<P><DT><CODE><B>NODROP</B>={YES|NO}</CODE>
+<DD>The object will not accept any objects
+dropped upon it.
+
+<P><DT><CODE><B>NOLINK</B>={YES|NO}</CODE>
+<DD>No shadows can be created of this object.
+
+<P><DT><CODE><B>NOMOVE</B>={YES|NO}</CODE>
+<DD>The object cannot be moved.
+
+<P><DT><CODE><B>NOPRINT</B>={YES|NO}</CODE>
+<DD>The object cannot be printed.
+
+<P><DT><CODE><B>NORENAME</B>={YES|NO}</CODE>
+<DD>The object cannot be renamed.
+
+<P><DT><CODE><B>NOSETTINGS</B>={YES|NO}</CODE>
+<DD>The object's settings notebook cannot be opened.
+
+<P><DT><CODE><B>NOSHADOW</B>={YES|NO}</CODE>
+<DD>same as <CODE>NOLINK</CODE>.
+
+<P><DT><CODE><B>NOTVISIBLE</B>={YES|NO}</CODE>
+<DD>The object is not visible. Be careful with
+this style, since you might not be able to get the object back.
+
+<P><DT><CODE><B>OBJECTID</B>=<I>&lt;name&gt;</I></CODE>
+<DD>Sets a persistent ID for the object.
+An Object ID is any unique string preceded
+with a <CODE>&lt;</CODE> and terminated with a <CODE>&gt;</CODE>.
+<BR>Object IDs are useful for identifying objects without
+knowing their exact location on the user's desktop.
+For example, the desktop always has the ID <CODE>&lt;WP_DESKTOP&gt;</CODE>
+on every system; the XFolder Configuration folder is assigned an ID of
+<CODE>&lt;XFOLDER_CONFIG&gt;</CODE>, so that XFolder finds it even though
+you might have moved it to a different location. See the
+<A HREF="xices_2wpsobjids.html">"WPS Object IDs"</A> page for a listing of system IDs.
+<P>Object IDs are even necessary to be able to locate abstract Desktop objects
+(e.g. shadows or program objects) from REXX, since these objects do not
+appear in the file system. So if you create an abstract object from REXX and
+wish to be able to open it from REXX also, you must assign it an Object ID.
+<P>The default is to not have an ID.
+
+<P><DT><CODE><B>OPEN</B>={SETTINGS|DEFAULT|ICON|TREE|DETAILS}</CODE>
+<DD>Open a view now.
+This is the clever trick used by a zillion REXX scripts on the Internet to open an
+object from the &os2; command line.
+<BR><CODE>OPEN=DEFAULT</CODE> will open the default view of the object (as if
+you had double-clicked on it). <CODE>OPEN=SETTINGS</CODE> will open the object's
+settings notebook. All the other values are valid for folders only.
+<BR>This is not really a "setting", but rather a command to be performed on the folder.
+It will open immediately.
+
+<P><DT><CODE><B>TEMPLATE</B>={YES|NO}</CODE>
+<DD>Determines whether this object is a template or not.
+Default is <CODE>NO</CODE> (of course).
+
+<P><DT><CODE><B>TITLE</B>=<I>title</I></CODE>
+<DD>Sets the object's title to something new. This will also change the
+"real" filename (if the object represents a file), just as if you had
+changed the title from the WPS.
+
+</DL>
+</BODY>
+</HTML>
+

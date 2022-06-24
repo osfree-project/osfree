@@ -1,0 +1,160 @@
+
+/*
+ * wpsystem.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPSystem
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpsystem_idl
+#define wpsystem_idl
+
+#include "wpabs.idl"
+#include <somcls.idl>
+
+interface M_WPSystem;
+
+interface WPSystem : WPAbstract
+{
+    ULONG wpAddSystemWindowPage(in HWND hwndNotebook);
+
+    ULONG wpAddSystemLogoPage(in HWND hwndNotebook);
+
+    ULONG wpAddSystemPrintScreenPage(in HWND hwndNotebook);
+
+    ULONG wpAddSystemInputPage(in HWND hwndNotebook);
+
+    ULONG wpAddSystemConfirmationPage(in HWND hwndNotebook);
+
+    ULONG wpAddTitleConfirmationPage(in HWND hwndNotebook);
+
+    ULONG wpAddSystemScreenPage(in HWND hwndNotebook);
+
+    ULONG wpAddDMQSDisplayTypePage(in HWND hwndNotebook);
+
+    ULONG wpAddSysFdrSelfClosePage (in HWND hwndNotebook);
+
+    ULONG wpAddSysFdrDefViewPage (in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddSystemWindowPage,
+            wpAddSystemLogoPage,
+            wpAddSystemPrintScreenPage,
+            wpAddSystemConfirmationPage,
+            wpAddTitleConfirmationPage,
+            wpAddSystemScreenPage,
+            wpAddDMQSDisplayTypePage,
+            wpAddSysFdrSelfClosePage,
+            wpAddSysFdrDefViewPage,
+            wpAddSystemInputPage;
+
+        externalstem = WPsys;
+        local;
+        externalprefix = sys_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpsystem;
+        metaclass = M_WPSystem;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+        passthru C_h = ""
+""
+"/**********************************************************/"
+"/* Defines for wpclsQuerySetting and wpclsSetSetting      */"
+"/**********************************************************/"
+""
+"#define ANIMATION_OFF            0"
+"#define ANIMATION_ON             1"
+"#define ANIMATION_DEFAULT        2"
+""
+"#define PRINTSCREEN_OFF          0"
+"#define PRINTSCREEN_ON           1"
+"#define PRINTSCREEN_DEFAULT      2"
+""
+"#define BUTTON_HIDE              1"
+"#define BUTTON_MINIMIZE          2"
+"#define BUTTON_DEFAULT           3"
+""
+"#define LOGO_DEFAULT            -2"
+"#define LOGO_INDEFINITE         -1"
+"#define LOGO_NONE                0"
+""
+"#ifndef NAMECLASH_DEFS"
+"#define NAMECLASH_DEFS           1"
+"#define NAMECLASH_DEFAULT     0x40"
+"#define NAMECLASH_RENAME      0x02"
+"#define NAMECLASH_REPLACE     0x08"
+"#define NAMECLASH_PROMPT      0x10"
+"#endif"
+""
+"#define CONFIRM_OFF              0"
+"#define CONFIRM_ON               1"
+"#define CONFIRM_DEFAULT          2"
+""
+"#define DISPLAY_OFF              0"
+"#define DISPLAY_ON               1"
+"#define DISPLAY_DEFAULT          2"
+""
+"";
+
+        wpAddSettingsPages: override;
+        wpAddObjectWindowPage: override;
+        wpFilterPopupMenu: override;
+        wpRestoreState: override;
+        wpSaveState: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPSystem : M_WPAbstract
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = WPsys;
+        local;
+        externalprefix = sysM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpsystem;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryStyle: override;
+        wpclsQueryIconData: override;
+        wpclsQuerySettingsPageSize: override;
+        wpclsQuerySetting: override;
+        wpclsSetSetting: override;
+    };
+#endif
+};
+#endif

@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Object Details
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 and contains text previously in
+     090settings13objinternals.html -->
+<!-- V0.9.16: replaced all "internals" with "details" strings -->
+<BODY>
+<!-- V0.9.4: added this -->
+The "Object Details" container shows you lots of internal object data which you
+might or might not be interested in. Much of this is mostly interesting to programmers.
+
+<!-- V0.9.4: the following is unchanged -->
+<P>This information is grouped by using a container tree view, which can be used
+in a way similar to a folder tree view. However, most of the information in this
+window is <I>read-only,</I> i.e. you cannot change it (except for the "Object ID" item).
+
+<P>The <B>"Object handle"</B> is a five-digit hexadecimal number which uniquely
+identifies the object on your system.
+Abstract objects are always given object handles,
+while file-system objects do not neccessarily have to be assigned one.
+
+Note that
+object handles cannot be used to identify objects on a different system from yours: you
+cannot, for example, assume that the "Information" folder on your neighbor's computer
+will have the same object handle as it does on your system.
+Object handles only reference an object on <I>your</I> computer.
+
+<!-- V1.0.0: added this link -->
+<P>See <a href="glossary/gls_objhandle.html">Object Handles</a> for an introduction.
+
+<P>The <B>"Object ID"</B> however might exist on other computers too. Object IDs always
+have the format <CODE>&lt;OBJECTID&gt;</CODE> and are used to reference objects without
+having to know where they actually reside.
+<!-- V0.9.13: added link -->
+See <A HREF="glossary/gls_objids.html">object IDs</A> for an introduction.
+
+<P>The "Object ID" field may be <B>changed</B> by clicking on it with the "Alt" key pressed.
+Be careful however when you change object IDs. Certain programs might rely on certain
+IDs.
+
+<P>The <B>"Object style"</B> tree shows you WPS-internal object flags. The
+object style flags determine the WPS behavior only: for example, if the "no copy"
+flag is enabled, you cannot drag-copy the file from the WPS. Note that these
+flags are normally independent of
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">file attributes</A>,
+i.e. an object can have the "no delete" flag, but can still be deletable from the
+command line.
+
+<P>The <B>"Object usage"</B> tree shows you additional internal object data. This
+data is mainly useful for programmers and represents the information returned by the
+<!-- V1.0.0: added two links -->
+<a href="wpsref.inf#wpFindUseItem"><CITE>wpFindUseItem</CITE></a>
+<A HREF="_toolkitlink.html">*</A>
+method.
+
+<P>For folders, the <B>"Folder data"</B> tree contains flags which
+represent the data returned by the
+<!-- V1.0.0: added two links, method name was wrong -->
+<a href="wpsref.inf#wpQueryFldrFlags"><CITE>wpQueryFldrFlags</CITE></a>
+<A HREF="_toolkitlink.html">*</A>
+method, for example whether the folder has been populated or not.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Passa Datafils Objekthandtag i Milj”n
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Inst„llningen <B>"Passa Datafils Objekthandtag i Milj”n"</B> best„mmer
+hur &xwp; kommer att st„lla in <CODE>WP_OBJHANDLE</CODE> variabeln i milj”n f”r
+ett program som startades via en datafils association. Avaktivering av den h„r
+inst„llningen till†ter dig att reducera antalet filsystems
+<A HREF="glossary/gls_objhandle.html">objekthandtag</A> som skapas p† ditt system.
+
+<UL><LI>Om inst„llningen „r <B>f”rbockad</B>, och om du startar ett program via en
+datafils association, kommer datafilens
+<A HREF="glossary/gls_objhandle.html">objekthandtag</A> ocks† att passas
+till milj”n. <CODE>WP_OBJHANDLE</CODE> kommer d† att bli som f”ljer:
+
+<P><CODE>WP_OBJHANDLE=<I>program</I>,<I>datafil</I></CODE>
+
+<P>d„r <CODE><I>program</I></CODE> „r objekthandtaget hos programobjektet
+eller programfilen som startades och <CODE><I>datafil</I></CODE> „r objekthandtaget
+hos filen vars association orsakade att programmet startades.
+
+<P>Dett „r Workplace Shells standardbeteende.
+
+<P><LI>Om inst„llningen „r <B>icke f”rbockad</B>, kommer <CODE>WP_OBJHANDLE</CODE> att
+bli inst„lld p† f”ljande s„tt:
+
+<P><CODE>WP_OBJHANDLE=<I>program</I></CODE>
+
+<P>Med andra ord, datafilens handtag kommer <I>inte</I> att passas.
+
+</UL>Den h„r inst„llningen lades till d„rf”r att varenda g†ng en datafil startas, till
+exempel n„r du dubbel-klickar p† en datafil, m†ste ett objekthandtag skapas f”r filen,
+vilket m†ste stanna kvar i <CODE>OS2SYS.INI</CODE> filen f”r all framtid, „ven om du aldrig
+anv„nder den igen. ™ver tiden, kan detta skapa en hel del handtag. Nu kan du dock st„nga
+av den h„r inst„llningen, och m„rka att din handtagssektion i <CODE>OS2SYS.INI</CODE>
+inte l„ngre kommer att v„xa lika snabbt.
+
+<P>Emellertid, vissa applikationer kan vara beroende av Workplace Shells standardbeteende.
+Om du st„nger av den h„r inst„llningen och en applikation inte fungerar l„ngre, m†ste du
+beh†lla inst„llningen aktiverad.
+
+<P>Inst„llningen blir effektiv omedelbart.
+
+<BR>
+</BODY>
+</HTML>
+

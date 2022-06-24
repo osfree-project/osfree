@@ -1,0 +1,66 @@
+<HTML RESID=&ID_XFH_BATCHRENAME;>
+<HEAD>
+    <TITLE>
+        &xwp;: Byta namn p† Objekt
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+Menyalternativet "Byta namn p† objekt" till†ter dig att byta namn p† m†nga objekt
+samtidigt, med anv„ndning av <A HREF="glossary/gls_regexps.html">ut”kade regulj„ra uttryck</A>
+("batch renaming"). Notera att enkla <A HREF="glossary/gls_wildcards.html">joker</A>
+uttryck st”ds i den h„r dialogen.
+
+<P>Massnamnbyte ("batch renaming") kan var v„ldigt anv„ndbart om du beh”ver
+byta namn p† m†nga objekt samtidigt med till„mpning av samma kriterier -- till
+exempel, om du vill byta namn p† alla filer med „ndelsen <CODE>.JPEG</CODE> till
+<CODE>.jpg</CODE>.
+
+<P>F”r att utf”ra ett massnamnbyte, g”r f”ljande:
+
+<!-- V0.9.20: replace UL with OL tag and /UL with /OL -->
+<UL><LI>Ange ett <B>"finn" regulj„rt uttryck</B> i det ”versta inmatningsf„ltet. 
+Detta „r den matchande str„ngen mot vilka parametrarna kommer att testas i
+”verensst„mmelse med reglerna som specificeras under 
+<A HREF="glossary/gls_regexps.html">ut”kade regulj„ra uttryck</A>.
+
+<P>Till exempel, om du specificerade <CODE>(.*)\.JPEG</CODE> h„r, kommer alla
+filer med „ndelsen <CODE>.JPEG</CODE> att ber”ras av namnbytet.
+
+<P>Se till att varje str„ngkomponent som du vill byta ut mot en annan str„ng „r
+specificerad inom parenteser. Annars kan du inte referera komponenten fr†n
+"byta namn till" uttrycket.
+
+<P><LI>Ange ett <B>"byta namn till" uttryck</B> i det andra inmatningsf„ltet. Det
+specificerar de regler med vilka varje objekt „r namnbytta.
+
+<P>Notera att utbytesstr„ngen inte „r ett fullt regulj„rt uttryck d„rf”r att det
+inte anv„nds f”r matchande objekt. Som ett resultat, beh”ver du inte ta bort
+specialtecken som punkter. Emellertid, ett backslash med ett decimalt tal specificerat
+antas vara en referens inom ett parentesf”rsett uttryck i s”kstr„ngen.
+
+<P>Med ovanst†ende exempel, f”r att byta namn p† filerna som har „ndelsen
+<CODE>.JPEG</CODE> till <CODE>.jpg</CODE>, specificera <CODE>\1.jpg</CODE>. 
+Med ett objekt kallat <CODE>FILE.JPEG</CODE> matchat mot <CODE>(.*)\.JPEG</CODE> finn str„ng, <CODE>\1</CODE>
+i objektrubriken skulle ge <CODE>FILE</CODE>, s† att objektet skulle namnbytas till
+<CODE>FILE.jpg</CODE>.
+
+<P><LI>Markera eller avmarkera <B>"Case sensitive matchning"</B> boxen, beroende p†
+om s”kstr„ngen skall anv„ndas oberoende av stora eller sm† bokst„ver.
+
+<P><LI>Om du valde <B>"Matcha endast valda objekt"</B>, kommer s”koperationen
+endast att g„lla objekt som „r valda inom mappen. Annars kommer alla objekt
+i mappen att testas mot "finn" str„ngen.
+
+<P><LI>Tryck p† <B>"Starta namnbyte..."</B> knappen. Den kommer sedan att 
+fr†ga dig f”r varje objekt som matchar s”kstr„ngen och ge dig ett f”rslag
+p† rubrik f”r namnbyte av det s† att du kan verifiera om den str„ng du angav
+verkligen ger dig vad du vill ha.
+
+</UL>Dialogen underh†ller en historik ”ver de senaste tio giltiga k„ll och
+m†l regulj„ra uttrycken, respektive. Du kan accessa historiken fr†n rullningslisten
+i varje inmatningsf„lt.
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,55 @@
+<HTML RESID=&ID_XSH_RESTARTWPS_CONFIRM;>
+<HEAD>
+    <TITLE>
+        Herstart Werkplek Bevestiging
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+In het <B>bevestigingsvenster</B>
+<IFNDEF __NOXSHUTDOWN__>
+(Welke getoond wordt als u bevestigingen geactiveerd heeft in de Werkplek zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A>)
+</IFNDEF>
+zijn de volgende instellingen beschikbaar:
+
+<UL><LI>U mag bepalen of &xwp; <B>alle sessies zou moeten sluiten</B> voordat
+de WPS herstart wordt. Zo ja, dan zal &xwp; niet alleen de WPS vensters sluiten, maar ook
+alle andere programma's.
+
+<IFNDEF __NOXWPSTARTUP__>
+<P><LI>U kunt ook bepalen of <B>alle opstart mappen</B> opnieuw verwerkt moeten worden
+nadat &xwp; de Werkplek herstart heeft. Daar tegenover staat dat als deze instelling uitgeschakeld is,
+alleen die opstart mappen worden verwerkt die de "Elke Werkplek herstart" instelling geactiveerd hebben
+in hun respectievelijke
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A>.
+
+<P><B>Let op:</B>U zou deze instelling alleen moeten activeren als
+u ofwel "Sluiten alle sessies" ook geactiveerd heeft of als u zeker bent dat
+de programma's in de opstart map momenteel niet lopen, want anders worden ze
+wellicht twee keer gestart.
+
+<P>Deze instelling heeft geen consequenties voor de normale &os2; opstart map. Die map wordt
+nooit verwerkt na een Werkplek herstart.
+</IFNDEF>
+
+<P><LI>Als u <B>"Archiveer Werkplek eenmalig na herstart"</B> kiest, zal &xwp; de "Archivering"
+mogelijkheid eenmalig activeren voordat de herstart plaats vind en het weer uitschakelen nadat
+de Werkplek herstart is. Dit is gewoon een snelle oplossing om handmatig  de archiveringsinstellingen
+in de Werkplek zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A> in te schakelen en
+vervolgens weer uit te schakelen.
+
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<P><LI>Als u de <B>"Toon dit bericht de volgende keer"</B> instelling uitschakelt,
+worden bevestigingen uitgeschakeld voor Uitgebreid Afsluiten en Werkplek herstarts.
+U kunt dan de bevestigingen weer activeren in de Werkplek zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A> op
+de "&xshutdown;" pagina.
+</IFNDEF>
+</UL>
+
+</BODY>
+</HTML>
+

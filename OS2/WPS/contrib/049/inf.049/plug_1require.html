@@ -1,0 +1,50 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Voraussetzungen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Um eine Plug-In-DLL zu schreiben, mssen Sie mit folgendem vertraut sein:
+ 
+<OL><LI>Der Programmiersprache C. Im Moment gibt es keine Untersttzung
+fr die unter &os2; verwendeten Pascal-Dialekte.
+ 
+<P><LI>Der Programmierung des Presentation Managers; eine Widget-Klasse ist
+im wesentlichen eine PM-Fensterklasse (siehe
+<A HREF="plug_2terminology.html">"Terminologie"</A>).
+ 
+<P>Wenn Sie bis jetzt noch keine PM-Fensterklasse von Grund auf geschrieben
+haben, machen Sie sich keine Sorgen. Die Beispiele werden Sie leiten, und
+es ist auch eigentlich nicht so schwierig. Wenn Sie wissen, was eine
+Fensterprozedur ist, und wenn Sie den Unterschied zwischen einem Besitzer
+und einem Mutterfenster, sowie <CODE>WinSendMsg</CODE> und
+<CODE>WinPostMsg</CODE> kennen, sollte es keine Schwierigkeiten geben. Je
+mehr Sie schon wissen, desto einfacher geht es natrlich.
+ 
+<P><LI>Sie sollten wissen, was eine DLL ist, wann und warum sie benutzt
+wird, und warum eine DLL kein Prozeá ist. ;-)
+ 
+</OL>Nun zu den guten Neuigkeiten: Sie brauchen <I>nicht</I> zu wissen, wie
+man die WPS oder mit SOM programmiert, was sicher fr viele, die etwas
+beitragen m”chten, eine groáe Erleichterung sein wird.
+ 
+<P>Sie k”nnen auáerdem den C-Compiler Ihrer Wahl benutzen. Sogar EMX/GCC
+sollte ausreichen. Sie ben”tigen vom &xwp;-Code nur die Header-Dateien, die
+Sie einbinden wollen, und die jetzt mit der bin„ren &xwp;-Distribution
+geliefert werden (im Verzeichnis <CODE>toolkit</CODE>).
+ 
+<P>Wenn Sie einmal nicht mehr weiter kommen, k”nnen Sie immer noch den
+<A HREF="notices_40source.html">kompletten Quellcode von &xwp;</A>
+herunterladen, wo Sie auch die Quellen fr die Standard-Plug-In-DLLs finden,
+die zum Lieferumfang von &xwp; geh”ren (fr die Fensterliste, die Uhr und die
+Anzeigen zur Speicherbelegung), die Ihnen im Detail demonstrieren, wie es
+richtig geht.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

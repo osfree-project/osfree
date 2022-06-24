@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Minnes paging
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+Konceptet med paging till†ter &os2; att ge minne till applikationer
+„ven om inget mer fysiskt minne finns tillg„ngligt. Detta kallas ibland
+"virtuellt minne" (vilket inte skall blandas ihop med termen "virtuellt adressutrymme"
+-- se <A HREF="glossary/gls_mem_himem.html">&os2; Virtuellt Adressutrymme</A> f”r mer
+om det).
+
+<P>Om paging „r aktiverad, kommer &os2; tempor„rt att flytta data fr†n fysiskt RAM
+till en speciell swapfil p† h†rddisken. &os2; swapfilen kallas alltid <CODE>SWAPPER.DAT</CODE>.
+Om du inte har „ndrat &cfgsys;, kommer den h„r filen att finnas i
+<CODE>\OS2\SYSTEM</CODE> katalogen.
+
+<P>I detalj, h„nder f”ljande:
+
+<OL><LI>Om en &os2; applikation allokerar minne och det inte finns tillr„ckligt med
+fysiskt minne tillg„ngligt, tar &os2; en del av huvudminnet (RAM) vilket inte har accessats
+p† ett tag och skriver in det i <CODE>SWAPPER.DAT</CODE>. Den delen av minnet „r sedan
+tillg„ngligt och ges till den efterfr†gande applikationen. Som ett resultat, kan applikationer
+anv„nda mer minne „n vad som „r fysiskt installerat p† datorn.
+
+<P><LI>Nu, om n†gon applikation accessar den del av minnet som swappades ut, snappar &os2; upp
+den minnesaccessen (d„rf”r att "minnet" nu finns p† h†rddisken) och laddar den regionen tillbaka
+till minnet fr†n h†rddisken innan applikationen verkligen accessar det. (Om n”dv„ndigt, kommer
+&os2; att beh”va swappa ut en annan minnesregion till swapfilen f”rst f”r att g”ra rum f”r
+den minnesregion som skall laddas tillbaka in i minnet.)
+
+</OL>Naturligt nog, „r en h†rddisk mycket l†ngsammare „n det fysiska RAM minnet, ungef„r med
+ett f”rh†llande om 1:100, beroende p† din processorhastighet och om den delen av minnet redan
+har laddats in i processorns minnescache.
+
+<P>Detta „r orsaken till att stora m„ngder RAM „r den viktigaste f”ruts„ttningen f”r
+en acceptabelt snabb &os2; installation. Žven om du kan installera &os2; med endast 8 MB RAM
+(&warp; 3 uppges g„lla „ven med 4 MB), kommer du endast att h”ra din h†rddisk rassla eftersom &os2;
+hela tiden m†ste swappa in och ut.
+
+<P>Žven om du har en relativt stor m„ngd RAM installerat (l†t s„ga, 128 MB eller mer),
+kan &os2; pl”tsligt b”rja swappa. Eftersom ”kning av swapfilen „r en dyrbar operation, b”r du
+v„lja dina <CODE>SWAPPATH</CODE> inst„llningar noggrant.
+
+<P>Om du anv„nder
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>,
+kan du ocks† anv„nda
+<A HREF="xcenter/xc_sentinel.html">"Sentinel" widget</A>
+f”r att monitorera &os2;'s minneshantering.
+
+<BR>
+</BODY>
+</HTML>
+

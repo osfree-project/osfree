@@ -1,0 +1,216 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Some SOM Tricks
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+In general, XWorkplace is pretty straightforward SOM/WPS code. It
+overrides a lot of <CODE>wp*</CODE> and <CODE>wpcls*</CODE> methods.
+
+<P>In order to avoid too much
+confusion, the methods which XWorkplace <I>adds</I> do not carry
+the usual <CODE>wp*</CODE> and
+<CODE>wpcls*</CODE> prefixes, but
+<CODE>xwp*</CODE> and <CODE>xwpcls*</CODE> instead.
+Only "real" XWorkplace SOM methods have this prefix; "normal" functions have other
+prefixes (see the <A HREF="src1_801prefixes.html">previous page</A> for a list).
+
+<P>As XWorkplace became more complex over time, I have delved quite deeply
+into SOM. While I still don't fully understand what is going on in
+the SOM kernel (from what I hear, I guess nobody does) and some bugs
+in there keep puzzling me, I've found out some interesting stuff.
+
+<P><B>Note:</B> The following is not required to write WPS classes. This
+is additional information for those who have written WPS classes already
+and might be interested in some SOM internals.
+<P>
+Most of this is related to the <B>&quot;WPS Classes&quot;</B> object
+(<CODE>xclslist.c</CODE>).
+The SOM logic for this is in
+<CODE>classlst.c</CODE> in <CODE>clsWPSClasses2Cnr</CODE>,
+which can analyze the current SOM runtime environment (which is that
+of the WPS), i.e. all the classes that have been loaded and query their
+inheritance hierarchy at runtime.
+<P>This inserts the WPS class tree as
+recordcores into a given cnr control. This works with any containers
+in tree views, so that some XWorkplace dialogs can use this too. Check
+the sources, there's some interesting stuff.
+<P>
+Note that there are quite a number of functions in XWorkplace which take
+SOM (WPS) objects as a parameter, even though they are not <B>SOM methods.</B>
+See <CODE>src\shared\wpsh.c</CODE> for examples. The reason for this is that
+resolving SOM methods takes quite a bit of time, and calling regular
+functions will work just as well, but faster.
+<P>
+If you look into the <CODE>.IH</CODE> header files created by the SOM
+compiler, you see that the C bindings for method calls are really all
+macros #define'd in the header files which translate into more complex
+C code.
+<P>Here's an example: if you call
+<CODE>_wpQueryStyle(somSelf)</CODE> in <CODE>xfldr.c</CODE>, where this
+method has not been overridden, the WPObject version of this method should
+get called. Here's the #define in <CODE>xfldr.ih</CODE> for this:
+<P><CODE>#define XFolder_wpQueryStyle WPObject_wpQueryStyle</CODE>
+
+<P>And <CODE>WPObject_wpQueryStyle</CODE> is #define'd in <CODE>wpobject.h</CODE> from
+the toolkit headers as follows:
+
+<PRE>
+#define WPObject_wpQueryStyle(somSelf) \
+    (SOM_Resolve(somSelf, WPObject, wpQueryStyle) \
+    (somSelf))
+</PRE>
+Actually, there are more macros related to this, but this is the important one.
+<CODE>SOM_Resolve</CODE> in turn is a macro #define'd in <CODE>somcdev.h</CODE>,
+which calls the SOM kernel function <CODE>somResolve</CODE>. That function
+finally goes through the class method tables to find the actual function
+address and call it.
+<P>
+As as result, not only does compiling of SOM code take ages (because of all the
+nested macros), but also <I>calling</I> SOM methods does, because as opposed
+to "static" OO languages such as C++, method resolution is occuring at
+run-time. IBM says in the SOM docs that
+<B>calling a SOM method takes at least three times as long as calling a normal C
+function.</B>
+<P>
+Since there is no real need to write functions as SOM methods, except when you
+want to design a method which can be overriden in subclasses,
+I have only done so
+in rare occasions to speed up processing.
+<P>
+Here are some <B>other SOM tricks and functions</B> which are not mentioned directly
+in the WPS reference (but only in the chaotic SOM docs), but these are
+very useful. Some of this is pretty basic, some might be new to WPS programmers,
+so I'll list this here:
+
+<UL><LI>Since all the SOM stuff is declared in those huge header files, you
+need to <B>#include a header file</B> if you need access to certain class-specific
+features.
+<P>For example, if you write a subclass of WPDataFile and need some
+program-object method call (e.g. <CODE>_wpQueryProgDetails</CODE>), you need
+to put <CODE>#include &lt;wppgm.h&gt;</CODE> on top of your code, or the
+method binding will not be found.
+<P>This is not neccessary if the method is defined for a superclass of your
+class, because the SOM headers automatically #include all the parent classes.
+That is, for example,
+you don't need to #include <CODE>wpfsys.h</CODE> (for WPFileSystem)
+for your WPDataFile subclass.
+
+<P><LI>The most important thing to keep in mind is that all <B>SOM classes are
+objects</B> too. They are instances of their respective metaclasses. This takes some
+getting used to, but it is this concept only which allows WPS classes to
+be created at runtime and for class replacements in the first place.
+<P>That is, for example, any Desktop object is an instance of WPObject (really
+one of its subclasses). The WPObject class in turn is an instance of
+its metaclass, M_WPObject.
+<P>In SOM, the default metaclass for a class is SOMClass. However, the WPS
+overrides this behavior to create a unique metaclass for each WPS class,
+which is prefixed with <CODE>M_</CODE>. Since the metaclass is a class as well,
+it has methods too (the so-called "class methods", which operate on class
+objects, as opposed to the "instance methods" of the class itself, which operate
+on instances of the class -- the Desktop objects).
+
+<P><LI>To <B>access a class object,</B> for any existing class you always have a
+corresponding macro which is
+an underscore plus the class name. That is, the class object of WPObject
+can always be obtained with <CODE>_WPObject</CODE>. This is useful for calling
+class methods, which always need to be invoked on a class object. So, to call
+a folder class method, you do something like
+<CODE>_wpclsQueryOpenFolders(_WPFolder)</CODE>.
+<P>
+Note: If a class has been replaced, the macro will not return the original, but
+the replacement class. That is, if XWorkplace is installed, the above example
+would actually return the XFldObject class object (see notes below), and methods
+invoked on the WPObject class object would actually be resolved for XFldObject.
+That's how class replacements work in the first place. See the notes below for more.
+
+<P><LI><CODE>BOOL _somIsA(pObject, pClassObject)</CODE> checks for whether
+pObject is an <B>instance of the class</B> specified by pClassObject or one of
+its subclasses.
+This is extensively used in <CODE>statbars.c</CODE> to
+adjust status bar display depending on the class of a single object which
+is currently selected.
+<P>Example: <CODE>_somIsA(somSelf, _WPObject)</CODE> should always be true within
+the WPS context, since all WPS classes are subclasses of WPObject.
+By contrast, <CODE>_somIsA(somSelf, _WPFolder)</CODE> would only return TRUE if somSelf
+is a WPS folder. (This would work with <CODE>_XFolder</CODE> too, but this would
+require that you have access to the XFolder header files and that XFolder replaces
+WPFolder. <CODE>_WPFolder</CODE> always works, even if WPFolder is replaced,
+because <CODE>_WPFolder</CODE> would be resolved to point to the replacement class object
+then -- e.g. <CODE>_XFolder</CODE>.)
+
+<P><LI><CODE>PSZ _somGetName(pClassObject)</CODE> returns the
+<B>class name</B> specified by pClassObject, as specified in the IDL file.
+(That is different from <CODE>wpclsQueryTitle</CODE>.)
+<P>Example: <CODE>_somGetName(_XFldObject)</CODE> will return "XFldObject".
+
+<P><LI><CODE>SOMClass* _somGetParent(pClassObject)</CODE> returns a
+<B>parent class.</B>
+<P>Examples: <CODE>_somGetParent(_WPProgram)</CODE> returns the WPAbstract
+class object (<CODE>_WPAbstract</CODE>).
+<CODE>_somGetParent(_XFolder)</CODE> should return <CODE>_WPFolder</CODE>,
+unless there's some other WPFolder replacement class above XWorkplace in the
+replacement list.
+
+<P><LI><CODE>BOOL _somDescendedFrom(pClass, pClassParent)</CODE> returns TRUE
+if pClass is <B>descended</B> from pClassParent.
+<P>Examples: <CODE>_somDescendedFrom(_WPFolder, _WPObject)</CODE> should return
+TRUE. <CODE>_somDescendedFrom(_WPFolder, _WPProgram)</CODE> would return FALSE.
+
+<P><LI><CODE>somResolveByName(pClassObject, "method")</CODE> gives you
+a <B>function pointer</B> as implemented by the specified class. You should assign
+this to a function pointer variable which matches the function prototype,
+or otherwise you'll get crashes. This can be useful if you invoke a SOM method
+frequently, for example in a loop on many objects, because then SOM method resolution
+has to be done only once. If you used the macros, resolution would take place
+for each iteration in the loop.
+
+<P><LI><B>Class replacements.</B> Nowhere is really documented how class
+replacements actually work, except that replacement classes must be direct
+descendants of the class which is to be replaced. I assume that class
+replacements are a feature of the SOM class manager, of which the WPS
+class manager is a descendant (WPClassManager is half documented in the
+WPS Reference.) At least there is a documented SOMClassMgr
+method, <CODE>somSubstituteClass</CODE>, which appears to be doing exactly
+this job.
+<P>From what I've seen, class replacements seem to work this way: Any time a class object
+is queried, the class manager does not return the class object of the
+specified class, but the object of the replacement class instead. As a result, all
+the method calls are not resolved for the original class, but for the replacement
+class instead.
+<P>Examples: If XFolder replaces WPFolder,
+<CODE>wpModifyPopupMenu</CODE> is not called for WPFolder,
+but for XFolder instead, even though the WPS had originally called it for a folder object.
+By contrast, for <CODE>wpQueryIcon</CODE>, which is not overridden by XFolder, method
+resolution leads to the method as implemented by the parent class, which should
+be WPFolder, unless some other class replacements is present.
+<P>The class replacement mechanism
+is most obvious with the class object macros described above: if
+you have a <CODE>_WPFolder</CODE> in your code, this returns the class object
+of XFolder, i.e. <CODE>_WPFolder == _XWorkplace</CODE>. So if you absolutely need
+the WPFolder class object (which is normally not necessary, since this would
+circumvent XFolder's functionality), you use <CODE>_WPFolder</CODE> (which
+returns the XFolder class object) and then
+climb up the class object's inheritance tree using
+<CODE>_somGetParent</CODE> until <CODE>_somGetName</CODE> returns "WPFolder".
+
+<P><LI>To get the class object of any class without having access to its
+header files, do the following:
+<PRE>
+somId    somidThis = somIdFromString("WPObject");
+SOMClass *pClassObject = _somFindClass(SOMClassMgrObject, somidThis, 0, 0);
+</PRE>
+Note again that <CODE>_somFindClass</CODE> will return replacement classes
+instead of the originals. (That's how the class object macros work, BTW.)
+
+<P><LI><CODE>__get_somRegisteredClasses(SOMClassMgrObject)</CODE> returns a
+<CODE>SOMClassSequence</CODE> of all currently registered class objects. This
+is used by the "WPS classes" page in the "Workplace Shell" object. See
+<CODE>classlst.c</CODE> for details.
+
+</UL>
+</BODY>
+</HTML>
+

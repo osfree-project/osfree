@@ -1,0 +1,88 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Module" page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.20: rewrote this -->
+The "Module" pages appear in the properties notebooks of all executable
+files to display additional information about an executable module.
+
+<!-- V0.9.20: added this -->
+<P>A <B>"module"</B> is the &os2; kernel's representation about an executable
+file that was successfully loaded. This can either be a
+<A HREF="objects/obj_pgmf.html">program file</A> or a
+<A HREF="glossary/gls_dll.html">DLL</A>.
+
+<P>The information on this page is retrieved directly from the executable
+file and cannot be changed.
+All executables on operating systems which maintain some compatibility with DOS
+(such as &os2; and Windows) still use the same EXE header as DOS 3.x. However,
+for the "extended" EXE formats used by &os2; and Windows, after the old DOS header,
+additional executable headers appear in the file. &xwp; attempts to analyze
+the various headers in the file and shows the results on this page.
+
+<P>In the <B>"Module format"</B> group, the <B>"Executable format"</B>
+will be one of the following:
+
+<UL><LI><B>"DOS 3.x":</B> The file only has the old DOS EXE header, so it is
+probably a DOS file.
+
+<P><LI><B>"Linear Executable (LX)":</B>
+<!-- V0.9.16: rewrote this section, moved this up -->
+This is the native OS/2 executable format that is used by 32-bit modules,
+including 32-bit libraries. Most EXE and
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<!-- V0.9.20: modified the following -->
+files that were designed to run on OS/2 version 2.x or higher (including
+eComStation) will have this format.
+<!-- end V0.9.16 -->
+
+<P><LI><B>"New Executable (NE)"</B>:
+<!-- V0.9.16: rewrote this section -->
+This format was introduced
+by IBM and Microsoft with OS/2 1.x and is still used for 16-bit executables
+under both Windows and OS/2. Most Windows 3.x applications will have this
+format, as well as 16-bit OS/2 applications (including 16-bit libraries).
+<!-- V0.9.20: modified this -->
+Most &os2; device drivers will have this format as well.
+<!-- end V0.9.16 -->
+
+<P><LI><B>"Portable Executable (PE)":</B> This format was introduced
+<!-- V0.9.16: rewrote this  -->
+by Microsoft for 32-bit Windows applications and is extensively used under
+all Windows versions since Windows 95 (including derivatives of Windows NT).
+<!-- end V0.9.16 -->
+Also, some Win32s applications (i.e. 32-bit applications
+running under Windows 3.x) will have this format.
+<!-- V0.9.9: added the following -->
+OS/2 neither uses nor understands this format by default, but if you have Odin
+installed, OS/2 can load such executables.
+<!-- end V0.9.9 -->
+
+</UL>The <B>"Target OS"</B> shows you the operating system for which this
+executable was written. This will show one of "DOS 3.x", "DOS 4.x", "OS/2",
+"Win16", "Win386", or "Win32". For some executable formats, &xwp; will
+display the target OS as specified in the executable itself, for others it
+will do a best guess.
+
+<P>The <B>"Module description"</B> group shows you additional information about
+the executable as specified by the executable's vendor.
+<!-- V0.9.5: updated the following phrase -->
+This can be retrieved for LX and NE formats.
+This information will be the same as returned by the <CODE>BLDLEVEL.EXE</CODE>
+command-line utility, which is shipped with &os2;.
+
+<!-- V0.9.20: rewrote this -->
+<P>Many &os2; executables use the special IBM "bldlevel" format to specify the vendor,
+version, and description all in one string. If this format is obeyed, &xwp; will
+display this information, otherwise only the "Description" field will be set.
+
+
+<BR>
+</BODY>
+</HTML>
+

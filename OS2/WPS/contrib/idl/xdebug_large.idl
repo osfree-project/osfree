@@ -1,0 +1,520 @@
+
+/*
+ * xdebug.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          DbgObject
+ *      and the respective metaclasses.
+ *
+ *      The classes in this file are "hidden" in the XFLDR.DLL
+ *      file and not required for XWorkplace's operation. They
+ *      may be used however to debug WPS classes.
+ *
+ *      These classes override all methods which IBM has documented
+ *      for them. In order to use these classes, do the following:
+ *
+ *      a)  Register DbgObject with the WPS class list.
+ *      b)  Replace WPObject with DbgObject.
+ *
+ *      After the next Desktop restart, you'll see an additional
+ *      "Debug" menu item in all object context menus, where
+ *      you can enable debugging.
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpobject.idl>         // this is SOM for WPObject
+
+/*
+   CLASS: DbgObject
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ DbgObject
+*/
+
+interface M_DbgObject;            // forward reference to metaclass
+
+interface DbgObject : WPObject
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# Class Modifiers
+        externalprefix = do_;
+        externalstem = do;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xdebug;           //# specifies the filestem for sc-generated files
+        metaclass = M_DbgObject;
+        dllname = "xdebug.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for DbgObject:
+         *
+         */
+
+        BOOL    fDebugThis;
+        ULONG   ulIndent;
+
+        /*
+         * WPObject methods overridden by DbgObject:
+         *
+         */
+
+        wpSaveState: override;
+            /* wpSaveState:
+              */
+
+        wpSaveLong: override;
+            /* wpSaveLong:
+              */
+
+        wpSaveString: override;
+            /* wpSaveString:
+              */
+
+        wpSaveData: override;
+            /* wpSaveData:
+              */
+
+        wpRestoreState: override;
+            /* wpRestoreState:
+              */
+
+        wpRestoreLong: override;
+            /* wpRestoreLong:
+              */
+
+        wpRestoreString: override;
+            /* wpRestoreString:
+              */
+
+        wpRestoreData: override;
+            /* wpRestoreData:
+              */
+
+        wpAllocMem: override;
+            /* wpAllocMem:
+              */
+
+        wpFreeMem: override;
+            /* wpFreeMem:
+              */
+
+        wpFormatDragItem: override;
+            /* wpFormatDragItem:
+              */
+
+        wpDrop: override;
+            /* wpDrop:
+              */
+
+        wpDragOver: override;
+            /* wpDragOver:
+              */
+
+        wpRender: override;
+            /* wpRender:
+              */
+
+        wpEndConversation: override;
+            /* wpEndConversation:
+              */
+
+        wpAddSettingsPages: override;
+            /* wpAddSettingsPages:
+              */
+
+        wpAddObjectGeneralPage: override;
+            /* wpAddObjectGeneralPage:
+              */
+
+        wpDisplayHelp: override;
+            /* wpDisplayHelp:
+              */
+
+        wpInsertSettingsPage: override;
+            /* wpInsertSettingsPage:
+              */
+
+        wpCnrInsertObject: override;
+            /* wpCnrInsertObject:
+              */
+
+        wpCnrRemoveObject: override;
+            /* wpCnrRemoveObject:
+              */
+
+        wpScanSetupString: override;
+            /* wpScanSetupString:
+              */
+
+        wpSaveImmediate: override;
+            /* wpSaveImmediate:
+              */
+
+        wpSetDefaultHelp: override;
+            /* wpSetDefaultHelp:
+              */
+
+        wpQueryDefaultHelp: override;
+            /* wpQueryDefaultHelp:
+              */
+
+        wpDoesObjectMatch: override;
+            /* wpDoesObjectMatch:
+              */
+
+        wpCnrRefreshDetails: override;
+            /* wpCnrRefreshDetails:
+              */
+
+        wpSetError: override;
+            /* wpSetError:
+              */
+
+        wpQueryError: override;
+            /* wpQueryError:
+              */
+
+        wpDraggedOverObject: override;
+            /* wpDraggedOverObject:
+              */
+
+        wpDroppedOnObject: override;
+            /* wpDroppedOnObject:
+              */
+
+        wpSetObjectID: override;
+            /* wpSetObjectID:
+              */
+
+        wpQueryObjectID: override;
+            /* wpQueryObjectID:
+              */
+
+        wpQueryHandle: override;
+            /* wpQueryHandle:
+              */
+
+        wpSaveDeferred: override;
+            /* wpSaveDeferred:
+              */
+
+        wpAddObjectWindowPage: override;
+            /* wpAddObjectWindowPage:
+              */
+
+        wpQueryConcurrentView: override;
+            /* wpQueryConcurrentView:
+              */
+
+        wpSetConcurrentView: override;
+            /* wpSetConcurrentView:
+              */
+
+        wpQueryMinWindow: override;
+            /* wpQueryMinWindow:
+              */
+
+        wpSetMinWindow: override;
+            /* wpSetMinWindow:
+              */
+
+        wpQueryButtonAppearance: override;
+            /* wpQueryButtonAppearance:
+              */
+
+        wpSetButtonAppearance: override;
+            /* wpSetButtonAppearance:
+              */
+
+        wpQueryConfirmations: override;
+            /* wpQueryConfirmations:
+              */
+
+        wpCnrSetEmphasis: override;
+            /* wpCnrSetEmphasis:
+              */
+
+        wpQueryCoreRecord: override;
+            /* wpQueryCoreRecord:
+              */
+
+        wpQueryTrueStyle: override;
+            /* wpQueryTrueStyle:
+              */
+
+        wpAssertObjectMutexSem: override;
+            /* wpAssertObjectMutexSem:
+              */
+
+        wpReleaseObjectMutexSem: override;
+            /* wpReleaseObjectMutexSem:
+              */
+
+        wpRequestObjectMutexSem: override;
+            /* wpRequestObjectMutexSem:
+              */
+
+        wpIsLocked: override;
+            /* wpIsLocked:
+              */
+
+        wpRenderComplete: override;
+            /* wpRenderComplete:
+              */
+
+        wpQueryDetailsData: override;
+            /* wpQueryDetailsData:
+              */
+
+        wpPrintObject: override;
+            /* wpPrintObject:
+              */
+
+        wpSetTaskRec: override;
+            /* wpSetTaskRec:
+              */
+
+        wpModifyStyle: override;
+            /* wpModifyStyle:
+              */
+
+        wpFindTaskRec: override;
+            /* wpFindTaskRec:
+              */
+
+        wpAppendObject: override;
+            /* wpAppendObject:
+              */
+
+        wpReplaceObject: override;
+            /* wpReplaceObject:
+              */
+
+        wpQueryNameClashOptions: override;
+            /* wpQueryNameClashOptions:
+              */
+
+        wpConfirmObjectTitle: override;
+            /* wpConfirmObjectTitle:
+              */
+
+        wpQueryContainerFlagPtr: override;
+            /* wpQueryContainerFlagPtr:
+              */
+
+        wpWaitForClose: override;
+            /* wpWaitForClose:
+              */
+
+        wpQueryScreenGroupID: override;
+            /* wpQueryScreenGroupID:
+              */
+
+        wpAddObjectGeneralPage2: override;
+            /* wpAddObjectGeneralPage2:
+              */
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_DbgObject : M_WPObject
+{
+
+    /*
+     * New class methods  for M_DbgObject:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# Class Modifiers
+        externalprefix = doM_;
+        externalstem = doM;
+        functionprefix = doM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xdebug;           //# specifies the filestem for sc-generated files
+        dllname = "xdebug.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_DbgObject:
+         *
+         */
+
+        /*
+         * M_WPObject methods overridden by M_DbgObject:
+         *
+         */
+
+        wpclsInitData: override;
+            /* wpclsInitData:
+              */
+
+        wpclsUnInitData: override;
+            /* wpclsUnInitData:
+              */
+
+        wpclsMakeAwake: override;
+            /* wpclsMakeAwake:
+              */
+
+        wpclsIncUsage: override;
+            /* wpclsIncUsage:
+              */
+
+        wpclsDecUsage: override;
+            /* wpclsDecUsage:
+              */
+
+        wpclsQueryTitle: override;
+            /* wpclsQueryTitle:
+              */
+
+        wpclsQueryIcon: override;
+            /* wpclsQueryIcon:
+              */
+
+        wpclsQueryDefaultHelp: override;
+            /* wpclsQueryDefaultHelp:
+              */
+
+        wpclsQueryStyle: override;
+            /* wpclsQueryStyle:
+              */
+
+        wpclsQueryDetailsInfo: override;
+            /* wpclsQueryDetailsInfo:
+              */
+
+        wpclsQueryDefaultView: override;
+            /* wpclsQueryDefaultView:
+              */
+
+        wpclsQueryDetails: override;
+            /* wpclsQueryDetails:
+              */
+
+        wpclsQuerySearchInfo: override;
+            /* wpclsQuerySearchInfo:
+              */
+
+        wpclsQueryExtendedCriteria: override;
+            /* wpclsQueryExtendedCriteria:
+              */
+
+        wpclsCreateDefaultTemplates: override;
+            /* wpclsCreateDefaultTemplates:
+              */
+
+        wpclsFindObjectFirst: override;
+            /* wpclsFindObjectFirst:
+              */
+
+        wpclsFindObjectNext: override;
+            /* wpclsFindObjectNext:
+              */
+
+        wpclsFindObjectEnd: override;
+            /* wpclsFindObjectEnd:
+              */
+
+        wpclsSetError: override;
+            /* wpclsSetError:
+              */
+
+        wpclsQueryError: override;
+            /* wpclsQueryError:
+              */
+
+        wpclsQuerySettingsPageSize: override;
+            /* wpclsQuerySettingsPageSize:
+              */
+
+        wpclsSetSettingsPageSize: override;
+            /* wpclsSetSettingsPageSize:
+              */
+
+        wpclsQueryIconData: override;
+            /* wpclsQueryIconData:
+              */
+
+        wpclsSetIcon: override;
+            /* wpclsSetIcon:
+              */
+
+        wpclsSetIconData: override;
+            /* wpclsSetIconData:
+              */
+
+        wpclsQueryObject: override;
+            /* wpclsQueryObject:
+              */
+
+        wpclsObjectFromHandle: override;
+            /* wpclsObjectFromHandle:
+              */
+
+        wpclsQueryButtonAppearance: override;
+            /* wpclsQueryButtonAppearance:
+              */
+
+        wpclsNew: override;
+            /* wpclsNew:
+              */
+
+        wpclsQueryFolder: override;
+            /* wpclsQueryFolder:
+              */
+
+        wpclsRemoveObjects: override;
+            /* wpclsRemoveObjects:
+              */
+
+        wpclsInsertMultipleObjects: override;
+            /* wpclsInsertMultipleObjects:
+              */
+
+        wpclsFindOneObject: override;
+            /* wpclsFindOneObject:
+              */
+    };
+#endif
+};
+
+

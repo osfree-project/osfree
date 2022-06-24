@@ -1,0 +1,40 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Nya Systemljud
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Klasser: XFolder, XFldDesktop</B><HR>
+Om du har &os2; multimedia subsystem (MMPM/2) med n†got ljudkort installerat, kan &xwp; 
+spela upp ytterligare systemljud vid speciella tillf„llen, p† samma s„tt som redan senare XFolder
+versioner kunde g”ra.
+
+<P>Om du aktiverar "Ut”kade systemljud" i "&xwp; Setup", kommer &xwp; att l„gga till nya
+h„ndelser p† "Ljud" sidan i "Ljud" objektet.
+
+<P>Var v„nlig notera att &xwp;'s systemljud kommer att g”ra ditt system l†ngsammare, p† 
+samma s„tt som vanliga systemljud ocks† g”r det. Žven p† min Pentium-133 med 32 MB RAM, „r detta
+noterbart, trots att &xwp; anv„nder en separat tr†d f”r att spela sina ljud.
+
+<P>Konfigurationen av de nya ljuden „r inte alltf”r spektakul„r: &xwp; l„gger bara till n†gra
+f† nya poster i listan ”ver h„ndelser p† "Ljud" sidan. Alla &xwp; poster startar med start med "&xwp;",
+s† att du kan se dom grupperade tillsammans.
+
+<P>Du kan hitta n†gra f† sm† ljud i <CODE>WAV</CODE> subkatalogen hos &xwp; installationskatalog
+f”r att komma ig†ng. <CODE>;-)</CODE>
+
+<P><B>Implementation.</B> F”r att introducera dessa funktioner, kommer flera av &xwp;'s komponenter att 
+samverka. F”r att kunna snappa upp systemh„ndelser f”r de nya systemljuden, m†ste XFolder och XFldDesktop klasser 
+installeras. Emellertid, det nya XWPSound klassutbytet (se <A HREF="mm_1sndobj.html">f”reg†ende sida</A>) „r 
+inte n”dv„ndigt f”r de nya systemljuden. Den klassen g”r endast konfigurationen enklare.
+
+<BR>
+</BODY>
+</HTML>
+
+
+
+

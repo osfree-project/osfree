@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: HPFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+
+Posterna i <B>"Cache"</B> gruppen best„mmer hur m†nga KB hos huvudminnet som 
+skall reserveras f”r HPFS cache hos respektive filsystem. Detta korresponderar 
+till <CODE>/CACHE:xxx</CODE> parametern i HPFS.IFS kommandorad.
+
+<P>Maximal cachestorlek f”r HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volymer „r 2048 KB, vilket inte „r s„rskilt mycket.
+
+<!-- V0.9.5: changed the following -->
+<P>Du kan beg„ra att &os2; <B>automatiskt</B> skall best„mma cachestorleken. I de
+flesta fall, kommer det att resultera i omkring 10% av det installerade minnet,
+men det rekommenderas inte att anv„nda den inst„llningen.
+
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Se <A HREF="glossary/gls_caches.html">"Filsystem cacher"</A> f”r en introduktion
+till filsystemscacher i allm„nhet.
+
+<P>Inst„llningen <B>"Cache tr”skelv„rde"</B> best„mmer (i KB) den maximala
+storleken p† objekt som skall sparas i cacher. Detta korresponderar till
+<CODE>/CRECL:xxx</CODE> parametern p† HPFS.IFS kommandorad.
+
+Den h„r inst„llningen antas hindra stora filer, vilka vanligtvis bara laddas en g†ng, 
+fr†n att rensa hela cachen. Emellertid, standardv„rdet p† 4 KB „r alldeles f”r l†gt. 
+Du kan med s„kerhet specificera 32 KB eller „ven maximum till 64 KB h„r.
+<BR>
+</BODY>
+</HTML>
+
+

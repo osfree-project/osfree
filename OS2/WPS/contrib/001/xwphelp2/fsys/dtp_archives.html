@@ -1,0 +1,108 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_ARCHIVES;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Archives" Page Replacement
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<IFNDEF __NOXWPSETUP__>
+&xwp; replaces the default "Archives" page with an enhanced version
+if the respective setting has been enabled in the
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+</IFNDEF>
+On this page, you may set detailed criteria for whether your Desktop
+should be backed up at Desktop startup.
+
+<P>In order to restore an archive which has been created by the
+Workplace Shell archiving mechanism, press Alt-F1 while the
+<!-- V0.9.20 -->
+small white "&os2short;" text box is displayed at system bootup.
+
+<IFNDEF __EWORKPLACE__>
+<P>Please see the <I>&xwp; User Guide</I> for an introduction to
+this feature. Again, this enhanced page does not modify the archiving
+mechanism itself; it only determines <I>whether</I> archiving is enabled,
+according to the criteria you specify here.
+</IFNDEF>
+
+<!-- V0.9.16: moved this down
+Note that all these checks are only performed while the WPS is starting
+up. You will therefore have to restart the WPS to see any changes. -->
+
+<P>The <B>"Archive Desktop"</B> setting determines whether &xwp; will
+perform any archiving at all.
+
+<P>If that setting is enabled, you may influence in detail <I>when</I>
+your Desktop should be backed up.
+<!-- V0.9.16: -->
+Note that all these checks are only performed while the Desktop is starting
+up. You will therefore have to restart the Desktop to see any changes:
+
+<UL>
+<IFNDEF __EWORKPLACE__>
+<LI><B>"At every Desktop startup"</B> does exactly the same as the generic
+backup setting on the old WPS "Archives" page. If this is enabled, the Desktop
+will be backed up every time it starts up.
+</IFNDEF>
+
+<IFDEF __EWORKPLACE__>
+<LI>If <B>"At every Desktop startup"</B> is checked, the Desktop
+will be backed up every time it starts up. This is the same behavior as
+with OS/2 Warp.
+</IFDEF>
+
+<P><LI><B>"At next Desktop startup only"</B> will back up the Desktop exactly once.
+After the next Desktop startup, this setting will be disabled again automatically.
+
+<P><LI><B>"If INI files have changed..."</B> will go over the
+<CODE>OS2.INI</CODE> and <CODE>OS2SYS.INI</CODE>
+files during Desktop startup and compute a number of checksums to find out how much the
+contents of these files have changed. If that computation exceeds the percentage you
+specify with this setting, your Desktop will be backed up automatically.
+<P>Useful values for this are between 0.5 and 5 percent. If you specify very low
+values, your Desktop might be backed up at every startup also.
+
+<P><LI><B>"Every xxx days"</B> will simply check when the last archive was created;
+if more than the number of days which you have specified have passed, your Desktop
+will be backed up.
+<P>Note that this only checks the pure calendar date, not the amount of time (e.g.
+hours) which have passed. If you restart the Desktop one minute after midnight, your
+Desktop may be backed up, even if it has been backed up just before midnight already.
+
+</UL>The <B>"Show status at bootup"</B> setting determines whether &xwp; displays
+another status window while the Desktop is starting up, which displays the results of
+the aforementioned computations. This might be useful for testing your settings.
+
+<P><B>"Keep xxx archives"</B> lets you specify how many archives are kept by the
+Desktop in the archives directory tree. This defaults to 3, but you may keep up to
+9 archives, theoretically. However, if this number exceeds 3, the standard screen
+which comes up when you press Alt-F1 during system startup will be partly unreadable,
+because the additional archives information will make the top scroll off the screen.
+This doesn't hurt, it just looks ugly.
+
+<!-- This is new with 1.0.4 -->
+<!-- Modified with 1.0.5 -->
+
+<P>If <B>Display at each system startup</B> is selected, the system
+automatically displays the Recovery Choices screen each time it starts,
+and you do not have to press Alt-F1 during boot to display it.
+
+<P>Use <B>Timeout</B> to specify how long the system is to
+display the Recovery Choices screen during startup. You cannot specify a
+value if "Display at each system startup" is deselected.
+
+<P>You can specify a time limit from 0 to 999 seconds.  If you select 0,
+the system will not start until you enter a choice on the Recovery
+Choices screen.
+If you select a timeout value between 1 and 999, the system displays the
+Recovery Choices screen until the number of seconds you specified has
+elapsed or until you enter your recovery option, whichever comes first.
+If the time limit elapses before you enter a recovery option, the system
+continues to start using the current system files.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,52 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Die Seite "Importierte Module" 
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.20: rewrote the entire page -->
+Die Seite "Importierte Module" erscheint in den Einstellungsnotizbchern aller
+ausfhrbaren Dateien, um zus„tzliche Informationen ber ausfhrbare Module anzuzeigen.
+
+<P>Diese Seite zeigt die von einem Modul importierten Untermodule an.
+
+<P>Diese Seite listet nur die Namen der Untermodule auf, welche im Modul-Header
+ausdrcklich als Importe fr das Linken zur Ladezeit angegeben werden.
+Diese Importe sind zu der Zeit, zu der das Modul geladen wird, bereits aufgel”st,
+im Gegensatz zum Linken zur Laufzeit (siehe unten).
+Bei den Modulnamen handelt es sich um die Namen der zu importierenden
+<A HREF="glossary/gls_dll.html">dynamischen Linkbibliotheken (dynamic link libraries, DLLs)</A>,
+gew”hnlich ohne die Dateiendung <CODE>.DLL</CODE>, von denen erwartet wird, daá sie sich im
+<CODE>LIBPATH</CODE> befinden (weitere Informationen siehe <A HREF="glossary/gls_path_sys.html">"Systempfade"</A>).
+
+<P>Falls eine ausfhrbare Datei nicht geladen werden kann, k”nnen die Informationen auf dieser
+Seite hilfreich bei der Suche nach dem problematischen Untermodul sein.
+
+<P>Infolge der obigen Gegebenheiten zeigt diese Seite folgendes jedoch <I>nicht</I> an:
+
+<UL><LI><B>Laufzeit-Importe:</B> Wenn eine Anwendung bestimmte &os2;-APIs aufruft,
+um Code dynamisch zu laden, nachdem sie komplett geladen wurde. Diese Information
+wird nicht in den Headern der ausfhrbaren Dateien angegeben, weil der Import vom
+eigentlichen Programm-Code durchgefhrt wird.
+Siehe die Dokumentation fr
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in der Toolkit-Dokumentation.<A HREF="_toolkitlink.html">*</A>
+
+<P><LI><B>Indirekte Importe:</B> Dies sind Unter-Importe, die von den Modulen
+durchgefhrt werden, die auf dieser Seite aufgelistet werden. Solche Importe h„ngen
+vom Kontext zur Ausfhrungszeit ab: Beispielsweise bestimmen die momentan aktiven
+<A HREF="glossary/gls_path_sys.html">Systempfade</A>
+<CODE>LIBPATH</CODE>, <CODE>BEGINLIBPATH</CODE> und <CODE>ENDLIBPATH</CODE>,
+welche Module eigentlich geladen werden k”nnen.
+
+</UL>M”chten Sie herausfinden, welche Module von einem bestimmten 
+Programm wirklich benutzt werden, k”nnen Sie den Befehl <CODE>PSTAT /L</CODE>
+benutzen, w„hrend das Programm l„uft.
+
+
+<BR>
+</BODY>
+</HTML>
+

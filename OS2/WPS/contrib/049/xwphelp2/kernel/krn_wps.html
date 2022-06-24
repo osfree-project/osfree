@@ -1,0 +1,87 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPS;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS-Einstellungen
+    </TITLE>
+</HEAD>
+<BODY>
+Auf dieser Seite k”nnen einige der WPS-bezogenen Einstellungen der &cfgsys;
+bearbeitet werden.
+<P>Falls die Informationen auf dieser Seite zu den unterschiedlichen
+&cfgsys;-Einstellungen nicht ausreichen, finden Sie zus„tzliche Erl„uterungen
+in den entsprechenden Kapiteln des <I>&os2;-Referenzhandbuches</I>.
+ 
+<P>Klicken Sie auf die Schaltfl„che <B>Anwenden</B>, um die von Ihnen gemachten
+nderungen in die Datei &cfgsys; zu bernehmen. Dadurch werden nur die Zeilen
+ge„ndert, die den Einstellungen auf dieser Seite entsprechen. Die Zeilen,
+die sich auf andere Seiten der "&os2;-Kernel"-Einstellungen beziehen, werden
+nicht ge„ndert. Die Schaltfl„che wird nur dann aktiviert, wenn nderungen an
+den Einstellungen auf dieser Seite gemacht wurden. Beachten Sie, daá Sie das
+System neu starten mssen, damit die nderungen wirksam werden. Ein Neustart
+der Arbeitsoberfl„che allein reicht <I>nicht</I> aus.
+<P>Klicken Sie auf <B>Optimieren</B>, damit &xwp; auf Basis Ihrer 
+Systemgegebenheiten neue Einstellungen vorschl„gt. Auch in diesem Fall wird
+die &cfgsys; nur ge„ndert, wenn Sie "Anwenden" bet„tigen.
+<P>Durch Klicken auf <B>Standard</B> werden die Standardvorgaben von &os2;
+auf diese Einstellungsseite bernommen. Wiederum werden die ge„nderten Werte
+erst durch "Anwenden" in die &cfgsys; bernommen.
+ 
+<P>In der Gruppe <B>Autostart</B> k”nnen Sie vorgeben, was alles automatisch
+gestartet werdenn soll, wenn das System hochf„hrt. Dies entspricht der
+&cfgsys;-Einstellung <CITE>SET AUTOSTART=xxx</CITE>, wobei "xxx" jeweils
+einer der folgenden <CITE>(Eintr„ge)</CITE> ist:
+<UL><LI><B>Programme</B> <CITE>(PROGRAMS)</CITE>: Wenn Sie diese Einstellung abw„hlen,
+werden keine Programme gestartet, mit Ausnahme derer, die sich im
+Ornder "Systemstart" befinden.
+<BR><LI><B>Fensterliste</B> <CITE>(TASKLIST)</CITE>: Bei Deaktivierung wird die
+Fensterliste nicht mehr angezeigt.
+<BR><LI><CITE>(FOLDERS)</CITE>: Durch Deaktivierung dieses Eintrags werden keine
+Ordner ge”ffnet, auch nicht die Arbeitsoberfl„che. Aus diesem Grund wird fr
+diese Einstellung keine entsprechende Option im Dialog angezeigt und der
+Parameter wird grunds„tzlich intern durch &xwp; aktiviert.
+<BR><LI><B>Netzwerkverbindungen</B> <CITE>(CONNECTIONS)</CITE>: Wird die Option
+nicht aktiviert, werden keine Netzwerkverbindungen aufgebaut.
+<BR><LI><B>Klickstartleiste</B> <CITE>(LAUNCHPAD)</CITE>: Wenn Sie die Option
+deaktivieren, wird die Klickstartleiste nicht mehr gestartet. Trotzdem kann
+sie immer noch in den Ordner "Systemstart" verschoben oder manuell
+gestartet werden.
+<BR><LI><B>&warpcenter;</B> <CITE>(WARPCENTER)</CITE>: Deaktivierung dieser Option bewirkt, daá das
+&warpcenter; nicht gestartet wird. Dieser Eintrag ist nur in Warp 4 oder h”her
+gltig. Auch hier kann das Programm entweder in den Ordner "Systemstart"
+verschoben oder manuell gestartet werden.
+</UL>In der Standardvorgabe sind alle Eintr„ge aktiviert.
+ 
+<P>Mit den Eintr„gen der Gruppe <B>Wieder starten nach Systemstart</B> kann
+festgelegt werden, welche Objekte nach dem Starten der WPS wieder ge”ffnet
+werden sollen. Entspricht dem Eintrag <CITE>SET RESTARTOBJECTS=xxx</CITE> in der
+&cfgsys;:
+<UL><LI><B>Alles</B> (<CITE>SET RESTARTOBJECTS=YES</CITE>) startet alle
+Objekte, die zum Zeitpunkt des letzten Systemabschluá ge”ffnet waren.
+Unglcklicherweise ist das die Standardvorgabe. <B>Hinweis:</B> Der Neustart
+aller Objekte funktioniert nicht, wenn Sie den erweiterten Systemabschluá von
+&xwp; einsetzen.
+<BR><LI><B>Nichts</B> (<CITE>=NO</CITE>) startet keine Objekte, nicht einmal
+die, die sich im Ordner "Systemstart" befinden (auáer denen, die sich in &xwp;s
+Systemstartordner befinden).
+<BR><LI><B>Nur Systemstartordner</B> (<CITE>=STARTUPFOLDERSONLY</CITE>) 
+startet nur die Objekte, die sich im Systemstartordner von &os2; befinden.
+Diese Einstellung wird dringend empfohlen, da die Standardvorgabe zu enormen
+Problem fhren kann, wenn das fr einen Absturz verantwortliche Programm beim
+Systemstart wieder automatisch gestartet wird. Auáerdem wurde &xwp; darauf
+ausgelegt, mit dieser Einstellung betrieben zu werden.
+<BR><LI><B>Nur nach erneutem Systemstart</B> (<CITE>REBOOTONLY</CITE>) startet
+die mit den obigen Kriterien festgelegten Objekte nur dann, wenn das System
+neu gestartet und nicht lediglich ein WPS-Neustart durchgefhrt wurde. Diese
+Einstellung macht aber nur Sinn, wenn Sie in der obigen Auswahl die Option
+<B>Alles</B> ausgew„hlt haben.
+ 
+</UL>Bei Verwendung von Warp 4 k”nnen Sie die Option <B>Ordner automatisch
+aktualisieren</B> deaktivieren, die standardm„áig aktiviert ist. Dann werden
+ge”ffnete Ordner nur aktualisiert, wenn dies manuell angefordert wird, denn
+die automatische Aktualisierung kann einiges an Zeit in Anspruch nehmen.
+Diese Einstellung entspricht <CITE>SET AUTOREFRESHFOLDERS=xxx</CITE> (wobei
+ xxx entweder YES oder NO ist) in der Datei &cfgsys;.
+<BR>
+</BODY>
+</HTML>
+ 

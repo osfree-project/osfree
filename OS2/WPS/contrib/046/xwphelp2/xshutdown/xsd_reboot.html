@@ -1,0 +1,99 @@
+<HTML RESID=&ID_XFH_REBOOTEXT;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Boota om Aktioner
+    </TITLE>
+</HEAD>
+<!-- changed with V0.9.0: see notes below -->
+<BODY>
+I dialogen "Boota om aktioner", kan du tala om f”r &xshutdown; att inte anv„nda sin interna
+ombootningsrutin, utan ett annat exekverbart program, vilket du kan specificera. De poster
+som du specificerar h„r kommer att upptr„da i &xshutdown;'s bekr„ftelsef”nster; om du
+specificerar n†got annat „n "Standard" i det f”nstret, kommer det kommando som du har konfigurerat h„r
+att exekveras ist„llet f”r de normala ombootningfunktionerna hos &xshutdown;.
+
+<P>Detta „r speciellt anv„ndbart om du har IBM's Boot Manager installerad, vilken kommer
+med &os2;. Boot Manager kan aktiveras fr†n kommandoraden genom att anv„nda 
+<CITE>SETBOOT</CITE> kommandot.
+
+<!-- V0.9.7: added this line -->
+<P>Se <A HREF="cmdref.inf#setboot">dokumentationen</A> i <I>&os2; Kommandoreferens</I> f”r detaljer.
+
+<P>I &xshutdown;'s kontext, kan "boota om till" funktionen hos det h„r kommandot vara praktisk. 
+Funktionen blir accessad med <CITE>"/iba:&lt;os&gt;"</CITE> optionen hos <CITE>SETBOOT</CITE>, med
+"&lt;os&gt;" varande det exakta namnet hos det operativsystem som upptr„der i Boot Manager's meny
+efter systemstartup. Genom att anv„nda den h„r optionen, kommer systemet att boota om utan att visa
+Boot Manager's meny, och startar den specificerade partitionen direkt.
+
+<P>Till exempel, om du ”nskar boota om direkt till PC-DOS 7, vilken b„r rubriken "PC-DOS 7" i
+Boot Manager's meny, skriv p† kommandoraden:
+
+<P><CITE>    setboot /iba:"PC-DOS 7" </CITE>
+
+<P>Nu, med det h„r exemplet, om du vill g”ra PC-DOS 7 till en anv„ndar ombootningsaktion hos
+&xshutdown;, utf”r f”ljande steg:
+
+<OL><LI>Tryck knappen "Ny".
+<BR><LI>I f„ltet "Aktion beskrivning", ange vad du vill se i &xshutdown;'s bekr„ftelsedialog
+(t.ex. "PC-DOS 7").
+<BR><LI>I f„ltet "Aktion kommandorad". ange kommandot som skall exekveras, i det h„r fallet:
+<BR><CITE>   setboot /iba:"PC-DOS 7"</CITE>
+<BR><LI>Tryck "OK". Posten kommer att upptr„da n„sta g†ng i &xshutdown;'s bekr„ftelsdialog n„r du 
+vill st„nga av ditt system.
+</OL>
+
+<!-- the following was added with V0.9.0 -->
+Startande med V0.9.0, har en <B>knapp "Partitioner"</B> lagts till i den h„r dialogen. Knappen
+„r endast aktiverad om en ombootningsaktion „r vald i listboxen i toppen; du kan t„nkas beh”va
+trycka knappen "Ny" innan "Partitioner" knappen blir aktiverad. Efter att ha tryckt p† den knappen
+kommer du att f† en meny vilken visar alla de ombootningsbara partitionerna hos ditt system. 
+Notera att detta fungerar endast om du har BootManager installerad, eftersom detta kommer att
+l„sa i alla partitionstabeller direkt och leta efter BootManager poster. N„r du nu v„ljer en 
+post fr†n den menyn, kommer den f”r n„rvarande valda ombootningsaktionen att uppdateras med
+den r„tta rubriken och kommandot f”r <CODE>SETBOOT.EXE</CODE>.
+<!-- the following is unchanged -->
+
+<B>Viktiga noteringar:</B>
+<UL><LI>Det finns INGEN FELKONTROLL, varken i dialogen "Boota om", eller vid tidpunkten 
+f”r avst„ngningen. Om du stavar kommandot fel eller anv„nder <CITE>SETBOOT</CITE> trots
+att Boot Manager inte „r installerat, kommer systemet helt enkelt att h„ngas efter att alla 
+f”nster har st„ngts.
+
+<!-- V0.9.9: removed this
+The "Partitions" button has only been extensively tested with &warp; 4.0.
+I have 17 partitions with six operating systems on three hard disks on my computer, and
+the button works. ;-)
+
+However, one quick check with &warp; Server for e-business (Aurora)
+showed some problems: if you are using Aurora's boot manager, you cannot use this
+function, because the boot manager's name table format has changed. If you are still using
+Warp 4's boot manager, you cannot use SETBOOT under Aurora, because it will not
+find the boot manager titles. -->
+
+<!-- the following changed with V0.9.0 -->
+<BR><LI>Om du inte k„nner till de exakta rubrikerna hos Boot Managers partitioner p† ditt system
+och knappen "Partitioner" inte fungerar, kan du starta <CITE>FDISK</CITE> 
+(eller <CODE>LVM</CODE> p† Aurora) fr†n en kommandorad och kopiera det manuellt d„rifr†n.
+
+<!-- the following is unchanged -->
+<BR><LI>Kommandot som du anger h„r startas efter att alla f”nster har st„ngts och INI filerna har
+sparats; d„remot kommer filsystemen inte att frig”ras av &xshutdown; om du v„ljer en anv„ndarombootning. 
+&xshutdown; antar att programmet du specifierade h„r kommer att frist„lla filsystemen sj„lvt 
+(m.a.o. anropa <CITE>DosShutdown</CITE> API). <CITE>SETBOOT</CITE> kommer att g”ra det, till exempel.
+
+<BR><LI>Kommandot du anger h„r startas via CMD.EXE med <CITE>/C</CITE> parametern. Detta betyder att 
+du kan t.o.m. kan exekvera ett
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script h„r, om du t”rs.
+
+<BR><LI>Som alltid, om du ”nskar exekvera ett kommando som finns i en katalog som inte inkluderas 
+i <CITE>PATH</CITE> variabeln, m†ste du specificera den fulla
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„gen</A>.
+F”r <CITE>SETBOOT</CITE>, „r detta inte n”dv„ndigt, d„rf”r att den finns i 
+<CITE>OS2's</CITE> katalog.
+</UL>
+</BODY>
+</HTML>
+

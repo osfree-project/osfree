@@ -1,0 +1,53 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Steg 5: Inst„llningar Dialoger
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Inst„llningsdialoger kan visas av &xcenter; f”r att ytterligare trimma instansdata 
+hos en s„rskild widget. Ett exempel p† en inst„llningsdialog „r "Filter" dialogen som
+visas av standard "Aktiva sessioner" widgeten som kommer med &xwp;.
+
+<P>Att anv„nda inst„llningsdialoger erfordrar lite mer konfiguration. De viktigaste sakerna att
+komma ih†g „r att &xcenter; <I>inte</I> anropar en inst„llningsdialog hos en ”ppen &xcenter;
+widget, utan endast en <I>setupstr„ng</I>.
+
+<!-- V0.9.14: changed the following -->
+<P>Detta utf”rdes s† att inst„llningsdialogerna kunde visas f”r en widget „ven om
+den widgeten inte „r synlig f”r n„rvarande (m.a.o. inte existerar f”r tilf„llet som
+ett f”nster). Detta till†ter &xcenter; att visa inst„llningsdialogerna b†de fr†n
+menyposten "Egenskaper" i en widgets kontextmeny och fr†n en widgets kontextmeny p† sidan "Widgets"
+i &xcenter;'s notbok med inst„llningar -- „ven om &xcenter; f”r n„rvarande inte „r ”ppet.
+<!-- end V0.9.14 -->
+
+<P>Grundl„ggande, f”r att ge st”d till inst„llningsdialoger, m†ste din widgetklass g”ra f”ljande:
+
+<OL><LI>I widgetklass definitionen
+(<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>), s„tt
+<CODE>pShowSettingsDlg</CODE> f„ltet till den funktion i din DLL vilken kan visa
+inst„llningsdialogen.
+
+<P>Funktionen m†ste ha f”ljande prototyper:
+
+<P><CODE>typedef VOID EXPENTRY ShowSettingsDialog(PWIDGETSETTINGSDLGDATA pData);</CODE>
+
+<P><LI>N„r &xcenter; beh”ver anropa inst„llningsdialogen (t.ex. d„rf”r att menyposten "Egenskaper"
+valdes), kommer den att anropa exakt den funktionen, vilken skulle g”ra en standard 
+<CODE>WinDlgBox</CODE> och inte †terv„nda tills dialogen har tagits bort ("OK" eller "Avbryt" har 
+tryckts).
+
+<P>Den funktionen tar emot en pekare till en tempor„r
+<A HREF="plug_9widgetsettingsdlgdata.html"><CODE>WIDGETSETTINGSDLGDATA</CODE></A>
+struktur, vilken &xcenter; har komponerat f”r inst„llningsdialogen. I den, kan
+inst„llningsdialogen r„kna ut om widgeten f”r n„rvarande „r synlig.
+
+</OL>F”r detaljer, var v„nlig och se i k„llkoden "Aktiva sessioner" i <CODE>src\widgets</CODE>
+&xwp; k„llor.
+
+<BR>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,42 @@
+<HTML RESID=&ID_XFH_CLOSEVIO;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: St„ng Icke-PM Sessioner
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.1 -->
+<BODY>
+Dialogen "Kan inte st„nga ..." upptr„der n„r &xshutdown; tr„ffar p† en icke-Presentation Manager
+(PM) session. Detta inkluderar &os2; och DOS textbaserade sessioner och &winos2; sessioner, de kan
+vara fullsk„rms eller f”nster.
+
+<P>Eftersom det inte finns n†gra f”rutbest„mda s„tt att st„nga s†dana sessioner, fr†gar &xshutdown;
+efter vad som skall g”ras h„r. F”ljande aktioner finns tillg„ngliga:
+
+<UL><BR><LI><B>"Hoppa ”ver session"</B> kommer <I>inte att st„nga</I> sessionen, utan hoppa ”ver den,
+som om du hade tryckt knappen "Hoppa ”ver" i &xshutdown;'s statusf”nster.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"St„ng PM f”nster"</B> kommer att simulera val av menyposten "St„ng" i
+sessionens systemmeny. Detta b”r fungera „ven f”r VIO f”nster lika v„l som fullsk„rmssessioner, 
+d„rf”r att den senare sessionstypen „r ocks† representerad av en minimerad ikon p† Skrivbordet. Detta kan
+emellertid resultera i ytterligare ett annat (regulj„rt &os2;) bekr„ftelsef”nster om sessionen verkligen
+skall st„ngas.
+
+<BR><LI><B>"D”da session"</B> kommer att d”da sessionen utan ytterligare diskussion. Detta
+anropar <CODE>DosKillProcess</CODE> API hos sessionens process.
+
+</UL>Notera att ingen av dessa metoder kommer att spara datat fr†n sessionen. Om du ”nskar att data hos
+en s„rskild session skall sparas, spara datat hos sessionens applikation och st„ng f”nstret sj„lv nu, vilken
+ocks† kommer att medf”ra att &xshutdown; forts„tter.
+
+<P>Om <B>"Lagra dessa inst„llningar..."</B> flaggan „r f”rbockad, kommer &xshutdown; att komma ih†g
+den valda aktionen f”r alla framtida sessioner vilka b„r den h„r rubriken. Aktivering av den h„r
+inst„llningen kommer att l„gga den h„r sessionens rubrik till listan ”ver poster vilka „r
+tillg„ngliga i <A HREF="xshutdown/xsd_autoclose.html">dialogen "Auto-st„ng detaljer"</A> p† "&xshutdown;"
+sida i Skrivbordets <A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>.
+
+<BR>
+</BODY>
+</HTML>
+

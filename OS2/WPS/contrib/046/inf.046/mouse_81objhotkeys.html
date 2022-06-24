@@ -1,0 +1,44 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Objektsnabbkommandon
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Klasser: XFldObject, XWPSetup, XWPKeyboard</B>
+<HR>
+Startande med V0.9.0, introducerar ocks† &xwp; "objektsnabbkommandon", vilket inneb„r att 
+du kan ”ppna n†got objekt i sin standardvisning genom att trycka en speciell 
+snabbkommandokombination, som du kan definiera individuellt f”r varje objekt.
+
+<P>Som hos alla &xwp; hook funktioner, „r objektsnabbkommandon avaktiverade som standard. Du
+m†ste aktivera dom hos "&xwp; setup" objektet f”rst.
+
+<P><B>Notera:</B> F”rv„xla inte objektsnabbkommandon med
+<A HREF="fldr_5xelerators.html">mappsnabbkommandon,</A> som visades i "Workplace Shell" 
+inst„llningsobjektet. Objektsnabbkommandon anv„nds f”r att ”ppna objekt med anv„ndning av en 
+tangentkombination och fungerar ”verallt, medan mappsnabbkommandon „r skuggor till vissa
+mappkommandon och fungerar bara i mappar.
+
+<P>Objektsnabbkommandon kan <B>konfigureras</B> p† tv† platser. F”r det f”rsta, &xwp; infogar
+en ny "Objekt" sida hos varje enstaka <B>objekts notbok med inst„llningar.</B> Detta g„ller f”r
+verkligen alla objekt (det betyder, mappar, filer, skrivare, programobjekt, etc.). Genom att klicka
+p† inmatningsf„ltet "Snabbkommando", kan du definiera en tangentkombination f”r det objektet. Fr†n
+och men nu, om du trycker den h„r tangentkombinationen n†gonstans i ditt system, kommer objektet
+att ”ppnas i sin standardvisning (som om du hade dubbel-klickat p† det).
+
+<P>F”r det andra, &xwp; fogar in en ny sida p† <B>inst„llningsobjektet f”r "Tangentbord",</B> vilken
+som standard ligger i din mapp med "Systemkonfiguration". P† den h„r sidan, vilken kallas f”r 
+"Snabbkommandon" av n†got sk„l, „r alla aktuella snabbkommandon listade.
+
+<P>Det finns n†gra <B>begr„nsningar</B> som g„ller f”r objektsnabbkommandon. Eftersom &xwp; PM hook
+uppt„cker snabbkommando, kommer objektsnabbkommandon endast att fungera i Presentation 
+Manager (PM) sk„rmsessionen. Detta inkluderar alla PM applikationer, WPS sj„lvt, 
+plus f”nster (s”ml”sa) &os2;, DOS och &winos2; sessioner, men <I>inte</I> DOS, &os2; eller &winos2; 
+<I>fullsk„rms</I> sessioner, olyckligtvis.
+<BR>
+</BODY>
+</HTML>
+
+

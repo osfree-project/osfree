@@ -1,0 +1,42 @@
+
+/*
+ * xpstat.rc:
+ */
+
+/*
+ *      Copyright (C) 2000-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <os2.h>
+#include "xpstat.h"
+
+POINTER 1 LOADONCALL MOVEABLE DISCARDABLE xpstat.ico
+
+MENU ID_XPSM_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~xpstat", ID_XPSM_XPSTAT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "~Exit", ID_XPSMI_EXIT
+    END
+    MENUITEM "~View", ID_XPSM_VIEW, MIS_SUBMENU
+    BEGIN
+        MENUITEM "Process ~list by process ID", ID_XPSMI_PIDLIST
+        MENUITEM "Process ~list by session ID", ID_XPSMI_SIDLIST
+        MENUITEM "Process ~tree", ID_XPSMI_PIDTREE
+        MENUITEM "Modules tree", ID_XPSMI_MODTREE
+        MENUITEM "", 1, MIS_SEPARATOR
+        MENUITEM "~Word wrapping", ID_XPSMI_WORDWRAP
+        MENUITEM "", 1, MIS_SEPARATOR
+        MENUITEM "~Refresh data", ID_XPSMI_REFRESH
+    END
+END

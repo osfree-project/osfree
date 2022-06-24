@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_WIDGET_MEMORY_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Geheugen Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Het
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Geheugen" widget</B> laat bij benadering zien hoeveel
+fysieke RAM er voor programma's over is om gebruikt te worden. Dit wordt weergegeven in kilobytes (KB)
+en eens per seconde bijgewerkt.
+
+<!-- V0.9.19: added img -->
+<BR><IMG SRC="img/xc_mem.gif">
+
+<BR>Het getal wat hier getoond wordt is lager dan de hoeveelheid geheugen dat programma's in
+werkelijkheid kunnen gebruiken. Dus als het getoonde getal hier richting nul gaat, betekent dit niet
+dat uw programma's niet meer geheugen toegewezen kunnen krijgen.
+In plaats daarvan laat dit widget zien hoeveel fysiek geheugen er toegewezen kan worden voordat
+het systeem zou moeten beginnen met het uitswappen van andere gegevens om ruimte te maken voor nieuwe
+toewijzingen. Dus als dit getal te klein wordt, betekent dat alleen maar dat uw swap bestand waarschijnlijk
+vergroot moet worden.
+
+<!-- V0.9.19: changed the following -->
+<P>Let op dat u
+<A HREF="glossary/gls_dropfonts.html">lettertypes en kleuren kunt slepen en los laten</A>
+op het geheugen widget.
+
+<IFNDEF __NOOS2KERNEL__>
+<P>U kunt ook dubbelklikken op het widget om het
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object snel te openen, wat,
+naast andere dingen, u de mogelijkheid biedt het systeem geheugen widget aan te passen.
+</IFNDEF>
+
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+<P><B>Implementatie Details</B>
+
+<P>Interen gebruikt deze widget de <CODE>Dos16MemAvail</CODE> API,
+een oude 16-bit API dat niet meer gedocumenteerd is door IBM.
+
+<P>De documentatie van OS/2 1.3 zegt dat dit
+"de omvang van het grootste blok vrije geheugen" weergeeft.
+Dit is zeer waarschijnlijk niet meer waar, omdat alle 32-bit OS/2 versies (vanaf 2.0) niet
+meer geheugen in blokken toegewezen krijgen, maar in 4 KB pagina's verdeling.
+
+<P>Vanuit ervaring, laat deze API nu inderdaad de hoeveelheid vrij fysiek
+geheugen in het systeem zien, dat wil zeggen, de hoeveelheid RAM dat momenteel niet door OS/2
+gebruikt wordt, ofwel omdat het nooit gebruikt is ofwel uitgeswapt is ofwel opnieuw vrijgegeven
+door een proces. (Uit testen blijkt deze API dezelfde waarden terug te geven als
+Theseus doet voor het vrije fysieke RAM.)
+Dit vrije RAM kan direct door programma's gebruikt worden zonder dat &os2; ruimte moet maken
+door andere geheugenpagina's uit te swappen.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

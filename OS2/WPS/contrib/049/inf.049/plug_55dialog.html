@@ -1,0 +1,59 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Schritt 5: Einstellungsdialoge
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Einstellungsdialoge k”nnen vom &xcenter; angezeigt werden, um die Daten einer
+Instanz eines Widgets weiter anzupassen. Ein Beispiel eines Einstellungsdialogs ist
+der "Filter"-Dialog, der vom Widget "Fensterliste" angezeigt wird, das standardm„áig
+mit &xwp; geliefert wird.
+ 
+<P>Diese Einstellungsdialoge zu benutzen, braucht etwas mehr Vorarbeit. Es ist am
+wichtigsten, sich zu erinnern, daá das &xcenter; die Einstellungsdialoge
+<I>nicht</I> beim ™ffnen eines Widgets aufruft, sondern nur als Reaktion auf einen
+<I>Einstellungsstring</I>.
+ 
+<!-- V0.9.14: changed the following -->
+<P>Der Grund dafr ist, daá so die Einstellungsdialoge fr ein Widget sogar dann
+angezeigt werden k”nnen, wenn das Widget selbst gerade nicht angezeigt wird (also
+gerade nicht als Fenster existiert). Dies erlaubt es dem &xcenter;, den
+Einstellungsdialog sowohl aus dem Punkt "Einstellungen" aus dem Kontextmen eines
+Widgets als auch aus dem Kontextmen eines Widgets auf der Seite "Widgets" im
+Einstellungsnotizbuch des &xcenter;s aufzurufen - sogar wenn das &xcenter; gerade
+nicht ge”ffnet ist.
+<!-- end V0.9.14 -->
+ 
+<P>Um den Einstellungsdialog zu untersttzen, muá Ihre Widget-Klasse im Prinzip
+folgendes tun:
+ 
+<OL><LI>In der Definition der Widget-Klasse
+(<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>),
+setzen Sie das Feld <CODE>pShowSettingsDlg</CODE> auf die Funktion in Ihrer DLL, die
+den Einstellungsdialog anzeigen kann.
+ 
+<P>Diese Funktion muá folgenden Prototyp haben:
+ 
+<P><CODE>typedef VOID EXPENTRY ShowSettingsDialog(PWIDGETSETTINGSDLGDATA pData);</CODE>
+ 
+<P><LI>Wenn das &xcenter; den Einstellungsdialog ausfhren muá (weil z.B. der
+Menpunkt "Einstellungen" ausgew„hlt wurde), wird es genau diese Funktion aufrufen;
+sie sollte einen standardm„áigen <CODE>WinDlgBox</CODE>-Aufruf ausfhren und nicht
+zurckkehren, bis das Dialogfenster geschlossen wurde (weil entweder "OK" oder
+"Abbruch" gedrckt wurde).
+ 
+<P>Diese Funktion erh„lt einen Zeiger auf eine tempor„re Struktur
+<A HREF="plug_9widgetsettingsdlgdata.html"><CODE>WIDGETSETTINGSDLGDATA</CODE></A>,
+die das &xcenter; fr den Einstellungsdialog erstellt hat. Dadurch kann der
+Einstellungsdialog herausfinden, ob das Widget gerade sichtbar ist.
+ 
+</OL>Fr die Details schauen Sie bitte in den Quellcode der "Fensterliste"
+("Window List") unter <CODE>src\widgets</CODE> in den &xwp;-Quellen.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

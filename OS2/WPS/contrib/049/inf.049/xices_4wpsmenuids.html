@@ -1,0 +1,129 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPS-MenÅ-IDs
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+Bei der Nutzung des WPObject-Konfigurationsstrings <CITE>MENUITEMSELECTED</CITE>
+werden Ihnen die folgenden MenÅ-IDs von Nutzen sein. Denken Sie bitte daran, da·
+nicht alle von ihnen fÅr alle Objektarten gedacht sind; beispielsweise macht
+"DatentrÑger formatieren" bei Ordnern keinen Sinn und ich wei· nicht, was geschieht, wenn
+Sie es ausprobieren. Wenn Sie GlÅck haben, passiert nichts.
+<P>Beachten Sie, da· die neuen von &xwp; eingefÅhrten MenÅeintrÑge keine <I>festen</I>
+MenÅ-IDs haben, so da· sie hier nicht aufgefÅhrt werden. Statt dessen haben die
+&xwp;-MenÅeintrÑge <I>variable</I> MenÅ-IDs, deren Basis durch die globale Einstellung
+"&xwp; MenÅeintrags-ID-Ausgleich" festgelegt wird. Diese Basis wird zu
+<CITE>WPMENUID_USER</CITE> hinzuaddiert, die 0x6500 (25856 dezimal) betrÑgt,
+und die &xwp;-MenÅ-IDs werden dann zu dieser Basis addiert, um die KompatibilitÑt mit
+anderen WPS-Erweiterungen sicherzustellen. Wenn Sie also einen &xwp;-MenÅeintrag mit
+<CITE>MENUITEMSELECTED</CITE> benutzen, brauchen Sie ein Hilfsprogramm wie <CITE>XRAY</CITE>,
+um die "echte" MenÅ-ID herauszufinden. Die ID Ñndert sich natÅrlich wieder, wenn Sie
+die Ausgleichseinstellung Ñndern.
+ 
+<P>Die folgenden WPS-MenÅ-IDs sind der Dokumentation des Warp 3 Toolkits entnommen
+(ausgenommen diejenigen, bei denen es keinen Sinn machen wÅrde, sie von REXX aus aufrufen):
+<P><DL>
+<DT><CITE>WPMENUID_OPEN                        1</CITE>
+<DT><CITE>WPMENUID_HELP                        2</CITE>
+<DT><CITE>WPMENUID_PRINT                       3</CITE>
+<DT><CITE>WPMENUID_SELECT                      4</CITE>
+<DT><CITE>WPMENUID_SORT                        5</CITE>
+<DT><CITE>WPMENUID_FIND                        8</CITE>
+<DT><CITE>WPMENUID_CREATEANOTHER             101</CITE>
+<DT><CITE>WPMENUID_MOVE                      107</CITE>
+<DT><CITE>WPMENUID_COPY                      108</CITE>
+<DT><CITE>WPMENUID_CREATESHADOW              316</CITE>
+<DT><CITE>WPMENUID_DELETE                    109</CITE>
+<DT><CITE>WPMENUID_PROPERTIES                112</CITE>
+<DT><CITE>WPMENUID_PALETTE                   317</CITE> ("ôffnen" -> "Palette")
+<DT><CITE>WPMENUID_REFRESH                   503</CITE>
+<DT><CITE>WPMENUID_HELP_FOR_HELP             601</CITE>
+<DT><CITE>WPMENUID_HOWTOGETHELP              601</CITE>
+<DT><CITE>WPMENUID_EXTENDEDHELP              602</CITE>
+<DT><CITE>WPMENUID_HELPKEYS                  603</CITE>
+<DT><CITE>WPMENUID_HELPINDEX                 604</CITE>
+ 
+<BR><DT>Die folgenden MenÅeintrÑge sind fÅr die Funktion "Aufnehmen" ("lazy drag"):
+<DT><CITE>WPMENUID_PICKUP                    188</CITE>
+<DT><CITE>WPMENUID_PUTDOWN                   189</CITE>
+<DT><CITE>WPMENUID_PUTDOWN_COPY              190</CITE>
+<DT><CITE>WPMENUID_PUTDOWN_MOVE              191</CITE>
+<DT><CITE>WPMENUID_PUTDOWN_LINK              192</CITE>
+<DT><CITE>WPMENUID_PUTDOWN_CANCEL            193</CITE>
+<DT><CITE>WPMENUID_PUTDOWN_CREATE            194</CITE>
+ 
+<BR><DT><STRONG>WPFolder-EintrÑge:</STRONG>
+<DT><CITE>WPMENUID_SELALL                    114</CITE>
+<DD>(alle Ordnerelemente auswÑhlen)
+<DT><CITE>WPMENUID_DESELALL                  115</CITE>
+<DD>(alle Ordnerelemente abwÑhlen)
+<DT><CITE>WPMENUID_CLOSE                     120</CITE>
+<DT><CITE>WPMENUID_TREE                      123</CITE>
+<DD>("ôffnen" -> "Strukturanzeige")
+<DT><CITE>WPMENUID_ICON                      303</CITE>
+<DD>("ôffnen" -> "Symbolanzeige")
+<DT><CITE>WPMENUID_DETAILS                   304</CITE>
+<DD>("ôffnen" -> "Detailanzeige")
+<DT><CITE>WPMENUID_ARRANGE                   309</CITE>
+<DD>(unter &warp4; und spÑter ist dies der Standardeintrag fÅr den "Anordnen"-Eintrag)
+<BR>
+<DT><STRONG>WPDesktop-Elemente:</STRONG>
+<DT><CITE>WPMENUID_SHUTDOWN                  704</CITE> (WPDesktop-EintrÑge)
+<DT><CITE>WPMENUID_LOCKUP                    705</CITE>
+<DT><CITE>WPMENUID_LOGIN                     708</CITE>
+<DT><CITE>WPMENUID_LOGOUT                    709</CITE>
+<DT><CITE>WPMENUID_ASSIGN                    710</CITE>
+<DT><CITE>WPMENUID_UNASSIGN                  711</CITE>
+<DT><CITE>WPMENUID_ACCESSNEW                 712</CITE>
+<DT><CITE>WPMENUID_SYSTEMSETUP               713</CITE>
+<BR>
+<DT><CITE>WPMENUID_FORMAT                    124</CITE> (WPDisk-EintrÑge)
+<DT><CITE>WPMENUID_CHKDSK                    128</CITE>
+<DT><CITE>WPMENUID_FIXDSK                    129</CITE>
+<DT><CITE>WPMENUID_PROGRAM                   132</CITE>
+<DT><CITE>WPMENUID_COPYDSK                   182</CITE>
+<DT><CITE>WPMENUID_LOCKDISK                  184</CITE>
+<DT><CITE>WPMENUID_EJECTDISK                 185</CITE>
+<DT><CITE>WPMENUID_UNLOCKDISK                186</CITE>
+</DL>
+<BR>Die folgenden IDs sind von IBM nicht offiziell dokumentiert worden,
+weswegen ihre Symbole nicht offiziell (sondern von mir erfunden) sind. Die meisten
+sind nur unter &warp4; und spÑter verfÅgbar.
+Die MenÅ-IDs sind nun im hexadezimalen Format
+(verwenden Sie die REXX-Funktion X2D, um Sie ins dezimale Format zu konvertieren):
+<P><DL>
+<DT><CITE>WPMENUID_PASTE                   0x2CB</CITE>
+<DT><CITE>WPMENUID_VIEW_ICON               0x2CC</CITE>
+<DD>("Anzeigen" -> "Symbolanzeige", im Gegensatz zu "ôffnen"; nur &warp4; und spÑter)
+<DT><CITE>WPMENUID_VIEW_TREE               0x2CD</CITE>
+<DD>("Anzeigen" -> "Strukturanzeige", im Gegensatz zu "ôffnen"; nur &warp4; und spÑter)
+<DT><CITE>WPMENUID_VIEW_DETAILS            0x2CE</CITE>
+<DD>("Anzeigen" -> "Detailanzeige", im Gegensatz zu "ôffnen"; nur &warp4; und spÑter)
+<DT>
+<DT><CITE>WPMENUID_SORTBYNAME             0x1770</CITE>
+<DT><CITE>WPMENUID_SORTBYTYPE             0x1771</CITE>
+<DT><CITE>WPMENUID_SORTBYREALNAME         0x1777</CITE>
+<DT><CITE>WPMENUID_SORTBYSIZE             0x1778</CITE>
+<DT><CITE>WPMENUID_SORTBYWRITEDATE        0x1779</CITE>
+<DT><CITE>WPMENUID_SORTBYACCESSDATE       0x177B</CITE>
+<DT><CITE>WPMENUID_SORTBYCREATIONDATE     0x177D</CITE>
+<BR>
+<DT><CITE>WPMENUID_ARRANGEFROMTOP          0x2DE</CITE>
+<DT><CITE>WPMENUID_ARRANGEFROMLEFT         0x2DF</CITE>
+<DT><CITE>WPMENUID_ARRANGEFROMRIGHT        0x2E0</CITE>
+<DT><CITE>WPMENUID_ARRANGEFROMBOTTOM       0x2E1</CITE>
+<DT><CITE>WPMENUID_ARRANGEPERIMETER        0x2E3</CITE>
+<DT><CITE>WPMENUID_ARRANGEHORIZONTALLY     0x2E4</CITE>
+<DT><CITE>WPMENUID_ARRANGEVERTICALLY       0x2E5</CITE>
+<BR>
+<DT><CITE>WPMENUID_LOCKINPLACE             0x2DA</CITE>
+<DT><CITE>WPMENUID_VIEW                     0x68</CITE>
+<BR>
+<DT><CITE>WPMENUID_REFRESH                 0x1F7</CITE>
+</DL>
+<BR>
+</BODY>
+</HTML>
+ 

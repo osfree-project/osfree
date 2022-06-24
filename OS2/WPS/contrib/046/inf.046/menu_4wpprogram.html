@@ -1,0 +1,104 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Extra Features with Program Objects
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Class: XFolder</B><HR>
+While you can put any object into the configuration folders, the use of program objects is
+recommended for starting programs from context menus. I mean "real" program objects, as opposed
+to shadows of your existing program objects.
+<P>The reason for this is the following: Whenever XFolder starts a program object in the
+configuration folders (that is, when you select the respective menu item in a context menu),
+it can perform a few tricks on them.
+<P>The tricks are the following:
+<OL>
+<LI>If the <STRONG>startup directory</STRONG> of the program object is empty, XFolder will temporarily
+insert the directory of the folder whose context menu was used therein.
+This means that you can start the same program from all folders' context menus, but with a
+variable startup directory, being the directory of the folder whose context menu was used.
+<P>Take the default configuration again: the four command line objects have empty startup
+directories. This is why you can start command lines "in" the folder whose context menu was used.
+<P>If you wish to disable this behaviour, simply specify a startup directory in a program object
+(e.g. <CITE>"C:\"</CITE>), and XFolder will leave it alone.
+Instead, it will always use the startup directory which you have
+specified.
+
+<BR><LI>If the <STRONG>parameter list</STRONG> of the program object does not contain a trailing
+<CITE>"%"</CITE> sign, the directory of the folder you used will be passed as a parameter to the program.
+<P>This is used by the "Netscape" menu entry of the default configuration: this way, Netscape
+will display the contents of the folder which it was called from.
+<P>You can disable this feature completely in the
+<!-- V0.9.0: change XFolder to &xwp; -->
+<A HREF="sys_2global.html">&xwp; Global Settings</A>.
+<P>If you wish to disable this behaviour for one menu item only
+(not all programs can handle directories as parameters),
+add a <CITE>"%"</CITE> sign to the "Parameters" list of the respective program object.
+XFolder will omit passing the
+additional parameter. This is the case, for example, with the four command line objects of the
+default configuration.
+<P>Examples: Putting only <CITE>"%"</CITE> in the parameters list will not pass any parameters at all; putting
+<CITE>"text.txt %"</CITE> in the parameters list will always
+pass <CITE>"text.txt"</CITE> without the folder name as
+a parameter.
+<P>I know this way of configuring XFolder's behaviour is not very intuitive, but I implemented
+it for compatibility with the WPS's behaviour when calling context menu items that were added
+with the "Menu" page in the settings notebook. I then found out that it works with Netscape as well,
+so even better.
+
+<BR><LI>You can append the <STRONG>contents of the clipboard</STRONG> to the parameter list of the
+clipboard by putting a <CITE>"%**C"</CITE>
+symbol into the parameter list. This can appear at any position of the
+parameters. This is case-sensitive; <CITE>"%**c"</CITE> (in lower case) will NOT work.
+<P>Example: Path and filename = <CITE>"e.exe"</CITE>;
+parameters = <CITE>"%**C"</CITE> will start the system editor, interpreting the
+contents of the clipboard as a file name.
+<P>Note that the contents of the clipboard will be truncated so that the maximum length of
+the parameter list will not be exceeded. With &os2;, the maximum path length is 260 characters.
+This limitation
+avoids passing 64 K to the program, in the worst case.
+
+<BR><LI>If the <STRONG>program title</STRONG> contains a <CITE>"~"</CITE>
+character (which you have
+probably inserted to add a keyboard shortcut, as described on the
+<A HREF="menu_3config.html">previous page</A>), XFolder will remove it when starting the
+program. You can also
+switch off this behavior in the
+<!-- V0.9.0: change XFolder to &xwp; -->
+<A HREF="sys_2global.html">&xwp; Global Settings</A>,
+where you will find additional
+help on this.
+
+<BR><LI>You can now (V0.51) insert a <STRONG>separator</STRONG> into a menu by specifying
+<CITE>"---"</CITE> (exactly, three dashes) in a program object's title.
+(A separator is a
+horizontal line to optically separate groups of menu items.) In this case, XFolder
+will ignore the program object's settings (such as the executable, parameters etc.) and
+simply insert a separator into the menu. This works for the main context menu as well as
+submenus.
+<P><B>Hint:</B> If you are using the (outstanding) WPTOOLS by Henk Kelder, you should
+enter a valid program executable even with these separator program objects, or otherwise
+CHECKINI will keep complaining that the object is not valid. Even though an executable
+exists, XFolder will then only insert a menu separator.
+
+</OL>XFolder implements the features 1.-4. by actually changing the program object's
+settings for a tenth of a second: the settings are changed, the program object is opened, and then
+the settings are reset to the original values.
+<P>Please note that XFolder only performs these described actions on "real" program objects in the
+configuration folders, <I>not</I>
+on shadows pointing to other program objects. I am not planning to implement this behaviour on
+shadows too, because I do not intend to modify objects which are situated elsewhere in your
+desktop hierarchy, ouside the configuration folders.
+<P>As a consequence, you ought to put <I>copies</I> of your program objects
+into the configuration folders,
+instead of creating shadows for them. Again: shadows of program objects are opened too,
+but without changing any settings.
+<P>Please consult the <A HREF="070faq.html">"Frequently Asked Questions"</A> section
+for a few more hints on creating program objects.
+<BR>
+</BODY>
+</HTML>
+

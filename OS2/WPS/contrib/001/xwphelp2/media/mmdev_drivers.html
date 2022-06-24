@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Devices
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+The "Drivers" column shows you detailed data about the drivers that implement
+the device.
+
+<P>Depending on the type of the device, the following information may be shown:
+
+<UL><LI><B>Media control driver:</B> The MCD is responsible for interpreting
+multimedia commands that are sent from an application to a device. It is up
+to the MCD to take further action depending on the command that was sent.
+The name listed here will correspond to a
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+in the MMOS2 directory.
+
+<P><LI><B>Vendor-specific driver:</B> If installed, the VSD usually gets called
+from the MCD for implementing functions for a certain hardware. This architecture
+allows MMPM/2 to keep the MCD's fairly generic, while the hardware-specific
+code will usually be in the VSD.
+
+<P>For example, the "waveaudio" devices are usually implemented by a generic
+MCD, while the actual work on the sound card is done in a VSD (which will in
+turn communicate with a device driver).
+
+<P><LI><B>Physical device driver:</B> The PDD is responsible for actually working
+on the hardware. Since this has to be done at ring 0, especially if interrupts
+need to be processed, this layer is necessary.
+
+<P>Not all devices will need a PDD. Typically this is the case for sound cards,
+which need to handle interrupts and DMA.
+
+<P><LI><B>Parameters:</B> these are additional parameters from the ASCII
+<CODE>MMPM2.INI</CODE> file in your MMOS2 directory that were specified for
+the device. This is device-specific, but appears to be related to what was
+specified for a device in the "Multimedia Setup" object.
+
+</UL>
+</BODY>
+</HTML>
+

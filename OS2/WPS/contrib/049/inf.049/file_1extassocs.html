@@ -1,0 +1,57 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Erweiterte Dateizuordnungen
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.1. -->
+<!-- Note the new screenshot below. -->
+<BODY>
+&xwp; kann den Standard-Dateizuordnungsmechanismus der Workplace Shell ersetzen.
+<!-- V1.0.1 (2002-12-15) [umoeller] replaced this -->
+Aktivieren Sie dazu die Funktion <a href="fldr_30turbo.html">"Turbo-Ordner"</a> auf der Seite "FunktionalitÑt"
+des Objektes <A HREF="sys_2global.html">"&xwp;-Konfiguration"</A>.
+ 
+<P>Wie Sie vielleicht wissen, ordnet die WPS Programme Datendateien standardmÑ·ig
+mittels zweier Mechanismen zu: "Zuordnung Åber Dateityp" und "Zuordnung Åber Dateifilter".
+ 
+<P>Ist &xwp;s erweiterte Dateizuordnung aktiviert, so gibt es <I>nur</I> Zuordnungen Åber
+Dateitypen.
+ 
+<P><I>Da jedoch</I> bei den meisten Dateien kein expliziter Dateityp gesetzt ist (was auf
+der Seite "Typ" im Einstellungsnotizbuch einer Datei mîglich ist), ordnet &xwp;
+Dateiobjekten automatisch Dateitypen nach Dateifiltern zu. So erhÑlt man
+das beste zweier Welten (Dateitypen und Dateifilter) auf logischere Weise.
+ 
+<P>Wozu ist dies also gut?
+ 
+<P>ZunÑchst einmal finde ich den Standardzuordnungsmechanismus der WPS etwas hÑ·lich,
+wenn Zuordnungen sowohl Åber Dateifilter als auch Dateitypen zugewiesen werden. Die neue
+Herangehensweise ist hier logischer.
+ 
+<P>Zweitens, und dies ist am wichtigsten, erlaubt &xwp; die Erstellung von
+<B>Dateitypenhierarchien</B>. Beispielsweise gibt es viele Dateitypen, die
+auch wirklich "plain text"-Dateien sind (z.B. "C Code"- oder "HTML"-Dateien), so da· jeder
+Editor, der "plain text" lesen kann, auch diese Dateitypen lesen kînnen sollte.
+ 
+<P>Bis jetzt mu·te man denselben Editor all diesen Dateitypen zuordnen.
+Mit &xwp; kînnen nun beliebige Typen als "Subtypen" von "plain text" definiert werden,
+und dieser Subtyp wird dann die fÅr den Stammtypen definierten Zuordnungen <B>erben</B>.
+ 
+<P>Dies kann auf der neuen Seite "Dateitypen" des
+<A HREF="sys_2global.html">"Workplace Shell"-Objektes</A> vorgenommen werden
+(wenn die erweiterten Zuordnungen aktiviert wurden):
+ 
+<P><IMG SRC="filetypes.gif">
+ 
+<P>Zur Definition von Dateityphierarchien <B>ziehen und Åbergeben</B> Sie einfach Dateitypen
+im Baum "Dateitypen" an einen anderen Dateityp.
+&xwp; erlaubt es, die alten Dateifilter in die neuen Zuordnungen zu <B>importieren</B>.
+Dazu klicken Sie mit der rechten Maustaste in das Feld "Filter" und wÑhlen "Importieren"
+aus.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

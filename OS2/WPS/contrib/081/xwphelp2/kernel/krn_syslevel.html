@@ -1,0 +1,33 @@
+<HTML RESID=&ID_XSH_SETTINGS_SYSLEVEL;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: Syslevels
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+This page allows you to view the maintenance levels of the most important
+components of your &os2; system.
+
+<P>In order to keep track of version levels of any software, IBM has created
+a special type of file, the "syslevel" file. Such a file is always called
+<CODE>SYSLEVEL.XXX</CODE>, with <CODE>XXX</CODE> being any extension. For
+each software component, one such syslevel file exists in some directory.
+
+<P>The "Syslevels" page goes thru the &os2; system directories, including
+those of the networking components, and parses all the syslevel
+files which are found.
+
+<P>The most important field is the <B>"Syslevel"</B> field, which normally has a
+combination of letters and digits. There is no real rule for how to interpret
+this field, and IBM uses it differently for each component. The trailing numbers
+usually tell you the fixpak level, however.
+
+<P>If several fixpaks have been installed over time, the <B>"Previous"</B>
+field will show you the previous syslevel over which the last fixpak was
+installed.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,46 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Folder Default Documents
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.4. -->
+<BODY>
+Starting with V0.9.4, &xwp; allows you to define a "default document" for a folder.
+
+<P>Default documents are initially disabled. Go to the "View" page of the
+<A HREF="sys_2global.html">"Workplace Shell" object</A> to enable them.
+
+<P>If default documents are enabled, this will have two consequences:
+
+<OL><LI>All <B>data files</B> will get a new context menu item called "Default document".
+This item allows you to make a data file the default document of its folder.
+
+<P><LI>If such a default document has been set for a folder, that <B>folder</B> will have a
+new menu item in its "Open" context submenu which allows you to open that default document directly.
+Note the difference: the <I>folder</I> context menu item opens the <I>data file.</I>
+This is useful for folders which have a "main" file which is frequently opened in order
+to avoid having to open the entire folder just to access that one document all the time.
+
+</OL>In addition, you can even tell &xwp; to automatically make that default
+document the <B>folder's default view.</B> If this is also enabled on the "View" page of the
+<A HREF="sys_2global.html">"Workplace Shell" object,</A> the default <I>document</I> will
+be opened if you double-click on the <I>folder</I> icon.
+
+<P>If you don't want this to be the standard behavior for all folders which have default
+documents, you can always set the default view of an individual folder to the "default document"
+view on the "Menu" page of the folder's settings notebook.
+
+<P>Here's an <B>example:</B> Say you have a folder with 300 HTML files. Opening the folder
+just to access the <CODE>index.html</CODE> file is really tiresome because this takes some
+time, and you really only want to access the <CODE>index.html</CODE> file.
+
+<P>So open the folder once, open the context menu of <CODE>index.html</CODE>, select
+"Default document", and you can simply double-click on the folder to have <CODE>index.html</CODE>
+opened from now on.
+
+<BR>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,60 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The h2i Utility
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+Older versions of XFolder and XWorkplace used the very valuable <CODE>html2ipf.cmd</CODE>
+script by Andrew Pavel Zabolotny which has served me quite well over the years.
+However, this has now been replaced with my own
+<CODE>h2i.exe</CODE> utility, which is both faster and more flexible.
+
+<P><CODE>h2i</CODE> is contained in the <CODE>xwphelpers</CODE> repository
+at netlabs (see <A HREF="nls_2requires.html">"Requirements"</A>).
+Start <CODE>h2i</CODE> to
+have its syntax explained. It works quite similar to <CODE>html2ipf.cmd</CODE>,
+so you can also check <CODE>HTML2IPF.INF</CODE> for the general principle.
+
+<P>In addition, <CODE>h2i</CODE> supports the following:
+<UL>
+<LI>The <CODE>&lt;HTML&gt;</CODE> tag has new attributes:
+<CODE>XPOS=</CODE> and
+<CODE>YPOS=</CODE> work just like
+IPF's &quot;x&quot; and &quot;y&quot; tags;
+<CODE>WIDTH=</CODE> and
+<CODE>HEIGHT=</CODE> are the same as in IPF.
+
+<P><LI>The <CODE>&lt;A&gt;</CODE> tag accepts a new
+<CODE>AUTO=</CODE> attribute, which works just like
+<CODE>HREF=</CODE>, but automatically opens and closes the window (this is, for
+example, used on the &quot;Introduction&quot; page of the
+<I>XWorkplace Online Reference</I>).
+
+<P><LI>The <CODE>&lt;CITE&gt;</CODE> and
+<CODE>&lt;/CITE&gt;</CODE> formatting tags are now set to use a
+non-proportional font, which is used extensively.
+
+<P><LI>Some formatting changes (<CODE>&lt;UL&gt;</CODE>, <CODE>&lt;BR&gt;</CODE>,
+<CODE>&lt;B&gt;</CODE> etc.).
+
+<P><LI>As opposed to <CODE>html2ipf</CODE>, <CODE>h2i</CODE> supports the <CODE>resid</CODE>
+attribute to the <CODE>&lt;HTML&gt;</CODE> tag to allow setting the resid explicitly,
+which is very
+helpful for composing help panels that can actually get called by ID from XWorkplace.
+
+<P><LI>In addition, <CODE>h2i</CODE> supports string replacements via <B>entities</B>.
+An entity always has the form <CODE>&amp;entity;</CODE> and whatever is between
+the "&amp;" and and ";" characters can be dynamically replaced. Since <CODE>h2i</CODE>
+can also parse C include files for C preprocessor <CODE>#define</CODE>'s, this
+allows for including the same headers in XWorkplace and <CODE>h2i</CODE> to share
+definitions and resids.
+
+<P><LI>Finally, <CODE>h2i</CODE> supports the new <CODE>&lt;IFDEF&gt;</CODE> and
+<CODE>&lt;IFNDEF&gt;</CODE> tags for conditional compiles.
+
+</UL>
+</BODY>
+</HTML>

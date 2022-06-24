@@ -1,0 +1,94 @@
+<HTML RESID=&ID_XSH_MOUSE_CORNERS;>
+<HEAD>
+    <TITLE>
+        Screen: Screen Borders Page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.2 -->
+<!-- V0.9.4: replace all "screen corners" with "screen borders" -->
+<!-- V0.9.9: added &pgr; special functions -->
+<!-- V0.9.9: added corner sensitivity setting -->
+<!-- V0.9.9: changed title -->
+<BODY>
+<!-- V0.9.19: changed the following paragraph -->
+The "Screen borders" allows you to have a special action take place if the
+mouse is moved to one of the screen corners or borders. For example, you
+can tell the system to automatically open the
+<!-- V0.9.20: added link -->
+&link_drivesfdr; if the mouse
+is moved to the top right corner of the screen.
+
+<P>All settings on this page take effect immediately.
+
+<P>Press <B>"Undo"</B> to restore the settings that were in use before
+you opened this notebook page.
+
+<P>Press <B>"Default"</B> to restore the settings to the installation state.
+This will disable all features on this page.
+
+<!-- V0.9.19: removed this
+<P>The settings on this page affect the &xwp; "screen border objects" feature.
+This allows you to have a special action take place if the mouse is moved to one of
+the screen corners or borders. -->
+
+<P>In order to configure screen borders, two steps are required:
+
+<OL><LI>First, click on one of the radio buttons in the <B>"Screen borders" group</B>
+to select the screen corner or border you wish to configure.
+
+<P><LI>Then, from the <B>"Action" group,</B> select the action which should
+occur when the mouse is moved to that border:
+
+<BR><UL><LI><B>"Inactive"</B> means that the screen border is disabled -- that is,
+nothing happens when the mouse is moved there. This is the default.
+
+<P><LI>By selecting <B>"Open object",</B> the white field below becomes active.
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dragdrop.html">Drag and drop</A>
+any Desktop object into the white field to make it an active
+"screen border object" -- that is, if the mouse is moved to the screen corner or border you
+are currently configuring, that object will be opened in its default view, as if
+you had double-clicked upon it.
+
+<!-- V0.9.19: added this paragraph -->
+<P><B>Note:</B> Any &xcenter; automatically becomes a screen border object for either
+the top or the bottom screen border when it is opened. Whatever you have previously
+set for either the top or the bottom border is therefore overwritten when an
+&xcenter; opens.
+
+<P><LI>By selecting <B>"Special function",</B> the drop-down box below becomes
+active. Select a special function from that box in order to have that function
+performed when the mouse is moved to the corner or border you are currently configuring.
+
+<P>You can select to have either the window list or the Desktop's
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>
+displayed in the active screen corner or border.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOPAGER__>
+<!-- V 0.9.4: added the following -->
+In addition, you can have the &pgr; window pop up if &pgr; is enabled. This
+is especially useful if you are using the "Flash to top" feature of &pgr;.
+<!-- V0.9.9: added the following -->
+Also, if you want a panning virtual desktop, you can associate the "One screen up",
+"One screen right", "One screen down", and "One screen left" functions to the
+respectives corners.
+<!-- V0.9.20: added the following -->
+This is especially helpful if you have the pager's "Screen wrap" feature enabled,
+so you can move across all desktops just by moving the mouse.
+</IFNDEF>
+
+<!-- V0.9.9: added the following -->
+</UL></OL>The <B>"Corner sensitivity"</B> setting allows to specify how much
+of the screen borders, counting from the "real" corners, are sensitive to the
+corner settings. If you specify 0%, then corners are disabled. If you specify
+50%, then borders are disabled.  This setting defaults to 30%.
+
+<P>For example, with the upper border and a screen resolution of 800x600,
+a corner sensitivity setting of 30% would mean that the first 240 pixels
+are assumed to be part of the upper <I>left corner,</I> the next 320 pixels the
+upper <I>border,</I> and the last 240 pixels the upper <I>right corner.</I>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,1562 @@
+DLGTEMPLATE ID_CRD_DISKFREEWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ディスクの空き設定", ID_CRD_DISKFREEWGT_SETTINGS, 12, 6, 100, 64, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        AUTORADIOBUTTON "複数表示", ID_ICON2, 3, 53, 45, 11, WS_GROUP |
+                        WS_TABSTOP
+        AUTORADIOBUTTON "単一表示", ID_ICONDLG, 3, 43, 47, 11, WS_TABSTOP
+        GROUPBOX        "", ID_STARTICON1, 12, 26, 79, 19
+        LTEXT           "ドライブ", ID_STARTICON2, 15, 29, 20, 8
+        ENTRYFIELD      "C", ID_SHUTICON1, 36, 31, 13, 6, ES_MARGIN
+        AUTOCHECKBOX    "ファイルシステム表示", ID_SHUTICON2, 3, 13, 82, 10,
+                        WS_GROUP
+        DEFPUSHBUTTON   "了解(~O)", ID_ICONSDANIM1, 64, 2, 30, 10
+    END
+END
+
+DLGTEMPLATE ID_CRD_HEALTHWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "稼働状況モニター設定", ID_CRD_HEALTHWGT_SETTINGS, 12, 8, 380,
+            34, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "セットアップ・ストリング:", ID_ICON2, 9, 21, 55, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_CRDI_SETUP_STRING, 71, 21, 301, 8, ES_MARGIN |
+                        WS_GROUP
+        DEFPUSHBUTTON   "了解", DID_OK, 8, 6, 60, 12
+        PUSHBUTTON      "取消", DID_CANCEL, 76, 6, 60, 12
+        PUSHBUTTON      "ヘルプ", DID_HELP, 313, 6, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_CRD_WINLISTWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ウィンドウ・リストのフィルター", ID_CRD_WINLISTWGT_SETTINGS, 12, 8, 260,
+            160, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "現在のフィルター(~F)", -1, 8, 82, 240, 74, DT_MNEMONIC
+        LISTBOX         ID_CRDI_FILTERS_CURRENTLB, 14, 88, 164, 58,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        PUSHBUTTON      "除去(~R)", ID_CRDI_FILTERS_REMOVE, 186, 112, 56, 12
+        GROUPBOX        "新規項目(~N)", -1, 8, 20, 240, 60, DT_MNEMONIC
+        COMBOBOX        "", ID_CRDI_FILTERS_NEWCOMBO, 14, 24, 166, 48,
+                        LS_HORZSCROLL
+        PUSHBUTTON      "追加(~A)", ID_CRDI_FILTERS_ADD, 188, 44, 56, 12
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 8, 6, 60, 12
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 76, 6, 60, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 190, 6, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_FND_SAMPLETEXT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_FND_SAMPLETEXT, 0, 0, 188, 172, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "フォントのサンプル表示用テキスト(~T)", -1, 6, 22, 172, 106,
+                        DT_MNEMONIC
+        MLE             "", ID_FNDI_SAMPLETEXT_MLE, 10, 26, 162, 92,
+                        MLS_WORDWRAP | MLS_HSCROLL | MLS_VSCROLL |
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_NDD_CONTACTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_CONTACTING, 15, 21, 170, 31, FS_SCREENALIGN |
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    BEGIN
+        LTEXT           "Netscape に接続します...", -1, 5, 1, 160, 9,
+                        DT_WORDBREAK
+        RTEXT           "Netscape DDE Interface", -1, 25, 18, 110, 8
+        RTEXT           "(C) 1998-2005 Ulrich Moeller", -1, 25, 12, 110, 8
+    END
+END
+
+DLGTEMPLATE ID_NDD_STARTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_STARTING, 30, 10, 170, 31, FS_SCREENALIGN |
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    BEGIN
+        LTEXT           "Netscape を開始しています...", -1, 5, 1, 160, 9,
+                        DT_WORDBREAK
+        RTEXT           "Netscape DDE Interface", -1, 25, 18, 110, 8
+        RTEXT           "(C) 1998-2005 Ulrich Moeller", -1, 25, 12, 110, 8
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_CDFS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "OS/2 カーネル: CDFS 設定", ID_OSD_DRIVER_CDFS, 15, -12, 255,
+            147, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        AUTOCHECKBOX    "Microsoft Joliet 拡張サポート(~J)(/W)",
+                        ID_OSDI_CDFS_JOLIET, 5, 132, 225, 10
+        LTEXT           "注意: 新しい CDFS.IFS ドライバーが必要です。", -1,
+                        25, 123, 205, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "漢字サポート(/~K)", ID_OSDI_CDFS_KANJI, 5, 111,
+                        225, 10
+        GROUPBOX        "キャッシュ・サイズ(~A)(/C:n)", -1, 5, 84, 245, 25,
+                        DT_MNEMONIC
+        SLIDER          ID_OSDI_CDFS_CACHESLIDER, 15, 87, 175, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        CTEXT           "tbr", ID_OSDI_CDFS_CACHETXT, 195, 90, 45, 8, NOT
+                        WS_GROUP
+        GROUPBOX        "一度に読み取るファイル・セクター数(~F)(/M:n)", -1, 5, 57,
+                        245, 25, DT_MNEMONIC
+        SLIDER          ID_OSDI_CDFS_SECTORSSLIDER, 15, 60, 175, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        CTEXT           "tbr", ID_OSDI_CDFS_SECTORSTXT, 195, 63, 45, 8, NOT
+                        WS_GROUP
+        GROUPBOX        "初期化(~I)", -1, 5, 27, 245, 27, DT_MNEMONIC
+        AUTORADIOBUTTON "省略時値(~E)", ID_OSDI_CDFS_INITDEFAULT, 10, 33, 70, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "非表示(/~Q)", ID_OSDI_CDFS_INITQUIET, 95, 33, 70,
+                        10, WS_TABSTOP
+        AUTORADIOBUTTON "詳細表示(/~V)", ID_OSDI_CDFS_INITVERBOSE, 175, 33,
+                        70, 10, WS_TABSTOP
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 6, 45, 12, WS_GROUP
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 55, 6, 45, 12
+        PUSHBUTTON      "最適化(~P)", DID_OPTIMIZE, 105, 6, 45, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 155, 6, 45, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 205, 6, 45, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_HPFS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "OS/2 カーネル: HPFS 設定", ID_OSD_DRIVER_HPFS, 10, 6, 240, 94,
+            FS_ICON | FS_ACCELTABLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "HPFS ドライブのキャッシュ", -1, 5, 46, 225, 45
+        LTEXT           "キャッシュ・サイズ(~Z):", -1, 10, 74, 110, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SLIDER          ID_OSDI_CACHESIZE, 90, 72, 85, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        RTEXT           "KB", ID_OSDI_CACHESIZE_TXT, 185, 72, 40, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "自動サイズ (メモリーの 10%)(~M)", ID_OSDI_CACHESIZE_AUTO,
+                        25, 62, 195, 10
+        LTEXT           "キャッシュ項目しきい値:", -1, 10, 52, 70, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        SLIDER          ID_OSDI_CACHE_THRESHOLD, 90, 50, 85, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 16, 0, 1, 0
+        RTEXT           "KB", ID_OSDI_CACHE_THRESHOLD_TXT, 185, 50, 40, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        LTEXT           "自動チェック(~T):", -1, 5, 29, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "入力(~P)", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_HPFS386 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "OS/2 カーネル: HPFS386 設定", ID_OSD_DRIVER_HPFS386, 10, 6,
+            240, 94, FS_ICON | FS_ACCELTABLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTAINER       ID_OSDI_HPFS386INI_CNR, 12, 50, 210, 32,
+                        CCS_SINGLESEL | WS_GROUP
+        GROUPBOX        "次を置き換えます", ID_OSDI_HPFS386INI_GROUP, 5, 46,
+                        225, 45, NOT WS_GROUP
+        LTEXT           "自動チェック(~T):", -1, 5, 29, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "入力(~P)", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 6, 6, 70, 12, WS_GROUP
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 84, 6, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 160, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_IBM1S506 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "OS/2 カーネル: IBM1S506.ADD 設定", ID_OSD_DRIVER_IBM1S506,
+            -75, -46, 405, 226, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "ドライバーの初期化(起動時)(~I)", -1, 5, 204, 185,
+                        18, DT_MNEMONIC
+        AUTORADIOBUTTON "非表示(~Q)", ID_OSDI_S506_INITQUIET, 10, 206, 35, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "詳細表示(/~V)", ID_OSDI_S506_INITVERBOSE, 50, 206,
+                        65, 10, WS_TABSTOP
+        AUTORADIOBUTTON "待機(/~W)", ID_OSDI_S506_INITWAIT, 125, 206, 50,
+                        10, WS_TABSTOP
+        GROUPBOX        "ドライバー全体の設定", -1, 5, 148, 185, 54
+        CONTROL         "DMA Scatter/Gather を有効にする(/[!]DSG)",
+                        ID_OSDI_S506_DSG, 10, 186, 170, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "PCI クロック速度:", ID_OSDI_DANIS506_CLOCK_CHECK, 10,
+                        176, 80, 10, BS_AUTOSIZE
+        SLIDER          ID_OSDI_DANIS506_CLOCK_SLIDER, 90, 176, 64, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 4, 0, 1, 0
+        CTEXT           "33 MHz", ID_OSDI_DANIS506_CLOCK_TXT, 155, 176, 30,
+                        10, DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "一般的ではないチップを検出(/GBM)",
+                        ID_OSDI_DANIS506_GBM, 10, 166, 125, 10
+        AUTOCHECKBOX    "すべてのチップを一般的と想定(/FORCEGBM)",
+                        ID_OSDI_DANIS506_FORCEGBM, 10, 158, 175, 10
+        AUTOCHECKBOX    "Matrox 用修正(/MGAFIX)", ID_OSDI_DANIS506_MGAFIX, 10,
+                        150, 75, 10
+        GROUPBOX        "アダプター (コントローラー) 設定", -1, 5, 32, 185, 114
+        GROUPBOX        "現在のアダプター(~A)", -1, 10, 120, 175, 18,
+                        DT_MNEMONIC | NOT WS_GROUP
+        AUTORADIOBUTTON "1 次(/A:0)", ID_OSDI_S506_ADAPTER0, 15, 122, 60,
+                        10, WS_TABSTOP
+        AUTORADIOBUTTON "2 次(/A:1)", ID_OSDI_S506_ADAPTER1, 80, 122,
+                        65, 10, WS_TABSTOP
+        AUTOCHECKBOX    "無視(/I)", ID_OSDI_S506_A_IGNORE, 10, 108, 45,
+                        10
+        CONTROL         "アダプターのリセットを許可(/[!]R)", ID_OSDI_S506_A_RESET,
+                        10, 100, 125, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        CONTROL         "バスマスターを有効にする(/[!]BM)",
+                        ID_OSDI_S506_A_BUSMASTER, 10, 92, 130, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "注意: 新ドライバーでは、省略時で有効"
+                        "", -1, 20, 84, 165, 9, DT_WORDBREAK | NOT
+                        WS_GROUP
+        GROUPBOX        "アダプターを明示的に設定", -1, 10, 38, 175, 48
+        AUTOCHECKBOX    "基本アドレス(/P, 16 進):",
+                        ID_OSDI_S506_A_BASEADDR_CHECK, 15, 70, 110, 10
+        ENTRYFIELD      "", ID_OSDI_S506_A_BASEADDR_ENTRY, 147, 72, 26, 6,
+                        ES_CENTER | ES_MARGIN
+        AUTOCHECKBOX    "/IRQ:", ID_OSDI_S506_A_IRQ_CHECK, 15, 60, 35, 10
+        SLIDER          ID_OSDI_S506_A_IRQ_SLIDER, 75, 60, 85, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 16, 0, 1, 0
+        CTEXT           "1", ID_OSDI_S506_A_IRQ_TXT, 160, 60, 15, 10,
+                        DT_VCENTER
+        AUTOCHECKBOX    "DMA チャネル(/DC):", ID_OSDI_S506_A_DMA_CHECK, 15,
+                        52, 95, 8
+        SPINBUTTON      ID_OSDI_S506_A_DMA_SPIN, 145, 52, 30, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        AUTOCHECKBOX    "Scatter/Gather 番地(/DSGP, 16 進):",
+                        ID_OSDI_S506_A_DSGADDR_CHECK, 15, 42, 130, 10
+        ENTRYFIELD      "", ID_OSDI_S506_A_DSGADDR_ENTRY, 147, 44, 26, 6,
+                        ES_CENTER | ES_MARGIN
+        GROUPBOX        "装置 (ドライブ) 設定", -1, 195, 32, 205, 190
+        GROUPBOX        "現在の装置(~U)", -1, 200, 186, 195, 28, DT_MNEMONIC |
+                        NOT WS_GROUP
+        LTEXT           "1 次", -1, 205, 198, 35, 8, DT_VCENTER | NOT
+                        WS_GROUP
+        AUTORADIOBUTTON "マスター(/A:0 /U:0)", ID_OSDI_S506_UNIT0, 245, 198,
+                        70, 8, WS_TABSTOP
+        AUTORADIOBUTTON "スレーブ(/A:0 /U:1)", ID_OSDI_S506_UNIT1, 320, 198,
+                        70, 8, WS_TABSTOP
+        LTEXT           "2 次", -1, 205, 190, 35, 8, DT_VCENTER | NOT
+                        WS_GROUP
+        AUTORADIOBUTTON "マスター(/A:1 /U:0)", ID_OSDI_S506_UNIT2, 245, 190,
+                        70, 8, WS_TABSTOP
+        AUTORADIOBUTTON "スレーブ(/A:1 /U:1)", ID_OSDI_S506_UNIT3, 320, 190,
+                        70, 8, WS_TABSTOP
+        CONTROL         "バスマスターを有効にする(/[!]BM)",
+                        ID_OSDI_S506_U_BUSMASTER, 200, 174, 130, 10,
+                        WC_BUTTON, BS_AUTO3STATE | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        CONTROL         "多重サポートを設定(/[!]SMS)", ID_OSDI_S506_U_SMS,
+                        200, 166, 135, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "エラー復旧時間(/T, 秒単位):",
+                        ID_OSDI_S506_U_RECOVERY_CHECK, 200, 158, 165, 10
+        SLIDER          ID_OSDI_S506_U_RECOVERY_SLIDER, 220, 148, 130, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 56, 0, 1, 0
+        CTEXT           "1", ID_OSDI_S506_U_RECOVERY_TXT, 355, 148, 25, 10,
+                        DT_VCENTER
+        AUTOCHECKBOX    "ドライブのジオメトリーを上書き(/GEO):",
+                        ID_OSDI_S506_U_GEO_CHECK, 200, 138, 120, 10,
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_S506_U_GEO_ENTRY, 212, 132, 151, 6,
+                        ES_MARGIN
+        AUTOCHECKBOX    "論理ブロック・アドレス(/LBA)",
+                        ID_OSDI_S506_U_LBA, 200, 118, 145, 10
+        CONTROL         "OS2DASD.DMD へ引き継ぎ(/[!]DM)", ID_OSDI_S506_U_DASD,
+                        200, 110, 140, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "使用を強制(/FORCE)", ID_OSDI_S506_U_FORCE,
+                        200, 102, 105, 10
+        CONTROL         "ATAPI CD-ROM ドライブ(/[!]ATAPI)",
+                        ID_OSDI_S506_U_ATAPI, 200, 94, 145, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        GROUPBOX        "DANIS506.ADD 拡張", -1, 200, 36, 195, 51
+        AUTOCHECKBOX    "停止前アイドル時間(/IT):",
+                        ID_OSDI_DANIS506_U_TIMEOUT_CHECK, 205, 68, 115, 10
+        SPINBUTTON      ID_OSDI_DANIS506_U_TIMEOUT_SPIN, 325, 68, 43, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        AUTOCHECKBOX    "データ・レートを制限(/MR:uda):",
+                        ID_OSDI_DANIS506_U_RATE_CHECK, 205, 58, 120, 10
+        LTEXT           "UDMA", ID_OSDI_DANIS506_U_RATE_UDMA_TXT, 215, 50,
+                        20, 8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_UDMA_SPIN, 240, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        LTEXT           "MWDMA", ID_OSDI_DANIS506_U_RATE_MWDMA_TXT, 270, 50,
+                        30, 8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_MWDMA_SPIN, 300, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        LTEXT           "PIO", ID_OSDI_DANIS506_U_RATE_PIO_TXT, 330, 50, 15,
+                        8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_PIO_SPIN, 345, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        CONTROL         "リムーバブル・ドライブ(/[!]RMV)",
+                        ID_OSDI_DANIS506_U_REMOVEABLE, 205, 38, 100, 10,
+                        WC_BUTTON, BS_AUTO3STATE | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        LTEXT           "新規パラメーター:", -1, 5, 18, 55, 10, DT_VCENTER
+        ENTRYFIELD      "", ID_OSDI_S506_NEWPARAMS, 62, 20, 336, 6,
+                        ES_MARGIN | ES_READONLY
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 4, 65, 12, WS_GROUP
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 4, 65, 12
+        PUSHBUTTON      "すべて省略時値(~D)", DID_DEFAULT, 145, 4, 65, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 215, 4, 65, 12, BS_HELP
+        AUTOCHECKBOX    "吹き出しヘルプを表示(~Y)", DID_SHOWTOOLTIPS, 285, 4, 100,
+                        12
+    END
+END
+
+DLGTEMPLATE ID_OSD_FILELIST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "システム・パス: ファイル・リスト", ID_OSD_FILELIST, 10, 6, 258, 174, NOT
+            FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "パスのファイル:", ID_OSDI_FILELISTSYSPATH1, 5,
+                        160, 70, 8
+        LTEXT           "tbr", ID_OSDI_FILELISTSYSPATH2, 80, 160, 175, 8
+        CONTAINER       ID_OSDI_FILELISTCNR, 5, 22, 245, 136, CCS_SINGLESEL |
+                        WS_GROUP
+        DEFPUSHBUTTON   "クローズ(~C)", DID_OK, 185, 4, 65, 12
+    END
+END
+
+DLGTEMPLATE ID_OSD_NEWSYSPATH LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "新規システム・パス", ID_OSD_NEWSYSPATH, 15, 66, 200, 45,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "新規システム・パスを入力してください:", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "参照(~B)...", ID_XLDI_BROWSE, 145, 18, 50, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_DRIVERS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_DRIVERS, 0, 0, 264, 172, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_OSDI_DRIVR_CNR, 10, 27, 130, 132, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS
+        GROUPBOX        "デバイス・ドライバー", ID_OSDI_DRIVR_GROUP1, 5, 21, 255,
+                        150, NOT WS_GROUP
+        LTEXT           "ドライバーの説明:", ID_OSDI_DRIVR_GROUP2, 146,
+                        154, 108, 8
+        CONTROL         "", ID_OSDI_DRIVR_STATICDATA, 146, 110, 108, 44,
+                        WC_MLE, MLS_READONLY | MLS_HSCROLL | MLS_VSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "パラメーター:", ID_OSDI_DRIVR_PARAMS_TXT, 148, 98, 83,
+                        8
+        MLE             "", ID_OSDI_DRIVR_PARAMS, 146, 58, 108, 38,
+                        MLS_WORDWRAP | MLS_HSCROLL | MLS_VSCROLL |
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "構成(~C)...", ID_OSDI_DRIVR_CONFIGURE, 145, 42,
+                        110, 12
+        PUSHBUTTON      "適用(~A)...", ID_OSDI_DRIVR_APPLYTHIS, 145, 27, 110,
+                        12, WS_GROUP
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 4, 6, 85, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_ERRORS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_ERRORS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "システム・エラー", -1, 5, 24, 225, 60
+        AUTOCHECKBOX    "ハードウェアのエラーを表示しない", ID_OSDI_AUTOFAIL, 10, 63,
+                        210, 10
+        AUTOCHECKBOX    "例外メッセージを表示しない", ID_OSDI_SUPRESSPOPUPS,
+                        10, 51, 210, 10
+        LTEXT           "POPUPLOG.OS2 のドライブ:", -1, 25, 42, 130, 8, NOT
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_SUPRESSP_DRIVE, 155, 42, 50, 12,
+                        SPBS_READONLY | SPBS_MASTER | SPBS_JUSTLEFT |
+                        SPBS_JUSTRIGHT | SPBS_JUSTCENTER
+        AUTOCHECKBOX    "トラップ後、自動的に再起動", ID_OSDI_REIPL, 10,
+                        30, 140, 10
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "最適化(~O)", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_FAT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_FAT, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "FAT ドライブのキャッシュ", -1, 5, 45, 225, 72
+        AUTOCHECKBOX    "キャッシュを有効にする(~E)", ID_OSDI_FSINSTALLED, 10, 96, 210,
+                        10
+        LTEXT           "キャッシュ・サイズ(~Z):", -1, 10, 85, 110, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_CACHESIZE, 155, 85, 50, 12, SPBS_NUMERICONLY |
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER
+        LTEXT           "KB", -1, 210, 85, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "自動サイズ (メモリーの 10%)(~M)", ID_OSDI_CACHESIZE_AUTO,
+                        25, 75, 195, 10
+        LTEXT           "指定値より小さいファイルのみ保存(~H):", -1, 10, 64, 140, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_CACHE_THRESHOLD, 155, 64, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTLEFT |
+                        SPBS_JUSTRIGHT | SPBS_JUSTCENTER
+        LTEXT           "KB", -1, 210, 64, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "遅延書き込み(~Y)", ID_OSDI_CACHE_LAZYWRITE, 10, 49, 140,
+                        10
+        LTEXT           "自動チェック(~T):", -1, 5, 30, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "入力(~P)", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "最適化(~O)", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_KERNEL1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_KERNEL1, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "スケジューラー", -1, 5, 24, 225, 58
+        LTEXT           "Current process count:", -1, 10, 87, 150, 8                /*** XLATE ***/
+        RTEXT           "wait...", ID_OSDI_CURRENTPROCESSES, 155, 87, 50, 8,        /*** XLATE ***/
+                        NOT WS_GROUP
+        LTEXT           "Maximum process count:", -1, 10, 75, 140, 8, NOT           /*** XLATE ***/
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_MAXPROCESSES, 155, 75, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "現在のスレッド数:", -1, 10, 63, 150, 8
+        RTEXT           "確認中.", ID_OSDI_CURRENTTHREADS, 155, 63, 50, 8,
+                        NOT WS_GROUP
+        LTEXT           "最大スレッド数:", -1, 10, 51, 140, 8, NOT
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_MAXTHREADS, 155, 51, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "優先度を上げる間隔:", -1, 10, 39, 140, 8,
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MAXWAIT, 155, 39, 50, 12, SPBS_NUMERICONLY |
+                        SPBS_MASTER | SPBS_JUSTRIGHT | SPBS_FASTSPIN
+        LTEXT           "秒", -1, 210, 39, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "フォアグラウンドのディスク入出力を優先",
+                        ID_OSDI_PRIORITYDISKIO, 10, 27, 205, 10
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "最適化(~O)", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_KERNEL2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_KERNEL2, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "スワップ・ファイル (SWAPPER.DAT)", -1, 6, 74, 225, 66
+        LTEXT           "現在のサイズ: ", -1, 12, 124, 145, 8
+        RTEXT           "確認中.", ID_OSDI_CURRENTSWAPSIZE, 154, 124, 50,
+                        8, NOT WS_GROUP
+        LTEXT           "MB", -1, 210, 124, 15, 8, NOT WS_GROUP
+        LTEXT           "メイン・メモリーのサイズ:", -1, 12, 116, 145, 8, NOT
+                        WS_GROUP
+        RTEXT           "確認中.", ID_OSDI_PHYSICALMEMORY, 154, 116, 50,
+                        8, NOT WS_GROUP
+        LTEXT           "MB", -1, 210, 116, 15, 8, NOT WS_GROUP
+        LTEXT           "最小サイズ(~M):", -1, 12, 104, 75, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MINSWAPSIZE, 154, 104, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "MB", -1, 210, 104, 15, 8, NOT WS_GROUP
+        LTEXT           "警告しきい値(~W):", -1, 12, 92, 75, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MINSWAPFREE, 154, 92, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "MB", -1, 210, 92, 15, 8, NOT WS_GROUP
+        LTEXT           "パス(~P):", -1, 12, 80, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_SWAPPATH, 66, 80, 136, 8, ES_MARGIN
+        GROUPBOX        "詳細", ID_OSDI_HIMEM_GROUP, 6, 22, 224, 48
+        LTEXT           "仮想アドレスの制限(~V):",
+                        ID_OSDI_HIMEM_VALIMIT_TXT1, 12, 48, 90, 14,
+                        DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_OSDI_HIMEM_VALIMIT_SLIDER, 118, 48, 64, 14,
+                        SLS_SNAPTOINCREMENT | WS_GROUP
+                        CTLDATA 12, 0, 6, 0, 1, 0
+        RTEXT           "tbr", ID_OSDI_HIMEM_VALIMIT_TXT2, 188, 48, 36, 14,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "DLL の基本アドレスを無効にする(~L)", ID_OSDI_HIMEM_DLLBASINGOFF,
+                        10, 38, 212, 8
+        AUTOCHECKBOX    "ハイ・メモリーを Java に使う(~J)", ID_OSDI_HIMEM_JAVAHIMEM, 10,
+                        28, 212, 8
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "最適化(~O)", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_SYSPATHS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_SYSPATHS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "確認するシステム・パス(~S):", -1, 5, 162, 125, 8,
+                        DT_MNEMONIC
+        CONTROL         "", ID_OSDI_PATHDROPDOWN, 135, 78, 95, 92,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        GROUPBOX        "パス", -1, 5, 24, 225, 135
+        LISTBOX         ID_OSDI_PATHLISTBOX, 10, 39, 150, 108,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL | LS_EXTENDEDSEL
+        LTEXT           "テキスト", ID_OSDI_PATHINFOTXT, 10, 27, 150, 8
+        PUSHBUTTON      "新規(~N)...", ID_OSDI_PATHNEW, 165, 135, 55, 12,
+                        WS_GROUP
+        PUSHBUTTON      "編集(~E)...", ID_OSDI_PATHEDIT, 165, 120, 55, 12,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "削除(~D)", ID_OSDI_PATHDELETE, 165, 105, 55, 12,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "上(~U)", ID_OSDI_PATHUP, 165, 90, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "下(~W)", ID_OSDI_PATHDOWN, 165, 75, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "無効を選択(~V)", ID_OSDI_VALIDATE, 165, 39, 55, 12
+        PUSHBUTTON      "重複(~P)...", ID_OSDI_DOUBLEFILES, 165, 54, 55,
+                        12
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 70, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_WPS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_WPS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "自動開始", -1, 5, 93, 225, 57
+        AUTOCHECKBOX    "プログラム", ID_OSDI_AUTO_PROGRAMS, 10, 132, 210, 10
+        AUTOCHECKBOX    "タスクリスト", ID_OSDI_AUTO_TASKLIST, 10, 123, 210, 10
+        AUTOCHECKBOX    "ネットワーク接続", ID_OSDI_AUTO_CONNECTIONS, 10,
+                        114, 210, 10
+        AUTOCHECKBOX    "ツールバー", ID_OSDI_AUTO_LAUNCHPAD, 10, 105, 210,
+                        10
+        AUTOCHECKBOX    "WarpCenter", ID_OSDI_AUTO_WARPCENTER, 10, 96, 210,
+                        10
+        GROUPBOX        "システム始動後に再始動...", -1, 5, 36, 225,
+                        51
+        AUTORADIOBUTTON "すべて", ID_OSDI_RESTART_YES, 10, 69, 215, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "なし", ID_OSDI_RESTART_NO, 10, 60, 215, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "始動フォルダーのみ", ID_OSDI_RESTART_FOLDERS, 10,
+                        51, 215, 10, WS_TABSTOP
+        AUTOCHECKBOX    "再起動後のみ", ID_OSDI_RESTART_REBOOT, 10, 39,
+                        215, 10
+        AUTOCHECKBOX    "自動的にフォルダーを最新表示",
+                        ID_OSDI_AUTOREFRESHFOLDERS, 5, 33, 140, 10, WS_GROUP
+        LTEXT           "Additional file handles:", -1, 5, 21, 140, 8, NOT              /*** XLATE ***/
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_SHELLHANDLESINC, 155, 21, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        PUSHBUTTON      "適用(~A)", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "最適化(~O)", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_SDD_CAD LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ダイアログのタイトル", ID_SDD_CAD, 10, 50, 220, 40,
+    BEGIN
+        CTEXT           "終了が完了しました。",
+                        ID_SDDI_PROGRESS1, 5, 25, 170, 8, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CTEXT           "コンピューターの電源を切ることができます。または Ctrl+Alt+Del を押すと再起動できます。", ID_SDDI_PROGRESS2, 5, 5, 170, 18, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CTEXT           "終了しています。お待ちください...",
+                        ID_SDDI_PROGRESS0, 5, 5, 170, 28, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ICON            ID_SDICON, -1, 190, 20, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_SDD_CLOSEVIO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown: PM 以外のセッション", ID_SDD_CLOSEVIO, 60, 24, 220, 98, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           """ を自動的にクローズできませんでした。このセッショ"
+                        "ンに対する処理を選択するか、手動でクローズしてくだ"
+                        "さい。", ID_SDDI_VDMAPPTEXT, 8, 72, 176, 22,
+                        DT_WORDBREAK
+        ICON            ID_SDICON, -1, 188, 78, 20, 16, WS_GROUP
+        GROUPBOX        "セッションの処置", -1, 8, 32, 158, 36
+        AUTORADIOBUTTON "セッションをスキップ(~I) (クローズしない)", ID_XSDI_ACL_SKIP, 14,
+                        52, 126, 8, WS_TABSTOP
+        AUTORADIOBUTTON "PM ウィンドウをクローズ(~S)", ID_XSDI_ACL_WMCLOSE, 14, 44, 148,
+                        8, WS_TABSTOP
+        AUTORADIOBUTTON "セッションを強制終了(~K) (DosKillProcess)",
+                        ID_XSDI_ACL_KILLSESSION, 14, 36, 148, 8, WS_TABSTOP
+        AUTOCHECKBOX    "この設定を自動クローズの詳細に保存",
+                        ID_XSDI_ACL_STORE, 8, 20, 194, 10
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 8, 4, 60, 12
+        PUSHBUTTON      "終了の取消(~C)", ID_SDDI_CANCELSHUTDOWN, 74, 4,
+                        80, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 162, 4, 52, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_SDD_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown の状況", ID_SDD_MAIN, 15, 15, 365, 156, FS_ICON |
+            FS_ACCELTABLE | FS_NOBYTEALIGN | FS_NOMOVEWITHOWNER | NOT
+            FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR |
+            FCF_MINBUTTON | FCF_MAXBUTTON
+    BEGIN
+        LISTBOX         ID_SDDI_LISTBOX, 10, 27, 345, 112, LS_NOADJUSTPOS |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "実行中のアプリケーション:", ID_XFD_LIMITREACHED, 10,
+                        140, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "終了の取消(~C)", ID_SDDI_CANCELSHUTDOWN, 100, 6,
+                        85, 14
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "すぐに終了(~B)", ID_SDDI_BEGINSHUTDOWN, 10, 6, 85,
+                        14
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_SDD_STATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown", ID_SDD_STATUS, 10, 14, 190, 48, FS_NOMOVEWITHOWNER |
+            FS_SCREENALIGN | NOT WS_SAVEBITS
+    BEGIN
+        LTEXT           "初期化しています。お待ちください...", ID_SDDI_STATUS, 35,
+                        35, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "終了の取消(~C)", ID_SDDI_CANCELSHUTDOWN, 5, 4, 85,
+                        12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "スキップ(~S)", ID_SDDI_SKIPAPP, 95, 4, 85, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ICON            ID_SDICON, ID_SDDI_ICON, 5, 25, 20, 16, WS_GROUP
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 35, 24, 145, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XCD_FEATURES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_FEATURES, 0, 0, 220, 142, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XCDI_CONTAINER, 14, 42, 190, 86, CCS_SINGLESEL |
+                        WS_GROUP
+        GROUPBOX        "XWorkplace 全体の機能", ID_XFDI_CNR_GROUPTITLE,
+                        6, 38, 205, 100, NOT WS_GROUP
+        PUSHBUTTON      "XWorkplace クラスを設定(~X)...", ID_XCDI_SETUP, 5,
+                        24, 205, 12
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 65, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 75, 6, 65, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XCD_FIRST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_FIRST, 0, 0, 220, 142, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "情報(~I)...", DID_HELP, 8, 6, 76, 12
+    END
+END
+
+DLGTEMPLATE ID_XCD_OBJECTS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_OBJECTS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "システム・オブジェクトの作成", -1, 5, 24, 205, 57
+        PUSHBUTTON      "OS/2 標準のオブジェクト(~D) ", ID_XCD_OBJECTS_SYSTEM, 34,
+                        58, 112, 12
+        PUSHBUTTON      "XWorkplace オブジェクト(~X) ", ID_XCD_OBJECTS_XWORKPLACE,
+                        34, 44, 112, 12
+        PUSHBUTTON      "構成フォルダーを作成しなおす...",
+                        ID_XCD_OBJECTS_CONFIGFOLDER, 16, 30, 146, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XCD_STATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_STATUS, 0, 0, 275, 180, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        GROUPBOX        "XWorkplace カーネル", ID_XCDI_INFO_KERNEL_GROUP, 10,
+                        64, 190, 60
+        LTEXT           "バージョン:", ID_XCDI_INFO_KERNEL_RELEASE_TXT, 14, 108,
+                        42, 8
+        RTEXT           "不明", ID_XCDI_INFO_KERNEL_RELEASE, 58, 108, 138,
+                        8
+        LTEXT           "実行オブジェクト数:",
+                        ID_XCDI_INFO_AWAKEOBJECTS_TXT, 14, 100, 95, 8
+        RTEXT           "不明", ID_XCDI_INFO_AWAKEOBJECTS, 152, 100, 44,
+                        8
+        LTEXT           "WPS スレッド数:", ID_XCDI_INFO_WPSTHREADS_TXT, 14,
+                        92, 95, 8
+        RTEXT           "不明", ID_XCDI_INFO_WPSTHREADS, 152, 92, 44, 8
+        LTEXT           "デスクトップの再始動:", ID_XCDI_INFO_WPSRESTARTS_TXT,
+                        14, 84, 95, 8
+        RTEXT           "不明", ID_XCDI_INFO_WPSRESTARTS, 152, 84, 44, 8
+        LTEXT           "サウンドの状況:", ID_XCDI_INFO_SOUNDSTATUS_TXT, 14,
+                        76, 70, 8
+        RTEXT           "不明", ID_XCDI_INFO_SOUNDSTATUS, 92, 76, 104, 8
+        LTEXT           "XWPHook の状況:", ID_XCDI_INFO_HOOKSTATUS_TXT, 14,
+                        68, 72, 8
+        RTEXT           "不明", ID_XCDI_INFO_HOOKSTATUS, 96, 68, 100, 8
+        GROUPBOX        "各国語対応 (NLS)",
+                        ID_XCDI_INFO_LANGUAGE_GROUP, 10, 20, 190, 40
+        LTEXT           "言語(~L):", ID_XCDI_INFO_LANGUAGE_TXT, 16, 40, 50,
+                        10, DT_VCENTER | DT_MNEMONIC
+        CONTROL         "", ID_XCDI_INFO_LANGUAGE, 70, 2, 125, 48,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "リリース:", ID_XCDI_INFO_NLS_RELEASE_TXT, 24,
+                        32, 80, 6, DT_VCENTER
+        RTEXT           "不明", ID_XCDI_INFO_NLS_RELEASE, 104, 32, 70, 6,
+                        DT_VCENTER
+        LTEXT           "翻訳者:", ID_XCDI_INFO_NLS_AUTHOR_TXT, 24, 24,
+                        80, 6, DT_VCENTER
+        RTEXT           "不明", ID_XCDI_INFO_NLS_AUTHOR, 104, 24, 70, 6,
+                        DT_VCENTER
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 140, 6, 60, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XFD_BOOTUPSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace", ID_XFD_BOOTUPSTATUS, 75, 8, 195, 16, NOT
+            FS_DLGBORDER | FS_BORDER | FS_SCREENALIGN | WS_DISABLED,
+            FCF_TITLEBAR
+    BEGIN
+        LTEXT           "XFldObject を初期化しています...",
+                        ID_XFDI_BOOTUPSTATUSTEXT, 25, 0, 165, 16, DT_VCENTER |
+                        DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ICON            ID_ICONDLG, -1, 0, 0, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XFD_CONTAINERPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XFD_CONTAINERPAGE, 0, 0, 254, 146, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XFDI_CNR_CNR, 10, 27, 230, 107, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS
+        GROUPBOX        "次を置き換えます", ID_XFDI_CNR_GROUPTITLE, 5, 21, 241,
+                        121, DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 4, 6, 85, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XFD_CREATINGCONFIG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace", ID_XFD_CREATINGCONFIG, 15, 21, 240, 16, NOT
+            FS_DLGBORDER | FS_BORDER | FS_SCREENALIGN | WS_VISIBLE,
+            FCF_TITLEBAR
+    BEGIN
+        LTEXT           "オブジェクトを作成しています。お待ちください...", -1, 25, 0, 215,
+                        15, DT_VCENTER | DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ICON            ID_ICONDLG, -1, 0, 0, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XFD_EMPTYDLG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XFD_EMPTYDLG, 0, 0, 260, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+    END
+END
+
+DLGTEMPLATE ID_XFD_FILEOPSSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "次を置き換えます", ID_XFD_FILEOPSSTATUS, 10, 6, 200, 64, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        PUSHBUTTON      "休止(~P)", DID_CANCEL, 140, 5, 55, 12
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 5, 6, 130, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+        LTEXT           "複写元:", -1, 6, 48, 42, 8
+        LTEXT           "", ID_XSDI_SOURCEFOLDER, 48, 48, 146, 8
+        LTEXT           "オブジェクト:", -1, 6, 40, 42, 8
+        LTEXT           "", ID_XSDI_SOURCEOBJECT, 48, 40, 146, 8
+        LTEXT           "", ID_XSDI_SUBOBJECT, 48, 32, 146, 8
+        LTEXT           "複写先:", ID_XSDI_TARGETFOLDER_TXT, 6, 24, 42, 8
+        LTEXT           "", ID_XSDI_TARGETFOLDER, 48, 24, 146, 8
+    END
+END
+
+DLGTEMPLATE ID_XFD_LIMITREACHED LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace: オブジェクトが多すぎます", ID_XFD_LIMITREACHED, 25, 18, 260,
+            74, FS_SCREENALIGN | WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 10, 6, 70, 12
+        ICON            ID_ICONDLG, -1, 225, 50, 20, 16, WS_GROUP
+        LTEXT           "XWorkplace のポップアップ・メニューに追加できる項目"
+                        "がいっぱいになりました。フォルダーのポップアップ・"
+                        "メニューを見る際には、毎回クローズする必要がありま"
+                        "す。", -1, 10,
+                        25, 205, 43, DT_WORDBREAK
+        PUSHBUTTON      "ヘルプ(~H)", ID_XLD_CLASSLIST, 180, 6, 70, 12, BS_HELP |
+                        BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE ID_XFD_STARTUPSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "システムの始動", ID_XFD_STARTUPSTATUS, 10, 6, 200, 32, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "初期化しています。お待ちください...", ID_SDDI_STATUS, 5,
+                        19, 185, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 140, 5, 55, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 5, 6, 130, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XLD_CLASSLIST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_CLASSLIST, 5, 12, 145, 108, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS | WS_SYNCPAINT, FCF_NOBYTEALIGN
+    BEGIN
+        CONTAINER       ID_XLDI_CNR, 5, 3, 135, 102, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XLD_METHODINFO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_METHODINFO, 5, 12, 145, 108, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS | WS_SYNCPAINT, FCF_NOBYTEALIGN
+    BEGIN
+        CONTAINER       ID_XLDI_CNR, 5, 3, 135, 90, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY | WS_GROUP
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        AUTORADIOBUTTON "インスタンスのメソッド(~I)", ID_XLDI_RADIO_INSTANCEMETHODS,
+                        5, 96, 65, 10, WS_GROUP | WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        AUTORADIOBUTTON "クラスのメソッド(~C)", ID_XLDI_RADIO_CLASSMETHODS, 75, 96,
+                        65, 10, WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XLD_REGISTERCLASS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "新しいクラスの登録", ID_XLD_REGISTERCLASS, 12, 28, 218, 62,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "DLL:", -1, 5, 43, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ENTRYFIELD      "", ID_XLDI_CLASSMODULE, 42, 44, 106, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "参照(~B)...", ID_XLDI_BROWSE, 155, 42, 55, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "クラス:", 303, 5, 28, 35, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ENTRYFIELD      "", ID_XLDI_CLASSNAME, 42, 29, 106, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 6, 65, 12, WS_DISABLED
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 6, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 145, 6, 65, 12, BS_HELP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XLD_SELECTCLASS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "次を置き換えます", ID_XLD_SELECTCLASS, 25, 15, 280, 204,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "次を置き換えます", ID_XLDI_INTROTEXT, 10, 179, 255,
+                        18, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CONTAINER       ID_XLDI_CNR, 10, 47, 255, 126, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 10, 3, 75, 12, WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 90, 3, 75, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 190, 3, 75, 12, BS_HELP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CONTROL         "クラスを取得しています。お待ちください...", ID_XLDI_TEXT2,
+                        10, 20, 255, 24, WC_MLE, MLS_READONLY | MLS_WORDWRAP |
+                        MLS_VSCROLL | WS_GROUP | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XLD_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_SETTINGS, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "クラス・リストの表示", -1, 5, 24, 175, 30
+        AUTOCHECKBOX    "すべての SOM クラスを表示(~S)", ID_XLDI_SHOWSOMOBJECT, 10,
+                        36, 165, 10
+        AUTOCHECKBOX    "メソッドの情報を表示(~M)", ID_XLDI_SHOWMETHODS, 10,
+                        27, 165, 10
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_DATAF_TYPES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_DATAF_TYPES, 0, 0, 265, 162, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XSDI_DATAF_AVAILABLE_CNR, 10, 30, 218, 118,
+                        CCS_SINGLESEL
+        GROUPBOX        "現在定義されている型", ID_XSDI_DATAF_GROUP, 5,
+                        24, 230, 135, DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 70, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 85, 6, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 165, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_DISK_DETAILS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_DISK_DETAILS, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 140, 6, 70, 12, BS_HELP
+        GROUPBOX        "ドライブの詳細", -1, 10, 99, 200, 48
+        LTEXT           "ドライブのラベル(~L):", -1, 15, 126, 70, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_DISK_LABEL, 112, 128, 91, 8, ES_MARGIN
+        LTEXT           "ファイル・システム:", -1, 15, 114, 85, 8
+        LTEXT           "不明", ID_XSDI_DISK_FILESYSTEM, 110, 114, 85, 8
+        LTEXT           "ブロック・サイズ:", -1, 15, 105, 85, 8
+        LTEXT           "不明", ID_XSDI_DISK_SECTORSIZE, 110, 105, 85, 8
+        GROUPBOX        "割り振り", -1, 10, 21, 200, 75
+        RTEXT           "ブロック", -1, 160, 81, 40, 8
+        RTEXT           "バイト", -1, 105, 81, 40, 8
+        LTEXT           "合計サイズ:", -1, 15, 72, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_TOTAL_SECTORS, 150, 72, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_TOTAL_BYTES, 75, 72, 70, 8
+        LTEXT           "使用中:", -1, 15, 63, 55, 8
+        RTEXT           "0", ID_XSDI_DISK_ALLOCATED_SECTORS, 150, 63, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_ALLOCATED_BYTES, 75, 63, 70, 8
+        LTEXT           "空き:", -1, 15, 54, 55, 8
+        RTEXT           "0", ID_XSDI_DISK_AVAILABLE_SECTORS, 150, 54, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_AVAILABLE_BYTES, 75, 54, 70, 8
+        LTEXT           "これが表です", ID_XSDI_DISK_CHART, 60, 27,
+                        140, 24
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XSD_FILESPAGE2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_FILESPAGE2, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "拡張属性", -1, 5, 20, 230, 104
+        LTEXT           "属性(~A):", -1, 10, 106, 60, 8, DT_MNEMONIC
+        LISTBOX         ID_XSDI_FILES_EALIST, 10, 70, 218, 35,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        LTEXT           "内容(~C):", ID_XSDI_FILES_EAINFO, 10, 58, 218, 8,
+                        DT_MNEMONIC
+        MLE             "", ID_XSDI_FILES_EACONTENTS, 10, 24, 218, 33,
+                        MLS_WORDWRAP | MLS_VSCROLL | MLS_IGNORETAB |
+                        WS_GROUP
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 165, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_IMPORTWPS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "WPS フィルターのインポート", ID_XSD_IMPORTWPS, 12, 6, 242, 172,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "結合先:", -1, 6, 160, 65, 8
+        LTEXT           "[xxx]", ID_XSDI_FT_TYPE, 72, 160, 162, 8
+        GROUPBOX        "追加するフィルター(~F)", -1, 6, 18, 80, 140, DT_MNEMONIC
+        LISTBOX         ID_XSDI_FT_FILTERLIST, 10, 32, 70, 116,
+                        LS_MULTIPLESEL | LS_NOADJUSTPOS | LS_HORZSCROLL |
+                        LS_EXTENDEDSEL
+        AUTOCHECKBOX    "不明のみ(~U)", ID_XSDI_FT_UNKNOWNONLY, 10, 20, 70,
+                        10
+        CONTAINER       ID_XSDI_FT_ASSOCSCNR, 95, 36, 133, 112,
+                        CCS_EXTENDSEL | WS_GROUP
+        GROUPBOX        "追加する関連付け(~A)", -1, 90, 18, 144, 140,
+                        DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "全選択(~S)", ID_XSDI_FT_SELALL, 94, 22, 64, 12
+        PUSHBUTTON      "全選択解除(~D)", ID_XSDI_FT_DESELALL, 164, 22, 64,
+                        12
+        DEFPUSHBUTTON   "結合(~M)", DID_OK, 6, 3, 70, 12, WS_GROUP
+        PUSHBUTTON      "クローズ(~C)", DID_CANCEL, 86, 3, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", ID_XSD_NEWSOUNDSCHEME, 164, 3, 70, 12,
+                        BS_HELP | BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE ID_XSD_KEYB_EDITFUNCTIONKEY LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "機能キーの定義", ID_XSD_KEYB_EDITFUNCTIONKEY, 12,
+            50, 244, 76, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "キーの説明(~D):", -1, 6, 58, 74, 12, DT_VCENTER |
+                        DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_FUNCK_DESCRIPTION_EF, 96, 60, 140, 8,
+                        ES_MARGIN
+        LTEXT           "ハードウェア走査コード(入力欄で機能"
+                        "キーを押す)(~S):", -1, 6, 46, 232, 10,
+                        DT_VCENTER | DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_FUNCK_SCANCODE_EF, 96, 36, 140, 8,
+                        ES_CENTER | ES_MARGIN
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FF8080L
+        LTEXT           "「OK」を押すと、機能キーが登録されます。"
+                        " ", -1, 6, 20, 232, 10, DT_VCENTER
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 8, 6, 70, 12
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 86, 6, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 164, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_MOUSE_CORNERS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_MOUSE_CORNERS, 0, 0, 232, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTROL         "", -1, 20, 80, 52, 28, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOPLEFT, 16, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOP, 42, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOPRIGHT, 68, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_LEFT, 16, 90, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_RIGHT, 68, 90, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOMLEFT, 16, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOM, 42, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOMRIGHT, 68, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "無効(~N)", ID_XSDI_MOUSE_INACTIVEOBJ, 104, 118, 64,
+                        8, WS_GROUP | WS_TABSTOP
+        RADIOBUTTON     "オープン(~O):", ID_XSDI_MOUSE_OPEN_CHECK, 104, 110,
+                        76, 8, WS_TABSTOP
+        RADIOBUTTON     "特殊機能(~P):", ID_XSDI_MOUSE_SPECIAL_CHECK,
+                        104, 76, 78, 8, WS_TABSTOP
+        CONTAINER       ID_XSDI_MOUSE_OPEN_CNR, 108, 86, 68, 22,
+                        CCS_SINGLESEL | WS_GROUP
+        GROUPBOX        "画面の角/枠(~C)", -1, 4, 56, 84, 78,
+                        DT_MNEMONIC | NOT WS_GROUP
+        GROUPBOX        "動作", -1, 98, 56, 98, 78
+        CONTROL         "", ID_XSDI_MOUSE_SPECIAL_DROP, 108, 0, 70, 74,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_TABSTOP | WS_VISIBLE
+        SLIDER          ID_XSDI_MOUSE_CORNERSIZE_SLIDER, 13, 26, 166, 17,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 11, 0, 6, 0
+        GROUPBOX        "角の感度", -1, 4, 19, 192, 35
+        LTEXT           "0%", -1, 13, 21, 20, 8
+        RTEXT           "50%", -1, 140, 21, 24, 8
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 4, 4, 70, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 84, 4, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 162, 4, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_MOUSE_MOVEMENT2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_MOUSE_MOVEMENT2, 0, 0, 232, 164, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "マウス・ポインターを自動的に隠す", -1, 6, 78, 194, 48
+        AUTOCHECKBOX    "有効(~A)", ID_XSDI_MOUSE_AUTOHIDE_CHECK, 12, 110, 44,
+                        8
+        LTEXT           "速度(~L):", ID_XSDI_MOUSE_AUTOHIDE_TXT1, 22, 98, 28,
+                        12, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_XSDI_MOUSE_AUTOHIDE_SLIDER, 56, 98, 106, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 60, 0, 1, 0
+        CTEXT           "0 s", ID_XSDI_MOUSE_AUTOHIDE_TXT2, 160, 98, 28, 12,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "メニューがオープンされている場合は表示(~M)",
+                        ID_XSDI_MOUSE_AUTOHIDE_CHECKMNU, 22, 88, 164, 10
+        AUTOCHECKBOX    "ボタンの上にある場合は表示(~P)",
+                        ID_XSDI_MOUSE_AUTOHIDE_CHECKBTN, 22, 80, 164, 10
+        GROUPBOX        "ポインターをダイアログのボタンへ自動的に移動", -1, 6,
+                        20, 194, 56
+        AUTOCHECKBOX    "有効(~N)", ID_XSDI_MOUSE_AUTOMOVE_CHECK, 12, 60, 46,
+                        8
+        LTEXT           "速度(~Y):", ID_XSDI_MOUSE_AUTOMOVE_TXT1, 22, 46, 28,
+                        12, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_XSDI_MOUSE_AUTOMOVE_SLIDER, 56, 46, 106, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 50, 0, 1, 0
+        CTEXT           "0 s", ID_XSDI_MOUSE_AUTOMOVE_TXT2, 160, 46, 28, 12,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "動きを付ける(~A)", ID_XSDI_MOUSE_AUTOMOVE_ANIMATE, 22, 36,
+                        50, 8
+        AUTOCHECKBOX    "ボタンのないダイアログの際は中央(~C)",
+                        ID_XSDI_MOUSE_AUTOMOVE_CENTER, 22, 28, 145, 8
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 4, 4, 70, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 78, 4, 70, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 152, 4, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWFILETYPE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "新規ファイル形式", ID_XSD_NEWFILETYPE, 15, 66, 145, 45, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "入力ファイル形式の名前を入力します:",
+                        ID_XSDI_FT_TITLE, 5, 30, 135, 11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWFILTER LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "新規フィルター", ID_XSD_NEWFILTER, 15, 66, 145, 45, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "新規フィルターの名前を入力します:", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWSOUNDSCHEME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "新規サウンド・スキーム", ID_XSD_NEWSOUNDSCHEME, 15, 66, 145, 45,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "新規スキームの名前を入力します:", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CONTROL         "", ID_XSDI_FT_ENTRYFIELD, 5, 0, 135, 33,
+                        WC_COMBOBOX, CBS_DROPDOWN | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        DEFPUSHBUTTON   "了解(~O)", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        PUSHBUTTON      "取消(~C)", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+
+DLGTEMPLATE ID_XSD_PGMFILE_MODULE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_PGMFILE_MODULE, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 140, 3, 70, 12, BS_HELP
+        GROUPBOX        "プログラム・ファイル", ID_XSDI_PROG_MAINGROUP, 10, 111, 200,
+                        33
+        LTEXT           "パス名およびファイル名:", ID_XSDI_PROG_FILENAME_TXT, 15,
+                        126, 180, 8, DT_MNEMONIC | NOT WS_GROUP
+        RTEXT           "不明", ID_XSDI_PROG_FILENAME, 15, 117, 190, 8,
+                        NOT WS_GROUP
+        GROUPBOX        "モジュール形式", ID_XSDI_PROG_FORMAT_GROUP, 10, 75,
+                        200, 33
+        LTEXT           "実行可能形式", ID_XSDI_PROG_EXEFORMAT_TXT, 15,
+                        90, 70, 8, DT_MNEMONIC | NOT WS_GROUP
+        LTEXT           "不明", ID_XSDI_PROG_EXEFORMAT, 95, 90, 110, 8,
+                        NOT WS_GROUP
+        LTEXT           "対象の OS:", ID_XSDI_PROG_TARGETOS_TXT, 15, 81, 70,
+                        8, DT_MNEMONIC | NOT WS_GROUP
+        LTEXT           "不明", ID_XSDI_PROG_TARGETOS, 95, 81, 110, 8,
+                        NOT WS_GROUP
+        GROUPBOX        "モジュールの説明", ID_XSDI_PROG_DESCRIPTION_GROUP,
+                        10, 18, 200, 51
+        RTEXT           "次を置き換えます", ID_XSDI_PROG_DESCRIPTION, 16, 24,
+                        189, 36, NOT WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_SET28STATUSBARS2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SET28STATUSBARS2, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "何も選択されていないとき(~N)", -1, 6, 108, 202, 26,
+                        DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_SBTEXTNONESEL, 22, 114, 146, 8,
+                        ES_MARGIN | WS_GROUP
+        PUSHBUTTON      "キー(~K) ", ID_XSDI_SBKEYSNONESEL, 172, 112, 30, 12,
+                        BS_NOPOINTERFOCUS
+        GROUPBOX        "1 つのオブジェクトの選択時(~O)", -1, 6, 58, 202, 48,
+                        DT_MNEMONIC | NOT WS_GROUP
+        ENTRYFIELD      "", ID_XSDI_SBTEXT1SEL, 22, 74, 146, 8, ES_MARGIN
+        PUSHBUTTON      "キー(~E) ", ID_XSDI_SBKEYS1SEL, 172, 72, 30, 12,
+                        BS_NOPOINTERFOCUS
+        LTEXT           "クラス:", -1, 10, 86, 30, 12, DT_VCENTER | NOT
+                        WS_GROUP
+        LTEXT           "WPObject", ID_XSDI_SBCURCLASS, 40, 86, 70, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        PUSHBUTTON      "クラスの選択(~C)...", ID_XSDI_SBSELECTCLASS, 110, 86,
+                        90, 12
+        AUTOCHECKBOX    "シャドウの逆参照(~R)", ID_XSDI_DEREFSHADOWS_SINGLE,
+                        20, 60, 180, 10
+        GROUPBOX        "複数オブジェクトの選択時(~V)", -1, 6, 22, 202, 34,
+                        DT_MNEMONIC | NOT WS_GROUP
+        ENTRYFIELD      "", ID_XSDI_SBTEXTMULTISEL, 22, 38, 146, 8,
+                        ES_MARGIN
+        PUSHBUTTON      "キー(~Y) ", ID_XSDI_SBKEYSMULTISEL, 172, 36, 30, 12,
+                        BS_NOPOINTERFOCUS
+        AUTOCHECKBOX    "シャドウの逆参照(~F)",
+                        ID_XSDI_DEREFSHADOWS_MULTIPLE, 20, 24, 180, 10
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 65, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 75, 6, 65, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_SET3SNAPTOGRID LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SET3SNAPTOGRID, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "座標に配置", -1, 5, 23, 175, 113, DT_MNEMONIC |
+                        NOT WS_GROUP
+        CONTROL         "", -1, 45, 32, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 32, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 52, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 52, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 71, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 71, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 91, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 91, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        AUTOCHECKBOX    "有効(~E)", ID_XSDI_SNAPTOGRID, 10, 115, 156, 10
+        LTEXT           "X 起点(~X)", -1, 23, 97, 57, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_X, 23, 86, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "X 間隔(~S)", -1, 84, 97, 54, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_CX, 84, 86, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "Y 間隔(~Y)", -1, 110, 58, 51, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_CY, 110, 47, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "Y 起点(~O)", -1, 110, 36, 49, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_Y, 110, 26, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_SETTINGS_FLDRSORT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SETTINGS_FLDRSORT, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "省略時の分類基準(~F):", -1, 5, 118, 175, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        LISTBOX         ID_XSDI_SORTLISTBOX, 5, 42, 175, 75, LS_NOADJUSTPOS |
+                        LS_HORZSCROLL
+        AUTOCHECKBOX    "フォルダーから(~O)", ID_XSDI_SORTFOLDERSFIRST, 6, 30,
+                        175, 8
+        AUTOCHECKBOX    "分類順を維持(~A)", ID_XSDI_ALWAYSSORT, 6,
+                        22, 175, 8
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_STARTUPFOLDER LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_STARTUPFOLDER, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "XWorkplace 始動フォルダー", -1, 5, 24, 196, 102
+        LTEXT           "最初の遅延(~I):", ID_SDDI_STARTUP_INITDELAY_TXT1,
+                        10, 102, 54, 14, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_SDDI_STARTUP_INITDELAY_SLID, 64, 102, 96, 14,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 20, 0, 1, 0
+        LTEXT           "ms", ID_SDDI_STARTUP_INITDELAY_TXT2, 164, 102, 30,
+                        14, DT_VCENTER | NOT WS_GROUP
+        LTEXT           "オブジェクト遅延(~P):", ID_SDDI_STARTUP_OBJDELAY_TXT1,
+                        10, 86, 54, 14, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_SDDI_STARTUP_OBJDELAY_SLID, 64, 86, 96, 14,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 20, 0, 1, 0
+        LTEXT           "ms", ID_SDDI_STARTUP_OBJDELAY_TXT2, 164, 86, 30, 14,
+                        DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "状況ウィンドウを表示(~S)", ID_SDDI_SHOWSTARTUPPROGRESS,
+                        10, 72, 184, 10, WS_GROUP
+        GROUPBOX        "フォルダー内容の開始", -1, 10, 29, 186, 38
+        AUTORADIOBUTTON "再起動時のみ(~R)", ID_SDDI_STARTUP_REBOOTSONLY, 15, 47,
+                        80, 12, BS_NOCURSORSELECT | WS_TABSTOP
+        AUTORADIOBUTTON "デスクトップの再始動時(~E)",
+                        ID_SDDI_STARTUP_EVERYWPSRESTART, 15, 33, 80, 12,
+                        BS_NOCURSORSELECT | WS_TABSTOP
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 60, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 73, 6, 60, 12, WS_GROUP
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 141, 6, 60, 12, BS_HELP |
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_XWPSOUND LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_XWPSOUND, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        AUTOCHECKBOX    "システム・サウンドを使用(~E)", ID_XSDI_SOUND_ENABLE, 5,
+                        153, 185, 10
+        GROUPBOX        "サウンド・スキーム", -1, 5, 120, 205, 33, NOT WS_GROUP
+        LTEXT           "現在のスキーム(~C):", -1, 10, 135, 85, 9, DT_MNEMONIC |
+                        NOT WS_GROUP
+        CONTROL         "", ID_XSDI_SOUND_SCHEMES_DROPDOWN, 90, 69, 115, 77,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_TABSTOP | WS_VISIBLE
+        PUSHBUTTON      "別名保存(~A)...", ID_XSDI_SOUND_SCHEMES_SAVEAS, 90, 123,
+                        55, 12
+        PUSHBUTTON      "削除(~E)...", ID_XSDI_SOUND_SCHEMES_DELETE, 150, 123,
+                        55, 12
+        GROUPBOX        "システム・サウンドの定義", -1, 5, 21, 205, 96
+        LTEXT           "イベント(~V)", -1, 10, 102, 65, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        LISTBOX         ID_XSDI_SOUND_EVENTSLISTBOX, 10, 24, 95, 78,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        LTEXT           "サウンド・ファイル(~S):", -1, 110, 102, 75, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_SOUND_FILE, 112, 92, 91, 8, ES_MARGIN
+        PUSHBUTTON      "参照(~B)...", ID_XSDI_SOUND_BROWSE, 110, 75, 45, 12,
+                        BS_NOPOINTERFOCUS
+        DEFPUSHBUTTON   "再生(~P)", ID_XSDI_SOUND_PLAY, 160, 75, 45, 12,
+                        BS_NOPOINTERFOCUS
+        AUTOCHECKBOX    "音量を統一(~O)",
+                        ID_XSDI_SOUND_COMMONVOLUME, 110, 63, 95, 9
+        CONTROL         "", ID_XSDI_SOUND_VOLUMELEVER, 155, 27, 45, 36,
+                        WC_STATIC, SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 145, 6, 65, 12, BS_HELP |
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_XWPSTRING_PAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_XWPSTRING_PAGE, 0, 0, 232, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "セットアップ・ストリング(~E):", -1, 8, 128, 108, 8, DT_MNEMONIC
+        CONTROL         "", ID_XSD_XWPSTRING_STRING_MLE, 8, 86, 176, 40,
+                        WC_MLE, MLS_WORDWRAP | MLS_VSCROLL | MLS_IGNORETAB |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "起動時に確認(~N)", ID_XSD_XWPSTRING_CONFIRM, 8,
+                        72, 176, 10, WS_GROUP
+        LTEXT           "オブジェクトをドラッグして、文字列をつけて保存しま"
+                        "す:", -1, 8, 52, 108, 16, DT_WORDBREAK
+        CONTAINER       ID_XSD_XWPSTRING_OBJ_CNR, 10, 26, 68, 22,
+                        CCS_SINGLESEL
+        CONTROL         "", -1, 8, 24, 72, 26, WC_STATIC, SS_FGNDFRAME |
+                        WS_VISIBLE
+        PUSHBUTTON      "消去(~C)", ID_XSD_XWPSTRING_OBJ_CLEAR, 96, 32, 68, 12
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 8, 4, 50, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 70, 4, 50, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 134, 4, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XTD_DRIVES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XTD_DRIVES, 0, 0, 224, 180, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        GROUPBOX        "ドライブのサポート", -1, 5, 24, 175, 98
+        LTEXT           "未サポート(~U)", -1, 10, 106, 56, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        LISTBOX         ID_XTDI_UNSUPPORTED_LB, 10, 28, 52, 76,
+                        LS_NOADJUSTPOS | LS_EXTENDEDSEL
+        LTEXT           "サポート(~S)", -1, 116, 106, 56, 8, DT_MNEMONIC
+        LISTBOX         ID_XTDI_SUPPORTED_LB, 116, 28, 52, 76,
+                        LS_NOADJUSTPOS | LS_EXTENDEDSEL
+        PUSHBUTTON      "追加(~A) >>", ID_XTDI_ADD_SUPPORTED, 66, 66, 46, 12
+        PUSHBUTTON      "<< 除去(~R)", ID_XTDI_REMOVE_SUPPORTED, 66, 50, 46,
+                        12
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XTD_ICONPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XTD_ICONPAGE, 0, 0, 194, 134, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "タイトル(~T):", -1, 6, 66, 26, 8, DT_MNEMONIC
+        MLE             "", ID_XTDI_ICON_TITLEMLE, 34, 50, 142, 24,
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "やり直し(~U)", DID_UNDO, 4, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "省略時値(~D)", DID_DEFAULT, 64, 6, 55, 12
+        PUSHBUTTON      "ヘルプ(~H)", DID_HELP, 124, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_TSD_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ツリーサイズ", ID_TSD_MAIN, 30, 21, 325, 148, NOT FS_DLGBORDER |
+            FS_SCREENALIGN | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR |
+            FCF_MINBUTTON | FCF_MAXBUTTON
+    BEGIN
+        ICON            ID_TS_ICON, ID_TSDI_ICON, 6, 129, 20, 16, WS_GROUP
+        LTEXT           "テキスト", ID_TSDI_TEXT1, 35, 129, 285, 17, DT_VCENTER
+        CONTAINER       ID_TSDI_CNR, 6, 18, 315, 108, CCS_SINGLESEL |
+                        WS_GROUP
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+        DEFPUSHBUTTON   "クローズ(~C)", DID_OK, 6, 4, 60, 12
+        PUSHBUTTON      "消去(~L)", DID_CLEAR, 72, 4, 60, 12
+        PUSHBUTTON      "最新表示(~E)", DID_REFRESH, 140, 4, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_XLD_CLASSINFO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "クラス情報", ID_XLD_CLASSINFO, 15, 54, 215, 135, NOT
+            FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS, FCF_NOBYTEALIGN
+    BEGIN
+        LTEXT           "クラス:", ID_XLDI_CLASSNAMETXT, 5, 123, 18, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "", ID_XLDI_CLASSNAME, 70, 123, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "置き換え後:", ID_XLDI_REPLACEDBYTXT, 5, 114, 43,
+                        8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "", ID_XLDI_REPLACEDBY, 70, 114, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "省略時タイトル:", ID_XLDI_CLASSTITLETXT, 5, 105, 35,
+                        8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "", ID_XLDI_CLASSTITLE, 70, 105, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "DLL:", ID_XLDI_CLASSMODULETXT, 5, 96, 13, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "", ID_XLDI_CLASSMODULE, 70, 96, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "省略時クラス・アイコン:", ID_XLDI_ICONTXT, 5, 78, 52, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        ICON            ID_ICONDLG, ID_XLDI_ICON, 70, 78, 20, 16, WS_GROUP
+        LTEXT           "バイト数/インスタンス:", ID_XLDI_BYTESPERINSTANCETXT, 4, 68, 62, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        LTEXT           "", ID_XLDI_BYTESPERINSTANCE, 69, 68, 140, 8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+        CONTROL         "クラスを取得しています。お待ちください...", ID_XLDI_TEXT2,
+                        5, 3, 205, 57, WC_MLE, MLS_READONLY | MLS_WORDWRAP |
+                        MLS_VSCROLL | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Combined"
+    END
+END
+

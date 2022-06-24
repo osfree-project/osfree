@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: &winos2; Sessioner
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_win16.gif">
+
+<P>&os2; har inbyggt st”d f”r program som skrivits f”r Microsoft Windows 3.x. Detta
+st”d kallas <B>&winos2;</B> och „r en anpassad version av Microsoft Windows 3.1 som k”rs
+p† ditt &os2; system. Detta till†ter dig att anv„nda Windows program som om de vore &os2;
+program. Till exempel, kan du k”ra Windowsprogram p† ditt &os2; Skrivbord eller i en
+separat fullsk„rmssession och fortfarande dela informationen mellan &os2; och Windowsprogram.
+
+<P>Notera att &winos2; st”det „r likv„rdigt med Windows 3.1, men inte med Windows 95.
+&winos2; st”der inte 32-bitars Windowsapplikationer. F”r att k”ra 32-bitars Windowsapplikationer,
+m†ste du installera tredjeparts till„ggsprogram.
+
+<P>I &link_syssetupfdr;, kommer du att hitta
+<A HREF="objects/obj_setup_win16.html">"&winos2setup;"</A> objektet som till†ter
+dig att st„lla in globala egenskaper f”r hela &winos2; subsystemet. Dessa inst„llningar
+anv„nds oberoende om du har skapat ett
+<A HREF="objects/obj_pgmobj.html">programobjekt</A> som pekar mot en &winos2; applikation
+f”r att till„mpa specifika inst„llningar.
+
+<P>Ett &winos2; program kan k”ras i f”nster eller i fullsk„rmssessioner.
+
+<UL><LI>Alla <B>f”nster &winos2;</B> program delar samma session som standard. Med andra ord,
+„ven om de verkar upptr„da som multipla f”nster p† ditt Skrivbord, k”rs de i samma
+<A HREF="glossary/gls_scheduler.html">process</A> internt. Alla program som k”rs i den sessionen
+delar samma DOS och &winos2; egenskaper vilka sattes av det f”rsta programmet i sessionen.
+
+<P>D„remot, kan du v„lja att ett &winos2; program skall anv„nda en <B>separat session</B> genom att
+aktivera respektive inst„llning i programobjektets
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>. Detta kommer att kr„va mer minne
+men kommer att skydda programmet fr†n andra &winos2; program, eftersom de k”rs i samma process.
+
+<P><LI>Om du k”r en <B>&winos2; fullsk„rms</B> session, som hos n†gon annan
+<A HREF="glossary/gls_sessions_fs.html">fullsk„rmssession</A>, kommer &os2;'s Skrivbord
+inte l„ngre att vara synligt. Emellertid, i en &winos2; fullsk„rmssession, kan du v„xla tillbaka
+till &os2;'s Skrivbord genom att v„lja "Skrivbords" ikonen i botten p† &winos2; sessionen.
+
+</UL>Som till„gg, kan varje &winos2; session (f”nster eller fullsk„rms) k”ras i "standard" eller
+"ut”kat kompatibilitets" l„ge.
+
+<UL><LI><B>Standardl„get</B> k”r program som skrevs f”r Microsoft Windows 3.0 och 3.1 standardl„ge.
+
+<P><LI><B>Ut”kat kompatibilitetsl„ge</B> k”r program som kr„ver Microsoft Windows 3.0 och 3.1
+ut”kat l„ge.
+
+</UL>Alla Windows 3.0 och 3.1 standardl„gesprogram kommer att k”ras i en &winos2;
+ut”kat-kompatibilitetsl„ge session. Standardinst„llningen f”r dessa sessioner „r
+d„rf”r ut”kad kompatibilitet.
+
+F”r mer information, v„lj fr†n f”ljande lista:
+
+<UL>
+<LI><A HREF="glossary/gls_sessions.html">Sessionstyper</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Fullsk„rmssessioner</A>
+<LI><A HREF="glossary/gls_scheduler.html">Processer och tr†dar</A>
+</UL>
+</BODY>
+</HTML>

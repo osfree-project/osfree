@@ -1,0 +1,34 @@
+
+;
+; ____sample.def:
+;       module definition file for SAMPLE.DLL, an XCenter
+;       plug-in widget DLL.
+;
+;       Copyright (C) 2000-2013 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software; you can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY; without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+LIBRARY SAMPLE INITINSTANCE TERMINSTANCE
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace sample plugin DLL'
+PROTMODE
+
+DATA              MULTIPLE READWRITE LOADONCALL NONSHARED
+;       doesn't really matter, because the widget is only ever used
+;       in the WPS process; we use MULTIPLE NONSHARED here to reduce
+;       the amount of shared memory that is needed for the DLL
+
+CODE              LOADONCALL
+
+EXPORTS
+    WgtInitModule      @1
+    WgtUnInitModule    @2
+    WgtQueryVersion    @3
+

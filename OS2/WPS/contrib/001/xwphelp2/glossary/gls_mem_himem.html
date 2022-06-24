@@ -1,0 +1,110 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Virtual Address Space
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+
+As you might know, the 80386 and higher processors use 32 bits
+for all addresses, which allows for addressing 4 GB of memory.
+This is generally called the virtual address space.
+
+<P>Note that this address space exists no matter how much physical
+memory is installed on your system. One of the great advantages
+of the 80386 processor (compared to earlier processors) is that
+the processor can do the conversion of a virtual address into
+a physical address in RAM in hardware -- with a little help from
+the operating system (in our case, &os2;), which must give the
+processor tables where conversion data is stored.
+
+<P>To be able to manage virtual memory with respect to the
+various processes that are running in the system, &os2; divides
+the entire virtual address space of 4 GB into <B>arenas.</B>
+
+<PRE>
+ 4096 MB -----------------------------------------------------
+
+                system arena
+
+  512 MB -----------------------------------------------------
+                shared arena
+  variable ---------------+-----------+---------------
+                private   | private   | private
+                arena     | arena     | arena
+                process 1 | process 2 | process 23
+    0 MB -----------------+-----------+---------------
+</PRE>
+
+The <B>system arena</B> is reserved for code that is running at ring 0,
+that is, device drivers and the &os2; kernel itself. Normal
+applications cannot access that memory.
+
+<P>By contrast, the <B>shared</B> and <B>private arenas</B> are available
+for use by applications.
+
+<P>While the system and shared arenas will always be backed by
+the same physical memory pages, the private arena is different
+for each process. Each application has its own private memory
+(code and data). By contrast, the shared arena is used for
+code and data that is shared between applications: for example, all
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLLs</A>
+are loaded into that arena.
+
+<P>The border between the shared and private arenas is variable
+and depends on how much shared memory is used in the system.
+This is why sometimes the system runs "out of memory" if many
+DLLs are loaded. In reality, the system is not running out of
+physical memory (because it would normally expand the
+<!-- V1.0.0: added link -->
+<a href="glossary/gls_mem_paging.html">swap file</a>);
+it is really running out of address space.
+
+<P>All OS/2 kernels from 2.0 before 4.5 (the Aurora kernel)
+had a fixed barrier at 512 MB for application memory. The reason
+for this was support for 16-bit applications which cannot
+easily access memory above that line.
+
+<P>This has changed with the Aurora kernel, which allows applications
+to allocate memory above the 512 MB line if <CODE>VIRTUALADDRESSLIMIT</CODE>
+is specified with a value > 512 in &cfgsys;.
+The address space now looks like this:
+
+<PRE>
+ 4096 MB ---------------------------------------------
+                system arena
+ VIRTUALADDRESSLIMIT ---------------------------------
+                high memory arena (shared and private)
+  512 MB ---------------------------------------------
+                shared arena
+  variable ---------------+-----------+---------------
+                private   | private   | private
+                arena     | arena     | arena
+                process 1 | process 2 | process 23
+    0 MB -----------------+-----------+---------------
+</PRE>
+
+As you can see, the space between the system and shared arenas
+is called "high memory" and is again divided into shared and
+private arenas. This memory is only given to applications if
+they explicitly request this, so enabling high memory only
+has direct consequences for applications which are aware of
+its existence. (For example, Java will use this arena
+if <CODE>SET JAVA_HIGH_MEMORY=1</CODE> is specified in
+&cfgsys;.).
+
+<P>However, enabling high memory still has side-effects.
+As said above, this memory cannot be used by 16-bit code.
+This is why you need the 32-bit TCP/IP implementation
+(version 4.1 or above) if you use high memory with Java.
+
+<P>In addition, the higher you set the <CODE>VIRTUALADDRESSLIMIT</CODE>,
+the smaller the system arena becomes. This is why raising the
+virtual address limit may reduce the number of available processes.
+
+<BR>
+</BODY>
+</HTML>
+

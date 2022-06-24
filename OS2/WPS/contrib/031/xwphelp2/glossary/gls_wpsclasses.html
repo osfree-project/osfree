@@ -1,0 +1,134 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Workplace Shell Classes
+    </TITLE>
+</HEAD>
+<BODY>
+De  Workplace Shell (WPS) van &os2; wordt meestal omschreven als <B>"object-geori‰nteerd".</B>
+Deze term suggereert dat - in tegenstelling tot de gebruikers interface van andere
+besturingssystemen - alles wat de Workplace Shell behandelt het eerst wordt beschouwd als een
+<B>"object":</B> dit is, b.v., van toepassing op &link_folders;, &link_datafiles;, afdrukkers,
+schijf objecten enz. Al deze objecten hebben bepaalde karakteristieken gemeen (zoals
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A> en
+<A HREF="glossary/gls_notebook.html">instellingen notitieblokken</A>), maar verschillen van
+diverse andere: b.v., wat u ziet in een &popmenu; is afhankelijk van het geselecteerde
+object.
+
+<P>Om in staat te zijn deze gemeenschappelijke en afwijkende karakteristieken beter af te
+handelen, gebruikt de WPS  <B>"classes".</B> Deze term is gekozen van uit het
+object geori‰nteerd programmeren; een class is, om zo te zeggen, een abstract concept, of
+een sjabloon voor een object.
+Een class is daarom niet zichtbaar op de Werkplek, hij "bestaat" dus eigenlijk niet in
+dezelfde betekenis als objecten, maar bevat alle informatie over de kenmerken en
+mogelijkheden van een object en de uitvoerbare code om een object iets te laten doen.
+
+<P>Alle WPS classes bevinden zich in
+<A HREF="glossary/gls_dll.html">dynamic link libraries (DLLs)</A>.
+B.v., de meeste van de standaard WPS classes bevinden zich in het grote
+<CODE>PMWP.DLL</CODE> bestand in de <CODE>\OS2\DLL</CODE> directory. Alle &xwp;
+classes bevinden zich in de <CODE>XFLDR.DLL</CODE> in de &xwp; installatie directory.
+
+<P>Nu is ieder object op de Werkplek een zogenoemd <B>"voorbeeld"</B> van een class.
+De namen van de meeste WPS classes beginnen met "WP": b.v. een printer is een
+voorbeeld van de "WPPrinter" class, een map ‚‚n van de class "WPFolder", een
+gegevensbestand of een "WPDataFie" enz.
+
+<P>De reden voor de kracht en de flexibiliteit van het class concept is dat de
+verschillende classes van elkaar <B>afstammen</B>. Zo'n afstammende class zal alle
+kenmerken en capaciteiten <B>erven</B> van zijn bovenliggende class. Het is dus mogelijk
+om verschillende uitvoeringen van de gebruikersinterface abstracter te maken,
+overeenkomstig het oude principe: de beste manier om met complexe zaken om te gaan is ze
+te vereenvoudigen.
+
+<P>De WPS bevat veel classes, die een zeer doordachte overerfelijke hi‰rarchie
+mogelijk maken. Het volgende uittreksel uit de WPS class lijst maakt de algemene
+structuur meer duidelijk (waarin de lijnen de relatie voorstellen):
+
+<PRE>
+ WPObject
+   ÃÄÄ WPAbstract
+   ³     ÃÄÄ WPPrinter
+   ³     ÃÄÄ WPProgram
+   ³     ÀÄÄ WPShadow
+   ÃÄÄ WPFileSystem
+   ³     ÃÄÄ WPDataFile
+   ³     ³      ÃÄÄ WPIcon
+   ³     ³      ÀÄÄ WPProgramFile
+   ³     ÀÄÄ WPFolder
+   ³            ÃÄÄ WPDesktop
+   ³            ÀÄÄ WPStartup
+   ÀÄÄ WPTransient
+</PRE>
+
+U ziet dat de classes afgeleiden zijn van <CODE>WPObject</CODE>, die daarom de
+"root class" wordt genoemd van alle WPS classes.
+Dit implementeert alle kenmerken die gelden voor alle Werkplek objecten: zoals
+eerder aangegeven, b.v.  &popmenu;s en instellingen notitieblokken. Echter,
+WPObject is te abstract om er voorbeelden van te hebben: deze class werd alleen
+ge‹mplementeerd om andere afgeleide classes te hebben. Objecten van deze class
+zullen niet functioneren.
+
+<P>WPObject heeft slechts drie afgeleide classes. Al deze classes zijn -
+net als WPObject - alleen bedoeld om een abstracte ouder classes te vormen, waarvan
+direct geen objecten zullen bestaan.
+
+<OL><LI><CODE>WPAbstract</CODE> is de algemene ouder class voor de zogenoemde
+"abstacte" objecten d.w.z. die objecten die niet werkelijk op de schijf aanwezig zijn,
+maar die alleen hun gegevens opslaan in <CODE>OS2.INI</CODE>. De meest bekende
+voorbeelden hiervan zijn de classes <CODE>WPPrinter</CODE> voor printer
+objecten, <CODE>WPProgram</CODE> voor programma objecten, en <CODE>WPShadow</CODE>
+voor reflectie objecten. Al deze objecten kunnen in mappen voorkomen maar zijn b.v. niet
+zichtbaar als u <CODE>DIR</CODE> invoert op de opdrachtregel
+
+<P><LI>Daar tegenover staat dat, <CODE>WPFileSystem</CODE> de algemene super-class is voor
+objecten die fysiek aanwezig zijn in een bestandssysteem van een schijf. Er zijn twee subtypes:
+mappen (<CODE>WPFolder</CODE> class) en gegevens bestanden (<CODE>WPDataFile</CODE>).
+Omgekeerd, zijn er verschillende sub-classes van WPDataFile, zoals <CODE>WPIcon</CODE>
+voor pictogram bestanden en <CODE>WPProgramFile</CODE> voor programma bestanden (uitvoerbare
+bestanden, meestal met de <CODE>.EXE</CODE> toevoeging.
+Alle gegevens bestanden waarvoor geen specifieke sub-classes meer bestaan zijn afgeleiden
+van <CODE>WPDataFile</CODE>.
+
+<P><LI>Als laatste, <CODE>WPTransient</CODE> wordt gebruikt door de WPS objecten die
+hun gegevens helemaal niet behoeven op te slaan, maar alleen tijdelijk bestaan om iets
+voor te stellen. Voorbeelden hiervan zijn afdrukopdrachten in een printer object en alle
+apparaten in Apparatuurbeheer.
+
+</OL>De WPS biedt ook een bijzonder mechanisme aan, <B>class vervanging</B> genoemd.
+Deze mogelijkheid wordt intensief door &xwp; gebruikt om al zijn mogelijkheden vast
+te maken in de WPS door een aantal standaard WPS classes te vervangen. B.v., de
+<CODE>XFolder</CODE> class zelf vevangt de <CODE>WPFolder</CODE> class om al de nieuwe
+map mogelijkheden te implementeren.
+
+<P>Zo'n vervangingsclass moet altijd een afstamming zijn van de class die
+het gaat vervangen; "vervanging" van de class betekent dan dat de WPS altijd
+de vervangende class zal gebruiken wanneer normaler wijze de originele class
+zou worden gebruikt.
+Met als resultaat, dat. als &xwp; is ge‹nstalleerd, alle mappen in uw systeem
+niet langer voorbeelden zijn van  <CODE>WPFolder</CODE>, maar van <CODE>XFolder</CODE>.
+Maar omdat <CODE>XFolder</CODE> een afstamming is van <CODE>WPFolder</CODE>,
+worden alle standaard map karakteristieken overerfd en bestaan nog steeds in de
+mappen in uw systeem.
+
+<P>Het gebruik van class vervangingen maakt het programmeurs mogelijk om nieuwe
+kenmerken voor een class te implementeren zonder in detail te moeten weten hoe een
+bepaalde class intern werkt. Dit is een uitstekend en krachtig concept, dat niet
+bekend is in andere besturingssystemen.
+
+<IFNDEF __NOWPSCLASSLIST__>
+<P>Als U het &xwp; zijn <A HREF="clst_main.html">"WPS Class List"</A> object opent,
+worden alle classes die op uw systeem zijn geinstalleerd getoond.
+Gewoonlijk zijn dit meer dan 100 classes, die in een boom-structuur zullen verschijnen.
+Door &popmenu;s, te gebruiken kunt u hier classes aanmelden en vervangen en ook afmelden
+en class vervangingen ongedaan maken. Ook kunt u proberen een object te maken
+(dat is: een voorbeeld) van veel classes op uw werkplek.
+
+<P>Merk a.u.b. op dat u erg voorzichtig moet zijn met het manipuleren van de WPS classlijst.
+Door de verkeerde wijzingen te maken, kutn u uw systeem instabiel maken!.
+</IFNDEF>
+
+<BR>
+</BODY>
+</HTML>
+

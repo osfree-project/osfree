@@ -1,0 +1,121 @@
+<HTML RESID=&ID_XSH_WIDGET_PULSE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Hartslag Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Het
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Hartslag" widget</B> toont de huidige CPU belasting tezamen met een grafiek van
+de CPU activiteit in het verleden. Dit wordt eens per seconde bijgewerkt en redelijk
+overeenkomstig met de betreffende monitor in het &warpcenter;.
+
+<!-- V0.9.9: added the following -->
+<P>Het scherm zal er ruwweg als volgt uit zien:
+<BR><IMG SRC="img/xc_pulse.gif">
+
+<P>Het groenblauwe deel van de grafiek vertegenwoordigt de "gebruikers" belasting van het systeem,
+terwijl het blauwe deel de "IRQ" belasting vertegenwoordigt. Het percentage dat in het midden
+afgedrukt wordt vertegenwoordigt altijd de huidige gecombineerde "gebruikers" en "IRQ" belasting.
+<!-- V0.9.19: added this -->
+Als u met een multiprocessor systeem werkt, krijgt u een "gebruikers" grafiek voor elke CPU.
+Maar, ook dan zult u maar ‚‚n "IRQ" grafiek hebben, omdat per definitie &os2; alle interrupts
+op de eerste CPU van het systeem verwerkt.
+Zie de onderstaande opmerkingen voor details hierover.
+<!-- end V0.9.9 -->
+
+<!-- V0.9.19: changed the following -->
+<P>Let op dat u
+<A HREF="glossary/gls_dropfonts.html">lettertypes en kleuren kunt verslepen en loslaten</A>
+op het hartslag widget.
+Verder is het in
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">grootte aanpasbaar</A>.
+
+<!-- V0.9.19: removed
+Presently, the pulse widget can only display the load of the first CPU, in
+case you are running &os2; on a multiprocessor system. -->
+
+<P><B>Implementatie Details</B>
+
+<!-- V0.9.9: rewrote most of the following -->
+<P>Intern gebruikt het hartslag widget de <CODE>DosPerfSysCall</CODE> API
+(zie de documentatie voor
+<A HREF="cpref.inf#DosPerfSysCall"><CODE>DosPerfSysCall</CODE></A>
+in de Toolkit documentatie<A HREF="_toolkitlink.html">*</A>).
+
+Deze API heeft het voordeel dat om de CPU activiteit te meten, u direct de
+prestatie metingen uit de &os2; kernel kunt halen in plaats van een tweede
+leeglooptijd thread te laten draaien, die zelf alle overblijvende CPU tijd consumeert
+(en daardoor extra accu stroom op laptops).
+
+<P>Als gevolg hiervan consumeert het hartslag widget <I>geen</I> aanvullende
+CPU tijd tijdens het draaien, met uitzondering van de benodigde tijd voor het
+tekenen van het widget zelf. Met andere woorden, het hartslag widget berekent zelf
+de CPU belasting niet, het raadpleegt alleen de &os2; kernel voor de
+huidige belasting en toont dat in een grafiek.
+
+<P>Het widget zijn eigen belasting voor het tekenen is ook de reden waarom u waarschijnlijk
+nooit een CPU belasting van nul zult zien, zelfs als u momenteel helemaal niets aan het doen bent
+met uw systeem. Op het systeem van de auteur (een Pentium II-400), komt de CPU belasting nooit
+onder de 0.7% met de standaard widget grootte.
+
+<!-- V0.9.9: added all the following -->
+<P><B>Benodigdheden</B>
+
+<!-- V0.9.19: refreshed this -->
+<IFNDEF __EWORKPLACE__>
+<P>De <CODE>DosPerfSysCall</CODE> API is slechts zeer recent ingevoerd en zou wel eens
+niet kunnen werken op uw systeem. Het zou moeten werken met Warp 4 en hoger (of Warp 3
+met een vergelijkbaar fixpak niveau; wat fixpak 26 zou moeten zijn).
+</IFNDEF>
+
+<P>De IBM documentatie voor <CODE>DosPerfSysCall</CODE> geeft aan dat een Pentium
+processor nodig is om de kernel prestatie metingen te laten werken.
+<!-- end V0.9.19 -->
+
+<P>Als het widget geen grafiek vertoont maar alleen een <CODE>"E xxx"</CODE> (met
+<CODE>xxx</CODE> zijnde een standaard &os2; foutcode), dan heeft zich een fout voorgedaan. Het meest
+waarschijnlijk is dat u <CODE>"E 182"</CODE> krijgt, wat betekent dat de <CODE>DosPerfSysCall</CODE>
+API niet gevonden is op uw systeem. Voor andere foutcodes kunt u proberen door <CODE>HELP SYSxxx</CODE>
+in te typen op een opdrachtregel.
+
+<P><B>"Gebruiker" en "IRQ" belasting</B>
+
+<P>Voor elke prestatie meting geeft <CODE>DosPerfSysCall</CODE> waarden terug voor respectievelijk "gebruiker" en
+"IRQ" belasting.
+
+<P>De <B>"gebruiker" belasting</B> is de tijd die besteed is in "taak tijd" programmatuur. In essentie
+betekent dat dat de CPU drukdoende was met het uitvoeren van programmatuur van ofwel een applicatie ofwel
+de &os2; kernel ofwel een stuurprogramma in de normale uitvoeringsgang van processen en threads,
+zoals geregeld door de planner in de &os2; kernel.
+<!-- V0.9.13: changed this -->
+(Zie <A HREF="glossary/gls_scheduler.html">"Processen en threads"</A> voor details.)
+
+<P>In tegenstelling hierop vertegenwoordigt de <B>"IRQ" belasting</B> de tijd die nodig was om interrupts
+te verwerken. Zoals u wellicht weet zijn interrupts een manier voor apparatuur onderdelen om de CPU te laten
+weten dat er een belangrijke gebeurtenis is voorgevallen welke direct afgehandeld moet worden.
+Meest voorkomend zijn interrupts die veroorzaakt worden door harde schijven, geluidskaarten, netwerkkaarten,
+<!-- V0.9.19: added serials and printers-->
+en seri‰le en printer communicaties.
+Deze apparaten kunnen het zich niet veroorloven om te wachten totdat de &os2; planner een proces
+tijdsinterval afgehandeld heeft en gereed is om naar een volgende taak over te schakelen. In plaats daarvan
+onderbreekt de &os2; kernel de normaal geplande volgorde, als er een interrupt binnen komt, en roept een
+interrupt processor aan, die, in de meeste gevallen, geprogrammeerd is in een soort stuurprogramma. (In het
+algemeen kunnen alleen &os2; stuurprogramma's interrupt processors installeren.) Bijvoorbeeld,
+als er een interrupt van een harde schijf binnen komt zal er direct programmatuur in de <CODE>IBM1S506.ADD</CODE>
+aangeroepen worden om de interrupt te verwerken.
+
+<P>Als u nooit enige IRQ belasting op uw systeem ziet, dan is dat normaal. Dit is waarschijnlijk
+het geval als u geen enkele netwerk adapter ge‹nstalleerd heeft en u bus mastering geactiveerd heeft
+voor uw harde schijven. Echter, als u een hoge IRQ belasting heeft, zou u maatregelen
+kunnen treffen omdat te verlagen, activeer bus mastering voor uw harde schijven
+en/of regel een netwerk adapter die beschikt over bus mastering.
+
+<BR>
+</BODY>
+</HTML>
+

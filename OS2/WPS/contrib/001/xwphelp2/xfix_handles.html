@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: xfix and WPS File Handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7
+    Changes:
+    V0.9.20: changed title, moved most stuff to glossary/gls_objhandle.html
+-->
+<BODY>
+The Workplace Shell uses file handles as an internal database to be able to
+find files no matter of their physical location.
+
+<P>In principle, these file handles are a good thing. It is file handles which
+allows for the WPS's superior features of program objects and shadows working
+even after the files they point to have been moved to a different location.
+Basically, this works because program objects and shadows never store the
+physical
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+of an object, but only an object handle.
+
+<!-- V0.9.20: moved all the rest to glossary/gls_objhandle.html, added
+everything below -->
+<P>For details about object handles, see
+<A HREF="glossary/gls_objhandle.html">"About Object Handles."</A>
+
+<P>Note that xfix mostly deals with file-system handles. To fix abstract objects,
+you might use Henk Kelder's CHECKINI program (from the
+<A HREF="http://www.os2site.com/sw/util/wps/wptools33.zip">WPTOOLS</A> package).
+
+<BR>
+</BODY>
+</HTML>
+

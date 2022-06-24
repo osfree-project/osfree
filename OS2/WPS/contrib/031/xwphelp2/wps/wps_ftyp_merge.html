@@ -1,0 +1,57 @@
+<HTML RESID=&ID_XSH_SETTINGS_FILET_MERGE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Samenvoegen met WPS filters
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+Omdat de standaard WPS programma's koppelt zowel op basis van bestandstype als op
+bestandsfilters, en omdat &xwp; het koppel mechanisme verfijnd om gebaseerd te zijn
+op alleen uitgebreide bestandstypes, biedt de aanvullende dialoog
+"Samenvoegen met WPS filters" u de mogelijkheid om voorheen gedefinieerde bestandsfilter
+koppelingen te importen in uw bestandstypes.
+
+<P>Deze dialoog is niet modaal van aard, wat betekent dat u nog steeds de
+"Bestandstypes" notitieblok pagina kunt gebruiken terwijl de dialoog open is. Als u een
+nieuw bestandstype selecteert op de notitieblok pagina, zult u zien dat de "Samenvoeg"
+dialoog zichzelf bijwerkt.
+
+<P>De dialoog sluit alleen nadat u de <B>"Sluiten"</B> knop heeft ingedrukt.
+
+<P>Om alle, of sommige, van de koppelingen te importeren in &xwp; bestandstypes koppelingen,
+die gedefinieerd waren voor een WPS filter, moet u het volgende doen:
+
+<OL><LI><B>Selecteer het bestandstype</B> op de notitieblok pagina waarvoor u een
+filter wilt importeren -- bijvoorbeeld "Bitmap".
+
+<P><LI>In de "Samenvoeg" dialoog kiest u <B>het filter</B> van welke u de koppelingen wilt
+importeren -- bijvoorbeeld, <CODE>*.BMP</CODE>.
+
+<P><LI>Het "Koppelingen toe te voegen" veld in de dialoog zal u laten zien welke programma's
+gedefinieerd zijn voor dat filter.
+<B>Selecteer de koppelingen</B> in dat veld die u zou willen toevoegen aan het huidige
+bestandstype (in het bovenstaande voorbeeld, het "Bitmap" type). Druk op "Selecteer alles"
+of "Deselecteer alles" om, logisch, alle onderdelen te selecteren of te deselecteren in het koppelingen veld.
+
+<P><LI>Druk de <B>"Samenvoeg"</B> knop in om de geselecteerde programma's toegevoegd te krijgen
+aan het momenteel geselecteerde bestandstype op de notitieblok pagina.
+
+</OL>U kunt elk van de bovenstaande stappen net zo vaak herhalen als noodzakelijk is. Denk er om
+dat &xwp; u de mogelijkheid biedt om hi‰rarchische bestandstypes te defini‰ren, waarbij afgeleide
+bestandstypes koppelingen overerven van hun bronnen.
+<!-- V09.9.9: changed this --><!-- V0.9.9: changed this -->
+<P>Zie <A HREF="glossary/gls_assocs.html">Types en koppelingen</A> voor een
+introductie in koppelingen tussen gegevensbestanden en programma's.
+
+<IFNDEF __NOXWPSETUP__>
+<P>Let op dat deze dialoog de WPS filters <I>niet</I> aanpast. Als u &xwp; zijn
+uitgebreide bestandstype koppelingen uitschakelt in het
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Instellingen" object</A>,
+zult u zien dat de WPS filters weer werken zoals voorheen.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

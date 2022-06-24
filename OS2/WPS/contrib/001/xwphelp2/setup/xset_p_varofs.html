@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Menu Item ID Offset
+    </TITLE>
+</HEAD>
+<BODY>
+With this number you can tell &xwp; which menu IDs will be used
+for the menu items inserted by &xwp;. Change this number if
+&xwp; seems to conflict with other WPS software which also
+inserts menu items into &popmenu;s.
+<P>This setting takes effect immediately.
+<P><B>Detailed explanation:</B>
+<P>With &os2;, each menu item (be it a submenu or a "real" menu item) needs a
+unique menu ID within the menu. This is a number from 0 to 0xFFFF, identifying
+the menu item to the system, so that the "owner" of the menu can react when a
+menu item is pressed.
+<P>IBM recommends that every WPS developer use a number higher
+than WPMENUID_USER (which, on Warp 3 and 4,
+is 0x6500) for &popmenu; additions.
+<P>Early versions of XFolder always used WPMENUID_USER+100
+(dec) and above for the variable menu items, but this
+has conflicted with other software.
+Since &xwp; has no way to find out which offset other
+WPS sofware might use, this setting is now
+configurable; &xwp; will now use menu items with at least WPMENUID_USER
+plus the number you specified here.
+<BR>
+</BODY>
+</HTML>
+

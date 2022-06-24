@@ -1,0 +1,57 @@
+<HTML RESID=&ID_XSH_SETTINGS_FILET_MERGE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Merge With WPS Filters
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+Since the standard WPS associates programs according to both file types
+and file filters, and since &xwp; refines the association mechanism
+to be based on enhanced file types only,
+the additional dialog "Merge with WPS filters" allows you to import
+previously defined file filter associations into your file types.
+
+<P>This dialog is non-modal in nature, which means that you can still use
+the "File types" notebook page while the dialog is open. If you select
+a new file type on the notebook page, you will see that the "Merge"
+dialog updates itself.
+
+<P>The dialog only closes after you press the <B>"Close"</B> button.
+
+<P>In order to import all or some of the associations which were defined for
+a WPS filter into the &xwp; file-type associations, do the following:
+
+<OL><LI><B>Select the file type</B> on the notebook page into which you would like
+to import a filter -- for example "Bitmap".
+
+<P><LI>In the "Merge" dialog, <B>select the filter</B> whose associations you would
+like to import -- for example, <CODE>*.BMP</CODE>.
+
+<P><LI>The "Associations to add" field in
+the dialog will show you the programs which have been defined with that filter.
+<B>Select the associations</B> in that field which you would like to add to the
+current file type (in the above example, the "Bitmap" type). Press "Select all"
+or "Deselect all" to, well, select or deselect all items in the associations field.
+
+<P><LI>Press the <B>"Merge"</B> button to have the selected programs added to the
+currently selected file type on the notebook page.
+
+</OL>You can repeat any of the above steps as many times as necessary. Keep in mind that
+&xwp; allows you to define hierarchical file types, where derived file types
+inherit associations from their parents.
+<!-- V09.9.9: changed this --><!-- V0.9.9: changed this -->
+<P>See <A HREF="glossary/gls_assocs.html">Types and associations</A> for an
+introduction to associations between data files and programs.
+
+<IFNDEF __NOXWPSETUP__>
+<P>Note that this dialog does <I>not</I> change the WPS filters. If you disable
+&xwp;'s enhanced file-type associations in the
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>,
+you will see that the WPS filters will work again as before.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,844 @@
+
+/*
+ * drvrs046.txt:
+ *      DRIVER specifications for the "DRIVERs" page in
+ *      the "OS/2 Kernel" object, Swedish version (046).
+ *
+ *      This file uses a syntax similar to the C language,
+ *      but not quite the same. This gets parsed by
+ *      XWorkplace when the "DRIVERs" page is selected.
+ *
+ *      Each group of DRIVERs (which will have a category
+ *      in the DRIVER tree view on the page) must be
+ *      introduced by the "CATEGORY" keyword (case-sensitive),
+ *      followed by a block in block brackets ("{...}").
+ *
+ *      In that block, each "DRIVER" (which may actually
+ *      consist of several CONFIG.SYS statements) must
+ *      be introduced by a DRIVER statement:
+ *
+ *      DRIVER (    "command=", "param",
+ *                  "title",
+ *                  flags
+ *             ),
+ *      DRIVER ( ... )
+ *
+ *      In each DRIVER block, specify one or more parameters
+ *      separated by commas.
+ *
+ *      1)  A DRIVER statement requires two parameters first,
+ *          being the CONFIG.SYS keyname to search for (e.g.
+ *          "BASEDEV=", "DEVICE=", "IFS=" etc), and the DRIVER
+ *          file name _without_ path specification.
+ *          Both are not case-sensitive, of course.
+ *
+ *      2)  The third parameter is considered the DRIVER
+ *          description, which appears on the "DRIVERs" page
+ *          in the tree view.
+ *
+ *          There must be exactly one DRIVER title per DRIVER
+ *          statement, and it must be the third parameter.
+ *
+ *      4)  _Optionally_, you can specify DRIVER flags:
+ *
+ *          DRVF_CMDREF   item has entry in CMDREF.INF (enables
+ *                        the context menu item)
+ *
+ *          DRVF_NOPARAMS DRIVER accepts no parameters at all
+ *                        (disables "Parameters" entry field)
+ *
+ *      Note: support for the "Configure" button (with the
+ *            DRIVER's configuration dialog) is hard-coded
+ *            into XWorkplace's source code and cannot be
+ *            changed using this file. The "Configure" button
+ *            is enabled automatically based on the DRIVER's
+ *            filename if a corresponding dialog exists in
+ *            XWorkplace.
+ *
+ *            To create a "Configure" dialog, you must create
+ *            and modify code in "src\config\drivdlgs.c". You
+ *            are welcome to write more configuration dialogs.
+ *            This is plain PM programming and requires no
+ *            knowledge about SOM/WPS programming, other than
+ *            getting XWorkplace to compile at all. See
+ *            src\config\drivdlgs.c for an introduction.
+ */
+
+CATEGORY "Allm„nt"
+    {
+        DRIVER ( "DEVICE=", "RESERVE.SYS",
+                 "Resursmanager",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "APM.SYS",
+                 "Advanced Power Management",
+                 DRVF_CMDREF)
+        DRIVER ( "RUN=", "APMDAEMN.EXE",
+                 "APM daemon",
+                 0)
+
+        DRIVER ( "DEVICE=", "UNICODE.SYS",
+                 "Unicode St”d f”r WSeB kernel",
+                 0,
+                 TAG=KRNLUNICODE)
+
+        DRIVER ( "BASEDEV=", "USBD.SYS",
+                 "USB basdrivrutin",
+                 0 ),
+        DRIVER ( "BASEDEV=", "USBHID.SYS",
+                 "USB basdrivrutin",
+                 0 ),
+        DRIVER ( "BASEDEV=", "USBUHCD.SYS",
+                 "DockStation USB basdrivrutin",
+                 0 ),
+
+        DRIVER ( "DEVICE=", "TESTCFG.SYS",
+                 "Test-konfigurations drivrutin f”r OS/2 installation",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "BASEDEV=", "I2OXPORT.SYS",
+                 "IBM I2O Transport",
+                 DRVF_NOPARAMS)
+        DRIVER ( "BASEDEV=", "I2OSOSM.ADD",
+                 "IBM I2O Storage OSM",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "DOS.SYS",
+                 "DOS st”d",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "VEMM.SYS",
+                 "DOS Expanded Memory st”d",
+                 DRVF_CMDREF)
+        DRIVER ( "DEVICE=", "VDPMI.SYS",
+                 "DOS DPMI minnesst”d",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "VDPX.SYS",
+                 "DOS DPMI st”d",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "VAPM.SYS",
+                 "DOS Advanced Power Management st”d",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "VXMS.SYS",
+                 "DOS eXtended Memory Specification st”d",
+                 DRVF_CMDREF)
+
+        DRIVER ( "DEVICE=", "VW32S.SYS",
+                 "Win32s st”d",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "VWIN.SYS",
+                 "Win-OS/2 st”d",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "ANSI.SYS",
+                 "ANSI video och tangentbordsst”d",
+                 DRVF_CMDREF)
+
+        DRIVER ( "RUN=", "SMSTART.EXE",
+                 "System Management Startup Daemon",
+                 DRVF_CMDREF)
+                 )
+
+        DRIVER ( "DEVICE=", "LOG.SYS",
+                 "OS/2 System Error Logging Service basdrivrutin",
+                 DRVF_CMDREF)
+
+        DRIVER ( "RUN=", "LOGDAEM.EXE",
+                 "OS/2 System Error Logging Service daemon process",
+                 DRVF_CMDREF)
+    }
+
+CATEGORY "Lagring"
+    {
+        DRIVER ( "BASEDEV=", "IBM1S506.ADD",
+                 "Standard IDE",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "DANIS506.ADD",
+                 "F”rb„ttrad IDE (Daniela Engert)",
+                 0),
+        DRIVER ( "BASEDEV=", "IBMINT13.I13",
+                 "Standard BIOS lagringsdevicer",
+                 DRVF_CMDREF | DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "OS2DASD.DMD",
+                 "Allm„nna lagringsdevice manager",
+                 DRVF_CMDREF)
+
+        DRIVER ( "BASEDEV=", "OS2LVM.DMD",
+                 "Logisk Volym Manager",
+                 DRVF_CMDREF,
+                 TAG=LVM,
+                 REQUIRES=LVMALERT,
+                 REQUIRES=EXTENDFS,
+                 REQUIRES=KRNLUNICODE)
+        DRIVER ( "RUN=", "LVMALERT.EXE",
+                 "LVM daemon",
+                 DRVF_CMDREF,
+                 TAG=LVMALERT)
+        DRIVER ( "RUN=", "EXTENDFS.EXE",
+                 "LVM fil-system ut”kare",
+                 DRVF_CMDREF,
+                 TAG=EXTENDFS)
+
+        DRIVER ( "BASEDEV=", "CHKDSK.SYS",
+                 "Stort partitionsst”d drivrutin f”r CHKSDK32",
+                 DRVF_NOPARAMS)
+        DRIVER ( "BASEDEV=", "N512DASD.FLT",
+                 "Stora sektorer h†rddisk st”d",
+                 DRVF_NOPARAMS)
+        DRIVER ( "BASEDEV=", "DSKSLEEP.FLT",
+                 "SCSI Disk Sleep Filter (Vitus Jensen)",
+                 0)
+
+        DRIVER ( "DEVICE=", "VFDISK.SYS",
+                 "IBM Virtual Floppy Disk drivrutin",
+                 0 )
+
+    }
+
+CATEGORY "CD-ROM"
+    {
+        DRIVER ( "BASEDEV=", "MITFX001.ADD",
+                 "Mitsumi CD-ROM",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "SBCD2.ADD",
+                 "Sound Blaster CD-ROM",
+                 DRVF_CMDREF | DRVF_NOPARAMS),
+
+        DRIVER ( "BASEDEV=", "IBMATAPI.FLT",
+                 "ATAPI filter",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "IBMIDECD.FLT",
+                 "IDE CD-ROM filter",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "DaniATAPI.FLT",
+                 "F”rb„ttrat ATAPI filter (Daniela Engert)",
+                 0),
+
+        DRIVER ( "BASEDEV=", "RSJIDECD.FLT",
+                 "RSJ CD-ROM filter utbyte",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "LOCKCDR.FLT",
+                 "RSJ CD-ROM-till-WORM konverteringsfilter",
+                 DRVF_CMDREF),
+
+        DRIVER ( "DEVICE=", "OS2CDROM.DMD",
+                 "Allm„n CD-ROM manager",
+                 DRVF_CMDREF)
+        DRIVER ( "DEVICE=", "JJSCDROM.DMD",
+                 "F”rb„ttrad CD-ROM manager",
+                 DRVF_CMDREF)
+
+        DRIVER ( "DEVICE=", "VCDROM.SYS",
+                 "DOS CD-ROM st”d",
+                 DRVF_NOPARAMS)
+    }
+
+CATEGORY "SCSI"
+    {
+        DRIVER ( "BASEDEV=", "AHA152X.ADD",
+                 "Adaptec AHA-1522/1510 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AHA154X.ADD",
+                 "Adaptec AHA-1540/1542 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AHA164X.ADD",
+                 "Adaptec AHA-164x adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AHA174X.ADD",
+                 "Adaptec AHA-1740/1744 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AIC7770.ADD",
+                 "Adaptec AHA-2840QVL/2842VL/2740/2742 and AIC-7770 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AIC7870.ADD",
+                 "Adaptec AHA-2940 and AIC-7870 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "AIC78U2.ADD",
+                 "Adaptec U2W adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "BTSCSI.ADD",
+                 "Buslogic generic adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "FD16-700.ADD",
+                 "Future Domain adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "FD7000EX.ADD",
+                 "Future Domain adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "FD8XX.ADD",
+                 "Future Domain adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "TMSCSIM.ADD",
+                 "Tekram DC-390 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "TMSCSIW.ADD",
+                 "Tekram DC-390U2W adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "TRM3X5.ADD",
+                 "Tekram 315 adapter",
+                 DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "SIGSCSI.ADD",
+                 "SIIG AP-10SCSIPCI adapter",
+                 0),
+        DRIVER ( "BASEDEV=", "DMX3194.ADD",
+                 "DOMEX Power Port 3194 UW adapter",
+                 0),
+        DRIVER ( "BASEDEV=", "SYM_HI.ADD",
+                 "Symbios/LSI Logic 53C1010 chip adapter",
+                 0),
+        DRIVER ( "BASEDEV=", "SYM8XX.ADD",
+                 "Symbios/LSI Logic generic adapter",
+                 0),
+        DRIVER ( "BASEDEV=", "DC2980.ADD",
+                 "DawiControl DC2980 adapter",
+                 0),
+
+        DRIVER ( "BASEDEV=", "OS2SCSI.DMD",
+                 "OS/2 SCSI manager",
+                 DRVF_CMDREF | DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "OS2ASPI.DMD",
+                 "OS/2 ASPI interface",
+                0),
+        DRIVER ( "DEVICE=", "ASPIROUT.SYS",
+                 "ASPI router",
+                 0)
+
+        DRIVER ( "BASEDEV=", "SYM8xx.ADD",
+                 "Symbios/LSI/NCR 8xx baserad SCSI host",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "CDMGRDRV.SYS",
+                 "Plextor CD-ROM Manager/2 st”d drivrutin",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "RSJSCSI.SYS",
+                 "RSJ CD-Writer st”d drivrutin",
+                 DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "VASPI.SYS",
+                 "DOS/Windows Advanced SCSI Programming Interface",
+                 DRVF_CMDREF)
+    }
+
+CATEGORY "Installerbara Filsystem"
+    {
+        DRIVER ( "IFS=", "HPFS.IFS",
+                 "High Performance File System (HPFS)",
+                 DRVF_CMDREF),
+        DRIVER ( "IFS=", "HPFS386.IFS",
+                 "386 High Performance File System (HPFS386)",
+                 0),
+
+        DRIVER ( "IFS=", "JFS.IFS",
+                 "Journaling File System (JFS)",
+                 DRVF_CMDREF,
+                 REQUIRES=LVM,
+                 REQUIRES=KRNLUNICODE),
+
+        DRIVER ( "IFS=", "CDFS.IFS",
+                 "CD-ROM file system (CDFS)",
+                 DRVF_CMDREF)
+
+        DRIVER ( "IFS=", "UDF.IFS",
+                 "UDF (DVD)",
+                 DRVF_CMDREF)
+
+        DRIVER ( "IFS=", "NETWKSTA.200",
+                 "LAN requester file system",
+                 0,
+                 REQUIRES=NETBIOS),
+
+        DRIVER ( "IFS=", "RAMFS.IFS",
+                 "RAM disk file system (RAMFS)",
+                 0),
+        DRIVER ( "IFS=", "RAMFS8.IFS",
+                 "RAM disk file system (RAMFS, 8 MB version)",
+                 0),
+        DRIVER ( "IFS=", "RAMFS64.IFS",
+                 "RAM disk file system (RAMFS 64 MB version)",
+                 0),
+
+        DRIVER ( "IFS=", "VFAT-OS2.IFS",
+                 "Win95 VFAT file system",
+                 0,
+                 REQUIRES=MWDD32),
+        DRIVER ( "RUN=", "VFAT_LW.EXE",
+                 "Win95 VFAT cache daemon",
+                 0),
+        DRIVER ( "BASEDEV=", "EXT2FLT.FLT",
+                 "Linux ext2fs partition filter",
+                 0),
+
+        DRIVER ( "IFS=", "EXT2-OS2.IFS",
+                 "Linux ext2fs file system",
+                 0,
+                 REQUIRES=MWDD32)
+        DRIVER ( "RUN=", "EXT2_LW.EXE",
+                 "Linux ext2fs cache daemon",
+                 0)
+
+        DRIVER ( "IFS=", "TVFS.IFS",
+                 "Toronto Virtual File System (TVFS)",
+                 0)
+        DRIVER ( "RUN=", "TVCTL.EXE",
+                 "TVFS kontrollprogram",
+                 0)
+
+        DRIVER ( "IFS=", "FAT32.IFS",
+                 "FAT32 file system (Henk Kelder)",
+                 0)
+        DRIVER ( "CALL=", "CACHEF32.EXE",
+                 "FAT32 cache daemon (Henk Kelder)",
+                 0)
+        DRIVER ( "BASEDEV=", "PARTFILT.FLT",
+                 "Partition type filter",
+                 0)
+
+        DRIVER ( "IFS=", "HFS.IFS",
+                 "Macintosh Hierarchical File System (HFS)",
+                 0)
+        DRIVER ( "BASEDEV=", "HFS.FLT",
+                 "HFS st”d filter",
+                 0)
+
+        DRIVER ( "IFS=", "NFS200.IFS",
+                 "Network File System (NFS)",
+                 0)
+
+        DRIVER ( "IFS=", "CDWFS.IFS",
+                 "RSJ CD-Writer File System",
+                 0)
+        DRIVER ( "RUN=", "CDWFSD.EXE",
+                 "RSJ CD-Writer File System daemon process",
+                 0)
+
+        DRIVER ( "IFS=", "FTP.IFS",
+                 "FTP File System (FTP-IFS) av Vit Timchshin",
+                 0)
+        DRIVER ( "RUN=", "R3COMM.EXE",
+                 "FTP-IFS kontrollprogram av Vit Timchshin",
+                 0)
+
+        DRIVER ( "IFS=", "NDFS.IFS",
+                 "Network Drive File System (NDFS) av Blueprint Software Works",
+                 0)
+        DRIVER ( "RUN=", "NDCTL.EXE",
+                 "NDFS kontrollprogram av Blueprint Software Works",
+                 0)
+
+        DRIVER ( "IFS=", "STUBFSD.IFS",
+                 "CD-ROM ISO image file system (ISOFS) av Chris Wohlgemuth",
+                 0)
+        DRIVER ( "RUN=", "ISOFSDMN.EXE",
+                 "ISOFS kontrollprogram av Chris Wohlgemuth",
+                 0)
+
+        DRIVER ( "IFS=", "TONIGY.IFS",
+                 "Tonigy Audio CD file system",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "IFS=", "SUBSTFSD.IFS",
+                 "SUBST file system",
+                 DRVF_NOPARAMS)
+        DRIVER ( "RUN=", "SUBSTHST.EXE",
+                 "SUBST file system daemon",
+                 DRVF_NOPARAMS)
+    }
+
+CATEGORY "Video"
+    {
+        DRIVER ( "DEVICE=", "GRADD.SYS",
+                 "GRADD",
+                 0 )
+
+        DRIVER ( "DEVICE=", "KMGAX64.SYS",
+                 "Matrox",
+                 0 )
+        DRIVER ( "DEVICE=", "VMGAX64.SYS",
+                 "Matrox DOS/Windows st”d",
+                 0 )
+
+        DRIVER ( "DEVICE=", "SDDHELP.SYS",
+                 "SciTech Display Doctor st”d",
+                 0 )
+
+        DRIVER ( "DEVICE=", "VVGA.SYS",
+                 "VGA drivrutin f”r DOS/Windows st”d",
+                 DRVF_NOPARAMS )
+        DRIVER ( "DEVICE=", "VSVGA.SYS",
+                 "SVGA drivrutin f”r DOS/Windows st”d",
+                 0 )
+        DRIVER ( "DEVICE=", "VXGA.SYS",
+                 "XGA drivrutin f”r DOS/Windows st”d",
+                 DRVF_NOPARAMS )
+        DRIVER ( "DEVICE=", "VMONO.SYS",
+                 "MGA drivrutin f”r DOS/Windows st”d",
+                 0 )
+        DRIVER ( "DEVICE=", "V8514A.SYS",
+                 "8514 drivrutin f”r DOS/Windows st”d",
+                 0 )
+
+        DRIVER ( "DEVICE=", "PMDD.SYS",
+                 "OS/2 PM Ring 0 Device drivrutin",
+                 DRVF_CMDREF | DRVF_NOPARAMS)
+        DRIVER ( "DEVICE=", "POINTDD.SYS",
+                 "Text-mode pointer st”d",
+                 DRVF_CMDREF | DRVF_NOPARAMS)
+    }
+
+CATEGORY "Andra periferienheter"
+    {
+        DRIVER ( "BASEDEV=", "IBM1FLPY.ADD",
+                 "Standard floppy",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "IBM2FLPY.ADD",
+                 "Microchannel floppy",
+                 DRVF_CMDREF | DRVF_NOPARAMS),
+        DRIVER ( "BASEDEV=", "XDFLOPPY.FLT",
+                 "1.8MB floppy st”d filter",
+                 DRVF_CMDREF | DRVF_NOPARAMS),
+
+        DRIVER ( "BASEDEV=", "PRINT01.SYS",
+                 "Standard skrivare",
+                 0),
+        DRIVER ( "BASEDEV=", "PRINT02.SYS",
+                 "Microchannel skrivare",
+                 DRVF_CMDREF),
+        DRIVER ( "BASEDEV=", "PAR1284.SYS",
+                 "BIDI skrivare",
+                 DRVF_CMDREF),
+
+        DRIVER ( "BASEDEV=", "IBMKBD.SYS",
+                 "Standard tangentbord",
+                 DRVF_CMDREF),
+
+        DRIVER ( "DEVICE=", "MOUSE.SYS",
+                 "Standard mus",
+                 DRVF_CMDREF),
+        DRIVER ( "DEVICE=", "RODENT.SYS",
+                 "Michael Lee Finney's f”rb„ttrad musdrivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "USBMOUSE.SYS",
+                 "USB mus",
+                 0),
+        DRIVER ( "DEVICE=", "XMOUSE.SYS",
+                 "Martin Lafaix' f”rb„ttrad musdrivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "COM.SYS",
+                 "Standard seriell (COM) port",
+                 DRVF_CMDREF)
+        DRIVER ( "DEVICE=", "SIO.SYS",
+                 "SIO f”rb„ttrad seriell (COM) port drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VCOM.SYS",
+                 "DOS standard seriell (COM) port",
+                 DRVF_CMDREF)
+        DRIVER ( "DEVICE=", "VSIO.SYS",
+                 "DOS SIO f”rb„ttrad seriell (COM) port",
+                 0)
+        DRIVER ( "DEVICE=", "CFOS.SYS",
+                 "cFos/2 COM-Port-Emulator f”r CAPI 1.1",
+                 0)
+        DRIVER ( "DEVICE=", "CFOS20.SYS",
+                 "cFos/2 COM-Port-Emulator f”r CAPI 2.0",
+                 0)
+        DRIVER ( "RUN=", "CFOSD2.EXE",
+                 "cFos/2 daemon process",
+                 0)
+        DRIVER ( "DEVICE=", "DSS1C20X.SYS",
+                 "ELSA CAPI 2.0 DSS1 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "DSS1CAPX.SYS",
+                 "ELSA CAPI 1.1 DSS1 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "ISDNC20X.SYS",
+                 "ELSA CAPI 2.0 1TR6 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "ISDNCAPX.SYS",
+                 "ELSA CAPI 1.1 1TR6 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VCAPI20.SYS",
+                 "ELSA Virtual DOS CAPI 2.0 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VCAPI20.SYS",
+                 "ELSA Virtual DOS CAPI 2.0 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VCAPI11.SYS",
+                 "ELSA Virtual DOS CAPI 1.1 drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VFD.OS2",
+                 "Virtual FOSSIL drivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "USBCOM.SYS",
+                 "USB modem",
+                 0),
+        DRIVER ( "DEVICE=", "USBCOM.SYS",
+                 "USB modem",
+                 0),
+
+        DRIVER ( "BASEDEV=", "USBD.SYS",
+                 "USB drivrutin",
+                 0 ),
+        DRIVER ( "BASEDEV=", "USBHID.SYS",
+                 "USB drivrutin",
+                 0 ),
+        DRIVER ( "BASEDEV=", "USBUHCD.SYS",
+                 "DockStation USB drivrutin",
+                 0 ),
+
+        DRIVER ( "DEVICE=", "FTDVR.SYS",
+                 "BackMaster Floppy Tape drivrutin",
+                 0 ),
+        DRIVER ( "DEVICE=", "PTDVR.SYS",
+                 "BackMaster Parallel Tape drivrutin",
+                 0 ),
+
+    }
+
+CATEGORY "Multimedia"
+    {
+        DRIVER ( "DEVICE=", "SB16D2.SYS",
+                 "Soundblaster 16",
+                 0),
+        DRIVER ( "DEVICE=", "SBAWED2.SYS",
+                 "Soundblaster 32/AWE32/AWE64",
+                 0),
+        DRIVER ( "DEVICE=", "OPL3.SYS",
+                 "Yamaha OPL3 sound chip",
+                 0),
+        DRIVER ( "DEVICE=", "OPL3SA.SYS",
+                 "Yamaha SAx sound chip",
+                 0),
+        DRIVER ( "DEVICE=", "OPL3VDD.SYS",
+                 "Yamaha SAx sound chip virtual drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "ES1868DD.SYS",
+                 "ESS AudioDrive 1868 sound chip drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "VAUDDRV.SYS",
+                 "ESS AudioDrive 1868 sound chip drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "ULTRADD.SYS",
+                 "Gravis UltraSound drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "ULTRAVDD.SYS",
+                 "Gravis UltraSound virtual drivrutin",
+                 DRVF_NOPARAMS)
+        DRIVER ( "RUN=", "ULTRADMN.EXE",
+                 "Gravis UltraSound daemon",
+                 0)
+        DRIVER ( "RUN=", "ULTRALDR.EXE",
+                 "Gravis UltraSound patch laddare",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "VCSHDD.SYS",
+                 "MMPM/2 video recording st”d drivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "R0STUB.SYS",
+                 "MMPM/2 ring-0 streaming st”d stub drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "SSMDD.SYS",
+                 "MMPM/2 sync/stream st”d drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "AUDIOVDD.SYS",
+                 "MMPM/2 sound sharing drivrutin",
+                 0),
+
+        DRIVER ( "BASEDEV=", "TIMER0.SYS",
+                 "High-resolution timer",
+                 0),
+        DRIVER ( "DEVICE=", "MIDI.SYS",
+                 "Standard MIDI",
+                 0),
+        DRIVER ( "DEVICE=", "MPU401.SYS",
+                 "MPU401 MIDI st”d",
+                 0),
+
+        DRIVER ( "DEVICE=", "USBAUDIO.SYS",
+                 "USB Audio",
+                 0),
+
+        DRIVER ( "RUN=", "MIDIDMON.EXE",
+                 "OS/2 MIDI daemon",
+                 0),
+    }
+
+CATEGORY "N„tverk"
+    {
+        DRIVER ( "DEVICE=", "SOCKETS.SYS",
+                 "Allm„nt: MPTS sockets DRIVER (16-bit version)",
+                 0),
+        DRIVER ( "DEVICE=", "SOCKETSK.SYS",
+                 "Allm„nt: MPTS sockets DRIVER (KEE version)",
+                 0),
+        DRIVER ( "DEVICE=", "AFOS2.SYS",
+                 "Allm„nt: MPTS local IPC services DRIVER",
+                 0),
+        DRIVER ( "DEVICE=", "PROTMAN.OS2",
+                 "Allm„nt: NDIS protokoll manager",
+                 0),
+        DRIVER ( "CALL=", "NETBIND.EXE",
+                 "Allm„nt: NDIS protokoll-till-adapter binder",
+                 0)
+        DRIVER ( "DEVICE=", "LANMSGDD.OS2",
+                 "Allm„nt: IBM LAN logger drivrutin",
+                 0),
+        DRIVER ( "RUN=", "LANMSGEX.EXE",
+                 "Allm„nt: IBM LAN logger daemon",
+                 0),
+
+        DRIVER ( "DEVICE=", "AFINET.SYS",
+                 "Protokoll: TCP/IP stack (16-bit version)",
+                 0),
+        DRIVER ( "DEVICE=", "AFINETK.SYS",
+                 "Protokoll: TCP/IP stack (KEE version)",
+                 0),
+        DRIVER ( "DEVICE=", "IFNDIS.SYS",
+                 "Protokoll: TCP/IP NDIS drivrutin",
+                 0),
+        DRIVER ( "RUN=", "CNTRL.EXE",
+                 "Protokoll: TCP/IP stack daemon",
+                 0),
+        DRIVER ( "DEVICE=", "VDOSTCP.SYS",
+                 "Protokoll: TCP/IP DOS/Windows SYS",
+                 0),
+        DRIVER ( "DEVICE=", "VDOSTCP.VDD",
+                 "Protokoll: TCP/IP DOS/Windows VDD",
+                 0),
+        DRIVER ( "RUN=", "VDOSCTL.EXE",
+                 "Protokoll: TCP/IP DOS/Windows stack daemon",
+                 0),
+
+        DRIVER ( "DEVICE=", "NETBIOS.OS2",
+                 "Protokoll: NetBIOS API drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "AFNB.SYS",
+                 "Protokoll: NetBIOS sockets-to-API DRIVER",
+                 0),
+        DRIVER ( "RUN=", "AFNBINI.EXE",
+                 "Protokoll: NetBIOS sockets daemon",
+                 0),
+        DRIVER ( "DEVICE=", "NETBEUI.OS2",
+                 "Protokoll: Native OS/2 NetBIOS",
+                 0),
+        DRIVER ( "DEVICE=", "RDRHELP.200",
+                 "Protokoll: MPTS NetBIOS st”d drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "LANPDD.OS2",
+                 "Protokoll: NetBIOS DOS/Windows PDD",
+                 0),
+        DRIVER ( "DEVICE=", "LANVDD.OS2",
+                 "Protokoll: NetBIOS DOS/Windows VDD",
+                 0),
+
+        DRIVER ( "DEVICE=", "TCPBEUI.OS2",
+                 "Protokoll: NetBIOS-”ver-TCP/IP",
+                 0),
+
+        DRIVER ( "DEVICE=", "IPX.SYS",
+                 "Protokoll: IPX protokoll drivrutin",
+                 0),
+        DRIVER ( "DEVICE=", "VIPX.SYS",
+                 "Protokoll: IPX DOS/Windows",
+                 0),
+
+        DRIVER ( "DEVICE=", "NETBIOS.SYS",
+                 "Protokoll: NetBIOS drivrutin f”r Netware klient",
+                 0),
+        DRIVER ( "DEVICE=", "NMPIPE.SYS",
+                 "Protokoll: Named pipes drivrutin f”r Netware klient",
+                 0),
+        DRIVER ( "DEVICE=", "NPSERVER.SYS",
+                 "Protokoll: Named pipes drivrutin f”r Netware server",
+                 0),
+        DRIVER ( "DEVICE=", "SPX.SYS",
+                 "Protokoll: Netware SPX",
+                 0),
+        DRIVER ( "DEVICE=", "NWREQ.SYS",
+                 "Protokoll: Netware requester drivrutin",
+                 0),
+            /* must come after NMPIPE, IPX, SPX.SYS */
+        DRIVER ( "DEVICE=", "ODI2NDI.SYS",
+                 "Protokoll: MPTS interface f”r Netware klient",
+                 0),
+        DRIVER ( "DEVICE=", "ROUTE.SYS",
+                 "Protokoll: Router f”r Netware klient",
+                 0),
+
+        DRIVER ( "BASEDEV=", "DETNE2.SYS",
+                 "Adapter: NE200 card",
+                 0),
+        DRIVER ( "DEVICE=", "ELNK3.OS2",
+                 "Adapter: 3Com EtherLink III Family card",
+                 0),
+        DRIVER ( "DEVICE=", "EL90X.OS2",
+                 "Adapter: 3Com Fast EtherLink/EtherLink XL Family card",
+                 0),
+        DRIVER ( "DEVICE=", "NULLNDIS.OS2",
+                 "Adapter: Null NDIS drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "PCIND.OS2",
+                 "Adapter: Realtek 8029 based NIC drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "PMAC.SYS",
+                 "Adapter: SSW Parallel port NICless drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "IBMTOK.OS2",
+                 "Adapter: IBM TokenRing card",
+                 0),
+
+        DRIVER ( "DEVICE=", "IPSPY.OS2",
+                 "IPSpy protokoll drivrutin",
+                 0),
+    }
+
+CATEGORY "System ut”kningar"
+    {
+        DRIVER ( "BASEDEV=", "MWDD32.SYS",
+                 "Matthieu Wilm's 32-bit device drivrutin st”d",
+                 0),
+        DRIVER ( "DEVICE=", "XF86SUP.SYS",
+                 "XFree86/2 kernel st”d",
+                 0)
+        DRIVER ( "DEVICE=", "CPPOPA3.SYS",
+                 "IBM VisualAge C++ 3.0 debugger drivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "WATCHCAT.SYS",
+                 "WatchCat base",
+                 0)
+        DRIVER ( "DEVICE=", "KILLER.SYS",
+                 "WatchCat process d”dare",
+                 0)
+        DRIVER ( "DEVICE=", "VWCAT.SYS",
+                 "WatchCat process d”dare VDD",
+                 0)
+
+        DRIVER ( "DEVICE=", "THESEUS5.SYS",
+                 "Theseus 3 system analys drivrutin",
+                 0)
+        DRIVER ( "DEVICE=", "OS20MEMU.SYS",
+                 "OS20MEMU system analys drivrutin",
+                 0)
+
+        DRIVER ( "BASEDEV=", "K6.SYS",
+                 "AMD K6 processor familj st”ddrivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "P6K7MTRR.SYS",
+                 "Intel P6/AMD K7 MTTR st”ddrivrutin",
+                 0)
+
+        DRIVER ( "DEVICE=", "VPCAPP.SYS",
+                 "Virtual PC st”ddrivrutin",
+                 DRVF_NOPARAMS)
+
+        DRIVER ( "DEVICE=", "KDBNET.SYS",
+                 "UDP ”ver TCP/IP st”d f”r OS/2 debug k„rna",
+                 0 )
+
+        DRIVER ( "DEVICE=", "WIN32K.SYS",
+                 "Odin k„rna st”d",
+                 0 )
+
+    }

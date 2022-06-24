@@ -1,0 +1,124 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.4
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.4 (August 9, 2000)</B>
+
+<P>New features:
+<UL><LI>&xwp; can now resize some settings pages if the notebook itself is resized.
+<P><LI>Added "Keep original title" to folder instance settings notebook.
+<P><LI>Added "Initial delay" to startup folder settings notebook. Using sliders for
+configuration now.
+<P><LI>Added query-setup-strings support for WPProgram.
+<P><LI>Added help panels for a number of context menu items which were missing.
+
+<P><LI>Added <A HREF="fldr_60defaultdoc.html">folder default documents.</A>
+
+<P><LI>&xwp; now creates a marker file called "xwparchv.tmp" on the Desktop before
+archiving, which is automatically destroyed again after archiving is complete. This
+allows for automatic disabling of the archiving functions if an archive was just
+restored because then this file exists. This prevents overwriting the most recent
+archiving again right after it was restored.
+
+<P><LI>Trash can icons can be changed the <A HREF="065icons.html">normal way</A> now.
+Replaced "Icon" page for trash can.
+<P><LI>Automatic emptying of trash can before &xshutdown; works now. The setting has
+been moved to the "&xshutdown;" settings page in the Desktop's settings notebook and
+can be overridden in the shutdown confirmation dialog.
+<P><LI>Added "Yes to all" message box button for file operations confirmations.
+
+<P><LI>Added conversion of MB3 clicks to MB1 double-clicks ("Mouse" objects, "Mappings" page 2).
+<P><LI>Extended "screen corner objects" to "screen border objects" so you now have eight
+objects to be configured (four corners, four borders). You will need to reconfigure your objects
+however.
+<P><LI>Added <A HREF="pgmg_3sticky.html">&pgr; sticky windows</A> settings page
+to "Screen" settings object.
+<P><LI>&pgr; "stay on top" and "flash to top" work now.
+<P><LI>Added special &pgr; treatment for maximized windows.
+<P><LI>Added &pgr; to screen border special functions.
+
+</UL>Miscellaneous changes:
+<UL><LI>Rearranged some of the help pages which had grown too long.
+<P><LI>Gave &xwp; installation folder nice icons, finally.
+<P><LI>Reworked exception handlers for XWPDAEMN.EXE.
+
+</UL>Bugfixes:
+<UL><LI>Archiving wasn't always disabled if "Archiving" flag was turned off on
+replacement "Archives" page. Fixed.
+
+<P><LI>Display of folder hotkey descriptions in context menu could not be disabled
+when folder hotkeys were disabled altogether in XWPSetup. Fixed.
+<P><LI>"Refresh now" from main context menu didn't refresh container. Fixed.
+<P><LI>Fixed separators in WPDataFile context menus.
+<P><LI>"Tree view auto-scroll" had a few repaint problems. Fixed.
+
+<P><LI>Clicking "Refresh" on "Object" page doesn't hang WPS any more.
+<P><LI>Opening "File" page on SWAPPER.DAT or CHKDSK.LOG doesn't hang WPS any more.
+<P><LI>Several settings pages had "to be replaced" group titles. Fixed.
+
+<P><LI>"Create object" menu items in XWPSetup remained active even after objects were
+created from those menus. Fixed.
+
+<P><LI>"Replace drive not ready" still didn't work with LAN drives. Another fix attempt.
+<P><LI>"Replace file exists" caused dialog to always popup up with WPS "Create another".
+Fixed.
+
+<P><LI>Trash can "Destroy" always displayed confirmation, even if turned off.
+<P><LI>Trash can didn't recognize drive Z:. Fixed.
+<P><LI>Trash can "Drives" page was lacking a help page. Fixed.
+<P><LI>Multiple selected drives on trash can "Drives" weren't all moved. Fixed.
+<P><LI>Trash can didn't close open subfolders if the parent folder was moved to
+the trash can. Fixed.
+<P><LI>Trash can allowed objects with OBJSTYLE_NODELETE to be moved to the trash can,
+including the Desktop itself. Fixed.
+<P><LI>File operations (move to trash, true delete) got confused which objects to
+operate on when browsing through several context submenus. There's a bug in the WPS
+which removes source emphasis on the first WM_ENDMENU which comes in, even if that
+applies to a submenu. &xwp; then thought that source emphasis was set for the
+entire folder and worked on that instead. Fixed.
+<P><LI>Removed a debugging error message from file operations, which displayed a meaningless
+error code.
+
+<P><LI>CDFS.IFS driver dialog: "Optimize" and "Default" buttons didn't work. Fixed. Also added
+help page.
+<P><LI>CDFS.IFS driver dialog crashed if parameters line was empty. Fixed.
+<P><LI>"Backup" and "Undo" buttons didn't work right with new "Mouse" settings pages. Fixed.
+<P><LI>Help page was wrong in "Edit function key" dialog. Fixed.
+
+<P><LI>Special treatment of seamless &winos2; windows with sliding focus broke with V0.9.3. Fixed.
+<P><LI>Seamless &winos2; menus didn't work right with sliding focus either. Fixed.
+<P><LI>Fixed a few quirks with delayed sliding focus because timer wasn't stopped in time.
+<P><LI>Sliding menus changed sometimes even if the mouse wasn't moved. Fixed.
+<P><LI>Desktop context menu with screen borders always popped up in bottom-left screen corner. Fixed.
+<P><LI>VIO windows never showed up in the foreground. This was a strange one. Fixed that.
+<P><LI>Fixed hangs of MB3 scrolling over Netscape and PMMail.
+<P><LI>MB3 features broke compatibility with other PM hooks. Fixed.
+<P><LI>Fixed "window list as mouse pointer" bug with PMMail.
+
+<P><LI>Fixed a large number of bugs with &pgr;. Toggling the title bar works now.
+&pgr; doesn't hang any more when the boot logo transparent windows are used.
+&pgr;'s window position is finally saved.
+
+<P><LI>&xshutdown; finally detects and closes the &warpcenter; properly. This should fix the
+"desktop icons move" problem.
+<P><LI>&xshutdown; created 0-byte INI files without any warnings.
+Somehow my error handling must have broken with 0.9.0.
+This still doesn't fix the "save INIs" problem (see the
+<A HREF="070faq.html">FAQ section</A>), but at least you get a warning now.
+
+<P><LI>Exception handlers broke again with V0.9.3. Sigh... fixed.
+
+<P><LI>NetscapeDDE failed when other DDE-aware applications were running. Thanks,
+Rousseau de Pantalon, for supplying a fix for this.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,537 @@
+;
+; This is the monster XWorkplace text message file (XFLDR046.TMF).
+; This is used for messages which might turn out to be longer
+; than 256 characters and might thus not fit into the STRINGTABLE
+; resources. These are loaded by XWorkplace on the fly and appear
+; mostly in the new XWorkplace message boxes.
+;
+; Required changes for translations: Look at each line after the
+; message identifier (in angle brackets) and translate only that
+; part. Beware of line breaks, as these messages will normally be
+; formatted by XWorkplace. Inserting line breaks will cause
+; _additional_ line breaks to be displayed.
+;
+; The format of this file has slightly changed with V0.9.0. We now use
+; the angle-bracket syntax, as seen below. Whatever is in angle
+; brackets at the beginning of a line will be used by XWorkplace
+; to find the corresponding message, which must follow. If you
+; change the identifiers, XWorkplace can no longer find the message!
+;
+; Also, make sure to keep all those "%1", "%c", "%s" etc. thingies in
+; place, because those placeholders will be replaced at run-time with
+; variable information. XWorkplace might crash if these placeholders
+; are not found or, even worse, if a "%s" key doesn't get a string but
+; a decimal number in sprintf.
+;
+;       Copyright (C) 1997-2002 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+<--XFL0100-->: &xwp;: Modifiera CONFIG.SYS
+
+<--XFL0101-->: F”r att aktivera de nya inst„llningarna, kommer &xwp; nu att modifiera din CONFIG.SYS fil. &xwp; kommer att skapa en backupfil under namnet CONFIG.001 (eller en h”gre numerisk „ndelse, om n”dv„ndigt). r du s„ker p† att du vill „ndra din CONFIG.SYS fil?
+
+<--XFL0102-->: &xwp;: Spr†k „ndrat
+
+<--XFL0103-->: &xwp;'s spr†k har nu „ndrats. "Workplace Shell" objektet kommer att st„ngas. N„r du ”ppnar det n„sta g†ng, har spr†ket „ndrats.
+
+<--XFL0104-->: &xwp;: Fel
+
+<--XFL0105-->: &xwp; kunde inte skapa Startup mappen p† Skrivbordet. Mest troligt har WPS klassen XFldStartup inte blivit riktigt installerad.
+
+<--XFL0106-->: &xwp; kunde inte skapa &xsd; mappen p† Skrivbordet. Mest troligt har WPS klassen XFldShutdown inte blivit riktigt installerad.
+
+<--XFL0107-->: ndra WPS Objekt ID
+
+<--XFL0108-->: Du har angett ett ogiltigt WPS objekt ID. Dessa ID's m†ste alltid ha formen "<SOMETHING>". Det gamla ID't kommer att †terskapas.
+
+<--XFL0109-->: r du s„ker p† att du vill „ndra WPS objekt ID?
+
+<--XFL0110-->: &xsd;: Fel
+
+<--XFL0111-->: Ett fel uppstod n„r INI filerna sparades. Det finns en m”jlighet att Workplace Shell kan ha blivit skadat vid n„sta ombootning. Ist„llet f”r att forts„tta den ut”kade avst„ngningen, kan du starta om WPS, avaktivera den ut”kade avst„ngningen, och g”ra en vanlig &os2; avst„ngning. Vill du starta om WPS nu?
+
+<--XFL0112-->: V„lj Objektklass
+
+<--XFL0113-->: V„lj den objektklass f”r vilken du vill st„lla in statusf„lt information. Klasser som inte st”der den h„r funktioner framtr„der i f„rger i WPS skuggor.
+
+<--XFL0114-->: Ut”kad Avst„ngning
+
+; V0.9.11: „ndrade f”ljande
+<--XFL0115-->: Det finns f”r n„rvarande %1 utskrift(er) i spoolerk”erna. &xsd; kommer inte att fungera tillfredsst„llande n„r utskriftsjobb fortfarande p†g†r. Ta bort jobben fr†n spoolern f”rst.
+
+<--XFL0116-->: &xwp;: Varning
+
+; 117 „r borta med V0.9.7 (2000-12-13) [umoeller]:
+
+<--XFL0118-->: Du har valt att ta bort klassen "%1" fr†n WPS klasslista. Du b”r endast f”r„ndra WPS klasslistan om du vet exakt vad du g”r. Avregistrering av vissa klasser kan leda till allvarliga funktionshinder hos Workplace Shell och kan till och med kr„va en komplett ominstallation av &os2;. r du fortfarande s„ker p† att du vill avregistrera klassen?
+
+<--XFL0119-->: Klassen "%1" kunde inte avregistreras.
+
+<--XFL0120-->: Du har valt att ta bort klassen "%1" fr†n WPS klasslistan. Klassen tillh”r &xwp; paketeringen. Alla &xwp; klasser „r designade f”r att fungera tillsammans, och ta bort endast vissa av dem kan leda till allvarliga funktionshinder hos Workplace Shell. r du fortfarande s„ker p† att du vill avregistrera klassen?
+
+<--XFL0121-->: &xwp;
+
+<--XFL0122-->: Klass "%1" har avregistrerats utan problem. Du m†ste starta om WPS f”r att se effekterna.
+
+<--XFL0123-->: V„lj den objektklass med vilken du vill byta ut "%1".
+
+<--XFL0124-->: r du s„ker p† att du vill byta ut objektklassen "%1" med "%2"? Det h„r kan endast fungera med klasser som „r specifikt konstruerade f”r detta „ndam†l. Annars kan procedureenkanske leda till allvarliga funktionshinder hos Workplace Shell och kan „ven kr„va en komplett ominstallation. Vill du byta ut den i varje fall?
+
+<--XFL0125-->: Du har valt att †ngra utbytet av klass "%1" med "%2". Den h„r klassen tillh”r &xwp; paketeringen. Alla &xwp; klasser „r konstruerade att fungera tillsammans, och „ndra utbye kan leda till allvarliga funktionshinder hos Workplace Shell. r du fortfarande s„ker p† att du vill †ngra utbytet av klassen?
+
+<--XFL0126-->: Du har valt att †ngra utbytet av klass "%1" med "%2". Du b”r endast byta WPS klass ers„ttning om du vet exakt vad du g”r. ngrat utbyte av vissa klasser kan leda till allvarliga funktionshinder hos Workplace Shell och kan till och med kr„va en komplett ominstallation av &os2;. r du fortfarande s„ker p† att du vill †ngra utbytet av klassen?
+
+<--XFL0127-->: Utbytet av klass "%1" med "%2" har †ngrats utan problem.
+
+<--XFL0128-->: ngrat utbyte av klass "%1" med "%2" misslyckades.
+
+<--XFL0129-->: Klass "%1" har blivit utbytt mot "%2" utan problem. Notera att det h„r endast kommer att ha effekt efter att Skrivbordet startats om och att ocks† WPS klasslistan inte visar „ndringen f”rr„n d†.
+
+<--XFL0130-->: Utbyte av klass "%1" med "%2" misslyckades.
+
+<--XFL0131-->: Klass "%1" registrerades utan problem. En omstart av WPS „r troligtvis inte n”dv„ndig.
+
+<--XFL0132-->: Registering av klass "%1" misslyckades. Felkod: %2. Modul information: %3.
+
+<--XFL0133-->: Du har valt att alla mapparna p† ditt system skall sorteras som standard. Detta kommer att inkludera Skrivbordet. Vill du avaktivera  auto-sortering f”r Skrivbordet?
+
+<--XFL0135-->: Du har ”ppnat en undermeny vilken inte inneh†ller n†gra menyposter d„rf”r att den korresponderande &xwp; konfigurationsmappen inte inneh†ller n†gra objekt. Placera n†gra objekt i konfigurationsmappen f”r att skapa menyposter.
+
+<--XFL0136-->: CONFIG.SYS filen har „ndrats. Din tidigare CONFIG.SYS har blivit kopierad till filen %1. F”r att „ndringarna skall f† effekt, m†ste du st„nga av och boota om ditt system. En omstart av Skrivbordet „r inte tillr„ckligt.
+
+<--XFL0137-->: &xwp; kunde inte hitta sin Online Referens. Du har troligtvis raderat respektive objekt som skapades av installationsprogrammet. Du kan hitta Online Referensen (XFLDR001.INF) i &xwp;'s installationskatalog.
+
+<--XFL0138-->: r du s„ker p† att du vill starta alla objekt i den h„r mappen? Det kan leda till problem om program i den h„r mappen redan „r ig†ng.
+
+<--XFL0139-->: Klassen "%1" „r f”r n„rvarande utbytt av "%2". Du m†ste †ngra det h„r utbytet innan klassen kan avregisteras.
+
+;
+; f”ljande „r nytt med V0.9.0
+
+<--XFL0141-->: Detta kommer att skapa ett objekt av klassen "%1" kallad "%2" p† Skrivbordet. Varning: Vissa WPS klasser designades inte f”r att objekt av dem skulle skapas, och n†gra kan eventuellt skapa problem med din systemkonfiguration. Forts„tt „nd†?
+
+<--XFL0142-->: Du har gjort f”ljande „ndringar till &xwp; klass setup:
+
+<--XFL0143-->: Registrera f”ljande klasser:
+
+<--XFL0144-->: Byt ut f”ljande klasser:
+
+<--XFL0145-->: Avregistrera f”ljande klasser:
+
+<--XFL0146-->: ngra f”ljande klassutbyte:
+
+<--XFL0147-->: Varning: Vissa delar av „ndingarna i &xwp; klass setup har inte blivit utf”rligt testade. Det kan fortfarande finnas vissa sido-effekter mellan de olika &xwp; klasserna vilka inte har l”sts. r du s„ker p† att du vill g”ra det h„r?
+
+<--XFL0148-->: &xwp; Setup
+
+<--XFL0149-->: Fel upptr„dde med f”ljande &xwp; klasser:
+%1
+Vissa av klasserna kan ha blivit riktigt „ndrade. Starta om WPS f”r att „ndringarna skall f† effekt.
+
+<--XFL0150-->: WPS klasslistan har blivt „ndrad utan problem. Du m†ste starta om WPS f”r att „ndringarna skall f† effekt.
+
+<--XFL0151-->: &xwp;: "Ljud" Objekt
+
+<--XFL0152-->:Ljudschemat "%1" finns redan. Skriva ”ver?
+
+<--XFL0153-->: Detta kommer att ”verskrida det nuvarande ljuddatat. Vill du spara ljuddatat i ett nytt ljudschema f”rst?
+
+<--XFL0154-->: r du s„ker p† att du vill radera ljudschemat "%1"?
+
+<--XFL0155-->: Detta kommer att byta ut f”ljande rad
+
+%1
+
+i CONFIG.SYS med den h„r nya raden:
+
+%2
+
+r du s„ker p† att du vill g”ra det?
+
+<--XFL0156-->: Inga „ndringar utf”rdes med drivrutinen "%1". Modifiering av CONFIG.SYS „r inte n”dv„ndig.
+
+<--XFL0157-->: &xwp; Hook har installerats. Objektsnabbkommandon och musr”relsefunktioner „r tillg„ngliga i "Tangentbord" och "Mus" inst„llningsobjekten.
+
+<--XFL0158-->: &xwp; Hook har nu avinstallerats. Objektsnabbkommandon och musr”relsefunktioner „r inte l„ngre tillg„ngliga i "Tangentbord" och "Mus" inst„llningsobjekten.
+
+;
+; f”ljande poster har lagts till med V0.9.1
+;
+; „ndrade XFL0159 med V0.9.7
+;
+
+<--XFL0159-->: V„lkommen till &xwp;. Workplace Shell startar nu upp med &xwp; installerat.
+
+Om du just har installerat &xwp; f”r allra f”rsta g†ngen, „r alla &xwp; inst„llningar avaktiverade f”r att undvika problem.
+
+Om du har haft &xwp; installerat tidigare, kommer &xwp; att importera de flesta av dina gamla &xwp; inst„llningar.
+
+Om du hade &xwp; installerat tidigare, kommer dina inst„llningar inte att „ndras.
+
+Nu, om du skulle r†ka komma i trubbel med &xwp;, t.ex. att ditt system h„nger sig vid starten, tryck f”rst Ctrl+Alt+Del f”r att starta om systemet.
+
+N„r sedan WPS startar upp efter ombootningen, tryck ner "Shift" tangenten. Detta kommer att g”ra att &xwp; visar en "Panik" dialog d„r du kan avaktivera vissa &xwp; funktioner.
+
+Tryck "OK" f”r att forts„tta WPS starten nu. Meddelandet kommer inte att visas igen.
+
+<--XFL0160-->: Inga inst„llningar f”r &xwp; existerar i din OS2.INI fil. Emellertid, hittades inst„llningar f”r en „ldre XFolder version.
+
+&xwp; kan nu importera alla dina gamla XFolder inst„llningar s† att du inte beh”ver konfigurera om allting. I det fallet, kommer &xwp; att bete sig initialt som din existerande XFolder version. Dina gamla XFolder inst„llningar kommer inte att „ndras, s† att du kan installera om XFolder ist„llet f”r &xwp; senare.
+
+Om du inte vill g”ra detta, kommer alla &xwp; funktioner initialt att vara avaktiverade.
+
+Vill du ha dina gamla XFolder inst„llningar konverterade f”r &xwp;?
+
+<--XFL0161-->: Detta kommer att skapa &xwp; Konfigurationsmapp i &xwp; installationmapp eller, om den mappen inte existerar, p† ditt Skrivbord.
+
+Vill du forts„tta?
+
+<--XFL0162-->: r du s„ker p† att du vill ta bort snabbkommandot "%1" f”r objektet "%2"?
+
+; f”ljande har „ndrats med V0.9.10
+<--XFL0163-->: Detta kommer att skapa ett objekt kallat "%1" i mappen "%2" med setupstr„ngen "%3".
+
+Vill du forts„tta?
+
+; f”ljande har „ndrats med V0.9.10
+; och igen med V0.9.19
+<--XFL0164-->: Objektet "%1" skapades utan problem.
+
+<--XFL0165-->: Fel: Objektet kunde inte skapas. Se till att du har korresponderande WPS klass installerad.
+
+<--XFL0166-->: Du har valt att aktivera de ut”kade systemljuden, men de ytterligare &xwp; systemljuden har inte installerats i "Ljud" objektet „nnu. Vill du att det skall g”ras nu?
+
+<--XFL0167-->: Du har valt att avaktivera de ut”kade systemljuden. Vill du ta bort de ytterligare &xwp; systemljuden fr†n "Ljud" objektet?
+
+<--XFL0168-->: &xwp; Papperskorg
+
+<--XFL0169-->: Detta kommer att radera alla objekten i papperskorgen f”r gott.
+
+r du s„ker p† att du vill t”mma papperskorgen?
+
+<--XFL0170-->: De papperskorgs WPS klasser som „r n”dv„ndiga f”r att &xwp;'s papperkorg skall fungera (XWPTrashCan, XWPTrashObject) har inte registrerats „nnu.
+
+Skall vi g”ra det nu?
+
+<--XFL0171-->: Ett fel upptr„dde under registrering av papperskorgens WPS klasser.
+
+<--XFL0172-->: Vill du f”rst”ra papperskorgsobjektet och avregistrera &xwp;'s papperskorg klasser (XWPTrashCan, XWPTrashObject)?
+
+<--XFL0173-->: Papperskorgsobjektet har f”rst”rts utan problem och papperskorgsklasserna har blivit avregistrerade. Du b”r starta om WPS f”r att „ndringarna skall bli effektiva.
+
+<--XFL0174-->: Operationen „r inte giltig f”r skr„pobjekt.
+
+<--XFL0175-->: &xwp;: Fil operationer fel
+
+;
+; f”ljande har lagts till med V0.9.3
+;
+
+<--XFL0177-->: r du s„ker p† att du vill radera "%1" permanent?
+
+<--XFL0178-->: Du har valt %1 objekt f”r att raderas permanent. r du s„ker p† att vill g”ra det?
+
+<--XFL0179-->: "%1" „r en skrivskyddad fil. Vill du flytta den till papperskorgen i varje fall?
+
+<--XFL0180-->: Den aktuella enheten har inget st”d av papperskorgen. Vill du hellre radera "%1" ist„llet?
+
+<--XFL0181-->: Den aktuella enheten har inget st”d av papperskorgen. Vill du ist„llet permanent radera de %1 valda objekten ist„llet?
+
+<--XFL0182-->: r du s„ker p† att du vill flytta "%1" till papperskorgen?
+
+<--XFL0183-->: Du har valt %1 objekt att flyttas till papperskorgen. r du s„ker p† att du vill g”ra det?
+
+<--XFL0184-->: "%1" „r en skrivskyddad fil. Vill du radera den permanent i varje fall?
+
+<--XFL0185-->: "%1" kan inte raderas.
+
+<--XFL0186-->: Vill du avbryta den p†g†ende filoperationen? Tryck "F”rs”k igen" f”r att forts„tta, tryck "Avbryt" f”r att stoppa.
+
+;
+; f”ljande „r nytt med V0.9.4
+;
+
+<--XFL0188-->: Du har just †terskapat ett WPS arkiv. &xwp;'s automatiska arkivering har avaktiverat f”r att f”rhindra ”verskrivning av arkiv. Du kan sl† p† den igen fr†n Skrivbordets notbok med inst„llningar.
+
+<--XFL0189-->: T”mning av papperskorgen misslyckades. Vill du forts„tta avst„ngningen?
+
+;
+; f”ljande „r nytt med V0.9.5
+;
+
+<--XFL0190-->: Innan anv„ndning av &xsd; f”rsta g†ngen, var v„nlig och st„ll in &xsd; p† den nya "&xsd;" sidan hos Skrivbordets notbok med inst„llningar.
+
+Varning: ven om &xsd; har testats, KANSKE DEN INTE FUNGERAR p† ditt system. Innan avst„ngning f”rsta g†ngen med &xsd;, se till att du har en fungerande WPS backup. Kom inte och s„g att du inte blivit varnad!
+
+;
+; f”ljande poster „r nya med V0.9.6
+;
+
+<--XFL0191-->: &xwp; Setupstr„ng
+
+<--XFL0192-->: Detta kommer att anropa setupstr„ng "%1" p† objekt "%2". r du s„ker p† att du vill g”ra det?
+
+<--XFL0193-->: Detta kommer att anropa setupstr„ng "%1" p† f”ljande objekt:
+
+%2
+
+r du s„ker p† att du vill g”ra det?
+
+;
+; f”ljande poster „r nya med V0.9.7
+;
+
+<--XFL0194-->: &xcenter;: Fel
+
+<--XFL0195-->: &xcenter; misslyckades att skapa widget av klassen "%1".
+
+Kontrollera om xwplog.log filen i rotkatalogen p† din bootenhet kanske inneh†ller ytterligare information.
+
+Vill du ta bort den h„r widget fr†n &xcenter;'s widget lista?
+
+<--XFL0196-->: Fil vid skapande av filtyp "%1". Filtypen kanske redan finns.
+
+<--XFL0197-->: &xcenter;
+
+<--XFL0198-->: r du s„ker p† att du vill s„tta ditt system i l„get "Suspendera"?
+
+<--XFL0199-->: Ja... uppenbarligen gick allt bra. F”r att komma ig†ng: Allt du beh”ver g”ra „r att aktivera &xwp; funktioner i "&xwp; Setup" objekt i installationsmappen som du just har ”ppnat.
+
+De andra skuggorna i den mappen pekar f”r det mesta p† originalobjekten som skapades i din mapp med "Systemkonfiguration".
+
+"&xwp; Anv„ndarguide" inneh†ller all den information som du beh”ver... och om den inte g”r det, finns det kontaktadresser f”r support.
+
+Ha kul med &xwp;!
+
+<--XFL0200-->: Fel %1 upptr„dde vid installation av fontfil "%2".
+
+Vill du ignorera felet och forts„tta att installera fonter?
+
+<--XFL0201-->: Fontfil "%1" „r redan installerad.
+
+Vill du ignorera felet och forts„tta att installera fonter?
+
+<--XFL0202-->: r du s„ker p† att du vill avinstallera font "%1"?
+
+<--XFL0203-->: Du har valt %1 fonter f”r avinstallation. r du s„ker p† att du vill g”ra det?
+
+<--XFL0204-->: Fonten "%1" kunde inte laddas ur vid den h„r tidpunkten. En applikation kan fortfarande anv„nda den. Emellertid, efter n„sta ombootning skall den vara borta.
+
+Vi du ignorera det h„r felet och forts„tta ta bort fonter?
+
+<--XFL0205-->: Sektionen handtag i OS2SYS.INI har skrivits om. &xwp; kommer att starta om WPS nu.
+
+<--XFL0206-->: Hmmmm. &xwp; kunde inte starta "%1".
+
+<--XFL0207-->: Du m†ste starta om Workplace Shell f”r att „ndringen skall f† effekt.
+
+;
+; f”ljande „r nytt med V0.9.9
+;
+
+<--XFL0208-->: &xwp;'s ut”kade filassociationer „r nu aktiverade.
+
+Notera: Om du inte har konfigurerat the &xwp;'s filtyper „nnu, „r alla dina nuvarande WPS f”r n„rvarande avaktierade. G† till "Workplace Shell" objektet, d„r du kommer att hitta en ny sida med "Filtyper", f”r att s„tta upp filtyper f”r dina existerande associationer.
+
+Du kan alltid avaktivera de ut”kade filassociationerna igen och f† tillbaka dina gamla WPS mekanismer.
+
+<--XFL0209-->: Filtypen %1 hittades inte i OS2.INI fil.
+
+<--XFL0210-->: Filtypen %1 existerar redan och kan inte anv„ndas f”r namnbyte.
+
+<--XFL0211-->: &xwp; kommer nu att skapa ett standard installationobjekt f”r dig.
+
+Detta kommer att l„gga till ett antal objekt i din mapp "Systemkonfiguration" f”r detaljerad konfiguration av &xwp; och WPS.
+
+Som till„gg, kommer detta att producera en "&xwp; installation" mapp p† ditt skrivbord med en standard konfigurationsmapp f”r dina mappars kontextmenyer.
+
+Om du inte ville att det h„r skulle utf”ras, tryck "Avbryt" nu. Du skall endast g”ra detta om du „r s„ker p† att du inte vill att objekten skall skapas; detta kommer att hindra dig fr†n att kunna konfigurera &xwp;, om objekten inte redan existerar.
+
+Annars, tryck "OK" f”r att forts„tta.
+
+<--XFL0212-->: Du m†ste starta om WPS f”r att &xwp;'s auto-f”rnyelse tr†d skall bli aktiv.
+
+VARNING: Den h„r funktionen „r fortfarande n†got ostabil. Den kommer troligtvis inte att h„nga ditt system, men du kan f† krascher hos auto-f”rnyelsens bakgrundstr†d. Anv„nd den p† egen risk.
+
+;
+; f”ljande poster „r nya med V0.9.12
+;
+
+<--XFL0213-->: Filtyperna blev exporterade till filen "%1" utan problem.
+
+<--XFL0214-->: Fel %2 uppstod under export av filtyperna till fil "%1".
+
+<--XFL0215-->: Filtyperna blev importerade fr†n filen "%1" utan problem.
+
+<--XFL0216-->: Ett fel uppstod under import av filtyperna fr†n filen "%1":
+%2
+
+<--XFL0217-->: Filen "%1" existserar redan. Vill du skriva ”ver den med nytt data?
+
+<--XFL0218-->: Master ljudvolymen fungerar inte riktigt. Kontrollen kommer att st„ngas.
+
+;
+; f”ljande poster „r nya med V0.9.13
+;
+
+<--XFL0219-->: Felkod %1 rapporterades av systemet. Olyckligtvis, hittades inget felmeddelande f”r koden.
+<--XFL0220-->: Radera fack
+<--XFL0221-->: r du s„ker p† att du vill radera facket ben„mnt "%1"?
+
+;
+; f”ljande poster lades till med V0.9.14
+;
+
+<--XFL0222-->: &xcenter; misslyckades att skapa en widget av klass "%1".
+
+Den h„r widget klassen kan inte anv„ndas i ett fack.
+
+Vill du ta bort aktuell widget fr†n &xcenter;'s widgetlista?
+
+;
+; f”ljande „r „ndrat med V0.9.16
+;
+
+<--XFL0134-->: Hj„lppanelen med ID "%1" hittades inte av "%2". Ingen hj„lp finns tillg„nglig.
+
+<--XFL0187-->: Objekttiteln som har angivits „r ogiltig. Eftersom varje objekt m†ste ha en giltig titel, har det gamla namnet restaurerats.
+
+;
+; f”ljande poster „r nya med V0.9.16
+;
+
+<--XFL0223-->: Funktionen "Turbomappar" har aktiverats. Av s„kerhetsk„l, kommer den h„r inst„llningen inte att f† effekt innan du startar om Skrivbordet.
+<--XFL0224-->: Funktionen "Turbomappar" har avakativerats. Av s„kerhetsk„l, kommer den h„r inst„llningen inte att f† effekt innan du startar om Skrivbordet.
+<--XFL0225-->: De valda objekten kan inte raderas d„rf”r att &xwp; papperskorg inte existerar. Vill du †terskapa papperskorgsobjektet p† Skrivbordet?
+
+<--XFL0226-->: "%1" „r en mapp. r du s„ker p† att du vill radera den permanent, inklusive allt sitt inneh†ll?
+
+<--XFL0227-->: Kan inte starta program
+<--XFL0228-->: Ett fel uppstod vid start av programmet "%1". Operativsystemet returnerade f”ljande meddelande:
+<--XFL0229-->: Vill du ”ppna notboken med inst„llningar f”r programobjektet?
+
+;
+; f”ljande „r nytt med V0.9.17
+;
+
+<--XFL0230-->: Skrivbordsfel
+<--XFL0231-->: &xwp; f”rs”kte kontrollera ditt skrivbords integritet.
+Under f”rs”k att analysera Workplace Shell's fil-systems handtagstabell fr†n din systemprofil, uppstod %1 fel.
+Det h„r betyder inte n”dv„ndigtvis att ditt skrivbord „r trasigt, men det verkar som om ditt filsystems handtagstabell har vissa problem.
+
+&xwp; kan nu visa "Panik" dialogen f”r dig, d„r du kan g”ra n†got av f”ljande:
+1) K”r xfix, &xwp;'s filhandtags fixare, f”r att ta en titt p† filsystemshandtagen och kanske lista ut vad som „r fel.
+2) Avaktivera funktionen "Kontrollera skrivbordet vid startup" s† att det h„r meddelandet inte upptr„der igen. Det kan emellertid leda till ett "Kan inte hitta skrivbordet" fel i framtiden.
+
+Skall &xwp; visa "Panik" dialogen nu? Annars forts„tter vi helt enkelt startup.
+
+;
+; f”ljande poster „r nya med V0.9.19
+;
+
+<--XFL0232-->: &xwp; kunde inte kontakta &xwp; daemon, vilken, bland annat, „r n”dv„ndig f”r att starta program.
+Vill du starta om daemon nu?
+
+<--XFL0233-->: &xwp; kunde inte hitta WPS klassen "%1". Troligtvis „r klassen inte installerad.
+
+<--XFL0234-->: De regulj„ra uttrycket som du har specificerat „r ogiltaga. F”ljande fel uppstod:
+
+%1
+
+<--XFL0235-->: Den menypost som du valde antas utv„xla textdata fr†n klippbordet som en parameter. Klippbordet inneh†ller, emellertid, f”r n„rvarande inget textdata.
+
+Vill du starta programmet i varje fall?
+
+<--XFL0236-->: "%1" „r en mapp. r du s„ker p† att du vill flytta den till papperskorgen, inklusive allt sitt inneh†ll?
+
+<--XFL0237-->: Ett skyddsfel upptr„dde. Operationen kan inte forts„tta.
+
+<--XFL0238-->: Byt namn
+    "%1"
+till
+    "%2"?
+
+<--XFL0239-->: Det "utbytes" uttryck som du angivit „r ogiltigt. F”ljande fel har upptr„tt:
+
+%1
+
+Om du anv„nder backreferenser (t.ex. "\1") i "utbytes" str„ngen, se till att du specificerar korresponderade parenteser i "s”k" str„ngen.
+
+<--XFL0240-->: Inga objekt hittades som matchade dina s”kkriterier.
+
+<--XFL0241-->: %1 objekt(en) matchade dina s”kkriterier. Av dessa blev, %2 objekt(en) namnbytta.
+
+;
+; the following items are new with V0.9.20
+;
+
+<--XFL0242-->: T”m Papperskorgen
+
+<--XFL0243-->: Ta bort Widget
+
+<--XFL0244-->: r du s„ker p† att du vill ta bort hela "%1" widget? Denna operation kan inte †ngras.
+
+;
+; the following items are new with V0.9.21
+;
+
+<--XFL0245-->: Ett fel upptr„dde n„r &xwp; f”rs”kte starta ditt systems standardbrowser (%1):
+
+<--XFL0246-->: Kontrollera din standardbrowsers inst„llningar i n†got URL objekt.
+
+<--XFL0247-->: &xwp; Klass Utbyten
+
+<--XFL0248-->: &xwp; har uppt„ckt ett problem med ordningen hos Workplace Shell klassutbyten p† ditt system.
+
+I listan ”ver klassutbyten f”r %1, skall &xwp; utbytesklassen %2 vara f”rst i listan.
+
+&xwp; kan arrangera om klassutbyteslistan. Den nuvarande ordningen „r:
+
+%3
+
+Detta m†ste „ndras till
+
+%4
+
+Vill du att „ndringarna skall utf”ras nu?
+
+<--XFL0249-->: &xwp; har fixat problemen i ditt Workplace Shells klassutbyteslista.
+
+Vill du omstarta Workplace Shell nu f”r att „ndringarna skall f† effekt?
+
+<--XFL0250-->: &xwp; har uppt„ckt ett problem med ditt Workplace Shells klassutbyteslista.
+
+Formatet p† utbyteslistan f”r %1 klassen „r ogiltigt.
+
+Vill du att &xwp; skall fixa problemet nu?
+
+<--XFL0251-->: &xwp; har kopieraten en buggrapportmall med systeminformation till ditt systems klippbord.
+
+Starta din favorit e-mailklient och klistra in klippbordets inneh†ll i ett nytt mail till &contact-user; f”r att rapportera buggen till utvecklingsteamet.
+
+Tack.
+
+<--XFL0252-->: "%1" kan inte raderas. F”ljande fel upptr„dde:
+
+%2
+
+<--XFL0253-->: Du m†ste specifiera ett giltigt snabbkommado. Om snabbkommandof„ltet f”rblir tomt n„r du anger snabbkommandosekvensen, betyder det troligtvis att sekvensen inte kan k„nns igen.
+
+("Regulj„ra" tangenter kan inte anv„ndas som snabbkommandon. Till exempel, varken "A" eller "Shift-A" „r giltigt. Men "Ctrl-A" eller "Ctrl-Shift-A" „r det.)
+
+<--XFL0254-->: Du m†ste specifiera en parameter. Klicka p† drop-down pilen listar tillg„ngliga alternativ.
+
+<--XFL0255-->: Det h„r snabbkommandot „r redan definierat. Vill du byta ut den existerande definitionen med den h„r nya?
+
+
+
+

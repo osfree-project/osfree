@@ -1,0 +1,49 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        "Echtes L”schen" ersetzen
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3. -->
+<BODY>
+<B>Klasse: XFldObject</B><HR>
+ 
+Seit V0.9.3 kann &xwp; auch den regul„ren L”schmechanismus der
+Workplace Shell ersetzen. Ich nenne dies "echtes L”schen", im Gegensatz
+zum Verschieben der Objekte in den Papierkorb. "Echtes L”schen" entfernt Objekte
+ohne M”glichkeit der Wiederherstellung.
+ 
+<P>"Echtes L”schen" kann durch Aktivierung der entsprechenden Einstellung
+auf der Seite "Funktionalit„t" des Objekts <A HREF="sys_2global.html">"&xwp;-Konfiguration"</A>
+ersetzt werden. Auch dies ist anfangs deaktiviert.
+ 
+<P>Verglichen mit den L”schoperationen der WPS hat &xwp;s "Echtes L”schen" eine
+Reihe von Vorteilen. Zum einen bekommt man eine vernnftige Statuszeile, die den
+Fortschritt der L”schoperation anzeigt. Zweitens erh„lt man endlich eine
+M”glichkeit, das L”schen abzubrechen, wenn man einen Ordner mit vielen
+Unterobjekten l”scht, was mit der WPS nicht m”glich ist. So etwas ist mir
+schon einige Male passiert... die Taste "Entf" zuf„llig ber einem Ordner
+gedrckt und 100 MB an Dateien wurden gel”scht, ohne eine Chance einzugreifen.
+Keine gute Idee.
+ 
+<P>Wenn "Echtes L”schen" ersetzt wird, bernimmt &xwp; die folgenden Aktionen:
+ 
+<!-- V0.9.7: rewrote the following three paragraphs -->
+<UL><LI>Ist der &xwp;-Papierkorb aktiviert, enden alle regul„ren L”schoperationen
+noch immer im Papierkorb (wie auf der
+<A HREF="file_2trashcan.html">vorigen Seite</A> beschrieben), so daá diese Operationen
+nicht betroffen sind.
+ 
+<P>Es betrifft aber "echtes L”schen" aus einem Kontextmen (wenn man die
+"Umschalt"-Taste gedrckt h„lt, w„hrend man auf einen Eintrag "L”schen" klickt)
+sowie die Befehle "Objekt entfernen" und "Papierkorb ausleeren" des Papierkorbs selbst.
+ 
+<P><LI>Wenn der &xwp;-Papierkorb nicht aktiviert ist, betrifft dies alle L”schoperationen
+der WPS (d.h. jeden Kontextmeneintrag "L”schen" und das Drcken der Taste
+"Entf").
+ 
+</UL>
+</BODY>
+</HTML>
+ 
+ 

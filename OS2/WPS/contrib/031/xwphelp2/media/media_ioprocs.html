@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_MEDIA_IOPROCS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Media IOProcs
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+"IOProcs" zijn invoer/uitvoer procedures. MMPM/2 gebruikt deze zaken om
+ verschillende bestandsformaten en opslagtypes te begrijpen.
+
+<P>IOProcs zijn in werkelijkheid een erg abstract concept en moeilijk te begrijpen.
+In essentie komt het er op neer dat dit concept MMPM/2 de mogelijkheid biedt om nieuwe
+media formaten te begrijpen zonder dat een programmeur heel MMPM/2 opnieuw moet schrijven. Dus om alle
+&os2; applicaties een nieuw media formaat te laten begrijpen, hoeft iemand "alleen" maar een IOProc te
+schrijven. Deze moet zich bevinden in een
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+en dan geregistreerd te worden in MMPM/2 via het MINSTALL programma.
+
+<P>IOProcs kunnen ofwel bestanden lezen, of schrijven, of beide, afhankelijk van hoe
+lui de programmeur geweest is.
+
+<P>De <B>"VierCC"</B> staat voor "vierkarakter code" en wordt gebruikt om een IOProc
+te laten correleren met een bestandsformaat en een codec te vinden voor een IOProc, indien nodig.
+Zie de volgende pagina voor details.
+
+<P>Er zijn verschillende <B>"IOProc types"</B>:
+<UL><LI><B>"Bestand"</B> IOProcs verwerken een bepaald bestandsformaat. Deze worden gebruikt om
+bestanden te openen en te interpreteren. Zie de verschillende media types verderop.
+
+<P><LI><B>"Opslag"</B> IOProcs zijn een speciaal type die de MMPM/2 bestands interfaces toe staan
+erg algemeen te zijn. Sinds IOProcs in lagen georganiseerd kunnen zijn, kunnen bepaalde
+IOProcs andere IOProcs aanroepen als zij zelf het bestandsformaat niet begrijpen of
+enige andere hulp nodig hebben. Bijvoorbeeld, de "Bestands" formaat IOProc roept de
+"Opslag" IOProc op zijn beurt aan om werkelijk het bestand te benaderen. Als gevolg hiervan kan
+dezelfde IOProc gebruikt worden om gegevens op schijf of in het geheugen te verwerken, afhankelijk
+van de opslag IOProc die gebruikt wordt.
+
+</UL>Met <B>"Bestands" IOprocs,</B> zijn er drie hoofd <B>media types</B>:
+
+<UL><LI><B>Audio</B> is voor audio bestanden, logisch genoeg. Let op dat met audio bestanden,
+IOProcs alleen het <I>bestandsformaat</I> verwerken (b.v. <CODE>.WAV</CODE>), maar niet
+de <I>inhoud</I> van het bestand.
+De meeste audio bestanden zijn gecomprimeerd, dus om in werkelijkheid de bestandsinhoud te begrijpen
+heeft MMPM/2 ook een codec nodig voor het bestand. Zie de volgende pagina voor details.
+
+<P><LI><B>Film</B> is voor video bestanden. Net zoals met audio bestanden heeft MMPM/2 codecs nodig
+om de bestands<I>inhoud</I> te kunnen verwerken. Zie de volgende pagina voor details.
+
+<P><LI><B>Afbeelding</B> IOProcs verwerken afbeeldingsbestanden (bitmap). Dit is behoorlijk
+uitgebreid in Warp 4, die komt met IOProcs voor de meest gebruikte afbeelding bestandstypes.
+Sommige ontbreken echter nog steeds, en sommige implementaties zijn wat minder stabiel.
+(Probeer een 20MB gecomprimeerd TIFF bestand op te slaan met de Warp 4 afbeeldingseditor).
+In tegenstelling tot de twee vorige types, zijn er geen codecs betrokken bij het verwerken van
+afbeeldingsbestanden.
+
+</UL>
+</BODY>
+</HTML>
+

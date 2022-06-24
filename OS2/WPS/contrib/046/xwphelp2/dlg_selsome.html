@@ -1,0 +1,54 @@
+<HTML RESID=&ID_XFH_SELECTSOME;>
+<HEAD>
+    <TITLE>
+        V„lj genom namn
+    </TITLE>
+</HEAD>
+<BODY>
+"V„lj genom namn" alternativet p† menyn l†ter dig endast v„lja vissa objekt
+i en f”r visning tillf„lligt ”ppnad
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">mapp</A>.
+
+<!-- V0.9.19: removed this while &os2; per default only knows menu items for selecting all or none
+of the objects in a folder. -->
+
+<P>V„lja objekt g”rs sedan i ett nytt dialogf”nster, d„r du kan ange ett val
+av fil och sedan trycka p† "Markera" eller "Avmarkera".
+
+<!-- V0.9.19: rewrote the following -->
+<P>Hur inmatningsf„ltets inneh†ll tolkas beror p† statusen hos checkboxen
+<B>"Regulj„ra uttryck".</B>
+
+<UL><LI>Om checkboxen inte „r f”rbockad, kommer inmatningsf„ltet att f”rv„nta sig
+en filspecifikation liknande den hos en &os2; kommandorad, t.ex. kan du anv„nda
+<CITE>*</CITE> och <CITE>?</CITE><A HREF="glossary/gls_wildcards.html"> jokrar</A> f”r att
+v„lja ett flertal filer. Till exempel, om du angett <CITE>*.txt</CITE> h„r, kommer
+alla filer med „ndelsen <CODE>.txt</CODE> att bli valda efter att du tryckt <B>"Markera";</B>
+tv„rtom, kan du v„lja ett inte ange endast vissa filer genom att ge n†gon
+specifikation och sedan trycka <B>"Avmarkera".</B>
+
+<P><LI>Som kontrast, om "Regulj„ra uttryck" „r f”rbockat, f”rv„ntas inmatningsf„ltet
+inneh†lla ett <A HREF="glossary/gls_regexps.html">ut”kat regulj„rt uttryck</A>, vilket kommer
+att utv„rderas n„r du trycker "Markera" eller "Avmarkera". Detta kan vara
+v„rdefullt om det g„ller komplexa kriterier. Notera d„remot att jokrar i specifikationerna
+liknande <CODE>*.txt</CODE> kommer att framkalla ett felmeddelande eftersom b†de 
+<CODE>*</CODE> och punkten kommer att tolkas olika. Som ett regulj„rt uttryck, skulle
+det f”reg†ende exemplet ha specificerats som <CODE>.*\.txt</CODE>.
+
+</UL>
+
+<!-- end V0.9.19 -->
+Žven om vi anv„nder termen "fil" specifikation h„r, fungerar en matchande str„ng ocks†
+p† abstrakta objekt, som program och skuggobjekt.
+
+<P><B>"Markera alla"</B> och <B>"Avmarkera alla"</B> markerar eller avmarkerar hela inneh†llet i en
+mapp, oberoende av den aktuella s”kstr„ngen.
+
+<P>Dialogf”nstret st„ngs endast n„r du trycker <B>"St„ng"</B> eller <B>"Esc"</B> tangenten.
+Den st„ngs inte efter att du tryckt p† andra knappar. Det till†ter dig att v„lja flera grupper
+av filer.
+<BR>
+</BODY>
+</HTML>
+

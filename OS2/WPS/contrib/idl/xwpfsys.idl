@@ -1,0 +1,190 @@
+
+/*
+ * xwpfsys.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPFileSystem
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpfsys.c for details.
+ */
+
+/*
+ *      Copyright (C) 2000-2008 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpfsys.idl>          // this is SOM for WPFileSystem
+            /*
+                NOTE:
+                Starting with V0.9.20, the above line no longer includes the
+                wpfsys.idl from the toolkit directory, but rather the one
+                from our own idl\wps directory, which is put BEFORE the toolkit's
+                idl directory in the SMINCLUDE path. This allows us to override
+                undocumented methods.
+            */
+
+/*
+   CLASS: XWPFileSystem
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ  XWPFileSystem
+*/
+
+interface M_XWPFileSystem;            // forward reference to metaclass
+
+interface XWPFileSystem : WPFileSystem
+{
+
+    /*
+     * New instance methods for XWPFileSystem:
+     *
+     */
+
+    PSZ xwpQueryUpperRealName();
+
+    BOOL xwpSetRealNameNoOverride(in PSZ pszName);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpQueryUpperRealName,
+            xwpSetRealNameNoOverride;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfs_;
+        externalstem = xfs;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpfsys;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPFileSystem;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPFileSystem:
+         *
+         */
+
+        ULONG       ulHandle;
+
+        PSZ         pWszUpperRealName;      // upper-case short real name for
+                                            // folder content tree;
+                                            // WARNING: allocated using wpAllocMem
+
+        //# ULONG       ulCnrRefresh;        removed V1.0.1 (2003-01-05) [umoeller]
+
+        /*
+         * WPFileSystem methods overridden by XWPFileSystem:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        //# 2)  WPObject query/set methods
+
+        wpQueryHandle: override;
+
+        //# 3)  icon methods
+
+        wpQueryIcon: override;
+
+        wpSetIconData: override;
+
+        //# 4)  class-specific query/set methods
+
+        //# 5)  menu methods
+
+        //# 6)  open view methods
+
+        wpOpen: override;
+
+        //# 7)  file operation methods
+
+        wpSetTitleAndRenameFile: override;
+
+        wpSetRealName: override;
+
+        wpRefreshFSInfo: override;
+
+        wpMoveObject: override;                 //# added V1.0.8 (2008-06-05) [pr]
+        wpCopyObject: override;
+};
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPFileSystem : M_WPFileSystem
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfsM_;
+        externalstem = xfM;
+        functionprefix = xfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpfsys;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPFileSystem:
+         *
+         */
+
+        /*
+         * M_WPFileSystem methods overridden by M_XWPFileSystem:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryAwakeObject: override;
+        wpclsFileSysExists: override;
+        wpclsObjectFromHandle: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,56 @@
+<HTML  RESID=&ID_XSH_SETTINGS_TRASHCAN2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Trash Can Settings
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<!-- rewritten with V0.9.3 -->
+<BODY>
+This notebook page allows you to fine-tune the behavior of the &xwp; trash can.
+<!-- V0.9.16: Please see the <I>&xwp; User Guide</I> for an introduction to what
+the &xwp; trash can does. -->
+<P>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state.
+
+<!-- V0.9.4: removed this
+The "Empty at startup" and "Empty at shutdown" settings will
+automatically empty the trash can at Desktop startup or at shutdown. Note that for
+the latter to work, &xwp;'s extended shutdown procedure must be enabled. -->
+
+<P>If <B>"Confirm empty"</B> is checked, you will get a chance to confirm emptying
+the trash can.
+<!-- V0.9.4: removed thisThis applies to both selecting the "Empty trash can" &popmenu;
+item of the trash can and the automatic emptying described above. -->
+
+<P>If <B>"Confirm destroy"</B> is checked, you will get a confirmation window when
+you select "Destroy object" of a trash object's
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<!-- V0.9.19: added this item -->
+<P>If <B>"Always delete immediately"</B> is checked, &xwp; will perform all delete operations
+directly, without moving the objects into the trash can first. In that case though,
+you will not be able to recover objects that were accidentally deleted.
+Note that you can perform an "immediate delete" for specific objects even if this
+setting is not enabled; see
+<!-- V0.9.20: link changed -->
+<A HREF="tasks/tsk_delete.html">"Deleting objects"</A> for details.
+<IFNDEF __EWORKPLACE__>
+-- This setting corresponds to the "Replace true delete" feature that was previously
+only on the "Features" page in the
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+</IFNDEF>
+
+<IFNDEF __NOXSHUTDOWN__>
+<!-- V0.9.4: added this-->
+<P>Note that if you are using &xwp;'s eXtended Shutdown, you can also have
+the trash can emptied automatically before the system is shut down. This can be
+enabled in the Desktop's <A HREF="glossary/gls_notebook.html">properties notebook</A>.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

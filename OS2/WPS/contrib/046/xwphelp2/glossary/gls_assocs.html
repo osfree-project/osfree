@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Typer och Associationer
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+I Workplace Shell, l„nkar associationer datafiler till
+<!-- V0.9.20: replaced this line -->
+&link_progobjs;.
+
+<IFNDEF __NOXWPSETUP__>
+Om ut”kade filtyper har aktiverats i
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" objektet</A>, utf”rs
+det helt och h†llet med anv„ndning av filtyper.
+</IFNDEF>
+
+<P><B>Typ</B> av datafil beror p† tv† k„llor:
+
+<UL><LI>Du kan direkt s„tta en typ p† sidan "Typer" hos en datafils 
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>.
+Den typen lagras i de
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">ut”kade attributen</A> hos filen och blir
+kvar d„r om du inte tar bort den igen.
+
+<P><LI>Som till„gg, &xwp; associerar ocks† filtyper automatiskt i enlighet med
+s†-kallade "filter", vilka „r str„ngar inneh†llande standard
+<A HREF="glossary/gls_wildcards.html">jokrar</A>
+"*" och/eller "?".
+
+<P>Dessa filtypsfilter kan definieras p† sidan "Filtyper" i
+&link_wpsobj;et. Till exempel, kan du skapa en filtyp "Acrobat PDF" med 
+filtret <CODE>*.PDF</CODE>, och alla s†dana filer kommer automatiskt att f† den typen.
+
+</UL>Om ett programobjekt har <B>associerats</B> med en filtyp, kommer programobjektet 
+att upptr„da i submenyn "™ppna" i
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;er</A>
+hos alla datafiler vilka har den typen. Den f”rsta associationen best„mmer ikonen hos 
+datafilen och anv„nds ocks† n„r du dubbel-klickar p† den filen.
+
+<P>I det ovanst†ende exemplet, om du nu associerade "Acrobat PDF" typen med
+programobjektet f”r Adobe Acrobat Reader, kommer alla filer matchande <CODE>*.PDF</CODE> 
+att ”ppnas med det programobjektet.
+
+<P>Som till„gg, filtyper kan <B>„rva</B> fr†n varandra. Du kan definera dessa 
+f”r„lder-barn relationer p† sidan "Filtyper" i &link_wpsobj;, helt enkelt genom att
+dra filtyperna. Om en typ p† det s„ttet blivit underordnad en annan typ, kommer
+associationerna f”r den ”verordnade typen ocks† att vara tillg„ngliga f”r alla datafiler
+av den underordnade typen.
+
+<P>Till exempel, antag att du ocks† har definierat en "PostScript" filtyp. Eftersom 
+PDF dokument egentligen „r speciella PostScript filer, kan du g”ra "Acrobat PDF" till
+en underordnad typ av "PostScript". Om du har, l†t s„ga, en GhostScript association f”r
+"PostScript" typen, kan dina PDF filer d† ocks† ”ppnas med GhostScript programmet.
+
+<BR>
+</BODY>
+</HTML>
+

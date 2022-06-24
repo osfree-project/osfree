@@ -1,0 +1,121 @@
+<HTML NOSUBLINKS="config" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Turbo-Ordner
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.16 -->
+<BODY>
+<B>Klassen: XFolder, XWPFileSystem, XFldDataFile, XWPProgram, XWPProgramFile</B><HR>
+"Turbo-Ordner" ist eine Kurzbezeichnung fr eine groáe Anzahl von Erweiterungen des
+internen Handlings des Ordnerinhaltes der Workplace Shell. Kurz gesagt wird
+das ™ffnen von Ordnern, die sehr viele Dateien beinhalten, <I>erheblich</I>
+schneller.
+ 
+<P>Aus Sicherheitsgrnden sind Turbo-Ordner standardm„áig deaktiviert. Sie k”nnen ber
+das <A HREF="sys_2global.html">Objekt "&xwp;-Konfiguration"</A> angeschaltet werden.
+
+<!-- V1.0.1 (2002-12-15) [umoeller] added this -->
+<p>Auf dieser Seite wird der Geschwindigkeitszuwachs beim Bev”lkern der
+Ordner beschrieben. Beachten Sie, daá beginnend mit V1.0.1 beim Aktivieren
+der Turbo-Ordner auch automatisch die erweiterten Dateizuordnungen aktiviert
+werden. Wie sich herausgestellt hat, fhrte die Aktivierung nur einer der
+Funktionen zu einer recht instabilen WPS. Siehe
+<a href="file_1extassocs.html">Erweiterte Dateizuordnungen</a> fr eine
+ausfhrliche Beschreibung dieser Funktion.
+
+<P><B>Kurzbeschreibung</B>
+ 
+<P>Wenn ein Ordner zum ersten Mal ber die WPS ge”ffnet wird, wird er "bev”lkert" - was bedeutet,
+daá alle Dateien des Verzeichnisses, welches von diesem Ordner repr„sentiert wird,
+eingesammelt werden. Wie Sie sicher wissen, ist die WPS nicht gut darin, groáe Mengen
+von Dateien zu verwalten. Das ™ffnen eines Ordners mit vielen Objekten (etwa tausend oder
+mehr Dateien) kann das System fr Minuten mit Beschlag belegen.
+ 
+<P>"Turbo-Ordner" k”nnen dieses Problem teilweise beheben. Unten finden Sie einen
+Geschwindigkeitsvergleich fr einige "pathologische" Ordner mit Angabe der Zeit, die
+das Bev”lkern dieser Ordner auf meinem System in Anspruch genommen hat, in Sekunden.
+Dieser Geschwindigkeitstest zeigt nur die Zeit, die durch Aufrufen des Konfigurationsstrings
+<CODE>QUICKOPEN=IMMEDIATE</CODE> verbraucht wurde. Wie gew”hnlich k”nnen Ihre Ergebnisse
+abh„ngig von der Geschwindigkeit Ihrer Festplatten und Prozessoren davon abweichen.
+ 
+<PRE>
+                        Turbo aus       Turbo ein
+ 
+    JFS-Ordner mit        160 s           53 s
+    10.000 Dateien
+ 
+    JFS-Ordner mit        211 s           60 s
+    13.000 Dateien
+ 
+    HPFS-Ordner mit                       56 s
+    10.000 Dateien
+</PRE>
+ 
+Anscheinend w„chst die Zeit, welche die WPS normalerweise fr das Bev”lkern
+eines Ordners ben”tigt, exponentiell mit der Anzahl der Dateien im Ordner.
+ 
+<P><B>Detaillierte Beschreibung</B>
+ 
+<P>Im wesentlichen ist die Funktion "Turbo-Ordner" eine komplette Neuentwicklung
+des Codes fr die Ordnerbev”lkerung. &xwp; verwendet die folgenden Techniken, um
+sie erheblich zu beschleunigen:
+ 
+<UL><LI>Jeder Ordner erh„lt nun einen bin„ren, ausbalancierten Baum, der alle Objekte
+enth„lt, die bisher zur internen Inhaltsliste des Ordners hinzugefgt wurden. Bei
+Dateisystemobjekten wird dieser Baum nach den echten Kurznamen der Objekte sortiert.
+Dies macht es wesentlich effizienter herauszufinden, ob sich ein Objekt bereits im Baum
+befindet oder noch hinzugefgt werden muá. Ich nehme an, daá der originale šberprfungscode
+der WPS fr die enormen Verz”gerungen bei einer groáen Anzahl von Dateien verantwortlich
+ist.
+ 
+<P><LI>Statt nur eines Extra-Threads startet "Turbo-Ordner" zum Bev”lkern der Ordner
+zwei Extra-Threads. Einer ist fr das Einsammeln der Dateidaten von Festplatte (ber
+die System-APIs <CODE>DosFindFirst</CODE> und
+<CODE>DosFindNext</CODE>) verantwortlich, der andere fr die šberprfung,
+ob ein Objekt bereits wach ist, und die Erzeugung neuer Objekte, wenn es notwendig wird.
+ 
+<P>Abh„ngig vom Dateisystem k”nnen die oberen zwei APIs recht langsam sein, wenn
+Erweiterte Attribute gesammelt werden mssen (wie es bei der WPS der Fall ist).
+Solange dies passiert, wird der aufrufende Thread blockiert und tut nichts weiter, als
+darauf zu warten, daá Daten von der Festplatte eintreffen. Diese Leerlaufzeit kann nun
+vom anderen Thread dazu verwendet werden, Objekte im Speicher anzulegen, was auch sehr
+zeitraubend sein kann.
+ 
+<P>Zudem skalieren zwei Threads besser auf Multiprozessorsystemen (SMP).
+ 
+<P>Zusammen machen die oben genannten zwei Techniken das Bev”lkern der Ordner um so
+viel schneller. Die Zeit, die nun fr das Bev”lkern der Ordner ben”tigt wird,
+entspricht grob der Zeit, die das System mit den 
+<CODE>DosFindFirst</CODE> und
+<CODE>DosFindNext</CODE> System-APIs verbringt, weshalb ich nicht denke, daá
+die Geschwindigkeit des Vorgangs noch weiter gesteigert werden kann (solange, bis
+es jemand schafft, diese System-APIs effizienter zu machen).
+ 
+<P><LI>"Turbo-Ordner" ersetzt auch die Laderoutinen fr Symbole ausfhrbarer
+Dateien komplett. Wie Sie sicher wissen, versucht die WPS, wenn ein Ordner mit
+.EXE-Dateien ge”ffnet wird, in einer ausfhrbaren Datei ein Symbol zu finden,
+und verwendet dies - sofern gefunden - fr das Objekt. Programm- und Datendateiobjekte
+laden ebenfalls Symbole aus ausfhrbaren Dateien.
+ 
+<P>Der WPS-Code zum Laden der Symbole leidet unter mehreren Einschr„nkungen. Vor allem
+scheint er langsam zu sein. Dieser Code wurde in &xwp; ebenfalls komplett ersetzt.
+ 
+<P>Zus„tzlich scheint die WPS Symbole intern nicht groáartig wiederzuverwenden.
+&xwp; versucht auch, Symbole soweit wie m”glich wiederzuverwenden um zu vermeiden, daá
+sie st„ndig neu aus den ausfhrbaren Dateien geladen werden mssen.
+ 
+<P>Eigentlich erlaube ich der WPS nicht l„nger, berhaupt Symbole ausfhrbarer Dateien
+zu lesen, sondern verwende nur meinen eigenen Code. Dies funktioniert mit ausfhrbaren
+Dateien der Formate LX, Win16 und OS/2 NE. Win32 PE-Ressourcen (wie sie von den meisten
+ausfhrbaren Programmen unter Windows 95 und neuer verwendet werden) werden zum jetzigen
+Zeitpunkt nicht untersttzt; PE-Dateien erhalten ein langweiliges Standardsymbol, aber
+wenigstens h„lt sich die WPS nicht mehr ewig mit ihnen auf.
+ 
+<P>Als Nebenwirkung „ndert sich das Verhalten bei Win16-Symbolen, wenn die Symbolgr”áe
+des Systems 40x40 betr„gt; statt zu skalieren, zentriert &xwp; nun das 32x32 Symbol.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

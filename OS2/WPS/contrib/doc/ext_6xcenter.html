@@ -1,0 +1,31 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Writing an XCenter Widget Plugin DLL
+</TITLE>
+</HEAD>
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+You can write independent plug-in DLLs for the XCenter to implement XCenter widget
+classes. This saves you from dealing with all the WPS programming details and even
+from having to compile the rest of XWorkplace.
+
+<P>Detailed documentation for writing plug-in DLLs has been added to the
+<I>XWorkplace User Guide</I> with V0.9.9. Please see that documentation for
+details.
+
+<P>Still, since you have obviously downloaded the XWorkplace source code,
+if you are interested, I strongly suggest that you create the XWorkplace
+<A HREF="src1_4docs.html">code documentation</A>. Then, in the HTML files which
+are generated, look for the documentation for <CODE>src\shared\center.c</CODE>
+documentation which gives you plenty of introductory information.
+
+<P>Several standard XCenter widgets have been created as plugin DLLs to show you
+how this can be done. Their sources are in the <CODE>src\widgets</CODE> directory.
+In that directory, you will also find <CODE>____sample.c</CODE>, which you can
+use as a template for your own widgets.
+
+<BR>
+</BODY>
+</HTML>
+

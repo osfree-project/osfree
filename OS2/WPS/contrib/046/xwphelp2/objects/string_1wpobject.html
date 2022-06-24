@@ -1,0 +1,172 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPObjekt Str„ngar
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<BODY>
+<CODE>WPObject</CODE> „r WPS basklass f”r alla objekt. Den anv„nds inte direkt,
+utan alla andra WPS klasser „r deriverade fr†n den
+<!-- V0.9.16: added this bracket with link -->
+(se <A HREF="glossary/gls_wpsclasses.html">WPS klasser</A> f”r detaljer).
+Som ett resultat, st”der alla Skrivbordsobjekt (inkluderande filer, mappar, 
+och andra programobjekt) f”ljande setupstr„ngar:
+
+<DL>
+<DT><CODE><B>CCVIEW</B>=DEFAULT</CODE>
+<DD>Anv„nd standardv„rdet hos de 
+inst„llda visningsinst„llningarna
+p† systemet, n„r anv„ndaren v„ljer
+”ppna. Detta „r standardv„rdet.
+
+<P><DT><CODE><B>CCVIEW</B>=YES</CODE>
+<DD>Skapa nya visningar f”r 
+objektet varje g†ng anv„ndaren 
+v„ljer ”ppna.
+
+<P><DT><CODE><B>CCVIEW</B>=NO</CODE>
+<DD>terst„ller ”ppna visningar
+av objekt, n„r anv„ndaren
+v„ljer ”ppna.
+
+<P><DT><CODE><B>HELPLIBRARY</B>=<I>filnamn</I></CODE>
+<DD>S„tter upp hj„lpkatalogen.
+
+<P><DT><CODE><B>HELPPANEL</B>=<I>id</I></CODE>
+<DD>S„tter upp objektets standard hj„lppanel
+inom hj„lpkatalogen. Du b”r inte kr†ngla med dom
+h„r inst„llningarna, f”r du m†ste k„nna till WPS
+interna hj„lpresurs ID's.
+
+<P><DT><CODE><B>HIDEBUTTON</B>={YES|NO}</CODE>
+<DD>Best„mmer om visningar av det h„r objektet
+har en g”mknapp till skillnad fr†n en minimera
+knapp. Standard „r de aktuella systemknapps upptr„dandet 
+f”r f”nsterinst„llningar. Detta kan inte specificeras h„r.
+
+<P><DT><CODE><B>ICONFILE</B>=<I>filnamn</I></CODE>
+<DD>St„ller in objektets ikon. <CODE><I>filnamnet</I></CODE>
+m†ste vara en ".ICO" fil.
+<!-- V0.9.16 -->
+<P>Notera att f”r mappar, specificerar detta den "st„ngda" ikonen.
+Animerings ("”ppen") ikonen kan st„llas in med
+<CODE><B>ICONNFILE</B>=<I>index</I>,<I>filnamn</I></CODE>
+(se <A HREF="objects/string_2wpfolder.html">WPFolder str„ngar</A> f”r detaljer).
+<!-- end V0.9.16 -->
+
+<P><DT><CODE><B>ICONPOS</B>=<I>x</I>,<I>y</I></CODE>
+<DD>St„ller in objektets initiala ikonposition i
+f”r„ldramappen. x och y v„rdena representerar positionerna
+i mappen i procentkoordinater.
+
+<P><DT><CODE><B>ICONRESOURCE</B>=<I>id</I>,<I>dllfil</I></CODE>
+<DD>St„ller in objektets ikon till data som finns i en resursfil.
+<CODE><I>Id</I></CODE> „r ikonresurs ID i
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfilen</I></CODE>.
+<!-- V0.9.16 -->
+<P>Notera att f”r mappar, specificerar detta den "st„ngda" ikonen.
+Animerings ("”ppen") ikonen kan st„llas in med
+<CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfil</I></CODE>
+(se <A HREF="objects/string_2wpfolder.html">WPFolder str„ngar</A> f”r detaljer).
+<!-- end V0.9.16 -->
+
+<P><DT><CODE><B>LOCKEDINPLACE</B>={YES|NO}</CODE> (endast &warp4; och h”gre)
+<DD>Specificerar om objektet „r l†st eller icke l†st i position.
+
+<P><DT><CODE><B>MENUITEMSELECTED</B> <I>Meny-post-id</I></CODE> (endast &warp4; och h”gre)
+<DD>Simulerar val av specificerad menypost fr†n 
+objektets &popmenu;.
+<CODE><I>meny-post-id</I></CODE> m†ste ha ett numeriskt v„rde.
+<!-- <BR>You may obtain the <CODE><I>menu-item-id</I></CODE> with the <CODE>XRAY</CODE> tool which
+is available on the Internet. Or look on the respective
+"WPS Menu ID's"</A> page. -->
+<!-- V0.9.16 (Hey, this setting works for XFolder menu items also, BTW.) -->
+<BR>Detta „r egentligen inte n†gon "inst„llning", utan snarare ett kommando att utf”ras f”r mappen.
+
+<P><DT><CODE><B>MENUS</B>={SHORT|LONG}</CODE> (endast &warp4; och h”gre)
+<DD>Best„mmer om objektet har en kort &popmenu;
+(utan menyposter som duplicerar drag 'n' drop funktioner)
+eller en full.
+
+<P><DT><CODE><B>MINWIN</B>={HIDE|VIEWER|DESKTOP}</CODE>
+<DD>Best„mmer om det minimerade objekt skall vara dolt, placerat i
+visningen "Minimerade F”nster", eller minimerat p† Skrivbordet.
+<P>Standard „r den aktuella inst„llningen Minimera knappen. Detta
+kan inte specificeras h„r.
+
+<P><DT><CODE><B>NOCOPY</B>={YES|NO}</CODE>
+<DD>Objektet kan inte kopieras.
+
+<P><DT><CODE><B>NODELETE</B>={YES|NO}</CODE>
+<DD>Objektet kan inte raderas. Var f”rsiktig med
+den h„r.
+
+<P><DT><CODE><B>NODRAG</B>={YES|NO}</CODE>
+<DD>Objektet kan inte dras med musen.
+
+<P><DT><CODE><B>NODROP</B>={YES|NO}</CODE>
+<DD>Objektet kommer inte att acceptera att n†gra
+objekt sl„pps ”ver det.
+
+<P><DT><CODE><B>NOLINK</B>={YES|NO}</CODE>
+<DD>Inga skuggor kan skapas av objektet.
+
+<P><DT><CODE><B>NOMOVE</B>={YES|NO}</CODE>
+<DD>Objektet kan inte flyttas.
+
+<P><DT><CODE><B>NOPRINT</B>={YES|NO}</CODE>
+<DD>Objektet kan inte skrivas ut.
+
+<P><DT><CODE><B>NORENAME</B>={YES|NO}</CODE>
+<DD>Objektet kan inte namnbytas.
+
+<P><DT><CODE><B>NOSETTINGS</B>={YES|NO}</CODE>
+<DD>Objektets notbok med egenskaper kan inte ”ppnas.
+
+<P><DT><CODE><B>NOSHADOW</B>={YES|NO}</CODE>
+<DD>Samma som <CODE>NOLINK</CODE>.
+
+<P><DT><CODE><B>NOTVISIBLE</B>={YES|NO}</CODE>
+<DD>Objektet „r inte synligt. Var f”rsiktig med den h„r str„ngen,
+eftersom du kanske inte kommer att kunna f† tillbaka objektet.
+
+<P><DT><CODE><B>OBJECTID</B>=<I>&lt;namn&gt;</I></CODE>
+<DD>S„tter ett orubbligt ID f”r objektet.
+Ett Objekt ID „r en unik str„ng inledd med
+ett <CODE>&lt;</CODE> och avslutad av ett <CODE>&gt;</CODE>.
+<BR>Se <A HREF="glossary/gls_objids.html">WPS Objekt ID's</A> f”r mer om det h„r „mnet.
+<P>Standard „r att inte ha n†got ID.
+
+<P><DT><CODE><B>OPEN</B>={SETTINGS|DEFAULT|ICON|TREE|DETAILS}</CODE>
+<DD>™ppna en visning nu.
+<!-- V0.9.20: removed this
+This is the clever trick used by a zillion REXX scripts on the Internet to open an
+object from the &os2; command line.
+-->
+<BR><CODE><B>OPEN</B>=DEFAULT</CODE> kommer att ”ppna standardvisningen hos objektet (som
+om du hade dubbel-klickat p† det). <CODE><B>OPEN</B>=SETTINGS</CODE> kommer att ”ppna objektets
+notbok med egenskaper. Alla andra v„rden „r endast giltiga f”r mappar.
+<BR>Detta „r egentligen inte n†gon "inst„llning", utan snarare ett kommando som skall utf”ras f”r mappen.
+Den kommer att ”ppnas omedelbart.
+
+<P><DT><CODE><B>TEMPLATE</B>={YES|NO}</CODE>
+<DD>Best„mmer om objektet „r en
+<!-- V0.9.20: added link -->
+<A HREF="tasks/tsk_templates.html">mall</A> eller inte. 
+Standard „r <CODE>NO</CODE> (naturligtvis).
+
+<P><DT><CODE><B>TITLE</B>=<I>title</I></CODE>
+<DD>S„tter objektets rubrik till n†got nytt. Detta kommer ocks† att „ndra det
+"verkliga" filnamnet (om objektet representerar en fil), som om du hade „ndrat
+rubriken fr†n WPS.
+
+</DL>
+</BODY>
+</HTML>
+

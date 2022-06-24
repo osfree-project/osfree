@@ -1,0 +1,131 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 1.0.9
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XWorkplace version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+Bugfix release off the 1.0 branch.
+"Bug #" numbers refer to the official XWorkplace bugtracker at
+<a href="http://xtracker.xworkplace.org">http://xtracker.xworkplace.org</a>.
+
+<P><B>&xwp; 1.0.9 (February 28, 2012)</B>
+
+<P>The bugs below were fixed by these contributors: Paul Ratcliffe [pr],
+Alex Taylor [at], Steve Levine [sl], and Rich Walsh [rw].
+
+<P>Changes and Bugfixes:
+
+<UL><LI>Improved handling for files with sizes over 2GiB. Bug 586 [pr]
+
+<P><LI>The 'end drag' event would disappear with Extended System Sounds
+enabled. Bug 691 [pr]
+
+<P><LI>Content in &xwp; Startup folder templates would be started in error.
+Bug 1096 [pr]
+
+<P><LI>NLS version verification code was broken. Bug 1097 [pr]
+
+<P><LI>Trying to install certain fonts via the Font Folder resulted in an
+exception. Bug 1099 [pr]
+
+<P><LI>The Drive list in Trashcan's settings failed to include drives
+mounted after WPS startup. Bug 1114 [pr].
+
+<P><LI>Object hotkeys that refer to deleted objects are now removed
+automatically. Bug 1115 [pr]
+
+<P><LI>&xshutdown; now remembers the last 'Boot to...' selection.
+Bug 1135 [pr]
+
+<P><LI>The Drivers page of the &xwp; Kernel Object failed to list
+the second instance of a driver. Bug 1157 [pr]
+
+<P><LI>Obsolete info in the Glossary about JFS has been revised.
+Bug 1181 [pr]
+
+<P><LI>Shutdown via APM did not work properly from within VirtualBox.
+Bug 1185 [pr]
+
+<P><LI>Fixed numerous bugs in Treesize (memory leakage, missing files,
+refresh errors, etc.). Bug 1186 [pr]
+
+<P><LI>Memory widget tooltip would display garbage after 1 second.
+Bug 1187 [pr]
+
+<P><LI>On the 'OS/2 Kernel' object's 'System Paths' tab, the 'Duplicates'
+button might fail to find duplicate files. Bug 1195 [pr]
+
+<P><LI>On DBCS systems, final shutdown dialog would be blank. Bug 1149 [at]
+
+<P><LI>ACPI shutdown could leave file systems dirty. Bug 1167 [sl]
+
+<P><LI>Splitview failed to update its display when new files or directories
+were added. Bug 2 [rw]
+
+<P><LI>Shift+MB1 on an item in the 'Open as' menu now sets the default view
+for files and folders. Bug 4 [rw]
+
+<P><LI>Splitview now supports all the standard settings for folder
+background bitmaps (i.e. Normal, Tiled, and Scaled). Bug 277 [rw]
+
+<P><LI>The 'Restart Desktop' dialog failed to save its settings.
+Bug 278 [rw]
+
+<P><LI>Selecting an item from the 'Sort' menu would sort the folder twice.
+Bug 473 [rw]
+
+<P><LI>In Tree view, 'Copy filename' would copy the wrong folder's name.
+Bug 494 [rw]
+
+<P><LI>The 'Open as' menu for disk objects sometimes showed an incorrect
+default view. Bug 1193 [rw]
+
+<P><LI>If the Desktop's default view were changed, it couldn't be reset to
+Icon view. [rw]
+
+<P><LI>The 'File attributes' submenu didn't work when accessed from a folder
+menubar's 'Selected' dropdown. [rw]
+
+<P><LI>'File attributes' and 'Copy filename' now work for menus popped-up
+by other WPS add-ons (e.g. Object Desktop or Dragtext). [rw]
+
+<P><LI>Sorting non-file objects by a file-system criterion (e.g. size) left
+them in no order;  they are now grouped and sorted by title. [rw]
+
+<P><LI>When sorting by extension, filenames that begin with a dot are now
+treated as names, not extensions. [rw]
+
+<P><LI>When a Splitview window first opened, subfolders in the Tree window
+failed to show a '+' next to them. [rw]
+
+<P><LI>To ease drag-and-drop in Splitview windows, you can now drop objects
+between existing objects;  also, MB2-down no longer brings the window to the
+top. [rw]
+
+<P><LI>Splitview now displays folder menus and statusbars based on your
+global settings, and not the settings for the folder you've opened. [rw]
+
+<P><LI>Many items in Splitview's 'View' and 'Selected' menus didn't do
+anything;  all items in the menubar should now work as expected. [rw]
+
+<P><LI>Trashcan can now be opened in Splitview. [rw]
+
+<P><LI>XFix has been thoroughly revised to make it safer and easier to
+use. File handles are no longer deleted immediately but are marked for
+later deletion.  Handles that would become invalid if another handle is
+deleted are flagged so the problem can be corrected. A new "Auto-Protect"
+feature prevents you from accidentally deleting handles the WPS needs to
+operate. The help entries for xfix have also been rewritten.
+
+<P><LI>Numerous changes have been made to streamline the build system
+and fix minor errors. [rw]
+</UL>
+
+</BODY>
+</HTML>
+

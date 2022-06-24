@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Batch File Examples
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<B>EXAMPLE 1</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> This batch command will make a backup copy of the CONFIG.SYS file
+<A HREF="cmdref.inf#rem">REM</A> in the C:\OS2 directory.
+<A HREF="cmdref.inf#echo">ECHO</A> Backing up CONFIG.SYS to C:\OS2.
+<A HREF="cmdref.inf#echo">ECHO</A> If a modified CONFIG.SYS does not work, copy this one back to C:.
+<A HREF="cmdref.inf#copy">COPY</A> C:\CONFIG.SYS C:\OS2\CONFIG.SYS
+<A HREF="cmdref.inf#echo">ECHO</A> This program has finished.
+</PRE>
+
+<B>EXAMPLE 2</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> This batch file will print any standard text file.
+<A HREF="cmdref.inf#rem">REM</A> To use it, type in the file name to be printed after you
+<A HREF="cmdref.inf#rem">REM</A> have typed in the name of this batch file.
+<A HREF="cmdref.inf#rem">REM</A> If the batch file is named PRINT.CMD and the file to be
+<A HREF="cmdref.inf#rem">REM</A> printed is named README type PRINT README.
+<A HREF="cmdref.inf#echo">ECHO</A> Printing %1.
+<A HREF="cmdref.inf#TYPE">TYPE</A> %1 &gt; lPT1
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+</PRE>
+
+<B>EXAMPLE 3</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> This batch file will change your command line prompt to
+<A HREF="cmdref.inf#rem">REM</A> display the date, time, and current path.
+<A HREF="cmdref.inf#prompt">PROMPT</A> $d     $t     $_$p\$s
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+<A HREF="cmdref.inf#CLS">CLS</A>
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dynamic Link Libraries (DLL's)
+    </TITLE>
+</HEAD>
+<BODY>
+Een <B>dynamic link library</B> is een speciaal soort uitvoerbaar bestand
+dat code bevat die door verschillende applicaties kan worden gedeeld.
+Dynamic link libraries hebben meestal een <CODE>.DLL</CODE> bestandsnaam
+uitbreiding.
+
+<P>DLL's kunnen of met het besturingssysteem of met een applicatie meekomen.
+De systeem code van &os2; zelf is ook in grote mate verzameld in DLL's en kan
+worden gevonden in de <CODE>OS2\DLL</CODE> directory op de opstart schijf.
+
+<P>"Dynamisch linken" betekent dat de code uit de module alleen wordt geladen
+als een bepaalde applicatie er om vraagt. Als de code reeds geladen was door een
+andere applicatie wordt het hergebruikt. Dit heeft verschillende voordelen:
+
+<UL><LI>Diverse applicaties kunnen werkelijk <B>de code delen</B> van een DLL,
+wat zowel schijf ruimte bespaart als hoofdgeheugen van uw computer.
+
+<P><LI>Applicaties kunnen als <B>modules</B> gemaakt worden. B.v., het taal
+afhankelijke deel (NLS) voor een DLL kan in een aparte DLL zitten.
+Dit maakt wijzigingen van de taal in een applicatie mogelijk door de
+wisseling van een enkel bestand.
+DLL's kunnen ook de software ondersteuning vereenvoudigen omdat dan het
+opnieuw zenden van een complete applicatie niet zo vaak nodig is om
+fouten te herstellen.
+
+<P><LI> DLL's kunnen recente <B>subsystemen</B> bevatten die door verschillende
+applicaties worden gebruikt, omdat een DLL gegevens kan delen tussen processen.
+Dit maakt b.v. eenvoudigere gevens uitwisseling mogelijk en is ook ‚‚n van de
+redenen waarom grote delen van &os2; zelf zijn opgeslagen in DLL's.
+
+<P><LI>DLL's kunnen worden gebruikt om een applicatie <B>uit te breiden</B>.
+Als de applicatie is ontwikkeld om uitbreiding met DLL's te ondersteunen, kan iedereen
+zulke uitbreidingen ontwikkelen die dan naadloos integreren in de applicatie
+Het beste voorbeeld hiervan is de Workpalce Shell van &os2; zelf, die in functionaliteit
+kan worden uitgebreid door toevoegingen van derden.
+Zie <A HREF="glossary/gls_wpsclasses.html">"WPS classes"</A> voor details.
+Een ander voorbeeld is het <A HREF="xcenter/xc_main.html">&xcenter;</A>, dat plug-in DLL's
+ondersteunt voor uitbreidingen.
+
+</UL>
+</BODY>
+</HTML>
+

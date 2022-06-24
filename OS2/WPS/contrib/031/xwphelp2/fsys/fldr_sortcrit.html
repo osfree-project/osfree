@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sorteer Criteria
+    </TITLE>
+</HEAD>
+<BODY>
+De volgende vier sorteer criteria zijn <I>altijd</I> beschikbaar in alle
+&link_folders;:
+
+<UL><LI><B>Sorteren op naam:</B> dit sorteert een map alfabetisch overeenkomstig
+de titels van het object.
+
+<P><LI><B>Sorteren op type:</B> dit sorteert een map overeenkomstig de object typen,
+d.w.z. het <CODE>.TYPE</CODE> Uitgebreid Kenmerk dat kan worden ingesteld in het
+instellingen notitieblok van een object.
+Merk op dat dit alleen geldt voor objecten van data bestanden; alle andere objecten
+(en objecten van data bestanden van ongedefinieerd type) zullen aflopend worden
+gesorteerd.
+
+<P><LI><B>Sorteren op class:</B> dit sorteert de map overeenkomstig de object classes,
+d.w.z. dat wat zichtbaar is in de derde kolom van een Gedetailleerd overzicht van een map.
+
+<P><LI><B>Sorteren op bestandsnaam uitbreiding:</B> dit sorteert een map overeenkomstig
+de karakters na de laatste punt in de titel van een object, dat normaliter een bestandsnaam
+uitbreiding is (zoals  <CODE>.TXT</CODE>, <CODE>.EXE</CODE> enz.).
+Objecten zonder een uitbreiding komen eerst.
+
+</UL>Tenzij een map zijn sorteer class heeft gewijzigd naar iets anders dan het WSFileSystem,
+dat normaliter alleen maar gebeurt met speciale mappen zoals de vuilnisbak en de "Lettertypen"
+map, zijn de volgende sorteer criteria eveneens beschikbaar:
+
+<UL><LI><B>Sorteren op echte naam:</B> dit sorteert een map alfabetisch overeenkomstig de
+bestandssysteem namen. Omdat alleen bestandssysteem objecten echte namen hebben, zullen
+onbenoemde objecten niet juist worden gesorteerd.
+
+<P><LI><B>Sorteren op grootte:</B> dit sorteert een map overeenkomstig de grootte van de
+bestanden. Omdat onbenoemde objecten geen bestandsgrootte hebben, maar alleen wat ruimte
+innemen in OS2.INI, wordt aangenomen dat zij een grootte hebben van nul bytes.
+
+<P><LI><B>Sorteren op laatste schrijf / laatste toegangs / gemaakt op datum:</B>
+dit sorteert de map overeenkomstig de bestandssysteem informatie, die ook niet beschikbaar
+is voor onbenoemde objecten. Merk op dat het
+<A HREF="glossary/gls_fs.html">FAT</A>
+bestandssysteem al deze informatie niet ondersteunt, dus deze drie criteria zullen daar
+voor geen verschil zorgen.
+
+</UL>Als de <B>"Mappen eerst"</B> instelling ook is ingeschakeld, worden alle mappen
+aan de bovenzijde van de map geplaatst.
+
+<P>In de groep mappen en objecten die geen mappen zijn, wordt het sorteren respectievelijk
+overeenkomstig de huidige sorteer criteria gedaan. B.v., als "sorteren op laatste schrijfdatum"
+wordt geselecteerd en "mappen eerst" is ook geselecteerd, worden alle submappen bovenin
+geplaatst, en alle submappen worden dan gesorteerd op laatste schrijfdatum, en alle objecten
+die geen map zijn worden ook op laatste schrijfdatum gesorteerd.
+
+</BODY>
+</HTML>
+

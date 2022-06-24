@@ -1,0 +1,43 @@
+<HTML RESID=&ID_XFH_REGISTERCLASS;>
+<HEAD>
+    <TITLE>
+        Registreer Nieuwe Class
+    </TITLE>
+</HEAD>
+<BODY>
+Dit dialoog venster stelt u in staat om een nieuwe
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS class</A> te registreren.
+Dit is alleen te gebruiken als u zowel de
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>
+die de class bevat als de exacte naam van de class weet. &xwp; kan u
+hier niet mee helpen.
+
+<P>In het <B>"DLL"</B> veld, voert u de bestandsnaam in van de DLL die de class bevat.
+Als de DLL in het
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>
+staat, hoeft u het niet volledig op te geven.
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>.
+U kunt op "Bladeren..." drukken om de DLL te zoeken.
+
+<P>In het <B>"Class"</B> veld, voert u de exacte naam in van de te registreren class.
+Let op -- in tegenstelling tot bestandsnamen -- zijn class namen hoofdletter gevoelig.
+Als u de class naam verkeerd spelt of de hoofdletter en kleine letters door elkaar haalt,
+mislukt de registratie.
+
+<P>De <B>OK</B> knop is uitgeschakeld totdat u iets in beide velden heeft ingevoerd.
+Er wordt niet op fouten gecontroleerd. Als u op OK drukt wordt geprobeerd om de class
+te registreren met de
+<!-- V0.9.20: changed this -->
+<A HREF="pmref.inf#WinRegisterClass"><CODE>WinRegisterClass</CODE></A> API<A HREF="_toolkitlink.html">*</A>
+
+<P>In de meeste gevallen kan de class direct gebruikt worden, zonder dat de werkplek opnieuw gestart hoeft
+te worden.
+
+<BR>
+</BODY>
+</HTML>
+

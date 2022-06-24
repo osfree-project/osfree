@@ -1,0 +1,140 @@
+
+/*
+ * xwpkeybd.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPKeyboard ("Keyboard" object; WPKeyboard replacement)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpkeybd.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpkeybd.idl>         // this is SOM for WPKeyboard
+
+/*
+   CLASS: XWPKeyboard
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPKeyboard
+                           ÀÄÄ  XWPKeyboard
+*/
+
+interface M_XWPKeyboard;            // forward reference to metaclass
+
+interface XWPKeyboard : WPKeyboard
+{
+    /*
+     * New instance methods for XWPKeyboard:
+     *
+     */
+
+    ULONG xwpAddKeyboardHotkeysPage(in HWND hwndDlg);
+
+    ULONG xwpAddKeyboardFunctionKeysPage(in HWND hwndDlg);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddKeyboardHotkeysPage,
+            xwpAddKeyboardFunctionKeysPage;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xkb_;
+        externalstem = xkb;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpkeybd;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPKeyboard;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPKeyboard:
+         *
+         */
+
+        /*
+         * WPKeyboard methods overridden by XWPKeyboard:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+        wpAddKeyboardSpecialNeedsPage: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPKeyboard : M_WPKeyboard
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xkbM_;
+        externalstem = xkbM;
+        functionprefix = xkbM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpkeybd;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables:
+         *
+         */
+
+        /*
+         * M_WPKeyboard methods overridden by M_XWPKeyboard:
+         *
+         */
+
+        wpclsInitData: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,57 @@
+<HTML RESID=&ID_XSH_PROGRAMFILE_BATCH;>
+<HEAD>
+    <TITLE>
+        &xwp;: Stapel- und Befehlsdateien
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_os2win.gif">
+<IMG SRC="img/os2_doswin.gif">
+ 
+<P>Stapel- und Befehlsdateien, oder <B>"Skripte",</B> sind einfache Textdateien,
+die eine Folge von <A HREF="glossary/gls_cmd.html">Befehlen fr einen Befehlsinterpreter</A>
+enthalten. Diese werden nacheinander abgearbeitet, wenn die Datei ausgefhrt wird.
+ 
+<P>Stapel- und Befehlsdateien werden von einem Befehlsinterpreter ausgefhrt. Welcher
+verwendet wird, h„ngt von der Dateinamenserweiterung ab:
+ 
+<UL><LI>Ist die Erweiterung <CODE>.CMD</CODE> <B>(Befehlsdatei),</B> wird sie
+durch den &os2;-Befehlsinterpreter verarbeitet, <CODE>CMD.EXE</CODE>.
+Es wird angenommen, daá die Datei eine Folge von Befehlen umfaát, es sei denn,
+sie beginnt mit einem REXX-Kommentar
+(<CODE>/* ... */</CODE>). In diesem Falle wird sie als
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>-Skript interpretiert.
+ 
+<P><LI>Dateien mit der Erweiterung <CODE>.BAT</CODE> <B>(Stapeldateien)</B> werden
+in <A HREF="glossary/gls_sessions.html">DOS-Sitzungen</A> durch den
+DOS-Befehlsinterpreter verarbeitet, <CODE>COMMAND.COM</CODE>.
+Beachten Sie, daá der &os2;-Befehlsinterpreter (<CODE>CMD.EXE</CODE>) die
+Dateiendung <CODE>.BAT</CODE> ebenfalls erkennt. Wenn Sie sich auf einer solchen
+Befehlszeile befinden und den Namen einer <CODE>.BAT</CODE>-Datei eingeben,
+wird automatisch eine DOS-Sitzung gestartet.
+ 
+</UL>Stapel- und Befehlsdateien sind ntzlich, um Aufgaben zu automatisieren.
+Wenn Sie beispielsweise merken, daá Sie immer wieder die gleiche
+Folge von Befehlen auf der Befehlszeile eingeben, k”nnen Sie diese Folge
+in eine Stapel- oder Befehlsdatei eingeben und statt dessen dieses Skript
+ausfhren, was zeitsparend ist.
+Sie k”nnen solche Dateien mit jedem beliebigen Texteditor erstellen, beispielsweise
+mit dem &os2;-&eexe;.
+ 
+<P>Beachten Sie, daá einmal erstellte Stapel- oder Befehlsdateien auch
+ber die Workplace Shell aufgerufen werden k”nnen. Sie k”nnen auch
+&link_progobjs; fr Stapel- oder Befehlsdateien anlegen.
+ 
+<P>Weitere Informationen erhalten Sie durch Auswahl eines Themas aus der folgenden Liste:
+ 
+<UL>
+<LI><A HREF="glossary/gls_cmd.html">šber Befehlszeilen</A>
+<LI><A HREF="glossary/gls_cmdopers.html">Befehlsoperatoren und Umleitung</A>
+<LI><A HREF="glossary/gls_cmdsubvars.html">Ersetzungsvariablen</A>
+<LI><A HREF="objects/obj_pgmf_batch_expl.html">Beispiele fr Stapeldateien</A>
+<LI><A HREF="objects/obj_pgmf_autoexec.html">AUTOEXEC.BAT</A>
+<LI><A HREF="glossary/gls_sessions.html">Sitzungsarten</A>
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,59 @@
+<HTML RESID=&ID_XFH_AUTOCLOSEDETAILS;>
+<HEAD>
+    <TITLE>
+        Auto-St„nga Icke-PM Sessioner
+    </TITLE>
+</HEAD>
+<BODY>
+I den h„r dialogen, kan du best„mma vilka icke-PM sessioner som skall st„ngas automatiskt
+under omstarten av Skrivbordet eller Ut”kad Avst„ngning och vilken metod som skall anv„ndas
+f”r att st„nga dom.
+
+<P>Notera att vad du „n specificerade h„r g„ller endast icke-PM sessioner; PM f”nster kommer aldrig
+att st„ngas med de metoder du specificerar h„r.
+
+<P>"Icke-PM sessioner" „r en term anv„nd h„r f”r alla sessioner vilka inte kontrolleras av
+Presentation Manager, t.ex. &os2; och DOS text-baserade sessioner i ett VIO f”nster eller i 
+fullsk„rmsl„ge lika v„l som med &winos2; sessioner.
+
+<P>Inst„llningarna du specificerade h„r kommer att ”verskrida "Auto-st„nga icke-PM sessioner"
+inst„llningen hos Skrivbordets notboks huvudsida.
+
+<P>F”r att specificera avst„ngningsmetoden f”r en speciell session, utf”r f”ljande steg:
+
+<OL><LI>Tryck knappen <B>"Ny"</B> f”r att skapa en ny post, vilken initialt kommer att kallas "???".
+
+<BR><LI>Ange <B>rubriken</B> p† sessionen som du vill konfigurera i respektive inmatningsf„lt.
+Du m†ste ange rubriken p† sessionen exakt som den upptr„der i &os2;'s aktivitetslista 
+(eller VIO f”nsterrubrik), s† den b„sta metoden att uppn† detta „r att ”ppna sessionen och
+reproducera rubriken i inmatningsf„ltet.
+<P>Du kan d„remot avkorta rubriken, och sessionsrubrikens j„mf”relse under Avst„ngning och
+omstart av Skrivbordet „r INTE case-sensitive (bryr sig inte om versaler eller gemener).
+<P>H„r „r ett exempel: om du vill st„nga sessionen betitlad <CITE>"&os2; f”nster (CMD.EXE)"</CITE>,
+kan du ange antingen <CITE>"&os2;"</CITE>, <CITE>"os/2 f”nster (cmd.exe)"</CITE> eller 
+<CITE>"&os2; F”NsTeR"</CITE>. Alla dessa uppgifter kommer att fungera. Du b”r d„remot ange 
+lite fler „n bara n†gra f† tecken, d„rf”r att annars kan &xshutdown; ge dina inst„llningar 
+till en annan session vilken har samma inledande bokst„ver.
+<BR><LI>Du kan sedan v„lja vad &xshutdown; skall g”ra med den h„r sessionen:
+
+<UL><BR><LI><B>"Hoppa ”ver session"</B> kommer <I>inte att st„nga</I> sessionen, utan hoppa ”ver den,
+som om du hade tryckt "Hoppa ”ver" knappen i &xshutdown; statusf”nster.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"St„ng PM f”nster"</B> kommer att simulera val av menyposten "St„ng" i
+sessionens systemmeny. Det b”r fungera f”r VIO f”nster lika v„l som f”r
+full-sk„rmssessioner, d„rf”r att den senare sessionstypen „r ocks† representerad av en
+minimerad ikon p† Skrivbordet. Detta kan emellertid resultera i ett ytterligare 
+(regulj„rt &os2;) bekr„ftelsef”nster om sessionen verkligen skall st„ngas.
+
+<BR><LI><B>"D”da session"</B> kommer att d”da sessionen utan ytterligare diskussion.
+Detta anropar <CODE>DosKillProcess</CODE> API p† sessionens process.
+
+</UL>Notera att varken den ena eller andra av dessa metoder kommer att spara data hos sessionen.
+Om du vill ha data hos en s„rskild session sparad, skall du inte ange dess rubrik i den h„r dialogen, 
+och sedan inte ha "Auto-st„ng icke-PM session" f”rbockat p† huvudsidan i Skrivbordet's notbok.
+</OL><BR>
+
+</BODY>
+</HTML>
+

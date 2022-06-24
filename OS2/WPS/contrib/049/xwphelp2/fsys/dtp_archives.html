@@ -1,0 +1,83 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_ARCHIVES;>
+<HEAD>
+    <TITLE>
+        &xwp;: Ersetzen der Seite "Archive"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<IFNDEF __NOXWPSETUP__>
+&xwp; ersetzt die standardm„áige Seite "Archive" durch eine erweiterte
+Version, wenn die entsprechende Einstellung im
+<!-- V0.9.2: link added -->
+Objekt <A HREF="objects/obj_xwpsetup.html">"&xwp;-Konfiguration"</A> vorgenommen wurde.
+</IFNDEF>
+Auf dieser Seite k”nnen Sie detaillierte Kriterien zur Sicherung der WPS
+w„hrend des Systemstarts vorgeben.
+ 
+<P>Um ein Archiv wiederherzustellen, welches durch diesen Archivierungsmechanismus
+erzeugt wurde, drcken Sie die Tastenkombination Alt-F1, wenn der kleine
+<!-- V0.9.20 -->
+weiáe "&os2short;"-Textblock w„hrend des Systemstarts angezeigt wird.
+ 
+<IFNDEF __EWORKPLACE__>
+<P>Lesen Sie bitte im <I>&xwp;-Benutzerhandbuch</I> nach, um weiteres ber diese
+Funktion zu erfahren. Beachten Sie auch, daá die erweiterte Einstellungsseite
+nichts am Archivierungsmechanismus selbst „ndert; es wird nur festgelegt, <I>ob</I>
+die Archivierung aktiviert wird, und zwar gem„á den Einstellungen, die Sie hier vornehmen.
+</IFNDEF>
+ 
+<!-- V0.9.16: moved this down
+Note that all these checks are only performed while the WPS is starting
+up. You will therefore have to restart the WPS to see any changes. -->
+ 
+<P>Die Einstellung <B>"Arbeitsoberfl„che archivieren"</B> legt fest, ob &xwp; berhaupt
+eine Archivierung vornehmen soll.
+ 
+<P>Ist die Einstellung aktiv, k”nnen Sie im Detail festlegen, <I>wann</I>
+die Arbeitsoberfl„che gesichert werden soll.
+<!-- V0.9.16: -->
+Beachten Sie, daá diese šberprfungen nur vorgenommen werden k”nnen, w„hrend die
+Arbeitsoberfl„che startet. Sie mssen daher die WPS neu starten, um die nderungen
+wirksam werden zu lassen.
+ 
+<UL>
+<IFNDEF __EWORKPLACE__>
+<LI><B>"Bei jedem Start der WPS"</B> verh„lt sich genauso wie die generische
+Backup-Einstellung auf er alten "Archive"-Seite der WPS. Ist diese Einstellung aktiviert,
+wird die WPS bei jedem Start gesichert.
+</IFNDEF>
+ 
+<P><LI><B>"Nur beim n„chsten Start der WPS"</B> wird die WPS nur genau einmal sichern.
+Diese Einstellung wird automatisch deaktiviert, sobald die WPS neu gestartet wurde.
+ 
+<P><LI><B>"nderung der INI Dateien um..."</B> untersucht die Dateien
+<CODE>OS2.INI</CODE> und <CODE>OS2SYS.INI</CODE>
+bei jedem Start der WPS und errechnet anhand von Prfsummen, wie stark sich die Inhalte
+dieser Dateien ge„ndert haben. Wenn diese Berechnungen den Prozentwert bersteigen, den
+Sie angegeben haben, wird die Arbeitsoberfl„che automatisch gesichert.
+<P>Sinnvolle Werte dafr bewegen sich zwischen 0,5 und 5 Prozent. Geben Sie sehr niedrige Werte
+an, k”nnte dies dazu fhren, daá die WPS bei jedem Start gesichert wird.
+ 
+<P><LI><B>"Alle xxx Tage"</B> berprft, wann das letzte Archiv erstellt wurde und
+wenn mehr als die von Ihnen vorgegebenen Tage seitdem verstrichen sind, wird die
+Arbeitsoberfl„che gesichert.
+<P>Beachten Sie hierbei, daá nur die reinen Kalendertage berechnet werden, nicht die tats„chlich
+vergangene Zeit (z.B. in Stunden). Wenn Sie die Arbeitsoberfl„che eine Minute nach Mitternacht
+neu starten, wird sie gesichert werden, selbst wenn dies bereits kurz vor Mitternacht
+geschehen ist.
+ 
+</UL>Die Einstellung <B>"Status beim Start anzeigen"</B> legt fest, ob &xwp; ein weiteres
+Statusfenster w„hrend des Starts der WPS anzeigt, in welchem die Ergebnisse der oben genannten
+Berechnungen sichtbar sind. Dies k”nnte ntzlich sein, um Ihre Einstellungen zu testen.
+ 
+<P><B>"xxx Archive behalten"</B> l„át Sie festlegen, wie viele Archive der Arbeitsoberfl„che
+im Archivverzeichnis gesichert werden sollen. Die Voreinstellung betr„gt 3, aber es k”nnen
+theoretisch bis zu 9 Archive verwaltet werden. Wenn Sie jedoch eine Zahl gr”áer 3 w„hlen, kann die
+Anzeige, die Sie nach Bet„tigen von Alt-F1 erhalten, teilweise unleserlich sein, da die
+zus„tzlichen Archive dazu fhren, daá der obere Teil der Anzeige nach oben aus dem Bildschirm
+rollt. Dies ist zwar nicht schlimm, sieht aber h„álich aus.
+<BR>
+</BODY>
+</HTML>
+ 

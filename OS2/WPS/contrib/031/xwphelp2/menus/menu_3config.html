@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Configureren Pop-Up Menu's
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+&xwp; biedt u de mogelijkheid om globaal menu onderdelen toe te voegen aan de
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;'s</A>
+van alle
+<!-- V0.9.19: link added -->
+&link_folders;
+op het systeem met het gebruik van een speciale
+<B>&cfgfdr;,</B> die er net zo uitziet als een normale WPS map.
+
+<P>Deze map staat in uw
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: changed this -->
+&link_lookfdr;.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+"XWorkplace Installatie" map.
+</IFNDEF>
+
+<P>Wat u ook in die map stopt zal direct tevoorschijn komen
+in de &popmenu;'s van al uw mappen op uw systeem.
+Let echter op dat bepaalde object classes een speciale betekenis hebben in de
+context van de &cfgfdr;:
+
+<OL><LI><B>Programma objecten</B> in de &cfgfdr; zullen gestart worden als het
+betreffende menu onderdeel wordt geselecteerd.
+(Eigenlijk wordt niet het programma object gestart, maar het programma dat
+gedefinieerd is in het programma object zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A>.)
+
+<P>&xwp; kan een aantal handige trucjes uithalen met programma objecten.
+Zie
+<A HREF="menus/menu_4wpprogram.html">"Extra mogelijkheden met programma objecten"</A>
+voor meer informatie.
+
+<BR><LI>Door het plaatsen van <B>een andere map</B> in de &cfgfdr; zal er
+een trapsgewijs submenu aangemaakt worden in de &popmenu;'s. In deze submap kunt u
+meer objecten en mappen plaatsen.
+Op deze manier kunt u een hele &popmenu; hi‰rachie maken (zoals u kunt zien in de
+standaard opzet).
+Er is geen limiet op het nesten van mappen, dus u zou hi‰rachie‰n kunnen maken die vele
+niveaus diep zijn.
+
+<!-- V0.9.20: added link -->
+<BR><LI>Een <B><A HREF="tasks/tsk_templates.html">model</A>
+of reflectie van een model</B> zal resulteren in het aanmaken van een nieuw object
+in de map waarvan het &popmenu; gebruikt is.
+<P>Bijvoorbeeld, als u een map model aangemaakt heeft met speciale instellingen
+voor lettertypes, kleuren enz., dan kunt u een reflectie daarvan opnemen in een
+Configuratie Map, en als u zijn overeenkomstige menu onderdeel selecteert vanuit een map
+zijn &popmenu;, zal er een nieuwe map gemaakt worden in deze map, net alsof u een map gesleept had vanaf
+een model.
+<!-- V0.9.20: link name changed -->
+<P>Zie <A HREF="menus/menu_2template.html">"Aanmaken objecten met Aanmaken Nieuw"</A> voor meer.
+
+<BR><LI>Een <A HREF="objects/obj_string.html">instellingen tekst object</A> zal de instellingen tekst
+uitvoeren, die opgeslagen is in het instellingen tekst object, op de map waarvan het &popmenu;
+onderdeel is geselecteerd.
+
+<BR><LI><B>Alle andere objecten</B> zullen simpelweg geopend worden als hun betreffende menu
+onderdeel geselecteerd wordt. Dit is inclusief reflecties van programma objecten, reflecties van mappen,
+"echte" bestanden, reflecties daarvan, en ga zo maar door.
+<P>Bijvoorbeeld, u kunt een reflectie van uw favoriete gegevensbestand (b.v. "Te-doen lijst") opnemen
+in de &popmenu;'s.
+
+<BR><LI>Als een speciale mogelijkheid kunt u <B>menu scheidingstekens</B> toevoegen door een
+programma object met de exacte naam van <CITE>"---"</CITE> (drie koppeltekens) op te nemen in een
+&cfgfdr;.
+Zie wederom <A HREF="menus/menu_4wpprogram.html">"Extra mogelijkheden met programma objecten"</A>
+voor details.
+
+</OL>Let op dat het <CITE>"~"</CITE> karakter binnen een object zijn naam veranderd in een
+onderstreept karakter in het &popmenu;, om toetsenbord sneltoetsen mogelijk te maken.
+<BR>
+</BODY>
+</HTML>
+

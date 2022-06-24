@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE1;>
+<HEAD>
+    <TITLE>
+        &xwp;: sidan "Importerade moduler"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.20: rewrote the entire page -->
+Sidan "Moduler" upptr„der i notboken med egenskaper hos alla exekverbara filer
+f”r att visa ytterligare information om en exekverbar modul.
+
+<P>Den h„r sidan visar dig de submoduler som importeras av modulen.
+
+<P>Sidan listar endast de submodulnamn som „r direkt listade som importer i
+modulheadern f”r l„nkning under laddningstid. Importerna „r l”sta redan vid 
+tiden f”r n„r modulen laddas, till skillnad fr†n k”rtids l„nkning (se nedanf”r).
+Modulnamnen „r namnen hos de
+<A HREF="glossary/gls_dll.html">dynamic link libraries</A> som skall importeras,
+vanligtvis utan <CODE>.DLL</CODE> filnamns„ndelsen, och f”rv„ntas finnas i 
+<CODE>LIBPATH</CODE> (se
+<A HREF="glossary/gls_path_sys.html">"Systems”kv„gar"</A> f”r mer information).
+
+<P>Om en exekverbar fil misslyckas med laddningen, kommer informationen p† den h„r sidan 
+att kunna vara anv„ndbar f”r att ta reda p† vilken submodul som har misslyckats.
+
+<P>Emellertid, som ett resultat av ovanst†ende, visar den h„r sidan <I>inte</I>:
+
+<UL><LI><B>K”rtids importer,</B> n„r en applikation anropar specifika &os2; API'er f”r
+att importera kod dynamiskt efter att den har laddats komplett. Den h„r informationen
+„r inte specificerad i den exekverbaras headers d„rf”r att det „r den verkliga programkoden
+som utf”r importen. Se dokumentationen f”r
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+i dokumentationen f”r Toolkit.<A HREF="_toolkitlink.html">*</A>
+
+<P><LI><B>Indirekta importer,</B> det betyder, sub-importer utf”rda av moduler listade p† 
+den h„r sidan. Dessa importer „r beroende p† sammanhanget f”r den exekverbara: till 
+exempel, de f”r n„rvarande aktiva <CODE>LIBPATH</CODE>, <CODE>BEGINLIBPATH</CODE>,
+och <CODE>ENDLIBPATH</CODE>
+<A HREF="glossary/gls_path_sys.html">systems”kv„garna</A> best„mmer alla vilken modul
+som egentligen skall laddas.
+
+</UL>F”r att ta reda p† vilken modul som verkligen anv„nds av en given programfil, kan du
+anv„nda <CODE>PSTAT /L</CODE> kommandot fr†n en &os2; kommandoprompt n„r det specifika 
+programmet k”rs.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: File Attribute Bits
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains chunks previously in
+     filepg_5attribs.html -->
+<BODY>
+&os2;, like DOS and Windows, assigns attributes to each directory or
+file in the <A HREF="glossary/gls_fs.html">file-system</A>.
+
+<P>The following attributes exist:
+
+<OL><BR><LI>The <B>"Archive"</B> bit is a user
+flag which is set by the operating system any time the file is changed; this
+is reset by many backup utilities to allow for checking whether the file needs
+to be archived again, because it has changed since the last backup.
+
+<P><LI>The <B>"Read only"</B> flag can be set for files which must not be
+written to; write access and attempts to delete the file will then be
+rejected.
+
+<P><LI>The <B>"System"</B>
+bit is usually only set for system files which are required for the operating
+system to work. Write access and deletion will be rejected as well,
+and the Desktop will not allow moving the file either.
+
+<P><LI>The <B>"Hidden"</B> flag, finally, can be set in order to prevent
+a file from being displayed in directory listings and folders. That is, the file
+is not shown with the <CODE>DIR</CODE> command (unless the <CODE>/A</CODE> switch
+is specified), and it will not be shown in folders (unless the folder has been
+configured to display hidden files as well on the "Include" notebook page).
+<P>Be warned though, if you set this flag from an object's properties notebook,
+the file might be hidden from the folder and you might only be able to unset
+this flag from the command line, using the
+<A HREF="cmdref.inf#attrib"><CODE>ATTRIB</CODE></A> command.
+
+</OL>You can view and set thes attributes from the Workplace Shell, either
+by opening an object's
+<A HREF="glossary/gls_notebook.html">properties notebook</A> or by opening
+an object's <A HREF="glossary/gls_popmenu.html">&popmenu;</A>, which has
+a "File attributes" submenu. Note that this only applies to file-system
+objects.
+<BR>
+</BODY>
+</HTML>
+

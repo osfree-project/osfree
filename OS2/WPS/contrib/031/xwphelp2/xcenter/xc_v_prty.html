@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xcenter;: Bekijk Thread Prioriteit
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<!-- rewritten with V0.9.19 -->
+<!-- title fixed V1.0.1 (2003-02-02) [umoeller] -->
+<BODY>
+De <B>"Bekijk thread prioriteit"</B> biedt u de mogelijkheid om het prioriteitsverschil op te geven
+van de thread die gestart is toen het &xcenter; gestart werd.
+Zie <A HREF="glossary/gls_scheduler.html">"Processen en threads"</A> voor
+meer informatie over thread prioriteiten.
+
+<P>Het &xcenter; draait niet op dezelfde thread als veel andere WPS vensters
+-- wat normaliter thread 1 is in het WPS proces. In plaats daarvan wordt een
+nieuwe thread gecre‰erd als een &xcenter; gestart wordt. Dit biedt u de mogelijkheid om
+de prioriteit van het &xcenter; in te stellen onafhankelijk van de rest van de WPS.
+
+<P>Standaard draait het &xcenter; met een prioriteitsverschil van nul, wat het
+standaard prioriteitsverschil (en hetzelfde als voor alle andere WPS vensters) is.
+Maar u kunt het verschil verhogen tot 31 (wat het maximale prioriteitsverschil is
+in &os2;) om het &xcenter; voorrang te geven boven andere taken in het systeem.
+Naast andere zaken, kan dit het draaien van animaties een stuk vloeiender maken.
+
+<P>Opmerkingen:
+
+<UL><LI>Het &xcenter; zal altijd de "reguliere" prioriteitsclass gebruiken om systeemvastlopers
+en bijeffecten met andere programmatuur te voorkomen. Alleen binnen die class mag u het
+prioriteitsverschil aanpassen tussen nul en 31. (Met andere woorden, het &xcenter;
+zal u niet toestaan om een tijdkritische of voorgrond server prioriteit te gebruiken.)
+
+<P><LI>Sommige <A HREF="xcenter/xc_main_widgets.html">widgets</A> kunnen aanvullende
+threads gebruiken voor hun eigen doelen, die niet be‹nvloed worden door deze instelling.
+Bijvoorbeeld, de <A HREF="xcenter/xc_pulse.html">Hartslag widget</A>
+start een tweede thread om de CPU belasting te verzamelen van de &os2; kernel om er
+zeker van te zijn dan de data accuraat is, zelfs onder hoge systeem belasting.
+
+<P><LI>Als een proces het systeem blokkeert, bijvoorbeeld door het niet verwerken van zijn
+berichtenwachtrij, heeft deze instelling weinig effect op dat probleem.
+
+</UL>
+</BODY>
+</HTML>
+

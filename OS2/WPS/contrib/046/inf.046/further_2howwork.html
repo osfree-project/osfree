@@ -1,0 +1,162 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Hur fungerar &xwp;?
+    </TITLE>
+</HEAD>
+<!-- changes for V0.84: the paragraph about "wpclsQueryIconDataN" has
+     been removed, since it was no longer accurate. -->
+<!-- changed with V0.9.0: replace XFolder with &xwp; (only some) -->
+<BODY>
+&xwp; registrerar och/eller byter ut ett st”rre antal WPS klasser. Ta en titt p†
+<CODE>INSTALL.CMD</CODE> skriptet i &xwp; installationskatalog f”r att se hur det
+„r uppbyggt.
+<P>De viktigaste &xwp; klassutbytena „r:
+<OL><LI><B>&xwp;</B> f”r regulj„ra mappar, vilka inneh†ller huvudfunktionaliteten
+hos &xwp;,  <!-- xxx -->
+<BR><LI><B>XFldDisk</B> f”r "disk" objekt, vilka upptr„der i mappen "Enheter",
+<BR><LI><B>XFldObject,</B> WPS rotklass, f”r att kunna accessa ett antal WPS interna, och
+<BR><LI><B>XFldDesktop</B> f”r nya Skrivbordsfunktioner, speciellt proceduren Avancerad Avst„ngning.
+
+</OL>Alla dessa klasser byter ut original WPS klasser.
+
+<P>I den anda som beskrevs p† <A HREF="further_1WPSClasses.html">f”reg†ende sida</A>, „r
+<B>XFolder klassen</B> en avkomling till WPFolder klassen.
+P† det s„ttet, kan den g”ra allt som en regulj„r kan. Som en ny funktion, l„gger den till
+nya kontextmenyposter hos alla mappar, till†ter mappsnabbkommandon, „ndringar av f”nsterrubriker, etc.
+<P>Genom att anv„nda polymorfism, omdefinierar &xwp; vissa WPFolder metoder, som „r beskrivet nedanf”r.
+<P>Emellertid, &xwp; „r sedan registrerad hos WPS som ett WPFolder <B>utbyte,</B> inneb„rande att WPS 
+kommer att anv„nda XFolder klassen som sin standard mappklass, ist„llet f”r WPFolder.
+Genom att g”ra s†, anv„nds inte WPFolder klassen mera direkt, utan endast genom sitt utbyte (och avkomlings) klass, XFolder.
+<!-- V0.9.13:
+Refer to the <A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the
+"Introduction" section for more on this.
+-->
+
+<P>Vissa av de WPFolder metoder som <B>XFolder class</B> ”verskrider „r
+(detta „r f”rmodligen bara av intresse f”r programmerare):
+<UL>
+<LI><B><CODE>wpModifyPopupMenu</CODE>:</B> Denna WPObject metod „r anropad
+av WPS alldeles f”re ett objekts kontextmeny visas. Varje WPS klass l„gger till sin egen, 
+klass-specifika menypost h„r.
+<P>Eftersom &xwp; leker en del med menyer, „r detta en av de viktigaste metoderna vilken
+&xwp; ”verskrider. I den h„r metoden, anropar &xwp; f”rst f”r„ldraklassen (WPFolder's)
+<CODE>wpModifyPopupMenu</CODE> f”r att f† alla standard menyposter tillagda i objektets kontextmeny.
+<P>Den s”ker efter &xwp;'s konfigurationsmapp (vilken m†ste ha objekt ID
+<CODE>&lt;XFOLDER_CONFIG&gt;</CODE>) och befolkar den osynligt.
+Nu g†r den igenom alla objekt h„r, och l„gger d„rmed till submenyer och menyposter till kontextmenyn.
+Om konfigurationsmappen inte hittas, poppar en medelandebox upp och en tom mapp med det tidigare n„mnda
+ID't skapas p† skrivbordet.
+<P>Samma sak utf”rs f”r funktionen "Mappinneh†ll" och "Favorit" mappar. Emellertid, dessa submenyer
+fylls med objekt endast efter att de ”ppnats av anv„ndaren; detta utf”rs genom att
+snappa upp <CODE>WM_INITMENU</CODE> meddelandet i den subklassade mapp ramf”nsterproceduren
+(se nedanf”r). &xwp; subklassar dessa submenyf”nster (och endast dessa) f”r att 
+kunna m†la upp ikoner och f†nga upp musknapp 2 f”r ”ppning av en mapp.
+<P>(Var v„nlig notera att "subklassning" h„r inte har n†got att g”ra med WPS klasser, men „r
+Presentation Manager terminologi f”r anv„ndning av en annan meddelandeprocedur f”r ett existerande
+f”nster avseende att kunna f†nga upp vissa PM meddelanden f”r f”nstret. Det g”rs med anv„ndning
+av <CODE>WinSubclassWindow</CODE> API.)
+<P>&xwp; modifierar ocks† vissa andra menyer (s†dana som submenyn "Sortera") i den h„r metoden,
+om de Globala Inst„llningarna till†ter det, och l„gger till andra menyposter, om dessa har aktiverats 
+i de Globala Inst„llningarna.
+
+<BR><LI><B><CODE>wpMenuItemSelected</CODE>:</B> Detta anropas fr†n WPS n„rhelst en kontextmenypost
+„r vald av en anv„ndare.
+<P>&xwp; kontrollerar om n†gon av sina egna (variabel) menyposter valdes; om s† „r fallet,
+hittar den sitt korresponderande objekt i konfigurationsmappen och ”ppnar den. Om objektet tillh”r
+WPProgram klassen,
+<!-- V0.9.16: replaced the following -->
+utf”r &xwp; sina normala tricks p† den
+(se kontexthj„lpen f”r &xwp;'s Konfigurationsmapp f”r detaljer).
+<!-- end V0.9.16 -->
+Om objektet „r en mapp, oberoende av vilken WPS klass,
+”ppnas det inte, utan &xwp; skapar ett nytt objekt fr†n den i den aktuella mappen
+(via <CODE>wpCreateFromTemplate</CODE>).
+<P>Om den valda posten „r ett submenyn "mappinneh†ll", kommer det korresponderande objektet 
+helt enkelt att ”ppnas.
+<P>Om n†gon annan menypost som &xwp; lagt till i kontextmenyn „r vald, kommer &xwp;
+sj„lv att utf”ra respektive aktion internt.
+<P>Om ingen av &xwp; menyposter valdes, anropas f”r„ldrarklassens (WPFolder's)
+<CODE>wpMenuItemSelected</CODE> metod (f”r att inte hindra standard menyposter fr†n att fungera).
+
+<BR><LI><B><CODE>wpMenuItemHelpSelected</CODE>:</B> Detta anropas fr†n WPS n„r du trycker <CODE>F1</CODE>
+”ver en kontextmenypost. &xwp; kommer att visa en aktuell hj„lpsida, om n”dv„ndigt.
+
+<BR><LI><B><CODE>wpFilterPopupMenu</CODE>:</B> Med den h„r metoden, tar &xwp; bort de 
+standard menyposter fr†n kontextmenyn som du har specificerat i de Globala Inst„llningarna.
+(Metoden anropas fr†n WPS till och med f”re wpModifyPopupMenu, s† f”rst tas posterna bort, sedan
+l„ggs de nya till.)
+
+<BR><LI><B><CODE>wpclsQueryTitle</CODE>:</B>
+Str„ngen <CODE>XFolder</CODE> (eller vad som helst som du specificerade i de Globala Inst„llningarna)
+returneras f”r att ge &xwp; klassen ett unikt namn.
+
+<BR><LI><B><CODE>wpOpen</CODE>:</B> Den h„r rutinen anropas av WPS 
+varje g†ng en mapp (och n†got annat objekt ocks†) ”ppnas.
+&xwp; m†ste ”verskrida den h„r metoden f”r att implementera ett antal funktioner.
+<P>F”rst, f”r„ldrarmetoden anropas f”r att kunna ”ppna visningen av mappen: WPS kommer
+att skapa ett f”nster med en containerkontroll i och visa f”nstret.
+<P>&xwp; snappar sedan upp ramf”nsterhandtaget, med vilket det d† kan modifiera
+mappens f”nsterrubrik och †terst„lla den till mappens kompletta s”kv„g (om aktiverad
+i de Globala Inst„llningarna). Grundl„ggande, „r detta ett enkelt <CODE>WinSetWindowText</CODE>
+anrop, med n†gra f† ber„kningar f”r att trunkera titeln om n”dv„ndigt.
+<P>I den h„r metoden, <B>subklassar</B> &xwp; ocks† mappens ramf”nster f”r att kunna hantera
+WM_CHAR meddelanden f”r mappsnabbkommandon och massor av andra saker. F”r subklassning,
+verkar den h„r metoden vara den b„sta tills nu, eftersom all n”dv„ndig WPS initialisering har
+gjorts genom att anropa f”r„ldrarmetoden, men anv„ndaren kan inte samverka med mappen „nnu, d„rf”r
+att den „r endast blir fylld med objekt ("befolkad" med WPS terminologi) av en annan tr†d efter†t.
+<P>I den nya f”nsterproceduren, f†ngar &xwp; upp alla WM_CHAR meddelanden (vilka endast skickas
+till ramf”nsterproceduren om dom inte redan har processats av containern, som cursortangenter) 
+och utv„rderar dom i enlighet med sin interna snabbkommandolista, vilken kan „ndras i 
+Globala Inst„llningar.
+<P>Subklassning „r ocks† n”dv„ndigt f”r att introducera statusf„lt; 
+<CODE>WM_QUERYFRAMECTLCOUNT</CODE>, <CODE>WM_FORMATFRAME</CODE>, och
+<CODE>WM_CALCFRAMERECT</CODE> meddelandena f†ngas in f”r att storleksf”r„ndra mappramen och
+dess container dotterf”nster i enlighet med det utrymme som beh”vs f”r en mapps statusf„lt.
+<P>&xwp; f†ngar ocks† upp n†gra f† container notifieringsmeddelanden f”r att kunna
+erbjuda funktionen "Auto-scrolla Tr„dvisning" och uppdatera statusf„ltets text om
+valen av objekt har „ndrats av anv„ndaren.
+<P>Som till„gg, &xwp; f†ngar upp olika menymeddelanden, s†dana som <CODE>WM_INITMENU</CODE>
+och <CODE>WM_MENUSELECT</CODE>, f”r att kunna hantera vissa menyfunktioner som inte kan n†s med
+vanliga WPS metoder.
+<P>Alla meddelanden som inte har n†gon mening f”r &xwp; skickas till original f”nsterproceduren.
+<P><CODE>wpOpen</CODE> metoden beh”vs ocks† f”r implementering av &xwp;'s ut”kade sorteringsfunktioner;
+&xwp; uppdaterar container inst„llningarna i enlighet med de sorteringskriterier som du har
+specificerat.
+
+<BR><LI><B><CODE>wpAddSettingsPages</CODE>:</B> Den h„r metoden anropas av WPS varje g†ng
+ett objekts notbok med inst„llningar ”ppnas. &xwp; ”verskrider ocks† den metoden f”r att l„gga till
+sina egna inst„llningssidor, efter att ha anropat f”r„ldrametoden, s† att original inst„llningssidorna
+fortfarande finns tillg„ngliga.
+
+</UL><B>XFldDisk</B> klassen, vilken byter ut WPDisk klassen, g”r inte mycket, bortsett fr†n att routa
+sina metoder till &xwp; metodernas motsvarigheter, s† att enheternas visning beter sig som normala 
+(X)mappar. IBM har, av n†gon orsak, best„mt sig f”r att inte g”ra enhetsobjekt till regulj„ra mappar,
+utan implementerat en annan klass f”r dom (kallad WPRootFolder), s† att ocks† &xwp; beh”ver en separat klass.
+
+<P><B>XFldObject</B> g”r inte mycket f”r synbarheten heller, undantaget att undertrycka &os2; standard
+menyposter och l„gga till en "Kopiera filnamn" funktion. Den beh”vs d„remot av andra &xwp; delar
+internt f”r att kunna tillk„nnage vissa interna WPS h„ndelser, speciellt &xshutdown; funktionen, vilken „r
+beskriven i detalj p† <A HREF="further_2howxshutdown.html">n„sta sida</A>.
+
+<P><B>XFldDesktop</B> klassen „r implementerad f”r att till†ta „ndring av Skrivbordets menyposter och
+f”r &xshutdown;, vilken „r beskriven i detalj p† <A HREF="further_2howxshutdown.html">n„sta sida</A>.
+
+<P>Medan tidigare versioner ocks† bytte ut <B>WPSystem</B> klass s† att "System" objektet i 
+"Systemkonfigurations" mappen inneh”ll flera notbokssidor f”r att accessa &xwp;'s Globala Inst„llningar,
+har beteendet „ndrats fr†n och med V0.80. Ist„llet, registrerar &xwp; tv† nya klasser deriverade fr†n WPSystem utan att
+byta ut den. Dessa tv† klasser „r <B>XFldSystem</B> och <B>XFldWPS</B> f”r "&os2; K„rna" och "Workplace Shell" objekten,
+respektive. De inst„llningar som du har specificerat h„r „r (f”r det mesta) lagrade i OS2.INI och utv„rderade varje
+g†ng som &xwp; beh”ver dom (t.ex. n„r du har ”ppnat en kontextmeny). Som kontrast, lagras de "lokala" 
+&xwp; inst„llningarna f”r en individuelll mapp i dess .CLASSINFO Ut”kade Attribut, d„r WPS ocks† lagrar andra
+mappinst„llningar. Det utf”rs sedan av XFolder klassen.
+
+<P>Var v„nlig och notera att alla &xwp; klasser „r konstruerade f”r att samverka. F”rs”k inte att ta bort
+n†gra f† av dom, eller s† kommer &xwp; kanske att bete sig underligt (om du har tur). Alla &xwp;'s funktioner
+har gjorts n†gorlunda konfigureringsbara, s† du b”r kunna bli av med det som du inte gillar -- eller bli
+av med &xwp; i sin helhet.
+<BR>
+</BODY>
+</HTML>
+
+

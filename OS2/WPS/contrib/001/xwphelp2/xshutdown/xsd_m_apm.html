@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        "Power-Off"
+    </TITLE>
+</HEAD>
+<!-- V0.9.19: title changed -->
+<BODY>
+If this setting is enabled, &xshutdown; will attempt to automatically switch off your
+computer after shutdown has completed, instead of displaying the usual message
+that you may now switch off your computer.
+
+<!-- V0.9.7: changed all the following. -->
+<P>This will only work if your computer supports this. For this, both your BIOS and
+&os2; must support at least
+<!-- V0.9.19: added link -->
+<A HREF="glossary/gls_apm.html">APM V1.1</A>,
+<!-- V1.0.5: added ACPI -->
+or you must have installed ACPI support.
+The APM and ACPI levels of your system are displayed on the shutdown notebook page for
+your convenience.
+
+<P>If the <B>"Delay"</B> setting is also enabled, &xshutdown; will wait three seconds
+before actually issuing the power-off request to the <CODE>APM.SYS</CODE> driver or
+ACPI subsystem.
+This might help on a few systems where the power was switched off before all the
+caches were flushed. If you get CHKDSK's after using power-off, you might want
+to try enabling this setting.
+
+<BR>
+</BODY>
+</HTML>
+

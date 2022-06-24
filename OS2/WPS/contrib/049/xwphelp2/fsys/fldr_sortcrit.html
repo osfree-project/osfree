@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sortierkriterien
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.12 -->
+<BODY>
+Die folgenden vier Sortierkriterien sind in allen
+<!-- V0.9.19: link added -->
+&link_folders;
+<i>stets</i> verfÅgbar:
+ 
+<UL><LI><B>Name:</B> Hiermit wird der Ordner alphabetisch nach den Titeln
+der Objekte sortiert.
+ 
+<P><LI><B>Typ:</B> Sortiert einen Ordner nach den Objekttypen, d.h.
+nach dem erweiterten Attribut <CODE>.TYPE</CODE>, welches in den EinstellungsnotizbÅchern
+der Objekte festgelegt werden kann. Beachten Sie, da· dies nur auf Objekte von Datendateien
+zutrifft; alle anderen Objekte (einschlie·lich Datendateiobjekte ohne definierten Typ) werden
+an das Ende sortiert.
+ 
+<P><LI><B>Objektklasse:</B> Sortiert den Ordner nach den Objektklassen,
+d.h. den EintrÑgen, die in der dritten Spalte der Ordner-Detailanzeige zu sehen sind.
+ 
+<P><LI><B>Dateierweiterung:</B> Sortiert den Ordner nach den Zeichen, die dem
+letzten Punkt im Objekttitel folgen, wobei es sich normalerweise um eine
+Dateierweiterung (wie etwa <CODE>.TXT</CODE>, <CODE>.EXE</CODE> usw.) handeln sollte.
+Objekte ohne Erweiterung werden zuoberst einsortiert.
+ 
+</UL>Solange bei einem Ordner die Sortierklasse nicht auf eine andere Klasse als
+WPFileSystem geÑndert wurde, was normalerweise nur bei speziellen Ordner wie
+dem Papierkorb und dem Ordner "Schriftarten" vorkommt, sind auch die folgenden
+Sortierkriterien verfÅgbar:
+ 
+<UL><LI><B>Echter Name:</B> Sortiert den Ordner alphabetisch nach den
+Namen im Dateisystem. Da nur Objekte des Dateisystems echte Namen besitzen,
+werden abstrakte Objekte nicht korrekt einsortiert.
+ 
+<P><LI><B>Grî·e:</B> Sortiert den Ordner nach der Dateigrî·e. Da abstrakte Objekte
+keine Dateigrî·e aufweisen, sondern nur etwas Platz in der OS2.INI einnehmen, wird
+fÅr sie eine Grî·e von 0 Bytes angenommen.
+ 
+<P><LI><B>Datum letzten Schreibens / letzten Zugriffs / der Erstellung:</B>
+Sortiert den Ordner nach der entsprechenden Dateisystem-Information, die ebenfalls
+nicht bei abstrakten Objekten vorhanden ist. Beachten Sie, da· das
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_fs.html">FAT</A>-Dateisystem
+all diese Informationen nicht unterstÅtzt, so da· diese drei Kriterien dort
+keinen Unterschied ausmachen.
+ 
+</UL>Ist auch die Option <B>"Ordner zuerst"</B> aktiviert, werden alle Ordner
+zuoberst einsortiert.
+ 
+<P>Innerhalb der jeweiligen Gruppe der Ordner- und Nicht-Ordner-Objekte, wird die Sortierung
+entsprechend dem aktuellen Sortierkriterium vorgenommen. Wenn beispielsweise "Sortieren nach
+Datum letzten Schreibens" ausgewÑhlt wurde und "Ordner zuerst" ebenfalls aktiv ist, werden alle
+Unterordner zuoberst eingeordnet und dann nach dem Datum letzten Schreibens sortiert. Alle
+Objekte, bei denen es sich nicht um Ordner handelt, werden ebenfalls nach dem Datum letzten
+Schreibens sortiert.
+ 
+</BODY>
+</HTML>
+ 

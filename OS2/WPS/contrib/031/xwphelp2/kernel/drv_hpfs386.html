@@ -1,0 +1,51 @@
+<HTML RESID=&ID_XSH_DRIVER_HPFS386;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: HPFS386.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+Deze dialoog wordt gebruikt voor het configureren van HPFS386.IFS,
+wat de 32-bits versie is van het High Performance File System dat standaard
+bij &os2; meekomt.
+
+<!-- V0.9.13
+
+Over regular HPFS, HPFS386
+has the following advantages:
+
+<UL><LI>It's partly written in 32-bit assembler.
+<LI>HPFS386 is capable of passing data directly to network adapter drivers.
+As a result, data can be passed directly in ring 0 without having to go through
+a ring transition, which makes HPFS386 ideal for servers.
+<LI>Most importantly, you can specify cache sizes larger than 2048 KB,
+which is the maximum with regular HPFS.
+<LI>HPFS also can be used to implement local security on the file system level.
+Access Control Lists (ACLs) can be stored directly with the file/directory structures
+in the file system.
+
+</UL>Unfortunately, HPFS386 only comes with the server versions of &os2;,
+so only a few people can afford these advantages.
+
+and added this: -->
+
+<P>Zie voor introductie informatie over bestandssystemen, de volgende lijst
+<UL><LI><A HREF="glossary/gls_fs.html">Bestandssystemen</A>
+<LI><A HREF="glossary/gls_caches.html">Bestandssysteem buffers</A>
+
+</UL>Door het op <B>"OK"</B> drukken, zullen de selecties die u gemaakt heeft
+vertaald worden naar het "Parameters" veld op de "Stuurprogramma's" pagina in het
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A>
+instellingen notitieblok. Dit past nog niet uw &cfgsys; aan.
+Om dat te doen, drukt u op "Toepassen" op de "Stuurprogramma's" pagina nadat
+u op "OK" gedrukt heeft in deze dialoog.
+
+<P>Zie voor een gedetailleerde toelichting voor elk veld, de onderstaande lijst:
+<UL><LI><A HREF="kernel/hpfs_ini.html">HPFS386.INI</A>
+<LI><A HREF="kernel/hpfs_autocheck.html">Automatische controle</A>
+</UL>
+</BODY>
+</HTML>
+

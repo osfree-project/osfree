@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Status: &xwp; K„rna
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in
+     09610xset_info.html -->
+<BODY>
+<B>"&xwp; K„rna"</B> gruppen visar viss information direkt fr†n det interna hos <CODE>XFLDR.DLL</CODE>.
+Om du anser att de f”ljande f”rklaringarna „r f”r komplicerade, bekymra dig inte, f”rst†else
+av den h„r informationen „r inte n”dv„ndig f”r att &xwp; skall fungera bra p† ditt system.
+
+<P><B>"Versions"</B> f„ltet inneh†ller versionsnummer hos <CODE>XFLDR.DLL</CODE>, inklusive
+datumet n„r den byggdes.
+<!-- V0.9.7: removed this
+(not of the language files!), while the "Build" field simply shows the count
+of how many times XFLDR.DLL was built (compiled) on the author's hard disk
+before being released, as well as the build date of your release.
+That field might not be terribly useful, except when bugfixes should be released without
+raising the &xwp; version number. -->
+
+<!-- V0.9.4: removed this
+The "C runtime locale" field shows the current language settings used internally
+be &xwp;. This is not to be confused with PM's language settings in the
+"Country" object or with &xwp;'s Language settings, but is only used for certain
+C-language features such as string comparisons and sorting.
+This should either be "C" if a default (English) locale is being
+used or the value of your "LANG" environment variable in &cfgsys;, such as "DE_DE" for
+Germany. For programmers: this is the return value of a
+setlocale(LC_ALL, NULL) call (using the IBM Visual Age C++ 3.0 runtime
+library). -->
+
+<!-- V0.9.4: added this -->
+<P><B>"Uppv„ckta Skrivbordsobjekt"</B> f„ltet visar dig antalet objekt vilka har blivit 
+uppv„ckta internt av WPS. Varje g†ng WPS befolkar en mapp (startande med Skrivbordet
+vid systemstarten), blir Skrivbordsobjekten uppv„ckta i minnet. Detta f„lt visar dig det totala
+antalet objekt som har v„ckts upp p† det h„r s„ttet av WPS sedan WPS startades. Antalet
+forts„tter normalt att v„xa n„r du ”ppnar mappar, eftersom WPS v„ldigt s„llan l†ter objekt †terg†
+till s”mn. Antalet uppdateras en g†ng per sekund. ™ppna n†gon mapp som inte har befokats „nnu,
+och du kommer att se antalet v„xa.
+
+<P><B>"WPS tr†dr„kning"</B> visar det aktuella antalet tr†dar som k”rs i Workplace Shell process 
+(andra instans av <CODE>PMSHELL.EXE</CODE>). Detta kommer att variera, beroende p† ytterligare
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS klasser</A> som „r installerade. Žven det antalet kan 
+„ndras om, till exempel, en mapp f”r n„rvarande „r befolkad. Antalet uppdateras en g†ng per sekund.
+
+<!-- V0.9.4: added this -->
+<P>F„ltet <B>"Skrivbordet startats om"</B> visar dig hur m†nga g†nger som WPS har startats om.
+
+<!-- V0.9.9: removed all the threads stuff... this is now in 09992xc_threads.html -->
+
+<P><B>"XSound status"</B> visar dig slutligen om &xwp; „r kapabel att spela upp
+systemljud p† ditt system. Detta b”r visa "OK". Om du f†r n†got annat, kommer systemljud att vara
+avaktiverade. Sk„l f”r det kan vara att MMPM/2 inte „r installerat
+<!-- V0.9.4: changed the following -->
+p† ditt system eller att andra problem har intr„ffat med &xwp;'s multimedia.
+
+<!-- V0.9.4: added this -->
+<P>F„ltet <B>"XWPHook status"</B> visar dig om &xwp; hook har blivit korrekt installerat. 
+Detta b”r visa "OK" om du har aktiverat respektive inst„llning p† sidan "Funktioner".
+<BR>
+</BODY>
+</HTML>
+

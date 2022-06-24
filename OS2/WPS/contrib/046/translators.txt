@@ -1,0 +1,64 @@
+This is the list of people who have offered to translate XFolder
+(updated @@changed V0.9.3 (2000-04-08) [umoeller])
+
+Chinese:
+"Chun-Hung Chen" <u840201@oz.nthu.edu.tw>
+
+Czech:
+"Tomas Hajny" <XHajT03@mbox.vol.cz>
+
+Dutch:
+"Arjen Meijer" <arjen@hacom.nl>
+
+French:
+Jean-Marc SPAGGIARI <jmspaggi@caramail.com>
+    (new with V0.9.0)
+"Philippe Guerreiro" <guerfyld@yahoo.fr>
+    (new with V0.9.0)
+
+German (new V0.9.9 (2001-02-28) [umoeller])
+Klaus Fuchs <Klaus@os2.org>
+Christoph Vogt <ch.vogt@gmx.net>
+Christoph Wingender <christoph.wingender@gmx.net>
+Frank Berke <Frank.Berke@rz.ruhr-uni-bochum.de> V0.9.13 (2001-06-14) [umoeller]
+warpcafe <thklein@netcologne.de> V0.9.17 (2002-02-05) [umoeller]
+Christian Hennecke <christian.hennecke@ruhr-uni-bochum.de> V0.9.18 (2002-02-06) [umoeller]
+
+Italian (updated V0.9.3 (2000-04-08) [umoeller])
+Obelix <nbrion@box.seven.it>
+Gabriele Gamba <ggamba@tiscalinet.it> http://www.quasarbbs.net/xwp/
+Loris Rinaldo <xloris@yahoo.com>
+
+Japanese:
+"ARAKAWA Atsushi" <arakaw@ibm.net>
+
+Polish:
+"Artur Flinta" <aflinta@student.uci.agh.edu.pl>
+    (address changed, V0.82)
+"Dominik Czechowski" <domcio@student.uci.agh.edu.pl>
+    (new with V0.82)
+
+Portuguese:
+"Pedro Cardoso" <pcardoso@excite.com>
+    (new with V0.9.0)
+"Andre da Rosa Vollino" <sonic@cpovo.net>
+    (new with V0.9.0)
+
+
+Russian:
+"Dmitry A. Kuminov" <dmik@sch79.alien.ru>
+"Andrew Cherepivsky" <skayer@muctr.edu.ru>
+
+Spanish:
+"Alfredo Fernandez Diaz" <nitro-si@correo.ctv.es>
+"Juan Miguel" <theoden@arrakis.es>
+"Lmaqui" <lmaqui@cgt.es>
+"Xavier Caballe" <xavi@caballe.com>
+
+Swedish:
+"Simon Gr”nlund" <d97-sgr@d.kth.se>
+    (new with V0.83)
+"Roger Lindmark" <roger.lindmark@bredband.net>
+    (changed V0.9.9 (2001-02-28) [umoeller])
+"Bj”rn S”derstr”m" <bjorso@os2ug.se>
+    (new with V0.9.20, replaced Simon Gr”nlund)

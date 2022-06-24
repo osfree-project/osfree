@@ -1,0 +1,294 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPFolder Str„ngar
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<BODY>
+<CODE>WPFolder</CODE> „r en WPS klass f”r alla mappar
+<!-- V0.9.16: added this bracket with link -->
+(se <A HREF="glossary/gls_wpsclasses.html">WPS klasser</A> f”r detaljer). Som
+till„gg f”r de inst„llningsstr„ngar som 
+k„nns igen av <CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> klassen,
+k„nner <CODE>WPFolder</CODE> igen f”ljande str„ngar:
+
+<DL>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<DT><CODE><B>ACCELERATORS</B>={YES|NO|DEFAULT}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om den skall reagera p† mappsnabbkommandon.
+Inst„llningen korresponderar till den p†
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+sidan "Visa" i en mapps notbok med egenskaper. YES eller NO kommer att s„tta
+den h„r inst„llningen f”r mappen oberoende om vad som specificerades i de globala 
+inst„llningarna, medan DEFAULT kommer att s„tta den h„r inst„llningen till det 
+globala v„rdet.
+
+<!-- V0.9.20: rewrote ALWAYSSORT -->
+<P><DT><CODE><B>ALWAYSSORT</B>={YES|NO|DEFAULT}</CODE>
+<DD>St„ller in f”r en individuell mapp om den alltid skall beh†lla sin sorteringsordning.
+™ppning och addering av ett objekt till mappen kanske kommer att ta l„ngre tid om 
+sorteringsordningen beh†lls. Notera att <CODE>DEFAULT</CODE> optionen endast „r tillg„nglig
+med &xwp;, vilken kommer att †terst„lla inst„llningen till den du specificerade p† sidan 
+"Sortera" i "Workplace Shell" objektet.
+
+<P><DT><CODE><B>BACKGROUND</B>=<I>namn</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>Detta st„ller in mappens bakgrund, d„r:
+
+<P><CODE><I>namn</I></CODE> = Bildfilens namn. Namnet m†ste vara en fullt kvalificerad
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„g</A> f”r bildfilen. "?:\" „r till†tet f”r att 
+indikera bootenheten.
+
+<P><CODE><I>mode</I></CODE> = Bild form. Formen kan vara en av f”ljande:
+<BR><CODE>N</CODE> = Normal bild
+<BR><CODE>T</CODE> = T„ckande bild
+<BR><CODE>S</CODE> = Skalad bild
+
+<P><CODE><I>factor</I></CODE> = Skalningsfaktor.
+
+<P><CODE><I>bgtype</I></CODE> = Bakgrundstyp. Detta kan vara en av f”ljande:
+<BR><CODE>I</CODE> = Bild
+<BR><CODE>C</CODE> = F„rg enbart
+
+<P><CODE><I>bgcol</I></CODE> = Bakgrundsf„rg. Den h„r f„rgen kan vara en 3 siffrors
+representerande RGB v„rden, separerade av mellanslag 
+(<CODE>r g b</CODE>, f”r r”da, gr”na och bl†a v„rden).
+<P>Exempel:
+<CODE>BACKGROUND=C:\OS2\BITMAP\OS2LOGO.BMP,S,3,I
+</CODE>eller
+<CODE>BACKGROUND=(none),,,C,0 128 128</CODE>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>DEFAULTSORT</B>=<I>crit</I></CODE> (endast &xwp;)
+<DD>Detta kommer att st„lla in standard sorteringskriterier f”r en individuell mapp
+till n†got annorlunda mot globala sorteringskriterier.
+<CODE><I>crit</I></CODE> kan vara ett av f”ljande:
+<BR><CODE>  -1   </CODE>sortera genom typ
+<BR><CODE>  -2   </CODE>sortera genom namn
+<BR><CODE>  -3   </CODE>sortera genom objektklass
+<BR><CODE>  -4   </CODE>sortera genom filnamns„ndelse
+<BR><CODE>  255  </CODE>†terst„ll till globala standard sorteringskriterier
+<P>Notera att beroende p† mappens sorteringsklass, kan v„rden mellan 0 och 100 
+ocks† ha st”d. Dessa v„rden korresponderar till index hos objektdetaljkolumner
+i Detaljvisning och „r klass-specifika. Experimentera med setupstr„ngv„rdena 
+som rapporteras i mappens notbok med egenskaper.
+
+<P><DT><CODE><B>DEFAULTVIEW</B>=DEFAULT</CODE>
+<DD>St„ller in standard ”ppen visning till vad som 
+specificerades i
+<!-- V0.9.20: replaced system with workplace shell, dammit -->
+"Workplace Shell" objektet. Detta „r standardv„rdet.
+<P>Notera att <CODE>DEFAULTVIEW</CODE> verkligen „r en 
+<A HREF="objects/string_1wpobject.html">WPObject setupstr„ng</A>, men
+meningen med visningsinst„llningen „r endast meningsfull f”r
+WPObject subklasser, s†dana som WPFolder.
+
+<P><DT><CODE><B>DEFAULTVIEW</B>={SETTINGS|ICON|TREE|DETAILS}</CODE>
+<DD>St„ller in standard ”ppen visning hos
+den specificerade mappvisningen.
+
+<P>Notera att <CODE>DEFAULTVIEW</CODE> verkligen „r en
+<A HREF="objects/string_1wpobject.html">WPObject setupstr„ng</A>, men 
+meningen med visningsinst„llningen „r endast meningsfull f”r
+WPObject subklasser, s†dana som WPFolder.
+
+<P><DT><CODE><B>DETAILSCLASS</B>=<I>klassnamn</I></CODE>
+<DD>Detta st„ller in objektklassen f”r vilken detaljerna 
+visas i detaljvisning. Standard objektklass „r
+WPFileSystem. Du b”r inte „ndra n†got h„r.
+
+<P><DT><CODE><B>DETAILSFONT</B>=<I>size</I>.<I>facenamn</I></CODE>
+<DD>Žndra font som anv„nds f”r en detaljvisning. Till exempel: <CODE>9.WarpSans Bold</CODE>.
+Standardv„rde „r <CODE>8.Helv</CODE> (p† Warp 3)
+
+<P><DT><CODE><B>DETAILSSHADOWCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r ett skuggobjekt i Detaljvisning. 
+<CODE><I>color</I></CODE> kan vara standardf„rgens namn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>DETAILSTEXTCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r normala objekt i Detaljvisning. <CODE><I>color</I></CODE> kan
+vara standardf„rgens namn eller en 
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>DETAILSVIEW</B>=<I>stil</I></CODE>
+<DD>Detta st„ller in detaljvisning till en specificerad stil. M”jliga v„rden „r:
+<BR><CODE>MINI</CODE> liten ikon; detta „r standard.
+<BR><CODE>NORMAL</CODE> normal-storlek ikon.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifdef  -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P><DT><CODE><B>FAVORITEFOLDER</B>={YES|NO}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om dess inneh†ll kan visas fr†n alla
+&popmenu;er p† ditt system. Den h„r inst„llningen korresponderar till en av
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Visa" sidorna i mappens notbok med egenskaper. Standard „r NO. Det finns inget
+globalt v„rde f”r den h„r inst„llningen.
+</IFNDEF>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>FULLPATH</B>={YES|NO|DEFAULT}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om dess fulla s”kv„g skall visas i dess f”nsterrubrik.
+Den h„r inst„llningen korresponderar till en av "Visa" sidorna i mappens notbok med
+egenskaper. YES eller NO kommer att st„lla in den h„r inst„llningen f”r en mapp
+oberoende vad som specificerades i de globala inst„llningarna, medan DEFAULT kommer
+att st„lla in den h„r inst„llningen till det globala v„rdet.
+
+<P><DT><CODE><B>ICONFONT</B>=<I>size</I>.<I>facenamn</I></CODE>
+<DD>Setupstr„ng anv„nd f”r att „ndra den font som anv„nds f”r en
+ikonvisning. Till exempel:  <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>ICONNFILE</B>=<I>index</I>,<I>filnamn</I></CODE>
+<DD>Detta st„ller in ett filnamn f”r animerings (”ppen mapp) ikonen.
+<CODE><I>index</I></CODE> v„rdet m†ste vara satt till 1. Den specificerade 
+filen (".ICO") inneh†ller mappens ”ppna mappikon.
+
+<P><DT><CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfil</I></CODE>
+<DD>St„ller in animerings (”ppen mapp) ikonen enligt data som finns i en resursfil.
+<CODE><I>index</I></CODE> v„rdet m†ste vara satt till 1. <CODE><I>id</I></CODE>
+„r identiteten hos en ikonresurs i en
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfil</I></CODE>. Den specificerade resursen „r mappens
+”ppna mappikon.
+
+<P><DT><CODE><B>ICONSHADOWCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r skuggikoner i Ikonvisning. 
+<CODE><I>color</I></CODE> kan vara ett standardf„rgnamn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>ICONTEXTBACKGROUNDCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Bakgrundsf„rg f”r normal text i Ikon, Tr„d och Detaljvisning.
+<CODE><I>color</I></CODE> kan vara ett standardf„rgnamn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>ICONTEXTCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r normala ikoner i Ikonvisning. 
+<CODE><I>color</I></CODE> kan vara ett standardf„rgnamn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>ICONTEXTVISIBLE</B>={YES|NO}</CODE>
+<DD>Namnen p† objekten i inneh†llet hos en mapp visas eller visas inte
+i Ikonvisning.
+
+<P><DT><CODE><B>ICONVIEW</B>=<I>stil1</I>[,<I>stil2</I>...]</CODE>
+<DD>Detta st„ller in ikonvisning till den specificerade stilen. M”jliga 
+v„rden „r: <CODE>FLOWED NOGRID INVISIBLE NONFLOWED MINI NORMAL</CODE>
+<BR>Standardv„rde „r <CODE>NOGRID,NORMAL</CODE>
+<BR>Dessa inst„llningar korresponderar till sidan "Ikonvisning" i en
+mapps notbok med egenskaper.
+
+<P><DT><CODE><B>ICONVIEWPOS</B>=<I>x</I>,<I>y</I>,<I>cx</I>,<I>cy</I></CODE>
+<DD>Detta st„ller in den initiala ikonvisningspositionen och storlek
+hos mappen p† sk„rmen. Dessa v„rden „r i procent (0-100) av sk„rmens storlek.
+
+<P><DT><CODE><B>MENUBAR</B>={YES|NO}</CODE> (endast &warp4; och h”gre)
+<DD>Menyf„ltet hos en mapp visas eller visas inte.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+    added ifdef -->
+<IFNDEF __NOQUICKOPEN__>
+<P><DT><CODE><B>QUICKOPEN</B>={YES|NO|IMMEDIATE}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om den kommer att bli f”rbefolkad vid
+Skrivbordets start. Den h„r inst„llningen korresponderar till en av 
+"Visa" sidorna i mappens notbok med egenskaper. YES eller NO kommer att st„lla in
+den h„r inst„llningen f”r mappen. Standard „r NO. Det finns inget globalt v„rde f”r
+den h„r inst„llningen.
+<P>Som ett speciellt kommando, kommer <CODE><B>QUICKOPEN</B>=IMMEDIATE</CODE> att befolka
+mappen omedelbart. Det kan anv„ndas i ett
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script f”r att framtvinga en befolkning av mappen utan att beh”va ”ppna den. 
+Som ett resultat, blir <CODE><B>QUICKOPEN</B>=IMMEDIATE</CODE> inte n†gon inst„llning, utan
+snarare ett kommando att utf”ras f”r mappen.
+</IFNDEF>
+
+<P><DT><CODE><B>REMOVEFONTS</B>={YES|NO}</CODE>
+<DD>Det h„r kan ta bort alla instansfonter fr†n en mapp, m.a.o. de enda som 
+g„ller f”r endast den h„r mappen (specificerad av respektive objekts inst„llningsstr„ng 
+eller i mappens notbok med egenskaper). Standard „r <CODE>NO</CODE>.
+<BR>Detta „r egentligen inte n†gon "inst„llning", utan snarare ett kommando som skall
+utf”ras f”r mappen.
+
+<P><DT><CODE><B>SHOWALLINTREEVIEW</B>={YES|NO}</CODE> (endast &warp4; och h”gre)
+<DD>Visa alla objekt i en ”ppen Tr„dvisning eller endast mappar.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifndef -->
+<IFNDEF __NOSNAPTOGRID__>
+<P><DT><CODE><B>SNAPTOGRID</B>={YES|NO|DEFAULT|EXEC}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om alternativet "L†s till rutn„t"  skall upptr„da
+i mappens &popmenu;. Den h„r inst„llningen korresponderar till en av "Visa" sidorna i 
+mappens notbok med egenskaper. YES eller NO kommer att st„lla in den h„r inst„llningen f”r mappen
+oberoende om vad som specificerades i de globala inst„llningarna, medan DEFAULT kommer att
+st„lla in den h„r inst„llningen till det globala v„rdet. EXEC kommer att exekvera "L†s till rutn„t"
+funktionen hos mappen, precis som om du hade valt den fr†n dess &popmenu;. 
+EXEC „r dock inte n†gon inst„llning, utan ett kommando att utf”ras f”r mappen.
+</IFNDEF>
+
+<P><DT><CODE><B>SORTCLASS</B>=<I>klassnamn</I></CODE>
+<DD>Detta st„ller in klassobjekt att sortera med. Standard klassobjekt 
+„r WPFileSystem.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTFOLDERSFIRST</B>={YES|NO|DEFAULT}</CODE> (endast &xwp;)
+<DD>St„ller in f”r en individuell mapp om mappen alltid skall sorteras f”rst. Den
+h„r inst„llningen korresponderar till en av "Sortera" sidorna i mappens notbok med egenskaper.
+YES eller NO kommer att st„lla in den h„r inst„llningen f”r mappen oberoende om vad som
+specificerades i de globala inst„llningarna, medan DEFAULT kommer att st„lla in den h„r 
+inst„llningen till det globala v„rdet.
+<!-- end V0.9.12 -->
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTNOW</B>=<I>crit</I></CODE> (endast &xwp;)
+<DD>Detta kommer att sortera alla f”r n„rvarande ”ppna visningar hos en individuell mapp
+utan att „ndra en mapps inst„llning (till skillnad fr†n <CODE>DEFAULTSORT</CODE>). 
+Detta „r egentligen inte n†gon "inst„llning", utan snarare ett kommando som skall utf”ras f”r mappen.
+
+<CODE><I>crit</I></CODE> har samma betydelse som <CODE>DEFAULTSORT</CODE>.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>STATUSBAR</B>={YES|NO|DEFAULT}</CODE> (endast &xwp;)
+<DD>St„ller in synlighetsstatus f”r en individuell mapps statusf„lt. Den h„r 
+inst„llningen korresponderar till en av
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Visa" sidorna i mappen notbok med egenskaper.
+YES eller NO kommer att st„lla in den h„r inst„llningen f”r mappen oberoende om vad som
+specificerades i de globala inst„llningarna, medan DEFAULT kommer att st„lla in den h„r 
+inst„llningen till det globala v„rdet.
+
+<P><DT><CODE><B>TREEFONT</B>=<I>size</I>.<I>facenamn</I></CODE>
+<DD>Setupstr„ng anv„nd f”r att „ndra den font som anv„nds i en Tr„dvisning. 
+Till exempel: <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>TREESHADOWCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r skuggikoner i Tr„dvisning. <CODE><I>color</I></CODE> kan vara ett 
+standardf„rgnamn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>TREETEXTCOLOR</B>=<I>color</I></CODE> (endast &warp4; och h”gre)
+<DD>Textf„rg f”r normala ikoner i Tr„dvisning. <CODE><I>color</I></CODE> kan vara ett 
+standardf„rgnamn eller en
+<CODE><I>r g b</I></CODE> upps„ttning nummer (f”r r”da, gr”na och bl†a v„rden).
+
+<P><DT><CODE><B>TREETEXTVISIBLE</B>={YES|NO}</CODE> (endast &warp4; och h”gre)
+<DD>Namnen p† objekten som finns i en mapp visas eller visas inte i Tr„dvisning.
+
+<P><DT><CODE><B>TREEVIEW</B>=<I>stil1</I>[,<I>stil2</I>...]</CODE>
+<DD>Detta st„ller in tr„dvisning till specificerade stilar. M”jliga v„rden 
+„r: <CODE>INVISIBLE LINES MINI NOLINES NORMAL</CODE>
+<BR>Standardv„rde „r <CODE>LINES, NORMAL</CODE>
+<BR>Dess inst„llningar korresponderar till sidan "Tr„dvisning" i mappens notbok 
+med egenskaper.
+
+<P><DT><CODE><B>WORKAREA</B>={YES|NO}</CODE>
+<DD>Detta st„ller in mappen s† att den blir en arbetsyta. Standard „r <CODE>NO</CODE>.
+</DL>
+</BODY>
+</HTML>
+

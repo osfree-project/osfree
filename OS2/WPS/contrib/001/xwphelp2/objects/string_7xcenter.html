@@ -1,0 +1,138 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XCenter Setup Strings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<BODY>
+In addition to the setup strings supported by the
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+class, the XCenter class supports the following strings:
+
+<DL>
+<DT><P><CITE><B>3DBORDERWIDTH</B>=<I>value</I></CITE>
+<DD>Corresponds to the "3D border width" setting on an XCenter's "Style" page.
+The value must be in the range of 0 to 10.
+The default is "2".
+
+<DT><P><CITE><B>ALL3DBORDERS</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Draw all four 3D borders" setting on an XCenter's "Style" page.
+The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ALWAYSONTOP</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Always on top" setting on an XCenter's "View" page.
+The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ANIMATE</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Animate" setting on an XCenter's "View" page.
+The default is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>AUTOHIDE</B>=<I>milliseconds</I></CITE>
+<DD>Corresponds to the "Autohide" setting on an XCenter's "View" page.
+The value is the auto-hide delay in milliseconds; if it is 0, auto-hide is
+disabled.
+The default is "0" for disabling auto-hide.
+
+<DT><P><CITE><B>BORDERSPACING</B>=<I>value</I></CITE>
+<DD>Corresponds to the "Border spacing" setting on an XCenter's "Style" page.
+The value must be in the range of 0 to 10.
+The default is "2".
+
+<DT><P><CITE><B>CLIENTCOLOR</B>=<I>red green blue</I></CITE>
+<DD>Specifies the background color for the main XCenter window that is not
+covered by widgets.
+The default is <CODE>244 244 244</CODE> for "light gray".
+
+<DT><P><CITE><B>FLATBUTTONS</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Flat buttons" setting on an XCenter's "Style" page.
+The default is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>HIDEONCLICK</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Hide immediately on mouse click" setting on an XCenter's
+"View" page. This setting is only respected if the "Auto hide" setting is enabled.
+The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>NOHATCHOPENOBJ</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Hatch open objects" setting on an XCenter's "Style" page;
+note however that the value for this setup string is reverse to the checkbox
+state on that page.
+The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>POSITION</B>={TOP|BOTTOM}</CITE>
+<DD>Corresponds to the "Position" setting on an XCenter's "View" page.
+The default is <CODE>BOTTOM</CODE>.
+
+<DT><P><CITE><B>PRIORITYDELTA</B>=<I>delta</I></CITE>
+<DD>Corresponds to the "View thread priority" setting on an XCenter's "View" page.
+The value is the priority delta of the XCenter thread, which must be
+in the range of 0 to 31.
+The default is "0".
+
+<DT><P><CITE><B>REDUCEDESKTOP</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Reduce desktop workarea" setting on an XCenter's "View" page.
+The default is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>SIZINGBARS</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Draw sizing bars" setting on an XCenter's "Style" page.
+The default is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SPACINGLINES</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Draw spacing lines" setting on an XCenter's "Style" page.
+The default is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SUNKBORDERS</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Frame around statics" setting on an XCenter's "Style" page.
+The default is <CODE>NO</CODE>.
+
+<!-- V0.9.19: rewrote the WIDGETS definition -->
+<!-- V1.0.7: added CLEAR and RESET -->
+<DT><P><CITE><B>WIDGETS</B>=<I>widget</I>[,<I>widget</I>]...<BR><B>WIDGETS</B>={CLEAR|RESET}</CITE>
+<DD>A complete, comma-separated list of the
+<A HREF="xcenter/xc_main_widgets.html">widgets</A>
+forming the &xcenter;. Applying this setup string causes all existing widgets
+to be deleted.
+Each <CODE><I>widget</I></CODE> string must have the following format:
+<BR><CODE><I>classname</I>(<I>setup</I>)</CODE>
+<BR>where <CODE>classname</CODE> is the name of the widget class (as displayed
+on the "Classes" notebook page in the XCenter's properties notebook) and
+<CODE>(<I>setup</I>)</CODE> optionally specifies the setup sub-string of the
+widget. If there is no setup string, you must add an empty pair of brackets,
+e.g. "Pulse()". The setup sub-string is partially encoded so that it will not
+contain characters that are forbidden in WPS setup strings.
+
+<!-- V0.9.19: added this -->
+<P>If and only if <CODE>classname</CODE> is "Tray" for creating a
+<A HREF="xcenter/xc_tray.html">tray widget</A>, the setup string must have the
+following format: <CODE>Tray(<I>setup</I>){<I>trayname</I>[<I>widgetlist</I>]...}</CODE>
+(Note that the brackets are literal here.)
+
+<!-- V1.0.7: added CLEAR and RESET -->
+<P>If CLEAR is specified instead of a widget list, all existing widgets are deleted
+from the XCenter without creating any new ones.
+<BR>If RESET is specified, the XCenter is cleared of all existing widgets and the
+default widgets are created.
+
+<!-- V1.0.7: added -->
+<DT><P><CITE><B>ADDWIDGETS</B>=<I>widget</I>[,<I>widget</I>]...</CITE>
+<DD>A comma-separated list of the
+<A HREF="xcenter/xc_main_widgets.html">widgets</A>
+to add to the existing widgets on the &xcenter;.
+The format of the setup string is the same as for <CITE><B>WIDGETS</B></CITE>.
+
+<!-- V1.0.7: added -->
+<DT><P><CITE><B>DELETEWIDGETS</B>=<I>classname</I>[,<I>classname</I>]...</CITE>
+<DD>A comma-separated list of the widget classnames to remove
+from the &xcenter;.
+All widgets with the specified classnames are deleted.
+<BR>The <CODE>classname</CODE> is as described for <CITE><B>WIDGETS</B></CITE>.
+
+<DT><P><CITE><B>WIDGETSPACING</B>=<I>value</I></CITE>
+<DD>Corresponds to the "Widget spacing" setting on an XCenter's "Style" page.
+The value must be in the range of 1 to 10.
+The default is "2".
+
+</DL>
+</BODY>
+</HTML>
+

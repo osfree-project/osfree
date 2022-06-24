@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_SETTINGS_TRASHCAN_DRIVES;>
+<HEAD>
+    <TITLE>
+        Papierkorb: Laufwerkseinstellungen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+Auf dieser Seite l„át sich festlegen, welche Laufwerke vom Papierkorb untersttzt werden sollen.
+<!-- V0.9.16: See the <I>&xwp; User Guide</I> for an introduction to the Papierkorb
+functionality. -->
+ 
+<P>Drcken Sie <B>"Widerrufen"</B>, um die Einstellungen wiederherzustellen,
+die vor ™ffnen dieser Seite des Einstellungsnotizbuches verwendet wurden.
+<P>Drcken Sie <B>"Standard"</B>, um die Einstellungen auf den Installationsstand
+zurckzusetzen. Dadurch werden die Laufwerke erneut untersucht (siehe unteren Hinweis).
+ 
+<P>Ein Laufwerk wird vom Papierkorb <B>"untersttzt"</B>, wenn es im Listenfeld auf der rechten Seite
+erscheint. D.h., daá der Papierkorb Objekte, die sich auf diesem Laufwerk befinden, akzeptiert.
+ 
+<P>Ein Laufwerk wird vom Papierkorb <B>"nicht untersttzt"</B>, wenn es im Listenfeld auf der linken Seite
+erscheint. Der Papierkorb weigert sich dann, Objekte von diesem Laufwerk zu akzeptieren
+und erlaubt nur, diese endgltig zu l”schen (d.h. der Vorgang kann nicht rckg„ngig gemacht werden).
+ 
+<P>Auch wenn sie nicht auf dieser Seite auftauchen, werden die Laufwerke A: und B: niemals untersttzt.
+ 
+<!-- V0.9.13: added JFS -->
+<P>Der Papierkorb wurde intensiv mit den
+<!-- V0.9.19: added link -->
+<A HREF="glossary/gls_fs.html">Dateisystemen</A>
+FAT, HPFS und JFS getestet, die standardm„áig von &os2;
+untersttzt werden. Sie sollten bei der Nutzung des Papierkorbs mit anderen Dateisystemen
+von Drittanbietern sehr vorsichtig sein, besonders wenn diese Dateisysteme keine
+versteckten Verzeichnisse oder
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">erweiterten Attribute</A> untersttzen.
+Groáe Vorsicht ist bei den Dateisystemen EXT2FS (Linux)
+und VFAT (Windows 95) vonn”ten, falls Sie fr diese Treiber installiert haben.
+ 
+<!-- V0.9.19: removed this
+See "File systems"</A> for introductory information about file systems. -->
+ 
+<P><B>Hinweis:</B> Mit dem Treiber <CODE>VFAT.IFS</CODE>
+von Daniel Steiner sind Probleme aufgetreten, weil dieser Treiber versteckte Verzeichnisse
+anscheinend nicht sehr gut untersttzt. Sie sollten die Untersttzung fr solche Laufwerke
+deaktivieren.
+<!-- end V0.9.19 -->
+ 
+<P>Um die Untersttzung des Papierkorbs fr ein Laufwerk <B>zu „ndern</B>, w„hlen Sie es in
+dem Listenfeld auf der linken oder rechten Seite aus und bet„tigen Sie die Schaltfl„che
+"Hinzufgen" oder "Entfernen".
+ 
+<P><B>Hinweis:</B> Falls sich die Laufwerksbuchstaben seit der ersten Installation des Papierkorbs
+ge„ndert haben, gibt diese Seite die neue Situation nicht automatisch wieder. Um alle Laufwerke
+erneut zu berprfen, drcken Sie die Schaltfl„che "Standard" und rekonfigurieren Sie die
+Laufwerksuntersttzung.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

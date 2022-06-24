@@ -1,0 +1,39 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_STARTUP;>
+<HEAD>
+    <TITLE>
+        &xwp;: Systemstart
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+ 
+<BODY>
+Diese Seite erm”glicht es, Einstellungen fr den Systemstart vorzunehmen.
+Alle Einstellungen werden erst nach einem Neustart der Arbeitsoberfl„che aktiv.
+ 
+<IFNDEF __NOXWPSTARTUP__>
+<P>Beachten Sie, daá der &xwp;-Systemstartordner, sobald er erstellt worden ist, eine eigene
+Seite im Einstellungsnotizbuch besitzt, auf der sein Verhalten angepaát werden kann (siehe unten).
+ 
+</IFNDEF>
+<!-- V0.9.4: removed all the following and replaced it with these links -->
+<P>Ausfhrliche Erl„uterungen jedes Feldes erhalten Sie durch Auswahl aus nachstehender Liste:
+ 
+<UL>
+<!-- V0.9.16: added ifdefs, reordered links -->
+<IFNDEF __NOBOOTLOGO__>
+<LI><A HREF="fsys/dtp0_1bootlogo.html">Workplace-Shell-Bootlogo</A>
+</IFNDEF>
+<!-- V0.9.19: changed log file name -->
+<LI><A HREF="fsys/dtp0_20startuplog.html">Datei WPSTART.LOG schreiben</A>
+<IFNDEF __NOBOOTUPSTATUS__>
+<LI><A HREF="fsys/dtp0_2classinit.html">Initialisierung der WPS-Klassen anzeigen</A>
+</IFNDEF>
+<LI><A HREF="fsys/dtp0_4numlock.html">NumLock beim Start aktivieren</A>
+<IFNDEF __NOXWPSTARTUP__>
+<LI><A HREF="fsys/dtp0_3createxfstup.html">&xwp;-Systemstartordner erstellen</A>
+</IFNDEF>
+ 
+</UL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XCenter Instellingen Teksten
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<BODY>
+Ter aanvulling op de instellingen teksten die door de
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+class ondersteund worden, ondersteund de XCenter class de volgende teksten:
+
+<DL>
+<DT><P><CITE><B>3DBORDERWIDTH</B>=<I>waarde</I></CITE>
+<DD>Komt overeen met de "3D rand breedte" instellingen op een XCenter "Stijl" pagina.
+De waarde moet liggen tussen 0 en 10.
+De standaard waarde is "2".
+
+<DT><P><CITE><B>ALL3DBORDERS</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Teken alle vier 3D randen" instelling op een XCenter "Stijl" pagina.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ALWAYSONTOP</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Altijd op voorgrond" instelling op een XCenter "Beeld" pagina.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ANIMATE</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Animatie" instelling op een XCenter "Beeld" pagina.
+De standaard waarde is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>AUTOHIDE</B>=<I>milliseconden</I></CITE>
+<DD>Komt overeen met de "Automatisch verbergen" instelling op een XCenter "Beeld" pagina.
+De waarde is de automatisch verbergen vertraging in milliseconden; bij 0 is automatisch verbergen
+uitgeschakeld.
+De standaard waarde is "0" om automatisch verbergen uit te schakelen.
+
+<DT><P><CITE><B>BORDERSPACING</B>=<I>waarde</I></CITE>
+<DD>Komt overeen met de "Rand scheiding" instelling op een XCenter "Stijl" pagina.
+De waarde moet liggen tussen 0 en 10.
+De standaard waarde is "2".
+
+<DT><P><CITE><B>CLIENTCOLOR</B>=<I>rood groen blauw</I></CITE>
+<DD>Specificeert de achtergrondkleur van het hoofd XCenter venster dat niet bedekt wordt
+door widgets.
+De standaard waarde is <CODE>244 244 244</CODE> voor "licht grijs".
+
+<DT><P><CITE><B>FLATBUTTONS</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Platte knoppen" instelling op een XCenter "Stijl" pagina.
+De standaard waarde is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>HIDEONCLICK</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Verberg onmiddellijk op muis klik" instelling op een XCenter
+"Beeld" pagina. Deze instelling wordt alleen gebruikt als de "Auto verberg" instelling actief is.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>NOHATCHOPENOBJ</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Markeer open objecten" instelling op een XCenter "Stijl" pagina;
+let er echter op dat de waarde van deze instelling tegengesteld is aan de staat van het keuzeblok
+op die pagina.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>POSITION</B>={TOP|BOTTOM}</CITE>
+<DD>Komt overeen met de "XCenter positie" instelling op een XCenter "Beeld" pagina.
+De standaard waarde is <CODE>BOTTOM</CODE>.
+
+<DT><P><CITE><B>PRIORITYDELTA</B>=<I>verschil</I></CITE>
+<DD>Komt overeen met de "Bekijk thread prioriteit" instelling op een XCenter "Beeld" pagina.
+De waarde is het prioriteitsverschil van een XCenter thread, die moet liggen tussen
+de 0 en 31.
+De standaard waarde is "0".
+
+<DT><P><CITE><B>REDUCEDESKTOP</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Verklein Werkplek werkgebied" instelling op een XCenter "Beeld" pagina.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>SIZINGBARS</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Teken schuifbalken" instelling op een XCenter "Stijl" pagina.
+De standaard waarde is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SPACINGLINES</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Teken spatie regels" instelling op een XCenter "Stijl" pagina.
+De standaard waarde is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SUNKBORDERS</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Rand rondom statische elementen" instelling op een XCenter "Stijl" pagina.
+De standaard waarde is <CODE>NO</CODE>.
+
+<!-- V0.9.19: rewrote the WIDGETS definition -->
+<DT><P><CITE><B>WIDGETS</B>=<I>widget</I>[,<I>widget</I>]...</CITE>
+<DD>Een volledige komma gescheiden lijst van de
+<A HREF="xcenter/xc_main_widgets.html">widgets</A>
+die aan het &xcenter; zijn toegevoegd.
+Elke <CODE><I>widget</I></CODE> tekst moet het volgende formaat hebben:
+<BR><CODE><I>class naam</I>(<I>instelling</I>)</CODE>
+<BR>waar <CODE>class naam</CODE> de naam van de widget class is (zoals getoond
+op de "Classes" notitieblok pagina in de XCenter instellingen notitieblok) en
+<CODE>(<I>instelling</I>)</CODE> specificeert optioneel de instelling subtekst van de
+widget. Als er geen instellingen tekst is, dient u een leeg setje haakjes in te voeren,
+b.v. "Pulse()". De instelling subtekst wordt gedeeltelijk gecodeerd zodat het geen
+karakters bevat die niet toegestaan zijn in de WPS instellingen teksten.
+
+<!-- V0.9.19: added this -->
+<P>Als en alleen als <CODE>class naam</CODE> een "Lade" is voor het aanmaken van een
+<A HREF="xcenter/xc_tray.html">lade widget</A>, dan dient de instellingen tekst het volgende
+formaat te hebben: <CODE>Lade(<I>instelling</I>){<I>lade naam</I>[<I>widgetlijst</I>]...}</CODE>
+(Let er op dat de haakjes hier letterlijk zijn.)
+
+<DT><P><CITE><B>WIDGETSPACING</B>=<I>waarde</I></CITE>
+<DD>Komt overeen met de "Widget scheiding" instelling op een XCenter "Stijl" pagina.
+De waarde moet liggen tussen de 1 en 10.
+De standaard waarde is "2".
+
+</DL>
+</BODY>
+</HTML>
+

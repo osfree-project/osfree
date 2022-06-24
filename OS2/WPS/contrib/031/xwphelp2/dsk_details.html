@@ -1,0 +1,81 @@
+<HTML RESID=&ID_XSH_SETTINGS_DISKDETAILS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Schijf Gegevens
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+De "Gegevens" pagina in de schijf instellingen notitieblokken toont extra
+bestandssysteem informatie van een schijf object.
+<IFNDEF __NOXWPSETUP__>
+&xwp; vervangt de "Gegevens" pagina in de schijf instellingen notitieblokken met een
+nieuwe, uitgebreide pagina. Om de originele "Gegevens" pagina te zien , moeten de respectievelijke
+instelling in
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Instellingen" object</A>
+ongedaan worden gemaakt.
+</IFNDEF>
+<P>Behalve voor het "Stations label" veld, kan de informatie op deze pagina
+niet worden gewijzigd.
+
+<OL><LI>De <B>"Stations gegevens"</B> geeft u de volgende informatie:
+
+<BR><OL><LI><B>Stations label:</B> Dit is de stations label op bestandssysteem niveau
+die u kunt hebben opgegeven op de &os2; opdrachtregel d.m.v. de <CODE>LABEL</CODE>
+opdracht.
+&xwp; geeft u nu de mogelijkheid om het stations label te wijzigen via de notitieblok pagina,
+zonder de opdrachtregel te gebruiken. Dit kan handig zijn omdat veel "Bestand open"
+dialogen de stations labels laten zien, omdat zij geen toegang hebben tot de naam van het
+WPS schijf object.
+<P>
+De stations aanduiding kan slechts 11 karakters bevatten en wordt altijd omgezet in hoofdletters.
+
+<P><LI><B>Bestandssysteem:</B> het type bestandssysteem op de schijf. Dit is waarschijnlijk
+"FAT", "HPFS", "JFS", of "CDFS" (voor CD-ROM stations). Andere bestandssystemen zijn mogelijk,
+indien u extra Installeerbare Bestandssystemen (IFS's) hebt ge‹nstalleerd.
+
+<P>Kijk in  <A HREF="glossary/gls_fs.html">"Bestandssystemen"</A> voor een introductie op
+bestandssystemen.
+
+<P><LI><B>Blok grootte:</B> dit toont u de grootte van de minimum toe te wijzen eenheid op de schijf.
+Dat is, als een bestand met de lengte van 1 byte wordt gemaakt, het geringste aantal bytes dat op de
+schijf wordt gealloceerd.
+
+<P>Voor <B>HPFS volumes,</B> is dit aantal altijd 512.
+
+<P>Voor <B>JFS volumes</B> is dit aantal afhankelijk van wat er bij het formatteren
+van het volume was opgegeven. JFS kent blok afmetingen van 512, 1024, 2048 en 4096,
+waarbij 4096 standaard is.
+
+<P>Voor <B>FAT volumes</B> hangt de blok grootte af van de grootte van de schijf. Omdat de
+'File Allocation Tables' maar een beperkt aantal blokken kunnen omvatten, moeten voor grotere
+schijven meer bytes worden gebruikt voor ieder blok. Dit heeft tot resultaat, hoe groter
+de FAT volumes zijn, des te meer bytes worden verspild t.g.v. het groter worden
+van de blok grootte.
+
+<PRE>
+Stations grootte:   Blok grootte:
+
+&lt;   16 MB          4 KB
+&lt;   32 MB          2 KB
+&lt;   64 MB          2 KB
+&lt;  128 MB          2 KB
+&lt;  256 MB          4 KB
+&lt;  512 MB          8 KB
+&lt; 1024 MB         16 KB
+&lt; 2048 MB         32 KB
+</PRE>
+</OL><LI>De <B>"Toewijzing"</B> groep toont u informatie over het schijf gebruik.
+Totale grootte, toe gewezen en vrije ruimte worden in bytes en blokken getoond, waarbij
+de "Bytes" informatie gelijk is aan het aantal "Blokken" vermenigvuldigd met de er bovenstaande
+"Blok grootte".
+
+<P>
+Als extra, krijgt u een cirkel diagram te zien dat u de vrije ruimte op de schijf (in het groen)
+toont.
+
+</OL>
+<BR>
+</BODY>
+</HTML>
+

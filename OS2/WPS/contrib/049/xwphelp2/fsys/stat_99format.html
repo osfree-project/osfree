@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statuszeilen: Zeichen zur Formatangabe
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13 -->
+<BODY>
+Mehrere Statuszeilen-Codes, die Byte-Betr„ge anzeigen, erfordern ein
+zus„tzliches Zeichen zur Formatangabe nach den ersten beiden Code-Zeichen.
+Beim <CODE>$sX</CODE>-Code beispielsweise
+(fr die <A HREF="fsys/stat_4common.html">Gesamtgr”áe der ausgew„hlten Objekte</A>)
+gibt <CODE>X</CODE> das Format an und muá eines der folgenden Zeichen sein:
+ 
+<UL><LI><CODE>b</CODE>: zeigt den Betrag in Bytes an.
+<LI><CODE>k</CODE>: zeigt den Betrag in kBytes an, d.h. bytes / 1000
+<LI><CODE>K</CODE>: zeigt den Betrag in KBytes an, d.h. bytes / 1024
+<LI><CODE>m</CODE>: zeigt den Betrag in mBytes an, d.h. bytes / 1.000.000
+<LI><CODE>M</CODE>: zeigt den Betrag in MBytes an, d.h. bytes / 1.048.576
+<LI><CODE>a</CODE>: zeigt den Betrag in Bytes/kBytes/mBytes an, abh„ngig von
+der H”he des Betrags
+<LI><CODE>A</CODE>: zeigt den Betrag in Bytes/KBytes/MBytes an, abh„ngig von
+der H”he des Betrags
+</UL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Regular Expressions BNF Definition
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19 -->
+<BODY>
+
+Fundamental definitions :-
+
+<PRE>
+  &lt;ch&gt;      ::= any typable character
+  &lt;digit&gt;   ::= any digit from '0' to '9'
+  &lt;digits&gt;  ::= &lt;digit&gt; { &lt;digit&gt; }
+  &lt;digit19&gt; ::= any digit from '1' to '9'
+  &lt;hext&gt;    ::= any digit or letter from 'a' to 'f' or 'A' to 'F'
+</PRE>
+
+<P>Basic character definitions :-
+
+<PRE>
+  &lt;c&gt; ::= '\n'                    newline
+        | '\t'                    tab
+        | '\r'                    carriage return
+        | '\b'                    backspace
+        | '\f'                    formfeed
+        | '\e'                    escape
+        | '\x' &lt;hex&gt; ( &lt;hex&gt; )    specify character in hex, one or two hex digits
+        | '\' &lt;ch&gt;                other character, escaping any special meaning
+        | &lt;ch&gt;                    normal character
+</PRE>
+
+<P>Bracket element (something which goes in a bracket expression) :-
+
+<PRE>
+  &lt;be&gt; ::= &lt;c&gt;                    a character
+         | &lt;c&gt; '-' &lt;c&gt;            a range of characters
+         | '[:alnum:]'            POSIX alphanumeric characters
+         | '[:alpha:]'            POSIX alphabetic characters
+         | '[:blank:]'            POSIX space and tab characters
+         | '[:cntrl:]'            POSIX control characters
+         | '[:digit:]'            POSIX numeric characters
+         | '[:graph:]'            POSIX printable and visible (non-space) chars
+         | '[:lower:]'            POSIX lowercase characters
+         | '[:print:]'            POSIX alphanumeric characters
+         | '[:punct:]'            POSIX punctuation characters
+         | '[:space:]'            POSIX whitespace characters
+         | '[:upper:]'            POSIX uppercase characters
+         | '[:xdigit:]'           POSIX hexadecimal digits
+
+         | '[.' ??? '.]'          POSIX collating symbols and
+         | '[=' ??? '=]'          POSIX equivelence classes
+                                  ARE NOT SUPPORTED
+</PRE>
+
+<P>Bracket expression :-
+
+<PRE>
+  &lt;bx&gt; ::= [ '^' ] { &lt;be&gt; }       defines a set of acceptable characters
+                                  or a set of non-acceptable (if '^' present)
+</PRE>
+
+<P>Extended Regular Expression :-
+
+<PRE>
+  &lt;re&gt; ::=                        empty regular expression
+         | &lt;c&gt;                    character
+         | '~' &lt;c&gt;                not specified character
+                                  shorthand for '[^' &lt;c&gt; ']'
+         | '\w'                   matches any 'word consituent' character
+                                  shorthand for '[[:alnum:]_]'
+         | '\W'                   matches any non 'word consituent' character
+                                  shorthand for '[^[:alnum:]_]'
+         | '.'                    matches any character (but not end of line)
+         | '[' &lt;bx&gt; ']'           matches characters in the bracket expression
+         | '^'                    matches empty string at the start of the 'line'
+         | '$'                    matches empty string at the end of the 'line'
+         | '\`'                   synonym for '^'
+         | '\''                   synonym for '$'
+         | '\&lt;'                   matches empty string at the start of a 'word'
+         | '\&gt;'                   matches empty string at the end of a 'word'
+         | '\B'                   matches empty string within 'word'
+         | '\y'                   matches empty string at start or end of 'word'
+                                  shorthand for '(\&lt;|\&gt;)'
+                                  note: not '\b', as this clashes with backspace
+         | &lt;re&gt; &lt;re&gt;              2 &lt;re&gt;'s concatenated form a &lt;re&gt;
+         | '(' &lt;re&gt; ')'           nested regular expression
+         | '\' &lt;digit19&gt;          backreference to nested regular expression
+         | &lt;re&gt; '?'               zero or one occurrance of &lt;re&gt;
+         | &lt;re&gt; '+'               one or more occurrances of &lt;re&gt;
+         | &lt;re&gt; '*'               zero or more occurrances of &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; '}'  matches M occurances of &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',}' matches at least M occurances of &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',' &lt;digits&gt; '}'
+                                  matches between M and N occurances of &lt;re&gt;
+         | &lt;re&gt; '|' &lt;re&gt;          matches one &lt;re&gt; or the other
+</PRE>
+<BR>
+</BODY>
+</HTML>
+

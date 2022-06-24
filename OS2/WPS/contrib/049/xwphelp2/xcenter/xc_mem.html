@@ -1,0 +1,64 @@
+<HTML RESID=&ID_XSH_WIDGET_MEMORY_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Speicher-Widget
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Das
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>-Widget
+"Freier Speicher" zeigt an, wieviel physischer Hauptspeicher noch
+ungef„hr zur Benutzung fr Programme frei ist. Dies wird in Kilobytes (KB)
+dargestellt und einmal pro Sekunde aktualisiert.
+ 
+<!-- V0.9.19: added img -->
+<BR><IMG SRC="img/xc_mem.gif">
+ 
+<BR>Der Wert, der hier angezeigt wird, ist kleiner als die Speichermenge, die
+Applikationen tats„chlich noch nutzen k”nnen. Wenn also dieser Wert gegen Null
+geht, bedeutet das nicht, daá Applikationen keinen Speicher mehr reservieren
+k”nnen. Statt dessen zeigt dieses Widget an, wieviel physischer Speicher noch
+reserviert werden kann, bevor das System anfangen muá, andere Daten auszulagern,
+um Platz fr neue Speicheranforderungen zu machen. Wenn also diese Speichermenge
+zu klein wird, heiát das nur, daá die Auslagerungsdatei wahrscheinlich
+vergr”áert werden wird.
+ 
+<!-- V0.9.19: changed the following -->
+<P>Beachten Sie, daá Sie an dieses Widget
+<A HREF="glossary/gls_dropfonts.html">Schriftarten und Farben ziehen und bergeben</A>
+k”nnen.
+ 
+<IFNDEF __NOOS2KERNEL__>
+<P>Mit einem Doppelklick auf das Widget l„át sich das Objekt
+<A HREF="objects/obj_krnl.html">"&os2;-Kernel"</A> schnell ”ffnen, mit dem
+sich u.a. die Systemeinstellungen zum Speicher ver„ndern lassen.
+</IFNDEF>
+ 
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+<P><B>Feinheiten der Implementation</B>
+ 
+<P>Intern benutzt dieses Widget das <CODE>Dos16MemAvail</CODE>-API, ein altes
+16-Bit-API, die nicht mehr von IBM dokumentiert ist.
+ 
+<P>Die Dokumentation von OS/2 1.3 erkl„rt, daá dieses API "die Gr”áe des gr”áten
+freien Speicherblocks" liefert. Das ist offensichtlich nicht mehr aktuell, da
+alle 32-Bit-OS/2-Versionen (seit 2.0) den Speicher nicht mehr in Bl”cken
+reservieren, sondern statt dessen in 4 KB groáen "Seiten".
+ 
+<P>Nach meiner Erfahrung liefert dieses API nun tats„chlich die Menge an freiem
+physischem Speicher des Systems, d.h. die Menge an RAM, die momentan nicht
+von OS/2 benutzt wird, weil sie entweder nie benutzt worden ist, ausgelagert
+wurde oder von einem Prozeá wieder freigegeben worden ist. (Nach meinen Tests
+liefert dieses API dieselben Werte wie Theseus, wenn es um freien physischen
+Speicher geht.) Dieser freie Speicher kann sofort von Applikationen benutzt
+werden, ohne daá &os2; dafr durch Auslagern von anderen Speicherseiten erst
+noch Platz schaffen muá.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+ 

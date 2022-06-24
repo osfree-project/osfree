@@ -1,0 +1,115 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The "config.in" File
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This section describes the build environment which is used by the
+makefiles.
+
+<P>Before V0.9.12, these variables had to be set externally before
+building. This has been changed; the environment is now set exclusively
+through the <CODE>config.in</CODE> file in the main XWorkplace directory.
+
+<P>If these values not set correctly, you'll get errors from the makefiles
+(certain checks are built into those), or compilation or linking will fail.
+
+<OL><LI><CODE>CVS_WORK_ROOT</CODE> must point to the root of your CVS
+working directories. The XWorkplace makefiles now (V0.9.6) assume that all
+your projects (most importantly, XWorkplace and XWPHelpers)
+are located in subdirectories of a single directory.
+(This is useful for working with CVS in the first place, so this shouldn't
+be much of a requirement.)
+
+<P>This variable must point to the parent directory of <CODE>xworkplace</CODE>
+and <CODE>xwphelpers</CODE>. The makefiles will set
+a number of other environment variables based on that variable to locate
+the XWorkplace and XWPhelpers source tree bases.
+
+<P>Example: <CODE>SET CVS_WORK_ROOT=K:\cvs</CODE>
+
+<P><LI><CODE>TKBASE</CODE> and <CODE>VACBASE</CODE> are new with V0.9.12
+and must point to the base directories of your Toolkit and VisualAge C++
+installations, respectively. Specify the parent directories of <CODE>h</CODE>
+and <CODE>include</CODE>. This is because the build process no longer
+relies on your <CODE>INCLUDE</CODE> environment variable, but specifies
+everything on the compiler and linker command lines.
+
+<P><LI><CODE>XWPRUNNING</CODE> must point to an existing XFolder/XWorkplace
+installation. Since the makefiles first create all the files in <CODE>bin\</CODE>,
+this is not suitable for testing your code, because XWorkplace expects a lot
+of files at fixed locations relative to the directory where <CODE>XFLDR.DLL</CODE>
+resides. Most makefiles will copy the target files to the directory pointed to
+by this environment variable (after unlocking executables), so after rebuilding,
+you can simply restart the WPS, and your new code will be running in the WPS.
+
+<P>Do one of the following:
+
+<UL><LI>Install the latest XWorkplace binary WarpIN archive.
+Set <CODE>XWPRUNNING</CODE> to the same directory which you
+specified as the target path to WarpIN.
+
+<LI>Alternatively, copy the entire "release" subtree to
+some new location and specify that location with
+<CODE>XWPRUNNING</CODE> to start.
+
+<P>This must point to the parent directory of <CODE>bin\</CODE>, <CODE>help\</CODE> etc.
+in the XFolder/XWorkplace installation tree.
+
+<P>Example: <CODE>SET XWPRUNNING=J:\Tools\XWorkplace</CODE>
+</UL>
+
+<P><LI>If <CODE>XWP_DEBUG</CODE> is defined (to anything), XWorkplace will
+be compiled and linked with debug code enabled.
+
+<P>This will have quite a
+number of consequences since this will pass the <CODE>__DEBUG__</CODE>
+define to the compiler, to which many code parts react.
+For example, only if that flag is defined, PmPrintf calls will be compiled.
+See <A HREF="src1_880debug.html">"Debugging XWorkplace"</A> for details.
+
+<P><B>IMPORTANT NOTE:</B> If you compile the debug version,
+<B>you must have the PMPRINTF DLLs somewhere on your
+LIBPATH,</B> or otherwise you'll spend days figuring out why XWorkplace is
+simply not working any more.
+(I had this once after a reinstall
+of OS/2, after which the DLLs where gone.) That is, XWorkplace classes
+will not load at Desktop startup, because the PMPRINTF DLL imports cannot be
+resolved. Neither will registering XWorkplace classes succeed. And don't
+expect to get an error message other than <CODE>FALSE</CODE>.
+
+<P>By contrast, if <CODE>XWP_DEBUG</CODE> is not defined, release code is
+produced.
+
+<P><LI><B>Replacing in-use files.</B> You can rebuild XWorkplace even while the WPS is up
+and XWorkplace is installed. The makefiles will automatically unlock DLLs which
+are currently in use (DosReplaceModule).
+After the rebuild, restart the WPS to make it use the newly
+built DLLs. To do this, simply set <CODE>XWP_UNLOCK_MODULES=YES</CODE>.
+
+<P><B>Note:</B> This environment variable has was with V0.9.3 because with
+Warp 4 FP13, unlocking WPS modules hung the WPS after the next Desktop restart.
+This problem has been fixed with FP15, so there is really no reason to not
+have this variable set to <CODE>YES</CODE> any more.
+
+<P>The exception to this are <CODE>XWPDAEMN.EXE</CODE> and <CODE>XWPHOOK.DLL</CODE>,
+which are <I>never</I> unlocked. This is intentional.
+Unlocking an executable which has registered a system hook
+(which becomes part of every PM process on the system)
+will never release the hook DLL again, so you'd have to
+reboot to use the new DLL.
+
+<P>Warning: If you don't restart the daemon before restarting the WPS, the XWorkplace
+startup folder will get processed again after the Desktop restart.
+To start <CODE>XWPDAEMN.EXE</CODE> explicitly, give it the "-D" option, or it
+will only tell you to get lost.
+
+<P>So if you get an error during the build process which says "XWPDAEMN.EXE is in use",
+kill <CODE>XWPDAEMN.EXE</CODE> using some process killer, which will properly
+unload the hooks, and try building again.
+
+</OL>
+</BODY>
+</HTML>

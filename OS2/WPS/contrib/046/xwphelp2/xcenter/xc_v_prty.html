@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xcenter;: Visa Sida
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<!-- rewritten with V0.9.19 -->
+<BODY>
+<B>"Visa tr†dprioritet"</B> till†ter dig att specificera prioritetsdelta
+hos en tr†d som startas n„r &xcenter; ”ppnas.
+Se <A HREF="glossary/gls_scheduler.html">"Processer och tr†dar"</A> f”r
+mer information om tr†dprioritet.
+
+<P>&xcenter; k”rs inte p† samma tr†d som de flesta andra WPS f”nster -- vilket
+normalt „r tr†d 1 i WPS processen. Ist„llet, n„r ett &xcenter; ”ppnas, skapas
+en ny tr†d. Detta till†ter dig att st„lla in prioriteten f”r &xcenter; 
+oberoende fr†n resten av WPS.
+
+<P>Som standard, k”rs &xcenter; med ett prioritetsdelta p† noll, vilket
+„r standard prioritetsdelta (och samma som alla andra WPS f”nster).
+Emellertid, kan du h”ja det deltat upp till 31 (vilket „r maximalt prioritetsdelta 
+hos &os2;) f”r att ge &xcenter; f”retr„de ”ver andra uppgifter p† systemet.
+Bland annat, kan det g”ra att animeringarna k”rs mera smidigt.
+
+<P>Notera:
+
+<UL><LI>&xcenter; kommer alltid att anv„nda "regulj„r" prioritetsklass f”r att
+undvika systemh„ngningar och sidoeffekter med andra programvaror. Endast
+inom den klassen kan du alternera prioritetsdelta mellan noll och 31. (Med
+andra ord, &xcenter; till†ter dig inte att anv„nda en tids-kritisk
+eller f”rgrunds serverprioritet.)
+
+<P><LI>Vissa <A HREF="xcenter/xc_main_widgets.html">widgets</A> kan anv„nda
+ytterligare tr†dar f”r egna „ndam†l, vilka inte p†verkas av den h„r inst„llningen.
+Till exempel, <A HREF="xcenter/xc_pulse.html">Puls widget</A> startar en andra tr†d
+f”r att samla in CPU lasten fr†n &os2;'s k„rna f”r att f”rs„kra sig om att data „r 
+riktigt „ven under h”ga systemlaster.
+
+<P><LI>Om en process blockerar systemet, till exempel genom att inte processa sin
+meddelandek”, har den h„r inst„llningen mycket liten p†verkan p† det problemet.
+
+</UL>
+</BODY>
+</HTML>
+

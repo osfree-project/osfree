@@ -1,0 +1,46 @@
+<HTML RESID=&ID_XFH_REGISTERCLASS;>
+<HEAD>
+    <TITLE>
+        Neue Klasse registrieren
+    </TITLE>
+</HEAD>
+<BODY>
+Dieser Dialog erm”glicht es, eine neue  
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS-Klasse</A> zu registrieren.
+ 
+Sie k”nnen ihn nur benutzen, wenn Sie sowohl den Namen der
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamischen Linkbibliothek (dynamic link library, DLL)</A>,
+welche die Klasse enth„lt,
+als auch den genauen Namen der Klasse kennen. &xwp; kann Ihnen dabei nicht helfen.
+ 
+<P>Im Feld <B>"DLL"</B> geben Sie die Dynamic Link Library an, welche die Klasse enth„lt.
+Befindet sich die DLL im
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>,
+so brauchen Sie den vollst„ndigen
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+nicht anzugeben. Sie k”nnen dennoch auf "Suchen..." klicken, um eine DLL mit
+vollst„ndigem Pfad zu finden.
+ 
+<P>Im Feld <B>"Klasse"</B> geben Sie den genauen Namen der Klasse ein, wie er registriert
+werden soll. Beachten Sie, daá - im Gegensatz zu Dateinamen - bei Klassennamen nach 
+Groá-/Kleinschreibung unterschieden wird. Schreiben Sie den Namen falsch oder 
+verwechseln Groá- und Kleinschreibung, wird die Registrierung der Klasse fehlschlagen.
+ 
+<P>Die <B>OK</B>-Schaltfl„che ist solange deaktiviert, bis Sie in beiden Feldern etwas
+eingegeben haben. Es wird keine Fehlerberprfung durchgefhrt. Durch Drcken von OK
+wird versucht, die Klasse unter Verwendung der
+<!-- V0.9.20: changed this -->
+<A HREF="pmref.inf#WinRegisterClass"><CODE>WinRegisterClass</CODE></A>-API<A HREF="_toolkitlink.html">*</A> 
+zu registrieren.
+ 
+<P>Beachten Sie, daá die neue Klasse in den meisten F„llen sofort benutzt werden kann, ohne
+die WPS neuzustarten.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

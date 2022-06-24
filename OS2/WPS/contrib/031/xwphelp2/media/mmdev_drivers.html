@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Apparaten
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+De "Stuurprogramma's" kolom laat u gedetailleerde gegevens zien over de stuurprogramma's die
+het apparaat implementeren.
+
+<P>Afhankelijk van het type apparaat, kan de volgende informatie getoond worden:
+
+<UL><LI><B>Media control driver:</B> De MCB is verantwoordelijk voor het interpreteren
+van multimedia opdrachten die vanuit een applicatie naar een apparaat verstuurd worden. Het is
+aan de MCD om verdere actie te ondernemen afhankelijk van de opdracht die verstuurd was.
+De naam die hier getoond wordt zal overeenkomen met een
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+in de MMOS2 directory.
+
+<P><LI><B>Vendor-specific driver:</B> Als dat ge‹nstalleerd is, wordt de VSD meestal aangeroepen
+vanuit de MCD voor het implementeren van functies voor bepaalde apparatuur. Deze architectuur biedt
+MMPM/2 de mogelijkheid om de MCD's behoorlijk algemeen te houden, terwijl de apparatuur-specifieke
+code meestal in de VSD zit.
+
+<P>Bijvoorbeeld, de "waveaudio" apparaten zijn meestal ge‹mplementeerd door een algemene
+MCD, terwijl het echte werk op de geluidskaart gedaan wordt in een VSD (die op zijn beurt
+zal communiceren met een stuurprogramma).
+
+<P><LI><B>Physical device driver:</B> De PDD is verantwoordelijk voor het echte werken op
+de apparatuur. Aangezien dit gedaan moet worden in ring 0, helemaal als er interrupts afgehandeld
+moeten worden, is deze laag noodzakelijk.
+
+<P>Niet alle apparaten hebben een PDD nodig. Dit is typisch het geval voor geluidskaarten, die
+interrupts en DMA moeten afhandelen.
+
+<P><LI><B>Parameters:</B> dit zijn aanvullende parameters voor het
+<CODE>MMPM2.INI</CODE> bestand in uw MMOS2 directory die opgegeven zijn voor het apparaat.
+Dit is apparaat specifiek, maar lijkt gerelateerd te zijn aan wat opgegeven is voor een apparaat in
+het "Multimedia Instellingen" object.
+
+</UL>
+</BODY>
+</HTML>
+

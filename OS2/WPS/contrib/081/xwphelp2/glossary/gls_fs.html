@@ -1,0 +1,153 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: File Systems
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+A "file system" is a convention for the format in which
+<!-- V0.9.19: link added -->
+&link_folders;
+and
+<!-- V0.9.19: link added -->
+&link_datafiles;
+are stored on physical media.
+
+<P>With hard disks, each volume can have a different file system.
+The file system is determined when the volume is formatted. It can
+normally not be changed afterwards without reformatting the volume.
+
+<P>With today's operating systems, there are many different file systems
+available, each with its own unique weaknesses and strengths.
+&os2; understands the following file systems:
+
+<OL><LI>Historically, the <B>FAT</B> file system (for "File Allocation Table")
+is the oldest file system that was used on Personal Computers. It was
+introduced with the earliest MS-DOS versions and is neither powerful,
+nor fast, nor flexible, nor efficient. Its file names are limited to 8+3
+characters and with large volume sizes, due to the internal management
+of space allocation, lots of space is wasted. Even worse, FAT volumes
+become fragmented very easily.
+
+<P>Today the only remaining advantage of FAT is that
+it is understood by nearly all operating systems, so if you have several
+operating systems installed, you may use a FAT volume for exchanging data.
+If you care for speed though, you should not place heavily-used data
+on FAT volumes.
+
+<P>With &os2;, FAT support is built directly into the &os2; kernel. No IFS
+setting is required in &cfgsys;.
+
+<!-- V0.9.20: rewrote this paragraph -->
+<P>With Windows 95, Microsoft has extended the FAT file system to allow for
+storing long file names, even though this did not solve the other limitations
+of FAT. With &os2;, you will see the 8+3 file names only.
+
+<!-- V0.9.20: and added this -->
+<P>In addition, with Windows 98, Microsoft has added a new file system
+called "FAT32". Despite its name, this is not compatible with FAT at all.
+There are third-party solutions that allow &os2; to see FAT32 volumes as
+well via an IFS driver added to the &cfgsys; file.
+
+<P><LI><B>HPFS,</B> by contrast, stands for "High Performance File System".
+This is the unique file system that was developed specifically for &os2;.
+It has lots of advantages over FAT.
+Its file names can be up to 254 characters in length, it supports
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attributes</A>
+natively, it is a lot faster (hence the name), it doesn't
+waste as much space, and it is very resistant to fragmentation.
+
+<P>Compared to even more modern file systems though, HPFS has its
+limitations too. Most importantly, standard HPFS can only handle a
+<A HREF="glossary/gls_caches.html">cache size</A> of 2 MB. Considering
+the memory that is built into today's computers, this isn't much at all.
+
+<P>For HPFS support, the
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#hpfs.ifs"><CODE>HPFS.IFS</CODE></A> driver must be loaded
+through an IFS statement in the &cfgsys; file.
+
+<P><LI><B>HPFS386,</B> a highly optimized version of HPFS, does not have
+that cache size limitation. In addition, it is optimized for server tasks.
+It can transfer data directly from the file-system driver to network
+drivers without having to go through a ring 3 transition. It also
+supports local security, quotas, and limited software fault tolerance
+support.
+
+<P>However, this file system is only available at extra cost.
+If installed, HPFS386 replaces the standard HPFS. It is loaded
+through the <CODE>HPFS386.IFS</CODE> driver in &cfgsys;, but this
+won't work if you do not have server components installed.
+
+<!-- V0.9.19: rewrote this paragraph -->
+<IFNDEF __EWORKPLACE__>
+<P><LI>For OS/2 Warp Server for e-Business (WSeB), IBM ported <B>JFS</B>
+(the Journaling File System) from AIX to OS/2. It is also available with
+eComStation and the IBM OS/2 Convenience Packs.
+JFS has now been ported to Linux too.
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: modified this -->
+<P><LI>To overcome the above limitations,
+eComStation also supports the <B>Journaling File System (JFS),</B> a
+modern high-performance file system that is also supported by IBM AIX
+and Linux.
+</IFDEF>
+
+<P>JFS has the following advantages over HPFS:
+
+<BR><OL><LI>It logs all disk write operations to a special log section,
+the "journal". When the system crashes, JFS does not have to perform
+a full <CODE>CHKDSK</CODE> to restore file-system integrity, but can
+simply "replay" the journal it has maintained. As a result,
+<CODE>CHKDSK</CODE> on JFS volumes takes seconds instead of minutes
+or even hours, as with large HPFS volumes.
+
+<BR><LI>It does not have the 2 MB cache size limitation of standard
+HPFS.
+
+<BR><LI>With the help of LVM, JFS volumes can be expanded without
+having to reboot.
+
+<!-- V0.9.20: rewrote this part -->
+<BR><LI>JFS takes advantage of new 32-bit code in the &os2; kernel
+(KEE32 and IFS32) and thus does not have to go through
+16-bit compatibility layers. This makes data transfers greater than
+64 KB much faster and allows JFS to scale much better on multi-processor
+systems.
+
+<BR><LI>All internal JFS structures are 64 bits wide. JFS therefore
+does not have the 2 GB limits on files (and the 64 GB limit on volumes)
+of HPFS.
+
+</OL>
+
+<!-- V0.9.20: added this -->
+<P>JFS support is enabled by adding the
+<A HREF="cmdref.inf#jfs.ifs"><CODE>JFS.IFS</CODE></A> driver
+to the &cfgsys; file.
+
+<P><LI>Finally, <B>CDFS</B> is a special file system that data CD-ROMs use.
+CD-ROMs use their own special format to organize data on disk which is
+unlike FAT or HPFS, so another file system driver is needed.
+This is implemented through the
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#cdfs.jfs"><CODE>CDFS.IFS</CODE></A> driver and is
+used when data CD-ROMs are accessed. The &os2; CDFS driver supports
+long file names in Microsoft Joliet format.
+
+</OL>
+For related information, select from the list below:
+
+<UL>
+<LI><A HREF="glossary/gls_volume.html">About drives, volumes, and partitions</A>
+<LI><A HREF="tasks/tsk_format.html">Formatting media</A>
+</UL>
+</BODY>
+</HTML>
+

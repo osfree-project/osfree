@@ -1,0 +1,2075 @@
+
+/*
+ * xfldr001.rc:
+ *      this is the main resource file for the English NLS DLL.
+ *
+ *      Translate all the strings in this file.
+ *
+ *      Special characters and codes:
+ *
+ *      --  If you encounter any "~" characters: these are for
+ *          underlining characters in menus so that the menu item
+ *          can be accessed using the keyboard.
+ *
+ *      --  "&xxx;" are for entities that are replaced dynamically
+ *          by XWorkplace when the string gets loaded. This only
+ *          works with string tables, not with menu IDs, unless
+ *          noted otherwise.
+ *
+ *          Presently the following entities are defined:
+ *
+ *          --  &xwp;       "XWorkplace" string, or "eWorkplace"
+ *                          if eWorkplace is running
+ *
+ *          --  &os2;       "OS/2" or "eComStation"
+ *
+ *          --  &winos2;    "Win-OS/2" or "Win16"
+ *
+ *          --  &warpcenter; "WarpCenter" or "eComCenter"
+ *
+ *          --  &xcenter;   "XCenter" or "eCenter"
+ *
+ *          --  &xsd;       "XShutdown" or "eShutdown"
+ *
+ *          --  &version;   current XWorkplace version (e.g. "0.9.16")
+ *
+ *          --  &date;      build date (e.g. Jan 12 2002)
+ *
+ *          --  &nl;        newline character (\n, ASCII 10)
+ *
+ *      The dialog templates (xfldr001.dlg) are #include'd. You
+ *      may either translate that text file "manually" or open
+ *      the resulting .RES file with the Toolkit dialog editor.
+ *      This will then recreate the .RES and .DLG files, but leave
+ *      the .RC file untouched.
+ *
+ *      The dialog editor has a "Translate mode" in its "Options"
+ *      menu which disables a lot of menu items to allow you to
+ *      only change strings. This is very helpful to avoid
+ *      accidentally ruining the dialogs.
+ */
+
+/*
+ *      Copyright (C) 1997-2012 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include "pmwin.h"
+#include "pmstddlg.h"
+
+/* this is new with V0.85; this define is actually the only reason
+   why wpobject.h was needed. Since that file is only in the Toolkit,
+   I'll just add the define here so everyone can compile. */
+#define WPMENUID_USER          0x6500
+#include "..\..\include\dlgids.h"
+
+#ifndef FCF_CLOSEBUTTON         // V0.9.19 (2002-04-14) [umoeller]
+#define FCF_CLOSEBUTTON            0x04000000L
+#endif
+
+/* icons, bitmaps */
+POINTER ID_ICONDLG LOADONCALL MOVEABLE DISCARDABLE xfldrdlg.ico
+POINTER ID_SDICON LOADONCALL MOVEABLE DISCARDABLE xfldshut.ico
+
+/* BITMAP ID_XFLDRBITMAP LOADONCALL MOVEABLE DISCARDABLE xfolder.bmp
+   removed V0.9.16 (2001-11-10) [umoeller] */
+
+/* Context menus for the "WPS Class List" object */
+/* these two MENUs have been changed with V0.9.0 */
+MENU ID_XLM_CLASS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Create object...", ID_XLMI_CREATEOBJECT
+    MENUITEM "~Deregister...", ID_XLMI_DEREGISTER
+    MENUITEM "~Replace with subclass...", ID_XLMI_REPLACE
+    MENUITEM "~Undo replacement...", ID_XLMI_UNREPLACE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_XFMI_HELP
+END
+
+/* the following has been removed V0.9.6 (2000-10-16) [umoeller]
+
+MENU ID_XLM_CLASS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Register new class...", ID_XLMI_REGISTER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_XFMI_HELP
+END */
+
+// the following two have been added with V0.9.0 */
+MENU ID_XLM_METHOD_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Sort", ID_XLM_METHOD_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "by method ~index", ID_XLMI_METHOD_SORT_INDEX
+        MENUITEM "by method ~name", ID_XLMI_METHOD_SORT_NAME
+        MENUITEM "by i~ntroducing class", ID_XLMI_METHOD_SORT_INTRO
+        MENUITEM "by ~overriding class", ID_XLMI_METHOD_SORT_OVERRIDE
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_XFMI_HELP
+END
+
+/* Context menus for the "File types" notebook page;
+   new with V0.9.0 */
+MENU ID_XSM_FILETYPES_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "C~reate subtype...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "~Delete type", ID_XSMI_FILETYPES_DELETE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Pickup", ID_XSMI_FILETYPES_PICKUP
+    MENUITEM "~Drop", ID_XSMI_FILETYPES_DROP
+    MENUITEM "~Cancel drag", ID_XSMI_FILETYPES_CANCELDRAG
+END
+
+MENU ID_XSM_FILETYPES_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "C~reate root type...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Drop", ID_XSMI_FILETYPES_DROP
+    MENUITEM "~Cancel drag", ID_XSMI_FILETYPES_CANCELDRAG
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Export...", ID_XSMI_FILETYPES_EXPORT
+    MENUITEM "~Import...", ID_XSMI_FILETYPES_IMPORT
+END
+
+MENU ID_XSM_FILEFILTER_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Delete filter", ID_XSMI_FILEFILTER_DELETE
+END
+
+MENU ID_XSM_FILEFILTER_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~New filter...", ID_XSMI_FILEFILTER_NEW
+    MENUITEM "~Import WPS filters...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* menu extended with 0.9.16 */
+MENU ID_XSM_FILEASSOC_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Object properties", ID_XSMI_FILEASSOC_SETTINGS
+    MENUITEM "Open ~folder", ID_XSMI_FILEASSOC_OPENFDR
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Delete association", ID_XSMI_FILEASSOC_DELETE
+END
+
+MENU ID_XSM_FILEASSOC_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Import WPS filters...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* Button menus in XWPSetup "Objects" page;
+   new with V0.9.0  */
+MENU ID_XSM_OBJECTS_SYSTEM LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Keyboard settings", 100
+    MENUITEM "~Mouse settings", 101
+    MENUITEM "~Country settings", 102
+    MENUITEM "~Sound settings", 103
+    MENUITEM "S~ystem settings", 104
+    MENUITEM "Ener~gy settings", 105
+    MENUITEM "W~in-OS/2 settings", 106
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Color palette ~1", 110
+    MENUITEM "Color palette ~2", 111
+    MENUITEM "~Font palette", 112
+    MENUITEM "Schemes ~palette", 113
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Launchpad", 120
+    MENUITEM "~WarpCenter", 121
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Sp~ooler", 130
+    MENUITEM "~Minimized Windows viewer", 131
+    MENUITEM "S~hredder", 132
+    MENUITEM "S~ystem clock", 133
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "S~tartup folder", 140
+    MENUITEM "T~emplates folder", 141
+    MENUITEM "Dri~ves folder", 142
+END
+
+MENU ID_XSM_OBJECTS_XWORKPLACE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Workplace Shell settings", 200
+    MENUITEM "~OS/2 Kernel settings", 201
+    MENUITEM "W~PS Class List", 202
+    MENUITEM "Scr~een", 203
+/* the following item added with V0.9.5 (2000-08-23) [umoeller] */
+    MENUITEM "~Multimedia", 204
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Configuration folder", 210
+    MENUITEM "~Startup folder", 211
+    MENUITEM "S~hutdown folder", 212
+    MENUITEM """~Fonts"" folder", 213
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Trash can", 220
+    MENUITEM "Set~up string", 221
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~XCenter", 230
+END
+
+/* Context menus on XFldSystem "Drivers" page;
+   new with V0.9.0  */
+/* added menu item for ConfigTool database V1.0.4 (2005-05-07) [chennecke] */
+MENU ID_XSM_DRIVERS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Show help in OS/2 Command Reference", ID_XSMI_DRIVERS_CMDREFHELP
+    MENUITEM "Show help in ConfigTool database", ID_XSMI_DRIVERS_CONFIGTOOLHELP
+    MENUITEM "Search in all help files", ID_XSMI_DRIVERS_ALLHELP
+END
+
+/* Context menus on XWPKeyboard "Hotkeys" page
+   new with V0.9.0  */
+MENU ID_XSM_HOTKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Object ~properties", ID_XSMI_HOTKEYS_PROPERTIES
+    MENUITEM "Open folder", ID_XSMI_HOTKEYS_OPENFOLDER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Remove hotkey...", ID_XSMI_HOTKEYS_REMOVE
+END
+
+/* Context menus on XWPKeyboard "Function keys" page;
+   new with V0.9.3 (2000-04-18) [umoeller] */
+
+MENU ID_XSM_FUNCTIONKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Edit function key...", ID_XSMI_FUNCK_EDIT
+    MENUITEM "~Delete function key", ID_XSMI_FUNCK_DELETE
+END
+
+MENU ID_XSM_FUNCTIONKEYS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~New function key...", ID_XSMI_FUNCK_NEW
+END
+
+/*  "Sticky windows" context menus on XWPScreen "XPager Sticky" page
+    new with V0.9.4 (2000-07-10) [umoeller]
+    menu ids changed V1.0.1 (2003-01-05) [umoeller]
+*/
+
+MENU ID_XFM_CNRITEM_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Add...", ID_XFMI_CNRITEM_NEW
+    MENUITEM SEPARATOR
+    MENUITEM "~Remove all", ID_XFMI_CNRITEM_DELETEALL
+END
+
+/* changed V0.9.19 (2002-04-17) [umoeller] */
+MENU ID_XFM_CNRITEM_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Edit...", ID_XFMI_CNRITEM_EDIT
+    MENUITEM SEPARATOR
+    MENUITEM "~Remove", ID_XFMI_CNRITEM_DELETE
+END
+
+/* XCenter main button menu V0.9.7 (2000-11-30) [umoeller] */
+/* modified V0.9.9 (2001-03-07) [umoeller] */
+/* modified V0.9.19 (2002-04-02) [umoeller] */
+MENU ID_CRM_XCENTERBUTTON LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~Lockup now", ID_CRMI_LOCKUPNOW
+    MENUITEM "~Suspend...", ID_CRMI_SUSPEND
+    MENUITEM "~Restart Desktop...", ID_CRMI_RESTARTWPS
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "R~un...", ID_CRMI_RUN
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "Lo~g off...", ID_CRMI_LOGOFF
+    MENUITEM "", ID_CRMI_SEP4, MIS_SEPARATOR
+    MENUITEM "Shut ~down...", ID_CRMI_SHUTDOWN
+END
+
+/* XCenter standard widget context menu V0.9.7 (2000-11-30) [umoeller] */
+/* changed V0.9.13 (2001-06-21) [umoeller] */
+/* changed V0.9.19 (2002-04-14) [umoeller] */
+/* changed V0.9.20 (2002-08-08) [umoeller] */
+MENU ID_CRM_WIDGET LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Propertie~s", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_CRMI_HELPSUBMENU, MIS_SUBMENU
+    BEGIN
+        MENUITEM "~Widget help", ID_CRMI_HELP
+        MENUITEM "", ID_CRMI_HELP_XCENTER
+    END
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "~Delete widget...", ID_CRMI_REMOVEWGT
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "", ID_CRMI_XCSUB_PROPERTIES       /* see ID_CRMI_XCSUB_PROPERTIES stringtable entry */
+    MENUITEM "", ID_CRMI_XCSUB_CLOSE            /* see ID_CRMI_XCSUB_CLOSE stringtable entry */
+END
+
+/* XPager context menu V0.9.11 (2001-04-25) [umoeller] */
+MENU ID_XSM_PAGERCTXTMENU LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Propertie~s", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_CRMI_HELP
+END
+
+/* Split view menu bar V1.0.0 (2002-08-28) [umoeller] */
+MENU ID_XFM_SPLITVIEWBAR LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Folder", ID_XFM_BAR_FOLDER, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "~Edit", ID_XFM_BAR_EDIT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "~View", ID_XFM_BAR_VIEW, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "~Selected", ID_XFM_BAR_SELECTED, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "~Help", ID_XFM_BAR_HELP, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+END
+
+/* here come lots of little strings which XWorkplace uses in all kinds
+   of places. XWorkplace loads these strings on demand one at a time. */
+STRINGTABLE
+BEGIN
+    /* miscellaneous menu items */
+    ID_XSSI_NOTDEFINED              "[not defined]"
+    ID_XSSI_PRODUCTINFO             "~&xwp; product information"
+    ID_XSSI_REFRESHNOW              "~Refresh now"
+    ID_XSSI_SNAPTOGRID              "~Snap to grid"
+
+    /* language of this DLL;
+       displayed on the "XWorkplace Configuration" notebook page */
+    ID_XSSI_DLLLANGUAGE             "US English"
+
+    /* author of National Language Support (new with V0.9.0);
+       displayed on the "XWorkplace Configuration" notebook page */
+    ID_XSSI_NLS_AUTHOR              "Ulrich M”ller"
+
+    /* XFOLDER_VERSION is in dlgids.h; this is checked by the
+       XWorkplace NLS DLL loader so that no DLLs are loaded which
+       are older than the main DLL. No change needed. */
+    ID_XSSI_XFOLDERVERSION          XFOLDER_VERSION
+
+    ID_XSSI_FLDRCONTENT             "F~older contents"
+    ID_XSSI_COPYFILENAME            "Co~py filename"
+    /* the following six added V1.0.0 (2002-11-09) [umoeller] */
+    ID_XSSI_COPYFILENAME_SHORTSP    "file names only, separated by spaces"
+    ID_XSSI_COPYFILENAME_FULLSP     "including path, separated by spaces"
+    ID_XSSI_COPYFILENAME_SHORTNL    "file names only, multiple lines"
+    ID_XSSI_COPYFILENAME_FULLNL     "including path, multiple lines"
+    ID_XSSI_COPYFILENAME_SHORT1     "file name only"
+    ID_XSSI_COPYFILENAME_FULL1      "including path"
+
+    ID_XSSI_BORED                   "[Configuration folder is empty]"
+    ID_XSSI_FLDREMPTY               "[empty]"
+    ID_XSSI_SELECTSOME              "Select by ~name..."
+    ID_XSSI_PROCESSCONTENT          "Start folder ~content..."
+
+    /* title of "Quick open" status window at bootup */
+    ID_XFSI_QUICKSTATUS             "Quick Open"
+
+    /* status bar strings */
+    ID_XSSI_POPULATING              "Collecting objects..."
+
+    /* default status bar mnemonics; changed with V0.9.6 (2000-11-23) [umoeller] */
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTNONESEL           "$C objects$x(50%)$SA total, $fM of $zM MB free"
+    ID_XSSI_SBTEXTMULTISEL          "$c of $C objects selected$x(50%)$sA selected"
+    ID_XSSI_SBTEXTWPDATAFILE        """$r"" ($w)$x(55%)$sA $x(70%)$D $T"
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTWPDISK            "$t ($fM of $zM MB free)"
+    ID_XSSI_SBTEXTWPPROGRAM         "$t $x(30%)""$p $P"""
+    ID_XSSI_SBTEXTWPOBJECT          "$t (Class: $W)"
+
+    /* hotkey descriptions */
+    ID_XSSI_KEY_CTRL                "Ctrl+"
+    ID_XSSI_KEY_Alt                 "Alt+"
+    ID_XSSI_KEY_SHIFT               "Shift+"
+
+    ID_XSSI_KEY_BACKSPACE           "Backspace"
+    ID_XSSI_KEY_TAB                 "Tab"
+    ID_XSSI_KEY_BACKTABTAB          "Backtab"
+    ID_XSSI_KEY_ENTER               "Enter"
+    ID_XSSI_KEY_ESC                 "Esc"
+    ID_XSSI_KEY_SPACE               "Space"
+    ID_XSSI_KEY_PAGEUP              "Page up"
+    ID_XSSI_KEY_PAGEDOWN            "Page down"
+    ID_XSSI_KEY_END                 "End"
+    ID_XSSI_KEY_HOME                "Home"
+    ID_XSSI_KEY_LEFT                "Left"
+    ID_XSSI_KEY_UP                  "Up"
+    ID_XSSI_KEY_RIGHT               "Right"
+    ID_XSSI_KEY_DOWN                "Down"
+    ID_XSSI_KEY_PRINTSCRN           "Printscrn"
+    ID_XSSI_KEY_INSERT              "Insert"
+    ID_XSSI_KEY_DELETE              "Delete"
+    ID_XSSI_KEY_SCRLLOCK            "ScrlLock"
+    ID_XSSI_KEY_NUMLOCK             "NumLock"
+
+    ID_XSSI_KEY_WINLEFT             "Win left"
+    ID_XSSI_KEY_WINRIGHT            "Win right"
+    ID_XSSI_KEY_WINMENU             "Win menu"
+
+    /* and the corresponding list box items on the
+       "Hotkeys" notebook page */
+    ID_XSSI_LB_REFRESHNOW           "Refresh now"
+    ID_XSSI_LB_SNAPTOGRID           "Snap to grid"
+    ID_XSSI_LB_SELECTALL            "Select all"
+    ID_XSSI_LB_OPENPARENTFOLDER     "Open parent folder"
+    ID_XSSI_LB_OPENSETTINGSNOTEBOOK "Open settings notebook"
+    ID_XSSI_LB_OPENNEWDETAILSVIEW   "Open new Details view"
+    ID_XSSI_LB_OPENNEWICONVIEW      "Open new Icon view"
+    ID_XSSI_LB_DESELECTALL          "De-select all"
+    ID_XSSI_LB_OPENNEWTREEVIEW      "Open new Tree view"
+    ID_XSSI_LB_FIND                 "Find..."
+    ID_XSSI_LB_PICKUP               "Pickup"
+    ID_XSSI_LB_PICKUPCANCELDRAG     "Drop (Cancel drag)"
+    ID_XSSI_LB_SORTBYNAME           "Sort by name"
+    ID_XSSI_LB_SORTBYSIZE           "Sort by size"
+    ID_XSSI_LB_SORTBYTYPE           "Sort by type"
+    ID_XSSI_LB_SORTBYREALNAME       "Sort by real name"
+    ID_XSSI_LB_SORTBYWRITEDATE      "Sort by write date"
+    ID_XSSI_LB_SORTBYACCESSDATE     "Sort by access date"
+    ID_XSSI_LB_SORTBYCREATIONDATE   "Sort by creation date"
+/* V0.9.19: removed Warp 4 only strings from all these */
+    ID_XSSI_LB_SWITCHTOICONVIEW     "Switch to Icon view"
+    ID_XSSI_LB_SWITCHTODETAILSVIEW  "Switch to Details view"
+    ID_XSSI_LB_SWITCHTOTREEVIEW     "Switch to Tree view"
+    ID_XSSI_LB_ARRANGEDEFAULT       "Arrange (default)"
+    ID_XSSI_LB_ARRANGEFROMTOP       "Arrange from top"
+    ID_XSSI_LB_ARRANGEFROMLEFT      "Arrange from left"
+    ID_XSSI_LB_ARRANGEFROMRIGHT     "Arrange from right"
+    ID_XSSI_LB_ARRANGEFROMBOTTOM    "Arrange from bottom"
+    ID_XSSI_LB_ARRANGEPERIMETER     "Arrange Perimeter"
+    ID_XSSI_LB_ARRANGEHORIZONTALLY  "Arrange horizontally"
+    ID_XSSI_LB_ARRANGEVERTICALLY    "Arrange vertically"
+    ID_XSSI_LB_INSERT               "Paste..."
+    ID_XSSI_LB_SORTBYEXTENSION      "Sort by extension"
+    ID_XSSI_LB_SORTFOLDERSFIRST     "Sort, folders first"
+    ID_XSSI_LB_SORTBYCLASS          "Sort by object class"
+    ID_XSSI_LB_OPENPARENTFOLDERANDCLOSE     "Open parent folder and close current folder"
+    ID_XSSI_LB_SELECTSOME           "Select by name..."
+    ID_XSSI_LB_CLOSEWINDOW          "Close window"
+    ID_XSSI_LB_CONTEXTMENU          "Show context menu"
+    ID_XSSI_LB_TASKLIST             "Show task list"
+    ID_XSSI_LB_COPYFILENAME_SHORT   "Copy filenames (without path)"
+    ID_XSSI_LB_COPYFILENAME_FULL    "Copy filenames (including path)"
+/* V1.0.0: added remaining Pickup choices [lafaix] */
+    ID_XSSI_LB_PICKUPDROPCOPY       "Drop (Copy)"
+    ID_XSSI_LB_PICKUPDROPMOVE       "Drop (Move)"
+    ID_XSSI_LB_PICKUPDROPLINK       "Drop (Create shadow)"
+
+    /* XShutdown: context menu items and messages for the
+       status window.
+       Do not change the %d and %s keys, or
+       XShutdown might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_SDSI_SHUTDOWN                "Shut~down"
+/* modified V1.0.8 */
+    ID_SDSI_RESTARTWPS              "R~estart Desktop..."
+    ID_SDSI_RESTARTINGWPS           "Restarting Desktop..."
+    ID_SDSI_SAVINGDESKTOP           "Saving %d Desktop objects..."
+    ID_SDSI_SAVINGPROFILES          "Saving INI files..."
+    ID_SDSI_STARTING                "Starting ""%s""..."
+    ID_SDSI_FLUSHING                "Releasing filesystems..."
+    ID_SDSI_CAD                     "Shutdown complete."
+    ID_SDSI_REBOOTING               "Computer is being restarted..."
+    ID_SDSI_CLOSING                 "Closing"
+    ID_SDSI_DEFAULT                 "Default"
+
+    /* titles for XWorkplace notebook pages */
+/*    ID_XSSI_1GENERIC                "~XFolder"            removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_25ADDITEMS              "Co~ntext menus"      removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_26CONFIGITEMS           "Config Folder Items"
+/*    ID_XSSI_2REMOVEITEMS            "Standard menu items" removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_27STATUSBAR             "Status ~Bars" /* V0.9.9 */
+    ID_XSSI_3SNAPTOGRID             "Grid"
+    ID_XSSI_4ACCELERATORS           "~Folder Hotkeys" /* V0.9.9 */
+/*    ID_XSSI_5INTERNALS              "XFolder Internals"   removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_FILEOPS                 "File ~operations"    removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_INTERNALS               "~Object"             removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_TOOLBARS                "~Tool Bars"            /* added V1.0.1 (2002-12-08) [umoeller] */
+    ID_XSSI_SORT                    "~Sort"
+    /* the following are new with V0.9.0 */
+    ID_XSSI_XWPSTATUS               "~&xwp; Status"
+    ID_XSSI_FEATURES                "~Features"
+    ID_XSSI_PARANOIA                "~Paranoia"
+    ID_XSSI_OBJECTS                 "~Objects"
+    ID_XSSI_FILEPAGE                "~File"
+
+    /* the following three added V1.0.1 (2003-01-10) [umoeller] */
+    ID_XSSI_FILEPAGE_GENERAL        "General"
+    ID_XSSI_FILEPAGE_EAS            "Extended Attributes"
+    ID_XSSI_FILEPAGE_PERMISSIONS    "Permissions"
+
+    ID_XSSI_DETAILSPAGE             "~Details"
+    ID_XSSI_XSHUTDOWNPAGE           "~&xsd;"
+    ID_XSSI_STARTUPPAGE             "~Startup"
+    ID_XSSI_DTPMENUPAGE             "~Menu"
+            /* ID_XSSI_DTPMENUPAGE changed V0.9.19 (2002-04-17) [umoeller] */
+    ID_XSSI_FILETYPESPAGE           "~File Types"
+    ID_XSSI_SOUNDSPAGE              "~Sounds"
+    ID_XSSI_VIEWPAGE                "~View"
+    ID_XSSI_ARCHIVESPAGE            "~Archives"
+    ID_XSSI_PGMFILE_MODULE          "~Module"
+    ID_XSSI_OBJECTHOTKEYSPAGE       "~Hotkeys"
+    /* ID_XSSI_FUNCTIONKEYSPAGE added with V0.9.3 (2000-04-18) [umoeller] */
+    ID_XSSI_FUNCTIONKEYSPAGE        "~Function Keys"
+    ID_XSSI_MOUSEHOOKPAGE           "~Movement"
+    ID_XSSI_MAPPINGSPAGE            "~Mappings"
+
+    /* sort strings */
+    ID_XSSI_SV_NAME                 "Name"
+    ID_XSSI_SV_TYPE                 "Type"
+    ID_XSSI_SV_CLASS                "Object class"
+    ID_XSSI_SV_REALNAME             "Real name"
+    ID_XSSI_SV_SIZE                 "Size"
+    ID_XSSI_SV_WRITEDATE            "Last write date"
+    ID_XSSI_SV_ACCESSDATE           "Last access date"
+    ID_XSSI_SV_CREATIONDATE         "Creation date"
+    ID_XSSI_SV_EXT                  "File name extension"
+    ID_XSSI_SV_FOLDERSFIRST         "Folders first"
+
+    ID_XSSI_SV_ALWAYSSORT           "Always maintain sort order"
+
+    /* XWorkplace standard dialog box (cmnMessageBox in common.c) */
+    /* all changed to DID_* strings, see below with DID_YES2ALL etc.
+        V0.9.19 (2002-04-17) [umoeller]
+    ID_XSSI_DLG_UNDO                    "~Undo"
+    ID_XSSI_DLG_DEFAULT                 "~Default"
+    ID_XSSI_DLG_HELP                    "~Help"
+    ID_XSSI_DLG_YES                     "~Yes"
+    ID_XSSI_DLG_YES2ALL                 "Yes to ~all"
+    ID_XSSI_DLG_NO                      "~No"
+    ID_XSSI_DLG_OK                      "~OK"
+    ID_XSSI_DLG_CANCEL                  "~Cancel"
+    ID_XSSI_DLG_ABORT                   "~Abort"
+    ID_XSSI_DLG_RETRY                   "~Retry"
+    ID_XSSI_DLG_IGNORE                  "~Ignore" */
+
+    /* "WPS Classes" notebook page */
+    ID_XSSI_SB_CLASSMNEMONICS           "Status bar info of this class:"
+    ID_XSSI_SB_CLASSNOTSUPPORTED        "This class does not introduce new status bar info."
+    ID_XSSI_WPSCLASSES                  "WPS Classes"
+    ID_XSSI_WPSCLASSLOADED              "Class loaded."
+    ID_XSSI_WPSCLASSLOADINGFAILED       "Class loading failed."
+    ID_XSSI_WPSCLASSREPLACEDBY          "Class replaced with %s."
+    ID_XSSI_WPSCLASSORPHANS             "Orphaned classes"
+    ID_XSSI_WPSCLASSORPHANSINFO         "The classes in this tree could not be loaded. You should remove them from the WPS class list."
+
+    /* OS/2 Kernel notebook pages */
+    ID_XSSI_SCHEDULER                   "~Scheduler"
+    ID_XSSI_MEMORY                      "~Memory"
+    ID_XSSI_ERRORS                      "E~rrors"
+    ID_XSSI_WPS                         "~WPS"
+    /* the following are new with V0.9.0 */
+    ID_XSSI_SYSPATHS                    "~System Paths"
+    ID_XSSI_DRIVERS                     "D~rivers"
+    ID_XSSI_DRIVERCATEGORIES            "Driver categories"
+
+    /* extended settings submenus */
+    ID_XFSI_SETTINGS                    "~Properties"
+    ID_XFSI_SETTINGSNOTEBOOK            "~Notebook"
+    ID_XFSI_ATTRIBUTES                  "File attributes"
+    ID_XFSI_ATTR_ARCHIVE                "Archive"
+    ID_XFSI_ATTR_SYSTEM                 "System"
+    ID_XFSI_ATTR_HIDDEN                 "Hidden"
+    ID_XFSI_ATTR_READONLY               "Read-only"
+
+    ID_XFSI_FLDRSETTINGS                "~View"
+    ID_XFSI_SMALLICONS                  "Small ~icons"
+    ID_XFSI_FLOWED                      "~Multiple columns"
+    ID_XFSI_NONFLOWED                   "~Single column"
+    ID_XFSI_NOGRID                      "~As placed"
+
+    /* the following added with V0.9.0 */
+    ID_XFSI_WARP4MENUBAR                "~Menu bar"
+
+    ID_XFSI_SHOWSTATUSBAR               "~Status bar"
+
+    /* the following are all new with V0.9.0 */
+
+    /* entry in XWPClassList's "Open" submenu */
+    ID_XFSI_OPENCLASSLIST               "~Class list"
+    /* default title for object */
+    ID_XFSI_XWPCLASSLIST                "WPS Class List"
+    /* the following is new with V0.9.1 (99-12-28) [umoeller] */
+    ID_XFSI_REGISTERCLASS               "R~egister new class..."
+
+    /* strings for XWPSound */
+    ID_XSSI_SOUNDSCHEMENONE             "<none>"
+
+    /* "System paths" page in OS/2 Kernel" */
+    ID_XSSI_ITEMSSELECTED               "%d items selected"
+
+    /* Trash can menu items */
+    ID_XTSI_TRASHEMPTY                  "~Empty trash can"
+    ID_XTSI_TRASHRESTORE                "~Restore object"
+    ID_XTSI_TRASHDESTROY                "~Destroy object"
+
+    ID_XTSI_TRASHCAN                    "Trash Can"
+    ID_XTSI_TRASHOBJECT                 "Trash Object"
+
+    ID_XTSI_TRASHSETTINGSPAGE           "~Trash can"
+    ID_XTSI_TRASHDRIVESPAGE             "~Drives"
+
+    ID_XTSI_ORIGFOLDER                  "Original Folder"
+    ID_XTSI_DELDATE                     "Deletion Date"
+    ID_XTSI_DELTIME                     "Deletion Time"
+    ID_XTSI_SIZE                        "Size"
+    ID_XTSI_ORIGCLASS                   "Original Class"
+
+    /* all the following added with V0.9.1 */
+
+    /* trash can status bar strings */
+    ID_XTSI_STB_POPULATING              "Collecting trash on drive %c:..."
+    ID_XTSI_STB_OBJCOUNT                "%s trash object(s), total trash size: %s bytes"
+
+    /* Details view columns on XWPKeyboard "Hotkeys" page */
+    ID_XSSI_HOTKEY_TITLE                "Object Title"
+    ID_XSSI_HOTKEY_FOLDER               "Folder"
+    ID_XSSI_HOTKEY_HANDLE               "Object Handle"
+    ID_XSSI_HOTKEY_HOTKEY               "Hotkey"
+
+    /* Method info columns for XWPClassList; V0.9.1 (99-12-03) */
+    ID_XSSI_CLSLIST_INDEX               "No."
+    ID_XSSI_CLSLIST_METHOD              "Method"
+    ID_XSSI_CLSLIST_ADDRESS             "Resolved"
+    ID_XSSI_CLSLIST_CLASS               "Class"
+    ID_XSSI_CLSLIST_OVERRIDDENBY        "Overridden By"
+
+    /* "Special functions" on XWPMouse "Movement" page */
+    ID_XSSI_SPECIAL_WINDOWLIST          "Window list"
+    ID_XSSI_SPECIAL_DESKTOPPOPUP        "Desktop's context menu"
+
+    /* default title of XWPScreen class V0.9.2 (2000-02-23) [umoeller] */
+    ID_XSSI_XWPSCREENTITLE              "Screen"
+
+    /* "Partitions" item in WPDrives "open" menu V0.9.2 (2000-02-29) [umoeller] */
+    ID_XSSI_OPENPARTITIONS              "~Partitions view"
+
+    /* all the following added with V0.9.3 */
+
+    /* "Syslevel" page title in "OS/2 kernel" */
+    ID_XSSI_SYSLEVELPAGE                "Syslevels"
+
+    ID_XTSI_CALCULATING                 "calculating..."
+
+    ID_MMSI_DEVICETYPE                  "Type"
+    ID_MMSI_DEVICEINDEX                 "Index"
+    ID_MMSI_DEVICEINFO                  "Drivers"
+
+    ID_MMSI_TYPE_IMAGE                  "Image"
+    ID_MMSI_TYPE_AUDIO                  "Audio"
+    ID_MMSI_TYPE_MIDI                   "MIDI"
+    ID_MMSI_TYPE_COMPOUND               "Compound"
+    ID_MMSI_TYPE_OTHER                  "Other"
+    ID_MMSI_TYPE_UNKNOWN                "Unknown"
+    ID_MMSI_TYPE_VIDEO                  "Video"
+    ID_MMSI_TYPE_ANIMATION              "Animation"
+    ID_MMSI_TYPE_MOVIE                  "Movie"
+
+    ID_MMSI_TYPE_STORAGE                "Storage"
+    ID_MMSI_TYPE_FILE                   "File"
+    ID_MMSI_TYPE_DATA                   "Data"
+
+    ID_MMSI_DEVTYPE_VIDEOTAPE           "Video tape"
+    ID_MMSI_DEVTYPE_VIDEODISC           "Video disc"
+    ID_MMSI_DEVTYPE_CD_AUDIO            "CD audio"
+    ID_MMSI_DEVTYPE_DAT                 "DAT"
+    ID_MMSI_DEVTYPE_AUDIO_TAPE          "Audio tape"
+    ID_MMSI_DEVTYPE_OTHER               "Other"
+    ID_MMSI_DEVTYPE_WAVEFORM_AUDIO      "Wave audio"
+    ID_MMSI_DEVTYPE_SEQUENCER           "Sequencer"
+    ID_MMSI_DEVTYPE_AUDIO_AMPMIX        "Ampmix"
+    ID_MMSI_DEVTYPE_OVERLAY             "Overlay"
+    ID_MMSI_DEVTYPE_ANIMATION           "Animation"
+    ID_MMSI_DEVTYPE_DIGITAL_VIDEO       "Digital video"
+    ID_MMSI_DEVTYPE_SPEAKER             "Speaker"
+    ID_MMSI_DEVTYPE_HEADPHONE           "Headphone"
+    ID_MMSI_DEVTYPE_MICROPHONE          "Microphone"
+    ID_MMSI_DEVTYPE_MONITOR             "Monitor"
+    ID_MMSI_DEVTYPE_CDXA                "CDXA"
+    ID_MMSI_DEVTYPE_FILTER              "Filter"
+    ID_MMSI_DEVTYPE_TTS                 "Text-to-speech"
+
+    ID_MMSI_COLMN_FOURCC                "FourCC"
+    ID_MMSI_COLMN_NAME                  "Name"
+    ID_MMSI_COLMN_IOPROC_TYPE           "IOProc Type"
+    ID_MMSI_COLMN_MEDIA_TYPE            "Media Type"
+    ID_MMSI_COLMN_EXTENSION             "Ext."
+    ID_MMSI_COLMN_DLL                   "DLL"
+    ID_MMSI_COLMN_PROCEDURE             "Entry Point"
+
+    ID_MMSI_PAGETITLE_DEVICES           "~Devices"
+    ID_MMSI_PAGETITLE_IOPROCS           "~IOProcs"
+    ID_MMSI_PAGETITLE_CODECS            "~Codecs"
+
+    ID_XSSI_PAGETITLE_PAGER             "~Pager"
+
+    ID_XSSI_XWPSTRING_PAGE              "~Setup string"
+    ID_XSSI_XWPSTRING_OPENMENU          "~Invoke setup string"
+
+    ID_XSSI_COLMN_SYSL_COMPONENT        "Component"
+    ID_XSSI_COLMN_SYSL_FILE             "SYSLEVEL File"
+            /* corrected SYLEVEL typo V1.0.0 (2002-08-12) [umoeller] */
+    ID_XSSI_COLMN_SYSL_VERSION          "Version"
+    ID_XSSI_COLMN_SYSL_LEVEL            "Syslevel"
+    ID_XSSI_COLMN_SYSL_PREVIOUS         "Previous"
+
+    ID_XSSI_DRIVERS_VERSION             "Version: "
+    ID_XSSI_DRIVERS_VENDOR              "Vendor: "
+
+    /* removed these duplicates V0.9.18 (2002-02-13) [umoeller] */
+    /* ID_XSSI_FUNCKEY_DESCRIPTION         "Key Description" */
+    /* ID_XSSI_FUNCKEY_SCANCODE            "Scan Code" */
+    /* ID_XSSI_FUNCKEY_MODIFIER            "Modifier" */
+
+    /* default documents V0.9.4 (2000-06-09) [umoeller] */
+    ID_XSSI_DATAFILEDEFAULTDOC          "D~efault document"
+    ID_XSSI_FDRDEFAULTDOC               "Folder's d~efault document"
+
+    /* XCenter V0.9.4 (2000-06-10) [umoeller] */
+    ID_XSSI_XCENTERPAGE1                "~Modules"
+
+    /* file operations V0.9.4 (2000-07-27) [umoeller] */
+    ID_XSSI_FOPS_MOVE2TRASHCAN          "Moving to trash can..."
+    ID_XSSI_FOPS_RESTOREFROMTRASHCAN    "Restoring from trash can..."
+    ID_XSSI_FOPS_TRUEDELETE             "Deleting objects..."
+    ID_XSSI_FOPS_EMPTYINGTRASHCAN       "Emptying trash can..."
+
+    ID_XSSI_ICONPAGE                    "~Icon"
+
+    /* INI save methods V0.9.5 (2000-08-20) [umoeller] */
+    ID_XSSI_XSD_SAVEINIS_NEW            "New method: use &xwp; INI routines"
+    ID_XSSI_XSD_SAVEINIS_OLD            "Old method: use &os2; INI routines"
+    ID_XSSI_XSD_SAVEINIS_NONE           "Do not save INIs at all"
+
+    /* logoff V0.9.5 (2000-09-28) [umoeller] */
+    ID_XSSI_XSD_LOGOFF                  "Lo~g off..."
+    ID_XSSI_XSD_CONFIRMLOGOFFTITLE      "&xwp;: Log Off"
+            /* ID_XSSI_XSD_CONFIRMLOGOFFTITLE added V1.0.1 (2003-01-05) [umoeller] */
+    ID_XSSI_XSD_CONFIRMLOGOFFMSG        "Are you sure you want to log off?"
+
+    /* "bytes" strings for status bars V0.9.6 (2000-11-23) [umoeller] */
+    ID_XSSI_BYTE                        " byte"
+    ID_XSSI_BYTES                       " bytes"
+
+    /* V0.9.6 (2000-12-14) [lafaix] */
+    ID_XSSI_PGMFILE_RESOURCES           "~Resources"
+
+    /* title of program(file) "Associations" page V0.9.9 (2001-03-07) [umoeller] */
+    ID_XSSI_PGM_ASSOCIATIONS            "~Associations"
+
+END
+
+/* Strings for XWPSetup "Features" page
+    (added V0.9.0) */
+STRINGTABLE
+BEGIN
+    ID_XCSI_GENERALFEATURES             "General features"
+#ifndef __NOICONREPLACEMENTS__
+    ID_XCSI_REPLACEICONS                "Replace Icons"
+#endif
+    /* the following item added with V0.9.20 (2002-07-19) [umoeller] */
+    ID_XCSI_REPLACEHELP                 "Replace default help panels"
+
+    /* the following item added with V0.9.4 (2000-08-08) [umoeller] */
+    // ID_XCSI_RESIZESETTINGSPAGES         "Adjust settings pages on notebook resize"
+            // and removed V1.0.1 (2002-12-14) [umoeller]
+
+    /* the following item's ID and string changed with V0.9.16 (2001-10-15) [umoeller] */
+    ID_XCSI_REPLACEICONPAGE             "Replace ""Icon"" page in all settings notebooks"
+    ID_XCSI_REPLACEFILEPAGE             "Replace ""File"" and ""Details"" pages"
+    ID_XCSI_XSYSTEMSOUNDS               "Extended system sounds"
+    /* the following item added with V0.9.12 (2001-05-22) [umoeller] */
+    ID_XCSI_FIXCLASSTITLES              "Fix class titles"
+
+    ID_XCSI_FOLDERFEATURES              "Folder features"
+    ID_XCSI_ENABLESTATUSBARS            "Enable folder status bars"
+    ID_XCSI_ENABLESNAP2GRID             "Enable folder ""Snap to grid"""
+    ID_XCSI_ENABLEFOLDERHOTKEYS         "Enable folder hotkeys"
+    ID_XCSI_EXTFOLDERSORT               "Extended folder sorting"
+    /* the following item added with V0.9.16 (2001-10-25) [umoeller] */
+    ID_XCSI_TURBOFOLDERS                "Turbo folders"
+    /* the following item added with V1.0.0 (2002-09-09) [umoeller] */
+    ID_XCSI_FDRSPLITVIEWS               "Folder split views"
+    /* the following item added with V1.0.1 (2002-11-30) [umoeller] */
+    ID_XCSI_ENABLETOOLBARS              "Enable folder tool bars"
+
+    ID_XCSI_MOUSEKEYBOARDFEATURES       "Mouse and keyboard features"
+/*     ID_XCSI_ANIMOUSE                    "Animated Mouse Pointers" removed V0.9.19 (2002-06-02) [umoeller] */
+    ID_XCSI_XWPHOOK                     "Enable &xwp; Hook"
+    ID_XCSI_GLOBALHOTKEYS               "Enable global object hotkeys"
+/*     ID_XCSI_PAGER                       "&pgr;: virtual desktops" removed V0.9.19 (2002-05-28) [umoeller] */
+
+    ID_XCSI_STARTSHUTFEATURES           "Startup/shutdown features"
+    ID_XCSI_ARCHIVING                   "Replace Desktop archiving"
+    ID_XCSI_RESTARTWPS                  "Enable ""Restart Desktop"""
+    ID_XCSI_XSHUTDOWN                   "Enable eXtended Shutdown"
+
+/* the following two items added with V0.9.18 (2001-10-25) [umoeller] */
+    ID_XCSI_CHECKDESKTOP                "Check Desktop integrity"
+    ID_XCSI_PREPOPULATEDESKTOP          "Pre-populate Desktop"
+
+    ID_XCSI_FILEOPERATIONS              "File operations"
+    // ID_XCSI_EXTASSOCS                   "Extended file type associations"
+            // removed V1.0.1 (2002-12-15) [umoeller]
+
+/* this item added V0.9.20 (2002-08-08) [umoeller] */
+    ID_XCSI_REPLACEPASTE                "Replace ""Paste"" dialog"
+
+/*     this item removed with V0.9.16
+    ID_XCSI_CLEANUPINIS                 "Clean up WPS INI entries" */
+/* the following item added with V0.9.5 (2000-08-14) [umoeller] */
+    ID_XCSI_REPLHANDLES                 "Replace WPS handles management"
+    ID_XCSI_REPLFILEEXISTS              "Replace ""File exists"" dialog"
+    ID_XCSI_REPLDRIVENOTREADY           "Replace ""Drive not ready"" dialog"
+/* the following has changed V0.9.19 (2002-04-14) [umoeller] */
+    ID_XCSI_REPLACEDELETE               "Replace delete with trash can"
+/* the following has been removed V0.9.19 (2002-04-14) [umoeller] */
+/*    ID_XCSI_REPLACEDELETE               "Replace true delete" */
+/* the following has been added V0.9.9 (2001-01-31) [umoeller] */
+    ID_XCSI_REPLACEREFRESH              "Replace folder auto-refresh"
+/* the following has been added V0.9.16 (2001-12-02) [umoeller] */
+    ID_XCSI_NEWFILEDLG                  "Replace file dialog"
+END
+
+/* STILL more miscellaneous strings...
+    (all added V0.9.9 (2001-03-07) [umoeller]) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_STYLEPAGE                   "~Style"
+    ID_XSSI_CLASSESPAGE                 "~Classes"
+    ID_XSSI_WIDGETSPAGE                 "~Widgets"
+    /* this one renamed V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSSI_ADDWIDGET                   "Cre~ate new widget"
+    /* this one added V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSSI_ADDWIDGETTOTRAY             "~Add widget to tray"
+    ID_XSSI_WIDGETCLASS                 "Widget class"
+    ID_XSSI_WIDGETSETUP                 "Widget setup"
+
+    ID_XSSI_FONTFOLDER                  "Font Folder"
+    ID_XSSI_FONTFILE                    "Font File"
+    ID_XSSI_FONTFAMILY                  "Font Family"
+    ID_XSSI_FONTERRORS                  "Font Errors"
+    ID_XSSI_FONTOBJECT                  "Installed Font"
+    ID_XSSI_CDPLAYERVIEW                "~CD player"
+    ID_XSSI_CDPLAYER                    "CD player"
+    ID_XSSI_VOLUMEVIEW                  "~Volume"
+    ID_XSSI_VOLUME                      "Volume"
+    ID_XSSI_ADMINISTRATOR               "Administrator"
+    ID_XSSI_THREADSPAGE                 "~Threads"
+
+    ID_XSSI_CLSLISTTOKEN                "Token"
+
+    ID_XSSI_DRIVERVERSION               "Version: "
+    ID_XSSI_DRIVERVENDOR                "Vendor: "
+
+    ID_XSSI_FONTSAMPLEVIEW              "~Font sample"
+    ID_XSSI_FONTDEINSTALL               "~Uninstall..."
+
+    ID_XSSI_KEYDESCRIPTION              "Key Description"
+    ID_XSSI_SCANCODE                    "Hardware Scan Code"
+    ID_XSSI_MODIFIER                    "Modifier"
+
+    ID_XSSI_DEFAULTSHUTDOWN             "Default &os2; shutdown..."
+    ID_XSSI_INSTALLINGFONTS             "Installing fonts..."
+    ID_XSSI_DEINSTALLINGFONTS           "Uninstalling fonts..."
+            // added V1.0.1 (2002-12-15) [umoeller]
+
+    ID_XSSI_PARAMETERS                  "Parameter"
+    ID_XSSI_CLOSE                       "~Close"
+
+    ID_XSSI_DROPPED1                    "... %d objects dropped,"
+    ID_XSSI_DROPPED2                    "open folder to see them"
+
+    ID_XSSI_THREADSTHREAD               "Thread"
+    ID_XSSI_THREADSTID                  "TID"
+    ID_XSSI_THREADSPRIORITY             "Priority"
+    ID_XSSI_THREADSGROUPTITLE           "&xwp; threads"
+
+    /* Do not leave our or change the order of the %d, %f and %%
+       keys, or XWP might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_XSSI_ARCRESTORED                 "Archive %d was just restored."
+    ID_XSSI_ARCDAYSPASSED               "%d day(s) passed since last backup."
+    ID_XSSI_ARCDAYSLIMIT                "Limit: %d day(s)."
+    ID_XSSI_ARCINICHECKING              "Checking INI files..."
+    ID_XSSI_ARCINICHANGED               "INI files changed %f %%."
+    ID_XSSI_ARCINILIMIT                 "Limit: %f %%."
+    ID_XSSI_ARCENABLED                  "Desktop archiving enabled."
+    ID_XSSI_ARCNOTNECC                  "Desktop archiving not necessary."
+
+    /* titles of programfiles "Imported modules" and "Exported functions" pages V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_PGMFILE_MODULE1             "Imported modules"
+    ID_XSSI_PGMFILE_MODULE2             "Exported functions"
+
+    /* containers columns headers in programfiles notebooks V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_COLMN_MODULENAME            "Name"
+    ID_XSSI_COLMN_EXPORTORDINAL         "Ordinal"
+    ID_XSSI_COLMN_EXPORTTYPE            "Type"
+    ID_XSSI_COLMN_EXPORTNAME            "Name"
+    ID_XSSI_COLMN_RESOURCEICON          "Icon"
+    ID_XSSI_COLMN_RESOURCEID            "ID"
+    ID_XSSI_COLMN_RESOURCETYPE          "Type"
+    ID_XSSI_COLMN_RESOURCESIZE          "Size"
+    ID_XSSI_COLMN_RESOURCEFLAGS         "Flags"
+
+    /* XPager special functions in XWPMouse "Movement" page V0.9.9 (2001-03-11 [lafaix] */
+    ID_XSSI_SPECIAL_PAGERUP          "One screen up"
+    ID_XSSI_SPECIAL_PAGERRIGHT       "One screen right"
+    ID_XSSI_SPECIAL_PAGERDOWN        "One screen down"
+    ID_XSSI_SPECIAL_PAGERLEFT        "One screen left"
+
+    /* new MB3 mappings labels V0.9.9 (2001-03-27) [umoeller] */
+    ID_XSSI_MB3_AUTOSCROLL              "AutoScroll"
+    ID_XSSI_MB3_DBLCLICK                "Double click"
+    ID_XSSI_MB3_NOCONVERSION            "No conversion"
+    ID_XSSI_MB3_PUSHTOBOTTOM            "Push to bottom"
+
+    /* new screen borders page title V0.9.9 (2001-04-04) [lafaix] */
+    ID_XSSI_SCREENBORDERSPAGE           "Screen Borders"
+
+    /* XWPAdmin "Users" page V0.9.11 (2001-04-22) [umoeller]*/
+    /* removed V0.9.19 (2002-04-14) [umoeller] */
+    /* ID_XSSI_ADMIN_USER                  "~User" */
+
+    /* fixed class titles for folder, disk, datafile V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLASSTITLE_FOLDER           "Folder"
+    ID_XSSI_CLASSTITLE_DISK             "Disk"
+    ID_XSSI_CLASSTITLE_DATAFILE         "Data file"
+
+    /* extended "close" menu V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLOSETHISVIEW               "This ~view"
+    ID_XSSI_CLOSEALLTHISFDR             "All views of this ~folder"
+    ID_XSSI_CLOSEALLSUBFDRS             "All views of this folder and ~subfolders"
+
+    /* miscellaneous new strings V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_INVALID_OBJECT              "Invalid object"
+    ID_XSSI_XSHUTDOWN                   "~&xsd;"
+    ID_XSSI_XC_CLASSTITLE               "Class title"
+    ID_XSSI_XC_VERSION                  "Version"
+    ID_XSSI_XC_OBJBUTTONWIDGET          "Object button widget"
+
+    /* another archive string V0.9.13 (2001-06-14) [umoeller] */
+    ID_XSSI_ARCENABLEDONCE              "Desktop archiving enabled once."
+
+    /* more multimedia strings V0.9.13 (2001-06-14) [umoeller] */
+    ID_MMSI_INSTALLNAME                 "Install Name"
+    ID_MMSI_LOGICALNAME                 "Logical Name"
+    ID_MMSI_ALIAS                       "Alias"
+    ID_MMSI_MCD                         "Media control driver"
+    ID_MMSI_VSD                         "Vendor-specific driver"
+    ID_MMSI_PDD                         "Physical device driver"
+    ID_MMSI_PARAMS                      "Parameters"
+
+    /* more XCenter strings V0.9.13 (2001-06-19) [umoeller] */
+    ID_CRSI_ADDTRAY                     "A~dd tray..."
+    ID_CRSI_RENAMETRAY                  "Re~name tray..."
+    ID_CRSI_REMOVETRAY                  "D~elete tray..."
+
+    ID_CRSI_TRAY                        "Tray %d"
+    ID_CRSI_NOTRAYACTIVE                "No active tray"
+
+    ID_CRSI_ENTERNEWTRAY                "Please enter a name for the tray to be created:"
+    ID_CRSI_ENTERRENAMETRAY             "Please enter a new name for this tray:"
+
+    ID_XSSI_RUN                         "~Run..."
+
+    /* the following have been added with V0.9.16 */
+    ID_CRSI_SENTINELTOOLTIP             "Physical memory usage&nl;Free RAM: %s KB&nl;Used RAM: %s KB&nl;Swapper size: %s KB"
+            /* expands to:
+                              Physical memory usage
+                              Free RAM: %s KB
+                              Used RAM: %s KB
+                              Swapper size: %s KB
+            */
+
+    /* the following five added V1.0.0 (2002-08-21) [umoeller] */
+    ID_CRSI_SENTINELTOOLTIP2            "&nl;Free in swapper: %s KB "
+    ID_CRSI_MEMORYTOOLTIP               "Currently free memory"
+    ID_CRSI_BATTERYTOOLTIP              "Battery power"
+    ID_CRSI_DISKFREECONDTOOLTIP         "Free space on disks"
+    ID_CRMI_IPWIDGET_SOURCE             "Source interface"
+
+    ID_CRSI_BUILTINCLASS                "Built-in"
+    ID_CRSI_OWGT_MENUITEMS              "Visible menu items"
+
+    ID_CRSI_PWGT_TITLE                  "Pulse"
+    ID_CRSI_PWGT_IRQLOADCOLOR           "IRQ load"
+    ID_CRSI_PWGT_CPUGRAPHCOLORS         "CPU graph colors"
+    ID_CRSI_PWGT_CPUXUSERCOLOR          "CPU %d user load"
+    ID_CRSI_PWGT_OTHERCOLORS            "Other colors"
+    ID_CRSI_PWGT_BACKGROUNDCOLOR        "Background"
+    ID_CRSI_PWGT_TEXTCOLOR              "Text"
+    ID_CRSI_PWGT_TOOLTIP1               "CPU count: %d&nl;CPU 0 IRQ load: %lu%c%lu%c"
+    ID_CRSI_PWGT_TOOLTIP2               "&nl;CPU %d user load: %lu%c%lu%c"
+            /* warning: the above two are strings for sprintf, so you _must_
+               get the % flags exactly correct, or the pulse will crash */
+
+    ID_XSSI_WPSFDRVIEWPAGE              "Folder ~Views"
+
+    ID_XFSI_FDLG_DRIVES                 "~Drives:"
+    ID_XFSI_FDLG_FILESLIST              "Files ~list:"
+    ID_XFSI_FDLG_TYPES                  "Types:"
+    ID_XFSI_FDLG_DIRECTORY              "Directory:"
+    ID_XFSI_FDLG_WORKING                "Working..."
+    ID_XFSI_FDLG_FILE                   "~File:"
+    ID_XFSI_FDLG_SAVEFILEAS             "Save File As..."
+    ID_XFSI_FDLG_OPENFILE               "Open File..."
+    ID_XFSI_FDLG_ALLTYPES               "<All types>"
+
+    /* the following have been added with V0.9.18 */
+    ID_XSSI_SPECIAL_SCREENWRAP          "Screen wrap"
+
+    /* the following have been added with V0.9.19 */
+    ID_XSSI_DOUBLEFILES_FILENAME        "File name"
+    ID_XSSI_DOUBLEFILES_DIR             "Directory"
+    ID_XSSI_DOUBLEFILES_SIZE            "Size"
+    ID_XSSI_DOUBLEFILES_DATE            "Date"
+    ID_XSSI_DOUBLEFILES_TIME            "Time"
+
+    ID_NDSI_STARTNETSCAPE               "Your browser does not seem to be currently running. Start it now?"
+    ID_NDSI_SYNTAX                      "The syntax for the Netscape DDE command line is incorrect. Would you like to view the online help?"
+
+    ID_CRSI_OWGT_BITMAPFILE             "OS/2 bitmap file"
+
+    /* widget class names (all new with V0.9.19) */
+    ID_CRSI_WIDGET_OBJBUTTON            "Object button"
+    ID_CRSI_WIDGET_XBUTTON              "&xbutton;"
+    ID_CRSI_WIDGET_PULSE                "Pulse (CPU load)"
+    ID_CRSI_WIDGET_TRAY                 "Tray"
+    ID_CRSI_WIDGET_DISKFREE_WC          "Diskfree (&warpcenter; style)"
+    ID_CRSI_WIDGET_DATE                 "Date"
+    ID_CRSI_WIDGET_TIME                 "Time"
+    ID_CRSI_WIDGET_FREEMEM              "Free physical memory"
+    ID_CRSI_WIDGET_POWER                "Battery power"
+    ID_CRSI_WIDGET_DISKFREE_COND        "Diskfree (condensed)"
+    ID_CRSI_WIDGET_SENTINEL             "Sentinel memory watcher"
+    ID_CRSI_WIDGET_WINDOWLIST           "Window list"
+    ID_CRSI_WIDGET_HEALTH               "Health Monitor"
+    ID_CRSI_WIDGET_IPMONITOR            "IP Monitor"
+
+    /* font sample view (all new with V0.9.19) */
+    ID_XSSI_FONT_BASELINE               "Show baseline (red line)"
+    ID_XSSI_FONT_MAXASCENDER            "Show maximum ascender/descender (gray rectangles on left)"
+    ID_XSSI_FONT_INTERNALLEADING        "Show internal leading (gray rectangle)"
+    ID_XSSI_FONT_LOWERCASEASCENT        "Show lower case ascent/descent (red rectangles)"
+
+    /* object details dialog V0.9.19 (2002-05-23) [umoeller] */
+    ID_XSSI_OBJDET_OBJECTID             "Object ID"
+    ID_XSSI_OBJDET_NONESET              "none set"
+    ID_XSSI_OBJDET_OBJECTID_ORIG        "Original object ID"
+    ID_XSSI_OBJDET_DEFAULTVIEW          "Object default view"
+    ID_XSSI_OBJDET_HANDLE               "Object handle"
+
+    ID_XSSI_OBJDET_STYLEGROUP           "Object style"
+    ID_XSSI_OBJDET_CUSTOMICON           "Custom icon (auto-destroy; style doesn't work)"
+    ID_XSSI_OBJDET_NOTDEFAULTICON       "Not default icon (auto-destroy)"
+    ID_XSSI_OBJDET_NOCOPY               "no copy"
+    ID_XSSI_OBJDET_NODELETE             "no delete"
+    ID_XSSI_OBJDET_NODRAG               "no drag"
+    ID_XSSI_OBJDET_NODROPON             "no drop-on"
+    ID_XSSI_OBJDET_NOLINK               "no link (cannot have shadows)"
+    ID_XSSI_OBJDET_NOMOVE               "no move"
+    ID_XSSI_OBJDET_NOPRINT              "no print"
+    ID_XSSI_OBJDET_NORENAME             "no rename"
+    ID_XSSI_OBJDET_NOSETTINGS           "no settings"
+    ID_XSSI_OBJDET_NOTVISIBLE           "not visible"
+    ID_XSSI_OBJDET_TEMPLATE             "template"
+    ID_XSSI_OBJDET_LOCKEDINPLACE        "locked in place"
+
+    ID_XSSI_OBJDET_PROGRAMDATA          "Program data"
+    ID_XSSI_OBJDET_PROGRAMTYPE          "Program type"
+    ID_XSSI_OBJDET_ENVIRONMENT          "Environment"
+
+    ID_XSSI_OBJDET_FOLDERFLAGS          "Folder flags"
+    ID_XSSI_OBJDET_FOLDERVIEWFLAGS      "Folder view flags"
+    ID_XSSI_OBJDET_OBJUSAGE             "Object usage"
+    ID_XSSI_OBJDET_OPENVIEWS            "Currently open views"
+    ID_XSSI_OBJDET_ALLOCMEM             "Allocated memory"
+    ID_XSSI_OBJDET_AWAKESHADOWS         "Awake shadows of this object"
+    ID_XSSI_OBJDET_FOLDERWINDOWS        "Folder windows containing this object"
+    ID_XSSI_OBJDET_CNRHWND              "Container HWND"
+    ID_XSSI_OBJDET_APPSOPEN             "Applications which opened this object"
+    ID_XSSI_OBJDET_APPHANDLE            "Open handle (probably HAPP)"
+    ID_XSSI_OBJDET_MENUID               "Menu ID"
+
+    ID_CRSI_WINLIST_WIDGET              "Window list widget"
+    ID_CRSI_WINLIST_RESTORE             "~Restore"
+    ID_CRSI_WINLIST_MOVE                "~Move"
+    ID_CRSI_WINLIST_SIZE                "~Size"
+    ID_CRSI_WINLIST_MINIMIZE            "Mi~nimize"
+    ID_CRSI_WINLIST_MAXIMIZE            "Ma~ximize"
+    ID_CRSI_WINLIST_HIDE                "~Hide"
+    ID_CRSI_WINLIST_KILL1               "Kill process"
+    ID_CRSI_WINLIST_KILL2               "~Kill process (PID 0x%lX)"
+    /* the following two added V0.9.20 (2002-08-10) [umoeller] */
+    ID_CRSI_WINLIST_CLOSE               "~Close ""%s"""
+    ID_CRSI_WINLIST_FILTER              "~Filter ""%s"""
+
+    /* IP monitor */
+    ID_CRSI_IPWGT_GRAPHCOLORS           "Graph colors"
+    ID_CRSI_IPWGT_GRAPHINCOLOR          "Incoming"
+    ID_CRSI_IPWGT_GRAPHOUTCOLOR         "Outgoing"
+    ID_CRSI_IPWGT_TOTAL                 "total"  // V 1.0.8 (2008-05-28)
+
+    /* Sentinel properties page V1.0.4 (2005-03-27) [chennecke] */
+    ID_CRSI_SWGT_PHYS                   "Physical Memory"
+    ID_CRSI_SWGT_PHYSFREE               "Free"
+    ID_CRSI_SWGT_PHYSINUSE              "Used"
+    ID_CRSI_SWGT_SWAPFILE               "Swap File"
+    ID_CRSI_SWGT_SWAP                   "Used/Size"
+    ID_CRSI_SWGT_SWAPFREE               "Free"
+
+    /* XCenter properties  V0.9.20 (2002-08-08) [umoeller] */
+    ID_CRMI_XCSUB_PROPERTIES            "&xcenter; ~properties"
+    ID_CRMI_XCSUB_CLOSE                 "Close &xcenter;"
+    ID_CRMI_HELP_XCENTER                "&xcenter; help"
+END
+
+/* string IDs for status bar mnemonics (all new with V0.9.14) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_SBMNC_1                      "in bytes"
+    ID_XSSI_SBMNC_2                      "in kBytes"
+    ID_XSSI_SBMNC_3                      "in KBytes"
+    ID_XSSI_SBMNC_4                      "in mBytes"
+    ID_XSSI_SBMNC_5                      "in MBytes"
+    ID_XSSI_SBMNC_6                      "in bytes/kBytes/mBytes/gBytes"
+    ID_XSSI_SBMNC_7                      "in bytes/KBytes/MBytes/GBytes"
+    ID_XSSI_SBMNC_000                    "Count of selected objects"
+    ID_XSSI_SBMNC_001                    "Total count of objects in folder"
+    ID_XSSI_SBMNC_010                    "Free space on drive"
+    ID_XSSI_SBMNC_020                    "Total size of drive"
+    ID_XSSI_SBMNC_030                    "Size of selected objects"
+    ID_XSSI_SBMNC_040                    "Total size of folder content"
+    ID_XSSI_SBMNC_100                    "Object title"
+    ID_XSSI_SBMNC_110                    "WPS class default title"
+    ID_XSSI_SBMNC_120                    "WPS class name"
+    ID_XSSI_SBMNC_200                    "File system type (HPFS, FAT, CDFS, ...)"
+    ID_XSSI_SBMNC_210                    "Drive label"
+    ID_XSSI_SBMNC_220                    "Total space on drive"
+    ID_XSSI_SBMNC_300                    "Object's real name"
+    ID_XSSI_SBMNC_310                    "Object type (.TYPE EA)"
+    ID_XSSI_SBMNC_320                    "Object creation date"
+    ID_XSSI_SBMNC_330                    "Object creation time"
+    ID_XSSI_SBMNC_340                    "Object attributes"
+    ID_XSSI_SBMNC_350                    "EA size in bytes"
+    ID_XSSI_SBMNC_360                    "EA size in kBytes"
+    ID_XSSI_SBMNC_370                    "EA size in KBytes"
+    ID_XSSI_SBMNC_380                    "EA size in bytes/kBytes"
+    ID_XSSI_SBMNC_390                    "EA size in bytes/KBytes"
+    ID_XSSI_SBMNC_400                    "URL"
+    ID_XSSI_SBMNC_500                    "Executable program file"
+    ID_XSSI_SBMNC_510                    "Parameter list"
+    ID_XSSI_SBMNC_520                    "Working directory"
+END
+
+/* ******************************************************************
+ *
+ *   Strings formerly in xfldr001.dlg
+ *
+ ********************************************************************/
+
+/* Starting with V0.9.16, I am successively converting dialogs
+   not to use regular DLGEDIT dialog templates any more, but
+   instead have them being dynamically formatted from the
+   strings directly. The following section contains strings
+   which were therefore formerly in the dialog templates in
+   xfldr001.dlg. Each string has the same ID as the dialog
+   item ID, so if you have translated them already, you can
+   simply use the dialog item ID and the translated string
+   below. This will make translations much easier in the
+   future. */
+
+STRINGTABLE
+BEGIN
+    /* general strings */
+    DID_UNDO                            "~Undo"
+    DID_DEFAULT                         "~Default"
+    DID_HELP                            "~Help"
+    DID_BROWSE                          "Bro~wse..."
+    DID_DETAILS                         "Det~ails..."
+    DID_CLOSE                           "~Close"
+
+    /*  the following added; these are the strings formerly
+        under the ID_XSSI_DLG_* IDs, which was really causing
+        quite some inefficiency in the code
+        V0.9.19 (2002-04-17) [umoeller] */
+    DID_OK                              "~OK"
+    DID_CANCEL                          "~Cancel"
+    DID_YES                             "~Yes"
+    DID_YES2ALL                         "Yes to ~all"
+    DID_NO                              "~No"
+    DID_ABORT                           "~Abort"
+    DID_RETRY                           "~Retry"
+    DID_IGNORE                          "~Ignore"
+
+    /* couple more added with V0.9.19 */
+    DID_ADD                             "~Add..."
+    DID_EDIT                            "~Edit..."
+    DID_REMOVE                          "~Remove"
+
+    /* and these with V1.0.0 (2002-09-13) [umoeller] */
+    DID_OPEN                            "~Open"
+    DID_SAVE                            "~Save"
+
+    /* added V1.0.4 (2005-02-24) [chennecke]: for Xfix */
+    DID_ENTER                           "~Enter"
+
+    /* strings formerly in ID_XSD_SET25ADDMENUS
+        all removed V0.9.19 */
+
+    /* strings formerly in ID_XSD_SETTINGS_FLDR1 */
+    ID_XSSI_GENERALVIEWPAGE             "General view settings"
+    ID_XSDI_FAVORITEFOLDER              "~Favorite folder"
+    ID_XSDI_QUICKOPEN                   "~Quick open at Desktop startup"
+    ID_XSDI_FULLPATH                    "Show full path in folder ~title"
+    ID_XSDI_KEEPTITLE                   "~Keep original title"
+    ID_XSDI_SNAPTOGRID                  "Add ""Sna~p to grid"""
+    ID_XSDI_ACCELERATORS                "React to folder h~otkeys"
+    ID_XSDI_ENABLESTATUSBAR             "Di~splay status bar"
+    ID_XSDI_SHOWINMENUS                 "Sho~w hotkeys in menus"
+    ID_XSDI_HOTKEYS_GROUP               "Folder hotkeys"
+
+    /* strings formerly in ID_XSD_DTP_MENUITEMS
+        all removed with V0.9.19  */
+
+    /* strings formerly in ID_XSD_DTP_SHUTDOWN */
+    ID_SDDI_SHAREDGROUP                 "Common settings"
+    ID_SDDI_EMPTYTRASHCAN               "~Empty trash can"
+    ID_SDDI_CONFIRM                     "~Confirm"
+    ID_SDDI_WARPCENTERFIRST             "Close ~&warpcenter; before Desktop"
+    ID_SDDI_AUTOCLOSEVIO                "Auto-close non-~PM sessions"
+    ID_SDDI_AUTOCLOSEDETAILS            "Auto-close det~ails..."
+    ID_SDDI_LOG                         "Write XSHUTDWN.LO~G file"
+    ID_SDDI_CREATESHUTDOWNFLDR          "Create &xsd; folder"
+
+    ID_SDDI_SHUTDOWNGROUP               "Shutdown only"
+    ID_SDDI_REBOOT                      "~Reboot afterwards"
+    ID_SDDI_REBOOTEXT                   "Reboot actio~ns..."
+    ID_SDDI_ANIMATE_TXT                 "Animation"
+    ID_SDDI_ANIMATE_SHUTDOWN            "~before shutdown"
+    ID_SDDI_ANIMATE_REBOOT              "be~fore reboot"
+    /* V1.0.5: ID_SDDI_APMPOWEROFF renamed to ID_SDDI_POWEROFF */
+    ID_SDDI_POWEROFF                    "Power-off computer"
+    ID_SDDI_DELAY                       "Dela~y"
+    ID_SDDI_APMVERSION_TXT              "APM level:"
+    ID_SDDI_APMVERSION                  "unknown"
+    /* V1.0.5: Added the next four items */
+    ID_SDDI_ACPIVERSION_TXT             "ACPI level:"
+    ID_SDDI_ACPIVERSION                 "unknown"
+    ID_SDDI_APMPOWEROFF                 "APM"
+    ID_SDDI_ACPIPOWEROFF                "ACPI"
+    ID_SDDI_SAVEINIS_TXT                "Save INI files:"
+    ID_SDDI_CANDESKTOPALTF4             "Alt+F~4 on Desktop starts shutdown"
+
+    /* strings formerly in ID_XSD_DTP_STARTUP */
+    ID_XSDI_DTP_LOGOGROUP               "Workplace Shell boot logo"
+    ID_XSDI_DTP_BOOTLOGO                "Enable ~boot logo"
+    ID_XSDI_DTP_LOGOSTYLEGROUP          "Boot logo style"
+    ID_XSDI_DTP_LOGO_TRANSPARENT        "~Transparent style"
+    ID_XSDI_DTP_LOGO_BLOWUP             "B~low-up style"
+    ID_XSDI_DTP_LOGOFILETXT             "OS/2 1.3 BMP ~file for boot logo:"
+    ID_XSDI_DTP_TESTLOGO                "T~est logo"
+    /* V0.9.19: changed log file name */
+    ID_XSDI_DTP_WRITEXWPSTARTLOG        "Write WP~START.LOG file"
+    ID_XSDI_DTP_BOOTUPSTATUS            "Show W~PS class initialization"
+    ID_XSDI_DTP_CREATESTARTUPFLDR       "Create ~&xwp; Startup folder"
+    ID_XSDI_DTP_NUMLOCKON               "Enable ~NumLock at startup"
+
+    /* strings formerly in ID_XFD_STARTUPPANIC */
+    ID_XFDI_PANIC_TITLE                 "&xwp; Panic"
+    ID_XFDI_PANIC_SKIPBOOTLOGO          "Skip ~boot logo once"
+    ID_XFDI_PANIC_SKIPXFLDSTARTUP       "Skip &xwp; S~tartup folder once"
+    ID_XFDI_PANIC_SKIPQUICKOPEN         "Skip ""~Quick open"" folders once"
+    ID_XFDI_PANIC_NOARCHIVING           "Skip Desktop ~archiving once"
+    ID_XFDI_PANIC_DISABLEFEATURES       "Permanently ~disable all features"
+    ID_XFDI_PANIC_DISABLEREPLICONS      "Permanently disable ~icon replacements"
+    ID_XFDI_PANIC_REMOVEHOTKEYS         "~Remove all object hotkeys"
+    ID_XFDI_PANIC_DISABLEPAGER          "Disable ~&pgr;"
+    ID_XFDI_PANIC_DISABLEMULTIMEDIA     "Disable ~multimedia"
+    ID_XFDI_PANIC_CONTINUE              "C~ontinue"
+    ID_XFDI_PANIC_CONTINUE_TXT          "This will continue Desktop startup."
+    ID_XFDI_PANIC_XFIX                  "Run x~fix"
+    ID_XFDI_PANIC_XFIX_TXT              "Run the &xwp; Handles Fixer."
+    ID_XFDI_PANIC_CMD                   "Run ~CMD.EXE"
+    ID_XFDI_PANIC_CMD_TXT               "Opens a command line window now."
+    ID_XFDI_PANIC_SHUTDOWN              "~Shut down now"
+    ID_XFDI_PANIC_SHUTDOWN_TXT          "This performs a default &os2; shutdown now."
+    // these ones are new with V0.9.16
+    ID_XFDI_PANIC_DISABLEREPLREFRESH    "Disable replacement folder auto-refresh"
+    ID_XFDI_PANIC_DISABLETURBOFOLDERS   "Disable turbo folders"
+    // this one is new with V0.9.16
+    ID_XFDI_PANIC_DISABLECHECKDESKTOP   "Disable check Desktop on startup"
+
+    /* strings formerly in ID_XSD_FOLDERVIEWS */
+    ID_XSD_FOLDERVIEWGROUP              "Folder view settings"
+    /* ID_XSDI_FULLPATH                    "Show full path in folder ~title" */
+    /* ID_XSDI_KEEPTITLE                   "Kee~p original title" */
+        /* already in ID_XSDI_FAVORITEFOLDER */
+    ID_XSDI_MAXPATHCHARS_TX1            "~Limit path to"
+    ID_XSDI_MAXPATHCHARS_TX2            "characters"
+    ID_XSDI_TREEVIEWAUTOSCROLL          "Auto-scroll Tree vie~ws"
+    ID_XSDI_FDRDEFAULTDOC               "~Enable default documents in folders"
+    ID_XSDI_FDRDEFAULTDOCVIEW           "De~fault document = default folder view"
+    ID_XSDI_FDRAUTOREFRESH              "Enable folder ~auto-refresh"
+    ID_XSDI_FDRVIEWDEFAULT_GROUP        "Default folder view"
+    ID_XSDI_FDRVIEW_INHERIT             "Inherit from pare~nt"
+    ID_XSDI_FDRVIEW_ICON                "~Icon"
+    ID_XSDI_FDRVIEW_TREE                "T~ree"
+    ID_XSDI_FDRVIEW_DETAILS             "Detail~s"
+    /* the following two added V0.9.20 (2002-07-31) [umoeller] */
+    ID_XSDI_FDRVIEW_LAZYICONS           "La~zy-load data file icons"
+    ID_XSDI_FDRVIEW_SHADOWOVERLAY       "Mark shado~w icons"
+    /* the following two added V1.0.1 (2003-01-31) [umoeller] */
+    ID_XSDI_FDRVIEW_THUMBNAILS          "~Preview image thumbnails"
+
+    /* string formerly in ID_CRD_SETTINGS_VIEW2 */
+    ID_CRDI_VIEW2_3DBORDER_GROUP        "~3D border width"
+    ID_CRDI_VIEW2_ALL3DBORDERS          "Dr~aw all four 3D borders"
+    ID_CRDI_VIEW2_BDRSPACE_GROUP        "~Border spacing"
+    ID_CRDI_VIEW2_WGTSPACE_GROUP        "~Widget spacing"
+    ID_CRDI_VIEW2_SIZINGBARS            "Draw si~zing bars"
+    ID_CRDI_VIEW2_SPACINGLINES          "Draw spa~cing lines"
+    ID_CRDI_VIEW2_DEFSTYLES_GROUP       "Default widget styles"
+    ID_CRDI_VIEW2_FLATBUTTONS           "~Flat buttons"
+    ID_CRDI_VIEW2_SUNKBORDERS           "Fra~me around statics"
+    ID_CRDI_VIEW2_HATCHINUSE            "Hatch ~open objects"
+
+    /* strings formerly in ID_XFD_ARCHIVINGSTATUS */
+    ID_XFD_ARCHIVINGSTATUS              "Desktop Archiving"
+
+    /* strings formerly in ID_XSD_DTP_ARCHIVES */
+    ID_XSDI_ARC_CRITERIA_GROUP          "Archiving criteria"
+    ID_XSDI_ARC_ENABLE                  "~Archive Desktop"
+    ID_XSDI_ARC_ALWAYS                  "at ~every Desktop startup"
+    ID_XSDI_ARC_NEXT                    "at ~next Desktop startup only"
+    ID_XSDI_ARC_INI                     "if ~INI files have changed"
+    ID_XSDI_ARC_INI_SPINTXT1            "%"
+    ID_XSDI_ARC_DAYS                    "e~very"
+    ID_XSDI_ARC_DAYS_SPINTXT1           "days"
+    ID_XSDI_ARC_SHOWSTATUS              "Sho~w archiving status at Desktop startup"
+    ID_XSDI_ARC_ARCHIVES_GROUP          "Archives"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT1        "Kee~p"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT2        "archives"
+    ID_XSDI_ARC_RESTORE_GROUP           "Recovery choices"
+    ID_XSDI_ARC_RESTORE_ALWAYS          "Display at each ~system startup"
+    ID_XSDI_ARC_RESTORE_TXT1            "~Timeout"
+    ID_XSDI_ARC_RESTORE_TXT2            "seconds"
+
+    /* strings formerly in ID_SDD_CONFIRMWPS */
+    ID_SDDI_CONFIRMWPS_TITLE            "&xwp;: Restart Desktop"
+    /* V1.0.0: ID of next item changed */
+    ID_SDDI_CONFIRMWPS_TEXT             "Are you sure you wish to restart the Desktop?"
+    ID_SDDI_WPS_CLOSEWINDOWS            "~Close all sessions"
+    ID_SDDI_WPS_STARTUPFOLDER           "~Process all &xwp; Startup folders"
+        /* next one is new with V0.9.19 */
+    ID_SDDI_ARCHIVEONCE                 "~Archive Desktop once after restart"
+    ID_SDDI_MESSAGEAGAIN                "~Show this message next time"
+        /* next one is new with V1.0.1 (2003-01-29) [umoeller] */
+    ID_SDDI_WPS_RUNSHUTDOWNFDR          "Process shutdo~wn folder before restart"
+
+    /* strings formerly in ID_SDD_CONFIRM V1.0.0 */
+    ID_SDDI_CONFIRM_TITLE                "&xwp;: Extended Shutdown"
+    ID_SDDI_CONFIRM_TEXT                "Please select how the system shall be shut down."
+    ID_SDDI_REBOOTOPT_GROUP             "Reboot options"
+    /* Tweaked accelerator keys V1.0.8 */
+    ID_SDDI_SHUTDOWNONLY                "~Shut down only"
+    ID_SDDI_STANDARDREBOOT              "Standard ~reboot"
+    ID_SDDI_REBOOTTO                    "Reboot ~to..."
+
+    /* the following two are new with V0.9.17 (2002-02-05) [umoeller] */
+    ID_SDDI_COMPLETE                    "Shutdown has completed."
+    ID_SDDI_SWITCHOFF                   "You may now switch off your computer or press Ctrl+Alt+Del to reboot."
+
+    /* new "Icon" page replacement */
+    ID_XSDI_ICON_TITLE_TEXT             "T~itle"
+    ID_XSDI_ICON_GROUP                  "Current icon"
+    ID_XSDI_ICON_EXPLANATION_TXT        "Drag any object into the rectangle on the left, or find an icon file using the ""Browse"" button."
+    ID_XSDI_ICON_EDIT_BUTTON            "~Edit icon"
+    ID_XSDI_ICON_RESET_BUTTON           "~Reset icon"
+    ID_XSDI_ICON_LOCKPOSITION_CB        "~Lock in place"
+    ID_XSDI_ICON_TEMPLATE_CB            "~Template"
+    ID_XSDI_ICON_HOTKEY_TEXT            "Object hot~key:"
+    ID_XSDI_ICON_HOTKEY_CLEAR           "~Clear"
+    ID_XSDI_ICON_HOTKEY_SET             "~Set"
+    ID_XSDI_ICON_EXTRAS_GROUP           "Extras"
+
+    /* new "Object details" dialog */
+    ID_XSDI_DETAILS_DIALOG              "Object details"
+    ID_XSDI_DETAILS_GROUP               "~Details"
+    ID_XSDI_DETAILS_SETUPSTR_GROUP      "~Setup string"
+
+    /* new "Mouse movement 1" page */
+    ID_XSDI_MOUSE_SLIDINGFOCUS_GRP      "Sliding focus"
+    ID_XSDI_MOUSE_SLIDINGFOCUS          "~Enable"
+    ID_XSDI_MOUSE_FOCUSDELAY_TXT1       "Activation de~lay:"
+    ID_XSDI_MOUSE_BRING2TOP             "Bring windows to ~top"
+    ID_XSDI_MOUSE_IGNORESEAMLESS        "Ignore seamless ~Win-OS/2"
+    ID_XSDI_MOUSE_IGNOREDESKTOP         "~Ignore Desktop"
+/*    ID_XSDI_MOUSE_IGNOREPAGER           "Ignore XPa~ger"
+      ID_XSDI_MOUSE_IGNOREXCENTER         "Ignore ~XCenter"
+        removed V0.9.19 (2002-05-07) [umoeller]
+        */
+    ID_XSDI_MOUSE_SLIDINGMENU_GRP       "Sliding menu selection"
+    ID_XSDI_MOUSE_SLIDINGMENU           "E~nable"
+    ID_XSDI_MOUSE_MENUDELAY_TXT1        "Su~bmenu delay:"
+    ID_XSDI_MOUSE_CONDCASCADE           "~Conditional cascade sensitivity"
+    ID_XSDI_MOUSE_MENUHILITE            "I~mmediate hilite"
+
+    /* product info */
+    ID_XSDI_INFO_TITLE                  "Product Information"
+
+    /* installed classes dialog */
+    ID_XCD_CLASSES_TITLE                "XWorkplace Classes"
+    ID_XCD_CLASSES_REPLACEMENTS         "Class replacements"
+    ID_XCD_CLASSES_NEW                  "New classes"
+
+    /* the following are new with V0.9.19 */
+
+    /* strings formerly in ID_XSD_FILESPAGE1 */
+    ID_XSDI_FILES_REALNAME_TXT          "Real name:"
+    ID_XSDI_FILES_FILESIZE_TXT          "Size in bytes:"
+    ID_XSDI_FILES_WORKAREA              "~Work area"
+    ID_XSDI_FILES_DATETIME_GROUP        "Date/time"
+    ID_XSDI_FILES_CREATIONDATE_TXT      "Creation:"
+    ID_XSDI_FILES_LASTWRITEDATE_TXT     "Last write:"
+    ID_XSDI_FILES_LASTACCESSDATE_TXT    "Last access:"
+    ID_XSDI_FILES_ATTR_GROUP            "Attributes"
+    ID_XSDI_FILES_ATTR_ARCHIVED         "~Archive"
+    ID_XSDI_FILES_ATTR_READONLY         "~Read only"
+    ID_XSDI_FILES_ATTR_SYSTEM           "S~ystem"
+    ID_XSDI_FILES_ATTR_HIDDEN           "~Hidden"
+    ID_XSDI_FILES_INFO_GROUP            "Information"
+    ID_XSDI_FILES_SUBJECT_TXT           "Sub~ject:"
+    ID_XSDI_FILES_COMMENTS_TXT          "~Comments:"
+    ID_XSDI_FILES_KEYPHRASES_TXT        "Keyw~ords:"
+
+    /* strings formerly in ID_XTD_SETTINGS */
+    ID_XTDI_OPTIONSGROUP                "Trash can options"
+    ID_XTDI_CONFIRMEMPTY                "~Confirm empty"
+    ID_XTDI_CONFIRMDESTROY              "Confirm destro~y"
+    ID_XTDI_ALWAYSTRUEDELETE            "~Always delete immediately (never use trash can)"
+
+    /* new batch rename dialog */
+    ID_XFDI_BATCHRENAME_TITLE           "Batch Rename"
+    ID_XFDI_BATCH_INTROTXT              "Please specify source and target regular expressions for the rename operation in the below entry fields."
+    ID_XFDI_BATCH_SOURCETXT             "~Find regular expression:"
+    ID_XFDI_BATCH_TARGETTXT             "~Rename to expression:"
+    ID_XFDI_BATCH_SELONLYCB             "Match s~elected objects only"
+    ID_XFDI_BATCH_GO                    "~Start renaming..."
+
+    /* strings formerly in ID_XFD_SELECTSOME */
+    ID_XFDI_SELECTSOME_TITLE            "Select by Name"
+    ID_XFDI_SOME_INTROTXT               "Please specify a selection mask (e.g. ""*.txt"") or a regular expression:"
+    ID_XFDI_SOME_SELECT                 "~Select"
+    ID_XFDI_SOME_DESELECT               "~Deselect"
+    ID_XFDI_SOME_SELECTALL              "Select ~all"
+    ID_XFDI_SOME_DESELECTALL            "Dese~lect all"
+    ID_XFDI_SOME_REGEXP_CP              "~Regular expression"
+    ID_XFDI_SOME_CASESENSITIVE_CB       "~Case-sensitive match"
+
+    /* strings formerly in ID_SCD_PAGER_WINDOW */
+    ID_SCDI_PGR1_WINDOW_GROUP          "&pgr; control window"
+    ID_SCDI_PGR1_PRESERVEPROPS         "F~orce screen proportions"
+    ID_SCDI_PGR1_STAYONTOP             "Stay on to~p"
+    ID_SCDI_PGR1_FLASHTOTOP            "~Flash to top"
+    ID_SCDI_PGR1_FLASH_TXT1            "Delay:"
+    ID_SCDI_PGR1_FLASH_TXT2            "s"
+    ID_SCDI_PGR1_SHOWWINDOWS           "~Mini-windows"
+    ID_SCDI_PGR1_SHOWWINTITLES         "Show window ~titles"
+    ID_SCDI_PGR1_CLICK2ACTIVATE        "~Mini-window mouse actions"
+    ID_SCDI_PGR1_SHOWSECONDARY         "Show ~secondary windows"
+    ID_SCDI_PGR1_SHOWSTICKY            "Show stic~ky windows"
+    ID_SCDI_PGR1_FOLLOWFOCUS           "Desktop follows active ~window"
+    ID_SCDI_PGR1_SHOWWINICONS          "Show window ~icons"
+    /* daemon-specific strings V1.0.0 (2002-09-15) [lafaix] */
+    ID_SCDI_PGR1_STICKIESTOGGLE        "Include sticky ~toggle in system menus"
+
+    /* strings formerly in ID_SCD_PAGER_COLORS */
+    ID_SCDI_PGR2_COLORS_GROUP          "&pgr; colors"
+    ID_SCDI_PGR2_COLORS_INFO           "Drop any color from the color palettes onto the rectangles below. To change the font for the &pgr; window titles, drop a font on the &pgr; window."
+    ID_SCDI_PGR2_COLORS_INACTIVE_1     "Inactive 1"
+    ID_SCDI_PGR2_COLORS_INACTIVE_2     "Inactive 2"
+    ID_SCDI_PGR2_COLORS_ACTIVE         "Active"
+    ID_SCDI_PGR2_COLORS_BORDERS        "Borders"
+    ID_SCDI_PGR2_COLORS_BACKGROUND     "Background:"
+    ID_SCDI_PGR2_COLORS_MINIWINDOW     "Mini-window:"
+    ID_SCDI_PGR2_COLORS_TITLE          "Title:"
+
+    /* strings formerly in ID_XCD_PARANOIA */
+    ID_XCDI_PARANOIA_GROUP              "Disable XWorkplace Features"
+    ID_XCDI_PARANOIA_INTRO              "Here you can globally disable certain XWorkplace features in case of trouble. Press ""Help"" to find out more about the different settings."
+    ID_XCDI_VARMENUOFFSET_TXT           "XWorkplace menu item ~ID offset:"
+    // ID_XCDI_NOSUBCLASSING               "Disable all folder ~subclassing"
+    //      removed V1.0.0 (2002-09-12) [umoeller]
+    // ID_XCDI_NOFREAKYMENUS               "Disable undocumented menu functions"
+    //      removed V1.0.0 (2002-08-26) [umoeller]
+    ID_XCDI_USE8HELVFONT                "Use ~8.Helv font"
+    ID_XCDI_NOEXCPTBEEPS                "Disable ex~ception beeps"
+    ID_XCDI_WORKERPRTY_GROUP            "Worker thread"
+    ID_XCDI_WORKERPRTY_TEXT1            "De~fault Worker thread priority:"
+    ID_XCDI_WORKERPRTY_BEEP             "~Beep on priority change"
+
+    /* strings formerly in ID_XSD_SET26CONFIGMENUS */
+    ID_XSDI_MENUS_CONFIGFDR_GROUP       "Configuration folder menus"
+    ID_XSDI_CASCADE                     """~Conditional cascade"" submenus"
+    ID_XSDI_REMOVEX                     "~Suppress ""~"" in window titles"
+    ID_XSDI_APPDPARAM                   "Change param~eter list"
+    ID_XSDI_TPL_GROUP                   "After creating from templates..."
+    ID_XSDI_TPL_DONOTHING               "do ~nothing"
+    ID_XSDI_TPL_EDITTITLE               "~make title editable"
+    ID_XSDI_TPL_OPENSETTINGS            "~open properties"
+    ID_XSDI_TPL_POSITION                "C~reate object at mouse position"
+
+    /* strings formerly in ID_XSD_SET27STATUSBARS */
+    ID_XSDI_VISIBLEIN_GROUP             "Visible in..."
+    ID_XSDI_SBFORICONVIEWS              "~Icon views"
+    ID_XSDI_SBFORTREEVIEWS              "~Tree views"
+    ID_XSDI_SBFORDETAILSVIEWS           "Det~ails views"
+    /* the following added V1.0.1 (2002-11-30) [umoeller] */
+    ID_XSDI_SBFORSPLITVIEWS             "S~plit views"
+    ID_XSDI_STYLE_GROUP                 "Style"
+    ID_XSDI_SBSTYLE_3RAISED             "Raised bo~x"
+    ID_XSDI_SBSTYLE_3SUNKEN             "~Sunk box"
+    ID_XSDI_SBSTYLE_4RECT               "~Button"
+    ID_XSDI_SBSTYLE_4MENU               "~Menu"
+
+    /* strings formerly in ID_XFD_RUN */
+    ID_XFD_RUN_TITLE                    "Run"
+    ID_XFD_RUN_INTRO                    "~Enter the command to run and the startup directory:"
+    ID_XFD_RUN_MINIMIZED                "Start ~minimized"
+    ID_XFD_RUN_FULLSCREEN               "~Full screen"
+    ID_XFD_RUN_AUTOCLOSE                "Close window on e~xit"
+    ID_XFD_RUN_WINOS2_GROUP             "&winos2; settings"
+    ID_XFD_RUN_ENHANCED                 "~Enhanced mode"
+    ID_XFD_RUN_SEPARATE                 "~Separate session"
+    ID_XFD_RUN_STARTUPDIR_TXT           "~Working directory:"
+
+    /* strings formerly in ID_CRD_SETTINGS_VIEW */
+    ID_XRDI_VIEW_FRAMEGROUP             "&xcenter; frame"
+    ID_CRDI_VIEW_REDUCEWORKAREA         "~Reduce Desktop workarea"
+    ID_CRDI_VIEW_ALWAYSONTOP            "~Always on top"
+    ID_CRDI_VIEW_ANIMATE                "A~nimate"
+    ID_CRDI_VIEW_AUTOHIDE               "Auto-h~ide"
+    ID_CRDI_VIEW_AUTOHIDE_TXT1          "D~elay:"
+    ID_CRDI_VIEW_AUTOHIDE_CLICK         "Hide i~mmediately on mouse click"
+    ID_CRDI_VIEW_PRTY_GROUP             "~View thread priority"
+    ID_CRDI_VIEW_POSITION_GROUP         "&xcenter; position"
+    ID_CRDI_VIEW_TOPOFSCREEN            "~Top of screen"
+    ID_CRDI_VIEW_BOTTOMOFSCREEN         "~Bottom of screen"
+    ID_CRDI_VIEW_AUTOSCREENBORDER       "Automatically add to ~screen border"
+
+    /* strings for XFldWPS menu pages  (all new with V0.9.19) */
+    ID_XSDI_MENU_SETTINGS               "Common Menu Settings"
+    ID_XSDI_MENU_ITEMS                  "Menu Items"
+
+    ID_XSDI_MENU_STYLE_GROUP            "Menu style"
+    ID_XSDI_MENUS_BARS                  "Displa~y folder menu bars"
+    ID_XSDI_MENUS_SHORT                 "Shor~t menus"
+    ID_XSDI_MENUS_LONG                  "Lo~ng menus"
+    ID_XSDI_FC_SHOWICONS                "Display ~icons in folder content menus"
+    ID_XSDI_LOCKINPLACE_NOSUB           "No su~bmenu for ""Lock in place"""
+
+    ID_XSDI_MENU_EDIT_GROUP             "~Menu items"
+    ID_XSDI_MENU_EDIT_CAT_TXT           "~Edit menu items for"
+
+    ID_XSDI_MENU_EDIT_CAT_FOLDERS       "folders"
+    ID_XSDI_MENU_EDIT_CAT_DESKTOP       "Desktop"
+    ID_XSDI_MENU_EDIT_CAT_DISKS         "disks"
+    ID_XSDI_MENU_EDIT_CAT_FILES         "files"
+    ID_XSDI_MENU_EDIT_CAT_OBJECTS       "all other objects"
+
+    /* "menu" wrapper; %s will be replaced with menu item name */
+    ID_XSDI_MENU_MENUSTRING             """%s"" submenu"
+
+    /* strings for menu items... note, please use the
+       same keyboard accelerators as in the default WPS
+       menu items when translating for your language */
+
+    ID_XSDI_MENU_OPENAS                 "~Open as"
+    ID_XSDI_MENU_PROPERTIES             "Propertie~s"
+    ID_XSDI_MENU_OPENPARENT             "Open parent"
+    ID_XSDI_MENU_CREATEANOTHER          "Create a~nother"
+
+    ID_XSDI_MENU_MOVE                   "~Move..."
+    ID_XSDI_MENU_COPY                   "~Copy..."
+    ID_XSDI_MENU_PASTE                  "Paste..."
+    ID_XSDI_MENU_CREATESHADOW           "Create shado~w..."
+    ID_XSDI_MENU_DELETE                 "~Delete..."
+    ID_XSDI_MENU_PICKUP                 "P~ickup"
+    ID_XSDI_MENU_FIND                   "~Find..."
+
+    ID_XSDI_MENU_VIEW                   "~View"
+    ID_XSDI_MENU_ICONVIEW               "~Icon view"
+    ID_XSDI_MENU_TREEVIEW               "~Tree view"
+    ID_XSDI_MENU_DETAILSVIEW            "~Details view"
+    ID_XSDI_FLDRVIEWS                   "Layout items"
+
+    ID_XSDI_MENU_SORT                   "Sor~t"
+    ID_XSDI_MENU_ARRANGE                "~Arrange"
+
+    ID_XSDI_MENU_PRINT                  "~Print"
+
+    ID_XSDI_MENU_LOCKUP                 "~Lockup now"
+    ID_XSDI_MENU_LOGOFFNETWORKNOW       "Lo~goff network now"
+    ID_XSDI_MENU_SHUTDOWN               "Shut ~down..."
+    ID_XSDI_MENU_SYSTEMSETUP            "S~ystem setup"
+
+    ID_XSDI_MENU_CHKDSK                 "Chec~k disk..."
+    ID_XSDI_MENU_FORMAT                 "Fo~rmat disk..."
+    ID_XSDI_MENU_COPYDSK                "Co~py disk..."
+    ID_XSDI_MENU_LOCKDISK               "~Lock disk"
+    ID_XSDI_MENU_EJECTDISK              "~Eject disk"
+    ID_XSDI_MENU_UNLOCKDISK             "~Unlock disk"
+
+    ID_XSDI_MENU_BATCHRENAME            "Rename o~bjects..."
+
+    /* XPager "sticky" page and related dialogs */
+    ID_SCDI_STICKY_GROUP                "Sticky windows"
+    ID_SCDI_STICKY_INCLUDE              "I"
+    ID_SCDI_STICKY_EXCLUDE              "E"
+    ID_SCDI_STICKY_CONTAINS             "contains"
+    ID_SCDI_STICKY_BEGINSWITH           "begins with"
+    ID_SCDI_STICKY_ENDSWITH             "ends with"
+    ID_SCDI_STICKY_EQUALS               "equals"
+    ID_SCDI_STICKY_MATCHES              "matches"
+    ID_SCDI_STICKY_TITLEATTRIBUTE       "Title"
+    ID_SCDI_STICKY_CRITERIA             "Criteria"
+    ID_SCDI_STICKY_ATTRIBUTE            "Attribute"
+    ID_SCDI_STICKY_OPERATOR             "Operator"
+    ID_SCDI_STICKY_VALUE                "Value"
+    ID_SCDI_STICKY_EDITTITLE            "Edit Sticky Criteria"
+    ID_SCDI_STICKY_ADDTITLE             "Add Sticky Criteria"
+
+    ID_SCDI_STICKY_CRITERIAGROUP        "Criteria"
+    ID_SCDI_STICKY_MATCHINGGROUP        "Matching criteria"
+    ID_SCDI_STICKY_RADIO_INCLUDE        "I - Include matching windows"
+    ID_SCDI_STICKY_RADIO_EXCLUDE        "E - Exclude matching windows"
+
+    /* strings formerly in ID_SCD_PAGER_GENERAL */
+    ID_SCDI_PGR1_GROUP                  "Virtual desktops"
+    ID_SCDI_PGR1_ENABLE                 "~Enable"
+    ID_SCDI_PGR1_ARROWHOTKEYS           "~Arrow hotkeys switch desktops"
+    ID_SCDI_PGR1_HOTKEYS_CTRL           "Ct~rl"
+    ID_SCDI_PGR1_HOTKEYS_SHIFT          "~Shift"
+    ID_SCDI_PGR1_HOTKEYS_ALT            "A~lt"
+    ID_SCDI_PGR1_WRAPAROUND             "Wrap at borders"
+    /* V1.0.4 */
+    ID_SCDI_PGR1_WINDOWS_KEYS           "~Use windows keys for left & right"
+    ID_SCDI_PGR2_DISABLED_INFO          "Virtual desktops are currently disabled. Enable them on the first &pgr; settings page to access these settings."
+
+    /* strings formerly in ID_XSD_AUTOCLOSE */
+    ID_XSD_AUTOCLOSE                    "Auto-Close Non-PM Sessions"
+    ID_XSDI_ACL_INTRO                   "Enter the sessions to be closed automatically here."
+    ID_XSDI_XRB_NEW                     "~New"
+    ID_XSDI_XRB_DELETE                  "~Delete"
+    ID_XSDI_ACL_SESSIONTITLE            "Session ~title (leading characters):"
+    ID_XSDI_ACL_DOWHATGROUP             "Do ~what?"
+    ID_XSDI_ACL_SKIP                    "Sk~ip session (do not close)"
+    ID_XSDI_ACL_WMCLOSE                 "Clo~se PM window"
+    ID_XSDI_ACL_KILLSESSION             "~Kill session (DosKillProcess)"
+
+    /* strings formerly in ID_XSD_REBOOTEXT V1.0.2 (2003-12-03) [umoeller] */
+    ID_XSD_REBOOTEXT_TITLE              "Reboot Actions"
+    ID_XSDI_XRB_INTRO                   "Enter your custom reboot actions here."
+    ID_XSDI_XRB_UP                      "~Up"
+    ID_XSDI_XRB_DOWN                    "Do~wn"
+    ID_XSDI_XRB_ITEMNAME_TXT            "Action descri~ption:"
+    ID_XSDI_XRB_PARTITIONS              "P~artitions "
+    ID_XSDI_XRB_COMMAND_TXT             "Action command ~line:"
+
+    /* strings formerly in ID_XSD_MOUSEMAPPINGS2 */
+    ID_XSDI_MOUSE_MAPPINGS2GROUP        "Additional mappings"
+    ID_XSDI_MOUSE_CHORDWINLIST          "Allo~w show window list everywhere"
+    ID_XSDI_MOUSE_SYSMENUMB2            "~System menu on title-bar MB2 click"
+    ID_XSDI_MOUSE_MB3CLICK_TXT          "MB3 ~click action:"
+    ID_XSDI_MOUSE_MB3SCROLL             "~MB3 drag scrolling"
+    ID_XSDI_MOUSE_MB3PIXELS_TXT1        "Minimum pi~xels:"
+    ID_XSDI_MOUSE_MB3LINEWISE           "~Line-wise (fixed) mode"
+    ID_XSDI_MOUSE_MB3AMPLIFIED          "~Amplified mode"
+    ID_XSDI_MOUSE_MB3AMP_TXT1           "Am~plification:"
+    ID_XSDI_MOUSE_MB3SCROLLREVERSE      "~Reverse scrolling"
+
+    /* strings formerly in ID_XSD_FILETYPES V0.9.20 (2002-08-04) [umoeller] */
+    ID_XSDI_FT_GROUP                    "File types"
+    ID_XSDI_FT_FILTERS_TXT              "Filters"
+    ID_XSDI_FT_ASSOCS_TXT               "Associations"
+    ID_XSDI_FT_CREATEDATAFILEHANDLE     "~Pass data file object handle in environment"
+
+    /* strings formerly in ID_XFD_TITLECLASH V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFD_TITLECLASH                   "Title Clash"
+    ID_XFDI_CLASH_TXT1                  "An object with the name ""%1"" already exists in the folder ""%2""."
+    ID_XFDI_CLASH_OLDOBJECT             "Existing object:"
+    ID_XFDI_CLASH_NEWOBJECT             "New object:"
+    ID_XFDI_CLASH_REPLACE               "~Replace existing object"
+    ID_XFDI_CLASH_RENAMENEW             "Rename ~new object to:"
+    ID_XFDI_CLASH_RENAMEOLD             "Rename e~xisting object to:"
+
+    /* new replacement "Paste" dialog V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFDI_PASTE_TITLE                 "Paste Clipboard to ""%1"""
+    ID_XFDI_PASTE_PREVIEW_TXT           "Preview:"
+    ID_XFDI_PASTE_OBJTITLE_TXT          "Object ~title:"
+    ID_XFDI_PASTE_FORMAT_TXT            "~Format:"
+    ID_XFDI_PASTE_CLASS_TXT             "Object c~lass:"
+
+    /* new items for main product info V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSDI_INFO_MAINMEM_TXT            "System memory:"
+    ID_XSDI_INFO_FREEMEM_TXT            "Free memory:"
+    ID_XSDI_INFO_BUGREPORT              "Report bug..."
+            /* ID_XSDI_INFO_BUGREPORT is new with V1.0.0 V1.0.0 (2002-08-28) [umoeller] */
+
+    /* new items for folder split views V1.0.0 (2002-08-21) [umoeller] */
+    ID_XFSI_FDR_SPLITVIEW               "~Split view"
+
+    /* startup and shutdown folder were missing so far V1.0.0 (2002-08-31) [umoeller] */
+    ID_XFSI_XWPSTARTUPFDR               "&xwp; Startup Folder"
+    ID_XFSI_XWPSHUTDOWNFDR              "&xwp; Shutdown Folder"
+
+    /* hotkey definition dialog V1.0.0 (2002-09-10) [lafaix] */
+    ID_XSDI_HOTKEY_ADDTITLE             "Add Hotkey definition"
+    ID_XSDI_HOTKEY_EDITTITLE            "Edit Hotkey definition"
+    ID_XSDI_HOTKEY_HOTKEY               "Hotkey"
+    ID_XSDI_HOTKEY_ACTION               "Action"
+    ID_XSDI_HOTKEY_PARAM                "Parameter"
+    ID_XSDI_HOTKEY_GROUP                "Definition"
+
+    /* daemon-specific strings V1.0.0 (2002-09-15) [lafaix] */
+    ID_DMSI_STICKYTOGGLE                "Stick~y"
+
+    /* tool bars page 1 V1.0.1 (2002-12-08) [umoeller] */
+    ID_XSDI_ENABLETOOLBAR               "Di~splay folder tool bars"
+    ID_XSDI_TBSTYLE_TEXT                "Show te~xt on buttons"
+    ID_XSDI_TBSTYLE_MINI                "Small ~icons"
+    ID_XSDI_TBSTYLE_FLAT                "~Flat buttons"
+    ID_XSDI_TBSTYLE_HILITE              "H~ilight on mouse over"
+    ID_XSDI_TBSTYLE_TOOLTIPS            "Dis~play tooltips"
+
+    /* pages for administrator object
+        all new with V1.0.1 (2003-01-05) [umoeller]
+        some moved from above */
+    ID_AMDI_USER_LOCAL_GROUP            "You are logged in as..."
+    ID_AMDI_USER_USERNAME_TXT           "User name:"
+    ID_AMDI_USER_USERID_TXT             "User ID:"
+    ID_AMDI_USER_FULLNAME_TXT           "Descriptive name:"
+    ID_AMDI_USER_PASS_TXT               "Password:"
+    ID_AMDI_USER_CONFIRMPASS_TXT        "Confirm password:"
+    ID_AMDI_USER_GROUPS_TXT             "Groups:"
+    ID_AMDI_USER_LOCALSEC_TXT           "Local security:"
+    ID_AMDI_USER_CONTEXTS_TXT           "Security contexts:"
+    ID_AMDI_USER_ALLOCBYTES_TXT         "Allocated bytes:"
+    ID_AMDI_USER_BUFALLOCS_TXT          "Allocated buffers:"
+    ID_AMDI_USER_EVENTS_TXT             "Kernel events:"
+    ID_AMDI_USER_AUTHORIZATIONS_TXT     "Permits/rejects:"
+
+    ID_AMSI_LOCAL_USER                  "~My Account"
+    ID_AMSI_ALL_USERS                   "All ~Users"
+    ID_AMSI_ALL_GROUPS                  "All ~Groups"
+
+    ID_AMSI_PROCESSES                   "~Processes"    /* added V1.0.2 (2003-11-13) [umoeller] */
+
+    /* new file 3 (permissions) page */
+    ID_AMDI_F3_PERMISSIONS_TXT          "Your permissions:"
+END
+
+/* Treesize definitions; added V0.9.0 */
+
+POINTER ID_TS_ICON LOADONCALL MOVEABLE DISCARDABLE treesize.ico
+
+MENU ID_TSM_CONTEXT  LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Sort", ID_TSM_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "by ~name", ID_TSMI_SORTBYNAME
+        MENUITEM "by ~file size", ID_TSMI_SORTBYSIZE
+        MENUITEM "by ~files count", ID_TSMI_SORTBYFILESCOUNT
+        MENUITEM "by ~EA size", ID_TSMI_SORTBYEASIZE
+    END
+    MENUITEM "~Display sizes in", ID_TSM_SIZES, MIS_SUBMENU
+    BEGIN
+        MENUITEM "~bytes", ID_TSMI_SIZE_BYTES
+        MENUITEM "~KBytes", ID_TSMI_SIZE_KBYTES
+        MENUITEM "~MBytes", ID_TSMI_SIZE_MBYTES
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Collect e~xtended attributes", ID_TSMI_COLLECTEAS
+    MENUITEM "Low-priority search", ID_TSMI_LOWPRTY
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_TSMI_HELP      /* changed V0.9.16 (2001-12-02) [umoeller] */
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Close", 1000
+END
+
+  /* Treesize container strings; added V1.0.4 (2005-02-07) [chennecke] */
+
+STRINGTABLE
+BEGIN
+    ID_TSSI_LARGESTFILES      "%d largest files"
+    ID_TSSI_BYTES             "bytes"
+    ID_TSSI_KBYTES            "Kbytes"
+    ID_TSSI_MBYTES            "Mbytes"
+    ID_TSSI_WORKING           "%s: working..."
+    ID_TSSI_FILES             "files"
+END
+
+/* Netscape DDE definitions; added V0.9.1 (99-12-19) [umoeller] */
+POINTER ID_ND_ICON LOADONCALL MOVEABLE DISCARDABLE netscdde.ico
+
+/* Xfix definitions; added V1.0.4 (2005-02-24) [chennecke] */
+
+POINTER ID_FX_ICON LOADONCALL MOVEABLE DISCARDABLE xfix.ico
+
+  /* main menu */
+
+MENU ID_FXM_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~xfix", ID_FXM_XFIX, MIS_TEXT
+    BEGIN
+        MENUITEM "Re-parse buffer", ID_FXMI_RESCAN, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "Write back to OS2SYS.INI...", ID_FXMI_WRITETOINI, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "E~xit xfix\tAlt+F4",      ID_FXMI_EXIT, MIS_TEXT
+    END
+
+    SUBMENU "~View", ID_FXM_VIEW, MIS_TEXT
+    BEGIN
+        MENUITEM "Object ~IDs...", ID_FXMI_VIEW_OBJIDS, MIS_TEXT
+        /* MENUITEM "~Abstract objects...", ID_FXMI_VIEW_ABSTRACTS, MIS_TEXT */
+    END
+
+    SUBMENU "Sor~t", ID_FXM_SORT, MIS_TEXT
+    BEGIN
+        MENUITEM "~Index", ID_FXMI_SORT_INDEX, MIS_TEXT
+        MENUITEM "~Status", ID_FXMI_SORT_STATUS, MIS_TEXT
+        MENUITEM "~Type", ID_FXMI_SORT_TYPE, MIS_TEXT
+        MENUITEM "~Handle", ID_FXMI_SORT_HANDLE, MIS_TEXT
+        MENUITEM "~Parent", ID_FXMI_SORT_PARENT, MIS_TEXT
+        MENUITEM "Sh~ort name", ID_FXMI_SORT_SHORTNAME, MIS_TEXT
+        MENUITEM "~Children", ID_FXMI_SORT_CHILDREN, MIS_TEXT
+        MENUITEM "~Duplicates", ID_FXMI_SORT_DUPS, MIS_TEXT
+        MENUITEM "~References", ID_FXMI_SORT_REFCS, MIS_TEXT
+        MENUITEM "~Long name", ID_FXMI_SORT_LONGNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Actions", ID_FXM_ACTIONS, MIS_TEXT
+    BEGIN
+        MENUITEM "Find invalid ~files", ID_FXMI_ACTIONS_FILES, MIS_TEXT
+    END
+
+    SUBMENU "~Select", ID_FXM_SELECT, MIS_TEXT
+    BEGIN
+        MENUITEM "Select all invalid", ID_FXMI_SELECT_INVALID, MIS_TEXT
+        MENUITEM "Select by name...", ID_FXMI_SELECT_BYNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Help", ID_FXM_HELP, MIS_TEXT
+    BEGIN
+        MENUITEM "~General help", ID_FXMI_HELP_GENERAL, MIS_TEXT
+        MENUITEM "~Using help", ID_FXMI_HELP_USINGHELP, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "~Product information", ID_FXMI_HELP_PRODINFO, MIS_TEXT
+    END
+END
+
+  /* menu for object IDs frame */
+
+MENU ID_FXM_OBJIDS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~xfix", ID_FXM_XFIX, MIS_TEXT
+    BEGIN
+        MENUITEM "~Close this window\tAlt+F4",      ID_FXMI_CLOSETHIS, MIS_TEXT
+        MENUITEM "E~xit xfix",      ID_FXMI_EXIT, MIS_TEXT
+    END
+
+    SUBMENU "Sor~t", ID_FXM_SORT, MIS_TEXT
+    BEGIN
+        MENUITEM "~Index", ID_FXMI_SORT_INDEX, MIS_TEXT
+        MENUITEM "~Status", ID_FXMI_SORT_STATUS, MIS_TEXT
+        MENUITEM "~ID", ID_FXMI_SORT_ID, MIS_TEXT
+        MENUITEM "~Handle", ID_FXMI_SORT_HANDLE, MIS_TEXT
+        MENUITEM "~Long name", ID_FXMI_SORT_LONGNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Help", ID_FXM_HELP, MIS_TEXT
+    BEGIN
+        MENUITEM "~General help", ID_FXMI_HELP_GENERAL, MIS_TEXT
+        MENUITEM "~Using help", ID_FXMI_HELP_USINGHELP, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "~Product information", ID_FXMI_HELP_PRODINFO, MIS_TEXT
+    END
+END
+
+  /* context menus */
+
+MENU ID_FXM_RECORDSELMULTI LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Remove ~folder positions", ID_FXMI_NUKEFOLDERPOS
+    MENUITEM "Remove object ~IDs", ID_FXMI_NUKEOBJID
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Delete handle...", ID_FXMI_DELETE
+END
+
+MENU ID_FXM_RECORDSELSINGLE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Move abstracts to desktop", ID_FXMI_MOVEABSTRACTS
+    MENUITEM "Remove ~folder positions", ID_FXMI_NUKEFOLDERPOS
+    MENUITEM "Remove object ~IDs", ID_FXMI_NUKEOBJID
+/*
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Cut", ID_FXMI_CUT
+    MENUITEM "~Paste...", ID_FXMI_PASTE
+*/
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Delete...", ID_FXMI_DELETE
+END
+
+  /* strings used in the container, error messages, dialogs */
+
+STRINGTABLE
+BEGIN
+    ID_FXDI_MAIN                         "xfix: Handles list"
+
+    /* node status column */
+    ID_FXSI_NODESTAT_DUPLICATEDRIV       "Duplicate DRIV"
+    ID_FXSI_NODESTAT_ISDUPLICATE         "Duplicate"
+    ID_FXSI_NODESTAT_INVALIDDRIVE        "Invalid drive"
+    ID_FXSI_NODESTAT_INVALIDPARENT       "Orphaned"
+    ID_FXSI_NODESTAT_FILENOTFOUND        "File not found"
+    ID_FXSI_NODESTAT_PARENTNOTFOLDER     "Parent is not folder"
+    ID_FXSI_NODESTAT_FOLDERPOSNOTFOLDER  "Folderpos for non-folder"
+    ID_FXSI_NODESTAT_ABSTRACTSNOTFOLDER  "Abstracts in non-folder"
+
+    /* references column */
+    ID_FXSI_REFERENCES_ABSTRACTS         "%d ABS"
+    ID_FXSI_REFERENCES_FOLDERPOS         "FPOS"
+
+    /* type column */
+    ID_FXSI_TYPE_DRIVE                   "DRIV"
+    ID_FXSI_TYPE_NODE                    "NODE"
+
+    /* column names in main and object ID containers */
+    ID_FXSI_NUMBER                       "i"
+    ID_FXSI_TYPE                         "Type"
+    ID_FXSI_NODEOFS                      "Node ofs"
+    ID_FXSI_HANDLE                       "Handle"
+    ID_FXSI_PARENT                       "Parent"
+    ID_FXSI_SHORTNAME                    "Short name"
+    ID_FXSI_CHILDREN                     "Children"
+    ID_FXSI_DUPLICATES                   "Dups."
+    ID_FXSI_REFERENCES                   "Refcs."
+    ID_FXSI_LONGNAME                     "Long name"
+
+    /* object ID window */
+    ID_FXDI_OBJIDS                       "xfix: Object IDs"
+
+    /* column name in container, object ID window */
+    ID_FXSI_STATUS                       "Status"
+    ID_FXSI_ID                           "ID"
+    ID_FXSI_LONGNAME_ABSTRACTVALID       "Abstract in 0x%04lX (%s)"
+    ID_FXSI_LONGNAME_ABSTRACTINVALID     "Abstract in 0x%04lX"
+
+    /* status bar */
+    ID_FXSI_STATBAR_LOADEDINSERTED       "%s IDs loaded, %s IDs inserted."
+    ID_FXSI_STATBAR_HANDLESSELECTED      "%s out of %s handles selected"
+    ID_FXSI_STATBAR_DONE                 "Done, %s bytes (%s handles)"
+    ID_FXSI_STATBAR_SECONDS              ", %d seconds"
+    ID_FXSI_STATBAR_DUPWARNING           " -- WARNING: %d duplicate handles exist!"
+    ID_FXSI_STATBAR_IDSLOADED            "%s IDs loaded."
+    ID_FXSI_STATBAR_RESOLVINGPERCENT     "Resolving cross-references, %03d%% done..."
+    ID_FXSI_STATBAR_PARSINGPERCENT       "Parsing handles section, %03d%% done..."
+    ID_FXSI_STATBAR_CHECKINGPERCENT      "Checking files, %03d%% done..."
+    ID_FXSI_STATBAR_RESOLVING            "Resolving cross-references..."
+    ID_FXSI_STATBAR_DONECHECKING         "Done checking files."
+    ID_FXSI_STATBAR_PARSINGHANDLES       "Parsing handles..."
+
+    /* select by file mask dialog */
+    ID_FXDI_FILEMASKSELECT                "xfix: Select By Name"
+    ID_FXDI_FILEMASKSELECT_MASK           "File mask:"
+    ID_FXDI_FILEMASKSELECT_SELECT         "~Select"
+    ID_FXDI_FILEMASKSELECT_DESELECT       "~Deselect"
+    ID_FXDI_FILEMASKSELECT_SELECTALL      "Select ~all"
+    ID_FXDI_FILEMASKSELECT_DESELECTALL    "Deselect a~ll"
+
+    /* product information message box */
+    ID_FXSI_PRODINFO                     "xfix V&version;, built &date;&nl;&copy; 2000-2005 Ulrich M”ller&nl;&nl;&xwp; File Handles Fixer."
+
+    /* nuke message box strings */
+    ID_FXSI_NUKE_ABSTRACTS               "%d abstract object(s)"
+    ID_FXSI_NUKE_AND                     " and "
+    ID_FXSI_NUKE_FOLDERPOS               "%d folder position(s)"
+    ID_FXSI_NUKE_OBJECTIDS               "%d object ID(s)"
+    ID_FXSI_NUKE_SCHEDULED               " have been scheduled for deletion. "
+    ID_FXSI_NUKE_HANDLEPROBLEM           "Hmmm. CNRINFO reports %d handles left, but we counted %d."
+    ID_FXSI_NUKE_HANDLESLEFT             "%d handles are left."
+
+    /* write back to INI confirmation message box */
+    ID_FXSI_WRITEBACK_INTRO              "This will write all the changes that you have made back to the OS2.INI and OS2SYS.INI files.&nl;&nl;Please mind the following:&nl;&nl;"
+    ID_FXSI_WRITEBACK_FIRSTFIRST         "1. You should have started xfix from the &xwp; 'Panic' dialog that comes up if you hold down the 'Shift' key while the WPS is starting. "
+    ID_FXSI_WRITEBACK_FIRSTSECOND        "If you run xfix while the WPS is running and write back your handles, your changes will soon be overwritten by the WPS again.&nl;&nl;"
+    ID_FXSI_WRITEBACK_SECOND             "2. Be warned that if you have deleted handles that are critical to the operation of the Workplace Shell, such as the Desktop itself, your Desktop might no longer start.&nl;&nl;"
+    ID_FXSI_WRITEBACK_THIRD              "3. As a result, be sure that you have a current WPS backup, for example as created by the WPS archiving mechanism that can be enabled on the 'Archives' page in the Desktop's own settings notebook.&nl;&nl;"
+    ID_FXSI_WRITEBACK_CONFIRM            "So, are you sure you want to do this?"
+
+    ID_FXSI_WRITEBACKABORTED             "No changes have been made to your system. To leave xfix, just close the main window."
+    ID_FXSI_WRITEBACKSUCCESS_BLOCKS      "%d BLOCKs have been written to both handles sections. "
+    ID_FXSI_WRITEBACKSUCCESS_OBJMOVED    "%d objects have been moved to the desktop. "
+    ID_FXSI_WRITEBACKSUCCESS_KEYSDELETED "%d keys in OS2.INI have been deleted. "
+    ID_FXSI_WRITEBACKSUCCESS_EXIT        "To end xfix, just close the main window now."
+
+    /* remove handles message box */
+    ID_FXSI_REMOVEHANDLES                "You have selected %d handle(s) for removal. Are you sure you want to do this?"
+
+    /* nuke folder pos message box */
+    ID_FXSI_NUKEFOLDERPOS                "%d folder position(s) have been scheduled for deletion."
+
+    /* delete object IDs message box */
+    ID_FXSI_DELETEHANDLES                "%d object ID(s) have been scheduled for deletion."
+
+    /* move abstracts message box */
+    ID_FXSI_MOVEABSTRACTS_DESKTOPID      "Desktop handle is %lX"
+    ID_FXSI_MOVEABSTRACTS_CONFIRM        "You have selected %d handles whose abstract objects should be moved to the deskop.&nl;Are you sure you want to do this?"
+
+    /* move abstracts successful */
+    ID_FXSI_MOVEABSTRACTSSUCCESS         "%d abstracts have been moved to the desktop. They will appear after the next Desktop startup."
+
+    /* error messages */
+    ID_FXSI_ERROR_INVALIDHANDLE          "Invalid handle"
+    ID_FXSI_ERROR_INVALIDPARENTHANDLE    "Invalid parent handle"
+    ID_FXSI_ERROR_DEFAULT                "wphComposePath returned %d"
+    ID_FXSI_ERROR_ABSFOLDERHANDLELOST    "Abstract's folder handle lost"
+    ID_FXSI_ERROR_INVALIDFOLDERHANDLE    "Invalid folder handle"
+    ID_FXSI_ERROR_CANTGETACTIVEHANDLES   "Cannot get the active handles from OS2SYS.INI."
+    ID_FXSI_ERROR_ERROROCCURED           "Error %d occurred."
+    ID_FXSI_ERROR_MOVEABSTRACTS          "An error occurred moving the abstracts."
+    ID_FXSI_ERROR_PARSEHANDLES           "An error occurred parsing the handles section."
+    ID_FXSI_ERROR_PROFILENOTEXIST        "Error: Specified %s profile ""%s"" does not exist."
+    ID_FXSI_ERROR_PROFILEZEROBYTES       "Error: Specified %s profile ""%s"" has 0 bytes."
+    ID_FXSI_ERROR_CANTOPENPROFILE        "Error: Cannot open %s profile ""%s"" (WinGetLastError returned 0x%lX)."
+    ID_FXSI_ERROR_USER                   "User"
+    ID_FXSI_ERROR_SYSTEM                 "System"
+    ID_FXSI_ERROR_INVALIDPARMC           "Error: Invalid parameter ""-%c""."
+    ID_FXSI_ERROR_INVALIDPARMS           "Error: Invalid parameter ""%s""."
+    ID_FXSI_ERROR_NOTAVAILABLE           "not available"
+    ID_FXSI_ERROR_FATALLOADHANDLES       "Fatal error %d occurred loading the handles from the INI files. Description: %s"
+    ID_FXSI_ERROR_BUILDHANDLESCACHE      "Warning: Error %d building handles cache. Description: %s"
+END
+
+rcinclude "xfldr001.dlg"
+

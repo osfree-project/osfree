@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XFH_VIEW_MENU_ITEMS;>
+<HEAD>
+    <TITLE>
+        &xwp;: "View" Menu Items
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 -->
+<BODY>
+The "View" submenu contains several items that allow you to change frequently used
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_views.html">folder view</A>
+settings quickly without having to browse through
+the folder's <A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<P>To disable these menu items, uncheck the
+<!-- V0.9.19: changed this -->
+"Layout items" setting on the "Menu" pages in the
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<P>The following icons are available, depending on the folder's current view:
+
+<UL><LI><B>"Small icons"</B> is available in Icon and Tree views and allows you
+to toggle whether the view should display regular sized or small icons.
+Depending on the current view, this corresponds to the one of the settings
+on the folder's "View" notebook pages. Note that the Details view will always
+use small icons.
+
+<!-- V0.9.7: changed the following line -->
+<P><LI><B>"As placed", "Multiple columns" and "Single column"</B> are available in Icon views
+only and allow you to switch between the various types of folder Icon views.
+This corresponds to the setting on the folder's "Icon view" notebook page.
+
+<P><LI>
+<!-- V0.9.16: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+On Warp 4,
+</IFNDEF>
+<B>"Menu bar"</B> allows you to quickly enable or disable the
+folder's menu bar. This will affect all folder views.
+This corresponds to the setting on the folder's second "Menu" notebook page.
+
+<!-- V0.9.16: changed the following line -->
+<P><LI>You can also enable or disable the folder's <B>status bar</B> setting.
+This corresponds to the setting on the folder's "View" notebook page.
+Note that status bars are always disabled for the Desktop.
+
+</UL>
+</BODY>
+</HTML>
+

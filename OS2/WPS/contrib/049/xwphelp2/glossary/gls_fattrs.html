@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dateiattribut-Bits
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains chunks previously in
+     filepg_5attribs.html -->
+<BODY>
+&os2;, „hnlich wie DOS und Windows, gibt jedem Verzeichnis und jeder
+Datei im <A HREF="glossary/gls_fs.html">Dateisystem</A> sogenannte
+Attribute.
+ 
+<P>Die folgenden Attribute sind definiert:
+ 
+<OL><BR><LI>Das <B>"Archiv"</B>-Bit ist ein Benutzerschalter, der automatisch
+jedes Mal vom Betriebssystem gesetzt wird, wenn sich eine Datei „ndert.
+Dieser Schalter wird beim Archivieren von vielen Backup-Programmen zurckgesetzt
+und erlaubt so festzustellen, ob eine Datei seit der letzten Archivierung
+ge„ndert wurde und neu gesichert werden muá.
+ 
+<P><LI>Das <B>"Nur lesen"</B>-Bit kann fr Dateien gesetzt werden, in die
+nicht geschrieben werden darf. Jeder Versuch, in die Datei zu schreiben oder
+die Datei zu l”schen, wird vom Betriebssystem zurckgewiesen.
+ 
+<P><LI>Das <B>"System"</B>-Bit wird normalerweise nur fr Dateien gesetzt,
+die vom Betriebssystem absolut ben”tigt werden. Schreiben und L”schen werden
+fr diese Dateien ebenfalls zurckgewiesen. Zus„tzlich weigert sich die
+Arbeitsoberfl„che, diese Dateien zu verschieben.
+ 
+<P><LI>Das <B>"Verdeckt"</B>-Bit schlieálich kann gesetzt werden um zu
+verhindern, daá eine Datei in Verzeichnislisten und Ordnern angezeigt wird.
+Die Datei wird dann vom Befehl <CODE>DIR</CODE> nicht angezeigt, es sei denn,
+der Schalter <CODE>/A</CODE> wird angegeben. Auáerdem erscheint die Datei
+nicht in offenen Ordneransichten, es sei denn, die Ordnereinstellungen auf
+der Seite "Anzeigekriterien" wurden
+entsprechend ge„ndert.
+<P>Achtung: Wenn Sie dieses Bit im Einstellungsnotizbuch eines Objektes setzen,
+kann das Objekt in Ordnern unsichtbar werden, und Sie k”nnen das Objekt
+m”glicherweise nur von einer Befehlszeile aus wieder sichtbar machen, indem
+Sie den Befehl
+<A HREF="cmdref.inf#attrib"><CODE>ATTRIB</CODE></A> benutzen.
+ 
+</OL>Sie k”nnen die Dateiattribute von der Arbeitsoberfl„che aus betrachten
+und setzen, entweder indem Sie das
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A> eines Objektes
+”ffnen oder mit Hilfe des Untermens "Attribute", das sich im
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A> eines jeden Dateisystemobjektes
+befindet.
+<BR>
+</BODY>
+</HTML>
+ 

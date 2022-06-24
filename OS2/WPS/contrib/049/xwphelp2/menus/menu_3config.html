@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Konfigurieren von Kontextmens
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+Mit &xwp; ist es m”glich, Meneintr„ge in allen
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A>
+der
+<!-- V0.9.19: link added -->
+&link_folders;
+zu erstellen. Dies geschieht mit einem speziellen
+<B>&cfgfdr;,</B> der wie ein normaler WPS-Ordner aussieht.
+ 
+<P>Dieser Ordner befindet sich im
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: changed this -->
+&link_lookfdr;.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Ordner "XWorkplace-Installation".
+</IFNDEF>
+ 
+<P>Egal, was man in diesem Ordner plaziert, es erscheint sofort in den Kontextmens
+in allen Ordnern Ihres Systems. Beachten Sie, das bestimmte Objekt-Klassen ein
+spezielles Verhalten in diesem Zusammenhang des &cfgfdr; haben:
+ 
+<OL><LI><B>Programmobjekte</B> im &cfgfdr; werden gestartet, wenn der
+betreffende Meneintrag ausgew„hlt wird. (Eigentlich wird nicht das
+Programmobjekt selbst gestartet, sondern das Programm, das im 
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+des Programmobjektes angegeben ist.)
+ 
+<P>&xwp; ist in der Lage, einige ntzliche 'Tricks' Programmobjekte betreffend
+auszufhren. Weitere Informationen finden Sie unter
+<A HREF="menus/menu_4wpprogram.html">"Spezielle Funktionen fr Programmobjekte"</A>.
+ 
+<BR><LI>Das Einstellen <B>eines weiteren Ordners</B> im &cfgfdr;
+ergibt ein weiteres Untermen im &popmenu;. In diesem Unterordner k”nnen
+weitere Objekte und Ordner plaziert werden. Auf diese Weise l„át sich eine
+komplette &popmenu;-Hierarchie erstellen (siehe Standardeinstellungen
+der &xwp;-Installation). Es gibt keine Beschr„nkung hinsichtlich
+der Anzahl der Ordner, dadurch k”nnen beliebig viele Unterordnerhierarchien erstellt werden.
+ 
+<!-- V0.9.20: added link -->
+<BR><LI>Eine <B><A HREF="tasks/tsk_templates.html">Schablone</A>
+oder eine Referenz einer Schablone</B> erstellt ein neues Objekt,
+wenn der entsprechende Meneintrag ausgew„hlt wurde. Das neue Objekt
+wird in dem Ordner erstellt, dessen &popmenu; verwendet wurde.
+<P>Beispiel: Wenn Sie einen Schablonenordner mit speziellen Einstellungen
+fr Zeichen, Farbe usw. erstellt haben, k”nnen Sie die Referenz dieses
+Schablonenordners in das &popmenu; einstellen. W„hlen Sie nun den
+entsprechenden Meneintrag im &popmenu; aus, so wird ein Ordner in dem Ordner
+erstellt, aus dem Sie das &popmenu; aufgerufen haben (das gleiche Ergebnis
+erhielten Sie, wenn Sie den Schabloneordner in den Ordner gezogen h„tten).
+ 
+<!-- V0.9.20: link name changed -->
+<P>Weitere Informationen finden Sie unter
+<A HREF="menus/menu_2template.html">Objekte erstellen mit "Neu erstellen"</A>.
+ 
+<BR><LI>Ein <A HREF="objects/obj_string.html">Konfigurationsstring-Objekt</A>
+fhrt den darin gespeicherten Konfigurationsstring aus. Der Konfigurationsstring
+wird in dem Ordner ausgefhrt, aus dem der entsprechende &popmenu;eintrag aufgerufen wurde.
+ 
+<BR><LI><B>Alle anderen Objekte</B> werden einfach ge”ffnet, sobald Sie den
+entsprechenden Meneintrag ausgew„hlt haben. Dies betrifft auch Referenzen
+von Programmobjekten, Referenzen von Ordnern, "echte" Dateien und deren Referenzen usw.
+ 
+<P>Ein Beispiel: Sie k”nnen eine Referenz Ihrer am h„ufigsten verwendeten
+Datendatei (Bspw.: "To-Do-Liste") in das &popmenu; einstellen.
+ 
+<BR><LI>Als besondere Funktion k”nnen <B>Mentrennstriche</B> eingefgt werden, indem Sie
+ein Programmobjekt mit dem Namen <CITE>"---"</CITE> (drei Bindestriche) im
+&cfgfdr; plazieren.
+ 
+Weitere Informationen finden Sie unter
+<A HREF="menus/menu_4wpprogram.html">"Spezielle Funktionen fr Programmobjekte"</A>.
+ 
+</OL>Beachten Sie, daá das Zeichen <CITE>"~"</CITE>
+in einem Objekttitel das darauf folgende Zeichen im &popmenu;
+unterstreicht, um die entsprechende Funktion ber Tastenkrzel aufrufen
+zu k”nnen.
+<BR>
+</BODY>
+</HTML>
+ 

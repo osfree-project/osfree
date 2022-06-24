@@ -1,0 +1,264 @@
+
+/*
+ * xtrash.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPTrashCan: a subclass of WPFolder, which implements
+ *                       the actual trash can folder.
+ *
+ *      See src\classes\xtrash.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2010 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+// #include <wpfolder.idl>         // this is SOM for WPFolder
+
+#include "xfldr.idl"                    //# WPFolder is replaced with XFolder
+                                        //# V1.0.1 (2002-12-08) [umoeller]
+
+/*
+   CLASS: XWPTrashCan
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject [ = XFldObject ]
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPFolder [ = XFolder ]
+                           ÀÄÄ XWPTrashCan
+*/
+
+interface M_XWPTrashCan;            // forward reference to metaclass
+
+interface XWPTrashCan : XFolder         //# WPFolder is replaced with XFolder
+                                        //# V1.0.1 (2002-12-08) [umoeller]
+{
+
+    /*
+     * New instance methods for XWPTrashCan:
+     *
+     */
+
+    BOOL xwpDeleteIntoTrashCan(in WPObject pObject);
+
+    ULONG xwpAddTrashCanSettingsPage(in HWND hwndDlg);
+    ULONG xwpAddTrashCanDrivesPage(in HWND hwndDlg);
+    ULONG xwpAddTrashCanGeneralPage(in HWND hwndDlg);
+
+    BOOL xwpTrashCanBusy(in LONG lBusy);
+    VOID xwpAddObjectSize(in ULONG ulNewSize);
+    ULONG xwpQueryTrashObjectsCount();
+
+    BOOL xwpSetCorrectTrashIcon(in BOOL fForce);
+
+    ULONG xwpEmptyTrashCan(in ULONG hab,
+                           in PULONG pulDeleted,
+                           in HWND hwndConfirmOwner);
+
+    //#         V1.0.1 (2002-12-08) [umoeller]
+    //# BOOL xwpProcessViewCommand(in USHORT usCommand,
+    //#                            in HWND hwndCnr,
+    //#                            in WPObject pFirstObject,
+    //#                            in ULONG ulSelectionFlags);
+    //#
+    //# BOOL xwpUpdateStatusBar(in HWND hwndStatusBar, in HWND hwndCnr);
+    //#
+
+    VOID xwpAddObjectSizeL(in PLONGLONG pllNewSize);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpDeleteIntoTrashCan,
+            xwpAddTrashCanSettingsPage,
+            xwpAddTrashCanDrivesPage,
+            xwpAddTrashCanGeneralPage,
+            xwpTrashCanBusy,
+            xwpAddObjectSize,
+            xwpQueryTrashObjectsCount,
+            xwpSetCorrectTrashIcon,
+            xwpEmptyTrashCan,
+
+            //# xwpUpdateStatusBar,
+            //# xwpProcessViewCommand,
+
+            xwpAddObjectSizeL;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xtrc_;
+        externalstem = xtrc;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xtrash;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPTrashCan;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPTrashCan:
+         *
+         */
+
+        double  dSizeOfAllObjects;      // size of all objects in trash can
+
+        BOOL    fAlreadyPopulated;      // TRUE after the first call to wpPopulate
+        BOOL    fFilledIconSet;         // TRUE if "filled" icon has been set already
+
+        ULONG   ulTrashObjectCount;     // no. of trash objects in trash can;
+                                        // initialized to 0, updated by wpPopulate
+
+        ULONG   ulBusyCount;            // raised or lowered with every xwpTrashCanBusy call
+
+        // HPOINTER    hptrEmpty;          // icon for empty trash can
+        // HPOINTER    hptrFull;           // icon for full trash can
+                // removed those V0.9.16 (2002-01-01) [umoeller]
+
+        BOOL    fOpeningSettings;       // TRUE while in wpOpen for settings view
+
+        CHAR    cDrivePopulating;       // if this is != 0, a drive is currently
+                                        // being populated; set by wpPopulate and
+                                        // used for the status bar
+
+        /*
+         * WPFolder methods overridden by XWPTrashCan:
+         *
+         */
+
+        wpInitData: override;
+        wpObjectReady: override;
+        wpUnInitData: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpSetup: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpOpen: override;
+        wpPopulate: override;
+        wpRefresh: override;
+
+        xwpProcessViewCommand: override;    //# V1.0.1 (2002-12-08) [umoeller]
+
+        xwpUpdateStatusBar: override;       //# V1.0.1 (2002-12-08) [umoeller]
+
+        wpAddToContent: override;
+        wpDeleteFromContent: override;
+
+        wpDeleteContents: override;
+
+        wpDragOver: override;
+        wpDrop: override;
+
+        wpAddObjectGeneralPage: override;
+        wpAddObjectGeneralPage2: override;
+        wpAddFolderIncludePage: override;
+        wpAddFolderSelfClosePage: override;
+        wpAddFolderView2Page: override;
+
+        wpAddSettingsPages: override;
+
+        wpSetIcon: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPTrashCan : M_XFolder     // WPFolder is replaced with XFolder
+                                        // V1.0.1 (2002-12-08) [umoeller]
+{
+
+    /*
+     * New class methods for M_XWPTrashCan:
+     *
+     */
+
+    XWPTrashCan xwpclsQueryDefaultTrashCan();
+    BOOL xwpclsSetDrivesSupport(in PBYTE pabSupportedDrives);
+    BOOL xwpclsQueryDrivesSupport(in PBYTE pabSupportedDrives);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsQueryDefaultTrashCan,
+            xwpclsSetDrivesSupport,
+            xwpclsQueryDrivesSupport;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xtrcM_;
+        externalstem = xtrcM;
+        functionprefix = xtrcM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xtrash;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPTrashCan:
+         *
+         */
+
+        /*
+         * M_WPFolder methods overridden by M_XWPTrashCan:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsUnInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+        wpclsQueryIconDataN: override;
+    };
+#endif
+};
+
+

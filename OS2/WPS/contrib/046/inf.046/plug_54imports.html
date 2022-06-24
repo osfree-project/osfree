@@ -1,0 +1,40 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Steg 4: Importera funktioner fr†n XFLDR.DLL
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Dom du kanske kan f”rest„lla dig, finns det gott om anv„ndbar kod i <CODE>XFLDR.DLL</CODE> --
+f”r grafik, str„ngar, PM kontroller, och mycket mer. Merparten av vad du ser i
+"&xwp; helpers" k„llorna „r troligtvis i <CODE>XFLDR.DLL</CODE> n†gonstans.
+
+<P>Nu, om du vill anv„nda den koden, har du i princip tv† alternativ.
+
+<OL><LI>Kopiera och klistra in funktionerna fr†n helpers k„llor (eller d„r dom finns)
+i din egen widgetkod.
+
+<P><LI>Det smarta s„ttet att g”ra det vore emellertid att undvika dubblerad kod och
+anv„nda koden fr†n <CODE>XFLDR.DLL</CODE>. &xcenter; interface till†ter dig att g”ra
+exakt detta:
+
+<P>N„r din DLL's "init" export blir anropad (ordningstal 1), erh†ller den modulhandtaget fr†n 
+<CODE>XFLDR.DLL</CODE>. Du kan sedan anv„nda <CODE>DosQueryProcAddr</CODE> f”r att ta reda p†
+adresserna till funktionerna vilka „r exporterade fr†n <CODE>XFLDR.DLL</CODE>, lagra
+dessa funktionspekare i globala variabler, och anv„nda dom ist„llet.
+
+<P>Igen, se standard widgets i <CODE>src\widgets\</CODE> i &xwp;'s k„llor, vilka alla 
+anv„nder den h„r funktionen.
+
+<P>F”r att vara s„ker p† att prototyperna „r korrekta, har m†nga prototyper redan varit
+typdefinierade i de olika &xwp; headerfilerna. Grundl„ggande har jag lagt till en typedef
+n„r jag har beh”vt en export sj„lv. Liknande, i <CODE>src\shared\xwp.def</CODE>, kommer
+du att hitta dessa funktioner exporterade, vilka jag beh”vde f”r standard plugins. Om du
+beh”ver fler funktioner och prototyper, kontakta mig, och jag kommer att l„gga till dom.
+
+</OL>
+</BODY>
+</HTML>
+
+

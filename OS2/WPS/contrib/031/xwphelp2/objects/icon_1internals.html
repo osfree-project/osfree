@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Object Details
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 and contains text previously in
+     090settings13objinternals.html -->
+<!-- V0.9.16: replaced all "internals" with "details" strings -->
+<BODY>
+<!-- V0.9.4: added this -->
+De "Object Details" container laat u veel interne object gegevens zien waar u
+wel of niet in ge‹nteresseerd bent. Veel hiervan is voornamelijk interessant voor programmeurs.
+
+<!-- V0.9.4: the following is unchanged -->
+<P>Deze informatie is gegroepeerd door middel van een container boomstructuur, die op een
+vergelijkbare manier als een mapstructuur overzicht te gebruiken is. Echter, de meeste informatie
+in deze map is <I>alleen-lezen,</I> oftewel kan niet aangepast worden (uitgezonderd het "Object ID" gegeven).
+
+<P>De <B>"Object handle"</B> is een vijfcijferig hexadecimaal getal dat het object
+uniek identificeert op uw systeem.
+Abstracte objecten krijgen altijd object handles, terwijl bestandssysteem objecten
+die niet altijd hoeven te hebben.
+
+Denk er om dat object handles niet gebruikt kunnen worden om objecten te identificeren op andere dan uw
+eigen systeem: dat kan niet. Ga er bijvoorbeeld eens vanuit dat de "Informatie" map op het systeem van
+uw buurman dezelfde object handle heeft als die op uw systeem.
+Object handles verwijzen alleen naar objecten op <I>uw</I> computer.
+
+<!-- V1.0.0: added this link -->
+<P>Zie <a href="glossary/gls_objhandle.html">Object Handles</a> voor een introductie.
+
+<P>Het <B>"Object ID"</B> kan echter ook op andere computers bestaan. Object ID's hebben
+altijd het volgende formaat <CODE>&lt;OBJECTID&gt;</CODE> en worden gebruikt om naar
+objecten te verwijzen zonder te weten waar ze in werkelijkheid zijn.
+<!-- V0.9.13: added link -->
+Zie <A HREF="glossary/gls_objids.html">object IDs</A> voor een introductie.
+
+<P>Het "Object ID" veld kan <B>aangepast</B> worden door er op te klikken met de "Alt" toets ingedrukt.
+Wees echter voorzichtig met het wijzigen van object ID's. Sommige programma's kunnen afhankelijk zijn van
+bepaalde ID's.
+
+<P>De <B>"Object stijl"</B> boomstructuur laat u WPS-interne object vlaggen zien. De
+object stijl vlaggen bepalen alleen het WPS gedrag, bijvoorbeeld, als de "Niet kopi‰ren"
+vlag geselecteerd is, dan kunt u geen sleep-kopieer actie voor het bestand doen vanaf de WPS.
+Denk er om dat deze vlaggen normaliter los staan van de <!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">bestandskenmerken</A>,
+oftewel een bestand kan de "niet verwijderen" vlag hebben staan, maar kan vervolgens toch
+via de opdrachtregel verwijderd worden.
+
+<P>De <B>"Object gebruik"</B> boomstructuur laat u extra interne object gegevens zien.
+Deze gegevens zijn voornamelijk handig voor programmeurs en geven de informatie weer
+die terugkomt van de
+<!-- V1.0.0: added two links -->
+<a href="wpsref.inf#wpFindUseItem"><CITE>wpFindUseItem</CITE></a>
+methode.<A HREF="_toolkitlink.html">*</A>
+
+<P>&xwp; voegt bij mappen ook de <B>"Map gegevens"</B> boomstructuur toe. Deze bevat vlaggen
+die gegevens vertegenwoordigen die teruggegeven worden bij de
+<!-- V1.0.0: added two links, method name was wrong -->
+<a href="wpsref.inf#wpQueryFldrFlags"><CITE>wpQueryFldrFlags</CITE></a><A HREF="_toolkitlink.html">*</A>
+methode, bijvoorbeeld of de map opgebouwd is of niet.
+<BR>
+</BODY>
+</HTML>
+

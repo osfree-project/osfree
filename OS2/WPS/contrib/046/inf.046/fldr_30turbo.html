@@ -1,0 +1,101 @@
+<HTML NOSUBLINKS="config" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Turbomappar
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.16 -->
+<BODY>
+<B>Klasser: XFolder, XWPFileSystem, XFldDataFile, XWPProgram, XWPProgramFile</B><HR>
+"Turbomappar" „r ett kortnamn f”r ett st”rre antal f”rb„ttringar av intern
+behandling av inneh†llet i mappar. Kort uttryckt, ”ppning av mappar med ett st”rre
+antal filer i sig kommer att bli <I>signifikant</I> snabbare.
+
+<P>F”r s„kerhets skull, „r turbomappar avaktiverade som standard. Du kan sl† p† dom 
+i <A HREF="sys_2global.html">"&xwp; Setup" objektet</A>.
+
+<P><B>Kort beskrivning</B>
+
+<P>N„r en mapp f”rst ”ppnas i WPS, blir den "befolkad" -- vilket betyder att
+alla filer samlas fr†n den katalog som representeras av mappen. Som du kommer att
+m„rka, „r WPS inte bra p† att hantera stora m„ngder filer. ™ppning av mappar med m†nga
+objekt (l†t oss s„ga, ett tusen filer eller mer) kan l„gga beslag p† systemet i minuter.
+
+<P>"Turbomappar" kan delvis fixa detta problem. Nedanf”r finns en benchmark j„mf”relse ”ver
+vissa patologiska mappar med tiden i sekunder som det tagit att befolka dessa mappar p†
+mitt system. Benchmarken visar endast den tid som anropet av <CODE>QUICKOPEN=IMMEDIATE</CODE>
+&xwp; setupstr„ngen har konsumerat. Som vanligt, kan dina resultat variera beroende p† 
+hastigheten hos din h†rddisk(ar) och processor(er).
+
+<PRE>
+                        turbo av       turbo p†
+
+    JFS mapp med          160 s           53 s
+    10,000 filer
+
+    JFS mapp med          211 s           60 s
+    13,000 filer
+
+    HPFS mapp med                         56 s
+    10,000 filer
+</PRE>
+
+Uppenbarligen ”kar den tid WPS normalt tar p† sig att befolka mappar exponentiellt
+med antalet filer i mappen.
+
+<P><B>Detaljerad beskrivning</B>
+
+<P>V„sentligen „r funktionen "turbomappar" en fullst„ndig omskrivning av koden f”r 
+befolkning av mappar. &xwp; anv„nder f”ljande tekniker f”r att g”ra det betydligt snabbare:
+
+<UL><LI>Varje mapp har nu ett bin„rt balanserat tr„d inneh†llande alla objekt som har
+lagts till mappens interna inneh†llslista hitills. F”r filsystemsobjekt, „r 
+tr„det sorterat p† objektens verkliga korta namn. Det g”r det mer effektivt p† att 
+reda p† om objektet redan finns i tr„det eller m†ste l„ggas till. Jag antar
+att orginalets kontrollkod i WPS „r ansvarigt f”r de enorma f”rdr”jningstiderna
+med stora m„ngder filer.
+
+<P><LI>Ist„llet f”r bara en extra tr†d, startar "turbomappar" tv† extra tr†dar f”r att
+befolka en mapp. En „r ansvarig f”r insamling av fildata fr†n disken (via <CODE>DosFindFirst</CODE> och
+<CODE>DosFindNext</CODE> system API'erna), och den andra „r ansvarig f”r kontroll
+om ett objekt redan „r vaket eller skapar ett nytt objekt, om n”dv„ndigt.
+
+<P>Beroende p† filsystemen, kan de tv† ovanst†ende API'erna vara ganska l†ngsamma n„r
+ut”kade attribut m†ste samlas in (som „r fallet med WPS). N„r det h„nder, blockeras
+anropstr†den, och g”r ingenting annat „n att v„nta p† att data skall komma fr†n h†rddisken.
+Den lediga tiden kan nu anv„ndas av den andra tr†den f”r att skapa ett objekt i minnet,
+vilket ocks† kan vara r„tt tidskr„vande.
+
+<P>Som till„gg, anv„ndning av tv† tr†dar kommer att skala b„ttre p†
+multi-processor (SMP) system.
+
+<P>De b†da ovanst†ende teknikerna tillsammans g”r befolkningen av mappar s† mycket snabbare.
+Den tid som g†r †t nu f”r befolkning av mappar ”verenst„mmer i stort med tiden som 
+systemet spenderar i de b†da <CODE>DosFindFirst</CODE> och
+<CODE>DosFindNext</CODE> system API'erna, s† jag tror inte att det kan snabbas upp mycket mera
+(om inte n†gon kan g”ra dessa system API'er effektivare).
+
+<P><LI>"Turbomappar" byter ocks† fullst„ndigt ut ikonladdningen f”r exekverbara filer. 
+Som du kommer att m„rka, om du ”ppnar en mapp med .EXE filer, kommer WPS att f”rs”ka 
+hitta en l„mplig ikon i den exekverbara filen, och om den hittar en, anv„nda den f”r objektet.
+Program- och datafilsobjekt kommer ocks† att ladda ikoner fr†n exekverbara filer.
+
+<P>WPS koden f”r laddning av ikoner lider av flera begr„nsningar. Viktigast, den verkar vara
+l†ngsam. Den koden har ocks† blivit helt utbytt i &xwp;.
+
+<P>Som till„gg, WPS verkar inte dela ikoner s„rskilt mycket i WPS.
+&xwp; kommer ocks† att f”rs”ka †teranv„nda ikoner s† mycket som m”jligt f”r att undvika
+att beh”va ladda om dom fr†n de exekverbara filerna hela tiden.
+
+<P>V„sentligen till†ter jag inte WPS att l„sa exekverbara ikoner alls, utan anv„nder
+min egen kod ist„llet. Detta fungerar f”r LX, Win16 och OS/2 NE exekverbara. Win32 PE resurser (som anv„nds
+av de flesta exekverbara under Windows 95 eller nyare) f”rst†s inte f”r n„rvarande; PE filer kommer att 
+f† en tr†kig standardikon, men WPS kommer inte l„ngre att h„nga i evighet f”r att hitta dom.
+
+<P>Som en sidoeffekt, detta kommer att „ndra beteendet hos Win16 ikoner om systemikonstorleken „r 40x40; 
+ist„llet f”r skalning, kommer &xwp; nu att centrera 32x32 ikonen.
+
+</UL>
+</BODY>
+</HTML>
+

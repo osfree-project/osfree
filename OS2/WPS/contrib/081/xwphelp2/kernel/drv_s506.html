@@ -1,0 +1,115 @@
+<HTML RESID=&ID_XSH_DRIVER_S506;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: IBM1S506.ADD / DANIS506.ADD
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+This dialog is used for configuration of two IDE disk drivers:
+
+<OL><LI><CODE>IBM1S506.ADD</CODE> is the IBM driver which is shipped with &os2;.
+IBM has updated this driver quite a number of times. A newer driver is required
+for OS/2 Warp 3 and 4 if you wish to use hard disks which are larger than 8 MB.
+
+<P>With this driver, many of the dialog items are disabled because they are
+only used with <CODE>DANIS506.ADD</CODE> (below).
+
+<P><LI><CODE>DANIS506.ADD</CODE> is a replacement driver written by Daniela Engert.
+It is 99% command-line compatible with the IBM driver, but has added lots of
+enhancements. Since the IBM drivers cannot enable busmastering
+support with many of the newer chipsets, it is strongly recommended to use this
+enhanced driver, which can greatly enhance hard disk performance. Also, this driver
+allows to to configure your hard disk controllers in much more detail to resolve
+problems with your system setups.
+
+</OL>Detailed help for each of the settings is available in the form of
+<B>fly-over help (tooltips)</B>. Put your mouse pointer over a dialog item and
+wait for about a second, and an informational text will come up.
+
+<P>It is however necessary to understand in general that both drivers differentiate
+between <B>three type of options:</B>
+
+<OL><LI><B>Global options</B> affect operation in general. Those are on the top
+left of the dialog and include settings like startup messages and (with
+<CODE>DANIS506.ADD</CODE>) how hardware is searched at bootup.
+
+<P><LI><B>Adapter settings</B> affect one adapter (controller) only. With the IDE
+and EIDE bus system, there is one adapter for two hard disk units. Computers
+usually have two adapters built in, so this makes a total of four units which can
+be connected to a standard computer. In the dialog, adapter options are on the
+bottom left.
+
+<P>With both the <CODE>IBM1S506.ADD</CODE> and the <CODE>DANIS506.ADD</CODE> drivers,
+adapter settings must be specified only after an <CODE>/A:x</CODE> option, with
+<CODE>x</CODE> specifying the adapter to be configured by all the following
+options (either 0 or 1). The dialog will add this option automatically if you
+change any adapter parameter from a non-default value. All the settings in the
+<B>"Adapter (controller) settings"</B> group therefore affect only the adapter
+which is currently selected in the <B>"Current adapter"</B> group.
+
+<P>Each adapter needs a few system resources such as an interrupt (IRQ), a
+Direct Memory Access (DMA) channel,
+and port addresses (base address) for data interchange between the adapter and
+the computer. If these options are not set, the driver uses defaults which work
+on most systems.
+
+<P>See the remarks below for details about bus-mastering (DMA) support.
+
+<P><LI><B>Unit settings</B> affect one unit (hard disk) only. Each adapter can
+have two units, which are commonly dubbed as "Master" and "Slave". In the dialog,
+unit options are in the right half.
+
+<P>With both the <CODE>IBM1S506.ADD</CODE> and the <CODE>DANIS506.ADD</CODE> drivers,
+unit settings must be specified only after an <CODE>/A:x</CODE> option first
+(which specifies the adapter) and a <CODE>/U:x</CODE> option next (which specifies
+the unit in the adapter), with <CODE>x</CODE> being 0 or 1 each time.
+The dialog will add these options automatically if you
+change any unit parameter from a non-default value. All the settings in the
+<B>"Unit (drive) settings"</B> group therefore affect only the unit
+which is currently selected in the <B>"Current unit"</B> group.
+
+</OL><B>Busmastering, Direct Memory Access (DMA).</B> Modern hardware allows the
+EIDE controllers to read and write data directly from main memory without any
+help from the main processor. This greatly enhances disk performance because while
+data is exchanged with the disk, the processor can do something else.
+
+<P>While the older Programmed I/O (PIO) modes 3 and 4 still required control by the
+main processor, the EIDE standard introduced several multi-word DMA modes. In those
+modes, the drive takes over control of the bus (bus-mastering) and places data
+directly into the main memory (DMA). The standard <CODE>IBM1S506.ADD</CODE> fails
+to recognize many chipsets and can thus not enable busmastering on many systems.
+<CODE>DANIS506.ADD</CODE> does a much better job at this and still allows you to
+fine-tune the detection process.
+
+<P><B>Ultra-DMA</B> is yet another extension of the original DMA protocol.
+Previously, data transfers took place only on the rising edge of the strobe signal.
+Ultra DMA modifies the protocol to allow data to be sent on the falling edge
+of the strobe signal as well, thus doubling the data transfer rate.
+Also, because of the increased danger of data corruption, error detection
+was added. As a result, Ultra-DMA is both faster and safer than regular DMA
+or plain PIO.
+
+<P>DMA with hard disks can cause problems on some hardware however. This can be due to
+older controller hardware which cannot handle this at all, or bad cables which
+cause too much noise on the bus so data is corrupted at higher speed.
+Also, many older drives cannot handle DMA well or only at lower speed.
+For this reason, busmastering can be disabled
+totally or (with <CODE>DANIS506.ADD</CODE>) limited to a fixed data rate.
+
+<P>The <B>adapter <CODE>/BM</CODE></B> setting enables or disables busmastering for
+a whole adapter (that is, both units which are connected to that adapter). This
+option has been available in all versions of <CODE>IBM1S506.ADD</CODE> and is
+supported by <CODE>DANIS506.ADD</CODE> as well.
+
+<P>The <B>unit <CODE>/BM</CODE></B> setting enables or disables busmastering for
+one unit only. This option is only available in newer versions of <CODE>IBM1S506.ADD</CODE>
+and is supported by <CODE>DANIS506.ADD</CODE> as well.
+
+<P>With <CODE>DANIS506.ADD</CODE>, you can also limit the data rate for a certain
+unit by explicitly specifying the protocol to use.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,149 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        WPS-Startlogos
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this file is all new with V0.85 -->
+<!-- Changed with V0.9.0: renamed from 066bootlogo.htm
+     also see notes below -->
+<BODY>
+<!-- V0.9.0: all the following has been rewritten -->
+<B>Klasse: XFldObject</B><HR>
+XFolder 0.85 has die M”glichkeit eingefhrt, eine benutzerdefinierte
+Graphik beim Start der Arbeitsoberfl„che anzuzeigen. Mit &xwp; 0.9.0
+wurde eine neue Seite "Systemstart" in das Einstellungsnotizbuch
+der Arbeitsoberfl„che integriert, um diese Funktion einfach 
+konfigurieren zu k”nnen.
+<P>
+Das Startlogo bleibt bis zur vollst„ndigen Initialisierung der
+WPS sichtbar. Dann verschwindet es und verbraucht keine Systemressourcen
+mehr.
+<P>
+Die <B>"Systemstart"-Seite im Einstellungsnotizbuchs der 
+Arbeitsoberfl„che</B> erlaubt es, die Graphik fr das Startlogo
+und den Stil auszuw„hlen. Eine detailliertere Beschreibung 
+erhalten Sie durch Bet„tigen der Schaltfl„che "Hilfe" auf dieser Seite.
+<P>
+Drei Startlogos sind standardm„áig bei &xwp; dabei:
+<UL><LI><CODE>xfolder.bmp</CODE> (die Standardeinstellung)
+ist eine Variation des alten XFolder-Logos. Dieses sollte auch 
+langsameren Systemen keine Probleme bereiten.
+<!-- V0.9.19: fixed the following filename -->
+<LI><CODE>os2warpx.bmp</CODE> ist ein alternatives, neues Design,
+das besser aussieht, eventuell aber auch l„nger zum Anzeigen 
+braucht (auf einem Pentium-133 etwa zwei Sekunden).
+<LI><CODE>penguin.bmp</CODE> ist neu seit V0.9.0. Dies ist der
+wohlbekannte Linux-Pinguin mit einem &os2; Logo auf dem Bauch.
+</UL>
+Wenn Sie <B>Ihre eigenen Graphiken benutzen</B> wollen, sollten Sie 
+folgende Punkte beachten:
+ 
+<OL><LI>Das Startlogo
+<!-- the following has not changed with V0.9.0 -->
+muá eine <B>unkomprimierte OS/2-1.3-Bitmap</B> sein.
+V2.0-Bitmaps werden nicht geladen. Es muáten eigene Routinen
+verwendet werden, da zum diesem Zeitpunkt w„hrend des Starts der WPS
+die Multimediaklassen noch nicht funktionieren. Vorhandene Dateien
+lassen sich mit PMView oder den Multimediaklassen der WPS
+in das 1.3er-Format umwandeln.
+ 
+<P><LI>Transparenz wird nach dem „uáersten Pixel der linken 
+unteren Ecke berechnet. Das heiát, daá alle Pixel mit derselben 
+Farbe wie die des Pixels an der Position (0, 0) durchsichtig
+dargestellt werden. 
+ 
+<P><LI>Sie sollten vorsichtig sein, wenn Sie diese Graphiken
+ersetzen. Die Transparenz-Berechnungen sind sehr Rechenzeit-intensiv.
+Wenn Sie eine Graphik benutzen, die 500x500 Pixel hat, von denen 
+die H„lfte durchsichtig ist, kann das Ihr System fr mehrere
+Minuten blockieren. Und damit ist wirklich <I>blockieren</I> 
+gemeint, denn die meiste Zeit wird vom Presentation Manager (PM) 
+verbraucht, und das Terminieren von Prozessen h„ngt dann gew”hnlich das
+gesamte System auf.
+<!-- V0.9.0: moved the following paragraph up from the bottom;
+             rewrote this -->
+<P>Wenn etwas schiefgehen und die WPS nicht mehr starten sollte, k”nnen
+Sie beim Start der WPS die <B>"Umschalt"-Taste drcken</B>.
+Dadurch wird der <A HREF="xsd_01intro.html">"Panik"-Dialog</A> angezeigt,
+wo Sie das Startlogo deaktivieren k”nnen, um das Problem nach dem 
+vollst„ndigen Start der Arbeitsoberfl„che zu beheben.
+<P>
+Da der PM nur auf Anzeige von rechteckigen Fenstern ausgelegt 
+ist, ist die einzige M”glichkeit, diese "geformten" Fenster 
+anzuzeigen, die Graphik Pixel fr Pixel zu analysieren und so 
+viele rechteckige Sub-Fenster darzustellen, wie rechteckige, 
+undurchsichtige Bereiche in der Graphik existieren.
+<P>
+Seien Sie deshalb vorsichtig mit der Transparenz. Je mehr
+nicht rechteckige Bereiche die Graphik hat, desto mehr Fenster
+mssen erzeugt werden.
+<P>
+Beispiel:
+<PRE>         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³                    ³
+         ³   11111111111111   ³
+         ³   11111111111111   ³
+         ³   2222      3333   ³
+         ³   44444444444444   ³
+         ³   44444444444444   ³
+         ³                    ³
+         ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ</PRE>
+ 
+(wobei " " ein durchsichtiges Pixel ist) wrde die Erzeugung von genau vier
+Sub-Fenster zur Folge haben (mit "1"-"4" markiert).
+<P>
+ 
+Wenn sich jedoch "diagonale" oder andere nicht rechteckige
+Transparenzen in Ihrer Graphik befinden, werden ein oder mehrere
+Sub-Fenster <I>pro Zeile</I> der Graphik erstellt, was den PM
+wirklich besch„ftigen kann.
+<P>
+ 
+Ein weiteres Beispiel:
+<PRE>         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³                    ³
+         ³   111111111        ³
+         ³    2222  333       ³
+         ³     44     55      ³
+         ³      666 777777    ³
+         ³       8888888888   ³
+         ³        9999999999  ³
+         ³                    ³
+         ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ</PRE>
+ 
+Das wrde nun schon neun Fenster erzeugen: eins fr die erste
+Zeile, dann je zwei fr die mittleren Zeilen und je eins fr 
+die beiden unteren Zeilen. Stellen Sie sich ein Bild mit 500
+Zeilen vor; das wrde dann mindestens 500 Sub-Fenster 
+erzeugen.
+<P>
+Um es zu verdeutlichen: Nicht das "Parsing" der Graphik braucht 
+viel CPU-Zeit, sondern das Erzeugen der Sub-Fenster. Groáe
+Graphiken werden also nicht schaden, wenn es kaum oder
+nur rechteckige Transparenz gibt.
+<P>
+Ich habe das auf die harte Tour erfahren, als ich aus Versehen
+eine Graphik auf die Systemfarbpalette "gedithert" habe.
+Pl”tzlich gab es abwechselnd hunderte von durchsichtigen und 
+undurchsichtigen Bereichen (da der Hintergrund, den ich beabsichtigt
+hatte, "gedithert" wurde).
+<P>
+Die Graphik hatte ungef„hr 100 Zeilen und das erzeugte
+mehrere 1000 einzelne Fenster. Nach ungef„hr zwei Minuten
+habe ich dann Strg+Alt+Entf gedrckt.
+<P>
+Seien Sie also gewarnt. Fangen Sie mit kleinen Graphiken an,
+und probieren Sie aus, womit Ihr System noch fertig wird. Bei
+groáe Graphiken sollten Sie versuchen, die Transparenzen
+rechteckig zu halten.
+<!-- V0.9.0: added this -->
+"Dithern" Sie die Graphiken nicht, sondern benutzen Sie statt dessen
+nur reine Farben.
+</OL>
+<!-- V0.9.0: the following has been removed -->
+<BR>
+</BODY>
+</HTML>
+ 

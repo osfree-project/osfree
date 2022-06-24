@@ -1,0 +1,58 @@
+<HTML RESID=&ID_XSH_SETTINGS_TRASHCAN_DRIVES;>
+<HEAD>
+    <TITLE>
+        Trash Can Drives Settings
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+On this can you can tell &xwp; which drives should be supported by the trash can.
+<!-- V0.9.16: See the <I>&xwp; User Guide</I> for an introduction to the trash can
+functionality. -->
+
+<P>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state. This will re-scan drives (see the note below).
+
+<P>A drive is <B>"supported"</B> by the trash can if it appears in the right list box.
+This means that the trash can will accept objects from this drive.
+
+<P>A drive is <B>"unsupported"</B> by the trash can if it appears in the left list box.
+The trash can will then refuse to accept objects from this drive and only allow you to
+"truly" delete objects from this drive (i.e. the operation cannot be undone).
+
+<P>Even though they are not listed on this page, drives A: and B: are always unsupported.
+
+<!-- V0.9.13: added JFS -->
+<P>The trash can has been extensively tested with the FAT, HPFS, and JFS
+<!-- V0.9.19: added link -->
+<A HREF="glossary/gls_fs.html">file systems</A>,
+which
+are supported by &os2; by default. You should be careful to use the trash can with other file
+systems which are supplied by third parties, especially if these file systems do not support
+hidden directories or
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attributes.</A>
+Great care should be taken with the EXT2FS (Linux)
+and VFAT (Windows 95) file systems, if you have drivers for those installed.
+
+<!-- V0.9.19: removed this
+See "File systems"</A> for introductory information about file systems. -->
+
+<P><B>Note:</B> Problems have been encountered with the <CODE>VFAT.IFS</CODE>
+driver by Daniel Steiner because apparently that driver doesn't support hidden
+directories very well. You should disable support for those drives.
+<!-- end V0.9.19 -->
+
+<P>To <B>change</B> the trash can support for a drive, select it from the left or right
+list box and press the "Add" or "Remove" button.
+
+<P><B>Note:</B> If drive letters have changed since the trash can has been initially
+installed, this is not automatically reflected by this page. To have all drives rescanned,
+press the "Default" button and reconfigure drive support.
+
+<BR>
+</BODY>
+</HTML>
+

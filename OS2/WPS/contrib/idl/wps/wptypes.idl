@@ -1,0 +1,715 @@
+
+/*
+ * wptypes.idl:
+ *      beefed up SOM interface description file for
+ *      common SOM type definitions.
+ */
+
+/*
+ *      Copyright (C) 2002-2010 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef WPTYPES_IDL
+#define WPTYPES_IDL
+
+interface WPObject;
+interface WPFolder;
+interface WPImageFile;
+interface M_WPObject;
+
+#define VOID           void
+#define LONG           long
+#define CHAR           char
+
+typedef unsigned long  ULONG;
+typedef ULONG         *PULONG;
+typedef ULONG          HWND;
+typedef octet          BYTE;
+typedef octet         *PBYTE;
+typedef string         PSZ;
+typedef long           BOOL32;
+typedef long           BOOL;
+typedef unsigned short USHORT;
+typedef USHORT        *PUSHORT;
+typedef octet          UCHAR;
+typedef octet         *PUCHAR;
+typedef PSZ           *PDEVOPENDATA;
+typedef ULONG          LHANDLE;
+typedef ULONG          HPOINTER;
+typedef ULONG          HBITMAP;
+typedef ULONG          HPAL;
+typedef LHANDLE        HSTR;
+typedef LHANDLE        HMODULE;
+typedef LHANDLE        HFS;
+typedef LHANDLE        HDC;
+typedef LHANDLE        HAPP;
+typedef LHANDLE        HPS;
+typedef LHANDLE        HAB;             //# added V1.0.1 (2003-01-27) [umoeller]
+typedef LHANDLE        HOBJECT;
+typedef void          *PVOID;
+typedef void          *MRESULT;
+
+typedef ULONG         APIRET;           //# added V1.0.1 (2003-01-29) [umoeller]
+
+struct LONGLONG_{
+    ULONG ulLo;
+    LONG ulHi;
+};
+typedef LONGLONG_ LONGLONG;
+typedef LONGLONG *PLONGLONG;
+
+struct ULONGLONG_{
+    ULONG ulLo;
+    ULONG ulHi;
+};
+typedef ULONGLONG_ ULONGLONG;
+typedef ULONGLONG *PULONGLONG;
+
+#ifdef _PPC_
+typedef ULONG         SGID;
+#else
+typedef USHORT        SGID;
+#endif
+
+const long CCHMAXPATH       = 260;
+const long CCHMAXPATHCOMP   = 256;
+const long MAX_ASSOC_ITEMS  = 12;
+const long FACESIZE         = 32;
+
+typedef MRESULT *FNWP;
+typedef FNWP *PFNWP;
+typedef BOOL *FNOWNDRW;
+typedef FNOWNDRW *PFNOWNDRW;
+typedef long *FNCOMPARE;
+typedef FNCOMPARE *PFNCOMPARE;
+
+struct USEITEM
+{
+    ULONG  type;                     /* Type of this Item */
+    USEITEM *pNext;                  /* Next item in use list */
+};
+typedef USEITEM *PUSEITEM;
+
+struct FILTERFLAGS
+{
+   USHORT      cbItem;
+   ULONG       Flags[3];
+};
+typedef FILTERFLAGS *PFILTERFLAGS;
+
+struct POINTL
+{
+    long  x;
+    long  y;
+};
+typedef POINTL *PPOINTL;
+
+struct MINIRECORDCORE
+{
+   ULONG       cb;
+   ULONG       flRecordAttr;         /* record attributes             */
+   POINTL      ptlIcon;              /* Position of CV_ICON item      */
+   MINIRECORDCORE *preccNextRecord;  /*ptr to next record */
+   PSZ         pszIcon;              /* Text for CV_ICON view         */
+   HPOINTER    hptrIcon;             /* Icon to display for ~CV_MINI  */
+};
+typedef MINIRECORDCORE *PMINIRECORDCORE;
+
+struct TREEITEMDESC
+{
+   HBITMAP       hbmExpanded;
+   HBITMAP       hbmCollapsed;
+   HPOINTER      hptrExpanded;
+   HPOINTER      hptrCollapsed;
+};
+typedef TREEITEMDESC *PTREEITEMDESC;
+
+struct RECORDCORE
+{
+   ULONG       cb;
+   ULONG       flRecordAttr;         /* record attributes             */
+   POINTL      ptlIcon;              /* Position of CV_ICON item      */
+   RECORDCORE *preccNextRecord;      /* ptr to next record  */
+   PSZ         pszIcon;              /* Text for CV_ICON view         */
+   HPOINTER    hptrIcon;             /* Icon to display for ~CV_MINI  */
+   HPOINTER    hptrMiniIcon;         /* Icon to display for CV_MINI   */
+   HBITMAP     hbmBitmap;            /* Bitmap to display for ~CV_MINI*/
+   HBITMAP     hbmMiniBitmap;        /* Bitmap to display for CV_MINI */
+   PTREEITEMDESC pTreeItemDesc;      /* Icons for the tree view       */
+   PSZ         pszText;              /* Text for CV_TEXT view         */
+   PSZ         pszName;              /* Text for CV_NAME view         */
+   PSZ         pszTree;              /* Text for CV_TREE view         */
+};
+typedef RECORDCORE  *PRECORDCORE;
+
+struct RECORDINSERT
+{
+   ULONG       cb;
+   PRECORDCORE pRecordOrder;
+   PRECORDCORE pRecordParent;
+   ULONG       fInvalidateRecord;
+   ULONG       zOrder;
+   ULONG       cRecordsInsert;
+};
+typedef RECORDINSERT  *PRECORDINSERT;
+
+struct DRAGINFO
+{
+   ULONG    cbDraginfo;              /* Size of DRAGINFO and DRAGITEMs*/
+   USHORT   cbDragitem;              /* size of DRAGITEM              */
+   USHORT   usOperation;             /* current drag operation        */
+   HWND     hwndSource;              /* window handle of source       */
+   short    xDrop;                   /* x coordinate of drop position */
+   short    yDrop;                   /* y coordinate of drop position */
+   USHORT   cditem;                  /* count of DRAGITEMs            */
+   USHORT   usReserved;              /* reserved for future use       */
+};
+typedef DRAGINFO  *PDRAGINFO;
+
+struct DRAGITEM
+{
+   HWND    hwndItem;                 /* conversation partner          */
+   ULONG   ulItemID;                 /* identifies item being dragged */
+   HSTR    hstrType;                 /* type of item                  */
+   HSTR    hstrRMF;                  /* rendering mechanism and format*/
+   HSTR    hstrContainerName;        /* name of source container      */
+   HSTR    hstrSourceName;           /* name of item at source        */
+   HSTR    hstrTargetName;           /* suggested name of item at dest*/
+   short   cxOffset;                 /* x offset of the origin of the */
+   /*                                     image from the mouse hotspot*/
+   short   cyOffset;                 /* y offset of the origin of the */
+   /*                                     image from the mouse hotspot*/
+   USHORT  fsControl;                /* source item control flags     */
+   USHORT  fsSupportedOps;           /* ops supported by source       */
+};
+typedef DRAGITEM  *PDRAGITEM;
+
+struct DRAGTRANSFER
+{
+   ULONG      cb;                    /* size of control block         */
+   HWND       hwndClient;            /* handle of target              */
+   PDRAGITEM  pditem;                /* DRAGITEM being transferred    */
+   HSTR       hstrSelectedRMF;       /* rendering mech & fmt of choice*/
+   HSTR       hstrRenderToName;      /* name source will use          */
+   ULONG      ulTargetInfo;          /* reserved for target's use     */
+   USHORT     usOperation;           /* operation being performed     */
+   USHORT     fsReply;               /* reply flags                   */
+};
+typedef DRAGTRANSFER  *PDRAGTRANSFER;
+
+struct PAGEINFO
+{
+   ULONG   cb;
+   HWND    hwndPage;
+   PFNWP   pfnwp;
+   ULONG   resid;
+   PVOID   pCreateParams;
+   USHORT  dlgid;
+   USHORT  usPageStyleFlags;
+   USHORT  usPageInsertFlags;
+   USHORT  usSettingsFlags;
+   PSZ     pszName;
+   USHORT  idDefaultHelpPanel;
+   USHORT  usReserved2;
+   PSZ     pszHelpLibraryName;
+   PUSHORT pHelpSubtable;   /* PHELPSUBTABLE when PMHELP.H is included*/
+   HMODULE hmodHelpSubtable;
+   ULONG   ulPageInsertId;
+};
+typedef PAGEINFO  *PPAGEINFO;
+
+struct PRINTDEST
+{
+   ULONG        cb;
+   long         lType;
+   PSZ          pszToken;
+   long         lCount;
+   PDEVOPENDATA pdopData;
+   ULONG        fl;
+   PSZ          pszPrinter;
+};
+typedef PRINTDEST  *PPRINTDEST;
+
+struct ICONINFO
+{
+   ULONG   cb;                  /* size of ICONINFO structure */
+   ULONG   fFormat;
+   PSZ     pszFileName;         /* use when fFormat = ICON_FILE */
+   HMODULE hmod;                /* use when fFormat = ICON_RESOURCE */
+   ULONG   resid;               /* use when fFormat = ICON_RESOURCE */
+   ULONG   cbIconData;          /* use when fFormat = ICON_DATA     */
+   PVOID   pIconData;           /* use when fFormat = ICON_DATA     */
+};
+typedef ICONINFO  *PICONINFO;
+
+struct TASKREC
+{
+   TASKREC         *next;     /* next in the list of current tasks   */
+   ULONG            useCount; /* can be referenced by multiple object*/
+   PVOID            pStdDlg;  /* ptr to standard WP task dialog      */
+   WPFolder        *folder;   /* intended folder for the object      */
+   long             xOrigin;  /* intended position for the object    */
+   long             yOrigin;  /* intended position for the object    */
+   PSZ              pszTitle; /* intended name for the object        */
+   ULONG            cbTitle;  /* length of the name buffer           */
+   PMINIRECORDCORE  positionAfterRecord; /* intended sort position   */
+   BOOL             fKeepAssociations;
+   PVOID            pReserved;    /* reserved - equal null           */
+
+};
+typedef TASKREC *PTASKREC;
+
+struct WPSRCLASSBLOCK
+{
+  short   ClassNameLength;       /* Length of class name, including the
+                                  * .. null terminator. This must be a
+                                  * .. SHORT and must be at the beginning
+                                  * .. of the structure.
+                                  */
+  USHORT  IVarLength;            /* Length of instance variable
+                                  * .. information, including the two-
+                                  * .. byte null terminator
+                                  */
+};
+
+struct OBJDATA
+{
+   WPSRCLASSBLOCK       *CurrentClass;
+   WPSRCLASSBLOCK       *First;
+   PUCHAR                NextData;
+   USHORT                Length;
+};
+typedef OBJDATA *POBJDATA;
+
+typedef ULONG HMTX;
+
+struct VIEWITEM                  /* USAGE_OPENVIEW struct */
+{
+   ULONG        view;            /* Object view that this represents */
+   LHANDLE      handle;          /* Open handle */
+   ULONG        ulViewState;     /* View State flags */
+   HWND         hwndCnr;         /* System use only (window animation) */
+   PMINIRECORDCORE pRecord;      /* System use only (window animation) */
+};
+typedef VIEWITEM *PVIEWITEM;
+
+typedef long  *PLONG;
+
+struct CLASSDETAILS              /* Class Details struct */
+{
+   PSZ          pszAttribute;    /* Translatable string for a class attribute*/
+   PVOID        pSortRecord;     /* Function pointer for sort function for attribute*/
+   CLASSDETAILS *pNext;          /* Next item in class details list */
+};
+typedef CLASSDETAILS *PCLASSDETAILS;
+
+struct CLASSFIELDINFO
+{
+   /* Details field attributes
+    */
+   ULONG      cb;                   /* size of CLASSFIELDINFO struct  */
+   ULONG      flData;               /* attributes of field's data     */
+   ULONG      flTitle;              /* attributes of field's title    */
+   PVOID      pTitleData;           /* title data (default is string) */
+                                    /* If CFT_BITMAP, must be HBITMAP */
+   ULONG      ulReserved;           /* Reserved                       */
+   PVOID      pUserData;            /* pointer to user data           */
+   CLASSFIELDINFO  *pNextFieldInfo; /* pointer to next linked         */
+                                          /* CLASSFIELDINFO structure */
+   ULONG      cxWidth;              /* width of field in pels         */
+   ULONG      offFieldData;         /* offset from beginning of       */
+                                    /*   this class's data for this   */
+                                    /*   field. (first field is 0).   */
+   ULONG      ulLenFieldData;       /* width of data in bytes.        */
+                                    /*   (4 for a pointer).           */
+   PFNOWNDRW  pfnOwnerDraw;         /* Ownerdraw procedure for detail */
+                                    /* column. Can be NULL except if  */
+                                    /* ownerdraw is being used.       */
+   /* Include/Sort parameters
+    */
+   ULONG      flCompare;            /* Flags: for example, use the    */
+                                    /*   COMPARE_SUPPORTED flag if    */
+                                    /*   your field can be compared   */
+   PFNCOMPARE pfnCompare;           /* Comparison function for this   */
+                                    /*   field. Can be NULL unless    */
+                                    /*   ownerdraw is used.           */
+   ULONG      DefaultComparison;    /* This is the default compare    */
+                                    /*   operator in the include      */
+                                    /*   page criteria dialog. (eg:   */
+                                    /*   CMP_LESS_OR_EQUAL)           */
+   ULONG      ulLenCompareValue;    /* Maximum length of the compare  */
+                                    /*   data. Can be NULL unless     */
+                                    /*   ownerdraw is used.           */
+   PVOID      pDefCompareValue;     /* The default value to be used   */
+                                    /*   for comparisons. Can be NULL */
+                                    /*   unless ownerdraw is used.    */
+   PVOID      pMinCompareValue;     /* The default value to be used   */
+                                    /*   for comparisons.Can be NULL  */
+                                    /*   unless ownerdraw is used.    */
+   PVOID      pMaxCompareValue;     /* The default value to be used   */
+                                    /*   for comparisons.Can be NULL  */
+                                    /*   unless ownerdraw is used.    */
+   PSZ        pszEditControlClass;  /* Window class to be used to edit*/
+                                    /*   the compare value. Can be    */
+                                    /*   NULL unless ownerdraw is used*/
+   PFNCOMPARE pfnSort;              /* Sort function for this @SM09511*/
+                                    /*   field. Can be NULL unless    */
+                                    /*   ownerdraw is used.           */
+};
+typedef CLASSFIELDINFO *PCLASSFIELDINFO;
+
+typedef ULONG       HFIND;
+typedef HFIND      *PHFIND;
+typedef WPObject   *OBJECT;
+typedef OBJECT     *POBJECT;
+typedef M_WPObject *CLASS;
+typedef CLASS      *PCLASS;
+
+
+struct SIZEL
+{
+   long cx;
+   long cy;
+};
+typedef SIZEL  *PSIZEL;
+
+struct FEA2
+{
+    ULONG   oNextEntryOffset;                   /* new field */
+    BYTE    fEA;
+    BYTE    cbName;
+    USHORT  cbValue;
+    char    szName[1];                          /* new field */
+};
+typedef FEA2 *PFEA2;
+
+struct FEA2LIST
+{
+    ULONG   cbList;
+    FEA2    list[1];
+};
+typedef FEA2LIST *PFEA2LIST;
+
+/* *** NOTE ***
+ * The FDATE and FTIME structures are represented as bit fields and only
+ * utilize less than 32 bits for the entire structure. Therefore we have
+ * replaced the bit field structure definitions with a single unsigned
+ * short, which maps to the equivalent in memory.  This should ensure
+ * that DSOM passes the right stuff!
+ */
+struct FDATE
+{
+   USHORT date;
+   /*
+    * USHORT day   : 5;
+    * USHORT month : 4;
+    * USHORT year  : 7;
+    */
+};
+typedef FDATE   *PFDATE;
+
+struct FTIME
+{
+   USHORT time;
+   /*
+    * USHORT twosecs : 5;
+    * USHORT minutes : 6;
+    * USHORT hours   : 5;
+    */
+};
+typedef FTIME   *PFTIME;
+
+struct FILEFINDBUF4
+{
+   ULONG   oNextEntryOffset;                   /* new field */
+   FDATE   fdateCreation;
+   FTIME   ftimeCreation;
+   FDATE   fdateLastAccess;
+   FTIME   ftimeLastAccess;
+   FDATE   fdateLastWrite;
+   FTIME   ftimeLastWrite;
+   ULONG   cbFile;
+   ULONG   cbFileAlloc;
+   ULONG   attrFile;                           /* widened field */
+   ULONG   cbList;
+   UCHAR   cchName;
+   char    achName[CCHMAXPATHCOMP];
+};
+typedef FILEFINDBUF4    *PFILEFINDBUF4;
+
+
+struct INFOCLASS
+{
+   ULONG    flags;
+   PSZ      pszClass;
+   ULONG    cbObjData;
+   POBJDATA pObjData;
+};
+typedef INFOCLASS * PINFOCLASS;
+
+struct CDATE
+{
+   UCHAR   day;                         /* current day               */
+   UCHAR   month;                       /* current month             */
+   USHORT  year;                        /* current year              */
+};
+typedef CDATE *PCDATE;
+
+struct CTIME
+{
+   UCHAR   hours;                       /* current hour              */
+   UCHAR   minutes;                     /* current minute            */
+   UCHAR   seconds;                     /* current second            */
+   UCHAR   ucReserved;                  /* reserved                  */
+};
+typedef CTIME *PCTIME;
+
+struct FILEDETAILS
+{
+   PSZ      pszRealName;     /* Real name */
+   ULONG    ulSize;          /* Size of the file */
+   CDATE    cdateLastMod;    /* Last modification date */
+   CTIME    ctimeLastMod;    /* Last modification time */
+   CDATE    cdateLastAccess; /* Last access date */
+   CTIME    ctimeLastAccess; /* Last access time */
+   CDATE    cdateCreation;   /* Date of creation */
+   CTIME    ctimeCreation;   /* Time of creation */
+   ULONG    ulFlags;         /* File flags */
+};
+typedef FILEDETAILS * PFILEDETAILS;
+
+struct FILESYS_SEARCH_INFO
+{
+  USHORT Exclude;
+  USHORT MustHave;
+
+  BOOL   fIncludeLMD;
+  USHORT LMDyear;
+  USHORT LMDmonth;
+  USHORT LMDday;
+  short  LMDcriteria;
+
+  BOOL   fIncludeLMT;
+  USHORT LMThours;
+  USHORT LMTminutes;
+  USHORT LMTseconds;
+  short  LMTcriteria;
+
+  BOOL   fIncludeFDS;
+  ULONG  FDSsize;
+  short  FDScriteria;
+
+  BOOL   fIncludeFEAS;
+  ULONG  FEASsize;
+  short  FEAScriteria;
+
+  BOOL   fMustHaveNeedEA;
+  BOOL   fMustNotHaveNeedEA;
+};
+typedef FILESYS_SEARCH_INFO *PFILESYS_SEARCH_INFO;
+
+struct TRANSINFO
+{
+   TRANSINFO         *pNext;         /* Next structure */
+   WPObject           Object;        /* Object pointer  rcsom2 removed * */
+   ULONG              Handle;        /* Object handle (low word only) */
+};
+
+typedef TRANSINFO *PTRANSINFO;
+
+typedef LHANDLE HPROGRAM;
+
+struct SWP
+{
+   ULONG   fl;
+   long    cy;
+   long    cx;
+   long    y;
+   long    x;
+   HWND    hwndInsertBehind;
+   HWND    hwnd;
+   ULONG   ulReserved1;
+   ULONG   ulReserved2;
+};
+typedef SWP *PSWP;
+
+typedef ULONG PROGCATEGORY;
+typedef PROGCATEGORY *PPROGCATEGORY;
+struct PROGTYPE
+{
+    PROGCATEGORY progc;
+    ULONG        fbVisible;
+};
+typedef PROGTYPE *PPROGTYPE;
+
+struct PROGDETAILS
+{
+      ULONG     Length;         /* set this to sizeof(PROGDETAILS)  */
+      PROGTYPE  progt;
+      PSZ       pszTitle;       /* any  of the pointers can be NULL  */
+      PSZ       pszExecutable;
+      PSZ       pszParameters;
+      PSZ       pszStartupDir;
+      PSZ       pszIcon;
+      PSZ       pszEnvironment; /* this is terminated by  /0/0      */
+      SWP       swpInitial;     /* this replaces XYWINSIZE          */
+};
+typedef  PROGDETAILS *PPROGDETAILS;
+
+struct ICONPOS
+{
+   POINTL  ptlIcon;                    /* Location */
+   char    szIdentity[1];              /* Object identity string */
+};
+typedef ICONPOS *PICONPOS;
+
+struct SEARCH_INFO
+{
+   M_WPObject *ClassToBeFound;
+   BOOL       fSkipExtendedSearchCriteria;
+   PVOID      pvoidExtendedCriteria;
+};
+typedef SEARCH_INFO *PSEARCH_INFO;
+
+
+typedef  ULONG    HEV;
+
+struct LINKITEM                  /* USAGE_LINK struct */
+{
+   WPObject    *LinkObj;         /* The link object */
+};
+typedef LINKITEM *PLINKITEM;
+
+struct CRITERIA
+{
+   PVOID            pReserved;           /* Reserved - MUST be null!!!! */
+   CRITERIA        *pNext;
+   CRITERIA        *pPrev;
+   ULONG            ClassFieldInfoIndex; /* Index of the details field  */
+   ULONG            LogicalOperator;     /* CRITERIA_AND or CRITERIA_OR */
+   ULONG            ComparisonType;      /* CMP_LESS_OR_EQUAL etc...    */
+   ULONG            ulLenCompareValue;   /* sizeof(ComparisonData)      */
+   char             CompareValue[1];     /* Value to be compared with   */
+};
+typedef CRITERIA *PCRITERIA;
+
+typedef LHANDLE HFOBJ;
+
+
+struct CELL
+{
+   ULONG       cbData;           /* Size of the data that follows */
+
+   /* Class specific cell data follows immediately afterwards -
+    * for example the font palette would store the ASCII name of
+    * the font, and the color palette would store the RGB color
+    * of the cell.
+    */
+};
+typedef CELL *PCELL;
+
+struct RECTL
+{
+    long  xLeft;
+    long  yBottom;
+    long  xRight;
+    long  yTop;
+};
+typedef RECTL *PRECTL;
+
+struct PALINFO
+{
+   ULONG       xCellCount;       /* Number of columns of cells */
+   ULONG       yCellCount;       /* Number of rows of cells */
+   ULONG       xCursor;          /* Cursor location (readonly) */
+   ULONG       yCursor;          /* Cursor location (readonly) */
+   ULONG       xCellWidth;       /* Width of each cell */
+   ULONG       yCellHeight;      /* Height of each cell */
+   ULONG       xGap;             /* X separation of cells */
+   ULONG       yGap;             /* Y separation of cells */
+};
+typedef PALINFO *PPALINFO;
+
+struct CELLSTRUCT
+{
+   RECTL       rclCell;          /* Cell coordinates */
+   PCELL       pCell;            /* Cell data pointer */
+};
+typedef CELLSTRUCT *PCELLSTRUCT;
+
+struct CLASSCRITERIA
+{
+   CLASSCRITERIA         *pNext;
+   CLASSCRITERIA         *pPrev;
+   M_WPObject            *Class;          /* Class object */
+   PCRITERIA              pCriteria;      /* Linked list of criteria */
+   WPObject              NotifyObject;   /* Owner of the criteria list rcsom2 removed * */
+};
+typedef CLASSCRITERIA *PCLASSCRITERIA;
+
+struct FATTRS
+{
+   USHORT  usRecordLength;
+   USHORT  fsSelection;
+   long    lMatch;
+   char    szFacename[FACESIZE];
+   USHORT  idRegistry;
+   USHORT  usCodePage;
+   long    lMaxBaselineExt;
+   long    lAveCharWidth;
+   USHORT  fsType;
+   USHORT  fsFontUse;
+};
+typedef FATTRS *PFATTRS;
+
+//# BITMAPINFOHEADER2 added V1.0.1 (2003-01-29) [umoeller]
+//# in the toolkit's pmbitmap.h, this is in a pragma pack(1)
+//# section, so this can just be copied (SOM packs structures too)
+struct BITMAPINFOHEADER2
+{
+   ULONG  cbFix;            /* Length of structure                    */
+   ULONG  cx;               /* Bit-map width in pels                  */
+   ULONG  cy;               /* Bit-map height in pels                 */
+   USHORT cPlanes;          /* Number of bit planes                   */
+   USHORT cBitCount;        /* Number of bits per pel within a plane  */
+   ULONG  ulCompression;    /* Compression scheme used to store the bitmap */
+   ULONG  cbImage;          /* Length of bit-map storage data in bytes*/
+   ULONG  cxResolution;     /* x resolution of target device          */
+   ULONG  cyResolution;     /* y resolution of target device          */
+   ULONG  cclrUsed;         /* Number of color indices used           */
+   ULONG  cclrImportant;    /* Number of important color indices      */
+   USHORT usUnits;          /* Units of measure                       */
+   USHORT usReserved;       /* Reserved                               */
+   USHORT usRecording;      /* Recording algorithm                    */
+   USHORT usRendering;      /* Halftoning algorithm                   */
+   ULONG  cSize1;           /* Size value 1                           */
+   ULONG  cSize2;           /* Size value 2                           */
+   ULONG  ulColorEncoding;  /* Color encoding                         */
+   ULONG  ulIdentifier;     /* Reserved for application use           */
+};
+typedef BITMAPINFOHEADER2 *PBITMAPINFOHEADER2;
+
+//# BITMAPFILEHEADER2 added V1.0.1 (2003-01-29) [umoeller]
+struct BITMAPFILEHEADER2
+{
+   USHORT    usType;
+   ULONG     cbSize;
+   short     xHotspot;
+   short     yHotspot;
+   ULONG     offBits;
+   BITMAPINFOHEADER2 bmp2;
+};
+typedef BITMAPFILEHEADER2 *PBITMAPFILEHEADER2;
+
+#endif
+

@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Status Bars: Additional Disk Object Codes
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+<B>Disk objects</B> (WPDisk class, i.e. the objects in the
+<!-- V0.9.20: added link -->
+&link_drivesfdr;)
+support the following codes <I>in addition</I> to the codes for all objects:
+<BR><DL>
+<!-- V0.9.13: replaced the following -->
+<DT><CITE>  $f<I>X</I>     </CITE><DD>free space on the drive
+<DT><CITE>  $z<I>X</I>     </CITE><DD>total size of the drive
+
+<P>In the above two, <CODE><I>X</I></CODE> is a
+special <A HREF="fsys/stat_99format.html">format specifier</A> character.
+<!-- end V0.9.13 rewrite -->
+
+<BR><DT><CITE>  $F      </CITE><DD>file-system type (FAT, HPFS, JFS, CDFS, ...)
+
+<BR><DT><CITE>  $L      </CITE><DD>disk label
+</DL>
+
+<BR><B>Notes:</B>
+<!-- V0.9.13: removed this If you are using these keys, you should make sure that you have
+&os2;'s hardware error messages disabled, because otherwise you'll get a
+"drive not ready" message every time no disk is inserted.
+The new "&os2; Kernel"
+object lets you do this on the "Errors" page. -->
+
+<!-- V0.9.11: changed the following line -->
+<P>The <CITE>$f</CITE> and <CODE>$z</CODE> codes are <I>redefined</I>
+for disk objects. Normally, they display the space on the drive on which the
+<I>folder</I> resides, which, for the "Drives" folder, would of course always
+return the same value for the drive on which your Desktop resides.
+Thus this code has been redefined for drive objects.
+
+<BR>
+</BODY>
+</HTML>
+
+

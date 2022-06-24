@@ -1,0 +1,86 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_ARCHIVES;>
+<HEAD>
+    <TITLE>
+        &xwp;: Archieven Pagina Vervanging
+    </TITLE>
+</HEAD>
+
+<BODY>
+<IFNDEF __NOXWPSETUP__>
+&xwp; vervangt de standaard "Archieven" pagina met een uitgebreide versie
+als de respectievelijke instelling in het
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Instellingen" object</A> is ingeschakeld.
+</IFNDEF>
+Op deze pagina, kunt u gedetailleerd de criteria aangeven of van uw Werkplek
+tijdens het opstarten een reservekopie moet worden gemaakt.
+
+<P>Om een reservekopie terug te zetten die door het Workplace Shell archiverings mechanisme
+is gemaakt, druk op Alt-F1 op het moment dat een klein venster met
+"&os2short;" wordt getoond tijdens het opstarten van het systeem.
+
+<IFNDEF __EWORKPLACE__>
+<P>Zie de <I>&xwp; Gebruikers Handleidingen</I> voor een introductie van de mogelijkheid.
+Nogmaals, deze uitgebreide pagina verandert het archiveringsmechanisme zelf niet; het
+bepaalt alleen <I>of</I> archivering is ingeschakeld, op de wijze die u hier heeft aangegeven.
+</IFNDEF>
+
+<P>De <B>"Archiverings Werkplek"</B> instelling bepaalt of &xwp; werkelijk enige
+archivering zal uitvoeren.
+
+<P>Als deze instelling is ingeschakeld, kunt u in detail bepalen <I>wanneer</I>
+van uw Werkplek een reserve kopie moet worden gemaakt.
+Merk op dat al deze controles alleen maar worden uitgevoerd terwijl de Werkplek
+aan het opstarten is. U zult daarom de Werkplek opnieuw moeten starten om alle
+wijzigingen te zien:
+
+<UL>
+<IFNDEF __EWORKPLACE__>
+<LI><B>"Bij iedere Werkplek start"</B> doet precies hetzelfde als de algemene
+reserve kopie maken instelling van de oude WPS "Archiveren" pagina. Als deze is
+ingeschakeld, zal van de Werkplek een reservekopie worden gemaakt iedere keer
+dat deze opstart.
+</IFNDEF>
+
+<IFDEF __EWORKPLACE__>
+<LI>Als <B>"Tijdens elke Werkplek start"</B> is aangekruid, zal van de Werkplek
+een reservekopie worden gemaakt iedere keer dat hij opstart. Dat is het dezelfde
+als bij OS/2 Warp.
+</IFDEF>
+
+<P><LI><B>"Tijdens volgende Werkplek start"</B> zal maar ‚‚nmaal een reservekopie van de
+Werplek maken.
+Na de volgende Werkplek start zal deze instelling automatisch worden uitgeschakeld.
+
+<P><LI><B>"Wanneer INI bestanden zijn gewijzigd..."</B> gaat over de
+<CODE>OS2.INI</CODE> en <CODE>OS2SYS.INI</CODE> bestanden gedurende Werkplek start
+en voert een aantal controle berekeningen uit om te bepalen hoeveel de inhoud van de bestanden
+is verandert.
+Als deze berekening het percentage overschrijdt dat u heeft aangegeven met deze instelling
+wordt van uw Werkplek automatisch een reservekopie gemaakt.
+<P>Gebruikelijke waarden hiervoor zijn 0,5 en 5 procent. Als u zeer lage waarden opgeeft,
+kan het zijn dat van uw Werkplek bij iedere start een reserve kopie wordt gemaakt.
+
+<P><LI><B>"Elke xxx dagen"</B> zal eenvoudig controleren wanneer de laatste archivering
+werd uitgevoerd; als meer dan het aantal dagen dat u heeft opgegeven is verlopen, wordt van
+uw Werkplek een reservekopie gemaakt.
+
+<P>Bedenk dat dit alleen de werkelijke kalender datum controleert, niet de hoeveelheid tijd
+(b.v. uren) die er verlopen zijn. Als u de Werplek ‚‚n minuut na middernacht start wordt
+van de Werkplek een reserve kopie gemaakt, zelfs als dat al gebeurt is even v¢¢r middernacht.
+
+</UL>De <B>Toon status tijdens opstarten</B> instelling bepaalt of &xwp; een ander
+status venster toont terwijl de Werkplek start, die het resultaat laat zien van de voorafgaande
+berekeningen. Dit kan handig zijn om uw instellingen te testen.
+
+<P><B>Met "Behoud xxx archieven"</B> kunt u opgeven hoeveel archieven er moeten worden
+bewaard in de archieven directory. De standaard is dat 3, maar u kunt, theoretisch, tot 9
+archieven bewaren.
+Echter, als dit aantal meer is dan 3, zal het standaard scherm dat verschijnt wanneer
+u Alt-F1 indrukt tijdens het starten van het systeem gedeeltelijk onleesbaar zijn, omdat
+de er bijkomende archief informatie er voor zorgt dat de bovenzijde van het scherm verdwijnt.
+Het is niet erg, maar het staat vreemd.
+
+<BR>
+</BODY>
+</HTML>
+

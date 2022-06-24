@@ -1,0 +1,54 @@
+<HTML RESID=&ID_XSH_RESTARTWPS_CONFIRM;>
+<HEAD>
+    <TITLE>
+        Starta om Skrivbordet Bekr„ftelse
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+I <B>bekr„ftelsef”nstret</B>
+<IFNDEF __NOXSHUTDOWN__>
+(vilket visas om du har aktiverat bekr„ftelser
+i Skrivbordets
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>)
+</IFNDEF>
+„r f”ljande inst„llningar „r tillg„ngliga:
+
+<UL><LI>Du kan best„mma om &xwp; skall <B>st„nga alla sessioner</B> innan omstart 
+av WPS. Om du g”r det, kommer &xwp; inte bara att st„nga alla WPS f”nster, utan alla
+andra program ocks†.
+
+<IFNDEF __NOXWPSTARTUP__>
+<P><LI>Du kan ocks† best„mma om &xwp; efter omstarten av Skrivbordet skall
+<B>processa alla startupmappar</B> igen. Om detta „r aktiverat, kommer &xwp; att
+processa <I>alla</I> &xwp; startupmappar efter omstarten av Skrivbordet. Som kontrast,
+om den h„r inst„llningen „r avaktiverad, kommer endast startupmapparna att processas som 
+har inst„llningen "Varje omstart av Skrivbordet" aktiverade i sina respektive
+<A HREF="glossary/gls_notebook.html">notb”ckers egenskaper</A>.
+
+<P><B>Notera:</B> Du skall endast aktivera den h„r inst„llningen om du varken har
+"St„ng alla sessioner" ocks† aktiverat eller om du „r s„ker p† att programmen
+i startupmappen inte k”rs f”r n„rvarande, d„rf”r att annars kanske dom blir startade
+tv† g†nger.
+
+<P>Den h„r inst„llningen p†verkar inte den regulj„ra startupmappen hos &os2;. Den mappen
+processas aldrig efter en omstart av Skrivbordet.
+</IFNDEF>
+
+<P><LI>Om du valde <B>"Arkivera skrivbordet en g†ng efter omstart",</B> kommer &xwp; att
+aktivera funktionen "Arkivering" en g†ng f”re omstarten och avaktivera den igen efter
+att Skrivbordet har startats om. Detta „r endast en skugga till den manuella aktiveringen 
+inst„llningen hos Skrivbordets <A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>
+och sedan avaktivera den igen.
+
+<IFNDEF __NOXSHUTDOWN__>
+<P><LI>Om du avmarkerade inst„llningen <B>"Visa det h„r meddelandet n„sta g†ng"</B>,
+kommer bekr„ftelser att bli avaktiverade f”r Ut”kad Avst„ngning och omstart av Skrivbordet.
+Du kan sedan †teraktivera bekr„ftelser igen hos Skrivbordets 
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A> p† "&xshutdown;" sidan.
+</IFNDEF>
+</UL>
+
+</BODY>
+</HTML>
+

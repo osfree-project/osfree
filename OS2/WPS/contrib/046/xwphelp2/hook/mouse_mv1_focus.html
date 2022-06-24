@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Glidande Fokus
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text which was previously
+     in 0987mouse_hook.html -->
+<BODY>
+Om inst„llningen <B>"Aktivera"</B> i "Glidande fokus" gruppen „r f”rbockad, kommer den "glidande fokus"
+funktionen hos 
+<!-- V0.9.13: changed rest of this paragraph -->
+<A HREF="glossary/gls_hook.html" TARGET="_top">&xwp; PM hook</A>
+att aktiveras. Efter detta, kommer &xwp; alltid att g”ra f”nstret vilket „r under muspekaren aktivt,
+„ven om du inte har klickat p† det. Den h„r funktionen „r mest framst†ende hos X Windows system
+(d„r det vanligtvis kallas "Fokus f”ljer musen"), men „r v„ldigt hj„lpsamt „ven p† &os2;.
+<!-- end V0.9.13 -->
+
+<P>Den andra posten i "Glidande fokus" gruppen kan sedan anv„ndas f”r att p†verka beteendet hos
+den h„r funktionen:
+
+<!-- V0.9.2: moved the following paragraph here from the bottom -->
+<UL><LI>Med draglisten <B>"Aktivering f”rdr”jning"</B>, kan du tala om f”r &xwp; att f”rdr”ja 
+v„xling mellan fokus f”r en viss tid (specificerad i millisekunder) efter att musen har flyttats. 
+Detta kan vara anv„ndbart om du ”nskar undvika f”r mycket f”nsterfladder n„r du flyttar musen
+”ver m†nga f”nster. Om f”rdr”jningen „r satt till 0, kommer fokus att bli v„xlat omedelbart n„r
+musen flyttas (m.a.o. blir det ingen f”rdr”jning).
+
+<P><LI>Om <B>"Flytta f”nster ovanp†"</B> „r f”rbockat, kommer &xwp; alltid att g”ra f”nstret
+under muspekaren till det ”versta f”nstret, som om du skulle ha musklickat inom det (eller p†
+dess rubrikrad). Som ett resultat, kommer det aktiva f”nstret och det ”versta att alltid vara
+identiska.
+
+<P>Om inst„llningen „r avaktiverad, kommer &xwp; endast att ge f”nstret under muspekaren
+tangentbordsfokus, utan att lyfta fram sj„lva f”nstret. Som ett resultat, beh”ver inte det aktiva
+f”nstret och det ”versta alltid vara samma. Detta till†ter dig, till exempel, att skriva 
+i ett f”nster i bakgrunden.
+
+<P><LI>Inst„llningen <B>"Ignorera s”ml”sa &winos2;"</B> best„mmer den speciella behandling 
+som „r n”dv„ndig f”r s”ml”sa &winos2; f”nster (vilka „r, de som upptr„der p† PM skrivbordet
+tillsammans med andra PM f”nster). Se <I>&xwp; Anv„ndarguide</I> f”r detaljer om detta problem.
+
+<!-- V0.9.4: updated the following two paragraphs -->
+<P>Om den h„r inst„llningen „r <B>f”rbockad,</B> kommer s”ml”sa &winos2; f”nster aldrig att
+ges fokus n„r musen f”rs ”ver dom. Detta †terst„ller effektivt original &os2; beteendet f”r s”ml”sa
+&winos2; f”nster. D† m†ste du klicka p† dom f”r att de skall bli aktiverade.
+
+<P>Om den h„r inst„llningen „r <B>icke f”rbockad,</B> kommer &winos2; f”nster alltid att 
+flyttas till f”rgrunden n„r musen f”rs ”ver dom, oberoende av om inst„llningen 
+"Flytta f”nster ovanp†" „r f”rbockad.
+
+<P><LI>Om <B>"Ignorera Skrivbordet"</B> „r f”rbockat, kommer Skrivbordsf”nstret aldrig att ges
+fokus genom funktionen "glidande fokus". F”r att ge Skrivbordet fokus, m†ste du fortfarande klicka
+p† det. (Notera att h„r betyder "Skrivbordet" b†de WPS Skrivbordsf”nstret, vilket „r ett 
+speciellt mappf”nster, s† v„l som PM Skrivbordet, vilket „r osynligt s† fort Skrivbordet startar.)
+
+<!-- V0.9.2: added the following paragraph -->
+<!-- V0.9.19: removed it again
+<P><LI>If <B>"Ignore &pgr;"</B> is checked, the &xwp; &pgr; window will
+never be given the sliding focus. This item is disabled if &pgr; itself is not enabled.
+-->
+</UL>
+</BODY>
+</HTML>
+

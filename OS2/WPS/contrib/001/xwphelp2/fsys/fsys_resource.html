@@ -1,0 +1,93 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_RESOURCES;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Resources" page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.20: rewrote the top -->
+The "Resources" page appears in the properties notebooks of all
+executable files to display additional information about the executable module.
+
+<P><B>Resources</B> are read-only data objects that can be accessed
+dynamically at run time.
+
+<P>Resource objects are placed into an executable file by the Resource
+Compiler (<CODE>RC.EXE</CODE>), which ships with &os2;.
+<!-- V0.9.20: added this -->
+This can either be the application's main module (<CODE>.EXE</CODE> file)
+or a <A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>.
+
+<!-- V0.9.20: rewrote the following paragraphs -->
+<P>A resource can be loaded at any time by using a "type" and "ID" pair.
+Typically, as opposed to the actual application code, resources are only
+loaded when they are actually needed. This makes application startup faster
+and also reduces memory consumption.
+
+<P>Resources are frequently used by applications to separate their national
+language support (NLS) from the actual code. This way, applications can
+be translated without having to recompile the source code.
+<IFNDEF __EWORKPLACE__>
+(&xwp; does its language support this way, for example.)
+</IFNDEF>
+<!-- end 0.9.20 -->
+
+<P>The following types of resources exist:
+
+<UL><LI><B>Mouse-pointer shape:</B> an icon or pointer file (.ICO/.PTR format).
+
+<P><LI><B>Bitmap:</B> an OS/2 bitmap (.BMP).
+
+<P><LI><B>Menu template:</B> a PM menu definition; either a menu bar or a popup (context) menu.
+
+<P><LI><B>Dialog template:</B> a PM dialog definition.
+
+<P><LI><B>String table:</B> a string table.
+
+<P><LI><B>Font directory, Font:</B> PM bitmap fonts.
+
+<P><LI><B>Accelerator table:</B> a PM accelerator (hotkey, keyboard shortcut) table.
+
+<P><LI><B>Binary data:</B> binary data in an undefined format.
+
+<P><LI><B>Error message table:</B> an error message table.
+
+<P><LI><B>Dialog include-file name:</B> file name of the dialog include file.
+
+<P><LI><B>Virtual key table:</B> key to VKEY tables. I'm unsure what this is.
+
+<P><LI><B>Key table:</B> key to UGL tables. I'm unsure what this is.
+
+<P><LI><B>Character table:</B> Glyph-to-character tables.
+This is probably used with fonts.
+
+<P><LI><B>Display information:</B> screen display information. I've never seen this.
+
+<P><LI><B>Short-form function key area:</B> function key area, short form.
+I'm unsure what this is.
+
+<P><LI><B>Long-form function key area:</B> function key area, long form.
+I'm unsure what this is.
+
+<P><LI><B>Help table, Help subtable:</B> help tables for PM help manager. This
+allows PM to correlate dialog items and help pages, but it's terribly annoying to use.
+
+<P><LI><B>DBCS uniq/font driver directory, DBCS uniq/font driver:</B> double-byte
+character set (DBCS) font drivers. I'm unsure what this is.
+
+<P><LI><B>String ID table:</B> resources name table.  I'm unsure what this is.
+
+<P><LI><B>Application specific:</B> data in an application-specific format.
+
+</UL>
+
+<!-- V0.9.20: removed this
+Resources are either loaded as soon as the module is loaded or when needed.
+Once loaded, resources are either automatically discarded when they are no longer
+needed or when the module is discarded.
+-->
+
+</BODY>
+</HTML>
+

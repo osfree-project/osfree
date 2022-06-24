@@ -1,0 +1,50 @@
+<HTML  RESID=&ID_XSH_SETTINGS_XWPSTRING_MAIN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Setup String Objects
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+<!-- V0.9.16: added image -->
+<IMG SRC="img/string.gif"><BR>
+
+<!-- V0.9.13: changed all "XWPString" to "setup string object" -->
+A setup string object can store any object setup string and optionally an
+object on which that setup string can be invoked by default.
+
+<!-- V0.9.13: added this -->
+<!-- V0.9.16: slightly changed -->
+<P>See <A HREF="glossary/gls_objstrings.html">"Setup strings"</A> for more
+information about WPS setup strings and a list of the most frequently
+used ones.
+
+<P>You can invoke the stored setup string on objects in
+<!-- V0.0.16: changed two to three -->
+three
+ways:
+
+<UL><LI>The setup string which is stored in the string object can be invoked
+on any object by dropping the target object onto the string object. For example,
+if you have an string object which sets folder settings, drop any folder
+on the string object, and the folder will be set accordingly.
+
+<P>Note that in this case, it is your responsibility to make sure that the
+target object will understand the string. For example, if the string object
+contains folder setup strings, it doesn't make sense to invoke the string
+on program objects.
+
+<P><LI>Secondly, the string object can optionally store a "default" object on
+which the setup string will be invoked when you double-click on the string
+object. This might be useful for certain "command" setup strings which should
+always be invoked on a certain object.
+
+<!-- V0.9.16: added this -->
+<P><LI>Finally, you can put setup string objects into the &xwp; Configuration
+Folder to be able to invoke the setup string on any folder.
+See <A HREF="menus/menu_3config.html">Configuring &popmenu;s</A> for details.
+
+</UL>
+</BODY>
+</HTML>
+

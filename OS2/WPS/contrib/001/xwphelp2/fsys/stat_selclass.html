@@ -1,0 +1,57 @@
+<HTML RESID=&ID_XFH_SELECTCLASS;>
+<HEAD>
+    <TITLE>
+        Select Object Class
+    </TITLE>
+</HEAD>
+<!-- V0.9.0: see notes below -->
+<BODY>
+In this window you may select the object class for which you wish to set
+status bar information when only one object is selected in a folder.
+
+<P>This window shows you all the installed
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS classes</A>
+to give you an overview
+about which class is derived from which.
+
+<P>For determining status bar codes however you may only select a class which
+can process this information. Such classes are printed in black, while classes
+which don't support this appear in gray and cannot be selected.
+
+<!-- V0.9.0: added the following -->
+<P>The tree view has been extended so that all classes which support status bar
+information are initially visible.
+
+<!-- V0.9.0: added the following -->
+<!-- V0.9.13: moved this down
+Note that status bar information is independent of the additional
+&xwp; classes. That is, it is not only &xwp; classes which support
+status bar information, but on the other hand, not all &xwp; classes
+support this either. -->
+
+<P>The generic status bar information is determined by the class <B>XFldObject.</B>
+That is, if you select a single object for which no class defines more specific status
+bar information (an example for this would be a printer object), the codes of
+the XFldObject class are used.
+
+<!-- V0.9.0: changed the following -->
+<P>More specific keys are however provided by the classes <B>XFldDisk</B>
+(for "disk" objects, as in the <!-- V0.9.20: added link -->
+&link_drivesfdr;), <B>WPProgram</B> (for abstract
+program objects), <B>WPFileSystem</B> (for folders and data files), and <B>WPUrl</B>.
+<!-- V0.9.19: removed this (for URL objects, which exist on Warp 4 only). -->
+
+<!-- V0.9.13: begin moved text -->
+<P>Note that status bar information is <I>independent</I> of the additional
+&xwp; classes. That is, it is not only &xwp; classes which support
+status bar information, but on the other hand, not all &xwp; classes
+support this either.
+<!-- V0.9.13: removed this
+Please look into the &xwp;_User_Guide to see a complete list
+of all the different codes for the different classes, which are too complex to
+be shown here. -->
+<BR>
+</BODY>
+</HTML>
+

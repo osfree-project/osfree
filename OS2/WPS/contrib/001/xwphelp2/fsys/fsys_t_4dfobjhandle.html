@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Pass Data File Object Handle in Environment
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+The <B>"Pass Data File Object Handle in Environment"</B> setting determines
+how &xwp; will set the <CODE>WP_OBJHANDLE</CODE> variable in the environment
+of a program that was started via a data file association. Disabling this
+setting allows you to reduce the number of file-system
+<A HREF="glossary/gls_objhandle.html">object handles</A> that are created on
+your system.
+
+<UL><LI>If the setting is <B>checked</B>, if you start a program via a
+data file association, the data file's
+<A HREF="glossary/gls_objhandle.html">object handle</A> will also be passed
+in the environment. <CODE>WP_OBJHANDLE</CODE> will then be set as follows:
+
+<P><CODE>WP_OBJHANDLE=<I>program</I>,<I>datafile</I></CODE>
+
+<P>where <CODE><I>program</I></CODE> is the object handle of the program object
+or program file that was started and <CODE><I>datafile</I></CODE> is the object
+handle of the data file whose association caused the program to start.
+
+<P>This is the default Workplace Shell behavior.
+
+<P><LI>If the setting is <B>unchecked</B>, <CODE>WP_OBJHANDLE</CODE> will be
+set as follows:
+
+<P><CODE>WP_OBJHANDLE=<I>program</I></CODE>
+
+<P>In other words, the data file handle will <I>not</I> be passed.
+
+</UL>This setting was added because every time a data file is started, for example
+when you double-click on a data file, an object handle has to be created for the
+file, which will remain in the <CODE>OS2SYS.INI</CODE> file forever, even if it
+is never used again. Over time, this can create a lot of handles. You can thus
+now turn the setting off, and you will find that your handles section in
+<CODE>OS2SYS.INI</CODE> will no longer grow as fast.
+
+<P>However, some applications might rely on the default Workplace Shell behavior.
+If you turn the setting off and an application no longer works, you will have to
+keep the setting enabled.
+
+<P>The setting takes effect immediately.
+
+<BR>
+</BODY>
+</HTML>
+

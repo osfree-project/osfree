@@ -1,0 +1,30 @@
+<HTML RESID=&ID_XFH_LIMITREACHED;>
+<HEAD>
+    <TITLE>
+        "Zu viele Eintr„ge"
+    </TITLE>
+</HEAD>
+<BODY>
+&xwp; zeigt diese Meldung an, wenn zu viele Menpunkte in die &popmenu;s 
+eingefgt wurden. Diese Nachricht ist nur eine Warnung, die keine weiteren 
+Konsequenzen nach sich ziehen sollte. Sie tritt auf, wenn Sie zu weit durch die 
+&popmenu;s fahren, ohne das &popmenu; jemals zu schlieáen.
+ 
+<P><B>Abhilfe:</B>
+<P>Das &popmenu; von Zeit zu Zeit durch einen Klick irgendwo auf der 
+Arbeitsoberfl„che schlieáen.
+ 
+<P><B>Detaillierte Erl„uterung:</B>
+&os2; untersttzt keine unbegrenzte Anzahl von Meneintr„gen in Untermens.
+Jedem Meneintrag muá eine interne Idendifikationsnummer (ID) zugewiesen werden.
+&xwp; benutzt fr diese IDs 0x6500 (dezimal 25856) plus der Zahl, die als 
+"Ausgleich" in den globalen Einstellungen angegeben wurde, und weist jedem einzelnen 
+Eintrag, der in den &popmenu;s erscheint, eine neue ID zu. &os2; macht jedoch 
+unvorhersagbare Dinge, sobald Men-IDs gr”áer als 0x8000 (dezimal 32768) benutzt 
+werden, deshalb bricht &xwp; die Menverarbeitung ab, sobald dieser Grenzwert
+erreicht ist. Beim ™ffnen des darauf folgenden &popmenu;s beginnt das Z„hlen 
+von vorn, somit sollte dieser Fehler keine weiteren Folgen haben.
+ 
+<BR>
+</BODY>
+</HTML>

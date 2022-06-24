@@ -1,0 +1,149 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Wie funktioniert &xshutdown;?
+    </TITLE>
+</HEAD>
+<!-- changes with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+XShutdown hat mich viele Stunden angestrengten Denkens gekostet, weil es
+wirklich nirgendwo dokumentiert ist, was w„hrend des normalen Systemabschlusses
+geschieht.
+ 
+<P>Normalerweise kennt OS/2 zwei verschieden Systemabschluá-APIs:
+<UL><LI><CITE>DosShutdown</CITE> schlieát nur alle ge”ffneten
+Dateien, schreibt die Dateisystem-Puffer zurck und l”st alle
+Dateisysteme; das geschieht nach dem Drcken von Strg-Alt-Entf (Ctrl-Alt-Del).
+Anwendungen werden nicht ordnungsgem„á geschlossen, und die WPS
+wird auch nicht gesichert.
+<BR><LI><CITE>WinShutdownSystem</CITE> ist ein API, das zum Presentation
+Manager geh”rt und alle Fenster schlieát, die WPS sichert und
+schlieálich <CITE>DosShutdown</CITE> aufruft. Dies ist die normale
+Systemabschluá-Prozedur:
+Sie wird ausgefhrt, wenn Sie "Systemabschluá" aus dem Kontextmen
+der Arbeitsoberfl„che oder die entsprechenden Symbole aus der Klickstartleiste oder
+dem WarpCenter ausw„hlen.
+ 
+</UL>Das Problem ist, daá es keine Funktion "zwischen" diesen beiden
+gibt. Wenn Sie <CITE>DosShutdown</CITE> aufrufen, wird die WPS nicht gesichert, und bei
+<CITE>WinShutdownSystem</CITE> legt der normale Systemabschluá los, ohne daá
+man irgendeine M”glichkeit h„tte, noch einzugreifen. Das bedeutete,
+daá ich quasi ein komplett neues <CITE>WinShutdownSystem</CITE> programmieren muáte,
+das hier jetzt erkl„rt wird. Dies war ziemlich schwierig, da IBM kaum
+irgendetwas darber erkl„rt, was wirklich w„hrend <CITE>WinShutdownSystem</CITE>
+passiert.
+ 
+<P>Hinweis: Bei &xwp; benutzen der "Erweiterte Systemabschluá" und "WPS
+neu starten" denselben Code; der einzige Unterschied sind die Aktionen, die
+nach dem Schlieáen aller Fenster ausgefhrt werden. Deshalb werde
+ich den Begriff "&xshutdown;" in den folgenden Erkl„rungen fr beide
+benutzen, wenn nicht anders angegeben.
+ 
+<P>XShutdown ist <STRONG>in die WPS integriert</STRONG> und ist sehr stark von den
+&xwp;-Ersatzklassen
+abh„ngig. Bewuát habe ich den &xshutdown;-Code nicht in einer separaten
+.EXE-Datei mitgeliefert: zum einen erfordert &xshutdown; Zugriff auf WPS-interne
+Daten, die nur im SOM-Kontext erreichbar sind; zum zweiten will ich die Leute
+davor bewahren, &xshutdown; ohne installierte &xwp;-Klassen zu starten,
+da dies die WPS besch„digen k”nnte. Genauer gesagt ben”tigt
+&xshutdown; die Klasse XFldObject und den &xwp;-Worker-Thread, die zusammen
+die WPS-internen Daten zug„nglich machen.
+ 
+<P>Um zu verstehen, was &xshutdown; tut, muá man wissen, wie die <STRONG>WPS
+ihre Objekte intern verwaltet</STRONG>. Jedes einzelne Objekt, das zu einem Zeitpunkt
+fr die WPS relevant wird, sei es durch Bev”lkern
+eines Ordners, durch Abfragen der Einstellungen oder durch Starten eines
+Programmes oder durch was auch immer, wird - in WPS Terminologie - vom
+System "aufgeweckt" ("awakened"); das bedeutet, daá es als SOM-Objekt
+im Speicher existiert.
+ 
+<P>Die WPS schl„fert wache Objekte nur sehr selten wieder ein, was die Freigabe
+des damit verbundenen Speichers und einer Sicherung der Daten des Objekts
+auf Festplatte zur Folge h„tte. Das hat zwei Konsequenzen:
+<OL><LI>Es gibt immer mehr "wache" Objekte auf Ihren
+System, als Sie in diesem Moment annehmen wrden, da die meisten von
+ihnen gerade nicht sichtbar sind. Sogar nachdem Sie einen Ordner geschlossen
+haben, bleiben die Objekte darin wach; das beschleunigt das Bev”lkern
+des Ordners, wenn er zum zweiten Mal ge”ffnet wird. Das fhrt
+dazu, daá die WPS mit jedem Ordner, der ge”ffnet wird, immer
+mehr und mehr Speicher belegt. (Wenn Sie von &xshutdown; eine Logdatei erstellen
+lassen, k”nnen Sie sehen, wie viele wache Objekte von &xshutdown; gesichert
+werden; normalerweise sind das einige hundert Objekte, auch wenn &xshutdown;
+nicht alle Objekte sichert, sondern nur die Ableitungen von WPFolder und
+WPAbstract. Unter dem Reiter "&xwp;-Status" im Objekt "&xwp;-Konfiguration"
+k”nnen Sie sehen, wie viele Objekte derzeit wach sind.)
+<BR><LI>Eine nderung der Objekt-Daten aktualisiert
+manchmal nur das SOM-Objekt im Speicher, wird aber nicht auf Festplatte
+oder in OS2.INI / OS2SYS.INI gespeichert. Darum ger„t die WPS manchmal
+ins Schleudern, wenn Sie gr”áere nderungen durchgefhrt
+haben, wie das Bewegen eines Ordners, der viele abstrakte Objekte enth„lt,
+und danach nicht richtig herunterfahren: die physischen Daten auf der
+Festplatte und die WPS-Eintr„ge unterscheiden sich dann.
+</OL>Dafr braucht &xshutdown; die Klasse <B>XFldObject</B>, die WPObject
+ersetzt. Jedes mal, wenn ein Objekt aufgeweckt wird, ruft die WPS diverse
+Methoden auf (darunter <CITE>wpInitData</CITE> und <CITE>wpObjectReady</CITE>).
+XFldObject ersetzt
+diese und bergibt die Speicheradresse des Objekts an den Worker-Thread,
+der dann die &xwp;-interne Liste aller momentan wachen Objekte aktualisiert.
+Soweit ich weiá, gibt es keinen anderen Weg herauszufinden, welche
+Objekte gerade wach sind; auf jeden Fall gibt es auch keine dokumentierte
+API, die diese Objekte auflisten k”nnte.
+ 
+<P>Wenn <STRONG>&xshutdown; nun aufgerufen</STRONG> und best„tigt wird, startet es
+als erstes fr die folgende Systemabschluá-Prozedur zwei neue
+Threads, die parallel zu den regul„ren WPS-Threads laufen; den
+Haupt-<STRONG>"Systemabschluá-Thread"</STRONG>
+mit der Nachrichtenschlange fr das Status-Fenster, und den <STRONG> "Update-Thread"</STRONG>,
+der die &os2;-Fensterliste berwacht
+und Nachrichten an den Hauptthread absetzt, wenn das Status-Fenster aktualisiert
+werden muá. Daher ist das Schlieáen aller momentan ge”ffneten
+Fenster ein kompliziertes Zusammenspiel dieser beiden Threads: Der Systemabschluá-Thread
+schlieát ein Fenster und geht dann so lange in den Leerlauf, bis der
+Update-Thread eine nderung in der Fensterliste meldet (was bedeutet,
+daá das Fenster erfolgreich geschlossen wurde) und den Systemabschluá-Thread
+benachrichtigt, der dann wiederum das n„chste Fenster schlieát,
+bis kein Fenster mehr brig ist.
+ 
+<P>Nachdem alle Fenster geschlossen worden sind, beendet sich der Update-Thread.
+Jetzt geht der Systemabschluá-Thread die Liste aller momentan wachen
+Objekt durch (s.o.) und zwingt sie durch den Aufruf der <CITE>wpSaveImmediate</CITE>-Methode,
+ihre Daten in die INI-Dateien oder auf Festplatte zu schreiben. Dies geschieht
+nur fr die Ableitungen von WPAbstract und WPFolder, weil nach meiner
+Erfahrung alle anderen Klassen ihre Daten direkt speichern. (Ich habe einmal
+versucht, alle Ableitungen von WPFileSystem zu sichern, und dies verursachte
+jede Menge Erweiterter Attribute fr jede einzelne Datei, die jemals
+von der WPS geweckt wurde. Abgesehen davon dauert der Systemabschluá
+dann ewig lange.)
+ 
+<P>Zuletzt, je nach dem welche Aktion gewnscht wird, fhrt der
+Systemabschluá-Thread folgendes aus:
+ 
+<UL><LI>Wenn Sie <STRONG>"WPS neu starten",</STRONG> ausgew„hlt
+haben, ruft der Systemabschluá-Thread einfach nur <CITE>DosExit(EXIT_PROCESS,
+0)</CITE> auf. Da &xwp; Teil des Workplace-Prozesses ist und die gesamte WPS
+in diesem einen Prozeá l„uft (der zweiten Instanz von <CITE>PMSHELL.EXE</CITE>),
+beendet dies die komplette Workplace Shell. Der Shell-Prozeá (die
+erste Instanz von <CITE>PMSHELL.EXE</CITE>) startet dann die WPS automatisch neu.
+ 
+<BR><LI>Wenn Sie "Systemabschluá" und <STRONG>"Rechner neu
+starten"</STRONG> ausgew„hlt haben, speichert &xshutdown; auch die INI-Dateien.
+Das ist n”tig, weil <CITE>DosShutdown</CITE>, das anschlieáend aufgerufen
+wird, diese nicht sichert. (Wahrscheinlich deshalb, weil die APIs fr
+INI-Dateien zum Presentation Manager geh”ren.) Da die INI-APIs es verbieten,
+einfach die User- und System-Profile zu schlieáen (was die Daten aller
+anderen Profile auf Festplatte sichern wrde), kopiert XFolder sie
+in zwei tempor„re Dateien, l”scht die Originale, und benennt dann
+die tempor„ren um. Nach <CITE>DosShutdown</CITE> ("L”se Dateisysteme...") wird
+das System mit einem Aufruf des Ger„tetreibers DOS.SYS neu gestartet.
+Diese Funktion ist in <A HREF="http://www.edm2.com">EDM/2</A> Band
+5, Ausgabe 9 beschrieben.
+ 
+<BR><LI>Wenn Sie "Systemabschluá" <STRONG>OHNE "Rechner neu
+starten"</STRONG> ausgew„hlt haben, schaltet &xshutdown; nach <CITE>DosShutdown</CITE>
+die Fensterliste ab und blockiert das System einfach
+durch einen Aufruf von <CITE>DosEnterCritSec</CITE> und einer unendlichen Schleife. Da
+alle Dateisysteme geschlossen sind, sollte keine andere Aktion auáer
+dem Ausschalten oder Neustarten des Rechners per Strg-Alt-Entf mehr m”glich sein.
+</UL>
+</BODY> 
+</HTML>

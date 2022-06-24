@@ -1,0 +1,134 @@
+<HTML RESID=&ID_XSH_DRIVER_S506;>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: IBM1S506.ADD / DANIS506.ADD
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+Dieser Dialog dient zur Konfiguration von zwei Treibern fr IDE-Festplatten:
+ 
+<OL><LI><CODE>IBM1S506.ADD</CODE> ist der IBM-Treiber, der im Lieferumfang von
+&os2; enthalten ist. IBM hat diesen Treiber mehrfach aktualisiert. Eine
+aktuellere Version dieses Treibers wird fr Warp 3 und Warp 4 ben”tigt, falls
+Festplatten mit einer Kapazit„t von mehr als 8 GB betrieben werden sollen.
+ 
+<P>Bei Verwendung dieses Treibers sind viele der Dialogoptionen deaktiviert,
+da sie nur vom <CODE>DANIS506.ADD</CODE>-Treiber verwendet werden (s.u.).
+ 
+<P><LI><CODE>DANIS506.ADD</CODE> ist ein Ersatztreiber, der von Daniela Engert
+geschrieben wurde. Dieser Treiber ist zu 99% parameterkompatibel zum
+Treiber von IBM, bietet darber hinaus jedoch eine Vielzahl an Erweiterungen.
+Da die IBM-Treiber bei vielen neuen Chips„tzen nicht in der Lage sind, das
+Busmastering zu aktivieren, wird dringend der Einsatz dieses erweiterten
+Treibers empfohlen, der die Festplattenleistung stark verbessern kann. Darber
+hinaus erm”glicht es dieser Treiber, die Festplatten-Controller viel genauer
+einzustellen, um beispielsweise Systemprobleme zu l”sen.
+ 
+</OL>Fr jede Einstellung steht detaillierte Hilfe in Form eines <B>fly-over
+Fensters (tooltip)</B> zur Verfgung: Fhren Sie den Mauszeiger zum gewnschten
+Dialogelement und warten Sie dann ca. eine Sekunde, bis der erl„uternde Text
+angezeigt wird.
+ 
+<P>Dennoch ist es erforderlich zu wissen, daá beide Treiber grunds„tzlich
+zwischen <B>drei Typen von Optionen unterscheiden:</B>
+ 
+<OL><LI><B>Globale Treibereinstellungen</B> betreffen den grunds„tzlichen
+Betrieb. Diese Einstellungen finden Sie im linken, oberen Teil des Dialogs
+und beinhalten Startmeldungen und (im Fall von <CODE>DANIS506.ADD</CODE>)
+die Art der Hardwareidentifizierung beim Systemstart.
+ 
+<P><LI><B>Adapter- (Controller-) Einstellungen</B> beziehen sich nur auf einen
+Adapter (bzw. Controller). Beim IDE- und EIDE-Bus steuert ein Adapter zwei
+Laufwerke. PCs haben gew”hnlich zwei Adapter eingebaut, so daá man maximal
+vier (E)IDE-Ger„te an einen Standard-PC anschlieáen kann. Im Dialogfenster
+finden Sie die zugeh”rigen Einstellungen im unteren, linken Bereich.
+ 
+<P>Sowohl beim <CODE>IBM1S506.ADD</CODE>- als auch dem <CODE>DANIS506.ADD</CODE>-Treiber
+mssen Adaptereinstellungen durch eine Option <CODE>/A:x</CODE>
+eingeleitet werden, wobei <CODE>x</CODE> die Nummer des zu konfigurierenden
+Adapters (0 oder 1) angibt, auf den sich die weiteren Parameter beziehen.
+Diese Option wird vom Dialog automatisch gesetzt, sobald man eine beliebige
+Adaptereinstellung abweichend von der Standardvorgabe „ndert. S„mtliche
+Einstellungen innerhalb der Gruppe <B>Adapter- (Controller-) Einstellungen</B>
+beziehen sich ausschlieálich auf den Adapter, der im Bereich <B>"Aktueller
+Adapter"</B> gerade ausgew„hlt ist.
+ 
+<P>Jeder der beiden Adapter ben”tigt ein paar Systemressourcen wie Interrupt
+(IRQ), einen DMA (Direct Memory Access) -Kanal und eine Port-Adresse, um mit
+dem Rechner Daten austauschen zu k”nnen. Werden hier keine Einstellungen
+gemacht, werden die internen Standardvorgaben verwendet, die auf den meisten
+System funktionieren.
+ 
+<P>Details zur Busmastering (DMA) -Untersttzung entnehmen Sie bitte den
+Hinweisen weiter unten.
+ 
+<P><LI><B>Ger„te- (Laufwerks-) Einstellungen</B> betreffen nur ein einzelnes
+Laufwerk. Je Adapter k”nnen zwei Laufwerke angeschlossen sein, die gew”hnlich
+als "Master" und "Slave" bezeichnet werden. Die entsprechenden Einstellungen
+finden Sie im rechten Teil des Dialogfensters.
+ 
+<P>Sowohl beim <CODE>IBM1S506.ADD</CODE>- als auch dem <CODE>DANIS506.ADD</CODE>-Treiber
+mssen Laufwerkseinstellungen durch eine Option <CODE>/A:x</CODE>
+(die den Adapter angibt) und eine darauf folgende Option <CODE>/U:x</CODE>
+(die das Ger„t am Adapter angibt) eingeleitet werden, wobei <CODE>x</CODE>
+jeweils 0 oder 1 ist. Diese Option wird vom Dialog automatisch gesetzt, sobald
+man eine beliebige Laufwerkseinstellung abweichend von der Standardvorgabe
+„ndert. S„mtliche Einstellungen innerhalb der Gruppe <B>Ger„te- (Laufwerks-)
+Einstellungen</B> beziehen sich ausschlieálich auf das Laufwerk, das im Bereich
+<B>"Aktuelle Einheit"</B> gerade ausgew„hlt ist.
+ 
+</OL><B>Busmastering, Direct Memory Access (DMA).</B> Die heutige Hardware
+erlaubt es EIDE-Controllern, Daten mit dem Hauptspeicher des Systems
+auszutauschen, ohne daá hierfr der Prozessor t„tig werden muá. Dieses
+Verfahren erh”ht die Festplattenleistung sehr, denn w„hrend Daten von/zur
+Festplatte bertragen werden, kann sich der Prozessor einer anderen Aufgabe
+widmen.
+ 
+<P>W„hrend die „lteren Programmed-I/O- (PIO) Modi 3 und 4 nach wie vor auf die
+Untersttzung durch den Prozessor angewiesen waren, fhrte der EIDE-Standard
+einige neue Multiword-DMA-Modi ein. In diesen Betriebsarten bernimmt das
+Laufwerk die Steuerung des Datenbus ("Busmastering") und tauscht Daten direkt
+mit dem Hauptspeicher aus ("Direct Memory Access", "DMA"). Der Standardtreiber
+<CODE>IBM1S506.ADD</CODE> kann viele der neueren Chips„tze nicht korrekt 
+erkennen und daher bei einer Groázahl von Systemen das Busmastering nicht
+einleiten. Eine ungleich bessere Figur macht hierbei <CODE>DANIS506.ADD</CODE>,
+der darber hinaus eine Feineinstellung des Erkennungsverfahrens erlaubt.
+ 
+<P><B>Ultra-DMA</B> ist noch eine zus„tzliche Erweiterung des ursprnglichen
+DMA-Protokolls. Frher fand eine Datenbertragung nur w„hrend der ansteigenden
+Phase des Taktsignals statt. Ultra-DMA modifiziert das Protokoll jedoch in der
+Art, daá auch zum Zeitpunkt des Pegelabfalls im Taktsignal eine Datenbertragung
+durchgefhrt wird, wodurch die Datenbertragungsrate also verdoppelt wird. Da sich
+die Gefahr von Signalfehlern (Datenfehlern) erh”ht, wurde zus„tzlich eine
+Fehlerkorrektur implementiert. Ergebnis: Ultra-DMA ist sowohl schneller als
+auch sicherer als das regul„re DMA oder die PIO-Modi.
+ 
+<P>Dennoch kann DMA im Einsatz mit Festplatten zu Problemen fhren. Ursache
+dabei k”nnen „ltere Controller sein, die das Verfahren gar nicht kennen oder
+auch schlechte Kabelverbindungen, die bei h”heren šbertragungsraten zu viel
+Rauschen auf dem Datenbus und damit Datenfehler verursachen. Darber hinaus
+beherrschen viele „ltere Laufwerke das DMA-Verfahren nicht sonderlich gut oder nur
+bei niedrigen šbertragungsraten. Aus diesem Grund kann Busmastering komplett
+deaktiviert oder (mit <CODE>DANIS506.ADD</CODE>) auf eine feste
+šbertragungsrate begrenzt werden.
+ 
+<P>Die Einstellung <B>Adapter <CODE>/BM</CODE></B> aktiviert oder deaktiviert
+Busmastering jeweils fr einen ganzen Adapter (also fr beide an diesen
+Adapter angeschlossene Laufwerke). Diese Option war Bestandteil aller Versionen
+von <CODE>IBM1S506.ADD</CODE> und wird auch von <CODE>DANIS506.ADD</CODE>
+untersttzt.
+ 
+<P>Die Einstellung <B>Ger„te <CODE>/BM</CODE></B> aktiviert oder deaktiviert
+Busmastering nur fr ein einzelnes Ger„t (Laufwerk). Diese Option wird nur von
+neueren Versionen des <CODE>IBM1S506.ADD</CODE> Treibers untersttzt, aber
+ebenfalls auch von <CODE>DANIS506.ADD</CODE>.
+ 
+<P>Mit <CODE>DANIS506.ADD</CODE> kann auch fr jedes einzelne Laufwerk eine
+spezifische Begrenzung der Datenbertragungsrate vorgenommen werden, indem
+die einzelnen šbertragungsprotokolle angegeben werden.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

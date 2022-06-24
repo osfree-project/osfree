@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+Der Parameter <B>"Autocheck"</B> gibt an, fr welche
+<!-- V0.9.20: replace drives with volumes -->
+Volumen JFS beim Systemstart automatisch ein <CITE>CHKDSK</CITE>
+durchfhrt.
+ 
+<P>Geben Sie einfach die entsprechenden Laufwerksbuchstaben (jeweils ohne
+"<CITE>:</CITE>") im Eingabebereich an.
+ 
+<P>Beachten Sie aber, daá die Bedeutung dieses Parameters sich von der des
+enstprechenden Parameters fr <CODE>HPFS.IFS</CODE> unterscheidet:
+ 
+<UL><LI>Wenn Sie nur <CODE>*</CODE> angeben (Standardvorgabe), werden alle
+<!-- V0.9.20: replace drives with volumes -->
+JFS-Volumen automatisch durch Rckverfolgung ihres Journal-Protokolls geprft. Beachten
+Sie auch, daá JFS dies nicht nur bei den als "unsauber" gekennzeichneten 
+<!-- V0.9.20: replace drives with volumes -->
+Volumen tut (z.B. nach unvollst„ndigen Systemabschluá), sondern daá bei
+<I>jedem</I> Systemstart eine Zurckverfolgung des Journal-Protokolls stattfindet.
+ 
+<LI>Wenn Sie <I>vor</I> einem Laufwerksbuchstaben ein Pluszeichen
+(<CITE>+</CITE>) angeben, wird von JFS nicht nur das Journal-Protokoll fr das
+jeweilige Laufwerk nachvollzogen, sondern es findet auch eine komplette
+Integrit„tsprfung fr dieses Laufwerk statt.
+ 
+<LI>Wenn Sie am Ende der Liste <CODE>+*</CODE> angeben, fhrt JFS eine komplette
+Integrit„tsprfung fr alle
+<!-- V0.9.20: replace drives with volumes -->
+Volumen durch, die nicht in der Liste enthalten sind.
+ 
+</UL>Beispiel: Wenn Sie <CITE>C+DE</CITE> angeben, wird fr Volumen D: eine
+vollst„ndige Integrit„tsprfung durchgefhrt, wohingegen fr C: und E:
+lediglich eine Zurckverfolgung des Journal-Protokolls stattfindet.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,72 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPS;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Instellingen
+    </TITLE>
+</HEAD>
+<BODY>
+Op deze pagina kunt u een aantal WPS instellingen in &cfgsys; instellen.
+<P>Als de informatie op deze pagina, in relatie tot verschillende &cfgsys; instellingen, niet
+voldoende is voor u, kunt u aanvullende toelichtingen vinden in de respectievelijke
+hoofdstukken van de <I>Handleiding bij &os2; Opdrachten.</I>
+
+<P>Druk op <B>"Toepassen"</B> om de door u gemaakte aanpassingen op te slaan in het &cfgsys; bestand.
+Dit zal alleen de &cfgsys; regels aanpassen die overeenkomen met de instellingen op deze pagina.
+De regels die overeenkomen met de andere pagina's in het "&os2; Kernel" object zullen niet aangepast
+worden.
+Deze knop is alleen actief als u iets aangepast heeft aan de instellingen op deze pagina.
+Let a.u.b. op dat u de computer dient te herstarten om de aanpassingen te effectueren.
+Een Werkplek herstart is <I>niet</I> voldoende.
+<P>Druk op <B>"Optimaliseer"</B> om &xwp; u nieuwe instellingen voor te stellen op basis van
+uw systeem karakteristieken.
+&cfgsys; zal ook alleen aangepast worden nadat u op "Toepassen" heeft gedrukt.
+<P>Druk op <B>"Standaard"</B> om de &os2; standaard instellingen op de notitieblokpagina te krijgen.
+&cfgsys; zal ook alleen aangepast worden nadat u op "Toepassen" heeft gedrukt.
+
+<P>In de <B>"Automatisch starten"</B> groep kunt u opgeven wat gestart moet worden als
+uw computer aan het opstarten is. Dit komt overeen met de
+<CITE>SET AUTOSTART=xxx</CITE> instelling in &cfgsys;, met "xxx" zijnde:
+<UL><LI><CITE>PROGRAMS</CITE>: Als u dit uitschakelt, kunnen er geen <B>programma's</B> gestart
+worden, met uitzondering van de programma's in de "Systeem opstarten" map.
+<BR><LI><CITE>TASKLIST</CITE>: Als u dit uitschakelt, zal het <B>taakoverzicht</B> niet getoond worden.
+<BR><LI><CITE>FOLDERS</CITE>: als u dit zou kunnen uitschakelen, zouden er geen mappen geopend worden, en
+ook de Werkplek niet. Daarom wordt dit onderdeel niet getoond op de notitieblok pagina en
+zal altijd toegevoegd worden door &xwp;.
+<BR><LI><CITE>CONNECTIONS</CITE>: Als u dit uitschakelt, dan worden er geen
+<B>netwerk verbindingen</B> gestart.
+<BR><LI><CITE>LAUNCHPAD</CITE>: Als u dit uitschakelt, zal het <B>Hoofdvenster</B> niet gestart
+worden. Maar u kunt het nog steeds in de "Systeem opstarten" map plaatsen of het handmatig
+starten.
+<BR><LI><CITE>WARPCENTER</CITE>: Als u dit uitschakelt, zal het <B>&warpcenter;</B> niet gestart
+worden. Dit onderdeel is alleen geldig voor OS/2 Warp 4 en hoger.
+Maar u kunt het nog steeds in de "Systeem opstarten" map plaatsen of het handmatig
+starten.
+
+</UL>Standaard zijn alle onderdelen geactiveerd.
+
+<P>In de groep <B>"Herstart na systeem opstarten..."</B> kunt u bepalen welke objecten
+herstart zullen worden nadat de WPS opgestart is. Dit komt overeen met de
+<B>SET RESTARTOBJECTS=xxx</B> instelling in &cfgsys;:
+<UL><LI><B>"Alles"</B> (<CITE>SET RESTARTOBJECTS=YES</CITE>) zal alle objecten starten die
+geopend waren toen het systeem de laatste keer afgesloten werd. Helaas is dit niet de
+standaard waarde. <B>Let op:</B> Het herstarten van objecten zal niet werken als u
+gebruik maakt van &xwp; zijn Uitgebreid Afsluiten.
+<BR><LI><B>"Niets"</B> (<CITE>=NO</CITE>) herstart geen enkel object, zelfs niet die in de "Systeem opstarten"
+map. (Maar het start wel die op die in de &xwp; Opstarten map staan.)
+<BR><LI><B>"Opstarten mappen alleen"</B> (<CITE>=STARTUPFOLDERSONLY</CITE>) zal alleen de objecten herstarten uit de &os2;
+Systeem opstarten map. Deze instelling wordt sterk aangeraden want de standaard instelling kan
+tot enorme problemen leiden als een programma het systeem heeft laten vastlopen en dan herstart wordt.
+Ter aanvulling, &xwp; gaat er vanuit dat deze instelling geactiveerd is.
+<BR><LI><B>"Alleen na herstarten"</B> (<CITE>REBOOT ONLY</CITE>) zal alleen iets herstarten
+als het systeem weer gestart wordt en niet nadat de WPS opnieuw opstart na een fout.
+Dit heeft alleen zin als u gebruik maakt van de bovenstaande "Alles" optie.
+
+</UL>Met Warp 4 kunt u ook de instelling <B>"Automatisch verversen van mappen"</B> uitschakelen,
+wat standaard geactiveerd is. In deze situatie worden open mappen alleen ververst als u dat
+handmatig uitvoert, want het automatisch verversen kost soms veel tijd.
+Deze instelling komt overeen met
+<CITE>SET AUTOREFRESHFOLDERS=xxx</CITE> (met xxx = YES of NO).
+<BR>
+</BODY>
+</HTML>
+

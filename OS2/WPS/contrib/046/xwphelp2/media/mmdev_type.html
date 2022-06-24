@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Devicer
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+Kolumnen "Typ" visar dig typ hos varje device.
+
+<P>Notera att med MMPM/2, kan ett "device", men beh”ver inte, vara ett fysiskt stycke
+h†rdvara p† ditt system. Av organisatoriska sk„l, skapar ocks† MMPM/2 "logiska" devicer
+f”r att koordinera multimedia.
+
+<P>MMPM/2 definierar 19 media devicetyper totalt, men detta „r ganska teoretiskt,
+d„rf”r att tills vidare, existerar endast drivrutiner f”r en liten del av dessa 
+kategorier. P† en typisk multimediadator, har du f”ljande devicer:
+
+<UL><LI><B>CD Audio:</B> En CD-ROM enhet vilken k„nns igen av MMPM/2 f”r att kunna spela 
+upp audio CD's.
+
+<P><LI><B>Wave audio:</B> Ditt ljudkort k„nns igen av MMPM/2 f”r att kunna spela upp
+wave audiofiler.
+<P>MMPM/2 anv„nder IOProcs och codecs f”r att avkoda dessa audiofiler och skicka dom till
+ditt ljudkort (se "IOProcs" och "Codecs" sidan).
+
+<P><LI><B>Sequencer:</B> Detta „r vad MMPM/2 kallar sitt MIDI subsystem. Detta „r 
+ocks† implementerat genom ditt ljudkort.
+
+<P><LI><B>Ampmix:</B> En akronym f”r "amplifier/mixer". Detta „r ett logisk MMPM/2
+device vilket mixar de olika audio kanalerna tillsammans och kontrollerar volymen
+hos audio output. All audio output g†r genom detta logiska device. MMPM/2 beh”ver „ven
+hj„lp fr†n ditt ljudkort med att implementera detta.
+
+<P><LI><B>Digital video:</B> Ett logisk device vilket spelar digital video. Detta kan
+representera ett fysiskt h†rvarudevice om du har n†gon special videoh†rdvara p† ditt
+system. P† de flesta system d„remot, „r detta implementerat enbart genom programvara.
+<P>MMPM/2 anv„nder IOProcs och codecs f”r att avkoda videofiler och visa dom p† sk„rmen
+(se "IOProcs" och "Codecs" sidan).
+
+<P>Om du har Netscape's Plug-in-pack installerat, kommer du att f† tv† s†dana devicer.
+Det andra „r sedan ansvarigt f”r MPEG video uppspelning. Av n†got sk„l, har IBM valt
+att skapa ett andra device f”r MPEG.
+
+</UL>
+</BODY>
+</HTML>
+

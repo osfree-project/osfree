@@ -1,0 +1,174 @@
+
+/*
+ * xwpimage.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPImageFile
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpimage.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpimage.idl>          // this is SOM for WPImageFile
+
+/*
+   CLASS: XWPImageFile
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile = XFldDataFile
+                           ÀÄÄ WPImageFile
+                                  ÀÄÄ  XWPImageFile
+*/
+
+interface M_XWPImageFile;            // forward reference to metaclass
+
+interface XWPImageFile : WPImageFile
+{
+
+    /*
+     * New instance methods for XWPImageFile:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = img_;
+        externalstem = img;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpimage;            //# specifies the filestem for sc-generated files
+        metaclass = M_XWPImageFile;
+        dllname = "xfldr.dll";
+        callstyle = oidl;               //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPImageFile:
+         *
+         */
+
+        PBYTE   pbMMImageHeader;        // really a MMIMAGEHEADER
+
+        ULONG   cbPerRow;
+
+        /*
+         * WPImageFile methods overridden by XWPImageFile:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpUnInitData: override;
+
+        //# 2)  WPObject query/set methods
+
+        //# 3)  icon methods
+
+        //# 4)  class-specific query/set methods
+
+        wpQueryType: override;
+
+        wpQueryBitmapData: override;
+        wpQueryBitmapHandle: override;
+        wpQueryBitmapInfoHeader: override;
+        wpReadImageFile: override;
+        wpSetBitmapData: override;
+        wpWriteImageFile: override;
+
+        //# 5)  menu methods
+
+        //# 6)  open view methods
+
+        //# 7)  file operation methods
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPImageFile : M_WPImageFile
+{
+
+    /*
+     * New instance methods for M_XWPImageFile:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = imgM_;
+        externalstem = imgM;
+        functionprefix = imgM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpimage;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPImageFile:
+         *
+         */
+
+        /*
+         * M_WPImageFile methods overridden by M_XWPImageFile:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryTitle: override;
+
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryInstanceFilter: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,62 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.5
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.5 (October 7, 2000)</B>
+
+<P>New features:
+<UL><LI>New &xwp; logo.
+<P><LI>Added "Dereference shadows" setting to status bars page 2 even when
+multiple objects are selected.
+<P><LI>Added HPFS386 driver configuration dialog.
+<P><LI>Added flags for APM power-off to <A HREF="xsd_4cmdline.html">XSHUTDWN.EXE</A>.
+
+</UL>Miscellaneous changes:
+<UL><LI>File operations confirmation windows now use folders as owner windows.
+<P><LI>Added "Set" button to object hotkeys entry field.
+<P><LI>Added a few more help panels.
+<P><LI>Went back to the V0.9.3 code for closing the &warpcenter; during shutdown.
+
+</UL>Bugfixes:
+<UL><LI>&xwp; Installation folder got deleted on every install, leading to
+an empty folder on updates. Fixed.
+<P><LI>XWPMedia checkbox did nothing in "&xwp; classes" dialog (XWPSetup). Fixed.
+<P><LI>"Screen" settings notebook was too small when first opened. Fixed.
+<P><LI>Object setup strings always displayed DEFAULTVIEW=xxx, even if the class's default
+view wasn't changed. Fixed. Also added DEFAULTVIEW=RUNNING.
+<P><LI>Disk objects had "Create another" menu item. Removed that.
+<P><LI>WPCommandFile had "Module" page inherited from XWPProgramFile. Removed that.
+<P><LI>Fixed progress bar text painting, which was too high with some resolutions.
+<P><LI>Status bars for WPSharedDir were wrong. Fixed by Paul Ratcliffe.
+
+<P><LI>Open "WPS class list" got solidly confused when Alt+F4 was pressed. Fixed.
+<P><LI>Orphaned classes in "WPS class list" always had "Deregister" disabled. Fixed.
+<P><LI>Class list view had "~" character in title. Fixed.
+
+<P><LI>Dragging trash objects out of the trash can made them undeleteable. Fixed.
+One of those awful WPS d'n'd problems.
+<P><LI>Trash can status bars always used "." as a thousands separator. Fixed; this
+respects the "Country" settings now.
+<P><LI>Trash can never deleted empty hidden "\trash" directories. Fixed.
+
+<P><LI>Object hotkeys didn't work after fresh install. Fixed.
+<P><LI>Sliding focus was always half on, even if disabled, leading to deactivated
+windows everywhere. Fixed.
+<P><LI>Paul Ratcliffe fixed a couple more bugs related to sliding focus and auto-hide mouse.
+
+<P><LI>WPS frequently hung after Desktop restart with FP13/14 and WSeB. Attempted a fix.
+<P><LI>You have now three options for &xshutdown;'s "save INIs" behavior. Added my own
+save-INI routines which should solve the problems which have existed for more than
+two years now. Thanks, Carsten Arnold, for telling me about the .INI file format.
+
+</UL>
+</BODY>
+</HTML>
+

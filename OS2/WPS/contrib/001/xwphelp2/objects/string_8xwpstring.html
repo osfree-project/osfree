@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XWPString Setup Strings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+XWPString implements <A HREF="objects/obj_string.html">setup string objects.</A>
+Even though the XWPString class is designed to store setup strings,
+you can invoke setup strings on an XWPString object itself, as with
+any other object.
+
+<P>In addition to the setup strings supported by the
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+class, the XWPString class supports the following strings:
+
+<DL>
+<DT><P><CITE><B>SETUPSTRING</B>=<I>string</I></CITE>
+<DD>The setup string to be stored in the string object.
+<CODE><I>string</I></CODE>
+must be encoded in order not to contain characters that are forbidden
+in WPS setup string values.
+The default is an empty string.
+
+<DT><P><CITE><B>DEFAULTOBJECT</B>={<I>objectid</I>|<I>filename</I>|*<I>handle</I>|NONE}</CITE>
+<DD>Sets or clears the default object stored in the string object.
+The value must be one of the following:
+<UL><LI>an object ID, enclosed in angle brackets
+(e.g. <CODE>DEFAULTOBJECT=&lt;WP_DESKTOP&gt;;</CODE>);
+<LI>a fully qualified filename
+(e.g. <CODE>DEFAULTOBJECT=C:\myfiles\whatever.txt;</CODE>);
+<LI>a decimal object handle, prefixed by an asterisk
+(e.g. <CODE>DEFAULTOBJECT=*1432;</CODE>);
+<LI>the <CODE>NONE</CODE> literal to clear the current default object, if any.
+</UL>The default for a string object is to have no default object (<CODE>NONE</CODE>).
+
+<DT><P><CITE><B>CONFIRMINVOCATION</B>={YES|NO}</CITE>
+<DD>Corresponds to the "Confirm invocation" setting on the "String" notebook
+properties page.
+The default is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>NOSTRINGPAGE</B>={YES|NO}</CITE>
+<DD>If <CODE>YES</CODE>, the string object's properties notebook does not
+display the "String" page. This might be useful if you create string objects
+from your own application and want to prevent the user from accidentally
+modifying a carefully designed setup string.
+The default is <CODE>NO</CODE>.
+
+</DL>
+</BODY>
+</HTML>
+

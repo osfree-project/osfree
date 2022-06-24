@@ -1,0 +1,95 @@
+<HTML RESID=&ID_XSH_SETTINGS_SB2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Statuszeilen, Seite 2
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+In den Textfeldern der Gruppe <B>"Inhalt der Statuszeilen"</B> k”nnen Sie
+bestimmen, was in den Statuszeilen angezeigt wird.
+ 
+<!-- V0.9.13: removed this
+XFolder uses certain (not very intuitive, however flexible) codes to
+display variable Desktop object information.
+Please look into the &xwp;_User_Guide
+to learn more about all the different supported codes.
+All codes start with the "$" character. If &xwp; does not recognize
+a certain text you enter here as a status bar code, it will simply be copied into the
+status bar display, so you can also add informative text here. -->
+ 
+<P>Die Statuszeilen von &xwp; arbeiten in <B>drei verschiedenen Modi</B>, abh„ngig
+davon, ob kein, nur ein oder mehrere Objekte gerade in dem Ordner ausgew„hlt sind.
+Fr jeden dieser drei Modi k”nnen Sie beliebigen Text nach Ihrem Geschmack in das
+entsprechende Textfeld eintragen.
+ 
+<UL><LI>Die Schlssel im Feld  <B>"Kein Objekt ausgew„hlt"</B> bestimmen, welche
+Information dargestellt wird, wenn gar kein Objekt im Ordner ausgew„hlt ist.
+ 
+<!-- V0.9.13: rewrote the following -->
+<P><LI>Im <B>"Ein-Objekt-Modus"</B> untersttzt &xwp; spezielle Statuszeilen
+je nach <A HREF="glossary/gls_wpsclasses.html">WPS-Klasse</A> des gerade
+ausgew„hlten Objektes. Bei Auswahl z.B. eines Programmobjektes erh„lt man
+andere Informationen als bei Auswahl eines Datendateiobjektes oder eines Ordners.
+<!-- end V0.9.13 -->
+ 
+<P>Drcken Sie die Schaltfl„che <B>"Klasse ausw„hlen..."</B>, um die WPS-Klasse
+auszuw„hlen, fr die Sie die Statuszeileninformation setzen m”chten. Die Codes,
+die Sie in das Feld eingeben, beeinflussen nur Objekte dieser Klasse.
+ 
+<!-- V0.9.5: changed the following paragraph -->
+<P>Wenn die Einstellung <B>"Referenzen aufl”sen"</B> in dieser Gruppe aktiviert ist,
+zeigt &xwp;, wenn ein einzelnes Referenzobjekt ausgew„hlt ist, nicht die Information
+fr diese Referenz (die ziemlich nutzlos ist), sondern fr das Objekt an, auf das
+die Referenz verweist.
+ 
+<P><LI>Die Codes im Feld <B>"Mehrere Objekte ausgew„hlt"</B> bestimmen die Information,
+die angezeigt wird, wenn gerade mehr als ein Objekt ausgew„hlt sind.
+ 
+<!-- V0.9.5: added the following paragraph -->
+<P>Wenn die Einstellung <B>"Referenzen aufl”sen"</B> in dieser Gruppe aktiviert ist,
+und mehrere Objekte ausgew„hlt sind, unter denen sich auch Referenzobjekte befinden,
+bezieht &xwp; die Information der Objekte, auf die die Referenzen verweisen, in die
+Berechnung der Gr”áe der "ausgew„hlten Objekte" ein. Natrlich k”nnen dadurch Gr”áen 
+angegeben werden, die gr”áer sind als die der Objekte in dem Ordner, da die referenzierten Objekte
+nicht wirklich in diesen Ordner geh”ren.
+ 
+<!-- V0.9.16 I added this per
+user request with V0.9.5. -->
+ 
+</UL>Beachten Sie, daá alle nderungen sofort aktiv werden, so daá Sie das Ergebnis
+in einem offenen Ordner sehen k”nnen, w„hrend Sie mit verschiedenen Statuszeilen-Codes
+experimentieren.
+ 
+<!-- V0.9.13: added the following -->
+<P>&xwp; benutzt spezielle <B>Codes</B>, um variable Informationen ber Objekte auf
+der Arbeitsoberfl„che anzuzeigen. Alle Codes starten mit dem <CODE>"$"</CODE>-Zeichen. 
+Wenn &xwp; bestimmten Text, den Sie hier als Statuszeilen-Code eingeben, nicht erkennt,
+wird dieser einfach in die Anzeige der Statuszeilen kopiert, so daá hier auch 
+zus„tzlicher Text zur Information hinzugefgt werden kann.
+ 
+<P>Die Codes, die in den Beschreibungen des Inhaltes der Statuszeilen benutzt werden
+k”nnen, h„ngen vom Modus ab, in dem die Statuszeile gerade arbeitet. Ausfhrliche
+Beschreibungen der verschiedenen Codes erhalten Sie durch Auswahl aus der folgenden Liste:
+ 
+<UL><LI><A HREF="fsys/stat_4common.html">Gemeinsame Codes fr alle drei Modi</A>
+<LI><A HREF="fsys/stat_5wpobject.html">Gemeinsame Codes fr den Ein-Objekt-Modus</A>
+<LI><A HREF="fsys/stat_61wpfsys.html">Codes fr WPFileSystem-Objekte im Ein-Objekt-Modus</A>
+<LI><A HREF="fsys/stat_62wpdisk.html">Codes fr WPDisk-Objekte im Ein-Objekt-Modus</A>
+<LI><A HREF="fsys/stat_63wppgm.html">Codes fr WPProgram-Objekte im Ein-Objekt-Modus</A>
+<LI><A HREF="fsys/stat_64wpurl.html">Codes fr WPUrl-Objekte im Ein-Objekt-Modus</A>
+</UL>
+<!-- end V0.9.13 -->
+ 
+<!-- V0.9.0: the following is unchanged -->
+Drcken Sie <B>"Widerrufen"</B>, um die Einstellungen wiederherzustellen,
+die vor ™ffnen dieser Seite des Einstellungsnotizbuches verwendet wurden.
+ 
+<P>Drcken Sie <B>"Standard"</B>, um die Einstellungen auf den Installationsstand
+zurckzusetzen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

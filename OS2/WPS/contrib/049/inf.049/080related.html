@@ -1,0 +1,179 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="further" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Zus„tzliche Dateien
+    </TITLE>
+</HEAD>
+<!-- changes in this file:
+        V0.81: see notes below
+        V0.83: see notes below
+        V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+In den verschiedenen Unterverzeichnissen des &xwp;-Installationsverzeichnisses
+befinden sich eine Reihe von Dateien, die Ihnen eventuell von Nutzen sein
+k”nnen:
+ 
+<!-- this item changed with V0.83 -->
+<UL><LI><CITE><STRONG>BOOTMGR.CMD</STRONG></CITE> ist seit V0.83 vorhanden.
+Dieses Skript wurde von Duane A. Chamblee &lt;duanec@ibm.net&gt; zur
+Verfgung gestellt und fgt automatisch alle momentanen
+BootManager-Auswahloptionen zu den benutzerdefinierten
+Neustart-Optionen des &xshutdown; von &xwp; hinzu. Dies geschieht,
+indem die &xwp;-Schlssel in OS2.INI direkt manpuliert werden. Es
+gibt keine Garantie, daá dies bei Ihrem System funktioniert!
+ 
+<P><LI><CITE><STRONG>CROBJxxx.CMD</STRONG></CITE>
+(mit xxx als dreistelliger Landescode, wie unter <A
+HREF="inst_4nls.html">Sprachenuntersttzung</A> beschrieben)
+werden von &xwp; benutzt, um die Standard-Konfigurationsordner zu
+erstellen. Dies sind schlichte REXX-Skripte, die eine Anzahl von
+Objekten auf Ihrer Arbeitsoberfl„che erstellen.
+<P>Diese Skripte werden sowohl aufgerufen, nachdem &xwp; installiert wurde
+(nach dem ersten WPS-Neustart), als auch, wenn &xwp; seinen Konfigurationsordner
+nicht zu lokalisieren vermag.
+<P>Sie k”nnen diese Skripte modifizieren, um eine andersartige Standardkonfiguration
+erstellt zu bekommen; Sie sollten jedoch sehr vorsichtig sein, wenn Sie
+die verschiedenen Objekteinstellungen „ndern, vor allem die OBJECTID-Schlsselworte,
+weil &xwp; auf einige von ihnen angewiesen ist.
+ 
+<P><LI><CITE><STRONG>NEWOBJ.CMD</STRONG></CITE> wurde von frheren XFolder-Versonen
+(vor 0.52) benutzt, um Objekte zu erstellen. Dies ist jetzt auch ber
+<A HREF="menu_2template.html">Schablonen</A> m”glich,
+trotzdem ist dieses Skript noch beigefgt.
+<p>Es ben”tigt die folgenden
+Parameter auf der Befehlszeile:
+<PRE>newobj &lt;wpsclass&gt; &lt;name&gt;</PRE>
+<P>Dies erzeugt eine neue Instanz der Klasse <CITE>&lt;wpsclass&gt;</CITE> mit dem Titel
+<CITE>&lt;name&gt;</CITE> im aktuellen Verzeichnis. Siehe auch die
+Seite <A HREF="xices_1wpsclasses.html">"WPS-Klassen"</A>
+fr eine Liste aller WPS-Klassen. Nicht alle dieser Klassen
+sollten allerdings hierfr benutzt werden.
+<P>Beispiel:
+<PRE>newobj WPFolder New_Folder</PRE>
+<P>erzeugt einen neuen Ordner namens "New_Folder" im aktuellen Verzeichnis.
+<P><STRONG>Hinweis:</STRONG> Seit V0.41 kann XFolder auch Objekte aus Schablonen erstellen.
+Dies hat den Vorteil, daá bestimmte Voreinstellungen gesetzt werden
+k”nnen (besonders fr Ordner).
+ 
+<!-- this item changed with V0.84 -->
+<P><LI><CITE><STRONG>NETSCDDE.EXE</STRONG></CITE> (Das Netscape-DDE-Interface):
+siehe das <A HREF="069netscdde.html">separate Kapitel</A> in dieser Dokumentation.
+ 
+<!-- V0.9.19: updated the second line -->
+<P><LI><CITE><STRONG>REPCLASS.EXE</STRONG></CITE>
+wurde von alten XFolder-Versionen benutzt, um die diversen &xwp;-Klassen zu
+registrieren und die Standard-WPS-Klassen damit zu ersetzen. Die folgenden
+Befehlszeilenparameter werden ben”tigt:
+<PRE>repclass &lt;oldclass&gt; &lt;replacewithclass&gt; [&lt;dllname&gt;]</PRE>
+<P><CITE>&lt;oldclass&gt;</CITE> ist die WPS-Klasse, die Sie ersetzen wollen.
+Groá- und Kleinschreibung spielt hier eine Rolle.
+<P><CITE>&lt;replacewithclass&gt;</CITE> ist die neue WPS-Klasse, die
+Sie registrieren wollen und die zugleich <CITE>&lt;oldclass&gt;</CITE>
+ersetzen soll. Auch hier spielt Groá- und Kleinschreibung eine Rolle.
+<P><CITE>&lt;dllname&gt;</CITE> ist die dynamische Linkbibliothek
+(DLL), die die Klasse <CITE>&lt;replacewithclass&gt;</CITE> enth„lt.
+Wenn sich die DLL nicht im LIBPATH befindet (wie bei XFolder),
+mssen Sie den vollen Pfad angeben.
+<P>Wird <CITE>&lt;dllname&gt;</CITE> nicht angegeben, so wird <CITE>&lt;replacewithclass&gt;</CITE>
+deregistriert und von der Ersetzungsliste fr
+<CITE>&lt;oldclass&gt;</CITE> entfernt.
+<P>Beispiel fr &xwp; selbst: die zu ersetzenden Klassen sind
+<CITE>WPFolder</CITE>, <CITE>WPDisk</CITE> und <CITE>WPSystem</CITE>,
+die neuen XFolder-Klassen sind <CITE>XFolder</CITE>,
+<CITE>XFldDisk</CITE> und <CITE>XFldSystem</CITE>, die sich alle in
+der Datei XFLDR.DLL befinden.
+<P>Alle mit diesem Programm durchgefhrten Aktionen wirken sich
+erst nach einem Systemneustart oder einem Neustart der WPS mit
+WPSRESET.EXE aus (siehe unten).
+ 
+<!-- V0.9.6: removed this
+Warning: Do not attempt to replace single &xwp; classes or to undo
+a certain &xwp; replacement manually. The &xwp; classes are designed to work
+together and are depend on each other. If you register / deregister not all of them,
+the WPS might hang itself up already at boot-up. For registering or deregistering
+of the &xwp; classes, always use the install script. -->
+ 
+<P><LI><CITE><STRONG>SOUNDxxx.CMD</STRONG></CITE>
+(mit xxx als dreistelliger L„ndercode,
+wie unter <A HREF="inst_4nls.html">Sprachenuntersttzung</A>
+beschrieben)
+<!-- V0.9.19: changed the following -->
+wird von &xwp; automatisch ausgefhrt, wenn die
+neuen <A HREF="mm_2sounds.html">Systemkl„nge</A> aktiviert werden.
+Diese kleinen Skripte schreiben ein paar Sprachen-abh„ngige
+Strings in die INI-Dateien des &os2;-Multimediasubsystems (MMPM/2),
+welche dann im &os2;-Objekt "Warnton" sichtbar werden.
+Nur wenn &xwp; diese findet, spielt es berhaupt
+Systemkl„nge ab.
+ 
+<P><LI><CITE><STRONG>SOUNDOFF.CMD</STRONG></CITE>
+stellt die Kl„nge wieder ab, indem die entsprechenden
+Eintr„ge aus den MMPM/2-INI-Dateien entfernt werden. &xwp; spielt
+dann keine Kl„nge mehr.
+ 
+<P><B>Hinweis:</B> Die <CITE>SOUND</CITE>-Dateien nehmen an, daá
+Ihr MMPM/2-Verzeichnis <CITE>\MMOS2</CITE> auf Ihrem Bootlaufwerk
+ist. Ist dies nicht der Fall, mssen Sie die Dateien selbst „ndern.
+ 
+<!-- this item added with V0.81 -->
+<P><LI><CITE><STRONG>TREESIZE.EXE</STRONG></CITE> wird vom neuen
+Standardmenpunkt "Platzverbrauch" gestartet und zeigt den
+Platzverbrauch eines Ordners und aller seiner Unterordner in einer
+Strukturanzeige an. Wird Treesize mit einem Verzeichnis als Parameter
+gestartet, wird dieses Verzeichnis angezeigt, andernfalls das aktuelle
+Verzeichnis.
+<P>Nachdem Treesize mit den Berechnungen fertig ist, k”nnen Sie
+neue WPS-Ordner auf das Hauptfenster ziehen, deren Gr”áe
+dann auch berechnet wird.
+<P>Treesize bietet per Kontextmen einige Einstellungen.
+<P>Alle Einstellungen werden beim Schlieáen gespeichert.
+ 
+<P><LI><CITE><STRONG>WPSRESET.EXE</STRONG></CITE>
+kann die WPS neu starten, ohne daá der gesamte Rechner neu
+gestartet werden muá (siehe <A HREF="xsd_1restartwps.html">"WPS
+neu starten"</A> fr Details).
+Es wird inzwischen (V0.71) nur noch vom Installationsskript verwendet,
+w„hrend &xwp; den Neustart intern bearbeitet.
+Um eine versehentliche Ausfhrung zu vermeiden, muá
+WPSRESET.EXE mit dem Parameter <CITE>"-D"</CITE> von der Befehlszeile
+gestartet werden.
+ 
+<P><LI><CITE><STRONG>XHELP.CMD</STRONG></CITE>
+ist ein leistungsf„higes REXX-Skript, welches
+sprachenabh„ngige Nachrichten anzeigen kann, sowohl im HTML- als
+auch im einfachen ASCII-Format.
+Es stammt aus dem "OS/2 CommandPak" desselben Autors,
+und ist ebenfalls bei
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A>
+erh„ltlich. In diesem Paket finden Sie eine ausfhrliche
+Anleitung zu xhelp.
+ 
+<!-- V0.9.7: changed this -->
+<P>Im &xwp;-Kontext wurde xhelp zuvor vom
+Textmodusinstallationsprogramm benutzt. &xwp; verwendet nun WarpIN
+fr die Installation, weshalb xhelp nur noch fr den Fall
+mitgeliefert wird, daá jemand die Textmodusinstallation benutzen
+m”chte.
+ 
+<P><LI><CITE><STRONG>XSHUTDWN.EXE</STRONG></CITE> wurde mit V0.9.7 entfernt.
+ 
+<P><LI><STRONG>Bei allen anderen .CMD-Dateien</STRONG> im &xwp;-Verzeichnis
+handelt es sich um REXX-Skripte, die von der
+&xwp;-Standardkonfiguration verwendet werden, um bestimmte
+Ordnereinstellungen schnell zu setzen (Sie finden sie im Untermen
+"Schnelleinstellungen"). Die Skripte sind sich sehr „hnlich und
+unterscheiden sich nur bezglich der Einstellungen, die fr
+einen Ordner gesetzt werden. ALWSSORT.CMD ist kommentiert, Sie
+k”nnen sich also anschauen, was es tut. Kopieren Sie ALWSSORT.CMD
+zu einem anderen Dateinamen und „ndern Sie die Einstellungen, die
+auf einen Ordner angewendet werden sollen.
+<!-- V0.9.16 Siehe
+<A HREF="xices_30wpsstrings.html">"WPFolder Setup Strings"</A>
+fr eine Liste der m”glichen Einstellungen. -->
+</UL>
+</BODY>
+</HTML>
+ 
+ 

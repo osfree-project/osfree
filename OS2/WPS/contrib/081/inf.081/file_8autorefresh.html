@@ -1,0 +1,44 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Replacing Folder Auto-Refresh
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Classes: XFldObject, XFolder</B><HR>
+
+Starting with V0.9.9, &xwp; can replace the Workplace Shell's folder auto-refresh
+mechanism.
+
+<P>You are probably familiar with this feature of the Workplace Shell. If you have
+a folder open and manipulate files in that folder from the command line, you will
+see that the WPS magically will know about these modifications and refresh the folder
+automatically.
+
+<P>While this is a great feature in theory, there are severe limitations with the
+standard implementation of this in the WPS. Most importantly, the WPS will create
+excessive file-system handles for all objects that are auto-refreshed, which will
+unnecessarily blow up your INI files. Note that this even happens if you have the
+<CODE>AUTOREFRESHFOLDERS=NO</CODE> setting in your &cfgsys; file.
+
+<P>&xwp; can now replace this entire mechanism if you have enabled this replacement
+on the "Features" page in the <A HREF="sys_2global.html">"&xwp; Setup" object.</A>
+
+<P>If the replacement is enabled, &xwp; will prevent the internal WPS threads
+which are responsible for folder auto-refresh from running. Among other things, this
+will prevent file-system handles from being created. Instead, &xwp; will start
+its own threads which will start monitoring file-system activity and automatically
+refresh folders then.
+
+<P>Note that as a result, enabling or disabling the replacement requires a Desktop restart
+because &xwp; can only do this replacement while the WPS is starting up.
+
+<P>However, once the replacement has been enabled and the WPS has been restarted,
+you can enable and disable folder auto-refresh on the "View" page in the
+"Workplace Shell" object without having to restart the WPS.
+<BR>
+</BODY>
+</HTML>
+
+

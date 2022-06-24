@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XMH_FOLDERCONTENT;>
+<HEAD>
+    <TITLE>
+        &xwp;: Mappar Inneh†llsmenyer
+    </TITLE>
+</HEAD>
+<BODY>
+Med &xwp;'s mappinneh†llsmenyer, kan du titta p† inneh†llet hos en
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">mapp</A> utan att beh”va ”ppna dess mappvisning. 
+Detta kan spara visst utrymme p† din sk„rm.
+
+<!-- V0.9.19: rewrote all the following -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P>Mappars inneh†llsmenyer l„ggs till i enlighet med f”ljande:
+
+<UL><LI>Om du har aktiverat "L„gg till mapps inneh†llsmeny" p† "Meny" sidorna i 
+&link_wpsobj;, kommer varje mapp att f† en inneh†llsmeny vilken visar dess eget inneh†ll.
+
+<P><LI>Som till„gg, kan du deklarera n†gon mapp som din <B>"favoritmapp"</B> p† "Visa" sidan i 
+varje mapps <A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>. Alla s†dana 
+favoritmappar kommer ocks† att l„ggas till hos alla mappmenyer p† systemet. Till exempel,
+om du skulle vilja att Skrivbordets inneh†ll visades i alla menyer, deklarera Skrivbordet att
+vara en "favoritmapp".
+
+<P><LI>Slutligen, mappars inneh†llsmenyer visas ocks† p† 
+<A HREF="xcenter/xc_main.html">&xcenter;</A> f”r
+<A HREF="xcenter/xc_objbtn.html">objektknappswidgets</A> som representerar mappar. F”r
+att ta bort en knapp fr†n ett &xcenter;, klicka p† den med musknapp 2 och v„lj
+"Ta bort widget".
+
+</UL>
+&xwp; kan ocks† <B>visa ikoner</B> av de objekt som samlades i mappens inneh†llsmeny. N„r det
+best„ms av respektive inst„llning p† "Meny" sidorna i "Workplace Shell" objektet, p†verkar det 
+alla inneh†llsmenyer p† systemet.
+</IFNDEF>
+
+<P>Mappars inneh†llsmenyer beter sig liknande som de hos &warpcenter;.
+<!-- V0.9.19: removed this... that was introduced with &warp4;. -->
+N†got objekt som finns in en mapp vars inneh†ll visas blir omvandlat till en menypost. Submappar
+hos en mapp blir omvandlade till submenyer. Som ett resultat, kan du s”ka igenom allt mappinneh†ll,
+inkluderande alla submappar, genom att ”ppna respektive submeny.
+
+<P>F”ljande speciella <B>musaktioner</B> „r tillg„ngliga i mappars inneh†llsmenyer:
+
+<UL><LI>Om du klickar p† n†gon ikon som inte „r en submeny (det betyder, inte „r n†gon submapp),
+kommer korresponderande objekt att ”ppnas i dess standardvisning (som om du hade dubbel-klickat p† 
+den i en regulj„r mappvisning).
+<P><LI>Om du ”ppnar en submeny, kommer submenyn att fylla sig sj„lv med det korresponderande 
+submappsinneh†llet, m”jligen inneh†llande flera submappar.
+<P><LI>Om du klickar p† en mappmeny med musknapp 2, kommer mappen att ”ppnas i dess standardvisning som 
+ett f”nster (som om du hade dubbel-klickat p† den i en regulj„r mappvisning).
+</UL>
+</BODY>
+</HTML>
+

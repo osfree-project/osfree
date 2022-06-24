@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Jokrar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+<!-- V0.9.19: first paragraph rewritten -->
+Jokrar „r en synnerligen f”renklad variant av UNIX-stilens
+<A HREF="glossary/gls_regexps.html">regulj„ra uttryck</A>. De till†ter
+matching av flertalet filnamn med en en-teckensstr„ng och anv„nds mest
+med DOS och &os2; kommandosessioner.
+
+<P>&os2; f”rst†r tv† jokertecken:
+
+<OL><LI><B>Asterisk</B> (<CODE>*</CODE>) tecknet matchar vilken sekvens som
+helst av tecken (inget tecken, ett tecken, eller flera tecken).
+
+<P>Till exempel, <CODE>h*e</CODE> kommer att matcha <CODE>he</CODE>, <CODE>house</CODE>,
+och <CODE>home</CODE>.
+
+<P><LI><B>Fr†getecknet</B> (<CODE>?</CODE>) matchar exakt ett tecken.
+
+<P>Till exempel, <CODE>h??e</CODE> kommer att matcha <CODE>home</CODE>, men inte
+<CODE>he</CODE> eller <CODE>house</CODE>.
+
+</OL>Jokrar kan ocks† kombineras. Till exempel, <CODE>h*e.?x?</CODE>
+kommer att matcha <CODE>house.txt</CODE> och <CODE>he.exe</CODE>
+
+<P>Notera att till skillnad fr†n DOS, „r under &os2; punkten (<CODE>.</CODE>) i
+filnamn ett specialtecken endast med filer p†
+<A HREF="glossary/gls_fs.html">FAT</A> filsystem.
+
+<BR>
+</BODY>
+</HTML>
+

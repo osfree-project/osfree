@@ -1,0 +1,380 @@
+<HTML NOSUBLINKS="0" NOSUBLINKS="set_">
+<HEAD>
+    <TITLE>
+        &xwp; Online Help
+    </TITLE>
+</HEAD>
+<BODY>
+<P>Online help is available for the following topics:
+
+<!-- V0.9.3: all the following links have been added. These were the
+links previously located in 060errors.html (linked to at the very
+bottom). All the file names starting with "00" used to start with
+"err_" instead; please rename them. -->
+<UL><LI><A HREF="msg_empty.html">"Empty config folder"</A>
+<!-- V0.9.16 <LI><A HREX="00202noconfig.html">"No config folder"</A>
+<LI><A HREX="00203noobject.html">"Object not found"</A> -->
+<LI><A HREF="msg_limit.html">"Too many items"</A>
+<LI><A HREF="msg_noclip.html">"No text in clipboard"</A>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_reboot.html">Reboot options</A>
+<LI><A HREF="xshutdown/xsd_autoclose.html">Auto-close non-PM sessions</A>
+</IFNDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="fsys/stat_selclass.html">Select object class</A>
+<LI><A HREF="clst_register.html">Register new class</A>
+</IFNDEF>
+<LI><A HREF="dlg_titleclsh.html">File conflict</A>
+<!-- end of V0.9.3 updates -->
+
+<LI><A HREF="menus/menu_varmenu.html">Variable menu items</A>
+<LI><A HREF="objects/obj_cfgfdr.html">The &xwp; &cfgfdr;</A>
+<LI><A HREF="menus/menu_refresh.html">"Refresh now"</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="menus/menu_snap.html">"Snap to grid"</A>
+</IFNDEF>
+<LI><A HREF="menus/menu_copyfname.html">"Copy filename"</A>
+<LI><A HREF="menus/menu_xsd.html">Extended Shutdown</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="menus/menu_restartwps.html">Restart Desktop</A>
+</IFNDEF>
+<LI><A HREF="wps/wps_view.html">&xwp; general settings</A>
+<LI><A HREF="wps/wps_view2.html">Remove default menu items</A>
+<LI><A HREF="wps/wps_view3.html">Add new menu items</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="wps/wps_statbars1.html">Status bars page 1</A>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<LI><A HREF="wps/wps_statbars1.html">Status bar</A>
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="wps/wps_snap.html">Snap to grid</A>
+</IFNDEF>
+<LI><A HREF="wps/wps_fdrhotky.html">Folder hotkeys</A>
+<!-- V1.0.0: this item added -->
+<LI><A HREF="wps/wps_fdrhotky_dlg.html">Folder hotkeys</A>
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_paranoia.html">Internal settings</A>
+</IFNDEF>
+<LI><A HREF="fsys/dtp_menus.html">XDesktop Settings page 1</A>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_main.html">XDesktop Settings page 2</A>
+</IFNDEF>
+<LI><A HREF="menus/menu_sort.html">&xwp; Extended Sort Functions</A>
+<LI><A HREF="fsys/fldr_viewpage1.html">&xwp; Settings page in folders</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="wps/wps_statbars2.html">Status bars page 2</A>
+<LI><A HREF="clst_main.html">WPS Classes</A>
+</IFNDEF>
+<LI><A HREF="objects/obj_details.html">Internals</A>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_sched.html">Scheduler</A>
+<LI><A HREF="kernel/krn_mem.html">Memory</A>
+</IFNDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="objects/obj_startshut.html">Startup / Shutdown folders</A>
+<LI><A HREF="menus/menu_content.html">Folder Content Menus</A>
+</IFNDEF>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_fat.html">File system settings</A>
+</IFNDEF>
+<LI><A HREF="wps/wps_cfgfdr.html">Config folder menu items</A>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_wps.html">WPS settings</A>
+<LI><A HREF="kernel/krn_errors.html">Error settings</A>
+<!-- the following items have been added with V0.9.0 -->
+<LI><A HREF="kernel/krn_paths.html">System paths</A>
+</IFNDEF>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<!-- V0.9.20: changed link path since file was moved -->
+<LI><A HREF="fsys/wps_filetypes.html">File types</A>
+<LI><A HREF="wps/wps_ftyp_merge.html">Merge with WPS filters</A>
+</IFNDEF>
+<LI><A HREF="media/snd_main.html">The new "Sound" object</A>
+<LI><A HREF="objects/obj_trash.html">The &xwp; trash can</A>
+<LI><A HREF="fsys/trash_set.html">Trash can settings</A>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_status.html">&xwp; status</A>
+<LI><A HREF="setup/xset_features.html">&xwp; features</A>
+</IFNDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="fsys/fsys_filepage.html">"File" pages replacement</A>
+<LI><A HREF="fsys/fsys_filepage2.html">"File" page 2</A>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<LI><A HREF="fsys/fsys_filepage.html">"File" page</A>
+</IFDEF>
+<LI><A HREF="dsk_details.html">Disk "Details" page</A>
+<LI><A HREF="fsys/dtp_startup.html">Startup settings</A>
+<LI><A HREF="fsys/dtp_archives.html">"Archives" page replacement</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="stup_settings2.html">&xwp; Startup folder</A>
+<LI><A HREF="pgm_module.html">&xwp;: "Module" page</A>
+</IFNDEF>
+<LI><A HREF="clst_set.html">Class list settings</A>
+<LI><A HREF="objects/obj_wps.html">"Workplace Shell" object</A>
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="objects/obj_krnl.html">"&os2; Kernel" object</A>
+</IFNDEF>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>
+<LI><A HREF="setup/xset_objects.html">"Objects" page</A>
+</IFNDEF>
+<!-- V0.9.20: ifndef moved -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_drivers.html">"Drivers" page</A>
+<LI><A HREF="kernel/drv_hpfs.html">&os2; Kernel: HPFS.IFS</A>
+<LI><A HREF="kernel/drv_cdfs.html">&os2; Kernel: CDFS.IFS</A>
+<!-- the following one item has been added with V0.9.13 -->
+<LI><A HREF="kernel/drv_jfs.html">&os2; Kernel: JFS.IFS</A>
+<LI><A HREF="kernel/drv_s506.html">&os2; Kernel: IBMS506.ADD / DANIS506.ADD</A>
+</IFNDEF>
+<LI><A HREF="hook/keyb_hotkeys.html">Object hotkeys</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="hook/mouse_movement.html">Mouse: Movement page 1</A>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<LI><A HREF="hook/mouse_movement.html">Mouse: Movement page</A>
+</IFDEF>
+<!-- the following items have been added with &xwp; V0.9.1 -->
+<LI><A HREF="hook/mouse_maps2.html">Mouse mappings page 2</A>
+<!-- the following items have been added with &xwp; V0.9.2 -->
+<LI><A HREF="objects/obj_screen.html">"Screen" object</A>
+<LI><A HREF="hook/screen_corners.html">Screen Movement</A>
+<!-- removed V0.9.16 &xwp; trash can drives support -->
+<!-- the following items have been added with &xwp; V0.9.3 -->
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_syslevel.html">&os2; Kernel: Syslevels</A>
+</IFNDEF>
+<LI><A HREF="hook/pager1.html">&xwp; &pgr; general</A>
+<LI><A HREF="hook/pager2.html">&xwp; &pgr; colors</A>
+<LI><A HREF="hook/pager_mouse.html">&xwp; &pgr; mouse actions</A>
+<LI><A HREF="hook/keyb_funckeys.html">&xwp; function keys</A>
+<LI><A HREF="hook/keyb_funckeys_dlg.html">Edit function key</A>
+<LI><A HREF="objects/obj_string.html">&xwp;: Setup string objects</A>
+<LI><A HREF="objects/string_page.html">&xwp;: Setup String page</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="media/media_devices.html">Media devices</A>
+<LI><A HREF="media/media_codecs.html">Media codecs</A>
+<LI><A HREF="media/media_ioprocs.html">Media IOProcs</A>
+</IFNDEF>
+<!-- the following items have been added with &xwp; V0.9.4 -->
+<LI><A HREF="fsys/trash_drives.html">Trash can drives support</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="objects/obj_instfdr.html">"&xwp; Installation" folder</A>
+</IFNDEF>
+<LI><A HREF="hook/pager_stickies.html">&xwp; &pgr; sticky windows</A>
+<LI><A HREF="hook/pager_stickies2.html">Sticky windows criteria</A>
+<LI><A HREF="hook/pager_stickies3.html">Add Sticky Window</A>
+<LI><A HREF="fsys/trash_icon.html">Trash can "Icon" page</A>
+<LI><A HREF="xshutdown/xsd_dlg_confirm.html">&xshutdown; Confirmation Window</A>
+<LI><A HREF="dlg_selsome.html">Add "Select by name"</A>
+<LI><A HREF="menus/menu_view.html">New "View" menu items</A>
+<!-- the following items have been added with V0.9.5 -->
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/drv_hpfs386.html">&os2; Kernel: HPFS386.IFS</A>
+</IFNDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="objects/obj_media.html">Multimedia</A>
+</IFNDEF>
+<LI><A HREF="dlg_classes.html">Installed Classes</A>
+
+<!-- the following items have been added with V0.9.7 -->
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="xshutdown/xsd_dlg_vio.html">Close non-PM sessions</A>
+<LI><A HREF="fsys/fsys_resource.html">Resources page</A>
+</IFNDEF>
+<LI><A HREF="xcenter/xc_main.html">&xcenter;</A>
+<!-- V0.9.9: the next two pages were renamed -->
+<LI><A HREF="xcenter/xc_view.html">&xcenter;: View page</A>
+<LI><A HREF="xcenter/xc_view2.html">&xcenter;: Style page</A>
+<LI><A HREF="xcenter/xc_widgets.html">&xcenter;: Widgets page</A>
+<LI><A HREF="xcenter/xc_classes.html">&xcenter;: Classes page</A>
+<LI><A HREF="xcenter/xc_clock.html">&xcenter;: Clock widget</A>
+<LI><A HREF="xcenter/xc_mem.html">&xcenter;: Memory widget</A>
+<LI><A HREF="xcenter/xc_objbtn.html">&xcenter;: Object button widget</A>
+<LI><A HREF="xcenter/xc_pulse.html">&xcenter;: Pulse widget</A>
+<LI><A HREF="xcenter/xc_swap.html">&xcenter;: Swapper widget</A>
+<LI><A HREF="xcenter/xc_winlist1.html">&xcenter;: Window list widget</A>
+<LI><A HREF="xcenter/xc_winlist2.html">&xcenter;: Window list widget properties</A>
+<LI><A HREF="xcenter/xc_xbtn1.html">&xcenter;: &xbutton; widget</A>
+<!-- V0.9.19: added this link -->
+<LI><A HREF="xcenter/xc_xbtn2.html">&xcenter;: &xbutton; widget properties</A>
+<LI><A HREF="xcenter/xc_sentinel.html">&xcenter;: Sentinel widget</A>
+<LI><A HREF="xcenter/xc_health.html">&xcenter;: Health widget</A>
+<LI><A HREF="xcenter/xc_healthdlg.html">&xcenter;: Health widget properties</A>
+
+<LI><A HREF="objects/obj_fontfdr.html">&xwp; Fonts Folder</A>
+<!-- V0.9.9: added the following link -->
+<LI><A HREF="font_text.html">Fonts Folder: Sample Text</A>
+<LI><A HREF="objects/obj_fontfile.html">&xwp;: Font files</A>
+<LI><A HREF="objects/obj_fontobj.html">&xwp;: Font objects</A>
+<LI><A HREF="font_view.html">&xwp;: Font sample views</A>
+<LI><A HREF="font_view2.html">&xwp;: Font hints</A>
+
+<LI><A HREF="xfix_intro.html">xfix: Introduction</A>
+
+<!-- V0.9.9: the following have been added -->
+<LI><A HREF="dlg_run.html">&xwp;: Run command</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<LI><A HREF="pgm_assocs.html">Associations</A>
+</IFNDEF>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_threads.html">&xwp; Setup: Threads</A>
+</IFNDEF>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="pgm_module1.html">Imported modules page</A>
+<LI><A HREF="pgm_module2.html">Exported functions page</A>
+</IFNDEF>
+<LI><A HREF="hook/pager3win.html">&xwp; &pgr; window</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<LI><A HREF="fsys/fsys_types.html">Data file types</A>
+</IFNDEF>
+
+<!-- V0.9.19: added the following, first one changed -->
+<LI><A HREF="admin_user.html">Current user</A>
+<LI><A HREF="admin_all_users.html">All users</A>
+<LI><A HREF="admin_all_groups.html">All groups</A>
+
+<!-- V0.9.11: the following have been added -->
+<LI><A HREF="hook/pager_intro.html">User</A>
+
+<!-- V0.9.12: the following have been added -->
+<LI><A HREF="fsys/fldr_sort.html">"Sort" page</A>
+<LI><A HREF="xcenter/xc_power.html">&xcenter;: Power widget</A>
+<LI><A HREF="xcenter/xc_tray.html">&xcenter;: Tray widget</A>
+
+<!-- V0.9.14: the following have been added -->
+<LI><A HREF="xcenter/xc_diskfree_wc.html">&xcenter;: Diskfree widget (&warpcenter; style)</A>
+<LI><A HREF="xcenter/xc_diskfree_cond.html">&xcenter;: Diskfree widget (condensed style)</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="hook/mouse_movement2.html">Mouse: Movement Page 2</A>
+</IFNDEF>
+
+<!-- V0.9.16: the following have been added -->
+<LI><A HREF="netscdde.html">Netscape DDE</A>
+<LI><A HREF="treesize.html">Treesize</A>
+<LI><A HREF="objects/obj_iconpage.html">&xwp;: Icon page</A>
+<LI><A HREF="objects/obj_icon2page.html">&xwp;: Icon page 2</A>
+<LI><A HREF="objects/obj_dataf.html">&xwp;: Data file</A>
+<LI><A HREF="objects/obj_pgmf.html">&xwp;: Program file</A>
+<LI><A HREF="objects/obj_pgmf_dll.html">&xwp;: DLL program file</A>
+<LI><A HREF="objects/obj_pgmf_driv.html">&xwp;: Driver program file</A>
+
+<!-- V0.9.19: the following have been added-->
+<!-- V0.9.20: removed this one fsys/fops_delete.html -->
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="xshutdown/xsd_dlg_confirm_wps.html">&xwp;: Restart desktop confirm dialog</A>
+</IFNDEF>
+<LI><A HREF="objects/obj_fdr_main.html">&xwp;: Folders</A>
+<LI><A HREF="objects/obj_fdr_main.html">&xwp;: Folders</A>
+<LI><A HREF="fsys/msg_notrashcan.html">Cannot find trash can</A>
+<LI><A HREF="fsys/msg_nodrivesupport.html">Drive not supported</A>
+<LI><A HREF="xcenter/xc_ipmon.html">&xcenter;: IP monitor widget</A>
+<LI><A HREF="objects/obj_iconpage_x.html">&xwp;: Icon page</A>
+<LI><A HREF="dlg_batchren.html">&xwp;: Batch rename</A>
+
+<!-- V0.9.20: the following have been added-->
+<LI><A HREF="objects/obj_desktop.html">Desktop</A>
+<LI><A HREF="objects/obj_desktop_sec.html">Secondary desktop</A>
+<LI><A HREF="objects/obj_os2cmdfdr.html">Command Prompts folder</A>
+<LI><A HREF="objects/obj_os2drivfdr.html">Drives folder</A>
+<LI><A HREF="objects/obj_disk_harddisk.html">Hard disk</A>
+<LI><A HREF="objects/obj_disk_cdrom.html">CD-ROM</A>
+<LI><A HREF="objects/obj_disk_network.html">Network drive</A>
+<LI><A HREF="objects/obj_disk_diskette.html">Diskette</A>
+<LI><A HREF="objects/obj_disk_lvm_refresh.html">Refresh Removeable Media</A>
+<LI><A HREF="objects/obj_setupfdr.html">&syssetup; folder</A>
+<LI><A HREF="menus/menu_os2syssetup.html">&syssetup;</A>
+<LI><A HREF="objects/obj_os2system.html">&sysfdr; folder</A>
+<LI><A HREF="objects/obj_os2infofdr.html">Help Center</A>
+<LI><A HREF="objects/obj_pgmobj.html">Program objects</A>
+<LI><A HREF="objects/obj_os2wpstartup.html">Startup</A>
+<LI><A HREF="objects/obj_os2_dosfull.html">DOS Full Screen</A>
+<LI><A HREF="objects/obj_os2_doswin.html">DOS Window</A>
+<LI><A HREF="objects/obj_os2_os2full.html">OS/2 Full Screen</A>
+<LI><A HREF="objects/obj_os2_os2win.html">OS/2 Window</A>
+<LI><A HREF="objects/obj_os2_win16.html">&winos2; Sessions</A>
+<LI><A HREF="objects/obj_os2minwinv.html">&minwinv;</A>
+<LI><A HREF="objects/obj_os2cmdref.html">Command Reference</A>
+<LI><A HREF="menus/menu_openparent.html">Open parent</A>
+<LI><A HREF="menus/menu_cranother.html">Create another</A>
+<LI><A HREF="menus/menu_crshadow.html">Create shadow</A>
+<LI><A HREF="menus/menu_copy.html">Copy</A>
+<LI><A HREF="menus/menu_delete.html">Delete</A>
+<LI><A HREF="menus/menu_move.html">Move</A>
+<LI><A HREF="menus/menu_chkdsk.html">Check disk</A>
+<LI><A HREF="menus/menu_format.html">Format disk</A>
+<LI><A HREF="menus/menu_volumes.html">Manage volumes</A>
+<LI><A HREF="objects/obj_os2wptemplates.html">"Templates" folder</A>
+<LI><A HREF="objects/obj_fdr_template.html">Folder template</A>
+<LI><A HREF="objects/obj_pgmobj_templ.html">Program object template</A>
+<LI><A HREF="objects/obj_os2wpbitmap.html">Bitmap</A>
+<LI><A HREF="objects/obj_os2wpbitmap2.html">Bitmap template</A>
+<LI><A HREF="objects/obj_os2wpicon.html">Icon</A>
+<LI><A HREF="objects/obj_os2wpicon2.html">Icon template</A>
+<LI><A HREF="objects/obj_os2wpmet.html">Metafile</A>
+<LI><A HREF="objects/obj_os2wpmet2.html">Metafile template</A>
+<LI><A HREF="objects/obj_os2wppif.html">Picture Interchange File</A>
+<LI><A HREF="objects/obj_os2wppif2.html">Picture Interchange File template</A>
+<LI><A HREF="objects/obj_os2wppointer.html">Pointer</A>
+<LI><A HREF="objects/obj_os2wppointer2.html">Pointer template</A>
+<LI><A HREF="objects/obj_os2games.html">Games folder</A>
+<LI><A HREF="objects/obj_os2utilsfdr.html">Utilities folder</A>
+<LI><A HREF="objects/obj_os2clipview.html">Clipboard viewer</A>
+<LI><A HREF="objects/obj_os2epm.html">Enhanced Editor</A>
+<LI><A HREF="objects/obj_os2iconedit.html">Icon Editor</A>
+<LI><A HREF="objects/obj_os2eexe.html">&eexe;</A>
+<LI><A HREF="objects/obj_os2picview.html">Picture Viewer</A>
+<LI><A HREF="objects/obj_os2cpumon.html">CPU Monitor</A>
+<LI><A HREF="objects/obj_os2seekscan.html">Seek and Scan Files</A>
+<LI><A HREF="objects/obj_os2warpcenter.html">&warpcenter;</A>
+<LI><A HREF="objects/obj_os2shredder.html">Shredder</A>
+<LI><A HREF="objects/obj_os2pgmfdr.html">Programs</A>
+<LI><A HREF="objects/obj_os2connectfdr.html">&connectfdr;</A>
+<LI><A HREF="objects/obj_os2internetfdr.html">Internet</A>
+<LI><A HREF="objects/obj_os2wpnetwork.html">Local Network</A>
+<LI><A HREF="objects/obj_os2wpnetgrp.html">File and Print Client Resource Browser</A>
+<IFDEF __EWORKPLACE__>
+<LI><A HREF="objects/obj_setup_estyler.html">eStyler</A>
+</IFDEF>
+<LI><A HREF="objects/obj_setup_itheme.html">iTheme</A>
+<LI><A HREF="objects/obj_setup_locale.html">Locale</A>
+<LI><A HREF="objects/obj_setup_look.html">Appearance</A>
+<LI><A HREF="objects/obj_setup_lvm.html">LVM GUI</A>
+<LI><A HREF="objects/obj_setup_mmpm2.html">Multimedia Setup</A>
+<LI><A HREF="objects/obj_setup_net.html">Network Setup</A>
+<LI><A HREF="objects/obj_setup_regedit.html">Regedit/2</A>
+<LI><A HREF="objects/obj_setup_thememgr.html">Theme Manager</A>
+<LI><A HREF="objects/obj_setup_win16.html">&winos2;</A>
+<LI><A HREF="objects/obj_os2printersfdr.html">Printers folder</A>
+<LI><A HREF="objects/obj_os2instrem.html">Install/Remove folder</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="dlg_paste.html">Paste</A>
+</IFNDEF>
+
+<!-- V0.9.3: removed all the following
+A HREF="099empty001.html"
+A HREF="099empty002.html"
+A HREF="099empty003.html"
+A HREF="099empty004.html"
+A HREF="099empty005.html"
+A HREF="060errors.html" Help for dialogs -->
+</UL>
+</BODY>
+</HTML>
+

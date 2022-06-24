@@ -1,0 +1,139 @@
+
+/*
+ * xwpsound.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPSound    ("Sound" object replacement)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpsound.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpsound.idl>         // this is SOM for WPSound
+
+/*
+   CLASS: XWPSound
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPSound == MMSound
+                           ÀÄÄ  XWPSound
+*/
+
+interface M_XWPSound;            // forward reference to metaclass
+
+interface XWPSound : WPSound
+{
+    /*
+     * New instance methods for XWPSound:
+     *
+     */
+
+    ULONG xwpAddXWPSoundPages(in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXWPSoundPages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xsnd_;
+        externalstem = xsnd;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpsound;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPSound;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPSound:
+         *
+         */
+
+        /*
+         * WPSound methods overridden by XWPSound:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPSound : M_WPSound
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xsndM_;
+        externalstem = xsndM;
+        functionprefix = xsndM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpsound;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables:
+         *
+         */
+
+        /*
+         * M_WPSound methods overridden by M_XWPSound:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

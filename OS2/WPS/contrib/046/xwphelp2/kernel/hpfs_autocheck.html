@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: HPFS Autocheck
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+
+Inmatningsf„ltet <B>"Autocheck"</B> korresponderar till
+/AUTOCHECK:xxx i HPFS eller HPFS386 &cfgsys; kommandorad. H„r kan du 
+best„mma ”ver vilka
+<!-- V0.9.20: replace drives with volumes -->
+volymer &os2; automatiskt kommer att uf”ra 
+<CITE>CHKDSK</CITE> p† vid systemstartup.
+<P>Ange helt enkelt enhetsbokstav h„r (utan inledande "<CITE>:</CITE>").
+&os2; kommer att kontrollerar varje enhet du specificerat h„r vid systemstartup om du
+inte har st„ngt av ditt system p† r„tt s„tt (till exempel, efter en black-screen krasch).
+
+<P>Om du specificerar ett plustecken ("<CITE>+</CITE>") <I>f”re</I> en enhetsbokstav h„r,
+kommer den enheten alltid att kontrolleras, vilket inte „r s„rskilt ”nskv„rt.
+<P>Exempel: Om du anger "<CITE>C+DE</CITE>", kommer enhet D: alltid att kontrolleras, medan
+C: och E: kontrolleras bara om det „r n”dv„ndigt.
+
+<P><B>Notera:</B> F”r HPFS 
+<!-- V0.9.20: replace drives with volumes --> volymer, 
+„r auto-check absolut n”dv„ndigt d„rf”r att access av "smutsiga" HPFS volymer kommer att resultera i 
+systemfel. Du b”r ange alla dina HPFS 
+<!-- V0.9.20: replace drives with volumes --> volymer h„r 
+d„rf”r att &os2; kommer att skriva ut felmeddelanden vid startup annars. Detta g„ller i 
+synnerhet din boot
+<!-- V0.9.20: replace drive with volume -->volym, eller annars kommer &os2;
+att v„gra bootning helt och h†llet om du gl”mt att st„nga av eller om systemet kraschat.
+<P>Tryck knappen <B>"F”resl†"</B> f”r att f† alla HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volymer p† ditt system tillagda i inmatningsf„ltet.
+
+<BR>
+</BODY>
+</HTML>
+
+

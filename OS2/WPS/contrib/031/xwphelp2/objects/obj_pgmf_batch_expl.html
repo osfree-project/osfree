@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Batch Bestand Voorbeelden
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<B>VOORBEELD 1</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Deze batch opdracht zal een kopie maken van het CONFIG.SYS bestand
+<A HREF="cmdref.inf#rem">REM</A> in de C:\OS2 directory.
+<A HREF="cmdref.inf#echo">ECHO</A> Kopi‰ren van CONFIG.SYS naar C:\OS2.
+<A HREF="cmdref.inf#echo">ECHO</A> Als een aangepaste CONFIG.SYS niet werkt, kopieert u deze terug naar C:.
+<A HREF="cmdref.inf#copy">COPY</A> C:\CONFIG.SYS C:\OS2\CONFIG.SYS
+<A HREF="cmdref.inf#echo">ECHO</A> Dit programma is klaar.
+</PRE>
+
+<B>VOORBEELD 2</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Dit batch bestand zal elke standaard tekst bestand afdrukken.
+<A HREF="cmdref.inf#rem">REM</A> Om het te gebruiken dient u een bestandsnaam in te voeren nadat
+<A HREF="cmdref.inf#rem">REM</A> u de naam van dit batch bestand heeft ingevoerd.
+<A HREF="cmdref.inf#rem">REM</A> Als het batch bestand PRINT.CMD heeft en het bestand dat afgedrukt
+<A HREF="cmdref.inf#rem">REM</A> moet worden heet README dan voert u PRINT README in.
+<A HREF="cmdref.inf#echo">ECHO</A> Afdrukken %1.
+<A HREF="cmdref.inf#TYPE">TYPE</A> %1 &gt; lPT1
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+</PRE>
+
+<B>VOORBEELD 3</B>:
+
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Dit batch bestand zal uw opdrachtregel prompt veranderen in
+<A HREF="cmdref.inf#rem">REM</A> de datum, tijd, en huidige pad.
+<A HREF="cmdref.inf#prompt">PROMPT</A> $d     $t     $_$p\$s
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+<A HREF="cmdref.inf#CLS">CLS</A>
+</PRE>
+</BODY>
+</HTML>

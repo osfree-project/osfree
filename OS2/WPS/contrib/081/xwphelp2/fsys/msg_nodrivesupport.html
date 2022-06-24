@@ -1,0 +1,34 @@
+<HTML RESID=&ID_XSH_TRASH_NODRIVESUPPORT;>
+<HEAD>
+    <TITLE>
+        Drive Not Supported by Trash Can
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+This message appears when you have attempted to delete an object, but the
+drive on which the object resides is not supported by the
+<A HREF="objects/obj_trash.html">&xwp; trash can</A>.
+
+<P>This message means that the object is on a drive with a
+<A HREF="glossary/gls_fs.html">file system</A> that the trash can does not enable
+support for by default. This is most frequently
+the case for remote network drives and more exotic installable file system drivers
+where the trash can cannot be sure whether it can write to the file system without
+provoking errors.
+
+<P>Do one of the following:
+
+<UL><LI>Press "Yes" in the confirmation dialog to have the object permanently deleted
+without moving it into the trash can first. Note that this operation can
+probably not be undone; if you delete the wrong object, it will be gone anyway.
+
+<P><LI>If you are sure that the trash can can support the file system on which
+the object resides, you can enable support for the drive in the
+<A HREF="glossary/gls_notebook.html">properties notebook</A> of the trash can.
+
+</UL>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Sluit &warpcenter; voor Werkplek
+    </TITLE>
+</HEAD>
+<BODY>
+Deze instelling bepaald of &xshutdown; de &warpcenter; een speciale behandeling zal geven.
+Deze instelling is toegevoegd met V0.9.7 want &xshutdown;
+veroorzaakte Werkplekken met aangepaste grootte op sommige systemen waar,
+bij de volgende Werkplek opstart, schuifbalken getoond werden op de Werkplek.
+
+<P>Als deze instelling is <B>geactiveerd</B>, zal &xshutdown; expliciet de &warpcenter;
+sluiten voordat het Werkplek venster gesloten wordt. Dit is waarschijnlijk handig als u
+het &warpcenter; opstart vanuit een opstart map (nadat de WPS Werkplek al draait).
+
+<P>Als deze instelling <B>uitgeschakeld is</B>, zal &xshutdown; de &warpcenter; simpelweg helemaal
+niet afsluiten.
+
+<P>De keuze is uitgeschakeld als &xwp; geen &warpcenter; heeft kunnen vinden op
+uw systeem. Redenen hiervoor kunnen zijn:
+
+<UL><LI>U draait met &warp; 3. Het &warpcenter; werd pas ge‹ntroduceerd met
+&warp; 4.
+
+<P><LI>Het &warpcenter; object is nog niet wakker. Dit kan het geval zijn als u momenteel
+het &warpcenter; niet gebruikt; en de "Systeem" map nog niet is opgebouwd.
+
+<P><LI>Het &warpcenter; object is gewekt tijdens de Werkplek opstart voordat &xwp;
+volledig is ge‹nitialiseerd. Dit kan het geval zijn als, op uw systeem,
+het &warpcenter; opgestart wordt via de <CODE>AUTOSTART</CODE> instelling in het
+&cfgsys; bestand. In dat geval, kunnen &xwp; (en &xshutdown;) in de eerste plaats weinig doen voor
+het &warpcenter;.
+</UL>
+</BODY>
+</HTML>
+

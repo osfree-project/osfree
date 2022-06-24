@@ -335,11 +335,11 @@ int main(int argc,char **argv)
 			case 'E':
 				if (p[2])
 				{
-					setenv(p+2,"Y",1);
+					setenv(p+2,"1",1);
 				}
 				else
 				{
-					setenv(argv[i++],"Y",1);
+					setenv(argv[i++],"1",1);
 				}
 				break;
 			case 'D': // DEFINE

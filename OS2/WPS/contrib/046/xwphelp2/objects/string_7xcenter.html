@@ -1,0 +1,109 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XCenter Setupstr„ngar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<BODY>
+Som till„gg till de setupstr„ngar som st”ds av
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> klassen,
+st”der XCenter klassen f”ljande str„ngar:
+
+<DL>
+<DT><P><CITE><B>3DBORDERWIDTH</B>=<I>value</I></CITE>
+<DD>Korresponderar till "3D sk„rmbredd" inst„llningen p† ett XCenter's sida "Stil".
+V„rdet m†ste vara i omr†det mellan 0 till 10. Standard „r "2".
+
+<DT><P><CITE><B>ALL3DBORDERS</B>={YES|NO}</CITE>
+<DD>Korresponderar till "Rita alla fyra 3D kanter" inst„llningen p† ett XCenter's sida "Stil".
+Standard „r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ALWAYSONTOP</B>={YES|NO}</CITE>
+<DD>Korrespondera till "Stanna ovanp†" inst„llningen p† ett XCenter's sida "Visa".
+Standard „r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>ANIMATE</B>={YES|NO}</CITE>
+<DD>Korresponderar till "Animera" inst„llningen p† ett XCenter's sida "Visa".
+Standard „r <CODE>YES</CODE>.
+
+<DT><P><CITE><B>AUTOHIDE</B>=<I>millisekunder</I></CITE>
+<DD>Korresponderar till "Auto-g”m" inst„llningen p† ett XCenter's sida "Visa".
+V„rdet „r auto-g”m f”rdr”jningen i millisekunder; om det „r 0, „r auto-g”m avaktiverat.
+Standard „r "0" f”r avaktivering av auto-g”m.
+
+<DT><P><CITE><B>BORDERSPACING</B>=<I>v„rde</I></CITE>
+<DD>Korresponderar till "Kanter utrymme" inst„llningen p† ett XCenter's sida "Stil".
+V„rdet m†ste vara inom omr†det 0 till 10. Standard „r "2".
+
+<DT><P><CITE><B>CLIENTCOLOR</B>=<I>r”d gr”n bl†</I></CITE>
+<DD>Specificerar bakgrundsf„rgen f”r huvud XCenter f”nstret som inte „r t„ckt 
+av widgets. Standard „r <CODE>244 244 244</CODE> f”r "ljusgr†".
+
+<DT><P><CITE><B>FLATBUTTONS</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Platta knappar" p† ett XCenter's sida "Stil".
+Standard „r <CODE>YES</CODE>.
+
+<DT><P><CITE><B>HIDEONCLICK</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "G”m omedelbart p† musklick" p† ett XCenter's sida "Visa".
+Inst„llningen respekteras bara om "Auto-g”m" inst„llningen „r aktiverad. Standard
+„r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>NOHATCHOPENOBJ</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Hatch ”ppna objekt" p† ett XCenter's sida "Stil";
+notera d„remot att v„rdet f”r denna setupstr„ng „r omv„nd till checkboxens status p† sidan.
+Standard „r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>POSITION</B>={TOP|BOTTOM}</CITE>
+<DD>Korresponderar till inst„llningen "Position" p† ett XCenter's sida "Visa".
+Standard „r <CODE>BOTTOM</CODE>.
+
+<DT><P><CITE><B>PRIORITYDELTA</B>=<I>delta</I></CITE>
+<DD>Korresponderar till inst„llningen "Visa tr†dprioritet" p† ett XCenter's sida "Visa".
+V„rdet „r prioritetsdeltat hos en XCenter tr†d, vilken m†ste vara inom omr†det 0 till 31.
+Standard „r "0".
+
+<DT><P><CITE><B>REDUCEDESKTOP</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Reducera skrivbordets arbetsyta" p† ett XCenter's sida "Visa".
+Standard „r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>SIZINGBARS</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llnng "Rita storleks„ndringsf„lt" p† ett XCenter's sida "Stil".
+Standard „r <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SPACINGLINES</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Rita avst†ndslinjer" p† ett XCenter's sida "Stil".
+Standard „r <CODE>YES</CODE>.
+
+<DT><P><CITE><B>SUNKBORDERS</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Ramar runt statics" p† ett XCenter's sida "Stil".
+Standard „r <CODE>NO</CODE>.
+
+<!-- V0.9.19: rewrote the WIDGETS definition -->
+<DT><P><CITE><B>WIDGETS</B>=<I>widget</I>[,<I>widget</I>]...</CITE>
+<DD>En komplett, kommaseparerad lista ”ver
+<A HREF="xcenter/xc_main_widgets.html">widgets</A>
+som har lagts till hos ett &xcenter;.
+Varje <CODE><I>widget</I></CODE> str„ng m†ste ha f”ljande format:
+<BR><CODE><I>klassnamn</I>(<I>setup</I>)</CODE>
+<BR>d„r <CODE>klassnamn</CODE> „r namnet p† widgetklassen (som visas p† notbokssidorna
+"Klasser" i XCenter's notbok med egenskaper) och
+<CODE>(<I>setup</I>)</CODE> specificerar optionellt setup substr„ng hos widgeten. 
+Om det inte finns n†gon setupstr„ng, m†ste du l„gga till ett tomt par av paranteser,
+t.ex. "Pulse()". Setup substr„ngen „r delvis kodad s† att den inte kommer att inneh†lla
+tecken som „r f”rbjudna i WPS setupstr„ngar.
+
+<!-- V0.9.19: added this -->
+<P>Om och bara om <CODE>klassnamnet</CODE> „r "Fack" f”r att skapa en 
+<A HREF="xcenter/xc_tray.html">fackwidget</A>, m†ste setupstr„ngen ha f”ljande format:
+<CODE>Fack(<I>setup</I>){<I>facknamn</I>[<I>widgetlista</I>]...}</CODE>
+(Notera att paranteserna „r ordagranna h„r.)
+
+<DT><P><CITE><B>WIDGETSPACING</B>=<I>v„rde</I></CITE>
+<DD>Korresponderar till inst„llningen "Widget utrymme" p† ett XCenter's sida "Stil".
+V„rdet m†ste vara inom omr†det 1 till 10. Standard „r "2".
+
+</DL>
+</BODY>
+</HTML>
+

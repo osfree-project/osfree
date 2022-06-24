@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Menyposter ID Offset
+    </TITLE>
+</HEAD>
+<BODY>
+Med den h„r siffran kan du tala om f”r &xwp; vilka meny ID's som skall anv„ndas
+f”r menyposter infogade av &xwp;. Žndra numret om &xwp; verkar komma i konflikt 
+med annan WPS programvara som ocks† infogar menyposter i &popmenu;er.
+<P>Inst„llningen blir aktiv omedelbart.
+<P><B>Detaljerad f”rklaring:</B>
+<P>Med &os2;, beh”ver varje menypost (oberoende om det „r en submeny eller en "riktig" menypost)
+ett unikt meny ID inom menyn. Numret „r ett tal fr†n 0 till 0xFFFF, identifierande menyposten
+f”r systemet, s† att "„garen" av menyn kan reagera n„r en menypost trycks.
+<P>IBM rekommenderar att varje WPS utvecklare skall anv„nda ett tal h”gre „n WPMENUID_USER 
+(vilket, p† Warp 3 och 4, „r 0x6500) f”r &popmenu;till„gg.
+<P>Tidigare versioner av XFolder anv„nde alltid WPMENUID_USER+100 (dec) och h”gre f”r 
+variabla menyposter, men detta har lett till konflikter med annan programvara. Eftersom &xwp;
+inte har n†got s„tt att r„kna ut vilken offset annan WPS programvara anv„nder, „r den h„r
+inst„llningen numera konfigurerbar; &xwp; kommer numera att anv„nda menyposter med †tminstone WPMENUID_USER
+plus det nummer som du specificerade h„r.
+<BR>
+</BODY>
+</HTML>
+

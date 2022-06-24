@@ -1,0 +1,59 @@
+<HTML RESID=&ID_XSH_DRIVER_CDFS;>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: CDFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+Den h„r dialogen anv„nds f”r att konfigurera <CODE>CDFS.IFS</CODE>.
+
+<!-- V0.9.13
+which is the Installable
+File System (IFS) provided by IBM to read data from CD-ROMs.
+CD-ROMs use their own special format to organize data on disk which is unlike FAT or
+HPFS, so another file system driver is needed.
+
+and added these links: -->
+
+<P>F”r en introduktion om filsystem, v„lj fr†n f”ljande lista:
+<UL><LI><A HREF="glossary/gls_fs.html">Filsystem</A>
+<LI><A HREF="glossary/gls_caches.html">Filsystem cacher</A>
+
+</UL>Tryck <B>"Optimera"</B> f”r att f† &xwp; att f”resl† dig nya, optimerade inst„llningar.
+<P>Tryck <B>"Standard"</B> f”r att f† &os2;'s standardinst„llningar visade p† notbokssidan.
+
+<P>Genom att trycka <B>"OK"</B>, kommer de val du gjorde att bli ”versatta till f„ltet
+"Parametrar" p† "Drivrutin" sidan i 
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; K„rna"</A> notboken med egenskaper.
+Detta „ndrar inte din &cfgsys; „nnu. F”r att g”ra det, tryck "Verkst„ll" p† "Drivrutin" 
+sidan efter att ha tryckt p† "OK" i den h„r dialogen.
+
+<P>Det rekommenderas starkt att aktivera <B>Joliet</B> st”d. Detta „r Microsoft's 
+ut”kning till ISO standard CD-ROM filsystemet f”r att st”dja l†nga filnamn (upp till 64 
+tecken) „ven p† CD-ROM's. M†nga nyare CD-ROM's g†r inte att l„sa p† &os2; om den h„r inst„llningen 
+inte „r aktiverad.
+
+<P><B>Kanji</B> l„gger till ytterligare st”d f”r Japanskt spr†k.
+
+<P>Draglisten <B>"cache storlek"</B> st„ller in storleken p† CD-ROM filsystemscachen. Standarden
+p† 128 KB „r inte mycket, s† det rekommenderas att st„lla in den till 512 KB eller h”gre. 
+Eftersom l„shuvudet p† en CD-ROM enhet „r betydligt l†ngsammare „r de p† en h†rddisk, kan en
+st”rre cache verkligen h”ja farten p† CD-ROM l„sningen.
+
+<P>Av samma sk„l, b”r du st„lla in <B>"Filsektorer att l„sa samtidigt"</B> till maximalt v„rde.
+Den inst„llningen best„mmer hur m†nga sektorer som l„ses in n„r en enstaka sektor beg„rs av 
+filsystemets drivrutin. Eftersom det „r troligt att det inte „r bara en sektor, utan att „ven de 
+f”ljande sektorerna ocks† kommer att l„sas n„r en CD-ROM accessas, kommer de f”ljande sektorerna
+redan att finnas i cachen, vilket ocks† reducerar den fysiska accessen till CD-ROM enheten.
+
+<!-- the following added with V0.9.5 -->
+Slutligen, inst„llningarna i <B>"Initialiserings"</B> gruppen best„mmer vad IFS drivrutinen
+skall visa vid startup. Som <B>standard,</B> kommer den att ge dig ett kort meddelande att den har
+laddats. <B>"Quiet"</B> kommer att tvinga den till att inte visa n†got alls, medan <B>"Verbose"</B> 
+kommer att visa de aktuella IFS inst„llningarna i detalj, som specificerades ovanf”r.
+<BR>
+</BODY>
+</HTML>
+

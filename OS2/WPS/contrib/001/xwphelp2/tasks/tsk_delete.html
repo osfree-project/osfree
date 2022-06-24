@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Deleting Objects
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20, using bits and chunks from the former
+    fsys/fops_delete.html -->
+<BODY>
+<IFNDEF __EWORKPLACE__>
+With
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+In
+</IFDEF>
+&xwp;, "deleting" an object normally means moving it to the
+<A HREF="objects/obj_trash.html">&xwp; trash can</A>.
+The trash can collects all items that have been deleted and
+allows you to recover objects that were deleted accidentally.
+
+<P>There are several ways to delete an object:
+
+<UL><LI>Select the <B>"Delete" menu item</B> from an object's
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<P><LI>As a shortcut, you can also press the <B>"Delete" key</B>
+on  your keyboard to have the currently selected objects deleted.
+
+<P><LI>You can also <!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dragdrop.html">drag</A>
+objects and drop them onto the trash can.
+
+</UL><B>Remarks:</B>
+
+<OL><LI>Some objects are <B>protected</B> against deletion. For files, this
+can be the case if they have the "system" or "read-only"
+<A HREF="glossary/gls_fattrs.html">file attributes</A>
+set. Besides, objects of certain
+<A HREF="glossary/gls_wpsclasses.html">classes</A> cannot ever be deleted
+if they are crucial to the system's operation.
+
+<P><LI>Deleting a <A HREF="tasks/tsk_crshadow.html">shadow</A> does
+not delete the object that the shadow points to, but the shadow only.
+
+<P><LI>If you want to <B>immediately delete</B> the selected objects, without
+moving them to the trash can first, hold down the <B>"Shift" key</B> when
+selecting the "Delete" menu item or pressing the "Delete" key. Be warned
+that this operation normally cannot be undone: the selected objects are
+destroyed for good.
+
+<P><LI>Depending on the settings on the "Confirmations" page
+in the &link_wpsobj;,
+&xwp; will display a confirmation message before permanently deleting
+objects.
+
+<P><LI>If you prefer to always immediately delete objects, instead
+of moving them to the trash can first, enable the respective setting
+on the first properties page in the trash can's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<P><LI>There are ways to recover file-system objects that have been
+accidentally deleted with the use of the
+<CODE>UNDELETE</CODE> command on the
+&os2; command line. However, this requires that support for this be enabled
+first. See the
+<A HREF="cmdref.inf#undelete">documentation of the <CODE>UNDELETE</CODE> command</A>
+in the <I>&os2; Command Reference</I>.
+
+<IFNDEF __NOXWPSETUP__>
+<P><LI>You can disable &xwp;'s delete replacements on the "Features" page
+in the
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+<BR>
+</IFNDEF>
+
+</OL>
+For related information, select from the list below:
+
+<UL>
+<LI><A HREF="objects/obj_trash.html">&xwp; trash can</A>
+<LI><A HREF="glossary/gls_dragdrop.html">About drag and drop</A>
+<LI><A HREF="tasks/tsk_crshadow.html">About shadows</A>
+</UL>
+</BODY>
+</HTML>
+

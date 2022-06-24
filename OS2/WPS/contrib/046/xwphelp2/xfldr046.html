@@ -1,0 +1,343 @@
+<HTML NOSUBLINKS="0" NOSUBLINKS="set_">
+<HEAD>
+    <TITLE>
+        &xwp; Onlinehj„lp
+    </TITLE>
+</HEAD>
+<!-- changes for V0.9.0: see notes below -->
+<!--
+    GENERAL REMARK about this file:
+    There is NO NEED to translate this file. The titles that
+    appear here are ONLY listed if some smart ass opens the
+    XWP help file manually via viewhelp.exe on the main page
+    that is opened then. The help _panel_ titles are, by
+    contrast, taken from the TITLE tag of each individual
+    page. As a result, you can simply copy this file over
+    to your main help file with every new release.
+-->
+<BODY>
+<P>Onlinehj„lp „r tillg„nglig f”r f”ljande „mnen:
+
+<!-- V0.9.3: all the following links have been added. These were the
+links previously located in 060errors.html (linked to at the very
+bottom). All the file names starting with "00" used to start with
+"err_" instead; please rename them. -->
+<UL><LI><A HREF="msg_empty.html">"Tom konfigurationsmapp"</A>
+<!-- V0.9.16 <LI><A HREX="00202noconfig.html">"Ingen konfigurationsmapp"</A>
+<LI><A HREX="00203noobject.html">"Objektet hittades inte"</A> -->
+<LI><A HREF="msg_limit.html">"F”r m†nga objekt"</A>
+<LI><A HREF="msg_noclip.html">"Ingen text i Urklipp"</A>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_reboot.html">Optioner f”r ombootning</A>
+<LI><A HREF="xshutdown/xsd_autoclose.html">Auto-st„ngning av icke-PM sessioner</A>
+</IFNDEF>
+<LI><A HREF="fsys/stat_selclass.html">V„lj objektklass</A>
+<LI><A HREF="clst_register.html">Registrera ny klass</A>
+<LI><A HREF="dlg_titleclsh.html">Filkonflikt</A>
+<!-- end of V0.9.3 updates -->
+
+<LI><A HREF="menus/menu_varmenu.html">Variabla menyobjekt</A>
+<LI><A HREF="objects/obj_cfgfdr.html">&xwp; &cfgfdr;</A>
+<LI><A HREF="menus/menu_refresh.html">"F”rnya nu"</A>
+<LI><A HREF="menus/menu_snap.html">"Ordna i rutn„t"</A>
+<LI><A HREF="menus/menu_copyfname.html">"Kopiera filnamn"</A>
+<LI><A HREF="menus/menu_xsd.html">Ut”kad Avst„ngning</A>
+<LI><A HREF="menus/menu_restartwps.html">Starta om Skrivbordet</A>
+<LI><A HREF="wps/wps_view.html">&xwp; allm„nna inst„llningar</A>
+<LI><A HREF="wps/wps_view2.html">Ta bort standard menyalternativ</A>
+<LI><A HREF="wps/wps_view3.html">L„gg till nya menyalternativ</A>
+<LI><A HREF="wps/wps_statbars1.html">Statusf„lt sidan 1</A>
+<LI><A HREF="wps/wps_snap.html">Ordna i rutn„t</A>
+<LI><A HREF="wps/wps_fdrhotky.html">Mappar snabbtangenter</A>
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_paranoia.html">Interna inst„llningar</A>
+</IFNDEF>
+<LI><A HREF="fsys/dtp_menus.html">XSkrivbord Inst„llningar sidan 1</A>
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_main.html">XSkrivbord sidan 2</A>
+</IFNDEF>
+<LI><A HREF="menus/menu_sort.html">&xwp; Ut”kade Sorteringsfunktioner</A>
+<LI><A HREF="fsys/fldr_viewpage1.html">&xwp; Inst„llningssida i mappar</A>
+<LI><A HREF="wps/wps_statbars2.html">Statusf„lt sidan 2</A>
+<LI><A HREF="clst_main.html">WPS Klasser</A>
+<LI><A HREF="objects/obj_details.html">Interna</A>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_sched.html">Schemal„ggare</A>
+<LI><A HREF="kernel/krn_mem.html">Minne</A>
+</IFNDEF>
+<LI><A HREF="objects/obj_startshut.html">Startup / Shutdown mappar</A>
+<LI><A HREF="menus/menu_content.html">Mappar Inneh†ll Menyer</A>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_fat.html">Filsystem inst„llningar</A>
+</IFNDEF>
+<LI><A HREF="wps/wps_cfgfdr.html">Konfigurationsmapp menyposter</A>
+<!-- V0.9.20: ifndef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_wps.html">WPS inst„llningar</A>
+</IFNDEF>
+<LI><A HREF="kernel/krn_errors.html">Fel inst„llningar</A>
+<!-- the following items have been added with V0.9.0 -->
+<LI><A HREF="kernel/krn_paths.html">System s”kv„gar</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<LI><A HREF="wps/wps_filetypes.html">Filtyper</A>
+<LI><A HREF="wps/wps_ftyp_merge.html">Sammanfoga med WPS filter</A>
+</IFNDEF>
+<LI><A HREF="media/snd_main.html">Nytt "Ljud" objekt</A>
+<LI><A HREF="objects/obj_trash.html">&xwp; papperskorg</A>
+<LI><A HREF="fsys/trash_set.html">Papperkorg inst„llningar</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_status.html">&xwp; status</A>
+<LI><A HREF="setup/xset_features.html">&xwp; funktioner</A>
+</IFNDEF>
+<LI><A HREF="fsys/fsys_filepage.html">"Fil" sidor utbyte</A>
+<LI><A HREF="fsys/fsys_filepage2.html">"Fil" sidan 2</A>
+<LI><A HREF="dsk_details.html">Disk "Detaljer" sida utbyte</A>
+<LI><A HREF="fsys/dtp_startup.html">Startup inst„llningar</A>
+<LI><A HREF="fsys/dtp_archives.html">"Arkiv" sida utbyte</A>
+<LI><A HREF="stup_settings2.html">&xwp; Startup mapp</A>
+<LI><A HREF="pgm_module.html">&xwp;: "Modul" sida</A>
+<LI><A HREF="clst_set.html">Klasslista inst„llningar</A>
+<LI><A HREF="objects/obj_wps.html">"Workplace Shell" objekt</A>
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="objects/obj_krnl.html">"&os2; K„rna" objekt</A>
+</IFNDEF>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" objekt</A>
+<LI><A HREF="setup/xset_objects.html">"Objekt" sida</A>
+</IFNDEF>
+<!-- V0.9.20: indef moved -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_drivers.html">"Enheter" sida</A>
+<LI><A HREF="kernel/drv_hpfs.html">&os2; K„rna: HPFS.IFS</A>
+<LI><A HREF="kernel/drv_cdfs.html">&os2; K„rna: CDFS.IFS</A>
+<!-- the following one item has been added with V0.9.13 -->
+<LI><A HREF="kernel/drv_jfs.html">&os2; K„rna: JFS.IFS</A>
+<LI><A HREF="kernel/drv_s506.html">&os2; K„rna: IBMS506.ADD / DANIS506.ADD</A>
+</IFNDEF>
+<LI><A HREF="hook/keyb_hotkeys.html">Objekt snabbtangenter</A>
+<LI><A HREF="hook/mouse_movement.html">Mus hook</A>
+<!-- the following items have been added with &xwp; V0.9.1 -->
+<LI><A HREF="hook/mouse_maps2.html">Mus mappning sidan 2</A>
+<!-- the following items have been added with &xwp; V0.9.2 -->
+<LI><A HREF="objects/obj_screen.html">"Sk„rm" objekt</A>
+<LI><A HREF="hook/screen_corners.html">Sk„rm R”relser</A>
+<!-- removed V0.9.16 &xwp; trash can drives support -->
+<!-- the following items have been added with &xwp; V0.9.3 -->
+<!-- V0.9.20: indef added -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/krn_syslevel.html">&os2; K„rna: Syslevels</A>
+</IFNDEF>
+<LI><A HREF="hook/pager1.html">&xwp; &pgr; allm„nt</A>
+<LI><A HREF="hook/pager2.html">&xwp; &pgr; f„rger</A>
+<LI><A HREF="hook/pager_mouse.html">&xwp; &pgr; musaktioner</A>
+<LI><A HREF="hook/keyb_funckeys.html">&xwp; funktionstangenter</A>
+<LI><A HREF="hook/keyb_funckeys_dlg.html">Editera funktionstangenter</A>
+<LI><A HREF="objects/obj_string.html">&xwp;: Setupstr„ng objekt</A>
+<LI><A HREF="objects/string_page.html">&xwp;: Setupstr„ng sida</A>
+<LI><A HREF="media/media_devices.html">Media devicer</A>
+<LI><A HREF="media/media_codecs.html">Media codecs</A>
+<LI><A HREF="media/media_ioprocs.html">Media IOProcs</A>
+<!-- the following items have been added with &xwp; V0.9.4 -->
+<LI><A HREF="fsys/trash_drives.html">Papperskorg enhetsst”d</A>
+<IFNDEF __EWORKPLACE__>
+<LI><A HREF="objects/obj_instfdr.html">"&xwp; Installations" mapp</A>
+</IFNDEF>
+<LI><A HREF="hook/pager_stickies.html">&xwp; &pgr; sticky windows</A>
+<LI><A HREF="hook/pager_stickies2.html">Sticky windows kriteria</A>
+<LI><A HREF="hook/pager_stickies3.html">L„gg till Sticky Window</A>
+<LI><A HREF="fsys/trash_icon.html">Papperskorg "Ikon" sida</A>
+<LI><A HREF="xshutdown/xsd_dlg_confirm.html">&xshutdown; Bekr„ftelsef”nster</A>
+<LI><A HREF="dlg_selsome.html">L„gg till "V„lj genom namn"</A>
+<LI><A HREF="menus/menu_view.html">Nya "Visnings" menyposter</A>
+<!-- the following items have been added with V0.9.5 -->
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __NOOS2KERNEL__>
+<LI><A HREF="kernel/drv_hpfs386.html">&os2; K„rna: HPFS386.IFS</A>
+</IFNDEF>
+<LI><A HREF="objects/obj_media.html">Multimedia</A>
+<LI><A HREF="dlg_classes.html">Installerade Klasser</A>
+
+<!-- the following items have been added with V0.9.7 -->
+<!-- V0.9.19: added ifndef -->
+<LI><A HREF="xshutdown/xsd_dlg_vio.html">St„ng icke-PM sessioner</A>
+<LI><A HREF="fsys/fsys_resource.html">Resurser sidan</A>
+<LI><A HREF="xcenter/xc_main.html">&xcenter;</A>
+<!-- V0.9.9: the next two pages were renamed -->
+<LI><A HREF="xcenter/xc_view.html">&xcenter;: Visning sida</A>
+<LI><A HREF="xcenter/xc_view2.html">&xcenter;: Stil sida</A>
+<LI><A HREF="xcenter/xc_widgets.html">&xcenter;: Widgets sida</A>
+<LI><A HREF="xcenter/xc_classes.html">&xcenter;: Klasser sida</A>
+<LI><A HREF="xcenter/xc_clock.html">&xcenter;: Klocka sida</A>
+<LI><A HREF="xcenter/xc_mem.html">&xcenter;: Minnes widget</A>
+<LI><A HREF="xcenter/xc_objbtn.html">&xcenter;: Objektknapp widget</A>
+<LI><A HREF="xcenter/xc_pulse.html">&xcenter;: Puls widget</A>
+<LI><A HREF="xcenter/xc_swap.html">&xcenter;: Swapper widget</A>
+<LI><A HREF="xcenter/xc_winlist1.html">&xcenter;: F”nsterlista widget</A>
+<LI><A HREF="xcenter/xc_winlist2.html">&xcenter;: F”nsterlista widget egenskaper</A>
+<LI><A HREF="xcenter/xc_xbtn1.html">&xcenter;: &xbutton; widget</A>
+<!-- V0.9.19: added this link -->
+<LI><A HREF="xcenter/xc_xbtn2.html">&xcenter;: &xbutton; widget egenskaper</A>
+<LI><A HREF="xcenter/xc_sentinel.html">&xcenter;: Sentinel widget</A>
+<LI><A HREF="xcenter/xc_health.html">&xcenter;: H„lsomonitor widget</A>
+<LI><A HREF="xcenter/xc_healthdlg.html">&xcenter;: H„lsomonitor widget egenskaper</A>
+
+<LI><A HREF="objects/obj_fontfdr.html">&xwp; Font Mapp</A>
+<!-- V0.9.9: added the following link -->
+<LI><A HREF="font_text.html">Fonts Mapp: Exempel Text</A>
+<LI><A HREF="objects/obj_fontfile.html">&xwp;: Font filer</A>
+<LI><A HREF="objects/obj_fontobj.html">&xwp;: Font objekt</A>
+<LI><A HREF="font_view.html">&xwp;: Font exempelvisning</A>
+<LI><A HREF="font_view2.html">&xwp;: Font tips</A>
+
+<LI><A HREF="xfix_intro.html">xfix: Introduktion</A>
+
+<!-- V0.9.9: the following have been added -->
+<LI><A HREF="dlg_run.html">&xwp;: K”r kommando</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<LI><A HREF="pgm_assocs.html">Associationer</A>
+</IFNDEF>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOXWPSETUP__>
+<LI><A HREF="setup/xset_threads.html">&xwp; Setup: Tr†dar</A>
+</IFNDEF>
+<LI><A HREF="pgm_module1.html">Importerade moduler sida</A>
+<LI><A HREF="pgm_module2.html">Exporterade funktioner sida</A>
+<LI><A HREF="hook/pager3win.html">&xwp; &pgr; f”nster</A>
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NEVEREXTASSOCS__>
+<LI><A HREF="fsys/fsys_types.html">Datafil typer</A>
+</IFNDEF>
+
+<!-- V0.9.19: added the following, first one changed -->
+<LI><A HREF="admin_user.html">Aktuell anv„ndare</A>
+<LI><A HREF="admin_all_users.html">Alla anv„ndare</A>
+<LI><A HREF="admin_all_groups.html">Alla grupper</A>
+
+<!-- V0.9.11: the following have been added -->
+<LI><A HREF="hook/pager_intro.html">Anv„ndare</A>
+
+<!-- V0.9.12: the following have been added -->
+<LI><A HREF="fsys/fldr_sort.html">"Sortering" sida</A>
+<LI><A HREF="xcenter/xc_power.html">&xcenter;: Kraft widget</A>
+<LI><A HREF="xcenter/xc_tray.html">&xcenter;: Fack widget</A>
+
+<!-- V0.9.14: the following have been added -->
+<LI><A HREF="xcenter/xc_diskfree_wc.html">&xcenter;: Diskl”s widget (&warpcenter; stil)</A>
+<LI><A HREF="xcenter/xc_diskfree_cond.html">&xcenter;: Diskl”s widget (kondenserad stil)</A>
+<LI><A HREF="hook/mouse_movement2.html">Mus: R”relser Sidan 2</A>
+
+<!-- V0.9.16: the following have been added -->
+<LI><A HREF="netscdde.html">Netscape DDE</A>
+<LI><A HREF="treesize.html">Tr„dstorlek</A>
+<LI><A HREF="objects/obj_iconpage.html">&xwp;: Ikon sida</A>
+<LI><A HREF="objects/obj_icon2page.html">&xwp;: Ikon sida 2</A>
+<LI><A HREF="objects/obj_dataf.html">&xwp;: Datafil</A>
+<LI><A HREF="objects/obj_pgmf.html">&xwp;: Programfil</A>
+<LI><A HREF="objects/obj_pgmf_dll.html">&xwp;: DLL programfil</A>
+<LI><A HREF="objects/obj_pgmf_driv.html">&xwp;: Drivrutins programfil</A>
+
+<!-- V0.9.19: the following have been added-->
+<!-- V0.9.20: removed this one fsys/fops_delete.html -->
+<LI><A HREF="xshutdown/xsd_dlg_confirm_wps.html">&xwp;: Dialog f”r att bekr„fta omstart av Skrivbord</A>
+<LI><A HREF="objects/obj_fdr_main.html">&xwp;: Mappar</A>
+<LI><A HREF="fsys/msg_notrashcan.html">Kan inte hitta papperskorg</A>
+<LI><A HREF="fsys/msg_nodrivesupport.html">Enhet inte st”dd</A>
+<LI><A HREF="xcenter/xc_ipmon.html">&xcenter;: IP monitor widget</A>
+<LI><A HREF="objects/obj_iconpage_x.html">&xwp;: Ikon sida</A>
+<LI><A HREF="dlg_batchren.html">&xwp;: Massnamnsbyte</A>
+
+<!-- V0.9.20: the following have been added-->
+<LI><A HREF="objects/obj_desktop.html">Skrivbord</A>
+<LI><A HREF="objects/obj_desktop_sec.html">Sekund„rt skrivbord</A>
+<LI><A HREF="objects/obj_os2cmdfdr.html">Kommandosessioner mapp</A>
+<LI><A HREF="objects/obj_os2drivfdr.html">Enheter mapp</A>
+<LI><A HREF="objects/obj_disk_harddisk.html">H†rddisk</A>
+<LI><A HREF="objects/obj_disk_cdrom.html">CD-ROM</A>
+<LI><A HREF="objects/obj_disk_network.html">N„tverksenhet</A>
+<LI><A HREF="objects/obj_disk_diskette.html">Diskett</A>
+<LI><A HREF="objects/obj_disk_lvm_refresh.html">Uppdatera Flyttbara Media</A>
+<LI><A HREF="objects/obj_setupfdr.html">&syssetup; mapp</A>
+<LI><A HREF="menus/menu_os2syssetup.html">&syssetup;</A>
+<LI><A HREF="objects/obj_os2system.html">&sysfdr; mapp</A>
+<LI><A HREF="objects/obj_os2infofdr.html">Hj„lp Center</A>
+<LI><A HREF="objects/obj_pgmobj.html">Program objekt</A>
+<LI><A HREF="objects/obj_os2wpstartup.html">Startup</A>
+<LI><A HREF="objects/obj_os2_dosfull.html">DOS Fullsk„rm</A>
+<LI><A HREF="objects/obj_os2_doswin.html">DOS F”nster</A>
+<LI><A HREF="objects/obj_os2_os2full.html">OS/2 Fullsk„rm</A>
+<LI><A HREF="objects/obj_os2_os2win.html">OS/2 F”nster</A>
+<LI><A HREF="objects/obj_os2_win16.html">&winos2; Sessioner</A>
+<LI><A HREF="objects/obj_os2minwinv.html">&minwinv;</A>
+<LI><A HREF="objects/obj_os2cmdref.html">Kommandoreferens</A>
+<LI><A HREF="menus/menu_openparent.html">™ppna ”verordnad</A>
+<LI><A HREF="menus/menu_cranother.html">Skapa ny</A>
+<LI><A HREF="menus/menu_crshadow.html">Skapa skugga</A>
+<LI><A HREF="menus/menu_copy.html">Kopiera</A>
+<LI><A HREF="menus/menu_delete.html">Radera</A>
+<LI><A HREF="menus/menu_move.html">Flytta</A>
+<LI><A HREF="menus/menu_chkdsk.html">Kontrollera disk</A>
+<LI><A HREF="menus/menu_format.html">Formatera disk</A>
+<LI><A HREF="menus/menu_volumes.html">Hantera volymer</A>
+<LI><A HREF="objects/obj_os2wptemplates.html">"Mallar" mapp</A>
+<LI><A HREF="objects/obj_fdr_template.html">Mappar mall</A>
+<LI><A HREF="objects/obj_pgmobj_templ.html">Programobjekt mall</A>
+<LI><A HREF="objects/obj_os2wpbitmap.html">Bitmap</A>
+<LI><A HREF="objects/obj_os2wpbitmap2.html">Bitmap mall</A>
+<LI><A HREF="objects/obj_os2wpicon.html">Ikon</A>
+<LI><A HREF="objects/obj_os2wpicon2.html">Ikon mall</A>
+<LI><A HREF="objects/obj_os2wpmet.html">Metafil</A>
+<LI><A HREF="objects/obj_os2wpmet2.html">Metafil mall</A>
+<LI><A HREF="objects/obj_os2wppif.html">Picture Interchange Fil</A>
+<LI><A HREF="objects/obj_os2wppif2.html">Picture Interchange Fil mall</A>
+<LI><A HREF="objects/obj_os2wppointer.html">Pekare</A>
+<LI><A HREF="objects/obj_os2wppointer2.html">Pekare mall</A>
+<LI><A HREF="objects/obj_os2games.html">Spel mapp</A>
+<LI><A HREF="objects/obj_os2utilsfdr.html">Utilities mapp</A>
+<LI><A HREF="objects/obj_os2clipview.html">Urklippsvisare</A>
+<LI><A HREF="objects/obj_os2epm.html">EPM Avancerad Redigerare</A>
+<LI><A HREF="objects/obj_os2iconedit.html">Ikonredigerare</A>
+<LI><A HREF="objects/obj_os2eexe.html">&eexe;</A>
+<LI><A HREF="objects/obj_os2picview.html">Bildvisare</A>
+<LI><A HREF="objects/obj_os2cpumon.html">CPU ™vervakare (Systempuls)</A>
+<LI><A HREF="objects/obj_os2seekscan.html">S”k och Scanna Filer</A>
+<LI><A HREF="objects/obj_os2warpcenter.html">&warpcenter;</A>
+<LI><A HREF="objects/obj_os2shredder.html">Tugg</A>
+<LI><A HREF="objects/obj_os2pgmfdr.html">Program</A>
+<LI><A HREF="objects/obj_os2connectfdr.html">&connectfdr;</A>
+<LI><A HREF="objects/obj_os2internetfdr.html">Internet</A>
+<LI><A HREF="objects/obj_os2wpnetwork.html">Lokalt N„tverk</A>
+<LI><A HREF="objects/obj_os2wpnetgrp.html">Fil och Utskriftsklient - resurser</A>
+<LI><A HREF="objects/obj_setup_estyler.html">eStyler</A>
+<LI><A HREF="objects/obj_setup_itheme.html">iTheme</A>
+<LI><A HREF="objects/obj_setup_locale.html">Lokal</A>
+<LI><A HREF="objects/obj_setup_look.html">Upptr„dande</A>
+<LI><A HREF="objects/obj_setup_lvm.html">LVM GUI</A>
+<LI><A HREF="objects/obj_setup_mmpm2.html">Multimedia Setup</A>
+<LI><A HREF="objects/obj_setup_net.html">N„tverk Setup</A>
+<LI><A HREF="objects/obj_setup_regedit.html">Regedit/2</A>
+<LI><A HREF="objects/obj_setup_thememgr.html">Theme Manager</A>
+<LI><A HREF="objects/obj_setup_win16.html">&winos2;</A>
+<LI><A HREF="objects/obj_os2printersfdr.html">Skrivare mapp</A>
+<LI><A HREF="objects/obj_os2instrem.html">Installera/Ta bort mapp</A>
+
+<LI><A HREF="dlg_paste.html">Klistra in</A>
+
+<!-- V0.9.3: removed all the following
+A HREF="099empty001.html"
+A HREF="099empty002.html"
+A HREF="099empty003.html"
+A HREF="099empty004.html"
+A HREF="099empty005.html"
+A HREF="060errors.html" Hj„lp f”r dialoger -->
+</UL>
+</BODY>
+</HTML>
+

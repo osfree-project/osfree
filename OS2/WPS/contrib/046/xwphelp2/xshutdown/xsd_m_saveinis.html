@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Spara INI-filer
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+Med drop-down boxen "Spara INI-filer", kan du v„lja hur &xwp; skall spara dina
+anv„ndar- och systemprofiler (som standard: <CODE>OS2.INI</CODE> och <CODE>OS2SYS.INI</CODE>)
+vid avst„ngning. Den h„r inst„llningen g„ller inte f”r omstarter av Skrivbordet.
+
+<P>Den h„r inst„llningen har lagts till med V0.9.5 f”r att fixa de problem som m†nga
+anv„ndare har med &xshutdown; och mycket stora INI filer (†tskilliga megabytes). Olyckligtvis
+har OS/2's profiler (INI) funktioner besv„rliga begr„nsningar med hantering av mycket stora
+filer. Det verkar som om dessa API'er f†r slut p† delat minne relativt snabbt.
+
+<P>Av det sk„let, har &xwp; lagt till sin egen upps„ttning funktioner vilka kan spara
+INI filer till disk. Som ett resultat, kan du nu v„lja hur INI-filer skall sparas:
+
+<UL><LI><B>"Ny metod":</B> Detta kommer att anv„nda de nya profilfunktionerna vilka har lagts 
+till hos &xwp; med V0.9.5 f”r att spara INI-filer. Dessa anv„nder inte delat minne, s† 
+"spara INI-filer" problemen kommer troligtvis att bli mindre. Detta „r den rekommenderade 
+inst„llningen.
+
+<P><LI><B>"Gammal metod":</B> Denna anv„nder &os2;'s profilfunktioner. Det „r vad som alltid 
+anv„nts av XFolder och &xwp; f”re V0.9.5.
+<!-- V0.9.6: added these 2 lines -->
+Detta var k„nt f”r att orsaka problem med stora INI filer. Se "FAQ" sektionen i
+<I>&xwp; Anv„ndarguide</I> f”r detaljer.
+
+<P><LI><B>"Spara inte INI-filer alls":</B> Detta sparar inte INI-filer under avst„ngning.
+Du kommer d„remot att f”rlora de mera nyligen utf”rda systeminst„llningarna under &xshutdown;,
+s† anv„nd detta endast om ingen av de andra metoderna fungerar p† ditt system.
+
+<P>&os2; dumpar INI-filerna automatiskt till disk med n†gra minuters mellanrum, s† du kommer 
+att f”rlora alla inst„llningar som har „ndrats sedan den sista automatiska INI nedsparningen. 
+Det „r ungef„r lika med att trycka Ctrl-Alt-Delete, vilket inte heller kommer att spara dina
+INI-filer, och p†verkar alla &os2; inst„llningar vilka „r lagrade i INI filerna (Skrivbordsobjekt,
+fonter, f„rger, applikationsinst„llningar). S† anv„nd den h„r inst„llningen med f”rsiktighet.
+
+<P>Som kontrast, ikonpositioner och annan information som lagras i objektens
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">ut”kade attribut</A> kommer att bli ordenligt lagrad.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Menyn Kommandoreferens
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Detta „r en beskrivning av kommandona p† <B>menyraden</B> hos xfix
+(se l„ngst ner p† sidan f”r en &popmenu; som ber”r hanteringen):
+
+<UL><LI><B>xfix</B> meny
+
+<BR><UL><LI><B>terskapnings bufferten</B> kommer att †terskapa handtagsbufferten vilken har
+laddats vid startup av xfix fr†n <CODE>OS2SYS.INI</CODE> och f”rnyat handtagslistan helt 
+och h†llet. Detta laddar dock inte om handtagen fr†n <CODE>OS2SYS.INI</CODE>, vilket endast 
+utf”rs vid startup av xfix. Den h„r posten „r anv„ndbar om xfix skulle inneh†lla en bugg vilken
+orsakade att visningen skulle bli ogiltig. Detta kommer ocks† att uppdatera alla index i
+"i" kolumnen vilka inte blir automatisk f”rnyade n„r handtagen raderas.
+
+<P><LI><B>Skriva tillbaka till OS2SYS.INI</B> skriver handtagstabellen tillbaka 
+till <CODE>OS2SYS.INI</CODE> filen. Alla „ndringar som du g”r till handtagslistan
+lagras inte utan att du anv„nder den h„r menyposten. Notera att detta troligvis inte
+har n†gon effekt om WPS „r ig†ng eftersom WPS h†ller en intern kopia av handtagstabellen
+och kommer troligtvis att skriva ”ver dina „ndringar ganska snart. Detta „r orsaken till att
+WPS inte skall vara ig†ng n„r du skriver tillbaka dina handtag.
+
+<P>Se ocks† <LI><A HREF="xfix_delete.html">Radera handtag</A>.
+
+<!-- V0.9.20: rewrote this -->
+<P><LI><B>Exit</B> kommer att avsluta programmet.
+</UL>
+
+<LI><B>Sortera</B> menyn
+
+<P>Detta g”r att du kan sortera handtagslistan i enlighet med v„rdena i de olika
+kolumnerna. (Se <A HREF="xfix_list.html">Handtagslistan</A> f”r en beskrivning av
+de olika kolumnerna.) Om du sorterar genom index, visar displayen den exakta ordningen
+i vilken handtagsposterna upptr„der i <CODE>OS2SYS.INI</CODE> tabellen (med avtagande
+node offsets ocks†). "Sortera genom index" „r standard sorteringsordning efter startup av
+xfix.
+
+<P><LI><B>Aktioner</B> meny
+
+<P><B>Finn ogiltiga filer</B> kommer att kontrollera alla handtag i tabellen efter om
+dom pekar mot giltiga filer. Varje post som „r utdaterad kommer att markeras som ogiltig
+och ges statusen "Filen hittas inte". Detta utf”rs inte automatiskt eftersom processen
+kan ta flera minuter.
+
+<P>Se <A HREF="xfix_howto.html">Hur kan jag..</A> f”r en typisk anv„ndning av den h„r
+menyposten.
+
+<P><LI><B>V„lja</B> meny
+
+<P><B>Markera alla ogiltiga</B> kommer att v„lja alla handtag vilka har markerats som 
+ogiltiga av n†got sk„l (m.a.o. har f†tt gr† framh„vning). Du kan sedan h”gerklicka p† n†gon
+av de markerade posterna och v„lja "Radera" fr†n &popmenu;.
+
+<P><LI><B>Hj„lp</B> meny
+
+<P>Visar hj„lp och xfix produktinformation hos den aktuella versionen och datum f”r bygget.
+
+</UL>
+
+Som till„gg, finns det en <B>&popmenu;</B> om du klickar p† markerade poster med
+musknapp 2. Detta inneh†ller endast <B>Radera</B> kommandot. Detta kommer att ta bort
+handtaget fr†n den interna bufferten vilken l„stes fr†n <CODE>OS2SYS.INI</CODE> och 
+ocks† fr†n handtagens listvisning.
+
+<P>Se <A HREF="xfix_delete.html">Radera handtag</A> f”r mer om detta.
+
+<BR>
+</BODY>
+</HTML>
+

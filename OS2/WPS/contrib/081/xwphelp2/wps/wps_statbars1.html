@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_SETTINGS_STATUSBARS1;>
+<HEAD>
+<IFNDEF __EWORKPLACE__>
+    <TITLE>
+        &xwp;: Status Bars Page 1
+    </TITLE>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+    <TITLE>
+        &xwp;: Status Bars
+    </TITLE>
+</IFDEF>
+</HEAD>
+<BODY>
+On this page, you may configure the status bar which &xwp; can add to your open
+folder windows.
+Changing the settings will
+take effect immediately in the sense that all open folder windows will be updated instantly.
+
+<!-- V0.9.19: settings name changed -->
+<P>The <B>"Display folder status bars"</B> setting determines the default
+visibility of status bars in open folder views.
+You can override this setting individually on the
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"View"
+page in each folder's <A HREF="glossary/gls_notebook.html">properties notebook</A>.
+This setting specifies whether status bars are visible if no individual folder setting
+has been defined.
+
+<!-- V0.9.4: added this line -->
+<IFNDEF __NOXWPSETUP__>
+<P>To disable status bars completely, disable the respective item on the "Features"
+page in the <A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+</IFNDEF>
+
+<P>The settings in the <B>"Visible in..."</B> group determine globally for all
+folders in which folder views status bars can be displayed.
+These settings however only affect folders where status bars are visible,
+either because they have been enabled for a single folder in its
+<A HREF="glossary/gls_notebook.html">properties notebook</A>
+or because the global status bar setting is in effect for a folder.
+
+<P>The <B>"Style"</B> settings let you decide what the status bar will look like;
+just try out which style you like best,
+all open folder windows will be updated immediately
+if you change this setting.
+
+<!-- V0.9.19: changed the following -->
+<P>Note that you can
+<A HREF="glossary/gls_dropfonts.html">drag and drop fonts and colors</A>
+onto the status bars,  which will update all status bars instantly also.
+
+<P>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state.
+<BR>
+</BODY>
+</HTML>
+

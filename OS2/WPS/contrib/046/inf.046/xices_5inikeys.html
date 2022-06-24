@@ -1,0 +1,112 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        &xwp; INI Nycklar
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+&xwp; lagrar alla sina globala inst„llningar i din OS2.INI fil. (Som kontrast, „r
+inst„llningarna f”r individuella Skrivbordsobjekt lagrade hos WPS, f”r det mesta i 
+<CODE>.CLASSINFO</CODE> ut”kade attributen.)
+<!-- the following changed with V0.9.1 -->
+<P>Den h„r sektionen „r t„nkt att f”rklara nycklarna i "&xwp;" sektionen av OS2.INI.
+Om du hade XFolder installerat tidigare, kopierar &xwp; det datat fr†n "XFolder" sektionen,
+vilken †terst†r i OS2.INI s† att du kan v„xla tillbaka till XFolder senare ifall du v„ljer att
+avinstallera &xwp;.
+<P>Notera: &xwp; „r inte beroende av INI nycklar. Om du verkligen r”r till n†gonting totalt,
+kan du helt enkelt radera en nyckel med en INI editor eller "XFolder" i sin helhet. Efter n„sta
+omstart av Skrivbordet, kommer &xwp; att †terinitialisera sig sj„lvt till standardv„rden.
+<P>H„r kommer alternativen:
+
+<DL>
+<DT><CODE>Accelerators</CODE>
+<DD>Denna har listan ”ver mappsnabbkommandon. Datat „r bin„rt, och du skall inte f”rs”ka „ndra det
+manuellt. Detta „r en samling av <CODE>XFLDHOTKEY</CODE> strukturer, som definerades i 
+<CODE>\shared\common.h</CODE> hos &xwp;'s k„llor.
+<B>Standard:</B> som beskrivs p†
+sidan <A HREF="fldr_5xelerators.html">"Mapp snabbkommandon"</A>.
+
+<DT><CODE>AutoClose</CODE>
+<DD>Den lista ”ver poster som skall st„ngas automatiskt av &xshutdown;. Varje post p† listan „r en
+zero-avslutad str„ng, f”ljt av ett ULONG vilken tyder vad som skall g”ras med posten.
+Sedan kommer n„sta post; om den „r 0, avslutas listan.
+
+<DT><CODE>BootLogoFile</CODE>
+<DD>Det kompletta filnamnet p† den OS/2 V1.3 .BMP fil som skall anv„ndas f”r WPS startlogo,
+som satts p† "Startup" sidan hos Skrivbordets notbok med inst„llningar. Detta „r en enkel
+zero-avslutad str„ng.
+
+<DT><CODE>DialogFont</CODE>
+<DD>Den font som skall anv„ndas f”r &xwp; meddelandeboxar. Detta st„lls in n„r du sl„pper en font
+”ver en av dom.
+<B>Standard:</B> 9.WarpSans, Tror jag.
+
+<DT><CODE>FavoriteFolders</CODE>
+<DD>Listan ”ver <A HREF="menu_6favorite.html">favoritmappar</A>, som
+hex objekthandtag separerat av mellanslag.
+
+<DT><CODE>GlobalSettings</CODE>
+<DD>Detta „r en stor samling av ULONG's med alla sorters inst„llningar, de flesta fr†n
+"Workplace Shell" objektet. Detta korresponderar till <CODE>GLOBALSETTINGS</CODE> strukturen
+som definierades i <CODE>\shared\common.h</CODE> hos &xwp;'s k„llor. Du b”r inte „ndra
+v„rden i den manuellt, men du kan radera hela nyckeln f”r att †terst„lla &xwp; till s„kra
+standardv„rden (efter n„sta startup av Skrivbordet). Den skrivs om varje g†ng n†gon global
+inst„llning „r „ndrad i n†got av inst„llningsobjekten.
+
+<DT><CODE>JustInstalled</CODE>
+<DD>Den h„r nyckeln existerar endast direkt efter att &xwp; har installerats och leder till
+informationen "V„lkommen" hos &xwp; och att konfigurationsfoldern skapas. Efter†t, raderas den h„r 
+nyckeln igen.
+
+<DT><CODE>Language</CODE>
+<DD>&xwp;'s tre-siffrors spr†kkod, fr†n vilken den NLS som skall laddas best„ms. 
+Detta kan s„ttas upp i "&xwp; Setup" och „r som <B>standard</B> "001", om den inte finns.
+
+<DT><CODE>NameClashLastFocus</CODE>
+<DD>Den dialogpost ID vilken hade fokus senast i dialogen "Objektet existerar".
+
+<DT><CODE>QuickOpenFolders</CODE>
+<DD>Listan ”ver <A HREF="fldr_5quickopen.html">snabb-”ppnade mappar</A>, som ett
+hex objekthandtag separerat av mellanslag.
+
+<DT><CODE>RebootTo</CODE>
+<DD>En lista ”ver anv„ndarens ombootnings-alternativ (vilka upptr„der i "Boota om" drop-down boxen i
+&xshutdown; bekr„ftelsedialog). Detta „r en lista ”ver par av zero-avslutade str„ngar: den f”rsta beskriver
+alternativet, den andra beskriver kommandot som utf”rs. Listan „r avslutad av tv† extra zero bytes.
+
+<DT><CODE>SB_*</CODE>
+<DD>Olika statusf„lt inst„llningar. Namnen „r t„mligen sj„lvf”rklarande. Tror jag.
+Om en nyckel inte hittas, kommer <B>standard</B> att laddas fr†n NLS DLL.
+
+<DT><CODE>SelectSome</CODE>
+<DD>De senaste tio filfiltren som angetts i "V„lja genom namn" dialogen, d„r varje „r avslutat
+med ett null byte.
+
+<!-- the following added with V0.9.1 -->
+<DT><CODE>TrashCan::Drives</CODE>
+<DD>En bin„r samling av bytes som specificerar enhetsst”d f”r &xwp; papperskorg.
+
+<DT><CODE>Version</CODE>
+<DD>Den &xwp; version som k”rs. Denna s„tts endast f”r informativa avsikter
+(t.ex. f”r andra applikationer som kan vara intresserade), men inte l„ses av &xwp; sj„lvt.
+
+<DT><CODE>WndPos*</CODE>
+<DD>Olika f”nsterpositioner f”r att ”ppna dom d„r du st„ngde dom. Dessa poster
+anv„nder en varsin enkel SWP struktur (jag anv„nder inte WinStoreWindowPos).
+
+<DT><CODE>XFolderPath</CODE>
+<DD>Huvudkatalogen d„r &xwp; „r installerad.
+Denna s„tts av installationsscriptet och erfordras av TREESIZE.EXE f”r att hitta NLS DLL.
+&xwp; k„rna d„remot anv„nder inte den h„r nyckeln.
+
+<DT><CODE>XWPSound:LastDir</CODE>
+<DD>"Ljud" objektets utbyte kommer ih†g det senast anv„nda katalogen med knappen "S”k" h„r.
+
+<DT><CODE>XWPSound:Scheme</CODE>
+<DD>"Ljud" objektets utbyte kommer ih†g det aktuella ljudschemats namn h„r.
+</DL>
+<BR>
+</BODY>
+</HTML>
+

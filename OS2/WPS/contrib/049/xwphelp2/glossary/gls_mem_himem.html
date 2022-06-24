@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Der virtuelle Adreáraum von &os2;
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+Wie Sie vielleicht wissen, benutzen Prozessoren seit dem
+80386-Prozessor 32 Bits fr alle Adressen, was zu einem Adreáraum
+von 4 GB fhrt. Dieser wird blicherweise "virtueller Adreáraum"
+genannt.
+ 
+<P>Beachten Sie, daá dieser Adreáraum auf jedem Rechner unabh„ngig
+davon besteht, wieviel physischer Speicher im Rechner tats„chlich
+installiert ist. Einer der groáen Vorteile des 80386-Prozessors gegenber
+frheren Prozessoren ist, daá die Prozessor-Hardware die šbersetzung
+von virtuellen Adressen in physische Adressen bernimmt. Dabei
+wird er von dem Betriebssystem (in diesem Fall &os2;) insoweit
+untersttzt, als dieses dem Prozessor Tabellen bergibt, in denen
+Umwandlungsinformationen gespeichert sind.
+ 
+<P>Um virtuellen Speicher fr mehrere gleichzeitig laufende Prozesse
+verwalten zu k”nnen, unterteilt &os2; den gesamten Adreáraum von 4 GB
+in sogenannte <b>Arenen.</b>
+ 
+<PRE>
+ 4096 MB -----------------------------------------------------
+ 
+                System-Arena
+ 
+  512 MB -----------------------------------------------------
+                Gemeinsame (shared) Arena
+  variabel ---------------+-----------+---------------
+                Private   | Private   | Private
+                Arena     | Arena     | Arena
+                Prozeá 1  | Prozeá 2  | Prozeá 3
+    0 MB -----------------+-----------+---------------
+</PRE>
+ 
+Die <B>System-Arena</B> ist fr Code reserviert, der auf Ring 0 l„uft, d.h.
+Ger„tetreiber und der &os2;-Kernel selbst. Anwendungen k”nnen auf diesen Speicher
+nicht zugreifen.
+ 
+<P>Im Gegensatz dazu stehen die <b>gemeinsame</b> und die <b>privaten Arenen</b>
+den Anwendungen zur Verfgung.
+ 
+<P>W„hrend hinter der System-Arena und den gemeinsamen Arenen fr alle Prozesse
+der gleiche physische Speicher steht, sind die privaten Arenen fr jeden
+Prozeá unterschiedlich. Jede Anwendung hat ihre eigene private Arena fr
+Code und Daten. Die gemeinsame Arena hingegen wird fr Code und Daten benutzt,
+die mehreren Prozessen gemeinsam ist; so werden z.B.
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLLs</A>
+in die gemeinsame Arena geladen.
+ 
+<P>Die Grenze zwischen gemeinsamer Arena und den privaten Arenen ist variabel
+und h„ngt davon ab, wieviel gemeinsamer Speicher derzeit im System benutzt wird.
+Dies ist der Grund, warum das System manchmal "Zu wenig Speicher" meldet, wenn
+sehr viele DLLs geladen sind. Tats„chlich hat das System nicht zuwenig physischen
+Speicher (da es ja ansonsten die
+<a href="glossary/gls_mem_paging.html">Auslagerungsdatei</a> vergr”áern wrde),
+sondern es ist der Adreáraum vollst„ndig belegt.
+ 
+<P>Die OS/2-Kernel von 2.0 bis 4.5 (der Aurora-Kernel) hatten eine fixe Grenze
+bei 512 MB fr den Speicher, der fr Anwendungen verwendbar war. Der Grund
+hierfr lag in der Untersttzung fr 16-Bit-Programme, die nicht ohne weiteres
+auf Speicher ber dieser Grenze zugreifen k”nnen.
+ 
+<P>Dies hat sich mit dem Aurora-Kernel ge„ndert, der es Anwendungen erlaubt,
+Speicher ber der 512-MB-Grenze anzufordern, wenn in der Datei &cfgsys;
+der Befehl <CODE>VIRTUALADDRESSLIMIT</CODE> mit einem Wert gr”áer als 512
+angegeben wird. Der Adreáraum sieht dann wie folgt aus:
+ 
+<PRE>
+ 4096 MB ---------------------------------------------
+                System-Arena
+ VIRTUALADDRESSLIMIT ---------------------------------
+                Arena fr hohen Speicher
+                (gemeinsam und privat)
+  512 MB ---------------------------------------------
+                Gemeinsame (shared) Arena
+  variabel ---------------+-----------+---------------
+                Private   | Private   | Private
+                Arena     | Arena     | Arena
+                Prozeá 1  | Prozeá 2  | Prozeá 3
+    0 MB -----------------+-----------+---------------
+</PRE>
+ 
+Wie Sie sehen, wird der Raum zwischen der System-Arena und der
+gemeinsamen Arena "hoher Speicher" (high memory) genannt und
+wird wiederum in gemeinsamen und privaten Speicher unterteilt.
+Dieser Adreáraum wird nur einer Anwendung zugeordnet, wenn diese
+dies ausdrcklich anfordert. Folglich hat diese Erweiterung des
+Adreáraums nur Auswirkungen auf Anwendungen, die diese Erweiterung
+ausdrcklich nutzen. Zum Beispiel k”nnen Sie Java den hohen
+Adreáraum nutzen lassen, indem Sie <CODE>SET JAVA_HIGH_MEMORY=1</CODE>
+in der Datei &cfgsys; angeben.
+ 
+<P>Trotzdem hat die Benutzung von hohem Speicher Nebenwirkungen.
+Wie oben erw„hnt, kann der hohe Speicher von 16-Bit-Code nicht benutzt
+werden. Daher ben”tigt man z.B. eine 32-Bit-Version von TCP/IP
+(Version 4.1 oder neuer), wenn man hohen Speicher mit Java nutzen will.
+ 
+<P>Hinzu kommt, daá die System-Arena um so kleiner wird, je h”her
+Sie <CODE>VIRTUALADDRESSLIMIT</CODE> festlegen. Sehr viel hoher Speicher
+kann daher die Anzahl der Prozesse reduzieren, die vom System verwaltet
+werden k”nnen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

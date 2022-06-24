@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: IP Adresser
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+I alla &link_tcpip; n„tverk, anv„nds <B>IP adresser</B> f”r att unikt identifiera
+datorer. En IP adress „r ett 32-bitars nummer, vanligtvis skrivet som fyra siffror fr†n
+0 till 255 som <CODE>123.123.123.123</CODE> (kallat <B>grupperad form</B> hos en IP address).
+
+<P>Inom ett isolerat n„tverk, kan du fritt tilldela IP adresser s† l„nge som de „r
+unika inom n„tverket. D„remot, om n„tverket „r anslutet till &link_internet;,
+„r det n”dv„ndigt att anv„nda registrerade IP adresser f”r att undvika duplicerade nummer.
+
+<P>TCP/IP lagrar b†de s„ndarens och mottagarens IP adresser med varje paket som s„nds ”ver
+n„tverket. N„r datat har anl„nt till m†let, kan mottagaren se IP adressen hos s„ndaren och kan
+svara genom att skicka tillbaka s„ndarens adress i en ny uppkoppling, i en omv„nd operation.
+
+<P>Varje IP adress har tv† delar: en <B>n„tverksidentifierare</B> och identifieraren hos en
+s„rskild device inom det n„tverket, <B>v„rdidentifieraren.</B>
+
+<UL><LI>P† &link_internet;, tilldelas n„tverksidentifieraren globalt av ett
+Network Information Center (NIC). Eftersom Internet egentligen „r en anslutning av m†nga
+individuella n„tverk, m†ste varje n„tverk k„nna till sin egen adress och den hos angr„nsande
+n„tverk med vilka det kan kommunicera. Medan paket transporteras ”ver Internet, letas
+n„tverksidentifieraren upp bara av de datorer som tr„ffas p† det s„ttet.
+
+<P><LI><B>V„rdidentifieraren</B> identifierar en individuell dator inom n„tverket. N„r
+paketet har anl„nt till m†ln„tverket, skickas den vidare till v„rden.
+
+</UL>Eftersom n„tverk varierar mycket i storlek, finns det fyra olika
+<B>IP adressklasser</B>. De f”rsta bitarna i varje IP adress indikerar vilket adressklass
+format det anv„nder.
+
+<UL><LI><B>Klass A</B> adresser „r f”r stora n„tverk med m†nga devicer. Dessa adresser har
+en h”gsta bit av <CODE>0</CODE>, sedan 7 bitar f”r n„tverksadressen, och 24 bitar f”r v„rdadressen.
+Som ett resultat, kan det endast finnas 127 klass A n„tverk p† Internet.
+
+<P>I grupperad form, kan dessa adresser brytas ner i
+<CODE>network.local.local.local</CODE>.
+
+<P><LI><B>Klass B</B> adresser „r f”r medelstora n„tverk. De har de tv† st”rsta
+bitarna satta till <CODE>10</CODE>, sedan 14 bitar f”r n„tverksadressen, och 16 bitar f”r
+v„rdadressen.
+
+<P>I grupperad form, kan dessa adresser brytas ner i
+<CODE>network.network.local.local</CODE>.
+
+<P><LI><B>Klass C</B> adresser „r f”r sm† n„tverk med upp till 255 devicer. De har de tre
+st”rsta bitarna satta till <CODE>110</CODE>, sedan 21 bitar f”r n„tverksadressen, och endast
+8 bitar f”r v„rden.
+
+<P>I grupperad form, kan dessa adresser brytas ner i
+<CODE>network.network.network.local</CODE>.
+
+</UL>Som du kan se, „ven om en 32-bitars IP adress teoretiskt till†ter ett
+gigantiskt antal datoridentifierare, begr„nsar det ovanst†ende schemat antalet
+adresser som praktiskt kan tilldelas. Den stora majoriteten av n„tverk „r klass C
+och kommer att lida av restriktionen "255 v„rdar". Som ett resultat, anv„nder m†nga n„tverk
+tekniker f”r att spara antalet IP adresser som „r praktiskt synliga f”r resten av Internet.
+Dessa tekniker inkluderar subn„t, IP forwarding, och Klassl”s Inter-Domain Routing.
+
+<P>Viktigast, tilldelar Internet Service Providers (ISPs) <B>dynamiska IP adresser</B> varje g†ng du
+ansluter till Internet. Detta till†ter en ISP att †teranv„nda adresser fr†n sin pool av adresser
+ist„llet f”r att beh”va ge varje kund ett statiskt ID. Som ett resultat, kommer din dators IP adress
+att variera fr†n g†ng till g†ng n„r du ansluter till Internet.
+
+<BR>
+</BODY>
+</HTML>

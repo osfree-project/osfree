@@ -1,0 +1,169 @@
+
+/*
+ * xwpnetwork.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPNetwork: a subclass of WPFolder, which shows
+ *          all visible XWPServers on the LAN.
+ *
+ *      See src\classes\xwpnetwork.c for details.
+ */
+
+/*
+ *      Copyright (C) 2001-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpfolder.idl>         // this is SOM for WPFolder
+
+/*
+   CLASS: XWPNetwork
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject [ = XFldObject ]
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPFolder [ = XFolder ]
+                           ÀÄÄ XWPNetwork
+*/
+
+interface M_XWPNetwork;            // forward reference to metaclass
+
+interface XWPNetwork : WPFolder
+{
+
+    /*
+     * New instance methods for XWPNetwork:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xnw_;
+        externalstem = xnw;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpnetwork;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPNetwork;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPNetwork:
+         *
+         */
+
+        BOOL    fAlreadyPopulated;
+
+        /*
+         * WPFolder methods overridden by XWPNetwork:
+         *
+         */
+
+        wpInitData: override;
+
+        wpPopulate: override;
+        wpRefresh: override;
+
+        wpAddToContent: override;
+        wpDeleteFromContent: override;
+
+        wpDeleteContents: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpDragOver: override;
+        wpDrop: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPNetwork : M_WPFolder
+{
+
+    /*
+     * New class methods for M_XWPNetwork:
+     *
+     */
+
+    XWPNetwork xwpclsQueryNetworkFolder();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsQueryNetworkFolder;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xnwM_;
+        externalstem = xnwM;
+        functionprefix = xnwM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpnetwork;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPNetwork:
+         *
+         */
+
+        /*
+         * M_WPFolder methods overridden by M_XWPNetwork:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsUnInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+        wpclsQueryIconDataN: override;
+    };
+#endif
+};
+
+

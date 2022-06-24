@@ -1,0 +1,76 @@
+<HTML RESID=&ID_XMH_VARIABLE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Variabla Menyposter
+    </TITLE>
+</HEAD>
+<!-- Changes:
+    V0.9.16: replace XFolder with &xwp;
+-->
+<BODY>
+&xwp; till†ter dig att globalt l„gga till menyposter hos &popmenu;er i alla 
+<!-- V0.9.19: link added -->
+&link_folders;
+p† ditt system. Du har just tr„ffat p† en av dessa variabla menyposter.
+
+<P>Se <A HREF="menus/menu_3config.html">Konfigurera &popmenu;er</A> f”r instruktioner 
+om hur „ndra standardsetup med anv„ndning av den speciella &cfgfdr;en.
+
+<P>Om du fortfarande har standard menykonfiguration som sattes upp under
+installationen, „r f”ljande nya menyposter tillg„ngliga:
+
+<UL>
+<!-- V0.9.20: rewrote command prompts -->
+<LI><B>Submenyn "Kommandoprompter"</B> inneh†ller poster f”r ”ppning av
+<A HREF="glossary/gls_cmd.html">kommandoprompter</A>. Om du valde en av posterna 
+i den submenyn, kommer en kommandoprompt att visas i den katalog vilken korresponderar
+mot det som den aktuella mappen redan „ndrats till.
+
+<P><LI><B>Submenyn "Skapa ny"</B> inneh†ller poster f”r att skapa nya objekt i mappen
+vars &popmenu; du redan har valt.
+<!-- V0.9.20: link name changed -->
+<P>Se <A HREF="menus/menu_2template.html">"Skapa objekt med Skapa ny"</A> f”r mera.
+
+<!-- V0.9.20: added this section for eWP -->
+<IFDEF __EWORKPLACE__>
+<P><LI><B>Submenyn "Mappar aktioner"</B> inneh†ller anv„ndbara poster f”r att hantera
+mappar.
+
+<P><B>"Visa tr„dstorlek"</B> kommer att starta programmet <A HREF="treesize.html">Tr„dstorlek</A>,
+vilket kalkylerar det totala utrymmet som konsumerats av den h„r mappen och alla dess
+submappar p† disken.
+
+<P><B>"Packa tr„d (ZIP)"</B> kommer att komprimera mappen och allt inneh†ll i eventuella
+submappar och filer till en ZIP-fil. Zip-filen kommer att skapas i den ”verordnade mappen
+till den aktuella mappen och b„ra mappens namn med „ndelsen <CODE>.ZIP</CODE>. Till exempel, om du valde
+"Packa tr„d (ZIP)" f”r <CODE>C:\MAPPAR\SUBMAPPAR</CODE> mappen, kommer det att skapa en
+<CODE>C:\MAPPAR\SUBMAPPAR.ZIP</CODE> fil.
+</IFDEF>
+<!-- end V0.9.20: added this section for eWP -->
+
+<IFNDEF __EWORKPLACE__>
+<P><LI><B>Submenyn "Snabba Inst„llningar"</B> inneh†ller poster med vilka du snabbt kan
+st„lla in vissa mappinst„llningar utan att beh”va ”ppna dess
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>.
+
+<BR><LI><B>"&xwp;" submeny</B> inneh†ller poster f”r ”ppning av
+<I>&xwp; Anv„ndarguide</I> och &cfgfdr;. Vidare, h„r kommer du att hitta genv„gar till de nya
+<!-- V0.9.4: link added -->
+&link_wpsobj;et,
+vilka inneh†ller m†nga globala &xwp; inst„llningar, och „ven det nya "&os2; K„rna" objektet.
+
+<!-- the following paragraph was added with V0.81 -->
+<BR><LI><B>Menyposten "Tr„dstorlek"</B> kommer att starta ett program vilket kommer att ber„kna
+det totala diskutrymmet som anv„nds av den h„r mappen och dess submappar.
+<!-- V0.9.16: added this line -->
+Se <A HREF="treesize.html">"Tr„dstorlek"</A> f”r mer f”rklaringar.
+
+<BR><LI><B>Menyposten "Netscape"</B> kommer att starta Netscape, och kommer att f† den att
+visa katalogen hos mappen vars &popmenu; du har valt.
+<!-- V0.9.20: moved this ifdef DOWN -->
+</IFNDEF>
+
+</UL>
+</BODY>
+</HTML>
+

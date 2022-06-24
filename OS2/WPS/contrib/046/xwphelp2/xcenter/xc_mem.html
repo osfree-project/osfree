@@ -1,0 +1,60 @@
+<HTML RESID=&ID_XSH_WIDGET_MEMORY_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Minneswidget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;'s</A>
+<B>"Minnes" widget</B> visar ungef„r hur mycket fysiskt RAM-minne som
+„r kvar att anv„ndas f”r applikationerna. Detta visas i kilobytes (KB)
+och uppdateras en g†ng i sekunden.
+
+<!-- V0.9.19: added img -->
+<BR><IMG SRC="img/xc_mem.gif">
+
+<BR>Antalet som anges h„r „r mindre „n den summa som applikationerna verkligen kan anv„nda.
+S† om den siffra som visas g†r mot noll, betyder det inte att dina applikationer inte
+skall kunna allokera mer minne. Ist„llet, visar den h„r widgeten hur mycket fysiskt minne
+som kan allokeras innan systemet m†ste swappa ut andra data f”r att bereda plats f”r en ny
+applikation. N„r summan blir f”r liten, betyder det endast att din swapfil troligtvis m†ste
+expanderas.
+
+<!-- V0.9.19: changed the following -->
+<P>Notera att du kan
+<A HREF="glossary/gls_dropfonts.html">dra och sl„ppa fonter och f„rger</A> p†
+minneswidgeten.
+
+<IFNDEF __NOOS2KERNEL__>
+<P>Du kan ocks† dubbelklicka p† widgeten f”r att f†
+<A HREF="objects/obj_krnl.html">"&os2; K„rna"</A> objektet ”ppnat snabbare, vilket,
+bland andra saker, till†ter dig att „ndra systemets minneswidget.
+</IFNDEF>
+
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+<P><B>Implementering Detaljer</B>
+
+<P>Internt, anv„nder den h„r widgeten <CODE>Dos16MemAvail</CODE> API, en gammal
+16-bitars API som inte l„ngre „r dokumenterad av IBM.
+
+<P>Dokumentationen f”r OS/2 1.3 s„ger att den rapporterar 
+"storleken hos det st”rsta blocket av fritt minne". Det „r uppenbarligen inte
+sant l„ngre, eftersom alla 32-bitars OS/2 versioner (sedan 2.0) inte l„ngre
+allokerar minne i block, utan med 4 KB sidostycken ist„llet.
+
+<P>Fr†n min erfarenhet, visar den h„r API'n verkligen summan av det fria 
+fysiska minnet hos systemet, vilket betyder, den m„ngd RAM som f”r n„rvarande
+inte anv„nds av OS/2, antingen beroende p† att det aldrig har anv„nts,
+swappats ut eller †terl„mnats av en process. (Enligt mina tester, returnerar den h„r API'n,
+samma v„rden som Theseus g”r f”r fritt minne i fysiskt RAM.) Detta fria RAM kan anv„ndas
+av applikationerna omedelbart utan att &os2; beh”ver g”ra st”rre utrymme genom
+att swappa ut andra minnessidor.
+</IFNDEF>
+
+<BR>
+</BODY>
+</HTML>
+

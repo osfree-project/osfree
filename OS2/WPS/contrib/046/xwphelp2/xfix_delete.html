@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Radera handtag
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Du kan radera filhandtag fr†n handtagstabellen genom att v„lja posten "Radera" fr†n
+&popmenu; som kommer upp n„r du klickar med musknapp 2 p† inneh†llet i tabellen.
+
+<P>F”r varje post som raderas p† det h„r s„ttet, flyttas alla f”ljande noder mot
+b”rjan av handtagstabellen fr†n <CODE>OS2SYS.INI</CODE> och deras post i visningen 
+tas bort.
+
+<P><B>Varning:</B> xfix hindrar dig inte fr†n att radera handtag vilka beh”vs f”r att
+WPS skall fungera. Du skall endast radera ett handtag om du vet att det inte anv„nds.
+Att radera handtag kan bryskt f”rst”ra saker (programobjekt, mapp-positioner, och t.o.m.
+hela Skrivbordet). Se
+<A HREF="xfix_handles.html">Om WPS filhandtag</A> f”r mer om hur handtag anv„nds
+i WPS.
+
+<P>Du b”r ge speciell uppm„rksamhet till "Refcs." kolumnen i
+<A HREF="xfix_list.html">handtagslistan</A>:
+
+<UL><LI>Om abstrakta objekt hittades f”r ett handtag (markerat med <CODE>ABS</CODE>), kommer
+xfix att ta bort dom fr†n <CODE>PM_Abstract:FldrContent</CODE> i <CODE>OS2.INI</CODE>
+utan ytterligare notis. Som till„gg, f”r varje abstrakt objekt, blir dess definition i
+<CODE>PM_Abstract:Objects</CODE> raderat.
+
+<P>Med andra ord, <B>detta kommer att spr„nga alla abstrakt objekt i den mappen i atomer.</B>
+
+<P>Detta „r n”dv„ndigt eftersom om de abstrakta objekten inte skulle raderas, skulle dom f”rr
+eller senare dyka upp i n†gon annan mapp s† fort WPS †teranv„nder det raderade handtaget 
+f”r en ny mapp. Detta „r h”gst troligt.
+
+<P><LI>Att radera poster med associerade mapppositioner (markerade med <CODE>FPOS</CODE>) „r 
+dock inte farligt. xfix kommer helt enkelt att d”da den korresponderande posten i
+<CODE>PM_Workplace:FolderPos</CODE>, vilken inte l„ngre fyller n†gon funktion.
+
+</UL>Notera att dessa tv† „r de enda referenser som xfix kan uppt„cka f”r tillf„llet.
+xfix kan inte f”r n„rvarande ta reda p† om handtaget „r m†let f”r ett programobjekt
+eller en skugga eller vad som helst. Med andra ord, om f„ltet "Refcs." „r tomt,
+<B>betyder det inte att radering av handtaget kan f”rst”ra saker.</B>
+
+<P>Kom ih†g att val av "Radera" inte uppdaterar <CODE>OS2SYS.INI</CODE> „nnu. Det h„nder
+endast om du v„ljer "Skriv tillbaka till OS2SYS.INI" fr†n
+<A HREF="xfix_menus.html">menyn.</A> Som ett resultat, om du oavsiktligt raderat fel post,
+har du inte f”rst”rt ditt system „nnu... du kan sedan starta om xfix och f”rs”ka igen.
+
+<P>Innan anv„ndning av "Skriv tillbaka...", var s„ker p† att f”ljande „r sant:
+
+<UL><LI>Du har en fungerande WPS backup i fall n†got skulle g† snett.
+<P><LI>WPS „r f”r n„rvarande inte ig†ng. Du „r s„ker om du har „ndrat
+<CODE>RUNWORKPLACE</CODE> i din &cfgsys; fil eller om du har startat xfix fr†n 
+&xwp;'s "Panik" dialog under starten av Skrivbordet.
+
+</UL>Om du raderar handtag p† det h„r s„ttet, kommer f”ljande f„lt i 
+<A HREF="xfix_list.html">handtagslistan</A> att „ndras:
+
+<UL><LI><B>node offset</B> hos alla poster efter radering av var och ett kommer att
+f”rnyas d„rf”r att de har flyttats mot b”rjan av handtagstabellen. Till exempel, 
+om du raderade ett handtag med offset 1000 och handtaget efter hade offset 1030, 
+skulle det andra hantaget d† erh†lla offset 1000 ist„llet.
+
+<P><LI>Alla handtag vilka anv„nder det raderade handtaget som sitt f”r„ldrahandtag
+(och deras sub-handtag i tur) kommer att markeras som "f”r„ldral”sa" och bli ogiltiga.
+
+<P>Detta kan ocks† anv„ndas f”r att snabbt radera alla subposter, om du anv„nder
+"V„lj alla ogiltiga" efter†t.
+
+<P><LI>Om du raderade ett duplicerat handtag, kommer ocks† <B>Dups</B> f„ltet att
+uppdateras.
+
+</UL>
+</BODY>
+</HTML>
+

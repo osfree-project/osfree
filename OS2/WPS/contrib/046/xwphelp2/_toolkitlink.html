@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Anm„rkning f”r Toolkit Dokumentation L„nkar
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+L„nkar fr†n den h„r dokumentationen till Toolkit dokumentation fungerar
+endast om f”ljande „r sant:
+
+<OL><LI>Du m†ste ha Toolkit installerat. Toolkit erbjuder de n”dv„ndiga verktygen,
+dokumentation, och header och library filer f”r programmering av OS/2 och eComStation 
+operativsystemen.
+<IFDEF __EWORKPLACE__>
+Toolkit kan hittas p† eComStation's installations CD's.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Toolkit kan hittas p† installations CD's hos IBM Convenience Packs eller eComStation.
+</IFNDEF>
+
+<P><LI>Toolkit's dokumentations milj”variabel m†ste st„llas in i &cfgsys;.
+Till exempel, <CODE>SET CPREF=CP1.INF+CP2.INF+CP3.INF</CODE> definerar att 
+med anv„nding av <CODE>view cpref</CODE>, kan du ”ppna den kompletta
+<I>Control Program Programming Guide and Reference</I> „ven om den i verkligheten
+best†r av tre INF b”cker.
+
+<P><LI>Toolkit INF boken m†ste ligga i en katalog i <CODE>BOOKSHELF</CODE> 
+(se <A HREF="glossary/gls_path_sys.html">System s”kv„gar</A>).
+
+</OL>Dessa villkor b”r vara uppfyllda om du har till†tit Toolkit's installation
+att modifiera din &cfgsys; fil.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Paths
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Every file-system object (file or folder) has a <B>path</B>
+associated with it, which indicates to the system where
+the object is stored so that it can be referenced from
+applications.
+
+<P>The path consists of all the directories that must be opened
+to get to a particular file. (Directories are the
+physical representations of &link_folders;
+on disk.)
+
+<P>A fully qualified path consists of the drive name, followed
+by a colon (<CODE>:</CODE>), an initial backslash (<CODE>\</CODE>)
+to indicate the root directory, plus a list of directories that
+must be opened to get to the object, each separated by another
+backslash.
+
+<P>If the path points to a file, for example a
+<A HREF="objects/obj_dataf.html">data file</A> or
+<A HREF="objects/obj_pgmf.html">program file</A>,
+it is followed by the file name. For example, the &os2; &eexe; resides
+in the <CODE>OS2</CODE> directory on the boot drive. Its full path is:
+
+<PRE>
+    X:\OS2\E.EXE
+</PRE>
+
+where <CODE>X:</CODE> is the drive letter of your boot drive.
+
+<P>&os2; has several <B>system paths</B> which specify where the system
+should look for files if a path is not supplied with a file.
+See <A HREF="glossary/gls_path_sys.html">"System paths"</A> for more explanations.
+
+<BR>
+</BODY>
+</HTML>
+

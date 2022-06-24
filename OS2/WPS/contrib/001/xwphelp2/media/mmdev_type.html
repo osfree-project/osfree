@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Devices
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+The "Type" column shows you the type of each device.
+
+<P>Note that with MMPM/2, a "device" can, but does not have to
+be a physical piece of hardware on your system. For organizational purposes,
+MMPM/2 creates "logical" devices as well to coordinate multimedia.
+
+<P>MMPM/2 defines 19 media device types altogether, but this is rather theoretical,
+because so far, drivers exist only for a small subset of these
+categories. On a typical multimedia
+computer, you will have the following devices:
+
+<UL><LI><B>CD Audio:</B> A CD-ROM drive which is recognized by MMPM/2 to be able to
+play audio CD's.
+
+<P><LI><B>Wave audio:</B> Your sound card is recognized by MMPM/2 to be able to
+play wave audio files.
+<P>MMPM/2 uses IOProcs and codecs to decode those audio files
+and send them to your sound card (see the "IOProcs" and "Codecs" page).
+
+<P><LI><B>Sequencer:</B> This is what MMPM/2 calls its MIDI subsystem. This is
+implemented thru your sound card as well.
+
+<P><LI><B>Ampmix:</B> An acronym for "amplifier/mixer". This is a logical MMPM/2
+device which mixes the various audio channels together and controls the volume
+of the audio output. All audio output goes through this logical device. MMPM/2
+needs the help of your sound card to implement this as well.
+
+<P><LI><B>Digital video:</B> A logical device which plays digital video. This
+can represent a physical hardware device if you have some special video hardware
+on your system. On most systems however, this is implemented through software only.
+<P>MMPM/2 uses IOProcs and codecs to decode video files and display them on the
+screen (see the "IOProcs" and "Codecs" page).
+
+<P>If you have the Netscape Plug-in-pack installed, you will have two such devices.
+The second one is then responsible for MPEG video playback. For some reason, IBM
+has chosen to create a second device for MPEG.
+
+</UL>
+</BODY>
+</HTML>
+

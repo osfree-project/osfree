@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Minne
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+Inst„llningarna i den "Avancerade" gruppen till†ter dig att kontrollera om
+&os2; anv„nder h”gt minne.
+
+<P>Notera att alla dessa inst„llnngar erfordrar att du k”r Aurora k„rnan 
+(det betyder, OS/2 k„rna version 4.5 eller h”gre: Warp Server for e-business, Warp 4 
+med minst fixpak 13 installerad, eller en IBM "Convenience Pack", eller eComStation).
+Annars kommer alla inst„llningarna att avaktiveras.
+
+<UL><LI><B>"Virtuell adressgr„ns"</B> specificerar den h”gsta adress som &os2; 
+kommer att ge till applikationer n„r de beg„r h”gt minne (ovanf”r 512 MB gr„nsen). 
+Detta korresponderar till <CODE>VIRTUALADDRESSLIMIT</CODE> p†st†endet i &cfgsys; och
+kan vara i omr†det 512 upp till 3072 MB.
+
+<P>Om detta „r satt till 512 MB, vilket „r standard (och det enda tillg„ngliga tillst†ndet med
+icke-Aurora k„rnor), kommer h”gt minne anv„ndningen att vara helt avaktiverad.
+
+<P>V„rden ”verskridande 512 MB kommer att reducera antalet processer som kan k”ras
+samtidigt p† ett system.
+
+<P>Se <A HREF="glossary/gls_mem_himem.html">&os2; Virtuellt Adressutrymme</A> f”r mer
+information om det h„r „mnet.
+
+<P><LI>Om "Avaktivera DLL basing" „r aktiverad, kommer &os2; att ignorera varje
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL's</A>
+basadress (”nskad laddningsadress) n„r DLL laddas. Detta korresponderar till
+<CODE>DLLBASING=OFF</CODE> p†st†endet i &cfgsys;.
+
+<P>Aktivering av den h„r inst„llningen kanske f”rhindrar fragmentering av det delade 
+utymmet och d„rmed reducera sannnolikheten f”r att f† slut p† delat minne, men
+prestandan f”r laddning av DLL'er kanske p†verkas negativt.
+
+<P><LI>Om <B>H”ga minnet f”r Java</B> „r aktiverat, kommer &os2;'s Java
+Virtual Machine att instrueras att placera sin heap i &os2;'s h”ga minne (ovanf”r
+512 MB gr„nsen). Detta kommer endast att fungera om du har satt den virtuella adressgr„nsen
+till n†gonting h”gre „n 512 MB.
+
+<P>Detta korresponderar till <CODE>SET JAVA_HIGH_MEMORY=1</CODE> p†st†endet i &cfgsys;.
+
+<P>Som med allt h”gt minne, kommer det att hindra 16-bitars kod fr†n att accessa det minnet.
+Mest noterbart, kr„ver detta att du har TCP/IP 4.1 eller h”gre installerat.
+
+</UL>
+</BODY>
+</HTML>
+

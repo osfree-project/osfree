@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Geheugen
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+De instellingen in de "Geavanceerd" groep bieden u de mogelijkheid om te bepalen of
+&os2; hoog geheugen gebruikt of niet.
+
+<P>Let op dat al deze instellingen een Aurora kernel nodig hebben
+(dat wil zeggen, OS/2 kernel versie 4.5 of hoger:
+Warp Server for e-business, Warp 4 met tenminste fixpak 13 ge‹nstalleerd, of een
+IBM "Convenience Pack", of eComStation).
+Anders zullen al deze instellingen niet toegankelijk zijn.
+
+<UL><LI>De <B>"Virtuele adres limiet"</B> bepaald het hoogste adres
+dat &os2; aan applicaties zal geven wanneer die om hoog geheugen vragen
+(boven de 512 MB lijn). Dit komt overeen met de
+<CODE>VIRTUALADDRESSLIMIT</CODE> opdracht in &cfgsys;
+en mag liggen in het bereik van 512 tot 3072 MB.
+
+<P>Als dit op 512 MB ingesteld is,
+wat de standaard is (en de enige beschikbare situatie met niet Aurora kernels),
+wordt het gebruik van hoog geheugen helemaal uitgeschakeld.
+
+<P>Waardes boven de 512 MB zullen het aantal processen dat tegelijkertijd op een
+systeem kunnen draaien verminderen.
+
+<P>Zie <A HREF="glossary/gls_mem_himem.html">&os2; Virtuele Adres Ruimte</A> voor meer
+informatie over dit onderwerp.
+
+<P><LI>Als "Uitschakelen DLL basering" geactiveerd is, zal &os2; elke
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL zijn</A>
+basis adres (bij voorkeur laad adres) negeren als de DLL geladen is. Dit komt overeen met de
+<CODE>DLLBASING=OFF</CODE> opdracht in
+&cfgsys;.
+
+<P>Het inschakelen van deze instelling kan fragmentatie van de gezamenlijke arena voorkomen en
+daardoor de kans op het opraken van gedeeld geheugen verminderen, maar de snelheid van het
+laden van DLL's kan verslechteren.
+
+<P><LI>Als <B>Hoog geheugen voor Java</B> geactiveerd is, wordt de &os2;
+Java Virtuele Machine verteld om te proberen om zijn heap in &os2;
+zijn hoog geheugen te plaatsen (boven de 512 MB lijn). Dit zal alleen werken
+als u de virtuele adres limiet op iets hogers dan 512 MB gezet heeft.
+
+<P>Dit komt overeen met de <CODE>SET JAVA_HIGH_MEMORY=1</CODE>
+opdracht in &cfgsys;.
+
+<P>Zoals met al het hoge geheugen, zal dit voorkomen dat 16-bit code dat geheugen
+zal gebruiken. Meest opvallend is dat u TCP/IP 4.1 of hoger ge‹nstalleerd moet hebben.
+
+</UL>
+</BODY>
+</HTML>
+

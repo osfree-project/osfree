@@ -1,0 +1,33 @@
+<HTML RESID=&ID_XSH_MEDIA_CODECS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Media Codecs
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+"Codec" is an acronym for "compressor/decompressor". A codec is needed for
+compressing or decompressing the contents of an audio or video file. While
+the <I>format</I> of a file (e.g. <CODE>.AVI</CODE> or <CODE>.WAV</CODE>)
+is handled by an IOProc (see the previous page), the <I>contents</I> of
+a file are handled by a codec.
+
+<P>For example, MMPM/2 comes with an IOProc
+for the <CODE>.AVI</CODE> file format, but it does not have enough codecs to
+understand all compression formats which are typically used with AVI files.
+
+<!-- V0.9.16 <P>The main problem of OS/2 multimedia is that we don't have enough codecs
+to support all the modern compression formats.
+That's why you can't play all types of audio and video with OS/2. -->
+
+<P>The "FourCC" (four-character code) of a codec must match the one of an IOProc.
+The same codec can be installed several times for several IOProcs. For example,
+the "Intel Indeo" codec is installed for the AVI-file IOProc. But if you had
+a new IOProc for some other video file format (e.g. QuickTime, ".MOV"), the same
+codec could be installed for .MOV files as well, because the compression format
+is the same, and only the file format differs.
+
+<BR>
+</BODY>
+</HTML>
+

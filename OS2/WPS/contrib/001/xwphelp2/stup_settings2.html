@@ -1,0 +1,54 @@
+<HTML RESID=&ID_XSH_SETTINGS_XFLDSTARTUP;>
+<HEAD>
+    <TITLE>
+        &xwp; Startup Folder Settings
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.1 -->
+<BODY>
+<!-- V0.9.9: rewrote this -->
+This page allows you to fine-tune the behavior of a single
+<A HREF="objects/obj_startshut.html">&xwp; startup folder.</A>
+<!-- end V0.9.9 -->
+
+<P>Press <B>"Undo"</B> to restore the settings that were in use before
+you opened this notebook page.
+
+<!-- V0.9.9: rewritten all of the following -->
+<P>Press <B>"Default"</B> to restore the settings to the installation state.
+
+<P>The following settings are available:
+
+<UL><LI>The <B>"Initial delay"</B> is the time that the startup folder will wait
+(after the Desktop has been populated) before it starts processing.
+
+<P><B>Note:</B> This setting affects all &xwp; startup folders.
+
+<P><LI>The  <B>"Per-object delay"</B> specifies how long the startup folder waits
+after each object in the folder has been opened. This is different from the default
+&os2; startup folder, which starts all contained objects almost at once, frequently
+causing WPS hangs at startup.
+
+<P><B>Note:</B> This setting affects all &xwp; startup folders.
+
+<P><LI>If <B>"Show status window"</B> has been checked, you'll get a status window
+with a progress bar while the &xwp; startup folder is being processed. That
+window also has a "Cancel" button to stop startup processing.
+
+<P><LI>If <B>"Reboot only"</B> is chosen, the folder's contents are only started
+when the WPS is started the first time after system bootup. (If you use &xwp;'s
+"Restart Desktop" feature, you can override this setting for a Desktop restart.)
+This is useful if you have objects in your startup folder which keep running in the
+background even if the WPS is restarted.
+
+<P><LI>By contrast, if <B>"Every Desktop restart"</B> is selected, the folder is processed
+at every Desktop restart -- that is, even if you have used "Restart Desktop", or if the WPS
+restarted because of a crash. This might be useful for starting Desktop objects which
+are not in a separate process, such as the
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>.
+
+</UL>
+</BODY>
+</HTML>
+

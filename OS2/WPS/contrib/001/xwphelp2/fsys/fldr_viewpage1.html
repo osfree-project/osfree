@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_SETTINGS_FLDR1;>
+<HEAD>
+    <TITLE>
+        &xwp;: "View" Page 1
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<!-- changed V0.9.4: extracted help texts to fldr*.html -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<!-- V0.9.16: replaced title -->
+<BODY>
+On this notebook page you can configure some view settings individually
+for every folder. This allows you to override some of the global settings specified
+in the <!-- V0.9.4: link added -->
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+Initially, the settings will be
+the same as with the global settings; if you change anything here, this will
+be remembered for this folder only, and changes to the global settings will not affect
+this folder any more.
+<P>Changing the settings will take effect immediately.
+<UL><LI>If a setting is <B>checked,</B> the respective setting will
+always be enabled for this folder, no matter what you specify in the
+global settings.
+<BR><LI>Reversely, if a setting is <B>unchecked,</B> the respective
+setting will always be disabled for this folder.
+
+</UL>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+<P>Press <B>"Default"</B> to make this folder behave according to the
+global settings in the <!-- V0.9.4: link added -->
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+This will remove the data which was remembered for this folder.
+
+<P>For a detailed explanation of each field, select from the list below:
+<UL>
+<!-- V0.9.16: added ifdefs -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<LI><A HREF="fsys/fldr_1favorite.html">Favorite folder</A>
+</IFNDEF>
+<IFNDEF __NOQUICKOPEN__>
+<LI><A HREF="fsys/fldr_2quickopen.html">Quick open at Desktop startup</A>
+</IFNDEF>
+<LI><A HREF="fsys/fldr_3fulltitle.html">Show full path in folder title</A>
+<IFNDEF __NOSNAPTOGRID__>
+<LI><A HREF="fsys/fldr_4snap2grid.html">Add Snap to grid</A>
+</IFNDEF>
+<LI><A HREF="fsys/fldr_5hotkeys.html">React to folder hotkeys</A>
+<LI><A HREF="fsys/fldr_6statusbar.html">Display status bar</A>
+</UL>
+
+Additional information can be found on the corresponding help panels for the
+respective pages in the "Workplace Shell" object.
+<BR>
+</BODY>
+</HTML>
+

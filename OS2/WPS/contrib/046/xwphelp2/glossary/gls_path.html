@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: S”kv„gar
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Varje filsystemsobjekt (fil eller mapp) har en <B>s”kv„g</B> associerad till sig,
+vilken indikerar f”r systemet var objekten „r lagrade s† att de kan refereras
+fr†n applikationerna.
+
+<P>S”kv„gen best†r av alla de kataloger som m†ste ”ppnas f”r att f† tag i en s„rskild
+fil. (Kataloger „r fysiska representationer av &link_folders; p† disken.)
+
+<P>En fullt kvalificerad s”kv„g best†r av ett enhetsnamn, f”ljt av kolon (<CODE>:</CODE>),
+en inledande backslash (<CODE>\</CODE>) f”r att indikera rotkatalogen, plus en lista ”ver
+kataloger som m†ste ”ppnas f”r att n† objektet, var och en separerad av ett backslash.
+
+<P>Om s”kv„gen pekar mot en fil, till exempel en
+<A HREF="objects/obj_dataf.html">datafil</A> eller
+<A HREF="objects/obj_pgmf.html">programfil</A>, f”ljs den av filens namn. Till exempel,
+&os2;'s &eexe; finns i <CODE>OS2</CODE> katalogen p† bootenheten. Dess fulla s”kv„g „r:
+
+<PRE>
+    X:\OS2\E.EXE
+</PRE>
+
+d„r <CODE>X:</CODE> „r enhetsbokstaven hos din bootenhet.
+
+<P>&os2; har flera <B>systems”kv„gar</B> vilka specificerar var systemet skall leta efter filer
+om en s”kv„g inte „r bifogad med filen.
+Se <A HREF="glossary/gls_path_sys.html">"Systems”kv„gar"</A> f”r mera f”rklaringar.
+
+<BR>
+</BODY>
+</HTML>
+

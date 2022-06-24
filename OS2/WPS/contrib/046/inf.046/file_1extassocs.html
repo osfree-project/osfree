@@ -1,0 +1,53 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Ut”kade Associationer
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.1. -->
+<!-- Note the new screenshot below. -->
+<BODY>
+&xwp; kan byta ut Workplace Shell's standard filassociationsmekanism.
+F”r att g”ra det, aktivera funktionen p† sidan "Funktioner" hos
+<A HREF="sys_2global.html">"&xwp; Setup"</A> objektet.
+
+<P>Som du troligtvis redan vet, associerar som standard WPS program till datafiler
+anv„ndande tv† mekanismer: "associationer med filtyp" och "associationer med filfilter".
+
+<P>Om &xwp;'s ut”kade filassociationer „r aktiverad, kan du <I>endast</I> ha 
+associeringar med filtyp.
+
+<P><I>Emellertid,</I> eftersom de flesta filer inte har n†gon direkt filtyp satt (vilket kan
+g”ras p† sidan "Typ" i en fils notbok med inst„llningar), kommer &xwp; automatiskt att
+tilldela filtyper till filobjektet i enlighet med filfiltren. P† det s„ttet f†r du det
+b„sta fr†n tv† v„rldar (filtyper och filfilter) p† ett mera logiskt s„tt.
+
+<P>Och vad „r det bra f”r?
+
+<P>F”r det f”rsta, jag har funnit att WPS associationsmekanism „r n†got klumpig om
+associationer „r adderade till b†de filfilter och filtyper. Det nya s„ttet „r mera
+logiskt i den avseendet.
+
+<P>F”r den andra, och viktigaste, &xwp; till†ter dig att definiera <B>filtypshierarkier.</B>
+Till exempel, det finns m†nga filtyper som „r "rena text" filer ocks† (till exempel, "C Kod" eller "HTML" filer),
+s† den editor som kan l„sa "rena text" filer b”r ocks† kunna l„sa dessa filtyper.
+
+<P>Tills nu, har du varit tvungen att associera samma editor till all dessa filtyper. Med &xwp;,
+kan du nu definiera vilken typ som helst att bli en "sub-typ" av "ren text", och att
+den sub-typen kommer att <B>„rva</B> associationerna som „r definierade f”r den ”verordnade typen.
+
+<P>Detta kan g”ras p† den nya sidan med "Filtyper" i <A HREF="sys_2global.html">"Workplace Shell" objektet</A>
+(om ut”kade associationer har aktiverats):
+
+<P><IMG SRC="filetypes.gif">
+
+<P>F”r att definiera filtypshierarkier, <B>drag och sl„pp</B> helt enkelt filtyperna i "Filtyps" tr„det
+p† en annan filtyp.
+&xwp; till†ter dig att <B>importera</B> dina gamla filfilter till de nya associationerna.
+F”r att g”ra det, h”gerklicka p† f„ltet "Filter" och v„lj "Import".
+
+<BR>
+</BODY>
+</HTML>
+
+

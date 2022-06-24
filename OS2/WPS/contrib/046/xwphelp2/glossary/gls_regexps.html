@@ -1,0 +1,234 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Regulj„ra Uttryck
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Regulj„ra Uttryck (REs) anv„nds vanligtvis f”r att best„mma om en
+teckenstr„ng av intresse matchas n†gonstans inom en upps„ttning av
+teckenstr„ngar. De till†ter specificering av komplexa matchningskriterier
+och „r p† det s„ttet mer flexibla „n regulj„ra s”kstr„ngar.
+
+<P>&xwp; anv„nder en kombination av m†nga standarder f”r RE syntaxer. Niv†n
+av funktionalitet „r f”r det mesta modellerad av ut”kade regulj„ra uttryck (ERE's)
+som st”ds av UNIX <CODE>egrep</CODE> och <CODE>awk</CODE> program. Vissa f”rb„ttringar
+som introducerats av POSIX, som typiskt †terfinns i UNIX <CODE>ex</CODE> och
+<CODE>vi</CODE>, finns ocks† f”r det mesta i GNU programvara och har ocks† st”d.
+
+<P>F”ljande regler g„ller (se
+<A HREF="glossary/gls_regexps_bnf.html">BNF definitioner</A> f”r en formell definition):
+
+<P><B>Grundl„ggande tecken</B>
+
+<UL>
+<LI>De flesta tecknen i ERE kan specificeras genom att bara skriva dom. Till exempel,
+<CODE>abc</CODE> matchar <CODE>a</CODE>, sedan <CODE>b</CODE>, sedan <CODE>c</CODE>.
+
+<P><LI>Vissa tecken har speciell betydelse, och m†ste l„mnas genom att f”reg†s av
+ett backslash. Detta g„ller f”ljande tecken:
+
+<PRE>
+    ~ . ^ $ ( ) { } [ ] ? + * |
+</PRE>
+Till exempel, <CODE>1\*2</CODE> matchar <CODE>1</CODE>, sedan <CODE>*</CODE>,
+sedan <CODE>2</CODE>.
+
+<P><LI>F”r att matcha „ven backslash, m†ste det ocks† f”reg†s av backslash. Till exempel,
+<CODE>c:\\config\.sys</CODE> matchar <CODE>c:\config.sys</CODE>.
+
+<P><LI>Backslash kan anv„ndas f”r att beskriva tecken vilka „r sv†ra att skriva:
+
+<PRE>
+  \n    ny rad            ASCII 10
+  \t    tab               ASCII  9
+  \r    vagnreturn        ASCII 13
+  \b    backspace         ASCII  8
+  \f    formfeed
+  \e    escape            ASCII 27
+  \x07  bel               ASCII  7
+</PRE>
+
+C och C++ programmerare kommer att finna den h„r notationen familj„r. Strikt, i enlighet
+med POSIX, om <CODE>\x2e</CODE> lades i ett ERE skulle det betyda "n†got tecken"
+(ASCII tecken 0x2e „r punkt, vilket betyder n†got tecken, se senare), men det h„r
+implementationen behandlar det som "matcha ett fullt stopp".
+
+<P><LI>Ibland anv„nds backslash f”r att introducera en speciell ERE funktion. Till
+exempel betyder <CODE>\&lt;</CODE> 'start av ord' (se senare). Tecknet efter backslash
+v„ljs i allm„nhet till n†got som du inte beh”ver f”reg†, s† den h„r syntax b”r inte orsaka
+n†gra problem.
+
+</UL><B>Teckenupps„ttning</B>
+
+<P>Teckenupps„ttningar specificeras inom hakparenteser och definierar en upps„ttning av
+acceptabla tecken, eller m”jligtvis en upps„ttning icke acceptabla tecken.
+
+<PRE>
+  [abc]   matchar n†got tecken vilket kan vara a, b, eller c
+  [^abc]  matchar ett tecken vilket „r vare sig a, b, eller c
+  [a-z]   „r en upps„ttning inom omr†det 'a' till 'z'
+  [a-j-t] „r en upps„ttning tecken inom omr†det 'a' till 't'
+</PRE>
+
+F”r att matcha ett <CODE>-</CODE>, <CODE>^</CODE>, <CODE>]</CODE> tecken i ett parenteselement,
+f”reg† den med ett backslash. Till exempel, <CODE>[\])}]</CODE> matchas <CODE>]</CODE>,
+eller <CODE>)</CODE>, eller <CODE>}</CODE>.
+
+Du kan ocks† specificera kompletta POSIX teckenklasser i ett <I>ytterligare</I> par av
+parenteser med kolon. I den kontexten,
+
+<PRE>
+  [:alnum:]   betyder alla alfanumeriska tecken
+              (med ASCII, samma som A-Za-z0-9)
+  [:lower:]   betyder alla gemener (sm† bokst„ver)
+  ... etc.
+</PRE>
+
+Till exempel, att specificera <CODE>[[:alnum:] \t]</CODE> skulla visa alla alfanumeriska
+tecken plus mellanslag plus tab.
+
+<P><B>N†got tecken</B>
+
+<P>Punkt (<CODE>.</CODE>) tecknet matchar n†got enstaka tecken, utan att bry sig om vilket
+det „r. Till exempel, <CODE>t.e</CODE> matchar <CODE>the</CODE>, men inte <CODE>tree</CODE>.
+
+<P><B>Ord integrerade tecken</B>
+
+<P>GNU EREs definierar termen "ord integrerande tecken" till att inkludera n†got
+alfanumeriskt tecken, eller tecknet underscore <CODE>_</CODE> f”r att spara lite skrivning.
+
+<P><CODE>\w</CODE> „r kort f”r n†got ord integrerande tecken och „r ekvivalent
+till <CODE>[[:alnum:]_]</CODE> eller <CODE>[A-Za-z0-9_]</CODE>. <CODE>\W</CODE> f”r n†got
+icke-ord integrerande tecken och „r ekvivalent till
+<CODE>[^[:alnum:]_]</CODE> eller <CODE>[^A-Za-z0-9_]</CODE>.
+
+<P>Dessa kortformer „r ogiltiga inom hakparentes teckenupps„ttningar.
+
+<P><B>Inget tecken</B>
+
+<P>En Microsoft ut”kning till ERE's „r att till†ta dig att s„ga "n†got tecken utom
+detta tecken" genom att f”reg† det med ett tilde <CODE>~</CODE>. Detta „r helt enkelt kortare
+att skriva „n den ekvivalenta hakparentes teckenupps„ttningen (<CODE>~a</CODE> „r kortare
+att skriva „n <CODE>[^a]</CODE>). Till exempel, <CODE>t~he</CODE> matchar
+<CODE>tie</CODE>, men inte <CODE>the</CODE>.
+
+<P><B>Ankare</B>
+
+<P>Ankare specificerar konditioner d„r ett uttryck kan f”rekomma:
+
+<PRE>
+  ^       matchar om vi „r i starten av str„ngen
+  $       matchar om vi „r i slutet av str„ngen
+  \`      GNU alternativt s„tt att skriva ^
+  \'      GNU alternativt s„tt att skriva $
+  \&lt;      matchar om vi „r i starten av ett ord (eller hela str„ngen)
+  \&gt;      matchar om vi „r i slutet av ett ord (eller hela str„ngen)
+  \B      matchar om vi „r inom ett ord
+  \y      matchar om vi „r i starten eller slutet av ett ord (eller hela str„ngen)
+</PRE>
+
+H„r „r "ord" i enlighet med GNU definitionerna som givits ovanf”r.
+
+<P>Till exempel, <CODE>^xyz</CODE> matchar <CODE>xyz</CODE> endast om det „r starten
+av raden. <CODE>\&lt;fred</CODE> matchar <CODE>fred</CODE>, <CODE>freddy</CODE>,
+men inte <CODE>alfred</CODE>.
+
+<P><B>Repetitioner</B>
+
+<P>Genom att anv„nda <CODE>?</CODE>, <CODE>+</CODE>, <CODE>{M}</CODE>, eller <CODE>{M,N}</CODE>
+kan du s”ka efter upprepningar:
+
+<PRE>
+  ab?c      matchar a, sedan ingen eller en f”rekomst av b, sedan c
+  ab+c      matchar a, sedan en eller flera f”rekomster av b, sedan c
+  ab*c      matchar a, sedan inhen eller flera f”rekomster av b, sedan c
+  ab{M}c    matchar a, sedan M f”rekomster av b, sedan c
+  ab{M,}c   matchar a, sedan M eller flera f”rekomster av b, sedan c
+  ab{M,N}c  matchar a, sedan mellan M och N f”rekomster av b, sedan c
+</PRE>
+
+<P>I det ovanst†ende, ges M och N numren decimalt, d„r om b†da „r givna,
+M m†ste vara &lt;= N.
+
+<P>Till exempel, <CODE>[A-Za-z_][A-Za-z0-9_]*</CODE> matchar n†gon legal C eller C++
+identifierare. <CODE>\w{10,}</CODE> matchar †tminstone 10 ord integrerande tecken.
+<CODE>\&lt;[0-9]{5}\&gt;</CODE> matchar ett 5 siffrors nummer.
+
+<P><B>Alternering</B>
+
+<P>Du kan s”ka en sak eller en annan genom att anv„nda <CODE>|</CODE> symbolen. Till
+exempel, <CODE>fred|bill</CODE> matchar <CODE>fred</CODE> eller <CODE>bill</CODE>.
+<CODE>fred|bill|rob</CODE> matchar n†got av dessa 3 namn.
+
+<P><B>N„stlade ERE's</B>
+
+<P>Parenteser kan anv„ndas f”r att gruppera ERE's till sub-ERE's, s† att operatorer som
+repetitioner eller alternerande operator kan till„mpas p† dem. Till exempel,
+<CODE>(frog|toad)+</CODE> matchar en eller flera f”rekomster av <CODE>frog</CODE>
+eller <CODE>toad</CODE>.
+
+<P>N„stling kan utf”ras med flera niv†ers djup.
+
+<P><B>Bakreferenser</B>
+
+<P>Varje g†ng en n„stlad ERE „r matchad, kommer vad som att matchat
+att spelas in. Du kan g”ra en bakreferens senare i huvud ERE (vilket betyder att
+vad helst som matchades f”re m†ste matchas igen) genom att specifiera backslash med
+ett enstaka nummer. Upp till 9 n„stlade ER's kan p† det s„ttet bakrefereras.
+
+<P>Till exempel, <CODE>\2</CODE> s„ger att det andra n„stlade ERE m†ste matchas igen.
+Som ett resultat, <CODE>(a|b)(c|d)\2\1</CODE> kommer att matcha <CODE>acca</CODE>,
+eller <CODE>adda</CODE>, eller <CODE>bcca</CODE>, eller <CODE>bddb</CODE>.
+
+<P>Notera att det ovanst†ende exemplet <I>inte</I> „r en kortform f”r att
+skriva <CODE>(a|b)(c|d)(c|d)(a|b)</CODE>. Bakreferenser refererar inte till ERE,
+utan till vad som matchades av det.
+
+<P>Bakreferenser kan g”ras inom n„stlade ERE's f”r att bakrefererera ERE's.
+Till exempel, <CODE>frog|((a|bc)d\1)</CODE> matchar <CODE>frog</CODE>, eller
+<CODE>ada</CODE>, eller <CODE>bcdbc</CODE>, men inte <CODE>adbc</CODE>.
+
+<!--
+<P><B>Substitutions</B>
+
+<P>Sometimes EREs are used to find or match information, and sometimes they
+are used as the 'find' part of a 'find and replace' operation.
+Programs providing 'find and replace' are provided with the extent of
+each match, and also the extents of the top level sub-EREs within them.
+So a replacement pattern can easily refer to these, (typically by using the
+backreference <CODE>\N</CODE> notation in the replacement string).
+
+<PRE>
+  eg: find                   ([0-9]+),"(~"*)"
+      replace-with           set \2 = \1
+      given-input            23,"Age"
+      gives-output           set Age = 23
+</PRE>
+
+<P>Consider using the ERE <CODE>(.+)(.+)</CODE> against the string
+<CODE>abcd</CODE>.
+Clearly there will be a match of length 4 characters, as an ERE matches
+the longest string it can.
+What isn't clear is what <CODE>\1</CODE> and <CODE>\2</CODE> are in the
+substitution, afterwards.
+eg: We could have any one of :-
+
+<P>
+<PRE>
+  \1 = a    \2 = bcd
+  \1 = ab   \2 = cd
+  \1 = abc  \2 = d
+</PRE>
+
+<P>Which you get is <I>undefined</I> in this implementation of ERE's.
+-->
+
+<BR>
+</BODY>
+</HTML>
+

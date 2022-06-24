@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Bestandskenmerken Bits
+    </TITLE>
+</HEAD>
+<BODY>
+&os2;, evenals DOS en Windows, kent in het
+<A HREF="glossary/gls_fs.html">bestandssysteem</A> kenmerken toe aan iedere
+directory of bestand.
+
+<P>De volgende kenmerken bestaan:
+
+<OL><BR><LI>Het <B>"Archief"</B> bit is een gebruikersmarkering die wordt
+ingesteld door het besturingssysteem iedere keer dat het bestand wordt gewijzigd;
+dit wordt teruggezet door veel reservekopie hulpprogramma's om controle
+mogelijk te maken of het bestand opnieuw gearchiveerd moet worden, omdat het sinds
+het maken van de laatste reservekopie is gewijzigd.
+
+<P><LI>Het <B>"Alleen lezen"</B> kenmerk kan worden ingesteld voor bestanden waar
+naar mag worden geschreven; schrijftoegang en pogingen om het bestand te verwijderen
+worden dan afgewezen.
+
+<P><LI>Het <B>"Systeem"</B> bit wordt gewoonlijk alleen maar ingesteld voor systeem
+bestanden die nodig zijn om het besturingssysteem te laten werken.
+Schrijftoegang en wissen worden daarom ook geweigerd, en de Werkplek zal ook het
+verplaatsen van het bestand niet toestaan.
+
+<P><LI>Het <B>"Verbergen"</B> kenmerk, als laatste, kan worden ingesteld om te voorkomen
+dat een bestand wordt afgebeeld in directory overzichten en mappen.
+Dat betekent, dat het bestand niet te zien is met de <CODE>DIR</CODE> opdracht (tenzij
+de <CODE>/A</CODE> parameter is gespecificeerd), en hij wordt niet in mappen getoond
+(tenzij de map is geconfigureerd om verborgen bestanden te laten zien via de "Opnemen"
+pagina in het notitieblok).
+
+<P>Waarschuwing, als u dit kenmerk instelt vanuit het instellingen notitieblok van een object,
+kan het bestand verborgen zijn voor de map en kunt u deze instelling alleen ongedaan maken
+vanaf de opdrachtregel, door de
+<A HREF="cmdref.inf#attrib"><CODE>ATTRIB</CODE></A> opdracht te gebruiken.
+
+</OL>U kunt de kenmerken bekijken en instellen vanuit de Workplace Shell, of door het
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A> van een object te openen
+of door het <A HREF="glossary/gls_popmenu.html">&popmenu;</A> van een object te openen
+dat een "Bestandskenmerken" sub-menu heeft. Merk op dat dit alleen geldt voor
+bestandssysteem objecten.
+
+<BR>
+</BODY>
+</HTML>
+

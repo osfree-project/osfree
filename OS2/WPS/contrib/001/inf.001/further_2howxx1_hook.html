@@ -1,0 +1,108 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        How Does the &xwp; PM Hook work?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+In general, a Presentation Manager (PM) hook is a piece of code which is
+registered with PM to receive all messages which are going through the system.
+As a result, that piece of code effectively becomes part of every process on the
+system which is processing messages.
+
+<P>With PM (and Windows too), windows communicate with <B>messages.</B>
+The system sends messages to windows automatically for all kinds of events, and
+windows can send messages to each other as well.
+There are hundreds
+of different system messages, and application can define their own messages too.
+
+<P>For example, if you click on any window with the left mouse button, that
+window is sent the the <CODE>WM_BUTTON1CLICK</CODE> message by the system.
+What happens then
+depends on the type (in PM: the class) of the window. For example, a container
+control will look if there's a container record under the mouse pointer and, if so,
+select the corresponding record. A Netscape client window will see if there's
+a link under the mouse pointer and, if so, load a new HTML page to follow the link.
+
+<P>There are many more "important" system messages, such as <CODE>WM_CHAR</CODE>
+(for keystrokes), <CODE>WM_SIZE</CODE> (when windows are resized),
+<CODE>WM_PAINT</CODE> (when windows need repainting), and
+<CODE>WM_DESTROY</CODE> (when windows are destroyed). That's basically why PM
+programming seems so complicated at first, because PM programming mostly means
+reacting to messages, which is quite different from "regular" programming,
+where programs are normally simply processing tasks sequentially.
+With PM, if no messages are queued for a window, a program normally simply does
+nothing. Its threads are blocked until messages come in.
+
+<P>Now, when a <B>global message hook function</B> is registered with the system,
+all messages go through that hook function <I>before</I> the target window receives
+that message. This way a hook function can choose to modify the message, redirect
+it to a different window, do something completely different itself, or even
+swallow the message so that the target window won't receive it.
+
+<P>This is how all the well-known PM hook utilities
+(such NPS WPS, FeelX, ProgramCommander/2, X-it, Styler/2,
+and the &xwp; PM hook as well) work. They intercept certain messages and
+manipulate them.
+
+<P>For example, every time the &xwp; PM hook encounters a <CODE>WM_CHAR</CODE>
+message (that is, when a key on the keyboard is pressed or released), it will check
+if that key is on the global hotkeys list. If so, the message is swallowed (so
+that the target window won't receive it) and
+some part of the &xwp; WPS code is notified instead, which can then open
+the corresponding object which has been defined by the user for that hotkey.
+
+<P>The way the &xwp; hook is implemented differs slightly from that of the
+typical hook utilities. Most of those utilities register their hook function with
+PM when they are started and de-register the hook again when the program is ended
+(for example, if "close" is chosen from the window list).
+
+<P>Instead, &xwp;'s PM hook is registered from a special program which is not visible
+in the window list -- the <B>&xwp; daemon,</B> <CODE>XWPDAEMN.EXE</CODE>. You can
+see it with WatchCat or any other process lister though. Try killing that program:
+you will see that all hook functionality will be gone.
+
+<P><CODE>XWPDAEMN.EXE</CODE> is started by &xwp; while the WPS is starting up
+for the first time and keeps running until the system is shut down. That is, the
+daemon even keeps running between Desktop restarts.
+
+<P>Even though the daemon is a PM program, it doesn't create any windows (except for
+the &pgr; window, see below).
+
+<P>All this is pretty complex in detail
+because this involves using shared memory and proper serialization techniques such
+as shared mutex semaphores and cross-process messaging, especially since the hook is
+configured from WPS settings pages, which are running in the WPS process.
+But I hope you get the basic idea.
+
+<P>There are a number of good reasons why I chose that approach:
+
+<OL><LI>It's usually not a good idea to start hooks from the
+<CODE>PMSHELL.EXE</CODE> process, which all WPS classes are running in. If the WPS
+crashes, it's more difficult to clean up installed hooks because the WPS is so
+complex in itself.
+
+<P><LI>Since the daemon keeps running between Desktop restarts, it can also keep track
+of certain data which is needed between Desktop restarts. For example, the
+&xwp; startup folder shouldn't be processed again when the WPS is restarted
+(unless the user requests this). Try it out: If you kill the daemon and then restart
+the WPS, you'll see that the &xwp; startup folder will get processed again, because
+the &xwp; WPS classes see that the daemon is not running and
+then think that the WPS is starting up for the first time.
+
+<P><LI>&pgr; is part of the daemon as well and is thus independent of the WPS.
+&pgr; requires lots of message monitoring as well since it needs to know
+about window creation and destruction. At any point in time, &pgr; knows about
+every single window on the system.
+It's much easier for &pgr; to keep its own windows apart from the rest of the
+system when it's running in a separate process.
+
+<P>For details about &pgr;, see
+<A HREF="pgmg_8howwork.html">"How it works"</A> in the
+<A HREF="06342intro_pagemage.html">&pgr; section.</A>
+</OL>
+</BODY>
+</HTML>
+
+

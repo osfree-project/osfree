@@ -1,0 +1,210 @@
+<HTML RESID=&ID_XSH_SETTINGS_HPFS;>
+<HEAD>
+    <TITLE>
+        &xwp;: FAT-Einstellungen
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     -- V0.81: Added /UL tag at bottom which was missing.
+     -- V0.9.2: changed title; also see notes below.
+-->
+Auf der Seite <!-- V0.9.2: removed this: "HPFS" and -->
+"FAT" der Einstellungen zu "&os2;-Kernel" k”nnen die Parameter der Datei
+&cfgsys; bearbeitet werden, die sich auf das
+<!-- V0.9.13: replaced the following -->
+FAT-Dateisystem beziehen.
+ 
+<!-- V0.9.13: changed these 3 lines -->
+<P>Einfhrende Informationen zu Dateisystemen erhalten Sie ber
+einen der folgenden Verweise:
+<UL><LI><A HREF="glossary/gls_fs.html">Dateisysteme</A>
+<LI><A HREF="glossary/gls_caches.html">Cache-Speicher fr Dateisysteme</A>
+ 
+</UL><P>Diese Hilfeseite erl„utert die unterschiedlichen Einstellungen in Bezug
+<!-- V0.9.7: changed the following -->
+zu den Parametern der Anweisung <CODE>DISKCACHE</CODE> in der Datei &cfgsys;.
+ 
+<!-- V0.9.7: replaced this
+Falls Ihnen die Informationen auf dieser Seite zu den unterschiedlichen
+&cfgsys; Einstellungen nicht ausreichen, finden Sie zus„tzliche Erl„uterungen
+in den entsprechenden Kapiteln der <I>&os2; Befehlsreferenz</I>.
+ 
+<!-- V0.9.7: added this line -->
+<P>Beachten Sie auch die <A HREF="cmdref.inf#diskcache">Erl„uterungen</A> zu
+diesem Thema im <I>&os2;-Referenzhandbuch</I> fr zus„tzliche Informationen.
+ 
+<P>Klicken Sie auf die Schaltfl„che <B>Anwenden</B>, um die von Ihnen gemachten
+nderungen in die Datei &cfgsys; zu bernehmen. Dadurch werden nur die Zeilen
+ge„ndert, die den Einstellungen auf dieser Seite entsprechen. Die Zeilen,
+die sich auf andere Seiten der "&os2;-Kernel" Einstellungen beziehen, werden
+nicht ge„ndert. Beachten Sie, daá Sie das System neu starten mssen, damit die
+nderungen wirksam werden. Ein Neustart der Arbeitsoberfl„che allein
+reicht <I>nicht</I> aus.
+<P>Klicken Sie auf <B>Optimieren</B>, damit &xwp; auf Basis Ihrer
+Systemgegebenheiten neue Einstellungen vorschl„gt. Auch in diesem Fall wird
+die &cfgsys; nur ge„ndert, wenn Sie "Anwenden" bet„tigen.
+<P>Durch Klicken auf <B>Standard</B> werden die Standardvorgaben von &os2;
+auf diese Einstellungsseite bernommen. Wiederum werden die ge„nderten Werte
+erst durch "Anwenden" in die &cfgsys; bernommen.
+ 
+<!-- V0.9.2: removed this
+Auf der Seite "HPFS" finden Sie eine Einstellung namens "HPFS installiert".
+Wenn Sie keine HPFS-Laufwerke betreiben, k”nnen Sie einige hundert KB an
+Hauptspeicher sparen, indem Sie diese Option deaktivieren, wodurch der Treiber
+HPFS.IFS beim Systemstart nicht geladen wird. Hat &xwp; jedoch festgestellt,
+daá sich in Ihrem System HPFS-Laufwerke befinden, ist diese Option nicht
+„nderbar um unbeabsichtigte Eingaben zu vermeiden.
+ 
+Auf beiden Einstellungsseiten finden Sie die folgenden Optionen:
+ 
+ 
+and added the following line:
+-->
+ 
+<P>Auf dieser Seite k”nnen folgende FAT-Einstellungen vorgenommen werden:
+ 
+<UL><LI><B>Cache-Gr”áe</B> bestimmt, wieviel KB des Hauptspeichers fr
+den Cache-Speicher des Dateisystem reserviert werden. Dies entspricht der
+Anweisung
+<!-- V0.9.2: removed this
+/CACHE:xxx in der Anweisung IFS=?:\OS2\HPFS.IFS der Datei &cfgsys; fr
+HPFS-Laufwerke und -->
+ 
+<CITE>DISKCACHE=xxx</CITE> in der Datei &cfgsys;.
+<!-- V0.9.20: rewrote this -->
+<P>Die maximale Cache-Gr”áe fr FAT-Laufwerke betr„gt 14440 KB.
+ 
+<!-- V0.9.5: changed the following -->
+<P>Sie k”nnen &os2; diese Angabe auch <B>automatisch berechnen</B> lassen.
+In den meisten F„llen ergibt dies 10% des installierten Hauptspeichers, aber
+grunds„tzlich ist diese Einstellung nicht zu empfehlen.
+ 
+<!-- V0.9.5: moved the following text to a separate file -->
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Beachten Sie <A HREF="glossary/gls_caches.html">"Cache-Speicher fr
+Dateisysteme"</A> fr einfhrende Informationen zu diesem Thema.
+ 
+<BR><LI>Die Einstellung <B>Nur Sichern von Dateien kleiner als</B> bestimmt
+(in KB) die maximale Gr”áe der Objekte, die im Cache-Speicher vorgehalten
+werden sollen. Dies entspricht
+<!-- V0.9.2: removed this
+dem &cfgsys;-Parameter
+/CRECL:xxx in der Anweisung IFS=?:\OS2\HPFS.IFS fr HPFS Laufwerke und -->
+dem zweiten Parameter des Befehls <CITE>DISKCACHE=xxx</CITE> fr FAT-Laufwerke.
+<!-- V0.9.20: replace drives with volumes -->
+ 
+Diese Einstellung soll verhindern, daá groáe Dateien (die gew”hnlich nur einmal
+geladen werden) zu einer kompletten Leerung des Cache-Speichers fhren.
+Trotzdem ist die Systemvorgabe von 4 KB viel zu gering. Sie sollten dies auf
+32KB „ndern. (&xwp; rechnet den angegebenen Wert automatisch in die Angabe
+der Sektorengr”áe um, die in der &cfgsys; ben”tigt wird.)
+ 
+<BR><LI>das Eingabefeld <B>Automatisch prfen</B> entspricht dem
+<!-- V0.9.2: &cfgsys;-Parameter
+/AUTOCHECK:xxx des Befehls IFS=?:\OS2\HPFS.IFS fr HPFS-Laufwerke, bzw. dem
+ -->
+ 
+Parameter <CITE>/AC:xxx</CITE> der Anweisung <CITE>DISKCACHE=xxx</CITE> fr
+FAT-Laufwerke.
+<!-- V0.9.20: replace drives with volumes -->
+Hier kann festgelegt werden, fr welche
+<!-- V0.9.20: replace drives with volumes -->
+Laufwerke &os2; beim Systemstart ein
+<CITE>CHKDSK</CITE> durchfhren soll.
+<P>Geben Sie hier einfach die entsprechenden Laufwerksbuchstaben an (jeweils
+ohne "<CITE>:</CITE>"). &os2; prft dann jedes hier angegebene Laufwerk beim
+Systemstart, falls der vorhergehende Systemabschluá eventuell fehlerhaft
+oder unvollst„ndig war (beispielsweise nach einem Totalabsturz).
+ 
+<P>Gibt man <I>vor</I> einem Laufwerksbuchstaben ein Pluszeichen
+("<CITE>+</CITE>") an, wird dieses Laufwerk immer geprft, was nicht
+wirklich unbedingt zu empfehlen w„re.
+<P>Beispiel: Wenn Sie "<CITE>C+DE</CITE>" eingeben, wird Laufwerk D: immer
+geprft, w„hrend dies fr C: und E: nur im Bedarfsfall gemacht wird.
+ 
+<!-- V0.9.2: removed this
+ 
+Fr HPFS-Laufwerke, ist das automatische Prfen absolut unverzichtbar, da der
+Zugriff auf "unsaubere" HPFS Laufwerke zu Systemfehlern fhrt. Sie sollten
+hier die Buchstaben aller Ihrer
+HPFS-Laufwerke angeben, da &os2; ansonsten beim Startvorgang Fehlermeldungen
+ausgibt oder (und das betrifft im Besonderen Ihr Boot-Laufwerk) &os2; sich
+sogar komplett zu starten weigert, wenn Sie keinen ordnungsgem„áen
+Systemabschluá durchgefhrt bzw. einen Absturz hatten.
+ 
+Fr FAT-Laufwerke ist das automatische Prfen nicht unbedingt notwendig.
+ 
+and added the following line: -->
+ 
+<P>Im Gegensatz zu HPFS-Laufwerken ist ein automatisches Prfen fr
+<!-- V0.9.20: replace drives with volumes -->
+FAT-Laufwerke nicht erforderlich.
+ 
+<P>Klicken Sie auf die Schaltfl„che <B>Vorschlag</B>, um alle
+<!-- V0.9.2: HPFS or -->
+<!-- V0.9.20: replace drives with volumes -->
+FAT-Laufwerke Ihres Systems entsprechend in das Eingabefeld zu bernehmen.
+ 
+<BR><LI>Die Option <B>Verz”gertes Schreiben</B> gibt an, ob &os2; Daten mit
+Verz”gerung auf die Platte schreiben darf.
+<!-- V0.9.13: replaced the following with a link -->
+<P>Beachten Sie <A HREF="glossary/gls_caches.html">"Cache-Speicher fr
+Dateisysteme"</A> fr einfhrende Informationen zu diesem Thema.
+ 
+<P>Diese Einstellung entspricht
+<!-- V0.9.2: dem Parameter
+/LAZY:x des Befehls RUN=?:\OS2\CACHE.EXE fr HPFS-
+bzw. -->
+dem Parameter <CITE>LW</CITE> des Befehls <CITE>DISKCACHE</CITE> fr <!-- V0.9.20: replace drives with volumes -->
+FAT-Laufwerke. Standardm„áig ist verz”gertes Schreiben aktiviert.
+ 
+<!-- V0.9.2: removed all the following, which is related to HPFS caching only
+ 
+bei HPFS-Laufwerken kann man das verz”gerte Schreiben noch genauer beeinflussen.
+Alle folgenden Parameter geh”ren zum Befehl <CITE>RUN=?:\OS2\CACHE.EXE</CITE>
+der optional in der Datei &cfgsys; angegeben werden kann (und der immer dort
+angegeben wird, wenn Sie &xwp; die nderung Ihrer &cfgsys; gestatten).
+ 
+Die Einstellung <B>Maximale Verz”gerung</B> entspricht dem Parameter
+/MAXAGE:xxx und gibt an, wie lange sich Daten maximal im Cachespeicher
+aufhalten drfen, bevor Sie in die Warteschlange fr das Schreiben auf Platte
+gestellt werden.
+Der Standardwert ist 5.000 Millisekunden; einige Quellen empfehlen, diesen
+Wert auf 7.000several Millisekunden zu erh”hen.
+Da mit dem Erh”hen dieses Wertes auch das Riskio von Datenverlust steigt, sollten
+Sie das nur machen, wenn Sie bislang nie mit Abstrzen zu k„mpfen hatten. Beim
+Herunterfahren des Systems oder wenn Sie Strg+Alt+Entf drcken, werden die
+Cachepuffer kontrolliert auf die Platte zurckgeschrieben, so daá bei diesen
+Aktionen keine Gefahr droht. Mit "Absturz" sind in diesem Zusammenhang das
+vollst„ndige "Aufh„ngen" des Systems oder ein Stromausfall im laufenden Betrieb
+gemeint, die einen CHKDSK beim n„chsten Systemstart erforderlich machen.
+Die Parameter "Cache idle time" und "Drive idle time" bestimmen zusammen
+die dauer der verz”gerung in Abh„ngigkeit von der Laufwerksaktivit„t. Sie
+entsprechen den Parametern /BUFFERIDLE:xxx und /DISKIDLE:xxx
+Bezglich dieser beiden Parameter scheint einige Verwirrung zu existieren und
+die Erl„uterungen in der &os2; Befehlsreferenz tragen dazu eher noch bei als
+daá sie helfen.
+ 
+Die beste Erkl„rung, die ich hierzu fand, kommt von IBM und stammt aus der
+Toolkit-Dokumentation:
+ 
+Wenn keine Festplattenanforderungen fr eine Dauer von "Drive idle time"
+vorlagen (keine Plattenzugriffe innerhalb dieses Zeitraums), werden alle
+Daten auf die Platte geschrieben, die sich innerhalb der letzten "Cache idle
+time" nicht ver„ndert haben. Folglich ergibt sich mit der Erh”hung beider Werte
+die steigende Wahrscheinlichkeit, daá redundante Festplattenzugriffe vermieden
+werden k”nnen.
+ 
+Einige Quellen empfehlen eine Erh”hung beider Werte auf bis zu 60.000
+Millisekunden; obwohl IBM empfiehlt, daá der Wert fr "Disk idle time" gr”áer
+als der fr "Cache idle time" sein sollte, was meiner Meinung nach Sinn
+macht da sonst einige Cachebereiche unter Umst„nden nie auf die Platte
+geschrieben werden k”nnten.
+Die Standardwerte betragen jeweils 1000 und 500 Millisekunden.
+-->
+ 
+</UL>
+</BODY>
+</HTML>
+ 

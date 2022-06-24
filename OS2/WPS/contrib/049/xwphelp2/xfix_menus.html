@@ -1,0 +1,108 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Befehlsreferenz zum Men
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Dies ist eine Beschreibung der Befehle aus der xfix-<B>Menleiste</B>.
+(Eine Beschreibung des &popmenu;s der Handle-Eintr„ge finden Sie am Ende dieser Seite):
+ 
+<UL><LI><B>xfix</B>-Men
+ 
+<BR><UL><LI>Mit <B>Puffer neu einlesen</B> wird der Handles-Puffer neu eingelesen,
+den xfix beim Starten aus der <CODE>OS2SYS.INI</CODE> gelesen hat, und anschlieáend
+die komplette Handle-Liste aktualisiert. Diese Aktion liest jedoch nicht die Handles
+aus der <CODE>OS2SYS.INI</CODE> neu ein, dies tut xfix nur beim Start. Dieser
+Meneintrag ist einzig dafr gedacht, falls xfix einen Bug enthalten sollte, der in
+einer defekten Anzeige resultiert. Dabei werden auch die Indizes in der "i"-Spalte
+auf den neuesten Stand gebracht, die nicht automatisch aktualisiert werden, wenn
+Handles gel”scht wurden.
+ 
+<P><LI><B>Zurckschreiben in OS2SYS.INI</B> schreibt die Handles-Tabelle in die
+Datei <CODE>OS2SYS.INI</CODE> zurck. Alle nderungen, die Sie in der Handles-Liste
+vorgenommen haben, werden solange nicht gespeichert, bis Sie diesen Menpunkt
+benutzt haben. Beachten Sie bitte, daá dies vermutlich keinen Effekt haben wird,
+wenn die WPS aktuell l„uft, da die WPS eine interne Kopie der Handles-Tabelle
+vorh„lt und Ihre nderungen wahrscheinlich bald wieder berschreiben wird. Deshalb
+sollte die WPS nicht laufen, w„hrend Sie die Handles zurckschreiben.
+ 
+<P>Siehe dazu auch <A HREF="xfix_delete.html">L”schen von Handles</A>.
+ 
+<!-- V0.9.20: rewrote this -->
+<P><LI><B>Beenden</B> schlieát das Programm.
+</UL>
+ 
+<!-- V1.0.4: added View menu -->
+<LI><B>Anzeige</B>-Men
+ 
+<P><B>Objekt-IDs</B> zeigt ein neues Fenster mit einer Liste s„mtlicher WPS-Objekte an, denen
+eine Objekt-ID zugewiesen wurde. Fr jedes Objekt werden Informationen ber ID, Handle und
+den langen Dateinamen angezeigt. Die Liste kann nach allen Spalten sortiert werden. Hierbei
+handelt es sich um ein reines Informationsfenster, und es k”nnen keine Aktionen auf die Objekte
+angewendet werden.
+ 
+<P><LI><B>Sortieren nach</B>-Men
+ 
+<P>Dieses Men erlaubt es, die Handles-Liste nach den Werten der verschiedenen
+Spalten zu ordnen. (Siehe  <A HREF="xfix_list.html">Die Handles-Liste</A> fr
+eine Beschreibung der Spalten.) Wenn Sie nach Index sortieren, wird Ihnen die
+Anzeige die genaue Reihenfolge der Handle-Eintr„ge zeigen, wie sie in der Tabelle
+der <CODE>OS2SYS.INI</CODE> stehen (natrlich mit steigendem Knoten-Offset).
+"Sortieren nach Index" ist die Standard-Sortierreihenfolge, nachdem xfix gestartet wurde.
+ 
+<P><LI><B>Aktionen</B>-Men
+ 
+<P><B>Ungltige Dateien finden</B> berprft alle Handles in der Tabelle darauf, ob sie auf
+gltige Dateien zeigen. Jeder veraltete Eintrag wird als ungltig markiert und
+erh„lt den Status "Datei nicht gefunden". Dieser Prozeá wird nicht automatisch erledigt,
+weil er einige Minuten dauern kann.
+ 
+<P>Siehe <A HREF="xfix_howto.html">Wie kann ich...</A> fr eine typische Benutzung
+dieses Menpunktes.
+ 
+<P><LI><B>Auswahl</B>-Men
+ 
+<!-- V1.0.4: made this an unordered list -->
+<BR><UL><LI>Mittels <B>Alle Ungltigen ausw„hlen</B> werden alle Handles ausgew„hlt, die aus
+irgendeinem Grund als ungltig markiert wurden (d.h. mit einer grauen Farbe hinterlegt sind).
+Sie k”nnen dann einen Rechtsklick auf einen der ausgew„hlten Eintr„ge durchfhren und
+"L”schen" aus dem &popmenu; w„hlen.
+ 
+<!-- V1.0.4: added Select by name item -->
+<P><LI><B>Nach Name ausw„hlen</B> ruft einen neuen Dialog auf, mit dessen Hilfe mehrere
+Handles auf einmal ausgew„hlt werden k”nnen bzw. deren Auswahl zurckgenommen werden kann.
+Die Auswahl kann entweder auf alle Handles angewandt werden oder auf solche, die einer Dateimaske
+„hnlich der an der Befehlszeile verwendeten entsprechen. D.h., die
+<a href="glossary/gls_wildcards.html">Platzhalter</a> <CODE>?</CODE> und <CODE>*</CODE>
+k”nnen verwendet werden, um ein oder mehrere Zeichen zu ersetzen. Die Suchmaske <CODE>"*.txt"</CODE>
+wrde beispielsweise auf alle Handles mit einem Namen zutreffen, der auf <CODE>".txt"</CODE> endet.
+Der Dialog bleibt ge”ffnet, bis die Schaltfl„che <B>"Schlieáen"</B> bet„tigt oder die Taste
+<B>"Esc"</B> gedrckt wird. Dadurch ist es m”glich, Handles sukzessive nach verschiedenen Masken
+auszuw„hlen.
+ 
+<P>Beachten Sie, daá die Suchmaske nur mit dem <B>kurzen Namen</B> verglichen wird. Daher kann dieser
+Dialog nicht verwendet werden, um auf einfache Weise die Handles s„mtlicher in einem bestimmten Verzeichnis
+befindlicher Dateien auszuw„hlen.
+</UL>
+ 
+<LI><B>Hilfe</B>-Men
+ 
+<!-- V1.0.4: changed "info" to "information" -->
+<P>Zeigt die Hilfe sowie die xfix-Produktinformation mit der aktuellen Version und Erstellungsdatum an.
+
+</UL>
+ 
+Zus„tzlich erscheint ein <B>&popmenu;</B>, wenn
+Sie auf einen der ausgew„hlten Eintr„ge mit Maustaste 2 klicken. Es enth„lt
+nur den Befehl <B>L”schen</B>. Das wird dann das Handle aus dem internen Puffer
+l”schen, der aus der <CODE>OS2SYS.INI</CODE> gelesen wurde, sowie von der
+Anzeige der Handles-Liste.
+ 
+<P>Mehr darber in <A HREF="xfix_delete.html">L”schen von Handles</A>.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,94 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Einfhrung
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klassen: XWPSetup, XFldWPS, XFldSystem, XWPClassList</B>
+<HR>
+<!-- V0.9.0: rewritten the following paragraph -->
+Nachdem &xwp; installiert worden ist, finden Sie eine Reihe neuer Einstellungsobjekte
+im Ordner "Systemkonfiguration". Auáerdem haben die meisten neuen &xwp;-Objekte
+ein paar neue Einstellungsseiten erhalten. Dies mag zuerst etwas berw„ltigend
+erscheinen, aber bei der Implementation all dieser Einstellungen wurde versucht,
+eine gewisse Logik einzuhalten.
+<UL>
+<!-- the following two paragraphs are new with V0.9.0 -->
+<P><LI><IMG SRC="xwsetup.gif"> Beginnend mit V0.9.0 fhrt &xwp; ein neues globales
+Einstellungsobjekt namens <B>"&xwp;-Konfiguration"</B> ein. Dies enth„lt eine Reihe von
+Einstellungsseiten zur šberwachung einiger &xwp;-Interna, zur globalen Aktivierung oder
+Deaktivierung der Haupt-&xwp;-Funktionen, an denen Sie vielleicht interessiert sind,
+sowie einige Einstellungen zur Problemvermeidung.
+<P>Diese Elemente werden im Detail erkl„rt, wenn Sie die Schaltfl„che "Hilfe" auf diesen
+neuen Einstellungsseiten bet„tigen.
+ 
+<P><LI><IMG SRC="xfwps.gif"> Das neue Objekt <B>"Workplace Shell"</B> enth„lt diejenigen Seiten
+des alten "System"-Objekts, die sich allein mit der Workplace Shell besch„ftigen. Meines Erachtens
+handelt es dabei nicht wirklich um "System"-Einstellungen und sie haben ein eigenes Objekt verdient.
+<P>Auáerdem fgt &xwp; hier die meisten seiner eigenen Einstellungsseiten hinzu, weil diese haupts„chlich
+die Workplace Shell betreffen.
+Dies wird detailliert auf der Seite
+<A HREF="sys_2global.html">"Globale Einstellungen"</A> dieser Referenz beschrieben.
+ 
+<!-- V0.9.0: remove this: In this object you will also find the "WPS Classes" page with
+which you may manipulate the WPS class list. You will find an introduction to WPS
+classes on a separate page -->
+ 
+<!-- the following paragraph is new with V0.9.0 -->
+<P><LI><IMG SRC="xclslist.gif"> Es gibt zudem ein weiteres neues Objekt, welches die
+<B>"WPS-Klassenliste"</B> enth„lt.
+Diese befand sich frher (vor &xwp; V0.9.0) auf einer Einstellungsseite des
+"Workplace Shell"-Objekts, aber diese Seite wurde ein wenig zu klein, um all die
+Informationen bereitstellen zu k”nnen.
+<!-- V0.9.13: removed link
+See <A HREF="sys_4wpsclasses.html">"The WPS Class List"</A> for more information. -->
+ 
+<P><LI><IMG SRC="xfsys.gif"> Das neue Objekt <B>"&os2;-Kernel"</B> enth„lt diejenigen
+Seiten des alten "System"-Objektes, die sich allein mit den Interna von &os2; befassen.
+<P>In diesem Objekt befinden sich mehrere neue Einstellungsseiten, ber die einige
+Einstellungen in der Datei &cfgsys;, die sich im Wurzelverzeichnis des Systemlaufwerks
+befindet, beeinfluát werden k”nnen. Weil diese Einstellungen etwas schwierig im Kopf
+zu behalten sind und weil fehlerhafte Einstellungen unter Umst„nden dazu fhren k”nnen,
+daá &os2; gar nicht mehr startet, versucht &xwp;, Ihnen durch automatische Erzeugung
+der Anweisungen zu helfen.
+<P>Auf jeder dieser neuen Einstellungsseiten, die auf den folgenden Seiten n„her beschrieben werden,
+finden Sie - statt der blichen Schaltfl„chen "Widerrufen" und "Standard" - eine Schaltfl„che namens
+"Anwenden". Bei deren Bet„tigung wird die &cfgsys;-Datei mit Ihren neuen Einstellungen aktualisiert.
+ 
+<P>Die einzelnen Einstellungen werden ausfhrlich erl„utert, wenn Sie die Schaltfl„che
+<B>"Hilfe"</B> auf einer der Einstellungsseiten drcken.
+ 
+<!-- V0.9.13: removed all this
+Please read the following pages to obtain a general
+introduction of what these settings do with certain parts of the &os2; kernel:
+A HREF="sys_5scheduler.html"The &os2; Scheduler
+sys_6memory.html" &os2; memory management
+ File-system caches
+-->
+ 
+<!-- V0.9.3: added the following list point and the image -->
+<P><LI><IMG SRC="xwpscreen.gif"> Das Einstellungsobjekt <B>"Bildschirm"</B> wurde mit V0.9.3
+neu einfhrt und enth„lt diejenigen Einstellungen des alten "System"-Objektes, die sich mit
+dem Bildschirm befassen. Wenn Sie <A HREF="06342intro_pagemage.html">&pgr;</A> aktiviert haben,
+werden hier zus„tzlich mehrere Seiten zur Konfiguration des &pgr;s eingefgt.
+ 
+</UL>Das <B>alte "System"-Objekt</B> funktioniert weiterhin,
+fr den Fall, daá andere WPS-Erweiterungen versuchen, diesem Objekt etwas hinzuzufgen. Solche Erweiterungen
+werden auch im neuen Objekt "&os2;-Kernel" erscheinen, welches die "System"-Charakteristika
+geerbt hat.
+<P>Bitte beachten Sie, daá Sie das alte "System"-Objekt und eines der neuen nicht gleichzeitig
+”ffnen sollten, um Einstellungen zu „ndern. Die Einstellungsseiten sind nicht darauf ausgelegt
+und die WPS-Einstellungen k”nnten durcheinandergebracht werden.
+<!-- the following added with V0.9.0 -->
+<P>Weitere Einstellungsseiten befinden sich in den Einstellungsnotizbchern aller Ordner,
+der Arbeitsoberfl„che, des <A HREF="xsd_3folders.html">&xwp;-Systemstartordners</A>
+und des <A HREF="file_2trashcan.html">&xwp;-Papierkorbs</A>.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

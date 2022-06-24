@@ -1,0 +1,302 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPFolder-Strings
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<BODY>
+<CODE>WPFolder</CODE> ist die WPS-Klasse fÅr alle Ordner
+<!-- V0.9.16: added this bracket with link -->
+(siehe <A HREF="glossary/gls_wpsclasses.html">WPS-Klassen</A> fÅr Details).
+ZusÑtzlich zu den Konfigurationsstrings, die von der
+Klasse <CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> erkannt werden,
+erkennt <CODE>WPFolder</CODE> die folgenden Strings:
+ 
+<DL>
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<DT><CODE><B>ACCELERATORS</B>={YES|NO|DEFAULT}</CODE> (nur mit &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob dieser auf Ordner-TastenkÅrzel reagiert.
+Diese Einstellung entspricht derjenigen auf der
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Anzeige"-Seite im Einstellungsnotizbuch.
+YES oder NO setzt die Einstellung dieses Ordner unabhÑngig davon, was in den globalen
+Einstellungen angegeben wurde, wÑhrend DEFAULT diese Einstellung auf den globalen
+Wert setzt.
+ 
+<!-- V0.9.20: rewrote ALWAYSSORT -->
+<P><DT><CODE><B>ALWAYSSORT</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt fÅr einen einzelnen Ordner fest, ob dieser die Sortierreihenfolge immer beibehÑlt.
+Das ôffnen eines Ordners oder das HinzufÅgen eines Objekts dazu kann lÑnger dauern, wenn
+die Sortierreihenfolge beibehalten wird. Beachten Sie, da· die Option <CODE>DEFAULT</CODE>
+nur bei installiertem &xwp; verfÅgbar ist, welches die Einstellung dann auf den Wert zurÅcksetzt,
+der auf der Seite "Sortieren" des Objektes "Workplace Shell" festgelegt wurde.
+ 
+<P><DT><CODE><B>BACKGROUND</B>=<I>name</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>Legt den Hintergrund eines Ordners fest, wobei:
+ 
+<P><CODE><I>name</I></CODE> = Name einer Bilddatei. Dieser Name
+mu· der voll qualifizierter
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+der Bilddatei sein. "?:\" ist zur Angabe des Systemlaufwerkes erlaubt.
+ 
+<P><CODE><I>mode</I></CODE> = Bildmodus. Dieser Modus kann einer
+der folgenden sein:
+<BR><CODE>N</CODE> = Normales Bild
+<BR><CODE>T</CODE> = Gekacheltes Bild
+<BR><CODE>S</CODE> = Angepa·tes Bild
+ 
+<P><CODE><I>factor</I></CODE> = AnpassungsverhÑltnis.
+ 
+<P><CODE><I>bgtype</I></CODE> = Hintergrundtyp. Kann einer der
+folgenden sein:
+<BR><CODE>I</CODE> = Bild
+<BR><CODE>C</CODE> = Nur Farbe
+ 
+<P><CODE><I>bgcol</I></CODE> = Hintergrundfarbe. Diese
+Farbe besteht aus 3 Zahlen, die RGB-Werte reprÑsentieren und
+durch Leerzeichen getrennt werden
+(<CODE>r g b</CODE>, fÅr rote, grÅne und blaue Werte).
+<P>Beispiel:
+<CODE>BACKGROUND=C:\OS2\BITMAP\OS2LOGO.BMP,S,3,I
+</CODE>oder
+<CODE>BACKGROUND=(none),,,C,0 128 128</CODE>
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>DEFAULTSORT</B>=<I>crit</I></CODE> (nur &xwp;)
+<DD>Hiermit wird das Standardsortierkriterium fÅr einen einzelnen Ordner auf einen anderen
+Wert als den des globalen Sortierkriteriums festgelegt.
+<CODE><I>crit</I></CODE> kann folgende Werte annehmen:
+<BR><CODE>  -1   </CODE>nach Dateityp sortieren
+<BR><CODE>  -2   </CODE>nach Name sortieren
+<BR><CODE>  -3   </CODE>nach Objektklasse sortieren
+<BR><CODE>  -4   </CODE>nach Dateierweiterung sortieren
+<BR><CODE>  255  </CODE>auf das globale Sortierkriterium zurÅcksetzen
+<P>Beachten Sie, da· abhÑngig von der Ordnersortierklasse auch Werte zwischen 0 und 100
+unterstÅtzt werden kînnen. Diese Werte hÑngen mit den Indizes der Objektdetailspalten
+in der Detailanzeige zusammen und sind klassenspezifisch. Experimentieren Sie mit
+den Konfigurationsstring-Werten, die im Einstellungsnotizbuch eines Ordners angezeigt
+werden.
+ 
+<P><DT><CODE><B>DEFAULTVIEW</B>=DEFAULT</CODE>
+<DD>Setzt die standardmÑ·ig zu îffnende Anzeige auf den Wert,
+der im
+<!-- V0.9.20: replaced system with workplace shell, dammit -->
+Objekt "Workplace Shell" festgelegt wurde.
+Dies ist der Standardwert.
+<P>Beachten Sie, da· <CODE>DEFAULTVIEW</CODE> eigentlich ein
+<A HREF="objects/string_1wpobject.html">Konfigurationsstring fÅr WPObject</A>, aber
+nur fÅr Unterklassen von WPObject, wie z.B. WPFolder, von Bedeutung ist.
+ 
+<P><DT><CODE>DEFAULTVIEW={SETTINGS|ICON|TREE|DETAILS}</CODE>
+<DD>Legt die Standardanzeige auf die angegebene Ordneranzeige fest.
+ 
+<P>Beachten Sie, da· <CODE>DEFAULTVIEW</CODE> eigentlich ein
+<A HREF="objects/string_1wpobject.html">Konfigurationsstring fÅr WPObject</A>, aber
+nur fÅr Unterklassen von WPObject, wie z.B. WPFolder, von Bedeutung ist.
+ 
+<P><DT><CODE><B>DETAILSCLASS</B>=<I>classname</I></CODE>
+<DD>Legt die Objektklasse fest, fÅr die in der Detailanzeige ausfÅhrliche Informationen
+angezeigt werden. Die Standard-Objektklasse ist WPFileSystem. Sie sollten hiermit nicht
+herumexperimentieren.
+ 
+<P><DT><CODE><B>DETAILSFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>éndert die Schriftart, die in der Detailanzeige verwendet wird.
+Zum Beispiel: <CODE>9.WarpSans Bold</CODE>.
+Der Standardwert ist <CODE>8.Helv</CODE> (bei Warp 3)
+ 
+<P><DT><CODE><B>DETAILSSHADOWCOLOR</B>=<I>color</I></CODE> (nur &warp4; und neuer)
+<DD>Textfarbe fÅr Referenz-Objekte in der Detailanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>DETAILSTEXTCOLOR</B>=<I>color</I></CODE> (nur &warp4; und neuer)
+<DD>Textfarbe fÅr normale Objekte in der Detailanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>DETAILSVIEW</B>=<I>style</I></CODE>
+<DD>Legt den angegebenen Stil fÅr die Detailanzeige fest. Mîgliche
+Werte sind:
+<BR><CODE>MINI</CODE> kleine Symbole; dies ist der Standardwert.
+<BR><CODE>NORMAL</CODE> normal-gro·e Symbole.
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifdef  -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P><DT><CODE><B>FAVORITEFOLDER</B>={YES|NO}</CODE> (nur mit &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob dessen Inhalt Åber alle &popmenu;s
+des Systems angezeigt werden kann.
+Diese Einstellung entspricht derjenigen auf der Seite
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Anzeige" des Einstellungsnotizbuches.
+Standard ist NO. FÅr diese Einstellung gibt es keinen globalen Wert.
+</IFNDEF>
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>FULLPATH</B>={YES|NO|DEFAULT}</CODE> (nur mit &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob sein voller Pfad in der Titelzeile angezeigt wird.
+Diese Einstellung entspricht derjenigen auf der Seite
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabhÑngig davon fest, was in den globalen Einstellungen
+angegeben wurde, wÑhrend DEFAULT die Einstellung auf den globalen Wert setzt.
+ 
+<P><DT><CODE><B>ICONFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>Konfigurationsstring zur énderung der in der Symbolanzeige
+verwendeten Schriftart.
+Beispiel:  <CODE>10.Helv</CODE>
+ 
+<P><DT><CODE><B>ICONNFILE</B>=<I>index</I>,<I>filename</I></CODE>
+<DD>Legt den Dateinamen fÅr das Animationssymbol (geîffneter Ordner) fest.
+Der Wert <CODE><I>index</I></CODE> mu· auf 1 gesetzt werden.
+Die angegebene Datei (".ICO") enthÑlt das Symbol fÅr den geîffneten Ordner.
+ 
+<P><DT><CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfile</I></CODE>
+<DD>Legt in einer Ressourcendatei befindliche Daten als Animations-Symbol
+(geîffneter Ordner) fest.
+Der Wert <CODE><I>index</I></CODE> mu· auf 1 gesetzt werden.
+Die <CODE><I>id</I></CODE> identifiziert die Symbolressource
+in der
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfile</I></CODE>.
+ 
+<P><DT><CODE><B>ICONSHADOWCOLOR</B>=<I>color</I></CODE> (nur &warp4; und neuer)
+<DD>Textfarbe fÅr Referenzsymbole
+in der Symbolanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>ICONTEXTBACKGROUNDCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Hintergrundfarbe fÅr normalen Text in der Symbol-, Struktur- und Detailanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>ICONTEXTCOLOR</B>=<I>color</I></CODE> (nur &warp4; und neuer)
+<DD>Textfarbe fÅr normale Symbole in der Symbolanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>ICONTEXTVISIBLE</B>={YES|NO}</CODE>
+<DD>Legt fest, ob die Titel von Objekten in einem Ordner in der Symbolanzeige
+angezeigt werden oder nicht.
+ 
+<P><DT><CODE><B>ICONVIEW</B>=<I>style1</I>[,<I>style2</I>...]</CODE>
+<DD>Legt die angegebenen Stile fÅr die Symbolanzeige fest. Mîgliche
+Werte sind: <CODE>FLOWED NOGRID INVISIBLE NONFLOWED MINI NORMAL</CODE>
+<BR>Der Standardwert ist <CODE>NOGRID,NORMAL</CODE>
+<BR>Die Einstellungen entsprechen denen auf der Seite "Symbolanzeige"
+im Einstellungsnotizbuch eines Ordners.
+ 
+<P><DT><CODE><B>ICONVIEWPOS</B>=<I>x</I>,<I>y</I>,<I>cx</I>,<I>cy</I></CODE>
+<DD>Legt die anfÑngliche Position und Grî·e auf dem Bildschirm fÅr Ordner
+in Symbolanzeige fest. Die Werte werden in Prozent (0-100) der Bildschirmgrî·e
+angegeben.
+ 
+<P><DT><CODE><B>MENUBAR</B>={YES|NO}</CODE> (nur &warp4; und neuer)
+<DD>Legt fest, ob die MenÅleiste eines Ordners angezeigt wird oder nicht.
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+    added ifdef -->
+<IFNDEF __NOQUICKOPEN__>
+<P><DT><CODE><B>QUICKOPEN</B>={YES|NO|IMMEDIATE}</CODE> (nur &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob dieser beim Start der WPS vor-bevîlkert wird.
+Diese Einstellung entspricht derjenigen auf der Seite
+"Anzeige" im Einstellungsnotizbuch.
+YES oder NO setzt die Einstellung fÅr diesen Ordner.
+Standard ist NO. FÅr diese Einstellung gibt es keinen globalen Wert.
+<P>Als besonderer Befehl bevîlkert <CODE>QUICKOPEN=IMMEDIATE</CODE> den Ordner sofort.
+Dies kann von einem REXX-Skript aus benutzt werden, um das Bevîlkern eines Ordners zu erzwingen,
+ohne ihn îffnen zu mÅssen. Infolgedessen handelt es sich bei <CODE>QUICKOPEN=IMMEDIATE</CODE>
+um keine Einstellung, sondern um einen Befehl, der auf einen Ordner angewendet wird.
+</IFNDEF>
+ 
+<P><DT><CODE><B>REMOVEFONTS</B>={YES|NO}</CODE>
+<DD>Hiermit kînnen alle Instanz-Schriftarten eines Ordner entfernt werden, d.h. solche,
+die nur auf diesen Ordner zutreffen (angegeben durch die entsprechenden Konfigurationsstrings
+oder im Einstellungsnotizbuch des Ordners). Standardwert ist <CODE>NO</CODE>.
+<BR>Dies ist eigentlich keine "Einstellung", sondern ein Befehl, der auf den Ordner angewendet wird.
+ 
+<P><DT><CODE><B>SHOWALLINTREEVIEW</B>={YES|NO}</CODE> (nur &warp4; und neuer)
+<DD>Legt fest, ob in einer geîffneten Strukturanzeige alle Objekte angezeigt werden oder nur Ordner.
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifndef -->
+<IFNDEF __NOSNAPTOGRID__>
+<P><DT><CODE><B>SNAPTOGRID</B>={YES|NO|DEFAULT|EXEC}</CODE> (nur &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob in dessen &popmenu; der Eintrag "Am Gitter ausrichten"
+erscheint. 
+Diese Einstellung entspricht derjenigen auf der Seite
+"Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabhÑngig davon fest, was in den globalen Einstellungen
+angegeben wurde, wÑhrend DEFAULT die Einstellung auf den globalen Wert setzt.
+EXEC wendet die Funktion "Am Gitter ausrichten" auf den Ordner an, als ob Sie sie aus dessen
+&popmenu;funktion ausgewÑhlt hÑtten. Deshalb ist EXEC keine Einstellung, sondern ein Befehl, der auf
+einen Ordner angewendet wird.
+</IFNDEF>
+ 
+<P><DT><CODE><B>SORTCLASS</B>=<I>classname</I></CODE>
+<DD>Legt die Objektklasse fest, nach der sortiert werden soll.
+Standard ist WPFileSystem.
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTFOLDERSFIRST</B>={YES|NO|DEFAULT}</CODE> (nur &xwp;)
+<DD>Legt fÅr einen einzelnen Ordner fest, ob darin enthaltene Ordner zuerst einsortiert werden.
+Diese Einstellung entspricht derjenigen auf der Seite "Sortieren" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabhÑngig davon fest, was in den globalen Einstellungen
+angegeben wurde, wÑhrend DEFAULT die Einstellung auf den globalen Wert setzt.
+<!-- end V0.9.12 -->
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTNOW</B>=<I>crit</I></CODE> (nur &xwp;)
+<DD>Damit werden alle momentan sichtbaren Anzeigen eines einzelnen Ordners sortiert, ohne
+die Einstellungen des Ordners zu Ñndern (im Gegensatz zu <CODE>DEFAULTSORT</CODE>). Dies ist keine
+wirkliche "Einstellung", sondern eher ein Befehl, der auf einen Ordner angewendet wird.
+<CODE><I>crit</I></CODE> hat dieselbe Bedeutung wie bei <CODE>DEFAULTSORT</CODE>.
+ 
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>STATUSBAR</B>={YES|NO|DEFAULT}</CODE> (nur &xwp;)
+<DD>Legt den Sichtbarkeitsstatus der Statuszeile fÅr einen einzelnen Ordner fest.
+Diese Einstellung entspricht derjenigen auf der Seite
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabhÑngig davon fest, was in den globalen Einstellungen
+angegeben wurde, wÑhrend DEFAULT die Einstellung auf den globalen Wert setzt.
+ 
+<P><DT><CODE><B>TREEFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>Mit diesem Konfigurationsstring kann die in Strukturanzeigen
+verwendete Schriftart geÑndert werden.
+Beispiel: <CODE>10.Helv</CODE>
+ 
+<P><DT><CODE><B>TREESHADOWCOLOR</B>=<I>color</I></CODE> (nur &warp4; und neuer)
+<DD>Textfarbe fÅr Referenzsymbole in der Strukturanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>TREETEXTCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Textfarbe fÅr normale Symbole in der Strukturanzeige.
+<CODE><I>color</I></CODE> kann ein Standardfarbname oder ein Satz
+Werte im Format <CODE><I>r g b</I></CODE> sein (fÅr rote, grÅne und blaue Werte).
+ 
+<P><DT><CODE><B>TREETEXTVISIBLE</B>={YES|NO}</CODE> (&warp4; and higher only)
+<DD>Legt fest, ob die Titel von Objekten in der Strukturanzeige angezeigt werden
+oder nicht.
+ 
+<P><DT><CODE><B>TREEVIEW</B>=<I>style1</I>[,<I>style2</I>...]</CODE>
+<DD>Legt fÅr die Strukturanzeige die angegebenen Stile fest.
+Mîgliche Werte sind: <CODE>INVISIBLE LINES MINI NOLINES NORMAL</CODE>
+<BR>Standardwert ist <CODE>LINES, NORMAL</CODE>.
+<BR>Die Einstellungen entsprechen der Seite "Strukturanzeige" im
+Einstellungsnotizbuch der Ordner.
+ 
+<P><DT><CODE><B>WORKAREA</B>={YES|NO}</CODE>
+<DD>Legt fest, ob es sich bei einem Ordner um einen Arbeitsordner handelt.
+Standard ist <CODE>NO</CODE>.
+</DL>
+</BODY>
+</HTML>

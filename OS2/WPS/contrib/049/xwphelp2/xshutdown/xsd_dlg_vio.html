@@ -1,0 +1,51 @@
+<HTML RESID=&ID_XFH_CLOSEVIO;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Nicht-PM-Sitzungen schlieáen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.1 -->
+<BODY>
+ 
+Der Dialog "... kann nicht geschlossen werden..." erscheint, wenn &xshutdown; auf eine
+Sitzung st”át, die nicht vom Presentation Manager (PM) kontrolliert wird. Das
+schlieát &os2;- and DOS-Fenster im Textmodus und &winos2;-Sitzungen mit ein, seien sie
+im Fenster- oder Vollbildmodus.
+ 
+<P>Da es keine vorgeschriebene Methode gibt, wie solche Sitzungen geschlossen werden
+sollen, fragt &xshutdown; nun danach. Folgende Aktionen sind vorgesehen:
+ 
+<UL><BR><LI><B>"Sitzung berspringen"</B> <I>schlieát</I> die Sitzung <I>nicht</I>,
+sondern berspringt sie, als wenn Sie die Schaltfl„che "šberspringen" im
+Statusfenster des &xshutdown; gedrckt h„tten.
+ 
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"PM-Fenster schlieáen"</B> simuliert die Auswahl des Menpunktes
+"Schlieáen" im Systemmen der Sitzung. Dies sollte sowohl bei VIO-Fenstern
+als auch Vollbild-Sitzungen funktionieren, da letzterer Sitzungstyp auch von einem
+minimierten Symbol auf der Arbeitsoberfl„che repr„sentiert wird. Das kann
+allerdings ein zus„tzliches (normales &os2;-)Best„tigungsfenster zur Folge
+haben, das nachfragt, ob die Sitzung wirklich geschlossen werden soll.
+ 
+<BR><LI><B>"Sitzung killen"</B> schlieát die Sitzung ohne weitere Diskussion. Dies
+wendet das <CODE>DosKillProcess</CODE>-API auf den Prozeá der Sitzung an.
+ 
+</UL>Beachten Sie, daá keine dieser Methoden die Daten dieser Sitzung sichert.
+Wenn Sie die Daten einer bestimmten Sitzung sichern m”chten, sollten Sie deren
+Titel nicht in diesem Dialog angeben, und Sie sollten auch "Nicht-PM-Sitzungen
+automatisch schlieáen" im Einstellungsnotizbuch der Arbeitsoberfl„che nicht
+aktivieren.
+ 
+<P>Wenn die Option <B>"Diese Sitzung mit Details fr automatisches Schlieáen..."</B>
+aktiviert ist, speichert &xshutdown; die ausgew„hlte Aktion fr alle zuknftigen
+Sitzungen mit demselben Titel. Wenn Sie diese Option aktivieren, wird der
+Sitzungstitel zu der Liste der automatisch zu schlieáenden Sitzungen hinzugefgt,
+die im <A HREF="xshutdown/xsd_autoclose.html">Dialog "Details fr automatisches Schlieáen"</A>
+auf der Seite "&xshutdown;" im <A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+der Arbeitsoberfl„che angezeigt wird.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

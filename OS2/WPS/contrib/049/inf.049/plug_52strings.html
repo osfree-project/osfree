@@ -1,0 +1,98 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Schritt 2: Einstellungsstrings untersttzen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+OK, Ihr minimales Widget von Schritt 1 l„uft schon mal.
+ 
+<P>Sie haben wahrscheinlich schon herausgefunden, daá das minimale Widget zwar
+darauf reagiert, wenn Schriftarten und Farben darauf fallengelassen werden,
+diese Schriftarten und Farben aber nicht gespeichert werden, wenn das &xcenter;
+geschlossen und wieder ge”ffnet wird.
+ 
+<P>Wenn Sie das minimale Widget so ver„ndert haben, daá es in der Gr”áe ver„ndert
+werden kann (durch Setzen des Attributs <CODE>WGTF_SIZEABLE</CODE> im Feld
+<CODE>ulClassFlags</CODE> von
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>),
+werden Sie genauso bemerkt haben, daá die Gr”áe des Widgets auch nicht erhalten
+bleibt.
+ 
+<P>Sicher, das &xcenter; k”nnte das Speichern dieser Einstellungen fr Ihr
+Widget implementiert haben. Aber wo wrde dann Ihr Widget zus„tzliche Daten
+speichern, von denen das &xcenter; dann nichts weiá? Die Profil-Funktionen
+zu benutzen, um die Daten des Widgets in der <CODE>OS2.INI</CODE> zu speichern,
+w„re keine gute Idee, denn es k”nnte mehrere Instanzen Ihren Widgets geben, die
+ihre Daten alle unabh„ngig voneinander speichern k”nnen sollen.
+ 
+<P>Deshalb habe ich mir berlegt, daá es die beste M”glichkeit w„re, die Daten
+des Widgets mit den Daten des &xcenter;s, zu dem das Widget geh”rt, zu speichern.
+ 
+<P>Um dies m”glichst flexibel und einfach zu halten, k”nnen die Widgets
+<B>Einstellungsstrings</B> zugeordnet bekommen. Wenn Sie sich die Seite
+"Widgets" im Einstellungsnotizbuch eines &xcenter;s ansehen, werden Sie bemerken,
+daá jedes Widget einen eigenen Einstellungsstring benutzen kann, um all die Daten
+zu speichern, die n”tig sind.
+ 
+<P>Obwohl die Widgets nicht selbst Objekte auf der Arbeitsoberfl„che sind, habe
+ich mich zur Vereinfachung entschieden, das Format der WPS-Einstellungsstrings
+genauso auch fr die Widgets zu benutzen. Das heiát, daá Ihr Widget z. B. den
+Einstellungsstring <CODE>BACKGROUNDCOLOR=00FF00;</CODE> interpretieren kann, der
+die Farbe des Widget-Hintergrundes auf grn setzen wrde.
+ 
+<P>Ihre Widget-Klasse muá nun zwei Dinge implementieren:
+ 
+<UL><LI><B>Einen Einstellungsstring zu parsen</B> und ihn in Bin„rdaten zu
+verwandeln, die Ihr Widget benutzen kann. Im obigen Beispiel mit der Hintergrundfarbe
+k”nnten Sie sagen, daá der String <CODE>BACKGROUNDCOLOR</CODE> von einem
+sechsstelligen RGB-Wert in Hex gefolgt sein máte. Die Definition ist Sache
+der Widget-Klasse.
+ 
+<P><LI><B>Einen Einstellungsstring</B> von einer Menge von Bin„rdaten zu
+<B>erzeugen</B>. Das wird gebraucht, wenn die Daten Ihres Widgets gespeichert werden
+sollen.
+ 
+</UL>Wenn Ihr Widget erzeugt wird, erh„lt es einen vorher gespeicherten
+Einstellungsstring im Feld <CODE>pcszSetupString</CODE> seiner
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>-Struktur, mit der
+auch <CODE>WM_CREATE</CODE> kommt. Sie k”nnen dann Ihre eigene Struktur erstellen
+und sie in <CODE>XCENTERWIDGET.pUser</CODE> speichern, den Einstellungsstring
+parsen und die Werte dann darin speichern. Natrlich sollten Sie auch vernnftige
+Standardwerte vorsehen, wenn ein Einstellungsstring fehlt, weil er noch nicht da ist,
+wenn Ihr Widget das erste Mal vom Benutzer erzeugt wird.
+ 
+<P>Wenn andersherum die Daten Ihres Widgets sich ge„ndert haben (z.B. weil eine neue
+Hintergrundfarbe darauf fallengelassen wurde), sollte es einen neuen Einstellungsstring
+erzeugen.
+<!-- V0.9.14: changed the following -->
+Nachdem der Einstellungsstring erzeugt wurde, muá das Widget die Nachricht
+<CODE>XCM_SAVESETUP</CODE> an sein Mutterfenster schicken (das entweder das
+&xcenter; ist oder das Fenster des Fach-Widgets, in dem das Widget sich befindet),
+<!-- end V0.9.14 -->
+was dann zur Folge hat, daá der neue Einstellungsstring zusammen mit den anderen
+Daten des Widgets in den privaten Daten des &xcenter;s gespeichert wird. Siehe auch
+<CODE>center.h</CODE> fr die Details.
+ 
+<P>Um die Funktionalit„t der Einstellungsstrings zu verpacken, empfehle ich, daá Sie
+eine neue Struktur fr "speicherbare Instanzdaten" definieren. Diese k”nnte z.B.
+Felder fr Hintergrund- und Vordergrundfarbe und die benutzte Schriftart enthalten.
+Fr in der Gr”áe ver„nderbare Widgets k”nnte das auch die momentane Gr”áe umfassen.
+ 
+<P>Diese Verpackung erlaubt es Ihrer Widget-Klasse, sp„ter auf der Basis von
+Einstellungsstrings auch mit Einstellungsdialogen zu arbeiten, die sogar aufgerufen
+werden k”nnen, wenn es noch gar keins Ihrer Widgets gibt.
+ 
+<P>Das minimale Beispiel enth„lt noch keine Vorkehrungen fr Einstellungsstrings.
+Laden Sie den &xwp;-Quellcode herunter und schauen Sie sich die Dateien im
+Verzeichnis <CODE>src\widgets</CODE> an, das noch mehr Beispiele dazu enth„lt, wie
+es funktioniert. Die <CODE>XFLDR.DLL</CODE> exportiert auáerdem ein paar ntzliche
+Funktionen, die Sie benutzen k”nnen, um Einstellungsstrings einfacher zu parsen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

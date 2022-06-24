@@ -1,0 +1,85 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Steg 2: St”d f”r Setupstr„ngar
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+OK, din minimala widget fr†n steg 1 k”rs.
+
+<P>Du har troligtvis redan r„knat ut att trots att den minimala widgeten regagerar p† att fonter och 
+f„rger sl„pps p† den, kommer dessa fonter och f„rger inte att sparas n„r &xcenter; st„ngs och
+sedan †ter ”ppnas.
+
+<P>Liknande, om du „ndrade den minimala widgeten till att bli storleksf”r„ndringsbar 
+(genom att s„tta <CODE>WGTF_SIZEABLE</CODE> flaggan i <CODE>ulClassFlags</CODE> f„ltet hos
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>,
+kommer du att se att widgetens storlek inte heller kommer att kommas ih†g.
+
+<P>Naturligtvis, &xcenter; kunde ha implementerat sparande av dess inst„llningar hos
+din widget. Men sedan, var skulle din widget lagra ytterligare data som &xcenter; inte
+skulle k„nna till? Att anv„nda profilfunktioner f”r att lagra widgetdata i 
+<CODE>OS2.INI</CODE> skulle inte vara n†gon bra id‚ d„rf”r att det kan finnas †tskilliga
+instanser av din widget, vilka alla b”r lagra sina data oberoende.
+
+<P>Som ett resultat, jag r„knade ut att lagra data tillsammans med data hos &xcenter; som 
+widgeten tillh”r skulle vara den b„sta l”sningen.
+
+<P>F”r att g”ra detta ytterst flexibelt och enkelt att anv„nda, kan widgets ha <B>setupstr„ngar</B>
+associerade till sig. Om du tittar p† sidan "Widgets" i notboken med inst„llningar hos &xcenter;, 
+kommer du att se att varje widget kan ha sin egen setupstr„ng f”r att lagra det data som den vill.
+
+<P>Žven om widgets inte sj„lva „r n†gra Skrivbordsobjekt, f”r enkelhetens skull, har jag valt
+att anv„nda WPS setupstr„ngformat ocks† f”r widgets. Det betyder, din widget kan f”rst†, till exempel,
+en <CODE>BACKGROUNDCOLOR=00FF00;</CODE> setupstr„ng, vilken skulle s„tta widgetens bakgrundsf„rg
+till gr”n.
+
+<P>Din widgetklass m†ste nu implementera tv† saker:
+
+<UL><LI><B>Analysera en setupstr„ng</B> och konvertera den till bin„rt data som din
+widget kan anv„nda. I det ovanst†ende exemplet, f”r bakgrundsf„rgen, kan du s„ga att
+<CODE>BACKGROUNDCOLOR</CODE> str„ngen skulle ha f”ljts av ett sex-siffrigt RGB hexv„rde.
+Definitionen „r upp till din widgetklass.
+
+<P><LI><B>Skapa en setupstr„ng</B> fr†n en upps„ttning bin„ra v„rden. Detta „r n”dv„ndigt
+n„r datat f”r din widget skall sparas.
+
+</UL>N„r din widget „r skapad, erh†ller den en tidigare lagrad setupstr„ng i 
+<CODE>pcszSetupString</CODE> f„ltet i sin
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A> struktur som 
+kommer med <CODE>WM_CREATE</CODE>. Du kan sedan allokera din egen struktur och lagra
+den i <CODE>XCENTERWIDGET.pUser</CODE>, analysera setupstr„ngen, och lagra dess 
+v„rden d„r. Naturligtvis, b”r du s„tta upp s„kra standardv„rden om en setupstr„ng 
+saknas d„rf”r att det finns inte n†gon n„r din widget ursprungligen skapas av
+anv„ndaren.
+
+<P>Omv„nt, n„r din widgets data har „ndrats (t.ex. d„rf”r att en ny bakgrundsf„rg
+har sl„ppts p† den), b”r den skapa en ny full setupstr„ng.
+<!-- V0.9.14: changed the following -->
+Efter att den nya setupstr„ngen „r komponerad, m†ste widgeten s„nda
+<CODE>XCM_SAVESETUP</CODE> meddelandet till sitt f”r„ldrarf”nster (vilken antingen
+„r &xcenter; klient eller ett fack-widgetf”nster, om widgeten lagras i ett fack),
+<!-- end V0.9.14 -->
+vilket kommer att orsaka att en ny setupstr„ng lagras tillsammans med andra widgetdata i
+&xcenter;'s privata data. Se <CODE>center.h</CODE> f”r detaljer.
+
+<P>F”r att kunna kapsla in setupstr„ngens funktionalitet, rekommenderar jag dig att skapa
+en ny strukturdefinition f”r "nedsparningsbara instansdata". Den kan, till exempel, 
+inneh†lla f„lt f”r bakgrunds-, f”rgrundsf„rg och fonter att anv„ndas. F”r
+storleksf”r„ndringsbara widgets, kan den ocks† inneh†lla aktuell storlek.
+
+<P>Denna inkapsling till†ter din widgetklass att fungera ocks† med setupstr„ngar med 
+setupdialoger senare, vilka „ven kan anropas n„r ingen instans av din widget
+f”r n„rvarande existerar.
+
+<P>Det minimala exemplet tillhandah†ller inga m”jligheter f”r setupstr„ngar. Ladda ner &xwp;'s
+k„llkod och titta i <CODE>src\widgets</CODE> katalogen, vilken inneh†ller fler exempel p†
+hur detta fungerar. <CODE>XFLDR.DLL</CODE> exporterar ocks† en par andra anv„ndbara
+funktioner som du kan anv„nda f”r att analysera setupstr„ngar p† ett enklare s„tt.
+
+<BR>
+</BODY>
+</HTML>
+
+

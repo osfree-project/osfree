@@ -1,0 +1,24 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Steg 3: L„gga till verktygstips
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+F”r att ge din widget st”d f”r verktygstips (bubbelhj„lp), s„tt <CODE>WGTF_TOOLTIP</CODE> flaggan
+i <CODE>ulClassFlags</CODE> f„ltet hos <A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>.
+
+<P>Endast om den biten „r satt, kommer din widget att erh†lla ett <CODE>WM_CONTROL</CODE> meddelande med
+<CODE>TTN_NEEDTEXT</CODE> tillk„nnagivanden och <CODE>XCENTER_TOOLTIP</CODE> som kontroll ID's.
+
+<P>Du m†ste inkludera <CODE>include\helpers\comctl.h</CODE> fr†n &xwp; helpers f”r definitionerna av &xwp; 
+verktygstips kontroll.
+
+<P>Igen, om du har den fulla &xwp; k„llkoden, se widgets i <CODE>src\widgets</CODE> f”r hur detta „r utf”rt.
+
+<BR>
+</BODY>
+</HTML>
+
+

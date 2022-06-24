@@ -1,0 +1,72 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Images and Screenshots
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+The images in both the INF and HELP directory are in GIF format.
+Unfortunately, HTML does not support the OS/2 BMP format, and <CODE>ipfc</CODE>
+does not support GIF.
+
+<P>So the makefiles in INF and HELP automatically convert all GIF images to
+BMP format, if required. This requires <CODE>gbmsize.exe</CODE> to be on your PATH
+(see <A HREF="nls_2requires.html">"Requirements"</A>)
+
+<P>If you do not want to use <CODE>gbmsize</CODE>, you can convert all the
+GIFs to BMPs manually, e.g. using PMView.
+Be careful though: <B>IPFC only supports uncompressed OS/2 1.3 bitmaps.</B>
+That is, neither compressed bitmaps nor Windows or OS/2 2.0 bitmaps work.
+This is annoying, because IPFC's own image compression is totally outdated,
+but there's nothing we can do about this.
+
+<P>I'd be very grateful if you could create your own screenshots
+for the online documentation to reflect your language.
+
+<P>I have used the following settings for the screenshots (just for your
+information, you don't have to use these):
+
+<PRE>
+
+Fonts used:
+Titlebars: Humanist 521, 13 points (available on the
+           CorelDraw 4 CD in Type 1 format)
+All the other fonts are set to 9.WarpSans.
+
+CandyBarZ installed, colors:
+Active:     top 191/0/0, bottom 52/0/0
+Inactive:   top 160/160/130, bottom 40/40/40
+
+Oh yes, XWorkplace installed. ;-)
+</PRE>
+
+Now, if you create your own screenshots, save them as GIFs with the
+exact filenames of the originals (e.g. <CODE>trunc.gif</CODE>); you must then
+DELETE the respective BMP file, because HTML2IPF will only call the
+image converter for BMP if no BMP file of the same name exists.
+<P>
+<B>Tricks to reduce file sizes:</B>
+<P>
+Keep in mind that HLP/INF files have their own compression scheme which
+works best when much redundant data is in the bitmap files. For those who know
+what that is: IPFC compresses using a modified Lempel-Ziv-Welch algorithm
+(similar to the GIF format).
+In plain English, large areas which have the same color can be compressed best.
+
+<P>This leads to the following recommendations:
+<UL><LI>Do not take screenshots of folders with background bitmaps. There will
+be practically no compression on those.
+<P><LI>Use as few colors as possible. You can use PMView to reduce the number
+of colors to, say, 12 colors, which usually still looks alright.
+<P><LI>When converting images, make
+sure you don't have &quot;dithering&quot; or &quot;error diffusion&quot; enabled, because
+this will add lots of extra pixels which will make compression less
+efficient.
+<P><LI>Also, if you need to scale images to a smaller size, make sure not to
+enable any "interpolation", i.e. introducing extra pixels to make colors smoother.
+This adds lots more colors to the file, which cannot be compressed well either.
+</UL>
+</BODY>
+</HTML>

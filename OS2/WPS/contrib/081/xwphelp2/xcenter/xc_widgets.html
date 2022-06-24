@@ -1,0 +1,48 @@
+<HTML RESID=&ID_XSH_XCENTER_WIDGETS;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Widgets
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+The "Widgets" page in an &xcenter; properties notebook allows you to view
+and modify the
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_widgets.html">widgets</A>
+in that &xcenter;.
+<!-- V0.9.19: removed this For an introduction about the &xcenter;
+and widgets, see this page. -->
+
+<P>The widgets are listed in a details view, with the &xcenter;'s leftmost widget
+on top in the list and numbered from 0 upwards. Trays and widgets in a
+<A HREF="xcenter/xc_tray.html">&xcenter;: Tray Widget</A> are numbered slightly
+differently - the format is <CODE>x.y.z</CODE> where <CODE>x</CODE> is the widget
+number in the &xcenter;, <CODE>y</CODE> is the number of the tray in the tray widget,
+and <CODE>z</CODE> is the number of the widget in that particular tray.
+
+<P>Note that you can <!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dragdrop.html">drag and drop</A>
+the items within the list to change the order of widgets in the &xcenter; bar,
+but not within trays themselves.<BR>
+Clicking with mouse button 2 in a row opens a &popmenu;. This has options to
+delete the widget and, if the widget's "Class" supports it, open its Properties.
+
+<P>The <B>"Class"</B> column displays the internal widget class name.
+(Note that widget classes are not true
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS classes</A>.
+Only the &xcenter; uses the class names to organize widgets internally, but
+the concept is somewhat similar, hence the name.)
+
+<P>The <B>"Setup"</B> column shows you the current setup string of the widget.
+Even though widgets are not Desktop objects, they save their setup internally with
+setup strings similar to those of the WPS. This allows the &xcenter; to combine
+all widget setup strings into its own WPS setup string so that an &xcenter; can
+be recreated identically somewhere else.
+
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,127 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: &xshutdown; Questions
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL>
+
+<LI><B>Why does automatic reboot not work on my system?</B>
+<P>I don't know, on some systems it just doesn't, for
+example my Warp 3 with FixPak 35, but it does on my Warp 4. I was unable
+to figure out what the reason for this is, but a few users have also reported this, and the
+problem also occurs with the WarpEnhancer reboot feature, so I guess it's not &xwp;'s
+<!-- V0.9.6: changed the following line -->
+fault. (The reboot feature uses an undocumented IOCtl to <CODE>DOS.SYS</CODE> anyway,
+so there is probably no guarantee by IBM that it will always work.) If you
+have the IBM BootManager installed, you can circumvent this problem by specifying
+<CITE>SETBOOT.EXE</CITE> as a user reboot option (Desktop settings notebook -> "XDesktop"
+page 1 -> "Actions").
+
+<P><LI><B>Is there anything which &xshutdown; does not properly save?</B>
+<P>Yes. &xshutdown; does not save positions of folders which have changed just before
+&xshutdown; was initiated, because the WPS <I>delays</I> saving folder positions
+in some background
+thread to which I have found no access, and the format of the folder position entries
+in OS2.INI is not documented, so I cannot do it myself. The same applies to
+folders which are closed by &xshutdown; itself. If you want folder positions to
+be saved, close them manually and wait a few (about 10-20) seconds before
+starting &xshutdown;.
+<P>(With "folder positions", I mean the position of an open folder <I>window</I> itself,
+not the positions of the icons in a folder. These are properly saved.)
+<P>Also, &xshutdown; cannot save changes to the Tasklist window (e.g. fonts or
+colors being dropped on them). If you want these changes saved, you'll have to
+use &os2;'s regular shutdown just once.
+
+<P><LI><B>Why do I keep getting errors while the INI files are being saved?</B>
+<!-- the following added with V0.9.0 -->
+<!-- completely rewritten with V0.9.6 -->
+<P>This is one of the all time favorites, and the problem has changed with several
+releases.
+<UL><LI>With early versions <B>before XFolder 0.85,</B> this was mostly due to INI keys
+which do not contain any data, which shouldn't happen. This has been fixed a long
+while ago.
+<P><LI>Still, many people reported these errors to occur pretty randomly, even with
+INI keys which <I>do</I> contain data. I was finally able to track this down to occur
+with pretty large INI files. I suspect that basically the problem sits in PM itself,
+since the <CODE>WinGetLastError</CODE> API
+frequently returns <CODE>PMERR_MEMORY_ALLOCATION_ERR</CODE>, which is cooly described
+in the PM reference with "An error occurred during memory management.".
+I believe that with large INI files, PM runs out of shared memory, which is used for
+INI file management. The limit above which the errors start to occur is dependent on
+how much shared memory is already used on the respective machine, but it's usually
+way above 1 MB per INI file.
+<P>Basically, <B>before V0.9.5,</B> &xwp; used PrfOpenProfile to create a
+new INI file (for the user and system INI file, respectively)
+and then went through all applications and keys in the profile and simply copied them.
+This caused quite some stress on the PM shared memory management.
+<P>Reducing the size of the INI files did help. By the way, it was not only &xshutdown;
+which fails on these INIs, but any other application which copies the user and system
+profiles bytewise also (I've checked this with WPSBackup once, which just crashes).
+<P>To reduce the size of the INIs, first of all, run CHECKINI (from Henk Kelder's
+WPTOOLS package) to have all invalid entries removed.
+In addition, use any INI editor to manually delete the following keys
+which can grow very large <I>(make a backup of your INIs before doing this):</I>
+<UL><LI><CODE>PM_Abstract:Icons</CODE>: this contains the icons for all abstract objects.
+By deleting this key, you will lose all user-defined icons for abstract objects, but
+in many cases, the data in here is redundant, because e.g. program objects use the
+executable's icon per default anyway.
+<LI><CODE>PM_Workplace:FolderPos</CODE>: this holds the window positions of all the
+folders that were ever opened by the WPS, even if a folder was last opened five years
+ago. You will lose all your folder positions when deleting this, but except for maybe
+a dozen folders this should be acceptable, and for those, you can quickly resize them
+again.
+</UL>
+<LI>With <B>V0.9.5,</B> I have rewritten the routines so the PM APIs are no longer
+used for creating the new profiles. Since Carsten Arnold told me the file format
+of the INI files, I wrote a set of routines which write these without using shared
+memory. Apparently, this helped. This is the "new method" which is now selectable
+on the "&xshutdown;" page in the Desktop's settings notebook.
+</UL>
+<!-- the following Q added with V0.9.4 -->
+<P><LI><B>After using Xhutdown, at the next reboot, the screen is reset to VGA, and
+I get a dialog saying that the Desktop could not be found. What is this?</B>
+
+<P>This is the same problem as described in the previous question. Obviously, your INI
+files have not been properly saved. As a result, &os2; reverts to default values for
+the screen and cannot find your desktop.
+
+<P>If this happens, you will find a backup copy of both OS2.INI and OS2SYS.INI in your
+\OS2 directory, renamed to .BAK. Before &xshutdown; saves the INI files, it renames the
+old ones. Boot to a command line (using Alt-F1 during startup) and rename these two
+backups back to *.INI.
+<!-- the following is unchanged -->
+
+<P><LI><B>Why is APM power-off is not working on my system?</B>
+<!-- V0.9.13: rewrote this -->
+<P>I don't know. On some systems, it just doesn't. I'm pretty sure it's not
+&xwp;'s fault because &xwp; does nothing but calling into the
+<CODE>APM.SYS</CODE> device driver, after which it has no control over what
+that driver is doing to power off the system.
+<P>IBM updated the APM APM support with Warp 4 Fixpak 6 (and possibly
+later too). The "&xshutdown;" page in the Desktop's settings
+notebook displays the version number of the installed APM driver, which should be
+at least 1.2 to make APM power-off work.
+<P>Even worse, there are many systems which have no 100% compatible APM support
+in the BIOS, and this might be the problem too.
+
+<P><LI><B>APM power-off works, but at the next reboot I am getting CHKDSKs.</B>
+
+<P>Again, &xwp; can't do much about this. I am getting these CHKDSKs too on
+my laptop, even though it's working fine on my desktop machine.
+Apparently <CODE>APM.SYS</CODE> does not wait long enough for some hard disk with
+large internal caches to flush their caches to disk before the system power is killed.
+This appears to be a generic problem which I've also read about with Win95, so you'll
+probably have to disable APM altogether in this case.
+<!-- end V0.9.13 -->
+</OL>
+</BODY>
+</HTML>
+
+
+

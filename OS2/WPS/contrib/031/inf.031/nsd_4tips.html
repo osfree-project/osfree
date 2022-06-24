@@ -1,0 +1,62 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Tips &amp; Tricks
+    </TITLE>
+</HEAD>
+<BODY>
+<OL><LI>Here's an unintended, but maybe useful side-effect: Since
+&os2; can share its DDE environment with a &winos2; session,
+NETSCDDE can even pass URLs to a running <B>&winos2; copy</B>
+of Netscape Navigator. This includes Communicator (Netscape 4).
+The only thing you have to do is enable WIN_DDE in the
+&winos2; session settings of your Windows Netscape program
+object. By specifying your Windows Netscape EXE file with
+<CITE>-p &lt;exe&gt;</CITE> (see above), NETSCDDE.EXE even provides for proper
+WPS integration of Windows Netscapes.
+
+<BR><LI>You can now (V1.1) also specify a <B>.CMD file</B> with <CITE>-p</CITE> and
+<CITE>-P</CITE> to have certain commands executed before and after
+Netscape is actually started. You should specify the <CITE>-m</CITE> or <CITE>-mh</CITE>
+options so that no
+ugly VIO window appears. Here is an example <CITE>NETSCAPE.CMD</CITE>:
+
+<PRE>@echo off
+rem do some initialization here, e.g. change directory
+cd D:\WebStuff
+rem now call Netscape
+netscape.exe
+rem now the .cmd file is put to sleep until Netscape is
+rem terminated; subsequent calls to NETSCDDE will contact
+rem this running Netscape instance
+rem after Netscape is terminated, execute this:
+call cleanup.cmd
+rem or whatever you want</PRE>
+
+<P>Thanks, Marcus de Geus, for this suggestion.
+
+<BR><LI>Here's a trick from Chris Wenham, senior editor of
+<A HREF="http://www.os2ezine.com">OS/2 e-zine</A>,
+found in the <B>SmartSuite</B> Mailing List (smartsuite-os2@makelist.com):
+<P><CITE>"If you need to
+change the web browser that Smartsuite apps call when you click one of
+their Internet buttons (like Organizer's button to go to the Almanack
+page), or send the URL to the currently running copy of Netscape
+instead of launching a new instance, you need to do this:
+<P>Launch REGEDIT2.EXE in the /OS2/SYSTEM directory.
+Expand the HKEY_CLASSES_ROOT tree.
+Scroll down to "http" and expand it all the way down (through
+"shell" and "open") until you come to "command".
+<P>Right click on the data in the "(Default)" key, pick "Modify", and
+change the path to the new browser, making sure it's followed with a
+"%1" (which represents the URL).
+Close RegEdit.
+<P>You shouldn't need to reboot, but you might need to restart any SS
+components that are running.</CITE>
+<P>Chris then states that you can enter NETSCDDE.EXE as your browser in this section.
+</OL>
+<BR>
+</BODY>
+</HTML>
+
+

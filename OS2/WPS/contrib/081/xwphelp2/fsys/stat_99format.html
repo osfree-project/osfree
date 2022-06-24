@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Status Bars: Format Specifier Characters
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13 -->
+<BODY>
+Several status bar codes which display byte counts require an extra
+format specifier character after the first two code characters.
+For example, with the <CODE>$sX</CODE> code
+(for <A HREF="fsys/stat_4common.html">total size of selected objects</A>),
+<CODE>X</CODE> is the format specifier, and must be one of:
+
+<UL><LI><CODE>b</CODE>: display the value in bytes.
+<LI><CODE>k</CODE>: display the value in kBytes, i.e. bytes / 1000
+<LI><CODE>K</CODE>: display the value in KBytes, i.e. bytes / 1024
+<LI><CODE>m</CODE>: display the value in mBytes, i.e. bytes / 1,000,000
+<LI><CODE>M</CODE>: display the value in MBytes, i.e. bytes / 1,048,576
+<LI><CODE>a</CODE>: display the value in bytes/kBytes/mBytes, depending on the
+size of the value
+<LI><CODE>A</CODE>: display the value in bytes/KBytes/MBytes, depending on the
+size of the value
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,9 @@
+NAME somtest WINDOWCOMPAT
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace SOM testcase'
+
+STACKSIZE   65536
+
+PROTMODE
+
+

@@ -1,0 +1,61 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Erweiterter Systemabschluá
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klassen: XFldObject, XFldDesktop</B><HR>
+<!-- V0.9.0 -->
+Eine der Hauptfunktionen von &xwp; besteht darin, die Prozedur des 
+Systemabschlusses von &os2; zu verbessern.
+<P><B>Wichtiger Hinweis:</B> &xshutdown; ist standardm„áig 
+deaktiviert, um Verwirrung zu vermeiden. Sie mssen &xshutdown; 
+im 
+<!-- V0.9.0: changed the following -->
+neuen <A HREF="sys_2global.html">Objekt "&xwp;-Konfiguration"</A>
+aktivieren.
+<P>Nachdem Sie &xshutdown; aktiviert haben, k”nnen Sie "Systemabschluá"
+im Kontextmen der Arbeitsoberfl„che ausw„hlen, was nun &xwp;s Prozedur 
+zum Systemabschluá statt &os2;s Standard-Systemabschluá ausfhrt.
+<P>Nachdem Auswahl von "Systemabschluá" erscheint ein 
+Dialogfenster „hnlich dem folgenden:
+<P><IMG SRC="shutdown2.gif">
+<P>Die haupts„chlichen neuen M”glichkeiten von &xshutdown; sind:
+<UL><LI>Man kann den Rechner nach Beendigung des Systemabschlusses
+<B>automatisch neu starten</B> lassen.
+<P>Sie k”nnen sogar eigene Neustart-Optionen erstellen, z.B.
+nach dem Neustart direkt eine bestimmte Bootmanager-Partition
+starten. Dies wird nach Bet„tigung der Schaltfl„che "Aktionen bei 
+Neustart" auf der Seite "XShutdown" im Einstellungsnotizbuch der
+Arbeitsoberfl„che ausfhrlich erl„utert.
+<BR><LI>&xshutdown; kann sogar <B>abgebrochen werden</B>, nachdem der 
+Systemabschluá begonnen hat.
+<BR><LI>&xshutdown; zeigt den Fortschritt des Systemabschlusses an, und 
+wenn eine Applikation "h„ngt", d.h. wenn sie nicht automatisch geschlossen 
+werden kann, k”nnen Sie sich entscheiden, sie zu <B>berspringen</B>, ohne 
+darauf zu warten, daá diese Applikation geschlossen wird:
+<P><IMG SRC="shutdown.gif">
+ 
+</UL>Der automatische Neustart ben”tigt einen in der &cfgsys; geladenen DOS.SYS. 
+Unter Warp 4 ist dies Standard. Unter Warp 3 mssen Sie eventuell die folgende
+Zeile in die &cfgsys; aufnehmen:
+<P><CITE>DEVICE=X:\OS2\BOOT\DOS.SYS</CITE>
+<P>wobei Sie X: durch Ihr &os2;-Systemlaufwerk ersetzen mssen.
+<P>Sie k”nnen den Erweiterten Systemabschuá auf der neuen Seite "XShutdown" im 
+<A HREF="fldr_7settings.html">Einstellungsnotizbuch der Arbeitsoberfl„che</A> konfigurieren
+(und auch abschalten).
+ 
+<!-- V0.9.0: added the following -->
+<P>Wenn Sie daran interessiert sind, wie &xshutdown; intern funktioniert, lesen
+Sie bitte die <A HREF="further_2howxshutdown.html">entsprechende Seite</A> im
+Kapitel "&xwp;-Interna".
+<BR>
+</BODY>
+</HTML>
+ 
+ 

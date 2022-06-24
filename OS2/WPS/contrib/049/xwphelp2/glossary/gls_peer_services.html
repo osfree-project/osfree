@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Datei- und Druck-Dienste
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+šblicherweise werden die folgenden &link_peer;-Dienste auf dem System gestartet:
+ 
+<UL><LI>Der <CODE>REQUESTER</CODE>-Dienst erlaubt es dem Rechner,
+auf andere Ressourcen im LAN zuzugreifen. "Requester" ist insoweit ein
+Synonym fr "Client". Nachdem der Requester gestartet wurde, k”nnen
+Sie entfernte Dateien und Drucker im LAN benutzen. Zus„tzlich k”nnen Sie
+entfernten Verzeichnissen lokal einen Laufwerksbuchstaben zuweisen, um
+diese wie ein lokales Laufwerk benutzen zu k”nnen.
+ 
+<P><LI>Der <CODE>PEER</CODE>-Dienst ist eine reduzierte Version der
+Dienste, die mit den Server-Versionen von &os2; geliefert werden. Nachdem
+der Peer-Dienst gestartet wurde, k”nnen Sie Verzeichnisse, Dateien und
+Drucker Ihres Rechners fr das
+Netzwerk freigeben, so daá andere Rechner im Netzwerk diese ebenfalls
+benutzen k”nnen.
+ 
+<P>Der Peer-Dienst erfordert, daá der <CODE>REQUESTER</CODE>-Dienst ebenfalls
+l„uft.
+ 
+</UL>Benutzen Sie eine <A HREF="glossary/gls_cmd.html">Befehlszeile</A>, um
+Dienste im Detail zu steuern:
+ 
+<UL><LI>Um einen Dienst explizit zu starten, geben Sie
+<CODE>NET START <I>service</I></CODE> ein (z.B. <CODE>NET START REQUESTER</CODE>).
+ 
+<P><LI>Um einen Dienst explizit anzuhalten, geben Sie
+<CODE>NET STOP <I>service</I></CODE> ein (z.B. <CODE>NET STOP REQUESTER</CODE>).
+ 
+<P><LI>Um herauszufinden, welche Dienste momentan aktiv sind, geben Sie
+<CODE>NET START</CODE> ohne den Namen eines Dienstes an.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

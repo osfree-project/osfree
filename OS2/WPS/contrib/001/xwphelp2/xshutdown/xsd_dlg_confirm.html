@@ -1,0 +1,32 @@
+<HTML RESID=&ID_XSH_XSHUTDOWN_CONFIRM;>
+<HEAD>
+    <TITLE>
+        &xwp;: &xshutdown; Confirmation Window
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+In the &xshutdown; <B>confirmation window,</B> which appears after selecting
+the <A HREF="menus/menu_xsd.html">"Shutdown" menu item</A>, you can select
+if and how &xshutdown; will actually take place.
+
+<!-- V1.0.0: shutdown button is now "OK" -->
+<P>Push the <B>"OK"</B> button to start &xshutdown; with the specified
+settings.
+
+<P>Press <B>"Cancel"</B> in order not to shut down at this time.
+
+<P>For a detailed explanation of each field, select from the list below:
+
+<UL><LI><A HREF="xshutdown/xsd_1only.html">Shut down only</A>
+<LI><A HREF="xshutdown/xsd_2reboot.html">Standard reboot</A>
+<LI><A HREF="xshutdown/xsd_3rebootto.html">Reboot to...</A>
+<LI><A HREF="xshutdown/xsd_4emptytrash.html">Empty trash can </A>
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_5dlgnexttime.html">Show this dialog next time</A>
+</IFNDEF>
+</UL>
+</BODY>
+</HTML>
+

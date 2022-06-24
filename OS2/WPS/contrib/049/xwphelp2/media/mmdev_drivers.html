@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Medien-Ger„te
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+Die Spalte "Treiber" zeigt ausfhrliche Daten ber den Treiber an, der das Ger„t
+implementiert.
+ 
+<P>Abh„ngig vom Typ des Ger„tes k”nnen folgende Informationen angezeigt werden:
+ 
+<UL><LI><B>Medienkontrolltreiber:</B> Der MCD ist fr die Interpretation von
+Multimediabefehlen zust„ndig, die von einer Anwendung an ein Ger„t gesendet werden. Es liegt in
+der Verantwortlichkeit des MCD, abh„ngig von den gesendeten Befehlen weitere Schritte
+zu unternehmen. Der hier angezeigt Name entspricht einer
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+im Verzeichnis MMOS2.
+ 
+<P><LI><B>Hersteller-spezifischer Treiber:</B> Falls installiert, wird ein VSD gew”hnlich
+vom MCD zur Implementierung von Funktionen fr eine bestimmte Hardware aufgerufen. Diese
+Architektur erlaubt es MMPM/2, die MCDs recht allgemein zu halten, w„hrend der
+hardwarespezifische Code sich normalerweise im VSD befindet.
+ 
+<P>Die "Waveaudio"-Ger„te beispielsweise werden gew”hnlich durch einen allgemeinen
+MCD implementiert, w„hrend die eigentliche Arbeit mit der Soundkarte innerhalb des VSDs
+erledigt wird (welcher dann seinerseits mit einem Ger„tetreiber kommuniziert).
+ 
+<P><LI><B>Physischer Ger„tetreiber:</B> Der PDD ist fr die eigentliche Zusammenarbeit mit
+der Hardware verantwortlich. Da dies auf der Ring-0-Ebene geschehen muá, besonders wenn
+Interrupts verarbeitet werden mssen, ist diese Schicht erforderlich.
+ 
+<P>Nicht alle Ger„te ben”tigen einen PDD. Dies ist typischerweise fr Soundkarten der Fall,
+bei denen Interrupts und DMA gehandhabt werden mssen.
+ 
+<P><LI><B>Parameter:</B> Dies sind zus„tzliche Parameter aus der ASCII-Datei
+<CODE>MMPM2.INI</CODE>, die sich im MMOS2-Verzeichnis befindet, die fr dieses Ger„t angegeben wurden.
+Sie sind ger„tespezifisch, scheinen jedoch mit dem zusammenzuh„ngen, was im Objekt
+"Multimedia-Konfiguration" fr ein Ger„t festgelegt wurde.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,237 @@
+
+XWorkplace 0.9.20 README
+
+(W) Ulrich M”ller, Feb 7, 2000
+
+Senast uppdaterad Augusti 11, 2002
+
+
+0. INNEHLLET I DEN HŽR FILEN
+========================
+
+    1. INTRODUKTION
+
+    2. KRAV
+
+    3. INSTALLATION
+
+    4. UPPGRADERING
+
+    5. NATIONELLT SPRKST™D (NLS)
+
+    6. KOMMA IGNG
+
+    7. KŽNDA BEGRŽNSNINGAR
+
+    8. LICENS, COPYRIGHT, DEMENTIER
+
+    9. KONTAKT
+
+
+1. INTRODUKTION
+===============
+
+    V„lkommen till XWorkplace V0.9.20.
+
+    XWorkplace „r ett komplext set av ers„ttningsklasser f”r
+    OS/2 Workplace Shell avsett att f”rb„ttra WPS's beteende i m†nga
+    avseenden.
+
+    Den h„r README har ytterligare information vilken inte „r inkluderad
+    i XWorkplace Anv„ndarguide. Var v„nlig och l„s igenom allt detta
+    f”re installationen.
+
+    Efter installationen, kan du hitta den h„r README i huvudkatalogen
+    f”r installationen.
+
+
+    Om den h„r releasen
+    -------------------
+
+    Det har g†tt omkring tre m†nader sedan V0.9.18, s† en hel
+    del saker har h„nt. Den h”r releasen har m†nga buggfixar,
+    kompletta omskrivningar av vissa komponenter som XPager,
+    plus en del helt nya funktioner. Jag hoppas att, i motsats 
+    till n†gra av de tidigare releaserna, att denna fungerar
+    b„ttre f”r de flesta anv„ndare.
+
+    F”r detaljer, refereras till "Version Notiser" i
+    "XWorkplace Anv„ndarguide". F”r att extrahera enbart dokumentationen,
+    se "2. INSTALLATION" nedanf”r.
+
+
+2. KRAV
+===============
+
+    XWorkplace „r utvecklad och testad enbart under eComStation
+    1.0, vilken „r ekvivalent -- †tminstone n„r det g„ller OS/2 
+    kodbasen -- med Merlin Convenience Package 1 (MCP1).
+
+    Eftersom jag inte l„ngre kan f† min Warp 3 partition att boota
+    och inte k„nner f”r att spendera n†gon mera tid p† det,
+    XWORKPLACE ŽR INTE LŽNGRE TESTAD P WARP 3. Den kan fungera,
+    men kanske inte g”r det. Anv„nd den p† egen risk.
+
+    Startande med V0.9.19, g”r XWorkplace n†gra f† antaganden om
+    vissa interna WPS strukturer, vilka kan vara olika p† Warp 3. 
+    Igen, jag vet inte.
+
+    De f”ljande b”r vara s„kra, eftersom de „r baserade p†
+    samma IBM kod:
+
+    --  Warp 4 FP 15
+
+    --  WarpServer for e-Business
+
+    --  Merlin/Aurora Convenience Packages
+
+    --  eComStation 1.0
+
+
+3. INSTALLATION
+===============
+
+    XWorkplace m†ste installeras med anv„ndning av WarpIN. Efter att
+    alla filer har kopierats, kommer WarpIN att †terstarta Workplace Shell
+    f”r att vara s„ker p† att alla „ndringar blir aktiva. En ombootning
+    b”r inte vara n”dv„ndig.
+
+    VARNING: Det har rapporterats att Workplace Shell h„nger sig sj„lvt
+    efter omstart om du har inst„llningen "Automatisk l†sning efter omstart"
+    aktiverad. I det fallet, avaktivera den inst„llningen innan du till†ter
+    WarpIN att †terstarta WPS.
+
+    ---> I vilket fall, G™R EN WPS BACKUP, f”re installationen.
+
+    Om du fortfarande „r os„ker p† om du skall anv„nda XWorkplace vid den
+    h„r punkten, kan du v„lja att endast packa upp paketet med "Dokumentation"
+    i arkivet tills vidare. P† det s„ttet kan du l„sa igenom XWorkplace's
+    dokumentation f”rst och sedan best„mma om du verkligen skall installera 
+    hela paketet. F”r att installera senare, dubbelklicka helt enkelt p†
+    XWorkplace's .EXE arkiv igen.
+
+
+4. UPPGRADERING
+===============
+
+    Uppgradering fr†n XWorkplace
+    -------------------------
+
+    VIKTIGT: Om du installerar medans WPS „r ig†ng (vilket „r det
+    troligaste fallet), kommer WarpIN att visa dig dialoger med
+    bekr„ftelser om olika filer som anv„nds f”r n„rvarande, den
+    viktigaste, XFLDR.DLL. Detta „r normalt eftersom dessa moduler
+    „r laddade n„r WPS (och s†lunda ocks† XWorkplace) k”rs.
+
+    I dessa dialoger, MSTE du v„lja "Unlock (DosReplaceModule)",
+    eller s† kommer din installation inte att bli fullt uppdaterad.
+
+    Om du f†r det h„r meddelandet f”r en hj„lpfil (.HLP „ndelse), „r
+    XWorkplace hj„lpfil f”r n„rvarande ”ppnad av WPS. Med OS/2, „r
+    det olyckligtvis, om”jligt att l†sa upp datafiler automatiskt.
+    F”r att l†sa upp hj„lpfilen, n„r dialogen "locked" visas, ”ppna helt
+    enkelt n†gon standardhj„lppanel i WPS (t.ex. genom att klicka p†
+    n†gon tom yta p† Skrivbordet och trycka F1) vilket kommer att l†sa
+    upp XWorkplace's hj„lpfil.
+
+    Dessutom, kommer du troliftvis att f† ett meddelande om att
+    XWPDAEMN.EXE k”rs och m†ste d”das. L†t WarpIN d”da programmet
+    (vilket „r XWorkplace Daemonen).
+
+    Om uppgradering inte skulle fungera, l†t WarpIN ta bort den installerade
+    XWorkplace versionen f”rst, †terstarta sedan WPS, och installera sedan
+    den nya versionen.
+
+
+    Uppgradering fr†n XFolder
+    ----------------------
+
+    XWorkplace „r efterf”ljaren till XFolder (den sista XFolder versionen
+    var V0.85).
+
+    XWorkplace och XFolder kan inte samexistera, eftersom XWorkplace
+    erbjuder alla funktioner som XFolder 0.85 plus m†nga buggfixar och
+    †tskilligt flera funktioner.
+
+    Som ett resultat, om XFolder „r installerad, kommer XWorkplace att
+    avaktivera din XFolder installation.
+
+    Du skall installera XWorkplace till en ANNAN katalog „n din existrande
+    XFolder katalog f”r att vara s„ker p† att inga filkonflikter uppst†r.
+    tskilliga personer har rapporterat att installation i samma katalog
+    kan leda till att du h„nger ditt WPS.
+
+    XWorkplace kan ta ”ver existerande XFolder 0.85 inst„llningar, om de finns.
+    Du kommer att tillfr†gas om det under den f”rsta WPS †terstarten efter
+    installationen. Emellertid, m†nga nya inst„llningar har tillkommit, s† 
+    m†nga kommer att vara avaktiverade i b”rjan.
+
+    Om du k„nner f”r att g† tillbaka till din existerande XFolder installation
+    senare (trots allt, „r det h„r en utvecklarrelease), l†t WarpIN avinstallera
+    XWorkplace och installera XFolder igen, anv„ndande INSTALL.CMD i din
+    XFolder katalog. Dina gamla XFolder inst„llningar f”rblir or”rda av
+    XWorkplace.
+
+
+5. NATIONELLT SPRK ST™D (NLS)
+==============================
+
+    Det h„r arkivet inneh†ller XWorkplace Nationellt Spr†k St”d
+    (NLS) endast f”r Engelska. XWorkplace „r preparerad f”r att fungera
+    med andra spr†k via extra NLS paket, vilka underh†lls och ges ut av
+    andra personer „n mig. Du kanske kan hitta information om NLS paket p†
+    mailinglistorna (se KONTAKT nedanf”r).
+
+
+6. KOMMA IGNG
+==============
+
+    I vilket fall, efter installationen, ”ppna det nya "XWorkplace Setup"
+    objektet f”rst och g† sedan till sidan med "Funktionern. Det „r den mest
+    centrala platsen att aktivera XWorkplace's funktioner. Tryck p† "Hj„lp"
+    knappen d„r f”r att f† mer information.
+
+
+7. KŽNDA BEGRŽNSNINGAR
+======================
+
+    Var v„nlig och kontrollera BUGG och FUNKTIONER filerna i det h„r paketet
+    ocks† innan ni rapporterar buggar och f”reslar funktioner. Tack.
+
+
+8. LICENS, COPYRIGHT, DEMENTIER
+===============================
+
+    Copyright (C) 1997-2002 Ulrich M”ller,
+                            Martin Lafaix,
+                            Paul Ratcliffe,
+                            och andra.
+
+    Det h„r programmet „r fri progamvara; du kan †terdistribuera det och/eller
+    modifiera det under villkoren i GNU General Public Licensen som finnns i 
+    filen COPYING i installationskatalogen.
+
+    Den kompletta k„llkoden „r tillg„nglig. Se XFLDR001.INF f”r detaljer.
+
+    Det h„r programmet „r distribuerat i tron att det skall vara anv„ndbart,
+    men UTAN NGON GARANTi; underf”rst†tt „ven utan n†gon garanti f”r
+    AFFŽRSMŽSSIG anv„ndning eller ANVŽNDNING F™R NGOT ANNAT ŽNDAML.
+
+    F”r detaljer, refereras till sektionen "Notiser" i XFLDR001.INF.
+
+
+9. KONTAKT
+==========
+
+    Vi har skapat tv† mailinglistor hos yahoogroups.com f”r kontakt.
+    Var v„nlig och anv„nd dessa listor fr†n och med nu f”r fr†gor, f”rslag,
+    och buggrapporter.
+
+    F”r XWorkplace anv„ndare:
+        xworkplace-user@yahoogroups.com
+
+    F”r XWorkplace utvecklare och s†dana som „r intresserade:
+        xworkplace-dev@yahoogroups.com
+
+    F”r detaljer, se "Notiser" --> "Kontakt" i XFLDR001.INF.
+

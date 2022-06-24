@@ -1,0 +1,65 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Alright, Build XWorkplace Now
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+<B>Starting the build process.</B>
+Starting with V0.9.12, this is a two-step process.
+After opening a command line in the main XWorkplace directory
+(the parent of <CODE>src</CODE> and <CODE>include</CODE>), do this:
+
+<OL><LI>Run <CODE>nmake dep</CODE>. This examines all source files
+for dependencies (<CODE>#include</CODE> statements) and writes a
+<CODE>.depend</CODE> file into each source directory which is then
+used by the makefiles to rebuild things properly.
+
+<P><B>Note:</B> You only need to run <CODE>nmake dep</CODE> before building for
+the first time, or if source dependencies (<CODE>#include</CODE> statements)
+have changed. To be on the safe side, re-run <CODE>nmake dep</CODE> once
+after you have checked out new sources from the CVS server.
+
+<P><CODE>nmake dep</CODE> uses the fantastic <CODE>fastdep</CODE> utility by
+Knut Stange Osmundsen, which I have stolen from the Odin sources. This should
+be in the root directory of your <CODE>xwphelpers</CODE> repository.
+
+<P><B>Note:</B> If you have never built XWorkplace before, <CODE>nmake dep</CODE>
+will give you lots of warnings that headers could not be found. This is normal
+because the SOM headers for the XWorkplace classes will only be produced during
+the first full build.
+
+<P><LI>After that, run either <CODE>nmake all</CODE> or <CODE>nmake really_all</CODE>
+to build. This will produce lots of object files in <CODE>bin\</CODE> and
+the executables in <CODE>bin\modules</CODE>. At the same time, those
+executables are copied to the proper locations in your XWorkplace installation
+directory as specified in <A HREF="src1_32env.html">config.in</A>.
+
+<P>After that, restart the WPS to have <CODE>XFLDR.DLL</CODE> reloaded.
+
+<P><CODE>nmake all</CODE> (or just <CODE>nmake</CODE>) will only rebuild
+<CODE>XFLDR.DLL</CODE>, <CODE>XWPDAEMN.EXE</CODE>, and <CODE>XWPHOOK.DLL</CODE>,
+while <CODE>nmake really_all</CODE> will produce the full set of XWorkplace
+executables plus the NLS files.
+
+</OL><B>Rebuilding the whole thing.</B> To rebuild everything, you have three
+options:
+
+<UL><LI>Delete the entire <CODE>bin\</CODE> tree. This is not part of the CVS
+repository at Netlabs and recreated dynamically for all files that have been
+created.
+Deleting it will cause all target object files to become outdated and thus be recompiled,
+which will then also invoke the linker.
+
+<P><LI>Use <CODE>nmake -a</CODE> on the main makefile. This will even re-invoke
+the SOM compiler on all <CODE>.IDL</CODE> files.
+
+<P><LI>Open and save (or <CODE>touch</CODE>) <CODE>include/setup.h</CODE> to make
+it newer than the target files. This is
+<CODE>#include</CODE>'d in all XWorkplace C files, and the makefiles' inference
+rules will then enforce recompilation of <I>all</I> C files.
+
+</UL>
+</BODY>
+</HTML>

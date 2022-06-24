@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPObject teksten
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<BODY>
+<CODE>WPObject</CODE> is de WPS basis class voor alle objecten. Hij wordt niet direct gebruikt,
+maar alle andere WPS classes zijn er van afgeleid
+<!-- V0.9.16: added this bracket with link -->
+(zie <A HREF="glossary/gls_wpsclasses.html">WPS classes</A> voor details).
+Als gevolg daarvan, ondersteunen alle Werkplek objecten (inclusief
+bestanden, mappen en programma objecten) de volgende instellingen teksten:
+<DL>
+<DT><CODE><B>CCVIEW</B>=DEFAULT</CODE>
+<DD>Gebruikt de standaard waarde van de gezamenlijke
+overzicht instelling op het systeem, als de gebruiker open kiest. Dit is de standaard waarde.
+
+<P><DT><CODE>CCVIEW=YES</CODE>
+<DD>Maakt nieuwe overzichten van het object,
+telkens wanneer de gebruiker
+open kiest.
+
+<P><DT><CODE>CCVIEW=NO</CODE>
+<DD>Heropend overzichten van het object,
+als de gebruiker open kiest.
+
+<P><DT><CODE><B>HELPLIBRARY</B>=<I>bestandsnaam</I></CODE>
+<DD>Stelt de hulp bibliotheek in.
+
+<P><DT><CODE><B>HELPPANEL</B>=<I>id</I></CODE>
+<DD>Stelt het object zijn standaard hulp paneel in binnen de
+hulp bibliotheek. U kunt beter niet rommelen met deze instellingen, want u
+dient de WPS interne hulp bronnen ID's weten.
+
+<P><DT><CODE><B>HIDEBUTTON</B>={YES|NO}</CODE>
+<DD>Bepaalt of overzichten van dit object een verberg knop
+hebben in plaats van een minimaliseer knop.
+De standaard is de huidige systeem knoppen weergave voor
+venster instellingen. Dit kan hier niet opgegeven worden.
+
+<P><DT><CODE><B>ICONFILE</B>=<I>bestandsnaam</I></CODE>
+<DD>Bepaalt het object zijn pictogram. <CODE><I>bestandsnaam</I></CODE>
+Moet een ".ICO" bestand zijn.
+<!-- V0.9.16 -->
+<P>Denk er om dat dit voor mappen het "gesloten" pictogram betreft.
+Het bewegende ("open") pictogram kan ingesteld worden met
+<CODE><B>ICONNFILE</B>=<I>index</I>,<I>bestandsnaam</I></CODE>
+(zie <A HREF="objects/string_2wpfolder.html">WPFolder teksten</A> voor details).
+<!-- end V0.9.16 -->
+
+<P><DT><CODE><B>ICONPOS</B>=<I>x</I>,<I>y</I></CODE>
+<DD>Bepaald van het object zijn eerste pictogram positie in de
+bron map. De x en y waarden vertegenwoordigen de positie in de map
+in procentuele co”rdinaten.
+
+<P><DT><CODE><B>ICONRESOURCE</B>=<I>id</I>,<I>dllfile</I></CODE>
+<DD>Stelt het object zijn pictogram in op gegevens die zich in een bron bestand bevindt.
+De bron id van het pictogram is het <CODE><I>id</I></CODE>
+in de
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfile</I></CODE>.
+<!-- V0.9.16 -->
+<P>Denk er om dat dit voor mappen het "gesloten" pictogram betreft.
+Het bewegende ("open") pictogram kan ingesteld worden met
+<CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfile</I></CODE>
+(zie <A HREF="objects/string_2wpfolder.html">WPFolder teksten</A> voor details).
+<!-- end V0.9.16 -->
+
+<P><DT><CODE><B>LOCKEDINPLACE</B>={YES|NO}</CODE> (alleen &warp4;)
+<DD>Geeft aan of een object vast of niet vast staat op een positie.
+
+<P><DT><CODE><B>MENUITEMSELECTED</B> <I>menu-item-id</I></CODE> (alleen &warp4;)
+<DD>Simuleert de selectie van de opgegeven menu optie van het object zijn &popmenu;.
+<CODE><I>menu-item-id</I></CODE> moet een numerieke waarde zijn.
+<!-- <BR>You may obtain the <CODE><I>menu-item-id</I></CODE> with the <CODE>XRAY</CODE> tool which
+is available on the Internet. Or look on the respective
+"WPS Menu IDs"</A> page. -->
+<!-- V0.9.16 (Hey, this setting works for XFolder menu items also, BTW.) -->
+<BR>Dit is niet echt een instelling, maar meer een opdracht die uitgevoerd kan worden op een map.
+
+<P><DT><CODE><B>MENUS</B>={SHORT|LONG}</CODE> (alleen &warp4;)
+<DD>Bepaalt of dit object wel of niet een kort &popmenu; heeft
+(zonder menu regels die sleep en los laat acties dupliceren) of alleen het volledige.
+
+<P><DT><CODE><B>MINWIN</B>={HIDE|VIEWER|DESKTOP}</CODE>
+<DD>Bepaalt of het geminimaliseerde object wel of niet verborgen kan worden,
+in het "Geminimaliseerde Vensters" overzicht, of geminimaliseerd op de Werkplek terecht komt.
+<P>De standaard waarde is de huidige minimaliseer knop instelling. Dit kan hier niet opgegeven
+worden.
+
+<P><DT><CODE><B>NOCOPY</B>={YES|NO}</CODE>
+<DD>Het object kan niet gekopieerd worden.
+
+<P><DT><CODE><B>NODELETE</B>={YES|NO}</CODE>
+<DD>Het object kan niet verwijderd worden. Wees hier voorzichtig mee.
+
+<P><DT><CODE><B>NODRAG</B>={YES|NO}</CODE>
+<DD>Het object kan niet versleept worden met de muis.
+
+<P><DT><CODE><B>NODROP</B>={YES|NO}</CODE>
+<DD>Het object zal geen objecten accepteren die er boven los gelaten worden.
+
+<P><DT><CODE><B>NOLINK</B>={YES|NO}</CODE>
+<DD>Er kunnen geen reflecties van dit object gemaakt worden.
+
+<P><DT><CODE><B>NOMOVE</B>={YES|NO}</CODE>
+<DD>Het object kan niet verplaatst worden.
+
+<P><DT><CODE><B>NOPRINT</B>={YES|NO}</CODE>
+<DD>Het object kan niet afgedrukt worden.
+
+<P><DT><CODE><B>NORENAME</B>={YES|NO}</CODE>
+<DD>Het object kan niet een andere naam gegeven worden.
+
+<P><DT><CODE><B>NOSETTINGS</B>={YES|NO}</CODE>
+<DD>Het object zijn instellingen notitieblok kan niet geopend worden.
+
+<P><DT><CODE><B>NOSHADOW</B>={YES|NO}</CODE>
+<DD>Zelfde als <CODE>NOLINK</CODE>.
+
+<P><DT><CODE><B>NOTVISIBLE</B>={YES|NO}</CODE>
+<DD>Het object is niet zichtbaar. Wees voorzichtig met
+deze stijl, want u zou het object wel eens niet meer terug kunnen krijgen.
+
+<P><DT><CODE><B>OBJECTID</B>=<I>&lt;name&gt;</I></CODE>
+<DD>Stelt een blijvend ID in voor het object.
+Een Object ID is een unieke tekst voorafgegaan door
+een <CODE>&lt;</CODE> en afgesloten met een <CODE>&gt;</CODE>.
+<BR>Zie <A HREF="glossary/gls_objids.html">WPS Object ID's</A> voor meer over dit onderwerp.
+<P>De standaard is om geen ID te hebben.
+
+<P><DT><CODE><B>OPEN</B>={SETTINGS|DEFAULT|ICON|TREE|DETAILS}</CODE>
+<DD>Open nu een overzicht.
+<!-- V0.9.20: removed this
+Dit is een slimme truc die door miljarden REXX scripts gebruikt wordt op het internet om een
+object vanaf de &os2; opdrachtregel te openen.
+-->
+<BR><CODE>OPEN=DEFAULT</CODE> zal het standaard overzicht van het object openen (alsof u erop dubbelgeklikt
+had). <CODE>OPEN=SETTINGS</CODE> zal het instellingen notitieblok van het object openen.
+Alle andere waarden zijn alleen geldig voor mappen.
+<BR>Dit is niet echt een "instelling", maar meer een opdracht die uitgevoerd kan worden op een map.
+Die direct zal openen.
+
+<P><DT><CODE><B>TEMPLATE</B>={YES|NO}</CODE>
+<DD>Bepaalt of dit object een
+<!-- V0.9.20: added link -->
+<A HREF="tasks/tsk_templates.html">model</A>
+is of niet. De standaard waarde is <CODE>NO</CODE> (natuurlijk).
+
+<P><DT><CODE><B>TITLE</B>=<I>naam</I></CODE>
+<DD>Stelt de object naam in op iets nieuws. Dit zal ook de "echte"
+bestandsnaam aanpassen (als het object een bestand vertegenwoordigd),
+net alsof u de naam gewijzigd heeft op de Werkplek.
+
+</DL>
+</BODY>
+</HTML>
+

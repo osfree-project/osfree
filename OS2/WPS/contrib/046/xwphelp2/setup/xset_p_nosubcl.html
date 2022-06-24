@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Avaktivera all mappsubklassning
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     V0.81:
+        -- Updated the list below which &xwp; items don't work
+           without subclassing.
+     V0.9.0: see notes below
+-->
+Med den h„r inst„llningen kan du tala om f”r &xwp; att inte subklassa n†gra mappar.
+<P><B>Viktig notering:</B> M†nga av &xwp;'s funktioner BYGGER p† subklassning.
+Aktivering av den inst„llningen kommer att avsev„rt begr„nsa &xwp;'s m”jligheter. 
+Inst„llningen „r bara t„nkt som en "sista utv„g" i fall &xwp; inte fungerar 
+ordentligt p† ditt system.
+<P>Aktivering av den h„r inst„llningen kommer automatiskt att avaktivera f”ljande 
+&xwp; funktioner:
+<UL><LI>Mapp snabbkommandon;
+<BR><LI>Auto-scrolla Tr„dvisning;
+<BR><LI>
+<!-- V0.9.19: link added -->
+<A HREF="menus/menu_content.html">mapps inneh†llsmeny</A>;
+<BR><LI>mappars statusf„lt;
+<BR><LI>mapp och menysystemljud.
+
+</UL>Endast mappar som „r ”ppnade efter „ndring av den h„r inst„llningen kommer
+att p†verkas.
+<!-- V0.9.0: added the following phrase -->
+Det betyder, subklassning av mappar som f”r n„rvarande „r ”ppna kommer inte att
+„ndras tillbaka. Speciellt Skrivbordet (vilket ocks† „r en mapp) kommer inte att 
+p†verkas. Om du uppplever sv†ra problem med &xwp;, m†ste du boota om eller starta om
+WPS.
+
+<P><B>Detaljerad f”rklaring:</B>
+
+<P>Som du kanske k„nner till, i &os2; (och „ven Windows), kommunicerar f”nster med "meddelanden"
+f”r att uppm„rksamma varandra p† speciella h„ndelser. Basoperativsystemet anv„nder ocks† 
+meddelanden f”r att uppm„rksamma f”nster p† speciella h„ndelser. Till exempel, varje
+g†ng som du flyttar eller klickar med musen eller trycker en tangent, tar ett f”nster emot ett
+notifieringsmeddelande s† att det kan reagera p† det.
+<P>Nu, „r "subklassning" en v„ldigt kraftfull funktion hos &os2;. Den till†ter ett program att
+snappa upp meddelanden f”r ett speciellt f”nster eller f”nsterklass och p† det s„ttet f†
+f”nstret att reagera annorlunda. &xwp; anv„nder den h„r funktionen ”verallt, till exempel f”r
+att f†nga upp tangentbordsmeddelanden f”r mappar. Detta „r s„ttet p† vilket mappars snabbkommandon
+fungerar: n„r &xwp; har f†ngat upp ett tangentbordsmeddelande och m„rker att ett snabbkommando
+har definierats f”r den tangenten, kommer respektive mappaktion att utf”ras.
+<!-- V0.9.0: rewritten the following -->
+<P>Subklassing kan dock leda till problem, emellertid, om flera program f”rs”ker subklassa
+ett f”nster och inte k„nner till varandra. Till exempel, WPS anv„nder subklassing sj„lv
+intensivt (vilket inte „r s„rskilt v„l dokumenterat), och WPS ut”kare andra „n &xwp; 
+(som t.ex. Object Desktop) implementerar vissa av sina funktioner ocks† p† det s„ttet.
+Olyckligtvis, finns det inget generellt "register" vilka kan erbjuda information om vilka
+program som har subklassat vilka f”nster, s† &xwp; har inget s„tt p† vilket det kan ta reda
+p† vad andra program har gjort.
+<P>
+S† om du k„nner att n†gonting har g†tt snett, kan du tala om f”r &xwp; att l„mna mappf”nster
+ifred.
+<BR>
+</BODY>
+</HTML>
+

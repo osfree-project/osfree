@@ -1,0 +1,111 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Thread Priorities
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20; moved text from gls_scheduler.html to here -->
+<BODY>
+In general, a thread with a higher priority gets more processor time that one
+with lower priority. To be more precise, &os2; looks at thread priorities
+if more than one thread is internally marked as "ready".
+
+<P>By contrast, threads which are currently
+"blocked" need no CPU time anyway, so for them, priorities do not matter
+until they are unblocked again. Note that on your typical &os2; system,
+the large majority of threads will be in "blocked" state at any given
+point in time.
+
+<P>&os2; is capable of controlling thread priorities in a very refined way.
+It differentiates between four <B>priority classes:</B>
+
+<!-- V0.9.19: corrected all the following -->
+
+<OL><LI><B>"Idle time priority"</B> (1) is the lowest priority class. This means that a
+thread only gets processor time if no threads of higher priority classes
+are running. Such threads are helpful for offloading work that needs to be
+done, but can be delayed until the computer has time for it.
+
+<!-- V1.0.0 (2002-09-13) [umoeller]: removed this section
+An example of such a thread is &xwp;'s own
+<A HREF="glossary/gls_workerthr.html">Worker thread</A>, which keeps track of
+the awake Desktop objects on your system. This is fairly time-consuming,
+but not time-critical, so it's done with idle-time priority.
+-->
+
+<P><LI><B>"Regular priority"</B> (2) is the priority class that most threads use. It is
+also the default &os2; priority class if a thread does not explicitly change its
+priority. Between threads of this class, &os2; dynamically varies priority levels
+(more on this below) to make sure that no thread of this class "starves", i.e. gets
+no processor time.
+
+<P><LI><B>"Foreground server priority"</B> (4) is the second-highest priority class
+for threads that do not want to be influenced by the dynamic priority variations
+that are performed on "regular" class threads. Note that even though this class
+has the value 4, time-critical threads do take priority over threads of this class.
+&os2; still does some priority variations on threads of this class based on the
+activity of the thread and the system.
+
+<P><LI><B>"Time-critical priority"</B> (3) is the highest priority class in &os2;.
+A thread with time-critical priority will be given processor time immediately
+and will not be interrupted until its work is done.
+Many device drivers will yield the CPU only to threads of this priority class.
+
+<P>Such a thread should only use the minimum possible CPU time because it cannot be
+interrupted (except by other time-critical threads) and can easily hang the system.
+<!-- V0.9.20: added link -->
+Even if it yields the CPU via <CODE>DosSleep(0)</CODE>
+(see the documentation for
+<A HREF="cpref.inf#DosSleep"><CODE>DosSleep</CODE></A>
+in the Toolkit documentation<A HREF="_toolkitlink.html">*</A>),
+other non-time-critical threads will not run.
+<!-- V1.0.0: changed the following phrase -->
+This class is therefore normally only used for network and other communications software,
+or CD writer or other multimedia software.
+
+<!-- end V0.9.19 -->
+
+</OL>Within each priority class, a thread may set a <B>priority level.</B>
+This is a value from 0 to +31 which determines the precedence of a thread
+<I>within</I> a priority class and will only be taken into account if two threads
+of the same priority class compete.
+
+<P>A few examples:
+
+<UL><LI>A "regular" thread with priority level +31 supercedes a "regular" thread
+with priority level 0.
+
+<P>Within the "regular priority" class however &os2; ensures that no thread
+"starves", i.e. never gets processor time, by dynamically raising each
+thread's priorities after a certain time automatically. This period of time
+is determined by the <CODE>MAXWAIT</CODE> &cfgsys; setting. Moreover, &os2;
+boosts a thread's priority temporarily if it is to receive keyboard input,
+if the process of the thread runs in the foreground, or if the thread is
+currently doing I/O.
+
+<P>These dynamic adjustments are only then performed if &cfgsys; does
+not contain the command <CODE>PRIORITY=ABSOLUTE,</CODE> which is not
+recommended.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOOS2KERNEL__>
+(This is why you will not find that setting in the
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object.)
+</IFNDEF>
+
+<P><LI>A "time-critical" thread with priority level 0 still supercedes a
+"regular" thread with priority level +31 because it belongs to a higher
+priority class. For this case, the dynamic priority adjustments will have
+no effect, because they only affect the execution of "regular" threads.
+While the time-critical thread is running, all "regular" threads starve.
+
+<P><LI>The same applies, for example, to a "regular thread" with priority level
+0 and an "idle-time" thread with priority level +31.
+
+<P><LI>Two threads with exactly the same priority however run "against" each
+other, i.e. &os2; keeps alternating CPU ownership between them.
+
+</UL>
+</BODY>
+</HTML>
+

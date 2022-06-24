@@ -1,0 +1,142 @@
+<HTML RESID=&ID_XSH_WIDGET_SENTINEL_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Sentinel Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+The
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Sentinel" widget</B> shows you a graph of the current memory consumption
+on your system.
+
+<P>The sentinel takes a bit of getting used to, but it comes in quite handy after
+a while. Not unlike the <A HREF="xcenter/xc_pulse.html">"Pulse" widget</A>, it
+shows you a graph of how memory usage has evolved on your system over time.
+This graph is updated every two seconds.
+
+<P>However, the sentinel shows you several graphs at the same time, in
+different colors, with the current measurements (in MB) painted in the
+same colors on the left:
+
+<!-- V0.9.15: refreshed the image here -->
+<BR><IMG SRC="img/xc_sentinel1.gif">
+
+<P>The graphs represent the following:
+
+<OL><LI>The <B>top value (in green)</B> is the <B>currently free physical RAM.</B>
+This is the same value as with the <A HREF="xcenter/xc_mem.html">"Memory" widget</A>.
+So if you have 128 MB of RAM on your system, this will never go above that value
+(and most likely never reach it, of course).
+
+<P><LI>The <B>middle value (in blue)</B> is the <B>currently used physical RAM.</B>
+If you add this value to the top value, you should get your total RAM.
+<!-- V0.9.15: (Yes, this
+should be 128 MB on my system, but obviously I got rounding errors here.) -->
+
+<!-- V0.9.15: replaced the following
+
+<P><LI>The <B>bottom value (in purple)</B> is the <B>current size of your swap file.</B>
+Add this number to the top two values, and you get the current amount of
+virtual memory on your system.
+
+<P>As you can imagine, this sum (the total virtual memory) can vary over time, as
+you can see in the above screenshot. On the left, you can see that for some reason
+the swap file grew really big, which made the virtual memory grow. &os2; then later
+chose to shrink the swap file again. -->
+
+<P><LI>If you have a recent <CODE>win32k.sys</CODE> driver from Odin (March 2001 or
+newer) installed, the size of your swap file is represented by two more colors, as
+in the screenshot above. The <B>third value (in purple)</B> then shows you the
+the amount of space in your swap file that is currently in use. The
+<B>bottom value (in red)</B> then represents the free space in the swap file.
+The two values added represent the size of your swap file.
+
+<P>As you can see in the above screenshot, more and more memory was allocated until
+the free memory (in green) was used up. &os2; then started using free space in the swap
+file (in red) until that was used up too. Then &os2; started growing the swap file,
+which is represented by the purple graph growing. Finally, the memory was
+gradually released, which was shown by the blue and purple graphs shrinking again.
+Finally, &os2; started shrinking the swap file again since there was plenty of
+free space in it.
+
+<P>If you do not have a recent <CODE>win32k.sys</CODE> driver installed, you will
+only see a purple color, simply representing the size of your swap file.
+
+<!-- end V0.9.15 -->
+
+</OL>The gray area above the colored graphs really has no meaning. It is
+only the result of the scaling that the sentinel performs on the display. When time
+passes, you will see that as soon as the "bump"
+<!-- V0.9.15 -->
+in the middle
+<!-- end V0.9.15 -->
+leaves the screen, the
+display is rescaled and the gray area is then used for the display as well.
+
+<!-- V0.9.15: removed this
+<P>Here is another screenshot which shows you the memory consumption while &xwp;
+was recompiled on my system:
+
+<BR><IMG SRC="img/xc_sentinel2.gif">
+
+<P>Since I heavily use a RAM disk for precompiled header files, it is quite obvious
+that the free RAM becomes used up during the compile process. -->
+
+<!-- V0.9.19: changed the following -->
+<P>Note that you can
+<A HREF="glossary/gls_dropfonts.html">drag and drop fonts and colors</A>
+onto the sentinel widget.
+<!-- V1.0.4: changed the following to account for the new settings dialog -->
+Presently, you can only change the background color that way though. The graph
+colors can be modified via the widget settings dialog. Select "Properties"
+from the widget's pop-up menu to open it.
+Besides, the widget is
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">sizeable</A>.
+
+<P><B>Implementation Details</B>
+
+<P>The source of the information that is displayed by the sentinel widget
+depends on whether a recent version of Odin's <CODE>win32k.sys</CODE>
+driver is installed.
+
+<UL><LI>If <CODE>win32k.sys</CODE> was found, all memory information is retrieved
+directly from that driver, which peeks into the &os2; kernel memory management to
+find out those values. This is extremely efficient and also more detailed than
+the alternative method described below.
+
+<P>For this to work, you will need a <CODE>win32k.sys</CODE> build from March 2001
+or later. Knut Stange Osmundsen was kind enough to add that functionality to the
+<CODE>win32k.sys</CODE> driver for &xwp;.
+
+<P><LI>If that driver was not installed or is too old, the sentinel widget will
+fall back to a standard method for getting the memory information.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+All the calculations of the sentinel widget are then based on two simple sources:
+<CODE>Dos16MemAvail</CODE> (as described on the
+<A HREF="xcenter/xc_mem.html">"Memory" widget</A> page) and the size of the swapper
+file, which is determined periodically by doing a simple file-system call on the
+swapper file directly. These values are directly represented by the top and bottom
+graphs.
+
+<P>The total amount of virtual memory (all three graphs together)
+is simply calculalated by adding the amount of total physical RAM (which is
+returned from the
+<!-- V0.9.20: added link -->
+<A HREF="cpref.inf#DosQuerySysInfo"><CODE>DosQuerySysInfo</CODE></A> API<A HREF="_toolkitlink.html">*</A>
+and will never change)
+to the size of the swapper file.
+
+<P>The middle graph (the physical RAM currently in use) is simply the difference between
+the total physical RAM and the currently free physical RAM.
+</IFNDEF>
+<P>Note that this implementation cannot show you free space in the swapper drive.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,124 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        &xwp;-INI-Schlssel
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+&xwp; speichert alle globalen Einstellungen in Ihrer OS2.INI-Datei. (Im
+Gegensatz dazu werden die Einstellungen fr einzelne Objekte der
+Arbeitsoberfl„che von der WPS gespeichert, gr”átenteils in den
+Erweiterten Attributen <CODE>.CLASSINFO</CODE>.)
+<!-- the following changed with V0.9.1 -->
+<P>Dieser Abschnitt erl„utert die Schlssel im Abschnitt "&xwp;" der
+OS2.INI. Wenn Sie vorher XFolder installiert hatten, kopiert &xwp;
+diesen Daten aus dem Abschnitt "XFolder", der in OS2.INI verbleibt, so daá
+Sie sp„ter zu XFolder zurckkehren k”nnen, falls Sie sich entscheiden,
+&xwp; zu deinstallieren.
+<P>Hinweis: &xwp; ist nicht auf die INI-Schlssel angewiesen. Falls Sie jemals
+etwas wirklich durcheinander bringen, k”nnen Sie einfach einen Schlssel
+mit einem INI-Editor oder den gesamten Abschnitt "XFolder" l”schen. Nach dem
+n„chsten Neustart der Arbeitsoberfl„che wird sich &xwp; mit sicheren Standardwerten
+reinitialisieren.
+<P>Los geht's:
+ 
+<DL>
+<DT><CODE>Accelerators</CODE>
+<DD>Hierin befindet sich die Liste der Ordner-Tastenkrzel. Diese Daten sind bin„r und
+sollten nicht manuell ge„ndert werden.
+Es handelt sich um einen Array der Struktur <CODE>XFLDHOTKEY</CODE>,
+wie sie in den &xwp;-Quellen in <CODE>\shared\common.h</CODE> definiert wird.
+<B>Standard:</B> wie auf der Seite
+<A HREF="fldr_5xelerators.html">"Ordner-Tastenkrzel"</A> beschrieben.
+ 
+<DT><CODE>AutoClose</CODE>
+<DD>Die Liste der Elemente, die automatisch von &xshutdown; geschlossen werden sollen. Jedes
+Element dieser Liste ist ein null-terminierter String, gefolgt von einem ULONG, das
+angibt, wie mit dem Element verfahren werden soll. Danach folgt das n„chste Element; ist
+es 0, so ist die Liste zu Ende.
+ 
+<DT><CODE>BootLogoFile</CODE>
+<DD>Der vollqualifizierte Dateiname der als WPS-Startlogo zu verwendenden
+OS/2-V1.3-.BMP-Datei, wie auf der Seite "Systemstart" des Einstellungsnotizbuches
+der Arbeitsoberfl„che angegeben. Dies ist ein einfacher null-terminierter String.
+ 
+<DT><CODE>DialogFont</CODE>
+<DD>Die fr die &xwp;-Dialogboxen zu verwendende Schriftart. Dies wird gesetzt, wenn
+man eine Schrift auf eine davon zieht.
+<B>Standard:</B> 9.WarpSans, denke ich.
+ 
+<DT><CODE>FavoriteFolders</CODE>
+<DD>Nun, die Liste der <A HREF="menu_6favorite.html">bevorzugten Ordner</A>,
+als hexadezimale Objekt-Handles, abgeteilt durch Leerzeichen.
+ 
+<DT><CODE>GlobalSettings</CODE>
+<DD>Dies ist ein langer Array aus ULONGs mit allen m”glichen Einstellungen,
+die meisten aus dem Objekt "Workplace Shell". Er entspricht der Struktur
+<CODE>GLOBALSETTINGS</CODE>, wie sie in <CODE>\shared\common.h</CODE> in den
+&xwp;-Quellen festgelegt wird. Sie sollten darin besser keine Werte von Hand
+„ndern, aber Sie k”nnen den ganzen Abschnitt l”schen, um &xwp; auf sichere
+Werte zurckzusetzen (nach dem n„chsten Neustart der WPS).
+Dies wird jedesmal neu geschrieben, wenn eine globale Einstellung in einem
+der Einstellungsobjekte ge„ndert wird.
+ 
+<DT><CODE>JustInstalled</CODE>
+<DD>Dieser Schlssel existiert nur direkt nach der Installation von &xwp; und
+fhrt dazu, daá die "Willkommen"-Informationen angezeigt werden und der
+Konfigurationsordner erstellt wird. Danach wird der Schlssel wieder gel”scht.
+ 
+<DT><CODE>Language</CODE>
+<DD>&xwp;s dreistelliger Sprachcode, durch den festgelegt wird, welche Sprachversion
+geladen werden soll. Dieser kann ber "&xwp;-Konfiguration" eingestellt werden und
+hat den <B>Standardwert</B> "001", wenn er nicht gefunden wird.
+ 
+<DT><CODE>NameClashLastFocus</CODE>
+<DD>Die Dialogelement-ID, die zuletzt im Dialog "Objekt vorhanden" den Fokus hatte.
+ 
+<DT><CODE>QuickOpenFolders</CODE>
+<DD>Die Liste der Ordner fr <A HREF="fldr_5quickopen.html">schnelles ™ffnen</A>,
+als hexadezimale Objekt-Handles, getrennt durch Leerzeichen.
+ 
+<DT><CODE>RebootTo</CODE>
+<DD>Eine Liste der benutzerdefinierten Aktionen bei Neustart (wie sie in der Drop-down-Box
+des &xshutdown;-Best„tigungsdialoges gezeigt werden). Dies ist eine Liste von Paaren
+null-terminierter Strings: der erste beschreibt den Eintrag, der zweite gibt den
+auszufhrenden Befehl an. Die Liste wird von zwei zus„tzlichen Null-Bytes terminiert.
+ 
+<DT><CODE>SB_*</CODE>
+<DD>Diverse Einstellungen fr die Statuszeilen. Die Namen sind selbsterkl„rend, denke ich.
+Falls ein Schlssel nicht gefunden wird, wird der <B>Standardwert</B> aus der NLS-DLL geladen.
+ 
+<DT><CODE>SelectSome</CODE>
+<DD>Die letzten zehn Dateifilter, die im Dialog "Nach Name ausw„hlen" eingegeben wurden, wobei
+jeder mit einem Null-Byte terminiert wird.
+ 
+<!-- the following added with V0.9.1 -->
+<DT><CODE>TrashCan::Drives</CODE>
+<DD>Ein bin„rer Array aus Bytes, welche die Laufwerksuntersttzung des &xwp;-Papierkorbs angeben.
+ 
+<DT><CODE>Version</CODE>
+<DD>Die laufende Version von &xwp;. Diese wird nur aus informationstechnischen Grnden gesetzt
+(z.B. fr andere Anwendungen, die daran interessiert sein k”nnten), aber nicht von
+&xwp; selbst eingelesen.
+ 
+<DT><CODE>WndPos*</CODE>
+<DD>Diverse Fensterpositionen, um die Fenster dort erscheinen zu lassen, wo sie das letzte Mal geschlossen
+wurden. Diese Eintr„ge benutzen alle eine SWP-Struktur (ich verwende WinStoreWindowPos nicht).
+ 
+<DT><CODE>XFolderPath</CODE>
+<DD>Das Hauptverzeichnis, in dem &xwp; installiert wurde. Dies wird vom Installationsskript
+gesetzt und von TREESIZE.EXE ben”tigt, um die NLS-DLL zu finden. Der &xwp;-Kern benutzt diesen
+Schlssel jedoch nicht.
+ 
+<DT><CODE>XWPSound:LastDir</CODE>
+<DD>Der Ersatz fr das Objekt "Warnton" speichert hier das zuletzt mit der Schaltfl„che "Suchen"
+benutzte Verzeichnis.
+ 
+<DT><CODE>XWPSound:Scheme</CODE>
+<DD>Der Ersatz fr das Objekt "Warnton" speichert hier den Namen des aktuellen Klangschemas.
+</DL>
+<BR>
+</BODY>
+</HTML>
+ 

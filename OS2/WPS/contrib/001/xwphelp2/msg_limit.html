@@ -1,0 +1,28 @@
+<HTML RESID=&ID_XFH_LIMITREACHED;>
+<HEAD>
+    <TITLE>
+        "Too Many Items"
+    </TITLE>
+</HEAD>
+<BODY>
+&xwp; displays this message when too many menu items were inserted into &popmenu;s.
+This message is a warning only and should have no further consequences. It appears when
+you browse through &popmenu;s too extensively without ever closing the &popmenu;
+at all.
+<P><B>Remedy:</B>
+<P>Simply close the &popmenu; from time to time by clicking somewhere on the Desktop.
+<P><B>Detailed explanation:</B>
+&os2; does not provide an unlimited number of menu items for submenus. Every menu item
+must be assiged an internal identification number (ID) to. For these IDs,
+&xwp; uses
+0x6500 (decimal 25856) plus the number you specified as an "offset" in the
+Global Settings,
+and assigns a new ID to every single item which appears in the &popmenu;s. However,
+&os2; begins to behave in an unpredictable way if menu IDs larger than 0x8000 (decimal
+32768) are used, so &xwp; aborts menu processing as soon as this limit is reached.
+Upon opening the next &popmenu;, counting starts again from the beginning, so this
+error should not have any consequences.
+<BR>
+</BODY>
+</HTML>
+

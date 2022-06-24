@@ -1,0 +1,52 @@
+<HTML RESID=&ID_XSH_SETTINGS_ERRORS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Einstellungen fr Fehler
+    </TITLE>
+</HEAD>
+<BODY>
+Auf dieser Seite k”nnen einige Einstellungen aus der &cfgsys; bearbeitet werden, 
+die sich auf die Fehlerbehandlung von &os2; beziehen.
+<P>Falls die Informationen auf dieser Seite zu den unterschiedlichen
+&cfgsys;-Einstellungen nicht ausreichen, finden Sie zus„tzliche Erl„uterungen
+in den entsprechenden Kapiteln des <I>&os2;-Referenzhandbuchs</I>.
+ 
+<P>Klicken Sie auf die Schaltfl„che <B>Anwenden</B>, um die von Ihnen gemachten
+nderungen in die Datei &cfgsys; zu bernehmen. Dadurch werden nur die Zeilen
+ge„ndert, die den Einstellungen auf dieser Seite entsprechen. Die Zeilen,
+die sich auf andere Seiten der "&os2;-Kernel"-Einstellungen beziehen, werden
+nicht ge„ndert. Die Schaltfl„che wird nur dann aktiviert, wenn nderungen an
+den Einstellungen auf dieser Seite gemacht wurden. Beachten Sie, daá Sie das
+System neu starten mssen, damit die nderungen wirksam werden. Ein Neustart
+der Arbeitsoberfl„che allein reicht <I>nicht</I> aus.
+<P>Klicken Sie auf <B>Optimieren</B>, damit &xwp; auf Basis Ihrer 
+Systemgegebenheiten neue Einstellungen vorschl„gt. Auch in diesem Fall wird
+die &cfgsys; nur ge„ndert, wenn Sie "Anwenden" bet„tigen.
+<P>Durch Klicken auf <B>Standard</B> werden die Standardvorgaben von &os2;
+auf diese Einstellungsseite bernommen. Wiederum werden die ge„nderten Werte
+erst durch "Anwenden" in die &cfgsys; bernommen.
+ 
+<P>Wenn Sie die Option <B>Hardwarefehler unterdrcken</B> aktivieren, werden Sie
+die st”renden &os2;-Meldungen ber nicht bereite Laufwerke und andere l„stige
+Hardwarefehler endlich los. Diese Einstellung bewirkt, daá &os2; den Fehler
+automatisch an die betroffene Anwendung meldet, was normalerweise nur der Fall
+w„re, wenn Sie in dem dann erscheinenden weiáen Fehlermeldungsfenster die
+Auswahl "Fehler an Programm bergeben" ausgew„hlt h„tten. Dies entspricht der
+Anweisung <CITE>AUTOFAIL=YES</CITE>.
+ 
+<P>Die Aktivierung von <B>Ausnahmenachrichten unterdrcken</B> bewirkt, daá
+Ausnahmefehler nicht mehr angezeigt, sondern statt dessen in die Datei
+<CITE>POPUPLOG.OS2</CITE> im Hauptverzeichnis des von Ihnen angegebenen
+Laufwerks geschrieben. Dies entspricht der Anweisung
+<CITE>SUPPRESSPOPUPS=x</CITE>. Beachten Sie, daá seit &warp; 3 Fixpak 29
+diese Datei grunds„tzlich geschrieben wird, auch wenn diese Einstellung
+nicht verwendet wird.
+ 
+<P>Die Einstellung <B>Automatischer Neustart nach TRAP</B> bewirkt, daá &os2;
+das System komplett neu startet, wenn eine dieser unbehebbaren Fehlermeldungen
+"das System wurde angehalten" auftritt. Dies ist vor allem fr Rechner
+ntzlich, die unbewacht betrieben werden mssen, wie zum Beispiel Netzwerk-Server.
+<BR>
+</BODY>
+</HTML>
+ 

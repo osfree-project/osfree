@@ -1,0 +1,57 @@
+<HTML SUBLINKS="xxxxx"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        New Default Icons
+    </TITLE>
+</HEAD>
+<!-- completely rewritten with V0.9.18 -->
+<BODY>
+<B>Classes: XFldDataFile, XFolder, XFldDesktop, XWPProgramFile</B><HR>
+
+&xwp; allows you to freely replace a number of default Desktop icons. This
+replacement is global, that is, it will affect all objects that do not have
+a non-default icon assigned.
+
+<P>To enable the icon replacements, check the respective setting on the
+"Features" page in the <A HREF="sys_2global.html">"&xwp; Setup" object.</A>
+
+<P>If icon replacements are enabled, &xwp; will use the icon files in
+the <CODE>themes</CODE> directory in the &xwp; installation directory.
+Depending on the OS/2 version that you are running, &xwp; will use either
+the <CODE>warp3</CODE> or the <CODE>warp4</CODE> subdirectory there.
+It will be possible to change this default in a future version.
+
+<P>If you want to use different icons for the replacement, simply replace
+the icon files in the current subdirectory of <CODE>themes</CODE>. The
+icon files that are presently supported are the following:
+
+<UL><LI><CODE>datafile.ico</CODE>: default data file icon; used for all data files that
+have no association set.
+<P><LI><CODE>desk0.ico</CODE>, <CODE>desk1.ico</CODE>:
+default "closed" and "open" icons for the  Desktop.
+<P><LI><CODE>folder0.ico</CODE>, <CODE>folder1.ico</CODE>:
+default "closed" and "open" icons for all folders.
+<P><LI><CODE>prgdll.ico</CODE>:
+default icon for programs that appear to be libraries (DLLs).
+<P><LI><CODE>prgdosfs.ico</CODE>: default icon for programs in "DOS Fullscreen" mode.
+<P><LI><CODE>prgdoswn.ico</CODE>: default icon for programs in "DOS windowed" mode.
+<P><LI><CODE>prgdrivr.ico</CODE>: default icon for programs that appear to be drivers.
+<P><LI><CODE>prgos2fs.ico</CODE>: default icon for programs in "OS/2 Fullscreen" mode.
+<P><LI><CODE>prgos2wn.ico</CODE>: default icon for programs in "OS/2 windowed" mode.
+<P><LI><CODE>prgpm.ico</CODE>: default icon for PM programs,
+if no custom icon was found in the executable.
+<P><LI><CODE>prgunkwn.ico</CODE>: default icon if the program type could not be detected.
+<P><LI><CODE>prgwin16.ico</CODE>: default icon for 16-bit Windows executables,
+if no custom icon was found in the executable.
+<P><LI><CODE>prgwin32.ico</CODE>: default icon for 32-bit Windows executables,
+if no custom icon was found in the executable.
+<P><LI><CODE>trashemp.ico</CODE>: icon for the trash can if it is empty.
+<P><LI><CODE>trashful.ico</CODE>: icon for the trash can if it is not empty.
+
+</UL>Note that when replacing these files, you will probably have to restart
+the Desktop for the changes to be picked up.
+<BR>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,90 @@
+Installation
+------------
+ 
+Dieses Archiv enth„lt die deutsche Sprachuntersttzung (NLS) fr 
+XWorkplace. Es setzt ein installiertes XWP Version 0.9.20
+voraus.
+ 
+Auf der letzten Seite "System Configuration" k”nnen Sie bestimmen,
+ob WarpIN fr Sie auch die WPS-Objekte, die XWorkplace angelegt
+hat, auf die deutsche Sprachversion umstellen soll. Aktivieren Sie
+dazu die Option "Create WPS objects". Beachten Sie dazu Punkt 1
+unter "Bekannte Probleme". Sie k”nnen dies auch sp„ter nachholen,
+indem Sie das REXX-Skript "instl049.cmd" im Unterverzeichnis
+"install" des XWorkplace-Installationsverzeichnisses ausfhren.
+ 
+Nachdem Sie das Paket erfolgreich mit WarpIN installiert haben, 
+gehen Sie wie folgt vor, um die deutsche Sprachuntersttzung
+zu aktivieren:
+ 
+1. ™ffnen Sie das Objekt "XWorkplace Setup".
+2. W„hlen Sie die Seite "XWorkplace Status" aus.
+3. W„hlen Sie im Listenfeld unter "National Language Support" den 
+   Eintrag "German/Deutsch -- xfldr049.dll" aus.
+4. Best„tigen Sie den Dialog, um die nderungen zu bernehmen
+   und das Notizbuch zu schlieáen.
+ 
+ 
+Bekannte Probleme und Einschr„nkungen
+-------------------------------------
+ 
+1. Bei der Umstellung des Konfigurations-Ordners auf die
+   deutschen Objekt-Titel gehen bestehende pers”nliche
+   Einstellungen wie zus„tzliche Meneintr„ge i.a. verloren.
+ 
+2. Wird die Sprachversion ber das Objekt "XWorkplace-Konfiguration"
+   ge„ndert, so kann es vorkommen, daá das XCenter dies nicht
+   wahrnimmt und infolgedessen Eintr„ge in der vorher eingestellten
+   Sprache zurckbleiben. Dies l„át sich durch Schlieáen und
+   erneutes Starten des XCenters beheben.
+ 
+ 
+Rckmeldungen
+-------------
+ 
+Sollten Sie Verbesserungsvorschl„ge in Bezug auf die
+šbersetzung haben, Fehler darin finden oder bei der šbersetzung
+helfen wollen, senden Sie uns eine Nachricht. Melden Sie sich
+auch, wenn alles zu Ihrer Zufriedenheit funktioniert!
+Benutzen Sie dazu bitte die Mailingliste XWorkplace-User
+bei Yahoogroups: http://groups.yahoo.com/group/xworkplace-user
+ 
+Falls Sie Probleme mit der englischen Sprache haben oder Schreib-
+fehler gefunden haben, k”nnen Sie sich an Christian Hennecke unter
+der E-Mail-Adresse christian.hennecke@os2voice.org wenden.
+Beachten Sie, daá unter dieser Adresse KEIN allgemeiner
+kostenloser Support fr XWorkplace geleistet werden kann!
+ 
+Hinweis: 
+         Die deutsche Sprachuntersttzung fr XWorkplace ist 
+         absichtlich nach den Regeln der alten Rechtschreibung 
+         verfaát worden, um ein konsistentes Erscheinungsbild 
+         zusammen mit den brigen OS/2-Teilen zu bieten.
+ 
+ 
+Download
+--------
+ 
+Aktuelle Versionen des Sprachpakets kann man momentan von der
+folgenden URL beziehen:
+ 
+http://www.os2world.com/os2files/files/
+ 
+Der Quellcode ist als Teil des XWorkplace-CVS-Archivs bei Netlabs
+verfgbar (Unterverzeichnis 049). Hinweise zur Nutzung dieses
+Archivs finden Sie unter http://www.xworkplace.org/cvs.html.
+ 
+ 
+Mitwirkende Personen
+--------------------
+ 
+Frank Berke
+Christian Hennecke
+Thomas Klein
+Ingo Maurer
+Ulrich M”ller 
+Michael Riethdorf
+Peter Weilbacher
+ 
+ 
+Stand: 19/09/2002

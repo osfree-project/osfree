@@ -1,0 +1,88 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPS;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Settings
+    </TITLE>
+</HEAD>
+<BODY>
+On this page you may set a few WPS settings in &cfgsys;.
+<P>If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective chapters
+of the <I>&os2; Command Reference.</I>
+
+<P>Press <B>"Apply"</B> to have the changes you've made written to the
+&cfgsys; file.
+This will only change the &cfgsys; lines which correspond to the settings on this
+page. The lines corresponding to the other pages in the "&os2; Kernel" object will
+not be changed.
+This button is only active if you have made any changes to the settings
+on this page. Please note that you will have to restart the computer to let the changes
+take effect. A Desktop restart does <I>not</I> suffice.
+<P>Press <B>"Optimize"</B> to have &xwp; propose you new settings according to
+your system characteristics.
+&cfgsys; will only be changed after you press "Apply" also.
+<P>Press <B>"Default"</B> to have the &os2; default settings displayed on the notebook
+page.
+&cfgsys; will only be changed after you press "Apply" also.
+
+<P>In the <B>"Autostart"</B> group you may set what will be started when your
+computer is booting up. This corresponds to the
+<CITE>SET AUTOSTART=xxx</CITE> setting in &cfgsys;, with "xxx" being:
+<UL><LI><CITE>PROGRAMS</CITE>: If you deactivate this, no <B>programs</B> can be started,
+except for the programs in the "System startup" folder.
+<BR><LI><CITE>TASKLIST</CITE>: If you deactivate this, the <B>tasklist</B> will not be
+shown.
+<BR><LI><CITE>FOLDERS</CITE>: if you could disable this, no folders would be opened, and
+neither would be the Desktop. This is why this entry is not displayed on the notebook
+page and will always be added by &xwp;.
+<BR><LI><CITE>CONNECTIONS</CITE>: If you deactivate this, no
+<B>network connections</B> will be started.
+<BR><LI><CITE>LAUNCHPAD</CITE>: If you disable this, the <B>Launchpad</B> will not be
+started. But you can still place it in the "System startup" folder or start it
+manually.
+<BR><LI><CITE>WARPCENTER</CITE>: If you disable this, the <B>&warpcenter;</B> will not be
+started. This entry is only valid for OS/2 Warp 4 and above.
+But you can still place it in the "System startup" folder or start it
+manually.
+
+</UL>By default, all entries are enabled.
+
+<P>In the group <B>"Restart after system startup..."</B> you may determine which
+objects will be restarted after the WPS has booted. This corresponds to the
+<B>SET RESTARTOBJECTS=xxx</B> setting in &cfgsys;:
+<UL><LI><B>"All"</B> (<CITE>SET RESTARTOBJECTS=YES</CITE>) will start all objects that
+were open when the system was shut down the last time. Unfortunately,
+this is the default value. <B>Note:</B> Restarting all objects does not work if you
+are using &xwp;'s eXtended Shutdown.
+<BR><LI><B>"Nothing"</B> (<CITE>=NO</CITE>) does not restart any objects, not even those in the "System startup"
+folder. (But it does start those in the &xwp; Startup folder).
+<BR><LI><B>"Startup folders only"</B> (<CITE>=STARTUPFOLDERSONLY</CITE>) will only restart the objects in the &os2;
+System startup folder. This setting is strongly recommended because the default setting
+can lead to enormous problems if a program has taken down the system and will then
+be restarted. In addition, &xwp; assumes that you have this setting enabled.
+<BR><LI><B>"After reboot only"</B> (<CITE>REBOOT ONLY</CITE>) will only restart anything
+if the system was just (re-)booted and not after the WPS is restarting after an error.
+This makes sense only if you use the "All" option above.
+
+</UL>With Warp 4, you may also disable the setting <B>"Automatically refresh folders",</B>
+which is enabled by default. In this case open folders are only refreshed if you
+perform this manually, because the auto-refresh sometimes costs a lot of time.
+This setting corresponds to
+<CITE>SET AUTOREFRESHFOLDERS=xxx</CITE> (with xxx = YES or NO).
+
+<!-- V1.0.8: added new option -->
+<P>The option <B>"Additional file handles"</B> allows you to increase the number
+of files that can be open at a time for the WPS. The value is also inherited by
+other processes. This setting corresponds to
+<CITE>SET SHELLHANDLESINC=xxx</CITE> with xxx being a number between zero and 255.
+
+<P>In some situations, the WPS might run out of file handles and thus cannot open any
+additional files. The problem can also occur with applications that do not request
+the required amount of file handles but rely on a suitable default to be set. This
+problem can be worked around by specifying a large enough number in the above option.
+
+<P>The option is only effective on OS/2 Warp 4 Fixpak 6 and later.
+<BR>
+</BODY>
+</HTML>
+

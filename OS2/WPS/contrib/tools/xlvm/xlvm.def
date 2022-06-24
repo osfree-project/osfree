@@ -1,0 +1,12 @@
+NAME XLVM WINDOWAPI
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace Logical Volume Manager'
+
+CODE  MOVEABLE
+DATA  MOVEABLE MULTIPLE
+
+STACKSIZE   327680
+
+PROTMODE
+
+

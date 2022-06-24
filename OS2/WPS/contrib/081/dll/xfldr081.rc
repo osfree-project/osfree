@@ -1,0 +1,2078 @@
+
+/*
+ * xfldr081.rc:
+ *      this is the main resource file for the Japanese NLS DLL.
+ *
+ *      Translate all the strings in this file.
+ *
+ *      Special characters and codes:
+ *
+ *      --  If you encounter any "~" characters: these are for
+ *          underlining characters in menus so that the menu item
+ *          can be accessed using the keyboard.
+ *
+ *      --  "&xxx;" are for entities that are replaced dynamically
+ *          by XWorkplace when the string gets loaded. This only
+ *          works with string tables, not with menu IDs, unless
+ *          noted otherwise.
+ *
+ *          Presently the following entities are defined:
+ *
+ *          --  &xwp;       "XWorkplace" string, or "eWorkplace"
+ *                          if eWorkplace is running
+ *
+ *          --  &os2;       "OS/2" or "eComStation"
+ *
+ *          --  &winos2;    "Win-OS/2" or "Win16"
+ *
+ *          --  &warpcenter; "WarpCenter" or "eComCenter"
+ *
+ *          --  &xcenter;   "XCenter" or "eCenter"
+ *
+ *          --  &xsd;       "XShutdown" or "eShutdown"
+ *
+ *          --  &version;   current XWorkplace version (e.g. "0.9.16")
+ *
+ *          --  &date;      build date (e.g. Jan 12 2002)
+ *
+ *          --  &nl;        newline character (\n, ASCII 10)
+ *
+ *      The dialog templates (xfldr001.dlg) are #include'd. You
+ *      may either translate that text file "manually" or open
+ *      the resulting .RES file with the Toolkit dialog editor.
+ *      This will then recreate the .RES and .DLG files, but leave
+ *      the .RC file untouched.
+ *
+ *      The dialog editor has a "Translate mode" in its "Options"
+ *      menu which disables a lot of menu items to allow you to
+ *      only change strings. This is very helpful to avoid
+ *      accidentally ruining the dialogs.
+ */
+
+/*
+ *      Copyright (C) 1997-2012 Ulrich M罵ler.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include "pmwin.h"
+#include "pmstddlg.h"
+
+/* this is new with V0.85; this define is actually the only reason
+   why wpobject.h was needed. Since that file is only in the Toolkit,
+   I'll just add the define here so everyone can compile. */
+#define WPMENUID_USER          0x6500
+#include "..\..\include\dlgids.h"
+
+#ifndef FCF_CLOSEBUTTON         // V0.9.19 (2002-04-14) [umoeller]
+#define FCF_CLOSEBUTTON            0x04000000L
+#endif
+
+/* icons, bitmaps */
+POINTER ID_ICONDLG LOADONCALL MOVEABLE DISCARDABLE xfldrdlg.ico
+POINTER ID_SDICON LOADONCALL MOVEABLE DISCARDABLE xfldshut.ico
+
+/* BITMAP ID_XFLDRBITMAP LOADONCALL MOVEABLE DISCARDABLE xfolder.bmp
+   removed V0.9.16 (2001-11-10) [umoeller] */
+
+/* Context menus for the "WPS Class List" object */
+/* these two MENUs have been changed with V0.9.0 */
+MENU ID_XLM_CLASS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "オブジェクトの作成(~C)...", ID_XLMI_CREATEOBJECT
+    MENUITEM "登録解除(~D)...", ID_XLMI_DEREGISTER
+    MENUITEM "サブクラスで置き換え(~R)...", ID_XLMI_REPLACE
+    MENUITEM "置き換えのやり直し(~U)...", ID_XLMI_UNREPLACE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ヘルプ(~H)", ID_XFMI_HELP
+END
+
+/* the following has been removed V0.9.6 (2000-10-16) [umoeller]
+
+MENU ID_XLM_CLASS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Register new class...", ID_XLMI_REGISTER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Help", ID_XFMI_HELP
+END */
+
+// the following two have been added with V0.9.0 */
+MENU ID_XLM_METHOD_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "分類(~S)", ID_XLM_METHOD_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "メソッド番号順(~I)", ID_XLMI_METHOD_SORT_INDEX
+        MENUITEM "メソッド名順(~N)", ID_XLMI_METHOD_SORT_NAME
+        MENUITEM "導入クラス順(~N)", ID_XLMI_METHOD_SORT_INTRO
+        MENUITEM "オーバーライド・クラス順(~O)", ID_XLMI_METHOD_SORT_OVERRIDE
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ヘルプ(~H)", ID_XFMI_HELP
+END
+
+/* Context menus for the "File types" notebook page;
+   new with V0.9.0 */
+MENU ID_XSM_FILETYPES_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "サブ形式の作成(~R)...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "形式の削除(~D)", ID_XSMI_FILETYPES_DELETE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ピックアップ(~P)", ID_XSMI_FILETYPES_PICKUP
+    MENUITEM "ドロップ(~D)", ID_XSMI_FILETYPES_DROP
+    MENUITEM "ドラッグの取消し(~C)", ID_XSMI_FILETYPES_CANCELDRAG
+END
+
+MENU ID_XSM_FILETYPES_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "ルート形式の作成(~R)...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ドロップ(~D)", ID_XSMI_FILETYPES_DROP
+    MENUITEM "ドラッグの取り消し(~C)", ID_XSMI_FILETYPES_CANCELDRAG
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "エクスポート(~E)...", ID_XSMI_FILETYPES_EXPORT
+    MENUITEM "インポート(~I)...", ID_XSMI_FILETYPES_IMPORT
+END
+
+MENU ID_XSM_FILEFILTER_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "フィルターの削除(~D)", ID_XSMI_FILEFILTER_DELETE
+END
+
+MENU ID_XSM_FILEFILTER_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "新規フィルター(~N)...", ID_XSMI_FILEFILTER_NEW
+    MENUITEM "WPS フィルターのインポート(~I)...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* menu extended with 0.9.16 */
+MENU ID_XSM_FILEASSOC_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "オブジェクトのプロパティー(~O)", ID_XSMI_FILEASSOC_SETTINGS
+    MENUITEM "フォルダーのオープン(~F)", ID_XSMI_FILEASSOC_OPENFDR
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "関連付けの削除(~D)", ID_XSMI_FILEASSOC_DELETE
+END
+
+MENU ID_XSM_FILEASSOC_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "WPS フィルターのインポート(~I)...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* Button menus in XWPSetup "Objects" page;
+   new with V0.9.0  */
+MENU ID_XSM_OBJECTS_SYSTEM LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "キーボード設定(~K)", 100
+    MENUITEM "マウス設定(~M)", 101
+    MENUITEM "国別設定(~C)", 102
+    MENUITEM "サウンド設定(~S)", 103
+    MENUITEM "システム設定(~Y)", 104
+    MENUITEM "電源設定(~G)", 105
+    MENUITEM "Win-OS/2 設定(~I)", 106
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "カラー・パレット(~1)", 110
+    MENUITEM "カラー・パレット(~2)", 111
+    MENUITEM "フォント・パレット(~F)", 112
+    MENUITEM "スキーム・パレット(~P)", 113
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ツールバー(~L)", 120
+    MENUITEM "WarpCenter(~W)", 121
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "スプーラー(~O)", 130
+    MENUITEM "最小化ウィンドウ・ビューアー(~M)", 131
+    MENUITEM "シュレッダー(~H)", 132
+    MENUITEM "システム時計(~Y)", 133
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "始動フォルダー(~T)", 140
+    MENUITEM "テンプレート・フォルダー(~E)", 141
+    MENUITEM "ドライブ・フォルダー(~V)", 142
+END
+
+MENU ID_XSM_OBJECTS_XWORKPLACE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "ワークプレース・シェル設定(~W)", 200
+    MENUITEM "OS/2 カーネル設定(~O)", 201
+    MENUITEM "WPS クラスのリスト(~P)", 202
+    MENUITEM "画面(~E)", 203
+/* the following item added with V0.9.5 (2000-08-23) [umoeller] */
+    MENUITEM "マルチメディア(~M)", 204
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "構成フォルダー(~C)", 210
+    MENUITEM "始動フォルダー(~S)", 211
+    MENUITEM "終了フォルダー(~H)", 212
+    MENUITEM """フォント"" フォルダー(~F)", 213
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ゴミ入れ(~T)", 220
+    MENUITEM "セットアップ・ストリング(~U)", 221
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "XCenter(~X)", 230
+END
+
+/* Context menus on XFldSystem "Drivers" page;
+   new with V0.9.0  */
+/* added menu item for ConfigTool database V1.0.4 (2005-05-07) [chennecke] */
+MENU ID_XSM_DRIVERS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "OS/2 コマンド解説書のヘルプを表示", ID_XSMI_DRIVERS_CMDREFHELP
+    MENUITEM "ConfigTool データベースのヘルプを表示", ID_XSMI_DRIVERS_CONFIGTOOLHELP    /* XLATE-CHECK */
+    MENUITEM "全てのヘルプファイルの検索", ID_XSMI_DRIVERS_ALLHELP                      /* XLATE-CHECK */
+END
+
+/* Context menus on XWPKeyboard "Hotkeys" page
+   new with V0.9.0  */
+MENU ID_XSM_HOTKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "オブジェクトのプロパティー(~P)", ID_XSMI_HOTKEYS_PROPERTIES
+    MENUITEM "フォルダーをオープン(F)", ID_XSMI_HOTKEYS_OPENFOLDER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ホットキーの除去(~R)...", ID_XSMI_HOTKEYS_REMOVE
+END
+
+/* Context menus on XWPKeyboard "Function keys" page;
+   new with V0.9.3 (2000-04-18) [umoeller] */
+
+MENU ID_XSM_FUNCTIONKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "機能キーの編集(~E)...", ID_XSMI_FUNCK_EDIT
+    MENUITEM "機能キーの削除(~D)", ID_XSMI_FUNCK_DELETE
+END
+
+MENU ID_XSM_FUNCTIONKEYS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "新規の機能キー(~N)...", ID_XSMI_FUNCK_NEW
+END
+
+/*  "Sticky windows" context menus on XWPScreen "XPager Sticky" page
+    new with V0.9.4 (2000-07-10) [umoeller]
+    menu ids changed V1.0.1 (2003-01-05) [umoeller]
+*/
+
+MENU ID_XFM_CNRITEM_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "追加(~A)...", ID_XFMI_CNRITEM_NEW
+    MENUITEM SEPARATOR
+    MENUITEM "すべてを除去(~R)", ID_XFMI_CNRITEM_DELETEALL
+END
+
+/* changed V0.9.19 (2002-04-17) [umoeller] */
+MENU ID_XFM_CNRITEM_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "編集(~E)...", ID_XFMI_CNRITEM_EDIT
+    MENUITEM SEPARATOR
+    MENUITEM "除去(~R)", ID_XFMI_CNRITEM_DELETE
+END
+
+/* XCenter main button menu V0.9.7 (2000-11-30) [umoeller] */
+/* modified V0.9.9 (2001-03-07) [umoeller] */
+/* modified V0.9.19 (2002-04-02) [umoeller] */
+MENU ID_CRM_XCENTERBUTTON LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "すぐにロック(~L)", ID_CRMI_LOCKUPNOW
+    MENUITEM "中断(~S)...", ID_CRMI_SUSPEND
+    MENUITEM "デスクトップを再始動(~R)...", ID_CRMI_RESTARTWPS
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "実行(~U)...", ID_CRMI_RUN
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "ログ・オフ(~G)...", ID_CRMI_LOGOFF
+    MENUITEM "", ID_CRMI_SEP4, MIS_SEPARATOR
+    MENUITEM "終了(~D)...", ID_CRMI_SHUTDOWN
+END
+
+/* XCenter standard widget context menu V0.9.7 (2000-11-30) [umoeller] */
+/* changed V0.9.13 (2001-06-21) [umoeller] */
+/* changed V0.9.19 (2002-04-14) [umoeller] */
+/* changed V0.9.20 (2002-08-08) [umoeller] */
+MENU ID_CRM_WIDGET LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "プロパティー(~S)", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "ヘルプ(~H)", ID_CRMI_HELPSUBMENU, MIS_SUBMENU
+    BEGIN
+        MENUITEM "ウィジェット・ヘルプ(~W)", ID_CRMI_HELP
+        MENUITEM "", ID_CRMI_HELP_XCENTER
+    END
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "ウィジェットの削除(~D)...", ID_CRMI_REMOVEWGT
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "", ID_CRMI_XCSUB_PROPERTIES       /* see ID_CRMI_XCSUB_PROPERTIES stringtable entry */
+    MENUITEM "", ID_CRMI_XCSUB_CLOSE            /* see ID_CRMI_XCSUB_CLOSE stringtable entry */
+END
+
+/* XPager context menu V0.9.11 (2001-04-25) [umoeller] */
+MENU ID_XSM_PAGERCTXTMENU LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "プロパティー(~S)", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "ヘルプ(~H)", ID_CRMI_HELP
+END
+
+/* Split view menu bar V1.0.0 (2002-08-28) [umoeller] */
+MENU ID_XFM_SPLITVIEWBAR LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "フォルダー(~F)", ID_XFM_BAR_FOLDER, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "編集(~E)", ID_XFM_BAR_EDIT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "表示(~V)", ID_XFM_BAR_VIEW, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "選択済み(~S)", ID_XFM_BAR_SELECTED, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+    MENUITEM "ヘルプ(~H)", ID_XFM_BAR_HELP, MIS_SUBMENU
+    BEGIN
+        MENUITEM "tbr", 1
+    END
+END
+
+/* here come lots of little strings which XWorkplace uses in all kinds
+   of places. XWorkplace loads these strings on demand one at a time. */
+STRINGTABLE
+BEGIN
+    /* miscellaneous menu items */
+    ID_XSSI_NOTDEFINED              "[未定義]"
+    ID_XSSI_PRODUCTINFO             "~&xwp; 製品情報"
+    ID_XSSI_REFRESHNOW              "最新表示(~R)"
+    ID_XSSI_SNAPTOGRID              "座標に配置(~S)"
+
+    /* language of this DLL;
+       displayed on the "XWorkplace Configuration" notebook page */
+    ID_XSSI_DLLLANGUAGE             "Japanese"
+
+    /* author of National Language Support (new with V0.9.0);
+       displayed on the "XWorkplace Configuration" notebook page */
+    ID_XSSI_NLS_AUTHOR              "Jun Mikami"
+
+    /* XFOLDER_VERSION is in dlgids.h; this is checked by the
+       XWorkplace NLS DLL loader so that no DLLs are loaded which
+       are older than the main DLL. No change needed. */
+    ID_XSSI_XFOLDERVERSION          XFOLDER_VERSION
+
+    ID_XSSI_FLDRCONTENT             "フォルダー一覧(~O)"
+    ID_XSSI_COPYFILENAME            "ファイル名をコピー(~P)"
+    /* the following six added V1.0.0 (2002-11-09) [umoeller] */
+    ID_XSSI_COPYFILENAME_SHORTSP    "ファイル名のみ、空白区切り"
+    ID_XSSI_COPYFILENAME_FULLSP     "パス付き、空白区切り"
+    ID_XSSI_COPYFILENAME_SHORTNL    "ファイル名のみ、複数行"
+    ID_XSSI_COPYFILENAME_FULLNL     "パス付き、複数行"
+    ID_XSSI_COPYFILENAME_SHORT1     "ファイル名のみ"
+    ID_XSSI_COPYFILENAME_FULL1      "パス付き"
+
+    ID_XSSI_BORED                   "[構成フォルダーに項目がありません]"
+    ID_XSSI_FLDREMPTY               "[なし]"
+    ID_XSSI_SELECTSOME              "名前順で選択(~N)..."
+    ID_XSSI_PROCESSCONTENT          "フォルダー内容の開始(~C)..."
+
+    /* title of "Quick open" status window at bootup */
+    ID_XFSI_QUICKSTATUS             "始動時にオープン"
+
+    /* status bar strings */
+    ID_XSSI_POPULATING              "オブジェクトを取得しています..."
+
+    /* default status bar mnemonics; changed with V0.9.6 (2000-11-23) [umoeller] */
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTNONESEL           "合計 $C オブジェクト$x(50%)$SA、合計 $zM MB、空き $fM MB"
+    ID_XSSI_SBTEXTMULTISEL          "$c / $C オブジェクト選択$x(50%)$sA 選択"
+    ID_XSSI_SBTEXTWPDATAFILE        """$r"" ($w)$x(55%)$sA $x(70%)$D $T"
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTWPDISK            "$t (空き $fM MB、合計 $zM MB)"
+    ID_XSSI_SBTEXTWPPROGRAM         "$t $x(30%)""$p $P"""
+    ID_XSSI_SBTEXTWPOBJECT          "$t (クラス: $W)"
+
+    /* hotkey descriptions */
+    ID_XSSI_KEY_CTRL                "Ctrl+"
+    ID_XSSI_KEY_Alt                 "Alt+"
+    ID_XSSI_KEY_SHIFT               "Shift+"
+
+    ID_XSSI_KEY_BACKSPACE           "Backspace"
+    ID_XSSI_KEY_TAB                 "Tab"
+    ID_XSSI_KEY_BACKTABTAB          "逆Tab"
+    ID_XSSI_KEY_ENTER               "Enter"
+    ID_XSSI_KEY_ESC                 "Esc"
+    ID_XSSI_KEY_SPACE               "スペース"
+    ID_XSSI_KEY_PAGEUP              "Page Up"
+    ID_XSSI_KEY_PAGEDOWN            "Page Down"
+    ID_XSSI_KEY_END                 "End"
+    ID_XSSI_KEY_HOME                "Home"
+    ID_XSSI_KEY_LEFT                "左"
+    ID_XSSI_KEY_UP                  "上"
+    ID_XSSI_KEY_RIGHT               "右"
+    ID_XSSI_KEY_DOWN                "下"
+    ID_XSSI_KEY_PRINTSCRN           "PrintScrn"
+    ID_XSSI_KEY_INSERT              "Insert"
+    ID_XSSI_KEY_DELETE              "Delete"
+    ID_XSSI_KEY_SCRLLOCK            "ScrlLock"
+    ID_XSSI_KEY_NUMLOCK             "NumLock"
+
+    ID_XSSI_KEY_WINLEFT             "Win 左"
+    ID_XSSI_KEY_WINRIGHT            "Win 右"
+    ID_XSSI_KEY_WINMENU             "Win メニュー"
+
+    /* and the corresponding list box items on the
+       "Hotkeys" notebook page */
+    ID_XSSI_LB_REFRESHNOW           "最新表示"
+    ID_XSSI_LB_SNAPTOGRID           "座標に配置"
+    ID_XSSI_LB_SELECTALL            "全選択"
+    ID_XSSI_LB_OPENPARENTFOLDER     "上位フォルダーをオープン"
+    ID_XSSI_LB_OPENSETTINGSNOTEBOOK "設定ノートブックをオープン"
+    ID_XSSI_LB_OPENNEWDETAILSVIEW   "新規詳細表示をオープン"
+    ID_XSSI_LB_OPENNEWICONVIEW      "新規アイコン表示をオープン"
+    ID_XSSI_LB_DESELECTALL          "全選択解除"
+    ID_XSSI_LB_OPENNEWTREEVIEW      "新規ツリー表示をオープン"
+    ID_XSSI_LB_FIND                 "検索..."
+    ID_XSSI_LB_PICKUP               "ピックアップ"
+    ID_XSSI_LB_PICKUPCANCELDRAG     "ドロップ (ドラッグの取消し)"
+    ID_XSSI_LB_SORTBYNAME           "名前順に分類"
+    ID_XSSI_LB_SORTBYSIZE           "サイズ順に分類"
+    ID_XSSI_LB_SORTBYTYPE           "形式順に分類"
+    ID_XSSI_LB_SORTBYREALNAME       "実名順に分類"
+    ID_XSSI_LB_SORTBYWRITEDATE      "書き込み日付順に分類"
+    ID_XSSI_LB_SORTBYACCESSDATE     "アクセス日付順に分類"
+    ID_XSSI_LB_SORTBYCREATIONDATE   "作成日付順に分類"
+/* V0.9.19: removed Warp 4 only strings from all these */
+    ID_XSSI_LB_SWITCHTOICONVIEW     "アイコン表示へ切り換え"
+    ID_XSSI_LB_SWITCHTODETAILSVIEW  "詳細表示へ切り換え"
+    ID_XSSI_LB_SWITCHTOTREEVIEW     "ツリー表示へ切り換え"
+    ID_XSSI_LB_ARRANGEDEFAULT       "再配置 (標準)"
+    ID_XSSI_LB_ARRANGEFROMTOP       "上から再配置"
+    ID_XSSI_LB_ARRANGEFROMLEFT      "左から再配置"
+    ID_XSSI_LB_ARRANGEFROMRIGHT     "右から再配置"
+    ID_XSSI_LB_ARRANGEFROMBOTTOM    "下から再配置"
+    ID_XSSI_LB_ARRANGEPERIMETER     "周辺へ再配置"
+    ID_XSSI_LB_ARRANGEHORIZONTALLY  "水平に再配置"
+    ID_XSSI_LB_ARRANGEVERTICALLY    "垂直に再配置"
+    ID_XSSI_LB_INSERT               "貼り付け..."
+    ID_XSSI_LB_SORTBYEXTENSION      "拡張子順に分類"
+    ID_XSSI_LB_SORTFOLDERSFIRST     "フォルダーから分類"
+    ID_XSSI_LB_SORTBYCLASS          "オブジェクト・クラス順に分類"
+    ID_XSSI_LB_OPENPARENTFOLDERANDCLOSE     "上位フォルダーをオープンし、現在のフォルダーをクローズ"
+    ID_XSSI_LB_SELECTSOME           "名前順で選択..."
+    ID_XSSI_LB_CLOSEWINDOW          "ウィンドウのクローズ"
+    ID_XSSI_LB_CONTEXTMENU          "ポップアップ・メニューの表示"
+    ID_XSSI_LB_TASKLIST             "タスク・リストの表示"
+    ID_XSSI_LB_COPYFILENAME_SHORT   "ファイル名をコピー (パスなし)"
+    ID_XSSI_LB_COPYFILENAME_FULL    "ファイル名をコピー (パス付き)"
+/* V1.0.0: added remaining Pickup choices [lafaix] */
+    ID_XSSI_LB_PICKUPDROPCOPY       "ドロップ (コピー)"
+    ID_XSSI_LB_PICKUPDROPMOVE       "ドロップ (移動)"
+    ID_XSSI_LB_PICKUPDROPLINK       "ドロップ (シャドウの作成)"
+
+    /* XShutdown: context menu items and messages for the
+       status window.
+       Do not change the %d and %s keys, or
+       XShutdown might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_SDSI_SHUTDOWN                "終了(~D)"
+    ID_SDSI_RESTARTWPS              "デスクトップを再始動(~R)..."
+    ID_SDSI_RESTARTINGWPS           "デスクトップを再始動しています..."
+    ID_SDSI_SAVINGDESKTOP           "%d のデスクトップ・オブジェクトを保存しています..."
+    ID_SDSI_SAVINGPROFILES          "INI ファイルを保存しています..."
+    ID_SDSI_STARTING                "「%s」を開始しています..."
+    ID_SDSI_FLUSHING                "ファイルシステムを解放しています..."
+    ID_SDSI_CAD                     "終了が完了しました。"
+    ID_SDSI_REBOOTING               "コンピューターを再始動します..."
+    ID_SDSI_CLOSING                 "クローズしています"
+    ID_SDSI_DEFAULT                 "省略時値"
+
+    /* titles for XWorkplace notebook pages */
+/*    ID_XSSI_1GENERIC                "~XFolder"            removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_25ADDITEMS              "Co~ntext menus"      removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_26CONFIGITEMS           "構成フォルダーの項目"
+/*    ID_XSSI_2REMOVEITEMS            "Standard menu items" removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_27STATUSBAR             "状況バー(~B)" /* V0.9.9 */
+    ID_XSSI_3SNAPTOGRID             "座標"
+    ID_XSSI_4ACCELERATORS           "フォルダー・ホットキー(~F)" /* V0.9.9 */
+/*    ID_XSSI_5INTERNALS              "XFolder Internals"   removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_FILEOPS                 "File ~operations"    removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_INTERNALS               "~Object"             removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_TOOLBARS                "ツールバー(~T)"        /* added V1.0.1 (2002-12-08) [umoeller] */
+    ID_XSSI_SORT                    "分類(~S)"
+    /* the following are new with V0.9.0 */
+    ID_XSSI_XWPSTATUS               "&xwp; 状況(~X)"
+    ID_XSSI_FEATURES                "機能(~F)"
+    ID_XSSI_PARANOIA                "強制設定(~P)"
+    ID_XSSI_OBJECTS                 "オブジェクト(~O)"
+    ID_XSSI_FILEPAGE                "ファイル(~F)"
+
+    /* the following three added V1.0.1 (2003-01-10) [umoeller] */
+    ID_XSSI_FILEPAGE_GENERAL        "一般"
+    ID_XSSI_FILEPAGE_EAS            "Extended Attributes"               /* XLATE */
+    ID_XSSI_FILEPAGE_PERMISSIONS    "Permissions"                       /* XLATE */
+
+    ID_XSSI_DETAILSPAGE             "詳細(~D)"
+    ID_XSSI_XSHUTDOWNPAGE           "&xsd;(~X)"
+    ID_XSSI_STARTUPPAGE             "始動(~S)"
+    ID_XSSI_DTPMENUPAGE             "メニュー(~M)"
+            /* ID_XSSI_DTPMENUPAGE changed V0.9.19 (2002-04-17) [umoeller] */
+    ID_XSSI_FILETYPESPAGE           "ファイル形式(~F)"
+    ID_XSSI_SOUNDSPAGE              "サウンド(~S)"
+    ID_XSSI_VIEWPAGE                "表示(~V)"
+    ID_XSSI_ARCHIVESPAGE            "アーカイブ(~A)"
+    ID_XSSI_PGMFILE_MODULE          "モジュール(~M)"
+    ID_XSSI_OBJECTHOTKEYSPAGE       "ホットキー(~H)"
+    /* ID_XSSI_FUNCTIONKEYSPAGE added with V0.9.3 (2000-04-18) [umoeller] */
+    ID_XSSI_FUNCTIONKEYSPAGE        "機能キー(~F)"
+    ID_XSSI_MOUSEHOOKPAGE           "移動(~M)"
+    ID_XSSI_MAPPINGSPAGE            "割り当て(~M)"
+
+    /* sort strings */
+    ID_XSSI_SV_NAME                 "名前"
+    ID_XSSI_SV_TYPE                 "種類"
+    ID_XSSI_SV_CLASS                "オブジェクト・クラス"
+    ID_XSSI_SV_REALNAME             "実名"
+    ID_XSSI_SV_SIZE                 "サイズ"
+    ID_XSSI_SV_WRITEDATE            "最終書き込み日付"
+    ID_XSSI_SV_ACCESSDATE           "最終アクセス日付"
+    ID_XSSI_SV_CREATIONDATE         "作成日付"
+    ID_XSSI_SV_EXT                  "ファイルの拡張子"
+    ID_XSSI_SV_FOLDERSFIRST         "フォルダーから"
+
+    ID_XSSI_SV_ALWAYSSORT           "分類順を維持"
+
+    /* XWorkplace standard dialog box (cmnMessageBox in common.c) */
+    /* all changed to DID_* strings, see below with DID_YES2ALL etc.
+        V0.9.19 (2002-04-17) [umoeller]
+    ID_XSSI_DLG_UNDO                    "~Undo"
+    ID_XSSI_DLG_DEFAULT                 "~Default"
+    ID_XSSI_DLG_HELP                    "~Help"
+    ID_XSSI_DLG_YES                     "~Yes"
+    ID_XSSI_DLG_YES2ALL                 "Yes to ~all"
+    ID_XSSI_DLG_NO                      "~No"
+    ID_XSSI_DLG_OK                      "~OK"
+    ID_XSSI_DLG_CANCEL                  "~Cancel"
+    ID_XSSI_DLG_ABORT                   "~Abort"
+    ID_XSSI_DLG_RETRY                   "~Retry"
+    ID_XSSI_DLG_IGNORE                  "~Ignore" */
+
+    /* "WPS Classes" notebook page */
+    ID_XSSI_SB_CLASSMNEMONICS           "クラスの状況バー情報:"
+    ID_XSSI_SB_CLASSNOTSUPPORTED        "このクラスでは、新しい状況バー情報が導入されません。"
+    ID_XSSI_WPSCLASSES                  "WPS クラス"
+    ID_XSSI_WPSCLASSLOADED              "クラスをロードしました。"
+    ID_XSSI_WPSCLASSLOADINGFAILED       "クラスのロードに失敗しました。"
+    ID_XSSI_WPSCLASSREPLACEDBY          "クラスを %s に置き換えました。"
+    ID_XSSI_WPSCLASSORPHANS             "上位のないクラス"
+    ID_XSSI_WPSCLASSORPHANSINFO         "このツリーに表示されているクラスはロードできません。WPS クラス・リストから除去してください。"
+
+    /* OS/2 Kernel notebook pages */
+    ID_XSSI_SCHEDULER                   "スケジューラー(~S)"
+    ID_XSSI_MEMORY                      "メモリー(~M)"
+    ID_XSSI_ERRORS                      "エラー(~R)"
+    ID_XSSI_WPS                         "WPS(~W)"
+    /* the following are new with V0.9.0 */
+    ID_XSSI_SYSPATHS                    "システム・パス(~S)"
+    ID_XSSI_DRIVERS                     "ドライバー(~R)"
+    ID_XSSI_DRIVERCATEGORIES            "ドライバーの分類"
+
+    /* extended settings submenus */
+    ID_XFSI_SETTINGS                    "プロパティー(~P)"
+    ID_XFSI_SETTINGSNOTEBOOK            "ノートブック(~N)"
+    ID_XFSI_ATTRIBUTES                  "ファイル属性"
+    ID_XFSI_ATTR_ARCHIVE                "保存"
+    ID_XFSI_ATTR_SYSTEM                 "システム"
+    ID_XFSI_ATTR_HIDDEN                 "隠し"
+    ID_XFSI_ATTR_READONLY               "読み取り専用"
+
+    ID_XFSI_FLDRSETTINGS                "表示(~V)"
+    ID_XFSI_SMALLICONS                  "小アイコン(~I)"
+    ID_XFSI_FLOWED                      "複数の列(~M)"
+    ID_XFSI_NONFLOWED                   "1 列(~S)"
+    ID_XFSI_NOGRID                      "配置どおり(~A)"
+
+    /* the following added with V0.9.0 */
+    ID_XFSI_WARP4MENUBAR                "メニュー・バー(~M)"
+
+    ID_XFSI_SHOWSTATUSBAR               "状況バー(~S)"
+
+    /* the following are all new with V0.9.0 */
+
+    /* entry in XWPClassList's "Open" submenu */
+    ID_XFSI_OPENCLASSLIST               "クラス・リスト(~C)"
+    /* default title for object */
+    ID_XFSI_XWPCLASSLIST                "WPS クラス・リスト"
+    /* the following is new with V0.9.1 (99-12-28) [umoeller] */
+    ID_XFSI_REGISTERCLASS               "新しいクラスの登録(~E)..."
+
+    /* strings for XWPSound */
+    ID_XSSI_SOUNDSCHEMENONE             "<なし>"
+
+    /* "System paths" page in OS/2 Kernel" */
+    ID_XSSI_ITEMSSELECTED               "%d 項目選択済み"
+
+    /* Trash can menu items */
+    ID_XTSI_TRASHEMPTY                  "ゴミ入れを空にする(~E)"
+    ID_XTSI_TRASHRESTORE                "オブジェクトの復元(~R)"
+    ID_XTSI_TRASHDESTROY                "オブジェクトの破棄(~D)"
+
+    ID_XTSI_TRASHCAN                    "ゴミ入れ"
+    ID_XTSI_TRASHOBJECT                 "ゴミ・オブジェクト"
+
+    ID_XTSI_TRASHSETTINGSPAGE           "ゴミ入れ(~T)"
+    ID_XTSI_TRASHDRIVESPAGE             "ドライブ(~D)"
+
+    ID_XTSI_ORIGFOLDER                  "元のフォルダー"
+    ID_XTSI_DELDATE                     "削除日付"
+    ID_XTSI_DELTIME                     "削除時刻"
+    ID_XTSI_SIZE                        "サイズ"
+    ID_XTSI_ORIGCLASS                   "元のクラス"
+
+    /* all the following added with V0.9.1 */
+
+    /* trash can status bar strings */
+    ID_XTSI_STB_POPULATING              "ドライブ %c のゴミを収集しています..."
+    ID_XTSI_STB_OBJCOUNT                "%s のゴミ・オブジェクト、合計ゴミ・サイズ: %s バイト"
+
+    /* Details view columns on XWPKeyboard "Hotkeys" page */
+    ID_XSSI_HOTKEY_TITLE                "オブジェクトのタイトル"
+    ID_XSSI_HOTKEY_FOLDER               "フォルダー"
+    ID_XSSI_HOTKEY_HANDLE               "オブジェクトのハンドル"
+    ID_XSSI_HOTKEY_HOTKEY               "ホットキー"
+
+    /* Method info columns for XWPClassList; V0.9.1 (99-12-03) */
+    ID_XSSI_CLSLIST_INDEX               "No."
+    ID_XSSI_CLSLIST_METHOD              "メソッド"
+    ID_XSSI_CLSLIST_ADDRESS             "解決"
+    ID_XSSI_CLSLIST_CLASS               "クラス"
+    ID_XSSI_CLSLIST_OVERRIDDENBY        "オーバーライド元:"
+
+    /* "Special functions" on XWPMouse "Movement" page */
+    ID_XSSI_SPECIAL_WINDOWLIST          "ウィンドウ・リスト"
+    ID_XSSI_SPECIAL_DESKTOPPOPUP        "デスクトップのポップアップ・メニュー"
+
+    /* default title of XWPScreen class V0.9.2 (2000-02-23) [umoeller] */
+    ID_XSSI_XWPSCREENTITLE              "画面"
+
+    /* "Partitions" item in WPDrives "open" menu V0.9.2 (2000-02-29) [umoeller] */
+    ID_XSSI_OPENPARTITIONS              "パーティション表示(~P)"
+
+    /* all the following added with V0.9.3 */
+
+    /* "Syslevel" page title in "OS/2 kernel" */
+    ID_XSSI_SYSLEVELPAGE                "システム・レベル"
+
+    ID_XTSI_CALCULATING                 "計算しています..."
+
+    ID_MMSI_DEVICETYPE                  "種類"
+    ID_MMSI_DEVICEINDEX                 "索引"
+    ID_MMSI_DEVICEINFO                  "ドライバー"
+
+    ID_MMSI_TYPE_IMAGE                  "画像"
+    ID_MMSI_TYPE_AUDIO                  "オーディオ"
+    ID_MMSI_TYPE_MIDI                   "MIDI"
+    ID_MMSI_TYPE_COMPOUND               "複合"
+    ID_MMSI_TYPE_OTHER                  "その他"
+    ID_MMSI_TYPE_UNKNOWN                "不明"
+    ID_MMSI_TYPE_VIDEO                  "ビデオ"
+    ID_MMSI_TYPE_ANIMATION              "動きを付ける"
+    ID_MMSI_TYPE_MOVIE                  "ムービー"
+
+    ID_MMSI_TYPE_STORAGE                "記憶装置"
+    ID_MMSI_TYPE_FILE                   "ファイル"
+    ID_MMSI_TYPE_DATA                   "データ"
+
+    ID_MMSI_DEVTYPE_VIDEOTAPE           "ビデオ・テープ"
+    ID_MMSI_DEVTYPE_VIDEODISC           "ビデオ・ディスク"
+    ID_MMSI_DEVTYPE_CD_AUDIO            "音楽 CD"
+    ID_MMSI_DEVTYPE_DAT                 "DAT"
+    ID_MMSI_DEVTYPE_AUDIO_TAPE          "音楽テープ"
+    ID_MMSI_DEVTYPE_OTHER               "その他"
+    ID_MMSI_DEVTYPE_WAVEFORM_AUDIO      "WAVE オーディオ"
+    ID_MMSI_DEVTYPE_SEQUENCER           "シーケンサー"
+    ID_MMSI_DEVTYPE_AUDIO_AMPMIX        "AMPMIX"
+    ID_MMSI_DEVTYPE_OVERLAY             "オーバーレイ"
+    ID_MMSI_DEVTYPE_ANIMATION           "動きを付ける"
+    ID_MMSI_DEVTYPE_DIGITAL_VIDEO       "デジタル・ビデオ"
+    ID_MMSI_DEVTYPE_SPEAKER             "スピーカー"
+    ID_MMSI_DEVTYPE_HEADPHONE           "ヘッドホン"
+    ID_MMSI_DEVTYPE_MICROPHONE          "マイク"
+    ID_MMSI_DEVTYPE_MONITOR             "モニター"
+    ID_MMSI_DEVTYPE_CDXA                "CDXA"
+    ID_MMSI_DEVTYPE_FILTER              "フィルター"
+    ID_MMSI_DEVTYPE_TTS                 "テキスト読み上げ"
+
+    ID_MMSI_COLMN_FOURCC                "FourCC"
+    ID_MMSI_COLMN_NAME                  "名前"
+    ID_MMSI_COLMN_IOPROC_TYPE           "IOProc 形式"
+    ID_MMSI_COLMN_MEDIA_TYPE            "メディア形式"
+    ID_MMSI_COLMN_EXTENSION             "拡張子"
+    ID_MMSI_COLMN_DLL                   "DLL"
+    ID_MMSI_COLMN_PROCEDURE             "エントリー・ポイント"
+
+    ID_MMSI_PAGETITLE_DEVICES           "デバイス(~D)"
+    ID_MMSI_PAGETITLE_IOPROCS           "IOProc(~I)"
+    ID_MMSI_PAGETITLE_CODECS            "コーデック(~C)"
+
+    ID_XSSI_PAGETITLE_PAGER             "ページャー(~P)"
+
+    ID_XSSI_XWPSTRING_PAGE              "セットアップ・ストリング(~S)"
+    ID_XSSI_XWPSTRING_OPENMENU          "セットアップ・ストリングを呼び出す(~I)"
+
+    ID_XSSI_COLMN_SYSL_COMPONENT        "コンポーネント"
+    ID_XSSI_COLMN_SYSL_FILE             "システム・レベルのファイル"
+            /* corrected SYLEVEL typo V1.0.0 (2002-08-12) [umoeller] */
+    ID_XSSI_COLMN_SYSL_VERSION          "バージョン"
+    ID_XSSI_COLMN_SYSL_LEVEL            "システム・レベル"
+    ID_XSSI_COLMN_SYSL_PREVIOUS         "以前"
+
+    ID_XSSI_DRIVERS_VERSION             "バージョン: "
+    ID_XSSI_DRIVERS_VENDOR              "提供: "
+
+    /* removed these duplicates V0.9.18 (2002-02-13) [umoeller] */
+    /* ID_XSSI_FUNCKEY_DESCRIPTION         "Key Description" */
+    /* ID_XSSI_FUNCKEY_SCANCODE            "Scan Code" */
+    /* ID_XSSI_FUNCKEY_MODIFIER            "Modifier" */
+
+    /* default documents V0.9.4 (2000-06-09) [umoeller] */
+    ID_XSSI_DATAFILEDEFAULTDOC          "省略時文書(~E)"
+    ID_XSSI_FDRDEFAULTDOC               "フォルダーの省略時文書(~E)"
+
+    /* XCenter V0.9.4 (2000-06-10) [umoeller] */
+    ID_XSSI_XCENTERPAGE1                "モジュール(~M)"
+
+    /* file operations V0.9.4 (2000-07-27) [umoeller] */
+    ID_XSSI_FOPS_MOVE2TRASHCAN          "ゴミ入れへ移動しています..."
+    ID_XSSI_FOPS_RESTOREFROMTRASHCAN    "ゴミ入れから戻しています..."
+    ID_XSSI_FOPS_TRUEDELETE             "オブジェクトを削除しています..."
+    ID_XSSI_FOPS_EMPTYINGTRASHCAN       "ゴミ入れを空にしています..."
+
+    ID_XSSI_ICONPAGE                    "アイコン(~I)"
+
+    /* INI save methods V0.9.5 (2000-08-20) [umoeller] */
+    ID_XSSI_XSD_SAVEINIS_NEW            "新しい方法: &xwp; INI ルーチンを使用"
+    ID_XSSI_XSD_SAVEINIS_OLD            "古い方法: &os2; INI ルーチンを使用"
+    ID_XSSI_XSD_SAVEINIS_NONE           "INI を保存しない"
+
+    /* logoff V0.9.5 (2000-09-28) [umoeller] */
+    ID_XSSI_XSD_LOGOFF                  "ログ・オフ(~G)..."
+    ID_XSSI_XSD_CONFIRMLOGOFFTITLE      "&xwp;: ログ・オフ"
+            /* ID_XSSI_XSD_CONFIRMLOGOFFTITLE added V1.0.1 (2003-01-05) [umoeller] */
+    ID_XSSI_XSD_CONFIRMLOGOFFMSG        "ログ・オフしてもよろしいですか"
+
+    /* "bytes" strings for status bars V0.9.6 (2000-11-23) [umoeller] */
+    ID_XSSI_BYTE                        " バイト"
+    ID_XSSI_BYTES                       " バイト"
+
+    /* V0.9.6 (2000-12-14) [lafaix] */
+    ID_XSSI_PGMFILE_RESOURCES           "リソース(~R)"
+
+    /* title of program(file) "Associations" page V0.9.9 (2001-03-07) [umoeller] */
+    ID_XSSI_PGM_ASSOCIATIONS            "関連付け(~A)"
+
+END
+
+/* Strings for XWPSetup "Features" page
+    (added V0.9.0) */
+STRINGTABLE
+BEGIN
+    ID_XCSI_GENERALFEATURES             "一般機能"
+#ifndef __NOICONREPLACEMENTS__
+    ID_XCSI_REPLACEICONS                "アイコンを置き換える"
+#endif
+    /* the following item added with V0.9.20 (2002-07-19) [umoeller] */
+    ID_XCSI_REPLACEHELP                 "標準のヘルプ・パネルを置き換える"
+
+    /* the following item added with V0.9.4 (2000-08-08) [umoeller] */
+    // ID_XCSI_RESIZESETTINGSPAGES         "Adjust settings pages on notebook resize"
+            // and removed V1.0.1 (2002-12-14) [umoeller]
+
+    /* the following item's ID and string changed with V0.9.16 (2001-10-15) [umoeller] */
+    ID_XCSI_REPLACEICONPAGE             "すべての設定ノートブックにある「アイコン」ページを置き換える"
+    ID_XCSI_REPLACEFILEPAGE             "「ファイル」ページおよび「詳細」ページを置き換える"
+    ID_XCSI_XSYSTEMSOUNDS               "拡張システム・サウンド"
+    /* the following item added with V0.9.12 (2001-05-22) [umoeller] */
+    ID_XCSI_FIXCLASSTITLES              "クラス・タイトルを修正"
+
+    ID_XCSI_FOLDERFEATURES              "フォルダー機能"
+    ID_XCSI_ENABLESTATUSBARS            "フォルダー状況バーを表示"
+    ID_XCSI_ENABLESNAP2GRID             "フォルダーを「座標に配置」"
+    ID_XCSI_ENABLEFOLDERHOTKEYS         "フォルダー・ホットキーを有効にする"
+    ID_XCSI_EXTFOLDERSORT               "フォルダーの分類を拡張"
+    /* the following item added with V0.9.16 (2001-10-25) [umoeller] */
+    ID_XCSI_TURBOFOLDERS                "フォルダーの加速"
+    /* the following item added with V1.0.0 (2002-09-09) [umoeller] */
+    ID_XCSI_FDRSPLITVIEWS               "フォルダー分割表示"
+    /* the following item added with V1.0.1 (2002-11-30) [umoeller] */
+    ID_XCSI_ENABLETOOLBARS              "フォルダー・ツールバー"
+
+    ID_XCSI_MOUSEKEYBOARDFEATURES       "マウスおよびキーボードの機能"
+/*     ID_XCSI_ANIMOUSE                    "Animated Mouse Pointers" removed V0.9.19 (2002-06-02) [umoeller] */
+    ID_XCSI_XWPHOOK                     "&xwp; フックを有効にする"
+    ID_XCSI_GLOBALHOTKEYS               "グローバル・オブジェクト・ホットキーを有効にする"
+/*     ID_XCSI_PAGER                       "&pgr;: virtual desktops" removed V0.9.19 (2002-05-28) [umoeller] */
+
+    ID_XCSI_STARTSHUTFEATURES           "始動 / 終了の機能"
+    ID_XCSI_ARCHIVING                   "デスクトップのアーカイブを置き換え"
+    ID_XCSI_RESTARTWPS                  "「デスクトップの再始動」を有効にする"
+    ID_XCSI_XSHUTDOWN                   "終了を拡張"
+
+/* the following two items added with V0.9.18 (2001-10-25) [umoeller] */
+    ID_XCSI_CHECKDESKTOP                "デスクトップの整合性をチェック"
+    ID_XCSI_PREPOPULATEDESKTOP          "デスクトップを完全にしてから表示"
+
+    ID_XCSI_FILEOPERATIONS              "ファイル操作"
+    // ID_XCSI_EXTASSOCS                   "Extended file type associations"
+            // removed V1.0.1 (2002-12-15) [umoeller]
+
+/* this item added V0.9.20 (2002-08-08) [umoeller] */
+    ID_XCSI_REPLACEPASTE                "「貼り付け」ダイアログを置き換える"
+
+/*     this item removed with V0.9.16
+    ID_XCSI_CLEANUPINIS                 "Clean up WPS INI entries" */
+/* the following item added with V0.9.5 (2000-08-14) [umoeller] */
+    ID_XCSI_REPLHANDLES                 "WPS ハンドル管理を置き換え"
+    ID_XCSI_REPLFILEEXISTS              "「タイトルの競合」ダイアログを置き換える"
+    ID_XCSI_REPLDRIVENOTREADY           "「ドライブの準備ができていません」ダイアログを置き換える"
+/* the following has changed V0.9.19 (2002-04-14) [umoeller] */
+    ID_XCSI_REPLACEDELETE               "削除をゴミ入れに置き換える"
+/* the following has been removed V0.9.19 (2002-04-14) [umoeller] */
+/*    ID_XCSI_REPLACEDELETE               "Replace true delete" */
+/* the following has been added V0.9.9 (2001-01-31) [umoeller] */
+    ID_XCSI_REPLACEREFRESH              "フォルダーの自動最新表示を置き換える"
+/* the following has been added V0.9.16 (2001-12-02) [umoeller] */
+    ID_XCSI_NEWFILEDLG                  "ファイル・ダイアログを置き換える"
+END
+
+/* STILL more miscellaneous strings...
+    (all added V0.9.9 (2001-03-07) [umoeller]) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_STYLEPAGE                   "形式(~S)"
+    ID_XSSI_CLASSESPAGE                 "クラス(~C)"
+    ID_XSSI_WIDGETSPAGE                 "ウィジェット(~W)"
+    /* this one renamed V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSSI_ADDWIDGET                   "新規ウィジェットの作成(~A)"
+    /* this one added V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSSI_ADDWIDGETTOTRAY             "ウィジェットをトレイに追加(~A)"
+    ID_XSSI_WIDGETCLASS                 "ウィジェット・クラス"
+    ID_XSSI_WIDGETSETUP                 "ウィジェット設定"
+
+    ID_XSSI_FONTFOLDER                  "フォント・フォルダー"
+    ID_XSSI_FONTFILE                    "フォント・ファイル"
+    ID_XSSI_FONTFAMILY                  "フォント・ファミリー"
+    ID_XSSI_FONTERRORS                  "フォント・エラー"
+    ID_XSSI_FONTOBJECT                  "インストール済みのフォント"
+    ID_XSSI_CDPLAYERVIEW                "CD プレーヤー(~C)"
+    ID_XSSI_CDPLAYER                    "CD プレーヤー"
+    ID_XSSI_VOLUMEVIEW                  "ボリューム(~V)"
+    ID_XSSI_VOLUME                      "ボリューム"
+    ID_XSSI_ADMINISTRATOR               "管理者"
+    ID_XSSI_THREADSPAGE                 "スレッド(~T)"
+
+    ID_XSSI_CLSLISTTOKEN                "トークン"
+
+    ID_XSSI_DRIVERVERSION               "バージョン: "
+    ID_XSSI_DRIVERVENDOR                "提供: "
+
+    ID_XSSI_FONTSAMPLEVIEW              "フォントのサンプル(~F)"
+    ID_XSSI_FONTDEINSTALL               "削除(~U)..."
+
+    ID_XSSI_KEYDESCRIPTION              "キーの説明"
+    ID_XSSI_SCANCODE                    "ハードウェア走査コード"
+    ID_XSSI_MODIFIER                    "変更"
+
+    ID_XSSI_DEFAULTSHUTDOWN             "&os2; 標準の終了..."
+    ID_XSSI_INSTALLINGFONTS             "フォントをインストールしています..."
+    ID_XSSI_DEINSTALLINGFONTS           "フォントをアンインストールしています..."
+            // added V1.0.1 (2002-12-15) [umoeller]
+
+    ID_XSSI_PARAMETERS                  "パラメーター"
+    ID_XSSI_CLOSE                       "クローズ(~C)"
+
+    ID_XSSI_DROPPED1                    "... %d のオブジェクトをドロップしました。"
+    ID_XSSI_DROPPED2                    "表示するにはフォルダーをオープンしてください"
+
+    ID_XSSI_THREADSTHREAD               "スレッド"
+    ID_XSSI_THREADSTID                  "TID"
+    ID_XSSI_THREADSPRIORITY             "優先度"
+    ID_XSSI_THREADSGROUPTITLE           "&xwp; スレッド"
+
+    /* Do not leave our or change the order of the %d, %f and %%
+       keys, or XWP might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_XSSI_ARCRESTORED                 "アーカイブ %d を復元しました。"
+    ID_XSSI_ARCDAYSPASSED               "最後のバックアップから %d 日が経過しました。"
+    ID_XSSI_ARCDAYSLIMIT                "制限: %d 日。"
+    ID_XSSI_ARCINICHECKING              "INI ファイルをチェックしています..."
+    ID_XSSI_ARCINICHANGED               "INI ファイルが %f %% 変更されました。"
+    ID_XSSI_ARCINILIMIT                 "制限: %f %%。"
+    ID_XSSI_ARCENABLED                  "デスクトップのアーカイブを有効にしました。"
+    ID_XSSI_ARCNOTNECC                  "デスクトップをアーカイブする必要はありません。"
+
+    /* titles of programfiles "Imported modules" and "Exported functions" pages V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_PGMFILE_MODULE1             "インポートされているモジュール"
+    ID_XSSI_PGMFILE_MODULE2             "エクスポートされている関数"
+
+    /* containers columns headers in programfiles notebooks V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_COLMN_MODULENAME            "名前"
+    ID_XSSI_COLMN_EXPORTORDINAL         "通常"
+    ID_XSSI_COLMN_EXPORTTYPE            "種類"
+    ID_XSSI_COLMN_EXPORTNAME            "名前"
+    ID_XSSI_COLMN_RESOURCEICON          "アイコン(I)"
+    ID_XSSI_COLMN_RESOURCEID            "ID"
+    ID_XSSI_COLMN_RESOURCETYPE          "種類"
+    ID_XSSI_COLMN_RESOURCESIZE          "サイズ"
+    ID_XSSI_COLMN_RESOURCEFLAGS         "フラグ"
+
+    /* XPager special functions in XWPMouse "Movement" page V0.9.9 (2001-03-11 [lafaix] */
+    ID_XSSI_SPECIAL_PAGERUP          "上に 1 画面"
+    ID_XSSI_SPECIAL_PAGERRIGHT       "右に 1 画面"
+    ID_XSSI_SPECIAL_PAGERDOWN        "下に 1 画面"
+    ID_XSSI_SPECIAL_PAGERLEFT        "左に 1 画面"
+
+    /* new MB3 mappings labels V0.9.9 (2001-03-27) [umoeller] */
+    ID_XSSI_MB3_AUTOSCROLL              "自動スクロール"
+    ID_XSSI_MB3_DBLCLICK                "ダブルクリック"
+    ID_XSSI_MB3_NOCONVERSION            "変換しない"
+    ID_XSSI_MB3_PUSHTOBOTTOM            "下へ移動"
+
+    /* new screen borders page title V0.9.9 (2001-04-04) [lafaix] */
+    ID_XSSI_SCREENBORDERSPAGE           "画面の枠"
+
+    /* XWPAdmin "Users" page V0.9.11 (2001-04-22) [umoeller]*/
+    /* removed V0.9.19 (2002-04-14) [umoeller] */
+    /* ID_XSSI_ADMIN_USER                  "~User" */
+
+    /* fixed class titles for folder, disk, datafile V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLASSTITLE_FOLDER           "フォルダー"
+    ID_XSSI_CLASSTITLE_DISK             "ディスク"
+    ID_XSSI_CLASSTITLE_DATAFILE         "データ・ファイル"
+
+    /* extended "close" menu V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLOSETHISVIEW               "現在の表示(~V)"
+    ID_XSSI_CLOSEALLTHISFDR             "フォルダー内のすべての表示(~F)"
+    ID_XSSI_CLOSEALLSUBFDRS             "フォルダーとサブフォルダー内のすべての表示(~S)"
+
+    /* miscellaneous new strings V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_INVALID_OBJECT              "無効なオブジェクト"
+    ID_XSSI_XSHUTDOWN                   "&xsd;(~X)"
+    ID_XSSI_XC_CLASSTITLE               "クラスのタイトル"
+    ID_XSSI_XC_VERSION                  "バージョン"
+    ID_XSSI_XC_OBJBUTTONWIDGET          "オブジェクト・ボタンのウィジェット"
+
+    /* another archive string V0.9.13 (2001-06-14) [umoeller] */
+    ID_XSSI_ARCENABLEDONCE              "デスクトップを一度だけアーカイブします。"
+
+    /* more multimedia strings V0.9.13 (2001-06-14) [umoeller] */
+    ID_MMSI_INSTALLNAME                 "インストール名"
+    ID_MMSI_LOGICALNAME                 "論理名"
+    ID_MMSI_ALIAS                       "別名"
+    ID_MMSI_MCD                         "メディア制御ドライバー"
+    ID_MMSI_VSD                         "提供元ドライバー"
+    ID_MMSI_PDD                         "物理デバイス・ドライバー"
+    ID_MMSI_PARAMS                      "パラメーター"
+
+    /* more XCenter strings V0.9.13 (2001-06-19) [umoeller] */
+    ID_CRSI_ADDTRAY                     "トレイの追加(~D)..."
+    ID_CRSI_RENAMETRAY                  "トレイの名前変更(~N)..."
+    ID_CRSI_REMOVETRAY                  "トレイの削除(~E)..."
+
+    ID_CRSI_TRAY                        "トレイ %d"
+    ID_CRSI_NOTRAYACTIVE                "有効なトレイがありません"
+
+    ID_CRSI_ENTERNEWTRAY                "作成するトレイの名前を入力してください:"
+    ID_CRSI_ENTERRENAMETRAY             "トレイの新しい名前を入力してください:"
+
+    ID_XSSI_RUN                         "実行(~R)..."
+
+    /* the following have been added with V0.9.16 */
+    ID_CRSI_SENTINELTOOLTIP             "物理メモリー使用状況&nl;空き RAM: %s KB&nl;使用 RAM: %s KB&nl;スワップ・サイズ: %s KB"
+            /* expands to:
+                              Physical memory usage
+                              Free RAM: %s KB
+                              Used RAM: %s KB
+                              Swapper size: %s KB
+            */
+
+    /* the following five added V1.0.0 (2002-08-21) [umoeller] */
+    ID_CRSI_SENTINELTOOLTIP2            "&nl;スワップ内の空き: %s KB "
+    ID_CRSI_MEMORYTOOLTIP               "現在の空きメモリー"
+    ID_CRSI_BATTERYTOOLTIP              "バッテリー電源"
+    ID_CRSI_DISKFREECONDTOOLTIP         "ディスクの空き容量"
+    ID_CRMI_IPWIDGET_SOURCE             "元インターフェース"
+
+    ID_CRSI_BUILTINCLASS                "組み込み"
+    ID_CRSI_OWGT_MENUITEMS              "見えているメニュー項目"
+
+    ID_CRSI_PWGT_TITLE                  "パルス"
+    ID_CRSI_PWGT_IRQLOADCOLOR           "IRQ 負荷"
+    ID_CRSI_PWGT_CPUGRAPHCOLORS         "CPU グラフの色"
+    ID_CRSI_PWGT_CPUXUSERCOLOR          "CPU %d ユーザー負荷"
+    ID_CRSI_PWGT_OTHERCOLORS            "他の色"
+    ID_CRSI_PWGT_BACKGROUNDCOLOR        "背景"
+    ID_CRSI_PWGT_TEXTCOLOR              "テキスト"
+    ID_CRSI_PWGT_TOOLTIP1               "CPU 数: %d&nl;CPU 0 IRQ 負荷: %lu%c%lu%c"
+    ID_CRSI_PWGT_TOOLTIP2               "&nl;CPU %d ユーザー負荷: %lu%c%lu%c"
+            /* warning: the above two are strings for sprintf, so you _must_
+               get the % flags exactly correct, or the pulse will crash */
+
+    ID_XSSI_WPSFDRVIEWPAGE              "フォルダー表示(~V)"
+
+    ID_XFSI_FDLG_DRIVES                 "ドライブ(~D):"
+    ID_XFSI_FDLG_FILESLIST              "ファイル・リスト(~L):"
+    ID_XFSI_FDLG_TYPES                  "形式:"
+    ID_XFSI_FDLG_DIRECTORY              "ディレクトリー:"
+    ID_XFSI_FDLG_WORKING                "作業中..."
+    ID_XFSI_FDLG_FILE                   "ファイル(~F):"
+    ID_XFSI_FDLG_SAVEFILEAS             "別名保存..."
+    ID_XFSI_FDLG_OPENFILE               "ファイルのオープン..."
+    ID_XFSI_FDLG_ALLTYPES               "<すべての形式>"
+
+    /* the following have been added with V0.9.18 */
+    ID_XSSI_SPECIAL_SCREENWRAP          "画面の折り返し"
+
+    /* the following have been added with V0.9.19 */
+    ID_XSSI_DOUBLEFILES_FILENAME        "ファイル名"
+    ID_XSSI_DOUBLEFILES_DIR             "ディレクトリー"
+    ID_XSSI_DOUBLEFILES_SIZE            "サイズ"
+    ID_XSSI_DOUBLEFILES_DATE            "日付"
+    ID_XSSI_DOUBLEFILES_TIME            "時刻"
+
+    ID_NDSI_STARTNETSCAPE               "ブラウザーが実行されていません。実行しますか?"
+    ID_NDSI_SYNTAX                      "Netscape DDE コマンドの構文が正しくありません。ヘルプを表示しますか?"
+
+    ID_CRSI_OWGT_BITMAPFILE             "OS/2 ビットマップ・ファイル"
+
+    /* widget class names (all new with V0.9.19) */
+    ID_CRSI_WIDGET_OBJBUTTON            "オブジェクト・ボタン"
+    ID_CRSI_WIDGET_XBUTTON              "&xbutton;"
+    ID_CRSI_WIDGET_PULSE                "パルス (CPU 負荷)"
+    ID_CRSI_WIDGET_TRAY                 "トレイ"
+    ID_CRSI_WIDGET_DISKFREE_WC          "ディスクの空き (&warpcenter; 形式)"
+    ID_CRSI_WIDGET_DATE                 "日付"
+    ID_CRSI_WIDGET_TIME                 "時刻"
+    ID_CRSI_WIDGET_FREEMEM              "空き物理メモリー"
+    ID_CRSI_WIDGET_POWER                "バッテリー電源"
+    ID_CRSI_WIDGET_DISKFREE_COND        "ディスクの空き (簡略)"
+    ID_CRSI_WIDGET_SENTINEL             "メモリー状況表示"
+    ID_CRSI_WIDGET_WINDOWLIST           "ウィンドウ・リスト"
+    ID_CRSI_WIDGET_HEALTH               "稼働状況モニター"
+    ID_CRSI_WIDGET_IPMONITOR            "IP モニター"
+
+    /* font sample view (all new with V0.9.19) */
+    ID_XSSI_FONT_BASELINE               "ベースラインを表示 (赤線)"
+    ID_XSSI_FONT_MAXASCENDER            "最大アセンダー/ディセンダーを表示 (左側の灰色長方形)"
+    ID_XSSI_FONT_INTERNALLEADING        "内部リーディング (灰色長方形)"
+    ID_XSSI_FONT_LOWERCASEASCENT        "小文字のアセント/ディセントを表示 (赤い長方形)"
+
+    /* object details dialog V0.9.19 (2002-05-23) [umoeller] */
+    ID_XSSI_OBJDET_OBJECTID             "オブジェクト ID"
+    ID_XSSI_OBJDET_NONESET              "設定なし"
+    ID_XSSI_OBJDET_OBJECTID_ORIG        "元のオブジェクト ID"
+    ID_XSSI_OBJDET_DEFAULTVIEW          "オブジェクトの省略時の表示"
+    ID_XSSI_OBJDET_HANDLE               "オブジェクトのハンドル"
+
+    ID_XSSI_OBJDET_STYLEGROUP           "オブジェクトの形式"
+    ID_XSSI_OBJDET_CUSTOMICON           "独自のアイコン (自動的に破棄、形式なし)"
+    ID_XSSI_OBJDET_NOTDEFAULTICON       "標準ではないアイコン (自動的に破棄)"
+    ID_XSSI_OBJDET_NOCOPY               "コピーしない"
+    ID_XSSI_OBJDET_NODELETE             "削除しない"
+    ID_XSSI_OBJDET_NODRAG               "ドラッグしない"
+    ID_XSSI_OBJDET_NODROPON             "ドロップしない"
+    ID_XSSI_OBJDET_NOLINK               "リンクしない (シャドウなし)"
+    ID_XSSI_OBJDET_NOMOVE               "移動しない"
+    ID_XSSI_OBJDET_NOPRINT              "印刷しない"
+    ID_XSSI_OBJDET_NORENAME             "名前を変更しない"
+    ID_XSSI_OBJDET_NOSETTINGS           "設定しない"
+    ID_XSSI_OBJDET_NOTVISIBLE           "表示しない"
+    ID_XSSI_OBJDET_TEMPLATE             "テンプレート"
+    ID_XSSI_OBJDET_LOCKEDINPLACE        "その場所に固定"
+
+    ID_XSSI_OBJDET_PROGRAMDATA          "プログラム・データ"
+    ID_XSSI_OBJDET_PROGRAMTYPE          "プログラムの形式"
+    ID_XSSI_OBJDET_ENVIRONMENT          "環境"
+
+    ID_XSSI_OBJDET_FOLDERFLAGS          "フォルダーのフラグ"
+    ID_XSSI_OBJDET_FOLDERVIEWFLAGS      "フォルダーの表示フラグ"
+    ID_XSSI_OBJDET_OBJUSAGE             "オブジェクト使用状況"
+    ID_XSSI_OBJDET_OPENVIEWS            "オープンされている表示"
+    ID_XSSI_OBJDET_ALLOCMEM             "割り振り済みメモリー"
+    ID_XSSI_OBJDET_AWAKESHADOWS         "このオブジェクトの有効なシャドウ"
+    ID_XSSI_OBJDET_FOLDERWINDOWS        "このオブジェクトを含むフォルダー・ウィンドウ"
+    ID_XSSI_OBJDET_CNRHWND              "コンテナーの HWND"
+    ID_XSSI_OBJDET_APPSOPEN             "このオブジェクトをオープンしたアプリケーション"
+    ID_XSSI_OBJDET_APPHANDLE            "オープンされたハンドル (恐らく HAPP)"
+    ID_XSSI_OBJDET_MENUID               "メニュー ID"
+
+    ID_CRSI_WINLIST_WIDGET              "ウィンドウ・リスト・ウィジェット"
+    ID_CRSI_WINLIST_RESTORE             "復元(~R)"
+    ID_CRSI_WINLIST_MOVE                "移動(~M)"
+    ID_CRSI_WINLIST_SIZE                "サイズ(~S)"
+    ID_CRSI_WINLIST_MINIMIZE            "最小化(~N)"
+    ID_CRSI_WINLIST_MAXIMIZE            "最大化(~X)"
+    ID_CRSI_WINLIST_HIDE                "隠す(~H)"
+    ID_CRSI_WINLIST_KILL1               "プロセスを終了"
+    ID_CRSI_WINLIST_KILL2               "プロセスを終了(~K) (PID 0x%lX)"
+    /* the following two added V0.9.20 (2002-08-10) [umoeller] */
+    ID_CRSI_WINLIST_CLOSE               "「%s」のクローズ(~C)"
+    ID_CRSI_WINLIST_FILTER              "「%s」のフィルター(~F)"
+
+    /* IP monitor */
+    ID_CRSI_IPWGT_GRAPHCOLORS           "グラフの色"
+    ID_CRSI_IPWGT_GRAPHINCOLOR          "受信"
+    ID_CRSI_IPWGT_GRAPHOUTCOLOR         "送信"
+    ID_CRSI_IPWGT_TOTAL                 "合計"
+
+    /* Sentinel properties page V1.0.4 (2005-03-27) [chennecke] */
+    ID_CRSI_SWGT_PHYS                   "物理メモリー"
+    ID_CRSI_SWGT_PHYSFREE               "空き"
+    ID_CRSI_SWGT_PHYSINUSE              "使用"
+    ID_CRSI_SWGT_SWAPFILE               "スワップ・ファイル"
+    ID_CRSI_SWGT_SWAP                   "使用／サイズ"
+    ID_CRSI_SWGT_SWAPFREE               "空き"
+
+    /* XCenter properties  V0.9.20 (2002-08-08) [umoeller] */
+    ID_CRMI_XCSUB_PROPERTIES            "&xcenter; のプロパティー(~P)"
+    ID_CRMI_XCSUB_CLOSE                 "&xcenter; のクローズ"
+    ID_CRMI_HELP_XCENTER                "&xcenter; ヘルプ"
+END
+
+/* string IDs for status bar mnemonics (all new with V0.9.14) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_SBMNC_1                      "バイト"
+    ID_XSSI_SBMNC_2                      "kB"
+    ID_XSSI_SBMNC_3                      "KB"
+    ID_XSSI_SBMNC_4                      "mB"
+    ID_XSSI_SBMNC_5                      "MB"
+    ID_XSSI_SBMNC_6                      "バイト/kB/mB/gB"
+    ID_XSSI_SBMNC_7                      "バイト/KB/MB/GB"
+    ID_XSSI_SBMNC_000                    "選択されたオブジェクトの数"
+    ID_XSSI_SBMNC_001                    "フォルダーにあるオブジェクトの合計数"
+    ID_XSSI_SBMNC_010                    "ドライブの空き容量"
+    ID_XSSI_SBMNC_020                    "ドライブの合計サイズ"
+    ID_XSSI_SBMNC_030                    "選択されたオブジェクトのサイズ"
+    ID_XSSI_SBMNC_040                    "フォルダー内容の合計サイズ"
+    ID_XSSI_SBMNC_100                    "オブジェクトのタイトル"
+    ID_XSSI_SBMNC_110                    "WPS クラスの省略時タイトル"
+    ID_XSSI_SBMNC_120                    "WPS クラス名"
+    ID_XSSI_SBMNC_200                    "ファイル・システム形式 (HPFS、FAT、CDFS...)"
+    ID_XSSI_SBMNC_210                    "ドライブのラベル"
+    ID_XSSI_SBMNC_220                    "ドライブの合計容量"
+    ID_XSSI_SBMNC_300                    "オブジェクトの実名"
+    ID_XSSI_SBMNC_310                    "オブジェクトの形式 (.TYPE EA)"
+    ID_XSSI_SBMNC_320                    "オブジェクトの作成日"
+    ID_XSSI_SBMNC_330                    "オブジェクトの作成時刻"
+    ID_XSSI_SBMNC_340                    "オブジェクトの属性"
+    ID_XSSI_SBMNC_350                    "EA サイズ (バイト)"
+    ID_XSSI_SBMNC_360                    "EA サイズ (kB)"
+    ID_XSSI_SBMNC_370                    "EA サイズ (KB)"
+    ID_XSSI_SBMNC_380                    "EA サイズ (バイト/kB)"
+    ID_XSSI_SBMNC_390                    "EA サイズ (バイト/KB)"
+    ID_XSSI_SBMNC_400                    "URL"
+    ID_XSSI_SBMNC_500                    "実行可能プログラム・ファイル"
+    ID_XSSI_SBMNC_510                    "パラメーター・リスト"
+    ID_XSSI_SBMNC_520                    "作業ディレクトリー"
+END
+
+/* ******************************************************************
+ *
+ *   Strings formerly in xfldr001.dlg
+ *
+ ********************************************************************/
+
+/* Starting with V0.9.16, I am successively converting dialogs
+   not to use regular DLGEDIT dialog templates any more, but
+   instead have them being dynamically formatted from the
+   strings directly. The following section contains strings
+   which were therefore formerly in the dialog templates in
+   xfldr001.dlg. Each string has the same ID as the dialog
+   item ID, so if you have translated them already, you can
+   simply use the dialog item ID and the translated string
+   below. This will make translations much easier in the
+   future. */
+
+STRINGTABLE
+BEGIN
+    /* general strings */
+    DID_UNDO                            "やり直し(~U)"
+    DID_DEFAULT                         "省略時値(~D)"
+    DID_HELP                            "ヘルプ(~H)"
+    DID_BROWSE                          "参照(~W)..."
+    DID_DETAILS                         "詳細(~A)..."
+    DID_CLOSE                           "クローズ(~C)"
+
+    /*  the following added; these are the strings formerly
+        under the ID_XSSI_DLG_* IDs, which was really causing
+        quite some inefficiency in the code
+        V0.9.19 (2002-04-17) [umoeller] */
+    DID_OK                              "了解(~O)"
+    DID_CANCEL                          "取消(~C)"
+    DID_YES                             "はい(~Y)"
+    DID_YES2ALL                         "すべてはい(~A)"
+    DID_NO                              "いいえ(~N)"
+    DID_ABORT                           "中断(~A)"
+    DID_RETRY                           "再試行(~R)"
+    DID_IGNORE                          "無視(~I)"
+
+    /* couple more added with V0.9.19 */
+    DID_ADD                             "追加(~A)..."
+    DID_EDIT                            "編集(~E)..."
+    DID_REMOVE                          "除去(~R)"
+
+    /* and these with V1.0.0 (2002-09-13) [umoeller] */
+    DID_OPEN                            "オープン(~O)"
+    DID_SAVE                            "保存(~S)"
+
+    /* added V1.0.4 (2005-02-24) [chennecke]: for Xfix */
+    DID_ENTER                           "~Enter"
+
+    /* strings formerly in ID_XSD_SET25ADDMENUS
+        all removed V0.9.19 */
+
+    /* strings formerly in ID_XSD_SETTINGS_FLDR1 */
+    ID_XSSI_GENERALVIEWPAGE             "一般表示設定"
+    ID_XSDI_FAVORITEFOLDER              "お気に入りフォルダー(~F)"
+    ID_XSDI_QUICKOPEN                   "デスクトップ始動時にオープン(~Q)"
+    ID_XSDI_FULLPATH                    "完全なパスをフォルダーのタイトルに表示(~T)"
+    ID_XSDI_KEEPTITLE                   "元のタイトルのままにする(~K)"
+    ID_XSDI_SNAPTOGRID                  "「座標に配置」を追加(~P)"
+    ID_XSDI_ACCELERATORS                "フォルダー・ホットキーに応答(~O)"
+    ID_XSDI_ENABLESTATUSBAR             "状況バーを表示(~S)"
+    ID_XSDI_SHOWINMENUS                 "ホットキーをメニューに表示(~W)"
+    ID_XSDI_HOTKEYS_GROUP               "フォルダー・ホットキー"
+
+    /* strings formerly in ID_XSD_DTP_MENUITEMS
+        all removed with V0.9.19  */
+
+    /* strings formerly in ID_XSD_DTP_SHUTDOWN */
+    ID_SDDI_SHAREDGROUP                 "共通設定"
+    ID_SDDI_EMPTYTRASHCAN               "ゴミ入れを空にする(~E)"
+    ID_SDDI_CONFIRM                     "確認(~C)"
+    ID_SDDI_WARPCENTERFIRST             "&warpcenter; の後にデスクトップをクローズ(~W)"
+    ID_SDDI_AUTOCLOSEVIO                "PM 以外のセッションを自動クローズ(~P)"
+    ID_SDDI_AUTOCLOSEDETAILS            "詳細を自動クローズ(~A)..."
+    ID_SDDI_LOG                         "XSHUTDWN.LOG ファイルを書き込む(~G)"
+    ID_SDDI_CREATESHUTDOWNFLDR          "&xsd; フォルダーを作成"
+
+    ID_SDDI_SHUTDOWNGROUP               "終了のみ"
+    ID_SDDI_REBOOT                      "後で再起動(~R)"
+    ID_SDDI_REBOOTEXT                   "再起動時の動作(~N)..."
+    ID_SDDI_ANIMATE_TXT                 "動きを付ける"
+    ID_SDDI_ANIMATE_SHUTDOWN            "終了前(~B)"
+    ID_SDDI_ANIMATE_REBOOT              "再起動前(~F)"
+    /* V1.0.5: ID_SDDI_APMPOWEROFF renamed to ID_SDDI_POWEROFF */
+    ID_SDDI_POWEROFF                    "Power-off computer"
+    ID_SDDI_DELAY                       "遅れ(~Y)"
+    ID_SDDI_APMVERSION_TXT              "APM レベル:"
+    ID_SDDI_APMVERSION                  "不明"
+    /* V1.0.5: Added the next four items */
+    ID_SDDI_ACPIVERSION_TXT             "ACPI レベル:"
+    ID_SDDI_ACPIVERSION                 "不明"
+    ID_SDDI_APMPOWEROFF                 "APM"
+    ID_SDDI_ACPIPOWEROFF                "ACPI"
+    ID_SDDI_SAVEINIS_TXT                "INI ファイルの保存:"
+    ID_SDDI_CANDESKTOPALTF4             "デスクトップで Alt+F~4 を押すと、終了します"
+
+    /* strings formerly in ID_XSD_DTP_STARTUP */
+    ID_XSDI_DTP_LOGOGROUP               "ワークプレース・シェル起動ロゴ"
+    ID_XSDI_DTP_BOOTLOGO                "起動ロゴの使用(~B)"
+    ID_XSDI_DTP_LOGOSTYLEGROUP          "起動ロゴの形式"
+    ID_XSDI_DTP_LOGO_TRANSPARENT        "透過形式(~T)"
+    ID_XSDI_DTP_LOGO_BLOWUP             "拡大形式(~L)"
+    ID_XSDI_DTP_LOGOFILETXT             "起動ロゴ用の OS/2 1.3 BMP ファイル(~F):"
+    ID_XSDI_DTP_TESTLOGO                "ロゴのテスト(~E)"
+    /* V0.9.19: changed log file name */
+    ID_XSDI_DTP_WRITEXWPSTARTLOG        "START.LOG ファイルの書き込み(~S)"
+    ID_XSDI_DTP_BOOTUPSTATUS            "WPS クラスの初期化を表示(~P)"
+    ID_XSDI_DTP_CREATESTARTUPFLDR       "&xwp; 始動フォルダーの作成(~X)"
+    ID_XSDI_DTP_NUMLOCKON               "始動時に NumLock をオンにする(~N)"
+
+    /* strings formerly in ID_XFD_STARTUPPANIC */
+    ID_XFDI_PANIC_TITLE                 "&xwp; 緊急"
+    ID_XFDI_PANIC_SKIPBOOTLOGO          "次回の起動ロゴを表示しない(~B)"
+    ID_XFDI_PANIC_SKIPXFLDSTARTUP       "次回の &xwp; 始動フォルダーを実行しない(~T)"
+    ID_XFDI_PANIC_SKIPQUICKOPEN         "次回の「始動時にオープン」フォルダーを実行しない(~Q)"
+    ID_XFDI_PANIC_NOARCHIVING           "次回のデスクトップをアーカイブしない(~A)"
+    ID_XFDI_PANIC_DISABLEFEATURES       "すべての機能を完全に無効にする(~D)"
+    ID_XFDI_PANIC_DISABLEREPLICONS      "アイコンの置き換えを完全に無効にする(~I)"
+    ID_XFDI_PANIC_REMOVEHOTKEYS         "すべてのオブジェクト・ホットキーを除去(~R)"
+    ID_XFDI_PANIC_DISABLEPAGER          "&pgr; を無効にする(~P)"
+    ID_XFDI_PANIC_DISABLEMULTIMEDIA     "マルチメディアを無効にする(~M)"
+    ID_XFDI_PANIC_CONTINUE              "続行(~O)"
+    ID_XFDI_PANIC_CONTINUE_TXT          "引き続きデスクトップを始動します。"
+    ID_XFDI_PANIC_XFIX                  "xfix を実行(~F)"
+    ID_XFDI_PANIC_XFIX_TXT              "&xwp; Handles Fixer を実行します。"
+    ID_XFDI_PANIC_CMD                   "CMD.EXE の実行(~C)"
+    ID_XFDI_PANIC_CMD_TXT               "直ちにコマンド行ウィンドウをオープンします。"
+    ID_XFDI_PANIC_SHUTDOWN              "すぐに終了(~S)"
+    ID_XFDI_PANIC_SHUTDOWN_TXT          "&os2; 標準の終了を実行します。"
+    // these ones are new with V0.9.16
+    ID_XFDI_PANIC_DISABLEREPLREFRESH    "フォルダーの自動最新表示を置き換えない"
+    ID_XFDI_PANIC_DISABLETURBOFOLDERS   "フォルダーを加速しない"
+    // this one is new with V0.9.16
+    ID_XFDI_PANIC_DISABLECHECKDESKTOP   "始動時にデスクトップをチェックしない"
+
+    /* strings formerly in ID_XSD_FOLDERVIEWS */
+    ID_XSD_FOLDERVIEWGROUP              "フォルダー表示設定"
+    /* ID_XSDI_FULLPATH                    "Show full path in folder ~title" */
+    /* ID_XSDI_KEEPTITLE                   "Kee~p original title" */
+        /* already in ID_XSDI_FAVORITEFOLDER */
+    ID_XSDI_MAXPATHCHARS_TX1            "パスを制限(~L)"
+    ID_XSDI_MAXPATHCHARS_TX2            "文字"
+    ID_XSDI_TREEVIEWAUTOSCROLL          "ツリー表示を自動的にスクロール(~W)"
+    ID_XSDI_FDRDEFAULTDOC               "フォルダーの省略時文書を有効にする(~E)"
+    ID_XSDI_FDRDEFAULTDOCVIEW           "省略時文書 = 省略時のフォルダー表示(~F)"
+    ID_XSDI_FDRAUTOREFRESH              "フォルダーを自動的に最新表示(~A)"
+    ID_XSDI_FDRVIEWDEFAULT_GROUP        "省略時のフォルダー表示"
+    ID_XSDI_FDRVIEW_INHERIT             "上位から継承(~N)"
+    ID_XSDI_FDRVIEW_ICON                "アイコン(~I)"
+    ID_XSDI_FDRVIEW_TREE                "ツリー(~R)"
+    ID_XSDI_FDRVIEW_DETAILS             "詳細(~S)"
+    /* the following two added V0.9.20 (2002-07-31) [umoeller] */
+    ID_XSDI_FDRVIEW_LAZYICONS           "データ・ファイル・アイコンの読み込みを遅延(~Z)"
+    ID_XSDI_FDRVIEW_SHADOWOVERLAY       "シャドウ・アイコンに印を付ける(~W)"
+    /* the following two added V1.0.1 (2003-01-31) [umoeller] */
+    ID_XSDI_FDRVIEW_THUMBNAILS          "~Preview image thumbnails"             /* XLATE */
+
+    /* string formerly in ID_CRD_SETTINGS_VIEW2 */
+    ID_CRDI_VIEW2_3DBORDER_GROUP        "3D 枠の幅(~3)"
+    ID_CRDI_VIEW2_ALL3DBORDERS          "4 辺の 3D 枠を表示(~A)"
+    ID_CRDI_VIEW2_BDRSPACE_GROUP        "枠の間隔(~B)"
+    ID_CRDI_VIEW2_WGTSPACE_GROUP        "ウィジェット間隔(~W)"
+    ID_CRDI_VIEW2_SIZINGBARS            "サイズ変更バーを表示(~Z)"
+    ID_CRDI_VIEW2_SPACINGLINES          "間隔の線を表示(~C)"
+    ID_CRDI_VIEW2_DEFSTYLES_GROUP       "省略時のウィジェット形式"
+    ID_CRDI_VIEW2_FLATBUTTONS           "フラット・ボタン(~F)"
+    ID_CRDI_VIEW2_SUNKBORDERS           "統計の枠(~M)"
+    ID_CRDI_VIEW2_HATCHINUSE            "オブジェクトをドア・オープン(~O)"
+
+    /* strings formerly in ID_XFD_ARCHIVINGSTATUS */
+    ID_XFD_ARCHIVINGSTATUS              "デスクトップのアーカイブ"
+
+    /* strings formerly in ID_XSD_DTP_ARCHIVES */
+    ID_XSDI_ARC_CRITERIA_GROUP          "アーカイブ基準"
+    ID_XSDI_ARC_ENABLE                  "デスクトップのアーカイブ(~A)"
+    ID_XSDI_ARC_ALWAYS                  "デスクトップの始動時(~E)"
+    ID_XSDI_ARC_NEXT                    "次回のデスクトップ始動時のみ(~N)"
+    ID_XSDI_ARC_INI                     "INI ファイルが変更された場合(~I)"
+    ID_XSDI_ARC_INI_SPINTXT1            "%"
+    ID_XSDI_ARC_DAYS                    "毎(~V)"
+    ID_XSDI_ARC_DAYS_SPINTXT1           "日"
+    ID_XSDI_ARC_SHOWSTATUS              "デスクトップの始動時にアーカイブ状況を表示(~W)"
+    ID_XSDI_ARC_ARCHIVES_GROUP          "アーカイブ"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT1        "保管(~P)"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT2        "アーカイブ"
+    ID_XSDI_ARC_RESTORE_GROUP           "回復設定"                                      /* XLATE-CHECK */
+    ID_XSDI_ARC_RESTORE_ALWAYS          "システム始動時に表示(~S)"                      /* XLATE-CHECK */
+    ID_XSDI_ARC_RESTORE_TXT1            "タイムアウト(~T)"
+    ID_XSDI_ARC_RESTORE_TXT2            "秒"
+
+    /* strings formerly in ID_SDD_CONFIRMWPS */
+    ID_SDDI_CONFIRMWPS_TITLE            "&xwp;: デスクトップの再始動"
+    /* V1.0.0: ID of next item changed */
+    ID_SDDI_CONFIRMWPS_TEXT             "デスクトップを再始動してもよろしいですか"
+    ID_SDDI_WPS_CLOSEWINDOWS            "すべてのセッションをクローズ(~C)"
+    ID_SDDI_WPS_STARTUPFOLDER           "すべての &xwp; 始動フォルダーを処理(~P)"
+        /* next one is new with V0.9.19 */
+    ID_SDDI_ARCHIVEONCE                 "再始動後にデスクトップを 1 回アーカイブ(~A)"
+    ID_SDDI_MESSAGEAGAIN                "次回にもこのメッセージを表示(~S)"
+        /* next one is new with V1.0.1 (2003-01-29) [umoeller] */
+    ID_SDDI_WPS_RUNSHUTDOWNFDR          "Process shutdo~wn folder before restart"       /* XLATE */
+
+    /* strings formerly in ID_SDD_CONFIRM V1.0.0 */
+    ID_SDDI_CONFIRM_TITLE                "&xwp;: eXtended Shutdown"
+    ID_SDDI_CONFIRM_TEXT                "システムの終了方法を選択してください。"
+    ID_SDDI_REBOOTOPT_GROUP             "再起動オプション"
+    /* Tweaked accelerator keys V1.0.8 */
+    ID_SDDI_SHUTDOWNONLY                "終了のみ(~S)"
+    ID_SDDI_STANDARDREBOOT              "標準の再起動(~R)"
+    ID_SDDI_REBOOTTO                    "再起動先(~T)..."
+
+    /* the following two are new with V0.9.17 (2002-02-05) [umoeller] */
+    ID_SDDI_COMPLETE                    "終了が完了しました。"
+    ID_SDDI_SWITCHOFF                   "コンピューターの電源を切ることができます。または Ctrl+Alt+Del を押すと再起動できます。"
+
+    /* new "Icon" page replacement */
+    ID_XSDI_ICON_TITLE_TEXT             "タイトル(~I)"
+    ID_XSDI_ICON_GROUP                  "現在のアイコン"
+    ID_XSDI_ICON_EXPLANATION_TXT        "オブジェクトを左の欄にドラッグするか、「参照」ボタンを使ってアイコン・ファイルを見つけてください。"
+    ID_XSDI_ICON_EDIT_BUTTON            "アイコンの編集(~E)"
+    ID_XSDI_ICON_RESET_BUTTON           "アイコンのリセット(~R)"
+    ID_XSDI_ICON_LOCKPOSITION_CB        "その場所に固定(~L)"
+    ID_XSDI_ICON_TEMPLATE_CB            "テンプレート(~T)"
+    ID_XSDI_ICON_HOTKEY_TEXT            "オブジェクト・ホットキー(~K):"
+    ID_XSDI_ICON_HOTKEY_CLEAR           "消去(~C)"
+    ID_XSDI_ICON_HOTKEY_SET             "設定(~S)"
+    ID_XSDI_ICON_EXTRAS_GROUP           "追加機能"
+
+    /* new "Object details" dialog */
+    ID_XSDI_DETAILS_DIALOG              "オブジェクトの詳細"
+    ID_XSDI_DETAILS_GROUP               "詳細(~D)"
+    ID_XSDI_DETAILS_SETUPSTR_GROUP      "セットアップ・ストリング(~S)"
+
+    /* new "Mouse movement 1" page */
+    ID_XSDI_MOUSE_SLIDINGFOCUS_GRP      "フォーカスの追従"
+    ID_XSDI_MOUSE_SLIDINGFOCUS          "有効にする(~E)"
+    ID_XSDI_MOUSE_FOCUSDELAY_TXT1       "アクティブにするまでの間隔(~L):"
+    ID_XSDI_MOUSE_BRING2TOP             "ウィンドウを手前に移動(~T)"
+    ID_XSDI_MOUSE_IGNORESEAMLESS        "シームレス Win-OS/2 を無視(~W)"
+    ID_XSDI_MOUSE_IGNOREDESKTOP         "デスクトップを無視(~I)"
+/*    ID_XSDI_MOUSE_IGNOREPAGER           "Ignore XPa~ger"
+      ID_XSDI_MOUSE_IGNOREXCENTER         "Ignore ~XCenter"
+        removed V0.9.19 (2002-05-07) [umoeller]
+        */
+    ID_XSDI_MOUSE_SLIDINGMENU_GRP       "メニュー選択の追従"
+    ID_XSDI_MOUSE_SLIDINGMENU           "有効にする(~N)"
+    ID_XSDI_MOUSE_MENUDELAY_TXT1        "サブメニューを選択するまでの間隔(~B):"
+    ID_XSDI_MOUSE_CONDCASCADE           "状況対応の感度(~C)"
+    ID_XSDI_MOUSE_MENUHILITE            "すぐに反転表示(~M)"
+
+    /* product info */
+    ID_XSDI_INFO_TITLE                  "製品情報"
+
+    /* installed classes dialog */
+    ID_XCD_CLASSES_TITLE                "XWorkplace クラス"
+    ID_XCD_CLASSES_REPLACEMENTS         "置き換えクラス"
+    ID_XCD_CLASSES_NEW                  "新しいクラス"
+
+    /* the following are new with V0.9.19 */
+
+    /* strings formerly in ID_XSD_FILESPAGE1 */
+    ID_XSDI_FILES_REALNAME_TXT          "実名:"
+    ID_XSDI_FILES_FILESIZE_TXT          "サイズ(バイト):"
+    ID_XSDI_FILES_WORKAREA              "作業領域(~W)"
+    ID_XSDI_FILES_DATETIME_GROUP        "日付/時刻"
+    ID_XSDI_FILES_CREATIONDATE_TXT      "作成:"
+    ID_XSDI_FILES_LASTWRITEDATE_TXT     "最終書き込み:"
+    ID_XSDI_FILES_LASTACCESSDATE_TXT    "最終アクセス:"
+    ID_XSDI_FILES_ATTR_GROUP            "属性"
+    ID_XSDI_FILES_ATTR_ARCHIVED         "アーカイブ(~A)"
+    ID_XSDI_FILES_ATTR_READONLY         "読み取り専用(~R)"
+    ID_XSDI_FILES_ATTR_SYSTEM           "システム(~Y)"
+    ID_XSDI_FILES_ATTR_HIDDEN           "隠し(~H)"
+    ID_XSDI_FILES_INFO_GROUP            "情報"
+    ID_XSDI_FILES_SUBJECT_TXT           "表題(~J):"
+    ID_XSDI_FILES_COMMENTS_TXT          "注釈(~C):"
+    ID_XSDI_FILES_KEYPHRASES_TXT        "キーワード(~O):"
+
+    /* strings formerly in ID_XTD_SETTINGS */
+    ID_XTDI_OPTIONSGROUP                "ゴミ入れのオプション"
+    ID_XTDI_CONFIRMEMPTY                "空にするときに確認(~C)"
+    ID_XTDI_CONFIRMDESTROY              "破棄を確認(~Y)"
+    ID_XTDI_ALWAYSTRUEDELETE            "常にそのまま削除(~A) (ゴミ入れを使用しない)"
+
+    /* new batch rename dialog */
+    ID_XFDI_BATCHRENAME_TITLE           "一括名前変更"
+    ID_XFDI_BATCH_INTROTXT              "以下の入力欄に、変更する元の名前と新しい名前の正規表現を指定してください。"
+    ID_XFDI_BATCH_SOURCETXT             "検索する正規表現(~F):"
+    ID_XFDI_BATCH_TARGETTXT             "新しい名前の表現(~R):"
+    ID_XFDI_BATCH_SELONLYCB             "選択したオブジェクトのみに一致(~E)"
+    ID_XFDI_BATCH_GO                    "名前変更を開始(~S)..."
+
+    /* strings formerly in ID_XFD_SELECTSOME */
+    ID_XFDI_SELECTSOME_TITLE            "名前による選択"
+    ID_XFDI_SOME_INTROTXT               "選択するためのマスク (「*.txt」など) または正規表現を指定してください:"
+    ID_XFDI_SOME_SELECT                 "選択(~S)"
+    ID_XFDI_SOME_DESELECT               "選択解除(~D)"
+    ID_XFDI_SOME_SELECTALL              "全選択(~A)"
+    ID_XFDI_SOME_DESELECTALL            "全選択解除(~L)"
+    ID_XFDI_SOME_REGEXP_CP              "正規表現(~R)"
+    ID_XFDI_SOME_CASESENSITIVE_CB       "大文字小文字を区別(~C)"
+
+    /* strings formerly in ID_SCD_PAGER_WINDOW */
+    ID_SCDI_PGR1_WINDOW_GROUP          "&pgr; 制御ウィンドウ"
+    ID_SCDI_PGR1_PRESERVEPROPS         "画面の縦横比を固定(~O)"
+    ID_SCDI_PGR1_STAYONTOP             "常に手前に表示(~P)"
+    ID_SCDI_PGR1_FLASHTOTOP            "手前に移動(~F)"
+    ID_SCDI_PGR1_FLASH_TXT1            "間隔:"
+    ID_SCDI_PGR1_FLASH_TXT2            "秒"
+    ID_SCDI_PGR1_SHOWWINDOWS           "小ウィンドウ(~M)"
+    ID_SCDI_PGR1_SHOWWINTITLES         "ウィンドウ・タイトルを表示(~T)"
+    ID_SCDI_PGR1_CLICK2ACTIVATE        "小ウィンドウのマウス動作(~M)"
+    ID_SCDI_PGR1_SHOWSECONDARY         "2 次ウィンドウを表示(~S)"
+    ID_SCDI_PGR1_SHOWSTICKY            "常用ウィンドウを表示(~K)"
+    ID_SCDI_PGR1_FOLLOWFOCUS           "デスクトップをアクティブ・ウィンドウに追従(~W)"
+    ID_SCDI_PGR1_SHOWWINICONS          "ウィンドウ・アイコンを表示(~I)"
+    /* daemon-specific strings V1.0.0 (2002-09-15) [lafaix] */
+    ID_SCDI_PGR1_STICKIESTOGGLE        "常用の起動をシステム・メニューに追加(~T)"
+
+    /* strings formerly in ID_SCD_PAGER_COLORS */
+    ID_SCDI_PGR2_COLORS_GROUP          "&pgr; の色"
+    ID_SCDI_PGR2_COLORS_INFO           "カラー・パレットから以下の欄に色をドロップしてください。&pgr; ウィンドウ・タイトルのフォントを変更するには、&pgr; ウィンドウにフォントをドロップします。"
+    ID_SCDI_PGR2_COLORS_INACTIVE_1     "使用していない 1"
+    ID_SCDI_PGR2_COLORS_INACTIVE_2     "使用していない 2"
+    ID_SCDI_PGR2_COLORS_ACTIVE         "使用中"
+    ID_SCDI_PGR2_COLORS_BORDERS        "枠"
+    ID_SCDI_PGR2_COLORS_BACKGROUND     "背景:"
+    ID_SCDI_PGR2_COLORS_MINIWINDOW     "小ウィンドウ:"
+    ID_SCDI_PGR2_COLORS_TITLE          "タイトル:"
+
+    /* strings formerly in ID_XCD_PARANOIA */
+    ID_XCDI_PARANOIA_GROUP              "XWorkplace の機能を無効にする"
+    ID_XCDI_PARANOIA_INTRO              "不具合の場合、ここで特定の XWorkplace 機能を全体にわたって無効にできます。設定の詳細については、「ヘルプ」を押してください。"
+    ID_XCDI_VARMENUOFFSET_TXT           "XWorkplace メニュー項目 ID オフセット(~I):"
+    // ID_XCDI_NOSUBCLASSING               "Disable all folder ~subclassing"
+    //      removed V1.0.0 (2002-09-12) [umoeller]
+    // ID_XCDI_NOFREAKYMENUS               "Disable undocumented menu functions"
+    //      removed V1.0.0 (2002-08-26) [umoeller]
+    ID_XCDI_USE8HELVFONT                "8.Helv フォントを使用(~8)"
+    ID_XCDI_NOEXCPTBEEPS                "例外ビープ音を鳴らさない(~C)"
+    ID_XCDI_WORKERPRTY_GROUP            "作業スレッド"
+    ID_XCDI_WORKERPRTY_TEXT1            "省略時の作業スレッド優先度(~F):"
+    ID_XCDI_WORKERPRTY_BEEP             "優先度の変更時にビープ音を鳴らす(~B)"
+
+    /* strings formerly in ID_XSD_SET26CONFIGMENUS */
+    ID_XSDI_MENUS_CONFIGFDR_GROUP       "構成フォルダーのメニュー"
+    ID_XSDI_CASCADE                     """状況対応"" サブメニュー(~C)"
+    ID_XSDI_REMOVEX                     "ウィンドウ・タイトルの「~ 」を消す(~S)"
+    ID_XSDI_APPDPARAM                   "パラメーターのリストを変更(~E)"
+    ID_XSDI_TPL_GROUP                   "テンプレートからの作成後..."
+    ID_XSDI_TPL_DONOTHING               "なにもしない(~N)"
+    ID_XSDI_TPL_EDITTITLE               "タイトルを編集可能にする(~M)"
+    ID_XSDI_TPL_OPENSETTINGS            "プロパティーをオープン(~O)"
+    ID_XSDI_TPL_POSITION                "マウスの位置にオブジェクトを作成(~R)"
+
+    /* strings formerly in ID_XSD_SET27STATUSBARS */
+    ID_XSDI_VISIBLEIN_GROUP             "表示先..."
+    ID_XSDI_SBFORICONVIEWS              "アイコン表示(~I)"
+    ID_XSDI_SBFORTREEVIEWS              "ツリー表示(~T)"
+    ID_XSDI_SBFORDETAILSVIEWS           "詳細(~A)"
+    /* the following added V1.0.1 (2002-11-30) [umoeller] */
+    ID_XSDI_SBFORSPLITVIEWS             "分割表示(~P)"
+    ID_XSDI_STYLE_GROUP                 "形式"
+    ID_XSDI_SBSTYLE_3RAISED             "浮き出し(~X)"
+    ID_XSDI_SBSTYLE_3SUNKEN             "窪み(~S)"
+    ID_XSDI_SBSTYLE_4RECT               "ボタン(~B)"
+    ID_XSDI_SBSTYLE_4MENU               "メニュー(~M)"
+
+    /* strings formerly in ID_XFD_RUN */
+    ID_XFD_RUN_TITLE                    "実行"
+    ID_XFD_RUN_INTRO                    "実行するコマンドおよび始動ディレクトリーを入力してください(~E):"
+    ID_XFD_RUN_MINIMIZED                "開始時に最小化(~M)"
+    ID_XFD_RUN_FULLSCREEN               "全画面(~F)"
+    ID_XFD_RUN_AUTOCLOSE                "終了時にクローズ(~X)"
+    ID_XFD_RUN_WINOS2_GROUP             "&winos2; 設定"
+    ID_XFD_RUN_ENHANCED                 "拡張モード(~E)"
+    ID_XFD_RUN_SEPARATE                 "別のセッション(~S)"
+    ID_XFD_RUN_STARTUPDIR_TXT           "作業ディレクトリー(~W):"
+
+    /* strings formerly in ID_CRD_SETTINGS_VIEW */
+    ID_XRDI_VIEW_FRAMEGROUP             "&xcenter; フレーム"
+    ID_CRDI_VIEW_REDUCEWORKAREA         "デスクトップの作業領域を縮小(~R)"
+    ID_CRDI_VIEW_ALWAYSONTOP            "常に手前に表示(~A)"
+    ID_CRDI_VIEW_ANIMATE                "動きを付ける(~N)"
+    ID_CRDI_VIEW_AUTOHIDE               "自動的に隠す(~I)"
+    ID_CRDI_VIEW_AUTOHIDE_TXT1          "速度(~E):"
+    ID_CRDI_VIEW_AUTOHIDE_CLICK         "マウスでクリックして隠す(~M)"
+    ID_CRDI_VIEW_PRTY_GROUP             "スレッド優先度を表示(~V)"
+    ID_CRDI_VIEW_POSITION_GROUP         "&xcenter; の位置"
+    ID_CRDI_VIEW_TOPOFSCREEN            "画面の上部(~T)"
+    ID_CRDI_VIEW_BOTTOMOFSCREEN         "画面の下部(~B)"
+    ID_CRDI_VIEW_AUTOSCREENBORDER       "画面の枠に追加(~S)"
+
+    /* strings for XFldWPS menu pages  (all new with V0.9.19) */
+    ID_XSDI_MENU_SETTINGS               "共通メニュー設定"
+    ID_XSDI_MENU_ITEMS                  "メニュー項目"
+
+    ID_XSDI_MENU_STYLE_GROUP            "メニュー形式"
+    ID_XSDI_MENUS_BARS                  "フォルダーのメニュー・バーを表示(~Y)"
+    ID_XSDI_MENUS_SHORT                 "短いメニュー(~T)"
+    ID_XSDI_MENUS_LONG                  "長いメニュー(~N)"
+    ID_XSDI_FC_SHOWICONS                "フォルダーの内容メニューにアイコンを付ける(~I)"
+    ID_XSDI_LOCKINPLACE_NOSUB           "「その場所に固定」のサブメニューを外す(~B)"
+
+    ID_XSDI_MENU_EDIT_GROUP             "メニュー項目(~M)"
+    ID_XSDI_MENU_EDIT_CAT_TXT           "メニュー項目を編集(~E):"
+
+    ID_XSDI_MENU_EDIT_CAT_FOLDERS       "フォルダー"
+    ID_XSDI_MENU_EDIT_CAT_DESKTOP       "デスクトップ"
+    ID_XSDI_MENU_EDIT_CAT_DISKS         "ディスク"
+    ID_XSDI_MENU_EDIT_CAT_FILES         "ファイル"
+    ID_XSDI_MENU_EDIT_CAT_OBJECTS       "その他のすべてのオブジェクト"
+
+    /* "menu" wrapper; %s will be replaced with menu item name */
+    ID_XSDI_MENU_MENUSTRING             """%s"" サブメニュー"
+
+    /* strings for menu items... note, please use the
+       same keyboard accelerators as in the default WPS
+       menu items when translating for your language */
+
+    ID_XSDI_MENU_OPENAS                 "オープン(~O)"
+    ID_XSDI_MENU_PROPERTIES             "プロパティー(~S)"
+    ID_XSDI_MENU_OPENPARENT             "上位をオープン"
+    ID_XSDI_MENU_CREATEANOTHER          "もう 1 つ作成(~N)"
+
+    ID_XSDI_MENU_MOVE                   "移動(~M)..."
+    ID_XSDI_MENU_COPY                   "コピー(~C)..."
+    ID_XSDI_MENU_PASTE                  "貼り付け..."
+    ID_XSDI_MENU_CREATESHADOW           "シャドウの作成(~W)..."
+    ID_XSDI_MENU_DELETE                 "削除(~D)..."
+    ID_XSDI_MENU_PICKUP                 "ピックアップ(~I)"
+    ID_XSDI_MENU_FIND                   "検索(~F)..."
+
+    ID_XSDI_MENU_VIEW                   "表示(~V)"
+    ID_XSDI_MENU_ICONVIEW               "アイコン表示(~I)"
+    ID_XSDI_MENU_TREEVIEW               "ツリー表示(~T)"
+    ID_XSDI_MENU_DETAILSVIEW            "詳細表示(~D)"
+    ID_XSDI_FLDRVIEWS                   "項目のレイアウト"
+
+    ID_XSDI_MENU_SORT                   "分類(~T)"
+    ID_XSDI_MENU_ARRANGE                "再配置(~A)"
+
+    ID_XSDI_MENU_PRINT                  "印刷(~P)"
+
+    ID_XSDI_MENU_LOCKUP                 "すぐにロック(~L)"
+    ID_XSDI_MENU_LOGOFFNETWORKNOW       "すぐにログオフ(~G)"
+    ID_XSDI_MENU_SHUTDOWN               "終了(~D)..."
+    ID_XSDI_MENU_SYSTEMSETUP            "システム設定(~Y)"
+
+    ID_XSDI_MENU_CHKDSK                 "ディスクのチェック(~K)..."
+    ID_XSDI_MENU_FORMAT                 "ディスクのフォーマット(~R)..."
+    ID_XSDI_MENU_COPYDSK                "ディスクのコピー(~P)..."
+    ID_XSDI_MENU_LOCKDISK               "ディスクのロック(~L)"
+    ID_XSDI_MENU_EJECTDISK              "ディスクの取り出し(~E)"
+    ID_XSDI_MENU_UNLOCKDISK             "ディスクのロック解除(~U)"
+
+    ID_XSDI_MENU_BATCHRENAME            "オブジェクトの名前変更(~B)..."
+
+    /* XPager "sticky" page and related dialogs */
+    ID_SCDI_STICKY_GROUP                "常用ウィンドウ"
+    ID_SCDI_STICKY_INCLUDE              "I"
+    ID_SCDI_STICKY_EXCLUDE              "E"
+    ID_SCDI_STICKY_CONTAINS             "含む:"
+    ID_SCDI_STICKY_BEGINSWITH           "始まり:"
+    ID_SCDI_STICKY_ENDSWITH             "終わり:"
+    ID_SCDI_STICKY_EQUALS               "完全一致:"
+    ID_SCDI_STICKY_MATCHES              "一致:"
+    ID_SCDI_STICKY_TITLEATTRIBUTE       "タイトル"
+    ID_SCDI_STICKY_CRITERIA             "基準"
+    ID_SCDI_STICKY_ATTRIBUTE            "属性"
+    ID_SCDI_STICKY_OPERATOR             "条件"
+    ID_SCDI_STICKY_VALUE                "値"
+    ID_SCDI_STICKY_EDITTITLE            "常用基準を編集"
+    ID_SCDI_STICKY_ADDTITLE             "常用基準を追加"
+
+    ID_SCDI_STICKY_CRITERIAGROUP        "基準"
+    ID_SCDI_STICKY_MATCHINGGROUP        "一致基準"
+    ID_SCDI_STICKY_RADIO_INCLUDE        "I - 一致するウィンドウを含める"
+    ID_SCDI_STICKY_RADIO_EXCLUDE        "E - 一致するウィンドウを除外する"
+
+    /* strings formerly in ID_SCD_PAGER_GENERAL */
+    ID_SCDI_PGR1_GROUP                  "仮想デスクトップ"
+    ID_SCDI_PGR1_ENABLE                 "有効にする(~E)"
+    ID_SCDI_PGR1_ARROWHOTKEYS           "矢印キーでデスクトップを切り換え(~A)"
+    ID_SCDI_PGR1_HOTKEYS_CTRL           "Ctrl(~R)"
+    ID_SCDI_PGR1_HOTKEYS_SHIFT          "Shift(~S)"
+    ID_SCDI_PGR1_HOTKEYS_ALT            "Alt(~L)"
+    ID_SCDI_PGR1_WRAPAROUND             "端で折り返す"
+    /* V1.0.4 */
+    ID_SCDI_PGR1_WINDOWS_KEYS           "左と右にWindowsキーを使用(~U)"                /* XLATE-CHECK */
+    ID_SCDI_PGR2_DISABLED_INFO          "仮想デスクトップが無効になっています。この設定を操作するには、&pgr; 設定にある最初のページで有効にします。"
+
+    /* strings formerly in ID_XSD_AUTOCLOSE */
+    ID_XSD_AUTOCLOSE                    "PM 以外のセッションを自動クローズ"
+    ID_XSDI_ACL_INTRO                   "自動的にクローズするセッションを入力してください。"
+    ID_XSDI_XRB_NEW                     "新規(~N)"
+    ID_XSDI_XRB_DELETE                  "削除(~D)"
+    ID_XSDI_ACL_SESSIONTITLE            "セッション・タイトル(~T) (最初の文字):"
+    ID_XSDI_ACL_DOWHATGROUP             "動作(~W)"
+    ID_XSDI_ACL_SKIP                    "セッションをスキップ(~I) (クローズしない)"
+    ID_XSDI_ACL_WMCLOSE                 "PM ウィンドウをクローズ(~S)"
+    ID_XSDI_ACL_KILLSESSION             "セッションを強制終了(~K) (DosKillProcess)"
+
+    /* strings formerly in ID_XSD_REBOOTEXT V1.0.2 (2003-12-03) [umoeller] */
+    ID_XSD_REBOOTEXT_TITLE              "再起動の動作"
+    ID_XSDI_XRB_INTRO                   "再起動時の動作を入力してください。"
+    ID_XSDI_XRB_UP                      "上(~U)"
+    ID_XSDI_XRB_DOWN                    "下(~W)"
+    ID_XSDI_XRB_ITEMNAME_TXT            "動作の説明(~P):"
+    ID_XSDI_XRB_PARTITIONS              "パーティション(~A) ▼"
+    ID_XSDI_XRB_COMMAND_TXT             "動作のコマンド・ライン(~L):"
+
+    /* strings formerly in ID_XSD_MOUSEMAPPINGS2 */
+    ID_XSDI_MOUSE_MAPPINGS2GROUP        "追加の割り当て"
+    ID_XSDI_MOUSE_CHORDWINLIST          "ウィンドウ・リストをすべての位置から表示(~W)"
+    ID_XSDI_MOUSE_SYSMENUMB2            "ボタン 2 でタイトルバーをクリック時にシステム・メニュー(~S)"
+    ID_XSDI_MOUSE_MB3CLICK_TXT          "ボタン 3 のクリック動作(~C):"
+    ID_XSDI_MOUSE_MB3SCROLL             "ボタン 3 ドラッグ・スクロール(~M)"
+    ID_XSDI_MOUSE_MB3PIXELS_TXT1        "最小ピクセル数(~X):"
+    ID_XSDI_MOUSE_MB3LINEWISE           "線形 (一定) モード(~L)"
+    ID_XSDI_MOUSE_MB3AMPLIFIED          "増幅モード(~A)"
+    ID_XSDI_MOUSE_MB3AMP_TXT1           "増幅(~P):"
+    ID_XSDI_MOUSE_MB3SCROLLREVERSE      "逆スクロール(~R)"
+
+    /* strings formerly in ID_XSD_FILETYPES V0.9.20 (2002-08-04) [umoeller] */
+    ID_XSDI_FT_GROUP                    "ファイル形式"
+    ID_XSDI_FT_FILTERS_TXT              "フィルター"
+    ID_XSDI_FT_ASSOCS_TXT               "関連付け"
+    ID_XSDI_FT_CREATEDATAFILEHANDLE     "データ・ファイルのオブジェクト・ハンドルを環境に渡す(~P)"
+
+    /* strings formerly in ID_XFD_TITLECLASH V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFD_TITLECLASH                   "タイトルの競合"
+    ID_XFDI_CLASH_TXT1                  "すでに名前「%1」のオブジェクトがフォルダー「%2」にあります。"
+    ID_XFDI_CLASH_OLDOBJECT             "既存オブジェクト:"
+    ID_XFDI_CLASH_NEWOBJECT             "新規オブジェクト:"
+    ID_XFDI_CLASH_REPLACE               "既存オブジェクトを置き換え(~R)"
+    ID_XFDI_CLASH_RENAMENEW             "新規オブジェクトの名前変更(~N):"
+    ID_XFDI_CLASH_RENAMEOLD             "既存オブジェクトの名前変更(~X):"
+
+    /* new replacement "Paste" dialog V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFDI_PASTE_TITLE                 "クリップボードを「%1」へ貼り付け"
+    ID_XFDI_PASTE_PREVIEW_TXT           "プレビュー:"
+    ID_XFDI_PASTE_OBJTITLE_TXT          "オブジェクトのタイトル(~T):"
+    ID_XFDI_PASTE_FORMAT_TXT            "形式(~F):"
+    ID_XFDI_PASTE_CLASS_TXT             "オブジェクトのクラス(~L):"
+
+    /* new items for main product info V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSDI_INFO_MAINMEM_TXT            "システム・メモリー:"
+    ID_XSDI_INFO_FREEMEM_TXT            "空きメモリー:"
+    ID_XSDI_INFO_BUGREPORT              "不具合の報告..."
+            /* ID_XSDI_INFO_BUGREPORT is new with V1.0.0 V1.0.0 (2002-08-28) [umoeller] */
+
+    /* new items for folder split views V1.0.0 (2002-08-21) [umoeller] */
+    ID_XFSI_FDR_SPLITVIEW               "分割表示(~S)"
+
+    /* startup and shutdown folder were missing so far V1.0.0 (2002-08-31) [umoeller] */
+    ID_XFSI_XWPSTARTUPFDR               "&xwp; 始動フォルダー"
+    ID_XFSI_XWPSHUTDOWNFDR              "&xwp; 終了フォルダー"
+
+    /* hotkey definition dialog V1.0.0 (2002-09-10) [lafaix] */
+    ID_XSDI_HOTKEY_ADDTITLE             "ホットキーの定義を追加"
+    ID_XSDI_HOTKEY_EDITTITLE            "ホットキーの定義"
+    ID_XSDI_HOTKEY_HOTKEY               "ホットキー"
+    ID_XSDI_HOTKEY_ACTION               "動作"
+    ID_XSDI_HOTKEY_PARAM                "パラメーター"
+    ID_XSDI_HOTKEY_GROUP                "定義"
+
+    /* daemon-specific strings V1.0.0 (2002-09-15) [lafaix] */
+    ID_DMSI_STICKYTOGGLE                "常用(~Y)"
+
+    /* tool bars page 1 V1.0.1 (2002-12-08) [umoeller] */
+    ID_XSDI_ENABLETOOLBAR               "フォルダー・ツールバーを表示(~S)"
+    ID_XSDI_TBSTYLE_TEXT                "Show te~xt on buttons"                         /* XLATE */
+    ID_XSDI_TBSTYLE_MINI                "Small ~icons"                                  /* XLATE */
+    ID_XSDI_TBSTYLE_FLAT                "~Flat buttons"                                 /* XLATE */
+    ID_XSDI_TBSTYLE_HILITE              "H~ilight on mouse over"                        /* XLATE */
+    ID_XSDI_TBSTYLE_TOOLTIPS            "Dis~play tooltips"                             /* XLATE */
+
+    /* pages for administrator object
+        all new with V1.0.1 (2003-01-05) [umoeller]
+        some moved from above */
+    ID_AMDI_USER_LOCAL_GROUP            "現在のローカル・ユーザー"
+    ID_AMDI_USER_USERNAME_TXT           "ユーザー名:"
+    ID_AMDI_USER_USERID_TXT             "ユーザー ID:"
+    ID_AMDI_USER_FULLNAME_TXT           "Descriptive name:"                             /* XLATE */
+    ID_AMDI_USER_PASS_TXT               "Password:"                                     /* XLATE */
+    ID_AMDI_USER_CONFIRMPASS_TXT        "Confirm password:"                             /* XLATE */
+    ID_AMDI_USER_GROUPS_TXT             "Groups:"                                       /* XLATE */
+    ID_AMDI_USER_LOCALSEC_TXT           "Local security:"                               /* XLATE */
+    ID_AMDI_USER_CONTEXTS_TXT           "Security contexts:"                            /* XLATE */
+    ID_AMDI_USER_ALLOCBYTES_TXT         "Allocated bytes:"                              /* XLATE */
+    ID_AMDI_USER_BUFALLOCS_TXT          "Allocated buffers:"                            /* XLATE */
+    ID_AMDI_USER_EVENTS_TXT             "Kernel events:"                                /* XLATE */
+    ID_AMDI_USER_AUTHORIZATIONS_TXT     "Permits/rejects:"                              /* XLATE */
+
+    ID_AMSI_LOCAL_USER                  "~My Account"                                   /* XLATE */
+    ID_AMSI_ALL_USERS                   "すべてのユーザー(~U)"
+    ID_AMSI_ALL_GROUPS                  "すべてのグループ(~G)"
+
+    ID_AMSI_PROCESSES                   "~Processes"    /* added V1.0.2 (2003-11-13) [umoeller] */           /* XLATE */
+
+    /* new file 3 (permissions) page */
+    ID_AMDI_F3_PERMISSIONS_TXT          "Your permissions:"                                                  /* XLATE */
+END
+
+/* Treesize definitions; added V0.9.0 */
+
+POINTER ID_TS_ICON LOADONCALL MOVEABLE DISCARDABLE treesize.ico
+
+MENU ID_TSM_CONTEXT  LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "分類(~S)", ID_TSM_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "名前順(~N)", ID_TSMI_SORTBYNAME
+        MENUITEM "ファイル・サイズ順(~F)", ID_TSMI_SORTBYSIZE
+        MENUITEM "ファイル数順(~F)", ID_TSMI_SORTBYFILESCOUNT
+        MENUITEM "拡張属性サイズ順(~E)", ID_TSMI_SORTBYEASIZE
+    END
+    MENUITEM "表示サイズ(~D)", ID_TSM_SIZES, MIS_SUBMENU
+    BEGIN
+        MENUITEM "バイト(~B)", ID_TSMI_SIZE_BYTES
+        MENUITEM "KB(~K)", ID_TSMI_SIZE_KBYTES
+        MENUITEM "MB(~M)", ID_TSMI_SIZE_MBYTES
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "拡張属性の取得(~X)", ID_TSMI_COLLECTEAS
+    MENUITEM "優先度の低い検索", ID_TSMI_LOWPRTY
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "ヘルプ(~H)", ID_TSMI_HELP      /* changed V0.9.16 (2001-12-02) [umoeller] */
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "クローズ(~C)", 1000
+END
+
+
+/**** XLATE everything below this point ****/
+
+  /* Treesize container strings; added V1.0.4 (2005-02-07) [chennecke] */
+
+STRINGTABLE
+BEGIN
+    ID_TSSI_LARGESTFILES      "%d 最も大きいファイル"       /* XLATE-CHECK */
+    ID_TSSI_BYTES             "バイト"
+    ID_TSSI_KBYTES            "キロバイト"
+    ID_TSSI_MBYTES            "メガバイト"
+    ID_TSSI_WORKING           "%s: 作業中..."
+    ID_TSSI_FILES             "ファイル"
+END
+
+/* Netscape DDE definitions; added V0.9.1 (99-12-19) [umoeller] */
+POINTER ID_ND_ICON LOADONCALL MOVEABLE DISCARDABLE netscdde.ico
+
+/* Xfix definitions; added V1.0.4 (2005-02-24) [chennecke] */
+
+POINTER ID_FX_ICON LOADONCALL MOVEABLE DISCARDABLE xfix.ico
+
+  /* main menu */
+
+MENU ID_FXM_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~xfix", ID_FXM_XFIX, MIS_TEXT
+    BEGIN
+        MENUITEM "Re-parse buffer", ID_FXMI_RESCAN, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "Write back to OS2SYS.INI...", ID_FXMI_WRITETOINI, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "E~xit xfix\tAlt+F4",      ID_FXMI_EXIT, MIS_TEXT
+    END
+
+    SUBMENU "~View", ID_FXM_VIEW, MIS_TEXT
+    BEGIN
+        MENUITEM "Object ~IDs...", ID_FXMI_VIEW_OBJIDS, MIS_TEXT
+        /* MENUITEM "~Abstract objects...", ID_FXMI_VIEW_ABSTRACTS, MIS_TEXT */
+    END
+
+    SUBMENU "Sor~t", ID_FXM_SORT, MIS_TEXT
+    BEGIN
+        MENUITEM "~Index", ID_FXMI_SORT_INDEX, MIS_TEXT
+        MENUITEM "~Status", ID_FXMI_SORT_STATUS, MIS_TEXT
+        MENUITEM "~Type", ID_FXMI_SORT_TYPE, MIS_TEXT
+        MENUITEM "~Handle", ID_FXMI_SORT_HANDLE, MIS_TEXT
+        MENUITEM "~Parent", ID_FXMI_SORT_PARENT, MIS_TEXT
+        MENUITEM "Sh~ort name", ID_FXMI_SORT_SHORTNAME, MIS_TEXT
+        MENUITEM "~Children", ID_FXMI_SORT_CHILDREN, MIS_TEXT
+        MENUITEM "~Duplicates", ID_FXMI_SORT_DUPS, MIS_TEXT
+        MENUITEM "~References", ID_FXMI_SORT_REFCS, MIS_TEXT
+        MENUITEM "~Long name", ID_FXMI_SORT_LONGNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Actions", ID_FXM_ACTIONS, MIS_TEXT
+    BEGIN
+        MENUITEM "Find invalid ~files", ID_FXMI_ACTIONS_FILES, MIS_TEXT
+    END
+
+    SUBMENU "~Select", ID_FXM_SELECT, MIS_TEXT
+    BEGIN
+        MENUITEM "Select all invalid", ID_FXMI_SELECT_INVALID, MIS_TEXT
+        MENUITEM "Select by name...", ID_FXMI_SELECT_BYNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Help", ID_FXM_HELP, MIS_TEXT
+    BEGIN
+        MENUITEM "~General help", ID_FXMI_HELP_GENERAL, MIS_TEXT
+        MENUITEM "~Using help", ID_FXMI_HELP_USINGHELP, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "~Product information", ID_FXMI_HELP_PRODINFO, MIS_TEXT
+    END
+END
+
+  /* menu for object IDs frame */
+
+MENU ID_FXM_OBJIDS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~xfix", ID_FXM_XFIX, MIS_TEXT
+    BEGIN
+        MENUITEM "~Close this window\tAlt+F4",      ID_FXMI_CLOSETHIS, MIS_TEXT
+        MENUITEM "E~xit xfix",      ID_FXMI_EXIT, MIS_TEXT
+    END
+
+    SUBMENU "Sor~t", ID_FXM_SORT, MIS_TEXT
+    BEGIN
+        MENUITEM "~Index", ID_FXMI_SORT_INDEX, MIS_TEXT
+        MENUITEM "~Status", ID_FXMI_SORT_STATUS, MIS_TEXT
+        MENUITEM "~ID", ID_FXMI_SORT_ID, MIS_TEXT
+        MENUITEM "~Handle", ID_FXMI_SORT_HANDLE, MIS_TEXT
+        MENUITEM "~Long name", ID_FXMI_SORT_LONGNAME, MIS_TEXT
+    END
+
+    SUBMENU "~Help", ID_FXM_HELP, MIS_TEXT
+    BEGIN
+        MENUITEM "~General help", ID_FXMI_HELP_GENERAL, MIS_TEXT
+        MENUITEM "~Using help", ID_FXMI_HELP_USINGHELP, MIS_TEXT
+        MENUITEM "", -1, MIS_SEPARATOR
+        MENUITEM "~Product information", ID_FXMI_HELP_PRODINFO, MIS_TEXT
+    END
+END
+
+  /* context menus */
+
+MENU ID_FXM_RECORDSELMULTI LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Remove ~folder positions", ID_FXMI_NUKEFOLDERPOS
+    MENUITEM "Remove object ~IDs", ID_FXMI_NUKEOBJID
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Delete handle...", ID_FXMI_DELETE
+END
+
+MENU ID_FXM_RECORDSELSINGLE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Move abstracts to desktop", ID_FXMI_MOVEABSTRACTS
+    MENUITEM "Remove ~folder positions", ID_FXMI_NUKEFOLDERPOS
+    MENUITEM "Remove object ~IDs", ID_FXMI_NUKEOBJID
+/*
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Cut", ID_FXMI_CUT
+    MENUITEM "~Paste...", ID_FXMI_PASTE
+*/
+    MENUITEM "", -1, MIS_SEPARATOR
+    MENUITEM "~Delete...", ID_FXMI_DELETE
+END
+
+  /* strings used in the container, error messages, dialogs */
+
+STRINGTABLE
+BEGIN
+    ID_FXDI_MAIN                         "xfix: Handles list"
+
+    /* node status column */
+    ID_FXSI_NODESTAT_DUPLICATEDRIV       "Duplicate DRIV"
+    ID_FXSI_NODESTAT_ISDUPLICATE         "Duplicate"
+    ID_FXSI_NODESTAT_INVALIDDRIVE        "Invalid drive"
+    ID_FXSI_NODESTAT_INVALIDPARENT       "Orphaned"
+    ID_FXSI_NODESTAT_FILENOTFOUND        "File not found"
+    ID_FXSI_NODESTAT_PARENTNOTFOLDER     "Parent is not folder"
+    ID_FXSI_NODESTAT_FOLDERPOSNOTFOLDER  "Folderpos for non-folder"
+    ID_FXSI_NODESTAT_ABSTRACTSNOTFOLDER  "Abstracts in non-folder"
+
+    /* references column */
+    ID_FXSI_REFERENCES_ABSTRACTS         "%d ABS"
+    ID_FXSI_REFERENCES_FOLDERPOS         "FPOS"
+
+    /* type column */
+    ID_FXSI_TYPE_DRIVE                   "DRIV"
+    ID_FXSI_TYPE_NODE                    "NODE"
+
+    /* column names in main and object ID containers */
+    ID_FXSI_NUMBER                       "i"
+    ID_FXSI_TYPE                         "Type"
+    ID_FXSI_NODEOFS                      "Node ofs"
+    ID_FXSI_HANDLE                       "Handle"
+    ID_FXSI_PARENT                       "Parent"
+    ID_FXSI_SHORTNAME                    "Short name"
+    ID_FXSI_CHILDREN                     "Children"
+    ID_FXSI_DUPLICATES                   "Dups."
+    ID_FXSI_REFERENCES                   "Refcs."
+    ID_FXSI_LONGNAME                     "Long name"
+
+    /* object ID window */
+    ID_FXDI_OBJIDS                       "xfix: Object IDs"
+
+    /* column name in container, object ID window */
+    ID_FXSI_STATUS                       "Status"
+    ID_FXSI_ID                           "ID"
+    ID_FXSI_LONGNAME_ABSTRACTVALID       "Abstract in 0x%04lX (%s)"
+    ID_FXSI_LONGNAME_ABSTRACTINVALID     "Abstract in 0x%04lX"
+
+    /* status bar */
+    ID_FXSI_STATBAR_LOADEDINSERTED       "%s IDs loaded, %s IDs inserted."
+    ID_FXSI_STATBAR_HANDLESSELECTED      "%s out of %s handles selected"
+    ID_FXSI_STATBAR_DONE                 "Done, %s bytes (%s handles)"
+    ID_FXSI_STATBAR_SECONDS              ", %d seconds"
+    ID_FXSI_STATBAR_DUPWARNING           " -- WARNING: %d duplicate handles exist!"
+    ID_FXSI_STATBAR_IDSLOADED            "%s IDs loaded."
+    ID_FXSI_STATBAR_RESOLVINGPERCENT     "Resolving cross-references, %03d%% done..."
+    ID_FXSI_STATBAR_PARSINGPERCENT       "Parsing handles section, %03d%% done..."
+    ID_FXSI_STATBAR_CHECKINGPERCENT      "Checking files, %03d%% done..."
+    ID_FXSI_STATBAR_RESOLVING            "Resolving cross-references..."
+    ID_FXSI_STATBAR_DONECHECKING         "Done checking files."
+    ID_FXSI_STATBAR_PARSINGHANDLES       "Parsing handles..."
+
+    /* select by file mask dialog */
+    ID_FXDI_FILEMASKSELECT                "xfix: Select By Name"
+    ID_FXDI_FILEMASKSELECT_MASK           "File mask:"
+    ID_FXDI_FILEMASKSELECT_SELECT         "~Select"
+    ID_FXDI_FILEMASKSELECT_DESELECT       "~Deselect"
+    ID_FXDI_FILEMASKSELECT_SELECTALL      "Select ~all"
+    ID_FXDI_FILEMASKSELECT_DESELECTALL    "Deselect a~ll"
+
+    /* product information message box */
+    ID_FXSI_PRODINFO                     "xfix V&version;, built &date;&nl;&copy; 2000-2005 Ulrich Moeller&nl;&nl;&xwp; File Handles Fixer."
+
+    /* nuke message box strings */
+    ID_FXSI_NUKE_ABSTRACTS               "%d abstract object(s)"
+    ID_FXSI_NUKE_AND                     " and "
+    ID_FXSI_NUKE_FOLDERPOS               "%d folder position(s)"
+    ID_FXSI_NUKE_OBJECTIDS               "%d object ID(s)"
+    ID_FXSI_NUKE_SCHEDULED               " have been scheduled for deletion. "
+    ID_FXSI_NUKE_HANDLEPROBLEM           "Hmmm. CNRINFO reports %d handles left, but we counted %d."
+    ID_FXSI_NUKE_HANDLESLEFT             "%d handles are left."
+
+    /* write back to INI confirmation message box */
+    ID_FXSI_WRITEBACK_INTRO              "This will write all the changes that you have made back to the OS2.INI and OS2SYS.INI files.&nl;&nl;Please mind the following:&nl;&nl;"
+    ID_FXSI_WRITEBACK_FIRSTFIRST         "1. You should have started xfix from the &xwp; 'Panic' dialog that comes up if you hold down the 'Shift' key while the WPS is starting. "
+    ID_FXSI_WRITEBACK_FIRSTSECOND        "If you run xfix while the WPS is running and write back your handles, your changes will soon be overwritten by the WPS again.&nl;&nl;"
+    ID_FXSI_WRITEBACK_SECOND             "2. Be warned that if you have deleted handles that are critical to the operation of the Workplace Shell, such as the Desktop itself, your Desktop might no longer start.&nl;&nl;"
+    ID_FXSI_WRITEBACK_THIRD              "3. As a result, be sure that you have a current WPS backup, for example as created by the WPS archiving mechanism that can be enabled on the 'Archives' page in the Desktop's own settings notebook.&nl;&nl;"
+    ID_FXSI_WRITEBACK_CONFIRM            "So, are you sure you want to do this?"
+
+    ID_FXSI_WRITEBACKABORTED             "No changes have been made to your system. To leave xfix, just close the main window."
+    ID_FXSI_WRITEBACKSUCCESS_BLOCKS      "%d BLOCKs have been written to both handles sections. "
+    ID_FXSI_WRITEBACKSUCCESS_OBJMOVED    "%d objects have been moved to the desktop. "
+    ID_FXSI_WRITEBACKSUCCESS_KEYSDELETED "%d keys in OS2.INI have been deleted. "
+    ID_FXSI_WRITEBACKSUCCESS_EXIT        "To end xfix, just close the main window now."
+
+    /* remove handles message box */
+    ID_FXSI_REMOVEHANDLES                "You have selected %d handle(s) for removal. Are you sure you want to do this?"
+
+    /* nuke folder pos message box */
+    ID_FXSI_NUKEFOLDERPOS                "%d folder position(s) have been scheduled for deletion."
+
+    /* delete object IDs message box */
+    ID_FXSI_DELETEHANDLES                "%d object ID(s) have been scheduled for deletion."
+
+    /* move abstracts message box */
+    ID_FXSI_MOVEABSTRACTS_DESKTOPID      "Desktop handle is %lX"
+    ID_FXSI_MOVEABSTRACTS_CONFIRM        "You have selected %d handles whose abstract objects should be moved to the deskop.&nl;Are you sure you want to do this?"
+
+    /* move abstracts successful */
+    ID_FXSI_MOVEABSTRACTSSUCCESS         "%d abstracts have been moved to the desktop. They will appear after the next Desktop startup."
+
+    /* error messages */
+    ID_FXSI_ERROR_INVALIDHANDLE          "Invalid handle"
+    ID_FXSI_ERROR_INVALIDPARENTHANDLE    "Invalid parent handle"
+    ID_FXSI_ERROR_DEFAULT                "wphComposePath returned %d"
+    ID_FXSI_ERROR_ABSFOLDERHANDLELOST    "Abstract's folder handle lost"
+    ID_FXSI_ERROR_INVALIDFOLDERHANDLE    "Invalid folder handle"
+    ID_FXSI_ERROR_CANTGETACTIVEHANDLES   "Cannot get the active handles from OS2SYS.INI."
+    ID_FXSI_ERROR_ERROROCCURED           "Error %d occurred."
+    ID_FXSI_ERROR_MOVEABSTRACTS          "An error occurred moving the abstracts."
+    ID_FXSI_ERROR_PARSEHANDLES           "An error occurred parsing the handles section."
+    ID_FXSI_ERROR_PROFILENOTEXIST        "Error: Specified %s profile ""%s"" does not exist."
+    ID_FXSI_ERROR_PROFILEZEROBYTES       "Error: Specified %s profile ""%s"" has 0 bytes."
+    ID_FXSI_ERROR_CANTOPENPROFILE        "Error: Cannot open %s profile ""%s"" (WinGetLastError returned 0x%lX)."
+    ID_FXSI_ERROR_USER                   "User"
+    ID_FXSI_ERROR_SYSTEM                 "System"
+    ID_FXSI_ERROR_INVALIDPARMC           "Error: Invalid parameter ""-%c""."
+    ID_FXSI_ERROR_INVALIDPARMS           "Error: Invalid parameter ""%s""."
+    ID_FXSI_ERROR_NOTAVAILABLE           "not available"
+    ID_FXSI_ERROR_FATALLOADHANDLES       "Fatal error %d occurred loading the handles from the INI files. Description: %s"
+    ID_FXSI_ERROR_BUILDHANDLESCACHE      "Warning: Error %d building handles cache. Description: %s"
+END
+
+rcinclude "xfldr081.dlg"
+
+

@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Uitgebreid Geluid object
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in 0946xwpsound.html -->
+<!-- V0.9.16: added ifdefs -->
+<BODY>
+De onderdelen in de <B>"Geluidsschema's" groep</B> bieden u de mogelijkheid om snel
+geluidsschema's te kunnen laden, opslaan en verwijderen.
+<!-- V0.9.16: added this -->
+Een "geluidsschema" is simpelweg een complete serie van momenteel gedefinieerde systeemgeluiden. Dit
+biedt u de mogelijkheden om alle systeemgeluiden in eens op te slaan en te wisselen.
+
+<IFNDEF __EWORKPLACE__>
+<P>Geluidsschema's zijn ge‹ntroduceerd met &warp4;, maar deze pagina zal ook
+op Warp 3 werken. Een geluidsschema kan beschouwd worden als een "serie" systeemgeluiden
+die snel in een keer geladen kunnen worden. Omdat geluidsschema's (ongelukkigerwijs) opgeslagen
+zijn in de <CODE>OS2SYS.INI</CODE>, gebruiken alle gebruikers van uw computer dezelfde
+geluidsschema's.
+</IFNDEF>
+
+<P>De <B>"Huidig schema"</B> kieslijst laat u alle geluidsschema's zien die momenteel
+op uw systeem gedefinieerd zijn.
+<!-- V0.9.16: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Op Warp 4 dienen er tenminste vier standaard geluidsschema's te zijn, terwijl op Warp 3 er
+geen ‚‚n gedefinieerd is (want Warp 3 was in beginsel niet bekend met geluidsschema's).
+</IFNDEF>
+Het selecteren van een geluidsschema zal de momenteel aanwezige geluidsgegevens overschrijven
+(nadat u dit bevestigd heeft).
+Als u "niets" in de kieslijst ziet, is er momenteel geen geluidsschema geselecteerd, of de geluidsgegevens
+van een eerder opgeslagen schema zijn gewijzigd.
+
+<P>De <B>"Opslaan als"</B> knop biedt u de mogelijkheid om de huidige geluidsinstellingen op te slaan
+(in de "Definieer systeemgeluiden" groep) in een nieuw geluidsschema of een bestaande te overschrijven.
+
+<P>De <B>"Verwijder"</B> knop is alleen geactiveerd als de geluidsschema kieslijst een
+ander geluidsschema laat zien dan "niets". Het indrukken van die knop zal dan het momenteel
+geselecteerde geluidsschema verwijderen.
+
+<BR>
+</BODY>
+</HTML>

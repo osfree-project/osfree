@@ -1,0 +1,104 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.12
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.12 (June 3, 2001)</B>
+
+<P>New features:
+
+<UL><LI>Extended associations can now be imported/exported through an XML file.
+<P><LI>XFolder: Added default folder view override to "View" page in "Workplace Shell"
+to prevent inheriting the default view from the parent folder.
+<P><LI>XFolder: Folder sorting was mostly rewritten. This now finally supports
+non-default sort classes (e.g. in the trash can, which can finally be sorted now too).
+Also added "Folders first" as an additional sort setting to be applied on top of
+the standard criterion.
+<P><LI>&xcenter;: added "lockup" to X-button menu.
+<P><LI>XWPString: added setup string support.
+<P><LI>General: XWP can now read extended BLDLEVEL information, as used by most
+of the IBM networking software. Reworked the "Module" page in XWPProgramFile for
+displaying additional data, if available. We also support NOSTUB executables now
+(e.g. JFS.IFS).
+<P><LI>General: Added "Fix class titles" feature to "&xwp; setup".
+<P><LI>"OS/2 Kernel": Reworked network drivers, Paul Ratcliffe added new driver
+descriptions.
+
+</UL>Miscellaneous changes:
+
+<UL><LI>General: Reworked trap logs a bit for more lucid output. Added seg:ofs translation of
+trapping CS:EIP for each stack frame.
+<P><LI>General: Sped up XFLDR.DLL loading by removing a lot of fixup relocation records.
+<P><LI>Removed "Partitions" view from WPDrives, which never worked right.
+<P><LI>Startup: completely rewrote the entire startup processing to use a separate
+thread now. This should fix some of the problems on startup, like endlessly looping
+startup folders, I hope. At least it makes the code much more readable.
+<P><LI>Folder auto-refresh: reworked quite a bit, this now picks up file rename
+too and refreshes the entire folder if an overflow occurred. Also fixed some
+crashes and locks on the way.
+<P><LI>Function keys: removed "Modifier" setting, since it did nothing in the first place.
+<P><LI>&xcenter;: Winlist widget filters now match the first characters only.
+
+</UL>Bugfixes:
+
+<UL><LI>General: Added mutex protection to tooltips, which should fix some strange
+problems. Also fixed some other minor problems.
+<P><LI>General: Paul Ratcliffe fixed the ugly line break display in a number of
+places.
+<P><LI>General: Chart control (used on XFldDisk "Details" page)
+caused huge PM resource leaks which could lead to system hangs. Fixed.
+<P><LI>General: Fixed three minor memory leaks.
+<P><LI>XFolder: Disabled "Cleanup INI files" for now. Did more harm than good.
+<P><LI>XFolder: Replacement "File exists" dialog never populated the target folder,
+which could lead to duplicate objects and even system hangs. Fixed.
+<P><LI>XFolder: "Snap to grid" item on "XFolder" page didn't work. Fixed.
+<P><LI>XFolder: Extended menu items in "View" pulldown broke somehow. Fixed.
+<P><LI>XFldDisk: "Details" page always displayed 512 bytes for the sector size.
+Fixed, this now _really_ displays the sector size.
+<P><LI>Extended file types: Removing an association or type on program/file settings
+notebook pages caused a trap. Fixed. Also fixed a small memory leak.
+<P><LI>"Workplace Shell": "Undo" never really worked on the "Sort" page. Fixed.
+<P><LI>"OS/2 Kernel": "Drivers" page frequently displayed garbage for the driver
+info. Fixed.
+<P><LI>"OS/2 Kernel": HPFS and HPFS386 dialogs crashed if no parameters existed
+in &cfgsys;. Fixed, thanks Lars Erdmann.
+<P><LI>"OS/2 Kernel": HPFS386 dialog displayed nothing if HPFS386.INI wasn't explicitly
+given on the IFS line in &cfgsys;. Fixed.
+<P><LI>"OS/2 Kernel": Fixed another quirk in the &cfgsys; routines which caused
+the wrong line to be replaced in rare cases.
+<P><LI>Trash can wasn't very good at setting meaningful drive support defaults. Fixed;
+per default drives are supported only if they are FAT, HPFS, JFS, or FAT32.
+<P><LI>&xcenter;: Added mutex protection to the internal timers to prevent some
+race conditions.
+<P><LI>&xcenter;: Winlist widget now shows hidden windows on click.
+<P><LI>&xcenter;: Winlist widget filter changes weren't picked up any longer since
+the changes in 0.9.11. Fixed.
+<P><LI>&xcenter;: Pulse widget didn't update display if some app occupied the SIQ.
+Fixed; a separate thread now gets the performance data from OS/2 kernel.
+<P><LI>&xcenter;: Trapped sometimes when several threads attempted to load the
+widget classes. Fixed, added mutex protection to DLL loading.
+<P><LI>&xcenter;: Added extra checks for view creation/destruction.
+<P><LI>&xcenter;: Fixed crash in tmrTimerTick when animations were enabled.
+<P><LI>&xcenter;: Hopefully fixed hang on XShutdown.
+<P><LI>&xcenter;: X-Button started shutdown/restart Desktop etc. on &xcenter; thread. Fixed,
+now started on thread 1.
+<P><LI>&pgr;: reworked internal mutex handling some. This seems to fix some of
+the strange PM hangs that occurred sporadically.
+<P><LI>Hook: Martin Lafaix fixed the new sliding menus mechanism introduced with
+V0.9.11. Pulldowns are no longer delayed, and all submenu selections should be
+properly processed now (except for some Netscape submenus, but that's a minor annoyance).
+<P><LI>XShutdown: Animations frequently didn't show. Fixed.
+<P><LI>XShutdown: Now recovering all windows from other desktops to screen before
+closing windows.
+<P><LI>XShutdown: Fixed shutdown folder which never waited for objects to close.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_SETTINGS_FILEPAGE1;>
+<HEAD>
+<IFNDEF __EWORKPLACE__>
+    <TITLE>
+        &xwp;: "File" Page 1
+    </TITLE>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+    <TITLE>
+        &xwp;: "File" Page
+    </TITLE>
+</IFDEF>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<!-- reorganized with V0.9.16 -->
+<BODY>
+<IFNDEF __NOXWPSETUP__>
+&xwp; replaces the default three "File" pages with a single new
+"File" page. This page has about the same functionality as the original "File" page,
+but combines all the settings into a single page for easier use.
+<P>If you'd like to get the original three "File" pages back, disable
+the respective setting on the "Features" page in the
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+
+<P>
+</IFNDEF>
+
+The "File" page only exists in
+properties notebooks of file-system objects,
+that is,
+<!-- V0.9.19: link added -->
+&link_folders;
+and
+<!-- V0.9.19: link added -->
+&link_datafiles;
+(which physically exist in the file system),
+and shows you the object's file-system information.
+
+<IFNDEF __NOFILEPAGE2__>
+<P>Note that there's still a second "File" page behind this one. The
+&xwp; "File" page 2 however displays
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attribute</A>
+information about a file or a folder.
+</IFNDEF>
+
+<!-- end V0.9.16 -->
+<!-- V0.9.4: removed all the following and replaced it with these links -->
+<P>For a detailed explanation of each field, select from the list below:
+
+<UL><LI><A HREF="fsys/filepg_1realname.html">Real name</A>
+<LI><A HREF="fsys/filepg_2size.html">Size in bytes</A>
+<LI><A HREF="fsys/filepg_3workarea.html">Work area</A>
+<LI><A HREF="fsys/filepg_4datetime.html">Date/time</A>
+<LI><A HREF="fsys/filepg_5attribs.html">Attributes</A>
+<LI><A HREF="fsys/filepg_6info.html">Information</A>
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Speicher
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+Die Einstellungen im Bereich "Erweitert" ermîglichen es anzugeben, ob
+&os2; den hohen Speicherbereich verwenden soll.
+ 
+<P>Beachten Sie, da· alle darin enthaltenen Einstellungen die Verwendung
+eines Aurora-Kernel erfordern (d.h. einen OS/2-Kernel der Version
+4.5 oder hîher: Warp Server fÅr e-Business, Warp 4 mit mind. Fixpak 13,
+ein IBM "Convenience Pack" oder eComStation). Andernfalls sind diese
+Einstellungen deaktiviert.
+ 
+<UL><LI>Mit Hilfe des Reglers <B>Virtueller Adre·bereich bis</B> lÑ·t sich
+die hîchste Speicheradresse festlegen, die &os2; einer Anwendung zuordnen
+kann, wenn diese hohen Speicher (Åber der 512MB-Grenze) anfordert. Diese
+Einstellung entspricht der Anweisung <CODE>VIRTUALADDRESSLIMIT</CODE> in
+der Datei &cfgsys; und gibt einen Bereich zwischen 512 und 3072 MB an.
+ 
+<P>Bei Verwendung des Wertes 512 MB, der die Standardvorgabe darstellt (und
+den einzig mîglichen Wert bei Betrieb unter einem nicht-Aurora-Kernel), ist
+die Benutzung des hohen Speichers vollstÑndig deaktiviert.
+ 
+<P>Werte Åber 512 MB bewirken, da· auf dem System weniger
+Prozesse gleichzeitig laufen kînnen.
+ 
+<P>Um mehr Åber dieses Thema zu erfahren, beachten Sie auch die Informationen
+unter <A HREF="glossary/gls_mem_himem.html">Virtueller Adre·bereich von &os2;</A>.
+ 
+<P><LI>Durch Aktivieren der Option <B>DLL-Basing deaktivieren</B> ignoriert
+&os2; beim Laden von
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLLs</A>
+deren Basisadresse (die bevorzugte Ladeadresse). Diese Einstellung entspricht
+der Anweisung <CODE>DLLBASING=OFF</CODE> in der Datei &cfgsys;.
+ 
+<P>Die Verwendung dieser Option kann Probleme mit der Fragmentierung des
+gemeinsamen Speicherpools beheben und damit die Wahrscheinlichkeit verhindern,
+da· kein gemeinsamer Speicherraum mehr verfÅgbar ist, jedoch kînnte die
+Geschwindigkeit des DLL-Ladevorgangs darunter leiden.
+ 
+<P><LI>Wenn <B>Hoher Speicherbereich fÅr Java</B> aktiviert ist, wird die
+Java Virtual Machine von &os2; aufgefordert, ihren Heap-Speicher in &os2;s 
+hohen Speicherbereich (Åber der 512 MB-Marke) abzulegen. Dies funktioniert
+aber nur, wenn die Grenze des hohen Speichers vorher auf einen Wert von mehr
+als 512MB eingestellt wurde.
+ 
+<P>Diese Einstellung entspricht der Anweisung <CODE>SET JAVA_HIGH_MEMORY=1</CODE>
+in der Datei &cfgsys;.
+ 
+<P>Wie bei jedem anderen "hohen Speicher" auch, wird dadurch verhindert, da·
+16-Bit-Programme auf diese Speicherregion zugreifen kînnen. Vor allem aber
+erfordert es, da· TCP/IP Version 4.1 oder hîher installiert ist.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

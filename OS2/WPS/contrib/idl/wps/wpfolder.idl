@@ -1,0 +1,547 @@
+
+/*
+ * wpfolder.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPFolder
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpfolder_idl
+#define wpfolder_idl
+
+//#include "wpfsys.idl"
+#include "xwpfsys.idl"          // WPFileSystem is replaced with XWPFileSystem
+#include <somcls.idl>
+
+interface M_WPFolder;
+
+interface WPFolder : XWPFileSystem
+{
+
+//# methods originally published with Warp 3 Toolkit IDL file
+
+    BOOL wpSetFldrFlags(in ULONG ulFlags);
+
+    ULONG wpQueryFldrFlags();
+
+    BOOL wpSetFldrFont(in PSZ pszFont,
+                       in ULONG ulView);
+
+    PSZ wpQueryFldrFont(in ULONG ulView);
+
+    BOOL wpSetFldrAttr(in ULONG Attr,
+                       in ULONG ulView);
+
+    ULONG wpQueryFldrAttr(in ULONG ulView);
+
+    BOOL wpSetNextIconPos(in PPOINTL pptl);
+
+    PPOINTL wpQueryNextIconPos();
+
+    BOOL wpPopulate(in ULONG ulReserved,
+                    in PSZ pszPath,
+                    in BOOL fFoldersOnly);
+
+    WPObject wpQueryContent(in WPObject Object,
+                            in ULONG ulOption);
+
+    ULONG wpAddFolderView1Page(in HWND hwndNotebook);
+
+    ULONG wpAddFolderView2Page(in HWND hwndNotebook);
+
+    ULONG wpAddFolderView3Page(in HWND hwndNotebook);
+
+    ULONG wpAddFolderIncludePage(in HWND hwndNotebook);
+
+    ULONG wpAddFolderSortPage(in HWND hwndNotebook);
+
+    ULONG wpAddFolderBackgroundPage(in HWND hwndNotebook);
+
+    ULONG wpAddFolderSelfClosePage (in HWND hwndNotebook);
+
+    BOOL wpInitIconPosData();
+
+    void wpFreeIconPosData();
+
+    BOOL wpStoreIconPosData(in PICONPOS pIconPos,
+                            in ULONG cbSize);
+
+    BOOL wpQueryIconPosition(in PSZ pszIdentity,
+                             in PPOINTL pptl,
+                             in PULONG pIndex);
+
+    BOOL wpSetFldrSort(in PVOID pSortRecord,
+                       in ULONG ulView,
+                       in ULONG ulType);
+
+    PVOID wpQueryFldrSort(in ULONG ulView,
+                          in ULONG ulType);
+
+    BOOL wpRestoreFldrRunObjs();
+
+    BOOL wpStoreFldrRunObjs(in ULONG ulType);
+
+    BOOL wpHideFldrRunObjs(in BOOL fHide);
+
+    ULONG wpDeleteContents(in ULONG fConfirmations);
+
+    BOOL wpSetFldrDetailsClass(in M_WPObject Class);
+
+    M_WPObject wpQueryFldrDetailsClass();
+
+    BOOL wpSearchFolder(in PSZ pszName,
+                        in ULONG ulSearchType,
+                        in ULONG ulLen,
+                        in PSEARCH_INFO pInfo,
+                        in WPFolder ResultFolder);
+
+    BOOL wpContainsFolders(inout BOOL pfSubFolders);
+
+    WPObject wpQueryOpenFolders(in ULONG ulOption);
+
+    BOOL wpModifyFldrFlags(in ULONG ulFlags,
+                           in ULONG ulFlagMask);
+
+    BOOL wpAddToContent(in WPObject Object);
+
+    BOOL wpDeleteFromContent(in WPObject Object);
+
+    BOOL wpSetDetailsColumnVisibility(in ULONG index,
+                                      in BOOL Visible);
+
+    BOOL wpIsDetailsColumnVisible(in ULONG index);
+
+    BOOL wpSetFldrSortClass(in M_WPObject Class);
+
+    M_WPObject wpQueryFldrSortClass();
+
+    BOOL wpSetSortAttribAvailable(in ULONG index,
+                                  in BOOL Available);
+
+    BOOL wpIsSortAttribAvailable(in ULONG index);
+
+    CHAR *wpQueryIconViewPos();
+
+    WPObject wpAddFirstChild();
+
+//# new non-public Warp 3 methods hacked in for XWorkplace
+
+    PVOID wpQueryRWMonitorObject();
+
+    WPObject wpQueryFldrFilter();
+
+    BOOL wpAssertFolderMutexSem();
+
+    ULONG wpReleaseFolderMutexSem();
+
+    ULONG wpRequestFolderMutexSem(in ULONG ulTimeout);
+
+    ULONG wpReleaseFindMutexSem();
+
+    ULONG wpRequestFindMutexSem(in ULONG ulTimeout);
+
+    HPOINTER wpQueryIconN(in ULONG ulIndex);
+
+    ULONG wpQueryIconDataN(in PICONINFO pData, in ULONG ulIndex);
+
+    BOOL wpSetIconDataN(in PICONINFO pData, in ULONG ulIndex);
+
+    PVOID wpQueryBkgnd();
+            // returns an IBMFDRBKGND structure as declared in
+            // include\filesys\folder.h
+
+    /*
+     * wpRedrawFolderBackground:
+     *      apparently gets called when folder background
+     *      data has changed and open folder views need
+     *      to redraw themselves.
+     */
+
+    VOID wpRedrawFolderBackground();
+
+    /*
+     * wpSetFldrSelfClose:
+     *      sets the self-close value for this folder.
+     *      See the SELFCLOSE_* definitions in folder.h.
+     */
+
+    VOID wpSetFldrSelfClose(in ULONG ulClose);
+
+    /*
+     * wpQueryFldrSelfClose:
+     *      returns the self-close setting for this
+     *      folder.
+     *      See the SELFCLOSE_* definitions in folder.h.
+     */
+
+    ULONG wpQueryFldrSelfClose();
+
+// Warp 4 methods V1.0.1 (2002-11-30) [umoeller]__FILE__, __LINE__, __FUNCTION__,
+
+    ULONG wpAddFolderMenu2Page(in HWND hwndNotebook);
+
+    BOOL wpSetMenuBarVisibility(in ULONG ulVisibility);
+
+    ULONG wpQueryMenuBarVisibility();
+
+    BOOL wpFlushNotifications();
+
+    VOID wpSetShadowTextColor(in ULONG ulColor, in ULONG ulView, in BOOL fRefreshViews);
+
+    ULONG wpQueryShadowTextColor(in ULONG ulView);
+
+    VOID wpSetFldrBackground(in PSZ pszImageFileName,
+                             in ULONG ulImageMode,
+                             in ULONG ulScaleFactor,
+                             in ULONG ulBackgroundType,
+                             in LONG lBackgroundColor);
+
+    VOID wpQueryFldrBackground(inout PSZ ppszImageFileName,
+                               inout ULONG pulImageMode,
+                               inout ULONG pulScaleFactor,
+                               inout ULONG pulBackgroundType,
+                               inout LONG plBackgroundColor);
+
+//# The WPS class list shows __get_XXX methods for this class, so
+//# there must be SOM attributes here. Since however there is no
+//# correponsing __set_XXX method, I assume the WPS uses readonly
+//# attributes.
+
+    readonly attribute  WPObject    *FirstObj;
+    readonly attribute  WPObject    *LastObj;
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpSetFldrFlags,
+            wpQueryFldrFlags,
+            wpSetFldrFont,
+            wpQueryFldrFont,
+            wpSetNextIconPos,
+            wpQueryNextIconPos,
+            wpPopulate,
+            wpAddToContent,
+            wpQueryContent,
+            wpAddFolderView1Page,
+            wpAddFolderView2Page,
+            wpAddFolderView3Page,
+            wpAddFolderIncludePage,
+            wpAddFolderSortPage,
+            wpAddFolderBackgroundPage,
+            wpInitIconPosData,
+            wpFreeIconPosData,
+            wpQueryIconPosition,
+            wpStoreIconPosData,
+            wpDeleteFromContent,
+            wpSetFldrAttr,
+            wpQueryFldrAttr,
+            wpSetFldrSort,
+            wpQueryFldrSort,
+            wpRestoreFldrRunObjs,
+            wpStoreFldrRunObjs,
+            withdrawn30,
+            withdrawn31,
+            wpDeleteContents,
+            wpQueryOpenFolders,
+            wpSetNextOpenFldr,
+            wpSearchFolder,
+            wpSetFldrDetailsClass,
+            wpQueryFldrDetailsClass,
+            wpRefresh,
+            wpSetDetailsColumnVisibility,
+            wpIsDetailsColumnVisible,
+            wpQuerySortArray,
+            wpSetSortArray,
+            wpQuerySortInfo,
+            wpSetSortInfo,
+            wpSetFldrSortClass,
+            wpQueryFldrSortClass,
+            wpSetSortAttribAvailable,
+            wpIsSortAttribAvailable,
+            wpQueryFldrFilter,
+            wpContainsFolders,
+            wpQueryBkgnd,
+            wpQueryIconViewPos,
+            wpQueryDefaultView,
+            wpAddFirstChild,
+            _get_FirstObj,
+            wpHideFldrRunObjs,
+            wpFSNotifyFolder,
+            wpAddNotification,
+            wpDeleteNotification,
+            wpProcessNotification,
+            wpModifySneakyCount,
+            wpSneakySupported,
+            wpAssertFolderMutexSem,
+            wpReleaseFolderMutexSem,
+            wpRequestFolderMutexSem,
+            wpQueryContentHashTable,
+            wpQueryNextOpenFldr,
+            _get_hmtxOneFindAtATime,
+            wpRequestFindMutexSem,
+            wpReleaseFindMutexSem,
+            _get_hevFillFolder,
+            wpModifyFldrFlags,
+            wpQueryTrueFldrFont,
+            wpRemoveFldrFont,
+            wpRemoveAllFldrInstanceFonts,
+            wpRefreshNotebookPage,
+            wpQueryRWMonitorObject,
+            wpQueryIconTextBackgroundColor,
+            wpSetIconTextBackgroundColor,
+            wpRedrawFolderBackground,
+            wpMakeInstanceBackground,
+            wpUseDefaultBackground,
+            wpQueryIconTextColor,
+            wpSetIconTextColor,
+            wpQueryIconTextVisibility,
+            wpSetIconTextVisibility,
+            wpAddFolderSelfClosePage,
+            wpSetFldrSelfClose,
+            wpQueryFldrSelfClose,
+            _get_retaddrFindSemOwner,
+            wpIsOwnView,
+            wpSetIconDataN,
+            wpSetIconN,
+            wpQueryIconN,
+            wpSetFolderSelfClosePageID,
+            wpQueryFolderSelfClosePageID,
+            wpQueryIconDataN,
+            wpApplyIconPosData
+#ifndef __NOWARP4METHODS__
+            ,
+            wpAddFolderMenu2Page,
+            wpSetMenuBarVisibility,
+            wpQueryMenuBarVisibility,
+            wpFolderPrivate43,
+            _get_LastObj,
+            wpFolderPrivate45,
+            wpFlushNotifications,
+            wpSetShadowTextColor,
+            wpQueryShadowTextColor,
+            wpSetFldrBackground,
+            wpQueryFldrBackground,
+            wpSetFldrGrid,
+            wpQueryFldrGrid
+#endif
+            ;
+
+        externalstem = wpfdr;
+        local;
+        externalprefix = fdr_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpfolder;
+        metaclass = M_WPFolder;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+        passthru C_h_after =  ""
+"      /* Folder flags */"
+""
+"      #define FOI_POPULATEDWITHALL      0x0001"
+"      #define FOI_POPULATEDWITHFOLDERS  0x0002"
+"      #define FOI_WORKAREA              0x0004"
+"      #define FOI_CHANGEFONT            0x0008        /* anti-recursion flag */"
+"      #define FOI_WAMINIMIZED           0x0020"
+"      #define FOI_WASTARTONRESTORE      0x0040"
+"      #define FOI_NOREFRESHVIEWS        0x0080"
+"      #define FOI_ASYNCREFRESHONOPEN    0x0100"
+"      #define FOI_TREEPOPULATED         0x0200"
+"      #define FOI_POPULATEINPROGRESS    0x0400                          /*DORM*/"
+"      #define FOI_REFRESHINPROGRESS     0x0800"
+"      #define FOI_FIRSTPOPULATE         0x1000  /* folder has no iconposdata */ //LD62414"
+"      #define FOI_WAMCRINPROGRESS       0x2000  /* Minimize, close, restore in progress ihs67096 */"
+"      #define FOI_CNRBKGNDOLDFORMAT     0x4000  /* CnrBkgnd saved in old format   ihs77154 */"
+"      #define FOI_CHANGEICONBGNDCOLOR   0x8000  /* Icon Text Background Color changing ihs79998 */"
+"      #define FOI_CHANGEICONTEXTCOLOR   0x00010000 /* Icon Text Color changing    ihs89146 */"
+"      #define FOI_DELETEINPROGRESS      0x00020000 /* To prevent wpFree from repopulating */" ""
+"      /* Open views for the wpOpen() method */"
+""
+"      #define OPEN_TREE          101"
+"      #define OPEN_DETAILS       102"
+""
+"      /* Folder save-restore keys */"
+""
+"      #define IDKEY_FDRCONTENTATTR     2900"
+"      #define IDKEY_FDRTREEATTR        2901"
+"      #define IDKEY_FDRCVLFONT         2902"
+"      #define IDKEY_FDRCVNFONT         2903"
+"      #define IDKEY_FDRCVIFONT         2904"
+"      #define IDKEY_FDRTVLFONT         2905"
+"      #define IDKEY_FDRTVNFONT         2906"
+"      #define IDKEY_FDRDETAILSATTR     2907"
+"      #define IDKEY_FDRDVFONT          2908"
+"      #define IDKEY_FDRDETAILSCLASS    2909"
+"      #define IDKEY_FDRICONPOS         2910"
+"      #define IDKEY_FDRINVISCOLUMNS    2914"
+"      #define IDKEY_FDRINCCLASS        2920"
+"      #define IDKEY_FDRINCNAME         2921"
+"      #define IDKEY_FDRFSYSSEARCHINFO  2922"
+"      #define IDKEY_FILTERCONTENT      2923"
+"      #define IDKEY_CNRBACKGROUND      2924"
+"      #define IDKEY_FDRINCCRITERIA     2925"
+"      #define IDKEY_FDRICONVIEWPOS     2926"
+"      #define IDKEY_FDRSORTCLASS       2927"
+"      #define IDKEY_FDRSORTATTRIBS     2928"
+"      #define IDKEY_FDRSORTINFO        2929"
+"      #define IDKEY_FDRSNEAKYCOUNT     2930                              /*SNK*/"
+"      #define IDKEY_FDRLONGARRAY       2931"
+"      #define IDKEY_FDRSTRARRAY        2932"
+"      #define IDKEY_FDRCNRBACKGROUND   2933  // This key was only used in"
+"                                             // internal drivers 8.117-8.139"
+"      #define IDKEY_FDRBKGNDIMAGEFILE  2934"
+"      #define IDKEY_FDRBACKGROUND      2935"
+"      #define IDKEY_FDRSELFCLOSE       2936"
+""
+"      /* Miscellaneous */"
+""
+"      #define PPFONTSTRSIZE 20"
+""
+"      #define ICONPOSSIZE(pI) ( sizeof(ICONPOS) + strlen(pI->szIdentity) )"
+"      #define PARTIAL_FILLFOLDER_SEM_TIMEOUT 5   /* avoid wasteful       */     //LD62414"
+"                                                 /* SEM_INDEFEINTE_WAIT  */     //LD62414"
+"      #define GETATTR(View) (View == OPEN_CONTENTS ? _ContentAttr : \ "
+"                             (View == OPEN_TREE ? _TreeAttr : _DetailsAttr))"
+"      #define FOLDER_DEFATTRS (CV_ICON | CA_OWNERPAINTBACKGROUND     |  \ "
+"                               CA_MIXEDTARGETEMPH | CA_OWNERDRAW)"
+"      #define FOLDER_DEFTREEATTRS (CV_ICON | CA_OWNERPAINTBACKGROUND |  \ "
+"                                   CV_TREE | CA_TREELINE | CA_OWNERDRAW)"
+"      #define FOLDER_DEFDETAILS (CV_DETAIL | CA_OWNERPAINTBACKGROUND |  \ "
+"                       CV_MINI | CA_DETAILSVIEWTITLES | CA_MIXEDTARGETEMPH)"
+"      #define FOLDER_DEFSORT NULL"
+""
+"      /* wpSearchFolder structures */"
+"       typedef struct _SEARCH_INFO {"
+"          M_WPObject *ClassToBeFound;"
+"          BOOL   fSkipExtendedSearchCriteria;"
+"          PVOID  pvoidExtendedCriteria;"
+"       } SEARCH_INFO;"
+"       typedef SEARCH_INFO *PSEARCH_INFO;"
+""
+"";
+
+        wpInitData: override;
+        wpUnInitData: override;
+        wpFree: override;
+        wpDelete: override;
+        wpConfirmDelete: override;
+        wpSaveState: override;
+        wpRestoreState: override;
+        wpMenuItemSelected: override;
+        wpAddSettingsPages: override;
+        wpOpen: override;
+        wpSetup: override;
+        wpMoveObject: override;
+        wpDrop: override;
+        wpDragOver: override;
+        wpMenuItemHelpSelected: override;
+        wpAddFile3Page: override;
+        wpAddFile2Page: override;
+        wpFormatDragItem: override;
+        wpRender: override;
+        wpRefresh: override;
+        wpQueryDefaultView: override;
+        wpRenderComplete: override;
+        wpAddFileMenuPage: override;
+        wpQueryDefaultHelp: override;
+        wpObjectReady: override;
+        wpAddObjectWindowPage: override;
+        wpModifyMenu: override;
+        wpFilterMenu: override;
+        wpDisplayMenu: override;
+        somDefaultInit: override;
+        somDestruct: override;
+        wpSetIconData: override;
+    };
+#endif
+};
+
+interface M_WPFolder : M_XWPFileSystem
+{
+    ULONG wpclsQueryIconDataN( inout ICONINFO pIconInfo, in ULONG ulIconIndex );
+
+    HPOINTER wpclsQueryIconN( in ULONG ulIconIndex );
+
+    WPFolder wpclsQueryOpenFolders(in WPFolder Folder,
+                                   in ULONG ulOption,
+                                   in BOOL fLock);
+
+//# new non-public Warp 3 methods hacked in for XWorkplace
+
+    /*
+     * wpclsGetNotifySem:
+     *      requests the global notify mutex.
+     *
+     *      This "notify mutex" is used before the background
+     *      threads in the WPS attempt to update folder contents
+     *      for auto-refreshing folders. By requesting this
+     *      semaphore, any other WPS thread which does file
+     *      operations can therefore keep these background
+     *      threads from interfering.
+     */
+
+    BOOL wpclsGetNotifySem(in ULONG ulTimeout);
+
+    /*
+     * wpclsReleaseNotifySem:
+     *      releases the global notify mutex.
+     *
+     *      This is the reverse to wpclsGetNotifySem.
+     */
+
+    VOID wpclsReleaseNotifySem();
+
+//# no new class methods for Warp 4
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpclsGetNotifySem,
+            wpclsReleaseNotifySem,
+            wpclsQueryOpenFolders,
+            wpclsQueryContainerFont,
+            wpclsQueryIconDataN,
+            wpclsQueryIconN;
+
+        externalstem = wpfdr;
+        local;
+        externalprefix = fdrM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpfolder;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsInitData: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryTitle: override;
+        wpclsQueryIconData: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+    };
+#endif
+};
+#endif

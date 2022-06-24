@@ -1,0 +1,190 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        How Does &xwp; Work?
+    </TITLE>
+</HEAD>
+<!-- changes for V0.84: the paragraph about "wpclsQueryIconDataN" has
+     been removed, since it was no longer accurate. -->
+<!-- changed with V0.9.0: replace XFolder with &xwp; (only some) -->
+<BODY>
+&xwp; registers and/or replaces a whole number of WPS classes. Take a look at the
+<CODE>INSTALL.CMD</CODE> script in the &xwp; installation directory to find out
+more about this.
+<P>The most important &xwp; class replacements are:
+<OL><LI><B>XFolder</B> for regular folders, which contains
+the main functionality of &xwp;,  <!-- xxx -->
+<BR><LI><B>XFldDisk</B> for "disk" objects, which appear in the
+"Drives" folder,
+<BR><LI><B>XFldObject,</B> the WPS root class, for being able to access
+a whole number of WPS internals, and
+<BR><LI><B>XFldDesktop</B> for the new Desktop features, especially the
+eXtended Shutdown procedure.
+
+</OL>All these classes replace the original WPS classes.
+
+<P>In the sense described on the <A HREF="further_1WPSClasses.html">previous page</A>,
+the <B>XFolder class</B> is a descendant of the WPFolder class.
+This way, it can do everything that a regular folder can. As a new function,
+it adds new context menu items to all folders, allows for folder hotkeys, changes
+the folder window titles, etc.
+<P>By using polymorphism, XFolder redefines certain WPFolder methods, as described below.
+<P>However, XFolder is then registered with the WPS as a WPFolder <B>replacement,</B>
+meaning that the
+WPS will use the XFolder class as its standard folder class, instead of WPFolder.
+In doing so, the WPFolder class is not
+any more used directly, but only through its replacement (and descendant) class, XFolder.
+<!-- V0.9.13:
+Refer to the <A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the
+"Introduction" section for more on this.
+-->
+
+<P>Some of the WPFolder methods that the <B>XFolder class</B>
+overrides are (this will probably only of interest for programmers):
+<UL>
+<LI><B><CODE>wpModifyPopupMenu</CODE>:</B> This WPObject method is
+called by the WPS just before an object's context menu
+is displayed. Each WPS class adds its own, class-specific menu items here.
+<P>Since XFolder plays with menus a lot, this is one of the most important methods
+which XFolder overrides. In this method,
+XFolder first calls the parent class's (WPFolder's) <CODE>wpModifyPopupMenu</CODE>
+to have all the standard menu items added to the object's context menu.
+<P>It then searches for the XFolder configuration folder (which must have the object ID
+<CODE>&lt;XFOLDER_CONFIG&gt;</CODE>) and populates it invisibly.
+Now it goes through all objects in here,
+adding submenus and menu items to the context menu accordingly.
+If the configuration folder is not found, a message box pops up and
+an empty folder with the aforementioned ID is created on the desktop.
+<P>The same is done for the "Folder content" functions and "favorite" folders. However,
+these submenus are only filled with objects after they are opened by the user; this is
+done by intercepting the <CODE>WM_INITMENU</CODE> message in the subclassed folder frame
+window procedure (see below). XFolder also subclasses these submenu windows (and only these)
+to be able to paint icons and to intercept mouse button 2 for opening a folder.
+<P>(Please note that "subclassing" here has nothing to do with WPS classes, but is the
+Presentation Manager terminology for using a different message procedure for an existing
+window in order to be able to intercept certain PM messages for that window.
+This is done using the <CODE>WinSubclassWindow</CODE> API.)
+<P>XFolder also modifies various other menus (such as the the "Sort" submenu)
+in this method, if the Global Settings allow this, and adds other menu items, if these
+have been enabled in the Global Settings.
+
+<BR><LI><B><CODE>wpMenuItemSelected</CODE>:</B> This is called by the
+WPS whenever a context menu item
+is selected by the user.
+<P>XFolder checks if one of its own (variable) menu items was selected; if so,
+it finds the corresponding object in the configuration folder and opens it. If this object
+is of the WPProgram class,
+<!-- V0.9.16: replaced the following -->
+&xwp; performs the usual tricks on it
+(see the context help for the &xwp; Configuration Folder for details).
+<!-- end V0.9.16 -->
+If the object is
+a template, no matter of what WPS class,
+it is not opened, but XFolder creates a new object from it in the current
+folder (via <CODE>wpCreateFromTemplate</CODE>).
+<P>If the selected item is one from the "folder content" submenus, the corresponding
+object is simply opened.
+<P>If any of the other menu items that XFolder adds to context menus are selected,
+XFolder itself will perform the respective action internally.
+<P>If none of the XFolder menu items was selected, the parent class's (WPFolder's)
+<CODE>wpMenuItemSelected</CODE> method
+is called (in order not to prevent the standard menu items from functioning).
+
+<BR><LI><B><CODE>wpMenuItemHelpSelected</CODE>:</B> This is called by
+the WPS whenever you press <CODE>F1</CODE> over a context menu item. XFolder will
+display a proper help page, if necessary.
+
+<BR><LI><B><CODE>wpFilterPopupMenu</CODE>:</B> With this method, XFolder removes
+those  default menu entries from the context menus that you have specified
+in the Global Settings. (This method is called by the WPS even before wpModifyPopupMenu,
+so first items are removed, then new items are inserted.)
+
+<BR><LI><B><CODE>wpclsQueryTitle</CODE>:</B>
+The string <CODE>XFolder</CODE> (or whatever you have specified in the Global Settings)
+is returned to give the XFolder class a unique name.
+
+<BR><LI><B><CODE>wpOpen</CODE>:</B> This routine is called by the
+WPS every time a folder (and any other object also) is opened.
+XFolder needs to override this method to implement a whole number of features.
+<P>First, the parent method is called to have the folder view opened: the WPS will
+create a window with a container control in it and shows this window.
+<P>XFolder then
+intercepts the frame window handle, with which it
+can then modify the folder's window title and reset it to the folders complete path (if
+enabled in the Global Settings). Basically, it's a simple <CODE>WinSetWindowText</CODE>
+call, with just a few calculations to truncate the title if necessary.
+<P>In this method, XFolder also <B>subclasses</B> the
+folder frame window in order to be able to
+handle WM_CHAR messages for folder hotkeys and lots of other things.
+For subclassing, this method seemed the best place to me, since
+all necessary WPS initializiation stuff has been done
+by calling the parent method,
+but the user cannot interact with the folder yet, because it will only be filled
+with objects ("populated" in WPS terminology) on a different thread afterwards.
+<P>In the new window procedure, XFolder
+intercepts all WM_CHAR messages (which are only passed to the frame window procedure
+if they have not yet been
+processed by the container already, such as cursor keys) and evaluates them
+according to its internal hotkey list, which can be changed in the Global Settings.
+<P>Subclassing is also needed to introduce folder status bars; the
+<CODE>WM_QUERYFRAMECTLCOUNT</CODE>, <CODE>WM_FORMATFRAME</CODE>, and
+<CODE>WM_CALCFRAMERECT</CODE> messages are intercepted to resize the folder frame
+and its container child window according to the space needed for the folder status
+bar.
+<P>XFolder also intercepts a few container
+notification messages in order to provide the "Auto-scroll Tree views" feature and
+update the status bar text if object selections have been changed by the user.
+<P>In addition, XFolder intercepts various menu messages, such as <CODE>WM_INITMENU</CODE>
+and <CODE>WM_MENUSELECT</CODE>, to be able to handle some menu functions which
+are not accessible through regular WPS methods.
+<P>All messages which have no meaning to XFolder are passed on to the original
+window procedure.
+<P>The <CODE>wpOpen</CODE> method is also needed for implementing the XFolder extended sort
+functions; XFolder updates the container settings according to the sort criteria which
+you have specified.
+
+<BR><LI><B><CODE>wpAddSettingsPages</CODE>:</B> This method is called by the
+WPS every time an object's settings notebook is opened. XFolder overrides this method
+also to add its own settings pages, after having called the parent method, so that
+the original settings pages are still inserted.
+
+</UL>The <B>XFldDisk</B> class, which replaces the WPDisk class,
+does not do much, aside from routing its methods to the XFolder method counterparts,
+so that drive views act just like normal (X)folders. IBM has, for some reason, chosen
+not to make disk objects regular folders, but implemented a different class for them
+(called WPRootFolder),
+so XFolder needs a separate class too.
+
+<P><B>XFldObject</B> doesn't do much visibly either,
+except for suppressing &os2; default menu items
+and adding the "Copy filename" feature. It is however required by other XFolder parts
+internally in order to be notified of some internal WPS events, especially the
+&xshutdown; feature, which is described in detail on the
+<A HREF="further_2howxshutdown.html">next page</A>.
+
+<P>The <B>XFldDesktop</B> class is implemented to allow changing the
+Desktop menu items and for &xshutdown;, which is described in detail on the
+<A HREF="further_2howxshutdown.html">next page</A>.
+
+<P>While previous versions also replaced the <B>WPSystem</B> class so that the "System"
+object in the "System setup" folder contained more notebook pages to access XFolder's
+Global Settings, with V0.80 this behavior has changed. Instead, XFolder registers
+two new classes derived from WPSystem without replacing it. These two classes are
+<B>XFldSystem</B> and <B>XFldWPS</B> for the "&os2; Kernel" and "Workplace Shell" objects,
+respectively.
+The settings that you specify
+here are (mostly) stored in OS2.INI and
+evaluated every time XFolder needs them (e.g. when you open a context menu). In contrast,
+the "local" XFolder settings for an individual folder are stored in its .CLASSINFO Extended
+Attributes, where the WPS also stores the other folder settings. This is then done by
+the XFolder class.
+
+<P>Please note that all the XFolder classes are designed to interact. Do not try to remove
+only SOME of them, or XFolder might behave in a funny way (if you're lucky). All of
+XFolder's features have been made fairly configurable, so you should be able to get
+rid of what you don't like -- or to get rid of XFolder altogether.
+<BR>
+</BODY>
+</HTML>
+
+

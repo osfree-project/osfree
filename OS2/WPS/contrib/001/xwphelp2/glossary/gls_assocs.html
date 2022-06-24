@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Types and Associations
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+In the Workplace Shell, associations link data files to
+<!-- V0.9.20: replaced this line -->
+&link_progobjs;.
+
+<IFNDEF __NOXWPSETUP__>
+If extended file types have been enabled in the
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>,
+this is done entirely with the use of file types.
+</IFNDEF>
+
+<P>The <B>type</B> of a data file depends on two sources:
+
+<UL><LI>You can explicitly set a type on the "Types" page
+of a data file's <A HREF="glossary/gls_notebook.html">properties notebook</A>.
+This type is stored in the
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attributes</A>
+of the file and remain there unless you remove it again.
+
+<P><LI>In addition, &xwp; also associates file types
+automatically according to so-called "filters", which are
+strings containing the standard
+<A HREF="glossary/gls_wildcards.html">wildcards</A>
+"*" and/or "?".
+
+<P>These file type filters can be defined on the "File types" page in the
+&link_wpsobj;. For example,
+you can create a file type "Acrobat PDF" with the filter <CODE>*.PDF</CODE>,
+and all such files will automatically receive that type.
+
+</UL>If a program object has been <B>associated</B> with a file
+type, the program object appears in the "Open" submenu of the
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A>
+of all data files which have that type. The first association
+determines the icon of the data file and is also used when
+you double-click on the file.
+
+<P>In the above example, if you now associate the "Acrobat PDF" type
+with the program object for the Adobe Acrobat Reader, all files
+matching <CODE>*.PDF</CODE> can be opened with that program object.
+
+<P>In addition, file types may <B>inherit</B> from each other. You
+can define those parent-child relationships on the "File types" page in the
+&link_wpsobj;, simply by dragging
+the file types around. If a type has thus been made a child of another type,
+the associations for the parent type will also be available for all data files
+of the child type.
+
+<P>For example, assume that you also have defined a "PostScript" file type.
+Since PDF documents are really special PostScript files, you can make
+"Acrobat PDF" a child type of "PostScript". If you have, say, a GhostScript
+association for the "PostScript" type, your PDF files can then also be
+opened with the GhostScript program.
+
+<BR>
+</BODY>
+</HTML>
+

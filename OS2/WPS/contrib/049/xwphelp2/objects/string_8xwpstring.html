@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XWPString-Konfigurationsstrings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+XWPString implementiert <A HREF="objects/obj_string.html">Konfigurationsstring-Objekte.</A>
+Auch wenn die Klasse XWPString darauf ausgelegt ist, Konfigurationsstrings zu speichern,
+kann man Konfigurationsstrings auch auf XWPString-Objekte anwenden, wie auf jedes
+andere Objekt.
+ 
+<P>ZusÑtzlich zu den von der Klasse
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+unterstÅtzen Konfigurationsstrings, beachtet XWPString die folgenden Strings:
+ 
+<DL>
+<DT><P><CITE><B>SETUPSTRING</B>=<I>string</I></CITE>
+<DD>Der Konfigurationsstring, der im Stringobjekt gespeichert werden soll.
+<CODE><I>string</I></CODE>
+mu· so kodiert sein, da· er keine Zeichen enthÑlt, die in WPS-Strings nicht erlaubt sind.
+Standard ist ein leerer String.
+ 
+<DT><P><CITE><B>DEFAULTOBJECT</B>={<I>objectid</I>|<I>filename</I>|*<I>handle</I>|NONE}</CITE>
+<DD>Setzt oder lîscht das Standardobjekt, das im Stringobjekt gespeichert ist.
+Der Wert mu· einer der folgenden sein:
+<UL><LI>eine Objekt-ID, eingeschlossen in "kleiner als"/"grî·er als"-Zeichen
+(z.B. <CODE>DEFAULTOBJECT=&lt;WP_DESKTOP&gt;;</CODE>);
+<LI>ein voll qualifizierter Dateiname
+(z.B. <CODE>DEFAULTOBJECT=C:\meinedateien\wasauchimmer.txt;</CODE>);
+<LI>ein dezimales Objekt-Handle mit einem vorangestellten Stern
+(z.B. <CODE>DEFAULTOBJECT=*1432;</CODE>);
+<LI>das Wort <CODE>NONE</CODE> zum Lîschen des Standardobjektes, falls eines vorhanden ist.
+</UL>StandardmÑ·ig besitzt ein String-Objekt kein Standardobjekt (<CODE>NONE</CODE>).
+ 
+<DT><P><CITE><B>CONFIRMINVOCATION</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Aufruf bestÑtigen" auf der Seite "Konfigurationsstring"
+im Einstellungsnotizbuch eines String-Objekts.
+Standard ist <CODE>YES</CODE>.
+ 
+<DT><P><CITE><B>NOSTRINGPAGE</B>={YES|NO}</CITE>
+<DD>Falls <CODE>YES</CODE>, zeigt das Einstellungsnotizbuch des String-Objektes
+die Seite "Konfigurationsstring" nicht an. Dies ist nÅtzlich, wenn man String-Objekte
+fÅr eigene Anwendungen erstellen und den Anwender daran hindern mîchte, einen
+Konfigurationsstring versehentlich zu Ñndern.
+Standard ist <CODE>NO</CODE>.
+ 
+</DL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,196 @@
+
+This file lists feature suggestions from XWorkplace users.
+Please don't suggest features which are already listed in
+this file. Thank you.
+
+italian: http://www.quasarbbs.net/xwp/
+
+add zip folders
+
+There's a INI file entry for the font size for VIO windows It's possible to change that
+entry; start a new VIO window, and change it back to the original value. I wrote a REXX
+script that does this - it's part of my INF file REXX Tips & Tricks. The only strange thing
+is, that the name of the key is language dependent.
+
+--  Win32 icon support (shell32\shell32_main.c in odin)
+    user32\oslibres.cpp, OSLibWinCreatePointer
+
+--  "Create program object" menu item
+
+all windows filters (pagemage etc.):
+        -- allow wildcards
+
+prog objects: NLS settings, codepages
+
+XCenter:
+    --  more options for winlist... button size, minimize behavior.
+    --  winlist: edit filter entries (instead of remove and add).
+    --  freely positionable
+    --  Object support for "Run" dialog.. e.g. type in a folder name
+        or data file, and have it opened.
+    --  "Run" TCP/IP support (ftp, http, etc.)
+
+shadows:
+    --  allow different title (Win95 shortcuts);
+        check http://hobbes.nmsu.edu/pub/os2/util/wps/shortcut.zip
+
+everywhere:
+    -- remember split bar positions
+    -- Shift-click on "Open" submenu items changes default view
+    -- inherit folder settings such as "full path"
+
+extended assocs:
+    --  WPS file types(!)/associations should be imported automatically,
+        somehow. Perhaps for filters without file types new types could be
+        created just saying 'PNG file', 'XLS file'... Could be renamed
+        afterwards (see 2)
+    --  What about files like StarOffice documents? Their first association
+        (SO5.1a) is not shown in the open submenu, because they use some
+        special WPS class. This association cannot be managed from XWPS. (same
+        goes for WordPro, 1-2-3 files I guess).
+
+startup:
+    -- environment var for X, Y pos of classes initialization dlg
+
+hook:
+    -- auto-roll-down combo boxes if clicked on entry field
+    -- delay for screen border objects
+    -- move ptr to default button in dialogs (NPSWPS)
+    -- Z-order move one/bottommost
+    -- an extended Lockup (like the one from PC/2) which can be accessed through a
+       shortcut (in the keyboard object).
+    -- window list filtering from WarpEnhancer
+    -- corners: add user-configurable delay; add user-configurable percentage for
+       border/corner ignore space (presently some 80%)
+    -- So there's only one reason left for the old Warp Enhancer:
+       The quick VIO copy/paste - I'd like to see this in XWP, too.
+    -- MB2 frame drag (NPSWPS)
+    -- screen corner objects: How about adding modifier-key actions? So that
+       pe. Shift-(Mouse-on-left-edge) could have its own action? Could prevent
+       accidental open.
+
+PageMage:
+    --  draw small icons in pagemage
+    --  add backgrounds
+    --  add new titlebar button for make sticky
+    --  feature to snap all windows to current (context menu item)
+    -- When moving windows within the virtual desktop display,
+        >they should only be moved from a position in one desktop to
+        >the same position in another, except if the user presses e.g.
+        >CTRL while dragging - then exact positioning should occur
+    --  >- Fullscreen view of virtual desktops (click both
+        >mousebuttons -> VD window scales to fullscreen, click again,
+        >it scales back)
+    --  add tooltips for mini-window titles
+    --  if windows appear totally outside of all desktops, move them
+        to current
+    --  pagemage widget
+    --  save window/app positions
+
+folders:
+    -- Ctrl+right mouse: folder contents menu
+    -- more than one config folder
+    -- "invert selection"
+    -- sorting: hotkey for reverse sorting / PMMail-like sorting
+
+    -- As an aside, would there be a way to have all desktop decendants
+       >(anybody's who's path is X:\desktop\...) to inherit the desktop's "drop
+       >as shadow" function? The would prevent/help people from moving folders
+       >full of files into the desktop tree (and causing Archiving to EXPLODE!)
+
+create objects:
+    -- select editable title
+
+setup strings:
+    -- make setup strings editable
+    -- create REXX scripts
+    -- setup strings for the XWorkplace setup pages in standard setup objects
+       (mouse, keyboard, ...)
+    -- make object styles editable
+
+OS/2 Kernel:
+    -- add page for unparsed CONFIG.SYS lines
+    -- add timezone (TZ variable, DosSetDateTime)
+    -- >I have one suggestion for the OS/2 Kernel object. I use multiple Config.*
+       >files in c:\OS2\Boot to get different WPSs for different family members.
+       >So the Kernel object is not much use for me at the moment. How about
+       >setting an environment variable in Config.* like
+       >    set xwpkernelconfig=c:\os2\boot\config.b
+       >and from that determining which Config.* to use for the OS/2 Kernel
+       >object?
+
+File page:
+    -- allow changing dates
+
+other settings pages:
+    -- System paths:
+       -- scroll listbox to first visible
+
+sounds:
+    -- Do not use default device for WAV files. Instead, open the default
+       device and let it play the WAV files.
+
+status bars:
+    -- make status bar droppable
+    -- add "drive label" mnemonic
+    >- to add some more additional codes for file-system objects i.e
+    >  $S[s] Shows the file Subject  [short: only first three words]
+    >  $C[s] Shows the file Comments [short: only first three words]
+    >  $K[s] Shows the file Keyword  [short: only first three words]
+
+trash can:
+    -- support DELDIR
+    -- add max space used limit
+
+configure color for fly-over help
+
+folder hotkey for deleting THIS folder
+
+archives:
+    -- second page with os2.key file which files are 2be archived
+    -- csm:
+         Ok, no guarantee, but this is what I found out:
+             Offset 0xCF: (int32)    "Dateien bei jedem Systemstart aktivieren"
+                                         (0 = off, 1 = on/selected)
+             Offset 0xD9: (int32)    "Anzeige der Optionen bei jedem Neustart"
+                                         (0 = off, 2 = on/selected)
+             Offset 0xDD: (int32)    "Zeitsperre fuer Anzeigen der Optionen"
+                                         (0 to 999)
+         The rest of the file I don't know (besides the path
+         beginning at offset 0x06, 200 bytes long)
+
+NetscDDE:
+    -- prompt for whether to open a new window
+
+new classes:
+    -- The WPS classes FFolder and WPSAgentSam are used by Samuel Audet's
+       (<guardia@cam.org>) open util:
+
+       To be able to filter the contents of a folder using open.exe, you will need to
+       register a new folder class found in WPSExtS.dll.  This DLL also includes a fix
+       to the background open.  If you want to install both or either of them, you
+       will need OS/2 Warp 3 or higher and will need to run "reg.exe i". It is
+       preferable that the DLL be placed in a system DLL directory (for example
+       x:\os2\dll), unless you specify a directory, ex.: "reg.exe i x:\open" This is
+       the same DLL than in Hot Corners 2.0 package, but register with reg.exe just to
+       be sure everything is OK for Open. Current version of WPS Extention DLL is 1.0,
+       I will try to make all new versions backward compatible.
+
+       Note that the Include page in folder's setting pages is the solution for a
+       permanent filtering since open.exe filtering is dismissed on folder close.
+
+    -- >I call it WGetFolder. It could be just regular folder, with one small
+       >exception. Every URL object dropped on it would be replaced with the
+       >file it points to. So the idea is similar to AWget, but it would be
+       >much more flexible solution.
+       >One could "Create another"->"WGeroup of links. So this way one could easily group files while
+       >downloading, instead of having everything in one predefined directory.
+       >This WGetFolder could just have another tab in properties, where one
+       >could put wget options string for downloading (might be different for
+       >different instances of the folder), timeouts etc.
+       >I think You feel the idea?  :)
+
+folders in general:
+    --  folders without titlebars (XFolder option)
+    --  add rexx commands for folder open/close
+

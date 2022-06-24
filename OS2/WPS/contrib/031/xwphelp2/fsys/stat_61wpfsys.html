@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusbalken: Extra Bestandssysteem Object Codes
+    </TITLE>
+</HEAD>
+<BODY>
+<B>Bestandsysteem objecten</B> (WPFileSystem class, d.w.z. mappen en gegevens bestanden)
+ondersteunen de volgende <I>extra</I> codes:
+<BR><DL>
+<DT><CITE>  $r  1)  </CITE><DD>object zijn "echte naam"
+<DT><CITE>  $y  1)  </CITE><DD>object type (.TYPE Uitgebreid Kenmerk)
+<DT><CITE>  $a  1)  </CITE><DD>object
+<A HREF="glossary/gls_fattrs.html">bestandskenmerken</A>; dat zal vier karakters toevoegen
+("ahrs") voor de gearchiveerde, verborgen, alleen-lezen en systeem bestandssysteem kenmerken,
+diegene die in hoofdletters staan zijn ingesteld voor een bestand (b.v. ("AHrs").
+<DT><CITE>  $D  1)  </CITE><DD>object zijn laatste schrijfdatum
+<DT><CITE>  $T  1)  </CITE><DD>object zijn laatste schrjf tijd
+<DT><CITE>  $Eb 1,2)</CITE><DD>Grootte Uitgebreide Kenmerken in bytes
+<DT><CITE>  $Ek 1,2)</CITE><DD>Grootte Uitgebreide Kenmerken in kBytes, d.w.z. bytes/1000
+<DT><CITE>  $EK 1,2)</CITE><DD>Grootte Uitgebreide Kenmerken in KBytes, d.w.z. bytes/1024
+<DT><CITE>  $Ea 1,2)</CITE><DD>Grootte Uitgebreide Kenmerken in bytes/kBytes; dit kiest
+automatisch een optimale schaal afhankelijk van het aantal
+</DL>
+<BR><B>Opmerkingen:</B>
+<P>1) Deze codes tonen alleen de gegevens die in de interne WPS buffers staan.
+Dat betekent dat als deze gegevens wijzigen, b.v. omdat een bestand is veranderd door een ander
+programma, de statusbalk informatie alleen zal wijzigen als het WPS buffer gegeven wordt ververst,
+b.v. als u "Nu Verversen" selecteert.
+<P>2) De WPS heeft altijd al een 'bug' gehad waardoor een uitgebreide kenmerken grootte van meer
+dan 32767 altijd 32767 zal teruggeven, ofschoon een grootte van 64 KB technisch mogelijk is.
+Met als resultaat, dat &xwp; ook deze foute waarde laat zien.
+
+<BR>
+</BODY>
+</HTML>
+
+

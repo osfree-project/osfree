@@ -1,0 +1,164 @@
+
+/*
+ * xwplink.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPLink
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwplink.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <xfdataf.idl>
+
+/*
+   CLASS: XWPLink
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile == XFldDataFile
+                           ÀÄÄ  XWPLink
+*/
+
+interface M_XWPLink;            // forward reference to metaclass
+
+interface XWPLink : XFldDataFile
+{
+
+    /*
+     * New instance methods for XWPLink:
+     *
+     */
+
+    WPFileSystem xwpQueryTarget();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpQueryTarget;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xlk_;
+        externalstem = xlk;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwplink;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPLink;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPLink:
+         *
+         */
+
+        WPFileSystem pobjTarget;
+
+        /*
+         * XFldDataFile methods overridden by XWPLink:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        //# 2)  WPObject query/set methods
+
+        //# 3)  icon methods
+
+        //# 4)  class-specific query/set methods
+
+        xwpResolveIfLink: override;
+
+        //# 5)  menu methods
+
+        //# 6)  open view methods
+
+        //# 7)  file operation methods
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPLink : M_XFldDataFile
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xlkM_;
+        externalstem = xlkM;
+        functionprefix = xlkM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwplink;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPLink:
+         *
+         */
+
+        /*
+         * M_XFldDataFile methods overridden by M_XWPLink:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+
+        wpclsQueryIconData: override;
+
+        wpclsQueryInstanceFilter: override;
+        wpclsQueryInstanceType: override;
+    };
+#endif
+};
+
+

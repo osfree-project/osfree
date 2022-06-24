@@ -1,0 +1,35 @@
+<HTML RESID=&ID_XFH_REGISTERCLASS;>
+<HEAD>
+    <TITLE>
+        Registrera Ny Klass
+    </TITLE>
+</HEAD>
+<BODY>
+Dialogen till†ter dig att registrera en ny
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS klass</A>.
+Detta „r endast anv„ndbart om du vet namnet b†de p† den DLL vilken inneh†ller
+klassen och det exakta namnet p† klassen. &xwp; kan inte hj„lpa dig med det.
+
+<P>I <B>"DLL"</B> f„ltet, fyll i namnet p† det dynamic link library som inneh†ller klassen.
+Om DLL'n finns i <!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>, beh”ver du inte specifiera
+dess fulla <!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„g</A>. Du kan emellertid trycka p† "S”k..." f”r att 
+hitta en DLL med komplett s”kv„g.
+
+<P>I <B>"Klass"</B> f„ltet, fyll i det exakta namnet p† den klass som skall registreras.
+Notera att -- till skillnad fr†n filnamn -- „r namn p† klasser k„nsliga f”r stora och sm† bokst„ver.
+Om du stavar namnet fel eller missar att ange bokst„verna r„tt, kommer registreringen av klassen
+att misslyckas.
+
+<P><B>OK</B> knappen „r avaktiverad tills du har angivit n†got i b†da f„lten. Ingen felkontroll utf”rs.
+Tryck p† OK kommer att f”rs”ka registrera klassen med anv„ndning av
+<!-- V0.9.20: changed this -->
+<A HREF="pmref.inf#WinRegisterClass"><CODE>WinRegisterClass</CODE></A> API<A HREF="_toolkitlink.html">*</A>
+
+<P>Notera att i de flesta fall kan den nya klassen anv„ndas omedelbart utan att beh”va starta om WPS.
+
+<BR>
+</BODY>
+</HTML>

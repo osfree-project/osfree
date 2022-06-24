@@ -1,0 +1,36 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>How It Works</TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+<B>Classes: XWPScreen</B>
+<HR>
+&pgr; needs <B>no special hardware</B> to implement these virtual desktops.
+While the various implementations of the Unix X Window system (one of
+which is XFree/2, which runs under &os2;) can actually use additional memory
+on your video card to have room for several desktops, &pgr; simply moves
+windows around your screen.
+
+<P>To make this clear: With &pgr;, technically, you still only have one screen.
+Neither PM nor your video driver know anything about virtual desktops.
+All &pgr; does when switching desktops is to move windows off of and onto your
+one visible screen. That is, if you switch one desktop to the right, &pgr; moves
+all windows to the left by the size of your physical screen (which makes them
+invisible, of course).
+As a result, no special hardware or software or drivers are required. If your
+computer can handle moving windows, it can use &pgr;.
+
+<P>The small &pgr; pager window then does a number of calculations to make all
+windows look as if they were part of a huge virtual screen, but your physical screen
+really doesn't change -- it's the windows that are moved.
+
+<P>&pgr; also needs the &xwp; PM hook to be able to track window movement --
+for one, to reflect window changes in the &pgr; window, secondly to be informed
+when windows are created or destroyed for any reason. It can then, for example,
+automatically switch desktops (that is, move all windows) if the focus is given
+to a window of another desktop.
+
+<BR>
+</BODY>
+</HTML>

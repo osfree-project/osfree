@@ -1,0 +1,83 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Memory
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+The settings in the "Advanced" group allow you to control whether
+&os2; uses high memory.
+
+<P>Note that all these settings require that you are running an
+Aurora kernel (that is, OS/2 kernel version 4.5 or higher:
+Warp Server for e-business, Warp 4 with at least fixpak 13
+installed, or an IBM "Convenience Pack", or eComStation).
+Otherwise all these settings will be disabled.
+
+<UL><LI>The <B>"Virtual address limit"</B> specifies the highest
+address that &os2; will give to applications when they request
+high memory (above the 512 MB line). This corresponds to the
+<CODE>VIRTUALADDRESSLIMIT</CODE> statement in &cfgsys;
+and may be in the range of 512 up to 3072 MB.
+
+<P>If this is set to 512 MB,
+which is the default (and the only available state with non-Aurora
+kernels), high memory usage is disabled altogether.
+
+<P>Values in excess of 512 MB will reduce the number of processes
+that can concurrently run on a system.
+
+<P>See <A HREF="glossary/gls_mem_himem.html">&os2; Virtual Address Space</A> for more
+information on this topic.
+
+<!-- V1.0.8: added bold -->
+<P><LI>If <B>"Disable DLL basing"</B> is enabled, &os2; will ignore each
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL's</A>
+base address (preferred load address) when the DLL is loaded. This
+corresponds to the <CODE>DLLBASING=OFF</CODE> statement in
+&cfgsys;.
+
+<P>Enabling this setting may prevent fragmentation of the
+shared arena and thus reduce the likelihood of running out of
+shared memory, but performance for loading DLLs may suffer.
+
+<!-- V1.0.8: added quotes -->
+<P><LI>If <B>"High memory for Java"</B> is enabled, the &os2; Java
+Virtual Machine is instructed to attempt to place its heap into
+&os2;'s high memory (above the 512 MB line). This will
+only work if you have set the virtual address limit above to
+something greater than 512 MB.
+
+<P>This corresponds to the <CODE>SET JAVA_HIGH_MEMORY=1</CODE>
+statement in &cfgsys;.
+
+<P>As with all high memory, this will prevent 16-bit code from
+accessing that memory. Most notably, this requires that you have
+TCP/IP 4.1 or higher installed.
+
+<!-- V1.0.8: new option -->
+<P><LI>If <B>"Early memory initialization"</B> is enabled, &os2; will
+make the full amount of memory available to drivers earlier
+in the boot process. This corresponds to the <CODE>EARLYMEMINIT</CODE>
+statement in &cfgsys;.
+
+<P>By default, there are only 16 MB of memory available during the
+first phases of the boot process. This is regardless of the
+actual amount of physical memory installed in the machine! The full
+amount is only made available after all drivers have been loaded, shortly
+before the shell is started. In scenarios where a large number of drivers
+or very large drivers have to be loaded, the system might run short of
+available memory. As a result, drivers requiring more memory cannot be
+loaded anymore. Enabling the above option solves this problem.
+
+<P><B>WARNING:</B> Do <B>not</B> enable this option if you use
+the HPFS386 file system or older ISA hardware that directly accesses
+memory e.g. ISA SCSI controllers. Doing so is likely to cause
+data corruption.
+
+</UL>
+</BODY>
+</HTML>
+

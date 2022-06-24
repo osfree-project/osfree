@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: HPFS Automatische controle
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+
+Het <B>"Automatische controle"</B> invoerveld komt overeen met de
+/AUTOCHECK:xxx in de HPFS of HPFS386 &cfgsys; opdrachtregel.
+Hier kunt u opgeven voor welke
+<!-- V0.9.20: replace drives with volumes -->
+volumes &os2; automatisch een
+<CITE>CHKDSK</CITE> zal uitvoeren bij het opstarten van het systeem.
+<P>Geef simpelweg de respectievelijke stationsletters op (zonder de opvolgende "<CITE>:</CITE>").
+&os2; zal elk station controleren dat u hier opgeeft tijdens het opstarten van het systeem als
+u uw systeem niet netjes afgesloten heeft (bijvoorbeeld, na een zwart scherm vastloper).
+
+<P>Als u hier een plus teken ("<CITE>+</CITE>") opgeeft
+<I>voor</I> een stationsletter, zal dat station altijd gecontroleerd worden, wat niet echt
+wenselijk is.
+<P>Voorbeeld: Als u "<CITE>C+DE</CITE>" opgeeft, zal Station D: altijd gecontroleerd worden, terwijl
+bij C: en E: dat alleen gebeurd indien nodig.
+
+<P><B>Opmerking:</B> Voor HPFS <!-- V0.9.20: replace drives with volumes -->
+volumes, is de automatische controle absoluut noodzakelijk want het benaderen
+van "vieze" HPFS volumes zal resulteren in systeem fouten. U dient al uw
+HPFS <!-- V0.9.20: replace drives with volumes -->
+volumes hier op te geven, want &os2; zal anders fout meldingen tonen bij het opstarten.
+Dit geldt specifiek voor uw opstart
+<!-- V0.9.20: replace drive with volume -->
+volume, anders zal &os2; helemaal weigeren op te starten als u vergat af te sluiten
+of uw systeem vastgelopen is.
+<P>Druk op de <B>"Voorstel"</B> knop om alle HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes op uw systeem toegevoegd te krijgen aan het invoerveld.
+
+<BR>
+</BODY>
+</HTML>
+
+

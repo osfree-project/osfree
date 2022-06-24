@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: File-System Caches
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+File-system caches are a mechanism used by most of today's operating
+systems to avoid redundant disk accesses. In order to accomplish this, a part of
+the computer's physical memory (RAM) is used to buffer data that is read
+from and written to disk. This memory region is then called a "cache".
+
+<P>See <A HREF="glossary/gls_fs.html">"File systems"</A> for introductory information about file systems.
+
+<P>Do not confuse the file-system caches with the other caches that exist
+on your system, such as the processor caches
+and maybe other hardware caches that are built into your hard disks.
+The concept of these caches is the same (avoid slow accesses by using
+fast memory if possible), but they are not described here.
+
+<P>If an application accesses disk data that is still residing in the
+file-system cache, &os2; does not have to read it from the
+disk, but can simply take it from the cache in memory, which is a lot faster.
+
+<P>On one hand, if an application is writing data to disk, &os2; can
+copy this data to the cache first and delay writing it to disk until the disk is
+ready for accepting it, or the system is idle. This is called <B>"lazy writing"</B>
+and can greatly improve your system's performance.
+On the other hand, this increases the danger of data loss
+in case of power shortages or fatal system crashes, because data in the caches
+gets lost then. You should still have lazy writing enabled if you have a
+reasonably stable &os2; system and rarely get CHKDSK's at bootup.
+
+<P>&os2; implements separate caches for each file system that is installed. This
+means that all FAT
+<!-- V0.9.20: replace drives with volumes -->
+volumes will use one cache, and all HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes a different
+one. These caches are separately configured with different &cfgsys;
+settings.
+<!-- V0.9.20: added link, added ifndef -->
+<IFNDEF __NOOS2KERNEL__>
+You can edit these settings in the <A HREF="objects/obj_krnl.html">"&os2; Kernel"</A>
+object. You will find the
+HPFS settings on the "Drivers" page in that object, since HPFS is an
+installable file system (IFS). By contrast, since FAT is built into the &os2;
+Kernel itself, it has its own page.
+</IFNDEF>
+
+<P>Please keep in mind that memory you reserve for file-system caches is no longer
+available for other purposes. If you reserve too much cache memory, this will
+have a negative impact on your system performance, because &os2; will spend more time
+on your swap file. As a result, you should reflect a bit on what settings you specify
+here.
+
+<P>In general, the more memory you have on your system, the more memory you should
+reserve for the caches. You should also take in account which file systems you use
+more frequently: for example, if you mainly use HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes, it's a waste to reserve
+much memory for FAT caches, and vice versa.
+
+<P>This is not so much an issue any more considering the amount of memory which
+is installed in today's computers. However, if you still only have 16 MB RAM or
+less, you shouldn't reserve more than 1024 KB cache for both file systems altogether.
+
+<BR>
+</BODY>
+</HTML>
+

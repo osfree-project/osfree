@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Einschr„nkungen beim Kopieren und Verschieben von Dateien
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Beim Kopieren oder Verschieben von Objekten des Dateisystems
+(&link_datafiles; oder &link_folders;)
+zwischen verschiedenen Laufwerken sollten Sie darauf achten,
+daá es Einschr„nkungen geben kann, wenn die Laufwerke
+unterschiedliche <A HREF="glossary/gls_fs.html">Dateisysteme</A>
+verwenden.
+ 
+<OL><LI>Andere Betriebssysteme (wie DOS oder Windows) wissen nichts
+von &os2;s
+<A HREF="glossary/gls_eas.html">Erweiterten Attributen</A>. Das ist
+wahrscheinlich nur beim FAT-Dateisystem problematisch, da DOS oder
+Windows zuerst einmal berhaupt keine HPFS- oder JFS-Volumen lesen
+k”nnen. Wenn man aber unter diesen Betriebssystemen mit &os2;-Dateien
+arbeitet, k”nnten deren Erweiterte Attribute verloren gehen.
+ 
+<P><LI>Kopiert oder verschiebt man eine Datei von einem mit HPFS oder JFS formatierten
+Laufwerk auf ein mit dem FAT-Dateisystem formatiertes,
+k”nnte das System den Dateinamen gem„á der Einschr„nkungen
+der FAT-8+3-Namensgebung abschneiden. Der originale lange Dateiname
+wird dann in den Erweiterten Attributen der Datei abgespeichert.
+Wenn Sie sich jedoch die Dateien mit einem anderen Betriebssystem
+anschauen, werden Sie nur den kurzen Dateinamen sehen k”nnen.
+ 
+<P>Beachten Sie, daá Disketten immer mit dem FAT-Dateisystem formatiert
+werden.
+ 
+<P><LI>Die oben beschriebene automatische Konvertierung der Dateinamen
+funktioniert nur, wenn zum Kopieren oder Verschieben der Dateien
+die Workplace Shell von &os2; verwendet wird. Nutzt man hingegen eine
+<A HREF="glossary/gls_cmd.html">Befehlszeile</A>
+(beispielsweise die Befehle <A HREF="cmdref.inf#copy"><CODE>COPY</CODE></A> und
+<A HREF="cmdref.inf#xcopy"><CODE>XCOPY</CODE></A>) zum Kopieren oder Verschieben
+von Dateien, die nicht der 8+3-Namenskonvention von FAT entsprechen, so schl„gt
+der Vorgang einfach fehl.
+</OL>
+</BODY>
+</HTML>
+ 

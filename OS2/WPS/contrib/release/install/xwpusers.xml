@@ -1,0 +1,99 @@
+<!--
+    XWPUSERS:
+        this file holds login information for all users
+        which are recognized by XWorkplace Security.
+        The default version in the install\ subdirectory
+        of the XWorkplace installation directory is copied
+        to the ?:\OS2 directory.
+
+        This file uses an XML-like syntax for user
+        specifications.
+
+    GROUP SPECIFICATIONS
+
+        GROUP
+                GROUPID=id
+        groupname /GROUP
+    -->
+
+<GROUP
+    GROUPID=0
+>root</GROUP>
+
+<GROUP
+    GROUPID=1
+>admin</GROUP>
+
+<GROUP
+    GROUPID=2
+>users</GROUP>
+
+<GROUP
+    GROUPID=3
+>special</GROUP>
+
+<!--
+
+    USER SPECIFICATIONS
+
+        USER
+                NAME="username"
+                USERID=id
+                PASS="password"
+                GROUPID="id[,id...]
+                [HOMEDIR="x:\homedirspec"]
+                [USERINI="x:\path\xxx.ini"]
+                [XWPSHELL="[path]\xxx.exe"]
+                [COMSPEC="[path]\xxx.exe"]
+        Real Name /USER
+
+        The following are required for each user:
+
+        NAME="username"     the user name (login).
+        USERID=id           the decimal user ID for this user. This must be
+                            unique.
+        PASS="password"     the user's password.
+        GROUPID="id[,id...]" the ID (or ID's) of the group(s) this user belongs
+                            to. This references one of the GROUP tags. There
+                            must be at least one group, but the user may belong
+                            to several.
+                            Note: This is different from UNIX. There, each user
+                            has a "primary" group and can belong to several
+                            others as well, but only the primary group is
+                            specified in /etc/passwd.
+
+        The following are optional for each user:
+
+        HOMEDIR=dir         full path specification of the home directory.
+                            If this is not specified, this defaults to
+                            $(XWPHOME)\username. If XWPHOME is not specified
+                            in CONFIG.SYS, XWPHOME defaults to ?:\home on the
+                            boot drive.
+        USERINI=ini         full path specification of the user profile (OS2.INI)
+                            for this user. If this is not specified, this defaults
+                            to OS2.INI in the home directory (except for "root").
+                            By specifying the same OS2.INI for several users,
+                            several users can share the same desktop directory.
+        XWPSHELL=exe        shell to use for this user. If this is not specified,
+                            this defaults to $(XWPSHELL). If XWPSHELL is not
+                            specified in CONFIG.SYS, XWPSHELL defaults to
+                            ?:\OS2\PMSHELL.EXE on the boot drive.
+                            If the executable is on the PATH, the full path can
+                            be omitted.
+        OS2_SHELL=exe       command processor to use for command shells. If this
+                            is not specified, $(OS2_SHELL) is used, which is normally
+                            specified in CONFIG.SYS. If that is not specified either,
+                            ?:\OS2\CMD.EXE on the boot drive is used.
+
+        Note that there is no way to specify the desktop directory through this file
+        since the user's OS2.INI will rely on that.
+    -->
+
+<USER
+    NAME="root"
+    USERID=0
+    PASS="pass"
+    GROUPID=0
+>root</USER>
+
+

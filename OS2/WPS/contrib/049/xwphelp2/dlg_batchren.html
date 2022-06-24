@@ -1,0 +1,70 @@
+<HTML RESID=&ID_XFH_BATCHRENAME;>
+<HEAD>
+    <TITLE>
+        &xwp;: Objekte umbenennen
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+Der Meneintrag "Objekte umbenennen" erlaubt es, viele Objekte auf
+einmal unter Verwendung
+<A HREF="glossary/gls_regexps.html">erweiterter regul„rer Ausdrcke</A>
+umzubenennen ("Massenumbenennung").
+Beachten Sie, daá dieser Dialog einfache
+<A HREF="glossary/gls_wildcards.html">Platzhalter</A>-Ausdrcke nicht untersttzt.
+ 
+<P>Eine Massenumbenennung kann sehr ntzlich sein, wenn viele Objekte auf
+einmal umbenannt werden mssen, die alle einem Kriterium entsprechen - beispielweise,
+wenn alle auf <CODE>.JPEG</CODE> endenden Dateien in <CODE>.jpg</CODE>
+umbenannt werden sollen.
+ 
+<P>Um eine Massenumbenennung durchzufhren, tun Sie folgendes:
+ 
+<!-- V0.9.20: replace UL with OL tag and /UL with /OL -->
+<OL><LI>Geben Sie im obersten Eintragsfeld einen <B>regul„ren Suchausdruck</B> ein.
+Dies ist die Zeichenkette, mit der Objekte gem„á den unter
+<A HREF="glossary/gls_regexps.html">erweiterte regul„re Ausdrcke</A> definierten
+Regeln verglichen werden.
+ 
+<P>Wenn Sie hier beispielsweise <CODE>(.*)\.JPEG</CODE> eingeben, werden alle
+auf <CODE>.JPEG</CODE> endenden Dateien von der Umbenennung betroffen.
+ 
+<P>Vergewissern Sie sich, daá jeder Teil der Zeichenkette, den Sie durch eine
+andere Zeichenkette ersetzen wollen, in Klammern angegeben ist. Andernfalls
+k”nnen Sie auf den Teil nicht von dem "Umbenennen in"-Ausdruck aus bezugnehmen.
+ 
+<P><LI>Geben Sie im zweiten Eingabefeld einen <B>"Umbenennen in"</B>-Ausdruck ein.
+Dieser definiert die Regel, nach der jedes Objekt umbenannt wird.
+ 
+<P>Beachten Sie, daá es sich bei der Ersatzzeichenkette nicht um einen kompletten
+regul„ren Ausdruck handelt, weil sie nicht verwendet wird, um Objekte damit
+zu vergleichen. Deswegen mssen Sie auch keine Sonderzeichen wie Punkte
+extra markieren. Ein Schr„gstrich rckw„rts mit einer dezimalen Nummer wird jedoch als
+Verweis auf einen Klammerausdruck in der Suchzeichenkette angesehen.
+ 
+<P>Um wie beim oberen Beispiel die auf <CODE>.JPEG</CODE> endenden Dateien
+in <CODE>.jpg</CODE> umzubenennen, geben Sie <CODE>\1.jpg</CODE> an. Wrde ein
+Objekt namens <CODE>FILE.JPEG</CODE> mit der Suchzeichenkette
+<CODE>(.*)\.JPEG</CODE> verglichen, so erg„be <CODE>\1</CODE> im Objekttitel
+<CODE>FILE</CODE>, so daá das Objekt in <CODE>FILE.jpg</CODE> umbenannt wrde.
+ 
+<P><LI>W„hlen Sie das Markierungsfeld <B>"Groáschreibung bercksichtigen"</B>
+je nachdem aus, ob die Suchzeichenkette unabh„ngig von der Groá-/Kleinschreibung
+angewendet werden soll oder nicht.
+ 
+<P><LI>Wenn Sie <B>"Nur ausgew„hlte Objekte vergleichen"</B> ausgew„hlt haben,
+wird der Suchvorgang auf die momentan im Ordner ausgew„hlten Objekte
+beschr„nkt. Andernfalls werden alle Objekte mit der Suchzeichenkette verglichen.
+ 
+<P><LI>Klicken Sie auf die Schaltfl„che <B>"Umbenennen starten..."</B>. Sie werden
+dann bei jedem Objekt, das die Suchkriterien erfllt gefragt und der
+vorgeschlagene Titel fr die Umbenennung wird angezeigt, so daá Sie berprfen
+k”nnen, ob die von Ihnen eingegebenen Zeichenketten auch das tun, was Sie
+beabsichtigt haben.
+ 
+</OL>Der Dialog beh„lt eine Liste der jeweils letzten zehn gltigen regul„ren
+Quell- und Zielausdrcke. Auf diese Liste k”nnen Sie ber das Listenfeld jedes
+Eingabefeldes zugreifen.
+</BODY>
+</HTML>
+ 

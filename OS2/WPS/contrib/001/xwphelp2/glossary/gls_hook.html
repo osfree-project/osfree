@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        The &xwp; PM Hook
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13 -->
+<BODY>
+The &xwp; PM hook is a routine in <CODE>XWPDAEMN.EXE</CODE> which can, if
+enabled, monitor and manipulate Presentation Manager (PM) messages.
+
+<P>This allows &xwp; to manipulate the behavior of all windows and
+keyboard and mouse events on your system. This is how object hotkeys,
+sliding focus, sliding menus, screen border objects, &pgr; etc. work.
+If a certain event is detected by the hook, &xwp; can take a special
+action, such as opening an object or making another window active.
+
+<P>As a consequence, the &xwp; PM hook must be enabled first for all
+those features to work.
+
+<P>The problem with PM hooks is that they are global. Since several applications
+can install such hooks, they might conflict. Well-known OS/2 tools that
+install hooks also are NPS WPS, WarpEnhancer, DragText, and others. This is
+why &xwp; allows you disable its PM hook altogether, in case it is
+conflicting with some other application.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,45 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Neue Systemkl„nge
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Klassen: XFolder, XFldDesktop</B><HR>
+Wenn das &os2;-Multimediasubsystem (MMPM/2) und irgendeine Soundkarte installiert
+sind, kann &xwp; zus„tzliche Systemkl„nge bei bestimmten Ereignissen abspielen, genau
+wie es schon „ltere XFolder-Versionen taten.
+ 
+<P>Wenn Sie die "Erweiterten Systemkl„nge" ber
+"&xwp;-Konfiguration" aktivieren, fgt &xwp; der Seite "Klang" im
+Objekt "Warnton" neue Ereignisse hinzu.
+ 
+<P>Bitte beachten Sie, daá die &xwp;-Systemkl„nge das System langsamer machen, wie
+es auch die regul„ren Systemkl„nge tun. Dies ist sogar auf meinem Pentium-133 mit
+32 MB RAM bemerkbar, obwohl &xwp; fr das Abspielen der Kl„nge einen separaten Thread
+benutzt.
+ 
+<P>Die Konfiguration dieser neuen Kl„nge ist nicht allzu spektakul„r: &xwp; fgt einfach
+ein paar mehr Elemente zur Ereignisliste auf der "Klang"-Seite hinzu.
+Alle &xwp;-Elemente beginnen mit "xwp", weshalb Sie sie zusammengruppiert sehen
+k”nnen sollten.
+ 
+<P>Im Unterverzeichnis <CODE>WAV</CODE> des &xwp;-Installationsverzeichnisses finden
+Sie ein paar kleine Kl„nge, mit denen Sie beginnen k”nnen. <CODE>;-)</CODE>
+ 
+<P><B>Implementation.</B> Um diese Funktionen einzufhren, arbeiten mehrere Komponenten
+von &xwp; zusammen. Die Klassen XFolder und XFldDesktop mssen installiert sein, damit
+die Systemereignisse fr die neuen Systemkl„nge abgefangen werden k”nnen. Die neue
+Ersatzklasse XWPSound (siehe <A HREF="mm_1sndobj.html">vorige Seite</A>) ist jedoch
+fr die neuen Systemkl„nge nicht erforderlich. Diese Klasse erleichtert nur die
+Konfiguration.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 
+ 
+ 

@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Advanced Power Management
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+"Advanced Power Management" (APM) is an industry standard for managing
+computer power and energy consumption.
+
+<P>Computers which comply to this standard are able to reduce power
+consumption by switching into the "suspend" state. Besides, they do not
+have to be switched off manually, but can turn off their own power.
+
+<P>APM is especially useful on laptops. By using APM functions, applications
+can query the current battery state of the system as well. For example,
+the <A HREF="xcenter/xc_main.html">&xcenter;</A> has a
+<A HREF="xcenter/xc_power.html">battery widget</A> that will show you
+the current energy state of the laptop.
+
+<P>To function correctly,
+<UL><LI>APM must be supported by your computer's BIOS;
+<P><LI>the &os2; <A HREF="cmdref.inf#apm.sys"><CODE>APM.SYS</CODE> device driver</A>
+must be installed in the &cfgsys; file.
+</UL>
+
+Older systems only support the APM 1.1 level, which has certain limitations.
+&os2; can support APM 1.2; however, for this to work, your computer's BIOS
+must be able to support APM 1.2 as well.
+
+<BR>
+</BODY>
+</HTML>
+

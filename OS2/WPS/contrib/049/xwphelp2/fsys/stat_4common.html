@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statuszeilen: Gemeinsame Codes fr alle Modi
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+ 
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<!-- V0.9.11 (2001-04-22) [umoeller]: largely rewritten. -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+Die folgenden Codes funktionieren <B>in allen drei Modi:</B>
+<BR><DL>
+<DT><CITE>  $c      </CITE><DD>Anzahl der derzeit ausgew„hlten Objekte
+<DT><CITE>  $C      </CITE><DD>Gesamtanzahl der Objekte im Ordner
+ 
+<!-- V0.9.13: replaced the following -->
+<BR><DT><CITE>  $s<I>X</I>     </CITE><DD>Gesamtgr”áe der ausgew„hlten Objekte
+<DT><CITE>  $S<I>X</I>     </CITE><DD>Gesamtgr”áe des Ordnerinhaltes
+<DT><CITE>  $f<I>X</I>     </CITE><DD>Freier Speicherplatz auf dem Laufwerk des Ordners
+<DT><CITE>  $z<I>X</I>     </CITE><DD>Gesamtgr”áe des Laufwerks, auf dem sich der Ordner befindet
+ 
+<!-- V0.9.13: replaced the following -->
+<P>Bei den oberen vier Codes ist <CODE><I>X</I></CODE> ein
+besonderes Zeichen fr die <A HREF="fsys/stat_99format.html">Formatangabe</A>.
+<!-- end V0.9.11/V0.9.13 rewrite -->
+ 
+<BR><DT><CITE>  $x(xxx) </CITE><DD>Linksbndiger Tabulator:
+gibt die folgenden Informationen an X-Position "xxx" aus (relativ zum linken Rand der
+Statuszeile).
+<BR>Beispiel: <CITE>$x(300)$sK</CITE> gibt immer die Gesamtgr”áe der ausgew„hlten Objekte
+an der X-Position 300 aus.
+<DT><CITE>  $x(-xxx) </CITE><DD>wie zuvor, aber relativ zum rechten Rand
+der Statuszeile.
+<BR>Beispiel: <CITE>$x(-150)$sK</CITE> gibt die Gesamtgr”áe der ausgew„hlten Objekte an
+der X-Position 100 aus, wenn die Statuszeile derzeit 250 Pixel breit ist.
+<DT><CITE>  $x(xx%) </CITE><DD>wie zuvor, aber die X-Position wird berechnet, indem
+"xx" als Prozentsatz relativ zur derzeitigen Breite der Statuszeile angesehen wird.
+<BR>Beispiel: <CITE>$x(50%)$sK</CITE> gibt die Gesamtgr”áe der ausgew„hlten Objekte stets
+in der Mitte der Statuszeile aus.
+</DL>
+<BR>
+</BODY>
+</HTML>
+ 
+ 

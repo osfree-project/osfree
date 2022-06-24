@@ -1,0 +1,82 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Fragen zur Installation
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- changes for V0.83 and V0.84: see below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL><LI><B>Nach einem Neustart stÅrzt die WPS stÑndig ab und startet wieder neu. Woran liegt das?</B>
+<P>Schwierig zu sagen. Wenn sie stÑndig neu startet, ist dies ein sicheres Zeichen dafÅr, da· die
+WPS "traped", d.h. es treten Ausnahmefehler beim Start auf. Das gleiche wie auf der
+<A HREF="faq_01general.html">vorigen Seite</A>, es scheint einen Konflikt zwischen &xwp; und anderen
+WPS-Erweiterungen zu geben.
+<P>Andererseits kann es auch sein, da· ein Neustart der WPS auf Ihrem System einfach nicht funktioniert.
+Der Neustart der ArbeitsoberflÑche ist nur als AbkÅrzung gedacht, aber wenn er nicht funktioniert,
+versuchen Sie statt dessen einen Neustart des ganzen Systems.
+<!-- this paragraph added with V0.82 -->
+<P>Einige Personen haben berichtet, da· die Entfernung der &xwp;-INI-SchlÅssel zu helfen scheint.
+Starten Sie irgendeinen INI-Editor und suchen Sie in der Datei OS2.INI nach Anwendungsnamen, die mit "XFolder"
+beginnen. Lîschen Sie sie alle. &xwp; <I>erfordert nicht mehr zwingend</I> INI-SchlÅssel. Hiermit
+lîschen Sie alle Ihre Einstellungen und setzen die Sprache auf Englisch zurÅck, aber vielleicht
+wird &xwp; dann laufen.
+<!-- this paragraph added with V0.82 -->
+<P>ZusÑtzlich ist es immer zu empfehlen, einigerma·en aktuelle &os2;-Fixpaks installiert zu haben,
+mindestens Fixpak 35 fÅr Warp 3 und Fixpak 5 fÅr Warp 4. &xwp; lÑuft auch ohne
+Fixpaks, aber es kann zu Problemen kommen.
+IBM hat mit der Zeit vieles im SOM-Kernel geÑndert, den die WPS fÅr das
+Klassenmanagement verwendet. Ich habe mein bestes getan, um die KompatibilitÑt zu steigern, aber
+ich kann nicht alle mîglichen Konfigurationen selbst testen. Ich habe beispielsweise herausgefunden, 
+da· der Standard-SOM-Kernel von Warp 3 extrem fehlerhaft ist, weshalb ich fÅr Warp 3
+<I>dringend</I> empfehle, Fixpaks einzuspielen.
+<!-- V0.9.13: removed this
+(Although since XFolder V0.82, I am checking installation on Warp 3 without
+fixpaks.) -->
+ 
+<!-- this item added with V0.82 -->
+<!-- modified for V0.83 -->
+<!-- modified for V0.9.0 -->
+<!-- V0.9.13: removed this finally
+<P><LI><B>The install program says that some of the classes could not be installed.
+What can I do?</B>
+<P>There were serious installation problems with the previous V0.8x versions.
+Apparently, with V0.82, things have become much better since I've removed
+SOM multiple inheritance, which the WPS apparently doesn't like too much on some
+systems.
+<P>&xwp; 0.9.0's classes have been redesigned to allow for installation of
+only some of the classes, which was not possible with previous versions. Only two
+classes are required now (XFldObject, which replaces WPObject, and XWPSetup,
+the "&xwp; Setup" object). Open "&xwp; Setup" and
+press the "Classes" button on the "Features" page. This will show you all the
+classes which have been properly installed and allows you to change the class
+setup. Maybe this helps.
+ 
+<P><LI><B>The install program does not create the "&os2; Kernel" and "Workplace Shell"
+objects.</B>
+<P>With V0.80, the install script failed to create the
+new system objects if the XFolder config folder already existed. This should be
+fixed now, but if problems persist, simply delete your config
+folder, and all the objects should be created.
+<P>Otherwise, you can still execute the
+<CODE>INSTLxxx.CMD</CODE> and <CODE>CROBJxxx.CMD</CODE> scripts in the
+<CODE>INSTALL</CODE> subdirectory, with "xxx" being your three-digit language code,
+as described on the <A HREF="inst_4nls.html">"NLS"</A> page.
+<P>However, this might also be due to the fact that the "XFldSystem" and "XFldWPS"
+classes could not be properly registered. I have seen this happen on a Warp 3
+system without any fixpaks installed. -->
+ 
+ 
+<P><LI><B>Mit welchen &os2;-Versionen und FixpakstÑnden ist &xwp; getestet worden?</B>
+<P>Siehe <A HREF="inst_0req.html">"Erfordernisse".</A>
+<!-- end V0.9.13 -->
+ 
+</OL>
+<BR>
+</BODY>
+</HTML>
+ 
+ 
+ 

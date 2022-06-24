@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: šber NetBIOS
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Das <B>Network Basic Input/Output System (NetBIOS)</B> ist das
+<A HREF="glossary/gls_protocols.html">Netzwerkprotokoll</A>,
+welches heutzutage von den meisten
+<A HREF="glossary/gls_lan.html">lokalen Netzwerken (LANs)</A>
+benutzt wird.
+ 
+<P>NetBIOS wurde von IBM fr die frhesten PC-Netzwerke geschrieben
+und dann von Microsoft bernommen. Seitdem ist es ein De-Facto-Industriestandard
+und wird von den meisten Betriebssystem, unter anderem &os2; und Microsoft Windows,
+untersttzt. Linux untersttzt NetBIOS ber die zus„tzliche Samba-Software.
+ 
+<P>Da die beiden Protokolle unterschiedlichen Zwecken dienen,
+bestehen mehrere Unterschiede zwischen &link_tcpip; und NetBIOS, sowohl
+was die Systemschnittstellen betrifft als auch wie der Benutzer mit den
+Protokollen umgeht. TCP/IP dient prim„r dazu, globale Netzwerke wie
+das &link_internet; zu versorgen, w„hrend NetBIOS in LANs eine h”here
+Leistung bringt. Deswegen werden auf den meisten Rechnern beide Protokolle
+installiert.
+ 
+<UL><LI>NetBIOS weist den Rechnern im Netzwerk keine statischen Adressen
+zu. Statt dessen tr„gt jeder Rechner einen Namen und exportiert die
+freigegebenen Ressourcen ebenfalls als Namen. Daher wird
+blicherweise ber den Rechner- und den Ressourcennamen auf Ressourcen
+zugegriffen.
+ 
+<P><LI>NetBIOS selbst stellt keinen Transport-Mechanismus zur
+Verfgung. Traditionell wird fr NetBIOS NetBEUI als Transportmechanismus
+benutzt, welcher automatisch mit der &os2;-Untersttzung fr NetBIOS
+installiert wird. Sie k”nnen jedoch mit
+"NetBIOS ber TCP/IP" auch ausw„hlen, daá TCP/IP als Transportmechanismus
+benutzt wird.
+ 
+<P><LI>Bei NetBIOS verwaltet das Betriebssystem selbst die Netzwerk-Ressourcen
+und kann so automatisch Standard-Dateizugriffe auf entfernte Rechner
+umleiten. Sie k”nnen z.B. einem NetBIOS-Namen einen Laufwerksbuchstaben
+zuweisen und auf den entfernten Rechner so zugreifen, als w„re er Bestandteil
+Ihres eigenen Rechners.
+ 
+</UL>&os2; wird mit dem
+&link_peer; geliefert, der es, wenn er installiert ist, erlaubt, Ressourcen
+fr Ihr LAN freizugeben und auf entfernte Ressourcen zuzugreifen.
+ 
+</BODY>
+</HTML>

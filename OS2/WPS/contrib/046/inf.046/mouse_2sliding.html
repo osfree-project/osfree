@@ -1,0 +1,65 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Glidande Fokus
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Klasser: XWPSetup, XWPMouse</B>
+<HR>
+&xwp;'s "glidande fokus" funktion „r v„ldigt lika den som erbjuds av m†nga andra
+PM hooks.
+
+<P>Grundl„ggande, betyder den h„r funktionen att tangentbordets inmatningsfokus alltid f”ljer
+muspekaren. Det betyder, att om du flyttar musen, kommer f”nstret under muspekaren att
+komma i fokus (vilket betyder att „ven rubrikraden kommer att g”ras aktiv).
+
+<P>Detta beteende „r v„ldigt vanligt hos olika f”nstermanagers som k”rs p† X-Window f”nstersystem
+och anv„nds p† m†nga versioner av UNIX, och Linux har ocks† „rvt det. Eftersom m†nga m„nniskor
+f”redrar detta beteende ocks† ihop med &os2; (inklusive jag sj„lv), har detta inkluderats i &xwp;.
+
+<P>Funktionen kan <B>konfigureras</B> i "Mus" objektet, vilket vanligen finns i din
+mapp "Systemkonfiguration". P† sidan med "R”relser" i det objektet, finns det †tskilliga inst„llningar.
+Tryck p† "Hj„lp" knappen p† den sidan f”r att komma underfund om mer.
+
+<P><B>Notera:</B> Sidan „r endast synlig om XWPMouse klassen „r installerad och &xwp; hook har 
+aktiverats i
+<A HREF="sys_1intro.html">"&xwp; Setup".</A>
+
+<P>Huvudf”rdelen med den h„r funktionen „r f”r det f”rsta, du beh”ver inte klicka p† ett f”nster
+f”r att kunna anv„nda tangentbordet med det. Ocks†, om du har avaktiverat "Flytta f”nster till ”verst"
+inst„llningen p† "Mus hook" sidan, kan du „ven skriva i ett f”nster utan att det „r det ”versta
+f”nstret, vilket „r om”jligt utan "Glidande fokus" funktionen. Det tar en stund att bli van vid detta, men
+det kan vara v„ldigt praktiskt n„r †tskilliga f”nster „r ”ppnade och du beh”ver kunna se ett f”nsters
+information medan du skriver i ett annat.
+
+<P><B>Noteringar</B>
+
+<OL><LI>Det finns inget s„tt att f† den h„r funktionen att fungera riktigt ihop med 
+<B>s”ml”sa &winos2; f”nster.</B> Den 16-bitars grafiska Windowsmotorn (Graphical Device Interface, GDI) „r 
+inte kapabel att skilja mellan ett "”versta" och ett "aktivt" f”nster; det antar helt enkelt att det ”versta 
+f”nstret alltid m†ste var det aktiva. Den begr„nsningen g„ller ocks† s”ml”sa &winos2; f”nster, vilka anv„nder den
+16-bitars grafiska Windowsmotorn internt.
+
+<P>Av det sk„let, finns det ingen speciell inst„llning p† "R”relser" sidan hos notboken
+med inst„llningar f”r "Mus" g„llande &winos2; f”nster. Du kan antingen best„mma att alltid
+ta fram &winos2; f”nstren till ”verst, eller att ignorera dom totalt. Det „r d„remot inte m”jligt
+att g”ra dom aktiva utan att flytta dom ”verst. Annars f†r du v„ldigt konstiga uppdateringsfel hos
+din sk„rm, d„rf”r att GDI inte skulle uppdatera ett aktivt  &winos2; f”nster i sin helhet „ven om andra 
+f”nster skulle finnas ovanp† (d„rf”r att det antar att det m†ste vare det ”versta f”nstret).
+
+<P>Naturligtvis, fullsk„rms &winos2; sessioner p†verkas inte av &xwp; p† n†got s„tt, d„rf”r
+att &xwp; PM hook inte samarbetar med &winos2; fullsk„rmssessioner.
+
+<P><LI>N„r <B>PM f”nsterlistan</B> (eller aktiva sessioner) visas p† sk„rmen, blir glidande fokus
+funktionen tillf„lligt avaktiverad. Detta „r n”dv„ndigt eftersom f”nsterlistan f”rsvinner automatiskt n„r den
+tappar tangentbordsfokus. Om glidande fokus inte skulle avaktiveras n„r f”nstret aktiva sessioner visas, skulle
+det bli v„ldigt sv†rt att g”ra n†gonting alls med f”nsterlistan n„r den visas, det skulle bli sv†rt att g”ra
+n†gonting ”verhuvudtaget med f”nsterlistan, d„rf”r att den skulle f”rsvinna om inte muspekaren befann sig ”ver den.
+
+</OL>
+</BODY>
+</HTML>
+
+

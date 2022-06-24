@@ -1,0 +1,708 @@
+
+XWORKPLACE V0.9.9 AND ABOVE (2001-04-17)
+========================================
+
+This file is no longer being maintained.
+
+To get a change log for the source code, run "createchangelog.cmd"
+from the main source directory. This will call xdoc.exe (which is
+in the xwphelpers repository as a binary) to produce a CHANGELOG
+file directly from the sources.
+
+To find out what has changed in the NLS resources, get GNU diff
+from LEO or Hobbes. Then run it against the various resource
+files (xfldr001.rc, .dlg, etc.).
+
+Before you run diff against the .dlg file, you should use
+tools\sortdlg.cmd to sort the various dialog templates because
+their order keeps changing (due to the way IBM's DLGEDIT
+rewrites dialog files).
+
+
+OLDER CHANGE REMARKS
+====================
+
+
+General Notes
+=============
+
+The following files change with practically every XWorkplace
+version:
+
+--  in /001/inf.001:
+    notices_41thanks.html
+    notices_42credits.html
+    vers_2history.html
+
+    Since I do not add version information to those files,
+    I therefore do not recommend translating those. Simply
+    always use the current English original.
+
+For all other source files for the HLP and INF files, I try
+to always add HTML comments ("<!-- ... -->") to signal what
+has changed in a source file. I recommend having some "grep"
+utility handy to be able to search for strings like "V0.9.0".
+\OS2\APPS\PMSEEK.EXE should do also.
+
+
+Changes for V0.9.9
+==================
+
+    -- ID_XSD_IMPORTWPS changed.
+    -- ID_XSD_FOLDERVIEWS changed.
+    -- ID_CRD_HEALTHWGT_SETTINGS added.
+    -- ID_XFD_RUN added.
+    -- ID_XFD_STARTUPPANIC changed.
+    -- ID_OSDI_PATHEDIT added.
+    -- ID_XCD_STATUS changed.
+    -- ID_CRD_SETTINGS_VIEW changed.
+    -- ID_CRD_SETTINGS_VIEW2 added.
+    -- ID_XFD_CREATINGCONFIG changed.
+    -- ID_XSD_DATAF_TYPES added.
+    -- ID_FND_SAMPLETEXT added.
+    -- ID_SCD_PAGEMAGE_GENERAL changed.
+    -- ID_XSD_STARTUPFOLDER changed.
+    -- ID_XSD_SET4ACCELS changed.
+
+
+Changes for V0.9.7
+==================
+
+    --  ID_CRD_SETTINGS_VIEW added.
+    --  ID_CRD_SETTINGS_VIEW2 added.
+    --  ID_CRD_WINLISTWGT_SETTINGS added.
+    --  ID_XSD_MOUSE_MOVEMENT changed.
+    --  ID_XSD_DTP_SHUTDOWN changed.
+    --  ID_XSD_AUTOCLOSE changed.
+    --  ID_SDD_CLOSEVIO changed.
+    --  ID_XSD_SET2REMOVEMENUS changed.
+    --  ID_XCD_XWPINSTALLEDCLASSES changed.
+    --  ID_XSD_DTP_MENUITEMS changed.
+    --  ID_NDD_EXPLAIN changed.
+    --  ID_XFD_STARTUPPANIC changed.
+
+
+Changes for V0.9.6
+==================
+
+    --  ID_XSD_FILETYPES modified.
+    --  ID_XSD_NEWFILETYPE modified.
+    --  ID_XSD_MOUSE_MOVEMENT modified.
+    --  ID_XCD_FIRST added.
+
+
+Changes for V0.9.4/V0.9.5
+=========================
+
+    --  ID_OSD_SETTINGS_DRIVERS modified.
+    --  ID_OSD_SETTINGS_HPFS removed.
+    --  ID_OSD_DRIVER_HPFS386 added.
+    --  ID_SCD_PAGEMAGE_GENERAL added.
+    --  ID_SCD_PAGEMAGE_NEWSTICKY added.
+    --  ID_SCD_PAGEMAGE_STICKY added.
+    --  ID_SDD_CONFIRM modified.
+    --  ID_SDD_CONFIRMWPS modified.
+    --  ID_XCD_FEATURES modified.
+    --  ID_XCD_XWPINSTALLEDCLASSES modified.
+    --  ID_XFD_CONTAINERPAGE modified.
+    --  ID_XFD_PRODINFO modified.
+    --  ID_XSD_DTP_SHUTDOWN modified.
+    --  ID_XSD_FOLDERVIEWS modified.
+    --  ID_XSD_MOUSEMAPPINGS2 modified.
+    --  ID_XSD_MOUSE_CORNERS modified.
+    --  ID_XSD_OBJECTDETAILS modified.
+    --  ID_XSD_SET28STATUSBARS2 modified.
+    --  ID_XSD_SETTINGS_FLDR1 modified.
+    --  ID_XSD_STARTUPFOLDER modified.
+    --  ID_XTD_ICONPAGE added.
+    --  ID_XTD_SETTINGS modified.
+
+
+Changes between V0.9.0 and V0.9.3
+=================================
+
+    Sorry, I have lost track about the changes in the dialog
+    resources. I guess more than 70% of the dialogs have
+    changed since XFolder 0.85, so it really doesn't make
+    much sense tracking the changes here for XWorkplace.
+
+
+Changes for V0.9.0
+==================
+
+    As the version number implies, this version is totally
+    incompatible with older NLS files, because many new dialog
+    resources have been added and others have changed.
+
+    I have held back all NLS changes so far to make the XFolder
+    0.8x NLS files compatible amongst each other. As a payback,
+    you get the complete mess this time. ;-)
+
+    I'm not sure whether the below information really helps
+    if you have already done a translation for XFolder 0.8x,
+    since so much has changed and I might have lost track
+    about one or two dialog resources. Decide for yourself
+    whether you prefer to follow those notes or do a complete
+    re-translation.
+
+    xfldr001.rc:
+        all changes are marked in the file directly.
+
+    xfldr001.dlg:
+        Again, unfortunately, there are no comments in the .DLG
+        file, because the damn thing is rewritten by IBM's dialog
+        editor (which I'm using) all the time. In order to update
+        your existing .DLG file, do the following:
+
+        1) Remove the following dlg templates:
+
+           -- ID_XSD_SET1XFOLDER ("XFolder")
+           -- ID_XSD_SET5INTERNALS ("XFolder Internals")
+           -- ID_XSD_SETTINGS_DTP1 (page 1 of "XDesktop")
+           -- ID_XSD_SETTINGS_DTP2 (page 2 of "XDesktop")
+           -- ID_XSD_SETTINGS_WPSCLASSES ("WPS Classes")
+           -- ID_XSD_SELECTCLASS ("WPS Classes")
+           -- ID_XSD_SETTINGS_WPSCL_REGISTER ("WPS Classes")
+           -- ID_XSD_SETTINGS_WPSCL_INFO ("WPS Classes")
+           -- ID_XSD_SETTINGS_FILEOPS ("File operations")
+
+        2) Copy the following _new_ dlg templates from the new
+           .DLG file into your existing one and translate them:
+
+           -- ID_OSD_SETTINGS_SYSPATHS  (for OS/2 Kernel)
+           -- ID_OSD_SETTINGS_STORAGE   (for OS/2 Kernel)
+
+           -- ID_XCD_STATUS             (for XWPSetup)
+           -- ID_XCD_PARANOIA           (for XWPSetup)
+           -- ID_XCD_FEATURES           (for XWPSetup)
+           -- ID_XCD_XWPINSTALLEDCLASSES (for XWPSetup)
+           -- ID_XCD_FILEOPS            ("File operations" in XWPSetup)
+
+           -- ID_XSD_DTP_SHUTDOWN       (for XFldDesktop)
+           -- ID_XSD_DTP_STARTUP        (for XFldDesktop)
+           -- ID_XSD_DTP_ARCHIVES       ("Archives" replacement page)
+           -- ID_XSD_DTP_MENUITEMS      ("Menu items" page in XFldDesktop)
+
+           -- ID_XSD_STARTUPFOLDER      (for XFldStartup)
+
+           -- ID_XLD_CLASSLIST          (for XWPClassList)
+           -- ID_XLD_CLASSINFO          (for XWPClassList)
+           -- ID_XLD_METHODINFO         (for XWPClassList)
+           -- ID_XLD_SELECTCLASS        (generic "select class" dlg)
+           -- ID_XLD_REGISTERCLASS      ("Register class" dlg)
+           -- ID_XLD_SETTINGS           (XWPClassList settings page)
+
+           -- ID_XSD_FOLDERVIEWS        ("View" page in XFldWPS)
+           -- ID_XSD_FILETYPES          ("File types" page in XFldWPS)
+           -- ID_XSD_NEWFILETYPE        ("New file type" dlg)
+           -- ID_XSD_NEWFILTER          ("New filter" dlg)
+           -- ID_XSD_IMPORTWPS          ("Import WPS filters" dlg)
+           -- ID_XSD_FILESPAGE          ("File" replacement page)
+           -- ID_XSD_DISK_DETAILS       (WPDisk "Details" replacement page)
+           -- ID_XSD_PROG_DETAILS       (WPProgramFile "Details" page)
+
+           -- ID_XSD_XWPSOUND           (WPSound "Sounds" replacement page)
+           -- ID_XSD_NEWSOUNDSCHEME     ("New Sound Scheme" dlg)
+
+           -- ID_XTD_SETTINGS           (XWPTrashCan settings)
+
+           -- ID_TSD_MAIN               (Treesize)
+           -- ID_TSD_PRODINFO           (Treesize)
+
+           -- ID_XFD_STARTUPPANIC       ("Startup panic" dlg)
+
+           -- ID_XFD_ARCHIVINGSTATUS    (Archiver status window at WPS bootup)
+
+           -- ID_XSD_KEYB_OBJHOTKEYS    ("Object hotkeys" page in XWPKeyboard)
+
+        3) CHANGE the following:
+           -- in ID_XSD_SETTINGS_FLDRSORT, remove the
+              ID_XSDI_REPLACESORT checkbox completely
+           -- in ID_XSD_REBOOTEXT, update ID_XSDI_XRB_ITEMNAME
+              and add ID_XSDI_XRB_PARTITIONS
+           -- All the "OS/2 Kernel" settings pages now have
+              ID_OS* IDs (instead of ID_XF*) to tell them apart
+              more easily.
+           -- ID_XFD_TITLECLASH: items have been rearranged,
+                and "KB" has been changed to "bytes".
+
+        4) The following have been completely redesigned:
+           -- ID_XFD_SELECTSOME         ("Select by name" dlg)
+           -- ID_SDD_CONFIRM            (XShutdown confirmation dlg)
+           -- ID_XSD_OBJECTDETAILS      (was object "Internals" page,
+                                         now called "Object" page)
+
+    xfldr001.hlp/inf:
+        Please do a global search-and-replace over all help pages
+        to replace "XFolder Online Reference" with "XWorkplace User Guide".
+        These changes are not specifically marked.
+
+        Other than that, many help panels have been updated because
+        they contained outdated information. All those changes are
+        marked, so search for "V0.9.0" to find these items.
+
+        Lots of pages have been added also. This is marked in the
+        sources also.
+
+    /TOOLS
+    ------
+
+        has been updated again. Don't forget to copy all those files
+        onto your PATH before using MAKE.CMD. See the "Programming
+        Guide" for details.
+
+    /HELPERS, /MAIN
+    ---------------
+
+        Yet again rearranged a lot of source code. In /helpers/, we
+        have some new files (cnrh.*, comctl.*, debug.*, except.*,
+        syssound.*, tmsgfile.*, wpsh.*) which are partly all new
+        and partly composed of code which was in /MAIN before.
+        See the file introductions for details.
+
+
+Changes for V0.85
+=================
+
+    xfldr001.inf:
+        not too many changes this time, except for the
+        new documentation of WPS boot logos.
+        As always, "grep" the new INF.001 directory for
+        "V0.85" strings, which should lead you to the
+        separate paragraphs which might have changed.
+
+    instl001.cmd: fixed a bug in line 49/50.
+
+
+Changes for V0.84
+=================
+
+    National Language Support
+    -------------------------
+
+    I have converted the various information in the NLS.TXT
+    and README.TXT files into a proper INF book and updated
+    lots of stuff. Please read through that thing and check
+    what's new.
+
+    Note: The files in /TOOLS have been partly updated.
+          Please use the newer versions.
+          HTML2IPF has been moved into a separate directory
+          in /001/TOOLS so that I can keep the different
+          NLS versions that you have created apart. The
+          makefiles in /INF.001 and HELP.001 have been
+          updated accordingly. The HTML2IPF environment
+          variable is no longer needed.
+
+    xfldr001.rc:
+        I have removed the xfldr1.ico and xfldr2.ico files.
+        Since the corresponding dlg id's are no longer defined
+        in dlgids.h, please remove the following two lines from
+        the top of xfldr001.rc:
+            POINTER ID_ICON1 LOADONCALL MOVEABLE DISCARDABLE xfldr1.ico
+            POINTER ID_ICON2 LOADONCALL MOVEABLE DISCARDABLE xfldr2.ico
+        or you'll get errors from the resource compiler.
+
+    xfldr001.inf:
+        As always, do a global search in the new INF.001
+        directory for "V0.84" strings, which should
+        lead you to the separate paragraphs which
+        might have changed. As always, I have marked
+        the changed items with HTML comments. You can
+        then update your translation.
+        Additional remarks can be found in the HTML
+        source files themselves.
+
+        Be aware that I've rearranged all the status bar
+        pages, because all the codes on that one page
+        were hard to overlook. The text really hasn't
+        changed much, except for two panels.
+        Do the following:
+        1)  copy and execute /001/ren084.cmd, which will rename
+            a couple of files and update links;
+        2)  remove the links as specified in 0632intro_folders.html;
+        3)  copy the new 0632intro_statbars.html to your translation
+            directory and update the "root" file (xfldr001.html);
+        4)  copy all the new stat_*.html files to your translation
+            directory; for the two files which are reported to exist
+            already, choose "rename existing" (if you're using the
+            XFolder replacement dialog);
+        5)  translate these files. These have been composed from the
+            the old status bar documentation, so there's little to
+            actually translate. You can simply copy your old
+            translations to the new files. See the notes in those files
+            for details.
+
+        Also, I have integrated the NetscDDE documentation into the
+        main INF file. Copy all nsd_* files into /inf.001 and also
+        netscape.gif.
+
+    xfldr001.hlp:
+        "set_11replicons.html" has been altered to reflect
+        the new icon features.
+
+    xfldr001.sgs:
+        two more pages were inserted into the SmartGuide script, as
+        suggested by Roger Lindmark, Sweden. Look for "V0.84" strings
+        again.
+
+    xfcls001.txt:
+        changed a few more class descriptions. See the
+        notes at the bottom of that file.
+
+
+    /MAIN
+    -----
+
+    Oh, just lots of stuff. Separated more files into more files
+    again, and lots of little changes. I was too lazy to document
+    all this any more.
+
+
+Changes for V0.83
+=================
+
+    National Language Support
+    -------------------------
+
+    xfldr001.inf:
+        I have rearranged the panels in the table
+        of contents to make the documentation a
+        bit clearer, because it was getting difficult
+        to overlook what was where. You will need to
+        change the following:
+
+        1) use the updated root file (xfldr001.html)
+           because the level-1 entries have changed;
+        2) put "/tools/strrpl.exe" on your PATH;
+        3) execute "/inf.001/ren083.cmd" on your
+           existing translation to have all your files
+           renamed and links updated automatically.
+           I have written this to aid you in the
+           process of rearranging the documentation;
+           this should also help for future updates,
+           because every time I change something, it
+           makes me feel bad since this is additional
+           work for you. ;-)
+
+        Then do a global search in the new INF.001
+        directory for "V0.83" strings, which should
+        lead you to the separate paragraphs which
+        might have changed. As always, I have marked
+        the changed items with HTML comments. You can
+        then update your translation.
+
+    /HELPERS
+    --------
+
+    -- new stringh.* files which contain all the
+       string helper functions previously located
+       in dosh.*, which didn't make much sense.
+       These funcs have the "strh*" prefix.
+
+    /MAIN
+    -----
+
+    Reworked xfldr.mak so that the /HELPERS .OBJ
+    files are created in /MAIN too. That's because
+    my other software uses the helper functions too,
+    and might need different compiler options for
+    them, so we need different .OBJ files. Also, this
+    makes the makefiles a bit clearer.
+
+    Also, there were a few false shaky compiler
+    options in the makefiles for V0.82, which made
+    XFolder refuse to work sometimes. That was just
+    if you tried to compile it for yourself.
+
+
+Changes for V0.82
+=================
+
+    National Language Support
+    -------------------------
+
+    Just a few corrections and additions. Note that
+    XFolder V0.82 will work with V0.81 NLS support,
+    so changing the following stuff is not required
+    to make V0.82 work.
+
+    xfcls001.txt:
+    --  added a few more class descriptions.
+
+    xfldr001.hlp:
+    --  I've updated a few help panels because they
+        contained outdated information. To update
+        your translations, see the notes for
+        xfldr001.hlp for V0.81 below.
+
+    xfldr001.inf:
+    --  Updated a panels here also.
+    --  Split up the "FAQ" section across several
+        pages and added more questions.
+
+    xfldr001.dlg:
+    --  first "Context menu" page had "Widerrufen"
+        and "Hilfe" buttons. That's German for "Undo"
+        and "Help", in case you didn't find out. ;-)
+        Changed this to the English counterparts.
+        (That's the ID_XSD_SET25ADDMENUS template
+        again.) This is just a bug in the English
+        support, so don't worry.
+    --  There was a slight bug in ID_XSD_SETTINGS_DTP1.
+        The "1.1" entry should have had an ID of
+        "ID_XSDI_SD_APMVERSION"; replace the "-1" with
+        that string.
+
+    /HELPERS
+    --------
+
+    -- procstat.*: changed all the function
+       prefixes to "prc".
+
+    -- eas.*: dramatic speed increase (up to
+       300%) for querying size of EAs for a file.
+
+    -- winh.*: new function winhAssertWarp4Notebook
+       to make buttons Warp-4-notebook compatible.
+
+    /MAIN
+    -----
+
+    Major changes to many files.
+    See the XFolder Revision history in the INF files.
+
+
+    Miscellaneae
+    ------------
+
+    repclass.c: made the text output a bit more lucid.
+
+    treesize.*: now using faster /helpers/eas.* code,
+        more options, etc. See "Revision history" in
+        the INF file.
+
+
+Changes for V0.81
+=================
+
+    National Language Support
+    -------------------------
+
+    Sorry, I promised not to change anything, but the
+    problems which have arised with V0.80 forced me
+    to redesign a number of things. Also, a few users
+    complained about outdated or incomplete help panels,
+    so I changed a number of those also.
+
+    If you are currently working on the translation
+    of XFolder to your language, don't worry. You won't
+    have to re-translate everything. See the notes
+    below.
+
+    HOWEVER, please mind the following notes, especially
+    because "main/dlgids.h" has changed.
+
+    *.ipf: I have removed these files from the source
+        package, because you can easily create them
+        yourself and I'm running out of web space.
+        Run "make.cmd" to have them created, if you
+        need them.
+
+    html2ipf.cmd: I have made more changes to that
+        excellent utility to make it more
+        HTML-compliant. I suggest using the newer
+        version. Put it on your PATH somewhere
+        See NLS.TXT for details.
+
+    xfldr001.hlp:
+        - reworked various menu-item help panels to
+          display additional information where this
+          menu item can be configured.
+        - changed help panels for "Context menu"
+          page, because that page has also changed.
+
+        To keep your existing translation efforts
+        intact, do the following:
+
+        1) open the _new_ HELP.001 directory (I
+           recommend using small icons)
+        2) sort everything by "last write date"
+        3) delete all the files that are older
+           than the release date of the old
+           XFolder source package, i.e. Oct. 1,
+           1998.
+        4) Copy all the files from the _old_ HELP.001
+           directory into the _new_ directory. When
+           the WPS asks you whether to replace a
+           file, always select "Cancel" for that
+           file so that it's not replaced.
+
+        As a result, you should now have an updated
+        HELP.001 directory. For the remaining files,
+        i.e. those which I have changed, look into
+        the .HTML files where I have inserted comments
+        about what has changed. Most of the time,
+        it's only one paragraph, so you can use your
+        translation and update it.
+
+        Sorry for the hassle.
+
+    xfldr001.inf:
+        - updated "Comments" page.
+        - combined "Known limitations" and "Tips&Tricks"
+          into a new and updated "FAQ" section. That is,
+          "vers_3limit.html" and "070tips.html" have
+          been removed. Instead, there's now "070faq.html".
+        - updated outdated link descriptions which
+          now refer to the "Workplace Shell" object.
+
+        Apply the same procedure as with the .HLP files
+        described above.
+
+    xfldr001.rc:
+        - one listbox item was still called "Insert",
+          but it should have been "Paste".
+
+    xfldr001.dlg:
+        - the "Add context menu items" page was
+          redesigned. It is at the very bottom of
+          the .DLG text file (ID_XSD_SET25ADDMENUS)
+
+        NOTE: If you have already translated parts of
+        the dialog resources, do not simply copy stuff
+        around and then open the .RES file with the
+        dialog editor, because the dlgids.h file has
+        changed. This will blow up all the dialog ID's,
+        rendering your NLS DLL unusable.
+
+        Instead, do the following:
+
+        1) delete the ID_XSD_SET25ADDMENUS dialog
+           template from your old .DLG file (all the
+           stuff between "DLGTEMPLATE ID_XSD_SET25ADDMENUS"
+           and the "END" statement on the same level)
+        2) copy the same template from the new .DLG file
+           to the bottom of your old .DLG file
+        3) copy the old .DLG file into the new \001
+           directory
+        4) re-make the NLS DLL to have the .RES file
+           updated.
+
+        You can _then_ open the .RES file with the
+        dialog editor.
+
+    dlgid's.h (in the \MAIN directory):
+        - changed a number of dialog ID's. This affects
+          the dialog templates, as described above.
+
+
+    Main Module
+    -----------
+
+    Looks like we have much more source code, but actually
+    we have less. ;-) I have added a lot more files though
+    and spread the code across these new files to make it
+    easier to find certain functions.
+
+    Check the new section in readme.txt about the new
+    function prefixes which will allow you to determine
+    the source file from the function name.
+
+    Also removed some dead code from all the files.
+
+    New source files:
+        - all the files in the new /HELPERS directory;
+          I have extracted the helper functions from the
+          various source files which should be possible
+          to compile without XFolder and put all these
+          in here. Check the header files for a
+          description of what these do.
+        - /main/menus.* for all the menu functions formerly
+          in xfldr.c
+        - /main/module.* for DLL initialization/termination
+        - /main/statbars.* for status bar mnemonic logic which
+          was previously done using SOM multiple inheritance
+
+    Renamed xfsort.* to cnrsort.* so that it does not
+    look like SOM code any more.
+
+    Renamed objdlgs.* to classlst.* and made it contain
+    only the "WPS class list" code.
+
+    all xf*.* files:
+        - SOM hierarchy changed
+        - multiple inheritance removed
+        - removed xfclsQueryModule methods and calls thereto
+          and replaced these with calls to the new module.c
+          functions
+
+    Replacement class XFldProgram removed.
+
+    common.*:
+        - moved animation code to /helpers/animate.*.
+        - moved XFldObject::xfCreateFromTemplate to
+          cmnCreateFromTemplate into this file; added
+          more error checking
+
+    classlst.h:
+        - changed all function prefixes to cls*.
+        - moved "Object Internals" to xfobj.c,
+          where it makes more sense
+
+    dlgids.h:
+        see NLS section below.
+
+    xfldr.c:
+        - removed several SOM methods.
+        - moved all the menu functions into the new
+          menus.c file.
+
+    xfdesk.c:
+        - changed all the animations to use the new
+          improved animation code in /helpers/animate.c.
+
+    xfdisk.c:
+        - changed those xfQuery* funcs to work on non-
+          removeable drives only.
+
+    xffsys.c:
+        - removed several SOM methods.
+        - moved all the "settings" menu functions into
+          the new menus.c file.
+
+    xfobj.c:
+        - removed several SOM methods.
+        - moved all the "settings" menu functions into
+          the new menus.c file.
+
+    xfsys.c:
+        - fixed a few bugs in CONFIG.SYS handling
+        - changed dlg* functions to stg*
+        - changed replaced WPSystem methods so that
+          XFldWPS now inherits WPSystem pages, while
+          XFldSystem ("OS/2 Kernel") does not.
+
+    xfldr.mak:
+        - inference rules updated (incomplete in V0.80).
+        - new dependencies on /helpers/helpers.mak.
+        - made icc produce separate precompiled header
+          files for each .C file.
+
+    xfldr.rc:
+        - removed that dull menu template which kept
+          XFolder from building properly.
+
+    install.cmd:
+        - deregistering old / registering new classes
+
+    inst*.msg:
+        - install *.msg files updated for this
+
+    crobj*.cmd:
+        - moved code for non-config-folder objects into
+          new scripts "instl*.cmd" which are only
+          executed after installation.
+
+
+

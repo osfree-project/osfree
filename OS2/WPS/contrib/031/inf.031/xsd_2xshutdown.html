@@ -1,0 +1,51 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Extended Shutdown
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Classes: XFldObject, XFldDesktop</B><HR>
+<!-- V0.9.0 -->
+One of the major features of &xwp; is to improve the shutdown procedure of &os2;.
+<P><B>Important note:</B> &xshutdown; is disabled per default in order to avoid
+confusion. You will need to enable &xshutdown; in the
+<!-- V0.9.0: changed the following -->
+new <A HREF="sys_2global.html">"&xwp; Setup" object</A>.
+<P>After enabling &xshutdown;, selecting "Shutdown" from the Desktop's context menu
+will start &xwp;'s shutdown procedure instead of &os2;'s standard shutdown.
+<P>After selecting "Shutdown", a dialog box similar to the following
+will pop up:
+<P><IMG SRC="shutdown2.gif">
+<P>The main new features of &xshutdown; are:
+<UL><LI>You can choose to <B>automatically reboot</B> your computer
+after shutdown has completed.
+<P>You may even
+create your own reboot options, e.g. reboot to a certain Boot Manager partition directly.
+This is explained in detail when you press the "Actions" button on page 1 of the
+"XDesktop" pages in the Desktop's settings notebook.
+<BR><LI>&xshutdown; can be <B>cancelled</B> even after shutdown has started.
+<BR><LI>&xshutdown; will display the progress of the shutdown procedure, and if some application
+"hangs", i.e. it cannot be closed, you can choose to <B>skip</B> it
+and continue the shutdown sequence without waiting for this application to close:
+<P><IMG SRC="shutdown.gif">
+
+</UL>The automatic reboot requires that DOS.SYS be installed through &cfgsys;. On Warp 4, this is done
+per default. On OS/2 Warp 3, you might need to add the following line to &cfgsys;:
+<P><CITE>DEVICE=X:\OS2\BOOT\DOS.SYS</CITE>
+<P>with X: being your OS/2 boot drive.
+<P>You can configure (and turn off) the eXtended Shutdown on a new settings page of the
+<A HREF="fldr_7settings.html">Desktop's Settings</A> notebook.
+
+<!-- V0.9.0: added the following -->
+<P>If you're interested in how &xshutdown; works internally, please see the
+<A HREF="further_2howxshutdown.html">respective page</A> in the "&xwp; Internals"
+chapter.
+<BR>
+</BODY>
+</HTML>
+
+

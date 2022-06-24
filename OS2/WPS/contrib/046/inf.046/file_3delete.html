@@ -1,0 +1,46 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Byta ut "Verklig Radering"
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3. -->
+<BODY>
+<B>Klasser: XFldObject</B><HR>
+
+Startande med V0.9.3, kan &xwp; byta ut den regulj„ra "radera" mekanismen hos Workplace Shell
+ocks†. Jag kallar detta "verklig radering", till skillnad fr†n att flytta objekt till
+papperskorgen. "Verklig radering" kommer att f”rst”ra objekten omedelbart utan n†gon chans att
+†terskapa.
+
+<P>"Verklig radering" kan ers„ttas genom att aktivera respektive inst„llningar p†
+sidan "Funktioner" i <A HREF="sys_2global.html">"&xwp; Setup" objektet.</A> Detta „r
+ocks† avaktiverat fr†n b”rjan.
+
+<P>J„mf”rt med WPS's raderingsoperationer, har &xwp;'s "verklig radering" ett antal f”rdelar.
+F”r det f”rsta, f†r du en snygg progresslist vilken visar dig skeendet hos raderingsoperationen.
+F”r det andra, n„r du raderar en mapp med m†nga sub-objekt, f†r du „ntligen en chans att 
+†ngra radering, vilket inte „r m”jligt med WPS. Jag har r†kat ut f”r detta ett antal g†nger...
+tryckt "Radera" tangenten ”ver en mapp av misstag, och 100 MB filer blir raderade, utan n†gon chans
+att avbryta. Ingen bra id‚.
+
+<P>Om "verklig radering" „r utbytt, kommer f”ljande aktioner att tas ”ver av &xwp;:
+
+<!-- V0.9.7: rewrote the following three paragraphs -->
+<UL><LI>Om &xwp;'s papperskorg „r aktiverad, kommer alla regulj„ra "radera" operationer
+fortfarande att g† till papperskorgen (som beskrevs p†
+<A HREF="file_2trashcan.html">f”reg†ende sida</A>), s† dom operationerna kommer inte
+att p†verkas.
+
+<P>Det kommer d„remot att p†verka "verklig radering" fr†n en kontextmeny (om du h†ller 
+ner "Shift" tangenten n„r du klickar p† kontextmenyposten "Radera") och "F”rst”r objekt"
+och "T”m papperskorgen" kommandona i sj„lva papperskorgen.
+
+<P><LI>Om &xwp;'s papperskorg inte „r aktiverad, kommer detta att p†verka alla WPS radera
+operationer (m.a.o. varje "Radera" kontextmenypost och "Delete" tangenttryckning).
+
+</UL>
+</BODY>
+</HTML>
+
+

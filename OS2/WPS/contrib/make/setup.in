@@ -1,0 +1,463 @@
+#
+# setup.in:
+#       this is included from all makefiles in the subdirectories
+#       (via the NMAKE !INCLUDE directive) to set up variables
+#       common to all makefiles.
+#
+
+# set up PROJECT_BASE_DIR, which is required by other
+# makefiles (and most importantly by xwphelpers)
+PROJECT_BASE_DIR = $(CVS_WORK_ROOT)\$(XWPDIR)
+# this should give us something like K:\cvs\xworkplace
+
+
+# HELPERS DIRECTORIES
+# -------------------
+
+# XWorkplace uses lots of generic OS/2 helpers code, which
+# I have developed over time. Since this code is shared with
+# WarpIN and other projects might want to use it too, this
+# has been extracted to a separate CVS archive. We assume
+# it's in the CVS tree also, so we derive this from $(CVS_WORK_ROOT).
+
+!ifndef HELPERS_BASE_DIR
+HELPERS_BASE_DIR = $(CVS_WORK_ROOT)\$(XWPHELPERSDIR)
+!endif
+
+!ifdef XWP_DEBUG
+PMPRINTF_LIB = $(HELPERS_BASE_DIR)\src\helpers\pmprintf.lib $(HELPERS_BASE_DIR)\src\helpers\wpsdebug.lib
+!else
+PMPRINTF_LIB =
+!endif
+
+MAKE_INCLUDE_DIR = $(HELPERS_BASE_DIR)\make
+
+
+!include $(MAKE_INCLUDE_DIR)\common.in
+
+
+# COMMON FILES
+# ------------
+
+BLDLEVEL_H = $(PROJECT_BASE_DIR)\include\bldlevel.h
+
+# Set the build type used by the rest of the process
+
+!ifdef XWPLITE
+BLD_TYP=lite
+!else
+BLD_TYP=full
+!endif
+
+# OUTPUT DIRECTORIES
+# ------------------
+
+# Unless you have specified an explicit path in
+# XWP_OUTPUT_ROOT from the environment, this
+# defaults to the bin\ subdir.
+
+!ifndef XWP_OUTPUT_ROOT
+XWP_OUTPUT_ROOT = $(PROJECT_BASE_DIR)\bin\$(BLD_TYP)
+!endif
+
+PROJECT_OUTPUT_DIR = $(XWP_OUTPUT_ROOT)
+
+# HELPERS_OUTPUT_DIR is where the xwphelpers
+# will write stuff to.
+HELPERS_OUTPUT_DIR = $(PROJECT_OUTPUT_DIR)
+
+# MODULESDIR is used for mapfiles and final module (DLL, EXE) output.
+# PROJECT_OUTPUT_DIR has been set by setup.in based on the environment.
+MODULESDIR=$(PROJECT_OUTPUT_DIR)\modules
+MAPDIR=$(MODULESDIR)
+#!if [@echo ---^> MODULESDIR is $(MODULESDIR)]
+#!endif
+!if [@md $(MODULESDIR) 2> NUL]
+!endif
+
+#!ifdef XWP_DEBUG
+#!if [@echo ---^> Debug build has been enabled.]
+#!endif
+#!else
+#!if [@echo ---^> Building release code (debugging disabled).]
+#!endif
+#!endif
+
+# create output directory
+!if [@md $(PROJECT_BASE_DIR)\bin 2> NUL]
+!endif
+!if [@md $(PROJECT_OUTPUT_DIR) 2> NUL]
+!endif
+!if [@md $(MODULESDIR) 2> NUL]
+!endif
+
+!ifndef XWPRUNNING
+!error in setup.in: You must set XWPRUNNING to an existing XWorkplace binary installation. See PROGREF.INF for details.
+!endif
+
+
+# DYNAMIC TRACE
+# -------------
+
+# If DYNAMIC_TRACE is set to your boot drive letter, we will
+# automatically generate TSF, TDF, and TFF files for the OS/2
+# TRACE facility and the trace formatter (TRACEFMT.EXE). The
+# TFF file will then be copied to $(DYNAMIC_TRACE):\os2\system\trace,
+# the TDF file will be copied to $(XWPRUNNING)\bin (where XFLDR.DLL
+# is also copied to).
+#
+# Note: This has only been tested with the most recent enhancements
+# to the trace facility (Warp 4 FP 10 or later). Comment out the
+# following statement if you run into trouble. Also, this takes
+# quite a bit of time at compile time and slows down execution also.
+
+# DYNAMIC_TRACE=F
+
+
+# NATIONAL LANGUAGE SUPPORT
+# -------------------------
+
+!ifndef XWP_LANG_CODE
+XWP_LANG_CODE = 001
+!endif
+
+# produce subdirectories
+
+XWPRELEASE_MAIN = $(XWPRELEASE)\$(BLD_TYP)\kernel
+XWPRELEASE_NLS = $(XWPRELEASE)\$(BLD_TYP)\$(XWP_LANG_CODE)
+XWPRELEASE_NLSDOC = $(XWPRELEASE)\$(BLD_TYP)\inf$(XWP_LANG_CODE)
+XWPRELEASE_MAP = $(XWPRELEASE)\$(BLD_TYP)\map
+
+
+# PRECOMPILED HEADERS
+# -------------------
+
+# The following is the directory for precompiled header files.
+# This is a feature of VAC++ 3.0 to speed up compilation.
+#
+# If the PRECH variable is defined (which should point to a
+# valid directory), precompiled headers will automatically be
+# enabled for all compilations. This dramatically speeds up
+# repetitive compilations (up to three times, especially with
+# the extremely complex SOM header files).
+#
+# If the PRECH variable is not defined, precompiled header files
+# will not be used. Uncomment the below statement if you have
+# trouble. This will work fine, but slower.
+#
+# I strongly recommend using a RAM disk for this. This makes sure
+# that the prech's won't use space on your disks forever.
+# I use RAMFS.IFS for the RAM disk, which is much more reliable
+# than OS/2's VDISK.SYS.
+# I have TEMP set to "R:\temp", which I create at each bootup
+# from CONFIG.SYS. VAC++ and the SOM compiler crash when specifying
+# a root directory (e.g. "R:\") as a temp/prech directory.
+#
+# Note that we create a _separate_ precompiled header file for each
+# source file (in the $(PRECH) directory). This eats up a lot
+# of space (I have about 70 MB after a complete XWorkplace build!!),
+# but makes sure that the precompiled header does not get recreated
+# for each source file, which is a lot faster.
+#
+# So be warned: if you have TEMP on a RAM disk, this better be
+# able to hold more than 30 MBs. If you're using a RAM disk, you
+# should have 128 MBs of RAM on your system, or otherwise you'll
+# only hear the swap file rattle.
+#
+# Here are compile times for "nmake -a compile" on the main makefile
+# (PII-400, 128 MB RAM, using RAMFS.IFS, code of 99-10-22):
+# -- without PRECH:     2:01 minutes
+# -- with PRECH:        1:08 minutes
+#
+# Decide for yourself. ;-)
+
+PRECH = $(TEMP)
+
+
+# INCLUDES
+# --------
+
+# Set the include path for the compiler.
+# This is only used from the subdirectories of SRC and TOOLS,
+# so the relative paths are relative to the respective
+# subdirectories (e.g. src\main, tools\strrpl).
+# We must include include\classes\ also because otherwise the
+# headers generated by the SOM compiler won't work.
+#
+# This does not modify INCLUDE, but defines a new variable,
+# which is passed to the compiler with the "CC" macros below.
+#
+# No need to change this. Change the variables above instead.
+#
+
+!ifndef TKBASE
+!error TKBASE is not defined.
+!endif
+
+!undef INCLUDE_TEMP1
+!ifdef DDKBASE
+INCLUDE_TEMP1=$(DDKBASE)\h;
+!endif
+
+#!undef INCLUDE_TEMP2
+#!ifdef SESBASE
+# SES defined:
+#INCLUDE_TEMP2=$(SESBASE)\h;
+#!endif
+
+!undef INCLUDE_TEMP3
+!ifdef LANHEADERS
+INCLUDE_TEMP3=$(LANHEADERS);
+!endif
+
+# @@changed V1.0.10 (2014-08-30) [pr]
+!undef INCLUDE_TEMP4
+!ifdef ACPITKBASE
+INCLUDE_TEMP4=$(ACPITKBASE)\h;
+!endif
+
+LIBC_HEADERS = $(VACBASE)\include
+
+# @@changed V1.0.9 (2011-09-05) [rwalsh]: added support for SMBASE
+# @@changed V1.0.9 (2012-02-20) [slevine]: added support for ACPITKBASE
+PROJECT_INCLUDE = $(PROJECT_BASE_DIR)\include\classes\wps;$(TKBASE)\h;$(SMBASE)\include;$(INCLUDE_TEMP3)$(LIBC_HEADERS);$(PROJECT_BASE_DIR)\include;$(PROJECT_BASE_DIR)\include\classes;$(HELPERS_BASE_DIR)\include;$(INCLUDE_TEMP1)$(INCLUDE_TEMP2)$(INCLUDE_TEMP4)
+
+
+# TOOLS SETUP
+# -----------
+
+RUN_FASTDEP = $(HELPERS_BASE_DIR)\fastdep.exe -f -cy -i .;$(PROJECT_INCLUDE) -o $(OUTPUTDIR)
+
+RUN_BLDLEVEL = cmd.exe /c $(CVS_WORK_ROOT)\$(XWPDIR)\tools\BuildLevel.cmd
+
+RUN_UNLOCK = $(CVS_WORK_ROOT)\$(XWPDIR)\tools\unlock.exe
+
+RUN_STRRPL = $(HELPERS_BASE_DIR)\strrpl.exe
+
+RUN_DCD = $(CVS_WORK_ROOT)\$(XWPDIR)\tools\dcd.cmd
+
+!ifndef ENTITYDEFS
+!ifdef XWPLITE
+ENTITYDEFS = entities_lite.h
+!else
+ENTITYDEFS = entities.h
+!endif
+!endif
+
+!ifdef XWPLITE
+XWPNAME = eWorkplace
+!else
+XWPNAME = XWorkplace
+!endif
+
+!ifndef RUN_H2I
+RUN_H2I = $(HELPERS_BASE_DIR)\h2i.exe
+!endif
+
+COPY = copy
+
+
+# INCLUDED FEATURES
+# -----------------
+
+# All makefiles react to a number of "features" environment variables,
+# that is, certain features will only be compiled/linked when their
+# corresponding environment variable is defined. The convention is that
+# each of these environment variables will #define __VARNAME__ on the
+# compiler command line so that the code can be conditionally compiled.
+
+ANIMATED_MOUSE_POINTERS_STRING =
+!ifdef ANIMATED_MOUSE_POINTERS
+ANIMATED_MOUSE_POINTERS_STRING = /D__ANIMATED_MOUSE_POINTERS__=1
+!endif
+
+REPLHANDLES_STRING =
+!ifdef REPLHANDLES
+REPLHANDLES_STRING = -D__REPLHANDLES__=1
+!endif
+
+XWPLITE_STRING =
+!ifdef XWPLITE
+XWPLITE_STRING = -D__XWPLITE__=1
+!endif
+
+# COMPILER OPTIONS
+# ----------------
+
+# Compiler macro. This is used for each .OBJ file to be created.
+# If the XWP_DEBUG environment variable was set to anything, we
+# will use debugging compiler options.
+# XWP_DEBUG is set by MAKE.CMD or above.
+#
+# No need to change this. Change the variables above instead.
+
+CC = error_in_makefile_do_not_use_CC_directly
+
+# CC_WARNINGS  = /w3 /Wcmp+ /Wcnd- /Wcns+ /Wcnv+ /Wgen /Wcns /Wcpy /Wobs /Word- /Wpro /Wrea /Wret /Wtru
+CC_WARNINGS  = /w3 /Wcmp+ /Wcnd- /Wcns+ /Wcnv+ /Wgen /Wcns /Wcpy /Wobs /Word- /Wpro /Wrea /Wret /Wtru
+# /Wuse+ /Wuni+
+
+# compiler options which are the same with debug and release code
+CC_SHARED    = icc $(ANIMATED_MOUSE_POINTERS_STRING) \
+$(REPLHANDLES_STRING) \
+$(XWPLITE_STRING) \
+/I$(PROJECT_INCLUDE) /c /gd- /gi+ /q+ /se /ss /g5 \
+# /DTCPV40HDRS
+# V0.9.9 (2001-01-29) [umoeller]: added /g5, finally
+
+!ifdef XWP_DEBUG
+# debug code
+# /tm+
+!ifdef ALLOW_INT3
+CC_INT3      = /D__INT3__=1
+!endif
+# 2011-11-30 SHL 3.6.5 does not support /ol
+!ifdef CXXMAIN
+!ifdef CPPMAIN
+!error Only one of CXXMAIN and CPPMAIN may be defined.  Please undefine the variable for the compiler you are not using.
+!endif
+CC_TEMP      = $(CC_SHARED) /o- /oi- /ti+ /D__DEBUG__=1 $(CC_INT3)
+!else
+CC_TEMP      = $(CC_SHARED) /o- /oi- /ol- /ti+ /D__DEBUG__=1 $(CC_INT3)
+!endif
+!else
+# release code
+# 2011-11-30 SHL 3.6.5 does not support /ol
+!ifdef CXXMAIN
+!ifdef CPPMAIN
+!error Only one of CXXMAIN and CPPMAIN may be defined.  Please undefine the variable for the compiler you are not using.
+!endif
+# V0.9.7 (2000-12-10) [umoeller]: added /tn+, or we won't get line numbers
+# in the map files for the release version...
+# @@changed V1.0.9 (2011-09-07) [rwalsh]: removed "/tn+" - mapsym doesn't
+# understand the way ilink formats line numbers so it doesn't include them
+# 2012-02-09 SHL restore /tn+ for now
+CC_TEMP      = $(CC_SHARED) /o+ /oi- /tn+
+!else
+CC_TEMP      = $(CC_SHARED) /o+ /oi- /ol- /tn+
+!endif
+!endif
+
+# DLL code (multi-threaded)
+CC_DLL_MT = $(CC_TEMP) /ge- /gm+ $(CC_WARNINGS)
+# DLL code (single-threaded, subsystem libraries)
+CC_DLL_SUBSYS = $(CC_TEMP) /ge- /rn $(CC_WARNINGS)
+# EXE code (multi-threaded)
+CC_EXE_MT = $(CC_TEMP) /ge+ /gm+ $(CC_WARNINGS)
+# EXE code (single-threaded)
+CC_EXE_ST = $(CC_TEMP) /ge+ /gm- $(CC_WARNINGS)
+
+# compiler options for XWorkplace helpers;
+# these are passed to the XWPHelpers makefiles
+CC_HELPERS_EXE_MT = $(CC_EXE_MT)
+CC_HELPERS_DLL    = $(CC_DLL_MT)
+# /NtHLPC32
+# V1.0.0 (2002-09-13) [umoeller]: wonderful. Tried to add /NtXWPHCODE32
+# to compile the helpers code into a code segment other than CODE32 to
+# avoid the SYM file overflow, but it crashes the compiler right away.
+
+# Some VisualAge C++ compiler options explained [default in brackets]:
+# /c:   compile only, no link (we'll call the linker explicitly)
+# /fi+: precompile header files                         [/fe-]
+# /g3|4|5: optimize for 386/486/Pentium                 [/g3]
+# /gd-: link runtime statically                         [/gd-]
+# /ge-: create DLL code                                 [/ge+]
+#           This switches between EXE and DLL initialization code
+#           for the .OBJ file. /ge+ is only needed when the object
+#           file contains a main() function. For libraries to be
+#           used either with EXE's or DLL's, use /ge+.
+# /gh+: generate profiling hooks for VAC profiler
+# /gi+: fast integer execution
+# /Gl+: remove unreferenced functions (when comp.+link in 1 step)
+# /gm+: multithread libraries
+# /gm+: disable stack probes (single-thread only!)
+# /kc+: produce preprocessor warnings
+# /o+:  optimization (inlining etc.)
+# /oi-: no inlining (?)
+# /ol+: use intermediate linker; do _not_ use with debug code
+# /q+:  suppress icc logo
+# /Re : don't use subsystem libraries (!= Rn)
+# /se:  all language extensions
+# /si+: allow use of precompiled header files
+# /ss:  allow double slashes comments in C too
+# /ti+: debug code
+# /tdp: compile everything as C++, even if it has a .C suffix
+# /tm:  use debug memory management (malloc etc.)
+# /tn:  add source line numbers to object files (for mapfile); a subset of /ti+
+# /Wcls: class problems
+# /Wcnd: conditional exprs problems (= / == etc.)
+# /Wcmp: possible unsigned comparison redundancies
+# /Wcns: operations involving constants
+# /Wcnv: conversions
+# /Wcpy: copy constructor problems
+# /Weff: statements with no effect (annoying)
+# /Wgen: generic debugging msgs
+# /Wobs: obsolete features
+# /Word: unspecified evaluation order
+# /Wpar: list non-referenced parameters (annoying)
+# /Wppc: list possible preprocessor problems (.h dependencies)
+# /Wpro: warn if funcs have not been prototyped
+# /Wrea: mark code that cannot be reached
+# /Wret: check consistency of return levels
+# /Wuni: uninitialized variables
+# /Wuse: unused variables
+# /w2:   produce error and warning messages, but no infos
+
+
+# LINK OPTIONS
+# ------------
+#
+# Link macro. This is used for final linking.
+# If we're supposed to do the release version, we'll turn
+# off debugging and optimize and pack the resulting files.
+#
+# No need to change this. Change the variables above instead.
+
+# @@changed V1.0.9 (2011-09-05) [rwalsh]: added support for SMBASE
+LIBDIRS = $(TKBASE)\lib\ $(SMBASE)\lib\ $(VACBASE)\lib\ 
+
+LINK_BASE = ilink /nologo /noe /map:$(MAPDIR)\$(@B).map /linenumbers $(LIBDIRS)
+
+!ifdef XWP_DEBUG
+LINK =  $(LINK_BASE) /debug
+LINK_ALWAYSPACK = $(LINK_BASE) /exepack:2
+!else
+LINK =  $(LINK_BASE) /optfunc /exepack:2
+LINK_ALWAYSPACK = $(LINK) /optfunc
+#/packcode /packdata
+# /optfunc
+!endif
+
+# Some LINK386 cmd line options
+# (Visual Age ILINK understands these too if /nofree is specified):
+# /align:  executable pages align factor (in bytes)
+# /noe:    no extended dictionary. Required for replacing _DLL_InitTerm.
+#          Can slightly increase executable's size.
+# /noi:    no ignore case (necc. for C)
+# /map:    list public symbols (create MAP file); we always need this,
+#          because we produce a .SYM file later.
+# /linenumbers: include linenumbers in MAP file
+# /nod:    no default library search (explicitly specify libs)
+# /nol:    no logo (link386 startup)
+# /packcode: group neighboring code segments (enabled per default)
+# /packdata: group neighboring data segments (disabled per default)
+# /debug:  include debug code
+# /optfunc: optimize code arrangement (takes some extra time)
+# /exepack:2 use Warp 3 executable compression
+
+
+# RESOURCE COMPILER
+# -----------------
+
+RCDEFS =
+!ifdef XWPLITE
+RCDEFS = -d __XWPLITE__
+!endif
+
+RC      = rc -p -x2 -n -i $(TKBASE)\h -i $(PROJECT_BASE_DIR)\include $(RCDEFS)
+# -x2
+# RC options:
+# -p       pack (64K boundaries)
+# -x2      Warp 3 compression
+# -n       no logo
+

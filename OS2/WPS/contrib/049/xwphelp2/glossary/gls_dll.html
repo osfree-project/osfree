@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dynamic Link Libraries (DLLs)
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+Eine dynamische Linkbibliothek <B>(dynamic link library, DLL)</B>
+ist eine besondere Art ausfhrbarer Datei, die Programmcode enth„lt,
+den sich mehrere Anwendungen teilen k”nnen.
+Solche Dateien besitzen blicherweise die Dateinamenserweiterung <CODE>.DLL</CODE>.
+ 
+<P>DLLs werden entweder mit dem Betriebssystem oder mit einer Anwendung
+geliefert. Der Systemcode von &os2; ist zu groáen Teilen ebenfalls in
+DLLs enthalten und befindet sich in dem Verzeichnis
+<CODE>OS2\DLL</CODE> auf dem Startlaufwerk.
+ 
+<P>"Dynamisches Linken" bedeutet, daá der Code in einer Datei nur geladen
+wird, wenn eine Anwendung ihn anfordert. Wenn der Code bereits auf
+Anforderung einer anderen Anwendung geladen wurde, wird er mitbenutzt.
+Dies hat mehrere Vorteile:
+ 
+<UL><LI>Mehrere Anwendungen k”nnen sich tats„chlich den Code einer DLL
+<b>teilen,</b> was Platz sowohl auf der Festplatte als auch
+im Hauptspeicher des Rechners spart.
+ 
+<P><LI>Anwendungen k”nnen <b>modular</b> geschrieben werden. Zum Beispiel
+kann die Sprachenuntersttzung (National Language Support, NLS) einer
+Anwendung in eine DLL ausgelagert werden. Auf diese Weise kann die
+Sprache einer Anwendung durch den bloáen Austausch einer einzigen
+Datei ge„ndert werden. DLLs k”nnen auáerdem die Pflege einer Anwendung
+erleichtern, da im Falle einer Fehlerbehebung nicht die gesamte Anwendung neu
+ausgeliefert werden muá.
+ 
+<P><LI>DLLs k”nnen dafr benutzt werden, um ganze <b>Subsysteme</b>
+zu entwickeln, die von mehreren Anwendungen genutzt werden sollen,
+da DLLs auch Daten fr mehrere Prozesse verwalten k”nnen. Dies macht
+den Datenaustausch leichter und ist auch der Hauptgrund, warum groáe
+Teile von &os2; selbst in DLLs enthalten sind.
+ 
+<P><LI>DLLs k”nnen benutzt werden, um eine Anwendung <b>erweiterbar</b>
+zu machen. Wenn eine Anwendung Erweiterungs-DLLs untersttzt,
+kann jedermann solche Erweiterungen schreiben, die sich dann in die
+Anwendung integrieren. Das beste Beispiel hierfr ist die Workplace Shell
+von &os2;, die durch Pakete von Drittherstellern aufgebohrt werden kann.
+Siehe <A HREF="glossary/gls_wpsclasses.html">"WPS-Klassen"</A> fr Details.
+Ein weiteres Beispiel ist das <A HREF="xcenter/xc_main.html">&xcenter;</A>,
+das durch Plug-In-DLLs erweitert werden kann.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

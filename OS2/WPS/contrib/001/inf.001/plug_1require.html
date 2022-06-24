@@ -1,0 +1,44 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Requirements
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+To write a plug-in DLL, you need to be familiar with the following:
+
+<OL><LI>The C programming language. There is no language support for the &os2;
+Pascal dialects at this point.
+
+<P><LI>Presentation Manager programming. A widget class is essentially a
+PM window class (see <A HREF="plug_2terminology.html">"Terminology"</A>).
+
+<P>If you haven't written a PM window class from scratch before, don't worry.
+The samples will guide you, and it isn't that difficult. If you know what
+a window procedure is, and if you know the difference between an owner and
+a parent window and <CODE>WinSendMsg</CODE> and <CODE>WinPostMsg</CODE>,
+you should be fine. Of course, the more you know, the better.
+
+<P><LI>You should know what a DLL is, when and why they are used, and why
+a DLL is not a process. ;-)
+
+</OL>Now for the good news: You do <I>not</I> need to know WPS and/or
+SOM programming, which should be a great relief to many contributors.
+
+<P>Also, you can use any C compiler you want. Even EMX/GCC should do.
+The only &xwp; code that is required are the headers that you are including,
+which now come with the &xwp; binary distribution (in the <CODE>toolkit</CODE>
+directory).
+
+<P>If you get lost, you can always download the
+<A HREF="notices_40source.html">complete &xwp; source code</A>,
+where you will find the source code for the standard plug-in DLLs which come
+with &xwp; (the window list and the clock and memory monitors), which show
+you in detail how it's done.
+
+<BR>
+</BODY>
+</HTML>
+
+

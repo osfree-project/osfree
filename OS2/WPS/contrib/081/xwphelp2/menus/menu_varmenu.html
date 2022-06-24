@@ -1,0 +1,88 @@
+<HTML RESID=&ID_XMH_VARIABLE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Variable Menu Items
+    </TITLE>
+</HEAD>
+<!-- Changes:
+    V0.9.16: replace XFolder with &xwp;
+-->
+<BODY>
+&xwp; allows you to add menu items globally to the &popmenu;s of all
+<!-- V0.9.19: link added -->
+&link_folders;
+on the system. You have just encountered one of those variable
+menu items.
+
+<P>See <A HREF="menus/menu_3config.html">Configuring &popmenu;s</A> for
+instructions about how to change the default setup with the use of the
+special &cfgfdr;.
+
+<IFNDEF __EWORKPLACE__>
+<P>If you still have
+the default menu configuration which was set up during installation,
+the following new menu items are available:
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+The standard content of the Desktop &popmenu; has the following variable menu items:
+</IFDEF>
+
+<UL>
+<!-- V0.9.20: rewrote command prompts -->
+<LI>The <B>"Command prompts" submenu</B> contains items for opening
+<A HREF="glossary/gls_cmd.html">command prompts</A>.
+If you select one of the items in this submenu, a command prompt
+will be shown with the directory that corresponds to the current folder
+already changed to.
+
+<P><LI>The <B>"Create new" submenu</B> contains items for creating new
+objects in the folder whose &popmenu; you have selected.
+<!-- V0.9.20: link name changed -->
+<P>See <A HREF="menus/menu_2template.html">"Creating objects with Create New"</A> for more.
+
+<!-- V0.9.20: added this section for eWP -->
+<IFDEF __EWORKPLACE__>
+<P><LI>The <B>"Folder actions" submenu</B> contains useful items for managing
+folders.
+
+<P><B>"Show treesize"</B> will start the <A HREF="treesize.html">Treesize</A>
+program, which calculates the total space consumed by this folder and all
+of its subfolders on disk.
+
+<P><B>"Pack tree (ZIP)"</B> will compress the folder and all of the contained
+subfolders and files into a ZIP file. The zip file will be created in the parent
+folder of the current folder and carry the folder's name with a <CODE>.ZIP</CODE>
+extension. For example, if you select "Pack tree (ZIP)" for the
+<CODE>C:\FOLDER\SUBFOLDER</CODE> folder, this will create
+a <CODE>C:\FOLDER\SUBFOLDER.ZIP</CODE> file.
+</IFDEF>
+<!-- end V0.9.20: added this section for eWP -->
+
+<IFNDEF __EWORKPLACE__>
+<P><LI>The <B>"Quick Settings" submenu</B> contains items with which you can
+quickly set certain folder properties without having to open its
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<BR><LI>The <B>"&xwp;" submenu</B> contains items for opening the
+<I>&xwp; User Guide</I>
+and the &cfgfdr;.
+Moreover, here you will find shortcuts to the new
+<!-- V0.9.4: link added -->
+&link_wpsobj;,
+which contains many &xwp; global settings, and the new "&os2; Kernel" object also.
+
+<!-- the following paragraph was added with V0.81 -->
+<BR><LI>The <B>"Treesize" menu item</B> will start a program which will calculate
+the total disk space used by this folder and its subfolders.
+<!-- V0.9.16: added this line -->
+See <A HREF="treesize.html">"Treesize"</A> for more explanations.
+
+<BR><LI>The <B>"Netscape" menu item</B> will start Netscape, having it display
+the directory of the folder whose &popmenu; you have selected.
+<!-- V0.9.20: moved this ifdef DOWN -->
+</IFNDEF>
+
+</UL>
+</BODY>
+</HTML>
+

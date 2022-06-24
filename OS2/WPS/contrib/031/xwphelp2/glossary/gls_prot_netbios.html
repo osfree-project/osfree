@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Over NetBIOS
+    </TITLE>
+</HEAD>
+<BODY>
+Het <B>Network Basic Input/Output System (NetBIOS)</B> is het
+<A HREF="glossary/gls_protocols.html">netwerk protocol</A> dat tegenwoordig
+door de meeste <A HREF="glossary/gls_lan.html">Local Area Networks (LAN's)</A>
+wordt gebruikt.
+
+<P>Het werd gemaakt door IBM voor zijn eerste PC Netwerk, werd overgenomen
+door Microsoft en is sindsdien een defacto industrie standaard geworden omdat
+het door de meeste besturingssystemen wordt ondersteund inclusief &os2; en
+Microsoft Windows. Linux ondersteund NetBIOS ook met de bijkomende Samba software.
+
+<P>Er zijn een aantal grote verschillen tussen  &link_tcpip; en NETBIOS, beide vanuit een
+systeem implementatie gezicht en de wijze waarop gebruikers met deze protocollen werken.
+Dit omdat de twee protocollen verschillende zaken ondersteunen: TCP/IP kan werken in een
+globaal netwerk zoals het &link_internet; terwijl NetBIOS de best presterende keuze in een
+klein LAN is. Daarom, zijn beide protocollen in de meeste computers ge‹nstalleerd
+
+<UL><LI>NetBIOS kent geen statische adressen toe aan computers in een netwerk.
+In plaats daarvan, draagt elke server in het netwerk een naam en exporteert de hulpbronnen
+die het deelt ook met die naam. Met als resultaat, de hulpbronnen in het netwerk worden
+typisch herkent door zowel de server als de naam van de hulpbron.
+
+<P><LI>NetBIOS stelt zelf geen transport mechanisme ter beschikking. Kenmerkend is, NetBIOS
+gebruikt NetBEUI als zijn transport mechanisme, dat automatisch ge‹nstalleerd wordt als u
+&os2; ondersteuning voor NetBIOS installeert. Echter, u kunt er ook voor kiezen om "NetBIOS over TCP/IP"
+te installeren om TCP/IP als transport mechanisme te gebruiken.
+
+<P><LI>Het besturingssysteem zelf ondersteunt toegang tot de netwerk hulpmiddelen door
+automatisch standaard bestand specificaties aan de externe computers toe te wijzen.
+B.v., u kunt een schijfletter aan een NetBIOS naam toe wijzen en toegang krijgen tot
+de hulpbron via de schijfletter en een bestandsnaam alsof het op uw eigen systeem stond.
+
+</UL>&os2; wordt geleverd met de &link_peer; dat, indien ge‹nstalleerd, het delen van
+hulpbronnen ondersteund met andere computers in uw LAN en bij gelegenheid toegang tot andere hulpbronnen.
+
+</BODY>
+</HTML>

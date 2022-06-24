@@ -1,0 +1,49 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Automatische Aktualisierung der Ordner ersetzen
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Klasse: XFldObject, XFolder</B><HR>
+ 
+Seit V0.9.9 kann &xwp; den automatischen Aktualisierungsmechanismus der Workplace Shell
+ersetzen.
+ 
+<P>Sie werden wahrscheinlich mit dieser Funktion der Workplace Shell vertraut sein.
+Wenn Sie einen Ordner ge”ffnet haben und Dateien in diesem Ordner von der
+Befehlszeile aus manipulieren, werden Sie sehen, daá die WPS auf magische
+Weise von diesen Modifikationen erf„hrt und den Ordnerinhalt automatisch
+aktualisiert.
+ 
+<P>Theoretisch ist dies eine groáartige Funktion, aber
+ihre Standardimplementation in der WPS unterliegt schwerwiegenden Einschr„nkungen.
+Am wichtigsten ist, daá die WPS exzessiv Dateisystem-Handles fr alle
+automatisch aktualisierten Objekte anlegt, wodurch die INI-Dateien unn”tigerweise
+vergr”áert werden. Beachten Sie, daá dies sogar geschieht, wenn sich
+die Anweisung <CODE>AUTOREFRESHFOLDERS=NO</CODE> in Ihrer &cfgsys;-Datei befindet.
+ 
+<P>&xwp; kann diesen ganzen Mechanismus nun ersetzen, wenn Sie die Ersetzung
+auf der Seite "Funktionalit„t" des
+<A HREF="sys_2global.html">Objektes "&xwp;-Konfiguration"</A> aktivieren.
+ 
+<P>Ist die Ersetzung aktiviert, verhindert &xwp; den Betrieb der internen WPS-Threads,
+die fr die automatische Aktualisierung der Ordner verantwortlich sind. Unter anderem
+verhindert dies die Erzeugung von Dateisystem-Handles. Statt dessen startet &xwp; eigene
+Threads, welche die Aktivit„t des Dateisystems berwachen und dann Ordner
+automatisch aktualisieren.
+ 
+<P>Beachten Sie, daá die Aktivierung und Deaktivierung der Ersetzung einen
+Neustart der WPS erforderlich macht, da &xwp; die Ersetzung nur vornehmen kann,
+w„hrend die WPS hochf„hrt.
+ 
+<P>Ist die Ersetzung jedoch erst einmal vollzogen und die WPS neu gestartet,
+k”nnen Sie die automatische Aktualisierung der Ordner auf der Seite "Anzeige"
+des Objektes "Workplace Shell" aktivieren und deaktivieren, ohne die WPS neu starten
+zu mssen.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

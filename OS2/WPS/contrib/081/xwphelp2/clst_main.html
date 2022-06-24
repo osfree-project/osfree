@@ -1,0 +1,96 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPSCLASSES;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Class List
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes for V0.9.0: this has almost completely been rewritten, since we have
+     a separate "WPS Classes" object now. -->
+The "WPS Class List" object shows you the complete WPS class list as a hierarchical tree,
+with lots of additional WPS and SOM information.
+Using this object, you may register and deregister WPS classes as well as replace and
+unreplace classes that have already been registered.
+
+<!-- V0.9.13: added these 2 lines -->
+<P>See <A HREF="glossary/gls_wpsclasses.html">"WPS classes"</A> for an introduction to
+what WPS classes are all about.
+
+<P><B>Warning:</B> The WPS Class List object allows you to make changes which will
+render your system unusable. If you don't know the meaning of a certain class,
+or if you don't know what WPS classes are good for altogether, you should <I>not</I>
+make any changes here. You can safely view all information, but you should not
+manipulate the WPS class list if you don't know exactly what you're doing.
+Many changes that this page allows will make your system unstable
+(if you're lucky) or will prevent the Workplace Shell from starting at all so that
+you might have to re-install &os2; altogether. <B>In any case, make sure that you
+have a made a WPS backup before changing anything.</B>
+
+<P>The class list window is split into three subwindows, whose separators may be moved
+using the mouse.
+
+<P>If you <B>select a class in the class tree on the left</B>,
+the two subwindows on the right
+will show you additional information about this class.
+
+<OL><LI>At the <B>top right,</B> you get WPS-related information, such as the class name,
+the default class title (as shown in the third column of a folder's
+Details view), and the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+which contains the class.
+<P>If this DLL is on the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>,
+in most cases no additional path will be shown.
+This applies especially to most WPS standard classes, which are
+contained in <CITE>\OS2\DLL\PMWP.DLL</CITE>.
+<P>Also, the "class default" icon is shown, which is usually hard-coded into the class.
+This is the icon which is displayed by default if no custom icon has been set for
+an object on the object's "Icon" notebook page.
+<P>In most cases, if the selected class is known to &xwp;'s author, you will
+also receive a short description of the class.
+
+<P><LI>At the <B>bottom right,</B> lots of method information is displayed which is
+retrieved directly from the SOM kernel (upon which the Workplace Shell relies to
+organize its classes). This information is probably only of interest for WPS
+programmers and pretty similar to the output of the fabulous "RWX" utility.
+<P>
+Depending on the selection at the top, this subwindow displays either all
+the instance methods or the class methods of the currently selected class.
+<P>For each method, you get the following <B>method information</B>
+(you might have to move the container's split bar to view all the fields):
+<BR><OL><LI><B>Method index.</B> This is used by SOM internally to quickly resolve
+methods according to method tables. This is the index at which the method is
+stored in the class's method table. Note that the same method does not necessarily
+have the same index in different classes.
+<P><LI><B>Method name.</B> Well, that's the method name.
+<P><LI><B>Address.</B> The procedure pointer that SOM has returned when the method
+was resolved. This pointer will differ for different classes
+if a class has overridden a method, of course.
+<P><LI><B>Class.</B> The class which introduced (first defined) the method.
+<P><LI><B>Overridden by.</B> A list of classes which have overridden this method.
+Note that only classes up to the currently selected class are shown. If any other
+descendant classes of the current class override this method, this is not shown.
+Select the descendant classes to view that information.
+
+</OL><BR>Note that you can <B>sort</B> the method information according to four
+different criteria for additional lucidity.
+Right-click in the title-area of the method display (where the column titles are),
+and you'll get a &popmenu; with the sort options.
+
+</OL>You can make <B>changes</B> to the WPS class list by using
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A>.
+Press mouse button 2 on any class name in the class tree, and a &popmenu; will
+appear, showing you the available options for this class.
+Certain options are disabled if &xwp; thinks that you should not make a certain
+change.
+
+<P>If you press mouse button 2 in an <B>empty area</B> of the left window, a different
+&popmenu; appears. This one allows you to register a new class.
+
+<BR>
+</BODY>
+</HTML>
+

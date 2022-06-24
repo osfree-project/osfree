@@ -1,0 +1,93 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Step 1: One Header Only
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+&xwp; now comes with a mini-widget sample (<CODE>toolkit\miniwdgt.c</CODE>)
+which contains an absolute minimum widget without any fancy functionality.
+All this widget does is display a question mark.
+
+<P>This mini widget was added to show you something to start with. It can definitely
+be improved. It does <I>not</I>
+
+<UL><LI>store any settings (not even font or color presentation parameters --
+see <A HREF="plug_52strings.html">step 2</A> for this);
+
+<P><LI>display tooltips (fly-over help -- see <A HREF="plug_53tooltips.html">step 3</A>
+for this);
+
+<P><LI>implement a settings dialog (see <A HREF="plug_55dialog.html">step 4</A> for this);
+
+</UL>At the very least, a plug-in DLL must do the following:
+
+<OL><LI>It must <B>export three procedures</B> by ordinal.
+
+<P><B>a)</B> The <B>"init"</B> export (ordinal 1) gets called once only by the &xcenter;
+when your DLL gets loaded. The DLL can get loaded in situations other than
+widget creation, so do not expect this to always be the case. On init, the
+DLL should register the widget's PM window class (by calling
+<CODE>WinRegisterClass</CODE>). In addition, it can import functions from
+<CODE>XFLDR.DLL</CODE>, whose module handle is given to it (this is optional).
+However, it must always return a pointer to the array of
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>
+structures in the DLL so that the &xcenter; knows about the classes in the DLL.
+
+<P>See <CODE>toolkit\miniwdgt.c</CODE> for how this is done.
+
+<P><B>b)</B> The <B>"uninit"</B> export (ordinal 2) gets called when the DLL is unloaded
+by the &xcenter;. This can do cleanup, if necessary.
+
+<P><B>c)</B> The <B>"query version"</B> export (ordinal 3) gets called even before the
+"init" export to check the &xwp; version number that this widget requires.
+
+<P><LI>The plug-in DLL must then contain a <B>PM window procedure</B> for the widget
+class. In the mini widget sample, this is the
+<CODE>fnwpSampleWidget</CODE> procedure. The "Init" export is reponsible for calling
+<CODE>WinRegisterClass</CODE> on that window procedure to create a PM window class
+from it.
+
+<P>This is the usual switch/case stuff that is used with every PM
+window procedure. There are a couple of extra considerations to be
+made though, which are explained below.
+
+<P><LI>On <CODE>WM_CREATE</CODE>, the widget <I>must</I> store the
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>
+pointer it receives with <CODE>mp1</CODE> in
+its <CODE>QWL_USER</CODE> window word. That's why the mini widget sample
+calls <CODE>WinSetWindowPtr(hwnd, QWL_USER, mp1);</CODE> on WM_CREATE.
+
+<P><LI>On <CODE>WM_CONTROL</CODE>, it should handle notifications from
+the &xcenter;. The &xcenter; will send <CODE>WM_CONTROL</CODE> messages to
+the widget when it wants to know the widget's size, for example.
+
+<P>The notification codes that the &xcenter; uses with <CODE>WM_CONTROL</CODE>
+are listed in <CODE>toolkit\center.h</CODE>. There will probably be more
+of them in the future.
+
+<P><LI>Normally, with PM, all unprocessed messages are forwarded to
+<CODE>WinDefWindowProc</CODE>. With widgets, this is different: you must
+always pass unprocessed messages to the "&xcenter; default widget procedure",
+whose address is given to your widget in the
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>
+structure on <CODE>WM_CREATE</CODE> in the <CODE>pfnwpDefWidgetProc</CODE>
+field. (Yes, this is the reason why you must
+store that structure in your window words.)
+
+<P>If you do not pass unused messages on, you will severely hurt the widget's
+functionality. Even worse, you will cause memory leaks because the default
+widget procedure is responsible for cleaning up resources and important
+&xcenter; notifications.
+
+<P><LI>Even if you do your own processing on <CODE>WM_DESTROY</CODE>, you
+must <I>always, always</I> pass <CODE>WM_DESTROY</CODE> on to
+<CODE>pfnwpDefWidgetProc</CODE>. Otherwise the &xcenter; cannot clean up your
+widget's resources properly.
+
+</OL>
+</BODY>
+</HTML>
+
+

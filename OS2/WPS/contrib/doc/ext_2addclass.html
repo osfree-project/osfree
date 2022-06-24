@@ -1,0 +1,97 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Adding a New Class
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This section describes what to do if you want to write some all new SOM WPS class,
+which should be integrated into the main XWorkplace DLL, and describe which files
+need to be changed to have your stuff compiled into the whole thing.
+
+<OL><LI>Most importantly, I suggest that you put all your code into a
+<B>separate source directory</B>
+in the XWorkplace <CODE>SRC\</CODE> and <CODE>INCLUDE\</CODE> directory trees.
+Please do not put your stuff into <CODE>SRC\FILESYS</CODE>,
+because this will make it pretty difficult to maintain order.
+For the purpose of explanations here, I will assume that your directory is
+called <CODE>SRC\YOURDIR\</CODE> and your class is called <CODE>XWPYourClass</CODE>.
+
+<P>So first of all, create your two subdirectories (<CODE>YOURDIR</CODE>) in
+<CODE>INCLUDE</CODE> and <CODE>SRC</CODE>.
+
+<P><LI>Create a new IDL file for your class. As a template, you can use
+<CODE>idl\__sample_dataf.idl</CODE>, which is a sample for a WPDataFile subclass.
+
+<P>Put your new IDL file into the <CODE>idl\</CODE> directory and modify the
+makefile in there to recognize your IDL file. That is, add your header file to
+the <CODE>all:</CODE> statement and add a corresponding line to the bottom.
+That's all. And please, add a comment that you did so.
+
+<P>For the purpose of clarity, I suggest that with your IDL file, you take one
+of the existing IDL files as a template. My IDL coding style has evolved during
+the last two years, and I now consider the comments etc. in there pretty lucid
+in order not to forget anything. Of course, if you have something better, go ahead.
+
+<P><LI>Run the main makefile once. The makefile in <CODE>idl\</CODE> will realize
+that a new <CODE>.IDL</CODE> file has been added and create headers in
+<CODE>include\classes\</CODE>, a <CODE>.DEF</CODE> file in idl\, and stub C code
+in <CODE>src\classes\</CODE>.
+
+<P><LI>Now that you have the stub C file in <CODE>src\classes,</CODE> modify the
+makefile in <CODE>src\classes</CODE> to compile your stub file as well. Add your
+file to the OBJS macro, and add dependency rules in the
+<CODE>$(OUTPUTDIR)\xxx.obj:</CODE> style to the bottom.
+Again, add a comment that you did so.
+
+<P><LI>In <CODE>SRC\YOURDIR\</CODE>, write your own makefile which compiles your
+sources. You can take the makefile in <CODE>SRC\FILESYS\</CODE> as a template. This
+makefile is pretty smart because it automatically recognizes whether it is called
+from the main makefile, and if not, it invokes the main makefile, which in turn
+will call the sub-makefiles later. Also, that makefile uses the general makefile
+include <CODE>setup.in</CODE> in the main directory for compiler setup etc.
+
+<P>Make sure that your makefile writes all <CODE>.OBJ</CODE> files into the
+<CODE>BIN</CODE> directory, which your makefile must create if it doesn't exist yet.
+Again, see how the makefile in <CODE>SRC\FILESYS</CODE> does this.
+
+<P>Other than that, in <CODE>SRC\YOURDIR</CODE>, do whatever you want.
+
+<P><LI><B>Coding.</B> For your C code, make sure that you get the <CODE>#include</CODE>'s
+right.
+Take a look at any C file in <CODE>SRC\FILESYS</CODE> for examples (<CODE>folder.c</CODE>
+is a good candidate, because it's fairly complex). If you use any headers from
+<CODE>include\shared\</CODE>, there are certain rules that you must follow, because
+these headers require other headers to be included already.
+<P>Also, I strongly recommend to <I>always</I> include <CODE>include\setup.h</CODE>,
+because this will automatically make your code PMPRINTF-enabled.
+<P>I don't care about your <B>coding style,</B> but if you want your code to be
+documented automatically, you should follow mine, because otherwise
+<CODE>xdoc.exe</CODE> won't work.
+See <A HREF="src1_4docs.html">Code documentation</A> for details.
+
+<P><LI>Note that the SOM compiler is unable to recognize that several
+classes should be put into the same DLL and create a common .DEF file for this
+purpose, so you have to do this manually.
+<P>So have the SOM compiler create a .DEF file for your class from your .IDL
+source file. (The makefile in <CODE>idl\</CODE> will do this automatically if you
+have added your header to the <CODE>all:</CODE> target.)
+<P>Then take the block below the <CODE>EXPORTS</CODE> line from the .DEF file
+and add it to the bottom of <CODE>src\shared\xwp.def</CODE> (which is the module
+definition file used for linking the whole XWorkplace DLL). These structures make
+the SOM kernel see your class in the DLL. If you don't do this, your class
+cannot be registered.
+
+<P><LI>Finally, take a look at <CODE>\makefile</CODE>. This is the "master makefile"
+which links all .OBJ modules into the main XWorkplace DLL (<CODE>XFLDR.DLL</CODE>).
+In that makefile, there is an <CODE>OBJS</CODE> macro which lists all the .OBJ files
+which are to be linked together.
+<P>Add your .OBJ file(s) to the end of that variable (and please, add a comment that
+you did so).
+
+</OL>This should work. If you have any questions, feel free to contact me.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Save INIs
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+With the "Save INIs" drop-down box, you can select how &xwp; should save
+your user and system profiles (by default: <CODE>OS2.INI</CODE> and
+<CODE>OS2SYS.INI</CODE>) on shutdown. This setting does not apply to Desktop restarts.
+
+<P>This setting has been added with V0.9.5 to fix the problems many users had
+during &xshutdown; with very large INI files (several megabytes). Unfortunately,
+the OS/2 profile (INI) functions have severe limitations dealing with very large
+files. It looks like these APIs run out
+of shared memory quite quickly.
+
+<P>For this reason, &xwp; has added its own set of functions which can save INI files
+to disk. As a result, you can now select how INIs should be saved:
+
+<UL><LI><B>"New method":</B> This will use the new profile functions which have
+been added to &xwp; with V0.9.5 for saving the INIs.
+These do not use shared memory, so the "save INIs" problems are less likely to occur.
+This is the recommended setting.
+
+<P><LI><B>"Old method":</B> This uses the &os2; profile functions. This is what was
+always used by XFolder and &xwp; before V0.9.5.
+<!-- V0.9.6: added these 2 lines -->
+This was know to cause problems with large INI files. See the "FAQ" section in the
+<I>&xwp; User Guide</I> for details.
+
+<P><LI><B>"Do not save INIs at all":</B> This doesn't save the INIs during shutdown.
+You will lose more recent system settings however during &xshutdown;,
+so use this only if none of the other methods work on your system.
+
+<P>&os2; dumps the INIs
+to disk automatically every few minutes, so you will lose all settings which have
+changed since the last automatic INI save. This is pretty
+much equivalent to pressing Ctrl-Alt-Delete, which will not save your INIs either,
+and affects all &os2; settings which are stored
+in the INI files (Desktop objects, fonts, colors, application settings). So use this
+setting with care.
+
+<P>By contrast, icon positions and other information stored in objects'
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">extended attributes</A>
+will be properly saved.
+
+</UL>
+</BODY>
+</HTML>
+

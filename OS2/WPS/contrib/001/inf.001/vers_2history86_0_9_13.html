@@ -1,0 +1,82 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.13
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.13 (July 6, 2001)</B>
+
+<P>New features:
+
+<UL><LI>&xcenter;: Added tray widgets, per popular request. Drag'n'drop doesn't
+quite work yet though.
+<P><LI>&xcenter;: Added "Spacing lines" setting to &xcenter; view styles.
+<P><LI>&xcenter;: Added drop support and in-use emphasis to object button widgets.
+<P><LI>&xcenter;: Added detailed system information to tooltips for pulse and sentinel
+widgets.
+<P><LI>OS/2 Kernel: Added new &cfgsys; memory settings to "Memory" page.
+<P><LI>OS/2 Kernel: Added support for driver dialog plugin DLLs. Configuration
+dialogs can now be added as plugin DLL to the plugins\drvdlgs directory without
+having to modify the XWorkplace sources.
+<P><LI>OS/2 Kernel: Added a new JFS.IFS dialog while I was at it.
+
+</UL><P>Miscellaneous changes:
+
+<UL><LI>General: All XWP message boxes now use the new shared code that was
+developed for WarpIN. Looks a bit nicer, in my view.
+<P><LI>General: Did quite a major overhaul of the documentation. Much information
+was moved from the User Guide to the various help pages that appear if you press
+"Help" in an object settings notebook. I find this more helpful because then the
+help is in the context of what you're doing. Also added more general explanations
+of some OS/2 and WPS concepts to the help file.
+<P><LI>Removed the temporary archive marker file that was previously used to check
+for whether a WPS archive was just restored. Thanks, Stefan Milcke.
+<P><LI>"Sort" menu: Per popular request, the menu is dismissed again, unless shift
+is held down while clicking or "always sort" or "folders first" were clicked on.
+<P><LI>"Multimedia" object: Device detection on page 1 was completely rewritten.
+Hopefully this fixes the system hangs some people experienced with buggy multimedia
+drivers. While I was at it, I added lots of information to the display.
+<P><LI>Font sample view: default window size was a bit small. Fixed, now using almost
+the whole screen.
+<P><LI>&xcenter;: Made some xwplog.log messages more verbose.
+
+</UL>Bugfixes:
+
+<UL><LI>General: Added lots of new checks for audio CDs in the library code. This should
+finally prevent the stupid white error boxes on Desktop startup, with the status bars
+in the "Drives" folder, and on disk double-clicks if an audio CD was inserted in a
+CD-ROM drive.
+<P><LI>General: Replaced internal binary tree implementation with a new one. The old
+one proved to balance wrongly if a certain tree size was reached. This should fix the
+"Object count mismatch" messages in xwplog.log on shutdown, among other things.
+<P><LI>"Sort" menu: Fixed confusion with check marks in certain situations.
+<P><LI>&xcenter;: "Add widget" menu never worked with sliding menus enabled. Fixed.
+<P><LI>&xcenter;: Paul Ratcliffe fixed the context menu font.
+<P><LI>&xcenter;: Fixed a memory leak on widget destruction.
+<P><LI>&xcenter;: Tooltips weren't managed properly for widgets that were just created
+or destroyed by the user. Fixed.
+<P><LI>&xcenter;: Fixed minor pointer change problem while settings dialog was displayed.
+<P><LI>System sounds: Changes in 0.9.13 caused &winos2; to complain that sound device
+was busy. Fixed, hopefully.
+<P><LI>"Snap to grid" page: Values for Y origin and Y spacing were confused. Fixed.
+<P><LI>Boot logos: "Undo" button on "Startup" page in desktop's settings notebook
+never restored the boot logo file setting, which could lead to trouble if your boss
+came into the office. Fixed; thanks, Steve Wendt, for pointing this out.
+<P><LI>&xshutdown;: daemon crashed during shutdown if hook wasn't active. Fixed.
+<P><LI>&xshutdown;: 0.9.12 code broke WM_SAVEAPPLICATION behavior for some apps. Fixed;
+went back to pre-0.9.12 code there.
+<P><LI>&xshutdown;: Shutdown thread kept marching even if an exception was currently
+being processed on another thread, which prevented the trap logs from being written.
+Fixed, shutdown thread is now waiting if an exception handler is running somewhere.
+<P><LI>&xshutdown;: Shutdown folder carried "Startup folder" in its progress window
+title. Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

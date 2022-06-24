@@ -1,0 +1,200 @@
+<HTML RESID=&ID_XSH_SETTINGS_HPFS;>
+<HEAD>
+    <TITLE>
+        &xwp;: FAT Settings
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     -- V0.81: Added /UL tag at bottom which was missing.
+     -- V0.9.2: changed title; also see notes below.
+-->
+On the <!-- V0.9.2: removed this: "HPFS" and -->
+"FAT" page of the object "&os2; Kernel" you may change the
+&cfgsys; settings which influence the
+<!-- V0.9.13: replaced the following -->
+FAT file system.
+
+<!-- V0.9.13: changed these 3 lines -->
+<P>For introductory information about file systems, select from the following list:
+<UL><LI><A HREF="glossary/gls_fs.html">File systems</A>
+<LI><A HREF="glossary/gls_caches.html">File-system caches</A>
+
+</UL>This help page will explain the different settings only and relate them to
+<!-- V0.9.7: changed the following -->
+the parameters of the <CODE>DISKCACHE</CODE> command in the &cfgsys; file.
+
+<!-- V0.9.7: replaced this
+If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective chapters
+of the &os2; Command Reference. -->
+
+<!-- V0.9.7: added this line -->
+<P>See the <A HREF="cmdref.inf#diskcache">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P>Press <B>"Apply"</B> to have the changes you've made written to the
+&cfgsys; file.
+This will only change the &cfgsys; lines which correspond to the settings on this
+page. The lines corresponding to the other pages in the "&os2; Kernel" object will
+not be changed.
+Please note that you will have to restart the computer to let the changes
+take effect. A Desktop restart does <I>not</I> suffice.
+<P>Press <B>"Optimize"</B> to have &xwp; propose you new settings according to
+your system characteristics.
+&cfgsys; will only be changed after you press "Apply" also.
+<P>Press <B>"Default"</B> to have the &os2; default settings displayed on the notebook
+page.
+&cfgsys; will only be changed after you press "Apply" also.
+
+<!-- V0.9.2: removed this
+On the "HPFS" page you will find a setting called "HPFS installed".
+If you do not have any HPFS drives, you can save several hundred KB of memory by
+deactivating this setting, which will not load the driver HPFS.IFS at
+system startup. If &xwp; has detected HPFS drives on your system, this setting
+is deactivated to prevent accidents.
+
+On both settings pages you'll find the following settings:
+
+
+and added the following line:
+-->
+
+<P>This page allows you to set the following FAT settings:
+
+<UL><LI><B>Cache size</B> determines how much KB of main memory will be reserved for
+the cache of the respective file system.
+This corresponds to the &cfgsys; parameter
+<!-- V0.9.2: removed this
+/CACHE:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+
+<CITE>DISKCACHE=xxx</CITE> for FAT drives.
+<!-- V0.9.20: rewrote this -->
+<P>The maximum cache size for FAT volumes is 14440 KB.
+
+<!-- V0.9.5: changed the following -->
+<P>You may request that &os2; <B>automatically</B> determine
+the cache size. In most cases, this will then result in about 10% of the installed
+memory, but in general, using this setting is not recommended.
+
+<!-- V0.9.5: moved the following text to a separate file -->
+<!-- V0.9.13: replaced this phrase and link -->
+<P>See <A HREF="glossary/gls_caches.html">"File-system caches"</A> for an introduction
+to file-system caches in general.
+
+<BR><LI>The setting <B>"Only cache files smaller than"</B> determines (in KB) the
+maximum size of objects that will be saved in the caches. This
+corresponds to
+<!-- V0.9.2: removed this
+the &cfgsys; parameter
+/CRECL:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+the second parameter in <CITE>DISKCACHE=xxx</CITE> for FAT
+<!-- V0.9.20: replace drives with volumes -->
+volumes.
+This setting is supposed to prevent large files which are usually only loaded once from
+clearing the whole cache.
+However, the default value of 4 KB is way too low. It is recommended to
+set these values for both file systems to 32 KB. (&xwp; will
+automatically convert the FAT value to the sector size that is expected in &cfgsys;.)
+
+<BR><LI>The <B>"Autocheck"</B> entry field
+corresponds to the
+<!-- V0.9.2: &cfgsys; parameter
+/AUTOCHECK:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and the -->
+
+<CITE>/AC:xxx</CITE> parameter in <CITE>DISKCACHE=xxx</CITE> for FAT
+<!-- V0.9.20: replace drives with volumes -->
+volumes.
+Here you can determine for which
+<!-- V0.9.20: replace drives with volumes -->
+volumes &os2; will automatically perform a
+<CITE>CHKDSK</CITE> at system startup.
+<P>Simply enter the respective drive letters here (without the trailing "<CITE>:</CITE>").
+&os2; will check each drive that you specify here at system startup if you have not
+shut down your system properly. If you specify a plus sign ("<CITE>+</CITE>")
+<I>before</I> a drive letter here, that drive will always be checked, which is not
+really preferrable.
+<P>Example: If you enter "<CITE>C+DE</CITE>", drive D: will always be checked, while
+C: and E: only if needed.
+
+
+<!-- V0.9.2: removed this
+
+For HPFS drives, the auto-check is absolutely necessary because accessing "dirty"
+HPFS partitions will result in system errors. You should enter all your
+HPFS drives here because &os2; will print error messages at startup otherwise. This
+applies especially to your boot drive, or &os2; will refuse to boot altogether if you
+forgot to shut down or the system crashed.
+For FAT drives, auto-check is not obligatory though.
+
+and added the following line: -->
+
+<P>As opposed to HPFS drives, for FAT <!-- V0.9.20: replace drives with volumes -->
+volumes, auto-checking is not required.
+
+<P>Press the <B>"Propose"</B> button to have all the <!-- V0.9.2: HPFS or -->
+FAT <!-- V0.9.20: replace drives with volumes -->
+volumes of your system
+added to the entry field.
+
+<BR><LI>The <B>"Lazy write"</B> setting determines whether &os2; is allowed to delay
+writing data to disk.
+<!-- V0.9.13: replaced the following with a link -->
+See <A HREF="glossary/gls_caches.html">"File-system caches"</A> for an explanation.
+
+<P>This setting corresponds to
+<!-- V0.9.2: the parameter
+/LAZY:x in the command RUN=?:\OS2\CACHE.EXE for HPFS drives
+and the parameter -->
+<CITE>LW</CITE> in the command <CITE>DISKCACHE</CITE> for FAT <!-- V0.9.20: replace drives with volumes -->
+volumes.
+By default, lazy writing is enabled.
+
+<!-- V0.9.2: removed all the following, which is related to HPFS caching only
+
+For HPFS drives you may influence lazy writing in a more detailed way.
+The following values all belong to the line RUN=?:\OS2\CACHE.EXE,
+which can optionally be written into &cfgsys; (and will always be written
+if you let &xwp; modify your &cfgsys;).
+
+The "Maximum delay" setting corresponds to the
+/MAXAGE:xxx parameter and determines the maximum time that data may be
+held back in the caches before
+it will be queued for being written to disk.
+The default value is 5.000 milliseconds; several sources recommend
+to raise this to more than 7.000 milliseconds.
+Since increasing this value also increases the
+risk of data loss, you should only set this value much higher if you never experience
+any system crashes. Note that if you shut down your system or press Ctrl+Alt+Del,
+all the cache buffers are written to disk, so there's no danger here. "System crashes"
+in this context mean complete system halts or power failures which will cause
+a CHKDSK at the next bootup.
+The "Cache idle time" and "Drive idle time" settings together
+determine the write delay in relation to drive activity. These settings
+correspond to the /BUFFERIDLE:xxx and /DISKIDLE:xxx
+parameters. There seems to be much confusion about these settings, and the explanation
+in the &os2; Command Reference really leaves you even more confused.
+The best explanation I've found for this is from
+IBM in the Toolkit documentation:
+
+When no disk request has been made for the time specified with "Drive idle time",
+i.e. a disk has not been accessed for that time, all cache blocks that
+have not been modified for the time specified with "Cache idle time"
+will we written to disk. As a result, raising
+these two numbers will increase the chance that redundant disk accesses can be avoided.
+
+Some sources recommend raising both of these values to as much as 60.000 milliseconds;
+however, IBM also recommends that the "Disk idle time" value be set greater than the
+"Cache idle time" value, which, in my view, makes sense, because otherwise some cache
+areas might not be written at all.
+The default values for these are 1000 and 500 milliseconds,
+respectively.
+-->
+
+</UL>
+</BODY>
+</HTML>
+

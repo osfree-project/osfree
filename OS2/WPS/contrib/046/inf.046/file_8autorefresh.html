@@ -1,0 +1,42 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Byta ut Auto-F”rnya Mappar
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Klasser: XFldObject, XFolder</B><HR>
+
+Startande med V0.9.9, kan &xwp; byta ut Workplace Shell's mekanism f”r auto-f”rnyelse
+av mappar.
+
+<P>Du „r troligtvis redan bekant med den h„r funktionen hos Workplace Shell. Om du har en mapp ”ppen
+och manipulerar filer i den mappen fr†n en kommandorad, kommer du att m„rka att WPS n„stan magiskt
+k„nner till modifieringarna och f”rnyar mapparna automatiskt.
+
+<P>Emedan detta „r en utm„rkt funktion i teorin, finns det allvarliga begr„nsningar hos
+standard implementationen av detta i WPS. Allra viktigast, WPS kommer att skapa ”verdrivna
+filsystemshandtag f”r alla objekt som skall auto-f”rnyas, vilket kommer att helt on”digt bl†sa
+upp dina INI filer. Notera att detta h„nder „ven om du har anv„nt 
+<CODE>AUTOREFRESHFOLDERS=NO</CODE> inst„llningen i din &cfgsys; fil.
+
+<P>&xwp; kan nu byta ut hela mekanismen om du har aktiverat den h„r ers„ttningen
+p† sidan "Funktioner" i <A HREF="sys_2global.html">"&xwp; Setup" objektet.</A>
+
+<P>Om ers„ttningen „r aktiverad, kommer &xwp; att hindra interna WPS tr†dar vilka „r
+ansvariga f”r mapparnas auto-f”rnyelse att k”ras. Bland annat, kommer detta att hindra filsystemshandtag
+fr†n att skapas. Ist„llet kommer &xwp; att starta sina egna tr†dar vilka kommer att monitorera filsystemets
+aktivitet och automatiskt f”rnya mapparna vid det tillf„llet.
+
+<P>Notera att som resultat, kr„ver aktivering eller avaktivering av ers„ttningen en omstart av
+Skrivbordet d„rf”r att &xwp; endast kan g”ra utbytet n„r WPS startas upp.
+
+<P>Emellertid, n„r v„l ers„ttningen har aktiverats och WPS startats om, kan du aktivera och avaktivera
+auto-f”rnyelse av mappar p† sidan "Visa" i "Workplace Shell" objektet utan att beh”va 
+starta om WPS.
+<BR>
+</BODY>
+</HTML>
+
+

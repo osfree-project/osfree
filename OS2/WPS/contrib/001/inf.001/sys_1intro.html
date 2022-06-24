@@ -1,0 +1,91 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduction
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Classes: XWPSetup, XFldWPS, XFldSystem, XWPClassList</B>
+<HR>
+<!-- V0.9.0: rewritten the following paragraph -->
+After &xwp; has been installed, you will find a number of new settings
+objects in your "System setup" folder. Also, most of the new &xwp; objects
+have some new settings pages too. This might seem a bit overwhelming at first,
+but I did try to follow a certain logic when implementing all the settings.
+<UL>
+<!-- the following two paragraphs are new with V0.9.0 -->
+<P><LI><IMG SRC="xwsetup.gif"> Starting with V0.9.0, &xwp; introduces a new global settings object called
+<B>"&xwp; Setup"</B>. This has a number of settings pages to monitor the status
+of some &xwp; internals, globally enable or disable the major &xwp;
+features that you might or might not be interested in, and some more troubleshooting
+settings.
+<P>Those items are explained in detail when you press the "Help" button on those
+new settings pages.
+
+<P><LI><IMG SRC="xfwps.gif"> The new <B>"Workplace Shell"</B> object contains those pages
+from the old "System" object which deal with the Workplace Shell only. I felt these
+are not really "System" settings and deserve a separate object.
+<P>&xwp; also adds most
+of its own settings pages here, because these mostly affect the Workplace Shell.
+This is described in more detail on the
+<A HREF="sys_2global.html">"Global Settings"</A> page in this reference.
+
+<!-- V0.9.0: remove this: In this object you will also find the "WPS Classes" page with
+which you may manipulate the WPS class list. You will find an introduction to WPS
+classes on a separate page -->
+
+<!-- the following paragraph is new with V0.9.0 -->
+<P><LI><IMG SRC="xclslist.gif"> There is another new object which contains the <B>"WPS Class List"</B>.
+This used to be on a settings page in the "Workplace Shell" object before &xwp;
+V0.9.0, but that page proved to be a bit small to get all the information in there.
+<!-- V0.9.13: removed link
+See <A HREF="sys_4wpsclasses.html">"The WPS Class List"</A> for more information. -->
+
+<P><LI><IMG SRC="xfsys.gif"> The new <B>"&os2; Kernel"</B> object contains those pages from
+the old "System" object which deal with &os2;'s internals, e.g. the "Screen" settings.
+<P>In this object you'll find several new settings pages to change a number of
+settings in the &cfgsys; file in the root directory of your boot drive. Since
+these settings are a bit hard to remember and since erroneous settings in this file
+might even lead to &os2; not booting any more, &xwp; tries to help you by setting
+this up automatically.
+<P>On each of these new settings pages, which will be explained in more detail
+on the following pages, you will find a button called "Update &cfgsys;" instead
+of the usual "Undo" and "Default" buttons. Pressing this button will cause the
+&cfgsys; file to be rewritten according to the settings you've changed.
+
+<P>The different settings are explained in great detail if you press the
+<B>"Help"</B> button on one of the settings pages.
+
+<!-- V0.9.13: removed all this
+Please read the following pages to obtain a general
+introduction of what these settings do with certain parts of the &os2; kernel:
+A HREF="sys_5scheduler.html"The &os2; Scheduler
+sys_6memory.html" &os2; memory management
+ File-system caches
+-->
+
+<!-- V0.9.3: added the following list point and the image -->
+<P><LI><IMG SRC="xwpscreen.gif"> The <B>"Screen"</B> settings object is new with V0.9.3
+and holds those settings pages from the old "System" object which deal with the screen.
+In addition, if you have <A HREF="06342intro_pagemage.html">&pgr;</A> enabled,
+several settings pages are inserted here as well to configure &pgr;.
+
+</UL>The <B>old "System" object</B> continues to work,
+in case other WPS enhancers try to
+insert anything into this object. Such extensions will also appear in the new
+"&os2; Kernel" object, which inherits the "System" characteristics.
+<P>Please note that you should not open the old "System" object and one of the new
+objects together to change settings. The settings pages are not prepared for this, and
+this might mess up the WPS settings.
+<!-- the following added with V0.9.0 -->
+<P>Additional settings pages can be found in the settings notebooks of each folder,
+the Desktop, the <A HREF="xsd_3folders.html">&xwp; startup folder</A>,
+and the <A HREF="file_2trashcan.html">&xwp; trash can</A>.
+
+<BR>
+</BODY>
+</HTML>
+
+

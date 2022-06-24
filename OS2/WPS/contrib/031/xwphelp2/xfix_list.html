@@ -1,0 +1,152 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: De Ingangen Lijst
+    </TITLE>
+</HEAD>
+<BODY>
+Bij het opstarten, laadt xfix de ingangen tabel uit de actieve
+<CODE>PM_Workplace:HandlesX</CODE> sectie in <CODE>OS2SYS.INI</CODE>.
+(Zie <A HREF="xfix_handles.html">Over WPS Bestandsingangen</A> voor details.)
+
+<P>xfix ontleedt dan de ingangen tabel.
+Voor iedere ingang die werd ontleed door xfix, wordt de volgende informatie door
+xfix afgebeeld in de kolommen van de xfix ingangen lijst:
+
+<OL><LI><B>"i"</B> is een getal dat groter wordt met iedere ingang die werd ontleed.
+Dit getal staat niet in <CODE>OS2SYS.INI</CODE> en wordt niet aangepast als u ingangen
+verwijderd.
+(Zie "Sorteren op index" in de <A HREF="xfix_menus.html">Handleiding menu opdrachten</A>.)
+
+<P><LI>De tweede kolom toont u de <B>status</B> van ieder ingang.
+Dit wordt door xfix toegewezen. Als xfix de ingang als OK beschouwt, is deze kolom leeg.
+
+<P>Direct na het opstarten, controleert xfix de ingangen op volledigheid.
+Het zal onmiddellijk ongeldige bron ingangen en dubbele ingangen vaststellen.
+Als u bestandsingangen als ongeldig gemarkeerd wilt hebben die niet langer verwijzen
+naar geldige bestandssysteem informatie, moet u eerst "Zoek ongeldige bestanden"
+uit het <A HREF="xfix_menus.html">"Akties" menu</A> uitvoeren.
+
+<P>Iedere ingangs ingang die iets heeft met deze kolom krijgt een grijze accentuering
+zodat u deze snel kunt zien. Als u "Selecteer alle ongeldige" vanuit het
+<A HREF="xfix_menus.html">"Selecteer" menu</A> selecteert, worden alle onderdelen automatisch voor
+u geselecteerd.
+
+<P><LI>Het <B>"Type"</B> veld is of <CODE>NODE</CODE> of <CODE>DRIV</CODE>.
+Als u <A HREF="xfix_menus.html">sorteer op index</A> kiest om de originele stand van zaken
+zoals in <CODE>OS2SYS.INI</CODE> te krijgen, ziet u dat er altijd een <CODE>DRIV</CODE>
+ingang is voor alle <CODE>NODE</CODE> ingangen die behoren bij dat station.
+Bovendien, er is altijd een extra <CODE>NODE</CODE> ingang voor de hoofd directory
+na het <CODE>DRIV</CODE> knooppunt, als er enige ingangen bestaan voor dat station.
+Ik weet niet waarom er een extra <CODE>DRIV</CODE> knooppunt is, maar ik denk dat de WPS het
+gebruikt als een interne markering om ingangen sneller te vinden.
+
+<P><LI>Het <B>"Knooppunt ofs"</B> veld laat de startwaarde zien waarop de ingang (het "knooppunt") werd
+gevonden in de ingangen tabel van <CODE>OS2SYS.INI</CODE>.
+De tabel start met 4 onderhouds bytes (waarvan de betekenis bij mij niet bekend is),
+dus de eerste ingang start op startwaarde 4.
+De lengte van iedere ingang hangt af van zijn korte naam (zie beneden)
+
+<P><LI>Het <B>"Ingangs"</B> veld komt vanuit het knooppunt in <CODE>OS2SYS.INI</CODE> en
+laat u de bestandssysteem ingang hexadecimaal zien, wat het lage woord van de objectingang
+van het corresponderende bestandssysteem object wordt (WPDataFile of WPFolder).
+Zie <A HREF="xfix_handles.html">Over WPS Bestandsingangen</A> voor details.
+
+<P>Er is geen duidelijke regel voor hoe ingangen worden toegewezen. Het schijnt dat
+wanneer nieuwe ingangen worden gemaakt, zij gewoon willekeurig een nummer krijgen dat nog
+niet gebruikt wordt.
+
+<P>Dit veld is leeg voor <CODE>DRIV</CODE> ingangen omdat deze nooit ingangen hebben.
+Nogmaals, klaarblijkelijk zijn <CODE>DRIV</CODE> knooppunten  alleen markeringen in de ingangsdata.
+
+<P><LI>Het <B>"Ouder"</B> veld is ook opgeslagen met het beginpunt in <CODE>OS2SYS.INI</CODE>
+en geeft de ingang aan van de map waarin het object (of een bestand of een andere map) zich
+bevindt.
+Dit is zeker geldig (uitgezonderd voor hoofd <CODE>NODE</CODE> ingangen, waar dit
+klaarblijkelijk 0 is).
+Als dat niet zo is, markeert xfix de ingang als "Ouderloos" en ongeldig omdat hij niet
+langer bruikbaar is.
+
+<P>De ouder ingang is van groot belang. De WPS kan niet het gehele
+<A HREF="glossary/gls_path.html">pad</A> opbouwen van een bestandsingang als de
+ouderingang niet geldig is. Zie hieronder voor hoe dat werkt.
+
+<P><LI>De "Korte naam" wordt opgeslagen in het ingangen blok en specificeert de naam
+van het bestandssysteem object zonder de volledige pad specificatie.
+De lengte van de bestandsnaam is variabel en is tevens de reden waarom iedere ingang
+een andere lengte heeft.
+
+<P>Normaliter, geeft de WPS de korte namen in hoofdletters weer. Echter, op mijn systeem,
+zijn enige ingangen toch in een gemengd lettertype. Ik heb geen idee of dit problemen
+kan veroorzaken.
+
+<P><LI>Het <B>"Kinderen"</B> veld wordt berekend door xfix terwijl het de
+ingangstabel ontleedt.
+Het specificeert hoeveel andere beginpunten afgaan op deze ingang omdat die nu is
+gespecificeerd als ouder beginpunt, of direct (zoals te zien is in het "Ouder" veld)
+of indirect (omdat er andere bronnen tussen zitten).
+
+<P>Als "Kinderen" 0 is, kunt u deze ingang verwijderen zonder andere ingangen te
+benadelen. (Dat houdt nog steeds niet in dat het altijd verstandig is om de ingang
+te verwijderen, omdat dit reflecties enz. kan verbreken. Zie
+<A HREF="xfix_delete.html">Verwijderen bestandsingangen</A>.)
+
+<P><LI>Het <B>"Dups"</B> veld wordt ook door xfix gemaakt en telt het aantal
+duplikaten van iedere ingang. <B>Dit kan beternul zijn voor iedere ingang.</B>
+Als dat niet zo is, zal de WPS snel worden 'opgeblazen'. Daarom geeft xfix
+de ingang dan de "Duplikaat" status en markeert hem als ongeldig.
+
+<P>Zie <A HREF="xfix_howto.html">Hoe kan ik...</A> voor meer over duplicaten.
+
+<P><LI>Het <B>"Refcs."</B> veld staat voor "Referenties" en vertelt u of
+deze ingang op dit moment wordt gebruikt door het <CODE>OS2.INI</CODE> bestand.
+
+<P>Als u <CODE>ABS</CODE> in dit veld ziet staan, betekent dat dat de ingang is
+opgenomen in de <CODE>PM_Abstract:FldrContent</CODE> sectie van <CODE>OS2.INI</CODE>.
+Deze sectie neemt de onbenoemde objecten op die in een map aanwezig zijn. M.a.w.,
+als u  <CODE>ABS</CODE> ziet, is het de ingang van een map die onbenoemde objecten bevat.
+
+<P>Als u <CODE>FPOS</CODE> ziet in dit veld, betekent dat dat de ingang is opgenomen
+in de <CODE>PM_Workplace:FolderPos</CODE> sectie.
+Deze sectie neemt al de posities van mappen op die ooit door de WPS zijn opgeslagen.
+Dus als u <CODE>FPOS</CODE> ziet, is de ingang van een map die reeds is geopend door
+de WPS en zijn positie is al opgeslagen.
+
+<P>Zie <A HREF="xfix_delete.html">Verwijderen bestandsingangen</A> voor problemen
+indien bestandsingangen worden verwijderd die die velden hebben ingevuld.
+
+<P><LI>De <B>"Lange naam"</B> toont u de volledige pad-specificatie van deze ingang,
+zoals die door de WPS wordt gedefinieerd. Merk op dat dit niet voorkomt in de beginpunt
+ingang in <CODE>OS2SYS.INI</CODE>... in de plaats van, dit toont de slimheid van het gehele
+bestandsingangen concept aan.
+
+<P>De wijze waarop dit werkt is als volgt, wanneer de WPS een volledige bestandsnaam
+van een object ingang nodig heeft (b.v. als een programma object is gestart en een
+uitvoerbare naam nodig is), kijkt het naar de ingang van het object in de tabel, die
+het de korte naam geeft (zoals getoont in de "Korte Naam" kolom).
+
+<P>De WPS kijkt naar de ouder referentie van deze ingang.
+Het kijkt op de ingang van de ouder referentie en kopieert de korte bestandsnaam
+van de ouder naar de huidige ingang.
+Het kijkt dan naar de ouder van de ouder... enz., totdat het hoofd kopppunt voor het station
+is bereikt. (Tenminste dit is hoe xfix de lange bestandsnaam opbouwd.)
+
+<P>Dit heeft verschillende voordelen:
+
+<BR><UL><LI>Alleen de korte naam hoeft in <CODE>OS2SYS.INI</CODE> te worden opgeslagen,
+wat ruimte spaart.
+
+<P><LI>Maar belangrijker is, dat het zeer effici‰nt werkt als bestanden en mappen worden
+verplaatst.
+In dat geval, zal alleen de bron referentie van het object moeten worden aangepast.
+Omdat alle sub-objecten van het onderdeel die verplaatst worden een bron referentie bevatten,
+is de volgende keer de volledige bestandsnaam nodig, die op correcte wijze met het nieuwe pad
+kan worden opgebouwd.
+
+<P>Daarom werken programma objecten nog steeds nadat mappen verplaatst zijn.
+
+</UL>
+</OL>
+</BODY>
+</HTML>
+

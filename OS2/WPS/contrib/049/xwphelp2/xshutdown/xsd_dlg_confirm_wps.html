@@ -1,0 +1,60 @@
+<HTML RESID=&ID_XSH_RESTARTWPS_CONFIRM;>
+<HEAD>
+    <TITLE>
+        Best„tigung fr "WPS neu starten"
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- all new with V0.9.19 -->
+<BODY>
+Im <B>Best„tigungsfenster</B>
+<IFNDEF __NOXSHUTDOWN__>
+(das angezeigt wird, wenn Sie Best„tigen im
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+der Arbeitsoberfl„che aktiviert haben)
+</IFNDEF>
+sind die folgenden Optionen verfgbar:
+ 
+<UL><LI>Sie k”nnen festlegen, ob &xwp; <B>alle Sitzungen</B> vor dem Neustart
+der WPS <B>schlieáen</B> soll. In diesem Fall wird &xwp; nicht nur die WPS-Fenster
+schlieáen, sondern auch alle anderen Programme.
+ 
+<IFNDEF __NOXWPSTARTUP__>
+<P><LI>Sie k”nnen auch festlegen, ob nach dem Neustart der Arbeitsoberfl„che
+&xwp; wieder <B>alle Systemstartordner abarbeiten</B> soll. Wenn dies aktiviert
+ist, wird &xwp; <I>s„mtliche</I> &xwp;-Systemstartordner abarbeiten, nachdem die
+Arbeitsoberfl„che wieder gestartet ist. Im Gegensatz dazu werden nur diejenigen
+Systemstartordner abgearbeitet, die die Option "Bei jedem Neustart der Arbeitsoberfl„che"
+in ihrem jeweiligen <A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+aktiviert haben, wenn diese Einstellung nicht aktiviert ist.
+ 
+<P><B>Hinweis:</B> Sie sollten diese Einstellung nur dann aktivieren, wenn Sie
+entweder "Alle Sitzungen schlieáen" aktiviert haben oder wenn Sie sicher sind, daá
+die Programme in den Systemstartordnern momentan nicht laufen, weil sie sonst
+zweimal gestartet werden k”nnten.
+ 
+<P>Diese Einstellung beeinfluát den normalen &os2;-Systemstartordner nicht. Dieser
+Ordner wird niemals nach einem Neustart der Arbeitsoberfl„che abgearbeitet.
+</IFNDEF>
+ 
+<P><LI>Wenn Sie <B>"Arbeitsoberfl„che einmal archivieren"</B> aktivieren,
+wird &xwp; die "Archivierung" einmal vor dem Neustart anschalten und wieder
+ausschalten, wenn die Arbeitsoberfl„che neu gestartet ist. Dies ist nur eine
+Abkrzung dafr, manuell die Archivierungsoption im
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+der Arbeitsoberfl„che zu aktivieren und sie danach wieder zu deaktivieren.
+ 
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<P><LI>Wenn Sie die Option <B>"Diese Nachricht beim n„chsten Mal anzeigen"</B> deaktivieren,
+wird der Best„tigungsdialog fr den erweiterten Systemabschluá und den Neustart
+der Arbeitsoberfl„che abgeschaltet. Sie k”nnen ihn auf
+der "&xshutdown;"-Seite im
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+der Arbeitsoberfl„che reaktivieren.
+</IFNDEF>
+</UL>
+ 
+</BODY>
+</HTML>
+ 

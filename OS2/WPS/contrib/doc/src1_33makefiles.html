@@ -1,0 +1,79 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Makefiles
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+The XWorkplace makefiles are quite smart, but therefore quite complex. This
+section is supposed to explain why I chose this approach and what the makefiles
+do exactly.
+
+<P>I redesigned the entire XWP sources structure with V0.9.0 and made some
+more changes with V0.9.12. The sources were supposed to be structured so that
+the following was possible:
+
+<UL><LI>Several developers must be able to cooperatively work on the sources. As
+a result, it must be possible for each developer to work on his own directory to
+avoid conflicts.
+
+<P><LI>Still, it should be possible to build the entire thing in one snap.
+
+<P><LI>Building the entire thing should even take place if a makefile from one of
+the subdirectories was called.
+
+<P><LI>The makefiles should be easily adjustable in case someone wants to use a
+different compiler.
+
+<P><LI>Clean separation of files which reside on the Netlabs CVS server from those
+which are created in the build process.
+
+<P><LI>Since the <A HREF="src1_5helpers.html">helpers</A> from the "xwphelpers"
+CVS archive
+are used, it must be possible to call the makefile in that directory, but still write
+the .OBJ files into the XWorkplace <CODE>bin\</CODE> directory.
+
+<P><LI>It should be possible to rebuild the executables (<CODE>XFLDR.DLL</CODE> and
+the <CODE>.EXE</CODE> files) and just restart the WPS for the changes to take effect.
+
+<P><LI>With V0.9.12, I was finally getting tired of always manually updating the
+makefile dependencies if <CODE>#include</CODE> statements were changed in the sources.
+So <CODE>nmake dep</CODE> support had to be introduced.
+
+</UL>As a result, I came up with the following:
+
+<UL><LI>A single configuration file which sets up all compiler and linker options.
+This is <CODE>setup.in</CODE> in the main directory, which is included from all
+makefiles via the <CODE>nmake</CODE> <CODE>!include</CODE> directive.
+
+<P><LI>System-dependent configuration (directories etc.) is done via another file,
+<A HREF="src1_32env.html">config.in</A>.
+
+<P><LI>The makefiles create all output files (.OBJ, .DLL, .EXE) in the <CODE>bin\</CODE>
+directory, which is created if it doesn't exist.
+
+<P>To rebuild the entire thing, one can simply delete the entire <CODE>bin\</CODE> tree.
+
+<P><LI>If the main makefile is started, it changes to the subdirectories and calls nmake
+again with <CODE>MAINMAKERUNNING=YES</CODE> defined. This way the sub-makefile knows that
+it's started from the main makefile. Otherwise the sub-makefile calls the main makefile
+(which in turn calls the sub-makefile) so that the entire thing always gets rebuilt.
+
+<P><LI>The sub-makefiles compile only. Linking is done by the main makefile. This way
+every executable can use shared code, such as the helpers.
+
+<P><LI><CODE>nmake dep</CODE> is supported through a new makefile in <CODE>src\</CODE>
+which calls all makefiles in the subdirectories of <CODE>src\</CODE> with either
+the "all" or the "dep" target. A "dep" target was then added to all the makefiles
+in <CODE>src\</CODE> which invokes <CODE>fastdep</CODE> on all C files to produce
+the <CODE>.depend</CODE> file... which is in turn included in the makefiles.
+
+<P>This invokes <CODE>fastdep.exe</CODE> from the XWP Helpers directory, which I stole from
+the Odin sources. fastdep was written by Knut Stange Osmundsen and
+creates a <CODE>.depend</CODE> file in each source directory
+with all the includes which are retrieved directly from the C sources.
+
+</UL>
+</BODY>
+</HTML>

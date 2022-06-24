@@ -1,0 +1,1484 @@
+
+ This file has the old string IDs from common.c, in case
+ anybody needs to look them up. This mechanism has been
+ completely replaced with V0.9.9 (2001-04-05) [umoeller].
+
+
+/* static LOADSTRING G_aStringIDs[] =
+    {
+        ID_XSSI_NOTDEFINED,
+                FIELDOFFSET(NLSSTRINGS, pszNotDefined),
+        ID_XSSI_PRODUCTINFO,
+                FIELDOFFSET(NLSSTRINGS, pszProductInfo),
+        ID_XSSI_REFRESHNOW,
+                FIELDOFFSET(NLSSTRINGS, pszRefreshNow),
+        ID_XSSI_SNAPTOGRID,
+                FIELDOFFSET(NLSSTRINGS, pszSnapToGrid),
+
+        ID_XSSI_FLDRCONTENT,
+                FIELDOFFSET(NLSSTRINGS, pszFldrContent),
+        ID_XSSI_COPYFILENAME,
+                FIELDOFFSET(NLSSTRINGS, pszCopyFilename),
+        ID_XSSI_BORED,
+                FIELDOFFSET(NLSSTRINGS, pszBored),
+        ID_XSSI_FLDREMPTY,
+                FIELDOFFSET(NLSSTRINGS, pszFldrEmpty),
+        ID_XSSI_SELECTSOME,
+                FIELDOFFSET(NLSSTRINGS, pszSelectSome),
+
+        ID_XFSI_QUICKSTATUS,
+                FIELDOFFSET(NLSSTRINGS, pszQuickStatus),
+
+        ID_XSSI_SV_NAME,
+                FIELDOFFSET(NLSSTRINGS, pszSortByName),
+        ID_XSSI_SV_TYPE,
+                FIELDOFFSET(NLSSTRINGS, pszSortByType),
+        ID_XSSI_SV_CLASS,
+                FIELDOFFSET(NLSSTRINGS, pszSortByClass),
+        ID_XSSI_SV_REALNAME,
+                FIELDOFFSET(NLSSTRINGS, pszSortByRealName),
+        ID_XSSI_SV_SIZE,
+                FIELDOFFSET(NLSSTRINGS, pszSortBySize),
+        ID_XSSI_SV_WRITEDATE,
+                FIELDOFFSET(NLSSTRINGS, pszSortByWriteDate),
+        ID_XSSI_SV_ACCESSDATE,
+                FIELDOFFSET(NLSSTRINGS, pszSortByAccessDate),
+        ID_XSSI_SV_CREATIONDATE,
+                FIELDOFFSET(NLSSTRINGS, pszSortByCreationDate),
+        ID_XSSI_SV_EXT,
+                FIELDOFFSET(NLSSTRINGS, pszSortByExt),
+        ID_XSSI_SV_FOLDERSFIRST,
+                FIELDOFFSET(NLSSTRINGS, pszSortFoldersFirst),
+
+        ID_XSSI_KEY_CTRL,
+                FIELDOFFSET(NLSSTRINGS, pszCtrl),
+        ID_XSSI_KEY_Alt,
+                FIELDOFFSET(NLSSTRINGS, pszAlt),
+        ID_XSSI_KEY_SHIFT,
+                FIELDOFFSET(NLSSTRINGS, pszShift),
+
+        ID_XSSI_KEY_BACKSPACE,
+                FIELDOFFSET(NLSSTRINGS, pszBackspace),
+        ID_XSSI_KEY_TAB,
+                FIELDOFFSET(NLSSTRINGS, pszTab),
+        ID_XSSI_KEY_BACKTABTAB,
+                FIELDOFFSET(NLSSTRINGS, pszBacktab),
+        ID_XSSI_KEY_ENTER,
+                FIELDOFFSET(NLSSTRINGS, pszEnter),
+        ID_XSSI_KEY_ESC,
+                FIELDOFFSET(NLSSTRINGS, pszEsc),
+        ID_XSSI_KEY_SPACE,
+                FIELDOFFSET(NLSSTRINGS, pszSpace),
+        ID_XSSI_KEY_PAGEUP,
+                FIELDOFFSET(NLSSTRINGS, pszPageup),
+        ID_XSSI_KEY_PAGEDOWN,
+                FIELDOFFSET(NLSSTRINGS, pszPagedown),
+        ID_XSSI_KEY_END,
+                FIELDOFFSET(NLSSTRINGS, pszEnd),
+        ID_XSSI_KEY_HOME,
+                FIELDOFFSET(NLSSTRINGS, pszHome),
+        ID_XSSI_KEY_LEFT,
+                FIELDOFFSET(NLSSTRINGS, pszLeft),
+        ID_XSSI_KEY_UP,
+                FIELDOFFSET(NLSSTRINGS, pszUp),
+        ID_XSSI_KEY_RIGHT,
+                FIELDOFFSET(NLSSTRINGS, pszRight),
+        ID_XSSI_KEY_DOWN,
+                FIELDOFFSET(NLSSTRINGS, pszDown),
+        ID_XSSI_KEY_PRINTSCRN,
+                FIELDOFFSET(NLSSTRINGS, pszPrintscrn),
+        ID_XSSI_KEY_INSERT,
+                FIELDOFFSET(NLSSTRINGS, pszInsert),
+        ID_XSSI_KEY_DELETE,
+                FIELDOFFSET(NLSSTRINGS, pszDelete),
+        ID_XSSI_KEY_SCRLLOCK,
+                FIELDOFFSET(NLSSTRINGS, pszScrlLock),
+        ID_XSSI_KEY_NUMLOCK,
+                FIELDOFFSET(NLSSTRINGS, pszNumLock),
+
+        ID_XSSI_KEY_WINLEFT,
+                FIELDOFFSET(NLSSTRINGS, pszWinLeft),
+        ID_XSSI_KEY_WINRIGHT,
+                FIELDOFFSET(NLSSTRINGS, pszWinRight),
+        ID_XSSI_KEY_WINMENU,
+                FIELDOFFSET(NLSSTRINGS, pszWinMenu),
+
+        ID_SDSI_FLUSHING,
+                FIELDOFFSET(NLSSTRINGS, pszSDFlushing),
+        ID_SDSI_CAD,
+                FIELDOFFSET(NLSSTRINGS, pszSDCAD),
+        ID_SDSI_REBOOTING,
+                FIELDOFFSET(NLSSTRINGS, pszSDRebooting),
+        ID_SDSI_CLOSING,
+                FIELDOFFSET(NLSSTRINGS, pszSDClosing),
+        ID_SDSI_SHUTDOWN,
+                FIELDOFFSET(NLSSTRINGS, pszShutdown),
+        ID_SDSI_RESTARTWPS,
+                FIELDOFFSET(NLSSTRINGS, pszRestartWPS),
+        ID_SDSI_RESTARTINGWPS,
+                FIELDOFFSET(NLSSTRINGS, pszSDRestartingWPS),
+        ID_SDSI_SAVINGDESKTOP,
+                FIELDOFFSET(NLSSTRINGS, pszSDSavingDesktop),
+        ID_SDSI_SAVINGPROFILES,
+                FIELDOFFSET(NLSSTRINGS, pszSDSavingProfiles),
+
+        ID_SDSI_STARTING,
+                FIELDOFFSET(NLSSTRINGS, pszStarting),
+
+        ID_XSSI_POPULATING,
+                FIELDOFFSET(NLSSTRINGS, pszPopulating),
+
+        ID_XSSI_1GENERIC,
+                FIELDOFFSET(NLSSTRINGS, psz1Generic),
+        ID_XSSI_2REMOVEITEMS,
+                FIELDOFFSET(NLSSTRINGS, psz2RemoveItems),
+        ID_XSSI_25ADDITEMS,
+                FIELDOFFSET(NLSSTRINGS, psz25AddItems),
+        ID_XSSI_26CONFIGITEMS,
+                FIELDOFFSET(NLSSTRINGS, psz26ConfigFolderMenus),
+        ID_XSSI_27STATUSBAR,
+                FIELDOFFSET(NLSSTRINGS, psz27StatusBar),
+        ID_XSSI_3SNAPTOGRID,
+                FIELDOFFSET(NLSSTRINGS, psz3SnapToGrid),
+        ID_XSSI_4ACCELERATORS,
+                FIELDOFFSET(NLSSTRINGS, psz4Accelerators),
+        ID_XSSI_5INTERNALS,
+                FIELDOFFSET(NLSSTRINGS, psz5Internals),
+        ID_XSSI_FILEOPS,
+                FIELDOFFSET(NLSSTRINGS, pszFileOps),
+
+        ID_XSSI_SORT,
+                FIELDOFFSET(NLSSTRINGS, pszSort),
+        ID_XSSI_SV_ALWAYSSORT,
+                FIELDOFFSET(NLSSTRINGS, pszAlwaysSort),
+
+        ID_XSSI_INTERNALS,
+                FIELDOFFSET(NLSSTRINGS, pszInternals),
+
+        ID_XSSI_XWPSTATUS,
+                FIELDOFFSET(NLSSTRINGS, pszXWPStatus),
+        ID_XSSI_FEATURES,
+                FIELDOFFSET(NLSSTRINGS, pszFeatures),
+        ID_XSSI_PARANOIA,
+                FIELDOFFSET(NLSSTRINGS, pszParanoia),
+        ID_XSSI_OBJECTS,
+                FIELDOFFSET(NLSSTRINGS, pszObjects),
+        ID_XSSI_FILEPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszFilePage),
+        ID_XSSI_DETAILSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszDetailsPage),
+        ID_XSSI_XSHUTDOWNPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszXShutdownPage),
+        ID_XSSI_STARTUPPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszStartupPage),
+        ID_XSSI_DTPMENUPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszDtpMenuPage),
+        ID_XSSI_FILETYPESPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszFileTypesPage),
+        ID_XSSI_SOUNDSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszSoundsPage),
+        ID_XSSI_VIEWPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszViewPage),
+        ID_XSSI_ARCHIVESPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszArchivesPage),
+        ID_XSSI_PGMFILE_MODULE,
+                FIELDOFFSET(NLSSTRINGS, pszModulePage),
+        ID_XSSI_OBJECTHOTKEYSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszObjectHotkeysPage),
+        ID_XSSI_FUNCTIONKEYSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszFunctionKeysPage),
+        ID_XSSI_MOUSEHOOKPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszMouseHookPage),
+        ID_XSSI_MAPPINGSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszMappingsPage),
+
+        ID_XSSI_SB_CLASSMNEMONICS,
+                FIELDOFFSET(NLSSTRINGS, pszSBClassMnemonics),
+        ID_XSSI_SB_CLASSNOTSUPPORTED,
+                FIELDOFFSET(NLSSTRINGS, pszSBClassNotSupported),
+
+        ID_XSSI_WPSCLASSES,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClasses),
+        ID_XSSI_WPSCLASSLOADED,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClassLoaded),
+        ID_XSSI_WPSCLASSLOADINGFAILED,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClassLoadingFailed),
+        ID_XSSI_WPSCLASSREPLACEDBY,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClassReplacedBy),
+        ID_XSSI_WPSCLASSORPHANS,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClassOrphans),
+        ID_XSSI_WPSCLASSORPHANSINFO,
+                FIELDOFFSET(NLSSTRINGS, pszWpsClassOrphansInfo),
+
+        ID_XSSI_SCHEDULER,
+                FIELDOFFSET(NLSSTRINGS, pszScheduler),
+        ID_XSSI_MEMORY,
+                FIELDOFFSET(NLSSTRINGS, pszMemory),
+        ID_XSSI_ERRORS,
+                FIELDOFFSET(NLSSTRINGS, pszErrors),
+        ID_XSSI_WPS,
+                FIELDOFFSET(NLSSTRINGS, pszWPS),
+        ID_XSSI_SYSPATHS,
+                FIELDOFFSET(NLSSTRINGS, pszSysPaths),
+        ID_XSSI_DRIVERS,
+                FIELDOFFSET(NLSSTRINGS, pszDrivers),
+        ID_XSSI_DRIVERCATEGORIES,
+                FIELDOFFSET(NLSSTRINGS, pszDriverCategories),
+
+        ID_XSSI_PROCESSCONTENT,
+                FIELDOFFSET(NLSSTRINGS, pszProcessContent),
+
+        ID_XFSI_SETTINGS,
+                FIELDOFFSET(NLSSTRINGS, pszSettings),
+        ID_XFSI_SETTINGSNOTEBOOK,
+                FIELDOFFSET(NLSSTRINGS, pszSettingsNotebook),
+        ID_XFSI_ATTRIBUTES,
+                FIELDOFFSET(NLSSTRINGS, pszAttributes),
+        ID_XFSI_ATTR_ARCHIVE,
+                FIELDOFFSET(NLSSTRINGS, pszAttrArchive),
+        ID_XFSI_ATTR_SYSTEM,
+                FIELDOFFSET(NLSSTRINGS, pszAttrSystem),
+        ID_XFSI_ATTR_HIDDEN,
+                FIELDOFFSET(NLSSTRINGS, pszAttrHidden),
+        ID_XFSI_ATTR_READONLY,
+                FIELDOFFSET(NLSSTRINGS, pszAttrReadOnly),
+
+        ID_XFSI_FLDRSETTINGS,
+                FIELDOFFSET(NLSSTRINGS, pszWarp3FldrView),
+        ID_XFSI_SMALLICONS,
+                FIELDOFFSET(NLSSTRINGS, pszSmallIcons  ),
+        ID_XFSI_FLOWED,
+                FIELDOFFSET(NLSSTRINGS, pszFlowed),
+        ID_XFSI_NONFLOWED,
+                FIELDOFFSET(NLSSTRINGS, pszNonFlowed),
+        ID_XFSI_NOGRID,
+                FIELDOFFSET(NLSSTRINGS, pszNoGrid),
+
+    // the following are new with V0.9.0
+        ID_XFSI_WARP4MENUBAR,
+                FIELDOFFSET(NLSSTRINGS, pszWarp4MenuBar),
+        ID_XFSI_SHOWSTATUSBAR,
+                FIELDOFFSET(NLSSTRINGS, pszShowStatusBar),
+
+    // "WPS Class List" (XWPClassList, new with V0.9.0)
+        ID_XFSI_OPENCLASSLIST,
+                FIELDOFFSET(NLSSTRINGS, pszOpenClassList),
+        ID_XFSI_XWPCLASSLIST,
+                FIELDOFFSET(NLSSTRINGS, pszXWPClassList),
+        ID_XFSI_REGISTERCLASS,
+                FIELDOFFSET(NLSSTRINGS, pszRegisterClass),
+
+        ID_XSSI_SOUNDSCHEMENONE,
+                FIELDOFFSET(NLSSTRINGS, pszSoundSchemeNone),
+        ID_XSSI_ITEMSSELECTED,
+                FIELDOFFSET(NLSSTRINGS, pszItemsSelected),
+
+    // Trash can (XWPTrashCan, XWPTrashObject, new with V0.9.0)
+        ID_XTSI_TRASHEMPTY,
+                FIELDOFFSET(NLSSTRINGS, pszTrashEmpty),
+        ID_XTSI_TRASHRESTORE,
+                FIELDOFFSET(NLSSTRINGS, pszTrashRestore),
+        ID_XTSI_TRASHDESTROY,
+                FIELDOFFSET(NLSSTRINGS, pszTrashDestroy),
+        ID_XTSI_TRASHCAN,
+                FIELDOFFSET(NLSSTRINGS, pszTrashCan),
+        ID_XTSI_TRASHOBJECT,
+                FIELDOFFSET(NLSSTRINGS, pszTrashObject),
+        ID_XTSI_TRASHSETTINGSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszTrashSettingsPage),
+        ID_XTSI_TRASHDRIVESPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszTrashDrivesPage),
+        ID_XTSI_ORIGFOLDER,
+                FIELDOFFSET(NLSSTRINGS, pszOrigFolder),
+        ID_XTSI_DELDATE,
+                FIELDOFFSET(NLSSTRINGS, pszDelDate),
+        ID_XTSI_DELTIME,
+                FIELDOFFSET(NLSSTRINGS, pszDelTime),
+        ID_XTSI_SIZE,
+                FIELDOFFSET(NLSSTRINGS, pszSize),
+        ID_XTSI_ORIGCLASS,
+                FIELDOFFSET(NLSSTRINGS, pszOrigClass),
+
+    // trash can status bar strings; V0.9.1 (2000-02-04) [umoeller]
+        ID_XTSI_STB_POPULATING,
+                FIELDOFFSET(NLSSTRINGS, pszStbPopulating),
+        ID_XTSI_STB_OBJCOUNT,
+                FIELDOFFSET(NLSSTRINGS, pszStbObjCount),
+
+    // Details view columns on XWPKeyboard "Hotkeys" page; V0.9.1 (99-12-03)
+        ID_XSSI_HOTKEY_TITLE,
+                FIELDOFFSET(NLSSTRINGS, pszHotkeyTitle),
+        ID_XSSI_HOTKEY_FOLDER,
+                FIELDOFFSET(NLSSTRINGS, pszHotkeyFolder),
+        ID_XSSI_HOTKEY_HANDLE,
+                FIELDOFFSET(NLSSTRINGS, pszHotkeyHandle),
+        ID_XSSI_HOTKEY_HOTKEY,
+                FIELDOFFSET(NLSSTRINGS, pszHotkeyHotkey),
+
+    // Method info columns for XWPClassList; V0.9.1 (99-12-03)
+        ID_XSSI_CLSLIST_INDEX,
+                FIELDOFFSET(NLSSTRINGS, pszClsListIndex),
+        ID_XSSI_CLSLIST_METHOD,
+                FIELDOFFSET(NLSSTRINGS, pszClsListMethod),
+        ID_XSSI_CLSLIST_ADDRESS,
+                FIELDOFFSET(NLSSTRINGS, pszClsListAddress),
+        ID_XSSI_CLSLIST_CLASS,
+                FIELDOFFSET(NLSSTRINGS, pszClsListClass),
+        ID_XSSI_CLSLIST_OVERRIDDENBY,
+                FIELDOFFSET(NLSSTRINGS, pszClsListOverriddenBy),
+
+                // "Special functions" on XWPMouse "Movement" page
+        ID_XSSI_SPECIAL_WINDOWLIST,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialWindowList),
+        ID_XSSI_SPECIAL_DESKTOPPOPUP,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialDesktopPopup),
+
+    // default title of XWPScreen class V0.9.2 (2000-02-23) [umoeller]
+        ID_XSSI_XWPSCREENTITLE,
+                FIELDOFFSET(NLSSTRINGS, pszXWPScreenTitle),
+
+    // "Partitions" item in WPDrives "open" menu V0.9.2 (2000-02-29) [umoeller]
+        ID_XSSI_OPENPARTITIONS,
+                FIELDOFFSET(NLSSTRINGS, pszOpenPartitions),
+
+    // "Syslevel" page title in "OS/2 kernel" V0.9.3 (2000-04-01) [umoeller]
+        ID_XSSI_SYSLEVELPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelPage),
+
+        ID_XTSI_CALCULATING,
+                FIELDOFFSET(NLSSTRINGS, pszCalculating),
+
+        ID_MMSI_DEVICETYPE,
+                FIELDOFFSET(NLSSTRINGS, pszDeviceType),
+        ID_MMSI_DEVICEINDEX,
+                FIELDOFFSET(NLSSTRINGS, pszDeviceIndex),
+        ID_MMSI_DEVICEINFO,
+                FIELDOFFSET(NLSSTRINGS, pszDeviceInfo),
+
+        ID_MMSI_TYPE_IMAGE,
+                FIELDOFFSET(NLSSTRINGS, pszTypeImage),
+        ID_MMSI_TYPE_AUDIO,
+                FIELDOFFSET(NLSSTRINGS, pszTypeAudio),
+        ID_MMSI_TYPE_MIDI,
+                FIELDOFFSET(NLSSTRINGS, pszTypeMIDI),
+        ID_MMSI_TYPE_COMPOUND,
+                FIELDOFFSET(NLSSTRINGS, pszTypeCompound),
+        ID_MMSI_TYPE_OTHER,
+                FIELDOFFSET(NLSSTRINGS, pszTypeOther),
+        ID_MMSI_TYPE_UNKNOWN,
+                FIELDOFFSET(NLSSTRINGS, pszTypeUnknown),
+        ID_MMSI_TYPE_VIDEO,
+                FIELDOFFSET(NLSSTRINGS, pszTypeVideo),
+        ID_MMSI_TYPE_ANIMATION,
+                FIELDOFFSET(NLSSTRINGS, pszTypeAnimation),
+        ID_MMSI_TYPE_MOVIE,
+                FIELDOFFSET(NLSSTRINGS, pszTypeMovie),
+
+        ID_MMSI_TYPE_STORAGE,
+                FIELDOFFSET(NLSSTRINGS, pszTypeStorage),
+        ID_MMSI_TYPE_FILE,
+                FIELDOFFSET(NLSSTRINGS, pszTypeFile),
+        ID_MMSI_TYPE_DATA,
+                FIELDOFFSET(NLSSTRINGS, pszTypeData),
+
+        ID_MMSI_DEVTYPE_VIDEOTAPE,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeVideotape),
+        ID_MMSI_DEVTYPE_VIDEODISC,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeVideodisc),
+        ID_MMSI_DEVTYPE_CD_AUDIO,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeCDAudio),
+        ID_MMSI_DEVTYPE_DAT,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeDAT),
+        ID_MMSI_DEVTYPE_AUDIO_TAPE,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeAudioTape),
+        ID_MMSI_DEVTYPE_OTHER,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeOther),
+        ID_MMSI_DEVTYPE_WAVEFORM_AUDIO,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeWaveformAudio),
+        ID_MMSI_DEVTYPE_SEQUENCER,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeSequencer),
+        ID_MMSI_DEVTYPE_AUDIO_AMPMIX,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeAudioAmpmix),
+        ID_MMSI_DEVTYPE_OVERLAY,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeOverlay),
+        ID_MMSI_DEVTYPE_ANIMATION,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeAnimation),
+        ID_MMSI_DEVTYPE_DIGITAL_VIDEO,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeDigitalVideo),
+        ID_MMSI_DEVTYPE_SPEAKER,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeSpeaker),
+        ID_MMSI_DEVTYPE_HEADPHONE,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeHeadphone),
+        ID_MMSI_DEVTYPE_MICROPHONE,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeMicrophone),
+        ID_MMSI_DEVTYPE_MONITOR,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeMonitor),
+        ID_MMSI_DEVTYPE_CDXA,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeCDXA),
+        ID_MMSI_DEVTYPE_FILTER,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeFilter),
+        ID_MMSI_DEVTYPE_TTS,
+                FIELDOFFSET(NLSSTRINGS, pszDevTypeTTS),
+
+        ID_MMSI_COLMN_FOURCC,
+                FIELDOFFSET(NLSSTRINGS, pszColmnFourCC),
+        ID_MMSI_COLMN_NAME,
+                FIELDOFFSET(NLSSTRINGS, pszColmnName),
+        ID_MMSI_COLMN_IOPROC_TYPE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnIOProcType),
+        ID_MMSI_COLMN_MEDIA_TYPE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnMediaType),
+        ID_MMSI_COLMN_EXTENSION,
+                FIELDOFFSET(NLSSTRINGS, pszColmnExtension),
+        ID_MMSI_COLMN_DLL,
+                FIELDOFFSET(NLSSTRINGS, pszColmnDLL),
+        ID_MMSI_COLMN_PROCEDURE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnProcedure),
+
+        ID_MMSI_PAGETITLE_DEVICES,
+                FIELDOFFSET(NLSSTRINGS, pszPagetitleDevices),
+        ID_MMSI_PAGETITLE_IOPROCS,
+                FIELDOFFSET(NLSSTRINGS, pszPagetitleIOProcs),
+        ID_MMSI_PAGETITLE_CODECS,
+                FIELDOFFSET(NLSSTRINGS, pszPagetitleCodecs),
+
+        ID_XSSI_PAGETITLE_PAGER,
+                FIELDOFFSET(NLSSTRINGS, pszPagetitleXPager),
+
+        ID_XSSI_XWPSTRING_PAGE,
+                FIELDOFFSET(NLSSTRINGS, pszXWPStringPage),
+        ID_XSSI_XWPSTRING_OPENMENU,
+                FIELDOFFSET(NLSSTRINGS, pszXWPStringOpenMenu),
+
+        ID_XSSI_COLMN_SYSL_COMPONENT,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelComponent),
+        ID_XSSI_COLMN_SYSL_FILE,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelFile),
+        ID_XSSI_COLMN_SYSL_VERSION,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelVersion),
+        ID_XSSI_COLMN_SYSL_LEVEL,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelLevel),
+        ID_XSSI_COLMN_SYSL_PREVIOUS,
+                FIELDOFFSET(NLSSTRINGS, pszSyslevelPrevious),
+
+        ID_XSSI_DRIVERS_VERSION,
+                FIELDOFFSET(NLSSTRINGS, pszDriversVersion),
+        ID_XSSI_DRIVERS_VENDOR,
+                FIELDOFFSET(NLSSTRINGS, pszDriversVendor),
+
+        ID_XSSI_FUNCKEY_DESCRIPTION,
+                FIELDOFFSET(NLSSTRINGS, pszFuncKeyDescription),
+        ID_XSSI_FUNCKEY_SCANCODE,
+                FIELDOFFSET(NLSSTRINGS, pszFuncKeyScanCode),
+        ID_XSSI_FUNCKEY_MODIFIER,
+                FIELDOFFSET(NLSSTRINGS, pszFuncKeyModifier),
+
+    // default documents V0.9.4 (2000-06-09) [umoeller]
+        ID_XSSI_DATAFILEDEFAULTDOC,
+                FIELDOFFSET(NLSSTRINGS, pszDataFileDefaultDoc),
+        ID_XSSI_FDRDEFAULTDOC,
+                FIELDOFFSET(NLSSTRINGS, pszFdrDefaultDoc),
+
+    // XCenter V0.9.4 (2000-06-10) [umoeller]
+        ID_XSSI_XCENTERPAGE1,
+                FIELDOFFSET(NLSSTRINGS, pszXCenterPage1),
+
+    // file operations V0.9.4 (2000-07-27) [umoeller]
+        ID_XSSI_FOPS_MOVE2TRASHCAN,
+                FIELDOFFSET(NLSSTRINGS, pszFopsMove2TrashCan),
+        ID_XSSI_FOPS_RESTOREFROMTRASHCAN,
+                FIELDOFFSET(NLSSTRINGS, pszFopsRestoreFromTrashCan),
+        ID_XSSI_FOPS_TRUEDELETE,
+                FIELDOFFSET(NLSSTRINGS, pszFopsTrueDelete),
+        ID_XSSI_FOPS_EMPTYINGTRASHCAN,
+                FIELDOFFSET(NLSSTRINGS, pszFopsEmptyingTrashCan),
+
+        ID_XSSI_ICONPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszIconPage),
+
+    // INI save methods V0.9.5 (2000-08-16) [umoeller]
+        ID_XSSI_XSD_SAVEINIS_NEW,
+                FIELDOFFSET(NLSSTRINGS, pszXSDSaveInisNew),
+        ID_XSSI_XSD_SAVEINIS_OLD,
+                FIELDOFFSET(NLSSTRINGS, pszXSDSaveInisOld),
+        ID_XSSI_XSD_SAVEINIS_NONE,
+                FIELDOFFSET(NLSSTRINGS, pszXSDSaveInisNone),
+
+    // logoff V0.9.5 (2000-09-28) [umoeller]
+        ID_XSSI_XSD_LOGOFF,
+                FIELDOFFSET(NLSSTRINGS, pszXSDLogoff),
+        ID_XSSI_XSD_CONFIRMLOGOFFMSG,
+                FIELDOFFSET(NLSSTRINGS, pszXSDConfirmLogoffMsg),
+
+    // "bytes" strings for status bars V0.9.6 (2000-11-23) [umoeller]
+        ID_XSSI_BYTE,
+                FIELDOFFSET(NLSSTRINGS, pszByte),
+        ID_XSSI_BYTES,
+                FIELDOFFSET(NLSSTRINGS, pszBytes),
+
+    // (2000-12-14) [lafaix] Resources page name
+        ID_XSSI_PGMFILE_RESOURCES,
+                FIELDOFFSET(NLSSTRINGS, pszResourcesPage),
+
+    // title of program(file) "Associations" page V0.9.9 (2001-03-07) [umoeller]
+        ID_XSSI_PGM_ASSOCIATIONS,
+                FIELDOFFSET(NLSSTRINGS, pszAssociationsPage),
+
+    // miscellaneous new strings with V0.9.9 (2001-03-07) [umoeller]
+        ID_XSSI_STYLEPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszStylePage),
+        ID_XSSI_CLASSESPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszClassesPage),
+        ID_XSSI_WIDGETSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszWidgetsPage),
+        ID_XSSI_ADDWIDGET,
+                FIELDOFFSET(NLSSTRINGS, pszAddWidget),
+        ID_XSSI_WIDGETCLASS,
+                FIELDOFFSET(NLSSTRINGS, pszWidgetClass),
+        ID_XSSI_WIDGETSETUP,
+                FIELDOFFSET(NLSSTRINGS, pszWidgetSetup),
+
+        ID_XSSI_FONTFOLDER,
+                FIELDOFFSET(NLSSTRINGS, pszFontFolder),
+        ID_XSSI_FONTFILE,
+                FIELDOFFSET(NLSSTRINGS, pszFontFile),
+        ID_XSSI_FONTFAMILY,
+                FIELDOFFSET(NLSSTRINGS, pszFontFamily),
+        ID_XSSI_FONTERRORS,
+                FIELDOFFSET(NLSSTRINGS, pszFontErrors),
+        ID_XSSI_FONTOBJECT,
+                FIELDOFFSET(NLSSTRINGS, pszFontObject),
+        ID_XSSI_CDPLAYERVIEW,
+                FIELDOFFSET(NLSSTRINGS, pszCDPlayerView),
+        ID_XSSI_CDPLAYER,
+                FIELDOFFSET(NLSSTRINGS, pszCDPlayer),
+        ID_XSSI_VOLUMEVIEW,
+                FIELDOFFSET(NLSSTRINGS, pszVolumeView),
+        ID_XSSI_VOLUME,
+                FIELDOFFSET(NLSSTRINGS, pszVolume),
+        ID_XSSI_ADMINISTRATOR,
+                FIELDOFFSET(NLSSTRINGS, pszAdministrator),
+        ID_XSSI_THREADSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszThreadsPage),
+
+        ID_XSSI_CLSLISTTOKEN,
+                FIELDOFFSET(NLSSTRINGS, pszClsListToken),
+
+        ID_XSSI_DRIVERVERSION,
+                FIELDOFFSET(NLSSTRINGS, pszDriverVersion),
+        ID_XSSI_DRIVERVENDOR,
+                FIELDOFFSET(NLSSTRINGS, pszDriverVendor),
+
+        ID_XSSI_FONTSAMPLEVIEW,
+                FIELDOFFSET(NLSSTRINGS, pszFontSampleView),
+        ID_XSSI_FONTDEINSTALL,
+                FIELDOFFSET(NLSSTRINGS, pszFontDeinstall),
+
+        ID_XSSI_KEYDESCRIPTION,
+                FIELDOFFSET(NLSSTRINGS, pszKeyDescription),
+        ID_XSSI_SCANCODE,
+                FIELDOFFSET(NLSSTRINGS, pszScanCode),
+        ID_XSSI_MODIFIER,
+                FIELDOFFSET(NLSSTRINGS, pszModifier),
+
+        ID_XSSI_DEFAULTSHUTDOWN,
+                FIELDOFFSET(NLSSTRINGS, pszDefaultShutdown),
+        ID_XSSI_INSTALLINGFONTS,
+                FIELDOFFSET(NLSSTRINGS, pszInstallingFonts),
+
+        ID_XSSI_PARAMETERS,
+                FIELDOFFSET(NLSSTRINGS, pszParameters),
+        ID_XSSI_CLOSE,
+                FIELDOFFSET(NLSSTRINGS, pszClose),
+
+        ID_XSSI_DROPPED1,
+                FIELDOFFSET(NLSSTRINGS, pszDropped1),
+        ID_XSSI_DROPPED2,
+                FIELDOFFSET(NLSSTRINGS, pszDropped2),
+
+        ID_XSSI_THREADSTHREAD,
+                FIELDOFFSET(NLSSTRINGS, pszThreadsThread),
+        ID_XSSI_THREADSTID,
+                FIELDOFFSET(NLSSTRINGS, pszThreadsTID),
+        ID_XSSI_THREADSPRIORITY,
+                FIELDOFFSET(NLSSTRINGS, pszThreadsPriority),
+        ID_XSSI_THREADSGROUPTITLE,
+                FIELDOFFSET(NLSSTRINGS, pszThreadsGroupTitle),
+
+        ID_XSSI_ARCRESTORED,
+                FIELDOFFSET(NLSSTRINGS, pszArcRestored),
+        ID_XSSI_ARCDAYSPASSED,
+                FIELDOFFSET(NLSSTRINGS, pszArcDaysPassed),
+        ID_XSSI_ARCDAYSLIMIT,
+                FIELDOFFSET(NLSSTRINGS, pszArcDaysLimit),
+        ID_XSSI_ARCINICHECKING,
+                FIELDOFFSET(NLSSTRINGS, pszArcINIChecking),
+        ID_XSSI_ARCINICHANGED,
+                FIELDOFFSET(NLSSTRINGS, pszArcINIChanged),
+        ID_XSSI_ARCINILIMIT,
+                FIELDOFFSET(NLSSTRINGS, pszArcINILimit),
+        ID_XSSI_ARCENABLED,
+                FIELDOFFSET(NLSSTRINGS, pszArcEnabled),
+        ID_XSSI_ARCNOTNECC,
+                FIELDOFFSET(NLSSTRINGS, pszArcNotNecc),
+
+    // new Module subpages V0.9.9 (2001-03-11) [lafaix]
+        ID_XSSI_PGMFILE_MODULE1,
+                FIELDOFFSET(NLSSTRINGS, pszModule1Page),
+        ID_XSSI_PGMFILE_MODULE2,
+                FIELDOFFSET(NLSSTRINGS, pszModule2Page),
+
+    // miscellaneous new columns headers V0.9.9 (2001-03-11) [lafaix]
+        ID_XSSI_COLMN_MODULENAME,
+                FIELDOFFSET(NLSSTRINGS, pszColmnModuleName),
+        ID_XSSI_COLMN_EXPORTORDINAL,
+                FIELDOFFSET(NLSSTRINGS, pszColmnExportOrdinal),
+        ID_XSSI_COLMN_EXPORTTYPE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnExportType),
+        ID_XSSI_COLMN_EXPORTNAME,
+                FIELDOFFSET(NLSSTRINGS, pszColmnExportName),
+        ID_XSSI_COLMN_RESOURCEICON,
+                FIELDOFFSET(NLSSTRINGS, pszColmnResourceIcon),
+        ID_XSSI_COLMN_RESOURCEID,
+                FIELDOFFSET(NLSSTRINGS, pszColmnResourceID),
+        ID_XSSI_COLMN_RESOURCETYPE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnResourceType),
+        ID_XSSI_COLMN_RESOURCESIZE,
+                FIELDOFFSET(NLSSTRINGS, pszColmnResourceSize),
+        ID_XSSI_COLMN_RESOURCEFLAGS,
+                FIELDOFFSET(NLSSTRINGS, pszColmnResourceFlags),
+
+    // new special functions on XWPMouse "Movement" page V0.9.9 (2001-03-11) [lafaix]
+        ID_XSSI_SPECIAL_PAGERUP,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialXPagerUp),
+        ID_XSSI_SPECIAL_PAGERRIGHT,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialXPagerRight),
+        ID_XSSI_SPECIAL_PAGERDOWN,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialXPagerDown),
+        ID_XSSI_SPECIAL_PAGERLEFT,
+                FIELDOFFSET(NLSSTRINGS, pszSpecialXPagerLeft),
+
+    // new MB3 mappings labels V0.9.9 (2001-03-27) [umoeller]
+        ID_XSSI_MB3_AUTOSCROLL,
+                FIELDOFFSET(NLSSTRINGS, pszMB3AutoScroll),       // "AutoScroll"
+        ID_XSSI_MB3_DBLCLICK,
+                FIELDOFFSET(NLSSTRINGS, pszMB3DblClick),         // "Double click"
+        ID_XSSI_MB3_NOCONVERSION,
+                FIELDOFFSET(NLSSTRINGS, pszMB3NoConversion),     // "No conversion"
+        ID_XSSI_MB3_PUSHTOBOTTOM,
+                FIELDOFFSET(NLSSTRINGS, pszMB3PushToBottom),
+
+    // new screen borders page name V0.9.9 (2001-04-04) [lafaix]
+        ID_XSSI_SCREENBORDERSPAGE,
+                FIELDOFFSET(NLSSTRINGS, pszScreenBordersPage)
+    };
+*/
+
+
+    /*
+     *@@ NLSSTRINGS:
+     *      structure filled with all the XWorkplace NLS
+     *      strings. Each item in here corresponds to
+     *      an item in the NLS .RC file.
+     *
+     *      All fields are initialized at once when the
+     *      NLS DLL is first loaded (cmnQueryNLSModuleHandle).
+     *
+     *      Use cmnQueryNLSStrings to get access to this
+     *      structure.
+     *
+     *      The entire structure has been removed with V0.9.9 (2001-04-04) [umoeller].
+     */
+
+    /* typedef struct _NLSSTRINGS
+    {
+        PSZ     pszNotDefined,
+                pszProductInfo,
+                pszRefreshNow,
+                pszSnapToGrid,
+
+                pszFldrContent,
+                pszCopyFilename,
+                pszBored,
+                pszFldrEmpty,
+
+                pszSelectSome,
+                pszQuickStatus,
+
+                // various key descriptions
+                pszCtrl,
+                pszAlt,
+                pszShift,
+                pszBackspace,
+                pszTab,
+                pszBacktab,
+                pszEnter,
+                pszEsc,
+                pszSpace,
+                pszPageup,
+                pszPagedown,
+                pszEnd,
+                pszHome,
+                pszLeft,
+                pszUp,
+                pszRight,
+                pszDown,
+                pszPrintscrn,
+                pszInsert,
+                pszDelete,
+                pszScrlLock,
+                pszNumLock,
+                pszWinLeft,
+                pszWinRight,
+                pszWinMenu,
+
+                // shutdown strings
+                pszSDFlushing,
+                pszSDCAD,
+                pszSDRebooting,
+                pszSDRestartingWPS,
+                pszSDClosing,
+                pszShutdown,
+                pszRestartWPS,
+                pszSDSavingDesktop,
+                pszSDSavingProfiles,
+
+                pszStarting,
+
+                // various notebook page titles
+                psz1Generic,
+                psz2RemoveItems,
+                psz25AddItems,
+                psz26ConfigFolderMenus,
+                psz27StatusBar,
+                psz3SnapToGrid,
+                psz4Accelerators,
+                psz5Internals,
+                pszFileOps,
+
+                pszInternals,
+
+                pszScheduler,
+                pszMemory,
+                pszErrors,
+                pszWPS,
+
+                // sort strings
+                pszSortByName,
+                pszSortByType,
+                pszSortByClass,
+                pszSortByRealName,
+                pszSortBySize,
+                pszSortByWriteDate,
+                pszSortByAccessDate,
+                pszSortByCreationDate,
+                pszSortByExt,
+                pszSortFoldersFirst,
+
+                pszSort,
+                pszAlwaysSort,
+
+                // status bars
+                pszSBClassMnemonics,
+                pszSBClassNotSupported,
+                pszPopulating,
+
+                // XWPClassList strings
+                pszWpsClasses,
+                pszWpsClassLoaded,
+                pszWpsClassLoadingFailed,
+                pszWpsClassReplacedBy,
+                pszWpsClassOrphans,
+                pszWpsClassOrphansInfo,
+
+                pszProcessContent,
+
+                // context menu strings
+                pszSettings,
+                pszSettingsNotebook,
+                pszAttributes,
+                pszAttrArchive,
+                pszAttrSystem,
+                pszAttrHidden,
+                pszAttrReadOnly,
+
+                pszWarp3FldrView,
+                pszSmallIcons,
+                pszFlowed,          // "multiple columns"
+                pszNonFlowed,       // "single column"
+                pszNoGrid,
+                pszWarp4MenuBar,    // added V0.9.0
+                pszShowStatusBar,
+
+                // more settings pages:
+                // the following are new with V0.9.0
+                pszSysPaths,        // title of "System Paths" page in "OS/2 Kernel"
+                pszDrivers,         // title of "Drivers" page in "OS/2 Kernel"
+                pszDriverCategories,  // root record in container on that page
+                pszXWPStatus,       // title of "XWP Status" page in XWPSetup
+                pszFeatures,        // title of "Features" page in XWPSetup
+                pszParanoia,        // title of "Paranoia" page in XWPSetup
+                pszObjects,         // title of "Objects" page in XWPSetup
+                pszFilePage,        // title of WPFileSystem "File" page replacement
+                pszDetailsPage,     // title of WPDisk "Details" page replacement
+                pszXShutdownPage,   // title of XFldDesktop "XShutdown" page
+                pszStartupPage,     // title of XFldDesktop "Startup" page
+                pszDtpMenuPage,     // title of XFldDesktop "Menu" page
+                pszFileTypesPage,   // title of "File types" page (XFldWPS)
+                pszSoundsPage,      // title of "Sounds" page (XWPSound)
+                pszViewPage,        // title of "View" page (XFldWPS, XCenter)
+                pszArchivesPage,    // title of WPDesktop "Archives" page replacement
+                pszModulePage,      // title of XWPProgramFile "Module" page
+                pszObjectHotkeysPage, // title of XWPKeyboard "Hotkeys" page
+                pszFunctionKeysPage, // title of XWPKeyboard "Function keys " page V0.9.3 (2000-04-18) [umoeller]
+                pszMouseHookPage,   // title of XWPMouse "Mouse hook" page
+                pszMappingsPage,    // title of XWPKeyboard/XWPMouse "Mappings" pages (V0.9.1)
+
+                pszOpenClassList,   // "WPS Class List" (XWPClassList, new with V0.9.0)
+                pszXWPClassList,    // XWPClassList default title
+                pszRegisterClass,   // XWPClassList: "Register new class" V0.9.1 (99-12-28) [umoeller]
+
+                pszSoundSchemeNone, // XWPSound
+                pszItemsSelected,   // "x items selected" on System Paths page
+
+                // trash can (XWPTrashCan, XWPTrashObject, new with V0.9.0)
+                pszTrashEmpty,
+                pszTrashRestore,
+                pszTrashDestroy,
+
+                pszTrashCan,
+                pszTrashObject,
+
+                pszTrashSettingsPage,
+                pszTrashDrivesPage,
+
+                // trash can Details view columns
+                pszOrigFolder,
+                pszDelDate,
+                pszDelTime,
+                pszSize,
+                pszOrigClass,
+
+                // trash can status bar strings; V0.9.1 (2000-02-04) [umoeller]
+                pszStbPopulating,
+                pszStbObjCount,
+
+                // Details view columns on XWPKeyboard "Hotkeys" page; V0.9.1 (99-12-03)
+                pszHotkeyTitle,
+                pszHotkeyFolder,
+                pszHotkeyHandle,
+                pszHotkeyHotkey,
+
+                // Method info columns for XWPClassList; V0.9.1 (99-12-03)
+                pszClsListIndex,
+                pszClsListMethod,
+                pszClsListAddress,
+                pszClsListClass,
+                pszClsListOverriddenBy,
+
+                // "Special functions" on XWPMouse "Movement" page
+                pszSpecialWindowList,
+                pszSpecialDesktopPopup,
+
+                // default title of XWPScreen class V0.9.2 (2000-02-23) [umoeller]
+                pszXWPScreenTitle,
+
+                // "Partitions" item in WPDrives "open" menu V0.9.2 (2000-02-29) [umoeller]
+                pszOpenPartitions,
+
+                // "Syslevel" page title in "OS/2 kernel"
+                pszSyslevelPage,
+
+                pszCalculating,
+
+                pszDeviceType,
+                pszDeviceIndex,
+                pszDeviceInfo,
+
+                pszTypeImage,
+                pszTypeAudio,
+                pszTypeMIDI,
+                pszTypeCompound,
+                pszTypeOther,
+                pszTypeUnknown,
+                pszTypeVideo,
+                pszTypeAnimation,
+                pszTypeMovie,
+
+                pszTypeStorage,
+                pszTypeFile,
+                pszTypeData,
+
+                pszDevTypeVideotape,
+                pszDevTypeVideodisc,
+                pszDevTypeCDAudio,
+                pszDevTypeDAT,
+                pszDevTypeAudioTape,
+                pszDevTypeOther,
+                pszDevTypeWaveformAudio,
+                pszDevTypeSequencer,
+                pszDevTypeAudioAmpmix,
+                pszDevTypeOverlay,
+                pszDevTypeAnimation,
+                pszDevTypeDigitalVideo,
+                pszDevTypeSpeaker,
+                pszDevTypeHeadphone,
+                pszDevTypeMicrophone,
+                pszDevTypeMonitor,
+                pszDevTypeCDXA,
+                pszDevTypeFilter,
+                pszDevTypeTTS,
+
+                pszColmnFourCC,
+                pszColmnName,
+                pszColmnIOProcType,
+                pszColmnMediaType,
+                pszColmnExtension,
+                pszColmnDLL,
+                pszColmnProcedure,
+
+                pszPagetitleDevices,
+                pszPagetitleIOProcs,
+                pszPagetitleCodecs,
+
+                pszPagetitleXPager,
+
+                pszXWPStringPage,
+                pszXWPStringOpenMenu,
+
+                pszSyslevelComponent,
+                pszSyslevelFile,
+                pszSyslevelVersion,
+                pszSyslevelLevel,
+                pszSyslevelPrevious,
+
+                pszDriversVersion,
+                pszDriversVendor,
+
+                pszFuncKeyDescription,
+                pszFuncKeyScanCode,
+                pszFuncKeyModifier,
+
+                // default documents V0.9.4 (2000-06-09) [umoeller]
+                pszDataFileDefaultDoc,
+                pszFdrDefaultDoc,
+
+                // XCenter V0.9.4 (2000-06-10) [umoeller]
+                pszXCenterPage1,
+
+                // file operations V0.9.4 (2000-07-27) [umoeller]
+                pszFopsMove2TrashCan,
+                pszFopsRestoreFromTrashCan,
+                pszFopsTrueDelete,
+                pszFopsEmptyingTrashCan,
+
+                pszIconPage,        // added V0.9.4 (2000-08-03) [umoeller]
+
+                // XShutdown INI save strings V0.9.5 (2000-08-16) [umoeller]
+                pszXSDSaveInisNew,
+                pszXSDSaveInisOld,
+                pszXSDSaveInisNone,
+
+                // logoff V0.9.5 (2000-09-28) [umoeller]
+                pszXSDLogoff,
+                pszXSDConfirmLogoffMsg,
+
+                // "bytes" strings for status bars V0.9.6 (2000-11-23) [umoeller]
+                pszByte,
+                pszBytes,
+
+                // title of XWPProgramFile "Resources" page V0.9.7 (2000-12-20) [umoeller]
+                pszResourcesPage,
+
+                // title of program(file) "Associations" page V0.9.9 (2001-03-07) [umoeller]
+                pszAssociationsPage,
+
+                // miscellaneous new strings with V0.9.9 (2001-03-07) [umoeller]
+                pszStylePage,           // title of "Style" page (XCenter)
+                pszClassesPage,
+                pszWidgetsPage,
+                pszAddWidget,           // "~Add widget",
+                pszWidgetClass,         // "Class";
+                pszWidgetSetup,         // "Setup";
+
+                pszFontFolder,
+                pszFontFile,
+                pszFontFamily,
+                pszFontErrors,
+                pszFontObject,
+                pszCDPlayerView,
+                pszCDPlayer,
+                pszVolumeView,
+                pszVolume,
+                pszAdministrator,
+                pszThreadsPage,
+
+                pszClsListToken,
+
+                pszDriverVersion,       // "Version: "
+                pszDriverVendor,        // "Vendor: "
+
+                pszFontSampleView,
+                pszFontDeinstall,       // "~Deinstall..."
+
+                pszKeyDescription,      // "Key description"
+                pszScanCode,            // "Hardware scan code";
+                pszModifier,            // "Modifier";
+
+                pszDefaultShutdown,     // "Default OS/2 shutdown...",
+                pszInstallingFonts,     // "Installing fonts...";
+
+                pszParameters,          // title of variable prompts dlg
+                pszClose,               // "~Close",
+
+                pszDropped1,            // "... %d objects dropped,",
+                pszDropped2,            // "open folder to see them",
+
+                pszThreadsThread,       // "Thread";
+                pszThreadsTID,          // "TID";
+                pszThreadsPriority,     // "Priority";
+                pszThreadsGroupTitle,   // "XWorkplace threads"
+
+                pszArcRestored,         // "Archive was just restored."
+                pszArcDaysPassed,       // "%d days passed since last backup."
+                pszArcDaysLimit,        // "Limit: %d days."
+                pszArcINIChecking,      // "Checking INI files..."
+                pszArcINIChanged,       // "INI files changed %f %%."
+                pszArcINILimit,         // "Limit: %f %%."
+                pszArcEnabled,          // "Desktop archiving enabled."
+                pszArcNotNecc,          // "Desktop archiving not necessary."
+
+    // new Module subpages V0.9.9 (2001-03-11) [lafaix]
+                pszModule1Page,         // "Imported modules"
+                pszModule2Page,         // "Exported functions"
+
+    // miscellaneous new columns headers V0.9.9 (2001-03-11) [lafaix]
+                pszColmnModuleName,     // "Name"
+                pszColmnExportOrdinal,  // "Ordinal"
+                pszColmnExportType,     // "Type"
+                pszColmnExportName,     // "Name"
+                pszColmnResourceIcon,   // "Icon"
+                pszColmnResourceID,     // "ID"
+                pszColmnResourceType,   // "Type"
+                pszColmnResourceSize,   // "Size"
+                pszColmnResourceFlags,  // "Flags"
+
+    // new special functions on XWPMouse "Movement" page V0.9.9 (2001-03-11) [lafaix]
+                pszSpecialXPagerUp,   // "One screen up"
+                pszSpecialXPagerRight,// "One screen right"
+                pszSpecialXPagerDown, // "One screen down"
+                pszSpecialXPagerLeft, // "One screen left"
+
+    // new MB3 mappings labels V0.9.9 (2001-03-27) [umoeller]
+                pszMB3AutoScroll,       // "AutoScroll"
+                pszMB3DblClick,         // "Double click"
+                pszMB3NoConversion,     // "No conversion"
+                pszMB3PushToBottom,     // "Push to bottom"
+
+    // new screen borders page name V0.9.9 (2001-04-04) [lafaix]
+                pszScreenBordersPage;   // "Screen borders"
+    } NLSSTRINGS;
+
+    typedef const NLSSTRINGS* PNLSSTRINGS; */
+
+    /*
+     *  All these constants have been made "const char*" pointers
+     *  with V0.9.7 (they used to be #define's before). The actual
+     *  character constants are now on top of common.c.
+     */
+
+    /* extern const char *INIAPP_XWORKPLACE;
+    extern const char *INIAPP_OLDXFOLDER;
+
+    extern const char *INIKEY_GLOBALSETTINGS;
+    extern const char *INIKEY_ACCELERATORS;
+    extern const char *INIKEY_LANGUAGECODE;
+    extern const char *INIKEY_JUSTINSTALLED;
+    extern const char *INIKEY_FAVORITEFOLDERS;
+    extern const char *INIKEY_QUICKOPENFOLDERS;
+
+    extern const char *INIKEY_WNDPOSSTARTUP;
+    extern const char *INIKEY_WNDPOSNAMECLASH;
+    extern const char *INIKEY_NAMECLASHFOCUS;
+
+    extern const char *INIKEY_STATUSBARFONT;
+    extern const char *INIKEY_SBTEXTNONESEL;
+    extern const char *INIKEY_SBTEXT_WPOBJECT;
+    extern const char *INIKEY_SBTEXT_WPPROGRAM;
+    extern const char *INIKEY_SBTEXT_WPFILESYSTEM;
+    extern const char *INIKEY_SBTEXT_WPURL;
+    extern const char *INIKEY_SBTEXT_WPDISK;
+    extern const char *INIKEY_SBTEXT_WPFOLDER;
+    extern const char *INIKEY_SBTEXTMULTISEL;
+    extern const char *INIKEY_SB_LASTCLASS;
+    extern const char *INIKEY_DLGFONT;
+
+    extern const char *INIKEY_BOOTMGR;
+    extern const char *INIKEY_AUTOCLOSE;
+
+    extern const char *DEFAULT_LANGUAGECODE;
+
+    extern const char *INIKEY_WNDPOSCLASSINFO;
+
+    extern const char *INIKEY_XWPSOUNDLASTDIR;
+    extern const char *INIKEY_XWPSOUNDSCHEME;
+
+    extern const char *INIKEY_BOOTLOGOFILE;
+
+    extern const char *INIKEY_LAST10SELECTSOME;
+
+    extern const char *INIKEY_TRASHCANDRIVES;
+
+    extern const char *INIKEY_FILEOPSPOS;
+
+    extern const char *INIKEY_WNDPOSPARTITIONS;
+
+    extern const char *INIKEY_WNDPOSXMMVOLUME;
+
+    extern const char *INIKEY_WNDPOSXMMCDPLAY;
+
+    extern const char *INIKEY_FONTSAMPLEWNDPOS;
+    extern const char *INIKEY_FONTSAMPLESTRING;
+    extern const char *INIKEY_FONTSAMPLEHINTS;
+
+    // added V0.9.9 (2001-03-19) [pr]
+    extern const char *INIKEY_XSTARTUPFOLDERS;
+    extern const char *INIKEY_XSAVEDSTARTUPFOLDERS;
+
+    // added V0.9.11 (2001-04-18) [umoeller]
+    extern const char *INIKEY_WNDPOSFILEDLG;
+    extern const char *INIKEY_FILEDLGSETTINGS;
+
+    extern const char *INIAPP_XWPFILETYPES;   // added V0.9.0
+    extern const char *INIAPP_XWPFILEFILTERS; // added V0.9.0
+
+    extern const char *INIAPP_REPLACEFOLDERREFRESH; // added V0.9.9 (2001-01-31) [umoeller]
+
+    extern const char *WPINIAPP_LOCATION;
+    extern const char *WPINIAPP_FOLDERPOS;
+    extern const char *WPINIAPP_ASSOCTYPE;
+    extern const char *WPINIAPP_ASSOCFILTER; */
+
+    /********************************************************************
+     *
+     *   Standard Desktop object IDs
+     *
+     ********************************************************************/
+
+    /* extern const char *WPOBJID_DESKTOP;
+
+    extern const char *WPOBJID_KEYB;
+    extern const char *WPOBJID_MOUSE;
+    extern const char *WPOBJID_CNTRY;
+    extern const char *WPOBJID_SOUND;
+    extern const char *WPOBJID_SYSTEM;
+    extern const char *WPOBJID_POWER;
+    extern const char *WPOBJID_WINCFG;
+
+    extern const char *WPOBJID_HIRESCLRPAL;
+    extern const char *WPOBJID_LORESCLRPAL;
+    extern const char *WPOBJID_FNTPAL;
+    extern const char *WPOBJID_SCHPAL96;
+
+    extern const char *WPOBJID_LAUNCHPAD;
+    extern const char *WPOBJID_WARPCENTER;
+
+    extern const char *WPOBJID_SPOOL;
+    extern const char *WPOBJID_VIEWER;
+    extern const char *WPOBJID_SHRED;
+    extern const char *WPOBJID_CLOCK;
+
+    extern const char *WPOBJID_START;
+    extern const char *WPOBJID_TEMPS;
+    extern const char *WPOBJID_DRIVES; */
+
+    /********************************************************************
+     *
+     *   XWorkplace object IDs
+     *
+     ********************************************************************/
+
+    // all of these have been redone with V0.9.2
+
+    // folders
+    /* extern const char *XFOLDER_MAINID;
+    extern const char *XFOLDER_CONFIGID;
+
+    extern const char *XFOLDER_STARTUPID;
+    extern const char *XFOLDER_SHUTDOWNID;
+    extern const char *XFOLDER_FONTFOLDERID;
+
+    extern const char *XFOLDER_WPSID;
+    extern const char *XFOLDER_KERNELID;
+    extern const char *XFOLDER_SCREENID;
+    extern const char *XFOLDER_MEDIAID;
+
+    extern const char *XFOLDER_CLASSLISTID;
+    extern const char *XFOLDER_TRASHCANID;
+    extern const char *XFOLDER_XCENTERID;
+    extern const char *XFOLDER_STRINGTPLID;
+
+    extern const char *XFOLDER_INTROID;
+    extern const char *XFOLDER_USERGUIDE;
+
+    // extern const char *XWORKPLACE_ARCHIVE_MARKER;
+        // removed V0.9.13 (2001-06-14) [umoeller]
+       */
+
+
+#if 0
+/********************************************************************
+ *
+ *   INI keys
+ *
+ ********************************************************************/
+
+/*
+ *  All these constants are declared as "extern" in
+ *  common.h. They all used to be #define's in common.h,
+ *  which put a lot of duplicates of them into the .obj
+ *  files (and also stress on the compiler, since it had
+ *  to do comparisons on them... and didn't even know that
+ *  they were really constant).
+ *
+ *  These have been moved here with V0.9.7 (2001-01-17) [umoeller]
+ *  and converted to DECLARE_STRING macros with
+ *  V0.9.14 V0.9.14 (2001-07-31) [umoeller].
+ */
+
+/*
+ * XWorkplace application:
+ *
+ */
+
+// INI key used with V0.9.1 and above
+const char      *INIAPP_XWORKPLACE       = "XWorkplace";
+
+// INI key used by XFolder and XWorkplace 0.9.0;
+// this is checked for if INIAPP_XWORKPLACE is not
+// found and converted
+// const char      *INIAPP_OLDXFOLDER       = "XFolder";
+const char      *INIAPP_OLDXFOLDER       = "XFolder";
+
+/*
+ * XWorkplace keys:
+ *      Add the keys you are using for storing your data here.
+ *      Note: If anything has been marked as "removed" here,
+ *      do not use that string, because it might still exist
+ *      in a user's OS2.INI file.
+ */
+
+// const char      *INIKEY_DEFAULTTITLE     = "DefaultTitle";       removed V0.9.0
+const char      *INIKEY_GLOBALSETTINGS   = "GlobalSettings";
+// const char      *INIKEY_XFOLDERPATH      = "XFolderPath";        removed V0.81 (I think)
+const char      *INIKEY_ACCELERATORS     = "Accelerators";
+const char      *INIKEY_LANGUAGECODE     = "Language";
+const char      *INIKEY_JUSTINSTALLED    = "JustInstalled";
+// const char      *INIKEY_DONTDOSTARTUP    = "DontDoStartup";      removed V0.84 (I think)
+// const char      *INIKEY_LASTPID          = "LastPID";            removed V0.84 (I think)
+const char      *INIKEY_FAVORITEFOLDERS  = "FavoriteFolders";
+const char      *INIKEY_QUICKOPENFOLDERS = "QuickOpenFolders";
+
+const char      *INIKEY_WNDPOSSTARTUP    = "WndPosStartup";
+const char      *INIKEY_WNDPOSNAMECLASH  = "WndPosNameClash";
+const char      *INIKEY_NAMECLASHFOCUS   = "NameClashLastFocus";
+
+const char      *INIKEY_STATUSBARFONT    = "SB_Font";
+const char      *INIKEY_SBTEXTNONESEL    = "SB_NoneSelected";
+const char      *INIKEY_SBTEXT_WPOBJECT  = "SB_WPObject";
+const char      *INIKEY_SBTEXT_WPPROGRAM = "SB_WPProgram";
+const char      *INIKEY_SBTEXT_WPFILESYSTEM = "SB_WPDataFile";
+const char      *INIKEY_SBTEXT_WPURL        = "SB_WPUrl";
+const char      *INIKEY_SBTEXT_WPDISK    = "SB_WPDisk";
+const char      *INIKEY_SBTEXT_WPFOLDER  = "SB_WPFolder";
+const char      *INIKEY_SBTEXTMULTISEL   = "SB_MultiSelected";
+const char      *INIKEY_SB_LASTCLASS     = "SB_LastClass";
+const char      *INIKEY_DLGFONT          = "DialogFont";
+
+const char      *INIKEY_BOOTMGR          = "RebootTo";
+const char      *INIKEY_AUTOCLOSE        = "AutoClose";
+
+const char      *DEFAULT_LANGUAGECODE    = "001";
+
+// window position of "WPS Class list" window (V0.9.0)
+const char      *INIKEY_WNDPOSCLASSINFO  = "WndPosClassInfo";
+
+// last directory used on "Sound" replacement page (V0.9.0)
+const char      *INIKEY_XWPSOUNDLASTDIR  = "XWPSound:LastDir";
+// last sound scheme selected (V0.9.0)
+const char      *INIKEY_XWPSOUNDSCHEME   = "XWPSound:Scheme";
+
+// boot logo .BMP file (V0.9.0)
+const char      *INIKEY_BOOTLOGOFILE     = "BootLogoFile";
+
+// last ten selections in "Select some" (V0.9.0)
+const char      *INIKEY_LAST10SELECTSOME = "SelectSome";
+
+// supported drives in XWPTrashCan (V0.9.1 (99-12-14) [umoeller])
+const char      *INIKEY_TRASHCANDRIVES   = "TrashCan::Drives";
+
+// window pos of file operations status window V0.9.1 (2000-01-30) [umoeller]
+const char      *INIKEY_FILEOPSPOS       = "WndPosFileOpsStatus";
+
+// window pos of "Partitions" view V0.9.2 (2000-02-29) [umoeller]
+const char      *INIKEY_WNDPOSPARTITIONS = "WndPosPartitions";
+
+// window position of XMMVolume control V0.9.6 (2000-11-09) [umoeller]
+const char      *INIKEY_WNDPOSXMMVOLUME  = "WndPosXMMVolume";
+
+// window position of XMMCDPlayer V0.9.7 (2000-12-20) [umoeller]
+const char      *INIKEY_WNDPOSXMMCDPLAY  = "WndPosXMMCDPlayer::";
+                // object handle appended
+
+// font samples (XWPFontObject) V0.9.7 (2001-01-17) [umoeller]
+const char      *INIKEY_FONTSAMPLEWNDPOS = "WndPosFontSample";
+const char      *INIKEY_FONTSAMPLESTRING = "FontSampleString";
+const char      *INIKEY_FONTSAMPLEHINTS  = "FontSampleHints";
+
+// XFldStartup V0.9.9 (2001-03-19) [pr]
+const char      *INIKEY_XSTARTUPFOLDERS  = "XStartupFolders";
+const char      *INIKEY_XSAVEDSTARTUPFOLDERS  = "XSavedStartupFolders";
+
+// file dialog V0.9.11 (2001-04-18) [umoeller]
+const char      *INIKEY_WNDPOSFILEDLG   = "WndPosFileDlg";
+const char      *INIKEY_FILEDLGSETTINGS = "FileDlgSettings";
+
+/*
+ * file type hierarchies:
+ *
+ */
+
+// application for file type hierarchies
+const char      *INIAPP_XWPFILETYPES     = "XWorkplace:FileTypes";   // added V0.9.0
+const char      *INIAPP_XWPFILEFILTERS   = "XWorkplace:FileFilters"; // added V0.9.0
+
+const char      *INIAPP_REPLACEFOLDERREFRESH = "ReplaceFolderRefresh";
+                                    // V0.9.9 (2001-01-31) [umoeller]
+
+/*
+ * some default WPS INI keys:
+ *
+ */
+
+const char      *WPINIAPP_LOCATION       = "PM_Workplace:Location";
+const char      *WPINIAPP_FOLDERPOS      = "PM_Workplace:FolderPos";
+const char      *WPINIAPP_ASSOCTYPE      = "PMWP_ASSOC_TYPE";
+const char      *WPINIAPP_ASSOCFILTER    = "PMWP_ASSOC_FILTER";
+
+/********************************************************************
+ *
+ *   Standard Desktop object IDs
+ *
+ ********************************************************************/
+
+const char *WPOBJID_DESKTOP = "<WP_DESKTOP>";
+
+const char *WPOBJID_KEYB = "<WP_KEYB>";
+const char *WPOBJID_MOUSE = "<WP_MOUSE>";
+const char *WPOBJID_CNTRY = "<WP_CNTRY>";
+const char *WPOBJID_SOUND = "<WP_SOUND>";
+const char *WPOBJID_SYSTEM = "<WP_SYSTEM>"; // V0.9.9
+const char *WPOBJID_POWER = "<WP_POWER>";
+const char *WPOBJID_WINCFG = "<WP_WINCFG>";
+
+const char *WPOBJID_HIRESCLRPAL = "<WP_HIRESCLRPAL>";
+const char *WPOBJID_LORESCLRPAL = "<WP_LORESCLRPAL>";
+const char *WPOBJID_FNTPAL = "<WP_FNTPAL>";
+const char *WPOBJID_SCHPAL96 = "<WP_SCHPAL96>";
+
+const char *WPOBJID_LAUNCHPAD = "<WP_LAUNCHPAD>";
+const char *WPOBJID_WARPCENTER = "<WP_WARPCENTER>";
+
+const char *WPOBJID_SPOOL = "<WP_SPOOL>";
+const char *WPOBJID_VIEWER = "<WP_VIEWER>";
+const char *WPOBJID_SHRED = "<WP_SHRED>";
+const char *WPOBJID_CLOCK = "<WP_CLOCK>";
+
+const char *WPOBJID_START = "<WP_START>";
+const char *WPOBJID_TEMPS = "<WP_TEMPS>";
+const char *WPOBJID_DRIVES = "<WP_DRIVES>";
+
+/********************************************************************
+ *
+ *   XWorkplace object IDs
+ *
+ ********************************************************************/
+
+// all of these have been redone with V0.9.2
+
+// folders
+const char      *XFOLDER_MAINID          = "<XWP_MAINFLDR>";
+const char      *XFOLDER_CONFIGID        = "<XWP_CONFIG>";
+
+const char      *XFOLDER_STARTUPID       = "<XWP_STARTUP>";
+const char      *XFOLDER_SHUTDOWNID      = "<XWP_SHUTDOWN>";
+const char      *XFOLDER_FONTFOLDERID    = "<XWP_FONTFOLDER>";
+
+const char      *XFOLDER_WPSID           = "<XWP_WPS>";
+const char      *XFOLDER_KERNELID        = "<XWP_KERNEL>";
+const char      *XFOLDER_SCREENID        = "<XWP_SCREEN>";
+const char      *XFOLDER_MEDIAID         = "<XWP_MEDIA>";
+
+const char      *XFOLDER_CLASSLISTID     = "<XWP_CLASSLIST>";
+const char      *XFOLDER_TRASHCANID      = "<XWP_TRASHCAN>";
+const char      *XFOLDER_XCENTERID       = "<XWP_XCENTER>";
+const char      *XFOLDER_STRINGTPLID     = "<XWP_STRINGTPL>"; // V0.9.9
+
+const char      *XFOLDER_INTROID         = "<XWP_INTRO>";
+const char      *XFOLDER_USERGUIDE       = "<XWP_REF>";
+
+// const char      *XWORKPLACE_ARCHIVE_MARKER   = "xwparchv.tmp";
+            // archive marker file in Desktop directory V0.9.4 (2000-08-03) [umoeller]
+            // removed V0.9.13 (2001-06-14) [umoeller]
+
+/********************************************************************
+ *
+ *   XWorkplace class names V0.9.14 (2001-07-31) [umoeller]
+ *
+ ********************************************************************/
+
+const char *G_pcszXFldObject = "XFldObject";
+const char *G_pcszXFolder = "XFolder";
+const char *G_pcszXFldDisk = "XFldDisk";
+const char *G_pcszXFldDesktop = "XFldDesktop";
+const char *G_pcszXFldDataFile = "XFldDataFile";
+const char *G_pcszXWPProgramFile = "XWPProgramFile";
+const char *G_pcszXWPSound = "XWPSound";
+const char *G_pcszXWPMouse = "XWPMouse";
+const char *G_pcszXWPKeyboard = "XWPKeyboard";
+
+const char *G_pcszXWPSetup = "XWPSetup";
+const char *G_pcszXFldSystem = "XFldSystem";
+const char *G_pcszXFldWPS = "XFldWPS";
+const char *G_pcszXWPScreen = "XWPScreen";
+const char *G_pcszXWPMedia = "XWPMedia";
+const char *G_pcszXFldStartup = "XFldStartup";
+const char *G_pcszXFldShutdown = "XFldShutdown";
+const char *G_pcszXWPClassList = "XWPClassList";
+const char *G_pcszXWPTrashCan = "XWPTrashCan";
+const char *G_pcszXWPTrashObject = "XWPTrashObject";
+const char *G_pcszXWPString = "XWPString";
+const char *G_pcszXCenter = "XCenter";
+const char *G_pcszXWPFontFolder = "XWPFontFolder";
+const char *G_pcszXWPFontFile = "XWPFontFile";
+const char *G_pcszXWPFontObject = "XWPFontObject";
+
+const char *G_pcszXWPProgram = "XWPProgram";
+
+/********************************************************************
+ *
+ *   Thread object windows
+ *
+ ********************************************************************/
+
+// object window class names (added V0.9.0)
+const char      *WNDCLASS_WORKEROBJECT         = "XWPWorkerObject";
+const char      *WNDCLASS_QUICKOBJECT          = "XWPQuickObject";
+const char      *WNDCLASS_FILEOBJECT           = "XWPFileObject";
+
+const char      *WNDCLASS_THREAD1OBJECT        = "XWPThread1Object";
+const char      *WNDCLASS_SUPPLOBJECT          = "XWPSupplFolderObject";
+const char      *WNDCLASS_APIOBJECT            = "XWPAPIObject";
+
+#endif // #if 0
+

@@ -1,0 +1,108 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Neue XFolder-Konfigurationsstrings
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<BODY>
+<B>Klasse: XFolder</B><HR>
+Die folgenden Konfigurationsstrings k”nnen auf dieselbe Art und Weise benutzt werden
+wie normale Ordner-Konfigurationsstrings, wie sie auf der
+<A HREF="xices_30wpsstrings.html">vorigen Seite</A> beschrieben werden;
+sie funktionieren allerdings nur, wenn XFolder ordnungsgem„á installiert wurde.
+ 
+<DL>
+<DT><CODE><B>ACCELERATORS</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob dieser auf Ordner-Tastenkrzel reagiert.
+Diese Einstellung entspricht derjenigen auf der "Anzeige"-Seite im Einstellungsnotizbuch.
+YES oder NO setzt die Einstellung dieses Ordner unabh„ngig davon, was in den globalen
+Einstellungen angegeben wurde, w„hrend DEFAULT diese Einstellung auf den globalen
+Wert setzt.
+Siehe <A HREF="fldr_5xelerators.html">"Ordner-Tastenkrzel"</A> fr weitere Informationen.
+ 
+<P><DT><CODE><B>ALWAYSSORT</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob dieser die Sortierreihenfolge immer beibeh„lt.
+Im Gegensatz zum <A HREF="xices_30wpsstrings.html">Standard-Ordner-Konfigurationsstring der WPS</A>,
+akzeptiert XFolders neue Implementierung auch "DEFAULT" als Parameter, womit die Einstellung
+auf den auf der Seite "Sortieren" des Objekts "Workplace Shell" eingestellten Wert zurckgesetzt wird.
+ 
+<P><DT><CODE><B>DEFAULTSORT</B>=<I>crit</I></CODE>
+<DD>Hiermit wird das Standardsortierkriterium fr einen einzelnen Ordner auf einen anderen
+Wert als den des globalen Sortierkriteriums festgelegt.
+<!-- V0.9.12: the following has been rewritten -->
+<CODE><I>crit</I></CODE> kann folgende Werte annehmen:
+<BR><CODE>  -1   </CODE>nach Dateityp sortieren
+<BR><CODE>  -2   </CODE>nach Name sortieren
+<BR><CODE>  -3   </CODE>nach Objektklasse sortieren
+<BR><CODE>  -4   </CODE>nach Dateierweiterung sortieren
+<BR><CODE>  255  </CODE>auf das globale Sortierkriterium zurcksetzen
+<P>Beachten Sie, daá abh„ngig von der Ordnersortierklasse auch Werte zwischen 0 und 100
+untersttzt werden k”nnen. Diese Werte h„ngen mit den Indizes der Objektdetailspalten
+in der Detailanzeige zusammen und sind klassenspezifisch. Experimentieren Sie mit
+den Konfigurationsstring-Werten, die im Einstellungsnotizbuch eines Ordners angezeigt
+werden.
+<!-- end V0.9.12 -->
+ 
+<P><DT><CODE><B>FAVORITEFOLDER</B>={YES|NO}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob dessen Inhalt ber alle Kontextmens
+des Systems angezeigt wird.
+Diese Einstellung entspricht derjenigen auf der Seite "Anzeige" des Einstellungsnotizbuches.
+Standard is NO. Fr diese Einstellung gibt es keinen globalen Wert.
+Siehe <A HREF="menu_6favorite.html">"Ordnerinhalt-Funktionen"</A> fr n„here Informationen.
+ 
+<P><DT><CODE><B>FULLPATH</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob sein voller Pfad in der Titelzeile angezeigt wird.
+Diese Einstellung entspricht derjenigen auf der Seite "Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabh„ngig davon fest, was in den globalen Einstellungen
+angegeben wurde, w„hrend DEFAULT die Einstellung auf den globalen Wert setzt.
+Siehe <A HREF="fldr_2fullpath.html">"Voller Pfad in Fenstertiteln"</A> fr n„here Informationen.
+ 
+<!-- V0.9.9: added QUICKOPEN -->
+<P><DT><CODE><B>QUICKOPEN</B>={YES|NO|IMMEDIATE}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob dieser beim Start der WPS vor-bev”lkert wird.
+Diese Einstellung entspricht derjenigen auf der Seite "Anzeige" im Einstellungsnotizbuch.
+YES oder NO setzt die Einstellung fr diesen Ordner.
+Standard ist NO. Fr diese Einstellung gibt es keinen globalen Wert.
+Siehe <A HREF="fldr_5quickopen.html">"Schnelles ™ffnen von Ordnern"</A> fr n„here Informationen.
+<P>Als besonderer Befehl bev”lkert <CODE>QUICKOPEN=IMMEDIATE</CODE> den Ordner sofort.
+Dies kann von einem REXX-Skript aus benutzt werden, um das Bev”lkern eines Ordners zu erzwingen,
+ohne ihn ”ffnen zu mssen. Infolgedessen handelt es sich bei <CODE>QUICKOPEN=IMMEDIATE</CODE>
+um keine Einstellung, sondern um einen Befehl, der auf einen Ordner angewendet wird.
+ 
+<P><DT><CODE><B>SNAPTOGRID</B>={YES|NO|DEFAULT|EXEC}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob in dessen Kontextmen der Eintrag "Am Gitter ausrichten"
+erscheint. 
+Diese Einstellung entspricht derjenigen auf der Seite "Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabh„ngig davon fest, was in den globalen Einstellungen
+angegeben wurde, w„hrend DEFAULT die Einstellung auf den globalen Wert setzt.
+EXEC wendet die Funktion "Am Gitter ausrichten" auf den Ordner an, als ob Sie sie aus dessen
+Kontextmen ausgew„hlt h„tten. Deshalb ist EXEC keine Einstellung, sondern ein Befehl, der auf
+einen Ordner angewendet wird.
+Siehe <A HREF="menu_8snaptogrid.html">"Am Gitter ausrichten"</A> fr n„here Informationen.
+ 
+<!-- V0.9.12: added this -->
+<P><DT><CODE><B>SORTFOLDERSFIRST</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt fr einen einzelnen Ordner fest, ob darin enthaltene Ordner zuerst einsortiert werden.
+Diese Einstellung entspricht derjenigen auf der Seite "Sortieren" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabh„ngig davon fest, was in den globalen Einstellungen
+angegeben wurde, w„hrend DEFAULT die Einstellung auf den globalen Wert setzt.
+<!-- end V0.9.12 -->
+ 
+<P><DT><CODE><B>SORTNOW</B>=<I>crit</I></CODE>
+<DD>Damit werden alle momentan sichtbaren Anzeigen eines einzelnen Ordners sortiert, ohne
+die Einstellungen des Ordners zu „ndern (im Gegensatz zu <CODE>DEFAULTSORT</CODE>). Dies ist keine
+wirkliche "Einstellung", sondern eher ein Befehl, der auf einen Ordner angewendet wird.
+<CODE><I>crit</I></CODE> hat dieselbe Bedeutung wie bei <CODE>DEFAULTSORT</CODE>.
+ 
+<P><DT><CODE><B>STATUSBAR</B>={YES|NO|DEFAULT}</CODE>
+<DD>Legt den Sichtbarkeitsstatus der Statuszeile fr einen einzelnen Ordner fest.
+Diese Einstellung entspricht derjenigen auf der Seite "Anzeige" im Einstellungsnotizbuch.
+YES oder NO legen diese Einstellung unabh„ngig davon fest, was in den globalen Einstellungen
+angegeben wurde, w„hrend DEFAULT die Einstellung auf den globalen Wert setzt.
+Siehe <A HREF="stat_1intro.html">"Ordner-Statuszeilen"</A> fr weitere Informationen.
+</DL>
+</BODY>
+</HTML>
+ 

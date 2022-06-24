@@ -1,0 +1,196 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.20
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.20 (August 11, 2002)</B>
+
+<P>New features:
+
+<UL><LI>Documented XWPString setup strings. Added XWPString NOSTRINGPAGE setup string.
+Added XFldDesktop SHOWHELPPANEL setup string.
+
+<P><LI>Giant WPS help rework. &xwp; can now replace most default WPS help
+panels. This can be disabled on the "Features" page in XWPSetup.
+
+<P><LI>Extended associations: Added icon sharing. If the icon of a program object
+is changed, all data files using that object's icon are finally properly refreshed.
+The feature is enabled automatically with extended associations and works only
+with them, unfortunately.
+To quote Achim HasenmÅller: "I've been waiting for that functionality since OS/2 2.0 beta.".
+
+<P><LI>Extended associations: Added a new setting to "File types" page that allows
+you to disable passing the object handle of a data file to the environment of the
+associated program.
+
+<P><LI>File operations: Added replacement "Paste" dialog (from "Edit" menu) because
+I finally got sick of the default WPS one. The replacement can be enabled
+on the "Features" page as well.
+
+<P><LI>Folders: Added lazy icon loading for folder populate, which makes folders
+show icons much more quickly initially and loads the real object icons asynchronously
+on a separate thread. This can be enabled in "Workplace Shell", "Folder Views" page
+and should work even if turbo folders or extended associations are disabled.
+
+<P><LI>&xcenter;: Window list widget has a "Filter" menu item in the button context
+menu now for quicker filtering.
+
+<P><LI>&pgr;: Selecting "Properties" from the pager context menu opens the "&pgr;"
+page in the "Screen" object directly now.
+
+<P><LI>&pgr;: Shift + MB2 click on an empty area in the pager hides the pager
+immediately now.
+
+</UL>Miscellaneous changes:
+
+<UL><LI>Common: &xwp; no longer holds all messages from the TMF file in memory,
+reducing memory usage.
+
+<P><LI>Common: Greatly optimized nlsUpper, my helper func for upper-casing a string
+that gets called from nearly everywhere.
+
+<P><LI>Common: Optimized a lot of internal management routines to use less memory
+and no longer use the &xwp; heap by moving linked list pointers into object instance
+memory. Awake objects management is no longer done by the Worker thread either.
+
+<P><LI>Common: Optimized my object destruction mechanism to no longer use SOM name
+lookup method resolution, since I found a way to handle undocumented WPS methods better.
+
+<P><LI>Common: Rewrote the &xwp; "Product info" dialog as a testcase for linking
+from my rich text control.
+
+<P><LI>File operations: Reworked replacement "File exists" dialog.
+
+<P><LI>Replacement refresh: Tweaked thread priorities a bit to catch more file-system
+notifications.
+
+<P><LI>Turbo folders: Tweaked thread priorities a bit to work better on uni-processor
+systems.
+
+<P><LI>Trash can: Is now smart enough to use DosForceDelete in order not to
+move all files to DELDIR (if enabled) on emptying the trash can.
+
+<P><LI>&xcenter;: Reworked all widget context menus to make them more accessible.
+
+<P><LI>&xshutdown;: On "Restart Desktop", if "close all sessions" is off, pager
+recovers only WPS windows to current screen, while others keep running on their
+own screens.
+
+</UL>Bugfixes:
+
+<UL><LI>Install: Fixed several problems with installation objects.
+
+<P><LI>Common: Replaced all strchr and strrchr calls in XWorkplace with a DBCS-enabled
+version, of which I do not know whether it actually works. I'd be grateful if Asian
+testers could check whether the bugs that have been reported are fixed by this since,
+again, I have no way of testing DBCS here.
+
+<P><LI>Common: Replaced most wpQueryDefaultHelp overrides with wpclsQueryDefaultHelp
+overrides for changing a class's default help. The previous implementation broke
+instance help assigned via HELPLIBRARY and HELPPANEL.
+
+<P><LI>Common: Fixed rare synchronization problems when objects were renamed and
+views sometimes not updated properly.
+
+<P><LI>Common: Fixed a nasty object ID problem that would cause CHECKINI to report
+lots of bad object IDs when objects were created from the "Create new" folder menu.
+
+<P><LI>Common: Fixed a problem during object deletion that could cause the object to
+re-add information to the INI files. This was probably the cause for CHECKINI to
+report abstract objects that had been deleted by &xwp;.
+
+<P><LI>Common: All &xwp; message boxes were lacking the top-right "Close" button. Fixed.
+
+<P><LI>"Icon" page replacement: Fixed excessive rename when page was first opened.
+
+<P><LI>Program objects: Command line icons were broken (in "Command Prompts" folder),
+and batch files and Win-OS/2 full screen objects didn't work at all. Fixed.
+
+<P><LI>File operations: Replacement "File exists" dialog never respected the
+auto-rename or auto-replace settings on the "Title" page in "Workplace Shell". Fixed.
+
+<P><LI>Folders: Hotkey for "Select by name" (per default, Ctrl+S) broke with V0.9.19.
+Fixed.
+
+<P><LI>Folders: "Batch rename" dialog had problems enabling the start rename button.
+Fixed.
+
+<P><LI>Folders: Folder hotkey descriptions were either wrong or missing in the items
+in the menu bar pulldowns. Fixed, hopefully.
+
+<P><LI>Extended associations: Got rid of the internal types cache that ate up lots
+of memory and had synchronization problems anyway, leading to wrong associations
+sometimes. Extended assocs are thus slightly slower now when folders are populated,
+but it's barely noticeable.
+
+<P><LI>Extended associations: Fixed a bug in my object handles cache where sometimes
+the wrong object got thrown out of the cache.
+
+<P><LI>Turbo folders: Plugged a few more holes where the WPS succeeded in destroying
+object icons that were assigned by &xwp;, leading to blank icons.
+
+<P><LI>Replacement refresh: Fixed a system deadlock in the rare situation that an
+object was made awake from the refresh thread that had an association icon that
+was not previously used and thus had to be loaded first.
+
+<P><LI>Trash can: Had serialization problems when several views were populated
+at the same time. Fixed.
+
+<P><LI>Trash can: Failed on deleting FTP folders. Fixed.
+
+<P><LI>Trash can / replacement delete: Plugged another hole where the WPS kept
+producing file-system handles for objects just before deleting them. The handles
+stayed in OS2SYS.INI forever, of course.
+This was especially expensive when a folder with many subfolders was deleted.
+
+<P><LI>Fonts folder: Reported "already installed" when installing fonts if a font
+was previously deinstalled without rebooting the system. Fixed.
+
+<P><LI>Fonts folder: Status bar forgot how to count fonts right when
+installing/deinstalling fonts. Fixed.
+
+<P><LI>Fonts folder: Had serialization problems when several views were populated
+at the same time. Fixed.
+
+<P><LI>Setup string objects: If the default object stored in the setup string
+object could not be resolved from handle, double-clicking on the setup string
+object crashed &xwp;. Fixed.
+
+<P><LI>Sound object: Sound scheme testing was case-sensitive, while sound schemes
+in OS2SYS.INI are case-insensitive. Fixed.
+
+<P><LI>Screen object: Special functions on screen border objects page had funny
+titles, fixed.
+
+<P><LI>&xcenter;: Diskfree (WarpCenter style) would never save its width, fixed.
+
+<P><LI>&xshutdown;: Partitions listed on the "Partitions" button in the user
+reboot actions dialog were truncated to 8 characters, but LVM allows 20. Fixed.
+
+<P><LI>Hook: Fixed raise window on MB1 clicks in certain situations. Also fixed
+a couple items with Mozilla menus. (Martin Lafaix)
+
+<P><LI>&pgr;: Fixed a couple of traps when the hook was disabled manually.
+(Paul Ratcliffe)
+
+<P><LI>&pgr;: Removed silly "Pager is disabled" message from "Add sticky window"
+dialog.
+
+<P><LI>&pgr;: Stay on top would never work, fixed.
+
+<P><LI>&pgr;: If "Show secondary windows" was on, you couldn't click on them
+in the pager. Not sure when this broke or if this was even broken in 0.9.19,
+but it works now.
+
+<P><LI>&pgr;: While Embellish was running, pager would stop switching. Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

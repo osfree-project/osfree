@@ -1,0 +1,63 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Hur fungerar papperskorgen?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+Žven om papperskorgen ser ut som en vanlig mapp, fungerar den r„tt annorlunda
+internt.
+<UL><LI>N„r ett <B>objekt „r raderat</B> och i papperskorgen (antingen genom att sl„ppa det p†
+papperskorgen eller genom att v„lja "Radera" fr†n objektets kontextmeny), „r det <I>inte</I>
+fysiskt flyttat till papperskorgens mapp (vilken, varande en mapp, „r en regulj„r katalog p†
+enheten).
+<P>Ist„llet, h„nder f”ljande:
+<BR><OL><LI>Papperskorgen skapar sedan en osynlig katalog i rotkatalogen p† den enhet d„r objektet
+finns. Katalogen kallas alltid f”r <CODE>\TRASH</CODE>. 
+(Du kan se det genom att skriva <CODE>DIR /A \</CODE> p† kommandoraden.)
+<P><LI>Papperskorgen skapar sedan en subs”kv„g i den dolda katalogen i enlighet med den
+s”kv„g d„r objektet f”r n„rvarande finns. Det betyder, till exempel, om objektet finns i mappen
+<CODE>D:\MINAFILER\ARTIKLAR</CODE>, skapas katalogen <CODE>D:\TRASH\MINAFILER\ARTIKLAR</CODE>. Det g”r
+att papperskorgen kan komma ih†g varifr†n objekten raderades.
+<P><LI>Objektet flyttas sedan till <I>den</I> katalogen (och inte till den aktuella 
+papperskorgsmappen).
+<!-- V0.9.5: changed the following paragraph -->
+<P>Sk„let f”r detta „r enkelt: hastighet. Om vi fysiskt skulle flytta objekten till papperskorgens
+mapp, skulle detta frekvent flytta filer mellan enheter. (T„nk dig bara att flytta en 30 MB fil till
+papperskorgen p† det h„r s„ttet.) Som kontrast, eftersom <CODE>\TRASH</CODE> katalogen alltid finns
+p† samma enhet som objektet, skulle „ven flyttning av stora mapptr„d g† v„ldigt snabbt.
+<P><LI>F”r att kunna g”ra objekten synliga i sj„lva papperskorgen, skapas en instans av XWPTrashObject
+i papperskorgen. Den klassen „r en subklass hos WPTransient, vilket betyder att den inte „r h„nger kvar
+mellan omstarterna av Skrivbordet, utan endast n„r WPS k”rs. Som ett resultat, konsumerar dessa
+"skr„pobjekt" inget utrymme i OS2.INI.
+<!-- V0.9.5: added the following paragraph -->
+<P>S† n„r ett objekt flyttas till papperskorgen, „r det i verkligheten duplicerat: det "verkliga" objektet
+flyttas till det osynliga <CODE>\TRASH</CODE> katalogtr„det, och "skr„pobjekt" 
+(XFldTrashObject, WPTransient subklass) skapas i papperskorgen.
+
+</OL>
+<BR><LI>N„r <B>papperskorgen ”ppnas</B> (och sedan befolkas), scannas alla enheter efter dolda
+<CODE>\TRASH</CODE> kataloger, och skr„pobjekt skapas i enlighet med de objekt som ligger i subkatalogerna.
+<P><LI>N„r ett <B>objekt „r †terskapat</B> (eller flyttats fr†n papperskorgen), kommer det korresponderande
+"verkliga" objektet i <CODE>\TRASH</CODE> katalogerna att flyttas tillbaka varifr†n det raderades (eller till
+en plats dit anv„ndaren flyttar det), och skr„pobjektet i papperskorgen f”rst”rs, eftersom det inte l„ngre 
+fyller n†gon funktion.
+<P><LI>N„r ett <B>objekt f”rst”rs</B> (eller papperskorgen t”ms i sin helhet), f”rst”rs alla objekt i
+<CODE>\TRASH</CODE> katalogerna, och alla skr„pobjekt i papperskorgen f”rst”rs ocks†.
+</UL>
+Det h„r uppl„gget k„ndes som en bra kompromiss mellan hastighet och stabilitet, n„r det inte trasslar till
+WPS interna f”r mycket. Jag hade ursprungligen t„nkt att anv„nda en subklass av
+<!-- V0.9.5: changed all the following -->
+WPAbstract f”r papperskorgen, men det skulle skapa en massa poster i OS2.INI med de vanliga problem som
+„r f”rknippade med det.
+
+<P>Dessutom, har anv„ndning av en subklass hos WPTransient ytterligare en f”rdel. Eftersom
+skr„pobjekten (transientobjekten) „r †terskapade fr†n scratch efter varje WPS omstart, om n†got
+skulle g† katastrofalt snett, kan du alltid manuellt radera all dolda <CODE>\TRASH</CODE> kataloger
+p† alla enheter, och efter n„sta startup av Skrivbordet, „r papperskorgen helt tom.
+<BR>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,105 @@
+<HTML RESID=&ID_XSH_SETTINGS_KERNEL1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Planner
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+Op deze pagina kunt u de &cfgsys; instellingen aanpassen die de &os2; planner be‹nvloeden.
+
+<!-- V0.9.13: changed this -->
+<P>Zie <A HREF="glossary/gls_scheduler.html">"Processen en threads"</A> voor een inleidende
+verklaring van wat de planner doet.
+<!-- end V0.9.13 -->
+
+<P>Deze hulppagina zal alleen de verschillende instellingen verklaren en ze relateren naar
+de betreffende &cfgsys; opdrachten.
+Als de informatie op deze pagina over de verschillende &cfgsys; instellingen niet genoeg is
+voor u, kunt u aanvullende informatie vinden in de respectievelijke hoofdstukken in de
+<I>Handleiding bij &os2; Opdrachten.</I>
+
+<P>Druk op <B>"Toepassen"</B> om de door u gemaakte aanpassingen weg te schrijven naar het
+&cfgsys; bestand.
+Dit zal alleen de regels aanpassen die overeenkomen met de instellingen op deze pagina.
+De regels overeenkomend met de andere pagina's in het "&os2; kernel" object zullen niet
+aangepast worden.
+Let a.u.b. op dat u de computer moet herstarten om de aanpassingen te laten werken. Een
+Werkplek herstart is <I>niet</I> voldoende.
+<P>Druk op <B>"Optimaliseer"</B> om &xwp; u nieuwe instellingen voor te stellen op basis van
+uw systeem karakteristieken.
+&cfgsys; zal ook alleen aangepast worden nadat u op "Toepassen" gedrukt heeft.
+<P>Druk op <B>"Standaard"</B> om de standaard &os2; instellingen op de notitieblok pagina
+getoond te krijgen.
+&cfgsys; zal ook alleen aangepast worden nadat u op "Toepassen" gedrukt heeft.
+
+<!-- V0.9.7: added this line; made the following an unordered list -->
+<P>De volgende velden zijn beschikbaar:
+
+<UL><LI>Het <B>"Huidige thread telling"</B> scherm toont u het totaal aantal momenteel
+draaiende threads op uw systeem. Dit scherm wordt continue bijgewerkt: als u een nieuw
+programma start zult u zien dat de thread telling zal toenemen.
+
+<P><LI>De <B>"Maximum thread telling"</B> instelling vertegenwoordigt de <CITE>THREADS</CITE>
+instelling in &cfgsys;. Hier kunt u opgeven hoeveel threads &os2; in totaal zal kunnen
+afhandelen. De maximum waarde is 4096. U kunt de planner zijn algemene kosten en geheugen verbruik
+verlagen door het verkleinen van dit getal.
+<!-- V0.9.13: added this -->
+&os2; gebruikt tenminste een geheugen pagina (4 KB) voor elke thread. Dat wil zeggen
+dat als u 1024 threads opgeeft u al 4 MB geheugen gebruikt heeft.
+<!-- end V0.9.13 -->
+Als u helemaal geen netwerk functionaliteit gebruikt, zou een waarde van 256 genoeg moeten zijn.
+<P>Let er echter op dat uw systeem zou kunnen vastlopen zonder verdere waarschuwing als u deze waarde te
+laag zet. Als een vuistregel kunt u de "Huidige thread telling" hierboven getoond nemen en daar 50% bij
+op tellen.
+<!-- V0.9.0: added the following -->
+Dat moet u genoeg veiligheid geven, want het merendeel van de threads wordt gestart door het systeem
+bij het opstarten en de meeste aanvullende processen gebruiken elk een of twee threads.
+
+<!-- V0.9.7: added this line -->
+<P>Zie de <A HREF="cmdref.inf#threads">documentatie</A> in de
+<I>Handleiding bij &os2; Opdrachten</I> voor details.
+
+<P><LI>De <B>"Sta prioriteitsversnelling toe"</B> instelling vertegenwoordigt de <CITE>MAXWAIT</CITE>
+instelling in &cfgsys;. Deze instelling bepaald hoeveel seconden processortijd een thread krijgt die
+klaar staat om uitgevoerd te worden ondanks het feit dat andere threads een hoger prioriteitsniveau hebben.
+Deze instelling heeft alleen invloed op threads met een "gewone" threads prioriteitsclass.
+De standaardwaarde is drie seconden.
+<!-- V0.9.16 , which I consider
+an appropriate value for fast computers (Pentium or better). However, if you have
+a slower system (486) you might experience a better system response if you lower this
+setting to 2 or 1 second(s). --> Bij het verlagen van deze waarde zullen "achtergrond" threads
+meer processortijd krijgen, maar dat gaat ten koste van "voorgrond" threads, die dan
+vaker onderbroken zullen worden. Experimenteer met deze instelling om er achter te komen
+welke waarde het beste past bij uw systeem. U dient echter geen hogere waarde op te geven dan
+3 seconden.
+IBM heeft aanbevolen om deze instelling te verlagen als u veel DOS/Windows applicaties gebruikt,
+maar u zou het NIET moeten verlagen als u niet veel geheugen in uw systeem heeft waardoor
+&os2; veel met het swap bestand werkt.
+
+<!-- V0.9.7: added this line -->
+<P>Zie de <A HREF="cmdref.inf#maxwait">documentatie</A> in de
+<I>Handleiding bij &os2; Opdrachten</I> voor details.
+
+<P><LI>De <B>"Voorgrond schijf I/O voorkeur"</B> instelling vertegenwoordigt de
+<CITE>PRIORITY_DISK_IO</CITE> instelling in &cfgsys;.
+Als deze instelling geactiveerd is (wat de standaard is),
+<!-- V0.9.12: rewrote the following -->
+zal de huidige voorgrond applicatie een prioriteitsverhoging krijgen als zijn schijf activiteit
+klaar is. Dit geldt voor het eerste tijdsvak dat aan de thread gegeven wordt nadat de schijf
+activiteit klaar is. Na het tijdsvak wordt de status van de thread terug gezet en wordt de
+prioriteitsverhoging verwijderd.
+Als gevolg hiervan zal de voorgrond sessie een betere reactie snelheid hebben, tenminste wanneer
+het de schijven in uw systeem benaderd.
+<!-- end V0.9.12  -->
+<P>U zou deze instelling kunnen willen deactiveren als u vaak programmatuur in de achtergrond
+draait met veel schijf toegang, zoals compilers.
+
+<!-- V0.9.7: added this line -->
+<P>Zie de <A HREF="cmdref.inf#priority_disk_io">documentatie</A> in de
+<I>Handleiding bij &os2; Opdrachten</I> voor details.
+
+</UL>
+</BODY>
+</HTML>
+

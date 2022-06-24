@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: šber Laufwerke, Volumen und Partitionen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+&os2; verwendet die folgenden Begriffe in bezug auf Speichermedien:
+ 
+<OL><LI>Ein <B>Laufwerk</B> ist eine logische Einheit, der vom &os2;-Kernel
+ein Laufwerksbuchstabe zugewiesen wurde. Folglich kann man bis zu 26
+Laufwerke haben, die von <CODE>A:</CODE> bis <CODE>Z:</CODE> benannt werden.
+ 
+<P>Der &link_drivesfdr; zeigt alle Laufwerke, die auf einem System derzeit
+definiert sind. Per Definition sind die Laufwerke <CODE>A:</CODE> und <CODE>B:</CODE>
+stets Diskettenlaufwerke. Andere Laufwerksbuchstaben repr„sentieren entweder
+Festplatten-Volumen (siehe unten), CD-ROM- oder DVD-Laufwerke, Netzwerk-Ressourcen,
+denen ein Laufwerksbuchstabe zugewiesen wurde, oder andere Speichermedien.
+ 
+<P><LI>Ein <B>Volumen</B> ist ein Konzept, das nur fr Festplatten definiert ist,
+und besteht aus einer oder mehreren Partitionen (siehe unten). Ein Volumen
+muá mit einem bestimmten <A HREF="glossary/gls_fs.html">Dateisystem</A>
+formatiert sein, um Daten speichern zu k”nnen.
+ 
+<P><LI>Eine <B>Partition</B> ist ein physisches Segment einer Festplatte.
+Um fr Personal Computer nutzbar zu sein, muá jede Festplatte wenigstens eine
+Partition enthalten. Festplatten k”nnen jedoch in mehr als eine Partition
+unterteilt werden, z.B. wenn man mehr als ein Betriebssystem oder verschiedene
+Dateisysteme nutzen will.
+ 
+</OL>Der <B>Logical Volume Manager (LVM)</B> von &os2; erlaubt es,
+Volumen und Partitionen zu erstellen, zu l”schen und zu ver„ndern. Benutzen
+Sie LVM, um einem Volumen einen Laufwerksbuchstaben zuzuweisen oder um ein
+Volumen vor &os2; zu verstecken.
+<IFDEF __EWORKPLACE__>
+Details siehe <A HREF="lvmhelp.inf"><I>"Einfhrung in den Logical Volume Manager"</I></A>.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Details siehe <A HREF="usinglvm.inf"><I>"Benutzung von LVM"</I></A>.
+</IFNDEF>
+ 
+<P>Es gibt mehrere M”glichkeiten, LVM zu starten:
+ 
+<UL><LI>Aus dem &link_drivesfdr; w„hlen Sie "Platteneinheiten verwalten" im
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+ 
+<P><LI>Aus dem &link_syssetupfdr; starten Sie das "Logical Volume Manger"-Objekt.
+ 
+<P><LI>™ffnen Sie eine <A HREF="glossary/gls_cmd.html">Befehlszeile</A> und
+geben Sie <CODE>LVM</CODE> ein. Im Gegensatz zu den vorherigen Optionen
+startet dies die Textmodus-Version von LVM.
+ 
+</UL>Weitere Informationen erhalten Sie durch Auswahl eines verwandten Themas aus der nachstehenden Liste:
+ 
+<UL>
+<LI>&link_syssetupfdr;
+<LI><A HREF="tasks/tsk_format.html">Speichermedien formatieren</A>
+<LI><A HREF="glossary/gls_cmd.html">šber Befehlszeilen</A>
+</UL>
+</BODY>
+</HTML>
+ 

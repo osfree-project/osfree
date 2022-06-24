@@ -1,0 +1,67 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPS;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Inst„llningar
+    </TITLE>
+</HEAD>
+<BODY>
+P† den h„r sidan kan du st„lla in n†gra f† WPS inst„llningar i &cfgsys;.
+<P>Om informationen p† den h„r sidan ang†ende de olika &cfgsys; inst„llningarna inte „r
+tillr„ckliga f”r dig, kan du hitta ytterligare f”rklaringar i respektive kapitel hos
+<I>&os2;'s Kommandoreferens.</I>
+
+<P>Tryck <B>"Verkst„ll"</B> f”r att f† „ndringarna du gjorde skrivna till &cfgsys; filen.
+Detta kommer endats att „ndra de &cfgsys; rader vilka korresponderar till inst„llningarna hos
+sidan. De rader som korresponderar till de andra sidorna i "&os2; K„rna" objektet kommer inte att
+„ndras. Den h„r knappen „r aktiv endast om du har gjort n†gra „ndringar hos inst„llningarna
+p† sidan. Var v„nlig notera att du m†ste starta om datorn f”r att „ndringarna skall 
+f† effekt. En omstart av Skrivbordet „r <I>inte</I> tillr„ckligt.
+<P>Tryck <B>"Optimera"</B> f”r att &xwp; skall f”resl† dig nya inst„llningar i enlighet med
+ditt systems karakt„ristik. &cfgsys; kommer endast att „ndras efter att du tryckt "Verkst„ll",
+ocks†.
+<P>Tryck <B>"Standard"</B> f”r att f† &os2;'s standardinst„llningar visade p† notbokssidan.
+&cfgsys; kommer endast att „ndras efter att du tryckt "Verkst„ll", ocks†.
+<P>I <B>"Autostart"</B> gruppen kan du st„lla in vad som skall startas n„r din dator bootas upp.
+Detta korresponderar till
+<CITE>SET AUTOSTART=xxx</CITE> inst„llningen i &cfgsys;, med "xxx" varande:
+<UL><LI><CITE>PROGRAMS</CITE>: Om du avaktiverar detta, kan inga <B>program</B> startas,
+undantaget f”r de program som finns i "System startup" mappen.
+<BR><LI><CITE>TASKLIST</CITE>: Om du avaktiverar detta, kommer <B>aktiva sessioner</B> inte
+att visas.
+<BR><LI><CITE>FOLDERS</CITE>: Om du kunde avaktivera detta, skulle inga mappar ”ppnas, och
+d„rmed inte heller Skrivbordet. Det „r orsaken till att alternativet inte visas p† notbokens
+sida och alltid kommer att l„ggas till av &xwp;.
+<BR><LI><CITE>CONNECTIONS</CITE>: Om du avaktiverar detta, kommer inga <B>n„tverksuppkopplingar</B>
+att startas.
+<BR><LI><CITE>LAUNCHPAD</CITE>: Om du avaktiverar detta, kommer <B>Snabbpanelen</B> inte att startas.
+Men du kan fortfarande placera den i "System startup" mappen eller starta den manuellt.
+<BR><LI><CITE>WARPCENTER</CITE>: Om du avaktiverar detta, kommer <B>&warpcenter;</B> inte att startas.
+Det h„r alternativet g„ller bara f”r OS/2 Warp 4 och h”gre. Men du kan fortfarande placera den i 
+"System startup" mappen eller starta den manuellt.
+
+</UL>Som standard, „r alla alternativ aktiverade.
+
+<P>I gruppen <B>"Starta om efter system startup..."</B> kan du best„mma vilka objekt som skall 
+startas om efter att WPS har bootats. Detta korresponderar till <B>SET RESTARTOBJECTS=xxx</B> 
+inst„llningen i &cfgsys;:
+<UL><LI><B>"Allt"</B> (<CITE>SET RESTARTOBJECTS=YES</CITE>) kommer att starta alla objekt som var
+”ppna n„r systemet st„ngdes av senaste g†ngen. Olyckligtvis, „r detta standardv„rdet. 
+<B>Notera:</B> Starta om alla objekt fungerar inte om du anv„nder &xwp;'s Ut”kade Avst„ngning.
+<BR><LI><B>"Ingenting"</B> (<CITE>=NO</CITE>) startar inte om n†gra objekt, inte ens de i 
+"System startup" mappen. (Men det startar de som finns i &xwp; Startupmapp).
+<BR><LI><B>"Startupmappar endast"</B> (<CITE>=STARTUPFOLDERSONLY</CITE>) kommer endast att starta 
+om objekten i &os2;'s System startupmapp. Den h„r inst„llningen rekommenderas starkt eftersom
+standardinst„llningen kan leda till enorma problem om ett program har k”rt ner systemet
+och sedan startas om. Som till„gg, &xwp; utg†r ifr†n att du har den inst„llningen aktiverad.
+<BR><LI><B>"Efter ombootning endast"</B> (<CITE>REBOOT ONLY</CITE>) kommer att starta om allt 
+om systemet just har bootats om och inte efter att WPS startats om efter ett fel. Det h„r „r bara
+vettigt om du anv„nder optionen "Allt" ovanf”r.
+
+</UL>Med Warp 4, kan du ocks† avaktivera inst„llningen <B>"Automatisk f”rnyelse av mappar",</B> vilket
+„r aktiverat som standard. I detta fall kommer ”ppna mappar att f”rnyas endast om du g”r det 
+manuellt, d„rf”r att auto-f”rnya ibland tar f”r mycket tid. Den h„r inst„llningen korresponderar till
+<CITE>SET AUTOREFRESHFOLDERS=xxx</CITE> (med xxx = YES eller NO).
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,120 @@
+<HTML NOSUBLINKS="config" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Turbo Folders
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.16 -->
+<BODY>
+<B>Classes: XFolder, XWPFileSystem, XFldDataFile, XWPProgram, XWPProgramFile</B><HR>
+"Turbo folders" are a shorthand name for a large number of enhancements to
+the internal handling of folder contents in the Workplace Shell. In short,
+opening folders with lots of files in them will become <I>significantly</I>
+faster.
+
+<P>For safety, turbo folders are disabled by default. You can turn them on
+in the <A HREF="sys_2global.html">"&xwp; Setup" object</A>.
+
+<!-- V1.0.1 (2002-12-15) [umoeller] added this -->
+<P>The speed enhancements provided with folder populating are described on
+this page. Note that starting with V1.0.1, when you enable turbo folders,
+extended associations are enabled automatically as well. As it has turned
+out, enabling only one of them made the WPS quite unstable. See
+<a href="file_1extassocs.html">Extended file associations</a> for a
+detailed description of that feature.
+
+<P><B>Short description</B>
+
+<P>When a folder is first opened in the WPS, it is "populated" -- which means
+that all the files are collected from the directory that is represented
+by the folder. As you will know, the WPS is not good at handling large amounts
+of files. Opening folders with many objects (say, a thousand files or more)
+can hog the system for minutes.
+
+<P>"Turbo folders" can partly fix this problem. Below is a benchmark comparison
+for some pathological folders with the time in seconds that populating these
+folders has taken on my system. This benchmark only shows the time that
+invoking the <CODE>QUICKOPEN=IMMEDIATE</CODE> XFolder setup string has consumed.
+As usual, your results may vary, depending on the speed of your hard disks
+and processor(s).
+
+<PRE>
+                        turbo off       turbo on
+
+    JFS folder with       160 s           53 s
+    10,000 files
+
+    JFS folder with       211 s           60 s
+    13,000 files
+
+    HPFS folder with                      56 s
+    10,000 files
+</PRE>
+
+Apparently the time the WPS normally takes for populating folders increases
+exponentially with the number of files in the folder.
+
+<P><B>Detailed description</B>
+
+<P>Essentially, the "turbo folders" feature is a full rewrite of the folder
+populate code. &xwp; uses the following techniques to make this a lot faster:
+
+<UL><LI>Each folder now has a binary balanced tree containing all the objects that
+have been added to the folder's internal content list so far. For file-system
+objects, this tree is sorted by the objects' short real names. This makes
+it much more efficient to find out if the object is already in the tree or
+still needs to be added. I assume that the original checkup code in the WPS
+is responsible for the enourmous delays with large amounts of files.
+
+<P><LI>Instead of only one extra thread, "turbo folders" will start two
+extra threads for populating a folder. One is reponsible for collecting file
+data from the disk (via the
+<CODE>DosFindFirst</CODE> and
+<CODE>DosFindNext</CODE> system APIs), and the other one is responsible for
+checking whether the object is already awake and creating a new object, if
+necessary.
+
+<P>Depending on the file system, the above two APIs can be quite slow when extended
+attributes have to be collected (as is the case with the WPS). While this happens,
+the calling thread is blocked, doing nothing but waiting
+for data from the hard disk to arrive. This idle time can now be used by the other
+thread for creating the object in memory, which can be quite time consuming as well.
+
+<P>In addition, using two threads will scale better on multi-processor
+(SMP) systems.
+
+<P>The above two techniques together made folder populating
+so much faster. The time that is now needed for populating the folder roughly
+equates the time that the system spends in the
+<CODE>DosFindFirst</CODE> and
+<CODE>DosFindNext</CODE> system APIs, so I do not think this can be sped up much
+more (unless somebody manages to make these system APIs more efficient).
+
+<P><LI>"Turbo folders" also completely replaces the icon loading for executable
+files. As you will know, if you open a folder with .EXE files, the WPS will
+attempt to find an icon in the executable and, if one is found, use it for
+the object. Program and data file objects will also load icons from executables.
+
+<P>The WPS code for loading icons suffers from several limitations. Most
+importantly, it appears to be slow. This code has also been totally replaced in
+&xwp;.
+
+<P>In addition, the WPS does not appear to share icons much in the WPS.
+&xwp; will also attempt to reuse icons as much as possible to avoid the
+need to reload them from the executables all the time.
+
+<P>Essentially I am no longer allowing the WPS to read
+executable icons at all, but will only use my own code for now. This works
+for LX and Win16 and OS/2 NE executables. Win32 PE resources (as used by
+most executables under Windows 95 or newer) are presently
+not understood; PE files will receive a dull default icon, but at least the
+WPS will no longer hang forever with them.
+
+<P>As one side effect, this will change the behavior for Win16 icons if the
+system icon size is 40x40; instead of scaling, &xwp; will now center the
+32x32 icon.
+
+</UL>
+</BODY>
+</HTML>
+

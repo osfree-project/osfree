@@ -1,0 +1,70 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Der &xwp;-Papierkorb
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.0. -->
+<BODY>
+<B>Klassen: XFldObject, XWPTrashCan, XWPTrashObject</B><HR>
+Seit V0.9.0 fhrt &xwp; auch einen Papierkorb ein.
+<IMG SRC="file_2trashcan.gif" ALIGN=RIGHT>
+ 
+<P>Die meisten werden wahrscheinlich mit dieser Funktion vertraut sein, da MacOS, Windows 95 und
+KDE (auf Linux) diese Funktion auch besitzen. Grunds„tzlich speichert der Papierkorb
+alle im System gel”schten Objekte tempor„r, so daá man sie zurckbekommen
+kann, falls man einmal etwas unbeachsichtigt gel”scht hat, indem man den Papierkorb
+(der sich wie jeder Ordner verh„lt) ”ffnet und ein Objekt wiederherstellt.
+<!-- V0.9.3: added the following -->
+<P>Mit &xwp; f„ngt der Papierkorb alle L”schoperationen der WPS ab. (Er f„ngt
+<I>keine</I> Operationen von der Befehlszeile oder die &os2;-<CODE>DELDIR</CODE>-Einstellung ab.)
+ 
+<!-- V0.9.3: added the following paragraph -->
+<P><B>Hinweis:</B> Der Papierkorb wird bei der Installation nicht automatisch erstellt,
+und die Untersttzung des Papierkorbs fr L”schoperationen ist anfangs deaktiviert,
+um Verwirrung zu vermeiden. Damit der Papierkorb funktioniert, mssen Sie ihn
+auf der Seite "Funktionalit„t" des Objekts <A HREF="sys_2global.html">"&xwp;-Konfiguration"</A>
+aktivieren.
+ 
+<P>Das <B>L”schen</B> eines Objekts in den Papierkorb kann auf zweierlei Weise vorgenommen werden:
+ 
+<OL><LI><B>Ziehen und bergeben</B> Sie das/die Objekt(e) an das Papierkorbsymbol oder eine offene
+Ansicht des Papierkorbs.
+ 
+<!-- V0.9.7: changed the following paragraph -->
+<P><LI>&xwp; kann auch die <B>"L”schen"-Befehle der WPS</B> abfangen.
+Dies trifft sowohl auf den Meneintrag im Kontextmen eines jeden Objektes als auch
+die Taste "Entfernen" zu, wenn sie in einem Ordnerfenster gedrckt wird. Bei beiden Aktionen
+werden dann die ausgew„hlten Objekte erst einmal in den Papierkorb verschoben, anstatt sie
+wirklich zu l”schen.
+<!-- V0.9.3: removed this
+Note: For the second option to work, you need to enable this feature
+changed the following link with V0.9.1
+on the "Features" page in the "&xwp; Setup" object.
+This is disabled per default to avoid confusion. -->
+ 
+<!-- V0.9.3: added this -->
+<P>Sie k”nnen immer noch einen "echten" L”schvorgang (d.h. das Objekt wird wirklich
+gel”scht, anstatt es in den Papierkorb zu verschieben) durchfhren, indem Sie die
+"Umschalt"-Taste gedrckt halten, w„hrend Sie auf den Meneintrag "L”schen"
+im Kontextmen eines Objektes klicken oder die Taste "Entf" drcken.
+ 
+</OL>Sind die Objekte erst einmal im Papierkorb, k”nnen Sie sie entweder <B>entfernen</B>
+(wodurch das Objekt wirklich gel”scht wird) oder <B>wiederherstellen</B> lassen (wodurch das
+Objekt wieder an die Stelle versetzt wird, an der es sich vorher befunden hat).
+<P><IMG SRC="trashcan.gif">
+ 
+<P>Wenn sich Objekte darin befinden, erh„lt das Papierkorb-Objekt selbst zudem einen
+zus„tzlichen Meneintrag namens <B>"Papierkorb ausleeren"</B>, der <I>s„mtliche</I>
+Objekte, die sich im Papierkorb befinden, endgltig l”scht.
+ 
+<P>Das Einstellungsnotizbuch des Papierkorbs besitzt eine neue Einstellungsseite mit zus„tzlichen
+Funktionen. W„hlen Sie auf dieser Seite <B>"Hilfe"</B>, um weitere Informationen aufzurufen.
+ 
+<P>Wenn Sie an Details dazu interessiert sind, wie der Papierkorb intern funktioniert, lesen Sie
+bitte die <A HREF="further_2howxtrash.html">entsprechende Seite</A> im Abschnitt "&xwp;-Interna".
+<BR>
+</BODY>
+</HTML>
+ 
+ 

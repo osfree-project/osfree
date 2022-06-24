@@ -1,0 +1,115 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.3
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.3 (June 5, 2000)</B>
+
+<P>New features:
+<UL><LI>Added CMDREF.INF support to "Drivers" page in "OS/2 Kernel".
+<P><LI>Added configuration support for original IBM1S506.ADD.
+<P><LI>Added help to "Drivers" page and IBM1S506.ADD/DANIS506.ADD dialog.
+<P><LI>Added "&pgr;" configuration pages to "Screen" object. Added more colors
+to be configurable.
+<P><LI>Added <A HREF="mouse_82funckeys.html">"function key" support.</A>
+<P><LI>Added a new system sound for "hotkey pressed". Found a nice sound for this
+in my library too. If this doesn't show up in your
+"Sound" object, disable and enable system sounds once in XWPSetup, and answer "Yes" twice
+to the questions whether system sounds should be removed and installed.
+<P><LI>Implemented arrow hotkeys for quick &pgr; desktop switching.
+<P><LI>Added new "Paranoia" setting for disabling the more advanced XFolder menu functions,
+in case these still don't work right somewhere.
+<P><LI>Major rework of the XWP file operations engine. Added "True delete" support
+(Shift + delete).
+Proper error handling and progress display for folders containing other objects.
+Trash can can finally delete subfolders with read-only files.
+<P><LI>Implemented confirmations for trash object destruction.
+<P><LI>Added error explanation to "Drive not ready" dialog.
+<P><LI>Updated bm-lvm.cmd by Nenad Milenkovic.
+<P><LI>Shutdown animation can now be enabled for reboots too.
+
+</UL>Miscellaneous changes:
+<UL><LI>Removed "HPFS" page from "OS/2 Kernel" since we have a "Configure" dialog on the
+"Drivers" page also.
+<P><LI>Made "Syslevels" container a bit larger.
+<P><LI>Folder "BACKGROUND" setup string now returns the boot drive as "?:\" to make it
+portable.
+<P><LI>Added better error management to trash can file processing. When deleting files
+from non-supported drives, you'll get prompted whether the file should be "really"
+deleted instead of just complaining.
+<P><LI>Sped up populating trash can which was kinda slow because of excessive repaints,
+especially in Details view.
+<P><LI>Reworked multimedia. Added new Media thread responsible for playing sounds and
+such. SOUND.DLL is gone, finally; found a better way of doing this, thanks to a hint
+by Achim HasenmÅller.
+<P><LI>Dramatically sped up &pgr; window movement.
+<P><LI>Moved some more folder message processing code out of my exception handlers
+so I don't get blamed for crashes in the default WPS processing.
+<P><LI>Added SYM parsing in exception handlers for Warp 3 and Aurora UNI kernels.
+<P><LI>Added new memory heap debugging system for debug builds.
+
+</UL>Bugfixes:
+<UL><LI>Network drives refused to open if "Replace drive not ready" was enabled.
+Hope to have fixed that now.
+<P><LI>Mouse mappings page 2 wasn't showing "Page 2/2". Fixed.
+<P><LI>"WPS Class List" got confused with open windows and views so that folder views
+got closed when the class list view got closed. Fixed.
+<P><LI>Disabling "Snap to grid" in "&xwp; Setup" had no effect on context menus. Fixed.
+<P><LI>ICONSHADOWCOLOR setup string was reported as TREESHADOWCOLOR. Fixed.
+<P><LI>Completely reworked folder subclassing management (see src/folder/fdrsubcl.c).
+After two years, I have finally come up with a new way of storing folder data, which
+replaces the old ugly routines which have been in XFolder/&xwp; forever. I hope
+this doesn't conflict with Object Desktop.
+Hope that this fixes the "no folder close" problem which everybody experiences
+irregularily from time to time.
+<P><LI>A timer which was started at Desktop startup was never stopped. Unfortunately, that
+timer's responsibility was to destroy the "Archiving" status window. Since the timer
+kept running, it kept trying to destroy that window, which resulted in random windows
+being destroyed from time to time in the WPS process... fixed that. This is maybe the
+strangest bug I've ever managed to get into a piece of software, and I only found it
+by accident. Duh.
+<P><LI>Fixed a few quirks with invisible trash can directory management. Sometimes
+the trash can left lots of empty hidden directories on the drives.
+<P><LI>When "Disable startup folder once" was checked in the "Panic" dialog at startup,
+the startup folder didn't even work when the context menu was used. Fixed.
+<P><LI>Fixed a considerable PM resource leak with bootlogo bitmaps, which were never deleted
+after creation.
+<P><LI>Fixed a couple of minor memory leaks.
+<P><LI>When a PM hard error window popped up while the startup folder was being processed,
+the startup folder would never disappear, and neither would the boot logo. Fixed.
+<P><LI>Updating open notebook pages when internal settings changed wasn't thread-safe.
+Fixed.
+<P><LI>"Drivers" page in "OS/2 Kernel" didn't detect non-existent drivers. Fixed.
+<P><LI>Driver dialog for IBM1S506/DANIS506.ADD crashed if the driver had no parameters
+at all in &cfgsys;. Fixed.
+<P><LI>DRVF_NOPARAMS broke. Fixed.
+<P><LI>"Dos window" replacement icon was missing a detail in 32x32 resolution. Thanks,
+Alfredo whatever-your-last-name-is from Spain, for supplying a replacement.
+<P><LI>"8.Helv" font wasn't set right in "Restart Desktop" confirmation dlg.
+<P><LI>&pgr; kept appearing in tasklist. Fixed that, because the daemon should not
+be closed.
+<P><LI>Extended system sounds were played even if disabled in XWPSetup. Fixed.
+<P><LI>Fixed a few quirks with daemon/hook settings, which weren't always serialized
+right.
+<P><LI>Virtual keys (such as function keys) didn't work as hotkeys in VIO windows.
+For some reason, WM_CHAR doesn't have the KC_VIRTUALKEY flag set with VIO
+sessions. Fixed that.
+<P><LI>Mouse pointer was gone forever when hook was uninstalled while the mouse pointer
+was hidden. Fixed.
+<P><LI>Fixed the problems with sliding focus combo-boxes closing all the time.
+<P><LI>Fixed the problems with sliding focus and frames within frames (VIEW.EXE). You
+can now even slide between subframes of a main frame. ;-)
+<P><LI>Invoking &xshutdown; via launch pad broke with V0.9.0. Fixed.
+<P><LI>Fixed a few quirks at the end of shutdown, which prevented the system from displaying
+the animation and/or end box right.
+
+</UL>
+</BODY>
+</HTML>
+

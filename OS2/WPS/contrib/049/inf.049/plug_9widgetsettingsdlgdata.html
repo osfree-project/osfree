@@ -1,0 +1,102 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        WIDGETSETTINGSDLGDATA
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung der Einleitung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Hinweis:</B> Dies ist ein Ausschnitt aus der Datei <CODE>center.h</CODE>.
+Diese Definition ist nicht unbedingt aktuell. Benutzen Sie immer
+<CODE>center.h</CODE> im Verzeichnis der Widget-Quellen statt dieser
+Definition.
+
+<PRE>
+  /*
+   *@@ WIDGETSETTINGSDLGDATA:
+   *      a bunch of data passed to a "show settings
+   *      dialog" function (WGTSHOWSETTINGSDLG), if
+   *      the widget has specified such a thing.
+   *
+   *      &xcenter; widget settings dialogs basically
+   *      work as follows:
+   *
+   *      1.  You must a function that displays a modal
+   *          dialog. This function must have the following
+   *          prototype:
+   *
+   +              VOID EXPENTRY ShowSettingsDlg(PWIDGETSETTINGSDLGDATA pData)
+   *
+   *      2.  Store that function in the
+   *          XCENTERWIDGETCLASS.pShowSettingsDlg field for
+   *          your widget class.
+   *
+   *          This will enable the "Properties" menu item
+   *          for the widget.
+   *
+   *      3.  Your function gets called when the user selects
+   *          "Properties". What that function does, doesn't
+   *          matter... it should however display a modal
+   *          dialog and update the widget's settings string
+   *          and call ctrSetSetupString with the "hSettings"
+   *          handle that was given to it in the
+   *          WIDGETSETTINGSDLGDATA structure. This will give
+   *          the widget the new settings.
+   *
+   *          The address of the ctrSetSetupString helper is
+   *          given to you in this structure so that you
+   *          won't have to import it from XFLDR.DLL.
+   *
+   *      If a widget class supports settings dialogs,
+   *      it must specify this in its XCENTERWIDGETCLASS.
+   *
+   *@@added V0.9.7 (2000-12-07) [umoeller]
+   *@@changed V0.9.9 (2001-02-06) [umoeller]: added pctrSetSetupString
+   */
+
+  typedef struct _WIDGETSETTINGSDLGDATA
+  {
+      HWND                    hwndOwner;
+                  // proposed owner for settings dialog
+
+      const char              *pcszSetupString;
+                  // present setup string (do not change)
+
+      const LHANDLE           hSettings;
+                  // widget setting handle; this must
+                  // be passed to ctrSetSetupString;
+                  // DO NOT CHANGE
+
+      PXCENTERGLOBALS         pGlobals;
+                  // if != NULL, currently open &xcenter;
+                  // for which widget data is being changed.
+                  // If NULL, the &xcenter; isn't currently
+                  // open.
+
+      PXCENTERWIDGET          pView;
+                  // if != NULL, currently open view
+                  // of the widget. If NULL, the widget
+                  // isn't currently open.
+
+      PVOID                   pUser;
+                  // some room for additional data the
+                  // settings dialog might want
+
+      PCTRSETSETUPSTRING      pctrSetSetupString;
+                  // ptr to ctrSetSetupString function in
+                  // src\shared\center.c; this must be
+                  // called by the settings dialog to
+                  // change the widget's setup string.
+                  // This pointer has been added with V0.9.9
+                  // to allow using settings dialog without
+                  // having to import this from XFLDR.DLL.
+
+  } WIDGETSETTINGSDLGDATA, *PWIDGETSETTINGSDLGDATA;
+
+</PRE>
+
+
+<BR>
+</BODY>
+</HTML>

@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Disable all folder subclassing
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     V0.81:
+        -- Updated the list below which &xwp; items don't work
+           without subclassing.
+     V0.9.0: see notes below
+-->
+With this setting you can tell &xwp; not to subclass any folders.
+<P><B>Important note:</B> Many of &xwp;'s features RELY on folder subclassing.
+Enabling this setting will severely limit &xwp;'s capabilities. This setting is only
+meant to be a "last resort" in case &xwp; does not work properly on your system.
+<P>Enabling this setting will automatically disable the following &xwp; features:
+<UL><LI>Folder hotkeys;
+<BR><LI>Auto-scroll Tree views;
+<BR><LI>the
+<!-- V0.9.19: link added -->
+<A HREF="menus/menu_content.html">folder content menus</A>;
+<BR><LI>folder status bars;
+<BR><LI>folder and menu system sounds.
+
+</UL>Only folders which are opened after changing this setting will be affected.
+<!-- V0.9.0: added the following phrase -->
+That is, subclassing of folders which are currently open will not be undone.
+Especially the Desktop (which is a folder too) will not be affected. If you
+experience severe problems with &xwp;, you will have to reboot or restart the WPS.
+
+<P><B>Detailed explanation:</B>
+
+<P>As you might know, in &os2; (and Windows too), windows communicate with "messages"
+to notify each other of certain events.
+The base operating system also uses messages to notify windows of certain events. For
+example, every time you move or click the mouse or press a key, a window receives a
+notification message so it can react to it.
+<P>Now, "subclassing" is a very powerful feature of &os2;. It allows a program to intercept
+messages for a certain window or window class and thus make window react differently.
+&xwp; uses this feature all over the place, for example to intercept keyboard
+messages for folders. This is the way the folder hotkeys work: when &xwp; has
+intercepted a keyboard message and finds out that a hotkey has been defined for that
+key, the respective folder action is executed.
+<!-- V0.9.0: rewritten the following -->
+<P>Subclassing might lead to problems, however, if several programs try to subclass
+a window and do not know of each other. For example, the WPS uses subclassing
+intensively itself (which is not very well documented), and WPS enhancers other
+than &xwp; (e.g. Object Desktop) implement some of their features this way too.
+Unfortunately, there is no general "registry" which could offer information about
+which software has subclassed which windows, so &xwp; has no way to find out
+what other programs have done.
+<P>
+So if you feel that  something is going wrong, you can tell &xwp; to leave folder
+windows alone.
+<BR>
+</BODY>
+</HTML>
+

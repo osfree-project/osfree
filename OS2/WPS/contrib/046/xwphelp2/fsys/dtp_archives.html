@@ -1,0 +1,85 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_ARCHIVES;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Arkivering" Sidor Utbyte
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<IFNDEF __NOXWPSETUP__>
+&xwp; byter ut standard "Arkiverings" sidorna med en ut”kad version om
+respektive inst„llning har aktiverats i
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" objektet</A>.
+</IFNDEF>
+P† den h„r sidan, kan du st„lla in detaljerade kriterier f”r om ditt Skrivbord
+skall backas upp vid varje start av Skrivbordet.
+
+<P>F”r att kunna †terst„lla ett arkiv vilket har skapats med Workplace Shell's
+arkiveringsmekanism, tryck p† Alt-F1 n„r den
+<!-- V0.9.20 -->
+lilla vita "&os2short;" textboxen visas n„r systemet bootas upp.
+
+<IFNDEF __EWORKPLACE__>
+<P>Var v„nlig och se i <I>&xwp; Anv„ndarguide</I> f”r en introduktion till den h„r
+funktionen. Igen, den h„r ut”kade sidan modifierar inte sj„lva arkiveringsmekanismen;
+den best„mmer bara <I>om</I> arkivering „r aktiverad, i enlighet med de kriterier som
+du specifierade h„r.
+</IFNDEF>
+
+<!-- V0.9.16: moved this down
+Note that all these checks are only performed while the WPS is starting
+up. You will therefore have to restart the WPS to see any changes. -->
+
+<P>Inst„llningen <B>"Arkivera Skrivbord"</B> best„mmer om &xwp; kommer att utf”ra n†gon
+arkivering alls.
+
+<P>Om inst„llningen „r aktiverad, kan du i detalj p†verka <I>n„r</I> ditt Skrivbord skall
+backas upp.
+<!-- V0.9.16: -->
+Notera att alla dessa kontroller utf”rs endast n„r Skrivbordet startas upp. Du kommer d„rf”r
+att beh”va starta om Skrivbordet f”r att se n†gra „ndringar:
+
+<UL>
+<IFNDEF __EWORKPLACE__>
+<LI><B>"Vid varje startup av Skrivbordet"</B> g”r exakt samma sak som den generiska
+backupinst„llningen hos de gamla WPS "Arkiverings" sidorna. Om detta „r aktiverat, kommer
+Skrivbordet att backas upp varje g†ng som det startas upp.
+</IFNDEF>
+
+<IFDEF __EWORKPLACE__>
+<LI>Om <B>"Vid varje startup av Skrivbordet"</B> „r f”rbockad, kommer Skrivbordet at backas upp
+varje g†ng det startas upp. Detta „r samma beteende som med OS/2 Warp.
+</IFDEF>
+
+<P><LI><B>"Endast vid n„sta startup av Skrivbordet"</B> kommer att backa upp Skrivbordet
+exakt en g†ng. Efter n„sta startup av Skrivbordet, kommer den h„r inst„llningen att avaktiveras
+igen automatiskt.
+
+<P><LI><B>"Om INI filerna har „ndrats..."</B> kommer att g† igenom
+<CODE>OS2.INI</CODE> and <CODE>OS2SYS.INI</CODE> filerna under startup av Skrivbordet och
+ber„kna ett antal checksummor f”r att ta reda p† hur mycket inneh†llet i filerna har
+„ndrats. Om den ber„kningen ”verskrider den procentsats som du har specificerat med den h„r
+inst„llningen, kommer ditt Skrivbord att backas upp automatiskt.
+<P>Anv„ndbara v„rden f”r detta „r mellan 0.5 och 5 procent. Om du specificerar v„ldigt l†ga
+v„rden, kanske ditt Skrivbord kommer att backas upp vid varje startup.
+
+<P><LI><B>"Varje xxx dag"</B> kommer helt enkelt att kontrollera n„r det senaste arkivet skapades;
+om fler dagar har passerat „n det antal du specificerade, kommer ditt Skrivbord att backas upp.
+<P>Notera att detta kontrollerar endast kalenderdatum, inte den tid (t.ex. timmar) som har passerat.
+Om du startar om ditt Skrivbord en minut efter midnatt, kommer kanske ditt Skrivbord att
+backas upp igen, „ven om det har backats upp „ven alldeles f”re midnatt.
+
+</UL>Inst„llningen <B>"Visa status vid bootup"</B> best„mmer om &xwp; visar ett annat statusf”nster
+medan Skrivbordet startas, vilket visar resultaten av de f”rut n„mnda ber„kningarna. Detta kan
+vara anv„ndbart f”r att testa dina inst„llningar.
+
+<P><B>"Beh†ll xxx arkiv"</B> l†ter dig specificera hur m†nga arkiv som skall beh†llas av Skrivbordet i
+arkivets katalogtr„d. Detta „r som standard 3, men du kan beh†lla upp till 9 arkiv, teoretiskt.
+Emellertid, om antalet ”verskrider 3, kommer den standardsk„rm som kommer upp n„r du trycker
+Alt-F1 under systemstartup att delvis vara ol„slig, d„rf”r att den ytterligare arkivinformation
+kommer att scrollas ”ver toppen p† sk„rmen. Detta g”r ingen skada, men det ser fult ut.
+<BR>
+</BODY>
+</HTML>
+

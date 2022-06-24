@@ -1,0 +1,82 @@
+<HTML RESID=&ID_XSH_SETTINGS_DISKDETAILS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Disk Details
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.16: changed the following -->
+The "Details" page in disk properties notebooks shows you additional file-system
+information of a disk object.
+<IFNDEF __NOXWPSETUP__>
+&xwp; replaces the "Details" page in disk properties notebooks with
+a new, enhanced page. To get the original "Details" page back, disable
+the respective setting in the
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+</IFNDEF>
+<P>Except for the "Drive label" field, this information cannot be changed from
+this page.
+<!-- end V0.9.16 -->
+
+<OL><LI>The <B>"Drive details"</B> group offers you the following information:
+
+<BR><OL><LI><B>Drive label:</B> This is the file-system level drive label as you might have
+entered it on the
+<IFNDEF __EWORKPLACE__>
+&os2;
+</IFNDEF>
+command line using the <CODE>LABEL</CODE> command.
+&xwp; now allows you to change the drive label on the notebook page, without
+having to use the command line. This might be useful because many "File open"
+dialogs show you the drive labels, since they have no access to the WPS's disk object
+title.
+<P>
+The drive level is limited to 11 characters and will always be converted to upper case.
+
+<P><LI><B>File system:</B> the file-system type of the disk. This is probably either
+"FAT", "HPFS", "JFS", or "CDFS" (for CD-ROM drives). There may be other file-system
+types, if you have additional Installable File Systems (IFS's) installed.
+
+<!-- V0.9.13: added this line -->
+<P>See <A HREF="glossary/gls_fs.html">"File systems"</A> for an introduction to file systems.
+
+<!-- V0.9.12: renamed "bytes per sector" -->
+<P><LI><B>Block size:</B> This shows you the size of the minimum allocation unit
+on the disk. That is, if a file of 1 byte length is created, at least this number
+of bytes will be allocated on the disk.
+
+<P>For <B>HPFS volumes,</B> this number should always be 512.
+
+<!-- V0.9.12: added JFS -->
+<P>For <B>JFS volumes,</B> this number depends on what was specified when the
+volume was formatted. JFS allows block sizes of 512, 1024, 2048, and 4096, where
+4096 is the default.
+
+<P>For <B>FAT volumes,</B> the block size depends on the size of the disk. Since the
+file allocation tables on FAT volumes can only handle a limited number of blocks,
+for larger disks, more bytes have to be used for each blocks. As a result, the larger
+your FAT volumes are, the more bytes are wasted because of growing block sizes:
+<PRE>
+Drive size      Block size
+&lt;   16 MB          4 KB
+&lt;   32 MB          2 KB
+&lt;   64 MB          2 KB
+&lt;  128 MB          2 KB
+&lt;  256 MB          4 KB
+&lt;  512 MB          8 KB
+&lt; 1024 MB         16 KB
+&lt; 2048 MB         32 KB</PRE>
+</OL><LI>The <B>"Allocation"</B> group offers you information about the disk's
+usage. Total size, allocated and free space space are shown in bytes
+and blocks, where the "Bytes" information is the "Block" information
+multiplied by the "Block size" information above.
+<P>
+In addition, you now get a pie chart showing you the free space on the
+disk (in green).
+</OL>
+<BR>
+</BODY>
+</HTML>
+

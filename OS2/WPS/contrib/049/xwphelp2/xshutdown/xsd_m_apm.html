@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        "Abschalten mit APM V1.2"
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- V0.9.19: title changed -->
+<BODY>
+Wenn diese Option aktiviert ist, versucht &xshutdown;, den Rechner nach Beendigung
+des Systemabschlusses automatisch abzuschalten, statt das normale Fenster mit der
+Nachricht zu zeigen, da· man nun den Rechner abschalten kînne.
+ 
+<!-- V0.9.7: changed all the following. -->
+<P>Dies funktioniert nur, wenn der Rechner es unterstÅtzt. Dazu mÅssen sowohl das
+BIOS als auch die &os2;-Version mindestens
+<!-- V0.9.19: added link -->
+<A HREF="glossary/gls_apm.html">APM Version 1.1</A>
+verarbeiten kînnen. Die APM-Version des
+Systems (und die Version des APM.SYS-Treibers) werden fÅr Sie schon auf der
+Systemabschlu·-Seite angezeigt.
+ 
+<P>Wenn die Option <B>"Verzîgerung"</B> ebenfalls aktiviert ist, wartet &xshutdown;
+drei Sekunden, bevor es die Abschalt-Anforderung an den <CODE>APM.SYS</CODE>-Treiber schickt.
+Das kann auf einigen System helfen, bei denen der APM-Treiber den Strom schon abschaltet,
+noch bevor der Cache komplett auf die Platte geschrieben ist. Wenn das System CHKDSK
+ausfÅhrt, nachdem Sie die APM-Abschaltung benutzt haben, sollten Sie diese Option
+aktivieren.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

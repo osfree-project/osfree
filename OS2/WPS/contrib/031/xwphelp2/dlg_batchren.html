@@ -1,0 +1,64 @@
+<HTML RESID=&ID_XFH_BATCHRENAME;>
+<HEAD>
+    <TITLE>
+        &xwp;: Objecten een andere naam geven
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.19 -->
+<BODY>
+Het "Hernoem objecten" menu onderdeel maakt het u mogelijk om veel objecten ineens
+een andere naam te geven door <A HREF="glossary/gls_regexps.html">uitgebreide regelmatige uitdrukkingen</A>
+te gebruiken ("batch rename").
+Let op dat eenvoudige <A HREF="glossary/gls_wildcards.html">jokerteken</A> uitdrukkingen
+niet door deze dialoog worden ondersteund.
+
+<P>"Batch rename" kan zeer bruikbaar zijn als in ‚‚n keer veel objecten een andere naam
+moet worden gegeven die voldoen aan dezelfde criteria - - b.v., indien u alle bestanden die eindigen op
+<CODE>.JPEG</CODE> wilt wijzigen naar <CODE>.jpg</CODE>.
+
+<P>"Batch rename" gaat als volgt:
+
+<!-- V0.9.20: replace UL with OL tag and /UL with /OL -->
+<OL><LI>Zet een <B>"zoek" regelmatige uitdrukking</B> in het bovenste invoerveld. Dit
+is de tekst waartegen de objecten worden getest volgens de regels de zijn vastgelegd in
+<A HREF="glossary/gls_regexps.html">uitgebreide regelmatige uitdrukkingen</A>.
+
+<P>B.v., als u hier opgeeft <CODE>(.*)\.JPEG</CODE>, zullen alle bestanden die eindigen op
+<CODE>(.*)\.JPEG</CODE> hernoemd worden.
+
+<P>Let erop dat ieder tekst onderdeel dat u wilt vervangen door een andere tekst
+wordt opgegeven tussen 'rechte haken' ('[' en ']'). Anders kunt u het component niet verwijzen
+vanaf de "hernoem naar" uitdrukking.
+
+<P><LI>Zet een  <B>"hernoem naar" uitdrukking</B> in het tweede invoer veld.
+Dit bepaalt de regel volgens welke ieder object wordt hernoemd.
+
+<P>Merk op dat de te vervangen teksts geen volledige vaste uitdrukking is omdat het
+niet gebruikt wordt voor corresponderende objecten.
+Als resultaat, hoeft u geen speciale tekens te vergeten zoals de punt ('.').
+Echter, een backslash ('\') met een decimaal teken wordt beschouwd als een referentie
+in een 'rechte haak' ('[' en ']') uitdrukking in de zoek reeks.
+
+<P>Met bovenstaand voorbeeld, om de files te een andere naam te geven die eindigen op <CODE>.JPEG</CODE> naar
+<CODE>.jpg</CODE>, specificeer <CODE>\1.jpg</CODE>.
+Met een object genaamd <CODE>FILE.JPEG</CODE> gehouden tegen de <CODE>(.*)\.JPEG</CODE> zoek tekst,
+zal <CODE>\1</CODE> in de titel van het object <CODE>FILE</CODE> opleveren, dus het object wordt hernoemd
+naar <CODE>FILE.jpg</CODE>
+
+<P><LI>Selecteer of de-selecteer het <B>"Hoofd/kleine letter gevoeligheid"</B> veld, afhankelijk of de zoekreeks
+moet worden gebruikt ongeacht hoofdletters.
+
+<P><LI>Indien u <B>"Alleen overeenkomend met geselecteerde objecten"</B>  selecteert zal het zoek proces alleen
+van toepassing zijn op objecten die momenteel geselecteerd zijn in de map.
+Anders worden alle objecten in de map op de "zoek" reeks gecontroleerd.
+
+<P><LI>Druk op de <B>"Start andere naam geven ..."</B> toets. Dit zal u dan vragen voor ieder object dat overeenkomt
+met de bron tekst en geeft u de voorgestelde naam op zo kunt u verifi‰ren of de tekst die u ingevoerd
+heeft werkelijk doet wat u wilde bereiken.
+
+</OL>De dialoog onderhoudt een overzicht van respectievelijk de laatste tien geldige bron en doel uitdrukkingen.
+U kunt dit overzicht benaderen via het uitrolscherm van ieder invoerveld.
+
+</BODY>
+</HTML>
+

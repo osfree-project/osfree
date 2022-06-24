@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: IP-Adressen
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+In einem &link_tcpip;-Netzwerk werden <B>IP-Adressen</B> benutzt,
+um Rechner eindeutig zu identifizieren. Eine IP-Adresse ist eine
+32-Bit-Nummer, die blicherweise als vier Zahlen von 0 bis 255,
+wie z.B. <CODE>123.123.123.123</CODE>,
+geschrieben wird (die sogenannte <b>Punkt-Schreibweise</b>).
+ 
+<P>In einem autonomen Netzwerk k”nnen Sie IP-Adressen frei zuweisen,
+solange IP-Adressen innerhalb des Netzwerks eindeutig sind. Wenn
+jedoch das Netzwerk auch an das &link_internet; angeschlossen ist,
+mssen bestimmte, registrierte IP-Adressen benutzt werden, um
+Duplikate zu vermeiden.
+ 
+<P>In jedem Paket, das ber das Netzwerk verschickt wird, speichert
+TCP/IP die IP-Adressen des Absenders und des Empf„ngers. Sobald ein
+Paket bei dem Empf„nger angekommen ist, kann dieser die IP-Adresse
+des Absenders benutzen und ggf. Daten zurcksenden, indem er diese
+IP-Adresse als neuen Empf„nger angibt.
+ 
+<P>Jede IP-Adresse besteht aus zwei Teilen: einem
+<b>Netzwerk-Bezeichner</b> und dem Bezeichner eines bestimmten Rechners
+innerhalb dieses Netzwerks, dem <b>Host-Bezeichner.</b>
+ 
+<UL><LI>Im &link_internet; werden Netzwerk-Bezeichner global von den
+sogenannten Network Information Centers (NIC) zugewiesen. Da das Internet
+tats„chlich eine Verbindung vieler Teilnetzwerke ist, muá jedes
+Teilnetzwerk seine eigenen Bezeichner kennen sowie die Bezeichner der
+benachbarten Teilnetzwerke, mit denen es kommuniziert.
+W„hrend des Transports von Paketen ber das Internet werden von den
+Rechnern, ber die ein Paket l„uft, lediglich die Netzwerk-Bezeichner
+betrachtet.
+ 
+<P><LI>Der <B>Host-Bezeichner</B> identifiziert einen bestimmten
+Rechner innerhalb eines Netzwerks. Nachdem ein Paket bei dem Empf„nger-Netzwerk
+angekommen ist, wird dieser Bezeichner benutzt, um das Paket an den Zielrechner
+weiterzuleiten.
+ 
+</UL>Da Netzwerke in ihrer Gr”áe sehr stark variieren k”nnen, gibt es
+vier verschiedene <b>Klassen von IP-Adressen.</b>
+Die ersten Bits einer jeden IP-Adresse geben an, welches Klassenformat
+von der Adresse benutzt wird.
+ 
+<UL><LI>Adressen der <B>Klasse A</B> werden von groáen Netzwerken mit
+vielen Rechnern benutzt. In diesen Adressen ist das oberste Bit auf
+<CODE>0</CODE> gesetzt. Es folgen sieben Bits fr die Netzwerkadresse
+und 24 Bits fr die Host-Adresse. Daraus folgt, daá es im gesamten
+Internet nicht mehr als 127 Klasse-A-Netzwerke geben kann.
+ 
+<P>In der Punkt-Schreibweise bestehen diese Adressen aus
+<CODE>netzwerk.lokal.lokal.lokal</CODE>.
+ 
+<P><LI>Adressen der <b>Klasse B</b> sind fr Netzwerke mittlerer Gr”áe.
+Hier sind die obersten zwei Bits auf <CODE>10</CODE> gesetzt. Es folgen
+14 bits fr die Netzwerkadresse und 16 Bits fr die Host-Adresse.
+ 
+<P>In der Punkt-Schreibweise bestehen diese Adressen aus
+<CODE>netzwerk.netzwerk.lokal.lokal</CODE>.
+ 
+<P><LI>Adressen der <b>Klasse C</b> sind fr kleine Netzwerke mit bis
+zu 255 Rechnern. Hier sind die obersten drei Bits auf <CODE>110</CODE>
+gesetzt. Es folgen 21 Bits fr die Netzwerkadresse und lediglich acht
+Bits fr den Host.
+ 
+<P>In der Punkt-Schreibweise bestehen diese Adressen aus
+<CODE>netzwerk.netzwerk.netzwerk.lokal</CODE>.
+ 
+</UL>Wie Sie sehen, beschr„nkt das obige Schema die Anzahl der IP-Adressen,
+die in der Praxis benutzt werden k”nnen, auch wenn 32-Bit-Adressen
+theoretisch eine riesige Anzahl von Rechnern identifizieren k”nnten.
+Die Mehrzahl der Netzwerke geh”ren zur Klasse C und leiden daher an
+der Beschr„nkung auf lediglich 255 Hosts. Viele Netzwerke benutzen daher
+Techniken, um die Anzahl der IP-Adressen, die aus dem Internet sichtbar
+sind, zu beschr„nken. Zu diesen Techniken geh”ren
+"Subnets", "IP forwarding" und "Classless Inter-Domain Routing".
+ 
+<P>Eine weitere wichtige Technik sind <b>dynamische IP-Adressen.</b>
+Jedesmal wenn Sie Verbindung zu Ihrem Internet-Service-Provider (ISP) aufnehmen,
+wird dieser Ihnen eine dynamische IP-Adresse zuweisen. Dies erlaubt es dem ISP,
+Adressen aus einem "Pool" von IP-Adressen zuzuweisen, anstatt jedem Kunden
+eine statische IP-Adresse zuweisen zu mssen. Daraus folgt jedoch, daá Ihr
+Rechner unter Umst„nden bei jeder Verbindung zum Internet eine andere IP-Adresse
+hat.
+ 
+<BR>
+</BODY>
+</HTML>

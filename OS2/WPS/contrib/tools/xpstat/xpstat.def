@@ -1,0 +1,10 @@
+NAME XPSTAT WINDOWAPI
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace process status viewer'
+
+STACKSIZE   65536
+
+IMPORTS
+    DOSQPROCSTATUS = DOSCALLS.154
+    DosQuerySysState = DOSCALLS.368
+

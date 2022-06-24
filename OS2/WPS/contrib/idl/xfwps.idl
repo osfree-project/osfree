@@ -1,0 +1,179 @@
+
+/*
+ * xfwps.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFldWPS     ("Workplace Shell" object)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfwps.c for details.
+ *
+ *      The SOM stuff in this file used to be in xfsys.idl before
+ *      V0.9.0, but this was moved to a separate file for clarity.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpsystem.idl>         // this is SOM for WPSystem
+
+/*
+   CLASS: XFldWPS
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPSystem
+                           ÀÄÄ  XFldWPS
+*/
+
+interface M_XFldWPS;            // forward reference to metaclass
+
+interface XFldWPS : WPSystem
+{
+    /*
+     * New instance methods for XFldWPS:
+     *
+     */
+
+    ULONG xwpAddWPSMenuPages(in HWND hwndNotebook);
+
+    ULONG xwpAddWPSFdrViewsPage(in HWND hwndDlg, in BOOL fMajor);
+
+    ULONG xwpAddWPSFdrHotkeysPage(in HWND hwndDlg);
+
+    ULONG xwpAddWPSFdrSnap2GridPage(in HWND hwndDlg);
+
+    ULONG xwpAddWPSFdrStatusBarPages(in HWND hwndDlg);
+
+    ULONG xwpAddWPSFdrSortPage(in HWND hwndDlg);
+
+    ULONG xwpAddXFldWPSPages(in HWND hwndDlg);
+
+    ULONG xwpAddWPSFileTypesPage(in HWND hwndDlg);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXFldWPSPages,
+            xwpAddWPSMenuPages,
+            xwpAddWPSFdrViewsPage,
+            xwpAddWPSFdrHotkeysPage,
+            xwpAddWPSFdrSnap2GridPage,
+            xwpAddWPSFdrStatusBarPages,
+            xwpAddWPSFdrSortPage,
+            xwpAddWPSFileTypesPage;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwp_;
+        externalstem = xwp;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfwps;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFldWPS;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XFldWPS:
+         *
+         */
+
+        ULONG       flPagesAdded;
+
+        /*
+         * WPSystem methods overridden by XFldWPS:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+    //#    wpQueryDefaultHelp: override;        replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpAddSystemScreenPage: override;
+
+        wpAddDMQSDisplayTypePage: override;
+
+        wpAddSystemPrintScreenPage: override;
+
+        wpAddSettingsPages: override;
+
+        wpInsertSettingsPage: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFldWPS : M_WPSystem
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwpM_;
+        externalstem = xwpM;
+        functionprefix = xwpM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfwps;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables:
+         *
+         */
+
+        /*
+         * M_WPSystem methods overridden by M_XFldWPS:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQuerySettingsPageSize: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

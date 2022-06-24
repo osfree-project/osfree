@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Session Types
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Under &os2;, programs run in <B>sessions.</B>
+A session consists of one or more <A HREF="glossary/gls_scheduler.html">processes</A>
+and can run in a window or in full-screen mode. In addition,
+every session has a special type, depending on
+the operating system that a program was written for.
+
+<P>Even though programs are normally written to run under a specific
+operating system, &os2; has built-in support to be able to execute
+programs for other operating systems too.
+&os2; supports the following <B>session types:</B>
+
+<UL><LI>The <B>Presentation Manager (PM)</B> session. PM is the graphics
+subsystem of &os2; and is responsible for managing multiple windows
+on the screen, supporting graphics output such as icons and pictures,
+mouse and keyboard input, and standard controls such as menus and title bars.
+For example, the help window which displays the text you are currently
+reading is a PM window. The &os2; Workplace Shell, which displays
+your Desktop, is a PM program too.
+
+<P>PM programs always run in the one and only PM session that is started
+when the system starts up. You cannot start a second PM session. However,
+you can extend your screen space with the use of the
+<A HREF="hook/pager_intro.html">&pgr;</A>, which allows you to switch
+between several virtual desktops.
+
+<P><LI>Many OS/2 programs however do not use PM, but run in text mode
+instead. Any <B>OS/2 text-mode</B> program, including
+<A HREF="objects/obj_pgmf_batch.html">command files</A>
+(<CODE>.CMD</CODE> extension), will be started in a separate
+session that can either be a windowed or full-screen.
+
+<BR><P><B>Windowed command prompts</B> <IMG SRC="img/os2_os2win.gif"> are visible on
+your Desktop as well as if they were part of the PM session, so you can
+still see all other windows that are open.
+
+<BR>By contrast, an <B>full-screen session</B> <IMG SRC="img/os2_os2full.gif">
+will occupy the entire screen. Your other windows are still open and the
+other programs keep running, but in order to see them, you have to switch
+back to the PM session using the <CODE>Alt+Esc</CODE> or <CODE>Ctrl+Esc</CODE>
+system hotkeys.
+
+<P><LI>&os2; can also run the large majority of <B>DOS programs</B>.
+DOS is the original operating system for personal computers that was
+shipped with the first IBM PC. DOS programs, including
+<A HREF="objects/obj_pgmf_batch.html">batch files</A>
+(<CODE>.BAT</CODE> extension),
+usually run in text-mode and can run windowed or full-screen as well.
+
+<BR><B>Windowed DOS sessions</B> <IMG SRC="img/os2_doswin.gif"> are visible on
+your Desktop as well.
+
+<BR><B>Full-screen DOS sessions</B> <IMG SRC="img/os2_dosfull.gif">
+will occupy the entire screen, similarly to other full-screen sessions.
+
+<P><LI>&os2; can also natively execute the great majority of
+16-bit Windows applications written for Microsoft Windows 3.x.
+
+<BR>These run in so-called <B>&winos2; sessions</B>
+<IMG SRC="img/os2_win16.gif"> which can be windowed or full-screen
+as well. If a &winos2; program is started as a window, it runs seamlessly
+on the &os2; Desktop as if it was a PM program, even it will have
+a slightly different appearance. However, you can also select to
+run a &winos2; program in a separate full-screen session.
+
+</UL>
+For more information, select from the following list:
+
+<UL>
+<LI><A HREF="glossary/gls_sessions_win16.html">&winos2; sessions</A>
+<LI><A HREF="glossary/gls_sessions_win.html">Windowed sessions</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Full-screen sessions</A>
+<LI><A HREF="glossary/gls_scheduler.html">Processes and threads</A>
+<LI><A HREF="glossary/gls_cmd.html">About command prompts</A>
+<LI><A HREF="objects/obj_pgmf_batch.html">Batch and command files</A>
+</UL>
+</BODY>
+</HTML>

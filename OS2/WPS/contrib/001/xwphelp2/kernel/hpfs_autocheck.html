@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: HPFS Autocheck
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+
+The <B>"Autocheck"</B> entry field corresponds to the
+/AUTOCHECK:xxx in the HPFS or HPFS386 &cfgsys; command line.
+Here you can determine for which
+<!-- V0.9.20: replace drives with volumes -->
+volumes &os2; will automatically perform a
+<CITE>CHKDSK</CITE> at system startup.
+<P>Simply enter the respective drive letters here (without the trailing "<CITE>:</CITE>").
+&os2; will check each drive that you specify here at system startup if you have not
+shut down your system properly (for example, after a black-screen crash).
+
+<P>If you specify a plus sign ("<CITE>+</CITE>")
+<I>before</I> a drive letter here, that drive will always be checked, which is not
+really preferrable.
+<P>Example: If you enter "<CITE>C+DE</CITE>", drive D: will always be checked, while
+C: and E: only if needed.
+
+<P><B>Note:</B> For HPFS <!-- V0.9.20: replace drives with volumes -->
+volumes, the auto-check is absolutely necessary because accessing
+"dirty" HPFS volumes will result in system errors. You should enter all your
+HPFS <!-- V0.9.20: replace drives with volumes -->
+volumes here because &os2; will print error messages at startup otherwise. This
+applies especially to your boot
+<!-- V0.9.20: replace drive with volume -->
+volume, or &os2; will refuse to boot altogether if you
+forgot to shut down or the system crashed.
+<P>Press the <B>"Propose"</B> button to have all the HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes of your system
+added to the entry field.
+
+<BR>
+</BODY>
+</HTML>
+
+

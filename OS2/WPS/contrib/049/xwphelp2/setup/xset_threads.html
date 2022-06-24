@@ -1,0 +1,74 @@
+<HTML RESID=&ID_XSH_SETTINGS_XC_THREADS;>
+<HEAD>
+    <TITLE>
+        &xwp;-Konfiguration: Threads
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+Auf der Seite "Threads" werden Informationen ber die zus„tzlichen Threads
+angezeigt, die &xwp; innerhalb des WPS-Prozesses laufen l„át. Sie k”nnen
+fr die Beseitigung von Fehlern und Fehlerberichte von Interesse sein.
+ 
+<P>Jede Zeile des Containers zeigt den internen <B>Thread-Namen</B> an,
+der von &xwp; nur verwendet wird, um Threads auf andere Weise als durch
+Nummern zu unterscheiden.
+Der Wert <B>"TID"</B> ist die "Thread-ID" des entsprechenden Threads (die
+innerhalb des WPS-Prozesses eindeutig ist). Der Wert <B>"Priorit„t"</B> gibt
+die Priorit„t des entsprechenden Threads an: das hohe Byte kann einen Wert
+zwischen 1 und 4 annehmen (womit die Priorit„tsklasse angegeben wird: idle,
+<!-- V0.9.13: changed the following -->
+regular, time-critical oder foreground server),
+w„hrend das untere Byte das Priorit„ts-"Delta" innerhalb einer Priorit„tsklasse
+angibt.
+(Details siehe <A HREF="glossary/gls_scheduler.html">"Prozesse und Threads"</A>.)
+<!-- end V0.9.13 -->
+ 
+<P>&xwp; kann auf dem System die folgenden Threads starten:
+ 
+<!-- V0.9.13: updated the thread names -->
+<UL><LI><B>NotifySentinel, RefreshFindFolder, RefreshNotificationPump:</B>
+Diese laufen, wenn Sie "Automatische Aktualisierung von Ordnern ersetzen" auf
+der Seite "Funktionalit„t" aktiviert haben, und sind fr die šberwachung
+des Dateisystems im Hintergrund verantwortlich.
+ 
+<!-- V0.9.18: renamed media thread to Party -->
+<P><LI><B>Party:</B> Der &xwp;-"Party"-Thread ist fr Multimedia verantwortlich,
+wie zum Beispiel das Abspielen der Systemkl„nge.
+ 
+<!-- V1.0.0: rewrote worker thread paragraph, removed link -->
+<P><LI><B>Worker:</B> der Arbeits-Thread von &xwp;, der bestimmte nicht
+zeitkritische Hintergrundaufgaben erledigt.
+ 
+<!-- V0.9.18: renamed Speedy thread to Bush -->
+<P><LI><B>Bush:</B> Der &xwp;-"Bush"-Thread befindet sich die meiste Zeit ber
+im Wartezustand, wird aber fr gewisse kosmetische, jedoch dringende Aufgaben
+pl”tzlich aufgeweckt, welche sofortige Aufmerksamkeit verlangen, wie die
+Anzeige des &xwp;-Startlogos.
+ 
+<!-- V0.9.18: added Wimp thread -->
+<P><LI><B>Wimp:</B> Ein weiterer Lauflauf-Thread, der nur alle paar Minuten aufgeweckt wird,
+um den Speicher aufzur„umen und weitere derartige Dinge durchzufhren.
+ 
+<P><LI><B>File:</B> Der &xwp;-"File"-Thread wird aktiv, wenn &xwp;
+Dateioperationen durchfhrt, wie das Verschieben von Dateien in den Papierkorb oder
+das L”schen von Dateien.
+ 
+<P><LI><B>&xcenter;:</B> Da jedes
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+mit einem eigenen Thread l„uft, sehen Sie einen solchen Thread fr jedes ge”ffnete &xcenter;.
+ 
+<!-- V0.9.13: added this -->
+<P><LI><B>PulseWidgetCollect:</B> dieser ist nur sichtbar, wenn das
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_pulse.html">"Pulse"-Widget</A>
+in einem ge”ffneten &xcenter; l„uft. Das Pulse-Widget startet einen zweiten Thread,
+um Informationen ber die CPU-Auslastung vom &os2;-Kernel zu erhalten und nicht
+"ausgesperrt" zu werden, falls eine Applikation die PM Single Input Queue ganz fr
+sich beansprucht.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

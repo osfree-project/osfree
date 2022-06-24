@@ -1,0 +1,148 @@
+
+/*
+ * xwpscreen.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPScreen ("Screen" settings object)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpscreen.c for details.
+ *
+ *      This is new with V0.9.2 (2000-02-23) [umoeller].
+ */
+
+/*
+ *      Copyright (C) 2000-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpsystem.idl>         // this is SOM for WPSystem
+
+/*
+   CLASS: XWPScreen
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPSystem
+                           ÀÄÄ  XWPScreen
+*/
+
+interface M_XWPScreen;            // forward reference to metaclass
+
+interface XWPScreen : WPSystem
+{
+    /*
+     * New instance methods for XWPScreen:
+     *
+     */
+
+    ULONG xwpAddXWPScreenPages(in HWND hwndDlg);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXWPScreenPages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwpscr_;
+        externalstem = xwpscr;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpscreen;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPScreen;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPScreen:
+         *
+         */
+
+        /*
+         * WPSystem methods overridden by XWPScreen:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPScreen : M_WPSystem
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwpscrM_;
+        externalstem = xwpscrM;
+        functionprefix = xwpscrM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpscreen;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPScreen:
+         *
+         */
+
+        /*
+         * M_WPSystem methods overridden by M_XWPScreen:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+
+        wpclsQuerySettingsPageSize: override;
+    };
+#endif
+};
+
+

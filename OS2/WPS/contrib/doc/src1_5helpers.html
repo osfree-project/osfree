@@ -1,0 +1,237 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The SRC\HELPERS\ directory
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+<CODE>SRC\HELPERS</CODE> contains lots of useful code which I have developed
+over time. This code is <B>independent of XWorkplace</B> and could be used
+with any OS/2 program. Some of the code is for PM programs, some can be used
+with text-mode programs also. Consider this a general OS/2 programming
+library.
+
+<P><B>Note:</B> XWorkplace's source code does not contain the helpers source code.
+Instead, during the build process, the XWorkplace makefiles branch over to the
+"xwphelpers" source tree, which is also on the Netlabs CVS server. You will need to
+set the <CODE>HELPERS_BASE</CODE> <A HREF="src1_32env.html">environment variable</A>
+to point to the "xwphelpers" source tree for this to work.
+
+<P> In detail, we have:
+<UL>
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>acpih.*</CODE> helpers for accessing ACPI.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>apmh.*</CODE> helpers for accessing APM.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>apps.*</CODE> program helpers (environments, application start).
+
+<LI>
+<CODE>animate.*</CODE> contains some animation code.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>cctl_*.*</CODE> custom common controls.
+
+<LI>
+<CODE>cnrh.*</CODE> Container helper functions (new with V0.9.0,
+partly moved from winh.*).
+
+<LI>
+<CODE>comctl.*</CODE> Various window procedures.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>configsys.*</CODE> contains helper functions for parsing and changing lines
+in the CONFIG.SYS file.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>datetime.*</CODE> contains various date and time helper functions.
+
+<LI>
+<CODE>debug.*</CODE> parses executables and SYM files for debugging
+information; used by except.c (below). Introduced with V0.84,
+moved to <CODE>SRC\HELPERS\</CODE> with V0.9.0.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>dialog.*</CODE> contains PM helper functions to create and
+auto-format dialogs from control arrays in memory.
+
+<!-- V1.0.6: added dosh2.* -->
+<LI>
+<CODE>dosh.*</CODE> and <CODE>dosh2.*</CODE> Control Program helper functions.
+
+<!-- V1.0.6: changed eas.* to eah.* -->
+<LI>
+<CODE>eah.*</CODE> contains helper functions to handle
+extended attributes.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>encodings.*</CODE> character encoding support. Handles all kinds
+of legacy codepages (including most OS/2 codepages)
+and Unicode in the form of UTF-8 and translations
+between then.
+
+<LI>
+<CODE>except.*</CODE> contains generic code for implementing powerful
+exception handlers. This was introduced with V0.84 and has been moved
+to <CODE>SRC\HELPERS\</CODE> with V0.9.0. The code has been straightened
+out to be independent of XWorkplace with the use of exception "plug-ins."
+See <A HREF="src2_840except.html">"XWorkplace exception handling"</A> for details.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>exeh.*</CODE> contains code to load and parse executable headers
+and resources.
+
+<LI>
+<CODE>gpih.*</CODE> GPI (graphics) helper functions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>lan.*</CODE> LAN helpers.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>level.*</CODE> contains helper functions for querying SYSLEVEL files.
+
+<LI>
+<CODE>linklist.*</CODE> contains helper functions to handle linked lists.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>map_vac.*</CODE> map file parser for the VAC 3.08 format.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>math.*</CODE> some math helpers.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>memdebug.*</CODE> memory debugging helpers.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>memdebug_win.*</CODE> implementation of the PM heap debugging window.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>nls.*</CODE> contains a few helpers for National Language Support (NLS).
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>nlscache.*</CODE> contains a few helpers for National Language Support (NLS).
+
+<LI>
+<CODE>prfh.*</CODE> is new with V0.82 and contains Profile (INI)
+helper functions.
+
+<LI>
+<CODE>prfh2.*</CODE> contains Profile (INI) helper functions.
+
+<LI>
+<CODE>procstat.*</CODE> modified Kai Uwe Rommel's DosQProc() functions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>regex.*</CODE> extended regular expressions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>resh.*</CODE> contains resource helper functions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>sem.*</CODE> implements fast mutex semaphores a la Win32
+critical sections.
+
+<LI>
+<CODE>shapewin.*</CODE> contains the ShapeWindows library. See the top of
+shapewin.c for details (new with V0.85).
+
+<LI>
+<CODE>stringh.*</CODE> contains helper functions to handle strings/texts
+
+<LI>
+<CODE>syssound.*</CODE> has code for managing system sound data and
+sound schemes.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>textv_html.*</CODE> this code converts HTML code to escape sequences for the
+XTextView control (textview.c).
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>textview.*</CODE> all-new XTextView control as well as device-independent
+text formatting and printing.
+
+<LI>
+<CODE>threads.*</CODE> contains helper functions to synchronize threads.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>timer.*</CODE> XTimers, which can be used to avoid excessive PM
+timer usage.
+
+<LI>
+<CODE>tmsgfile.*</CODE> has Christian Langanke's new .TMF
+(text message file) handling to get rid of those ugly .MSG files.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>tree.*</CODE> contains helper functions for maintaining 'Red-Black' balanced
+binary trees.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>vcard.*</CODE> replacement profile (INI) functions
+
+<LI>
+<CODE>winh.*</CODE> Win (PM) helper functions.
+
+<LI>
+<CODE>wphandle.*</CODE> Henk Kelder's WPS handles functions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xml.*</CODE> XML document handling.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xmldefs.*</CODE> this file is just for xdoc and contains glossary items for
+XML. It is never compiled.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xmlparse.*</CODE> contains the API of the expat XML parser 1.95.2.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xmlrole.*</CODE> and <CODE>xmltok*.*</CODE> expat XML parser.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xprf.*</CODE> contains replacement profile (INI) functions.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xprf2.*</CODE> copy-profile functions which use the replacement
+profile functions in xprf.c.
+
+<!-- V1.0.6: added the following item -->
+<LI>
+<CODE>xstring.*</CODE> string functions with memory management.
+
+</UL>
+</BODY>
+</HTML>

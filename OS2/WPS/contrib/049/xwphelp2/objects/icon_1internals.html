@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Objektdetails
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 and contains text previously in
+     090settings13objinternals.html -->
+<!-- V0.9.16: replaced all "internals" with "details" strings -->
+<BODY>
+<!-- V0.9.4: added this -->
+Die Gruppe "Details" zeigt eine Menge interner Objektdaten an, die fr Sie vielleicht
+von Interesse sind. Die meisten sind nur fr Programmierer interessant.
+ 
+<!-- V0.9.4: the following is unchanged -->
+<P>Die Informationen sind durch eine Container-Strukturanzeige gruppiert, die „hnlich der
+Strukturanzeige bei Ordnern funktioniert. Die meisten Informationen in diesem Fenster
+k”nnen jedoch <I>nur gelesen werden,</I> d.h. sie k”nnen nicht ge„ndert werden
+(auáer dem Eintrag "Objekt-ID").
+ 
+<P>Das <B>"Objekt-Handle"</B> ist eine fnfstellige, hexadezimale Zahl, die
+ein Objekt im System eindeutig identifizierbar macht.
+Abstrakten Objekten wird
+immer ein Objekt-Handle zugewiesen, w„hrend dies bei Objekten des Dateisystems
+nicht notwendigerweise der Fall sein muá.
+Beachten Sie, daá diese Objekt-Handles
+nicht benutzt werden k”nnen, um Objekte auf einem anderen System als dem Ihrigen
+zu identifizieren: Sie k”nnen beispielsweise nicht voraussetzen, daá der Ordner
+"Untersttzung" auf dem Rechner Ihres Nachbarn dasselbe Objekt-Handle besitzt, wie
+auf Ihrem System.
+Objekt-Handles referenzieren nur Objekte auf <I>Ihrem</I> Rechner.
+ 
+<!-- V1.0.0: added this link -->
+<P>Siehe <a href="glossary/gls_objhandle.html">Objekt-Handles</a> fr eine
+Einfhrung.
+ 
+<P>Die <B>"Objekt-ID"</B> kann jedoch auch auf anderen Rechnern vorkommen. Objekt-IDs besitzen
+das Format <CODE>&lt;OBJECTID&gt;</CODE> und werden verwendet, um sich auf Objekte beziehen zu
+k”nnen, ohne daá man wissen muá, wo sich diese eigentlich befinden.
+<!-- V0.9.13: added link -->
+Siehe <A HREF="glossary/gls_objids.html">Objekt-IDs</A> fr eine Einfhrung.
+ 
+<P>Der Inhalt des Feldes "Objekt-ID" kann <B>ge„ndert</B> werden, indem bei gedrckter
+"Alt"-Taste darauf geklickt wird.
+Lassen Sie beim ndern von Objekt-IDs jedoch Vorsicht walten. Die Funktion gewisser Programme
+h„ngt von bestimmten IDs ab.
+ 
+<P>Der Baum <B>"Objektstil"</B> zeigt WPS-interne Objekt-Flags an. Die
+Objektstil-Flags bezeichnen nur das Verhalten der WPS: Wenn beispielsweise
+das Flag "nicht kopieren" aktiv ist, kann die Datei nicht mit der WPS per Ziehen
+kopiert werden. Diese Flags sind normalerweise von
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">Dateiattributen</A>
+unabh„ngig,
+d.h. ein Objekt kann das Flag "nicht l”schen" besitzen, aber immer noch ber
+die Befehlszeile gel”scht werden.
+ 
+<P>Der Baum <B>"Objektbenutzung"</B> zeigt weitere interne Daten des Objekts an.
+Diese Daten sind haupts„chlich fr Programmierer ntzlich und repr„sentieren die
+Informationen, die von der Methode
+<!-- V1.0.0: added two links -->
+<a href="wpsref.inf#wpFindUseItem"><CITE>wpFindUseItem</CITE></a><A HREF="_toolkitlink.html">*</A>
+geliefert werden.
+ 
+<P>Bei Ordnern fgt &xwp; noch den Baum <B>"Ordner-Flags"</B> hinzu. Dieser enth„lt
+Flags, die Daten repr„sentieren, die von der Methode
+<!-- V1.0.0: added two links, method name was wrong -->
+<a href="wpsref.inf#wpQueryFldrFlags"><CITE>wpQueryFldrFlags</CITE></a><A HREF="_toolkitlink.html">*</A>
+geliefert werden, beispielsweise, ob ein Ordner
+bev”lkert wurde oder nicht.
+<BR>
+</BODY>
+</HTML>
+ 

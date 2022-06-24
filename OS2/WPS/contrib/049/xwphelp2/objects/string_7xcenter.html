@@ -1,0 +1,117 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XCenter-Konfigurationsstrings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<BODY>
+ZusÑtzlich zu den Konfigurationsstrings der Klasse
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+unterstÅtzt die XCenter-Klasse folgende Strings:
+ 
+<DL>
+<DT><P><CITE><B>3DBORDERWIDTH</B>=<I>value</I></CITE>
+<DD>Entspricht der Einstellung "3D-Randbreite" auf der Seite "Stil" des XCenters.
+Der Wertebereich liegt zwischen 0 und 10.
+Standard ist "2".
+ 
+<DT><P><CITE><B>ALL3DBORDERS</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Alle vier 3D-RÑnder zeichnen" auf der Seite "Stil" des XCenters.
+Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>ALWAYSONTOP</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Immer im Vordergrund" auf der Seite "Anzeige" des XCenters.
+Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>ANIMATE</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Animieren" auf der Seite "Anzeige" des XCenters.
+Standard ist <CODE>YES</CODE>.
+ 
+<DT><P><CITE><B>AUTOHIDE</B>=<I>milliseconds</I></CITE>
+<DD>Entspricht der Einstellung "Automatisches Verstecken" auf der Seite "Anzeige" des XCenters.
+Der Wert gibt die Verzîgerung fÅr das automatische Verstecken in Millisekunden an; bei 0
+ist das automatische Verstecken deaktiviert.
+Standard ist "0" fÅr deaktiviertes Verstecken.
+ 
+<DT><P><CITE><B>BORDERSPACING</B>=<I>value</I></CITE>
+<DD>Entspricht der Einstellung "Border spacing" auf der Seite "Stil" des XCenters.
+Der Wertebereich liegt zwischen 0 und 10.
+Standard ist "2".
+ 
+<DT><P><CITE><B>CLIENTCOLOR</B>=<I>red green blue</I></CITE>
+<DD>Gibt die Hintergrundfarbe fÅr das Hauptfenster des XCenters an, das nicht
+von Widgets Åberdeckt wird.
+Standard ist <CODE>244 244 244</CODE> fÅr "hellgrau".
+ 
+<DT><P><CITE><B>FLATBUTTONS</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Flache SchaltflÑchen" auf der Seite "Stil" des XCenters.
+Standard ist <CODE>YES</CODE>.
+ 
+<DT><P><CITE><B>HIDEONCLICK</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Sofort nach Mausklick verstecken" auf der Seite
+"Anzeige" des XCenters. Diese Einstellung wird nur beachtet, falls die Funktion
+"Automatisches Verstecken" aktiviert ist.
+Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>NOHATCHOPENOBJ</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Geîffnete Objekte markieren" auf der Seite "Stil" des XCenters;
+beachten Sie jedoch, da· der Wert fÅr den Konfigurationsstring im umgekerten VerhÑltnis
+zum Markierungsfeld auf der Seite steht.
+Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>POSITION</B>={TOP|BOTTOM}</CITE>
+<DD>Entspricht der Einstellung "XCenter-Position" auf der Seite "Anzeige" des XCenters.
+Standard ist <CODE>BOTTOM</CODE>.
+ 
+<DT><P><CITE><B>PRIORITYDELTA</B>=<I>delta</I></CITE>
+<DD>Entspricht der Einstellung "PrioritÑt des Anzeige-Threads" auf der Seite "Anzeige" des XCenters.
+Der Wert gibt das PrioritÑtsdelta des XCenter-Threads an, dessen Wertebereich zwischen
+0 und 31 liegt.
+Standard ist "0".
+ 
+<DT><P><CITE><B>REDUCEDESKTOP</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Arbeitsbereich reduzieren" auf der Seite "Anzeige" des XCenters.
+Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>SIZINGBARS</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Grî·enÑnderungsleisten zeichnen" auf der Seite "Stil" des XCenters.
+Standard ist <CODE>YES</CODE>.
+ 
+<DT><P><CITE><B>SPACINGLINES</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Abstandslinien zeichnen" auf der Seite "Stil" des XCenters.
+Standard ist <CODE>YES</CODE>.
+ 
+<DT><P><CITE><B>SUNKBORDERS</B>={YES|NO}</CITE>
+<DD>Entspricht der Einstellung "Rahmen um statische Widgets" auf der Seite "Stil" des XCenters.
+Standard ist <CODE>NO</CODE>.
+ 
+<!-- V0.9.19: rewrote the WIDGETS definition -->
+<DT><P><CITE><B>WIDGETS</B>=<I>widget</I>[,<I>widget</I>]...</CITE>
+<DD>Eine vollstÑndige, durch Komma getrennte Liste der
+<A HREF="xcenter/xc_main_widgets.html">Widgets</A>,
+die dem &xcenter; hinzugefÅgt worden sind.
+Jeder <CODE><I>widget</I></CODE>-String mu· das folgende Format besitzen:
+<BR><CODE><I>classname</I>(<I>setup</I>)</CODE>
+<BR>wobei <CODE>classname</CODE> der Name der Widgetklasse ist (wie auf der
+Seite "Klassen" im Einstellungsnotizbuch des XCenters) und
+<CODE>(<I>setup</I>)</CODE> optional einen Konfigurationssubstring fÅr das Widget
+angibt. Gibt es keinen solchen Konfigurationsstring, mu· an leeres Paar Klammern
+angegeben werden, z.B. "Pulse()". Der Konfigurationssubstring ist teilweise kodiert,
+damit er keine Zeichen enthÑlt, die in WPS-Konfigurationsstring nicht erlaubt sind.
+ 
+<!-- V0.9.19: added this -->
+<P>Wenn und nur wenn <CODE>classname</CODE> gleich "Tray" zur Erzeugung eines
+<A HREF="xcenter/xc_tray.html">Fach-Widgets</A> ist, mu· der Konfigurationsstring dem
+folgenden Format entsprechen: <CODE>Tray(<I>setup</I>){<I>trayname</I>[<I>widgetlist</I>]...}</CODE>
+(Beachten Sie, da· die Klammer hier wîrtlich zu nehmen sind.)
+ 
+<DT><P><CITE><B>WIDGETSPACING</B>=<I>value</I></CITE>
+<DD>Entspricht der Einstellung "Widget spacing" auf der Seite "Stil" des XCenters.
+Der Wertebereich liegt zwischen 1 und 10.
+Standard ist "2".
+ 
+</DL>
+</BODY>
+</HTML>
+ 

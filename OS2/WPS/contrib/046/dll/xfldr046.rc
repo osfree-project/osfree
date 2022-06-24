@@ -1,0 +1,1667 @@
+
+/*
+ * xfldr046.rc:
+ *      this is the main resource file for the Swedish NLS DLL.
+ *
+ *      Translate all the strings in this file.
+ *
+ *      Special characters and codes:
+ *
+ *      --  If you encounter any "~" characters: these are for
+ *          underlining characters in menus so that the menu item
+ *          can be accessed using the keyboard.
+ *
+ *      --  "&xxx;" are for entities that are replaced dynamically
+ *          by XWorkplace when the string gets loaded. This only
+ *          works with string tables, not with menu IDs, unless
+ *          noted otherwise.
+ *
+ *          Presently the following entities are defined:
+ *
+ *          --  &xwp;       "XWorkplace" string, or "eWorkplace"
+ *                          if eWorkplace is running
+ *
+ *          --  &os2;       "OS/2" or "eComStation"
+ *
+ *          --  &winos2;    "Win-OS/2" or "Win16"
+ *
+ *          --  &warpcenter; "WarpCenter" or "eComCenter"
+ *
+ *          --  &xcenter;   "XCenter" or "eCenter"
+ *
+ *          --  &xsd;       "XShutdown" or "eShutdown"
+ *
+ *          --  &version;   current XWorkplace version (e.g. "0.9.16")
+ *
+ *          --  &date;      build date (e.g. Jan 12 2002)
+ *
+ *          --  &nl;        newline character (\n, ASCII 10)
+ *
+ *      The dialog templates (xfldr046.dlg) are #include'd. You
+ *      may either translate that text file "manually" or open
+ *      the resulting .RES file with the Toolkit dialog editor.
+ *      This will then recreate the .RES and .DLG files, but leave
+ *      the .RC file untouched.
+ *
+ *      The dialog editor has a "Translate mode" in its "Options"
+ *      menu which disables a lot of menu items to allow you to
+ *      only change strings. This is very helpful to avoid
+ *      accidentally ruining the dialogs.
+ */
+
+/*
+ *      Copyright (C) 1997-2012 Ulrich Mîller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include "pmwin.h"
+#include "pmstddlg.h"
+
+/* this is new with V0.85; this define is actually the only reason
+   why wpobject.h was needed. Since that file is only in the Toolkit,
+   I'll just add the define here so everyone can compile. */
+#define WPMENUID_USER          0x6500
+#include "..\..\include\dlgids.h"
+
+#ifndef FCF_CLOSEBUTTON         // V0.9.19 (2002-04-14) [umoeller]
+#define FCF_CLOSEBUTTON            0x04000000L
+#endif
+
+/* icons, bitmaps */
+POINTER ID_ICONDLG LOADONCALL MOVEABLE DISCARDABLE xfldrdlg.ico
+POINTER ID_SDICON LOADONCALL MOVEABLE DISCARDABLE xfldshut.ico
+
+/* BITMAP ID_XFLDRBITMAP LOADONCALL MOVEABLE DISCARDABLE xfolder.bmp
+   removed V0.9.16 (2001-11-10) [umoeller] */
+
+/* Context menus for the "WPS Class List" object */
+/* these two MENUs have been changed with V0.9.0 */
+MENU ID_XLM_CLASS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Skapa objekt...", ID_XLMI_CREATEOBJECT
+    MENUITEM "~Avregistrera...", ID_XLMI_DEREGISTER
+    MENUITEM "~Byt med subklass...", ID_XLMI_REPLACE
+    MENUITEM "~èngra byte...", ID_XLMI_UNREPLACE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_XFMI_HELP
+END
+
+/* the following has been removed V0.9.6 (2000-10-16) [umoeller]
+
+MENU ID_XLM_CLASS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Registrera ny klass...", ID_XLMI_REGISTER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_XFMI_HELP
+END */
+
+// the following two have been added with V0.9.0 */
+MENU ID_XLM_METHOD_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Sortera", ID_XLM_METHOD_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "genom metod ~index", ID_XLMI_METHOD_SORT_INDEX
+        MENUITEM "genom metod ~namn", ID_XLMI_METHOD_SORT_NAME
+        MENUITEM "genom att i~ntroducera klass", ID_XLMI_METHOD_SORT_INTRO
+        MENUITEM "genom att ~îverskrida klass", ID_XLMI_METHOD_SORT_OVERRIDE
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_XFMI_HELP
+END
+
+/* Context menus for the "File types" notebook page;
+   new with V0.9.0 */
+MENU ID_XSM_FILETYPES_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "S~kapa subtyp...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "~Radera typ", ID_XSMI_FILETYPES_DELETE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Plocka upp", ID_XSMI_FILETYPES_PICKUP
+    MENUITEM "~SlÑpp", ID_XSMI_FILETYPES_DROP
+    MENUITEM "~èngra drag", ID_XSMI_FILETYPES_CANCELDRAG
+END
+
+MENU ID_XSM_FILETYPES_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "S~kapa rottyp...", ID_XSMI_FILETYPES_NEW
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~SlÑpp", ID_XSMI_FILETYPES_DROP
+    MENUITEM "~èngra drag", ID_XSMI_FILETYPES_CANCELDRAG
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Exportera...", ID_XSMI_FILETYPES_EXPORT
+    MENUITEM "~Importera...", ID_XSMI_FILETYPES_IMPORT
+END
+
+MENU ID_XSM_FILEFILTER_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Radera filter", ID_XSMI_FILEFILTER_DELETE
+END
+
+MENU ID_XSM_FILEFILTER_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Nytt filter...", ID_XSMI_FILEFILTER_NEW
+    MENUITEM "~Importera WPS filter...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* menu extended with 0.9.16 */
+MENU ID_XSM_FILEASSOC_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Objekt egenskaper", ID_XSMI_FILEASSOC_SETTINGS
+    MENUITEM "ôppna ~mapp", ID_XSMI_FILEASSOC_OPENFDR
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Radera association", ID_XSMI_FILEASSOC_DELETE
+END
+
+MENU ID_XSM_FILEASSOC_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Importera WPS filter...", ID_XSMI_FILEFILTER_IMPORTWPS
+END
+
+/* Button menus in XWPSetup "Objects" page;
+   new with V0.9.0  */
+MENU ID_XSM_OBJECTS_SYSTEM LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Tangentbord instÑllningar", 100
+    MENUITEM "~Mus instÑllningar", 101
+    MENUITEM "~Land instÑllningar", 102
+    MENUITEM "L~jud instÑllningar", 103
+    MENUITEM "S~ystem instÑllningar", 104
+    MENUITEM "Ener~gi instÑllningar", 105
+    MENUITEM "W~in-OS/2 instÑllningar", 106
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "FÑrgpalett ~1", 110
+    MENUITEM "FÑrgpalett ~2", 111
+    MENUITEM "~Fontpalett", 112
+    MENUITEM "Schema~palett", 113
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Snabbpanel", 120
+    MENUITEM "~WarpCenter", 121
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Sp~ooler", 130
+    MENUITEM "~Minimerade Fînster visare", 131
+    MENUITEM "T~ugg", 132
+    MENUITEM "S~ystemklocka", 133
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "S~tartup mapp", 140
+    MENUITEM "M~all mapp", 141
+    MENUITEM "Enh~eter mapp", 142
+END
+
+MENU ID_XSM_OBJECTS_XWORKPLACE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Workplace Shell instÑllningar", 200
+    MENUITEM "~OS/2 KÑrna instÑllningar", 201
+    MENUITEM "W~PS Klass Lista", 202
+    MENUITEM "Sk~Ñrm", 203
+/* the following item added with V0.9.5 (2000-08-23) [umoeller] */
+    MENUITEM "~Multimedia", 204
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Konfigurationsmapp", 210
+    MENUITEM "~Startup mapp", 211
+    MENUITEM "S~tÑnga av mapp", 212
+    MENUITEM """~Font"" mapp", 213
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Papperskorg", 220
+    MENUITEM "Set~upstrÑng", 221
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~XCenter", 230
+END
+
+/* Context menus on XFldSystem "Drivers" page;
+   new with V0.9.0  */
+MENU ID_XSM_DRIVERS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Visa hjÑlp i OS/2 Kommandoreferens", ID_XSMI_DRIVERS_CMDREFHELP
+END
+
+/* Context menus on XWPKeyboard "Hotkeys" page
+   new with V0.9.0  */
+MENU ID_XSM_HOTKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Objekt ~egenskaper", ID_XSMI_HOTKEYS_PROPERTIES
+    MENUITEM "ôppna mapp", ID_XSMI_HOTKEYS_OPENFOLDER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~Ta bort snabbkommando...", ID_XSMI_HOTKEYS_REMOVE
+END
+
+/* Context menus on XWPKeyboard "Function keys" page;
+   new with V0.9.3 (2000-04-18) [umoeller] */
+
+MENU ID_XSM_FUNCTIONKEYS_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Editera funktionstangent...", ID_XSMI_FUNCK_EDIT
+    MENUITEM "Radera funktionstangent", ID_XSMI_FUNCK_DELETE
+END
+
+MENU ID_XSM_FUNCTIONKEYS_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Ny funktionstangent...", ID_XSMI_FUNCK_NEW
+END
+
+/*  "Sticky windows" context menus on XWPScreen "XPager Sticky" page
+    new with V0.9.4 (2000-07-10) [umoeller]*/
+
+MENU ID_XSM_STICKY_NOSEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~LÑgg till...", ID_XSMI_STICKY_NEW
+    MENUITEM SEPARATOR
+    MENUITEM "~Ta bort allt", ID_XSMI_STICKY_DELETEALL
+END
+
+/* changed V0.9.19 (2002-04-17) [umoeller] */
+MENU ID_XSM_STICKY_SEL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Editera...", ID_XSMI_STICKY_EDIT
+    MENUITEM SEPARATOR
+    MENUITEM "~Ta bort", ID_XSMI_STICKY_DELETE
+END
+
+/* XCenter main button menu V0.9.7 (2000-11-30) [umoeller] */
+/* modified V0.9.9 (2001-03-07) [umoeller] */
+/* modified V0.9.19 (2002-04-02) [umoeller] */
+MENU ID_CRM_XCENTERBUTTON LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~LÜs nu", ID_CRMI_LOCKUPNOW
+    MENUITEM "~Suspendera...", ID_CRMI_SUSPEND
+    MENUITEM "Starta ~om Skrivbordet...", ID_CRMI_RESTARTWPS
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "K~îr...", ID_CRMI_RUN
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "Lo~gga av...", ID_CRMI_LOGOFF
+    MENUITEM "", ID_CRMI_SEP4, MIS_SEPARATOR
+    MENUITEM "StÑng ~av...", ID_CRMI_SHUTDOWN
+END
+
+/* XCenter standard widget context menu V0.9.7 (2000-11-30) [umoeller] */
+/* changed V0.9.13 (2001-06-21) [umoeller] */
+/* changed V0.9.19 (2002-04-14) [umoeller] */
+/* modified V0.9.20 (2002-08-08) [umoeller] */
+MENU ID_CRM_WIDGET LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Egenskap~er", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_CRMI_HELPSUBMENU, MIS_SUBMENU
+    BEGIN
+       MENUITEM "~Widget hjÑlp", ID_CRMI_HELP
+       MENUITEM "", ID_CRMI_HELP_XCENTER
+    END
+    MENUITEM "", ID_CRMI_SEP2, MIS_SEPARATOR
+    MENUITEM "~Ta bort widget", ID_CRMI_REMOVEWGT
+    MENUITEM "", ID_CRMI_SEP3, MIS_SEPARATOR
+    MENUITEM "", ID_CRMI_XCSUB_PROPERTIES     /* see ID_CRMI_XCSUB_PROPERTIES stringtable entry */
+    MENUITEM "", ID_CRMI_XCSUB_CLOSE          /* see ID_CRMI_XCSUB_CLOSE stringtable entry */
+END
+
+/* XPager context menu V0.9.11 (2001-04-25) [umoeller] */
+MENU ID_XSM_PAGERCTXTMENU LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Egenskap~er", ID_CRMI_PROPERTIES
+    MENUITEM "", ID_CRMI_SEP1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_CRMI_HELP
+END
+
+/* here come lots of little strings which XWorkplace uses in all kinds
+   of places. XWorkplace loads these strings on demand one at a time. */
+STRINGTABLE
+BEGIN
+    /* miscellaneous menu items */
+    ID_XSSI_NOTDEFINED              "[inte definierad]"
+    ID_XSSI_PRODUCTINFO             "~&xwp; produktinformation"
+    ID_XSSI_REFRESHNOW              "~Fîrnya nu"
+    ID_XSSI_SNAPTOGRID              "~Ordna i rutnÑt"
+
+    /* language of this DLL;
+       displayed on the "XWorkplace Konfiguration" notebook page */
+    ID_XSSI_DLLLANGUAGE             "SV Svenska"
+
+    /* author of National Language Support (new with V0.9.0);
+       displayed on the "XWorkplace Konfiguration" notebook page */
+    ID_XSSI_NLS_AUTHOR              "Bjîrn Sîderstrîm"
+
+    /* XFOLDER_VERSION is in dlgids.h; this is checked by the
+       XWorkplace NLS DLL loader so that no DLLs are loaded which
+       are older than the main DLL. No change needed. */
+    ID_XSSI_XFOLDERVERSION          XFOLDER_VERSION
+
+    ID_XSSI_FLDRCONTENT             "M~appinnehÜll"
+    ID_XSSI_COPYFILENAME            "Ko~piera filnamn"
+    ID_XSSI_BORED                   "[Konfigurationsmapp Ñr tom]"
+    ID_XSSI_FLDREMPTY               "[tom]"
+    ID_XSSI_SELECTSOME              "VÑlj genom ~namn..."
+    ID_XSSI_PROCESSCONTENT          "Startupmapp ~innehÜll..."
+
+    /* title of "Quick open" status window at bootup */
+    ID_XFSI_QUICKSTATUS             "Snabbîppna"
+
+    /* status bar strings */
+    ID_XSSI_POPULATING              "Samlar objekt..."
+
+    /* default status bar mnemonics; changed with V0.9.6 (2000-11-23) [umoeller] */
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTNONESEL           "$C objekt$x(50%)$SA totalt, $fM av $zM MB fritt"
+    ID_XSSI_SBTEXTMULTISEL          "$c av $C objekt valda$x(50%)$sA valt"
+    ID_XSSI_SBTEXTWPDATAFILE        """$r"" ($w)$x(55%)$sA $x(70%)$D $T"
+    /* changed the following V0.9.11 (2001-04-22) [umoeller] */
+    ID_XSSI_SBTEXTWPDISK            "$t ($fM av $zM MB fritt)"
+    ID_XSSI_SBTEXTWPPROGRAM         "$t $x(30%)""$p $P"""
+    ID_XSSI_SBTEXTWPOBJECT          "$t (Klass: $W)"
+
+    /* hotkey descriptions */
+    ID_XSSI_KEY_CTRL                "Ctrl+"
+    ID_XSSI_KEY_Alt                 "Alt+"
+    ID_XSSI_KEY_SHIFT               "Shift+"
+
+    ID_XSSI_KEY_BACKSPACE           "Backspace"
+    ID_XSSI_KEY_TAB                 "Tab"
+    ID_XSSI_KEY_BACKTABTAB          "Backtab"
+    ID_XSSI_KEY_ENTER               "Enter"
+    ID_XSSI_KEY_ESC                 "Esc"
+    ID_XSSI_KEY_SPACE               "Space"
+    ID_XSSI_KEY_PAGEUP              "Page up"
+    ID_XSSI_KEY_PAGEDOWN            "Page down"
+    ID_XSSI_KEY_END                 "End"
+    ID_XSSI_KEY_HOME                "Home"
+    ID_XSSI_KEY_LEFT                "Left"
+    ID_XSSI_KEY_UP                  "Up"
+    ID_XSSI_KEY_RIGHT               "Right"
+    ID_XSSI_KEY_DOWN                "Down"
+    ID_XSSI_KEY_PRINTSCRN           "Printscrn"
+    ID_XSSI_KEY_INSERT              "Insert"
+    ID_XSSI_KEY_DELETE              "Delete"
+    ID_XSSI_KEY_SCRLLOCK            "ScrlLock"
+    ID_XSSI_KEY_NUMLOCK             "NumLock"
+
+    ID_XSSI_KEY_WINLEFT             "Win vÑnster"
+    ID_XSSI_KEY_WINRIGHT            "Win hîger"
+    ID_XSSI_KEY_WINMENU             "Win meny"
+
+    /* and the corresponding list box items on the
+       "Hotkeys" notebook page */
+    ID_XSSI_LB_REFRESHNOW           "Fîrnya nu"
+    ID_XSSI_LB_SNAPTOGRID           "Ordna i rutnÑt"
+    ID_XSSI_LB_SELECTALL            "VÑlj alla"
+    ID_XSSI_LB_OPENPARENTFOLDER     "ôppna îverordnad mapp"
+    ID_XSSI_LB_OPENSETTINGSNOTEBOOK "ôppna instÑllningsblock"
+    ID_XSSI_LB_OPENNEWDETAILSVIEW   "ôppna nytt DetaljvisningssÑtt"
+    ID_XSSI_LB_OPENNEWICONVIEW      "ôppna nytt IkonvisningssÑtt"
+    ID_XSSI_LB_DESELECTALL          "VÑlj bort alla"
+    ID_XSSI_LB_OPENNEWTREEVIEW      "ôppna nytt TrÑdvisningssÑtt"
+    ID_XSSI_LB_FIND                 "Sîk..."
+    ID_XSSI_LB_PICKUP               "Lyft"
+    ID_XSSI_LB_PICKUPCANCELDRAG     "Lyft (Avbryt drag)"
+    ID_XSSI_LB_SORTBYNAME           "Sortera genom namn"
+    ID_XSSI_LB_SORTBYSIZE           "Sortera genom storlek"
+    ID_XSSI_LB_SORTBYTYPE           "Sortera genom typ"
+    ID_XSSI_LB_SORTBYREALNAME       "Sortera genom fysiskt namn"
+    ID_XSSI_LB_SORTBYWRITEDATE      "Sortera genom Ñndrat datum"
+    ID_XSSI_LB_SORTBYACCESSDATE     "Sortera genom access datum"
+    ID_XSSI_LB_SORTBYCREATIONDATE   "Sortera genom skapad datum"
+/* V0.9.19: removed Warp 4 only strings from all these */
+    ID_XSSI_LB_SWITCHTOICONVIEW     "éndra till IkonvisningssÑtt"
+    ID_XSSI_LB_SWITCHTODETAILSVIEW  "éndra till DetaljvisningssÑtt"
+    ID_XSSI_LB_SWITCHTOTREEVIEW     "éndra till TrÑdvisningssÑtt"
+    ID_XSSI_LB_ARRANGEDEFAULT       "Ordna (standard)"
+    ID_XSSI_LB_ARRANGEFROMTOP       "Ordna uppifrÜn"
+    ID_XSSI_LB_ARRANGEFROMLEFT      "Ordna frÜn vÑnster"
+    ID_XSSI_LB_ARRANGEFROMRIGHT     "Ordna frÜn hîger"
+    ID_XSSI_LB_ARRANGEFROMBOTTOM    "Ordna nerifrÜn"
+    ID_XSSI_LB_ARRANGEPERIMETER     "Ordna alla kanter"
+    ID_XSSI_LB_ARRANGEHORIZONTALLY  "Ordna horisontellt"
+    ID_XSSI_LB_ARRANGEVERTICALLY    "Ordna vertikalt"
+    ID_XSSI_LB_INSERT               "Klistra in..."
+    ID_XSSI_LB_SORTBYEXTENSION      "Sortera genom Ñndelse"
+    ID_XSSI_LB_SORTFOLDERSFIRST     "Sortera, mappar fîrst"
+    ID_XSSI_LB_SORTBYCLASS          "Sortera genom objektklass"
+    ID_XSSI_LB_OPENPARENTFOLDERANDCLOSE     "ôppna îverordnad mapp och stÑng nuvarande mapp"
+    ID_XSSI_LB_SELECTSOME           "VÑlj genom namn..."
+    ID_XSSI_LB_CLOSEWINDOW          "StÑng fînster"
+    ID_XSSI_LB_CONTEXTMENU          "Visa kontextmeny"
+    ID_XSSI_LB_TASKLIST             "Visa Aktiva sessioner"
+    ID_XSSI_LB_COPYFILENAME_SHORT   "Kopiera filnamn (utan sîkvÑg)"
+    ID_XSSI_LB_COPYFILENAME_FULL    "Kopiera filnamn (inkl. sîkvÑg)"
+
+    /* XShutdown: context menu items and messages for the
+       status window.
+       Do not change the %d and %s keys, or
+       XShutdown might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_SDSI_SHUTDOWN                "St~Ñng av"
+    ID_SDSI_RESTARTWPS              "~Starta om Skrivbordet..."
+    ID_SDSI_RESTARTINGWPS           "Startar om Skrivbordet..."
+    ID_SDSI_SAVINGDESKTOP           "Sparar %d Skrivbordsobjekt..."
+    ID_SDSI_SAVINGPROFILES          "Sparar INI filer..."
+    ID_SDSI_STARTING                "Startar ""%s""..."
+    ID_SDSI_FLUSHING                "StÑnger ner filsystem..."
+    ID_SDSI_CAD                     "AvstÑngningen utfîrd."
+    ID_SDSI_REBOOTING               "Datorn hÜller pÜ att startas..."
+    ID_SDSI_CLOSING                 "StÑnger"
+    ID_SDSI_DEFAULT                 "Standard"
+
+    /* titles for XWorkplace notebook pages */
+/*    ID_XSSI_1GENERIC                "~XWorkplace"            removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_25ADDITEMS              "Ko~ntext menyer"            removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_26CONFIGITEMS           "Konfigurationsmapp alternativ"
+/*    ID_XSSI_2REMOVEITEMS            "Standard menyalternativ"    removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_27STATUSBAR             "Status~fÑlt" /* V0.9.9 */
+    ID_XSSI_3SNAPTOGRID             "RutnÑt"
+    ID_XSSI_4ACCELERATORS           "~Mappsnabbkommandon" /* V0.9.9 */
+/*    ID_XSSI_5INTERNALS              "XWorkplace Interna"         removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_FILEOPS                 "Fil ~operationer"           removed V0.9.20 (2002-07-25) [umoeller] */
+/*    ID_XSSI_INTERNALS               "~Objekt"                    removed V0.9.20 (2002-07-25) [umoeller] */
+    ID_XSSI_SORT                    "~Sortera"
+
+    /* the following are new with V0.9.0 */
+    ID_XSSI_XWPSTATUS               "~&xwp; Status"
+    ID_XSSI_FEATURES                "~Funktioner"
+    ID_XSSI_PARANOIA                "~Paranoia"
+    ID_XSSI_OBJECTS                 "~Objekt"
+    ID_XSSI_FILEPAGE                "Fi~l"
+    ID_XSSI_DETAILSPAGE             "~Detaljer"
+    ID_XSSI_XSHUTDOWNPAGE           "~Utîkad AvstÑngning"
+    ID_XSSI_STARTUPPAGE             "~Startup"
+    ID_XSSI_DTPMENUPAGE             "~Meny"
+            /* ID_XSSI_DTPMENUPAGE changed V0.9.19 (2002-04-17) [umoeller] */
+    ID_XSSI_FILETYPESPAGE           "~Filtyper"
+    ID_XSSI_SOUNDSPAGE              "~Ljud"
+    ID_XSSI_VIEWPAGE                "~Visning"
+    ID_XSSI_ARCHIVESPAGE            "~Arkiv"
+    ID_XSSI_PGMFILE_MODULE          "~Modul"
+    ID_XSSI_OBJECTHOTKEYSPAGE       "~Snabbkommandon"
+    /* ID_XSSI_FUNCTIONKEYSPAGE added with V0.9.3 (2000-04-18) [umoeller] */
+    ID_XSSI_FUNCTIONKEYSPAGE        "~Funktionstangenter"
+    ID_XSSI_MOUSEHOOKPAGE           "~Rîrelse"
+    ID_XSSI_MAPPINGSPAGE            "~Mappning"
+
+    /* sort strings */
+    ID_XSSI_SV_NAME                 "Namn"
+    ID_XSSI_SV_TYPE                 "Typ"
+    ID_XSSI_SV_CLASS                "Objektklass"
+    ID_XSSI_SV_REALNAME             "Verkligt namn"
+    ID_XSSI_SV_SIZE                 "Storlek"
+    ID_XSSI_SV_WRITEDATE            "Senast skrivet datum"
+    ID_XSSI_SV_ACCESSDATE           "Senaste access datum"
+    ID_XSSI_SV_CREATIONDATE         "Skapat datum"
+    ID_XSSI_SV_EXT                  "Filnamn Ñndelse"
+    ID_XSSI_SV_FOLDERSFIRST         "Mappar fîrst"
+
+    ID_XSSI_SV_ALWAYSSORT           "UnderhÜll alltid sorteringsordning"
+
+    /* XWorkplace standard dialog box (cmnMessageBox in common.c) */
+    /* all changed to DID_* strings, see below with DID_YES2ALL etc.
+        V0.9.19 (2002-04-17) [umoeller]
+    ID_XSSI_DLG_UNDO                    "~èngra"
+    ID_XSSI_DLG_DEFAULT                 "~Standard"
+    ID_XSSI_DLG_HELP                    "~HjÑlp"
+    ID_XSSI_DLG_YES                     "~Ja"
+    ID_XSSI_DLG_YES2ALL                 "Ja till ~allt"
+    ID_XSSI_DLG_NO                      "~Nej"
+    ID_XSSI_DLG_OK                      "~OK"
+    ID_XSSI_DLG_CANCEL                  "~èngra"
+    ID_XSSI_DLG_ABORT                   "~Ta bort"
+    ID_XSSI_DLG_RETRY                   "~Fîrsîk igen"
+    ID_XSSI_DLG_IGNORE                  "~Ignorera" */
+
+    /* "WPS Classes" notebook page */
+    ID_XSSI_SB_CLASSMNEMONICS           "StatusfÑltinfo fîr denna klass:"
+    ID_XSSI_SB_CLASSNOTSUPPORTED        "Den hÑr klassen introducerar ingen ny statusfÑltinfo."
+    ID_XSSI_WPSCLASSES                  "WPS klasser"
+    ID_XSSI_WPSCLASSLOADED              "Klass laddad."
+    ID_XSSI_WPSCLASSLOADINGFAILED       "Klassladdning misslyckades."
+    ID_XSSI_WPSCLASSREPLACEDBY          "Klass ersatt med %s."
+    ID_XSSI_WPSCLASSORPHANS             "FîrÑldralîsa klasser"
+    ID_XSSI_WPSCLASSORPHANSINFO         "Klasserna i detta trÑd kunde inte laddas. Du borde flytta bort dem frÜn WPS klasslistan."
+
+    /* OS/2 Kernel notebook pages */
+    ID_XSSI_SCHEDULER                   "~Jobbîvervakare"
+    ID_XSSI_MEMORY                      "~Minne"
+    ID_XSSI_ERRORS                      "F~el"
+    ID_XSSI_WPS                         "~WPS Skrivbord"
+    /* the following are new with V0.9.0 */
+    ID_XSSI_SYSPATHS                    "~System SîkvÑgar"
+    ID_XSSI_DRIVERS                     "D~rivrutiner"
+    ID_XSSI_DRIVERCATEGORIES            "Enheter kategorier"
+
+    /* extended settings submenus */
+    ID_XFSI_SETTINGS                    "~Egenskaper"
+    ID_XFSI_SETTINGSNOTEBOOK            "~Notbok"
+    ID_XFSI_ATTRIBUTES                  "Filattribut"
+    ID_XFSI_ATTR_ARCHIVE                "Arkiv"
+    ID_XFSI_ATTR_SYSTEM                 "System"
+    ID_XFSI_ATTR_HIDDEN                 "Gîmd"
+    ID_XFSI_ATTR_READONLY               "Skrivskyddad"
+
+    ID_XFSI_FLDRSETTINGS                "~Visa"
+    ID_XFSI_SMALLICONS                  "SmÜ ~ikoner"
+    ID_XFSI_FLOWED                      "~Multipla rader"
+    ID_XFSI_NONFLOWED                   "~Utan rader"
+    ID_XFSI_NOGRID                      "~Som placerad"
+
+    /* the following added with V0.9.0 */
+    ID_XFSI_WARP4MENUBAR                "~MenyfÑlt"
+
+    ID_XFSI_SHOWSTATUSBAR               "~StatusfÑlt"
+
+    /* the following are all new with V0.9.0 */
+
+    /* entry in XWPClassList's "Open" submenu */
+    ID_XFSI_OPENCLASSLIST               "~Klasslista"
+    /* default title for object */
+    ID_XFSI_XWPCLASSLIST                "WPS Klasslista"
+    /* the following is new with V0.9.1 (99-12-28) [umoeller] */
+    ID_XFSI_REGISTERCLASS               "R~egistrera ny klass..."
+
+    /* strings for XWPSound */
+    ID_XSSI_SOUNDSCHEMENONE             "<inget>"
+
+    /* "System paths" page in OS/2 Kernel" */
+    ID_XSSI_ITEMSSELECTED               "%d alternativ valda"
+
+    /* Trash can menu items */
+    ID_XTSI_TRASHEMPTY                  "~Tîm papperskorgen"
+    ID_XTSI_TRASHRESTORE                "~èterskapa objekt"
+    ID_XTSI_TRASHDESTROY                "~Fîrstîr objekt"
+
+    ID_XTSI_TRASHCAN                    "Papperskorg"
+    ID_XTSI_TRASHOBJECT                 "Papperskorg Objekt"
+
+    ID_XTSI_TRASHSETTINGSPAGE           "~Papperskorg"
+    ID_XTSI_TRASHDRIVESPAGE             "~Enheter"
+
+    ID_XTSI_ORIGFOLDER                  "Originalmappar"
+    ID_XTSI_DELDATE                     "Radera Datum"
+    ID_XTSI_DELTIME                     "Radera Tid"
+    ID_XTSI_SIZE                        "Storlek"
+    ID_XTSI_ORIGCLASS                   "Originalklass"
+
+    /* all the following added with V0.9.1 */
+
+    /* trash can status bar strings */
+    ID_XTSI_STB_POPULATING              "Samlar skrÑp pÜ enhet %c:..."
+    ID_XTSI_STB_OBJCOUNT                "%s skrÑpobjekt, total storlek fîr skrÑp: %s bytes"
+
+    /* Details view columns on XWPKeyboard "Hotkeys" page */
+    ID_XSSI_HOTKEY_TITLE                "Objekt Rubrik"
+    ID_XSSI_HOTKEY_FOLDER               "Mapp"
+    ID_XSSI_HOTKEY_HANDLE               "Objekt Handtag"
+    ID_XSSI_HOTKEY_HOTKEY               "Snabbkommando"
+
+    /* Method info columns for XWPClassList; V0.9.1 (99-12-03) */
+    ID_XSSI_CLSLIST_INDEX               "Nej"
+    ID_XSSI_CLSLIST_METHOD              "Metod"
+    ID_XSSI_CLSLIST_ADDRESS             "ètgÑrdad"
+    ID_XSSI_CLSLIST_CLASS               "Klass"
+    ID_XSSI_CLSLIST_OVERRIDDENBY        "ôverskriden Av"
+
+    /* "Special functions" on XWPMouse "Movement" page */
+    ID_XSSI_SPECIAL_WINDOWLIST          "Fînsterlista"
+    ID_XSSI_SPECIAL_DESKTOPPOPUP        "Skrivbordets kontextmeny"
+
+    /* default title of XWPScreen class V0.9.2 (2000-02-23) [umoeller] */
+    ID_XSSI_XWPSCREENTITLE              "SkÑrm"
+
+    /* "Partitions" item in WPDrives "open" menu V0.9.2 (2000-02-29) [umoeller] */
+    ID_XSSI_OPENPARTITIONS              "~Partitioner visning"
+
+    /* all the following added with V0.9.3 */
+
+    /* "Syslevel" page title in "OS/2 kernel" */
+    ID_XSSI_SYSLEVELPAGE                "SystemnivÜer"
+
+    ID_XTSI_CALCULATING                 "berÑknar..."
+
+    ID_MMSI_DEVICETYPE                  "Typ"
+    ID_MMSI_DEVICEINDEX                 "Index"
+    ID_MMSI_DEVICEINFO                  "Drivrutiner"
+
+    ID_MMSI_TYPE_IMAGE                  "Bild"
+    ID_MMSI_TYPE_AUDIO                  "Audio"
+    ID_MMSI_TYPE_MIDI                   "MIDI"
+    ID_MMSI_TYPE_COMPOUND               "Sammansatt"
+    ID_MMSI_TYPE_OTHER                  "Annan"
+    ID_MMSI_TYPE_UNKNOWN                "OkÑnd"
+    ID_MMSI_TYPE_VIDEO                  "Video"
+    ID_MMSI_TYPE_ANIMATION              "Animering"
+    ID_MMSI_TYPE_MOVIE                  "Film"
+
+    ID_MMSI_TYPE_STORAGE                "Lagring"
+    ID_MMSI_TYPE_FILE                   "Arkiv"
+    ID_MMSI_TYPE_DATA                   "Data"
+
+    ID_MMSI_DEVTYPE_VIDEOTAPE           "Videotape"
+    ID_MMSI_DEVTYPE_VIDEODISC           "Videodisk"
+    ID_MMSI_DEVTYPE_CD_AUDIO            "CD audio"
+    ID_MMSI_DEVTYPE_DAT                 "DAT"
+    ID_MMSI_DEVTYPE_AUDIO_TAPE          "Audio tape"
+    ID_MMSI_DEVTYPE_OTHER               "Annan"
+    ID_MMSI_DEVTYPE_WAVEFORM_AUDIO      "Wave audio"
+    ID_MMSI_DEVTYPE_SEQUENCER           "Sequencer"
+    ID_MMSI_DEVTYPE_AUDIO_AMPMIX        "Ampmix"
+    ID_MMSI_DEVTYPE_OVERLAY             "Belagd"
+    ID_MMSI_DEVTYPE_ANIMATION           "Animering"
+    ID_MMSI_DEVTYPE_DIGITAL_VIDEO       "Digital video"
+    ID_MMSI_DEVTYPE_SPEAKER             "Hîgtalare"
+    ID_MMSI_DEVTYPE_HEADPHONE           "Hîrtelefon"
+    ID_MMSI_DEVTYPE_MICROPHONE          "Mikrofon"
+    ID_MMSI_DEVTYPE_MONITOR             "Monitor"
+    ID_MMSI_DEVTYPE_CDXA                "CDXA"
+    ID_MMSI_DEVTYPE_FILTER              "Filter"
+    ID_MMSI_DEVTYPE_TTS                 "Text-till-tal"
+
+    ID_MMSI_COLMN_FOURCC                "FyraCC"
+    ID_MMSI_COLMN_NAME                  "Namn"
+    ID_MMSI_COLMN_IOPROC_TYPE           "IOProc Typ"
+    ID_MMSI_COLMN_MEDIA_TYPE            "Media Typ"
+    ID_MMSI_COLMN_EXTENSION             "Fîrl."
+    ID_MMSI_COLMN_DLL                   "DLL"
+    ID_MMSI_COLMN_PROCEDURE             "EntrÇ Punkt"
+
+    ID_MMSI_PAGETITLE_DEVICES           "~Utrustning"
+    ID_MMSI_PAGETITLE_IOPROCS           "~IOProc"
+    ID_MMSI_PAGETITLE_CODECS            "~Codec"
+
+    ID_XSSI_PAGETITLE_PAGER             "~Sîkare"
+
+    ID_XSSI_XWPSTRING_PAGE              "~SetupstrÑng"
+    ID_XSSI_XWPSTRING_OPENMENU          "~Anropa setupstrÑng"
+
+    ID_XSSI_COLMN_SYSL_COMPONENT        "Komponent"
+    ID_XSSI_COLMN_SYSL_FILE             "SYLEVEL Fil"
+            /* corrected SYLEVEL typo V0.9.21 (2002-08-12) [umoeller] */
+    ID_XSSI_COLMN_SYSL_VERSION          "Version"
+    ID_XSSI_COLMN_SYSL_LEVEL            "SystemnivÜ"
+    ID_XSSI_COLMN_SYSL_PREVIOUS         "Tidigare"
+
+    ID_XSSI_DRIVERS_VERSION             "Version: "
+    ID_XSSI_DRIVERS_VENDOR              "Tillverkare: "
+
+    /* removed these duplicates V0.9.18 (2002-02-13) [umoeller] */
+    /* ID_XSSI_FUNCKEY_DESCRIPTION         "Tangent Beskrivning" */
+    /* ID_XSSI_FUNCKEY_SCANCODE            "Scanna Kod" */
+    /* ID_XSSI_FUNCKEY_MODIFIER            "Modifierare" */
+
+    /* default documents V0.9.4 (2000-06-09) [umoeller] */
+    ID_XSSI_DATAFILEDEFAULTDOC          "S~tandarddokument"
+    ID_XSSI_FDRDEFAULTDOC               "Mapp's sta~ndarddokument"
+
+    /* XCenter V0.9.4 (2000-06-10) [umoeller] */
+    ID_XSSI_XCENTERPAGE1                "~Moduler"
+
+    /* file operations V0.9.4 (2000-07-27) [umoeller] */
+    ID_XSSI_FOPS_MOVE2TRASHCAN          "Flyttar till papperskorgen..."
+    ID_XSSI_FOPS_RESTOREFROMTRASHCAN    "èterstÑller frÜn papperskorgen..."
+    ID_XSSI_FOPS_TRUEDELETE             "Raderar objekt..."
+    ID_XSSI_FOPS_EMPTYINGTRASHCAN       "Tîmmer papperskorg..."
+
+    ID_XSSI_ICONPAGE                    "~Ikon"
+
+    /* INI save methods V0.9.5 (2000-08-20) [umoeller] */
+    ID_XSSI_XSD_SAVEINIS_NEW            "Ny metod: anvÑnd &xwp; INI rutiner"
+    ID_XSSI_XSD_SAVEINIS_OLD            "Gammal metod: anvÑnd &os2; INI rutiner"
+    ID_XSSI_XSD_SAVEINIS_NONE           "Spara inte nÜgra INI's alls"
+
+    /* logoff V0.9.5 (2000-09-28) [umoeller] */
+    ID_XSSI_XSD_LOGOFF                  "Lo~gga av..."
+    ID_XSSI_XSD_CONFIRMLOGOFFMSG        "ér du sÑker pÜ att du vill logga av?"
+
+    /* "bytes" strings for status bars V0.9.6 (2000-11-23) [umoeller] */
+    ID_XSSI_BYTE                        " byte"
+    ID_XSSI_BYTES                       " bytes"
+
+    /* V0.9.6 (2000-12-14) [lafaix] */
+    ID_XSSI_PGMFILE_RESOURCES           "~Resurser"
+
+    /* title of program(file) "Associations" page V0.9.9 (2001-03-07) [umoeller] */
+    ID_XSSI_PGM_ASSOCIATIONS            "~Associationer"
+
+END
+
+/* Strings for XWPSetup "Features" page
+    (added V0.9.0) */
+STRINGTABLE
+BEGIN
+    ID_XCSI_GENERALFEATURES             "AllmÑnna funktioner"
+#ifndef __NOICONREPLACEMENTS__
+    ID_XCSI_REPLACEICONS                "Byt ut Ikoner"
+#endif
+    /* the following item added with V0.9.20 (2002-07-19) [umoeller] */
+    ID_XCSI_REPLACEHELP                 "Byt ut standard hjÑlppaneler"
+
+    /* the following item added with V0.9.4 V0.9.4 (2000-08-08) [umoeller] */
+    // ID_XCSI_RESIZESETTINGSPAGES         "Justera instÑllningarna fîr instÑllningsblockets storlek"
+            // and removed V1.0.1 (2002-12-14) [umoeller]
+
+    /* the following item's ID and string changed with V0.9.16 (2001-10-15) [umoeller] */
+    ID_XCSI_REPLACEICONPAGE             "Byt ut ""Ikon"" sidan i alla instÑllningsblock"
+    ID_XCSI_REPLACEFILEPAGE             "Byt ut ""Arkiv"" och ""Detaljer"" sidorna"
+    ID_XCSI_XSYSTEMSOUNDS               "Utîkade systemljud"
+    /* the following item added with V0.9.12 (2001-05-22) [umoeller] */
+    ID_XCSI_FIXCLASSTITLES              "Fixa klassrubriker"
+
+    ID_XCSI_FOLDERFEATURES              "Mappar funktioner"
+    ID_XCSI_ENABLESTATUSBARS            "Aktivera mapparnas statusfÑlt"
+    ID_XCSI_ENABLESNAP2GRID             "Aktivera mapps ""Ordna i rutnÑt"""
+    ID_XCSI_ENABLEFOLDERHOTKEYS         "Aktivera mapps snabbkommandon"
+    ID_XCSI_EXTFOLDERSORT               "Utîkad mappsortering"
+    /* the following item added with V0.9.16 (2001-10-25) [umoeller] */
+    ID_XCSI_TURBOFOLDERS                "Turbomappar"
+    ID_XCSI_MOUSEKEYBOARDFEATURES       "Mus och tangentbordsfunktioner"
+
+/*     ID_XCSI_ANIMOUSE                    "Animerade Muspekare" removed V0.9.19 (2002-06-02) [umoeller] */
+    ID_XCSI_XWPHOOK                     "Aktivera &xwp; Hook"
+    ID_XCSI_GLOBALHOTKEYS               "Aktivera globala objektsnabbkommandon"
+/*     ID_XCSI_PAGER                       "&pgr;: virtuella skrivbord" removed V0.9.19 (2002-05-28) [umoeller] */
+
+    ID_XCSI_STARTSHUTFEATURES           "Startup/stÑnga av funktioner"
+    ID_XCSI_ARCHIVING                   "Byt ut Skrivbordsarkivering"
+    ID_XCSI_RESTARTWPS                  "Aktivera ""Starta om Skrivbord"""
+    ID_XCSI_XSHUTDOWN                   "Aktivera Utîkad AvstÑngning"
+
+/* the following two items added with V0.9.18 (2001-10-25) [umoeller] */
+    ID_XCSI_CHECKDESKTOP                "Kontrollera Skrivbordets integritet"
+    ID_XCSI_PREPOPULATEDESKTOP          "Fîrbefolka Skrivbordet"
+
+    ID_XCSI_FILEOPERATIONS              "Filoperationer"
+    // ID_XCSI_EXTASSOCS                   "Utîkande filtypsassociationer"
+        // removed V1.0.1 (2002-12-15) [umoeller]
+
+/* this item added V0.9.20 (2002-08-08) [umoeller] */
+    ID_XCSI_REPLACEPASTE                "Byt ut ""Klistra in"" dialogen"
+
+/*     this item removed with V0.9.16
+    ID_XCSI_CLEANUPINIS                 "Rensa upp WPS INI poster" */
+/* the following item added with V0.9.5 (2000-08-14) [umoeller] */
+    ID_XCSI_REPLHANDLES                 "Byt ut hantering av WPS handtag"
+    ID_XCSI_REPLFILEEXISTS              "Byt ut dialogen ""Filen existerar"""
+    ID_XCSI_REPLDRIVENOTREADY           "Byt ut dialogen ""Enheten inte klar"""
+/* the following has changed V0.9.19 (2002-04-14) [umoeller] */
+    ID_XCSI_REPLACEDELETE               "Byt ut radera mot papperskorgen"
+/* the following has been removed V0.9.19 (2002-04-14) [umoeller] */
+/*    ID_XCSI_REPLACEDELETE               "Byt ut permanent radering" */
+/* the following has been added V0.9.9 (2001-01-31) [umoeller] */
+    ID_XCSI_REPLACEREFRESH              "Byt ut mapps auto-fîrnya"
+/* the following has been added V0.9.16 (2001-12-02) [umoeller] */
+    ID_XCSI_NEWFILEDLG                  "Byt ut arkivdialogen"
+END
+
+/* STILL more miscellaneous strings...
+    (all added V0.9.9 (2001-03-07) [umoeller]) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_STYLEPAGE                   "~Stil"
+    ID_XSSI_CLASSESPAGE                 "~Klasser"
+    ID_XSSI_WIDGETSPAGE                 "~Widgets"
+    /* this one renamed V0.9.20 (2002-08-10) (umoeller) */
+    ID_XSSI_ADDWIDGET                   "~Skapa ny widget"
+    /* this one added V0.9.20 (2002-08-10) (umoeller) */
+    ID_XSSI_ADDWIDGETTOTRAY             "~LÑgg widget till fack"
+    ID_XSSI_WIDGETCLASS                 "Widget klass"
+    ID_XSSI_WIDGETSETUP                 "Widget setup"
+
+    ID_XSSI_FONTFOLDER                  "Font Mapp"
+    ID_XSSI_FONTFILE                    "Font Fil"
+    ID_XSSI_FONTFAMILY                  "Font Familj"
+    ID_XSSI_FONTERRORS                  "Font Fel"
+    ID_XSSI_FONTOBJECT                  "Installerade Fonter"
+    ID_XSSI_CDPLAYERVIEW                "~CD spelare"
+    ID_XSSI_CDPLAYER                    "CD spelare"
+    ID_XSSI_VOLUMEVIEW                  "~Volym"
+    ID_XSSI_VOLUME                      "Volym"
+    ID_XSSI_ADMINISTRATOR               "Administratîr"
+    ID_XSSI_THREADSPAGE                 "~TrÜdar"
+
+    ID_XSSI_CLSLISTTOKEN                "Token"
+
+    ID_XSSI_DRIVERVERSION               "Version: "
+    ID_XSSI_DRIVERVENDOR                "Tillverkare: "
+
+    ID_XSSI_FONTSAMPLEVIEW              "~Font exempel"
+    ID_XSSI_FONTDEINSTALL               "~Avinstallera..."
+
+    ID_XSSI_KEYDESCRIPTION              "Nyckel Beskrivning"
+    ID_XSSI_SCANCODE                    "Scannerkod fîr HÜrdvara"
+    ID_XSSI_MODIFIER                    "Modifierare"
+
+    ID_XSSI_DEFAULTSHUTDOWN             "Standard &os2; avstÑngning..."
+    ID_XSSI_INSTALLINGFONTS             "Installerar fonter..."
+
+    ID_XSSI_PARAMETERS                  "Parameter"
+    ID_XSSI_CLOSE                       "~StÑng"
+
+    ID_XSSI_DROPPED1                    "... %d objekt slÑppta,"
+    ID_XSSI_DROPPED2                    "îppna mapp fîr att se dom"
+
+    ID_XSSI_THREADSTHREAD               "TrÜd"
+    ID_XSSI_THREADSTID                  "TID"
+    ID_XSSI_THREADSPRIORITY             "Prioritet"
+    ID_XSSI_THREADSGROUPTITLE           "&xwp; trÜdar"
+
+    /* Do not leave our or change the order of the %d, %f and %%
+       keys, or XWP might crash. These are needed for inserting
+       variable data (sprintf). */
+    ID_XSSI_ARCRESTORED                 "Arkivet %d blev just ÜterstÑllt."
+    ID_XSSI_ARCDAYSPASSED               "%d dag(ar) har passerat sedan senaste backup."
+    ID_XSSI_ARCDAYSLIMIT                "GrÑns: %d dag(ar)."
+    ID_XSSI_ARCINICHECKING              "Kontrollerar INI filer..."
+    ID_XSSI_ARCINICHANGED               "INI filer Ñndrade %f %%."
+    ID_XSSI_ARCINILIMIT                 "GrÑns: %f %%."
+    ID_XSSI_ARCENABLED                  "Skrivbordsarkivering aktiverad."
+    ID_XSSI_ARCNOTNECC                  "Skrivbordsarkivering inte nîdvÑndig."
+
+    /* titles of programfiles "Imported modules" and "Exported functions" pages V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_PGMFILE_MODULE1             "Importerade moduler"
+    ID_XSSI_PGMFILE_MODULE2             "Exporterade funktioner"
+
+    /* containers columns headers in programfiles notebooks V0.9.9 (2001-03-11) [lafaix] */
+    ID_XSSI_COLMN_MODULENAME            "Namn"
+    ID_XSSI_COLMN_EXPORTORDINAL         "Ordningstal"
+    ID_XSSI_COLMN_EXPORTTYPE            "Typ"
+    ID_XSSI_COLMN_EXPORTNAME            "Namn"
+    ID_XSSI_COLMN_RESOURCEICON          "Ikon"
+    ID_XSSI_COLMN_RESOURCEID            "ID"
+    ID_XSSI_COLMN_RESOURCETYPE          "Typ"
+    ID_XSSI_COLMN_RESOURCESIZE          "Storlek"
+    ID_XSSI_COLMN_RESOURCEFLAGS         "Flaggor"
+
+    /* XPager special functions in XWPMouse "Movement" page V0.9.9 (2001-03-11 [lafaix] */
+    ID_XSSI_SPECIAL_PAGERUP          "En skÑrmsida upp"
+    ID_XSSI_SPECIAL_PAGERRIGHT       "En skÑrmsida till hîger"
+    ID_XSSI_SPECIAL_PAGERDOWN        "En skÑrmsida nerÜt"
+    ID_XSSI_SPECIAL_PAGERLEFT        "En skÑrmsida till vÑnster"
+
+    /* new MB3 mappings labels V0.9.9 (2001-03-27) [umoeller] */
+    ID_XSSI_MB3_AUTOSCROLL              "AutoScroll"
+    ID_XSSI_MB3_DBLCLICK                "Dubbelklick"
+    ID_XSSI_MB3_NOCONVERSION            "Ingen konvertering"
+    ID_XSSI_MB3_PUSHTOBOTTOM            "Tryck till botten"
+
+    /* new screen borders page title V0.9.9 (2001-04-04) [lafaix] */
+    ID_XSSI_SCREENBORDERSPAGE           "SkÑrmkanter"
+
+    /* XWPAdmin "Users" page V0.9.11 (2001-04-22) [umoeller]*/
+    /* removed V0.9.19 (2002-04-14) [umoeller] */
+    /* ID_XSSI_ADMIN_USER                  "~User" */
+
+    /* fixed class titles for folder, disk, datafile V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLASSTITLE_FOLDER           "Mapp"
+    ID_XSSI_CLASSTITLE_DISK             "Enhet"
+    ID_XSSI_CLASSTITLE_DATAFILE         "Datafil"
+
+    /* extended "close" menu V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_CLOSETHISVIEW               "Den hÑr ~visningen"
+    ID_XSSI_CLOSEALLTHISFDR             "Alla visningar fîr den hÑr mappen"
+    ID_XSSI_CLOSEALLSUBFDRS             "Alla visningar fîr den hÑr mappen och ~undermappar"
+
+    /* miscellaneous new strings V0.9.12 (2001-05-22) [umoeller] */
+    ID_XSSI_INVALID_OBJECT              "Ogiltigt objekt"
+    ID_XSSI_XSHUTDOWN                   "~Utîkad AvstÑngning"
+    ID_XSSI_XC_CLASSTITLE               "Klass rubrik"
+    ID_XSSI_XC_VERSION                  "Version"
+    ID_XSSI_XC_OBJBUTTONWIDGET          "Objektknapp widget"
+
+    /* another archive string V0.9.13 (2001-06-14) [umoeller] */
+    ID_XSSI_ARCENABLEDONCE              "Skrivbordsarkivering aktiverad en gÜng."
+
+    /* more multimedia strings V0.9.13 (2001-06-14) [umoeller] */
+    ID_MMSI_INSTALLNAME                 "Installation Namn"
+    ID_MMSI_LOGICALNAME                 "Logiskt Namn"
+    ID_MMSI_ALIAS                       "Alias"
+    ID_MMSI_MCD                         "Mediakontroll drivrutin"
+    ID_MMSI_VSD                         "Tillverkar-specifika drivrutiner"
+    ID_MMSI_PDD                         "Fysiska device-drivrutiner"
+    ID_MMSI_PARAMS                      "Parametrar"
+
+    /* more XCenter strings V0.9.13 (2001-06-19) [umoeller] */
+    ID_CRSI_ADDTRAY                     "LÑgg t~ill fack..."
+    ID_CRSI_RENAMETRAY                  "B~yt namn pÜ fack..."
+    ID_CRSI_REMOVETRAY                  "Ra~dera fack..."
+
+    ID_CRSI_TRAY                        "Fack %d"
+    ID_CRSI_NOTRAYACTIVE                "Inget aktivt fack"
+
+    ID_CRSI_ENTERNEWTRAY                "Var vÑnlig ange ett namn fîr det fack som skall skapas:"
+    ID_CRSI_ENTERRENAMETRAY             "Var vÑnlig ange ett nytt namn fîr det hÑr facket:"
+
+    ID_XSSI_RUN                         "~Kîr..."
+
+    /* the following have been added with V0.9.16 */
+    ID_CRSI_SENTINELTOOLTIP             "Fysiskt minne anvÑndning&nl;Fritt RAM: %s KB&nl;AnvÑnt RAM: %s KB&nl;Swapstorlek: %s KB"
+            /* expands to:
+                              Physical memory usage
+                              Free RAM: %s KB
+                              Used RAM: %s KB
+                              Swapper size: %s KB
+            */
+
+    ID_CRSI_BUILTINCLASS                "Inbyggd"
+    ID_CRSI_OWGT_MENUITEMS              "Synliga menyposter"
+
+    ID_CRSI_PWGT_TITLE                  "Puls"
+    ID_CRSI_PWGT_IRQLOADCOLOR           "IRQ last"
+    ID_CRSI_PWGT_CPUGRAPHCOLORS         "CPU graf fÑrger"
+    ID_CRSI_PWGT_CPUXUSERCOLOR          "CPU %d anvÑndarlast"
+    ID_CRSI_PWGT_OTHERCOLORS            "Andra fÑrger"
+    ID_CRSI_PWGT_BACKGROUNDCOLOR        "Bakgrund"
+    ID_CRSI_PWGT_TEXTCOLOR              "Text"
+    ID_CRSI_PWGT_TOOLTIP1               "CPU rÑkning: %d&nl;CPU 0 IRQ last: %lu%c%lu%c"
+    ID_CRSI_PWGT_TOOLTIP2               "&nl;CPU %d anvÑndarlast: %lu%c%lu%c"
+           /*  warning: the above two are strings for sprintf, so you _must_
+               get the % flags exactly correct, or the pulse will crash */
+
+    ID_XSSI_WPSFDRVIEWPAGE              "Mapp ~visningssÑtt"
+
+    ID_XFSI_FDLG_DRIVES                 "~Enheter:"
+    ID_XFSI_FDLG_FILESLIST              "Filer ~lista:"
+    ID_XFSI_FDLG_TYPES                  "Typer:"
+    ID_XFSI_FDLG_DIRECTORY              "Katalog:"
+    ID_XFSI_FDLG_WORKING                "Arbetar..."
+    ID_XFSI_FDLG_FILE                   "~Fil:"
+    ID_XFSI_FDLG_SAVEFILEAS             "Spara Fil Som..."
+    ID_XFSI_FDLG_OPENFILE               "ôppna Fil..."
+    ID_XFSI_FDLG_ALLTYPES               "<Alla typer>"
+
+    /* the following have been added with V0.9.18 */
+    ID_XSSI_SPECIAL_SCREENWRAP          "SkÑrmkanter brytning"
+
+    /* the following have been added with V0.9.19 */
+    ID_XSSI_DOUBLEFILES_FILENAME        "Filnamn"
+    ID_XSSI_DOUBLEFILES_DIR             "Katalog"
+    ID_XSSI_DOUBLEFILES_SIZE            "Storlek"
+    ID_XSSI_DOUBLEFILES_DATE            "Datum"
+    ID_XSSI_DOUBLEFILES_TIME            "Tid"
+
+    ID_NDSI_STARTNETSCAPE               "Din browser verkar inte vara igÜng fîr nÑrvarande. Starta den nu?"
+    ID_NDSI_SYNTAX                      "Syntaxen fîr Netscape DDE kommandot Ñr inte riktig. Vill du se efter i onlinehjÑlpen?"
+
+    ID_XSSI_ADMIN_LOCAL_USER            "~Aktuell anvÑndare"
+    ID_XSSI_ADMIN_ALL_USERS             "Alla ~anvÑndare"
+    ID_XSSI_ADMIN_ALL_GROUPS            "Alla ~grupper"
+
+    ID_CRSI_OWGT_BITMAPFILE             "OS/2 bitmapfil"
+
+    /* widget class names (all new with V0.9.19) */
+    ID_CRSI_WIDGET_OBJBUTTON            "Objektknapp"
+    ID_CRSI_WIDGET_XBUTTON              "X-knapp"
+    ID_CRSI_WIDGET_PULSE                "Puls (CPU last)"
+    ID_CRSI_WIDGET_TRAY                 "Fack"
+    ID_CRSI_WIDGET_DISKFREE_WC          "Disk fritt utrymme (&warpcenter; stil)"
+    ID_CRSI_WIDGET_DATE                 "Datum"
+    ID_CRSI_WIDGET_TIME                 "Tid"
+    ID_CRSI_WIDGET_FREEMEM              "Fritt fysiskt minne"
+    ID_CRSI_WIDGET_POWER                "Batteristrîm"
+    ID_CRSI_WIDGET_DISKFREE_COND        "Disk fritt utrymme (komprimerat)"
+    ID_CRSI_WIDGET_SENTINEL             "Sentinel minnesîvervakare"
+    ID_CRSI_WIDGET_WINDOWLIST           "Fînsterlista"
+    ID_CRSI_WIDGET_HEALTH               "HÑlso Monitor"
+    ID_CRSI_WIDGET_IPMONITOR            "IP Monitor"
+
+    /* font sample view (all new with V0.9.19) */
+    ID_XSSI_FONT_BASELINE               "Visa baslinje (rîd linje)"
+    ID_XSSI_FONT_MAXASCENDER            "Visa maximum ascender/descender (grÜ rektanglar till vÑnster)"
+    ID_XSSI_FONT_INTERNALLEADING        "Visa interna leading (grÜ rektangel)"
+    ID_XSSI_FONT_LOWERCASEASCENT        "Visa gemener ascent/descent (rîda rektanglar)"
+
+    /* object details dialog V0.9.19 (2002-05-23) [umoeller] */
+    ID_XSSI_OBJDET_OBJECTID             "Objekt ID"
+    ID_XSSI_OBJDET_NONESET              "inget instÑllt"
+    ID_XSSI_OBJDET_OBJECTID_ORIG        "Original objekt ID"
+    ID_XSSI_OBJDET_DEFAULTVIEW          "Objekt standarvisning"
+    ID_XSSI_OBJDET_HANDLE               "Objekt handtag"
+
+    ID_XSSI_OBJDET_STYLEGROUP           "Objekt stil"
+    ID_XSSI_OBJDET_CUSTOMICON           "Anpassad ikon (auto-fîrstîr; stil fungerar inte)"
+    ID_XSSI_OBJDET_NOTDEFAULTICON       "Ej standardikon (auto-fîrstîr)"
+    ID_XSSI_OBJDET_NOCOPY               "ingen kopiering"
+    ID_XSSI_OBJDET_NODELETE             "ingen radering"
+    ID_XSSI_OBJDET_NODRAG               "inget drag"
+    ID_XSSI_OBJDET_NODROPON             "inget slÑpp-pÜ"
+    ID_XSSI_OBJDET_NOLINK               "inga lÑnkar (kan inte ha skuggor)"
+    ID_XSSI_OBJDET_NOMOVE               "ingen flyttning"
+    ID_XSSI_OBJDET_NOPRINT              "ingen utskrift"
+    ID_XSSI_OBJDET_NORENAME             "inget namnbyte"
+    ID_XSSI_OBJDET_NOSETTINGS           "inga instÑllningar"
+    ID_XSSI_OBJDET_NOTVISIBLE           "ej synlig"
+    ID_XSSI_OBJDET_TEMPLATE             "mall"
+    ID_XSSI_OBJDET_LOCKEDINPLACE        "lÜst pÜ plats"
+
+    ID_XSSI_OBJDET_PROGRAMDATA          "Programdata"
+    ID_XSSI_OBJDET_PROGRAMTYPE          "Programtyp"
+    ID_XSSI_OBJDET_ENVIRONMENT          "Miljî"
+
+    ID_XSSI_OBJDET_FOLDERFLAGS          "Mapp flaggor"
+    ID_XSSI_OBJDET_FOLDERVIEWFLAGS      "Mappvisning flaggor"
+    ID_XSSI_OBJDET_OBJUSAGE             "ObjektanvÑndning"
+    ID_XSSI_OBJDET_OPENVIEWS            "Aktuellt îppnade visningar"
+    ID_XSSI_OBJDET_ALLOCMEM             "Allokerat minne"
+    ID_XSSI_OBJDET_AWAKESHADOWS         "UppvÑckta skuggor av detta objekt"
+    ID_XSSI_OBJDET_FOLDERWINDOWS        "Mappfînster innehÜllande detta objekt"
+    ID_XSSI_OBJDET_CNRHWND              "Container HWND"
+    ID_XSSI_OBJDET_APPSOPEN             "Applikationer som îppnade objektet"
+    ID_XSSI_OBJDET_APPHANDLE            "ôppna handtag (troligtvis HAPP)"
+    ID_XSSI_OBJDET_MENUID               "Meny ID"
+
+    ID_CRSI_WINLIST_WIDGET              "Aktiva sessioner widget"
+    ID_CRSI_WINLIST_RESTORE             "~èterstÑll"
+    ID_CRSI_WINLIST_MOVE                "~Flytta"
+    ID_CRSI_WINLIST_SIZE                "~Storlek"
+    ID_CRSI_WINLIST_MINIMIZE            "Mi~nimera"
+    ID_CRSI_WINLIST_MAXIMIZE            "Ma~ximera"
+    ID_CRSI_WINLIST_HIDE                "~Gîm"
+    ID_CRSI_WINLIST_KILL1               "Dîda process"
+    ID_CRSI_WINLIST_KILL2               "~Dîda process (PID 0x%lX)"
+    /* the following two added V0.9.20 (2002-08010) [umoeller] */
+    ID_CRSI_WINLIST_CLOSE               "~StÑng ""%s"""
+    ID_CRSI_WINLIST_FILTER              "~Filter ""%S"""
+
+    /* IP monitor */
+    ID_CRSI_IPWGT_GRAPHCOLORS           "Graf fÑrger"
+    ID_CRSI_IPWGT_GRAPHINCOLOR          "Inkommande"
+    ID_CRSI_IPWGT_GRAPHOUTCOLOR         "UtgÜende"
+    ID_CRSI_IPWGT_TOTAL                 "totalt"  // V 1.0.8 (2008-05-28)
+
+    /* XCenter properties V0.9.20 (2002-080-10) [umoeller] */
+    ID_CRMI_XCSUB_PROPERTIES            "&xcenter; ~egenskaper"
+    ID_CRMI_XCSUB_CLOSE                 "StÑng &xcenter;"
+    ID_CRMI_HELP_XCENTER                "&xcenter; hjÑlp"
+END
+
+/* string IDs for status bar mnemonics (all new with V0.9.14) */
+STRINGTABLE
+BEGIN
+    ID_XSSI_SBMNC_1                      "i bytes"
+    ID_XSSI_SBMNC_2                      "i kBytes"
+    ID_XSSI_SBMNC_3                      "i KBytes"
+    ID_XSSI_SBMNC_4                      "i mBytes"
+    ID_XSSI_SBMNC_5                      "i MBytes"
+    ID_XSSI_SBMNC_6                      "i bytes/kBytes/mBytes/gBytes"
+    ID_XSSI_SBMNC_7                      "i bytes/KBytes/MBytes/GBytes"
+    ID_XSSI_SBMNC_000                    "BerÑkning av valda objekt"
+    ID_XSSI_SBMNC_001                    "Total berÑkning av antalet objekt i en mapp"
+    ID_XSSI_SBMNC_010                    "Fritt utrymme pÜ enheten"
+    ID_XSSI_SBMNC_020                    "Total storlek pÜ enhet"
+    ID_XSSI_SBMNC_030                    "Storlek pÜ valda objekt"
+    ID_XSSI_SBMNC_040                    "Total storlek pÜ mappens innehÜll"
+    ID_XSSI_SBMNC_100                    "Objekt runbrik"
+    ID_XSSI_SBMNC_110                    "WPS klass standardrubrik"
+    ID_XSSI_SBMNC_120                    "WPS klass namn"
+    ID_XSSI_SBMNC_200                    "Filsystem typ (HPFS, FAT, CDFS, ...)"
+    ID_XSSI_SBMNC_210                    "Enhetsetikett"
+    ID_XSSI_SBMNC_220                    "Totalt utrymme pÜ enhet"
+    ID_XSSI_SBMNC_300                    "Objekts verkliga namn"
+    ID_XSSI_SBMNC_310                    "Objekt typ (.TYP EA)"
+    ID_XSSI_SBMNC_320                    "Objekt skapad datum datum"
+    ID_XSSI_SBMNC_330                    "Objekt skapad tid"
+    ID_XSSI_SBMNC_340                    "Objekt attribut"
+    ID_XSSI_SBMNC_350                    "EA storlek i bytes"
+    ID_XSSI_SBMNC_360                    "EA storlek i kBytes"
+    ID_XSSI_SBMNC_370                    "EA storlek i KBytes"
+    ID_XSSI_SBMNC_380                    "EA storlek i bytes/kBytes"
+    ID_XSSI_SBMNC_390                    "EA storlek i bytes/KBytes"
+    ID_XSSI_SBMNC_400                    "URL"
+    ID_XSSI_SBMNC_500                    "Exekverbar programfil"
+    ID_XSSI_SBMNC_510                    "Parameterlista"
+    ID_XSSI_SBMNC_520                    "Arbetskatalog"
+END
+
+/* ******************************************************************
+ *
+ *   Strings formerly in xfldr001.dlg
+ *
+ ********************************************************************/
+
+/* Starting with V0.9.16, I am successively converting dialogs
+   not to use regular DLGEDIT dialog templates any more, but
+   instead have them being dynamically formatted from the
+   strings directly. The following section contains strings
+   which were therefore formerly in the dialog templates in
+   xfldr001.dlg. Each string has the same ID as the dialog
+   item ID, so if you have translated them already, you can
+   simply use the dialog item ID and the translated string
+   below. This will make translations much easier in the
+   future. */
+
+STRINGTABLE
+BEGIN
+    /* general strings */
+    DID_UNDO                            "~èngra"
+    DID_DEFAULT                         "~Standard"
+    DID_HELP                            "~HjÑlp"
+    DID_BROWSE                          "S~îk..."
+    DID_DETAILS                         "De~taljer..."
+    DID_CLOSE                           "~StÑng"
+
+    /*  the following added; these are the strings formerly
+        under the ID_XSSI_DLG_* IDs, which was really causing
+        quite some inefficiency in the code
+        V0.9.19 (2002-04-17) [umoeller] */
+    DID_OK                              "~OK"
+    DID_CANCEL                          "~èngra"
+    DID_YES                             "~Ja"
+    DID_YES2ALL                         "Ja till ~alla"
+    DID_NO                              "~Nej"
+    DID_ABORT                           "~Avbryt"
+    DID_RETRY                           "~Fîrsîk igen"
+    DID_IGNORE                          "~Ignorera"
+
+    /* couple more added with V0.9.19 */
+    DID_ADD                             "~LÑgg till..."
+    DID_EDIT                            "~Editera..."
+    DID_REMOVE                          "~Ta bort"
+
+    /* strings formerly in ID_XSD_SET25ADDMENUS
+        all removed V0.9.19 */
+
+    /* strings formerly in ID_XSD_SETTINGS_FLDR1 */
+    ID_XSSI_GENERALVIEWPAGE             "AllmÑnna instÑllningar fîr visning"
+    ID_XSDI_FAVORITEFOLDER              "~Favoritmapp"
+    ID_XSDI_QUICKOPEN                   "~Snabbîppning vid start av Skrivbord"
+    ID_XSDI_FULLPATH                    "Visa full sîkvÑg i mappens ~rubrik"
+    ID_XSDI_KEEPTITLE                   "~BehÜll originalrubriken"
+    ID_XSDI_SNAPTOGRID                  "LÑgg till ""Ordn~a i rutnÑt"""
+    ID_XSDI_ACCELERATORS                "Snabba upp mapps sn~abbkommando"
+    ID_XSDI_ENABLESTATUSBAR             "Visa ~statusfÑlt"
+
+    /* strings formerly in ID_XSD_DTP_MENUITEMS
+        all removed with V0.9.19  */
+
+    /* strings formerly in ID_XSD_DTP_SHUTDOWN */
+    ID_SDDI_SHAREDGROUP                 "AllmÑnna instÑllningar"
+    ID_SDDI_EMPTYTRASHCAN               "~Tîm papperskorg"
+    ID_SDDI_CONFIRM                     "~BekrÑfta"
+    ID_SDDI_WARPCENTERFIRST             "StÑng ~&warpcenter; fîre Skrivbord"
+    ID_SDDI_AUTOCLOSEVIO                "Auto-stÑng icke-~PM sessioner"
+    ID_SDDI_AUTOCLOSEDETAILS            "Auto-stÑng det~aljer..."
+    ID_SDDI_LOG                         "Skriv XSHUTDWN.LO~G fil"
+    ID_SDDI_CREATESHUTDOWNFLDR          "Skapa &xsd; mapp"
+
+    ID_SDDI_SHUTDOWNGROUP               "StÑnga av endast"
+    ID_SDDI_REBOOT                      "~Boota om efterÜt"
+    ID_SDDI_REBOOTEXT                   "Boota om aktio~ner..."
+    ID_SDDI_ANIMATE_TXT                 "Animering"
+    ID_SDDI_ANIMATE_SHUTDOWN            "~innan avstÑngning"
+    ID_SDDI_ANIMATE_REBOOT              "f~îre ombootning"
+    /* V1.0.5: ID_SDDI_APMPOWEROFF renamed to ID_SDDI_POWEROFF */
+    ID_SDDI_POWEROFF                    "StÑng av dator"
+    ID_SDDI_DELAY                       "Fîr~drîj"
+    ID_SDDI_APMVERSION_TXT              "APM nivÜ:"
+    ID_SDDI_APMVERSION                  "okÑnd"
+    /* V1.0.5: Added the next four items */
+    ID_SDDI_ACPIVERSION_TXT             "ACPI nivÜ:"
+    ID_SDDI_ACPIVERSION                 "okÑnd"
+    ID_SDDI_APMPOWEROFF                 "APM"
+    ID_SDDI_ACPIPOWEROFF                "ACPI"
+    ID_SDDI_SAVEINIS_TXT                "Spara INI filer:"
+    ID_SDDI_CANDESKTOPALTF4             "Alt+F~4 pÜ Skrivbordet startar avstÑngning"
+
+    /* strings formerly in ID_XSD_DTP_STARTUP */
+    ID_XSDI_DTP_LOGOGROUP               "Workplace Shell startlogo"
+    ID_XSDI_DTP_BOOTLOGO                "Aktivera ~startlogo"
+    ID_XSDI_DTP_LOGOSTYLEGROUP          "Startlogo stil"
+    ID_XSDI_DTP_LOGO_TRANSPARENT        "~Transparent stil"
+    ID_XSDI_DTP_LOGO_BLOWUP             "B~low-up stil"
+    ID_XSDI_DTP_LOGOFILETXT             "OS/2 1.3 BMP ~fil fîr startlogo:"
+    ID_XSDI_DTP_TESTLOGO                "T~estlogo"
+    /* V0.9.19: changed log file name */
+    ID_XSDI_DTP_WRITEXWPSTARTLOG        "Skriv WP~START.LOG fil"
+    ID_XSDI_DTP_BOOTUPSTATUS            "Visa W~PS klassinitialisering"
+    ID_XSDI_DTP_CREATESTARTUPFLDR       "Skapa ~&xwp; Startupmapp"
+    ID_XSDI_DTP_NUMLOCKON               "Aktivera ~NumLock vid startup"
+
+    /* strings formerly in ID_XFD_STARTUPPANIC */
+    ID_XFDI_PANIC_TITLE                 "&xwp; Panik"
+    ID_XFDI_PANIC_SKIPBOOTLOGO          "Hoppa îver ~bootlogo en gÜng"
+    ID_XFDI_PANIC_SKIPXFLDSTARTUP       "Hoppa îver &xwp; S~tartupmapp en gÜng"
+    ID_XFDI_PANIC_SKIPQUICKOPEN         "Hoppa îver ""~Snabbîppna"" mappar en gÜng"
+    ID_XFDI_PANIC_NOARCHIVING           "Hoppa îver Skrivbords~arkivering en gÜng"
+    ID_XFDI_PANIC_DISABLEFEATURES       "Avaktivera alla ~funktioner permanent"
+    ID_XFDI_PANIC_DISABLEREPLICONS      "Avaktivera alla ~ikonutbyten permanent"
+    ID_XFDI_PANIC_REMOVEHOTKEYS         "~Ta bort alla objektsnabbkommandon"
+    ID_XFDI_PANIC_DISABLEPAGER          "Avaktivera ~&pgr;"
+    ID_XFDI_PANIC_DISABLEMULTIMEDIA     "Avaktivera ~multimedia"
+    ID_XFDI_PANIC_CONTINUE              "F~ortsÑtt"
+    ID_XFDI_PANIC_CONTINUE_TXT          "Detta kommer att fortsÑtta startup av Skrivbordet."
+    ID_XFDI_PANIC_XFIX                  "Kîr x~fix"
+    ID_XFDI_PANIC_XFIX_TXT              "Kîr &xwp; Handtags Fix."
+    ID_XFDI_PANIC_CMD                   "Kîr ~CMD.EXE"
+    ID_XFDI_PANIC_CMD_TXT               "ôppna ett kommandosessionsfînster nu."
+    ID_XFDI_PANIC_SHUTDOWN              "~StÑng av nu"
+    ID_XFDI_PANIC_SHUTDOWN_TXT          "Detta utfîr en standard &os2; avstÑngning nu."
+    // these ones are new with V0.9.16
+    ID_XFDI_PANIC_DISABLEREPLREFRESH    "Avaktivera utbytesmapps auto-fîrnya"
+    ID_XFDI_PANIC_DISABLETURBOFOLDERS   "Avaktivera turbomappar"
+    // this one is new with V0.9.16
+    ID_XFDI_PANIC_DISABLECHECKDESKTOP   "Avaktivera kontroll av Skrivbord vid startup"
+
+    /* strings formerly in ID_XSD_FOLDERVIEWS */
+    ID_XSD_FOLDERVIEWGROUP              "Mappvisning instÑllningar"
+    /* ID_XSDI_FULLPATH                    "Visa full sîkvÑg i mapps ~rubrik" */
+    /* ID_XSDI_KEEPTITLE                   "Beh~Üll originalrubriken" */
+        /* already in ID_XSDI_FAVORITEFOLDER */
+    ID_XSDI_MAXPATHCHARS_TX1            "~BegrÑnsa sîkvÑg till"
+    ID_XSDI_MAXPATHCHARS_TX2            "tecken"
+    ID_XSDI_TREEVIEWAUTOSCROLL          "Auto-scrolla TrÑdvi~sning"
+    ID_XSDI_FDRDEFAULTDOC               "~Aktivera standarddokument i mappar"
+    ID_XSDI_FDRDEFAULTDOCVIEW           "Stan~dard dokument = standard mappvisning"
+    ID_XSDI_FDRAUTOREFRESH              "Aktivera mapps ~auto-fîrnya"
+    ID_XSDI_FDRVIEWDEFAULT_GROUP        "Standard mappvisning"
+    ID_XSDI_FDRVIEW_INHERIT             "érv frÜn fîrÑ~lder"
+    ID_XSDI_FDRVIEW_ICON                "~Ikon"
+    ID_XSDI_FDRVIEW_TREE                "T~rÑd"
+    ID_XSDI_FDRVIEW_DETAILS             "Detal~jer"
+   /* the following two added V0.9.20 (2002-07-31) [umoeller] */
+    ID_XSDI_FDRVIEW_LAZYICONS           "F~îr-ladda datafilsikoner"
+    ID_XSDI_FDRVIEW_SHADOWOVERLAY       "Markera skug~gikoner"
+
+    /* string formerly in ID_CRD_SETTINGS_VIEW2 */
+    ID_CRDI_VIEW2_3DBORDER_GROUP        "~3D kant bredd"
+    ID_CRDI_VIEW2_ALL3DBORDERS          "Rit~a alla fyra 3D kanter"
+    ID_CRDI_VIEW2_BDRSPACE_GROUP        "~Kant avstÜnd"
+    ID_CRDI_VIEW2_WGTSPACE_GROUP        "~Widget avstÜnd"
+    ID_CRDI_VIEW2_SIZINGBARS            "Rita st~orleksfÑlt"
+    ID_CRDI_VIEW2_SPACINGLINES          "Rita avst~Ündslinjer"
+    ID_CRDI_VIEW2_DEFSTYLES_GROUP       "Standard widget stilar"
+    ID_CRDI_VIEW2_FLATBUTTONS           "~Platta knappar"
+    ID_CRDI_VIEW2_SUNKBORDERS           "Ra~m runt statiska"
+    ID_CRDI_VIEW2_HATCHINUSE            "Hatch ~îppna objekt"
+
+    /* strings formerly in ID_XFD_ARCHIVINGSTATUS */
+    ID_XFD_ARCHIVINGSTATUS              "Skrivbord Arkivering"
+
+    /* strings formerly in ID_XSD_DTP_ARCHIVES */
+    ID_XSDI_ARC_CRITERIA_GROUP          "Arkivering kriterier"
+    ID_XSDI_ARC_ENABLE                  "~Arkivera Skrivbord"
+    ID_XSDI_ARC_ALWAYS                  "vid ~varje startup av Skrivbordet"
+    ID_XSDI_ARC_NEXT                    "endast vid ~nÑsta startup av Skrivbordet"
+    ID_XSDI_ARC_INI                     "om ~INI filerna har Ñndrats"
+    ID_XSDI_ARC_INI_SPINTXT1            "%"
+    ID_XSDI_ARC_DAYS                    "e~fter"
+    ID_XSDI_ARC_DAYS_SPINTXT1           "dagar"
+    ID_XSDI_ARC_SHOWSTATUS              "Vis~a arkiveringsstatus vid startup av Skrivbordet"
+    ID_XSDI_ARC_ARCHIVES_GROUP          "Arkiv"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT1        "BehÜ~ll"
+    ID_XSDI_ARC_ARCHIVES_NO_TXT2        "arkiv"
+
+    /* strings formerly in ID_SDD_CONFIRMWPS */
+    ID_SDDI_CONFIRMWPS_TITLE            "&xwp;: Starta om Skrivbordet"
+    ID_SDDI_CONFIRM_TEXT                "ér du sÑker pÜ att du vill starta om Skrivbordet?"
+    ID_SDDI_WPS_CLOSEWINDOWS            "~StÑng alla sessioner"
+    ID_SDDI_WPS_STARTUPFOLDER           "~Processa alla &xwp; Startupmappar"
+    /* next one is new with V0.9.19 */
+    ID_SDDI_ARCHIVEONCE                 "~Arkivera Skrivbordet en gÜng efter omstarten"
+    ID_SDDI_MESSAGEAGAIN                "~Visa det hÑr meddelandet nÑsta gÜng"
+
+ /* the following two are new with V0.9.17 (2002-02-05) [umoeller] */
+    ID_SDDI_COMPLETE                    "AvstÑngningen Ñr klar."
+    ID_SDDI_SWITCHOFF                   "Du kan stÑnga av din dator nu eller trycka Ctrl+Alt+Del fîr att boota om den."
+
+    /* new "Icon" page replacement */
+    ID_XSDI_ICON_TITLE_TEXT             "R~ubrik"
+    ID_XSDI_ICON_GROUP                  "Aktuell ikon"
+    ID_XSDI_ICON_EXPLANATION_TXT        "Drag nÜgot objekt till rektangeln pÜ vÑnster sida, eller sîk en ikonfil genom att anvÑnda ""Sîk"" knappen."
+    ID_XSDI_ICON_EDIT_BUTTON            "~Editera ikon"
+    ID_XSDI_ICON_RESET_BUTTON           "~èterstÑll ikon"
+    ID_XSDI_ICON_LOCKPOSITION_CB        "~LÜs pÜ plats"
+    ID_XSDI_ICON_TEMPLATE_CB            "~Mall"
+    ID_XSDI_ICON_HOTKEY_TEXT            "Objekt snabb~kommando:"
+    ID_XSDI_ICON_HOTKEY_CLEAR           "~Rensa"
+    ID_XSDI_ICON_HOTKEY_SET             "~StÑll in"
+    ID_XSDI_ICON_EXTRAS_GROUP           "Extra"
+
+    /* new "Object details" dialog */
+    ID_XSDI_DETAILS_DIALOG              "Objekt detaljer"
+    ID_XSDI_DETAILS_GROUP               "~Detaljer"
+    ID_XSDI_DETAILS_SETUPSTR_GROUP      "~SetupstrÑng"
+
+    /* new "Mouse movement 1" page */
+    ID_XSDI_MOUSE_SLIDINGFOCUS_GRP      "Glidande fokus"
+    ID_XSDI_MOUSE_SLIDINGFOCUS          "~Aktivera"
+    ID_XSDI_MOUSE_FOCUSDELAY_TXT1       "Aktivering fîrd~rîjning:"
+    ID_XSDI_MOUSE_BRING2TOP             "Flytta fînster ~îverst"
+    ID_XSDI_MOUSE_IGNORESEAMLESS        "Ignorera sîmlîst ~Win-OS/2"
+    ID_XSDI_MOUSE_IGNOREDESKTOP         "~Ignorera Skrivbord"
+/*    ID_XSDI_MOUSE_IGNOREPAGER           "Ignorera XPa~ger"
+      ID_XSDI_MOUSE_IGNOREXCENTER         "Ignorera ~XCenter"
+        removed V0.9.19 (2002-05-07) [umoeller]
+        */
+    ID_XSDI_MOUSE_SLIDINGMENU_GRP       "Glidande menyval"
+    ID_XSDI_MOUSE_SLIDINGMENU           "A~ktivera"
+    ID_XSDI_MOUSE_MENUDELAY_TXT1        "Un~dermeny fîrdrîjning:"
+    ID_XSDI_MOUSE_CONDCASCADE           "~Villkorlig kaskadkÑnslighet"
+    ID_XSDI_MOUSE_MENUHILITE            "O~medelbar belysning"
+
+    /* product info */
+    ID_XSDI_INFO_TITLE                  "Produkt Information"
+
+    /* installed classes dialog */
+    ID_XCD_CLASSES_TITLE                "XWorkplace Klasser"
+    ID_XCD_CLASSES_REPLACEMENTS         "Klass ersÑttningar"
+    ID_XCD_CLASSES_NEW                  "Nya klasser"
+
+    /* the following are new with V0.9.19 */
+
+    /* new pages in XWPAdmin */
+    ID_AMDI_USER_LOCAL_GROUP            "Aktuell lokal anvÑndare"
+    ID_AMDI_USER_USERNAME_TXT           "AnvÑndarnamn:"
+    ID_AMDI_USER_USERID_TXT             "AnvÑndar ID:"
+    ID_AMDI_USER_GROUPNAME_TXT          "Grupp namn:"
+    ID_AMDI_USER_GROUPID_TXT            "Grupp ID:"
+
+    /* strings formerly in ID_XSD_FILESPAGE1 */
+    ID_XSDI_FILES_REALNAME_TXT          "Verkligt namn:"
+    ID_XSDI_FILES_FILESIZE_TXT          "Storlek i bytes:"
+    ID_XSDI_FILES_WORKAREA              "~Arbetsyta"
+    ID_XSDI_FILES_DATETIME_GROUP        "Datum/tid"
+    ID_XSDI_FILES_CREATIONDATE_TXT      "Skapat datum:"
+    ID_XSDI_FILES_LASTWRITEDATE_TXT     "Senaste skrivning:"
+    ID_XSDI_FILES_LASTACCESSDATE_TXT    "Senaste access:"
+    ID_XSDI_FILES_ATTR_GROUP            "Attribut"
+    ID_XSDI_FILES_ATTR_ARCHIVED         "~Arkiv"
+    ID_XSDI_FILES_ATTR_READONLY         "~LÑs endast"
+    ID_XSDI_FILES_ATTR_SYSTEM           "S~ystem"
+    ID_XSDI_FILES_ATTR_HIDDEN           "~Dold"
+    ID_XSDI_FILES_INFO_GROUP            "Information"
+    ID_XSDI_FILES_SUBJECT_TXT           "~émne:"
+    ID_XSDI_FILES_COMMENTS_TXT          "~Kommentarer:"
+    ID_XSDI_FILES_KEYPHRASES_TXT        "Nyckel~ord:"
+
+    /* strings formerly in ID_XTD_SETTINGS */
+    ID_XTDI_OPTIONSGROUP                "Papperskorg egenskaper"
+    ID_XTDI_CONFIRMEMPTY                "~BekrÑfta tom"
+    ID_XTDI_CONFIRMDESTROY              "BekrÑfta fîrst~îr"
+    ID_XTDI_ALWAYSTRUEDELETE            "~Radera alltid direkt (anvÑnd inte papperskorgen)"
+
+    /* new batch rename dialog */
+    ID_XFDI_BATCHRENAME_TITLE           "Massnamnbyte"
+    ID_XFDI_BATCH_INTROTXT              "Var vÑnlig specificera kÑll och mÜl reguljÑra uttryck fîr namnbytesoperation i de nedre inmatningsfÑlten."
+    ID_XFDI_BATCH_SOURCETXT             "~Sîk reguljÑrt uttryck:"
+    ID_XFDI_BATCH_TARGETTXT             "~Byt namn till uttryck:"
+    ID_XFDI_BATCH_SELONLYCB             "Matcha ~endast valda objekt"
+    ID_XFDI_BATCH_GO                    "~Bîrja namnbyte..."
+
+    /* strings formerly in ID_XFD_SELECTSOME */
+    ID_XFDI_SELECTSOME_TITLE            "VÑlj genom Namn"
+    ID_XFDI_SOME_INTROTXT               "Var vÑnlig vÑlj mask (t.ex. ""*.txt"") eller ett reguljÑrt uttryck:"
+    ID_XFDI_SOME_SELECT                 "~Markera"
+    ID_XFDI_SOME_DESELECT               "~Avmarkera"
+    ID_XFDI_SOME_SELECTALL              "Markera ~alla"
+    ID_XFDI_SOME_DESELECTALL            "Avm~arkera alla"
+    ID_XFDI_SOME_REGEXP_CP              "~ReguljÑra uttryck"
+    ID_XFDI_SOME_CASESENSITIVE_CB       "~Case-sensitive matchning"
+
+    /* strings formerly in ID_SCD_PAGER_WINDOW */
+    ID_SCDI_PGR1_WINDOW_GROUP          "&pgr; kontrollfînster"
+    ID_SCDI_PGR1_PRESERVEPROPS         "F~orcera skÑrmproportioner"
+    ID_SCDI_PGR1_STAYONTOP             "Stanna ovan~pÜ"
+    ID_SCDI_PGR1_FLASHTOTOP            "~Hoppa upp"
+    ID_SCDI_PGR1_FLASH_TXT1            "Fîrdrîj:"
+    ID_SCDI_PGR1_FLASH_TXT2            "s"
+    ID_SCDI_PGR1_SHOWWINDOWS           "~Mini-fînster"
+    ID_SCDI_PGR1_SHOWWINTITLES         "Visa fînster~rubriker"
+    ID_SCDI_PGR1_CLICK2ACTIVATE        "~Mini-fînster musaktioner"
+    ID_SCDI_PGR1_SHOWSECONDARY         "Visa ~sekundÑra fînster"
+    ID_SCDI_PGR1_SHOWSTICKY            "Visa stic~ky windows"
+    ID_SCDI_PGR1_FOLLOWFOCUS           "Skrivbordet fîljer aktivt ~fînster"
+    ID_SCDI_PGR1_SHOWWINICONS          "Visa fînster~ikoner"
+
+    /* strings formerly in ID_SCD_PAGER_COLORS */
+    ID_SCDI_PGR2_COLORS_GROUP          "&pgr; fÑrger"
+    ID_SCDI_PGR2_COLORS_INFO           "SlÑpp nÜgon fÑrg frÜn fÑrgpaletterna pÜ rektanglarna nedanfîr. Fîr att Ñndra font fîr &pgr; fînsterrubriker, slÑpp en font pÜ &pgr; fînster."
+    ID_SCDI_PGR2_COLORS_INACTIVE_1     "Inaktiv 1"
+    ID_SCDI_PGR2_COLORS_INACTIVE_2     "Inaktiv 2"
+    ID_SCDI_PGR2_COLORS_ACTIVE         "Aktiv"
+    ID_SCDI_PGR2_COLORS_BORDERS        "Kanter"
+    ID_SCDI_PGR2_COLORS_BACKGROUND     "Bakgrund:"
+    ID_SCDI_PGR2_COLORS_MINIWINDOW     "Mini-fînster:"
+    ID_SCDI_PGR2_COLORS_TITLE          "Rubrik:"
+
+    /* strings formerly in ID_XCD_PARANOIA */
+    ID_XCDI_PARANOIA_GROUP              "Avaktivera XWorkplace Funktioner"
+    ID_XCDI_PARANOIA_INTRO              "HÑr kan du globalt avaktivera vissa XWorkplace funktioner i fall av problem. Tryck ""HjÑlp"" fîr att fÜ reda pÜ mer om olika instÑllningar."
+    ID_XCDI_VARMENUOFFSET_TXT           "XWorkplace menypost ~ID offset:"
+    // ID_XCDI_NOSUBCLASSING               "Avaktivera alla mappars ~subklassning"
+    //      removed V1.0.0 (2002-09-12) [umoeller]
+    // ID_XCDI_NOFREAKYMENUS               "Avaktivera odokumenterade menyfunktioner"
+    //      removed V1.0.0 (2002-08-26) [umoeller]
+    ID_XCDI_USE8HELVFONT                "AnvÑnd ~8.Helv font"
+    ID_XCDI_NOEXCPTBEEPS                "Avaktivera un~dantagspip"
+    ID_XCDI_WORKERPRTY_GROUP            "ArbetstrÜd"
+    ID_XCDI_WORKERPRTY_TEXT1            "St~andard ArbetstrÜd prioritet:"
+    ID_XCDI_WORKERPRTY_BEEP             "~Pip vid prioritetsÑndring"
+
+    /* strings formerly in ID_XSD_SET26CONFIGMENUS */
+    ID_XSDI_MENUS_CONFIGFDR_GROUP       "Konfigurationsmapp meny"
+    ID_XSDI_CASCADE                     """~Villkorliga kaskad"" submenyer"
+    ID_XSDI_REMOVEX                     "~Undertryck ""~"" i fînsterrubriker"
+    ID_XSDI_APPDPARAM                   "éndra param~eterlista"
+    ID_XSDI_TPL_GROUP                   "Efter att ha skapat frÜn mallar..."
+    ID_XSDI_TPL_DONOTHING               "Gîr ~ingenting"
+    ID_XSDI_TPL_EDITTITLE               "~Gîr rubriken editerbar"
+    ID_XSDI_TPL_OPENSETTINGS            "~ôppna egenskaper"
+    ID_XSDI_TPL_POSITION                "S~kapa objekt vid musens position"
+
+    /* strings formerly in ID_XSD_SET27STATUSBARS */
+    ID_XSDI_VISIBLEIN_GROUP             "Synlig i..."
+    ID_XSDI_SBFORICONVIEWS              "~Ikonvisning"
+    ID_XSDI_SBFORTREEVIEWS              "~TrÑdvisning"
+    ID_XSDI_SBFORDETAILSVIEWS           "Det~aljvisning"
+    ID_XSDI_STYLE_GROUP                 "Stil"
+    ID_XSDI_SBSTYLE_3RAISED             "Upphîjd bo~x"
+    ID_XSDI_SBSTYLE_3SUNKEN             "~NersÑnkt box"
+    ID_XSDI_SBSTYLE_4RECT               "~Knapp"
+    ID_XSDI_SBSTYLE_4MENU               "~Meny"
+
+    /* strings formerly in ID_XFD_RUN */
+    ID_XFD_RUN_TITLE                    "Kîr"
+    ID_XFD_RUN_INTRO                    "~Ange kommando som skall kîras och startkatalog:"
+    ID_XFD_RUN_MINIMIZED                "Starta ~minimerad"
+    ID_XFD_RUN_FULLSCREEN               "~FullskÑrm"
+    ID_XFD_RUN_AUTOCLOSE                "StÑng fînster vid e~xit"
+    ID_XFD_RUN_WINOS2_GROUP             "&winos2; instÑllningar"
+    ID_XFD_RUN_ENHANCED                 "~Avancerat lÑge"
+    ID_XFD_RUN_SEPARATE                 "~Separat session"
+    ID_XFD_RUN_STARTUPDIR_TXT           "~Arbetskatalog:"
+
+    /* strings formerly in ID_CRD_SETTINGS_VIEW */
+    ID_XRDI_VIEW_FRAMEGROUP             "&xcenter; ram"
+    ID_CRDI_VIEW_REDUCEWORKAREA         "~Reducera Skrivbordets arbetsyta"
+    ID_CRDI_VIEW_ALWAYSONTOP            "~Alltid ovanpÜ"
+    ID_CRDI_VIEW_ANIMATE                "A~nimera"
+    ID_CRDI_VIEW_AUTOHIDE               "Auto-g~îm"
+    ID_CRDI_VIEW_AUTOHIDE_TXT1          "Fî~rdrîj:"
+    ID_CRDI_VIEW_AUTOHIDE_CLICK         "Gîm o~medelbart pÜ musklick"
+    ID_CRDI_VIEW_PRTY_GROUP             "~Visa trÜdprioritet"
+    ID_CRDI_VIEW_POSITION_GROUP         "&xcenter; position"
+    ID_CRDI_VIEW_TOPOFSCREEN            "~I toppen pÜ skÑrmen"
+    ID_CRDI_VIEW_BOTTOMOFSCREEN         "~I botten pÜ skÑrmen"
+    ID_CRDI_VIEW_AUTOSCREENBORDER       "LÑgg automatiskt till ~skÑrmkant"
+
+    /* strings for XFldWPS menu pages  (all new with V0.9.19) */
+    ID_XSDI_MENU_SETTINGS               "AllmÑnna menyinstÑllningar"
+    ID_XSDI_MENU_ITEMS                  "Menyposter"
+
+    ID_XSDI_MENU_STYLE_GROUP            "Meny stil"
+    ID_XSDI_MENUS_BARS                  "Vis~a mapps menyfÑlt"
+    ID_XSDI_MENUS_SHORT                 "Kor~ta menyer"
+    ID_XSDI_MENUS_LONG                  "LÜ~nga menyer"
+    ID_XSDI_FC_SHOWICONS                "Visa ~ikoner i mappens kontextymenyer"
+    ID_XSDI_LOCKINPLACE_NOSUB           "Ingen su~bmeny fîr ""LÜs pÜ plats"""
+
+    ID_XSDI_MENU_EDIT_GROUP             "~Menyposter"
+    ID_XSDI_MENU_EDIT_CAT_TXT           "~Edita menyposter fîr"
+
+    ID_XSDI_MENU_EDIT_CAT_FOLDERS       "mappar"
+    ID_XSDI_MENU_EDIT_CAT_DESKTOP       "Skrivbord"
+    ID_XSDI_MENU_EDIT_CAT_DISKS         "enheter"
+    ID_XSDI_MENU_EDIT_CAT_FILES         "filer"
+    ID_XSDI_MENU_EDIT_CAT_OBJECTS       "alla andra objekt"
+
+    /* "menu" wrapper; %s will be replaced with menu item name */
+    ID_XSDI_MENU_MENUSTRING             """%s"" submeny"
+
+    /* strings for menu items... note, please use the
+       same keyboard accelerators as in the default WPS
+       menu items when translating for your language */
+
+    ID_XSDI_MENU_OPENAS                 "~ôppna som"
+    ID_XSDI_MENU_PROPERTIES             "Egenskaper"
+    ID_XSDI_MENU_OPENPARENT             "ôppna îverordnad"
+    ID_XSDI_MENU_CREATEANOTHER          "Skapa en annan"
+
+    ID_XSDI_MENU_MOVE                   "~Flytta..."
+    ID_XSDI_MENU_COPY                   "~Kopiera..."
+    ID_XSDI_MENU_PASTE                  "Klista in..."
+    ID_XSDI_MENU_CREATESHADOW           "Skapa sku~gga..."
+    ID_XSDI_MENU_DELETE                 "~Radera..."
+    ID_XSDI_MENU_PICKUP                 "L~yft"
+    ID_XSDI_MENU_FIND                   "~Sîk..."
+
+    ID_XSDI_MENU_VIEW                   "~Visning"
+    ID_XSDI_MENU_ICONVIEW               "~Ikonvisning"
+    ID_XSDI_MENU_TREEVIEW               "~TrÑdvisning"
+    ID_XSDI_MENU_DETAILSVIEW            "~Detaljvisning"
+    ID_XSDI_FLDRVIEWS                   "Layout poster"
+
+    ID_XSDI_MENU_SORT                   "Sor~tera"
+    ID_XSDI_MENU_ARRANGE                "~Arrangera"
+
+    ID_XSDI_MENU_PRINT                  "~Skriv ut"
+
+    ID_XSDI_MENU_LOCKUP                 "~LÜs nu"
+    ID_XSDI_MENU_LOGOFFNETWORKNOW       "Lo~gga av nÑtverk nu"
+    ID_XSDI_MENU_SHUTDOWN               "StÑng ~av..."
+    ID_XSDI_MENU_SYSTEMSETUP            "S~ystem setup"
+
+    ID_XSDI_MENU_CHKDSK                 "Kontroll~ra disk..."
+    ID_XSDI_MENU_FORMAT                 "Fo~rmatera disk..."
+    ID_XSDI_MENU_COPYDSK                "Ko~piera disk..."
+    ID_XSDI_MENU_LOCKDISK               "~LÜs disk"
+    ID_XSDI_MENU_EJECTDISK              "~Mata ut disk"
+    ID_XSDI_MENU_UNLOCKDISK             "~ôppna disk"
+
+    ID_XSDI_MENU_BATCHRENAME            "Byt namn pÜ o~bjekt..."
+
+    /* XPager "sticky" page and related dialogs */
+    ID_SCDI_STICKY_GROUP                "Sticky windows"
+    ID_SCDI_STICKY_INCLUDE              "I"
+    ID_SCDI_STICKY_EXCLUDE              "E"
+    ID_SCDI_STICKY_CONTAINS             "innehÜller"
+    ID_SCDI_STICKY_BEGINSWITH           "bîrjar med"
+    ID_SCDI_STICKY_ENDSWITH             "slutar med"
+    ID_SCDI_STICKY_EQUALS               "lika"
+    ID_SCDI_STICKY_MATCHES              "matchar"
+    ID_SCDI_STICKY_TITLEATTRIBUTE       "Rubrik"
+    ID_SCDI_STICKY_CRITERIA             "Kriterier"
+    ID_SCDI_STICKY_ATTRIBUTE            "Attribut"
+    ID_SCDI_STICKY_OPERATOR             "Operator"
+    ID_SCDI_STICKY_VALUE                "VÑrde"
+    ID_SCDI_STICKY_EDITTITLE            "Editera Sticky kriterier"
+    ID_SCDI_STICKY_ADDTITLE             "LÑgg till Sticky kriterier"
+
+    ID_SCDI_STICKY_CRITERIAGROUP        "Kriterier"
+    ID_SCDI_STICKY_MATCHINGGROUP        "Matchande kriterier"
+    ID_SCDI_STICKY_RADIO_INCLUDE        "I - Inkludera matchande fînster"
+    ID_SCDI_STICKY_RADIO_EXCLUDE        "E - Exkludera matchande fînster"
+
+    /* strings formerly in ID_SCD_PAGER_GENERAL */
+    ID_SCDI_PGR1_GROUP                  "Virtuella skrivbord"
+    ID_SCDI_PGR1_ENABLE                 "~Aktivera"
+    ID_SCDI_PGR1_ARROWHOTKEYS           "~Pilsnabbtangenter vÑxlar skrivborden"
+    ID_SCDI_PGR1_HOTKEYS_CTRL           "Ct~rl"
+    ID_SCDI_PGR1_HOTKEYS_SHIFT          "~Shift"
+    ID_SCDI_PGR1_HOTKEYS_ALT            "A~lt"
+    ID_SCDI_PGR1_WRAPAROUND             "Svep vid kanterna"
+    ID_SCDI_PGR2_DISABLED_INFO          "Virtuella skrivbord Ñr fîr nÑrvarande avaktiverade. Aktivera dom pÜ den fîrsta &pgr; instÑllningssidan fîr att accessa instÑllningarna."
+
+    /* strings formerly in ID_XSD_AUTOCLOSE */
+    ID_XSD_AUTOCLOSE                    "Auto-stÑngning av Icke-PM Sessioner"
+    ID_XSDI_ACL_INTRO                   "Ange de sessioner som skall stÑngas automatiskt hÑr."
+    ID_XSDI_XRB_NEW                     "~Ny"
+    ID_XSDI_XRB_DELETE                  "~Radera"
+    ID_XSDI_ACL_SESSIONTITLE            "Session ~rubrik (inledande tecken):"
+    ID_XSDI_ACL_DOWHATGROUP             "Gîra ~vad?"
+    ID_XSDI_ACL_SKIP                    "Ho~ppa îver session (stÑng inte)"
+    ID_XSDI_ACL_WMCLOSE                 "StÑ~ng PM fînster"
+    ID_XSDI_ACL_KILLSESSION             "~Dîda session (DosKillProcess)"
+
+    /* strings formerly in ID_XSD_MOUSEMAPPINGS2 */
+    ID_XSDI_MOUSE_MAPPINGS2GROUP        "Ytterligare mappningar"
+    ID_XSDI_MOUSE_CHORDWINLIST          "TillÜ~t visning av fînsterlistan îverallt"
+    ID_XSDI_MOUSE_SYSMENUMB2            "~Systemmeny pÜ rubrik-raden MB2 klick"
+    ID_XSDI_MOUSE_MB3CLICK_TXT          "MB3 ~klick aktion:"
+    ID_XSDI_MOUSE_MB3SCROLL             "~MB3 drag scrollning"
+    ID_XSDI_MOUSE_MB3PIXELS_TXT1        "Minimalt antal pi~xels:"
+    ID_XSDI_MOUSE_MB3LINEWISE           "~Linjevis (fast) lÑge"
+    ID_XSDI_MOUSE_MB3AMPLIFIED          "~FîrstÑrkt lÑge"
+    ID_XSDI_MOUSE_MB3AMP_TXT1           "Fî~rstÑrkning:"
+    ID_XSDI_MOUSE_MB3SCROLLREVERSE      "~OmvÑnd scrollning"
+
+    /* strings formerly in ID_XSD_FILETYPES V0.9.20 (2002-08-04) [umoeller] */
+    ID_XSDI_FT_GROUP                    "Filtyper"
+    ID_XSDI_FT_FILTERS_TXT              "Filter"
+    ID_XSDI_FT_ASSOCS_TXT               "Associationer"
+    ID_XSDI_FT_CREATEDATAFILEHANDLE     "~Skicka datafils objekthandtag i miljîn"
+
+    /* strings formerly in ID_XFD_TITLECLASH V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFD_TITLECLASH                   "Foga ihop Rubrik"
+    ID_XFDI_CLASH_TXT1                  "Ett objekt med namnet ""%1"" finns redan i mappen ""%2""."
+    ID_XFDI_CLASH_OLDOBJECT             "Existerande objekt:"
+    ID_XFDI_CLASH_NEWOBJECT             "Nytt objekt:"
+    ID_XFDI_CLASH_REPLACE               "~Byt ut existerande objekt"
+    ID_XFDI_CLASH_RENAMENEW             "Byt namn pÜ ~nytt objekt till:"
+    ID_XFDI_CLASH_RENAMEOLD             "Byt namn pÜ e~xisterande objekt till:"
+
+    /* new replacement "Paste" dialog V0.9.20 (2002-08-08) [umoeller] */
+    ID_XFDI_PASTE_TITLE                 "Klista in Klippbordet till ""%1"""
+    ID_XFDI_PASTE_PREVIEW_TXT           "Fîrhandsvisa:"
+    ID_XFDI_PASTE_OBJTITLE_TXT          "Objekt ~rubrik:"
+    ID_XFDI_PASTE_FORMAT_TXT            "~Format:"
+    ID_XFDI_PASTE_CLASS_TXT             "Objektk~lass:"
+
+    /* new items for main product info V0.9.20 (2002-08-10) [umoeller] */
+    ID_XSDI_INFO_MAINMEM_TXT            "System minne:"
+    ID_XSDI_INFO_FREEMEM_TXT            "Fritt minne:"
+
+END
+
+/* Treesize definitions; added V0.9.0 */
+
+POINTER ID_TS_ICON LOADONCALL MOVEABLE DISCARDABLE treesize.ico
+
+MENU ID_TSM_CONTEXT  LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "~Sortera", ID_TSM_SORT, MIS_SUBMENU
+    BEGIN
+        MENUITEM "genom ~namn", ID_TSMI_SORTBYNAME
+        MENUITEM "genom ~filstorlek", ID_TSMI_SORTBYSIZE
+        MENUITEM "genom ~filrÑkning", ID_TSMI_SORTBYFILESCOUNT
+        MENUITEM "genom ~EA storlek", ID_TSMI_SORTBYEASIZE
+    END
+    MENUITEM "~Visa storlekar i", ID_TSM_SIZES, MIS_SUBMENU
+    BEGIN
+        MENUITEM "~bytes", ID_TSMI_SIZE_BYTES
+        MENUITEM "~KBytes", ID_TSMI_SIZE_KBYTES
+        MENUITEM "~MBytes", ID_TSMI_SIZE_MBYTES
+    END
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Samla ut~îkade attribut", ID_TSMI_COLLECTEAS
+    MENUITEM "LÜg-prioriterad sîkning", ID_TSMI_LOWPRTY
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~HjÑlp", ID_TSMI_HELP      /* changed V0.9.16 (2001-12-02) [umoeller] */
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "~StÑng", 1000
+END
+
+/* Netscape DDE definitions; added V0.9.1 (99-12-19) [umoeller] */
+POINTER ID_ND_ICON LOADONCALL MOVEABLE DISCARDABLE netscdde.ico
+
+rcinclude "xfldr046.dlg"
+

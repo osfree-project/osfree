@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xcenter;: Reduce Desktop Workarea
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+If <B>"Reduce Desktop workarea"</B> is enabled,
+the PM desktop's workarea will be reduced by the size of this &xcenter;.
+
+<P>Enabling this setting for any &xcenter; will have the effect that maximized windows
+will not be maximized to the full size of the screen anymore, but only to
+the screen size minus all open &xcenter;s that have this setting enabled.
+
+<P>This is equivalent to &warpcenter;'s
+"Put on top of maximized windows" setting, whose name isn't really that
+correct.
+
+<P>This cannot be used together with <A HREF="xcenter/xc_v_hide.html">"auto-hide"</A>.
+
+<P><B>Notes:</B>
+
+<UL>
+
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+<LI>This probably doesn't work on Warp 3.
+<P>
+</IFNDEF>
+
+<LI>This setting is global and will affect the entire system.
+It can lead to the same problems as with &warpcenter;'s setting (most notably
+scroll bars on the WPS Desktop), so use this with care.
+
+<P><LI> Do not use this setting on the &xcenter; if you have the
+corresponding &warpcenter; setting enabled also. The &xcenter; cannot check for
+whether the &warpcenter; has this enabled as well, and this will probably lead
+to problems.
+
+</UL>
+</BODY>
+</HTML>
+

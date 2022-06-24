@@ -1,0 +1,140 @@
+
+/*
+ * xwpshadow.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPShadow
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpshadow.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpshadow.idl>         // this is SOM for WPShadow
+
+/*
+   CLASS: XWPShadow
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPShadow
+                           ÀÄÄ XWPShadow
+*/
+
+interface M_XWPShadow;            // forward reference to metaclass
+
+interface XWPShadow : WPShadow
+{
+    /*
+     * New instance methods for XWPShadow:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xsh_;
+        externalstem = xsh;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpshadow;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPShadow;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPShadow:
+         *
+         */
+
+        /*
+         * WPShadow methods overridden by XWPShadow:
+         *
+         */
+
+        wpInitData: override;
+
+        wpRestoreState: override;
+        wpSaveState: override;
+
+        wpMenuItemSelected: override;
+
+        wpViewObject: override;
+        wpOpen: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPShadow : M_WPShadow
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xshM_;
+        externalstem = xshM;
+        functionprefix = xshM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpshadow;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPShadow methods overridden by M_XWPShadow:
+         *
+         */
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

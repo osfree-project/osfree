@@ -1,0 +1,169 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPObject-Strings
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<BODY>
+WPObject ist die WPS-Basisklasse fr alle Objekte. Sie wird nicht direkt benutzt, aber alle
+anderen WPS-Klassen werden von ihr abgeleitet. Infolgedessen untersttzen alle Objekte der
+Arbeitsoberfl„che (einschlieálich Dateien, Ordnern und Programmobjekten) die folgenden
+Konfigurationsstrings:
+<DL>
+<DT><CODE><B>CCVIEW</B>=DEFAULT</CODE>
+<DD>Verwendet den Standardwert der
+entsprechenden Anzeigen-Einstellung des
+Systems, wenn der Anwender "™ffnen" ausw„hlt.
+Dies ist der Standardwert.
+ 
+<P><DT><CODE>CCVIEW=YES</CODE>
+<DD>Erstellt neue Anzeigen des
+Objekts jedesmal wenn der Anwender
+"™ffnen" ausw„hlt.
+ 
+<P><DT><CODE>CCVIEW=NO</CODE>
+<DD>Macht offene Anzeigen eines
+Objekts sichtbar, wenn der Anwender
+"™ffnen" ausw„hlt.
+ 
+<P><DT><CODE><B>HELPLIBRARY</B>=<I>filename</I></CODE>
+<DD>Setzt die Hilfebibliothek.
+ 
+<P><DT><CODE><B>HELPPANEL</B>=<I>id</I></CODE>
+<DD>Setzt die Standardhilfetafel
+des Objekts in der Hilfebibliothek. Sie sollten mit diesen Einstellungen lieber
+nicht herumspielen, da Sie die internen Ressourcen-IDs der WPS-Hilfe kennen mssen.
+ 
+<P><DT><CODE><B>HIDEBUTTON</B>={YES|NO}</CODE>
+<DD>Festlegen, ob
+Anzeigen dieses Objekts eine
+Verstecken-Schaltfl„che erhalten, im Gegensatz
+zur Minimieren-Schaltfl„che.
+Der Standardwert ist die aktuelle
+Systemeinstellung fr Fensterschaltfl„chen.
+Diese kann hier nicht angegeben werden.
+ 
+<P><DT><CODE><B>ICONFILE</B>=<I>filename</I></CODE>
+<DD>Legt das Objektsymbol fest. <CODE><I>filename</I></CODE>
+muá eine ".ICO"-Datei sein.
+Bei Ordnern wird hiermit das Symbol fr "geschlossen" angegeben.
+ 
+<P><DT><CODE><B>ICONPOS</B>=<I>x</I>,<I>y</I></CODE>
+<DD>Legt die anf„ngliche Symbolposition des Objekts
+im Stammordner fest. Die Werte x
+und y repr„sentieren die
+Position im Ordner in 
+prozentualen Koordinaten.
+ 
+<P><DT><CODE><B>ICONRESOURCE</B>=<I>id</I>,<I>dllfile</I></CODE>
+<DD>Setzt das Symbol des Objekts auf Daten, die sich in einer Ressourcendatei befinden.
+Die <CODE><I>id</I></CODE> ist die
+Symbolressourcen-ID in der Dynamic Link Library (DLL)
+<CODE><I>dllfile</I></CODE>.
+Bei Ordnern wird hiermit das Symbol "geschlossen" angegeben.
+ 
+<P><DT><CODE><B>LOCKEDINPLACE</B>={YES|NO}</CODE> (nur &warp4; und sp„ter)
+<DD>Gibt an, ob das Objekt in der Position fixiert ist oder nicht.
+ 
+<P><DT><CODE><B>MENUITEMSELECTED</B> <I>menu-item-id</I></CODE> (nur &warp4; und sp„ter)
+<DD>Simuliert die Auswahl des angegebenen
+Meneintrags aus dem Kontextmen des Objekts.
+<CODE><I>menu-item-id</I></CODE> muá einen numerischen Wert besitzen.
+<BR>Sie k”nnen die <CODE><I>menu-item-id</I></CODE> mit dem Hilfsprogramm <CODE>XRAY</CODE>
+herausfinden, das im Internet verfgbar ist. Oder sehen Sie auf der entsprechenden Seite
+<A HREF="xices_4wpsmenuids.html">"WPS-Men-IDs"</A> nach.
+(Hey, diese Einstellung funktioniert brigens auch mit XFolder-Meneintr„gen.)
+<BR>Hierbei handelt es sich nicht wirklich um eine "Einstellung", sondern um einen Befehl,
+der auf den Ordner angewendet wird.
+ 
+<P><DT><CODE><B>MENUS</B>={SHORT|LONG}</CODE> (nur &warp4; und sp„ter)
+<DD>Legt fest, ob dieses Objekt ein kurzes Kontextmen hat
+(ohne Meneintr„ge, die
+Ziehen-und-šbergeben-Funktionen darstellen) oder ein volles.
+ 
+<P><DT><CODE><B>MINWIN</B>={HIDE|VIEWER|DESKTOP}</CODE>
+<DD>Legt fest, ob das minimierte Objekt versteckt, im Ordner
+"Fenster in Symbolgr”áe" angezeigt, oder auf der Arbeitsoberfl„che
+minimiert wird.
+<P>Der Standardwert ist die aktuelle Einstellung
+fr die Minimieren-Schaltfl„che. Sie
+kann hier nicht angegeben werden.
+ 
+<P><DT><CODE><B>NOCOPY</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht kopiert werde.
+ 
+<P><DT><CODE><B>NODELETE</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht gel”scht werden. Seien Sie damit
+vorsichtig.
+ 
+<P><DT><CODE><B>NODRAG</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht mit der Maus gezogen werden.
+ 
+<P><DT><CODE><B>NODROP</B>={YES|NO}</CODE>
+<DD>Das Objekt akzeptiert keine Objekte, die darauf
+fallengelassen werden.
+ 
+<P><DT><CODE><B>NOLINK</B>={YES|NO}</CODE>
+<DD>Von diesem Objekt k”nnen keine Referenzen erstellt werden.
+ 
+<P><DT><CODE><B>NOMOVE</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht verschoben werden.
+ 
+<P><DT><CODE><B>NOPRINT</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht ausgedruckt werden.
+ 
+<P><DT><CODE><B>NORENAME</B>={YES|NO}</CODE>
+<DD>Das Objekt kann nicht umbenannt werden.
+ 
+<P><DT><CODE><B>NOSETTINGS</B>={YES|NO}</CODE>
+<DD>Das Einstellungsnotizbuch des Objekts kann nicht ge”ffnet werden.
+ 
+<P><DT><CODE><B>NOSHADOW</B>={YES|NO}</CODE>
+<DD>Dieselbe Bedeutung wie <CODE>NOLINK</CODE>.
+ 
+<P><DT><CODE><B>NOTVISIBLE</B>={YES|NO}</CODE>
+<DD>Das Objekt ist unsichtbar. Seien Sie mit diesem Stil
+vorsichtig, da Sie das Objekt vielleicht nicht zurckbekommen k”nnen.
+ 
+<P><DT><CODE><B>OBJECTID</B>=<I>&lt;name&gt;</I></CODE>
+<DD>Setzt eine dauerhafte ID fr das Objekt.
+Eine Objekt-ID ist ein eindeutiger String, der durch
+ein <CODE>&lt;</CODE> eingeleitet und mit einem <CODE>&gt;</CODE> abgeschlossen wird.
+<BR>Objekt-IDs sind ntzlich, wenn man Objekte identifizieren k”nnen will, ohne
+ihre genaue Position auf der Arbeitsoberfl„che des Anwenders zu kennen.
+Beispielsweise hat die Arbeitsoberfl„che immer die ID <CODE>&lt;WP_DESKTOP&gt;</CODE>,
+auf jedem System; der &xwp;-Konfigurationsordner hat die ID
+<CODE>&lt;XFOLDER_CONFIG&gt;</CODE>, so daá &xwp; ihn immer finden kann, auch
+wenn Sie ihn vielleicht an eine andere Stelle verschoben haben. Siehe die Seite
+<A HREF="xices_2wpsobjids.html">"WPS-Objekt-IDs"</A> fr eine Aufstellung der System-IDs.
+<P>Objekt-IDs sind sogar erforderlich, um von REXX aus abstrakte Arbeitsoberfl„chenobjekte
+auffinden zu k”nnen (z.B. Referenzen von Programmobjekten), da diese Objekte nicht im
+Dateisystem auftauchen. Wenn Sie also mit REXX ein abstraktes Objekt erstellen und
+es auch von REXX aus ”ffnen k”nnen m”chten, so mssen Sie ihm eine Objekt-ID zuweisen.
+<P>Standardwert ist keine ID.
+ 
+<P><DT><CODE><B>OPEN</B>={SETTINGS|DEFAULT|ICON|TREE|DETAILS}</CODE>
+<DD>Jetzt eine Anzeige ”ffnen.
+Dies ist der clevere Trick, den eine Unmenge im Internet verfgbarer REXX-Skripte verwendet,
+um ein Objekt von der &os2;-Befehlszeile aus zu ”ffnen.
+<BR><CODE>OPEN=DEFAULT</CODE> ”ffnet die Standardansicht des Objekts (als wenn
+Sie darauf doppelt geklickt h„tten). <CODE>OPEN=SETTINGS</CODE> ”ffnet das Einstellungsnotizbuch
+des Objekts. Alle anderen Werte sind nur bei Ordnern gltig.
+<BR>Hierbei handelt es sich nicht wirklich um eine "Einstellung", sondern um einen Befehl,
+der auf das Objekt angewendet wird. Es wird sofort ge”ffnet.
+ 
+<P><DT><CODE><B>TEMPLATE</B>={YES|NO}</CODE>
+<DD>Legt fest, ob das Objekt eine Schablone ist oder nicht.
+Der Standardwert ist (natrlich) <CODE>NO</CODE>.
+ 
+<P><DT><CODE><B>TITLE</B>=<I>title</I></CODE>
+<DD>Setzt den Titel des Objekts neu. Damit wird auch der
+"echte" Dateiname ge„ndert (wenn das Objekt eine Datei repr„sentiert), genau als wenn
+Sie den Titel ber die WPS ge„ndert h„tten.
+ 
+</DL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,108 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.21
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+As a general change, this release will most probably no longer run on Warp 3
+since I am overriding quite a number of WPS methods now that are specific
+to OS/2 Warp 4. I was getting tired of hacking around menu specifics for
+Warp 4 and am now using Warp 4's interfaces for that.
+
+<P>I have gotten no reports about Warp 3 recently so I assume this will not
+break &xwp; for a lot of people. To those who are still running Warp 3, I am
+sorry, but Warp 4 is six years old by now as well and it should be possible
+to get it cheap somewhere. Otherwise, stick with &xwp; V0.9.20.
+
+<P><B>&xwp; 0.9.21 (August 11, 2002)</B>
+
+<P>New features:
+
+<UL><LI>Common: Added "Report bug" button to &xwp; product info dialog.
+<b>Please use that button for all bug reports from now on.</b> Thank you.
+
+<P><LI>Startup: &xwp; is now checking the WPS's class replacements list on
+startup to make sure that XFldObject is the first replacement of WPObject.
+This should fix the problems with the "Speech" tab missing when VoiceType
+is installed, hopefully.
+
+<P><LI>Folder split views. Select "Split view" from a folder's "open" menu.
+
+<P><LI>OS/2 Kernel, program files: bldlevel parser can now handle the weird format that
+is used by IBM TCP/IP.
+
+<P><LI>Disks: Fixed a bunch of weirdos in the WPS disk context menus. For one, the
+IBM peer class replacements kept showing the "drive not ready" hard error TWICE
+when requesting the context menu for a drive with no media. Secondly, the WPS
+seemed to be using the system uptime to determine whether "Lock" and "Eject"
+should be shown for removeable disks. "Lock" and "Eject" are now always shown.
+Both features are only
+enabled when the "Replace drive not ready" feature is enabled, for security.
+
+</UL>Miscellaneous changes:
+
+<UL><LI>Common: Rewrote large parts of the dialog formatter to allow for easier handling
+of nested subtables in dialog descriptions.
+
+<P><LI>Common: Me smartass finally figured out that declaring functions as "static"
+will never put them into the linker's map files. As a result, they didn't end up
+the SYM files either, which made &xwp;'s trap logs a lot less informative. Fixed,
+I removed all "static" declarations for now.
+
+<P><LI>Folder menus: Rewrote and adjusted large parts of the internal menu hacks
+to get split views to work. I hope this hasn't broken anything for the default
+(icon, tree, details) folder views.
+
+</UL>Bugfixes:
+
+<UL><LI>Common: Executable header parser was completely broken for files without extensions
+(e.g. OS2KRNL). Fixed; "Module" page now displays correctly.
+
+<P><LI>Common: &xwp; kept the default OS/2 shutdown from finishing, at least with IBM MCP2.
+Fixed.
+
+<P><LI>Common: Changed a shared function that requested the object mutex too frequently
+and made it use a private mutex instead. That fixed several situations where the WPS
+deadlocked because of mutexes requested in reverse order by two different threads.
+Among others, this fixes the hangs during installation (instl001.cmd) on SMP and
+when dragging attachments from PMMail to the Desktop.
+
+<P><LI>Folders: "Create new" from template in config folder never worked really well
+in Tree views. Fixed a few things.
+
+<P><LI>Folder hotkeys: Disabled select by name, select all, and deselect all for
+Tree views finally.
+
+<P><LI>Folder sort: Settings were quite broken for newly created folders sometimes.
+Fixed.
+
+<P><LI>Select by name, Batch rename: Always popped up twice when invoked from a
+context menu. Fixed; added folder title to dialog title while I was at it.
+
+<P><LI>Startup and Shutdown folders: Folder titles were never localized. Fixed.
+
+<P><LI>Folder painting: "shadow icons" produced strange display for shadowed folders
+in Tree view. Fixed.
+
+<P><LI>Extended associations: "Export" facility did not escape attribute values like &amp;
+properly. Fixed.
+
+<P><LI>&xcenter;: Mostly rewrote pulse widget graph painting to fix the vertical lines
+on the left if a high load was displayed. Optimized the code at the same time to save
+a few hundered Gpi* calls.
+
+<P><LI>WPS class list: crashed when selecting an orphaned WPS class. Bug was introduced
+with 0.9.20, fixed.
+
+<P><LI>OS/2 Kernel, program files: bldlevel display missed single-character substrings in
+extended bldlevel format (e.g. DANIS506.ADD). Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

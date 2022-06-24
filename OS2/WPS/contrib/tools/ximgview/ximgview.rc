@@ -1,0 +1,47 @@
+
+/*
+ * ximgview.rc:
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <os2.h>
+#include "ximgview.h"
+
+POINTER 1 LOADONCALL MOVEABLE DISCARDABLE ximgview.ico
+
+MENU 1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU     "~File", IDM_FILE, MIS_TEXT
+    BEGIN
+        MENUITEM    "~Open...",         IDMI_FILE_OPEN, MIS_TEXT
+        MENUITEM SEPARATOR
+        MENUITEM    "E~xit",      IDMI_FILE_EXIT, MIS_TEXT
+    END
+
+    SUBMENU     "~View", IDM_VIEW, MIS_TEXT
+    BEGIN
+        MENUITEM    "~Set window size to image size", IDMI_VIEW_SIZEORIG, MIS_TEXT
+    END
+
+    SUBMENU     "~Settings", IDM_OPTIONS, MIS_TEXT
+    BEGIN
+        MENUITEM    "~Resize window after loading image",  IDMI_OPT_RESIZEAFTERLOAD, MIS_TEXT
+        MENUITEM    "~Constrain window to screen",  IDMI_OPT_CONSTRAIN2SCREEEN, MIS_TEXT
+        MENUITEM    "~Scale image to window size",  IDMI_OPT_SCALE2WINSIZE, MIS_TEXT
+    END
+END
+
+

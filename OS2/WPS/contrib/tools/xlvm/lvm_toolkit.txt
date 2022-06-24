@@ -1,0 +1,88 @@
+/*****************************************************************************
+*   This program is free software;  you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; either version 2 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY;  without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+*   the GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program;  if not, write to the Free Software
+*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*****************************************************************************/
+
+=============================
+Welcome to the LVM toolkit !
+=============================
+
+This toolkit is to be used to write applications or drivers
+to interface with the eComStation LVM (logical volume manager).
+
+Please note that the API's in LVM are very powerful. 
+Its possible if not easy to trash your harddisk volumes and 
+partitions with a few API calls. TAKE CARE !!
+
+There are also API's to work with BootManager, including 
+adding and removing BootManager from the hard disk !!
+TAKE CARE !!
+
+
+====The toolkit consists of the following files:================
+
+lvm_intr.h		Main include file, use this as API 
+			documentation until a read help file 
+			is available.
+lvm_cons.h		Included by lvm_intr.h
+lvm_type.h		Included by lvm_intr.h
+lvm_list.h		Included by lvm_intr.h
+lvm_gbls.h		Included by lvm_intr.h
+lvm.lib			LVM import library, must be specified 
+			at link
+
+lvm_toolkit.txt		This file
+
+lvmtest.cpp		Example program that lists your volumes
+lvmtest.cmd		Batch file to build lvmtest.exe
+
+
+The library is built using IBM VisualAge C/C++ 3.6 and the lvmtest
+uses that compiler. The header files seems to be quite generic but
+if you are using another compiler there might be things that you
+must modify to get it working.
+
+
+====A few hints:=================================================
+
+- Read through the lvm_intr.h to find out what can be done.
+- All changes to drives/partitions/volumes must be comitted
+  or changes will not be changed when you close your LVM 
+  connection (Commit_Changes).
+- You must use Open_LVM_Engine, Close_LVM_Engine to connect
+  and disconnect from LVM.
+- You must deallocate LVM allocated object when you do not 
+  use it any more (Free_Engine_Memory)
+- The 16 bit functions (for drivers) has NOT been tested.
+- Some API's are specific to LVM2. The LVM included in 
+  eComStation seems to be LVM1. 
+
+
+====Limitations:=================================================
+
+The LVM.DLL in eComStation is copyrighted work owned by 
+IBM Corp. The LVM.LIB is probably also copyright IBM Corp.
+However the included header files are part of the EVMS project
+that is GNU open source. 
+Where this leaves any application you write, 
+I dont honestly know.
+
+
+
+Good luck building LVM applications !
+
+December 10, 2000
+
+John Martin Alfredsson
+jma@jmast.se

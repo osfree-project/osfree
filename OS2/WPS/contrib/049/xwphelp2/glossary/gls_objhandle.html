@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: šber Objekt-Handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains mostly text from
+     /xfix_handles.html -->
+<BODY>
+ 
+<B>Objekt-Handles</B> sind 32-Bit-Integer-Zahlen, die ein bestimmtes Objekt
+auf dem System eindeutig bezeichnen.
+Die h”here H„lfte des Integer bezeichnet die Speicherklasse eines Objektes,
+w„hrend das niederwertige Wort eine eindeutige Kennung innerhalb dieser
+Speicherklasse ist.
+ 
+<UL><LI><B>Abstrakte Objekte</B> haben fr gew”hnlich ein h”herwertiges
+Wort von <CODE>0x0002</CODE> und ihr niederwertiges Wort ist in der
+Sektion
+<CODE>PM_Abstract:Objects</CODE> der Datei
+<CODE>OS2.INI</CODE> mit den Daten des Objekts aufgefhrt.
+ 
+<P>Fr abstrakte Objekte wird <I>immer</I> ein Handle angelegt, da sie
+keinen Dateinamen besitzen und das Handle der einzige Weg ist, um auf
+sie zuzugreifen, sofern ihnen nicht auch eine Objekt-ID zugewiesen wurde.
+ 
+<P><LI>Im Gegensatz dazu haben Dateisystemobjekte (Dateien und Ordner) nicht
+immer ein Handle zugeordnet.
+Wurde eines zugewiesen, dann haben Dateisystemobjekte ein h”herwertiges Wort von
+<CODE>0x0003</CODE>. Das niederwertige Wort stammt aus der Datei-Handle-Datenbank
+in der Sektion <CODE>PM_Workplace:HandlesX</CODE> der <CODE>OS2SYS.INI</CODE>.
+ 
+<P>Beachten Sie, daá es zwei Sektionen namens <CODE>PM_Workplace:HandlesX</CODE>
+gibt (wobei X eine 0 oder 1 ist).
+Die WPS h„lt die Liste der Dateisystem-Handles die ganze Zeit im Speicher und
+schreibt sie nur von Zeit zu Zeit in die <CODE>OS2SYS.INI</CODE>.
+Dabei berprft sie zuvor den Schlssel <CODE>PM_Workplace:ActiveHandles</CODE>
+um herauszufinden, welche der zwei Sektionen zur Zeit aktiv ist, schreibt die Handles
+zur anderen Sektion und modifiziert diesen Schlssel so, das er anschlieáend
+zur anderen Sektion zeigt.
+Das ist notwendig, da die Eintr„ge in &os2;-INI-Dateien nicht mehr als 64 KB an Daten
+enthalten drfen. Deshalb muá die WPS mehrere Bl”cke benutzen, um die ganze
+Handle-Tabelle speichern zu k”nnen.
+ 
+</UL>Um zu verstehen, woher diese Dateisystem-Handles kommen,
+ist es notwendig, mehr ber die innere Arbeitsweise der WPS zu wissen.
+ 
+<P>In der Theorie sollte die WPS ein Handle fr ein Dateisystem-Objekt nur anlegen, wenn
+dieses wirklich gebraucht wird, z.B. wenn auf das Objekt wirklich irgendwo verwiesen wurde.
+ 
+<P>Handles des Dateisystems k”nnen jedoch auch Probleme verursachen. Je mehr
+Handles existieren, desto langsamer wird die WPS im allgemeinen. Was am wichtigsten
+ist: die Gesamtzahl der Handles ist begrenzt. Falls zu viele Dateisystem-Handles
+vorhanden sind, kann die WPS instabil werden.
+ 
+<P>Unter anderem werden Datei-Handles in den folgenden Situationen erzeugt:
+ 
+<OL><LI>Bei Programmobjekten und Referenzen. Das ist wnschenswert, da dadurch
+Programmobjekte und Referenzen immer noch auf das korrekte Zielobjekt zeigen k”nnen, wenn
+sich das Zielobjekt nicht mehr an der ursprnglichen Stelle befindet.
+ 
+<P>Wenn Sie beispielsweise im Einstellungsnotizbuch eines Programmobjektes einen
+<A HREF="glossary/gls_path.html">Pfad</A> zu einer ausfhrbaren Datei eingeben, fordert
+das Programmobjekt ein Handle an, weswegen es ein neues erhalten sollte, falls noch keines
+existiert. Das gleiche gilt, wenn man eine Referenz eines Objektes anlegt.
+ 
+<P><LI>Bei anderen Teilen der WPS (und &xwp;), um Objektreferenzen abzulegen.
+&xwp; benutzt z.B. Objekt-Handles, um sich die Objektschaltfl„chen des &xcenter;
+zu merken.
+ 
+<P><LI>Wenn bei einem Objekt eine Objekt-ID vergeben wird (also eine dieser
+Zeichenketten in eckigen Klammern, z.B. <CODE>&lt;WP_DESKTOP&gt;</CODE>).
+Objekt-IDs werden in der Sektion
+<CODE>PM_Workplace:Location</CODE> der <CODE>OS2.INI</CODE>
+zusammen mit dem Objekt-Handle abgelegt und k”nnen nur aufgel”st werden, wenn das
+Handle gltig ist.
+ 
+<P>Das Hauptproblem an dieser Implementation ist, daá die WPS die Arbeitsoberfl„che
+nicht mehr findet, sobald die Datei-Handles-Tabelle besch„digt ist, weil
+sie die Objekt-ID <CODE>&lt;WP_DESKTOP&gt;</CODE> benutzt, um sie beim Hochfahren
+zu lokalisieren. Wenn Sie den Dialog "Arbeitsoberfl„che konnte nicht gefunden werden"
+erhalten, ist in 95% der F„lle die Datei-Handles-Tabelle besch„digt.
+ 
+<P><LI>Bei Anwendungsprogrammen, die die <CODE>Win*</CODE>-APIs benutzen, um WPS-Objekte
+anzulegen oder mit diesen zu arbeiten. Das ist normalerweise tolerierbar, wenn es nur
+einige Dateien betrifft. Leider ben”tigen einige dieser APIs (solche wie
+<CODE>WinMoveObject</CODE>) Objekt-Handles als Eingabe.
+ 
+<P><LI>Bei jedem Ordner der jemals ge”ffnet wurde. Das ist auch tolerierbar, weil die WPS
+ein Ordner-Handle dazu benutzt, seine Fensterposition in der <CODE>OS2.INI</CODE>
+festzuhalten, so daá die Position des Ordners nicht verloren geht, wenn dieser
+verschoben wird.
+ 
+<P><LI>Automatisch fr jeden Stammordner im Pfad der Datei, wenn ein neues Handle fr
+diese Datei erstellt wurde.
+Der Grund liegt in der Implementierung der Handle-Datenbank, welche nur den Kurznamen
+von jedem Dateisystemobjekt und eine Referenz mit den Kurznamen zu seinen "Eltern" ablegt.
+Das ist dadurch sehr effizient, weil ein Ordner, der mit vielen Unterobjekten verschoben
+wird, nur einen einzigen Eintrag in der Datenbank aktualisieren muá. Die Unterobjekte
+haben nur ein Stamm-Handle abgelegt, welches weiterhin funktioniert.
+ 
+<P><LI>Bei jeder Datendatei, die durch eine Programmobjektzuordnung ge”ffnet wird.
+Das kommt daher, weil die WPS die Umgebungsvariable <CODE>WP_OBJHANDLE</CODE>
+zum Handle der Datendatei setzt, die ge”ffnet wurde. Einige Programme sind darauf
+angewiesen, es hat jedoch den ungewollten Effekt, das jedesmal ein Handle angelegt
+wird, wenn Sie auf eine Datendatei doppelklicken, auch wenn die Anwendung dieses Handle
+nicht ben”tigt.
+ 
+<IFNDEF __NEVEREXTASSOCS__>
+ 
+<P>&xwp; erlaubt durch seine erweiterten Dateizuordnungen, dieses Verhalten abzuschalten.
+ 
+</IFNDEF>
+ 
+<IFNDEF __ALWAYSREPLACEREFRESH__>
+ 
+<P><LI>Die WPS legt leider auch Handles fr jedes Objekt an, welches durch die
+automatische Aktualisierung des Ordners aktualisiert wird. Das geschieht, wenn
+der Ordner ge”ffnet ist und man darin irgendetwas von der Befehlszeile aus tut
+(oder wenn andere Anwendungen etwas mit Dateien in diesem Ordner machen).
+Dann wird fr jede Datei, die ge„ndert wird, ein neues Handle erzeugt.
+ 
+<P>Ein einfacher Testfall dafr ist, eine ZIP-Datei in einem offenen
+Ordner zu entpacken. Das wird viele Dateisystem-Handles erzeugen, die
+wahrscheinlich nie wieder benutzt werden. Als Ergebnis dieses Verhaltens wird
+eine groáe Anzahl von Dateisystem-Handles erzeugt.
+ 
+<P>Nochmals, da diese Objekt-Handles niemals entfernt werden, verbleiben diese
+berflssigen Handles fr immer im System.
+ 
+<P>Dieses Problem wird durch &xwp;s automatische Aktualisierung von Ordnern behoben.
+ 
+</IFNDEF>
+ 
+</OL>
+</BODY>
+</HTML>

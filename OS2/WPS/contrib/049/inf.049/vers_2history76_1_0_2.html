@@ -1,0 +1,82 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 1.0.2
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+Pure bugfix release off the 1.0 branch.
+"Bug #" numbers refer to the official XWorkplace bugtracker at
+<a href="http://xtracker.netlabs.org">http://xtracker.netlabs.org</a>.
+
+<P><B>&xwp; 1.0.2 (January 28, 2004)</B>
+
+<p>
+
+Bugfixes:
+
+<UL><LI>"Restart" Desktop stalled at "Closing WarpCenter".
+Fixed by Paul Ratcliffe.
+(Bug #302)
+
+<p><li>Drag&amp;Drop of URLs from Mozilla hung WPS bad because of infinite recursion in file-system refresh.
+Fixed.
+(Bug #531)
+
+<p><li>Bart van Leeuwen fixed status bar conflict when WPS-Wizard 0.4 was installed.
+(Bug #481)
+
+<p><li>Bart van Leeuwen enlarged a text buffer in the "Pulse" widget to fix a problem
+with Dutch NLS.
+(Bug #490)
+
+<p><li>Icon page was missing in in File and Print Client Resource Browser object.
+Fixed by Paul Ratcliffe.
+(Bug #514)
+
+<p><li>Fixed Korean codepage in encoding engine from 951 to 949.
+
+<p><li>Tooltips followed the mouse if moved quickly from XCenter.
+Fixed by Paul Ratcliffe.
+(Bug #455)
+
+<p><li>Fixed clipped text and button widths in panic dialog.
+(Bug #361)
+
+<p><li>Kernel object, Errors page, Drive for POPUPLOG.OS2 still showed incorrect drive
+(always the first HD on your system).
+Fixed by Paul Ratcliffe.
+(Bug #37)
+
+<p><li>Selecting original -&gt; delete from a shadow context menu sometimes deletes the wrong
+object if replacement delete is enabled.
+Fixed by Paul Ratcliffe.
+(Bugs #8, #324)
+
+<p><li>"Diskfree (condensed)" widget had weird display if a drive could not be accessed.
+Fixed by Paul Ratcliffe.
+(Bug #525)
+
+<p><li>"Diskfree (condensed)" widget issued two open commands when double-clicked.
+Fixed.
+(Bug #398)
+
+<p><li>Fixed codepage problems with file types import/export. Note that the XML for exporting non-ASCII
+characters has changed, so you might run into problems importing files exported by earlier &xwp; versions.
+(Bugs #13, #376)
+
+<p><li>Fixed some documentation errors.
+(Bugs #372, #370)
+
+<p><li>&xcenter; didn't remember last tray between restarts.
+Fixed by Bart van Leeuwen.
+(Bug #10)
+
+</UL>
+</BODY>
+</HTML>
+

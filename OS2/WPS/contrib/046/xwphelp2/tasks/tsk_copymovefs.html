@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Restriktioner f”r Kopiering och Flyttning av Filer
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+N„r du kopierar eller flyttar filsystemsobjekt
+(&link_datafiles; eller &link_folders;)
+mellan olika enheter, b”r du vara uppm„rksam p† vilka
+restriktioner som g„ller om enheterna anv„nder 
+olika <A HREF="glossary/gls_fs.html">filsystem</A>.
+
+<OL><LI>Andra operativsystem (s†dana som DOS eller Windows)
+kommer inte att vara medvetna om &os2;'s
+<A HREF="glossary/gls_eas.html">ut”kade attribut</A>. Detta „r 
+f”rmodligen bara ett problem med FAT filsystem eftersom DOS 
+eller Windows f”r det f”rsta inte kan se HPFS eller JFS volymer.
+Men om du arbetar med &os2; filer fr†n dessa operativsystem, kan
+deras ut”kade attribut kanske f”rloras.
+
+<P><LI>Om du kopierar eller flyttar en fil fr†n en enhet
+formaterad med HPFS eller JFS till en enhet formaterad med filsystemet
+FAT, kan systemet eventuellt trunkera filnamnet i enlighet med 
+namnrestriktionerna i FAT 8+3. Det ursprungliga namnet kommer sedan att
+sparas som ett ut”kat attribut f”r filen. D„remot, om du tittar p†
+enheten med ett annat operativsystem, kommer du endast att kunna se
+filens korta namn.
+
+<P>Var medveten om att disketter alltid formateras med filsystemet FAT.
+
+<P><LI>Den automatiska filnamnskonverteringen som beskrevs ovanf”r fungerar
+endast n„r du anv„nder &os2;'s Workplace Shell f”r att kopiera eller
+flytta filer. Om du anv„nder <A HREF="glossary/gls_cmd.html">kommandoprompter</A>
+(till exempel, <A HREF="cmdref.inf#copy"><CODE>COPY</CODE></A> och 
+<A HREF="cmdref.inf#xcopy"><CODE>XCOPY</CODE></A> kommandona) f”r att kopiera eller
+flytta filer som inte ”verensst„mmer med FAT 8+3 namnrestriktionerna, kommer 
+operationen helt enkelt att misslyckas.
+</OL>
+</BODY>
+</HTML>
+

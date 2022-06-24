@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Bestandssysteem Buffers
+    </TITLE>
+</HEAD>
+<BODY>Bestandssysteem buffers is een mechanisme dat door de meeste hedendaagse
+besturingssystemen wordt gebruikt om onnodige stationstoegang te vermijden.
+Om dit te bereiken, wordt een gedeelte van het fysieke geheugen van de computer
+(RAM) gebruikt als buffer voor gegevens die van/naar het station worden gelezen/geschreven.
+Dit stuk geheugen wordt dan aangeduid als "buffer"
+
+<P>Zie  <A HREF="glossary/gls_fs.html">"Bestandssystemen"</A> voor een introductie
+over bestandssystemen.
+
+<P>Verwar de bestandssyteem buffer(s) niet met andere buffers die in uw systeem aanwezig zijn,
+zoals de buffers in de processor en misschien nog andere hardware buffers die in uw harde schijven
+zijn ingebouwd.
+Het concept van deze buffers is hetzelfde (vermijdt trage toegangen door het gebruik van snel
+geheugen als dat mogelijk is), maar die worden hier niet beschreven.
+
+<P>Als een applicatie gegevens op schijf benadert die nog steeds aanwezig zijn in de buffer
+van het bestandssysteem, behoeft &os2; het niet van de schijf te lezen, maar kan het simpel
+uit het buffer geheugen halen, wat een stuk sneller is.
+
+<P>Aan de andere kant, als een applicatie gegevens naar de schijf aan het schrijven is,
+kan &os2; deze gegevens eerst naar de buffer schrijven en het schrijven naar de schijf
+vertragen totdat de schijf gereed is om de gegevens naar de schijf te copi‰ren, of als het
+systeem in rust is. Dit wordt "lazy writing" genoemd en kan de systeem prestatie positief
+be‹nvloeden.
+Aan de andere kant, verhoogt dit het gevaar van het verlies van gegevens in het geval
+van stroom onderbreking of vitale systeem vastlopers, omdat dan de gegevens in de buffer
+verloren gaan. U moet steeds 'lazy writing' ingeschakeld hebben als u een redelijk stabiel
+&os2; systeem heeft en zelden CHKDSK's ziet bij het opstarten.
+
+<P>&os2; implementeert separate buffers voor ieder bestandssysteem dat ge‹nstalleerd is.
+Dat betekent dat alle FAT volumes een buffer gebruiken en alle HPFS volumes een andere.
+Deze buffers worden apart geconfigureerd met verschillende &cfgsys; instellingen.
+<IFNDEF __NOOS2KERNEL__>
+U kunt deze instellingen bewerken in het <A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object.
+U kunt de HPFS instellingen vinden op de "Stations" pagina van dat object, omdat HPFS
+een installeerbaar bestandssysteem (IFS) is. In tegenstelling tot FAT omdat dat in de &os2;
+Kernel is ingebouwd heeft het zijn eigen pagina.
+</IFNDEF>
+
+<P>Houdt a.u.b. in de gaten dat geheugen wat u reserveert voor bestandssysteem buffer
+niet langer beschikbaar is voor ander gebruik. Als u teveel buffer geheugen reserveert
+heeft dat een negatieve invloed op uw systeem prestaties, omdat &os2; dan meer tijd
+besteedt aan uw swap bestand. Conclusie, u moet goed nadenken over welke instellingen u
+hier specificeert.
+
+<P>In het algemeen, hoe meer geheugen u in uw systeem heeft, des te meer geheugen u
+kunt reserveren voor de buffer geheugens. U moet er ook rekening mee houden welk
+bestandssysteem u het meeste gebruikt: b.v. als u hoofdzakelijk HPFS volumes gebruikt,
+is het verspilling om veel geheugen voor FAT buffers te reserveren, en vice versa.
+
+<P>Dit is niet zo'n belangrijk punt meer tegenwoordig gezien de hoeveelheid geheugen
+dat in de hedendaagse computers wordt ge‹nstalleerd. Echter, als u nog steeds slechts
+16 MB RAM of minder heeft, moet u niet meer dan 1024 KB buffer reserveren voor beide
+bestandssystemen samen.
+
+<BR>
+</BODY>
+</HTML>
+

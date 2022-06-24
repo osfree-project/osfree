@@ -1,0 +1,165 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Menu Questions
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL><LI><B>My menus have become so crowded. What can I do?</B>
+<P>If you consider your <STRONG>context menus too crowded,</STRONG> you can tell the WPS
+to omit displaying those menu entries which are only "doubles" to mouse operations
+("Copy", "Move", etc.).
+<UL>
+<P><LI>On Warp 3, putting a <CITE>SET MENUSTYLE=SHORT</CITE> into
+&cfgsys; will do the job.
+<P><LI>On Warp 4 and higher, there is a new setting in the "System" object in the "System Setup"
+folder. You should find it on the "Menu" tab. This setting is also found in every folder's
+own settings notebook;
+there is also
+folder Setup String to set this for folders individually. See
+<A HREF="xices_30wpsstrings.html">"WPFolder Setup Strings"</A> for more.
+</UL><P>Moreover, you can remove many default menu items individually in the
+<A HREF="sys_2global.html">"Workplace Shell"</A> object on the
+"Context menu" pages.
+<P>The <B>folder content functions</B> are helpful, but can crowd your context
+menus too much also if you declare many folders to be your favorites. On my system,
+I have created a separate folder called "frequent", which I have declared to be
+my only favorite folder. In this folder, I can put all those folders which I frequently
+access, so I only have one context menu entry, but a submenu with all my favorite folders.
+
+<P><LI><B>When I select a context menu item, not the &xwp; function, but some
+other function gets executed. What is this?</B>
+<P>Probably a menu ID conflict with some other WPS extension. This is a known problem
+<!-- V0.9.0: changed the following -->
+with Network logins. Go to the "&xwp; Configuration", "Paranoia" page,
+and raise the "Menu item ID offset". Press "Help" there for details. With V0.9.0,
+the default offset has been raised to 700, which should help in most cases.
+
+<P><LI><B>When I select a non-&xwp; context menu item, &xwp; still executes
+one of its own functions. What is this?</B>
+<P>Same thing as above.
+
+<P><LI><B>When I open a context menu, my system crashes/hangs. What can I do?</B>
+<P>Versions prior to V0.82 served as a test for video drivers in this respect. ;-)
+I have found out that some video drivers do not support transparent background mix
+for bitmaps, which XFolder used to use. While some drivers silently ignored the
+transparency, other drivers crashed badly and stopped the whole system (especially
+Matrox Millenium).
+With V0.82, I have changed the icon painting for folder content menus to use
+regular icons instead of bitmaps. Icon painting is still disabled per default
+in case something should still go wrong. Turn on "Show icons" on the
+"Context menus" pages in "Workplace Shell" to enable icon painting.
+
+<P>If you still have problems, Ralph Scharpf reported that one could install the IBM
+GRADD drivers for MGA video cards instead, which appear to be working. Unfortunately,
+those cards do not support 1024x768 with more than 60 Hz, but if you can live with
+800x600, this appears to be a solution.
+
+<P><LI><B>Why do folder content menus not work with folders on the Launchpad?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>Because the Launchpad is not a folder. &xwp; can only subclass the default folder
+window procedure to receive important system messages when menus are being opened,
+which is when the variable menu items are inserted into context menus. Since the
+Launchpad does not use the folder's default window procedure, &xwp; cannot easily
+subclass it either.
+
+<P><LI><B>I have added something to the config folder, but it doesn't appear in the menus.
+Is this a compatibility conflict?</B>
+<P>Probably no. Since V0.70, &xwp; uses the <CITE>.ICONPOS</CITE> extended attributes
+of the config folder and its subfolders to determine the order of objects in a folder.
+Trouble is, these are only written by the WPS when the folder is closed, and only
+if the folder was open in Icon or Details view. So simply open the folder in Details
+view and close it again. That should work.
+
+<P><LI><B>How do I get the underlined characters in menu items for keyboard shortcuts?</B>
+<P>Put a tilde character (<CITE>"~"</CITE>) in front of a certain
+character in the program object's title.
+This will underline
+the following character in the menu entry, allowing you to
+type this character as a keyboard shortcut when the context menu is displayed.
+<P>(This is different from the
+<A HREF="fldr_5xelerators.html">folder hotkeys</A> which &xwp; adds to open folders.)
+<P>Example: <CITE>&os2; ~command window</CITE> will make "c" a keyboard shortcut
+in the context menu.
+<P>For this, be sure to check "Suppress ''~'' in window title" in the
+<A HREF="sys_2global.html">"Workplace Shell"</A> object on the "Context menus"
+pages.
+
+<P><LI><B>I have added a program object to the config folder, but when I select the
+menu item, I get error messages from the program. What am I doing wrong?</B>
+<P>You will probably need to put a <CITE>"%"</CITE> character into
+the "Parameters" field of the program object to prevent &xwp; from passing the
+folder as a parameter.
+<!-- V0.9.16: replaced the following -->
+See the context help for the &xwp; Configuration Folder for details.
+
+<P><LI><B>I have added a shadow to the config folders, but opening it doesn't work like
+with the other objects. What am I doing wrong?</B>
+<P>&xwp; does open shadows of program objects
+in the configuration folders, but it does
+not change their directories or parameters. This is not a bug, it's an
+intentional limitation for security.
+COPY your program objects to the configuration folders instead of creating shadows.
+<!-- V0.9.16: replaced the following -->
+See the context help for the &xwp; Configuration Folder for details.
+
+<P><LI><B>How can I execute CMD.EXE commands?</B>
+<P>For commands
+which are built into CMD.EXE (such as <CITE>REN</CITE>, <CITE>COPY</CITE>,
+<CITE>DEL</CITE>, <CITE>CD</CITE>), put a program
+object into the &xwp; Configuration Folder. Then
+specify <CITE>CMD.EXE</CITE> in the program object with
+<CITE>/C &lt;commands&gt;</CITE> in
+the "Parameters" field.
+<P>Example for deleting the folder's whole content:
+put <CITE>CMD.EXE</CITE> in the "Path and filename" field and
+<CITE>/C DEL *</CITE> in the
+"Parameters" field. This is, of course, just a stupid example and NOT recommended.
+
+<P><LI><B>How can I use REXX for WPS manipulation?</B>
+<P>I have
+included extra information in the appendices of this documentation,
+which might be useful to you:
+<UL>
+<P><LI>a complete list of all the <A HREF="xices_30wpsstrings.html">WPFolder settings strings</A>;
+<P><LI>a collection of &os2;'s default <A HREF="xices_2wpsobjids.html">Object ID's</A>.
+<P><LI>a diagram of the <A HREF="xices_1wpsclasses.html">WPS Class Hierarchy</A>.
+</UL><P>If you're not too familiar with REXX, you can copy and
+modify the <CITE>ALWSSORT.CMD</CITE> file in
+<!-- V0.9.0: changed the following -->
+the &xwp; installation directory to test some of the folder settings. Please see the
+<A HREF="080related.html">"Related files"</A> page
+for more.
+<P>In addition, I strongly recommend the INF book "Rexx Tips&amp;Tricks" by Bernd Schemmer,
+which is available as "rxtt28.zip" (or newer) on Hobbes.
+
+<P><LI><B>Why can't I open my new config folder object more than once?</B>
+<P>If you create programs objects which need to be opened several times
+from different directories (namely for command line objects), be sure to
+check the "Create new window" flag on the "Window" tab in the object's
+notebook.
+Otherwise &os2; will not start a new window but simply resurface
+the already opened one.
+
+<P><LI><B>I have deleted the &xwp; Configuration Folder. How do I get it back?</B>
+<P>With V0.9.1, this behavior has changed because many people have complained
+about XFolder's behavior when the Configuration Folder was missing. So to recreate
+that folder, go to the "Object" page in the
+<A HREF="sys_2global.html">"&xwp; Setup" object</A> and press the respective
+button.
+<!-- replaced this with V0.9.1: Don't worry: As soon as you try to open a context menu,
+&xwp; will notify you and automatically create a new, empty one
+on your desktop or recreate the default configuration, which you may then choose.
+Note that this behavior implies that you MUST have a Configuration Folder somewhere on
+your system while &xwp; is installed. It may be empty, but it must exist. -->
+
+</OL>
+<BR>
+</BODY>
+</HTML>
+
+
+

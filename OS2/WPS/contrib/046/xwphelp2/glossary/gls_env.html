@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Milj”variabler
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Under n„stan alla operativsystem, k”rs alla program i en s†-kallad
+<B>milj”,</B> vilken „r definierad som en upps„ttning av <B>milj”variabler</B>.
+Varje milj”variabel „r ett nyckel-v„rde par i form av <CODE>KEY=VALUE</CODE>.
+
+<P>Milj”n anv„nds av flera sk„l:
+
+<UL><LI>I m†nga fall, definierar den hur operativsystemet sj„lv skall agera
+med respekt f”r programmet det k”r. Till exempel,
+<A HREF="glossary/gls_path_sys.html">systems”kv„garna</A> „r f”r det mesta definierade
+som milj”variabler. Du kan d„rf”r „ndra dessa s”kv„gar innan start av programmet,
+d„rmed p†verkande var operativsystemet skall leta efter filer.
+
+<P>Dessa system milj”variabler „r listade i
+<I>&os2;'s Kommandoreferens</I> (<A HREF="cmdref.inf"><CODE>CMDREF.INF</CODE></A>) och
+„r v„ldigt ofta satta vid systemstartup via &cfgsys; filen.
+
+<P><LI>Som till„gg, kan varje program designas f”r att regera p† specifika milj”variabler.
+F”r att r„kna ut om s† „r fallet, och om, vilka variabler som „r definierade f”r ett program,
+m†ste du konsultera applikationens dokumentation. &os2; k„nner inte till n†got om dessa
+krav, det erbjuder endast en infrastruktur f”r att s„tta upp och l„sa milj”variabler.
+
+</UL>F”r att l„sa eller s„tta en milj”variabel vid kommandoprompten,
+anv„nd <A HREF="cmdref.inf#SET"><CODE>SET</CODE></A> kommandot.
+
+<P>Du kan specificera milj”variabler genom att avgr„nsa variabelns namn till v„nster
+och h”ger med ett (<CODE>%</CODE>) tecken. Detta uttryck kommer att bli dynamiskt
+utbytt av kommandotolken med v„rdet f”r variabeln.
+
+<P>Till exempel, f”r att l„gga till en post i den aktuella listan ”ver kataloger
+i <A HREF="cmdref.inf#PATH"><CODE>PATH</CODE></A> variabeln, kan du skriva
+<PRE>SET PATH=%PATH%;C:\NEWDIR</PRE>
+
+<P>Med anv„ndning av <A HREF="cmdref.inf#SETLOCAL">SETLOCAL</A> kommandot, kan du g”ra
+en lokal kopia av milj”utrymmet, den aktuella katalogen, och den aktuella enheten,
+f”r att g”ra tempor„ra „ndringar. Alla dessa inst„llningar kommer att †terst„llas
+med <A HREF="cmdref.inf#ENDLOCAL"><CODE>ENDLOCAL</CODE></A> kommandot.
+<BR>
+
+</BODY>
+</HTML>

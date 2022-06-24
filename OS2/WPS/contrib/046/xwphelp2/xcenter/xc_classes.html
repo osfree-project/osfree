@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_XCENTER_CLASSES;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Klasser
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.11 -->
+<BODY>
+Sidan "Klasser" i <!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;'s</A>
+notbok med egenskaper till†ter dig att visa de
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_widgets.html">widget</A>
+klasser som finns tillg„ngliga f”r n„rvarande.
+<!-- V0.9.19: removed this For an introduction about the &xcenter;
+and widgets, see this page. -->
+
+<P>Notera att widgetklasserna inte „r riktiga WPS klasser. Det „r endast &xcenter; som
+anv„nder klassnamn f”r att organisera widgets internt. Betrakta en widgetklass som en
+mall som widgets kan skapas fr†n. En widgetklass „r antingen inbyggd i &xcenter; sj„lv
+eller laddad fr†n en plug-in
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+i <CODE>plugins\xcenter</CODE> katalogen. En s†dan plug-in DLL kan inneh†lla en eller 
+flera widgetklasser.
+
+<P>I motsats till "Widgets" sidan, vilken listar aktuella widgets hos ett enstaka &xcenter;,
+visar sidan "Klasser" samma widgetklasser f”r varje &xcenter;. Klasserna listade h„r listas ocks†
+senare i submenyn "L„gg till widget" hos ett ”ppet &xcenter;'s &popmenu;.
+
+<P>F”ljande f„lt visas:
+
+<UL><LI><B>"DLL"</B> f„ltet visar namnet hos en
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>
+vilken implementerar widgeten. Detta „r varken en av de DLL'er i 
+<CODE>plugins\xcenter</CODE> katalogen eller kommer att visa "inbyggd" om widgeten „r direkt 
+inbyggd i sj„lva &xwp;.
+
+<P><LI><B>"Widgetklass"</B> visar det interna namnet p† den klass som anv„nds av &xcenter;
+f”r att identifiera den klass till vilket en widget tillh”r. Detta namn „r kritiskt
+f”r widgetens funktion och kommer aldrig att „ndras, om DLL'en inte l„ngre „r tillg„nglig.
+
+<P><LI><B>"Klassrubrik"</B> f„ltet „r samma som i menyn "L„gga till widget" och „r ett
+beskrivande namn ”ver klassen. Detta „r endast f”r informations„ndam†l och inte
+kritiskt f”r widgetens funktion.
+
+<P><LI><B>"Version"</B> f„ltet visar den minimala &xcenter; versionen som widgeten beh”ver
+f”r att fungera. &xcenter; kontrollerar detta versionsnummer f”r att vara s„ker p† att
+den kan ladda en plug-in DLL. Detta f„lt fyller ingen funktion f”r inbyggda widgets och „r 
+d„rf”r tomt f”r dem.
+
+</UL>
+</BODY>
+</HTML>
+

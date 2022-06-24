@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Der &xwp;-PM-Hook
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13 -->
+<BODY>
+Der &xwp;-PM-Hook ist eine Routine in <CODE>XWPDAEMN.EXE</CODE>, die
+s„mtliche Nachrichten des Presentation Manager (PM) berwachen und
+manipulieren kann.
+ 
+<P>Auf diese Weise kann &xwp; das Verhalten s„mtlicher Fenster sowie
+der Tastatur- und Mausnachrichten auf dem System beeinflussen.
+Dies ist erforderlich fr die Objekt-Tastenkrzel, das automatische Aktivieren von Fenstern,
+die Funktion Menauswahl folgt Mauszeiger, Bildschirmrandobjekte, &pgr; usw.
+Wenn der Hook ein bestimmtes Ereignis erkennt, kann &xwp; eine bestimmte
+Aktion ausfhren, z.B. ein Objekt ”ffnen oder ein anderes Fenster aktivieren.
+ 
+<P>Als Konsequenz daraus muá der &xwp;-PM-Hook aktiviert sein, damit
+die oben genannten Funktionen arbeiten.
+ 
+<P>Das Problem mit PM-Hooks ist, daá diese global fr das ganze System
+aktiviert sind. Wenn mehrere Anwendungen solche Hooks aktivieren, k”nnen
+diese in Konflikt geraten. Bekannte OS/2-Dienstprogramme, die ebenfalls Hooks
+installieren, sind NPS WPS, WarpEnhancer, DragText und weitere. Darum
+erlaubt es &xwp;, den PM-Hook insgesamt zu deaktivieren, wenn Sie
+einen Konflikt mit einer anderen Anwendung feststellen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

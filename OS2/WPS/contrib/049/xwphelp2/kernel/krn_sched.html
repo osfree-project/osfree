@@ -1,0 +1,116 @@
+<HTML RESID=&ID_XSH_SETTINGS_KERNEL1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Scheduler
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+Auf dieser Seite k”nnen die Einstellungen der &cfgsys; bearbeitet werden, die das
+Verhalten des &os2;-Scheduler regeln.
+ 
+<!-- V0.9.13: changed this -->
+<P>Weitere Informationen ber den Zweck des Scheduler erhalten Sie ber
+das Thema <A HREF="glossary/gls_scheduler.html">"Prozesse und Threads"</A>.
+<!-- end V0.9.13 -->
+ 
+<P>Diese Hilfeseite behandelt lediglich die unterschiedlichen Einstellungen
+und deren Darstellung in der Datei &cfgsys;.
+<P>Falls die Informationen auf dieser Seite zu den unterschiedlichen
+&cfgsys;-Einstellungen nicht ausreichen, finden Sie zus„tzliche Erl„uterungen
+in den entsprechenden Kapiteln des <I>&os2;-Referenzhandbuchs</I>.
+ 
+<P>Klicken Sie auf die Schaltfl„che <B>Anwenden</B>, um die von Ihnen gemachten
+nderungen in die Datei &cfgsys; zu bernehmen. Dadurch werden nur die Zeilen
+ge„ndert, die den Einstellungen auf dieser Seite entsprechen. Die Zeilen,
+die sich auf andere Seiten der "&os2;-Kernel"-Einstellungen beziehen, werden
+nicht ge„ndert. Beachten Sie, daá Sie das System neu starten mssen, damit die
+nderungen wirksam werden. Ein Neustart der Arbeitsoberfl„che allein
+reicht <I>nicht</I> aus.
+<P>Klicken Sie auf <B>Optimieren</B>, damit &xwp; auf Basis Ihrer 
+Systemgegebenheiten neue Einstellungen vorschl„gt. Auch in diesem Fall wird
+die &cfgsys; nur ge„ndert, wenn Sie "Anwenden" bet„tigen.
+<P>Durch Klicken auf <B>Standard</B> werden die Standardvorgaben von &os2;
+auf diese Einstellungsseite bernommen. Wiederum werden die ge„nderten Werte
+erst durch "Anwenden" in die &cfgsys; bernommen.
+ 
+<!-- V0.9.7: added this line; made the following an unordered list -->
+<P>Die folgenden Felder sind verfgbar:
+ 
+<UL><LI><B>Aktuelle Anzahl Threads</B> zeigt die Gesamtanzahl der momentan auf
+dem System laufenden Threads an. Diese Anzeige wird laufend aktualisiert:
+Wenn Sie beispielsweise ein weiteres Programm starten, k”nnen Sie mitverfolgen,
+wie der angezeigte Wert steigt.
+ 
+<P><LI>Die Einstellung <B>Maximale Anzahl Threads</B> entspricht dem Eintrag
+<CITE>THREADS</CITE> in der Datei &cfgsys;. Hiermit l„át sich einstellen, wie
+viele parallele Threads &os2; betreiben kann. Der Maximalwert ist 4096.
+Sie k”nnen berflssige
+Ressourcen- und Speicherreservierungen des Schedulers verringern, indem Sie
+diesen Wert herabsetzen.
+<!-- V0.9.13: added this -->
+&os2; ben”tigt mindestens eine Speicherseite (4 KB) je Thread. Das bedeutet,
+daá Sie bei Angabe von 1024 maximalen Threads also bereits 4 MB Ihres
+Hauptspeichers benutzen.
+<!-- end V0.9.13 -->
+Wenn Sie keine Netzwerkfunktionen verwenden, sollte bereits ein Wert von 256
+ausreichend sein.
+<P>Beachten Sie aber, daá das System unter Umst„nden ohne vorherige Warnung
+abstrzt, wenn Sie diesen Wert zu gering einstellen. Als Faustregel sollte
+gelten, daá Sie die aktuelle Anzahl Threads plus 50% als Vorgabewert nehmen.
+<!-- V0.9.0: added the following -->
+Das sollte eigentlich gengend Sicherheit bieten, da die Mehrheit der
+Threads beim Systemstart initiiert werden und zus„tzliche, sp„ter gestartete
+Prozesse in der Regel nur ein bis zwei Threads benutzen.
+ 
+<!-- V0.9.7: added this line -->
+<P>Beachten Sie auch die <A HREF="cmdref.inf#threads">Erl„uterungen</A> zum Thema
+Threads im <I>&os2;-Referenzhandbuch</I> fr zus„tzliche Informationen.
+ 
+<P><LI><B>Priorit„tssteigerung erlauben</B> entspricht der Einstellung
+<CITE>MAXWAIT</CITE> in der &cfgsys;. Hiermit wird dem Scheduler mitgeteilt,
+wie lange ein bereiter Thread noch Prozessorzeit zugeteilt bekommt, obwohl
+andere Threads mit h”herer Priorit„t existieren. Diese Einstellung betrifft
+nur die Klasse der Threads mit "regul„rer" Priorit„t und der Standardwert ist
+3 Sekunden.
+<!-- V0.9.16 , was ich fr einen geeigneten
+Wert fr schnelle Computer (Pentium oder besser) halte. Wenn Sie allerdings ein
+langsameres System benutzen (486) werden Sie ein besseres Antwortverhalten
+erzielen, wenn Sie einen Wert von 2 oder sogar nur 1 Sekunde(n) angeben. -->
+Durch Herabsetzen des Wertes wird "Hintergrund"-Threads mehr Prozessorzeit
+zugeteilt - zu Lasten der "Vordergrund"-Threads, die dafr ”fters unterbrochen
+werden. Experimentieren Sie ein wenig mit dieser Einstellung um zu ermitteln,
+welche am besten auf Ihr System zugeschnitten ist. Sie sollten aber keinen
+h”heren Wert als 3 verwenden. IBM empfiehlt, diesen Wert zu verringern, wenn
+man viele DOS/Windows-Applikationen einsetzt - jedoch nur, wenn man viel
+Hauptspeicher zur Verfgung hat, da &os2; den fehlenden Speicher sonst durch
+erh”hte Zugriffe auf die Auslagerungsdatei kompensiert.
+ 
+<!-- V0.9.7: added this line -->
+<P>Beachten Sie auch die <A HREF="cmdref.inf#maxwait">Erl„uterungen</A> zu
+diesem Thema im <I>&os2;-Referenzhandbuch</I> fr zus„tzliche Informationen.
+ 
+<P><LI>Die Einstellung <B>Laufwerks-E/A im Vordergrund bevorzugen</B> 
+enstpricht der Anweisung <CITE>PRIORITY_DISK_IO</CITE> in der &cfgsys;.
+Wenn diese Option aktiviert ist (und das ist standardm„áig der Fall),
+<!-- V0.9.12: rewrote the following -->
+wird der im Vordergrund laufenden Anwendung kurzfristig eine h”here Priorit„t
+zugeteilt, sobald deren Festplattenzugriff vollst„ndig abgeschlossen wurde.
+Dies betrifft die erste Zeitscheibe des Threads, die der Anwendung nach
+Beendigung des Festplattenzugriffs zugeteilt wird. Nach Ablauf der Zeitscheibe
+wird die Priorit„t des Threads wieder auf den ursprgnlichen Wert zurck
+gestellt. Hieraus resultiert ein besseres Antwortverhalten der Anwendung nach
+Durchfhrung von Festplattenzugriffen.
+<!-- end V0.9.12  -->
+<P>Diese Option k”nnten Sie deaktivieren, wenn Sie h„ufig mit Prozessen
+arbeiten, die erh”hte Festplattenzugriffe im Hintergrund durchfhren, wie
+zum Beispiel Compiler.
+ 
+<!-- V0.9.7: added this line -->
+<P>Beachten Sie auch die <A HREF="cmdref.inf#priority_disk_io">Erl„uterungen</A>
+zu diesem Thema im <I>&os2;-Referenzhandbuch</I> fr zus„tzliche Informationen.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

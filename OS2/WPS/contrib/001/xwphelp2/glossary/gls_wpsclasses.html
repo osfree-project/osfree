@@ -1,0 +1,152 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Workplace Shell Classes
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+&os2;'s Workplace Shell (WPS) is frequently described as
+<B>"object-oriented".</B> This term suggests that -- as opposed to the
+user interfaces of other operating systems --
+everything the Workplace Shell
+deals with is first considered an <B>"object":</B> this applies, for example, to
+<!-- V0.9.19: link added -->
+&link_folders;,
+<!-- V0.9.19: link added -->
+&link_datafiles;,
+printers, drive objects etc. All these objects have certain common
+characteristics (such as
+<!-- V0.9.19: links added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A> and
+<A HREF="glossary/gls_notebook.html">properties notebooks</A>), but differ in
+certain others: for example, what you see in a &popmenu; depends
+on the selected object.
+
+<P>In order to better handle these common and different
+characteristics, the WPS uses <B>"classes".</B> This term has been taken from
+object-oriented programming; a class is, so-to-say, an abstract concept, or
+a template, for an object.
+A class is therefore not visible on the Desktop, it thus does not
+"exist" in the same sense as objects do, but it contains all the information
+about properties and capabilities of an object and the executable code
+to make an object do something.
+
+<P>All WPS classes reside in
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link libraries (DLLs)</A>.
+For example, most of the default WPS classes reside in the large <CODE>PMWP.DLL</CODE>
+file in the <CODE>\OS2\DLL</CODE> directory. All &xwp; classes reside in
+<CODE>XFLDR.DLL</CODE> in the &xwp; installation directory.
+
+<P>Now, every object on the Desktop is a so-called <B>"instance"</B> of some
+class. The names of most of the WPS classes start with "WP": for example, a
+printer is  an instance of the "WPPrinter" class, a folder one of the class
+"WPFolder", a datafile of "WPDataFile" and so on.
+
+<P>The reason for the power and flexibility of the class concept is that the
+different classes may <B>descend</B> from each other. Such a descendant
+class will <B>inherit</B> all of the properties and capabilities from its
+parent class. It is thus possible to make certain features of the
+user-interface more abstract, according to the old principle:
+the best way to handle complexity is abstraction.
+
+<P>The WPS contains many classes, which make up a very thoughtful
+inheritance hierarchy. The following excerpt from the WPS class list may
+make the general structure more lucid (where the lines represent parentship):
+
+<PRE>
+ WPObject
+   ÃÄÄ WPAbstract
+   ³     ÃÄÄ WPPrinter
+   ³     ÃÄÄ WPProgram
+   ³     ÀÄÄ WPShadow
+   ÃÄÄ WPFileSystem
+   ³     ÃÄÄ WPDataFile
+   ³     ³      ÃÄÄ WPIcon
+   ³     ³      ÀÄÄ WPProgramFile
+   ³     ÀÄÄ WPFolder
+   ³            ÃÄÄ WPDesktop
+   ³            ÀÄÄ WPStartup
+   ÀÄÄ WPTransient
+</PRE>
+
+You see that all classes are descendants of <CODE>WPObject</CODE>,
+which is therefore called the "root class" of all WPS classes.
+This implements all the features that are
+common to all Desktop objects: as mentioned before, e.g. &popmenu;s and
+properties notebooks. However, the WPObject class is too abstract to have
+instances of it: this class was only implemented to have other descendant
+classes. Objects of this class will not function.
+
+<P>WPObject has only three descendant classes. All these classes are -- like
+WPObject -- only meant to be abstract parent classes, of which no objects
+should exist directly.
+
+<OL><LI><CODE>WPAbstract</CODE> is the common parent class for so-called "abstract"
+objects, i.e. those objects which do not physically exist on disk, but only
+store their data in <CODE>OS2.INI</CODE>. The most well-known
+examples for this are the classes <CODE>WPPrinter</CODE> for printer
+objects, <CODE>WPProgram</CODE> for program objects, and <CODE>WPShadow</CODE>
+for shadows. All these objects can appear in folders, but are not visible if
+you enter <CODE>DIR</CODE> at the command line, for example.
+
+<P><LI>By contrast, <CODE>WPFileSystem</CODE> is the common superclass for
+objects which do exist physically in a file system of a drive. There are two subtypes:
+folders (<CODE>WPFolder</CODE> class) and data files (<CODE>WPDataFile</CODE>).
+In turn, there are
+several subclasses of WPDataFile, like <CODE>WPIcon</CODE> for icon files
+and <CODE>WPProgramFile</CODE> for program files (executables, usually with
+the <CODE>.EXE</CODE> extension).
+All data files for which no more specific subclass exists are instances of
+<CODE>WPDataFile</CODE>.
+
+<P><LI>Finally, <CODE>WPTransient</CODE> is used by the WPS for objects which
+need not save their data at all, but only exist temporarily for representing
+something. Examples of this are print jobs in a printer object and all the
+devices in
+<!-- V0.9.19: removed warp 4 here -->
+the Hardware Manager.
+
+</OL>The WPS also offers an exceptional mechanism called <B>class replacements.</B>
+This feature is used extensively by &xwp; to hook all of its features
+into the WPS by replacing a number of standard WPS classes. For example, the
+<CODE>XFolder</CODE> class itself replaces the <CODE>WPFolder</CODE> class
+to implement all the new folder features.
+
+<P>Such a replacement class must always be a descendant of
+the class which it should replace; "replacing" the class then means that the
+WPS will always use the replacement class whenever the original class
+would normally be used. As a result, if &xwp; is installed, all
+folders of your system are no longer instances of <CODE>WPFolder</CODE>,
+but of <CODE>XFolder</CODE>.
+But since <CODE>XFolder</CODE> is a descendant of <CODE>WPFolder</CODE>,
+all standard folder characteristics are inherited and still exist with the folders
+on your system.
+
+<P>Using class replacements enables programmers to implement new features for a
+class without having to know in detail how a certain class works internally.
+This is an outstanding and powerful concept, which is unmatched by other
+operating systems.
+
+<IFNDEF __NOWPSCLASSLIST__>
+<P>If you open &xwp;'s
+<A HREF="clst_main.html">"WPS Class List"</A> object, all of
+the classes installed on your system will be
+displayed. Regularily, these will be more than 100 classes, which will appear
+in a tree structure. Using &popmenu;s, you may register and replace
+classes here and also deregister classes and undo class replacements. Also,
+you can attempt to create an object (that is: an instance) of many classes
+on your Desktop.
+
+<P>Please note that you should be very careful when manipulating the WPS
+class list. By making the wrong change, you can make your system unusable!
+</IFNDEF>
+
+<BR>
+</BODY>
+</HTML>
+

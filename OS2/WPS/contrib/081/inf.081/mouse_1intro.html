@@ -1,0 +1,55 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduction
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Classes: XFldObject, XWPSetup, XWPMouse, XWPKeyboard</B>
+<HR>
+Starting with V0.9.0, &xwp; also introduces a number of mouse and
+keyboard enhancements by installing a Presentation Manager hook, similar
+to what well-known enhancers such as FeelX, NPS WPS, and WarpEnhancer do.
+<P>
+So &xwp; now also goes for features like "sliding focus", "hot corners",
+and "object hotkeys". These are described in detail on the following pages.
+<P>
+The ultimate goal for this &xwp; component is to replace all those PM hook
+utilities one day. In my view, several problems exist with those utilities:
+
+<OL><LI>Most importantly, most of these have not been actively maintained for
+years. This especially applies to FeelX and NPS WPS, both of which I have been
+using for years. However, both of them have a few limitations which will never
+be overcome because they probably won't ever be updated again.
+
+<P><LI>Both utilities are not well integrated into the WPS. That is, their settings
+cannot be changed using the standard WPS notebooks. &xwp; allows you to
+configure its PM hook using the "Mouse" and "Keyboard" objects in the
+"System Setup" folder. And NPS WPS always terminates itself when the WPS
+is restarted, which is pretty annoying.
+
+<P><LI>None of the well-known PM hook utilities are OpenSource, except
+ProgramCommander/2 (which is even public domain). &xwp; is OpenSource,
+so bugs can be reported and/or fixed by users.
+
+<P><LI>Finally, I just hate to install three different PM hooks when I only
+need a single feature from each of these. Each installed PM hook slows down
+the system, because every single message which is produced by &os2; and posted
+or sent to a window must go thru all of these hooks, each of which does a
+lot of calculations for that message. And we're talking about possibly hundreds
+of messages per second here. So instead of having three hooks installed
+which are only partly used, &xwp; attempts to put the most frequently-used
+features all together in one hook.
+
+</OL>Note that the &xwp; PM hook is a completely optional feature. If you
+don't like it and prefer to still use other utilites, feel free to do so.
+
+<P>For this reason, the &xwp; hook is disabled per default.
+It must be enabled first in the "&xwp; Setup" object.
+
+<BR>
+</BODY>
+</HTML>
+
+

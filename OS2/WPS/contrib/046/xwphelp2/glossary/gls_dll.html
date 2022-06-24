@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dynamic Link Libraries (DLLs)
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+En <B>dynamic link library (DLL)</B> „r en speciell typ av exekverbar fil
+inneh†llande kod som kan delas mellan †tskilliga applikationer. Dynamic link 
+libraries har vanligtvis <CODE>.DLL</CODE> som filnamns„ndelse.
+
+<P>DLL'er kan antingen komma med operativsystemet eller med en applikation. Systemkoden
+hos &os2; sj„lv „r ocks† till stor del inneh†llen i DLL filer, och kan hittas i 
+<CODE>OS2\DLL</CODE> katalogen p† din bootenhet.
+
+<P>"Dynamisk l„nkning" betyder att koden i modulen laddas endast n„r n†gon
+applikation efterfr†gar den. Om koden redan laddats av n†gon annan applikation,
+†teranv„nds den. Detta har flera f”rdelar:
+
+<UL><LI>tskilliga applikationer kan i praktiken <B>dela p† koden</B> i en DLL, vilket
+sparar b†de diskutrymme och din dators huvudminne.
+
+<P><LI>Applikationer kan <B>modulariseras.</B> Till exempel, det Nationella
+Spr†kst”det (NLS) f”r en DLL kan separeras till en DLL. Detta g”r att det g†r att
+„ndra spr†ket hos en applikation genom att byta ut en enda fil. DLL'er kan ocks† 
+f”renkla programvaru-support eftersom vid uppgradering av ett program beh”ver man som
+regel inte †tg„rda defekter.
+
+<P><LI>DLL'er kan inneh†lla verkliga <B>subsystem</B> som anv„nds av flera applikationer, 
+eftersom en DLL kan dela data mellan processer. Detta till†ter utbyte av data enklare, till exempel,
+och „r ocks† en av orsakerna till stora delar av &os2; sj„lv finns inneh†llna i DLL'er.
+
+<P><LI>DLL'er kan anv„ndas f”r att g”ra en applikation <B>ut”kningsbar.</B> Om applikationen
+har konstruerats f”r att st”dja ut”knings-DLL'er, kan vem som helst utveckla en s†dan ut”kning
+vilken kan integreras s”ml”st i applikationen. Det b„sta exempel p† det „r &os2;'s Workplace Shell
+sj„lv, vilket kan ut”kas i funktionalitet genom att l„gga till tredjeparts ut”kningar. 
+Se <A HREF="glossary/gls_wpsclasses.html">"WPS klasser"</A> f”r detaljer. Ett annat 
+exempel „r <A HREF="xcenter/xc_main.html">&xcenter;</A>, vilket st”djer plug-in DLL'er 
+som ut”kningar.
+
+</UL>
+</BODY>
+</HTML>
+

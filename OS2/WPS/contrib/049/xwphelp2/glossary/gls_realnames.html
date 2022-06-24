@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Echte Dateinamen
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+W„hrend jedes Objekt per Definition einen Titel hat, besitzen nur
+Dateisystemobjekte (d.h.
+&link_folders; und
+&link_datafiles;, die physisch in einem
+<A HREF="glossary/gls_fs.html">Dateisystem</A> liegen)
+auch einen sogenannten <b>"echten Dateinamen".</b>
+Dies ist der Name der Datei auf dem Speichermedium, welche
+durch das Dateisystemobjekt repr„sentiert wird, und welcher
+von dem Befehl
+<a href="cmdref.inf#dir"><CODE>DIR</CODE></a>
+an einer
+<a href="glossary/gls_cmd.html">Befehlszeile</a>
+angezeigt wird.
+ 
+<P>In vielen F„llen ist der echte Dateiname mit dem Objekttitel
+(der auf der Seite "Symbol" angezeigt wird) identisch. Jedoch
+gibt es fr Dateinamen einige zus„tzliche Beschr„nkungen.
+ 
+<P>Objekt-<b>Titel</b> haben lediglich die Beschr„nkung, daá sie nicht
+l„nger als 256 Zeichen sein drfen und der Schr„gstrich rckw„rts
+(<CODE>\</CODE>) nicht erlaubt ist.
+ 
+<P>Die Beschr„nkungen fr <b>echte Dateinamen</b> h„ngen hingegen von
+dem <A HREF="glossary/gls_fs.html">Dateisystem</A> des Objekts ab:
+ 
+<UL><LI>Mit dem FAT-Dateisystem sind Dateinamen auf acht Zeichen
+beschr„nkt, plus 3 Zeichen fr die Dateinamenerweiterung. Zus„tzlich
+sind die folgenden Zeichen in FAT-Dateinamen nicht erlaubt:
+ 
+<P><CODE>&lt; &gt; | + = : ; , " / [ ]</CODE>
+ 
+<P>Auáerdem speichert das FAT-Dateisystem keine Groá- oder Kleinschreibung.
+ 
+<P><LI>Mit installierbaren Dateisystemen (IFS) wie HPFS oder JFS kann
+ein Dateiname hingegen bis zu 254 Zeichen lang sein, und es gibt keine
+Regeln ber Dateinamenserweiterungen. Trotzdem sind die folgenden
+Zeichen in Dateinamen nicht erlaubt:
+ 
+<P><CODE>&lt; &gt; | : " / </CODE>
+ 
+</UL>Der Schr„gstrich rckw„rts (<CODE>\</CODE>) ist darber hinaus
+bei keinem Dateisystemen erlaubt, da er von &os2; als
+<A HREF="glossary/gls_path.html">Pfad</A>-Begrenzer benutzt wird.
+ 
+<P>Wenn der echte Dateiname nun die obigen Beschr„nkungen nicht verletzt,
+ist er identisch zum Objekt-Titel. <i>Falls nicht,</i> bearbeitet die WPS
+automatisch den Titel, so daá er die Beschr„nkungen einh„lt, indem er
+auf die erlaubte L„nge gekrzt und ungltige Zeichen durch Ausrufezeichen
+(<code>!</code>) ersetzt werden.
+Der ursprngliche Titel geht nicht verloren, sondern wird in dem
+<A HREF="glossary/gls_eas.html">erweiterten Attribut</A> <CODE>.LONGNAME</CODE>
+gespeichert.
+ 
+<P>In diesen F„llen unterscheidet sich der echte Dateiname, welcher
+vom <CODE>DIR</CODE>-Befehl angezeigt wird, von dem Titel, der in
+einem WPS-Ordner erscheint.
+ 
+<P><b>Beispiele:</b>
+ 
+<OL><LI>Ein Ordnertitel sei <CITE>LangerOrdnerTitel</CITE>, aber
+der Ordner liegt auf einem FAT-Laufwerk. Dann wird der Dateiname
+vermutlich auf auf <CITE>C:\LANGEROR</CITE> gekrzt.
+ 
+<P><LI>Ein Ordnertitel auf einem HPFS- oder JFS-Laufwerk sei
+<CITE>Buchfhrung/Steuern</CITE>. Dann wird der echte Name
+<CITE>Buchfhrung!Steuern</CITE> sein.
+</OL>
+ 
+</BODY>
+</HTML>
+ 

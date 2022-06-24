@@ -1,0 +1,88 @@
+<HTML RESID=&ID_XSH_SETTINGS_SB2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Statusf„lt Sidan 2
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+Med textf„lten i gruppen <B>"Inneh†ll hos statusf„lt"</B>, kan du 
+best„mma vad som skall visas p† statusf„lten.
+
+<!-- V0.9.13: removed this
+XFolder uses certain (not very intuitive, however flexible) codes to
+display variable Desktop object information.
+Please look into the &xwp;_User_Guide
+to learn more about all the different supported codes.
+All codes start with the "$" character. If &xwp; does not recognize
+a certain text you enter here as a status bar code, it will simply be copied into the
+status bar display, so you can also add informative text here. -->
+
+<P>&xwp;'s statusf„lt opererar i <B>tre olika l„gen,</B> beroende p† om inget objekt,
+bara ett objekt eller flera objekt f”r n„rvarande „r valda i mappen. F”r var och ett
+av dessa s„tt, kan du ange den text som du vill i respektive textf„lt.
+
+<UL><LI>Nycklarna i f„ltet <B>"Inget objekt valt"</B> best„mmer vilken information som
+skall visas om inget objekt alls „r valt f”r tillf„llet i mappen.
+
+<!-- V0.9.13: rewrote the following -->
+<P><LI>I <B>"enstaka objekt l„get",</B> st”der &xwp; specifik statusf„ltsinformation 
+beroende p† <A HREF="glossary/gls_wpsclasses.html">klass</A> hos det aktuella objektet.
+Till exempel, om du v„ljer ett programobjekt, kommer informationen att bli olika j„mf”rd med
+ett valt datafilsobjekt eller mapp.
+<!-- end V0.9.13 -->
+
+<P>Tryck p† knappen <B>"V„lj klass..."</B> f”r att v„lja den WPS klass f”r vilken du vill
+st„lla in statusf„ltsinformation. De koder du anger h„r i inmatningsf„ltet p†verkar endast
+objekt av den klassen.
+
+<!-- V0.9.5: changed the following paragraph -->
+<P>Om inst„llningen <B>"Omreferera Skuggor"</B> i gruppen „r aktiverad, kommer &xwp;, att om
+ett enstaka skuggobjekt „r valt, inte visa information f”r skuggobjektet (vilket „r ganska meningsl”st),
+utan f”r det objekt mot vilket skuggan pekar p† ist„llet.
+
+<P><LI>Koderna i f„ltet <B>"tskilliga objekt valda"</B> best„mmer den information som skall
+visas n„r mer „n ett objekt „r valt.
+
+<!-- V0.9.5: added the following paragraph -->
+<P>Om inst„llningen <B>"Omreferera Skuggor"</B> i gruppen „r aktiverad och multipla objekt
+„r valda, bland vilka vissa kan vara skuggor, kommer &xwp; att anv„nda informationen om det objekt mot
+vilket skuggan pekar f”r att ber„kna "de valda objektens" storlekar. Naturligvis, kan detta ge dig 
+en storlek f”r de valda objekten vilken kan vara st”rre „n storleken hos objekten i mappen,
+eftersom de skuggade objekten i verkligheten inte tillh”r mappen.
+<!-- V0.9.16 I added this per
+user request with V0.9.5. -->
+
+</UL>Notera att alla „ndringar f†r effekt omedelbart s† att du kan visa resultaten i en ”ppen 
+mapp medan du experimenterar med olika statusf„ltskoder.
+
+<!-- V0.9.13: added the following -->
+<P>&xwp; anv„nder speciella <B>koder</B> f”r att visa varibel Skrivbordsobjekt-information.
+Alla koder startar med <CODE>"$"</CODE> tecknet. Om &xwp; inte k„nner igen en speciell text
+som du anger h„r som statusf„ltkod, kommer den helt enkelt att kopieras till statusf„ltets 
+visning, s† att du kan l„gga till informativ text d„r.
+
+<P>Koder som kan anv„ndas f”r statusf„ltens inneh†llsbeskrivning beror p†
+det s„tt p† vilket statusf„ltet f”r n„rvarande „r inst„llda att arbeta p†. F”r detaljerade beskrivningar
+”ver olika koder, v„lj fr†n f”ljande lista:
+
+<UL><LI><A HREF="fsys/stat_4common.html">Allm„nna koder f”r alla tre l„gen</A>
+<LI><A HREF="fsys/stat_5wpobject.html">Allm„nna koder f”r enstaka objekt l„get endast</A>
+<LI><A HREF="fsys/stat_61wpfsys.html">Koder f”r WPFileSystem objekt i enstaka objekt l„get</A>
+<LI><A HREF="fsys/stat_62wpdisk.html">Koder f”r WPDisk objekt i enstaka objekt l„get</A>
+<LI><A HREF="fsys/stat_63wppgm.html">Koder f”r WPProgram objekt i enstaka objekt l„get</A>
+<LI><A HREF="fsys/stat_64wpurl.html">Koder f”r WPUrl objekt i enstaka objekt l„get</A>
+</UL>
+<!-- end V0.9.13 -->
+
+<!-- V0.9.0: the following is unchanged -->
+Tryck <B>"ngra"</B> f”r att †terst„lla till inst„llningarna
+som anv„ndes innan du ”ppnade den h„r notbokssidan.
+
+<P>Tryck <B>"Standard"</B> f”r att †terg† till de inst„llningerna 
+som g„llde vid installationsstatus.
+
+<BR>
+</BODY>
+</HTML>
+

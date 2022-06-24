@@ -1,0 +1,49 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Ut”kad Avst„ngning
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasser: XFldObject, XFldDesktop</B><HR>
+<!-- V0.9.0 -->
+En av huvudfunktionerna hos &xwp; „r att f”rb„ttra avst„ngningsproceduren hos &os2;.
+<P><B>Viktig notering:</B> &xshutdown; „r avaktiverad som standard efter installation f”r att undvika 
+f”rvirring. Du m†ste aktivera &xshutdown; i det nya
+<!-- V0.9.0: changed the following -->
+<A HREF="sys_2global.html">"&xwp; Setup" objektet</A>.
+<P>Efter aktivering av &xshutdown;, kommer ett val av "Avst„ngning" fr†n Skrivbordets kontextmeny
+att starta &xwp;'s avst„ngningsprocedur ist„llet f”r &os2;'s standardavst„ngning.
+<P>Efter valet av "Avst„ngning", kommer en dialogbox liknande den f”ljande att 
+poppa upp:
+<P><IMG SRC="shutdown2.gif">
+<P>De viktigaste nya funktionerna i &xshutdown; „r:
+<UL><LI>Du kan v„lja att <B>automatiskt boota om</B> din dator efter att 
+avst„ngningen „r klar.
+<P>Du kan t.o.m. skapa dina egna ombootningsegenskaper, t.ex. boota om till en speciell Boot Manager
+partition direkt. Detta „r f”rklarat i detalj n„r du trycker knappen "Aktioner" p† sidan 1 i
+"XSkrivbord" hos Skrivbordets notbok med inst„llningar.
+<BR><LI>&xshutdown; kan <B>avbrytas</B> „ven efter att avst„ngningen har startats.
+<BR><LI>&xshutdown; kommer att visa en progress ”ver avst„ngningsproceduren, och om n†gra applikationer
+"h„nger", dvs. inte kan st„ngas, kan du v„lja att <B>hoppa ”ver</B> dom och forts„tta 
+avst„ngningssekvensen utan att v„nta p† att applikationerna st„ngs:
+<P><IMG SRC="shutdown.gif">
+
+</UL>Den automatiska ombootningen kr„ver att DOS.SYS m†ste vara installerad genom &cfgsys;. P† Warp 4, „r detta
+utf”rt som standard. P† OS/2 Warp 3, kan du beh”va l„gga till f”ljande rad i &cfgsys;:
+<P><CITE>DEVICE=X:\OS2\BOOT\DOS.SYS</CITE>
+<P>d„r X: motsvarar din OS/2 bootenhet.
+<P>Du kan konfigurera (och st„nga av) den Ut”kade Avst„ngningen p† en ny inst„llningsida hos notboken
+med <A HREF="fldr_7settings.html">Skrivbordet's Inst„llningar</A>.
+
+<!-- V0.9.0: added the following -->
+<P>Om du „r intresserad av hur &xshutdown; fungerar internt, var v„nlig och titta p†
+<A HREF="further_2howxshutdown.html">respektive sida</A> i kapitlet "&xwp; Interna".
+<BR>
+</BODY>
+</HTML>
+
+

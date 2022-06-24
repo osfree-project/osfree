@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sorteringskriterier
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.12 -->
+<BODY>
+F”ljande fyra sorteringskriterier „r <I>alltid</I> tillg„ngliga i alla
+<!-- V0.9.19: link added -->
+&link_folders;:
+
+<UL><LI><B>Sortera genom namn:</B> detta sorterar en mapp alfabetiskt i enlighet
+med objektens rubriker.
+
+<P><LI><B>Sortera genom typ:</B> detta sorterar en mapp i enlighet med objekttyper,
+m.a.o. <CODE>.TYPE</CODE> Ut”kade Attribut vilka kan st„llas i ett objekts
+notbok med egenskaper. Notera att detta endast g„ller datafilsobjekt; alla andra
+objekt (och datafilsobjekt med odefinerierade typer) kommer att sorteras till botten.
+
+<P><LI><B>Sortera genom klass:</B> detta sorterar en mapp i enlighet med objektklasserna,
+m.a.o. vad som „r synligt i den tredje kolumnen hos en mapps Detaljvisning.
+
+<P><LI><B>Sortera genom filnamnsut”kning:</B> detta sorterar en mapp i enlighet med
+tecken efter den sista punkten i objektets rubrik, vilket normalt skall vara
+filnamnsut”kningen (s†dana som <CODE>.TXT</CODE>, <CODE>.EXE</CODE> etc.). Objekt utan
+„ndelser sorteras alltid f”rst.
+
+</UL>Om inte en mapp har „ndrat sin sorteringsklass till n†got annat „n WPFileSystem,
+vilket normalt endast intr„ffar med specialmappar s†dana som papperskorgen och
+"Font" mappen, „r f”ljande sorteringskriterier ocks† tillg„ngliga:
+
+<UL><LI><B>Sortera genom verkliga namn:</B> detta sorterar en mapp alfabetiskt i enlighet
+med filsystemsnamnen. Eftersom endast filsystemsobjekt har verkliga namn, kommer abstrakta
+objekt inte att sorteras riktigt.
+
+<P><LI><B>Sortera genom storlek:</B> detta sorterar en mapp i enlighet med filstorlekar.
+Eftersom abstrakta objekt inte har n†gon filstorlek, utan endast l„gger beslag p† visst
+utrymme i OS2.INI, antas de ha storleken noll bytes.
+
+<P><LI><B>Sortera genom senast skrivna / senaste access / skapat datum:</B> sorterar detta
+en mapp i enlighet med dess filsystemsinformation, vilket inte heller finns tillg„ngligt i
+abstrakta objekt. Notera att
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_fs.html">FAT</A>
+filsystemet inte st”djer all den h„r informationen, s† dessa tre kriterier kommer inte att
+g”ra n†gon skillnad d„r heller.
+
+</UL>Om inst„llningen <B>"Mappar f”rst"</B> ocks† „r aktiverad, kommer alla mappar att sorteras
+till toppen hos mappen.
+
+<P>Inom gruppen av mappar och icke-mapp objekt, utf”rs sortering i enlighet med de aktuella
+sorteringskriterierna, respektive. Till exempel, om "sortera genom senast skrivna datum" „r
+valt och "mappar f”rst" ocks† „r aktiverat, kommer alla submappar att l„ggas i toppen,
+och alla submappar sorteras sedan p† senast skrivna datum, och alla icke-mapp objekt sorteras
+ocks† genom senast skrivna datum.
+
+</BODY>
+</HTML>
+

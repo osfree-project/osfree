@@ -1,0 +1,83 @@
+<HTML RESID=&ID_XMH_VARIABLE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Variable Meneintr„ge
+    </TITLE>
+</HEAD>
+<!-- Changes:
+    V0.9.16: replace XFolder with &xwp;
+-->
+<BODY>
+&xwp; erlaubt es, den &popmenu;s aller
+<!-- V0.9.19: link added -->
+&link_folders;
+im System global Meneintr„ge hinzuzufgen. Sie haben gerade einen dieser
+variablen Meneintr„ge gefunden.
+ 
+<P>Siehe <A HREF="menus/menu_3config.html">&popmenu;s konfigurieren</A> fr
+eine Anleitung dazu, wie die Standardkonfiguration mit Hilfe des
+besonderen &cfgfdr;s modifiziert werden kann.
+ 
+<P>Falls bei Ihnen immer noch die Standardkonfiguration, die bei der Installation
+eingerichtet wurde, vorhanden ist, sind folgende neue Meneintr„ge verfgbar:
+ 
+<UL>
+<!-- V0.9.20: rewrote command prompts -->
+<LI>Das <B>Untermen "Befehlszeilen"</B> enth„lt Eintr„ge zum ™ffnen von
+<A HREF="glossary/gls_cmd.html">Befehlszeilen</A>.
+Wenn Sie einen der Eintr„ge im diesem Untermen ausw„hlen, wird eine
+Befehlszeile angezeigt, deren Verzeichnis bereits auf das des aktuellen Ordners
+ge„ndert wurde.
+ 
+<P><LI>Das <B>Untermen "Neu erstellen"</B> enth„lt Eintr„ge zum Erstellen neuer
+Objekte im Ordner, dessen &popmenu; ge”ffnet wurde.
+<!-- V0.9.20: link name changed -->
+<P>Weitere Informationen siehe <A HREF="menus/menu_2template.html">"Neue Objekt erstellen mit Neu erstellen"</A>.
+ 
+<!-- V0.9.20: added this section for eWP -->
+<IFDEF __EWORKPLACE__>
+<P><LI>Das <B>Untermen "Ordnerbefehle"</B> enth„lt fr die Handhabung von Ordnern
+ntzliche Eintr„ge.
+ 
+<P><B>"Baumgr”áe anzeigen"</B> startet das Programm <A HREF="treesize.html">Baumgr”áe</A>,
+das den gesamten Speicherplatz berechnet, der von einem Ordner und seinen Unterordnern
+auf der Festplatte eingenommen wird.
+ 
+<P><B>"Diesen Baum packen (ZIP)"</B> speichert den Ordner und alle darin enthaltenen
+Unterordner und Dateien komprimiert in einer ZIP-Datei. Die ZIP-Datei wird im Stammordner
+des aktuell ausgew„hlten Ordners angelegt und erh„lt den Namen des Ordners mit einer
+<CODE>.ZIP</CODE>-Endung. Wenn Sie beispielsweise "Diesen Baum packen (ZIP)" auf den Ordner
+<CODE>C:\FOLDER\SUBFOLDER</CODE> anwenden, wird dadurch eine Datei
+<CODE>C:\FOLDER\SUBFOLDER.ZIP</CODE> erstellt.
+</IFDEF>
+<!-- end V0.9.20: added this section for eWP -->
+ 
+<IFNDEF __EWORKPLACE__>
+<P><LI>Das <B>Untermen "Schnelleinstellungen"</B> beinhaltet Eintr„ge, mit deren Hilfe
+bestimmte Ordnereinstellungen zgig vorgenommen werden k”nnen, ohne daá das
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A> ge”ffnet werden máte.
+ 
+<BR><LI>Das <B>Untermen "&xwp;"</B> enth„lt Eintr„ge zum ™ffnen des Objekts
+<I>&xwp;-Benutzerhandbuch und -Referenz</I>
+sowie des &cfgfdr;s.
+Weiter finden sich dort Abkrzungen fr das neue
+<!-- V0.9.4: link added -->
+&link_wpsobj;,
+welches viele globale Einstellungen fr &xwp; enth„lt, und auch das neue Objekt
+"&os2;-Kernel".
+ 
+<!-- the following paragraph was added with V0.81 -->
+<BR><LI>Der <B>Meneintrag "Baumgr”áe"</B> ruft ein Programm auf, das den gesamten
+Speicher, den ein Ordner und seine Unterordner auf der Festplatte einnehmen, berechnet.
+<!-- V0.9.16: added this line -->
+Weitere Erl„uterungen siehe <A HREF="treesize.html">"Baumgr”áe"</A>.
+ 
+<BR><LI>Der <B>Meneintrag "Netscape"</B> startet Netscape und l„át
+das Verzeichnis anzeigen, dessen &popmenu; Sie ausgew„hlt haben.
+<!-- V0.9.20: moved this ifdef DOWN -->
+</IFNDEF>
+ 
+</UL>
+</BODY>
+</HTML>
+ 

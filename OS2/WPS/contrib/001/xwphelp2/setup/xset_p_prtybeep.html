@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Beep on Priority Change
+    </TITLE>
+</HEAD>
+<BODY>
+This setting issues a beep over the system speaker whenever &xwp; changes
+the Worker thread's priority.
+<P>
+Normally, the Worker thread runs with the priority you specify with the
+<A HREF="setup/xset_p_prty.html">"Default Worker thread priority"</A> setting.
+However, when &xwp; finds out that the Worker thread cannot keep up with
+all the data that comes in, its priority is automatically raised temporarily.
+To be notified of these changes, you can enable this setting.
+<P>
+On most computers however, these priority changes will not occur frequently,
+unless you populate folders with a <I>lot</I> of objects, because then
+the Worker thread gets a stack of objects to remember at the same time.
+<BR>
+</BODY>
+</HTML>
+

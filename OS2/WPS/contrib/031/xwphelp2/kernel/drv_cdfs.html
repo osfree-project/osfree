@@ -1,0 +1,62 @@
+<HTML RESID=&ID_XSH_DRIVER_CDFS;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: CDFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+Deze dialoog wordt gebruikt voor het configureren van <CODE>CDFS.IFS</CODE>.
+
+<!-- V0.9.13
+which is the Installable
+File System (IFS) provided by IBM to read data from Cd-roms.
+Cd-roms use their own special format to organize data on disk which is unlike FAT or
+HPFS, so another file system driver is needed.
+
+and added these links: -->
+
+<P>Zie voor introductie informatie over bestandssystemen, de volgende lijst:
+<UL><LI><A HREF="glossary/gls_fs.html">Bestandssystemen</A>
+<LI><A HREF="glossary/gls_caches.html">Bestandssysteem buffers</A>
+
+</UL>Druk op <B>"Optimaliseer"</B> om &xwp; u nieuwe geoptimaliseerde instellingen voor te stellen.
+<P>Druk op <B>"Standaard"</B> om de standaard &os2; instellingen op de notitieblok pagina
+getoond te krijgen.
+
+<P>Door het indrukken van <B>"OK"</B> zullen de door u gemaakte selecties vertaald worden naar
+het "Parameters" veld op de "Stuurprogramma" pagina in het
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A>
+instellingen notitieblok.
+Dit verandert nog niet uw &cfgsys;. Om dat te doen drukt u "Toepassen" in op de
+"Stuurprogramma" pagina nadat u op "OK" gedrukt heeft in deze dialoog.
+
+<p>Het wordt sterk aangeraden om <B>Joliet</B> ondersteuning te activeren. Dit is
+Microsoft zijn uitbreiding op het ISO standaard Cd-rom bestandssysteem om lange
+bestandsnamen te ondersteunen (tot 64 karakters), alleen op Cd-rom's. Veel nieuwe
+Cd-rom's zijn onleesbaar op &os2; als deze instelling niet geactiveerd is.
+
+<P><B>Kanji</B> voegt aanvullende ondersteuning toe voor de Japanse taal.
+
+<P>De <B>"buffer grootte"</B> schuifbalk bepaalt de grootte van de Cd-rom bestandssysteem buffer. De
+standaard van 128 KB is niet erg veel, dus wordt het aanbevolen om dit aan te passen naar 512 KB of
+hoger. Omdat de leeskop van een Cd-rom schijf veel trager is dan die van een harde schijf kan een
+grotere buffer het lezen van Cd-rom erg versnellen.
+
+<P>Om dezelfde reden zou u de <B>"Bestand sectoren in een keer in te lezen"</B>
+ook op de maximale waarde moeten zetten. Deze instelling bepaald hoeveel sectoren er gelezen
+worden als er om een enkele sector gevraagd wordt door het bestandssysteem stuurprogramma. Want het
+is te verwachten dat niet alleen die ene sector, maar ook de daarop volgende sectoren gelezen moeten
+worden als een Cd-rom gebruikt wordt, en dan staan die alvast in de buffer, wat de fysieke toegang tot
+de Cd-rom speler ook versneld.
+
+<!-- the following added with V0.9.5 -->
+Tenslotte, de instellingen in de <B>"Initialisatie"</B> groep bepalen wat de
+IFS stuurprogramma's vertonen bij het opstarten. <B>Default</B> geeft het een korte melding
+dat het geladen is. <B>"Quiet"</B> zal het dwingen niets te tonen, terwijl <B>"Verbose"</B>
+de huidige IFS instellingen zal laten zien, zoals hierboven gespecificeerd.
+<BR>
+</BODY>
+</HTML>
+

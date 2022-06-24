@@ -1,0 +1,9 @@
+NAME WPSRESET WINDOWCOMPAT
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace WPS restarter utility'
+
+STACKSIZE   65536
+
+PROTMODE
+
+

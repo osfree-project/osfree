@@ -1,0 +1,100 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.8
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.8 (January 26, 2001)</B>
+
+<P>New features:
+<UL><LI>Added the <A HREF="066xcenter.html">&xcenter;,</A> a &warpcenter; replacement.
+<P><LI>Added more items to the context menus on the "File types" page in
+"Workplace Shell".
+<P><LI>Added "No submenu" setting for "Lock in place" context menu item
+("Workplace Shell", "Context menus" page 3).
+<P><LI>Added "Logoff network now" to desktop's removeable menu items; shutdown
+menu items can also be configured more (desktop settings
+notebook, "Menu items" page).
+<P><LI>Added "Ignore &xcenter;" to sliding focus settings ("Mouse", "Movement").
+<P><LI>Martin Lafaix contributed the "Resources" page to XWPProgramFile.
+<P><LI>Added "Close &warpcenter; before Desktop" setting to XShutdown page
+in Desktop's settings notebook. This now allows you to tell &xwp; to
+leave the &warpcenter; alone, if this lead to scroll bars on the desktop. Hope this helps.
+
+</UL>Miscellaneous changes:
+<UL><LI>Moved NLS-independent resources to a separate DLL (XWPRES.DLL).
+<P><LI>Added more error checking to "Empty trash" on shutdown.
+<P><LI>Reworked WPS command interception for file engines command to avoid
+duplicate code... hope I didn't break anything.
+<P><LI>Optimized &pgr; window procedure to use less PM resources. Also improved
+cache locality.
+<P><LI>Martin Lafaix contributed some patches for the display of the folder content
+menus to make them look more like standard menus. Thanks.
+<P><LI>"Object" page is now automatically enabled in XWPSetup when object hotkeys are
+enabled. Some people had a hard time finding object hotkeys, Sander. ;-)
+
+</UL>Bugfixes:
+<UL><LI>Reworked mutex semaphore protection all over the place. Maybe the WPS
+is now less prone to hanging when PMSHELL.EXE is killed.
+<P><LI>Reworked NLS initialization. This hung the system when language DLLs failed
+to load.
+<P><LI>Fixed crashes when archiving displayed a msgbox after an archive was restored.
+<P><LI>Fixed two potentially dangerous situations with mutexes and 1) the shared
+notebook functions and 2) the worker thread/awake objects registry.
+This could have lead to system hangs, and maybe it did somewhere.
+<P><LI>Reworked internal timer functions. These stopped working when the date changed.
+<P><LI>Fixed crashes in Worker thread when kernel globals were locked.
+<P><LI>Added more error checking to internal EA functions.
+<P><LI>Changed a USHORT to a ULONG in my internal EXE structures. This _might_ fix
+problems with very strange and rare EXE files on the "Modules" page. Thanks, Martin
+Lafaix, for pointing this out.
+<P><LI>Fixed crashes when favorite or quick-open folders were deleted.
+<P><LI>Extended folder sorting was pretty broken. Dunno when these bugs were introduced,
+but open folders did _not_ react when global sort settings were changed. This was
+a collection of at least three bugs, which are fixed now. Unfortunately, to fix this,
+I had to break the folder sort settings in each folder's extended attributes, so you
+will lose all your folder sort settings with this release. Sorry.
+<P><LI>Extended associations didn't work when a data file had spaces in its full
+path. Fixed.
+<P><LI>Extended associations ignored program object settings for
+"no auto-close after exit" and "minimized". Fixed.
+<P><LI>Extended associations did not setup up the program's environment properly
+(WP_OBJHANDLE, WORKPLACE__PROCESS), which broke DragText. Thanks, Rich Walsh, for
+pointing this out to me.
+<P><LI>Extended associations used "plain text" as the standard file type for associations
+always, giving all data files the icon for plain text associations... removed that.
+<P><LI>"File types" page crashed when a file type was dropped on one of its descendant
+file types. Fixed, this is prevented now. Thanks, Martin Lafaix.
+<P><LI>On "File types" page, pickup and drop would not work with the context menu. Fixed.
+<P><LI>Creating a root file type on the "File types" page led to an error message, even
+though the file type was created. Fixed.
+<P><LI>Fixed memory leaks with "File types" page. Thanks, Martin Lafaix.
+<P><LI>Some "Delete" commands would not be intercepted to go to the trash can if the
+command was selected from an object that was not in a folder. Fixed.
+<P><LI>Trash can would sometimes display wrong empty/non-empty icon after Desktop startup.
+Should be fixed now.
+<P><LI>On some systems the trash can folder would appear as a template in the "Templates"
+folder. Preventing template creation now.
+<P><LI>Fixed a memory leak with every time an application was opened via object hotkeys.
+<P><LI>XWPString would never save the "Confirm" setting. Fixed.
+<P><LI>Extended system sounds broke completely with V0.9.6. Fixed. Duh.
+<P><LI>Pages in "Multimedia" hung the system if the object was closed while the
+data was still being inserted by the background threads. Fixed.
+<P><LI>&pgr; has been rewritten in considerable parts.
+We are now using a linked list instead of a global array for the internal window list;
+wrong sticky windows (newly created ones, Odin and EPM windows) have been fixed;
+maximized window handling has been redone.
+Dmitry Kubov helped doing all this -- thanks very much, Dmitry.
+<P><LI>&pgr; "move thread" now has a higher priority. This should fix problems
+during desktop switches when other processes hog the CPU.
+<P><LI>XShutdown would sometimes crash if "Empty trash" was enabled. Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Status Bars: Additional File-System Object Codes
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<B>File-system objects</B> (WPFileSystem class, i.e. folders and data files)
+support the following <I>additional</I> codes:
+<BR><DL>
+<DT><CITE>  $r  1)  </CITE><DD>object's "real name"
+<DT><CITE>  $y  1)  </CITE><DD>object type (.TYPE Extended Attribute)
+<DT><CITE>  $a  1)  </CITE><DD>object
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">file attributes</A>; this will insert four
+characters ("ahrs") for the archived, hidden, read-only and system filesystem attributes,
+with the ones capitalized which are set for a file (e.g. "Ahrs")
+<DT><CITE>  $D  1)  </CITE><DD>object last write date
+<DT><CITE>  $T  1)  </CITE><DD>object last write time
+<DT><CITE>  $Eb 1,2)</CITE><DD>Extended Attributes size in bytes
+<DT><CITE>  $Ek 1,2)</CITE><DD>Extended Attributes size in kBytes, i.e. bytes / 1000
+<DT><CITE>  $EK 1,2)</CITE><DD>Extended Attributes size in KBytes, i.e. bytes / 1024
+<!-- V0.9.6: added the following two -->
+<DT><CITE>  $Ea 1,2)</CITE><DD>Extended Attributes size in bytes/kBytes;
+this automatically chooses an optimal scale depending on the number
+<DT><CITE>  $EA 1,2)</CITE><DD>Extended Attributes size in bytes/KBytes;
+this automatically chooses an optimal scale depending on the number
+</DL>
+<BR><B>Notes:</B>
+<P>1) These codes will only display the data which is held in the internal WPS buffers.
+This means when this data changes, e.g. because a file has been altered by some other
+program, the status bar information will only change when the WPS buffer data is
+refreshed, for example if you select "Refresh now".
+<P>2) The WPS has always had a bug due to which an extended attribute size larger than 32767 will
+always return 32767, although a size of 64 KB is technically possible.
+As a result, &xwp; will also display this wrong value.
+<BR>
+</BODY>
+</HTML>
+
+

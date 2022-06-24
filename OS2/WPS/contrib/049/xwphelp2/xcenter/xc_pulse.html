@@ -1,0 +1,115 @@
+<HTML RESID=&ID_XSH_WIDGET_PULSE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Puls-Widget
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Das "Puls"-Widget des
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>s
+zeigt die momentane Prozessorauslastung zusammen
+mit einem Graphen der vergangenen Prozessoraktivit„t an. Die Anzeige wird einmal
+pro Sekunde aktualisiert, genau wie die entsprechende Anzeige im &warpcenter;.
+ 
+<!-- V0.9.9: added the following -->
+<P>Die Anzeige sieht etwa so aus:
+<BR><IMG SRC="img/xc_pulse.gif">
+ 
+<P>Der grne Teil des Graphen stellt die "Benutzer"-Belastung des Systems dar,
+w„hrend der blaue Teil die "IRQ"-Belastung darstellt. Die Prozentzahl, die in der
+Mitte angezeigt wird, gibt die Summe von "Benutzer"- und "IRQ"-Last an. Einzelheiten
+entnehmen Sie bitte den Bemerkungen am Ende.
+<!-- end V0.9.9 -->
+ 
+<!-- V0.9.19: changed the following -->
+<P>Beachten Sie, daá Sie an das Puls-Widget
+<A HREF="glossary/gls_dropfonts.html">Schriftarten und Farben ziehen und bergeben</A>
+zuweisen k”nnen.
+Auáerdem ist es
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_sizbar.html">in der Gr”áe ver„nderlich</A>.
+ 
+<P>Falls Sie &os2; auf einem Multiprozessorsystem laufen haben, kann das
+Puls-Widget derzeit trotzdem nur die Auslastung des ersten Prozessors
+anzeigen.
+ 
+<P><B>Details der Implementation</B>
+ 
+<!-- V0.9.9: rewrote most of the following -->
+<P>Intern benutzt das Puls-Widget das <CODE>DosPerfSysCall</CODE>-API.
+Dieses API hat den Vorteil, daá man direkt auf die vom &os2;-Kernel angegebenen
+Leistungsz„hler zugreifen kann, statt einen zweiten "Leerlauf"-Prozeá laufen zu
+haben, der die gesamte freie Prozessorzeit fr sich verbraucht (und deshalb
+bei Laptops zus„tzliche Batterieenergie verbraucht).
+ 
+<P>Als Ergebnis verbraucht das Puls-Widget <I>keine</I> zus„tzliche
+Prozessorzeit, auáer der Zeit, die es zum erneuten Zeichnen des Widgets selbst
+ben”tigt. Mit anderen Worten belastet das Puls-Widget die CPU selbst nicht, sondern
+fragt nur den &os2;-Kernel nach der Auslastung und zeigt diese als Graph an.
+ 
+<P>Die zus„tzliche Belastung durch das Neuzeichnen des Widgets selbst ist auch
+der Grund, warum niemals eine Prozessorauslastung von Null angezeigt wird, auch
+wenn Sie gerade nichts auf dem System tun. Auf dem System des Autors (einem
+Pentium-II 400), f„llt die CPU-Belastung bei der Standardgr”áe des Widgets
+niemals unter 0.7%.
+ 
+<!-- V0.9.9: added all the following -->
+<P><B>Voraussetzungen</B>
+ 
+<P>Das <CODE>DosPerfSysCall</CODE>-API wurde vor relativ kurzer Zeit eingefhrt,
+und es kann sein, daá es auf Ihrem System nicht funktioniert. Es sollte mit
+Warp 4 und neuer (oder mit Warp 3 und einem „quivalenten Fixpack-Level, bei dem es
+sich um Fixpack 26 handeln drfte) funktionieren.
+ 
+<P>Weiterhin bemerkt die IBM-Dokumentation fr dieses API, daá man einen Prozessor
+der Pentium-Klasse ben”tigt, damit die Kernel-Leistungsz„hler funktionieren.
+ 
+<P>Wenn das Widget keinen Graphen sondern nur <CODE>"E xxx"</CODE> anzeigt (wobei
+<CODE>xxx</CODE> ein &os2;-Standardfehlercode ist), gab es einen Fehler. Am
+wahrscheinlichsten ist <CODE>"E 182"</CODE>, was bedeutet, daá
+das <CODE>DosPerfSysCall</CODE>-API auf dem System nicht gefunden wurde. Bei
+anderen Fehlercodes k”nnen Sie auf der Befehlszeile <CODE>HELP SYSxxx</CODE>
+eingeben.
+ 
+<P><B>"Benutzer"- und "IRQ"-Auslastung</B>
+ 
+<P>Fr jeden Stand der Auslastung gibt <CODE>DosPerfSysCall</CODE> jeweils Werte
+fr "Benutzer" und "IRQ" zurck.
+ 
+<P>Die <B>"Benutzer"-Auslastung</B> ist der Anteil der Zeit, die auf
+"Programmzeit" verwendet wurde. Im Prinzip bedeutet das, daá der Prozessor damit
+besch„ftigt war, Code entweder von einer Applikation, dem &os2;-Kernel oder
+einem Ger„tetreiber im normalen Fluá der Prozesse und Threads auszufhren, wie
+es vom Scheduler im &os2;-Kernel verteilt wird.
+<!-- V0.9.13: changed this -->
+(Details siehe <A HREF="glossary/gls_scheduler.html">"Prozesse und Threads"</A>.)
+ 
+<P>Im Unterschied dazu gibt die <B>"IRQ"-Auslastung</B> die Zeit an, die gebraucht
+wurde, um Interrupts (="Unterbrecher") auszufhren. Wie Sie vielleicht wissen, sind
+Interrupts die Methode, mit der Hardware-Komponenten den Prozessor benachrichtigen,
+daá ein besonderes Ereignis eingetreten ist, das sofort bearbeitet werden muá.
+Meistens werden Interrupts von Festplatten, Sound- und Netzwerkkarten ausgel”st.
+Diese Ger„te k”nnen es sich nicht leisten zu warten, bis der &os2;-Scheduler die
+Zeitscheibe eines Prozesses fertig bearbeitet hat und bereit ist, auf die n„chste
+Aufgabe umzuschalten. Statt dessen unterbricht der &os2;-Kernel den normal
+vorgesehenen Ablauf, wenn ein Interrupt ausgel”st wird, und ruft einen
+"Interrupt-Handler" auf, was in den meisten F„llen der Code in einem Ger„tetreiber
+sein wird. (Im allgemeinen k”nnen nur &os2;-Ger„tetreiber Interrupt-Handler
+installieren.) Wenn beispielsweise ein Interrupt von einer Festplatte eintrifft,
+wird sofort Code im Treiber <CODE>IBM1S506.ADD</CODE> aufgerufen, der sich um den
+Interrupt kmmert.
+ 
+<P>Wenn nie irgendeine IRQ-Auslastung auf dem System angezeigt wird, ist das kein
+Problem. Das ist wahrscheinlich der Fall, wenn Sie keine Netzwerkkarten installiert
+und auáerdem Busmaster-Zugriffe fr die Festplatte aktiviert haben. Wenn Sie aber eine
+hohe IRQ-Auslastung feststellen, k”nnten Sie sich Maánahmen berlegen, diese Last zu
+reduzieren - Busmaster-Zugriffe fr die Festplatten einschalten und/oder eine
+Netzwerkkarte zu besorgen, die Busmaster-Zugriffe untersttzt.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

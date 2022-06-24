@@ -1,0 +1,137 @@
+<HTML RESID=&ID_XSH_WIDGET_SENTINEL_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Schildwacht Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Het
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Schildwacht" widget</B> toont u een grafiek van de huidige geheugen consumptie
+in uw systeem.
+
+<P>De schildwacht vergt enige gewenning, maar is behoorlijk handig na een tijdje.
+Niet zoals de <A HREF="xcenter/xc_pulse.html">"Hartslag" widget</A>,toont het
+een grafiek van hoe het geheugengebruik zich ontwikkeld heeft op uw systeem over de tijd.
+Deze grafiek wordt elke twee seconden bijgewerkt.
+
+<P>Echter, de schildwacht laat u verschillende grafieken tegelijkertijd zien, in
+verschillende kleuren, met de huidige meetwaarden (in MB) getoond in dezelfde kleuren
+aan de linkerkant:
+
+<!-- V0.9.15: refreshed the image here -->
+<BR><IMG SRC="img/xc_sentinel1.gif">
+
+<P>De grafieken geven het volgende weer:
+
+<OL><LI>De <B>bovenste waarde (in het groen)</B> is het <B>huidige vrije fysieke RAM.</B>
+Dit is dezelfde waarde als in het <A HREF="xcenter/xc_mem.html">"Geheugen" widget</A>.
+Dus als u 128 MB RAM in uw systeem heeft, zal dit nooit boven die waarde komen
+(en naar alle waarschijnlijkheid ook nooit halen, natuurlijk).
+
+<P><LI>De <B>middelste waarde (in het blauw)</B> is het <B>momenteel in gebruik zijnde fysieke RAM.</B>
+Als u deze waarde optelt bij de bovenste waarde, zou u uw totale hoeveelheid RAM moeten hebben.
+<!-- V0.9.15: (Yes, this
+should be 128 MB on my system, but obviously I got rounding errors here.) -->
+
+<!-- V0.9.15: replaced the following
+
+<P><LI>The <B>bottom value (in purple)</B> is the <B>current size of your swap file.</B>
+Add this number to the top two values, and you get the current amount of
+virtual memory on your system.
+
+<P>As you can imagine, this sum (the total virtual memory) can vary over time, as
+you can see in the above screenshot. On the left, you can see that for some reason
+the swap file grew really big, which made the virtual memory grow. &os2; then later
+chose to shrink the swap file again. -->
+
+<P><LI>Als u een recent <CODE>win32k.sys</CODE> stuurprogramma van Odin heeft (maart 2001 of nieuwer)
+ge‹nstalleerd, wordt de omvang van uw swap bestand vertegenwoordigd door nog twee kleuren, zoals
+in bovenstaande schermafdruk. De <B>derde waarde (in het paars)</B> laat u vervolgens de hoeveelheid
+ruimte van uw swap bestand zien dat in gebruik is. De <B>onderste waarde (in het rood)</B>
+geeft dan de vrije ruimte in het swap bestand weer.
+De optelling van deze twee waarden geven de omvang van uw swap bestand weer.
+
+<P>Zoals u in bovenstaande schermafdruk kunt zien, werd er meer en meer geheugen toegewezen totdat
+het vrije geheugen (in het groen) opgebruikt was. &os2; begon toen met het gebruik van vrije ruimte
+in het swap bestand (in het rood) totdat ook dat op was. Toen begon &os2; het swap bestand te laten
+groeien, wat weergegeven wordt door de groeiende paarse grafiek. Uiteindelijk werd het geheugen
+geleidelijk aan vrijgegeven, wat weergegeven werd door de weer dalende blauwe en paarse grafieken.
+Tenslotte liet &os2; de omvang van het swap bestand weer afnemen omdat er weer genoeg vrije ruimte
+in zat.
+
+<P>Als u geen recent <CODE>win32k.sys</CODE> stuurprogramma ge‹nstalleerd heeft, zult u alleen een
+paarse kleur zien, wat simpelweg de omvang van uw swap bestand is.
+
+<!-- end V0.9.15 -->
+
+</OL>Het grijze gebied boven de gekleurde grafieken heeft geen enkele betekenis. Het is alleen
+maar het resultaat van de schaling die de schildwacht op het scherm uitvoert. Na verloop van tijd
+zult u zien dat zodra de "piek"
+<!-- V0.9.15 -->
+in het midden
+<!-- end V0.9.15 -->
+van het scherm verdwijnt, het scherm opnieuw wordt geschaald en wordt het grijze gebied ook gebruikt
+voor het weergeven.
+
+<!-- V0.9.15: removed this
+<P>Here is another screenshot which shows you the memory consumption while &xwp;
+was recompiled on my system:
+
+<BR><IMG SRC="img/xc_sentinel2.gif">
+
+<P>Since I heavily use a RAM disk for precompiled header files, it is quite obvious
+that the free RAM becomes used up during the compile process. -->
+
+<!-- V0.9.19: changed the following -->
+<P>Let op dat u
+<A HREF="glossary/gls_dropfonts.html">lettertypes en kleuren kunt slepen en loslaten</A>
+op het schildwacht widget.
+Momenteel kunt u echter alleen de achtergrond kleur wijzigen.
+Daarnaast is het ook
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">in grootte aanpasbaar</A>.
+
+<P><B>Implementatie details</B>
+
+<P>De bron van informatie die getoond wordt via het schildwacht widget is
+afhankelijk van of er wel of niet een recente versie van Odin zijn <CODE>win32k.sys</CODE>
+stuurprogramma ge‹nstalleerd is.
+
+<UL><LI>Als <CODE>win32k.sys</CODE> gevonden is, wordt alle geheugen informatie direct
+vanuit dat stuurprogramma opgehaald, welke in het &os2; kernel geheugenmanagement kijkt om die waarden
+te achterhalen. Dit is extreem effici‰nt en ook meer gedetailleerd dan de alternatieve methode die
+hieronder beschreven wordt.
+
+<P>Om dit te laten werken, heeft u een <CODE>win32k.sys</CODE> versie nodig van maart 2001
+of nieuwer. Knut Stange Osmundsen was vriendelijk genoeg om deze functionaliteit aan het
+<CODE>win32k.sys</CODE> stuurprogramma toe te voegen voor &xwp;.
+
+<P><LI>Als dat stuurprogramma niet ge‹nstalleerd is of te oud is, zal het schildwacht widget
+terugvallen op een standaard methode om geheugen informatie te achterhalen.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Alle berekeningen van het schildwacht widget zijn dan gebaseerd op twee simpele bronnen:
+<CODE>Dos16MemAvail</CODE> (zoals beschreven op de
+<A HREF="xcenter/xc_mem.html">"Geheugen" widget</A> pagina) en de omvang van het swapper bestand,
+wat periodiek bepaald wordt door middel van een simpele bestandssysteem aanroep direct op het
+swapper bestand. Deze waarden worden direct weergegeven door de bovenste en onderste grafieken.
+
+<P>Het totale hoeveelheid virtuele geheugen (alle drie grafieken bij elkaar)
+wordt simpelweg berekend door de hoeveelheid van totaal fysiek RAM geheugen (dat teruggekregen wordt van de
+<!-- V0.9.20: added link -->
+<A HREF="cpref.inf#DosQuerySysInfo"><CODE>DosQuerySysInfo</CODE></A> API<A HREF="_toolkitlink.html">*</A>
+en nooit zal wijzigen)
+op te tellen bij de omvang van het swapper bestand.
+
+<P>De middelste grafiek (het fysieke RAM dat momenteel in gebruik is) is simpelweg het verschil tussen
+het totale fysieke RAM en het momenteel vrije fysieke RAM.
+</IFNDEF>
+<P>Let op dat deze implementatie u geen weergave kan geven van de vrije ruimte in het swapper bestand.
+
+</UL>
+</BODY>
+</HTML>
+

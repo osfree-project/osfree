@@ -1,0 +1,103 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Spezielle Funktionen fr Programmobjekte
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+Sobald &xwp; ein Programmobjekt aus dem &cfgfdr; startet (das ist dann der
+Fall, wenn man den entsprechenden Meneintrag im
+ <!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A> des Ordners ausgew„hlt
+hat), kann &xwp; einige 'Tricks' ausfhren.
+ 
+<P>Folgende 'Tricks' sind m”glich:
+ 
+<OL><LI>Ist das <B>Startverzeichnis</B> des Programmobjektes leer, verwendet
+&xwp; tempor„r das Verzeichnis, aus dem das &popmenu; aufgerufen wurde.
+Das bedeutet, daá das gleiche Programm aus allen Ordnern gestartet werden kann,
+wenn das &popmenu; verwendet wird.
+ 
+<P>In der Standardkonfiguration beispielsweise hat die Befehlszeile ein leeres
+Startverzeichnis. Dadurch ist es m”glich, Befehlszeilen zu starten, die das
+aktuelle Verzeichnis haben, aus dem das &popmenu; aufgerufen wurde.
+ 
+<P>Soll dieses Verhalten deaktiviert werden, geben Sie einfach ein Startverzeichnis
+im Programmobjekt an (z.B. <CITE>"C:\"</CITE>) und &xwp; wird es so belassen und
+dieses Verzeichnis immer als Startverzeichnis verwenden.
+ 
+<BR><LI>Enthalten die <B>Parameter</B> eines Programmobjektes kein
+<CITE>"%"</CITE>-Zeichen am Ende, so wird der Verzeichnispfad des verwendeten
+Ordners dem Programm als Parameter bergeben.
+ 
+<P>Dadurch erh„lt man die M”glichkeit, einem Programm einen voll
+qualifizierten Verzeichnispfad als Parameter zu bergeben. Diese
+Funktion l„át sich global auf den "&popmenu;"-Seiten des
+<A HREF="objects/obj_wps.html">Objektes "Workplace Shell"</A>
+abschalten.
+ 
+<P>M”chten Sie die Funktion (nicht alle Programme kommen mit
+Verzeichnispfaden als Parameter zurecht) nur fr ein einzelnes
+Programmobjekt abschalten, dann tragen Sie das
+<CITE>"%"</CITE>-Zeichen in das Eingabefeld "Parameter" des
+betreffenden Programmobjektes ein. &xwp; wird den zus„tzlichen
+Parameter dann nicht bergeben. Dies ist beispielsweise bei den
+Befehlszeilenobjekten der Standardkonfiguration der Fall.
+ 
+<BR><LI>Sie k”nnen den <B>derzeitigen Inhalt der
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">Zwischenablage</A></B>
+hinzufgen, indem Sie die Zeichenkette <CITE>"%**C"</CITE> in die
+Parameterzeile eintragen. Es ist gleichgltig, wo die Zeichenkette in
+der Parameterzeile steht. Beachten Sie bitte, daá die Zeichenkette
+Groá- und Kleinschreibung unterscheidet; <CITE>"%**c"</CITE> (klein
+geschrieben) funktioniert <I>nicht</I>.
+ 
+<P>Beispiel: Pfad und Dateiname = <CITE>"e.exe"</CITE>;
+Parameter = <CITE>"%**C"</CITE>. Der Systemeditor startet und
+interpretiert den Inhalt der Zwischenablage als Dateiname.
+ 
+<P>Beachten Sie, daá der Inhalt der Zwischenablage ggf. abgeschnitten
+wird, damit die maximal zul„ssige L„nge der Parameterzeile nicht
+berschritten wird. &os2; hat eine maximale Pfadl„nge von 260 Zeichen.
+ 
+<BR><LI>Beinhaltet der <B>Programmname</B> ein <CITE>"~"</CITE>-Zeichen,
+so wird &xwp; dieses Zeichen kurz vor dem Start des Programms entfernen.
+Dieses Verhalten kann generell im
+<A HREF="objects/obj_wps.html">Objekt "Workplace Shell"</A>
+abgestellt werden.
+ 
+<P><BR><LI>Sie habe die M”glichkeit, einen <B>Mentrenner</B> in ein Men
+einzufgen, indem Sie als Titel eines Programmobjektes
+<CITE>"---"</CITE> (drei Bindestriche) angeben.
+ 
+(Ein <B>'Mentrenner'</B> ist eine horizontale Linie, die die Gruppen
+von Meneintr„gen optisch voneinander trennen kann. In einem solchen
+Fall ignoriert &xwp; die Einstellungen des Programmobjektes (wie das
+ausfhrbare Programm, die Parameter usw.) und fgt dem Men einfach
+nur eine Trennlinie hinzu. Dies funktioniert sowohl beim &popmenu; als
+auch dessen Untermens.
+ 
+</OL>&xwp; fhrt die Funktionen 1.-4. aus, indem die Einstellungen des
+Programmobjektes fr den Bruchteil einer Sekunde ge„ndert werden: Die
+Einstellungen werden ge„ndert, das Programmobjekt wird ge”ffnet und
+die Einstellungen werden wieder mit den ursprnglichen Werten
+versehen.
+ 
+<!-- V0.9.19: removed this, it's no longer valid
+Please note that &xwp; only performs these described actions on "real" program objects
+in the &cfgfdr;, not on shadows pointing to other program objects.
+This was done intentionally
+to make sure that objects which are situated elsewhere in your Desktop hierarchy
+are not changed by &xwp;. Shadows will be opened too, but without performing the
+special features described above.
+As a consequence, you ought to put copies of your program objects
+into the &cfgfdr;, instead of creating shadows for them.
+-->
+ 
+<BR>
+</BODY>
+</HTML>
+ 

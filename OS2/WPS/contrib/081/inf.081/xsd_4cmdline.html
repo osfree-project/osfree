@@ -1,0 +1,29 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Shutting Down from the Command Line
+    </TITLE>
+</HEAD>
+<!-- completely rewritten with V0.9.7 -->
+<BODY>
+<B>Classes: XFldObject, XFldDesktop</B><HR>
+
+It is possible to start the extended shutdown procedure from the command line as well.
+From version 0.80 to 0.9.6, XFolder/&xwp; used to contain an external executable
+for this task. This has been removed with V0.9.7 because it caused too much confusion
+since all those command line parameters were not easy to use.
+
+<P>Instead, with V0.9.7, &xwp; supports external shutdown with the use of
+new WPS setup strings for the desktop. In summary, you can invoke the
+<CODE>XSHUTDOWNNOW=DEFAULT</CODE> setup string on your desktop, and your system will
+be shut down as if you had selected the "Shutdown" menu item from the desktop's
+context menu.
+
+<P>For a detailed description of the setup strings available, see the setup strings
+for XFldDesktop in the <A HREF="099appendices.html">appendices</A> of this book.
+
+<BR>
+</BODY>
+</HTML>
+
+

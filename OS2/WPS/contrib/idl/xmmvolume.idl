@@ -1,0 +1,159 @@
+
+/*
+ * xmmvolume.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XMMVolume
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xmmvolume.c for details.
+ */
+
+/*
+ *      Copyright (C) 2000 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpabs.idl>         // this is SOM for WPAbstract
+
+/*
+   CLASS: XMMVolume
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ XMMVolume
+*/
+
+interface M_XMMVolume;            // forward reference to metaclass
+
+interface XMMVolume : WPAbstract
+{
+    /*
+     * New instance methods for XMMVolume:
+     *
+     */
+
+    ULONG xwpAddXMMVolumePages(in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXMMVolumePages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = vol_;
+        externalstem = vol;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xmmvolume;           //# specifies the filestem for sc-generated files
+        metaclass = M_XMMVolume;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XMMVolume:
+         *
+         */
+
+        /*
+         * WPAbstract methods overridden by XMMVolume:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+        wpObjectReady: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+        wpQueryDefaultView: override;
+
+        wpOpen: override;
+
+        wpAddObjectWindowPage: override;
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XMMVolume : M_WPAbstract
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = volM_;
+        externalstem = volM;
+        functionprefix = volM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xmmvolume;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPAbstract methods overridden by M_XMMVolume:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+
