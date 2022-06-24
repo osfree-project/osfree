@@ -507,7 +507,7 @@ int main(int argc,char **argv)
 #if 0
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
-				long len=1;
+				long len=0;
 #endif
 				item *t;
 				size_t ul=0,ul2=0;
@@ -538,11 +538,11 @@ int main(int argc,char **argv)
 					add_str(&somcpp,"\"");
 				}
 
-				strncpy(buf+len,"somipc.exe",sizeof(buf)-len);
+				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
 
 				add_str(&somipc,buf);
 
-				strncpy(buf+len,"somcpp.exe",sizeof(buf)-len);
+				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
 
 				add_str(&somcpp,buf);
 
@@ -850,7 +850,7 @@ int main(int argc,char **argv)
 					add_seq(&somipc,&zero);
 #if 0
 					printf("somcpp: %s\n",somcpp._buffer);
-					printf("somcpp: %s\n",somipc._buffer);
+					printf("somipc: %s\n",somipc._buffer);
 #endif
 					cppExitCode=system(somcpp._buffer);
 					somipcExitCode=system(somipc._buffer);
