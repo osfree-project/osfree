@@ -541,10 +541,14 @@ int main(int argc,char **argv)
 				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
 
 				add_str(&somipc,buf);
-
+				
+				printf("1\n");
+				
 				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
 
 				add_str(&somcpp,buf);
+
+				printf("2\n");
 
 				if (appPathSpaces)
 				{
@@ -605,6 +609,8 @@ int main(int argc,char **argv)
 
 					t=t->next;
 				}
+
+				printf("10\n");
 
 				t=includes;
 
@@ -832,6 +838,8 @@ int main(int argc,char **argv)
 					int cppExitCode;
 					int somipcExitCode;
 					_IDL_SEQUENCE_char tmpf={0,0,NULL};
+
+				printf("20\n");
 
 					tmpnam(name2);
 					add_str(&tmpf, getenv("TMP"));
