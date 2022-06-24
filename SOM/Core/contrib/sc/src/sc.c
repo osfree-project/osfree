@@ -302,6 +302,8 @@ int main(int argc,char **argv)
 	char *app=argv[0];
 	static _IDL_SEQUENCE_char zero={1,1,""};
 
+	printf("a\n");
+
 	add_many(&defines,"__SOMIDL__");
 
 #ifdef _PLATFORM_WIN32_
@@ -316,6 +318,7 @@ int main(int argc,char **argv)
 	add_many(&defines,"_PLATFORM_X11_");
 #endif
 
+	printf("b\n");
 
 	while (i < argc)
 	{
@@ -513,10 +516,13 @@ int main(int argc,char **argv)
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
 
+	printf("d\n");
+
 #if 1
 				buf[0]=0x0;
 #endif
 
+	printf("e\n");
 				/* get to start of file name */
 
 				while (len--)
@@ -531,6 +537,7 @@ int main(int argc,char **argv)
 						break;
 					}
 				}
+	printf("s\n");
 
 				if (appPathSpaces)
 				{
