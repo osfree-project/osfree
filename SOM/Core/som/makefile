@@ -138,7 +138,7 @@ SOM_INCL= -i=$(SOM_DIR)include &
 		 -i=$(SOM_DIR)somcdr$(SEP)include &
 		 -i=$(SOM_DIR)rhbmtut$(SEP)include &
 		 -i=$(SOM_DIR)somcdr$(SEP)src 	&
-		 -i=$(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS) &
+		 -i=$(%OS2TK)$(SEP)som$(SEP)include &
 		 -i=$(SOM_DIR)somkpub$(SEP)include &
 		 -i=$(SOM_DIR)somtk$(SEP)include
 

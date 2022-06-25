@@ -2,8 +2,8 @@
 
 
 SOM_DIR=..$(SEP)contrib$(SEP)somkpub$(SEP)som
-SOMIDL_IDL=$(ROOT)build$(SEP)include$(SEP)somidl
-SOMIDL_HEADERS=$(SOMIDL_IDL)$(SEP)$(%OS)
+SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_HEADERS=$(SOMIDL_IDL)   #$(SEP)$(%OS)
 
 SOM_IDL=$(SOM_DIR)$(SEP)somobj.idl $(SOM_DIR)$(SEP)somcls.idl $(SOM_DIR)$(SEP)somcm.idl
 
@@ -26,10 +26,12 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC)
 
+$(PRODUCTS_SC): $(SOM_IDL)
+
 $(PRODUCTS_PDL): $(SOM_IDL)
  @$(SAY) PDL      $^. $(LOG)
  @$(MDHIER) $(SOMIDL_IDL)
- @$(MDHIER) $(SOMIDL_IDL)$(SEP)$(%OS)
+ @$(MDHIER) $(SOMIDL_HEADERS)
  @pdl.exe -d $(SOMIDL_IDL) $<
 
 .idl: $(SOM_DIR)

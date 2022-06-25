@@ -856,14 +856,14 @@ int main(int argc,char **argv)
 					add_str(&somcpp," ");
 					add_seq(&somcpp,&idl->data);
 					add_str(&somcpp," > ");
-					add_str(&somcpp,tmpf._buffer);
+					add_seq(&somcpp,&tmpf);
 
 					add_str(&somipc," ");
-					add_str(&somipc,tmpf._buffer);
+					add_seq(&somipc,&tmpf);
 
 					add_seq(&somcpp,&zero);
 					add_seq(&somipc,&zero);
-#if 0
+#if 1
 					printf("somcpp: %s\n",somcpp._buffer);
 					printf("somipc: %s\n",somipc._buffer);
 #endif
