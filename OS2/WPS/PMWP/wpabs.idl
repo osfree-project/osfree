@@ -1,0 +1,102 @@
+
+/*
+ * wpabs.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPAbstract
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpabs_idl
+#define wpabs_idl
+#include "wpobject.idl"
+#include <somcls.idl>
+
+interface M_WPAbstract;
+
+interface WPAbstract : WPObject
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = wpab;
+        local;
+        externalprefix = ab_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpabs;
+        metaclass = M_WPAbstract;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpQueryHandle: override;
+        wpSaveImmediate: override;
+        wpSaveState: override;
+        wpRestoreState: override;
+        wpSetTitle: override;
+        wpCopyObject: override;
+        wpMoveObject: override;
+        wpQueryIcon: override;
+        wpQueryIconData: override;
+        wpSetIconData: override;
+        wpDragOver: override;
+        wpReplaceObject: override;
+        wpQueryNameClashOptions: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPAbstract : M_WPObject
+{
+    ULONG wpclsQuerySetting(in PSZ pszSetting,
+                            in PVOID pValue,
+                            in ULONG ulValueLen);
+    BOOL wpclsSetSetting(in PSZ pszSetting,
+                         in PVOID pValue);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpclsSaveCache,
+            wpclsLockCache,
+            wpclsUnlockCache,
+            wpclsQuerySetting,
+            wpclsSetSetting;
+
+        externalstem = wpab;
+        local;
+        externalprefix = abM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpabs;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsQueryTitle: override;
+    };
+#endif
+};
+#endif
