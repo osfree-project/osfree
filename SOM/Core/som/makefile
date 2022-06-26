@@ -16,11 +16,11 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)rhbseh2$(e) &
 	 $(p)somshlb$(e)
 
-DEST    = os2$(SEP)dll
-
-EXPORTS=	somMainProgram	, &
-			DllMain			, & 
-			SOMInitModule	, & 
+DEST    = $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
+!if 0
+EXPORTS = somMainProgram, &
+		DllMain, & 
+		SOMInitModule, & 
 			SOMObjectClassData , &
 			SOMObjectCClassData , &
 			SOM_WarnLevel                       , &
@@ -109,6 +109,8 @@ EXPORTS=	somMainProgram	, &
 			va_SOMObject_somDispatch            , &
 			va_SOMObject_somClassDispatch
 
+!endif
+
 !ifeq %OS OS2
 ADD_OPTS = 
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -160,12 +162,7 @@ C = r
 
 #.$(O): $(PATH)
 
-
-
-
-
-
-----------------------------------
+#----------------------------------
 
 
 #CC_OPT=$(STDOPT) $(SOM_INCL) 

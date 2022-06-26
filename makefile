@@ -1,13 +1,14 @@
 #
-# A main Makefile for OS/3 boot sequence project
+# A main Makefile for osFree project
 # (c) osFree project.
 # valerius, 2006/10/30
 #
 
-# TOOLS target comes first because all of them required for build process
-# DOS target comes first because many dos executables will be joined with
-# some of os/2 executables as dos stubs
-#
+# TOOLS target comes first because all of them required for build process.
+# DOS target comes before OS2 target because many DOS executables will be joined with
+# some of OS/2 executables as dos stubs.
+# SOM target comes before OS2 target because used to build WPS classes
+
 DIRS = tools bootseq DOS OS2 SOM
 
 !include $(%ROOT)/mk/all.mk
