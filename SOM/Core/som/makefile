@@ -16,7 +16,8 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)rhbseh2$(e) &
 	 $(p)somshlb$(e)
 
-DEST    = $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
+DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
+#INSTALL_ADD = 1
 !if 0
 EXPORTS = somMainProgram, &
 		DllMain, & 
@@ -160,6 +161,10 @@ C = r
 
 .h: $(MYDIR)..$(SEP)contrib$(SEP)include
 
+#install_add: .SYMBOLIC $(PATH)som.dll
+# @$(MDHIER) $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
+# $(verbose)$(CP) $(PATH)som.dll $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll $(BLACKHOLE)
+
 #.$(O): $(PATH)
 
 #----------------------------------
@@ -207,3 +212,4 @@ C = r
 #$(INTDIR)/somirdll.h: ../unix/som.mak 
 #	$(SHLB_DLO) -s somir >$@
 #	cat $@
+
