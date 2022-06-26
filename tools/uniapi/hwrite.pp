@@ -666,7 +666,9 @@ begin
     begin
       wrtln(ConvertToCType(TPasArrayType(Variable.VarType).ElType.Name)+' '+Variable.Name+'[' + TPasArrayType(Variable.VarType).IndexRange + '];');
     end else begin
-      wrtln(ConvertToCType(TPasType(Variable.VarType).Name)+' '+Variable.Name+';');
+      WriteType(TPasType(Variable.VarType), false);
+      wrtln(' '+Variable.Name+';'); //ConvertToCType(TPasType(Variable.VarType).Name)+
+
     end;
   end;
   wrtln('} '+AElement.Name+';');
