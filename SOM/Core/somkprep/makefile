@@ -6,7 +6,7 @@ SOMIDL_HEADERS=$(SOMIDL_IDL) #$(SEP)$(%OS)
 
 
 
-SOM_INTDIR=$(SOM_DIR)som/$(%OS)/$(BUILDTYPE)
+SOM_INTDIR=$(PATH)$(SEP)..$(SEP)som
 SOMKERNP_KIH=$(SOM_INTDIR)$(SEP)somkernp.kih
 SOM_IDL=$(SOM_DIR)somkpub$(SEP)som$(SEP)somobj.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcls.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcm.idl
 

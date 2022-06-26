@@ -134,7 +134,7 @@ defs = $(%WATCOM)$(SEP)lh
 
 SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
-         -i=$(SOM_DIR)som$(SEP)$(%OS) &
+#         -i=$(SOM_DIR)som$(SEP)$(%OS) &
          -i=$(SOM_DIR)som$(SEP)include &
 		 -i=$(SOM_DIR)som$(SEP)src &
 		 -i=$(SOM_DIR)somcdr$(SEP)include &
