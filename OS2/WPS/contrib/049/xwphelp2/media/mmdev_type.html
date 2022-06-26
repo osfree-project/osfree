@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Medien-Ger„te
+    </TITLE>
+</HEAD>
+<!-- this page is all new with 0.9.13 -->
+<BODY>
+Die Spalte "Typ" zeigt den Typ eines jeden Ger„tes an.
+ 
+<P>Beachten Sie, daá bei MMPM/2 ein "Ger„t" ein physisches Stck
+Hardware im System sein kann, aber nicht muá. Aus organisatorischen
+Grnden erzeugt MMPM/2 auch "logische" Ger„te, um Multimedia besser
+koordinieren zu k”nnen.
+ 
+<P>MMPM/2 definiert insgesamt 19 Typen von Medien-Ger„ten, aber dies ist reichlich
+theoretisch, weil bis jetzt nur Treiber fr eine kleine Untermenge dieser Kategorien
+existieren. Bei einem typischen Multimedia-Rechner werden Sie die folgenden Ger„te
+vorfinden:
+ 
+<UL><LI><B>CD Audio:</B> Ein CD-ROM-Laufwerk, das laut MMPM/2s Erkennung in der Lage ist,
+Audio-CDs abzuspielen.
+ 
+<P><LI><B>Wave Audio:</B> Eine vom MMPM/2 erkannte Soundkarte, die Wave-Audio-Dateien
+abspielen kann.
+<P>MMPM/2 verwendet IOProcs und Codecs, um diese Audiodateien zu dekodieren und
+sie an die Soundkarte zu schicken (siehe die Seiten "IOProcs" und "Codecs").
+ 
+<P><LI><B>Sequenzer:</B> So wird bei MMPM/2 das MIDI-Subsystem genannt. Auch dieses
+wird ber die Soundkarte implementiert.
+ 
+<P><LI><B>Ampmix:</B> Ein Akronym fr "amplifier/mixer" (Verst„rker/Mischer). Dies ist
+ein logisches MMPM/2-Ger„t, das die verschiedenen Audiokan„le zusammenmischt und
+die Lautst„rke der Audioausgabe kontrolliert. Die komplette Audioausgabe erfolgt
+durch dieses Ger„t. MMPM/2 ben”tigt fr dessen Implementierung die Hilfe der
+Soundkarte.
+ 
+<P><LI><B>Digital Video:</B> Ein logisches Ger„t, das digitale Videos abspielt.
+Es kann ein physisches Hardwareger„t repr„sentieren, wenn besondere Videohardware
+im Rechner vorhanden ist. Bei den meisten Systemen wird es jedoch ausschlieálich
+durch Software implementiert.
+<P>MMPM/2 verwendet IOProcs und Codes, um Videodateien zu dekodieren und sie auf
+dem Bildschirm anzuzeigen (siehe die Seiten "IOProcs" und "Codecs").
+ 
+<P>Falls Sie das Netscape Plug-in-pack installiert haben, gibt es zwei solcher Ger„te.
+Das zweite ist fr die Wiedergabe von MPEG-Videos zust„ndig. Aus irgendeinem Grunde hat
+IBM sich entschlossen, ein zweites Ger„t fr MPEGs zu erstellen.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

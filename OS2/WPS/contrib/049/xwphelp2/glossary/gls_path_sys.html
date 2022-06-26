@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Systempfade
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+&os2; kennt mehrere <b>Systempfade</b>, die angeben, wo das System nach
+einer Datei suchen soll, wenn mit einer Datei kein voller
+<A HREF="glossary/gls_path.html">Pfad</A> angegeben ist.
+ 
+<P>Wenn beispielsweise eine ausfhrbare Programmdatei in einem Verzeichnis
+liegt, welches im Systempfad <CODE>PATH</CODE> aufgefhrt ist, kann
+die Programmdatei ausgefhrt werden, ohne daá man ihren vollen Pfad
+angeben muá. Aus diesem Grund k”nnen Sie an einer &os2;-Befehlszeile
+schlicht <CODE>e</CODE> eingeben, um den
+&os2;-&eexe; zu starten: <CODE>E.EXE</CODE> liegt im Verzeichnis <CODE>OS2</CODE>
+auf dem Startlaufwerk, welches in <CODE>PATH</CODE> aufgefhrt ist.
+ 
+<P>Bis auf den <CODE>LIBPATH</CODE> sind die Systempfade
+<A HREF="glossary/gls_env.html">Umgebungsvariablen</A>, die durch Befehle
+in der Datei &cfgsys; beim Systemstart gesetzt werden. Sie k”nnen jedoch
+fr bestimmte Sitzungen nachtr„glich ge„ndert werden.
+ 
+<IFNDEF __NOOS2KERNEL__>
+<P>Sie k”nnen die aktuellen Systempfade auf der Seite "Systempfade"
+im Objekt <A HREF="objects/obj_krnl.html">"&os2;-Kernel"</A> betrachten
+und „ndern.
+</IFNDEF>
+ 
+<P>Es sind folgende Systempfade definiert:
+ 
+<!-- V0.9.20: the following has roughly been taken from kernel\krn_paths.html -->
+ 
+<UL><LI><CODE>LIBPATH</CODE> (fr "library path") ist der Pfad,
+in dem &os2; nach
+<A HREF="glossary/gls_dll.html">DLLs</A> sucht. Dies sollte unbedingt die
+&os2;-Systemverzeichnisse enthalten und m”glichst auch einen Eintrag mit einem
+Punkt ("."), der fr das aktuelle Verzeichnis einer Sitzung steht.
+ 
+<P>Siehe die <A HREF="cmdref.inf#libpath">Dokumentation</A> im
+<i>&os2;-Referenzhandbuch</i> fr Details.
+ 
+<P>Beachten Sie, daá <code>LIBPATH</code> der einzige Systempfad ist, der
+<i>keine</i> Umgebungsvariable ist. Er kann daher von der Befehlszeile nicht
+ge„ndert werden. Benutzen Sie statt dessen die Variablen
+<CODE>BEGINLIBPATH</CODE> und <CODE>ENDLIBPATH</CODE>, um vorbergehende
+nderungen vorzunehmen.
+ 
+<P><LI><CODE>SET PATH</CODE>: der Suchpfad fr ausfhrbare Dateien
+(.EXE, .COM, .BAT, .CMD).
+ 
+<P>Siehe die <A HREF="cmdref.inf#path">Dokumentation</A> im
+<i>&os2;-Referenzhandbuch</i> fr Details.
+ 
+<P><LI><CODE>SET DPATH</CODE>: der Suchpfad fr Datendateien.
+Die Benutzung dieses Pfades h„ngt von der Anwendung ab; einige Programme
+beachten diese Variable, andere nicht.
+ 
+<P>Siehe die <A HREF="cmdref.inf#dpath">Dokumentation</A> im
+<i>&os2;-Referenzhandbuch</i> fr Details.
+ 
+<P><LI><CODE>SET BOOKSHELF</CODE> wird von dem Programm <CODE>VIEW.EXE</CODE>
+benutzt, um .INF-Bcher zu finden. Auch wenn jedes beliebige .INF-Buch angezeigt
+werden kann, sucht die Suchfunktion von <CODE>VIEW.EXE</CODE>
+nur in Verzeichnissen, die in diesem Pfad liegen.
+ 
+<!-- cmdref.inf#bookshelf doesn't work -->
+ 
+<P><LI><CODE>SET HELP</CODE> wird von der PM-Hilfefunktion benutzt, um
+.HLP-Dateien anzuzeigen. Einige Anwendungen geben den vollen Pfad zu ihren
+Hilfedateien nicht an, wenn sie Hilfe anzeigen wollen, weswegen ihre Hilfedateien
+in einem Verzeichnis auf diesem Pfad liegen mssen. &xwp; selbst ben”tigt hierfr
+jedoch keine Eintr„ge.
+ 
+<!-- cmdref.inf#help doesn't work -->
+ 
+</UL>
+</BODY>
+</HTML>
+ 

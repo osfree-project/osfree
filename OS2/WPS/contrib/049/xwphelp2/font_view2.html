@@ -1,0 +1,67 @@
+<HTML RESID=&ID_XSH_FONTSAMPLEHINTS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Schrift-Metriken
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Im Objekt <A HREF="font_view.html">Schriftbeispiel</A>, k”nnen vier unterschiedliche 
+Metrik-S„tze angezeigt werden, diese k”nnen im 
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>
+des Schriftbeispiels aktiviert oder deaktiviert werden. Falls alle vier Einstellungen
+aktiviert sind, wird jede Zeile der Schriftanzeige wie folgt aussehen:
+ 
+<BR><IMG SRC="img/fonthint.gif">
+ 
+<P>Die unterschiedlichen Metrik-S„tze haben die folgenden Bedeutung:
+ 
+<OL><LI>Die sich im oberen Bild unterhalb des "72" Zeichen befindende rote 
+Linie ist die <B>Grundlinie.</B> Das ist die Linie, worauf die Zeichen "stehen". 
+Die meisten Zeichen werden vollst„ndig auf dieser Linie gezeichnet, ausgenommen 
+sind jene mit einem "Anhang", der unterhalb der Grundlinie verl„uft (wie die 
+Zeichen <CODE>g</CODE> und <CODE>y</CODE>). Alle anderen Schriftmetriken
+beziehen sich auf die Grundlinie. (Fr Programmierer: Die Grundlinie entspricht 
+der y-Koordinate zu allen <CODE>GpiCharString*</CODE>-Aufrufen.)
+ 
+<P><LI>Das hellgraue Rechteck auf der linken Seite jeder Linie (im oberen Bild 
+mit <B>A</B> gekennzeichnet) repr„sentiert die <B>maximale Oberl„nge</B> der 
+Schrift (die jedoch viel l„nger als das ist - siehe <B>C</B> unten). Es ist 
+die Gr”áe des Abstandes, den die Schrift oberhalb der Grundlinie einnimmt. 
+(Fr Programmierer: Sie ist im Feld <CODE>lMaxAscender</CODE> von &os2;s 
+<!-- V0.9.20: added links -->
+<A HREF="pmref.inf#fontmetrics"><CODE>FONTMETRICS</CODE></A>-Struktur enthalten.)<A HREF="_toolkitlink.html">*</A>
+ 
+<P>Das im Gegensatz dazu dunkelgraue Rechteck (mit einem <B>B</B> markiert) 
+kennzeichnet die die <B>maximale Unterl„nge</B> einer Schrift 
+(<CODE>FONTMETRICS.lMaxDescender</CODE>). Dies ist der maximale Abstand, den die 
+Buchstaben, wie <CODE>g</CODE> oder <CODE>y</CODE>, unterhalb der Grundlinie 
+einnehmen (der jedoch in Wirklichkeit viel gr”áer ist - siehe <B>2</B> unten).
+ 
+<P><LI>Die dunkelgrauen vertikalen Linien (mit einem <B>C</B> markiert) 
+kennzeichnen das <B>innere Fhrungsstck</B> (<CODE>FONTMETRICS.lInternalLeading</CODE>). 
+Es ist ein Teilstck der "maximalen Oberl„nge" (A), welche immer nur als Abstand 
+zur Schrift genutzt wird. Bei der berwiegenden Mehrheit der Schriftarten ist die 
+"maximale šberl„nge" (A) eigentlich viel gr”áer als die "echte" maximale 
+šberl„nge in der Schriftart, dieser Wert kann von der maximalen šberl„nge 
+abgezogen werden, um die "echte" Ausdehnung der Zeichen oberhalb der Grundlinie 
+zu erhalten.
+ 
+<P><LI>Die roten Rechtecke mit den diagonalen Linien (mit <B>1</B>,<B>2</B> 
+bezeichnet) kennzeichnen die <B>Oberl„nge/Unterl„nge der Kleinbuchstaben</B>. 
+Die <I>PM Programming Reference</I> legt sie als den Abstand fest, den das 
+h”chste kleingeschreibene Zeichen oberhalb der Grundlinie haben wird.
+Einige kleingeschreibene Zeichen in vielen Schriftarten, wie das 
+<CODE>d</CODE>, sind tats„chlich gr”áer als groágeschriebene Buchstaben (z.B. 
+in Times New Roman), dort sollte der echte Abstand zur Grundlinie enthalten 
+sein, den die Schriftart benutzen wird.
+ 
+<P>In vielen TrueType-Schriftarten ist dieser Wert bedauerlicherweise falsch.
+Es k”nnte entweder ein Fehler in der FreeType/2-Engine sein oder viele der 
+TrueType-Schriftarten sind einfach nur schlecht konstruiert.
+ 
+</OL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: &winos2; Sessions
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_win16.gif">
+
+<P>&os2; has built-in support for programs that were written for Microsoft
+Windows 3.x. This support is called <B>&winos2;</B> and is an adapted version
+of Microsoft Windows 3.1 that runs on your &os2; system.
+This allows you to operate Windows programs as though they were &os2;
+programs. For example, you can run Windows programs on the &os2; Desktop or
+in a separate full-screen session and still share information between &os2;
+and Windows programs.
+
+<P>Note that the &winos2; support is equivalent to Windows 3.1, but not to
+Windows 95. &winos2; does not support 32-bit Windows applications. To run
+32-bit Windows applications, you will need to install third-party add-ons.
+
+<P>In the &link_syssetupfdr;, you will find the
+<A HREF="objects/obj_setup_win16.html">"&winos2setup;"</A> object that
+allows you to set global properties for the entire &winos2; subsystem.
+These settings are used unless you have created a
+<A HREF="objects/obj_pgmobj.html">program object</A> that points to a
+&winos2; application to apply specific settings.
+
+<P>A &winos2; program can run windowed or in a full-screen session.
+
+<UL><LI>All <B>windowed &winos2;</B> programs share the same session by default.
+In other words, even though they appear as multiple windows on the Desktop, they
+run in the same <A HREF="glossary/gls_scheduler.html">process</A> internally.
+All programs running in this session share the same DOS and &winos2; properties
+which were set by the first program in the session.
+
+<P>However, you can elect that a &winos2; program should use a <B>separate session</B>
+by enabling the respective setting in the program object's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>. This will require
+more memory but will protect the program from other &winos2; programs, since
+it runs in a separate process.
+
+<P><LI>If you run a <B>&winos2; full-screen</B> session, as with any
+<A HREF="glossary/gls_sessions_fs.html">full-screen session</A>, your &os2;
+Desktop is no longer visible. However, in a &winos2; full-screen session, you
+can switch back to the &os2; Desktop by selecting the "Desktop" icon at the
+bottom of the &winos2; session.
+
+</UL>In addition, every &winos2; session (windowed or full-screen) can run
+in "standard" or "enhanced compatibility" mode.
+
+<UL><LI><B>Standard mode</B> runs programs written for Microsoft Windows
+3.0 and 3.1 standard mode.
+
+<P><LI><B>Enhanced compatibility mode</B> runs programs that require
+Microsoft Windows 3.0 and 3.1 enhanced mode.
+
+</UL>All Windows 3.0 and 3.1 standard mode programs will run in a
+&winos2; enhanced-compatibility mode session. The default setting for
+these sessions is thus enhanced compatibility.
+
+For more information, select from the following list:
+
+<UL>
+<LI><A HREF="glossary/gls_sessions.html">Session types</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Full-screen sessions</A>
+<LI><A HREF="glossary/gls_scheduler.html">Processes and threads</A>
+</UL>
+</BODY>
+</HTML>

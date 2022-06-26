@@ -1,0 +1,231 @@
+
+/*
+ * xfdataf.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFldDataFile
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfdataf.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpdataf.idl>          // this is SOM for WPDataFile
+
+/*
+   CLASS: XFldDataFile
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile
+                           ÀÄÄ  XFldDataFile
+*/
+
+interface M_XFldDataFile;            // forward reference to metaclass
+
+interface XFldDataFile : WPDataFile
+{
+
+    /*
+     * New instance methods for XFldDataFile:
+     *
+     */
+
+    ULONG xwpQueryAssociations(in WPObject *papObjects,
+                               in ULONG ulBuildMax,
+                               in BOOL fUsePlainTextAsDefault);
+
+    APIRET xwpRequestContentMutexSem(in ULONG ulTimeout);
+
+    APIRET xwpReleaseContentMutexSem();
+
+    HBITMAP xwpQueryThumbnail();
+
+    BOOL xwpSetThumbnail(in HBITMAP hbmThumbnail);
+
+    HBITMAP xwpLazyLoadThumbnail(in ULONG ulWidth,
+                                 in ULONG ulHeight,
+                                 in BOOL *pbQuitEarly);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpQueryAssociations,
+            xwpRequestContentMutexSem,
+            xwpReleaseContentMutexSem,
+            xwpQueryThumbnail,
+            xwpSetThumbnail,
+            xwpLazyLoadThumbnail;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xdf_;
+        externalstem = xdf;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfdataf;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFldDataFile;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XFldDataFile:
+         *
+         */
+
+        HMTX        hmtxContent;        // V1.0.1 (2003-01-29) [umoeller]
+
+        HBITMAP     hbmThumbnail;       // V1.0.1 (2003-01-29) [umoeller]
+
+        /*
+         * WPDataFile methods overridden by XFldDataFile:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        wpDestroyObject: override;
+
+        wpRestoreState: override;
+
+        //# 2)  WPObject query/set methods
+
+        wpSetDefaultView: override;
+
+        //# 3)  icon methods
+
+        wpQueryIcon: override;
+        wpQueryIconData: override;
+        wpSetIconData: override;
+
+        xwpPrepareInsertRecord: override;
+        xwpOwnerDrawIcon: override;
+        xwpLazyLoadIcon: override;
+
+        //# 4)  class-specific query/set methods
+
+        wpQueryAssociatedProgram: override;
+        wpQueryAssociatedFileIcon: override;
+        wpSetAssociatedFileIcon: override;
+
+        //# 5)  menu methods
+
+        //#wpDisplayMenu: override;             removed V1.0.0 (2002-08-31) [umoeller]
+        wpFilterPopupMenu: override;
+        //# wpModifyPopupMenu: override;        removed V1.0.0 (2002-08-31) [umoeller]
+        wpModifyMenu: override;                 //# added V1.0.0 (2002-08-31) [umoeller]
+
+        wpMenuItemHelpSelected: override;
+
+        //# 6)  open view methods
+
+        wpOpen: override;
+
+        wpAddFile1Page: override;
+        wpAddFile2Page: override;
+        wpAddFile3Page: override;
+
+        wpAddFileTypePage: override;
+
+        //# 7)  file operation methods
+
+        wpSetRealName: override;
+        wpSetTitleAndRenameFile: override;
+
+        wpCreateFromTemplate: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFldDataFile : M_WPDataFile
+{
+
+    /*
+     * New instance methods for M_XFldDataFile:
+     *
+     */
+
+    ULONG xwpclsListAssocsForType(in WPObject *papObjects,
+                                  in PULONG pcAssocs,
+                                  in PSZ pcszType0,
+                                  in ULONG ulBuildMax,
+                                  in BOOL *pfDone);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsListAssocsForType;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xdfM_;
+        externalstem = xdfM;
+        functionprefix = xdfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfdataf;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XFldDataFile:
+         *
+         */
+
+        /*
+         * M_WPDataFile methods overridden by M_XFldDataFile:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: šber TCP/IP
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>TCP/IP</B> (Transmission Control Protocol/Internet Protocol) ist
+haupts„chlich dafr bekannt,
+<A HREF="glossary/gls_protocols.html">Netzwerkprotokoll</A> des
+&link_internet; zu sein. Es kann jedoch auch als Protokoll in einem
+privaten Netzwerk benutzt werden.
+ 
+<P>TCP/IP wiederum besteht selbst aus zwei Schichten.
+ 
+<UL><LI>Die <B>obere Schicht, TCP,</B>
+zerteilt jede Nachricht und jede Datei, die gesendet wird, in
+<B>Pakete,</B> die durchnumeriert und getrennt verschickt werden.
+Die TCP-Schicht am anderen Ende der Verbindung stellt diese
+Pakete wieder zu den vollst„ndigen Daten zusammen.
+ 
+<P><LI>Die <B>untere Schicht, IP,</B> verwaltet die Lieferung der
+Pakete, die von TCP erzeugt wurde. Damit dies funktioniert, muá
+jeder Rechner im Netzwerk eine eindeutige Nummer haben, die
+<A HREF="glossary/gls_prot_ipaddr.html">IP-Adresse</A>.
+ 
+<P>Jedes Paket enth„lt die IP-Adressen sowohl des Absender- als auch
+des Empf„nger-Rechners, bevor es losgeschickt wird. Jeder Rechner,
+den das Paket auf seiner Reise durch das Netzwerk passiert, prft
+diese Adresse um festzustellen, an welchen n„chsten Rechner das
+Paket weitergeleitet werden soll.
+Daher wird jedes Paket von m”glicherweise sehr vielen Rechnern bearbeitet,
+bevor es auf Ihrem Rechner ankommt. Pakete aus derselben ursprnglichen
+Datenmenge k”nnen sogar unterschiedliche Wege ber das Netzwerk nehmen,
+werden aber von TCP wieder korrekt zusammengesetzt.
+ 
+</UL>Fr jede Datenmenge, die in solche Pakete aufgebrochen wird, wird
+eine individuelle Verbindung zwischen zwei Rechnern aufgebaut. Nachdem
+die Daten empfangen sind, wird die Verbindung nicht aufrechterhalten.
+Dies vermindert den Verkehr im Netzwerk ganz erheblich und macht
+globale Kommunikation berhaupt erst m”glich.
+ 
+<P>Beachten Sie, daá Sie normalerweise, wenn Sie mit Ihrem
+Internet-Service-Provider (ISP) Verbindung aufnehmen, um ins Internet
+zu kommen, ein weiteres Protokoll verwenden: das
+<B>Point-to-Point Protocol (PPP).</B>
+Dies kapselt die IP-Pakete, so daá diese ber eine Einw„hlverbindung,
+z.B. ber Modem, verschickt werden k”nnen.
+ 
+<P>Die <A HREF="glossary/gls_internet_serv.html">Internet-Dienste</A>,
+wie z.B. das World Wide Web (WWW) und E-Mail, werden ebenfalls ber
+zus„tzliche Protokolle implementiert, die sich ber den TCP/IP-Schichten
+befinden. Diese Schichten werden jedoch nicht ins Betriebssystem
+integriert, sondern sind blicherweise Bestandteil der jeweiligen
+Internet-Anwendungen, wie z.B. des Web-Browsers. Zu diesen Protokollen
+geh”ren das Hypertext Transfer Protocol (HTTP), welches vom WWW benutzt
+wird, das File Transfer Protocol (FTP), Telnet (Telnet) und das
+Simple Mail Transfer Protocol (SMTP) fr E-Mail.
+ 
+<BR>
+</BODY>
+</HTML>

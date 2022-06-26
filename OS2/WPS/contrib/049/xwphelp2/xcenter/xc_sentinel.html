@@ -1,0 +1,154 @@
+<HTML RESID=&ID_XSH_WIDGET_SENTINEL_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Wachposten-Widget (Speichermonitor)
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Das
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>-"Wachposten"-Widget
+zeigt einen Graphen des momentanen
+Speicherverbrauchs des Systems an.
+ 
+<P>Es braucht ein wenig Zeit, um den Wachposten zu verstehen, aber dann ist
+er sehr ntzlich. Dem
+<A HREF="xcenter/xc_pulse.html">"Puls"-Widget</A> nicht un„hnlich,
+zeigt er in einem
+Graphen an, wie sich der Speicherverbrauch des Systems mit der Zeit
+ver„ndert hat. Die Darstellung wird alle zwei Sekunden aktualisiert.
+ 
+<P>Allerdings zeigt der Wachposten mehrere Kurven zur selben Zeit in
+verschiedenen Farben an, wobei die aktuellen Meáwerte (in MB) in
+derselben Farbe am linken Rand zu sehen sind:
+ 
+<!-- V0.9.15: refreshed the image here -->
+<BR><IMG SRC="img/xc_sentinel1.gif">
+ 
+<P>Die Graphen zeigen folgendes:
+ 
+<OL><LI>Der <B>obere Wert (in grn)</B> ist der <B>momentane freie physische
+Hauptspeicher</B>. Dies ist derselbe Wert, den auch das
+<A HREF="xcenter/xc_mem.html">"Speicher"-Widget</A> anzeigt. Wenn Sie also 128 MB
+RAM in Ihrem System haben, wird dieser Wert niemals berschritten (und natrlich
+auch niemals erreicht) werden.
+ 
+<P><LI>Der <B>mittlere Wert (in blau)</B> ist der <B>momentan benutzte
+physische Hauptspeicher</B>. Wenn Sie diesen Wert zum oberen Wert addieren,
+sollte die Gr”áe des gesamten Hauptspeichers herauskommen.
+<!-- V0.9.15: (Ja, das sollte auf meinem System 128 MB ergeben, aber
+offensichtlich kommen hier Rundungsfehler ins Spiel.) -->
+ 
+<!-- V0.9.15: replaced the following
+ 
+<P><LI>Der <B>untere Wert (in lila)</B> ist die <B>momentane Gr”áe Ihrer
+Auslagerungsdatei</B>. Wenn Sie dies mit den beiden oberen Werten addieren,
+bekommen Sie die Gr”áe des virtuellen Speichers auf Ihrem System.
+ 
+<P>Wie Sie sich vielleicht vorstellen k”nnen, kann sich diese Summe (der gesamte
+virtuelle Speicher) mit der Zeit ver„ndern, wie Sie in obiger Abbildung sehen
+k”nnen. Auf der linken Seite k”nnen Sie sehen, wie die Auslagerungsdatei aus
+irgendeinem Grund sehr groá geworden ist, was die Gr”áe des virtuellen Speichers
+ansteigen lieá. &os2; hat dann sp„ter die Auslagerungsdatei wieder schrumpfen
+lassen. -->
+ 
+<P><LI>Wenn Sie einen einigermaáen aktuellen <CODE>win32k.sys</CODE>-Treiber des
+Odin-Projekts (von M„rz 2001 oder neuer) installiert haben, wird die Gr”áe der
+Auslagerungsdatei in zwei zus„tzlichen Farben dargestellt. Der <B>dritte Wert
+(in lila)</B> zeigt dann die Gr”áe des in der Auslagerungsdatei gerade
+benutzten Speichers, w„hrend der <B>untere Wert (in rot)</B> den freien Speicher in
+der Auslagerungsdatei angibt. Addieren Sie beide Werte, so kommen Sie auf die
+Gesamtgr”áe der Auslagerungsdatei.
+ 
+<P>Wie Sie in der obigen Abbildung sehen k”nnen, wurde mehr und mehr Speicher
+reserviert, bis der freie Speicher (in grn) aufgebraucht war. &os2; fing dann an,
+der freien Platz in der Auslagerungsdatei (in rot) zu benutzen, bis auch der
+aufgebraucht war. Also hat &os2; angefangen, die Auslagerungsdatei zu vergr”áern,
+was man daran sieht, daá die lilafarbene Kurve steigt. Schlieálich wurde der Speicher
+nach und nach wieder freigegeben, was man daran sieht, daá der blaue und
+lilafarbene Graph wieder abnehmen. Schlieálich hat &os2; angefangen, die
+Auslagerungsdatei zu verkleinern, da wieder viel Platz darin frei wurde.
+ 
+<P>Wenn Sie keinen aktuellen <CODE>win32k.sys</CODE>-Treiber installiert haben,
+werden Sie nur eine lilafarbene Kurve sehen, die die Gr”áe der Auslagerungsdatei
+darstellt.
+ 
+<!-- end V0.9.15 -->
+ 
+</OL>Die graue Fl„che oberhalb der farbigen Kurven hat keine Bedeutung. Sie ist
+nur das Resultat der Skalierung, die der Wachposten fr die Anzeige ausfhrt. Wenn
+die Zeit vergeht, werden Sie bemerken, daá, sobald der "Huckel"
+<!-- V0.9.15 -->
+in der Mitte
+<!-- end V0.9.15 -->
+aus der Anzeige herauswandert, die Anzeige reskaliert und die graue Fl„che wieder
+zur Anzeige benutzt wird.
+ 
+<!-- V0.9.15: removed this
+<P>Here is another screenshot which shows you the memory consumption while &xwp;
+was recompiled on my system:
+ 
+<BR><IMG SRC="img/xc_sentinel2.gif">
+ 
+<P>Since I heavily use a RAM disk for precompiled header files, it is quite obvious
+that the free RAM becomes used up during the compile process. -->
+ 
+<!-- V0.9.19: changed the following -->
+<P>Beachten Sie, daá Sie an das Wachposten-Widget
+<A HREF="glossary/gls_dropfonts.html">Schriftarten und Farben ziehen und bergeben</A>
+k”nnen.
+<!-- V1.0.4: changed the following to account for the new settings dialog -->
+Auf diese Weise l„át sich allerdings nur die Hintergrundfarbe
+„ndern. Die Farben der Graphen lassen sich ber den Einstellungsdialog des Widgets
+anpassen. W„hlen Sie dazu "Einstellungen" aus dem Kontextmen des Widgets.
+Auáerdem ist es
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_sizbar.html">in der Gr”áe ver„nderlich</A>.
+ 
+<P><B>Details der Implementation</B>
+ 
+<P>Die Informationsquelle dessen, was das Wachposten-Widget anzeigt, h„ngt davon
+ab, ob eine einigermaáen aktuelle Version des Odin-Treibers <CODE>win32k.sys</CODE>
+installiert ist.
+ 
+<UL><LI>Wenn <CODE>win32k.sys</CODE> gefunden wurde, werden alle Speicherwerte
+direkt von diesem Treiber abgefragt, der in das Speichermanagement des &os2;-Kernels
+schaut, um diese Werte herauszufinden. Das ist sehr effizient und liefert auáerdem
+mehr Details als die anderen Methoden, die unten besprochen werden.
+ 
+<P>Damit dies funktioniert, ben”tigen Sie eine <CODE>win32k.sys</CODE>-Version von
+M„rz 2001 oder sp„ter. Knut Stange Osmundsen war so nett, diese Funktionen fr &xwp;
+in den <CODE>win32k.sys</CODE>-Treiber einzubauen.
+ 
+<P><LI>Wenn der Treiber nicht installiert oder zu alt ist, wird das Wachposten-Widget
+die Standardmethode benutzen, um Speicherinformationen zu bekommen.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Alle
+Berechnungen des Wachposten-Widgets basieren auf zwei einfachen Quellen:
+<CODE>Dos16MemAvail</CODE> (wie auf der Seite zum
+<A HREF="xcenter/xc_mem.html">"Speicher"-Widget</A> beschrieben) und der Gr”áe der
+Auslagerungsdatei, die periodisch durch einen einfachen Dateisystemaufruf bestimmt
+wird. Diese Werte sind direkt im oberen und unteren Graphen dargestellt.
+ 
+<P>Die Gesamtgr”áe des virtuellen Speichers (alle drei Graphen zusammen) wird
+einfach ausgerechnet, indem die Gr”áe des physischen Hauptspeichers (der Wert,
+der von der
+<!-- V0.9.20: added link -->
+<A HREF="cpref.inf#DosQuerySysInfo"><CODE>DosQuerySysInfo</CODE></A>-API<A HREF="_toolkitlink.html">*</A>
+geliefert wird und sich nie ver„ndert)
+und die Gr”áe der Auslagerungsdatei addiert werden.
+ 
+<P>Der mittlere Graph (der momentan benutzte physische Hauptspeicher) ist dann
+einfach die Differenz zwischen dem gesamten physischen RAM und dem momentan
+freien physischen RAM.
+</IFNDEF>
+<P>Beachten Sie, daá diese Implementation nicht den freien Platz auf dem
+Laufwerk der Auslagerungsdatei zeigen kann.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

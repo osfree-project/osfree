@@ -1,0 +1,515 @@
+// xfcls046.txt:
+//     Class description file for "WPS classes" notebook page.
+//     This file is used to get the class descriptions f”r the
+//     "Information" window.
+//     Each class must be given one line in this file. The first
+//     word must be the class name (case-sensitive!), the second
+//     word must be a flag determining whether the class may be
+//     de-registered by context menu.
+//     Add the following values f”r this flag (e.g. 1 + 2 = 3):
+//        1     allow deregistering av this class
+//        2     do not allow undoing utbytes of another class with this class
+//        4     do not allow creating objekt av this class
+//     The rest of the line makes up the description which appears in the "Information"
+//     window. Do not add any line breaks in this description, or it will be truncated.
+//     Even though this file is mostly sorted alphabetically, this is not necessary.
+//     (C) 1998-2003 Ulrich M”ller. See the GPL f”r details.
+
+AdvAccount 1 (OS/2 V3) Klassen tillh”r IBM Advantis Dialer. Om du anv„nder n†gon annan Internet Access Provider, kan du ta bort klassen.
+AdvCust 1 (OS/2 V3) Klassen tillh”r IBM Advantis Dialer. Om du anv„nder n†gon annan Internet Access Provider, kan du ta bort klassen.
+AdvDialer 1 (OS/2 V3) Klassen tillh”r IBM Advantis Dialer. Om du anv„nder n†gon annan Internet Access Provider, kan du ta bort klassen.
+AdvReg 1 (OS/2 V3) Klassen tillh”r IBM Advantis Dialer. Om du anv„nder n†gon annan Internet Access Provider, kan du ta bort klassen.
+AdvUser 1 (OS/2 V3) Klassen tillh”r IBM Advantis Dialer. Om du anv„nder n†gon annan Internet Access Provider, kan du ta bort klassen.
+Ezplay 1 (OS/2 V4) Den h„r klassen erbjuder Plug&Play funktionalitet. Olyckligtvis, registerar OS/2's installationsprogram klassen „ven om korresponderande DLL'er inte „r installerade. Du kan d„rf”r ta bort klassen utan n†gra problem.
+FxFile 1 (OS/2 V3 or V4 BonusPak) Datafil fr†n FaxWorks i OS/2's BonusPak.
+IBMUmailWPS 1 (OS/2 V3) Klassen tillh”r IBM UltiMail.
+IGSCheckin 1 (OS/2 V4) Klassen erbjuder anv„ndarregistrering f”r WarpGuide.
+IGSmapp 1 (OS/2 V4) Klassen anv„nds av WarpGuide's mapp.
+Mindex 0 Klassen erbjuder OS/2's hj„lpfunktioner "Index" och "Glossary".
+MMAudio 1 (OS/2 V4) Superklass f”r multimedia ljudfiler.
+MMDataFile 1 (OS/2 V4) Superklass f”r alla multimedia datafiler. De olika filtyperna „r subklasser av den h„r klassen. Grafiska filer „r emellertid implementerade med anv„ndning av WPImageFile och dess subklasser.
+MMDevice 1 (OS/2 V4) Objekt i den h„r klassen representerar multimedia devicer.
+MMFolder 1 (OS/2 V4; V3 BonusPak) Mappar i den h„r klassen „r s†dana "light table" mappar vilka automatiskt visar tumnaglar av bildfiler.
+MMImage 1 (OS/2 V4) Superklass f”r alla multimedia bildfiler. Av historiska sk„l (WPBitmap fanns redan i OS/2 V2), „r MMBitmap implementerat genom att anv„nda en utbytesklass f”r WPBitmap.
+MMMIDI 1 (OS/2 V4) klass f”r MIDI filer.
+MMSound 1 (OS/2 V3) Den h„r klassen byter ut klassen WPSound om du har installerat OS/2 Multimedia f”r att l†ta dig st„lla in olika systemljud.
+MMVideo 1 (OS/2 V4) Superklass f”r multimedia videofiler.
+MMVolume 1 Den h„r klassen implementerar volymkontroll hos OS/2 multimedia. Det skall bara finnas ett objekt av den h„r klassen.
+ODwps 1 (OS/2 V4) Klass f”r integration av OpenDoc i WPS.
+Rwx 1 Den h„r enast†ende klassen utvecklades av Rich Walsh och erbjuder m„ngder av information om alla installerade SOM klasser.
+SCShadow 0 (OS/2 V4) Odokumenterad; troligtvis en klass f”r WarpCenter referenser.
+SmartCenter 0 (OS/2 V4) Klassen implementerar WarpCenter. Klassnamnet dokumenterar fortfarande att den h„r klassen till stor del utvecklades av Lotus. Det kan endast finnas ett objekt av den h„r klassen.
+WPAnimatedMousePointer 1 Den h„r enast†ende klassen utvecklades av Christian Langanke och ers„tter "Mus" objektet s† att du kan f† animerade muspekare.
+WPClock 0 Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPCnrView 0 Den h„r klassen „r odokumenterad, men har troligtvis att g”ra med visning av objekt i mappar. Uppenbarligen skapas ett objekt av den h„r klassen f”r varje ”ppen mapp.
+WPColorPalette 0 Tv† objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPCommandFile 0 Detta „r en subklass f”r kommandofiler (.CMD „ndelse).
+WPCountry 0 Lands-specifika OS/2 inst„llningar. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPDataFile 0 Detta „r klassen f”r alla fysiska existerande datafilsobjekt p† ditt system. Om det inte finns n†gon mer specifik klass f”r en speciell datafil, kommer den att vara av den h„r klassen. Ytterligare objektinformation lagras i de Ut”kade Attributen hos datafiler.
+WPDesktop 0 Detta „r klassen f”r Skrivbordet, endast varande en mer speciell typ av mapp. Det kan finnas †tskilliga Skrivbordsobjekt, men endast ett Skrivbord kan n†gonsin vara det "aktiva".
+WPDevice 0 (OS/2 V4) Superklass f”r de olika objekt som du kan hitta i "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDisk 0 Objekt av den h„r klassen existerar i mappen "Enheter". N„r du har ”ppnat en av dessa, ”ppnas det korresponderande objektet hos WPRootFolder klassen ist„llet.
+WPDiskCV 0 Lika som superklassen (WPCnrView), men uppenbarligen f”r diskobjekt.
+WPDrives 0 Mappen "Enheter" „r ett objekt av denna klass. Det skall endast finnas ett objekt av den h„r klassen.
+WPFinder 0 Ok„nd systemklass. Kanske relaterad till "S”k" funktionen.
+WPFindFolder 0 Ett objekt av den h„r klassen „r skapat f”r att lagra "S”k" resultaten p† Skrivbordet.
+WPfolder 0 Detta „r en allm„n mappklass. Alla mappar „r objekt av den h„r klassen, om de inte skapades f”r att vara en mera specifik subklass.
+WPfolderCV 0 Lika superklassen (WPCnrView), men uppenbarligen f”r WPFolder objekt.
+WPFontPalette 0 Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPFtpObj 1 (OS/2 V4) FTP mappar „r fyllda med objekt av den h„r klassen.
+WPHost 1 (OS/2 V4) Mappar av den h„r klassen representerar en fj„rr FTP v„rd. Om du ”ppnar en s†dan mapp, kommer den korresponderande FTP v„rden att kontaktas med givet anv„ndarnamn och l”senord.
+WPHtml 1 (OS/2 V4) Klass f”r HTML datafiler.
+WPHwManager 0 (OS/2 V4) Ett objekt av den h„r klassen „r "Maskinvaruhanteraren" i mappen "Systemkonfiguration" och inneh†ller objekt av klassen WPDevice (subklass av WPTransient).
+WPIcon 0 Detta „r en klass f”r OS/2 symbolfiler (.ICO). Av historiska sk„l (OS/2 V2.0), „r detta inte en subklass av respektive imageklasser.
+WPImageFile 0 (OS/2 V4) Detta „r en superklass f”r klasser som har hand om imagefiler.
+WPInstall 1 (OS/2 V4) Ett objekt av den h„r klassen finns i mappen "\OS2\INSTALL\Installerade Funktioner".
+WPJavaRef 1 (OS/2 V4) WPS Javast”d.
+WPJavaklass 1 (OS/2 V4) WPS Javast”d.
+WPKeyboard 0 Tangentbord inst„llningar. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPLaunchPad 0 (OS/2 V3) Detta „r LaunchPad klassen. Det kan finnas †tskilliga objekt av den h„r klassen.
+WPMet 0 Metafilsklass.
+WPMinWinViewer 0 Detta „r en speciell mapp inneh†llande minimerade f”nster.
+WPMinWindow 0 Objekt av den h„r klass representerar antagligen minimerade f”nster i respektive systemmapp.
+WPMouse 0 Musinst„llningar. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPNetLink 0 (OS/2 V3) objekt av den h„r klassen pekar p† n„tverkskataloger och lagrar data i dessa kataloger lokalt.
+WPPif 0 Klass f”r PIF (Picture Interchange format) filer.
+WPPointer 0 Detta „r en klass f”r OS/2 pekarfiler (.PTR). Av historiska sk„l (OS/2 V2.0), „r detta inte en subklass av respektive imageklasser.
+WPPower 0 (OS/2 V2.1) Advanced Power Management. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPPrinter 0 Allm„n klass f”r alla skrivarobjekt. Det finns ett objekt av den h„r klassen f”r varje skrivare som „r installerad p† ditt system.
+WPPrinterDriver 0 Skrivardrivrutin klass.
+WPProgram 0 Allm„n klass f”r alla programobjekt, till skillnad fr†n "riktiga" programfiler, vilka „r objekt av WPProgramFile klassen.
+WPProgramFile 0 Exekverbar filklass (EXE och COM filer). Fungerar likadant som WPProgram (WPabstrakt subklass), s† att "riktiga" programfiler och programobjekt beter sig likadant.
+WPRootFolder 0 Ett objekt av den h„r klassen skapas varje g†ng som du ”ppnar ett objekt av WPDisk klassen s† att enhetens visning ser ut som en normal mapps tr„dvisning. Objekt av den h„r klassen skall inte skapas manuellt.
+WPRPrinter 0 F”rmodligen klassen f”r fj„rr- (n„tverks) skrivare.
+WPSchemePalette 0 Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPServer 0 (OS/2 V3) N„tverksserver. objekt av den h„r klass „r skapade i WPNetgrp mappar f”r varje server som „r accessbar.
+WPShadow 0 Den h„r klassen anv„nds f”r alla skuggor, oberoende av vad en skugga pekar p†. objekt av den h„r klassen beter sig som de objekt de pekar p†.
+WPSharedDir 0 (OS/2 V3) objekt av den h„r klassen skapas f”r varje delad n„tverkskatalog i WPServer mappar.
+WPShredder 0 Detta „r den urusla OS/2 tuggklassen.
+WPSound 0 Ljudinst„llningar. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+WPSpool 0 Den h„r klassen erbjuder ett interface till spool subsystemet hos Presentation Manager. Det skall endast finnas ett objekt av den h„r klassen.
+WPStartup 0 Detta „r den normala OS/2 Startupmappen. Det skall endast finnas ett objekt av den klassen.
+WPSystem 0 Den h„r klassen implementerar original "System" objekten i mappen "Systemkonfiguration". Fr†n den h„r klassen, deriverar Xmapp sina tv† nya inst„llningsklasser. Det gamla "System" objekt fungerar dock fortfarande.
+WPTemplates 0 Implementerar mappen "Mallar". Det skall endast finnas ett objekt av den klassen. I den mappen skapar WPS automatiskt mallar f”r alla klasser p† systemet vilket st”der detta.
+WPUrl 1 (OS/2 V4) Uniform Resource Locator klass (Internet adresser). Dessa lagras som fysiska datafiler p† disk, men inneh†ller ytterligare data i sina Ut”kade Attribut.
+WPUrlfolder 1 (OS/2 V4) Mappar av den h„r klassen visar ytterligare information f”r URL objekt.
+WPWinConfig 0 Win-OS/2 settings. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration".
+
+// Items changed with V0.81
+XFldProgram 1 Den h„r klassen anv„ndes endast i Xmapp V0.80 och skall inte registreras. Du kan ta bort den.
+
+// Items added with V0.82
+ExAlarm 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExPerson 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExTransient 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExEvent 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExPlace 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExAddressBook 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExCalendar 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+ExTime 1 Den h„r klassen „r en del av det utm„rkta IBM EWS ExCal paketet.
+MMCDDevice 1 (OS/2 V4) Multimedia Compact Disk device klass.
+MMLVDDevice 1 (OS/2 V4) Multimedia Video Disk device klass.
+Ftp 1 (OS/2 V3 BonusPak or V4) Den h„r klassen implementerar FTP access.
+Telnet 1 (OS/2 V3 BonusPak or V4) Den h„r klassen implementerar Telnet access.
+Wps2Pc2 1 Den h„r klassen „r en del av Roman Stangl's Program Commander/2 och anv„nds f”r att konvertera WPS till PC/2 inst„llningar.
+WPBitmap 1 Klass f”r bitmap (.BMP) filer. Den h„r klassen har existerat sedan OS/2 V2.0 och ers„tts om Warp 4's multimedia st”d „r installerat.
+WPJob 0 Skrivarjobb klass. Objekt av den h„r klassen skapas inom ”ppna skrivarobjekt.
+WPPdr 0 Skrivardrivrutin klass. Objekt av den h„r klassen skapas n„r ett skrivarobjekts Inst„llningsvisning „r ”ppnad.
+WPPort 0 Port klass. Objekt av den h„r klassen skapas n„r ett skrivarobjekts Inst„llningsvisning „r ”ppnad.
+WPQdr 0 K”drivrutin klass. Objekt av den h„r klassen skapas n„r detta skrivarobjekts Inst„llningsvisning „r ”ppnad.
+MMAIF 1 (OS/2 V4) Multimedia klass f”r AIFF audiofiler (.AIF).
+MMAU 1 (OS/2 V4) Multimedia klass f”r AU audiofiler, vilka „r vanliga p† Unix och med Java programvara.
+MMIFF 1 (OS/2 V4) Multimedia klass f”r IFF audiofiler.
+MMSNDF 1 (OS/2 V4) Multimedia klass f”r Unix (NeXT/Sun) audio filer (.SND).
+MMVOC 1 (OS/2 V4) Multimedia klass f”r Creative Technology Voice audiofiler (.VOC), ett filformat vilket var vanligt med DOS Soundblaster st”d.
+MMWAV 1 (OS/2 V4) Multimedia klass f”r RIFF waveform audiofiler (.WAV), det mest spridda audiofilsformatet. Notera att det finns m†nga olika subformat av detta format, och OS/2 st”der dom inte alls.
+MM_AU 1 (OS/2 V4) Multimedia klass f”r IBM Audio Visual Connection audiofiler (._AU, ._AD).
+MMAVI 1 (OS/2 V4) Multimedia klass f”r Audio/Video Interleaved (AVI) videofiler, det mest spridda videofilsformatet, vilket kommer fr†n Windowsv„rlden. Notera att det finns m†nga olika subformat av det h„r formatet, och OS/2 st”der dom inte alls.
+MMFLI 1 (OS/2 V4) Multimedia klass f”r AutoDesk animation videofiler (.FLI, .FLC).
+MMMPG 1 (OS/2 V4) Multimedia klass f”r Moving Pictures Experts Group (MPEG) videofiler, vilka blir mer och mer vanliga.
+MMAVC 1 (OS/2 V4) Multimedia klass f”r IBM Audio Visual Connection bildfiler (._IM, .!IM, ._ID).
+MMDIB 1 (OS/2 V4) Multimedia klass f”r Device Independent Bitmap (DIB) bildfiler (.DIB).
+MMGIF 1 (OS/2 V4) Multimedia klass f”r komprimerade Graphics Interchange format (GIF) bildfiler, ett filformat introduceat av CompuServe och „r nu mycket spritt p† Internet.
+MMJPG 1 (OS/2 V4) Multimedia klass f”r komprimerade Joint Photographics Experts Group (JPEG) imagefiler, ett nyare filformat med excellent komprimering speciellt f”r foton, vilket „r mycket spritt p† Internet.
+MMMMotion 1 (OS/2 V4) Multimedia klass f”r IBM M-Motion stillbilder (.VID).
+MMPCX 1 (OS/2 V4) Multimedia klass f”r komprimerade ZSoft Paintbrush (PCX) bilder.
+MMPhotoCD 1 (OS/2 V4) Multimedia klass f”r Kodak PhotoCD bildfiler (.PCD).
+MMTarga 1 (OS/2 V4) Multimedia klass f”r komprimerade och okomprimerade TrueVision Targa bildfiler (.TGA).
+MMTIFF 1 (OS/2 V4) Multimedia klass f”r Tagged Image File format (TIFF) bildfiler (.TIF).
+MMBitmap 1 (OS/2 V4) Multimedia klass f”r olika Bitmap (.BMP) filformat. Detta format „r standard filformat f”r b†de Windows och OS/2, med endast sm† skillnader mellan de tv†.
+
+// Items added with V0.84
+BlackHole 1 Del av BlackHole paketet. Detta „r en klass f”r ett formidabelt tuggliknande objekt vilket kan radera n„stan alla Skrivbordsobjekt.
+ECAssist 1 Del av Assistant/2 paketet. Detta anv„nds f”r konfiguration av det paketet.
+ECEDataFile 1 Detta „r en WPDataFile utbytesklass f”r Assistant/2 paketet.
+ECFolder 1 Detta „r WPFolder utbytesklassen f”r Assistant/2 paketet.
+ECEClip 1 Del av Assistant/2 paketet. Detta implementerar det Ut”kade Klippbordet.
+ECClip 1 Del av Assistant/2 paketet. Detta anv„nds f”r det Ut”kade Klippbordets data.
+ECBmpClip 1 Del av Assistant/2 paketet. Detta anv„nds f”r det Ut”kade Klippbordets bitmapsdata.
+// these items changed with V0.84
+WPSpecialNeeds 1 Speciella behov inst„llningar. Ett objekt av den h„r klassen kan hittas i mappen "Systemkonfiguration" f”r "Speciella behov" i "Tangentbords" objektet.
+
+// Items changed with V0.85
+WPObjData 1 V„ldigt hj„lpfull klass f”r lagring och till„mpning av objektinst„llningar. Erfordrar dock en liten patch. L„s http://www.os2ezine.com/v3n07/hammer.htm f”r detaljer.
+WPCat 1 (WatchCat av Felix von Normann och Thomas Opheys) Denna anv„nds f”r WatchCat's konfigurationsobjekt.
+MMMOV 1 (OS/2 V4) Multimedia klass f”r Apple QuickTime (MOV) video filer.
+MMInetMgr 1 (IBM Plug-in-pack) Multimedia Internet Manager av Netscape f”r OS/2.
+
+// Items added with V0.85
+PapyrusDocument 1 (Papyrus) Dokumentklass f”r Papyrus ordbehandlare (Tyskland).
+WPLnchCW 7 (BubblePad av Chris Wohlgemuth) Denna ers„tter den LaunchPad som „r k„nd fr†n OS/2 V3 eller V4.
+WEWPS 1 (WarpEnhancer av Achim Hasenmller) Inneh†ller diverse f”rb„ttringar av WPS.
+AApdf 1 (Acrobat Reader) Dokumentklass f”r .PDF filer.
+WebExplorer_Url 1 klass f”r URL objekt hos WebExplorer browser.
+DTFile 1 (DragText av Rich Walsh) Ut”kad texthanterare, till vilken text kan l„ggs till med anv„ndning av Drag'n'Drop.
+DTClip 1 (DragText av Rich Walsh) Ut”kat Klippbord hos DragText.
+DTProgram 3 (DragText av Rich Walsh) Utbytesklass f”r WPProgram med ut”kade funktioner (milj”variabler, schemal„ggning etc.).
+
+DMDaemon 1 (PMView 1.x) Implementerar Drag'n'drop mellan PMView och WPS.
+PMVDDrop 1 (PMView 2.0) Implementerar Drag'n'drop mellan PMView och WPS.
+
+PracticeImage 1 (PrimFix) Utbytesklass f”r att fixa WPS multimedia associationsbugg.
+PracticeBitmap 1 (PrimFix) Utbytesklass f”r att fixa WPS multimedia associationsbugg.
+
+SpeechObjekt 0 (OS/2 V4) Utbytesklass f”r WPobject om VoiceType „r installerad f”r att implementera r”stnavigation.
+SpeechUserObject 0 (OS/2 V4) objekt av den h„r klassen representerar en VoiceType anv„ndare.
+DictationObject 0 (OS/2 V4) Den h„r klassen implementerar VoiceType dikteringsf”nster.
+SpeechWWProgram 0 (OS/2 V4) Objekt av den h„r klassen implementerar r”stnavigation med anv„nding av VoiceType.
+
+WPFtpDir 0 (OS/2 V4) Subkataloger p† fj„rr FTP servrar visas med anv„ndning av den h„r klassen.
+WPFtpLink 0 (OS/2 V4) L„nkar p† fj„rr FTP servrar visas med anv„ndning av den h„r klassen.
+WPUpdr 0 Objekt av den h„r klass representerar installerbara skrivardrivrutiner.
+MMFinder 1 (OS/2 V4) Objekt av den h„r klassen aktiverar en dialog f”r ”ppning eller skapande av multimedia filer.
+WPPrinterDriverPacked 0 Klass f”r komprimerade skrivardrivrutiner f”r att installera skrivardrivrutiner med anv„nding av drag'n'drop.
+WPHostFolder 1 (OS/2 V4) Klass deriverad fr†n WPHost klassen. Anv„nds f”r att accessa fj„rr File Transfer Protocol (FTP) kataloger.
+JO 0 Odokumenterad systemklass.
+PORT 0 Odokumenterad systemklass.
+
+WPDevAudio 0 (OS/2 V4) Klass f”r audiodevicer hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevBus 0 (OS/2 V4) klass f”r busdevicer hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevCDRom 0 (OS/2 V4) klass f”r CD-ROM enheter hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevCPU 0 (OS/2 V4) klass f”r processor hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevDiskette 0 (OS/2 V4) klass f”r diskettenheter i "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevDisplay 0 (OS/2 V4) klass f”r displaydevicer hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevHarddrive 0 (OS/2 V4) klass f”r h†rddiskar hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevKeyboard 0 (OS/2 V4) klass f”r tangentbord hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevMemory 0 (OS/2 V4) klass f”r minnesmoduler hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevMouse 0 (OS/2 V4) klass f”r mus hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevParallel 0 (OS/2 V4) klass f”r parallellportar hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevPeriph 0 (OS/2 V4) klass f”r andra periferidevicer hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevSerial 0 (OS/2 V4) klass f”r seriella portar hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevTape 0 (OS/2 V4) klass f”r tapedevicer hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+WPDevTimer 0 (OS/2 V4) klass f”r timerdevice hos "Maskinvaruhanteraren" i mappen "Systemkonfiguration".
+
+// Items changed with V0.9.0
+
+WPObject 4 Detta „r den mest fundamentala WPS klassen, fr†n vilken alla andra WPS klasser „r deriverade. Den h„r klassen inneh†ller funktionalitet vanlig hos alla klasser. Notera: Denna klass „r bara en abstrakt superklass f”r subklasser. Det skall inte finnas n†gra objekt av den h„r klassen direkt, utan endast av subklasserna.
+WPAbstrakt 4 Detta „r den f”rsta av de tre bas WPS lagringsklasserna vilka „r deriverade fr†n WPobjekt. Alla subklasser av den h„r klassen har gemensamt att objekt av dom inte existerar fysiskt som filer i filsystem, utan endast sparar sina data i OS2.INI. Som ett resultat, „r objekt av subklasserna hos denna klass inte synliga utanf”r WPS. Notera: Den h„r klassen „r endast en abstrakt superklass f”r subklasser. Det skall inte finnas n†gra objekt av den h„r klassen direkt, utan bara av subklasserna.
+WPFileSystem 4 Detta „r den andra av de tre bas WPS lagringsklasserna vilka „r deriverade fr†n WPobjekt. Alla subklasser av den h„r klassen (WPDataFile och WPmapp) har gemensamt att dom inte existerar fysiskt i filsystem. WPS lagrar ytterligare konfigurationsdata f”r dessa objekt i de Ut”kade Attributen hos en fil, oftast i .klassINFO. Notera: Denna klass „r endast en abstrakt superklass f”r subklasser. Det skall inte finnas n†gra objekt av den h„r klassen direkt, utan bara av subklasserna.
+WPTransient 4 Detta „r den tredje av de tre bas WPS lagringsklasserna vilka „r deriverade fr†n WPobjekt All subklasser av den h„r klassen har gemensamt att de inte lagrar data alls, m.a.o. objekt av dessa subklasser existerar endast tempor„rt, oftast f”r att visa information. Notera: Denna klass „r endast en abstrakt superklass f”r subklasser. Det skall inte finnas n†gra objekt av den h„r klassen direkt, utan bara av subklasserna.
+WPPalette 4 Allm„n superklass f”r de olika paletterna i mappen "Systemkonfiguration". Det skall inte finnas n†gra objekt av den h„r klassen direkt.
+
+WPVault 0 Klass f”r den dolda katalogen NOWHERE, vilken anv„nds av WPS f”r att lagra undanlagda objekt vilka inte skall vara synliga f”r anv„ndaren.
+WPFilter 0 Klass f”r att filtrera bort objekt, om inkluderingskriterier „r specificerade f”r en mapp.
+WPProgramGroup 1 Klass f”r de gamla OS/2 1.3 Program Manager grupperna. Dessa anv„nds bara om du v„xlar tillbaka ditt Skrivbord till OS/2 1.3 l„ge med anv„nding av MAKEINI.EXE.
+
+XFldDataFile 1 XWorkplace byter ut WPDataFile klassen med den h„r klassen f”r att implementera ytterligare funktionalitet f”r datafiler.
+XFldDesktop 1 XWorkplace byter ut WPDesktop klassen med den h„r klassen f”r att implementera ytterligare funktionalitet, speciellt XShutdown funktioner.
+XFldDisk 1 XWorkplace byter ut WPDisk klassen med den h„r klassen f”r att implementera Xmapp funktionalitet ocks† f”r Diskobjekt.
+XFldFileSystem 1 XWorkplace byter ut WPDataFile klassen med den h„r klassen f”r att implementera ytterligare funktionalitet f”r statusf„lt.
+XFldObject 1 XWorkplace byter ut Wobject klassen med den h„r klassen f”r att implementera ytterligare funktionalitet vilken Xmapp beh”ver f”r alla objekt. Det kan inte finnas n†gra objekt av den h„r klassen direkt, utan endast av subklasserna.
+XWPProgramFile 1 XWorkplace byter ut WPProgramFile klassen med den h„r klassen, huvudsakligen f”r att implementera nya standardikoner f”r exekverbara filer.
+XFldShutdown 1 Ett objekt av den h„r klassen representerar XWorkplace's Avst„ngningsmapp. Det skall endast finnas ett objekt av den h„r klassen.
+XFldStartup 1 Ett objekt av den h„r klassen representerar XWorkplace's Startupmapp. Det skall endast finnas ett objekt av den h„r klassen.
+XFldSystem 1 XWorkplace's nya systeminst„llning (objekt "OS/2 K„rna"). Ett objekt av den h„r klassen har placerats i mappen "Systemkonfiguration". Det skall endast finnas ett objekt av den h„r klassen.
+XFldWPS 1 XWorkplace's nya systeminst„llning (objekt "Workplace Shell"). Ett objekt av den h„r klassen har placerats i mappen "Systemkonfiguration". Det skall endast finnas ett objekt av den h„r klassen.
+XFolder 1 XWorkplace byter ut WPFolder klassen med den h„r klassen f”r att erbjuda alla nya mappfunktioner hos XWorkplace.
+
+MMShadow 1 Odokumenterad utbytesklass f”r WPShadow. Den blir installerad med OS/2 multimedia av n†got sk„l, uppenbarligen f”r att st”dja skuggor av multimediadevicer (bed”mt fr†n de ”verskridna metoderna).
+
+WPNetwork 0 (OS/2 V3) Ett objekt av den h„r klassen „r "N„tverks" mappen p† ditt Skrivbord (Warp 4: i mappen "Anslutningar"), vilken endast existerar om du „r ansluten till ett n„tverk.
+WPNetgrp 0 (OS/2 V3) Mappar av den h„r klassen „r skapade i mappen "N„tverk" (WPNetwork) f”r varje n„tverk som du „r ansluten till.
+
+// Items added with V0.9.0
+
+WPCmpnp 0 N†gon odokumenterad PCMCIA plug'n'play systemklass.
+DwpDoc 1 (Describe 5.0) klass f”r Describe dokument.
+DwpMac 1 (Describe 5.0) klass f”r Describe makros.
+WPRPClock 3 DCF77 (S&T Systemtechnik GmbH) Denna byter ut den regulj„ra WPClock med Radio Precision Clock.
+
+BA2BackupDev 1 (BackAgain/2) anv„nds f”r att erbjuda alternativ f”r definierade Backup destinationer.
+BA2BackupSet 1 (BackAgain/2) anv„nds f”r att beskriva olika detaljer som definierar en Backup.
+BA2WCatalog" 1 (BackAgain/2) anv„nds f”r att erbjuda ett index ”ver de filer som ing†r i en Backup.
+
+EBCScheduler 1 Klassen EBCScheduler l„gger till en sida in notboken med Inst„llningar f”r varje programobjekt med tiden f”r exekvering av programmet.
+
+XWPklassList 1 Detta „r XWorkplace klassen som implementerar det nya "WPS klasslista" objektet.
+XWPSetup 1 Det nya XWorkplace allm„nna inst„llnings ("XWorkplace Setup" objekt"). Ett objekt av den h„r klass har placerats i mappen "Systemkonfiguration". Det skall endast finnas ett objekt av den h„r klassen.
+XWPTrashCan 1 Detta implementerar den nya XWorkplace papperskorg. ven om den verkar fungera som en regulj„r mapp, kommer objekten i papperskorgen alltid att vara av XWPTrashobjekt klassen (subklass av WPTransient). Se XWorkplace Anv„ndarguide f”r detaljer.
+XWPTrashObject 1 Objekt av den h„r klassen anv„nds inom XWorkplace papperskorg (XWPTrashCan klass, subklass av WPFolder) endast f”r att spegla de aktuella objekten vilka har flyttats till de dolda "\Trash" katalogerna p† varje enhet. Dessa objekt har alltid samma ikoner som det raderade objektet. Se XWorkplace Anv„ndarguide f”r detaljer.
+XWPSound 1 Detta „r XWorkplace utbytesklass f”r WPSound vilken implementerar sidan med f”rb„ttrade "Ljud". XWorkplace's ut”kade systemljud fungerar dock „ven utan den h„r klassen.
+XWPKeyboard 1 Detta „r XWorkplace utbytesklass f”r WPKeyboard. Den „r n”dv„ndig f”r infogande av de nya XWorkplace inst„llningssidorna i "Tangentbords" objektet.
+XWPMouse 1 Detta „r XWorkplace utbytesklass f”r WPMouse. Den „r n”dv„ndig f”r infogande av de nya XWorkplace inst„llningssidorna i "Mus" objektet.
+
+IWFProject 1 "Project" klass f”r IBM Workframe/2 (som kommer med Visual Age C++ 3.0). Konstigt nog, „r detta en subklass av WPfilesystem direkt, „ven om den verkar vara skapad som en katalog.
+IWFQuickStart 1 "Project Smarts" mapp i IBM Visual Age C++ 3.0 mapp. Konstigt nog, „r detta en subklass av WPfilesystem direkt, „ven om den verkar vara skapad som en katalog.
+IWFRouter 1 N†gon klass f”r IBM Workframe/2 (som kommer med Visual Age C++ 3.0).
+
+// Items changed with V0.9.1
+
+Unknownklass 0 Ingen information tillg„nglig f”r den h„r klassen. Om vet vad h„r klassen handlar om, var v„nlig posta en beskrivning till xworkplace-user@yahoogroups.com s† att en klassbeskrivning kan l„ggas till.
+
+LSPeerUser 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och verkar vara relaterad till n„tverkslogon och resursmanagement.
+LSPeerWorkstation 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och verkar vara relaterad till n„tverkslogon och resursmanagement.
+PRDisk 1 Odokumenterad peer-n„tverksklass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och byter ut WPDisk, uppenbarligen f”r att l„gga n„tverksfunktionalitet till enhetsobjekt.
+LSDisk 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och verkar implementera n„tverksenheter.
+PRPrinter 1 Odokumenterad peer n„tverksklass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och byter ut WPPrinter, uppenbarligen f”r att l„gga n„tverksfunktionalitet till skrivarobjekt.
+LSPrinter 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och verkar implementera n„tverksskrivare.
+LSDataFile 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4. Jag har ingen aning om vad den h„r klassen g”r.
+PRDirectory 1 Odokumenterad peer-n„tverksklass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 and byter ut WPmapp, uppenbarligen f”r att l„gga n„tverksfunktionalitet till mappar. D”mande fr†n de ”verskridande metoderna, gissar jag att det „r till f”r att ge andra anv„ndare access till en lokal katalog n„r ett peer-n„tverk „r aktivt.
+LSDirectory 1 Odokumenterad LAN Server klass. Denna „r inkluderad med n„tverksfunktionaliteten hos Warp 4 och verkar implementera n„tverksmappar.
+
+// Items added with V0.9.1
+
+SOMObject 0 Detta „r basklassen f”r alla SOM klasser. F”r att kunna anv„nda SOM's funktioner, m†ste n†gon klass vara deriverad fr†n den h„r klassen. WPobject (och f”ljaktligen alla WPS klasser) „r ocks† deriverad fr†n SOMobject.
+Contained 0 Denna anv„nds f”r att accessa SOM Interface Repository (dessa ".IR" filer som alla tr„ffar p† ibland, men ingen vet n†got mer om). IR designaded f”r att kunna h„mta information om installerade SOM klasser vid k”rnings-tid. Alla objekt i IR „r instanser av klasser vilka „r deriverade fr†n denna interfaceklass.
+Container 0 Containerklass f”r SOM Interface Repository. Se "Contained".
+SOMClass 0 Detta „r rotklassen f”r alla SOM metaklasser. Eftersom, med SOM, alla klasser ocks† „r objekt, m†ste de ocks† sj„lva vara en instans av en klass, de s†-kallade "metaklasserna". Som standard, „r SOMclass en metaklass f”r n†gon SOM klass, men de flesta klasser definierar sina egna metaklasser med egna metoder.
+SOMClassMgr 0 En instans av den h„r klass „r skapad automatiskt av SOM runtime f”r hantera SOM klasser. Den „r n”dv„ndig f”r run-time klassmanipulation. Det „r denna klass som till†ter saker som klassutbyten den f”rsta g†ngen.
+WPClassManager 0 WPS subklassar SOMclassMgr f”r att implementera WPS klassmanipulation, speciellt WPS klassutbyten.
+SOMMCooperative 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+SOMMCooperativeSistered 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+SOMMCooperativeRedispatched 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+SOMMBeforeAfter 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+SOMMSingleInstance 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+SOMMTraced 0 Del av SOM metaklass ramverk. Se SOM Programming Guide f”r detaljer.
+
+CWProgFolder 1 Detta „r basklassen f”r CD Creator paketet av Chris Wohlgemuth. Det „r n”dv„ndigt f”r CWAudioFolder och CWDataFolder klasserna.
+CWAudioFolder 1 Detta „r en del av CD Creator paketet av Chris Wohlgemuth och m”jligg”r skapandet av Audio CD's.
+CWDataFolder 1 Detta „r en del av CD Creator paketet av Chris Wohlgemuth och m”jligg”r skapandet av Data CD's.
+WPTouch 1 Troligtvis „r klassen ansvarig f”r konfigurationobjektet hos peksk„rmar. Jag har ingen, s† jag har aldrig sett den.
+AcsAgent 1 Den h„r klassen „r en del av UniMaint paketet.
+
+NewDisk 1 En klass av WPDisc f”r att hantera enhetsl†sning och cache vilken anv„nds av NEWDASD paketet som l„gger till st”d f”r utbytbara enheter.
+CDWriter 1 En subklass av WPDisc anv„nd av RSJ CD-Writer, troligtvis f”r att implementera enhetsobjekt f”r RSJ's IFS.
+PractiseImage 1 klass f”r att fixa bild-associationproblem med Practise Co.
+PractiseBitmap 1 klass f”r att fixa bild-associationsproblem med Practise Co.
+
+// Items added or changed with V0.9.4
+
+XWPScreen 1 Det nya XWorkplace sk„rminst„llnings (objektet "Sk„rm"). Ett objekt av den h„r klass har placerats i mappen "Systemkonfiguration". Det skall endast finnas ett objekt av den h„r klassen.
+
+// All objekt Desktop klasses (V0.9.4)
+TSArcElem 1 (Object Desktop) Arkivvisare f”r„ldraklass f”r transient element, f”r befolkade arkivvisningar
+TSArcMgr 1 (Object Desktop) Arkivvisare f”r„ldraklass f”r "objektarkiv"
+TSCPad 1 (Object Desktop) Control Center klass
+TSklassEdit 1 (Object Desktop) klass Editorklass
+TSEnhDataFile 1 (Object Desktop) F”rb„ttrad datafilsklass, implementerar editorer och visare.
+TSEnhDrives 1 (Object Desktop) Objekt Navigator klass.
+TSEnhFolder 1 (Object Desktop) F”rb„ttrad mappklass, l„gger till statusf„lt, konfigurerbara standardikoner, hyper drive etc.
+TSFldrParent 1 (Object Desktop) Klass f”r att implementera mapps s”kl„ge.
+TSInspect 1 (Object Desktop) Objekt Inspektorklass.
+TSKeyDefn 1 (Object Desktop) Tangentbord definitionsklass
+TSKeyLaunch 1 (Object Desktop) Tangentbord makroklass, l†ter dig starta program med speciella tangentkombinationer
+TSMasterSetup 1 (Object Desktop) Allm„nna inst„llningar ("Master Setup") klass
+TSPackageElem 1 (Object Desktop) Objekt Package elementklass.
+TSPackageFile 1 (Object Desktop) Objekt Package containerklass.
+TSPkgFolder 1 (Object Desktop) Package mappklass.
+TSScript 1 (Object Desktop) F”r„ldraklass f”r scriptobjekt (S”k, L†s, St„ng av).
+TSScriptFind 1 (Object Desktop) S”kobjekt subklass.
+TSScriptLockup 1 (Object Desktop) L†sobjekt subklass.
+TSScriptShutdown 1 (Object Desktop) St„ng av objekt subklass.
+TSTabFolder 1 (Object Desktop) Tabbed Launchpad klass
+TSTaskMgr 1 (Object Desktop) Taskmanager (F”nsterlista utbytes) klass.
+TSTaskManager 1 (objekt Desktop 1.x) Taskmanager (Window list utbytes) klass.
+TSKeyDfn 1 (objekt Desktop 1.x) Tangentbord definitionsklass
+TSArcFileElem 1 (Object Desktop) Subklass f”r ARC arkivobjekt
+TSArcFileMgr 1 (Object Desktop) Subklass f”r ARC arkiv
+TSTarElem 1 (Object Desktop) Subklass f”r TAR/GZ arkivobjekt
+TSTarMgr 1 (Object Desktop) Subklass f”r TAR/GZ arkiv
+TSRarElem 1 (Object Desktop) Subklass f”r RAR arkivobjekt
+TSRarMgr 1 (Object Desktop) Subklass f”r RAR arkiv
+TSLHAElem 1 (Object Desktop) Subklass f”r LHA arkivobjekt
+TSLHAMgr 1 (Object Desktop) Subklass f”r LHA arkiv
+TSZipElem 1 (Object Desktop) Subklass f”r Zip arkivobjekt
+TSZipMgr 1 (Object Desktop) Subklass f”r ZIP arkiv
+TSZooElem 1 (Object Desktop) Subklass f”r ZOO arkivobjekt
+TSZooMgr 1 (Object Desktop) Subklass f”r ZOO arkiv
+
+// Other klasses that come with objekt Desktop (V0.9.4)
+BA2SchedFold 1 (BackAgain/2, objekt Backup) Scheduler mappklass.
+WPSecpgm 1 (Object Desktop) S„kert en program objektklass
+WPSecure 1 (Object Desktop) S„kert en mapp objektklass
+WPSecs01 1 (Object Desktop) S„kert en skugg objektklass
+
+// StarOffice 5.0 klasses (V0.9.4)
+WPStOfHTML5 1 (StarOffice 5.0) Dokumentklass f”r HTML filer.
+WPStOfCalc5 1 (StarOffice 5.0) Dokumentklass f”r StarCalc kalkylark.
+WPStOfChar5 1 (StarOffice 5.0) Dokumentklass f”r StarCalc diagram.
+WPStOfDraw5 1 (StarOffice 5.0) Dokumentklass f”r StarDraw ritninger.
+WPStOfGlob5 1 (StarOffice 5.0) Dokumentklass f”r StarWriter globala Dokument.
+WPStOfImpr5 1 (StarOffice 5.0) Dokumentklass f”r StarImpress presentationer.
+WPStOfMath5 1 (StarOffice 5.0) Dokumentklass f”r StarMath formler.
+WPStOfWri5 1 (StarOffice 5.0) Dokumentklass f”r StarWriter text.
+WPStOfExe5 1 (StarOffice 5.0) Program objektklass f”r start av StarOffice.
+
+// StarOffice 5.1 klasses (V0.9.4)
+StarOfficeAgent 1 (StarOffice 5.1) Troligtvis beh”vs den f”r filassociationsmekanismer.
+StarCalcFile 1 (StarOffice 5.1) Dokumentklass f”r StarCalc kalkylark.
+StarChartFile 1 (StarOffice 5.1) Dokumentklass f”r StarCalc diagram.
+StarDrawFile 1 (StarOffice 5.1) Dokumentklass f”r StarDraw teckningar.
+StarWriterGlobalFile 1 (StarOffice 5.1) Dokumentklass f”r StarWriter globala Dokument.
+StarImpressFile 1 (StarOffice 5.1) Dokumentklass f”r StarImpress presentationer.
+StarMathFile 1 (StarOffice 5.1) Dokumentklass f”r StarMath formler.
+StarWriterFile 1 (StarOffice 5.1) Dokumentklass f”r StarWriter texter.
+
+// Lotus SmartSuite klasses (V0.9.4)
+AmiProobjekt 1 (Lotus AmiPro) Programobjekt f”r Lotus AmiPro
+Override123DocEx 1 (Lotus SmartSuite f”r Warp 4) 1-2-3 datafiler associeringsmekanism
+OverrideApDocEx 1 (Lotus SmartSuite f”r Warp 4) Approach datafiler associeringsmekanism
+OverrideFlDocEx 1 (Lotus SmartSuite f”r Warp 4) Freelance datafiler associeringsmekanism
+OverrideOrDocEx 1 (Lotus SmartSuite f”r Warp 4) Organizer datafiler associeringsmekanism
+WordProDocObj 1 (Lotus SmartSuite f”r Warp 4) WordPro datafiler associeringsmekanism
+WPCDokument 1 (Lotus SmartSuite f”r Warp 4) Lotus dokumentklass.
+
+// Other klasses (V0.9.4)
+LanStart 1 Startup mapp klass, som v„ntar p† n„tverkslogin och ”ppnar objekten i mappen efter†t.
+NewPrinter 1 F”rb„ttrad WPPrinter klass som har jobb suspendera/frisl„ppa i huvudmenyn
+WPSoundPalette 1 Den h„r klassen „r en del av Graham Utilities v2.1 och h”gre av Chris Graham och anv„nds f”r systemljudshantering.
+GUDisk 1 Den h„r klassen „r en del av Graham Utilities v2.1 och h”gre av Chris Graham och anv„nds som utbyte f”r WPDisk klass f”r att l„gga diskverkyg till popupmenyer hos diskobjekt.
+TN3270 5 (OS/2 V3 BonusPak eller V4) De h„r klassen implementera Telnet 3270 access.
+FpwDBData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works) och anv„nds f”r databas filobjekt.
+FpwWPData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works) och anv„nds f”r ordbehandling (text) filobjekt.
+FpwCHData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works) och anv„nds f”r diagram filobjekt.
+FpwGRData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works).
+FpwRWData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works).
+FpwSSData 5 (OS/2 V3 eller V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originalet FootPrint Works) och anv„nds f”r kalkylark filobjekt.
+
+// Items added or changed with V0.9.5
+
+XWPMedia 1 Detta implementerar den nya XWorkplace "Multimedia" objekt.
+XWPString 1 XWorkplace "setupstr„ng" klass. En instans av den h„r kan h†lla en WPS setupstr„ng och ett objekt.
+
+BA2Device 1 (BackAgain/2) Detta erbjuder Skrivbordsobjekt f”r backupdevicer.
+MLPlayer 1 (Microlearn Game Pack Volume II) Denna erbjuder ett Skrivbordsobjekt f”r konfiguration av en spelare.
+wpTelevision 1 (WarpTV) TV program f”r Hauppage WinTV kort.
+PCDesk 1 Del av Process Commander fr†n Stardock.
+SDFolder 1 Del av Object Desktop fr†n Stardock.
+WPStickMouse 1 Del av IBM hjul-mus drivrutin. Detta „r en utbytesklass f”r WPMouse.
+
+// Items added with V0.9.6
+WSFILE 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit.
+WSFolder 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit.
+Browse_O_Matic 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit.
+Car 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit.
+Carpp 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit.
+ObjectUtility 1 Exempel WPS klass fr†n OS/2 Developer's Toolkit. Implementerar ett verktyg f”r skapande av instanser av klasser p† en specificerad plats.
+TSObjAdv 1 (Object Desktop) "Object Advisor" klass.
+RWMonitor 4 (OS/2 V3) Odokumenterad klass, Uppenbarligen anv„nd av WPS f”r att serialisera access till mappresurser. Notera att detta inte „r deriverat fr†n WPobject.
+ClassAssociationManager 4 (OS/2 V4) Odokumenterad klass anv„nd av WPS f”r att organisera klasser f”r "Become" st”d. Notera att detta inte „r deriverat fr†n WPobject.
+WPDev 4 Odokumenterad klass, uppenbarligen anv„nd av WPS f”r att organisera skrivare. Notera att detta inte „r deriverat fr†n WPobject.
+WPLm 4 Odokumenterad klass, uppenbarligen anv„nd av WPS f”r att organisera skrivare. Notera att detta inte „r deriverat fr†n WPobject.
+WPLm 4 Odokumenterad klass, uppenbarligen anv„nd av WPS f”r att organisera skrivare. Notera att detta inte „r deriverat fr†n WPobject.
+WPQueue 4 Odokumenterad klass, uppenbarligen anv„nd av WPS f”r att organisera skrivark”er. Notera att detta inte „r deriverat fr†n WPobject.
+
+WPObjectPlus 4 (Workplace Shell TrashCan av Kai Sommerfeld) Denna klass subklassar WPobject f”r att m”jligg”ra †terskapande av raderade objekt lagrade i WPS papperskog.
+WPTrashCan 1 (Workplace Shell TrashCan av Kai Sommerfeld) Denna klass implementerar ett papperskorgsobjekt p† Skrivbordet.
+WPTrashobjekt 4 (Workplace Shell TrashCan av Kai Sommerfeld) Denna klass implementerar skr„pet i papperskorgen.
+
+WarpCenterKey 1 (WarpCenterKey by Samuel Audet) Implementerar ett tangentbordssnabbkommando f”r ”ppning av 'WarpCenter' knapp.
+
+StarImpressFile 1 (SUN StarOffice/2 5.1a) Dokumentklass f”r StarImpress presentationer.
+StarMathFile 1 (SUN StarOffice/2 5.1a) Dokumentklass f”r StarMath formul„r.
+StarWriterFile 1 (SUN StarOffice/2 5.1a) Dokumentklass f”r StarWriter texter.
+StarWriterGlobalFile 1 (SUN StarOffice/2 5.1a) Dokumentklass f”r StarWriter globala dokument.
+
+LTFolder 1 (OS/2 Warp 3 Bonus Pak endast) Light Table mappklass vilken till†ter visning av olika filtyper b†de genom en visare och som stora ikoner.
+
+// Items added with V0.9.7
+WPProgramWithEnvironment 1 subklass hos WPProgram av Rich Walsh. Till skillnad fr†n DTProgram, har denna en sida med inst„llningar f”r BEGINLIBPATH/ENDLIBPATH.
+PracticeMooV 1 QuickTime Movie player av Practice, Inc.
+WPZORX 1 WPFolder subklass f”r ObjectREXX WPS interface.
+WPZORXINIT 1 WPTransient subklass f”r ObjectREXX WPS interface.
+ExtendedDesktop 1 "Desktop Extender", WPDesktop utbytesklass; ett klassisk (version 1.4 „r fr†n 1993!) IBM Employee Written Software av Dan Campbell.
+
+WPLineStylePalette 1 (Mesa 2) Del av Mesa2 Kalkylark.
+WPLineWidthPalette 1 (Mesa 2) Del av Mesa2 Kalkylark.
+WPMarkerPalette 1 (Mesa 2) Del av Mesa2 Kalkylark.
+WPPatternPalette 1 (Mesa 2) Del av Mesa2 Kalkylark.
+
+WPMesaFile 1 (Mesa 2) Datafilsklass f”r Mesa2 kalkylark filer.
+WPMesaTemplateFile 1 (Mesa 2) Mesa2 kalkylark fil mallklass.
+WPMesaBackupFile 1 (Mesa 2) Mesa2 kalkylark fil backupklass.
+
+FpwCatalyst 5 (OS/2 V3 or V4 BonusPak) Den h„r klassen „r en del av IBMWorks (originaler FootPrint Works).
+FpwWPSData 5 (OS/2 V3 or V4 BonusPak) Superklass f”r IBMWorks (originaler FootPrint Works) datafiler.
+Shortcut 1 Den h„r klassen till†ter att skuggobjekt har olika namn i f”rh†llande till sina originalobjekt.
+WPKlist 1 Buggig WPS klass. Listklass bifogad med IBM VAC++ 3.0.
+CmdrunDisk 1 Den h„r klassen till†ter ”ppning av kommandosessioner och k”rning av program direkt fr†n ett objekts popupmeny.
+CmdrunFolder 1 Den h„r klassen till†ter ”ppning av kommandosessioner och k”rning av program direkt fr†n ett objekts popupmeny.
+WPSysset 1 Den h„r klassen m”jligg”r REXX access till andra klassers klass objektinst„llningar.
+PDR 0 Odokumenterad systemklass.
+QDR 0 Odokumenterad systemklass.
+
+XCenter 1 Tja, XWorkplace's XCenter, uppenbart. Denna kan s„kert avinstalleras.
+XWPFontFolder 1 Detta „r den nya XWorkplace "fontmapp". Den erfordrar att XWPFontObject och XWPFontFile ocks† „r installerade.
+XWPFontObject 1 Denna representerar installerade fonter i den nya XWorkplace "fontmapp" (XWPFontFolder). Detta erfordrar att XWPFontFolder och XWPFontFile ocks† „r installerade.
+XWPFontFile 1 Denna representerar fysiska fontfiler p† systemet. Alla datafiler vilka kan anses vara fonter „r automatiskt gjorda till instanser av den h„r klassen. Den h„r klassen erfordras f”r att installera fontfiler i XWorkplace "fontmapp".
+
+// Items added with V0.9.9
+VPCform 1 (Vispro C) "C form" klass.
+VPCPform 1 (Vispro C++ 3.0) "C++ form" klass.
+VPform 1 (Vispro Rexx 3.01) formklass.
+
+XWPProgram 1 Detta „r XWorkplace utbytesklass f”r WPProgram f”r ytterligare funktionalitet hos programobjekt.
+
+// Items added with V0.9.10
+CBFolder 1 (ZipStream) ZipStream WPS interface. L„gger till en ZipStream menypost i varje filsystemsobjekt.
+BDView 1 (OS/2 V4.5) Spr†kvisare klass.
+
+// Items added with V0.9.12
+CWCreatorSettings 1 Den h„r klassen „r f”r objekt CD-Creator Inst„llningar hos programmet Audio/DataCDCreator.
+PMMailWP 1 Den h„r klassen tillh”r e-mail klienten PMMail/2.
+AdvTcpDialer 1 Den h„r klasser tillh”r IBM Global Network TCP/IP Dialer. Om du anv„nder en annan Internet Access Provider, kan du ta bort den h„r klassen.
+DDIcon 1 En utbytesklass av Jens Borch Christiansen f”r WPIcon, vilken g”r det m”jligt att „ndra ikon hos ett eller fler objekt genom att sl„ppa dom p† ett ikonobjekt.
+MKeyWPS 1 Del av MKey av Roger Sennert. Applikationsberoende rubrikradsknappar, snabbkommando-manager, muspekaranimationer och mera.
+mshred 1 Ut”kad tugg av M. Kimes (FM/2), en tugg som raderar n„stan allting.
+
+// Items added with V0.9.13
+AMouse 1 Klass som kommer med amouse.sys drivrutinen f”r m”ss med hjul f”r att f”rb„ttra "Mus" notboken med nya inst„llningssidor.
+
+// Items added with V0.9.16
+VRCore 1 VX-REXX core klass, exakt anv„ndning ok„nd.
+VRApplication 1 VX-REXX applikationsklass; varje VX-REXX program „r ett objekt av den h„r klassen vid k”rning.
+VRScreen 1 VX-REXX representation av en PM sk„rm. Anv„nd f”r att avg”ra sk„rmegenskaper fr†n VX-REXX.
+VRVisible 1 VX-REXX synlig klass, exakt anv„ndning ok„nd.
+VRManager 1 VX-REXX manager klass, exakt anv„ndning ok„nd.
+VRWindow 1 VX-REXX window klass; varje VX-REXX f”nster hos ett VX-REXX program „r ett objekt av den klassen.
+VRPrimitive 1 VX-REXX primitiv klass, exakt anv„ndning ok„nd.
+
+// Items added with V0.9.17
+B2KBackupSet 1 Back Again/2000 Backup Set fil. Dessa filer inneh†ller definitioner om vad som skall backas up och var f”r CDS, Inc.'s Back Again/2000.
+BA2KSchedFold 1 Back Again/2000 objekt Scheduler. Speciell WPS mappsubklass som implementerar shemal„ggningsfunktioner, t.ex. n„r automatiskt backa upp vad, f”r CDS, Inc.'s Back Again/2000.
+BA2KWCatalog 1 Back Again/2000 Katalogfil. Dessa filer inneh†ller en beskriving av en existerande backup, t.ex. var de backupade filerna kommer ifr†n och kommer att hamna vid restore igen, gjord med Back Again/2000 by CDS, Inc.
+CWAudio 1 F”r„ldraklass av Chris Wohlgemuth's CW MM paket f”r s”ml”s WPS integration av Russel O'Connor's MMIOProcs.
+CWDataFile 1 Del av Chris Wohlgemuth's WPS Wizard. byter ut WPDataFile klass. Implementerar konfigurerbara kontextmenyer f”r filer och visning av filstorlekar i kontextmenyn.
+CWDisk 1 Del av Chris Wohlgemuth's WPS Wizard. byter ut WPDisk klass. Implementerar m”jligheten att ta bort "formatera disk" menyposterna fr†n h†rddiskar's kontextmenyer.
+CWFolder 1 Del av Chris Wohlgemuth's WPS Wizard. byter ut WPFolder klass. Implementerar konfigurerbara kontextmenyposter f”r mappar.
+CWMediaFolder 1 Del av Chris Wohlgemuth's CW MM paket. Subklass av CWProgFolder. Implementerar en mediaspelare f”r alla audiofilsformat som st”ds av MMOS2 (och m”jliga „ndelser). Mappen anv„nds av spelningslistan.
+CWMenuFolder 1 Del av Chris Wohlgemuth's WPS Wizard. Implementerar en konfigurationsmapp f”r ytterligare kontextmenyposter som fungerar ungef„r lika som XWorkplace's.
+CWMP3 1 Del av Chris Wohlgemuth's CW MM package. Subklass av CWAudio. L„gger till notbokssidor f”r filinformation och ID3 tag editeringskapacitet, relaterade poster till menyposten "™ppna", och en speciell ikon f”r MP3 filer. Integrerar Russel O'Connor's MMIOProcs f”r MMOS2 i WPS.
+CWOGG 1 Del av Chris Wohlgemuth's CW MM paket. Subklass av CWAudio: L„gger till en speciell ikon f”r Ogg Vorbis. Integrerar Russel O'Connor's MMIOProcs f”r MMOS2 i WPS.
+CWWizzSettings 1 Del av Chris Wohlgemuth's WPS Wizard. Detta implementerar WPS Wizard's inst„llningsobjekt.
+
+// Items added with V0.9.18
+BDview 1 (WSeB/CP/eCS) Implementerar ett objekt f”r v„xling av dubbel-riktade spr†kinst„llningar.
+WPVideoSystem 1 (Scitech Display Doctor) byter ut WPSystem klass f”r att f”rb„ttra notbokssidan hos "Sk„rm".
+XWPFileSystem 1 XWorkplace byter ut WPFileSystem klass med den h„r klassen f”r att accessa olika interna WPS data, bland annat f”r att implementera "turbomappar".
+
+// Items added with V0.9.19
+filertate 1 (filerTAT.DLL) Rapporterar statistik f”r objekt som sl„ppts p† den.
+
+// Items added with V0.9.21
+ClassTree 1 (CLSSTREE.DLL) ClassTree „r ett objekt fr†n Object Factory applikationen av Synaptec. ClassTree listor „r alla SOM objekt och alla objekt skapade av Object Factory anv„ndare. Den anv„nds i samarbete med ClassNotebook Objektet (och det dolda SomNotebook objektet) f”r att erbjuda ett GUI interface f”r skapande av nya SOM objekt.
+ClassNotebook 1 (CLSSNOTE.DLL) ClassNotebook objektet „r fr†n Object Factory applikationen av Synaptec. Det anv„nds f”r att definiera en ny SOM klass.
+SomNote 1 (SOMNOTE.DLL) SomNote „r ett objekt som „r en del av Object Factory applikationen av Synaptec. Det verkar erbjuda hj„lp f”r SOM klasser n„r de anv„nder ClassTree objektet.

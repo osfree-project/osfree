@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Over TCP/IP
+    </TITLE>
+</HEAD>
+<BODY>
+<B>TCP/IP</B> (Transmission Control Protocol/Internet Protocol) is het
+meest bekend door zijn gebruik als het
+<A HREF="glossary/gls_protocols.html">netwerk protocol</A> van het
+&link_internet;.
+Het kan echter ook worden gebruikt als een protocol in een priv‚ netwerk.
+
+<P>TCP/IP bestaat in feite uit twee lagen.
+
+<UL><LI>De <B>hoge laag, TCP,</B> breekt een hoeveelheid informatie
+(een bericht of een bestand) af in <B>pakketten</B> die worden genummerd en dan
+afzonderlijk worden verstuurd.
+De TCP laag aan de andere zijde van de verbinding voegt de pakketten weer samen
+tot de complete informatie.
+
+<P><LI>De <B>lagere laag, IP,</B> handelt het afleveren van de pakketten af die
+door TCP werden gemaakt. Om dit te laten gebeuren, moet iedere computer in het
+netwerk een uniek adres hebben, het
+<A HREF="glossary/gls_prot_ipaddr.html">IP adres</A>.
+
+<P>Ieder pakket ontvangt de beide IP-adressen van de zend- en van de doel
+computers voor dat het verzonden wordt, en iedere computer die onderweg het
+pakket ontvangt controleert dit adres om te bepalen aan welke volgende computer
+het pakket moet worden doorgezonden.
+Met als resultaat, dat ieder pakket door meerdere computers op aarde behandeld
+wordt alvorens het op uw computer arriveert. Pakketen vanuit dezelfde originele
+hoeveelheid gegevens kunnen afzonderlijke paden nemen over het netwerk, maar
+zullen door TCP correct worden samengevoegd.
+
+</UL>Voor iedere hoeveelheid gegevens die in pakketen is opgedeeld, wordt een
+individuele verbinding tussen de twee computers in stand gehouden. Er is geen
+permanente verbinding nadat de gegevens zijn ontvangen. Dit vermindert in hoge
+mate het netwerk verkeer en maakt in de eerste plaats wereldwijde verbindingen
+mogelijk.
+
+<P>Merk op dat indien u tijdelijk verbonden bent met uw Internet Service Provider
+(ISP) om toegang te krijgen tot het Internet, u dat gewoonlijk zult doen met een
+extra protocol, het <B>Point-to-Point Protocol (PPP).</B>
+Dit omhult de IP pakketen zodat zij over een inbel telefoon verbinding kunnen
+worden verzonden naar het ingangsmodem van de provider.
+
+<P><A HREF="glossary/gls_internet_serv.html">Internet diensten</A> zoals het
+World Wide Web (WWW) en e-mail zijn ook uitgevoerd als extra protocol lagen
+bovenop TCP/IP.
+Deze lagen zijn niet ge‹ntergreerd in de onderdelen van het netwerk besturingssysteem,
+maar worden eerder geleverd door de afzonderlijke Internet applicaties
+zoals uw Web browser. Deze protocollen houden het  Hypertext Transfer Protocol
+(HTTP) dat gebruikt wordt door WWW, het File Transfer Protocol (FTP), Telnet
+(Telnet), en het Simple Mail Transfer Protocol (SMTP) voor berichten in.
+
+<BR>
+</BODY>
+</HTML>

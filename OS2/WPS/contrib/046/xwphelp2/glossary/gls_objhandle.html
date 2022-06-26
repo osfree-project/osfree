@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Om Objekthandtag
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains mostly text from
+     /xfix_handles.html -->
+<BODY>
+<B>Objekthandtag</B> „r 32-bitars heltal vilka antas vara unika p† systemet.
+Det h”ga-ordet (”vre 16 bitar) av heltalet betecknar lagringsklassen hos objektet
+(abstrakt eller filsystem), medan det l†ga-ordet (undre 16 bitar) „r en unik
+identifierare inom lagringsklassen.
+
+<UL><LI><B>Abstrakta objekt</B> har vanligtvis ett h”ga-ord av <CODE>0x0002</CODE>,
+och deras l†ga-ord „r listade i
+<CODE>PM_Abstract:Objects</CODE> sektionen i <CODE>OS2.INI</CODE> med objektets data.
+
+<P>Abstrakta objekt har <I>alltid</I> en handtag skapat f”r dem d„rf”r att de har
+inga filnamn och handtaget „r det enda s„ttet att referera till dem.
+
+<P><LI>Som kontrast, <B>filsystemsobjekt</B> (filer och mappar) har endast ibland handtag
+tilldelade. Om de har det, har filsystemsobjekt vanligtvis ett h”ga-ord av
+<CODE>0x0003</CODE>. Det l†ga-ordet kommer sedan fr†n filhandtagsdatabasen i
+<CODE>PM_Workplace:HandlesX</CODE> sektionen hos <CODE>OS2SYS.INI</CODE>.
+
+<P>Notera att det finns tv† <CODE>PM_Workplace:HandlesX</CODE> sektioner (med X
+varande 0 eller 1). WPS h†ller filsystemshandtag i minnet hela tiden och
+t”mmer det till <CODE>OS2SYS.INI</CODE> endast fr†n tid till tid. N„r det g”r s†,
+kontrollerar det <CODE>PM_Workplace:ActiveHandles</CODE> nyckeln f”r att r„kna ut vilken av
+de tv† sektionerna som f”r n„rvarande „r aktiv, t”mmer handtagen till den andra sektionen, och
+modifierar nyckeln s† att den pekar p† den andra sektionen. Detta „r n”dv„ndigt eftersom
+poster i &os2; INI filer inte kan inneh†lla mer „n 64 KB data och att WPS d„rf”r m†ste
+anv„nda †tskilliga block f”r att h†lla hela handtagstabellen.
+
+</UL>F”r att f”rst† var alla dessa filsystemshandtag kommer ifr†n, m†ste man k„nna
+till mer om WPS interna arbetss„tt.
+
+<P>I teorin, skall WPS endast skapa ett handtag f”r ett filsystemsobjekt om det
+verkligen „r n”dv„ndigt, t.ex. om objektet verkligen refererades n†gonstans.
+
+<P>Emellertid, filsystemshandtag kan ocks† orsaka problem. Ju fler filsystemshandtag som finns,
+ju sl”are blir WPS i allm„nhet. Viktigast, det totala antalet filsystemshandtag „r begr„nsat.
+Om det finns f”r m†nga filsystemshandtag, kan WPS bli ostabilt.
+
+<!-- V0.9.21: rewrote this paragraph -->
+<P>Bland annat, skapas filhandtag i f”ljande situationer:
+
+<OL><LI>Fr†n programobjekt och skuggor. Detta „r ”nskv„rt eftersom det till†ter
+programobjekt och skuggor att fortfarande kunna peka p† korrekt m†lobjekt n„r
+m†lobjektet inte l„ngre befinner sig p† sin originalposition.
+
+<P>Till exempel, om du anger en <A HREF="glossary/gls_path.html">s”kv„g</A> till
+en exekverbar fil i ett programobjekts notbok med egenskaper, vill programobjektet
+ha ett handtag, s† det b”r f† ett n„r inga objekt „nnu existerar. Samma sak g„ller
+n„r du skapar en skugga f”r ett objekt.
+
+<P><LI>Fr†n andra delar av WPS (och &xwp;) f”r att lagra objektreferenser.
+Till exempel, anv„nder &xwp; objekthandtag f”r att komma ih†g dina objektknappar i &xcenter;.
+
+<P><LI>N„rhelst ett objekt har givits ett objekt ID (det som finns inom vinklar,
+t.ex. <CODE>&lt;WP_DESKTOP&gt;</CODE>). Objekt ID's „r lagrade i
+<CODE>PM_Workplace:Location</CODE> sektionen i <CODE>OS2.INI</CODE> tillsammans med
+objekthandtagen och kan endast sp†ras upp om handtaget „r giltigt.
+
+<P>Det stora problemet med h„r implementationen „r att om filhandtagstabellen „r bruten,
+kommer WPS inte att hitta Skrivbordet n†gon mer g†ng d„rf”r att det anv„nder
+<CODE>&lt;WP_DESKTOP&gt;</CODE> objekt ID f”r att hitta det under startup. Om du f†r
+dialogen "Kan inte hitta Skrivbordet", „r i 95% av alla fall filhandtagstabellen bruten.
+
+<P><LI>Fr†n applikationsprogram vilka anv„nder <CODE>Win*</CODE> API'er f”r att skapa
+Skrivbordsobjekt eller arbeta med dem. Detta „r normalt tolerabelt om det endast p†verkar
+n†gra f† filer. Olyckligtvis, kr„ver vissa av dessa API'er (s†dana som <CODE>WinMoveObject</CODE>)
+objekthandtag som inmatning.
+
+<P><LI>F”r varje mapp som n†gonsin ”ppnats. Detta „r ocks† tolerabelt d„rf”r att WPS
+anv„nder en mapps handtag f”r att lagra dess position i <CODE>OS2.INI</CODE> s† att
+mappens position inte f”rloras n„r mappen flyttas.
+
+<P><LI>Automatisk f”r varje ”verordnad mapp i fils s”kv„g om ett nytt handtag „r
+skapat f”r filen. Detta beror p† handtagsdatabasens implementation vilken endast lagrar
+det korta namnet hos varje filsystemsobjekt och lagrar en referens till dess f”r„lder
+med det korta namnet. Detta „r v„ldigt effektivt d„rf”r att om en mapp med m†nga
+subobjekt flyttas, beh”ver endast en enda uppgift i databasen uppdateras. Subobjekten
+har endast ett f”r„ldrahandtag lagrat, vilket fortfarande fungerar.
+
+<P><LI>F”r varje datafil som ”ppnas genom en programobjektsassociation. Detta beror p† att
+WPS s„tter <CODE>WP_OBJHANDLE</CODE> milj”variabeln till handtaget hos datafilen
+n„r det ”ppnades. Vissa program bygger p† det, men det har ocks† en olycklig effekt att ett
+handtag skapas varje g†ng du dubbelklickar p† en datafil „ven om applikationen inte beh”ver
+det handtaget.
+
+<IFNDEF __NEVEREXTASSOCS__>
+
+<P>&xwp; till†ter dig att avaktivera detta beteende med dess ut”kade filassociationer.
+
+</IFNDEF>
+
+<IFNDEF __ALWAYSREPLACEREFRESH__>
+
+<P><LI>Olyckligtvis, skapar WPS ocks† handtag f”r varje objekt som f”rnyas
+under mapps auto-f”rnya. Det betyder, att om en mapp „r ”ppen och du g”r n†gonting med
+den fr†n kommandoraden (eller n†gon annan applikation g”r n†gonting med filerna i den mappen),
+kommer f”r varje fil i mappen, ett nytt filhandtag att skapas.
+
+<P>Ett enkelt testfall f”r detta „r att zippa upp en ZIP fil till en ”ppen mapp. Detta kommer att skapa
+massor av filhandtag som troligtvis aldrig kommer att anv„ndas igen. Ett ganska stort antal
+filsystemshandtag kommer att skapas som ett resultat av det h„r beteendet.
+
+<P>Och igen, eftersom objekthandtag aldrig tas bort, kommer dessa on”diga handtag att stanna p†
+systemet i evighet.
+
+<P>Detta problem har †tg„rdats med &xwp;'s utbyte av mappars f”rnyelse.
+
+</IFNDEF>
+
+</OL>
+</BODY>
+</HTML>

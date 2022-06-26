@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_XCENTER_CLASSES;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Klassen
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.11 -->
+<BODY>
+Mit Hilfe der Seite "Klassen" im Einstellungsnotizbuch eines 
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;s</A>
+lassen sich die gerade
+verfgbaren 
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_widgets.html">Widget</A>-Klassen
+auflisten. 
+<!-- V0.9.19: removed this Fr eine Einfhrung ber das &xcenter; und die
+Widgets lesen Sie bitte <A HREF="xcenter/xc_main.html">diese Seite</A>. -->
+ 
+<P>Beachten Sie, daá Widget-Klassen keine echten WPS-Klassen sind. Das &xcenter; 
+benutzt die Namen der Klassen nur, um die Widgets intern zu organisieren. Stellen Sie
+sich eine Widget-Klasse als eine Vorlage vor, aus der Widgets erzeugt werden k”nnen. 
+Eine Widget-Klasse ist entweder in das &xcenter; direkt eingebaut oder wird von einer
+<!-- V0.9.20: added link --> 
+<A HREF="glossary/gls_dll.html">Plug-In-DLL</A>
+im Verzeichnis <CODE>plugins\xcenter</CODE> geladen. Solch eine Plug-In-DLL 
+kann eine oder mehrere Widget-Klassen enthalten.
+ 
+<P>Anders als auf der Seite "Widgets", die die derzeitigen Widgets eines einzigen 
+&xcenter;s anzeigt, zeigt die Seite "Klassen" dieselben Widget-Klassen fr jedes 
+&xcenter; an. Die hier aufgefhrten Klassen werden auch im Untermen "Widget 
+hinzufgen" im &popmenu; eines offenen &xcenter;s angezeigt.
+ 
+<P>Folgende Felder werden angezeigt:
+ 
+<UL><LI>Das Feld <B>"DLL"</B> zeigt den Namen der
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamischen Link-Bibliothek (dynamic link library, DLL)</A>,
+an, die das Widget implementiert. Das ist entweder eine der
+DLLs im Verzeichnis <CODE>plugins\xcenter</CODE> oder es wird "Eingebaut" angezeigt, 
+wenn das Widget direkt in &xwp; enthalten ist.
+ 
+<P><LI>Die <B>"Widget-Klasse"</B> zeigt den internen Namen der Klasse an, der vom 
+&xcenter; benutzt wird, um die zugeh”rige Klasse eines Widgets zu identifizieren. 
+Dieser Name ist fr die Funktion des Widgets entscheidend und „ndert sich nicht, solange 
+die DLL verfgbar ist.
+ 
+<P><LI>Der <B>"Klassentitel"</B> ist der beschreibende Name der Klasse und wird im Men 
+"Widget hinzufgen" angezeigt. Dies dient nur zu Informationszwecken und ist nicht 
+wesentlich fr die Funktion des Widgets.
+ 
+<P><LI>Die <B>"Version"</B> zeigt die minimale Version des &xcenter;s an, die das Widget
+zur korrekten Funktion ben”tigt. Das &xcenter; berprft diese Versionsnummer, um 
+sicherzustellen, daá es eine Plug-In-DLL laden kann. Dieses Feld macht bei eingebauten
+Widgets keinen Sinn und bleibt deshalb leer.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,56 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Nytt "Ljud" Objekt
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Klasser: XWPSound</B><HR>
+
+<IMG SRC="config_8sounds.gif">
+&xwp; kan <B>f”rb„ttra "Ljud" objektet</B> genom att byta ut sidan "Ljud" i det
+objekt som till†ter „ndring och organisation av systemljud mera enkelt.
+
+<P>F”r att kunna anv„nda funktionen, m†ste du installera utbytesklassen <B>XWPSound</B>.
+
+<P>Huvudf”rb„ttringen av "Ljud" sidan „r st”det f”r <B>"ljudschemor",</B> vilka IBM 
+halvt-om-halvt-introducerade med &warp4;. Huvudproblemet med ljudschemor var dock att det var snudd p†
+om”jligt att definiera sina egna schemor utan att g† in i system INI filerna direkt.
+
+<P>&xwp;'s nya "Ljud" sida har ett nytt interface vilket till†ter dig att snabbt v„lja
+ett ljudschema, spara dina nuvarande systemljud som ett nytt ljudschema, och radera existerande
+schemor. Jag har designat detta interface f”r att vara liknande det som finns i Windows 95, 
+vilket, i det h„r fallet, enligt min †sikt „r v„lgjort. Eftersom den nya "Ljud" sidan redan hanterar
+ljudschemor, visas inte l„ngre originalsidan "Ljudschemor".
+
+<P><B>Warp 3 anv„ndare</B> kanske blir glada n„r dom kommer p† att dessa ljudschemor nu ocks†
+fungerar p† deras operativsystem. F”r att vara mera noggrann, "Ljud" sidan l†ter dig <I>organisera</I>
+dina ljud ocks† p† Warp 3; d„remot, kommer du fortfarande inte att f† st”d f”r ljudschemor i 
+din Layout Palett (vilken, p† Warp 4 och h”gre, till†ter dig att specificera olika ljud f”r 
+varje mapp).
+
+<P>Tryck <B>"Hj„lp"</B> p† den nya "Ljud" sidan f”r att erh†lla mera detaljerade instruktioner.
+
+<P><B>Notera:</B> Systemljud „r lagrade i <CODE>MMPM.INI</CODE> filen i din <CODE>MMOS2</CODE> katalog,
+d„r ljudschemor (av n†gon anledning som bara IBM k„nner till) „r lagrade i <CODE>OS2SYS.INI</CODE>. 
+Jag m†ste h†lla mig till den ordningen f”r att inte bryta kompatibiliten. Som en konsekvens, d„remot, 
+delar alla anv„ndare p† ditt system samma systemljud och ljudschemor, „ven om du har olika Skrivbord 
+(och <CODE>OS2.INI</CODE> filer) f”r varje anv„ndare. Jag „r ledsen, men klaga hos IBM (som om det hj„lpte).
+
+<P>"Ljud" objektets utbyte fungerar oberoende om du har aktiverat nya systemljud 
+(se <A HREF="mm_2sounds.html">n„sta sida</A>).
+
+<P>Om du bara vill har ett utbyte av "Ljud" objektet, utan n†gra nya systemljud,
+avaktivera "Ut”kade systemljud" funktionen p† sidan "Funktioner" hos
+<A HREF="sys_2global.html">"&xwp; Setup" objektet.</A>
+
+<P>F”r att avaktivera "Ljud" objekts utbytet, avregistrera XWPSound klassen fr†n 
+<A HREF="sys_2global.html">"&xwp; Setup" objektet.</A>
+
+<BR>
+</BODY>
+</HTML>
+
+

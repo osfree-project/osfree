@@ -1,0 +1,48 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_SHUTDOWN;>
+<HEAD>
+    <TITLE>
+        &xwp;: &xshutdown; settings
+    </TITLE>
+</HEAD>
+<!-- V0.9.0: title changed, page completely rewritten -->
+<BODY>
+On this notebook page you can change the settings for &xwp;'s
+eXtended Shutdown feature.
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+Please look into the <I>&xwp; User Guide</I>
+for an introduction to this feature.
+</IFNDEF>
+Changing the settings will
+take effect immediately.
+<P>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state.
+<!-- V0.9.7: changed all links and their order -- please recheck! -->
+<P>For a detailed explanation of each field, select from the list below:
+<!-- V0.9.16: reordered all the links below -->
+<UL><LI><A HREF="xshutdown/xsd_m_empty.html">Empty trash can</A>
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_m_confirm.html">Confirm</A>
+<LI><A HREF="xshutdown/xsd_m_warpcenter.html">Close &warpcenter; before Desktop</A>
+</IFNDEF>
+<LI><A HREF="xshutdown/xsd_m_autoclosevio.html">Auto-close non-PM sessions</A>
+<LI><A HREF="xshutdown/xsd_m_log.html">Write XSHUTDWN.LOG file</A>
+<LI><A HREF="xshutdown/xsd_m_shutfdr.html">Create &xshutdown; folder</A>
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_m_reboot.html">Reboot afterwards</A>
+</IFNDEF>
+<LI><A HREF="xshutdown/xsd_m_animate.html">Animation</A>
+<!-- V0.9.19: link name changed -->
+<LI><A HREF="xshutdown/xsd_m_apm.html">Power-off computer</A>
+<!-- V1.0.0: added ifndef -->
+<IFNDEF __EASYSHUTDOWN__>
+<LI><A HREF="xshutdown/xsd_m_saveinis.html">Save INIs</A>
+</IFNDEF>
+</UL>
+</BODY>
+</HTML>
+

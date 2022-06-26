@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPProgram-Strings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<!-- V0.9.19: title was wrong, fixed -->
+<BODY>
+<CODE>WPProgram</CODE> ist die WPS-Klasse fÅr alle
+<!-- V0.9.20: added link -->
+&link_progobjs;
+(siehe <A HREF="glossary/gls_wpsclasses.html">WPS-Klassen</A> fÅr Details).
+ZusÑtzlich zu den Konfigurationsstrings, die von der Klasse
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> erkannt werden,
+reagiert <CODE>WPProgram</CODE> auf die folgenden:
+ 
+<DL>
+<DT><P><CITE><B>ASSOCFILTER</B>=<I>filters</I></CITE>
+<DD>Legt <I>filters</I> (Filter) an, Åber die Datendateien einem Programmobjekt
+zugeordnet werden. Bei mehreren Filtern werden diese durch Komma getrennt.
+ 
+<!-- V0.9.19: added ifndef, replaced entities here -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>Hinweis: Sind &xwp;s erweiterte Zuordnungen aktiviert, so wird der
+Filter in der INI-Datei gesichert, aber die énderung hat keine Wirkung,
+bis die erweiterten Zuordnungen wieder deaktiviert werden, da &xwp;
+Zuordnungen Åber Filter komplett ignoriert.
+</IFNDEF>
+ 
+<DT><P><CITE><B>ASSOCTYPE</B>=<I>types</I></CITE>
+<DD>Legt <I>types</I> (Typen) an, Åber die Datendateien einem Programmobjekt
+zugeordnet werden. Bei mehreren Typen werden diese durch Komma getrennt.
+ 
+<DT><P><CITE><B>EXENAME</B>=<I>filename</I></CITE>
+<DD>Gibt die ausfÅhrbare Datei an, auf die das Programmobjekt zeigen soll.
+Dieser Wert mu· entweder voll qualifiziert sein (d.h. den kompletten
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+der ausfÅhrbaren Datei enthalten) oder die ausfÅhrbare Datei mu· sich
+im <CODE>PATH</CODE> befinden, ansonsten schlÑgt die AusfÅhrung des Programms fehl.
+ 
+<DT><P><CITE><B>MAXIMIZED</B>={YES|NO}</CITE>
+<DD>Legt fest, ob das Programm, auf welches das Programmobjekt zeigt,
+maximiert gestartet werden soll. Dies hat normalerweise keinen Einflu·
+auf PM-Programme.
+ 
+<DT><P><CITE><B>MINIMIZED</B>={YES|NO}</CITE>
+<DD>Legt fest, ob das Programm, auf welches das Programmobjekt zeigt,
+minimiert gestartet werden soll. Dies hat normalerweise keinen Einflu·
+auf PM-Programme.
+ 
+<DT><P><CITE><B>PROGTYPE</B>=<I>type</I></CITE>
+<DD>Legt explizit den Sitzungstyp fÅr das Programm fest, auf welches
+das Programmobjekt zeigt.
+<CODE><I>type</I></CODE> mu· einen der folgenden Werte annehmen:
+ 
+<UL><LI><CODE>DOSMODE</CODE>: Modus "DOS von Laufwerk".
+<LI><CODE>FULLSCREEN</CODE>: &os2;-Vollbildschirmmodus.
+<LI><CODE>PM</CODE>: Presentation Manager (PM).
+<LI><CODE>PROG_30_STD</CODE>: &winos2;-Vollbildschirmmodus mit StandardkompatibilitÑt.
+<LI><CODE>PROG_31_ENH</CODE>: &winos2;-Vollbildschirmmodus mit erweiterter KompatibilitÑt.
+<LI><CODE>PROG_31_ENHSEAMLESSCOMMON</CODE>: &winos2;-Fenster in einer gemeinsamen &winos2;-Sitzung
+mit erweiterter KompatibilitÑt.
+<LI><CODE>PROG_31_ENHSEAMLESSVDM</CODE>: &winos2;-Fenster in einer getrennten Sitzung
+mit erweiterter KompatibilitÑt.
+<LI><CODE>PROG_31_STD</CODE>: Vollbildschirmmodus mit StandardkompatibilitÑt.
+<LI><CODE>PROG_31_STDSEAMLESSCOMMON</CODE>: &winos2;-Fenster in einer gemeinsamen Sitzung
+mit StandardkompatibilitÑt.
+<LI><CODE>PROG_31_STDSEAMLESSVDM</CODE>: &winos2;-Fenster in einer getrennten Sitzung
+mit StandardkompatibilitÑt.
+<LI><CODE>SEPARATEWIN</CODE>: &winos2;-Fenster in separater VDM.
+<LI><CODE>VDM</CODE>: DOS-Vollbildschirmn.
+<LI><CODE>WIN</CODE>: &winos2;-Vollbildschirm.
+<LI><CODE>WINDOWABLEVIO</CODE>: &os2;-Fenster.
+<LI><CODE>WINDOWEDVDM</CODE>: DOS-Fenster.
+<LI><CODE>WINDOWEDWIN</CODE>: &winos2;-Fenster.
+</UL>
+ 
+<DT><P><CITE><B>NOAUTOCLOSE</B>={YES|NO}</CITE>
+<DD>Legt fest, ob die Sitzung nach Beendigung des Programms geîffnet bleiben soll.
+Beachten Sie, da· dies keine Wirkung auf PM-Programme hat. Standard ist <CODE>NO</CODE>.
+ 
+<DT><P><CITE><B>PARAMETERS</B>=<I>params</I></CITE>
+<DD>Gibt die Parameter an, die an das Programm, auf welches das Programmobjekt zeigt,
+Åbergeben werden sollen. Kann die standardmÑ·igen Ersatzmacros fÅr Programmobjekte enthalten.
+ 
+<DT><P><CITE><B>SET </B> <I>variable</I>=<I>value</I></CITE>
+<DD>Legt eine
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">Umgebungsvariable</A>
+fÅr die Sitzung des Programms fest.
+Beachten Sie, da· &os2; auch Umgebungsvariablen verwendet, um DOS-Einstellungen
+an DOS- und &winos2;-Sitzungen zu Åbergeben.
+ 
+<DT><P><CITE><B>STARTUPDIR</B>=<I>path</I></CITE>
+<DD>Legt das Arbeitsverzeichnis fÅr die zu startende Sitzung fest.
+ 
+</DL>
+</BODY>
+</HTML>
+ 

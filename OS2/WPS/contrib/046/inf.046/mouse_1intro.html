@@ -1,0 +1,53 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduktion
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Klasser: XFldObject, XWPSetup, XWPMouse, XWPKeyboard</B>
+<HR>
+Startande med V0.9.0, introducerar ocks† &xwp; ett antal mus- och tangentbordsut”kningar
+genom att installera Presentation Manager hook, liknande s„ttet som de 
+v„lk„nda FeelX, NPS WPS, och WarpEnhancer ocks† g”r.
+<P>
+S† &xwp; ger nu ocks† funktioner som "glidande fokus", "sk„rmkantsobjekt",
+och "objektsnabbkommandon". Dessa „r beskrivna i detalj p† f”ljande sidor.
+<P>
+Det slutliga m†let f”r den h„r &xwp; komponenten „r att byta ut alla dessa PM hook
+utilities en dag. Enligt min †sikt, existerar †tskilliga problem hos dessa utilities:
+
+<OL><LI>Viktigast, de flesta har inte aktivt underh†llits p† flera †r. Detta g„ller 
+speciellt FeelX och NPS WPS, vilka jag b†da har anv„nt under flera †r. Emellertid, b†da tv†
+har ett antal begr„nsningar vilka aldrig kommer att †tg„rdas eftersom de troligtvis 
+inte kommer att uppdateras n†gon mer g†ng.
+
+<P><LI>B†da dessa utilities „r inte s„rskilt v„l integrerade med WPS. Det betyder, att
+deras inst„llningar inte kan „ndras genom att anv„nda WPS notb”cker. &xwp; till†ter dig
+att konfigurera sin PM hook genom att anv„nda "Mus" och "Tangentbords" objektet i 
+"Systemkonfigurations" mappen. Och NPS WPS st„nger alltid av sig sj„lv n„r WPS startas om,
+vilket „r r„tt irriterande.
+
+<P><LI>Ingen av de v„lk„nda PM hook utilities som finns „r OpenSource, utom
+ProgramCommander/2 (vilken t.o.m. „r public domain). &xwp; „r OpenSource, s† buggar 
+kan rapporteras och/eller †tg„rdas av anv„ndarna.
+
+<P><LI>Slutligen, jag hatar att beh”va installera tre olika PM hooks n„r jag endast beh”ver
+en enstaka funktion fr†n var och en av dom. Varje installerad PM hook sl”ar ner systemet, 
+d„rf”r att varje enskilt meddelande som producerats av &os2; och postats eller s„nts till
+ett f”nster m†ste passera alla dessa hooks, d„r vart och ett m†ste g”ra massa ber„kningar
+f”r det meddelandet. Och vi talar om kanske hundratals meddelanden per sekund h„r. S† inst„llet
+f”r att ha tre hooks installerade vilka endast anv„nds partiellt, f”rs”ker &xwp; att l„gga de mest
+anv„nda funktionerna i en hook.
+
+</OL>Notera att &xwp; PM hook „r en funktion som „r helt och h†llet en option. Om du inte gillar
+den och vill forts„tta att anv„nda andra utilites, k„nn dig fri att g”ra s†.
+
+<P>Av det sk„let, „r &xwp; hook avaktiverad som standard. Den m†ste aktiveras f”rst i "&xwp; Setup" objekt.
+
+<BR>
+</BODY>
+</HTML>
+
+

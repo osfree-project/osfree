@@ -16,11 +16,12 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)rhbseh2$(e) &
 	 $(p)somshlb$(e)
 
-DEST    = os2$(SEP)dll
-
-EXPORTS=	somMainProgram	, &
-			DllMain			, & 
-			SOMInitModule	, & 
+DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
+#INSTALL_ADD = 1
+!if 0
+EXPORTS = somMainProgram, &
+		DllMain, & 
+		SOMInitModule, & 
 			SOMObjectClassData , &
 			SOMObjectCClassData , &
 			SOM_WarnLevel                       , &
@@ -109,6 +110,8 @@ EXPORTS=	somMainProgram	, &
 			va_SOMObject_somDispatch            , &
 			va_SOMObject_somClassDispatch
 
+!endif
+
 !ifeq %OS OS2
 ADD_OPTS = 
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -132,13 +135,13 @@ defs = $(%WATCOM)$(SEP)lh
 
 SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
-         -i=$(SOM_DIR)som$(SEP)$(%OS) &
+#         -i=$(SOM_DIR)som$(SEP)$(%OS) &
          -i=$(SOM_DIR)som$(SEP)include &
 		 -i=$(SOM_DIR)som$(SEP)src &
 		 -i=$(SOM_DIR)somcdr$(SEP)include &
 		 -i=$(SOM_DIR)rhbmtut$(SEP)include &
 		 -i=$(SOM_DIR)somcdr$(SEP)src 	&
-		 -i=$(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS) &
+		 -i=$(%OS2TK)$(SEP)som$(SEP)include &
 		 -i=$(SOM_DIR)somkpub$(SEP)include &
 		 -i=$(SOM_DIR)somtk$(SEP)include
 
@@ -158,14 +161,13 @@ C = r
 
 .h: $(MYDIR)..$(SEP)contrib$(SEP)include
 
+#install_add: .SYMBOLIC $(PATH)som.dll
+# @$(MDHIER) $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
+# $(verbose)$(CP) $(PATH)som.dll $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll $(BLACKHOLE)
+
 #.$(O): $(PATH)
 
-
-
-
-
-
-----------------------------------
+#----------------------------------
 
 
 #CC_OPT=$(STDOPT) $(SOM_INCL) 
@@ -210,3 +212,4 @@ C = r
 #$(INTDIR)/somirdll.h: ../unix/som.mak 
 #	$(SHLB_DLO) -s somir >$@
 #	cat $@
+

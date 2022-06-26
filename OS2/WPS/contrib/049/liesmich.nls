@@ -1,0 +1,234 @@
+
+XWorkplace 1.0.5 README fÅr deutsche SprachunterstÅtzung
+
+(W) Christian Hennecke, 07. August 2006
+
+
+0. INHALT DIESER DATEI
+======================
+
+1. EINFöHRUNG
+
+2. ERFORDERNISSE
+
+3. INSTALLATION
+
+4. BEKANNTE PROBLEME UND EINSCHRéNKUNGEN
+
+5. DOWNLOAD UND QUELLTEXT
+
+6. LIZENZ, COPYRIGHT, HAFTUNGSAUSSCHLUSS
+
+7. KONTAKT
+
+8. MITWIRKENDE PERSONEN
+
+9. UNTERSTöTZUNG UND SPENDEN
+
+
+1. EINFöHRUNG
+=============
+
+    Dieses Archiv enthÑlt die deutsche SprachunterstÅtzung (NLS) fÅr
+    XWorkplace 1.0.5.
+
+    Dieses LIESMICH.NLS umfa·t zusÑtzliche Informationen, die nicht
+    im XWorkplace-Benutzerhandbuch enthalten sind. Lesen Sie bitte
+    all dies vollstÑndig durch, bevor Sie mit der Installation
+    beginnen.
+
+    Nach der Installation finden Sie dieses LIESMICH.NLS im Haupt-
+    Installationsverzeichnis.
+
+    Hinweis: Die deutsche SprachunterstÅtzung fÅr XWorkplace ist
+             absichtlich nach den Regeln der alten Rechtschreibung
+             verfa·t worden, um ein konsistentes Erscheinungsbild
+             zusammen mit den Åbrigen OS/2-Teilen zu gewÑhrleisten.
+
+    Wenn Ihnen dieses Produkt zusagt, ziehen Sie bitte in Betracht,
+    die Weiterentwicklung zu unterstÅtzen. Weitere Informationen
+    erhalten Sie im Abschnitt "9. UnterstÅtzung und Spenden".
+
+
+2. ERFORDERNISSE
+================
+
+    Dieses Sprachpaket erfordert ein installiertes XWorkplace 1.0.5.
+    D.h. das XWorkplace-Basispaket mu· entweder bereits installiert
+    sein oder mit diesem Paket installiert werden.
+
+
+3. INSTALLATION
+===============
+
+    Das Sprachpaket mu· mit WarpIN installiert werden. Nachdem alle
+    Dateien kopiert wurden, wird WarpIN die Workplace Shell neu
+    starten, damit die énderungen aktiv werden kînnen. Ein Neustart
+    des Systems sollte nicht notwendig sein.
+
+    Wenn Sie sich derzeit noch nicht sicher sind, ob Sie XWorkplace
+    benutzen sollten, kînnen Sie nur das Paket "Dokumentation"
+    auswÑhlen. Auf diese Weise kînnen Sie zuerst die Dokumentation
+    von XWorkplace durchlesen und dann entscheiden, ob Sie es
+    wirklich vollstÑndig installieren wollen. Um es zu einem
+    spÑteren Zeitpunkt zu installieren, doppelklicken Sie einfach
+    nochmals auf das WarpIN-Paket fÅr XWorkplace.
+
+    Auf der letzten Seite "System Configuration" kann festgelegt werden,
+    ob WarpIN auch die WPS-Objekte, die XWorkplace angelegt
+    hat, auf die deutsche Sprachversion umstellen soll. Aktivieren Sie
+    dazu die Option "Create WPS objects". Beachten Sie dazu Punkt 1
+    unter "Bekannte Probleme". Sie kînnen dies auch spÑter nachholen,
+    indem Sie das REXX-Skript "instl049.cmd" im Unterverzeichnis
+    "install" des XWorkplace-Installationsverzeichnisses ausfÅhren.
+
+    Bei der Installation wird das deutsche Sprachpaket automatisch
+    aktiviert und steht nach einem Neustart der WPS zur VerfÅgung.
+
+
+4. BEKANNTE PROBLEME UND EINSCHRéNKUNGEN
+========================================
+
+    1. Aus KonsistenzgrÅnden wurde die Kennung des deutschen Sprachpakets
+       geÑndert. Dies fÅhrt dazu, da· EintrÑge fÅr Ñltere Versionen nach
+       der Installation in der WarpIN-Datenbank verbleiben. Diese kînnen
+       aus der WarpIN-Datenbank entfernt werden.
+
+    2. Bei der Umstellung des Konfigurationsordners auf die
+       deutschen Objekttitel gehen bestehende persînliche
+       Einstellungen wie zusÑtzliche MenÅeintrÑge i.a. verloren.
+
+    3. Wird die Sprachversion Åber das Objekt "XWorkplace-Konfiguration"
+       geÑndert, so kann es vorkommen, da· das XCenter dies nicht
+       wahrnimmt und infolgedessen EintrÑge in der vorher eingestellten
+       Sprache zurÅckbleiben. Dies lÑ·t sich durch Schlie·en und
+       erneutes Starten des XCenters beheben.
+
+    4. Beim Treiberkonfigurationsdialog fÅr JFS, der auf der Seite
+       "Treiber" des Objekts "OS/2-Kernel" aufgerufen werden kann,
+       sind die Texte derzeit noch fest in der Datei d_cdfs.dll
+       verdrahtet. Nach der Installation dieses Paketes kann die
+       englische Version nur durch Ersetzen der Datei durch die
+       ursprÅngliche Version wiederhergestellt werden.
+
+
+5. DOWNLOAD UND QUELLTEXT
+=========================
+
+    Aktuelle Versionen des Sprachpakets kann man Åber folgende URL
+    beziehen:
+
+    ftp://ftp.netlabs.org/pub/xworkplace/nls/
+
+    Der Quelltext ist als Teil des XWorkplace-CVS-Archivs bei Netlabs
+    verfÅgbar (Unterverzeichnis 049). Hinweise zur Nutzung dieses
+    Archivs finden Sie unter http://www.xworkplace.org/cvs.html.
+
+    Diese Version ist mit folgendem Tag markiert: chennecke_0001_1-0-5
+
+
+6. LIZENZ, COPYRIGHT, HAFTUNGSAUSSCHLUSS
+========================================
+
+    Copyright (C) 2002-2006 Christian Hennecke,
+                            Thomas Klein,
+                            Ulrich Mîller,
+                            Michael Riethdorf,
+                            Peter Weilbacher
+                            und andere.
+
+    Dieses Programm ist freie Software; Sie kînnen es unter den Bedingungen
+    der GNU General Public License, wie in der Datei COPYING im
+    Installationsverzeichnis enthalten, weiterverbreiten und/oder
+    modifizieren.
+
+    Der Quellcode ist vollstÑndig verfÅgbar. Siehe XFLDR049.INF fÅr Details.
+
+    Dieses Programm wird in der Hoffnung vertrieben, da· es nÅtzlich ist,
+    aber OHNE JEDWEDE HAFTUNG und ohne implizite Garantie der
+    MARKFéHIGKEIT oder der BENUTZBARKEIT FöR EINEN BESTIMMTEN ZWECK.
+
+    Details entnehmen Sie bitte dem Abschnitt "Hinweise" in XFLDR049.INF.
+
+
+7. KONTAKT
+==========
+
+    Sollten Sie VerbesserungsvorschlÑge in Bezug auf die
+    öbersetzung haben, Fehler darin finden oder bei der öbersetzung
+    helfen wollen, senden Sie uns eine Nachricht. Melden Sie sich
+    auch, wenn alles zu Ihrer Zufriedenheit funktioniert!
+    Benutzen Sie dazu bitte die Mailingliste XWorkplace-User
+    bei Netlabs: xworkplace-user@netlabs.org. Details zur Anmeldung
+    und Nutzung alternativer Benutzerschnittstellen finden Sie unter:
+
+    http://www.xworkplace.org/contact.html
+    http://wiki.netlabs.org/wiki/wiki.phtml?title=Mailinglists
+
+
+    Falls Sie Probleme mit der englischen Sprache haben oder Schreib-
+    fehler gefunden haben, kînnen Sie sich an Christian Hennecke unter
+    der E-Mail-Adresse christian.hennecke@os2voice.org wenden.
+    Beachten Sie, da· unter dieser Adresse KEIN allgemeiner
+    kostenloser Support fÅr XWorkplace und OS/2 geleistet werden kann!
+
+
+8. MITWIRKENDE PERSONEN
+=======================
+
+    Erste vollstÑndige öbersetzung
+    ------------------------------
+
+    Frank Berke
+     - öbersetzung Online-Hilfe
+
+    Christian Hennecke
+     - Koordination; öbersetzung Dialogressourcen, Handbuch, Online-Hilfe,
+       README; Korrektur Handbuch, Online-Hilfe; WarpIN-Skript
+
+    Thomas Klein
+     - öbersetzung Online-Hilfe; Korrektur Handbuch, Online-Hilfe
+
+    Ingo Maurer
+     - öbersetzung Online-Hilfe
+
+    Ulrich Mîller
+     - öbersetzung Dialogressourcen, Handbuch, Online-Hilfe; Korrektur
+       Dialogressourcen, Handbuch, Online-Hilfe
+
+    Michael Riethdorf
+     - öbersetzung Online-Hilfe; erste Versionen des WarpIN-Skripts
+
+    Peter Weilbacher
+     - öbersetzung Handbuch, Online-Hilfe
+
+
+    Pflege des Sprachpakets
+    -----------------------
+
+    Christian Hennecke, christian.hennecke@os2voice.org
+
+
+9. UNTERSTöTZUNG UND SPENDEN
+============================
+
+    XWorkplace und die SprachunterstÅtzungspakete basieren auf freiwilliger,
+    unentgeltlicher Arbeit. Wenn Sie die weitere Entwicklung unterstÅtzen
+    mîchten, haben Sie folgende Mîglichkeiten:
+
+    - Mitarbeit am Projekt: Neben der eigentlichen Entwicklung gehîrt hierzu
+      auch die Pflege der Dokumentation, der Definitionsdateien fÅr Treiber
+      und WPS-Klassen, der Projekt-Web-Site sowie Hilfe fÅr Anwender.
+
+    - Spenden an Netlabs.org: Mensys B.V. bietet Sponsoreinheiten zum
+      Online-Kauf unter folgender URL an:
+
+      http://shop.mensys.nl/cgi-bin/db2www/mns_art2.d2w/report?catname=NETLABS
+
+      Mit diesen Spenden werden z.B. wichtige Internet-Dienste wie das
+      Quelltextarchiv (CVS), das die gemeinsame Arbeit am Projekt ermîglicht,
+      und die Support-Mailinglisten finanziert.
+
+    - Spenden an Beteiligte: BezÅglich Sach- oder Geldspenden wenden Sie sich
+      bitte direkt an die jeweilige Person.
+

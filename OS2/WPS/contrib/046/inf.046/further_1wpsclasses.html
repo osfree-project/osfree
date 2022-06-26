@@ -1,0 +1,99 @@
+<HTML SUBLINKS="wps" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Vad „r WPS Klasser?
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.13:
+First, please take a look at the <A HREF="sys_4wpsclasses.html">"WPS classes"</A>
+page in the "Introduction" section of this
+document, if you don't have a general understanding of WPS classes yet.
+-->
+
+<P>Generellt, i objekt-orienterad programmering, „r en <B>klass</B> en abstrakt definition av b†de
+(1.) datatyper och (2.) aktioner som utf”rs p† datat. Det senare „r allm„nt k„nt som
+objekt <STRONG>metoder</STRONG>.
+<P>Medan klasser endast beskriver en objekttyp p† ett abstrakt s„tt, kallas de objekt som 
+verkligen existerar i ett program <STRONG>bel„gg</STRONG> f”r en speciell klass.
+<P>Ta ett WPS programobjekt, till exempel: varje programobjekt „r ett bel„gg f”r klassen WPProgram,
+definierat av WPS. (1.) data av programobjektet skulle vara, bland annat, den exekverbara associerad med
+(dvs. "CMD.EXE"), medan (2.) metoden (som kunde anv„ndas p† detta data) vore att starta den exekverbara
+(genom att dubbel-klicka eller v„lja menyposten "™ppna") eller „ndra den exekverbara i notboken med
+inst„llningar. Trots att du inte kan "se" metoder fr†n anv„ndarinterfacet, anv„nds metoder hela tiden
+internt varje g†ng WPS g”r n†gonting. Om du „r bekant med den termen, kan metoder vagt beskrivas som
+ett Application Programmer's Interface (API) f”r ett objekt. Om du k„nner till hur man programmerar REXX:
+varje g†ng du anv„nder en av objektets
+<A HREF="xices_30wpsstrings.html">setupstr„ngar</A> f”r att modifiera ett objekts data, anropar du i 
+praktiken en metod f”r objektet.
+<P>Eftersom metoder „r definerade f”r varje klass, „r de metoder som du anropar f”r ett objekt
+beroende p† klassen hos objektet. Jag har inte r„knat dom, men redan WPObject, den mest grundl„ggande
+WPS klassen, definerar mer „n 100 metoder.
+<P>Det som g”r objekt-oriented programmering s† flexibel (och popul„r) „r att du kan
+definiera relationer mellan klasser. F”r att f”rst† det, „r f”ljande tv† koncept v„rdefulla:
+<UL>
+<LI><STRONG>Arv.</STRONG> Detta koncept till†ter dig att definiera en objektklass som tar ”ver alla dess
+datatyper och metoder fr†n en annan objektklass, utan att kr„va att programmeraren k„nner till hur
+originalklassen ursprungligen programmerades. Du kan helt enkelt "ta ”ver" funktionerna hos en existerande klass
+och skriva om endast vad du vill implementera. Originalklassen kallas d† "stamfader" eller "f”r„lder" till "avkomlings" klassen.
+<P>Till exempel, hos Workplace Shell, „r Skrivbordsklassen (kallad "WPDesktop") deriverad fr†n mappklassen
+(kallad "WPFolder"), vilket g”r att Skrivbordet inte „r n†got annat „n en speciell typ av mapp.
+<P>S† grundl„ggande, har Skrivbordet alla kapaciteter hos en regulj„r mapp: du kan l„gga andra objekt p† det,
+sortera dess inneh†ll, ”ppna en tr„d- eller detaljvisning, och s† vidare.
+Men som till„gg, Skrivbordsklassen erbjuder ytterligare n†gra aktioner: dess kontextmeny inneh†ller flera poster
+(som "St„nga av" och "Systemkonfiguration"), inst„llningsnotboken har fler sidor, och s† vidare. Uppenbarligen har
+Skrivbordet inte bara „rvt mapparnas karakt„ristik, utan lagt till n†gra ytterligare.  andra sidan, „r n†gra
+karakt„ristika fr†n mappar undertryckta:
+till exempel kan du inte st„nga det aktiva Skrivbordet och det har ingen rubrikrad.
+<P>WPS implementerar en deriverad struktur s†som att alla objekt „r logiskt grupperade och beroende av 
+varandra. P† ett „nd† mer abstrakt plan, alla objektklasser hos WPS „r avkomlingar till en ENSAM KLASS kallad
+"WPObject", vilken erbjuder speciella funktioner som alla Skrivbord beh”ver: huvudsakligen f”rm†gan att
+visa kontextmenyer och notb”cker f”r allting och liknande saker. Detta „r typiskt f”r objekt-orienterad programmering;
+s†som en global stamfaderklass kallad "rotklass" hos en "klasshierarki".
+<P>P† WPObject, bygger WPS ett komplett tr„d av klasser k„nda som
+<A HREF="xices_1wpsclasses.html">WPS klasshierarki</A>. Du kan anv„nda sidan "WPS Klasser"
+<!-- V0.9.0: changed the following -->
+i &xwp;'s <A HREF="sys_1intro.html">"WPS klasslista"</A> objekt f”r att se p† detta.
+<P>En s†dan klasshierarki har f”rdelen att man kan „ndra karakt„ristiken endast hos rotklassen, och alla
+andra klasser som „r deriverade fr†n den kommer ocks† att „ndras. (Nackdelen „r -- fr†n en programmerares
+synvinkel -- att bygga en s†dan klasshierarki erfordrar en hel del planering ”ver vilka data och vilka metoder
+som „r vanliga f”r vilka klasser, och m†nga g†nger visar det sig att planeringen inte var riktigt optimal. Men n„r
+v„l hierarkin har byggts p† ett genomt„nkt s„tt -- vilket, tack vare IBM, verkligen „r fallet med  WPS -- d† „r
+f”rdelarna helt enkelt superba.)
+<BR><LI><STRONG>Polymorfism.</STRONG> Detta koncept inneb„r, att medan arv anv„nds, kan du BYTA UT vissa 
+karakt„ristika hos en f”r„ldrarklass med nya. Du kan omdefiniera ("”verskrida") original objektklassens beteende.
+Nu, om en speciell metod anv„nds p† en avkomling, blir den nyligen definierade metoden anropad ist„llet f”r den 
+som var definierad hos f”r„ldrarklassen.
+<P>Bara ett av m†nga exempel p† detta kan du se hos "Hj„lp" menyposten vilken „r tillg„nglig i varje objekts 
+kontextmeny. Val av menyposten "Ut”kad hj„lp" kommer att resultera i att objektets <CITE>wpDisplayHelp</CITE> metod 
+blir anropad. Denna metod „r introducerad av WPS rotklass, WPObject, s† att alla Skrivbordsobjekt kan visa hj„lp:
+&os2;'s hj„lpmanager initialiseras, hj„lpf”nstret visas, etc. Den verkliga hj„lpsidan som skall visas d„remot blir
+”verskriden (f”ljande konceptet f”r polymorfism) av n„stan varje enstaka WPS klass. P† detta s„tt, kommer tryck p† "Hj„lp" i en 
+mapps kontextmeny att visa dig n†got annorlunda „n, s„g, i ett programs objektmeny.
+
+</UL>
+<!-- V0.9.13
+For details on what <B>class replacements</B> are, please refer to the
+<A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the "Introduction"
+section also.
+<P>-->
+Medan arv och polymorfism „r koncept k„nda av varje objekt-orienterad programmeringsmilj” (och „ven hos
+objekt-orienterade spr†k, som C++), „r Workplace Shell „ven kapabelt att erbjuda sin f”rdelar f”r flera applikationer.
+WPS best†r av m†nga DLL'er vilka „r i sak oberoende av varandra, och programmerare utanf”r IBM kan ut”ka WPS genom
+att anv„nda dessa funktioner utan att k„nna till WPS's k„llkod, vilket inte „r m”jligt med "normala" objekt-orienterade spr†k.
+<P>Det enda sk„let till att det fungerar „r att WPS anv„nder IBM's egen <B>System Object Model (SOM),</B> ett komplext system
+vilket erbjuder objekt-orienterade programmeringsinterface „ven ”ver †tskilliga kodmoduler, och „ven oberoende av 
+programmeringsspr†k. SOM „r s† kraftfullt d„rf”r att klasser „r ”gonblickliga och underh†lls vid k”rningstiden ist„llet
+f”r vid kompileringen.
+<P>Detta „r, f”rresten, d„r WPS klasslista kommer in: n„r WPS bootas upp, skapar alla klasser (vilka, i SOM, ocks†
+„r objekt, men det „r en komplicerat sak), och endast etablerar relationerna mellan dom vid den h„r tidpunkten. Endast tack vare
+detta „r det m”jligt att modifera klasser utan IBM, vilka skapade originalen, utan att k„nna till dom.
+<P>Bara en kort personlig †sikt, detta „r fortfarande n†got som g”r &os2; unikt i dagens datorv„rld. Medan de flesta andra
+f”rdelarna ”ver andra operativsystem, som dess p†litliga multitasking, inte „r s† unika l„ngre (t.ex. Linux „r r„tt bra
+p† det ocks†), „r anv„ndarinterfacet fortfarande ouppn†tt av andra operativsystem som jag k„nner tilI. Speciellt inte Windows 95.
+<BR>
+</BODY>
+</HTML>
+
+

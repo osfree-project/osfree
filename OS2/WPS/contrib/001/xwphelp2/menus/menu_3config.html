@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Configuring Pop-Up Menus
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+&xwp; allows you to globally add menu items to the
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A>
+of all
+<!-- V0.9.19: link added -->
+&link_folders;
+on the system with the use of a special
+<B>&cfgfdr;,</B> which looks just like any normal WPS folder.
+
+<P>This folder is placed in your
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: changed this -->
+&link_lookfdr;.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+"XWorkplace Installation" folder.
+</IFNDEF>
+
+<P>Whatever you put into this folder will immediately
+appear in the &popmenu;s of all the folders on your system.
+Note however that certain object classes have a special meaning in the
+context of the &cfgfdr;:
+
+<OL><LI><B>Program objects</B> in the &cfgfdr; will be started when the
+corresponding menu item is selected.
+(Actually, not the program object will be started, but the program defined in the
+program object's <A HREF="glossary/gls_notebook.html">properties notebook</A>.)
+
+<P>&xwp; can perform a number of useful tricks on program objects.
+See
+<A HREF="menus/menu_4wpprogram.html">"Extra features for program objects"</A>
+for more information.
+
+<BR><LI>Putting <B>another folder</B> in the &cfgfdr; will
+create a cascading submenu in the &popmenu;s. In this subfolder,
+you can place more objects and folders.
+This way, you can create a whole &popmenu; hierarchy (as can be seen in
+the default setup).
+There's no limit on nesting folders, so you may create hierarchies many
+levels deep.
+
+<!-- V0.9.20: added link -->
+<BR><LI>A <B><A HREF="tasks/tsk_templates.html">template</A>
+or shadow of a template</B> will result in the creation of a
+new object from it when the respective menu item is selected. The new object will be
+created in the folder whose &popmenu; was used.
+<P>For example, if you have created a folder template with
+special settings for fonts, colors, etc., you can put a shadow of it into a Configuration
+Folder, and when you select its corresponding menu item from a folder's &popmenu;, a
+new folder will be created in this folder, just as if you had dragged a folder from the
+template.
+<!-- V0.9.20: link name changed -->
+<P>See <A HREF="menus/menu_2template.html">"Creating objects with Create New"</A> for more.
+
+<BR><LI>A <A HREF="objects/obj_string.html">setup string object</A> will invoke
+the setup string which is stored in the setup string object on the folder whose
+&popmenu; item was selected.
+
+<BR><LI><B>All other objects</B> will simply be opened when their corresponding menu
+item was selected. This includes shadows of program objects, shadows of folders,
+"real" files, shadows of them, and so on.
+<P>For example, you can put a shadow of your favorite data file (e.g. "To-do list")
+into the &popmenu;s.
+
+<BR><LI>As a special feature, you can insert <B>menu separators</B> by putting a
+program object with the exact title of <CITE>"---"</CITE> (three dashes) into a
+&cfgfdr;.
+Again, see <A HREF="menus/menu_4wpprogram.html">"Extra features for program objects"</A>
+for details.
+
+</OL>Note that the <CITE>"~"</CITE>
+character within an object's title turns into an underlined character
+in the &popmenu;, allowing for keyboard shortcuts.
+<BR>
+</BODY>
+</HTML>
+

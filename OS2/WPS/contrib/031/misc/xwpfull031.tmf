@@ -1,0 +1,570 @@
+;
+; This file contains additions to XFLDR001.TMF (see remarks there).
+; Many definitions have been moved here because they are presently
+; not needed for eComStation and should thus be separated.
+;
+; This applies to the following messages (V0.9.16, IIRC):
+;
+;   --  FEATURES_*
+;
+;   --  XWPCLS_*
+;
+; With V0.9.20, more items were moved into this file (without
+; changing the actual messages):
+;
+;   --  S506DLG_*
+;
+;       Copyright (C) 1997-2015 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+;
+; this item added with V0.9.20 (2002-08-10) [umoeller]
+; and V1.0.1 (2003-02-02) [umoeller]
+;
+
+<--PRODUCTINFO-->: XWorkplace
+Versie &version;
+Gemaakt &date;
+
+;
+; the following item has changed V0.9.20 (2002-08-10) [umoeller]
+;
+
+<--XFL0140-->: &copy;&nbsp;1997-2005 Ulrich M”ller.
+<BR>English National Language Support: &copy;&nbsp;1998-2005 Ulrich M”ller.
+<P>
+Contains portions &copy;&nbsp;2000-2015 Martin Lafaix, Paul Ratcliffe, and others.
+<BR>Contains portions from the Standard Function Library &copy;&nbsp;1991-99 iMatix corporation.
+<BR>Contains portions from expat 1.95.1 &copy;&nbsp;1998-2000 Thai Open Source Software Center Ltd.
+<P>
+&xwp;'s home on the Internet is <A HREF="http://www.xworkplace.org">http://www.xworkplace.org</A>.
+<BR>To report bugs, use the official bugtracker at <a href="http://xtracker.netlabs.org">http://xtracker.netlabs.org</a>.
+<P>
+Contact &contact-user; for general discussion about &xwp;.
+<BR>Contact &contact-dev; if you are (or want to become) familiar with the &xwp; source code.
+<P>
+&xwp; is free software under the GNU General Public Licence (GPL), which is contained in the
+<A HREF="copying">COPYING file</A> in the &xwp; installation directory. &xwp; therefore comes with absolutely <B>no warranty.</B>
+
+<P>The full source code is available from Netlabs CVS. See <A HREF="http://www.xworkplace.org/cvs.html">http://www.xworkplace.org/cvs.html</A> for details.
+You are welcome to redistribute and/or modify &xwp; under the conditions of the GPL.
+<P>
+For more information, refer to the "Notices" section of the <A HREF="inf">&xwp; User Guide</A>.
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new IBM1S506/DANIS506.ADD dialog
+; in "OS/2 Kernel".
+; Each item starts with "S506DLG_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--S506DLG_1621-->: "Quiet" means that the driver will produce no output at all during system startup. This is the default.
+
+<--S506DLG_1622-->: "Verbose" (/V) will display driver, adapter, and unit information during system startup.
+
+<--S506DLG_1623-->: "Wait" (/W) displays the same information as "/V", but will not display everything in one shot (which usually scrolls off the screen), but ask you to press a key after each chunk of information.
+Availability: DANIS506.ADD and newer IBM1S506.ADD versions.
+
+<--S506DLG_1624-->: This checkbox determines whether DMA Scatter/Gather is enabled.
+According to the &os2; Command Reference, the default is "enabled".
+
+<--S506DLG_1625-->: This selects adapter 0 (the "primary" controller") for the adapter settings below.
+Note that "/A:0" is only added to the parameters list if any non-default settings are set for this adapter or any of its units (drives).
+
+<--S506DLG_1626-->: This selects adapter 1 (the "secondary" controller") for the adapter settings below.
+Note that "/A:1" is only added to the parameters list if any non-default settings are set for this adapter or any of its units (drives).
+
+<--S506DLG_1627-->: Checking this box will tell the driver to leave the adapter alone which has been selected. All devices connected to this adapter will be ignored by the driver.
+This is probably only necessary if you have more than two adapters on your system and need to load the IDE driver more than once.
+
+<--S506DLG_1628-->: This setting determines whether the driver is allow to reset an adapter when hardware errors occur.
+According to the &os2; Command Reference, if errors occur (lost interrupts, command timeouts, invalid commands), resetting the adapter can help. However, some adapters with non-default commands might lose data upon resets.
+Disable this checkbox to prohibit adapter resets for the current adapter.
+Enable this checkbox to explicitly allow adapter resets.
+If the check box is gray (indeterminate state), no parameter will be added.
+
+<--S506DLG_1629-->: Check this box to explicitly override the default base port address for this adapter.
+This is probably only necessary if you have more than two adapters on your system and need to load the IDE driver more than once.
+
+<--S506DLG_1630-->: If the checkbox on the left is enabled, you can specify the base port address for the current adapter here.
+This is a hexadecimal value.
+The default is 1F0 for adapter 0 and 170 for adapter 1.
+
+<--S506DLG_1631-->: Check this box to explicitly override the default interrupt (IRQ) for this adapter.
+This is probably only necessary if you have more than two adapters on your system and need to load the IDE driver more than once.
+
+<--S506DLG_1632-->: If the checkbox on the left is enabled, you can specify the interrupt (IRQ) for the current adapter here.
+The default is IRQ 14 for adapter 0 and IRQ 15 for adapter 1.
+
+<--S506DLG_1634-->: Check this box to explicitly override the default DMA channel which is used for the current adapter.
+This is probably only necessary if you have more than two adapters on your system and need to load the IDE driver more than once.
+
+<--S506DLG_1635-->: If the checkbox on the left is enabled, you can specify the DMA channel for the current adapter here.
+I was unable to find default values for this in the documentation.
+
+<--S506DLG_1636-->: Check this box to explicitly override the default DMA Scatter/Gather port address for the current adapter.
+This is probably only necessary if you have more than two adapters on your system and need to load the IDE driver more than once.
+
+<--S506DLG_1637-->: If the checkbox on the left is enabled, you can specify the port address for DMA scatter/gather for the current adapter here.
+This is a hexadecimal value.
+According to the &os2; Command Reference, the default is always 400.
+
+<--S506DLG_1638-->: This selects whether busmastering (direct memory access, DMA) will be enabled for the entire current adapter (/BM or /!BM with the adapter parameter).
+DANIS506.ADD and newer versions of IBM1S506.ADD support specifying this parameter on a per-unit basis also (see the right of this dialog).
+For general remarks about busmastering, press the "Help" button.
+Check this box to explicitly enable busmastering for all units connected to the current adapter (/BM).
+Uncheck this box to explicitly disable busmastering for all units connected to the current adapter (/!BM). This might be necessary for older harddisks which cannot handle busmastering.
+If the check box is gray (indeterminate state), the driver will decide for itself whether busmastering can be enabled.
+Note that the standard IBM1S506.ADD drivers shipped with Warp 3 and 4 have this disabled per default, while all drivers from newer fixpaks have this enabled.
+In contrast, DANIS506.ADD is smart enough to perform a few checks before busmastering will be enabled. Press the "Help" button for details.
+
+<--S506DLG_1639-->: This selects adapter 0, unit 0 (the "primary master" unit) for the unit settings below.
+Note that "/A:0 /U:0" is only added to the parameters list if any non-default settings are set for this unit.
+
+<--S506DLG_1640-->: This selects adapter 0, unit 1 (the "primary slave" unit) for the unit settings below.
+Note that "/A:0 /U:1" is only added to the parameters list if any non-default settings are set for this unit.
+
+<--S506DLG_1641-->: This selects adapter 1, unit 0 (the "secondary master" unit) for the unit settings below.
+Note that "/A:1 /U:0" is only added to the parameters list if any non-default settings are set for this unit.
+
+<--S506DLG_1642-->: This selects adapter 1, unit 1 (the "secondary  slave" unit) for the unit settings below.
+Note that "/A:1 /U:1" is only added to the parameters list if any non-default settings are set for this unit.
+
+<--S506DLG_1643-->: This selects whether busmastering (direct memory access, DMA) will be enabled or disabled for the current unit only (/BM or /!BM with the unit parameter).
+Specifying this for a single unit is only supported by DANIS506.ADD and newer versions of IBM1S506.ADD.
+Otherwise, you have to specify this for a whole adapter, for which a checkbox exists on the left. See the remarks there.
+For general remarks about busmastering, press the "Help" button.
+
+<--S506DLG_1644-->: Check this box to explicitly override the default error recovery time for the current unit (/T:xxx).
+
+<--S506DLG_1645-->: If the checkbox above has been enabled, this allows you to override the default error recovery time for the currently selected unit (in seconds).
+According to the &os2; Command Reference, the default is 30 seconds. Lower values might be desirable for fault-tolerant applications. Values below five seconds cannot be specified with the driver.
+
+<--S506DLG_1647-->: Check this box to explicitly specify the drive geometry for the currently selected unit. Otherwise, the driver will determine the geometry itself according to the BIOS setup, which is OK in most cases.
+I guess this parameter is not that useful any more, now that all BIOSes have built-in IDE auto-detection and LBA support.
+
+<--S506DLG_1648-->: If the checkbox above has been enabled, you can specify the drive geometry here.
+I was unable to find any lucid information about the syntax of the /GEO:xxx parameter, so you'll have to enter the "xxx" part manually here.
+According to the "Storage Device Driver Reference" in the IBM Device Driver Development Kit (DDK), this can either be a single decimal number (0-47) to reference one of the default BIOS drive types, which was probably useful with drives built before 1985 or so, or a value in the format "(c,h,s)", with three decimals specifying the cylinders, heads, and sectors of the drive.
+Be warned though, I have not tested this.
+
+<--S506DLG_1652-->: This determines whether Set Multiple Support (SMS, block mode) is enabled for the current unit.
+SMS means that more than one block of data (drive sector) can be transferred at once, which will increase performance.
+If the check box is gray (indeterminate state), the driver will decide automatically if a drive supports SMS.
+Check this box to explicitly enable SMS for a unit (/SMS), if the driver does not detect SMS support automatically.
+Uncheck this box to explicitly disable SMS for a unit (/!SMS). Note that newer versions of the IBM1S506.ADD will always enable SMS if the driver thinks that this is appropriate, and /!SMS will then be ignored always, which can cause some trouble. Use DANIS506.ADD to explicitly disable SMS.
+According to DANIS506.DOC, every harddisk has a maximum SMS run length defined by the manufacturer specific to each model, which is queried by the driver.
+
+<--S506DLG_1653-->: Check this box to explicitly enable Logical Block Addressing (LBA) for the current unit, if the driver does not detect this right.
+LBA is a BIOS feature which has been introduced a few years ago to access large hard drives (beyond 504 MB) by remapping the drive geometry logically. Modern hard drives should always have this enabled in the BIOS setup, and normally, this is properly detected by &os2;.
+
+<--S506DLG_1654-->: This setting determines whether a unit will be passed to the &os2; storage device manager (OS2DASD.DMD).
+That manager driver is the interface between the various adapter drivers (*.ADD) and the &os2; file systems (FAT, HPFS, ...). It is this driver which reports logical drives to the &os2; Kernel at bootup so that drive letters can be assigned.
+Uncheck this box to explicitly disable &os2; support for the current drive (so that no drive letter will be assigned).
+Check this box to explicitly enable &os2; support for the current drive.
+If the check box is gray (indeterminate state), the IDE driver will decide for itself whether the drive should be supported by &os2;, which is appropriate in most cases.
+
+<--S506DLG_1655-->: Check this box to enfore availability of the current unit, even if the driver detects that the unit is not installed.
+This is useful for external devices which can be powered off separately, e.g. external CD-ROM drives. For those, enable the "ATAPI" checkbox also.
+
+<--S506DLG_1656-->: If this box is checked, the current unit will always be considered an ATAPI CD-ROM drive.
+If this box is unchecked, the current unit will never be considered an ATAPI CD-ROM drive.
+If the check box is gray (indeterminate state), the driver will automatically detect if the unit is an ATAPI CD-ROM drive.
+Checking this box is useful for external CD-ROMs which can be powered off separately. For those, enable the "Force" checkbox also.
+
+<--S506DLG_1657-->: This entry field is read-only and displays what the parameters of the IDE driver will look like in CONFIG.SYS.
+This field is dynamically updated if you change any of the settings in this dialog.
+If you press the "OK" button, these parameters will be copied to the "Drivers" page in the "&os2; Kernel" notebook.
+
+<--S506DLG_1660-->: Enable this checkbox to explicitly specify the clock speed of the PCI bus on your system.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1661-->: If the checkbox on the left has been enabled, this allows you to specify the PCI clock speed.
+From DANIS506.DOC: "Some users are forced (or feel themselves forced ;-) to run the PCI bus on their motherboards at speeds other than the optimum 33MHz. For example, many Cyrix processors need very uncommon front side bus speeds which cannot be easily divided into 33MHz. This leads to either too slow EIDE timings or too fast ones. The former case may be disappointing, but the latter overclocks the EIDE interfaces and may introduce data distortions.
+If you know the actual PCI clock of your motherboard, you may add an additional driver option /PCLK:x (x is the PCI clock in MHz). If you don't know the PCI clock speed, set x to zero, and the driver will then try to determine the PCI clock. The PCI clock (either derived or user supplied) is then sorted into four speed classes (25MHz, 33MHz, 37MHz, and 41MHz) which is reported at boot time. For each of these speed classes, the driver *tries* to select the optimum chip timings, but due to chipset limitations this not possible in all cases.
+As most motherboards run their PCI bus at the optimum 33MHz clock today, you should use this switch only if really necessary!"
+For more details and a technical background, please refer to DANIS506.DOC.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1663-->: Check this box to enable generic busmastering support for not "well-known" chips.
+Press the "Help" button for more information about busmastering.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1664-->: Check this box to treat all EIDE chips as "not well-known".
+Press the "Help" button for more information about busmastering.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1665-->: Check this box to enable the DANIS506.ADD "Matrox fix".
+From DANIS506.DOC: "If there is a PCI EIDE controller in your system, and you happen to have a Matrox video board, then the boot process might just stop at a certain point or fail with a trap 8. This is due to a horribly nasty behaviour of the Matrox driver wich scans all ports with addresses Cx0yh (x = 0..F, y = 0..3) at initialization of the base video handler even if these addresses are not assigned to the video board. I wouldn't call it playing by the rules beating the bush and looking if some sort of MGA drops out of it.
+If any other PCI device gets assigned addresses matching the above pattern, *anything* can happen. To work around this problem, I have added a new option /MGAFIX which detects EIDE hardware with addresses affected by that, and tries to push them away a little by reprogramming the address decoders so that they are no longer potential scan targets.
+Caution: this is a last-resort option. Use it *only when necessary*!"
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1666-->: Check this box to explicitly specify an inactivity timout for the current unit, after which the drive will spin down.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1667-->: If the checkbox on the left has been enabled, this specifies the inactivity timeout in minutes. Specifying 0 will disable spin-down completely.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1668-->: Check this box to fine-tune the data rate which will be allowed for DMA busmastering.
+From to DANIS506.DOC: "many EIDE controllers don't have the capability to select PIO modes and multiword DMA modes independent from each other because theses mode share the same timing registers. This is for historic reasons and the similarity of cycle timings. This applies to all supported controller chips except for Promise Ultra and Cyrix MediaGX.
+To deal with this situation the driver selects the slower cycle time from the proposed PIO and MW-DMA modes."
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1670-->: If the checkbox above has been enabled, this allows you to explicitly specify the Ultra-DMA mode which is allowed for the current unit.
+According to DANIS506.DOC, valid values are:
+    0  -  disable  Ultra DMA
+    1  -  limit to Ultra DMA mode 0
+    2  -  limit to Ultra DMA mode 1
+    3  -  limit to Ultra DMA mode 2
+    4  -  limit to Ultra DMA mode 3 (44MB/s)
+    5  -  limit to Ultra DMA mode 4 (66MB/s)
+If you set UDMA=0 and MWDMA=0, this will effectively disable busmastering for the current unit since no DMA mode is left to use.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1672-->: If the checkbox above has been enabled, this allows you to explicitly specify the Multiword-DMA mode which is allowed for the current unit.
+According to DANIS506.DOC, valid values are:
+    0  -  disable  MW DMA
+    1  -  limit to MW DMA mode 0 (in S506.ADD effectively the same as 0)
+    2  -  limit to MW DMA mode 1
+    3  -  limit to MW DMA mode 2
+If you set UDMA=0 and MWDMA=0, this will effectively disable busmastering for the current unit since no DMA mode is left to use.
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1674-->: If the checkbox above has been enabled, this allows you to explicitly specify the Programmed I/O (PIO) mode which is allowed for the current unit.
+According to DANIS506.DOC, valid values are:
+    0  -  limit to PIO mode 0
+    1  -  limit to PIO mode 1 (in S506.ADD effectively PIO 0)
+    2  -  limit to PIO mode 2 (in S506.ADD effectively PIO 0)
+    3  -  limit to PIO mode 3 (with flow control)
+    4  -  limit to PIO mode 4 (with flow control)
+Availability: DANIS506.ADD only.
+
+<--S506DLG_1675-->: This setting determines whether a drive will be treated as a removeable drive.
+From DANIS506.DOC: "If you have a removable drive which you want to boot from, this reportedly fails. To enable booting from this unit it has to be treated as a fixed one. This can be done with the option /!RMV applied to the proper unit.
+It is reported also that some Syquest drives have buggy firmware which doesn't report properly the support of the removable feature set. To announce these drives to &os2; a removable drives add the /RMV option to the appropriate unit."
+Availability: DANIS506.ADD only.
+
+<--S506DLG_0001-->: Pressing "OK" will close the dialog and copy the current parameter list as shown in the "New parameters" field to the "Drivers" page in the "&os2; Kernel" settings notebook.
+
+<--S506DLG_0002-->: Pressing "Cancel" will close the dialog, but not change the "Drivers" page in the "&os2; Kernel" settings notebook.
+
+<--S506DLG_0095-->: Pressing "All defaults" will reset the dialog to a default state, as if no driver parameters had been specified in CONFIG.SYS.
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "Features" page (XWPSetup).
+; Each item starts with "FEATURES_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--FEATURES_6000-->: If "Replace icons" is enabled, &xwp; will replace the WPS default icons with prettier ones (in my view, that is). Those icons are freely configurable.
+This was new with XFolder 0.84.
+See the &xwp; User Guide for details.
+<--FEATURES_6002-->: If "Replace Icon page..." is enabled, &xwp will replace the "Icon" page in every object's settings notebook with a new, enhanced version.
+On that page, changing the icon is a bit more comfortable. In addition, you can view object internals and set a global hotkey for an object, if the &xwp; Hook is also enabled (see "Mouse and Keyboard features" below).
+This was added with &xwp; 0.9.16 and replaces the "Object" page which was present in previous &xwp; versions.
+<--FEATURES_6003-->: If this is enabled, &xwp; combines the three standard "File" pages in folder and data file settings notebooks into a more convenient single "File" page.
+Also, a second page for viewing extended attributes is added.
+Also, this replaces the "Details" page in disk objects with a graphical pie chart view.
+This was added with &xwp; 0.9.0.
+<--FEATURES_6004-->: "Extended system sounds" allows you to define more sounds than the WPS usually offers.
+You'll get additional sounds for context menus, object selections, and more.
+You can set up those new sounds in the regular "Sound" object, as usual.
+This was new with XFolder 0.70.
+
+; FEATURES_6001 added with V0.9.4
+
+<--FEATURES_6001-->: If "Adjust settings pages..." is checked, &xwp; can adjust the size of certain settings pages if the entire notebook is resized. This can come in handy for some of the more complex &xwp; pages to be able to view more data at once.
+Note that this will only affect some of the new &xwp; pages, but not the default WPS pages.
+This was added with &xwp; 0.9.4.
+
+; FEATURES_6005 added with V0.9.12
+
+<--FEATURES_6005-->: If "Fix class titles" is checked, &xwp; will override the class titles of the folder, file, and disk classes.
+The class titles are shown in the third column in Details view (and also on status bars, if you have told them to do so).
+Unfortunately, if the WPS networking classes are installed, these titles are no longer very meaningful, so &xwp; can reset them to "folder", "data file", and "disk" again.
+
+; FEATURES_6006 added with V0.9.20 (2002-07-19) [umoeller]
+
+<--FEATURES_6006-->: If "Replace default help panels" is checked, &xwp; will replace many default WPS help panels with new rewritten ones which, in my view, are more informative. At the least, they are not as outdated.
+This applies mostly to help panels assigned to many standard WPS objects, that is, if you select an object in a folder and press F1.
+This was added with XWorkplace 0.9.20.
+
+<--FEATURES_6011-->: If "Enable status bars" is checked, you may configure folders to show status bars with detailed information for the selected objects in a folder.
+If this is enabled, you'll get two additional settings pages in &xwp;'s "Workplace Shell" object, which allow you to configure status bars in detail.
+Also, you can define whether status bars should be visible for each folder individually.
+So after enabling this, go to the "Workplace Shell" object and turn to the "Status bars" pages.
+See the &xwp; User Guide for details, especially for how to fine-tune status bars for your needs.
+This was new with XFolder 0.70.
+<--FEATURES_6012-->: Check "Enable Snap to grid" to be able to add a "Snap to grid" item to folder context menus.
+This item will make all objects in the folder snap onto a grid of invisible lines, which makes object alignment easier.
+Enabling this will also add a "Snap to grid" page to the "Workplace Shell" object, where you can define the grid to be used.
+See the &xwp; User Guide for an introduction what this means.
+This was new with XFolder 0.50.
+<--FEATURES_6013-->: If "Folder hotkeys" are enabled, you will be able to define new shortcuts to more than 30 frequently used folder functions (such as "select all") in &xwp;'s "Workplace Shell" object.
+This was new with XFolder 0.50.
+See the &xwp; User Guide for details and the default hotkeys setup.
+<--FEATURES_6014-->: "Extended folder sorting" replaces the default WPS sort functions for folders. If this is enabled, you can finally define global sort options in &xwp;'s "Workplace Shell" object, but you can still override the default settings for each folder.
+Also, this introduces new sort criteria, such as "Sort by extension" or "Sort folders first".
+This was new with XFolder 0.70.
+See the &xwp; User Guide for details.
+;
+; FEATURES_6015 added with V0.9.16
+; rewritten with V1.0.1 (2002-12-15) [umoeller]
+;
+<--FEATURES_6015-->: The "Turbo folders" feature replaces the internal storage of awake objects for all folders on the system. In addition, it replaces the mechanism for associating data files with programs.
+&xwp; implements high-speed algorithms to be able to find objects in folders much faster than the standard WPS.
+With this setting enabled, you will notice that your folders populate much faster. In addition, program associations become much more flexible because they are only based on types any more.
+This requires the XWPFileSystem replacement class to be installed. Changing this setting requires a WPS restart.
+See the &xwp; User Guide for details.
+;
+; FEATURES_6016 added with V1.0.0 (2002-09-09) [umoeller]
+;
+<--FEATURES_6016-->: The "Split views" setting determines whether &xwp; adds a new standard folder view to the "Open" submenu of all context menus.
+A split view consists of two folder views, a Tree view on the left and a second view on the right which displays the objects in the folder that is currently selected in the Tree.
+You might be vaguely familiar with this feature from Windows.
+
+<--FEATURES_6051-->: The "&xwp; Hook" is a global PM hook which implements some of the features which were present in NPS WPS and WarpEnhancer.
+Enable this setting if you wish to use things like sliding focus, mouse-button-3 window scrolling, screen corner objects, and some more mouse features.
+Also, the &xwp; Hook is required for global object hotkeys to work.
+If this is enabled, you'll get additional settings pages in the "Keyboard" and "Mouse" objects in your "System setup" folder.
+This was added with &xwp; 0.9.0.
+See the &xwp; User Guide for details.
+<--FEATURES_6052-->: "Animated mouse pointers" replaces the "Pointers" page in the "Mouse" object (in your "System Setup" folder) with a new page which allows you to define animated mouse pointers, instead of the default static ones of &os2;.
+This feature used to be in the separate "Animated Mouse Pointers for &os2;" program, but is now part of &xwp; 0.9.0.
+See the &xwp; User Guide for details.
+<--FEATURES_6053-->: If this is enabled, you can assign a global hotkey to any WPS object. Whenever you press that hotkey, the object will be opened in its default view.
+You can set an object's hotkey on the "Object" page in each object's settings notebook.
+Also, a "Hotkeys" page is added to the "Keyboard" settings object in your "System setup" folder where you can view all hotkeys at once.
+This item is unavailable if the &xwp; hook is not installed.
+Make sure that you also have the "Object page" setting in the "General features" group enabled, or you won't be able to configure hotkeys.
+This was added with &xwp; V0.9.1.
+<--FEATURES_6054-->: "&pgr;" offers you virtual desktops. This means that &xwp; makes your current desktop one out of several, and you can switch between those.
+Enabling this will add a settings page to the new "Screen" settings object where you can fine-tune &pgr;.
+This item is unavailable if the &xwp; hook is not installed.
+This was added with &xwp; V0.9.2.
+
+<--FEATURES_6021-->: This replaces the "Archives" page in the Desktop's settings notebook. If this is enabled, you can define precise conditions for whether the Workplace Shell should be backed up automatically -- instead of just being able to enable or disable archiving altogether.
+This functionality used to be in the separate "WPSArcO" program, but is now part of &xwp; 0.9.0, and can be configured more easily.
+See the &xwp; User Guide for details.
+<--FEATURES_6022-->: "Restart WPS" is a new menu item in the Desktop's settings notebook, which will restart the Workplace Shell only, instead of having to reboot the whole system.
+As opposed to other utilities, &xwp; saves the WPS's state before restarting it.
+This will add an "&xsd;" page to the Desktop's settings notebook which allows you to configure this feature.
+This was new with XFolder 0.60.
+See the &xwp; User Guide for details.
+<--FEATURES_6023-->: "&xsd;" is a complete rewrite of the default &os2; shutdown sequence.
+If this setting is enabled, &xsd; will be executed instead of &os2;'s default shutdown if you select "Shutdown" from the Desktop's context menu.
+This allows you to cancel shutdown while it's running, skip hung programs, and more.
+This will add an "&xsd;" page to the Desktop's settings notebook which allows you to configure this feature.
+This was new with XFolder 0.60.
+See the &xwp; User Guide for details.
+;
+; the following two were added with V0.9.18
+;
+<--FEATURES_6024-->: If "Check Desktop integrity" is enabled, &xwp; will check the Desktop's integrity on every startup before the WPS can display the dull "Cannot find Desktop" dialog, which isn't terribly helpful.
+If &xwp; finds problems with your Desktop's integrity (like a broken file-system handles table, or a lost <WP_DESKTOP> object ID), it can try to repair those problems.
+You may try to disable this feature if &xwp; keeps reporting problems on startup and your Desktop appears to work fine.
+<--FEATURES_6025-->: If "Pre-populate Desktop" is checked, while the WPS is starting up, &xwp; will fully populate the Desktop before it is opened.
+This might fix Desktop hangs many people are experiencing when the Desktop contains many objects and the WPS gets confused with initializing them in the right order.
+
+;
+; FEATURES_6041 removed with V1.0.1 (2002-12-15) [umoeller]
+;
+;<--FEATURES_6041-->: "Extended file associations" will make the WPS use file types only for associating programs with data files.
+;Don't be shocked, file filters still exist. The difference is that files will be given automatic file types based on file filters, instead of associating programs based on filters directly.
+;Also, you can define hierarchical file types, such that all files of type "C Code" will automatically be considered "Plain text" also.
+;If this is enabled, you'll get a new settings page for file types in &xwp;'s "Workplace Shell" object.
+;This was added with &xwp; 0.9.0.
+;See the &xwp; User Guide for details.
+
+;
+; FEATURES_6042 was changed with V0.9.20
+;
+
+<--FEATURES_6042-->: If enabled, this setting replaces the "Paste" dialog that comes up when you select "Paste" from a folder popup menu (or the "Edit" pulldown from a folder menu bar).
+As opposed to the WPS version, the replacement dialog keeps a history of object titles and remembers the last format and WPS class for pasting.
+In addition, it serves as a limited clipboard viewer and is smart enough to notice that clipboard data might change while the dialog is open.
+This was added with &xwp; V0.9.20.
+
+<--FEATURES_6043-->: This replaces the "File exists" dialog which appears if you move or copy files to a folder where another object already has the same title.
+This replacement dialog is a bit more useful and shows much more information than &os2;'s default one.
+This was new with XFolder 0.80.
+<--FEATURES_6044-->: This replaces the ugly white system-modal hard-error popup box which appears if you open a drive object which is not ready.
+If this is enabled, you'll get a regular dialog box, which also has a "retry" button.
+This was new with XFolder 0.85.
+;
+; the following was changed with V0.9.5
+;
+<--FEATURES_6047-->: This will replace the Workplace Shell's file-system handles management in OS2SYS.INI, attempting to reduce the number of unneccessary handles which are created.
+Please see the &xwp; User Guide for an introduction of this feature.
+This was added with &xwp; 0.9.5.
+
+;
+; the following was added with V0.9.9
+;
+<--FEATURES_6048-->: If "Replace folder auto-refresh" is enabled, &xwp; will disable the internal WPS threads which monitor file-system activity to automatically refresh folders. Instead, it will start its own threads for this job.
+&xwp;'s implementation has the advantage that it does not create excessive file-system handles.
+Enabling or disabling this replacement requires a WPS restart. However, once the &xwp; replacement is enabled, you can dynamically enable or disable folder auto-refresh on the "View" page in the "Workplace Shell" object.
+Please see the &xwp; User Guide for an introduction of this feature.
+This was added with &xwp; 0.9.9.
+
+;
+; the following was added with V0.9.16
+;
+<--FEATURES_6049-->: If "Replace file dialog" is enabled, &xwp; will use its own replacement for the standard OS/2 file dialog.
+Note that this only affects file dialogs in the WPS processes. At this point, &xwp; cannot replace all the file dialogs in your system yet.
+
+;
+; the following was changed with V0.9.19
+;
+<--FEATURES_6045-->: If this is enabled, all Workplace Shell "Delete" operations will be taken over by &xwp;.
+This includes pressing the "Del" key and selecting the "Delete" context menu items for all objects on your system.
+&xwp; can then either move the objects to the new &xwp; trash can (which will be created when you select this feature) or immediately delete them, if you hold down the shift key while starting the delete operation.
+If you want &xwp; to always immediately delete objects without moving them to the trash can first, there is a setting for this in the trash can's properties notebook.
+See the &xwp; User Guide for details.
+This was added with &xwp; 0.9.1.
+;
+; the following was removed with V0.9.19
+;
+; <--FEATURES_6046-->: replace true delete
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "&xwp; Classes" dialog
+; (XWPSetup).
+; Each item starts with "XWPCLS_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value.
+;
+; ---------------------------------------------------------------------------------
+
+<--XWPCLS_1251-->: "XFldObject" is the &xwp; replacement for the WPObject class and is required for &xwp;'s operation. This cannot be deselected.
+
+<--XWPCLS_1252-->: "XFolder" is the &xwp; replacement for the WPFolder class.
+This introduces all the folder enhancements that &xwp; offers, such as extended context menus, extended sorting, folder status bars, and much more.
+
+<--XWPCLS_1253-->: "XFldDisk" is the &xwp; replacement for the WPDisk class, which is used by the WPS for "disk" objects, as found in the "Drives" folder.
+This replacements introduces a number of enhancements to disk handling and also routes the folder enhancements to disk objects.
+If this class is to be installed, XFolder must be installed too.
+
+<--XWPCLS_1254-->: "XFldDesktop" is the &xwp; replacement for the WPDesktop class, which implements the Desktop.
+This replacements offers enhancements to the Desktop, such as extended startup (boot logos, archiving) and extended shutdown.
+
+<--XWPCLS_1255-->: "XFldDataFile" is the &xwp; replacement for the WPDataFile class, which is used for all physical files on your system.
+This replacement offers enhancements to the WPS association mechanisms, replacement default icons, and the "Copy filename to clipboard" feature.
+
+; V0.9.16: changed the following one
+<--XWPCLS_1256-->: "XWPProgramFile" is the &xwp; replacement for the WPProgramFile class, which is used for all physical executable files (.EXE, .COM, etc.).
+This class adds a new "Module" page to the executable's settings notebook and offers default icon replacements.
+
+<--XWPCLS_1257-->: "XWPSound" is the &xwp; replacement for the WPSound class, which implements the "Sound" object found in your "System setup" folder.
+This replacement offers a better version of the "Sounds" page in that object's settings notebook, now allowing you to edit sound schemes.
+This was added with &xwp; 0.9.0.
+
+;
+; V1.0.0: replaced this silly description
+;
+<--XWPCLS_1258-->: "XWPMouse" is the &xwp; replacement for the WPMouse class, which implements the "Mouse" object found in your "System setup" folder.
+This replacement adds new pages to the object for configuring the &xwp; hook mouse features, such as sliding focus and screen corner objects.
+
+<--XWPCLS_1259-->: "XWPKeyboard" is the &xwp; replacement for the WPKeyboard class, which implements the "Keyboard" object found in your "System setup" folder.
+This replacement adds settings pages for configuring the &xwp; hook keyboard features, such as global object hotkeys.
+
+<--XWPCLS_1260-->: "XWPSetup" implements the "&xwp; Setup" settings object and is required for &xwp;'s operation. This cannot be deselected.
+This was added with &xwp; 0.9.0.
+
+<--XWPCLS_1261-->: "XFldSystem" implements the "&os2; Kernel" settings object, which allows you to easily configure various CONFIG.SYS settings.
+
+<--XWPCLS_1262-->: "XFldWPS" implements the "Workplace Shell" object, which contains all the WPS settings pages from the default "System" object plus lots of new settings pages for &xwp;.
+Installing this class is strongly recommended, because without it, you won't be able to configure &xwp; much.
+
+<--XWPCLS_1263-->: "XFldStartup" is the special folder class for the new &xwp; Startup folder, which offers you many enhancements over the default WPS startup folder.
+The old startup folder continues to work though, so you can use both together.
+If this class is to be installed, XFolder must be installed too.
+
+<--XWPCLS_1264-->: "XFldShutdown" is the special folder class for the new &xwp; Shutdown folder, which is processed during &xwp;'s extended shutdown.
+If this class is to be installed, XFolder and XFldDesktop must be installed too.
+
+<--XWPCLS_1265-->: "XWPClassList" implements an all-new abstract object for editing the WPS class list.
+This was added with &xwp; 0.9.0.
+With previous versions of XFolder, this functionality was contained in the "Workplace Shell" object, but has now been moved and extended to this new object which defines a completely new view.
+This can now even display WPS method information, which might be helpful for WPS programmers.
+
+<--XWPCLS_1266-->: "XWPTrashCan" is new with &xwp; 0.9.0 and finally implements a special "trash can" folder object, similar to those found on Macintosh, KDE and Win95 systems.
+"XWPTrashObject" implements the "trash objects" found in that folder and will automatically be installed with XWPTrashCan.
+This was added with &xwp; 0.9.0.
+
+<--XWPCLS_1267-->: "XWPScreen" implements the "Screen" settings object, which has all the
+screen-related pages from the old "System" object plus new &xwp; screen settings,
+such as &pgr; configuration.
+This was added with &xwp; 0.9.2.
+
+;
+; the following was added with V0.9.3
+;
+
+<--XWPCLS_1268-->: "XWPString" is a handy class for invoking WPS setup strings on any object.
+By creating an object of this class and entering any setup string, you can later invoke that setup string on any object.
+This was added with &xwp; 0.9.3.
+
+;
+; the following was added with V0.9.5
+;
+
+<--XWPCLS_1269-->: "XWPMedia" implements a new settings object called "Multimedia", which allows you to view some internals of the &os2; multimedia subsystem.
+This was added with &xwp; 0.9.4.
+
+<--XWPCLS_0001-->: Pressing "OK" will register, deregister, replace, and unreplace classes according to the changes you have made to the &xwp; class setup.
+
+<--XWPCLS_0002-->: Pressing "Cancel" will close this dialog without making any changes to the &xwp; class setup.
+
+;
+; the following was added with V0.9.7
+;
+
+<--XWPCLS_1270-->: "XCenter" implements a new system bar at the top or the bottom of your Desktop. This can be used as a &warpcenter; replacement, or even together with the &warpcenter;.
+
+
+;
+; the following was added with V0.9.10
+;
+
+<--XWPCLS_1271-->: "XWPFontFolder" implements a new folder containing all your fonts.
+"XWPFontObject" implements the "font objects" found in that folder and will automatically be installed with XWPFontFolder.
+"XWPFontFile" is a new subclass of WPDataFile and will also be automatically installed with XWPFontFolder. All files which are really font files will automatically turn into instances of this class.
+
+;
+; the following was added with V0.9.16
+;
+
+<--XWPCLS_1272-->: "XWPFileSystem" can replace the WPFileSystem class for speeding up some internal WPS functions, especially folder populating.
+This class must be installed for the "Turbo folders" setting to work.
+
+<--XWPCLS_1273-->: "XWPProgram" can replace the WPProgram class for fixing a number of problems with the WPProgram class and for some internal modifications.
+
+<--XWPCLS_1274-->: "XWPVCard" is a special WPDataFile subclass for vCard (*.vcf) files which allows to view and set vCard information.
+
+<--DUMMY_END_MARKER-->:
+
+

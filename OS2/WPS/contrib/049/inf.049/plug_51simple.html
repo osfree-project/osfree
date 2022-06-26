@@ -1,0 +1,94 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Schritt 1: Nur ein Header
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Mit &xwp; wird nun ein Beispiel eines "Mini-Widgets" geliefert
+(<CODE>toolkit\miniwdgt.c</CODE>), welches das absolute Minimum eines Widgets ohne schicke
+Funktionen enthÑlt. Alles was dieses Widget macht, ist, ein Fragezeichen zu zeigen.
+ 
+<P>Dieses Mini-Widget wurde hinzugefÅgt, damit Sie einen leichten Einstieg haben. Es kann
+ganz sicher verbessert werden. Es kann <I>nicht</I>
+ 
+<UL><LI>irgendwelche Einstellungen speichern (nicht einmal die Schriftart oder die Farbe -
+das kommt in <A HREF="plug_52strings.html">Schritt 2</A>);
+ 
+<P><LI>Tooltips anzeigen (die Hilfe bei darÅberstehendem Mauszeiger - das kommt erst in
+<A HREF="plug_53tooltips.html">Schritt 3</A>);
+ 
+<P><LI>einen Einstellungsdialog erzeugen (dazu siehe
+<A HREF="plug_55dialog.html">Schritt 4</A>);
+ 
+</UL>Als mindeste Voraussetzung mu· eine Plug-In-DLL folgendes tun kînnen:
+ 
+<OL><LI>Sie mu· <B>drei Prozeduren</B> mit den entsprechenden Ordinalien
+<B>exportieren</B>.
+ 
+<P><B>a)</B> Der <B>"init"</B>-Export (Ordinal 1) wird nur einmal vom &xcenter; aufgerufen,
+wenn Ihre DLL geladen wird. Die DLL wird eventuell auch in Situationen geladen, die nicht
+unbedingt mit der Erzeugung des Widgets zu tun haben. Sie sollten also nicht erwarten, da·
+das immer der Fall ist. Bei der Initialisierung sollte die DLL die PM-Fensterklasse des
+Widgets registrieren (durch Aufruf von <CODE>WinRegisterClass</CODE>). Au·erdem kann sie
+Funktionen aus <CODE>XFLDR.DLL</CODE> importieren, dessen Modul-Handle es Åbergeben
+bekommt (optional). Sie mu· allerdings immer einen Zeiger auf das Array der Struktur
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>
+in dieser DLL Åbergeben, so da· das &xcenter; Åber diese Klassen in der DLL informiert ist.
+ 
+<P>Sehen Sie in der Datei <CODE>toolkit\miniwdgt.c</CODE> nach, wie dies gemacht wird.
+ 
+<P><B>b)</B> Der <B>"uninit"</B>-Export (Ordinal 2) wird aufgerufen, wenn die DLL vom
+&xcenter; freigegeben wird. Hier kann falls nîtig aufgerÑumt werden.
+ 
+<P><B>c)</B> Der <B>"query version"</B>-Export (Ordinal 3) wird noch vor dem "init"-Export
+aufgerufen, um die Version von &xwp; zu ÅberprÅfen, die dieses Widget benîtigt.
+ 
+<P><LI>Die Plug-In-DLL mu· eine <B>PM-Fensterprozedur</B> fÅr die Widget-Klasse enthalten.
+Im Beispiel des Mini-Widgets ist das die Prozedur <CODE>fnwpSampleWidget</CODE>. Der
+"init"-Export ist verantwortlich fÅr den Aufruf von <CODE>WinRegisterClass</CODE> mit dieser
+Fensterprozedur, um damit eine PM-Fensterklasse zu erzeugen.
+ 
+<P>Das ist der normale switch/case-Block, der in jeder PM-Fensterprozedur benutzt wird. Hier
+mu· man einige besondere öberlegungen anstellen, die im folgenden erklÑrt sind.
+ 
+<P><LI>Bei <CODE>WM_CREATE</CODE>, <I>mu·</I> das Widget den Zeiger
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>
+speichern, den es mit <CODE>mp1</CODE> in seiner <CODE>QWL_USER</CODE>-Konstante Åbergeben
+bekommt. Deshalb ruft das Mini-Widget-Beispiel auch
+<CODE>WinSetWindowPtr(hwnd, QWL_USER, mp1);</CODE> bei WM_CREATE auf.
+ 
+<P><LI>Bei <CODE>WM_CONTROL</CODE> sollte es Nachrichten vom &xcenter; verarbeiten. Das
+&xcenter; sendet <CODE>WM_CONTROL</CODE>-Nachrichten an das Widget, wenn es z.B. dessen
+Grî·e erfahren will.
+ 
+<P>Die Nachrichten-Kodierungen, die das &xcenter; bei <CODE>WM_CONTROL</CODE> benutzt, sind
+in <CODE>toolkit\center.h</CODE> aufgefÅhrt. Es wird wahrscheinlich in der Zukunft mehr
+davon geben.
+ 
+<P><LI>Normalerweise werden alle nicht abgearbeiteten Nachrichten vom PM an
+<CODE>WinDefWindowProc</CODE> weitergeleitet. Bei Widgets ist das anders: Sie mÅssen
+nicht verarbeitete Nachrichten immer an die "&xcenter;-Standard-Widget-Prozedur" weiterleiten,
+deren Adresse in Ihrem Widget in der
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>-Struktur bei
+<CODE>WM_CREATE</CODE> im Feld <CODE>pfnwpDefWidgetProc</CODE> abgelegt wird.
+(Ja, das ist der Grund, warum Sie diese Struktur in Ihren Fensterkonstanten speichern
+mÅssen.)
+ 
+<P>Wenn Sie unprozessierte Nachrichten nicht weiterleiten, werden Sie der FunktionalitÑt
+des Widgets ernsthaft schaden. Noch schlimmer, Sie werden Speicherlecks verursachen, da
+die Standard-Widget-Prozedur dafÅr verantwortlich ist, die Ressourcen aufzurÑumen und wichtige
+Nachrichten vom &xcenter; abzuarbeiten.
+ 
+<P><LI>Sogar wenn Sie Ihre eigene Routinen bei der Nachricht <CODE>WM_DESTROY</CODE>
+ausfÅhren, mÅssen Sie <I>immer und immer</I> <CODE>WM_DESTROY</CODE> an
+<CODE>pfnwpDefWidgetProc</CODE> weiterleiten. Andernfalls kann das &xcenter; die Ressourcen
+Ihres Widgets nicht richtig aufrÑumen.
+ 
+</OL>
+</BODY>
+</HTML>
+ 
+ 

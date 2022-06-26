@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        "St„ng &warpcenter; f”re Skrivbordet"
+    </TITLE>
+</HEAD>
+<BODY>
+Den h„r inst„llningen best„mmer om &xshutdown; kommer att behandla &warpcenter; p† ett 
+speciellt s„tt. Inst„llningen lades till med V0.9.7 d„rf”r att &xshutdown; orsakade 
+storleksf”r„ndringar hos Skrivbordet p† vissa system, orsakande att efter n„sta omstart,
+upptr„dde scrollninglister p† Skrivbordet.
+
+<P>Om inst„llningen „r <B>aktiverad,</B> kommer &xshutdown; att direkt st„nga ner &warpcenter;
+f”re st„ngningen av Skrivbordsf”nstret. Detta „r troligtvis anv„ndbart om du startar &warpcenter;
+fr†n en startupmapp (efter att WPS Skrivbord „r uppe).
+
+<P>Om den h„r inst„llningen „r <B>avaktiverad,</B> kommer &xshutdown; helt enkelt inte att st„nga ner 
+&warpcenter; alls.
+
+<P>Checkboxen blir avaktiverad om &xwp; inte kunde hitta &warpcenter; p† ditt system. 
+Sk„l f”r det kan vara:
+
+<UL><LI>Du k”r &warp; 3. &warpcenter; har endast introducerats med &warp; 4.
+
+<P><LI>&warpcenter; objektet har inte v„ckts upp „nnu. Det kan vara fallet om du inte 
+f”r n„rvarande k”r &warpcenter; och mappen "System" „nnu inte har befolkats.
+
+<P><LI>&warpcenter; objektet har v„ckts upp under Skrivbordets startup innan &xwp; var fullt 
+initialiserat. Det kan vara fallet om, p† ditt system, &warpcenter; startas genom
+<CODE>AUTOSTART</CODE> inst„llningen i &cfgsys; filen. I det fallet, kan inte &xwp; (och &xshutdown;)
+g”ra mycket med &warpcenter;.
+</UL>
+</BODY>
+</HTML>
+

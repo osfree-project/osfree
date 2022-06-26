@@ -1,0 +1,97 @@
+<HTML NOSUBLINKS="config" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        De-installation
+    </TITLE>
+</HEAD>
+<!-- this page has been rewritten with V0.9.0 -->
+<BODY>
+<!-- the following paragraph was added with V0.9.2 -->
+There are several ways to de-install &xwp;.
+
+<!-- the following paragraph was added with V0.9.2 -->
+<UL><LI><B>The easy way.</B>
+
+<P>Since &xwp; now uses WarpIN for <A HREF="inst_1inst.html">installation</A>,
+it now uses WarpIN for de-installation also. Either double-click on the WarpIN
+program object and select the &xwp; package(s) for de-installation, or
+double-click on the &xwp; archive again, both of which will de-install
+&xwp;.
+
+<!-- the following (up to end note) was added with V0.9.1 -->
+
+</UL>In case WarpIN is unable to de-install &xwp; (or you don't trust WarpIN
+to do the job right), you can <B>manually de-install &xwp;.</B>
+
+<UL><LI><B>The clean way.</B>
+
+<P>&xwp;'s installation is entirely based on WPS classes. If you deregister
+all of &xwp;'s classes, you'll get your regular &os2; Workplace Shell back.
+You don't have to undo any &cfgsys; changes, because there are none.
+
+<P>However, before deregistering classes, you should undo all of &xwp;'s
+class replacements. So this is a two-step process (you can use the "WPS Class List"
+object for this):
+
+<BR><OL><LI><B>Undo</B> all the following class <B>replacements</B> (if present):
+
+<UL><LI>XFldObject, replacing WPObject
+<LI>XFolder, replacing WPFolder
+<LI>XFldDataFile, replacing WPDataFile
+<LI>XFldDisk, replacing WPDisk
+<LI>XFldDesktop, replacing WPDesktop
+<LI>XWPProgramFile, replacing WPProgramFile
+<LI>XWPSound, replacing WPSound
+<LI>XWPMouse, replacing WPMouse
+<LI>XWPKeyboard, replacing WPKeyboard
+</UL>
+
+<LI><B>Deregister</B> all the X* classes listed above.
+
+<P><LI>In addition, <B>deregister</B> the following (if present):
+
+<UL><LI>XFldSystem
+<LI>XFldWPS
+<LI>XFldStartup
+<LI>XFldShutdown
+<LI>XWPSetup
+<LI>XWPClassList
+<LI>XWPTrashCan
+<LI>XWPTrashObject
+</UL>
+
+<LI>Then <B>restart the WPS.</B> &xwp; should be gone.
+
+<P><LI>&xwp; has created a few sections in your OS2.INI file. You can safely
+delete all sections starting with "&xwp;", but only do this if you're sure
+you don't want to re-install &xwp;, because all your settings will get lost.
+</OL>
+
+<LI><B>The ugly way.</B> This is the "emergency exit" in case your computer isn't
+working at all any more. This is not recommended and only given as a last resort.
+
+<BR><OL><LI>Reboot your computer and press Alt-F1 while the little "OS/2" box is showing.
+Open a command line from the "Recovery choices" menu.
+
+<P><LI>From the command line, rename the &xwp; directory (the parent directory
+of the <CODE>BIN</CODE> directory with <CODE>XFLDR.DLL</CODE>.
+
+<P><LI>Reboot. When the Desktop starts up, it will not find the &xwp; classes
+(in <CODE>XFLDR.DLL</CODE>), because the directory specified when registering
+the classes is now invalid. You should get a clean WPS this way too. Note however
+that this does not unreplace or deregister the &xwp; classes!
+</OL>
+</UL>
+
+<!-- end of V0.9.1 addition -->
+If you wish to remove &xwp; because you don't consider it to be of any use for you,
+that's fine.
+
+<P>However, if you remove it because it does not seem to be working right or messes up your
+system, please <A HREF="notices_3comments.html">contact the developer's
+team,</A> so we can improve it.
+<BR>
+</BODY>
+</HTML>
+
+

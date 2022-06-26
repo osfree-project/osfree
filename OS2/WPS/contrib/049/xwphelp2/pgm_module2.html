@@ -1,0 +1,44 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Die Seite "Exportierte Funktionen"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+Die Seite "Exportierte Funktionen" erscheint in den EinstellungsnotizbÅchern aller
+ausfÅhrbaren Dateien und zeigt zusÑtzliche Informationen Åber ein ausfÅhrbares Modul an.
+ 
+<P>Diese Seite zeigt die Funktionen an, die vom Modul exportiert werden und damit
+von anderen Modulen importiert werden kînnen (entweder durch Laden zur Ladezeit oder
+explizit durch Laden zur Laufzeit).
+ 
+<P>FÅr jede Funktion werden die folgenden Felder angezeigt:
+ 
+<UL><LI>Jede exportierte Funktion mu· einen <B>Ordinalwert</B> besitzen, welcher
+innerhalb des Moduls eindeutig ist. Der erste mîgliche Ordinalwert ist 1 und der letzte 65535.
+Nicht alle Ordinalwerte entsprechen einer exportierten Funktion.
+ 
+<P>Jede exportierte Funktion mu· auch einen der folgenden Typen besitzen:
+ 
+<UL><LI><B>Entry16:</B> eine 16-Bit-Funktion.
+<P><LI><B>Entry32:</B> eine 32-Bit-Funktion.
+<P><LI><B>286 Call Gate:</B> eine 16-Bit-Funktion, die einen Ring-2-Switch auslîst.
+<P><LI><B>Forwarder:</B> ein Forwarder bedeutet, da· ein Aufrufen dieses Entry-Point
+einen Aufruf einer anderen exportierten Funktion (entweder in diesem Modul
+oder im importierten Modul) zur Folge hat.
+ 
+</UL><LI>Exportierte Funktionen kînnen optional auch einen <B>Namen</B> haben.
+Falls definiert, spielt bei diesem Namen die Gro·-/Kleinschreibung eine Rolle.
+ 
+</UL>Importe kînnen entweder Åber den Ordinalwert (funktioniert immer) oder Åber
+den Namen (funktioniert nur, wenn fÅr die importierte Funktion ein Name definiert
+wurde) durchgefÅhrt werden.
+Siehe die Dokumentation fÅr
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in der Toolkit-Dokumentation.<A HREF="_toolkitlink.html">*</A>
+ 
+<BR>
+</BODY>
+</HTML>
+ 

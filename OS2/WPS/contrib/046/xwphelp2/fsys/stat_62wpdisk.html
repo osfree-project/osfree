@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusf„lt: Ytterligare Diskobjektkoder
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+<B>Diskobjekt</B> (WPDisk klass, m.a.o. objekten i
+<!-- V0.9.20: added link -->
+&link_drivesfdr;)
+st”der f”ljande koder <I>som till„gg</I> till koderna f”r alla objekt:
+<BR><DL>
+<!-- V0.9.13: replaced the following -->
+<DT><CITE>  $f<I>X</I>     </CITE><DD>fritt utrymme p† enheten
+<DT><CITE>  $z<I>X</I>     </CITE><DD>total storlek p† enheten
+
+<P>I de ovanst†ende tv†, „r <CODE><I>X</I></CODE> ett
+special <A HREF="fsys/stat_99format.html">formatspecificerar</A> tecken.
+<!-- end V0.9.13 rewrite -->
+
+<BR><DT><CITE>  $F      </CITE><DD>filsystemstyp (FAT, HPFS, JFS, CDFS, ...)
+
+<BR><DT><CITE>  $L      </CITE><DD>enhetsetikett
+</DL>
+
+<BR><B>Noteringar:</B>
+<!-- V0.9.13: removed this If you are using these keys, you should make sure that you have
+&os2;'s hardware error messages disabled, because otherwise you'll get a
+"drive not ready" message every time no disk is inserted.
+The new "&os2; Kernel"
+object lets you do this on the "Errors" page. -->
+
+<!-- V0.9.11: changed the following line -->
+<P><CITE>$f</CITE> och <CODE>$z</CODE> koderna „r <I>omdefinierade</I>
+f”r diskobjekt. Normalt, visar dom utrymmet hos enheten p† vilka <I>mappen</I> finns,
+vilken, f”r "Enhets" mappen, naturligtvis alltid skulle returnera samma v„rde f”r
+enheten d„r Skrivbordet finns. D„rf”r har den h„r koden blivit omdefinierad f”r
+enhetsobjekt.
+
+<BR>
+</BODY>
+</HTML>
+
+

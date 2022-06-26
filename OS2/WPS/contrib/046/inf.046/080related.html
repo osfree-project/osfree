@@ -1,0 +1,153 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="further" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Relaterade Filer
+    </TITLE>
+</HEAD>
+<!-- changes in this file:
+        V0.81: see notes below
+        V0.83: see notes below
+        V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+Det finns ett antal filer i de olika subkatalogerna hos &xwp; installationskatalogen
+som kan vara anv„ndbara f”r dig:
+
+<!-- this item changed with V0.83 -->
+<UL><LI><CITE><STRONG>BOOTMGR.CMD</STRONG></CITE> „r nytt med V0.83.
+Det h„r skriptet „r adderat av Duane A. Chamblee &lt;duanec@ibm.net&gt; och kommer att 
+automatiskt l„gga till alla de aktuella BootManager alternativen hos &xwp; anv„ndarens ombootningsval f”r &xshutdown;.
+Detta utf”rs genom att modifiera &xwp;' nycklar i OS2.INI direkt. Ingen garanti f”r att det 
+verkligen kommer att fungera p† ditt system!
+
+<P><LI><CITE><STRONG>CROBJxxx.CMD</STRONG></CITE>
+(d„r xxx „r en tre-siffrors landskod,
+„r beskrivet i <A HREF="inst_4nls.html">Nationellt Spr†kst”d</A>) och anv„nds av &xwp; 
+f”r att skapa standard Konfigurationsmappar. Detta „r rena REXX skript vilka skapar ett
+antal objekt p† ditt skrivbord.
+
+<P>Dessa skript anropas b†de efter att &xwp; har installerats (efter den f”rsta omstarten
+av Skrivbordet) och ocks† n„r &xwp; misslyckas med att hitta sin Konfigurationsmapp.
+
+<P>Du kan modifiera skripten f”r att f† en annan standardkonfiguration skapad. Emellertid,
+du b”r vara mycket f”rsiktig med att „ndra de olika objektinst„llningarna, speciellt 
+<CITE>OBJECTID</CITE> nyckelorden, eftersom &xwp; kan vara beroende av dessa.
+
+<P><LI><CITE><STRONG>NEWOBJ.CMD</STRONG></CITE> anv„ndes av „ldre XFolder versioner
+(f”re 0.52) f”r att skapa objekt. Detta g”rs <A HREF="menu_2template.html">nu med mallar,
+</A> men skriptet „r fortfarande inkluderat, f”r de som „r vana vid det.
+
+<P>Det beh”ver f”ljande parametrar p† kommandoraden:
+<PRE>newobj &lt;wpsclass&gt; &lt;name&gt;</PRE>
+
+<P>Det kommer att skapa en upplaga av <CITE>&lt;wpsclass&gt;</CITE> med titeln <CITE>&lt;namn&gt;</CITE>
+i den aktuella katalogen. Var v„nlig se sidan <A HREF="xices_1wpsclasses.html">"WPS Klasser"</A> f”r
+en lista ”ver WPS klasser. Notera att allt detta „r vettigt n„r du skapar objekt.
+
+<P>H„r „r ett exempel:
+<PRE>newobj WPFolder Ny_Mapp</PRE>
+<P>kommer att skapa en ny mapp kallad "Ny_Mapp" i den aktuella katalogen.
+
+<P><STRONG>Notera:</STRONG> Sedan V0.41, kan XFolder ocks† skapa objekt fr†n mallar. Detta har f”rdelen
+att du kan skapa objekt med vissa standardinst„llningar (n„mligen f”r mappar).
+
+<!-- this item changed with V0.84 -->
+<P><LI><CITE><STRONG>NETSCDDE.EXE</STRONG></CITE> (Netscape DDE Interface):
+se <A HREF="069netscdde.html">separat kapitel</A> i den h„r dokumentationen.
+
+<!-- V0.9.19: updated the second line -->
+<P><LI><CITE><STRONG>REPCLASS.EXE</STRONG></CITE>
+anv„ndes av „ldre XFolder versioner f”r att registrera de olika &xwp; klasserna och byta ut
+standard WPS klasserna med dom. Den beh”ver f”ljande parametrar p† kommandoraden:
+<PRE>repclass &lt;oldclass&gt; &lt;replacewithclass&gt; [&lt;dllname&gt;]</PRE>
+<P><CITE>&lt;oldclass&gt;</CITE> „r den WPS klass som du vill byta ut.
+Detta „r beroende av stora eller sm† bokst„ver.
+
+<P><CITE>&lt;replacewithclass&gt;</CITE> „r en ny WPS klass som du vill registrera och p† samma g†ng
+byta ut <CITE>&lt;oldclass&gt;</CITE> med. Detta „r ocks† beroende av stora eller sm† bokst„ver.
+<P><CITE>&lt;dllname&gt;</CITE> „r ett dynamiskt l„nkbibliotek (DLL) som inneh†ller
+<CITE>&lt;replacewithclass&gt;</CITE>. Om DLL'en inte finns i LIBPATH (som med &xwp;), kommer du att 
+beh”va specificera den fulla s”kv„gen.
+
+<P>Om <CITE>&lt;dllname&gt;</CITE> „r utel„mnat, kommer <CITE>&lt;replacewithclass&gt;</CITE>
+att bli avregistrerat och borttaget fr†n utbyteslistan f”r <CITE>&lt;oldclass&gt;</CITE>.
+
+<P>Exempel f”r &xwp; sj„lvt: den klass som skall bytas ut „r
+<CITE>WPFolder</CITE>, <CITE>WPDisk</CITE>, och <CITE>WPSystem</CITE>, de nya &xwp;
+klasserna „r <CITE>XFolder</CITE>, <CITE>XFldDisk</CITE>, och <CITE>XFldSystem</CITE>, vilka 
+alla h†ller till i XFLDR.DLL filen.
+
+<P>Alla aktioner som utf”rs med detta program kommer endast att ha effekt efter ombootning eller
+omstart av WPS med WPSRESET.EXE (se nedanf”r).
+
+<!-- V0.9.6: removed this
+Warning: Do not attempt to replace single &xwp; classes or to undo
+a certain &xwp; replacement manually. The &xwp; classes are designed to work
+together and are depend on each other. If you register / deregister not all of them,
+the WPS might hang itself up already at boot-up. For registering or deregistering
+of the &xwp; classes, always use the install script. -->
+
+<P><LI><CITE><STRONG>SOUNDxxx.CMD</STRONG></CITE>
+(d„r xxx „r en tre-siffrors landskod, som „r beskrivet i <A HREF="inst_4nls.html">Nationellt Spr†kst”d</A>)
+<!-- V0.9.19: changed the following -->
+k”rs automatiskt av &xwp; n„r de nya <A HREF="mm_2sounds.html">systemljuden</A> „r aktiverade. Dessa sm† skript
+kommer att skriva n†gra f† spr†k-beroende str„ngar i INI filerna hos &os2;'s Multimedia Subsystem (MMPM/2), 
+vilket sedan kommer att synas i &os2;'s "Ljud" objekt. Endast om &xwp; hittar dessa, kommer den att spela
+systemljuden.
+
+<P><LI><CITE><STRONG>SOUNDOFF.CMD</STRONG></CITE>
+kommer att sl† av ljudet igen genom att radera respektive poster fr†n MMPM/2 INI filerna. &xwp; kommer sedan
+att sluta spela systemljud.
+
+<P><B>Notera: </B><CITE>SOUND</CITE> filer utg†r ifr†n att din MMPM/2 katalog „r <CITE>\MMOS2</CITE> p† din
+bootenhet. Om den inte „r det, m†ste du sj„lv „ndra filerna.
+
+<!-- this item added with V0.81 -->
+<P><LI><CITE><STRONG>TREESIZE.EXE</STRONG></CITE> „r anv„nt av den nya standard menyposten 
+med samma namn och visar diskanv„ndningen i en mapp och alla dess undermappar i en 
+tr„dvisning. Om Treesize startas med ett katalognamn som parameter, blir den katalogen visad,
+annars visas de andra katalogerna.
+
+<P>Efter att Treesize „r klar med sina ber„kningar, kan du dra och sl„ppa nya WPS mappar
+p† huvudf”nstret, vars storlek ocks† kommer att bli ber„knat.
+
+<P>Treesize erbjuder dig vissa inst„llningar med anv„ndning av kontextmenyer.
+
+<P>Alla inst„llningar sparas n„r Treesize st„ngs.
+
+<P><LI><CITE><STRONG>WPSRESET.EXE</STRONG></CITE>
+kan starta om ditt WPS utan att boota om din dator helt och h†llet 
+(se sidan <A HREF="xsd_1restartwps.html">"Starta om Skrivbordet"</A> f”r detaljer). Det anv„nds
+nu (V0.71) endast av installationsskriptet, medan &xwp; g”r sin egen omstart av Skrivbordet 
+internt. F”r att f”rhindra oavsiktlig exekvering, m†ste WPSRESET.EXE startas med en
+<CITE>"-D"</CITE> parameter fr†n kommandoraden.
+
+<P><LI><CITE><STRONG>XHELP.CMD</STRONG></CITE>
+„r ett kraftfullt REXX skript som kan visa spr†kberoende meddelanden, b†de i HTML och
+enkelt ASCII format. Det togs ut ifr†n "OS/2 Kommando Pack" av samma f”rfattare, ocks†
+tillg„ngligt p†
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A>. I den paketeringen, kan du hitta 
+omfattande dokumentation om xhelp.
+
+<!-- V0.9.7: changed this -->
+<P>I &xwp;'s kontext, var xhelp tidigare anv„nt av ett textbaserat installationsprogram.
+&xwp; anv„nder nu WarpIN f”r installation, s† xhelp „r endast inkluderad numera i fall
+att n†gon vill anv„nda sig av textbaserad installation.
+
+<P><LI><CITE><STRONG>XSHUTDWN.EXE</STRONG></CITE> har tagits bort fr†n V0.9.7.
+
+<P><LI><STRONG>Alla de andra .CMD filerna</STRONG> i &xwp;'s katalog „r REXX skript
+anv„nda av &xwp;'s standardkonfiguration f”r att snabbt st„lla in vissa mappinst„llningar
+(de kan hittas i submenyn "Snabba Inst„llningar"). Skripten „r v„ldigt lika, varierande endast i de
+inst„llningar som anv„nds f”r en mapp. ALWSSORT.CMD „r kommenterat, s† du kan titta igenom det och 
+se vad det g”r. Kopiera ALWSSORT.CMD till ett annat filnamn och „ndra inst„llningar som
+anv„nds f”r mappen med avsikt att anpassa inst„llningar f”r mappar.
+<!-- V0.9.16 See the
+<A HREF="xices_30wpsstrings.html">"WPFolder Setup Strings"</A> page for a list
+of applicable settings. -->
+</UL>
+</BODY>
+</HTML>
+
+

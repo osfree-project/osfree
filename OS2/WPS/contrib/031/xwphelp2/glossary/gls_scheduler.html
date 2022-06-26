@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Processen en Threads
+    </TITLE>
+</HEAD>
+<BODY>
+Omdat u normalerwijze slechts ‚‚n procesor heeft, maar verwacht dat verschillende taken
+op hetzelfde moment lopen, schakelt &os2; tientallen malen per seconde tussen de taken. Met
+als resultaat, dat het lijkt of deze programma's parallel lopen.
+Dit wordt  <B>multitasking</B> genoemd.
+
+<P>Maar zelfs als u een multi-processor (SMP) systeem heeft, zullen er altijd meer
+processen zijn dan processors in uw systeem, dus is schakelen nog steeds nodig.
+
+<P>Een <B>thread</B> is een &os2; eenheid voor het bijhouden van taak schakelen.
+Een programma kan diverse threads bevatten, maar per definitie, heeft het er op z'n minst
+‚‚n. Maar omdat een programma meer dan ‚‚n thread kan bevatten kan schakelen zelfs tussen
+threads in het zelfde programma plaats vinden. Dit wordt <B>multithreading</B> genoemd.
+In tegenstelling tot menig ander besturingssysteem ondersteunt &os2; dit volledig en het
+doet het zelfs op een zeer vriendelijke en betrouwbare manier.
+
+<P>Het deel van de kernel van &os2; dat schakelt tussen de threads wordt de
+<B>"planner"</B> genoemd.
+
+<P>De term "thread" werd gekozen omdat in ‚‚n thread de programma instructies
+achter elkaar worden uitgevoerd, terwijl tussen threads je er nooit zeker van kunt
+zijn welke instructie uit ‚‚n thread wordt uitgevoerd voor of na een instructie uit
+een andere thread.
+Het is alleen &os2; die het schakelen doet tussen threads zonder dat de thread er zelf van
+weet (of, op SMP-systemen, threads kunnen werkelijk tegelijk op verschillende processors lopen).
+
+<P>
+Goed geprogrammeerde programmatuur gebruikt verschillende threads om er zeker van te zijn dat
+de gebruiker snel resultaat ziet van zijn invoer en muis acties.
+B.v. als een opdracht uitvoert in een programma dat een hele tijd kan duren, moet een
+programma een tweede thread starten voor deze taak. Terwijl deze nieuwe thread op de achtergrond
+blijft werken, is de gebruikersinterface (van de hoofd thread van het programma) weer klaar
+voor nieuwe invoer.
+
+<P>Niet zo goed geprogrammeerde programmatuur gebruikt slechts ‚‚n thread voor zowel
+de gebruikersinterface als de uit te voeren taken. Met als resultaat, dat als een
+taak wordt uitgevoerd, de gebruikersinterface geblokkeerd is.
+
+<P>Threads kunnen verschillende <B>prioriteiten</B> hebben.
+Zie <A HREF="glossary/gls_sched_prty.html">"Thread prioriteiten"</A> voor details.
+
+<P>Aan de andere kant, een <B>proces</B> is de &os2; term voor een applicatie die
+in het geheugen is geladen. Elk proces moet op z'n minst ‚‚n thread hebben.
+
+<P>Ieder proces bevat gewone gegevens zowel als toegangs controle tot systeem bronnen.
+Processen zijn tegen elkaar beschermd d.w.z. dat &os2; toegang tot geheugen dat niet tot
+een proces behoort verhindert ("geheugen bescherming").
+
+<P>Daar tegenover staat dat, verschillende threads in een proces allemaal toegang hebben tot
+het geheugen van het proces, omdat het geheugen beheerd wordt per proces. Hetzelfde
+geldt voor andere systeembronnen zoals open bestanden.
+
+<P>Opsomming: Een <B>thread</B> is het &os2; kernel concept voor het beheer van het
+eigendom van de CPU.
+Daar tegenover staat dat, een <B>proces</B> het concept is voor het toe-eigenen van al het andere:
+bestanden, apparaten en geheugen.
+
+<P>Selecteer uit de onderstaande lijst voor meer informatie:
+
+<UL><LI><A HREF="glossary/gls_sessions.html">Sessie typen</A>
+<LI><A HREF="glossary/gls_cmd.html">Over opdrachtaanwijzingen</A>
+</UL>
+</BODY>
+</HTML>
+

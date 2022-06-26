@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Vaste Uitdrukkingen BNF Definitie
+    </TITLE>
+</HEAD>
+<BODY>
+
+Grond definities :-
+
+<PRE>
+  &lt;ch&gt;      ::= ieder typebaar karakter
+  &lt;digit&gt;   ::= ieder cijfer van '0' tot '9'
+  &lt;digits&gt;  ::= &lt;digit&gt; { &lt;digit&gt; }
+  &lt;digit19&gt; ::= ieder cijfer van '1' tot '9'
+  &lt;hext&gt;    ::= ieder cijfer of letter van 'a' tot 'f' of 'A' tot 'F'
+</PRE>
+
+<P>Basis karakter definities :-
+
+<PRE>
+  &lt;c&gt; ::= '\n'                    nieuwe regel
+        | '\t'                    tab
+        | '\r'                    wagen terugloop
+        | '\b'                    spatie terug
+        | '\f'                    nieuwe bladzijde
+        | '\e'                    escape
+        | '\x' &lt;hex&gt; ( &lt;hex&gt; )    specificeer karakter in hex, ‚‚n of twee hex cijfers
+        | '\' &lt;ch&gt;                ander karakter, iedere speciale betekenis overslaan
+        | &lt;ch&gt;                    gewoon karakter
+</PRE>
+
+<P>Element tussen haken (iets dat tussen vierkante haken staat) :-
+
+<PRE>
+  &lt;be&gt; ::= &lt;c&gt;                    een karakter
+         | &lt;c&gt; '-' &lt;c&gt;            een groep karakters
+         | '[:alnum:]'            alfanumerieke karakters in POSIX
+         | '[:alpha:]'            alfabetische karakters in POSIX
+         | '[:blank:]'            spatie en tab in POSIX
+         | '[:cntrl:]'            controle karakters in POSIX
+         | '[:digit:]'            numerieke karakters in POSIX
+         | '[:graph:]'            afdrukbare en zichtbare karakters (geen spatie) in POSIX
+         | '[:lower:]'            kleine letters in POSIX
+         | '[:print:]'            alfanumerieke karakters in POSIX
+         | '[:punct:]'            leestekens in POSIX
+         | '[:space:]'            witruimte in POSIX
+         | '[:upper:]'            hoofdletters in POSIX
+         | '[:xdigit:]'           hexadecimale cijfers in POSIX
+         | '[.' ??? '.]'          verzamel symbolen in POSIX en
+         | '[=' ??? '=]'          gelijkwaardige classes in POSIX
+                                  WORDEN NIET ONDERSTEUND
+</PRE>
+
+<P>Uitdrukkingen tussen haken :-
+
+<PRE>
+  &lt;bx&gt; ::= [ '^' ] { &lt;be&gt; }       definieert een aantal aanvaardbare karakters
+                                  of een aantal niet te aanvaarden (als '^' aanwezig is)
+
+</PRE>
+
+<P>Uitgebreide Vaste uitdrukkingen :-
+
+<PRE>
+  &lt;re&gt; ::=                        lege vaste uitdrukking
+         | &lt;c&gt;                    karakter
+         | '~' &lt;c&gt;                niet gespecificeerd karakter
+                                  stenografie voor '[^' &lt;c&gt; ']'
+         | '\w'                   past op ieder 'woord samenstellend' karakter
+                                  stenografie voor '[[:alnum:]_]'
+         | '\W'                   past op ieder niet 'woord samenstellend' karakter
+                                  stenografie voor '[^[:alnum:]_]'
+         | '.'                    past op elk karakter (maar niet einde van een regel)
+         | '[' &lt;bx&gt; ']'          past op karakters tussen haken
+         | '^'                    past op een lege reeks aan het begin van een 'regel'
+         | '$'                    past op een lege reeks aan het einde van een 'regel'
+         | '\`'                   synoniem voor '^'
+         | '\''                   synoniem voor '$'
+         | '\&lt;'                  past op een lege reeks aan het begin van een 'woord'
+         | '\&gt;'                   past op een lege reeks aan het einde van een 'woord'
+         | '\B'                  past op een lege reeks in een 'woord'
+         | '\y'                  past op een lege reeks aan het begin of einde van een 'woord'
+                                  stenografie voor '(\&lt;|\&gt;)'
+                                  opmerking: niet '\b', want dit botst met spatie terug
+         | &lt;re&gt; &lt;re&gt;              2 &lt;re&gt;'s keten uit een &lt;re&gt;
+         | '(' &lt;re&gt; ')'           een geneste vaste uitdrukking
+         | '\' &lt;digit19&gt;          terugverwijzing naar een geneste vaste uitdrukking
+         | &lt;re&gt; '?'               nul of ‚‚n overeenkomst met &lt;re&gt;
+         | &lt;re&gt; '+'               ‚‚n of meer overeenkomsten met &lt;re&gt;
+         | &lt;re&gt; '*'               nul of meer overeenkomsten met &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; '}'  past op M overeenkomsten met &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',}' past op z'n minst op M overeenkomsten met &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',' &lt;digits&gt; '}'
+                                  past op tussen de M en N overeenkomsten met &lt;re&gt;
+         | &lt;re&gt; '|' &lt;re&gt;         past op de ‚‚n &lt;re&gt; of de ander
+
+</PRE>
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Verkliga namn
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Medan, per definition, varje WPS objekt har en rubrik associerad till sig, „r det bara
+filsystemsobjekt (vilket betyder,
+<!-- V0.9.19: link added -->
+&link_folders;
+och
+<!-- V0.9.19: link added -->
+&link_datafiles;
+vilka finns fysiskt i ett
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_fs.html">filsystem</A>) som ocks† b„r s†-kallade "verkliga namn".
+<!-- V0.9.19 : added this -->
+Detta „r det namn p† filen som filsystemsobjektet representerar p† disken,
+som syns med <CODE>DIR</CODE> kommandot p† &os2; kommandoraden.
+
+<P>I m†nga fall, „r det verkliga namnet identiskt med objektrubriken
+(som visas p† "Ikon" sidan); filsystemsnamn har emellertid vissa begr„nsningar.
+
+<P>F”r objekt <I>rubriker,</I> „r den enda restriktionen att de inte kan vara l„ngre „n
+256 tecken, och att backslash (<CODE>\</CODE>) tecknet „r f”rbjudet.
+
+<P>Som kontrast, beroende p† objektets <A HREF="glossary/gls_fs.html">filsystem</A>,
+g„ller f”ljande restriktioner f”r objektets <I>verkliga namn</I>:
+
+<UL><LI>Med FAT filsystemet, „r filnamnen begr„nsade till 8 tecken, plus en 3-teckens
+fil„ndelse. Som till„gg, „r f”ljande tecken inte till†tna i FAT filnamn:
+
+<P><CODE>&lt; &gt; | + = : ; , " / [ ]</CODE>
+
+<P>Dessutom, bevarar inte FAT filsystemet skillnaden mellan stora och sm† bokst„ver.
+
+<P><LI>Med installerbara filsystem (IFS's) s†dana som HPFS eller JFS, kan filnamnen vara
+upp till 254 tecken l†nga, och det finns inga regler om ogiltiga fil„ndelser. D„remot,
+„r f”ljande tecken fortfarande ogiltiga:
+
+<P><CODE>&lt; &gt; | : " / </CODE>
+
+</UL>Naturligt nog, „r backslash tecknet (<CODE>\</CODE>) ogiltigt med varje
+filsystem eftersom det anv„nds av
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„gs</A> separatorn i &os2;.
+
+<P>Om rubriken p† filsystemsobjektet uppfyller dessa restriktioner, „r det verkliga
+namnet identiskt med rubriken. D„remot, <I>om s† inte „r fallet,</I> modifierar WPS
+rubriken f”r att matcha dessa restriktioner genom att trunkera det till till†ten
+filnamnsl„ngd och byta ut ogiltiga tecken med utropstecken (<CODE>!</CODE>). originalrubriken
+sparas sedan hos objektet i dess <CODE>.LONGNAME</CODE>
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">ut”kade attribut.</A>
+
+<P>I det fallet, „r det "verkliga namnet" som visas med <CODE>DIR</CODE> kommandot fr†n
+&os2; kommandoraden olika mot den rubrik som visas i WPS mappen.
+
+<P>Exempel:
+
+<OL><LI>Rubriken „r <CITE>LongFolderTitle</CITE>, men mappen finns p† en FAT enhet, s†
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„gen</A> hos mappens "Fil" sida kommer endast att
+visa <CITE>C:\LONGFOLD</CITE>.
+
+<P><LI>Mappens rubrik „r <CITE>Accounting/Taxes</CITE>, men det verkliga namnet „r
+<CITE>Accounting!Taxes</CITE> (antagande att mappen finns p† en HPFS eller JFS enhet).
+</OL>
+
+</BODY>
+</HTML>
+

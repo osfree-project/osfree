@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Wildcards
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+<!-- V0.9.19: first paragraph rewritten -->
+Wildcards are a greatly simplified variant of UNIX-style
+<A HREF="glossary/gls_regexps.html">regular expressions</A>.
+They allow for matching several file names with one character string
+and are most frequently used on the DOS and &os2; command lines.
+
+<P>&os2; understands two wildcard characters:
+
+<OL><LI>The <B>asterisk</B> (<CODE>*</CODE>) character matches any sequence
+of characters (no character, one character, or many characters).
+
+<P>For example, <CODE>h*e</CODE> will match <CODE>he</CODE>,
+<CODE>house</CODE>, and <CODE>home</CODE>.
+
+<P><LI>The <B>question mark</B> (<CODE>?</CODE>) matches exactly one character.
+
+<P>For example, <CODE>h??e</CODE> will match <CODE>home</CODE>, but
+not <CODE>he</CODE> or <CODE>house</CODE>.
+
+</OL>Wildcards can also be combined. For example, <CODE>h*e.?x?</CODE>
+will match <CODE>house.txt</CODE> and <CODE>he.exe</CODE>
+
+<P>Note that as opposed to DOS, under &os2; the dot (<CODE>.</CODE>)
+in file names is a special character only with
+files on the <A HREF="glossary/gls_fs.html">FAT</A> file system.
+
+<BR>
+</BODY>
+</HTML>
+

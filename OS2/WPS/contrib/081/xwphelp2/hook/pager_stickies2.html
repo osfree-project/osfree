@@ -1,0 +1,60 @@
+<HTML RESID=&ID_XSH_SETTINGS_PAGER_STICKY2;>
+<HEAD>
+    <TITLE>
+        &pgr; Sticky Windows
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+An entry consists of four fields: <B>Criteria</B>, <B>Attribute</B>, <B>Operator</B>,
+and <B>Value</B>.
+
+<P><B>Criteria</B> defines whether a window matching the entry is included
+(<B>"I"</B>) or excluded (<B>"E"</B>).  Included windows are sticky, and excluded
+windows are not sticky.
+
+<P><B>Attribute</B> defines on what element the entry relies.  As of this release,
+the only possible attribute is the window title.
+
+<P><B>Operator</B> defines the kind of comparison to use to determine if a window
+matches the entry or not.  There are five possible operators for the "Title"
+attribute:
+
+<UL>
+<LI><B>contains</B> will test for whether the title contains the given string at
+any position.
+
+<LI><B>begins with</B> will test for whether the title begins with the given string.
+
+<LI><B>ends with</B> will test for whether the title ends with the given string.
+
+<LI><B>equals</B> will test for whether the title is exactly equal to the given string.
+
+<LI><B>matches</B> will test for whether the title matches the given string, which
+is considered a <A HREF="glossary/gls_regexps.html">regular expression</A>.
+
+</UL>All comparisons are case sensitive.
+
+<P><B>Value</B> defines the value to compare to.  The
+drop down list contains likely values, but the value does not have to be one of
+those.
+
+<P>A window is said to match an entry if the specified window's attribute matches
+the value using the specified comparison operator.
+
+<P>&pgr; will treat a window as being sticky (or not sticky) if its
+matches an entry on the list on this page, starting from the top of the list.
+The window is considered sticky if the criteria is <B>"I"</B>.  The window
+is considered not sticky if the criteria is <B>"E"</B>.  If no matching entries
+are found, the window is considered not sticky.
+
+<P><B>Note:</B> The switch list frequently shows both the window title and the
+switch list title, separated by a dash. If both appear, &pgr; will use
+the title which appears after the dash.
+<BR>
+</BODY>
+</HTML>
+

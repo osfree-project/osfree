@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Erweitertes Objekt "Warnton"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in 0946xwpsound.html -->
+<!-- V0.9.16: added ifdefs -->
+<BODY>
+Die Eintr„ge der <B>Gruppe "Klangschemata"</B> erlauben das schnelle Laden, Sichern
+und L”schen von Klangschemata.
+<!-- V0.9.16: added this -->
+Ein "Klangschema" ist einfach ein kompletter Satz der momentan definierten Systemkl„nge.
+Mit dessen Hilfe lassen sich alle Systemkl„nge auf einmal abspeichern und wechseln.
+ 
+<IFNDEF __EWORKPLACE__>
+<P>Klangschemata wurden mit &warp4; eingefhrt, aber diese Seite funktioniert auch
+mit Warp 3. Ein Klangschema kann als "Satz" von Systemkl„ngen angesehen werden,
+die schnell auf einen Schlag geladen werden k”nnen. Da Klangschemata (leider)
+in <CODE>OS2SYS.INI</CODE> gespeichert werden, teilen sich alle Benutzer des Rechners
+dieselben Klangschemata.
+</IFNDEF>
+ 
+<P>Die Auswahlliste <B>"Aktuelles Schema"</B> zeigt alle Klangschemata an, die momentan
+auf dem System definiert sind.
+<!-- V0.9.16: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Bei Warp 4 sollten wenigstens vier Standardklangschemata vorhanden sein, w„hrend
+bei Warp 3 keines vordefiniert ist (da Warp 3 berhaupt keine Klangschemata kennt).
+</IFNDEF>
+Die Auswahl eines Klangschemas berschreibt die aktuellen Klangdaten (nach einer Best„tigung).
+Wenn "keines" in der Auswahlliste angezeigt wird, ist zur Zeit kein Klangschema ausgew„hlt,
+oder die Konfiguration des zuletzt geladenen Schemas wurde ge„ndert.
+ 
+<P>Die Schaltfl„che <B>"Sichern als"</B> erlaubt das Sichern aller aktuellen Klangeinstellungen
+(in der Gruppe "Systemkl„nge definieren") in einem neuen Klangschema oder das šberschreiben
+eines vorhandenen.
+ 
+<P>Die Schaltfl„che <B>"L”schen"</B> ist nur w„hlbar, wenn die Auswahlliste der Klangschemata ein
+anderes Klangschema als "keines" anzeigt. Durch Drcken dieser Schaltfl„che wird dann das
+momentan ausgew„hlt Klangschema gel”scht.
+ 
+<BR>
+</BODY>
+</HTML>

@@ -1,0 +1,202 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Wie funktioniert &xwp;?
+    </TITLE>
+</HEAD>
+<!-- changes for V0.84: the paragraph about "wpclsQueryIconDataN" has
+     been removed, since it was no longer accurate. -->
+<!-- changed with V0.9.0: replace XFolder with &xwp; (only some) -->
+<BODY>
+&xwp; registriert und/oder ersetzt eine groáe Anzahl von WPS-Klassen. Schauen Sie sich einmal
+das Skript <CODE>INSTALL.CMD</CODE> im &xwp;-Installationsverzeichnis an, um mehr darber zu
+erfahren.
+<P>Die wichtigsten &xwp;-Klassenersetzungen sind:
+<OL><LI><B>XFolder</B> fr die normalen Ordner, welche die Hauptfunktionalit„t von &xwp;
+enth„lt,  <!-- xxx -->
+<BR><LI><B>XFldDisk</B> fr Datentr„ger-Objekte, die im Ordner "Laufwerke" erscheinen,
+<BR><LI><B>XFldObject,</B> die WPS-Wurzelklasse, um Zugang zu vielen WPS-Interna zu erlangen, und
+<BR><LI><B>XFldDesktop</B> fr die neuen Eigenschaften der Arbeitsoberfl„che, besonders
+die Prozedur des erweiterten Systemabschlusses.
+ 
+</OL>Alle diese Klassen ersetzen die originalen WPS-Klassen.
+ 
+<P>Wie auf der <A HREF="further_1WPSClasses.html">vorhergehenden Seite</A> beschrieben, ist
+die <B>XFolder-Klasse</B> eine Ableitung der Klasse WPFolder. So kann sie alles machen,
+was auch ein normaler Ordner kann. Als neue Funktion fgt sie neue Kontextmeneintr„ge zu
+allen Ordnern hinzu, erlaubt Ordner-Tastenkrzel, ver„ndert die Fenster-Titelzeile u.v.a.
+<P>Durch Benutzung der Polymorphie definiert XFolder verschiedene WPFolder-Methoden
+neu, die nachstehend noch erl„utert werden.
+<P>XFolder ist jedoch dann in der WPS als ein WPFolder-<B>Ersatz</B> registriert,
+was bedeutet, daá die WPS die XFolder-Klasse anstatt WPFolder als
+ihre Ordner-Standard-Klasse benutzen wird. Dadurch wird WPFolder nicht mehr
+direkt benutzt, sondern nur noch durch ihre Ersatz-(und Ableitungs-)Klasse
+XFolder.
+<!-- V0.9.13:
+Refer to the <A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the
+"Introduction" section for more on this.
+-->
+ 
+<P>Einige der WPFolder-Methoden, die von der <B>XFolder-Klasse</B> ersetzt
+werden, sind (wahrscheinlich nur fr Programmierer von Interesse):
+<UL>
+<LI><B><CODE>wpModifyPopupMenu:</CODE></B> Diese WPObject-Methode wird
+von der WPS aufgerufen, kurz bervor das Kontextmen angezeigt wird.
+Jede WPS-Klasse fgt hier ihre eigenen, klassenspezifischen Eintr„ge
+hinzu.
+<P>Da XFolder viel mit den Mens spielt, ist dies eine der wichtigsten
+Methoden, die XFolder ersetzt. In dieser Methode ruft XFolder zuerst <CODE>wpModifyPopupMenu</CODE>
+von der Stammklasse (WPFolder) auf, um alle standardm„áigen Eintr„ge
+zum Kontextmen hinzuzufgen.
+<P>Dann sucht sie nach dem XFolder-Konfigurationsordner (der die Objekt-ID
+<CODE>&lt;XFOLDER_CONFIG&gt;</CODE> haben muá) und bev”lkert ihn unsichtbar.
+Jetzt werden alle Objekte, Untermens und Menpunkte durchgegangen.
+Wenn der Konfigurationsordner nicht gefunden wird, erscheint ein Nachrichtenfenster,
+und ein leerer Ordner mit der erforderlichen ID wird auf der Arbeitsoberfl„che
+erstellt.
+<P>Dasselbe geschieht mit den "Ordnerinhalt"-Funktionen und den "bevorzugten Ordnern".
+Jedoch werden diese Untermens nur dann mit Objekten gefllt,
+wenn sie vom Benutzer ge”ffnet werden; dies geschieht, indem XFolder
+die Fensternachricht <CODE>WM_INITMENU</CODE> abf„ngt,
+und zwar in der "unterklassierten" (subclassed) Fensterprozedur fr
+den Ordnerrahmen (siehe unten). XFolder "unterklassiert" ebenfalls alle
+Untermenfenster (und nur diese), damit es die Symbole zeichnen und
+Maustaste 2 zum ™ffnen eines Ordners abfangen kann.
+<P>(Bitte beachten Sie, daá "subclassing" nichts mit WPS-Klassen zu tun
+hat, sondern ein Presentation Manager-Terminus fr die Benutzung verschiedener
+Nachrichten-Prozeduren fr ein existierendes Fenster ist, um bestimmte
+PM-Nachrichten fr dieses Fenster abzufangen. Dafr wird die API
+<CODE>WinSubclassWindow</CODE> benutzt.)
+<P>XFolder modifiziert mit dieser Methode auch diverse andere Mens (wie
+das "Sortieren"-Untermen), wenn die globalen Einstellungen dies erlauben,
+und fgt andere Meneintr„ge hinzu, wenn dies in den globalen
+Einstellungen aktiviert worden ist.
+ 
+<BR><LI><B><CODE>wpMenuItemSelected</CODE>:</B> Dies wird immer dann von
+der WPS aufgerufen, wenn ein Eintrag im Kontextmen vom Benutzer ausgew„hlt
+worden ist.
+<P>XFolder berprft, ob einer seiner eigenen (variablen) Eintr„ge
+benutzt wird; wenn dem so ist, findet es das zugeh”rige Objekt im Konfigurationsordner.
+Falls es sich bei dem Objekt um eine Instanz der WPProgramm-Klasse handelt,
+<!-- V0.9.16: replaced the following -->
+fhrt &xwp; die blichen Tricks damit aus
+(siehe Kontexthilfe des &xwp;-Konfigurationsordners fr Details).
+<!-- end V0.9.16 -->
+Wenn das Objekt eine Schablone ist (egal welche
+WPS-Klasse), wird es nicht ge”ffnet, sondern XFolder erstellt dann
+davon ein neues Objekt im aktuellen Ordner (via <CODE>wpCreateFromTemplate</CODE>).
+<P>Falls der gew„hlte Eintrag zu den "Ordnerinhalt"-Untermens geh”rt,
+wird einfach das zugeh”rige Objekt ge”ffnet.
+<P>Wenn irgendein anderer Meneintrag, den XFolder zum Kontextmen
+hinzugefgt hat, benutzt wird, fhrt XFolder intern die entsprechende
+Aktion aus.
+<P>Wurde allerdings kein XFolder-Meneintrag ausgew„hlt, wird die
+<CODE>wpMenuItemSelected</CODE>-Methode der Stammklasse (WPFolder) aufgerufen (um die
+Standardeintr„ge nicht am Funktionieren zu hindern).
+ 
+<BR><LI><B><CODE>wpMenuItemHelpSelected</CODE>:</B> Jedesmal wenn die F1-Taste
+auf einem Kontextmeneintrag gedrckt wird, kommt diese Methode
+ins Spiel. Falls n”tig, zeigt XFolder die zugeh”rige Hilfeseite
+an.
+ 
+<BR><LI><B><CODE>wpFilterPopupMenu</CODE>:</B> Mit dieser Methode entfernt
+XFolder die standardm„áigen Meneintr„ge, die Sie in
+den globalen Einstellungen angegeben haben. (Diese Methode wird von der
+WPS noch vor wpModifyPopupMenu aufgerufen, also werden die Eintr„ge
+zuerst entfernt und dann neue eingefgt.)
+ 
+<BR><LI><B><CODE>wpclsQueryTitle</CODE>:</B> Die Zeichenkette <CODE>XFolder</CODE> (oder
+was auch immer Sie in den globalen Einstellungen angegeben haben) wird zurckgegeben,
+um der XFolder-Klasse einen unverwechselbaren Namen zu geben.
+ 
+<BR><LI><B><CODE>wpOpen</CODE>:</B> Diese Routine wird aufgerufen, sobald
+die WPS einen Ordner (oder auch jedes andere Objekt) ”ffnet. XFolder
+muá diese Methode ersetzen, um eine ganze
+Reihe von Funktionen zu implementieren.
+<P>Als erstes wird die Stammethode aufgerufen, um die Ordner-Ansicht zu ”ffnen:
+Die WPS erstellt ein Fenster mit einem Standard-PM-Container darin und zeigt
+es auch an.
+<P>XFolder f„ngt dann das Handle fr den Fensterrahmen ab, mit dem
+es dann den Fenstertitel des Ordners „ndern und den kompletten Pfad
+dort einfgen kann (falls in den globalen Einstellungen aktiviert). Eigentlich
+ist es nur ein einfacher Aufruf von <CODE>WinSetWindowText</CODE>, nur mit einigen
+Berechnungen, um den Titel n”tigenfalls zu krzen.
+<P>In dieser Methode <B>"unterklassiert"</B> XFolder auch die Fensterprozedur
+fr den Ordnerrahmen, damit <CODE>WM_CHAR</CODE>-Nachrichten fr Tastenkrzel und
+viele andere Dinge verarbeitet werden k”nnen. Das Unterklassieren erschien
+mir die beste M”glichkeit zu sein, da der gesamte n”tige WPS-Initialisierungskram
+durch das Aufrufen der Stamm-Methode erledigt wird. Der Nachteil ist, daá
+der Benutzer nicht mit dem Ordner interagieren kann, weil er erst danach
+mit Objekten gefllt ("bev”lkert" oder "populated" in WPS-Terminologie)
+wird.
+<P>In der neuen Fensterprozedur f„ngt XFolder alle <CODE>WM_CHAR</CODE>-Nachrichten (die nur
+zur Fensterrahmen-Prozedur weitergereicht werden, wenn sie noch nicht von einem Container,
+wie bei den Pfeiltasten, bearbeitet worden sind) ab und wertet sie gem„á
+der Ordner-Tastenkrzel-Liste aus, die in den globalen Einstellungen
+ge„ndert werden kann.
+<P>Unterklassieren wird auch fr die Statusleisten der Ordner ben”tigt;
+die <CODE>WM_QUERYFRAMECTLCOUNT-, WM_FORMATFRAME-,</CODE> und
+<CODE>WM_CALCFRAMERECT</CODE>-Nachrichten
+werden abgefangen, um die Gr”áe des Ordnerrahmens und seines
+Container-Unterfensters entsprechend dem fr die Statusleiste ben”tigten
+Platz zu „ndern.
+<P>XFolder f„ngt auch einige Container-Benachrichtigungen ab, um in der
+Baumansicht automatisch zu rollen und die Statusleiste zu „ndern, falls
+der Benutzer die Objektauswahl ge„ndert hat.
+<P>Zus„tzlich angelt sich XFolder diverse Men-Nachrichten, wie <CODE>WM_INITMENU</CODE>
+und <CODE>WM_MENUSELECT</CODE>, um einige Men-Funktionen zu benutzen, die ber
+normale WPS-Methoden nicht nutzbar sind.
+<P>Alle Nachrichten, die keine Bedeutung fr XFolder haben, werden zu
+ihrer ursprnglichen Fensterprozedur weitergereicht.
+<P>Die <CODE>wpOpen</CODE>-Methode wird auch zur Implementation der erweiterten Sortierfunktionen
+von XFolder gebraucht; XFolder aktualisiert die Container-Einstellungen
+gem„á den Sortierkriterien, die Sie angegeben haben.
+ 
+<BR><LI><B><CODE>wpAddSettingsPages</CODE>:</B> Die WPS ruft diese Methode
+auf, wenn das Einstellungsnotizbuch eines Objektes ge”ffnet wird. XFolder
+ersetzt diese Methode ebenfalls, um seine neuen Notizbuchseiten einzufgen.
+Dabei wird die Stammklasse aufgerufen, um auch die "normalen" Reiter einzufgen.
+ 
+</UL>Die <B>XFldDisk</B>-Klasse, die die WPDisk-Klasse ersetzt, tut nicht
+allzu viel, auáer der Weiterleitung ihrer Methoden zu den XFolder-Gegenstcken,
+so daá Laufwerksansichten sich wie normale "(X)Folder" verhalten.
+IBM hat aus irgendeinem Grund entschieden, Laufwerksobjekte
+nicht zu regul„ren Ordnern zu machen, sondern eine andere Klasse fr
+sie implementiert (WPRootFolder genannt), also braucht XFolder auch eine
+separate Klasse.
+ 
+<P><B>XFldObject</B> arbeitet auf den ersten Blick anscheinend auch nicht so
+viel, auáer daá die &os2;-Standard-Meneintr„ge unterdrckt
+werden und "Dateiname kopieren" hinzugefgt wird. Aber diese Klasse
+wird von anderen XFolder-Teilen ben”tigt, um ber einige interne
+WPS-Ereignisse benachrichtigt zu werden, vor allem von &xshutdown;, was im
+Detail auf der <A HREF="further_2howxshutdown.html">n„chsten
+Seite</A> beschrieben wird.
+ 
+<P>Die <B>XFldDesktop</B>-Klasse wurde fr die nderung der Meneintr„ge
+der Arbeitsoberfl„che sowie fr &xshutdown;, das im Detail auf der
+<A HREF="further_2howxshutdown.html">n„chsten Seite</A> beschrieben wird, implementiert.
+ 
+<P>W„hrend frhere Versionen auch die<B> WPSystem</B>-Klasse ersetzten,
+so daá das "System"-Objekt in der Systemkonfiguration einige Reiter
+fr XFolders globale Einstellungen enthielt, hat sich dieses Verhalten
+mit V0.80 ge„ndert. Statt dessen registriert XFolder zwei neue Klassen,
+die sich zwar von WPSystem ableiten, diese Klasse aber nicht ersetzen. Diese
+zwei Klassen sind <B>XFldSystem</B> und <B>XFldWPS</B> fr die Objekte
+"&os2; Kernel" und "Workplace Shell". Die Einstellungen hier vorgenommenen Einstellungen
+werden gr”átenteils
+in der OS2.INI gespeichert und jedesmal dann ausgewertet, wenn XFolder sie
+braucht (z.B. wenn Sie ein Kontextmen ”ffnen). Dagegen werden
+die "lokalen" XFolder-Einstellungen fr einen einzelnen Ordner in seinen
+.CLASSINFO-EAs gespeichert, wo die WPS auch die anderen Ordner-Einstellungen
+sichert. Dies wird dann von der XFolder-Klasse erledigt.
+ 
+<P>Bitte beachten Sie, daá die XFolder-Klassen entworfen wurden, um zu
+interagieren. Versuchen Sie nicht einfach, nur einige der Klassen zu entfernen,
+da sich XFolder komisch benehmen k”nnte (wenn Sie Glck haben).
+Alle Funktionen von XFolder sind individuell einstellbar, so daá
+Sie diejenigen, die Sie nicht einsetzen wollen, leicht loswerden k”nnen sollten
+- oder auch XFolder als ganzes.
+<BR>
+</BODY>
+</HTML>

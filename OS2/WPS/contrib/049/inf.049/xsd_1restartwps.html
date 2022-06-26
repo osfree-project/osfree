@@ -1,0 +1,108 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        WPS neu starten
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klassen: XFldObject, XFldDesktop</B><HR>
+<!-- V0.9.0 -->
+&xwp; kann auch einen Eintrag "WPS neu starten" in das Kontextmen der 
+Arbeitsoberfl„che hinzufgen.
+<P>Nach Auswahl von "WPS neu starten" erscheint ein Dialogfenster „hnlich 
+dem des <A HREF="xsd_2xshutdown.html">Erweiterten Systemabschlusses</A>. 
+Der Unterschied besteht darin, daá nach Schlieáen aller Fenster nicht der
+Rechner neu gestartet wird, sondern nur der Workplace-Shell-Prozeá
+(PMSHELL.EXE).
+<P>Um den Unterschied zu verstehen, ist es hilfreich zu wissen, daá
+die Benutzeroberfl„che von &os2; in drei "Ebenen" unterteilt ist, die 
+aufeinander aufbauen:
+<PRE>
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  Workplace Shell (WPS)      ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  Presentation Manager (PM)  ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  OS/2-Kernel                ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+</PRE>
+<BR>Der <STRONG>OS/2-Kernel</STRONG> stellt die Basisfunktionalit„t des
+Betriebssystems, wie z.B. Zugriff auf Ger„te und Multitasking, bereit. Ohne
+ihn wrde auf dem System nichts funktionieren.
+<P>Der <STRONG>Presentation Manager (PM)</STRONG> ist verantwortlich fr
+die Graphik, wie z.B. Fenster, Symbole, Bilder und ein paar andere 
+nicht-graphische Dinge wie die INI-Dateien. &os2; kann Applikationen im Textmodus
+(also etwa die &os2;-Befehlszeile, CMD.EXE) ohne PM ausfhren, aber alle 
+anderen Applikationen ben”tigen den PM als Basis. Eine typische
+PM-Applikation ist beispielsweise Netscape.
+<P>Die <STRONG>Workplace Shell (WPS)</STRONG> ist nur eine andere, aber
+besonders komplexe PM-Applikation. Sie ist verantwortlich fr die Anzeige
+von Ordnern, fr das Starten von Programmen nach einem Doppelklick auf
+das jeweilige Symbol, fr die Verknpfung von Dateien und Programmen, also
+fr alles, was Sie sehen, wenn &os2; fertig gestartet ist. Das ist der
+Kontext, in dem &xwp; l„uft.
+<P>Der Meneintrag <STRONG>"WPS neu starten"</STRONG> beendet nun nur die 
+oberste Ebene der vorher genannten drei, die Workplace Shell. Das ben”tigt
+viel weniger Zeit, als den Rechner komplett neu zu starten, weil PM und
+Kernel nicht geladen und initialisiert werden mssen.
+<P>Ein WPS-Neustart kann hilfreich sein, wenn das System sehr langsam
+geworden ist (aus irgendeinem Grund, jedenfalls nach meiner Erfahrung,
+friát die WPS mehr und mehr Speicher, wenn man viel mit Dateien arbeitet)
+oder wenn man neue Software installiert hat, die die WPS-Klassen „ndert.
+ 
+<P><STRONG>Wichtige Hinweise:</STRONG>
+<UL><LI>Beachten Sie bitte, daá dies nicht die Art des WPS-Neustarts ist,
+die IBM im Sinn hatte, als sie die WPS entwickelt haben. "WPS neu starten"
+zwingt die WPS einfach dadurch zum Neustart, daá sie beendet wird. Da
+&xwp; Teil des WPS-Prozesses ist, kann es einfach aussteigen. &os2; startet
+dann diesen Prozeá automatisch neu. Das Resultat ist fast genauso, wie 
+wenn die WPS abgestrzt ist und neu startet; allerdings werden die Daten
+der WPS vorher gespeichert.
+<BR><LI>Auf meinem System gehen die Symbole von ausfhrbaren Dateien nach 
+einem Neustart der Arbeitsoberfl„che durcheinander. Das gilt fr alle 
+Programmobjekte und ausfhrbare Dateien, die nicht ein eigenes Symbol 
+(ber ihr Einstellungsnotizbuch) zugewiesen bekommen haben. Entweder
+gehen die Symbole vollst„ndig verloren, oder es werden falsche Symbole 
+angezeigt. Das ist ein Fehler im Presentation Manager, auf den ich
+keinen Einfluá habe. Nach einem kompletten Systemneustart sind die 
+richtigen Symbole wieder da.
+<BR><LI>Weder die Einstellungen fr den Presentation Manager noch die 
+&cfgsys; werden beim WPS-Neustart neu gelesen. Wenn diese Einstellungen 
+sich ver„ndert haben, wird ein Neustart der Arbeitsoberfl„che diese 
+nderungen nicht aktivieren. Fhren Sie statt dessen einen kompletten 
+Systemneustart durch.
+ 
+<BR><LI>Als allgemeine Regel gilt: Je mehr WPS-Klassen Sie installiert haben,
+desto mehr Probleme werden wahrscheinlich auftauchen, wenn sie einen WPS-Neustart
+ausfhren. Das kann viele Grnde haben, die ich nicht vollst„ndig
+verstehe, aber einige WPS-Klassen von anderen Autoren scheinen Ihre Ressourcen
+nicht richtig aufzur„umen, wenn die WPS neu gestartet wird.
+Auáerdem wird der SOM-Kernel manchmal durch Ersetzungen von WPS-Klassen 
+verwirrt, und einige Teile der WPS strzen dann ungef„hr 20 Sekunden nach 
+Bev”lkern der Arbeitsoberfl„che ab.
+<P>In diesen F„llen werden Ihnen zuf„llige Abstrze in bestimmten DLLs 
+gemeldet, die nur Symptome dafr sind, daá etwas intern nicht richtig
+funktioniert. Wenn das passiert, werden Sie das System komplett neu starten 
+mssen. Kandidaten fr diese zuf„lligen DLL-Abstrze sind nach meinen
+Erfahrungen INSTALL.DLL (enth„lt WPInstall), WPPRINT.DLL (enth„lt Klassen 
+fr Drucker und Spooler) und das "WorkFrame", das mit verschiedenen IBM 
+Compilern geliefert wird. (Amsanterweise sind alle diese DLLs von IBM
+selbst programmiert worden.)
+<BR><LI>Abh„ngig von Ihrem System ist die Anzahl der m”glichen erfolgreichen
+Neustarts der Arbeitsoberfl„che begrenzt. Einige Benutzer haben berichtet,
+daá es nur einmal geht, auf meinem System habe ich die WPS oft (etwa 30 Mal)
+neugestartet, bevor das System abgestrzt ist. (Das klingt nach viel, aber
+w„hrend der Programmierung von &xwp; ist das leider h„ufig n”tig.)
+ 
+</UL>Sie k”nnen diese Funktion auf einer neuen Seite im Einstellungsnotizbuch
+der Arbeitsoberfl„che abschalten.
+<BR>
+</BODY>
+</HTML>
+ 

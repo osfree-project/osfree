@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Memory
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13; however, this contains information from
+     the old 090settings15kernel2.html -->
+<BODY>
+The settings in the "Swap file" group allow you to influence the way
+&os2; manages its swap file.
+All these settings correspond to the <CODE>SWAPPATH</CODE> command
+in &cfgsys;. See the <A HREF="cmdref.inf#swappath">SWAPPATH documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P>For more information about this topic, see <A HREF="glossary/gls_mem_paging.html">Paging</A>.
+
+<UL><LI>The <B>"Current size"</B> field shows you the current size of the &os2; swap file
+(<CODE>SWAPPER.DAT</CODE>).
+This display is continually updated when the swapp file's size changes.
+
+<P><LI>The <B>"Main memory size"</B> field shows you how much physical main memory
+(RAM) you have installed on your system.
+This number plus the size of the swap file (above) makes up the amount of virtual
+memory which is actually used by &os2; at the moment.
+
+<P><LI>The <B>"Minimum size"</B> field lets you determine which size the swap file
+will never fall short of. You should set a reasonably high value here because otherwise
+&os2; will keep adjusting the swap file size, which costs a lot of time.
+
+<P>The default value of 2 MB is definitely too low for most systems, unless you have a lot
+of memory installed. For example, if the current size of the swap file is 20 MB and
+you have a minimum size of 2 MB set, you should raise that value to 32 MB to avoid
+unnecessary swap file size adjustments.
+
+<P>This setting corresponds to the third parameter of the <CITE>SWAPPATH</CITE>
+&cfgsys; command.
+
+<P><LI>The <B>"Warn threshold"</B> field lets you determine when &os2; will warn you
+that you're running out of disk space on the drive which holds the swap file when
+it tries to increase its size. For example, if you have set 20 MB here and &os2; finds
+out that only 19 MB disk space is left on the swap file drive, you'll get a warning
+message.
+
+<P>This setting corresponds to the second parameter of the <CITE>SWAPPATH</CITE>
+&cfgsys; command.
+
+<P><LI>The <B>"Path"</B> entry field allows you to specifiy the location of the swap
+file. You may enter any valid directory here. Note however that you cannot change
+the name of the swap file, which will always be <CITE>SWAPPER.DAT</CITE>.
+
+<P>In general, you should put the swap file on an HPFS drive, because this avoids
+fragmentation and is generally faster. In addition, you should put the swap file on
+the most used partition of the least used hard disk (if you have several hard disks
+built into your computer). This avoids unneccessary movement of the read/write
+heads of the hard disks when the swap file is accessed. Of course however, if that
+partition resides on a hard drive which is much slower than the others, a different
+hard drive might be preferrable.
+
+<P>This setting corresponds to the first parameter of the <CITE>SWAPPATH</CITE>
+&cfgsys; command.
+
+<P>Please note that when you change the swap file location, the old swap file will
+not automatically be deleted during the next reboot. You should therefore remember
+the old location and manually delete the old swap file after the system has been
+rebooted, or otherwise several MB of hard drive space will remain occupied.
+</UL>
+</BODY>
+</HTML>
+

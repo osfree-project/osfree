@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Status: &xwp; Kernel
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in
+     09610xset_info.html -->
+<BODY>
+The <B>"&xwp; Kernel"</B> group displays some information right from the internals
+of <CODE>XFLDR.DLL</CODE>.
+If consider the following explanations too complicated,
+don't worry, an understanding of this information is not required for &xwp;
+to run properly on your system.
+
+<P>The <B>"Version"</B> field contains the version number of <CODE>XFLDR.DLL</CODE>,
+including the date when it was built.
+<!-- V0.9.7: removed this
+(not of the language files!), while the "Build" field simply shows the count
+of how many times XFLDR.DLL was built (compiled) on the author's hard disk
+before being released, as well as the build date of your release.
+That field might not be terribly useful, except when bugfixes should be released without
+raising the &xwp; version number. -->
+
+<!-- V0.9.4: removed this
+The "C runtime locale" field shows the current language settings used internally
+be &xwp;. This is not to be confused with PM's language settings in the
+"Country" object or with &xwp;'s Language settings, but is only used for certain
+C-language features such as string comparisons and sorting.
+This should either be "C" if a default (English) locale is being
+used or the value of your "LANG" environment variable in &cfgsys;, such as "DE_DE" for
+Germany. For programmers: this is the return value of a
+setlocale(LC_ALL, NULL) call (using the IBM Visual Age C++ 3.0 runtime
+library). -->
+
+<!-- V0.9.4: added this -->
+<P>The <B>"Awake Desktop objects"</B> field shows you the number of objects which have been
+instantiated internally by the WPS. Every time the WPS populates a folder (starting with
+the Desktop at system startup), Desktop objects are instantiated in memory. This field shows
+you the total number of objects which have been instantiated this way by the WPS since
+the WPS was started. This number usually keeps growing as you open folders, since the
+WPS rarely puts objects back to sleep.
+This number is updated once a second. Open any folder which hasn't been populated yet,
+and you will see this number grow.
+
+<P>The <B>"WPS thread count"</B> shows the current number of threads running in the
+Workplace Shell process (second instance of <CODE>PMSHELL.EXE</CODE>). This will
+vary, depending on the additional
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS classes</A>
+that are installed. Also this number
+might change if, for example, a folder is currently being populated.
+This number is updated once a second.
+
+<!-- V0.9.4: added this -->
+<P>The <B>"Desktop restarts"</B> field shows you how many times the WPS has been restarted.
+
+<!-- V0.9.9: removed all the threads stuff... this is now in 09992xc_threads.html -->
+
+<P>The <B>"XSound status"</B> finally shows you whether &xwp; is able to play
+system sounds on your system. This should show "OK". If you get something different,
+system sounds will be disabled. Reasons for this could be that MMPM/2 is not installed
+<!-- V0.9.4: changed the following -->
+on your system or other problems occurred with &xwp; multimedia.
+
+<!-- V0.9.4: added this -->
+<P>The <B>"XWPHook status"</B> field shows you whether the &xwp; hook has been correctly
+installed. This should show "OK" if you have enabled the respective setting on the "Features"
+page.
+<BR>
+</BODY>
+</HTML>
+

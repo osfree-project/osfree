@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: System Paths
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+&os2; has several <B>system paths</B> which specify where the system
+should look for files if a
+<A HREF="glossary/gls_path.html">path</A> is not supplied with a file.
+
+<P>For example, if an executable file is in the list of directories
+specified by the <CODE>PATH</CODE> system path, the executable can be
+found without knowing where exactly it is stored on the system. This
+is why you can simply type <CODE>e</CODE> on an &os2; command prompt
+to start the &os2; &eexe;: <CODE>E.EXE</CODE> resides in the <CODE>OS2</CODE>
+directory on your boot drive, which is on the <CODE>PATH</CODE>.
+
+<P>Except for <CODE>LIBPATH</CODE>, these are
+<A HREF="glossary/gls_env.html">environment variables</A>
+that are initially set during system startup through the &cfgsys;
+file and can thus be modified later for every session.
+
+<IFNDEF __NOOS2KERNEL__>
+<P>You can edit the current system path settings on the "System paths"
+page in the <A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object.
+</IFNDEF>
+
+<P>The following system paths are defined:
+
+<!-- V0.9.20: the following has roughly been taken from kernel\krn_paths.html -->
+
+<UL><LI><CODE>LIBPATH</CODE>: the "library" system path, which is searched every time
+&os2; attempts to load a
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL).</A>
+This better contain the &os2; system
+directories as well as a dot (".") entry, which stands for the current directory.
+
+<P>See the <A HREF="cmdref.inf#libpath">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P>Note that this is the only system path which is <I>not</I> defined using an environment
+variable and can therefore not be changed from the command line. Use the <CODE>BEGINLIBPATH</CODE>
+and <CODE>ENDLIBPATH</CODE> variables for temporary changes.
+
+<P><LI><CODE>SET PATH</CODE>: the search path for executables (.EXE, .COM, .BAT, .CMD files).
+
+<P>See the <A HREF="cmdref.inf#path">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P><LI><CODE>SET DPATH</CODE>: the search path for data files. The use of this search
+path is dependent on the applications; some applications use this, others don't.
+
+<P>See the <A HREF="cmdref.inf#dpath">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P><LI><CODE>SET BOOKSHELF</CODE>: this is evaluated by <CODE>VIEW.EXE</CODE> to find
+online .INF books. Even though any INF book can be displayed, even if it's not on this
+search path, the "Find" facility of <CODE>VIEW.EXE</CODE> will only find items in books
+which reside on this path.
+
+<!-- cmdref.inf#bookshelf doesn't work -->
+
+<P><LI><CODE>SET HELP</CODE>: this is evaluated by the PM help facility to display
+help panels (.HLP files). Some applications do not specify the full path of help files
+to PM in order to display help panels, which requires the help file to reside on this
+path. &xwp; does not require such an entry though.
+
+<!-- cmdref.inf#help doesn't work -->
+
+</UL>
+</BODY>
+</HTML>
+

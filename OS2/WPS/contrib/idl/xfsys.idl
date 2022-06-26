@@ -1,0 +1,147 @@
+
+/*
+ * xfsys.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFldSystem ("OS/2 Kernel" settings object)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfsys.c for details.
+ *
+ *      With V0.9.0, XFldWPS has been moved to xfwps.idl.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpsystem.idl>         // this is SOM for WPSystem
+
+/*
+   CLASS: XFldSystem
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPSystem
+                           ÀÄÄ  XFldSystem
+*/
+
+interface M_XFldSystem;            // forward reference to metaclass
+
+interface XFldSystem : WPSystem
+{
+    /*
+     * New instance methods for XFldSystem:
+     *
+     */
+
+    ULONG xwpAddXFldSystemPages(in HWND hwndDlg);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXFldSystemPages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfsys_;
+        externalstem = xfsys;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfsys;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFldSystem;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XFldSystem:
+         *
+         */
+
+        /*
+         * WPSystem methods overridden by XFldSystem:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+        //# wpQueryDefaultHelp: override;        replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFldSystem : M_WPSystem
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfsysM_;
+        externalstem = xfsysM;
+        functionprefix = xfsysM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfsys;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XFldSystem:
+         *
+         */
+
+        /*
+         * M_WPSystem methods overridden by M_XFldSystem:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQuerySettingsPageSize: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,106 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 1.0.6
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XWorkplace version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+Bugfix release off the 1.0 branch.
+"Bug #" numbers refer to the official XWorkplace bugtracker at
+<a href="http://xtracker.xworkplace.org">http://xtracker.xworkplace.org</a>.
+
+<P><B>&xwp; 1.0.6 (December 8, 2006)</B>
+
+<P>All the bugs below have been fixed by Paul Ratcliffe unless otherwise noted.
+
+<P>Bugfixes:
+
+<UL><LI>Fixed a trap in the daemon when deselecting the XWP Hook with Xcenter's Window List
+widget active. Bug 748.
+
+<P><LI>Fixed a trap when double clicking on a section header in the Device Drivers tree on
+the Drivers tab of the OS/2 Kernel object. Bug 762.
+
+<P><LI>Fixed cosmetic issues with the Driver description and Parameters boxes on the
+Drivers tab of the OS/2 Kernel object. Bug 288.
+
+<P><LI>Fixed traps and other incorrect behaviour relating to dragging and dropping.
+The Trashcan can now accept "discard" objects, like the Shredder.
+Bugs 806, 815, 817 and 829. Fixed by Lars Erdmann.
+
+<P><LI>Fixed a problem relating to launching objects using hotkeys, especially with the
+XCenter. Bug 792.
+
+<P><LI>XPager window dragging to other virtual desktops now snaps to the same location.
+Holding down the Shift key allows windows to be positioned anywhere. This is the reverse
+of the previous behaviour, at user request. Bug 733.
+
+<P><LI>The main icon for the "XWorkplace Installation" folder was updated - this was
+only partially applied in the previous version. Bug 760.
+
+<P><LI>Fixed a bug with the XShutdown configuration dialog wouldn't switch back from ACPI
+to APM shutdown. Bug 728.
+
+<P><LI>Fixed a bug during initial installation of the XCenter where it wasn't adding the
+"Desktop Lock", "Find Utility", and "Shutdown" objects. Bug 749.
+
+<P><LI>The XCenter Tray selection bitmap was made bigger to match the other icons. Bug 729.
+
+<P><LI>Fixed bugs with the DEFAULTOBJECT and OPEN setting strings being ignored with
+XWPString objects. Bug 823.
+
+<P><LI>Implemented folder setup string DEFAULTVIEW=SPLITVIEW. Fixed OPEN= setup string for
+disk objects which was mostly completely unimplemented. Bug 827.
+
+<P><LI>Stopped the Shredder Object from behaving like the Trash Can (except if Shift is
+pressed). Bug 413.
+
+<P><LI>The keyboard NumLock LED was not always set correctly when using the
+"Enable NumLock on Startup" feature. Bug 831.
+
+<P><LI>The default for XCenter's "Automatically add to screen border" function is now off.
+Disabling this setting now also clears the relevant screen border setting.
+Fixed Default/Undo processing for XCenter's View properties page. Bug 224.
+
+<P><LI>Printer and Transient objects are now prevented from being moved to the Trash Can.
+
+<P><LI>Showing or maximizing a previously maximized and then minimized view of the WPS
+Class List caused the window not to display properly. Also affected Folder Split Views.
+Bug 865.
+
+<P><LI>Fixed a bug with XCenter's folder object buttons which sometimes didn't bring
+the folder to the top of the Z-order. Bug 319.
+
+<P><LI>Fixed a bug with the Screen borders notebook page where the settings were not
+being saved correctly. Bug 56.
+
+<P><LI>Window List size/position and presentation parameters (font/colors) were not
+being saved. Bug 458.
+
+<P><LI>Fixed a bug with using "Open as, XCenter" from an XCenter's context menu, which
+did nothing. Bug 889.
+
+<P><LI>Split view folder status bars now update correctly when changing focus between the
+tree and files containers using the mouse. Bug 326.
+
+<P><LI>Some of the developer documentation was updated. Thanks to Christian Hennecke.
+
+<P><LI>Updated the XWorkplace WarpIN installation scripts to solve some problems with the
+NLS packages. Fixed by Paul Ratcliffe/Christian Hennecke/Chuck McKinnis.
+
+<P><LI>The Treesize icon was update. Thanks to David Graser.
+
+</UL>
+
+<P>New Features:
+
+<UL><LI>None.
+
+</UL>
+</BODY>
+</HTML>
+

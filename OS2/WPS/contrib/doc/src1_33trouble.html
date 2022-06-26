@@ -1,0 +1,86 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Troubleshooting
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+<OL><LI>If you get errors from the <B>makefiles,</B> make sure you have set up
+<A HREF="src1_32env.html">config.in</A> correctly.
+
+<P><LI>In addition, if you have just checked out and the sources complain
+about ".depend" not found or a missing header file, run <code>nmake dep</code>.
+This is required before the first make anyway, but sometimes, if header files
+get renamed or removed, another <code>nmake dep</code> is required. It is
+good practice to run this once after every checkout.
+
+<P><LI>Same thing if the compiler cannot find an include file, or the linker
+cannot find libraries.
+
+<P><LI>Make sure your <CODE>TEMP</CODE>, <CODE>TMP</CODE>, and <CODE>TMPDIR</CODE>
+directories are set correctly. Most importantly, when using <CODE>RAMFS.IFS</CODE>,
+do not use a root directory because apparently RC chokes on that. I have the following
+in <CODE>CONFIG.SYS</CODE>:
+
+<PRE>
+IFS=J:\common\ifs\RAMFS64.IFS
+CALL=J:\common\ifs\RAMDISK.EXE Z:
+RUN=I:\OS2\CMD.EXE /C md Z:\temp
+SET TMP=Z:\temp
+SET TEMP=Z:\temp
+SET TMPDIR=Z:\temp
+</PRE>
+
+<P><LI>Also, you need to check out the "xwphelpers" CVS archive from Netlabs for the
+<A HREF="src1_5helpers.html">helpers</A> code. Make sure that this code
+is not outdated (I usually update it together with the main XWorkplace code).
+
+<P>Same thing if you get unknown definitions or unresolved externals during
+compiling/linking. This is most probably due to outdated helpers.
+
+<P><LI>If the SOM compiler chokes on the <CODE>.IDL</CODE> files, you may
+have a problem with the <CODE>nmake</CODE> version that is running. Several
+people have reported that the <CODE>nmake</CODE> that comes with the Warp 4.5
+Toolkit does not set <CODE>SMINCLUDE</CODE> correctly from the makefiles.
+I am still running <CODE>nmake</CODE> 3, which comes with the Warp 3 Toolkit
+and also with the IBM VAC 3 compiler.
+
+<P>Alternatively, look at <CODE>idl\makefile</CODE> and search for
+<CODE>SMINCLUDE</CODE>. Uncomment the line that sets the environment variable
+and set the variable to the proper values externally. Some people have
+gotten the thing to work like that too.
+
+<P>The SOM compiler that comes with some versions of the Warp 4.5 Toolkit
+appears to produce
+very strange errors also, according to some user reports. I recommend using
+the Warp 3 Toolkit; see <A HREF="src1_2requires.html">Required Tools</A>.
+
+<P><LI>If you get unresolved externals while linking the XCenter widgets, take
+a look at <CODE>src\shared\xwp.def</CODE>, which exports the functions from
+XFLDR.DLL.
+
+<P><LI>If you get something like <B>"File XWPDAEMN.EXE/XWPHOOK.DLL is in use",</B>
+use WatchCat or some other process killer to kill <CODE>XWPDAEMN.EXE</CODE>, which
+will automatically unload the hook DLL. Then, after the build, restart the daemon
+by executing <CODE>XWPDAEMN -D</CODE> (to circumvent the error message box which
+comes up otherwise).
+
+<P>See <A HREF="src1_32env.html">config.in</A> for details.
+
+<P><LI>If you get really strange compilation errors, VAC might have gotten confused
+with precompiled headers. Delete all <CODE>.PCH</CODE> files in your TEMP directory,
+or comment out the <CODE>PRECH</CODE> line in <CODE>setup.in</CODE> to disable
+precompiled headers altogether. I have also found that killing <CODE>DDE4LOAD.EXE</CODE>
+(the VAC background process) helps sometimes, for whatever reason.
+
+<P><LI>If you <B>cannot install XWorkplace</B> after the build or, after the WPS
+restart, none of the XWorkplace classes seem to be loaded, you have probably built
+the debug version, but the PMPRINTF DLLs are not on your LIBPATH.
+<B>Do not build the debug version if you haven't downloaded PMPRINTF yet.</B>
+See <A HREF="src1_880debug.html">"Debugging"</A> for details.
+
+</OL>
+</BODY>
+</HTML>

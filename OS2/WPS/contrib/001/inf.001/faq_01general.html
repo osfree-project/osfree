@@ -1,0 +1,147 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: General Questions
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+First of all: look into the <A HREF="sys_2global.html">"Workplace Shell"</A>
+object,
+where you will find a lot of useful levers to make &xwp; behave.
+<P>If you don't find the answer to your question here, please look at &xwp;'s
+<A HREF="notices_3comments.html">web homepage</A> also. I am now
+maintaining a public bug list, which might answer your question too.
+
+<OL>
+<LI><B>Does &xwp; slow down the WPS?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>Depends. Some features might cause a bit of a slowdown, such as the first
+opening of a folder context menu, since &xwp; will have to read in the contents
+of the Configuration Folder (including all subfolders) to build the context menu
+accordingly.
+<P>By contrast, some other features will actually speed up the WPS.
+For example, the <A HREF="fldr_30turbo.html">"Turbo folders"</A>
+feature can dramatically speed up folders.
+Also, if extended file associations are enabled, folder populating
+is much faster because &xwp; is using very efficient caching routines for
+object handles internally.
+<!-- end V0.9.19 -->
+<P>Also, as opposed to some other WPS enhancers, &xwp; doesn't use excessive
+amounts of memory. I have checked this once on my system, and in addition to the
+size of the &xwp; DLLs themselves, &xwp; only keeps a few 100 KBs of
+memory allocated and dynamically frees storage when it's no longer needed.
+
+<!-- this item removed with V1.0.1
+<P><LI><B>Why are the &xwp; dialog windows so ugly on Warp 3?</B>
+<P>&xwp; uses the <B>WarpSans</B> font for most of its dialogs, because it's
+so much prettier than "System Proportional". This font only
+comes with &warp4; and higher, so on Warp 3 it's not found, and the system uses the default
+system font (System Proportional) instead.
+<P>If you can get hold of some &warp4; <CITE>\OS2\DLL\DSPRES.DLL</CITE> file,
+simply copy it over the same file in your Warp 3 \OS2\DLL directory.
+This file contains many system resources, among others the
+WarpSans font. Warp 3 will work with the Warp 4 version without problems.
+(This only works if you boot &os2; to the command line, using Alt-F1 at startup,
+because that DLL gets locked as soon as the system switches to graphics mode.)
+<P>Starting with &xwp; V0.9.0, the "Paranoia" page in "&xwp; Setup" has
+a checkbox where you can force &xwp; to use the "8.Helv" font in most places.
+-->
+
+<!-- this item added with V0.82 -->
+<P><LI><B>Why are the new system sounds not playing?</B>
+<P>You will need to install them first. See the
+<!-- V0.9.3: link changed -->
+<A HREF="mm_2sounds.html">corresponding page</A> for more.
+<!-- V0.9.6: added the following -->
+<P>Some people reported that after upgrading their sound cards, &xwp;'s system
+sounds no longer works. This turned out to be a problem with the multimedia setup.
+Open the standard "Multimedia Configuration" object, "Digital Audio" page, and make
+sure that the "WAV" file extension appears in the extensions associations list.
+
+<P><LI><B>Why do I keep getting crashes in SOM.DLL?</B>
+<P>If you're using <B>VisualAge C++</B> or any other software which installs
+SOM runtimes, make sure that
+<CITE>SOM.DLL</CITE> is loaded from <CITE>\OS2\DLL</CITE>. This DLL has been updated
+with more recent Warp fixpaks. VAC++ puts additional
+directories at the beginning of the <CITE>LIBPATH</CITE> statement in &cfgsys;,
+which still causes the old DLL to be loaded.
+Put those directories behind <CITE>\OS2\DLL</CITE> in the <CITE>LIBPATH</CITE>.
+
+<!-- this item added with V0.9.0 -->
+<P><LI><B>Why do I get Desktop restarts when I change media in removeable drives (MO, ZIP, ...)?</B>
+<P>I have no idea. Several people have reported very strange WPS behavior when a drive
+folder is opened after removeable media has been exchanged. After that, the WPS works
+fine again (until the media is exchanged again).
+<!-- V0.9.6: added this -->
+<P>Note that I do not have removeable drives, other than a CD-ROM drive and a CD writer.
+I therefore cannot reproduce these problems here. If somebody can take a look at
+&xwp;'s source code to find out what might cause this, this would be a great help.
+
+<P>IBM has introduced some new removeable media support with Warp 4 Fixpak 6, so maybe
+we have a problem there. Christian Hennecke &lt;christian.hennecke@ruhr-uni-bochum.de&gt;
+wrote in some newsgroup that replacing <CODE>PMWP.DLL</CODE> with a
+pre-fixpak 6 version appears to help. You'll also have to install NEWDASD, which should
+still be available on Hobbes and Leo.
+
+<P><LI><B>Why do &xwp;'s features only work with some folders and not with others?</B>
+<P>This is tricky. Some people have reported this in all variations, i.e.
+hotkeys work for the Desktop only, or not in URL folders, or not in Group Folders
+(an IBM EWS utility), etc.pp.. The same applies to status bars.
+<P>From what I can see, this is related to folder subclassing. &xwp; needs certain
+window messages to introduce these features, and if some other WPS class intercepts
+these messages, &xwp;'s features behave funny or cause crashes or do simply not work.
+<P>In general, the more WPS class replacements you have installed, the more likely
+these errors are likely to appear. With a "clean" WPS, &xwp; usually works fine, but
+the people who have reported these errors sometimes had four folder class replacements
+installed, and it's really difficult for me to track down these errors then.
+Try to de-install some WPS extensions which you don't absolutely need.
+<P>Also, the more messed up your INI files are, the more likely the WPS is going to
+become unstable in general. I strongly recommend Henk Kelder's <CITE>WPTOOLS</CITE>
+package, which you should run from time to time anyway, to clean up the INI files.
+This is still continually updated and available at Hobbes.
+<P>I have also found that installation order is important. Some WPS extensions seem
+to simply "swallow" messages which they don't need, assuming that they are the only
+WPS extension on the system. (This might apply to &xwp; also, but I have tried to
+avoid this.) Now, if &xwp; comes before this greedy WPS extension in the WPS class
+replacement list, which is the case if &xwp; was installed first, it does get the
+message before the other WPS extension.
+
+<P><LI><B>Does &xwp; cooperate with Object Desktop?</B>
+<P>In theory, yes. Practically, sometimes. For details about this (and for other
+WPS utilities also), see the separate <A HREF="vers_1compat.html">"Compatibility"</A>
+page.
+
+<!-- this item added with V0.84 -->
+<P><LI><B>Why do I hear the disk drives running every time I open the "Drives"
+folder?</B>
+<P>The reason for this is that the &xwp; status bars query the free space on a
+drive. If the first object in your "Drives" folder represents a floppy drive, it's
+this drive that's queried.
+<P>To avoid this, change the status bar information for
+WPDisk objects in the "Workplace Shell" object, page 2 of "Status bars". Then this
+information will not be queried.
+<P>Alternatively, you can disable status bars for the "Drives" folder only on the
+"View" page in the Drives folder's settings notebook.
+
+<P><LI><B>Does &xwp; run on Macintosh systems?</B>
+<P>No.
+</OL>
+
+Shameless self-advertisement: &xwp; cooperates perfectly with
+the fantastic <STRONG>CommandPak</STRONG> from the same author, available also at
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A>. This package
+will improve the &os2; command line dramatically, among others offering some
+WPS support
+from the command line also.
+
+<BR>
+</BODY>
+</HTML>
+
+
+

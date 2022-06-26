@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Status: &xwp; Kernel
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in
+     09610xset_info.html -->
+<BODY>
+De <B>"&xwp; Kernel"</B> groep toont enige informatie rechtstreeks uit het hart van de
+<CODE>XFLDR.DLL</CODE>.
+Als u van mening bent dat de volgende uitleg te gecompliceerd is, wees dan niet bezorgt,
+begrip van deze informatie is niet nodig om &xwp; goed op uw systeem te laten werken.
+
+<P>Het <B>"Versie"</B> veld bevat het versie nummer van de <CODE>XFLDR.DLL</CODE>,
+inclusief de datum waarop die gemaakt is.
+<!-- V0.9.7: removed this
+(not of the language files!), while the "Build" field simply shows the count
+of how many times XFLDR.DLL was built (compiled) on the author's hard disk
+before being released, as well as the build date of your release.
+That field might not be terribly useful, except when bugfixes should be released without
+raising the &xwp; version number. -->
+
+<!-- V0.9.4: removed this
+The "C runtime locale" field shows the current language settings used internally
+be &xwp;. This is not to be confused with PM's language settings in the
+"Country" object or with &xwp;'s Language settings, but is only used for certain
+C-language features such as string comparisons and sorting.
+This should either be "C" if a default (English) locale is being
+used or the value of your "LANG" environment variable in &cfgsys;, such as "DE_DE" for
+Germany. For programmers: this is the return value of a
+setlocale(LC_ALL, NULL) call (using the IBM Visual Age C++ 3.0 runtime
+library). -->
+
+<!-- V0.9.4: added this -->
+<P>Het <B>"Werkplek objecten wakker maken"</B> veld laat u het aantal objecten zien die intern
+door de WPS aangemaakt zijn. Iedere keer dat de WPS een map genereert (beginnende bij de Werkplek
+bij het opstarten van het systeem), worden Werkplek objecten aangemaakt in het geheugen. Dit veld
+laat u het totale aantal objecten zien die op deze manier aangemaakt zijn door de WPS vanaf het
+moment dat de WPS opgestart is. Normaal gesproken neemt dit getal toe naarmate u mappen opent, want de
+WPS laat zelden objecten weer in slaap vallen.
+Dit getal wordt eens per seconde bijgewerkt. Open een willekeurige map die nog niet geopend is geweest
+en u zult het getal zien toenemen.
+
+<P>De <B>"WPS thread telling"</B> laat het aantal momenteel lopende threads zien in het
+Workplace Shell proces (tweede geval van de <CODE>PMSHELL.EXE</CODE>). Dit zal vari‰ren,
+afhankelijk van de aanvullende
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS classes</A>
+die ge‹nstalleerd zijn. Dit getal kan ook veranderen als, bij voorbeeld, een map momenteel
+opgebouwd wordt.
+Dit getal wordt eens per seconde bijgewerkt.
+
+<!-- V0.9.4: added this -->
+<P>Het <B>"Werkplek herstart"</B> veld laat u zien hoe vaak de WPS opnieuw gestart is.
+
+<!-- V0.9.9: removed all the threads stuff... this is now in 09992xc_threads.html -->
+
+<P>De <B>"XSound status"</B> laat tenslotte zien of &xwp; in staat is om
+systeemgeluiden af te spelen op uw systeem. Dit zou "OK" moeten zijn. Als u iets anders krijgt,
+zijn de systeemgeluiden uitgeschakeld. Redenen hiervoor kunnen zijn dat MMPM/2 niet
+ge‹nstalleerd is
+<!-- V0.9.4: changed the following -->
+op uw systeem of er hebben zich andere problemen voorgedaan bij &xwp; multimedia.
+
+<!-- V0.9.4: added this -->
+<P>Het <B>"XWPHook status"</B> veld laat u zien of de &xwp; hook correct is ge‹nstalleerd.
+Dit zou "OK" moeten zijn als u de betreffende instelling ingeschakeld hebt op de "Mogelijkheden"
+pagina.
+<BR>
+</BODY>
+</HTML>
+

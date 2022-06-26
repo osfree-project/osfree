@@ -1,0 +1,106 @@
+<HTML RESID=&ID_XFH_REBOOTEXT;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Reboot Actions
+    </TITLE>
+</HEAD>
+<!-- changed with V0.9.0: see notes below -->
+<BODY>
+In the "Reboot actions" dialog, you may tell &xshutdown; not to use its internal reboot
+routine, but any other executable, which you can can specify.
+The items you specify here will appear in the &xshutdown; confirmation window;
+if you specify something different than "Default" in that window, the command
+you have configured here will be executed instead of the normal &xshutdown; reboot
+function.
+
+<P>This is especially useful if you have the IBM Boot Manager installed, which comes
+with &os2;. The Boot Manager can be activated from the command line by using
+the <CITE>SETBOOT</CITE> command.
+
+<!-- V0.9.7: added this line -->
+<P>See the <A HREF="cmdref.inf#setboot">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P>In &xshutdown;'s context, the "reboot to" function of this command can be handy. This
+function is accessed with the <CITE>"/iba:&lt;os&gt;"</CITE> option of <CITE>SETBOOT</CITE>,
+with "&lt;os&gt;" being the exact name of
+the operating system as it appears in the Boot Manager menu after system startup. By using
+this option, the system will reboot without showing the Boot Manager menu, but starting
+the specified partition directly.
+
+<P>For example, if you wish to boot to PC-DOS 7 directly, which carries the title
+"PC-DOS 7" in the Boot Manager menu, type at the command line:
+
+<P><CITE>    setboot /iba:"PC-DOS 7" </CITE>
+
+<P>Now, with this example, if you wish to make PC-DOS 7
+a user reboot action of &xshutdown;, do the following:
+
+<OL><LI>Press the "New" button.
+<BR><LI>In the "Action description" field, enter whatever you wish to see in the &xshutdown;
+confirmation dialog (e.g. "PC-DOS 7").
+<BR><LI>In the "Action command line" field, enter the command to execute, in this case:
+<BR><CITE>   setboot /iba:"PC-DOS 7"</CITE>
+<BR><LI>Press "OK". The item will appear in the &xshutdown; confirmation dialog the next
+time you attempt to shut down your system.
+
+</OL>
+<!-- the following was added with V0.9.0 -->
+Starting with V0.9.0, a <B>"Partitions" button</B> has been added to this dialog.
+This button is only enabled if a reboot action is selected in the list box on top;
+you might need to press the "New" button before the "Partitions" button becomes enabled.
+After pressing that button you will get a menu which shows you all the bootable partitions
+on your system. Note that this only works if you have the BootManager installed, since
+this will read in the partition tables directly and look for BootManager items.
+Now, if you select an item from that menu, the currently selected reboot action
+is updated with the proper title and command for <CODE>SETBOOT.EXE</CODE>.
+<!-- the following is unchanged -->
+
+<B>Important notes:</B>
+<UL><LI>There is NO ERROR CHECKING, neither in the "Reboot actions" dialog, nor at the
+time of shutdown. If you misspell the command to be executed or use <CITE>SETBOOT</CITE>
+although Boot Manager is not installed, the system
+will simply hang after all windows have been closed.
+
+<!-- V0.9.9: removed this
+The "Partitions" button has only been extensively tested with &warp; 4.0.
+I have 17 partitions with six operating systems on three hard disks on my computer, and
+the button works. ;-)
+
+However, one quick check with &warp; Server for e-business (Aurora)
+showed some problems: if you are using Aurora's boot manager, you cannot use this
+function, because the boot manager's name table format has changed. If you are still using
+Warp 4's boot manager, you cannot use SETBOOT under Aurora, because it will not
+find the boot manager titles. -->
+
+<!-- the following changed with V0.9.0 -->
+<BR><LI>If you don't know the exact titles
+of the Boot Manager partitions on your system and the "Partitions" button is not
+working, you can start
+<CITE>FDISK</CITE> (or <CODE>LVM</CODE> on Aurora) from a command line and copy them
+manually from there.
+
+<!-- the following is unchanged -->
+<BR><LI>The command you enter here is started after all windows have been closed and the
+INI files have been saved; however, file systems will not be released by &xshutdown; if you
+select a user reboot. &xshutdown; assumes that the program you specify here will release
+the file systems itself (i.e. call the <CITE>DosShutdown</CITE> API).
+<CITE>SETBOOT</CITE> will do this, for example.
+
+<BR><LI>The command you enter here is started via CMD.EXE with the <CITE>/C</CITE>
+parameter. This
+means that you may even execute a
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script here, if you're really daring.
+
+<BR><LI>As always, if you wish to execute a command with resides in a directory not
+included in the <CITE>PATH</CITE> variable, you must specify the full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>.
+For <CITE>SETBOOT</CITE>, this is not necessary, because it resides in the
+<CITE>OS2</CITE> directory.
+</UL>
+</BODY>
+</HTML>
+

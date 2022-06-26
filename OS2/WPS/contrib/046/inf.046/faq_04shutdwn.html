@@ -1,0 +1,130 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Ut”kad Avst„ngning Fr†gor
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL>
+
+<LI><B>Varf”r fungerar inte automatisk ombootning p† mitt system?</B>
+
+<P>Jag vet inte, p† vissa system g”r det inte det, till exempel mitt Warp 3 med FixPak 35,
+men g”r det p† mitt Warp 4. Jag har inte lyckats lista ut orsaken till det, men n†gra f†
+anv„ndare har rapporterat detta, och problemet upptr„der ocks† med WarpEnhancer's
+ombootningsfunktion, s† jag gissar att det inte „r &xwp;'s
+<!-- V0.9.6: changed the following line -->
+fel. (Ombootningsfunktionen anv„nder en odokumenterad IOCtl till <CODE>DOS.SYS</CODE> i alla fall
+s† det finnns troligtvis ingen garanti fr†n IBM att det alltid kommer att fungera.) Om du 
+har IBM BootManager installerad, kan du g† runt det h„r problemet genom att specificera 
+<CITE>SETBOOT.EXE</CITE> som en anv„ndar-ombootningegenskap (Skrivbordets notbok med inst„llningar -> &xshutdown;
+"Boota om aktioner").
+
+<P><LI><B>Finns det n†got som &xshutdown; inte sparar ordentligt?</B>
+<P>Ja. &xshutdown; sparar inte positioner hos mappar vilka har „ndrats strax f”re &xshutdown;
+initialiserades, d„rf”r att WPS <I>f”rdr”jer</I> sparande av mappositioner i vissa bakgrundstr†dar
+till vilka jag inte har hittat n†gon access, och formatet p† poster med mapp-positioner i OS2.INI
+„r inte dokumenterat, s† jag kan inte g”ra det sj„lv. Detsamma g„ller f”r mappar vilka st„ngs av
+&xshutdown; sj„lv. Om du vill att mapparnas positioner skall sparas, st„ng dem manuellt och v„nta n†gra f† (omkring 10-20)
+sekunder f”re start av &xshutdown;.
+
+<P>(Med "mappar positioner", menar jag positionen hos en ”ppen mapp <I>f”nster</I> sj„lvt, inte
+positionerna p† ikonerna i en mapp. Dessa sparas ordentligt.)
+
+<P>Ocks†, &xshutdown; kan inte spara „ndringar i f”nstret Aktiva sessioner (t.ex. fonter eller f„rger
+som sl„ppts p† dom). Om du vill ha dessa sparade, d† m†ste du anv„nda &os2;'s ordinarie avst„ngning en enstaka g†ng.
+
+<P><LI><B>Varf”r f†r jag fel n„r INI filerna sparas?</B>
+<!-- the following added with V0.9.0 -->
+<!-- completely rewritten with V0.9.6 -->
+
+<P>Detta „r en av alla tiders favoriter, och problemet har „ndrats med †tskilliga releaser.
+<UL><LI>Med tidiga versioner <B>f”re XFolder 0.85,</B> berodde detta mest p† INI nycklar
+som inte inneh”ll n†got data, vilket inte skall f† f”rekomma. Detta har †tg„rdats f”r
+l„nge sedan.
+
+<P><LI>Fortfarande, har dock m„nniskor rapporterat in dessa fel d† och d†, „ven med INI nycklar vilka 
+<I>inneh†ller</I> data. Jag lyckades slutligen sp†ra detta till att det upptr„der med
+relativt stora INI filer. Jag misst„nker att grundproblemet sittar i sj„lva PM, eftersom
+<CODE>WinGetLastError</CODE> API ofta returnerar <CODE>PMERR_MEMORY_ALLOCATION_ERR</CODE>, vilket
+„r beskrivet i PM referens med "Ett fel upptr„dde under minneshantering.". Jag tror att
+med stora INI filer, f†r PM slut p† delat minne, vilket anv„nds f”r underh†ll av INI filer.
+Den gr„ns ”ver vilken felen b”rjar upptr„da „r beroende p† hur mycket delat minne som redan „r
+anv„nt p† respektive maskin, men „r vanligtvis h”gt ”ver 1 MB per INI fil.
+
+<P>Grundl„ggande, <B>f”re V0.9.5,</B> anv„nde &xwp; PrfOpenProfile f”r att skapa en ny INI fil
+(f”r anv„ndaren och system INI filen, respektive) och gick igenom alla applikationer och nycklar
+i profilen och helt enkelt kopierade dom. Detta orsakade en hel del stress f”r PM's delade minneshantering.
+
+<P>Reducering av storleken p† INI filerna hj„lpte. F”rresten, det var inte bara &xshutdown; som
+misslyckades med INI filerna, utan m†nga andra applikationer vilka kopiera anv„ndarens och systemets
+profiler bytevis ocks† (jag kontrollerade detta en g†ng med WPSBackup, vilken bara krashade).
+
+<P>F”r att reducera storleken p† INI filer, b”rja f”rst av allt med att k”ra CHECKINI (fr†n Henk Kelder's
+WPTOOLS paket) f”r att ta bort alla ogiltiga poster. Som till„gg, anv„nd n†gon INI editor f”r att 
+manuellt radera f”ljande nycklar vilka kan v„xa sig v„ldigt stora 
+<I>(g”r en backup av dina INI filer innan du g”r det h„r):</I>
+<UL><LI><CODE>PM_Abstract:Icons</CODE>: denna inneh†ller ikonerna f”r alla abstrakta objekt. Genom att
+radera nyckeln, kommer du att f”rlora alla anv„ndardefinierade ikoner f”r abstrakta objekt, men i 
+m†nga fall, „r datat redundant eftersom t.ex. programobjekt anv„nder den exekverbara filens ikon i varje
+fall som standard.
+<LI><CODE>PM_Workplace:FolderPos</CODE>: denna inneh†ller f”nsterpositionerna p† alla mappar
+som n†gon g†ng ”ppnats av WPS, „ven om en mapp sist ”ppnades f”r fem †r sedan. Du kommer att f”rlora positionen 
+p† alla dina mappar n„r du raderar den h„r, men undantaget f”r kanske ett dussintal mappar b”r detta vara
+acceptabelt, och f”r dessa, kan du snabbt st„lla in dom igen.
+</UL>
+<LI>Med <B>V0.9.5,</B> har jag skrivit om rutinerna s† att PM APIs inte l„ngre anv„nds f”r att
+skapa nya profiler. Sedan Carsten Arnold ber„ttade f”r mig om filformatet hos INI filer, har jag skrivit
+en upps„ttning rutiner vilka skriver dessa utan att anv„nda delat minne. Uppenbarligen har detta hj„lpt.
+Detta „r den "nya metod" vilken „r valbar p† sidan "&xshutdown;" i Skrivbordets notbok med inst„llningar.
+</UL>
+
+<!-- the following Q added with V0.9.4 -->
+<P><LI><B>Efter anv„ndning av XAvst„ngning, och vid n„sta ombootning, †terst„lls sk„rmen till VGA, och
+jag f†r en dialog som s„ger att Skrivbordet inte kunde hittas. Vad „r det?</B>
+
+<P>Detta „r samma problem som beskrevs i f”reg†ende fr†ga. Uppenbart, har dina INI filer
+inte blivit riktigt sparade. Som ett resultat, †terst„ller &os2; till standardv„rden f”r
+sk„rmen och kan inte hitta ditt skrivbord.
+
+<P>Om det skulle h„nda, hittar du en backupkopia av b†de OS2.INI och OS2SYS.INI i din
+\OS2 katalog, namnbytta till .BAK. Innan &xshutdown; sparar INI filerna, byter den namn
+p† de gamla. Boota till en kommandorad (anv„nd Alt-F1 under starten) och namnbyt dessa 
+tv† backuper tillbaka till *.INI.
+<!-- the following is unchanged -->
+
+<P><LI><B>Varf”r fungerar inte APM power-off p† mitt system?</B>
+<!-- V0.9.13: rewrote this -->
+
+<P>Jag vet inte. P† vissa system g”r det inte det. Jag „r r„tt s„ker p† att det inte „r
+&xwp;'s fel d„rf”r att &xwp; g”r inget annat „n att anropa <CODE>APM.SYS</CODE> device drivrutinen,
+efter vilken den inte har n†gon kontroll ”ver vad den drivrutinen g”r f”r att sl† av
+str”mmen p† systemet.
+
+<P>IBM uppdaterade APM st”det med Warp 4 Fixpak 6 (och troligtvis senare ocks†). 
+Sidan "&xshutdown;" i Skrivbordets notbok med inst„llningar visar versionsnummer
+p† den installerade APM drivrutinen, vilken b”r vara minst 1.2 f”r att APM power-off
+skall fungera.
+
+<P>Žnnu v„rre, det finns m†nga system som inte har 100% kompatibelt APM st”d i
+BIOS, och det kan ocks† vara ett problem.
+
+<P><LI><B>APM power-off fungerar, men vid n„sta ombootning k”rs CHKDSK.</B>
+
+<P>Igen, &xwp; kan inte g”ra mycket †t det. Jag f†r ocks† dessa CHKDSK's p† min laptop,
+trots att det fungerar fint p† mitt desktopsystem.
+Uppenbarligen v„ntar inte <CODE>APM.SYS</CODE> l„nge nog f”r att vissa h†rddiskar med
+stora interna cacher skall †terst„lla sina cacher till disk innan str”mmen sl†s av.
+Det verkar vara ett generellt problem vilket ocks† upptr„der p† Win95 har jag h”rt,
+s† du m†ste nog avaktivera APM helt och h†llet i det h„r fallet.
+<!-- end V0.9.13 -->
+</OL>
+</BODY>
+</HTML>
+
+
+

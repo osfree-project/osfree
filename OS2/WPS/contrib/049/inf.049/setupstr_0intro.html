@@ -1,0 +1,30 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Einfhrung
+    </TITLE>
+</HEAD>
+<!-- this page is new with V0.9.1 -->
+<BODY>
+Verwenden Sie folgende RexxUtil-Funktion, um bestimmte Objekteinstellungen mit REXX
+zu „ndern:
+<PRE>rc = SysSetObjectData(<I>name</I>, <I>setup</I>)</PRE>
+<P>wobei:
+<P><CODE><I>name</I></CODE> das Objekt ist, das sie modifizieren wollen (entweder ber
+einen vollqualifizierten Pfad oder eine Objekt-ID angegeben, wie etwa <CODE>&lt;WP_DESKTOP&gt;</CODE>);
+<P><CODE><I>setup</I></CODE> einer der WPS-Konfigurationsstrings ist, die immer
+die Syntax <CODE><I>keyword</I>=<I>data</I></CODE> besitzen. Sie k”nnen mehrere Einstellungen
+durch Trennung per Semikolon kombinieren (<CODE>;</CODE>).
+<P>Beispiel:
+ 
+<PRE>  if SysSetObjectData(directory(),"NOMOVE=YES;DEFAULTVIEW=ICON") then
+    Say "Einstellungen ge„ndert!"
+</PRE>
+<P>Damit wird die Ordnereinstellung fr das aktuelle Verzeichnis ge„ndert, was ntzlich fr
+von XFolder aufgerufene Skripte ist, bei denen bereits in das beabsichtigte Verzeichnis
+gewechselt wurde.
+<P>Siehe die <A HREF="rexx.inf#syssetobjectdata">&os2;-REXX-Informationen</A> fr Details.
+<BR>
+</BODY>
+</HTML>
+ 

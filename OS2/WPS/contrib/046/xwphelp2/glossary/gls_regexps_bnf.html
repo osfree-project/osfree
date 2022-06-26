@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Regulj„ra Uttryck BNF Definition
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19 -->
+<BODY>
+
+Fundamentala definitioner :-
+
+<PRE>
+  &lt;ch&gt;      ::= n†got skrivbart tecken
+  &lt;digit&gt;   ::= n†gon siffra fr†n '0' till '9'
+  &lt;digits&gt;  ::= &lt;siffra&gt; { &lt;siffra&gt; }
+  &lt;digit19&gt; ::= n†gon siffra fr†n '1' till '9'
+  &lt;hext&gt;    ::= n†gon siffra eller bokstav fr†n 'a' till 'f' eller 'A' till 'F'
+</PRE>
+
+<P>Grundl„ggande tecken definitioner :-
+
+<PRE>
+  &lt;c&gt; ::= '\n'                    ny rad
+        | '\t'                    tab
+        | '\r'                    vagnretur
+        | '\b'                    backspace
+        | '\f'                    formfeed
+        | '\e'                    escape
+        | '\x' &lt;hex&gt; ( &lt;hex&gt; )    specificera tecken i hex, en eller tv† hex siffror
+        | '\' &lt;ch&gt;                annat tecken, utan specell betydelse
+        | &lt;ch&gt;                    normalt tecken
+</PRE>
+
+<P>Parentes element (n†got som finns inom ett parentes uttryck) :-
+
+<PRE>
+  &lt;be&gt; ::= &lt;c&gt;                    ett tecken
+         | &lt;c&gt; '-' &lt;c&gt;            ett omf†ng av tecken
+         | '[:alnum:]'            POSIX alfanumeriska tecken
+         | '[:alpha:]'            POSIX alfabetiska tecken
+         | '[:blank:]'            POSIX space och tab tecken
+         | '[:cntrl:]'            POSIX kontroll tecken
+         | '[:digit:]'            POSIX numeriska tecken
+         | '[:graph:]'            POSIX utskrivbara och synliga (icke-mellanslags) tecken
+         | '[:lower:]'            POSIX gemener (sm† bokst„ver)
+         | '[:print:]'            POSIX alfanumeriska tecken
+         | '[:punct:]'            POSIX punktations tecken
+         | '[:space:]'            POSIX mellanslags tecken
+         | '[:upper:]'            POSIX versaler (stora bokst„ver)
+         | '[:xdigit:]'           POSIX hexadecimala siffror
+
+         | '[.' ??? '.]'          POSIX indirekta symboler och
+         | '[=' ??? '=]'          POSIX ekvivalenta klasser
+                                  ST™DS INTE
+</PRE>
+
+<P>Parentes uttryck :-
+
+<PRE>
+  &lt;bx&gt; ::= [ '^' ] { &lt;be&gt; }       definierar ett upps„ttning acceptabla tecken
+                                  eller en upps„ttning av icke-acceptabla (om '^' finns)
+</PRE>
+
+<P>Ut”kade Regulj„ra Uttryck :-
+
+<PRE>
+  &lt;re&gt; ::=                        tom regulj„rt uttryck
+         | &lt;c&gt;                    tecken
+         | '~' &lt;c&gt;                icke specificerat tecken
+                                  kort f”r '[^' &lt;c&gt; ']'
+         | '\w'                   matchar n†got 'ord integrerande' tecken
+                                  kort f”r '[[:alnum:]_]'
+         | '\W'                   matchar n†got icke 'ord integrerande' tecken
+                                  kort f”r '[^[:alnum:]_]'
+         | '.'                    matchar n†got tecken (men inte radslut)
+         | '[' &lt;bx&gt; ']'           matchar tecken inom hakparentes uttryck
+         | '^'                    matchar tom str„ng vid starten av 'raden'
+         | '$'                    matchar tom str„ng i slutet av 'raden'
+         | '\`'                   synonym f”r '^'
+         | '\''                   synonym f”r '$'
+         | '\&lt;'                   matchar tom str„ng vid starten av ett 'ord'
+         | '\&gt;'                   matchar tom str„ng vid slutet av ett 'ord'
+         | '\B'                   matchar tom str„ng inom ett 'ord'
+         | '\y'                   matchar tom str„ng vid starten eller slutet av ett 'ord'
+                                  kort f”r '(\&lt;|\&gt;)'
+                                  notera: ej '\b', eftersom detta kolliderar med backspace
+         | &lt;re&gt; &lt;re&gt;              2 &lt;re&gt;'s konkatinerad (sammanslagen)form av &lt;re&gt;
+         | '(' &lt;re&gt; ')'           n„stlat regulj„rt uttryck
+         | '\' &lt;digit19&gt;          bakreferens till n„stlat regulj„rt uttryck
+         | &lt;re&gt; '?'               ingen eller en f”rekomst av &lt;re&gt;
+         | &lt;re&gt; '+'               en eller flera f”rekomster av &lt;re&gt;
+         | &lt;re&gt; '*'               ingen eller flera f”rekomster av &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; '}'  matchar M f”rekomster av &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',}' matchar †tminstone M f”rkomster av &lt;re&gt;
+         | &lt;re&gt; '{' &lt;digits&gt; ',' &lt;siffra&gt; '}'
+                                  matchar mellan M och N f”rekomster av &lt;re&gt;
+         | &lt;re&gt; '|' &lt;re&gt;          matchar en &lt;re&gt; eller de andra
+</PRE>
+<BR>
+</BODY>
+</HTML>
+

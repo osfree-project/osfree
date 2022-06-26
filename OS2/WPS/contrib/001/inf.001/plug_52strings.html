@@ -1,0 +1,87 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Step 2: Supporting Setup Strings
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+OK, so your minimal widget from step 1 is running.
+
+<P>You probably have figured out already that even though the minimal widget does
+react to fonts and colors dropped on it, those fonts and colors are not saved
+when the &xcenter; is closed and then re-opened.
+
+<P>Similarly, if you changed the minimal widget to be sizeable (by setting the
+<CODE>WGTF_SIZEABLE</CODE> flag in the <CODE>ulClassFlags</CODE> field of
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>,
+you will find out that the widget's size will not be remembered either.
+
+<P>Of course, the &xcenter; could have implemented saving these settings for your
+widget. But then, where would your widget store additional data that the &xcenter;
+would not know of? Using the profile functions to store the widget data in
+<CODE>OS2.INI</CODE> would not be a good idea because there can be several
+instances of your widget, which should all store their data independently.
+
+<P>As a result, I figured that storing widgets data together with the data of
+the &xcenter; that the widget belongs to would be the best idea.
+
+<P>To make this most flexible and easy to use, the widgets can have <B>setup strings</B>
+associated with them. If you look at the "Widgets" page in the properties notebook
+of an &xcenter;, you will see
+that each widget can have its own setup string to store any data it wants.
+
+<P>Even though the widgets are not Desktop objects themselves, for simplicity, I chose
+to use the WPS setup string format for the widgets also. That is, your widget
+can understand, for example, a <CODE>BACKGROUNDCOLOR=00FF00;</CODE> setup string,
+which would set the widget's background color to green.
+
+<P>Your widget class must now implement two things:
+
+<UL><LI><B>Parse a setup string</B> and convert it into binary data that your widget
+can use. In the above example, for the background color, you could say that the
+<CODE>BACKGROUNDCOLOR</CODE> string would have to be followed by a six-digit RGB
+hex value. The definition is up to your widget class.
+
+<P><LI><B>Create a setup string</B> from a set of binary values. This is needed when
+the data of your widget is about to be saved.
+
+</UL>When your widget is created, it receives a previously stored setup string
+in the <CODE>pcszSetupString</CODE> field of its
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A> structure that
+comes with <CODE>WM_CREATE</CODE>. You can then allocate your own structure and
+store it in <CODE>XCENTERWIDGET.pUser</CODE>, parse the setup string, and store
+the values in there. Of course, you should set up safe defaults if a setup string
+is missing because there won't be any when your widget is initially created by
+the user.
+
+<P>Reversely, when your widget's data has changed (e.g. because a new background
+color has been dropped on it), it should compose a new full setup string.
+<!-- V0.9.14: changed the following -->
+After the new setup string is composed, the widget must send the
+<CODE>XCM_SAVESETUP</CODE> message to its parent window (which is either the
+&xcenter; client or a tray widget window, if the widget resides in a tray),
+<!-- end V0.9.14 -->
+which will cause the
+new setup string to be stored together with the other widget data in the &xcenter;'s
+private data. See <CODE>center.h</CODE> for details.
+
+<P>In order to encapsulate the setup string functionality, I recommend that you
+create a new structure definition for "saveable instance data". This could, for
+example, contain fields for background, foreground color, and font to be used.
+For sizeable widgets, this could also include the current size.
+
+<P>This encapsulation allows your widget class to work on setup strings with setup
+dialogs later also, which can even be invoked when no instance of your widget
+presently exists.
+
+<P>The minimal sample has no provisions for setup strings. Download the &xwp;
+source code and look into the <CODE>src\widgets</CODE> directory, which has more
+examples for how this works. <CODE>XFLDR.DLL</CODE> also exports a couple of
+handy functions that you can use to parse setup strings more easily.
+
+<BR>
+</BODY>
+</HTML>
+
+

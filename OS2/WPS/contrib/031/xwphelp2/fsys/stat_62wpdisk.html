@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusbalken: Extra Schijf Object Codes
+    </TITLE>
+</HEAD>
+<BODY>
+<B>Schijf objecten</B> (WPDisk class, b.v. de objecten in de
+&link_drivesfdr;)
+ondersteunen de volgende codes <I>als uitbreiding op</I> de codes voor alle objecten:
+<BR><DL>
+<DT><CITE>  $f<I>X</I>     </CITE><DD>vrije ruimte op het station
+<DT><CITE>  $z<I>X</I>     </CITE><DD>totale ruimte op het station
+
+<P>In de bovenstaande twee situaties, is <CODE><I>X</I></CODE> een
+speciaal <A HREF="fsys/stat_99format.html">opmaak specificatie</A> teken.
+
+<BR><DT><CITE>  $F      </CITE><DD>bestandssysteem type (FAT, HPFS, JFS, CDFS, ...)
+
+<BR><DT><CITE>  $L      </CITE><DD>stationslabel
+</DL>
+
+<BR><B>Opmerkingen:</B>
+
+<P>De <CITE>$f</CITE> en <CODE>$z</CODE> codes zijn <I>opnieuw gedefinieerd</I>
+voor schijf objecten. Normaal tonen zij de ruimte op het station waarop de
+<I>map</I> zich bevint, welke voor de "Stations" map, altijd de zelfde waarde is
+voor het station waarop de Werkplek zich bevindt.
+Zodoende is deze code geherdefineerd voor schijf objecten.
+
+<BR>
+</BODY>
+</HTML>
+
+

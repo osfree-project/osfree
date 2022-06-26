@@ -1,0 +1,67 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Extended Sort Options
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp;; also see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Class: XFolder</B><HR>
+&xwp; can also enhance the "Sort" functions of the Workplace Shell.
+<P><B>Important note:</B> In order to avoid confusion, the sort extensions are
+disabled by default. You can enable them in the
+<A HREF="sys_2global.html">"&xwp; Setup" object</A>.
+
+<!-- V0.9.1: removed all this:
+After you enable the new sort functions, your previous folder sort settings will
+get lost successively as the WPS activates folders. Unfortunately, this is inevitable,
+because IBM has barely documented at all how the WPS sort functions are working
+internally. As a result, you'll
+have to reconfigure the sort settings for certain folders (which will be explained below). -->
+<P>The new &xwp; sort features are:
+
+<UL><LI>Finally, there are <B>global sort settings,</B>
+which previously did not exist in the WPS.
+While it was possible to set a number of folder settings globally, until now sorting could
+only be influenced for each individual folder, which was quite annoying. &xwp;
+introduces a "Sort" page to the
+<A HREF="sys_2global.html">"Workplace Shell" object</A> for global sort settings,
+which can be overridden individually for
+each folder.
+
+<BR><LI>&xwp; also gets rid of some of the strange sort settings which nobody used
+anyway, such as the "sort class". (This setting did not make much sense, because
+WPFolder is the only class which introduces meaningful sort criteria anyway.)
+
+<!-- V0.9.13: rewrote all the following -->
+<BR><LI>Most importantly, &xwp; gives you lots of new sort options for folders
+-- both for each individual folder and globally through the "Sort" page in the
+<A HREF="sys_2global.html">"Workplace Shell" object</A>.
+
+<P>For one, <B>new sort criteria</B> such as "object class" and "file name extension" have
+been introduced.
+
+<P>Secondly, there is now a new "super-criterion" for always <B>sorting folders first,</B>
+in addition to the folder's default sort criterion. For example,
+you can sort by size and still have all folders sorted to the top.
+
+<P>For all this, the <B>"Sort" submenu</B> in each folder context menu has been reworked too:
+
+<P><IMG SRC="sort.gif">
+
+<BR>As you can see, &xwp; adds menu items for "Always maintain sort order"
+and "Sort folders first" for quick access.
+
+<P>In addition, you can quickly change the default sort criterion for a
+certain folder by <B>holding down the "Shift"</B> key while selecting a sort criterion
+in the "Sort" menu.
+
+</UL>&xwp; also defines
+<A HREF="fldr_5xelerators.html">folder hotkeys</A> for the most frequently
+used sort criteria.
+<BR>
+</BODY>
+</HTML>
+
+

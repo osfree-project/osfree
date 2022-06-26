@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: IP Adressen
+    </TITLE>
+</HEAD>
+<BODY>
+In ieder &link_tcpip; netwerk, worden <B>IP adressen</B> gebruikt om op unieke
+wijze computers te identificeren. Een IP adres is een 32-bits getal, gewoonlijk
+geschreven als 4 getallen tussen 0 en 255 zoals <CODE>123.123.123.123</CODE>
+(wat de <B>punt notatie</B> van een IP adres wordt genoemd).
+
+<P>Binnen een ge‹soleerd netwerk kunt u vrij IP-adressen toekennen zolang ze maar uniek
+zijn binnen het netwerk. Echter, als het netwerk verbonden is met het &link_internet; is
+het gewenst om geregistreerde IP-adressen te gebruiken om duplicaten te voorkomen.
+
+<P>TCP/IP slaat beide de zender en de doel adressen op in ieder pakket dat over het netwerk
+verzonden wordt. Als de gegevens eenmaal bij het doel zijn aangekomen, kan de ontvanger
+het IP-adres van de verzender zien en kan antwoorden door gegevens terug te sturen aan het
+verzend adres in een nieuwe verbinding, de werking herhalend.
+
+<P>Ieder IP-adres heeft twee gedeeltes: een <B>netwerk identificatie</B> en een identificatie
+voor een bepaald apparaat binnen dat netwerk, de <B>host identificatie</B>.
+
+<UL><LI>Op het &link_internet;, wordt de netwerk identificatie globaal toegewezen
+door een Netwerk Informatie Centrum (NIC). Omdat het Internet werkelijk een verbinding is
+van veel individuele netwerken, moet ieder netwerk zijn eigen adres weten en het adres van
+de aangrenzende netwerken waarmee gecommuniceerd kan worden.
+Terwijl pakketten over het Internet reizen, wordt alleen de netwerk identificatie bekeken door
+de computers die onderweg worden aangedaan.
+
+<P><LI>De <B>host identificatie</B> identificeert een individuele computer binnen een netwerk.
+Wanneer een pakket is aangekomen op het doel netwerk, wordt het doorgestuurd naar die host.
+
+</UL>Omdat netwerken enorm in grootte vari‰ren zijn er vier verschillende
+<B>IP adres klasseringen</B>. De eerste paar bits van ieder IP-adres geven aan op welk adres
+klassering opmaak wordt gebruikt.
+
+<UL><LI><B>Class A</B> adressen zijn voor grote netwerken met veel onderdelen.
+Deze adressen hebben een begin bit <CODE>0</CODE>, dan 7 bits voor het netwerk adres en 24 bits
+voor het host adres. Met als resultaat dat er slechts 127 klasse A netwerken op het Internet
+kunnen zijn.
+
+<P>In punt notatie, zijn deze adressen te splitsen in
+<CODE>netwerk.lokaal.lokaal.lokaal</CODE>.
+
+<P><LI><B>Class B</B> adressen zijn voor middelgrote netwerken. Zij hebben de twee begin bits
+op <CODE>10</CODE> staan dan 14 bits voor het netwerk adres en 16 bits voor het host adres.
+
+<P>In punt notatie, zijn deze adressen te splitsen in <CODE>netwerk.netwerk.lokaal.lokaal</CODE>.
+
+<P><LI><B>Class C</B> adressen zijn voor kleine netwerken tot en met 255 apparaten. Zij hebben
+de drie begin bits op <CODE>110</CODE> staan, dan 21 bits voor het netwerk adres en slechts 8
+bits voor de host.
+
+<P>In punt notatie, zijn deze adressen te splitsen in <CODE>netwerk.netwerk.netwerk.lokaal</CODE>.
+
+</UL>Zoals u kunt zien, zelfs een 32 bits IP-adres zou theoretisch een enorm aantal computer
+identificaties mogelijk maken, het schema hierboven limiteert het aantal adressen dat
+praktisch gezien kan worden toegekend.
+Het grootste gedeelte van de netwerken zijn klasse C netwerken en lijden onder de "255" restricties.
+Met als resultaat, dat veel netwerken technieken gebruiken om zeer economisch om te gaan met het
+aantal IP-adressen dat werkelijk zichtbaar is voor de rest van het Internet.
+Deze technieken houden subnetwerken in, IP doorsturen en Class-less Inter-Domain Routing.
+
+<P>Het meest belangrijke, Internet Service Providers (ISPs) zullen <B>dynamisch IP adressen</B> toekennen
+iedere keer dat een gebruiker verbinding maakt met het Internet.
+Dit stelt de ISP in staat om adressen te hergebruiken uit zijn adressen bestand in plaats van iedere
+klant een vast IP-adres toe te kennen. Met als resultaat, dat het IP-adres van uw computer van tijd
+tot tijd zal vari‰ren iedere keer dat het een verbinding maakt met het Internet.
+
+<BR>
+</BODY>
+</HTML>

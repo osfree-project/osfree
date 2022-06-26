@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+Om boxen <B>"Lazy write"</B> „r f”rbockad, kommer JFS att skjuta upp skrivningen av 
+data tillbaka p† disken till en bakgrundstr†d.
+Se <A HREF="glossary/gls_caches.html">"Filsystem cacher"</A> f”r en f”rklaring.
+
+<P>Om lazy-write „r aktiverat, kan du fintrimma JFS cachers beteende med de tre
+inst„llningarna nedanf”r (alla v„rden i sekunder):
+
+<OL><LI><B>"Synch time"</B> inst„llningen best„mmer intervallet mot vilket 
+JFS-interna synkroniseringstr†d k”rs. Detta „r som standard 64.
+
+<P><LI><B>"Max age"</B> inst„llningen best„mmer maximalt v„rde f”r tiden som 
+datat kan h†llas i cachen. Detta „r som standard 256.
+
+<P><LI><B>"Buffer idle"</B> v„rdet best„mmer den m„ngd tid mellan vilken
+JFS kommer att anse att en „ndring „r den "senaste". Žndringar nyare „n det h„r
+v„rdet skrivs inte om inte det senaste var „ldre „n "max age." Detta „r som standard 8.
+
+</OL>
+</BODY>
+</HTML>

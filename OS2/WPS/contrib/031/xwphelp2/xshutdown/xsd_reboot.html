@@ -1,0 +1,102 @@
+<HTML RESID=&ID_XFH_REBOOTEXT;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Herstart acties
+    </TITLE>
+</HEAD>
+<!-- changed with V0.9.0: see notes below -->
+<BODY>
+In de "Herstart acties" dialoog, kunt u &xshutdown; laten weten om niet zijn interne herstart
+routine te gebruiken, maar elk ander programma, welke u kunt opgeven.
+De onderdelen die u hier opgeeft zullen tevoorschijn komen in het &xshutdown; bevestigingsvenster;
+als u iets anders opgeeft dan "Standaard" in dat venster, wordt de opdracht die u
+geconfigureerd heeft uitgevoerd in plaats van de standaard &xshutdown; herstart functie.
+
+<P>Dit is vooral handig als u de IBM Boot Manager ge‹nstalleerd heeft, die met &os2; komt.
+De Boot Manager kan geactiveerd worden door vanaf een opdrachtregel gebruik te maken van
+de <CITE>SETBOOT</CITE> opdracht.
+
+<!-- V0.9.7: added this line -->
+<P>Zie de <A HREF="cmdref.inf#setboot">documentatie</A> in de
+<I>Handleiding bij &os2; opdrachten</I> voor details.
+
+<P>In &xshutdown; zijn context, kan de "Herstart naar" functie van deze opdracht handig zijn. Deze
+functie wordt aangeroepen met de <CITE>"/iba:&lt;os&gt;"</CITE> optie van <CITE>SETBOOT</CITE>,
+met "&lt;os&gt;" als zijnde de exacte naam van het besturingssysteem zoals het verschijnt in het
+Boot Manager menu nadat het systeem opstart. Door het gebruik van deze optie zal het systeem herstarten
+zonder het Boot Manager menu te laten zien, maar rechtstreeks de opgegeven partitie doorstarten.
+
+<P>Bijvoorbeeld, als u rechtstreeks op wilt starten met PC-DOS 7, wat de naam "PC-DOS 7" heeft
+in het Boot Manager menu, type dan het volgende op de opdrachtregel in:
+
+<P><CITE>    setboot /iba:"PC-DOS 7" </CITE>
+
+<P>Nu, met dit voorbeeld, als u nu wilt dat PC-DOS 7 een gebruikers herstart actie
+van &xshutdown; moet worden, doet u het volgende:
+
+<OL><LI>Druk op de "Nieuw" knop.
+<BR><LI>In het "Actie beschrijving" veld, voert u datgene in wat u wilt zien in het &xshutdown;
+bevestigingsdialoog (b.v. "PC-DOS 7").
+<BR><LI>In het "Actie opdrachtregel" veld, vul de uit te voeren opdracht in, in dit geval:
+<BR><CITE>   setboot /iba:"PC-DOS 7"</CITE>
+<BR><LI>Druk op "OK". Het onderdeel zal te voorschijn komen in het &xshutdown; bevestigingsdialoog de
+volgende keer dat u probeert uw systeem af te sluiten.
+
+</OL>
+<!-- the following was added with V0.9.0 -->
+Beginnend met V0.9.0 is er een <B>"Partities" knop</B> toegevoegd aan deze dialoog.
+Deze knop is alleen geactiveerd als een herstart actie geselecteerd is van de selectielijst bovenin;
+het kan zijn dat u op de "Nieuw" knop moet drukken voordat de "Partities" knop geactiveerd wordt.
+Na het indrukken van die knop krijgt u een menu waarin alle opstartbare partities van uw systeem getoond worden.
+Let op dat dit alleen werkt als u de Boot Manager ge‹nstalleerd heeft, omdat die rechtstreeks vanuit de
+partitie tabellen zal lezen en zal zoeken naar Boot Manager onderdelen.
+Welnu, als u nu een onderdeel van dat menu selecteert, wordt de momenteel gekozen herstart actie
+bijgewerkt met de correcte naam en opdracht voor <CODE>SETBOOT.EXE</CODE>.
+<!-- the following is unchanged -->
+
+<B>Belangrijke opmerkingen:</B>
+<UL><LI>Er is geen fout controle, niet in de "Herstart acties" dialoog, als ook niet op het
+moment van afsluiten. Als u de uit te voeren opdracht verkeerd typt of <CITE>SETBOOT</CITE>
+gebruikt terwijl de Boot Manager niet ge‹nstalleerd is, het systeem zal gewoon vastlopen nadat alle
+vensters gesloten zijn.
+
+<!-- V0.9.9: removed this
+The "Partitions" button has only been extensively tested with &warp; 4.0.
+I have 17 partitions with six operating systems on three hard disks on my computer, and
+the button works. ;-)
+
+However, one quick check with &warp; Server for e-business (Aurora)
+showed some problems: if you are using Aurora's boot manager, you cannot use this
+function, because the boot manager's name table format has changed. If you are still using
+Warp 4's boot manager, you cannot use SETBOOT under Aurora, because it will not
+find the boot manager titles. -->
+
+<!-- the following changed with V0.9.0 -->
+<BR><LI>Als u de exacte namen van de Boot Manager partities op uw systeem niet weet en de "Partities" knop
+werkt niet, kunt u <CITE>FDISK</CITE> opstarten (of <CODE>LVM</CODE> voor Aurora en eCS) vanaf een
+opdrachtregel en ze handmatig overnemen van daaruit.
+
+<!-- the following is unchanged -->
+<BR><LI>De opdracht die u hier invoert wordt gestart nadat alle vensters zijn afgesloten en de
+INI bestanden zijn weggeschreven; echter, bestandssystemen worden niet vrijgegeven bij &xshutdown; als
+u een gebruikers herstart kiest. &xshutdown; verondersteld dat het programma dat u hier opgegeven heeft
+zelf de bestandssystemen zal vrijgeven (b.v. roep de <CITE>DosShutdown</CITE> API aan).
+<CITE>SETBOOT</CITE> doet dit, bijvoorbeeld.
+
+<BR><LI>De opdracht die u hier opgeeft wordt gestart via een CMD.EXE met de <CITE>/C</CITE>
+parameter. Dit
+betekent dat u hier zelfs een
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script kunt laten uitvoeren, als u echt van risico's houdt.
+
+<BR><LI>Zoals altijd, als u een opdracht uit wilt laten voeren dat zich niet bevindt in een directory
+dat onderdeel is van de <CITE>PATH</CITE> variabele, dient u het volledige
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">pad</A> op te geven.
+Voor <CITE>SETBOOT</CITE> is dat niet noodzakelijk, omdat die zich in de
+<CITE>OS2</CITE> directory bevindt.
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,153 @@
+
+/*
+ * xfontfile.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPFontFile: a subclass of WPDataFile for data files
+ *              which are considered fonts.
+ *
+ *      See src\classes\xfontfile.c for details.
+ */
+
+/*
+ *      Copyright (C) 2001-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+// #include <wpdataf.idl>           // WPDataFile
+#include "xfdataf.idl"           // WPDataFile
+
+/*
+   CLASS: XWPFontFile
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile
+                           ÀÄÄ XWPFontFile
+*/
+
+interface M_XWPFontFile;            // forward reference to metaclass
+
+interface XWPFontFile : XFldDataFile
+{
+
+    /*
+     * New instance methods for XWPFontFile:
+     *
+     */
+
+    BOOL xwpIsInstalled();
+
+//#    attribute BOOL    fFontInstalled;        removed V0.9.20 (2002-07-25) [umoeller]
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpIsInstalled;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = fonf_;
+        externalstem = fonf;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfontfile;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPFontFile;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPFontFile:
+         *
+         */
+
+        /*
+         * WPDataFile methods overridden by XWPFontFile:
+         *
+         */
+
+        //# all other methods removed V0.9.20 (2002-07-25) [umoeller]
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPFontFile : M_XFldDataFile
+{
+
+    /*
+     * New class methods for M_XWPFontFile:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = fonfM_;
+        externalstem = fonfM;
+        functionprefix = fonfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfontfile;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPFontFile:
+         *
+         */
+
+        /*
+         * M_WPDataFile methods overridden by M_XWPFontFile:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+
+        wpclsQueryInstanceFilter: override;
+        wpclsQueryInstanceType: override;
+    };
+#endif
+};
+
+

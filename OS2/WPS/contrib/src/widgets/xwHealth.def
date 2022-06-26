@@ -1,0 +1,17 @@
+;-------------
+; StHealth.def
+;-------------
+
+LIBRARY XWHEALTH INITINSTANCE TERMINSTANCE
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace xwHealth plugin DLL'
+PROTMODE
+
+DATA              MULTIPLE READWRITE LOADONCALL NONSHARED
+
+CODE              LOADONCALL
+
+EXPORTS
+    MwgtInitModule          @1
+    MwgtUnInitModule        @2
+    MwgtQueryVersion        @3
+

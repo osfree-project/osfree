@@ -1,0 +1,100 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Setupstr„ngar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+F”r att kunna „ndra ett objekts inst„llningar "utifr†n" Workplace Shell,
+st”der WPS konceptet med setupstr„ngar.
+
+<P>En WPS setupstr„ng „r en sekvens av <CODE>nyckelord=v„rden</CODE> par, var och ett
+separerat med ett semikolon. Nyckelordet som f”rst†s av ett objekt beror p† dess
+<A HREF="glossary/gls_wpsclasses.html">klass</A>.
+
+<!-- V0.9.16: added this -->
+<P>Till exempel, f”r att „ndra en mapps st„ngda och ”ppna ikoner, kan du anv„nda f”ljande
+str„ng:
+
+<P><CODE>ICONFILE=C:\closed.ico;ICONNFILE=1,C:\open.ico;</CODE>
+
+<!-- end V0.9.16 -->
+
+<P>Eftersom WPS klasser „r organiserade i ett hierarkist tr„d och „rver fr†n
+varandra, kommer ett objekt inte bara att f”rst† setupstr„ngarna f”r sin egen klass, utan
+ocks† de fr†n alla sina ”verordnade klasser. Till exempel, en mapp kommer inte endast att f”rst†
+<CODE>WPFolder</CODE> nyckelorden, utan ocks† de generiska <CODE>WPObject</CODE> nyckelorden
+(vilka f”rst†s av alla objekt).
+
+<P>Det finns m†nga, m†nga olika objektstr„ngar f”r olika WPS klasser.
+
+<!-- V0.9.16 Some of them are listed in the <I>&xwp; User Guide</I>. -->
+
+<!-- V0.9.16: added these links, and moved the files from inf.001 to xwphelp -->
+V„lj fr†n listan f”r att l„ra dig n†got om dem:
+
+<!-- V0.9.20: changed all links -->
+<UL>
+<LI><A HREF="objects/string_1wpobject.html">WPObject</A> (alla objekt)
+<LI><A HREF="objects/string_2wpfolder.html">WPFolder</A> (alla mappar)
+<LI><A HREF="objects/string_4xfdesktop.html">WPDesktop</A> (Skrivbordet)
+<LI><A HREF="objects/string_6xwptrashcan.html">XWPTrashCan</A> (papperskorgen)
+<LI><A HREF="objects/string_5wpprogram.html">WPProgram</A> (alla programobjekt)
+<LI><A HREF="objects/string_7xcenter.html">XCenter</A> (&xcenter;)
+<LI><A HREF="objects/string_8xwpstring.html">XWPString</A> (setupstr„ngobjekt)
+</UL>
+<!-- end V0.9.20 -->
+
+<!-- V0.9.16: replaced the following -->
+
+Det finns flera s„tt p† vilket setupstr„ngar kan anropas av ett objekt:
+
+<!-- V0.9.19: replaced entity here -->
+<UL><LI>&xwp; till†ter dig att anv„nda
+<A HREF="objects/obj_string.html">setupstr„ngobjekt</A>.
+
+<P><LI>Fr†n
+<!-- V0.9.20: added links -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>,
+kan du anv„nda
+<A HREF="rexx.inf#SysSetObjectData"><CODE>SysSetObjectData</CODE></A>
+funktionen eller, om du skapar ett nytt objekt,
+<A HREF="rexx.inf#SysCreateObject"><CODE>SysCreateObject</CODE></A> funktionen.
+
+<!-- V0.9.20: added links -->
+<P><LI>Fr†n C kod, kan du anv„nda PM
+<A HREF="pmref.inf#WinSetObjectData"><CODE>WinSetObjectData</CODE></A> och
+<A HREF="pmref.inf#WinCreateObject"><CODE>WinCreateObject</CODE></A>
+API'er.<A HREF="_toolkitlink.html">*</A>
+
+<!-- V0.9.20: added links -->
+<P><LI>Inom en WPS klass, kan du anv„nda
+<A HREF="wpsref.inf#wpSetup"><CODE>WPObject::wpSetup</CODE></A>
+metoden,<A HREF="_toolkitlink.html">*</A>
+vilken „r ”verskriden av m†nga subklasser och implementerar den verkliga setupstr„ngsanalysen
+inom WPS.
+
+</UL>
+
+<!-- end V0.9.16 -->
+
+<B>Notera:</B> Till skillnad fr†n en popul„r missuppfattning, n„r en setupstr„ng anropas av ett
+objekt, lagras sj„lva str„ngen <I>inte</I> mer. Ist„llet, blir str„ngen analyserad av objektets
+WPS klass, ”versatt till objektets bin„ra data, och sedan bortkastad.
+
+<P>Som ett resultat, f”r att kunna †terskapa setupstr„ngar igen f”r visningen p†
+<!-- V0.9.16: change "Object" to "Icon" -->
+"Ikon" sidan i ett objekt notbok med egenskaper, m†ste &xwp; utv„rdera objektets bin„ra
+data och g”ra en kvalificerad gissning om hur setupstr„ngen s†g ut som skapade objektets
+bin„ra inst„llning. Vissa av objektens data „r totalt odokumenterade, och om det inte finns
+n†got dokumenterat s„tt att ta reda p† vad bin„ra objektdata betyder, kommer &xwp; inte att kunna
+skapa en setupstr„ng fr†n den.
+
+<BR>
+</BODY>
+</HTML>
+

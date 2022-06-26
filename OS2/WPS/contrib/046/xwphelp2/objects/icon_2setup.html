@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Objekt Setupstr„ng
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 -->
+<BODY>
+Inmatningsf„ltet "Setup"
+<!-- V0.9.16: on the "Object" page -->
+till†ter dig att visa det aktuella objektets setupstr„ng. Str„ngen
+„r sammansatt av &xwp; direkt fr†n objektets inst„llningar.
+<!-- V0.9.16: changed this -->
+Inmatningsf„ltet „r skrivskyddat och kan inte „ndras, men du kan kopiera dess 
+inneh†ll till
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">klippbordet</A> genom att anv„nda 
+<CODE>Ctrl+Insert</CODE> tangenterna.
+
+<!-- V0.9.13: added this -->
+<!-- V0.9.16: slightly changed -->
+<P>Se <A HREF="glossary/gls_objstrings.html">"Setupstr„ngar"</A> f”r mer
+information om WPS setupstr„ngar och en lista ”ver de mest anv„nda.
+
+<!-- V0.9.13: removed chunk here -->
+
+Du kan anv„nda den h„r setupstr„ngen f”r att skapa ett liknande objekt 
+med anv„ndning av 
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A> funktioner.
+<!-- V0..9.16 See the appendices of the <I>&xwp; User Guide</I> for more about those functions
+and a listing of many setup strings. -->
+
+<P>F”r n„rvarande, kan &xwp; avkoda setupstr„ngar av f”ljande klasser:
+
+<!-- V0.9.16: added links -->
+<UL><LI><A HREF="objects/string_1wpobject.html">WPObject</A>
+<P><LI><A HREF="objects/string_2wpfolder.html">WPFolder</A>
+<!-- V0.9.20: removed XFolder link -->
+<P><LI><A HREF="objects/string_5wpprogram.html">WPProgram</A>;
+<!-- V0.9.20: removed "and XWPProgramFile;" -->
+f”r dessa klasser, kan setupstr„ngen bli s„rskilt l†ng. Du kommer ocks† att 
+se att WPS lagrar DOS setupvariabler ("DOS" eller "&winos2; egenskaper" knappen p† sidan "Session")
+i programmets
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">milj”</A>, anv„ndande <CODE>SET xxx=yyy</CODE> str„ngar.
+<P><LI><A HREF="objects/string_7xcenter.html">XCenter</A>
+
+</UL>Om setupstr„ngar „r definierade av en mer specifik klass, men &xwp; inte kan
+avkoda dom, kommer du endast att f† setupstr„ngar f”r f”r„ldraklass(er). Mest noterbart,
+setupstr„ngar av WPPalette (och subklasserna), WPDesktop/XFldDesktop,
+WPDisk/XFldDisk,
+WPHost, WPLaunchPad, WPNetgrp, WPPdr, WPPrinter, WPRPrinter, WPServer, WPShadow,
+och WPUrl har inget st”d.
+
+<P>Emellertid, „ven f”r klasserna listade ovanf”r, „r inte alla setupstr„ngar st”dda av &xwp;
+<!-- V0.9.13: rewrote all the following -->
+eftersom det inte finns n†got standardinterface f”r hur de skall h„mtas in. Igen, se
+<A HREF="glossary/gls_objstrings.html">"Setupstr„ngar"</A> f”r detaljer.
+
+
+<BR>
+</BODY>
+</HTML>
+

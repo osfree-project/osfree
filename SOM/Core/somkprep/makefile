@@ -1,12 +1,12 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 SOM_DIR=..$(SEP)contrib$(SEP)
-SOMIDL_IDL=$(ROOT)build$(SEP)include$(SEP)somidl
-SOMIDL_HEADERS=$(SOMIDL_IDL)$(SEP)$(%OS)
+SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_HEADERS=$(SOMIDL_IDL) #$(SEP)$(%OS)
 
 
 
-SOM_INTDIR=$(SOM_DIR)som/$(%OS)/$(BUILDTYPE)
+SOM_INTDIR=$(PATH)$(SEP)..$(SEP)som
 SOMKERNP_KIH=$(SOM_INTDIR)$(SEP)somkernp.kih
 SOM_IDL=$(SOM_DIR)somkpub$(SEP)som$(SEP)somobj.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcls.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcm.idl
 
@@ -20,7 +20,10 @@ SOM_HEADERS=	$(SOM_INTDIR)$(SEP)somobj.h		&
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS= $(SOMKERNP_KIH) $(SOM_HEADERS)
+TARGETS= pre $(SOMKERNP_KIH) $(SOM_HEADERS)
+
+pre: .symbolic
+ @$(MDHIER) $(SOM_INTDIR)
 
 ADD_SCOPT=-p -I$(SOM_DIR)somkpub$(SEP)som -I$(SOMIDL_IDL)
 

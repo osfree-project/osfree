@@ -1,0 +1,42 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Krav
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+F”r att skriva en plug-in DLL, m†ste du k„nna till f”ljande:
+
+<OL><LI>Programmeringsspr†ket C. Det finns ingen spr†kst”d f”r &os2; Pascal har 
+olika dialekter vid det h„r laget.
+
+<P><LI>Presentation Manager programmering. En widget klass „r i huvudsak en
+PM f”nsterklass (se <A HREF="plug_2terminology.html">"Terminologi"</A>).
+
+<P>Om du inte har skrivit en PM f”nsterklass fr†n scratch f”rut, bekymra dig inte.
+Exemplen kommer att guida dig, och det „r inte s† sv†rt. Om du vet vad en f”nsterprocedur
+„r, och om du vet skillnaden mellan en „gare och ett ”verordnat f”nster och
+<CODE>WinSendMsg</CODE> och <CODE>WinPostMsg</CODE>, b”r du klara det. Naturligtvis, ju
+mer du vet, desto b„ttre.
+
+<P><LI>Du skall k„nna till vad en DLL „r, n„r och varf”r de anv„nds, och varf”r en DLL inte 
+„r en process. ;-)
+
+</OL>Nu till dom goda nyheterna: Du beh”ver <I>inte</I> k„nna till WPS och/eller
+SOM programmering, vilket b”r vara en stor l„ttnad f”r m†nga bidragare.
+
+<P>Dessutom, du kan anv„nda vilken C kompilator som du vill. Žven EMX/GCC b”r g†.
+Den enda &xwp; kod som „r n”dv„ndig „r de headerfiler som du inkluderar, vilka 
+kommer med &xwp;'s bin„ra distribution (i <CODE>toolkit</CODE> katalogen).
+
+<P>Om du kommer vilse, kan du alltid ladda ner den
+<A HREF="notices_40source.html">kompletta &xwp; k„llkoden</A>, d„r du kan hitta k„llkoden
+f”r de standard plug-in DLL'er som kommer med &xwp; (f”nsterlistan, klock- och minnesmonitorerna), vilka
+visar i detalj hur det „r gjort.
+
+<BR>
+</BODY>
+</HTML>
+
+

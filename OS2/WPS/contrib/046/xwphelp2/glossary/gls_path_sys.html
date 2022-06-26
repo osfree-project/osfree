@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: System S”kv„gar
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+&os2; har flera <B>systems”kv„gar</B> vilka specificerar var systemet skall
+leta efter filer om en
+<A HREF="glossary/gls_path.html">s”kv„g</A> inte „r bifogad med filen.
+
+<P>Till exempel, om en exekverbar fil finns i listan ”ver kataloger
+specificerade av <CODE>PATH</CODE> systems”kv„gen, kan den exekverbara hittas
+utan att veta exakt var den finns lagrad p† systemet. Detta „r orsaken till att du
+kan skriva <CODE>e</CODE> vid en &os2; kommandoprompt f”r att starta &os2; &eexe;:
+<CODE>E.EXE</CODE> finns i <CODE>OS2</CODE> katalogen p† din bootenhet, vilken
+finns i <CODE>PATH</CODE>.
+
+<P>Undantaget <CODE>LIBPATH</CODE>, „r dessa
+<A HREF="glossary/gls_env.html">milj”variabler</A> som initialt s„tts av system
+startupen genom &cfgsys; filen och kan modifieras senare f”r varje session.
+
+<IFNDEF __NOOS2KERNEL__>
+<P>Du kan editera den aktuella inst„llningen f”r systems”kv„gen p† sidan "System s”kv„gar"
+i <A HREF="objects/obj_krnl.html">"&os2; K„rna"</A> objektet.
+</IFNDEF>
+
+<P>F”ljande systems”kv„gar „r definierade:
+
+<!-- V0.9.20: the following has roughly been taken from kernel\krn_paths.html -->
+
+<UL><LI><CODE>LIBPATH</CODE>: "katalog" systems”kv„gen, vilken s”ks igenom varje g†ng
+&os2; f”rs”ker ladda en
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL).</A> Den b”r inneh†lla
+&os2;'s systemkataloger s†v„l som punkt ("."), vilket betyder aktuell katalog.
+
+<P>Se <A HREF="cmdref.inf#libpath">dokumentationen</A> i <I>&os2;'s Kommandoreferens</I>
+f”r detaljer.
+
+<P>Notera att detta „r den enda systems”kv„gen vilken <I>inte</I> „r definierad med anv„ndning
+av en milj”variabel och kan d„rf”r inte „ndras fr†n kommandoraden. Anv„nd <CODE>BEGINLIBPATH</CODE>
+och <CODE>ENDLIBPATH</CODE> variablerna f”r tillf„lliga „ndringar.
+
+<P><LI><CODE>SET PATH</CODE>: „r s”kv„gen f”r exekverbara (.EXE, .COM, .BAT, .CMD filer).
+
+<P>Se <A HREF="cmdref.inf#path">dokumentationen</A> i <I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P><LI><CODE>SET DPATH</CODE>: s”kv„gen f”r datafiler. Anv„ndningen av den s”kv„gen „r beroende
+av applikationerna; vissa applikationer anv„nder den, andra inte.
+
+<P>Se <A HREF="cmdref.inf#dpath">dokumentationen</A> i <I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P><LI><CODE>SET BOOKSHELF</CODE>: den h„r v„gen genoms”ks av <CODE>VIEW.EXE</CODE> f”r att hitta
+online .INF b”cker. Žven om n†gon INF bok kan visas, „ven om den inte finns i den h„r s”kv„gen,
+kommer "S”k" faciliteten hos <CODE>VIEW.EXE</CODE> endast att hitta b”cker som ligger i den h„r
+s”kv„gen.
+
+<!-- cmdref.inf#bookshelf doesn't work -->
+
+<P><LI><CODE>SET HELP</CODE>: den h„r v„gen genoms”ks av PM hj„lp faciliteten f”r att visa
+hj„lppaneler (.HLP filer). Vissa applikationer specifierar inte den fulla s”kv„gen hos hj„lpfilerna
+till PM f”r att kunna visa hj„lppaneler, vilket inneb„r att hj„lpfilen m†ste finnas i den h„r
+s”kv„gen. &xwp; kr„ver dock inte n†gon s†dan specification.
+
+<!-- cmdref.inf#help doesn't work -->
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,59 @@
+<HTML RESID=&ID_XSH_SETTINGS_PAGER_STICKY2;>
+<HEAD>
+    <TITLE>
+        &pgr;-Haftfenster
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+Ein Eintrag besteht aus vier Feldern: <B>Kriterium</B>, <B>Attribut</B>, <B>Operator</B>
+und <B>Wert</B>.
+ 
+<P><B>Kriterium</B> bestimmt, ob ein Fenster, auf das der Eintrag zutrifft, eingeschlossen
+(<B>"E"</B>) oder ausgeschlossen (<B>"A"</B>) wird. Eingeschlossene Fenster sind haftend,
+nicht eingeschlossene Fenster sind nicht haftend.
+ 
+<P><B>Attribut</B> definiert, auf welches Element sich der Eintrag bezieht. Zur Zeit
+ist das einzig m”gliche Attribut der Titel des Fensters.
+ 
+<P><B>Operator</B> definiert die Art des Vergleichs, der verwendet wird um festzustellen, ob
+ein Fenster den Eintrag erfllt oder nicht. Fr das Attribut "Titel" stehen fnf m”gliche
+Operatoren zur Verfgung:
+ 
+<UL>
+<LI><B>enth„lt</B> prft, ob der Titel die angegebene Zeichenkette an einer beliebigen Position enth„lt.
+ 
+<LI><B>beginnt mit</B> prft, ob der Titel mit der gegebenen Zeichenkette anf„ngt.
+ 
+<LI><B>endet in</B> prft, ob der Titel in der angegebenen Zeichenkette endet.
+ 
+<LI><B>ist gleich</B> prft, ob der Titel genau mit der angegebenen Zeichenkette bereinstimmt.
+ 
+<LI><B>paát auf</B> prft, ob der Titel auf die angegebene Zeichenkette paát, wobei diese
+als ein <A HREF="glossary/gls_regexps.html">regul„rer Ausdruck</A> angesehen wird.
+ 
+</UL>Bei allen Vergleichen spielt die Groá-/Kleinschreibung eine Rolle.
+ 
+<P><B>Wert</B> definiert den Wert, mit dem verglichen werden soll. Das Listenfeld
+enth„lt wahrscheinliche Werte, aber der Wert <B>muá nicht</B> einer von diesen sein.
+ 
+<P>Ein Fenster erfllt einen Eintrag, wenn die spezifischen Attribute des Fensters
+den Wert unter Verwendung des angegebenen Vergleichsoperators erfllen.
+ 
+<P>&pgr; behandelt ein Fenster als haftend (oder nicht haftend), wenn es einen
+der Eintr„ge in der Liste auf dieser Seite erfllt, beginnend mit dem ersten Eintrag.
+Das Fenster wird als haftend angesehen, wenn das Kriterium <B>"E"</B> lautet.
+Das Fenster wird als nicht-haftend angesehen, wenn das Kriterium <B>"A"</B> lautet.
+Wird kein zutreffender Eintrag gefunden, so wird das Fenster als nicht-haftend
+angesehen.
+ 
+<P><B>Hinweis:</B> Die Auswahlliste zeigt h„ufig sowohl den Fenstertitel als auch den
+Titel der Auswahlliste an, getrennt durch einen Bindestrich. Werden beide angezeigt, so
+verwendet &pgr; den Titel nach dem Bindestrich.
+<BR>
+</BODY>
+</HTML>
+ 

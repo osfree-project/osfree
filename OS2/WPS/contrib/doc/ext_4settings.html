@@ -1,0 +1,44 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The "XWorkplace Setup" Object
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+If you have added new code to XWorkplace, you might wonder how to integrate
+your code into the <B>"XWorkplace Setup" object,</B> most notably, how to
+add stuff to the "Features" container.
+
+<P>This is pretty easy. The "Features" page uses a subclassed container
+(the code for those checkboxes is in <CODE>helpers\comctl.c</CODE>, but
+this you need not worry about). All you have to do is take a look at
+<CODE>src\shared\xsetup.c</CODE>. The <CODE>setFeaturesInitPage</CODE>
+function is responsible for initializing the container with the features,
+while the <CODE>setFeaturesItemChanged</CODE> function reacts to selection
+changes in the container.
+
+<P>To add something, perform the following steps:
+
+<OL><LI>Add a dialog item ID to <CODE>include\dlgids.h</CODE>, where all the
+other items of this kind are (search for <CODE>ID_XCSI_GENERALFEATURES</CODE>
+to find them).
+
+<P><LI>Add a string for your setting to the NLS strings (e.g. for English, to
+<CODE>001\xfldr001.rc</CODE>), using that ID.
+
+<P><LI>Add your ID to the <CODE>FeatureItemsList</CODE> array in
+<CODE>src\shared\xsetup.c</CODE>. Your item will then automatically get
+inserted into the container by <CODE>setFeaturesInitPage</CODE>.
+
+<P><LI>Still, in <CODE>setFeaturesInitPage</CODE>, you need to add a line
+which checks the container checkbox according to the setting (those
+<CODE>ctlSetRecordChecked(hwndFeaturesCnr ...</CODE> lines).
+
+<P><LI>In <CODE>setFeaturesItemChanged</CODE>, add a case/switch which
+reacts to user changes.
+</OL>
+<BR>
+</BODY>
+</HTML>

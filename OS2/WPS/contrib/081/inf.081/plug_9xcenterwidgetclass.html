@@ -1,0 +1,83 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        XCENTERWIDGETCLASS
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Note:</B> This is an excerpt from <CODE>center.h</CODE>. This
+definition is not necessarily up-to-date. Always use <CODE>center.h</CODE>
+in your widget source code instead of this definition.
+
+<PRE>
+    /*
+     *@@ XCENTERWIDGETCLASS:
+     *      describes one widget class which can be
+     *      used in an &xcenter;. Such a class can either
+     *      be internal or in a widget plugin DLL.
+     */
+
+    typedef struct _XCENTERWIDGETCLASS
+    {
+        const char      *pcszPMClass;
+                // PM window class name of this widget class (can be shared among
+                // several widget classes). A plugin DLL is responsible for
+                // registering this window class when it's loaded.
+
+        ULONG           ulExtra;
+                // additional identifiers the class might need if the
+                // same PM window class is used for several widget classes.
+                // This is not used by the &xcenter;, but you can access it
+                // during WM_CREATE so you can differentiate between several
+                // widget classes in the same window proc. You must copy this
+                // to your private widget data then.
+
+        const char      *pcszWidgetClass;
+                // internal widget class name; this is used to identify
+                // the class. This must be unique on the system.
+
+        const char      *pcszClassTitle;
+                // widget class title (shown to user in "Add widget" popup
+                // menu).
+
+        ULONG           ulClassFlags;
+                // WGTF_* flags; any combination of the following:
+                // -- WGTF_SIZEABLE: widget window can be resized with
+                //    the mouse by the user.
+                // -- WGTF_NOUSERCREATE: do not show this class in
+                //    the "add widget" menu, and do not allow creating
+                //    instances of this in the &xcenter; settings notebook.
+                // -- WGTF_UNIQUEPERXCENTER: only one widget of this class
+                //    should be created per &xcenter;.
+                // -- WGTF_UNIQUEGLOBAL: only one widget of this class
+                //    should be created in all &xcenter;s on the system.
+                //    This includes WGTF_UNIQUEPERXCENTER.
+                // -- WGTF_TOOLTIP: if set, the widget has a tooltip
+                //    and will receive WM_CONTROL messages with the
+                //    TTN_NEEDTEXT notification code (see helpers\comctl.h).
+                //    The window ID of the tooltip control is ID_XCENTER_TOOLTIP.
+                // -- WGTF_TOOLTIP_AT_MOUSE: like WGTF_TOOPTIP, but the
+                //    tooltip is not centered above the widget, but put
+                //    at the mouse position instead.
+                //    This includes WGTF_TOOLTIP.
+
+        PWGTSHOWSETTINGSDLG pShowSettingsDlg;
+                // if the widget supports a settings dialog,
+                // it must set this func pointer to a procedure
+                // that will show that dialog. If this is != NULL,
+                // the "Properties" menu item and the button in
+                // the widgets list of the &xcenter; settings notebook
+                // will be enabled. See WIDGETSETTINGSDLGDATA for
+                // details about how to implement widget settings dialogs.
+
+    } XCENTERWIDGETCLASS, *PXCENTERWIDGETCLASS;
+
+</PRE>
+
+
+<BR>
+</BODY>
+</HTML>
+
+

@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: L”schen von Handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Datei-Handles k”nnen Sie aus der Handle-Tabelle l”schen, indem Sie den 
+Eintrag "L”schen" aus dem &popmenu; w„hlen. Dieses erscheint, wenn Sie
+mit der Maustaste 2 auf die Eintr„ge in der Tabelle klicken.
+ 
+<P>Fr jeden Eintrag, der auf diese Weise gel”scht wird, werden alle folgenden
+Knoten zum Anfang der Handle-Tabelle aus <CODE>OS2SYS.INI</CODE> verschoben und
+ihr Eintrag in der Anzeige gel”scht.
+ 
+<P><B>Warnung:</B> xfix schtzt Sie nicht davor, Handles zu l”schen, die zum Betrieb 
+der WPS notwendig sind. Sie sollten ein Handle nur l”schen, wenn Sie genau wissen,
+daá es nicht benutzt wird. Das L”schen von Handles kann in den meisten F„llen zu 
+Besch„digungen fhren (Programmobjekte, Ordnerpositionen oder sogar die komplette
+Arbeitsoberfl„che). Siehe
+<A HREF="xfix_handles.html">šber WPS-Datei-Handles</A>, um mehr darber zu erfahren, wie
+Handles innerhalb der WPS benutzt werden.
+ 
+<P>Sie sollten besonders der Spalte "Refzn." in der <A HREF="xfix_list.html">Handles-Liste</A>
+groáe Aufmerksamkeit widmen:
+ 
+<UL><LI>Wenn abstrakte Objekte fr ein Handle gefunden wurden (markiert durch <CODE>ABS</CODE>),
+wird xfix diese aus <CODE>PM_Abstract:FldrContent</CODE> in <CODE>OS2.INI</CODE>
+ohne eine Mitteilung einfach l”schen. Zus„tzlich wird die Definition eines jeden abstrakten Objekts
+aus <CODE>PM_Abstract:Objects</CODE> gel”scht. 
+ 
+<P>Mit anderen Worten <B>werden alle abstrakte Objekte in diesem Ordner vernichtet.</B>
+ 
+<P>Das ist notwendig, weil die abstrakten Objekte, falls sie nicht gel”scht werden,
+frher oder sp„ter in einem anderen Ordner auftauchen werden, sobald die WPS
+das gel”schte Handle fr einen neuen Ordner wiederverwendet. Das ist sehr wahrscheinlich.
+ 
+<P><LI>Das L”schen von Eintr„gen mit verknpften Ordnerpositionen (markiert durch <CODE>FPOS</CODE>)
+ist dagegen nicht sehr gef„hrlich. xfix wird einfach den entsprechenden
+Eintrag in <CODE>PM_Workplace:FolderPos</CODE> l”schen, welcher keinen Zweck mehr erfllt.
+ 
+</UL>Beachten Sie, daá diese beiden Referenzen die einzigen sind, die xfix momentan erkennen kann.
+xfix kann zur Zeit nicht erkennen, ob das Handle das Ziel eines Programmobjektes, einer
+Referenz oder irgend etwas anderes ist. Mit anderen Worten, bedeutet ein leeres "Refzn."-Feld  
+nicht, <B>daá das L”schen des Handle nicht irgendwelche Dinge besch„digen wird.</B>
+ 
+<P>Beachten Sie dazu, daá das Ausw„hlen von "L”schen" die <CODE>OS2SYS.INI</CODE>
+noch nicht aktualisiert. Das geschieht erst, nachdem Sie "Zurckschreiben in OS2SYS.INI"
+aus dem xfix-<A HREF="xfix_menus.html">Men</A> ausgew„hlt haben.
+Das bedeutet, daá Sie Ihr System noch nicht ruiniert haben, wenn Sie f„lschlicherweise
+einen Eintrag entfernt haben... Sie k”nnen xfix neu starten, um es erneut zu versuchen. 
+ 
+<P>Bevor Sie "Zurckschreiben..." verwenden, achten Sie darauf, daá folgendes zutrifft:
+ 
+<UL><LI>Sie haben eine funktionierende WPS-Sicherungskopie fr den Fall, daá etwas schief geht.
+ 
+<P><LI>Die WPS l„uft zur Zeit nicht. Sie sind auf der sicheren Seite, wenn Sie 
+<CODE>RUNWORKPLACE</CODE> in der Datei &cfgsys; ge„ndert haben oder wenn Sie
+xfix von &xwp;s "Panik"-Dialog aus gestartet haben, w„hrend die WPS startet. 
+ 
+</UL>Wenn Sie die Handles auf diesem Weg l”schen, werden sich die folgenden Felder in der
+<A HREF="xfix_list.html">Handles-Liste</A> „ndern:
+ 
+<UL><LI>Der <B>Knoten-Offset</B> von allen Eintr„gen wird nach jedem gel”schten Eintrag 
+aktualisiert, da diese zum Anfang der Handle-Tabelle verschoben werden.
+Wenn Sie zum Beispiel ein Handle mit dem Offset 1000 gel”scht haben und das nachfolgende
+Handle besitzt den Offset 1030, wird das zweite Handle den Offset 1000 statt dessen tragen.
+ 
+<P><LI>Alle Handles, deren verwendetes Handle als ihr Eltern-Handle gel”scht wird (und ihr
+Sub-Handle wiederum) werden als "verwaist" und ungltig markiert.
+ 
+<P>Es kann auch dafr verwendet werden, diese Subeintr„ge schnell zu l”schen, wenn Sie 
+danach "Alle Ungltigen ausw„hlen" benutzen.
+ 
+<P><LI>Wenn Sie ein doppelt vorhandenes Handle l”schen, sollte das <B>Kopien</B>-Feld ebenfalls 
+aktualisiert werden.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

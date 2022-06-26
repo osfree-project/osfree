@@ -1,0 +1,150 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Allm„nna fr†gor
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+F”rst av allt: titta i <A HREF="sys_2global.html">"Workplace Shell"</A> objektet,
+d„r du kan hitta en hel del uppslag f”r att f† till &xwp;'s beteende.
+
+<P>Om du inte hittade svaret p† dina fr†gor d„r, var v„nlig och bes”k ocks† &xwp;'s
+<A HREF="notices_3comments.html">Internet hemsida</A>. Jag underh†ller nu en offentlig
+bugglista, vilken kanske ocks† kan besvara dina fr†gor.
+
+<OL>
+<LI><B>Sl”ar &xwp; ner WPS?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>Beror p†. Vissa funktioner kan orsaka f”rdr”jningar, som den f”rsta ”ppningen
+av en mapps kontextmeny, eftersom &xwp; m†ste l„sa in inneh†llet hos Konfigurationsmappen
+(inklusive alla undermappar) f”r att i enlighet med den bygga upp kontextmenyn.
+
+<P>Som kontrast, vissa andra funktioner kommer att snabba upp WPS. Till exempel,
+funktionen <A HREF="fldr_30turbo.html">"Turbomappar"</A> kan snabba upp mappar dramatiskt.
+Ocks†, om ut”kade filassociationer „r aktiverat, kommer befolkningen av mappen
+att bli mycket snabbare eftersom &xwp; anv„nder v„ldigt effektiva cachingrutiner f”r
+objekthandtag internt.
+<!-- end V0.9.19 -->
+
+<P>Ocks†, till skillnad fr†n vissa andra WPS ut”kare, anv„nder &xwp; inte orimliga m„ngder
+minne. Jag har kontrollerat detta en g†ng p† mitt system, och i f”rh†llande till storleken
+p† &xwp; DLL'er sj„lva, h†ller &xwp; endast n†gra f† 100 KBs minne allokerat och frig”r
+dynamiskt lagrat n„r det inte l„ngre beh”vs.
+
+<!-- this item added with V0.82 -->
+<P><LI><B>Varf”r „r &xwp; dialogf”nster s† fula p† Warp 3?</B>
+
+<P>&xwp; anv„nder <B>WarpSans</B> fonten f”r de flesta av sina dialoger, d„rf”r att den „r
+s† mycket snyggare „n "System Proportional". Den h„r fonten finns endast p† &warp4; eller
+h”gre, s† p† Warp 3 kommer den inte att hittas, och systemet anv„nder standard systemfont 
+(System Proportional) ist„llet.
+
+<P>Om du kan f† tag p† n†gon &warp4; <CITE>\OS2\DLL\DSPRES.DLL</CITE> fil,
+kopiera helt enkelt ”ver samma fil i din Warp 3 \OS2\DLL katalog. Den filen inneh†ller
+m†nga systemresurser, bland annat WarpSans fonten. Warp 3 kommer att fungera med Warp 4 versionen utan
+problem. (Detta fungerar endast om du bootar &os2; till en kommandorad, med anv„ndning av Alt-F1 vid starten,
+<!-- the following added with V0.9.0 -->
+d„rf”r att DLL'en blir l†st s† fort systemet v„xlar till grafikl„ge.)
+
+<P>Startande med &xwp; V0.9.0, har sidan "Paranoia" i "&xwp; Setup" en checkbox
+d„r du kan tvinga &xwp; att anv„nda "8.Helv" fonten i de flesta fall.
+
+<!-- this item added with V0.82 -->
+<P><LI><B>Varf”r spelas inte de nya systemljuden?</B>
+
+<P>Du m†ste installera dom f”rst. Se
+<!-- V0.9.3: link changed -->
+<A HREF="mm_2sounds.html">korresponderade sida</A> f”r mer information.
+
+<!-- V0.9.6: added the following -->
+<P>Vissa personer har rapporterat att efter uppgradering av sina ljudkort, har &xwp;'s 
+systemljud inte l„ngre fungerat. Detta visade sig  vara ett problem med multimedia setup.
+™ppna standard "Multimedia Konfiguration" objektet, sidan med "Digital Audio" , och se till
+att "WAV" fil„ndelsen upptr„der i associationslistans „ndelser.
+
+<P><LI><B>Varf”r f†r jag krascher i SOM.DLL?</B>
+<P>Om du anv„nder <B>VisualAge C++</B> eller n†gon annan programvara som installerar en
+SOM runtime, se till att <CITE>SOM.DLL</CITE> „r laddad fr†n <CITE>\OS2\DLL</CITE>. Denna
+DLL har blivit uppdaterad med de senaste Warp fixpaks. VAC++ l„gger ytterligare kataloger
+i b”rjan av <CITE>LIBPATH</CITE> i &cfgsys;, vilket fortfarande orsakar att 
+den „ldre DLL'en blir laddad. Flytta dessa kataloger bakom <CITE>\OS2\DLL</CITE> i <CITE>LIBPATH</CITE>.
+
+<!-- this item added with V0.9.0 -->
+<P><LI><B>Varf”r f†r jag omstarter av Skrivbordet n„r jag „ndrar media i flyttbara enheter (MO, ZIP, ...)?</B>
+<P>Jag har ingen aning. tskilliga personer har rapporterat v„ldigt underligt beetende hos WPS n„r en enhetsmapp
+„r ”ppen efter att ett flyttbart media har utv„xlats. Efter det, fungerar WPS bra igen (tills mediat byts igen).
+<!-- V0.9.6: added this -->
+
+<P>Notera att jag inte har n†gra flyttbara enheter, annat „n en CD-ROM enhet och en CD br„nnare.
+Jag kan d„rf”r inte reproducera problemen h„r. Om n†gon kunde ta en titt p† &xwp;'s k„llkod f”r att 
+f”rs”ka ta reda p† vad som orsakar detta, skulle det vara till stor hj„lp.
+
+<P>IBM har introducerat st”d f”r en del nya flyttbara media i Warp 4 Fixpak 6, s† kanske det „r d„r 
+vi har problemen. Christian Hennecke &lt;christian.hennecke@ruhr-uni-bochum.de&gt; skrev i n†gon
+nyhetsgrupp att byta ut <CODE>PMWP.DLL</CODE> med en f”re-fixpak 6 version verkar hj„lpa. Du m†ste ocks† installera 
+NEWDASD, vilken fortfarande b”r finnas kvar p† Hobbes och Leo.
+
+<P><LI><B>Varf”r fungerar &xwp;'s funktioner endast med vissa mappar och inte med andra?</B>
+
+<P>Detta „r sv†rt. Vissa personer har rapporterat detta i alla variationer, t.ex. snabbkommandon
+fungerar endast f”r Skrivbordet, eller inte i URL mappar, eller inte i Gruppmappar (en IBM EWS utility), etc. 
+Samma sak g„ller f”r statusf„lt.
+
+<P>Fr†n vad jag kan se, „r detta relaterat till subklassning av mappar. &xwp; beh”ver vissa
+f”nstermeddelanden f”r att introducera dessa funktioner, och om n†gra andra WPS klasser
+snappar upp meddelandena, kommer &xwp;'s funktioner att bete sig underligt eller orsaka
+krascher eller helt enkelt inte fungera.
+
+<P>I allm„nhet, ju fler WPS klassers„ttningar du har installerat, ju st”rre risk att 
+liknande fel uppst†r. Med ett "rent" WPS, brukar &xwp; vanligtvis fungera bra, men de 
+personer som har rapporterat felen har ibland haft upp till fyra klassers„ttningar
+f”r mappar installerade, och d† blir det verkligen sv†rt f”r mig att sp†ra upp felen.
+F”rs”k att avinstallera n†gra WPS ut”kningar som du absolut inte beh”ver.
+
+<P>Ocks†, ju r”rigare dina INI filer „r, ju st”rre sannolikhet att WPS kommer att bli
+ostabilt i st”rsta allm„nhet. Jag rekommenderar starkt Henk Kelder's <CITE>WPTOOLS</CITE>
+paket, vilket du b”r k”ra lite d† och d†, f”r att rensa upp INI filerna. Det underh†lls
+och uppdateras regelbundet och finns tillg„ngligt p† Hobbes.
+
+<P>Jag har ocks† funnit att installationsordningen „r betydelsefull. Vissa WPS ut”kningar verkar helt
+enkelt "sv„lja" meddelanden som de inte beh”ver, antagande att de „r den enda WPS ut”kningen p†
+systemet. (Det kanske g„ller &xwp; ocks†, men jag har f”rs”kt undvika det.) Nu, om &xwp; kommer f”re
+dessa giriga WPS ut”kningar i WPS klassutbyteslistan, vilket „r fallet om &xwp; installerades f”rst,
+f†r den meddelandena f”re de andra WPS ut”karna.
+
+<P><LI><B>Samarbetar &xwp; med Object Desktop?</B>
+<P>I teorin, ja. I praktiken, ibland. F”r detaljer om detta (och „ven f”r andra WPS ut”kare), se 
+separat, sida <A HREF="vers_1compat.html">"Kompatibilitet"</A>.
+
+<!-- this item added with V0.84 -->
+<P><LI><B>Varf”r h”r jag diskarna arbeta varje g†ng jag ”ppnar mappen "Enheter"?</B>
+
+<P>Orsaken till det „r att &xwp;'s statusf„lt fr†gar efter fritt utrymme p† en disk. Om det f”rsta 
+objektet i din mapp "Enheter" representerar en diskettenhet, „r det den som blir f”rfr†gad.
+
+<P>F”r att undvika det, „ndra statusf„ltets information f”r WPDisk objekt i "Workplace Shell" objektet, sidan 2 av "Statusf„lt".
+D† kommer den h„r informationen inte att bli f”rfr†gad.
+
+<P>Alternativt, kan du avaktivera statusf„lten f”r mappen "Enheter" endast p† "&xwp;" sidan i notboken 
+med inst„llningar f”r mappen Enheter.
+
+<P><LI><B>Fungerar &xwp; p† Macintosh system?</B>
+<P>Nej.
+</OL>
+
+Skaml”st sj„lvannonserat: &xwp; samarbetar perfekt med det fantastiska <STRONG>CommandPak</STRONG>
+fr†n samma f”rfattare, tillg„ngligt ocks† hos
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A>. Det paketet kommer att f”rb„ttra 
+&os2;'s kommandorad dramatiskt, bland annat genom att erbjuda WPS st”d „ven fr†n kommandosessioner.
+
+<BR>
+</BODY>
+</HTML>
+
+
+

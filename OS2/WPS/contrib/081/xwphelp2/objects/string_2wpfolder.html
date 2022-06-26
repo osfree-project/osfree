@@ -1,0 +1,327 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPFolder Strings
+    </TITLE>
+</HEAD>
+<!-- V0.9.1: this page is all new with V0.9.1. Its contents have been extracted
+             from the old "xices_30wpsstrings.html" page. -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<BODY>
+<CODE>WPFolder</CODE> is the WPS class for all folders
+<!-- V0.9.16: added this bracket with link -->
+(see <A HREF="glossary/gls_wpsclasses.html">WPS classes</A> for details).
+In addition to the settings strings
+recognized by the <CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> class,
+<CODE>WPFolder</CODE> recognizes the following strings:
+
+<DL>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<DT><CODE><B>ACCELERATORS</B>={YES|NO|DEFAULT}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether it will respond to folder hotkeys.
+This setting corresponds to the one on the
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"View" page in a folder's properties notebook.
+YES or NO will set this setting for this folder no matter what was specified in the
+global settings, while DEFAULT will set this setting to the global value.
+
+<!-- V0.9.20: rewrote ALWAYSSORT -->
+<P><DT><CODE><B>ALWAYSSORT</B>={YES|NO|DEFAULT}</CODE>
+<DD>Sets for an individual folder whether it will always maintain its sort order.
+Opening and adding an object to a folder may take longer if the sort order is
+being maintained.
+Note that the <CODE>DEFAULT</CODE> option is only available with &xwp;,
+which will reset the setting to what you specified on the "Sort" page in the
+"Workplace Shell" object.
+
+<P><DT><CODE><B>BACKGROUND</B>=<I>name</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>This sets the folder background, where:
+
+<P><CODE><I>name</I></CODE> = Image file name. This
+name must be the fully qualified
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+of the image file. "?:\" is
+permitted to indicate the
+boot drive.
+
+<P><CODE><I>mode</I></CODE> = Image mode. This mode can
+be one of the following:
+<BR><CODE>N</CODE> = Normal image
+<BR><CODE>T</CODE> = Tiled image
+<BR><CODE>S</CODE> = Scaled image
+
+<P><CODE><I>factor</I></CODE> = Scaling factor.
+
+<P><CODE><I>bgtype</I></CODE> = Background type. This can
+be one of the following:
+<BR><CODE>I</CODE> = Image
+<BR><CODE>C</CODE> = Color only
+
+<P><CODE><I>bgcol</I></CODE> = Background color. This
+color can be 3 numbers representing RGB values, separated
+by spaces (<CODE>r g b</CODE>, for red, green, and blue values).
+<P>Example:
+<CODE>BACKGROUND=C:\OS2\BITMAP\OS2LOGO.BMP,S,3,I
+</CODE>or
+<CODE>BACKGROUND=(none),,,C,0 128 128</CODE>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>DEFAULTSORT</B>=<I>crit</I></CODE> (&xwp; only)
+<DD>This will set the default sort criterion for an individual folder to something
+different from the global sort criterion.
+<CODE><I>crit</I></CODE> may be one of the following:
+<BR><CODE>  -1   </CODE>sort by type
+<BR><CODE>  -2   </CODE>sort by name
+<BR><CODE>  -3   </CODE>sort by object class
+<BR><CODE>  -4   </CODE>sort by file name extension
+<BR><CODE>  255  </CODE>reset to global default sort criterion
+<P>Note that depending on the folder sort class, values between 0 and 100 may also
+be supported. Those values correspond to the indices of object details columns
+in Details view and are class-specific. Experiment with with the setup string values
+reported in a folder's properties notebook.
+
+<P><DT><CODE><B>DEFAULTVIEW</B>=DEFAULT</CODE>
+<DD>Sets the default open view to
+what was specified in the
+<!-- V0.9.20: replaced system with workplace shell, dammit -->
+"Workplace Shell" object.
+This is the default value.
+<P>Note that <CODE>DEFAULTVIEW</CODE> is really a
+<A HREF="objects/string_1wpobject.html">WPObject setup string</A>, but the
+meaning of the view setting is only meaningful for WPObject subclasses,
+such as WPFolder.
+
+<P><DT><CODE>DEFAULTVIEW={SETTINGS|ICON|TREE|DETAILS}</CODE>
+<DD>Sets the default open view to
+the specified folder view.
+
+<P>Note that <CODE>DEFAULTVIEW</CODE> is really a
+<A HREF="objects/string_1wpobject.html">WPObject setup string</A>, but the
+meaning of the view setting is only meaningful for WPObject subclasses,
+such as WPFolder.
+
+<P><DT><CODE><B>DETAILSCLASS</B>=<I>classname</I></CODE>
+<DD>This sets the object class for
+which the details are
+displayed in details view.
+The default object class is
+WPFileSystem. You better not mess with this one.
+
+<P><DT><CODE><B>DETAILSFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>Change
+the font used for a details
+view. For example: <CODE>9.WarpSans Bold</CODE>.
+The default value is <CODE>8.Helv</CODE> (on Warp 3)
+
+<P><DT><CODE><B>DETAILSSHADOWCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for a shadow object
+in the Details View. <CODE><I>color</I></CODE> may
+be standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>DETAILSTEXTCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for normal objects
+in the Details View. <CODE><I>color</I></CODE> may
+may be standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>DETAILSVIEW</B>=<I>style</I></CODE>
+<DD>This set details view to the
+specified style. Possible
+values are:
+<BR><CODE>MINI</CODE> small icon; this is the default.
+<BR><CODE>NORMAL</CODE> normal-size icon.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifdef  -->
+<IFNDEF __NOFOLDERCONTENTS__>
+<P><DT><CODE><B>FAVORITEFOLDER</B>={YES|NO}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether its contents can be viewed from
+all &popmenu;s on your system.
+This setting corresponds to the one on the
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"View" page in the folder's properties notebook.
+Default is NO. There is no global value for this setting.
+</IFNDEF>
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>FULLPATH</B>={YES|NO|DEFAULT}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether its full path will be displayed in its window title.
+This setting corresponds to the one on the
+"View" page in the folder's properties notebook.
+YES or NO will set this setting for this folder no matter what was specified in the
+global settings, while DEFAULT will set this setting to the global value.
+
+<P><DT><CODE><B>ICONFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>Setup string used to change
+the font used for an icon
+view. For example:  <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>ICONNFILE</B>=<I>index</I>,<I>filename</I></CODE>
+<DD>This sets the file name of the
+animation (open folder) icon.
+The <CODE><I>index</I></CODE> value must be set
+to 1. The specified file (".ICO")
+contains the folder's open
+folder icon.
+
+<P><DT><CODE><B>ICONNRESOURCE</B>=<I>index</I>,<I>id</I>,<I>dllfile</I></CODE>
+<DD>Sets the
+animation (open folder) icon to data residing in a resource file.
+The <CODE><I>index</I></CODE> value must be set
+to 1. The <CODE><I>id</I></CODE> is the identity
+of an icon resource in the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+<CODE><I>dllfile</I></CODE>.
+The specified resource is the folder's open folder icon.
+
+<P><DT><CODE><B>ICONSHADOWCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for shadow icons
+in the Icons View. <CODE><I>color</I></CODE> may
+be a standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>ICONTEXTBACKGROUNDCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Background color for normal text
+in the Icons, Tree and Details View.
+<CODE><I>color</I></CODE> may be a standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>ICONTEXTCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for normal icons in the
+Icons View. <CODE><I>color</I></CODE> may be a
+standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>ICONTEXTVISIBLE</B>={YES|NO}</CODE>
+<DD>The names of objects contained in a
+folder are displayed or not displayed in the Icon View.
+
+<P><DT><CODE><B>ICONVIEW</B>=<I>style1</I>[,<I>style2</I>...]</CODE>
+<DD>This sets icon view to the
+specified styles. Possible
+values are: <CODE>FLOWED NOGRID INVISIBLE NONFLOWED MINI NORMAL</CODE>
+<BR>The default value is <CODE>NOGRID,NORMAL</CODE>
+<BR>These settings correspond to the "Icon view" page in a
+folder's properties notebook.
+
+<P><DT><CODE><B>ICONVIEWPOS</B>=<I>x</I>,<I>y</I>,<I>cx</I>,<I>cy</I></CODE>
+<DD>This sets the initial icon
+view position and size of the
+folder on the screen. These
+values are percentages (0-100)
+of the screen size.
+
+<P><DT><CODE><B>MENUBAR</B>={YES|NO}</CODE> (&warp4; and higher only)
+<DD>The menubar of the folder is displayed or not displayed.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+    added ifdef -->
+<IFNDEF __NOQUICKOPEN__>
+<P><DT><CODE><B>QUICKOPEN</B>={YES|NO|IMMEDIATE}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether it will be pre-populated on Desktop startup.
+This setting corresponds to the one on the
+"View" page in the folder's properties notebook.
+YES or NO will set this setting for this folder.
+Default is NO. There is no global value for this setting.
+<P>As a special command, <CODE>QUICKOPEN=IMMEDIATE</CODE> will populate the folder
+immediately. This can be used in a
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+script to force population of a folder without
+having to open it. As a result, <CODE>QUICKOPEN=IMMEDIATE</CODE> is no setting, but
+rather a command to be performed on a folder.
+</IFNDEF>
+
+<P><DT><CODE><B>REMOVEFONTS</B>={YES|NO}</CODE>
+<DD>This can remove all instance
+fonts from the folder, i.e. the ones that apply to this folder only (specified by the
+respective object settings strings or in the folder properties notebook). Default is <CODE>NO</CODE>.
+<BR>This is not really a "setting", but rather a command to be performed on the folder.
+
+<P><DT><CODE><B>SHOWALLINTREEVIEW</B>={YES|NO}</CODE> (&warp4; and higher only)
+<DD>Show all objects in an open Tree View or only folders.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only",
+        added ifndef -->
+<IFNDEF __NOSNAPTOGRID__>
+<P><DT><CODE><B>SNAPTOGRID</B>={YES|NO|DEFAULT|EXEC}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether the "Snap to grid" item will appear
+in the folder's &popmenu;.
+This setting corresponds to the one on the
+"View" page in the folder's properties notebook.
+YES or NO will set this setting for this folder no matter what was specified in the
+global settings, while DEFAULT will set this setting to the global value.
+EXEC will execute the "Snap to grid" function on the folder, just as if you had
+selected it from the &popmenu;. EXEC is thus no setting, but a command to be performed
+on a folder.
+</IFNDEF>
+
+<P><DT><CODE><B>SORTCLASS</B>=<I>classname</I></CODE>
+<DD>This sets the class object to sort by.
+The default class object is WPFileSystem.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTFOLDERSFIRST</B>={YES|NO|DEFAULT}</CODE> (&xwp; only)
+<DD>Sets for an individual folder whether folders will always be sorted in first.
+This setting corresponds to the one on the
+"Sort" page in the folder's properties notebook.
+YES or NO will set this setting for this folder no matter what was specified in the
+global settings, while DEFAULT will set this setting to the global value.
+<!-- end V0.9.12 -->
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>SORTNOW</B>=<I>crit</I></CODE> (&xwp; only)
+<DD>This will sort all currently open views of an individual folder without changing
+a folder's setting (as opposed to <CODE>DEFAULTSORT</CODE>). This is not really a
+"setting", but rather a command to be performed on a folder.
+<CODE><I>crit</I></CODE> has the same meaning as with <CODE>DEFAULTSORT</CODE>.
+
+<!-- V0.9.20: moved this item here from string_3xfolder.html, added "&xwp; only" -->
+<P><DT><CODE><B>STATUSBAR</B>={YES|NO|DEFAULT}</CODE> (&xwp; only)
+<DD>Sets the visibility state for an individual folder status bar.
+This setting corresponds to the one on the
+<!-- V0.9.16: replaced "XFolder" with "View" -->
+"View" page in the folder's properties notebook.
+YES or NO will set this setting for this folder no matter what was specified in the
+global settings, while DEFAULT will set this setting to the global value.
+
+<P><DT><CODE><B>TREEFONT</B>=<I>size</I>.<I>facename</I></CODE>
+<DD>Setup string used to change
+the font used for an Tree
+view. For example: <CODE>10.Helv</CODE>
+
+<P><DT><CODE><B>TREESHADOWCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for shadow icons in the
+Tree View. <CODE><I>color</I></CODE> may be a
+standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>TREETEXTCOLOR</B>=<I>color</I></CODE> (&warp4; and higher only)
+<DD>Text color for normal icons in the
+Tree View. <CODE><I>color</I></CODE> may be a
+standard color name or an
+<CODE><I>r g b</I></CODE> set of numbers (for red, green, blue values).
+
+<P><DT><CODE><B>TREETEXTVISIBLE</B>={YES|NO}</CODE> (&warp4; and higher only)
+<DD>The names of the objects contained in
+a folder are displayed or not dispalyed in Tree View.
+
+<P><DT><CODE><B>TREEVIEW</B>=<I>style1</I>[,<I>style2</I>...]</CODE>
+<DD>This sets the tree view to the
+specified styles. Possible
+values are: <CODE>INVISIBLE LINES MINI NOLINES NORMAL</CODE>
+<BR>The default value is <CODE>LINES, NORMAL</CODE>
+<BR>These settings correspond to the "Tree view" page in a
+folder's properties notebook.
+
+<P><DT><CODE><B>WORKAREA</B>={YES|NO}</CODE>
+<DD>This sets the folder so it is
+a workarea. Default is <CODE>NO</CODE>.
+</DL>
+</BODY>
+</HTML>
+

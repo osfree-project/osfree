@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sort Criteria
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.12 -->
+<BODY>
+The following four sort criteria are <I>always</I> available in all
+<!-- V0.9.19: link added -->
+&link_folders;:
+
+<UL><LI><B>Sort by name:</B> this sorts a folder alphabetically according
+to the object titles.
+
+<P><LI><B>Sort by type:</B> this sorts a folder according to object types, i.e.
+the <CODE>.TYPE</CODE> Extended Attribute which can be set in an object's
+properties notebook. Note that this applies only to data file objects; all other
+objects (and data file objects with undefined types) will be sorted to the bottom.
+
+<P><LI><B>Sort by class:</B> this sorts a folder according to object classes,
+i.e. what is visible in the third column of a folder's Details view.
+
+<P><LI><B>Sort by file-name extension:</B> this sorts a folder according to
+the characters after the last dot in an object's title, which should normally
+be a file-name extension (such as <CODE>.TXT</CODE>, <CODE>.EXE</CODE> etc.).
+Objects without extensions are sorted in first.
+
+</UL>Unless a folder has changed its sort class to something other than
+WPFileSystem, which normally only happens with special folders such as
+the trash can and the "Fonts" folder, the following sort criteria are also
+available:
+
+<UL><LI><B>Sort by real name:</B> this sorts a folder alphabetically according
+to file-system names. Since only file-system objects have real names, abstract
+objects will not be sorted properly.
+
+<P><LI><B>Sort by size:</B> this sorts a folder according to file sizes. Since
+abstract objects have no file size, but only occupy some space in OS2.INI, they
+are assumed to have a size of zero bytes.
+
+<P><LI><B>Sort by last write / last access / creation date:</B>
+this sorts a folder according to this file-system information, which is also
+not available for abstract objects. Note that the
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_fs.html">FAT</A>
+file system does not
+support all this information, so these three criteria will make no difference
+there.
+
+</UL>If the <B>"Folders first"</B> setting is also enabled, all folders
+are sorted to the top of the folder.
+
+<P>Within the group of folders and non-folder objects, sorting is done according
+to the current sort criterion, respectively. For example, if "sort by last write date"
+is selected and "folders first" is also enabled, all subfolders
+are put on top, and all subfolders are then sorted by last write
+date, and all non-folder objects are also sorted by last write date.
+
+</BODY>
+</HTML>
+

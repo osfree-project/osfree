@@ -1,0 +1,47 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        The "Snap to Grid" Feature
+    </TITLE>
+</HEAD>
+<!-- Changes in V0.81: see notes below -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Class: XFolder</B><HR>
+XFolder can add a "Snap to grid" menu item to all folder context menus. When selecting it,
+all objects in the folder will "jump" onto an invisible grid.
+
+<P>The "Snap to grid" feature is a bit hard to explain. Just think of a folder whose
+objects are pretty messed up: how many times have you found yourself trying to align those
+objects below or next to each other?
+<BR><IMG SRC="snap1.gif">
+<P>The "Arrange" menu item doesn't help here, since it
+reorders the objects completely. Now imagine a set of invisible equidistant lines
+spread over the folder window, which attract
+the objects therein when you select "Snap to grid".
+<BR><IMG SRC="snap2.gif">
+
+<P>The "Snap to grid" menu item will only be visible when the following applies:
+<OL><LI>the folder must be open;
+<BR><LI>the folder must have the no-grid icon view (the default for most folders);
+it will not be visible for folders in details or tree view
+or if you have changed the icon view to "flowed" or "non-flowed" in the folder's settings
+dialog;
+<BR><LI>the folder must not have the "Always maintain sort order" setting enabled.
+
+<!-- this paragraph modified with V0.81 -->
+</OL>You can specify the grid's origin and spacing on the "Grid" page in the new
+<A HREF="sys_2global.html">"Workplace Shell" object</A>.
+
+<!-- this paragraph added with V0.81 -->
+<P><B>Note:</B> With V0.81, the "Snap to grid" behavior has changed slightly. Per default,
+XFolder will only let the currently <B>selected</B> objects snap on the grid. However, if
+you hold down the <B>Shift</B> key while selecting that menu item, all items will be
+snapped (like in previous versions).
+
+<BR>
+</BODY>
+</HTML>
+
+

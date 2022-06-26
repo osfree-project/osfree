@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Enable folder auto-refresh
+    </TITLE>
+</HEAD>
+<!-- V0.9.16: page has been rewritten -->
+<BODY>
+This setting allows you to enable or disable automatic folder refresh immediately.
+You do not have to modify &cfgsys; or restart the system for this setting to take effect.
+
+<P>If the setting is <B>enabled,</B> all folders on the system will automatically
+pick up changes in the file system after a short delay. For example, if an application
+creates a file in a folder that is currently open, the file will appear in that folder
+automatically.
+
+<P>If the setting is <B>disabled,</B> such changes are not recognized by the
+Workplace Shell. To have such changes displayed in open folders, you will have to
+select the "Refresh now" menu item for the folder.
+
+<IFNDEF __NOXWPSETUP__>
+<P>Note that this will only work if you have enabled &xwp;'s replacement of the
+automatic folder auto-refresh in the <A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>
+and have restarted the WPS after enabling that setting.
+
+<P>This item is disabled if the replacement auto-refresh has not been enabled, or
+if you haven't restarted the WPS after enabling the replacement yet.
+</IFNDEF>
+
+<BR>
+</BODY>
+</HTML>
+

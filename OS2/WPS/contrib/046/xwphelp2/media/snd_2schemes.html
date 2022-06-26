@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Ut”kat "Ljud" objekt
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in 0946xwpsound.html -->
+<!-- V0.9.16: added ifdefs -->
+<BODY>
+Posterna p† <B>gruppen "Ljudschemor"</B> till†ter dig att snabbt ladda, spara, och radera
+ljudschemor.
+<!-- V0.9.16: added this -->
+Ett "ljudschema" „r helt enkelt ett komplett set av de aktuella definierade systemljuden. Detta
+till†ter dig att lagra och v„xla alla systemljud p† en g†ng.
+
+<IFNDEF __EWORKPLACE__>
+<P>Ljudschemor introducerades med &warp4;, men den h„r sidan kommer ocks† att fungera p†
+Warp 3. Ett ljudschema kan anses vara ett "set" av systemljud vilka snabbt kan laddas 
+samtidigt. Eftersom ljudschemor „r (olyckligtvis) lagrade i <CODE>OS2SYS.INI</CODE>, kommer
+alla anv„ndare p† din dator att dela samma ljudschemor.
+</IFNDEF>
+
+<P>Det <B>"Aktuella schemats"</B> drop-down list visar dig alla ljudschemor som f”r n„rvarande „r
+definierade p† ditt system.
+<!-- V0.9.16: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+P† Warp 4, skall det vara †tminstone fyra standard ljudschemor, medan Warp 3 inte har f”rdefinierade 
+(eftersom Warp 3 inte k„nner till ljudschemor f”r det f”rsta).
+</IFNDEF>
+Att v„lja ett ljudschema kommer att ”verskrida det aktuella ljuddatat (efter att du har bekr„ftat detta).
+Om du ser "inget" i drop-down boxen, „r inget ljudschema valt f”r n„rvarande, eller s† har ljudinst„llningarna
+hos det tidigare laddade schemat blivit „ndrade.
+
+<P><B>"Spara som"</B> knappen till†ter dig att spara alla aktuella ljudinst„llningar 
+(i "Definiera systemljud" gruppen) i ett nytt ljudschema eller att skriva ”ver ett existerande.
+
+<P><B>"Radera"</B> knappen „r endast aktiverad om ljudschemats drop-down lista visar ett annat
+ljudschema „n "inget". Tryck p† den knappen kommer att radera det aktuellt valda ljudschemat.
+
+<BR>
+</BODY>
+</HTML>

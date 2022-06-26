@@ -1,0 +1,41 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Auto-Scrolla Tr„dvisning
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klass: XFolder</B><HR>
+&xwp; kan monitorera ”ppen Tr„dvisning av mappar och automatiskt scrolla
+ner†t i mappf”nstret om n”dv„ndigt.
+<P>Du har troligtvis upplevt den h„r situationen en zillion g†nger: du vill expandera ett tr„d
+hos en mapptr„dvisning vilken „r synlig i botten p† mappf”nstret.
+<BR><IMG SRC="intro_4treeviews1.gif">
+<P>Normalt, om du klickar p† "plus" tecknet intill "dll" katalogen, kommer tr„det att expandera,
+men du kommer inte att kunna se dess inneh†ll. Detta standardbeteende hos &os2; „r verkligen tr”ttsamt,
+d„rf”r att n„stan varje annan g†ng som ett tr„d „r expanderat, m†ste du scrolla ner†t manuellt f”r att
+verkligen se inneh†llets objekt.
+<P>&xwp; kommer nu <I>automatiskt</I> att scrolla ner†t i mappf”nstret om de nyligen upptr„dande 
+posterna b”rjar uppenbara sig utanf”r den f”r n„rvarande synliga f”nsterarean:
+<BR><IMG SRC="intro_4treeviews2.gif">
+<P>&xwp; g”r det genom att internt monitorera Tr„dvisningen i bakgrunden efter att 
+du har klickat p† "plus" tecknet och sedan, s† fort som WPS „r klar med befokningen av mappen,
+automatiskt scrolla ner†t. Denna "monitorering" orsakar ingen ytterligare CPU last, eftersom
+&xwp; helt enkelt snappar upp ett enstaka f”nsters noteringsmeddelande internt. (Av det sk„let
+„r det totalt obegripligt att IBM inte har implementerat detta beteende tidigare.)
+<P>&xwp; kommer att g”ra de i botten dominerande posterna som visades synliga, om inte
+tr„det som du klickade p† inneh†ller f”r m†nga poster f”r att passa in i f”nstret. I det h„r 
+fallet, kommer &xwp; att scrolla den post som expanderas till den ”versta toppen av den synliga
+f”nsterarean.
+<P>Det „r troligvis b„st att du f†r prova ut den h„r funktionen sj„lv, f”r att bli van
+vid den. &os2; katalogen „r en bra kandidat f”r detta. Alltnog, detta beteende kan vara 
+lite irriterande f”rst, „r jag dock s„ker p† att efter en tid, vill du troligtvis inte vara utan det.
+<P>Du kan fortfarande avaktivera funktionen i
+<A HREF="sys_2global.html">Globala Inst„llningar</A>.
+<BR>
+</BODY>
+</HTML>
+
+

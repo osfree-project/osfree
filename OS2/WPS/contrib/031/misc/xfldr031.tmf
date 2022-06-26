@@ -1,0 +1,576 @@
+;
+; This is the monster XWorkplace text message file (XFLDR001.TMF).
+; This is used for messages which might turn out to be longer
+; than 256 characters and might thus not fit into the STRINGTABLE
+; resources. These are loaded by XWorkplace on the fly and appear
+; mostly in the new XWorkplace message boxes.
+;
+; Required changes for translations: Look at each line after the
+; message identifier (in angle brackets) and translate only that
+; part. Beware of line breaks, as these messages will normally be
+; formatted by XWorkplace. Inserting line breaks will cause
+; _additional_ line breaks to be displayed.
+;
+; The format of this file has slightly changed with V0.9.0. We now use
+; the angle-bracket syntax, as seen below. Whatever is in angle
+; brackets at the beginning of a line will be used by XWorkplace
+; to find the corresponding message, which must follow. If you
+; change the identifiers, XWorkplace can no longer find the message!
+;
+; Also, make sure to keep all those "%1", "%c", "%s" etc. thingies in
+; place, because those placeholders will be replaced at run-time with
+; variable information. XWorkplace might crash if these placeholders
+; are not found or, even worse, if a "%s" key doesn't get a string but
+; a decimal number in sprintf.
+;
+;       Copyright (C) 1997-2002 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+<--XFL0100-->: &xwp;: Wijzig CONFIG.SYS
+
+<--XFL0101-->: Om de nieuwe instellingen van kracht te laten worden maakt &xwp; nu wijzigingen in uw CONFIG.SYS bestand. &xwp; Maakt een backup bestand met de naam CONFIG.001 (of een hoger nummer, wanneer nodig). Weet u zeker dat u uw CONFIG.SYS bestand wilt aanpassen?
+
+<--XFL0102-->: &xwp;: Taal is gewijzigd
+
+<--XFL0103-->: &xwp;'s taal is nu gewijzigd. Het "XWorkplace Setup" object wordt nu gesloten. Wanneer u het de volgende keer opent, is de taal gewijzigd.
+
+<--XFL0104-->: &xwp;: Fout
+
+<--XFL0105-->: &xwp; was niet in staat om de Opstarten Map op de Werkplek te maken. Hoogstwaarschijnlijk is de Werkplek class XFldrStartup niet goed ge‹nstalleerd.
+
+<--XFL0106-->: &xwp; was niet in staat om de &xsd; Map op de Werkplek te maken. Hoogstwaarschijnlijk is de Werkplek class XFldShutdown niet goed ge‹nstalleerd.
+
+<--XFL0107-->: Wijzig Werkplek object ID
+
+<--XFL0108-->: U heeft een ongeldig Werkplek object ID ingevoerd. Deze ID's moeten altijd de vorm "<IETS>" hebben. Het oude ID wordt teruggezet.
+
+<--XFL0109-->: Weet u zeker dat u dit Werkplek object ID wilt wijzigen?
+
+<--XFL0110-->: &xsd;: Fout
+
+;
+; 111 changed with V1.0.0
+;
+
+<--XFL0111-->: Fout %1 is geconstateerd tijdens het opslaan van de INI bestanden. Fout beschrijving:
+
+%2
+
+De mogelijkheid bestaat dat de Werkplek beschadigd is bij de volgende herstart. Inplaats van door te gaan met eXtended Shutdown, kunt u nu de Werkplek herstarten, schakel extended Shutdown uit, en voer een normale &os2; afsluiten uit. Wilt u de Werkplek nu herstarten?
+
+<--XFL0112-->: Selecteer object class
+
+<--XFL0113-->: Selecteer de object class waarvoor u de statusbalk informatie wilt wijzigen. Classes die deze mogelijkheid niet ondersteunen worden in de Werkplek reflectie kleur getoond.
+
+<--XFL0114-->: eXtended Shutdown
+
+; V0.9.11: changed the following
+<--XFL0115-->: Er zijn op dit moment %1 afdruk opdracht(en) in de print wachtrij. &xsd; kan niet goed functioneren als er nog afdruk opdrachten staan te wachten, verwijder deze opdrachten uit de wachtrij voordat u verder gaat.
+
+<--XFL0116-->: &xwp;: Waarschuwing.
+
+; 117 is gone with V0.9.7 (2000-12-13) [umoeller]:
+
+<--XFL0118-->: U heeft ervoor gekozen om class "%1" uit de Werkplek class lijst te verwijderen. Wijzig de Werkplek class lijst alleen als u zeker weet wat u doet. Het deregistreren van sommige classes kan leiden tot zeer ernstige problemen met de Werkplek, en kan zelfs een complete herinstallatie van &os2; vereisen. Weet u nog steeds zeker dat u deze class wilt deregistreren?
+
+<--XFL0119-->: De class "%1" kon niet worden gederegistreerd.
+
+<--XFL0120-->: U heeft ervoor gekozen om class "%1" te verwijderen uit de Werkplek class lijst. Deze class hoort bij het &xwp; pakket. Alle %xwp; classes zijn ontworpen om samen te werken, het verwijderen van enkele van deze classes kan leiden to zeer ernstige problemen met de Werkplek. Weet u nog steeds zeker dat u deze class wilt verwijderen?
+
+<--XFL0121-->: &xwp;
+
+<--XFL0122-->: De class "%1" is succesvol gederegistreerd. U moet de Werkplek opnieuw starten om de effecten te zien.
+
+<--XFL0123-->: Selecteer de object class om "%1" mee te vervangen.
+
+<--XFL0124-->: Weet u zeker dat u object class "%1" met "%2" wilt vervangen? Dit kan alleen werken als classes hier speciaal voor ontworpen zijn. Anders kan deze procedure tot ernstige problemen met de Werkplek leiden en zelfs een volledige herinstallatie vereisen. Wilt u toch vervangen?
+
+<--XFL0125-->: U heeft er voor gekozen om de vervanging van class "%1" door "%2" ongedaan te maken. Deze class behoort tot het &xwp; pakket. Alle &xwp; classes zijn ontworpen om samen te werken, het vervangen kan leiden tot zeer ernstige problemen met de Werkplek. Weet u nog steeds zeker dat u deze vervanging ongedaan wilt maken?
+
+<--XFL0126-->: U heeft er voor gekozen om de vervanging van class "%1" door "%2" ongedaan te maken. Maak vervangingen alleen ongedaan als u zeker weet wat u doet. De vervanging ongedaan maken van sommige classes kan to ernstige problemen met de Werkplek leiden en zelfs een herinstallatie vereisen van &os2;. Weet u nog steeds zekere dat u de vervanging van deze class ongedaan wilt maken?
+
+<--XFL0127-->: De vervanging van "%1" door "%2" is met succes ongedaan gemaakt.
+
+<--XFL0128-->: Het ongedaan maken van de vervanging van "%1" door "%2" is mislukt.
+
+<--XFL0129-->: Class "%1" is succesvol vervangen door "%2". Wees er op attent dat dit alleen effekt heeft waarneer de Werkplek is herstart en dat de Werkplek class lijst alleen dan de wijziging weergeeft.
+
+<--XFL0130-->: Vervanging van class "%1" door "%2" is mislukt.
+
+<--XFL0131-->: De class "%1" is succesvol geregistreerd. Een herstart van de Werkplek is waarschijnlijk niet noodzakelijk.
+
+<--XFL0132-->: Registratie van class "%1" is mislukt. Fout code: %2. Module informatie: %3.
+
+<--XFL0133-->: U heeft er voor gekozen om alle mappen op uw systeem standaard te sorteren. Dit betekent ook de Werkplek. Wilt u automatisch sorteren voor de Werkplek uitschakelen?
+
+<--XFL0135-->: U heeft een submenu geopend dat geen items bevat omdat de corresponderende &xwp; configuratie map geen objecten bevat. Plaats objecten in de configuratie map om menu item's te maken.
+
+<--XFL0136-->: Het CONFIG.SYS bestand is gewijzigd. Uw vorige CONFIG.SYS is gekopi‰erd naar het bestand %1, Om de instelling van kracht te laten worden moet u uw systeem afsluiten en herstarten. Een Werkplek herstart heeft geen effect.
+
+<--XFL0137-->: &xwp; kan de Handleiding niet vinden. U heeft waarschijnlijk het betreffende object dat was gemaakt door het installatie programma verwijderd. U kunt de Handleiding (XFLDR031.INF) in de &xwp; installatie directory vinden.
+
+<--XFL0138-->: Weet u zeker dat u alle objecten in deze map wilt starten? Dit kan tot problemen leiden als programma's in deze map al actief zijn.
+
+<--XFL0139-->: De class "%1" is op dit moment vervangen door de class "%2". U moet deze vervanging ongedaan maken voordat deze class kan worden gederegistreerd.
+
+;
+; the following items are new with V0.9.0
+
+<--XFL0141-->: Dit maakt een object van de class %1" met de naam "%2" op de Werkplek. Waarschuwing: Sommige Werkplek classes zijn niet ontworpen om objecten van te maken, en sommigen veroorzaken mogelijk alleen problemen met uw systeem configuratie. Toch doorgaan?
+
+<--XFL0142-->: U heeft de volgende wijzigingen in de &xwp; class instellingen gemaakt:
+
+<--XFL0143-->: Registreer de volgende classes:
+
+<--XFL0144-->: Vervang de volgende classes:
+
+<--XFL0145-->: Deregistreer de volgende classes:
+
+<--XFL0146-->: Maak de volgende class vervangingen ongedaan:
+
+<--XFL0147-->: Waarschuwing: Gedeeltelijke wijzigingen in de &xwp; class instellingen zijn niet uitgebreid getest. Er kunnen nog steeds sommige bijwerkingen zijn tussen de verschillende &xwp; classes die niet volledig opgelost zijn. Weet u zeker dat u dit wilt doen?
+
+<--XFL0148-->: &xwp; Instellingen
+
+<--XFL0149-->: Er zijn fouten opgetreden in de volgende &xwp; classes:
+%1
+Sommige class wijzigingen zijn mogelijk toch succesvol geweest. Herstart de Werkplek om de wijzigingen aktief te maken.
+
+<--XFL0150-->: De Werkplek class lijst is succesvol gewijzigd. U dient de Werkplek te herstarten om deze wijzigingen actief te maken.
+
+<--XFL0151-->: &xwp;: "Geluid" object
+
+<--XFL0152-->: Het geluidsthema "%1" bestaat al. Overschrijven?
+
+<--XFL0153-->: Deze actie overschrijft de huidige geluidsgegevens. Wilt u de geluidsgevens in een nieuw geluidsthema opslaan?
+
+<--XFL0154-->: Weet u zeker dat u geluidsthema "%1" wilt verwijderen?
+
+<--XFL0155-->: Dit vervangt de volgende regel
+
+%1
+
+in de CONFIG.SYS door deze nieuwe regel:
+
+%2
+
+Weet u zeker dat u dit wilt doen?
+
+<--XFL0157-->: De &xwp; aanpassing is ge‹nstalleerd. Object sneltoetsen en muis bewegingsopties zijn beschikbaar in de "Toetsenbord" en "Muis" instellingen objecten.
+
+<--XFL0158-->: De &xwp; aanpassing is nu gede‹nstalleerd. Object sneltoetsen en muis bewegingsopties zijn niet langer beschikbaar in de "Toetsenbord" en "Muis" instellingen objecten.
+
+;
+; the following items have been added with V0.9.1
+;
+; changed XFL0159 with V0.9.7
+;
+
+<--XFL0159-->: Welkom bij &xwp;. De Werkplek wordt nu opgestart met &xwp; ge‹nstalleerd.
+
+Als u zojuist &xwp; voor de eerste keer heeft ge‹nstalleerd, zijn alle mogelijkheden gedeactiveerd om problemen te voorkomen.
+
+Heeft u eerder XFolder ge‹nstalleerd dan importeert &xwp; de meeste van uw oude XFolder instellingen.
+
+Wanneer &xwp; hiervoor was ge‹nstalleerd dan worden uw instellingen niet gewijzigd.
+
+Mocht u problemen krijgen met &xwp; b.v. het systeem hangt bij de start, druk dan eerst op Ctr+Alt+Del om het systeem te herstarten.
+
+Terwijl de Werkplek opstart na de herstart, houdt u de "Shift" toets ingedrukt. Hierdoor toont &xwp; het "Paniek" dialoogvenster waar u bepaalde &xwp; instellingen kunt deactiveren.
+
+Druk op "Ok" om de Werkplek start voort te zetten. Dit bericht wordt niet meer getoond.
+
+<--XFL0160-->: Er zijn geen instellingen voor &xwp; in uw OS2.INI bestand. Er zijn echter wel instellingen van een oude XFolder versie gevonden.
+
+&xwp; kan nu uw oude XFolder instellingen importeren zodat u niet alles opnieuw hoeft in te stellen. In dat geval zal &xwp; zich gedragen als uw bestaande XFolder versie. Uw oude Xfolder instellingen worden niet gewijzigd, u kunt zodoende XFolder later opnieuw installeren in plaats van &xwp;.
+
+Als u dit niet wilt, dan zijn alle &xwp; instellingen in eerste instantie uitgeschakeld.
+
+Wilt u uw oude Xfolder instellingen converteren naar &xwp;?
+
+<--XFL0161-->: Hiermee maakt u de &xwp; Configuratie map in de &xwp; installatie map of, als deze niet bestaat op uw Werkplek.
+
+Wilt u doorgaan?
+
+<--XFL0162-->: Weet u zeker dat u sneltoets "%1" voor object "%2" wilt verwijderen?
+
+; the following one has changed with V0.9.10
+<--XFL0163-->: Hiermee maakt u een object met de naam "%1" in de map "%2" met installatie reeks "%3"
+
+Wilt u doorgaan?
+
+; the following one has changed with V0.9.10
+; and again with V0.9.19
+<--XFL0164-->: Het object "%1" is met succes gemaakt.
+
+<--XFL0165-->: Fout: Het object kon niet gemaakt worden. Controleer of de corresponderende Werkplek class is ge‹nstalleerd.
+
+<--XFL0166-->: U heeft uitgebreide systeemgeluiden geactiveerd, echter de additionele &xwp; systeemgeluiden zijn nog niet ge‹nstalleerd in het "Geluid" object. Wilt u dit nu doen?
+
+<--XFL0167-->: U heeft uitgebreide systeemgeluiden gedeactiveeerd. Wilt U de additionele &xwp; systeemgeluiden verwijderen uit het "Geluid" object?
+
+<--XFL0168-->: &xwp; Prullenbak
+
+<--XFL0169-->: Dit verwijderd alle objecten in de prullenbak permanent.
+
+Weet u zeker dat u de prullenbak wilt legen?
+
+<--XFL0170-->: De prullenbak Werkplek classes die benodigd zijn voor de &xwp; prullenbak (XWPTrashCan, XWPTrashObject) zijn nog niet geregistreerd.
+
+Moet dit nu gedaan worden?
+
+<--XFL0171-->: Er is een fout opgetreden bij het registreren van de prullenbak Werkplek classes.
+
+<--XFL0172-->: Wilt u het prullenbak object verwijderen en de &xwp; prullenbak Werkplek classes (XWPTrashCan, XWPTrashObject) deregistreren?
+
+<--XFL0173-->: Het prullenbak object is met succes verwijderd en de prullenbak Werkplek classes zijn gederegistreerd. U moet de Werkplek opnieuw starten om de wijzigingen van kracht te laten worden.
+
+<--XFL0174-->: Deze bewerking is ongeldig voor verwijderde objecten.
+
+<--XFL0175-->: &xwp;: Bestandsbewerkingsfout
+
+;
+; the following items have been added with V0.9.3
+;
+
+<--XFL0177-->: Weet u zeker dat u "%1" permanent wilt verwijderen?
+
+<--XFL0178-->: U heeft %1 objecten geselecteerd om permanent te verwijderen. Weet u zeker dat u dit wilt doen?
+
+<--XFL0179-->: "%1" is alleen lezen. Wilt u het toch naar de prullenbak verplaatsen?
+
+<--XFL0180-->: Het huidige station wordt niet ondersteund door de prullenbak. Wilt u "%1" permanent verwijderen?
+
+<--XFL0181-->: Het huidige station wordt niet ondersteund door de prullenbak. Wilt u de %1 geselecteerde objecten permanent verwijderen?
+
+<--XFL0182-->: Weet u zeker dat u "%1" naar de prullenbak wilt verplaatsen?
+
+<--XFL0183-->: Weet u zeker dat u %1 geselecteerde objecten naar de prullenbak wilt verplaatsen?
+
+<--XFL0184-->: "%1" is een alleen lezen bestand. Wilt u het toch permanent verwijderen?
+
+<--XFL0185-->: "%1" kan niet worden verwijderd.
+
+<--XFL0186-->: Wilt u de huidige bestandsbewerkingen annuleren? Druk "Herhalen" om verder te gaan, druk "Annuleren" om af te breken.
+
+;
+; the following items are new with V0.9.4
+;
+
+<--XFL0188-->: U heeft zojuist een Werkplek reservekopie terug gezet. &xwp;'s automatische reservekopie is gedeactiveerd om reservekopie overschrijvingen tegen te gaan. U kunt reservekopi‰n weer aanzetten in het Werkplek instellingen notitieblok.
+
+<--XFL0189-->: Het legen van de prullenbak is niet gelukt. Wilt u doorgaan met afsluiten?
+
+;
+; the following items are new with V0.9.5
+;
+
+<--XFL0190-->: Voordat u &xsd; voor de eerste maal gebruikt, moet u &xsd; inregelen op de nieuwe "&xsd;" pagina in het Werkplek instellingen notitieblok.
+
+Waarschuwing: Hoewel &xsd; uitgebreid getest is, ZOU HET NIET KUNNEN WERKEN op uw systeem. Maak voordat u voor de eerste maal afsluit met "&xsd;" een Werkplek reservekopie. U bent gewaarschuwd.
+
+;
+; the following items are new with V0.9.6
+;
+
+<--XFL0191-->: &xwp; Installatie reeks
+
+<--XFL0192-->: Dit voert installatie reeks "%1" op het object "%2" uit. Weet u zeker dat u dat wilt doen?
+
+<--XFL0193-->: Dit voert installatie reeks "%1" op de volgende objecten uit:
+
+%2
+
+Weet u zeker dat u dat wilt doen?
+
+;
+; the following items are new with V0.9.7
+;
+
+<--XFL0194-->: &xcenter;: Fout
+
+<--XFL0195-->: Het &xcenter; is er niet ingeslaagd om een widget van class "%1" te maken.
+
+Controleer of de xwplog.log in de root directory van uw opstart station misschien meer informatie geeft.
+
+Wilt u deze widget uit de &xcenter; widget lijst halen?
+
+<--XFL0196-->: Fout bij het maken van bestandstype "%1". Misschien bestaat het type al.
+
+<--XFL0197-->: &xcenter;
+
+<--XFL0198-->: Weet u zeker dat u uw systeem naar de "Onderbreken" stand wilt schakelen?
+
+<--XFL0199-->: Poeh... zo te zien is alles goed gegaan. Om te beginnen: Alles wat u nodig heeft om &xwp; te activeren staat in het "&xwp; Setup" object in de map die zojuist is geopend.
+
+De andere reflecties in die map verwijzen naar de orginele objecten die zijn gemaakt in uw "Configuratie" map.
+
+De "&xwp; Gebruikershandleiding" bevat alle informatie die u nodig heeft. En zo niet, er staan contact adressen voor ondersteuning in.
+
+Veel plezier met &xwp;!
+
+; text change V1.0.1
+
+<--XFL0200-->: Fout %1 tijdens het verwerken van lettertype bestand "%2".
+
+Wilt u de fout negeren en doorgaan met het installeren van lettertypes?
+
+<--XFL0201-->: Het lettertype bestand "%1" is reeds ge‹nstalleerd.
+
+Wilt u de fout negeren en doorgaan met het installeren van lettertypes?
+
+<--XFL0202-->: Weet u zeker dat u lettertype "%1" wilt de‹nstalleren?
+
+<--XFL0203-->: U heeft %1 lettertypes geselecteerd om te de‹nstalleren. Weet u zeker dat u dit wilt doen?
+
+<--XFL0204-->: Het lettertype "%1" kan op dit moment niet gede‹nstalleerd worden. Er is misschien een applicatie die het gebruikt. Echter, tijdens de volgende herstart is het verwijderd.
+
+Wilt u de fout negeren en doorgaan met het de‹nstalleren van lettertypes ?
+
+<--XFL0205-->: Het handle gedeelte in OS2SYS.INI is herschreven. &xwp; herstart de Werkplek nu.
+
+<--XFL0206-->: Hmmmm. &xwp; was niet in staat om "%1" te starten.
+
+<--XFL0207-->: U moet de Werkplek herstarten om deze wijzigingen van kracht te laten worden.
+
+;
+; the following items are new with V0.9.9
+;
+
+; 208 removed with V1.0.1 (2002-12-15) [umoeller]
+;<--XFL0208-->: &xwp;'s extended file associations are now enabled.
+;
+;Note: If you have not configured the &xwp; file types yet, all your present WPS associations are currently disabled. Go to the "Workplace Shell" object, where you will find a new "File types" page, to set up file types for your existing associations.
+;
+;You can always disable the extended file associations again to get the old WPS mechanism back.
+
+<--XFL0209-->: Het bestandstype %1 is niet gevonden in de OS2.INI file.
+
+<--XFL0210-->: Het bestandstype %1 bestaat reeds en kan niet gebruikt worden voor hernoemen.
+
+<--XFL0211-->: &xwp; maakt nu de standaard installatie objecten voor u.
+
+Dit voegt een aantal objecten aan uw "Configuratie" map toe voor gedetailleerde configuratie van &xwp; en de Werkplek.
+
+Daarnaast wordt een "&xwp; Installatie" map op uw Werkplek gemaakt met een standaard configuratie map voor uw map voorgrond menu's.
+
+Als u dit niet wilt druk dan nu op "Annuleren". U moet dit alleen doen als u zeker weet dat u de objecten niet gemaakt wilt hebben. Dit verhindert u &xwp; te configureren, als de objecten nog niet bestaan.
+
+
+Anders drukt u op "Ok" om verder te gaan.
+
+<--XFL0212-->: U moet de Werkplek herstarten om de &xwp; auto-refresh threads te activeren.
+
+WAARSCHUWING: Deze mogelijkheid is nog steeds een beetje instabiel. Het 'hangt' uw systeem niet, maar u kunt crashes krijgen in de auto-refresh achtergrond threads. Gebruik op eigen risico.
+
+;
+; the following items are new with V0.9.12
+;
+
+<--XFL0213-->: De bestandstypes zijn succesvol ge‰xporteerd naar bestand "%1"
+
+<--XFL0214-->: Fout %2 opgetreden tijdens het exporteren van bestandstypen naar bestand "%1".
+
+<--XFL0215-->: Bestandstypes zijn succesvol ge‹mporteerd van bestand "%1".
+
+<--XFL0216-->: Er is een fout opgetreden bij het importeren van bestandstypes uit het bestand "%1":
+%2
+
+<--XFL0217-->: Het bestand "%1" bestaat reeds. Wilt u het overschrijven met de nieuwe gegevens?
+
+<--XFL0218-->: Het hoofdvolume werkt niet goed. Het wordt gesloten.
+
+;
+; the following items are new with V0.9.13
+;
+
+<--XFL0219-->: Het systeem gaf fout code %1 terug. Helaas is er geen bericht voor deze fout gevonden.
+
+<--XFL0220-->: Verwijder tray.
+
+<--XFL0221-->: Weet u zeker dat u de tray met de naam "%1" wilt verwijderen?
+
+;
+; the following items are new with V0.9.14
+;
+
+<--XFL0222-->: Het &xcenter; was niet in staat om een widget van "%1" te maken.
+
+Deze widget kan niet in een tray worden gebruikt.
+
+Wilt u deze widget uit &xcenter;'s widget lijst halen?
+
+;
+; the following items changed with V0.9.16
+;
+
+<--XFL0134-->: Het helpvenster met het ID "%1" is niet gevonden in "%2". Geen help beschikbaar.
+
+<--XFL0187-->: De object naam die u heeft ingevoerd is ongeldig. Aangezien elk object een geldige naam moet hebben, is de oude naam terug gezet.
+
+;
+; the following items are new with V0.9.16
+;
+;
+; 223 changed with V1.0.1 (2002-12-15) [umoeller]
+;
+<--XFL0223-->: De "Turbo folders" optie is geactiveerd. Vanwege veiligheidsredenen, zal deze optie pas aktief worden na een herstart van de Werkplek.
+
+Waarschuwing: Als u de &xwp; file types nog niet geconfigureerd heeft, zijn alle huidige Werkplek associaties momenteel uitgeschakeld. Ga naar het "Werkplek" object, alwaar u de nieuwe "File types" pagina kunt vinden, om file types op te zetten voor uw bestaande associaties.
+
+U kunt altijd "Turbo folders" uitschakelen om het oude Werkplek mechanisme terug te krijgen.
+
+<--XFL0224-->: De "Turbo folders" optie is uitgeschakeld. Vanwege veiligheidsredenen, wordt deze optie pas aktief na een herstart van de Werkplek.
+<--XFL0225-->: De geselecteerde objecten kunnen niet verwijderd worden omdat de &xwp; prullenbak niet bestaat. Wilt u het prullenbak object opnieuw aangemaakt hebben op de Werkplek?
+
+<--XFL0226-->: "%1" is een map. Weet u het zeker om die permament te verwijderen, incluis alles wat daarin zit?
+
+<--XFL0227-->: Kan programma niet starten
+<--XFL0228-->: Er is een fout opgetreden bij het starten van programma "%1". Het besturingssysteem heeft de volgende foutmelding gegeven:
+<--XFL0229-->: Wilt u het instellingen notitieblok van dit programma object openen?
+
+;
+; the following items are new with V0.9.17
+;
+
+<--XFL0230-->: Werkplek fout.
+<--XFL0231-->: &xwp; probeerde uw Werkplek te controleren op integriteit.
+Gedurende het doorgeven van de Werkplek bestandssysteem handles tabel vanuit uw systeem profiel, is error %1 opgetreden.
+Dit hoeft niet te betekenen dat uw Werkplek incorrect is, maar het lijkt er op dat uw bestandssysteem handles tabel enkele problemen heeft.
+
+&xwp; kan u nu de "Paniek" dialoog laten zien, waar u een van de volgende keuzes kunt doen:
+1) Xfix uitvoeren, de &xwp; bestandshandles reparateur, om een blik te werpen op de bestandssysteem handles en eventueel te ontdekken wat er aan de hand is.
+2) De "Check Werkplek bij opstarten" optie uitschakelen zodat deze melding niet weer komt. Maar dit kan in de toekomst leiden tot een "Kan de Werkplek niet vinden" foutmelding.
+
+Moet &xwp; de "Paniek" dialoog nu laten zien? Anders gaan we gewoon door met de startup.
+
+;
+; the following items are new with V0.9.19
+;
+
+<--XFL0232-->: &xwp; was niet in staat om de &xwp; daemon te bereiken, wat, onder andere, nodig is om programma's te starten.
+Wilt u de deamon nu herstarten?
+
+<--XFL0233-->: &xwp; was niet in staat de Werkplek class "%1" te vinden. Waarschijnlijk is de class niet ge‹nstalleerd.
+
+<--XFL0234-->: Het normale argument dat u gegeven heeft is incorrect. De volgende fout deed zich voor:
+
+%1
+
+<--XFL0235-->: De menu optie die u gekozen heeft is bedoeld om tekst data vanaf het klembord als argument mee te geven. Maar het klembord bevat momenteel geen tekst data.
+
+Wilt u toch het programma starten?
+
+<--XFL0236-->: "%1" is een map. Weet u zeker dat u die in de prullenbak wilt gooien, incluis de gehele inhoud?
+
+<--XFL0237-->: Een beschermingsfout heeft zich voorgedaan. De bewerking kan niet doorgaan.
+
+<--XFL0238-->: Hernoem
+    "%1"
+naar
+    "%2"?
+
+<--XFL0239-->: De door u opgegeven "vervang" opdracht is incorrect. De volgende fout heeft zich voorgedaan:
+
+%1
+
+Als u terugverwijzingen gebruikt (b.v. "\1") in de vervang tekst, wees er dan zeker van dat u de benodigde haakjes in de "zoek" tekst opgeeft.
+
+<--XFL0240-->: Er zijn geen objecten gevonden die aan uw zoekcriteria voldeden.
+
+<--XFL0241-->: %1 object(en) voldeden aan uw zoekcriteria. Van deze, zijn %2 object(en) hernoemd.
+
+;
+; the following items are new with V0.9.20
+;
+
+<--XFL0242-->: Prullenbak legen
+
+<--XFL0243-->: Verwijder Widget
+
+<--XFL0244-->: Weet u zeker dat u de gehele "%1" widget wilt verwijderen? Deze bewerking kan niet ongedaan gemaakt worden.
+
+;
+; the following items are new with V1.0.0
+;
+
+<--XFL0245-->: Er heeft zich een fout voorgedaan bij de poging van &xwp; om uw standaard browser op te starten (%1):
+
+<--XFL0246-->: Controleer uw standaard browser instellingen in een willekeurig URL object.
+
+<--XFL0247-->: &xwp; Class vervangingen
+
+<--XFL0248-->: &xwp; heeft een fout gedetecteerd in de volgorde van de vervangende Werkplek classes op uw systeem.
+
+In de lijst met vervangende classes voor %1, de &xwp; vervangende class %2 dient de eerste in de lijst te zijn.
+
+&xwp; kan nu de vervangende class lijst herschikken. De huidige volgorde is:
+
+%3
+
+Dit dient veranderd te worden in:
+
+%4
+
+Wilt u deze wijziging nu uitgevoerd zien?
+
+<--XFL0249-->: &xwp; heeft de problemen in uw vervangende Werkplek classes opgelost.
+
+Wilt u de Werkplek nu herstarten om de wijzigingen te aktiveren?
+
+<--XFL0250-->: &xwp; heeft problemen gevonden in uw vervangende Werkplek classes lijst.
+
+Het formaat van de vervangingslijst voor de %1 class is incorrect.
+
+Wilt u dat &xwp; dit probleem nu oplost?
+
+<!-- V1.0.1: the following changed -->
+<--XFL0251-->: &xwp; heeft een foutenlijstvoorbeeld met systeem informatie naar uw klipbord gekopi‰erd.
+
+Open een willekeurige editor en plak het klipbord in een nieuw document, en sla dat vervolgens op in een bestand op een tijdelijk lokatie.
+Als u een probleem meldt via de bugtracker, dient u dit document bij te sluiten bij de probleemomschrijving.
+
+Hartelijk dank.
+
+<--XFL0252-->: "%1" kan niet verwijderd worden. De volgende fout heeft zich voorgedaan:
+
+%2
+
+<--XFL0253-->: U dient een geldige hotkey op te geven.  Als het hotkey invoerveld leeg blijft bij het invoeren van de hotkey samenstelling, zal het waarschijnlijk betekenen dat de samenstelling niet herkend kan worden.
+
+("Reguliere" toetsen kunnen niet als hotkey gebruikt worden.  Bijvoorbeeld, "A" of "Shift-A" zijn niet toegestaan.  Maar "Ctrl-A" of "Ctrl-Shift-A" wel.)
+
+<--XFL0254-->: U dient een argument mee te geven.  Gebruik van de neerwaartse pijl laat de mogelijke keuzes zien.
+
+<--XFL0255-->: Deze hotkey is al gedefini‰erd.  Wilt u de bestaande definitie vervangen door deze nieuwe?
+
+;
+; the following added with V1.0.1
+;
+
+<--XFL0256-->: &xwp;: Zoek naar class
+
+<--XFL0257-->: Geef de naam van de class:
+
+<--XFL0258-->: Het bestand "%1" is geen lettertype bestand.
+
+Wilt u deze melding negeren en doorgaan met het installeren van lettertypes?
+
+<--XFL0259-->: Het "%1" object is geen lettertype object.
+
+Wilt u deze melding negeren en doorgaan met het de‹nstalleren van lettertypes?
+
+<--XFL0260-->: Het "%1" lettertype is al gede‹nstalleerd.
+
+Wilt u deze melding negeren en doorgaan met het de‹nstalleren van lettertypes?
+
+

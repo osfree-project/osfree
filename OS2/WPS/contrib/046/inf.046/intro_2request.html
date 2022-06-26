@@ -1,0 +1,98 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Beg„ran om Hj„lp
+    </TITLE>
+</HEAD>
+<!-- this file is all new with V0.83; -->
+<!-- changed with V0.85 -->
+<!-- Note: I won't recommend to translate this file. The people I'm  -->
+<!-- addressing here need to speak English anyway, so don't bother. -->
+<!-- Simply copy this most current version over your existing one. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+Om du gillar &xwp; och skulle vilja bidra till den, „r ditt st”d v„lkommet. 
+&xwp; b”rjar s† sakteliga att bli f”r komplicerad att hanteras av en person helt ensam.
+
+<!-- V0.9.1: removed this:
+You don't have to be a programmer to help. Support is appreciated in the
+following areas (and others): -->
+
+<UL><LI><B>™vers„ttningar.</B> &xwp; „r konstruerad f”r att vara ”vers„ttningsbar p† ett n†gorlunda
+enkelt s„tt. Alla spr†k-beroende delar har separerats fr†n den verkliga "intelligensen" hos programmet
+till separata filer, vilka kan ”vers„ttas oberoende.
+<P>Om du „r intresserad av att <B>”vers„tta &xwp; till ditt spr†k,</B> kan du helt enkelt ladda ner &xwp;
+k„llkod fr†n min hemsida, vilken inneh†ller allt som „r n”dv„ndigt. Du beh”ver inte vara n†gon
+programmerare f”r att g”ra det, men det „r till stor nytta om du har grundl„ggande kunskaper i HTML,
+eftersom b†de &xwp;'s Onlinereferens och hj„lpfilen „r skrivna i HTML fr†n b”rjan och sedan enkelt
+konverteras till IBM format, vilket jag ogillar starkt.
+<P>I det fallet, var v„nlig kontakta mig, s† att jag kan l„gga till dig p† min mailinglista s† att du kan f†
+nyheter om „ndringar i tid.
+
+<!-- this paragraph removed with V0.85 -->
+<!-- Documentation. I am looking for someone to take over maintenance of -->
+<!-- the XFolder INF and HLP files. It just takes too much time away from programming to -->
+<!-- always have to add documentation while adding new features, and I tend to overlook -->
+<!-- stuff sometimes. This applies especially to the German documentation. -->
+<!-- So if you know German and/or English and HTML, please -->
+<!-- contact me. -->
+
+<P><LI>Om du „r programmerare och har n†gon erfarenhet av <B>PM och/eller WPS programmering,</B> var v„nlig att
+kontakta mig ocks†. Vi har stora planer f”r &xwp;'s framtid
+<!-- V0.9.1: removed this:
+and would like to turn it into more of an "&xwp;" package -->
+f”r att komma runt de mest uppenbara begr„nsningarna hos WPS som finns idag. Eftersom det inte
+finns n†got st”rre hopp om att IBM kommer att g”ra n†got †t detta, tror jag att &os2; communityn m†ste
+g”ra detta sj„lva. F”ljande st”rre saker finns p† att-g”ra-listan:
+<!-- V0.9.1: removed this : (I am not listing the "little" features
+that I'll add myself soon): -->
+
+<BR><OL><LI><B>WPS filhantering.</B> Denna beh”ver en kraftig omarbetning. Jag kan inte
+tro att WPS beh”ver h„nga sig varje g†ng som man kopierar mer „n ett dussin filer.
+Filhantering „r en huvuduppgift f”r ett operativsystems skal, och den nuvarande implementationen
+beh”ver †tminstone f”ljande f”rb„ttringar: tr†d-s„kerhet, hastighet, riktiga progressf„lt vid
+kopiering, en "Avbryt" knapp som inte alltid „r avaktiverad, mer meningsfulla felmeddelanden etc.
+Detta inneb„r att alla WPS filhanteringsmetoder m†ste omarbetas (<CODE>wpCopy</CODE>, <CODE>wpMove</CODE> etc.).
+
+<!-- V0.9.13: removed this
+<P><LI><B>Populating folders.</B> One of the reasons that the WPS
+has become so much slower
+in &warp4; is that the WPS now seems to create object handles for
+every single file while populating a folder, which wasn't the case with Warp 3.
+Object handles are a thoughtful mechanism which is necessary for program objects and
+shadows, but they should only be created when necessary. I suspect this misbehavior
+is situated in <CODE>wpPopulate</CODE>, which therefore needs some rework too.
+-->
+
+<P><LI><B>Ikonhantering.</B> Drag'n'drop i WPS orsakar alltid att ikoner blir arrangerade p† 
+ett n„rmast slumpm„ssigt s„tt. Detta b”r f”rb„ttras.
+
+<P><LI><B>WPProgram.</B> Jag har aldrig f”rst†tt varf”r det finns ett objekt f”r globala
+DOS/&winos2; inst„llningar om programobjekten „nd† inte respekterar inst„llningarna h„r. Vi beh”ver
+st”d f”r globala inst„llningar samt ocks† globala och individuella milj”variabler i programobjekt 
+s† att &cfgsys; inte alltid m†ste modifieras.
+
+<P><LI><B>&warpcenter;.</B> Den „r ostabil, l†ngsam, och passar inte ihop allf”r v„l
+med resten av WPS. Den b”r programmeras om helt och h†llet. Eftersom &xwp; redan har kod
+f”r "mappinneh†lls" menyer, b”r det inte vara alltf”r sv†rt att g”ra det.
+
+<P><LI><B>Multi-anv„ndarst”d.</B> WPS „r redan konstruerat f”r att st”dja multipla anv„ndare
+genom anv„ndning av flera OS2.INI filer och Skrivbordshierarkier, s† jag kan inte riktigt f”rst†
+varf”r IBM inte implementerade detta. &xwp; kan g”ra det; Jag hade t„nkt mig att byta ut PROTSHELL 
+och/eller RUNWORKPLACE uppgifterna i &cfgsys; med n†gra &xwp; exekverbara filer, vilka sedan skall
+starta PMSHELL.EXE med en hel upps„ttning av f”rinst„llda milj”variabler, viktigast OS2.INI inst„llningar
+och UNIX-lika HOME milj”variabler f”r att st”dja multipla konfigurationer f”r applikationer i en "hem" katalog
+f”r varje anv„ndare &xwp; b”r sedan erbjuda en kontextmenypost f”r att "logga av" eller n†gonting liknande.
+
+<P><LI>&os2; m†ste ocks† kunna <B>starta om Presentation Manager</B> utan att beh”va bootas om, till exempel
+f”r att „ndra grafikuppl”sning. Den nuvarande l”sningen „r ett sk„mt. Om du har n†gra id‚er om det h„r, speciellt
+om hur PM skall avslutas och startas om utan att blockera systemet, var v„nlig och kontakta mig.
+
+</OL><P>S† om du „r intresserad av att l„gga till n†gra av dessa funktioner till &xwp; (eller om du
+har n†gra andra f”rslag), „r du v„lkommen att g† med i projektet! All hj„lp „r uppskattad.
+</UL>
+<BR>
+</BODY>
+</HTML>
+
+

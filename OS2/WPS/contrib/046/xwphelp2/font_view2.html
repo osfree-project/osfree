@@ -1,0 +1,63 @@
+<HTML RESID=&ID_XSH_FONTSAMPLEHINTS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Font Metrics
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+I ett fontobjekts <A HREF="font_view.html">exempelvisning</A>, kan fyra olika
+metric set visas, vilka var och ett kan aktiveras eller avaktiveras i
+exempelvisningens
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+Om alla fyra inst„llningarna „r aktiverade, kommer varje rad hos fontvisningen
+att likna f”ljande:
+
+<BR><IMG SRC="img/fonthint.gif">
+
+<P>De olika metrics sets har f”ljande mening:
+
+<OL><LI>Den r”da linjen alldeles nedanf”r tecknen "72" i den ovanst†nde bilden „r 
+<B>baslinjen.</B> Detta „r vad tecknet "sitter" p†. De flesta tecknen kommer att bli
+komplett uppritade ovanp† den linjen, undantaget de som „r "ned†tg†ende" och g†r
+nedanf”r baslinjen (som <CODE>g</CODE> och <CODE>y</CODE> tecknen). Alla andra font
+metrics relaterar till baslinjen. (F”r programmerare: Baslinjen representerar y 
+koordinaten f”r alla <CODE>GpiCharString*</CODE> anrop.)
+
+<P><LI>Rektangeln i ljusgr†tt till v„nster om varje linje (markerad med <B>A</B> i
+den ovanst†ende bilden) representerar det <B>maximala upp†tg†endet</B> hos fonten 
+(men „r i verkligheten st”rre „n s† -- se <B>C</B> nedanf”r). Detta „r det utrymme som fonten
+vill ha ovanf”r baslinjen. (F”r programmerare: Detta finns i <CODE>lMaxAscender</CODE>
+f„ltet hos &os2;'s
+<!-- V0.9.20: added links -->
+<A HREF="pmref.inf#fontmetrics"><CODE>FONTMETRICS</CODE></A> struktur.)<A HREF="_toolkitlink.html">*</A>
+
+<P>Som kontrast, den m”rkgr† rektangeln (markerad med <B>B</B>) representerar det
+<B>maximala ned†tg†endet</B> hos fonten (<CODE>FONTMETRICS.lMaxDescender</CODE>). Detta
+„r det maximala utrymme tecken som <CODE>g</CODE> eller <CODE>y</CODE> kommer att g† nedanf”r
+baslinjen (men „r i verkligheten st”rre „n s† -- se <B>2</B> nedanf”r).
+
+<P><LI>De vertikala linjerna i m”rkgr†tt (markerade med <B>C</B>) representerar de
+<B>internal leading</B> (<CODE>FONTMETRICS.lInternalLeading</CODE>). Detta „r subdelen
+av det "maximala upp†tg†endet" (A) vilket endast anv„nds som mellanrum av fonten. 
+Eftersom v„rdet (A) hos det "maximala upp†tg†endet" f”r det stora flertalet fonter 
+„r st”rre „n det verkliga maximala upp†tg†endet hos fonten, kan det v„rden subtraheras
+fr†n det maximala upp†tg†endet f”r att erh†lla det "verkliga" utrymmet hos ett tecken
+ovanf”r baslinjen.
+
+<P><LI>Den r”da rektangeln med de diagonala linjerna (markerade med <B>1</B>, <B>2</B>)
+representerar de <B>sm† bokst„vernas (gemenernas) upp†tg†ende/ned†tg†ende</B>. 
+<I>PM Programming Reference</I> specificerar att det „r det utrymme som den h”gsta gemenen
+kommer att anv„nda ovanf”r baslinjen. Eftersom hos m†nga fonter har vissa gemener, 
+som <CODE>d</CODE>, i verkligheten h”gre „n stora bokst„ver (versaler) (t.ex. med Times New Roman),
+skall detta inneh†lla det verkliga utrymmet ovanf”r baslinjen som fonten kommer att anv„nda.
+
+<P>Olyckligtvis, „r detta v„rde felaktigt hos de flesta TrueType fonter. Det kan
+antingen bero p† en bugg i FreeType/2 motorn eller s† „r kanske m†nga TrueType fonter
+d†ligt konstruerade.
+
+</OL>
+</BODY>
+</HTML>
+

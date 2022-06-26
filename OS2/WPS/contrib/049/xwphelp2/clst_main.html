@@ -1,0 +1,104 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPSCLASSES;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS-Klassenliste
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes for V0.9.0: this has almost completely been rewritten, since we have
+     a separate "WPS Classes" object now. -->
+Das Objekt "WPS-Klassenliste" zeigt die komplette WPS-Klassenliste als 
+hierarchischen Baum mit vielen zus„tzlichen WPS- und SOM-Informationen an. Mit
+diesem Objekt lassen sich sowohl WPS-Klassen registrieren und deregistrieren als auch
+Klassen ersetzen und Ersetzungen rckg„ngig machen, die bereits registriert sind.
+ 
+<!-- V0.9.13: added these 2 lines -->
+<P>Siehe <A HREF="glossary/gls_wpsclasses.html">"WPS-Klassen"</A> fr eine 
+Einfhrung, um was es sich bei WPS-Klassen handelt.
+ 
+<P><B>Achtung:</B> Das Objekt WPS-Klassenliste erlaubt es, nderungen vorzunehmen, die das
+System unbenutzbar machen k”nnen. Wenn Sie die Bedeutung der verschiedenen Klassen nicht
+kennen, oder wenn Sie nicht wissen, wofr WPS-Klassen insgesamt gut sind, sollten Sie hier 
+<I>keine</I> nderungen vornehmen. Sie k”nnen sich alle Informationen ohne Gefahr ansehen,
+sollten jedoch die WPS-Klassen nicht manipulieren, falls Sie nicht genau wissen, was Sie tun. 
+Viele nderungen, die diese Seite erm”glicht, k”nnen Ihr System instabil machen (wenn Sie 
+Glck haben) oder die Workplace Shell berhaupt am Starten hindern, so daá Sie 
+im Endeffekt &os2; neu installieren mssen. <B>Erstellen Sie in jedem Fall eine
+WPS-Sicherung, bevor Sie nderungen vornehmen.</B>
+ 
+ 
+<P>Das Klassenfenster ist in drei Teilfenster unterteilt, deren Teilungsleiste mit der Maus 
+verschoben werden kann.
+ 
+ 
+<P>W„hlen Sie <B>eine Klasse in dem Klassenbaum auf der linken Seite aus</B>, so werden in den 
+beiden Teilfenster auf der rechten Seite zus„tzliche Informationen zu dieser Klasse angezeigt.
+ 
+<OL><LI>In der Ecke <B>oben rechts</B> erhalten Sie WPS-bezogene Informationen, wie den 
+Klassennamen, den Standardtitel (wie er in der dritten Spalte eines Ordners in 
+Detailanzeige angezeigt wird), und den Dateinamen der
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>,
+welche die Klasse enth„lt.
+ 
+<P>Befindet sich diese Klasse im
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>,
+so wird in den meisten F„llen kein zus„tzlicher Pfad
+angezeigt. Das gilt besonders fr die meisten WPS-Standardklassen, welche in 
+<CITE>\OS2\DLL\PMWP.DLL</CITE> enthalten sind.
+ 
+<P>Desweiteren wird das "Standardklassensymbol" angezeigt, welches gew”hnlich 
+in der Klasse fest verdrahtet ist. Es ist das Symbol, welches standardm„áig angezeigt 
+wird, falls fr ein Objekt kein eigenst„ndiges Symbol auf der Seite "Symbol" des 
+Objektes festgelegt wurde.
+ 
+<P>In den meisten F„llen erh„lt man eine kurze Beschreibung der Klasse, wenn
+die ausgew„hlte Klasse dem Autor von &xwp; bekannt ist.
+ 
+<P><LI>In der <B>rechten unteren Ecke</B> werden viele Informationen ber Methoden angezeigt, 
+welche direkt vom SOM-Kernel abgefragt werden (auf welchen die Workplace Shell angewiesen ist,
+um ihre Klassen zu organisieren). Diese Informationen sind wahrscheinlich nur fr 
+WPS-Programmierer von Interesse und der Ausgabe des fabelhaften "RWX"-Werkzeuges sehr „hnlich.
+ 
+<P>Abh„ngig von der oberen Auswahl zeigt dieses Teilfenster entweder alle Instanzenmethoden
+oder Klassenmethoden der gegenw„rtig ausgew„hlten Klasse an.
+ 
+<P>Fr jede Methode erhalten Sie die folgenden <B>Informationen zu Methoden</B>
+(Sie mssen ggf. die Teilungsleiste des Containers verschieben, um alle Felder zu sehen):
+<BR><OL><LI><B>Methodenindex.</B> Dieser wird von SOM intern benutzt, um Methoden gem„á der
+Methodentabellen schnell aufzul”sen. Das ist der Index, in welchem die Methode
+in der Klassen-Methoden-Tabelle abgelegt ist. Beachten Sie, daá die gleiche Methode in
+verschiedenen Klassen nicht unbedingt den gleichen Index hat.
+ 
+ 
+<P><LI><B>Methode.</B> Der Name der Methode.
+<P><LI><B>Adresse.</B> Das ist der Prozedurzeiger, den SOM zurckgegeben hat, als die Methode
+aufgel”st wurde. Dieser Zeiger wird sich natrlich in den verschiedenen Klassen unterscheiden,
+wenn die Klasse eine Methode berschrieben hat.
+<P><LI><B>Klasse.</B> Die Klasse, welche die Methode eingefhrt (als erste definiert) hat.
+<P><LI><B>šberschrieben von.</B> Eine Liste der Klassen, die diese Methode berschrieben haben.
+Zu beachten ist, daá Klassen nur bis zur gegenw„rtig ausgew„hlten Klasse angezeigt werden.
+Falls einige andere nachfahrenden Klassen der gegenw„rtigen Klasse diese Methode berschreiben,
+werden diese nicht angezeigt. W„hlen Sie die nachfahrenden Klassen aus, um diese Informationen anzusehen.
+ 
+</OL><BR>Fr mehr šbersichtlichkeit k”nnen Sie die Informationen ber Methoden nach vier
+verschiedenen Kriterien <B>sortieren</B>.
+Durch einen Rechtsklick in den Titelbereich der Methodenbersicht (dort, wo die Titelspalten
+sind) erhalten Sie ein &popmenu; mit Sortieroptionen. 
+ 
+</OL><B>nderungen</B> an der WPS-Klassenliste k”nnen Sie mit Hilfe der 
+<!-- V0.9.19: link added --> 
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A> durchfhren.
+Klicken Sie mit der rechten Maustaste auf einen Klassennamen im Klassenbaum, so erhalten Sie ein
+&popmenu;, das Ihnen alle erh„ltlichen Optionen fr diese Klasse anzeigt.
+Bestimmte Optionen sind deaktiviert, wenn &xwp; der Meinung ist, daá Sie diese nderungen nicht 
+vornehmen sollten.
+ 
+<P>Klicken Sie mit Maustaste 2 in einen <B>freien Bereich</B> des linken Fensters, erscheint ein
+anderes &popmenu;. Es erlaubt Ihnen, eine neue Klasse zu registrieren.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

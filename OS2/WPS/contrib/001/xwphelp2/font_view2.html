@@ -1,0 +1,65 @@
+<HTML RESID=&ID_XSH_FONTSAMPLEHINTS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Font Metrics
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+In a font object <A HREF="font_view.html">sample view</A>, four different
+metric sets can be displayed, which can each be enabled or disabled
+in the sample view's
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+If all four settings are enabled, each line of the
+font display will look like the following:
+
+<BR><IMG SRC="img/fonthint.gif">
+
+<P>The different metrics sets have the following meaning:
+
+<OL><LI>The red line right right below the "72" characters in the above image is the
+<B>baseline.</B> This is what the characters "sit" on. Most characters will completely
+be painted on top of that line, except those that have "descents" that go below the
+baseline (like the <CODE>g</CODE> and <CODE>y</CODE> characters). All other font
+metrics relate to the baseline. (For programmers: The baseline represents the y
+coordinate to all <CODE>GpiCharString*</CODE> calls.)
+
+<P><LI>The rectangle in light gray on the left of each line (marked with <B>A</B>
+in the above image) represents the <B>maximum ascender</B> of the font (but is really
+larger than that -- see <B>C</B> below). This is the amount of space that the font
+wants to have above the baseline.
+(For programmers: This is contained in the <CODE>lMaxAscender</CODE> field
+of &os2;'s
+<!-- V0.9.20: added links -->
+<A HREF="pmref.inf#fontmetrics"><CODE>FONTMETRICS</CODE></A> structure.)<A HREF="_toolkitlink.html">*</A>
+
+<P>By contrast, the dark gray rectangle (marked with <B>B</B>) represents the
+<B>maximum descender</B> of the font (<CODE>FONTMETRICS.lMaxDescender</CODE>).
+This is the maximum amount that letters like <CODE>g</CODE> or <CODE>y</CODE>
+will go below beyond the baseline (but is really larger than that -- see <B>2</B> below).
+
+<P><LI>The vertical lines in dark gray (marked with <B>C</B>) represent the
+<B>internal leading</B> (<CODE>FONTMETRICS.lInternalLeading</CODE>). This is the
+subpart of the "maximum ascender" (A) which is only ever used as a spacing by the
+font.
+Since for the large majority of fonts the "maximum ascender" value (A) is actually
+much larger than the real maximum ascender in the font, this value can be subtracted
+from the maximum ascender to get the "real" extension of characters above the baseline.
+
+<P><LI>The red rectangles with the diagonal lines (marked with <B>1</B>, <B>2</B>)
+represent the <B>lower case ascent/descent</B>. The <I>PM Programming Reference</I>
+specifies that this is the extent that the tallest lowercase character will go
+above the baseline.
+Since with many fonts some lower-case characters such as <CODE>d</CODE> are actually
+taller than upper-case letters (e.g. in Times New Roman), this should contain the real
+space above the baseline that the font will use.
+
+<P>Unfortunately, this value is wrong with most TrueType fonts.
+This might either be a bug in the FreeType/2 engine or maybe many TrueType fonts
+are badly designed.
+
+</OL>
+</BODY>
+</HTML>
+

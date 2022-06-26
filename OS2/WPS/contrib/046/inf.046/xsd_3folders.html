@@ -1,0 +1,68 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Startup och St„nga av Mapparna
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.81 -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasser: XFldObject, XFldDesktop, XFolder, XFldStartup, XFldShutdown</B><HR>
+<!-- V0.9.0 -->
+&xwp; erbjuder dig separata startup och st„nga av mappar.
+
+<!-- this paragraph inserted with V0.81; changed with V0.9.0 -->
+<P><B>Notera:</B> Startup och st„nga av mapparna skapas inte automatiskt av installationsprogrammet
+f”r att undvika f”rvirring. Var v„nlig och ”ppna <A HREF="sys_1intro.html">"&xwp; Setup"</A>
+objektet f”r att skapa dom manuellt.
+
+<P>Om &xwp; finner <STRONG>&xwp; Startup Mappen</STRONG> vid start av Skrivbordet, kommer den att processa 
+sitt inneh†ll p† ett s„tt som mycket liknar vad WPS sj„lv g”r med sin startup mapp. De viktigaste skillnaderna
+„r:
+
+<UL><LI>Du kan st„lla in en speciell tid mellan vilken &xwp; kommer att v„nta med start av objekten. Den
+konventionella startup mappen leder ibland till problem om du har f”r m†nga objekt i den, vilka normalt
+startas samtidigt, vilket kan leda till att WPS h„nger sig vid starten.
+<!-- V0.9.0: changed the following line -->
+Den h„r f”rdr”jningen kan „ndras i &xwp; Startup mappens eget inst„llningsblock.
+
+<BR><LI>Du kommer att kunna betrakta f”rloppet hos startup i ett separat f”nster
+<!-- V0.9.0: changed the following line -->
+(vilket ocks† kan st„ngas av i &xwp; Startup mappens eget inst„llningsblock, om
+du inte tycker om det).
+
+<BR><LI>Startup kan †ngras n„r det k”rs.
+<!-- V0.9.0: changed the following -->
+
+<BR><LI>Startup kan helt hoppas ”ver genom att h†lla ner "Shift" tangenten under WPS uppstart, 
+vilket g”r att <A HREF="xsd_01intro.html">"Startup panik" dialogen</A> kommer fram.
+
+<BR><LI>&xwp; Startup Mapp processas ocks† efter en omstart av Skrivbordet, medan den vanliga
+startup mappen hos Skrivbordet inte har den funktionen.
+<!-- this paragraph modified with V0.81 -->
+Det h„r g„ller bara om du har kryssat f”r respektive checkbox i "Starta om Skrivbordet" bekr„ftelse dialogboxen.
+
+<BR><LI>&xwp; Startup Mappen har nu (V0.80) en "Startup mapp inneh†ll" menypost vilken till†ter dig
+att l†ta sitt inneh†ll startas „ven efter att WPS „r ig†ng.
+
+</UL> andra sidan, <STRONG>&xwp; St„nga av Mapp</STRONG> kommer att processas f”re Ut”kad avst„ngning
+(och inte f”re en regulj„r avst„ngning). Till skillnad fr†n med Startup Mappen, kan du inte s„tta n†gon
+tidsf”rdr”jning h„r, men &xwp; v„ntar med att starta n„sta objekt innan det aktuella objektet har st„ngts igen.
+Endast om alla objekt startade fr†n St„nga av Mappen har st„ngts, kommer Ut”kad avst„ngning att b”rja.
+
+<P>St„nga av mappen kan vara anv„ndbar om du beh”ver f† vissa program exekverade innan ditt system
+st„ngs av.
+<!-- V0.9.19: removed this (I have no use for this, but apparently many people have.) -->
+Du kan, till exempel, skapa n†gra REXX skript vilka g”r en st„dning f”re avst„ngning, s†nt som att logga av
+fr†n ditt n„tverk, radera TEMP filer, eller vad som helst som du kan komma p†.
+
+<P>F”r b†de &xwp; Startup och St„nga av mapparna, kan du g”ra upp den ordning i vilken objekten startas.
+Detta fungerar p† samma s„tt som beskrivits p† <A HREF="menu_5order.html">respektive sida</A> f”r
+&xwp; Konfigurationsmappar.
+<BR>
+</BODY>
+</HTML>
+
+

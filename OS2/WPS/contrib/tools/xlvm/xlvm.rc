@@ -1,0 +1,82 @@
+
+/*
+ * treesize.rc:
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <os2.h>
+#include "xlvm.h"
+
+POINTER IDP_DRIVE LOADONCALL MOVEABLE DISCARDABLE drive.ico
+POINTER IDP_PARTITION LOADONCALL MOVEABLE DISCARDABLE partition.ico
+
+MENU 1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~File", IDM_FILE, MIS_TEXT
+    BEGIN
+        MENUITEM "E~xit\tAlt+F4",      IDMI_EXIT, MIS_TEXT
+    END
+
+    SUBMENU "~View", IDM_VIEW, MIS_TEXT
+    BEGIN
+        MENUITEM "Bar chart",      IDMI_VIEW_BARCHART, MIS_TEXT
+        MENUITEM "Pie chart",      IDMI_VIEW_PIECHART, MIS_TEXT
+        MENUITEM "", 1, MIS_SEPARATOR
+        MENUITEM "Refresh data",   IDMI_VIEW_REFRESH, MIS_TEXT
+    END
+
+    SUBMENU "~Help", IDM_HELP, MIS_TEXT
+    BEGIN
+        MENUITEM "Product Information", IDMI_HELP_PRODINFO, MIS_TEXT
+    END
+END
+
+MENU IDM_WHITESPACE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Install Boot Manager...", IDMI_INSTALLBMGR
+    MENUITEM "Remove Boot Manager...", IDMI_REMOVEBMGR
+    MENUITEM "Set Boot Manager startup values...", IDMI_SETMGRVALUES
+END
+
+MENU IDM_FREESPACE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Create volume...", IDMI_FREESPACE_CREATEVOLUME
+END
+
+MENU IDM_PARTITION LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Create volume...", IDMI_PARTITION_CREATEVOLUME
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Rename partition...", IDMI_RENAME
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Delete partition...", IDMI_DELETE
+END
+
+MENU IDM_VOLUME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    MENUITEM "Expand volume...", IDMI_EXPANDVOLUME
+    MENUITEM "Delete volume...", IDMI_DELETE
+    MENUITEM "Hide volume from OS/2...", IDMI_HIDEVOLUME
+    MENUITEM "Change volume drive letter...", IDMI_CHANGELETTER
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Rename partition/volume...", IDMI_RENAME
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Set volume startable...", IDMI_SETSTARTABLE
+    MENUITEM "", 1, MIS_SEPARATOR
+    MENUITEM "Add volume to Boot Manager...", IDMI_ADDTOBMGR
+    MENUITEM "Remove volume from Boot Manager...", IDMI_REMOVEFROMBMGR
+END
+

@@ -1,0 +1,43 @@
+<HTML RESID=&ID_XFH_CLOSEVIO;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Close Non-PM Sessions
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.1 -->
+<BODY>
+The "Cannot close ..." dialog appears when &xshutdown; encounters a non-Presentation Manager
+(PM) session. This includes &os2; and DOS text sessions and &winos2; sessions, be they
+full screen or windowed.
+
+<P>Since there is no predefined way of how to close such sessions, &xshutdown; prompts
+for an action here. The following actions are available:
+
+<UL><BR><LI><B>"Skip session"</B> will <I>not close</I> the session, but skip it, as if you
+had pressed the "Skip" button in the &xshutdown; status window.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"Close PM window"</B> will simulate selecting the "Close" menu
+item in the session's system menu. This should work for VIO windows as well as
+full-screen sessions, because the latter session type is also represented by a
+minimized icon on the Desktop. This might however result in yet another
+(regular &os2;) confirmation window whether the session should really be closed.
+
+<BR><LI><B>"Kill session"</B> will kill the session without further discussion.
+This invokes the <CODE>DosKillProcess</CODE> API on the session's process.
+
+</UL>Note that neither of these methods will save the data of the session. If you wish
+to have the data of a certain session saved, save the data of the session's application
+and close the window yourself now, which will
+also cause &xshutdown; to continue.
+
+<P>If the <B>"Store these settings..."</B> flag is checked, &xshutdown; will remember
+the selected action for all future sessions which carry this title. Checking this
+setting will add this session title to the list of auto-close items which are available
+in the <A HREF="xshutdown/xsd_autoclose.html">"Auto-close details" dialog</A> on the "&xshutdown;"
+page in the Desktop's <A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<BR>
+</BODY>
+</HTML>
+

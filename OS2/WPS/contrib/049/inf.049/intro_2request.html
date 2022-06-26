@@ -1,0 +1,108 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Hilfegesuch
+    </TITLE>
+</HEAD>
+<!-- this file is all new with V0.83; -->
+<!-- changed with V0.85 -->
+<!-- Note: I won't recommend to translate this file. The people I'm  -->
+<!-- addressing here need to speak English anyway, so don't bother. -->
+<!-- Simply copy this most current version over your existing one. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+Wenn Ihnen &xwp; gef„llt und Sie dazu beitragen m”chten, ist Ihre Untersttzung h”chst
+willkommen. &xwp; wird langsam zu komplex, um von einer Person allein gehandhabt werden
+zu k”nnen.
+ 
+<!-- V0.9.1: removed this:
+You don't have to be a programmer to help. Support is appreciated in the
+following areas (and others): -->
+ 
+<UL><LI><B>šbersetzungen.</B> &xwp; ist darauf ausgelegt, relativ leicht zu bersetzen zu
+sein. Alle sprachabh„ngigen Teile wurden von der eigentlichen "Intelligenz" des Programms
+in separate Dateien getrennt, die unabh„ngig voneinander bersetzt werden k”nnen.
+<P>Wenn Sie daran interessiert sind, <B>&xwp; in Ihre Sprache zu bersetzen,</B>
+k”nnen Sie einfach die &xwp;-Quellen von meiner Homepage herunterladen, die alles
+dazu notwendige enthalten.
+Sie mssen kein Programmierer sein, um dies tun zu k”nnen, aber es w„re eine groáe
+Hilfe, wenn Sie Grundwissen ber HTML bes„áen, da sowohl das &xwp;-Handbuch als auch
+die Online-Hilfe in HTML erstellt und dann einfach in das IBM-Format konvertiert werden,
+das mir berhaupt nicht gef„llt.
+<P>Nehmen Sie in diesem Fall bitte Kontakt zu mir auf, damit ich Sie zu meiner Mailingliste
+hinzufgen kann, so daá Sie Neuigkeiten ber nderungen rechtzeitig erhalten.
+ 
+<!-- this paragraph removed with V0.85 -->
+<!-- Documentation. I am looking for someone to take over maintenance of -->
+<!-- the XFolder INF and HLP files. It just takes too much time away from programming to -->
+<!-- always have to add documentation while adding new features, and I tend to overlook -->
+<!-- stuff sometimes. This applies especially to the German documentation. -->
+<!-- So if you know German and/or English and HTML, please -->
+<!-- contact me. -->
+ 
+<P><LI>Wenn Sie Programmierer sind und etwas Erfahrung mit <B>PM- und/oder WPS-Programmierung</B>
+haben, nehmen Sie bitte auch Kontakt zu mir auf. Wir haben groáe Pl„ne fr &xwp;s Zukunft,
+<!-- V0.9.1: removed this:
+and would like to turn it into more of an "&xwp;" package -->
+um die offensichtlichsten Einschr„nkungen der WPS, wie es sie heute gibt, zu berwinden.
+Da es wenig Hoffnung gibt, daá IBM irgendetwas daran tut, denke ich, daá die
+&os2;-Community es selbst tun werden muá. Die folgenden gr”áeren Dinge sind geplant:
+<!-- V0.9.1: removed this : (I am not listing the "little" features
+that I'll add myself soon): -->
+ 
+<BR><OL><LI><B>WPS-Dateihandling.</B> Dies ben”tigt eine tiefreichende šberarbeitung. Ich
+kann es nicht fassen, daá sich die WPS jedes zweite Mal aufh„ngt, wenn man mehr als ein
+Dutzend Dateien kopiert. Dateihandling ist die Hauptaufgabe der Shell eines Betriebssystems
+und die momentane Implementierung braucht mindestens die folgenden Erweiterungen:
+Thread-Sicherheit, Geschwindigkeit, vernnftige Statusanzeigen beim Kopieren, eine
+"Abbruch"-Schaltfl„che, die nicht st„ndig deaktiviert ist, aussagekr„ftigere Fehlermeldungen
+etc. pp. Dies macht die šberarbeitung aller WPS-Dateihandling-Methoden erforderlich
+(<CODE>wpCopy</CODE>, <CODE>wpMove</CODE>, etc.).
+ 
+<!-- V0.9.13: removed this
+<P><LI><B>Populating folders.</B> One of the reasons that the WPS
+has become so much slower
+in &warp4; is that the WPS now seems to create object handles for
+every single file while populating a folder, which wasn't the case with Warp 3.
+Object handles are a thoughtful mechanism which is necessary for program objects and
+shadows, but they should only be created when necessary. I suspect this misbehavior
+is situated in <CODE>wpPopulate</CODE>, which therefore needs some rework too.
+-->
+ 
+<P><LI><B>Symbolhandling.</B> Ziehen und šbergeben ber die WPS fhrt immer dazu, daá Symbole
+auf reichlich zuf„llige Weise angeordnet werden. Das sollte verbessert werden.
+ 
+<P><LI><B>WPProgram.</B> Ich habe nie verstanden, warum es ein Objekt fr die globale
+DOS/&winos2;-Konfiguration gibt, wenn die Programmobjekte dessen Einstellungen nicht
+respektieren. Wir brauchen Untersttzung fr globale Einstellungen und auch globale und
+individuelle Umgebungsvariablen in Progammobjekten, so daá die &cfgsys; nicht immer
+ge„ndert werden muá.
+ 
+<P><LI><B>&warpcenter;.</B> Das Ding ist instabil, langsam und entspricht nicht wirklich
+dem Rest der WPS. Dies sollte total neu programmiert werden. Da &xwp; bereits Code
+fr die "Ordnerinhalt"-Mens enth„lt, sollte das nicht allzu schwierig sein.
+ 
+<P><LI><B>Multiuser-Untersttzung.</B> Die WPS ist bereits darauf ausgelegt, durch
+multiple OS2.INI-Dateien und Arbeitsoberfl„chen-Hierarchien multiple Benutzer zu
+untersttzen, deshalb kann ich nicht verstehen, warum IBM dies nicht implementiert.
+&xwp; k”nnte es tun; ich denke darber nach, die Anweisungen PROTSHELL und/oder RUNWORKPLACE
+in &cfgsys; durch ein &xwp;-Executable zu ersetzen, das dann PMSHELL mit einer Reihe
+voreingestellter Umgebungsvariablen startet, am wichtigsten davon w„ren die OS2.INI-Einstellungen
+und eine Unix-„hnliche HOME-Variable, um mehrere Konfigurationen fr Applikationen mit einem
+"home"-Verzeichnis fr jeden Benutzer zu untersttzen. &xwp; sollte dann einen Kontextmeneintrag
+zum "Abmelden" oder etwas in der Art bieten.
+ 
+<P><LI>&os2; sollte auch in der Lage sein, irgendwie den <B>Presentation Manager neu zu starten</B>,
+ohne neu booten zu mssen, beispielsweise um die Bildschirmaufl”sung zu „ndern. Die momentane L”sung
+ist ein Witz. Wenn Sie hierzu irgendwelche Ideen haben, besonders dazu, wie man PM beenden und wieder
+starten kann, ohne das System zu blockieren, nehmen Sie bitte Kontakt zu mir auf.
+ 
+</OL><P>Wenn Sie also daran Interesse haben, eine dieser Funktionen zu &xwp; hinzuzufgen
+(oder wenn sie andere Vorschl„ge haben), sind Sie beim Projekt sehr willkommen!
+Jede Hilfe wird dankend angenommen.
+</UL>
+<BR>
+</BODY>
+</HTML>
+ 
+ 

@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Objekt Detaljer
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 and contains text previously in
+     090settings13objinternals.html -->
+<!-- V0.9.16: replaced all "internals" with "details" strings -->
+<BODY>
+<!-- V0.9.4: added this -->
+Containern "Objekt Detaljer" visar dig massor av interna objektdata vilka du kanske 
+eller kanske inte „r intresserad av. Mycket av det „r egentligen mest intressant f”r
+programmerare.
+
+<!-- V0.9.4: the following is unchanged -->
+<P>Den h„r informationen „r grupperad genom att anv„nda en container tr„dvisning, vilken kan
+anv„ndas p† ett liknande s„tt som en mapps tr„dvisning. Emellertid, huvuddelen av informationen i
+det h„r f”nstret „r <I>l„s-endast,</I> m.a.o. kan du inte „ndra den (undantaget f”r posten "Objekt ID").
+
+<P><B>"Objekthandtag"</B> „r ett femsiffrigt hexadecimalt tal vilket unikt identifierar objektet 
+i ditt system. Abstrakta objekt ges alltid objekthandtag, medan filsystemsobjekt inte n”dv„ndigtvis
+beh”ver tilldelas n†got. Notera att objekthandtag inte kan anv„ndas f”r att identifiera objekt p†
+andra system „n ditt eget: du kan inte, till exempel, anta att "Informations" mappen p† din
+grannes dator kommer att ha samma objekthandtag som ditt eget system. Objekthandtag refererar
+endast till ett objekt p† <I>din</I> dator.
+
+<P><B>"Objekt ID"</B> kanske ocks† existerar p† andra datorer. Objekt ID's har alltid formatet
+<CODE>&lt;OBJECTID&gt;</CODE> och anv„nds f”r att referera objekt utan att beh”va k„nna till var dom
+egentligen finns.
+<!-- V0.9.13: added link -->
+Se <A HREF="glossary/gls_objids.html">objekt ID's</A> f”r en introduktion till objekt ID's.
+
+<P>F„ltet "Objekt ID" kan <B>„ndras</B> genom att klicka p† det med "Alt" tangenten nertryckt.
+Var d„remot f”rsiktig n„r du „ndrar objekt ID's. Vissa program kan vara beroende av speciella ID's.
+
+<P><B>"Objekt stil"</B> tr„det visar dig WPS-interna objektflaggor. Objektstilsflaggan best„mmer
+endast WPS beteende: till exempel, om "kopiera inte" flaggan „r aktiverad, kan du inte drag-kopiera filen
+fr†n WPS. Notera att dessa flaggor normalt „r oberoende av
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">filattribut</A>, m.a.o. ett objekt kan ha "radera inte" flaggan, 
+men kan fortfarande vara m”jligt att radera fr†n kommandoraden.
+
+<P><B>"Objektanv„ndning"</B> tr„det visar dig ytterligare interna objektdata. Detta data „r huvudsakligen
+anv„ndbart f”r programmerare och representerar den information som returneras av 
+<CITE>wpFindUseItem</CITE> metoden.
+
+<P>F”r mappar, l„gger &xwp; ocks† till <B>"Mappdata"</B> tr„det. Det inneh†ller flaggor vilka 
+representerar data returnerat av <CITE>wpQueryFolderFlags</CITE> metoden, till exempel om
+mappen har befolkats eller inte.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,88 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduktion
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasser: XWPSetup, XFldWPS, XFldSystem, XWPClassList</B>
+<HR>
+<!-- V0.9.0: rewritten the following paragraph -->
+Efter att &xwp; har installerats, kommer du att hitta ett antal nya inst„llningsobjekt i 
+din mapp "Systemkonfiguration". ven de flesta nya &xwp; objekten har f†tt 
+n†gra nya extra inst„llningssidor. Detta kan verka n„stan ”verv„ldigande f”rst, men jag 
+f”rs”kte att f”lja en speciell logik n„r jag implementerade alla inst„llningarna.
+<UL>
+<!-- the following two paragraphs are new with V0.9.0 -->
+<P><LI><IMG SRC="xwsetup.gif"> Startande med V0.9.0, introducerar &xwp; ett nytt globalt
+inst„llningsobjekt kallat <B>"&xwp; Setup"</B>. Det har ett antal inst„llningssidor f”r
+att monitorera statusen hos vissa &xwp; interna, globalt aktivera eller avaktivera &xwp;'s
+huvudfunktioner som du kanske eller kanske inte „r intresserad av, och n†gra fler
+inst„llningar f”r probleml”sning.
+<P>Dessa poster „r f”rklarade i detalj n„r du trycker p† "Hj„lp" knappen p† dessa
+nya inst„llningssidor.
+
+<P><LI><IMG SRC="xfwps.gif"> <B>"Workplace Shell"</B> objektet inneh†ller sidorna fr†n
+det gamla "System" objektet vilka endast ber”r Workplace Shell. Jag tyckte inte att dessa 
+riktigt tillh”rde "System" inst„llningar och f”rtj„nade ett separat objekt.
+<P>&xwp; l„gger ocks† till de flesta av sina egna inst„llningssidor h„r, d„rf”r att 
+de p†verkar mest Workplace Shell. Detta „r beskrivet mera i detalj p† sidan
+<A HREF="sys_2global.html">"Globala Inst„llningar"</A> i den h„r referensen.
+
+<!-- V0.9.0: remove this: In this object you will also find the "WPS Classes" page with
+which you may manipulate the WPS class list. You will find an introduction to WPS
+classes on a separate page -->
+
+<!-- the following paragraph is new with V0.9.0 -->
+<P><LI><IMG SRC="xclslist.gif"> Det finns ett annat nytt objekt vilket inneh†ller
+<B>"WPS Klasslista"</B>. Detta fanns p† inst„llningssidan hos "Workplace Shell"
+objektet f”re &xwp; V0.9.0, men den sidan har visat sig vara lite f”r liten f”r att 
+f† plats med all information d„r.
+<!-- V0.9.13: removed link
+See <A HREF="sys_4wpsclasses.html">"The WPS Class List"</A> for more information. -->
+
+<P><LI><IMG SRC="xfsys.gif"> Det nya <B>"&os2; K„rna"</B> objektet inneh†ller dessa sidor
+fr†n det gamla "System" objektet vilket tar hand om &os2;'s interna, t.ex. "Sk„rm" inst„llningarna.
+<P>I det h„r objektet finner du †tskilliga nya inst„llningssidor f”r att „ndra ett antal
+inst„llningar i &cfgsys; filen i rotkatalogen hos din bootenhet. Eftersom dessa inst„llningar „r
+lite sv†rare att komma ih†g och n„r felaktiga inst„llningar i den filen t.o.m. kan leda
+till att &os2; inte bootar n†gon mer g†ng, f”rs”ker &xwp; att hj„lpa dig med att s„tta upp 
+detta automatiskt.
+<P>P† var och en av dessa inst„llningssidor, vilka f”rklaras i detalj p† de f”ljande sidorna,
+kommer du att hitta en knapp som kallas "Uppdatera &cfgsys;" ist„llet f”r de vanliga "ngra"
+och "Standard" knapparna. Tryck p† knappen kommer att orsaka att &cfgsys; filen skrivs ”ver
+i enlighet med de inst„llningar som du „ndrat.
+<P>De olika inst„llningarna f”rklaras mycket detaljerat om du trycker p† <B>"Hj„lp"</B> knappen
+hos en av inst„llningssidorna.
+
+<!-- V0.9.13: removed all this
+Please read the following pages to obtain a general
+introduction of what these settings do with certain parts of the &os2; kernel:
+A HREF="sys_5scheduler.html"The &os2; Scheduler
+sys_6memory.html" &os2; memory management
+ File-system caches
+-->
+
+<!-- V0.9.3: added the following list point and the image -->
+<P><LI><IMG SRC="xwpscreen.gif"> <B>"Sk„rm"</B> inst„llningsobjektet „r nytt med V0.9.3 och
+inneh†ller inst„llningssidorna fr†n det gamla "System" objektet vilket tar hand om sk„rmen.
+Som till„gg, om du har <A HREF="06342intro_pagemage.html">&pgr;</A> aktiverad, kommer †tskilliga 
+inst„llningssidor att infogas h„r f”r att kunna konfigurera &pgr;.
+
+</UL>Det <B>gamla "System" objektet</B> forts„tter att fungera, i de fall andra WPS ut”kare f”rs”ker
+foga in n†gonting hos objektet. S†dana ut”kningar kommer ocks† att upptr„da i det nya "&os2; K„rna" objektet,
+vilket „rver "System" karakt„ristiken.
+<P>Var v„nlig och notera att du b”r inte ”ppna det gamla "System" objektet och ett av de nya objekten tillsammans
+f”r att „ndra inst„llningar. Inst„llningssidorna „r inte f”rberedda f”r det, och det kan r”ra till 
+WPS inst„llningarna.
+<!-- the following added with V0.9.0 -->
+<P>Ytterligare inst„llningssidor kan hittas i notb”ckerna med inst„llningar f”r varje mapp, Skrivbordet,
+<A HREF="xsd_3folders.html">&xwp; startupmappen</A>, och <A HREF="file_2trashcan.html">&xwp; papperskorgen</A>.
+
+<BR>
+</BODY>
+</HTML>
+
+

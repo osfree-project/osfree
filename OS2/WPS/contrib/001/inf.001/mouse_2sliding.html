@@ -1,0 +1,72 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Sliding Focus
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Classes: XWPSetup, XWPMouse</B>
+<HR>
+&xwp;'s "sliding focus" feature is very similar to that offered by many
+other PM hooks.
+
+<P>Basically, this feature means that the keyboard input focus always follows
+the mouse pointer. That is, if you move the mouse, the window under the mouse
+pointer will be given the input focus (which means that also the title bar will
+be made active).
+
+<P>This behavior is very common with the various window managers running on the
+X-Window windowing system used with the many flavors of UNIX, and Linux has
+inherited this also. Since many people prefer to have this behavior
+with &os2; too (including myself), this has been included with &xwp;.
+
+<P>This feature can be <B>configured</B> in the "Mouse" object, which usually
+resides in your "System Setup" folder. On the "Movement" page in that object,
+there are several settings. Press the "Help" button on that page to find out more.
+
+<P><B>Note:</B> That page is only visible if the XWPMouse class is installed
+and the &xwp; hook has been enabled in
+<A HREF="sys_1intro.html">"&xwp; Setup".</A>
+
+<P>The main advantage of this feature is that for one, you don't have to click
+into a window to be able to use the keyboard with it. Also, if you have disabled
+the "Bring window to top" setting on the "Mouse hook" page, you can even type
+into a window which is not the topmost window, which is impossible without the
+"Sliding focus" feature. This takes a bit of getting used to, but this can be
+very handy when several windows are opened and you need to view one window's
+information while typing into another.
+
+<P><B>Notes</B>
+
+<OL><LI>There's no way to make this feature work properly
+with <B>seamless &winos2; windows.</B> The 16-bit Windows graphics engine
+(Graphical Device Interface, GDI) is not
+capable of differentiating between a "topmost" and an "active" window; it simply
+assumes that the topmost window must always be the active one.
+This limitation applies to seamless &winos2; windows also, which use the 16-bit
+Windows graphics engine internally.
+
+<P>For this reason, there is a special setting on the "Movement" page in the
+"Mouse" settings notebook for &winos2; windows. You can either decide to always
+bring &winos2; windows to the top, or to ignore them completely. It is however not
+possible to make them active without bringing them to the top.
+Otherwise you'd get really strange repainting errors on your screen,
+because the GDI would repaint an active &winos2; window completely even if other windows
+are on top of it (because it assumes it must be the topmost window).
+
+<P>Of course, full-screen &winos2; sessions are not affected by &xwp; in any
+way, because the &xwp; PM hook does not deal with &winos2; fullscreen sessions.
+
+<P><LI>While the <B>PM window list</B> (or tasklist) is showing on the screen, the
+sliding focus feature is temporarily disabled. This is necessary because the window
+list automatically disappears when it loses the keyboard focus. If the sliding focus
+weren't disabled while the window list is showing, it would become difficult to do
+anything with the window list at all, because it would kept disappearing if the mouse
+pointer was not over it.
+
+</OL>
+</BODY>
+</HTML>
+
+

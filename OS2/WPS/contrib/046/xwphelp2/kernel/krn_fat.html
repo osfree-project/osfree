@@ -1,0 +1,190 @@
+<HTML RESID=&ID_XSH_SETTINGS_HPFS;>
+<HEAD>
+    <TITLE>
+        &xwp;: FAT Inst„llningar
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     -- V0.81: Added /UL tag at bottom which was missing.
+     -- V0.9.2: changed title; also see notes below.
+-->
+P† <!-- V0.9.2: removed this: "HPFS" and -->
+"FAT" sidan i objektet "&os2; K„rna" kan du „ndra 
+&cfgsys; inst„llningarna som p†verkar
+<!-- V0.9.13: replaced the following -->
+FAT filsystemet.
+
+<!-- V0.9.13: changed these 3 lines -->
+<P>F”r en introducerande information om filsystem, v„lj fr†n f”ljande lista:
+<UL><LI><A HREF="glossary/gls_fs.html">Filsystem</A>
+<LI><A HREF="glossary/gls_caches.html">Filsystem cacher</A>
+
+</UL>Den h„r hj„lpsidan kommer endast att f”rklara de olika inst„llningarna 
+och relatera dom till
+<!-- V0.9.7: changed the following -->
+parametrarna hos <CODE>DISKCACHE</CODE> kommandot i &cfgsys; filen.
+
+<!-- V0.9.7: replaced this
+If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective chapters
+of the &os2; Command Reference. -->
+
+<!-- V0.9.7: added this line -->
+<P>Se <A HREF="cmdref.inf#diskcache">dokumentationen</A> i
+<I>&os2;'s Kommandoreferens</I> f”r detaljer.
+
+<P>Tryck <B>"Verkst„ll"</B> f”r att f† de „ndringar du gjorde skrivna till
+&cfgsys; filen. Detta kommer endast att „ndra de &cfgsys; rader vilka korresponderar
+till inst„llnngarna p† denna sida. De rader som korresponderar till de andra sidorna 
+i "&os2; K„rna" objektet kommer inte att „ndras. Var v„nlig notera att du m†ste starta 
+om datorn f”r att l†ta „ndringarna f† effekt. En omstart av Skrivbordet „r <I>inte</I>
+tillr„cklig.
+<P>Tryck <B>"Optimera"</B> f”r att f† &xwp; att f”resl† nya inst„llningar i enlighet med
+ditt systems karakt„ristik. &cfgsys; kommer att „ndras bara om du tryckt "Verkst„ll" ocks†.
+<P>Tryck <B>"Standard"</B> f”r att f† &os2;'s standardinst„llningar visade p† 
+notbokssidan. &cfgsys; kommer att „ndras bara om du tryckt "Verkst„ll" ocks†.
+
+<!-- V0.9.2: removed this
+On the "HPFS" page you will find a setting called "HPFS installed".
+If you do not have any HPFS drives, you can save several hundred KB of memory by
+deactivating this setting, which will not load the driver HPFS.IFS at
+system startup. If &xwp; has detected HPFS drives on your system, this setting
+is deactivated to prevent accidents.
+
+On both settings pages you'll find the following settings:
+
+
+and added the following line:
+-->
+
+<P>Den h„r sidan till†ter dig att st„lla in f”ljande FAT inst„llningar:
+
+<UL><LI><B>Cache storlek</B> best„mmer hur m†nga KB av huvudminnet som kommer att reserveras f”r
+cache hos respektive filsystem. Detta korresponderar till &cfgsys; parametern
+<!-- V0.9.2: removed this
+/CACHE:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+
+<CITE>DISKCACHE=xxx</CITE> f”r FAT enheter.
+<!-- V0.9.20: rewrote this -->
+<P>Den maximala cachestorleken f”r FAT volymer „r 14440 KB.
+
+<!-- V0.9.5: changed the following -->
+<P>Du kan beg„ra att &os2; <B>automatiskt</B> skall best„mma cachestorleken. I de flesta fall, 
+kommer detta att resultera i omkring 10% av det installerade minnet, men i allm„nhet, anv„ndning 
+av den inst„llningen rekommenderas inte.
+
+<!-- V0.9.5: moved the following text to a separate file -->
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Se <A HREF="glossary/gls_caches.html">"Filsystem cacher"</A> f”r en introduktion till
+filsystemscacher i allm„nhet.
+
+<BR><LI>Inst„llningen <B>"Endast filer mindre „n"</B> best„mmer (i KB) den maximala storleken av
+objekten som skall sparas i cacher. Detta korresponderar till
+<!-- V0.9.2: removed this
+the &cfgsys; parameter
+/CRECL:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and -->
+den andra parametern i <CITE>DISKCACHE=xxx</CITE> f”r FAT 
+<!-- V0.9.20: replace drives with volumes -->
+volymer. Den h„r inst„llningen antas hindra stora filer vilka normalt endast laddas en g†ng fr†n
+att rensa hela cachen. Emellertid, standardv„rdet p† 4 KB „r alldeles f”r l†gt. Det rekommenderas
+att st„lla v„rden f”r b†da filsystemen till 32 KB. (&xwp; kommer automatiskt att konvertera 
+FAT v„rdet till den sektorstorlek som f”rv„ntas i &cfgsys;.)
+
+<BR><LI>Inmatningsf„ltet <B>"Autocheck"</B> korresponderar till
+<!-- V0.9.2: &cfgsys; parameter
+/AUTOCHECK:xxx in the IFS=?:\OS2\HPFS.IFS command for
+HPFS drives and the -->
+
+<CITE>/AC:xxx</CITE> parametern i <CITE>DISKCACHE=xxx</CITE> f”r FAT
+<!-- V0.9.20: replace drives with volumes -->
+volymer. H„r kan du best„mma f”r vilka
+<!-- V0.9.20: replace drives with volumes -->
+volymer &os2; automatiskt kommer att utf”ra en
+<CITE>CHKDSK</CITE> vid systemstartup.
+<P>Ange helt enkelt respektive enhetsbokstav h„r (utan inledande "<CITE>:</CITE>").
+&os2; kommer att kontrollera varje enhet som du specifierade h„r vid systemstartup om du 
+inte har st„ngt ner ditt system ordentligt. Om du specificerade ett plustecken 
+("<CITE>+</CITE>") <I>f”re</I> en enhetsbokstav h„r, kommer den enheten alltid att bli 
+kontrollerad, vilket inte „r ”nskv„rt.
+<P>Exempel: Om du anger "<CITE>C+DE</CITE>", kommer enhet D: alltid att bli kontrollerad,
+medan C: och E: endast blir det om det „r n”dv„ndigt.
+
+
+<!-- V0.9.2: removed this
+
+For HPFS drives, the auto-check is absolutely necessary because accessing "dirty"
+HPFS partitions will result in system errors. You should enter all your
+HPFS drives here because &os2; will print error messages at startup otherwise. This
+applies especially to your boot drive, or &os2; will refuse to boot altogether if you
+forgot to shut down or the system crashed.
+For FAT drives, auto-check is not obligatory though.
+
+and added the following line: -->
+
+<P>Till skillnad fr†n HPFS enheter, „r f”r FAT <!-- V0.9.20: replace drives with volumes -->
+volymer, auto-kontroll inte n”dv„ndig.
+
+<P>Tryck p† knappen <B>"F”resl†"</B> f”r att f† alla <!-- V0.9.2: HPFS or -->
+FAT <!-- V0.9.20: replace drives with volumes -->
+volymer p† ditt system tillagda p† inmatningsf„ltet.
+
+<BR><LI><B>"Lazy write"</B> inst„llningen best„mmer om &os2; „r till†ten att f”rdr”ja
+skrivning av data till disk.
+<!-- V0.9.13: replaced the following with a link -->
+Se <A HREF="glossary/gls_caches.html">"Filsystem cacher"</A> f”r en f”rklaring.
+
+<P>Den h„r inst„llningen korresponderar till
+<!-- V0.9.2: the parameter
+/LAZY:x in the command RUN=?:\OS2\CACHE.EXE for HPFS drives
+and the parameter -->
+<CITE>LW</CITE> i kommandot <CITE>DISKCACHE</CITE> f”r FAT <!-- V0.9.20: replace drives with volumes -->
+volymer. Som standard, „r lazy writing till†ten.
+
+<!-- V0.9.2: removed all the following, which is related to HPFS caching only
+
+For HPFS drives you may influence lazy writing in a more detailed way.
+The following values all belong to the line RUN=?:\OS2\CACHE.EXE,
+which can optionally be written into &cfgsys; (and will always be written
+if you let &xwp; modify your &cfgsys;).
+
+The "Maximum delay" setting corresponds to the
+/MAXAGE:xxx parameter and determines the maximum time that data may be
+held back in the caches before
+it will be queued for being written to disk.
+The default value is 5.000 milliseconds; several sources recommend
+to raise this to more than 7.000 milliseconds.
+Since increasing this value also increases the
+risk of data loss, you should only set this value much higher if you never experience
+any system crashes. Note that if you shut down your system or press Ctrl+Alt+Del,
+all the cache buffers are written to disk, so there's no danger here. "System crashes"
+in this context mean complete system halts or power failures which will cause
+a CHKDSK at the next bootup.
+The "Cache idle time" and "Drive idle time" settings together
+determine the write delay in relation to drive activity. These settings
+correspond to the /BUFFERIDLE:xxx and /DISKIDLE:xxx
+parameters. There seems to be much confusion about these settings, and the explanation
+in the &os2; Command Reference really leaves you even more confused.
+The best explanation I've found for this is from
+IBM in the Toolkit documentation:
+
+When no disk request has been made for the time specified with "Drive idle time",
+i.e. a disk has not been accessed for that time, all cache blocks that
+have not been modified for the time specified with "Cache idle time"
+will we written to disk. As a result, raising
+these two numbers will increase the chance that redundant disk accesses can be avoided.
+
+Some sources recommend raising both of these values to as much as 60.000 milliseconds;
+however, IBM also recommends that the "Disk idle time" value be set greater than the
+"Cache idle time" value, which, in my view, makes sense, because otherwise some cache
+areas might not be written at all.
+The default values for these are 1000 and 500 milliseconds,
+respectively.
+-->
+
+</UL>
+</BODY>
+</HTML>
+

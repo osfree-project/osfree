@@ -1,0 +1,42 @@
+<HTML RESID=&ID_XSH_FONTOBJECT;>
+<HEAD>
+    <TITLE>
+        &xwp;: Font Objects
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+An &xwp; "font object" represents a <A HREF="objects/obj_fontfile.html">font file</A>
+which is currently installed.
+Such a font object can only appear in the open
+<A HREF="objects/obj_fontfdr.html">Fonts folder</A>.
+
+<P><B>Note:</B> In this context, the term "font" refers to a <B>font face,</B>
+which is physically represented by a font file.
+For most fonts, each font family is represented by several faces. For example, for the
+"Times New Roman" family, you will have four font files (one for "Regular", "Bold",
+"Italics", and "Bold Italics", respectively). Only if no face is found for a certain
+format (for example, if you want bold text in a word processor, but no bold face exists
+for the current font), &os2; will imitate bold and italic formats in its own graphics
+engine, which in most cases will look quite ugly.
+
+<P>Even though most applications (and the standard &os2; font dialog as well) will only
+enumerate the various font family name and automatically find the correct font file for
+a format that has been selected, the Fonts folder will list all installed faces
+separately. You can see the respective families in the Fonts folder's details view however.
+
+<P>You can <B>install fonts</B> into the system by
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dragdrop.html">dragging</A>
+<A HREF="objects/obj_fontfile.html">font files</A> and dropping them into an
+open Fonts folder. Reversely, you can
+<B>uninstall a font</B> by selecting "Uninstall" from a font object's &popmenu;, after
+you have opened the Fonts folder.
+
+<P>Font objects have a special "Sample" view, which is opened when you double click
+on a font object. See <A HREF="font_view.html">Font sample view</A> for details.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XSH_RUN;>
+<HEAD>
+    <TITLE>
+        &xwp;: K”r kommando
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+&xwp; "K”r" dialog till†ter dig att snabbt k”ra ett kommando i den specificerade 
+startup-katalogen.
+
+<!--V0.9.16: added UL LI etc -->
+<UL><LI>I det <B>”versta inmatningsf„ltet,</B> anges kommandot som skall k”ras. Du kan specificera
+vilken som helst EXE, COM, eller CMD exekverbar fil. Om filen finns i din 
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A>,
+beh”ver du inte ange filens fulla s”kv„g, men du kan g”ra det om du vill.
+
+<P>Dialogen underh†ller en historik ”ver de 20 senaste exekverbara som angetts.
+Som till„gg, kan du anv„nda <B>"S”k"</B> knappen i botten f”r att leta efter
+en fil i &os2;s standard "Arkiv ”ppna" dialog.
+
+<P>Under tiden som du anger din s”kv„g, kommer du att notera att &xwp; validerar
+din inmatning. "OK" knappen kommer endast att bli aktiverad om den exekverbara filen
+hittades. Om s†, visar &xwp; alldeles under det ”vre h”gra inmatningsf„ltet, den
+exekverbara filen som kommer att k”ras n„r du trycker p† OK.
+
+<P><LI>Med <B>checkboxarna</B>, kan du som option specificera om den exekverbara skall
+startas minimerad eller om den skall st„ngas automatiskt vid avslutning. Detta har 
+bara effekt p† textbaserade sessioner.
+
+<P>Som till„gg, om du har angett en exekverbar &winos2; fil, kommer checkboxarna
+i <B>&winos2;</B> inst„llningarna att bli aktiverade. Detta till†ter dig att
+specificera huruvida en exekverbar &winos2; skall startas i ut”kat l„ge och/eller i
+en separat &winos2; session.
+
+<P><LI>I det nedersta inmatningsf„ltet, kan du ocks† specificera en <B>arbetskatalog.</B>
+Om den „r specificerad, kommer &os2; att „ndra till den katalogen innan programmet
+exekveras. Det kan vara n”dv„ndigt om den exekverbara filen erfordrar access till
+filer i sin egen katalog och den katalogen inte finns i 
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>PATH</CODE></A>
+eller
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>.
+Om ingen katalog „r specificerad, kommer rotkatalogen p† din bootenhet att anv„ndas.
+
+</UL>
+</BODY>
+</HTML>

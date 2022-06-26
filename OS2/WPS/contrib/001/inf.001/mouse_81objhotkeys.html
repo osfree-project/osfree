@@ -1,0 +1,45 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Object Hotkeys
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+<B>Classes: XFldObject, XWPSetup, XWPKeyboard</B>
+<HR>
+Starting with V0.9.0, &xwp; also introduces "object hotkeys", which means
+that you can open any object in its default view by pressing a certain hotkey
+combination, which you can define individually for each object.
+
+<P>As with all &xwp; hook features, object hotkeys are disabled per default.
+You need to enable them in the "&xwp; setup" object first.
+
+<P><B>Note:</B> Do not confuse object hotkeys with
+<A HREF="fldr_5xelerators.html">folder hotkeys,</A> as
+displayed in the "Workplace Shell" settings object. Object hotkeys are
+used to open objects using a key definition and work everywhere, while folder
+hotkeys are shortcuts to certain folder commands and work in folders only.
+
+<P>Object hotkeys can be <B>configured</B> in two places. For one, &xwp; inserts
+a new "Object" page into each single <B>object's settings notebook.</B> This applies
+to really all objects (that is, folders, files, printers, program objects, etc.).
+By clicking into the "Hotkey" entry field, you may define a key combination for
+that object. From then on, if you press this key combination anywhere on your system,
+the object will be opened in its default view (as if you had double-clicked on it).
+
+<P>Secondly, &xwp; inserts a new page into the <B>"Keyboard" settings object,</B>
+which per default resides in your "System Setup" folder. On this new page, which
+is called "Hotkeys" for some reason, all currently defined object hotkeys are
+listed.
+
+<P>There are some <B>limitations</B> with respect to object hotkeys. Since hotkey
+detection is done in the &xwp; PM hook, object hotkeys only work in the
+Presentation Manager (PM) screen session. This includes all PM applications, the
+WPS itself, plus windowed (seamless) &os2;, DOS and &winos2; sessions,
+but <I>not</I> DOS, &os2; or &winos2; <I>fullscreen</I> sessions, unfortunately.
+<BR>
+</BODY>
+</HTML>
+
+

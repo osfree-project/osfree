@@ -1,0 +1,57 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Extended File Associations
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.1. -->
+<!-- Note the new screenshot below. -->
+<BODY>
+&xwp; can replace the default Workplace Shell file associations mechanism.
+<!-- V1.0.1 (2002-12-15) [umoeller] replaced this -->
+To use them, enable the <a href="fldr_30turbo.html">"Turbo folders"</a> feature on the "Features"
+page of the <A HREF="sys_2global.html">"&xwp; Setup"</A> object.
+
+<P>As you probably know, per default the WPS associates programs to data files
+using two mechanisms: "associations by file type" and "associations by file filter".
+
+<P>If &xwp;'s extended file associations are enabled, you will <I>only</I> have
+associations by file type.
+
+<P><I>However,</I> since most files do not have an explicit file type set (which can
+be done on the "Type" page in a file's settings notebook), &xwp; will automatically
+assign file types to file objects according to file filters. This way you get the best
+of both worlds (file types and file filters) in a more logical way.
+
+<P>So what is this good for?
+
+<P>For one, I have found the standard WPS association mechanism slightly awkward if
+associations are added according to both file filters and file types. The new
+approach is more logical in this sense.
+
+<P>Secondly, and most importantly, &xwp; allows you to define
+<B>file type hierarchies.</B> For example, there are many file types which are
+really "plain text" files also (for example, "C Code" or "HTML" files), so any editor
+which can read "plain text" should be able to read those file types also.
+
+<P>Until now, you had to associate the same editor to all those file types.
+With &xwp;, you can now define any type to be a "sub-type" of "plain text",
+and that sub-type will <B>inherit</B> the associations defined for the parent type.
+
+<P>This can be done on the new "File types" page in the
+<A HREF="sys_2global.html">"Workplace Shell" object</A>
+(if extended associations have been enabled):
+
+<P><IMG SRC="filetypes.gif">
+
+<P>To define file type hierarchies, simply <B>drag and drop</B> the file types
+in the "File types" tree onto another file type.
+&xwp; allows you to <B>import</B> your old file filters into the new
+associations. To do this, right-click into the "Filters" field and select
+"Import".
+
+<BR>
+</BODY>
+</HTML>
+
+

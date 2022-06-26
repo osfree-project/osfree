@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Arbetstr†d Prioritet
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.9: changed the following -->
+Skjutregeln till†ter dig att st„lla in standard
+<A HREF="glossary/gls_workerthr.html">"Arbetstr†d"</A> prioritet.
+<!-- end V0.9.9 -->
+
+<P>Arbetstr†den startas vid starten av Skrivbordet med den prioritet som du
+specificerar h„r. Inst„llningen till†ter dig att specificera antingen "ledig" 
+prioritet med ett prioritetsdelta p† 0, eller "ledig" med ett delta p† +31, eller "regulj„r" 
+prioritet med ett delta p† 0.
+
+<!-- V0.9.13: changed the following 2 lines -->
+<P>Se <A HREF="glossary/gls_scheduler.html">"Processer och tr†dar"</A> f”r mer information
+om tr†dprioritet.
+
+<P>Notera att den h„r inst„llningen endast specificerar <I>standard</I> prioritet hos Arbetstr†den.
+Om &xwp; m„rker att Arbetstr†den inte f†r tillr„cklig processortid, kommer dess prioritet att
+”kas automatiskt fr†n tid till annan. Se
+<A HREF="setup/xset_p_prtybeep.html">"Pip vid prioritets„ndring"</A> f”r mera.
+
+<P>F”r de flesta „ndam†l, b”r du l„mna den h„r inst„llningen med standardv„rdet, vilket
+„r "ledig +31". Detta till†ter Arbetstr†den att utf”ra sina uppgifter i bakgrunden utan 
+att m„rkbart s„nka prestandan hos interfacet. Emellertid, om du flitigt k”r processer 
+vilka belastar din CPU h†rt (det inneb„r, att din CPU last alltid „r 100% beroende p† att, 
+t.ex. vissa Windowsapplikationer k”rs), kanske du vill st„lla in v„rdet till "regulj„r".
+
+<!-- V0.9.13: updated page name -->
+<P>Du kan utv„rdera den aktuella prioriteten hos Arbetstr†den p† sidan "Tr†dar".
+<BR>
+</BODY>
+</HTML>
+

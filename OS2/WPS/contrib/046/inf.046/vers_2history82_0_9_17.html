@@ -1,0 +1,47 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.17
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.17 (February 5, 2002)</B>
+
+<P>Miscellaneous changes:
+
+<UL><LI>Added setting to XWPSetup "Features" page for whether &xwp; should check
+the desktop's integrity on startup, since so many people had problems with it.
+Added a corresponding flag to the "Panic" dialog also.
+
+</UL>Bugfixes:
+
+<UL><LI>&xwp;'s "Check desktop" feature would report a broken desktop even if
+only a single handle in the file-system handles table was broken. Instead,
+&xwp; now gives you a different warning for that, allowing you to display the
+"Panic" dialog instead and run xfix from there.
+
+<P><LI>After the dialog that popped up to tell &xwp; about the Desktop's location,
+the Desktop would be opened, but the XFldDesktop class replacement would not be
+enabled at all. Fixed; all &xwp; features work in that case too.
+
+<P><LI>Programs: Object data was never saved if the program object had no
+program data, causing the "---" separators in the config folder to never save
+their titles. Fixed.
+
+<P><LI>XCenter: Daemon crashed if "Hide on click" was enabled and hook wasn't active.
+Fixed.
+
+<P><LI>XShutdown: Paul Ratcliffe fixed XShutdown to no longer hang with an empty
+message box on his system.
+
+<P><LI>xfix: If the handles table was broken, xfix didn't start but only displayed
+a cryptic error message. Fixed, hopefully.
+
+</UL>
+</BODY>
+</HTML>
+

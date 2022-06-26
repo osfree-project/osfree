@@ -1,0 +1,107 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 1.0.4
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+Bugfix release off the 1.0 branch and a few simple new features.
+"Bug #" numbers refer to the official XWorkplace bugtracker at
+<a href="http://xtracker.netlabs.org">http://xtracker.netlabs.org</a>.
+
+<P><B>&xwp; 1.0.4 (November 15, 2005)</B>
+
+<P>
+
+Bugfixes:
+
+<UL><LI>An annoying benign error box sometimes appeared complaining about sessions not
+being started in the foreground. The 'error' is now ignored. Bug 635.
+Fixed by Paul Ratcliffe.
+
+<P><LI>Disabling the XWP Hook with an active XCenter Window List widget caused endless traps.
+Bug 526. Fixed by Paul Ratcliffe.
+
+<P><LI>Fixed folder status bar colours which defaulted to Black on Grey rather than following
+the settings from the currently selected scheme. Fixed by Paul Ratcliffe.
+
+<P><LI>XShutdown now closes Workarea folders first, preventing problems with dependent objects
+being closed first and thus not reopening when the WPS restarts. Bug 273.
+
+<P><LI>Choosing "Split view" as a view for a WPHost object caused a trap. Bug 530.
+Fixed by Paul Ratcliffe.
+
+<P><LI>XShutdown now disables HPFS's Lazy Writer automatically when shutting down the system.
+Bug 404. Fixed by Paul Ratcliffe.
+
+<P><LI>Upgrading from eWP to XWP now preserves eWP's settings rather than using the default
+XWP settings. Bug 644. Fixed by Paul Ratcliffe.
+
+<P><LI>The Cancel button on the System Startup dialog did nothing while processing Quick Open Folders.
+Bug 460. Fixed by Paul Ratcliffe.
+
+<P><LI>The Cancel button on the XShutdown Folder progress dialog caused a Shutdown to occur
+rather than cancelling the rest of the procedure.
+Bug 402. Fixed by Paul Ratcliffe.
+
+<P><LI>Using the XPager hotkeys to switch desktops didn't restart the "Flash to top" timer
+after the first switch. Fixed by Paul Ratcliffe.
+
+<P><LI>Default font was wrong for DBCS versions of OS/2.
+Bug 655. Fixed by Bart van Leeuwen.
+
+<P><LI>The GB and gB displays in folder status bars were too large by a factor of
+1024 and 1000 respectively. Fixed by Paul Ratcliffe.
+
+<P><LI>Opening the context menu for a Drive object would generate an XWP exception beep,
+which was caused by an incompatibility with MCP FP5. Fixed by Paul Ratcliffe.
+
+<P><LI>Volume changes of System Sounds were not always reflected unless changing schemes or
+rebooting.
+Bug 31. Fixed by Bart van Leeuwen.
+
+<P><LI>On DBCS systems, the text in tooltips was truncated on the last character/word.
+Bug 676. Fixed by Bart van Leeuwen.
+
+<P><LI>Menu text was missing when enabling the "Include sticky toggle in system menus"
+option. This resulted in a "String resource 8000 not found in module 0x0" menu entry.
+Bug 389. Fixed by Bart van Leeuwen.
+
+<P><LI>"Display Recovery Choices at each system startup" flag and the associated timeout
+options were missing from Desktop Archives properties.
+Bug 471. Fixed by Bart van Leeuwen.
+
+<P><LI>NLS Settings are now fetched from the Locale object on MCP/ACP/ECS systems.
+Bug 614. Fixed by Bart van Leeuwen.
+
+<P><LI>"Create Another" menu option was not enabled for XWorkplace Startup Folder objects.
+Fixed by Paul Ratcliffe.
+
+</UL>
+<P>
+
+New Features:
+
+<UL><LI>Objects created by the "Create New" function now have their entire title text
+selected, allowing easy overtyping.
+Added by Paul Ratcliffe.
+
+<P><LI>Treesize and Xfix are now NLS enabled.
+Added by Christian Hennecke.
+
+<P><LI>The Sentinel widget now has a Properties dialog to enable the user to set fonts and
+colours.
+Added by Christian Hennecke.
+
+<P><LI>Drivers tab in the OS/2 Kernel object can now show help from the drivers database
+provided with the freeware ConfigTool application.
+Added by Christian Hennecke.
+
+</UL>
+</BODY>
+</HTML>
+

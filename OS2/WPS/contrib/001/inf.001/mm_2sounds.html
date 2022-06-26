@@ -1,0 +1,43 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        New System Sounds
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Classes: XFolder, XFldDesktop</B><HR>
+If you have the &os2; multimedia subsystem (MMPM/2) with any sound card installed,
+&xwp; can play additional system sounds on certain occasions, just as
+older XFolder versions did already.
+
+<P>If you enable the "Extended system sounds" in
+"&xwp; Setup", &xwp; will add new events to the "Sound" page in the
+"Sound" object.
+
+<P>Please note that the &xwp; system sounds will make your system slower, just
+as the regular system sounds do too. Even on my Pentium-133 with 32 MB RAM, this is
+noticeable, even though &xwp; uses a separate thread to play its sounds.
+
+<P>Configuring these new sounds is not too spectacular: &xwp; just adds a few
+more items to the events list box on the "Sounds" page.
+All the &xwp; items start with "&xwp;", so you'll be able to view them grouped
+together.
+
+<P>You can find a few small sounds in the <CODE>WAV</CODE> subdirectory of
+the &xwp; installation directory to get you started. <CODE>;-)</CODE>
+
+<P><B>Implementation.</B> To introduce these features, several components of
+&xwp; are interacting. To intercept system events for the new system sounds,
+the XFolder and XFldDesktop classes need to be installed. However, the new
+XWPSound class replacement (see the <A HREF="mm_1sndobj.html">previous page</A>)
+is not required for the new system sounds. That class only makes configuration easier.
+
+<BR>
+</BODY>
+</HTML>
+
+
+
+

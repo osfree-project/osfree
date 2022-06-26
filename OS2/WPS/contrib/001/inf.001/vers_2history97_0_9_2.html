@@ -1,0 +1,93 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.2
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.2 (March 24, 2000)</B>
+<P>New features:
+<UL><LI>Incorporated "&pgr;", virtual desktops.
+<P><LI>Automatic menu selection, even with configurable delay for submenus (as in Win95).
+Added second "Movement" page to "Mouse" object for this.
+<P><LI>New "Screen" settings object, which has those "System" settings pages dealing
+with the screen. The "Screen" page from "OS/2 Kernel" has been moved to that object now.
+<P><LI>Added "Syslevel" page to "OS/2 Kernel".
+<P><LI>Trash can now automatically calculates the total size if a folder has been deleted,
+including subdirectories.
+<P><LI>Added meaningful file operations error messages. Drives support is finally
+respected for deleting objects to the trash can.
+<P><LI>XSHUTDWN.EXE has been added again. Seems to work.
+<P><LI>Added "delay" setting for APM power off to "&xshutdown;" page.
+<P><LI>Added hotkey description display in context menus.
+
+</UL>Miscellaneous changes:
+<UL><LI>"Shutdown" menu item now has the "d" shortcut, which doesn't conflict with
+"Properties".
+<P><LI>Further optimized hook logic for speed.
+<P><LI>Changed all &xwp; object IDs to start with &lt;XWP_xxx&gt; to avoid conflicts
+with old XFolder versions.
+<P><LI>The configuration folder is no longer automatically created at startup because
+this lead to problems on some systems. Use the "Objects" page in "&xwp; setup"
+to create it manually.
+<P><LI>Updated the "&xwp;" sub-config folder a bit.
+<P><LI>&xwp; settings objects had a "Create another" menu item, which doesn't make
+sense. Removed that.
+<P><LI>Rearranged controls on "File" page a bit.
+<P><LI>Added "?:\xwplog.log" file for &xwp; warnings. If this file exists, you
+might have a problem.
+<P><LI>Increased stack space for all additional &xwp; threads.
+<P><LI>Removed context-sensitive help upon pressing F1 on some notebook pages.
+Now we'll always show the help for the entire page first.
+
+</UL>Bugfixes:
+<UL><LI>Warp 3 detection didn't work, leading to wrong default settings and messy
+dialogs when &xwp; was run under Warp 3. Fixed.
+<P><LI>Fixed a minor notebook mutex error.
+<P><LI>"Archive" status window was displayed even if this was turned off. Fixed.
+<P><LI>"Subject" field on first "File" page was limited to 36 characters. Changed this
+to 260, even though the IBM docs say this isn't so. Thanks, Mike Reichel, for counting
+the characters.
+<P><LI>Added thread-safety checks to internal folder contents enumerations.
+<P><LI>With folders, "Object" page would appear between the two "Icon" pages. Fixed.
+<P><LI>Using work area folders would lock the WPS hard when objects in the folder were
+re-opened. Fixed.
+<P><LI>Removed static view field from folder view structure (SUBCLASSEDLISTITEM).
+Now rechecking folder view every time this is needed because this might change.
+<P><LI>Deleting the configuration folder would take to a lot of WPS-internal crashes
+the next time a folder context menu was opened. Fixed.
+<P><LI>Drives were checked for readiness even if "Replace drive not ready dlg" was
+disabled. Fixed. If a drive cannot be opened now, disable that setting.
+<P><LI>There was a heap allocation error with the XWPSetup object on object creation,
+sometimes leading to system hangs. Fixed.
+<P><LI>"Features" page "Undo" and "Default" buttons created duplicate records. Fixed.
+<P><LI>XFldDisk and XFldShutdown items were checked in the "&xwp; classes" dlg
+even if those classes were not installed. Fixed.
+<P><LI>Automatically creating the trashcan via "Features" works now.
+<P><LI>The trash can now displays the "File exists" dialog correctly when a file exists
+in the trash can already.
+<P><LI>Converting settings from XFolder led to some problems. Fixed.
+<P><LI>Menu buttons (e.g. the "Partitions" button) displayed a menu even if disabled. Fixed.
+<P><LI>The bitmap which was created with the "Details" chart was never freed (baaaad
+PM resource leak). Fixed.
+<P><LI>The "Auto-hide mouse pointer" checkbox on the "Mouse movement" page wasn't
+working. Another (static) control on the page had the same dialog item ID. %$õ%!, I hate
+that. Took me half an hour to figure out.
+<P><LI>Mouse-button-3 scrolling didn't work horizontally when vertical scroll bar was disabled in a window. Fixed.
+<P><LI>Fixed Netscape hangs with MB3 scrolling when the scroller changed while being
+scrolled.
+<P><LI>Fixed some other minor quirks with MB3 scrolling.
+<P><LI>Many hook features were triggered even though the mouse was currently captured by an application
+or the system. This could lead to severe system hangs, especially with "show window list everywhere".
+Fixed.
+<P><LI>"Hot corners" desktop menu sometimes conflicted with "sliding focus" because
+the focus was immediately given back to the window under the mouse. Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

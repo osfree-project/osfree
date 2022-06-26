@@ -1,0 +1,126 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Fragen zu &xshutdown;
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL>
+ 
+<LI><B>Warum funktioniert bei meinem System der automatische Systemneustart nicht?</B>
+<P>Ich weiá es nicht, bei manchen Systemen funktioniert er einfach nicht, z.B. bei meinem
+Warp 3 mit FixPak 35, aber er funktioniert bei meinem Warp 4. Ich habe den Grund hierfr
+nicht herausfinden k”nnen, aber einige andere Anwender haben auch davon berichtet, und das
+Problem taucht auch bei der Systemneustartfunktion des WarpEnhancer auf, deswegen denke ich,
+<!-- V0.9.6: changed the following line -->
+daá es nicht an &xwp; liegt. (Die Systemneustart-Funktion nutzt sowieso einen undokumentierten
+IOCtl-Aufruf von <CODE>DOS.SYS</CODE>, also gibt es keine Garantie von IBM, daá dies immer
+funktioniert.) Wenn Sie den IBM BootManager installiert haben, k”nnen Sie das Problem umgehen,
+indem Sie <CITE>SETBOOT.EXE</CITE> als Anwenderoption beim Systemneustart angeben
+(Einstellungsnotizbuch der Arbeitsoberfl„che -> "XShutdown"
+-> "Aktionen bei Systemneustart").
+ 
+<P><LI><B>Gibt es Dinge, die von &xshutdown; nicht ordnungsgem„á abgespeichert werden?</B>
+<P>Ja. &xshutdown; speichert die Positionen von Ordnern, die sich kurz bevor &xshutdown;
+aufgerufen wurde ge„ndert haben, nicht ab, da die WPS das Abspeichern der Ordnerpositionen
+in irgendwelchen Hintergrundthreads <I>verz”gert</I>, zu denen ich keinen Zugang gefunden
+habe, und das Format der Ordnerpositionseintr„ge in OS2.INI ist undokumentiert, weswegen ich
+es nicht selbst durchfhren kann. Das gleiche gilt fr Ordner, die von &xshutdown; selbst
+geschlossen werden. Wenn Sie wollen, daá die Ordnerpositionen gesichert werden, schlieáen
+Sie sie selbst und warten ein paar (etwa 10-20) Sekunden, bevor Sie &xshutdown; starten.
+<P>(Mit "Ordnerpositionen" meine ich die Position eines ge”ffneten <I>Ordnerfensters</I>
+selbst, nicht die Positionen der Symbole in einem Ordner. Diese werden ordnungsgem„á
+gesichert.)
+<P>Auch kann &xshutdown; an der Fensterliste vorgenommene Modifikationen (z.B. darauf
+gezogene Schriftarten oder Farben) nicht sichern. Wenn diese nderungen gesichert werden
+sollten, mssen Sie einmal den regul„ren &os2;-Systemabschluá benutzen.
+ 
+<P><LI><B>Warum erhalte ich dauernd Fehlernachrichten, w„hrend die INI-Dateien gesichert werden?</B>
+<!-- the following added with V0.9.0 -->
+<!-- completely rewritten with V0.9.6 -->
+<P>Dies ist eine der beliebtesten Fragen und das Problem hat sich ber mehrere Releases ge„ndert.
+<UL><LI>Bei frheren Versionen <B>vor XFolder 0.85</B> wurde es meistens durch INI-Schlssel verursacht,
+die keinerlei Daten enthielten, was nicht vorkommen sollte. Das wurde schon vor langer Zeit behoben.
+<P><LI>Viele Personen berichten immer noch, daá diese Fehler ziemlich zuf„llig auftreten, auch bei
+INI-Schlsseln, die tats„chlich Daten enthalten. Ich konnte dies schlieálich soweit zurckverfolgen,
+daá es bei recht groáen INI-Dateien auftaucht. Ich habe den Verdacht, daá es sich um ein Problem
+mit dem PM selbst handelt, da die <CODE>WinGetLastError</CODE> API
+regelm„áig <CODE>PMERR_MEMORY_ALLOCATION_ERR</CODE> zurckgibt, was in der PM-Referenz
+lapidar als "Ein Fehler im Speichermanagement ist aufgetreten." beschrieben wird.
+Ich glaube, daá der PM bei groáen INI-Dateien keinen shared memory mehr hat, der fr
+das Management der INI-Dateien erforderlich ist. Die Grenze, oberhalb derer die Fehler aufzutreten beginnen,
+h„ngt davon ab, wieviel shared memory auf dem jeweiligen Rechner bereits verbraucht wird, aber sie liegt
+gew”hnlich weit ber 1 MB pro INI-Datei.
+<P><B>Vor V0.9.5</B> verwendete &xwp; grunds„tzlich PrfOpenProfile, um eine neue INI-Datei anzulegen
+(jeweils fr die Anwender- und System-INI-Datei)
+und ging dann alle Anwendungen und Schlssel im Profil durch und kopierte diese einfach.
+Dies verursachte schon einigen Streá im shared memory Management des PM.
+<P>Es half, die Gr”áe der INI-Dateien zu reduzieren. šbrigens versagte nicht nur &xshutdown;
+bei diesen INIs, sondern auch andere Anwendungen, die die Anwender- und Systemprofile byteweise
+kopieren (ich habe es einmal mit WPSBackup ausprobiert, das einfach abstrzt).
+<P>Um die Gr”áe der INIs zu reduzieren, sollten Sie zuerst einmal CHECKINI (aus Henk Kelders
+WPTOOLS-Paket) laufen lassen, damit alle ungltigen Eintr„ge entfernt werden.
+Zus„tzlich k”nnen Sie einen INI-Editor verwenden, um die folgenden Schlssel, die sehr groá
+werden k”nnen, per Hand zu l”schen <I>(ziehen Sie ein Backup Ihrer INIs, bevor Sie dies tun):</I>
+<UL><LI><CODE>PM_Abstract:Icons</CODE>: dieser beinhaltet alle Symbole fr abstrakte Objekte.
+Durch das L”schen dieses Schlssels verlieren Sie alle anwenderdefinierten Symbole fr abstrakte
+Objekte, aber in vielen F„llen sind die Daten darin redundant, da z.B. Programmobjekte
+das Symbol der ausfhrbaren Datei sowieso standardm„áig verwenden.
+<LI><CODE>PM_Workplace:FolderPos</CODE>: dieser beinhaltet die Fensterpositionen aller Ordner,
+die jemals von der WPS ge”ffnet worden sind, sogar wenn ein Ordner das letzte mal vor fnf Jahren
+ge”ffnet wurde. Sie verlieren alle Ordnerpositionen, wenn Sie diesen Schlssel l”schen, aber
+abgesehen von vielleicht einem Dutzend Ordnern sollte dies akzeptabel sind, und diese
+k”nnen Sie schnell wieder in die gewnschte Form bringen.
+</UL>
+<LI>Mit <B>V0.9.5</B> schrieb ich die Routinen neu, so daá die PM-APIs nicht l„nger zur Erzeugung
+neuer Profile benutzt werden. Da Carsten Arnold mir das Dateiformat der
+INI-Dateien mitgeteilt hat, habe ich eine Reihe Routinen geschrieben, welche diese schreiben, ohne
+shared memory zu verwenden. Offensichtlich hat dies geholfen. Dies ist die "neue Methode", die man
+nun auf der Seite "&xshutdown;" des Einstellungsnotizbuches der Arbeitsoberfl„che ausw„hlen kann.
+</UL>
+<!-- the following Q added with V0.9.4 -->
+<P><LI><B>Nach Benutzung von Xhutdown wird der Bildschirm beim n„chsten Systemstart auf VGA zurckgesetzt
+und ich erhalte einen Dialog, der aussagt, daá die Arbeitsoberfl„che nicht gefunden werden konnte. Was geschieht hier?</B>
+ 
+<P>Hierbei handelt es sich um das gleiche Problem, wie es in der vorangehenden Frage beschrieben wurde. Offensichtlich
+sind Ihre INI-Dateien nicht ordnungsgem„á gesichert worden. Als Ergebnis kehrt &os2; zu den Standardwerten fr
+den Bildschirm zurck und kann die Arbeitsoberfl„che nicht finden.
+ 
+<P>Falls dies passiert, finden Sie Sicherungskopien der beiden Dateien OS2.INI und OS2SYS.INI in Ihrem
+\OS2 Verzeichnis, die zu .BAK umbenannt wurden. Bevor &xshutdown; die INI-Dateien abspeichert, benennt es die alten
+um. Starten Sie das System zu einer Befehlszeile (durch Verwendung von Alt-F1 beim Start) und benennen Sie diese
+zwei Sicherungskopien wieder in *.INI um.
+<!-- the following is unchanged -->
+ 
+<P><LI><B>Warum funktioniert das Abschalten per APM bei meinem System nicht?</B>
+<!-- V0.9.13: rewrote this -->
+<P>Ich weiá es nicht. Bei manchen Systemen funktioniert es einfach nicht. Ich bin mir ziemlich sicher, daá
+es nicht &xwp;s Schuld ist, da &xwp; nichts anderes tut, als den
+<CODE>APM.SYS</CODE>-Ger„tetreiber aufzurufen, wonach es keine Kontrolle mehr darber hat, was der
+Treiber macht, um das System abzuschalten.
+<P>IBM hat die APM-Untersttzung mit Warp 4 Fixpak 6 (und m”glicherweise
+auch neueren) aktualisiert. Die Seite "&xshutdown;" im Einstellungsnotizbuch der Arbeitsoberfl„che
+zeigt die Versionsnummer des installierten APM-Treibers an, die mindestens
+1.2 betragen sollte, damit das Abschalten per APM funktioniert.
+<P>Was noch schlimmer ist: Es gibt viele Systeme, deren BIOS keine 100%ig kompatible APM-Untersttzung bietet,
+und daran kann es natrlich auch liegen.
+ 
+<P><LI><B>Das Abschalten per APM funktioniert, aber beim n„chsten Systemstart l„uft CHKDSK.</B>
+ 
+<P>Auch hier kann &xwp; nicht viel daran „ndern. Bei meinem Laptop treten diese CHKDSK-L„ufe
+auch auf, obwohl es bei meinem Desktoprechner gut funktioniert.
+Anscheinend wartet <CODE>APM.SYS</CODE> nicht lange genug darauf, das Festplatten mit groáem Cache
+diesen auf die Platte zurckschreiben k”nnen, bevor das System vom Netz getrennt wird.
+Dies scheint ein allgemeines Problem zu sein, worber ich auch in Verbindung mit Win95 gelesen habe, weswegen
+Sie in solchen F„llen APM wahrscheinlich ganz deaktivieren werden mssen.
+<!-- end V0.9.13 -->
+</OL>
+</BODY>
+</HTML>
+ 
+ 
+ 

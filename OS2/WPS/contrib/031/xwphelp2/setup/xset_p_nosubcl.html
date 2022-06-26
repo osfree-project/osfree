@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Uitschakelen van alle map subclassing
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes in this file:
+     V0.81:
+        -- Updated the list below which &xwp; items don't work
+           without subclassing.
+     V0.9.0: see notes below
+-->
+Met deze instelling kunt u &xwp; laten weten dat er geen mappen gesubclassed moeten worden.
+<P><B>Belangrijke opmerking:</B> Veel van &xwp;'s mogelijkheden zijn afhankelijk van map subclassing.
+Het inschakelen van deze instelling zal &xwp; zijn mogelijkheden sterk beperken. Deze instelling is
+alleen bedoeld als een "laatste strohalm" in het geval dat &xwp; niet goed werkt op uw systeem.
+<P>Het inschakelen van deze instelling zal automatisch de volgende &xwp; mogelijkheden uitschakelen:
+<UL><LI>Map sneltoetsen;
+<BR><LI>Automatisch schuiven Boomstructuren;
+<BR><LI>de
+<!-- V0.9.19: link added -->
+<A HREF="menus/menu_content.html">map inhoud menu's</A>;
+<BR><LI>map status balken;
+<BR><LI>map en menu systeemgeluiden.
+
+</UL>Alleen mappen die geopend zijn nadat deze instelling aangepast is zullen veranderen.
+<!-- V0.9.0: added the following phrase -->
+Dat wil zeggen, subclassing van mappen die momenteel geopend zijn zullen niet ongedaan gemaakt worden.
+Specifiek de Werkplek (wat ook een map is) zal niet veranderen. Als u
+ernstige problemen ervaart met &xwp;, dient u opnieuw op te starten of de WPS te herstarten.
+
+<P><B>Uitgebreide verklaring:</B>
+
+<P>Zoals u wellicht weet, in &os2; (en ook Windows), communiceren vensters via "berichten"
+om elkaar op de hoogte te brengen van bepaalde gebeurtenissen.
+Het basis besturingssysteem gebruikt ook berichten om vensters op de hoogte te brengen van
+bepaalde gebeurtenissen. Bijvoorbeeld, telkens wanneer u de muis verplaatst of klikt met de muis of
+een toets indrukt, krijgt een venster daarvan een notificatie bericht zodat het daarop kan reageren.
+<P>Nu, "subclassing" is een erg krachtige mogelijkheid van &os2;. Het biedt een programma de mogelijkheid
+om berichten voor een bepaald venster of venster class te onderscheppen en daardoor het venster
+anders te laten reageren. &xwp; gebruikt deze mogelijkheid overal voor, bijvoorbeeld om toetsenbord
+berichten te onderscheppen voor mappen. Dit is de manier waarop de map sneltoetsen werken: als &xwp; een
+toetsenbord bericht onderschept heeft en vaststelt dat er een sneltoets voor gedefinieerd is,
+wordt de betreffende map actie uitgevoerd.
+<!-- V0.9.0: rewritten the following -->
+<P>Subclassing kan echter tot problemen leiden, als meerdere programma's proberen een venster
+te subclassen en niets van elkaar weten. Bijvoorbeeld, de WPS gebruikt subclassing zelf intensief
+(wat niet erg goed gedocumenteerd is), en WPS uitbreiders anders dan &xwp; (b.v. Object Desktop)
+implementeren sommige van hun mogelijkheden ook op deze manier.
+Helaas, er is geen algemeen "register" wat informatie zou kunnen bieden over welke programmatuur
+welke vensters gesubclassed heeft, dus kan &xwp; niet achterhalen wat andere programma's gedaan
+hebben.
+<P>
+Dus als u het gevoel heeft dat er iets niet goed gaat, dan kunt u &xwp; vertellen om andere
+map vensters met rust te laten.
+<BR>
+</BODY>
+</HTML>
+

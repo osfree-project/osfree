@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Verwijderen ingangen
+    </TITLE>
+</HEAD>
+<BODY>
+U kunt bestandsingangen verwijderen van de ingangen tabel door het "Verwijderen" onderdeel
+te selecteren van het &popmenu; dat verschijnt wanneer u met muistoets 2 op ingangen in de
+tabel klikt.
+
+<P>Voor ieder ingang die op deze manier is verwijderd, worden alle volgende knooppunten
+naar voren gehaald in de ingangen tabel in <CODE>OS2SYS.INI</CODE>
+en hun ingang in het scherm wordt verwijderd.
+
+<P><B>Waarschuwing:</B> xfix beschermt u niet tegen het verwijderen van ingangen die nodig
+zijn om de WPS te laten werken.
+U moet alleen een ingang verwijderen als u weet dat deze niet gebruikt wordt.
+Het verwijderen van ingangen kan een stevige inbreuk betekenen op (programma objecten,
+positie van maps of zelfs op de complete Werkplek). Zie
+<A HREF="xfix_handles.html">Over WPS bestandsingangen</A> voor meer informatie over
+hoe ingangen in WPS worden gebruikt.
+
+<P>U moet speciale aandacht schenken aan de "Refcs." kolom in de
+<A HREF="xfix_list.html">ingangen lijst</A>:
+
+<UL><LI>als er onbenoemde objecten worden gevonden voor een ingang (gemarkeerd met
+<CODE>ABS</CODE>), zal xfix ze, zonder verdere aanduiding, verwijderen uit de
+<CODE>PM_Abstract:FldrContent</CODE> in <CODE>OS2.INI</CODE>.
+Bovendien, voor ieder onbenoemd object, wordt zijn definitie in
+<CODE>PM_Abstract:Objects</CODE> verwijderd.
+
+<P>M.a.w., <B> dit treft alle onbenoemde objecten in die map.</B>
+
+<P>Dit is nodig omdat als de onbenoemde objecten niet worden vernietigd, zij
+vroeg of laat zullen verschijnen in andere mappen zo gauw als de WPS
+de verwijderde ingang weer gebruikt voor een nieuwe map. Dit is redelijk aannemelijk.
+
+<P><LI>Het verwijderen van ingangen met gekoppelde map posities (gemarkeerd met
+<CODE>FPOS</CODE>) is desondanks niet gevaarlijk. xfix zal simpel de corresponderende ingang
+ongedaan maken in <CODE>PM_Workplace:FolderPos</CODE>, die nergens meer toe dient.
+
+</UL>Merk op dat deze twee de enige ingangen zijn die xfix kan detecteren op dit moment.
+xfix kan op dit moment niet bepalen of de ingang op het ogenblik het doel is van een programma
+object of schaduw of wat dan ook.
+M.a.w., als het "Refcs" veld leeg is, <B>betekent het niet dat verwijderen van de ingangen
+zaken kapot zal maken</B>
+
+<P>Houd in gedachten dat het selecteren van "Verwijderen" de <CODE>OS2SYS.INI</CODE>
+niet direct zal bijwerken.
+Dit gebeurt alleen als u "Terug schrijven naar OS2SYS.INI" selecteert in het xfix
+<A HREF="xfix_menus.html">menu.</A>
+Met als resultaat, dat als u per ongeluk de verkeerde ingang verwijderd heeft, u nu niet
+uw systeem heeft geru‹neerd ...... u kunt xfix opnieuw opstarten om het nogmaals te proberen.
+
+<P>Voor het gebruik van "Terug schrijven...", weet zeker dat dan het volgende waar is:
+
+<UL><LI>u heeft een werkende WPS backup in het geval er iets mis gaat.
+<P><LI> De WPS is momenteel niet actief. U bent veilig als u <CODE>RUNWORKPLACE</CODE>
+heeft gewijzigd in uw &cfgsys; bestand of als u xfix heeft gestart vanuit &xwp;'s "Paniek"
+dialoog gedurende het starten van de Werkplek.
+
+</UL>Als u op deze wijze ingangen verwijdert, zullen de volgende velden in de
+<A HREF="xfix_list.html">ingangen lijst</A> wijzigen:
+
+<UL><LI>De <B>node offset</B> van alle onderdelen zal na elk verwijderd onderdeel worden
+herschreven omdat zij naar voren zijn verplaatst in de ingangen tabel.
+B.v., als u de ingang van offset 1000 verwijderd en de volgende ingang erna
+had de offset 1030, zal de tweede ingang in plaats daarvan de offset 1000 hebben.
+
+<P><LI>Alle ingangen die de verwijderde ingang gebruikten als ouder ingang
+(en ook hun subingangen) zullen als "bronloos" worden gemarkeerd en ongeldig zijn.
+
+<P>Dit kan ook worden gebruikt om snel ook deze sub-onderdelen te verwijderen, als u
+naderhand "Selecteer alle ongeldige" gebruikt.
+
+<P><LI>Als u een duplicaat ingang verwijdert, zal het <B> Dups</B> veld ook worden aangepast.
+
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,73 @@
+<HTML RESID=&ID_XFH_AUTOCLOSEDETAILS;>
+<HEAD>
+    <TITLE>
+        Automatisch Sluiten van niet PM Sessies
+    </TITLE>
+</HEAD>
+<BODY>
+In deze dialoog kunt u bepalen of niet PM
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_sessions.html">sessies</A> automatisch gesloten worden
+tijdens een Werkplek herstart of bij Uitgebreid Afsluiten en welke methode gebruikt zal worden om ze af te sluiten.
+
+<P>Let op dat wat u hier ook opgeeft het alleen betrekking heeft op niet PM sessies; PM vensters
+zullen nooit afgesloten worden door de hier opgegeven methodes.
+
+<P>"Niet PM sessies" is de term die gebruikt wordt voor alle sessies die niet bestuurd worden
+door de Presentation Manager, b.v. &os2; en DOS tekstmode sessies in een VIO venster of in
+volledig scherm mode als ook &winos2; sessies.
+<!-- V0.9.20: added this -->
+Zie <A HREF="glossary/gls_sessions.html">Session types</A> voor meer informatie.
+
+<P>De instellingen die u hier opgeeft zullen de "Automatisch sluiten van niet PM sessies" instelling
+negeren van de Werkplek zijn hoofd notitieblok pagina.
+
+<P>Om de afsluit methode op te geven voor een specifieke sessie, dient u de volgende stappen uit te voeren:
+
+<OL><LI>Druk op de <B>"Nieuw"</B> knop om een nieuw onderwerp te maken, die initieel "???" zal heten.
+
+<BR><LI>Voer de <B>naam</B> in voor de sessie welke u wenst in te stellen voor het respectievelijke
+invoerveld. U moet de naam van de sessie exact invoeren, zoals het in de &os2; taakoverzicht te zien is
+(of VIO vensternaam), dus de beste manier om dit te bereiken is om de sessie te openen
+en dan de naam te reproduceren in het invoerveld.
+
+<P>U mag echter de naam afkorten, en de sessie naam vergelijking tijdens het Afsluiten of
+Werkplek herstart is niet hoofdlettergevoelig.
+
+<P>Hier is een voorbeeld: als u de sessie genaamd
+<CITE>"&os2; window (CMD.EXE)"</CITE> wilt sluiten,
+mag u ofwel <CITE>"&os2;"</CITE>, <CITE>"os/2 venster (cmd.exe)"</CITE>
+ofwel <CITE>"&os2; WiNdOw"</CITE> invoeren. Al deze mogelijkheden zullen werken.
+U zult echter wel meer dan enkele karakters moeten invoeren, want anders zou &xshutdown;
+uw instellingen wel eens kunnen toepassen op een andere sessie die dezelfde eerste karakters heeft.
+
+<BR><LI>U kunt dan kiezen wat &xshutdown; net de sessie zou moeten doen:
+
+<UL><BR><LI><B>"Sla sessie over"</B> zal de sessie <I>niet sluiten</I>, maar overslaan, alsof u
+op de "Overslaan" knop gedrukt had in het &xshutdown; status venster.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"Sluit PM venster"</B> zal het kiezen van de "Sluit" menu optie simuleren
+vanuit de sessie zijn systeem menu. Dit zou moeten werken voor VIO vensters als ook
+volledige scherm sessies, want dit laatste type wordt ook weergegeven door een
+verkleind pictogram op de Werkplek. Dit kan echter resulteren in weer een (normale &os2;)
+bevestigingsvenster of de sessie wel of niet echt afgesloten moet worden.
+
+<!-- V1.0.0: removed the ctrl+c stuff -->
+
+<BR><LI><B>"Forceer sessie"</B> za; de sessie forceren te sluiten zonder verdere discussie.
+Dit voert de
+<!-- V1.0.0: added link -->
+<A HREF="cpref.inf#DosKillProcess"><CODE>DosKillProcess</CODE></A>
+<!-- V1.0.0: added link -->
+API uit op het sessie proces.<A HREF="_toolkitlink.html">*</A>
+
+</UL>Let op dat geen van deze methodes de gegevens van die sessie zal opslaan. Als u wilt
+dat de gegevens van een bepaalde sessie opgeslagen moeten worden, dan moet u zijn naam niet invoeren in
+deze dialoog, en u zult ook "Automatisch sluiten van niet PM sessies" niet geactiveerd moeten hebben op
+de Werkplek zijn hoofd notitieblok pagina.
+</OL><BR>
+
+</BODY>
+</HTML>
+

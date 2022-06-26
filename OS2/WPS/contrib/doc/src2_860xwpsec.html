@@ -1,0 +1,112 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Security
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+<B>Note:</B> XWorkplace Security is currently a construction site and only built if the
+<CODE>XWPSECURITY</CODE> <A HREF="src1_32env.html">environment variable</A> is set.
+
+<P>XWorkplace Security (or XWPSec, in short) is supposed to become a framework and an
+implementation for implementing local security on any OS/2 system. "Local security"
+means that access control is enforced not only for network resources (which is what
+a server does before passing out files etc. to a network client), but for any resources
+that any running process tries to access.
+
+<P>In this context, "resources" are mostly files and directories. In the future, this
+might be extended to include printers and other hardware as well.
+
+<P>If you have ever run Linux, you know that you have to log on before you can do anything
+with the system. This is what XWPSec does as well. The current implementation consists
+of the following:
+
+<OL><LI><CODE>XWPSEC32.SYS</CODE>, a 32-bit ring-0 device driver which enforces access
+control together with XWPShell. This requires OS/2 Security Enabling Services (SES) to
+be installed. If you have an <CODE>\OS2\SECURITY</CODE> directory on your hard disk,
+you have SES installed already. Otherwise run "Selective install" (and reinstall fixpaks).
+
+<P><LI>"XWPShell", a wrapper around (and starter for) <CODE>PMSHELL.EXE</CODE>, the
+WPS process. If this program is installed in <CODE>CONFIG.SYS</CODE> by changing
+<CODE>SET RUNWORKPLACE=...XWPSHELL.EXE</CODE>, you will get a logon dialog after the
+system has started up and PM has initialized.
+
+<P>After entering a valid username and password, XWPShell will start the WPS, which can
+be different for each user. This is done by changing the user profile (normally
+<CODE>OS2.INI</CODE>), using <CODE>PrfReset</CODE>.
+
+<P>XWPShell is really much more than a shell. It also communicates with the ring-0 driver
+and maintains access control lists (ACLs) and logged-on users. For details, see below.
+
+</OL>(Remark: With XWPSec, SES is <I>only</I> used with <CODE>XWPSEC32.SYS</CODE>.
+If you are familiar with SES, note that XWPShell does not use SES Logon Shell Services (LSS).
+In other words, XWPShell serves neither as an SES System Logon Authority (SLA) nor as a
+User Identification Authority (UIA). This entire funtionality has been rewritten with
+XWPShell becaues SES caused way too many problems. As a result, the <CODE>SECURE.SYS</CODE>
+text file in <CODE>\OS2\SECURITY\SESDB</CODE> is not used either.)
+
+<P>So how does this work?
+
+<P>Basically, with OS/2, local security can be implemented by passing the OS/2 kernel
+a table of "callouts", which are really hooks into the kernel. After the driver has
+loaded, a number of <CODE>Dos*</CODE> API calls can be intercepted and, if desired,
+rejected by the driver. For example, when an application calls <CODE>DosOpen</CODE>,
+the driver can return <CODE>ERROR_ACCESS_DENIED</CODE>, and the application will not
+be given access to the file.
+
+<P>Of course, the driver needs to know when an application is supposed to gain access
+to a resource. Since it is not a good idea to maintain access control lists (ACL's) at
+ring-0, but we should rather keep the ring-0 code to a minimum, the driver communicates
+with a ring-3 daemon thread in <CODE>XWPSHELL.EXE</CODE> to find out whether access should
+be granted or denied.
+
+<P>This basically works as follows:
+
+<OL><LI>When XWPShell is started as the last step of <CODE>CONFIG.SYS</CODE> processing,
+it initializes PM. It then starts a new thread (the "ring-3 daemon thread")
+and contacts the ring-0 driver to tell it that access control should
+be enforced from now on. (Until then, all access requests are granted to make sure none
+of the processes started through <CODE>CONFIG.SYS</CODE> fail.)
+
+<P>Together with the call into the driver, the daemon thread passes a block of memory
+which is needed for exchanging data with the driver.
+
+<P>(Of course, XWPShell also displays the logon dialog and starts the WPS, but this is
+another issue.)
+
+<P><LI>The driver blocks the ring-3 daemon thread. To the daemon thread, it just looks
+like it has made a function call into the driver which can take a very long time.
+
+<P><LI>When an access request (e.g. <CODE>DosOpen</CODE>) is intercepted by the driver,
+which is then running at task time of the process which issued the call,
+the driver unblocks the ring-3 daemon thread and passes it information about the
+access request. To the daemon, this looks like the function call returns, and the data
+buffer passed to the driver has been filled with information about the access request.
+
+<P><LI>The ring-3 daemon thread then looks up the user ID and group ID for the process
+on which the driver was called. XWPShell maintains a list of all running processes and
+associates a user ID and group ID with each of them. As a result, each process can have
+different access rights.
+
+<P><LI>The ring-3 daemon thread then looks up whether the user on whose behalf the process
+is running is allowed to gain access to the resource (e.g. file or directory). For example,
+for opening a file for writing, the user needs write access to both the file and the
+directory in which the file resides. XWPShell maintains access control lists for each
+directory and/or file, and it does this in Unix style.
+See <CODE>src\XWPShell\acldb.c</CODE> for an introduction.
+
+<P>If no information for the user ID is found, XWPShell searches again with the group
+ID of the user.
+
+<P>If no information for the group ID is found either, XWPShell denies access.
+
+<P><LI>The ring-3 daemon in XWPShell calls back into the driver with the result of the
+access check, which is returned to the OS/2 kernel as <CODE>NO_ERROR</CODE> or
+<CODE>ERROR_ACCESS_DENIED</CODE>. The ring-3 daemon thread is then blocked again
+until the next request comes in. Go back to 3.
+
+</OL>
+</BODY>
+</HTML>
+

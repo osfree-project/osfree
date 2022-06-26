@@ -1,0 +1,6 @@
+
+XWorkplace/WarpIN Coding Conventions
+
+Please see CodingConventions.txt in the "xwphelpers" repository.
+
+

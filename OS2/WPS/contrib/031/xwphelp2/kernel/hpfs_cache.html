@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: HPFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+De onderdelen in de <B>"Buffer"</B> groep bepalen hoeveel KB van het
+hoofdgeheugen gereserveerd zal worden voor de HPFS buffer van het
+respectievelijke bestandssysteem.
+Dit komt overeen met de <CODE>/CACHE:xxx</CODE> parameter in de
+HPFS.IFS opdrachtregel.
+
+<P>De maximale buffer grootte voor HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes is 2048 KB, wat niet echt veel is.
+
+<!-- V0.9.5: changed the following -->
+<P>U kunt er om vragen dat &os2; <B>automatisch</B> de buffer grootte bepaald.
+In de meeste gevallen zal dit resulteren in ongeveer 10% van het ge‹nstalleerde
+geheugen, maar het is niet aan te raden om deze instelling te gebruiken.
+
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Zie <A HREF="glossary/gls_caches.html">"Bestandssysteem buffers"</A> voor een introductie
+in bestandssysteem buffers in het algemeen.
+
+<P>De instelling <B>"Buffer onderdeel drempel"</B> bepaald (in KB) de maximale
+grootte van objecten die opgeslagen zullen worden in de buffers. Dit komt overeen met de
+<CODE>/CRECL:xxx</CODE> parameter in de HPFS.IFS opdrachtregel.
+
+Deze instelling is bedoeld om te voorkomen dat grote bestanden, die normaliter slechts eenmalig geladen worden,
+de hele buffer opslokken.
+Echter, de standaard waarde van 4 KB is veel te laag. U kunt veilig 32 KB opgeven of
+hier zelfs het maximum van 64 KB.
+<BR>
+</BODY>
+</HTML>
+
+

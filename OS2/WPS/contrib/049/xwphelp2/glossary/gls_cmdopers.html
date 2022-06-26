@@ -1,0 +1,135 @@
+<HTML HIDDEN RESID=9005>
+<HEAD>
+    <TITLE>
+        &xwp;: Befehlsoperatoren und Umleitung
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Befehlsoperatoren sind besondere Zeichen, die von den Befehlsinterpretern
+als eigene Befehle anstelle von normalen Zeichen aufgefaát werden.
+Diese Operatoren k”nnen sowohl an einer Befehlszeile eingegeben als
+auch in Stapel- oder Befehlsdateien benutzt werden.
+ 
+<P>Soll ein Zeichen, das normalerweise als Operator aufgefaát wird,
+als normales Zeichen benutzen werden, mssen das <b>Escape-Zeichen</b>
+<code>^</code> vorangestellt werden.
+Einige Operatoren werden nur an einer OS/2-Befehlszeile untersttzt und
+nicht in DOS-Sitzungen.
+ 
+<P>Die folgende Liste fhrt die Befehlsoperatoren in der Reihenfolge
+auf, in der sie von den Befehlsinterpretern erkannt werden:
+ 
+<UL><LI>Das <CODE>^</CODE>-Zeichen ist das Escape-Zeichen und erlaubt
+es, Befehlsoperator-Zeichen als normale Zeichen zu benutzen
+(nur OS/2-Sitzungen).
+ 
+Um z.B. folgendes auf dem Bildschirm auszugeben:
+<PRE>Geben Sie Ihr Alter &amp; Ihre Sozialversicherungsnummer ein ==&gt;</PRE>
+mssen Sie folgenden Befehl ausfhren:
+<PRE>Geben Sie Ihr Alter ^&amp; Ihre Sozialversicherungsnummer ein ==^&gt;</PRE>
+ 
+<LI>Klammern <CODE>()</CODE> gruppieren Befehle, so daá die normale
+Reihenfolge, in der Befehle bearbeitet werden, bersteuert wird
+(nur OS/2-Sitzungen).
+ 
+<P><LI><CODE>&gt;</CODE> leitet die Ausgabe in eine Datei oder auf
+ein Ger„t um.
+Wenn die angegebene Datei bereits existiert, wird sie berschrieben.
+ 
+<P><CODE>&gt;&gt;</CODE> leitet die Ausgabe in eine Datei oder auf
+ein Ger„t um.
+Wenn die angegebene Datei bereits existiert, wird die Ausgabe an die
+Datei angeh„ngt.
+ 
+<P><CODE>&lt;</CODE> holt die Eingabedaten statt von der Standardeingabe
+aus der angegebenen Datei oder von dem angegebenen Ger„t.
+ 
+<P>Eingabe und Ausgabe eines jeden Programms sind vordefiniert und werden
+ber eine Nummer (ein sogenanntes <b>Handle</b>) identifiziert. Die
+folgenden drei sind definiert:
+ 
+<UL><LI>Die Standardeingabe heiát <CODE>STDIN</CODE>. Ihr Handle ist 0.
+Standardm„áig ist dies die Tastatur.
+<LI>Die Standardausgabe heiát <CODE>STDOUT</CODE>. Ihr Handle ist 1.
+Standardm„áig ist dies der Bildschirm.
+<LI>Fr Fehlermeldungen wird eine weitere Ausgabe benutzt, die <CODE>STDERR</CODE>
+heiát. Ihr Handle ist 2. Standardm„áig ist dies ebenfalls der Bildschirm,
+aber diese Trennung erlaubt es, Fehlermeldungen separat umzuleiten.
+ 
+</UL>Die Eingabe und Ausgabe eines Programms l„át sich nur dann umleiten,
+wenn das Programm von <CODE>STDIN</CODE> liest oder nach <CODE>STDOUT</CODE>
+oder <CODE>STDERR</CODE> schreibt. Wenn sich das Programm nicht an diese
+Konventionen h„lt (z.B. wenn es sich nicht um ein Textmodus-Programm handelt
+oder wenn das Programm direkt mit der Hardware arbeitet), funktioniert
+die Umleitung nicht.
+ 
+<P>Wenn mehr als ein Operator angegeben ist, wird nur der letzte beachtet.
+ 
+<P><B>Beispiel 1:</B> Um die Ausgabe des Befehls
+<A HREF="cmdref.inf#DIR"><CODE>DIR</CODE></A> an den Drucker umzuleiten,
+geben Sie ein:
+<PRE>DIR &gt; PRN</PRE>
+ 
+<B>Beispiel 2:</B> Um die Ausgabe des Befehls <CODE>DIR</CODE>
+in eine neue Datei namens <CODE>listing.txt</CODE> umzuleiten, geben Sie
+ein:
+<PRE>DIR &gt; listing.txt</PRE>
+Die Datei <CODE>listing.txt</CODE> wird dann automatisch erzeugt oder,
+wenn sie bereits existiert, berschrieben.
+ 
+<P><B>Beispiel 3:</B> Um sowohl <CODE>STDERR</CODE> als auch
+<CODE>STDOUT</CODE> umzuleiten, leiten Sie zuerst <CODE>STDOUT</CODE> um und
+dann <CODE>STDERR</CODE> nach <CODE>STDOUT</CODE>. Umleitungs-Handles,
+die anstelle von Dateinamen angegeben werden, muá ein <CODE>&amp;</CODE>-Zeichen
+vorangestellt werden. Um also alle Ausgaben  einschlieálich der Fehlermeldungen
+von dem Befehl <CODE>DIR</CODE> in eine neue Datei
+<CODE>listing.txt</CODE> umzuleiten, geben Sie ein:
+<PRE>DIR *.* &gt;listing.txt 2&gt;&amp;1</PRE>
+ 
+<LI>Die vertikale Linie (<CODE>|</CODE>), ASCII-Zeichen 124,
+wird benutzt, um zwei Befehle mit einer sogenannten <b>Pipe</b> (englisch fr
+"R”hre", "Leitung") zu verbinden. Eine Pipe f„ngt die Ausgabe eines Programms
+ab und leitet sie als Eingabe an ein anderes Programm weiter.
+ 
+<P>Pipes werden h„ufig mit sogenannten <b>Filtern</b> verwendet.
+Filter sind Dienstprogramme des Systems, die Daten von <CODE>STDIN</CODE> empfangen,
+diese verarbeiten und nach <code>STDOUT</code> wieder ausgeben.
+ 
+<P>&os2; stellt drei Filter zur Verfgung:
+<A HREF="cmdref.inf#SORT"><CODE>SORT</CODE></A>,
+<A HREF="cmdref.inf#FIND"><CODE>FIND</CODE></A>, und
+<A HREF="cmdref.inf#MORE"><CODE>MORE</CODE></A>. Viele weitere Filter werden
+von Drittherstellern zur Verfgung gestellt.
+ 
+<P><B>Beispiel:</B> Um das aktuelle Verzeichnis sortiert auszugeben und
+die Ausgabe in eine Datei namens <code>sorted.txt</code> umzuleiten,
+geben Sie ein:
+<PRE>DIR | SORT &gt; sorted.txt</PRE>
+ 
+<B>Hinweis:</B> Wenn auf der linken Seite einer Pipe ein ungltiger
+Befehl steht, wird der rechte Teil der Pipe nicht ausgefhrt. Beispiel:
+<PRE>xxxx 2&gt;&amp;1 | MORE
+</PRE>wird die Ausgabe der Fehlermeldung nicht an <code>MORE</code>
+weitergeben, da <CODE>xxxx</CODE> ein ungltiges Programm ist.
+ 
+<P><LI><CODE>&amp;&amp;</CODE> trennt mehrere Programme einer Sequenz von Programmen
+bedingt.
+Das n„chste Programm in der Sequenz wird nur ausgefhrt, wenn das vorherige
+Programm erfolgreich endete
+(nur OS/2-Sitzungen).
+ 
+<P><LI><CODE>||</CODE> trennt ebenfalls mehrere Programme einer Sequenz von Programmen
+bedingt.
+Das n„chste Programm in der Sequenz wird nur ausgefhrt, wenn das vorherige
+Programm <i>nicht</i> erfolgreich endete
+(nur OS/2-Sitzungen).
+ 
+<P><LI><CODE>&amp;</CODE> trennt mehrere Programme einer Sequenz von Programmen
+unbedingt.
+Das n„chste Programm in der Sequenz wird unabh„ngig davon ausgefhrt, ob das
+vorherige Programm erfolgreich beendet wurde
+(nur OS/2-Sitzungen).
+</UL>
+</BODY>
+</HTML>

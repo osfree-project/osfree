@@ -1,0 +1,42 @@
+<HTML RESID=&ID_XFH_REGISTERCLASS;>
+<HEAD>
+    <TITLE>
+        Register New Class
+    </TITLE>
+</HEAD>
+<BODY>
+This dialog allows you to register a new
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS class</A>.
+This is only useful if you know
+both the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>
+which contains a class and the exact name of this class. &xwp; cannot
+help you with this.
+
+<P>In the <B>"DLL"</B> field, enter the DLL which contains the class.
+If this DLL resides on the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path_sys.html"><CODE>LIBPATH</CODE></A>,
+you do not need to specify its full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>.
+You can press "Browse..." however to find a DLL with a full path.
+
+<P>In the <B>"Class"</B> field, enter the exact name of the class to be registered.
+Note that -- unlike file names -- class names are case-sensitive. If you misspell the
+name or confuse upper and lower case, registering the class will fail.
+
+<P>The <B>OK</B> button is disabled until you have entered something in both fields.
+No error checking is performed. Pressing OK will attempt to register the class using
+<!-- V0.9.20: changed this -->
+the <A HREF="pmref.inf#WinRegisterClass"><CODE>WinRegisterClass</CODE></A> API<A HREF="_toolkitlink.html">*</A>
+
+<P>Note that in most cases the new class can be used immediately without having to
+restart the Desktop.
+
+<BR>
+</BODY>
+</HTML>
+

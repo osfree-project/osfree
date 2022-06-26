@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: About NetBIOS
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+The <B>Network Basic Input/Output System (NetBIOS)</B> is the
+<A HREF="glossary/gls_protocols.html">networking protocol</A>
+used by most <A HREF="glossary/gls_lan.html">Local Area Networks (LANs)</A>
+today.
+
+<P>It was created by IBM for its early PC Network, was adopted by
+Microsoft, and has since become a de facto industry standard
+since it is supported by most operating systems, including
+&os2; and Microsoft Windows. Linux supports NetBIOS too with the
+additional Samba software.
+
+<P>There are several major differences between &link_tcpip;
+and NetBIOS, both from a system implementation view and the
+way the user works with these protocols. This is because the two
+protocols serve different purposes: TCP/IP can handle a global network
+like the &link_internet;, while NetBIOS is the best performance
+choice for communication within a single LAN. That is why, in most
+computers, both protocols are installed.
+
+<UL><LI>NetBIOS does not assign static numbered addresses to computers
+in the network. Instead, every server in the network carries a name
+and exports the resources it shares by name as well. As a result,
+resources on the network are typically referenced by both server
+and resource name.
+
+<P><LI>NetBIOS itself does not provide a transport mechanism.
+Typically, NetBIOS uses NetBEUI as its transport mechanism, which
+is automatically installed if you install the &os2; support for
+NetBIOS. However, you can also choose to install
+"NetBIOS over TCP/IP" to use TCP/IP as the transport mechanism.
+
+<P><LI>The operating system itself supports accessing networking
+resources, automatically mapping standard file specifications to
+remote computers. For example, you can assign a drive letter to
+a NetBIOS name and access the resource by drive letter and file
+name as if it was on your own system.
+
+</UL>&os2; ships with the
+&link_peer;
+that, if installed, supports sharing resources with other computers
+on your LAN and accessing other resources conveniently.
+
+</BODY>
+</HTML>

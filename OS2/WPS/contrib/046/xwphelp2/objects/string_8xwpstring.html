@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XWPString Setupstr„ngar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+XWPString implementerar <A HREF="objects/obj_string.html">setupstr„ng objekt.</A>
+Žven om XWPString klassen „r konstruerad f”r att lagra setupstr„ngar, kan du anropa
+setupstr„ngar f”r ett XWPString objekt sj„lv, som med ett annat objekt.
+
+<P>Som till„gg till de setupstr„ngar som st”ds av 
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> klassen,
+st”der XWPString klassen f”ljande str„ngar:
+
+<DL>
+<DT><P><CITE><B>SETUPSTRING</B>=<I>str„ng</I></CITE>
+<DD>Den setupstr„ng som skall lagras i ett str„ngobjekt.
+<CODE><I>str„ng</I></CODE> m†sta vara kodad f”r att inte inneh†lla tecken som „r
+f”rbjudna i WPS setupstr„ngsv„rden. Standard „r en tom str„ng.
+
+<DT><P><CITE><B>DEFAULTOBJECT</B>={<I>objektid</I>|<I>filnamn</I>|*<I>handtag</I>|NONE}</CITE>
+<DD>St„ller in eller rensar det standardobjekt som „r lagrat i str„ngobjektet. V„rdet 
+m†ste vara ett av f”ljande:
+<UL><LI>ett objekt ID, inkapslat inom pilar (t.ex. <CODE>DEFAULTOBJECT=&lt;WP_DESKTOP&gt;;</CODE>);
+<LI>ett fullt kvalificerat filnamn (t.ex. <CODE>DEFAULTOBJECT=C:\minafiler\vadsomhelst.txt;</CODE>);
+<LI>ett decimalt objekthandtag, med ett prefix som en asterisk (t.ex. <CODE>DEFAULTOBJECT=*1432;</CODE>);
+<LI><CODE>NONE</CODE> ordagrant f”r att rensa det aktuella standardobjektet, om n†got.
+</UL>Standard f”r ett str„ngobjekt „r att inte ha n†got standardobjekt (<CODE>NONE</CODE>).
+
+<DT><P><CITE><B>CONFIRMINVOCATION</B>={YES|NO}</CITE>
+<DD>Korresponderar till inst„llningen "Bekr„fta anrop" p† sidan "Str„ng" i notboken med
+egenskaper. Standard „r <CODE>YES</CODE>.
+
+<DT><P><CITE><B>NOSTRINGPAGE</B>={YES|NO}</CITE>
+<DD>Om <CODE>YES</CODE>, visar str„ngobjektets notbok med egenskaper inte sidan "Str„ng".
+Detta kan vara v„rdefullt om du skapar str„ngobjekt fr†n din egen applikation och vill hindra
+anv„ndaren fr†n att oavsiktligt modifera en omsorgsfullt konstruerad setupstr„ng. Standard
+„r <CODE>NO</CODE>.
+
+</DL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+If the <B>"Lazy write"</B> box is checked, JFS will defer writing data back to
+disk to a background thread.
+See <A HREF="glossary/gls_caches.html">"File-system caches"</A> for an explanation.
+
+<P>If lazy-write is enabled, you can fine-tune the JFS cache's behavior with the
+three settings below (all values are in seconds):
+
+<OL><LI>The <B>"Synch time"</B> setting determines the interval at which the
+JFS-internal synchronization thread runs. This defaults to 64.
+
+<P><LI>The <B>"Max age"</B> setting determines the maximum amount of time that
+data may be held in the cache. This defaults to 256.
+
+<P><LI>The <B>"Buffer idle"</B> value determines the amount of time during which
+JFS will consider a change to be "recent". Changes newer than this value are
+not written unless the last write was older than "max age." This defaults to 8.
+
+</OL>
+</BODY>
+</HTML>
+

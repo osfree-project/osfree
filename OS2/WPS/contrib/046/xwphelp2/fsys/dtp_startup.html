@@ -1,0 +1,39 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_STARTUP;>
+<HEAD>
+    <TITLE>
+        &xwp;: Startup Inst„llningar
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+
+<BODY>
+Den h„r sidan till†ter dig att konfigurera olika startupinst„llningar.
+Alla inst„llningar kommer inte att verka f”rr„n n„sta g†ng
+Skrivbordet startas om.
+
+<IFNDEF __NOXWPSTARTUP__>
+<P>Notera att &xwp; Startupmapp har sin egen notbok f”r att konfigurera sitt
+beteende n„r den v„l har skapats (se nedanf”r).
+</IFNDEF>
+<!-- V0.9.4: removed all the following and replaced it with these links -->
+<P>F”r en detaljerad f”rkklaring av varje f„lt, v„lj fr†n listan nedanf”r:
+
+<UL>
+<!-- V0.9.16: added ifdefs, reordered links -->
+<IFNDEF __NOBOOTLOGO__>
+<LI><A HREF="fsys/dtp0_1bootlogo.html">Workplace Shell startlogo</A>
+</IFNDEF>
+<!-- V0.9.19: changed log file name -->
+<LI><A HREF="fsys/dtp0_20startuplog.html">Skriv WPSTART.LOG fil</A>
+<IFNDEF __NOBOOTUPSTATUS__>
+<LI><A HREF="fsys/dtp0_2classinit.html">Visa klassinitialisering</A>
+</IFNDEF>
+<LI><A HREF="fsys/dtp0_4numlock.html">Aktivera NumLock vid startup</A>
+<IFNDEF __NOXWPSTARTUP__>
+<LI><A HREF="fsys/dtp0_3createxfstup.html">Skapa &xwp; Startupmapp</A>
+</IFNDEF>
+
+</UL>
+</BODY>
+</HTML>
+

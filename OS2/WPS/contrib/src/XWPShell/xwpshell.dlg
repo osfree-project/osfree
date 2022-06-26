@@ -1,0 +1,25 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+
+DLGINCLUDE 1 "xwpshell.h"
+
+DLGTEMPLATE IDD_LOGON LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace Security Logon", IDD_LOGON, 40, 18, 184, 80,
+            FS_SYSMODAL | FS_SCREENALIGN | WS_VISIBLE, FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Welcome to XWorkplace! Please enter your user name and password to log on.", -1, 4, 54, 172, 20,
+                        DT_WORDBREAK
+        RTEXT           "User name:", IDDI_USERTEXT, 14, 38, 61, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        ENTRYFIELD      "", IDDI_USERENTRY, 84, 40, 88, 8, ES_MARGIN
+        RTEXT           "Password:", IDDI_PASSWORDTEXT, 16, 24, 59, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        ENTRYFIELD      "", IDDI_PASSWORDENTRY, 84, 26, 88, 8, ES_MARGIN |
+                        ES_UNREADABLE
+        DEFPUSHBUTTON   "~OK", DID_OK, 46, 6, 89, 13
+    END
+END
+
+

@@ -1,0 +1,155 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Allgemeine Fragen
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changes for V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+Zuerst einmal: Werfen Sie einen Blick in das Objekt
+<A HREF="sys_2global.html">"Workplace Shell"</A>, Sie werden dort eine Menge
+ntzlicher Schalter vorfinden, mit denen Sie &xwp; Benehmen beibringen k”nnen.
+<P>Falls Sie hier keine Antwort auf Ihre Frage finden, sehen Sie bitte auch einmal
+auf der <A HREF="notices_3comments.html">&xwp;-Website</A> nach. Ich pflege nun
+auch ein ”ffentliches Fehlerverzeichnis, das Ihre Frage auch beantworten k”nnte.
+ 
+<OL>
+<LI><B>Macht &xwp; die WPS langsamer?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>Es kommt darauf an. Einige Funktionen k”nnen eine leichte Verlangsamung bewirken,
+wie etwa das erstmalige ™ffnen eines Ordner-Kontextmens, da &xwp; den Inhalt des
+Konfigurationsordners (einschlieálich aller Unterverzeichnisse) einlesen muá, um das
+Kontextmen entsprechend aufzubauen.
+<P>Andere Funktionen beschleunigen die WPS dagegen. Die Funktion
+<A HREF="fldr_30turbo.html">Turbo-Ordner</A> beispielsweise kann Ordner dramatisch
+schneller machen.
+Auáerdem geht die Bev”lkerung der Ordner wesentlich schneller vonstatten, wenn die
+erweiterten Dateizuordnungen aktiviert sind, da &xwp; fr die Handhabung der
+Objekt-Handles intern sehr effiziente Cache-Routinen verwendet.
+<!-- end V0.9.19 -->
+<P>Im Gegensatz zu manchen anderen WPS-Erweiterungen weist &xwp; auch keinen exzessiven
+Speicherverbrauch auf. Ich habe dies einmal bei meinem System berprft, und
+zus„tzlich zur Gr”áe der &xwp;-DLLs selbst alloziert &xwp; nur ein paar 100 KBs
+und gibt Speicher dynamisch frei, wenn er nicht mehr ben”tigt wird.
+ 
+<!-- this item remove with V1.0.1
+<P><LI><B>Warum sehen die &xwp;-Dialogfenster unter Warp 3 so h„álich aus?</B>
+<P>&xwp; verwendet fr die meisten seiner Dialoge die Schriftart <B>WarpSans</B>, da sie
+um soviel sch”ner ist als "System Proportional". Diese Schriftart wird jedoch nur mit
+&warp4; und neueren Versionen ausgeliefert, weswegen sie unter Warp 3 nicht gefunden wird
+und das System statt dessen die Standardsystemschriftart (System Proportional) benutzt.
+<P>Wenn Sie an eine Datei <CITE>\OS2\DLL\DSPRES.DLL</CITE> aus &warp4; herankommen,
+kopieren Sie diese einfach ber die gleichnamige Datei im Verzeichnis
+<CITE>\OS2\DLL</CITE> Ihres Warp 3. Diese Datei beinhaltet viele Systemressourcen,
+unter anderem die Schriftart WarpSans. Warp 3 funktioniert mit der Warp 4-Version ohne
+Probleme. (Dies funktioniert nur, nachdem Sie einen Systemneustart zu einer Befehlszeile
+durchgefhrt haben, z.B. durch Verwendung von Alt-F1 beim Systemstart,
+da diese DLL gesperrt wird, sobald das System in den Grafikmodus schaltet.)
+<P>Seit &xwp; V0.9.0 besitzt die Seite "Paranoia" der "&xwp;-Konfiguration" ein
+Markierungsfeld, mit dem Sie die Verwendung der Schriftart "8.Helv" in den meisten F„llen
+erzwingen k”nnen.
+-->
+ 
+<!-- this item added with V0.82 -->
+<P><LI><B>Warum funktionieren die neuen Systemkl„nge nicht?</B>
+<P>Sie mssen zuerst installiert werden. Mehr erfahren Sie auf der
+<!-- V0.9.3: link changed -->
+<A HREF="mm_2sounds.html">entsprechenden Seite</A>.
+<!-- V0.9.6: added the following -->
+<P>Einige Personen haben berichtet, daá die &xwp;-Systemkl„nge nicht
+mehr funktionierten, nachdem sie ihre Soundkarte aufgerstet hatten. Es
+hat sich herausgestellt, daá es sich um ein Problem mit der
+Multimedia-Konfiguration handelt. ™ffnen Sie das Standardobjekt "Multimedia-Konfiguration",
+w„hlen Sie die Indexzunge "Digital Audio" und stellen Sie
+sicher, daá die Erweiterung "WAV" in der Liste der erweiterten Zuordnungen
+auftaucht.
+ 
+<P><LI><B>Warum kommt es dauernd zu Abstrzen in SOM.DLL?</B>
+<P>Falls Sie <B>VisualAge C++</B> oder irgendeine andere Software verwenden, die
+SOM-Laufzeitumgebungen installiert, stellen Sie sicher, daá
+<CITE>SOM.DLL</CITE> aus dem Verzeichnis <CITE>\OS2\DLL</CITE> geladen wird. Diese
+DLL wurde in neueren FixPaks aktualisiert. VAC++ fgt am Anfang der Anweisung
+<CITE>LIBPATH</CITE> in der &cfgsys; zus„tzliche Verzeichnisse ein, was dazu
+fhrt, daá die alte DLL geladen wird.
+Verschieben Sie diese Verzeichnisse hinter <CITE>\OS2\DLL</CITE> im <CITE>LIBPATH</CITE>.
+ 
+<!-- this item added with V0.9.0 -->
+<P><LI><B>Warum startet meine WPS neu, wenn ich das Medium in Wechsellaufwerken
+auswechsele (MO, ZIP, ...)?</B>
+<P>Ich habe keine Ahnung. Mehrere Personen haben von sehr seltsamem Verhalten der WPS beim
+™ffnen des Ordners nach Austausch des Wechselmediums berichtet. Danach arbeitet die
+WPS wieder ohne Probleme (bis das Medium wieder ausgetauscht wird).
+<!-- V0.9.6: added this -->
+<P>Beachten Sie bitte, daá ich abgesehen von einem CD-ROM-Laufwerk und einem CD-Brenner
+keine Wechsellaufwerke habe. Deshalb kann ich diese Probleme hier nicht reproduzieren. Wenn
+jemand einmal einen Blick auf den &xwp;-Quellcode werfen und versuchen k”nnte herauszufinden,
+was dies verursacht, w„re das sehr hilfreich.
+ 
+<P>IBM hat mit Warp 4 Fixpak 6 Untersttzung fr Wechsellaufwerke neu eingefhrt,
+vielleicht haben wir da das Problem. Christian Hennecke &lt;christian.hennecke@ruhr-uni-bochum.de&gt;
+schrieb in einer Newsgruppe, daá es zu helfen scheint, wenn man <CODE>PMWP.DLL</CODE> mit einer
+Version von vor FixPak 6 ersetzt. Auáerdem mssen Sie dann NEWDASD installieren, das
+noch bei Hobbes und Leo verfgbar sein sollte.
+ 
+<P><LI><B>Warum funktionieren &xwp;s Funktionen bei manchen Ordnern und bei anderen nicht?</B>
+<P>Das ist knifflig. Einige Personen haben davon in allen Variationen berichtet, d.h.
+Tastenkrzel funktionieren nur bei der Arbeitsoberfl„che, oder nicht in URL-Ordnern,
+oder nicht in Group Folders (ein IBM EWS Hilfsprogramm), etc. pp. Das gleiche gilt fr
+Statuszeilen.
+<P>Soweit ich sehen kann, hat dies mit der Subklassierung von Ordnern zu tun. &xwp; ben”tigt
+bestimmte Fensternachrichten, um diese Funktionen einzufhren, und wenn irgendeine andere
+WPS-Klasse diese Nachrichten abf„ngt, verhalten sich &xwp;s Funktionen seltsam oder
+verursachen Abstrze oder funktionieren einfach nicht.
+<P>Allgemein gilt, daá diese Fehler umso eher auftauchen, je mehr WPS-Klassen-Ersetzungspakete
+installiert sind. Mit einer "sauberen" WPS arbeitet &xwp; gew”hnlich gut zusammen, aber
+die Personen, die von diesen Fehlern berichtet haben, hatten manchmal vier Klassenersetzungen
+installiert, und es ist wirklich schwierig, in so einem Fall die Fehler zu finden. Deinstallieren
+Sie versuchsweise einige WPS-Erweiterungen, die Sie nicht unbedingt brauchen.
+<P>Auch gilt allgemein, daá die WPS umso instabiler wird, je mehr die INI-Dateien
+durcheinandergebracht sind. Ich empfehle dringend Henk Kelders Paket <CITE>WPTOOLS</CITE>,
+das Sie sowieso von Zeit zu Zeit verwenden sollten, um die INI-Dateien sauberzuhalten. Es wird
+nach wie vor gepflegt und ist bei Hobbes erh„ltlich.
+<P>Ich habe auch herausgefunden, daá die Installationsreihenfolge eine Rolle spielt. Einige
+WPS-Erweiterungen scheinen Nachrichten, die sie nicht brauchen, einfach zu "verschlucken", da sie
+annehmen, die einzige WPS-Erweiterung in System zu sein. (Das trifft m”glichweise auch auf
+&xwp; zu, aber ich habe versucht, es zu vermeiden.) Wenn nun &xwp; in der WPS-Klassenliste vor
+dieser gierigen WPS-Erweiterung kommt, was der Fall ist, wenn &xwp; zuerst installiert wurde,
+erh„lt es die Nachricht vor der anderen WPS-Erweiterung.
+ 
+<P><LI><B>Arbeitet &xwp; mit Object Desktop zusammen?</B>
+<P>Theoretisch ja. Praktisch manchmal. Detaillierte Informationen hierzu (und zu
+anderen WPS-Hilfsprogrammen) entnehmen Sie bitte der separaten Seite
+<A HREF="vers_1compat.html">"Kompatibilit„t"</A>.
+ 
+<!-- this item added with V0.84 -->
+<P><LI><B>Warum h”re ich die Diskettenlaufwerke jedesmal laufen, wenn ich den Ordner
+"Laufwerke" ”ffne?</B>
+<P>Der Grund hierfr ist, daá die &xwp;-Statuszeile den freien
+Speicherplatz auf einem Laufwerk abfragt. Wenn das erste Objekt in Ihrem Ordner
+"Laufwerke" ein Diskettenlaufwerk repr„sentiert, wird dieses Laufwerk abgefragt.
+<P>Um dies zu vermeiden, k”nnen Sie die Statuszeilen-Informationen fr
+WPDisk-Objekte im Objekt "Workplace Shell" auf der zweiten Seite der Indexzunge "Statuszeilen"
+„ndern. Dann wird diese Information nicht abgefragt.
+<P>Alternativ k”nnen Sie auch die Statuszeile nur fr den Ordner "Laufwerke"
+auf der Seite "XFolder" in dessen Einstellungsnotizbuch deaktivieren.
+ 
+<P><LI><B>L„uft &xwp; auf Macintosh-Systemen?</B>
+<P>Nein.
+</OL>
+ 
+Schamlose Eigenwerbung: &xwp; arbeitet perfekt mit dem fantastischen
+<STRONG>CommandPak</STRONG> vom selben Autoren zusammen, das ebenso bei
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A> erh„ltlich ist. Dieses
+Paket verbessert die &os2;-Befehlszeile dramatisch und bietet unter anderem
+WPS-Untersttzung auch von der Befehlzeile aus.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 
+ 

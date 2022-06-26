@@ -1,0 +1,119 @@
+<HTML HIDDEN RESID=9005>
+<HEAD>
+    <TITLE>
+        &xwp;: Opdracht Operatoren en Doorsturen
+    </TITLE>
+</HEAD>
+<BODY>
+Opdracht operatoren zijn speciale tekens die de opdrachtprocessor behandelt als
+specifieke commando's anders dan normale invoer tekens.
+Deze operatoren kunnen achter de opdrachtaanwizing ingetikt worden of worden meegegeven
+in een batch of opdracht bestand.
+
+<P>Als u van plan bent een teken te gebruiken dat normaal als een opdracht operator wordt
+beschouwd moet U dit <B>vervangen</B> door het voor af te laten gaan door het <CODE>^</CODE>
+teken.
+Sommige opdracht operatoren zijn alleen geldig achter de OS/2 opdrachtaanwijzing, niet
+in een DOS sessie.
+
+<P>De volgende lijst laat de opdracht operatoren zien in de volgorde waarin de opdracht
+verwerker ze herkent:
+
+<UL><LI>Het <CODE>^</CODE> teken vervangt een opdracht operator om te worden herkend
+als een gewone invoer of uitvoer teken (alleen in OS/2 sessies).
+
+B.v. om de volgende uitvoer op het scherm te krijgen:
+<PRE>GEEF UW LEEFTIJD &amp; SOFI NUMMER ==&gt;</PRE>
+tik dan in:
+<PRE>ECHO GEEF UW LEEFTIJD ^&amp; SOFI NUMMER ==^&gt;</PRE>
+
+<LI>Haakjes <CODE>()</CODE> groeperen opdrachten zodat zij de normale volgorde van
+voorrang die door de opdrachtprocessor wordt herkend te niet doen
+(alleen in OS/2 sessies).
+
+<P><LI><CODE>&gt;</CODE> stuurt de uitvoer naar een bestand of een apparaat. Als het
+bestand bestaat wordt dat overschreven.
+
+<P><CODE>&gt;</CODE> stuurt de uitvoer naar een bestand en breidt het uit, als het bestaat.
+
+<P><CODE>&lt;</CODE> haalt op en stuurt invoer van het standaard invoer apparaat door.
+
+<P>De invoer bron en de uitvoer doelen van een programma zijn vooringesteld en bekend
+met een getal (<B>ingang</B> genoemd). De volgende drie zijn aanwezig:
+
+<UL><LI>Standaard invoer wordt <CODE>STDIN</CODE> genoemd, waarvan de 'ingang' de waarde 0 heeft.
+Standaard is dit het toetsenbord.
+<LI>Standaard uitvoer wordt <CODE>STDOUT</CODE> genoemd, waarvan de 'ingang' de waarde 1 heeft.
+Standaard is dat het beeldscherm.
+<LI>Voor foutmeldingen wordt een andere uitvoer gebruikt (<CODE>STDERR</CODE>),
+waarvan de 'ingang' de waarde 2 heeft. Standaard is dit ook het beeldscherm, maar
+dit staat het gelijktijdig doorzenden van foutmeldingen toe.
+
+</UL>U kunt invoer en uitvoer voor een programma alleen doorsturen als het programma van
+<CODE>STDIN</CODE> leest en schrijft naar <CODE>STDOUT</CODE> en <CODE>STDERR</CODE> meeneemt.
+Als het programma deze standaard afspraken niet ondersteund, b.v. als het niet een op tekst
+gebaseerd programma is of direct leest en schrijft naar de hardware, werkt doorsturen niet.
+
+<P>Als meer dan ‚‚n opdracht is gespecificeerd, wordt alleen de laatste herkent.
+
+<P><B>Voorbeeld 1:</B> Om de uitvoer van de
+<A HREF="cmdref.inf#DIR"><CODE>DIR</CODE></A> opdracht naar de printer door te sturen
+tik:
+<PRE>DIR &gt; PRN</PRE> in.
+
+<B>Voorbeeld 2:</B> Om de uitvoer van de <CODE>DIR</CODE> opdracht door te sturen
+naar een nieuw bestand genaamd <CODE>lijst.txt</CODE>, tik:
+<PRE>DIR &gt; lijst.txt</PRE> in.
+Het bestand <CODE>lijst.txt</CODE> zal dan automatisch worden gemaakt of overschreven,
+als het reeds bestond.
+
+<P><B>Voorbeeld 3:</B> Om en <CODE>STDERR</CODE> en <CODE>STDOUT</CODE> door te sturen,
+moet U eerst <CODE>STDOUT</CODE> en daarna <CODE>STDERR</CODE> naar <CODE>STDOUT</CODE>
+doorsturen.
+Doorstuur ingangen gebruikt i.p.v. bestandsnamen moeten door een <CODE>&amp;</CODE>
+teken worden voorafgegaan.
+Dus om alle uitvoer en foutenlijsten van de <CODE>DIR</CODE> opdracht door te sturen naar
+een nieuw bestand met de naam  <CODE>lijst.txt</CODE>, tik:
+<PRE>DIR *.* &gt;lijst.txt 2&gt;&amp;1</PRE> in.
+
+<LI>De verticale streep (<CODE>|</CODE>), ASCII teken 124, wordt gebruikt om twee
+opdrachten te scheiden voor <B>piping.</B> Een 'pipe' onderschept de uitvoer van een
+lopend programma en stuurt het als invoer naar een ander lopend programma.
+
+<P>'Pipes' worden meestal gebruikt met <B>filters.</B> Filters zijn systeem hulpprogramma's
+die gegevens van  <CODE>STDIN</CODE> onderscheppen, het verwerken en sturen naar
+<CODE>STDOUT</CODE>.
+
+<P>&os2; levert drie filters:
+<A HREF="cmdref.inf#SORT"><CODE>SORT</CODE></A>,
+<A HREF="cmdref.inf#FIND"><CODE>FIND</CODE></A>, en
+<A HREF="cmdref.inf#MORE"><CODE>MORE</CODE></A>. Meer extra filters worden
+door derden geleverd.
+
+<P><B>Bijvoorbeeld:</B> Om de huidige directory gesorteerd te zien en de uitvoer
+naar een bestand genaamd <code>sorted.txt</code> te sturen, tik:
+<PRE>DIR | SORT &gt; sorted.txt</PRE> in.
+
+<B>Opmerking:</B> Wanneer er aan de linkerzijde van de 'pipe' een ongeldige opdracht staat,
+zal de opdracht aan de rechterzijde van de 'pipe' niet worden uitgevoerd.
+B.v.:
+<PRE>xxxx 2&gt;&amp;1 | MORE </PRE>
+zal de uitvoer niet door de 'pipe' naar  <CODE>MORE</CODE> sturen omdat <CODE>xxxx</CODE>
+een ongeldig programma is.
+
+<P><LI><CODE>&amp;&amp;</CODE> verwerkt voorwaardelijk een reeks opdrachten.
+<!-- <LI><CODE>&amp;&amp;</CODE> conditionally processes a sequence of commands. -->
+Een opdracht in de reeks kan alleen maar succesvol worden verwerkt als de voorgaande opdracht
+succesvol is uitgevoerd (alleen in OS/2 sessies).
+
+<P><LI><CODE>||</CODE> verwerkt voorwaardelijk een reeks opdrachten.
+Een opdracht in de reeks kan alleen maar succesvol worden verwerkt als de voorgaande opdracht
+succesvol is uitgevoerd (alleen in OS/2 sessies)
+
+<P><LI><CODE>&amp;</CODE> verwerkt onvoorwaardelijk individuele opdrachten in een reeks,
+onafhankelijk van het goed of fout zijn van de voorgaande opdrachten in de reeks.
+(alleen in OS/2 sessies).
+
+</UL>
+</BODY>
+</HTML>

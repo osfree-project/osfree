@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Deleting handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+You can delete file handles from the handles table by selecting the
+"Delete" item from the &popmenu; that comes up when you click with
+mouse button 2 onto the entries in the table.
+
+<P>For each entry that is deleted this way, all following nodes are
+moved towards the front of the handles table from <CODE>OS2SYS.INI</CODE>
+and their entry in the display is removed.
+
+<P><B>Warning:</B> xfix does not prevent you from deleting handles which are
+needed for the WPS to work. You should only delete a handle if you know it is not
+used. Deleting handles can solidly break things (program objects, folder positions,
+or even the Desktop completely). See
+<A HREF="xfix_handles.html">About WPS file handles</A> for more about
+how handles are used in the WPS.
+
+<P>You should pay special attention to the "Refcs." column in the
+<A HREF="xfix_list.html">handles list</A>:
+
+<UL><LI>If abstract objects were found for a handle (marked with <CODE>ABS</CODE>),
+xfix will remove them from <CODE>PM_Abstract:FldrContent</CODE> in <CODE>OS2.INI</CODE>
+without further notice. In addition, for each abstract object, its definition in
+<CODE>PM_Abstract:Objects</CODE> is deleted.
+
+<P>In other words, <B>this will nuke all abstract objects in that folder.</B>
+
+<P>This is necessary because if the abstract objects were not deleted, they
+would sooner or later pop up in some other folder as soon as the WPS
+reuses the deleted handle for a new folder. This is quite probable.
+
+<P><LI>Deleting entries with associated folder positions (marked with <CODE>FPOS</CODE>)
+is not dangerous though.
+xfix will simply kill the corresponding entry in <CODE>PM_Workplace:FolderPos</CODE>,
+which no longer serves any purpose.
+
+</UL>Note that these two are the only references that xfix can detect at the moment.
+xfix cannot find out presently whether the handle is currently the target of a
+program object or shadow or whatever. In other words, if the "Refcs." field is
+empty, <B>this does not mean that deleting the handle won't break things.</B>
+
+<P>Keep in mind that selecting "Delete" does not update <CODE>OS2SYS.INI</CODE>
+yet. This only happens if you select "Write back to OS2SYS.INI" from the
+xfix <A HREF="xfix_menus.html">menu.</A> As a result, if you accidentally
+remove the wrong entry, you have not ruined your system yet... you can then restart
+xfix to try again.
+
+<P>Before using "Write back...", make sure the following  is true:
+
+<UL><LI>You have a working WPS backup in case something goes wrong.
+<P><LI>The WPS is not currently running. You are safe if you have changed
+<CODE>RUNWORKPLACE</CODE> in your &cfgsys; file or if you
+have started xfix from &xwp;'s "Panic" dialog during Desktop startup.
+
+</UL>If you delete handles this way, the following fields in the
+<A HREF="xfix_list.html">handles list</A> will change:
+
+<UL><LI>The <B>node offset</B> of all items after each deleted item will be
+refreshed because they have been moved towards the front of the handles
+table. For example, if you delete the handle at offset 1000 and the handle
+after it had the offset 1030, that second handle will then have the offset 1000
+instead.
+
+<P><LI>All handles which used the handle to be deleted as their parent handle
+(and their sub-handles in turn) will be marked "orphaned" and invalid.
+
+<P>This can also be used to quickly delete those subitems as well, if you
+use "Select all invalid" afterwards.
+
+<P><LI>If you delete a duplicate handle, the <B>Dups</B> field should be updated
+as well.
+</UL>
+</BODY>
+</HTML>
+

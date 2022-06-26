@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: INI-Dateien sichern
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+Im Listenfenster "INI-Dateien sichern" k”nnen Sie w„hlen, wie &xwp; die Profile
+fr Benutzer und System (standardm„áig die Dateien <CODE>OS2.INI</CODE> und
+<CODE>OS2SYS.INI</CODE>) w„hrend des Systemabschlusses sichern soll. Diese Option
+gilt nicht fr Neustarts der Arbeitsoberfl„che.
+ 
+<P>Diese Option wurde in Version 0.9.5 hinzugefgt, um die Probleme mehrerer Benutzer
+mit sehr groáen INI-Dateien (mehrere Megabytes groá) und dem &xshutdown; zu beheben.
+Unglcklicherweise haben die OS/2-Funktionen fr die Profile (INIs) ernsthafte
+Probleme im Umgang mit groáen Dateien. Es sieht so aus, als wrde diesen APIs
+schnell der gemeinsame Speicher ausgehen.
+ 
+<P>Deshalb wurde &xwp; ein eigener Satz von Funktionen, die INI-Dateien
+speichern k”nnen, hinzugefgt. Als Resultat kann nun ausgew„hlt werden, wie die INIs
+gespeichert werden sollen:
+ 
+<UL><LI><B>"Neues Verfahren":</B> Dies benutzt die neuen Profilfunktionen, die
+in &xwp;-Version 0.9.5 zur Speicherung der INI-Dateien hinzugefgt wurden. Diese
+benutzen keinen gemeinsamen Speicher, so daá bei "INI-Dateien sichern" Probleme
+nicht so schnell zutage treten. Dies ist die empfohlene Einstellung.
+ 
+<P><LI><B>"Altes Verfahren":</B> Dies benutzt die &os2;-Profilfunktionen. Diese
+Methode wurde von XFolder- und &xwp;-Versionen vor 0.9.5 immer benutzt.
+<!-- V0.9.6: added these 2 lines -->
+Dies verursachte bekanntlich Probleme mit groáen INI-Dateien. Schauen Sie bitte
+in das "FAQ"-Kapitel im <I>&xwp;-Benutzerhandbuch</I> fr Details.
+ 
+<P><LI><B>"INIs berhaupt nicht sichern":</B> Dies speichert die INI-Dateien w„hrend
+des Systemabschlusses nicht. Kurz vorher vorgenommene nderungen gehen beim &xshutdown;
+verloren, so daá Sie diese Methode nur w„hlen sollten, wenn
+auf dem System keine andere funktioniert.
+ 
+<P>&os2; schreibt die INI-Dateien automatisch alle paar Minuten auf die Platte,
+so daá Sie alle Einstellungen verlieren werden, die sich seit dem letzten
+automatischen Speichern der INIs ge„ndert haben. Dies ist in etwa das gleiche,
+als wenn Sie Strg+Alt+Entf gedrckt h„tten, was die INI-Dateien ebenfalls nicht
+sichert und Auswirkung auf alle &os2;-Optionen hat, die in den INI-Dateien
+gespeichert werden (Objekte auf der Arbeitsoberfl„che, Schriftarten, Farben,
+Einstellungen von Programmen). Benutzen Sie diese Einstellung also mit Vorsicht.
+<P>Im Gegensatz dazu werden Positionen von Symbolen und alle anderen Informationen,
+die in den
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">erweiterten Attributen</A>
+der Objekte gespeichert werden, ordnungsgem„á
+gesichert.
+ 
+</UL>
+</BODY>
+</HTML>
+ 

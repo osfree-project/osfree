@@ -1,0 +1,56 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Tips &amp; Tricks
+    </TITLE>
+</HEAD>
+<BODY>
+<OL><LI>H„r finns en oavsiktlig, men kanske anv„ndbar sidoeffekt: Eftersom
+&os2; kan dela sin DDE milj” med en &winos2; session, kan NETSCDDE „ven skicka
+URL's till en rullande <B>&winos2; kopia</B> av Netscape Navigator. Detta inkluderar 
+Communicator (Netscape 4). Det enda du beh”ver g”ra „r att aktivera WIN_DDE i 
+&winos2; sessionsinst„llningar i ditt Windows Netscape programobjekt. Genom att specificera
+din Windows Netscape EXE fil med <CITE>-p &lt;exe&gt;</CITE> (se ovanf”r), kan NETSCDDE.EXE
+„ven erbjuda en snygg WPS integration av Windows Netscape.
+
+<BR><LI>Du kan nu ocks† (V1.1) specificera en <B>.CMD fil</B> med <CITE>-p</CITE> och
+<CITE>-P</CITE> f”r att f† speciella kommandon exekverade f”re och efter att
+Netscape har startats. Du b”r specificera <CITE>-m</CITE> eller <CITE>-mh</CITE> optioner
+s† att inga fula VIO f”nster upptr„der. H„r „r ett exempel <CITE>NETSCAPE.CMD</CITE>:
+
+<PRE>@echo off
+rem g”r n†gon initialisering h„r, t.ex. „ndra katalog
+cd D:\WebStuff
+rem anropa Netscape nu
+netscape.exe
+rem nu f”rs„tts .cmd filen i vilol„ge tills Netscape
+rem avslutas; upprepade anrop till NETSCDDE kommer att kontakta
+rem den rullande Netscape instansen
+rem efter att Netscape avslutats, exekvera det h„r:
+call cleanup.cmd
+rem eller vad helst du ”nskar</PRE>
+
+<P>Tack, Marcus de Geus, f”r detta f”rslag.
+
+<BR><LI>H„r „r ett trick fr†n Chris Wenham, senior editor hos
+<A HREF="http://www.os2ezine.com">OS/2 e-zine</A>,
+funnet i <B>SmartSuite</B> Mailinglistan (smartsuite-os2@makelist.com):
+<P><CITE>"Om du beh”ver „ndra den webbrowser som Smartsuite applikationerna 
+anropar n„r du klickar p† en av deras Internetknappar (likt Organizer's knapp f”r
+att g† till Almanacksidan), eller skicka en URL till den f”r n„rvarande rullande kopian 
+av Netscape ist„llet f”r att ”ppna en ny instans, m†ste du g”ra detta:
+<P>Starta REGEDIT2.EXE i /OS2/SYSTEM katalogen. Expandera HKEY_CLASSES_ROOT tr„det. Scrolla
+ner till "http" och expandera det hela v„gen ner (genom "shell" och "open") tills du kommer 
+till "command".
+<P>H”gerklicka p† datat i "(Default)" nyckeln, v„lj "Modify", och „ndra s”kv„g till
+den nya browsern, och f”rs„kra dig om att det f”ljs av ett "%1" (vilket representerar URL'en).
+St„ng RegEdit.
+<P>Du skall inte beh”va boota om, men du kanske beh”ver starta om de SS
+komponenter som „r ig†ng.</CITE>
+<P>Chris p†st†r sedan att du kan ange NETSCDDE.EXE som din browser i den h„r sektionen.
+</OL>
+<BR>
+</BODY>
+</HTML>
+
+

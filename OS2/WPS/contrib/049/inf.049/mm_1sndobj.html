@@ -1,0 +1,62 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Neues "Warnton"-Objekt
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Klasse: XWPSound</B><HR>
+ 
+<IMG SRC="config_8sounds.gif">
+&xwp; kann <B>das Objekt "Warnton" erweitern</B>, indem die Seite
+"Kl„nge" darin so ge„ndert wird, daá die Systemkl„nge leichter ge„ndert
+und verwaltet werden k”nnen.
+ 
+<P>Um diese Funktion nutzen zu k”nnen, muá die Ersatzklasse <B>XWPSound</B> installiert
+worden sein.
+ 
+<P>Die Haupterweiterung der Seite "Klang" ist Untersttzung fr <B>"Klangschemata",</B>
+welche IBM mit &warp4; halbherzig eingefhrt hat. Das Hauptproblem mit Klangschemata war
+n„mlich, daá es kaum m”glich war, seine eigenen zu definieren, ohne direkt in die INI-Dateien
+des Systems einzugreifen.
+ 
+<P>&xwp;s neue "Klang"-Seite hat nun ein neues Interface, das es erlaubt, Klangschemata
+schnell auszuw„hlen, die aktuellen Systemkl„nge als neues Klangschema zu speichern und
+bestehende Schemata zu l”schen. Ich habe das Interface „hnlich dem von Windows 95 gestaltet,
+das ich - in diesem einen Fall - als recht gelungen empfinde. Da die neue Seite "Kl„nge" bereits
+Klangschemata verwaltet, wird die originale Seite "Klangschemata" nicht l„nger angezeigt.
+ 
+<P><B>Warp 3-Anwender</B> werden vielleicht froh sein zu wissen, daá diese Klangschemata
+nun auch auf ihrem System funktionieren. Um genauer zu sein, l„át sie die Seite "Klang" 
+ihre Kl„nge auch unter Warp 3 <I>organisieren</I>; allerdings erhalten sie dadurch immer
+noch keine Untersttzung fr Klangschemata in der Layoutpalette (welche es unter
+Warp 4 und neuer erlaubt, fr jeden einzelnen Ordner andere Kl„nge zu verwenden).
+ 
+<P>Detaillierte Anweisungen erhalten Sie nach Drcken von <B>"Hilfe"</B> auf der neuen
+"Klang"-Seite.
+ 
+<P><B>Hinweis:</B> Die Systemkl„nge werden in der Datei <CODE>MMPM.INI</CODE> im
+Verzeichnis <CODE>MMOS2</CODE> gespeichert, w„hrend Klangschemata (aus einem Grund, den nur IBM kennt)
+in <CODE>OS2SYS.INI</CODE> gespeichert werden. Ich habe dies beibehalten, um die Kompatibilit„t zu
+gew„hrleisten. Die Konsequenz ist jedoch, daá sich alle Benutzer eines Systems dieselben
+Systemkl„nge und Klangschemata teilen, sogar wenn verschiedene Arbeitsoberfl„chen
+(und <CODE>OS2.INI</CODE>-Dateien) fr jeden Benutzer vorhanden sein sollten. Tut mir leid, beschweren Sie sich bei IBM
+(als wenn das helfen wrde).
+ 
+<P>Die Ersetzung des Objekts "Warnton" funktioniert unabh„ngig davon, ob die
+neuen Systemkl„nge aktiviert sind oder nicht (siehe <A HREF="mm_2sounds.html">n„chste Seite</A>).
+ 
+<P>Wenn Sie nur den neuen Ersatz des "Warnton"-Objekts ohne die neuen Systemkl„nge m”chten,
+deaktivieren Sie die Funktion "Erweiterte Systemkl„nge" auf der Seite "Funktionalit„t" des
+<A HREF="sys_2global.html">Objekts "&xwp;-Konfiguration".</A>
+ 
+<P>Um die Ersetzung des "Warnton"-Objektes zu deaktivieren, deregistrieren Sie die Klasse XWPSound
+ber das <A HREF="sys_2global.html">Objekt "&xwp;-Konfiguration".</A>
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

@@ -1,0 +1,154 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Fragen zu Mens
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL><LI><B>Meine Mens sind mittlerweile so vollgestopft. Was kann ich dagegen unternehmen?</B>
+<P>Wenn Sie der Meinung sind, daá Ihre <STRONG>Kontextmens zu voll sind,</STRONG> k”nnen Sie
+der WPS untersagen, diejenigen Meneintr„ge anzuzeigen, die mit der Maus durchfhrbare Operationen
+("Kopieren", "Verschieben" usw.) darstellen.
+<UL>
+<P><LI>Unter Warp 3 erreichen Sie dies durch Hinzufgen der Anweisung <CITE>SET MENUSTYLE=SHORT</CITE>
+zur Datei &cfgsys;.
+<P><LI>Unter Warp 4 und neueren Versionen existiert eine neue Einstellung im Objekt "System" im Ordner
+"Systemkonfiguration". Sie finden sie auf der Seite mit der Indexzunge "Men". Diese Einstellung
+ist auch im Einstellungsnotizbuch eines jeden Ordners zu finden; es gibt auch einen Konfigurationsstring fr
+Ordner, mit dem dies fr jeden Ordner individuell festgelegt werden kann. Mehr erfahren Sie unter
+<A HREF="xices_30wpsstrings.html">"WPFolder-Konfigurationsstrings"</A>.
+</UL><P>Auáerdem k”nnen Sie viele der Standardmeneintr„ge individuell mit Hilfe der
+Seite "Kontextmens" im Objekt
+<A HREF="sys_2global.html">"Workplace Shell"</A> entfernen.
+<P>Die <B>Ordnerinhaltsmen-Funktion</B> ist hilfreich, kann Ihre Kontextmens aber
+berfllen, wenn Sie zu viele Ordner als bevorzugt erkl„ren. Auf meinem System
+habe ich einen separaten Ordner namens "h„ufig" angelegt, den ich zu meinem einzigen
+bevorzugten Ordner erkl„rt habe. In diesem Ordner kann ich nun all jene Ordner plazieren, auf
+die ich h„ufig zugreife. Deshalb gibt es bei mir nur einen Eintrag im Kontextmen, aber ein Untermen mit
+allen bevorzugten Ordnern.
+ 
+<P><LI><B>Wenn ich einen Eintrag im Kontextmen ausw„hle, wird nicht die &xwp;-Funktion, sondern eine andere
+ausgefhrt. Was geschieht hier?</B>
+<P>Wahrscheinlich ein Men-ID-Konflikt mit einer anderen WPS-Erweiterung. Dies ist ein bekanntes Problem
+<!-- V0.9.0: changed the following -->
+mit Netzwerkanmeldungen. Begeben Sie sich zur "&xwp;-Konfiguration", Seite "Paranoia",
+und erh”hen Sie "Meneintrags-ID-Ausgleich". Klicken Sie "Hilfe", um Details hierzu zu erhalten. Mit V0.9.0
+wurde der Standardausgleich auf 700 erh”ht, was in den meisten F„llen ausreichen sollte.
+ 
+<P><LI><B>Wenn ich einen nicht von &xwp; stammenden Kontextmeneintrag ausw„hle, fhrt &xwp; trotzdem
+eine seiner eigenen Funktionen aus. Was geschieht hier?</B>
+<P>Gleiches Problem wie oben.
+ 
+<P><LI><B>Wenn ich ein Kontextmen ”ffne, strzt das System ab. Was kann ich tun?</B>
+<P>Versionen vor 0.82 dienten in dieser Beziehung als Test fr Grafiktreiber. ;-)
+Ich habe herausgefunden, daá manche Grafiktreiber keine Mixtur transparenter Hintergrnde
+fr Bitmaps untersttzen, die XFolder damals verwendete. W„hrend manche Treiber die Transparenz
+kommentarlos ignorierten, strzten andere bel ab und hielten das ganze System an (besonders
+Matrox Millenium).
+Mit V0.82 modifizierte ich die Symboldarstellung in Ordnerkontextmens auf die Verwendung
+regul„rer Symbole anstelle der Bitmaps. Die Symboldarstellung ist immer noch standardm„áig
+deaktiviert, fr den Fall, daá doch noch etwas schiefgehen sollte. Schalten Sie "Symbole anzeigen"
+auf den "Kontextmens"-Seiten in "Workplace Shell" an, um die Symboldarstellung zu aktivieren.
+ 
+<P>Wenn Sie immer noch Probleme haben: Ralph Scharpf hat berichtet, daá man die IBM
+GRADD-Treiber fr Matrox Grafikkarten statt dessen installieren kann, und diese zu funktionieren scheinen.
+Leider werden diese Karten bei Aufl”sungen von 1024x768 und mehr nur mit 60 Hz untersttzt, aber wenn Sie mit
+800x600 leben k”nnen, sieht es nach einer L”sung aus.
+ 
+<P><LI><B>Warum funktionieren Ordnerkontextmens nicht bei Ordnern in der Klickstartleiste?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>Weil die Klickstartleiste kein Ordner ist. &xwp; kann nur die Standard-Fensterprozedur der
+Ordner unterklassieren, um wichtige Systemnachrichten zu empfangen, wenn Mens ge”ffnet werden.
+Das ist der Zeitpunkt, zu dem die variablen Meneintr„ge in die Kontextmens eingefgt werden.
+Da die Klickstartleiste nicht die Standard-Fensterprozedur fr Ordner benutzt, kann &xwp; sie
+auch nicht einfach unterklassieren.
+ 
+<P><LI><B>Ich habe dem Konfigurationsordner etwas hinzugefgt, aber es taucht nicht in den Mens auf.
+Handelt es sich um ein Kompatibilit„tsproblem?</B>
+<P>Wahrscheinlich nicht. Seit V0.70 verwendet &xwp; die erweiterten <CITE>.ICONPOS</CITE>-Attribute des
+Konfigurationsordners und seiner Unterordner, um die Reihenfolge der Objekte im Ordner festzustellen.
+Das Problem ist, daá diese von der WPS nur beim Schlieáen des Ordners geschrieben werden und nur dann, wenn der Ordner
+in der Symbol- oder Detailanzeige ge”ffnet war. ™ffnen Sie den Ordner also einfach in der Detailanzeige und schlieáen
+Sie ihn wieder. Das sollte funktionieren.
+ 
+<P><LI><B>Wie erreiche ich die unterstrichenen Zeichen in den Meneintr„gen fr die Tastenkrzel?</B>
+<P>Fgen Sie im Titel eines Programmobjektes vor einem bestimmten Zeichen ein Tilde-Zeichen (<CITE>"~"</CITE>)
+ein. Dadurch wird das nachfolgende Zeichen im Meneintrag unterstrichen und es erlaubt Ihnen, dieses Zeichen
+als Tastenkrzel zu verwenden, wenn das Kontextmen angezeigt wird.
+<P>(Dies unterscheidet sich von den
+<A HREF="fldr_5xelerators.html">Ordner-Tastenkrzeln</A>, die &xwp; ge”ffneten Ordnern hinzufgt.)
+<P>Beispiel: <CITE>&os2;-~Fenster</CITE> macht "F" zu einem Tastenkrzel
+im Kontextmen.
+<P>Bei dieser Funktion sollten Sie sicherstellen, daá "''~'' in Fenstertiteln unterdrcken" im Objekt
+<A HREF="sys_2global.html">"Workplace Shell"</A> auf den "Kontextmens"-Seiten aktiviert ist.
+ 
+<P><LI><B>Ich habe dem Konfigurationsordner ein Programmobjekt hinzugefgt, aber wenn ich den
+Meneintrag ausw„hle, erhalte ich vom Programm eine Fehlermeldung. Was mache ich falsch?</B>
+<P>Sie mssen dem Feld "Parameter" wahrscheinlich ein <CITE>"%"</CITE>-Zeichen hinzufgen, um
+&xwp; daran zu hindern, den Namen des Ordners als Parameter zu bergeben.
+<!-- V0.9.16: replaced the following -->
+Details finden Sie in der Kontexthilfe des &xwp;-Konfigurationsordners.
+ 
+<P><LI><B>Ich habe dem Konfigurationsordner eine Referenz hinzugefgt, aber das ™ffnen funktioniert nicht
+wie bei den anderen Objekten. Was mache ich falsch?</B>
+<P>&xwp; ”ffnet Referenzen von Programmobjekten im Konfigurationsordner, aber es „ndert ihre
+Arbeitsverzeichnisse und Parameter nicht. Dies ist kein Fehler, es ist eine beabsichtigte
+Einschr„nkung zur Erh”hung der Sicherheit.
+KOPIEREN Sie Ihr Programmobjekt in den Konfigurationsordner, anstatt eine Referenz zu erstellen.
+<!-- V0.9.16: replaced the following -->
+Details finden Sie in der Kontexthilfe des &xwp;-Konfigurationsordners.
+ 
+<P><LI><B>Wie kann ich CMD.EXE-Befehle ausfhren?</B>
+<P>Um Befehle auszufhren, die in CMD.EXE eingebaut sind
+(wie z.B. <CITE>REN</CITE>, <CITE>COPY</CITE>, <CITE>DEL</CITE>, <CITE>CD</CITE>),
+erstellen Sie ein Programmobjekt im &xwp;-Konfigurationsordner. Dann geben Sie
+<CITE>CMD.EXE</CITE> als Programm mit <CITE>/C &lt;commands&gt;</CITE> im
+"Parameter"-Feld an.
+<P>Als Beispiel sei das L”schen des gesamten Ordnerinhaltes genannt:
+Geben Sie <CITE>CMD.EXE</CITE> im Feld "Pfad und Dateiname" und
+<CITE>/C DEL *</CITE> im Feld "Parameter" ein. Das ist natrlich nur ein simples
+Beispiel und NICHT empfehlenswert.
+ 
+<P><LI><B>Wie kann ich REXX zur Manipulation der WPS nutzen?</B>
+<P>Ich habe im Anhang dieser Dokumentation zus„tzliche Informationen bereitgestellt, die
+fr Sie hilfreich sein k”nnten:
+<UL>
+<P><LI>eine vollst„ndige Liste aller <A HREF="xices_30wpsstrings.html">WPFolder-Konfigurationsstrings</A>;
+<P><LI>eine Liste der &os2;-Standard-<A HREF="xices_2wpsobjids.html">Objekt-IDs</A>.
+<P><LI>ein Diagramm der <A HREF="xices_1wpsclasses.html">WPS-Klassenhierarchie</A>.
+</UL><P>Wenn Sie sich mit REXX nicht sonderlich auskennen, k”nnen Sie die Datei
+<CITE>ALWSSORT.CMD</CITE>
+<!-- V0.9.0: changed the following -->
+im &xwp;-Installationsverzeichnis kopieren und modifizieren, um einige der Ordnereinstellungen auszuprobieren.
+Weitere Informationen entnehmen Sie bitte der Seite <A HREF="080related.html">"Zus„tzliche Dateien"</A>.
+<P>Auáerdem m”chte ich Ihnen das INF-Buch "REXX Tips&amp;Tricks" von Bernd Schemmer sehr ans Herz legen,
+das als "rxtt32.zip" (oder neuer) bei Hobbes erh„ltlich ist.
+ 
+<P><LI><B>Warum kann ich mein neues Konfigurationsordner-Objekt nicht mehr als einmal ”ffnen?</B>
+<P>Wenn Sie Programmobjekte anlegen, die mehrere Male von verschiedenen Verzeichnissen aus
+ge”ffnet werden sollen (besonders Befehlszeilenobjekte), dann stellen Sie sicher, daá die Option
+"Neues Fenster" unter der Indexzunge "Fenster" im Einstellungsnotizbuch des Objektes
+ausgew„hlt ist.
+Andernfalls startet &os2; kein neues Fenster, sondern aktiviert nur das bereits ge”ffnete.
+ 
+<P><LI><B>Ich habe den &xwp;-Konfigurationsordner gel”scht. Wie bekomme ich ihn zurck?</B>
+<P>Mit V0.9.1 wurde das Verhalten ge„ndert, da einige Personen sich ber XFolders Verhalten
+bei fehlendem Konfigurationsordner beschwert hatten. Um also den Ordner neu zu erstellen, begeben Sie
+sich zur Seite "Objekte" des Objektes <A HREF="sys_2global.html">"&xwp;-Konfiguration"</A> und
+bet„tigen Sie die entsprechende Schaltfl„che.
+<!-- replaced this with V0.9.1: Don't worry: As soon as you try to open a context menu,
+&xwp; will notify you and automatically create a new, empty one
+on your desktop or recreate the default configuration, which you may then choose.
+Note that this behavior implies that you MUST have a Configuration Folder somewhere on
+your system while &xwp; is installed. It may be empty, but it must exist. -->
+ 
+</OL>
+<BR>
+</BODY>
+</HTML>
+ 
+ 
+ 

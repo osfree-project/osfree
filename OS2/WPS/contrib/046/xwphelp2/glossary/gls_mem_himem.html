@@ -1,0 +1,94 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Virtuellt Adressutrymme
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13 -->
+<BODY>
+
+Som du kanske k„nner till, anv„nder 80386 och h”gre processorer 32 bitar f”r alla adresser,
+vilket till†ter adressering av 4 GB minne. Detta kallas det virtuella adressutrymmet.
+
+<P>Notera att det h„r adressutrymmet existerar obeorende av hur mycket fysiskt minne som
+„r installerat p† ditt system. En av de stora f”rdelarna med 80386 processorn
+(j„mf”rt med tidigare processorer) „r att processorn kan g”ra konverteringar av virtuella
+adresser till en fysiskt adress hos RAM i h†rdvara -- med lite hj„lp av operativsystemet
+(i v†rt fall, &os2;), vilket m†ste erbjuda processortabeller d„r konverteringsdata „r lagrat.
+
+<P>F”r att kunna hantera virtuellt minne med h„nsyn till de olika processer som k”rs p†
+ditt system, dividerar &os2; hela det virtuella adressutrymmet av 4 GB i <B>areor.</B>
+
+<PRE>
+ 4096 MB -----------------------------------------------------
+
+                system areor
+
+  512 MB -----------------------------------------------------
+                delad area
+  variabel ---------------+-----------+---------------
+                privat    | privat    | privat
+                area      | area      | area
+                process 1 | process 2 | process 23
+    0 MB -----------------+-----------+---------------
+</PRE>
+
+<B>System arean</B> „r reserverad f”r kod som k”rs i ring 0, vilket betyder,
+device drivrutiner och sj„lva &os2; k„rnan. Normala applikationer kan inte accessa det minnet.
+
+<P>Som kontrast, de <B>delade</B> och <B>privata areorna</B> „r tillg„ngliga f”r att
+anv„ndas av alla applikationer.
+
+<P>Medan system och de delade areorna alltid kommer att backas upp av samma fysiska
+minnessidor, „r den privata arean olika f”r varje process. Varje applikation har sitt eget
+privata minne (kod och data). Som kontrast, den delade arean anv„nds f”r kod och data som „r
+delad mellan applikationer: till exempel, alla
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL'er</A>
+laddas i den arean.
+
+<P>Gr„nsen mellan de delade och privata areorna „r variabel och beror p† hur mycket delat
+minne som anv„nds p† ditt system. Detta „r orsaken till att systemet f†r "slut p† minne" om
+m†nga DLL'er „r laddade. I verkligheten, blir systemet inte utan fysiskt minne (d„rf”r att det
+normalt skulle expandera swapfilen); utan det blir utan adresseringsbart utrymme.
+
+<P>Alla OS/2 k„rnor fr†n 2.0 f”re 4.5 (Aurora k„rnan har en fast gr„ns p† 512 MB f”r
+applikationsminne. Orsaken till det var st”det f”r 16-bitars applikationer vilka inte helt
+enkelt kan accessa minne ”ver den gr„nsen.
+
+<P>Detta har „ndrats med Aurora k„rnan, vilken till†ter applikationer att allokera minne ”ver
+512 MB gr„nsen om <CODE>VIRTUALADDRESSLIMIT</CODE> „r specificerat med ett v„rde > 512 in &cfgsys;.
+Adressutrymmet ser ut s† h„r:
+
+<PRE>
+ 4096 MB ---------------------------------------------
+                system area
+ VIRTUALADDRESSLIMIT ---------------------------------
+                h”gt minnesarea (delad och privat)
+  512 MB ---------------------------------------------
+                delad area
+  variabel ---------------+-----------+---------------
+                privat    | privat    | privat
+                area      | area      | area
+                process 1 | process 2 | process 23
+    0 MB -----------------+-----------+---------------
+</PRE>
+
+Som du kan se, kallas utrymmet mellan system och de delade areorna "h”gt minne" och
+„r uppdelat igen i delat och privata areor. Detta minne ges endast till applikationer om de
+direkt beg„r det, s† att aktivera h”gt minne kommer endast att f† konsekvenser f”r
+applikationer vilka „r medvetna om dess existens. (Till exempel, kommer Java att anv„nda den h„r arean
+om <CODE>SET JAVA_HIGH_MEMORY=1</CODE> „r specificerade i &cfgsys;.).
+
+<P>Emellertid, aktivering av h”gt minne har fortfarande sidoeffekter. Som sagts ovanf”r, det h„r
+minnet kan inte anv„ndas av 16-bitars kod. Detta „r orsaken till att du beh”ver 32-bitars TCP/IP
+implementationen (version 4.1 eller h”gre) om du anv„nder h”gt minne med Java.
+
+<P>Som till„gg, ju h”gre du st„ller in <CODE>VIRTUALADDRESSLIMIT</CODE>,
+ju mindre blir systemarean. Detta „r orsaken till att h”jning av virtuell adressgr„ns kan
+reducera antalet tillg„ngliga processer.
+
+<BR>
+</BODY>
+</HTML>
+

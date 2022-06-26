@@ -1,0 +1,72 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Wie funktioniert der Papierkorb?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+Auch wenn der Papierkorb wie ein normaler Ordner aussieht, so verhÑlt er sich intern
+dennoch recht unterschiedlich.
+<UL><LI>Wenn Åber den Papierkorb ein <B>Objekt gelîscht wird</B> (entweder indem es auf
+den Papierkorb gezogen wird oder durch Auswahl von "Lîschen" aus dem KontextmenÅ eines
+Objekts), wird es <I>nicht</i> physisch in den Papierkorbordner verschoben (der ein normales
+Verzeichnis auf der Festplatte ist, da es sich um einen Ordner handelt).
+<P>Statt dessen geschieht folgendes:
+<BR><OL><LI>Der Papierkorb legt ein verstecktes Verzeichnis im Wurzelverzeichnis des
+Laufwerks, auf dem sich das Objekt befindet an. Diese Verzeichnis trÑgt immer den Namen
+<CODE>\TRASH</CODE>. (Sie kînnen es sehen, wenn Sie auf der Befehlszeile <CODE>DIR /A \</CODE>
+eingeben.)
+<P><LI>Dann kann der Papierkorb in diesem versteckten Verzeichnis einen Unterpfad entsprechend
+dem Pfad, auf dem das Objekt sich momentan befindet, anlegen. Wenn sich das Objekt beispielsweise
+im Ordner <CODE>D:\MYFILES\ARTICLES</CODE> befindet, wird das Verzeichnis <CODE>D:\TRASH\MYFILES\ARTICLES</CODE>
+angelegt. Dadurch kann der Papierkorb sich erinnern, von wo das Objekt gelîscht wurde.
+<P><LI>Das Objekt wird dann in <I>dieses</I> Verzeichnis verschoben (und nicht in den eigentlichen
+Papierkorb-Ordner).
+<!-- V0.9.5: changed the following paragraph -->
+<P>Der Grund hierfÅr ist einfach: Geschwindigkeit. WÅrden wir Objekte physisch in den
+Papierkorb-Ordner schieben, so wÅrden regelmÑ·ig Dateien zwischen Laufwerken bewegt.
+(Denken Sie nur einmal daran, eine Datei von 30MB auf diese Weise in den Papierkorb
+zu verschieben.) Im Gegensatz dazu sollte, da das <CODE>\TRASH</CODE>-Verzeichnis sich
+immer auf demselben Laufwerk wie das Objekt befindet, sogar das Verschieben gro·er
+OrdnerbÑume sehr schnell vonstatten gehen.
+<P><LI>Um das Objekt dennoch im Papierkorb selbst sichtbar werden zu lassen, wird eine
+Instanz von XWPTrashObject im Papierkorb erzeugt. Diese Klasse ist eine Unterklasse von
+WPTransient, was bedeutet, da· sie nicht von Start zu Start der ArbeitsoberflÑche
+erhalten bleibt, sondern nur wÑhrend die WPS aktiv ist. Infolgedessen verbrauchen diese
+"Papierkorbobjekte" keinen Platz in OS2.INI.
+<!-- V0.9.5: added the following paragraph -->
+<P>Wird also ein Objekt in den Papierkorb verschoben, so wird es tatsÑchlich dupliziert:
+das "echte" Objekt wird in den unsichtbaren Verzeichnisbaum <CODE>\TRASH</CODE> verschoben,
+und das "Papierkorbobjekt" (XFldTrashObject, Unterklasse von WPTransient) wird im Papierkorb
+erzeugt.
+ 
+</OL>
+<BR><LI>Wenn der <B>Papierkorb geîffnet wird</B> (und damit bevîlkert), werden alle Laufwerke
+nach den versteckten Verzeichnissen <CODE>\TRASH</CODE> durchsucht, und Papierkorbobjekte werden
+entsprechend den in den Unterverzeichnissen enthaltenen Objekten angelegt.
+<P><LI>Wird ein <B>Objekt wiederhergestellt</B> (oder aus dem Papierkorb heraus verschoben), so
+wird das entsprechende, in den <CODE>\TRASH</CODE>-Verzeichnissen befindliche "echte" Objekt
+dahin zurÅck verschoben, von wo es gelîscht wurde (oder an die Stelle, an die der Anwender es
+verschoben hat), und das Papierkorbobjekt wird aus dem Papierkorb entfernt, da es keinen
+Zweck mehr erfÅllt.
+<P><LI>Wenn <B>Objekte entfernt werden</B> (oder der gesamte Papierkorb ausgeleert wird),
+werden sowohl alle Objekte aus den <CODE>\TRASH</CODE>-Verzeichnissen entfernt als auch alle
+Objekte im Papierkorb.
+</UL>
+Diese Herangehensweise erschien mir als guter Kompromi· fÅr Geschwindkeit und StabilitÑt ohne
+zu viel in WPS-Interna zu Ñndern. Ich hatte zuerst an eine Unterklasse von
+<!-- V0.9.5: changed all the following -->
+WPAbstract fÅr den Papierkorb gedacht, aber dies hÑtte eine Menge EintrÑge in OS2.INI mit
+den Åblichen damit verbundenen Problemen bedeutet.
+ 
+<P>Die Verwendung einer Unterklasse von WPTransient hat Åbrigens noch einen anderen Vorteil.
+Da die Papierkorbobjekte (die vergÑnglichen Objekte) nach jedem Hochfahren der WPS von Grund
+auf neu erzeugt werden, kînnen Sie alle versteckten <CODE>\TRASH</CODE>-Verzeichnisse auf allen
+Laufwerken lîschen, falls einmal etwas richtig schief geht, und nach dem nÑchsten Start der
+WPS ist der Papierkorb vollkommen leer.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

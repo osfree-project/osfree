@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Verwijderen Objecten
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20, using bits and chunks from the former
+    fsys/fops_delete.html -->
+<BODY>
+Met &xwp;, betekent "verwijderen" van een object normaliter dat het
+verplaatst wordt naar de <A HREF="objects/obj_trash.html">&xwp; prullenbak</A>.
+De prullenbak verzameld alle onderdelen die verwijderd zijn en biedt u
+de mogelijkheid om objecten te herstellen die per ongeluk verwijderd waren.
+
+<P>Er zijn verschillende manieren om een object te verwijderen:
+
+<UL><LI>Selecteer het <B>"Verwijder" menu onderdeel</B> vanuit een object zijn
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<P><LI>Voor een snelle manier, kunt u de <B>"Delete" toets</B>
+op uw toetsenbord gebruiken om het huidige geselecteerde object te verwijderen.
+
+<P><LI>U kunt ook objecten naar de prullenbak <!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dragdrop.html">slepen</A>
+en daarin laten vallen.
+
+</UL><B>Opmerkingen:</B>
+
+<OL><LI>Sommige objecten zijn <B>beschermd</B> tegen verwijdering. Voor bestanden
+kan dit komen doordat ze  "Systeem" of "Alleen lezen"
+<A HREF="glossary/gls_fattrs.html">bestandskenmerken</A>
+hebben. Daarnaast, kunnen objecten van sommige
+<A HREF="glossary/gls_wpsclasses.html">classes</A> nooit verwijderd worden
+als zij cruciaal zijn voor de werking van het systeem.
+
+<P><LI>Verwijdering van een <A HREF="tasks/tsk_crshadow.html">reflectie</A> verwijderd
+het object niet waarnaar de reflectie verwijst, maar alleen de reflectie zelf.
+
+<P><LI>Als u geselecteerde objecten <B>direct wilt verwijderen</B>, zonder
+dat ze eerst naar de prullenbak verplaatst worden, dient u de <B>"Shift" toets</B> vast te houden
+als u het "Verwijder" menu onderdeel selecteert of de "Delete" toets indrukt. Wees gewaarschuwd
+dat deze actie normaliter niet ongedaan gemaakt kan worden: de geselecteerde objecten zijn
+voorgoed vernietigd.
+
+<P><LI>Afhankelijk van de instellingen op de "Bevestigingen" pagina
+in het &link_wpsobj;,
+zal &xwp; een bevestigingsboodschap tonen voordat objecten permanent verwijderd worden.
+
+<P><LI>Als u liever heeft dat objecten altijd direct verwijderd worden, in plaats van
+dat ze eerst naar de prullenbak verplaatst worden, schakel dan de betreffende instelling in
+op de eerste instellingen pagina van de prullenbak zijn
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A>.
+
+<P><LI>Er zijn manieren om bestandssysteem objecten te herstellen die per ongeluk
+verwijderd zijn met behulp van het
+<CODE>UNDELETE</CODE> opdracht op de
+&os2; opdrachtregel. Echter, dit vereist dat de ondersteuning hiervoor eerst is ingeschakeld.
+Zie de
+<A HREF="cmdref.inf#undelete">documentatie van het <CODE>UNDELETE</CODE> opdracht</A>
+in de <I>Handleiding bij &os2; Opdrachten</I>.
+
+<IFNDEF __NOXWPSETUP__>
+<P><LI>U kunt &xwp; zijn verwijder vervangingen uitschakelen op de "Mogelijkheden" pagina
+in het
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Instellingen" object</A>.
+<BR>
+</IFNDEF>
+
+</OL>
+Zie voor gerelateerde informatie, de onderstaande lijst:
+
+<UL>
+<LI><A HREF="objects/obj_trash.html">&xwp; prullenbak</A>
+<LI><A HREF="glossary/gls_dragdrop.html">Over slepen en loslaten</A>
+<LI><A HREF="tasks/tsk_crshadow.html">Over reflecties</A>
+</UL>
+</BODY>
+</HTML>
+

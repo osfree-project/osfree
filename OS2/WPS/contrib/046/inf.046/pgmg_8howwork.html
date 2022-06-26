@@ -1,0 +1,32 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>Hur det fungerar</TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+<B>Klasser: XWPScreen</B>
+<HR>
+&pgr; beh”ver <B>ingen speciell h†rdvara</B> f”r att implementera dessa virtuella skrivbord.
+Medan de olika implementationerna hos Unix X Window system (ett av dom „r XFree/2, vilken k”rs
+under &os2;) verkligen kan anv„nda extra minne hos ditt videokort f”r att f† rum med
+ytterligare skrivbord, flyttar &pgr; helt enkelt omkring f”nster runt p† din sk„rm.
+
+<P>F”r att klarg”ra saken: Med &pgr;, tekniskt, har du fortfarande endast en sk„rm.
+Varken PM eller din videodrivrutin k„nner till n†got om virtuella skrivbord. Allt &pgr; 
+g”r n„r skrivborden v„xlas „r att flytta f”nster fr†n och till din enda synliga sk„rm. Det
+betyder, att om du v„xlar skrivbord till h”ger, flyttar &pgr; alla f”nster till v„nster med storleken
+av din fysiska sk„rm (vilket g”r dom osynliga, s† klart). Som ett resultat, beh”vs ingen speciell 
+h†rdvara eller programvara. Om din dator kan hantera flyttning av f”nster, kan den anv„nda &pgr;.
+
+<P>Det lilla &pgr; pager f”nstret g”r sedan ett antal ber„kningar f”r att alla f”nster skall se
+ut som dom vore en del av en stor virtuell sk„rm, men din fysiska sk„rm „ndras inte -- det „r
+f”nstren som flyttas.
+
+<P>&pgr; beh”ver ocks† &xwp; PM hook f”r att kunna sp†ra f”nstrens r”relser -- f”r det f”rsta,
+f”r att kunna spegla f”nstrens r”relser i &pgr; f”nstret, f”r det andra f”r att bli informerad om
+n„r f”nstren skapas eller f”rst”rs av n†got sk„l. Det kan d†, till exempel, automatiskt v„xla 
+skrivbord (det betyder, flytta alla f”nster) om fokus ges till ett annat f”nster p† ett annat skrivbord.
+
+<BR>
+</BODY>
+</HTML>

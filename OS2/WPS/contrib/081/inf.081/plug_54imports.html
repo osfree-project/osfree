@@ -1,0 +1,40 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Step 4: Importing functions from XFLDR.DLL
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+As you might imagine, there is plenty of useful code in <CODE>XFLDR.DLL</CODE> --
+for graphics, strings, PM controls, and much more. Most of what you see in the
+"&xwp; helpers" sources is probably in <CODE>XFLDR.DLL</CODE> somewhere.
+
+<P>Now, if you want to use that code, you basically have two options.
+
+<OL><LI>Copy and paste the functions from the helpers sources (or wherever else
+from) into your widget code.
+
+<P><LI>The smart way to do this however would be to avoid duplicate code and
+use the code from <CODE>XFLDR.DLL</CODE>. The &xcenter; interfaces allow you to
+do exactly that:
+
+<P>When your DLL's "init" export gets called (ordinal 1), it receives the module
+handle of <CODE>XFLDR.DLL</CODE>. You can then use <CODE>DosQueryProcAddr</CODE>
+to resolve the addresses of functions which are exported from <CODE>XFLDR.DLL</CODE>,
+store those function pointers in global variables, and use them instead.
+
+<P>Again, see the standard widgets in <CODE>src\widgets\</CODE> in the &xwp;
+sources, which all make use of this feature.
+
+<P>To make sure the prototypes are correct, many prototypes have already been
+typedef'd in the various &xwp; header files. Basically, I added a typedef
+whenever I needed an export myself. Similarly, in <CODE>src\shared\xwp.def</CODE>,
+you will find those functions exported which I needed for the standard plugins.
+If you need more functions and prototypes, just contact me, and I'll add them.
+
+</OL>
+</BODY>
+</HTML>
+
+

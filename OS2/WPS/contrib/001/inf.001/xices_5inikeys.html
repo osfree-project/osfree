@@ -1,0 +1,121 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        &xwp; INI Keys
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.0. -->
+<BODY>
+&xwp; stores all its global settings in your OS2.INI file. (By contrast,
+the settings for individual Desktop objects are stored by the WPS, mostly in
+the <CODE>.CLASSINFO</CODE> extended attributes.)
+<!-- the following changed with V0.9.1 -->
+<P>This section is supposed to explain the keys in the "&xwp;" section
+in OS2.INI. If you had XFolder installed previously, &xwp; copies this
+data from the "XFolder" section, which remains in OS2.INI so that you can
+switch back to XFolder later if you choose to de-install &xwp;.
+<P>Note: &xwp; does not rely on the INI keys. If you really mess up something
+bad, you can simply delete a key with an INI editor or the whole "XFolder"
+section altogether. After the next Desktop restart, &xwp; will reinitialize itself
+with safe default values.
+<P>Here we go:
+
+<DL>
+<DT><CODE>Accelerators</CODE>
+<DD>This has the list of folder hotkeys. This data is binary, and you should not
+change it manually.
+This is an array of <CODE>XFLDHOTKEY</CODE> structures,
+as defined in <CODE>\shared\common.h</CODE> of the &xwp; sources.
+<B>Defaults:</B> as described on the
+<A HREF="fldr_5xelerators.html">"Folder hotkeys"</A> page.
+
+<DT><CODE>AutoClose</CODE>
+<DD>The list of items which are to be closed automatically by &xshutdown;. Each item
+on this list is a zero-terminated string, followed by a ULONG which signifies what
+to do with this item. Then comes the next item; if it's 0, the list is terminated.
+
+<DT><CODE>BootLogoFile</CODE>
+<DD>The fully qualified filename of the
+OS/2 V1.3 .BMP file to use for the Desktop start logo, as set by the "Startup"
+page in the Desktop's settings notebook. This is a plain zero-terminated string.
+
+<DT><CODE>DialogFont</CODE>
+<DD>The font to use for &xwp; message boxes. This gets set when you drop a font
+on one of them.
+<B>Default:</B> 9.WarpSans, I think.
+
+<DT><CODE>FavoriteFolders</CODE>
+<DD>Well, the list of <A HREF="menu_6favorite.html">favorite folders</A>,
+as hex object handles separated by spaces.
+
+<DT><CODE>GlobalSettings</CODE>
+<DD>This is a large array of ULONGs with all kinds of settings, mostly from
+the "Workplace Shell" object. This corresponds to
+the <CODE>GLOBALSETTINGS</CODE> structure
+as defined in <CODE>\shared\common.h</CODE> of the &xwp; sources. You better not
+change values in here manually, but you can delete this whole key to reset &xwp;
+to safe default values (after the next Desktop startup).
+This gets rewritten every time some global setting is
+changed in any of the settings objects.
+
+<DT><CODE>JustInstalled</CODE>
+<DD>This key only exists right after &xwp; has been installed and leads to
+the "Welcome" information of &xwp; and the config folder being created.
+Afterwards, this key is deleted again.
+
+<DT><CODE>Language</CODE>
+<DD>&xwp;'s three-digit language code, from which the NLS to be loaded is
+determined. This can be set in "&xwp; Setup" and
+<B>defaults</B> to "001", if not found.
+
+<DT><CODE>NameClashLastFocus</CODE>
+<DD>The dialog item ID which last had the focus in the "Object exists" dialog.
+
+<DT><CODE>QuickOpenFolders</CODE>
+<DD>The list of <A HREF="fldr_5quickopen.html">quick-open folders</A>,
+as hex object handles separated by spaces.
+
+<DT><CODE>RebootTo</CODE>
+<DD>A list of user-reboot items (which appear in the "Reboot" drop-down box
+in the &xshutdown; confirmation dialog). This is a list of pairs of zero-terminated
+strings: the first one describes the item, the second one specifies the command
+to execute. The list is terminated by two extra zero bytes.
+
+<DT><CODE>SB_*</CODE>
+<DD>Various status bar settings. The names are pretty self-explanatory, I think.
+If a key is not found, a <B>default</B> is loaded from the NLS DLL.
+
+<DT><CODE>SelectSome</CODE>
+<DD>The last ten file filters entered in the "Select by name" dialog, each of which is
+terminated with a null byte.
+
+<!-- the following added with V0.9.1 -->
+<DT><CODE>TrashCan::Drives</CODE>
+<DD>A binary array of bytes specifying drives support for the &xwp; trash can.
+
+<DT><CODE>Version</CODE>
+<DD>The &xwp; version which is running. This is only set for informational
+purposes (e.g. for other applications which might be interested), but not read
+by &xwp; itself.
+
+<DT><CODE>WndPos*</CODE>
+<DD>Various window positions to make them reappear where you closed them. These
+entries use a plain SWP structure each (I don't use WinStoreWindowPos).
+
+<DT><CODE>XFolderPath</CODE>
+<DD>The main directory of where &xwp; is installed.
+This gets set by the install script and is required by TREESIZE.EXE to find
+the NLS DLL. The &xwp; core however does not use this key.
+
+<DT><CODE>XWPSound:LastDir</CODE>
+<DD>The "Sound" object replacement remembers the last directory used with
+the "Browse" button here.
+
+<DT><CODE>XWPSound:Scheme</CODE>
+<DD>The "Sound" object replacement remembers the current sound scheme
+name here.
+</DL>
+<BR>
+</BODY>
+</HTML>
+

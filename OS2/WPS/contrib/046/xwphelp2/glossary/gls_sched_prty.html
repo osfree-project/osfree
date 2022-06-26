@@ -1,0 +1,105 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Tr†dar Prioritet
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20; moved text from gls_scheduler.html to here -->
+<BODY>
+I allm„nhet, f†r en tr†d med h”gre prioritet mer processortid „n en med
+l„gre prioritet. F”r att vara mera precis, &os2; tittar p† tr†dprioritet om
+fler „n en tr†d internt „r markerad som "f„rdig".
+
+<P>Som kontrast, tr†dar vilka f”r n„rvarande „r "blockerade" beh”ver i vilket
+fall ingen CPU tid, s† f”r dom, betyder prioritet ingenting innan de deblockeras
+igen. Notera att p† ditt typiska &os2; system, kommer det stora flertalet tr†dar
+att befinna sig i "blockerad" status vid n†gon som helst tidpunkt.
+
+<P>&os2; „r kapabel att kontrollera tr†dprioriteter p† ett v„ldigt raffinerat
+s„tt. Det skiljer mellan fyra <B>prioritetsklasser:</B>
+
+<!-- V0.9.19: corrected all the following -->
+
+<OL><LI><B>"Ledig tid prioritet"</B> (1) „r den l„gsta prioritetsklassen. den betyder att
+en tr†d endast f†r processortid om inga tr†dar med h”gre prioritetsklasser k”rs. S†dana
+tr†dar „r hj„lpsamma f”r att avlasta arbete som beh”ver utf”ras, men kan f”rdr”jas tills
+datorn har tid f”r den.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Ett exempel p† en s†dan tr†d „r &xwp;'s egen
+<A HREF="glossary/gls_workerthr.html">Arbetstr†d</A>, vilken h†ller koll p† de uppv„ckta
+Skrivbordsobjekten p† ditt system. Detta „r relativt tidskonsumerande, men icke tidskritiskt,
+s† det utf”rs med ledig tidsprioritet.
+</IFNDEF>
+
+<P><LI><B>"Regulj„r prioritet"</B> (2) „r en prioritetsklass som de flesta tr†dar anv„nder.
+Det „r ocks† &os2;'s standard prioritetsklass om en tr†d inte direkt „ndrar dess prioritet.
+Mellan tr†dar av den klassen, varierar &os2; dynamiskt prioritetsniv†er (mer om detta nedanf”r)
+f”r att f”rs„kra sig om att ingen tr†d av den h„r klassen "sv„lter", d.v.s. inte f†r n†gon
+processortid.
+
+<P><LI><B>"F”rgrunds serverprioritet"</B> (4) „r den n„st-h”gsta prioritetsklassen
+f”r tr†dar som inte ”nskar bli p†verkade av dynamiska prioritetsvariationer som utf”rs
+p† "regulj„ra" klasstr†dar. Notera att „ven om den h„r klassen har v„rdet 4, tar tids-kritiska
+tr†dar prioritet ”ver tr†dar av den h„r klassen. &os2; utf”r fortfarande vissa
+prioritetsvariationer p† tr†dar av den h„r klassen baserade p† aktiviteten hos tr†den
+och systemet.
+
+<P><LI><B>"Tids-kritisk prioritet"</B> (3) „r den h”gsta prioritetsklassen i &os2;. En tr†d
+med tids-kritisk prioritet kommer att ges processortid omedelbart och kommer inte att avbrytas
+f”re dess arbete „r utf”rt. M†nga device drivrutiner kommer endast att ”verl„mna CPU'n, till
+tr†dar av den h„r prioritetsklassen.
+
+<P>En s†dan tr†d skall endast anv„nda minsta m”jliga CPU tid d„rf”r att den inte kan avbrytas
+(utom av andra tids-kritiska tr†dar) och kan l„tt h„nga systemet.
+<!-- V0.9.20: added link -->
+Žven om den ”verl„mnar CPU'n via <CODE>DosSleep(0)</CODE> (se dokumentationen f”r
+<A HREF="cpref.inf#DosSleep"><CODE>DosSleep</CODE></A>
+i Toolkit dokumentationen<A HREF="_toolkitlink.html">*</A>), kommer andra tids-kritiska
+tr†dar inte att k”ras. Detta anv„nds normalt bara f”r n„tverks- och annan kommunikationsprogramvara,
+CD br„nnare eller MP3 spelare.
+
+<!-- end V0.9.19 -->
+
+</OL>Inom varje prioritetsklass, kan en tr†d s„tta en <B>prioritetsniv†.</B> Detta „r
+ett v„rde fr†n 0 till +31 vilket best„mmer f”retr„desr„tten hos en tr†d <I>inom</I> en
+prioritetsklass och kommer endast att ber„knas om tv† tr†dar av samma prioritetsklass
+konkurrerar.
+
+<P>N†gra exempel:
+
+<UL><LI>En "regulj„r" tr†d med prioritetsniv† +31 ”verflyglar en "regulj„r" tr†d med
+prioritetsniv† 0.
+
+<P>D„remot, f”rs„krar sig &os2; om att ingen tr†d inom den "regulj„ra prioritets" klassen
+"sv„lter", d„rf”r att den aldrig f†r n†gon processortid, genom att dynamisk ”ka varje tr†ds
+prioritets automatiskt efter en viss tid. Den tidsperioden best„ms av
+<CODE>MAXWAIT</CODE> &cfgsys; inst„llningen. Dessutom, ”kar &os2; en tr†ds prioritet
+tempor„rt om den beh”ver ta emot tangentbordsinmatning, om tr†dens process k”rs i
+f”rgrunden, eller om tr†den f”r n„rvarande „r sysselsatt med I/O.
+
+<P>Dessa dynamiska justeringar utf”rs endast om &cfgsys; inte inneh†ller kommandot
+<CODE>PRIORITY=ABSOLUTE,</CODE> vilket inte rekommenderas.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __NOOS2KERNEL__>
+(Detta „r orsaken till att du inte hittar den inst„lllningen i
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; K„rna"</A> objektet.)
+</IFNDEF>
+
+<P><LI>En "tids-kritisk" tr†d med prioritetsniv† 0 ”verflyglar fortfarande en
+"regulj„r" tr†d med prioritetsniv† +31 d„rf”r att den tillh”r en h”gre prioritetsklass.
+I det h„r fallet, har den dynamiska prioritetsjusteringen ingen effekt, d„rf”r att den
+p†verkar endast exekveringen av "regulj„ra" tr†dar. Under tiden den tids-kritiska tr†den
+k”rs, sv„lter alla "regulj„ra" tr†dar.
+
+<P><LI>Samma sak g„ller, till exempel, f”r en "regulj„r tr†d" med prioritetsniv† 0 och en
+"ledig-tids" tr†d med prioritetsniv† +31.
+
+<P><LI>Tv† tr†dar med exakt samma prioritet k”rs d„remot "mot" varandra, vilket inneb„r att
+&os2; h†ller ett alternerande CPU „garskap mellan dom.
+
+</UL>
+</BODY>
+</HTML>
+

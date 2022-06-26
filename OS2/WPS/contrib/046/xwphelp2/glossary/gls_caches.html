@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Filsystem Cacher
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Filsystemscacher „r en mekanism som anv„nds av de flesta av dagens operativsystem
+f”r att undvika redundanta diskaccesser. F”r att †stadkomma detta, „r en del
+av datorns fysiska minne (RAM) anv„nt f”r att buffra data som l„ses fr†n och
+skrivs till disk. Det minnesutrymmet kallas sedan f”r en "cache".
+
+<P>Se <A HREF="glossary/gls_fs.html">"Filsystem"</A> f”r en introduktion om filsystem.
+
+<P>Blanda inte ihop filsystemscacher med de andra cacherna som ocks† finns p† ditt system,
+s†dana som processorcacher och kanske andra h†rvarucacher som „r inbyggda i din h†rddiskar.
+Konceptet f”r dessa cacher „r det samma (undvika l†ngsamma accesser genom att anv„nda
+snabbt minne om m”jligt), men de „r inte beskrivna h„r.
+
+<P>Om en applikation accessar diskdata som fortfarande finns i filsystemscachen, 
+beh”ver &os2; inte l„sa det fr†n disken, utan kan helt enkelt ta det fr†n cachen i minnet,
+vilket „r betydligt snabbare.
+
+<P> andra sidan, om en applikation skriver data till disk, kan &os2; kopiera detta data 
+till cachen f”rst och f”rdr”ja skrivningen till disk tills disken „r klar att acceptera
+det, eller att systemet „r ledigt. Detta kallas <B>"lazy writing"</B> och kan f”rb„ttra 
+ditt systems prestanda rej„lt.  andra sidan, detta ”kar risken f”r dataf”rluster i fall
+av str”mavbrott eller fatala systemkrascher, d„rf”r att data i cacherna d† g†r f”rlorade. 
+Du b”r dock fortfarande ha lazy writing aktiverad om du har ett n†got s† n„r stabilt 
+&os2; system och v„ldigt s„llan f†r CHKDSK's vid uppbootning.
+
+<P>&os2; implementerar separata cacher f”r varje filsystem som „r installerat. Detta betyder 
+att alla FAT
+<!-- V0.9.20: replace drives with volumes -->
+volymer kommer att anv„nda en cache, och alla HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volymer en annan. Dessa cacher „r separat konfigurerade med olika &cfgsys; inst„llningar.
+<!-- V0.9.20: added link, added ifndef -->
+<IFNDEF __NOOS2KERNEL__>
+Du kan editera dessa inst„llningar i <A HREF="objects/obj_krnl.html">"&os2; K„rna"</A> objektet.
+Du kommer att hitta HPFS inst„llningarna p† "Drivrutins" sidan i det objektet, eftersom HPFS „r
+ett installerbart filsystem (IFS). Som kontrast, eftersom FAT „r inbyggt i sj„lva &os2; K„rnan,
+har det sin egen sida.
+</IFNDEF>
+
+<P>Var v„nlig och kom ih†g att minne du reserverar f”r filsystemscacher inte l„ngre „r
+tillg„ngligt f”r andra uppgifter. Om du reserverar f”r mycket cacheminne, kommer detta att
+f† ett negativt inflytande p† din systemprestanda, eftersom &os2; kommer att spendera mer tid
+p† din swapfil. Som ett resultat, b”r du reflektera lite grann ”ver vilka inst„llningar som du
+specificerar h„r.
+
+<P>I allm„nhet, ju mer minne du har i ditt system, ju mer minne b”r reserveras f”r cacher. Du
+b”r ocks† ta med i ber„kningen vilka filsystem som du anv„nder oftast: till exempel, om du 
+huvudsakligen anv„nder HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volymer, „r det sl”seri att reservera mycket minne f”r FAT cacher, och vice versa.
+
+<P>Detta „r inte l„ngre n†gon st”rre sak med tanke p† de m„ngder med minne som installeras i 
+dagens datorer. Emellertid, om du fortfarande endast har 16 MB RAM eller mindre, b”r du reservera 
+mer „n 1024 KB cache f”r b†da filsystemen tillsammans.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XSH_XFIX_INTRO;>
+<HEAD>
+    <TITLE>
+        xfix: Introduction
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+This is xfix, the &xwp; File Handles Fixer.
+
+<P>What xfix can do for you:
+
+<UL><LI>Dump the contents of the WPS's file handle data blocks from the
+<CODE>OS2SYS.INI</CODE> files into a PM container. This is what you are
+seeing now.
+
+<P><LI>Allow you to remove each handle individually.
+
+<P><LI>Allow you to remove folder position entries which have been wrongly assigned.
+
+<P><LI>Move lost abstract objects to the Desktop.
+
+</UL>Compared to Henk Kelder's formidable CHECKINI program (from the
+<A HREF="http://www.os2site.com/sw/util/wps/wptools33.zip">WPTOOLS</A> package),
+xfix gives you more control, but also requires more attention and knowledge.
+
+<P>Thanks go out to Henk Kelder again for finding out how the handles work in the
+first place. xfix is partly based on his work.
+
+<P><B>Warning:</B> This program allows you to even remove file handles that the
+WPS relies on, such as the handles for the Desktop. xfix will allow you to make
+any changes to the file handles without preventing changes that should not be
+made. <B>Only use this program if you know what you're doing. Read through all
+the following before using this.</B>
+
+<P>In general, you are safe until you select
+"Write back to OS2SYS.INI" from the "xfix" menu. Only this will actually
+modify your system.
+
+<P>Please select from the following list to receive more information:
+
+<UL><LI><A HREF="xfix_handles.html">About WPS file handles</A>
+<P><LI><A HREF="xfix_list.html">The handles list</A>
+<P><LI><A HREF="xfix_delete.html">Deleting handles</A>
+<P><LI><A HREF="xfix_menus.html">Menu commands reference</A>
+<P><LI><A HREF="xfix_howto.html">How can I...</A>
+</UL>
+</BODY>
+</HTML>
+

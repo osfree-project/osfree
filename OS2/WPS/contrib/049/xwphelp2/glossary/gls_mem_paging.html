@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Auslagern von Speicher
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+Das Konzept des Auslagerns von Speicher erlaubt es &os2;, Anwendungen auch
+dann noch Speicher zuzuordnen, wenn der gesamte physische Speicher des
+Systems bereits belegt ist. Dies wird manchmal auch "virtueller Speicher"
+genannt (was jedoch nicht mit dem
+<a href="glossary/gls_mem_himem.html">virtuellen Adreáraum</a> zu verwechseln ist).
+ 
+<P>Wenn die Auslagerung aktiviert ist - was die Standardeinstellung ist -,
+kann &os2; Daten vorbergehend aus dem Hauptspeicher in eine besondere
+Datei auf der Festplatte auslagern. Diese Auslagerungsdatei heiát unter &os2;
+stets <CODE>SWAPPER.DAT</CODE>. Sofern Sie dies nicht in der Datei
+&cfgsys; anders angegeben haben, liegt diese Datei im Verzeichnis
+<CODE>\OS2\SYSTEM</CODE>.
+ 
+<P>Im Detail passiert dabei folgendes:
+ 
+<OL><LI>Wenn eine Anwendung Speicher anfordert und nicht mehr gengend
+physischer Hauptspeicher frei ist, nimmt &os2; einen Block des physischen
+Speichers, der seit einer Weile nicht mehr verwendet wurde, und schreibt ihn
+in die Datei <CODE>SWAPPER.DAT</CODE>. Dieser Block ist damit frei geworden
+und wird der anfordernden Anwendung zur Verfgung gestellt. Auf diese Weise
+k”nnen Anwendungen mehr Speicher nutzen, als physisch vorhanden ist.
+ 
+<P><LI>Wenn nun aber eine Anwendung versucht, auf den Speicher zuzugreifen,
+der gerade ausgelagert wurde, f„ngt &os2; diese Anforderung ab (weil der
+"Speicher" nun eben auf der Festplatte liegt) und l„dt den entsprechenden
+Speicherblock wieder zurck in den Hauptspeicher, bevor die Anwendung tats„chlich
+auf ihn zugreift. (Wenn erforderlich, wird &os2; vorher einen anderen Speicherbereich
+auslagern mssen, um fr den wieder hereinzuladenden Speicherblock Platz zu schaffen.)
+ 
+</OL>Natrlich ist eine Festplatte blicherweise sehr viel langsamer als
+Hauptspeicher. Je nach Ihrem Prozessor und der aktuellen Speichersituation
+wird dies im Bereich 1:100 liegen.
+ 
+<P>Dies ist der Grund, warum Hauptspeicher die vielleicht wichtigste Voraussetzung
+fr ein schnelles &os2;-System ist. Auch wenn &os2; theoretisch mit lediglich
+8 MB RAM installiert werden kann (&warp; 3 angeblich sogar mit 4), werden Sie an
+so einem System nicht viel Freude haben, da Sie haupts„chlich dem System beim
+Auslagern (und der Festplatte beim Rappeln) zuh”ren k”nnen.
+ 
+<P>Aber auch wenn relativ viel RAM installiert ist (etwa 128 MB oder mehr),
+kann es passieren, daá &os2; pl”tzlich mit dem Auslagern beginnt. Da das Vergr”áern
+der Auslagerungsdatei ein sehr aufwendiger Vorgang ist, sollten Sie die
+Einstellungen fr <CODE>SWAPPATH</CODE> sorgf„ltig ausw„hlen.
+ 
+<P>Wenn Sie das
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A> benutzen,
+k”nnen Sie das
+<A HREF="xcenter/xc_sentinel.html">"Wachposten"-Widget</A>
+benutzen, um &os2;s Speicherverwaltung zuzuschauen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

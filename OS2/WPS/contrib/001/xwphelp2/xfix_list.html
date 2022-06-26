@@ -1,0 +1,155 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: The Handles List
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+On startup, xfix loads the handles table from the active
+<CODE>PM_Workplace:HandlesX</CODE> section in <CODE>OS2SYS.INI</CODE>.
+(See <A HREF="xfix_handles.html">About WPS file handles</A> for details.)
+
+<P>xfix then parses the handles table.
+For each handle that was parsed by xfix, the following information is displayed
+in the columns of the xfix handles list:
+
+<OL><LI><B>"i"</B> is just a count which is raised with each handle that was
+parsed. This number is not present in <CODE>OS2SYS.INI</CODE> and is not
+updated when you delete handles.
+(See "Sort by index" in the <A HREF="xfix_menus.html">Menu commands reference</A>.)
+
+<P><LI>The second column shows you the <B>status</B> of each handle. This is
+assigned by xfix. If xfix considers the handle to be OK, this column is empty.
+
+<P>Already after startup, xfix checks the handles for integrity. It will detect
+invalid parent handles and duplicate handles immediately. If you want to have
+file handles marked invalid which no longer point to valid file-system information,
+you must first issue "Find invalid files" from the
+<A HREF="xfix_menus.html">"Actions" menu</A>.
+
+<P>Every handle entry that has anything in this column is given a gray emphasis
+so that you can quickly see it. If you use "Select all invalid" from the
+<A HREF="xfix_menus.html">"Select" menu</A>, all those items are automatically
+selected for you.
+
+<P><LI>The <B>"Type"</B> field is either <CODE>NODE</CODE> or <CODE>DRIV</CODE>.
+If you <A HREF="xfix_menus.html">sort by index</A> to get the original
+order of items as in <CODE>OS2SYS.INI</CODE>, you will see that there will always
+be a <CODE>DRIV</CODE> entry before all <CODE>NODE</CODE> entries
+which belong to that drive.
+In addition, there is always an extra <CODE>NODE</CODE> entry for the root directory
+after the <CODE>DRIV</CODE> node, if any handles exist for that drive. I don't
+know why there is an extra <CODE>DRIV</CODE> node, but I guess the WPS uses it
+as a marker internally for finding handles more quickly.
+
+<P><LI>The <B>"Node ofs"</B> field displays the offset at which this entry (the
+"node") was found in the handles table from <CODE>OS2SYS.INI</CODE>. The table
+starts with four maintenance bytes (whose meaning is unknown to me), so the
+first entry always starts at offset 4. The length of each entry depends on its
+short name (see below).
+
+<P><LI>The <B>"Handle"</B> field is from the node in <CODE>OS2SYS.INI</CODE> and
+shows you the file system handle in hexadecimal,
+which becomes the low-word of the object handle of the corresponding filesystem
+object (WPDataFile or WPFolder).
+See <A HREF="xfix_handles.html">About WPS file handles</A> for details.
+
+<P>There is no obvious rule for how handles are assigned. It appears that when
+new handles are created, they are just given a random number which is not used yet.
+
+<P>This field is empty for <CODE>DRIV</CODE> entries because these never have
+handles. Again, obviously, <CODE>DRIV</CODE> nodes are just markers in the
+handles data.
+
+<P><LI>The <B>"Parent"</B> field is also stored with the entry in <CODE>OS2SYS.INI</CODE>
+and specifies the handle of the folder in which this object (either a file or another
+folder) resides.
+This better be valid (except for root <CODE>NODE</CODE> entries, where
+this is 0, obviously). If it is not, xfix marks the entry as "Orphaned" and
+invalid because it is no longer useful.
+
+<P>The parent handle is of great importance. The WPS cannot build the full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+from a file handle if a parent handle is not valid. See below for how
+this works.
+
+<P><LI>The <B>"Short name"</B> is stored in the handles block and specifies the
+name of the file-system object without the full path path specification. The
+length of the file name is variable and is also the reason why each entry has
+a different size.
+
+<P>Normally, the WPS upper-cases the short names. However, on my system, some
+entries are in mixed case as well. I have no idea whether this causes any
+problems.
+
+<P><LI>The <B>"Children"</B> field is calculated by xfix while it is parsing
+the handles table. It specifies how many other entries rely on this entry
+because it is specified as their parent handle, either directly (as seen in
+the "Parent" field) or indirectly (because other parents are in between).
+
+<P>If "Children" is 0, you can delete this entry without hurting other
+entries. (This still doesn't imply that it's always safe to delete the entry,
+since this might break shadows etc. See
+<A HREF="xfix_delete.html">Deleting file handles</A>.)
+
+<P><LI>The <B>"Dups"</B> field is also set up by xfix and counts the number of
+duplicates of each handle. <B>This had better be zero for each handle.</B>
+If it is not, the WPS will probably blow up pretty soon. That's why xfix
+then gives the handle the "Duplicate" status and marks it as invalid.
+
+<P>See <A HREF="xfix_howto.html">How can I...</A> for more on duplicates.
+
+<P><LI>The <B>"Refcs."</B> field stands for "References" and tells you whether
+this handle is currently used from the <CODE>OS2.INI</CODE> file.
+
+<P>If you see <CODE>ABS</CODE> in this field, this means the handle is listed in
+the <CODE>PM_Abstract:FldrContent</CODE> section of <CODE>OS2.INI</CODE>. That
+section lists the abstract objects that are present in a folder. In other words,
+if you see <CODE>ABS</CODE>, the handle is for a folder which contains abstract
+objects.
+
+<P>If you see <CODE>FPOS</CODE> in this field, this means the handle is listed
+in the <CODE>PM_Workplace:FolderPos</CODE> section. That section lists all the
+folder positions that were ever stored by the WPS. So if you see <CODE>FPOS</CODE>,
+the entry is for a folder which has already been opened by the WPS and has had
+its folder position stored.
+
+<P>See <A HREF="xfix_delete.html">Deleting file handles</A> for implications when
+deleting file handles which have these fields set.
+
+<P><LI>The <B>"Long name"</B> shows you the full path specification of this
+handle, as it would be resolved by the WPS. Note that this does not appear
+in the handle entry in <CODE>OS2SYS.INI</CODE>... instead, this displays
+the smartness of the whole file handles concept.
+
+<P>The way this works is that when the WPS needs a full file name from an object
+handle (e.g. when a program object is started and the executable name is
+needed), it looks up the object's handle in the table, which
+gives it the short name (as displayed in the "Short name" column).
+
+<P>The WPS then looks at the parent handle of this entry. It looks up the entry
+for the parent handle and prepends the short file name of the parent to the
+current entry. It then goes for the parent's parent... and so on, until the
+root node for the drive is reached. (At least this is how xfix builds the
+long file name.)
+
+<P>This has several advantages:
+
+<BR><UL><LI>Only the short name has to be stored in <CODE>OS2SYS.INI</CODE>, which
+saves space.
+
+<P><LI>Even more importantly though, this is very efficient when files or folders
+are moved. In that case, only the parent handle of the object being moved has to
+be updated. Since all sub-objects of the item being moved only contain a parent
+handle, the next time the full file name is needed, it can be correctly built with
+the new path.
+
+<P>This is why program objects still work after folders have been moved.
+
+</UL>
+</OL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,568 @@
+;
+; This file contains additions to XFLDR001.TMF (see remarks there).
+; Many definitions have been moved here because they are presently
+; not needed for eComStation and should thus be separated.
+;
+; This applies to the following messages (V0.9.16, IIRC):
+;
+;   --  FEATURES_*
+;
+;   --  XWPCLS_*
+;
+; With V0.9.20, more items were moved into this file (without
+; changing the actual messages):
+;
+;   --  S506DLG_*
+;
+;       Copyright (C) 1997-2015 Ulrich M罵ler.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+;
+; this item added with V0.9.20 (2002-08-10) [umoeller]
+; and V1.0.1 (2003-02-02) [umoeller]
+;
+
+<--PRODUCTINFO-->: XWorkplace
+Version &version;
+Built &date;
+
+;
+; the following item has changed V0.9.20 (2002-08-10) [umoeller]
+;
+
+<--XFL0140-->: &copy;&nbsp;1997-2003 Ulrich Moeller.
+<BR>Japanese National Language Support: &copy;&nbsp;2002-2003 Jun Mikami (with additions &copy;&nbsp;2008 Alex Taylor).
+<P>
+Contains portions &copy;&nbsp;2000-2015 Martin Lafaix, Paul Ratcliffe, and others.
+<BR>Contains portions from the Standard Function Library &copy;&nbsp;1991-99 iMatix corporation.
+<BR>Contains portions from expat 1.95.1 &copy;&nbsp;1998-2000 Thai Open Source Software Center Ltd.
+<P>
+&xwp; ホームページ: <A HREF="http://www.xworkplace.org">http://www.xworkplace.org</A>
+<BR>不具合追跡の公式ページ: <a href="http://xtracker.netlabs.org">http://xtracker.netlabs.org</a>
+<P>
+&xwp; の一般的な話題: &contact-user;
+<BR>&xwp; の開発 (または開発を学びたい場合) の連絡先: &contact-dev;
+<P>
+&xwp; は、GNU General Public Licence (GPL) に基づいたフリー・ ソフトウェアです。GPL は、&xwp; インストール・ディレク トリー内の
+<A HREF="copying">COPYING ファイル</A>に明記されています。したがって、 &xwp; には何の保証もありません<B></B>。
+
+<P>Netlabs の CVS からすべてのソース・コードを入手できます。 詳細は、<A HREF="http://www.xworkplace.org/cvs.html">http://www.xworkplace.org/cvs.html</A> を参照してください。
+GPL の条件に従って、&xwp; を自由に再配布したり変更した りすることができます。
+<P>
+詳細については、<A HREF="inf">&xwp; ユーザーの手引き</A>にある "Notices" の項を参照してください。
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new IBM1S506/DANIS506.ADD dialog
+; in "OS/2 Kernel".
+; Each item starts with "S506DLG_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--S506DLG_1621-->: 「非表示」の場合、システムの始動時にドライバーから何も出力されません。これが省略時値です。
+
+<--S506DLG_1622-->: 「詳細表示(/V)」の場合、システムの始動時にドライバー、アダプター、および装置情報が表示されます。
+
+<--S506DLG_1623-->: 「待機(/W)」の場合、「/V」と同じ情報が表示されますが、画面から消えないように、1 度に表示せず情報ごとにキーを押すように求められます。
+前提条件: DANIS506.ADD および新しいバージョンの IBM1S506.ADD
+
+<--S506DLG_1624-->: このチェックボックスを使用して、DMA Scatter/Gather を有効にするかどうかを指定します。
+&os2; コマンド解説書によると、省略時で有効になります。
+
+<--S506DLG_1625-->: 下のアダプター設定に、アダプター 0 (「1 次」コントローラー) を選択します。
+このアダプターまたはその装置 (ドライブ) に省略時以外の設定が指定されている場合、パラメーター・リストには「/A:0」のみが追加されることに注意してください。
+
+<--S506DLG_1626-->: 下のアダプター設定に、アダプター 1 (「2 次」コントローラー) を選択します。
+このアダプターまたはその装置 (ドライブ) に省略時以外の設定が指定されている場合、パラメーター・リストには「/A:1」のみが追加されることに注意してください。
+
+<--S506DLG_1627-->: このボックスにチェック・マークを付けると、選択されたアダプターをドライバーが無視します。ドライバーは、このアダプターに接続されたすべてのデバイスを無視します。
+これは、システム上に 2 つ以上のアダプターがあり、IDE ドライバーを 2 回以上ロードする場合にのみ、必要になる可能性があります。
+
+<--S506DLG_1628-->: ハードウェアにエラーが発生したときに、ドライバーにアダプターのリセットを許可するかどうかを設定します。
+&os2; コマンド解説書によると、割り込みの消失、コマンドのタイムアウト、無効なコマンドなどのエラーが発生した場合に、アダプターをリセットすると効果がある場合があります。ただし、リセット時に、省略時以外のコマンドが指定されたアダプターのデータが失われる可能性があります。
+現在のアダプターのリセットを禁止するには、このチェックボックスのマークを外します。
+アダプターのリセットを許可するには、このチェックボックスにマークを付けます。
+チェックボックスが灰色 (中間状態) の場合、パラメーターは追加されません。
+
+<--S506DLG_1629-->: このアダプターの省略時の基本ポート・アドレスを変更するには、このボックスにチェック・マークを付けます。
+これは、システム上に 2 つ以上のアダプターがあり、IDE ドライバーを 2 回以上ロードする場合にのみ、必要になる可能性があります。
+
+<--S506DLG_1630-->: 左にあるチェックボックスにマークを付けた場合、ここで現在のアダプターの基本ポート・アドレスを指定できます。
+16 進数の値です。
+省略時値は、アダプター 0 が 1F0、アダプター 1 が 170 です。
+
+<--S506DLG_1631-->: このアダプターの省略時の割り込み (IRQ) を変更するには、このボックスにチェック・マークを付けます。
+これは、システム上に 2 つ以上のアダプターがあり、IDE ドライバーを 2 回以上ロードする場合にのみ、必要になる可能性があります。
+
+<--S506DLG_1632-->: 左にあるチェックボックスにマークを付けた場合、ここで現在のアダプターの割り込み (IRQ) を指定できます。
+省略時値は、アダプター 0 が IRQ 14、アダプター 1 が IRQ 15 です。
+
+<--S506DLG_1634-->: このアダプターの省略時の DMA チャネルを変更するには、このボックスにチェック・マークを付けます。
+これは、システム上に 2 つ以上のアダプターがあり、IDE ドライバーを 2 回以上ロードする場合にのみ、必要になる可能性があります。
+
+<--S506DLG_1635-->: 左にあるチェックボックスにマークを付けた場合、ここで現在のアダプターの DMA チャネルを指定できます。
+解説書には、省略時値が示されていません。
+
+<--S506DLG_1636-->: このアダプターの省略時の DMA Scatter/Gather ポート・アドレスを変更するには、このボックスにチェック・マークを付けます。
+これは、システム上に 2 つ以上のアダプターがあり、IDE ドライバーを 2 回以上ロードする場合にのみ、必要になる可能性があります。
+
+<--S506DLG_1637-->: 左にあるチェックボックスにマークを付けた場合、ここで現在のアダプターの DMA Scatter/Gather ポート・アドレスを指定できます。
+16 進数の値です。
+&os2; コマンド解説書によると、400 が省略時値です。
+
+<--S506DLG_1638-->: 現在のアダプター全体に、バスマスター (DMA: 直接メモリー・アクセス) を有効にするかどうかを選択します (アダプターのパラメーターと、/BM または /!BM)。
+DANIS506.ADD および新しいバージョンの IBM1S506.ADD では、このパラメーターを装置単位でも指定できます (このダイアログの右側を参照)。
+バスマスターの一般的な説明については、「ヘルプ」ボタンを押してください。
+現在のアダプターに接続されたすべての装置に対してバスマスターを有効にするには、このボックスにチェック・マークを付けます。
+現在のアダプターに接続されたすべての装置に対してバスマスターを無効にするには、このボックスのチェック・マークを外します (/!BM)。バスマスターを処理できない古いハードディスクには、これを指定する必要がある場合があります。
+チェックボックスが灰色 (中間状態) の場合、バスマスターを有効にできるかどうかが、ドライバーによって判断されます。
+Warp 3 および 4 の出荷時に添付された IBM1S506.ADD ドライバーでは、これが省略時で無効になっていますが、新しいフィックスパックのすべてのドライバーでは、有効になっています。
+一方、DANIS506.ADD では、バスマスターを有効にする前にいくつかの高度な確認が行われます。詳細については、「ヘルプ」ボタンを押してください。
+
+<--S506DLG_1639-->: 下の装置設定に、アダプター 0、装置 0 (「1 次マスター」装置) を選択します。
+この装置に省略時以外の設定が指定されている場合にのみ、パラメーターとして「/A:0 /U:0」が追加されることに注意してください。
+
+<--S506DLG_1640-->: 下の装置設定に、アダプター 0、装置 1 (「1 次スレーブ」装置) を選択します。
+この装置に省略時以外の設定が指定されている場合にのみ、パラメーターとして「/A:0 /U:1」が追加されることに注意してください。
+
+<--S506DLG_1641-->: 下の装置設定に、アダプター 1、装置 0 (「2 次マスター」装置) を選択します。
+この装置に省略時以外の設定が指定されている場合にのみ、パラメーターとして「/A:1 /U:0」が追加されることに注意してください。
+
+<--S506DLG_1642-->: 下の装置設定に、アダプター 1、装置 1 (「2 次スレーブ」装置) を選択します。
+この装置に省略時以外の設定が指定されている場合にのみ、パラメーターとして「/A:1 /U:1」が追加されることに注意してください。
+
+<--S506DLG_1643-->: 現在の装置のみに、バスマスター (DMA: 直接メモリー・アクセス) を有効にするかどうかを選択します (装置のパラメーターと、/BM または /!BM)。
+DANIS506.ADD および新しいバージョンの IBM1S506.ADD の場合にのみ、1 台の装置に対して指定できます。
+それ以外の場合、左にあるチェックボックスに対するアダプター全体に指定する必要があります。そちらの説明を参照してください。
+バスマスターの一般的な説明については、「ヘルプ」ボタンを押してください。
+
+<--S506DLG_1644-->: このアダプターの省略時のエラー復旧時間を変更するには、このボックスにチェック・マークを付けます (/T:xxx)。
+
+<--S506DLG_1645-->: 上のチェックボックスを有効にした場合、現在選択されている装置に対する省略時のエラー復旧時間を変更できます (秒単位)。
+&os2; コマンド解説書によると、30 秒が省略時値です。耐障害アプリケーションでは、より小さい値が望ましい場合があります。このドライバーには、5 秒よりも小さい値は指定できません。
+
+<--S506DLG_1647-->: 現在選択された装置に対してドライブのジオメトリーを指定するには、このボックスにチェック・マークを付けます。指定しない場合、ドライバーでは、BIOS 設定に従ってジオメトリーが判断されます。ほとんどの場合は、これで問題ありません。
+現在では、すべての BIOS に IDE の自動認識および LBA サポートが組み込まれているため、このパラメーターはほとんど意味がなくなりました。
+
+<--S506DLG_1648-->: 上のチェックボックスを有効にした場合、ここでドライブのジオメトリーを指定できます。
+/GEO:xxx パラメーターに関する明確な構文は見つかっていないため、「xxx」の部分を手動で入力する必要があります。
+IBM Device Driver Development Kit (DDK) に含まれる「Storage Device Driver Reference」によると、省略時の BIOS ドライブ形式を示す 10進数 (0～47) です。1985 年前後以前に製造されたドライブに対して有効である可能性があります。
+ただし、これに関するテストは行っていませんので、注意してください。
+
+<--S506DLG_1652-->: 現在の装置に対して、多重サポート (SMS、ブロック・モード) を有効にするかどうかを設定します。
+SMS では、1 度に 1 ブロック (ドライブのセクター) よりも多くのデータを転送できるため、パフォーマンスが良くなります。
+チェックボックスが灰色 (中間状態) の場合、装置が SMS に対応しているかどうかが、ドライバーによって自動的に判断されます。
+装置が SMS に対応しているかがドライバーによって検出されない場合、 SMS を有効にするには、このボックスにチェック・マークを付けます (/SMS)。
+装置に対する SMS を無効にするには、このボックスのチェック・マークを外します (/!SMS)。IBM1S506.ADD の新しいバージョンでは、ドライバーによって適切であると判断された場合は SMS が常に有効になります。この場合、/!SMS は常に無視されるため、問題が発生する可能性があります。SMS を無効にするには、DANIS506.ADD を使用してください。
+DANIS506.DOC によると、製造元が各ハードディスクの SMS 最大長をモデルごとに定義しており、これがドライバーによって照会されます。
+
+<--S506DLG_1653-->: 装置が論理ブロック・アドレス (LBA) に対応しているかがドライバーによって正常に検出されない場合、LBA を有効にするには、このボックスにチェック・マークを付けます。
+LBA は BIOS の機能であり、ドライブのジオメトリーを論理的にマッピングしなおして、大容量のハード・ドライブ (504 MB を超える) にアクセスする機能です。現在のハード・ドライブでは、常にこの BIOS 設定を有効にしておくと、通常は &os2; によって正常に検出されます。
+
+<--S506DLG_1654-->: 装置を &os2; ストレージ・デバイス・マネージャー (OS2DASD.DMD) へ引き継ぐかどうかを設定します。
+このマネージャーは、様々なアダプター・ドライバー (*.ADD) と &os2; ファイル・システム (FAT、HPFSなど) の間のインターフェースです。ドライブ文字が割り当てられるように、起動時に &os2; カーネルに論理ドライブを通知するのは、このドライバーです。
+&os2; 上で現在のドライブを無効にするには、このボックスのチェック・マークを外します (ドライブ文字を割り当てないように)。
+&os2; 上で現在のドライブを有効にするには、このボックスにチェック・マークを付けます。
+チェックボックスが灰色 (中間状態) の場合、&os2; 上でこのドライブを有効にするかどうかが、IDE ドライバーによって判断されます。ほとんどの場合は、これが適切です。
+
+<--S506DLG_1655-->: 現在の装置が取り付けられていないことがドライバーによって検出された場合でも、この装置を強制的に使用するには、このボックスにチェック・マークを付けます。
+外付けの CD-ROM ドライブなどの、個別に電源を切ることがある外付けのデバイスには、これが便利です。これらのデバイスの場合は、「ATAPI」チェックボックスも有効にします。
+
+<--S506DLG_1656-->: このボックスにチェック・マークを付けた場合、常に現在の装置が ATAPI CD-ROM ドライブであると想定されます。
+このボックスのチェック・マークを外した場合、現在の装置が ATAPI CD-ROM ドライブであるとは想定されません。
+チェックボックスが灰色 (中間状態) の場合、装置が ATAPI CD-ROM であるかどうかが、ドライバーによって自動的に検出されます。
+外付けの CD-ROM ドライブなどの、個別に電源を切ることがある外付けのデバイスには、これにチェック・マークを付けると便利です。これらのデバイスの場合は、「FORCE」チェックボックスも有効にします。
+
+<--S506DLG_1657-->: この欄は表示専用で、CONFIG.SYS 内にある IDE ドライバーのパラメーターが表示されます。
+このダイアログ内の設定を変更すると、この欄も更新されます。
+「了解」ボタンを押した場合、「&os2; カーネル」ノートブックにある「ドライバー」ページにこのパラメーターがコピーされます。
+
+<--S506DLG_1660-->: システムの PCI バスのクロック速度を指定するには、このチェックボックスを有効にします。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1661-->: 左にあるチェックボックスを有効にした場合、PCI クロック速度を指定できます。
+DANIS506.DOC からの引用:「Some users are forced (or feel themselves forced ;-) to run the PCI bus on their motherboards at speeds other than the optimum 33MHz. For example, many Cyrix processors need very uncommon front side bus speeds which cannot be easily divided into 33MHz. This leads to either too slow EIDE timings or too fast ones. The former case may be disappointing, but the latter overclocks the EIDE interfaces and may introduce data distortions.
+If you know the actual PCI clock of your motherboard, you may add an additional driver option /PCLK:x (x is the PCI clock in MHz). If you don't know the PCI clock speed, set x to zero, and the driver will then try to determine the PCI clock. The PCI clock (either derived or user supplied) is then sorted into four speed classes (25MHz, 33MHz, 37MHz, and 41MHz) which is reported at boot time. For each of these speed classes, the driver *tries* to select the optimum chip timings, but due to chipset limitations this not possible in all cases.
+As most motherboards run their PCI bus at the optimum 33MHz clock today, you should use this switch only if really necessary!」
+詳細および技術情報については、DANIS506.DOC を参照してください。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1663-->: 一般的ではないチップに対して一般的なバスマスターを有効にするには、このボックスにチェック・マークを付けます。
+バスマスターの詳細については、「ヘルプ」ボタンを押してください。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1664-->: すべての EIDE チップを、一般的ではないと想定するには、このボックスにチェック・マークを付けます。
+バスマスターの詳細については、「ヘルプ」ボタンを押してください。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1665-->: DANIS506.ADD の「Matrox 修正」を有効にするには、このボックスにチェック・マークを付けます。
+DANIS506.DOC からの引用: 「If there is a PCI EIDE controller in your system, and you happen to have a Matrox video board, then the boot process might just stop at a certain point or fail with a trap 8. This is due to a horribly nasty behaviour of the Matrox driver wich scans all ports with addresses Cx0yh (x = 0..F, y = 0..3) at initialization of the base video handler even if these addresses are not assigned to the video board. I wouldn't call it playing by the rules beating the bush and looking if some sort of MGA drops out of it.
+If any other PCI device gets assigned addresses matching the above pattern, *anything* can happen. To work around this problem, I have added a new option /MGAFIX which detects EIDE hardware with addresses affected by that, and tries to push them away a little by reprogramming the address decoders so that they are no longer potential scan targets.
+Caution: this is a last-resort option. Use it *only when necessary*!」
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1666-->: ドライブの回転が停止してから現在の装置を停止するまでの時間を指定するには、このボックスにチェック・マークを付けます。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1667-->: 左にあるチェックボックスを有効にした場合、分単位で停止時間を指定します。0 を指定すると、回転を停止しません。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1668-->: DMA バスマスターに使用できるデータ・レートを微調整するには、このボックスにチェック・マークを付けます。
+DANIS506.DOC からの引用:「many EIDE controllers don't have the capability to select PIO modes and multiword DMA modes independent from each other because theses mode share the same timing registers. This is for historic reasons and the similarity of cycle timings. This applies to all supported controller chips except for Promise Ultra and Cyrix MediaGX.
+To deal with this situation the driver selects the slower cycle time from the proposed PIO and MW-DMA modes.」
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1670-->: 上にあるチェックボックスを有効にした場合、現在の装置に対する Ultra-DMA モードを指定できます。
+DANIS506.DOC によると、次の値を使用できます。
+    0  -  Ultra DMA を使用しない
+    1  -  Ultra DMA モード 0 に限定
+    2  -  Ultra DMA モード 1 に限定
+    3  -  Ultra DMA モード 2 に限定
+    4  -  Ultra DMA モード 3 に限定 (44MB/秒)
+    5  -  Ultra DMA モード 4 に限定 (66MB/秒)
+UDMA=0 および MWDMA=0 を設定した場合、使用できる DMA モードがなくなるため、現在の装置に対するバスマスターが無効になります。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1672-->: 上にあるチェックボックスを有効にした場合、現在の装置に対する Multiword-DMA モードを指定できます。
+DANIS506.DOC によると、次の値を使用できます。
+    0  -  MW DMA を使用しない
+    1  -  MW DMA モード 0 に限定 (S506.ADD では 0 と同じ)
+    2  -  MW DMA モード 1 に限定
+    3  -  MW DMA モード 2 に限定
+UDMA=0 および MWDMA=0 を設定した場合、使用できる DMA モードがなくなるため、現在の装置に対するバスマスターが無効になります。
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1674-->: 上にあるチェックボックスを有効にした場合、現在の装置に使用できるプログラム I/O (PIO) モードを指定できます。
+DANIS506.DOC によると次の値を使用できます。
+    0  -  PIO モード 0 に限定
+    1  -  PIO モード 1 (S506.ADD では PIO 0 と同じ)
+    2  -  PIO モード 2 (S506.ADD では PIO 0 と同じ)
+    3  -  PIO モード 3 (フロー制御付き)
+    4  -  PIO モード 4 (フロー制御付き)
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_1675-->: ドライブをリムーバブル・ドライブとして扱うかどうかを設定します。
+DANIS506.DOC からの引用: 「If you have a removable drive which you want to boot from, this reportedly fails. To enable booting from this unit it has to be treated as a fixed one. This can be done with the option /!RMV applied to the proper unit.
+It is reported also that some Syquest drives have buggy firmware which doesn't report properly the support of the removable feature set. To announce these drives to &os2; a removable drives add the /RMV option to the appropriate unit.」
+前提条件: DANIS506.ADD のみ
+
+<--S506DLG_0001-->: 「了解」を押すと、このダイアログをクローズして、「新規パラメーター」欄に表示されている現在のパラメーターを、「&os2; カーネル」設定ノートブックにある「ドライバー」ページにコピーします。
+
+<--S506DLG_0002-->: 「取消」を押すと、「&os2; カーネル」設定ノートブックにある「ドライバー」ページの内容を変更せずに、このダイアログをクローズします。
+
+<--S506DLG_0095-->: 「すべて省略時値」を押すと、ダイアログの内容が省略時の状態 (CONFIG.SYS に何もパラメーターを指定していない状態) にリセットされます。
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "Features" page (XWPSetup).
+; Each item starts with "FEATURES_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value. XWP will crash with longer strings.
+;
+; ---------------------------------------------------------------------------------
+
+<--FEATURES_6000-->: WPS 標準のアイコンを &xwp; のものに置き換えます。これらのアイコンは自由に構成できます。
+XFolder 0.84 の時点で追加しました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6002-->: 各オブジェクトの設定ノートブックにある「アイコン」ページを新しい &xwp; 拡張版に置き換えます。
+このページを使用すると、アイコンを変更しやすくなります。さらに、そのオブジェクトに関する内部データを表示できます。&xwp; フック (下の「マウスおよびキーボードの機能」を参照) を有効にしている場合は、オブジェクトのグローバル・ホットキーも設定できます。
+&xwp; 0.9.16 の時点で、それ以前の &xwp; の「オブジェクト」ページの置き換えとして追加しました。
+<--FEATURES_6003-->: フォルダーおよびデータ・ファイルの設定ノートブックにある、標準の 3 つの「ファイル」ページを組み合わせて、使いやすい 1 つの &xwp;「ファイル」ページにします。
+また、拡張属性を表示する、2 つめのページが追加されます。
+ディスク・オブジェクトの「詳細」ページを、円グラフ表示に置き換えます。
+&xwp; 0.9.0 の時点で追加しました。
+<--FEATURES_6004-->: 通常の WPS よりも高度にサウンドを定義できます。
+ポップアップ・メニューやオブジェクトの選択時に使用できるサウンドが追加されます。
+この新しいサウンドを通常の「サウンド」オブジェクトにも設定できます。
+XFolder 0.70 の時点で追加しました。
+
+; FEATURES_6001 added with V0.9.4
+
+<--FEATURES_6001-->: ノートブック全体のサイズを変更した場合に、特定の &xwp; 設定ページのサイズを調整します。より多くのデータを一度に表示する、複雑な &xwp; ページの場合に便利です。
+WPS 標準のページではなく、一部の新しい &xwp; ページに対してのみ効果があることに注意してください。
+&xwp; 0.9.4 の時点で追加しました。
+
+; FEATURES_6005 added with V0.9.12
+
+<--FEATURES_6005-->: フォルダー、ファイル、およびディスクのクラスに関するクラス・タイトルを無効にします。
+クラス・タイトルは、「詳細」表示の 3 つめの列に (設定した場合は状況バーにも) 表示されます。
+WPS のネットワーク・クラスがインストールされている場合、これらのタイトルにはほとんど意味がありません。したがって、&xwp; では「フォルダー」、「データ・ファイル」および「ディスク」に戻すことができます。
+
+; FEATURES_6006 added with V0.9.20 (2002-07-19) [umoeller]
+
+<--FEATURES_6006-->: 多くの WPS 標準のヘルプ・パネルを、より多くの情報を表示できる新しい &xwp; のものに置き換えます。
+多くの WPS 標準のオブジェクトのヘルプ・パネルに適用されます。つまり、フォルダー内のオブジェクトを選択して F1 を押した場合のパネルです。
+XWorkplace 0.9.20 の時点で追加しました。
+
+<--FEATURES_6011-->: フォルダー内の選択されたオブジェクトに関する詳細情報を示す状況バーを、フォルダーに表示できます。
+これを有効にした場合、&xwp; の「ワークプレース・シェル」オブジェクトに設定ページが追加されます。ここで、状況バーの詳細を設定できます。
+フォルダーごとに個別の状況バーを表示するかどうかも定義できます。
+したがって、これを有効にしたら、「ワークプレース・シェル」オブジェクトにある「状況バー」のページを使用してください。
+状況バーの調整に関する詳細については、&xwp; ユーザーの手引きを参照してください。
+XFolder 0.70 の時点で追加しました。
+<--FEATURES_6012-->: 「座標に配置」項目をフォルダーのポップアップ・メニューに追加します。
+この項目を使用すると、フォルダーにあるすべてのオブジェクトを、画面には表示されない座標に従って配置できるため、オブジェクトを配置しやすくなります。
+また、これを有効にすると、座標を定義できる「座標に配置」ページが「ワークプレース・シェル」オブジェクトに追加されます。
+この機能の概要については、&xwp; ユーザーの手引きを参照してください。
+XFolder 0.50 の時点で追加しました。
+<--FEATURES_6013-->: &xwp; の「ワークプレース・シェル」オブジェクトにおいて、30 を超える、よく使用されるフォルダー機能 (「全選択」など) に対して新しいショートカットを定義できます。
+XFolder 0.50 の時点で追加しました。
+省略時のホットキー設定の詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6014-->: WPS 標準のフォルダー分類機能を置き換えます。これを有効にした場合、&xwp; の「ワークプレース・シェル」オブジェクトを使用して、全体の分類オプションを定義でき、フォルダーごとに省略時設定を無効にすることもできます。
+また、これにより「拡張子順」や「フォルダーから」などの新しい分類基準も追加されます。
+XFolder 0.70 の時点で追加しました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+;
+; FEATURES_6015 added with V0.9.16
+; rewritten with V1.0.1 (2002-12-15) [umoeller]
+;
+<--FEATURES_6015-->: システム上のすべてのフォルダーについて、実行中のオブジェクトの内部記憶域を置き換えます。 さらに、データ・ファイルをプログラムに関連付けるしくみを置き換えます。
+&xwp; では、フォルダー内のオブジェクトを標準の WPS よりもすばやく検索するための、高速アルゴリズムが実装されます。
+この設定を有効にすると、フォルダーの表示が速くなることがわかります。さらに、プログラムの関連付けが形式だけに基づいているため、柔軟になります。
+この機能には、置き換え版である XWPFileSystem クラスをインストールする必要があります。設定を変更するには、WPS を再始動する必要があります。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+;
+; FEATURES_6016 added with V1.0.0 (2002-09-09) [umoeller]
+;
+<--FEATURES_6016-->: すべてのポップアップ・メニューにある「オープン」サブメニューに、新しい &xwp; 標準のフォルダー表示を追加するかどうかを指定します。
+分割表示には 2 つのフォルダー表示があります。ツリー表示が左に、ツリー上で選択しているフォルダー内のオブジェクトを表示する、もう 1 つの表示が右にあります。
+Windows にある機能に似ています。
+
+<--FEATURES_6051-->: 「&xwp; フック」は、NPS WPS や WarpEnhancer にあった機能の一部を実装する、PM 全体のフックです。
+フォーカスの追従、マウス・ボタン 3 によるスクロール、画面の角でのオブジェクトなどのマウス機能を使用する場合、この設定を有効にします。
+グローバル・オブジェクト・ホットキーを動作させるためにも &xwp; フックが必要です。
+有効にした場合、「システム設定」フォルダーにある「キーボード」および「マウス」に、設定ページが追加されます。
+&xwp; 0.9.0 の時点で追加しました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6052-->: 「動きのあるマウス・ポインター」で、「マウス」オブジェクト (「システム設定」フォルダー内) の「ポインター」ページが置き換えられます。この新しいページでは、&os2; 標準の動かないマウス・ポインターの代わりに動きのあるものを定義できます。
+従来は、別のプログラム「Animated Mouse Pointers for &os2;」にあった機能です。0.9.0 以降、&xwp; に組み込まれました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6053-->: 任意の WPS オブジェクトにグローバル・ホットキーを割り当てることができます。ホットキーを押すと、そのオブジェクトの省略時の表示がオープンされます。
+各オブジェクトの設定ノートブックにある「オブジェクト」ページを使用して、そのオブジェクトのホットキーを設定できます。
+また、「システム設定」フォルダーにある「キーボード」設定オブジェクトに「ホットキー」ページが追加されます。ここで、すべてのホットキーを確認できます。
+&xwp; フックがインストールされていない場合、この項目は使用できません。
+「一般機能」グループにある「オブジェクト・ページ」の設定を有効にしていることも確認してください。していない場合、ホットキーを構成できません。
+&xwp; 0.9.1 の時点で追加しました。
+<--FEATURES_6054-->: 「&pgr;」は、仮想デスクトップです。つまり、複数の &xwp; デスクトップが作成されるため、それらの間で現在のデスクトップを切り換えることができます。
+これを有効にすると、&pgr; を微調整するための新しい設定ページが、「画面」設定オブジェクトに追加されます。
+&xwp; フックがインストールされていない場合、この項目は使用できません。
+&xwp; 0.9.2 の時点で追加しました。
+
+<--FEATURES_6021-->: 「デスクトップ」の設定ノートブックにある「アーカイブ」ページを置き換えます。これを有効にした場合、ワークプレース・シェルを自動的にバックアップするかどうかについて、単なるアーカイブの有効/無効ではなく、細かい条件を定義できます。
+従来は、別のプログラム「WPSArcO」にあった機能です。0.9.0 以降、&xwp; に組み込まれたため、構成しやすくなりました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6022-->: 「デスクトップの再始動」は、デスクトップの設定ノートブック内の新しい項目であり、システム全体を再起動せずにワークプレース・シェルのみを再始動できます。
+その他のユーティリティーとは異なり、&xwp; では再始動の前に WPS の状態が保存されます。
+この機能を構成するための「&xsd;」ページが、デスクトップの設定ノートブックに追加されます。
+XFolder 0.60 の時点で追加しました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+<--FEATURES_6023-->: 「&xsd;」は、&os2; 標準の終了手順を完全に作成しなおしたものです。
+この設定を有効にした場合、デスクトップのポップアップ・メニューから「終了」を選択したときに、&os2; 標準の終了ではなく &xsd; が実行されます。
+中断されているプログラムを省略するなど、終了を途中で取り消すことができます。
+この機能を構成するための「&xsd;」ページが、デスクトップの設定ノートブックに追加されます。
+XFolder 0.60 の時点で追加しました。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+;
+; the following two were added with V0.9.18
+;
+<--FEATURES_6024-->: WPS の「デスクトップが見つからない」ダイアログが表示される前に、始動の度に &xwp; デスクトップの整合性をチェックします。
+デスクトップの整合性に問題 (ファイルシステムのハンドル・テーブルが破壊されている、<WP_DESKTOP> オブジェクト ID がないなど) が見つかった場合、問題の修復を試みることができます。
+デスクトップが問題なく動作しているのに継続的に問題が報告される場合、これを無効にするとよい場合があります。
+<--FEATURES_6025-->: WPS を始動している間、&xwp; のデスクトップをオープンする前にその内容を完全に表示します。
+これにより、デスクトップにあるオブジェクトが多すぎるときに WPS による初期化順序に混乱が発生して、デスクトップが中断する問題が解決される場合があります。
+
+;
+; FEATURES_6041 removed with V1.0.1 (2002-12-15) [umoeller]
+;
+;<--FEATURES_6041-->: "Extended file associations" will make the WPS use file types only for associating programs with data files.
+;Don't be shocked, file filters still exist. The difference is that files will be given automatic file types based on file filters, instead of associating programs based on filters directly.
+;Also, you can define hierarchical file types, such that all files of type "C Code" will automatically be considered "Plain text" also.
+;If this is enabled, you'll get a new settings page for file types in &xwp;'s "Workplace Shell" object.
+;This was added with &xwp; 0.9.0.
+;See the &xwp; User Guide for details.
+
+;
+; FEATURES_6042 was changed with V0.9.20
+;
+
+<--FEATURES_6042-->: フォルダーのポップアップ・メニュー (またはフォルダーのメニュー・バーにある「編集」) から「貼り付け」を選択したときに表示される「貼り付け」ダイアログを置き換えます。
+WPS 版とは異なり、この置き換え版のダイアログでは、オブジェクト・タイトルの履歴、および最後に貼り付けた形式と WPS クラスが記憶されます。
+さらに、簡易クリップボード・ビューアーとしても機能し、ダイアログがオープンされている間にクリップボードのデータが変更された場合にそれを認識することもできます。
+&xwp; 0.9.20 の時点で追加しました。
+
+<--FEATURES_6043-->: 同じタイトルのオブジェクトがすでに存在するフォルダーに、ファイルを移動またはコピーした場合に表示される「ファイルが存在します」ダイアログを置き換えます。
+この置き換え版のダイアログでは、&os2; 標準のものよりも多くの情報が表示されるため、便利です。
+XFolder 0.80 の時点で追加しました。
+<--FEATURES_6044-->: 準備のできていないドライブ・オブジェクトをオープンした場合に表示される、ハードエラーに関するシステム・モーダル・ポップアップ・ボックスを置き換えます。
+これを有効にした場合、通常のダイアログ・ボックスが表示されます。これには、「再試行」ボタンも付いています。
+XFolder 0.85 の時点で追加しました。
+;
+; the following was changed with V0.9.5
+;
+<--FEATURES_6047-->:  OS2SYS.INI にある、ワークプレース・シェルに関するファイルシステム・ハンドルの管理を置き換えて、不要なハンドルが作成される数を抑えます。
+この機能の概要については、&xwp; ユーザーの手引きを参照してください。
+&xwp; 0.9.5 の時点で追加しました。
+
+;
+; the following was added with V0.9.9
+;
+<--FEATURES_6048-->: 自動的にフォルダーを最新表示にするためにファイルシステムの状況を監視する、内部 WPS スレッドを無効にします。代わりに、この作業のための別のスレッドを開始します。
+&xwp; での実装には、ファイルシステムのハンドルを作成しすぎない利点があります。
+この置き換えを変更するには、WPS を再始動する必要があります。ただし、&xwp; による置き換えを実行したら、「ワークプレース・シェル」オブジェクトにある「表示」ページを使用して、フォルダーの自動最新表示を動的に有効または無効にできます。
+この機能の概要については、&xwp; ユーザーの手引きを参照してください。
+&xwp; 0.9.9 の時点で追加しました。
+
+;
+; the following was added with V0.9.16
+;
+<--FEATURES_6049-->: 標準のファイル・ダイアログの代わりに、&xwp; の置き換え版を使用します。
+WPS プロセス内のファイル・ダイアログに対してのみ、効果があります。現時点では、システム上のすべてのファイル・ダイアログを &xwp; のものに置き換えることはできません。
+
+;
+; the following was changed with V0.9.19
+;
+<--FEATURES_6045-->: ワークプレース・シェルでのすべての「削除」操作を &xwp; で管理します。
+システムにあるすべてのオブジェクトに対して、「Del」キーを押すことやポップアップ・メニューの「削除」項目を選択することも含まれます。
+&xwp; では、そのオブジェクトを新しい &xwp; のゴミ入れ (この機能を選択すると作成されます) へ移動するか、削除操作を始める間に Shift キーが押されているとすぐに削除します。
+オブジェクトをゴミ入れへ移動せず、常にすぐに削除する場合は、ゴミ入れのプロパティーにそのための設定があります。
+詳細については、&xwp; ユーザーの手引きを参照してください。
+&xwp; 0.9.1 の時点で追加しました。
+;
+; the following was removed with V0.9.19
+;
+; <--FEATURES_6046-->: replace true delete
+
+; ---------------------------------------------------------------------------------
+;
+; V0.9.0:
+;
+; Here follow the toolinfos (fly-over help) for the new "&xwp; Classes" dialog
+; (XWPSetup).
+; Each item starts with "XWPCLS_", followed by the dialog ID from include\dlgids.h.
+; NOTE: The internal string buffer for these messages is limited to 3000 characters,
+;       so no string may exceed this value.
+;
+; ---------------------------------------------------------------------------------
+
+<--XWPCLS_1251-->: 「XFldObject」は、WPObject クラスを置き換えるものであり、&xwp; の動作に必要です。この選択は解除できません。
+
+<--XWPCLS_1252-->: 「XFolder」は、WPFolder クラスを置き換えるものです。
+これにより、ポップアップ・メニューや分類の拡張、フォルダー状況バーなどの、&xwp; におけるすべてのフォルダー拡張が導入されます。
+
+<--XWPCLS_1253-->: 「XFldDisk」は、WPDisk クラスを置き換えるものです。WPDisk は、「ドライブ」フォルダーにある WPS の「ディスク」オブジェクトに使用されています。
+この置き換え版では、ディスク処理が拡張され、フォルダー拡張がディスク・オブジェクトへ伝達されます。
+このクラスをインストールする場合、XFolder クラスもインストールする必要があります。
+
+<--XWPCLS_1254-->: 「XFldDesktop」は、WPDesktop クラスを置き換えるものです。WPDesktop は、デスクトップを実装しています。
+この置き換え版では、始動の拡張 (起動ロゴ、アーカイブ) や eXtended Shutdown のように、デスクトップが拡張されます。
+
+<--XWPCLS_1255-->: 「XFldDataFile」は、WPDataFile クラスを置き換えるものです。WPDataFile クラスは、システム上のすべての物理ファイルに使用されています。
+この置き換え版には、WPS の関連付けの拡張、標準アイコンの置き換え、および「ファイル名をクリップボードにコピーする」機能があります。
+
+; V0.9.16: changed the following one
+<--XWPCLS_1256-->: 「XWPProgramFile」は、WPProgramFile クラスを置き換えるものです。WPProgramFile クラスは、 .EXE、.COMなどのすべての物理実行可能ファイルに使用されています。
+このクラスでは、実行可能ファイルのノートブックに新しい「モジュール」ページが追加され、標準のアイコンが置き換えられます。
+
+<--XWPCLS_1257-->: 「XWPSound」は、WPSound クラスを置き換えるものです。WPSound クラスは、「システム設定」フォルダーにある「サウンド」オブジェクトを実装しています。
+この置き換え版では、サウンド設定ノートブックの「サウンド」ページが改善され、サウンド・スキームを編集できるようになります。
+&xwp; 0.9.0 の時点で追加しました。
+
+;
+; V1.0.0: replaced this silly description
+;
+<--XWPCLS_1258-->: 「XWPMouse」は、WPMouse クラスを置き換えるものです。WPMouse クラスは、「システム設定」フォルダーにある「マウス」オブジェクトを実装しています。
+この置き換え版では、フォーカスの追従や画面の角のオブジェクトなど、マウスに関する &xwp; フックを構成するための新しいページがマウス・オブジェクトに追加されます。
+
+<--XWPCLS_1259-->: 「XWPKeyboard」は、WPKeyboard クラスを置き換えるものです。WPKeyboard クラスは、「システム設定」フォルダーにある「キーボード」オブジェクトを実装しています。
+この置き換え版では、グローバル・オブジェクト・ホットキーなどの、キーボードに関する &xwp; フックを構成するための新しいページがキーボード・オブジェクトに追加されます。
+
+<--XWPCLS_1260-->: 「XWPSetup」は「&xwp; 設定」設定オブジェクトを実装するものであり、&xwp; の動作に必要です。この選択は解除できません。
+&xwp; 0.9.0 の時点で追加しました。
+
+<--XWPCLS_1261-->: 「XFldSystem」では「&os2; カーネル」設定オブジェクトが実装されます。この設定オブジェクトを使用すると、CONFIG.SYS の様々な設定を簡単に構成できます。
+
+<--XWPCLS_1262-->: 「XFldWPS」では「ワークプレース・シェル」オブジェクトが実装されます。このオブジェクトには、標準の「システム」オブジェクトにあるすべての WPS 設定ページと、 &xwp; のための新しい設定ページがあります。
+このクラスなしでは &xwp; を詳細に構成できないため、このクラスをインストールすることを強くお勧めします。
+
+<--XWPCLS_1263-->: 「XFldStartup」は、新しい &xwp; 始動フォルダーのための特殊なフォルダー・クラスです。 このフォルダーは、標準の WPS 始動フォルダーよりも拡張されています。
+以前の始動フォルダーはそのまま動作するので、両方を同時に使用できます。
+このクラスをインストールする場合、XFolder クラスもインストールする必要があります。
+
+<--XWPCLS_1264-->: 「XFldShutdown」は、新しい &xwp; 終了フォルダーのための特殊なフォルダー・クラスです。このフォルダーは、&xwp; の eXtended Shutdown の間に処理されます。
+このクラスをインストールする場合、XFolder クラスおよび XFldDesktop クラスもインストールする必要があります。
+
+<--XWPCLS_1265-->: 「XWPClassList」では、WPS クラス・リストをリストするための新しい抽象オブジェクトが実装されます。
+&xwp; 0.9.0 の時点で追加しました。
+XFolder の以前のバージョンでは、この機能は「ワークプレース・シェル」オブジェクトにありました。現在は、完全に新しい表示になったこのオブジェクトへ移動し、拡張しました。
+これにより、WPS メソッドの情報を表示することもできるので、WPS プログラマーにとって役立つかもしれません。
+
+<--XWPCLS_1266-->: 「XWPTrashCan」は、&xwp; 0.9.0 の時点で追加しました。Macintosh、KDE および Win95 のシステムに見られる、特殊な「ゴミ入れ」オブジェクトを実現しました。
+「XWPTrashObject」では、「ゴミ・オブジェクト」がフォルダー内に実装されます。XWPTrashObject は、XWPTrashCan と共に自動的にインストールされます。
+&xwp; 0.9.0 の時点で追加しました。
+
+<--XWPCLS_1267-->: 「XWPScreen」では、「画面」オブジェクトが実装されます。このオブジェクトには、以前の「システム」オブジェクトにある画面に関するすべてのページと、新しい &pgr; 画面設定などの画面に関する &xwp; 設定があります。
+&xwp; 0.9.2 の時点で追加しました。
+
+;
+; the following was added with V0.9.3
+;
+
+<--XWPCLS_1268-->: 「XWPString」は、オブジェクトに対する WPS セットアップ・ストリングを呼び出すのに便利なクラスです。
+このクラスのオブジェクトを作成してセットアップ・ストリングを入力すると、どんなオブジェクトに対してでも、後からそのセットアップ・ストリングを呼び出すことができます。
+&xwp; 0.9.3 の時点で追加しました。
+
+;
+; the following was added with V0.9.5
+;
+
+<--XWPCLS_1269-->: 「XWPMedia」では、新しい「マルチメディア」という設定オブジェクトが実装されます。 このオブジェクトを使用すると、&os2; のマルチメディア・サブシステムに関する内部設定の一部を表示できます。
+&xwp; 0.9.4 の時点で追加しました。
+
+<--XWPCLS_0001-->: 「了解」を押すと、&xwp; クラス設定に関する変更内容に従って、クラスに対して登録、登録の解除、置き換え、置き換えの解除を実行します。
+
+<--XWPCLS_0002-->: 「取消」を押すと、&xwp; クラス設定に関する変更を行わずに、このダイアログをクローズします。
+
+;
+; the following was added with V0.9.7
+;
+
+<--XWPCLS_1270-->: 「XCenter」では、デスクトップの最上部または最下部に、新しいシステム・バーが実装されます。&warpcenter; の代わりとして、または &warpcenter; と同時に使用できます。
+
+
+;
+; the following was added with V0.9.10
+;
+
+<--XWPCLS_1271-->: 「XWPFontFolder」ではすべてのフォントを含む新しいフォルダーが実装されます。
+「XWPFontObject」では、「フォント・オブジェクト」がフォルダー内に実装されます。XWPFontObject は、XWPFontFolder と共に自動的にインストールされます。
+「XWPFontFile」は WPDataFile の新しいサブクラスであり、これも XWPFontFolder と共に自動的にインストールされます。実際にはフォントであるすべてのファイルは、自動的にこのクラスのインスタンスに変わります。
+
+;
+; the following was added with V0.9.16
+;
+
+<--XWPCLS_1272-->: 「XWPFileSystem」では、WPS の (特にフォルダーの内容を表示する) 内部機能の速度を改善するために WPFileSystem クラスを置き換えることができます。
+「フォルダーの加速」設定を動作させるには、このクラスをインストールする必要があります。
+
+<--XWPCLS_1273-->: 「XWPProgram」では、 WPProgram クラスに関する多くの問題を修正するため、および内部に部分的な変更を加えるために WPProgram クラスを置き換えることができます。
+
+<--XWPCLS_1274-->: 「XWPVCard」は WPDataFile の特殊なサブクラスであり、vCard (*.vcf) ファイルを使用するためのものです。これを使用すると、vCard の情報を表示または設定できます。
+
+<--DUMMY_END_MARKER-->:
+
+

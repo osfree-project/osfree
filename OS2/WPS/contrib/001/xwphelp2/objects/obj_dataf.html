@@ -1,0 +1,70 @@
+<HTML RESID=&ID_XSH_DATAFILE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Data Files
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.16 -->
+<BODY>
+Data files are used by programs to store data on disk. All file-system
+objects that are neither <A HREF="objects/obj_pgmf.html">program files</A>
+nor
+<!-- V0.9.19: added link -->
+&link_folders;
+are considered data files by &os2;. They may or may not contain
+human-readable data.
+
+<P>Data files usually have a <B>type</B>. You can set a file's types
+explicitly on the "Type" page in the file's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<IFNDEF __NEVEREXTASSOCS__>
+If no explicit type has been assigned, &xwp; will assign an automatic type
+to the file based on its file extension, which is the part of the object's
+file name after the last dot.
+</IFNDEF>
+
+<P>In addition, data files frequently have
+<!-- V0.9.20: added link -->
+&link_progobjs;
+<B>associated</B> with
+them. This allows you to simply double-click on a data file to have the
+associated program opened with the data file already loaded, or to select
+a program from the data file's "Open" submenu in its &popmenu;.
+
+<P>If the data file does not have a type assigned (neither explicitly nor
+automatically), &os2; associates it with the
+<IFDEF __EWORKPLACE__>
+"Text Editor" object, which usually resides in the "Utilities" folder in
+the "Programs" folder on your Desktop.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+System Editor.
+</IFNDEF>
+
+<!-- V0.9.19: changed all the following -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>You can configure &xwp;'s file types and associations on the "File types"
+page in the <A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+<P>See <A HREF="glossary/gls_assocs.html">Types and associations</A> for an
+introduction to associations between data files and programs.
+</IFNDEF>
+<IFDEF __NEVEREXTASSOCS__>
+<P>You can change the associations between a program and data files on the
+"Associations" page of a program's properties notebook.
+</IFDEF>
+
+<!-- V0.9.20: added the below links -->
+<P>For related information, select from the list below:
+
+<UL>
+<LI><A HREF="tasks/tsk_crobjs.html">Creating new objects</A>
+<LI><A HREF="tasks/tsk_templates.html">About templates</A>
+<LI><A HREF="tasks/tsk_crshadow.html">About shadows</A>
+<LI><A HREF="tasks/tsk_copymove.html">Copy, move, and shadows overview</A>
+<LI><A HREF="tasks/tsk_chicons.html">Changing icons for objects</A>
+<LI><A HREF="tasks/tsk_rename.html">Changing object titles</A>
+<LI><A HREF="tasks/tsk_delete.html">Deleting objects</A>
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+<HTML RESID=&ID_XSH_XCENTER_CLASSES;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Classes
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.11 -->
+<BODY>
+The "Classes" page in an
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+properties notebook allows you to view
+the
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main_widgets.html">widget</A>
+classes that are currently available.
+<!-- V0.9.19: removed this For an introduction about the &xcenter;
+and widgets, see this page. -->
+
+<P>Note that widget classes are not true WPS classes. Only the &xcenter; uses the
+class names to organize widgets internally. Consider a widget class a template that
+widgets can be created from. A widget class is either built into the &xcenter; itself
+or loaded from a plug-in
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLL</A>
+from the
+<IFNDEF __EWORKPLACE__>
+<CODE>plugins\xcenter</CODE>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<CODE>ecs\system\ewps\plugins\ecenter</CODE>
+</IFDEF>
+directory. Such a plug-in DLL can contain one or more widget classes.
+
+<P>As opposed to the "Widgets" page, which lists the current widgets of a single &xcenter;,
+the "Classes" page displays the same widget classes for each &xcenter;.
+The classes listed here are then also listed
+in the "Add widget" submenu of an open &xcenter;'s &popmenu;.
+
+<P>The following fields are displayed:
+
+<UL><LI>The <B>"DLL"</B> field shows the name of the
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>
+which implements
+the widget. This is either one of the DLLs in the
+<IFNDEF __EWORKPLACE__>
+<CODE>plugins\xcenter</CODE>
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<CODE>ecs\system\ewps\plugins\ecenter</CODE>
+</IFDEF>
+directory or will show "built-in" if the widget is built into &xwp; itself.
+
+<P><LI>The <B>"Widget class"</B> shows the internal name of the class which is used
+by the &xcenter; to identify the class to which a widget belongs. This name is
+critical to the widget's operation and will never change, unless the DLL is no longer
+available.
+
+<P><LI>The <B>"Class title"</B> field is the same as in the "Add widget" menu and
+is a descriptive name of the class. This is only for informational purposes and not
+critical to the widget's operation.
+
+<P><LI>The <B>"Version"</B> field shows the minimum &xcenter; version that the widget
+requires to work. The &xcenter; checks this version number to make sure that it can
+load a plug-in DLL. This field makes no sense for built-in widgets and is therefore
+empty for them.
+
+</UL>
+</BODY>
+</HTML>
+

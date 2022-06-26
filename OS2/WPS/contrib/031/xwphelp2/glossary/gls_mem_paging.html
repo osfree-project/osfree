@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Paginering
+    </TITLE>
+</HEAD>
+<BODY>
+Het begrip paginering stelt &os2; in staat om geheugen te geven aan
+applicaties zelfs als geen fysiek geheugen beschikbaar is.
+Hiernaar wordt soms verwezen als "virtueel geheugen" (wat niet moet worden verward
+met de term "virtuele adres ruimte" zie voor meer informatie
+<A HREF="glossary/gls_mem_himem.html">&os2; Virtuele Adres Ruimte</A>).
+
+<P>Als paginering is ingeschakeld, zal &os2; tijdelijk gegevens vanuit fysiek RAM
+naar een speciaal wisselbestand op de harde schijf verplaatsen.
+Het &os2; wisselbestand  wordt altijd <CODE>SWAPPER.DAT</CODE> genoemd.
+Tenzij gewijzigd in de &cfgsys; bevindt zich dit bestand in de
+<CODE>\OS2\SYSTEM</CODE> directory.
+
+<P>In detail gebeurt het volgende:
+
+<OL><LI>Als een &os2; applicatie geheugen toe wijst en er is niet genoeg fysiek
+geheugen beschikbaar, neemt &os2; een stuk uit het hoofdgeheugen (RAM) dat een
+tijdje niet is gebruikt en schrijft dat naar de <CODE>SWAPPER.DAT</CODE>.
+Dit stuk geheugen is dan beschikbaar en wordt dan gegeven aan de applicatie die er om vraagt.
+Met als resultaat, dat applicaties meer geheugen kunnen gebruiken dan er fysiek
+aanwezig is in de computer.
+
+<P><LI> Als nu een applicatie toegang wil tot het geheugen dat uitgewisseld is,
+onderbreekt &os2; deze geheugen toegang (omdat dat "geheugen" zich nu op de harde
+schijf bevindt) en laadt dat gedeelte terug vanaf de harde schijf in het geheugen
+v¢¢r de applicatie er echt toegang toe heeft.
+(Indien nodig zal &os2; een ander stuk geheugen moeten wisselen naar het wisselbestand
+om plaats te maken voor het stuk geheugen dat van de harde schijf terug in het geheugen
+moet worden geladen.)
+
+</OL>Van nature is een harde schijf veel langzamer dan het fysieke RAM, een typische
+verhouding is 1 : 100, afhankelijk van de processor snelheid en of dat stuk geheugen
+reeds was geladen in het buffer geheugen van de processor.
+
+<P>Daarom is genoeg geheugen de meest belangrijke voorwaarde voor een acceptabel snelle
+&os2; installatie. Zelfs al kunt u &os2; installeren met slechts 8 MB aan RAM (&warp; 3
+naar beweerd wordt zelfs met 4), zult u dan alleen de harde schijf horen reutelen omdat
+&os2; permanent in en uit moet wisselen.
+
+<P>Zelfs als u een relatief grote hoeveelheid RAM heeft ge‹nstalleerd (zeg 128 MB of meer),
+kan &os2; plotseling met uitwisselen beginnen.
+Omdat het laten groeien van het wisselbestand een intensieve operatie is, moet u de
+instellingen van uw  <CODE>SWAPPATH</CODE> zorgvuldig kiezen.
+
+<P>Als U het
+<A HREF="xcenter/xc_main.html">&xcenter;</A> gebruikt,
+kunt U ook de
+<A HREF="xcenter/xc_sentinel.html">"Wacht" widget</A>
+gebruiken om het &os2; geheugen beheer te volgen.
+
+<BR>
+</BODY>
+</HTML>

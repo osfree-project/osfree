@@ -1,0 +1,165 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Die Handles-Liste
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Beim Starten l„dt xfix die Handles-Tabelle aus der aktiven 
+<CODE>PM_Workplace:HandlesX</CODE>-Sektion in der <CODE>OS2SYS.INI</CODE>.
+(Fr Details siehe <A HREF="xfix_handles.html">šber WPS-Datei-Handles</A>.)
+ 
+<P>xfix analysiert dann die Handle-Tabelle.
+Fr jedes Handle, das von xfix analysiert wurde, werden die folgenden Informationen
+in den Spalten der xfix-Handle-Liste angezeigt: 
+ 
+<OL><LI><B>"i"</B> ist ein Z„hler, der fr jedes analysierte Handle erh”ht wird. 
+Diese Zahl ist nicht in der <CODE>OS2SYS.INI</CODE> vorhanden und wird nicht 
+aktualisiert, wenn Sie Handles l”schen.
+(Siehe "Sortieren nach Index" in der <A HREF="xfix_menus.html">Befehlsreferenz zum Men</A>.)
+ 
+<P><LI>Die zweite Spalte zeigt Ihnen den <B>Status</B> eines Handle an. Dieser wird von
+xfix hinzugefgt. Wenn xfix das Handle als OK erachtet, ist dessen Eintrag in dieser Spalte leer.
+ 
+<P>Gleich nach dem Start berprft xfix die Integrit„t der Handles. Es wird sofort
+ungltige Eltern-Handles und doppelte Handles erkennen. 
+Wenn Sie Datei-Handles, die nicht mehr auf eine gltige Dateisysteminformation zeigen,
+als ungltig markiert haben wollen,
+mssen Sie den Eintrag "Ungltige Dateien finden" aus dem
+<A HREF="xfix_menus.html">"Aktionen"-Men</A> w„hlen.
+ 
+<P>Jeder Handle-Eintrag, der in dieser Spalte etwas stehen hat, wird dann
+mit einer grauen Farbe hinterlegt, so daá Sie den Eintrag dementsprechend schnell 
+erkennen k”nnen. Wenn Sie "Alle Ungltigen ausw„hlen"
+aus dem <A HREF="xfix_menus.html">"Ausw„hlen"-Men</A> verwenden, werden all diese
+Eintr„ge automatisch fr Sie ausgew„hlt.
+ 
+<P><LI>Das Feld <B>"Typ"</B> ist entweder ein <CODE>NODE</CODE> oder <CODE>DRIV</CODE>.
+Wenn Sie die Option <A HREF="xfix_menus.html">Sortieren nach Index</A> benutzen, 
+um die ursprngliche Sortierung, wie sie in der <CODE>OS2SYS.INI</CODE> steht, 
+zu erhalten, werden Sie bemerken, das dort immer ein <CODE>DRIV</CODE>-Eintrag vor
+allen <CODE>NODE</CODE>-Eintr„gen steht, die zu diesem Laufwerk geh”ren.
+Zus„tzlich befindet sich nach dem <CODE>DRIV</CODE>-Knoten immer ein extra 
+<CODE>NODE</CODE>-Eintrag fr 
+das Wurzelverzeichnis, falls Handles fr dieses Laufwerk existieren.
+Ich weiá nicht, warum ein zus„tzlicher <CODE>DRIV</CODE>-Knoten existiert, nehme jedoch an,
+daá die WPS ihn als eine interne Markierung benutzt, um Handles noch schneller finden 
+zu k”nnen.
+ 
+<P><LI>Das Feld <B>"Knoten-Ofs"</B> zeigt den Offset an, an welchem dieser Eintrag 
+(der "Knoten") in der Handles-Tabelle aus der <CODE>OS2SYS.INI</CODE> gefunden wurde.
+Die Tabelle beginnt mit vier Verwaltungsbytes (deren Bedeutung mir unbekannt ist),
+so daá der erste Eintrag immer mit Offset 4 beginnt. Die L„nge jedes einzelnen
+Eintrages h„ngt vom Kurznamen ab (siehe unten).
+ 
+<P><LI>Das Feld <B>"Handle"</B> stammt vom Knoten aus der <CODE>OS2SYS.INI</CODE> und zeigt
+Ihnen das Dateisystem-Handle im hexadezimalen Format an, welcher zum low-word des 
+Objekt-Handle des entsprechenden Dateisystemobjektes (WPDataFile oder WPFolder) wird.
+Siehe <A HREF="xfix_handles.html">šber WPS-Datei-Handles</A> fr Details.
+ 
+<P>Es gibt keine ersichtliche Regel, nach der die Handles vergeben werden. Es scheint so zu sein, 
+daá den neu erstellten Handles einfach eine Zufallszahl gegeben wird, die bis jetzt noch 
+nicht existiert.
+ 
+<P>Dieses Feld ist bei <CODE>DRIV</CODE>-Eintr„gen leer, weil diese niemals Handles besitzen.
+Nochmals zur Erinnerung: Offensichtlich sind diese <CODE>DRIV</CODE>-Knoten einfach nur eine Markierung
+in den Handles-Daten.
+ 
+<P><LI>Das Feld <B>"Elternteil"</B> ist ebenfalls mit einem Eintrag in der <CODE>OS2SYS.INI</CODE> 
+abgelegt und spezifiziert das Handle eines Ordners, in welchem sich dieses Objekt
+(entweder eine Datei oder ein anderer Ordner) befindet.
+Dieser sollte gltig sein (mit Ausnahme der Wurzel-<CODE>NODE</CODE>-Eintr„ge, wo
+dieser offensichtlich immer 0 ist). Ist er es nicht, markiert xfix diesen Eintrag als
+verwaist und ungltig, da dieser nicht l„nger brauchbar ist.
+ 
+<P>Das Eltern-Handle ist von groáer Bedeutung. Die WPS kann den
+vollst„ndigen
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+eines Datei-Handles nicht zusammensetzen, wenn das Elternteil-Handle 
+nicht gltig ist.
+Siehe nachfolgenden Text dazu, wie es funktioniert.
+ 
+<P><LI>Der <B>"Kurzname"</B> ist im Handles-Block abgelegt und gibt den Namen des
+Dateisystemobjekts ohne vollst„ndige Pfadangabe an. Die L„nge des Dateinamens
+ist variabel und ist auch der Grund dafr, daá jeder Eintrag eine unterschiedliche
+Gr”áe hat.
+ 
+<P>Fr gew”hnlich wandelt die WPS die Kurznamen in Kleinschreibung um. Auf meinem System
+befindet sich jedoch auch einige Eintr„ge in vermischter Klein- und Groáschreibung. 
+Ich habe keine Ahnung, ob das irgendwelche Probleme zur Folge haben kann.
+ 
+<P><LI>Das Feld <B>"Kinder"</B> wird von xfix berechnet, w„hrend es die Handle-Tabelle
+ausliest. Es gibt an, wie viele andere Eintr„ge sich auf diesen Eintrag sttzen,
+weil er als ihr Eltern-Handle spezifiziert wurde, entweder direkt
+(wie wir es im Feld Eltern gesehen haben) oder indirekt (weil andere
+Eltern dazwischen sind).
+ 
+<P>Wenn der "Kinder"-Eintrag 0 ist, k”nnen Sie diesen Eintrag l”schen, ohne andere
+Eintr„ge zu besch„digen. (Das schlieát jedoch nach wie vor aus, daá es immer sicher
+ist den Eintrag zu l”schen, weil es Referenzen usw.
+besch„digen k”nnte. Siehe <A HREF="xfix_delete.html">Datei-Handles l”schen</A>.)
+ 
+<P><LI>Das Feld <B>"Kopien"</B> ist ebenfalls von xfix eingerichtet und z„hlt
+die Anzahl der Kopien jedes Handle. <B>Dieser Wert sollte fr jedes 
+Handle am besten Null sein.</B>
+Ist er das nicht, wird sich die WPS vermutlich bald verabschieden.
+Darum gibt xfix diesem Handle den Status "Kopie" und markiert ihn als ungltig.
+ 
+<P>Siehe <A HREF="xfix_howto.html">Wie kann ich...</A>, um mehr ber Duplikate (Kopien) zu erfahren.
+ 
+<P><LI>Das Feld <B>"Refzn."</B> steht fr "Referenzen" und zeigt Ihnen an, ob 
+dieses Handle gegenw„rtig in der Datei <CODE>OS2.INI</CODE> genutzt wird.
+ 
+<P>Wenn Sie in diesem Feld <CODE>ABS</CODE> sehen, bedeutet es, daá das Handle in der
+<CODE>PM_Abstract:FldrContent</CODE>-Sektion von <CODE>OS2.INI</CODE> enthalten ist.
+Diese Sektion enth„lt die abstrakten Objekte, die in einem Ordner vorhanden sind.
+Mit anderen Worten handelt es sich bei vorhandenem <CODE>ABS</CODE> um ein Handle fr
+einen Ordner, der abstrakte Objekte enth„lt.
+ 
+<P>Wenn Sie in diesem Feld <CODE>FPOS</CODE> sehen, bedeutet es, daá das Handle in der
+<CODE>PM_Workplace:FolderPos</CODE>-Sektion gelistet ist. Diese Sektion enth„lt
+alle Ordner-Positionen, die jemals von der WPS angelegt wurden.
+Wenn Sie den Eintrag <CODE>FPOS</CODE> sehen, ist dieser fr einen Ordner, welcher 
+bereits von der WPS ge”ffnet wurde und seine Ordnerposition gespeichert hat.
+ 
+<P>Siehe <A HREF="xfix_delete.html">L”schen von Handles</A> zu den Auswirkungen
+einer L”schung von Datei-Handles, welche diese Felder gesetzt haben.
+ 
+<P><LI>Der <B>"Lange Name"</B> zeigt die vollst„ndige Pfadangabe dieses Handles, wie
+sie von der WPS aufgel”st werden wrde, an. Beachten Sie, daá diese nicht im Handle-Eintrag
+der <CODE>OS2SYS.INI</CODE> steht... statt dessen zeigt es die Eleganz des 
+ganzen Datei-Handles-Konzepts.
+ 
+<P>Der Weg, wie das Ganze funktioniert, wenn die WPS einen vollst„ndigen Dateinamen
+eines Objekt-Handles ben”tigt (wenn z.B. ein Programmobjekt gestartet wurde
+und der Name der EXE-Datei ben”tigt wird) ist folgender: sie schaut nach dem 
+Objekt-Handle in der Tabelle, welches dann den Kurznamen (wie er in in der Spalte
+"Kurzname" angezeigt wird) liefert.
+ 
+<P>Danach sucht die WPS das Eltern-Handle dieses Eintrages. Sie sieht dann auf den Eintrag
+des Eltern-Handles und stellt den Dateikurznamen der Eltern dem aktuellen Eintrag voran.
+Danach geht es zu den Eltern der Eltern... und so weiter, bis der Wurzelknoten
+dieses Laufwerks erreicht wurde. (Das ist genau der Weg, auf dem xfix den langen Dateinamen
+zusammenstellt.)
+ 
+<P>Dies hat verschiedene Vorteile:
+ 
+<BR><UL><LI>Einzig der Kurzname muá in der <CODE>OS2SYS.INI</CODE> abgelegt werden, das spart Platz.
+ 
+<P><LI>
+Viel wichtiger ist jedoch, daá es sehr effizient ist, wenn Dateien oder Ordner verschoben
+werden. In diesem Fall werden nur die Eltern-Handles des zu verschiebenden Objektes ge„ndert.
+Da alle Unterobjekte des zu verschiebenden Objektes nur ein Eltern-Handle besitzen, kann
+dieses korrekt mit dem neuen Pfad zusammengestellt werden, wenn das n„chste Mal der
+vollst„ndige Dateiname ben”tigt wird.
+ 
+<P>Das ist der Grund dafr, weshalb Programmobjekte weiterhin funktionieren, nachdem die Ordner
+verschoben wurden.
+ 
+</UL>
+</OL>
+</BODY>
+</HTML>
+ 

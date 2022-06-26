@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Enhanced "Sound" object
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in 0946xwpsound.html -->
+<!-- V0.9.16: added ifdefs -->
+<BODY>
+The items in the <B>"Sound schemes" group</B> allow you to quickly load, save,
+and delete sound schemes.
+<!-- V0.9.16: added this -->
+A "sound scheme" is simply a complete set of currently defined system sounds. This
+allows you to store and switch all system sounds at once.
+
+<IFNDEF __EWORKPLACE__>
+<P>Sound schemes were introduced with &warp4;, but this
+page will work on Warp 3 also. A sound scheme can be considered a "set" of system
+sounds which can quickly be loaded all at once. Since sound schemes are (unfortunately)
+stored in <CODE>OS2SYS.INI</CODE>, all users of your computer share the same sound
+schemes.
+</IFNDEF>
+
+<P>The <B>"Current scheme"</B> drop-down list shows you all the sound schemes that
+are currently defined on your system.
+<!-- V0.9.16: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+On Warp 4, there should be at the least four
+default sound schemes, while on Warp 3 none are predefined (since Warp 3 does not
+know sound schemes in the first place).
+</IFNDEF>
+Selecting a sound scheme will overwrite
+the current sound data (after you have confirmed this).
+If you see "none" in the drop-down box,
+no sound scheme is currently selected, or the sound settings of a previously loaded
+scheme have been altered.
+
+<P>The <B>"Save as"</B> button allows you to save all the current sound settings
+(in the "Define system sounds" group) in a new sound scheme or to overwrite an
+existing one.
+
+<P>The <B>"Delete"</B> button is only enabled if the sound schemes drop-down list
+displays a sound scheme other than "none". Pressing that button will then delete
+the currently selected sound scheme.
+
+<BR>
+</BODY>
+</HTML>

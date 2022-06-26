@@ -1,0 +1,68 @@
+<HTML RESID=&ID_XSH_SETTINGS_XC_THREADS;>
+<HEAD>
+    <TITLE>
+        &xwp; Setup: Threads
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+The "Threads" page shows you information about the additional threads that
+&xwp; currently has running in the WPS process. This might be of interest
+for debugging purposes and bug reports.
+
+<P>Each line in this container shows you the internal <B>thread name,</B>
+which is only used by &xwp; to be able to identify threads by means other
+than an arbitrary numer.
+The <B>"TID"</B> value is the "thread ID" of the respective thread (which is unique
+within the WPS process). The <B>"Priority"</B> value is the respective thread's priority:
+the high byte can be a value of 1 through 4 (signalling the priority class: idle,
+<!-- V0.9.13: changed the following -->
+regular, time-critical, or forground server),
+while the low byte shows the priority "delta" within a priority class.
+(See <A HREF="glossary/gls_scheduler.html">"Processes and threads"</A> for details.)
+<!-- end V0.9.13 -->
+
+<P>&xwp; may start the following threads on your system:
+
+<!-- V0.9.13: updated the thread names -->
+<UL><LI><B>NotifySentinel, RefreshFindFolder, RefreshNotificationPump:</B>
+these are running if you enabled "replace folder auto-refresh" on the
+"Features" page and are responsible for watching the file system in the background.
+
+<!-- V0.9.18: renamed media thread to Party -->
+<P><LI><B>Party:</B> The &xwp; "Party" thread is responsible for multimedia,
+such as playing system sounds.
+
+<P><LI><B>Worker:</B> The &xwp; Worker thread is responsible for some background
+maintenance work that is not time-critical.
+
+<!-- V0.9.18: renamed Speedy thread to Bush -->
+<P><LI><B>Bush:</B> The &xwp; "Bush" thread is asleep most of the time,
+but suddenly wakes up for certain cosmetic, yet high-priority tasks which require
+immediate attention, such as displaying the &xwp; boot logo.
+
+<!-- V0.9.18: added Wimp thread -->
+<P><LI><B>Wimp:</B> another idle-time thread which awakes only every few minutes
+to perform some memory cleanup and such things.
+
+<P><LI><B>File:</B> The &xwp; "File" thread becomes active when &xwp;
+is doing file operations, such as moving files to the trash can or deleting files.
+
+<P><LI><B>&xcenter;:</B> Since each
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+is running on its own thread, you will
+see one such thread for each open &xcenter;.
+
+<!-- V0.9.13: added this -->
+<P><LI><B>PulseWidgetCollect:</B> this is only visible if you have the
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_pulse.html">"Pulse" widget</A>
+running in an open &xcenter;. The pulse widget starts a second thread
+for getting CPU usage information from the &os2; kernel in order not to be
+blocked out if some application monopolizes the PM single input queue.
+
+</UL>
+</BODY>
+</HTML>
+

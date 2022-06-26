@@ -1,0 +1,111 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Request For Help
+    </TITLE>
+</HEAD>
+<!-- this file is all new with V0.83; -->
+<!-- changed with V0.85 -->
+<!-- Note: I won't recommend to translate this file. The people I'm  -->
+<!-- addressing here need to speak English anyway, so don't bother. -->
+<!-- Simply copy this most current version over your existing one. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+If you like &xwp; and would like to contribute to it, your support will
+be very welcome. &xwp; is slowly beginning to become too complex to be handled by
+one person all alone.
+
+<!-- V0.9.1: removed this:
+You don't have to be a programmer to help. Support is appreciated in the
+following areas (and others): -->
+
+<UL><LI><B>Translations.</B> &xwp; is designed to be translateable in a fairly
+easy way. All language-dependent parts have been separated from the actual
+"intelligence" of the program into separate files, which can be translated independently.
+<P>If you're interested in <B>translating &xwp; to your language,</B>
+you can simply download the &xwp; sources from my homepage, which contain everything
+necessary for this.
+You don't have to be a programmer to do this, but
+it would be of great help if you have a basic knowledge of HTML,
+since both &xwp;'s Online Reference and the help
+file were originally written in HTML and then simply
+converted to the IBM format, which I dislike very much.
+<P>In this case, please
+contact me, so I can add you to
+my mailing list to allow you to get news about changes in time.
+
+<!-- this paragraph removed with V0.85 -->
+<!-- Documentation. I am looking for someone to take over maintenance of -->
+<!-- the XFolder INF and HLP files. It just takes too much time away from programming to -->
+<!-- always have to add documentation while adding new features, and I tend to overlook -->
+<!-- stuff sometimes. This applies especially to the German documentation. -->
+<!-- So if you know German and/or English and HTML, please -->
+<!-- contact me. -->
+
+<P><LI>If you're a programmer and have some experience in <B>PM and/or WPS programming,</B>
+please contact me also. We have great plans for &xwp;'s future
+<!-- V0.9.1: removed this:
+and would like to turn it into more of an "&xwp;" package -->
+to overcome the most obvious WPS limitations
+which exist today. Since there's little hope that IBM will do anything about this,
+I believe the &os2; community needs to do it themselves.
+The following major things are on the to-do list:
+<!-- V0.9.1: removed this : (I am not listing the "little" features
+that I'll add myself soon): -->
+
+<BR><OL><LI><B>WPS file handling.</B> This needs some serious reworking. I cannot
+believe that the WPS hangs every other time one copies more than a dozen files.
+File handling is the main task of an operating system's shell, and the current
+implementation needs at least the following enhancements: thread-safety, speed,
+proper progress bars when copying, a "Cancel" button that's not always disabled,
+more meaningful error messages etc.pp. This will require all of the WPS file-handling
+methods to be reworked (<CODE>wpCopy</CODE>, <CODE>wpMove</CODE> etc.).
+
+<!-- V0.9.13: removed this
+<P><LI><B>Populating folders.</B> One of the reasons that the WPS
+has become so much slower
+in &warp4; is that the WPS now seems to create object handles for
+every single file while populating a folder, which wasn't the case with Warp 3.
+Object handles are a thoughtful mechanism which is necessary for program objects and
+shadows, but they should only be created when necessary. I suspect this misbehavior
+is situated in <CODE>wpPopulate</CODE>, which therefore needs some rework too.
+-->
+
+<P><LI><B>Icon handling.</B> Drag'n'drop in the WPS always causes icons to be arranged
+in a fairly random way. This should be improved.
+
+<P><LI><B>WPProgram.</B> I have never understood why there's an object for global
+DOS/&winos2; settings if the program objects don't respect the settings there. We need
+support for global settings and also global and individual environment variables
+in program objects so that &cfgsys; does not always have to be modified.
+
+<P><LI><B>&warpcenter;.</B> That thing is instable, slow, and does not conform very well
+with the rest of the WPS. This should be completely reprogrammed. Since &xwp; already
+has code for those "folder content" menus, this shouldn't be too hard to to.
+
+<P><LI><B>Multi-user support.</B> The WPS is already designed to support multiple
+users thru the use of multiple OS2.INI files and Desktop hierarchies, so I cannot
+quite understand why IBM is not implementing this. &xwp; could do this; I am thinking
+of replacing the PROTSHELL and/or RUNWORKPLACE statements in &cfgsys; with some
+&xwp; executable,
+which will then start PMSHELL.EXE with a bunch of preset environment variables, most
+importantly OS2.INI settings and a UNIX-like HOME environment variable to support multiple
+configurations for applications in a "home" directory for each user.
+&xwp; should then offer a context menu item to "logoff" or something.
+
+<P><LI>&os2; also needs to be able to <B>restart Presentation Manager</B> somehow
+without having to
+reboot, for example to change display resolutions. The current solution is a joke.
+If you have any ideas about this, especially how to terminate and restart PM without
+blocking the system, please
+contact me.
+
+</OL><P>So if you're interested in adding any of these features to &xwp;
+(or if you have other suggestions), you'd be very welcome to join the project!
+Any help is appreciated.
+</UL>
+<BR>
+</BODY>
+</HTML>
+
+

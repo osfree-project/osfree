@@ -1,0 +1,793 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        XFolder Revision History (before 0.9.0)
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+This page lists the changes made to XFolder (before &xwp; 0.9.0 was released)
+and is identical to the "Revision history" page of the XFolder V0.85 documentation.
+
+<P><B>Version 0.85 (March 15, 1999)</B>
+<H6>Well, V0.84 proved to have a few more bugs.
+<P>New features:
+<UL><LI>Added lots more WPS class descriptions sent in by various people.
+<P><LI>Replaceable shape window <A HREF="xsd_03bootlogo.html">Desktop start logos.</A>
+
+</UL>Bugfixes:
+<UL><LI>Status bar information for program objects failed if WPProgram class
+was replaced (e.g. DTProgram of DragText). Fixed.
+<P><LI>Status bars crashed when translating $T key for WPFileSystem objects,
+but only in 12-hour time display ("Country" object). Fixed
+(strhFileDate, /helpers/stringh.c).
+<P><LI>Error message when changing object ID on "Internals" page had funny title.
+Fixed.
+<P><LI>The "lastpid" file was always written to the root dir of the boot drive
+instead of XFolder's own "bin" dir. Fixed.
+
+</UL></H6><B>Version 0.84 (February 4, 1999)</B>
+<H6>First non-beta. Hope this works better.
+<P>New features:
+<UL><LI>Implemented new drive checking when Disk objects ("root folders")
+are opened to avoid the annoying system error messages of &os2;. You'll
+get a slightly more comfortable message box now with the default &os2;
+SYSxxx error message. That's a bit better, I think.
+<P><LI>Finally, a number of WPS
+<A HREF="065icons.html">default icons</A> can be freely replaced.
+<P><LI>Status bar support for WPUrl objects; they display the URL in the
+status bar per default.
+<P><LI>Double-click on status bar opens folder settings notebook.
+<P><LI><A HREF="xsd_4cmdline.html">XSHUTDWN.EXE</A> can finally do a Desktop restart too.
+
+</UL>Miscellaneous changes:
+<UL><LI>Reworked thread and exception handling once more. Added exception handling to
+status bars (fnwpSupplObject, xfldr.c).
+<P><LI>Reworked the folder subclassing to speed up processing and
+added more checks for error conditions (fnwpSubclassedFolderFrame,
+xfldr.c).
+
+</UL>Bugfixes:
+<UL><LI>V0.83 reported a wrong version number of itself. Fixed.
+Well, we're at V0.84 now anyway.
+<P><LI>Removal of context menu items broke for abstract objects in
+V0.81. Fixed.
+<P><LI>"File attributes" menu didn't work when several data files were selected. Fixed.
+<P><LI>Fixed a few keyboard focus problems with status bars.
+<P><LI>Also changed the way status bars save whether the size of a folder window
+has been increased already. This is now stored together with the other folder pos data
+in OS2.INI, "PM_Workplace:FolderPos". The status bar keys end in "@XFSB". This should
+fix the problem that folder windows were frequently too small when folder positions were
+not properly saved.
+<P><LI>When users tried to move the XFolder Configuration Folder, they
+got the "Config folder does not exist" message all the time. Fixed.
+<P><LI>Also, that message is only opened once now.
+<P><LI>Fixed a few problems with the "File exists" dialog: 1)
+XFolder's "does file exist" algorithm behaved differently from the default WPS
+behavior when files were copied from HPFS to FAT or from FAT to FAT and the
+long name was different from the real name;
+2) on FAT drives,
+the proposed name were in 8+3 format, which is not very useful;
+3) the proposed names used to be based on the existing real names, not file titles.
+4) Also, "rename" behaved funny on FAT drives sometimes.
+Ooouuuargh. Fixed.
+<P><LI>Folder views behaved really strange with some CD-ROM directories,
+especially with the new Joliet support of CDFS.IFS. I suspect this was
+due to some of my DosDevIOCtl's, which I have removed now.
+<P><LI>On some systems, opening folder content menus for removeable drives
+hung the system when those drives were empty (e.g. because no floppy disk
+was in the drive). Added drive checking for folder content menus.
+<P><LI>In rare occasions, previous versions would mess up the &cfgsys; file
+by not setting the correct file size after writing, which led to
+garbage characters at the end of the file. Fixed, thanks to ARAKAWA, Atshushi.
+<P><LI>The Worker thread was frequently given "regular" priority, which slowed
+down the other WPS threads. Fixed; Worker thread priority is now properly
+set to "idle".
+<P><LI>SOUND.DLL was missing in the V0.83 distribution. Sorry, fixed.
+<P><LI>Playing of system sounds was always interrupted when a new sound was
+to be started, even if the new sound file did not exist. Fixed
+(fntQuickThread, xthreads.c).
+<P><LI>XFolder would sometimes fail to process its startup folders even though
+it should have processed it. Fixed (fnwpWorkerObject, xfdesk.c).
+<P><LI>In rare occasions, e.g. with ObjectREXX's WPS support, saving the WPS
+objects during shutdown would crash. I've now added even more "quiet" exception
+handling, maybe this helps.
+
+</UL></H6><B>Version 0.83 beta (December 14, 1998)</B>
+<H6>Well, the major rework of V0.82 broke a number of things, so there
+are more bugfixes here. There are still a couple of known bugs which I
+haven't had time to fix yet, but I wanted to get these bugfixes out before
+Christmas. See "bugs.txt" on my homepage for up-to-date info.
+
+<P>New features:
+<UL><LI><A HREF="xsd_4cmdline.html">XSHUTDWN.EXE</A> now has an option for
+turning on the shutdown log.
+<P><LI>BOOTMGR.CMD to automatically add user-reboot options. See
+<A HREF="080related.html">Related Files</A> for more.
+
+</UL>Miscellaneous changes:
+<UL><LI>Replacement "File conflict" dialog now automatically selects the filestem
+in the rename proposals.
+<P><LI>A few cosmetic changes to the XFolder dialogs.
+
+</UL>Bugfixes:
+<UL><LI>Removal of default menu items broke for data-file objects in V0.81. Fixed
+(new wpFilterPopupMenu in xfdataf.*).
+<P><LI>Changing file attributes from shadow context menus led to crashes when
+several shadows were selected. Fixed (mnuFileSystemSelectingMenuItem, menus.c).
+<P><LI>Copying file names didn't work correctly either if this was selected from
+a context menu of several shadows. Fixed (same place).
+<P><LI>Replacement "File conflict" dialog sometimes displayed outdated file
+size/date/time information. Fixed (wpConfirmObjectTitle, xfobj.c).
+<P><LI>With V0.82, XFolder forgot how to write &cfgsys; to disk. That rendered the whole
+"&os2; Kernel" object pretty useless. Fixed, sorry (fncbConfigItemChanged, xfsys.c).
+<P><LI>SUPPRESSPOPUPS wasn't properly read from &cfgsys; ("Errors" page). Fixed.
+<P><LI>The second "Screen" page which is inserted into the "System" object for some
+video drivers did not appear in "&os2; Kernel", but somewhere in "Workplace Shell".
+Fixed (wpAddDMQSDisplayTypePage, xfsys.*).
+<P><LI>&xshutdown; sometimes reported a data size of 0 when saving INI keys. This is
+now silently ignored, so that those error messages shouldn't appear any longer.
+<P><LI>&xshutdown; got confused with programs which appeared with a PROG_DEFAULT
+type in the tasklist. Fixed (xsdBuildShutList, xfdesk.c).
+<P><LI>APM power-off entered a critical section after calling the APM interface, which
+kept power-off from functioning. Fixed (apm.c).
+<P><LI>Dialogs were resized very badly when video resolution was changed. Fixed;
+I am now using my own routines for storing/restoring window positions in winh.*.
+<P><LI>Treesize reportedly had trouble on very large hard drives. I suspect this was
+due to my use of unsigned int variables, which can only hold values up to some 4 billion
+(= 4 GB). Fixed, I'm now always using double variables.
+
+</UL></H6><B>Version 0.82 beta (November 19, 1998)</B>
+<H6>This is a <I>major</I> rework. It might not look too different from
+the previous version, but I've cleaned up a lot of things.
+<P>New features:
+<UL><LI>More Treesize settings: size display format, low-priority search.
+<P><LI>XFolder <I>finally</I> has &warp4; notebook buttons. There's a new function
+winhAssertWarp4Notebook in /helpers/winh.c which can do this with any notebook
+page without having to change the dialog resources. Thanks, Martin Lafaix, for
+the necessary information.
+<P><LI>Thanks to ARAKAWA Atsushi, APM power-off now works. (I hope. Again, I cannot
+test this.)
+<P><LI>Added a few more WPS class descriptions.
+
+</UL>Miscellaneous changes:
+<UL><LI>Removed the XFldFileSystem class because it wasn't doing much anyway and
+caused installation failures on Warp 3 without fixpaks. Its functionality is now
+handled by the XFolder and XFldDataFile classes directly.
+<P><LI>Removed the XFolder exit list because this seemed to have caused some problems
+during Desktop restarts (xfdesk.c). Also changed the algorithm which determines whether
+the startup folder should be processed (fnwpWorkerObject, xfdesk.c).
+<P><LI>Completely reworked all the settings notebook page logic. Almost all pages are
+now using much more lucid callbacks from the new notebook.* files. This also ensures
+proper updating of pages when other pages are currently open too.
+<P><LI>Completely reworked the SOM logic for the "WPS Classes" page in "Workplace Shell".
+Maybe this helps with the problems previous versions had on some systems. Also, this
+now even displays classes which do not appear in the "official" WPS class list, because
+some internal classes are loaded independently of that. Finally, multiple class
+replacements are now properly displayed.
+Found an interesting undocumented
+SOM method (see clsWpsClasses2Cnr in classlist.c for details).
+<P><LI>Also added source emphasis to the "WPS Classes" container when context menus
+are opened. Previous versions had trouble keeping the selected classes apart.
+<P><LI>XFolder is now smart enough to write changes to &cfgsys; in lower case if the
+keyword which is replaced contains lower-case characters too (fnwpConfigCommon, xfsys.c,
+and str* helper functions in /helpers/dosh.*).
+<P><LI>Fixed a coupla things with NLS DLL loading to make V0.82 work with V0.81 NLS DLLs
+(cmnQueryNLSModuleHandle, common.c).
+<P><LI>XFolder can now write SUPPRESSPOPUPS=0 on "Errors" page in "&os2; Kernel". This
+is a new setting since FP29 (fnwpConfigCommon, xfsys.c).
+<P><LI>Sped up confirmation dialog display (XFldObject::wpConfirmObjectTitle, xfobj.c).
+<P><LI>Treesize is now much faster collecting extended attributes (up to 300%). Also
+fixed some strange hangs/crashes on some directories.
+
+</UL>Bugfixes:
+<UL><LI>"Templates" checkbox had disappeared from several object notebooks in V0.80
+(removed various wpclsQueryStyle method overrides). Fixed.
+<P><LI>Previous versions tended to crash if folders were not running on thread 1
+of the WPS. This was especially the case with folders created by various install
+programs (StarOffice, IBM feature install).
+Sorry, XFolder status bars apparently weren't thread-safe.
+XFolder now creates a new object window for each folder which is
+opened (fnwpSupplObject, xfldr.c),
+so that status bar manipulation always occurs on the thread in which the folder
+is running.
+<P><LI>First "Context menus" settings page had German buttons. This was just an
+educational measure. ;-) Fixed.
+<P><LI>"Status bars" page 2 had "XFldDataFile" as the default class selection,
+even though that class doesn't support status bar codes. Fixed.
+<P><LI>Added more error checking to the "QuickOpen" and "Favorite Folder" functions.
+Maybe this helps with those strange exceptions on the first settings page for folders.
+<P><LI>XFolder now enforces minimum settings notebook sizes when these are initially
+opened, because large pages were truncated previously (new wpclsQuerySettingsPageSize
+method overrides in xfdesk.* / xfsys.*).
+<P><LI>Reworked the "folder content" menu display so that it only uses regular icons
+now. Maybe this solves the mysterious crashes with some video drivers.
+<P><LI>Reworked several parts in menu handling because items were inserted in the wrong
+places (menus.c). I also forgot to add the "folder view" items to Warp 4's menu bar too.
+And "Create another" was always disabled, no matter if this was desired in the
+"Workplace Shell" object. Finally, "Select by name" wouldn't show up on Warp 3. All fixed.
+<P><LI>Also added more error checking when evaluating the config folder. This should
+lead to less warning messages if objects are deleted from there (menus.c).
+<P><LI>Startup/QuickOpen status windows were not destroyed, but only hidden when that
+action was finished. Fixed.
+<P><LI>INI file maintenance broke somewhere in V0.8x; this is now done by the
+Worker thread (xfdesk.c). Fixed.
+<P><LI>Saving INIs: "Ignore" button should now work when errors occur (/helpers/prfh.c).
+<P><LI>Fixed a few repaint problems with progress bars (/helpers/progbars.c).
+<P><LI>Fixed a lot of bugs with the new system sounds. For one, XFolder failed to install
+on systems where MMPM/2 was not installed, because XFLDR.DLL was linked against the
+MMPM/2 libraries, which then could not be imported. So we have a new, second SOUND.DLL,
+which does all the sound playing. If loading that DLL fails, XFolder simply won't play
+sounds. See the sound.* files for details. -- Second, XFolder got really confused
+playing sounds when other applications needed the audio device too. This is now
+solved; XFolder checks for whether the device is available, and if another application
+wants the device while XFolder is playing, playing is stopped also. --
+Third, System sounds in V0.81 worked only if they had been disabled and enabled again
+in the "Sound" object (cmnQuerySystemSound, common.c). Fixed.
+<P><LI>Couple of broken links in the German HLP file. Fixed.
+<P><LI>Install script crashed when invalid language code was entered. Fixed.
+
+</UL></H6><B>Version 0.81 beta (October 18, 1998)</B>
+<H6>Starting with this version, the file and function of the error
+in the source files is specified here too. For details about the
+source code changes, refer to the "CHANGELOG.TXT" file in the source
+distribution.
+
+<P>New features:
+<UL><LI>Treesize external program. Part of the default context menu now.
+<P><LI>Due to popular request, <A HREF="menu_8snaptogrid.html">"Snap to grid"</A>
+can now snap the selected icons only.
+<P><LI>The position of the startup folder status window is finally saved and
+restored the next time. Sorry this has taken so long.
+
+</UL>Miscellaneous changes:
+<UL><LI>Gave up using SOM multiple inheritance, which seems to have caused too much
+trouble. In detail, the xfSelectingMenu and xf* methods for status bars have been
+removed from XFldObject and subclasses. Status bar single-object info is now
+handled in statbars.c (new file) with _somIsA() calls instead. Not as elegant,
+but might be a bit faster than SOM method resolution too.
+<P><LI>XFldProgram class removed. Its only purpose was for status bars using
+SOM multiple inheritance. Functionality is now handled by menus.c.
+<P><LI>Removed extended Settings submenus. Caused too much trouble. Instead,
+you may now set additional "Attributes" and "Folder view" menu items in "Workplace Shell".
+<P><LI>Improved animation code to avoid flickering. All the common code for this
+is now in the new animate.* files.
+<P><LI>Added exception handling to "XFolder" notebook page in folders. This seems
+to have broken on some systems.
+<P><LI>Made the file-system class replacements return the CLSSTYLE_NEVERTEMPLATE
+from wpclsQueryStyle so that no additional templates are produced in the Templates
+folder.
+<P><LI>Reworked status bar code completely. Should be quite a bit faster now; however,
+each code is only translated _once_ now.
+<P><LI>Rearranged the pages in the "&os2; Kernel" and "Workplace Shell" objects. Also
+changed the replaced SOM methods (xfsys.*). "&os2; Kernel" should now contain all the
+settings which require a reboot to take effect. I guess this is a more logical
+rule.
+<P><LI>Removed those darn xfclsQueryModule methods which were used to query the
+module handle of xfldr.dll.
+This might have caused installation failures
+on some systems.
+There is a new DLL init function in module.c now which
+is a lot faster and causes less problems.
+<P><LI>As a nice side-effect to this, XFolder does not need any INI entries any more
+to run properly. If you delete the whole "XFolder" INI thing, XFolder will re-initialize
+itself.
+<P><LI>Install script set up config folder to open in Tree view per default.
+Unfortunately this caused .LONGNAME EAs not to be rewritten when the main config folder
+was altered. Fixed, this now uses non-flowed icon view.
+
+</UL>Bugfixes:
+<UL><LI>"HPFS" page wrote "LAZY:1" instead of "/LAZY:1" to &cfgsys;. Fixed (xfsys.c,
+fnwpConfigCommon).
+<P><LI>"HPFS" page could read a few IFS parameters in upper case only. Fixed.
+<P><LI>"Memory" page wrote "HPFS" settings too. Forgot a "break" in fnwpConfigCommon,
+xfsys.c.
+<P><LI>"Errors" page wrote "REIPL=YES" instead of "REIPL=ON". Fixed.
+<P><LI>"Object Internals" page displayed object handles only 25% of the time, depending
+on how large your object repository was. Fixed.
+<P><LI>Install script failed to create "Workplace Shell" and "&os2; Kernel" objects
+if the XFolder Configuration folder already existed. Fixed.
+<P><LI>Creating objects from context menus caused non-reproduceable system hangs
+from time to time (really bad ones where even C-A-D faild).
+Added more error checking (cmnCreateFromTemplate, common.c; this
+used to be XFldObject::xfCreateFromTemplate) and rewrote large parts of that routine
+to use container messaging now instead of WPS methods. Seems to always work now.
+<P><LI>Reworked "Snap to grid" also so that it now properly uses container
+messages (xfSnapToGrid, xfldr.c).
+<P><LI>Status bars now check for removeable drives before querying disk information.
+Those ugly "drive not ready" popups should now be gone.
+<P><LI>Status bars reported garbage if a filename to be displayed contained a '$'
+character also. Fixed.
+<P><LI>"Folder hotkeys" page listed an "Insert" item, which should have been called
+"Paste". Fixed.
+<P><LI>Opening large folder content menus (which were repositioned on the screen)
+would sometimes cause all menus not to react to mouse clicks any more. Fixed.
+<P><LI>Fixed a memory leak in bitmap handling. I was using IBM sample code again...
+<P><LI>XFolder would sometimes attempt to play system sounds even though no system
+sounds were enabled. Fixed.
+<P><LI>XFolder sometimes conflicted with the WPS container manipulation when extended
+sorting was on. Icons could still be moved within a folder even though "Always sort"
+was on. Fixed.
+<P><LI>Install script failed to create the new "Workplace Shell" and "&os2; Kernel"
+objects when the config folder already existed. Fixed. There are now two additional
+scripts in \INSTALL.
+
+</UL></H6><B>Version 0.80 (September 29, 1998)</B>
+<H6>XFolder's licence agreement has changed. I am now releasing the source code
+and have placed XFolder under the GNU Public Licence. See
+<A HREF="020notices.html">"Licence"</A> for details.
+
+<P>New features:
+<UL><LI>XFolder can now replace some WPS confirmation dialogs.
+<P><LI>Under OS/2 Warp 4, XFolder finally manages to modify folder menu bars also
+according to the context menu settings.
+<P><LI>The <A HREF="xsd_3folders.html">XFolder Startup</A> folder now has a new
+menu item in its context menu: "Start folder content" allows you to start all
+the objects in it even after the WPS is up.
+<P><LI><A HREF="fldr_5quickopen.html">"QuickOpen"</A> feature for folders.
+<P><LI>The "System" object is now split into two new
+"&os2; Kernel" and "Workplace Shell" objects. Refer to
+<A HREF="sys_1intro.html">this page</A> for more.
+<P><LI>New settings pages therein to change
+those risky and obscure &cfgsys; settings.
+Included <A HREF="sys_1intro.html">plenty of information</A> for this.
+<P><LI>New "WPS classes"
+page for manipulating the WPS class list.
+<P><LI>Every object now has an "Internals" page in its settings notebook. Here you can
+look at lots of information which you can't see otherwise and even change the object's
+ID.
+<P><LI><A HREF="menu_91copyfilename.html">"Copy filename"</A>
+finally works properly with multiple selections in a folder.
+Multiple filenames are then separated by spaces. Also introduced new
+<A HREF="fldr_5xelerators.html">folder hotkeys</A>
+for copying the filename (without path: Ctrl+Insert per default).
+<P><LI>Status bars now support different information in single-object mode depending
+on the class to which the selected object belongs.
+To implement this, I had to introduce even more WPS class replacements. 8-)
+Moreover, the "$x" key for status bars now supports formatting text from the right
+or as a percentage of the status bar width.
+Also introduced a few more keys.
+See <A HREF="stat_2extras.html">"Configuring status bars"</A> for details.
+<P><LI>Status bars now also work for tree views, if you enable this in the
+Global Settings.
+<P><LI>Status bars now display the folder's context menu when you right-click on
+them.
+<P><LI>Added a new status bar display style ("Warp 3 sunken").
+<P><LI>&xshutdown; can now display a little animation.
+<P><LI>"Restart Desktop" now has a setting for whether the startup folder should
+be processed after the restart.
+<P><LI>I have provided a source-code plug-in interface for people who are willing
+and able to teach &xshutdown; how to do an APM V1.2 power-off. My BIOS does not support
+this, so I cannot do this myself. Hopefully somebody will succeed.
+<P><LI>&xshutdown; <A HREF="xsd_4cmdline.html">command-line interface.</A>
+
+</UL>Miscellaneous changes:
+<UL><LI>Rearranged the "Context menu" settings pages more logically (I hope).
+<P><LI>Finally included proper (and updated) NetscDDE documentation in a
+separate INF file. NETSCDDE.TXT is gone.
+<P><LI>Beautified XFolder message boxes a little. These now accept fonts from the
+font palettes, and these are stored. So at least the XFolder message boxes don't use
+that ugly "System Proportional" font any more.
+<P><LI>When "Always maintain sort order" is enabled globally, XFolder
+now wants a confirmation for whether
+the Desktop should also be sorted. This will prevent you from accidentally sorting the
+Desktop.
+<P><LI>"Show icons" for the "Folder content" functions is now disabled per default.
+Some video drivers apparently had serious trouble with this (I was told this for the
+Matrox Millenium; my ELSA card works fine though).
+<P><LI>"Folder content" menus are now repositioned on the screen when they're very large
+to avoid having them displayed outside the visible screen area.
+<P><LI>Completely reworked the config folder menu item handling. Previous versions
+had problems when the .LONGNAME EAs contained different information than the actual
+folder content in the INI files. These two sources are now compared and balanced.
+As a side effect, processing these menu items also now consumes less memory and is
+faster.
+<P><LI>Also reworked the folder content menu item handling. Previous versions sent
+far too many PM messages to the menu window, which cost a lot of time, especially
+for folders on FAT drives, which are not sorted by default. Sorting is now done in
+memory before inserting the menu items using a QuickSort algorithm. Even on huge
+directories, this never takes longer than half a second.
+I can't do much about the slow icon retrieval though, that's WPS-internal.
+<P><LI>Since I was given a VisualAge C++ compiler by Mark Mellin (thanks again), this
+version is now using a better compiler. Since VisualAge C++ does contain pretty good
+programming information, I've spent a couple of days on compiler options
+and code optimizing, and I hope that this has resulted in speedier code.
+<P><LI>Better memory handling altogher. XFolder now returns unused memory to the
+operating system from time to time.
+<P><LI>Replaced my own string handling routines with those from
+an old programmers CD-ROM which are way faster.
+<P><LI>Converted a few SOM instance methods into regular C functions. This
+should speed up XFolder a little bit.
+<P><LI>&xshutdown; now always closes the Desktop and &warpcenter; windows last. This
+will prevent the situation that you'll be unable to use your system after Shutdown
+has been cancelled because the Desktop has already been closed.
+
+</UL>Yet more bugfixes in this version:
+<UL><LI>Moving Object Desktop's TSEnhFolder in the install script didn't work. Fixed.
+<P><LI>Win95 keys are finally working. This time I'm sure ;-) because Glauco
+Ippolitoni, Italy, sent me a keyboard with those keys. Thanks again.
+<P><LI>Previous versions crashed building the context menus if the config folder
+contained a broken shadow. Fixed.
+<P><LI>The same applied to folder content menus if broken shadows were found. Fixed.
+<P><LI>Included much more error checking for those folder content menus. Maybe this
+solves some of the video driver problems mentioned above.
+<P><LI>Setting extended sort options from context menus didn't work for open drive
+(root folder) views. Fixed. But to do this, I had to introduce two new WPS methods. :-(
+<P><LI>Previous versions kept causing exceptions internally
+when objects were being deleted. For some
+reason which I still don't understand, XFolder's wpUnInitData method kept getting
+called twice by the WPS, which really doesn't make sense.
+Although this error was handled by
+the internal WPS exception handler, this slowed down the deleting process immensely.
+Fixed. (But I'm still amazed.)
+<P><LI>XFolder failed to release an instance mutex semaphore when a folder was put
+back to sleep. Ooops. Fixed.
+<P><LI>Found a memory leak in the code doing the "program object tricks" in the
+config folder. This must have been in there since XFolder 0.3x. To my excuse, I took
+exactly the example code from the wpQueryProgDetails Toolkit docs, which also forgets
+to release the allocated memory. ;-) Fixed.
+<P><LI>The values for the "Snap to grid" feature were not dynamically updated when
+changed in the Global Settings. This must have broken in V0.70. Fixed.
+<P><LI>"Select by name" appeared in the wrong places when the "Display" menu was removed.
+Fixed.
+<P><LI>Folder status bars messed up window painting when the window was resized so that
+the status bar overlapped the title bar, especially when "roll-up" features by, say,
+X.it were used. A simple WS_CLIPSIBLINGS fixed this.
+<P><LI>"Refresh now" did not refresh status bar data. Fixed.
+<P><LI>Included more consistency checking for the Worker thread when it remembers awake
+objects.
+Previous versions had a tendency to crash in the Worker thread from time to
+time when the Worker thread tried to store an awake object which wasn't really awake
+any more. (This occurred mainly when deleting many objects in subfolders.
+For all programmers: contrary to what IBM says in the SOM documentation,
+somIsObj obviously is NOT crash-safe.) Fixed.
+<P><LI>Previous versions opened the objects in the startup / shutdown folders from the
+(background) Worker thread, which led to sporadic, unpredictable crashes. Besides
+the &warpcenter; strongly disliked not being started from the Workplace thread.
+These objects are now opened from the main
+WPS (Workplace) thread.
+<P><LI>XFolder Startup folder was not processed during first startup after installation.
+(But only this one time.) Fixed.
+<P><LI>The "XFolder Internals" settings page crashed when the filenames of the
+NLS DLLs were in capital letters (esp. on FAT drives). Fixed.
+<P><LI>&xshutdown; hung when it tried to close a PM program which was hung also.
+(Especially with Netscape...)
+The "Skip" button wouldn't help anymore then, because it just didn't react.
+Fixed: Messages are now posted, not sent, to PM windows.
+<P><LI>Contrary to what the "Auto-close non-PM sessions" window said, no Ctrl+C signal
+was sent to a non-PM session, but Ctrl+Break instead. Fixed.
+<P><LI>The &xshutdown; Update thread got lost sometimes when shutdown was initialized. Fixed.
+<P><LI>Completely reworked the &xshutdown; routines dealing with saving the INI files.
+Included a lot more error checking, and the error messages are now more meaningful.
+I hope that the errors many users have reported have now disappeared, and if not, they
+won't take the whole system down or even crash your WPS.
+<P><LI>Fixed a bug which caused saving the INI files to crash when they were specified
+in lower case in &cfgsys;.
+<P><LI>"Paste" and "View" were still called "Insert" and "Display" in some places. Fixed.
+<P><LI>A few links in the INF files were messed up. Fixed.
+
+</H6></UL><B>Version 0.71 (July 2, 1998)</B>
+<H6>Only bugfixes in this version.
+<P>Bugfixes:
+<UL><LI>Status bars were not updated any more when objects were deleted from an open
+folder. For some reason, the WPS considers a folder "not populated" any more when it
+deletes an object from it, and XFolder therefore stopped updating status bars. Fixed.
+<P><LI>V0.70 removed the whole "Sort" menu and re-inserted items with different menu ids
+even for default WPS sort menus, which caused other WPS enhancers (X.it) to fail when
+they were trying to sort folders. XFolder now only ADDS items and leaves the other items
+alone.
+<P><LI>Use of $S keys in "single-object mode" caused other object information to
+be always related to last object in folder (e.g.
+"$C objects, $SK KB (selected: $t [$w] $D $T)"). Fixed.
+<P><LI>Forgot to document a few status bar mnemonics in the online help.
+<P><LI>Win95 keys were recognized as hotkeys in the Global Settings, but not saved.
+Again, I don't have those keys, but I've fixed something. Let's see if it works.
+<P><LI>XFolder sometimes crashed at bootup when no config folder was present. Fixed.
+<P><LI>Since the WPS crashes big time when menu IDs > 0x8000 are used, XFolder now checks
+for this (folder content menus) and aborts processing then.
+<P><LI>The Warp 4 "Insert" menu item is actually called "Paste". Sorry, I have a
+German &os2;. Fixed.
+<P><LI>"Restart Desktop" now saves and closes all open WPS windows, including the Desktop,
+regardless of whether "Close all open windows" was checked. Since all WPS windows will
+be closed anyway when the WPS terminates, I might just as well do it myself. This has the
+advantage that icon positions are finally saved for the Desktop too.
+<P><LI>"Restart Desktop" doesn't use WPSRESET.EXE any more. A simple DosExit(EXIT_PROCESS, 0)
+does it too. If I had figured this out earlier, this could have saved me a couple of days of
+trial and error. ;-)
+<P><LI>Moved a lot of code from the subclassed frame window procedure to a new, separate
+object window, which is also running in the PMSHELL Workplace thread. This might increase
+compatibility with other WPS software which also does subclassing.
+<P><LI>Just a cosmetic correction: the "reboot" drop-down list box in the &xshutdown;
+confirmation dialog was disabled illogically. Fixed.
+<P><LI>Not really a bugfix, but XFolder now creates a shutdown log in the root directory
+of your boot drive ("xshutdwn.log"). Some people still have trouble getting &xshutdown; to work, and this might
+help tracking these problems down.
+<P><LI>Now that I had the shutdown log, I was able to track down the mysterious problems
+WRT closing VIO sessions, and I found a major bug which caused &xshutdown; to sometimes close
+a different session than the one that was intended. Fixed.
+<P><LI>I also rearranged the order of commands that were executed while saving the INIs
+during shutdown. Maybe this helps those people who (mysteriously) still can't get those
+functions to work... otherwise, check the shutdown log.
+<P><LI>Rearranged the order of classes in the install script. Some systems seemed to have
+problems with the previous order.
+
+</UL></H6><B>Version 0.70 (beta) (June 26, 1998)</B>
+<H6>Hoo-yah, yet another mega-release.
+<P>New features:
+<UL><LI><A HREF="menu_6favorite.html">"Folder content" functions</A>.
+<P><LI><A HREF="menu_7selectsome.html">"Select by name" function</A>.
+<P><LI><A HREF="fldr_38sort.html">Sort extensions.</A>.
+<P><LI><A HREF="stat_1intro.html">Folder status bars</A>.
+<P><LI><A HREF="xsd_3folders.html">Startup / Shutdown folders</A>.
+<P><LI><A HREF="mm_2sounds.html">Sounds!!</A>
+<P><LI>Rearranged Global Settings more orderly.
+<P><LI>Cleaned up internal menu handling routines big time in order to make the new
+folder content features work. As a result, the 50-objects limit of previous versions
+has been removed.
+<P><LI>Default menu items are now removed if a respective checkbox is <I>un</I>checked; this
+seems more consistent to me.
+<P><LI>"Help" submenu may now also be removed.
+<P><LI>XFolder setup strings introduced
+for use with REXX.
+<P><LI>In Icon views, objects are now created from templates at the mouse position
+(from where the context menu was opened).
+<P><LI>Support for Win95 keyboards (folder hotkeys).
+<P><LI>Beautified dialogs a little. ;-)
+<P><LI>&xshutdown; now checks for existing printer queues before shutting down.
+<P><LI>"Restart Desktop" now remembers whether to close windows between restarts
+(checkbox in confirmation window).
+<P><LI>User-configurable reboot actions.
+<P><LI>"Shutdown" and "Restart Desktop" items in Desktop context menu now contain "..."
+only when confirmations are enabled.
+
+</UL>Still more bugfixes:
+<UL><LI>Improved exception handling again.
+<P><LI>XFolder refused to create objects altogether when "Open settings after creating
+from templates" in the Global Settings was disabled. Fixed.
+<P><LI>XFolder crashed when objects were added to the config folder while these were closed.
+This resulted in folder context menus not appearing at all. Fixed.
+<P><LI>XFolder got confused on the "XFolder" page in folder settings notebooks
+enabling the checkboxes properly. Fixed.
+<P><LI>For mysterious reasons, XFolder would crash on some systems after dropping something
+on the root folder of the boot drive. Fixed (I hope).
+<P><LI>Disabling folder hotkeys would disable all folder subclassing, including
+"Auto-scroll tree views". Fixed.
+<P><LI>The Warp 4 "View" menu was dubbed "Display" in XFolder dialogs and help files.
+Sorry, I don't have an English Warp 4. Fixed.
+<P><LI>&xshutdown; failed to save INIs when the existing OS2*.INI files had the HRS attributes
+on ("An error occurred saving the INI files: 5"). This should be fixed now.
+<P><LI>&xshutdown; would sometimes hang after closing all windows, waiting forever for the
+Update thread to terminate. Fixed.
+<P><LI>&xshutdown; would sometimes fail to begin shutdown, although the status window was already
+displayed, because it was resetting some event semaphore which was already posted. Fixed.
+
+</UL></H6><B>Version 0.61 (beta) (May 10, 1998)</B>
+<H6>This is mainly a maintenance release to fix the bugs detected in the last version.
+<P>Some new features anyway:
+<UL><LI>XFolder now populates the Config folders in the background after Desktop startup, so
+you don't have to wait forever on the first right mouse-click.
+<P><LI>New "Auto-close non-PM sessions" setting for &xshutdown;. By popular demand. ;-)
+<P><LI>New NETSCDDE included. See NETSCDDE.TXT for details.
+<P><LI>Changed the default folder hotkey configuration for more
+<A HREF="fldr_5xelerators.html">default hotkeys</A>.
+<P><LI>Documented <A HREF="further_2howxshutdown.html">&xshutdown; internals</A>.
+
+</UL>Even more bugfixes:
+<UL><LI>&xshutdown; failed to save data of folders which were awake (i.e. stored somewhere in
+the WPS process),
+although they were not visibly open. This applied especially to the XFolder Config Folder.
+This is now fixed; all awake folders are saved too.
+<P><LI>&xshutdown; sometimes failed to save INI files properly. Error checking is now implemented.
+<P><LI>&xshutdown; sometimes failed to close non-PM sessions.
+At least DOS/&winos2; sessions had to be closed manually. This
+was due to a bug (feature?!?) in WinQueryWindowProcess, which does not return the process and
+session IDs of DOS machines, but those of the first PMSHELL instance. I don't know what this
+should be good for... anyway, it's fixed.
+<P><LI>&xshutdown; threads had wrong priority settings, so they would wait forever when a
+session had higher priority settings than them. Fixed.
+<P><LI>&xshutdown; also sometimes got confused with its thread management and would
+start the same thread twice. Fixed.
+<P><LI>Fixed some minor annoyments in the install script.
+<P><LI>Somehow languages got messed up after installation; the dialogs were in German, the help
+files in English. Fixed.
+<P><LI>"Auto-scroll Tree views" did not always realize when the WPS was done populating a folder.
+Fixed.
+<P><LI>Exception management enhanced. Crashes in XFolder will now not always take the whole
+WPS down. Changed location of trap log file to the OS/2 boot drive; if you hear funny sounds,
+look for "?:\XFLDTRAP.LOG" with "?" being your boot drive.
+<P><LI>Individual folder settings were sometimes set to "disabled" per default. This does of course
+not make sense. Fixed.
+
+</UL></H6><B>Version 0.60 (beta) (May 4, 1998)</B>
+<H6>I know it's been a while since the last release, but to make up for it, this
+is a mega-version...
+<P>New features / Changes:
+<UL><LI>XFolder is finally able to <A HREF="menu_5order.html">order context menu items</A>
+according to the order
+which is seen in Name or Details views of the corresponding config folder. This was a real
+hassle...
+<P><LI>"Auto-scroll tree views" feature.
+<P><LI>XFolder is now fully multi-threaded ("XFolder Worker thread").
+<P><LI><A HREF="xsd_2xshutdown.html">Extended Shutdown</A> and "Restart Desktop" features
+and new settings page for Desktop.
+<P><LI><A HREF="menu_91copyfilename.html">"Copy filename"</A> feature.
+<P><LI>Moved the recreation of the default Config folder into the XFolder code; this
+is not any more done by the install script. This way, if the config folder gets lost,
+you may recreate your default config folder automatically.
+<P><LI>XFolder is finally able to process hotkeys for the Desktop and drive (disk)
+objects also.
+<P><LI>There is a new setting on page 1 of the XFolder Global Settings
+which tells XFolder what to do after <A HREF="menu_2template.html">creating
+an object from a template.</A>
+<P><LI>"XFolder" settings page in every folder.
+<P><LI>XFolder now also replaces the WPObject class in order to be able to
+suppress menu items for all Desktop objects.
+Moreover, "Check disk" and "Format disk" can be removed from WPDisk objects.
+<A HREF="sys_2global.html">Settings</A> page 2 has been redesigned for all this.
+<P><LI>My "Netscape DDE Interface" is now included in this package. See
+<A HREF="080related.html">"Related files"</A> for more.
+<P><LI>Added "Close window" to the configurable hotkey items list. (Some people seem
+to prefer "Alt+X" over "Alt+F4" to close windows.)
+<P><LI><A HREF="080related.html">REPCLASS.EXE</A> now explains itself when started without parameters.
+<P><LI><A HREF="080related.html">WPSRESET.EXE</A> rewritten.
+<P><LI>Rearranged buttons in all messages boxes to conform with the OS/2 look and feel.
+
+</UL>Bugfixes:
+<UL><LI>"Full path in window title" is now ALWAYS properly updated, even when
+you move parent folders of an open folder. Thanks to multithreading!
+<P><LI>Several users have reported problems when Object Desktop
+was installed and "unusual" folders (such as workarea folders and URL folders) were
+opened. This would completely mess up the WPS, unless folder hotkeys were
+disabled. This problem should be fixed now, because
+I've finally implemented a proper way of remembering window procedures for each folder window
+separately. The old code was just awful, sorry.
+<P><LI>I know I've claimed before that this one was fixed,
+but when passing directory names
+to programs as a parameter, XFolder still forgot to enclose them in quotes when they
+contain spaces. Fixed.
+<P><LI>XFolder was previously unable to differentiate between "Alt" and "Ctrl" hotkeys.
+Fixed.
+<P><LI><A HREF="080related.html">NEWOBJ.CMD</A> can now handle titles with spaces also.
+Thanks, John Buckley.
+
+</UL></H6><B>Version 0.52 (March 1, 1998)</B>
+<H6>New features:
+<UL><LI>Many more configurable items for
+<A HREF="fldr_5xelerators.html">folder hotkeys</A>, including
+sorting, NPS WPS's "Sort by extension" and OS/2 Warp 4 items.
+<P><LI>XFolder is now prepared for <A HREF="inst_4nls.html">National Language Support</A>.
+It shouldn't take too long before
+more than just the English version is available. I am planning to distribute National Language Support
+files in separate packages. NLS support is now on page 5 of the Global Settings, to where I also moved
+two settings which were formerly on page 1.
+Please <A HREF="notices_3comments.html">contact the developer's team</A>
+if you're interested in translating &xwp; to
+your language. You don't have to be a programmer, but knowing HTML would help.
+<P><LI>A few renovations on the settings pages: most importantly,
+settings which don't apply are now grayed out.
+
+</UL>Even more bugfixes:
+<UL><LI>Sometimes hotkeys got activated even though the Ctrl or Alt keys were not pressed. Fixed.
+<P><LI>When the folder name was passed to a started program as a parameter which was started from
+a WPDisk object, only the drive letter was passed (e.g. "C:" instead of "C:\"). Fixed.
+<P><LI>Previous versions had problems replacing the default icon for closed icons,
+but only on Warp 4. Apparently, on Warp 4, IBM has decided to have wpclsQueryIconData
+call BEFORE wpclsInitData, which is really not the way it should be and, even worse,
+contradictory to what IBM recommends in the Toolkit Docs. Anyway, this is fixed now.
+<P><LI>Not really a bugfix, but the hotkey list now uses less space in OS2.INI.
+<P><LI>No bugfix either, but the annoying "No settings found" message box after opening the
+settings notebook was removed.
+<P><LI>I forgot to implement "Remove default menu items" and help for disk objects also. Fixed.
+
+</UL></H6><B>Version 0.51 (Feb 20, 1998)</B>
+<H6>New features:
+<UL><LI>Insert separators into menus: simply set a program object's title to "---".
+<P><LI>"Refresh now" also updates the window title (if "Full path in window titles"
+is enabled).
+<P><LI>At last, XFolder enhances Drive objects also (i.e. the root drive views that
+can be opened from the "Drives" folder). Hotkeys still DO NOT work in here.
+<P><LI>Added a few more items to the configurable hotkey list.
+<P><LI>Two more REXX scripts for folder settings.
+
+</UL>Bugfixes (this is a long list, but I believe nothing of this was really serious):
+<UL><LI>Somehow in the last compile of V0.50 the help
+panels for the "System" notebook pages got messed up. Fixed.
+<P><LI>Cleaned up internal menu handling routines. Removed a few weirdos.
+<P><LI>The hotkey entry field in the Settings now only works when a list box entry
+has been selected. Anything else didn't make much sense.
+<P><LI>When the settings were re-read from OS2.INI at startup, not all the keyboard hotkeys
+were initialized, so some of the definitions got lost at every reboot. Fixed.
+<P><LI>For some reason, in the last beta, you could add up to 20 hotkeys, but you could
+not get rid of them any more. I simply forgot to add a "Clear" button, which is available
+now.
+<P><LI>The "full path in folder title" was not updated when the folder was moved or
+renamed. This now works half way.
+<P><LI>Removed annoying "XFolder could not query its module handle" message, which was
+titled a "fatal error", but caused no harm in any way.
+<P><LI>Changed default "menu ID offset" setting to 300 to avoid conflicts with LAN Server and
+ObjectDesktop from the start.
+<P><LI>Install program now backs up the original XFolder Configuration Folder before
+erasing it and building a new one from scratch. This avoids having duplicate entries in
+the XFolder menus after several installs.
+<P><LI>The missing "TREEFONT" setup string has been added to the
+<A HREF="xices_30wpsstrings.html">"WPFolder Setup Strings"</A> page.
+<P><LI>One more thing: somehow I got the terminology for "conditional cascade" menus
+messed up. The description on the first settings page has been corrected.
+
+</UL></H6><B>Version 0.50 beta (Feb 10, 1998)</B>
+<H6>New features:
+<UL><LI><A HREF="menu_8snaptogrid.html">"Snap to grid"</A> feature.
+<P><LI><A HREF="fldr_5xelerators.html">Folder hotkeys.</A>
+<P><LI>Moved all the XFolder Global Settings onto four pages in the OS/2 "System" object
+in the System Setup folder. I thought that since there are a number of settings for folders
+there, I might just as well add XFolder's settings in that place also.
+</UL></H6><B>Version 0.41 (Feb 8, 1998)</B>
+<H6>New features:
+<UL><LI>Templates support! Make shadows of your favorite templates in the configuration folders,
+and XFolder will create objects from them.
+<P><LI>Clipboard support via "%**C" in program object parameters.
+<P><LI>"Keep original title" setting when displaying full path in folder window title.
+<P><LI>XFolder menu ID's are now configurable in the Global Settings.
+<P><LI>Added object id's and object setup strings to documentation.
+</UL></H6><B>Version 0.40 beta (Feb 6, 1998)</B>
+<H6>Gee, XFolder is finally getting somewhere. New features:
+<UL><LI>XFolder Global Settings dialog with zillions of settings. Take a look
+at it, it's completely new.
+In this dialog, you can now configure certain aspects of XFolder that some users
+found annoying. Most importantly, you can now switch off XFolder's icon replacement.
+<P><LI>XFolder can now display the full path of the folder in the folder window title
+(e.g. "C:\OS2\APPS" instead of just "APPS"), which is a bit more informative.
+<P><LI>XFolder can now also remove OS/2 default menu entries.
+</UL></H6><B>Version 0.31 (Feb 1, 1998)</B>
+<H6>New features:
+<UL><LI>"Create another" objects in the default configuration now ask for a name before creating.
+<P><LI>More robust online help. Meaningful error messages if not found.
+<P><LI>Added online help for pressing F1 over an XFolder variable menu item.
+
+</UL>Bugfixes -- I told you, 0.30 was a beta only ;-) :
+<UL><LI>"%" in parameter lists of program objects is now also recognized when other parameters
+need to be passed to the program. Example: "text1.txt %" now works. The previous version only
+recognized "%" when it was the only character in the parameters list.
+<P><LI>If the folder name contains spaces, it is now enclosed in quotes ("folder name") before
+being passed as a parameter. This allows Netscape to display these folders also.
+<P><LI>Removed faulty information displayed by the install script: the help file was NEVER copied
+to \OS2\HELP, despite the announcement of the install script.
+<P><LI>The maximum number of objects in the config folder is still set to 50;
+however, instead of crashing,
+XFolder will now give you a message, asking you to remove objects.
+</UL></H6><B>Version 0.30 beta (Jan 31, 1998)</B>
+<H6>New features:
+<UL><LI>Now all object classes are recognized in the config folders, not only WPPrograms and
+WPFolders.
+<P><LI>Extra functionality for WPPrograms: The folder name is passed to the program as a
+parameter, unless the parameter list in the program object contains "%" (like WPS behaviour).
+This shall henceforth be known as "Netscape support". ;-)
+<P><LI>Added online help for XFolder's error messages. This cost me two years of my life.
+<P><LI>Install program improved: replaces previous XFolder versions;
+creates more objects than previously, supporting the new features; can now also recreate
+the default configuration folder only.
+
+</UL>Bugfixes:
+<UL><LI>Reworked internal handling of submenus. The previous version displayed a funny behaviour
+with "almost empty" subfolders, which was not severe though.
+
+</UL>Reworked large parts of this documentation. Window positioning implemented.</H6>
+
+<BR><B>Version 0.21 (Jan 23, 1998)</B>
+<H6>New features:
+<UL><LI>Can now freely add submenus by recognizing folders in the config folder.
+<P><LI>Install program creates an according default config folder.
+<P><LI>Documentation extended.
+
+</UL>Bugfixes:
+<UL><LI>XHELP.CMD was missing in the first release, making installation impossible.
+</UL></H6><B>Version 0.11 (Jan 17, 1998)</B>
+<H6>Initial release with a fixed "XFolder" subfolder, into which single menu items could
+be inserted.</H6>
+<BR>
+</BODY>
+</HTML>
+

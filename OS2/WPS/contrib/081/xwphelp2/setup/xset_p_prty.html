@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Worker Thread Priority
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.9: changed the following -->
+This slider allows you to set the default
+<!-- V1.0.0: link removed -->
+priority of the &xwp; Worker thread.
+<!-- end V0.9.9 -->
+
+<P>The Worker thread is started at Desktop startup with the priority you specify
+here. This setting allows you to specify either "idle" priority with
+a priority delta of 0, or "idle" with a delta of +31, or "regular" priority
+with a delta of 0.
+
+<!-- V0.9.13: changed the following 2 lines -->
+<P>See <A HREF="glossary/gls_scheduler.html">"Processes and threads"</A> for more information
+about thread priorities.
+
+<P>Note that this setting only specifies the <I>default</I> Worker thread priority.
+If &xwp; finds out that the Worker thread does not get enough processor time,
+its priority is raised automatically from time to time.
+See <A HREF="setup/xset_p_prtybeep.html">"Beep on priority change"</A> for more.
+
+<P>For most purposes, you should leave this setting to the default value,
+which is "idle +31". This will allow the Worker thread to perform its
+tasks in the background without a noticeable slowdown of the user interface.
+However, if you frequently run processes which hog up your CPU (that is,
+if your CPU load is always 100% because of, e.g., certain Windows applications running),
+you might want to raise this to "regular".
+
+<!-- V0.9.13: updated page name -->
+<P>You can examine the current Worker thread priority on the "Threads" page.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Filsystem
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Ett "filsystem" „r en konvention f”r format i vilka
+<!-- V0.9.19: link added -->
+&link_folders;
+och
+<!-- V0.9.19: link added -->
+&link_datafiles;
+„r lagrade p† det fysiska mediat.
+
+<P>Med h†rddiskar, kan varje volym ha olika filsystem. Filsystemet best„ms
+n„r volymen formateras. Det kan normalt inte „ndras efter†t utan att volymen
+formateras om.
+
+<P>Med dagens operativsystem, finns det m†nga olika filsystem tillg„ngliga,
+var och ett med sina unika svagheter och styrkor. &os2; f”rst†r f”ljande filsystem:
+
+<OL><LI>Historiskt, „r <B>FAT</B> filsystemet (f”r "Filallokeringstabellen")
+det „ldsta filsystemet som anv„nds med PC'n. Det introducerades med de tidigaste
+MS-DOS versionerna och „r varken kraftfullt, snabbt, flexibelt eller effektivt.
+Dess filnamn „r begr„nsade till 8+3 tecken och med stora volymstorlekar, tack vare
+intern hantering av utrymmesallokering, „r stora delar av utrymmet f”rlorat. Vad v„rre „r,
+FAT volymer blir ocks† l„tt fragmenterade.
+
+<P>Idag „r den enda kvarst†ende f”rdelen med FAT att det f”rst†s av n„stan alla
+operativsystem, s† om du har flera olika operativsystem installerade, kan du anv„nda
+en FAT volym f”r att utbyta data. Om du bryr dig om hastighet, b”r du inte placera ofta
+anv„nda data p† FAT volymer.
+
+<P>Med &os2;, „r FAT st”d direkt inbyggt i &os2;'s k„rna. Inga IFS inst„llningar
+kr„vs i &cfgsys;.
+
+<!-- V0.9.20: rewrote this paragraph -->
+<P>Med Windows 95, har Microsoft ut”kat FAT filsystemet f”r att till†ta lagring
+av l†nga filnamn, „ven om det inte l”ste de andra begr„nsningarna med FAT.
+Med &os2;, kommer du endast att se 8+3 filnamnen.
+
+<!-- V0.9.20: and added this -->
+<P>Som till„gg, med Windows 98, har Microsoft lagt till ett nytt filsystem kallat "FAT32".
+Trots sitt namn, „r det inte alls kompatibelt med FAT. Det finns tredjeparts l”sningar som
+till†ter &os2; att se FAT32 volymer s† v„l som en IFS drivrutin tillagd i &cfgsys; filen.
+
+<P><LI><B>HPFS,</B> som kontrast, st†r f”r "High Performance File System". Detta „r det unika
+system som utvecklades specifikt f”r &os2;. Det har flera f”rdelar j„mf”rt med FAT. Dess filnamn
+kan vara upp till 254 tecken i l„ngd, det st”der inbyggt
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">ut”kade attribut</A>, det „r †tskilligt snabbare
+(d„rav namnet), det sl”sar inte mycket med utrymmet, och det „r v„ldigt motst†ndskraftigt
+mot fragmentering.
+
+<P>J„mf”rt med „nd† modernare filsystem, har dock HPFS ocks† sina egna begr„nsningar.
+Viktigast, standard HPFS kan endast hantera en
+<A HREF="glossary/gls_caches.html">cachestorlek</A> p† 2 MB. Med tanke p† det minne som
+„r inbyggt i dagens datorer, „r det inte s„rskilt mycket.
+
+<P>F”r HPFS st”d, m†ste en
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#hpfs.ifs"><CODE>HPFS.IFS</CODE></A> drivrutin vara laddad genom ett
+IFS argument i &cfgsys; filen.
+
+<P><LI><B>HPFS386,</B> en h”gt optimerad version av HPFS, har inte den begr„nsningen av
+cachestorleken. Som till„gg, „r den dessutom optimerad f”r serveruppgifter. Det kan
+transferera data direkt fr†n filsystemsdrivrutinen till n„tverksdrivrutinen utan att
+beh”va g† genom en ring 3 transitering. Det st”der ocks† lokal s„kerhet, kvotering, och
+begr„nsad mjukvaru feltoleransst”d.
+
+<P>D„remot, „r det filsystemet bara tillg„ngligt till en extra kostnad. Om installerat,
+ers„tter HPFS386 standard HPFS. Det laddas genom en <CODE>HPFS386.IFS</CODE> drivrutin i
+&cfgsys;, men den kommer inte att fungera och du inte har serverkomponenter installerade.
+
+<!-- V0.9.19: rewrote this paragraph -->
+<IFNDEF __EWORKPLACE__>
+<P><LI>F”r OS/2 Warp Server for e-Business (WSeB), har IBM porterat <B>JFS,</B>
+Journaling File System, fr†n AIX till OS/2. Nu har JFS ocks† porterats till Linux.
+JFS „r numera ocks† tillg„ngligt med eComStation och IBM OS/2 Convenience Packs.
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: modified this -->
+<P><LI>F”r att ”verbrygga ovanst†ende begr„nsningar, st”der eComStation ocks†
+<B>Journaling File System (JFS),</B> ett modernt h”g-presterande filsystem som ocks† st”ds
+av IBM AIX och Linux.
+</IFDEF>
+
+<P>JFS har f”ljande f”rdelar ”ver HPFS:
+
+<BR><OL><LI>Det loggar alla diskskrivningsoperationer till en speciell logsektion,
+"journalen". N„r systemet kraschar, beh”ver JFS inte utf”ra n†gon fullst„ndig
+<CODE>CHKDSK</CODE> f”r att †terskapa filsystemets integritet, men kan enkelt
+"spela upp" den journal som den underh†ller. Som ett resultat, tar <CODE>CHKDSK</CODE>
+p† JFS volymer sekunder ist„llet f”r minuter eller „ven timmar, som hos stora
+HPFS volymer.
+
+<BR><LI>Det har ingen 2 MB cache storleksbegr„nsning som standard HPFS.
+
+<BR><LI>Med hj„lp av LVM, kan JFS volymer expanderas utan att beh”va bootas om.
+
+<!-- V0.9.20: rewrote this part -->
+<BR><LI>JFS tar f”rdel av den nya 32-bitar koden i &os2; k„rna (KEE32 och IFS32)
+och beh”ver d„rf”r inte g† genom n†got 16-bitars kompatibilitetslager. Detta g”r
+datatransferering st”rre „n 64 KB mycket snabbare och till†ter JFS att skala
+mycket b„ttre p† multi-processor system.
+
+<BR><LI>Alla interna JFS strukturer „r av 64 bitars bredd. JFS har d„rf”r ingen 2 GB
+gr„ns f”r filer (och 64 GB gr„ns f”r volymer) som HPFS.
+
+</OL>En nackdel med JFS „r att det f”r n„rvarande inte „r bootningsbart. &os2; bootpartition
+m†ste d„rf”r fortfarande placeras p† en FAT eller HPFS volym.
+<!-- V0.9.20: removed this Besides, most of the HPFS386 extra features are not supported
+by JFS either. -->
+
+<!-- V0.9.20: added this -->
+<P>JFS st”d „r aktiverat genom att l„gga till en
+<A HREF="cmdref.inf#jfs.ifs"><CODE>JFS.IFS</CODE></A> drivrutin i &cfgsys; filen.
+
+<P><LI>Slutligen, <B>CDFS</B> „r ett speciellt filsystem som data CD-ROMs anv„nder. CD-ROMs
+anv„nder sina egna specialformat f”r att organisera data p† disk vilket „r olika FAT eller
+HPFS, s† en annan filsystemsdrivrutin kr„vs. Detta implementeras genom en
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#cdfs.jfs"><CODE>CDFS.IFS</CODE></A> drivrutin och anv„nds n„r data CD-ROMs
+accessas. &os2;'s CDFS drivrutin st”der l†nga filnamn i Microsoft Joliet format.
+
+</OL>
+F”r relaterad information, v„lj fr†n listan nedanf”r:
+
+<UL>
+<LI><A HREF="glossary/gls_volume.html">Om enheter, volymer, och partitioner</A>
+<LI><A HREF="tasks/tsk_format.html">Formatera media</A>
+</UL>
+</BODY>
+</HTML>
+

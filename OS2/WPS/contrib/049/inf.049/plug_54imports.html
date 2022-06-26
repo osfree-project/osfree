@@ -1,0 +1,45 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Schritt 4: Import von Funktionen aus XFLDR.DLL
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+Wie Sie sich vielleicht vorstellen kînnen, gibt es sehr viel nÅtzlichen Code in
+der <CODE>XFLDR.DLL</CODE> - fÅr Graphiken, Strings, PM-Kontrollen und anderes
+mehr. Das meiste, was Sie in den Quellen der "&xwp;-Helferlein" sehen kînnen,
+befindet sich wahrscheinlich irgendwo in der <CODE>XFLDR.DLL</CODE>.
+ 
+<P>Wenn Sie nun diesen Code benutzen wollen, haben Sie grundlegend zwei
+Mîglichkeiten.
+ 
+<OL><LI>Holen Sie die Funktionen mit Kopieren und EinfÅgen aus den Quellen der
+Helferlein (oder woher auch immer) in den Code Ihres Widgets.
+ 
+<P><LI>Der klÅgere Weg ist allerdings, doppelten Code zu vermeiden,
+und den Code aus der <CODE>XFLDR.DLL</CODE> zu benutzen. Die Schnittstelle des
+&xcenter;s erlaubt Ihnen, genau das zu tun:
+ 
+<P>Wenn der "init"-Export Ihrer DLL aufgerufen wird (Ordinal 1), erhÑlt sie den
+Modul-Handle der <CODE>XFLDR.DLL</CODE>. Sie kînnen dann <CODE>DosQueryProcAddr</CODE>
+benutzen, um die Adressen der von <CODE>XFLDR.DLL</CODE> exportierten Funktionen
+aufzulîsen, diese Funktionszeiger in globalen Variablen zu speichern und statt
+des Codes verwenden.
+ 
+<P>Schauen Sie sich am besten wiederum die Standard-Widgets unter
+<CODE>src\widgets\</CODE> in den &xwp;-Quellen an, die alle diese Mîglichkeit nutzen.
+ 
+<P>Um sicherzustellen, da· die Prototypen korrekt sind, sind viele Prototypen in den
+&xwp;-Headerdateien schon mit "typedef" versehen. Ich habe einfach immer dann ein
+"typedef" hinzugefÅgt, wenn ich selbst einen Export brauchte. Auf Ñhnliche Weise
+werden Sie in <CODE>src\shared\xwp.def</CODE> die Funktionen exportiert finden, die
+ich fÅr die Standard-Plug-Ins brauchte. Wenn Sie mehr Funktionen und Prototypen
+benîtigen, kontaktieren Sie mich, und ich werde sie hinzufÅgen.
+ 
+</OL>
+</BODY>
+</HTML>
+ 
+ 

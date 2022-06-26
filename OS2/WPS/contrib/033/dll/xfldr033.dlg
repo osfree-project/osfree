@@ -1,0 +1,1626 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "..\..\dlgids.h"
+
+DLGTEMPLATE ID_CRD_DISKFREEWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ParamŠtres d'espace disque libre", ID_CRD_DISKFREEWGT_SETTINGS, 12, 6, 100, 64, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        AUTORADIOBUTTON "Vue multiple", ID_ICON2, 3, 53, 45, 11, WS_GROUP |
+                        WS_TABSTOP
+        AUTORADIOBUTTON "Vue simple", ID_ICONDLG, 3, 43, 47, 11, WS_TABSTOP
+        GROUPBOX        "", ID_STARTICON1, 12, 26, 79, 19
+        LTEXT           "Unit‚", ID_STARTICON2, 15, 29, 20, 8
+        ENTRYFIELD      "C", ID_SHUTICON1, 36, 31, 13, 6, ES_MARGIN
+        AUTOCHECKBOX    "Affichage du systŠme de fichier", ID_SHUTICON2, 3, 13, 82, 10,
+                        WS_GROUP
+        DEFPUSHBUTTON   "~OK", ID_ICONSDANIM1, 64, 2, 30, 10
+    END
+END
+
+DLGTEMPLATE ID_CRD_HEALTHWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "ParamŠtres de surveillance du systŠme", ID_CRD_HEALTHWGT_SETTINGS, 12, 8, 380,
+            34, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "ChaŒne de paramŠtrage :", ID_ICON2, 9, 21, 55, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_CRDI_SETUP_STRING, 71, 21, 301, 8, ES_MARGIN |
+                        WS_GROUP
+        DEFPUSHBUTTON   "~OK", DID_OK, 8, 6, 60, 12
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 76, 6, 60, 12
+        PUSHBUTTON      "Aide", DID_HELP, 313, 6, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_CRD_WINLISTWGT_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Filtres de liste des fenˆtres", ID_CRD_WINLISTWGT_SETTINGS, 12, 8, 260,
+            160, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "~Filtres actifs", -1, 8, 82, 240, 74, DT_MNEMONIC
+        LISTBOX         ID_CRDI_FILTERS_CURRENTLB, 14, 88, 164, 58,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        PUSHBUTTON      "~Retirer", ID_CRDI_FILTERS_REMOVE, 186, 112, 56, 12
+        GROUPBOX        "~Nouvelle entr‚e", -1, 8, 20, 240, 60, DT_MNEMONIC
+        COMBOBOX        "", ID_CRDI_FILTERS_NEWCOMBO, 14, 24, 166, 48,
+                        LS_HORZSCROLL
+        PUSHBUTTON      "~Ajouter", ID_CRDI_FILTERS_ADD, 188, 44, 56, 12
+        DEFPUSHBUTTON   "~OK", DID_OK, 8, 6, 60, 12
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 76, 6, 60, 12
+        PUSHBUTTON      "Aide", DID_HELP, 190, 6, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_FND_SAMPLETEXT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_FND_SAMPLETEXT, 0, 0, 188, 172, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "~Texte pour les ‚chantillons de police", -1, 6, 22, 172, 106,
+                        DT_MNEMONIC
+        MLE             "", ID_FNDI_SAMPLETEXT_MLE, 10, 26, 162, 92,
+                        MLS_WORDWRAP | MLS_HSCROLL | MLS_VSCROLL |
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_NDD_CONTACTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_CONTACTING, 15, 21, 170, 31, FS_SCREENALIGN |
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    BEGIN
+        LTEXT           "Contact de Netscape...", -1, 5, 1, 160, 9,
+                        DT_WORDBREAK
+        RTEXT           "Interface DDE de Netscape", -1, 25, 18, 110, 8
+        RTEXT           "(C) 1998-2002 Ulrich M”ller", -1, 25, 12, 110, 8
+    END
+END
+
+DLGTEMPLATE ID_NDD_STARTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_STARTING, 30, 10, 170, 31, FS_SCREENALIGN |
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    BEGIN
+        LTEXT           "Lancement de Netscape...", -1, 5, 1, 160, 9,
+                        DT_WORDBREAK
+        RTEXT           "Interface DDE de Netscape", -1, 25, 18, 110, 8
+        RTEXT           "(C) 1998-2002 Ulrich M”ller", -1, 25, 12, 110, 8
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_CDFS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Noyau OS/2 : paramŠtres CDFS", ID_OSD_DRIVER_CDFS, 15, -12, 255,
+            147, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        AUTOCHECKBOX    "Support des extensions ~Joliet de Microsoft (/W)",
+                        ID_OSDI_CDFS_JOLIET, 5, 132, 225, 10
+        LTEXT           "Remarque : requiert un pilote CDFS.IFS … jour.", -1,
+                        25, 123, 205, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "Support du ~KANJI (/K)", ID_OSDI_CDFS_KANJI, 5, 111,
+                        225, 10
+        GROUPBOX        "Taille du c~ache (/C:n)", -1, 5, 84, 245, 25,
+                        DT_MNEMONIC
+        SLIDER          ID_OSDI_CDFS_CACHESLIDER, 15, 87, 175, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        CTEXT           "tbr", ID_OSDI_CDFS_CACHETXT, 195, 90, 45, 8, NOT
+                        WS_GROUP
+        GROUPBOX        "Secteurs de ~fichiers … lire en une passe (/M:n)", -1, 5, 57,
+                        245, 25, DT_MNEMONIC
+        SLIDER          ID_OSDI_CDFS_SECTORSSLIDER, 15, 60, 175, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        CTEXT           "tbr", ID_OSDI_CDFS_SECTORSTXT, 195, 63, 45, 8, NOT
+                        WS_GROUP
+        GROUPBOX        "~Initialisation", -1, 5, 27, 245, 27, DT_MNEMONIC
+        AUTORADIOBUTTON "Par ~d‚faut", ID_OSDI_CDFS_INITDEFAULT, 10, 33, 70, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "Mode ~silencieux (/Q)", ID_OSDI_CDFS_INITQUIET, 95, 33, 70,
+                        10, WS_TABSTOP
+        AUTORADIOBUTTON "Mode ~bavard (/V)", ID_OSDI_CDFS_INITVERBOSE, 175, 33,
+                        70, 10, WS_TABSTOP
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 6, 45, 12, WS_GROUP
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 55, 6, 45, 12
+        PUSHBUTTON      "O~ptimiser", DID_OPTIMIZE, 105, 6, 45, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 155, 6, 45, 12
+        PUSHBUTTON      "Aide", DID_HELP, 205, 6, 45, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_HPFS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Noyau OS/2 : paramŠtres HPFS", ID_OSD_DRIVER_HPFS, 10, 6, 240, 94,
+            FS_ICON | FS_ACCELTABLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "Cache pour les disques HPFS", -1, 5, 46, 225, 45
+        LTEXT           "~Taille du cache :", -1, 10, 74, 110, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SLIDER          ID_OSDI_CACHESIZE, 90, 72, 85, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 33, 0, 1, 0
+        RTEXT           "ko", ID_OSDI_CACHESIZE_TXT, 185, 72, 40, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "Taille automatique (10% de la ~m‚moire)", ID_OSDI_CACHESIZE_AUTO,
+                        25, 62, 195, 10
+        LTEXT           "Seuil limite pour le cache :", -1, 10, 52, 70, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        SLIDER          ID_OSDI_CACHE_THRESHOLD, 90, 50, 85, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 16, 0, 1, 0
+        RTEXT           "ko", ID_OSDI_CACHE_THRESHOLD_TXT, 185, 50, 40, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        LTEXT           "V‚rification Au~tomatique :", -1, 5, 29, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "~Proposition", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_HPFS386 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Noyau OS/2 : paramŠtres HPFS386", ID_OSD_DRIVER_HPFS386, 10, 6,
+            240, 94, FS_ICON | FS_ACCELTABLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTAINER       ID_OSDI_HPFS386INI_CNR, 12, 50, 210, 32,
+                        CCS_SINGLESEL | WS_GROUP
+        GROUPBOX        "… remplacer", ID_OSDI_HPFS386INI_GROUP, 5, 46,
+                        225, 45, NOT WS_GROUP
+        LTEXT           "V‚rification Au~tomatique :", -1, 5, 29, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "~Proposition", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        DEFPUSHBUTTON   "~OK", DID_OK, 6, 6, 70, 12, WS_GROUP
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 84, 6, 70, 12
+        PUSHBUTTON      "Aide", DID_HELP, 160, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_DRIVER_IBM1S506 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Noyau OS/2 : paramŠtres IBM1S506.ADD", ID_OSD_DRIVER_IBM1S506,
+            -75, -46, 405, 226, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        GROUPBOX        "~Initialisation du pilote (amor‡age)", -1, 5, 204, 185,
+                        18, DT_MNEMONIC
+        AUTORADIOBUTTON "~Muet", ID_OSDI_S506_INITQUIET, 10, 206, 35, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "~Bavard (/V)", ID_OSDI_S506_INITVERBOSE, 50, 206,
+                        65, 10, WS_TABSTOP
+        AUTORADIOBUTTON "~Pause (/W)", ID_OSDI_S506_INITWAIT, 125, 206, 50,
+                        10, WS_TABSTOP
+        GROUPBOX        "ParamŠtres g‚n‚raux du pilote", -1, 5, 148, 185, 54
+        CONTROL         "Activer le dispersion/rassemblement (Scatter/Gather) DMA (/[!]DSG)",
+                        ID_OSDI_S506_DSG, 10, 186, 170, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "Fr‚quence d'horloge PCI :", ID_OSDI_DANIS506_CLOCK_CHECK, 10,
+                        176, 80, 10, BS_AUTOSIZE
+        SLIDER          ID_OSDI_DANIS506_CLOCK_SLIDER, 90, 176, 64, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 4, 0, 1, 0
+        CTEXT           "33 MHz", ID_OSDI_DANIS506_CLOCK_TXT, 155, 176, 30,
+                        10, DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "Recherche de puces moins connues (/GBM)",
+                        ID_OSDI_DANIS506_GBM, 10, 166, 125, 10
+        AUTOCHECKBOX    "Consid‚rer toutes les puces comme moins connues (/FORCEGBM)",
+                        ID_OSDI_DANIS506_FORCEGBM, 10, 158, 175, 10
+        AUTOCHECKBOX    "Correctif Matrox (/MGAFIX)", ID_OSDI_DANIS506_MGAFIX, 10,
+                        150, 75, 10
+        GROUPBOX        "ParamŠtre de l'adaptateur (contr“leur)", -1, 5, 32, 185, 114
+        GROUPBOX        "~Adaptateur en cours", -1, 10, 120, 175, 18,
+                        DT_MNEMONIC | NOT WS_GROUP
+        AUTORADIOBUTTON "Primaire (/A:0)", ID_OSDI_S506_ADAPTER0, 15, 122, 60,
+                        10, WS_TABSTOP
+        AUTORADIOBUTTON "Secondaire (/A:1)", ID_OSDI_S506_ADAPTER1, 80, 122,
+                        65, 10, WS_TABSTOP
+        AUTOCHECKBOX    "Ignorer (/I)", ID_OSDI_S506_A_IGNORE, 10, 108, 45,
+                        10
+        CONTROL         "Permettre la r‚initialisation de l'adaptateur (/[!]R)", ID_OSDI_S506_A_RESET,
+                        10, 100, 125, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        CONTROL         "Permettre le 'busmastering' (/[!]BM)",
+                        ID_OSDI_S506_A_BUSMASTER, 10, 92, 130, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Remarque : activ‚e par d‚faut dans les pilotes r‚cents"
+                        "s.", -1, 20, 84, 165, 9, DT_WORDBREAK | NOT
+                        WS_GROUP
+        GROUPBOX        "ParamŠtrages propres … l'adaptateur", -1, 10, 38, 175, 48
+        AUTOCHECKBOX    "Adresse de base (/P, hexa) :",
+                        ID_OSDI_S506_A_BASEADDR_CHECK, 15, 70, 110, 10
+        ENTRYFIELD      "", ID_OSDI_S506_A_BASEADDR_ENTRY, 147, 72, 26, 6,
+                        ES_CENTER | ES_MARGIN
+        AUTOCHECKBOX    "/IRQ :", ID_OSDI_S506_A_IRQ_CHECK, 15, 60, 35, 10
+        SLIDER          ID_OSDI_S506_A_IRQ_SLIDER, 75, 60, 85, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 16, 0, 1, 0
+        CTEXT           "1", ID_OSDI_S506_A_IRQ_TXT, 160, 60, 15, 10,
+                        DT_VCENTER
+        AUTOCHECKBOX    "Canal DMA (/DC) :", ID_OSDI_S506_A_DMA_CHECK, 15,
+                        52, 95, 8
+        SPINBUTTON      ID_OSDI_S506_A_DMA_SPIN, 145, 52, 30, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        AUTOCHECKBOX    "Adresse 'Scatter/Gather' DMA (/DSGP, hexa) :",
+                        ID_OSDI_S506_A_DSGADDR_CHECK, 15, 42, 130, 10
+        ENTRYFIELD      "", ID_OSDI_S506_A_DSGADDR_ENTRY, 147, 44, 26, 6,
+                        ES_CENTER | ES_MARGIN
+        GROUPBOX        "ParamŠtres d'unit‚ (lecteur)", -1, 195, 32, 205, 190
+        GROUPBOX        "‚ Unit‚ en cours", -1, 200, 186, 195, 28, DT_MNEMONIC |
+                        NOT WS_GROUP
+        LTEXT           "Primaire", -1, 205, 198, 35, 8, DT_VCENTER | NOT
+                        WS_GROUP
+        AUTORADIOBUTTON "MaŒtre (/A:0 /U:0)", ID_OSDI_S506_UNIT0, 245, 198,
+                        70, 8, WS_TABSTOP
+        AUTORADIOBUTTON "Esclave (/A:0 /U:1)", ID_OSDI_S506_UNIT1, 320, 198,
+                        70, 8, WS_TABSTOP
+        LTEXT           "Secondaire", -1, 205, 190, 35, 8, DT_VCENTER | NOT
+                        WS_GROUP
+        AUTORADIOBUTTON "MaŒtre (/A:1 /U:0)", ID_OSDI_S506_UNIT2, 245, 190,
+                        70, 8, WS_TABSTOP
+        AUTORADIOBUTTON "Esclave (/A:1 /U:1)", ID_OSDI_S506_UNIT3, 320, 190,
+                        70, 8, WS_TABSTOP
+        CONTROL         "Permettre le 'busmastering' (/[!]BM)",
+                        ID_OSDI_S506_U_BUSMASTER, 200, 174, 130, 10,
+                        WC_BUTTON, BS_AUTO3STATE | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        CONTROL         "D‚finition du Support Multiple (/[!]SMS)", ID_OSDI_S506_U_SMS,
+                        200, 166, 135, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "D‚lai de recouvrement d'erreur (/T, en secondes) :",
+                        ID_OSDI_S506_U_RECOVERY_CHECK, 200, 158, 165, 10
+        SLIDER          ID_OSDI_S506_U_RECOVERY_SLIDER, 220, 148, 130, 10,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 56, 0, 1, 0
+        CTEXT           "1", ID_OSDI_S506_U_RECOVERY_TXT, 355, 148, 25, 10,
+                        DT_VCENTER
+        AUTOCHECKBOX    "Ignorer la g‚om‚trie du disque (/GEO):",
+                        ID_OSDI_S506_U_GEO_CHECK, 200, 138, 120, 10,
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_S506_U_GEO_ENTRY, 212, 132, 151, 6,
+                        ES_MARGIN
+        AUTOCHECKBOX    "Adressage de Blocs Logique (/LBA)",
+                        ID_OSDI_S506_U_LBA, 200, 118, 145, 10
+        CONTROL         "Passer … OS2DASD.DMD (/[!]DM)", ID_OSDI_S506_U_DASD,
+                        200, 110, 140, 10, WC_BUTTON, BS_AUTO3STATE |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "For‡age de la disponibilit‚ (/FORCE)", ID_OSDI_S506_U_FORCE,
+                        200, 102, 105, 10
+        CONTROL         "Lecteur CD-ROM ATAPI (/[!]ATAPI)",
+                        ID_OSDI_S506_U_ATAPI, 200, 94, 145, 10, WC_BUTTON,
+                        BS_AUTO3STATE | WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        GROUPBOX        "Extensions DANIS506.ADD", -1, 200, 36, 195, 51
+        AUTOCHECKBOX    "D‚lai pour la r‚duction de vitesse de rotation (/IT) :",
+                        ID_OSDI_DANIS506_U_TIMEOUT_CHECK, 205, 68, 115, 10
+        SPINBUTTON      ID_OSDI_DANIS506_U_TIMEOUT_SPIN, 325, 68, 43, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        AUTOCHECKBOX    "Limite de taux de transfert de donn‚es (/MR:uda):",
+                        ID_OSDI_DANIS506_U_RATE_CHECK, 205, 58, 120, 10
+        LTEXT           "UDMA", ID_OSDI_DANIS506_U_RATE_UDMA_TXT, 215, 50,
+                        20, 8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_UDMA_SPIN, 240, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        LTEXT           "MWDMA", ID_OSDI_DANIS506_U_RATE_MWDMA_TXT, 270, 50,
+                        30, 8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_MWDMA_SPIN, 300, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        LTEXT           "PIO", ID_OSDI_DANIS506_U_RATE_PIO_TXT, 330, 50, 15,
+                        8, DT_VCENTER
+        SPINBUTTON      ID_OSDI_DANIS506_U_RATE_PIO_SPIN, 345, 50, 25, 12,
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER | WS_GROUP
+        CONTROL         "Unit‚ amovible (/[!]RMV)",
+                        ID_OSDI_DANIS506_U_REMOVEABLE, 205, 38, 100, 10,
+                        WC_BUTTON, BS_AUTO3STATE | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        LTEXT           "Nouveaux paramŠtres :", -1, 5, 18, 55, 10, DT_VCENTER
+        ENTRYFIELD      "", ID_OSDI_S506_NEWPARAMS, 62, 20, 336, 6,
+                        ES_MARGIN | ES_READONLY
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 4, 65, 12, WS_GROUP
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 75, 4, 65, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 145, 4, 65, 12
+        PUSHBUTTON      "Aide", DID_HELP, 215, 4, 65, 12, BS_HELP
+        AUTOCHECKBOX    "Affichage des infobulles", DID_SHOWTOOLTIPS, 285, 4, 100,
+                        12
+    END
+END
+
+DLGTEMPLATE ID_OSD_FILELIST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Chemins systŠme : liste de fichiers", ID_OSD_FILELIST, 10, 6, 258, 174, NOT
+            FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Liste des chemins :", ID_OSDI_FILELISTSYSPATH1, 5,
+                        160, 70, 8
+        LTEXT           "tbr", ID_OSDI_FILELISTSYSPATH2, 80, 160, 175, 8
+        CONTAINER       ID_OSDI_FILELISTCNR, 5, 22, 245, 136, CCS_SINGLESEL |
+                        WS_GROUP
+        DEFPUSHBUTTON   "~Fermer", DID_OK, 185, 4, 65, 12
+    END
+END
+
+DLGTEMPLATE ID_OSD_NEWSYSPATH LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Nouveau chemin d'accŠs fichiers systŠme", ID_OSD_NEWSYSPATH, 15, 66, 200, 45,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Entrer les nouveaux chemins ici :", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Parcourir...", ID_XLDI_BROWSE, 145, 18, 50, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annulation", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_DRIVERS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_DRIVERS, 0, 0, 264, 172, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_OSDI_DRIVR_CNR, 10, 27, 130, 132, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS
+        GROUPBOX        "Pilotes de p‚riph‚riques", ID_OSDI_DRIVR_GROUP1, 5, 21, 255,
+                        150, NOT WS_GROUP
+        LTEXT           "Description :", ID_OSDI_DRIVR_GROUP2, 146,
+                        154, 108, 8
+        CONTROL         "", ID_OSDI_DRIVR_STATICDATA, 146, 110, 108, 44,
+                        WC_MLE, MLS_READONLY | MLS_HSCROLL | MLS_VSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "ParamŠtres :", ID_OSDI_DRIVR_PARAMS_TXT, 148, 98, 83,
+                        8
+        MLE             "", ID_OSDI_DRIVR_PARAMS, 146, 58, 108, 38,
+                        MLS_WORDWRAP | MLS_HSCROLL | MLS_VSCROLL |
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "~Configuration...", ID_OSDI_DRIVR_CONFIGURE, 145, 42,
+                        110, 12
+        PUSHBUTTON      "~Appliquer...", ID_OSDI_DRIVR_APPLYTHIS, 145, 27, 110,
+                        12, WS_GROUP
+        PUSHBUTTON      "Aide", DID_HELP, 4, 6, 85, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_ERRORS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_ERRORS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Erreurs systŠme", -1, 5, 24, 225, 60
+        AUTOCHECKBOX    "Supprimer les erreurs mat‚rielles", ID_OSDI_AUTOFAIL, 10, 63,
+                        210, 10
+        AUTOCHECKBOX    "Supprimer les messages d'exceptions", ID_OSDI_SUPRESSPOPUPS,
+                        10, 51, 210, 10
+        LTEXT           "Unit‚ pour POPUPLOG.OS2:", -1, 25, 42, 130, 8, NOT
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_SUPRESSP_DRIVE, 155, 42, 50, 12,
+                        SPBS_READONLY | SPBS_MASTER | SPBS_JUSTLEFT |
+                        SPBS_JUSTRIGHT | SPBS_JUSTCENTER
+        AUTOCHECKBOX    "R‚amor‡age automatique aprŠs plantage 'trap'", ID_OSDI_REIPL, 10,
+                        30, 140, 10
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Optimiser", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_FAT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_FAT, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Cache pour les disques FAT", -1, 5, 45, 225, 72
+        AUTOCHECKBOX    "~Activer le cache", ID_OSDI_FSINSTALLED, 10, 96, 210,
+                        10
+        LTEXT           "~Taille du cache :", -1, 10, 85, 110, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_CACHESIZE, 155, 85, 50, 12, SPBS_NUMERICONLY |
+                        SPBS_MASTER | SPBS_JUSTLEFT | SPBS_JUSTRIGHT |
+                        SPBS_JUSTCENTER
+        LTEXT           "ko", -1, 210, 85, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "Taille automatique (10% de la ~m‚moire)", ID_OSDI_CACHESIZE_AUTO,
+                        25, 75, 195, 10
+        LTEXT           "Sauvegarde uniquement des ~fichiers inf‚rieurs … :", -1, 10, 64, 140, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_CACHE_THRESHOLD, 155, 64, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTLEFT |
+                        SPBS_JUSTRIGHT | SPBS_JUSTCENTER
+        LTEXT           "ko", -1, 210, 64, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "'Laz~y write'", ID_OSDI_CACHE_LAZYWRITE, 10, 49, 140,
+                        10
+        LTEXT           "~V‚rification automatique :", -1, 5, 30, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_AUTOCHECK, 67, 29, 101, 8, ES_MARGIN
+        PUSHBUTTON      "~Proposition", ID_OSDI_AUTOCHECK_PROPOSE, 175, 27, 55,
+                        12
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Optimiser", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_KERNEL1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_KERNEL1, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Programmateur", -1, 5, 24, 225, 58
+        LTEXT           "Nb d'unit‚s d'ex‚cution (threads) en cours :", -1, 10, 63, 150, 8
+        RTEXT           "patientez...", ID_OSDI_CURRENTTHREADS, 155, 63, 50, 8,
+                        NOT WS_GROUP
+        LTEXT           "Nb d'unit‚s d'ex‚cution (threads) maximum :", -1, 10, 51, 140, 8, NOT
+                        WS_GROUP
+        SPINBUTTON      ID_OSDI_MAXTHREADS, 155, 51, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "R‚g‚n‚ration des priorit‚s toutes les", -1, 10, 39, 140, 8,
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MAXWAIT, 155, 39, 50, 12, SPBS_NUMERICONLY |
+                        SPBS_MASTER | SPBS_JUSTRIGHT | SPBS_FASTSPIN
+        LTEXT           "s", -1, 210, 39, 15, 8, NOT WS_GROUP
+        AUTOCHECKBOX    "Privil‚gier les E/S disque en avant-plan",
+                        ID_OSDI_PRIORITYDISKIO, 10, 27, 205, 10
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Optimiser", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_KERNEL2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_KERNEL2, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Fichier d'‚change (SWAPPER.DAT)", -1, 6, 74, 225, 66
+        LTEXT           "Taille actuelle : ", -1, 12, 124, 145, 8
+        RTEXT           "veuillez patienter...", ID_OSDI_CURRENTSWAPSIZE, 154, 124, 50,
+                        8, NOT WS_GROUP
+        LTEXT           "Mo", -1, 210, 124, 15, 8, NOT WS_GROUP
+        LTEXT           "Taille de la m‚moire install‚e : ", -1, 12, 116, 145, 8, NOT
+                        WS_GROUP
+        RTEXT           "veuillez patienter...", ID_OSDI_PHYSICALMEMORY, 154, 116, 50,
+                        8, NOT WS_GROUP
+        LTEXT           "Mo", -1, 210, 116, 15, 8, NOT WS_GROUP
+        LTEXT           "Taille ~minimum : ", -1, 12, 104, 75, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MINSWAPSIZE, 154, 104, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "Mo", -1, 210, 104, 15, 8, NOT WS_GROUP
+        LTEXT           "~Seuil d'alerte : ", -1, 12, 92, 75, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        SPINBUTTON      ID_OSDI_MINSWAPFREE, 154, 92, 50, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_JUSTRIGHT |
+                        SPBS_FASTSPIN
+        LTEXT           "Mo", -1, 210, 92, 15, 8, NOT WS_GROUP
+        LTEXT           "~Chemin : ", -1, 12, 80, 50, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        ENTRYFIELD      "", ID_OSDI_SWAPPATH, 66, 80, 136, 8, ES_MARGIN
+        GROUPBOX        "Avanc‚", ID_OSDI_HIMEM_GROUP, 6, 22, 224, 48
+        LTEXT           "Limite de l'adressage virtuel : ",
+                        ID_OSDI_HIMEM_VALIMIT_TXT1, 12, 48, 90, 14,
+                        DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_OSDI_HIMEM_VALIMIT_SLIDER, 118, 48, 64, 14,
+                        SLS_SNAPTOINCREMENT | WS_GROUP
+                        CTLDATA 12, 0, 6, 0, 1, 0
+        RTEXT           "tbr", ID_OSDI_HIMEM_VALIMIT_TXT2, 188, 48, 36, 14,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "D‚sactiver l'adressage de base des D~LL", ID_OSDI_HIMEM_DLLBASINGOFF,
+                        10, 38, 212, 8
+        AUTOCHECKBOX    "~Java en m‚moire haute", ID_OSDI_HIMEM_JAVAHIMEM, 10,
+                        28, 212, 8
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Optimiser", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_SYSPATHS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_SYSPATHS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "Chemin d'accŠs ~systŠme … v‚rifier :", -1, 5, 162, 125, 8,
+                        DT_MNEMONIC
+        CONTROL         "", ID_OSDI_PATHDROPDOWN, 135, 78, 95, 92,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        GROUPBOX        "Chemins", -1, 5, 24, 225, 135
+        LISTBOX         ID_OSDI_PATHLISTBOX, 10, 39, 150, 108,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL | LS_EXTENDEDSEL
+        LTEXT           "Texte", ID_OSDI_PATHINFOTXT, 10, 27, 150, 8
+        PUSHBUTTON      "~Nouveau...", ID_OSDI_PATHNEW, 165, 135, 55, 12,
+                        WS_GROUP
+        PUSHBUTTON      "~diter...", ID_OSDI_PATHEDIT, 165, 120, 55, 12,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "~Supprimer", ID_OSDI_PATHDELETE, 165, 105, 55, 12,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "~Haut", ID_OSDI_PATHUP, 165, 90, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Bas", ID_OSDI_PATHDOWN, 165, 75, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "S‚lection ~incorrecte", ID_OSDI_VALIDATE, 165, 39, 55, 12
+        PUSHBUTTON      "Do~ublon...", ID_OSDI_DOUBLEFILES, 165, 54, 55,
+                        12
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "Aide", DID_HELP, 70, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_OSD_SETTINGS_WPS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_OSD_SETTINGS_WPS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Lancement automatique", -1, 5, 93, 225, 57
+        AUTOCHECKBOX    "Programmes", ID_OSDI_AUTO_PROGRAMS, 10, 132, 210, 10
+        AUTOCHECKBOX    "Liste des tƒches", ID_OSDI_AUTO_TASKLIST, 10, 123, 210, 10
+        AUTOCHECKBOX    "Connexions r‚seau", ID_OSDI_AUTO_CONNECTIONS, 10,
+                        114, 210, 10
+        AUTOCHECKBOX    "Tableau de bord", ID_OSDI_AUTO_LAUNCHPAD, 10, 105, 210,
+                        10
+        AUTOCHECKBOX    "WarpCenter", ID_OSDI_AUTO_WARPCENTER, 10, 96, 210,
+                        10
+        GROUPBOX        "Relancer au d‚marrage du systŠme...", -1, 5, 36, 225,
+                        51
+        AUTORADIOBUTTON "tout", ID_OSDI_RESTART_YES, 10, 69, 215, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "rien", ID_OSDI_RESTART_NO, 10, 60, 215, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "le dossier de lancement uniquement", ID_OSDI_RESTART_FOLDERS, 10,
+                        51, 215, 10, WS_TABSTOP
+        AUTOCHECKBOX    "AprŠs un red‚marrage uniquement", ID_OSDI_RESTART_REBOOT, 10, 39,
+                        215, 10
+        AUTOCHECKBOX    "RafraŒchissement automatique des dossiers",
+                        ID_OSDI_AUTOREFRESHFOLDERS, 5, 21, 140, 10, WS_GROUP
+        PUSHBUTTON      "~Appliquer", DID_APPLY, 5, 6, 55, 12, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Optimiser", DID_OPTIMIZE, 65, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 125, 6, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 180, 6, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_SDD_CAD LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Titre de boŒte de dialogue", ID_SDD_CAD, 10, 50, 220, 40,
+    BEGIN
+        CTEXT           "Arrˆt en cours, veuillez patienter...",
+                        ID_SDDI_PROGRESS1, 5, 25, 170, 8, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Bold"
+        CTEXT           "", ID_SDDI_PROGRESS2, 5, 5, 170, 18, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Bold"
+        ICON            ID_SDICON, -1, 190, 20, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_SDD_CLOSEVIO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown : session Non-PM", ID_SDD_CLOSEVIO, 60, 24, 220, 98, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           """ ne peut pas ˆtre ferm‚ automatiquement. Veuille"
+                        "z choisir que faire avec cette session ou fermez c"
+                        "ette session vous-mˆme.", ID_SDDI_VDMAPPTEXT, 8, 72, 176, 22,
+                        DT_WORDBREAK
+        ICON            ID_SDICON, -1, 188, 78, 20, 16, WS_GROUP
+        GROUPBOX        "Action sur cette session", -1, 8, 32, 158, 36
+        AUTORADIOBUTTON "~Passer cette session (pas de fermeture)", ID_XSDI_ACL_SKIP, 14,
+                        52, 126, 8, WS_TABSTOP
+        AUTORADIOBUTTON "~Fermer la fenˆtre PM", ID_XSDI_ACL_WMCLOSE, 14, 44, 148,
+                        8, WS_TABSTOP
+        AUTORADIOBUTTON "~Mettre fin … cette session (DosKillProcess)",
+                        ID_XSDI_ACL_KILLSESSION, 14, 36, 148, 8, WS_TABSTOP
+        AUTOCHECKBOX    "Store these settings with auto-close details",
+                        ID_XSDI_ACL_STORE, 8, 20, 194, 10
+        DEFPUSHBUTTON   "~OK", DID_OK, 8, 4, 60, 12
+        PUSHBUTTON      "~Annuler l'arrˆt", ID_SDDI_CANCELSHUTDOWN, 74, 4,
+                        80, 12
+        PUSHBUTTON      "Aide", DID_HELP, 162, 4, 52, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_SDD_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Statut de XShutdown", ID_SDD_MAIN, 15, 15, 365, 156, FS_ICON |
+            FS_ACCELTABLE | FS_NOBYTEALIGN | FS_NOMOVEWITHOWNER | NOT
+            FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR |
+            FCF_MINBUTTON | FCF_MAXBUTTON
+    BEGIN
+        LISTBOX         ID_SDDI_LISTBOX, 10, 27, 345, 112, LS_NOADJUSTPOS |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Applications en cours d'ex‚cution :", ID_XFD_LIMITREACHED, 10,
+                        140, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~Annuler l'arrˆt", ID_SDDI_CANCELSHUTDOWN, 100, 6,
+                        85, 14
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~D‚buter l'arrˆt", ID_SDDI_BEGINSHUTDOWN, 10, 6, 85,
+                        14
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_SDD_STATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown", ID_SDD_STATUS, 10, 14, 190, 48, FS_NOMOVEWITHOWNER |
+            FS_SCREENALIGN | NOT WS_SAVEBITS
+    BEGIN
+        LTEXT           "Initialisation, veuillez patienter...", ID_SDDI_STATUS, 35,
+                        35, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~Annuler l'arrˆt", ID_SDDI_CANCELSHUTDOWN, 5, 4, 85,
+                        12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Passer", ID_SDDI_SKIPAPP, 95, 4, 85, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ICON            ID_SDICON, ID_SDDI_ICON, 5, 25, 20, 16, WS_GROUP
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 35, 24, 145, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XCD_FEATURES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_FEATURES, 0, 0, 220, 142, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XCDI_CONTAINER, 14, 42, 190, 86, CCS_SINGLESEL |
+                        WS_GROUP
+        GROUPBOX        "Fonctionnalit‚s de XWorkplace globales", ID_XFDI_CNR_GROUPTITLE,
+                        6, 38, 205, 100, NOT WS_GROUP
+        PUSHBUTTON      "Implanter les classes de ~XWorkplace...", ID_XCDI_SETUP, 5,
+                        24, 205, 12
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 65, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 75, 6, 65, 12
+        PUSHBUTTON      "Aide", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XCD_FIRST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_FIRST, 0, 0, 220, 142, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "~Info...", DID_HELP, 8, 6, 76, 12
+    END
+END
+
+DLGTEMPLATE ID_XCD_OBJECTS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_OBJECTS, 0, 0, 275, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Cr‚ation des objets systŠme", -1, 5, 24, 205, 57
+        PUSHBUTTON      "Objets OS/2 par ~d‚faut ", ID_XCD_OBJECTS_SYSTEM, 34,
+                        58, 112, 12
+        PUSHBUTTON      "Objets ~XWorkplace ", ID_XCD_OBJECTS_XWORKPLACE,
+                        34, 44, 112, 12
+        PUSHBUTTON      "Recr‚ation du dossier Configuration...",
+                        ID_XCD_OBJECTS_CONFIGFOLDER, 16, 30, 146, 12
+        PUSHBUTTON      "Aide", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XCD_STATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XCD_STATUS, 0, 0, 275, 180, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Noyau de XWorkplace", ID_XCDI_INFO_KERNEL_GROUP, 10,
+                        64, 190, 60
+        LTEXT           "Version :", ID_XCDI_INFO_KERNEL_RELEASE_TXT, 14, 108,
+                        42, 8
+        RTEXT           "inconnue", ID_XCDI_INFO_KERNEL_RELEASE, 58, 108, 138,
+                        8
+        LTEXT           "Objets du bureau actifs :",
+                        ID_XCDI_INFO_AWAKEOBJECTS_TXT, 14, 100, 95, 8
+        RTEXT           "inconnu", ID_XCDI_INFO_AWAKEOBJECTS, 152, 100, 44,
+                        8
+        LTEXT           "Unit‚s d'ex‚cution WPS :", ID_XCDI_INFO_WPSTHREADS_TXT, 14,
+                        92, 95, 8
+        RTEXT           "inconnu", ID_XCDI_INFO_WPSTHREADS, 152, 92, 44, 8
+        LTEXT           "Red‚marrages du bureau :", ID_XCDI_INFO_WPSRESTARTS_TXT,
+                        14, 84, 95, 8
+        RTEXT           "inconnu", ID_XCDI_INFO_WPSRESTARTS, 152, 84, 44, 8
+        LTEXT           "tat sonore :", ID_XCDI_INFO_SOUNDSTATUS_TXT, 14,
+                        76, 70, 8
+        RTEXT           "inconnu", ID_XCDI_INFO_SOUNDSTATUS, 92, 76, 104, 8
+        LTEXT           "tat des liens XWPHook :", ID_XCDI_INFO_HOOKSTATUS_TXT, 14,
+                        68, 72, 8
+        RTEXT           "inconnu", ID_XCDI_INFO_HOOKSTATUS, 96, 68, 100, 8
+        GROUPBOX        "Support de langues (NLS)",
+                        ID_XCDI_INFO_LANGUAGE_GROUP, 10, 20, 190, 40
+        LTEXT           "~Langue :", ID_XCDI_INFO_LANGUAGE_TXT, 16, 40, 50,
+                        10, DT_VCENTER | DT_MNEMONIC
+        CONTROL         "", ID_XCDI_INFO_LANGUAGE, 70, 2, 125, 48,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Version :", ID_XCDI_INFO_NLS_RELEASE_TXT, 24,
+                        32, 80, 6, DT_VCENTER
+        RTEXT           "inconnue", ID_XCDI_INFO_NLS_RELEASE, 104, 32, 70, 6,
+                        DT_VCENTER
+        LTEXT           "Traducteur :", ID_XCDI_INFO_NLS_AUTHOR_TXT, 24, 24,
+                        80, 6, DT_VCENTER
+        RTEXT           "inconnu", ID_XCDI_INFO_NLS_AUTHOR, 104, 24, 70, 6,
+                        DT_VCENTER
+        PUSHBUTTON      "Aide", DID_HELP, 140, 6, 60, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XFD_BOOTUPSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace", ID_XFD_BOOTUPSTATUS, 75, 8, 195, 16, NOT
+            FS_DLGBORDER | FS_BORDER | FS_SCREENALIGN | WS_DISABLED,
+            FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Initialisation des objets XFldObject...",
+                        ID_XFDI_BOOTUPSTATUSTEXT, 25, 0, 165, 16, DT_VCENTER |
+                        DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ICON            ID_ICONDLG, -1, 0, 0, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XFD_CONTAINERPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XFD_CONTAINERPAGE, 0, 0, 254, 146, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XFDI_CNR_CNR, 10, 27, 230, 107, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS
+        GROUPBOX        "… remplacer", ID_XFDI_CNR_GROUPTITLE, 5, 21, 241,
+                        121, DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "Aide", DID_HELP, 4, 6, 85, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XFD_CREATINGCONFIG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace", ID_XFD_CREATINGCONFIG, 15, 21, 240, 16, NOT
+            FS_DLGBORDER | FS_BORDER | FS_SCREENALIGN | WS_VISIBLE,
+            FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Cr‚ation des objets, veuillez patienter...", -1, 25, 0, 215,
+                        15, DT_VCENTER | DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ICON            ID_ICONDLG, -1, 0, 0, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XFD_EMPTYDLG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XFD_EMPTYDLG, 0, 0, 260, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+    END
+END
+
+DLGTEMPLATE ID_XFD_FILEOPSSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "… remplacer", ID_XFD_FILEOPSSTATUS, 10, 6, 200, 64, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        PUSHBUTTON      "~Pause", DID_CANCEL, 140, 5, 55, 12
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 5, 6, 130, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+        LTEXT           "Source :", -1, 6, 48, 42, 8
+        LTEXT           "", ID_XSDI_SOURCEFOLDER, 48, 48, 146, 8
+        LTEXT           "Objet :", -1, 6, 40, 42, 8
+        LTEXT           "", ID_XSDI_SOURCEOBJECT, 48, 40, 146, 8
+        LTEXT           "", ID_XSDI_SUBOBJECT, 48, 32, 146, 8
+        LTEXT           "Cible :", ID_XSDI_TARGETFOLDER_TXT, 6, 24, 42, 8
+        LTEXT           "", ID_XSDI_TARGETFOLDER, 48, 24, 146, 8
+    END
+END
+
+DLGTEMPLATE ID_XFD_LIMITREACHED LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XWorkplace : trop d'objets", ID_XFD_LIMITREACHED, 25, 18, 260,
+            74, FS_SCREENALIGN | WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        DEFPUSHBUTTON   "~OK", DID_OK, 10, 6, 70, 12
+        ICON            ID_ICONDLG, -1, 225, 50, 20, 16, WS_GROUP
+        LTEXT           "XWorkplace a atteint le nombre maximum d'‚l‚ments s"
+                        "usceptibles d'ˆtre ins‚r‚s dans le menu contextuel "
+                        "de temps en temps lors du parcours des menus conten"
+                        "u des dossiers.", -1, 10,
+                        25, 205, 43, DT_WORDBREAK
+        PUSHBUTTON      "Aide", ID_XLD_CLASSLIST, 180, 6, 70, 12, BS_HELP |
+                        BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE ID_XFD_STARTUPSTATUS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "D‚marrage du systŠme", ID_XFD_STARTUPSTATUS, 10, 6, 200, 32, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Initialisation, veuillez patienter...", ID_SDDI_STATUS, 5,
+                        19, 185, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 140, 5, 55, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "", ID_SDDI_PROGRESSBAR, 5, 6, 130, 10, WC_STATIC,
+                        SS_FGNDRECT | WS_VISIBLE
+                        PRESPARAMS PP_FOREGROUNDCOLOR, 0x00FF0000L
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XLD_CLASSLIST LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_CLASSLIST, 5, 12, 145, 108, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS | WS_SYNCPAINT, FCF_NOBYTEALIGN
+    BEGIN
+        CONTAINER       ID_XLDI_CNR, 5, 3, 135, 102, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XLD_METHODINFO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_METHODINFO, 5, 12, 145, 108, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS | WS_SYNCPAINT, FCF_NOBYTEALIGN
+    BEGIN
+        CONTAINER       ID_XLDI_CNR, 5, 3, 135, 90, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY | WS_GROUP
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        AUTORADIOBUTTON "M‚thode d'~instance", ID_XLDI_RADIO_INSTANCEMETHODS,
+                        5, 96, 65, 10, WS_GROUP | WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        AUTORADIOBUTTON "M‚thodes de ~classe", ID_XLDI_RADIO_CLASSMETHODS, 75, 96,
+                        65, 10, WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XLD_REGISTERCLASS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Enregistrement d'une nouvelle classe", ID_XLD_REGISTERCLASS, 12, 28, 218, 62,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "DLL :", -1, 5, 43, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XLDI_CLASSMODULE, 42, 44, 106, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Parcourir...", ID_XLDI_BROWSE, 155, 42, 55, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Classe :", 303, 5, 28, 35, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XLDI_CLASSNAME, 42, 29, 106, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 6, 65, 12, WS_DISABLED
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 75, 6, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Aide", DID_HELP, 145, 6, 65, 12, BS_HELP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XLD_SELECTCLASS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "… remplacer", ID_XLD_SELECTCLASS, 25, 15, 280, 204,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "… remplacer", ID_XLDI_INTROTEXT, 10, 179, 255,
+                        18, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTAINER       ID_XLDI_CNR, 10, 47, 255, 126, CCS_SINGLESEL |
+                        CCS_VERIFYPOINTERS | CCS_READONLY
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 10, 3, 75, 12, WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 90, 3, 75, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Aide", DID_HELP, 190, 3, 75, 12, BS_HELP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "Rassemblement des classes, veuillez patienter...", ID_XLDI_TEXT2,
+                        10, 20, 255, 24, WC_MLE, MLS_READONLY | MLS_WORDWRAP |
+                        MLS_VSCROLL | WS_GROUP | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XLD_SETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XLD_SETTINGS, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Affichage de la liste de classes", -1, 5, 24, 175, 30
+        AUTOCHECKBOX    "Affichage de toutes les classes ~SOM", ID_XLDI_SHOWSOMOBJECT, 10,
+                        36, 165, 10
+        AUTOCHECKBOX    "Affichage des informations sur la ~m‚thode", ID_XLDI_SHOWMETHODS, 10,
+                        27, 165, 10
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_DATAF_TYPES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_DATAF_TYPES, 0, 0, 265, 162, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTAINER       ID_XSDI_DATAF_AVAILABLE_CNR, 10, 30, 218, 118,
+                        CCS_SINGLESEL
+        GROUPBOX        "Type d‚finis actuels", ID_XSDI_DATAF_GROUP, 5,
+                        24, 230, 135, DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 70, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 85, 6, 70, 12
+        PUSHBUTTON      "Aide", DID_HELP, 165, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_DISK_DETAILS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_DISK_DETAILS, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "Aide", DID_HELP, 140, 6, 70, 12, BS_HELP
+        GROUPBOX        "D‚tails sur l'unit‚", -1, 10, 99, 200, 48
+        LTEXT           "~Label du disque :", -1, 15, 126, 70, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_DISK_LABEL, 112, 128, 91, 8, ES_MARGIN
+        LTEXT           "SystŠme de fichiers :", -1, 15, 114, 85, 8
+        LTEXT           "inconnu", ID_XSDI_DISK_FILESYSTEM, 110, 114, 85, 8
+        LTEXT           "Taille de bloc :", -1, 15, 105, 85, 8
+        LTEXT           "inconnu", ID_XSDI_DISK_SECTORSIZE, 110, 105, 85, 8
+        GROUPBOX        "Allocation", -1, 10, 21, 200, 75
+        RTEXT           "Blocs", -1, 160, 81, 40, 8
+        RTEXT           "Octets", -1, 105, 81, 40, 8
+        LTEXT           "Espace total :", -1, 15, 72, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_TOTAL_SECTORS, 150, 72, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_TOTAL_BYTES, 75, 72, 70, 8
+        LTEXT           "Utilis‚ :", -1, 15, 63, 55, 8
+        RTEXT           "0", ID_XSDI_DISK_ALLOCATED_SECTORS, 150, 63, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_ALLOCATED_BYTES, 75, 63, 70, 8
+        LTEXT           "Libre :", -1, 15, 54, 55, 8
+        RTEXT           "0", ID_XSDI_DISK_AVAILABLE_SECTORS, 150, 54, 50, 8
+        RTEXT           "0", ID_XSDI_DISK_AVAILABLE_BYTES, 75, 54, 70, 8
+        LTEXT           "ici vient le diagramme", ID_XSDI_DISK_CHART, 60, 27,
+                        140, 24
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans Bold"
+    END
+END
+
+DLGTEMPLATE ID_XSD_FILESPAGE2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_FILESPAGE2, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Attributs tendus", -1, 5, 20, 230, 104
+        LTEXT           "~Attribut :", -1, 10, 106, 60, 8, DT_MNEMONIC
+        LISTBOX         ID_XSDI_FILES_EALIST, 10, 70, 218, 35,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        LTEXT           "~Contenu :", ID_XSDI_FILES_EAINFO, 10, 58, 218, 8,
+                        DT_MNEMONIC
+        MLE             "", ID_XSDI_FILES_EACONTENTS, 10, 24, 218, 33,
+                        MLS_WORDWRAP | MLS_VSCROLL | MLS_IGNORETAB |
+                        WS_GROUP
+        PUSHBUTTON      "Aide", DID_HELP, 165, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_IMPORTWPS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Importation de filtres WPS", ID_XSD_IMPORTWPS, 12, 6, 242, 172,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Fusionner avec :", -1, 6, 160, 65, 8
+        LTEXT           "[xxx]", ID_XSDI_FT_TYPE, 72, 160, 162, 8
+        GROUPBOX        "~Filtres … ajouter", -1, 6, 18, 80, 140, DT_MNEMONIC
+        LISTBOX         ID_XSDI_FT_FILTERLIST, 10, 32, 70, 116,
+                        LS_MULTIPLESEL | LS_NOADJUSTPOS | LS_HORZSCROLL |
+                        LS_EXTENDEDSEL
+        AUTOCHECKBOX    "~non connus uniquement", ID_XSDI_FT_UNKNOWNONLY, 10, 20, 70,
+                        10
+        CONTAINER       ID_XSDI_FT_ASSOCSCNR, 95, 36, 133, 112,
+                        CCS_EXTENDSEL | WS_GROUP
+        GROUPBOX        "~Associations … ajouter", -1, 90, 18, 144, 140,
+                        DT_MNEMONIC | NOT WS_GROUP
+        PUSHBUTTON      "~S‚lectionner tout", ID_XSDI_FT_SELALL, 94, 22, 64, 12
+        PUSHBUTTON      "~Tout d‚s‚lectionner", ID_XSDI_FT_DESELALL, 164, 22, 64,
+                        12
+        DEFPUSHBUTTON   "F~usionner", DID_OK, 6, 3, 70, 12, WS_GROUP
+        PUSHBUTTON      "~Fermer", DID_CANCEL, 86, 3, 70, 12
+        PUSHBUTTON      "Aide", ID_XSD_NEWSOUNDSCHEME, 164, 3, 70, 12,
+                        BS_HELP | BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE ID_XSD_KEYB_EDITFUNCTIONKEY LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "D‚finition de touche de fonction", ID_XSD_KEYB_EDITFUNCTIONKEY, 12,
+            50, 244, 76, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "~Description de la touche :", -1, 6, 58, 74, 12, DT_VCENTER |
+                        DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_FUNCK_DESCRIPTION_EF, 96, 60, 140, 8,
+                        ES_MARGIN
+        LTEXT           "Code ~mat‚riel (cliquez dans le champ d'entr‚e e"
+                        "t appuyez sur la touche de fonction) :", -1, 6, 46, 232, 10,
+                        DT_VCENTER | DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_FUNCK_SCANCODE_EF, 96, 36, 140, 8,
+                        ES_CENTER | ES_MARGIN
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FF8080L
+        LTEXT           "AprŠs l'appui sur ""OK"", la touche de fonction "
+                        "sera enregistr‚e. ", -1, 6, 20, 232, 10, DT_VCENTER
+        DEFPUSHBUTTON   "~OK", DID_OK, 8, 6, 70, 12
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 86, 6, 70, 12
+        PUSHBUTTON      "Aide", DID_HELP, 164, 6, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_MOUSE_CORNERS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_MOUSE_CORNERS, 0, 0, 232, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        CONTROL         "", -1, 20, 80, 52, 28, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOPLEFT, 16, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOP, 42, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_TOPRIGHT, 68, 104, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_LEFT, 16, 90, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_RIGHT, 68, 90, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOMLEFT, 16, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOM, 42, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "", ID_XSDI_MOUSE_RADIO_BOTTOMRIGHT, 68, 76, 8, 8,
+                        WS_TABSTOP
+        RADIOBUTTON     "I~nactif", ID_XSDI_MOUSE_INACTIVEOBJ, 104, 118, 64,
+                        8, WS_GROUP | WS_TABSTOP
+        RADIOBUTTON     "~Ouverture de l'objet :", ID_XSDI_MOUSE_OPEN_CHECK, 104, 110,
+                        76, 8, WS_TABSTOP
+        RADIOBUTTON     "Fonction s~p‚ciale :", ID_XSDI_MOUSE_SPECIAL_CHECK,
+                        104, 76, 78, 8, WS_TABSTOP
+        CONTAINER       ID_XSDI_MOUSE_OPEN_CNR, 108, 86, 68, 22,
+                        CCS_SINGLESEL | WS_GROUP
+        GROUPBOX        "~Coin/bord d'‚cran", -1, 4, 56, 84, 78,
+                        DT_MNEMONIC | NOT WS_GROUP
+        GROUPBOX        "Action", -1, 98, 56, 98, 78
+        CONTROL         "", ID_XSDI_MOUSE_SPECIAL_DROP, 108, 0, 70, 74,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_TABSTOP | WS_VISIBLE
+        SLIDER          ID_XSDI_MOUSE_CORNERSIZE_SLIDER, 13, 26, 166, 17,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 11, 0, 6, 0
+        GROUPBOX        "Sensibilit‚ du coin", -1, 4, 19, 192, 35
+        LTEXT           "0%", -1, 13, 21, 20, 8
+        RTEXT           "50%", -1, 140, 21, 24, 8
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 4, 4, 70, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 84, 4, 70, 12
+        PUSHBUTTON      "Aide", DID_HELP, 162, 4, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_MOUSE_MOVEMENT2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_MOUSE_MOVEMENT2, 0, 0, 232, 164, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Masquage automatique du pointeur de souris", -1, 6, 78, 194, 48
+        AUTOCHECKBOX    "~Activer", ID_XSDI_MOUSE_AUTOHIDE_CHECK, 12, 110, 44,
+                        8
+        LTEXT           "De~lai :", ID_XSDI_MOUSE_AUTOHIDE_TXT1, 22, 98, 28,
+                        12, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_XSDI_MOUSE_AUTOHIDE_SLIDER, 56, 98, 106, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 60, 0, 1, 0
+        CTEXT           "0 s", ID_XSDI_MOUSE_AUTOHIDE_TXT2, 160, 98, 28, 12,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "Pas de masquage lorsqu'un ~menu est ouvert",
+                        ID_XSDI_MOUSE_AUTOHIDE_CHECKMNU, 22, 88, 164, 10
+        AUTOCHECKBOX    "Pas de masquage au-dessus d'un ~bouton",
+                        ID_XSDI_MOUSE_AUTOHIDE_CHECKBTN, 22, 80, 164, 10
+        GROUPBOX        "D‚placement automatique du pointeur sur le bouton", -1, 6,
+                        20, 194, 56
+        AUTOCHECKBOX    "A~ctiver", ID_XSDI_MOUSE_AUTOMOVE_CHECK, 12, 60, 46,
+                        8
+        LTEXT           "D‚la~i :", ID_XSDI_MOUSE_AUTOMOVE_TXT1, 22, 46, 28,
+                        12, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_XSDI_MOUSE_AUTOMOVE_SLIDER, 56, 46, 106, 12,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP | WS_GROUP
+                        CTLDATA 12, 0, 50, 0, 1, 0
+        CTEXT           "0 s", ID_XSDI_MOUSE_AUTOMOVE_TXT2, 160, 46, 28, 12,
+                        DT_VCENTER | DT_MNEMONIC
+        AUTOCHECKBOX    "A~nimation", ID_XSDI_MOUSE_AUTOMOVE_ANIMATE, 22, 36,
+                        50, 8
+        AUTOCHECKBOX    "~Centrer sur les fenˆtres de dialogue sans bouton",
+                        ID_XSDI_MOUSE_AUTOMOVE_CENTER, 22, 28, 145, 8
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 4, 4, 70, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 78, 4, 70, 12
+        PUSHBUTTON      "Aide", DID_HELP, 152, 4, 70, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWFILETYPE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Nouveau type de fichier", ID_XSD_NEWFILETYPE, 15, 66, 145, 45, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Entrez le nom du nouveau type de fichier :",
+                        ID_XSDI_FT_TITLE, 5, 30, 135, 11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWFILTER LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Nouveau filtre", ID_XSD_NEWFILTER, 15, 66, 145, 45, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Entrez le nom du nouveau filtre :", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XSDI_FT_ENTRYFIELD, 7, 20, 131, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XSD_NEWSOUNDSCHEME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Nouveau thŠme sonore", ID_XSD_NEWSOUNDSCHEME, 15, 66, 145, 45,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Entez le nom du nouveau thŠme :", -1, 5, 30, 135,
+                        11
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "", ID_XSDI_FT_ENTRYFIELD, 5, 0, 135, 33,
+                        WC_COMBOBOX, CBS_DROPDOWN | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 5, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 75, 3, 65, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XSD_PGMFILE_MODULE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_PGMFILE_MODULE, 0, 0, 265, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        PUSHBUTTON      "~Aide", DID_HELP, 140, 3, 70, 12, BS_HELP
+        GROUPBOX        "Fichier programme", ID_XSDI_PROG_MAINGROUP, 10, 111, 200,
+                        33
+        LTEXT           "Chemin/Nom de fichier :", ID_XSDI_PROG_FILENAME_TXT, 15,
+                        126, 180, 8, DT_MNEMONIC | NOT WS_GROUP
+        RTEXT           "inconnu", ID_XSDI_PROG_FILENAME, 15, 117, 190, 8,
+                        NOT WS_GROUP
+        GROUPBOX        "Format de module", ID_XSDI_PROG_FORMAT_GROUP, 10, 75,
+                        200, 33
+        LTEXT           "Format ex‚cutable :", ID_XSDI_PROG_EXEFORMAT_TXT, 15,
+                        90, 70, 8, DT_MNEMONIC | NOT WS_GROUP
+        LTEXT           "inconnu", ID_XSDI_PROG_EXEFORMAT, 95, 90, 110, 8,
+                        NOT WS_GROUP
+        LTEXT           "S.E. cible :", ID_XSDI_PROG_TARGETOS_TXT, 15, 81, 70,
+                        8, DT_MNEMONIC | NOT WS_GROUP
+        LTEXT           "inconnu", ID_XSDI_PROG_TARGETOS, 95, 81, 110, 8,
+                        NOT WS_GROUP
+        GROUPBOX        "Description du module", ID_XSDI_PROG_DESCRIPTION_GROUP,
+                        10, 18, 200, 51
+        RTEXT           "… remplacer", ID_XSDI_PROG_DESCRIPTION, 16, 24,
+                        189, 36, NOT WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_REBOOTEXT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "XShutdown : actions au r‚amor‡age", ID_XSD_REBOOTEXT, 55, 33, 240, 174, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        ICON            ID_SDICON, ID_SDDI_ICON, 10, 153, 20, 16, WS_GROUP
+        LTEXT           "Entrez vos actions personnalis‚es … lancer au r‚amor‡age ici.", -1, 45,
+                        149, 185, 17, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LISTBOX         ID_XSDI_XRB_LISTBOX, 10, 75, 145, 62, LS_NOADJUSTPOS |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Nouvelle", ID_XSDI_XRB_NEW, 175, 126, 55, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Supprimer", ID_XSDI_XRB_DELETE, 175, 111, 55, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Haut", ID_XSDI_XRB_UP, 175, 90, 55, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Bas", ID_XSDI_XRB_DOWN, 175, 75, 55, 12,
+                        BS_NOPOINTERFOCUS
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Description de l'action :", -1, 10, 63, 160, 8,
+                        DT_MNEMONIC
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XSDI_XRB_ITEMNAME, 12, 53, 141, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Pa~rtitions ", ID_XSDI_XRB_PARTITIONS, 160, 51, 70,
+                        12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "~Ligne de commande d'action :", -1, 10, 42, 145, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", ID_XSDI_XRB_COMMAND, 12, 32, 216, 8, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 10, 6, 60, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Annuler", DID_CANCEL, 80, 6, 60, 12
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Aide", -1, 170, 6, 60, 12, BS_HELP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END
+
+DLGTEMPLATE ID_XSD_SET28STATUSBARS2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SET28STATUSBARS2, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "~Aucun objet s‚lectionn‚", -1, 6, 108, 202, 26,
+                        DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_SBTEXTNONESEL, 22, 114, 146, 8,
+                        ES_MARGIN | WS_GROUP
+        PUSHBUTTON      "~Touches ", ID_XSDI_SBKEYSNONESEL, 172, 112, 30, 12,
+                        BS_NOPOINTERFOCUS
+        GROUPBOX        "~Objet simple s‚lectionn‚", -1, 6, 58, 202, 48,
+                        DT_MNEMONIC | NOT WS_GROUP
+        ENTRYFIELD      "", ID_XSDI_SBTEXT1SEL, 22, 74, 146, 8, ES_MARGIN
+        PUSHBUTTON      "To~uches ", ID_XSDI_SBKEYS1SEL, 172, 72, 30, 12,
+                        BS_NOPOINTERFOCUS
+        LTEXT           "Classe :", -1, 10, 86, 30, 12, DT_VCENTER | NOT
+                        WS_GROUP
+        LTEXT           "WPObject", ID_XSDI_SBCURCLASS, 40, 86, 70, 12,
+                        DT_VCENTER | NOT WS_GROUP
+        PUSHBUTTON      "S‚le~ctionner la classe...", ID_XSDI_SBSELECTCLASS, 110, 86,
+                        90, 12
+        AUTOCHECKBOX    "D‚~r‚f‚rencer les doucles", ID_XSDI_DEREFSHADOWS_SINGLE,
+                        20, 60, 180, 10
+        GROUPBOX        "P~lusieurs objets s‚lectionn‚s", -1, 6, 22, 202, 34,
+                        DT_MNEMONIC | NOT WS_GROUP
+        ENTRYFIELD      "", ID_XSDI_SBTEXTMULTISEL, 22, 38, 146, 8,
+                        ES_MARGIN
+        PUSHBUTTON      "Touc~hes ", ID_XSDI_SBKEYSMULTISEL, 172, 36, 30, 12,
+                        BS_NOPOINTERFOCUS
+        AUTOCHECKBOX    "Dere~ference shadows",
+                        ID_XSDI_DEREFSHADOWS_MULTIPLE, 20, 24, 180, 10
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 65, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 75, 6, 65, 12
+        PUSHBUTTON      "Aide", DID_HELP, 145, 6, 65, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_SET3SNAPTOGRID LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SET3SNAPTOGRID, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Aligner sur la grille", -1, 5, 23, 175, 113, DT_MNEMONIC |
+                        NOT WS_GROUP
+        CONTROL         "", -1, 45, 32, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 32, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 52, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 52, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 71, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 71, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 45, 91, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        CONTROL         "", -1, 105, 91, 60, 20, WC_STATIC, SS_FGNDFRAME |
+                        WS_GROUP | WS_VISIBLE
+        AUTOCHECKBOX    "~Activer", ID_XSDI_SNAPTOGRID, 10, 115, 156, 10
+        LTEXT           "Origine ~X", -1, 23, 97, 57, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_X, 23, 86, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "~Espacement axe X", -1, 84, 97, 54, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_CX, 84, 86, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "E~spacement axe Y", -1, 110, 58, 51, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_CY, 110, 47, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        LTEXT           "Origine ~Y", -1, 110, 36, 49, 8, DT_MNEMONIC
+        SPINBUTTON      ID_XSDI_GRID_Y, 110, 26, 43, 12, SPBS_MASTER |
+                        SPBS_JUSTRIGHT | WS_GROUP
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+/*
+DLGTEMPLATE ID_XSD_SET4ACCELS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SET4ACCELS, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Touches de raccourcis dossiers", -1, 5, 25, 175, 135, DT_MNEMONIC |
+                        NOT WS_GROUP
+        AUTOCHECKBOX    "~Activer", ID_XSDI_ACCELERATORS, 10, 144, 118, 8
+        AUTOCHECKBOX    "A~fficher les raccourcis dans les menus", ID_XSDI_SHOWINMENUS, 10,
+                        136, 118, 8
+        LTEXT           "l‚ments de ~menu configurables", -1, 10, 124, 140, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        LISTBOX         ID_XSDI_LISTBOX, 10, 46, 165, 78, LS_OWNERDRAW |
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        LTEXT           "Touche de ~raccourcis :", ID_XSDI_DESCRIPTION_TX1, 10, 30, 26, 12,
+                        DT_VCENTER | DT_MNEMONIC | NOT WS_GROUP |
+                        WS_DISABLED
+        ENTRYFIELD      "", ID_XSDI_DESCRIPTION, 42, 32, 66, 8, ES_MARGIN |
+                        WS_DISABLED
+        PUSHBUTTON      "~ParamŠtrer", ID_XSDI_SETACCEL, 114, 30, 30, 12,
+                        WS_DISABLED
+        PUSHBUTTON      "~Effacer", ID_XSDI_CLEARACCEL, 146, 30, 30, 12,
+                        WS_DISABLED
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP |
+                        BS_NOPOINTERFOCUS
+    END
+END
+  */
+DLGTEMPLATE ID_XSD_SETTINGS_FLDRSORT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_SETTINGS_FLDRSORT, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "~CritŠre de tri par d‚faut :", -1, 5, 118, 175, 8,
+                        DT_MNEMONIC | NOT WS_GROUP
+        LISTBOX         ID_XSDI_SORTLISTBOX, 5, 42, 175, 75, LS_NOADJUSTPOS |
+                        LS_HORZSCROLL
+        AUTOCHECKBOX    "D~ossiers en premier", ID_XSDI_SORTFOLDERSFIRST, 6, 30,
+                        175, 8
+        AUTOCHECKBOX    "~Toujours conserver l'ordre de tri", ID_XSDI_ALWAYSSORT, 6,
+                        22, 175, 8
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XSD_STARTUPFOLDER LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_STARTUPFOLDER, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Dossier de lancement XWorkplace", -1, 5, 24, 196, 102
+        LTEXT           "D‚lai ~initial :", ID_SDDI_STARTUP_INITDELAY_TXT1,
+                        10, 102, 54, 14, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_SDDI_STARTUP_INITDELAY_SLID, 64, 102, 96, 14,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 20, 0, 1, 0
+        LTEXT           "ms", ID_SDDI_STARTUP_INITDELAY_TXT2, 164, 102, 30,
+                        14, DT_VCENTER | NOT WS_GROUP
+        LTEXT           "D‚lai ~pour chaque objet :", ID_SDDI_STARTUP_OBJDELAY_TXT1,
+                        10, 86, 54, 14, DT_VCENTER | DT_MNEMONIC
+        SLIDER          ID_SDDI_STARTUP_OBJDELAY_SLID, 64, 86, 96, 14,
+                        SLS_SNAPTOINCREMENT | SLS_BUTTONSTOP
+                        CTLDATA 12, 0, 20, 0, 1, 0
+        LTEXT           "ms", ID_SDDI_STARTUP_OBJDELAY_TXT2, 164, 86, 30, 14,
+                        DT_VCENTER | NOT WS_GROUP
+        AUTOCHECKBOX    "~Affichage de la fenˆtre d'‚tat", ID_SDDI_SHOWSTARTUPPROGRESS,
+                        10, 72, 184, 10, WS_GROUP
+        GROUPBOX        "Lancement du contenu du dossier", -1, 10, 29, 186, 38
+        AUTORADIOBUTTON "aux ~r‚amor‡ages uiniquement", ID_SDDI_STARTUP_REBOOTSONLY, 15, 47,
+                        80, 12, BS_NOCURSORSELECT | WS_TABSTOP
+        AUTORADIOBUTTON "… ~chaque relance du bureau",
+                        ID_SDDI_STARTUP_EVERYWPSRESTART, 15, 33, 80, 12,
+                        BS_NOCURSORSELECT | WS_TABSTOP
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 60, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 73, 6, 60, 12, WS_GROUP
+        PUSHBUTTON      "Aide", DID_HELP, 141, 6, 60, 12, BS_HELP |
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_XWPSOUND LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_XWPSOUND, 0, 0, 224, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        AUTOCHECKBOX    "~Activer les sons systŠme", ID_XSDI_SOUND_ENABLE, 5,
+                        153, 185, 10
+        GROUPBOX        "ThŠmes sonores", -1, 5, 120, 205, 33, NOT WS_GROUP
+        LTEXT           "~ThŠme en cours :", -1, 10, 135, 85, 9, DT_MNEMONIC |
+                        NOT WS_GROUP
+        CONTROL         "", ID_XSDI_SOUND_SCHEMES_DROPDOWN, 90, 69, 115, 77,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | LS_HORZSCROLL |
+                        WS_TABSTOP | WS_VISIBLE
+        PUSHBUTTON      "Sauvegarde ~en...", ID_XSDI_SOUND_SCHEMES_SAVEAS, 90, 123,
+                        55, 12
+        PUSHBUTTON      "~Supprimer...", ID_XSDI_SOUND_SCHEMES_DELETE, 150, 123,
+                        55, 12
+        GROUPBOX        "D‚finir les sons systŠme", -1, 5, 21, 205, 96
+        LTEXT           "~vŠnement", -1, 10, 102, 65, 8, DT_MNEMONIC | NOT
+                        WS_GROUP
+        LISTBOX         ID_XSDI_SOUND_EVENTSLISTBOX, 10, 24, 95, 78,
+                        LS_NOADJUSTPOS | LS_HORZSCROLL
+        LTEXT           "Fichier ~sonore :", -1, 110, 102, 75, 8, DT_MNEMONIC
+        ENTRYFIELD      "", ID_XSDI_SOUND_FILE, 112, 92, 91, 8, ES_MARGIN
+        PUSHBUTTON      "~Parcourir...", ID_XSDI_SOUND_BROWSE, 110, 75, 45, 12,
+                        BS_NOPOINTERFOCUS
+        DEFPUSHBUTTON   "~Lire", ID_XSDI_SOUND_PLAY, 160, 75, 45, 12,
+                        BS_NOPOINTERFOCUS
+        AUTOCHECKBOX    "V~olume identique pour tous les sons",
+                        ID_XSDI_SOUND_COMMONVOLUME, 110, 63, 95, 9
+        CONTROL         "", ID_XSDI_SOUND_VOLUMELEVER, 155, 27, 45, 36,
+                        WC_STATIC, SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        PUSHBUTTON      "Aide", DID_HELP, 145, 6, 65, 12, BS_HELP |
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_XSD_XWPSTRING_PAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XSD_XWPSTRING_PAGE, 0, 0, 232, 180, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "~ChaŒne de paramŠtres :", -1, 8, 128, 108, 8, DT_MNEMONIC
+        CONTROL         "", ID_XSD_XWPSTRING_STRING_MLE, 8, 86, 176, 40,
+                        WC_MLE, MLS_WORDWRAP | MLS_VSCROLL | MLS_IGNORETAB |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "Co~nfirmer l'invocation", ID_XSD_XWPSTRING_CONFIRM, 8,
+                        72, 176, 10, WS_GROUP
+        LTEXT           "Glissez et d‚posez ici un objet ici pour qu'il soit"
+                        " stock‚ sous forme de chaŒne :", -1, 8, 52, 108, 16, DT_WORDBREAK
+        CONTAINER       ID_XSD_XWPSTRING_OBJ_CNR, 10, 26, 68, 22,
+                        CCS_SINGLESEL
+        CONTROL         "", -1, 8, 24, 72, 26, WC_STATIC, SS_FGNDFRAME |
+                        WS_VISIBLE
+        PUSHBUTTON      "~Effacer", ID_XSD_XWPSTRING_OBJ_CLEAR, 96, 32, 68, 12
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 8, 4, 50, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 70, 4, 50, 12
+        PUSHBUTTON      "Aide", DID_HELP, 134, 4, 50, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XTD_DRIVES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XTD_DRIVES, 0, 0, 224, 180, NOT FS_DLGBORDER | WS_VISIBLE
+    BEGIN
+        GROUPBOX        "Support des unit‚s", -1, 5, 24, 175, 98
+        LTEXT           "~Non support‚es", -1, 10, 106, 56, 8, DT_MNEMONIC |
+                        NOT WS_GROUP
+        LISTBOX         ID_XTDI_UNSUPPORTED_LB, 10, 28, 52, 76,
+                        LS_NOADJUSTPOS | LS_EXTENDEDSEL
+        LTEXT           "~Support‚es", -1, 116, 106, 56, 8, DT_MNEMONIC
+        LISTBOX         ID_XTDI_SUPPORTED_LB, 116, 28, 52, 76,
+                        LS_NOADJUSTPOS | LS_EXTENDEDSEL
+        PUSHBUTTON      "~Ajouter >>", ID_XTDI_ADD_SUPPORTED, 66, 66, 46, 12
+        PUSHBUTTON      "<< ~Retirer", ID_XTDI_REMOVE_SUPPORTED, 66, 50, 46,
+                        12
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 5, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 65, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 125, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_XTD_ICONPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_XTD_ICONPAGE, 0, 0, 194, 134, NOT FS_DLGBORDER |
+            WS_VISIBLE
+    BEGIN
+        LTEXT           "~Titre :", -1, 6, 66, 26, 8, DT_MNEMONIC
+        MLE             "", ID_XTDI_ICON_TITLEMLE, 34, 50, 142, 24,
+                        MLS_IGNORETAB | WS_GROUP
+        PUSHBUTTON      "~D‚faire", DID_UNDO, 4, 6, 55, 12, WS_GROUP
+        PUSHBUTTON      "~Par d‚faut", DID_DEFAULT, 64, 6, 55, 12
+        PUSHBUTTON      "Aide", DID_HELP, 124, 6, 55, 12, BS_HELP
+    END
+END
+
+DLGTEMPLATE ID_TSD_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Taille d'arborescence", ID_TSD_MAIN, 30, 21, 325, 148, NOT FS_DLGBORDER |
+            FS_SCREENALIGN | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR |
+            FCF_MINBUTTON | FCF_MAXBUTTON
+    BEGIN
+        ICON            ID_TS_ICON, ID_TSDI_ICON, 6, 129, 20, 16, WS_GROUP
+        LTEXT           "Texte", ID_TSDI_TEXT1, 35, 129, 285, 17, DT_VCENTER
+        CONTAINER       ID_TSDI_CNR, 6, 18, 315, 108, CCS_SINGLESEL |
+                        WS_GROUP
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+        DEFPUSHBUTTON   "~Fermer", DID_OK, 6, 4, 60, 12
+        PUSHBUTTON      "~Effacer", DID_CLEAR, 72, 4, 60, 12
+        PUSHBUTTON      "~R‚g‚n‚rer", DID_REFRESH, 140, 4, 60, 12
+    END
+END
+
+DLGTEMPLATE ID_XLD_CLASSINFO LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Informations sur la classe", ID_XLD_CLASSINFO, 15, 54, 215, 135, NOT
+            FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS, FCF_NOBYTEALIGN
+    BEGIN
+        LTEXT           "Classe :", ID_XLDI_CLASSNAMETXT, 5, 123, 18, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "", ID_XLDI_CLASSNAME, 70, 123, 140, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "remplac‚e par :", ID_XLDI_REPLACEDBYTXT, 5, 114, 43,
+                        8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "", ID_XLDI_REPLACEDBY, 70, 114, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Titre par d‚faut :", ID_XLDI_CLASSTITLETXT, 5, 105, 35,
+                        8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "", ID_XLDI_CLASSTITLE, 70, 105, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "DLL :", ID_XLDI_CLASSMODULETXT, 5, 96, 13, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "", ID_XLDI_CLASSMODULE, 70, 96, 140, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Ic“ne de classe par d‚faut :", ID_XLDI_ICONTXT, 5, 78, 52, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ICON            ID_ICONDLG, ID_XLDI_ICON, 70, 78, 20, 16, WS_GROUP
+        LTEXT           "Octets par instance :", ID_XLDI_BYTESPERINSTANCETXT, 4, 68, 62, 8, NOT
+                        WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "", ID_XLDI_BYTESPERINSTANCE, 69, 68, 140, 8, NOT WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "Rassemblement des classes, veuillez patienter...", ID_XLDI_TEXT2,
+                        5, 3, 205, 57, WC_MLE, MLS_READONLY | MLS_WORDWRAP |
+                        MLS_VSCROLL | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    END
+END

@@ -1,0 +1,61 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Threads
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+XWorkplace is quite heavily multi-threaded and offloads most tasks which
+are probable to take some time to several threads which are always running in
+the background. Those threads create object windows and are thus normally
+blocked, unless there's real work to do.
+XWorkplace uses mutex semaphores all over the place to serialize access
+to global data structures.
+
+<P>With V0.9.0, all the thread code has been put into a new file, called
+<CODE>src\filesys\xthreads.c</CODE>.
+
+<P>All threads are created in <CODE>krnInitializeXWorkplace</CODE>
+(<CODE>src\shared\kernel.c</CODE>),
+which gets called from <CODE>M_XFldObject::wpclsInitData</CODE>, which is probably
+the first SOM method called when the WPS is initializing at startup.
+<P>All threads have some <CODE>fntXXXThread</CODE> function, which is
+the main thread function passed to the <CODE>thr*</CODE> functions in
+<CODE>/helpers/threads.c</CODE> when the thread is created.
+These in turn create an object window using some <CODE>fnwpXXXObject</CODE>
+function as their window procedure.
+<P>For each thread, we then have some <CODE>krnPostXXXMsg</CODE> function
+which posts a message to the corresponding object window. All messages are
+defined and explained in <CODE>include\filesys\xthreads.h</CODE>.
+
+<P>The following additional threads are available:
+
+<UL><LI>The <B>Worker thread</B> is running with idle priority and does
+mainly maintenance which is not time-critical.
+<P>For example, the Worker thread maintains the global linked list of
+currently awake Desktop objects. <CODE>XFldObject::wpObjectReady</CODE> post
+<CODE>WOM_ADDAWAKEOBJECT</CODE> to the Worker thread, which then adds the object
+to that list. (This list is needed by XShutdown to store all the awake
+Desktop objects; see the <I>XWorkplace User Guide</I> for details).
+<P>The Worker thread runs at &quot;Idle&quot; priority, unless more than 300
+messages have piled up in its message queue. In this case, the
+priority is temporarily raised to &quot;Regular&quot; and set back if the
+message count goes below 10 again. This can happen when opening
+folders with a very large number of objects.
+
+<P><LI>The <B>&quot;Speedy&quot; thread</B> is running at a high
+&quot;Regular&quot; priority for things which won't take long but should not
+block the main WPS (Workplace) thread. This thread creates an object
+window also.  For example, the <A HREF="src2_814sounds.html">new system sounds</A>
+are played here, and the Desktop start logo is shown.
+
+<P><LI>The <B>"File" thread</B> is new with V0.9.0 and runs with regular priority,
+that is, concurrently with the WPS user interface. This now does file operations,
+such as moving objects to and emptying the trash can and such.
+This thread will probably get more jobs in the future.
+</UL>
+
+<BR>
+</BODY>
+</HTML>

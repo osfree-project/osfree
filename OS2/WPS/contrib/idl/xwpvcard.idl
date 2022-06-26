@@ -1,0 +1,156 @@
+
+/*
+ * xwpvcard.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPVCard
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpvcard.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpdataf.idl>          // this is SOM for WPDataFile
+
+/*
+   CLASS: XWPVCard
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile
+                           ÀÄÄ  XWPVCard
+*/
+
+interface M_XWPVCard;            // forward reference to metaclass
+
+interface XWPVCard : WPDataFile
+{
+
+    /*
+     * New instance methods for XWPVCard:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xvc_;
+        externalstem = xvc;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpvcard;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPVCard;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPVCard:
+         *
+         */
+
+        PVOID       pvCard;             // PVCARD ptr
+
+        /*
+         * WPDataFile methods overridden by XWPVCard:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        wpFilterPopupMenu: override;
+
+        wpAddSettingsPages: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpCreateFromTemplate: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPVCard : M_WPDataFile
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xvcM_;
+        externalstem = xvcM;
+        functionprefix = xvcM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpvcard;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XWPVCard:
+         *
+         */
+
+        /*
+         * M_WPDataFile methods overridden by M_XWPVCard:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryTitle: override;
+
+        wpclsQueryDefaultView: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+
+        wpclsQueryInstanceFilter: override;
+        wpclsQueryInstanceType: override;
+    };
+#endif
+};
+
+

@@ -1,0 +1,35 @@
+"003\MISC" lisez-moi
+(W) Ulrich M”ller Dec 1, 1999
+Traduction fran‡aise : Guillaume Gay 2005-11-02
+
+Le r‚pertoire "misc" contient des fichiers suppl‚mentaires n‚cessaire … la
+la traduction de XWorkplace. Le fichier makefile dans le r‚pertoire copiera
+uniquement les fichiers qui ont ‚t‚ modifi‚s vers XWPRUNNING, donc si vous
+mettez … jour ces fichiers, faites-le ici dans l'arborescence des sources
+et faites-les copier dans votre installation de XWorkplace par le 
+fichier makefile. 
+
+Il s'agit des fichiers : 
+
+crobj001.cmd        cr‚ation du dossier de configuration par d‚faut
+                    (script REXX). 
+
+instl001.cmd        cr‚ation des autres objets d'installation par d‚faut
+                    (script REXX). 
+
+sound001.cmd        ajout de nouveaux sons systŠmes aux fichiers INI 
+                    (script REXX). 
+
+
+xfldr001.tmf        fichier de messages textes (TMF) pour les divers messages 
+                    de XWorkplace. C'est nouveau depuis la version 0.9.0 et 
+                    remplace le fichier MSG OS/2 qui ‚tait utilis‚
+                    pr‚c‚demment. C'est un fichier texte pur maintenant. 
+
+drvrs001.txt        liste de pilotes utilis‚e par la page "Pilotes" dans
+                    l'objet "Noyau OS/2". C'est ‚galement nouveau depuis la
+                    version 0.9.0. 
+
+xfcls001.txt        Description des classes WPS pour l'objet "Liste des
+                    classes WPS". 
+

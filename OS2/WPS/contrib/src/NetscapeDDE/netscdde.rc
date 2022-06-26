@@ -1,0 +1,39 @@
+
+/*
+ * netscdde.rc:
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include "rcdefs.h"     // V1.0.1 (2002-12-14) [umoeller]
+#include "netscdde.h"
+
+POINTER 1 LOADONCALL MOVEABLE DISCARDABLE netscdde.ico
+
+MENU DDEC
+BEGIN
+    SUBMENU         "~Commands",   IDM_MENU
+    BEGIN
+        MENUITEM    "Run full sequence",       IDM_FULLSEQUENCE
+        MENUITEM "", 1, MIS_SEPARATOR
+        MENUITEM    "~Initiate DDE",   IDM_INITIATE
+        MENUITEM    "~Open URL in existing window",       IDM_OPENURL
+        MENUITEM    "~Open URL in new window",       IDM_OPENURLNEW
+        MENUITEM    "~Close DDE",      IDM_CLOSE
+        MENUITEM "", 1, MIS_SEPARATOR
+        MENUITEM    "~Exit",       IDM_EXIT
+    END
+END
+

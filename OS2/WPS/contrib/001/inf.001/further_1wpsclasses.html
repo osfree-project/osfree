@@ -1,0 +1,135 @@
+<HTML SUBLINKS="wps" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        What Are WPS Classes?
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.13:
+First, please take a look at the <A HREF="sys_4wpsclasses.html">"WPS classes"</A>
+page in the "Introduction" section of this
+document, if you don't have a general understanding of WPS classes yet.
+-->
+
+<P>In general, in object-oriented programming, a <B>class</B> is an abstract definition of both
+(1.) data types and (2.) actions that can be performed on that data. The latter are
+commonly known as object <STRONG>methods</STRONG>.
+<P>While classes only describe an object type in an abstract way, the objects that really
+exist in a program are called <STRONG>instances</STRONG> of a certain class.
+<P>Take a WPS program object,
+for example: every program object is an instance of the class WPProgram,
+defined by the WPS.
+The (1.) data of the program object would be, among others,
+the executable associated with it
+(e.g. "CMD.EXE"), while (2.) methods (that could be performed on this data)
+would be starting the executable
+(by double-clicking or choosing the "Open" menu item)
+or changing the executable in the settings
+notebook. While you cannot "see" methods from the user interface, methods are used
+all the time internally every time the WPS is doing something. If you're familiar
+with that term, methods can vaguely be described as an
+Application Programmer's Interface (API) to an object. If you know how to program
+REXX: every time you use one of those object
+<A HREF="xices_30wpsstrings.html">setup strings</A> to modify an object's data, you're
+actually calling a method upon an object.
+<P>Since methods are defined for each class, the methods that you can call on an
+object depend on the class of the object. I have not counted them, but already WPObject,
+the most basic WPS class, defines more than 100 methods.
+<P>What makes object-oriented programming so flexible (and popular) is that you
+can define relationships between classes. In order to understand this, the following
+two concepts are helpful:
+<UL>
+<LI><STRONG>Inheritance.</STRONG> This concept allows you to define an
+object class that takes over all its data types
+and methods from another object class, without requiring that the programmer know how the
+original class was actually programmed. You can simple "take over" the features of an
+existing class and rewrite only what you wish to implement.
+The original class is then called the "ancestor" or "parent" of the "descendant" class.
+<P>For example, with the Workplace Shell,
+the Desktop class (called "WPDesktop") is derived from
+the folder class (called "WPFolder"), making the Desktop just
+a special type of folder.
+<P>So basically,
+the Desktop has all the capabilities of a regular folder:
+you can put other objects into it,
+sort its contents, open a tree or details view, and so on.
+But in addition, the Desktop class provides a few more actions: its context menu contains
+more items (such as "Shutdown" and "System configuration"), its notebook has more pages, and so on.
+Obviously, the Desktop inherits folders' characteristics, but adds a few more.
+On the other hand, some folder characteristics are suppressed:
+for example, you cannot
+close the active Desktop, and it does not have a title bar.
+<P>The WPS implements a derivative structure such that all objects are logically
+grouped and interdependent. On an even more abstract level,
+all object classes of the WPS are descendants of a SINGLE CLASS named "WPObject", which provides
+certain functions that all Desktop objects need: mainly the ability to display context menus and
+notebooks at all and things like that. This is typical of object-oriented programming; such a
+global ancestor class is commonly called the "root class" of a "class hierarchy".
+<P>On WPObject, the WPS builds a complete tree of classes known as the
+<A HREF="xices_1wpsclasses.html">WPS class hierarchy</A>. You can use the "WPS Classes"
+<!-- V0.9.0: changed the following -->
+page in &xwp;'s <A HREF="sys_1intro.html">"WPS class list"</A>
+object to take a look at this.
+<P>Such a class hierarchy has the advantage that one can
+change the characteristics of this root class only,
+and all classes which are derived from it will also change. (The disadvantage is -- from
+a programmer's point of view -- that building such a class hierarchy requires a whole lot
+of planning which data and which methods are common to which classes, and many times it
+turns out that this planning wasn't quite optimal. But once this hierarchy has been
+built in a thoughtful way -- which, thanks to IBM, indeed is the case with the WPS --
+the advantages are just superb.)
+<BR><LI><STRONG>Polymorphism.</STRONG> This concept means that, while using inheritance,
+you can REPLACE certain characteristics of an ancestor
+class with new ones. You can redefine ("override") the original object class's
+behavior. Now, if a certain method is performed on the
+descendant, the newly defined method is called instead of
+the one that was defined with the ancestor class.
+<P>Just one of the many examples of this
+can be seen with the "Help" menu item which is available in every object's
+context menu. Selecting the "Extended help" menu item will result in an object's
+<CITE>wpDisplayHelp</CITE> method to be called. This method is introduced by the
+by the WPS root class, WPObject, so that all Desktop objects can display help:
+the &os2; help manager is initialized, the
+help window is displayed, etc.
+The actual help page to be displayed however is
+overridden (following the concept of polymorphism) by almost every single WPS
+class. This way, pressing "Help" in a folder's context menu will
+show you something different than from, say,
+in a program object's menu.
+
+</UL>
+<!-- V0.9.13
+For details on what <B>class replacements</B> are, please refer to the
+<A HREF="sys_4wpsclasses.html">"WPS classes"</A> page in the "Introduction"
+section also.
+<P>-->
+While inheritance and polymorphism are concepts common to every object-oriented
+programming environment (and also to object-oriented languages, such as C++),
+the Workplace Shell is even able to provide their advantages across several applications.
+The WPS consists of many DLLs which are in part independent of each other,
+and programmer's outside of IBM can
+extend the WPS using these features without even having the WPS's source code, which is
+not possible with "normal" object-oriented languages.
+<P>This only works because
+the WPS uses IBM's own <B>System Object Model (SOM),</B> a complex system
+which provides object-oriented programming interfaces even across several code modules,
+and even independent of the programming language. SOM is so powerful because
+classes are instantiated and maintained at run-time instead of compilation time.
+<P>This is, by the way,
+where the WPS class list comes in: when the WPS is booting up, it creates all the
+classes (which, in SOM, are objects too, but this is a complex issue),
+and establishes the relationships between them only at this point. Only
+because of this is it possible to modify classes without IBM, who created the originals,
+even knowing about it.
+<P>Just as a short personal opinion, this is still something that
+makes &os2; unique in today's computer world. While most of its other
+advantages over other operating systems, such as its
+reliable multitasking, are not that unique any more (e.g. Linux
+is pretty good at that, too), the user interface is still not reached
+by any operating system that I know. Especially not Windows 95.
+<BR>
+</BODY>
+</HTML>
+
+

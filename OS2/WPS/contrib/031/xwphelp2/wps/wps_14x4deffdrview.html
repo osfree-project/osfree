@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Standaard map overzicht
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.12 -->
+<BODY>
+De keuzes in de "Standaard map overzicht" groep biedt u de mogelijkheid om
+het standaard map overzicht voor alle mappen op uw systeem in te stellen.
+
+<P>Deze instelling is alleen van toepassing als een standaard overzicht
+niet expliciet ingesteld is voor een map op de "Menu" pagina in de map
+zijn instellingen notitieblok. Ter aanvulling, speciale map classes kunnen het
+standaard WPS map gedrag overslaan zodat deze instelling ook niet werkt.
+
+<UL><LI>Als <B>"Overerf van bron"</B> is geselecteerd, zal een map zijn standaard
+overzicht overerven van zijn bronmap.
+
+<P>Dit is het standaard WPS gedrag. Bijvoorbeeld, als u
+<CODE>C:\map\submap</CODE> opent en <CODE>submap</CODE> heeft geen
+expliciet standaard overzicht gezet, zal de WPS kijken of de <CODE>map</CODE>
+een standaard overzicht heeft, en zo verder, totdat de basis van de schijf bereikt is.
+<!-- V0.9.19: removed this Only
+if the WPS still hasn't found a default view then, the setting from the
+third "Window" page in the "Workplace Shell" (or "System") object applies. -->
+
+<P><LI>Als dit gedrag u niet bevalt, biedt &xwp; u nu de mogelijkheid
+om het standaard overzicht voor mappen globaal in te stellen -- zonder overerving
+van de bronmap. De overerving wordt uitgeschakeld als u een van de
+<B>"pictogram", "boom", of "details"</B> overzicht knoppen kiest uit de groep.
+</UL>
+</BODY>
+</HTML>
+

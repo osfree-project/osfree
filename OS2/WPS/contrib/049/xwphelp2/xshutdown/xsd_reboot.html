@@ -1,0 +1,109 @@
+<HTML RESID=&ID_XFH_REBOOTEXT;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Aktionen bei Neustart
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- changed with V0.9.0: see notes below -->
+<BODY>
+Im Dialog "Aktionen bei Neustart" kann &xshutdown; angewiesen werden, statt seiner
+internen Neustart-Routine eine andere ausfhrbare Datei aufzurufen, die hier
+angegeben werden kann. Hier vorgenommene Eintr„ge erscheinen im Best„tigungsfenster
+von &xshutdown;. Wenn Sie etwas anderes als "Standard" in diesem Fenster angeben,
+wird der Befehl, den Sie hier eingestellt haben, statt der normalen
+Neustart-Funktion des &xshutdown; ausgefhrt.
+ 
+<P>Dies ist besonders ntzlich, wenn der IBM Bootmanager installiert ist,
+der mit &os2; geliefert wird. Der Bootmanager kann von der Befehlszeile mit dem
+Befehl <CITE>SETBOOT</CITE> aktiviert werden.
+ 
+<!-- V0.9.7: added this line -->
+<P>Details entnehmen Sie bitte der <A HREF="cmdref.inf#setboot">Dokumentation</A> im
+<I>&os2;-Referenzhandbuch</I>.
+ 
+<P>Im Kontext von &xshutdown; kommt dieser Befehl fr die Funktion "Neustart
+von..." sehr gelegen. Diese Funktion kann mit dem Parameter
+<CITE>"/iba:&lt;os&gt;"</CITE> des <CITE>SETBOOT</CITE>-Befehls ausgefhrt
+werden, wobei "&lt;os&gt;" der genaue Name des Betriebssystems ist, so wie es im
+Men des Bootmanagers aufgelistet ist. Wenn Sie diesen Parameter benutzen, startet
+das System neu, ohne vorher das Bootmanager-Men anzuzeigen, und startet direkt von
+der angegebenen Partition.
+ 
+<P>Wenn Sie beispielsweise direkt zu PC-DOS 7 booten m”chten, das im Bootmanager-Men
+"PC-DOS 7" heiát, so tippen Sie auf der Befehlszeile:
+ 
+<P><CITE>    setboot /iba:"PC-DOS 7" </CITE>
+ 
+<P>Mit diesem Beispiel k”nnen Sie nun fr &xshutdown; eine Benutzeraktion zum
+Neustart wie folgt angeben:
+ 
+<OL><LI>Drcken Sie die Schaltfl„che "Neu".
+<BR><LI>Im Feld "Aktionsbeschreibung" geben Sie ein, was Sie im Best„tigungsdialog
+von &xshutdown; sehen m”chten (z. B. "PC-DOS 7").
+<BR><LI>Im Feld "Aktionsbefehlszeile" geben Sie den Befehl ein, den Sie ausfhren
+m”chten, in diesem Fall:
+<BR><CITE>   setboot /iba:"PC-DOS 7"</CITE>
+<BR><LI>Drcken Sie "OK". Der Eintrag wird im &xshutdown;-Best„tigungsdialog
+erscheinen, sobald Sie das n„chste Mal versuchen, das System herunterzufahren.
+ 
+</OL>
+<!-- the following was added with V0.9.0 -->
+Seit Version 0.9.0 gibt es eine <B>Schaltfl„che "Partitionen"</B> in diesem Dialog.
+Diese Schaltfl„che ist nur dann aktiviert, wenn eine Neustartaktion im oberen Kasten
+ausgew„hlt ist. Sie mssen vielleicht "Neu" drcken, bevor die
+"Partitionen"-Schaltfl„che aktiviert wird. Nach Druck auf diese Schaltfl„che erscheint
+ein Men, das alle startbaren Partitionen auf dem System anzeigt. Beachten
+Sie, daá dies nur funktioniert, wenn Sie den Bootmanager installiert haben, da die
+Partitionstabelle direkt eingelesen und dabei nach Bootmanager-Eintr„gen gesucht wird. Wenn
+Sie nun einen Eintrag aus diesem Men ausw„hlen, wird die momentan aktive Neustartaktion
+ver„ndert und mit dem richtigen Titel und Befehl fr <CODE>SETBOOT.EXE</CODE> versehen.
+<!-- the following is unchanged -->
+ 
+<P><B>Wichtige Hinweise:</B>
+<UL><LI>Es gibt KEINE FEHLERšBERPRšFUNG, weder im Dialog "Aktionen bei Neustart" noch zum
+Zeitpunkt des Systemabschlusses. Wenn Sie sich bei einem auszufhrenden Befehl vertippen
+oder <CITE>SETBOOT</CITE> benutzen, obwohl der Bootmanager nicht installiert ist, wird das
+System einfach h„ngenbleiben, nachdem alle Fenster geschlossen worden sind.
+ 
+<!-- V0.9.9: removed this
+The "Partitions" button has only been extensively tested with &warp; 4.0.
+I have 17 partitions with six operating systems on three hard disks on my computer, and
+the button works. ;-)
+ 
+However, one quick check with &warp; Server for e-business (Aurora)
+showed some problems: if you are using Aurora's boot manager, you cannot use this
+function, because the boot manager's name table format has changed. If you are still using
+Warp 4's boot manager, you cannot use SETBOOT under Aurora, because it will not
+find the boot manager titles. -->
+ 
+<!-- the following changed with V0.9.0 -->
+<BR><LI>Wenn Sie die genauen Titel der Bootmanager-Partitionen nicht kennen und die
+"Partitionen"-Schaltfl„che nicht funktioniert, k”nnen Sie <CITE>FDISK</CITE> (oder
+<CODE>LVM</CODE> unter WSeB oder eComStation) an der Befehlszeile ausfhren und die
+Titel dann manuell von dort kopieren.
+ 
+<!-- the following is unchanged -->
+<BR><LI>Der Befehl, den Sie hier eingeben, wird gestartet, nachdem alle Fenster geschlossen
+und die INI-Dateien gesichert worden sind. Die Dateisysteme werden aber noch nicht durch
+&xshutdown; zurckgesetzt, wenn Sie eine Neustartaktion ausw„hlen. &xshutdown; nimmt an,
+daá das Programm, das Sie hier angeben, die Dateisysteme selbst„ndig zurcksetzen wird (daá
+es also die <CITE>DosShutdown</CITE>-API aufruft). <CITE>SETBOOT</CITE> beispielsweise tut
+genau dies.
+ 
+<BR><LI>Der Befehl, den Sie hier eingeben, wird mittels CMD.EXE mit dem
+<CITE>/C</CITE>-Parameter gestartet. Das heiát, daá man hier sogar ein
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>-Skript angeben
+k”nnte, wenn man so mutig ist.
+ 
+<BR><LI>Wie immer, wenn man einen Befehl ausfhren will, der sich in einem Verzeichnis
+befindet, das nicht in der <CITE>PATH</CITE>-Variable steht, muá der vollst„ndige
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+angegeben werden. Fr <CITE>SETBOOT</CITE> ist das nicht n”tig, da es sich im
+<CITE>OS2</CITE>-Verzeichnis befindet.
+</UL>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,89 @@
+
+/*
+ * wpsound.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPSound
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpsound_idl
+#define wpsound_idl
+
+#include "wpabs.idl"
+#include <somcls.idl>
+
+interface M_WPSound;
+
+interface WPSound : WPAbstract
+{
+    ULONG wpAddSoundWarningBeepPage(in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddSoundWarningBeepPage;
+
+        externalstem = WPsou;
+        local;
+        externalprefix = sou_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpsound;
+        metaclass = M_WPSound;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+
+        wpAddSettingsPages: override;
+        wpAddObjectWindowPage: override;
+        wpFilterPopupMenu: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPSound : M_WPAbstract
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = WPsou;
+        local;
+        externalprefix = souM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpsound;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryStyle: override;
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+#endif

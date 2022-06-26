@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusf„lt: Ytterligare Filsystems Objektkoder
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<B>Filsystemsobjekt</B> (WPFileSystem klass, m.a.o. mappar och datafiler)
+st”der f”ljande <I>ytterligare</I> koder:
+<BR><DL>
+<DT><CITE>  $r  1)  </CITE><DD>objektets "riktiga namn"
+<DT><CITE>  $y  1)  </CITE><DD>objekttyp (.TYP Ut”kade Attribut)
+<DT><CITE>  $a  1)  </CITE><DD>objekt
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_fattrs.html">filattribut</A>; detta kommer att ingfoga fyra
+tecken ("ahrs") f”r archived (arkiv), hidden (dold), read-only (l„s endast) och
+system filsystemsattribut, av vilka de som „r satta f”r en fil har stor bokstav (t.ex. "Ahrs")
+<DT><CITE>  $D  1)  </CITE><DD>objekt senaste skrivdatum
+<DT><CITE>  $T  1)  </CITE><DD>objekt senaste skrivtid
+<DT><CITE>  $Eb 1,2)</CITE><DD>Ut”kade Attribut storlek i bytes
+<DT><CITE>  $Ek 1,2)</CITE><DD>Ut”kade Attribut storlek i kBytes, t.ex. bytes / 1000
+<DT><CITE>  $EK 1,2)</CITE><DD>Ut”kade Attribut storlek i KBytes, t.ex. bytes / 1024
+<!-- V0.9.6: added the following two -->
+<DT><CITE>  $Ea 1,2)</CITE><DD>Ut”kade Attribut storlek i bytes/kBytes; detta kommer
+att automatiskt v„lja en optimal skala beroende p† antalet
+<DT><CITE>  $EA 1,2)</CITE><DD>Ut”kade Attribut storlek i bytes/KBytes; detta kommer
+att automatiskt v„lja en optimal skala beroende p† antalet
+</DL>
+<BR><B>Noteringar:</B>
+<P>1) Dessa koder kommer endast att visa de data som finns i de interna WPS buffertarna. Det
+betyder att n„r data „ndras, t.ex. beroende p† att en fil har „ndrats av ett annat
+program, kommer statusf„ltsinformationen endast att „ndras n„r WPS buffert data f”rnyas,
+till exempel om du v„ljer "F”rnya nu".
+<P>2) WPS har alltid haft en bug vilken g”r att ut”kade attributstorlekar st”rre „n 32767
+alltid kommer att returnera 32767, emedan en storlek p† 64 KB vore tekniskt m”jligt. Som
+ett resultat, kommer &xwp; ocks† att visa fel v„rde.
+<BR>
+</BODY>
+</HTML>
+
+

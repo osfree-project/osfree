@@ -1,0 +1,61 @@
+<HTML RESID=&ID_XSH_SETTINGS_FILET_MERGE;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS-Filter importieren
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+Da die standardm„áigen WPS-Zuordnungen Programme sowohl nach Dateitypen
+als auch nach Dateifiltern festlegen und &xwp; diesen Verknpfungsmechanismus
+so verfeinert, daá er nur noch auf den erweiterten Dateitypzuordnungen basiert,
+erlaubt es der zus„tzliche Dialog "WPS-Filter importieren", die vorher
+definierten Dateifilter-Zuordnungen in die Dateitypen einzugliedern.
+ 
+<P>Dieses Dialogfenster ist nicht-modal, d.h. man kann die Seite
+"Dateitypen" des Notizbuches noch benutzen, w„hrend der Dialog offen ist.
+Wenn Sie einen neuen Dateityp auf der Notizbuchseite ausw„hlen, werden Sie
+bemerken, daá sich der "Importieren"-Dialog anpaát.
+ 
+<P>Das Dialogfenster schlieát sich erst, wenn Sie die Schaltfl„che 
+<B>"Schlieáen"</B> gedrckt haben.
+ 
+<P>Um alle oder einige der Zuordnungen, die als WPS-Dateifilter definiert waren,
+in die Dateityp-Zuordnungen von &xwp; zu importieren, tun Sie folgendes:
+ 
+<OL><LI><B>W„hlen Sie den Dateityp</B>, fr den Sie einen Filter importieren 
+m”chten, auf der Notizbuchseite aus - beispielsweise "Bitmap".
+ 
+<P><LI>Im "Importieren"-Dialog <B>w„hlen Sie den Filter aus</B>, dessen Zuordnungen
+Sie importieren m”chten - beispielsweise "*.BMP".
+ 
+<P><LI>Das Feld "Hinzuzufgende Zuordnungen" im Dialogfenster zeigt die 
+Programme an, die fr diesen Filter definiert sind. <B>W„hlen Sie die 
+Zuordnungen</B>, die Sie zum momentanen Dateityp (im obigen Beispiel der Typ 
+"Bitmap") hinzufgen wollen, in diesem Feld aus. Drcken Sie "Alle ausw„hlen" oder
+"Auswahl zurcknehmen", um alle oder keinen der Eintr„ge in diesem Feld zu 
+markieren.
+ 
+<P><LI>Drcken Sie die Schaltfl„che <B>"Einsetzen"</B>, um die markierten Programme
+zum momentan auf der Notizbuchseite ausgew„hlten Dateityp hinzuzufgen.
+ 
+</OL>Sie k”nnen jeden der obigen Schritte wiederholen, sooft es notwendig ist. 
+Beachten Sie, daá &xwp; die Definition hierarchischer Dateitypen erm”glicht,
+bei denen Dateitypen Zuordnungen von den bergeordneten Dateitypen bernehmen.
+<!-- V0.9.9: changed this -->
+<P>Siehe <A HREF="glossary/gls_assocs.html">Typen und Zuordnungen</A> 
+fr eine Einfhrung in das Thema Verknpfungen zwischen Datendateien und Programmen.
+ 
+<IFNDEF __NOXWPSETUP__>
+<P>Beachten Sie, daá dieser Dialog die WPS-Dateifilter <I>nicht</I> „ndert. Wenn Sie
+&xwp;s erweiterte Dateitypzuordnungen im
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">Objekt "&xwp;-Konfiguration"</A>
+deaktivieren, werden Sie sehen, daá die WPS-Dateifilter wieder genauso wie vorher
+funktionieren.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+ 

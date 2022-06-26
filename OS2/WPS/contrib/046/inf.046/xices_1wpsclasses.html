@@ -1,0 +1,98 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPS Klasshierarki
+    </TITLE>
+</HEAD>
+<BODY>
+F”ljande information har plockats ut fr†n IBM's Warp 3 Toolkit dokumentation.
+<!-- V0.9.0: changed the following phrase -->
+&xwp; klasser har uteslutits h„r.
+&warp4; l„gger till n†gra f† ytterligare klasser, vilka finns bland de visade h„r;
+beroende p† annan WPS-k„nslig programvara som „r installerad p† ditt system,
+kan „ven „nd† fler klasser vara tillg„ngliga f”r vissa dokumenttyper.
+<P>Klasser som „r anv„ndbara f”r att g”ra objekt med anv„ndande den bifogade 
+NEWOBJ.CMD „r belysta. Var f”rsiktig med andra klasser, resultaten kan vara
+of”ruts„gbara.
+<PRE>
+       WPObject
+         ÃÄÄ WPAbstract
+         ³     ÃÄÄ WPClock
+         ³     ÃÄÄ WPCountry
+         ³     ÃÄÄ WPDisk
+         ³     ÃÄÄ WPKeyboard
+         ³     ÃÄÄ <STRONG>WPLaunchPad</STRONG>
+         ³     ÃÄÄ WPMouse
+         ³     ÃÄÄ WPPalette
+         ³     ³     ÃÄÄ WPColorPalette
+         ³     ³     ÃÄÄ WPFontPalette
+         ³     ³     ÀÄÄ WPSchemePalette
+         ³     ÃÄÄ WPPower
+         ³     ÃÄÄ WPPrinter
+         ³     ³      ÀÄÄ WPRPrinter
+         ³     ÃÄÄ <STRONG>WPProgram</STRONG>
+         ³     ÃÄÄ WPShadow
+         ³     ³      ÀÄÄ WPNetLink
+         ³     ÃÄÄ WPShredder
+         ³     ÃÄÄ WPSound
+         ³     ÃÄÄ WPSpecialNeeds
+         ³     ÃÄÄ WPSpool
+         ³     ÃÄÄ WPSystem
+         ³     ÀÄÄ WPWinConfig
+         ÃÄÄ WPFileSystem
+         ³     ÃÄÄ <STRONG>WPDataFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPBitmap</STRONG>             3)
+         ³     ³      ÃÄÄ <STRONG>WPHtml</STRONG>               2)
+         ³     ³      ÃÄÄ <STRONG>WPIcon</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPMet</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPif</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPointer</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPProgramFile</STRONG>
+         ³     ³      ³      ÀÄÄ <STRONG>WPCommandFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPUrl</STRONG>                2)
+         ³     ³      ÀÄÄ <STRONG>WebExplorer_Url</STRONG>      1)
+         ³     ÀÄÄ <STRONG>WPFolder</STRONG>
+         ³            ÃÄÄ WPDesktop
+         ³            ÃÄÄ WPDrives
+         ³            ÃÄÄ WPHost               2)
+         ³            ÃÄÄ WPHvManager          2)
+         ³            ÃÄÄ WPMinWinViewer
+         ³            ÃÄÄ WPNetgrp
+         ³            ÃÄÄ WPNetwork
+         ³            ÃÄÄ WPRootFolder
+         ³            ÃÄÄ WPServer
+         ³            ÃÄÄ WPSharedDir
+         ³            ÃÄÄ WPStartup
+         ³            ÃÄÄ WPUrlFolder          2)
+         ³            ÀÄÄ WPTemplates
+         ÀÄÄ WPTransient
+               ÃÄÄ WPDevice                    2)
+               ³     ÃÄÄ WPDevAudio            2)
+               ³     ÃÄÄ WPDevBus              2)
+               ³     ÃÄÄ WPDevCDRom            2)
+               ³     ÃÄÄ WPDevCPU              2)
+               ³     ÃÄÄ WPDevDiskette         2)
+               ³     ÃÄÄ WPDevDisplay          2)
+               ³     ÃÄÄ WPDevHarddrive        2)
+               ³     ÃÄÄ WPDevKeyboard         2)
+               ³     ÃÄÄ WPDevMemory           2)
+               ³     ÃÄÄ WPDevMouse            2)
+               ³     ÃÄÄ WPDevParallel         2)
+               ³     ÃÄÄ WPDevPeriph           2)
+               ³     ÃÄÄ WPDevSerial           2)
+               ³     ÃÄÄ WPDevTape             2)
+               ³     ÀÄÄ WPDevTimer            2)
+               ÃÄÄ WPJob
+               ÃÄÄ WPPdr
+               ÃÄÄ WPPort
+               ÀÄÄ WPQdr
+</PRE>
+<STRONG>Notiser:</STRONG>
+<P>1) Detta „r inte en standard WPS klass och kanske inte finns p† varje Warp 3 system.
+<P>2) Den h„r klassen „r tillg„nglig bara p† &warp4; och h”gre.
+<P>3) I &warp4; och h”gre, „r WPBitmap en subklass av WPImageFile, vilken i sin 
+tur „r en subklass av WPDataFile.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Wie kann ich...
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Hier sind einige typische Aufgaben, bei denen Ihnen xfix helfen kann.
+ 
+<UL><LI><B>Veraltete Datei-Handles finden</B>
+ 
+<P>Um xfix anzuweisen, alle Datei-Handles darauf zu prfen, ob sie immer noch
+auf gltige physische Dateien verweisen, w„hlen Sie aus dem "Aktionen"-Men  
+"Ungltige Dateien finden" aus.
+ 
+<P>Diese Aufgabe kann eine gewisse Zeit in Anspruch nehmen, da xfix bei jedem dieser "langen Namen" 
+aus der Handle-Liste prfen muá, ob der Dateiname gltig ist.  Dabei werden Sie
+die Festplatte rattern h”ren, Sie mssen sich jedoch keine Sorgen machen, da
+xfix nur nach den Dateien sucht und diese nicht ver„ndern wird.
+ 
+<P>Wenn xfix das erledigt hat, werden alle veralteten Handles als ungltig markiert 
+(mit einer grauen Farbe hinterlegt) und ihr Status auf "Datei nicht gefunden" gesetzt.
+ 
+<P>Lesen Sie weiter unten im Text, wie Sie diese entfernen.
+ 
+<P><LI><B>Doppelte Handles reparieren</B>
+ 
+<P>Diese Aufgabe war der wirkliche Grund, warum ich dieses Programm berhaupt
+geschrieben habe, denn meine Datei-Handles waren ab einem Punkt so stark durcheinander, das
+nicht einmal CHECKINI in der Lage war, diese noch zu reparieren.
+ 
+<P>Wenn doppelte Datei-Handles existieren, wird die WPS innerhalb kurzer Zeit total 
+durcheinanderkommen, und mehr und mehr Duplikate zum Datei-Handle-Block
+hinzufgen, bis zu dem Tag, an dem die WPS nicht einmal mehr die Arbeitsoberfl„che findet.
+ 
+<P>Wurde xfix das erste Mal gestartet, wird es automatisch nach doppelten Datei-Handles suchen.
+Diese werden dann als ungltig markiert (mit einer grauen Farbe hinterlegt), auáerdem
+werden Sie fr diese Eintr„ge in der zweiten Spalte die Zeichenfolge "Duplikat" finden.
+ 
+</UL>Nachdem Sie die oberen Schritte ausgefhrt haben, tun Sie folgendes, um 
+<B>ungltige Eintr„ge</B> zu entfernen:
+ 
+<OL><LI>W„hlen Sie "Status" aus dem Men "Sortieren" aus, um alle Eintr„ge, die einen ungltigen Status
+besitzen, nach unten zu verschieben (diese sind mit einer grauen Farbe hinterlegt).
+ 
+<LI>Rollen Sie nach unten, um diese Eintr„ge zu finden.
+ 
+<LI>W„hlen Sie alle ungltigen Eintr„ge manuell aus oder benutzen Sie "Alle Ungltigen ausw„hlen" 
+aus dem Men.
+ 
+<LI>Klicken Sie mit der Maustaste 2 auf einen der ausgew„hlten Eintr„ge und w„hlen Sie "L”schen".
+ 
+<LI>W„hlen Sie "Zurckschreiben in OS2.INI" aus dem "xfix"-Men aus.
+ 
+</OL>
+</BODY>
+</HTML>
+ 

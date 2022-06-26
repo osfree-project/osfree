@@ -1,0 +1,35 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Build Setup
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+With V0.9.12, the build process has been reworked to make building a bit
+easier. External environment variables are no longer needed, and
+the makefiles now reference the tools by their full path, so there's no
+need to put the files from tools\ onto your PATH any longer.
+
+<P>Still, the following setup is recommended for XWorkplace to build successfully:
+
+<OL><LI>You will need to set your build environment in the
+<A HREF="src1_32env.html">config.in</A> file before building will work.
+This replaces the external environment variables which were required
+before V0.9.12.
+
+<P><LI>Because <CODE>XFLDR.DLL</CODE> is locked while the WPS is running, you
+should <CODE>SET RUNWORKPLACE=[bootdrv]:\OS2\CMD.EXE</CODE> in CONFIG.SYS.
+This will cause an OS/2 window to come up instead of the WPS after bootup
+(which is <I>really</I> helpful if something is wrong in the XWorkplace code).
+Type <CODE>pmshell</CODE> then to start the WPS.
+
+<P><LI>Make sure you have at least 60 MB of free space in your TEMP directory. This
+is needed for precompiled headers. I strongly recommend using RAMFS.IFS for your
+TEMP directory. This dramatically speeds up things if you have 128 MB RAM or more.
+See <A HREF="src1_33trouble.html">Troubleshooting</A> for hints about RAMFS.
+
+</OL>
+</BODY>
+</HTML>

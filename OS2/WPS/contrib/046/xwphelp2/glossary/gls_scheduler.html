@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Processer och Tr†dar
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Eftersom du normalt endast har en processor, men utg†r ifr†n att flera uppgifter
+skall utf”ras samtidigt, v„xlar &os2; mellan olika uppdrag flera g†nger per sekund.
+Som ett resultat, ser dessa program ut att k”ras parallellt. Detta kallas
+<B>multitasking.</B>
+
+<P>Men „ven om du har ett multi-processor (SMP) system, kommer det alltid att vara
+flera uppdrag „n processorer p† ditt system, s† v„xling „r fortfarande n”dv„ndigt.
+
+<P>En <B>tr†d</B> „r &os2;'s enhet f”r administration av uppdragsv„xling. Ett program
+kan inneh†lla †tskilliga tr†dar, men per definition, kommer den att ha †tminstone en.
+Men eftersom ett program kan ha fler „n en tr†d, kan v„xling „ga rum „ven mellan tr†dar
+i samma program. Detta kallas <B>multitr†dning.</B> Till skillnad fr†n m†nga andra
+operativsystem, st”der &os2; detta fullt ut, och g”r det ocks† p† ett v„ldigt elegant
+och p†litligt s„tt.
+
+<P>Den del av &os2;'s k„rna som v„xlar mellan tr†dar kallas <B>"schemal„ggaren".</B>
+
+<P>Termen "tr†d" valdes d„rf”r att inom en tr†d exekveras programinstruktioner
+sekvensiellt, d„remot mellan tr†dar kan du aldrig vara s„ker p† vilka instruktioner
+som exekveras f”re eller efter i en annan tr†d. Det „r endast &os2; som h†ller p†
+och v„xlar mellan tr†dar utan att den andra tr†den har n†gon aning om det (eller,
+p† SMP system, d„r tr†dar i praktiken kan k”ras samtidigt p† ett flertal processorer).
+
+<P>V„lprogrammerade
+<!-- V0.9.20: removed &os2; -->
+programvaror anv„nder †tskilliga tr†dar f”r att f”rs„kra sig om att anv„ndaren f†r
+snabb respons p† inmatning och musaktioner. Till exempel, om du kan exekvera ett kommado
+i ett program vilket kommer att ta l†ng tid, kommer ett program att starta en sekund„r
+tr†d f”r den uppgiften. Medan den tr†den arbetar i bakgrunden, blir anv„ndarinterfacet
+(p† huvudtr†den hos programmet) klart igen f”r ny inmatning.
+
+<P>Inte-s†-v„lprogrammerade
+<!-- V0.9.20: removed &os2; -->
+programvaror anv„nder endast en tr†d f”r b†de anv„ndarinterfacet och exekvering av uppgifter.
+Som ett resultat, under tiden som en uppgift exekveras, blir anv„ndarinterfacet blockerat.
+
+<P>Tr†dar kan ha olika <B>prioritet.</B>
+<!-- V0.9.20: moved all the text about prties to gls_sched_prty.html and
+replaced it with the link -->
+Se <A HREF="glossary/gls_sched_prty.html">"Tr†dprioritet"</A> f”r detaljer.
+
+<P> andra sidan, en <B>process</B> „r &os2;'s term f”r en applikation vilken har laddats
+i minnet. Varje process m†ste ha †tminstone en tr†d.
+
+<P>Varje process inneh†ller allm„nna data s† v„l som den kontrollerar access till
+systemresurser. Processer „r skyddade fr†n varandra p† s„ttet att &os2; f”rhindrar access till
+minne vilket inte tillh”r den process som f”rs”ker accessa det ("minnesskydd").
+
+<P>Som kontrast, †tskilliga tr†dar inom en process kan alla accessa processens minne, d„rf”r att
+minne administreras per processbasis. Samma sak g„ller andra systemresurser s†dana som
+”ppna filer.
+
+<!-- V0.9.20: rewrote summary and added links -->
+<P>F”r att summera: En <B>tr†d</B> „r &os2; k„rnans koncept f”r att hantera „garskapet till CPU.
+Som kontrast, en <B>process</B> „r ett koncept f”r att „ga allt annat: filer, devicer, och minne.
+<P>F”r mer information, v„lj fr†n f”ljande lista:
+
+<UL><LI><A HREF="glossary/gls_sessions.html">Sessionstyper</A>
+<LI><A HREF="glossary/gls_cmd.html">Om kommandsessioner</A>
+</UL>
+</BODY>
+</HTML>
+

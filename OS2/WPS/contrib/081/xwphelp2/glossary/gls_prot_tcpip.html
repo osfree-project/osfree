@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: About TCP/IP
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>TCP/IP</B> (Transmission Control Protocol/Internet Protocol) is
+most well known for being used as the
+<A HREF="glossary/gls_protocols.html">networking protocol</A>
+of the &link_internet;.
+However, it can also be used as a protocol in a private network.
+
+<P>TCP/IP in turn consists of two layers.
+
+<UL><LI>The <B>higher layer, TCP,</B>
+breaks down any chunk of information (a message, or a file)
+into <B>packets</B> that are numbered and then transmitted separately.
+The TCP layer at the other end of the connection then reassembles the
+packets into the complete data.
+
+<P><LI>The <B>lower layer, IP,</B> handles the delivery of the packets
+that were produced by TCP. For this to work, each computer in the
+network needs to have a unique address, the
+<A HREF="glossary/gls_prot_ipaddr.html">IP adress</A>.
+
+<P>Each packet receives the IP addresses of both the sender and the target
+computers before it is sent off, and every computer that receives the packet
+on the way checks this address to determine which computer it should forward
+the packet to next.
+As a result, every packet may be processed by many computers on the globe
+before it arrives at your computer. Packages from the same original data
+chunk may take different paths over the network, but will be reassembled
+correctly by TCP.
+
+</UL>For each data chunk broken into packets, an individual connection
+between two computers is established. There is no permanent connection
+after the data has been received. This greatly reduces network traffic
+and makes global communication possible in the first place.
+
+<P>Note that when you temporarily connect to your Internet Service Provider (ISP)
+to get access to the Internet, you will usually do so with the use
+of an additional protocol, the <B>Point-to-Point Protocol (PPP).</B>
+This encapsulates the IP packets so that they can be sent over a dial-up
+phone connection to an access provider's modem.
+
+<P><A HREF="glossary/gls_internet_serv.html">Internet services</A> such
+as the World Wide Web (WWW) and e-mail are also implemented as additional
+protocol layers on top of TCP/IP. Those layers however are not integrated
+into the operating system's networking components, but rather provided by
+the individual Internet applications such as your Web browser. These
+protocols include the Hypertext Transfer Protocol (HTTP) used by the WWW,
+the File Transfer Protocol (FTP), Telnet (Telnet), and the
+Simple Mail Transfer Protocol (SMTP) for mail.
+
+<BR>
+</BODY>
+</HTML>

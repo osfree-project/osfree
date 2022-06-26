@@ -1,0 +1,9 @@
+PHYSICAL DEVICE XWPSEC32
+STUB NONE
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace Security device driver'
+
+SEGMENTS
+    DATA16 class 'DATA16'
+    CODE16 class 'CODE'
+

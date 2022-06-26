@@ -1,0 +1,309 @@
+
+/*
+ * xcenter.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XCenter
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xcenter.c for details.
+ */
+
+/*
+ *      Copyright (C) 2000-2006 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpabs.idl>         // this is SOM for WPAbstract
+
+/*
+   CLASS: XCenter
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ XCenter
+*/
+
+interface M_XCenter;            // forward reference to metaclass
+
+interface XCenter : WPAbstract
+{
+    /*
+     * SOM typedef definitions:
+     *      declaring types here is similar to
+     *      passing them thru to the .H file,
+     *      but the difference is that we can also
+     *      use them in this .IDL file.
+     */
+
+    /*
+     *@@ WIDGETPOSITION:
+     *      specifies a widget position in an XCenter.
+     *
+     *      If the widget is a "root" widget (i.e. not
+     *      in a tray, the first two fields are -1,
+     *      and ulWidgetIndex specifies the index of
+     *      the widget in the XCenter (with 0 being the
+     *      leftmost widget).
+     *
+     *      Otherwise (if the widget is in a tray),
+     *      the first two fields specify the index of
+     *      the tray widget and the tray, and ulWidgetIndex
+     *      specifies the index of the widget in that tray.
+     *
+     *@@added V0.9.16 (2001-12-31) [umoeller]
+     */
+
+    struct WIDGETPOSITION
+    {
+        ULONG   ulTrayWidgetIndex;      // tray widget index or -1
+        ULONG   ulTrayIndex;            // tray index or -1
+        ULONG   ulWidgetIndex;          // index of widget in tray or in XCenter
+    };
+
+    typedef WIDGETPOSITION *PWIDGETPOSITION;
+
+    /*
+     * New instance methods for XCenter:
+     *
+     */
+
+    ULONG xwpAddXCenterPages(in HWND hwndNotebook);
+
+    PVOID xwpQueryWidgets(in PULONG pulCount);
+
+    VOID xwpFreeWidgetsBuf(in PVOID pBuf,
+                           in ULONG ulCount);
+
+    ULONG xwpCreateWidget(in PSZ pszWidgetClass,
+                          in PSZ pszSetupString,
+                          in PWIDGETPOSITION pPosition);
+
+    ULONG xwpCreateTray(in ULONG ulTrayWidgetIndex,
+                        in PSZ pszTrayName);
+
+    ULONG xwpRenameTray(in ULONG ulTrayWidgetIndex,
+                        in ULONG ulTrayIndex,
+                        in PSZ pszNewTrayName);
+
+    ULONG xwpDeleteWidget(in PWIDGETPOSITION pPosition);
+
+    BOOL xwpMoveWidget(in ULONG ulIndex2Move,
+                       in ULONG ulBeforeIndex);
+
+    BOOL xwpSetPriority(in LONG lDelta);
+
+    //# BOOL xwpQuerySetup2(in PVOID pstrSetup);
+
+    HWND xwpHotkeyOrBorderAction(in ULONG hab, in ULONG ulCorner);
+
+    ULONG xwpDeleteWidgetClass(in PSZ pszWidgetClass);  //# V1.0.7 (2006-12-18) [pr]
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXCenterPages,
+            xwpQueryWidgets,
+            xwpFreeWidgetsBuf,
+            xwpCreateWidget,
+            xwpCreateTray,
+            xwpRenameTray,
+            xwpDeleteWidget,
+            xwpMoveWidget,
+            xwpSetPriority,
+            //# xwpQuerySetup2,
+            xwpHotkeyOrBorderAction,
+            xwpDeleteWidgetClass;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xctr_;
+        externalstem = xctr;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xcenter;           //# specifies the filestem for sc-generated files
+        metaclass = M_XCenter;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XCenter:
+         *
+         */
+
+        BOOL fReduceDesktopWorkarea;    // if TRUE, this XCenter will reduce the desktop
+                                        // workarea if open
+
+        BOOL fHideOnClick;              // if auto-hide is on, whether to hide on mouse click
+                                        // V0.9.14 (2001-08-21) [umoeller]
+
+        BOOL fAutoScreenBorder;         // if enabled, automatically add the XCenter
+                                        // to the current screen border on each open
+                                        // V0.9.19 (2002-05-07) [umoeller]
+
+        ULONG ulWindowStyle;            // XCenter frame's window style;
+                                        // defaults to 0, but can be WS_TOPMOST | WS_ANIMATE
+
+        ULONG ulAutoHide;               // auto-hide delay in milliseconds; if 0,
+                                        // auto-hide is off
+
+        ULONG ulPosition;               // 0 = bottom (XCENTER_BOTTOM)
+                                        // 1 = top (XCENTER_TOP)
+
+        ULONG flDisplayStyle;           // XCS_* style flags. See XCENTERGLOBALS.
+
+        ULONG ul3DBorderWidth;          // 3D border width of entire XCenter (0-10)
+        ULONG ulBorderSpacing;          // spacing between 3D border and widgets (0-10)
+        ULONG ulWidgetSpacing;          // spacing between widgets
+
+        //# ULONG ulPriorityClass;          // XCenter priority class removed V0.9.20 (2002-08-08) [umoeller]
+        LONG lPriorityDelta;            // XCenter priority delta
+
+        //# BOOL fHelpDisplayed;        // TRUE after the first open of the XCenter,
+                                        // when introductory help has been displayed.
+                                        // removed V1.0.1 (2003-02-02) [umoeller]
+
+        PSZ pszClientFont;              // font presparam for XCenter client ("9.WarpSans Bold")
+                                        // V0.9.9 (2001-03-07) [umoeller]
+
+        LONG lcolClientBackground;      // client background color
+                                        // V0.9.9 (2001-03-07) [umoeller]
+
+        ULONG ulWidth;                  // XCenter width (V0.9.19 (2002-04-16) [lafaix])
+        ULONG ulHeight;                 // XCenter height (V0.9.19 (2002-04-16) [lafaix])
+
+        // Open view data:
+        ULONG tidRunning;               // thread ID of running XCenter thread or NULLHANDLE
+        PVOID pvOpenView;               // if != NULLHANDLE, XCenter is currently open,
+                                        // and this has a PXCENTERWINDATA pointer
+                                        // which contains all the view data.
+                    // A remark on these two fields...
+                    // tidRunning is set directly by the thread functions
+                    // in helpers\threads.c, since &_tidRunning is passed
+                    // to thrCreate. As a result, this should be the first
+                    // check for whether an XCenter view is only open.
+                    // Even though tidRunning may be != null, pvOpenView
+                    // may still be NULL since that field is only set
+                    // while the XCenter view is fully operable (which
+                    // might not be the case while the view is being
+                    // created or destroyed).
+                    // So do not rely on the pvOpenView field. Check
+                    // tidRunning instead.
+
+        BOOL fShowingOpenViewMenu;      // TRUE if context menu on open XCenter client
+
+        // Widget settings:
+        PSZ pszPackedWidgetSettings;    // packed widget settings restored in wpRestoreState
+                                        // (allocated with malloc())
+        ULONG cbPackedWidgetSettings;   // size of that buffer
+
+        PVOID pllAllWidgetSettings;     // linked list of PRIVATEWIDGETSETTING entries
+                                        // (this is a PLINKLIST really, no auto-free!)
+
+        /*
+         * WPAbstract methods overridden by XCenter:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+        // wpObjectReady: override;     removed V0.9.9 (2001-03-13) [umoeller]
+
+        wpSetup: override;
+        wpSetupOnce: override;
+
+        xwpQuerySetup2: override;            //# V1.0.1 (2002-12-08) [umoeller]
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;       //# V1.0.6 (2006-11-13) [pr]: added
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+        wpQueryDefaultView: override;
+
+        wpOpen: override;
+        wpSwitchTo: override;
+        wpClose: override;
+
+        wpAddObjectWindowPage: override;
+
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XCenter : M_WPAbstract
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xctrM_;
+        externalstem = xctrM;
+        functionprefix = xctrM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xcenter;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPAbstract methods overridden by M_XCenter:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

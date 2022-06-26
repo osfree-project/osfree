@@ -1,0 +1,106 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "netscdde.h"
+
+DLGTEMPLATE ID_NDD_QUERYSTART LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Netscape DDE Interface", ID_NDD_QUERYSTART, 15, 21, 250, 55, 
+            FS_SCREENALIGN, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Netscape does not seem to be currently running. ", 
+                        -1, 10, 36, 235, 10, DT_WORDBREAK
+        DEFPUSHBUTTON   "~Yes", DID_OK, 95, 6, 70, 14
+        PUSHBUTTON      "~No", DID_CANCEL, 175, 6, 70, 14
+        LTEXT           "Start it now?", -1, 10, 25, 235, 11, DT_WORDBREAK
+        ICON            ID_ICON, -1, 220, 31, 20, 16, WS_GROUP
+    END
+END
+
+DLGTEMPLATE ID_NDD_EXPLAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Netscape DDE Interface", ID_NDD_EXPLAIN, 15, -3, 330, 174, 
+            FS_SCREENALIGN, FCF_SYSMENU | FCF_TITLEBAR
+            PRESPARAMS PP_FONTNAMESIZE, "8.Helv"
+    BEGIN
+        LTEXT           "You must at least specify the URL you wish to open."
+                        " NETSCDDE uses the following syntax:", -1, 10, 134, 
+                        315, 11, DT_WORDBREAK
+        DEFPUSHBUTTON   "~OK", DID_OK, 10, 6, 100, 12
+        LTEXT           "netscdde [-[x|X]n]] [-p <exe>] [-P <params>] [-m[h]"
+                        "] <URL>", -1, 20, 125, 300, 8, DT_WORDBREAK
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "dont' start Netscape if it's not yet running.", -1, 
+                        70, 96, 250, 7, DT_WORDBREAK
+        LTEXT           "do start Netscape if it's not yet running.", -1, 70, 
+                        84, 255, 11, DT_WORDBREAK
+        LTEXT           "Per default you will be prompted for whether Netsca"
+                        "pe should be started.", -1, 10, 75, 295, 11, 
+                        DT_WORDBREAK
+        LTEXT           "open a new window for the URL. The default is not t"
+                        "o open a new window.", -1, 70, 66, 260, 11, 
+                        DT_WORDBREAK
+        LTEXT           "with <URL> the URL to open (just as you would enter"
+                        " it in Netscape itself).", -1, 10, 107, 300, 13, 
+                        DT_WORDBREAK
+        LTEXT           "Options:", -1, 10, 102, 235, 8, DT_WORDBREAK
+        LTEXT           "-x", ID_NDD_QUERYSTART, 10, 96, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "-X", ID_NDD_CONTACTING, 10, 87, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "-n", ID_NDD_STARTING, 10, 69, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "specify full path for Netscape (e.g. -p ""C:\\NETSC"
+                        "APE.EXE""); default is NETSCAPE.EXE on your PATH", 
+                        -1, 70, 54, 235, 14, DT_WORDBREAK
+        LTEXT           "-p <exe>", 206, 10, 60, 55, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "specify Netscape parameters (e.g. -P ""-3""); defau"
+                        "lt is none", -1, 70, 42, 235, 11, DT_WORDBREAK
+        LTEXT           "-P <params>", 207, 10, 45, 55, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        ICON            ID_ICON, -1, 295, 150, 20, 16, WS_GROUP
+        RTEXT           "Netscape DDE Interface V1.2 (W) (C) 1998 Ulrich M”l"
+                        "ler", 205, 10, 159, 275, 8
+        LTEXT           "start Netscape minimized", -1, 70, 33, 260, 11, 
+                        DT_WORDBREAK
+        LTEXT           "-m", 204, 10, 36, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        LTEXT           "start Netscape hidden (invisibly)", -1, 70, 24, 260, 
+                        11, DT_WORDBREAK
+        LTEXT           "-mh", 209, 10, 27, 20, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        RTEXT           "Free software under the GNU General Public Licence.", 
+                        208, 10, 153, 275, 8
+        RTEXT           "See the COPYING file for details.", 210, 10, 147, 
+                        275, 8
+    END
+END
+
+DLGTEMPLATE ID_NDD_STARTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_STARTING, 30, 10, 170, 31, FS_SCREENALIGN | 
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    BEGIN
+        LTEXT           "Starting Netscape...", -1, 5, 1, 160, 9, 
+                        DT_WORDBREAK
+        ICON            ID_ICON, -1, 140, 12, 20, 16, WS_GROUP
+        RTEXT           "Netscape DDE Interface", 204, 25, 18, 110, 8
+        RTEXT           "(C) 1998 Ulrich M”ller", 205, 25, 12, 110, 8
+    END
+END
+
+DLGTEMPLATE ID_NDD_CONTACTING LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_NDD_CONTACTING, 15, 21, 170, 31, FS_SCREENALIGN | 
+            WS_VISIBLE
+            PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+    BEGIN
+        LTEXT           "Contacting Netscape...", -1, 5, 1, 160, 9, 
+                        DT_WORDBREAK
+        ICON            ID_ICON, -1, 140, 12, 20, 16, WS_GROUP
+        RTEXT           "Netscape DDE Interface", 204, 25, 18, 110, 8
+        RTEXT           "(C) 1998 Ulrich M”ller", 205, 25, 12, 110, 8
+    END
+END

@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Prozesse und Threads
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Da sich normalerweise nur ein Prozessor im Rechner befindet,
+dieser jedoch viele Aufgaben zugleich ausfhren soll, schaltet
+&os2; zwischen den laufenden Programmen viele Male pro Sekunde
+um. Dies erzeugt die Wirkung, daá die Programme tats„chlich
+parallel laufen, und wird <B>Multitasking</B> genannt.
+ 
+<P>Aber auch bei Multiprozessor-Systemen (SMP) wird
+es in der Regel mehr Programme als Prozessoren auf dem System
+geben, so daá auch dann noch umgeschaltet werden muá.
+ 
+<P>Dabei ist ein <B>Thread</B> die Einheit, mit
+der &os2; das Umschalten verwaltet. Per Definition hat jedes
+Programm wenigstens einen Thread. Da ein Programm aber optional
+weitere Threads starten kann, schaltet &os2; unter Umst„nden
+sogar zwischen mehreren Threads desselben Programms um. Dies wird
+<B>Multithreading</B> genannt. Im Gegensatz zu vielen anderen
+Betriebssystemen wird dies von &os2; voll untersttzt, und zwar
+leistungsf„hig und stabil.
+ 
+<P>Der Teil von &os2;, welcher das Umschalten verwaltet, wird
+<b>"Scheduler"</b> genannt.
+ 
+<P>Der Begriff "Thread" (engl. "Faden") wurde gew„hlt, weil innerhalb
+eines Threads die Befehle des Programms sequentiell hintereinander
+abgearbeitet werden, w„hrend man zwischen mehreren Threads niemals
+sicher sein kann, welcher Befehl auf dem einen Thread vor oder nach
+dem eines anderen Threads ausgefhrt wird.
+&os2; schaltet zwischen den verschiedenen Threads um, ohne daá
+das Programm davon Kenntnis erhalten muá. Auf SMP-Systemen werden
+Threads sogar tats„chlich gleichzeitig auf mehreren Prozessoren
+laufen.
+ 
+<P>Gut programmierte Software benutzt mehrere Threads um sicherzustellen,
+daá das System schnell auf Eingaben der Benutzer ber Maus und Tastatur
+reagiert. Wenn ein Programm z.B. eine Aufgabe ausfhren muá, die eine
+l„ngere Zeit dauern kann, sollte es hierfr einen zweiten Thread starten,
+der diese Aufgabe im Hintergrund bernehmen kann. W„hrenddessen ist
+die Benutzeroberfl„che des Programms schon wieder bereit fr neue Eingaben.
+ 
+<P>Nicht so gut programmierte Software benutzt denselben einen Thread
+sowohl fr die Benutzeroberfl„che als auch fr die Arbeit, die das Programm
+verrichtet. Folglich ist die Benutzeroberfl„che blockiert, w„hrend das
+Programm arbeitet.
+ 
+<P>Threads k”nnen unter &os2; verschiedene <B>Priorit„ten</B> haben.
+Details siehe <A HREF="glossary/gls_sched_prty.html">"Thread-Priorit„ten"</A>.
+ 
+<P>Auf der anderen Seite bezeichnet der Begriff <b>"Prozeá"</b> unter
+&os2; eine Anwendung, die in den Speicher geladen ist. Jeder Prozeá
+hat per Definition wenigstens einen Thread.
+ 
+<P>Mit Prozessen verwaltet &os2; gemeinsame Daten sowie den Zugriff auf
+Systemressourcen. Prozesse werden voreinander geschtzt, indem es &os2;
+verbietet, daá ein Prozeá auf Speicher zugreift, der einem anderen Prozeá
+geh”rt ("Speicherschutz").
+ 
+<P>Mehrere Threads innerhalb des gleichen Prozesses greifen demgegenber
+alle auf den gleichen Speicher zu, da Speicher pro Prozeá verwaltet wird.
+Gleiches gilt fr andere Ressourcen wie z.B. offene Dateien.
+ 
+<!-- V0.9.20: rewrote summary and added links -->
+<P>Zusammengefaát ist ein <B>Thread</B> das Konzept, mit dem &os2;
+Prozessorzeit verwaltet. Demgegenber ist ein <b>Prozeá</b> das Konzept
+fr die Verwaltung von allem anderen: Dateien, Ger„te und Speicher.
+ 
+<P>Weitere Informationen erhalten Sie durch Auswahl aus der folgenden Liste:
+ 
+<UL>
+<LI><A HREF="glossary/gls_sessions.html">Sitzungsarten</A>
+<LI><A HREF="glossary/gls_cmd.html">šber Befehlszeilen</A>
+</UL>
+</BODY>
+</HTML>
+ 

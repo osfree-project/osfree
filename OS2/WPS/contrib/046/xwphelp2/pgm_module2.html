@@ -1,0 +1,44 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE2;>
+<HEAD>
+    <TITLE>
+        &xwp;: sidan "Exporterade funktioner"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.20: rewrote the entire page -->
+Sidan "Moduler" upptr„der i notboken med egenskaper hos alla exekverbara filer
+f”r att visa ytterligare information om en exekverbar modul.
+
+<P>Den h„r sidan visar dig alla funktioner som „r exporterade av modulen och d„rmed
+kan importeras av andra moduler (antingen genom laddning vid laddningstid eller direkt
+genom k”rtids laddning).
+
+<P>F”r varje funktion, „r f”ljande f„lt visade:
+
+<UL><LI>Varje exporterad funktion m†ste ha ett <B>ordningstal,</B> vilket „r unikt
+inom modulen. Det f”rsta m”jliga ordningstalet „r 1, och det sista m”jliga „r 65535.
+Alla v„rden p† ordningtal korresponderar inte till en exporterad funktion.
+
+<P><LI>Varje exporterad funktion m†ste ocks† ha en <B>typ,</B> varande en av f”ljande:
+
+<UL><LI><B>Entry16:</B> en 16-bitars funktion.
+<LI><B>Entry32:</B> en 32-bitars funktion.
+<LI><B>286 Call Gate:</B> en 16-bitars funktion som orsakar en ring 2 v„xling.
+<LI><B>Forwarder:</B> en framflyttare, det betyder, att anropa den h„r startpunkten 
+anropar i sin tur en annan exporterad funktion (antingen i den h„r modulen eller i en
+importerad modul).
+
+</UL><LI>Som en option, kan exporterade funktioner ha <B>namn.</B> Detta namn, om 
+det „r definierat, „r case-sensitive.
+
+</UL>Importer kan utf”ras antingen med ordningstal (vilket alltid fungerar) eller genom namn
+(vilket endast fungerar om ett namn „r definierat f”r den importerade funktionen).
+Se dokumentationen f”r 
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+i dokumentationen f”r Toolkit.<A HREF="_toolkitlink.html">*</A>
+
+<BR>
+</BODY>
+</HTML>
+

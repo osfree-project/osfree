@@ -1,0 +1,53 @@
+<HTML RESID=&ID_XSH_SETTINGS_OBJECTS;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Objects" page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+The "Objects" page allows to recreate the most important default objects,
+both of the WPS and &xwp;, in case any of these got lost somehow or
+were accidentally deleted.
+
+<P>This page has <B>two "menu buttons",</B> one for the default Desktop objects, and
+one for the default &xwp; objects. When you press one of these buttons,
+a menu pops up which contains a list of the objects that can be recreated.
+
+<P>These menus only contain the objects which are difficult to recreate,
+mostly because they are instances of special
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS classes</A>
+which were designed
+specifically for one system object. The menu does not contain objects which
+you can safely recreate yourself using regular folder
+<!-- V0.9.20: added link -->
+<A HREF="tasks/tsk_templates.html">templates</A>.
+
+<P>If &xwp; finds out that an object exists already, the respective
+<B>menu item is disabled,</B> and the
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">path</A>
+of the folder where the existing object
+resides is displayed in the menu.
+
+<P>Otherwise, the <B>menu item is enabled,</B> and &xwp; will create the
+respective object when you select the menu item. The object will be
+created on your Desktop, but you can then move it anywhere you like.
+
+<P>Note that &xwp; uses
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_objids.html">object IDs</A>
+to determine whether an object
+exists already. If the object exists, but does not have the correct
+ID set, it is considered to be non-existant, and the menu item is enabled
+anways. Be careful when recreating those objects, because some objects were
+designed to be unique on the system.
+
+<!-- V0.9.13: removed this
+Please consult the &xwp;_User_Guide for a list of system
+object IDs, which you will find in the "Appendices" section. -->
+<BR>
+</BODY>
+</HTML>
+

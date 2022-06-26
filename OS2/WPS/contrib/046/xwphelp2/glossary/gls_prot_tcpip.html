@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Om TCP/IP
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>TCP/IP</B> (Transmission Control Protocol/Internet Protocol) „r mest k„nd
+f”r att anv„ndas som
+<A HREF="glossary/gls_protocols.html">n„tverksprotokoll</A> f”r &link_internet;.
+Emellertid, kan det ocks† anv„ndas som protokoll i privata n„tverk.
+
+<P>TCP/IP i sin tur best†r av tv† lager.
+
+<UL><LI>Det <B>h”gre lagret, TCP,</B> bryter ner n†got stycke av informationen
+(ett meddelande, eller en fil) i <B>paket</B> som numreras och sedan s„nds separat.
+TCP lagret i den andra „ndan av anslutningen s„tter sedan ihop paketen till
+kompletta data.
+
+<P><LI>Det <B>l„gre lagret, IP,</B> tar hand om leveransen av paketet som producerades
+av TCP. F”r att detta skall fungera, m†ste varje dator i n„tverket ha en unik adress,
+<A HREF="glossary/gls_prot_ipaddr.html">IP adressen</A>.
+
+<P>Varje paket erh†ller IP adresser i b†de de s„ndande och mottagande datorerna
+innan det s„nds, och varje dator som mottager paketet p† v„gen kontrollerar den
+adressen f”r att avg”ra vilken dator den skall skicka paketen vidare till. Som
+ett resulat, kan varje paket processas av m†nga datorer ”ver v„rlden innan det
+anl„nder till din dator. Paket fr†n samma original datastycke kan ta olika v„gar
+”ver n„tverket, men kommer att s„ttas ihop korrekt av TCP.
+
+</UL>F”r varje stycke data som bryts ner i paket, etableras en individuell uppkoppling
+mellan de tv† datorerna. Det finns ingen permanent uppkoppling efter att data har
+mottagits. Detta reducerar n„tverkstrafiken kraftigt och g”r f”r det f”rsta
+global kommunikation m”jlig.
+
+<P>Notera att n„r du tempor„rt ansluter dig till din Internet Service Provider (ISP)
+f”r att f† access till Internet, g”r du det vanligtvis med hj„lp av ett ytterligare
+protokoll, <B>Point-to-Point Protocol (PPP).</B> Detta kapslar in IP paketen s† att
+de kan s„ndas ”ver en uppringd telefonledning till en operat”rs modem.
+
+<P><A HREF="glossary/gls_internet_serv.html">Internet services</A> s†dana som
+World Wide Web (WWW) och e-mail „r ocks† implementerade som ytterligare protokoll lager
+ovanp† TCP/IP. Dessa lager „r emellertid inte integrerade i operativsystemets
+n„tverkskomponenter, utan snarare bifogade av individuella Internet applikationer som
+din Webbl„sare. Protokollen inkluderar Hypertext Transfer Protocol (HTTP) som anv„nds
+av WWW, File Transfer Protocol (FTP), Telnet (Telnet), och Simple Mail Transfer
+Protocol (SMTP) f”r mail.
+
+<BR>
+</BODY>
+</HTML>

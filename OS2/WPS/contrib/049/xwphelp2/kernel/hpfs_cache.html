@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: HPFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+ 
+Im Bereich <B>"Cache"</B> wird festgelegt, wieviel KB des Hauptspeichers fÅr
+den HPFS-Cache des jeweiligen Dateisystems reserviert werden sollen. Dies
+entspricht dem Parameter <CODE>/CACHE:xxx</CODE> in der Anweisung zum
+HPFS.IFS-Treiber.
+ 
+<P>Die maximale Cache-Grî·e fÅr HPFS-Volumen
+<!-- V0.9.20: replace drives with volumes -->
+betrÑgt 2048 KB, was nicht gerade wirklich
+viel ist.
+ 
+<!-- V0.9.5: changed the following -->
+<P>Es ist auch mîglich, &os2; diese Angabe <B>automatisch berechnen</B> zu lassen.
+In den meisten FÑllen ergibt dies 10% des installierten Hauptspeichers, aber
+diese Einstellung sollte vermieden werden.
+ 
+<!-- V0.9.13: replaced this phrase and link -->
+<P>Beachten Sie <A HREF="glossary/gls_caches.html">"Cache-Speicher fÅr
+Dateisysteme"</A> fÅr einfÅhrende Informationen zu diesem Thema.
+ 
+<P>Die Einstellung <B>"Maximale SatzlÑnge"</B> gibt (in KB) die maximale
+Grî·e von Objekten an, die im Cache gespeichert werden. Dies entspricht dem
+Parameter <CODE>/CRECL:xxx</CODE> der HPFS.IFS-Anweisung.
+ 
+Diese Einstellung soll verhindern, da· gro·e Dateien (die gewîhnlich nur einmal
+geladen werden) zu einer kompletten Leerung des Cache-Speichers fÅhren.
+Trotzdem ist die Systemvorgabe von 4 KB viel zu gering. Sie kînnen hier ohne
+Probleme 32KB oder sogar den Maximalwert von 64KB verwenden.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

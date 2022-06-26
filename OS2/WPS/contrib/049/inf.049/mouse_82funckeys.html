@@ -1,0 +1,94 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Zus„tzliche Funktionstasten registrieren
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.3. -->
+<BODY>
+<B>Klasse: XWPKeyboard</B>
+<HR>
+Seit V0.9.3 erlaubt es &xwp;, bestimmten Tasten, die normalerweise nicht unter
+&os2; funktionieren, eine besondere Bedeutung zuzuweisen. Diese zus„tzlichen Tasten
+lassen sich dann auch als Objekt-Tastenkrzel verwenden. Damit dies
+funktioniert, mssen diese Tasten ber die Seite "Funktionstasten" des
+erweiterten "Tastatur"-Objekts registriert werden.
+ 
+<P>Auch diese Funktion wird ber den &xwp;-PM-Hook implementiert. Damit Sie verstehen,
+wie es funktioniert (und bevor Sie die Seite "Funktionstasten" verwenden), sollten
+Sie die folgenden Erl„uterungen nachvollziehen.
+ 
+<P>Die Verarbeitung von Tastatureingaben ist bei jedem Betriebssystem eine komplexe Angelegenheit.
+Sie umfaát die Interpretierung von Hardwarenachrichten und deren šbersetzung
+gem„á den aktuellen Spracheinstellungen.
+ 
+<P>Unter &os2; wird diese Verarbeitung auf mehreren Systemebenen durchgefhrt. Erstens
+w„re da der Tastatur-Hardwaretreiber, der in &cfgsys; ber eine BASEDEV-Anweisung
+geladen wird. Dieser reagiert auf Hardware-Interrupts, die von der physischen
+Hardware der Tastatur ausgel”st werden, und empf„ngt deshalb jeden einzelnen Tastendruck
+im System.
+ 
+<P>Der &os2;-Kernel verarbeitet dann diese Tastendrcke fr diejenige Anwendung, die
+momentan den Eingabefokus innehat. Die weitere Verarbeitung unterscheidet sich je
+nach Art der Anwendung. Presentation-Manager- (PM) Anwendungen (einschlieálich der
+Workplace Shell) empfangen gew”hnlich eine Nachricht, daá eine Taste gedrckt oder
+losgelassen worden ist. Der &xwp;-PM-Hook kann deshalb diese Nachrichten abfangen und
+sie manipulieren. (Auf diese Weise funktionieren brigens auch die
+<A HREF="mouse_81objhotkeys.html">Objekt-Tastenkrzel</A>.)
+ 
+<P>Unglcklicherweise basiert die Standardverarbeitung der Tastatur unter &os2; immer
+noch auf den originalen, IBM-kompatiblen AT-Tastaturen mit 101/102-Tasten, die in den
+1980ern eingefhrt wurden. Heutzutage besitzen viele Tastaturen zus„tzliche Tasten,
+die von &os2; berhaupt nicht erkannt werden oder einfach eine Zeichenausgabe produzieren,
+was eigentlich nicht geschehen sollte.
+ 
+<P>Bei diesen zus„tzlichen Funktionstasten handelt es sich beispielsweise um die drei "Windows"-Tasten, die man
+auf den meisten heute angebotenen Tastaturen vorfindet. Auáerdem gibt es noch einige erweiterte
+Tastaturen mit zus„tzlichen "Multimedia"-Tasten. Auch besitzen viele Laptops ein paar Tasten mehr.
+ 
+<P>Der &xwp;-PM-Hook kann herausfinden, welche physische Taste eigentlich bet„tigt
+wurde, indem er den <B>Hardware-Scan-Code</B> der Taste auswertet, der von der
+Hardware der Tastatur an alle PM-Anwendungen gereicht wird. Bei jeder Tastatur
+sollte jede Taste einen eindeutigen Code besitzen. Dieser Code hat nichts mit
+dem ASCII-Code eines Zeichens zu tun, es ist einfach eine eindeutige Nummer, die
+jeder physischen Taste der Tastatur zugewiesen wurde. Beispielsweise hat sowohl
+die "Umschalt"-Taste als auch die Taste "A" einen solchen Code, auch wenn die
+"Umschalt"-Taste allein keinen ASCII- (Zeichen-) Code erzeugt.
+ 
+<P>Deswegen muá der &xwp;-Hook den Hardware-Scan-Code Ihrer Funktionstasten kennen,
+um darauf reagieren zu k”nnen. Infolgedessen mssen Sie Ihre zus„tzlichen Tasten
+bei &xwp; <B>registrieren</B>. Diese Tasten werden dann zu
+<B>"&xwp;-Funktionstasten"</B> und werden von &xwp; erkannt. Sie k”nnen sie
+beispielsweise als <A HREF="mouse_81objhotkeys.html">Objekt-Tastenkrzel</A>
+verwenden, nachdem Sie sie registriert haben.
+ 
+<P>Um <B>eine solche Funktionstaste bei &xwp; zu registrieren</B>, rufen Sie
+die neue Seite "Funktionstasten" des erweiterten Objekts "Tastatur" auf.
+Klicken Sie mit der rechten Maustaste auf den leeren Bereich im Container
+und w„hlen Sie "Neue Funktionstaste" aus. Weiterfhrende Hilfe erhalten Sie
+durch Drcken der Schaltfl„che "Hilfe" auf jener Seite.
+ 
+<P><B>Warnungen.</B>
+ 
+<OL><LI>Es gibt praktisch <B>keine šberprfung auf Fehler</B>, wenn Sie eine
+Funktionstaste bei &xwp; registrieren. Scan-Codes sind hardwareabh„ngig, deswegen
+gibt es fr &xwp; keine M”glichkeit zu entscheiden, ob ein bestimmter Code
+nicht registriert werden sollte. Sie k”nnten beispielsweise die Eingabe- oder eine
+beliebige Zeichentaste als Funktionstaste anmelden, was wirklich keine gute Idee w„re.
+<B>Registrieren Sie deshalb nur "echte" zus„tzliche Tasten bei &xwp; oder die Taste
+funktioniert eventuell nicht mehr.</B>
+ 
+<P><LI>Einige Tasten werden sich nicht registrieren lassen. Falls dies geschieht,
+bedeutet es, daá die Hardware der Tastatur fr die Taste keinen Scancode produziert.
+Ich habe eine Fujitsu-Multimediatastatur mit ungef„hr 15 zus„tzlichen Tasten und drei
+von ihnen funktionieren einfach nicht. Ich denke, man br„uchte einen Ger„tetreiber,
+der eben diese drei Tasten interpretiert, aber das geht ber meinen Horizont.
+ 
+<P><LI>Wie gew”hnlich werden die Funktionstasten nur erkannt, w„hrend ein PM-Fenster
+den Fokus hat. Sie funktionieren nicht innerhalb von DOS- oder
+&winos2;-Vollbildschirmsitzungen.
+</OL>
+</BODY>
+</HTML>
+ 
+ 

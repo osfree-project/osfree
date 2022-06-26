@@ -1,0 +1,341 @@
+
+/*
+ * xdebug.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          DbgDataFile
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xdebug.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpdataf.idl>          // this is SOM for WPDataFile
+
+/*
+   CLASS: DbgDataFile
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPDataFile
+                           ÀÄÄ DbgDataFile
+*/
+
+interface M_DbgDataFile;            // forward reference to metaclass
+
+interface DbgDataFile : WPDataFile
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+
+        //# Class Modifiers
+        externalprefix = ddf_;
+        externalstem = ddf;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xdebug;           //# specifies the filestem for sc-generated files
+        metaclass = M_DbgDataFile;
+        dllname = "xdebug.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for DbgDataFile:
+         *
+         */
+
+        BOOL    fDebugThis;
+        ULONG   ulIndent;
+
+        /*
+         * WPObject methods overridden by DbgDataFile:
+         *
+         */
+
+    //# SOMObject methods
+
+        somDefaultInit: override;
+
+        somDefaultAssign: override;
+        somDefaultConstAssign: override;
+        somDefaultConstCopyInit: override;
+        somDefaultCopyInit: override;
+
+        somUninit: override;
+        somDestruct: override;
+
+    //# initialization methods
+
+        wpInitData: override;
+        wpSetup: override;
+        wpSetupOnce: override;
+        wpObjectReady: override;
+        wpIsObjectInitialized: override;
+        wpIsDeleteable: override;
+        wpDelete: override;
+        wpConfirmDelete: override;
+        wpFree: override;
+        wpUnInitData: override;
+
+    //# error methods
+
+        wpSetError: override;
+        wpQueryError: override;
+
+    //# serialization methods
+
+        wpLockObject: override;
+        wpUnlockObject: override;
+        wpAssertObjectMutexSem: override;
+        wpReleaseObjectMutexSem: override;
+        wpRequestObjectMutexSem: override;
+
+    //# save/restore methods
+
+        wpSaveImmediate: override;
+        wpSaveDeferred: override;
+        wpSaveState: override;
+
+        wpRestoreState: override;
+
+    //# container methods
+        wpCnrInsertObject: override;
+        wpCnrRemoveObject: override;
+        wpCnrSetEmphasis: override;
+        wpCnrRefreshDetails: override;
+        wpQueryContainerFlagPtr: override;
+    #ifdef __TOOLKIT_4__
+        wpIdentify: override;
+    #endif
+
+    //# object move/copy
+
+        wpConfirmObjectTitle: override;
+        wpCreateFromTemplate: override;
+        wpCopiedFromTemplate: override;
+        wpCreateAnother: override;
+        wpCreateShadowObject: override;
+        wpCreateShadowObjectExt: override;
+        wpCopyObject: override;
+        wpMoveObject: override;
+        wpReplaceObject: override;
+        wpSetTaskRec: override;
+        wpFindTaskRec: override;
+
+    //# various set/query methods
+
+        wpSetTitle: override;
+        wpQueryTitle: override;
+        wpSetStyle: override;
+        wpQueryStyle: override;
+        wpModifyStyle: override;
+        wpSetFolder: override;
+        wpQueryFolder: override;
+        wpSetDefaultView: override;
+        wpQueryDefaultView: override;
+        wpQueryConfirmations: override;
+        wpQueryNameClashOptions: override;
+
+    //# context menu methods
+
+    #ifdef __TOOLKIT_4__
+        wpFilterMenu: override;
+        wpModifyMenu: override;
+    #endif
+        wpDisplayMenu: override;
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+        wpInsertPopupMenuItems: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //# open/close/object usage methods
+
+        wpViewObject: override;
+        wpOpen: override;
+
+        wpRegisterView: override;
+        wpClose: override;
+        wpHide: override;
+        wpRestore: override;
+        wpAddToObjUseList: override;
+        wpDeleteFromObjUseList: override;
+        wpCnrDeleteUseItem: override;
+        wpFindUseItem: override;
+        wpFindViewItem: override;
+        wpSwitchTo: override;
+        wpDoesObjectMatch: override;
+
+    //# icon methods
+        wpSetIcon: override;
+        wpQueryIcon: override;
+        wpSetIconData: override;
+        wpQueryIconData: override;
+        wpSetDefaultIconPos: override;
+        wpQueryDefaultIconPos: override;
+
+        /*
+         * WPFileSystem methods overridden by DbgDataFile:
+         *
+         */
+
+        wpSetRealName: override;
+        wpSetType: override;
+        wpQueryType: override;
+        wpSetAttr: override;
+        wpQueryAttr: override;
+
+        wpQueryCreation: override;
+        wpQueryLastAccess: override;
+        wpQueryLastWrite: override;
+        wpQueryFileSize: override;
+        wpQueryEASize: override;
+        wpSetDateInfo: override;
+        wpSetFileSizeInfo: override;
+
+        wpRefresh: override;
+        wpQueryRefreshFlags: override;
+        wpSetRefreshFlags: override;
+
+        wpSetTitleAndRenameFile: override;
+        wpConfirmRenameFileWithExt: override;
+        wpVerifyUpdateAccess: override;
+
+    //#     wpQueryEASupport: override;
+
+        wpAddUserItemsToPopupMenu: override;
+        wpIsDiskSwapped: override;
+
+        wpQueryRealName: override;
+        wpQueryFilename: override;
+        wpQueryDisk: override;
+        wpQueryDateInfo: override;
+
+        wpConfirmKeepAssoc: override;
+
+    //#     these are listed in the method table only, but
+    //#     we have no prototypes for them... sigh.
+
+    //#    wpSetTitleNoRenameFile: override;
+    //#     wpSetNewRealName: override;
+    //#     wpAdoptNewRealName: override;
+
+    //#     wpQueryDriveData: override;
+    //#     wpRefreshFSInfo: override;
+    //#     wpAddUserMenuItem: override;
+    //#     wpRemoveFileAttrs: override;
+
+    //#     wpSetEASupport: override;
+
+    //#     wpResetHandle: override;
+
+
+
+        /*
+         * WPDataFile methods overridden by DbgDataFile:
+         *
+         */
+
+        wpQueryAssociatedFileIcon: override;
+        wpQueryAssociatedProgram: override;
+        wpSetAssociatedFileIcon: override;
+
+    //#    wpSetIconHandle: override;
+    //#        this method is declared in the Warp 3 WPObject
+    //#        header file, but undocumented, and cannot be overridden,
+    //#        or the WPS hangs at startup.
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_DbgDataFile : M_WPDataFile
+{
+
+    /*
+     * New class methods  for M_DbgDataFile:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+
+        //# Class Modifiers
+        externalprefix = ddfM_;
+        externalstem = ddfM;
+        functionprefix = ddfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xdebug;           //# specifies the filestem for sc-generated files
+        dllname = "xdebug.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_DbgDataFile:
+         *
+         */
+
+        /*
+         * SOMClass methods overridden by M_DbgDataFile:
+         *
+         */
+
+        somNew: override;
+        somNewNoInit: override;
+
+        somRenew: override;
+        somRenewNoInit: override;
+        somRenewNoInitNoZero: override;
+        somRenewNoZero: override;
+
+        somGetInstancePartSize: override;
+        somGetInstanceSize: override;
+
+
+        /*
+         * M_WPObject methods overridden by M_DbgDataFile:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsMakeAwake: override;
+        wpclsNew: override;
+
+        wpclsFileSysExists: override;
+        wpclsQueryAwakeObject: override;
+    };
+#endif
+};
+
+

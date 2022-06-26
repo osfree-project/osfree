@@ -1,0 +1,19 @@
+# cvsignore
+# contains all the files which per default shouldn't be checked
+# for when updateing
+# for more info check the cvs docs.
+*.dll
+*.lib
+*.obj
+.#*
+*.pch
+*.map
+*.exe
+*.res
+.depend
+*exp.def
+resource.asm
+*.lrf
+*.vpj
+*.vtg
+bin

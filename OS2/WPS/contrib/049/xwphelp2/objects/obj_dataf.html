@@ -1,0 +1,73 @@
+<HTML RESID=&ID_XSH_DATAFILE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Datendateien
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.16 -->
+<BODY>
+Datendateien werden von Programmen benutzt, um Daten auf einem Laufwerk
+abzuspeichern. Alle Dateisystemobjekte, bei denen es sich weder um
+<A HREF="objects/obj_pgmf.html">Programmdateien</A>
+noch um
+<!-- V0.9.19: added link -->
+&link_folders;
+handelt, werden von &os2; als Datendateien angesehen. Die enthaltenen
+Daten k”nnen fr Menschen lesbar sein oder auch nicht.
+ 
+<P>Datendateien sind gew”hnlich von einem bestimmten <B>Typ</B>. Der
+Typ einer Datei kann auf der Seite "Typ" des
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuchs</A>
+der Datei explizit gesetzt werden.
+ 
+<IFNDEF __NEVEREXTASSOCS__>
+Wurde kein Typ explizit zugewiesen, weist &xwp; der Datei automatisch
+einen Typen basierend auf ihrer Endung zu, d.h. dem Teil des Objektnamens
+nach dem letzten Punkt.
+</IFNDEF>
+ 
+<P>Auáerdem sind Datendateien h„ufig mit
+<!-- V0.9.20: added link -->
+&link_progobjs;n
+<B>verknpft</B>.
+Dadurch kann einfach doppelt auf eine Datendatei geklickt werden,
+um das verknpfte Programm so zu ”ffnen, daá die Datendatei automatisch geladen
+wird, oder es kann ein Programm aus dem Untermen "™ffnen" des &popmenu;s
+der Datei ausgew„hlt werden.
+ 
+<P>Ist der Datendatei kein Typ zugewiesen (weder explizit noch automatisch),
+verknpft &os2; sie mit dem
+<IFDEF __EWORKPLACE__>
+Objekt "Text Editor", das sich normalerweise im Ordner "Dienstprogramme"
+befindet, einem Unterordner des Ordners "Programme" auf der Arbeitsoberfl„che.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Systemeditor.
+</IFNDEF>
+ 
+<!-- V0.9.19: changed all the following -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>&xwp;s Dateitypen und Zuordnungen k”nnen auf der Seite "Dateitypen"
+des <A HREF="objects/obj_wps.html">Objekts "Workplace Shell"</A> konfiguriert werden.
+<P>Siehe <A HREF="glossary/gls_assocs.html">Typen und Zuordnungen</A> fr eine
+Einfhrung in Verknpfungen zwischen Datendateien und Programmen.
+</IFNDEF>
+<IFDEF __NEVEREXTASSOCS__>
+<P>Die Verknpfungen zwischen Programmen und Datendateien k”nnen auf der Seite
+"Zuordnungen" im Einstellungsnotizbuch einer jeden Datei angepaát werden.
+</IFDEF>
+ 
+<!-- V0.9.20: added the below links -->
+<P>Weitere Informationen erhalten Sie durch Auswahl eines verwandten Themas aus der folgenden Liste:
+ 
+<UL>
+<LI><A HREF="tasks/tsk_crobjs.html">Neue Objekte erstellen</A>
+<LI><A HREF="tasks/tsk_templates.html">šber Schablonen</A>
+<LI><A HREF="tasks/tsk_crshadow.html">šber Referenzen</A>
+<LI><A HREF="tasks/tsk_copymove.html">šbersicht zu Kopieren, Verschieben und Referenzen</A>
+<LI><A HREF="tasks/tsk_chicons.html">Symbole fr Objekte „ndern</A>
+<LI><A HREF="tasks/tsk_rename.html">ndern von Objekttiteln</A>
+<LI><A HREF="tasks/tsk_delete.html">L”schen von Objekten</A>
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Filattribut Bitar
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains chunks previously in
+     filepg_5attribs.html -->
+<BODY>
+&os2;, som DOS och Windows, tilldelar attribut till varje katalog eller fil
+i <A HREF="glossary/gls_fs.html">filsystem</A>.
+
+<P>F”ljande attribut existerar:
+
+<OL><BR><LI><B>"Arkiv"</B> biten „r en anv„ndarflagga vilken s„tts av operativsystemet
+n„r en fil „ndras; den st„lls tillbaka av m†nga backupverktyg f”r att till†ta kontroll
+om en fil beh”ver arkiveras igen, beroende p† att den „ndrats sedan den senaste backupen.
+
+<P><LI><B>"L„s endast"</B> flaggan kan s„ttas f”r filer vilka inte f†r skrivas;
+skrivaccess och f”rs”k att radera filen kommer d† att avvisas.
+
+<P><LI><B>"System"</B> biten anv„nds vanligtvis f”r systemfiler vilka „r n”dv„ndiga
+f”r att operativsystemet skall fungera. Skrivaccess och radering kommer ocks† att avvisas,
+och Skrivbordet kommer inte heller att till†ta flyttning av filer.
+
+<P><LI><B>"D”lj"</B> flaggan, slutligen, kan s„ttas f”r att hindra en fil fr†n att
+visas i kataloglistningar och mappar. Det betyder, att filen inte visas med
+<CODE>DIR</CODE> kommandot (om inte <CODE>/A</CODE> v„xeln „r specificerad), och den
+kommer inte att visas i mappar (om inte mappen har konfigurerats f”r att visa „ven dolda filer
+p† notbokssidan "Inkludera").
+<P>Tag dock varning, om du s„tter den h„r flaggan fr†n ett objekts notbok med egenskaper,
+kan den h„r filen d”ljas fr†n en mapp och du kanske inte kan „ndra flaggan fr†n en
+kommandorad, med anv„ndning av
+<A HREF="cmdref.inf#attrib"><CODE>ATTRIB</CODE></A> kommandot.
+
+</OL>Du kan v„lja att s„tta dessa attribut fr†n Workplace Shell, antingen genom att ”ppna
+ett objekts
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A> eller genom att ”ppna ett
+objekts
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>, vilket har en submeny med "Filattribut".
+Notera att detta g„ller endast filsystemsobjekt.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,66 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+    Simulating Copy Constructors With SOM
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+Instance data comes in extremely handy with WPS classes and is used throughout
+XWorkplace also. In all WPS programming docs and tutorials I've seen, you are taught
+to declare your instance data in the IDL file, initialize it in <CODE>wpInitData</CODE>,
+store it in <CODE>wpSaveState</CODE>, restore it in <CODE>wpRestoreState</CODE>,
+and clean up in <CODE>wpUnInitData</CODE>.
+
+<P>However, if your instance data
+consists of pointers to variable data which is allocated somewhere in the
+class's implementation (e.g. in <CODE>wpInitData</CODE>), great care must be
+taken to maintain data integrity.
+
+<P>When objects are copied, SOM per default does a so-called "shallow copy"
+of the object's instance data. That is, the binary instance data is simply
+copied to the new object. (From what I've seen, this is done by the
+<CODE>SOMObject::somDefaultConstAssign</CODE>
+method, which apparently is not overridden by any WPS class).
+
+<P>This is very dangerous for pointers because you then have two objects pointing
+to the same memory block. If one of the objects is then deleted and frees its
+storage (e.g. in <CODE>wpUnInitData</CODE>), the other object's member pointer
+points to storage which has been freed.
+
+<P>This problem is a common one with C++ programming, and there you have the
+concept of copy constructors to take it into account.
+Unfortunately, the WPS docs never even mention this problem, even though the
+WPS programmers have most obviously been aware of it, since WPS methods exist
+to solve this.
+
+<P>From my checking, there are two
+possible solutions to this problem:
+
+<UL><LI>Override <CODE>wpObjectReady</CODE>. When objects are copied in any way
+(either through <CODE>wpCopyObject</CODE> or <CODE>wpCreateFromTemplate</CODE>
+or <CODE>wpCreateAnother</CODE>),
+the <CODE>ulCode</CODE> parameter has the <CODE>OR_REFERENCE</CODE> bit set.
+Then allocate a second buffer, copy the buffer data from the source object there
+and adjust your member pointer.
+
+<P>When an object is copied, from my testing, <CODE>wpObjectReady</CODE> gets called
+from <CODE>wpCopyObject</CODE> right before that method returns. See the
+<A HREF="wpp_03copydata.html">"Drag-copy trace session"</A> for details.
+
+<P><LI>Override <CODE>wpCopyObject</CODE>, <CODE>wpCreateFromTemplate</CODE>,
+and <CODE>wpCreateAnother</CODE>
+and do these things there. Call the parent first and adjust the data before returning.
+This will be a bit later, but still work.
+
+</UL>I have checked some of the method tables (use the "WPS Class List" object to
+see yourself) and seen that many WPS classes override just these three methods
+(for example WPProgram, which most probably operates with pointers to store the
+program data which is variable in length).
+It is at least interesting to see that the WPS classes appear to use this approach,
+but not a word about this is said in the WPS docs...
+<BR>
+</BODY>
+</HTML>
+

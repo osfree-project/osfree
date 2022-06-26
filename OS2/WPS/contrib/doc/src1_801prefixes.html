@@ -1,0 +1,110 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Function Prefixes
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+XWorkplace uses function prefixes to indicate in which source file
+a certain function resides. XWorkplace function prefixes are in
+<B>lower case</B> to distinguish them from the OS/2 API function
+prefixes. So if you encounter some lower-case function prefix,
+you can be pretty sure it's some function in <CODE>MAIN</CODE> or <CODE>HELPERS</CODE>
+and has been prototyped in the corresponding header file.
+<P>
+If a function has no prefix, it's probably in the same source file and
+not prototyped in the headers.
+<P>
+However, there are two general function prefixes which are used to indicate
+certain function <I>types</I>:
+<UL><LI><CODE>fnwp*</CODE> is my general prefix
+for window procedures (the <CODE>MRESULT EXPENTRY...</CODE> type), which
+may or may not be exported.
+<P><LI><CODE>fncb</CODE> is my general prototype for callback functions. Most of
+these are callbacks for the notebook helpers in <CODE>shared\notebook.c</CODE>,
+but there are some for functions in <CODE>HELPERS</CODE> also. See the
+respective function header then.
+
+</UL>Here are the other function headers and the files where their code resides:
+<UL><LI>
+<CODE>anm*     </CODE>helpers\animate.*
+
+<LI><CODE>apm*     </CODE>startshut\apm.*
+
+<LI><CODE>arc*     </CODE>startshut\archives.*
+
+<LI><CODE>cfg*     </CODE>config\cfgsys.*
+
+<LI><CODE>cls*     </CODE>config\classlst.*
+
+<LI><CODE>cmn*     </CODE>shared\common.*
+
+<LI><CODE>cnrh*    </CODE>helpers\cnrh.*
+
+<LI><CODE>ctl*     </CODE>helpers\comctl.*
+
+<LI><CODE>dtp*     </CODE>filesys\desktop.*
+
+<LI><CODE>dosh*    </CODE>helpers\dosh.*
+
+<LI><CODE>dsk*     </CODE>filesys\disk.*
+
+<LI><CODE>ea*      </CODE>helpers\eas.*
+
+<LI><CODE>exc*     </CODE>helpers\except.*
+
+<LI><CODE>fdr*     </CODE>filesys\folder.* or filesys\fdrhoty.*
+
+<LI><CODE>fops*    </CODE>filesys\fileops.*
+
+<LI><CODE>fsys*    </CODE>filesys\filesys.*
+
+<LI><CODE>ftyp*    </CODE>filesys\filetype.*
+
+<LI><CODE>gpih*    </CODE>helpers\gpih.*
+
+<LI><CODE>hif*     </CODE>config\hookintf.*
+
+<LI><CODE>krn*     </CODE>shared\kernel.*
+
+<LI><CODE>lst*     </CODE>helpers\linklist.*
+
+<LI><CODE>mnu*     </CODE>filesys\menus.*
+
+<LI><CODE>ntb*     </CODE>shared\notebook.*
+
+<LI><CODE>obj*     </CODE>filesys\object.*
+
+<LI><CODE>prfh*    </CODE>helpers\prfh.*
+
+<LI><CODE>prc*     </CODE>helpers\procstat.*
+
+<LI><CODE>shp*     </CODE>helpers\shapewin.*
+
+<LI><CODE>snd*     </CODE>helpers\syssound.* or filesys\sound.*
+
+<LI><CODE>stb*     </CODE>filesys\statbars.*
+
+<LI><CODE>strh*    </CODE>helpers\stringh.*
+
+<LI><CODE>thr*     </CODE>helpers\threads.*
+
+<LI><CODE>tmf*     </CODE>helpers\tmsgfile.*
+
+<LI><CODE>wph*     </CODE>helpers\wphandle.*
+
+<LI><CODE>wpsh*    </CODE>shared\wpsh.*
+
+<LI><CODE>xsd*     </CODE>startshut\shutdown.*
+
+<LI><CODE>xthr*    </CODE>filesys\xthreads.*
+
+<P><LI><CODE>xwp*     </CODE>newly introduced SOM instance methods in SRC\CLASSES
+
+<LI>
+<CODE>xwpcls*  </CODE>newly introduced SOM class methods in SRC\CLASSES
+
+</UL>
+</BODY>
+</HTML>

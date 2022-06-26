@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Status Bars: Common Codes for All Modes
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<!-- V0.9.11 (2001-04-22) [umoeller]: largely rewritten. -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+The following codes work <B>in all three modes:</B>
+<BR><DL>
+<DT><CITE>  $c      </CITE><DD>number of currently selected objects
+<DT><CITE>  $C      </CITE><DD>total number of objects in folder
+
+<!-- V0.9.13: replaced the following -->
+<BR><DT><CITE>  $s<I>X</I>     </CITE><DD>total size of selected objects
+<DT><CITE>  $S<I>X</I>     </CITE><DD>total size of folder content
+<DT><CITE>  $f<I>X</I>     </CITE><DD>free space on the folder's drive
+<DT><CITE>  $z<I>X</I>     </CITE><DD>total size of the folder's drive
+
+<!-- V0.9.13: replaced the following -->
+<P>In the above four, <CODE><I>X</I></CODE> is a
+special <A HREF="fsys/stat_99format.html">format specifier</A> character.
+<!-- end V0.9.11/V0.9.13 rewrite -->
+
+<BR><DT><CITE>  $x(xxx) </CITE><DD>Left-oriented tabulator:
+print the following information at X position "xxx" (relative to the left border of
+the status bar).
+<BR>Example: <CITE>$x(300)$sK</CITE> will always print the total size of the selected
+objects at X position 300.
+<DT><CITE>  $x(-xxx) </CITE><DD>like before, but relative to the right border of
+the status bar.
+<BR>Example: <CITE>$x(-150)$sK</CITE> will print the total size of the selected objects
+at X position 100, if the status bar is currently 250 pixels wide.
+<DT><CITE>  $x(xx%) </CITE><DD>like before, but the X position will be calculated
+using "xx" as a percentage relative to the current width of the status bar.
+<BR>Example: <CITE>$x(50%)$sK</CITE> will always print the total size of the selected
+objects in the center of the status bar.
+</DL>
+<BR>
+</BODY>
+</HTML>
+
+

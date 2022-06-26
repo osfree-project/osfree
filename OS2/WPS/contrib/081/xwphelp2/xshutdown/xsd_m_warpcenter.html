@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        "Close &warpcenter; Before Desktop"
+    </TITLE>
+</HEAD>
+<BODY>
+This setting determines whether &xshutdown; will give special treatment to the &warpcenter;.
+This setting has been added with V0.9.7
+because &xshutdown; caused resized Desktops on some systems
+where, after the next Desktop startup, scroll bars would appear with the Desktop.
+
+<P>If this setting is <B>enabled,</B> &xshutdown; will explicitly close the &warpcenter;
+before closing the Desktop window. This is probably useful if you start the &warpcenter;
+from a startup folder (after the WPS Desktop is up).
+
+<P>If this setting is <B>disabled,</B> &xshutdown; will simply not close the &warpcenter;
+at all.
+
+<P>The checkbox is disabled if &xwp; was unable to detect the &warpcenter; on
+your system. Reasons for this might be:
+
+<UL><LI>You are running &warp; 3. The &warpcenter; has only been introduced with
+&warp; 4.
+
+<P><LI>The &warpcenter; object has not been awakened yet. This might be the case
+if you are not currently running the &warpcenter; and the "System" folder has not
+yet been populated.
+
+<P><LI>The &warpcenter; object has been awakened during Desktop startup before
+&xwp; was fully initialized. This might be the case if, on your system,
+the &warpcenter; is started through the <CODE>AUTOSTART</CODE> setting in the
+&cfgsys; file. In that case, &xwp; (and &xshutdown;) cannot
+do much about the &warpcenter; in the first place.
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Extended Attributes
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>Extended attributes (EAs)</B> are a special &os2; feature
+and allow for storing additional information with a file-system
+object (file or folder) on disk. The information is not part
+of the object's data, but is stored together with the object in
+the <A HREF="glossary/gls_fs.html">file system</A>.
+
+<P>As opposed to the legacy
+<A HREF="glossary/gls_fattrs.html">file attribute bits</A>,
+<I>extended</I> attributes are a list of keywords with values, either
+in text or binary format.
+
+<P>Applications can define their own keywords for their own
+use. Some keywords, however, are defined by the system and used,
+for example, by the Workplace Shell. Those are called
+<B>"standard extended attributes"</B>, and their keywords start
+with a leading dot. See
+<A HREF="glossary/gls_eas_std.html">"Standard Extended Attributes"</A>
+for more information.
+
+<IFNDEF __NOFILEPAGE2__>
+<P>To <B>view</B> the extended attributes that are currently set for
+a file-system object, open its
+<A HREF="glossary/gls_notebook.html">properties notebook</A>
+and switch to the second "File" page.
+</IFNDEF>
+
+<P>Remarks:
+
+<OL><LI>The total size of the EAs of a file-system object is limited
+to 64 KB per object.
+
+<P><LI>The <A HREF="glossary/gls_fs.html">file systems</A> that ship with
+&os2; (HPFS, JFS, and FAT) all support extended attributes, but this may
+not be the case with third-party file systems or network drives on a remote
+server. EAs may be lost if you copy files between file systems that do not
+support them.
+
+<P><LI>If you use a volume under both &os2; and another operating system
+that does not recognize extended attributes, the other operating system
+might destroy &os2;'s EAs if you modify files. This is most likely with the
+FAT file system, which is understood by almost every operating system.
+
+<P><LI>To learn about the total space that is consumed for EAs on a drive, select
+"Check disk" from a drive's <A HREF="glossary/gls_popmenu.html">popup menu</A>.
+
+</OL>For related information, select from the list below:
+
+<UL>
+<LI>&link_drivesfdr;
+<LI><A HREF="glossary/gls_volume.html">Drives, volumes, and partitions</A>
+<LI><A HREF="glossary/gls_fs.html">File systems</A>
+<LI><A HREF="tasks/tsk_copymovefs.html">Restrictions when copying and moving files</A>
+</UL>
+</BODY>
+</HTML>
+

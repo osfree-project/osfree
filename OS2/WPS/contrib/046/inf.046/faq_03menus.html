@@ -1,0 +1,161 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        FAQ: Menyfr†gor
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.82. -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;;
+                          also see notes below -->
+<BODY>
+<OL><LI><B>Mina menyer har blivit plottriga. Vad kan jag g”ra?</B>
+
+<P>Om du anser att dina <STRONG>kontextmenyer har blivit f”r befolkade,</STRONG> kan du tala om
+f”r WPS att utel„mna de menyposter vilka „nd† „r "dubletter" till musoperationer
+("Kopiera", "Flytta", etc.).
+<UL>
+<P><LI>P† Warp 3, kommer ett <CITE>SET MENUSTYLE=SHORT</CITE> i &cfgsys; att g”ra jobbet.
+
+<P><LI>P† Warp 4 och h”gre, finns det en ny inst„llning i "System" objektet i mappen "Systemkonfiguration".
+Du kan hitta det p† tabben "Meny". Inst„llningen finns ocks† i varje mapps egen notbok med
+inst„llningar; det finns ocks† Setupstr„ng f”r mappar individuellt. Se
+<A HREF="xices_30wpsstrings.html">"WPMappar Setupstr„ngar"</A> f”r mera information.
+</UL><P>Dessutom, kan du ta bort m†nga standard menyposter individuellt i
+<A HREF="sys_2global.html">"Workplace Shell"</A> objektet p† sidorna "Kontextmenyer".
+
+<P><B>Mappinneh†ll funktioner</B> „r hj„lpsamt, men kan plottra ner dina kontextmenyer 
+f”r mycket om du deklarerar f”r m†nga mappar som dina favoriter. P† mitt system, har jag
+skapat en separat mapp kallad "frekvent", vilken jag har deklarerat som min enda 
+favoritmapp. I den mappen, kan jag l„gga alla de mappar som jag oftast anv„nder, s†
+att jag endast f†r en enda kontextmenypost, men en submeny med alla mina favoritmappar.
+
+<P><LI><B>N„r jag v„ljer en kontextmenypost, inte &xwp; funktionen, blir n†gra andra funktioner utf”rda.
+Vad „r det?</B>
+
+<P>Troligtvis en meny ID konflikt med n†gon annan WPS ut”kare. Detta „r ett k„nt problem
+<!-- V0.9.0: changed the following -->
+med N„tverksinloggningar. G† till "&xwp; Konfiguration", "Paranoia" sidan, och ”ka
+"Menypost ID offset". Tryck "Hj„lp" d„r f”r detaljer. Med V0.9.0, har standard offset 
+h”jts till 700, vilket b”r hj„lpa i de flesta fall.
+
+<P><LI><B>N„r jag v„ljer en icke-&xwp; kontextmenypost, exekverar &xwp; fortfarande en
+av sina egna funktioner. Vad „r det?</B>
+
+<P>Samma som ovan.
+
+<P><LI><B>N„r jag ”ppnar en kontextmeny, kraschar/h„nger mitt system. Vad kan jag g”ra?</B>
+
+<P>Versioner f”re V0.82 fungerade som ett test av videodrivrutiner i det avseendet. ;-)
+Jag har kommit p† att vissa videodrivrutiner inte st”der transparent bakgrundsmix
+f”r bitmappar, vilket XFolder brukade g”ra. Medan vissa drivrutiner helt enkelt ignorerade
+transparansen, kraschade andra drivrutiner h†rt och stoppade hela system (speciellt Matrox Millenium).
+Med V0.82, har jag „ndrat ikonuppritningen f”r mappars inneh†ll till att anv„nda regulj„ra ikoner
+ist„llet f”r bitmappar. Ikonuppritning „r fortfarande avaktiverad som standard i fall n†got skulle 
+g† snett. Sl† p† "Visa ikoner" p† sidorna "Kontextmenyer" i "Workplace Shell" f”r att aktivera ikonuppritning.
+
+<P>Om du fortfarande har problem, har Ralph Scharpf rapporterat att du kan installera 
+IBM GRADD drivrutiner f”r MGA videokort ist„llet, vilket verkar fungera. Olyckligtvis, st”der
+inte dessa kort 1024x768 med mer „n 60 Hz, men om du kan leva med 800x600, verkar detta vara en 
+l”sning.
+
+<P><LI><B>Varf”r fungerar inte mapparnas kontextmenyer med mapparna p† Verktygslisten (Snabbpanelen)?</B>
+<!-- V0.9.19: rewrote this answer -->
+<P>D„rf”r att Snabbpanelen inte „r en mapp. &xwp; kan endast subklassa standardmapp
+f”nsterproceduren f”r att ta emot viktiga systemmeddelanden n„r menyerna „r ”ppnade, 
+vilket „r n„r de variabla menyposterna „r instoppade i kontextmenyer. Eftersom Snabbpanelen inte
+anv„nder mapparnas standard f”nsterprocedur, kan inte &xwp; enkelt subklassa den heller.
+
+<P><LI><B>Jag har lagt till n†got i konfigurationsmappen, men det upptr„der inte i menyerna. Žr det
+en kompatibilitetskonflikt?</B>
+
+<P>Troligtvis inte. Sedan V0.70, anv„nder &xwp; <CITE>.ICONPOS</CITE> ut”kade attribut fr†n
+konfigurationsmappen och dess undermappar f”r att avg”ra ordningen p† objekten i en mapp. Problemet
+„r, dessa skrivs bara av WPS n„r mappen „r st„ngd, och endast om mappen varit ”ppen i Ikon eller
+Detaljvisning. S† ”ppna helt enkelt mappen i Detaljvisning och st„ng den igen. Det b”r fungera.
+
+<P><LI><B>Hur f†r jag understrukna tecken p† menyposter f”r snabbkommandon?</B>
+
+<P>L„gg in ett tilde-tecken (<CITE>"~"</CITE>) framf”r ett s„rskilt tecken i programmets titel.
+Det kommer att understryka det f”ljande tecknet i menyposten, till†tande dig att skriva det tecknet
+som ett tangenbords snabbkommando n„r en kontextmeny „r visad.
+
+<P>(Detta skiljer sig fr†n
+<A HREF="fldr_5xelerators.html">mappar snabbkommandon</A> vilka &xwp; l„gger till f”r att 
+”ppna mappar.)
+
+<P>Exempel: <CITE>&os2; ~kommandof”nster</CITE> kommer att g”ra "k" till ett tangentbords
+snabbkommando i kontextmenyn.
+
+<P>F”r att g”ra det, f”rs„kra dig om att "Understryka ''~'' i f”nstertiteln" f”r
+<A HREF="sys_2global.html">"Workplace Shell"</A> objektet p† "Kontextmeny" sidorna.
+
+<P><LI><B>Jag har lagt till ett programobjekt i konfigurationsmappen, men n„r jag v„ljer en
+menypost, f†r jag felmeddelanden fr†n programmet. Vad g”r jag f”r fel?</B>
+
+<P>Du m†ste troligtvis l„gga till ett <CITE>"%"</CITE> tecken i f„ltet "Parametrar" f”r
+programobjektet f”r att f”rhindra &xwp; fr†n att passa mappen som en parameter.
+<!-- V0.9.16: replaced the following -->
+Se kontexthj„lpen f”r &xwp; Konfigurationsmappen f”r detaljer.
+
+<P><LI><B>Jag har lagt till en skugga i konfigurationsmappen, men ”ppning fungerar inte som 
+f”r andra objekt. Vad g”r jag f”r fel?</B>
+
+<P>&xwp; ”ppnar skuggor av programobjekt i konfigurationsmapparna, men den „ndrar inte
+deras kataloger eller parametrar. Det „r inte en bugg, det „r en avsiktlig begr„nsning
+av s„kerhetsk„l. KOPIERA dina programobjekt till konfigurationsmapparna ist„llet f”r att
+skapa skuggor.
+<!-- V0.9.16: replaced the following -->
+Se kontexthj„lpen f”r &xwp; Konfigurationsmapp f”r detaljer.
+
+<P><LI><B>Hur kan jag exekvera CMD.EXE kommandon?</B>
+
+<P>F”r kommandon vilka „r inbyggda i CMD.EXE (s†dana som <CITE>REN</CITE>, <CITE>COPY</CITE>,
+<CITE>DEL</CITE>, <CITE>CD</CITE>), l„gg ett programobjekt i &xwp;'s Konfigurationsmapp. Specificera
+sedan <CITE>CMD.EXE</CITE> i programobjektet med <CITE>/C &lt;kommandon&gt;</CITE> i
+"Parametrar" f„ltet.
+<P>Exempel f”r radering av en mapps kompletta inneh†ll:
+s„tt <CITE>CMD.EXE</CITE> i "S”kv„g och filnamn" f„ltet och <CITE>/C DEL *</CITE> i
+f„ltet med "Parametrar". Det „r, naturligtvis bara ett dumt exempel och rekommenderas INTE.
+
+<P><LI><B>Hur kan jag anv„nda REXX f”r WPS manipulation?</B>
+
+<P>Jag har inkluderat extra information i bilagorna till den h„r dokumentationen, vilket kan vara
+anv„ndbart f”r dig:
+<UL>
+<P><LI>en komplett lista p† alla <A HREF="xices_30wpsstrings.html">WPFolder inst„llningsstr„ngar</A>;
+<P><LI>en kollektion av &os2;'s standard <A HREF="xices_2wpsobjids.html">Objekt ID'n</A>.
+<P><LI>ett diagram ”ver <A HREF="xices_1wpsclasses.html">WPS Klasshierarki</A>.
+</UL><P>Om du inte „r bekant med REXX, kan du kopiera och modifiera <CITE>ALWSSORT.CMD</CITE> filen i
+<!-- V0.9.0: changed the following -->
+&xwp; installationskatalog f”r att testa n†gra av mappinst„llningarna. Var v„nlig och se
+sidan <A HREF="080related.html">"Relaterade filer"</A> f”r mer information.
+
+<P>Som till„gg, jag rekommenderar starkt INF boken "Rexx Tips&amp;Tricks" av Bernd Schemmer,
+vilken „r tillg„nglig som "rxtt28.zip" (eller nyare) p† Hobbes.
+
+<P><LI><B>Varf”r kan jag inte ”ppna mitt nya konfigurationsmapps objekt mer „n en g†ng?</B>
+
+<P>Om du skapar programobjekt vilka m†ste ”ppnas †tskilliga g†nger fr†n olika kataloger
+(n„mligen f”r kommandoradsobjekt), var s„ker p† att kontrollera "Skapa nytt f”nster" flaggan p† "F”nster" tabben i
+objektets notbok. Annars kommer &os2; inte att starta ett nytt f”nster utan helt enkelt f”rnya det
+redan ”ppnade.
+
+<P><LI><B>Jag har raderat &xwp; Konfigurationsmapp. Hur f†r jag den tillbaka?</B>
+
+<P>Med V0.9.1, har det h„r upptr„dandet „ndrats d„rf”r att m†nga m„nniskor har klagat p†
+&xwp;'s beteende n„r Konfigurationsmappen saknas. S† f”r att †terskapa mappen, g† till sidan
+"Objekt" i <A HREF="sys_2global.html">"&xwp; Setup" objektet</A> och tryck p† respektive knapp.
+
+<!-- replaced this with V0.9.1: Don't worry: As soon as you try to open a context menu,
+&xwp; will notify you and automatically create a new, empty one
+on your desktop or recreate the default configuration, which you may then choose.
+Note that this behavior implies that you MUST have a Configuration Folder somewhere on
+your system while &xwp; is installed. It may be empty, but it must exist. -->
+
+</OL>
+<BR>
+</BODY>
+</HTML>
+
+
+

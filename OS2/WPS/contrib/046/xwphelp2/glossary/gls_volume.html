@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Om Enheter, Volymer, och Partitioner
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Med &os2;, anv„nds f”ljande terminologi n„r det handlar
+om lagringsdevicer:
+
+<OL><LI>En <B>enhet</B> „r ett logisk begrepp som har tilldelats en
+enhetsbeteckning av &os2; k„rnan. Du kan d„rmed ha upp till 26 enheter, vilka
+„r namngivna fr†n <CODE>A:</CODE> till <CODE>Z:</CODE>.
+
+<P>&link_drivesfdr;en visar alla enheter som f”r n„rvarande existerar p† ditt system.
+Enheterna <CODE>A:</CODE> och <CODE>B:</CODE> kommer alltid att vara diskettenheter
+per definition. Andra enhetsbeteckningar kan antingen vara h†rddiskvolymer (se nedanf”r),
+CD-ROM eller DVD enheter, n„tverksresurser som har tilldelats en enhetsbokstav,
+eller annan lagringsh†rdvara.
+
+<P><LI>En <B>volym</B> „r ett koncept specifikt f”r h†rddiskar och best†r av en eller
+flera partitioner (se nedanf”r). En volym m†ste vara formaterad med ett specifikt
+<A HREF="glossary/gls_fs.html">filsystem</A> f”r att kunna hantera data.
+
+<P><LI>En <B>partition</B> „r ett fysiskt segment hos en h†rddisk. F”r att kunna anv„ndas
+p† persondatorer, m†ste varje disk ha †tminstone en partition, men kan delas upp i ett flertal,
+till exempel om du vill anv„nda mer „n ett operativsystem eller flera filsystem.
+
+</OL>&os2;'s <B>Logical Volume Manager (LVM)</B> till†ter dig att skapa, radera, och editera
+volymer och partitioner. Anv„nd LVM ocks† f”r att tilldela enhetsbokst„ver till volymer och
+p† det s„ttet g”ra den till en enhet eller g”mma en volym f”r &os2;.
+<IFDEF __EWORKPLACE__>
+Se <A HREF="lvmhelp.inf"><I>"Introduktion till LVM"</I></A> f”r detaljer.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Se <A HREF="usinglvm.inf"><I>"Anv„nda LVM"</I></A> f”r detaljer.
+</IFNDEF>
+
+<P>Det finns flera optioner f”r att starta LVM:
+
+<UL><LI>Fr†n &link_drivesfdr;en, v„lj "Hantera volymer" i
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<P><LI>I &link_syssetupfdr;en, starta "Logical Volume Manger" objektet.
+
+<P><LI>™ppna en <A HREF="glossary/gls_cmd.html">kommandosession</A> och skriv <CODE>LVM</CODE>.
+Till skillnad fr†n de f”reg†ende tv† optionerna, kommer detta att starta en textbaserad version
+av LVM.
+
+</UL>F”r relaterad information, v„lj fr†n listan nedanf”r:
+
+<UL>
+<LI>&link_syssetupfdr;en
+<LI><A HREF="tasks/tsk_format.html">Formatera media</A>
+<LI><A HREF="glossary/gls_cmd.html">Om kommandosessioner</A>
+</UL>
+</BODY>
+</HTML>
+

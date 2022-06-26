@@ -1,0 +1,48 @@
+<HTML RESID=&ID_XSH_FONTFILE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Lettertype bestand
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Als de <A HREF="objects/obj_fontfdr.html">Lettertype map</A> ge‹nstalleerd is,
+zal &xwp; automatisch van alle zogenaamde lettertype bestanden op uw systeem
+"Lettertype bestanden" maken.
+
+<P>Lettertype bestanden gedragen zich niet veel anders dan normale bestanden... met
+uitzondering van het volgende:
+
+<UL><LI>Ze ontvangen automatisch het standaard bestandstype "Lettertype bestand".
+
+<P><LI>Als er geen koppeling bestaat voor dat type (of de bestandsuitbreiding), krijgen
+lettertype bestanden een ander standaard pictogram.
+
+<P><LI>Alleen lettertype bestanden kunnen op de Lettertype map losgelaten worden om
+zo snel lettertypes te kunnen installeren.
+
+</UL>Momenteel zullen bestanden met de volgende uitbreidingen omgezet worden in lettertype bestanden:
+
+<UL><LI><CODE>.TTF</CODE>, <CODE>.TTC</CODE>: Dit zijn de uitbreidingen van TrueType
+lettertype bestanden.
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+Er wordt verondersteld dat uw &os2; systeem TrueType lettertypes kan weergeven. Dit is
+het geval voor Warp 4 (en hoger) zonder speciale voorbereidingen. Voor Warp 3 dient u
+de FreeType/2 engine te installeren -- maar dit is ook aan te raden voor Warp 4 omdat
+zijn weergave kwaliteit beter is.
+</IFNDEF>
+
+<P><LI><CODE>.OFM</CODE>: Dit zijn de speciale bestanden die Adobe Type-1
+lettertypes (met de <CODE>.PFB</CODE> uitbreiding) toegankelijk maken voor &os2;. Om voor &os2;
+een Type-1 lettertype bestand geschikt te maken voor installatie, heeft u zowel een <CODE>.OFM</CODE> en
+een <CODE>.PFB</CODE> bestand nodig, maar alleen de <CODE>.OFM</CODE> bestand zal uiteindelijk
+opgeslagen worden in het lettertype register van het systeem (en daarom wordt alleen de <CODE>.OFM</CODE> bestand
+omgezet in een &xwp; lettertype bestand).
+
+<P><LI><CODE>.FON</CODE> bestanden vertegenwoordigen bitmap lettertypes. Ook al worden die correct
+weergegeven in de Lettertype map, toch kunnen er zich problemen mee voordoen bij het tonen in het voorbeeldscherm.
+</UL>
+</BODY>
+</HTML>
+

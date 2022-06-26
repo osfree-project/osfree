@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Menu onderdeel ID startwaarde
+    </TITLE>
+</HEAD>
+<BODY>
+Met dit getal kunt u &xwp; vertellen welke menu ID's gebruikt moeten
+worden voor de menu onderdelen die door &xwp; toegevoegd worden. Verander dit getal
+als &xwp; een conflict lijkt te hebben met andere WPS programmatuur die ook
+menu onderdelen toevoegen aan &popmenu;'s.
+<P>Deze instelling werkt direct.
+<P><B>Uitgebreide toelichting:</B>
+<P>Met &os2;, heeft elk menu onderdeel (of dat nu een submenu of een "echt" menu onderdeel is)
+een uniek menu ID nodig binnen het menu. Dit is een getal van 0 tot 0xFFFF, dat het menu onderdeel
+identificeert naar het systeem, zodat de "eigenaar" van het menu kan reageren als het menu
+onderdeel gekozen wordt.
+<P>IBM beveelt iedere WPS ontwikkelaar aan om een getal hoger dan
+WPMENUID_USER te gebruiken (dat, op Warp 3 en 4,
+0x6500 is) voor &popmenu; toevoegingen.
+<P>Eerdere versies van XFolder hebben altijd WPMENUID_USER+100
+(dec) en hoger gebruikt voor de variabele menu onderdelen, maar dit
+conflicteerde met andere programmatuur.
+Omdat &xwp; geen manier heeft om te achterhalen welke basiswaarde andere
+WPS programmatuur gebruikt, kan deze instelling nu aangepast worden;
+&xwp; zal nu menu onderdelen gebruiken met tenminste WPMENUID_USER plus het getal
+dat u hier opgeeft.
+<BR>
+</BODY>
+</HTML>
+

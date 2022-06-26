@@ -1,0 +1,66 @@
+<HTML RESID=&ID_XSH_SETTINGS_XC_THREADS;>
+<HEAD>
+    <TITLE>
+        &xwp; Setup: Tr†dar
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+Sidan "Tr†dar" visar dig information om de extra tr†dar som &xwp; f”r 
+n„rvarande anv„nder i WPS processen. Det kan vara av intresse f”r debugging 
+och buggrapporter.
+
+<P>Varje rad i den h„r containern visar dig det interna <B>tr†dnamnet,</B> vilket
+endast anv„nds av &xwp; f”r att kunna identifiera tr†dar p† andra s„tt „n fr†n
+ett godtyckligt nummer.
+<B>"TID"</B> v„rdet „r "tr†d ID" fr†n varje tr†d (vilken „r unik inom WPS processen). 
+<B>"Prioritet"</B> v„rdet „r respektive tr†ds prioritet: det h”ga bytes kan ha ett v„rde 
+av 1 till 4 (signalerande prioritetsklassen: idle, 
+<!-- V0.9.13: changed the following -->
+regulj„r, tidskritisk, eller f”rgrundsserver), medan det l†ga bytes visar 
+prioritets "delta" inom en prioritetsklass.
+(Se <A HREF="glossary/gls_scheduler.html">"Processer och tr†dar"</A> f”r detaljer.)
+<!-- end V0.9.13 -->
+
+<P>&xwp; kan starta f”ljande tr†dar p† ditt system:
+
+<!-- V0.9.13: updated the thread names -->
+<UL><LI><B>NotifySentinel, RefreshFindFolder, RefreshNotificationPump:</B>
+dessa k”rs om du aktiverade "byt ut mapps auto-f”rnya" p† sidan "Funktioner" 
+och „r ansvarig f”r att bevaka filsystemet i bakgrunden.
+
+<!-- V0.9.18: renamed media thread to Party -->
+<P><LI><B>Party:</B> &xwp; "Party" tr†d „r ansvarig f”r multimedia, s†dana som
+uppspelning av systemljud.
+
+<P><LI><B>Worker:</B> Se
+<A HREF="glossary/gls_workerthr.html">"Arbetstr†d"</A> f”r detaljer.
+
+<!-- V0.9.18: renamed Speedy thread to Bush -->
+<P><LI><B>Bush:</B> &xwp; "Bush" tr†den sover st”rre delen av tiden, men kan 
+pl”tsligt vakna upp f”r vissa kosmetiska, men „nd† h”g-prioriterade uppgifter vilka 
+kr„ver omedelbar uppm„rksamhet, s†dana som visning av &xwp; bootlogo.
+
+<!-- V0.9.18: added Wimp thread -->
+<P><LI><B>Wimp:</B> en annan ledig-tids tr†d vilken vaknar upp med n†gra minuters mellanrum
+f”r att utf”ra viss st„dning av minnet och liknande saker.
+
+<P><LI><B>File:</B> &xwp; "File" tr†d blir aktiv n„r &xwp; utf”r filoperationer, s†dana som
+flyttning av filer till papperskorgen eller radering av filer.
+
+<P><LI><B>&xcenter;:</B> Eftersom varje
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+k”rs p† sin egen tr†d, kommer du att se en s†dan tr†d f”r varje ”ppet &xcenter;.
+
+<!-- V0.9.13: added this -->
+<P><LI><B>PulseWidgetCollect:</B> den „r bara synlig om du har 
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_pulse.html">"Puls" widgeten</A> rullande i ett ”ppet &xcenter;.
+Pulswidgeten startar en andra tr†d f”r att f† information om CPU anv„ndningen fr†n &os2;'s k„rna 
+s† att inte andra applikationer blockerar om de f”rs”ker f† monopol p† PM's ensamma inputk”.
+
+</UL>
+</BODY>
+</HTML>
+

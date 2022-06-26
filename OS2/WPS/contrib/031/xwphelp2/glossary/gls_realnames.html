@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Echte Namen
+    </TITLE>
+</HEAD>
+<BODY>
+Terwijl, per definitie, ieder WPS object een titel heeft die er mee gekoppeld is,
+dragen alleen bestandssysteem objecten, (dat zijn
+&link_folders; en
+&link_datafiles; die fysiek aanwezig zijn in een
+<A HREF="glossary/gls_fs.html">bestandssysteem</A>) een zogenoemde "echte naam".
+Dat is de naam van het bestand dat het bestandssysteem object vertegenwoordigt
+op schijf, zoals zichtbaar met het
+<a href="cmdref.inf#dir"><CODE>DIR</CODE></a> commando op een &os2;
+<a href="glossary/gls_cmd.html">opdrachtregel</a>.
+
+<P>In veel gevallen is de echte naam gelijk aan de titel van het object,
+(zoals getoond op de "Pictogram" pagina); echter, bestandssysteem namen
+hebben bepaalde beperkingen.
+
+<P>Voor <I>titels</I> van objecten, is de enige beperking dat zij niet langer dan
+256 karakters kunnen zijn en dat het backslash (<CODE>\</CODE>) karakter verboden is.
+
+<P>Daar tegenover staat dat, afhankelijk van het <A HREF="glossary/gls_fs.html">bestandssysteem</A>
+van het object, de volgende beperkingen gelden voor de <I>echte naam</I> van het object:
+
+<UL><LI>Met het FAT bestandssysteem, zijn bestandsnamen beperkt tot 8 karakters plus een
+3-karakters bestandsuitbreiding. Als toevoeging, de volgende karakters zijn in het FAT
+bestandssysteem niet toegestaan:
+
+<P><CODE>&lt; &gt; | + = : ; , " / [ ]</CODE>
+
+<P>Als toevoeging, het FAT bestandssysteem bewaart geen hoofdletters.
+
+<P><LI>Met installeerbare bestandssystemen (IFS's) zoals HPFS of JFS, kan de
+bestandsnaam tot 254 karakters lang worden en zijn er geen regels voor de
+de bestandsnaam uitbreidingen. Echter, de volgende karakters zijn nog steeds
+niet geldig:
+
+<P><CODE>&lt; &gt; | : " / </CODE>
+
+</UL>Uiteraard, is het backslash karakter (<CODE>\</CODE>) ongeldig in ieder
+bestandssysteem omdat het wordt gebruikt als <A HREF="glossary/gls_path.html">pad</A> scheidingsteken in &os2;.
+
+<P>Als de titel van het bestandssysteem object zich aan deze beperking houdt,
+is de echte naam gelijk een de titel.
+Echter, <I>indien niet</I> verandert de WPS de titel om aan deze beperkingen te voldoen
+door het af te korten tot de toegestane bestandsnaam lengte en de illegale karakters te
+vervangen door uitroeptekens (<CODE>!</CODE>).
+De originele titel wordt dan met het object opgeslagen in de <CODE>.LONGNAME</CODE>
+<A HREF="glossary/gls_eas.html">uitgebreide kenmerken.</A>
+
+<P>In dat geval wijkt de "echte naam" die wordt getoond met het <CODE>DIR</CODE> commando
+vanaf de &os2; opdrachtregel af van de titel die wordt getoond in de WPS map.
+
+<P>Voorbeelden:
+
+<OL><LI>De map titel is <CITE>LangeMapTitel</CITE>, maar de map bevindt zich op
+een FAT schijf, dus het
+<A HREF="glossary/gls_path.html">pad</A> in de map zijn "Bestand" pagina zal alleen
+<CITE>C:\LangeMap</CITE> laten zien.
+
+<P><LI>De map titel is <CITE>Inkomsten/Uitgaven</CITE>, maar de echte naam wordt
+<CITE>Inkomsten!Uitgaven</CITE> (aannemende dat de map op een HPFS of JFS schijf staat).
+</OL>
+
+</BODY>
+</HTML>
+

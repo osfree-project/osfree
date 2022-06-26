@@ -1,0 +1,50 @@
+<HTML RESID=&ID_XSH_SETTINGS_ERRORS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Error settings
+    </TITLE>
+</HEAD>
+<BODY>
+On this page you may change some &cfgsys; settings which determine &os2;'s
+error handling.
+<P>If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective chapters
+of the <I>&os2; Command Reference.</I>
+
+<P>Press <B>"Apply"</B> to have the changes you've made written to the
+&cfgsys; file.
+This will only change the &cfgsys; lines which correspond to the settings on this
+page. The lines corresponding to the other pages in the "&os2; Kernel" object will
+not be changed.
+This button is only active if you have made any changes to the settings
+on this page. Please note that you will have to restart the computer to let the changes
+take effect. A Desktop restart does <I>not</I> suffice.
+<P>Press <B>"Optimize"</B> to have &xwp; propose you new settings according to
+your system characteristics.
+&cfgsys; will only be changed after you press "Apply" also.
+<P>Press <B>"Default"</B> to have the &os2; default settings displayed on the notebook
+page.
+&cfgsys; will only be changed after you press "Apply" also.
+
+<P>If you enable the <B>"Suppress hardware errors",</B> those annoying &os2; error messages
+about drives not being ready and other hardware errors will finally disappear.
+When this is enabled, &os2; automatically reports the error which occurred to the
+application, which it would otherwise only do if you selected "Return error code" in
+the white error window which then appears. This corresponds to the
+<CITE>AUTOFAIL=YES</CITE> setting.
+
+<P>Enabling the <B>"Suppress exception messages"</B> setting will result in exception
+messages not being displayed in an error window, but instead they will only written to
+the <CITE>POPUPLOG.OS2</CITE> file in the root directory of the drive you specify.
+This corresponds to the
+<CITE>SUPPRESSPOPUPS=x</CITE> settings. Note that since &warp; 3 fixpak 29
+this file is always written to the boot drive, even if this setting is not enabled.
+
+<P>If you enable the <B>"Automatically reboot after trap"</B> setting, &os2; will
+automatically restart the whole system after one of those unrecoverable error messages
+with "The system was halted." appears. This is helpful for machines which must
+run unattended, such as network servers.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,69 @@
+<HTML RESID=&ID_XSH_DATAFILE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Datafiler
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.16 -->
+<BODY>
+Datafiler anv„nds av program f”r att lagra data p† disk. Alla filsystemsobjekt
+som varken „r <A HREF="objects/obj_pgmf.html">programfiler</A>
+eller
+<!-- V0.9.19: added link -->
+&link_folders;
+betraktas som datafiler av &os2;. De kan eller kan inte inneh†lla 
+icke m„nskligt l„sbara data.
+
+<P>Datafiler har vanligtvis en <B>typ</B>. Du kan st„lla in filtyper direkt
+p† sidan "Typer" i filens
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>.
+
+<IFNDEF __NEVEREXTASSOCS__>
+Om ingen direkt typ har tilldelats, kommer &xwp; att tilldela en automatisk typ
+till filen baserad p† dess fil„ndelse, vilken „r den del av objektets filnamn som
+finns efter den sista punkten.
+</IFNDEF>
+
+<P>Som till„gg, datafiler har ofta
+<!-- V0.9.20: added link -->
+&link_progobjs;
+<B>associerade</B> med dem. Detta till†ter dig att enkelt dubbelklicka p† en
+datafil f”r att f† det associerade programmet ”ppnat med datafilen redan laddad, eller 
+att v„lja ett program fr†n datafilens submeny "™ppna" i dess &popmenu;.
+
+<P>Om datafilen inte har n†gon typ tilldelad (varken direkt eller
+automatiskt), associerar &os2; den med 
+<IFDEF __EWORKPLACE__>
+"Text Editor" objektet, vilket vanligtvis finns i mappen "Tillbeh”r" i mappen
+"Program" p† ditt Skrivbord.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+System Editor.
+</IFNDEF>
+
+<!-- V0.9.19: changed all the following -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>Du kan konfigurera &xwp;'s filtyper och associationer p† sidan "Filtyper"
+i <A HREF="objects/obj_wps.html">"Workplace Shell" objektet.</A>
+<P>Se <A HREF="glossary/gls_assocs.html">Typer och associationer</A> f”r en
+introduktion till associationer mellan datafiler och program.
+</IFNDEF>
+<IFDEF __NEVEREXTASSOCS__>
+<P>Du kan „ndra associationer mellan program och datafiler p† sidan
+"Associationer" i ett programs notbok med egenskaper.
+</IFDEF>
+
+<!-- V0.9.20: added the below links -->
+<P>F”r relaterad information, v„lj fr†n listan nedanf”r:
+
+<UL>
+<LI><A HREF="tasks/tsk_crobjs.html">Skapa nya objekt</A>
+<LI><A HREF="tasks/tsk_templates.html">Om mallar</A>
+<LI><A HREF="tasks/tsk_crshadow.html">Om skuggor</A>
+<LI><A HREF="tasks/tsk_copymove.html">Kopiera, flytta, och skuggor ”versikt</A>
+<LI><A HREF="tasks/tsk_chicons.html">Žndra ikoner f”r objekt</A>
+<LI><A HREF="tasks/tsk_rename.html">Žndra objektrubriker</A>
+<LI><A HREF="tasks/tsk_delete.html">Radera objekt</A>
+</UL>
+</BODY>
+</HTML>

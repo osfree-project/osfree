@@ -1,0 +1,96 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Extra Features with Program Objects
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+Whenever &xwp; starts a program object
+from the &cfgfdr; (that is, when you select the respective menu item
+in a folder <!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>),
+it can perform a few tricks on them.
+
+<P>These tricks are the following:
+
+<OL><LI>If the <B>startup directory</B> of the program object is empty, &xwp;
+will temporarily set the directory of the folder whose &popmenu; was used
+before actually starting the program.
+This means that you can start the same program from all folders' &popmenu;s,
+but with a variable startup directory, being the directory of the folder whose
+&popmenu; was used.
+
+<P>For example, with the default configuration, the command line objects have
+empty startup directories. This is why you can start command lines "in" the folder
+whose &popmenu; was used.
+
+<P>If you wish to disable this behaviour, simply specify a startup directory in a
+program object (e.g. <CITE>"C:\"</CITE>), and &xwp; will leave it alone.
+Instead, it will always use the startup directory which you have specified.
+
+<BR><LI>If the <B>parameter list</B> of the program object does not contain a
+trailing <CITE>"%"</CITE> sign, the directory of the folder you used will be
+passed as a parameter to the program.
+
+<P>This allows you to pass a fully qualified directory name as an argument to
+a program. You can disable this feature completely on the "&popmenu;s" pages
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<P>If you wish to disable this behaviour for one menu item only
+(not all programs can handle directories as parameters),
+add a <CITE>"%"</CITE> sign to the "Parameters" list of the respective program object.
+&xwp; will omit passing the
+additional parameter. This is the case, for example, with the command line objects of
+the default configuration.
+
+<BR><LI>You can append the <B>current contents of the
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">clipboard</A></B> to the parameter
+list of the clipboard by putting a <CITE>"%**C"</CITE>
+symbol into the parameter list. This can appear at any position of the
+parameters. This is case-sensitive; <CITE>"%**c"</CITE> (in lower case) will <I>not</I>
+work.
+
+<P>Example: Path and filename = <CITE>"e.exe"</CITE>;
+parameters = <CITE>"%**C"</CITE> will start the system editor, interpreting the
+contents of the clipboard as a file name.
+
+<P>Note that the contents of the clipboard will be truncated so that the maximum length of
+the parameter list will not be exceeded. With &os2;, the maximum path length is 260
+characters.
+
+<BR><LI>If the <B>program title</B> contains a <CITE>"~"</CITE>
+character, &xwp; will remove it temporarily before starting the program. You can also
+switch off this behavior in the
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<BR><LI>You can now insert a <B>separator</B> into a menu by specifying
+<CITE>"---"</CITE> (three dashes) in a program object's title.
+
+(A separator is a
+horizontal line to optically separate groups of menu items.) In this case, &xwp;
+will ignore the program object's settings (such as the executable, parameters etc.) and
+simply insert a separator into the menu. This works for the main &popmenu; as well as
+submenus.
+
+</OL>&xwp; implements the features 1.-4. by actually changing the program object's
+settings for a fraction of a second: the settings are changed, the program object is
+opened, and then the settings are reset to the original values.
+
+<!-- V0.9.19: removed this, it's no longer valid
+Please note that &xwp; only performs these described actions on "real" program objects
+in the &cfgfdr;, not on shadows pointing to other program objects.
+This was done intentionally
+to make sure that objects which are situated elsewhere in your Desktop hierarchy
+are not changed by &xwp;. Shadows will be opened too, but without performing the
+special features described above.
+As a consequence, you ought to put copies of your program objects
+into the &cfgfdr;, instead of creating shadows for them.
+-->
+
+<BR>
+</BODY>
+</HTML>
+

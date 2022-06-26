@@ -1,0 +1,155 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS-Klassen
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+Die Workplace Shell (WPS) von &os2; wird h„ufig als
+<b>Objekt-orientiert</b> beschrieben. Dieser Begriff besagt,
+daá - im Gegensatz zu anderen Betriebssystemen - alles auf der
+Arbeitsoberfl„che zun„chst als <b>"Objekt"</b> betrachtet wird.
+Dies gilt beispielsweise fr
+<!-- V0.9.19: link added -->
+&link_folders;,
+<!-- V0.9.19: link added -->
+&link_datafiles;,
+Drucker, Laufwerksobjekte und so weiter. All diese Objekte haben bestimmte
+Gemeinsamkeiten wie
+<!-- V0.9.19: links added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A> und
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbcher</A>, aber
+auch gewisse Unterschiede: beispielsweise h„ngt der Inhalt eines
+&popmenu;s von dem ausgew„hlten Objekt ab.
+ 
+<P>Um diese Gemeinsamkeiten und Unterschiede effizient verwalten zu k”nnen,
+benutzt die WPS sogenannte <b>Klassen</b>. Dieser Begriff stammt aus
+der objektorientierten Programmierung. Eine Klasse ist sozusagen ein
+abstraktes Konzept, oder eine Schablone, fr ein Objekt.
+Eine Klasse ist daher auf der Arbeitsoberfl„che nicht sichtbar. Sie
+"existiert" nicht in demselben Sinne wie Objekte, aber sie enth„lt
+alle Informationen ber die Eigenschaften und F„higkeiten eines Objekts
+und den Programmcode, der ein Objekt berhaupt f„hig macht, Aktionen
+auszufhren.
+ 
+<P>Alle WPS-Klassen mssen in
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">DLLs</A> implementiert sein.
+Beispielsweise befinden sich die meisten Standard-WPS-Klassen in der groáen
+Datei <CODE>PMWP.DLL</CODE> im Verzeichnis <CODE>\OS2\DLL</CODE>.
+Alle &xwp;-Klassen befinden sich in <CODE>XFLDR.DLL</CODE>
+im Verzeichnis von &xwp;.
+ 
+<P>Nun ist jedes Objekt auf der Arbeitsoberfl„che eine sogenannte
+<b>Instanz</b> einer Klasse. Die Namen der meisten WPS-Klassen beginnen
+mit "WP": alle Drucker sind z.B. Instanzen der Klasse "WPPrinter",
+alle Ordner der Klasse "WPFolder", alle Datendateien der Klasse
+"WPDataFile" usw.
+ 
+<P>Der Grund fr die Leistungsf„higkeit und Flexibilit„t des Klassenkonzepts
+liegt darin, daá Klassen voneinander <b>abgeleitet</b> werden. Eine abgeleitete
+Klasse <b>erbt</b> alle Eigenschaften und F„higkeiten ihrer Elternklasse.
+Auf diese Weise ist es m”glich, bestimmte Eigenschaften der Benutzeroberfl„che
+zu abstrahieren, nach dem alten Grundsatz: das beste Mittel gegen Komplexit„t
+ist Abstraktion.
+ 
+<P>Die WPS enth„lt viele Klassen, die eine durchdachte Vererbungshierarchie
+bilden. Der folgende Auszug aus der WPS-Klassenliste macht dies deutlich
+(wobei die Linien die Vererbung anzeigen):
+ 
+<PRE>
+ WPObject
+   ÃÄÄ WPAbstract
+   ³     ÃÄÄ WPPrinter
+   ³     ÃÄÄ WPProgram
+   ³     ÀÄÄ WPShadow
+   ÃÄÄ WPFileSystem
+   ³     ÃÄÄ WPDataFile
+   ³     ³      ÃÄÄ WPIcon
+   ³     ³      ÀÄÄ WPProgramFile
+   ³     ÀÄÄ WPFolder
+   ³            ÃÄÄ WPDesktop
+   ³            ÀÄÄ WPStartup
+   ÀÄÄ WPTransient
+</PRE>
+ 
+Wie Sie sehen, sind alle Klassen von <CODE>WPObject</CODE> abgeleitet, die
+daher die "Wurzelklasse" aller WPS-Klassen genannt wird. Diese Klasse
+bewirkt alle Eigenschaften, die s„mtlichen Objekten der Arbeitsoberfl„che
+gemeinsam sind: wie bereits erw„hnt, beispielsweise &popmenu;s und
+Einstellungsnotizbcher. Jedoch ist die WPObject-Klasse zu abstrakt,
+um von ihr direkt Instanzen erzeugen zu k”nnen. Diese Klasse wurde
+aus dem ausschlieálichen Grund entworfen, daá andere Klassen von ihr
+abgeleitet werden. Objekte dieser Klasse haben keine sinnvolle Funktion.
+ 
+<P>WPObject hat genau drei abgeleitete Klassen. Wie WPObject sind diese
+drei abgeleiteten Klassen ebenfalls abstrakte Stammklassen, von denen
+keine Objekte direkt erzeugt werden k”nnen.
+ 
+<OL><LI><CODE>WPAbstract</CODE> ist die gemeinsame Stammklasse
+fr sogenannte "abstrakte" Objekte, d.h. Objekte, die nicht physisch
+auf einem Speichermedium existieren, sondern ihre Daten in der Datei
+<code>OS2.INI</code> speichern. Die bekanntesten Beispiele fr abstrakte
+Objekte sind die der Klassen <CODE>WPPrinter</CODE> fr Druckerobjekte,
+<CODE>WPProgram</CODE> fr Programmobjekte und <CODE>WPShadow</CODE> fr
+Referenzen. Diese Objekte k”nnen alle in Ordnern erscheinen, sind jedoch
+nicht sichtbar, wenn man an einer Befehlszeile <code>DIR</code> eingibt.
+ 
+<P><LI>Im Gegensatz dazu ist <CODE>WPFileSystem</CODE> die gemeinsame
+Stammklasse fr Objekte, die tats„chlich im Dateisystem eines Speichermediums
+existieren. Hiervon gibt es zwei Unterklassen: Ordner
+(<CODE>WPFolder</CODE>) und Datendateien (<CODE>WPDataFile</CODE>).
+Von WPDataFile gibt es wiederum eine Reihe von abgeleiteten Klassen
+wie <CODE>WPIcon</CODE> fr Symboldateien und
+<CODE>WPProgramFile</CODE> fr ausfhrbare Programmdateien (normalerweise
+mit der <CODE>.EXE</CODE>-Erweiterung).
+Alle Datendateien, fr die keine spezielle Unterklasse entworfen wurde,
+sind Instanzen von <code>WPDataFile</code> selbst.
+ 
+<P><LI><CODE>WPTransient</CODE> wird schlieálich von der WPS fr Objekte
+benutzt, die ihre Daten berhaupt nicht speichern, sondern nur vorbergehend
+erstellt werden, um Daten zu repr„sentieren. Beispiele hierfr sind die
+Auftr„ge in einem Druckerobjekt und die Ger„te im Hardware-Manager.
+ 
+</OL>Die WPS bietet zus„tzlich den bemerkenswerten Mechanismus der
+<b>Klassenersetzungen</b> an. Diese Funktion wird von &xwp; intensiv
+benutzt, um eine Vielzahl von Erweiterungen in die WPS zu integrieren.
+So ersetzt beispielsweise die Klasse
+<CODE>XFolder</CODE> die Standardklasse <CODE>WPFolder</CODE>, um die
+ganzen neuen Ordnerfunktionen zu implementieren.
+ 
+<P>Eine Ersetzungsklasse muá stets von der Klasse, die sie ersetzen soll,
+abgeleitet sein. Das "Ersetzen" einer Klasse bedeutet dann, daá die WPS
+stets diese Klasse anstelle der ursprnglichen Klasse benutzen wird.
+Alle Ordner des Systems sind also nicht mehr Instanzen der Klasse
+<CODE>WPFolder</CODE>, sondern der Klasse <CODE>XFolder</CODE>.
+Da die Klasse <CODE>XFolder</CODE> aber von der Klasse <CODE>WPFolder</CODE>
+abgeleitet ist, erbt sie alle Eigenschaften der Standardordner.
+ 
+<P>Mit Klassenersetzungen k”nnen Programmierer neue Funktionen in eine
+Klasse einfgen, ohne im Detail wissen zu mssen, wie eine Klasse intern
+funktioniert. Dies ist ein auáergew”hnliches und leistungsf„higes Konzept,
+welches von keinem anderen Betriebssystem angeboten wird.
+ 
+<IFNDEF __NOWPSCLASSLIST__>
+<P>Wenn Sie das &xwp;-Objekt
+<A HREF="clst_main.html">"WPS-Klassenliste"</A> ”ffnen,
+werden alle Klassen angezeigt, die derzeit auf dem System installiert sind.
+šblicherweise sind dies mehr als 100 Klassen, die in einer
+Strukturanzeige aufgez„hlt werden. Mit &popmenu;s k”nnen Sie Klassen
+registrieren und ersetzen sowie deregistrieren und Ersetzungen
+rckg„ngig machen. Sie k”nnen auáerdem versuchen, von einer bestimmten
+Klasse ein Objekt (d.h. eine Instanz) zu erzeugen.
+ 
+<P>Beachten Sie, daá Sie beim Ver„ndern der WPS-Klassenliste groáe Vorsicht
+walten lassen sollten. Eine falsche nderung kann Ihr System unbenutzbar machen!
+</IFNDEF>
+ 
+<BR>
+</BODY>
+</HTML>
+ 

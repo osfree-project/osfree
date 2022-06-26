@@ -1,0 +1,36 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Overview
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This section describes how you can integrate your own code into XWorkplace.
+Since XWorkplace is now a Netlabs project on the Netlabs CVS server, certain
+rules must be followed so that the whole thing still works even though several
+developers might be adding stuff.
+
+<P>With XWorkplace V0.9.0, I have restructured the whole directory and
+makefile system to allow for extending XWorkplace. In any case, the idea is
+that all XWorkplace classes will reside in one single DLL, <CODE>XFLDR.DLL</CODE>,
+but should be capable of being registered independently.
+
+<P>Basically, there are two situations which you need to tell apart:
+
+<OL><LI>You can <A HREF="ext_2addclass.html">add a new class to XWorkplace</A>. That is,
+you wish to hook your code into the WPS, but XWorkplace doesn't have a class for
+this yet. This situation applies both if you wish to replace a standard WPS class
+(example: the spooler class, WPSpool) which XWorkplace doesn't replace yet, or if
+you wish to create an all new class. (This only makes a difference at install time,
+whether the install program will replace a class.)
+
+<P><LI>You may choose to <A HREF="ext_3extend.html">extend an existing XWorkplace class</A>
+(either an XWorkplace replacement for a default WPS class, e.g. XFolder, or a newly
+introduced XWorkplace class, e.g. XFldWPS -- the "Workplace Shell" object).
+This is much simpler, because you can build on existing code.
+
+</OL>
+</BODY>
+</HTML>
+

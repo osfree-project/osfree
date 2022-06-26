@@ -1,0 +1,63 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        F”rb„ttrade Sorteringsoptioner
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp;; also see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klass: XFolder</B><HR>
+&xwp; kan ocks† f”rb„ttra "Sorterings" funktionerna hos Workplace Shell.
+<P><B>Viktig notering:</B> F”r att undvika f”rvirring, „r sorteringsut”kningarna
+avaktiverade som standard. Du kan aktivera dom i
+<A HREF="sys_2global.html">"&xwp; Setup" objektet</A>.
+
+<!-- V0.9.1: removed all this:
+After you enable the new sort functions, your previous folder sort settings will
+get lost successively as the WPS activates folders. Unfortunately, this is inevitable,
+because IBM has barely documented at all how the WPS sort functions are working
+internally. As a result, you'll
+have to reconfigure the sort settings for certain folders (which will be explained below). -->
+<P>De nya &xwp; sorteringsfunktionerna „r:
+
+<UL><LI>Žntligen, finns det <B>globala sorteringsinst„llningar,</B> vilket tidigare
+inte existerade i WPS. Medan det var m”jligt att st„lla in ett antal mappinst„llningar globalt, 
+kunde tills nu sortering bara utf”ras p† en mapp i taget, vilket var r„tt irriterande.
+&xwp; introducerar en ny sida med "Sortering" hos
+<A HREF="sys_2global.html">"Workplace Shell" objektet</A> f”r globala sorteringsinst„llningar,
+vilka kan ”verskridas individuellt f”r varje mapp.
+
+<BR><LI>&xwp; g”r sig ocks† av med en del konstiga sorteringsinst„llningar vilka inte anv„ndes
+av n†gon i varje fall, som "sortera klass". (Denna inst„llning var inte s„rskilt meningsfull, eftersom
+WPFolder „r den enda klass som introducerar meningsfulla sorteringskriterier i alla fall.)
+
+<!-- V0.9.13: rewrote all the following -->
+<BR><LI>Viktigast, &xwp; ger dig en hel del nya sorteringsoptioner f”r mappar
+-- b†de f”r varje individuell mapp och globalt genom sidan "Sortera" i
+<A HREF="sys_2global.html">"Workplace Shell" objektet</A>.
+
+<P>F”r det f”rsta, <B>nya sorteringskriterer</B> s†dana som "objektklass" och "filnamns„ndelser" har
+introducerats.
+
+<P>F”r det andra, det finns nu ett nytt "super-kriterium" f”r att alltid <B>sortera mappar f”rst,</B>
+som till„gg till mappens standard sorteringskriterier. Till exempel, du kan sortera p† storlek och 
+fortfarande f† alla mappar att sorteras fr†n toppen.
+
+<P>F”r allt detta, har <B>"Sortera" submenyn</B> i varje mapps kontextmeny blivit omarbetad ocks†:
+
+<P><IMG SRC="sort.gif">
+
+<BR>Som du kan se, &xwp; l„gger till menyposter f”r "Underh†ll alltid sorteringsordning" och 
+"Sortera mappar f”rst" f”r snabb access.
+
+<P>Som till„gg, du kan snabbt „ndra standard sorteringskriterier f”r en speciell mapp genom att
+<B>h†lla ner "Shift"</B> tangenten medan du v„ljer sorteringskriterier i menyn "Sortering".
+
+</UL>&xwp; definerar ocks†
+<A HREF="fldr_5xelerators.html">mappsnabbkommandon</A> f”r de mest anv„nda sorteringskriterierna.
+<BR>
+</BODY>
+</HTML>
+
+

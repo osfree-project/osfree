@@ -1,0 +1,167 @@
+
+/*
+ * xwpnetsrv.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPNetServer:
+ *
+ *      See src\classes\xwpnetsrv.c for details.
+ */
+
+/*
+ *      Copyright (C) 2001-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wptrans.idl>          // this is SOM for WPTransient
+
+/*
+   CLASS: XWPNetServer
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject [ = XFldObject ]
+               ÀÄÄ WPTransient
+                     ÀÄÄ XWPNetServer
+*/
+
+interface M_XWPNetServer;            // forward reference to metaclass
+
+interface XWPNetServer : WPTransient
+{
+
+    /*
+     * New instance methods for XWPNetServer:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        //# releaseorder:
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xsrv_;
+        externalstem = xsrv;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpnetsrv;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPNetServer;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPNetServer:
+         *
+         */
+
+        PSZ     pszServerName;          // malloc'd, copied from setup string
+
+        /*
+         * WPTransient methods overridden by XWPNetServer:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        wpSetupOnce: override;
+
+        wpQueryDetailsData: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpMoveObject: override;
+
+        wpOpen: override;
+
+        wpDragOver: override;
+        wpDrop: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPNetServer : M_WPTransient
+{
+
+    /*
+     * New class methods for M_XWPNetServer:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xsrvM_;
+        externalstem = xsrvM;
+        functionprefix = xsrvM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpnetsrv;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPNetServer:
+         *
+         */
+
+        /*
+         * M_WPTransient methods overridden by M_XWPNetServer:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryDetailsInfo: override;
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

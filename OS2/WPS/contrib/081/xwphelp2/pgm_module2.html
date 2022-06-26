@@ -1,0 +1,44 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE2;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Exported functions" page
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.9 -->
+<BODY>
+<!-- V0.9.20: rewrote the entire page -->
+The "Module" pages appear in the properties notebooks of all executable
+files to display additional information about an executable module.
+
+<P>This page shows you the functions that are exported by the module and can
+thus be imported by other modules (either through load-time loading or explicitly
+through run-time loading).
+
+<P>For each function, the following fields are displayed:
+
+<UL><LI>Each exported function must have an <B>ordinal number,</B> which is
+unique within the module. The first possible ordinal value is 1, and the last
+65535. Not all ordinal values correspond to an exported function.
+
+<P><LI>Each exported function must also have a <B>type,</B> being one of the following:
+
+<UL><LI><B>Entry16:</B> a 16-bit function.
+<LI><B>Entry32:</B> a 32-bit function.
+<LI><B>286 Call Gate:</B> a 16-bit function that causes a ring 2 switch.
+<LI><B>Forwarder:</B> a forwarder, that is, calling this entry point in
+turn calls another exported function (either in this module or in
+an imported module).
+
+</UL><LI>Optionally, exported functions can have <B>name.</B> This name, if
+defined, is case-sensitive.
+
+</UL>Imports can be performed either by ordinal (which always works) or by name
+(which works only if a name is defined for the imported function).
+See the documentation for
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in the Toolkit documentation.<A HREF="_toolkitlink.html">*</A>
+
+<BR>
+</BODY>
+</HTML>
+

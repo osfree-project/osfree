@@ -1,0 +1,38 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        Om &xwp; Versionsnumrering
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+Med releasen av &xwp; V0.9.0, har 
+<B>versionsnumreringsformatet „ndrats.</B> Liknande Linux versionsnumrering, har vi nu
+tre sub-siffor i versionsnumret, vilka nu „r i formatet <CODE>st”rre.mindre.revision</CODE>.
+
+<!-- V0.9.3: added this paragraph -->
+<P>Som hos Linux, „r <B>udda mindre nummer</B> anv„nda f”r "utvecklingsreleaser" vilka inte
+„r garanterade att vara stabila. Efter ett flertal utvecklingsreleaser, om koden anses vara stabil, 
+kommer n„sta version att f† ett <B>j„mnt mindre nummer.</B>
+S†, till exempel, efter V0.9.19, kan V1.0.0 eventuellt ges ut.
+
+<P>Detta har „ndrats f”r att klarg”ra vilket <A HREF="inst_4nls.html">Nationellt Spr†kst”ds (NLS) paket</A>
+som kan anv„ndas f”r en s„rskild &xwp; release: Ett NLS paket vilket har samma st”rre och mindre
+versionsnummer som hos &xwp; baspaket kan anv„ndas med just den versionen.
+
+<!-- V0.9.3: added this paragraph -->
+<P>Detta g„ller inte f”r utvecklingsreleaser. S† om du har ett udda mindre nummer, till exempel, med
+alla V0.9.x releaser, anv„nd endast NLS paketet med exakt samma versionsnummer.
+
+<!-- V0.9.3: removed all this
+In other words, if only the revision part is raised, NLS packages for the
+previous version will still be working.
+Note that the revision number will be raised for each single release,
+even if the previous release was called a "beta" version. I only add the "beta" if I
+think that a release has not been tested enough to be considered stable. If there is
+a "beta" version, there will never be a non-beta version with the same version number,
+but the release number will be raised for the non-beta release. -->
+<BR>
+</BODY>
+</HTML>
+

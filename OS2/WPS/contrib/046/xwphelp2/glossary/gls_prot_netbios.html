@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Om NetBIOS
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>Network Basic Input/Output System (NetBIOS)</B> „r ett
+<A HREF="glossary/gls_protocols.html">n„tverksprotokoll</A> som anv„nds i
+de flesta <A HREF="glossary/gls_lan.html">Local Area Networks (LANs)</A> idag.
+
+<P>Det skapades av IBM f”r dess tidiga PC N„tverk, antogs av Microsoft,
+och har sedan dess blivit en de facto industristandard eftersom det st”der de
+flesta operativsystem, inklusive &os2; och Microsoft Windows. Linux st”der
+ocks† NetBIOS via ytterligare programvaran Samba.
+
+<P>Det finns flera stora skillnader mellan &link_tcpip; och NetBIOS, b†de fr†n
+en system implementationsida och s„ttet anv„ndaren arbetar med protokollen. Detta
+beror p† att de tv† protokollen tj„nar olika „ndam†l: TCP/IP kan hantera ett
+globalt n„tverk som &link_internet;, medan NetBIOS „r det b„sta prestandavalet f”r
+kommunikation inom ett enstaka LAN. Detta „r orsaken, till att i de flesta datorer,
+„r b†da protokollen installerade.
+
+<UL><LI>NetBIOS tilldelar inte statiska nummeradresser till datorer i n„tverk. Ist„llet,
+b„r varje server i n„tverket ett namn och exporterar resurserna den delar ocks† p†
+namnet. Som ett resultat, „r resurerna i n„tverket typiskt refererade till b†de
+server och resursnamnet.
+
+<P><LI>NetBIOS sj„lv erbjuder ingen transportmekanism. Typiskt, anv„nder NetBIOS
+NetBEUI som sin transportmekanism, vilken installeras automatiskt om du installerar &os2;'s
+st”d f”r NetBIOS. Emellertid, kan du ocks† v„lja att installera "NetBIOS ”ver TCP/IP" f”r att
+anv„nda TCP/IP som transportmekanism.
+
+<P><LI>Operativsystemet sj„lv st”der access av n„tverksresurser, automatisk mappning
+av standard filspecifikationer till fj„rrdatorer. Till exempel, kan du tilldela en
+enhetsbokstav till ett NetBIOS namn och accessa resursen via enhetsbokstaven och
+filnamnet som om den fanns p† ditt system.
+
+</UL>&os2; skeppas med
+&link_peer;
+vilket betyder, att om det „r installerat, st”der delning av resurser med andra
+datorer i ditt LAN och access av andra resurer p† et bekv„mt s„tt.
+
+</BODY>
+</HTML>

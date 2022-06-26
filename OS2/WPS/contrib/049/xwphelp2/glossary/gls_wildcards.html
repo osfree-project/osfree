@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Platzhalter
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+<!-- V0.9.19: first paragraph rewritten -->
+Platzhalter sind eine stark vereinfachte Variante der von Unix
+her bekannten
+<A HREF="glossary/gls_regexps.html">regul„ren Ausdrcke</A>.
+Sie erlauben es, mehrere Dateinamen mit einer einzigen Zeichenkette
+zu erfassen und werden h„ufig an den Befehlszeilen von DOS und &os2;
+benutzt.
+ 
+<P>&os2; untersttzt zwei Platzhalterzeichen:
+ 
+<OL><LI>Der <B>Stern</B> (<CODE>*</CODE>) findet jede beliebige
+Sequenz von Zeichen, d.h. kein Zeichen, ein Zeichen oder mehrere Zeichen.
+ 
+<P>Beispielsweise findet <CODE>M*e</CODE> die Zeichenketten <CODE>M„use</CODE>
+und <CODE>Meere</CODE>, aber nicht <code>Maus</code>.
+ 
+<P><LI>Das <B>Fragezeichen</B> (<CODE>?</CODE>) findet ein beliebiges einzelnes
+Zeichen.
+ 
+<P>Beispielsweise findet <CODE>M??s</CODE> die Zeichenkette <CODE>Maus</CODE>, aber
+nicht <CODE>M„use</CODE> oder <CODE>Haus</CODE>.
+ 
+</OL>Platzhalter k”nnen auch kombiniert werden.
+So findet beispielsweise <CODE>M*e.?x?</CODE> die Dateien
+<CODE>M„use.txt</CODE> und <CODE>Meere.exe</CODE>.
+ 
+<P>Beachten Sie, daá unter &os2; (anders als unter DOS) der Punkt (<CODE>.</CODE>)
+in Dateinamen nur unter dem
+<A HREF="glossary/gls_fs.html">FAT</A>-Dateisystem besonders behandelt wird.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,47 @@
+<HTML RESID=&ID_XSH_SETTINGS_SNAPTOGRID;>
+<HEAD>
+    <TITLE>
+        &xwp;: Snap to Grid
+    </TITLE>
+</HEAD>
+<!-- V0.9.16: replace XFolder with &xwp; -->
+<BODY>
+On this page you can configure &xwp;'s "Snap to grid" function.
+Please see the <I>&xwp; User Guide</I> for details.
+
+<P>The <B>"Enable"</B> box will add the "Snap to grid" menu item to every folder's
+&popmenu;. This only applies to OPEN folders.
+This setting may also be overridden on the "View" page in every folder's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>.
+
+<P>Note that even though you might have disabled the "Snap to grid" menu item, you can still
+configure a hotkey for it on the "Hotkeys" page in the
+<!-- V0.9.4: link added -->
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<P>The other four numeric settings
+determine the grid upon which the objects will jump when you press "Snap to grid".
+
+<P>All numbers represent pixels on the screen.
+
+<P>The <B>"Origin"</B> numbers specify the first grid line to be used.
+The X coordinate is counted from the left of the folder plane, the Y coordinate from
+the bottom.
+Note that if the folder has scroll bars, &xwp; will still count from the lower left
+corner of the folder plane, even if it is presently invisible.
+
+<P>The <B>"Spacing"</B> coordinates specify the distance between the following
+grid lines, in X and Y direction (to the right and top), respectively.
+
+<P><B>Example:</B> With X grid origin = "10" and X grid spacing = "50", the
+vertical grid lines will be at 10, 60, 110, 160, etc. pixels.
+
+<P>Press <B>"Undo"</B> to restore the settings
+that were in use before you opened this notebook page.
+
+<P>Press <B>"Default"</B> to restore the settings
+to the installation state.
+<BR>
+</BODY>
+</HTML>
+

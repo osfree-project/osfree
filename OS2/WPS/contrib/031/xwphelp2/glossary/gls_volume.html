@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Over Schijven, Volumes, en Partities
+    </TITLE>
+</HEAD>
+<BODY>
+In &os2;, wordt de volgende terminologie gebruikt wanneer het gaat over
+opslag apparaten:
+
+<OL><LI>Een <B>schijf</B> is een logische entiteit dat een schijfletter door &os2;
+kernel toegewezen heeft gekregen. U kunt daarom tot 26 schijven hebben, die van
+<CODE>A:</CODE> t/m <CODE>Z:</CODE> worden aangeduid.
+
+<P>De &link_drivesfdr; toont alle schijven die nu aanwezig zijn op uw systeem.
+Schijven <CODE>A:</CODE> en <CODE>B:</CODE> zullen per definitie altijd de diskette
+stations zijn. Andere schijfletters zullen of harde schijf volumes zijn (zie hieronder),
+CD-ROM of DVD schijven, netwerk bronnen die een schijf letter hebben toegewezen gekregen
+en andere opslag apparatuur.
+
+<P><LI>Een <B>volume</B> is een concept specifiek voor harde schijven en bestaat uit ‚‚n
+of meer partities (zie hieronder). Een volume moet geformatteerd zijn met een specifiek
+<A HREF="glossary/gls_fs.html">bestandssysteem</A> om in staat te zijn om gegevens vast
+te houden.
+
+<P>Een <B>partitie</B> is een fysiek segment op een harde schijf. Om te kunnen worden
+gebruikt in personal computers moet iedere harde schijf tenminste ‚‚n partitie bevatten,
+maar kan in meerdere worden verdeeld, b.v. als u in meer dan ‚‚n besturingssysteem of
+verschillende bestandssystemen wilt gebruiken.
+
+</OL>&os2; zijn <B>Logical Volume Manager (LVM)</B> staat u toe om volumes en partities
+te maken, te verwijderen en te bewerken. Gebruik LVM ook om een schijf letter toe te
+kennen aan een volume en er dus een schijf van te maken of om een volume voor &os2; te
+verbergen.
+<IFDEF __EWORKPLACE__>
+Zie <A HREF="lvmhelp.inf"><I>"Introductie tot LVM"</I></A> voor details.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+Zie <A HREF="usinglvm.inf"><I>"LVM Gebruiken"</I></A> voor details.
+</IFNDEF>
+
+<P>Er zijn verschillende opties om LVM te starten:
+
+<UL><LI>Vanuit de &link_drivesfdr;, selecteer "Volume beheer" in het
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+<P><LI>In de &link_syssetupfdr;, start het "Logical Volume Manager" object.
+
+<P><LI>Open een <A HREF="glossary/gls_cmd.html">opdrachtaanwijzing</A> en tik
+<CODE>LVM</CODE> in. In tegenstelling tot de voorgaande twee opties start dit de
+tekst mode versie van LVM op.
+
+</UL>Selecteer uit onderstaande lijst voor gerelateerde informatie:
+
+<UL>
+<LI>&link_syssetupfdr;
+<LI><A HREF="tasks/tsk_format.html">Formatteren van media</A>
+<LI><A HREF="glossary/gls_cmd.html">Over opdrachtaanwijzingen</A>
+
+</UL>
+</BODY>
+</HTML>
+

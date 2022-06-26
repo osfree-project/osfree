@@ -1,0 +1,122 @@
+<HTML RESID=&ID_XSH_WIDGET_PULSE_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Pulse Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+The
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<B>"Pulse" widget</B> displays the current CPU load together with a graph of
+past CPU activity. This is updated once a second.
+<IFNDEF __EWORKPLACE__>
+It is quite similar to the respective monitor in the &warpcenter;.
+</IFNDEF>
+
+<!-- V0.9.9: added the following -->
+<P>The display will roughly look like the following:
+<BR><IMG SRC="img/xc_pulse.gif">
+
+<P>The cyan part of the graph represents the "user" load of the system, while the
+blue part represents the "IRQ" load. The percentage that is printed in the center
+always represents the current combined "user" and "IRQ" loads.
+<!-- V0.9.19: added this -->
+If you are running a multi-processor system, you will get one "user" graph for
+each CPU. However, even then you will only have one "IRQ" graph because per
+definition, &os2; processes all interrupts on the first CPU in the system.
+See the remarks below for details about this.
+<!-- end V0.9.9 -->
+
+<!-- V0.9.19: changed the following -->
+<P>Note that you can
+<A HREF="glossary/gls_dropfonts.html">drag and drop fonts and colors</A>
+onto the pulse widget.
+Besides, it is
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">sizeable</A>.
+
+<!-- V0.9.19: removed
+Presently, the pulse widget can only display the load of the first CPU, in
+case you are running &os2; on a multi-processor system. -->
+
+<P><B>Implementation Details</B>
+
+<!-- V0.9.9: rewrote most of the following -->
+<P>Internally, the pulse widget uses the <CODE>DosPerfSysCall</CODE> API
+(see the documentation for
+<A HREF="cpref.inf#DosPerfSysCall"><CODE>DosPerfSysCall</CODE></A>
+in the Toolkit documentation<A HREF="_toolkitlink.html">*</A>).
+
+This API has the advantage that in order to measure CPU activity, one can directly
+access the performance counters in the &os2; kernel instead of having to
+run a second idle-time thread which consumes all remaining CPU time itself
+(and therefore additional battery power on laptops).
+
+<P>As a result, running the pulse widget does <I>not</I> consume additional CPU time
+except for the time needed to paint the widget itself. In other words, the pulse
+widget does not compute CPU load itself, it only queries the &os2; kernel for the
+current load and displays this in a graph.
+
+<P>The widget's own overhead for painting is also the reason why you will probably
+never see a CPU load of zero, even if you are not currently doing anything with
+your system. On the author's system (a Pentium II-400), the CPU load never goes
+below 0.7% with the standard widget size.
+
+<!-- V0.9.9: added all the following -->
+<P><B>Requirements</B>
+
+<!-- V0.9.19: refreshed this -->
+<IFNDEF __EWORKPLACE__>
+<P>The <CODE>DosPerfSysCall</CODE> API has only been introduced fairly recently
+and may not work on your system. It should work with Warp 4 and above (or Warp 3
+with an equivalent fixpak level; should be fixpak 26).
+</IFNDEF>
+
+<P>The IBM documentation for <CODE>DosPerfSysCall</CODE> states that a Pentium
+processor is required for the kernel performance counters to work.
+<!-- end V0.9.19 -->
+
+<P>If the widget does not display a graph but <CODE>"E xxx"</CODE> only (with
+<CODE>xxx</CODE> being a standard &os2; error code), an error occurred. Most probably, you
+will get <CODE>"E 182"</CODE>, which means that the <CODE>DosPerfSysCall</CODE> API wasn't
+found on your system. For other error codes, you can try typing <CODE>HELP SYSxxx</CODE>
+on a command line.
+
+<P><B>"User" and "IRQ" load</B>
+
+<P>For each performance snapshot, <CODE>DosPerfSysCall</CODE> returns values for "user"
+and "IRQ" loads, respectively.
+
+<P>The <B>"user" load</B> is the time that was spent in "task time" code. Essentially,
+this means that the CPU was busy executing code in either an application or the &os2;
+kernel or a device driver in the regular execution flow of processes and threads,
+as controlled by the scheduler in the &os2; kernel.
+<!-- V0.9.13: changed this -->
+(See <A HREF="glossary/gls_scheduler.html">"Processes and threads"</A> for details.)
+
+<P>By contrast, the <B>"IRQ" load</B> represents the time that was needed to process
+interrupts. As you might know, interrupts are a way for hardware components to signal
+to the CPU that some important event occurred which needs to be serviced immediately.
+Most commonly, interrupts are raised by hard disks, sound cards, network adapters,
+<!-- V0.9.19: added serials and printers-->
+and serial and printer communications.
+These devices cannot afford to wait until the &os2; scheduler has finished a process
+timeslice and is ready to switch to another task. Instead, when an IRQ comes in,
+the &os2; kernel interrupts the regular scheduling sequence and calls an interrupt
+handler instead, which, in most cases, will be code in some device driver. (In
+general, only &os2; device drivers can install interrupt handlers.) For example,
+if an interrupt from the hard disk comes in, code in <CODE>IBM1S506.ADD</CODE> will
+be called immediately to service the interrupt.
+
+<P>If you never see any IRQ load on your system, this is normal. This is
+probably the case if you do not have any network adapters installed and you have
+busmastering enabled for your hard disks. However, if you have a high IRQ load,
+you might consider taking measurements to reduce it -- enable busmastering for your
+hard disks and/or get a network adapter which is capable of busmastering.
+
+<BR>
+</BODY>
+</HTML>
+

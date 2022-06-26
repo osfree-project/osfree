@@ -1,0 +1,87 @@
+<HTML RESID=&ID_XSH_SETTINGS_DISKDETAILS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Laufwerksdetails
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.16: changed the following -->
+Die "Details"-Seite in den Laufwerkseinstellungen zeigt zusÑtzliche 
+Informationen zum Dateisystem eines Laufwerksobjektes an.
+ 
+<IFNDEF __NOXWPSETUP__>
+&xwp; ersetzt die "Details"-Seite in den NotizbÅchern der Laufwerkseinstellungen
+durch eine neue, verbesserte Seite. Um die originale "Details"-Seite zurÅckzubekommen,
+deaktivieren Sie die entsprechende Einstellung im 
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">Objekt "&xwp;-Konfiguration"</A>.
+</IFNDEF>
+<P>Abgesehen vom Feld "Laufwerksname" lassen sich die Informationen auf dieser Seite nicht
+Ñndern.
+ 
+<!-- end V0.9.16 -->
+ 
+<OL><LI>Die Gruppe <B>"Laufwerksdetails"</B> bieten die folgenden Informationen:
+ 
+<BR><OL><LI><B>Laufwerksbezeichnung:</B> ist die Laufwerksbezeichnung im 
+Dateisystem, wie man sie in der &os2;-Befehlszeile durch das Benutzen des 
+<CODE>LABEL</CODE>-Befehls eingegeben haben kînnte.
+&xwp; ermîglicht es nun, den Laufwerksnamen im Notizbuch zu Ñndern, ohne die Befehlszeile
+benutzen zu mÅssen. Es kînnte hilfreich sein, weil viele "Datei îffnen"-Dialoge 
+die Laufwerksnamen anzeigen, aber keinen Zugriff auf den Laufwerksobjekttitel der WPS haben. 
+<P>
+Die LÑnge des Laufwerksnamens ist auf elf Zeichen beschrÑnkt und wird immer in Gro·schreibung 
+umgewandelt.
+ 
+<P><LI><B>Dateisystem:</B> Der Typ des Dateisystems eines Laufwerks. Dabei handelt es sich
+entweder um "FAT", "HPFS", "JFS" oder "CDFS" (fÅr CD-ROM-Laufwerke). Dort kînnen auch 
+andere Typen von Dateisystemen stehen, falls zusÑtzliche IFSs (Installable File 
+Systems) installiert wurden.
+ 
+<!-- V0.9.13: added this line -->
+<P>Siehe <A HREF="glossary/gls_fs.html">"Dateisysteme"</A> fÅr eine EinfÅhrung zu Dateisystemen.
+ 
+<!-- V0.9.12: renamed "bytes per sector" -->
+<P><LI><B>Blockgrî·e:</B>Zeigt die Grî·e der minimalen Zuordnungseinheit (Cluster) 
+eines Laufwerks an. Wird eine Datei mit einer LÑnge von 1 Byte erstellt, ist der angezeigte Wert
+die Mindestgrî·e an Bytes, die auf dem Laufwerk zugewiesen wird.
+ 
+<P>Bei <B>HPFS-Laufwerken</B> sollte diese Grî·e immer 512 betragen.
+ 
+ 
+<!-- V0.9.12: added JFS -->
+<P>Bei <B>JFS-Laufwerken</B> hÑngt diese Grî·e davon ab, was bei der Formatierung der 
+Platteneinheit (Volume) angegeben wurde. JFS erlaubt Blockgrî·en von 512, 1024, 2048 und 
+4096, wobei 4096 die Standardgrî·e ist.
+ 
+<P>Bei <B>FAT-Laufwerken</B> hÑngt die Blockgrî·e von der Grî·e des Laufwerks ab. Die 
+Dateizuordungstabellen von FAT-Laufwerken kînnen nur eine begrenzte Zahl von Blîcken 
+verwalten; je grî·er das Laufwerk ist, desto mehr Bytes werden fÅr einen Block verwendet. 
+Daraus resultiert eine hîhere Verschwendung von Bytes durch wachsende Blockgrî·en je grî·er
+das FAT-Laufwerk ist:
+ 
+<PRE>
+Laufwerksgrî·e    Blockgrî·e
+&lt;     16 MB          4 KB
+&lt;     32 MB          2 KB
+&lt;     64 MB          2 KB
+&lt;    128 MB          2 KB
+&lt;    256 MB          4 KB
+&lt;    512 MB          8 KB
+&lt;   1024 MB         16 KB
+&lt;   2048 MB         32 KB</PRE>
+</OL><LI>Die Gruppe <B>"Zuordung"</B> gibt eine öbersicht der Belegung 
+des Laufwerks an. Gesamtgrî·e, benutzter und freier Speicherplatz sind in Bytes 
+und Blîcken angegeben, wobei die Grî·e der "Bytes" durch Multiplizieren der 
+"Blîcke" mit der oben angegebenen "Blockgrî·e" errechnet wird.
+ 
+<P>
+Als Zusatz erhalten Sie nun ein Tortendiagramm, das Ihnen den freien Speicherplatz (grÅn) des
+Laufwerks anzeigt.
+ 
+</OL>
+<BR>
+</BODY>
+</HTML>
+ 

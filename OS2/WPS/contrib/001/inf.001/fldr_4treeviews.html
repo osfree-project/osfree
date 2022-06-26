@@ -1,0 +1,44 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Auto-Scroll Tree Views
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Class: XFolder</B><HR>
+XFolder can monitor open Tree views of folders
+and automatically scroll down the folder window if necessary.
+<P>You have probably encountered this situation a zillion times: you wish to expand a tree
+of a folder Tree view which is visible at the bottom of the folder window.
+<BR><IMG SRC="intro_4treeviews1.gif">
+<P>Normally, if you click on the "plus" sign next to the "dll" directory, the tree will
+expand, but you will not be able to see its contents.
+This default &os2; behavior is really tiresome, because almost every other
+time that a Tree view is expanded, you'll have to scroll down manually to actually
+see the contained objects.
+<P>XFolder will now <I>automatically</I> scroll down the folder window if
+the newly appearing items begin to appear outside the currently visible window area:
+<BR><IMG SRC="intro_4treeviews2.gif">
+<P>XFolder does this by internally monitoring the Tree view in the background
+after you click on the "plus" sign and then, as soon as the WPS is done
+populating the folder, automatically scrolls down. This "monitoring" does not cause
+an additional CPU load, because XFolder simply intercepts a single window
+notification message internally. (For this reason it is totally inconceivable
+that IBM has not implemented this behavior already.)
+<P>XFolder will make the bottom-most item that was displayed visible, unless
+the tree below the folder you clicked on contains too many items to fit into the
+window. In this case, XFolder will scroll the item which you expanded to the very
+top of the visible window area.
+<P>It is probably the best thing to try out this function yourself, in order to get used
+to it. The &os2; directory is a good candidate for this.
+Although this behavior might be a bit irritating at first, I'm sure that
+after a while, you'll probably don't want to miss it.
+<P>You can still disable this feature in the
+<A HREF="sys_2global.html">Global Settings</A>.
+<BR>
+</BODY>
+</HTML>
+
+

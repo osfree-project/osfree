@@ -1,0 +1,31 @@
+
+;
+; winlist.def:
+;       module definition file for WINLIST.DLL, an XCenter
+;       plug-in widget DLL.
+;
+;       Copyright (C) 2000-2013 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software; you can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY; without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+LIBRARY WINLIST INITINSTANCE TERMINSTANCE
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace window-list plugin DLL'
+PROTMODE
+
+DATA              MULTIPLE READWRITE LOADONCALL NONSHARED
+
+CODE              LOADONCALL
+
+EXPORTS
+    WwgtInitModule      @1
+    WwgtUnInitModule    @2
+    WwgtQueryVersion    @3
+

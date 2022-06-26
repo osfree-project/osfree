@@ -1,0 +1,127 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: About Object Handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 and contains mostly text from
+     /xfix_handles.html -->
+<BODY>
+<B>Object handles</B> are 32-bit integers which are supposed to be unique on the
+system. The high-word (upper 16 bits) of the integer signifies the storage class
+of the object (abstract or file-system), while the low-word (lower 16 bits) is a
+unique identifier within that storage class.
+
+<UL><LI><B>Abstract objects</B> usually have a high-word of <CODE>0x0002</CODE>,
+and their low-word is listed in the
+<CODE>PM_Abstract:Objects</CODE> section in <CODE>OS2.INI</CODE> with the
+object's data.
+
+<P>Abstract objects <I>always</I> have a handle created for them because they have
+no file name and the handle is the only way to reference them.
+
+<P><LI>By contrast, <B>file-system objects</B> (files and folders) only sometimes have a
+handle assigned.
+If they do, file-system objects usually have a
+high-word of <CODE>0x0003</CODE>. The low-word then comes from the file handles
+database in the <CODE>PM_Workplace:HandlesX</CODE> section of
+<CODE>OS2SYS.INI</CODE>.
+
+<P>Note that there are two <CODE>PM_Workplace:HandlesX</CODE> sections (with X
+being 0 or 1). The WPS holds the file-system handles list in memory all the time
+and flushes it to the <CODE>OS2SYS.INI</CODE> only from time to time. When it
+does so, it checks the <CODE>PM_Workplace:ActiveHandles</CODE> key to find out
+which of the two sections is currently active, flushes the handles to the other
+section, and modifies that key to point to the other section then. This is necessary
+because entries in the &os2; INI files may not contain more than 64 KB of data and
+the WPS therefore has to use several blocks to hold the entire handles table.
+
+</UL>To understand where all those file-system handles come from, some more
+understanding of the WPS's inner workings is required.
+
+<P>In theory, the WPS should only create a handle for a file-system object if this
+is really needed, i.e. the object was really referenced somewhere.
+
+<P>However, file-system handles can also cause problems. The more file-system
+handles exist, the slower the WPS becomes in general. Most importantly, the
+total number of file-system handles is limited. If there are too many file-system
+handles, the WPS can become unstable.
+
+<!-- V1.0.0: rewrote this paragraph -->
+<P>Among others, file handles are created in the following situations:
+
+<OL><LI>From program objects and shadows. This is desireable because this allows
+program objects and shadows to still point to the correct target object when
+the target object is no longer at the original location.
+
+<P>For example, if you enter a <A HREF="glossary/gls_path.html">path</A>
+to an executable file in a program object's properties notebook, the program
+object wants a handle, so it should get a new one when no one exists yet. The
+same applies when you create a shadow to an object.
+
+<P><LI>From other parts of the WPS (and &xwp;) to store object references.
+For example, &xwp; uses object handles to remember your object buttons in the
+&xcenter;.
+
+<P><LI>Whenever an object is given an object ID (those things in angle brackets,
+e.g. <CODE>&lt;WP_DESKTOP&gt;</CODE>). Object IDs are stored in the
+<CODE>PM_Workplace:Location</CODE> section in <CODE>OS2.INI</CODE> together with
+the object handles and can only be resolved if the handle is valid.
+
+<P>The major problem with this implementation is that if the
+file-handles table is broken, the WPS won't find the Desktop any more because
+it uses the <CODE>&lt;WP_DESKTOP&gt;</CODE> object ID to locate it at startup.
+If you get the "Cannot find Desktop" dialog, in 95% of all cases the file handles
+table is broken.
+
+<P><LI>From application programs which use the <CODE>Win*</CODE> APIs to create
+Desktop objects or work with them.
+This is normally tolerable if this affects only a few files.
+Unfortunately, some of those APIs (such as <CODE>WinMoveObject</CODE>) require
+object handles as input.
+
+<P><LI>For every folder that was ever opened. This is also tolerable because the WPS
+uses a folder's handle to store its position into <CODE>OS2.INI</CODE> so that
+the folder's position is not lost when the folder is moved.
+
+<P><LI>Automatically for every parent folder in a file's path if a new handle is
+created for the file. This is due to the handle database's implementation which
+only stores the short name of each file-system object and stores a reference to
+its parent with the short name. This is very efficient because if a folder with
+many sub-objects is moved, only a single entry in the database has to be updated.
+The sub-objects only have a parent handle stored, which still works.
+
+<P><LI>For each data file that is opened through a program object association.
+This is because the WPS sets the <CODE>WP_OBJHANDLE</CODE> environment variable
+to the handle of the data file that was opened. Some programs rely on this, but
+this also has the unfortunate effect that a handle is created every time you
+double-click on a data file even if the application doesn't need that handle.
+
+<IFNDEF __NEVEREXTASSOCS__>
+
+<P>&xwp; allows you to disable this behavior with its extended file associations.
+
+</IFNDEF>
+
+<IFNDEF __ALWAYSREPLACEREFRESH__>
+
+<P><LI>Unfortunately, the WPS also creates handles for each
+object that is refreshed during folder auto-refresh. That is, if a folder is open
+and you do something in it from a command line (or another application does something
+with files in that folder), for every file that changes in the folder, a new file
+handle is created.
+
+<P>A simple test case for this is to unzip a ZIP file into an open folder. This will
+create lots of file-system handles which are probably never used again. Quite a
+large number of file-system handles are created as a result of this behavior.
+
+<P>And again, since object handles are never removed, these unnecessary handles will
+stay on the system forever.
+
+<P>This problem has been fixed with &xwp;'s replacement folder refresh.
+
+</IFNDEF>
+
+</OL>
+</BODY>
+</HTML>

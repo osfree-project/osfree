@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dynamic Link Libraries (DLLs)
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+A <B>dynamic link library (DLL)</B> is a special kind of executable file
+containing code that can be shared between several applications.
+Dynamic link libraries usually have a <CODE>.DLL</CODE> file name
+extension.
+
+<P>DLLs can either come with the operating system or with an application.
+The system code of &os2; itself is largely contained in DLL files, too,
+and can be found in the <CODE>OS2\DLL</CODE> directory on your boot drive.
+
+<P>"Dynamic linking" means that the code in the module is only loaded
+when some application demands it. If the code was already loaded by
+another application, it is reused. This has several advantages:
+
+<UL><LI>Several applications can actually <B>share the code</B> in a DLL,
+which saves both disk space and your computer's main memory.
+
+<P><LI>Applications can be <B>modularized.</B> For example, the National
+Language Support (NLS) for a DLL can be separated into a DLL.
+This allows for changing an application's language by exchanging
+a single file. DLLs can also simplifies software support since
+re-shipping an entire application is frequently not necessary to
+fix defects.
+
+<P><LI>DLLs can contain actual <B>subsystems</B> that are used by several
+applications, since a DLL can share data between processes.
+This allows for easier data exchange, for example, and is also one
+of the the reasons why large portions of &os2; itself are contained in DLLs.
+
+<P><LI>DLLs can be used to make an application <B>extensible.</B> If the
+application has been designed to support extension DLLs,
+anyone can develop such extensions which then seamlessly integrate
+into the application. The finest example for this is the &os2; Workplace Shell
+itself, which can be extended in functionality by adding third-party
+add-ons. See <A HREF="glossary/gls_wpsclasses.html">"WPS classes"</A> for details.
+Another example is the <A HREF="xcenter/xc_main.html">&xcenter;</A>, which
+supports plug-in DLLs as extensions.
+
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Omgevingsvariabelen
+    </TITLE>
+</HEAD>
+<BODY>
+Onder bijna alle besturingssystemen, loopt ieder programma in een zogenoemde
+<B>Omgeving,</B> die wordt gedefinieerd als een aantal <B>omgevingsvariabelen</B>.
+Elke omgevingsvariabele is een sleutel-waarde (key-value) paar in de vorm van
+<CODE>KEY=VALUE</CODE>.
+
+<P>De omgeving wordt voor verschillende doeleinden gebruikt:
+
+<UL><LI>In veel gevallen definieert het hoe het besturingssysteem zelf
+met het programma om moet gaan.
+B.v., de <A HREF="glossary/gls_path_sys.html">systeem paden</A> zijn meestal
+gedefinieerd als omgevingsvariabelen. U kunt daarom deze paden wijzigen alvorens
+een programma te starten en zo, waar het besturingssysteem moet zoeken naar bestanden,
+be‹nvloeden.
+
+<P>Deze systeem omgevingsvariabelen zijn opgenomen in de
+<I>&os2; Handleiding bij Opdrachten</I>
+(<A HREF="cmdref.inf"><CODE>CMDREF.INF</CODE></A>) en zijn meestal al
+ingesteld bij het opstarten van het systeem via het &cfgsys; bestand.
+
+<P><LI>Als toevoeging, ieder programma zal door zijn ontwerp reageren met
+specifieke omgevingsvariabelen. Om uit te zoeken of dit het geval is, zo ja,
+welke variabelen voor een programma zijn gedefinieerd, moet u de documentatie van
+de applicatie raadplegen.
+&os2; weet niets van deze eisen, het verschaft alleen de infrastructuur om
+omgevingsvariabelen in te stellen en te lezen
+
+</UL>Gebruik, om een set omgevingsvariabelen te lezen of in te stellen in een
+commentaar aanwijzing, de <A HREF="cmdref.inf#SET"><CODE>SET</CODE></A> opdracht.
+
+<P>U kunt omgevingsvariabelen opgeven door de naam van de variabele links
+en rechts af te bakenen met een procent teken (<CODE>%</CODE>).
+Deze uitdrukking wordt dynamisch vervangen door de opdrachtprocessor met de
+waarde van de variabele.
+
+<P>B.v., om een nieuwe ingang toe te voegen aan de huidige lijst van directory's
+in de <A HREF="cmdref.inf#PATH"><CODE>PATH</CODE></A> variabele, kunt u
+<PRE>SET PATH=%PATH%;C:\NEWDIR</PRE> intikken.
+
+<P>Door de <A HREF="cmdref.inf#SETLOCAL">SETLOCAL</A> opdracht te gebruiken,
+kunt u een plaatselijke kopie maken van de omgevingsruimte, de huidige directory
+en de huidige schijf, om tijdelijk wijzigingen aan te brengen.
+Al deze instellingen worden met de
+<A HREF="cmdref.inf#ENDLOCAL"><CODE>ENDLOCAL</CODE></A> opdracht teruggezet.
+
+<BR>
+</BODY>
+</HTML>

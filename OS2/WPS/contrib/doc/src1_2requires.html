@@ -1,0 +1,55 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Required Tools
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+<OL><LI><B>Compiler.</B> With V0.80, I have switched to <B>IBM VisualAge C++ 3.0</B>
+to develop XWorkplace. For VAC++ 3.0, <B>fixpak 8</B> is strongly recommended,
+because the original crashes frequently with the complex SOM header files.
+
+<P>Other compilers are presently not supported. Most notably, some people have
+tried to compile using VAC 3.6.5 and ran into problems.
+
+<P><LI>You need some <B>OS/2 Developer's Toolkit</B> for
+all the SOM header files and the SOM compiler.
+
+<!-- V1.0.6: updated and extended this item -->
+<P>It is recommended to use the <B>Warp 4.5 toolkit</B>. Since compatibility
+with Warp 3 was given up with XWorkplace 1.0.1, there is no requirement to
+use the Warp 3 toolkit anymore. Unfortunately, most versions of the Warp 4.5
+toolkit have a broken SOM compiler, <CODE>nmake.exe</CODE>, and <CODE>rc.exe</CODE>.
+
+<P>To solve this problem, you can either use the toolkit that comes with
+eComStation 1.2R and later, or use the following work-around:
+
+<UL><LI>Copy the emitter DLLs from the Warp 4 toolkit, <B>except for <CODE>EMITIR.DLL</CODE></B>.
+See the <CODE>EMIT*.DLL</CODE> files in the <CODE>SOM\LIB\</CODE> subdirectory of the toolkit.
+
+<P><LI>Copy <CODE>nmake.exe</CODE> from the Warp 3 toolkit, or use the one from VAC++.
+
+<P><LI>Use the version of <CODE>rc.exe</CODE> that comes with OS/2 and eComStation.
+</UL><BR>
+
+<P><LI><B>IBM NMAKE</B> is our make utily. This comes with VAC, so no problem there.
+
+<P><LI>You need to check out the <B>"xwphelpers" CVS archive</B> from Netlabs also.
+XWorkplace uses a lot
+of code which is shared between WarpIN and XWorkplace, which has been separated
+into a new CVS archive.
+(Starting with V0.9.6, the WarpIN sources are no longer needed.)
+There's no way to compile without that
+code.
+
+<P><LI>Only if you enable debugging code through <CODE>XWP_DEBUG</CODE>
+in <A HREF="src1_32env.html">config.in</A>,
+you will need the full <B>PMPRINTF package by Dennis Bareis.</B>
+
+<P>Check the <A HREF="src1_880debug.html">"Debugging"</A> section for details.
+
+</OL>
+</BODY>
+</HTML>

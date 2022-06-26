@@ -1,0 +1,55 @@
+<HTML RESID=&ID_XSH_SETTINGS_PAGER_STICKY2;>
+<HEAD>
+    <TITLE>
+        &pgr; Plakkende Vensters
+    </TITLE>
+</HEAD>
+
+<BODY>Een ingang bestaat uit vier velden: <B>Criteria</B>, <B>Kenmerk</B>,
+<B>Operator</B> en <B>Waarde</B>.
+
+<P><B>Criteria</B> definieert of een venster overeenkomend met de ingang wordt opgenomen
+(<B>"I"</B>) of niet wordt opgenomen (<B>"E"</B>). Opgenomen vensters zijn plakkend en niet opgenomen
+venster zijn niet plakkend.
+
+<P><B>Kenmerk</B> definieert op welk element de ingang betrekking heeft. Vanaf deze
+release is het enig mogelijke kenmerk de venster titel.
+
+<P><B>Operator</B> definieert de aard van de te gebruiken vergelijking om te bepalen of
+een venster overeenkomt met de ingang of niet. Er zijn vijf mogelijke operatoren voor
+het "Titel" kenmerk:
+
+<UL>
+<LI><B>inhoud</B> zal testen of de titel de opgeven tekst op iedere positie bevat.
+
+<LI><B>begint met</B> zal testen of de titel begint met de opgeven tekst.
+
+<LI><B>eindigt met</B> zal testen of de titel eindigt met de opgegeven tekst.
+
+<LI><B>gelijken</B> zal testen of de titel exact gelijk is aan de opgeven tekst.
+
+<LI><B>overeenkomend</B> zal testen of de titel overeenkomt met de opgegeven tekst, die wordt
+beschouwd als een <A HREF="glossary/gls_regexps.html">normale uitdrukking</A>.
+
+</UL>Alle vergelijkingen zijn hoofdletter gevoelig.
+
+<P><B>Waarde</B> defini‰ert de waarde waartegen te vergelijken. Het vervolg menu bevat
+gelijke waarden, maar de waarde hoeft niet ‚‚n van deze te zijn.
+
+<P>Van een venster wordt gezegd dat het met een ingang overeenkomt als het opgegeven vensterkenmerk
+overeenkomt met de waarde die de opgegeven vergelijkingsoperator gebruikt.
+
+<P>&pgr; zal een venster behandelen als plakkend (of niet plakkend) als het overeenkomt met
+een ingang in de lijst op deze pagina, beginnend vanaf de bovenzijde van de lijst.
+Het venster wordt als plakkend beschouwd als het criteria <B>"I"</B> is. Het venster wordt als
+niet plakkend beschouwd als het criteria <B>"E"</B> is. Als geen ingangsovereenkomsten worden
+gevonden, wordt het venster als niet plakkend beschouwd.
+
+<P><B>Opmerking:</B> De schakellijst toont regelmatig beide de venster titel en de schakellijst
+titel, gescheiden door een streepje (-), Als beide voorkomen, zal &pgr; de titel gebruiken die
+voorkomt na het streepje.
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,108 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Wie funktioniert der &xwp; PM-Hook?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+Allgemein ist ein Presentation Manager (PM)-Hook ein Stck Code, welches beim
+PM angemeldet wird, um alle Nachrichten zu empfangen, die durch das System gehen.
+Infolgedessen wird dieses Stck Code zu einem Teil jedes Prozesses im System,
+der Nachrichten bearbeitet.
+ 
+<P>Beim PM (und auch Windows) kommunizieren Fenster mit <B>Nachrichten.</B>
+Das System sendet fr alle m”glichen Arten von Ereignissen automatisch Nachrichten an Fenster,
+und Fenster k”nnen sich auch gegenseitig Nachrichten schicken.
+Es gibt hunderte verschiedener Systemnachrichten, und Applikationen k”nnen auch
+ihre eigenen definieren.
+ 
+<P>Wenn Sie beispielsweise mit der linken Maustaste auf irgendein Fenster klicken, sendet
+das System an dieses Fenster die Nachricht <CODE>WM_BUTTON1CLICK</CODE>.
+Was dann geschieht, h„ngt vom Typ (beim PM: der Klasse) des Fensters ab. Beispielsweise
+wird eine Container-Kontrolle nachsehen, ob sich unter dem Mauszeiger ein Containerelement
+befindet und, wenn dies der Fall ist, das entsprechende Element ausw„hlen. Ein Netscape
+Client-Fenster berprft, ob sich unter dem Mauszeiger ein Link befindet und wird, falls ja,
+eine neue HTML-Seite laden, um dem Link zu folgen.
+ 
+<P>Es gibt viele weitere "wichtige" Systemnachrichten, wie etwa <CODE>WM_CHAR</CODE>
+(fr Tastatureingaben), <CODE>WM_SIZE</CODE> (wenn Fenster in der Gr”áe ge„ndert werden),
+<CODE>WM_PAINT</CODE> (wenn ein Fenster neu gezeichnet werden muá) und
+<CODE>WM_DESTROY</CODE> (wenn ein Fenster entfernt werden muá). Das ist der Grund, warum
+PM-Programmierung zuerst so kompliziert erscheint, weil PM-Programmierung gr”átenteils
+bedeutet, auf Nachrichten zu reagieren, was sich ziemlich von "normaler" Progammierung
+unterscheidet, bei der Programme normalerweise einfach Aufgaben sequentiell abarbeiten.
+Beim PM tut ein Programm normalerweise einfach nichts, wenn sich fr sein Fenster keine
+Nachrichten in der Warteschlange befinden. Seine Threads werden blockiert, bis Nachrichten
+eintreffen.
+ 
+<P>Wenn nun eine <B>globale Message-Hook-Funktion</B> beim System angemeldet wird,
+gehen alle Nachrichten ber diese Hook-Funktion <I>bevor</I> das Zielfenster diese
+Nachrichten erh„lt. Auf diese Weise kann die Hook-Funktion entscheiden, die Nachricht
+zu modifizieren, zu einem anderen Fenster umzuleiten, selbst etwas ganz anderes zu tun,
+oder sogar die Nachricht zu "verschlucken", so daá das Zielfenster sie nicht erh„lt.
+ 
+<P>So arbeiten all die bekannten PM-Hook-Hilfsprogramme
+(wie NPS WPS, FeelX, ProgramCommander/2, X-it, Styler/2,
+und auch der &xwp; PM-Hook). Sie fangen bestimmte Nachrichten ab und manipulieren sie.
+ 
+<P>Jedesmal, wenn beispielsweise der &xwp; PM-Hook eine <CODE>WM_CHAR</CODE>-Nachricht
+erh„lt (das geschieht, wenn eine Taste gedrckt oder losgelassen wird), prft er, ob
+sich diese Taste in der globalen Liste der Tastenkrzel befindet. Ist dies der Fall,
+wird die Nachricht verschluckt (so daá das Zielfenster sie nicht erh„lt) und statt dessen
+wird ein Teil des &xwp;-WPS-Codes benachrichtigt, der dann das entsprechende Objekt
+”ffnen kann, das vom Anwender fr dieses Tastenkrzel festgelegt worden ist.
+ 
+<P>Die Art und Weise, auf die der &xwp;-Hook implementiert wurde unterscheidet sich etwas
+von der anderer Hook-Hilfsprogramme. Die meisten dieser Hilfsprogramme melden ihre
+Hook-Funktion beim PM an, wenn sie gestartet werden, und melden sie wieder ab, wenn das
+Programm beendet wird (wenn z.B. in der Fensterliste "Schlieáen" gew„hlt wird).
+ 
+<P>Statt dessen wird der &xwp;-PM-Hook von einem besonderen Programm aus registriert, das
+nicht in der Fensterliste sichtbar ist - dem <B>&xwp; Daemon,</B> <CODE>XWPDAEMN.EXE</CODE>.
+Sie k”nnen es jedoch mit WatchCat oder einem anderen Prozeáauflister sehen. Probieren einmal,
+das Programm zu killen, Sie werden sehen, daá alle Hook-Funktionen nicht mehr verfgbar sind.
+ 
+<P><CODE>XWPDAEMN.EXE</CODE> wird von &xwp; gestartet, w„hrend die WPS zum ersten Mal
+hochf„hrt und ausgefhrt, bis das System abgeschlossen wird. Das heiát, daá der
+Daemon zwischen WPS-Neustarts in Betrieb bleibt.
+ 
+<P>Auch wenn der Daemon ein PM-Programm ist, erzeugt er keine Fenster (auáer dem
+&pgr;-Fenster, siehe unten).
+ 
+<P>Dies alles ist im Detail reichlich komplex, weil es die Nutzung geteilten Speichers
+und der korrekten Serialisierungstechniken wie Shared Mutex Semaphores und
+Inter-Prozeá-Nachrichten umfaát, besonders da der Hook von den Einstellungsnotizbchern
+der WPS aus konfiguriert wird, die alle im WPS-Prozeá laufen. Aber ich hoffe, Sie
+verstehen die grundlegende Idee.
+ 
+<P>Es gibt eine Reihe von guten Grnden, warum ich diese Herangehensweise gew„hlt habe:
+ 
+<OL><LI>Gew”hnlich ist es keine gute Idee, Hooks vom
+<CODE>PMSHELL.EXE</CODE>-Prozeá aus zu starten, in dem alle WPS-Klassen laufen. Wenn die
+WPS abstrzt, ist es schwieriger, die installierten Hooks "aufzur„umen", weil die WPS
+selbst so komplex ist.
+ 
+<P><LI>Da der Daemon zwischen WPS-Neustarts in Betrieb bleibt, kann er bestimmte Daten, die
+zwischen WPS-Neustarts ben”tigt werden, handhaben. Beispielsweise sollte der
+&xwp;-Systemstartordner nicht noch einmal ausgefhrt werden, wenn die WPS neu gestartet wird
+(es sei denn, der Anwender wnscht dies). Probieren Sie es aus: Wenn Sie den Daemon killen
+und dann die WPS neu starten, werden Sie feststellen, daá der &xwp;-Systemstartordner erneut
+abgearbeitet wird, weil die &xwp;-Klassen sehen, daá der Daemon nicht in Betrieb ist und
+annehmen, daá die WPS zum ersten Mal gestartet wird.
+ 
+<P><LI>&pgr; ist auch ein Teil des Daemons und damit von der WPS unabh„ngig.
+&pgr; erfordert auch intensive šberwachung von Nachrichten, da er ber die Erzeugung und
+das Entfernen von Fenstern "Bescheid wissen" muá. Zu jedem Zeitpunkt kennt &pgr; jedes
+einzelne Fenster im System.
+Es ist fr &pgr; wesentlich einfacher, die eigenen Fenster vom Rest des Systems getrennt
+zu halten, wenn er in einem separaten Prozeá l„uft.
+ 
+<P>Details zu &pgr; finden Sie unter
+<A HREF="pgmg_8howwork.html">"Wie es funktioniert"</A> im
+<A HREF="06342intro_pagemage.html">Abschnitt &pgr;.</A>
+</OL>
+</BODY>
+</HTML>
+ 
+ 

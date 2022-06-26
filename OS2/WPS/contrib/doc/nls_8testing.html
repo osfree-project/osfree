@@ -1,0 +1,47 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Testing Your NLS Files
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+XWorkplace's NLS depends entirely on a single entry in <CODE>OS2.INI</CODE>
+("XFolder"::"LanguageCode"). This entry defaults to a "001" string and can
+be changed either at installation time (if the install script does it) or
+by using the "Language" setting in the "XWorkplace Setup" object.
+<P><B>All NLS resources are loaded depending on this one setting.</B> That is,
+if you change the language, XWorkplace expects not only your NLS DLL to be present
+in <CODE>/BIN</CODE>, but also the TMF, HLP, and WPS class description
+files in <CODE>/HELP</CODE>. So if you have not translated these yet, you might
+want to create a copy of the English ones with your language code in the filename.
+
+<P>To test a new version of your NLS files:
+<UL><LI>Make sure you do not currently have your new <B>NLS DLL</B> selected on the
+&quot;XWorkplace Internals&quot; settings page, because if you do, the DLL is locked
+by XWorkplace
+and cannot be replaced.
+
+<P>Select &quot;US English&quot; instead, which will unlock the
+previously used DLL, which can then be deleted from the XWorkplace directory.
+
+<P>Then put your new DLL into the <CODE>BIN</CODE> subdirectory and open
+the settings again; select your DLL and see if things work.
+
+<P><LI>Additional caveat for <B>INF/HLP files:</B>
+Before compiling the .IPF to the .HLP/.INF files, you should make
+sure that the target file is not currently in use.
+
+<P>With INF files, that's easy: simply close it if it's open.
+
+<P>With HLP files, you have to keep in mind that the WPS keeps these
+files locked even after you've closed a help panel window. However,
+the WPS only ever keeps a single HLP file locked at a time, so in order to
+unlock the XWorkplace HLP file, simply open a default WPS help panel,
+e.g. by selecting &quot;Extended Help&quot; for the Desktop window.
+
+<P>You can then copy the new XWorkplace .HLP file to the XWorkplace HELP
+directory. (<CODE>nmake nls</CODE> will do this automatically.)
+</UL>
+</BODY>
+</HTML>

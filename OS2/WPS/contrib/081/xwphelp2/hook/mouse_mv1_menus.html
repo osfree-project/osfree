@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Sliding Menus
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text which was previously
+     in 0987mouse_hook.html -->
+<BODY>
+If the <B>"Enable"</B> item in the "Sliding menus" section is checked, the &xwp;
+hook will always automatically select the menu item under the mouse if any menu control is
+currently visible. This applies to pull-down menus from menu bars as well as popup
+(context) menus.
+
+<P>If the <B>"Submenu delay"</B> second is set to zero, the menu item under the
+mouse will always be selected immediately. The menu then behaves as if you moved the
+mouse over the menu with mouse button 1 held down all the time.
+
+<P>However, if the submenu delay setting is raised, &xwp; will delay the menu
+item selection for the time which you specify here. This is useful to avoid lots of
+unnecessary screen repaints.
+<IFNDEF __EWORKPLACE__>
+Also, some submenus may take quite a while to compose (such as &xwp;'s
+<!-- V0.9.19: link added -->
+<A HREF="menus/menu_content.html">folder content menus</A>).
+</IFNDEF>
+
+<!-- V0.9.6: added the following paragraph -->
+<P>If <B>"Conditional cascade sensitivity"</B> is enabled, &xwp; will give
+special treatment to submenus with the "conditional cascade" style (i.e. those submenus
+with the button in them).
+<!-- V0.9.9: rewrote the following -->
+Such submenus will then only open if the mouse is moved over the button and ignored
+otherwise. This is more like the NPS WPS behavior, if you prefer that.
+
+<P>If the submenu delay above has been enabled, the <B>"Immediate hilite"</B> box gets
+activated also. This will always high-lite the menu item under the mouse immediately
+without actually selecting it. That is, the menu item under the mouse will always be
+painted in hilite color, but if it's a submenu, the submenu will only open after the
+"submenu delay". This is pretty close to the Windows 95 behavior.
+<BR>
+</BODY>
+</HTML>
+

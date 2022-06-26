@@ -1,0 +1,32 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Playing Sounds
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+The new system sounds are played in the &quot;Speedy&quot; thread with high
+regular priority. Check <CODE>fntSpeedyThread</CODE> and <CODE>fnwpSpeedyObject</CODE>
+for details about how this is implemented using MMOS/2.
+
+<P>Unfortunately, nowhere is documented how to access and modify the
+system sounds that appear in the <B>&quot;Sound&quot; object.</B> I have accidently
+discovered that
+this is actually fairly easy: these are stored in <CODE>MMPM.INI</CODE> in the
+MMOS/2 directory. Each sound has an index in that file, which I have
+declared in <CODE>common.h</CODE> (those <CODE>MMSOUND_*</CODE> #define's).
+These should be the
+same on every system. The INI data then contains a
+<CODE>&quot;&lt;soundfile&gt;#&lt;description&gt;#&lt;volume&gt;&quot;</CODE> string.
+<P>
+Sound data manipulation has been moved into a separate file with V0.9.0:
+check <CODE>/helpers/syssound.c</CODE> for details. This now also supports
+sound scheme manipulation.
+
+<P>To make sure that the actual sound playing (which requires MMPM/2) also works on
+systems where MMPM/2 is not installed, XWorkplace dynamically imports the functions
+from the MMPM/2 DLLs. See src\media\* for details.
+
+</BODY>
+</HTML>

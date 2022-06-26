@@ -1,0 +1,9 @@
+NAME xmakeini WINDOWCOMPAT
+
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace profile generator'
+
+STACKSIZE   250000
+
+PROTMODE
+
+

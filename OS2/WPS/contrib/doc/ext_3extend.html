@@ -1,0 +1,56 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Extending Existing XWorkplace Classes
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This section describes what to do if the class that you need already exists in
+XWorkplace. Of course, this requires less setup work, because much of the work
+has already been done.
+
+<OL><LI>If you need a new WPS method which isn't overridden yet, modify the
+IDL file in <CODE>IDL\</CODE> to suit your needs.
+
+<P>If the method you need is already overridden by XWorkplace, go to <B>3.</B>
+
+<P><LI>If you then re-make XWorkplace, the SOM compiler will automatically get invoked
+and modify the sources in <CODE>SRC\CLASSES</CODE> and the headers in
+<CODE>INCLUDE\CLASSES</CODE> accordingly.
+
+<P><LI>Again, as said on the <A HREF="ext_2addclass.html">previous page</A>, add your own
+directory to <CODE>INCLUDE</CODE> and <CODE>SRC</CODE>. Modify the SOM code of the
+class you need in <CODE>SRC\CLASSES</CODE> to call your implementation in your
+<CODE>SRC\YOURDIR</CODE> directory.
+
+<P><LI>You will need to add your header from <CODE>INCLUDE\YOURDIR</CODE> to the
+SOM class code file that you modified. Please think of some useful
+<A HREF="src1_801prefixes.html">function prefix</A> for your exported functions so
+that other programmers (including me) can find your code more easily.
+
+<P>Don't forget to update <CODE>src\classes\makefile</CODE> so that the class code
+file will be made dependent on your new header (which you have added to the
+<CODE>SRC\CLASSES</CODE> code).
+
+<P><LI>In <CODE>SRC\YOURDIR\</CODE>, write your own makefile which compiles your
+sources. You can take the makefile in <CODE>SRC\FILESYS\</CODE> as a template. This
+makefile is pretty smart because it automatically recognizes whether it is called
+from the main makefile, and if not, it invokes the main makefile, which in turn
+will call the sub-makefiles later. Also, that makefile uses the general makefile
+include <CODE>setup.in</CODE> in the main directory for compiler setup etc.
+
+<P>Make sure that your makefile writes all <CODE>.OBJ</CODE> files into the
+<CODE>BIN</CODE> directory, which your makefile must create if it doesn't exist yet.
+Again, see how the makefile in <CODE>SRC\FILESYS</CODE> does this.
+
+<P>Other than that, in <CODE>SRC\YOURDIR</CODE>, do whatever you want.
+
+<P><LI>Finally, take a look at <CODE>\makefile</CODE>. This is the "master makefile"
+which links all .OBJ modules into the main XWorkplace DLL (<CODE>XFLDR.DLL</CODE>).
+In that makefile, there is an <CODE>OBJS</CODE> macro which lists all the .OBJ files
+which are to be linked together.
+<P>Add your .OBJ file(s) to the end of that variable (and please, add a comment that
+you did so).
+
+</OL>

@@ -1,0 +1,42 @@
+<HTML RESID=&ID_XFH_CLOSEVIO;>
+<HEAD>
+    <TITLE>
+        &xshutdown;: Sluiten Niet PM Sessies
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.1 -->
+<BODY>
+De "Kan niet afsluiten...." dialoog verschijnt wanneer &xshutdown; een niet Presentation Manager
+(PM) sessie tegenkomt. Dit is inclusief &os2; en DOS tekst sessies en &winos2; sessies, of ze
+nu volledig scherm of venster zijn.
+
+<P>Aangezien er geen vooraf gedefinieerde manier is hoe zulke sessies gesloten moeten worden,
+vraagt &xshutdown; hier om een actie. De volgende acties zijn mogelijk:
+
+<UL><BR><LI><B>"Sla sessie over"</B> zal de sessie <I>niet sluiten</I>, maar hem overslaan, alsof u de
+"Sla over" knop in het &xshutdown; status venster ingedrukt had.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"Sluit PM venster"</B> zal de "Sluit" menu optie simuleren in de
+sessie zijn systeem menu. Dit zou moeten werken voor VIO vensters als ook voor
+volledige scherm sessies, want dit laatste sessie type wordt ook vertegenwoordigt door een
+verkleind pictogram op de Werkplek. Dit kan echter leiden in weer een ander
+(normale &os2;) bevestigingsvenster of de sessie werkelijk gesloten moet worden.
+
+<BR><LI><B>"Forceer sessie"</B> zal de sessie geforceerd sluiten zonder verdere discussie.
+Dit voert de <CODE>DosKillProcess</CODE> API uit op de sessie zijn proces.
+
+</UL>Let op dat geen van deze methodes de gegevens van de sessie zal opslaan. Als u wilt
+dat de gegevens van een bepaalde sessie opgeslagen worden, sla dan de gegevens van de sessie zijn
+applicatie op en sluit het venster dan zelf af, wat ook zal betekenen dat &xshutdown; doorgaat.
+
+<P>Als de <B>"Sla deze instellingen op..."</B> vlag gezet is, zal &xshutdown; onthouden
+dat de gekozen actie voor alle toekomstige sessies geldt met deze naam. Het selecteren van deze
+instelling zal deze sessie naam toevoegen aan  de lijst van automatisch sluiten onderdelen die beschikbaar zijn
+in de <A HREF="xshutdown/xsd_autoclose.html">"Automatisch sluiten details" dialoog</A> op de "&xshutdown;"
+pagina in de Werkplek zijn <A HREF="glossary/gls_notebook.html">instellingen notitieblok</A>.
+
+<BR>
+</BODY>
+</HTML>
+

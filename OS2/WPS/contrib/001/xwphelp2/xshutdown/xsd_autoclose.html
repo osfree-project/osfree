@@ -1,0 +1,73 @@
+<HTML RESID=&ID_XFH_AUTOCLOSEDETAILS;>
+<HEAD>
+    <TITLE>
+        Auto-Close Non-PM Sessions
+    </TITLE>
+</HEAD>
+<BODY>
+In this dialog, you can determine which non-PM
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_sessions.html">sessions</A> will be closed automatically
+during Desktop restart or the eXtended Shutdown and which method will be used to close them.
+
+<P>Note that whatever you specify here only applies
+to non-PM sessions; PM windows will never be closed by the methods you specify here.
+
+<P>"Non-PM sessions" is the term used here for all sessions which are not controlled
+by Presentation Manager, i.e. &os2; and DOS text-mode sessions in a VIO window or in full-screen
+mode as well as &winos2; sessions.
+<!-- V0.9.20: added this -->
+See <A HREF="glossary/gls_sessions.html">Session types</A> for more information.
+
+<P>The settings you specify here will override the "Auto-close non-PM sessions" setting
+on the Desktop's main notebook page.
+
+<P>In order to specify the close method for a certain session, perform the following steps:
+
+<OL><LI>Press the <B>"New"</B> button to create a new item, which will initially be titled "???".
+
+<BR><LI>Enter the <B>title</B> of the session which you wish to configure in the respective
+entry field. You must enter the title of the session exactly as it appears in the
+&os2; task list (or VIO window title), so the best method to achieve this is to open
+the session and to reproduce this title in the entry field.
+
+<P>You may however abbreviate the title, and the session title comparison during Shutdown
+or Desktop restart is NOT case-sensitive.
+
+<P>Here is an example: if you wish to close the session titled
+<CITE>"&os2; window (CMD.EXE)"</CITE>,
+you may enter either <CITE>"&os2;"</CITE>, <CITE>"os/2 window (cmd.exe)"</CITE>
+or <CITE>"&os2; WiNdOw"</CITE>. All of these entries will work. You should however enter
+more than just a few characters, because otherwise &xshutdown; might apply your settings
+to a different session which has the same leading characters.
+
+<BR><LI>You may then select what &xshutdown; should do with this session:
+
+<UL><BR><LI><B>"Skip session"</B> will <I>not close</I> the session, but skip it, as if you
+had pressed the "Skip" button in the &xshutdown; status window.
+
+<!-- V0.9.7: changed from "Send WM_CLOSE to PM window" -->
+<BR><LI><B>"Close PM window"</B> will simulate selecting the "Close" menu
+item in the session's system menu. This should work for VIO windows as well as
+full-screen sessions, because the latter session type is also represented by a
+minimized icon on the Desktop. This might however result in yet another
+(regular &os2;) confirmation window whether the session should really be closed.
+
+<!-- V1.0.0: removed the ctrl+c stuff -->
+
+<BR><LI><B>"Kill session"</B> will kill the session without further discussion.
+This invokes the
+<!-- V1.0.0: added link -->
+<A HREF="cpref.inf#DosKillProcess"><CODE>DosKillProcess</CODE></A>
+<!-- V1.0.0: added link -->
+API on the session's process.<A HREF="_toolkitlink.html">*</A>
+
+</UL>Note that neither of these methods will save the data of the session. If you wish
+to have the data of a certain session saved, you should not enter its title in this
+dialog, and you should neither have "Auto-close non-PM sessions" checked on the Desktop
+main notebook page.
+</OL><BR>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,103 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Virtuele Adres Ruimte
+    </TITLE>
+</HEAD>
+<BODY>
+Zoals u waarschijnlijk weet, gebruiken de 80386 en hogere processors 32 bits
+voor alle adressen, wat de adressering van 4 GB aan geheugen mogelijk maakt.
+Dit wordt in het algemeen de virtuele adres ruimte genoemd.
+
+<P>Merk op dat deze adres ruimte bestaat ongeacht hoeveel fysiek geheugen er
+in uw systeem is ge‹nstalleerd.
+E‚n van de grote voordelen van de 803836 (in vergelijking met eerdere processors)
+is dat de processor een omzetting kan doen van een virtueel adres naar een fysiek
+adres in RAM in de hardware -- met een klein beetje hulp van het besturingssysteem
+(in ons geval &os2;, die de processor tabellen moet geven waarin de omzetting gegevens
+zijn opgeslagen.
+
+<P>Om in staat te zijn om het virtuele geheugen te beheren met in acht name
+van de diverse processen die op het systeem lopen, verdeelt &os2; de gehele
+virtuele adres ruimte van 4 GB in <B>arenas.</B>
+
+<PRE>
+ 4096 MB -----------------------------------------------------
+
+                systeem arena
+
+  512 MB -----------------------------------------------------
+                gedeelde arena
+  variable ---------------+-----------+---------------
+                priv‚     | priv‚     | priv‚
+                arena     | arena     | arena
+                proces 1  | proces 2  | proces 23
+    0 MB -----------------+-----------+---------------
+</PRE>
+
+De <B>systeem arena</B> wordt gereserveerd voor code die draait in ring 0,
+dat zijn, apparatuur stuurprogramma's en de &os2; kernel zelf. Normale applicaties
+hebben geen toegang tot dat geheugen.
+
+<P>Daar tegenover staat dat, de <B>gedeelde</B> en <B>priv‚ arena's</B>
+beschikbaar zijn voor het gebruik door applicaties.
+
+<P>Terwijl de systeem en gedeelde arena's altijd worden gedekt door dezelfde
+fysieke geheugen pagina's, is de priv‚ arena voor ieder proces verschillend.
+Iedere applicatie heeft zijn eigen priv‚ arena (code en gegevens).
+Daar tegenover staat dat, de gedeelde arena wordt gebruikt voor code en gegevens
+die worden gedeeld tussen applicaties: b.v., alle
+<A HREF="glossary/gls_dll.html">DLLs</A> worden in die arena geladen.
+
+<P>De afbakening tussen gedeelde en priv‚ arena's is variabel en hangt af
+van hoeveel gedeeld geheugen door het systeem wordt gebruikt.
+Daarom loopt het systeem soms "uit het geheugen" als veel DLL's worden geladen.
+In werkelijkheid, het systeem loopt niet uit het fysieke geheugen (omdat het gewoonlijk
+het <a href="glossary/gls_mem_paging.html">swap bestand</a>) vergroot; in werkelijkheid
+loopt het uit de adreseerruimte.
+
+<P>Alle OS/2 kernels van 2.0 tot aan 4.5 (de Aurora kernel) hebben een vaste
+grens van 512 MB geheugen voor applicaties.
+De reden hiervoor was de ondersteuning van 16-bits applicaties die niet eenvoudig
+toegang hebben tot geheugen boven deze grens.
+
+<P>Dit werd met de Aurora kernel gewijzigd, die applicaties toestaat om geheugen toe te
+wijzen boven de 512 MB grens als de <CODE>VIRTUALADDRESSLIMIT</CODE> in de &cfgsys;
+is opgegeven met een waarde > 512.
+De adres ruimte ziet er dan als volgt uit:
+
+<PRE>
+ 4096 MB    ---------------------------------------------
+                systeem arena
+ VIRTUALADDRESSLIMIT ------------------------------------
+                hoog geheugen arena (gedeeld en priv‚)
+  512 MB    ---------------------------------------------
+                gedeelde arena
+  variabele -----------------+-----------+---------------
+                priv‚     | priv‚     | private
+                arena     | arena     | arena
+                proces 1  | proces 2  | proces 23
+    0 MB    ------------------+-----------+--------------
+</PRE>
+
+Zoals u ziet, wordt de ruimte tussen de systeem en gedeelde arena's
+"hoog geheugen" genoemd en is verdeeld in gedeelde en private arena's.
+Dit geheugen wordt alleen maar aan applicaties gegeven als zij er expliciet
+naar vragen, dus het inschakelen van hoog geheugen heeft alleen directe
+consequenties voor applicaties die zich van de aanwezigheid bewust zijn.
+(B.v., Java zal deze arena gebruiken als
+<CODE>SET JAVA_HIGH_MEMORY=1</CODE> in de &cfgsys; is opgegeven.)
+
+<P>Echter, het inschakelen van hoog geheugen heeft neven effecten.
+Zoals hierboven vermeld, dit geheugen kan niet worden gebruikt door 16-bis code.
+Daarom heeft u de 32-bits TCP/IP implementatie (versie 4.1. of hoger) nodig
+als u hoog geheugen met Java gebruikt.
+
+<P>Als toevoeging, hoe hoger u de <CODE>VIRTUALADDRESSLIMIT</CODE>
+instelt, des te kleiner wordt de systeem arena. Daarom zal verhoging van de
+virtuele adres limiet het aantal beschikbare processen verminderen
+
+<BR>
+</BODY>
+</HTML>
+

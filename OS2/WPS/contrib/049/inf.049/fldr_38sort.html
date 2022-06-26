@@ -1,0 +1,67 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Erweiterte Sortierfunktionen
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp;; also see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasse: XFolder</B><HR>
+&xwp; kann auch die Funktion "Sortieren" der Workplace Shell erweitern.
+<P><B>Wichtiger Hinweis:</B> Um Verwirrung zu vermeiden, sind die erweiterten Sortierfunktionen
+standardm„áig deaktiviert. Sie k”nnen ber das 
+<A HREF="sys_2global.html">Objekt "&xwp;-Konfiguration"</A> angeschaltet werden.
+ 
+<!-- V0.9.1: removed all this:
+After you enable the new sort functions, your previous folder sort settings will
+get lost successively as the WPS activates folders. Unfortunately, this is inevitable,
+because IBM has barely documented at all how the WPS sort functions are working
+internally. As a result, you'll
+have to reconfigure the sort settings for certain folders (which will be explained below). -->
+<P>Die neuen &xwp;-Sortierfunktionen sind:
+ 
+<UL><LI>Endlich stehen <B>globale Sortiereinstellungen</B> zur Verfgung,
+die es vorher bei der WPS nicht gab.
+Zwar war es m”glich, eine Anzahl von Ordnereinstellungen global vorzunehmen, aber bis jetzt
+konnte das Sortieren nur fr jeden einzelnen Ordner beeinfluát werden, was ziemlich „rgerlich war. &xwp;
+fhrt nun eine Seite "Sortieren" im
+<A HREF="sys_2global.html">Objekt "Workplace Shell"</A> fr globale Sortiereinstellungen ein,
+die fr jeden Ordner individuell angepaát werden k”nnen.
+ 
+<BR><LI>Mit &xwp; wird man auch einige der seltsamen Sortiereinstellungen los, die sowieso niemand
+verwendet hat, wie z.B. "Sortieren nach Klasse". (Diese Einstellungen hat nicht viel Sinn gemacht,
+weil WPFolder sowieso die einzige Klasse war, die vernnftige Sortierkriterien eingefhrt hat.)
+ 
+<!-- V0.9.13: rewrote all the following -->
+<BR><LI>Was am wichtigsten ist: &xwp; versorgt Sie mit einer Menge neuer Sortierfunktionen fr
+Ordner - sowohl fr einzelne Ordner als auch global ber die Seite "Sortieren" des
+<A HREF="sys_2global.html">Objektes "Workplace Shell"</A>.
+ 
+<P>Erstens wurden <B>neue Sortierkriteria</B> wie "Objektklasse" und "Dateierweiterung"
+eingefhrt.
+ 
+<P>Zweitens gibt es nun ein neues "šberkriterium", um immer <B>Ordner zuerst</B> einzusortieren,
+zus„tzlich zum Standardsortierkriterium eines Ordners. Beispielsweise
+kann man nach Gr”áe sortieren, aber immer noch alle Ordner zuerst einordnen lassen.
+ 
+<P>Fr all dies wurde das <B>Untermen "Sortieren"</B> eines jeden Ordnerkontextmens folgendermaáen
+umgearbeitet:
+ 
+<P><IMG SRC="sort.gif">
+ 
+<BR>Wie man sehen kann, fgt &xwp; Meneintr„ge fr "Sortierreihenfolge stets beibehalten"
+und "Ordner zuerst" fr schnelle Erreichbarkeit hinzu.
+ 
+<P>Zus„tzlich l„át sich das Standardsortierkriterium eines bestimmten Ordners schnell
+„ndern, indem man <B>die Umschalt-Taste ("Shift") gedrckt h„lt</B>, w„hrend man ein
+Sortierkriterium aus dem Men "Sortieren" ausw„hlt.
+ 
+</UL>&xwp; legt auch
+<A HREF="fldr_5xelerators.html">Ordner-Tastenkrzel</A> fr die meistgebrauchten
+Sortierkriterien fest.
+<BR>
+</BODY>
+</HTML>
+ 
+ 

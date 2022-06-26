@@ -1,0 +1,60 @@
+<HTML RESID=&ID_XFH_SELECTCLASS;>
+<HEAD>
+    <TITLE>
+        Objektklasse ausw„hlen
+    </TITLE>
+</HEAD>
+<!-- V0.9.0: see notes below -->
+<BODY>
+In diesem Fenster l„át sich die Objektklasse ausw„hlen, fr die Sie
+die Informationen anpassen m”chten, die angezeigt werden, wenn nur ein
+einziges Objekt im Ordner ausgew„hlt ist.
+ 
+<P>Das Fenster zeigt alle installierten
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS-Klassen</A> an
+und verschafft Ihnen so einen šberblick darber, welche Klasse
+von welcher anderen abgeleitet wird.
+ 
+<P>Um die verfgbaren Statuszeilen-Codes festzulegen, darf jedoch nur eine
+Klasse ausgew„hlt werden, die diese Informationen verarbeiten kann. Solche Klassen
+werden schwarz dargestellt, w„hrend Klassen, bei denen dies nicht m”glich ist,
+grau dargestellt werden und nicht ausgew„hlt werden k”nnen.
+ 
+<!-- V0.9.0: added the following -->
+<P>Die Strukturanzeige wurde ausgeklappt, so daá alle Klassen, die Statuszeileninformationen
+untersttzen, anfangs sichtbar sind.
+ 
+<!-- V0.9.0: added the following -->
+<!-- V0.9.13: moved this down
+Note that status bar information is independent of the additional
+&xwp; classes. That is, it is not only &xwp; classes which support
+status bar information, but on the other hand, not all &xwp; classes
+support this either. -->
+ 
+<P>Die allgemeinen Statuszeileninformationen werden von der Klasse <B>XFldObject</B>
+bestimmt. D.h., wenn Sie ein einziges Objekt ausw„hlen, fr das keine Klasse
+spezifischere Statuszeileninformationen definiert (ein Beispiel w„re ein Druckerobjekt),
+werden die Codes der Klasse XFldObject benutzt.
+ 
+<!-- V0.9.0: changed the following -->
+<P>Weitere spezifische Schlssel werden von den Klassen <B>XFldDisk</B>
+(fr "Laufwerksobjekte" wie im <!-- V0.9.20: added link -->
+&link_drivesfdr;), <B>WPProgram</B> (fr abstrakte
+Programmobjekte), <B>WPFileSystem</B> (fr Ordner und Datendateien) und <B>WPUrl</B>
+bereitgestellt.
+<!-- V0.9.19: removed this (for URL objects, which exist on Warp 4 only). -->
+ 
+<!-- V0.9.13: begin moved text -->
+<P>Beachten Sie, daá die Statuszeileninformationen <I>unabh„ngig</I> von den
+zus„tzlichen &xwp;-Klassen sind. D.h., daá nicht nur &xwp;-Klassen
+Statuszeileninformationen untersttzen, andererseits aber auch nicht alle
+&xwp;-Klassen dies tun.
+<!-- V0.9.13: removed this
+Please look into the &xwp;_User_Guide to see a complete list
+of all the different codes for the different classes, which are too complex to
+be shown here. -->
+<BR>
+</BODY>
+</HTML>
+ 

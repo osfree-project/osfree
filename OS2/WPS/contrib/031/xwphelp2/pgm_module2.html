@@ -1,0 +1,45 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE2;>
+<HEAD>
+    <TITLE>
+        &xwp;: Ge‰xporteerde functies pagina
+    </TITLE>
+</HEAD>
+
+<BODY>
+De "Module" pagina's verschijnen in de instellingen notitieblokken van alle uitvoerbare bestanden
+om extra informatie van een uitvoerbare module te laten zien.
+
+<P>Deze pagina toont u de functies die ge‰xporteerd zijn door de module en kunnen dus
+door andere modules worden ge‹mporteerd (of tijdens 'load-time loading' of expliciet
+tijdens 'run-time loading').
+
+<P>Voor iedere functie worden de volgende velden getoond:
+
+<UL><LI>Iedere ge‰xporteerde functie moet een <B>rangtelwoord</B> hebben, dat uniek is
+binnen de module.
+Het eerst mogelijke rangtelwoord is 1, en het laatste 65535.
+Niet alle rang-waarden corresponderen met een ge‰xporteerd functie.
+
+<P><LI>Iedere ge‰xporteerde functie moet ook een <B>type aanduiding</B> hebben,
+die ‚‚n van de volgende is:
+
+<UL><LI><B>Entry16:</B> een 16-bit functie.
+<LI><B>Entry32:</B> een 32-bit functie.
+<LI><B>286 Call Gate:</B> een 16-bit functie die een ring 2 omschakeling veroorzaakt.
+
+<LI><B>Forwarder:</B> een doorzender, dat betekent, dit ingangspunt binnenin aanroepen
+roept een andere ge‰xporteerde functie aan (of in deze module of in een ge‹mporteerde module).
+
+</UL><LI>Optioneel, ge‰xporteerde functies kunnen een <B>naam</B> hebben. Deze naam, indien
+gedefinieerd, is hoofd-/kleine-letter gevoelig.
+
+</UL>Importeren kan worden uitgevoerd of door rangtelwoord (dat altijd werkt) of bij naam
+(dat werkt alleen als een naam is gedefinieerd voor de ge‹mporteerde functie).
+Zie de documentatie voor
+<A HREF="cpref.inf#DosQueryProcAddr"><CODE>DosQueryProcAddr</CODE></A>
+in de Toolkit documentatie.<A HREF="_toolkitlink.html">*</A>
+
+<BR>
+</BODY>
+</HTML>
+

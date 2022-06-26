@@ -1,0 +1,64 @@
+<HTML RESID=&ID_XMH_XSHUTDOWN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Shutdown
+    </TITLE>
+</HEAD>
+<!-- V0.9.20: rewritten, title changed -->
+<BODY>
+By shutting down your system all sensitive data in your system memory
+will be permanently stored to disk before you can switch off your computer.
+This also ensures that your Desktop will be properly saved.
+
+<P><B>Warning:</B> It is absolutely necessary to always perform this procedure
+before you switch off your computer. Never just flip the power switch on
+your computer to turn it off because otherwise some of your data might not
+be written properly to disk and be destroyed, or you might lose your Desktop.
+
+<P>To initiate shutdown, perform the following:
+
+<OL><LI>Move the mouse over an empty area of the Desktop.
+<P><LI>Press mouse button 2 to open the Desktop's &popmenu;.
+<P><LI>Select "Shut down" from the menu.
+</OL>Alternatively, press the "Shutdown" button on
+<IFDEF __EWORKPLACE__>
+the <A HREF="xcenter/xc_main.html">&xcenter;</A>.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+either the <A HREF="xcenter/xc_main.html">&xcenter;</A>
+or the <A HREF="objects/obj_os2warpcenter.html">&warpcenter;</A>.
+</IFNDEF>
+
+<P>
+<IFNDEF __NOXSHUTDOWN__>
+&xwp;'s Extended Shutdown (&xshutdown;) provides a few extra features
+over &os2;'s regular  shutdown procedure, such as automatically rebooting
+your computer, APM power-off (if supported by your machine),
+and being able to cancel the shutdown procedure.
+&xshutdown; can be enabled in the
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>.
+
+<P>If you have confirmations enabled on the "&xshutdown;" page in the Desktop's
+<A HREF="glossary/gls_notebook.html">properties notebook</A>,
+you will see the
+<A HREF="xshutdown/xsd_dlg_confirm.html">&xshutdown; confirmation dialog</A>
+after initiating shutdown.
+</IFNDEF>
+
+<IFDEF __EWORKPLACE__>
+<B>Note:</B> By default, after initiating shutdown, &os2; will display a confirmation
+message box whose content depends on what you have choosen in
+<A HREF="objects/obj_setup_estyler.html">"eStyler"</A>.
+
+<P>To enable this, open the &link_lookfdr; and then
+<A HREF="objects/obj_setup_estyler.html">"eStyler"</A>.
+</IFDEF>
+
+<P>For related information, select from the list below:
+
+<UL>
+<LI>&link_desktop;
+</UL>
+</BODY>
+</HTML>
+

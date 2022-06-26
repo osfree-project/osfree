@@ -1,0 +1,116 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Hur fungerar &xshutdown;?
+    </TITLE>
+</HEAD>
+<!-- changes with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+&xshutdown; funktionen har kostat mig en hel del tankem”da, d„rf”r att det inte finns
+dokumenterat n†gonstans vad som h„nder under en normal avst„ngningsprocess.
+
+<P>&os2; k„nner som standard till tv† olika avst„ngnings API'er:
+<UL><LI><CITE>DosShutdown</CITE> st„nger endast alla ”ppna filer, nollst„ller
+alla filsystems buffertar och monterar ner alla filsystem; det „r vad som h„nder efter
+att ha tryckt p† Ctrl-Alt-Del. Inga applikationer st„ngs korrekt, och WPS sparas inte.
+<BR><LI><CITE>WinShutdownSystem</CITE> d„remot „r en Presentation Manager API vilken 
+st„nger alla f”nster, sparar WPS och anropar slutligen <CITE>DosShutdown</CITE>.
+Helt enkelt den vanliga avst„ngningsproceduren som du „r van vid: detta exekveras n„r du
+v„ljer "St„ng av" fr†n Skrivbordets kontextmeny eller fr†n respektive ikoner hos Launchpad eller
+&warpcenter;.
+
+</UL>Problemet „r att det finns ingen funktion "mellan" dessa tv†. Om du anropar
+<CITE>DosShutdown</CITE> sparas inte WPS data. Och om du anropar <CITE>WinShutdownSystem</CITE>
+f†r du den regulj„ra avst„ngningen utan ytterligare m”jligheter att p†verka. S† grundl„ggande, var
+jag tvungen att koda om en komplett ny <CITE>WinShutdownSystem</CITE>, vilken nu kommer att f”rklaras.
+Detta var riktigt sv†rt att g”ra, eftersom IBM knappast f”rklarar n†gonting om vad som p†g†r under
+<CITE>WinShutdownSystem</CITE>.
+
+<P>Notera: I &xwp;, delar "Ut”kad Avst„ngning" och "Starta om Skrivbordet" rutinerna samma kod; dom skiljer
+sig endast i vad som h„nder efter att alla f”nster har st„ngts. Jag kommer d„rf”r att anv„nda termen "&xshutdown;"
+i den f”ljande beskrivningen av b†da funktionerna, om inget annat s„gs.
+
+<P>&xshutdown; „r <STRONG>integrerad i WPS</STRONG> och bygger v„ldigt mycket p† &xwp; klassutbyten.
+Jag har avsiktligt inte lagt &xshutdown;'s kod i en separat .EXE fil av tv† sk„l: f”r det f”rsta,
+&xshutdown; beh”ver access till WPS interna data, vilka endast „r tillg„ngliga fr†n SOM kontexten; f”r
+det andra, jag vill hindra folk fr†n att f”rs”ka anv„nda &xshutdown; separat, utan att ha &xwp; klasserna
+installerade, d„rf”r att detta skulle kunna skada Workplace Shell sv†rt. I mera detaljer, &xshutdown; 
+bygger p† XFldObject utbytesklass och &xwp;'s Arbetstr†d, vilka samverkar f”r att h†lla koll p†
+WPS interna data.
+
+<P>F”r att f”rst† vad &xshutdown; nu g”r, „r det n”dv„ndigt att f”rst† hur <STRONG>WPS hanterar sina objekt</STRONG>
+internt. Varje enstaka objekt som blir viktigt f”r WPS vid n†gon tidpunkt, det kan ske genom en befolka
+en mapp eller att ta reda p† dess inst„llningar eller att starta ett program eller vad som helst, „r 
+-- med WPS terminologi -- "uppv„ckt" av systemet, vilket betyder att det existerar som ett SOM objekt i minnet.
+
+<P>WPS skickar endast mycket s„llan uppv„ckta objekt tillbaka till s”mn, trots att det skulle frig”ra 
+associerat minne och lagra objekten tillbaka p† disk. Detta f†r tv† konsekvenser:
+<OL><LI>Det finns alltid mycket fler uppv„ckta objekt p† ditt system „n du kan f”rest„lla dig, d„rf”r
+att de flesta av dom „r inte synliga f”r n„rvarande. Žven om du st„nger en mapp med objekt, f”rblir
+objekten i den uppv„ckta; det snabbar upp befolkningen av mappen n„r den ”ppnas en andra g†ng. Som
+ett resultat d„remot, „ter WPS upp mer och mer av ditt minne varje g†ng som du ”ppnar en mapp. (Om du
+aktiverade &xshutdown;'s loggfil, kan du se hur m†nga uppv„ckta objekt som sparades av &xshutdown;;
+det „r vanligtvis flera hundra objekt, „ven om &xshutdown; inte sparar alla uppv„ckta objekt, utan
+endast avkomlingar till WPFolder och WPAbstract. P† sidan "Interna" i Skrivbordets notbok med inst„llningar
+kan du ta en titt p† hur m†nga objekt som f”r n„rvarande „r uppv„ckta.)
+<BR><LI>En „ndring av objektets data har ibland bara en effekt p† SOM objektet i minnet, men det sparas inte 
+alltid till disk eller OS2.INI / OS2SYS.INI filerna. Detta „r orsaken till att WPS ibland f†r problem
+ifall du har gjort omfattande „ndringar, som att flytta en mapp med m†nga abstrakta objekt, eller
+att inte ha st„ngt av ordentligt: d† st„mmer inte det fysiska fildatat p† disken med WPS inneh†ll.
+
+</OL>Detta „r vad &xshutdown; beh”ver <B>XFldObject</B> klassen till, vilken byter ut WPObject.
+Varje g†ng ett objekt v„cks upp, anropar WPS †tskilliga metoder (bland dom <CITE>wpInitData</CITE> och
+<CITE>wpObjectReady</CITE>).
+XFldObject ”verskrider dessa och passar objektadressen i minnet till Arbetstr†den, vilken sedan
+ordentligt uppdaterar en &xwp;-intern lista ”ver alla f”r n„rvarande uppv„ckta objekt.
+S† vitt jag vet, finns det inget annat s„tt att ta reda p† vilka objekt som f”r n„rvarande „r 
+uppv„ckta; †tminstone finns det ingen dokumenterad API f”r att r„kna upp dom.
+
+<P>Nu, n„r <STRONG>&xshutdown; „r initialiserad</STRONG> och bekr„ftad, startar den f”rst tv† tr†dar
+f”r den f”ljande avst„ngningsproceduren, vilken k”rs parallellt med de regulj„ra WPS tr†darna:
+huvud <STRONG>"Avst„ngningstr†den"</STRONG> med meddelandek”n f”r statusf”nstret, och 
+<STRONG>"Uppdateringstr†den",</STRONG> vilken monitorerar &os2;'s Aktiva sessioner och postar meddelanden 
+till huvud avst„ngningstr†den, om statusf”nstret beh”ver uppdateras. S† avst„ngning av alla f”r
+n„rvarande ”ppna f”nster „r en relativt komplex process av samarbete mellan dessa b†da tr†dar:
+Avst„ngningstr†den st„nger ett f”nster och somnar sedan in tills Uppdateringstr†den uppt„cker en
+„ndring hos Aktiva sessioner (vilket betyder att f”nstret har st„ngts riktigt) och postar ett 
+meddelande tillbaka till Avst„ngningstr†den, vilken i sin tur st„nger n„sta f”nster, tills alla
+f”nster „r st„ngda.
+
+<P>N„r alla f”nster „r st„ngda, avslutas Uppdateringst†den. Nu g†r Avst„ngningstr†den igenom
+listan ”ver alla f”r n„rvarande uppv„ckta objekt (vilket beskrevs ovanf”r) och forcerar 
+skrivning av deras data till INI filerna eller till disken genom att anropa varje 
+objekts <CITE>wpSaveImmediate</CITE> metod. Detta utf”rs endast f”r avkomlingarna WPAbstract och
+WPFolder, d„rf”r att enligt min erfarenhet, sparar alla andra klasser sina data synkront. 
+(Jag har f”rs”kt spara alla WPFileSystem avkomlingar en g†ng, och det orsakade att en massa
+ut”kade attribut skapades f”r varje enskild fil som n†gonsin v„ckts upp av WPS.	Resultatet
+blev att avst„ngningen tog en evighet att utf”ra.)
+
+<P>Slutligen, beroende p† vilken aktion som ”nskades, g”r Avst„ngningstr†den n†got av f”ljande:
+
+<UL><LI>Om du valde <STRONG>"Starta om Skrivbordet",</STRONG> exekverar Avst„ngningstr†den helt 
+enkelt <CITE>DosExit(EXIT_PROCESS, 0)</CITE>. Eftersom &xwp; „r en del av Workplace processen,
+och alla andra delar av WPS k”rs i denna enda process (den andra instansen av <CITE>PMSHELL.EXE</CITE>),
+kommer det att avsluta hela Workplace Shell. Shell processen (den f”rsta instansen
+av <CITE>PMSHELL.EXE</CITE>) kommer sedan att starta om WPS automatiskt.
+
+<BR><LI>Om du valde "St„ng av" och <STRONG>"Boota om efter†t",</STRONG> sparar &xshutdown; ocks†
+INI filerna till disk. Detta „r n”dv„ndigt, d„rf”r att <CITE>DosShutdown,</CITE> som anropas efter†t,
+inte heller sparar dom. (Jag tror att det beror p† att INI fils API'er tillh”r Presentation Manager.)
+Eftersom PM INI fils API'er f”rhindrar enkel avst„ngning av anv„ndarens och systemets profiler
+(vilken skriver deras data till disk f”r alla andra profiler), kopierar &xwp; dem till tv†
+tempor„ra profiler, raderar orginalen, och byter sedan namn p† de tempor„ra profilerna till
+orginalens namn. Efter <CITE>DosShutdown</CITE> ("Frist„ller filsystemen..."), bootas systemet om via ett
+anrop till DOS.SYS device drivrutinen. Denna funktion „r dokumenterad i 
+<A HREF="http://www.edm2.com/">EDM/2</A> volym 5, nummer 9.
+
+<BR><LI>Om du valde "St„ng av" och <STRONG>INTE "Boota om efter†t",</STRONG> efter <CITE>DosShutdown,</CITE>
+avaktiverar &xshutdown; Aktiva sessioner och blockerar helt enkelt systemet genom att 
+anropa <CITE>DosEnterCritSec</CITE> och stannar kvar i en „ndl”s loop. Eftersom alla filsystem „r st„ngda,
+kommer ingen ytterligare aktion att vara m”jlig, undantaget att st„nga av datorn eller att trycka 
+p† Ctrl-Alt-Del.
+</UL>
+</BODY>
+</HTML>
+
+

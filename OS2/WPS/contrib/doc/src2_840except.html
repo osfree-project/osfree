@@ -1,0 +1,90 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Exception Handling
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+XWorkplace registers additional exception handlers in certain parts
+where I considered worth it.
+<P>With &quot;worth it&quot; I mean the following situations:
+<OL><LI>Certain code parts
+crashed on my system and these parts seemed error-prone enough to me
+to outweigh the performance loss of registering and deregistering
+exception handlers.
+<P><LI>
+Exception handlers <I>must</I> be registered for all additional
+threads. If no exception handling was registered there, crashes would take
+the whole WPS down, because the default WPS exception handler only
+deals with the default WPS threads.
+<P><LI>
+Exception handlers <I>must</I> also be registered every time
+mutex semaphores are used. If a code part crashes while a mutex
+semaphore has been requested by a function, all other threads
+waiting for that semaphore to be released will be blocked forever.
+And I mean forever, because even <CODE>DosKillProcess</CODE> won't be
+able to terminate that thread. You'd have to reboot to get out of this.
+So the exception handler must always check for whether a mutex semaphore
+is currently owned by the thread and, if so, release it.
+
+</OL>XWorkplace does not use the VAC++ library funcs for all this, but installs its
+own set of quite complex exception handlers
+(using <CODE>DosSetExceptionHandler()</CODE>).
+The code for exception handlers has been made independent of XWorkplace
+and moved to <CODE>/helpers/except.c</CODE> with V0.9.0.
+
+<P>Also, I have created a few handy macros which automatically register and
+deregister the XWorkplace exception handlers. This avoids the frequent problem
+that one forgets to deregister an exception handler, which leads to
+really awkward problems which are almost impossible to debug.
+Those macros are called <CODE>TRY_xxx</CODE> and <CODE>CATCH</CODE> to
+mimic at least some C++ syntax.
+See the top of <CODE>src\helpers\except.c</CODE> for detailed instructions how
+to use these.
+<P>
+The XWorkplace exception handlers are the following:
+<UL><LI>
+<CODE>excHandlerLoud</CODE> is the one that makes the loud sounds
+and writes the <CODE>XFLDTRAP.LOG</CODE>
+file which is well-known to many XWorkplace users (grin). It uses
+a <CODE>longjmp()</CODE> to get back to the function, which might then
+react to that exception by trying to restore some safe
+state of the thread. See the func header for details about
+how this works.
+<P>
+This handler is used by all the additional XWorkplace threads
+and also by the subclassed folder frame and folder content
+menu window procs. This slows down the system a bit because
+the handler must be registered and deregistered for each
+message that comes in, but there's no other way to do this.
+(I think.)
+<P>With V0.84, I have added lots of debugging code which I found in
+the EXCEPTQ.ZIP package at Hobbes. The exception handlers are now capable
+of finding symbols either from debug code (if present) or from a SYM file
+in order to write more meaningful trap logs.
+See the top of <CODE>except.c</CODE> for details.
+<P><LI>
+<CODE>excHandlerQuiet</CODE> is similar to <CODE>excHandlerPlus</CODE> in that it
+uses a <CODE>longjmp()</CODE> also, but neither is this reported to the
+user nor is the logfile written to (that's why it's &quot;quiet&quot;).
+<P>
+This is used in places where exceptions have ben known
+to occur and there's no way to get around them. I created
+this handler for V0.80 because I found out that <CODE>somIsObj()</CODE>
+is <I>not</I> a fail-safe routine to find out if a SOM pointer
+is valid, even though IBM claims it is.
+<P>
+(These were the strange errors in the Worker thread which
+appeared in V0.71 when folders with subfolders were
+deleted, because the Worker thread then tried to access
+these objects when the folder was populated right before
+deletion.)
+<P>
+So I created the <CODE>wpshCheckObject</CODE> func which can
+return FALSE, using this handler, if access to the object
+fails.
+</UL>
+<BR>
+</BODY>
+</HTML>

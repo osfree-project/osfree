@@ -1,0 +1,45 @@
+<HTML RESID=&ID_XSH_FONTFILE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Fontfil
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Om <A HREF="objects/obj_fontfdr.html">Fontmappen</A> „r installerad, kommer
+&xwp; automatiskt att g”ra alla datafiler som verkar vara fontfiler p†
+ditt system till "fontfiler".
+
+<P>Fontfiler beter sig inte mycket annorlunda „n vanliga datafiler... undantaget
+f”ljande:
+
+<UL><LI>Dom f†r automatiskt en standardfiltyp av "Fontfil".
+
+<P><LI>Om inga associationer existerar f”r den typen (eller filens „ndelse), erh†ller
+fontfilerna en annorlunda standardikon.
+
+<P><LI>Endast fontfiler kan dras till Fontmappen f”r att snabbt installera fonter.
+
+</UL>F”r n„rvarande, kommer filer med f”ljande „ndelser att f”rvandlas till fontfiler:
+
+<UL><LI><CODE>.TTF</CODE>, <CODE>.TTC</CODE>: Detta „r „ndelser f”r TrueType fontfiler.
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+Det antas att ditt &os2; system kan visa TrueType fonter. Detta „r fallet f”r Warp 4 
+(och h”gre) utan speciella f”rberedelser. P† Warp 3, m†ste du installera FreeType/2 
+motorn -- med det rekommenderas f”r Warp 4 ocks† d„rf”r att dess visningskvalitet
+„r b„ttre.
+</IFNDEF>
+
+<P><LI><CODE>.OFM</CODE>: Detta „r specialfiler vilka g”r Adobe Typ-1 fonter 
+(med <CODE>.PFB</CODE> „ndelsen) accessbara f”r &os2;. F”r att &os2; skall kunna
+installera en Typ-1 fontfil, beh”ver du en <CODE>.OFM</CODE> och en <CODE>.PFB</CODE> fil,
+men endast <CODE>.OFM</CODE> filen kommer i praktiken att lagras i systemets fontregister
+(och d„rmed kommer endast <CODE>.OFM</CODE> filen att bli omvandlad till en &xwp; fontfil).
+
+<P><LI><CODE>.FON</CODE> filer representerar bitmapsfonter. Žven om dessa „r riktigt listade
+i Fontmappen, kan det finnas problem med exempelvisningar av dessa filer.
+</UL>
+</BODY>
+</HTML>
+

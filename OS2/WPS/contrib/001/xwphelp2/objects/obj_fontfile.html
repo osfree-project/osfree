@@ -1,0 +1,48 @@
+<HTML RESID=&ID_XSH_FONTFILE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Font File
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+If the <A HREF="objects/obj_fontfdr.html">Fonts folder</A> is installed,
+&xwp; will automatically make all data files which appear to be font files
+on your system "font files".
+
+<P>Font files do not behave much differently from regular data files... except
+for the following:
+
+<UL><LI>They automatically receive a default file type of "Font file".
+
+<P><LI>If no associations exist for that type (or the file's extension), font files
+receive a different default icon.
+
+<P><LI>Only font files can be dropped onto the Fonts folder in order to
+allow you to quickly install fonts.
+
+</UL>Presently, files with the following extensions will be turned into font files:
+
+<UL><LI><CODE>.TTF</CODE>, <CODE>.TTC</CODE>: These are the extensions for TrueType
+font files.
+<!-- V0.9.19: added ifndef -->
+<IFNDEF __EWORKPLACE__>
+It is assumed that your &os2; system can display TrueType fonts. This is
+the case for Warp 4 (and higher) without any special preparations. On Warp 3, you have
+to install the FreeType/2 engine -- but this is recommended for Warp 4 as well because
+its display quality is better.
+</IFNDEF>
+
+<P><LI><CODE>.OFM</CODE>: These are the special files which make Adobe Type-1
+fonts (with the <CODE>.PFB</CODE> extension) accessible to &os2;. In order for &os2;
+to be able to install a Type-1 font file, you need both an <CODE>.OFM</CODE> and
+a <CODE>.PFB</CODE> file, but only the <CODE>.OFM</CODE> file will actually be
+stored in the system's font registry (and therefore only the <CODE>.OFM</CODE> file
+is turned into an &xwp; font file).
+
+<P><LI><CODE>.FON</CODE> files represent bitmap fonts. Even though these are properly
+listed in the Fonts folder, there may be problems with the sample view of these files.
+</UL>
+</BODY>
+</HTML>
+

@@ -1,0 +1,82 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Steg 1: Endast en Header
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+&xwp; kommer nu med ett mini-widget exempel(<CODE>toolkit\miniwdgt.c</CODE>) vilken inneh†ller
+en absolut minimal widget utan n†gon uppbl†st funktionalitet. Allt denna widget g”r „r att visa
+upp ett fr†getecken.
+
+<P>Denna mini-widget lades till f”r att visa dig n†got att starta med. Den kan definitivt 
+f”rb„ttras. Den g”r <I>inte</I>
+
+<UL><LI>lagring av n†gra inst„llningar (inte ens font eller f„rg presentationsparametrar -- se 
+<A HREF="plug_52strings.html">steg 2</A> f”r detta);
+
+<P><LI>visar verktygstips (bubbelhj„lp -- se <A HREF="plug_53tooltips.html">steg 3</A>
+f”r detta);
+
+<P><LI>implementerar en inst„llningsdialog (se <A HREF="plug_55dialog.html">steg 4</A> f”r detta);
+
+</UL>Till sist, en plug-in DLL m†ste g”ra f”ljande:
+
+<OL><LI>Den m†ste <B>exportera tre procedurer</B> med ordningsstal.
+
+<P><B>a)</B> <B>"init"</B> export (ordningstal 1) blir anropad endast en g†ng av &xcenter; n„r
+din DLL blir laddad. DLL'en kan bli laddad i andra situationer „n f”r skapande av widgets, s† 
+r„kna inte med att det h„r alltid „r fallet. Vid init, b”r DLL'en registrera widgetens PM f”nsterklass 
+(genom att anropa <CODE>WinRegisterClass</CODE>). Som till„gg, kan den importera funktioner fr†n 
+<CODE>XFLDR.DLL</CODE>, vars modulhandtag ges till den (detta „r en option). Emellertid, den m†ste
+alltid returnera en pekare till ordningen hos
+<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A> strukturer i DLL'en
+s† att &xcenter; k„nner till allt om klasserna i DLL'en.
+
+<P>Se <CODE>toolkit\miniwdgt.c</CODE> f”r hur det h„r „r utf”rt.
+
+<P><B>b)</B> <B>"uninit"</B> export (ordningstal 2) blir anropad n„r DLL'en „r urladdad av
+&xcenter;. Den kan utf”ra en st„dning, om n”dv„ndigt.
+
+<P><B>c)</B> <B>"query version"</B> export (ordningstal 3) blir anropad till och med f”re
+"init" exporten f”r att kontrollera &xwp;'s versionsnummer som den widgeten erfordrar.
+
+<P><LI>Plug-in DLL'en m†ste sedan inneh†lla en <B>PM f”nsterprocedur</B> f”r den widgetklassen.
+I mini-widget exemplet, „r detta <CODE>fnwpSampleWidget</CODE> proceduren. "Init" export „r ansvarigt f”r
+anrop av <CODE>WinRegisterClass</CODE> hos den f”nsterproceduren f”r att skapa en PM f”nsterklass fr†n den.
+
+<P>Detta „r det vanliga v„xlingsfall sakerna som anv„nds av varje PM f”nsterprocedur. Det finns dock ett par
+extra ”verv„ganden som m†ste g”ras, vilka „r f”rklarade nedanf”r.
+
+<P><LI>P† <CODE>WM_CREATE</CODE>, <I>m†ste</I> widgeten lagra 
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A> pekaren som den erh†ller med <CODE>mp1</CODE>
+i dess <CODE>QWL_USER</CODE> f”nsterord. Detta „r varf”r mini-widget exemplet anropar
+<CODE>WinSetWindowPtr(hwnd, QWL_USER, mp1);</CODE> p† WM_CREATE.
+
+<P><LI>P† <CODE>WM_CONTROL</CODE>, skall den hantera tillk„nnagivanden fr†n &xcenter;. &xcenter; 
+kommer att skicka <CODE>WM_CONTROL</CODE> meddelanden till widgeten n„r den vill veta widgetens storlek, till exempel.
+
+<P>Tillk„nnagivande-koderna som &xcenter; anv„nder med <CODE>WM_CONTROL</CODE> „r listade i
+<CODE>toolkit\center.h</CODE>. Det kommer troligtvis att bli fler av dom i framtiden.
+
+<P><LI>Normalt, med PM, skickas alla oprocessade meddelanden till <CODE>WinDefWindowProc</CODE>.
+Med widgets, „r detta annorlunda: du m†ste alltid passa oprocessade meddelanden till 
+"&xcenter; standard widgetprocedur", vars adress ges till din widget i
+<A HREF="plug_9xcenterwidget.html"><CODE>XCENTERWIDGET</CODE></A>
+strukturen p† <CODE>WM_CREATE</CODE> i <CODE>pfnwpDefWidgetProc</CODE> f„ltet. (Ja, detta „r
+sk„let till att du m†ste lagra den strukturen ocks† i dina f”nsterord.)
+
+<P>Om du inte skickar oanv„nda meddelanden vidare, kommer du att allvarligt skada widgetens
+funktionalitet. Žnnu v„rre, du kommer att orsaka minnesl„ckor d„rf”r att standard widgetproceduren „r ansvarig
+f”r uppst„dning av resurser och viktiga &xcenter; tillk„nnnagivanden.
+
+<P><LI>Žven om du g”r din egen processning p† <CODE>WM_DESTROY</CODE>, m†ste du <I>alltid, alltid</I>
+passa <CODE>WM_DESTROY</CODE> till <CODE>pfnwpDefWidgetProc</CODE>. Annars kan inte &xcenter; st„da upp din widgets
+resurser p† ett snyggt s„tt.
+
+</OL>
+</BODY>
+</HTML>
+
+

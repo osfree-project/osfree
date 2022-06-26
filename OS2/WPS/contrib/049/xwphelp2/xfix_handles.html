@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: šber WPS-Datei-Handles
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7
+    Changes:
+    V0.9.20: changed title, moved most stuff to glossary/gls_objhandle.html
+ -->
+<BODY>
+Die Workplace Shell benutzt Datei-Handles als eine interne Datenbank, um
+Dateien ungeachtet ihrer physischen Lage finden zu k”nnen.
+ 
+<P>Im Prinzip sind diese Datei-Handles eine gute Sache. Es sind die Datei-Handles, welche
+das berlegene Feature der WPS erm”glichen, Programmobjekte und Referenzen, die sich auf
+Dateien beziehen, weiterhin funktionieren zu lassen, nachdem sie an einen anderen Ort
+verschoben wurden.
+Das funktioniert grunds„tzlich, weil Programmobjekte und Referenzen niemals den 
+physischen
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">Pfad</A>
+abspeichern, sondern nur das Objekt-Handle. 
+ 
+<!-- V0.9.20: moved all the rest to glossary/gls_objhandle.html, added
+everything below -->
+<P>Siehe <A HREF="glossary/gls_objhandle.html">"šber Objekt-Handles"</A> fr
+ausfhrliche Informationen zu Objekt-Handles.
+ 
+<P>Beachten Sie, daá xfix haupts„chlich Dateisystem-Handles bearbeitet. Um
+Probleme mit abstrakten Objekten zu beheben, k”nnen Sie Henk Kelders Programm
+CHECKINI verwenden.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

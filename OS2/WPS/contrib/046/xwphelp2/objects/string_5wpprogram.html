@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPProgram Str„ngar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<!-- V0.9.19: title was wrong, fixed -->
+<BODY>
+<CODE>WPProgram</CODE> „r WPS klassen f”r alla
+<!-- V0.9.20: added link -->
+&link_progobjs;
+(se <A HREF="glossary/gls_wpsclasses.html">WPS klasser</A> f”r detaljer).
+Som till„gg till de inst„llningsstr„ngar som 
+k„nns igen av <CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> klassen,
+k„nner <CODE>WPProgram</CODE> igen f”ljande str„ngar:
+
+<DL>
+<DT><P><CITE><B>ASSOCFILTER</B>=<I>filter</I></CITE>
+<DD>St„ller in <I>filter</I> hos datafiler f”r att bli associerade med ett programobjekt. 
+Multipla filter „r separerade med kommatecken.
+
+<!-- V0.9.19: added ifndef, replaced entities here -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>Notera: Om &xwp;'s ut”kade associationer „r aktiverade, kommer filtren att
+lagras i INI filer, men „ndringen kommer inte att f† n†gon effekt f”rr„n de ut”kade
+associationerna „r avaktiverade igen, d„rf”r att &xwp; ignorerar totalt WPS associationer
+med filter.
+</IFNDEF>
+
+<DT><P><CITE><B>ASSOCTYPE</B>=<I>typer</I></CITE>
+<DD>St„ller in <I>typer</I> f”r datafiler att associeras med ett programobjekt. 
+Multipla typer „r separerade av kommatecken.
+
+<DT><P><CITE><B>EXENAME</B>=<I>filnamn</I></CITE>
+<DD>St„ller in den exekverbara som programobjektet skall peka mot. Detta m†ste antingen
+vara en fullt kvalificerad (m.a.o. inklusive den fulla
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„gen</A> hos den exekverbara) 
+eller vara en exekverbar i <CODE>PATH</CODE>, eller annars kommer exekveringen av 
+programmet att misslyckas.
+
+<DT><P><CITE><B>MAXIMIZED</B>={YES|NO}</CITE>
+<DD>Best„mmer om den exekverbara som pekar mot programobjektet skall startas maximerad.
+Det brukar normalt inte ha n†gon p†verkan p† PM program.
+
+<DT><P><CITE><B>MINIMIZED</B>={YES|NO}</CITE>
+<DD>Best„mmer om den exekverbara som pekar mot programobjektet skall startas minimerad.
+Det brukar normalt inte ha n†gon p†verkan p† PM program.
+
+<DT><P><CITE><B>PROGTYPE</B>=<I>typ</I></CITE>
+<DD>Direkinst„llning av sessionstypen hos den exekverbara pekande mot programobjektet.
+<CODE><I>typ</I></CODE> m†ste vara en av f”ljande:
+
+<UL><LI><CODE>DOSMODE</CODE>: frist†ende DOS l„ge.
+<LI><CODE>FULLSCREEN</CODE>: &os2; fullsk„rmsl„ge.
+<LI><CODE>PM</CODE>: Presentation Manager (PM).
+<LI><CODE>PROG_30_STD</CODE>: &winos2; standard kompatibilitets fullsk„rmsl„ge.
+<LI><CODE>PROG_31_ENH</CODE>: &winos2; ut”kat kompatibilitets fullsk„rmsl„ge.
+<LI><CODE>PROG_31_ENHSEAMLESSCOMMON</CODE>: &winos2; f”nster i &winos2; ut”kad kompatibilitetsl„ge 
+vanlig session.
+<LI><CODE>PROG_31_ENHSEAMLESSVDM</CODE>: &winos2; f”nster i en separat session ut”kat
+kompatibilitetsl„ge.
+<LI><CODE>PROG_31_STD</CODE>: standard kompatibilitets fullsk„rmsl„ge.
+<LI><CODE>PROG_31_STDSEAMLESSCOMMON</CODE>: &winos2; f”nster i &winos2; standard
+kompatibilitets vanlig session.
+<LI><CODE>PROG_31_STDSEAMLESSVDM</CODE>: &winos2; f”nster i en separat session standard
+kompatibilitetsl„ge.
+<LI><CODE>SEPARATEWIN</CODE>: &winos2; f”nster rullande i en separat VDM.
+<LI><CODE>VDM</CODE>: DOS fullsk„rm.
+<LI><CODE>WIN</CODE>: &winos2; fullsk„rm.
+<LI><CODE>WINDOWABLEVIO</CODE>: &os2; f”nster.
+<LI><CODE>WINDOWEDVDM</CODE>: DOS f”nster.
+<LI><CODE>WINDOWEDWIN</CODE>: &winos2; f”nster.
+</UL>
+
+<DT><P><CITE><B>NOAUTOCLOSE</B>={YES|NO}</CITE>
+<DD>Best„mmer om sessionen skall l„mnas ”ppen n„r programmet avslutas. Notera att det
+inte p†verkar PM program. Standard „r <CODE>NO</CODE>.
+
+<DT><P><CITE><B>PARAMETERS</B>=<I>parametrar</I></CITE>
+<DD>St„ller in de parametrar som skall ges till en exekverbar pekande mot ett programobjekt. 
+Detta kan inneh†lla standard programobjekt ers„ttningsmakron.
+
+<DT><P><CITE><B>SET </B> <I>variabel</I>=<I>v„rde</I></CITE>
+<DD>St„ller in en
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">milj”variabel</A> f”r den
+exekverbaras session. Notera att &os2; anv„nder milj”variabler „ven f”r att skicka
+DOS inst„llningar till DOS och &winos2; sessioner.
+
+<DT><P><CITE><B>STARTUPDIR</B>=<I>s”kv„g</I></CITE>
+<DD>St„ller in arbetskatalog f”r den session som skall startas.
+
+</DL>
+</BODY>
+</HTML>
+

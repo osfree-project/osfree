@@ -1,0 +1,40 @@
+<HTML RESID=&ID_XSH_SETTINGS_DTP_STARTUP;>
+<HEAD>
+    <TITLE>
+        &xwp;: Startup Settings
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+
+<BODY>
+This page allows you to configure various startup settings.
+All these settings will not take effect until the next Desktop
+restart.
+
+<IFNDEF __NOXWPSTARTUP__>
+<P>Note that the &xwp; Startup folder
+has its own notebook page to configure its behavior once it has been
+created (see below).
+</IFNDEF>
+<!-- V0.9.4: removed all the following and replaced it with these links -->
+<P>For a detailed explanation of each field, select from the list below:
+
+<UL>
+<!-- V0.9.16: added ifdefs, reordered links -->
+<IFNDEF __NOBOOTLOGO__>
+<LI><A HREF="fsys/dtp0_1bootlogo.html">Workplace Shell boot logo</A>
+</IFNDEF>
+<!-- V0.9.19: changed log file name -->
+<LI><A HREF="fsys/dtp0_20startuplog.html">Write WPSTART.LOG file</A>
+<IFNDEF __NOBOOTUPSTATUS__>
+<LI><A HREF="fsys/dtp0_2classinit.html">Show class initialization</A>
+</IFNDEF>
+<LI><A HREF="fsys/dtp0_4numlock.html">Enable NumLock at startup</A>
+<IFNDEF __NOXWPSTARTUP__>
+<LI><A HREF="fsys/dtp0_3createxfstup.html">Create &xwp; Startup folder</A>
+</IFNDEF>
+
+</UL>
+</BODY>
+</HTML>
+

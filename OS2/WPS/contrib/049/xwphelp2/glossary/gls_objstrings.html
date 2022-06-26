@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Konfigurationsstrings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Mit Konfigurationsstrings lassen sich die Einstellungen eines
+Objektes von "auáerhalb" der Arbeitsoberfl„che beeinflussen.
+ 
+<P>Ein Konfigurationsstring ist eine Zeichenkette mit einer Sequenz
+von Paaren der Form <code>schlssel=wert</code>, wobei jedes Paar
+mit einem Semikolon abgeschlossen wird. Die Schlssel, die ein
+Objekt verstehen kann, h„ngen von seiner
+<A HREF="glossary/gls_wpsclasses.html">Klasse</A> ab.
+ 
+<!-- V0.9.16: added this -->
+<P>Beispiel: Um die Symbole eines Ordners fr die geschlossene und
+ge”ffnete Anzeige zu „ndern, k”nnen Sie folgende Sequenz verwenden:
+ 
+<P><CODE>ICONFILE=C:\closed.ico;ICONNFILE=1,C:\open.ico;</CODE>
+ 
+<!-- end V0.9.16 -->
+ 
+<P>Da die Klassen der Arbeitsoberfl„che hierarchisch geordnet
+und voneinander abgeleitet sind, versteht ein Objekt nicht nur die
+Strings seiner eigenen Klasse, sondern auch all die der Elternklassen.
+Zum Beispiel versteht ein Ordner nicht nur die Strings der Klasse
+<CODE>WPFolder</CODE>, sondern auch die der Klasse
+<CODE>WPObject</CODE> (die von allen Objekten untersttzt werden).
+ 
+<P>Es gibt eine Vielzahl von Konfigurationsstrings fr die verschiedenen
+Klassen der Arbeitsoberfl„che.
+ 
+<!-- V0.9.16 Some of them are listed in the <I>&xwp; User Guide</I>. -->
+ 
+<!-- V0.9.16: added these links, and moved the files from inf.001 to xwphelp -->
+W„hlen Sie aus der nachstehenden Liste, um einige angezeigt zu bekommen:
+ 
+<!-- V0.9.20: changed all links -->
+<UL>
+<LI><A HREF="objects/string_1wpobject.html">WPObject</A> (alle Objekte)
+<LI><A HREF="objects/string_2wpfolder.html">WPFolder</A> (alle Ordner)
+<LI><A HREF="objects/string_4xfdesktop.html">WPDesktop</A> (Arbeitsoberfl„che)
+<LI><A HREF="objects/string_6xwptrashcan.html">XWPTrashCan</A> (Papierkorb)
+<LI><A HREF="objects/string_5wpprogram.html">WPProgram</A> (alle Programmobjekte)
+<LI><A HREF="objects/string_7xcenter.html">XCenter</A> (das &xcenter;)
+<LI><A HREF="objects/string_8xwpstring.html">XWPString</A> (Konfigurationsstring-Objekte)
+</UL>
+<!-- end V0.9.20 -->
+ 
+<!-- V0.9.16: replaced the following -->
+ 
+Es gibt mehrere M”glichkeiten, einen Konfigurationsstring auf ein Objekt anzuwenden:
+ 
+<!-- V0.9.19: replaced entity here -->
+<UL><LI>&xwp; erlaubt es,
+<A HREF="objects/obj_string.html">Konfigurationsstring-Objekte</A> zu benutzen.
+ 
+<P><LI>Mit
+<!-- V0.9.20: added links -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>
+kann die Funktion
+<A HREF="rexx.inf#SysSetObjectData"><CODE>SysSetObjectData</CODE></A>
+benutzt werden (oder, wenn ein neues Objekt erzeugt wird, die Funktion
+<A HREF="rexx.inf#SysCreateObject"><CODE>SysCreateObject</CODE></A>).
+ 
+<!-- V0.9.20: added links -->
+<P><LI>In der Programmiersprache "C" benutzt man
+<A HREF="pmref.inf#WinSetObjectData"><CODE>WinSetObjectData</CODE></A> und
+<A HREF="pmref.inf#WinCreateObject"><CODE>WinCreateObject</CODE></A>.<A HREF="_toolkitlink.html">*</A>
+ 
+<!-- V0.9.20: added links -->
+<P><LI>Innerhalb einer WPS-Klasse benutzt man die Methode
+<A HREF="wpsref.inf#wpSetup"><CODE>WPObject::wpSetup</CODE></A>,<A HREF="_toolkitlink.html">*</A>
+die von vielen Klassen berschrieben wird und die tats„chliche Implementierung
+von Konfigurationsstrings in der Arbeitsoberfl„che enth„lt.
+ 
+</UL>
+ 
+<!-- end V0.9.16 -->
+ 
+<B>Hinweis:</B> Im Gegensatz zu einem weitverbreiteten Irrtum speichert ein
+Objekt einen String <i>nicht,</i> wenn dieser auf das Objekt angewandt wird.
+Vielmehr wird der String von der WPS-Klasse analysiert und dann in die Bin„rdaten
+des Objekts umgewandelt. Anschlieáend ist der String verloren.
+ 
+<P>Folglich muá &xwp;, um die Konfigurationsstrings auf der Seite "Symbol"
+im Einstellungsnotizbuch eines jeden Objektes anzeigen zu k”nnen, die
+Bin„rdaten eines jeden Objektes analysieren und "raten", welcher String
+diese bestimmte Konfiguration erzeugen wrde. Einige der Objekt-Daten sind
+undokumentiert, so daá &xwp; nicht fr alle m”glichen Strings die Bin„rdaten
+analysieren kann.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

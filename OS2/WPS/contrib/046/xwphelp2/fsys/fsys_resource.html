@@ -1,0 +1,92 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_RESOURCES;>
+<HEAD>
+    <TITLE>
+        &xwp;: "Resurser" sida
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.20: rewrote the top -->
+Sidan "Resurser" upptr„der i notboken med egenskaper hos alla
+exekverbara moduler.
+
+<P><B>Resurser</B> „r endast l„sbara dataobjekt som kan accessas
+dynamiskt under k”rtid.
+
+<P>Resursobjekt „r placerade i en exekverbar fil av Kompilatorn
+(<CODE>RC.EXE</CODE>), vilken finns i &os2;.
+<!-- V0.9.20: added this -->
+Detta kan antingen vara applikationens huvudmodul (<CODE>.EXE</CODE> fil)
+eller en <A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A>.
+
+<!-- V0.9.20: rewrote the following paragraphs -->
+<P>En resurs kan laddas n„r som helst genom anv„ndning av en "typ" och "ID" par.
+Typiskt, till skillnad fr†n den verkliga applikationskoden, laddas resurser endast
+n„r de verkligen beh”vs. Detta g”r starten av applikationerna snabbare och reducerar
+ocks† minneskonsumtionen.
+
+<P>Resurser anv„nds ofta av applikation f”r att separera sitt nationella spr†kst”d
+(NLS) fr†n den verkliga koden. P† det h„r s„ttet, kan applikationer ”vers„ttas
+utan att beh”va kompilera om k„llkoden.
+<IFNDEF __EWORKPLACE__>
+(&xwp; har sitt spr†kst”d p† det h„r s„ttet, till exempel.)
+</IFNDEF>
+<!-- end 0.9.20 -->
+
+<P>F”ljande typer av resurser existerar:
+
+<UL><LI><B>Muspekare form:</B> en ikon eller pekarfil (.ICO/.PTR format).
+
+<P><LI><B>Bitmap:</B> en OS/2 bitmap (.BMP).
+
+<P><LI><B>Meny mall:</B> en PM menydefinition; antingen ett menyf„lt eller en popup (kontext) meny.
+
+<P><LI><B>Dialog mall:</B> en PM dialogdefinition.
+
+<P><LI><B>Str„ngtabell:</B> en str„ngtabell.
+
+<P><LI><B>Fontkatalog, Font:</B> PM bitmaps font.
+
+<P><LI><B>Accelerator tabell:</B> en PM accelerator (snabbkommando, tangentbords genv„g) tabell.
+
+<P><LI><B>Bin„ra data:</B> bin„ra data i ett odefinierat format.
+
+<P><LI><B>Felmeddelanden tabell:</B> en felmeddelandetabell.
+
+<P><LI><B>Dialog inkludera-filnamn:</B> filnamn p† dialogen inkludera fil.
+
+<P><LI><B>Virtuell nyckeltabell:</B> nyckel till VKEY tabeller. Jag „r os„ker p† vad det betyder.
+
+<P><LI><B>Nyckeltabell:</B> nyckel till UGL tabeller. Jag „r os„ker p† vad det betyder.
+
+<P><LI><B>Teckentabell:</B> Glyph-till-tecken tabeller. Detta anv„nds troligtvis ihop med fonter.
+
+<P><LI><B>Display information:</B> sk„rmvisning information. Jag har aldrig sett det h„r.
+
+<P><LI><B>Kort-form funktionsnyckel area:</B> funktionsnyckel area, kort form. Jag „r os„ker
+p† vad det betyder.
+
+<P><LI><B>L†ng-form funktionsnyckel area:</B> funktionsnyckel area, l†ng form. Jag „r os„ker p†
+vad det betyder.
+
+<P><LI><B>Hj„lptabell, Hj„lp subtabell:</B> hj„lptabeller f”r PM hj„lpmanagern. Detta till†ter PM
+att motsvara dialogposter och hj„lpsidor, men det „r v„ldigt irriterande att anv„nda.
+
+<P><LI><B>DBCS uniq/font drivrutinskatalog, DBCS uniq/font drivrutin:</B> dubbel-byte
+teckenupps„ttnings (DBCS) font drivrutin. Jag „r os„ker p† vad det betyder.
+
+<P><LI><B>Str„ng ID tabell:</B> resursens namntabell. Jag „r os„ker p† vad det betyder.
+
+<P><LI><B>Applikations specifik:</B> data i ett applications-specifikt format.
+
+</UL>
+
+<!-- V0.9.20: removed this
+Resources are either loaded as soon as the module is loaded or when needed.
+Once loaded, resources are either automatically discarded when they are no longer
+needed or when the module is discarded.
+-->
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: &winos2;-Sitzungen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_win16.gif">
+ 
+<P>&os2; hat Untersttzung fr Programme eingebaut, die fr
+Microsoft Windows 3.x geschrieben wurden. Diese Untersttzung wird
+<B>&winos2;</B> genannt und besteht aus einer angepaáten Version
+von Microsoft Windows 3.1, die in das &os2;-System integriert ist.
+Dadurch kann man mit Windows-Programmen arbeiten, als w„ren sie
+&os2;-Programme. Sie k”nnen beispielsweise Windows-Programme auf
+der Arbeitsoberfl„che oder in einer separaten Vollbildsitzung laufen
+lassen und trotzdem Daten zwischen Ihren &os2;- und Windows-Programmen
+austauschen.
+ 
+<P>Beachten Sie, daá die &winos2;-Untersttzung Windows 3.1 entspricht,
+jedoch nicht Windows 95. &winos2; untersttzt keine 32-Bit-Windows-Anwendungen.
+Um diese laufen zu lassen, ben”tigen Sie Programme dritter Anbieter.
+ 
+<P>Im &link_syssetupfdr; finden Sie das Objekt
+<A HREF="objects/obj_setup_win16.html">"&winos2setup;"</A>, mit dem
+global Einstellungen fr das gesamte &winos2;-Subsystem vorgenommen werden k”nnen.
+Diese Einstellungen werden verwendet, solange nicht ein
+<A HREF="objects/obj_pgmobj.html">Programmobjekt</A> fr eine
+&winos2;-Anwendung erstellt wurde, um besondere Einstellungen vornehmen
+zu k”nnen.
+ 
+<P>Ein &winos2;-Programm kann in einer Fenster- oder einer Vollbild-Sitzung laufen.
+ 
+<UL><LI>Alle Programme in <B>&winos2;-Fenstern</B> teilen sich standardm„áig
+die gleiche Sitzung. Das heiát, auch wenn mehrere Anwendung als mehrere Fenster
+auf der Arbeitsoberfl„che angezeigt werden, laufen sie intern im gleichen
+<A HREF="glossary/gls_scheduler.html">Prozeá</A>. Alle Programme, die in dieser
+Sitzung laufen, benutzen die gleichen DOS- und &winos2;-Einstellungen, die
+von dem ersten Programm der Sitzung bestimmt werden.
+ 
+<P>Es ist jedoch wahlweise m”glich, ein &winos2;-Programm in einer <b>getrennten Sitzung</b>
+laufen lassen, indem man die entsprechende Einstellung im
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A> eines Programmobjektes
+aktiviert. Dies ben”tigt zwar mehr Speicher, schtzt das Programm jedoch vor
+anderen &winos2;-Programmen, da es so in einem eigenen Prozeá l„uft.
+ 
+<P><LI>Wenn Sie eine <B>&winos2;-Vollbild-Sitzung</B> starten, ist die
+Arbeitsoberfl„che - wie bei anderen
+<A HREF="glossary/gls_sessions_fs.html">Vollbild-Sitzungen</A> - nicht mehr
+sichtbar. Sie k”nnen jedoch von der &winos2;-Vollbild-Sitzung zurckschalten,
+indem Sie auf das Symbol "Arbeitsoberfl„che" an der unteren Kante der Sitzung
+klicken.
+ 
+</UL>Auáerdem kann fr jede &winos2;-Sitzung festgelegt werden, ob diese
+im "Standardmodus" oder im "Enhanced Compatibility"-Modus laufen soll.
+ 
+<UL><LI>Der <B>Standardmodus</B> untersttzt Programme, die fr den
+Standardmodus von Windows 3.0 und 3.1 geschrieben wurden.
+ 
+<P><LI>Der <B>Enhanced compatibility-Modus</B> untersttzt Programme, die
+den erweiterten Modus von Microsoft Windows 3.0 und 3.1 erfordern.
+ 
+</UL>Programme fr den Standardmodus laufen auch im "Enhanced Compatibility"-Modus.
+Standardm„áig benutzen &winos2;-Sitzungen daher den "Enhanced Compatibility"-Modus.
+ 
+<p>Weitere Informationen erhalten Sie durch Auswahl eines Themas aus der nachstehenden Liste:
+ 
+<UL>
+<LI><A HREF="glossary/gls_sessions.html">Sitzungsarten</A>
+<LI><A HREF="glossary/gls_sessions_fs.html">Vollbild-Sitzungen</A>
+<LI><A HREF="glossary/gls_scheduler.html">Prozesse und Threads</A>
+</UL>
+</BODY>
+</HTML>

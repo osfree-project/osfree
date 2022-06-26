@@ -1,0 +1,67 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        How Does the Trash Can Work?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+Even though the trash can looks like a normal folder, it behaves quite differently
+internally.
+<UL><LI>When an <B>object is deleted</B> into the trash can (either by dropping it onto
+the trash can or by selecting "Delete" from the object's context menu), it is <I>not</I>
+physically moved into the trash can folder (which, being a folder, is a regular
+directory on the disk).
+<P>Instead, the following happens:
+<BR><OL><LI>The trash can then creates an invisible directory in the root directory
+of the drive where the object resides. This directory is always called <CODE>\TRASH</CODE>.
+(You can see it by typing <CODE>DIR /A \</CODE> on the command line.)
+<P><LI>The trash can then creates a subpath in that hidden directory according to the
+path where the object currently resides. That is, for example, if the object is in the
+folder <CODE>D:\MYFILES\ARTICLES</CODE>, the directory <CODE>D:\TRASH\MYFILES\ARTICLES</CODE>
+is created. This allows the trash can to remember where the object was deleted from.
+<P><LI>The object is then moved into <I>that</I> directory (and not the actual trash can
+folder).
+<!-- V0.9.5: changed the following paragraph -->
+<P>The reason for this is simple: speed. If we were physically moving objects into the
+trash can folder, this would frequently move files across drives. (Just think about
+moving a 30 MB file into the trash can this way.) By contrast, since the
+<CODE>\TRASH</CODE> directory is always on the same drive as the object, even moving
+large folder trees should take place very fast.
+<P><LI>In order to still make the object visible in the trash can itself, an instance
+of XWPTrashObject is created in the trash can. This class is a subclass of WPTransient,
+which means that it is not persistent between Desktop restarts, but only while the WPS is
+running. As a result, these "trash objects" do not consume any space in OS2.INI.
+<!-- V0.9.5: added the following paragraph -->
+<P>So when an object is moved to the trash can, it is actually duplicated: the "real"
+object is moved to the invisible <CODE>\TRASH</CODE> directory tree, and a "trash object"
+(XFldTrashObject, WPTransient subclass) is created in the trash can.
+
+</OL>
+<BR><LI>When the <B>trash can is opened</B> (and thus populated), all drives are scanned for
+the hidden <CODE>\TRASH</CODE> directories, and trash objects are created according to the
+objects which reside in the subdirectories in there.
+<P><LI>When an <B>object is restored</B> (or moved out of the trash can), the corresponding
+"real" object in the <CODE>\TRASH</CODE> directories is moved back to where it was
+deleted from (or to the location where the user is moving it to), and the trash object
+in the trash can is destroyed, since it serves no longer any purpose.
+<P><LI>When an <B>object is destroyed</B> (or the trash can is emptied altogether), all
+objects in the <CODE>\TRASH</CODE> directories are destroyed, and all trash objects
+in the trash can are destroyed also.
+</UL>
+This approach seemed like a good compromise for speed and stability, while not messing
+with the WPS internals too much. I had initially thought about using a subclass of
+<!-- V0.9.5: changed all the following -->
+WPAbstract for the trash can, but this would create lots of entries in OS2.INI with
+the usual problems associated with that.
+
+<P>Besides, using a subclass of WPTransient has another advantage. Since the
+trash objects (the transient objects) are recreated from scratch after every WPS
+restart, if something goes wrong really bad, you can manually delete all the hidden
+<CODE>\TRASH</CODE> directories on all drives, and after the next Desktop startup, the
+trash can is completely empty.
+<BR>
+</BODY>
+</HTML>
+
+

@@ -10,7 +10,6 @@ TRGT      = $(PROJ).lib
 !include $(%ROOT)/mk/libs.mk
 
 TARGETS   = $(PATH)$(TRGT)
-#DEST = none
 
 $(PATH)$(TRGT): $(MYDIR)$(TRGT)
  @$(CP) $< $^@ $(BLACKHOLE)

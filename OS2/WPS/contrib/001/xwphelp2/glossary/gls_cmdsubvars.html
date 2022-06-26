@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Substitution Variables
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Substitution variables are specified as <CODE>%0</CODE> through <CODE>%9</CODE>.
+When these variables are encountered in a batch or command file, the
+command processor replaces them, in sequence, with the arguments that
+were given to the file.
+
+<P>&os2; reads the percent sign (<CODE>%</CODE>) as a command rather than
+as a regular input character.  If you intend to use the percent sign as
+an input character, you must specify it twice (e.g. as in <CODE>ABC%%.IN</CODE>).
+
+<P>If you need more than nine variables, you can use the
+<A HREF="cmdref.inf#SHIFT"><CODE>SHIFT</CODE></A> command.
+<BR>
+
+</BODY>
+</HTML>

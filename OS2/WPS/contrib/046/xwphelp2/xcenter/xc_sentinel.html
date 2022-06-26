@@ -1,0 +1,129 @@
+<HTML RESID=&ID_XSH_WIDGET_SENTINEL_MAIN;>
+<HEAD>
+    <TITLE>
+        &xcenter;: Sentinel Widget
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.19: added link -->
+<A HREF="xcenter/xc_main.html">&xcenter;'s</A>
+<B>"Sentinel" widget</B> visar dig en graf ”ver den aktuella minneskonsumtionen 
+hos ditt system.
+
+<P>Sentinel tar lite tid att bli bekant med, men den k„nns r„tt h„ndig efter ett tag. 
+Inte helt olika <A HREF="xcenter/xc_pulse.html">"Puls" widgeten</A>, visar den dig en graf
+”ver hur minnesanv„ndningen har utvecklats p† ditt system ”ver tiden. Grafen uppdateras
+var annan sekund.
+
+<P>Sentinel visar dig emellertid †tskilliga grafer samtidigt, i olika f„rger, med de
+aktuella m„tningarna (i MB) ritade i samma f„rger till v„nster:
+
+<!-- V0.9.15: refreshed the image here -->
+<BR><IMG SRC="img/xc_sentinel1.gif">
+
+<P>Grafen representerar f”ljande:
+
+<OL><LI>Det <B>h”gsta v„rdet (i gr”nt)</B> „r det <B>aktuella fria fysiska RAM.</B>
+Detta „r samma v„rde som med <A HREF="xcenter/xc_mem.html">"Minnes" widgeten</A>.
+S† om du har 128 MB RAM p† ditt system, kommer det aldrig att g† ”ver det v„rdet
+(och troligtvis aldrig n† det heller, naturligtvis).
+
+<P><LI><B>Medelv„rdet (i bl†tt)</B> „r det <B>aktuella anv„nda fysiska RAM.</B>
+Om du l„gger det v„rdet till det h”gsta v„rdet, skall du f† ditt totala RAM.
+<!-- V0.9.15: (Yes, this
+should be 128 MB on my system, but obviously I got rounding errors here.) -->
+
+<!-- V0.9.15: replaced the following
+
+<P><LI>The <B>bottom value (in purple)</B> is the <B>current size of your swap file.</B>
+Add this number to the top two values, and you get the current amount of
+virtual memory on your system.
+
+<P>As you can imagine, this sum (the total virtual memory) can vary over time, as
+you can see in the above screenshot. On the left, you can see that for some reason
+the swap file grew really big, which made the virtual memory grow. &os2; then later
+chose to shrink the swap file again. -->
+
+<P><LI>Om du har en f„rsk <CODE>win32k.sys</CODE> drivrutin fr†n Odin (Mars 2001 eller nyare)
+installerad, kommer storleken p† din swapfil att representeras av ytterligare tv† f„rger, som
+p† bilden ovanf”r. Det <B>tredje v„rdet (i purpur)</B> visar det utrymme hos din swapfil 
+som anv„nds. <B>L„gsta v„rdet (i r”tt)</B> representerar sedan det fria utrymmet i swapfilen.
+De tv† sammanlagda v„rdena representerar storleken hos din swapfil.
+
+<P>Som du kan se p† den ovanst†ende bilden, mer och mer minne allokerades tills det fria
+minnet (i gr”nt) var anv„nt. &os2; startade sedan att anv„nda fritt utrymme i swapfilen 
+(i r”tt) tills det ocks† var anv„nt. D„refter b”rjade &os2; att l†ta swapfilen v„xa,
+vilken „r representerad av den v„xande purpurf„rgade grafen. Slutligen, n„r minnet gradvis
+†terst„lldes, vilket visas av att de bl† och purpurf„rgade graferna krymper igen, och allra sist,
+b”rjade &os2; krympa swapfilen igen eftersom det fanns gott om utrymme i den.
+
+<P>Om du har en f„rsk <CODE>win32k.sys</CODE> drivrutin installerad, kommer du endast att se
+purpurf„rg, helt enkelt representerande storleken hos din swapfil.
+
+<!-- end V0.9.15 -->
+
+</OL>Den gr† ytan ”ver de f„rgade graferna har egentligen ingen funktion. Den „r endast
+ett resultat av den skalning som sentinel g”r p† displayen. N„r tiden g†r, kommer du att
+se att s† fort "klumpen"
+<!-- V0.9.15 -->
+i mitten
+<!-- end V0.9.15 -->
+l„mnar sk„rmen, skalas displayen om igen och den gr† ytan blir †terigen anv„nd f”r visningen.
+
+<!-- V0.9.15: removed this
+<P>Here is another screenshot which shows you the memory consumption while &xwp;
+was recompiled on my system:
+
+<BR><IMG SRC="img/xc_sentinel2.gif">
+
+<P>Since I heavily use a RAM disk for precompiled header files, it is quite obvious
+that the free RAM becomes used up during the compile process. -->
+
+<!-- V0.9.19: changed the following -->
+<P>Notera att du kan
+<A HREF="glossary/gls_dropfonts.html">dra och sl„ppa fonter och f„rger</A> p† en
+sentinel widget. F”r n„rvarande, kan du dock endast „ndra bakgrundsf„rg.
+Dessutom, „r den
+<!-- V0.9.19: replaced link -->
+<A HREF="xcenter/xc_main_sizbar.html">storleksf”r„ndringsbar</A>.
+
+<P><B>Implementation Detaljer</B>
+
+<P>K„llan f”r den information som anv„nds av sentinel widgeten beror p†
+en f„rsk version av Odin's <CODE>win32k.sys</CODE> drivrutin „r installerad.
+
+<UL><LI>Om <CODE>win32k.sys</CODE> hittades, kommer all minnesinformation att h„mtas
+direkt fr†n den drivrutinen, vilken kikar in hos &os2;'s k„rnas minneshantering f”r att
+ta reda p† dessa v„rden. Detta „r extremt effektivt och „ven mera detaljerat „n den
+alternativa metoden beskriven nedanf”r.
+
+<P>F”r att det h„r skall fungera, m†ste du ha en <CODE>win32k.sys</CODE> build fr†n Mars 2001
+eller senare. Knut Stange Osmundsen var v„nlig nog att l„gga till den funktionaliteten hos
+<CODE>win32k.sys</CODE> drivrutinen f”r &xwp;.
+
+<P><LI>Om den drivrutinen inte installerades eller „r f”r gammal, kommer sentinel widgeten att falla 
+tillbaka p† en standardmetod f”r att f† all minnesinformation.
+<!-- V0.9.19: added ifdef -->
+<IFNDEF __EWORKPLACE__>
+Alla ber„kningarna hos en sentinel widget „r baserade p† tv† enkla k„llor:
+<CODE>Dos16MemAvail</CODE> (som beskrevs p† 
+<A HREF="xcenter/xc_mem.html">"Minnes" widget</A> sidan) och storleken hos swapperfilen, vilken
+best„ms periodiskt genom att g”ra ett enkelt filsystemanrop direkt till swapperfilen. 
+Dess v„rden „r direkt representerade av topp och bottengraferna.
+
+<P>Den totala summan virtuellt minne (alla tre graferna tillsammans) „r enkelt kalkylerade genom
+att l„gga till summan av det totala fysiska RAM (vilket „r returnerat fr†n
+<!-- V0.9.20: added link -->
+<A HREF="cpref.inf#DosQuerySysInfo"><CODE>DosQuerySysInfo</CODE></A> API'n<A HREF="_toolkitlink.html">*</A>
+och aldrig kommer att „ndras) till storleken hos swapperfilen.
+
+<P>Den mittersta grafen (den fysiska RAM som f”r n„rvarande anv„nds) „r helt enkelt skillnaden mellan
+det totala fysiska RAM och det f”r n„rvarande fria fysiska RAM.
+</IFNDEF>
+<P>Notera att den h„r implementationen inte kan visa dig fritt utrymme p† swapperenheten.
+
+</UL>
+</BODY>
+</HTML>
+

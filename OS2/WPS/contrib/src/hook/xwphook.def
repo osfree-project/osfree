@@ -1,0 +1,11 @@
+
+LIBRARY XWPHOOK INITGLOBAL
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace PM hook module'
+
+DATA SINGLE SHARED
+
+EXPORTS
+    hookKill
+    hookInit
+    hookSetGlobalHotkeys
+

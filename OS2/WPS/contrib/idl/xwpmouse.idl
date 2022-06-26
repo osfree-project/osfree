@@ -1,0 +1,141 @@
+
+/*
+ * xwpmouse.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPMouse ("Mouse" object; WPMouse replacement)
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xwpmouse.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpmouse.idl>         // this is SOM for WPMouse
+
+/*
+   CLASS: XWPMouse
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ WPMouse
+                           ÀÄÄ  XWPMouse
+*/
+
+interface M_XWPMouse;            // forward reference to metaclass
+
+interface XWPMouse : WPMouse
+{
+    /*
+     * New instance methods for XWPMouse:
+     *
+     */
+
+    ULONG xwpAddMouseMovementPage(in HWND hwndDlg);
+
+    ULONG xwpAddMouseMappings2Page(in HWND hwndDlg);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddMouseMovementPage,
+            xwpAddMouseMappings2Page;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xms_;
+        externalstem = xms;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpmouse;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPMouse;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPMouse:
+         *
+         */
+
+        /*
+         * WPMouse methods overridden by XWPMouse:
+         *
+         */
+
+        wpFilterPopupMenu: override;
+
+        wpAddMouseCometPage: override;
+        wpAddMouseMappingsPage: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPMouse : M_WPMouse
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xmsM_;
+        externalstem = xmsM;
+        functionprefix = xmsM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xwpmouse;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables:
+         *
+         */
+
+        /*
+         * M_WPMouse methods overridden by M_XWPMouse:
+         *
+         */
+
+        wpclsInitData: override;
+    };
+#endif
+};
+
+

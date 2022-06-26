@@ -1,0 +1,49 @@
+<HTML RESID=&ID_XFH_TITLECLASH;>
+<HEAD>
+    <TITLE>
+        &xwp;: File Conflict
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+This window appears when you copy, move, or rename a file and a file with the
+same real name already exists in the target
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">folder</A>.
+This applies to folders and data files.
+
+<IFNDEF __EWORKPLACE__>
+<P>&xwp; replaces the default &os2; dialog for this situation with a new,
+improved one, which gives you additional information and additional options.
+</IFNDEF>
+&xwp; also remembers the last selection you made, which will automatically be
+selected the next time this window appears.
+In addition, the position of this window is saved, so that you may now determine the
+position of this confirmation dialog.
+<P>Select <B>"Replace existing object"</B> to have the existing object deleted and
+replaced by the new object.
+<P>Select <B>"Rename new object"</B> to rename the object that you were just working
+on to something else. &xwp; proposes you a new title for this object so that the
+corresponding real name will not conflict with other objects in the folder.
+<P>Select <B>"Rename existing object"</B> to rename the object which already exists
+in the target folder instead.
+<P>Press <B>"OK"</B> to finish the operation using your selection.
+<P>Press <B>"Cancel"</B> to abort this operation. No files will be changed.
+
+<P>Note that the information on top of the window shows you the real name that has
+caused the conflict, while that in the "rename" fields will be the new title of the
+object. &xwp; will automatically convert that title to a valid real name.
+In most cases however titles and real names do not differ.
+
+<IFNDEF __NOXWPSETUP__>
+<!-- V0.9.0: updated the following -->
+<P>You can re-enable the original &os2; dialog in the
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" object</A>,
+<!-- V0.9.2: changed the folloiwng -->
+on the "Features" page.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

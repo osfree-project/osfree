@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Systeempaden
+    </TITLE>
+</HEAD>
+<BODY>
+&os2; heeft <B>verschillende systeempaden</B> die aangeven waar het systeem
+naar bestanden moet kijken als een
+<A HREF="glossary/gls_path.html">pad</A> niet met een bestand is meegegeven.
+
+<P>B.v., als een uitvoerbaar bestand in de lijst met directories staat aangeduid
+met het <CODE>PAD</CODE> systeempad, wordt het uitvoerbare bestand gevonden zonder
+excact te weten waar het in het systeem is opgeslagen.
+Daarom kunt u eenvoudig <CODE>e</CODE> intikken achter een &os2; opdrachtaanwijzing om de
+&os2; &eexe; op te starten: <CODE>E.EXE</CODE> bevindt zich in de
+directory op uw opstart schijf, die in de <CODE>OS2</CODE> directory staat.
+
+<P>Uitgezonderd <CODE>LIBPATH</CODE>, dit zijn
+<A HREF="glossary/gls_env.html">omgevingsvariabelen</A> die eerst worden ingesteld
+bij het opstarten van het systeem door het &cfgsys; bestand en kunnen dus later voor
+iedere sessie worden veranderd
+
+<IFNDEF __NOOS2KERNEL__>
+<P>U kunt de huidige systeempad instellingen bewerken op de "Systeempaden" pagina in
+het <A HREF="objects/obj_krnl.html">"&os2; Kernel"</A> object.
+</IFNDEF>
+
+<P>De volgende systeempaden zijn gedefinieerd:
+
+<UL><LI><CODE>LIBPATH</CODE>: het "bibliotheek" systeempad, dat elke keer wordt doorzocht
+als &os2; tracht een
+<A HREF="glossary/gls_dll.html">dynamic link library (DLL)</A> te laden.
+Dit bevat zowel de &os2; systeem directories als een punt (".") ingang, wat staat
+voor de huidige directorie.
+
+<P>Zie de <A HREF="cmdref.inf#libpath">documentatie</A> in de
+<I>Handleiding bij OS/2 Opdrachten</I> voor details.
+
+<P>Merk op dat dit het enige systeempad is dat <I>niet</I> is gedefinieerd als gebruik
+makend van een omgevingsvariabele en daarom niet kan worden veranderd vanaf de opdrachtregel.
+Gebruik de <CODE>BEGINLIBPATH</CODE> en <CODE>ENDLIBPATH</CODE> variabelen voor
+tijdelijke wijzigingen.
+
+<P><LI><CODE>SET PATH</CODE>: het zoek pad voor uitvoerbare bestanden
+(.EXE, .COM, .BAT, .CMD files).
+
+<P>Zie de <A HREF="cmdref.inf#path">documentatie</A> in de
+<I>Handleiding bij OS/2 Opdrachten</I> voor details.
+
+<P><LI><CODE>SET DPATH</CODE>: het zoek pad voor gegevens bestanden. Het gebruik van dit
+zoek pad hangt van de applicaties af; sommige applicaties gebruiken het, anderen niet.
+
+<P>Zie de <A HREF="cmdref.inf#dpath">documentatie</A> in de
+<I>Handleiding bij OS/2 Opdrachten</I> voor details.
+
+<P><LI><CODE>SET BOOKSHELF</CODE>: dit wordt door <CODE>VIEW.EXE</CODE> gebruikt om
+digitale .INF boeken te vinden. Hoewel elk INF boek kan worden bekeken, zelfs als het
+niet in dit zoek pad zit, zal de "Vinden" functie van <CODE>VIEW.EXE</CODE> alleen
+onderdelen vinden in boeken die in dit pad aanwezig zijn.
+
+<P><LI><CODE>SET HELP</CODE>: dit wordt door de PM hulp faciliteit gebruikt om hulp panelen
+(.HLP bestanden) te tonen. Sommige applicaties geven niet het volledige pad op van de hulp
+bestanden aan PM om hulp panelen te kunnen bekijken, dat verlangt dat de hulp bestanden
+in dit pad aanwezig zijn. &xwp; heeft zo'n ingang ook niet nodig.
+
+</UL>
+</BODY>
+</HTML>
+

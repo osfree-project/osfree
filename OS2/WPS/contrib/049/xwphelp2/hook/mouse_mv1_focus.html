@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Automatisches Aktivieren von Fenstern
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text which was previously
+     in 0987mouse_hook.html -->
+<BODY>
+Ist das Markierungsfeld <B>"Aktivieren"</B> der Gruppe "Automatisches Aktivieren von Fenstern"
+markiert, so wird die entsprechende Funktion des
+<!-- V0.9.13: changed rest of this paragraph -->
+<A HREF="glossary/gls_hook.html" TARGET="_top">&xwp;-PM-Hooks</A>
+eingeschaltet. Damit aktiviert &xwp; immer das Fenster, welches sich gerade unter
+dem Mauszeiger befindet, auch wenn man nicht darauf klickt. Diese Funktion ist am besten von
+X-Window-Systemen her bekannt (dort wird sie gew”hnlich mit "Fokus folgt Maus" bezeichnet),
+sie ist jedoch auch unter &os2; sehr ntzlich.
+<!-- end V0.9.13 -->
+ 
+<P>Die anderen Eintr„ge der Gruppe "Automatisches Aktivieren von Fenstern" k”nnen dann
+zur Beeinflussung des Verhaltens dieser Funktion verwendet werden:
+ 
+<!-- V0.9.2: moved the following paragraph here from the bottom -->
+<UL><LI>Mittels des Schiebereglers <B>"Verz”gerung"</B> kann &xwp; veranlaát werden,
+das Umschalten des Fokus um eine bestimmte Zeit (angegeben in Millisekunden) zu verz”gern,
+nachdem die Maus bewegt wurde. Dies ist ntzlich um zu verhindern, daá bei Bewegung des
+Mauszeigers ber eine groáe Anzahl von Fenstern st„ndig umgeschaltet wird. Ist die Verz”gerung
+auf 0 eingestellt, so wird der Fokus sofort umgeschaltet, wenn die Maus bewegt wird
+(d.h., es gibt keine Verz”gerung).
+ 
+<P><LI>Ist <B>"Fenster nach vorne holen"</B> markiert, macht &xwp; das aktive Fenster unter
+dem Mauszeiger immer auch zum Fenster im Vordergrund, als wenn man in das Fenster hingeklickt
+(oder auf die Titelleiste geklickt) h„tte. Demzufolge sind das aktive und das Fenster
+im Vordergrund immer identisch.
+ 
+<P>Ist diese Einstellung deaktiviert, erteilt &xwp; dem Fenster unter dem Mauszeiger nur
+den Tastaturfokus, ohne das Fenster selbst in den Vordergrund zu holen. Infolgedessen
+mssen das aktive und das Fenster im Vordergrund nicht dasselbe sein. Hiermit ist
+es beispielsweise m”glich, etwas in ein Fenster einzugeben, das sich im Hintergrund befindet.
+ 
+<P><LI>Die Einstellung <B>"&winos2;-Fenster ignorieren"</B> legt die besondere Behandlung
+fest, die fr nahtlos integrierte &winos2;-Fenster erforderlich ist (also solche, die auf
+der PM-Arbeitsoberfl„che zusammen mit anderen PM-Fenstern erscheinen). Siehe das
+<I>&xwp;-Benutzerhandbuch</I> fr eine ausfhrliche Erl„uterung dieses Problems.
+ 
+<!-- V0.9.4: updated the following two paragraphs -->
+<P>Ist diese Einstellung <B>markiert,</B> so erhalten &winos2;-Fenster nie den Fokus, wenn
+die Maus auf sie bewegt wird. Im Endeffekt stellt dies das originale &os2;-Verhalten
+fr nahtlos integrierte &winos2;-Fenster wieder her. Um sie zu aktivieren, muá dann
+darauf geklickt werden.
+ 
+<P>Ist diese Einstellung <B>nicht markiert,</B> so werden &winos2;-Fenster immer
+in den Vordergrund geholt, wenn der Mauszeiger darber bewegt wird, ungeachtet dessen,
+ob die Einstellung "Fenster nach vorne holen" markiert ist oder nicht.
+ 
+<P><LI>Wird <B>"Arbeitsoberfl„che ignorieren"</B> ausgew„hlt, so erh„lt das Fenster
+der Arbeitsoberfl„che nie den Fokus durch die Funktion "Automatisches Aktivieren von Fenstern".
+Um der Arbeitsoberfl„che den Fokus zu erteilen, muá immer darauf geklickt werden.
+(Beachten Sie, daá "Arbeitsoberfl„che" hier sowohl fr das Fenster der WPS-Oberfl„che
+steht, bei dem es sich um ein spezielles Ordnerfenster handelt, als auch fr
+die PM-Oberfl„che, die unsichtbar wird, sobald die WPS gestartet wird.)
+ 
+<!-- V0.9.2: added the following paragraph -->
+<!-- V0.9.19: removed it again
+<P><LI>If <B>"Ignore &pgr;"</B> is checked, the &xwp; &pgr; window will
+never be given the sliding focus. This item is disabled if &pgr; itself is not enabled.
+-->
+</UL>
+</BODY>
+</HTML>
+ 

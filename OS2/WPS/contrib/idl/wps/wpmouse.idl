@@ -1,0 +1,120 @@
+
+/*
+ * wpmouse.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPMouse
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpmouse_idl
+#define wpmouse_idl
+
+#include "wpabs.idl"
+#include <somcls.idl>
+
+interface M_WPMouse;
+
+interface WPMouse : WPAbstract
+{
+    ULONG wpAddMouseMappingsPage(in HWND hwndNotebook);
+
+    ULONG wpAddMouseTimingPage(in HWND hwndNotebook);
+
+    ULONG wpAddMouseTypePage(in HWND hwndNotebook);
+
+    ULONG wpAddMousePtrPage (in HWND hwndNotebook);
+
+    ULONG wpAddMouseCometPage (in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddMouseMappingsPage,
+            wpAddMouseTimingPage,
+            wpAddMouseTypePage,
+            wpAddMousePtrPage,
+            wpAddMouseCometPage;
+
+        externalstem = WPmse;
+        local;
+        externalprefix = mse_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpmouse;
+        metaclass = M_WPMouse;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+        passthru C_h =     ""
+""
+"/**********************************************************/"
+"/* Defines for wpclsQuerySetting and wpclsSetSetting      */"
+"/**********************************************************/"
+""
+"#define DOUBLECLICK_DEFAULT         0"
+"#define TRACKING_DEFAULT            0"
+"#define BUTTONS_RIGHTHANDED         0"
+"#define BUTTONS_LEFTHANDED          1"
+"#define BUTTONS_DEFAULT             2"
+"#define WINDOWLISTBUTTON_DEFAULT    0"
+"#define POPUPBUTTON_DEFAULT         0"
+"#define DRAGBUTTON_DEFAULT          0"
+"#define TEXTEDITBUTTON_DEFAULT      0"
+""
+"";
+
+        wpAddSettingsPages: override;
+        wpAddObjectWindowPage: override;
+        wpFilterPopupMenu: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPMouse : M_WPAbstract
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = WPmse;
+        local;
+        externalprefix = mseM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpmouse;
+        callstyle = oidl;
+        dllname = "wpconfig.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryStyle: override;
+        wpclsQueryIconData: override;
+        wpclsQuerySetting: override;
+        wpclsSetSetting: override;
+    };
+#endif
+};
+#endif

@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Environment Variables
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Under almost all operating systems, every program runs in a
+so-called <B>environment,</B> which is defined as a set of
+<B>environment variables</B>. Each environment variable is
+a key-value pair in the form of <CODE>KEY=VALUE</CODE>.
+
+<P>The environment is used for several purposes:
+
+<UL><LI>In many cases, it defines how the operating system
+itself should act with respect to the program that is
+running. For example, the
+<A HREF="glossary/gls_path_sys.html">system paths</A> are
+mostly defined as environment variables. You can therefore
+change these paths before starting the program, thus affecting
+where the operating system looks for files.
+
+<P>These system environment variables are listed in the
+<I>&os2; Command Reference</I>
+(<A HREF="cmdref.inf"><CODE>CMDREF.INF</CODE></A>) and
+are frequently already set at system startup via the
+&cfgsys; file.
+
+<P><LI>In addition, any program may by design react to specific
+environment variables. To find out whether this is the case
+and, if so, which variables are defined for a program, you
+need to consult the application's documentation. &os2; does
+not know about these requirements, it only provides the
+infrastructure for setting and reading environment variables.
+
+</UL>To read or set an environment variable at a comment prompt,
+use the <A HREF="cmdref.inf#SET"><CODE>SET</CODE></A> command.
+
+<P>You can specify environment variables by delimiting the variable
+name to the left and right with a percent (<CODE>%</CODE>) sign.
+This expression will by dynamically replaced by the command processor
+with the value of the variable.
+
+<P>For example, to add a new entry to the current list of directories
+in the <A HREF="cmdref.inf#PATH"><CODE>PATH</CODE></A>
+variable, you can type
+<PRE>SET PATH=%PATH%;C:\NEWDIR</PRE>
+
+<P>Using the <A HREF="cmdref.inf#SETLOCAL">SETLOCAL</A> command,
+you can make a local copy of the environment space, the current
+directory, and the current drive, to make temporary changes.
+All these settings will be restored with the
+<A HREF="cmdref.inf#ENDLOCAL"><CODE>ENDLOCAL</CODE></A> command.
+<BR>
+
+</BODY>
+</HTML>

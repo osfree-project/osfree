@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Erweiterte Attribute
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+<B>Erweiterte Attribute (EAs)</B> sind ein besonderes Feature von
+&os2; und erlauben es, beliebige Informationen mit einem
+Dateisystemobjekt (Datei oder Ordner) zu speichern. Diese Informationen
+sind nicht Bestandteil der Daten in der Datei, sondern werden zusammen
+mit der Datei im
+<A HREF="glossary/gls_fs.html">Dateisystem</A> gespeichert.
+ 
+<P>Im Gegensatz zu den herk”mmlichen
+<A HREF="glossary/gls_fattrs.html">Dateiattribut-Bits</A>
+bestehen die <i>erweiterten</i> Attribute aus einer Liste von
+Schlsselw”rtern mit Werten, entweder als Text oder im Bin„rformat.
+ 
+<P>Anwendungen k”nnen ihre eigenen EA-Schlsselw”rter definieren.
+Eine Reihe von Schlsseln sind jedoch fr das System reserviert
+und werden z.B. von der Arbeitsoberfl„che benutzt. Diese bezeichnet
+man als <b>"Standard-EAs"</b>, und ihre Schlssel beginnen mit einem
+Punkt.
+Details siehe
+<A HREF="glossary/gls_eas_std.html">"Standard-EAs"</A>.
+ 
+<IFNDEF __NOFILEPAGE2__>
+<P>Sie k”nnen die erweiterten Attribute eines Dateisystemobjekts
+<b>ansehen,</b> indem Sie das
+<A HREF="glossary/gls_notebook.html">Einstellungsnotizbuch</A>
+des Objekts ”ffnen und zu der zweiten "Datei"-Seite wechseln.
+</IFNDEF>
+ 
+<P>Hinweise:
+ 
+<OL><LI>Die Gesamtgr”áe der EAs eines jeden Dateisystemobjekts
+ist auf 64 KB pro Objekt beschr„nkt.
+ 
+<P><LI>Die <A HREF="glossary/gls_fs.html">Dateisysteme</A>, die mit &os2;
+geliefert werden
+(HPFS, JFS und FAT) untersttzen erweiterte Attribute. Jedoch ist dies nicht
+notwendigerweise der Fall bei Dateisystemen dritter Anbieter oder bei
+Netzwerk-Laufwerken auf einem entfernten Server. EAs k”nnen verloren gehen,
+wenn Dateien zwischen Dateisystemen kopiert werden, die keine EAs untersttzen.
+ 
+<P><LI>Wenn Sie ein Volumen sowohl unter &os2; als auch unter einem anderen
+Betriebssystem benutzen, das keine erweiterten Attribute erkennt, zerst”rt
+das andere Betriebssystem m”glicherweise die erweiterten Attribute von &os2;.
+Dies ist am wahrscheinlichsten bei dem FAT-Dateisystem, welches von beinahe
+allen Betriebssystemen untersttzt wird.
+ 
+<P><LI>Um den gesamten Plattenplatz zu erfahren, der fr EAs auf einem Laufwerk
+verbraucht wird, w„hlen Sie "Datentr„ger prfen" in dem
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A> eines Laufwerks.
+ 
+</OL>Weitere Informationen erhalten Sie durch Auswahl eines verwandten Themas aus der folgenden Liste:
+ 
+<UL>
+<LI>&link_drivesfdr;
+<LI><A HREF="glossary/gls_volume.html">šber Laufwerke, Volumen und Partitionen</A>
+<LI><A HREF="glossary/gls_fs.html">Dateisysteme</A>
+<LI><A HREF="tasks/tsk_copymovefs.html">Einschr„nkungen beim Kopieren und Verschieben von Dateien</A>
+</UL>
+</BODY>
+</HTML>
+ 

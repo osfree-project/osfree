@@ -1,0 +1,27 @@
+<HTML RESID=&ID_XFH_LIMITREACHED;>
+<HEAD>
+    <TITLE>
+        "F”r m†nga Poster"
+    </TITLE>
+</HEAD>
+<BODY>
+&xwp; visar det h„r meddelandet n„r f”r m†nga menyposter har lagts till i &popmenu;er.
+Meddelandet „r endast en varning och kommer inte att f† n†gra ytterligare konsekvenser. 
+Det upptr„der n„r du s”ker igenom &popmenu;er f”r omfattande utan att n†gonsin st„nga
+&popmenu;n.
+<P><B>tg„rd:</B>
+<P>St„ng helt enkelt &popmenu;n fr†n tid till annan genom att klicka n†gonstans p†
+Skrivbordet.
+<P><B>Detaljerad f”rklaring:</B>
+&os2; till†ter inte ett o„ndligt antal poster f”r undermenyer. Varje menypost m†ste
+ocks† tilldelas ett internt identifieringsnummer (ID). F”r dessa ID's,
+anv„nder &xwp; 0x6500 (decimal 25856) plus det nummer som du har specificerat som ett
+"offset" i de Globala inst„llningarna, och tilldelar ett nytt ID till varje enskild post
+vilken upptr„der i &popmenu;s. Emellertid, &os2; b”rjar upptr„da p† ett ober„kneligt
+s„tt om meny ID's st”rre „n 0x8000 (decimal 32768) anv„nds, s† &xwp; avvisar menyprocessning
+s† fort den gr„nsen „r uppn†dd. Vid ”ppningen av n„sta &popmenu;, b”rjar r„kningen om fr†n
+b”rjan igen och felet kommer inte att f† n†gra konsekvenser.
+<BR>
+</BODY>
+</HTML>
+

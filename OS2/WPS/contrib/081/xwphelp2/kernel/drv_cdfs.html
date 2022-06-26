@@ -1,0 +1,63 @@
+<HTML RESID=&ID_XSH_DRIVER_CDFS;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: CDFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 -->
+<BODY>
+This dialog is used for configuring <CODE>CDFS.IFS</CODE>.
+ 
+<!-- V0.9.13
+which is the Installable
+File System (IFS) provided by IBM to read data from CD-ROMs.
+CD-ROMs use their own special format to organize data on disk which is unlike FAT or
+HPFS, so another file system driver is needed.
+ 
+and added these links: -->
+ 
+<P>For introductory information about file systems, select from the following list:
+<UL><LI><A HREF="glossary/gls_fs.html">File systems</A>
+<LI><A HREF="glossary/gls_caches.html">File-system caches</A>
+ 
+</UL>Press <B>"Optimize"</B> to have &xwp; propose you new, optimized settings.
+<P>Press <B>"Default"</B> to have the &os2; default settings displayed on the notebook
+page.
+ 
+<P>By pressing <B>"OK"</B>, the selections you made will be translated into the
+"Parameters" field on the "Drivers" page in the
+<!-- V0.9.20: added link -->
+<A HREF="objects/obj_krnl.html">"&os2; Kernel"</A>
+properties notebook.
+This does not change your &cfgsys; yet. To do that, press "Apply" on the "Drivers"
+page after pressing "OK" in this dialog.
+ 
+<P>It is strongly recommended to enable <B>Joliet</B> support. This is Microsoft's
+extension of the ISO standard CD-ROM file system to support long file names (up to
+64 characters) on CD-ROMs also. Many newer CD-ROMs are unreadable on &os2; if this
+setting is not enabled.
+ 
+<P><B>Kanji</B> adds additional support for the Japanese language.
+ 
+<P>The <B>"cache size"</B> slider sets the size of the CD-ROM file system cache. The
+default of 128 KB is not a whole lot, so it is recommended to set this to 512 KB
+or higher. Since the read head of a CD-ROM drive is a lot slower than those of
+a hard disk, a larger cache can really speed up CD-ROM reading.
+ 
+<P>For the same reason, you should set the <B>"File sectors to read at a time"</B>
+to the maximum value. This setting determines how many sectors are read in when
+a single sector is requested from the file-system driver. Since it is likely that
+not only one sector, but the following sectors will also be read when a CD-ROM is
+accessed, the following sectors will already be in the cache, which reduces physical
+access to the CD-ROM also.
+ 
+<!-- the following added with V0.9.5 -->
+Finally, the settings in the <B>"Initialization"</B> group determine what the
+IFS driver displays at startup. Per <B>default,</B> it will give a short message
+that it has been loaded. <B>"Quiet"</B> will force it to display nothing, while
+<B>"Verbose"</B> will have it display the current IFS settings, as specified
+above.
+<BR>
+</BODY>
+</HTML>
+ 

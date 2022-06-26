@@ -1,0 +1,49 @@
+<HTML  RESID=&ID_XSH_SETTINGS_XWPSTRING_MAIN;>
+<HEAD>
+    <TITLE>
+        &xwp;: Konfigurationsstringobjekte
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+<!-- V0.9.16: added image -->
+<IMG SRC="img/string.gif"><BR>
+ 
+<!-- V0.9.13: changed all "XWPString" to "Konfigurationsstring object" -->
+Ein Konfigurationsstring-Objekt kann einen beliebigen Konfigurationsstring speichern,
+und optional ein Objekt, auf das der Konfigurationsstring standardm„áig angewendet wird.
+ 
+<!-- V0.9.13: added this -->
+<!-- V0.9.16: slightly changed -->
+<P>Weitere Informationen ber WPS-Konfigurationsstrings und eine Liste der gebr„uchlichsten
+siehe <A HREF="glossary/gls_objstrings.html">"Konfigurationsstrings"</A>.
+ 
+<P>Der gespeicherte Konfigurationsstring kann auf
+<!-- V0.0.16: changed two to three -->
+drei
+Arten auf Objekte angewendet werden:
+ 
+<UL><LI>Der im String-Objekt gespeicherte Konfigurationsstring kann auf jedes beliebige
+Objekt angewendet werden, indem das Zielobjekt an das String-Objekt bergeben wird.
+Wenn Sie beispielsweise ein String-Objekt besitzen, welches Ordnereinstellungen vornimmt,
+k”nnen Sie jeden beliebigen Ordner auf das Objekt ziehen und daran bergeben, und
+der Ordner wird entsprechend angepaát werden.
+ 
+<P>Beachten Sie, daá es in diesem Fall in Ihrer Verantwortung liegt sicherzustellen,
+daá das Zielobjekt den String auch versteht. Wenn das String-Objekt beispielsweise
+einen Konfigurationsstring fr Ordner enth„lt, macht es keinen Sinn, den String auf
+Programmobjekte anzuwenden.
+ 
+<P><LI>Zweitens kann das String-Objekt, falls gewnscht, ein "Standardobjekt" speichern,
+auf das der Konfigurationsstring angewendet wird, wenn man auf das String-Objekt
+doppelklickt. Dies kann bei bestimmten "Befehls"-Konfigurationsstrings ntzlich sein,
+die immer auf ein bestimmtes Objekt angewendet werden sollen.
+ 
+<!-- V0.9.16: added this -->
+<P><LI>Schlieálich kann man Konfigurationsstring-Objekte im Ordner &xwp;-Konfiguration
+plazieren, um den enthaltenen Konfigurationsstring auf jeden beliebigen Ordner anwenden zu k”nnen.
+Details siehe <A HREF="menus/menu_3config.html">&popmenu;s konfigurieren</A>.
+ 
+</UL>
+</BODY>
+</HTML>

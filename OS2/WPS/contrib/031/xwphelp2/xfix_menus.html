@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Handleiding Menu Opdrachten
+    </TITLE>
+</HEAD>
+<BODY>
+Dit is een beschrijving van de opdrachten in de <b>menu balk</b> van xfix
+(kijk onderaan deze pagina voor het &popmenu; voor ingangs ingangen).
+
+<UL><LI><B>xfix</B> menu
+
+<BR><UL><LI><B>Buffer opnieuw ontleden</B> zal de ingangen buffer opnieuw ontleden die tijdens
+het opstarten van xfix is geladen vanuit <CODE>OS2SYS.INI</CODE> en de ingangen lijst
+compleet herschrijven.
+Dit zal intussen de ingangen niet opnieuw laden uit <CODE>OS2SYS.INI</CODE>, dit gebeurt alleen
+tijdens het opstarten van xfix.
+Dit onderdeel is alleen bruikbaar als xfix een bug zou bevatten die zorgt dat het getoonde ongeldig is.
+Ook, zal dat de indexen in de "i" kolom aanpassen die niet automatisch worden herschreven als
+er ingangen worden verwijderd.
+
+<P><LI><B>Terugschrijven naar OS2SYS.INI</B> schrijft de ingangen tabel terug naar het
+<CODE>OS2SYS.INI</CODE> bestand.
+Alle wijzigingen die u maakt in de ingangen lijst worden niet opgeslagen tenzij u dit
+menu onderdeel kiest.
+Merk op dat dit waarschijnlijk geen effect heeft als de WPS nu actief is omdat de WPS zelf
+een interne kopie van de ingangen tabel vasthoudt en waarschijnlijk uw wijzigingen spoedig zal
+overschrijven.
+Daarom moet de WPS niet actief zijn als u de ingangen terugschrijft.
+
+<P>Zie ook <LI><A HREF="xfix_delete.html">Ingangen verwijderen</A>.
+
+<P><LI><B>Afsluiten</B> zal het programma be‰indigen
+</UL>
+
+<LI><B>Sorteren</B> menu
+
+<P>Dit geeft u de mogelijkheid de ingangen lijst overeenkomstig de waarden in de verschillende
+kolommen te sorteren. (Zie <A HREF="xfix_list.html">De ingangen lijst</A> voor een beschrijving
+van de kolommen.)
+Als u sorteert op index, toont het scherm de exacte volgorde waarin de ingangs ingangen
+zich vertonen in de <CODE>OS2SYS.INI</CODE> tabel (met eveneens oplopende knooppunt verschuivingen).
+"Sorteren op index" is de standaard sorteer volgorde nadat xfix is opgestart.
+
+<P><LI><B>Acties</B> menu
+
+<P><B>Zoek ongeldige bestanden</B> zal alle ingangen in de tabel controleren of zij
+naar geldige bestanden verwijzen.
+Ieder onderdeel dat verouderd is zal als ongeldig worden gemarkeerd en de status
+"Bestand niet gevonden" krijgen.
+Dit gebeurt niet automatisch omdat dit proces kan enige minuten duren.
+
+<P>Zie <A HREF="xfix_howto.html">Hoe kan ik...</A> voor typerend gebruik van dit menu onderdeel.
+
+<P><LI><B>Selecteer</B> menu
+
+<P><B>Selecteer alle ongeldige</B> zal alle ingangen selecteren die om wat voor reden als ongeldig
+zijn gemarkeerd (d.w.z. die een grijs accent hebben).
+U kunt dan rechts klikken op ieder van de geselecteerde onderdelen en dan "Verwijderen" selecteren uit
+het &popmenu;.
+
+<P><LI><B>Hulp</B> menu
+
+<P>Toont de hulp en de xfix product informatie van de huidige versie en datum van vervaardiging.
+
+</UL>
+
+Bovendien is er een <B>&popmenu;</B> als u klikt op geselecteerde ingangen met
+muistoets 2. Die bevat alleen de <B>Verwijderen</B> opdracht. Dat zal de referentie
+verwijderen uit de interne buffer die uit <CODE>OS2SYS.INI</CODE> werd gelezen en ook
+uit de getoonde referentie lijst.
+
+<P>Zie <A HREF="xfix_delete.html">Verwijderen van ingangen</A> voor meer over dit onderwerp.
+
+<BR>
+</BODY>
+</HTML>

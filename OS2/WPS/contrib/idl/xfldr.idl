@@ -1,0 +1,550 @@
+
+/*
+ * xfldr.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFolder
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfldr.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpfolder.idl>         // this is SOM for WPFolder
+
+/*
+   CLASS: XFolder
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPFolder
+                           ÀÄÄ XFolder
+*/
+
+interface M_XFolder;            // forward reference to metaclass
+
+interface XFolder : WPFolder
+{
+
+    /*
+     * SOM typedef definitions:
+     *      declaring types here is similar to
+     *      passing them thru to the .H file,
+     *      but the difference is that we can also
+     *      use them in this .IDL file.
+     */
+
+    // FDRLONGARRAY:
+    // original WPS structure stored in folder instance data for
+    // storing various folder view data; it is into this structure
+    // that wpRestoreData writes IDKEY_FDRLONGARRAY data.
+    // On Warp 4, apparently the structure always has a size of 84 bytes
+    // == 21 longs.
+    // On Warp 3, four long's are missing; where therefore have 68 bytes
+    // == 17 longs.
+    // V0.9.0: changed all types to ULONG to ensure four-byte packing
+    struct FDRLONGARRAY
+    {
+        /* container view attributes */
+    // offset 0x0000:
+        ULONG   ulIconViewCnrAttrs;
+        ULONG   ulTreeViewCnrAttrs;
+    // offset 0x0008:
+        ULONG   ulDetlViewCnrAttrs;    // Henk says, always 28 80 30 00
+        ULONG   ulFolderFlag;          // Henk says, always 03 02 00 00
+    // offset 0x0010:
+        ULONG   ulTreeStyle;           // Henk says, always 00 00 00 00
+        ULONG   ulDetailsStyle;        // Henk says, always FF FF FF FF
+    // offset 0x0018:
+        /* text colors */
+        ULONG   rgbTextBkgndCol;       // BB GG RR 00;
+                // this is the same for all views, but it is copied from
+                // some folder background data I don't know; byte 4 is also
+                // used for "transparency" when changed from Details view (duh)
+        ULONG   rgbIconViewTextColNoIcons;  // always EF FF FF FF (0xFFFFFFEF)
+
+    // offset 0x0020:
+        ULONG   rgbIconViewTextColColumns;
+                          // this color is used for FLOWED and NONFLOWED views
+                          // if icons are visible.
+                          // As a LONG value, the format is 0xXXRRGGBB, where
+                          // XX is special. If it is != 0, we can be sure that
+                          // we have a default color instead of an instance
+                          // color.
+                          // If it is 0xFF, then we have one of those negative
+                          // SYSCLR_WINDOW indices. I have only seen 0xFFFFFFEC,
+                          // which is -20 in hex, which is the SYSCLR_WINDOW index
+                          // value. If the entire long is 0x40000000, that's a
+                          // special flag for using a global color too.
+                          // As four bytes,
+                          // -- x+3 is XX
+                          // -- x+2 is RR
+                          // -- x+1 is GG
+                          // -- x+0 is BB
+                          // If the flag byte (XX) is 0xFF, this means use
+                          // default color; if an instance color is set,
+                          // this is set to 0x00 from my experience.
+        ULONG   rgbIconViewTextColAsPlaced;
+                          // this color is used for regular icon views if not gridded
+
+    // offset 0x0028:
+        ULONG   rgbTreeViewTextColTextOnly;
+                          // this one is used if icons are NOT visible (TREEVIEW=INVISIBLE)
+        ULONG   rgbTreeViewTextColIcons;
+                          // this one is used if icons are visible (TREEVIEW=MINI or NORMAL)
+    // offset 0x0030:
+        ULONG   rgbDetlViewTextCol;
+
+        ULONG   ul13;     // unknown, always 00 00 00 40 (0x40000000)
+    // offset 0x0038:
+        ULONG   ulIconViewTextVisibility; // 00 00 00 40: standard,
+                                        // 00 00 00 00: invisible,
+                                        // 01 00 00 00: not transparent
+                // Note that the "transparency" flag is always the same for
+                // all views. rgbTextBkgndCol Byte 4 will be 00 if transparency
+                // is off also.
+        ULONG   ulTreeViewTextVisibility; // the same
+
+    // offset 0x0040:
+        ULONG   ulSelfClose;            // self-close setting
+                                        // --  0: use system default
+                                        //      (os2.ini, "PM_Workplace:FolderAutoClose",
+                                        //      "Objects")
+                                        // --  1: "NONE" string ("never" setting)
+                                        // --  2: "SUBFOLDERS" ("subfolders only" setting)
+                                        // --  3: "ALL" ("all objects" setting)
+
+    // end of structure on Warp 3
+    // the following long's are only available on Warp 4:
+
+        ULONG   ulMenuBarVisibility;    // MENUBAR_OFF == 0,
+                                        // MENUBAR_ON == 1,
+                                        // MENUBAR_DEFAULT == 2
+
+        /* Shadow text colors */
+    // offset 0x0048:
+        ULONG   rgbIconViewShadowCol;
+        ULONG   rgbTreeViewShadowCol;
+    // offset 0x0050:
+        ULONG   rgbDetlViewShadowCol;
+
+    };
+    typedef FDRLONGARRAY *PFDRLONGARRAY;
+
+    /*
+     *@@ FDRSTRINGARRAY:
+     *
+     *@@added V1.0.0 (2002-08-24) [umoeller]
+     */
+
+    struct FDRSTRINGARRAY
+    {
+        PSZ     pszFontIconViewNoIcons;     // if icons are off completely
+        PSZ     pszFontIconViewColumns;     // flowed or non-flowed
+        PSZ     pszFontIconViewAsPlaced;    // for regular icon view
+        PSZ     pszFontTreeViewNoIcons;
+        PSZ     pszFontTreeViewIcons;
+        PSZ     pszFontDetailsView;
+        PSZ     pszDetailsClass;
+        PSZ     pszStrange1;
+        PSZ     pszSortClass;
+        PSZ     pszStrange2;
+    };
+    typedef FDRSTRINGARRAY *PFDRSTRINGARRAY;
+
+    /*
+     * New instance methods for XFolder:
+     *
+     */
+
+    BOOL xwpQueryFldrSort(in PLONG plDefaultSort,
+                          in PLONG plFoldersFirst,
+                          in PLONG plAlwaysSort);
+    BOOL xwpSetFldrSort(in LONG lDefaultSort,
+                        in LONG lFoldersFirst,
+                        in LONG lAlwaysSort);
+    BOOL xwpSortViewOnce(in HWND hwndFrame,
+                         in LONG lSort);
+
+    BOOL xwpGetIconPos(in WPObject pObject,
+                      in PBYTE pICONPOS,
+                      in USHORT usICONPOSSize,
+                      in PICONPOS pipReturn);
+
+    ULONG xwpBeginEnumContent();
+    WPObject xwpEnumNext(in ULONG henum);
+    BOOL xwpEndEnumContent(in ULONG henum);
+
+    ULONG xwpStartFolderContents(in ULONG ulTiming);
+
+    ULONG xwpMakeFavoriteFolder(in BOOL fInsert);
+    BOOL xwpIsFavoriteFolder();
+
+    ULONG xwpSetQuickOpen(in BOOL fQuickOpen);
+    BOOL xwpQueryQuickOpen();
+
+    BOOL xwpSetDefaultDocument(in WPFileSystem pDefDoc);
+    WPFileSystem xwpQueryDefaultDocument();
+
+    BOOL xwpQueryMenuBarVisibility();
+
+    ULONG xwpQueryStatusBarVisibility();
+    BOOL xwpSetStatusBarVisibility(in ULONG ulVisibility, in BOOL fUpdate);
+
+    BOOL xwpUpdateStatusBar(in HWND hwndStatusBar, in HWND hwndCnr);
+
+    ULONG xwpQueryXFolderStyle();
+    BOOL xwpModifyXFolderStyle(in ULONG flFlags,
+                               in ULONG flMask,
+                               in BOOL fUpdate);
+
+    BOOL xwpBuildToolBar(in ULONG hToolBar,
+                         in ULONG ulView);
+    BOOL xwpAddToolbarButton(in ULONG hToolBar,
+                             in PSZ pcszTitle,
+                             in ULONG flStyle,
+                             in USHORT usID,
+                             in HPOINTER hptrIcon);
+
+    BOOL xwpProcessViewCommand(in USHORT usCommand,
+                               in HWND hwndCnr,
+                               in WPObject pFirstObject,
+                               in ULONG ulSelectionFlags);
+
+    ULONG xwpAddXFolderPages(in HWND hwndDlg);
+
+    //# BOOL xwpQuerySetup2(in PVOID pstrSetup);    V1.0.1 (2002-12-08) [umoeller]
+
+    VOID xwpSetDisableCnrAdd(in BOOL fDisable);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpQueryFldrSort,
+            xwpSetFldrSort,
+            xwpSortViewOnce,
+            xwpGetIconPos,
+            xwpStartFolderContents,
+            xwpMakeFavoriteFolder,
+            xwpIsFavoriteFolder,
+            xwpSetQuickOpen,
+            xwpQueryQuickOpen,
+            xwpSetStatusBarVisibility,
+            xwpQueryStatusBarVisibility,
+            xwpAddXFolderPages,
+            xwpUpdateStatusBar,
+            xwpQueryMenuBarVisibility,
+            xwpBeginEnumContent,
+            xwpEnumNext,
+            xwpEndEnumContent,
+            //# xwpQuerySetup2,     V1.0.1 (2002-12-08) [umoeller]
+            xwpSetDefaultDocument,
+            xwpQueryDefaultDocument,
+            xwpSetDisableCnrAdd,
+            xwpProcessViewCommand,
+            xwpQueryXFolderStyle,
+            xwpModifyXFolderStyle,
+            xwpBuildToolBar,
+            xwpAddToolbarButton;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xf_;
+        externalstem = xf;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfldr;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFolder;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XFolder:
+         *
+         */
+
+        USHORT          usPadding;
+        ULONG           ulPadding;
+                    // added V1.0.1 (2003-01-25) [umoeller]
+                    // cos I found out that IBM actually managed to make
+                    // the WPFolder data misaligned... that is, the size
+                    // of the WPFolder instance data is 302 bytes here,
+                    // so we _better_ add some padding here to avoid
+                    // trashing the processor all the time
+
+        PVOID           pvWPFolderData;
+                    // pointer to IBMFOLDERDATA, resolved in wpInitData
+                    // V0.9.20 (2002-07-25) [umoeller]
+
+        // default document V0.9.4 (2000-06-09) [umoeller]
+        WPFileSystem    pDefaultDocument;
+
+        PSZ             pWszDefaultDocDeferred;
+                            // holds file name from wpRestoreState
+                            // WARNING: allocated using wpAllocMem
+
+        // folder contents
+        ULONG           cObjects;                   // folder's objects count, always valid
+        BOOL            fDisableAutoCnrAdd;
+
+        // tree of WPFileSystem objects
+        // V0.9.16 (2002-01-26) [umoeller]
+        PVOID           FileSystemsTreeRoot;        // a TREE* really
+        LONG            cFileSystems;
+
+        // tree of WPAbstract objects;
+        // V0.9.16 (2002-01-26) [umoeller]
+        PVOID           AbstractsTreeRoot;          // a TREE* really
+        LONG            cAbstracts;
+
+        ULONG           cNotificationsPending;
+                    // count of notifications of this folder; 0 if none.
+                    // This is maintained by the refresh functions
+                    // (filesys\refresh.c)
+                    // V0.9.12 (2001-05-22) [umoeller]
+
+        ULONG           ulLastDisplayedMenuType;
+                    // last ulMenuType in wpDisplayMenu. This gets set
+                    // by XFolder::wpDisplayMenu so that all the menu
+                    // functions can detect whether this is an "open view",
+                    // or regular context menu, or one of the pulldowns.
+
+        SOMObject       pMonitor;
+                    // ptr to read-write monitor (see fdrRequestFolderWriteMutexSem)
+                    // V0.9.16 (2001-10-25) [umoeller]
+
+        PVOID           pfnResolvedUpdateStatusBar;
+                                // resolved function pointer to
+                                // xwpUpdateStatusbar (name-lookup resolution)
+
+        // the following two are for XFolder's replacement sort
+        // settings; these have a transparent default value also
+        LONG            lAlwaysSort,
+                        lFoldersFirst,
+                        lDefSortCrit;
+
+        ULONG           flXFolderStyle;
+                                // XFFL_* flags (folder.h):
+                                // -- lower two bits (XFFL_TOOLBAR_MASK) specify
+                                //    tool bar visibility (XFFL_TOOLBAR_OFF,
+                                //    XFFL_TOOLBAR_ON, XFFL_TOOLBAR_DEFAULT)
+                                // -- for split views, if XFFL_SPLIT_DETAILS is set,
+                                //    we show the right container in Details view;
+                                //    otherwise we use Icon view in multiple columns
+                                // -- if XFFL_SPLIT_NOMINI is set, we use regular
+                                //    icon size for Icon view, otherwise we use
+                                //    mini icons
+                                // V1.0.1 (2002-11-30) [umoeller]
+
+        // moved all the following non-4-byte values down for better
+        // structure packing
+
+        // the following correspond to the "XFolder" instance settings page.
+        // Each of these can have one of the following
+        // three values:
+        //  --  0: setting always disabled (ignore corresponding global setting)
+        //  --  1: setting always enabled (ignore corresponding global setting)
+        //  --  2: use global setting (default)
+        BYTE            bSnapToGridInstance,
+                        bFolderHotkeysInstance,
+                        bFullPathInstance,
+                        bKeepTitleInstance,
+                        bStatusBarInstance;
+
+        BYTE            bCachedFoldersFirst;
+                                      // for sort funcs
+                                      // made this a BYTE V1.0.1 (2002-11-30) [umoeller]
+        // BYTE            bUnInitCalled;
+                                // flag for wpUnInitData, which seems
+                                // to get called more than once sometimes
+                                // this was not used at all --> removed V1.0.1 (2002-11-30) [umoeller]
+
+        USHORT          usPadding2;         //# added V1.0.1 (2003-01-27) [umoeller]
+
+        /*
+         * WPFolder methods overridden by XFolder:
+         *
+         */
+
+        //# 1)  init/uninit methods
+
+        wpInitData: override;
+
+        wpSetup: override;
+        wpObjectReady: override;
+
+        wpUnInitData: override;
+        wpFree: override;
+        wpDestroyObject: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+        //# wpRestoreLong: override; removed V1.0.0 (2002-08-24) [umoeller]
+        //# wpRestoreString: override; removed V1.0.0 (2002-08-24) [umoeller]
+        wpRestoreData: override;
+
+        //# 2)  WPObject query/set methods
+
+        wpQueryDefaultView: override;
+        wpQueryDefaultHelp: override;
+
+        xwpQuerySetup2: override;            //# V1.0.1 (2002-12-08) [umoeller]
+
+        //# 3)  icon methods
+
+        //# 4)  class-specific query/set methods
+
+        //# 5)  menu methods
+
+        wpDisplayMenu: override;
+        //# wpFilterPopupMenu: override;        removed V1.0.1 (2002-12-08) [umoeller]
+        wpFilterMenu: override;                 //# added V1.0.1 (2002-12-08) [umoeller]
+        //# wpModifyPopupMenu: override;        removed V1.0.0 (2002-08-31) [umoeller]
+        wpModifyMenu: override;                 //# added V1.0.0 (2002-08-31) [umoeller]
+
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+        //# 6)  open view methods
+
+        wpOpen: override;
+        wpPopulate: override;
+        wpRefresh: override;
+
+        wpInsertSettingsPage: override;
+
+        wpAddObjectGeneralPage2: override;
+
+        wpAddFile1Page: override;
+        wpAddFile2Page: override;
+        wpAddFile3Page: override;
+
+        wpAddFolderBackgroundPage: override;
+        wpAddFolderSortPage: override;
+
+        wpAddFolderView1Page: override;
+
+        wpAddToContent: override;
+        wpDeleteFromContent: override;
+        wpQueryContent: override;
+
+        wpStoreIconPosData: override;
+
+        wpSetFldrSort: override;
+
+        wpRedrawFolderBackground: override;     //# added V1.0.0 (2002-09-24) [umoeller]
+
+        //# 7)  file operation methods
+
+        wpSetTitle: override;
+
+        wpMoveObject: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFolder : M_WPFolder
+{
+
+    /*
+     * New class methods for M_XFolder:
+     *
+     */
+
+    // BOOL xwpclsForEachOpenView(in ULONG ulMsg, in PFNWP pfnwpCallback);
+    XFolder xwpclsQueryConfigFolder();
+    XFolder xwpclsQueryFavoriteFolder(in XFolder pFolder);
+    XFolder xwpclsQueryQuickOpenFolder(in XFolder pFolder);
+    BOOL xwpclsQueryMenuBarVisibility();
+
+    XFolder xwpclsQueryOpenFolders(in XFolder pFolder,
+                                   in BOOL fLock);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsQueryFavoriteFolder,
+            xwpclsQueryQuickOpenFolder,
+            xwpclsQueryConfigFolder,
+            xwpclsQueryMenuBarVisibility,
+            xwpclsQueryOpenFolders;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfM_;
+        externalstem = xfM;
+        functionprefix = xfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfldr;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables for M_XFolder:
+         *
+         */
+
+        // class default icons
+        // HPOINTER    hptrClosed;
+        HPOINTER    hptrAni1;
+
+        /*
+         * M_WPFolder methods overridden by M_XFolder:
+         *
+         */
+
+        wpclsInitData: override;
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryDefaultView: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+        wpclsQueryIconDataN: override;
+        wpclsQueryIconN: override;
+    };
+#endif
+};
+
+

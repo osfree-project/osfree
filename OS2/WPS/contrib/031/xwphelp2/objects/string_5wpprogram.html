@@ -1,0 +1,99 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPProgram Teksten
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.16 -->
+<!-- V0.9.19: title was wrong, fixed -->
+<BODY>
+<CODE>WPProgram</CODE> is de WPS class voor alle
+<!-- V0.9.20: added link -->
+&link_progobjs;
+(zie <A HREF="glossary/gls_wpsclasses.html">WPS classes</A> voor details).
+In aanvulling op de instellingen teksten die herkend worden door de
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE> class,
+herkent <CODE>WPProgram</CODE> ook de volgende teksten:
+
+<DL>
+<DT><P><CITE><B>ASSOCFILTER</B>=<I>filters</I></CITE>
+<DD>Stelt <I>filters</I> voor bestanden in om gekoppeld te worden met een programma
+object. Meerdere filters worden gescheiden door komma's.
+
+<!-- V0.9.19: added ifndef, replaced entities here -->
+<IFNDEF __NEVEREXTASSOCS__>
+<P>Let op: Als &xwp; zijn uitgebreide koppelingen ingeschakeld heeft, wordt het filter
+opgeslagen in de INI bestanden, maar de aanpassing heeft dan geen effect voordat de uitgebreide
+koppelingen weer uitgeschakeld zijn omdat &xwp; volledig lak heeft aan WPS koppelingen via filters.
+</IFNDEF>
+
+<DT><P><CITE><B>ASSOCTYPE</B>=<I>types</I></CITE>
+<DD>Stelt <I>types</I> voor bestanden in om gekoppeld te worden met een programma
+object. Meerdere types worden gescheiden door komma's.
+
+<DT><P><CITE><B>EXENAME</B>=<I>bestandsnaam</I></CITE>
+<DD>Stelt het uitvoerbare programma in waarnaar het programma object moet verwijzen.
+Dit moet ofwel volledig gekwalificeerd zijn (b.v. neem het hele
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">pad</A>
+van het uitvoerbare programma) of een uitvoerbaar programma zijn op het <CODE>PATH</CODE>, anders
+zal het uitvoerbare programma niet werken.
+
+<DT><P><CITE><B>MAXIMIZED</B>={YES|NO}</CITE>
+<DD>Bepaald of het uitvoerbare programma waarnaar verwezen wordt door dit programma object
+gemaximaliseerd gestart moet worden. Dit heeft normaliter geen invloed op PM programma's.
+
+<DT><P><CITE><B>MINIMIZED</B>={YES|NO}</CITE>
+<DD>Bepaald of het uitvoerbare programma waarnaar verwezen wordt door dit programma object
+geminimaliseerd gestart moet worden. Dit heeft normaliter geen invloed op PM programma's.
+
+<DT><P><CITE><B>PROGTYPE</B>=<I>type</I></CITE>
+<DD>Stelt expliciet het sessie type in voor het uitvoerbare programma waarnaar verwezen wordt door
+het programma object. <CODE><I>type</I></CODE> moet een van de volgende zijn:
+
+<UL><LI><CODE>DOSMODE</CODE>: losstaande DOS mode.
+<LI><CODE>FULLSCREEN</CODE>: &os2; volledig scherm mode.
+<LI><CODE>PM</CODE>: Presentation Manager (PM).
+<LI><CODE>PROG_30_STD</CODE>: &winos2; standaard compatibiliteit volledig scherm mode.
+<LI><CODE>PROG_31_ENH</CODE>: &winos2; uitgebreide compatibiliteit volledig scherm mode.
+<LI><CODE>PROG_31_ENHSEAMLESSCOMMON</CODE>: &winos2; venster in de &winos2; uitgebreide
+compatibiliteit naadloze sessie.
+<LI><CODE>PROG_31_ENHSEAMLESSVDM</CODE>: &winos2; venster in een aparte sessie uitgebreide
+compatibiliteit mode.
+<LI><CODE>PROG_31_STD</CODE>: standaard compatibiliteit volledig scherm mode.
+<LI><CODE>PROG_31_STDSEAMLESSCOMMON</CODE>: &winos2; venster in de &winos2; standaard
+compatibiliteit naadloze sessie.
+<LI><CODE>PROG_31_STDSEAMLESSVDM</CODE>: &winos2; venster in een aparte sessie standaard
+compatibiliteit mode.
+<LI><CODE>SEPARATEWIN</CODE>: &winos2; venster dat draait in een aparte VDM.
+<LI><CODE>VDM</CODE>: DOS volledig scherm.
+<LI><CODE>WIN</CODE>: &winos2; volledig scherm.
+<LI><CODE>WINDOWABLEVIO</CODE>: &os2; venster.
+<LI><CODE>WINDOWEDVDM</CODE>: DOS venster.
+<LI><CODE>WINDOWEDWIN</CODE>: &winos2; venster.
+</UL>
+
+<DT><P><CITE><B>NOAUTOCLOSE</B>={YES|NO}</CITE>
+<DD>Bepaald of de sessie open moet blijven als het programma afgelopen is.
+Let er op dat dit geen invloed heeft op PM programma's.
+De standaard waarde is <CODE>NO</CODE>.
+
+<DT><P><CITE><B>PARAMETERS</B>=<I>parameters</I></CITE>
+<DD>Stelt de parameters in die meegegeven moeten worden aan het uitvoerbare programma waarnaar het
+programma object verwijst. Dit mag de standaard programma object vervangingsmacro's bevatten.
+
+<DT><P><CITE><B>SET </B> <I>variabele</I>=<I>waarde</I></CITE>
+<DD>Stelt een
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">omgevingsvariabele</A>
+in voor de sessie van het uitvoerbare programma.
+Wees er op bedacht dat &os2; ook omgevingsvariabelen gebruikt om DOS
+instellingen door te geven aan DOS en &winos2; sessies.
+
+<DT><P><CITE><B>STARTUPDIR</B>=<I>pad</I></CITE>
+<DD>Stelt de werkdirectory bij het opstarten in voor de sessie.
+
+</DL>
+</BODY>
+</HTML>
+

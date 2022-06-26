@@ -1,0 +1,205 @@
+
+/*
+ * xtrashobj.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *
+ *      --  XWPTrashObject: a subclass of WPTransient. One instance
+ *                          of this class is created by XWPTrashCan
+ *                          for every object that was placed into
+ *                          the trash can.
+ *
+ *      See src\classes\xtrashobj.c for details.
+ */
+
+/*
+ *      Copyright (C) 1999-2010 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+//# #include <xtrash.idl>           // XWPTrashCan
+#include <wptrans.idl>          // this is SOM for WPTransient
+
+/*
+   CLASS: XWPTrashObject
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject [ = XFldObject ]
+               ÀÄÄ WPTransient
+                     ÀÄÄ XWPTrashObject
+*/
+
+interface XWPTrashCan;                 // declare trash can too
+
+interface M_XWPTrashObject;            // forward reference to metaclass
+
+interface XWPTrashObject : WPTransient
+{
+
+    /*
+     * New instance methods for XWPTrashObject:
+     *
+     */
+
+    BOOL xwpSetRelatedObject(in WPObject pObject);
+    WPObject xwpQueryRelatedObject();
+    PSZ xwpQueryRelatedPath();
+    VOID xwpSetExpandedObjectSize(in ULONG ulNewSize,
+                                  in XWPTrashCan pTrashCan);
+    ULONG xwpQueryRelatedSize();
+    ULONG xwpValidateTrashObject();
+    BOOL xwpRestoreFromTrashCan(in WPFolder pTargetFolder);
+    VOID xwpSetExpandedObjectSizeL(in PLONGLONG pllNewSize,
+                                   in XWPTrashCan pTrashCan);
+    VOID xwpQueryRelatedSizeL(inout LONGLONG pllSize);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpSetRelatedObject,
+            xwpQueryRelatedObject,
+            xwpQueryRelatedPath,
+            xwpSetExpandedObjectSize,
+            xwpQueryRelatedSize,
+            xwpValidateTrashObject,
+            xwpRestoreFromTrashCan,
+            xwpSetExpandedObjectSizeL,
+            xwpQueryRelatedSizeL;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xtro_;
+        externalstem = xtro;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xtrashobj;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPTrashObject;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPTrashObject:
+         *
+         */
+
+        WPObject pRelatedObject;    // related object in "\Trash" directories
+                                    // (xwpQueryRelatedObject)
+        PSZ      pszSourcePath;     // where the related object was deleted from
+                                    // (xwpQuerySourcePath)
+        LONGLONG llTotalSize;       // total size of object;
+                                    // this is 0 for non-file-system objects,
+                                    // but calculated on the File thread if we
+                                    // have a folder and will then include all
+                                    // subfolders;
+                                    // if it's a regular file, it's its size
+
+        CHAR     szTotalSize[32];   // string with total size; initially, this
+                                    // is set to "calculating"
+
+        /*
+         * WPTransient methods overridden by XWPTrashObject:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+
+        wpSetupOnce: override;
+
+        wpQueryIcon: override;
+        wpQueryDetailsData: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpMoveObject: override;
+
+        wpOpen: override;
+
+        wpDragOver: override;
+        wpDrop: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPTrashObject : M_WPTransient
+{
+
+    /*
+     * New class methods for M_XWPTrashObject:
+     *
+     */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xtroM_;
+        externalstem = xtroM;
+        functionprefix = xtroM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xtrashobj;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XWPTrashObject:
+         *
+         */
+
+        /*
+         * M_WPTransient methods overridden by M_XWPTrashObject:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsCreateDefaultTemplates: override;
+
+        wpclsQueryDetailsInfo: override;
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+    };
+#endif
+};
+
+

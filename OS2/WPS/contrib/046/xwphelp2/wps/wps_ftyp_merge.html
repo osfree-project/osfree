@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_SETTINGS_FILET_MERGE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Migrera med WPS Filter
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+Eftersom WPS som standard associerar program i enlighet med b†de filtyper 
+och filfilter, och d† &xwp; f”rfinar associationsmekanismen till att bli baserad
+endast p† ut”kade filtyper, kommer den tillkommande dialogen "Migrera med WPS filter"
+att ge dig m”jlighet att importera tidigare definierade filfilter-associationer med
+dina filtyper.
+
+<P>Den h„r dialogen „r icke-formell till sin natur, vilket betyder att du fortfarande kan
+anv„nda notbokssidan "Filtyper" n„r dialogen „r ”ppen. Om du f”rst v„ljer en ny filtyp
+p† notbokssidan, kommer du att se att "Migrera" dialogen uppdaterar sig sj„lv.
+
+<P>Dialogen st„ngs endast efter att du tryckt knappen <B>"St„ng"</B>.
+
+<P>F”r att kunna importera alla eller vissa av associationerna vilka har definierats f”r
+ett WPS filter i &xwp; filtypsassociationer, g”r f”ljande:
+
+<OL><LI><B>V„lj filtyp</B> p† notbokssidan i vilken du vill importera ett filter -- 
+till exempel "Bitmap".
+
+<P><LI>I "Migrera" dialogen, <B>v„lj det filter</B> vars associationer du vill importera -- 
+till exempel, <CODE>*.BMP</CODE>.
+
+<P><LI>F„ltet "Associationer att addera" i dialogen kommer att visa dig de program vilka
+har blivit definerade med filtret.
+<B>V„lj associationer</B> i det f„lt som du vill l„gga till hos den aktuella filtypen 
+(i det ovanst†ende exemplet, typen "Bitmap"). Tryck "Markera alla" eller "Avmarkera alla" med,
+ja, markera eller avmarkera alla poster i associationsf„ltet.
+
+<P><LI>Tryck p† <B>"Migrera"</B> knappen f”r att f† de valda programmen tillagda hos den
+f”r n„rvarande valda filtypen p† notbokssidan.
+
+</OL>Du kan repetera n†got av de ovanst†ende stegen hur m†nga g†nger som helst om
+n”dv„ndigt. Ha i †tanke att &xwp; till†ter dig att definiera hierarkiska filtyper, 
+d„r deriverade filtyper „rver associationer fr†n sina f”r„ldrar.
+<!-- V09.9.9: changed this --><!-- V0.9.9: changed this -->
+<P>Se <A HREF="glossary/gls_assocs.html">Typer och associationer</A> f”r en introduktion
+till associationer mellan datafiler och program.
+
+<IFNDEF __NOXWPSETUP__>
+<P>Notera att den h„r dialogen <I>inte</I> „ndrar WPS filter. Om du avaktiverar
+&xwp;'s ut”kade filtyps-associationer i
+<!-- V0.9.2: link added -->
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Setup" objektet</A>,
+kommer du att se att WPS filtren fungerar igen som tidigare.
+</IFNDEF>
+<BR>
+</BODY>
+</HTML>
+

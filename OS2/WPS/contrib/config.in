@@ -1,0 +1,158 @@
+
+#
+# config.in:
+#       this is included from setup.in only (and thus
+#       indirectly by every makefile in this project).
+#
+#       The macros in this file replace the external
+#       environment variables which were required
+#       before V0.9.12.
+#
+#       The following variables MUST be set to match
+#       your system. After this, XWP should compile
+#       properly.
+#
+#       For details on these variables, see PROGREF.INF.
+#
+#       Note: You can still comment out everything in
+#       this file and define all these variables
+#       externally before calling nmake, since nmake
+#       converts the entire environment to macros on
+#       startup.
+#
+
+# CVS DIRECTORY SETUP
+# -------------------
+
+# CVS_WORK_ROOT: the root of your CVS tree
+# (the parent dir of "xworkplace" and "xwphelpers")
+!ifndef CVS_WORK_ROOT
+CVS_WORK_ROOT = e:\develop\cvs
+!endif
+
+# XWPDIR: name of the directory this file resides in
+# (subdirectory of CVS_WORK_ROOT).
+# This will usually be xworkplace (the CVS repository
+# name), unless you chose a different name.
+!ifndef XWPDIR
+XWPDIR = xworkplace
+!endif
+
+# XWPHELPERSDIR: name of the directory the xwphelpers
+# resides in (subdirectory of CVS_WORK_ROOT).
+# This will usually be xwphelpers (the CVS repository
+# name), unless you chose a different name.
+!ifndef XWPHELPERSDIR
+XWPHELPERSDIR = xwphelpers
+!endif
+
+# INCLUDE AND LIB SETUP
+# ---------------------
+
+# Starting with V0.9.12, we no longer use the default
+# INCLUDE and LIB paths. Instead, we specify all
+# directories directly on the command lines, so we
+# need to know where your toolkit and compiler things
+# are.
+
+# TKBASE: the main Toolkit directory.
+# This must be the parent of the "h" and "lib"
+# directories with the include files and libraries.
+!ifndef TKBASE
+TKBASE = e:\Toolkit
+!endif
+
+# SMBASE: the main SOM directory.
+# This is the parent of the "bin", "include" and "lib"
+# directories containing the SOM compiler, include files
+# and libraries. Normally, this would be $(TKBASE)\som.
+# Change it if you're using the SOM compiler from another
+# version of the Toolkit.
+# @@added V1.0.9 (2011-09-05) [rwalsh]:
+!ifndef SMBASE
+SMBASE = $(TKBASE)\som
+!endif
+
+# VACBASE: the main directory of your IBM
+# VisualAge C++ installation. Both v3.0.8 and
+# v3.6.5 should work.
+# This must be the parent of the "include" and "lib"
+# directories with the include files and libraries.
+!ifndef VACBASE
+VACBASE = e:\ibmcpp
+!endif
+
+# ACPITKBASE: your ACPI toolkit "base" directory.
+# @@added V1.0.9 (2012-02-20) [slevine]:
+!ifndef ACPITKBASE
+ACPITKBASE = e:\AcpiToolkit
+!endif
+
+# DDKBASE: your DDK "base" directory.
+# Not used by the regular makefiles, unless you
+# want to build XWorkplace Security.
+# DDKBASE = K:\libs\DDK\base
+
+# SESBASE: your SES "base" directory.
+# Not used by the regular makefiles, unless you
+# want to build XWorkplace Security.
+# SESBASE = K:\libs\security
+
+# XWPRUNNING: directory where your XWorkplace
+# binaries are installed... all the produced
+# files will be copied there.
+# This must exist.
+!ifndef XWPRUNNING
+XWPRUNNING = h:\Desktopextender\XWorkplace
+!endif
+
+# XWPRELEASE must specify the path of where to create an
+# XWorkplace release tree, which can easily be turned into
+# a WarpIN archive (.WPI file). This is only used with
+# an explicit "nmake release".
+!ifndef XWPRELEASE
+XWPRELEASE = K:\projects\distrib\XWorkplace\current
+!endif
+
+# MMPMDIR: directory where MMPM/2 is installed.
+!ifndef MMPMDIR
+MMPMDIR = I:\MMOS2
+!endif
+
+# DEBUG CODE
+# ----------
+
+# XWP_DEBUG: set to YES if you want debug code;
+# set to nothing if not.
+
+# WARNING: Enabling debug code has side effects.
+# See PROGREF.INF for details.
+
+# If XWP_DEBUG is set to anything, the following is enabled:
+#
+# -- setup.in will change the compiler flags to produce debug
+#    code. Otherwise, release code will be produced.
+#
+# -- __DEBUG__ will be #define'd in all source files.
+#    include\setup.h reacts to that and redefines a number of
+#    debugging macros.
+#
+# -- _Pmpf((...)) will be #define'd in the sources to produce
+#    debug messages. YOU MUST HAVE THE PMPRINTF DLLs on your
+#    LIBPATH then. See PROGREF.INF.
+
+# XWP_DEBUG = YES
+
+# MISCELLANEOUS
+# -------------
+
+# XWP_UNLOCK_MODULES: should be set to YES to
+# automatically unlock files.
+# Set this to nothing to disable unlocking.
+XWP_UNLOCK_MODULES = YES
+
+# XWP_LANG_CODE: language code of NLS resources
+# to compile.
+!ifndef XWP_LANG_CODE
+XWP_LANG_CODE = 001
+!endif

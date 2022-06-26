@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Fil och Utskriftsklient
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Typiskt, kommer f”ljande &link_peer; tj„nster att startas p† ditt system:
+
+<UL><LI><CODE>REQUESTER</CODE> tj„nsten till†ter din dator att se andra
+resurser i ditt LAN. "Requester" „r en synonym f”r "klient", i praktiken. Efter
+att requestern har startats, kan du accessa fj„rrfiler och skrivare p†
+ditt LAN. Som till„gg, kan du tilldela kataloger som delas p† andra datorer en
+enhetsbokstav p† ditt eget system.
+
+<P><LI><CODE>PEER</CODE> tj„nsten „r en avskalad version av servertj„nster som
+endast finns i serverversionerna av &os2;. Efter att peertj„nsten har startats,
+kan din dator dela lokala kataloger, filer, och skrivare med andra datorer p†
+ditt LAN.
+
+<P>Den h„r tj„nsten kr„ver ocks† att <CODE>REQUESTER</CODE> tj„nsten „r aktiv.
+
+</UL>Anv„nd en <A HREF="glossary/gls_cmd.html">kommandosession</A> f”r att hantera
+tj„nster i detalj:
+
+<UL><LI>F”r att starta en tj„nst direkt, anv„nd
+<CODE>NET START <I>tj„nst</I></CODE>, till exempel, <CODE>NET START REQUESTER</CODE>.
+
+<P><LI>F”r att stoppa en tj„nst direkt, anv„nd
+<CODE>NET STOP <I>tj„nst</I></CODE>, till exempel, <CODE>NET STOP REQUESTER</CODE>.
+
+<P><LI>F”r att ta reda p† vilka tj„nster som k”rs f”r n„rvarande, skriv
+<CODE>NET START</CODE>, utan tj„nstens namn.
+
+</UL>
+</BODY>
+</HTML>
+

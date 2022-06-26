@@ -1,0 +1,115 @@
+<HTML HIDDEN RESID=9005>
+<HEAD>
+    <TITLE>
+        &xwp;: Kommandon, Operatorer och Omdirigering
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+Kommando-operatorer „r speciella tecken som kommandotolken interpretera som
+specifika kommandon snarare „n regulj„ra inmatningstecken. Dessa operatorer kan
+skrivas vid en kommandoprompt eller inkluderas i en batch eller kommandofil.
+
+<P>Om du har f”r avsikt att anv„nda ett tecken som normalt „r interpreterad som
+en kommando-operator som ett vanligt tecken, m†ste du <B>frist„lla</B> den genom
+att s„tta in ett <CODE>^</CODE> tecken f”re. Vissa kommando-operatorer „r 
+endast giltiga vid en OS/2 kommandoprompt, inte i DOS sessioner.
+
+<P>F”ljande lista med kommando-operatorer i den ordning i vilken kommandotolkarna 
+k„nner igen dom:
+
+<UL><LI><CODE>^</CODE> tecknet g”r att ett tecken k„nns igen som regulj„rt tecken
+av en kommando-operator f”r in- eller utmatning (endast OS/2 sessioner).
+
+Till exempel, f”r att visa f”ljande p† sk„rmen:
+<PRE>ANGE DIN LDER &amp; SOCIALF™RSKRINGSNUMMER ==&gt;</PRE>
+type:
+<PRE>ECHO ANGE DIN LDER ^&amp; SOCIALF™RSKRINGSNUMMER ==^&gt;</PRE>
+
+<LI>Parenteser <CODE>()</CODE> grupperar kommandon s† att de kan ”verskrida den 
+regulj„ra ordningen hos det f”reg†ende tecknet som k„nns igen av kommandotolken
+(endast OS/2 sessioner).
+
+<P><LI><CODE>&gt;</CODE> omdirgerar utdata till en fil eller ett device. Om filen existerar,
+skrivs den ”ver.
+
+<P><CODE>&gt;&gt;</CODE> omdirigerar utdata till en fil och fogar ihop den, om den existerar.
+
+<P><CODE>&lt;</CODE> h„mtar och omdirigerar indata fr†n standard inmatningsdevice.
+
+<P>Indata k„llan och utdata m†let hos ett program „r f”rdefinierat och identifierat av ett
+nummer (kallat ett <B>handtag</B>). F”ljande tre existerar:
+
+<UL><LI>Standard indata kallas <CODE>STDIN</CODE>, vars handtag „r 0. Som
+standard, „r detta tangentbordet.
+<LI>Standard utdata kallas <CODE>STDOUT</CODE>, vars handtag „r 1. Som
+standard, „r det sk„rmen.
+<LI>F”r felmeddelanden, anv„nds en annan utdata (<CODE>STDERR</CODE>), vars 
+handtag „r 2. Som standard „r det ocks† sk„rmen, men detta g”r att det g†r
+att omdirigera felmeddelanden separat.
+
+</UL>Du kan omdirigera indata och utdata f”r ett program endast om programmet
+l„ser fr†n <CODE>STDIN</CODE> och skriver till <CODE>STDOUT</CODE>, inklusive
+<CODE>STDERR</CODE>. Om programmet inte implementerar dessa standardkonventioner, till exempel 
+om inte „r ett text-baserat program eller l„ser direkt fr†n och skriver till 
+h†rdvaran, fungerar inte omdirigering.
+
+<P>Om fler „n en operation specificeras, kommer endast den senaste att
+k„nnas igen.
+
+<P><B>Exempel 1:</B> F”r att omdirigera utdata f”r
+<A HREF="cmdref.inf#DIR"><CODE>DIR</CODE></A> kommandot till en skrivare,
+skriv:
+<PRE>DIR &gt; PRN</PRE>
+
+<B>Exempel 2:</B> F”r att omdirigera utdata f”r <CODE>DIR</CODE> kommandot
+till en ny fil kallad <CODE>listing.txt</CODE>, skriv:
+<PRE>DIR &gt; listing.txt</PRE>
+Filen <CODE>listing.txt</CODE> kommer att skapas automatiskt eller skrivas ”ver, om den
+redan existerar.
+
+<P><B>Exempel 3:</B> F”r att omdirigera b†de <CODE>STDERR</CODE> och
+<CODE>STDOUT</CODE>, kan du omdirigera <CODE>STDOUT</CODE> f”rst och sedan omdirigera
+<CODE>STDERR</CODE> till <CODE>STDOUT</CODE>. Omdirigeringshandtag som anv„nds
+ist„llet f”r filnamnen m†ste f”reg†s av ett <CODE>&amp;</CODE> tecken. S† f”r att 
+s„nda all utdata och fellistningar fr†n <CODE>DIR</CODE> kommandot till en ny fil 
+kallad <CODE>listing.txt</CODE>, skriv:
+<PRE>DIR *.* &gt;listing.txt 2&gt;&amp;1</PRE>
+
+<LI>Det solida vertikala f„ltet (<CODE>|</CODE>), ASCII tecken 124, anv„nds f”r att separera 
+tv† kommandon f”r <B>pipning.</B> En pipe snappar upp utdata fr†n en k”rande program
+och skickar det till som indata till ett annat k”rande program.
+
+<P>Pipes anv„nds mest med <B>filter.</B> Filter „r systemverktyg som snappar upp data 
+fr†n <CODE>STDIN</CODE>, processar det, och skickar det till <CODE>STDOUT</CODE>.
+
+<P>&os2; erbjuder tre filter:
+<A HREF="cmdref.inf#SORT"><CODE>SORT</CODE></A>,
+<A HREF="cmdref.inf#FIND"><CODE>FIND</CODE></A>, och
+<A HREF="cmdref.inf#MORE"><CODE>MORE</CODE></A>. M†nga flera filter finns tillg„ngliga fr†n
+tredjepart.
+
+<P><B>Exempel:</B> F”r att visa den aktuella kataloglistan sorterad och s„nda resultatet
+till en fil kallad <code>sorted.txt</code>, skriv:
+<PRE>DIR | SORT &gt; sorted.txt</PRE>
+
+<B>Notera:</B> N„r det finns ett ogiltigt kommando p† v„nstra sidan av pipen, 
+kommer kommandot p† den h”gra sidan av pipen inte att ha n†gon effekt. Till exempel:
+<PRE>xxxx 2&gt;&amp;1 | MORE
+</PRE>kommer inte att pipa felutpekningen till <CODE>MORE</CODE> d„rf”r att <CODE>xxxx</CODE>
+„r ett ogiltigt program.
+
+<P><LI><CODE>&amp;&amp;</CODE> processar villkorligt en sekvens av kommandon. Ett kommando
+i en sekvens kan endast processas om det f”reg†ende kommandot har lyckats
+med att utf”ras (endast OS/2 sessioner).
+
+<P><LI><CODE>||</CODE> processar villkorligt en sekvens av kommandon. Ett kommando
+i sekvensen kan endast processas om det f”reg†ende kommandot misslyckats med att 
+utf”ras (endast OS/2 sessioner).
+
+<P><LI><CODE>&amp;</CODE> processar ovillkorligt individuella kommandon i en
+sekvens, oberoende av om tidigare kommandon lyckats eller misslyckats i 
+sekvensen (endast OS/2 sessioner).
+</UL>
+</BODY>
+</HTML>

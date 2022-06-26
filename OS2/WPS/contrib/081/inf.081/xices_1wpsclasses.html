@@ -1,0 +1,98 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPS Class Hierarchy
+    </TITLE>
+</HEAD>
+<BODY>
+The following information has been taken out of IBM's Warp 3 Toolkit documentation.
+<!-- V0.9.0: changed the following phrase -->
+The &xwp; classes have been omitted here.
+&warp4; adds a few more classes, which are in part shown here;
+depending on other WPS-aware software installed on
+your system, even more classes might be available for certain document types.
+<P>Classes that make sense to create objects with
+using the provided NEWOBJ.CMD are highlighted. Be careful
+with other classes, results may be unpredictable.
+<PRE>
+       WPObject
+         ÃÄÄ WPAbstract
+         ³     ÃÄÄ WPClock
+         ³     ÃÄÄ WPCountry
+         ³     ÃÄÄ WPDisk
+         ³     ÃÄÄ WPKeyboard
+         ³     ÃÄÄ <STRONG>WPLaunchPad</STRONG>
+         ³     ÃÄÄ WPMouse
+         ³     ÃÄÄ WPPalette
+         ³     ³     ÃÄÄ WPColorPalette
+         ³     ³     ÃÄÄ WPFontPalette
+         ³     ³     ÀÄÄ WPSchemePalette
+         ³     ÃÄÄ WPPower
+         ³     ÃÄÄ WPPrinter
+         ³     ³      ÀÄÄ WPRPrinter
+         ³     ÃÄÄ <STRONG>WPProgram</STRONG>
+         ³     ÃÄÄ WPShadow
+         ³     ³      ÀÄÄ WPNetLink
+         ³     ÃÄÄ WPShredder
+         ³     ÃÄÄ WPSound
+         ³     ÃÄÄ WPSpecialNeeds
+         ³     ÃÄÄ WPSpool
+         ³     ÃÄÄ WPSystem
+         ³     ÀÄÄ WPWinConfig
+         ÃÄÄ WPFileSystem
+         ³     ÃÄÄ <STRONG>WPDataFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPBitmap</STRONG>             3)
+         ³     ³      ÃÄÄ <STRONG>WPHtml</STRONG>               2)
+         ³     ³      ÃÄÄ <STRONG>WPIcon</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPMet</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPif</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPointer</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPProgramFile</STRONG>
+         ³     ³      ³      ÀÄÄ <STRONG>WPCommandFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPUrl</STRONG>                2)
+         ³     ³      ÀÄÄ <STRONG>WebExplorer_Url</STRONG>      1)
+         ³     ÀÄÄ <STRONG>WPFolder</STRONG>
+         ³            ÃÄÄ WPDesktop
+         ³            ÃÄÄ WPDrives
+         ³            ÃÄÄ WPHost               2)
+         ³            ÃÄÄ WPHvManager          2)
+         ³            ÃÄÄ WPMinWinViewer
+         ³            ÃÄÄ WPNetgrp
+         ³            ÃÄÄ WPNetwork
+         ³            ÃÄÄ WPRootFolder
+         ³            ÃÄÄ WPServer
+         ³            ÃÄÄ WPSharedDir
+         ³            ÃÄÄ WPStartup
+         ³            ÃÄÄ WPUrlFolder          2)
+         ³            ÀÄÄ WPTemplates
+         ÀÄÄ WPTransient
+               ÃÄÄ WPDevice                    2)
+               ³     ÃÄÄ WPDevAudio            2)
+               ³     ÃÄÄ WPDevBus              2)
+               ³     ÃÄÄ WPDevCDRom            2)
+               ³     ÃÄÄ WPDevCPU              2)
+               ³     ÃÄÄ WPDevDiskette         2)
+               ³     ÃÄÄ WPDevDisplay          2)
+               ³     ÃÄÄ WPDevHarddrive        2)
+               ³     ÃÄÄ WPDevKeyboard         2)
+               ³     ÃÄÄ WPDevMemory           2)
+               ³     ÃÄÄ WPDevMouse            2)
+               ³     ÃÄÄ WPDevParallel         2)
+               ³     ÃÄÄ WPDevPeriph           2)
+               ³     ÃÄÄ WPDevSerial           2)
+               ³     ÃÄÄ WPDevTape             2)
+               ³     ÀÄÄ WPDevTimer            2)
+               ÃÄÄ WPJob
+               ÃÄÄ WPPdr
+               ÃÄÄ WPPort
+               ÀÄÄ WPQdr
+</PRE>
+<STRONG>Notices:</STRONG>
+<P>1) This is not a standard WPS class and might not be present on every Warp 3 system.
+<P>2) This class is available only on &warp4; and higher.
+<P>3) In &warp4; and higher, WPBitmap is a subclass of WPImageFile, which is in
+turn a subclass of WPDataFile.
+<BR>
+</BODY>
+</HTML>
+

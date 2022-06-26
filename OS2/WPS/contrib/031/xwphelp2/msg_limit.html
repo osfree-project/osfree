@@ -1,0 +1,28 @@
+<HTML RESID=&ID_XFH_LIMITREACHED;>
+<HEAD>
+    <TITLE>
+        Te veel onderdelen
+    </TITLE>
+</HEAD>
+<BODY>
+&xwp;: toont dit bericht indien te veel onderdelen zijn toegevoegd aan &popmenu;s.
+Dit bericht is alleen een waarschuwing en zal verder geen consequenties hebben. Het verschijnt
+wanneer u zeer intensief door &popmenu;s bladert zonder ooit het &popmenu; te sluiten.
+<P><B>Oplossing:</B>
+<P>Sluit eenvoudig het &popmenu; van tijd tot tijd door ergens op de Werkplek te klikken.
+
+<P><B>In detail:</B>
+&os2; staat niet een ongelimiteerd aantal menu onderdelen toe voor submenu's. Aan ieder menu onderdeel
+moet een intern identificatienummer (ID) worden toegekend. Voor deze ID's gebruikt &xwp; 0x6500
+(in decimalen 25856) plus het getal dat u heeft opgegeven als een "verschuiving" in de 'Globale Instellingen',
+en kent een nieuw ID toe aan ieder zelfstandig onderdeel dat in de &popmenu;s verschijnt. Echter,
+&os2; begint zich op een onvoorspelbare wijze te gedragen indien menu ID's groter dan 0x8000 (in
+decimalen 32678) worden gebruikt, dus &xwp; breekt de verwerking van menu's af zodra deze limiet is
+bereikt.
+Bij het openen van het volgende &popmenu;, begint het tellen van voren af aan, zodat deze fout geen
+enkele consequentie heeft.
+
+<BR>
+</BODY>
+</HTML>
+

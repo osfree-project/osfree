@@ -1,0 +1,60 @@
+<HTML RESID=&ID_XSH_SETTINGS_PAGER_STICKY;>
+<HEAD>
+    <TITLE>
+        &pgr; Sticky Windows
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4
+    Changes:
+    V0.9.19 Add, Edit, Remove, plus the last two notes added V0.9.19 (2002-04-16) [lafaix]
+    V0.9.20: title changed
+    V1.0.0: added a description for "Include sticky toggle in system menus"
+-->
+
+<BODY>
+This &pgr; notebook page allows you to define "sticky" windows, that is,
+windows which will be visible on all virtual desktops.
+
+<P>The page consists of a single container which lists all currently defined
+sticky criteria. Initially, this container is empty.
+
+<P>See <A HREF="hook/pager_stickies2.html">"Sticky windows criteria"</A>
+to learn how &pgr; uses the entries on this page.
+
+<P>To <B>add a sticky window entry</B>, right-click on an empty area of the window
+and select the menu item or press <B>"Add"</B>.
+A dialog pops up which allows you to define a new sticky window.
+
+<P>To <B>edit a sticky window entry</B>, double-click on the entry, or
+select the entry and press <B>"Edit"</B>.
+
+<P>To <B>remove a sticky window</B>, right-click on the entry and select the
+menu item or select the entry and press <B>"Remove"</B>.
+
+<P>Press <B>"Undo"</B> to restore the settings that were in use before
+you opened this notebook page.
+
+<P>Press <B>"Default"</B> to remove all sticky windows from the list.
+
+<!-- V1.0.0: added a description for "Include sticky toggle in system menus" -->
+<P>Check <B>"Include sticky toggle in system menus"</B> to add an entry in all
+top level windows system menus that allows temporarily inverting the "sticky" state
+of the window.  A window remains temporarily "sticky" until you select the
+menu item again or the window is destroyed (i.e., if you close the
+window or shutdown the system). Temporary sticky settings are thus not saved
+with the "Sticky windows" list.
+
+<P><B>Notes:</B>
+
+<UL><LI>There is a maximum of 64 sticky window specifications.
+
+<P><LI>Minimized windows, the Desktop and the system window list are
+always sticky.
+
+<P><LI>The &xcenter;s are sticky by default, but a corresponding entry
+in the container can override that.
+
+</UL>
+</BODY>
+</HTML>
+

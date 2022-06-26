@@ -1,0 +1,62 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Debugging XWorkplace
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+Debugging WPS applications can be really tiresome, because you have to restart
+the WPS for every tiny change you made to the source codes to take effect. And,
+as with any PM program, you can't just <CODE>printf()</CODE> stuff to the screen.
+Even worse, it's hard to use the PM debugger, because you have to start the whole
+WPS (<CODE>PMSHELL.EXE</CODE>) with it, since <CODE>XFLDR.DLL</CODE> is no standalone
+application.
+
+<P>So I had to look for something else.
+
+<P>To enable the debug build, set <CODE>XWP_DEBUG</CODE> in
+<A HREF="src1_32env.html">config.in</A>. <B>Again, mind the warnings given
+there.</B> Of course, you will then have to cause a complete rebuild by
+deleting the <CODE>bin\</CODE> directory.
+
+<P>Enabling the debug code has a large number of consequences:
+
+<OL><LI>Since in debug mode, the <CODE>__DEBUG__</CODE> define is passed on the compiler
+command line, many other parts of the code can react to that. For example, you will
+find a few interesting new items in the Desktop's context menu, such as "Crash WPS"
+to test the exception handlers.
+
+<P><LI>Depending on whether <CODE>__XWPMEMDEBUG__</CODE> is uncommented at the bottom
+of <CODE>include\setup.h</CODE>, all memory management functions will be replaced
+by debug versions which give you very detailed logs of all memory that was ever
+allocated. See <CODE>memdebug.c</CODE> in the helpers for details. This will also
+produce an additional Desktop context menu item which will open a PM window with
+lots of information.
+
+<P><LI>There are a large number of <CODE>_Pmpf((&quot;xxx&quot;))</CODE> calls
+in the code. These are for the magnificent PMPRINTF package by Dennis Bareis.
+
+<P>Some files from the PMPRINTF package are included so that you can
+compile. The PM interface which actually displays the messages <B>plus the required DLLs</B>
+which must be on the LIBPATH are not however. Last time I checked (March 13, 2001),
+this package was available at
+<A HREF="http://www.labyrinth.net.au/~dbareis/zips_fw/pmf96179.zip">http://www.labyrinth.net.au/~dbareis/zips_fw/pmf96179.zip</A>.
+
+<P>These calls only display anything if the proper <CODE>DEBUG_xxx</CODE> #define's
+are set in <CODE>include\setup.h</CODE> (changed with V0.9.0). You can conditionally
+enable groups of debugging flags in there, but some of them haven't been tested in
+a long while and might cause compilation errors.
+
+<P>For the release version of XWorkplace, all these flags
+have been disabled, so no additional code is produced at all. You
+thus don't have to remove the commands to speed up XWorkplace, because this
+wouldn't make any difference.
+
+<P><CODE>_Pmpf((&quot;xxx&quot;))</CODE> uses regular printf syntax, except for those
+strange double brackets, which are needed because macros don't accept
+variable parameter lists otherwise.
+
+</OL>
+</BODY>
+</HTML>

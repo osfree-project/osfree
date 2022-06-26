@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: XWPString Instellingen teksten
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.20 -->
+<BODY>
+XWPString verzorgt <A HREF="objects/obj_string.html">instellingen tekst objecten.</A>
+Ook al is de XWPString class ontworpen om instellingen teksten op te slaan,
+kunt u ook instellingen teksten op een XWPString object zelf toepassen, evenals
+elk ander object.
+
+<P>In aanvulling op de instellingen teksten die ondersteund worden door de
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+class, ondersteund de XWPString class de volgende teksten:
+
+<DL>
+<DT><P><CITE><B>SETUPSTRING</B>=<I>tekst</I></CITE>
+<DD>De instellingen tekst die in het tekst object opgeslagen moet worden.
+<CODE><I>tekst</I></CODE>
+mag niet opgebouwd zijn uit karakters die niet toegestaan zijn in Desktop
+instellingen tekst waarden.
+De standaard is een lege tekst.
+
+<DT><P><CITE><B>DEFAULTOBJECT</B>={<I>objectid</I>|<I>bestandsnaam</I>|*<I>handle</I>|NONE}</CITE>
+<DD>Zet of verwijderd het standaard object dat opgeslagen is in het tekst object.
+De waarde moet een van de volgende zijn:
+<UL><LI>een object ID, omsloten door kleiner dan/groter dan teken
+(b.v. <CODE>DEFAULTOBJECT=&lt;WP_DESKTOP&gt;;</CODE>);
+<LI>een volledig opgegeven bestandsnaam
+(b.v. <CODE>DEFAULTOBJECT=C:\mijnbestanden\iets.txt;</CODE>);
+<LI>een decimale object handle, voorafgegaan door een sterretje
+(b.v. <CODE>DEFAULTOBJECT=*1432;</CODE>);
+<LI>de <CODE>NONE</CODE> code om het huidige standaard object te verwijderen, als die er is.
+</UL>De standaard voor een tekst object is om geen standaard object te hebben(<CODE>NONE</CODE>).
+
+<DT><P><CITE><B>CONFIRMINVOCATION</B>={YES|NO}</CITE>
+<DD>Komt overeen met de "Bevestig implementatie" instelling op de "Tekst" notitieblok
+instellingen pagina.
+De standaard is <CODE>YES</CODE>.
+
+<DT><P><CITE><B>NOSTRINGPAGE</B>={YES|NO}</CITE>
+<DD>Als <CODE>YES</CODE> is, zal het tekst object instellingen notitieblok
+de "Tekst" pagina niet tonen. Dit kan handig zijn als u tekst objecten
+in uw eigen programma maakt en u wilt voorkomen dat de gebruiker per ongeluk
+een zorgvuldig ontworpen instellingen tekst veranderd.
+De standaard is <CODE>NO</CODE>.
+
+</DL>
+</BODY>
+</HTML>
+

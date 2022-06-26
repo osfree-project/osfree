@@ -1,0 +1,61 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        New "Sound" Object
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.3 and contains parts of the old
+        064intro_sounds.html file. -->
+<BODY>
+<B>Classes: XWPSound</B><HR>
+
+<IMG SRC="config_8sounds.gif">
+&xwp; can <B>enhance the "Sound" object</B> by replacing
+the "Sound" page in that object to allow changing and organizing system sounds
+more easily.
+
+<P>In order to use this feature, you need to have the <B>XWPSound</B>
+replacement class installed.
+
+<P>The main enhancement to the "Sound" page is the support for <B>"sound schemes",</B>
+which IBM half-introduced with &warp4;. The main problem with sound schemes was
+however that it was nearly impossible to define one's own schemes without messing
+with the system INI files directly.
+
+<P>&xwp;'s new "Sound" page has a new interface which allows you to quickly
+select a sound scheme, save your current system sounds as a new sound scheme,
+and delete existing schemes. I have designed this interface to be similar to that
+of Windows 95, which, in this one case, I consider quite well done. Since the
+new "Sound" page handles sound schemes already, the original "Sound schemes"
+page is no longer displayed.
+
+<P><B>Warp 3 users</B> might be happy to find out that these sound schemes now
+work on their operating system too. To be more precise, the "Sound" page lets you
+<I>organize</I> your sounds on Warp 3 as well; however, you still won't get sound scheme
+support in your Layout Palette
+(which, on Warp 4 and higher, allows you to specify different sounds for each folder).
+
+<P>Press <B>"Help"</B> on the new "Sound" page to receive more detailed instructions.
+
+<P><B>Note:</B> System sounds are stored in the <CODE>MMPM.INI</CODE> file in
+your <CODE>MMOS2</CODE> directory, while sound schemes (for some reason only IBM knows)
+are stored in <CODE>OS2SYS.INI</CODE>. I have stuck to this in order not to break
+compatibility. As a consequence, however, all users on your system share the same
+system sounds and sound schemes, even if you have different Desktops
+(and <CODE>OS2.INI</CODE> files) for each user. Sorry, complain at IBM (as if that helped).
+
+<P>The "Sound" object replacement works regardless of whether you have enabled
+the new system sounds (see the <A HREF="mm_2sounds.html">next page</A>).
+
+<P>If you want the "Sound" object replacement only, without the new system sounds,
+disable "Extended system sounds" feature on the "Features" page of the
+<A HREF="sys_2global.html">"&xwp; Setup" object.</A>
+
+<P>To disable the "Sound" object replacement, deregister the XWPSound class from
+the <A HREF="sys_2global.html">"&xwp; Setup" object.</A>
+
+<BR>
+</BODY>
+</HTML>
+
+

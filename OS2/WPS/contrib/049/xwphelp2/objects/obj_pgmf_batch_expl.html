@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Beispiele fÅr Stapeldateien
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<B>Beispiel 1</B>:
+ 
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Diese Stapeldatei legt eine Sicherungskopie der CONFIG.SYS-Datei
+<A HREF="cmdref.inf#rem">REM</A> im Verzeichnis C:\OS2 an.
+<A HREF="cmdref.inf#echo">ECHO</A> Erstelle Sicherungskopie der CONFIG.SYS in C:\OS2.
+<A HREF="cmdref.inf#echo">ECHO</A> Falls eine modifizierte CONFIG.SYS nicht funktionieren sollte, kopieren Sie die Sicherungskopie zurÅck nach C:.
+<A HREF="cmdref.inf#copy">COPY</A> C:\CONFIG.SYS C:\OS2\CONFIG.SYS
+<A HREF="cmdref.inf#echo">ECHO</A> Programm beendet.
+</PRE>
+ 
+<B>Beispiel 2</B>:
+ 
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Diese Stapeldatei druckt jede beliebige normale Textdatei aus.
+<A HREF="cmdref.inf#rem">REM</A> Um Sie zu benutzen, geben Sie den Namen der auszudruckenden Textdatei
+<A HREF="cmdref.inf#rem">REM</A> nach dem Namen dieser Stapeldatei ein.
+<A HREF="cmdref.inf#rem">REM</A> Hie·e die Stapeldatei PRINT.CMD und die auszudruckende Datei
+<A HREF="cmdref.inf#rem">REM</A> README, mÅ·ten Sie PRINT README eingeben.
+<A HREF="cmdref.inf#echo">ECHO</A> Drucke %1.
+<A HREF="cmdref.inf#TYPE">TYPE</A> %1 &gt; lPT1
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+</PRE>
+ 
+<B>Beispiel 3</B>:
+ 
+<PRE><A HREF="cmdref.inf#echo">ECHO</A> OFF
+<A HREF="cmdref.inf#rem">REM</A> Diese Stapeldatei Ñndert die Befehlsaufforderung dahingehend,
+<A HREF="cmdref.inf#rem">REM</A> das Datum, die Zeit und den aktuellen Pfad anzuzeigen.
+<A HREF="cmdref.inf#prompt">PROMPT</A> $d     $t     $_$p\$s
+<A HREF="cmdref.inf#echo">ECHO</A> ON
+<A HREF="cmdref.inf#CLS">CLS</A>
+</PRE>
+</BODY>
+</HTML>

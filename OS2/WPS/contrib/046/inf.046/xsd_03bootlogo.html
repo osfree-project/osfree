@@ -1,0 +1,119 @@
+<HTML SUBLINKS="xxx" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        WPS Startlogos
+    </TITLE>
+</HEAD>
+<!-- this file is all new with V0.85 -->
+<!-- Changed with V0.9.0: renamed from 066bootlogo.htm
+     also see notes below -->
+<BODY>
+<!-- V0.9.0: all the following has been rewritten -->
+<B>Klass: XFldObject</B><HR>
+XFolder 0.85 introducerade m”jligheten att visa en anv„ndardefinierad bitmap under
+starten av Skrivbordet. Med &xwp; 0.9.0, har en ny "Startup" sida introducerats i
+notboken med inst„llningar f”r Skrivbordet f”r att enkelt konfigurera funktionen.
+<P>
+Startlogon kommer att vara synlig tills WPS har initialiserat sig sj„lvt helt och h†llet.
+Den kommer sedan att f”rsvinna och inte l„ngre konsumera n†gra systemresurser.
+<P>
+<B>"Startup" sidan hos Skrivbordets notbok med inst„llningar</B> till†ter dig att definiera
+startlogo bitmap och stil. Mer information kan erh†llas genom att trycka p† "Hj„lp" knappen p† den sidan.
+<P>
+Jag har inkluderat tre startlogos med &xwp;:
+<UL><LI><CODE>xfolder.bmp</CODE> (vilken anv„nds som standard) och „r en variant av den 
+gamla XFolder logon. Den b”r kunna hanteras „ven av svagare system.
+<!-- V0.9.19: fixed the following filename -->
+<LI><CODE>os2warpx.bmp</CODE> „r en alternativ, ny design, som jag gillar mycket
+b„ttre, vilken d„remot kan ta alltf”r l†ng tid att visa p† svagare system. P† min Pentium-133, 
+tar den omkring tv† sekunder att visa.
+<LI><CODE>penguin.bmp</CODE> „r ny med V0.9.0. Det „r den v„lk„nda Linux pingvinen med en &os2;
+logo p† sin mage.
+</UL>
+N„r du <B>anv„nder dina bitmappar,</B> kom ih†g dessa viktiga noteringar:
+
+<OL><LI>Startlogon
+<!-- the following has not changed with V0.9.0 -->
+m†ste vara en <B>okomprimerad OS/2 1.3 bitmaps</B> fil. V2.0 bitmappar kommer inte
+att laddas. Jag var tvungen att inkludera min egen laddningskod f”r bitmappar d„rf”r att
+vid tidpunkten f”r start av Skrivbordet, fungerar WPS's multimediaklasser inte „nnu. Du kan anv„nda PMView 
+eller WPS multimediaklasser f”r att konvertera existerande filer till 1.3 format.
+
+<P><LI>Transparens ber„knas i enlighet med det yttersta l„gsta v„nsterh”rnets pixel hos bitmappen. Det betyder
+att alla pixels som har samma f„rg som pixel (0, 0) kommer att g”ras transparenta.
+
+<P><LI>Du b”r vara v„ldigt noggrann med att byta ut bitmapparna. Ber„kningen av transparensen „r extremt
+CPU-intensiva. Om du anv„nder en 500x500 pixels bitmap med h„lften av alla pixels transparenta, kan detta blockera
+ditt system i flera minuter. Och jag menar <I>blockera,</I> d„rf”r att st”rre delen av ber„kningstiden konsumeras
+av Presentation Manager (PM), och detta brukar vanligtvis h„nga hela systemet.
+<!-- V0.9.0: moved the following paragraph up from the bottom;
+             rewrote this -->
+<P>Om allting g†r snett och ditt WPS inte vill starta igen kan du <B>h†lla ner "Shift" tangenten</B> n„r WPS startas upp.
+Detta kommer att visa <A HREF="xsd_01intro.html">"Startup panik" dialogen</A>, d„r du kan avaktivera startlogon och ta 
+hand om problemet efter att WPS „r ig†ng.
+<P>
+Eftersom PM designades f”r att endast visa rektangul„ra f”nster, „r s„ttet att "forma" dessa f”nster
+p† att bitmappen analyseras pixel f”r pixel och s† m†nga PM subf”nster skapas som det finns rektangul„ra 
+icke-tranparanta ytor i bitmappen.
+<P>
+Av detta sk„l, var v„ldigt f”rsiktig med transparens. Ju fler icke-rektangul„ra transparenta ytor som det finns
+i en bitmap, ju flera f”nster m†ste skapas.
+<P>
+Exempel:
+<PRE>         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³                    ³
+         ³   11111111111111   ³
+         ³   11111111111111   ³
+         ³   2222      3333   ³
+         ³   44444444444444   ³
+         ³   44444444444444   ³
+         ³                    ³
+         ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ</PRE>
+
+(d„r " " „r en transparent pixel) skulle resultera i skapandet 
+av exakt fyra subf”nster (markerade som "1"-"4").
+<P>
+
+Emellertid, om du har "diagonala" eller andra icke-rektangul„r transparenser i din bitmap,
+m†ste ett eller flera subf”nster skapas <I>f”r varje linje</I> hos bitmappen, vilken kan g”ra
+PM v„ldigt upptaget.
+<P>
+
+Ett annat exempel:
+<PRE>         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³                    ³
+         ³   111111111        ³
+         ³    2222  333       ³
+         ³     44     55      ³
+         ³      666 777777    ³
+         ³       8888888888   ³
+         ³        9999999999  ³
+         ³                    ³
+         ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ</PRE>
+
+Detta skulle redan skapa nio f”nster: ett f”r ”versta raden,
+sedan tv† i var f”r de f”ljande raderna, och ytterligare ett f”r varje 
+rad i botten. S† t„nk dig en s†dan bild med 500 rader: den skulle skapa minst
+500 subf”nster.
+<P>
+F”r att klarg”ra det hela: det „r inte analysen av bitmappen som anv„nder en hel
+del CPU tid. Det „r skapandet av subf”nstren. S† stora bitmappar skadar inte om 
+det finns v„ldigt lite eller endast rektangul„ra transparenser.
+<P>
+Jag kom p† detta den h†rda v„gen n„r jag oavsiktligt drog en bitmap till f„rgpaletten med
+blandade f„rger. Pl”tsligt, fanns det hundratals transparenta och icke-transparenta ytor
+alternerande (d„rf”r att den bakgrund jag vill anv„nda hade blandade f„rger).
+<P>
+Bitmappen hade omkring 100 rader, och jag fick flera 1000 f”nster. Jag tryckte 
+Ctrl-Alt-Del efter omkring tv† minuter.
+<P>
+S† tag varning. Starta med en liten bitmap och se vad ditt system kan hantera. F”r 
+st”rre bitmappar, f”rs”k att g”ra de transparenta ytorna rektangul„ra.
+<!-- V0.9.0: added this -->
+Anv„nd inte f„rgblandade bitmappar, utan anv„nd endast rena f„rger ist„llet.
+</OL>
+<!-- V0.9.0: the following has been removed -->
+<BR>
+</BODY>
+</HTML>
+

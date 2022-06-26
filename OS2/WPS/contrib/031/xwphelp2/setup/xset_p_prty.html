@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Worker Thread Prioriteit
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.9: changed the following -->
+Deze schuif geeft u de mogelijkheid om de standaard
+<!-- V1.0.0: link removed -->
+prioriteit van de &xwp; Worker thread in te stellen.
+<!-- end V0.9.9 -->
+
+<P>De Worker thread wordt gestart als de Werkplek opstart met de prioriteit die u
+hier opgeeft. Deze instelling geeft u de mogelijkheid om ofwel "niets doende" prioriteit op te geven
+met een prioriteitsverschil van 0, of "niets doende" met een verschil van +31, of "normale" prioriteit
+met een verschil van 0.
+
+<!-- V0.9.13: changed the following 2 lines -->
+<P>Zie <A HREF="glossary/gls_scheduler.html">"Processen en threads"</A> voor meer informatie
+over thread prioriteiten.
+
+<P>Let op dat deze instelling alleen aangeeft wat de <I>standaard</I> Worker thread prioriteit is.
+Als &xwp; vaststelt dat de Worker thread niet genoeg processor tijd krijgt, wordt
+zijn prioriteit van tijd tot tijd automatisch verhoogd.
+Zie <A HREF="setup/xset_p_prtybeep.html">"Maak geluid bij prioriteitswijziging"</A> voor meer.
+
+<P>In de meeste gevallen dient u deze instelling de standaard waarde te laten houden,
+wat "niets doende +31" is. Dit staat de Worker thread toe om zijn werkzaamheden in
+de achtergrond te doen zonder een merkbare vertraging van de gebruikersinterface.
+Alhoewel, als u regelmatig processen draait die de volledige CPU opslokken (dat wil zeggen,
+als uw CPU belasting altijd 100% is vanwege, bijvoorbeeld, sommige draaiende Windows programma's),
+zou u dit kunnen verhogen naar "normaal".
+
+<!-- V0.9.13: updated page name -->
+<P>U kunt de huidige Worker thread prioriteit zien op de "Threads" pagina.
+<BR>
+</BODY>
+</HTML>
+

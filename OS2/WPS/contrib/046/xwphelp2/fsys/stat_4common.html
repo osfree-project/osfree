@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusf„lt: Gemensamma Koder f”r Alla L„gen
+    </TITLE>
+</HEAD>
+<!-- V0.9.13: This is an almost exact copy of the file with the same name
+     from the 001\inf.001 directory. The status bar code descriptions
+     were simply moved from the INF to the HLP file.
+     Only the following things were changed:
+        --  HTML tag on top;
+        --  class reference below was removed.
+     The following change notes specify changes to the original
+     file that was in 001\inf.001. -->
+
+<!-- This file is all new with V0.84 and contains the status bar codes
+     previously described in fldr_32statusbars.html. Nothing else has changed. -->
+<!-- Changed with V0.9.0: see notes below -->
+<!-- V0.9.11 (2001-04-22) [umoeller]: largely rewritten. -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<!-- V0.9.13: removed this -- Class: XFolder -->
+F”ljande koder fungerar <B>i alla tre l„gen:</B>
+<BR><DL>
+<DT><CITE>  $c      </CITE><DD>antal f”r n„rvarande valda objekt
+<DT><CITE>  $C      </CITE><DD>totala antalet objekt i mapp
+
+<!-- V0.9.13: replaced the following -->
+<BR><DT><CITE>  $s<I>X</I>     </CITE><DD>total storlek p† valda objekt
+<DT><CITE>  $S<I>X</I>     </CITE><DD>total storlek p† mappinneh†ll
+<DT><CITE>  $f<I>X</I>     </CITE><DD>fritt utrymme p† mappens enhet
+<DT><CITE>  $z<I>X</I>     </CITE><DD>total storlek p† mappens enhet
+
+<!-- V0.9.13: replaced the following -->
+<P>I de ovanst†ende fyra, „r <CODE><I>X</I></CODE> ett special
+<A HREF="fsys/stat_99format.html">formatsspecificerande</A> tecken.
+<!-- end V0.9.11/V0.9.13 rewrite -->
+
+<BR><DT><CITE>  $x(xxx)</CITE><DD> V„nsterorienterad tabulator: skriv ut f”ljande
+information vid X position "xxx" (relativt till den v„nstra kanten av statusf„ltet).
+<BR>Exempel: <CITE>$x(300)$sK</CITE> kommer alltid att skriva ut den totala storleken
+p† den valda objekten vid X position 300.
+<DT><CITE>  $x(-xxx)</CITE><DD> som f”rut, men relativt till den h”gra kanten p†
+statusf„ltet.
+<BR>Exempel: <CITE>$x(-150)$sK</CITE> kommer att skriva ut de totala storleken p†
+den valda objekten vid X position 100, om statusf„ltet f”r n„rvarande „r 250 pixels brett.
+<DT><CITE>  $x(xx%)</CITE><DD> som f”rut, men X positionen kommer att ber„knas anv„ndande
+"xx" som en procentsats relativt till den aktuella bredden hos statusf„ltet.
+<BR>Exempel: <CITE>$x(50%)$sK</CITE> kommer alltid att skriva ut den totala storleken
+p† de valda objekten i centrum av statusf„ltet.
+</DL>
+<BR>
+</BODY>
+</HTML>
+
+

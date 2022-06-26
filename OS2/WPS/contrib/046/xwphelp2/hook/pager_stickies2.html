@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XSH_SETTINGS_PAGER_STICKY2;>
+<HEAD>
+    <TITLE>
+        &pgr; Sticky Windows
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+En uppgift best†r av fyra f„lt: <B>Kriterier</B>, <B>Attribut</B>, <B>Operator</B>,
+och <B>V„rde</B>.
+
+<P><B>Kriterier</B> definierar om en matchande uppgift „r inkluderad (<B>"I"</B>) eller 
+exkluderad (<B>"E"</B>). Inkluderade f”nster „r sticky, och exkluderade f”nster „r inte sticky.
+
+<P><B>Attribut</B> definierar p† vilket element posten bygger. I den h„r releasen, „r det
+enda m”jliga attributet f”nstrets rubrik.
+
+<P><B>Operator</B> definierar vilket slags j„mf”relse som skall anv„ndas f”r att best„mma om ett
+f”nster matchar uppgifterna eller inte. Det finns fem m”jliga operatorer f”r "Rubrik" attributet:
+
+<UL>
+<LI><B>inneh†ller</B> kommer att testa om rubriken inneh†ller en given str„ng vid n†gon
+position.
+
+<LI><B>b”rjar med</B> kommer att testa om rubriken b”rjar med en given str„ng.
+
+<LI><B>slutar med</B> kommer att testa om rubriken slutar med en given str„ng.
+
+<LI><B>lika med</B> kommer att testa om rubriken „r exakt lika som en given str„ng.
+
+<LI><B>matchar</B> kommer att testa om rubriken matchar den givna str„ngen, vilken anses
+vara ett <A HREF="glossary/gls_regexps.html">regulj„rt uttryck</A>.
+
+</UL>All j„mf”relser „r case sensitive (skiljer p† gemener och versaler).
+
+<P><B>V„rde</B> definierar v„rdet att j„mf”ras mot. Drop down listen inneh†ller liknande v„rden,
+men v„rdet beh”ver inte vara ett av dessa.
+
+<P>Ett f”nster anses matcha en uppgift om det specificerade f”nstrets attribut matchar det v„rdet
+med anv„ndning av den specificerade j„mf”relseoperatorn.
+
+<P>&pgr; kommer att behandla ett f”nster som sticky (eller inte sticky) om det matchar en uppgift
+hos listan p† den h„r sidan, startande fr†n toppen av listan. F”nstret anses vara sticky om
+kriteriet „r <B>"I"</B>. F”nstret anses inte vara sticky om kriteriet „r <B>"E"</B>. Om inga
+matchande uppgifter hittas, kommer f”nstret inte att anses vara sticky.
+
+<P><B>Notera:</B> V„xlingslistan visar ofta b†de f”nstrets rubrik och v„xlingslistans rubrik, 
+separerade med ett mellanslag. Om b†da upptr„der, kommer &pgr; att anv„nda den rubrik som upptr„der
+efter mellanslaget.
+<BR>
+</BODY>
+</HTML>
+

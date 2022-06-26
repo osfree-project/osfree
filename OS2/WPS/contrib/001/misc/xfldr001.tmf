@@ -1,0 +1,582 @@
+;
+; This is the monster XWorkplace text message file (XFLDR001.TMF).
+; This is used for messages which might turn out to be longer
+; than 256 characters and might thus not fit into the STRINGTABLE
+; resources. These are loaded by XWorkplace on the fly and appear
+; mostly in the new XWorkplace message boxes.
+;
+; Required changes for translations: Look at each line after the
+; message identifier (in angle brackets) and translate only that
+; part. Beware of line breaks, as these messages will normally be
+; formatted by XWorkplace. Inserting line breaks will cause
+; _additional_ line breaks to be displayed.
+;
+; The format of this file has slightly changed with V0.9.0. We now use
+; the angle-bracket syntax, as seen below. Whatever is in angle
+; brackets at the beginning of a line will be used by XWorkplace
+; to find the corresponding message, which must follow. If you
+; change the identifiers, XWorkplace can no longer find the message!
+;
+; Also, make sure to keep all those "%1", "%c", "%s" etc. thingies in
+; place, because those placeholders will be replaced at run-time with
+; variable information. XWorkplace might crash if these placeholders
+; are not found or, even worse, if a "%s" key doesn't get a string but
+; a decimal number in sprintf.
+;
+;       Copyright (C) 1997-2005 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software. You can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY, without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+<--XFL0100-->: &xwp;: Modify CONFIG.SYS
+
+<--XFL0101-->: In order to enable the new settings, &xwp; will now modify your CONFIG.SYS file. XFolder will create a backup file under the name CONFIG.001 (or a higher numerical extension, if neccessary). Are you sure you wish to change your CONFIG.SYS file?
+
+<--XFL0102-->: &xwp;: Language Changed
+
+<--XFL0103-->: &xwp;'s language has now been changed. The "Workplace Shell" object will now be closed. When you open it the next time, the language will have changed.
+
+<--XFL0104-->: &xwp;: Error
+
+<--XFL0105-->: &xwp; was unable to create the Startup Folder on the Desktop. Most probably the WPS class XFldStartup has not been properly installed.
+
+<--XFL0106-->: &xwp; was unable to create the &xsd; Folder on the Desktop. Most probably the WPS class XFldShutdown has not been properly installed.
+
+<--XFL0107-->: Change WPS Object ID
+
+<--XFL0108-->: You have entered an invalid WPS object ID. These IDs must always have the form "<SOMETHING>". The old ID will be restored.
+
+<--XFL0109-->: Are you sure you want to change this WPS object ID?
+
+<--XFL0110-->: &xsd;: Error
+
+;
+; 111 changed with V1.0.0
+;
+<--XFL0111-->: Error %1 occurred saving the INI files. Error description:
+
+%2
+
+There is a possibility that the Workplace Shell might be damaged at the next reboot. Instead of continuing the eXtended Shutdown, you can now restart the WPS, disable the eXtended Shutdown, and perform a regular &os2; shutdown. Do you wish to restart the WPS now?
+
+<--XFL0112-->: Select Object Class
+
+<--XFL0113-->: Select the object class for which you wish to set status bar information. Classes which do not support this feature appear in the color of WPS shadows.
+
+<--XFL0114-->: eXtended Shutdown
+
+; V0.9.11: changed the following
+<--XFL0115-->: There are currently %1 print job(s) in the spooler queues. &xsd; will not work properly when print jobs are still pending. Remove the jobs from the spooler first.
+
+<--XFL0116-->: &xwp;: Warning
+
+; 117 is gone with V0.9.7 (2000-12-13) [umoeller]:
+
+<--XFL0118-->: You have chosen to remove the class "%1" from the WPS class list. You should only alter the WPS class list if you know exactly what you're doing. Deregistering certain classes can lead to severe malfunction of the Workplace Shell and might even require a complete re-installation of &os2;. Are you still sure you wish to deregister this class?
+
+<--XFL0119-->: The class "%1" could not be deregistered.
+
+<--XFL0120-->: You have chosen to remove the class "%1" from the WPS class list. This class belongs to the &xwp; package. All the &xwp; classes are designed to work together, and removing only some of them can lead to serious malfunction of the Workplace Shell. Are you still sure you which to deregister this class?
+
+<--XFL0121-->: &xwp;
+
+<--XFL0122-->: The class "%1" has been successfully deregistered. You will need to restart the WPS to see the effects.
+
+<--XFL0123-->: Select the object class with which you wish to replace "%1".
+
+<--XFL0124-->: Are you sure that you wish to replace the object class "%1" with "%2"? This can only work for classes which were specifically designed for this purpose. Otherwise this procedure might lead to serious malfunction of the Workplace Shell and might even require a complete re-install. Do you wish to replace anyway?
+
+<--XFL0125-->: You have chosen to undo the replacement of class "%1" with "%2". This class belongs to the &xwp; package. All the &xwp; classes are designed to work together, and changing replacements can lead to serious malfunction of the Workplace Shell. Are you still sure you which to un-replace this class?
+
+<--XFL0126-->: You have chosen to undo the replacement of class "%1" with "%2". You should only change WPS class replacements if you know exactly what you're doing. Unreplacing certain classes can lead to severe malfunction of the Workplace Shell and might even require a complete re-installation of &os2;. Are you still sure you which to un-replace this class?
+
+<--XFL0127-->: The replacement of class "%1" with "%2" has been successfully undone.
+
+<--XFL0128-->: Undoing the replacement of class "%1" with "%2" failed.
+
+<--XFL0129-->: Class "%1" has been successfully replaced with "%2". Note that this will only have an effect after a Desktop restart and that also the WPS class list will only reflect this change then.
+
+<--XFL0130-->: Replacing class "%1" with "%2" failed.
+
+<--XFL0131-->: The class "%1" was successfully registered. A restart of the WPS is probably not neccessary.
+
+<--XFL0132-->: Registering class "%1" failed. Error code: %2. Module information: %3.
+
+<--XFL0133-->: You have chosen to have all folders on your system sorted by default. This will include the Desktop. Do you wish to disable auto-sort for the Desktop?
+
+<--XFL0135-->: You have opened a submenu which contains no menu items because the corresponding &xwp; configuration folder contains no objects. Place objects into the configuration folders to create menu items.
+
+<--XFL0136-->: The CONFIG.SYS file has been changed. Your previous CONFIG.SYS has been copied to the file %1. In order to let the settings take effect, you will need to shut down and reboot your system. A Desktop restart will not suffice for this.
+
+<--XFL0137-->: &xwp; could not find its Online Reference. You have probably deleted the respective object that was created by the installation program. You will find the Online Reference (XFLDR001.INF) in the &xwp; installation directory.
+
+<--XFL0138-->: Are you sure you wish to start all objects in this folder? This might lead to problems if programs in this folder are already running.
+
+<--XFL0139-->: The class "%1" is currently replaced by the class "%2". You must undo this replacement before this class can be deregistered.
+
+;
+; the following items are new with V0.9.0
+
+<--XFL0141-->: This will create an object of the class "%1" named "%2" on the Desktop. Warning: Some WPS classes were not designed to have objects created of them, and some may cause trouble with your system configuration only. Continue anyway?
+
+<--XFL0142-->: You have made the following changes to the &xwp; class setup:
+
+<--XFL0143-->: Register the following classes:
+
+<--XFL0144-->: Replace the following classes:
+
+<--XFL0145-->: Deregister the following classes:
+
+<--XFL0146-->: Undo the following class replacements:
+
+<--XFL0147-->: Warning: Partial changes to the &xwp; class setup have not been extensively tested. There might still be some side-effects between the different &xwp; classes which have not been fully resolved. Are you sure you want to do this?
+
+<--XFL0148-->: &xwp; Setup
+
+<--XFL0149-->: Errors occurred with the following &xwp; classes:
+%1
+Some of the class changes might have been successful however. Restart the WPS for the changes to take effect.
+
+<--XFL0150-->: The WPS class list has been successfully changed. You will need to restart the WPS for the changes to take effect.
+
+<--XFL0151-->: &xwp;: "Sound" Object
+
+<--XFL0152-->: The sound scheme "%1" already exists. Overwrite?
+
+<--XFL0153-->: This will overwrite the current sound data. Do you wish to save the sound data in a new sound scheme first?
+
+<--XFL0154-->: Are you sure you wish to delete the sound scheme "%1"?
+
+<--XFL0155-->: This will replace the following line
+
+%1
+
+in CONFIG.SYS with this new line:
+
+%2
+
+Are you sure you want to do this?
+
+<--XFL0156-->: No changes were made to the driver "%1". Modifying CONFIG.SYS is not necessary.
+
+<--XFL0157-->: The &xwp; Hook has been installed. Object hotkeys and mouse movement features are available in the "Keyboard" and "Mouse" settings objects.
+
+<--XFL0158-->: The &xwp; Hook has now been uninstalled. Object hotkeys and mouse movement features are no longer available in the "Keyboard" and "Mouse" settings objects.
+
+;
+; the following items have been added with V0.9.1
+;
+; changed XFL0159 with V0.9.7
+;
+
+<--XFL0159-->: Welcome to &xwp;. The Workplace Shell is now starting up with &xwp; installed.
+
+If you have just installed &xwp; for the very first time, all &xwp; settings are disabled to avoid problems.
+
+If you had XFolder installed previously, &xwp; will import most of your old XFolder settings.
+
+If you had &xwp; installed previously, your settings are not changed.
+
+Now, if you run into any trouble with &xwp;, e.g. should the system hang upon startup, first press Ctrl+Alt+Del to restart the system.
+
+While the WPS is starting up after the reboot, hold down the "Shift" key. This will cause &xwp; to display a "Panic" dialog where you can disable certain &xwp; features.
+
+Press "OK" to continue WPS startup now. This message will not be shown again.
+
+<--XFL0160-->: No settings for &xwp; exist in your OS2.INI file. However, settings for an older XFolder version were found.
+
+&xwp; can now import your old XFolder settings so that you don't have to reconfigure everything. In that case, &xwp; will initially mostly behave like your existing XFolder version. Your old XFolder settings will not be changed, so you can re-install XFolder instead of &xwp; later.
+
+If you don't want this, all &xwp; features will initially be disabled.
+
+Do you wish to have your old XFolder settings converted for &xwp;?
+
+<--XFL0161-->: This will create the &xwp; Configuration Folder in the &xwp; installation folder or, if that folder does not exist, on your Desktop.
+
+Do you wish to continue?
+
+<--XFL0162-->: Are you sure you wish to remove the hotkey "%1" for the object "%2"?
+
+; the following one has changed with V0.9.10
+<--XFL0163-->: This will create an object called "%1" in the folder "%2" with the setup string "%3".
+
+Do you wish to continue?
+
+; the following one has changed with V0.9.10
+; and again with V0.9.19
+<--XFL0164-->: The object "%1" was successfully created.
+
+<--XFL0165-->: Error: The object could not be created. Make sure you have the corresponding WPS class installed.
+
+<--XFL0166-->: You have selected to enable the extended system sounds, but the additional &xwp; system sounds have not been installed in the "Sound" object yet. Do you wish to have this done now?
+
+<--XFL0167-->: You have selected to disable the extended system sounds. Do you wish to remove the additional &xwp; system sounds from the "Sound" object?
+
+<--XFL0168-->: &xwp; Trash Can
+
+<--XFL0169-->: This will delete all the objects in the trash can for good.
+
+Are you sure you wish to empty the trash can?
+
+<--XFL0170-->: The trash can WPS classes which are required for the &xwp; trash can to work (XWPTrashCan, XWPTrashObject) have not been registered yet.
+
+Should we do this now?
+
+<--XFL0171-->: An error occurred registering the trash can WPS classes.
+
+<--XFL0172-->: Do you wish to destroy the trash object and deregister the &xwp; trash can classes (XWPTrashCan, XWPTrashObject)?
+
+<--XFL0173-->: The trash can object has been successfully destroyed and the trash can classes have been deregistered. You should restart the WPS for the changes to take effect.
+
+<--XFL0174-->: This operation is invalid for trash objects.
+
+<--XFL0175-->: &xwp;: File Operations Error
+
+;
+; the following items have been added with V0.9.3
+;
+
+<--XFL0177-->: Are you sure you want to permanently delete  "%1"?
+
+<--XFL0178-->: You have selected %1 objects to be permanently deleted. Are you sure you want to do this?
+
+<--XFL0179-->: "%1" is a read-only file. Do you want to move it to the trash can anyway?
+
+<--XFL0180-->: The current drive is not supported by the trash can. Do you wish to permanently delete "%1" instead?
+
+<--XFL0181-->: The current drive is not supported by the trash can. Do you wish to permanently delete the %1 selected objects instead?
+
+<--XFL0182-->: Are you sure you want to move "%1" to the trash can?
+
+<--XFL0183-->: You have selected %1 objects to be moved to the trash can. Are you sure you want to do this?
+
+<--XFL0184-->: "%1" is a read-only file. Do you want to permanently delete it anyway?
+
+<--XFL0185-->: "%1" cannot be deleted.
+
+<--XFL0186-->: Do you wish to cancel the file operation in progress? Press "Retry" to continue, press "Cancel" to abort.
+
+;
+; the following items are new with V0.9.4
+;
+
+<--XFL0188-->: You have just restored a WPS archive. &xwp;'s automatic archiving has been disabled in order to prevent archive overwrites. You can turn archiving back on in the Desktop's settings notebook.
+
+<--XFL0189-->: Emptying the trash can failed. Do you wish to continue shutdown?
+
+;
+; the following items are new with V0.9.5
+;
+
+<--XFL0190-->: Before using &xsd; the first time, please fine-tune &xsd; on the new "&xsd;" page in the Desktop's settings notebook.
+
+Warning: Even though &xsd; has been tested, it MIGHT NOT WORK on your system. Before shutting down the first time using &xsd;, make sure you have a working WPS backup. Don't say you haven't been warned!
+
+;
+; the following items are new with V0.9.6
+;
+
+<--XFL0191-->: &xwp; Setup String
+
+<--XFL0192-->: This will invoke the setup string "%1" on the object "%2". Are you sure you want to do this?
+
+<--XFL0193-->: This will invoke the setup string "%1" on the following objects:
+
+%2
+
+Are you sure you want to do this?
+
+;
+; the following items are new with V0.9.7
+;
+
+<--XFL0194-->: &xcenter;: Error
+
+<--XFL0195-->: The &xcenter; failed to create the widget of the class "%1".
+
+Check if maybe the xwplog.log file in the root directory of your boot drive contains additional information.
+
+Do you wish to remove this widget from the &xcenter;'s widget list?
+
+<--XFL0196-->: Error creating file type "%1". Maybe the file type already exists.
+
+<--XFL0197-->: &xcenter;
+
+<--XFL0198-->: Are you sure you want to switch your system to "Suspend" state?
+
+<--XFL0199-->: Whew... apparently all went well. To get you started: Everything you need to enable &xwp; features is in the "&xwp; Setup" object in the installation folder that just opened.
+
+The other shadows in that folder mostly point to the original objects that were created in your "System setup" folder.
+
+The "&xwp; User Guide" contains all the information you will need... and if it doesn't, it has contact addresses for support.
+
+Have fun with &xwp;!
+
+; text change V1.0.1
+
+<--XFL0200-->: Error %1 occurred processing the font file "%2".
+
+Do you wish to ignore this error and continue installing fonts?
+
+<--XFL0201-->: The font file "%1" is already installed.
+
+Do you wish to ignore this error and continue installing fonts?
+
+<--XFL0202-->: Are you sure you want to uninstall the font "%1"?
+
+<--XFL0203-->: You have selected %1 fonts to be uninstalled. Are you sure you want to do this?
+
+<--XFL0204-->: The font "%1" could not be unloaded at this point. An application might still be using it. However, after the next reboot it should be gone.
+
+Do you wish to ignore this error and continue removing fonts?
+
+<--XFL0205-->: The handle section in OS2SYS.INI has been rewritten. &xwp; will restart the WPS now.
+
+<--XFL0206-->: Hmmmm. &xwp; was unable to start "%1".
+
+<--XFL0207-->: You must restart the Workplace Shell for this change to take effect.
+
+;
+; the following items are new with V0.9.9
+;
+
+; 208 removed with V1.0.1 (2002-12-15) [umoeller]
+;<--XFL0208-->: &xwp;'s extended file associations are now enabled.
+;
+;Note: If you have not configured the &xwp; file types yet, all your present WPS associations are currently disabled. Go to the "Workplace Shell" object, where you will find a new "File types" page, to set up file types for your existing associations.
+;
+;You can always disable the extended file associations again to get the old WPS mechanism back.
+
+<--XFL0209-->: The file type %1 was not found in the OS2.INI file.
+
+<--XFL0210-->: The file type %1 already exists and cannot be used for renaming.
+
+<--XFL0211-->: &xwp; will now create the standard installation objects for you.
+
+This will add a number of objects to your "System setup" folder for detailed configuration of &xwp; and the WPS.
+
+In addition, this will produce an "&xwp; installation" folder on your desktop with a standard configuration folder for your folder context menus.
+
+If you do not wish to have this done, press "Cancel" now. You should only do this though if you are sure that you do not want the objects to be created; this will prevent you from being able to configure &xwp;, if the objects do not exist yet.
+
+Otherwise, press "OK" to continue.
+
+<--XFL0212-->: You must restart the WPS for the &xwp; auto-refresh threads to become active.
+
+WARNING: This feature is still slightly unstable. It will probably not hang your system, but you might get crashes in the auto-refresh background threads. Use at your own risk.
+
+;
+; the following items are new with V0.9.12
+;
+
+<--XFL0213-->: The file types were successfully exported to the file "%1".
+
+<--XFL0214-->: Error %2 occurred exporting the file types to the file "%1".
+
+<--XFL0215-->: File types were successfully imported from the file "%1".
+
+<--XFL0216-->: An error occurred importing file types from the file "%1":
+%2
+
+<--XFL0217-->: The file "%1" exists already. Do you wish to overwrite it with the new data?
+
+<--XFL0218-->: The master audio volume is not working correctly. The control will be closed.
+
+;
+; the following items are new with V0.9.13
+;
+
+<--XFL0219-->: Error code %1 was reported by the system. Unfortunately, no error message was found for this code.
+<--XFL0220-->: Delete tray
+<--XFL0221-->: Are you sure you wish to delete the tray named "%1"?
+
+;
+; the following items are new with V0.9.14
+;
+
+<--XFL0222-->: The &xcenter; failed to create the widget of the class "%1".
+
+This widget class cannot be used in a tray.
+
+Do you wish to remove this widget from the &xcenter;'s widget list?
+
+;
+; the following items changed with V0.9.16
+;
+
+<--XFL0134-->: The help panel with the ID "%1" was not found in "%2". No help is available.
+
+<--XFL0187-->: The object title you have entered is invalid. Since every object must have a valid title, the old name has been restored.
+
+;
+; the following items are new with V0.9.16
+;
+;
+; 223 changed with V1.0.1 (2002-12-15) [umoeller]
+;
+<--XFL0223-->: The "Turbo folders" feature has been enabled. For safety reasons, this setting will not take effect until you restart the Desktop.
+
+Note: If you have not configured the &xwp; file types yet, all your present WPS associations are currently disabled. Go to the "Workplace Shell" object, where you will find a new "File types" page, to set up file types for your existing associations.
+
+You can always disable turbo folders again to get the old WPS mechanism back.
+
+<--XFL0224-->: The "Turbo folders" feature has been disabled. For safety reasons, this setting will not take effect until you restart the Desktop.
+<--XFL0225-->: The selected objects cannot be deleted because the &xwp; trash can does not exist. Do you wish to recreate the trash can object on the Desktop?
+
+<--XFL0226-->: "%1" is a folder. Are you sure you want to permanently delete it, including all of its contents?
+
+<--XFL0227-->: Cannot start program
+<--XFL0228-->: An error occurred starting the program "%1". The operating system returned the following error message:
+<--XFL0229-->: Do you wish to open the properties notebook of the program object?
+
+;
+; the following items are new with V0.9.17
+;
+
+<--XFL0230-->: Desktop error
+<--XFL0231-->: &xwp; was trying to check your desktop for integrity.
+While attempting to parse the Workplace Shell file-system handles table from your system profile, error %1 occurred.
+This does not necessarily mean that your desktop is broken, but it appears that your file-system handles table has some problems.
+
+&xwp; can now display the "Panic" dialog for you, where you do can any of the following:
+1) Run xfix, the &xwp; file handles fixer, to take a look at the file-system handles and maybe find out what is wrong.
+2) Disable the "Check desktop on startup" feature so this message will not appear again. This might however lead to a "Cannot find desktop" failure in the future.
+
+Should &xwp; display the "Panic" dialog now? Otherwise we will simply continue startup.
+
+;
+; the following items are new with V0.9.19
+;
+
+<--XFL0232-->: &xwp; was unable to contact the &xwp; daemon, which, among other things, is required for starting programs.
+Do you wish to restart the daemon now?
+
+<--XFL0233-->: &xwp; was unable to find the WPS class "%1". Probably the class is not installed.
+
+<--XFL0234-->: The regular expression you have specified is invalid. The following error occurred:
+
+%1
+
+<--XFL0235-->: The menu item you selected is supposed to pass text data from the clipboard as a parameter. However, the clipboard currently holds no text data.
+
+Do you wish to start the program anyway?
+
+<--XFL0236-->: "%1" is a folder. Are you sure you want to move it into the trash can, including all of its contents?
+
+<--XFL0237-->: A protection violation occurred. The operation cannot continue.
+
+<--XFL0238-->: Rename
+    "%1"
+to
+    "%2"?
+
+<--XFL0239-->: The "replace" expression you have specified is invalid. The following error occurred:
+
+%1
+
+If you are using backreferences (e.g. "\1") in the "replace" string, make sure you specify corresponding brackets in the "find" string.
+
+<--XFL0240-->: No objects were found that matched your find criteria.
+
+<--XFL0241-->: %1 object(s) matched your find criteria. Of these, %2 object(s) were renamed.
+
+;
+; the following items are new with V0.9.20
+;
+
+<--XFL0242-->: Empty Trash Can
+
+<--XFL0243-->: Remove Widget
+
+<--XFL0244-->: Are you sure you want to remove the entire "%1" widget? This operation cannot be undone.
+
+;
+; the following items are new with V1.0.0
+;
+
+<--XFL0245-->: An error occurred while &xwp; was trying to start your system's default browser (%1):
+
+<--XFL0246-->: Check your default browser settings in any URL object.
+
+<--XFL0247-->: &xwp; Class Replacements
+
+<--XFL0248-->: &xwp; has detected a problem with the order of Workplace Shell class replacements on your system.
+
+In the list of replacement classes for %1, the &xwp; replacement class %2 should be first in the list.
+
+&xwp; can now rearrange the class replacements list. The present order is:
+
+%3
+
+This would need to be changed to
+
+%4
+
+Do you wish to have this change performed now?
+
+<--XFL0249-->: &xwp; has fixed the problems in your Workplace Shell class replacements list.
+
+Do you want to restart the Workplace Shell now for the changes to take effect?
+
+<--XFL0250-->: &xwp; has detected a problem with your Workplace Shell class replacements list.
+
+The format of the replacements list for the %1 class is invalid.
+
+Do you wish to have &xwp; fix this problem now?
+
+<!-- V1.0.1: the following changed -->
+<--XFL0251-->: &xwp; has copied a bug report template with system information to your system clipboard.
+
+Open any editor and paste the clipboard into a new document, then save it as a file to some temporary place.
+When you report a bug through the bugtracker, attach this file with the bug report.
+
+Thank you.
+
+<--XFL0252-->: "%1" cannot be deleted. The following error occurred:
+
+%2
+
+<--XFL0253-->: You must specify a valid hotkey.  If the hotkey entry field remains empty when you enter the hotkey sequence, it probably means the sequence cannot be recognized.
+
+("Regular" keys cannot be used as a hotkey.  For example, neither "A" nor "Shift-A" is valid.  But "Ctrl-A" or "Ctrl-Shift-A" is.)
+
+<--XFL0254-->: You must specify a parameter.  Clicking on the drop down arrow lists the available choices.
+
+<--XFL0255-->: This hotkey is already defined.  Would you like to replace its existing definition with this new one?
+
+;
+; the following added with V1.0.1
+;
+
+<--XFL0256-->: &xwp;: Search for class
+
+<--XFL0257-->: Enter the name of the class:
+
+<--XFL0258-->: The file "%1" is not a font file.
+
+Do you wish to ignore this error and continue installing fonts?
+
+<--XFL0259-->: The object "%1" is not a font object.
+
+Do you wish to ignore this error and continue uninstalling fonts?
+
+<--XFL0260-->: The font "%1" has already been uninstalled.
+
+Do you wish to ignore this error and continue uninstalling fonts?
+
+<--XFL0261-->: Operation failed. XWorkplace Security reported the following error:
+
+%1
+
+<--XFL0262-->: Remove User Account
+
+<--XFL0263-->: You have selected to remove the account for user ID %1 ("%2"). Are you sure you want to do this?
+
+

@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Objekt-Handle der Datendatei an Umgebung weiterreichen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Die Option <B>"Objekt-Handle der Datendatei an Umgebung weiterreichen"</B> bestimmt,
+wie &xwp; die Variable <CODE>WP_OBJHANDLE</CODE> in der Umgebung eines
+Programms setzt, das ber eine Datendateiverknpfung gestartet wurde. Durch
+Deaktivierung dieser Einstellung l„át sich die Anzahl der
+<A HREF="glossary/gls_objhandle.html">Objekt-Handles</A> des Dateisystems, die
+auf dem System angelegt werden, reduzieren.
+ 
+<UL><LI>Wenn die Einstellung <B>markiert</B> ist, wird beim Start eines Programms
+ber eine Datendateiverknpfung auch das
+<A HREF="glossary/gls_objhandle.html">Objekt-Handle</A> der Datendatei an die
+Umgebung bergeben. <CODE>WP_OBJHANDLE</CODE> wird dann folgendermaáen gesetzt:
+ 
+<P><CODE>WP_OBJHANDLE=<I>program</I>,<I>datafile</I></CODE>
+ 
+<P>Wobei <CODE><I>program</I></CODE> das Objekt-Handle des Programmobjekts
+oder der Programmdatei ist, die gestartet wurde, und <CODE><I>datafile</I></CODE> das
+Objekt-Handle der Datendatei ist, deren Verknpfung Grund fr den Start des Programms
+gewesen ist.
+ 
+<P>Dies ist das Standardverhalten der Workplace Shell.
+ 
+<P><LI>Ist die Einstellung <B>nicht markiert</B>, so wird <CODE>WP_OBJHANDLE</CODE>
+folgendermaáen gesetzt:
+ 
+<P><CODE>WP_OBJHANDLE=<I>program</I></CODE>
+ 
+<P>Mit anderen Worten wird das Handle der Datendatei <I>nicht</I> weitergegeben.
+ 
+</UL>Diese Einstellungm”glichkeit wurde implementiert, weil jedesmal, wenn eine
+Datendatei gestartet wird, beispielsweise wenn Sie darauf doppelklicken, ein
+Objekt-Handle fr die Datendatei erzeugt werden muá, das dann ewig in der
+<CODE>OS2SYS.INI</CODE>-Datei verbleibt, auch wenn es nie wieder gebraucht wird.
+Mit der Zeit sammeln sich auf diese Weise viele Handles an. Deshalb l„át
+sich diese Einstellung nun ausschalten, und Sie werden bemerken, daá der
+Abschnitt Handles der <CODE>OS2SYS.INI</CODE> nicht mehr so schnell w„chst.
+ 
+<P>Manche Anwendungen k”nnten jedoch auf das Standardverhalten der WPS angewiesen sein.
+Falls Sie die Einstellung ausschalten und eine Anwendung nicht mehr funktionieren sollte,
+werden Sie die Einstellung aktiviert lassen mssen.
+ 
+<P>Eine nderung der Einstellung wirkt sich sofort aus.
+ 
+<BR>
+</BODY>
+</HTML>
+ 

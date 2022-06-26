@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Date/Time
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in 0962set_file.html -->
+<!-- V0.9.19: title changed -->
+<BODY>
+The <B>"Date/time"</B> group displays file date information. For each
+file, &os2; maintains three different pieces of information:
+
+<OL><LI>The <B>creation date</B> shows the date/time when the file
+was created. After that, this date will never be changed (unless the
+file is completely rewritten by an application).
+<P>Note that the
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_fs.html">FAT</A>
+file system has no way of storing this information,
+so this field has no meaning there.
+
+<P><LI>The <B>last write</B> field shows the last time when the
+file has been written to. This will be equal to or newer than the creation
+date/time.
+
+<P><LI>The <B>last access</B> field shows the last time when the file
+was read from. This will be identical to or newer than the "last write"
+field.
+<P>Note that the
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_fs.html">FAT</A>
+file system has no way of storing this information,
+so this field has no meaning there.
+</OL>
+</BODY>
+</HTML>
+

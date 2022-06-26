@@ -1,0 +1,112 @@
+<HTML RESID=&ID_XSH_DRIVER_S506;>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: IBM1S506.ADD / DANIS506.ADD
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.3 -->
+<BODY>
+Deze dialoog wordt gebruikt voor het configureren van twee IDE schijf stuurprogramma's:
+
+<OL><LI><CODE>IBM1S506.ADD</CODE> is het IBM stuurprogramma dat geleverd is bij &os2;.
+IBM heeft dit stuurprogramma aardig wat keren bijgewerkt. Een nieuwer stuurprogramma is nodig
+voor OS/2 Warp 3 en 4 als u gebruik wilt maken van grotere harde schijven dan 8 GB.
+
+<P>Met dit stuurprogramma zijn veel dialoog onderdelen uitgeschakeld omdat die alleen
+gebruikt kunnen worden met de <CODE>DANIS506.ADD</CODE> (zie onderstaand).
+
+<P><LI><CODE>DANIS506.ADD</CODE> is een vervangend stuurprogramma geschreven door Daniela Engert.
+Het is 99% opdrachtregel compatibel met het IBM stuurprogramma, maar heeft veel uitbreidingen
+toegevoegd. Aangezien de IBM stuurprogramma's bus mastering ondersteuning niet kunnen activeren, is
+het sterk aan te raden om dit geavanceerde stuurprogramma te gebruiken, dat de harde schijf
+prestaties sterk kan verbeteren. Ook biedt dit stuurprogramma u de mogelijkheid om uw harde schijf
+controllers veel beter te configureren om problemen op te lossen met uw systeem instellingen.
+
+</OL>Gedetailleerde hulp voor alle instellingen is beschikbaar in de vorm van
+<B>fly-over hulp (hulpmiddel tips)</B>. Verplaats de muisaanwijzer over een dialoog onderdeel en
+wacht dan ongeveer een seconde, en een informatieve tekst zal tevoorschijn komen.
+
+<P>Het is echter noodzakelijk om in het algemeen te begrijpen dat beide stuurprogramma's onderscheidt
+maken in <B>drie type opties:</B>
+
+<OL><LI><B>Globale opties</B> hebben invloed op de algemene werking. Die staan aan de
+linker bovenkant van de dialoog en omvatten instellingen als opstart boodschappen en (met
+<CODE>DANIS506.ADD</CODE>) hoe apparatuur gezocht en er van opgestart wordt.
+
+<P><LI><B>Adapter instellingen</B> hebben alleen invloed op een adapter (controller). Met het
+IDE en EIDE bus systeem is er ‚‚n adapter voor twee harde schijf eenheden. Er zijn meestal twee
+adapters in computers ingebouwd, waardoor het aantal op 4 eenheden komt dat aangesloten kan worden
+op een standaard computer. In de dialoog staan adapter opties aan de linker onderkant.
+
+<P>Met zowel de <CODE>IBM1S506.ADD</CODE> als de <CODE>DANIS506.ADD</CODE> stuurprogramma's,
+dienen de adapter instellingen alleen opgegeven te worden achter de <CODE>/A:x</CODE> optie,
+met <CODE>x</CODE> aangevende welke adapter geconfigureerd moet worden met alle volgende opties
+(ofwel 0 of 1). De dialoog zal de optie automatisch toevoegen als u een adapter parameter
+aanpast ten opzichte van de niet standaard waarde. Alle instellingen in de
+<B>"Adapter (controller) instellingen"</B> groep hebben daarom alleen invloed op de adapter
+die momenteel geselecteerd is in de <B>"Huidige adapter"</B> groep.
+
+<P>Elke adapter heeft een aantal systeem bronnen nodig, zoals een interrupt (IRQ), een
+Direct Memory Access (DMA) kanaal,
+en poort adressen (basis adres) voor gegevensuitwisseling tussen de adapter en de computer.
+Als deze opties niet ingevuld zijn zal het stuurprogramma standaard waarden gebruiken die
+op de meeste systemen werken.
+
+<P>Zie de opmerkingen verderop voor details over bus mastering (DMA) ondersteuning.
+
+<P><LI><B>Eenheid instellingen</B> hebben alleen invloed op een eenheid (harde schijf). Elke
+adapter kan twee eenheden hebben, welke normaliter "Master" en "Slave" genoemd worden. In de
+dialoog staan eenheid opties rechts in het midden.
+
+<P>Met zowel het <CODE>IBM1S506.ADD</CODE> als het <CODE>DANIS506.ADD</CODE> stuurprogramma dienen
+eenheid instellingen alleen achter eerst een <CODE>/A:x</CODE> optie (wat de adapter aangeeft) en een
+<CODE>/U:x</CODE> optie (wat de eenheid binnen die adapter aangeeft) opgegeven te worden, met
+elke keer <CODE>x</CODE> zijnde 0 of 1.
+De dialoog zal deze opties automatisch toevoegen als u een eenheid parameter aanpast ten opzichte van
+de niet standaard waarde. Alle instellingen in de <B>"Eenheid (schijf) instellingen"</B> groep
+hebben daarom alleen invloed op de eenheid die momenteel geselecteerd is in
+de <B>"Huidige eenheid"</B> groep.
+
+</OL><B>Bus mastering, Direct Memory Access (DMA).</B> Moderne apparatuur staat de
+EIDE controllers toe om direct gegevens te lezen en te schrijven vanuit het hoofd geheugen
+zonder enige hulp van de hoofd processor. Dit vergroot de schijf prestaties enorm, want terwijl
+de gegevens uitgewisseld worden met de schijf, kan de processor iets anders doen.
+
+<P>Terwijl de oudere Geprogrammeerde I/O (PIO) modi 3 en 4 nog steeds controle vanuit de
+hoofd processor nodig hebben, introduceerde de EIDE standaard verschillende multiwoord DMA modi.
+In deze modi neemt de schijf de bus controle over (bus mastering) en plaatst gegevens direct
+in het hoofd geheugen (DMA). De standaard <CODE>IBM1S506.ADD</CODE> faalt in het
+herkennen van veel chipsets en kan daardoor bus mastering op veel systemen niet activeren.
+<CODE>DANIS506.ADD</CODE> werkt veel beter in dit opzicht en biedt u ook nog de mogelijkheid
+om het herkenningsproces fijn af te stemmen.
+
+<P><B>Ultra-DMA</B> is nog weer een andere uitbreiding op het originele DMA protocol.
+Voorheen vonden gegevens transporten alleen plaats op de opgaande lijn van het strobe signaal.
+Ultra DMA past het protocol aan zodat het ook mogelijk is om gegevens te versturen op de neergaande
+lijn van het strobe signaal, daarmee de gegevenstransportsnelheid verdubbelend.
+Ook is er, als gevolg van een toegenomen risico van gegevensbeschadigingen, fout detectie toegevoegd.
+Met als gevolg dat Ultra-DMA zowel sneller als veiliger is dan de normale DMA of gewone PIO.
+
+<P>DMA met harde schijven kan echter problemen veroorzaken met andere apparatuur. Dit kan komen door
+oudere controller apparatuur die hier helemaal niet mee om kan gaan, of slechte kabels die teveel
+ruis op de bus genereren waardoor gegevens beschadigd raken op hogere snelheden.
+Ook kunnen veel oudere schijven niet goed omgaan met DMA of alleen op lagere snelheden.
+Om deze redenen kan bus mastering totaal uitgeschakeld worden of (met <CODE>DANIS506.ADD</CODE>)
+beperkt worden tot een lagere snelheid.
+
+<P>De <B>adapter <CODE>/BM</CODE></B> instelling activeert of deactiveert bus mastering voor een
+gehele adapter (dat wil zeggen, voor beide eenheden die verbonden zijn aan die adapter). Deze
+optie is altijd al beschikbaar geweest in alle versies van <CODE>IBM1S506.ADD</CODE> en wordt
+ook ondersteund door <CODE>DANIS506.ADD</CODE>.
+
+<P>De <B>eenheid <CODE>/BM</CODE></B> instelling activeert of deactiveert bus mastering alleen voor
+een eenheid. Deze optie is alleen beschikbaar in nieuwere versies van <CODE>IBM1S506.ADD</CODE>
+en wordt ook ondersteund door <CODE>DANIS506.ADD</CODE>.
+
+<P>Met <CODE>DANIS506.ADD</CODE> kunt u ook de gegevenssnelheid beperken voor een bepaalde
+eenheid door het opgeven van het te gebruiken protocol.
+
+<BR>
+</BODY>
+</HTML>
+

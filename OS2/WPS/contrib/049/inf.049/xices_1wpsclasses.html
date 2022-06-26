@@ -1,0 +1,98 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        WPS-Klassenhierarchie
+    </TITLE>
+</HEAD>
+<BODY>
+Die folgenden Informationen sind der Dokumentation von IBMs Warp 3 Toolkit entnommen.
+<!-- V0.9.0: changed the following phrase -->
+Die &xwp;-Klassen wurden hier ausgelassen.
+&warp4; fgt ein paar weitere Klassen hinzu, die hier teilweise aufgefhrt sind.
+Je nachdem, welche die WPS-nutzende Software Sie auf Ihrem System installiert haben,
+k”nnen weitere Klassen fr bestimmte Dokumenttypen verfgbar sein.
+<P>Klassen, von denen sinnvoll Objekte erzeugt werden k”nnen, sind hier hervorgehoben.
+Seien Sie mit anderen Klassen vorsichtig, es k”nnten unvorhersehbare Auswirkungen
+auftreten.
+<PRE>
+       WPObject
+         ÃÄÄ WPAbstract
+         ³     ÃÄÄ WPClock
+         ³     ÃÄÄ WPCountry
+         ³     ÃÄÄ WPDisk
+         ³     ÃÄÄ WPKeyboard
+         ³     ÃÄÄ <STRONG>WPLaunchPad</STRONG>
+         ³     ÃÄÄ WPMouse
+         ³     ÃÄÄ WPPalette
+         ³     ³     ÃÄÄ WPColorPalette
+         ³     ³     ÃÄÄ WPFontPalette
+         ³     ³     ÀÄÄ WPSchemePalette
+         ³     ÃÄÄ WPPower
+         ³     ÃÄÄ WPPrinter
+         ³     ³      ÀÄÄ WPRPrinter
+         ³     ÃÄÄ <STRONG>WPProgram</STRONG>
+         ³     ÃÄÄ WPShadow
+         ³     ³      ÀÄÄ WPNetLink
+         ³     ÃÄÄ WPShredder
+         ³     ÃÄÄ WPSound
+         ³     ÃÄÄ WPSpecialNeeds
+         ³     ÃÄÄ WPSpool
+         ³     ÃÄÄ WPSystem
+         ³     ÀÄÄ WPWinConfig
+         ÃÄÄ WPFileSystem
+         ³     ÃÄÄ <STRONG>WPDataFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPBitmap</STRONG>            3)
+         ³     ³      ÃÄÄ <STRONG>WPHtml</STRONG>              2)
+         ³     ³      ÃÄÄ <STRONG>WPIcon</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPMet</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPif</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPPointer</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPProgramFile</STRONG>
+         ³     ³      ³      ÀÄÄ <STRONG>WPCommandFile</STRONG>
+         ³     ³      ÃÄÄ <STRONG>WPUrl</STRONG>               2)
+         ³     ³      ÀÄÄ <STRONG>WebExplorer_Url</STRONG>    1)
+         ³     ÀÄÄ <STRONG>WPFolder</STRONG>
+         ³            ÃÄÄ WPDesktop
+         ³            ÃÄÄ WPDrives
+         ³            ÃÄÄ WPHost               2)
+         ³            ÃÄÄ WPHvManager          2)
+         ³            ÃÄÄ WPMinWinViewer
+         ³            ÃÄÄ WPNetgrp
+         ³            ÃÄÄ WPNetwork
+         ³            ÃÄÄ WPRootFolder
+         ³            ÃÄÄ WPServer
+         ³            ÃÄÄ WPSharedDir
+         ³            ÃÄÄ WPStartup
+         ³            ÃÄÄ WPUrlFolder          2)
+         ³            ÀÄÄ WPTemplates
+         ÀÄÄ WPTransient
+               ÃÄÄ WPDevice                    2)
+               ³     ÃÄÄ WPDevAudio            2)
+               ³     ÃÄÄ WPDevBus              2)
+               ³     ÃÄÄ WPDevCDRom            2)
+               ³     ÃÄÄ WPDevCPU              2)
+               ³     ÃÄÄ WPDevDiskette         2)
+               ³     ÃÄÄ WPDevDisplay          2)
+               ³     ÃÄÄ WPDevHarddrive        2)
+               ³     ÃÄÄ WPDevKeyboard         2)
+               ³     ÃÄÄ WPDevMemory           2)
+               ³     ÃÄÄ WPDevMouse            2)
+               ³     ÃÄÄ WPDevParallel         2)
+               ³     ÃÄÄ WPDevPeriph           2)
+               ³     ÃÄÄ WPDevSerial           2)
+               ³     ÃÄÄ WPDevTape             2)
+               ³     ÀÄÄ WPDevTimer            2)
+               ÃÄÄ WPJob
+               ÃÄÄ WPPdr
+               ÃÄÄ WPPort
+               ÀÄÄ WPQdr
+</PRE>
+<STRONG>Hinweise:</STRONG>
+<P>1) Dies ist keine Standard-WPS-Klasse und muá nicht auf jedem Warp-3-System verfgbar sein.
+<P>2) Diese Klasse ist nur unter &warp4; und sp„ter verfgbar.
+<P>3) Unter &warp4; und sp„ter ist WPBitmap eine Unterklasse von WPImageFile, die wiederum selbst
+eine Unterklasse von WPDataFile ist.
+<BR>
+</BODY>
+</HTML>
+ 

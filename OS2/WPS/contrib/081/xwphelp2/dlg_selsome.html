@@ -1,0 +1,56 @@
+<HTML RESID=&ID_XFH_SELECTSOME;>
+<HEAD>
+    <TITLE>
+        Select by name
+    </TITLE>
+</HEAD>
+<BODY>
+The "Select by name" menu item lets you select only some of the objects in a currently
+open
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">folder</A>
+view.
+
+<!-- V0.9.19: removed this while &os2; per default only knows menu items for selecting all or none
+of the objects in a folder. -->
+
+<P>Selecting objects is then done in a new dialog window, where you may enter a file
+specification and then press "Select" or "Deselect".
+
+<!-- V0.9.19: rewrote the following -->
+<P>How the entry field's contents are interpreted depends on the state of the
+<B>"Regular expression" checkbox.</B>
+
+<UL><LI>If the box is not checked, the entry field expects a file specification similar
+to those on an &os2; command line, i.e. you may use the <CITE>*</CITE> and <CITE>?</CITE>
+<A HREF="glossary/gls_wildcards.html">wildcards</A> to select several
+files. For example, if you enter <CITE>*.txt</CITE> here, all files ending in <CODE>.txt</CODE>
+will be selected after pressing <B>"Select";</B>
+reversely, you may deselect only some files
+by entering a specification and then pressing <B>"Deselect".</B>
+
+<P><LI>By contrast, if "Regular expressions" is checked, the entry field is assumed to
+contain an <A HREF="glossary/gls_regexps.html">extended regular expression</A>,
+which is evalued when you press "Select" or "Deselect".
+This might be useful for complex criteria. Note however that wildcard specifications
+like <CODE>*.txt</CODE> will then provoke an error box because both the <CODE>*</CODE>
+and the dot characters will be interpreted differently. As a regular expression, the
+previous example would have to be specified as <CODE>.*\.txt</CODE>.
+
+</UL>
+
+<!-- end V0.9.19 -->
+Even though we use the term "file" specification here, the match string also work on
+abstract objects, such as program or shadow objects.
+
+<P>The <B>"Select all"</B> and <B>"Deselect all"</B>
+select or deselect all items in the folder, regardless of the current search string.
+
+<P>The dialog window only closes when you press <B>"Close"</B> or the <B>"Esc"</B> key.
+It does not
+close after you press any of the other buttons. This allows you to select several groups
+of files.
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,138 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Workplace Shell Klasser
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13
+    Changes:
+    V0.9.20: title changed
+-->
+<BODY>
+&os2;'s Workplace Shell (WPS) beskrivs v„ldigt ofta som
+<B>"objekt-orienterat".</B> Den termen p†st†r att -- till skillnad fr†n
+anv„ndarinterfacen hos andra operativsystem -- „r allting Workplace Shell g”r
+f”rst betraktat som ett <B>"objekt":</B> det g„ller, till exempel, f”r
+<!-- V0.9.19: link added -->
+&link_folders;,
+<!-- V0.9.19: link added -->
+&link_datafiles;,
+skrivare, enhetsobjekt etc. Alla dessa objekt har vissa gemensamma karakt„ristika
+(som en
+<!-- V0.9.19: links added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A> och en
+<A HREF="glossary/gls_notebook.html">notbok med egenskaper</A>), men skiljer sig i
+vissa andra: till exempel, vad du ser i en &popmenu; beror p† det valda objektet.
+
+<P>F”r att b„ttre kunna hantera dessa gemensamma och olika karakt„ristika, anv„nder
+WPS <B>"klasser".</B> Den termen kommer fr†n objekt-orienterad programmering; en klass „r,
+s†-att-s„ga, ett abstrakt koncept, eller mall, f”r ett objekt. En klass „r d„rf”r inte
+synlig p† Skrivbordet, f”ljaktligen "existerar" den inte p† samma s„tt som objekt g”r, men
+den inneh†ller all information om egenskaper och m”jligheter hos ett objekt och den
+exekverbara koden f”r att f† ett objekt att utr„tta n†got.
+
+<P>Alla WPS klasser finns i
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_dll.html">dynamic link libraries (DLL'er)</A>. Till exempel,
+de flesta standard WPS klasserna finns i den stora <CODE>PMWP.DLL</CODE> filen i
+<CODE>\OS2\DLL</CODE> katalogen. Alla &xwp; klasser finns i <CODE>XFLDR.DLL</CODE> i
+&xwp;'s installationskatalog.
+
+<P>Nu „r varje objekt p† Skrivbordet en s†-kallad <B>"instans"</B> av n†gon klass.
+Namnen p† de flesta WPS klasser b”rjar med "WP": till exempel, en skrivare „r en instans
+av "WPPrinter" klassen, en mapp „r en av klassen "WPFolder", en datafil av "WPDataFile"
+och s† vidare.
+
+<P>Orsaken till kraften och flexibiliteten hos klasskonceptet „r att de olika klasserna
+kan vara <B>nedstigande</B> fr†n varandra. En s†dan avkomlingsklass kommer att
+<B>„rva</B> alla egenskaper och m”jligheter fr†n sin f”r„ldraklass. Det „r d„rmed m”jligt
+att g”ra vissa funktioner hos anv„ndarinterfacet mera abstrakt, i enlighet med den gamla
+principen: det b„sta s„ttet att hantera komplexitet „r abstraktion.
+
+<P>WPS inneh†ller m†nga klasser, vilken utg”r en v„ldigt t„nkv„rd hierarki ”ver arv.
+F”ljande utdrag fr†n WPS klasslista kanske kan g”ra den allm„nna strukturen mera
+”versk†dlig (d„r linjerna representerar f”r„ldraskap):
+
+<PRE>
+ WPObject
+   ÃÄÄ WPAbstract
+   ³     ÃÄÄ WPPrinter
+   ³     ÃÄÄ WPProgram
+   ³     ÀÄÄ WPShadow
+   ÃÄÄ WPFileSystem
+   ³     ÃÄÄ WPDataFile
+   ³     ³      ÃÄÄ WPIcon
+   ³     ³      ÀÄÄ WPProgramFile
+   ³     ÀÄÄ WPFolder
+   ³            ÃÄÄ WPDesktop
+   ³            ÀÄÄ WPStartup
+   ÀÄÄ WPTransient
+</PRE>
+
+Du kan se att alla klasser „r arvingar till <CODE>WPObject</CODE>,
+vilken d„rf”r kallas "rotklassen" f”r alla WPS klasser. Denna implementerar alla
+de funktioner som „r vanliga i Skrivbordsobjekt: som n„mnts tidigare, t.ex. &popmenu;er
+och notb”cker med egenskaper. D„remot, „r WPObject klassen alldeles f”r abstrakt f”r att
+f”rekomma som instanser: den h„r klassen implementerades endast f”r att ha andra
+„rvande klasser. Objekt av den h„r klassen skulle inte fungera.
+
+<P>WPObject har endast tre arvingeklasser. Alla dessa klasser „r -- som WPObject --
+endast avsedda att vara abstrakta f”r„ldraklasser, av vilka inga objekt skulle existera
+direkt.
+
+<OL><LI><CODE>WPAbstract</CODE> „r en allm„n f”r„ldraklass f”r s†-kallade "abstrakta"
+objekt, m.a.o. de objekt som inte existerar fysiskt p† disk, utan endast lagrar sina data
+i <CODE>OS2.INI</CODE>. De mest v„lk„nda exemplen f”r detta „r klasserna <CODE>WPPrinter</CODE>
+f”r skrivarobjekt, <CODE>WPProgram</CODE> f”r programobjekt, och <CODE>WPShadow</CODE> f”r
+skuggor. Alla dessa objekt kan f”rekomma i mappar, men „r inte synliga om du skriver
+<CODE>DIR</CODE> vid en kommandoprompt, till exempel.
+
+<P><LI>Som kontrast, <CODE>WPFileSystem</CODE> „r en allm„n superklass f”r objekt
+vilka existerar fysiskt i ett filsystem p† en enhet. Det finns tv† subtyper:
+mappar (<CODE>WPFolder</CODE> klass) och datafiler (<CODE>WPDataFile</CODE>).
+I sin tur, finns det †tskilliga subklasser av WPDataFile, som <CODE>WPIcon</CODE> f”r
+ikonfiler och <CODE>WPProgramFile</CODE> f”r programfiler (exekverbara, vanligtvis med
+<CODE>.EXE</CODE> „ndelsen). Alla datafiler f”r vilka det inte existerar n†gra fler
+specifika subklasser „r instanser av <CODE>WPDataFile</CODE>.
+
+<P><LI>Slutligen, <CODE>WPTransient</CODE> anv„nds av WPS f”r objekt vilka inte
+beh”ver spara sina data alls, utan existerar endast tempor„rt f”r att representera
+n†got. Exempel p† det „r utskriftsjobb i ett skrivarobjekt och alla devicer i
+<!-- V0.9.19: removed warp 4 here -->
+H†rdvaruhanteraren.
+
+</OL>WPS erbjuder ocks† en undantagsmekanism kallad <B>klassutbyten.</B> Den h„r
+funktionen anv„nds omfattande av &xwp; f”r att l„gga in alla sina funktioner i WPS
+genom att byta ut ett antal standard WPS klasser. Till exempel, <CODE>XFolder</CODE>
+klassen sj„lv byter ut <CODE>WPFolder</CODE> klassen f”r att implementera alla nya
+mappfunktioner.
+
+<P>En s†dan utbytesklass m†ste alltid vara arvinge till den klass som den skall
+byta ut; "utbyte" av klassen betyder d† att WPS alltid kommer att anv„nda utbytesklassen
+n„r originalklassen normalt skulle ha anv„nds. Som ett resultat, om &xwp; „r installerad,
+blir alla mappar p† ditt system inte l„ngre instanser av <CODE>WPFolder</CODE>, utan
+av <CODE>XFolder</CODE>. Men eftersom <CODE>XFolder</CODE> „r en arvinge hos
+<CODE>WPFolder</CODE>, „rvs standardmapparnas karakt„ristik och existerar fortfarande
+p† ditt system.
+
+<P>Genom att anv„nda klassutbyten kan programmerare implementera nya funktioner f”r en
+klass utan att i detalj beh”va k„nna till hur en klass fungerar internt. Detta „r ett
+enast†ende och kraftfullt koncept, vilket „r o”vertr„ffat av andra operativsystem.
+
+<IFNDEF __NOWPSCLASSLIST__>
+<P>Om du ”ppnar &xwp;'s
+<A HREF="clst_main.html">"WPS Klasslista"</A> objektet, kommer alla de installerade
+klasserna p† ditt system att visas. Regelm„ssigt, kommer detta att vara mer „n 100 klasser,
+vilka kommer att upptr„da i en tr„dstruktur. Genom att anv„nda &popmenu;er, kan du registrera
+och byta ut klasser h„r och „ven avregistrera klasser och †ngra klassutbyten. Dessutom,
+kan du f”rs”ka skapa ett objekt (vilket betyder: en instans) av m†nga klasser p†
+ditt Skrivbord.
+
+<P>Var v„nlig och notera att du m†ste vara mycket f”rsiktig n„r du manipulerar WPS
+klasslista. Genom att utf”ra en felaktig „ndring, kan du g”ra ditt system oanv„ndbart!
+</IFNDEF>
+
+<BR>
+</BODY>
+</HTML>
+

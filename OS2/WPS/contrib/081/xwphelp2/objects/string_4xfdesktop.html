@@ -1,0 +1,193 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPDesktop Setup Strings
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.7 -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<!-- V0.9.20: title changed; replace all XFldDesktop with WPDesktop;
+    added "&xwp; only" after each old entry -->
+<BODY>
+<!-- V0.9.20: replaced this first paragraph -->
+<CODE>WPDesktop</CODE> implements the &os2; Desktop.
+Since the Desktop is just a special folder, in addition to the
+strings listed below, the Desktop also supports the strings of the
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+and <CODE><A HREF="objects/string_2wpfolder.html">WPFolder</A></CODE>
+classes.
+
+<P>To get the currently open Desktop, invoke these strings on the object
+with the ID <CODE>&lt;WP_DESKTOP&gt;</CODE>.
+
+<DL>
+
+<!-- V0.9.20: added AUTOLOCKUP -->
+<DT><P><CITE><B>AUTOLOCKUP</B>={YES|NO}</CITE>
+<DD>Determines whether the auto-lockup feature is enabled
+(whether the keyboard and mouse will automatically lock up after
+a period of inactivity -- see <CODE>LOCKUPTIMEOUT</CODE>).
+The default is <CODE>NO</CODE>.
+
+<!-- V0.9.20: added LOCKUPAUTODIM -->
+<DT><P><CITE><B>LOCKUPAUTODIM</B>={YES|NO}</CITE>
+<DD>Determines whether the auto-dim feature is enabled
+(whether the screen blanks out and a floating lock icon is displayed
+two minutes after the keyboard and mouse have been locked).
+The default is <CODE>YES</CODE>.
+
+<!-- V0.9.20: added LOCKUPBACKGROUND -->
+<DT><P><CODE><B>LOCKUPBACKGROUND</B>=<I>name</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>Sets the lockup background. The format is the same as with the
+<A HREF="objects/string_2wpfolder.html">WPFolder</A> <CODE>BACKGROUND</CODE> string.
+
+<!-- V0.9.20: added LOCKUPFULLSCREEN -->
+<DT><P><CITE><B>LOCKUPFULLSCREEN</B>={YES|NO}</CITE>
+<DD>Determines whether lockup will use the full screen.
+If <CODE>YES</CODE>, the lockup background specified by <CODE>LOCKUPBACKGROUND</CODE>
+is displayed when the system is locked up. If <CODE>NO</CODE>, only a message
+box is to be displayed prompting you to enter your lockup password.
+The default is <CODE>YES</CODE>.
+
+<!-- V0.9.20: added LOCKUPONSTARTUP -->
+<DT><P><CITE><B>LOCKUPONSTARTUP</B>={YES|NO}</CITE>
+<DD>Determines whether the system is automatically locked up after startup
+(or after it has been restarted).
+The default is <CODE>NO</CODE>.
+
+<!-- V0.9.20: added LOCKUPTIMEOUT -->
+<DT><P><CITE><B>LOCKUPTIMEOUT</B>=<I>n</I></CITE>
+<DD>Specifies the number of minutes of keyboard and mouse inactivity after which
+the system will automatically locked up. The setting is ignored if
+<CODE>AUTOLOCKUP</CODE> is not enabled.
+
+<!-- V0.9.20: SHOWHELPPANEL added -->
+<DT><P><CITE><B>SHOWHELPPANEL</B>=[XWP|<I>filename</I>,]<I>panelid</I></CITE> (&xwp; only)
+<DD>Displays any help page ("panel") from any <CODE>.HLP</CODE> file. This can be
+used by applications or REXX scripts to have help displayed, either from
+a system help panel or from a custom help panel that ships with an application.
+
+<P>With &os2;, each help panel in a .HLP file is assigned a unique number, the
+<I><CODE>panelid</CODE></I>.
+As a result, any help panel can be identified by specifying the help filename
+and that ID.
+With <CODE>SHOWHELPPANEL</CODE>, the panel to be displayed can be specified in
+several ways:
+
+<UL><LI><CODE>XWP,<I>panelid</I></CODE> specifies a panel from &xwp;'s own help
+file, XFLDRxxx.HLP. <CODE>XWP</CODE> is a shortcut for the file name so you
+do not have to know the current language code. The help panel ID's used by
+&xwp; can be found in the <CODE>helpids.h</CODE> file in the
+<CODE>toolkit\shared</CODE> directory.
+
+<P><LI>If <CODE><I>panelid</I></CODE> is specified only, it is assumed to specify
+a help panel in &os2;'s <CODE>WPHELP.HLP</CODE> file.
+
+<P><LI>By also specifying <CODE><I>filename</I></CODE>, you can open any help
+file on the system. If the file resides in one of the directories along the
+<CODE>HELP</CODE> <A HREF="glossary/gls_path_sys.html">system path</A>, you
+can omit the <A HREF="glossary/gls_path.html">full path</A> of the file.
+
+</UL>
+
+<!-- V0.9.14: SHOWRUNDLG added -->
+<DT><CITE><B>SHOWRUNDLG</B>=<I>startupdir</I></CITE> (&xwp; only)
+<DD>Shows the &xwp; "Run" dialog, as with the "Run" command from the
+<!-- V0.9.19: added links -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<A HREF="xcenter/xc_xbtn1.html">&xbutton; widget</A>.
+
+<P>If <CITE><I>startupdir</I></CITE> is set to <CITE>DEFAULT</CITE>, the
+dialog's entry field for the startup directory will be initially empty
+(which means that the
+root directory of the boot drive should be used). Any other value will be
+used as the initial value for the startup directory.
+
+<P><B>Note 1:</B> This setup string changes no settings,
+but is a rather a command to be performed immediately.
+
+<P><B>Note 2:</B> If you invoke this setup string programatically (either through
+<CODE>WinSetObjectData</CODE> or <CODE>SysSetObjectData</CODE>),
+that function will not return until the dialog has been dismissed.
+
+<P><B>Example:</B> <CITE>SHOWRUNDLG=F:\OS2</CITE> will show the "Run" dialog
+with the startup directory field set to <CITE>F:\OS2</CITE>.
+<!-- end V0.9.14 -->
+
+<!-- V0.9.20: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<DT><P><CITE><B>XSHUTDOWNNOW</B>=<I>settings</I></CITE> (&xwp; only)
+<DD>Starts &xshutdown; now with the specified <I>settings</I>, which correspond to
+the various settings on the "&xshutdown;" page in the Desktop's properties notebook.
+
+<P><B>Note 1:</B> This setup string changes no settings,
+but is a rather a command to be performed immediately.
+The below <CODE><I>settings</I></CODE> will only affect this one system shutdown.
+
+<P><B>Note 2:</B> If you invoke this setup string programatically (either through
+<CODE>WinSetObjectData</CODE> or <CODE>SysSetObjectData</CODE>) and confirmations
+are enabled, that function will not return until the confirmation dialog has
+been dismissed.
+
+<P><CODE><I>settings</I></CODE> is a comma-separated list of &xshutdown; settings
+or <CODE>DEFAULT</CODE>. You can specify any combination of what's listed below.
+In general, if one of the keywords below is not specified, &xshutdown; will use
+what is specified on the "&xshutdown;" page in the Desktop's properties notebook.
+
+<P>To override the preconfigured behavior after &xshutdown; has completed, use one
+of the following:
+
+<UL><LI><CODE>HALT</CODE> will perform a full shutdown and
+show the "It is now safe..." message and then
+halt the system after shutdown has completed.
+
+<LI><CODE>REBOOT</CODE> will perform a full shutdown and then do a standard reboot.
+
+<LI><CODE>USERREBOOT(<I>cmd</I>)</CODE> will
+perform a full shutdown and then
+attempt to do a user-defined reboot
+with the reboot action <CODE><I>cmd</I></CODE>.
+
+<LI><CODE>POWEROFF</CODE> will
+perform a full shutdown and then
+attempt an APM power-off, if this is supported on
+the system.
+
+<LI><CODE>RESTARTWPS</CODE> will not shut down the system, but only restart the
+WPS.
+
+<LI><CODE>FULLRESTARTWPS</CODE> will not shut down the system, but only restart the
+WPS, but close all open sessions first and reuse the &xwp; startup folder at
+the next Desktop startup.
+
+</UL><BR>To override the preconfigured treatment of VIO windows,
+use either <CODE>AUTOCLOSEVIO</CODE> or <CODE>NOAUTOCLOSEVIO</CODE>.
+
+<P>To override the preconfigured setting for <CODE>XSHUTDWN.LOG</CODE>,
+use either <CODE>LOG</CODE> or <CODE>NOLOG</CODE>.
+
+<P>To override the preconfigured animation settings, use either
+<CODE>ANIMATE</CODE> or <CODE>NOANIMATE</CODE>.
+
+<P>To override the preconfigured confirmation setting, use either
+<CODE>CONFIRM</CODE> or <CODE>NOCONFIRM</CODE>. Note that if confirmations are on
+(either because <CODE>CONFIRM</CODE> was specified or because it was preconfigured
+and not overridden), most of the settings specified with <CODE>XSHUTDOWNNOW</CODE>
+will only cause the confirmation dialog to display different defaults.
+
+<P>If you do not want to override any settings, specify <CODE>DEFAULT</CODE>.
+
+<P>Examples:
+
+<BR><UL><LI><CODE>XSHUTDOWNNOW=DEFAULT</CODE> will start &xshutdown; with the current
+settings.
+
+<P><LI><CODE>XSHUTDOWNNOW=RESTARTWPS,NOCONFIRM,LOG</CODE> will restart the WPS now
+without confirmation, but enable logging this one time.
+
+</UL>
+</IFNDEF>   <!-- V0.9.20 -->
+</DL>
+</BODY>
+</HTML>
+

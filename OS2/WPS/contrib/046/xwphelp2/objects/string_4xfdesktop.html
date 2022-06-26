@@ -1,0 +1,188 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: WPDesktop Setupstr„ngar
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.7 -->
+<!-- V0.9.16: moved this to xwphelp dir from inf.001; changed top HTML tag -->
+<!-- V0.9.20: title changed; replace all XFldDesktop with WPDesktop;
+    added "&xwp; only" after each old entry -->
+<BODY>
+<!-- V0.9.20: replaced this first paragraph -->
+<CODE>WPDesktop</CODE> implementerar &os2;'s Skrivbord.
+Eftersom Skrivbordet endast „r en speciell mapp, med till„gg av str„ngarna nedanf”r,
+st”der Skrivbordet ocks† str„ngar av
+<CODE><A HREF="objects/string_1wpobject.html">WPObject</A></CODE>
+och <CODE><A HREF="objects/string_2wpfolder.html">WPFolder</A></CODE>
+klasserna.
+
+<P>F”r att n† det f”r n„rvarande ”ppna Skrivbordet, anropa dessa str„ngar f”r
+objektet med ID <CODE>&lt;WP_DESKTOP&gt;</CODE>.
+
+<DL>
+
+<!-- V0.9.20: added AUTOLOCKUP -->
+<DT><P><CITE><B>AUTOLOCKUP</B>={YES|NO}</CITE>
+<DD>Best„mmer om auto-l†s funktionen „r aktiverad
+(n„r tangentbordet och musen automatiskt kommer att l†sas
+efter en tid av inaktivitet -- se <CODE>LOCKUPTIMEOUT</CODE>).
+Standard „r <CODE>NO</CODE>.
+
+<!-- V0.9.20: added LOCKUPAUTODIM -->
+<DT><P><CITE><B>LOCKUPAUTODIM</B>={YES|NO}</CITE>
+<DD>Best„mmer om auto-dim funktionen „r aktiverad
+(n„r sk„rmen sl„cks och en flytande l†sikon visas tv† minuter
+efter att tangentbordet och musen har l†sts). 
+Standard „r <CODE>YES</CODE>.
+
+<!-- V0.9.20: added LOCKUPBACKGROUND -->
+<DT><P><CODE><B>LOCKUPBACKGROUND</B>=<I>namn</I>,<I>mode</I>,<I>factor</I>,<I>bgtype</I>,<I>bgcol</I></CODE>
+<DD>St„ller in l†st bakgrund. Formatet „r samma som hos 
+<A HREF="objects/string_2wpfolder.html">WPFolder</A> <CODE>BACKGROUND</CODE> str„ngen.
+
+<!-- V0.9.20: added LOCKUPFULLSCREEN -->
+<DT><P><CITE><B>LOCKUPFULLSCREEN</B>={YES|NO}</CITE>
+<DD>Best„mmer om l†sningen skall anv„nda fullsk„rm. Om 
+<CODE>YES</CODE>, kommer den bakgrund som specificerades f”r l†sning <CODE>LOCKUPBACKGROUND</CODE>
+att visas n„r systemet blir l†st. Om <CODE>NO</CODE>, kommer endast en meddelandebox att visas
+som fr†gar efter ditt l”senord f”r l†sningen. Standard „r <CODE>YES</CODE>.
+
+<!-- V0.9.20: added LOCKUPONSTARTUP -->
+<DT><P><CITE><B>LOCKUPONSTARTUP</B>={YES|NO}</CITE>
+<DD>Best„mmer om systemet kommer att l†sas upp automatiskt efter startup (eller efter
+att det har startas om). Standard „r <CODE>NO</CODE>.
+
+<!-- V0.9.20: added LOCKUPTIMEOUT -->
+<DT><P><CITE><B>LOCKUPTIMEOUT</B>=<I>n</I></CITE>
+<DD>Specificerar antalet minuter av tangentbords- och mus inaktivitet efter vilket 
+systemet automatiskt kommer att l†sas. Inst„llningen ignoreras om <CODE>AUTOLOCKUP</CODE>
+inte „r aktiverat.
+
+<!-- V0.9.20: SHOWHELPPANEL added -->
+<DT><P><CITE><B>SHOWHELPPANEL</B>=[XWP|<I>filnamn</I>,]<I>panelid</I></CITE> (endast &xwp;)
+<DD>Visar en hj„lpsida ("panel") fr†n n†gon <CODE>.HLP</CODE> fil. Den kan anv„ndas 
+av applikationer eller REXX script f”r att f† hj„lp visad, antingen fr†n en system-hj„lppanel 
+eller fr†n en anpassad hj„lppanel som kommer med en applikation.
+
+<P>Med &os2;, „r varje hj„lppanel i en .HLP fil tilldelat ett unikt nummer, 
+<I><CODE>panelid</CODE></I>.
+Som ett resultat, kan n†gon hj„lppanel identifieras genom att specificera hj„lpfilsnamnet
+och det ID't. Med <CODE>SHOWHELPPANEL</CODE>, kan den panel som skall visas bli specificerad
+p† flera s„tt:
+
+<UL><LI><CODE>XWP,<I>panelid</I></CODE> specificerar en panel fr†n &xwp;'s egen hj„lpfil,
+XFLDRxxx.HLP. <CODE>XWP</CODE> „r en genv„g f”r filnamnet s† du beh”ver inte 
+k„nna till den aktuella landskoden. Hj„lppanel ID's anv„nda av &xwp; kan hittas i
+<CODE>helpids.h</CODE> filen i <CODE>toolkit\shared</CODE> katalogen.
+
+<P><LI>Om endast <CODE><I>panelid</I></CODE> „r specificerat, antas det att det specificerats
+en hj„lppanel i &os2;'s <CODE>WPHELP.HLP</CODE> fil.
+
+<P><LI>Genom att ocks† specificera <CODE><I>filnamnet</I></CODE>, kan du ”ppna n†gon hj„lpfil
+p† ditt system. Om filen finns i en av katalogerna i 
+<CODE>HELP</CODE> <A HREF="glossary/gls_path_sys.html">systems”kv„gen</A>, kan du hoppa ”ver
+<A HREF="glossary/gls_path.html">full s”kv„g</A> f”r filen.
+
+</UL>
+
+<!-- V0.9.14: SHOWRUNDLG added -->
+<DT><CITE><B>SHOWRUNDLG</B>=<I>startupkatalog</I></CITE> (endast &xwp;)
+<DD>Visar &xwp; "K”r" dialog, som med "K”r" kommando fr†n
+<!-- V0.9.19: added links -->
+<A HREF="xcenter/xc_main.html">&xcenter;</A>
+<A HREF="xcenter/xc_xbtn1.html">&xbutton; widget</A>.
+
+<P>Om <CITE><I>startupdir</I></CITE> „r satt till <CITE>DEFAULT</CITE>, kommer
+dialogens inmatningsf„lt f”r startupkatalogen initalt att vara tom
+(vilket betyder att rotkatalogen p† bootenheten skall anv„ndas). Vilket som
+helst annat v„rde kommer att anv„ndas som initialt v„rde f”r startupkatalogen.
+
+<P><B>Notera 1:</B> Den h„r setupstr„ngen „ndrar inga inst„llningar, utan
+„r snarare ett kommando som skall utf”ras omedelbart.
+
+<P><B>Notera 2:</B> Om du anropar den setupstr„ngen programatiskt (antingen genom
+<CODE>WinSetObjectData</CODE> eller <CODE>SysSetObjectData</CODE>), kommer funktionen inte
+att returnera f”rr„n dialogen har l„mnats.
+
+<P><B>Exempel:</B> <CITE>SHOWRUNDLG=F:\OS2</CITE> kommer att visa dialogen "K”r" med
+startkatalogf„ltet satt till <CITE>F:\OS2</CITE>.
+<!-- end V0.9.14 -->
+
+<!-- V0.9.20: added ifndef -->
+<IFNDEF __NOXSHUTDOWN__>
+<DT><P><CITE><B>XSHUTDOWNNOW</B>=<I>inst„llningar</I></CITE> (endast &xwp;)
+<DD>Startar &xshutdown; med de specificerade <I>inst„llningarna</I>, vilka korresponderar 
+till de olika inst„llningarna p† "&xshutdown;" sidan i Skrivbordets notbok med egenskaper.
+
+<P><B>Notera 1:</B> Den h„r setupstr„ngen „ndrar inte inst„llningar, utan „r snarare ett
+kommando som skall utf”ras omedelbart. De nedanst†ende <CODE><I>inst„llningarna</I></CODE>
+kommer endast att p†verka den h„r enstaka avst„ngningen.
+
+<P><B>Notera 2:</B> Om du anropar den h„r setupstr„ngen programatiskt (antingen genom
+<CODE>WinSetObjectData</CODE> eller <CODE>SysSetObjectData</CODE>) och bekr„ftelser
+„r aktiverade, kommer funktionen inte att returnera f”rr„n bekr„ftelsedialogen har
+l„mnats.
+
+<P><CODE><I>Inst„llningar</I></CODE> „r en kommaseparerad lista med &xshutdown; 
+inst„llningar eller <CODE>DEFAULT</CODE>. Du kan specificera n†gon kombination av
+vad som listas nedanf”r. I allm„nhet, om ett av nyckelorden nedanf”r inte „r
+specificerat, kommer &xshutdown; att anv„nda vad som „r specificerat p† "&xshutdown;" sidan
+hos Skrivbordets notbok med inst„llningar.
+
+<P>F”r att ”verskrida ett f”rkonfigurerat beteende efter att &xshutdown; har avslutats,
+anv„nd ett av f”ljande:
+
+<UL><LI><CODE>HALT</CODE> kommer att utf”ra en komplett avst„ngning och visa 
+"Nu „r det s„kert..." meddelandet och sedan stoppa systemet efter att avslutningen „r
+klar.
+
+<LI><CODE>REBOOT</CODE> kommer att utf”ra en komplett avst„ngning och sedan g”ra 
+en standard ombootning.
+
+<LI><CODE>USERREBOOT(<I>cmd</I>)</CODE> kommer att utf”ra en komplett avst„ngning
+och sedan f”rs”ka g”ra en anv„ndardefinierad ombootning, med ombootningsaktionen 
+<CODE><I>cmd</I></CODE>.
+
+<LI><CODE>POWEROFF</CODE> kommer att utf”ra en komplett avst„ngning och sedan f”rs”ka
+g”ra en APM kraft-av, om det har st”d av ditt system.
+
+<LI><CODE>RESTARTWPS</CODE> kommer inte att st„nga av systemet, utan endast starta om
+WPS.
+
+<LI><CODE>FULLRESTARTWPS</CODE> kommer inte att st„nga av systemet, utan endast starta om
+WPS, men st„nger alla ”ppna sessioner f”rst och †teranv„nder &xwp; startupmapp vid n„sta
+omstart av Skrivbordet.
+
+</UL><BR>F”r att ”verskrida den f”rkonfigurerade behandlingen av VIO f”nster, anv„nd
+antingen <CODE>AUTOCLOSEVIO</CODE> eller <CODE>NOAUTOCLOSEVIO</CODE>.
+
+<P>F”r att ”verskrida den f”rkonfigurerade inst„llningen f”r <CODE>XSHUTDWN.LOG</CODE>,
+anv„nd antingen <CODE>LOG</CODE> eller <CODE>NOLOG</CODE>.
+
+<P>F”r att ”verskrida den f”rkonfigurerade inst„llningen f”r animeringar, anv„nd
+antingen <CODE>ANIMATE</CODE> eller <CODE>NOANIMATE</CODE>.
+
+<P>F”r att ”verskrida den f”rkonfigurerade inst„llningen f”r bekr„ftelser, anv„nd
+antingen <CODE>CONFIRM</CODE> eller <CODE>NOCONFIRM</CODE>. Notera att om bekr„ftelser
+„r p† (antingen d„rf”r att <CODE>CONFIRM</CODE> var specificerat eller d„rf”r att det
+var f”rkonfigurerat och inte ”verskridet), kommer de flesta inst„llningarna som specificerats
+med <CODE>XSHUTDOWNNOW</CODE> att endast att orsaka s† att bekr„ftelsedialogen visar olika
+standarder.
+
+<P>Om du inte vill ”verskrida n†gra inst„llningar, specificera <CODE>DEFAULT</CODE>.
+
+<P>Exempel:
+
+<BR><UL><LI><CODE>XSHUTDOWNNOW=DEFAULT</CODE> kommer att starta &xshutdown; med de nuvarande
+inst„llningarna.
+
+<P><LI><CODE>XSHUTDOWNNOW=RESTARTWPS,NOCONFIRM,LOG</CODE> kommer att starta om WPS, den h„r
+g†ngen utan bekr„ftelser, men aktiverar loggning denna enda g†ng.
+
+</UL>
+</IFNDEF>   <!-- V0.9.20 -->
+</DL>
+</BODY>
+</HTML>
+

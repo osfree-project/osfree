@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Installatie Reeksen
+    </TITLE>
+</HEAD>
+<BODY>
+Om de instellingen van een object te kunnen wijzigen van "buiten" de
+Workplace Shell, ondersteunt de WPS het concept van object installatie reeksen.
+
+<P>Een WPS installatie reeks is een opeenvolging van <CODE>steekwoord=waarde</CODE>
+paren, gescheiden door een punt-komma ';'. De steekwoorden die door een object
+worden begrepen zijn afhankelijk van zijn
+<A HREF="glossary/gls_wpsclasses.html">class</A>.
+
+<P>B.v., om van een map de gesloten en open pictogrammen te wijzigen,
+kunt u de volgende tekenreeks gebruiken:
+
+<P><CODE>ICONFILE=C:\closed.ico;ICONNFILE=1,C:\open.ico;</CODE>
+
+<P>Omdat de WPS classes gegroepeerd zijn in een hi‰rarchische boomstructuur
+en van elkaar overerven, zal een object niet alleen de installatie reeks van
+zijn eigen class begrijpen maar ook die van al zijn ouder classes.
+B.v., een map zal niet alleen <CODE>WPFolder</CODE> steekwoorden begrijpen,
+maar ook de algemene <CODE>WPObject</CODE> steekwoorden (die door alle objecten
+worden begrepen).
+
+<P>Er zijn zeer veel verschillende object steekwoorden voor de verschillende WPS
+classes.
+
+Selecteer uit de volgende lijst om er iets over le leren:
+
+<UL>
+<LI><A HREF="objects/string_1wpobject.html">WPObject</A> (alle objecten)
+<LI><A HREF="objects/string_2wpfolder.html">WPFolder</A> (alle mappen)
+<LI><A HREF="objects/string_4xfdesktop.html">WPDesktop</A> (de Werkplek)
+<LI><A HREF="objects/string_6xwptrashcan.html">XWPTrashCan</A> (de prullenbak)
+<LI><A HREF="objects/string_5wpprogram.html">WPProgram</A> (alle programma objecten)
+<LI><A HREF="objects/string_7xcenter.html">XCenter</A> (het &xcenter;)
+<LI><A HREF="objects/string_8xwpstring.html">XWPString</A> (installatie reeks objecten)
+</UL>
+
+Er zijn verschillende manieren om installatie reeksen toe te passen op een object.
+
+<UL><LI>&xwp; staat U toe om
+<A HREF="objects/obj_string.html">installatie reeks objecten</A> te gebruiken.
+
+<P><LI>Uit
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>,
+kunt U de functie
+<A HREF="rexx.inf#SysSetObjectData"><CODE>SysSetObjectData</CODE></A>
+gebruiken of, als U een nieuw object aan het maken bent, de functie
+<A HREF="rexx.inf#SysCreateObject"><CODE>SysCreateObject</CODE></A>.
+
+<P><LI>Uit de C code, kunt U de PM
+<A HREF="pmref.inf#WinSetObjectData"><CODE>WinSetObjectData</CODE></A> en
+<A HREF="pmref.inf#WinCreateObject"><CODE>WinCreateObject</CODE></A>
+API's <A HREF="_toolkitlink.html">*</A> gebruiken.
+
+<P><LI>Vanuit een WPS class, kunt U de
+<A HREF="wpsref.inf#wpSetup"><CODE>WPObject::wpSetup</CODE></A>
+methode, <A HREF="_toolkitlink.html">*</A> gebruiken die veel subclasses
+te niet doet en de  werkelijke installatie reeks verwerking implementeert
+binnen de WPS.
+
+</UL>
+
+<B>Opmerking:</B> Gesteld tegenover een populaire misvatting, als een installatie
+reeks wordt aangeroepen door een object, wordt de reeks zelf <I>nergens</I> opgeslagen.
+In plaats daarvan wordt de reeks verwerkt door de WPS class van het object, vertaald
+in de binaire gegevens van het object, en dan verwijderd.
+
+<P>Met als resultaat dat, om in staat te zijn de installatie reeksen weer op te zoeken
+voor het tonen op de "Pictogram" pagina in een object zijn instellingen notitieblok,
+moet &xwp; de binaire gegevens van een object evalueren en juiste beslissing nemen wat
+de installatie reeks zou kunnen zijn die die binaire instelling zou moeten maken.
+Iets van de object gegevens is totaal niet beschreven en ondanks dat er een weg
+beschreven is om er achter te komen wat de binaire object gegevens betekenen, is &xwp;
+niet in staat om van daaruit een installatie reeks te maken
+
+<BR>
+</BODY>
+</HTML>
+

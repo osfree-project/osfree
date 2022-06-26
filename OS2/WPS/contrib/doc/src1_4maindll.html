@@ -1,0 +1,41 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+The SRC\CLASSES\ directory
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+<CODE>SRC\CLASSES</CODE> contains only C code which was originally generated
+by the SOM compiler from the IDL files in the <CODE>IDL\</CODE> directory. Of
+course, that code has been extended so that the new classes do anything meaningful.
+
+<P>As opposed to versions before 0.9.0, this directory contains SOM code <I>only.</I>
+The idea is that (except for fairly small method code) code in one of these class
+files should call some implementation function in a directory other than
+<CODE>SRC\CLASSES</CODE>. Only in doing so it is possible that several developers
+can implement features within the same WPS class.
+
+<P>For example, <CODE>src\classes\xfldr.c</CODE> branches over to
+<CODE>src\filesys\folder.c</CODE>, which is the "folder implementation" code and has
+most of the folder features.
+<P>
+The XWorkplace package contains many classes, but puts them all into a single DLL.
+This is possible by specifying the same target DLL in the IDL files.
+(XWorkplace's IDL files are now in the separate <CODE>IDL\</CODE> directory.)
+One can put several classes into one .IDL file (which happens in
+<CODE>xtrash.idl</CODE> for example) or spread them across several IDL files too.
+
+<P>Note that the .DEF files in <CODE>IDL\</CODE> are not used.
+These files are created automatically by the
+SOM compiler, which cannot however create a single DEF file if you
+use several IDL files for the same DLL. For finally linking the whole main DLL,
+the makefiles instead use <CODE>\src\shared\xwp.def</CODE>, which I manually
+created from all the DEF files which were created by the SOM compiler.
+This file exports lots of mysterious SOM structures which allow the SOM kernel see the
+classes in the DLL.
+
+<BR>
+</BODY>
+</HTML>

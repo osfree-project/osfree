@@ -1,0 +1,310 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.16
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.16 (February 4, 2002)</B>
+
+<P>New features:
+
+<UL><LI>Common: Instead of adding the "Object" page, &xwp; now completely
+replaces the "Icon" page in every settings notebook.
+
+<P><LI>Common: Added "Replace file dialog" feature. This only replaces file
+dialogs within the WPS, not globally on the system. If enabled, XWorkplace
+code will use a replacement file dialog with full WPS support instead of
+the dull default OS/2 file dialog.
+Try the "Browse" button on the new "Icon" page.
+
+<P><LI>Folders: Added new <A HREF="fldr_30turbo.html">"turbo folders"</A> feature.
+
+<P><LI>Folders: Finally documented that setup string objects can be put
+into the &xwp; Configuration Folder as well to have the setup string invoked
+on the folder whose context menu was selected. This feature has been active
+for a while, but I forgot to document it.
+
+<P><LI>Folder content menus: The folder's "Include" criteria are finally
+fully respected so that objects which do not match those criteria do not
+appear in the folder content menus either.
+
+<P><LI>File types: Added icon display to "File types" page in "Workplace Shell".
+Also added "Properties" and "Open folder" items to association context menu.
+
+<P><LI>Programs: If extended associations are enabled, all program files will
+now be started by &xwp;, circumventing any WPS code around WinStartApp. As a
+side effect, this will give you more detailed error messages if the program
+could not be started.
+
+<P><LI>Trash can: Added EMPTYTRASH=IMMEDIATE setup string.
+
+<P><LI>&xcenter;: "Add widget" menu is now sorted alphabetically. This was
+confusing.
+
+<P><LI>&xcenter;: Pulse widget now supports more than one CPU on SMP systems,
+thanks to Bart van Leeuwen. As a result the display is painting lines instead
+of filled areas now.
+
+<P><LI>&xcenter;: Added "Properties" dialog to "Pulse" widget to allow color
+configuration, finally.
+
+<P><LI>&xcenter;: Pulse widget now opens "OS/2 Kernel" object on double-click.
+
+<P><LI>&xcenter;: When &xcenter; is newly created, it comes up with a standard
+widget setup now. The empty bar confused many people initially.
+
+<P><LI>&xcenter;: Added setting for whether object button widgets should show
+in-use emphasis (hatching).
+
+<P><LI>XShutdown: Screen is now dimmed as with Win95 while confirmation dialog
+is displayed.
+
+<P><LI>XShutdown: Pressing Alt+F4 while the Desktop has the focus can now
+start shutdown.
+
+<P><LI>Netscape DDE: Added more command line options for specifying the
+DDE server name and the startup directory, which can make NetscDDE work with
+Mozilla too. Also removed the dull dialog explaining the command line options
+and added a proper help panel (shows up if you double-click on NETSCDDE.EXE only).
+
+<P><LI>xfix: Added object IDs display and deletion.
+
+
+</UL>Miscellaneous changes:
+
+<UL><LI>Common: Moved more pages from the INF to the HLP file, such as
+<A HREF="xices_30wpsstrings.html">setup strings</A>.
+In addition, WPProgram setup strings are now documented also.
+
+<P><LI>Common: Reworked many dialogs and settings pages to use my dialog formatter
+now. This makes changes much easier and saves everyone from using the stupid DLGEDIT
+any more (for those dialogs at least).
+
+<P><LI>Common: Rework of the query-setup-string interfaces to be less CPU-intensive.
+Also got rid of the danger of synchronization problems between the two calls
+to xwpQuerySetup that were always required.
+
+<P><LI>Common: Rewrote TMF loader to be much faster now. XWorkplace now keeps its TMF
+file open all the time and thus doesn't have to rebuild the strings buffer
+for every message that is needed.
+
+<P><LI>Common: Rewrote Henk Kelder's WPS handles engine to be much faster now.
+
+<P><LI>Common: Did lots of page tuning, both for frequently used code and for
+the &xwp; private heap. This might result in speedups for certain time-critical
+places such as folder populate and extended associations.
+
+<P><LI>Common: Rewrote &xwp; log file routines to use DosWrite directly since the
+buffered fprintf() calls sometimes didn't end up in the log at all (especially
+on crashes).
+
+<P><LI>Common: Per popular request, finally gave the status dialogs the usual
+thick dialog borders.
+
+<P><LI>Common: Per popular request, reworked folder content menu painting to always
+use at least the height of the system mini icon size to avoid overlapping icons.
+
+<P><LI>Folders: A private PMSHELL send-msg hook was registered on WPS startup but
+never released even though it was only used for the first folder that was ever
+opened. Fixed; now removing the hook after the first folder open.
+
+<P><LI>Archiving: Changed the settings format for the WPS extended archiving. Please
+reconfigure.
+
+<P><LI>Font folder: Per popular request, the font sample display now displays fonts with
+the smallest sizes on top.
+
+<P><LI>Status bars: are now respecting the default font setting on the "Paranoia" page
+and using WarpSans by default.
+
+<P><LI>&xcenter;: Stopped monitor widgets from shrinking all the time.
+
+<P><LI>&xcenter;: Window list widget now always ignores the Desktop and all open XCenters
+regardless of the filters that were set.
+
+<P><LI>&xcenter;: Tray icon is now displayed vertically to use up less space.
+
+<P><LI>&xcenter;: Added error logging around DosFreeModule for widget DLLs; this might
+result in log entries for some older widget DLLs which fail to unload themselves.
+The most probable cause for this is that the DLL registered an exit list entry which
+causes DosFreeModule to fail always.
+
+
+</UL>Bugfixes:
+
+<UL><LI>Install: "Mouse" shadow was never created in install folder since IBM changed
+the object ID for the thing for some reason. Fixed.
+
+<P><LI>Install: Finally fixed the stupid error that CHECKINI always reported on the
+&lt;XWP_SEP42&gt; object. Thanks to John Small for the fix.
+
+<P><LI>Common: Run dialog would diplay the full path of directories too,
+e.g. if "install" was entered. Fixed; directories are now properly ignored.
+
+<P><LI>Common: Fixed several small memory leaks in various places.
+
+<P><LI>Common: Fixed major/minor settings pages subtitles (for notebook context menus)
+in various places.
+
+<P><LI>Common: Removed all remaining must-complete sections in the code which
+sometimes prevented PMSHELL from exiting on kill or crashes.
+
+<P><LI>Common: Fixed a build problem which caused XWP to fail on some Warp 3 systems
+since some of the Warp 4 SOM imports cannot be resolved there.
+
+<P><LI>Common: Paul Ratcliffe fixed a couple of cosmetic things with the
+exception trap logs.
+
+<P><LI>Common: Fixed a bunch of wrong default template settings for the XWP
+classes.
+
+<P><LI>Common: Fixed wrong owner windows for dialogs created by the new dialog
+formatter, which, among other things, affected the &xwp; message boxes.
+Fixed many misaligments and other cosmetic issues too.
+
+<P><LI>Common: Paul Ratcliffe fixed bad AM/PM display for 12:00 noon in a library
+routine which, among other things, affected the "Time" widget.
+
+<P><LI>Common: Added additional checks to an internal populate routine which should
+now handle removeable drives correctly. This should fix the problems with folder
+content menus that removeable media changes weren't picked up.
+
+<P><LI>Startup: Fixed endlessly looping startup folders.
+
+<P><LI>Icon replacemements: While working on the program icons replacement, I
+pretty much had to rewrite most of the icon handling code in the WPS altogether.
+As a side effect, I believe the problems with disappearing icons and icons changing
+during refresh are now fixed for good.
+
+<P><LI>Object Details dialog: Fixed crash if "No" was selected in the confirmation
+dialog after changing the object ID.
+
+<P><LI>Programs: Added more error checking to progOpenProgram.
+Fixed more problems with programs not being started from WPS thread 1,
+which can cause system hangs. Also fixed problem that executable would not start
+if it was not fully qualified in the program settings object, but on the PATH only.
+
+<P><LI>Disks: Added more "drive ready" checks to context menus and settings view
+to avoid some more "drive not ready" popups. Note that context menus still show
+"drive not ready" since that problem is in a WPS routine I can't easily replace.
+
+<P><LI>Folders: MENUBAR setup string had a wrong default value on Warp 4 and above.
+
+<P><LI>Folders: If the default folder view was set to something other than "inherit"
+in "Workplace Shell", changes in a folder's default view via the "Menu" page (or
+the context menu item) were never picked up until a Desktop restart. Fixed.
+
+<P><LI>Folders: Replacement refresh code never picked up RCNF_CHANGED notifications
+(which are quite rare though). Fixed, as well as some other missing notifications.
+
+<P><LI>Folders: Added exception handling to an internal populate helper which tended
+to crash on certain WPS networking classes at times.
+
+<P><LI>Extended associations: If a data file had a type set (either explicitly or
+automatically) but no associations existed for that type, the "Open" submenu
+was empty. Fixed; this now adds the associations for "Plain text" to those
+objects too.
+
+<P><LI>Status bars: For remote disk objects (WPSharedDir), the status bars kept
+querying drive A: for the free space, which was kind of annoying. The reason was
+that WPShared::wpQueryLogicalDrive returns 1 always for some reason only IBM can
+explain. Added a special case check in a couple of places.
+
+<P><LI>Status bars: Fixed bad check for tree views which sometimes failed to
+update themselves.
+
+<P><LI>Status bars: Fixed a bad exception handler cleanup.
+
+<P><LI>&xcenter;: Removed all the special window actication handling for now.
+Besides, the XCenter frame is no longer a PM WC_FRAME instance. Hopefully
+this doesn't break anything else but fixes the stupid Mozilla problems many
+people were having.
+
+<P><LI>&xcenter;: Fixed the 100% CPU load problem when mouse was over &xcenter; while
+a settings dialog was showing.
+
+<P><LI>&xcenter;: Battery widget didn't repaint its background properly when
+the power icon was changed. Fixed.
+
+<P><LI>&xcenter;: Fixed some bad clipping with object buttons.
+
+<P><LI>&xcenter;: Source emphasis for menus wasn't always removed from client. Fixed.
+
+<P><LI>&xcenter;: Fixed crashes with objects from other processes being dragged over
+&xcenter;.
+
+<P><LI>File operations: Mostly rewrote the "Replace File Exists" dialog to finally handle
+the "Create another" and "Create from template" conditions correctly. Besides,
+all the special case checks for FAT drives were removed because the WPS handles
+all this correctly already.
+
+<P><LI>File operations: Replacement delete never respected the "Confirm folder deletion"
+setting from the "Confirmations" page. Fixed; if this is enabled, you now get an
+extra prompt before &xwp; kills a folder.
+
+<P><LI>Trash can: Fixed wrong error message if "delete to trash" was still enabled
+internally but the trash can had disappeared for some reason. XWP is now offering
+to recreate the trash can instead.
+
+<P><LI>Trash can: Fixed problems with UNC files.
+
+<P><LI>Trash can: Dropping objects on the shredder would move them into the trash
+can instead. Fixed; they are now properly nuked.
+
+<P><LI>Trash can / true delete: Paul Ratcliffe fixed a bunch of potential traps
+with NULL object titles.
+
+<P><LI>Trash can: Disabled the stupid "File exists" dialog that popped up if some
+other object with the same title already existed in the same hidden trash directory.
+Note that this will only work if you have "Replace file exists" enabled, unfortunately.
+
+<P><LI>Object hotkeys: It was impossible to set a hotkey into the "Hotkey" entry field
+that was already occupied. Even worse, if the object had been lost, this kept the
+entry field from working at all. Fixed; note that this implies that you can now use
+the same hotkey for several objects at once.
+
+<P><LI>&pgr;: &xcenter;s are now sticky always and do not have to be added manually
+to the "Stickies" list any more.
+
+<P><LI>&pgr;: System window list would sometimes be moved off to another screen and
+then be hard to see. Made window list sticky always now.
+
+<P><LI>&pgr;: Repaint broke after &pgr; was disabled and then re-opened. Fixed
+by Paul Ratcliffe.
+
+<P><LI>Hook: Object hotkeys stopped working after screen lockup, unless &pgr;
+was enabled. Fixed. Also fixed the problem that it was possible to use hotkeys before
+the Desktop was ready and during shutdown.
+
+<P><LI>Hook: Now disabling sliding focus while "move ptr to default button" is in
+progress.
+
+<P><LI>XShutdown: Paul Ratcliffe fixed bug trying to close the first switch list
+item twice.
+
+<P><LI>XShutdown: I believe I have traced down and fixed the problems with XShutdown
+and the "Desktop not found" problem if XWorkplace is installed on multiple OS/2
+partitions. The problem was quite deep in the WPS internals and actually a WPS bug
+that was exposed by the &xwp; "save objects" function. For some reason, the WPS kept
+deleting the &lt;WP_DESKTOP&gt; object ID (and other object IDs) if they didn't match
+the data in the current INI file, which of course they don't if the object ID is from
+another WPS. Fixed that; the object's instance data is now hacked to keep the old
+object ID.
+
+<P><LI>XShutdown: Fixed hang on "Releasing filesystems" on some systems, hopefully.
+I can't really assure this since the bug never occurred on my system, but &xwp;
+attempted to load one string resource after DosShutdown, which really isn't a good
+idea... fixed that.
+
+<P><LI>Treesize: Fixed a couple of long-standing cosmetic problems. Added a decent
+help panel.
+
+</UL>
+</BODY>
+</HTML>
+

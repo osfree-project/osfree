@@ -1,0 +1,151 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        XCENTERWIDGET
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung der Einleitung: Peter Weilbacher -->
+<!-- This is all new with V0.9.9. -->
+<BODY>
+<B>Hinweis:</B> Dies ist ein Ausschnitt aus der Datei <CODE>center.h</CODE>.
+Diese Definition ist nicht unbedingt aktuell. Benutzen Sie immer
+<CODE>center.h</CODE> im Verzeichnis der Widget-Quellen statt dieser
+Definition.
+
+<PRE>
+    /*
+     *@@ XCENTERWIDGET:
+     *      public structure to hold data for an &xcenter;
+     *      widget, i.e. a PM window in the &xcenter; client
+     *      area.
+     *
+     *      Each &xcenter; widget is a separate window,
+     *      being a child window of the &xcenter; client,
+     *      which in turn is a child of the &xcenter; frame.
+     *
+     *      This structure is created once for each widget
+     *      and passed to each widget in mp1 of WM_CREATE.
+     *      The first thing a widget must do on WM_CREATE
+     *      is to store a pointer to this structure in its
+     *      QWL_USER window word.
+     *
+     *      The widget can allocate another widget-specific
+     *      buffer and store its pointer into the pUser
+     *      field.
+     *
+     *      This structure is automatically freed by the
+     *      &xcenter; when the widget is destroyed. However,
+     *      if you allocated more memory for pUser, it is
+     *      your own responsibility to free that on WM_DESTROY.
+     *      General rule: The widget must clean up what it
+     *      allocated itself.
+     */
+
+    typedef struct _XCENTERWIDGET
+    {
+        /*
+         *  Informational fields:
+         *      all these are meant for reading only
+         *      and set up by the &xcenter; for the widget.
+         */
+
+        HWND        hwndWidget;
+                // window handle of this widget; this is valid
+                // only _after_ WM_CREATE.
+
+        HAB         habWidget;
+                // widget's anchor block (copied for convenience).
+
+        PFNWP       pfnwpDefWidgetProc;
+                // address of default widget window procedure. This
+                // always points to ctrDefWidgetProc (in
+                // src/shared/center.c). The widget's own window
+                // proc must pass all unprocessed messages (and a
+                // few more) to this instead of WinDefWindowProc.
+                // See ctrDefWidgetProc for details.
+
+        const <A HREF="plug_9xcenterglobals.html">XCENTERGLOBALS</A> *pGlobals;
+                // ptr to client/frame window data (do not change)
+
+        <A HREF="plug_9xcenterwidgetclass.html">PXCENTERWIDGETCLASS</A> pWidgetClass;
+                // widget class this widget was created from;
+                // this ptr is only valid during WM_CREATE and
+                // always NULL afterwards
+
+        const char  *pcszWidgetClass;
+                // internal name of the widget's class; this
+                // is the same as pWidgetClass->pcszWidgetClass,
+                // but this is valid after WM_CREATE.
+                // DO NOT CHANGE it, the &xcenter; relies on this!
+        ULONG       ulClassFlags;
+                // class flags copied from XCENTERWIDGETCLASS.
+
+        const char  *pcszSetupString;
+                // class-specific setup string. This field
+                // is only valid during WM_CREATE and then holds
+                // the setup string which was last stored with
+                // the widget. The pointer can be NULL if no
+                // setup string exists. After WM_CREATE, the
+                // pointer is set to NULL always.
+
+        /*
+         *  Setup fields:
+         *      all these should be set up by the widget
+         *      (normally during WM_CREATE). The &xcenter;
+         *      reads these fields to find out more about
+         *      the widget's wishes.
+         *
+         *      All these fields are initialized to safe
+         *      defaults, which are probably not suitable
+         *      for most widgets though.
+         */
+
+        BOOL        fSizeable;
+                // if TRUE, the widget is sizeable with the mouse.
+                // This is initially set to TRUE if the widget's
+                // class has the WGTF_SIZEABLE flag, but can be
+                // changed by the widget at any time.
+                // NOTE: If your widget is "greedy", i.e. wants
+                // all remaining size on the &xcenter; bar (by
+                // returning -1 for cx with WM_CONTROL and
+                //
+
+        HWND        hwndContextMenu;
+                // default context menu for this widget.
+                // The &xcenter; loads a the same standard context menu
+                // for each widget, which is displayed on WM_CONTEXTMENU
+                // in ctrDefWidgetProc. Normally, the widget needs not
+                // do anything to have the context menu displayed;
+                // ctrDefWidgetProc takes care of this. However, you may
+                // safely manipulate this context menu if you want to
+                // insert/remove items.
+                // The menu in here gets destroyed using WinDestroyWindow
+                // when the widget window is destroyed.
+                // This is only valid after WM_CREATE.
+
+        const char  *pcszHelpLibrary;
+        ULONG       ulHelpPanelID;
+                // if these two are specified, the &xcenter; will
+                // enable the "Help" item in the widget's context
+                // menu and display the specified help panel when
+                // the menu item is selected. Both default to NULL.
+
+        /*
+         *  Additional fields:
+         */
+
+        PVOID       pUser;
+                // user data allocated by window class; this is
+                // initially NULL, but you can use this for your
+                // own data (which you must clean up yourself on
+                // WM_DESTROY).
+    } XCENTERWIDGET;
+
+</PRE>
+
+
+<BR>
+</BODY>
+</HTML>
+
+

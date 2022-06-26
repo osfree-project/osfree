@@ -28,6 +28,15 @@ ADD_LINKOPT    += system linux
 ADD_COPT       += -i=$(%WATCOM)$(SEP)lh # -x
 !endif
 
+!ifeq DLL 1
+!ifeq %OS WIN32
+ADD_LINKOPT    += system nt_dll
+!endif
+!ifeq %OS WIN64
+ADD_LINKOPT    += system nt_dll
+!endif
+!endif
+
 # The variable DEFINES is to append more compiler defines and switches from a singular makefile
 # because add_copt is overwritten in this file.
 CLEAN_ADD = *.c *.h
@@ -42,7 +51,11 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
+!ifeq DLL 1
+ @%append $^@ NAME $^*.dll
+!else
  @%append $^@ NAME $^*.exe
+!endif
 #!ifeq UNIX TRUE
 # @%append $^@ debug dwarf all
 #!endif
@@ -59,5 +72,8 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
 !endif
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
+!ifdef EXPORTS
+ @%append $^@ EXPORT $(EXPORTS)
+!endif
 
 !endif

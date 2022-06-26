@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Speicher
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.13; however, this contains information from
+     the old 090settings15kernel2.html -->
+<BODY>
+Mit den Einstellungen im Bereich "Auslagerungsdatei" kann beeinflussen werden,
+wie &os2; die Auslagerungsdatei verwaltet. S„mtliche Einstellungen in diesem
+Bereich entsprechen dem Befehl <CODE>SWAPPATH</CODE> aus der Datei &cfgsys;.
+Ausfhrliche Informationen erhalten Sie ber die
+<A HREF="cmdref.inf#swappath">Dokumentation zu SWAPPATH</A> im
+<I>&os2;-Referenzhandbuch</I>.
+ 
+<P>Fr weiterfhrende Informationen zu diesem Thema beachten Sie auch
+das Thema <A HREF="glossary/gls_mem_paging.html">Auslagerung</A>.
+ 
+<UL><LI>Der unter <B>Aktuelle Gr”áe</B> angegebene Wert gibt die momentane
+Gr”áe der &os2;-Auslagerungsdatei (<CODE>SWAPPER.DAT</CODE>) an.
+Dieser Wert wird laufend aktualisiert und „ndert sich also entsprechend, falls
+sich eine Gr”áen„nderung in der Auslagerungsdatei ergeben hat.
+ 
+<P><LI>Das Feld <B>Hauptspeichergr”áe</B> zeigt an, ber welche Menge an
+physischem Hauptspeicher (RAM) das System verfgt.
+Dieser Wert zuzglich der Gr”áe der Auslagerungsdatei (siehe oben) ergibt
+zusammen die Gesamtgr”áe des von &os2; aktuell verwendeten virtuellen Speichers.
+ 
+<P><LI>Mit der Einstellung <B>Mindestgr”áe</B> wird festgelegt, welche Gr”áe die
+Auslagerungsdatei niemals unterschreiten soll. Hier sollte man schon eine
+ordentliche Gr”áe angeben, da &os2; ansonsten w„hrend des laufenden Betriebs
+dazu gezwungen ist, Gr”áenanpassungen an der Auslagerungsdatei durchzufhren;
+und das kostet Zeit.
+ 
+<P>Der vorgegebene Wert von 2 MB ist definitiv zu niedrig fr die meisten
+Systeme - es sei denn, man hat sehr viel Hauptspeicher installiert. Betr„gt die
+aktuelle Gr”áe der Auslagerungsdatei beispielsweise 20 MB und die Mindestgr”áe
+wurde auf 2 MB eingestellt, dann sollten Sie dies auf 32 MB „ndern um zu
+vermeiden, daá &os2; unn”tig Zeit damit verbringt, die Dateigr”áe anzupassen.
+ 
+<P>Diese Einstellung entspricht dem dritten Parameter des Befehls <CITE>SWAPPATH</CITE>
+in der &cfgsys;.
+ 
+<P><LI>Der <B>Grenzwert fr Warnung</B> bestimmt, wann &os2; Sie darber
+informieren soll, daá durch eine Gr”áen„nderung der Auslagerungsdatei nicht
+mehr gengend freier Speicherplatz auf dem verwendeten Laufwerk vorhanden ist.
+Wenn Sie beispielsweise hier einen Wert von 20 MB eingestellt haben und &os2;
+feststellt, daá nur noch 19 MB auf dem Laufwerk der Auslagerungsdatei frei
+sind, wird eine entsprechende Warnmeldung ausgegeben.
+ 
+<P>Diese Einstellung entspricht dem zweiten Parameter des
+<CITE>SWAPPATH</CITE>-Befehls der Datei &cfgsys;.
+ 
+<P><LI>Im Eingabefeld <B>Pfad</B> wird festgelegt, wo die Auslagerungsdatei
+abgelegt werden soll. Hier kann ein beliebiger gltiger Verzeichnisname
+angeben werden - beachten Sie aber, daá der Dateiname immer <CITE>SWAPPER.DAT</CITE>
+lautet.
+ 
+<P>Grunds„tzlich sollte man die Auslagerungsdatei auf einem HPFS-Laufwerk
+ablegen, da hiermit eine bessere Geschwindigkeit erzielt und Fragmentierung
+verhindert wird. Zus„tzlich sollte dafr die am meisten verwendete
+Partition der am wenigsten verwendeten Festplatte verwendet werden (sofern mehrere
+Festplatten im System betrieben werden). Damit lassen sich berflssige Bewegungen
+der Schreib-/Lesek”pfe der betroffenen Festplatte vermeiden beim Zugriff auf die
+Auslagerungsdatei vermeiden. Sollte sich die Partition jedoch auf einer
+Platte befinden, die viel langsamer ist, sollte man lieber einer schnelleren
+Platte den Vorzug geben.
+ 
+<P>Diese Einstellung entspricht dem ersten Parameter des Befehls
+<CITE>SWAPPATH</CITE> in der Datei &cfgsys;.
+ 
+<P>Beachten Sie, daá nach einer nderung der Pfadangabe die bisherige
+Auslagerungsdatei beim n„chsten Systemstart nicht automatisch gel”scht wird.
+Daher sollten Sie sich den Speicherort der alten Auslagerunsdatei merken und
+diese nach erfolgtem Neustart des Systems manuell l”schen, da ansonsten einige
+MB an Plattenkapazit„t unntz belegt bleiben.
+</UL>
+</BODY>
+</HTML>
+ 

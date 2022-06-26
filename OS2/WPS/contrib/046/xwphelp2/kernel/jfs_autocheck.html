@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; K„rna: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+<B>"Autocheck"</B> parametern best„mmer f”r vilka 
+<!-- V0.9.20: replace drives with volumes -->
+volymer JFS automatiskt kommer att utf”ra <CITE>CHKDSK</CITE> vid systemstartup.
+
+<P>Ange helt enkelt respektive enhetsbokstav h„r (utan inledande "<CITE>:</CITE>").
+
+<P>Notera d„remot att meningen med den h„r parametern „r n†got annorlunda j„mf”rt med
+den korresponderande parametern i <CODE>HPFS.IFS</CODE>:
+
+<UL><LI>Om du endast specificerar <CODE>*</CODE> (vilket „r standard), kommer alla JFS
+<!-- V0.9.20: replace drives with volumes -->
+volymer att bli automatiskt kontrollerade genom att spela upp journalloggen. Notera att JFS
+endast kommer att kontrollera
+<!-- V0.9.20: replace drives with volumes -->
+volymer som har markerats som "smutsiga" (t.ex. inte blivit riktigt avst„ngda), utan spelar
+upp journallogen, <I>alltid</I>, vid startup.
+
+<LI>Om du specificerade ett plustecken (<CITE>+</CITE>) <I>f”re</I> en enhetsbeteckning h„r,
+kommer JFS inte bara att spela upp journalloggen f”r den enheten, utan „ven utf”ra en
+full integritetskontroll.
+
+<LI>Om listan slutar med <CODE>+*</CODE>, kommer JFS att utf”ra full integritetskontroll 
+p† alla <!-- V0.9.20: replace drives with volumes -->
+volymer som inte var specificerade i listan.
+
+</UL>Exempel: Om du anger <CITE>C+DE</CITE>, kommer enhet D: att f† en komplett kontroll,
+medan C: och E: endast kommer att f† sina journalloggar uppspelade.
+
+<BR>
+</BODY>
+</HTML>
+

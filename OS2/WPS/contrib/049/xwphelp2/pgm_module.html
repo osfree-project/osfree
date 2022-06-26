@@ -1,0 +1,84 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_MODULE;>
+<HEAD>
+    <TITLE>
+        &xwp;: Die Seite "Module"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.20: rewrote this -->
+Die Seite "Module" erscheint in den Einstellungsnotizbchern aller ausfhrbaren Dateien,
+um zus„tzliche Informationen ber ausfhrbare Module anzeigen zu k”nnen.
+ 
+<!-- V0.9.20: added this -->
+<P>Ein <B>"Modul"</B> ist die Bezeichnung des &os2;-Kernels fr eine erfolgreich geladene
+ausfhrbare Datei. Dies kann entweder eine
+<A HREF="objects/obj_pgmf.html">Programmdatei</A> oder eine
+<A HREF="glossary/gls_dll.html">DLL</A> sein.
+ 
+<P>Die Informationen auf dieser Seite werden direkt aus der EXE-Datei
+ausgelesen und k”nnen nicht ver„ndert werden. Alle ausfhrbaren Dateien von
+Betriebssystemen, die eine gewisse Kompatibilit„t zu DOS pflegen (wie &os2; und
+Windows) benutzen immer noch den gleichen EXE-Header wie DOS 3.x. Fr die
+"erweiterten" EXE-Formate, welche von &os2; und Windows verwendet werden, tritt
+nach dem alten DOS-Header ein zus„tzlicher Header in der EXE-Datei auf. &xwp;
+versucht, die verschiedenen Header in der Datei zu analysieren, und zeigt das
+Ergebnis auf dieser Seite an.
+ 
+<P>In der Gruppe <B>"Modulformat"</B> wird das <B>"Executable-Format"</B> eines
+der folgenden sein:
+ 
+<UL><LI><B>"DOS 3.x":</B> Die Datei besitzt nur den alten DOS-EXE-Header,
+somit ist es vermutlich eine DOS-Datei.
+ 
+<P><LI><B>"Linear Executable (LX)":</B>
+<!-- V0.9.16: rewrote this section, moved this up -->
+Ist das native Executable-Format von OS/2, welches von 32-Bit-Modulen, inklusive
+Bibliotheken, benutzt wird. Die meisten OS/2-EXE- und
+<!-- V0.9.20: added link -->
+-<A HREF="glossary/gls_dll.html">DLL</A>-Dateien,
+<!-- V0.9.20: modified the following -->
+die dafr ausgelegt sind, unter OS/2 Version 2.x oder h”her (einschlieálich eComStation)
+zu laufen, werden dieses Format besitzen.
+<!-- end V0.9.16 -->
+ 
+<P><LI><B>"New Executable (NE)"</B>:
+<!-- V0.9.16: rewrote this section -->
+Dieses Format wurde von IBM und Microsoft mit OS/2 1.x eingefhrt und wird
+weiterhin fr 16-Bit-EXE-Dateien unter OS/2 und Windows genutzt. Die meisten
+Windows-3.x-Anwendungen und auch 16-Bit-OS/2-Anwendungen (16-Bit-Bibliotheken
+eingeschlossen) verwenden dieses Format.
+<!-- V0.9.20: modified this -->
+Auch die meisten OS/2-Ger„tetreiber werden dieses Format besitzen.
+<!-- end V0.9.16 -->
+ 
+<P><LI><B>"Portable Executable (PE)":</B> Dieses Format wurde von Microsoft fr
+32-Bit-Windows-Anwendungen eingefhrt, es wird intensiv unter allen
+Windows-Versionen seit Windows 95 (und Derivaten von Windows NT) verwendet.
+Selbst einige Win32s-Anwendungen (z.B. 32-Bit-Anwendungen unter Windows 3.1)
+haben dieses Format. OS/2 kann dieses Format standardm„áig weder verwenden noch
+verstehen, haben Sie jedoch Odin installiert, kann OS/2 diese Dateien laden.
+ 
+</UL>Das <B>"Ziel-OS"</B> zeigt das Betriebssystem an, fr welches die
+EXE-Datei geschrieben wurde. Es wird Ihnen einen der Werte "DOS 3.x", "DOS 4.x", "OS/2",
+"Win16", "Win386" oder "Win32" anzeigen. &xwp; wird fr einige EXE-Dateien das
+Ziel-OS anzeigen, wie es in der EXE definiert wurde, fr andere wird es die
+bestm”gliche Vermutung anstellen.
+ 
+<P>Die Gruppe <B>"Modulbeschreibung"</B> zeigt zus„tzliche Informationen
+ber die EXE-Datei an, wie sie vom Ersteller definiert wurden. Sie k”nnen von LX-
+und NE-Formaten ausgelesen werden. Die Information ist die gleiche, wie sie das
+Befehlszeilenwerkzeug <CODE>BLDLEVEL.EXE</CODE> ausgibt, welches mit OS/2
+geliefert wird.
+ 
+<!-- V0.9.20: rewrote this -->
+<P>Viele ausfhrbare OS/2-Dateien verwenden das besondere IBM-"bldlevel"-Format,
+um Hersteller, Version und Beschreibung in einem einzigen String zu definieren. Wenn dieses
+Format eingehalten wird, zeigt &xwp; diese Informationen, ansonsten wird
+nur das Feld "Beschreibung" aktiviert.
+ 
+ 
+<BR>
+</BODY>
+</HTML>
+ 

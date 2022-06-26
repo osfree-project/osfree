@@ -1,0 +1,121 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Trace session: Drag-Copying Data Files
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+
+The worst thing about the WPS is that its most central operations are
+largely undocumented. It is nearly impossible to find any documentation
+about what the actual file operations methods (<CODE>wpCopyObject</CODE>
+and such) actually do, who calls them, and what all these WPS threads
+are doing.
+
+<P>To find out more, I have done an extensive debugging session tracing the
+method calls during a copy operation.
+You can find the whole log in the <CODE>logs\copydrag.log</CODE> file.
+The operation which was logged was a Ctrl-Drag (copy) of the "check.c"
+file within the same folder so that the "File clash" dialog (actually,
+my replacement) comes up, the target object is renamed, and then copying
+actually starts.
+
+<P>During this operation, I roughly got the following:
+
+<UL><LI>On the folder thread (usually TID 1), after the object
+     has been dropped (start copying),
+     the WPS calls <CODE>wpSetTaskRec</CODE> on the source object to
+     prepare the <CODE>wpCopyObject</CODE> call, which will later run
+     on the Tasker thread (TID 12 during my debugging).
+     This increases the task rec's usage count to 1.
+
+<P><LI>Apparently, the WPS then throws some notification to
+     the Tasker thread (TID 12) to start copying. Anyways,
+     we get a <CODE>wpMenuItemSelected</CODE> (during drag'n'drop!!)
+     on the source object being copied on TID 12. The Tasker
+     thread then calls <CODE>wpFindTaskRec</CODE> to find out what to do.
+
+<P><LI>The Tasker thread then calls <CODE>wpConfirmObjectTitle</CODE> to
+     have the object renamed, if a name clash occurs.
+
+<P><LI>Immediately afterwards, the Tasker thread calls <CODE>wpCopyObject</CODE>.
+     So <CODE>wpCopyObject</CODE> here ran on task 12!
+     <CODE>wpCopyObject</CODE> calls <CODE>wpFindTaskRec</CODE>
+     again (even twice...).
+
+     <P><CODE>wpCopyObject</CODE> creates a new SOM instance of the same class
+     as the source object. However, <CODE>wpclsNew</CODE> does NOT get called.
+     I have yet to find out how this is done. On the new object,
+     the following method calls were traced (maybe the caller is
+     still <CODE>wpCopyObject</CODE> or some other in-between-code):
+
+<PRE>
+     --  wpInitData calls
+         --  wpSetDefaultView
+         --  wpSetDefaultIconPos -- is this copied from the task rec?
+     --  wpSetAttr
+     --  wpSetRealName calls
+         -- wpCnrRefreshDetails
+     --  wpSetType
+     --  wpSetFolder
+     --  wpModifyStyle
+     --  wpLockObject
+     --  wpSetTitle calls
+         --  wpQueryConfirmations
+         --  wpSetTitleAndRenameFile calls
+             --  wpQueryFilename
+             --  wpSetRealName (again!!) calls
+                 -- wpCnrRefreshDetails
+     --  wpSetupOnce calls
+         --  wpSetup calls
+             --  wpSetTaskRec(pNew, NULL); pNew is the same TASKREC
+                             which was set for the source object
+                             -- but how does wpSetup know about the source object?
+                             Anyways, we now have a usage of 2;
+     --  wpQueryContainerFlagPtr
+     --  wpLockObject (again!!)
+     --  wpQueryDefaultIconPos, preparing
+     --  wpCnrInsertObject, calling LOTS of methods for inserting the object
+     --  wpUnlockObject (undoes the second call);
+</PRE>
+<P>Then we get a number of save/restore method calls (still in <CODE>wpCopyObject</CODE>):
+
+<PRE>
+     --  wpSaveState(pSource);
+     --  wpRestoreState(pNew);   aha!! (lots of method calls)
+     --  wpModifyStyle(pNew), which calls wpQueryAttr on pSource (how does it know?)
+     --  wpSetIcon(pNew);
+     --  wpSaveDeferred(pNew).
+</PRE>
+
+<P>THEN we finally get the <CODE>wpObjectReady(pNew)</CODE> before
+    <CODE>wpCopyObject(pSource)</CODE>
+     returns.
+
+     In short, the initialization methods are as follows:
+<PRE>
+     --  wpCopyObject(pSource) calls
+         --  wpInitData(pNew);
+         --  lots of wpSet*(pNew) calls;
+         --  wpSetupOnce(pNew);
+         --  wpCnrInsertObject(pNew);
+         --  wpRestoreState(pNew));
+         --  wpSetIcon(pNew);
+         --  wpObjectReady(pNew).
+</PRE>
+
+<P><LI>After <CODE>wpCopyObject</CODE> returns, <CODE>wpQueryError</CODE> is checked and
+     <CODE>wpSetTaskRec(NULL, pOld)</CODE> is invoked on the source object
+     and then the newly instantiated object, both times with
+     <CODE>pOld</CODE> being the same task rec as above.
+
+     <P>A few seconds later, <CODE>wpSaveImmediate</CODE> is running on TID 10,
+     which apparently is the lazy writer thread which has been
+     informed by the <CODE>wpSaveDeferred</CODE> call above.
+
+
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Extra Funktioner med Programobjekt
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+N„rhelst &xwp; startar ett programobjekt fr†n &cfgfdr;en (det betyder, n„r 
+valde respektive menypost i en mappens <!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>), kan den utf”ra n†gra
+f† tricks p† dom.
+
+<P>Dessa tricks „r f”ljande:
+
+<OL><LI>Om <B>startupkatalogen</B> hos programobjektet „r tom, kommer &xwp; att
+tempor„rt st„lla in katalogen hos den mapp vars &popmenu; anv„ndes innan den verkligen
+startar programmet. Det betyder att du kan starta samma program fr†n alla mappars
+&popmenu;er, men med en varierande startupkatalog, d„r katalogen „r hos den mapp vars
+&popmenu; anv„ndes.
+
+<P>Till exempel, med standardkonfiguration, har kommandoradsobjektet tomma startupkataloger.
+Detta „r orsaken till du kan starta kommandorader "i" mappen vars &popmenu; anv„ndes.
+
+<P>Om du vill avaktivera det h„r beteendet, specificera helt enkelt en startupkatalog i
+ett programobjekt (t.ex. <CITE>"C:\"</CITE>), och &xwp; kommer att l†ta den vara ifred.
+Ist„llet, kommer den alltid att anv„nda den startupkatalog som du har specificerat.
+
+<BR><LI>Om <B>parameterlistan</B> hos ett programobjekt inte inneh†ller ett inledande 
+<CITE>"%"</CITE> tecken, kommer katalogen hos mappen du anv„nde att skickas som en 
+parameter till programmet.
+
+<P>Detta g”r att du kan skicka ett fullt kvalificerat katalognamn som ett argument till
+ett program. Du kan avaktivera den h„r funktionen i sin helhet p† "&popmenu;" sidorna
+i <A HREF="objects/obj_wps.html">"Workplace Shell" objektet.</A>
+
+<P>Om du vill avaktivera detta beteende f”r bara en enda menypost (alla program kan inte hantera
+kataloger som parametrar), l„gg till ett <CITE>"%"</CITE> tecken till "Parameter" listan hos
+respektive programobjekt. &xwp; kommer d† att hoppa ”ver att skicka n†gon ytterligare parameter. 
+Detta „r fallet, till exempel, med kommandoradsobjekten hos standardkonfigurationen.
+
+<BR><LI>Du kan l„gga p† <B>aktuellt inneh†ll hos
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">urklipp</A></B> till parameterlistan hos
+urklipp genom att l„gga en <CITE>"%**C"</CITE> symbol i parameterlistan. Den kan upptr„da
+i vilken position som helst hos parametrarna. Detta „r k„nsligt f”r sm† eller stora bokst„ver;
+<CITE>"%**c"</CITE> (med gemener) kommer <I>inte</I> att fungera.
+
+<P>Exempel: S”kv„g och filnamn = <CITE>"e.exe"</CITE>; parametrarna = <CITE>"%**C"</CITE> 
+kommer att starta systemeditorn, interpreterande inneh†llet i urklipp som ett filnamn.
+
+<P>Notera att inneh†llet i urklipp kommer att trunkeras s† att den maximala l„ngden hos
+parameterlistan inte kommer att ”verskridas. Med &os2;, kan den maximala l„ngden p† en s”kv„g
+vara 260 tecken.
+
+<BR><LI>Om <B>programrubriken</B> inneh†ller ett <CITE>"~"</CITE> tecken, kommer &xwp; att ta bort det
+tempor„rt innan den startar programmet. Du kan ocks† st„nga av det h„r beteendet 
+i <A HREF="objects/obj_wps.html">"Workplace Shell" objektet.</A>
+
+<BR><LI>Du kan nu infoga en <B>separator</B> i en meny genom att specificera <CITE>"---"</CITE> 
+(tre bindestreck) i ett programobjekts rubrik.
+
+(En separator „r en horisontell linje f”r att optisk separera grupper av menyposter.) I det h„r fallet,
+kommer &xwp; att ignorera programobjektets inst„llningar (som den exekverbara, parametrar etc.) och helt
+enkelt infoga en separator i menyn. Detta fungerar f”r huvud &popmenu; s†v„l som f”r submenyer.
+
+</OL>&xwp; implementerar funktionerna 1.-4. genom att verkligen „ndra programobjektens inst„llningar
+f”r en br†kdel av en sekund: inst„llningarna „ndras, programobjektet ”ppnas, och sedan †terst„lls inst„llningarna
+till originalv„rdena.
+
+<!-- V0.9.19: removed this, it's no longer valid
+Please note that &xwp; only performs these described actions on "real" program objects
+in the &cfgfdr;, not on shadows pointing to other program objects.
+This was done intentionally
+to make sure that objects which are situated elsewhere in your Desktop hierarchy
+are not changed by &xwp;. Shadows will be opened too, but without performing the
+special features described above.
+As a consequence, you ought to put copies of your program objects
+into the &cfgfdr;, instead of creating shadows for them.
+-->
+
+<BR>
+</BODY>
+</HTML>
+

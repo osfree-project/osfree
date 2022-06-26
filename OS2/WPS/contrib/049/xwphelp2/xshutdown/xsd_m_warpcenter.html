@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        "&warpcenter; vor der Arbeitsoberfl„che schlieáen"
+    </TITLE>
+</HEAD>
+<!-- Uebersetzung: Peter Weilbacher -->
+<BODY>
+Diese Option legt fest, ob &xshutdown; das &warpcenter; besonders behandeln soll.
+Diese Einstellung wurde mit V0.9.7 hinzugefgt, da &xshutdown; dazu fhrte, daá 
+auf manchen Systemen die Gr”áe der Arbeitsoberfl„che ver„ndert wurde, und 
+Rollbalken auf der Arbeitsoberfl„che erschienen.
+ 
+<P>Wenn diese Option <B>aktiviert</B> ist, schlieát &xshutdown; das &warpcenter;
+explizit vor dem Fenster der Arbeitsoberfl„che. Dies ist wahrscheinlich ntzlich,
+wenn Sie das &warpcenter; aus dem Systemstartordner heraus starten (nachdem die
+Arbeitsoberfl„che schon ge”ffnet ist).
+ 
+<P>Wenn diese Option <B>deaktiviert</B> ist, schlieát &xshutdown; das &warpcenter;
+einfach berhaupt nicht.
+ 
+<P>Die Option ist deaktiviert, wenn &xwp; nicht bestimmen konnte, ob das
+&warpcenter; sich auf dem System befindet. Grnde dafr k”nnen sein:
+ 
+<UL><LI>Sie arbeiten mit &warp; 3. Das &warpcenter; gibt es erst seit &warp; 4.
+ 
+<P><LI>Das &warpcenter;-Objekt wurde noch nicht "aufgeweckt". Dies ist der Fall,
+wenn Sie momentan das &warpcenter; nicht laufen haben und der Systemordner noch
+nicht gefllt worden ist.
+ 
+<P><LI>Das &warpcenter;-Objekt wurde aufgerufen, bevor die Arbeitsoberfl„che
+vollst„ndig initialisiert war. Dies ist der Fall, wenn auf Ihrem System das
+&warpcenter; durch die &cfgsys;-Einstellung <CODE>AUTOSTART</CODE> gestartet
+wird. In diesem Fall k”nnen &xwp; (und &xshutdown;) ohnehin nichts mit dem 
+&warpcenter; anfangen.
+</UL>
+</BODY>
+</HTML>
+ 

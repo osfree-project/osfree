@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Typen en Koppelingen
+    </TITLE>
+</HEAD>
+<BODY>
+In de Workplace Shell, verbindt koppelingen gegevens bestanden aan &link_progobjs;.
+
+<IFNDEF __NOXWPSETUP__>
+Als uitgebreide bestandstypen zijn ingeschakeld in het
+<A HREF="objects/obj_xwpsetup.html">"&xwp; Instellingen" object</A>,
+is dit geheel gedaan met het gebruik van bestandstypen.
+</IFNDEF>
+
+<P>Het <B>type</B> van een gegevens bestand hangt van twee bronnen af:
+
+<UL><LI>U kunt expliciet een type instellen op de "Typen" pagina in de
+<A HREF="glossary/gls_notebook.html">instellingen notitieblok</A> pagina van de
+gegevens bestanden.
+Dit type wordt opgeslagen in de
+<A HREF="glossary/gls_eas.html">uitgebreide kenmerken</A> van het bestand
+en blijven daar totdat u ze weer verwijderd.
+
+<P><LI>Als toevoeging, &xwp; koppelt bestandstypen ook automatisch overeenkomstig
+de zogenoemde "filters", dat zijn reeksen die de standaard
+<A HREF="glossary/gls_wildcards.html">jokertekens</A> "*" en/of "?" bevatten.
+
+<P>Deze bestandstype filters kunnen worden gedefinieerd in de "Bestandstypen" pagina
+in &link_wpsobj;.
+B.v., u kunt een bestandstype "Acrobat PDF" maken met het filter <CODE>*.PDF</CODE>,
+en al dergelijke bestanden krijgen automatisch dat type.
+
+</UL>Als een programma object is <B>gekoppeld</B> met een bestandstype,
+verschijnt het programma object in het "Open" submenu van het
+<A HREF="glossary/gls_popmenu.html">&popmenu;s</A>
+van alle gegevens bestanden die dat type hebben.
+De eerste koppeling bepaalt het pictogram van het gegevens bestand en wordt ook
+gebruikt wanneer u dubbel klikt op het bestand.
+
+<P>In het voorbeeld hierboven, als u nu het "Acrobat PDF" type koppelt met het
+programma object voor Adobe Acrobat Reader, kunnen alle bestanden die <CODE>*.PDF</CODE>
+bevatten met het programma object geopend worden.
+
+<P>Als toevoeging, bestandstypen kunnen van elkaar <B>overerven</B>.
+U kunt deze ouder-kind relatie in de "Bestandstypen" pagina in het &link_wpsobj;
+aangeven, door eenvoudig de bestandstypen rond te slepen.
+Als een type dus een kind is van een andere type, zullen de koppelingen voor
+het ouder type ook beschikbaar zijn voor alle gegevens bestanden van het kind type.
+
+<P>B.v., neem aan dat U ook een "PostScript" bestandstype heeft gedefinieerd.
+Omdat PDF documenten echte PostScript files zijn, kunt U "Acrobat PDF" een kind type
+maken van "PostScript". Als u, zeg, een GhostScript koppeling heeft  voor het "PostScript"
+type, dan kunnen uw PDF bestanden ook met het GhostScript programma worden geopend.
+
+<BR>
+</BODY>
+</HTML>
+

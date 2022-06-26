@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2; Kernel: HPFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+
+The items in the <B>"Cache"</B> group determine how much KB of main
+memory will be reserved for
+the HPFS cache of the respective file system.
+This corresponds to the <CODE>/CACHE:xxx</CODE> parameter in the
+HPFS.IFS command line.
+
+<P>The maximum cache size for HPFS
+<!-- V0.9.20: replace drives with volumes -->
+volumes is 2048 KB, which is not a
+whole lot.
+
+<!-- V0.9.5: changed the following -->
+<P>You may request that &os2; <B>automatically</B> determine
+the cache size. In most cases, this will then result in about 10% of the installed
+memory, but it is not recommended to use this setting.
+
+<!-- V0.9.13: replaced this phrase and link -->
+<P>See <A HREF="glossary/gls_caches.html">"File-system caches"</A> for an introduction
+to file-system caches in general.
+
+<P>The setting <B>"Cache item threshold"</B> determines (in KB) the
+maximum size of objects that will be saved in the caches. This
+corresponds to the
+<CODE>/CRECL:xxx</CODE> parameter in the HPFS.IFS command line.
+
+This setting is supposed to prevent large files which are usually only loaded once from
+clearing the whole cache.
+However, the default value of 4 KB is way too low. You can safely specify
+32 KB or even the maximum of 64 KB here.
+<BR>
+</BODY>
+</HTML>
+
+

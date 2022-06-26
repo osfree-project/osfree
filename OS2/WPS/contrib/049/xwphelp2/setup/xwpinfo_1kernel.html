@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp; Status: &xwp;-Kernel
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.4 and contains text previously in
+     09610xset_info.html -->
+<BODY>
+Die Gruppe <B>"&xwp;-Kernel"</B> zeigt einige Informationen direkt aus den
+Interna der <CODE>XFLDR.DLL</CODE> an.
+Falls Sie die folgenden Erl„uterungen zu kompliziert finden, machen Sie sich
+keine Sorgen. Es ist nicht notwendig, diese Informationen zu verstehen, um
+&xwp; korrekt auf Ihrem System benutzen zu k”nnen.
+ 
+<P>Das Feld <B>"Version"</B> enth„lt die Versionsnummer der <CODE>XFLDR.DLL</CODE>,
+inklusive des Datums, an dem sie erstellt wurde.
+<!-- V0.9.7: removed this
+(not of the language files!), while the "Build" field simply shows the count
+of how many times XFLDR.DLL was built (compiled) on the author's hard disk
+before being released, as well as the build date of your release.
+That field might not be terribly useful, except when bugfixes should be released without
+raising the &xwp; version number. -->
+ 
+<!-- V0.9.4: removed this
+The "C runtime locale" field shows the current language settings used internally
+be &xwp;. This is not to be confused with PM's language settings in the
+"Country" object or with &xwp;'s Language settings, but is only used for certain
+C-language features such as string comparisons and sorting.
+This should either be "C" if a default (English) locale is being
+used or the value of your "LANG" environment variable in &cfgsys;, such as "DE_DE" for
+Germany. For programmers: this is the return value of a
+setlocale(LC_ALL, NULL) call (using the IBM Visual Age C++ 3.0 runtime
+library). -->
+ 
+<!-- V0.9.4: added this -->
+<P>Das Feld <B>"Wache WPS-Objekte"</B> zeigt die Anzahl der Objekte an, von denen die WPS
+intern eine Instanz angelegt hat. Jedesmal, wenn die WPS einen Ordner bev”lkert (angefangen
+mit der Arbeitsoberfl„che beim Systemstart), werden Instanzen der WPS-Objekte im Speicher
+angelegt. Dieses Feld zeigt die Gesamtanzahl der Objekte, von denen die WPS seit ihrem Start
+auf diese Weise Instanzen angelegt hat. Diese Zahl w„chst gew”hnlich immer weiter, wenn Sie
+Ordner ”ffnen, da die WPS Objekte nur selten wieder einschl„fert.
+Diese Zahl wird einmal pro Sekunde aktualisiert. ™ffnen Sie einen Ordner, der noch nicht
+bev”lkert wurde und Sie k”nnen sehen, wie die Zahl w„chst.
+ 
+<P>Die <B>"Anzahl WPS-Threads"</B> zeigt die momentane Anzahl der innerhalb des
+Workplace-Shell-Prozesses (der zweiten Instanz von <CODE>PMSHELL.EXE</CODE>) laufenden Threads an.
+Sie „ndert sich abh„ngig von der Anzahl der zus„tzlich installierten
+<!-- V0.9.13: added link -->
+<A HREF="glossary/gls_wpsclasses.html">WPS-Klassen</A>.
+Auáerdem kann sich diese Zahl „ndern, wenn beispielsweise ein Ordner gerade
+bev”lkert wird. Der Wert wird einmal pro Sekunde aktualisiert.
+ 
+<!-- V0.9.4: added this -->
+<P>Das Feld <B>"Neustarts der WPS"</B> gibt an, wie oft die WPS neu gestartet wurde.
+ 
+<!-- V0.9.9: removed all the threads stuff... this is now in 09992xc_threads.html -->
+ 
+<P>Das Feld <B>"Klangstatus"</B> zeigt an, ob &xwp; Systemkl„nge auf dem System
+abspielen kann. Hier sollte "OK" angezeigt werden. Wird etwas anderes angezeigt,
+sind die Systemkl„nge deaktiviert. Ein Grund dafr k”nnte sein, daá MMPM/2 nicht
+<!-- V0.9.4: changed the following -->
+auf dem System installiert oder ein Problem mit &xwp;-Multimedia aufgetreten ist.
+ 
+<!-- V0.9.4: added this -->
+<P>Das Feld <B>"XWPHook-Status"</B> schlieálich zeigt an, ob der &xwp;-Hook korrekt
+installiert wurde. Hier sollte "OK" angezeigt werden, wenn Sie die entsprechende
+Einstellung auf der Seite "Funktionalit„t" aktiviert haben.
+<BR>
+</BODY>
+</HTML>
+ 

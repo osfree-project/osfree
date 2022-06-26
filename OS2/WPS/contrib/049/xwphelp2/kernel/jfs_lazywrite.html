@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: JFS.IFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.13 -->
+<BODY>
+Die Option <B>"Verz”gertes Schreiben"</B> bewirkt, daá das Zurckschreiben
+von Daten auf den Datentr„ger durch JFS in einen Hintergrund-Thread umgeleitet wird.
+<P>Beachten Sie <A HREF="glossary/gls_caches.html">"Cache-Speicher fr
+Dateisysteme"</A> fr einfhrende Informationen zu diesem Thema.
+ 
+<P>Wenn das verz”gerte Schreiben ausgew„hlt wurde, k”nnen folgende drei
+Feineinstellungen zum Cache-Verhalten von JFS vorgenommen werden (alle Werte
+in Sekunden):
+ 
+<OL><LI>Die Einstellung <B>"Synchronisationszeit"</B> bestimmt den Zeitabstand,
+in dem der JFS-interne Sychronisations-Thread durchgefhrt wird. Die Vorgabe ist
+hierfr 64.
+ 
+<P><LI><B>"Max age"</B> gibt an, wie lange dieselben Daten maximal im Cache
+festgehalten werden sollen. Der Vorgabewert lautet hierbei 256.
+ 
+<P><LI>Mit der Einstellung <B>"Buffer idle"</B> wird der Zeitraum angegeben, 
+w„hrend dessen JFS eine nderung als "aktuell" betrachtet. nderungen, die jnger
+als dieser Wert sind, werden erst gespeichert, wenn die letzte Speicherung 
+l„nger als "max age" her ist. Hierfr lautet der Vorgabewert 8.
+ 
+</OL>
+</BODY>
+</HTML>
+ 

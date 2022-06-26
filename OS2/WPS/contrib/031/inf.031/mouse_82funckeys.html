@@ -1,0 +1,88 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Registering Extra Function Keys
+    </TITLE>
+</HEAD>
+<!-- This file is all new with V0.9.3. -->
+<BODY>
+<B>Classes: XWPKeyboard</B>
+<HR>
+Starting with V0.9.3, &xwp; allows you to give certain keys which normally don't
+work under &os2; a special meaning. You can then use those extra keys as object
+hotkeys as well. In order for this to work, you will need to
+register those keys with the "Function keys" page in the enhanced "Keyboard" object.
+
+<P>This feature is implemented through the &xwp; PM hook as well. To understand
+how this is working (and before you use the "Function keys" page), the following
+explanations should be understood.
+
+<P>Keyboard processing is a complex issue under any operating system. It involves
+interpreting hardware messages and translating those according to the current
+language settings.
+
+<P>Under &os2;, this processing is done on several layers of the system. For one,
+there is the hardware keyboard device driver which gets loaded though a BASEDEV
+statement in &cfgsys;. This one reacts to hardware interrupts raised by the
+physical keyboard hardware and thus receives really every single keystroke on the
+system.
+
+<P>The &os2; Kernel then processes those keystrokes for the application which currently
+has the input focus. Further processing is different depending on the type of application.
+Presentation Manager (PM) applications (including the Workplace Shell)
+usually receive a message that a key has been
+pressed or released. The &xwp; PM hook can thus intercept these messages and
+manipulate them. (This is how <A HREF="mouse_81objhotkeys.html">object hotkeys</A>
+work as well, by the way.)
+
+<P>Unfortunately, the default &os2; keyboard processing is still based on the original
+101/102-key IBM-compatible AT keyboards introduced in the 1980's.
+Today, many keyboards have additional keys which
+are not recognized at all by &os2; or simply produce a character output even though they
+aren't really supposed to.
+
+<P>Those extra function keys could be the three "Windows" keys found on most
+keyboards sold today. In addition, there are some extended keyboards which have
+additional "multimedia" keys. Also, many laptops have some extra keys.
+
+<P>The &xwp; PM hook can identify the physical key which has actually been
+pressed by evaluating the <B>hardware scan code</B> of the key, which is passed to
+any PM application directly from the keyboard hardware. On every keyboard, every key
+should have a unique such code. This code has nothing to do with the ASCII code of
+a character, it's just a unique number assigned to each physical key on the keyboard.
+For example, the "Shift" key will have such a code as well as the "A" key, even though
+the "Shift" key alone will produce no ASCII (character) output.
+
+<P>So the &xwp; hook needs to know the hardware scan code of your function keys
+in order to be able to react to them. As a result, you will need to <B>register</B>
+your extra keys with &xwp;. Those keys are then called
+<B>"&xwp; function keys"</B> and will be recognized by &xwp;. You can,
+for example, use them as <A HREF="mouse_81objhotkeys.html">object hotkeys</A>
+after having registered them.
+
+<P>To <B>register such a function key with &xwp;,</B> go to the enhanced
+"Keyboard" object and switch to the new "Function keys" page. Right-click on the
+container whitespace and select "Add function key". You'll get additional help by
+pressing the "Help" buttons there.
+
+<P><B>Warnings.</B>
+
+<OL><LI>There is virtually <B>no error checking</B> when registering a
+function key with &xwp;. Scan codes are hardware-dependent, so there's no way
+for &xwp; to tell whether a certain scan code really shouldn't be registered.
+For example, you could also register the "Enter" or any character key as a function
+key, which really isn't a good idea. <B>So register only "real" extra keys with
+&xwp;, or the key might no longer work.</B>
+
+<P><LI>Some keys will refuse to be registered. If this happens, this means that the
+keyboard hardware doesn't produce a scan code for the key. I have a Fujitsu multimedia
+keyboard with some 15 extra keys, and three of them just don't work. I guess we'd need
+a device driver to interpret those extra three keys, but this is beyond my knowledge.
+
+<P><LI>As usual, the function keys will only be detected while a PM window has the focus.
+They will not work in full-screen DOS or full-screen &winos2; sessions.
+</OL>
+</BODY>
+</HTML>
+
+

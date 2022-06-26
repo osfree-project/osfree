@@ -1,0 +1,182 @@
+
+/*
+ * xfstart.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XFldStartup
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xfstart.c for details.
+ */
+
+/*
+ *      Copyright (C) 1997-2009 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <xfldr.idl>         // this is SOM for XFolder
+
+/*
+   CLASS: XFldStartup
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject = XFldObject
+               ÀÄÄ WPFileSystem
+                     ÀÄÄ WPFolder = XFolder
+                                      ÀÄÄ XFldStartup
+
+   Note that the class is derived from XFolder directly, not
+   WPFolder, because we need some of the new XFolder methods.
+*/
+
+interface M_XFldStartup;            // forward reference to metaclass
+
+interface XFldStartup : XFolder
+{
+
+    /*
+     * New instance methods for XFldStartup:
+     *
+     */
+
+    ULONG xwpAddXFldStartupPage(in HWND hwndDlg);
+    ULONG xwpSetXStartup(in BOOL fInsert);
+    ULONG xwpQueryXStartupType();
+    ULONG xwpQueryXStartupObjectDelay();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXFldStartupPage,
+            xwpSetXStartup,
+            xwpQueryXStartupType,
+            xwpQueryXStartupObjectDelay;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfstup_;
+        externalstem = xfstup;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfstart;           //# specifies the filestem for sc-generated files
+        metaclass = M_XFldStartup;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"#define XSTARTUP_NONE               0"
+"#define XSTARTUP_REBOOTSONLY        1"
+"#define XSTARTUP_EVERYWPSRESTART    2"
+""
+"#define XSTARTUP_DEFAULTOBJECTDELAY 1000";
+
+        /*
+         * Internal instance variables for XFldStartup:
+         *
+         */
+
+        ULONG           ulType;
+        ULONG           ulObjectDelay;
+
+        /*
+         * XFolder methods overridden by XFldStartup:
+         *
+         */
+
+        wpInitData: override;
+        wpObjectReady: override;
+
+        wpFree: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XFldStartup : M_XFolder
+{
+
+    /*
+     * New class methods for M_XFldStartup:
+     *
+     */
+
+    XFldStartup xwpclsQueryXStartupFolder(in XFldStartup pFolder);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpclsQueryXStartupFolder;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xfstupM_;
+        externalstem = xfstupM;
+        functionprefix = xfstupM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xfstart;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal instance variables for M_XFldStartup:
+         *
+         */
+
+        /*
+         * M_XFolder methods overridden by M_XFldStartup:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+        wpclsQueryIconDataN: override;
+    };
+#endif
+};
+

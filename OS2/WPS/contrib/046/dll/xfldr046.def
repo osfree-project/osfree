@@ -1,0 +1,34 @@
+
+;
+; xfldr046.def:
+;       module definition file for XWorkplace resource DLL (English).
+;       A module definition file contains information which is needed
+;       after code modules have been compiled and need to be linked
+;       together.
+;       You must change the "XFLDR001" string just below to the file
+;       name that the NLS DLL will carry (for example, "XFLDR039" for
+;       Italian).
+;       You can also change the DESCRIPTION string, but this is not
+;       evaluated by XWorkplace.
+;       Do not change anything else.
+;
+;       Copyright (C) 1997-2003 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software; you can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY; without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+
+LIBRARY           XFLDR046   INITINSTANCE TERMINSTANCE
+DESCRIPTION       'XWorkplace National Language Support (Swedish)'
+
+PROTMODE
+DATA              MULTIPLE READWRITE LOADONCALL NONSHARED
+CODE              LOADONCALL
+EXPORTS           ReturnLanguage
+

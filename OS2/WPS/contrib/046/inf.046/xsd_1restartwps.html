@@ -1,0 +1,92 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Starta om Skrivbordet
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klasser: XFldObject, XFldDesktop</B><HR>
+<!-- V0.9.0 -->
+&xwp; kan ocks† l„gga till en post "Starta om Skrivbordet" till kontextmenyn hos Skrivbordet.
+
+<P>Efter val av "Starta om Skrivbordet", kommer en dialogbox liknande den f”r 
+<A HREF="xsd_2xshutdown.html">Ut”kad Avst„ngning</A> att upptr„da. Skillnaden „r att efter att
+alla f”nster har st„ngts, startas inte hela datorn om, utan bara Workplace Shell Process (PMSHELL.EXE).
+
+<P>F”r att f”rst† skillnaden kan det vara bra att k„nna till att &os2;'s anv„ndarinterface „r strukturerat
+i tre "lager", s†-att-s„ga, vilka ligger ovanp† varandra:
+<PRE>
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  Workplace Shell (WPS)      ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  Presentation Manager (PM)  ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+   ³  OS/2 Kernel                ³
+   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+</PRE>
+<BR><STRONG>OS/2 K„rnan</STRONG> st†r f”r den grundl„ggande funktionaliteten hos operativsystemet,
+som access till devicer och multitasking. Utan den, skulle ingenting fungera p† ditt system.
+
+<P><STRONG>Presentation Manager (PM)</STRONG> „r ansvarigt f”r all grafik p† systemet, som f”nster,
+ikoner, menyer, bilder och n†gra ytterligare icke-grafiska saker, som INI filer.
+&os2; kan k”ra text-baserade applikationer (t.ex. &os2;'s kommandorad, CMD.EXE) utan PM, men
+alla andra applikationer erfordrar PM f”r att k”ras. En typisk PM applikation „r Netscape, till exempel.
+
+<P><STRONG>Workplace Shell (WPS)</STRONG> „r en annan, emellertid mycket komplicerad PM applikation.
+Den „r ansvarig f”r visning av mappar, starta program n„r du dubbelklickar p† deras ikoner, associerar 
+filer till program, kort sagt: allting du ser efter att &os2; har bootats klart. Detta „r den kontext i vilket
+&xwp; k”rs.
+
+<P>Menyposten <STRONG>"Starta om Skrivbordet"</STRONG> avslutar endast det ”versta lagret av de tre tidigare
+omn„mnda, Workplace Shell. Detta tar betydligt mindre tid „n att boota om hela datorn, d„rf”r
+att PM och K„rnan inte m†ste laddas om och initialiseras.
+
+<P>Omstart av WPS kan vara bra n„r ditt system har blivit riktigt l†ngsamt (av n†gon anledning, 
+†tminstone enligt min personliga erfarenhet, „ter WPS upp mer och mer minne n„r du arbetar en del med
+filer) eller om du har installerat n†gon programvara som „ndrar WPS klasser.
+
+<P><STRONG>Viktiga noteringar:</STRONG>
+
+<UL><LI>Var v„nlig och kom ih†g att detta inte var det s„tt f”r omstart av WPS som IBM hade tankarna
+p† n„r de utvecklade det. "Starta om Skrivbordet" tvingar WPS att starta om genom att avsluta det.
+Sedan &xwp; „r en del av WPS process, kan den helt enkelt avslutas. &os2; kommer sedan att starta om den h„r
+processen automatiskt. Resultatet „r n„sta samma sak som om WPS hade kraschat och startats om, medan d„remot
+WPS data kommer att sparas f”r omstarten.
+
+<BR><LI>P† mitt system, blir ikonerna f”r exekverbara filer i mapparna blandade och f”rvr„ngda efter en
+omstart av Skrivbordet. Detta g„ller alla programobjekt och exekverbara filer vilka inte „r tilldelade en 
+individuell ikon (via sin notbok med Inst„llningar). Antingen f”rsvinner ikonerna eller blir fel ikoner visade.
+Detta „r en bugg i Presentation Manager, ”ver vilken jag inte har n†got inflytande. Efter en komplett
+ombootning, blir de korrekta ikonerna †terskapade.
+
+<BR><LI>Varken Presentation Manager eller &cfgsys; inst„llningar blir oml„sta vid omstart av WPS.
+Om inst„llningarna har „ndrats, kommer en omstart av Skrivbordet inte att k„nna igen „ndringarna. Boota om
+ist„llet.
+
+<BR><LI>Som en generell regel, ju fler WPS klasser du har installerat, ju fler problem kommer att kunna uppst†
+vid omstart av WPS. Detta kan bero p† m†nga orsaker, vilka jag inte f”rst†r helt ut, men f”r det f”rsta
+verkar inte tredjeparts WPS klasser g”ra rent efter allockerade resurser ordentligt n„r WPS st„ngs av.
+F”r det andra, SOM k„rnan verkar bli konfunderad ibland av WPS klassutbyten, och vissa delar av WPS 
+kraschar efter omkring 20 sekunder efter att Skrivbordet har befolkats.
+<P>I dessa fall, kommer du att f† slumpm„ssiga krascher i vissa DLL'er, vilka „r symptom p† att n†gon
+g†tt snett internt. Om detta h„nder, m†ste du boota om. Kandidater f”r dessa slumpm„ssiga DLL krascher som jag
+har avsl”jat „r INSTALL.DLL (inneh†ller WPInstall), WPPRINT.DLL (inneh†ller printer och spooler klasser), och „ven
+WorkFrame vilken „r bifogad med olika IBM kompilatorer. (Lustigt nog, har alla dessa DLL'er 
+programmerats av IBM.)
+
+<BR><LI>Beroende p† ditt system, kommer antalet omstarter av Skrivbordet som du kan g”ra att variera 
+men vara begr„nsat. Vissa anv„ndare har rapporterat att detta endast fungerar en g†ng, p† mitt
+system har jag lyckats starta om WPS m†nga g†nger (omkring 30) innan mitt system kraschade. 
+(Detta l†ter som m†nga g†nger, men vid programmering av &xwp;, „r det n”dv„ndigt, olyckligtvis.)
+
+</UL>Du kan aktivera den h„r funktionen p† en ny inst„llningssida hos Skrivbordets notbok med Inst„llningar.
+<BR>
+</BODY>
+</HTML>
+
+

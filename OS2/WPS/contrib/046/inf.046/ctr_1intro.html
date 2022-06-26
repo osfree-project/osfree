@@ -1,0 +1,53 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduktion
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.7. -->
+<BODY>
+Startande med V0.9.7, inneh†ller &xwp; en ers„ttare f”r &warp4;'s &warpcenter;.
+Denna kallas "&xcenter;".
+
+<P>Tekniskt, „r den inte n†got &warpcenter; utbyte... den byter inte ut WPS klassen
+"SmartCenter", eftersom den klassen „r helt och h†llet odokumenterad fr†n f”rsta b”rjan.
+Ist„llet, „r &xcenter; en ny implementation fr†n scratch. Den „r inte kompatibel med
+&warpcenter; och tar inte ”ver dess inst„llningar, men den kan g”ra ungef„r samma sak...
+och mer.
+
+<P>J„mf”rt med &warpcenter;, erbjuder dig &xcenter; f”ljande f”rdelar:
+
+<UL><LI>Den „r <B>fullt konfigurerbar.</B> Du kan l„gga till poster p† &xcenter; efter fri vilja,
+medan &warpcenter; alltid inneh†ller fasta poster p† fasta placeringar.
+
+<P>Posterna p† &xcenter; kallas "widgets". du kan l„gga till widgets p† &xcenter; i
+vilken ordning som helst.
+
+<P>Se <A HREF="ctr_2addwgt.html">"L„gga till och ta bort widgets"</A> f”r detaljer.
+
+<P><LI>Du kan ha <B>mer „n ett &xcenter;</B> p† ditt system. Varje &xcenter; lagrar sina
+widgets och deras inst„llningar separat s† att de aldrig kommer i konflikt med varandra.
+
+<P><LI>&xcenter; erbjuder dig <B>flera visningss„tt</B> „n &warpcenter;. Du kan dra
+och sl„ppa fonter och f„rger p† widgets, vilka kommer att h†lla kvar dessa inst„llningar
+individuellt. Dessutom, &xcenter; har en "auto-g”m" option s† att den kan reducera sig sj„lv
+till ett ytterst litet f„lt l„ngs ner p† sk„rmen, liknande aktivitetsf„ltet i Windows 95.
+Du kan st„lla in visningsoptionerna i &xcenter;'s notbok med inst„llningar.
+
+<P><LI>&xcenter; st”der <B>plug-in DLL'er.</B> Vilken programmerare som helst kan l„gga till nya
+widgettyper till &xcenter; genom att skriva en DLL och l„gga den i <CODE>plugins\xcenter</CODE>
+katalog under &xwp; installationskatalog.
+
+<P>Se <A HREF="ctr_9plugin.html">"Om plug-in DLL'er"</A> f”r detaljer.
+
+<P><LI>&xcenter; k”rs p† en <B>separat tr†d</B> inom WPS och kan d† f† en h”gre prioritet „n
+andra program. Du kan st„lla in prioriteten i &xcenter;'s notbok med inst„llningar.
+
+<P>Emedan detta inte kan fixa problemet med PM single input queue (SIQ), kan det fortfarande ge dig
+access till &xcenter; om n†gra program anv„nder all CPU tid.
+
+</UL>
+</BODY>
+</HTML>
+
+

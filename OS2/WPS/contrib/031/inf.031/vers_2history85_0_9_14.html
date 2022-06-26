@@ -1,0 +1,120 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.14
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.14 (August 26, 2001)</B>
+
+<P>New features:
+
+<UL><LI>General: Added SHOWRUNDLG setup string.
+
+<P><LI>General: Since so many people didn't quite appreciate my beautiful
+XWPSTART.LOG file, I added a setting for that on the "Startup" page in the
+desktop's settings notebook.
+
+<P><LI>Mouse: Martin Lafaix added a couple of settings to the "Auto-hide mouse"
+feature and the general "Auto-move pointer to default push button" feature.
+While I was at it, I added mouse pointer animations then.
+
+<P><LI>&xcenter;: Added another diskfree widget ("condensed" style).
+
+<P><LI>&xcenter;: Added properties dlg to X-button widget for configuring the
+menu items to display.
+
+<P><LI>&xcenter;: Added "Hide immediately on mouse click" setting.
+
+<P><LI>&xcenter;: Martin Lafaix added dragging widgets to open folders, which will
+create a widget definition in a file, which can then be dropped to an &xcenter;
+again. Experimental feature, no documentation yet.
+
+<P><LI>&xcenter;: Paul Ratcliffe added more options to the "Run" dialog.
+
+<P><LI>Treesize: Added "100 largest files" function.
+
+<P><LI>Status bars: Added "Keys" buttons to status bars page 2 in "Workplace Shell"
+to list all the status bar keys that are supported by the corresponding entry field.
+
+</UL><P>Miscellaneous changes:
+
+<UL><LI>General: Greatly sped up dialog engine by caching font data, which affects
+the new message boxes, among other things.
+
+<P><LI>XWPSetup: Reworked the "XWorkplace Classes" setup dialog.
+
+<P><LI>&xcenter;: Optimized internal timers, which now use less CPU time
+(depending on how many widgets are running). As a side effect, they
+are even much more precise now.
+Thanks Martin Lafaix for the oriental meditation hints.
+
+<P><LI>&xcenter;: Added more function imports to widget DLLs to reduce their sizes.
+
+</UL>Bugfixes:
+
+<UL><LI>General: New message boxes never had focus on default button. Besides,
+the "snap back" for default buttons on tabbing didn't always work. Fixed.
+
+<P><LI>General: Some message boxes didn't react to mouse clicks at all and could
+only be dismissed via keyboard. Fixed.
+
+<P><LI>General: Fixed a rounding problem in the font engine which caused wrong
+font sized to be selected in some situations.
+
+<P><LI>General: Fixed about a dozen memory leaks in various places.
+
+<P><LI>General: Library routine which was used for starting applications
+(among others, by &xcenter; "Run" dialog)
+always hung the system for full-screen &winos2; sessions. Fixed by Paul Ratcliffe.
+
+<P><LI>XFolder: Folder hotkeys for sort and arrange sorted the desktop
+even if the respective menu items were disabled for the desktop. Fixed;
+these are suppressed now to avoid accidentally sorting or arranging the
+desktop.
+
+<P><LI>XFolder: Fixed a number of problems with "Create another" in tree views,
+most notably that the new object wouldn't appear unless the tree view had
+SHOWALLINTREEVIEW set.
+
+<P><LI>"OS/2 kernel" object: "Syslevels" page never displayed TCP/IP data, fixed.
+
+<P><LI>"Keyboard" object: "Hotkeys" page never used 8.Helv font if enabled. Fixed
+by Paul Ratcliffe.
+
+<P><LI>Status bars: "Undo" on status bars page 2 in "Workplace Shell" didn't
+undo everything. Fixed.
+
+<P><LI>Hook: This allowed many things during lockup that weren't supposed to
+happen, such as opening hot corner objects. Fixed.
+
+<P><LI>&pgr;: I added a mutex around a global hook flag which is used by
+&pgr; to avoid recursing into the hook. It looks like this has improved the
+&pgr; hangs that occured sporadically when many windows were opened and closed.
+I am not sure yet if this completely fixed the problem.
+
+<P><LI>&xcenter;: Widget settings management crashed sometimes in an endless loop
+when freeing settings data. Fixed by Paul Ratcliffe.
+
+<P><LI>&xcenter;: Widget properties dialogs never worked for subwidgets in a tray.
+Fixed.
+
+<P><LI>&xcenter;: If &xcenter; was on top of screen, menus weren't displayed in
+the proper direction. Fixed for object buttons and X-button by Martin Lafaix.
+
+<P><LI>&xcenter;: MB2 context menu on border or sizing bar broke with 0.9.13. Fixed by
+Martin Lafaix.
+
+<P><LI>&xcenter;: Pulse widget broke with some recent version on some system, causing
+crashes. Fixed, hopefully.
+
+<P><LI>&xcenter;: Trays sometimes lost their current tray between restarts. Fixed.
+
+</UL>
+</BODY>
+</HTML>
+

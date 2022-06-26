@@ -1,0 +1,63 @@
+<HTML RESID=&ID_XSH_FONTSAMPLEHINTS;>
+<HEAD>
+    <TITLE>
+        &xwp;: Lettertype Vormen
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+In een lettertype object <A HREF="font_view.html">voorbeeld</A>, kunnen vier verschillende
+lettertype vormen worden getoond, die ieder in het voorbeeld kunnen worden in- of uitgeschakeld
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>.
+
+Als alle vier de instellingen zijn uitgeschakeld, ziet elke lijn van de
+lettertype afbeelding er als volgt uit:
+
+<BR><IMG SRC="img/fonthint.gif">
+
+
+<P>De verschillende vormen hebben de volgende betekenis:
+
+<OL><LI>De rode lijn rechts onder de "72" karakters in de afbeelding er boven is de
+<B>basislijn.</B> Dat is de lijn waar de karakters op 'staan'. De meeste karakters zullen
+in het geheel op die lijn worden getekend, behalve die die "dalingen" hebben die onder de
+basislijn uitkomen (zoals de <CODE>g</CODE> en <CODE>y</CODE> karakters). Alle andere
+lettertype vormen zijn gerelateerd aan de basislijn. (Voor programmeurs: de basislijn
+vertegenwoordigt de y-co”rdinaat van alle <CODE>GpiCharString*</CODE> aanroepen.)
+
+<P><LI>De licht grijze rechthoek links van iedere lijn (aangegeven met <B>A</B> in
+de afbeelding erboven) vertegenwoordigt de <B>grootste letter</B> met stok <B>A</B> van het
+lettertype (maar is veel groter dan -- zie <B>C</B> hieronder. Dit is de hoeveelheid ruimte dat
+een lettertype moet hebben boven de basislijn.
+(Voor programmeurs: Dit zit in het <CODE>lMaxAscender</CODE> veld van &os2; zijn
+<A HREF="pmref.inf#fontmetrics"><CODE>FONTMETRICS</CODE></A> structuur.)<A HREF="_toolkitlink.html">*</A>
+
+<P>Daar tegenover staat dat, de donker grijze rechthoek (gemarkeerd met <B>B</B>) de
+<B>grootste staartletter</B> vertegenwoordigt van het lettertype (<CODE>FONTMETRICS.lMaxDescender</CODE>).
+Dat is de grootste afstand die letters als <CODE>g</CODE> of <CODE>y</CODE> onder de
+basislijn uitsteken (dat is beduidend meer dan -- zie <B>2</B> beneden).
+
+<P><LI>De verticale donker grijze lijnen (gemarkeerd met <B>C</B> vertegenwoordigen de
+<B>interne regelafstand</B>  (<CODE>FONTMETRICS.lInternalLeading</CODE>). Dit is het onderdeel
+van de "maximale letter met stok" (A) die alleen maar wordt gebruikt als een interlinie voor het
+lettertype.
+Aangezien voor het grootste aantal lettertypes de "maximum letter met stok" waarde (A)
+in werkelijkheid veel groter is dan de echte maximale letter met stok in het lettertype,
+kan deze waarde worden afgetrokken van de maximale letter met stok om de "echte" omvang van
+karakters boven de basislijn te krijgen.
+
+<P><LI>De rode rechthoeken met diagonale lijnen (aangegeven met <B>1</B>, <B>2</B>)
+vertegenwoordigen de <B>kleine stok/staart letters</B>. De <I>PM Programmeer Handleiding</I>
+geeft aan dat dit de omvang is die het grootste kleine letter karakter boven de basislijn uitsteekt.
+Aangezien in veel lettertypes sommige kleine letters zoals <CODE>d</CODE> in werkelijkheid
+groter zijn dan hoofdletters (b.v. in Times New Roman), moet dit de echte ruimte die het lettertype
+boven de basislijn zal gebruiken bevatten.
+
+<P>Jammer genoeg, is deze waarde voor de meeste 'TrueType' lettertypen niet juist.
+Dit is of een bug in de 'FreeType/2 engine' of het kan zijn dat veel 'TrueType' lettertypen
+slecht ontworpen zijn.
+
+</OL>
+</BODY>
+</HTML>
+

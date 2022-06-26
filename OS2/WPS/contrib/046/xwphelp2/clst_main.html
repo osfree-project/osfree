@@ -1,0 +1,89 @@
+<HTML RESID=&ID_XSH_SETTINGS_WPSCLASSES;>
+<HEAD>
+    <TITLE>
+        &xwp;: WPS Klasslista
+    </TITLE>
+</HEAD>
+<BODY>
+<!-- Changes for V0.9.0: this has almost completely been rewritten, since we have
+     a separate "WPS Classes" object now. -->
+Objektet "WPS Klasslista" visar dig den kompletta WPS klasslistan som ett hierarkiskt tr„d,
+med en hel del ytterligare information om WPS och SOM.
+Genom att anv„nda objektet, kan du registrera och avregistrera WPS klasser s†v„l som att byta ut och
+†ngra utbyte av klasser som redan har blivit registrerade.
+
+<!-- V0.9.13: added these 2 lines -->
+<P>Se <A HREF="glossary/gls_wpsclasses.html">"WPS klasser"</A> f”r en introduktion om vad
+WPS klasser handlar om.
+
+<P><B>Varning:</B> Objektet WPS Klasslista till†ter dig att g”ra „ndringar som kan g”ra ditt
+system oanv„ndbart. Om du inte k„nner till betydelsen av en s„rskild klass,
+eller om du inte vet vad WPS klasser anv„nds till, skall du <I>inte</I> g”ra n†gra
+„ndringar h„r. Du kan med s„kerhet titta p† all information, men du b”r inte manipulera
+WPS klasslistan om du inte vet exakt vad du h†ller p† med. M†nga „ndringar som den h„r sidan
+till†ter kan g”ra ditt system ostabilt (om du har tur) eller helt enkelt hindra Workplace Shell
+fr†n att ”verhuvudtaget starta s† att du m†ste installera om &os2; fr†n b”rjan. <B>I vilket fall,
+se till att du har gjort en arkivering av WPS innan du „ndrar n†got.</B>
+
+<P>F”nstret med klasslistan „r delad i tre mindre f”nster, vars separatorer kan flyttas med hj„lp
+av musen.
+
+<P>Om du <B>v„ljer en klass i klasstr„det till v„nster</B>, kommer de tv† dotterf”nstren p†
+h”gra sidan att visa dig ytterligare information om klassen.
+
+<OL><LI>I den <B>”vre h”gra kanten,</B> f†r du WPS-relaterad information, som klassens namn,
+standardrubriken f”r klassen (som visas i den tredje kolumnen av mappens visning ”ver detaljer),
+och den DLL som inneh†ller klassen.
+
+<P>Om den DLL'en finns i variabeln LIBPATH, kommer i de flesta fall ingen ytterligare s”kv„g
+att visas. Detta g„ller speciellt de flesta standard WPS klasser, vilka finns i <CITE>\OS2\DLL\PMWP.DLL</CITE>.
+
+<P>Ocks†, visas "klassens standard" ikon, vilken vanligtvis „r h†rd-kodad direkt in i klassen. Detta „r
+den ikon som visas som standard om ingen annan ikon har valts f”r ett objekt i objektets inst„llningsblock
+p† sidan "Ikon".
+
+<P>I de flesta fall, om den valda klassen „r k„nd av &xwp;'s f”rfattare, kommer du ocks† att erh†lla
+en kort beskrivning av klassen.
+
+<P><LI>I den <B>nedre h”gra kanten,</B> visas en del metodinformation vilken „r direkt h„mtad
+fr†n SOM k„rnan (p† vilken Workplace Shell bygger f”r att organisera sina klasser). Den h„r informationen
+„r troligtvis endast av intresse f”r WPS programmerare och r„tt lika resultatet fr†n den fabul”sa
+"RWX" utilityn.
+
+<P>Beroende p† valet i toppen, kommer det h„r dotterf”nstret att visa antingen alla bel„gg av
+klassmetoder eller endast den aktuella klassen.
+
+<P>F”r varje metod, f†r du f”ljande <B>metodinformation</B> (du kanske m†ste flytta containerns delning f”r att
+visa alla f„lt):
+<BR><OL><LI><B>Metodindex.</B> Denna anv„nds av SOM internt f”r att snabbt best„mma metod
+i enlighet med metodtabellerna. Detta „r det index med vilket metoden „r lagrad i klassens metodtabell.
+Notera att samma metod inte n”dv„ndigtvis har samma index i olika klasser.
+
+<P><LI><B>Metodnamn.</B> Ja, det „r metodens namn.
+
+<P><LI><B>Adress.</B> Procedurpekaren som SOM har returnerat n„r metoden fastst„lldes. Pekaren
+kommer att „ndras f”r olika klasser om en klass har ”verskridit en metod, naturligtvis.
+
+<P><LI><B>Klass.</B> Den klass som introducerade (f”rst definierade) metoden.
+
+<P><LI><B>™verskriden av.</B> En lista p† klasser vilka har ”verskridit metoden. Notera att endast klasser
+upp till den aktuella ”verskridna klassen visas. Om n†gon annan ned†tstigande klass hos den aktuella klassen
+har ”verskridit klassen, kommer detta inte att visas. V„lj de ned†tstigande klasserna f”r att visa
+den informationen.
+
+</OL><BR>Notera att du kan <B>sortera</B> metodinformationen i enlighet med fyra olika kriterier
+f”r ytterligare klarhet. H”gerklicka p† rubrikraden f”r metodvisningen (d„r kolumnernas rubriker st†r),
+och du kommer att f† upp en &popmenu; med sorteringsoptioner.
+
+</OL>Du kan g”ra <B>„ndringar</B> i WPS klasslistan genom att anv„nda <!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;er</A>. Tryck musknapp 2 p† n†got klassnamn i
+klasstr„det, och en &popmenu; kommer att upptr„da, visande dig vilka optioner som finns f”r den
+klassen. Vissa optioner „r avaktiverade om &xwp; tycker att du inte borde g”ra n†gra „ndringar.
+
+<P>Om du trycker musknapp 2 ”ver en <B>tom yta</B> hos det v„nstra f”nstret, kommer en annan &popmenu;
+att upptr„da. Den till†ter dig att registrera en ny klass.
+
+<BR>
+</BODY>
+</HTML>
+

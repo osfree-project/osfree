@@ -1,0 +1,29 @@
+<HTML XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Introduction
+    </TITLE>
+</HEAD>
+<!-- this page is new with V0.9.1 -->
+<BODY>
+In order to change a certain object's setting with REXX, use the following
+RexxUtil function:
+<PRE>rc = SysSetObjectData(<I>name</I>, <I>setup</I>)</PRE>
+<P>with:
+<P><CODE><I>name</I></CODE> being the object you wish to change (referenced either by a
+full path specification or an object ID, such as <CODE>&lt;WP_DESKTOP&gt;</CODE>);
+<P><CODE><I>setup</I></CODE> being one of the WPS setup strings, which always
+have a <CODE><I>keyword</I>=<I>data</I></CODE> syntax. You can combine several settings
+by separating them with semicola (<CODE>;</CODE>).
+<P>Example:
+
+<PRE>  if SysSetObjectData(directory(),"NOMOVE=YES;DEFAULTVIEW=ICON") then
+    Say "Settings changed!"
+</PRE>
+<P>This will change the folder settings for the current directory, which is useful for
+scripts called by XFolder, which have the intended directory already changed to.
+<P>See the <A HREF="rexx.inf#syssetobjectdata">&os2; REXX Reference</A> for details.
+<BR>
+</BODY>
+</HTML>
+

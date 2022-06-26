@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Restrictions When Copying and Moving Files
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+When copying or moving file-system objects
+(&link_datafiles; or &link_folders;)
+between different drives, you should be aware of restrictions
+if the drives use different <A HREF="glossary/gls_fs.html">file systems</A>.
+
+<OL><LI>Other operating systems other (such as DOS or Windows)
+will not be aware of &os2;'s
+<A HREF="glossary/gls_eas.html">extended attributes</A>. This is
+probably only a problem with the FAT file system since DOS or
+Windows cannot see HPFS or JFS volumes in the first place. But
+if you work on &os2; files with those operating systems, their
+extended attributes might get lost.
+
+<P><LI>If you copy or move a file from a drive formatted
+with HPFS or JFS to a drive formatted with the FAT file system,
+the system might truncate the file name according to the FAT 8+3
+naming restriction. The original long file name is then saved as
+an extended attribute of the file. However, if you look at the
+disk with a different operating system, you will only be able
+to see the file's short name.
+
+<P>Be aware that diskettes are always formatted with the FAT file
+system.
+
+<P><LI>The automatic file name conversion described above only
+works when you use the &os2; Workplace Shell to copy or move
+files. If you use <A HREF="glossary/gls_cmd.html">command prompts</A>
+(for example, the <A HREF="cmdref.inf#copy"><CODE>COPY</CODE></A> and
+<A HREF="cmdref.inf#xcopy"><CODE>XCOPY</CODE></A> commands) to copy or
+move files that do not conform to the FAT 8+3 naming restriction, the
+operation will simply fail.
+</OL>
+</BODY>
+</HTML>
+

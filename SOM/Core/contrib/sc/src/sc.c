@@ -29,7 +29,8 @@
  * SMINCLUDE include dirs for IDL files
  * SMKNOWNEXTS add headers to user written emitters
  * SOMIR for IR emitter
- * SMTMP for temporary variables
+ * SMTMP for temporary variables (@todo)
+ * SMADDSTAR (@todo)
  */
 
 #include <rhbopt.h>
@@ -275,16 +276,16 @@ void usage(void)
   printf("by changing them to UPPERCASE and preappending 'SM' to them.\n");
   printf("\n");
   printf("Environment Variables (current state):\n");
-  printf("        SMEMIT='||emitters\n");
+  printf("        SMEMIT=%s\n", getenv("SMEMIT"));
   printf("                : emitters to run (default : h;ih).\n");
-  printf("        SMINCLUDE='||include\n");
+  printf("        SMINCLUDE=%s\n", getenv("SMINCLUDE"));
   printf("                : where to search for .idl and .efw files.\n");
-  printf("        SMKNOWNEXTS='||knownext\n");
+  printf("        SMKNOWNEXTS=%s\n", getenv("SMKNOWNEXTS"));
   printf("                : add headers to user written emitters.\n");
-  printf("        SMADDSTAR='||addstar\n");
+  printf("        SMADDSTAR=%s\n", getenv("SMADDSTAR"));
   printf("                : add or no '*' to C bindings for interface references.\n");
-  printf("        SMEMITAPPEND='||emitappend\n");
-  printf("                : add or no '*' to C bindings for interface references.\n");
+  printf("        SMEMITAPPEND=%s\n", getenv("SMEMITAPPEND"));
+  printf("                : append the emitted files at the end of existing file.\n");
 }
 
 int main(int argc,char **argv)
@@ -294,11 +295,14 @@ int main(int argc,char **argv)
 	char *outputDir=NULL;
 	item *includes=NULL;
 	item *defines=NULL;
+	item *undefines=NULL;
 	item *modifiers=NULL;
 	int i=1;
 	int update=0;
 	char *app=argv[0];
 	static _IDL_SEQUENCE_char zero={1,1,""};
+
+	printf("a\n");
 
 	add_many(&defines,"__SOMIDL__");
 
@@ -314,6 +318,7 @@ int main(int argc,char **argv)
 	add_many(&defines,"_PLATFORM_X11_");
 #endif
 
+	printf("b\n");
 
 	while (i < argc)
 	{
@@ -330,7 +335,17 @@ int main(int argc,char **argv)
 			case 'p':
 				add_many(&defines,"__PRIVATE__");
 				break;
-			case 'D':
+			case 'E':
+				if (p[2])
+				{
+					setenv(p+2,"1",1);
+				}
+				else
+				{
+					setenv(argv[i++],"1",1);
+				}
+				break;
+			case 'D': // DEFINE
 				if (p[2])
 				{
 					add_many(&defines,p+2);
@@ -338,6 +353,16 @@ int main(int argc,char **argv)
 				else
 				{
 					add_many(&defines,argv[i++]);
+				}
+				break;
+			case 'U': // UNDEFINE
+				if (p[2])
+				{
+					add_many(&undefines,p+2);
+				}
+				else
+				{
+					add_many(&undefines,argv[i++]);
 				}
 				break;
 			case 'm':
@@ -388,9 +413,10 @@ int main(int argc,char **argv)
 				}
 				break;
 			case 'u':
-				update=1;
+				update=1; // update IR
 				break;
 			case 'h':
+			case '?':
 				usage();
 				return 0;
 			case 'C':
@@ -401,6 +427,12 @@ int main(int argc,char **argv)
 				break;
 			case 'v':
 				// verbose
+				break;
+			case 'c':
+				// ignore all comments
+				break;
+			case 'r':
+				// check releaseorder
 				break;
 			case 'V':
 				// version
@@ -478,16 +510,19 @@ int main(int argc,char **argv)
 #if 0
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
-				long len=1;
+				long len=0;
 #endif
 				item *t;
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
 
+	printf("d\n");
+
 #if 1
 				buf[0]=0x0;
 #endif
 
+	printf("e\n");
 				/* get to start of file name */
 
 				while (len--)
@@ -502,6 +537,7 @@ int main(int argc,char **argv)
 						break;
 					}
 				}
+	printf("s\n");
 
 				if (appPathSpaces)
 				{
@@ -509,13 +545,17 @@ int main(int argc,char **argv)
 					add_str(&somcpp,"\"");
 				}
 
-				strncpy(buf+len,"somipc.exe",sizeof(buf)-len);
+				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
 
 				add_str(&somipc,buf);
-
-				strncpy(buf+len,"somcpp.exe",sizeof(buf)-len);
+				
+				printf("1\n");
+				
+				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
 
 				add_str(&somcpp,buf);
+
+				printf("2\n");
 
 				if (appPathSpaces)
 				{
@@ -566,6 +606,18 @@ int main(int argc,char **argv)
 
 					t=t->next;
 				}
+
+				t=undefines;
+
+				while (t)
+				{
+					add_str(&somcpp," -U");
+					add_seq(&somcpp,&t->data);
+
+					t=t->next;
+				}
+
+				printf("10\n");
 
 				t=includes;
 
@@ -794,6 +846,8 @@ int main(int argc,char **argv)
 					int somipcExitCode;
 					_IDL_SEQUENCE_char tmpf={0,0,NULL};
 
+				printf("20\n");
+
 					tmpnam(name2);
 					add_str(&tmpf, getenv("TMP"));
 					add_str(&tmpf,"/");
@@ -802,16 +856,16 @@ int main(int argc,char **argv)
 					add_str(&somcpp," ");
 					add_seq(&somcpp,&idl->data);
 					add_str(&somcpp," > ");
-					add_str(&somcpp,tmpf._buffer);
+					add_seq(&somcpp,&tmpf);
 
 					add_str(&somipc," ");
-					add_str(&somipc,tmpf._buffer);
+					add_seq(&somipc,&tmpf);
 
 					add_seq(&somcpp,&zero);
 					add_seq(&somipc,&zero);
-#if 0
+#if 1
 					printf("somcpp: %s\n",somcpp._buffer);
-					printf("somcpp: %s\n",somipc._buffer);
+					printf("somipc: %s\n",somipc._buffer);
 #endif
 					cppExitCode=system(somcpp._buffer);
 					somipcExitCode=system(somipc._buffer);

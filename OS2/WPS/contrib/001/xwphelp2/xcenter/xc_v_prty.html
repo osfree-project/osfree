@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xcenter;: View Thread Priority
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<!-- rewritten with V0.9.19 -->
+<!-- title fixed V1.0.1 (2003-02-02) [umoeller] -->
+<BODY>
+The <B>"View thread priority"</B> allows you to specify the priority delta
+of the thread that is started when the &xcenter; is opened.
+See <A HREF="glossary/gls_scheduler.html">"Processes and threads"</A> for
+more information about thread priorities.
+
+<P>The &xcenter; does not run on the same thread as most other WPS windows
+-- which is normally thread 1 in the WPS process. Instead, when an &xcenter;
+is opened, a new thread is created. This allows you to set the priority
+of the &xcenter; independently from the rest of the WPS.
+
+<P>By default, the &xcenter; runs with a priority delta of zero, which is
+the standard priority delta (and the same as all other WPS windows).
+However, you can raise that delta up to 31 (which is the maximum priority
+delta in &os2;) to give the &xcenter; precendence over other tasks in the system.
+Among other things, this might make animations run more smoothly.
+
+<P>Notes:
+
+<UL><LI>The &xcenter; will always use the "regular" priority class to avoid
+system hangs and side effects with other software. Only within that class you
+may alter the priority delta between zero and 31. (In other words, the
+&xcenter; will not allow you to use a time-critical or foreground server
+priority.)
+
+<P><LI>Some <A HREF="xcenter/xc_main_widgets.html">widgets</A> may use
+additional threads for their own purposes, which are not affected by this
+setting. For example, the <A HREF="xcenter/xc_pulse.html">Pulse widget</A>
+starts a second thread to collect the CPU load from the &os2; kernel to
+ensure the data is accurate even under high system loads.
+
+<P><LI>If some process is blocking the system, for example by not processing
+its message queue, this setting has little effect on that problem.
+
+</UL>
+</BODY>
+</HTML>
+

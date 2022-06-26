@@ -1,0 +1,143 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        xfix: Handtagslistan
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+Vid startup, laddar xfix handtagstabellerna fr†n den aktiva
+<CODE>PM_Workplace:HandlesX</CODE> sektionen i <CODE>OS2SYS.INI</CODE>.
+(Se <A HREF="xfix_handles.html">Om WPS filhandtag</A> f”r detaljer.)
+
+<P>xfix analyserar sedan handtagstabellen.
+F”r varje handtag som analyserades av xfix, visas f”ljande information i kolumnerna
+f”r xfix handtagslista:
+
+<OL><LI><B>"i"</B> „r bara en r„knare som ”kas f”r varje handtag som analyserats.
+Det talet „r inte n„rvarande i <CODE>OS2SYS.INI</CODE> och uppdateras inte n„r du
+raderar filhandtag.
+(Se "Sortera genom index" i <A HREF="xfix_menus.html">Meny kommandoreferens</A>.)
+
+<P><LI>Den andra kolumnen visar dig <B>status</B> f”r varje handtag. Detta „r 
+tilldelat av xfix. Om xfix anser att handtaget „r OK, „r den h„r kolumnen tom.
+
+<P>Redan efter startup, kontrollerar xfix handtagen efter integritet. Det kommer
+att uppt„cka ogiltiga f”r„ldrahandtag och duplicerade handtag omedelbart. Om du vill ha
+filhandtagen markerade som ogiltiga vilka inte l„ngre pekar mot n†gon relevant
+filsystemsinformation, m†ste du f”rst ange "Finn ogiltiga filer" fr†n menyn
+<A HREF="xfix_menus.html">"Aktioner"</A>.
+
+<P>Varje handtagspost som har n†got i den h„r kolumnen blir tilldelad en gr† framh„vning
+s† att du snabbt kan se den. Om du anv„nder "V„lj alla ogiltiga" fr†n menyn
+<A HREF="xfix_menus.html">"V„lj"</A>, kommer alla poster automatiskt att v„ljas †t dig.
+
+<P><LI><B>"Typ"</B> f„ltet „r antingen <CODE>NODE</CODE> eller <CODE>DRIV</CODE>.
+Om du <A HREF="xfix_menus.html">sorterar genom index</A> f”r att f† originalordningen
+p† posterna som i <CODE>OS2SYS.INI</CODE>, kommer du att se att det alltid finns en
+<CODE>DRIV</CODE> post f”re alla <CODE>NODE</CODE> poster som tillh”r den enheten.
+Som till„gg, det finns alltid en extra <CODE>NODE</CODE> post f”r varje rotkatalog
+efter <CODE>DRIV</CODE> node, om n†gra handtag existerar f”r den enheten. Jag vet inte
+varf”r det finns en extra <CODE>DRIV</CODE> node, men jag gissar att WPS anv„nder den
+som en mark”r internt f”r att hitta fler handtag snabbare.
+
+<P><LI><B>"Node ofs"</B> f„ltet visar det offset vid vilket posten ("node") 
+hittades i handtagstabellen fr†n <CODE>OS2SYS.INI</CODE>. Tabellen startar med fyra
+underh†llsbytes (vars mening „r ok„nd f”r mig), s† att den f”rsta posten alltid
+startar med offset 4. L„ngden p† varje post beror p† dess korta namn (se nedanf”r).
+
+<P><LI><B>"Handtags"</B> f„ltet „r fr†n node i <CODE>OS2SYS.INI</CODE> och visar dig
+filsystemshandtagen hexadecimalt, vilken blir det l†ga ordet hos objekthandtaget hos
+det korresponderande filsystemobjektet (WPDataFile eller WPFolder). 
+Se <A HREF="xfix_handles.html">Om WPS filhandtag</A> f”r detaljer.
+
+<P>Det finns inga uppenbara regler f”r hur handtag tilldelas. Det verkar som att n„r
+nya handtag skapas, f†r dom ett slumpm„ssigt nummer vilket inte anv„nds „nnu.
+
+<P>Detta f„lt „r tomt f”r <CODE>DRIV</CODE> poster d„rf”r att dessa aldrig har n†got
+handtag. Igen, uppenbart, <CODE>DRIV</CODE> nodes „r bara mark”rer i handtagens data.
+
+<P><LI>F„ltet <B>"F”r„lder"</B> „r ocks† lagrat med en post i <CODE>OS2SYS.INI</CODE>
+och specificerar handtaget f”r mappen i vilket detta objekt (antingen en fil eller en annan
+mapp) h†ller till. Detta b”r vara giltigt (undantaget f”r rot <CODE>NODE</CODE> poster,
+d„r detta uppenbart „r 0). Om det inte „r det, markerar xfix posten som "F”r„ldral”s" och
+ogiltig d„rf”r att den inte l„ngre „r anv„ndbar.
+
+<P>F”r„ldrahandtagen „r av stor betydelse. WPS kan inte bygga upp full
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_path.html">s”kv„g</A> fr†n ett filhandtag om ett f”r„ldrahandtag 
+inte „r giltigt. Se nedanf”r hur det fungerar.
+
+<P><LI><B>"Korta namn"</B> „r lagrade i handtagens block och specificerar namnet
+p† filsystemobjekt utan den fulla s”kv„gens specifikation. L„ngden p† filnamnet
+„r variabelt och „r ocks† anledningen till att varje post har olika storlek.
+
+<P>Normalt, g”r WPS korta namn till stora bokst„ver. Emellertid, p† mitt system, har 
+vissa poster en mix mellan sm† och stora bokst„ver. Jag har ingen aning om detta
+orsakar n†gra problem.
+
+<P><LI>F„ltet <B>"Arvinge"</B> „r ber„knat av xfix n„r det analyserar handtagstabellen.
+Det specificerar hur m†nga andra poster som bygger p† den h„r posten d„rf”r att den
+„r specificerad som deras f”r„ldrahandtag, antingen direkt (som syns i "F”r„lder" f„ltet)
+eller indirekt (d„rf”r att andra f”r„ldrar finns mellan).
+
+<P>Om "Arvinge" „r 0, kan du radera den h„r posten utan att skada andra poster. 
+(Det betyder dock fortfarande att det inte alltid „r s„kert att radera posten,
+eftersom det kan bryta skuggor etc. Se
+<A HREF="xfix_delete.html">Radera filhandtag</A>.)
+
+<P><LI><B>"Dups"</B> f„ltet „r ocks† uppsatt av xfix och r„knar antalet 
+dubletter av varje handtag. <B>Det b”r vara noll f”r varje handtag.</B>
+Om det inte „r det, kommer WPS troligtvis att haverera ganska snart. Det „r varf”r
+xfix ger handtaget statusen "Dubblett" och markerar den som ogiltig.
+
+<P>Se <A HREF="xfix_howto.html">Hur kan jag...</A> f”r mer om dubbletter.
+
+<P><LI><B>"Refcs."</B> f„ltet st†r f”r "Referenser" och ber„ttar f”r dig om
+handtaget f”r n„rvarande „r anv„nt fr†n <CODE>OS2.INI</CODE> filen.
+
+<P>Om du ser <CODE>ABS</CODE> i det h„r f„ltet, betyder det att handtaget „r listat 
+i sektionen <CODE>PM_Abstract:FldrContent</CODE> av <CODE>OS2.INI</CODE>. Den
+sektionen listar alla abstrakta objekt som „r n„rvarande i en mapp. Med andra ord,
+om du ser <CODE>ABS</CODE>, „r handtaget f”r en mapp som inneh†ller abstrakta objekt.
+
+<P>Om du ser <CODE>FPOS</CODE> i det h„r f„ltet, betyder att handtaget „r listat 
+i <CODE>PM_Workplace:FolderPos</CODE> sektionen. Den sektionen listar alla mapp-positioner
+som n†gonsin sparats av WPS. S† om du ser <CODE>FPOS</CODE>, „r posten f”r en mapp som redan
+har ”ppnats av WPS och har f†tt sin position lagrad.
+
+<P>Se <A HREF="xfix_delete.html">Radera filhandtag</A> f”r konsekvenserna av att
+radera filhandtag vilka har dessa f„lt satta.
+
+<P><LI><B>"L†ngt namn"</B> visar dig en specifikation ”ver den fulla s”kv„gen
+hos det h„r handtaget, som det skulle ha l”sts av WPS. Notera att detta inte upptr„der 
+i handtagets post i <CODE>OS2SYS.INI</CODE>... ist„llet, visar detta smartheten i
+hela filhandtags-konceptet.
+
+<P>Det s„tt p† vilket det h„r fungerar „r att n„r WPS beh”ver ett fullst„ndigt filnamn fr†n
+ett objekthandtag (t.ex. n„r ett programobjekt „r startat och det exekverbara namnet
+beh”vs), s”ker det upp objektets handtag i tabellen, vilket ger ett kort namn (som
+visas i kolumnen "Korta namn").
+
+<P>WPS s”ker sedan upp f”r„ldrahandtaget till den h„r posten. Den s”ker upp posten f”r
+f”r„ldrahandtaget och preparerar det korta filnamnet hos f”r„ldern till den aktuella 
+posten. Den g†r sedan vidare med f”r„lderns f”r„lder... och s† vidare, tills rotnoden
+f”r enheten har n†tts. (tminstone „r det s† xfix bygger sina l†nga filnamn.)
+
+<P>Detta har flera f”rdelar:
+
+<BR><UL><LI>Endast det korta namnet beh”ver lagras i <CODE>OS2SYS.INI</CODE>, vilket 
+sparar plats.
+
+<P><LI>ven „nd† mera viktigt „r dock, att detta „r v„ldigt effektivt n„r filer eller mappar
+flyttats. I det fallet, beh”ver endast f”r„ldrahandtaget hos objektet som flyttats uppdateras.
+Eftersom alla sub-objekt hos posten som flyttats endast inneh†ller ett f”r„ldrahandtag, s† n„sta
+g†ng ett fullst„ndigt filnamn beh”vs, kan det byggas upp korrekt med den nya s”kv„gen.
+
+<P>Detta „r orsaken till att programobjekt fortfarande fungerar efter att mappar har flyttats.
+
+</UL>
+</OL>
+</BODY>
+</HTML>
+

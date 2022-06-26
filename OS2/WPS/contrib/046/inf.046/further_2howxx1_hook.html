@@ -1,0 +1,93 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Hur fungerar &xwp; PM Hook?
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.3 -->
+<BODY>
+I allm„nhet, „r en Presentation Manager (PM) hook ett stycke kod vilket „r registerat 
+med PM f”r att ta emot alla meddelanden vilka g†r runt inom systemet. Som ett resultat, blir
+det lilla stycket kod effektivt en del av varje process p† systemet som ist„llet processar meddelanden.
+
+<P>Med PM (p† Windows ocks†), kommunicerar f”nster med <B>meddelanden.</B> Systemet 
+skickar meddelanden till f”nstren automatiskt f”r alla typer av h„ndelser, och f”nster
+kan skicka meddelanden ocks† till varandra. Det finns hundratals olika systemmeddelanden,
+och applikationer kan definiera sina egna meddelanden ocks†.
+
+<P>Till exempel, om du klickar p† n†got f”nster med v„nster musknapp, kommer det f”nstret
+att skickas <CODE>WM_BUTTON1CLICK</CODE> meddelandet fr†n systemet. Vad som h„nder sedan 
+beror p† typen (i PM: klassen) av f”nster. Till exempel, en containerkontroll kommer att
+se om det finns n†got containerinneh†ll under muspekaren, och om s† „r fallet, v„lja korresponderande
+inneh†ll. Ett Netscape klientf”nster kommer att se efter om det finns n†gon l„nk under muspekaren, 
+och om det „r fallet, ladda en ny HTML sida f”r att f”lja l„nken.
+
+<P>Det finns m†nga fler "viktiga" systemmeddelanden, s†dana som <CODE>WM_CHAR</CODE>
+(f”r tangenttryckningar), <CODE>WM_SIZE</CODE> (n„r f”nster „r storleksf”r„ndrade),
+<CODE>WM_PAINT</CODE> (n„r f”nster beh”ver ritas om), och
+<CODE>WM_DESTROY</CODE> (n„r f”nster f”rst”rs). Det „r grundl„ggande varf”r PM
+programmering verkar s† komplicerad f”rsta g†ngen, d„rf”r att PM programmering f”r det 
+mesta betyder att reagera p† meddelanden, vilket „r r„tt annorlunda mot "regulj„r" programmering,
+d„r program normalt processar uppgifter sekvensiellt. Med PM, om inget meddelande finns 
+k”at f”r ett f”nster, g”r ett program normalt ingenting. Dess tr†dar blockeras till 
+meddelandena kommer in.
+
+<P>Nu, n„r en <B>global meddelande hook funktion</B> „r registrerad med systemet, passerar alla
+meddelanden genom hook funktionen <I>f”re</I> m†lf”nstret erh†ller meddelandet. P† det
+s„ttet kan en hook funktion modifiera meddelandet, omdirigera det till ett annat f”nster, 
+g”ra n†got helt annorlunda sj„lvt, eller till och med sv„lja meddelandet s† att m†lf”nstret 
+inte kommer att erh†lla det.
+
+<P>Det h„r „r hur alla v„lk„nda PM hook utilities (som NPS WPS, FeelX, ProgramCommander/2, X-it, Styler/2,
+och „ven &xwp; PM hook) fungerar. De f†ngar upp vissa meddelanden och manipulerar dom.
+
+<P>Till exempel, varje g†ng &xwp; PM hook tr„ffar p† ett <CODE>WM_CHAR</CODE> meddelande
+(det betyder, n„r en tangent p† tangentbordet „r tryckt eller sl„ppt), kommer den att kontrollera
+i den globala listan ”ver snabbkommandon. Om det „r s†, kommer meddelandet att sv„ljas (s† att 
+m†lf”nstret inte kommer att erh†lla det) och vissa delar av &xwp; WPS kod kommer att underr„ttas ist„llet,
+vilken sedan kan ”ppna det korresponderande objektet vilket har definierats av anv„ndaren f”r att anv„nda
+det snabbkommandot.
+
+<P>S„ttet p† vilket &xwp; hook „r implementerad skiljer sig lite fr†n vad som „r typiskt f”r
+hook utilities. De flesta av dessa utilities registrerar sina hook funktioner med PM n„r dom startas
+och avregistrerar hook igen n„r programmet avslutas (till exempel, om "st„ng" „r valt p† f”nsterlistan).
+
+<P>Ist„llet, registreras &xwp;'s PM hook fr†n ett specialprogram vilket inte „r synligt 
+i f”nsterlistan -- <B>&xwp; daemon,</B> <CODE>XWPDAEMN.EXE</CODE>. Du kan dock se det med WatchCat eller n†gon
+annan processlistare. F”rs”k att d”da programmet: Du kommer att m„rka att all hook funktionalitet „r borta.
+
+<P><CODE>XWPDAEMN.EXE</CODE> startas av &xwp; medan WPS startas upp den f”rsta g†ngen och k”rs till 
+systemet st„ngs av. Det betyder, att daemon k”rs „ven mellan omstarterna av Skrivbordet.
+
+<P>Žven om daemon „r ett PM program, skapar det inga f”nster (undantaget &pgr; f”nstret, se nedanf”r).
+
+<P>Allt detta „r t„mligen komplext i detalj d„rf”r att det involverar anv„ndning av delat minne och korrekt
+serialiseringsteknik som delade mutex semaforer och delad process av meddelanden, speciellt eftersom hook „r
+konfigurerad fr†n WPS inst„llningssidor, vilka k”rs i WPS processen. Men jag hoppas att du har f”rst†tt
+den grundl„ggade id‚n.
+
+<P>Det finns ett antal goda sk„l till att jag valt det h„r uppl„gget:
+
+<OL><LI>Det „r normalt ingen bra id‚ att starta hooks fr†n <CODE>PMSHELL.EXE</CODE> processen,
+i vilken alla WPS klasser k”rs. Om WPS kraschar, „r det sv†rare att st„da upp installerade hooks
+d„rf”r att WPS „r s† komplext p† egen hand.
+
+<P><LI>Eftersom daemon k”rs mellan omstarterna av Skrivbordet, kan den ocks† h†lla koll p† vissa data
+som „r n”dv„ndiga mellan omstarterna av Skrivbordet. Till exempel, &xwp;'s startupmapp skall inte processerar 
+igen n„r WPS startas om (om inte anv„ndaren beg„r det). Prova det: Om du d”dar daemon och sedan startar om WPS,
+kommer du att se att &xwp; startupmapp inte blir processad igen, d„rf”r att &xwp; WPS klasser ser att daemon inte
+k”rs och tror sedan att WPS startas upp f”r f”rsta g†ngen.
+
+<P><LI>&pgr; „r en del av daemon ocks† och d„rmed oberoende av WPS. &pgr; kr„ver en hel del meddelandemonitorering
+lika v„l som den beh”ver k„nna till om f”nsters skapande och f”rst”rande. Vid den h„r tidpunkten, k„nner &pgr; till 
+alla enstaka f”nster p† systemet. Det „r mycket enklare f”r &pgr; att h†lla sina egna f”nster is„r fr†n
+resten av systemet n„r det k”rs i en separat process.
+
+<P>F”r detaljer om &pgr;, se
+<A HREF="pgmg_8howwork.html">"Hur det fungerar"</A> i
+<A HREF="06342intro_pagemage.html">&pgr; sektionen.</A>
+</OL>
+</BODY>
+</HTML>
+
+

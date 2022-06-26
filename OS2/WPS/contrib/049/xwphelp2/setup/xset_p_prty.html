@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Standardpriorit„t des Arbeits-Threads
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.0 -->
+<BODY>
+<!-- V0.9.9: changed the following -->
+Dieser Schieberegler erlaubt es, die Standardpriorit„t des
+<!-- V09.21: link removed -->
+"Arbeits-Threads" festzulegen.
+<!-- end V0.9.9 -->
+ 
+<P>Der Arbeits-Thread wird beim Hochfahren der WPS mit der hier angegebenen
+Priorit„t gestartet. Diese Einstellung erlaubt die Angabe entweder einer
+Priorit„t "idle" (Leerlauf) mit einem Priorit„tsdelta von 0, einer Priorit„t
+"idle" mit einem Delta von +31 oder einer Priorit„t "regular" mit einem Delta
+von 0.
+ 
+<!-- V0.9.13: changed the following 2 lines -->
+<P>Siehe <A HREF="glossary/gls_scheduler.html">"Prozesse und Threads"</A> fr weitere
+Informationen zu Thread-Priorit„ten.
+ 
+<P>Beachten Sie, daá diese Einstellung nur die <I>Standard</I>priorit„t des
+Arbeits-Threads festlegt. Falls &xwp; feststellt, daá der Arbeits-Thread nicht
+gengend Prozessorzeit zugeteilt bekommt, wird seine Priorit„t automatisch
+von Zeit zu Zeit angehoben.
+Weitere Informationen siehe <A HREF="setup/xset_p_prtybeep.html">"Signalton bei Priorit„ts„nderung"</A>.
+ 
+<P>Fr die meisten Zwecke gengt es, die Einstellung beim Standardwert zu belassen,
+der "idle +31" betr„gt. Dieser erlaubt es dem Arbeits-Thread, seine Aufgaben im
+Hintergrund ohne bemerkbare Verlangsamung der Benutzeroberfl„che zu erledigen.
+Falls Sie jedoch h„ufig Prozesse laufen lassen, welche die CPU mit Beschlag belegen
+(d.h., wenn die CPU-Auslastung st„ndig 100% betr„gt, weil z.B. Windows-Anwendungen
+laufen), sollten Sie diesen Wert vielleicht auf "regular" setzen.
+ 
+<!-- V0.9.13: updated page name -->
+<P>Die derzeitige Priorit„t des Arbeits-Threads erfahren Sie auf der Seite "Threads".
+<BR>
+</BODY>
+</HTML>
+ 

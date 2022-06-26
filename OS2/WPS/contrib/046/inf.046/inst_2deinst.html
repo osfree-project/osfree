@@ -1,0 +1,95 @@
+<HTML NOSUBLINKS="config" WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Avinstallation
+    </TITLE>
+</HEAD>
+<!-- this page has been rewritten with V0.9.0 -->
+<BODY>
+<!-- the following paragraph was added with V0.9.2 -->
+Det finns flera s„tt att avinstallera &xwp;.
+
+<!-- the following paragraph was added with V0.9.2 -->
+<UL><LI><B>Det enkla s„ttet.</B>
+
+<P>Eftersom &xwp; numera anv„nder WarpIN f”r <A HREF="inst_1inst.html">installation</A>, anv„nder
+den ocks† WarpIN f”r avinstallation. Dubbelklicka antingen p† programobjektet f”r WarpIN eller v„lj
+&xwp; paket(en) f”r avinstallation, eller dubbelklicka p† &xwp; arkivet igen, vilket b†da kommer att
+avinstallera &xwp;.
+
+<!-- the following (up to end note) was added with V0.9.1 -->
+
+</UL>I det fall WarpIN inte kan avinstallera &xwp; (eller om du inte litar p† att WarpIN g”r jobbet riktigt),
+kan du <B>avinstallera &xwp; manuellt.</B>
+
+<UL><LI><B>Det rena s„ttet.</B>
+
+<P>&xwp;'s installation „r helt byggd p† WPS klasser. Om du avregisterar alla &xwp;'s klasser, 
+kommer du att f† ditt regulj„ra &os2; Workplace Shell tillbaka. Du beh”ver inte g”ra n†gra
+„ndringar av &cfgsys; inst„llningar, eftersom det inte finns n†gra.
+
+<P>Emellertid, innan avregistrering av klasser, b”r du †terta alla &xwp;'s klassutbyten. 
+S† detta „r en tv†stegsprocess (du kan anv„nda objektet "WPS Klasslista" f”r „ndam†let):
+
+<BR><OL><LI><B>ngra</B> alla f”ljande klass <B>utbyten</B> (om de finns):
+
+<UL><LI>XFldObject, byter ut WPObject
+<LI>XFolder, byter ut WPFolder
+<LI>XFldDataFile, byter ut WPDataFile
+<LI>XFldDisk, byter ut WPDisk
+<LI>XFldDesktop, byter ut WPDesktop
+<LI>XWPProgramFile, byter ut WPProgramFile
+<LI>XWPSound, byter ut WPSound
+<LI>XWPMouse, byter ut WPMouse
+<LI>XWPKeyboard, byter ut WPKeyboard
+</UL>
+
+<LI><B>Avregistrera</B> alla X* klasserna som listas ovanf”r.
+
+<P><LI>Som till„gg, <B>avregistrera</B> f”ljande (om de finns):
+
+<UL><LI>XFldSystem
+<LI>XFldWPS
+<LI>XFldStartup
+<LI>XFldShutdown
+<LI>XWPSetup
+<LI>XWPClassList
+<LI>XWPTrashCan
+<LI>XWPTrashObject
+</UL>
+
+<LI><B>Starta sedan om WPS.</B> och &xwp; b”r vara borta.
+
+<P><LI>&xwp; har skapat n†gra f† sektioner i din OS2.INI fil. Du kan s„kert radera alla
+sektioner startande med "&xwp;", men g”r detta bara om du „r s„ker p† att du inte vill 
+†terinstallera &xwp;, d„rf”r att alla dina inst„llningar kommer att f”rloras.
+</OL>
+
+<LI><B>Den sv†ra v„gen.</B> Detta „r en "n”dutg†ng" ifall din dator inte fungerar alls 
+l„ngre. Rekommenderas inte och utf”res bara som en sista utv„g.
+
+<BR><OL><LI>Boota om din dator och tryck Alt-F1 n„r den lilla vita "OS/2" boxen visas.
+™ppna en kommandosession fr†n "terskapa alternativ" menyn.
+
+<P><LI>Fr†n kommandoraden, byt namn p† &xwp; katalogen (f”r„ldrakatalogen hos <CODE>BIN</CODE>
+katalogen med <CODE>XFLDR.DLL</CODE>.
+
+<P><LI>Boota om. N„r Skrivbordet startar upp, kommer det inte att hitta &xwp;'s klasser
+(i <CODE>XFLDR.DLL</CODE>), d„rf”r att den katalog som specificerades n„r klasserna registrerades
+inte „r giltig l„ngre. Du b”r f† ett rent WPS p† det h„r s„ttet ocks†. Notera d„remot att
+detta inte byter ut eller avregistrerar &xwp;'s klasser!
+</OL>
+</UL>
+
+<!-- end of V0.9.1 addition -->
+Om du vill ta bort &xwp; d„rf”r att du inte anser att den inte „r till n†gon nytta f”r dig
+„r det OK.
+
+<P>D„remot, om du tar bort den d„rf”r att den inte verkar fungera riktigt eller trasslar
+till ditt system, var v„nlig och <A HREF="notices_3comments.html">kontakta utvecklingsteamet,</A> s†
+att vi kan f”rb„ttra den.
+<BR>
+</BODY>
+</HTML>
+
+

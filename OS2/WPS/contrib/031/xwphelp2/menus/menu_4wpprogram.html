@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Extra Mogelijkheden voor Programma Objecten
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.16 -->
+<!-- V0.9.20: title changed -->
+<BODY>
+Telkens als &xwp; een programma object start vanuit de
+&cfgfdr; (dat wil zeggen, wanneer u het betreffende menu onderdeel selecteert in een map
+<!-- V0.9.19: link added -->
+<A HREF="glossary/gls_popmenu.html">&popmenu;</A>),
+kan het een aantal trucjes met ze doen.
+
+<P>Deze trucjes zijn de volgende:
+
+<OL><LI>Als de <B>opstart directory</B> van het programma object leeg is, zal &xwp;
+tijdelijk de directory van de map waarvan het &popmenu; gekozen is nemen voordat het
+programma echt opgestart wordt.
+Dit betekent dat u het zelfde programma van alle map &popmenu;'s kunt starten,
+maar met een variabele opstart directory, zijnde de directory van de map waarvan
+het &popmenu; is gebruikt.
+
+<P>Bijvoorbeeld, met de standaard configuratie hebben de opdrachtregel objecten
+lege opstart directories. Dit is waarom u opdrachtregels kunt starten "in" de map
+waarvan het &popmenu; is gebruikt.
+
+<P>Als u dit gedrag wilt uitschakelen, geeft u simpelweg een opstart directory op in een
+programma object (b.v. <CITE>"C:\"</CITE>), en &xwp; zal het met rust laten.
+In plaats daarvan zal het altijd de opstart directory gebruiken die u heeft opgegeven.
+
+<BR><LI>Als de <B>parameter lijst</B> van een programma object geen afsluitend
+<CITE>"%"</CITE> teken bevat, zal de directory van de door u gebruikte map gebruikt worden om
+door te geven aan het programma.
+
+<P>Dit biedt u de mogelijkheid om een volledig gekwalificeerde directory naam door te geven als een
+argument aan een programma. U kunt deze mogelijkheid volledig uitschakelen op de "&popmenu;'s" pagina van het
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<P>Als u dit gedrag voor slechts ‚‚n menu onderdeel uitgeschakeld wilt hebben
+(niet alle programma's kunnen overweg met directories als parameters),
+voegt u een <CITE>"%"</CITE> teken toe aan de "Parameters" lijst van het betreffende programma object.
+&xwp; zal het doorgeven van de extra parameter achterwege laten. Dit is bijvoorbeeld het geval
+met de opdrachtregel objecten van de standaard configuratie.
+
+<BR><LI>U kunt de <B>huidige inhoud van het
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">klembord</A></B> toevoegen aan de parameter lijst
+van het klembord door een <CITE>"%**C"</CITE> teken in de parameter lijst te stoppen.
+Dit kan op elke plek voorkomen in de parameters. Dit is hoofdlettergevoelig;
+<CITE>"%**c"</CITE> (in kleine letters) zal <I>niet</I> werken.
+
+<P>Voorbeeld: Pad en bestandsnaam = <CITE>"e.exe"</CITE>;
+parameters = <CITE>"%**C"</CITE>  zal de systeem editor opstarten en de inhoud
+van het klembord beschouwen als bestandsnaam.
+
+<P>Let op dat de inhoud van het klembord afgekapt zal worden zodat de maximale lengte van
+de parameter lijst niet overschreden zal worden. Met &os2; is de maximale pad lengte 260
+
+<BR><LI>Als de <B>programma naam</B> een <CITE>"~"</CITE> karakter bevat,
+zal &xwp; die tijdelijk verwijderen voordat het programma gestart wordt. U kunt dit gedrag
+ook uitschakelen in het
+<A HREF="objects/obj_wps.html">"Workplace Shell" object.</A>
+
+<BR><LI>U kunt nu <B>scheidingstekens</B> toevoegen in een menu door
+<CITE>"---"</CITE> (drie koppelstreepjes) op te geven in de naam van een programma object.
+
+(Een scheidingsteken is een horizontale streep om optisch groepen van menu onderdelen te splitsen.)
+In dit geval zal &xwp; de instellingen van het programma object negeren (zoals het uitvoerbare programma,
+parameters enz.) en simpelweg een scheidingsteken toevoegen aan het menu. Dit werkt zowel voor het
+hoofd &popmenu; alsook voor de submenu's.
+
+</OL>&xwp; implementeert de mogelijkheden 1.-4. door in werkelijkheid de instellingen van het programma object
+voor een fractie van een seconde aan te passen, het programma object te
+openen, en dan de instellingen terug te zetten naar de originele waarden.
+
+<!-- V0.9.19: removed this, it's no longer valid
+Please note that &xwp; only performs these described actions on "real" program objects
+in the &cfgfdr;, not on shadows pointing to other program objects.
+This was done intentionally
+to make sure that objects which are situated elsewhere in your Desktop hierarchy
+are not changed by &xwp;. Shadows will be opened too, but without performing the
+special features described above.
+As a consequence, you ought to put copies of your program objects
+into the &cfgfdr;, instead of creating shadows for them.
+-->
+
+<BR>
+</BODY>
+</HTML>
+

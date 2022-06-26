@@ -1,0 +1,158 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Dateisysteme
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Ein "Dateisystem" ist eine Konvention fr das Format, in dem
+<!-- V0.9.19: link added -->
+&link_folders;
+und
+<!-- V0.9.19: link added -->
+&link_datafiles;
+physisch auf Datentr„gern gespeichert werden.
+ 
+<P>Im Falle von Festplatten kann jedes Volumen ein eigenes Dateisystem
+besitzen. Das Dateisystem wird festgelegt, wenn das Volumen formatiert
+wird und kann ohne weiteres nicht ge„ndert werden, ohne das Volumen
+neu zu formatieren.
+ 
+<P>Mit den heutigen Betriebssystemen wird eine Vielzahl verschiedener
+Dateisysteme geliefert, die jeweils ihre eigenen St„rken und Schw„chen haben.
+&os2; untersttzt die folgenden Dateisysteme:
+ 
+<OL><LI>Das <B>FAT</B>-Dateisystem (fr "File Allocation Table")
+ist das „lteste Dateisystem, welches auf Personal Computern benutzt
+wurde. Es wurde mit den frhesten DOS-Versionen eingefhrt und ist
+weder leistungsf„hig noch schnell noch flexibel noch effizient.
+Seine Dateinamen sind auf 8+3 Zeichen beschr„nkt und mit groáen
+Volumen wird aufgrund der Art und Weise, wie Daten intern verwaltet
+werden, viel Platz verschwendet. Zus„tzlich werden FAT-Volumen sehr
+schnell fragmentiert.
+ 
+<P>Heutzutage ist der einzig briggebliebene Vorteil von FAT, daá es von fast
+allen Betriebssystemen verstanden wird. Wenn Sie also mehrere Betriebssysteme
+installiert haben, k”nnen Sie ein FAT-Volumen benutzen, um Daten auszutauschen.
+Wenn Sie jedoch Geschwindigkeit vorziehen, sollten Sie h„ufig benutzte
+Daten nicht auf ein FAT-Laufwerk legen.
+ 
+<P>Unter &os2; ist die FAT-Untersttzung direkt in den Kern von &os2;
+eingebaut. Eine IFS-Anweisung in der Datei &cfgsys; ist folglich nicht erforderlich.
+ 
+<!-- V0.9.20: rewrote this paragraph -->
+<P>Mit Windows 95 hat Microsoft das FAT-Dateisystem erweitert, um lange
+Dateinamen verwenden zu k”nnen. Die anderen Probleme von FAT wurden dabei
+jedoch nicht behoben. Unter &os2; sieht man statt der langen Dateinamen
+lediglich die 8+3-Konvention.
+ 
+<!-- V0.9.20: and added this -->
+<P>Zus„tzlich hat Microsoft mit Windows 98 ein neues Dateisystem
+namens "FAT32" hinzugefgt. Trotz seines Namens ist dieses Dateisystem
+mit FAT nicht kompatibel. Es gibt L”sungen dritter Anbieter, die es
+erlauben, ber einen IFS-Treiber in der Datei &cfgsys;
+FAT32-Partitionen unter &os2; zu betreiben.
+ 
+<P><LI><B>HPFS</B> hingegen steht fr "High Performance File System".
+Dies ist das "Heimatdateisystem", welches speziell fr OS/2 entwickelt
+wurde und gegenber FAT viele Vorteile aufweist. Seine Dateinamen k”nnen
+bis zu 254 Zeichen lang sein, es verwaltet
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_eas.html">erweiterte Attribute</A> auf effiziente
+Weise, und es ist viel schneller, wie der Name besagt. Auáerdem
+vergeudet es nicht so viel Plattenplatz und vermeidet Fragmentierung.
+ 
+<P>Verglichen mit noch neueren Dateisystemen hat HPFS trotzdem einige
+Beschr„nkungen. Vor allem kann das Standard-HPFS nur eine
+<A HREF="glossary/gls_caches.html">Cache-Gr”áe</A> von 2 MB verwalten.
+In Anbetracht der Speichermengen, die heutzutage in Rechner eingebaut werden,
+ist dies nicht viel.
+ 
+<P>Die HPFS-Untersttzung muá mit dem Treiber
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#hpfs.ifs"><CODE>HPFS.IFS</CODE></A> ber einen IFS-
+Befehl in der Datei &cfgsys; geladen werden.
+ 
+<P><LI><B>HPFS386</B> ist eine hochoptimierte Version von HPFS, die die
+oben genannte Beschr„nkung der Cache-Gr”áe nicht aufweist.
+Zus„tzlich ist HPFS386 optimiert fr Server-Aufgaben. Es kann Daten
+direkt vom Dateisystem-Treiber an Netzwerktreiber bergeben, ohne einen
+šbergang auf Ring 3 vornehmen zu mssen. Auáerdem untersttzt es
+lokale Sicherheit, Quotas und ein gewisses Maá an Fehlertoleranz.
+ 
+<P>Jedoch ist dieses Dateisystem nur unter einer separaten Lizenz mit
+zus„tzlichen Kosten erh„ltlich. Wenn HPFS386 installiert ist, ersetzt
+es das Standard-HPFS. Es wird ber den <CODE>HPFS386.IFS</CODE>-Treiber
+in der Datei &cfgsys; geladen, aber dies funktioniert nur, wenn das
+System auch Server-Komponenten installiert hat.
+ 
+<!-- V0.9.19: rewrote this paragraph -->
+<IFNDEF __EWORKPLACE__>
+<P><LI>Fr OS/2 Warp Server for e-Business (WSeB) hat IBM <B>JFS,</B>
+das "Journaling File System", von AIX nach OS/2 portiert. Inzwischen
+gibt es JFS auch fr Linux. JFS ist nunmehr ebenfalls mit
+eComStation und den IBM Convenience Packs erh„ltlich.
+</IFNDEF>
+<IFDEF __EWORKPLACE__>
+<!-- V0.9.20: modified this -->
+<P><LI>Um die obigen Beschr„nkungen zu beheben, untersttzt eComStation
+das <B>Journaling File System (JFS),</B> ein modernes Hochleistungs-Dateisystem,
+das ebenfalls von IBM AIX und Linux untersttzt wird.
+</IFDEF>
+ 
+<P>Gegenber HPFS weist JFS die folgenden Vorteile auf:
+ 
+<BR><OL><LI>Es fhrt ber s„mtliche Schreiboperationen auf die Platte
+in einem sogenannten "journal" Buch. Wenn das System abstrzt, muá JFS kein
+volles <CODE>CHKDSK</CODE> ausfhren, um die Integrit„t des Dateisystems
+herzustellen, sondern kann einfach das Journal auf die Platte "zurckspielen".
+Deshalb braucht <CODE>CHKDSK</CODE> auf einem JFS-Volumen Sekunden statt
+Minuten oder sogar Stunden, wie es bei groáen HPFS-Volumen der Fall sein kann.
+ 
+<BR><LI>Es hat nicht die 2-MB-Cache-Gr”áenbeschr„nkung wie HPFS.
+ 
+<BR><LI>Mit der Untersttzung von LVM k”nnen JFS-Volumen erweitert werden,
+ohne das System neustarten zu mssen.
+ 
+<!-- V0.9.20: rewrote this part -->
+<BR><LI>JFS benutzt neuen 32-Bit-Code im &os2;-Kernel
+(KEE32 und IFS32) und muá daher nicht durch die 16-Bit-Kompatibilit„tsschichten
+des Kernels gehen. Dies beschleunigt Datentransfers von mehr als 64 KB deutlich
+und erlaubt es JFS auáerdem, auf SMP-Systemen besser zu skalieren.
+ 
+<BR><LI>Alle internen Strukturen von JFS sind 64 Bit breit. JFS hat daher
+auch nicht die Gr”áenbeschr„nkungen von 2 GB fr Dateien und 64 GB fr
+Volumen wie HPFS.
+ 
+</OL>Ein Nachteil von JFS ist, daá das Betriebssystem derzeit nicht von
+einem JFS-Volumen gestartet werden kann. Das Startvolumen von &os2;
+muá sich daher immer noch auf einem HPFS-Volumen befinden.
+<!-- V0.9.20: removed this Besides, most of the HPFS386 extra features are not supported
+by JFS either. -->
+ 
+<!-- V0.9.20: added this -->
+<P>Die Untersttzung fr JFS wird durch den Treiber
+<A HREF="cmdref.inf#jfs.ifs"><CODE>JFS.IFS</CODE></A>
+in der Datei &cfgsys; aktiviert.
+ 
+<P><LI>Schlieálich ist <B>CDFS</B> ein spezielles Dateisystem, welches von
+Daten-CD-ROMs benutzt wird. Da Daten-CDs ein abweichendes Format benutzen,
+ist ein weiterer Dateisystemtreiber n”tig. Dies ist der Treiber
+<!-- V0.9.20: added link -->
+<A HREF="cmdref.inf#cdfs.jfs"><CODE>CDFS.IFS</CODE></A> in der Datei
+&cfgsys;, der auch lange Dateinamen im Microsoft-Joliet-Format untersttzt.
+ 
+</OL>
+Weitere Informationen erhalen Sie durch Auswahl eines verwandten Themas aus der folgenden Liste:
+ 
+<UL>
+<LI><A HREF="glossary/gls_volume.html">šber Laufwerke, Volumen und Partitionen</A>
+<LI><A HREF="tasks/tsk_format.html">Speichermedien formatieren</A>
+</UL>
+</BODY>
+</HTML>
+ 

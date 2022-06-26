@@ -1,0 +1,96 @@
+<HTML RESID=&ID_XSH_SETTINGS_PGMFILE_RESOURCES;>
+<HEAD>
+    <TITLE>
+        &xwp;: Seite "Ressourcen"
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.7 -->
+<BODY>
+<!-- V0.9.20: rewrote the top -->
+Die Seite "Ressourcen" erscheint in den Einstellungsnotizbchern aller
+ausfhrbaren Dateien und zeigt zus„tzliche Informationen ber das
+ausfhrbare Modul an.
+ 
+<P>Bei den <B>Ressourcen</B> handelt es sich um nur-lesbare Datenobjekte, auf die zur Laufzeit
+dynamisch zugegriffen werden kann.
+ 
+<P>Ressourcenobjekte werden vom Ressourcen-Compiler (<CODE>RC.EXE</CODE>),
+der Bestandteil des Lieferumfangs von &os2; ist, in den ausfhrbaren Dateien
+plaziert.
+<!-- V0.9.20: added this -->
+Dabei kann es sich entweder um das Hauptmodul einer Anwendung
+(<CODE>.EXE</CODE>-Datei) handeln, oder um eine
+<A HREF="glossary/gls_dll.html">dynamische Linkbibliothek (DLL)</A>.
+ 
+<!-- V0.9.20: rewrote the following paragraphs -->
+<P>Eine Ressource kann jederzeit durch Verwendung eines "type"- und "ID"-Paares
+geladen werden. Im Gegensatz zum eigentlich Code der Anwendung werden Ressourcen
+gew”hnlich nur geladen, wenn sie auch gebraucht werden. Dadurch k”nnen
+Anwendungen schneller starten und der Speicherverbrauch wird reduziert.
+ 
+<P>Ressourcen werden von Anwendungen h„ufig verwendet, um die Untersttzung fr
+verschiedene Sprachen (NLS) vom eigentlichen Code zu trennen. Auf diese Weise k”nnen
+Anwendungen bersetzt werden, ohne daá der Quellcode neu kompiliert werden muá.
+<IFNDEF __EWORKPLACE__>
+(Beispielsweise verf„hrt &xwp; selbst so mit seiner Sprachuntersttzung.)
+</IFNDEF>
+<!-- end 0.9.20 -->
+ 
+<P>Es gibt folgende Arten von Ressourcen:
+ 
+<UL><LI><B>Mouse-pointer shape:</B> eine Symbol- oder Zeigerdatei (.ICO/.PTR-Format).
+ 
+<P><LI><B>Bitmap:</B> eine OS/2-Bitmap (.BMP).
+ 
+<P><LI><B>Menu template:</B> eine PM-Mendefinition; entweder eine Menleiste oder ein Kontextmen.
+ 
+<P><LI><B>Dialog template:</B> eine PM-Dialogdefinition.
+ 
+<P><LI><B>String table:</B> eine String-Tabelle.
+ 
+<P><LI><B>Font directory, Font:</B> PM-Bitmap-Schriften.
+ 
+<P><LI><B>Accelerator table:</B> eine PM-Beschleunigertabelle (Tastenkrzel).
+ 
+<P><LI><B>Binary data:</B> bin„re Daten unbestimmten Formats.
+ 
+<P><LI><B>Error message table:</B> eine Tabelle von Fehlermeldungen.
+ 
+<P><LI><B>Dialog include-file name:</B> Dateiname der Include-Datei fr den Dialog.
+ 
+<P><LI><B>Virtual key table:</B> Schlssel zu VKEY-Tabellen. Der genaue Zweck ist unbekannt.
+ 
+<P><LI><B>Key table:</B> Schlssel zu UGL-Tabellen. Der genaue Zweck ist unbekannt.
+ 
+<P><LI><B>Character table:</B> Glyphe-zu-Zeichen-Tabellen.
+Wird wahrscheinlich fr Schriftarten verwendet.
+ 
+<P><LI><B>Display information:</B> Informationen zur Bildschirmdarstellung. Eine solche Ressource habe ich noch nicht gesehen.
+ 
+<P><LI><B>Short-form function key area:</B> Funktionstastenbereich, Kurzform.
+Der genaue Zweck ist unbekannt. 
+ 
+<P><LI><B>Long-form function key area:</B> Funktonstastenbereich, Langform.
+Der genaue Zweck ist unbekannt.
+ 
+<P><LI><B>Help table, Help subtable:</B> Hilfetabellen fr den PM-Hilfe-Manager. Diese Ressource erlaubt
+dem PM, Dialogeintr„ge und Hilfeseiten zu verknpfen, ist aber „uáerst unangenehm in der Benutzung.
+ 
+<P><LI><B>DBCS uniq/font driver directory, DBCS uniq/font driver:</B> Double-Byte
+Character Set (DBCS) Schriftentreiber. Der genaue Zweck ist unbekannt.
+ 
+<P><LI><B>String ID table:</B> Namenstabelle fr Ressourcen.  Der genaue Zweck ist unbekannt.
+ 
+<P><LI><B>Application specific:</B> Daten in einem anwendungsspezifischen Format.
+ 
+</UL>
+ 
+<!-- V0.9.20: removed this
+Resources are either loaded as soon as the module is loaded or when needed.
+Once loaded, resources are either automatically discarded when they are no longer
+needed or when the module is discarded.
+-->
+ 
+</BODY>
+</HTML>
+ 

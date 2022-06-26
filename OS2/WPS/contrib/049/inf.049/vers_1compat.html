@@ -1,0 +1,177 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        KompatibilitÑt mit anderer Software
+    </TITLE>
+</HEAD>
+<!-- changes in V0.81 and V0.84: noted below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp;; also see notes below -->
+<BODY>
+Wie Sie vielleicht schon bemerkt haben, mîgen sich verschiedene WPS-Programme manchmal
+nicht allzusehr. Oder vielleicht mîgen sie sich zwar, verstehen sich aber einfach nicht.
+<P>Ich habe &xwp; jedoch mit mehreren Systemprogrammen getestet, an die ich
+herankommen konnte (unter Warp 3 und 4), und eine Reihe von Anwendern hat mir
+weitere Programme genannt.
+Die folgenden Programme warfen keinerlei Probleme auf:
+<UL>
+<LI>CandyBarZ 1.01 / 1.10
+<LI>CommandFolder 1.50
+<!-- next item changed with V0.81 -->
+<LI>Desktop Wizard 1.41 (beachten Sie die Hinweise weiter unten)
+<LI>DragText 2.5
+<LI>Extended Desktop 1.4
+<LI>FeelX (installiert eine WPS-Klasse)
+<!-- next item changed with V0.9.0 -->
+<LI>Hot Scroll 0.80 / 1.00 / 1.10
+<LI>NPS WPS 1.81 / 1.82 (beachten Sie die Hinweise weiter unten)
+<!-- next item changed with V0.9.0 -->
+<LI>Object Desktop Professional 1.5.2 / 2.0 (beachten Sie die Hinweise weiter unten)
+<LI>WatchCat 2.1 (installiert eine WPS-Klasse)
+<LI>WPAnimatedMousePointer 1.01
+<LI>X.file 1.1 / 1.2
+<LI>X.it 2.4 / 2.5
+ 
+ 
+</UL><B>Allgemeiner Hinweis:</B> Indem &xwp; mit jeder neuen Version neue
+Funktionen einfÅhrt, werden die Chancen grî·er, da·
+andere WPS-Software ebenfalls dieselben Funktionen anbietet. Je nachdem,
+welche Software zuerst installiert wurde (und damit an erster Position in
+der WPS-Klassen-Ersatzliste steht), kann &xwp; oder das andere Produkt
+u.U. das WPS-Verhalten nicht mehr Ñndern.
+<P>Au·erdem gilt, da· &xwp; einige Funktionen anbietet, die andere
+WPS-Pakete ebenfalls anbieten. Sie sollten sich dann fÅr die Funktion
+eines Pakets entscheiden, d.h. nicht z.B. Statuszeilen sowohl bei &xwp;
+als auch bei Object Desktop anschalten. Das kann nur zu Problemen fÅhren.
+ 
+<P><B>Warnungen:</B> Die folgende InkompatibilitÑtsliste basiert auf Hinweisen
+dritter &xwp;-Anwender. Ich habe diese nicht selbst ÅberprÅft
+und fÅge sie nur bei, um Ihnen Unannehmlichkeiten zu ersparen.
+ 
+<!-- the following updated with V0.84 -->
+<UL><LI><B>Object Desktop:</B> OD manipuliert die WPS ungefÑhr
+so intensiv wie &xwp; (vielleicht sogar mehr), also ist es nur natÅrlich,
+da· gerade mit OD die meisten Probleme aufgetreten sind.
+<P><B>Hinweis:</B> Ich habe kein Object Desktop. Das folgende ist alles, was
+ich wei·. Wenn Sie etwas Neues herausfinden, schreiben Sie mir bitte,
+und ich werde das dieser Seite hinzufÅgen. Aber schreiben Sie mir bitte
+nicht, da· OD nicht richtig mit &xwp; zusammenarbeitet. <I>Ich wei· das,</I>
+und ich kann nicht viel daran Ñndern.
+<P>FÅr alle Versionen gelten die folgenden Regeln: Wenn Sie Probleme mit
+OD haben, kollidiert &xwp; wahrscheinlich mit der Ordner-Ersatzklasse
+von OD, TSEnhFolder. Als ultima ratio kînnen Sie immer diese Klasse
+deregistrieren (Åber das Objekt "WPS-Klassenliste"),
+<!-- V0.9.0: remove this: in the "Workplace Shell" object), -->
+und wahrscheinlich wird &xwp; laufen.
+<P>Davor sollten Sie aber folgendes ausprobieren:
+<!-- V0.9.6: remove the following
+The install program now offers you to alter the order of &xwp; and
+the "TSEnhFolder" class in the WPS class list
+which is the WPS class responsible for most of the Object Desktop folder functions.
+I believe this should help, because then &xwp; gets the chance to subclass
+the folder windows before Object Desktop. -->
+ 
+<!-- added the headline with V0.84 -->
+<!-- changed the headline with V0.9.0 -->
+<P><B>Alle Object Desktop Versionen:</B>
+<!-- the following is unchanged -->
+Mir wurde berichtet, da· &xwp; mit der Funktion <B>"Browse mode"</B>
+von Object Desktop nicht funktioniert. Es tut mir leid, diese Funktion
+mÅssen Sie ausschalten.
+<P>
+Au·erdem sollten Sie sicherstellen, da· die Funktion<B> "Ordner-Statuszeilen"
+</B>in Object Desktop ausgeschaltet ist, bevor Sie die entsprechende &xwp;-Funktion
+anschalten, ansonsten kînnen die lustigsten Dinge geschehen.
+<P>
+Schlie·lich wurde mir noch berichtet, da· XFolder zu Object
+Desktops<B> "Launchpads"</B> auch Statuszeilen hinzufÅgt, wo sie nicht
+hingehîren. Offenbar sind diese Dinger auch von WPFolder abgeleitet;
+sie haben jedenfalls auch eine "Anzeigen"-Seite im Einstellungsnotizbuch,
+wo man die XFolder-Statuszeilen abschalten kann.
+<!-- V0.9.6: added this -->
+Wenn das Objekt keine Seite "Anzeige" besitzt, kînnen Sie versuchen, den
+Ordner-Konfigurationsstring <CODE>STATUSBAR=NO</CODE> der <!-- V0.9.16: removed link here -->
+XFolder-Klasse manuell zu benutzen.
+ 
+<!-- added the following with V.0.84 -->
+<P><B>Object Desktop 2.0:</B>
+<A HREF="mailto:e9425324@student.tuwien.ac.at">Stefan Zechmeister</A>
+hat OD 2.0 folgenderma·en zum Laufen bekommen:
+<OL><LI>Installieren Sie OD 2.0.
+<LI>Installieren Sie OD Fixkit #1.
+<LI>Installieren Sie &xwp;.
+<!-- V0.9.6: removed this: Reverse the order of TSEnhFolder class as proposed by
+the install script. -->
+<!-- V0.9.0: changed the following -->
+<LI>Erhîhen Sie im Objekt "&xwp;-Konfiguration",
+Seite "Paranoia" den "MenÅ-ID-Abstand" auf Åber 700.
+</OL>Wenn Sie anschlie·end den Installationsordner von &xwp; in
+einen anderen Ordner verschieben mîchten, stellen Sie sicher, da·
+im Zielordner die Extrafunktionen von OD abgeschaltet sind. Sonst beschwert
+sich &xwp;, da· es seinen Konfigurationsordner nicht finden kann.
+ 
+<!-- the following is unchanged -->
+<BR><LI>Wenn Sie <B>NPS WPS</B> benutzen, mÅssen
+Sie dessen Funktionen "Nach Name auswÑhlen" und "Nach Endung sortieren"
+ausschalten, weil &xwp; diese Funktionen ebenfalls bietet und durcheinanderkommt,
+wenn NPS WPS die gleichen Funktionen aktiviert.
+ 
+<P>&xwp; funktioniert <I>nicht</I> mit der Funktion "Automatische MenÅanwahl"
+von NPS WPS, jedenfalls dann nicht, wenn Sie die "Ordnerinhalt"-Funktionen
+aktiviert haben. Dies kînnte zu schweren PM-AbstÅrzen fÅhren.
+<!-- V0.9.6: added this -->
+Verwenden Sie statt dessen &xwp;s Funktion "MenÅauswahl folgt Mauszeiger".
+ 
+<BR><LI>Mir wurde ebenfalls berichtet, da· &xwp;
+Probleme mit dem <B>Program Commander/2</B> hat. Diese lassen sich anscheinend
+beseitigen, indem man dort die Funktion fÅr "SmartIcons" in der Titelzeile
+abschaltet.
+ 
+<BR><LI>&xwp; scheint auf einigen Systemen auch Probleme
+mit <B>DragText</B> zu haben. In dieser Software mu· es irgendwo eine
+Einstellung geben, DragText mit Verzîgerung zu aktivieren, was anscheinend
+geholfen hat.
+ 
+<BR><LI>Hauke Laging berichtete mir, da· <B>Extended
+Clipboard (EClip)</B> von Hinnerk Becker mit &xwp; nicht kooperiert. Auf
+Haukes Warp-4-System hÑngte sich die WPS beim Systemstart auf. Er berichtete
+mir spÑter, da· sich das Problem beheben lÑ·t, wenn
+man EClip aus dem Systemstart-Ordner entfernt. (Ich habe dies
+alles nicht reproduzieren kînnen, berichte es aber trotzdem.)
+ 
+<BR><LI>Mehrere Benutzer meinten au·erdem, da·
+die Funktion "Am Gitter ausrichten" nicht funktioniert. Ich habe sowohl Warp
+3 und 4 getestet und keine Probleme festgestellt; diese Benutzer hatten
+alle Object Desktop installiert, so da· ich das Problem wieder einmal
+irgendwo dort vermute.
+ 
+<BR><LI>Bernd Schemmer berichtete mir, da· &xwp;
+die gleichen MenÅ-IDs benutzt wie die <B>LAN Server GUI</B>. Falls Sie
+LAN Server benutzen (oder eine andere Software, die darunter leiden kînnte),
+so kînnen Sie &xwp; MenÅ-IDs
+<!-- V0.9.0: change "Workplace Shell" to "&xwp; Setup" -->
+im Objekt <A HREF="sys_2global.html">"&xwp;-Konfiguration"</A> Ñndern.
+Mit V0.51 wurde die Standardeinstellung von 100
+auf 300 heraufgesetzt, um diese Konflikte zu vermeiden.
+ 
+<BR><LI>Michael Holzapfel berichtete folgendes: "Beim
+Installieren des GRADD-Treibers fÅr die <B>[ELSA] Winner 2000OFC</B> stÅrzt
+setup.exe kurz vor Ende der Installation ab. Nach Erscheinen der Message-Box
+"Systemabschlu· durchfÅhren Ja/Nein" hÑngt sich der Rechner
+auf. Nachfolgender CHKDSK zerstîrte Teile der neu installierten Treiber,
+so da· das System nicht mehr hochfÑhrt. [...] Vorheriges Deregistrieren
+von &xwp; lÑ·t die Installation korrekt beenden."
+ 
+<!-- this item added with V0.81 -->
+<BR><LI>Dirk Schulz berichtete, da· Desktop Wizard und &xwp; sich nicht sonderlich
+leiden kînnen. Er konnte die StabilitÑt
+seiner WPS erhîhen, indem er <B>Desktop Wizard</B> deinstallierte.
+Gut, da· er nicht &xwp; deinstalliert hat. ;-)
+ 
+<!-- V0.9.13: added this -->
+<P>Wir wurde auch berichtet, da· Prompt Version 1.12 von Gary L. Robinson, das
+eine Untermenge der Desktop Wizard-Funktionen implementiert, ordnungsgemÑ· zu
+funktionieren scheint.
+ 
+</UL>
+</BODY>
+</HTML>

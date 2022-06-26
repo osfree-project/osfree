@@ -1,0 +1,58 @@
+<HTML RESID=&ID_XFH_SELECTSOME;>
+<HEAD>
+    <TITLE>
+        Nach Name Ausw„hlen
+    </TITLE>
+</HEAD>
+<BODY>
+Der Meneintrag "Nach Name Ausw„hlen" erlaubt es, nur einige der Objekte in 
+der gegenw„rtig ge”ffneten 
+<!-- V0.9.19: link added -->
+<A HREF="objects/obj_fdr_main.html">Ordner</A>ansicht auszuw„hlen.
+ 
+<!-- V0.9.19: removed this , w„hrend &os2; standardm„áig nur die Meneintr„ge
+ fr alle oder keine Objekte im Ordner ausw„hlen kennt. -->
+ 
+<P>Die Auswahl der Objekte wird nun in einem neuen Dialogfenster erledigt, dort k”nnen Sie
+Dateispezifikationen eingeben und anschlieáend "Ausw„hlen" oder "Zurcknehmen" anklicken.
+ 
+<!-- V0.9.19: rewrote the following -->
+<P>Wie der Inhalt des Eingabefeldes interpretiert wird, h„ngt vom Zustand der Schaltfl„che
+<B>"regul„re Ausdrcke"</B> ab.
+ 
+<UL><LI>
+Wurde die Schaltfl„che nicht aktiviert, erwartet das Eingabefeld Dateiauswahlmasken 
+gleich denen, die in einer &os2;-Befehlszeile verwendet werden. Sie k”nnen
+z.B. die <A HREF="glossary/gls_wildcards.html">Platzhalter</A> <CITE>"*"</CITE> und <CITE>"?"</CITE>
+benutzen, um verschiedene Dateien auszuw„hlen. Geben Sie hier z.B. <CITE>"*.txt"</CITE>
+ein, so werden alle Dateien mit der Endung ".txt" ausgew„hlt, nachdem Sie 
+<B>"Ausw„hlen"</B> angeklickt haben; in umgekehrter Richtung k”nnen Sie einige 
+Dateien zurcknehmen, indem Sie eine Auswahlmaske eingeben und anschlieáend
+<B>"Zurcknehmen"</B> anklicken.
+  
+<P><LI>Wurde dagegen "regul„re Ausdrcke" aktiviert, nimmt das Eingabefeld an, 
+einen <A HREF="glossary/gls_regexps.html">erweiterten regul„ren Ausdruck</A> zu 
+enthalten, welcher ausgewertet wird, wenn Sie "Ausw„hlen" oder "Zurcknehmen" 
+anklicken. Das ist besonders fr komplexe Kriterien sinnvoll. Beachten Sie, daá
+Platzhalterangaben wie <CODE>*.txt</CODE> einen Fehler verursachen werden, da 
+beide <CODE>*</CODE> und Punkt-Zeichen unterschiedlich interpretiert werden. 
+Als regul„rer Ausdruck wrde das vorige Beispiel mit <CODE>.*\.txt</CODE> 
+angegeben werden.
+</UL>
+<!-- end V0.9.19 -->
+ 
+<P>Obwohl wir hier den Begriff "Datei" verwenden, funktionieren die Platzhalter 
+auch bei abstrakten Objekten, wie Programmen oder Referenzobjekten.
+ 
+<P>Die Schaltfl„chen <b>"Alles ausw„hlen"</B> und <B>"Alles zurcknehmen"</B> 
+tun genau das, mit dem sie beschriftet sind: sie w„hlen entsprechend alle Elemente im
+Ordner aus oder nehmen die Auswahl zurck.
+ 
+<P>Das Dialogfenster wird nur geschlossen, wenn Sie <B>"Schlieáen"</B> anklicken oder die 
+<B>"Esc"</B>-Taste drcken. Es wird nicht geschlossen, wenn Sie eine der anderen
+Schaltfl„chen anklicken. Das erm”glicht Ihnen, verschiedene Dateigruppen 
+auszuw„hlen. 
+<BR>
+</BODY>
+</HTML>
+ 

@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Over Object Ingangen
+    </TITLE>
+</HEAD>
+<BODY>
+<B>Object ingangen</B> zijn 32-bits gehele getallen waarvan aangenomen wordt dat zij
+uniek zijn in het systeem. Het hoge-woord (de bovenste 16 bits) van een geheel getal
+geeft de opslag class van het object (onbepaald of bestandssysteem) aan, terwijl het
+lage-woord (de laagste 16 bits) een uniek punt is in die opslag class.
+
+<UL><LI><B>Onbepaalde objecten</B> hebben gewoonlijk een hoog-woord van <CODE>0x0002</CODE>,
+en hun lage-woord is opgenomen in de <CODE>PM_Abstract:Objects</CODE> sectie in
+<CODE>OS2.INI</CODE> met de gegevens van het object.
+
+<P>Voor onbepaalde objecten wordt <I>altijd</I> een ingang gecre‰erd omdat zij
+geen bestandsnaam hebben en de ingang de enige manier is om aan hen te refereren.
+
+<P><LI>Daar tegenover staat dat, <B>bestandssysteem objecten</B> (bestanden en mappen)
+alleen soms een ingang toegewezen hebben gekregen.
+Bestandssysteem objecten hebben gewoonlijk een hoog-woord met <CODE>0x0003</CODE>.
+Het lage-woord komt dan van de bestandsingangen database in de
+<CODE>PM_Workplace:HandlesX</CODE> sectie van <CODE>OS2SYS.INI</CODE>.
+
+<P>Merk op dat er twee <CODE>PM_Workplace:HandlesX</CODE> secties zijn (waarin X
+de waarde 0 of 1 heeft).
+De WPS houdt de bestandssysteem ingangen lijst altijd vast in het geheugen en
+speelt dat, alleen van tijd tot tijd, door aan de  <CODE>OS2SYS.INI</CODE>.
+Wanneer het dat doet, controleert het de <CODE>PM_Workplace:ActiveHandles</CODE>
+sleutel om uit te zoeken welke van de twee secties op dit moment actief zijn,
+speelt de ingangen door naar de andere sectie en verbetert dan die sleutel om hem
+naar de andere sectie te laten verwijzen.
+Dat is noodzakelijk omdat ingangen in de &os2; INI bestanden niet meer dan 64 KB
+aan gegevens mogen bevatten en de WPS daarom diverse blokken moet gebruiken om de
+gehele ingangen tabel vast te houden.
+
+</UL>Om te begrijpen waar al deze bestandssysteem ingangen vandaan komen, is wat meer
+kennis van de interne werking van de WPS intern vereist.
+
+<P>In theorie, moet de WPS alleen voor een bestandssysteem object een ingang maken
+als dat echt noodzakelijk is, b.v. er wordt ergens naar het object gerefereerd.
+
+<P>Echter, bestandssysteem ingangen kunnen ook problemen veroorzaken. Hoe meer
+bestandssysteem ingangen er bestaan, des te langzamer in het algemeen de WPS wordt.
+Meest belangrijke, het aantal bestandssysteem ingangen is beperkt. Als er te veel
+bestandssysteem ingangen zijn, wordt de WPS instabiel
+
+<P>Bestandsingangen worden, o.a. in de volgende situatie gemaakt:
+
+<OL><LI>Van programma objecten en reflecties. Dat is gewenst omdat dit programma
+objecten en reflecties in staat stelt om toch naar het juiste doel object te
+verwijzen als het doel object zich niet meer op de originele locatie bevindt.
+
+<P>B.v., als u een <A HREF="glossary/gls_path.html">pad</A> invoert naar een
+uitvoerbaar bestand in een instellingen notitieblok van een programma object,
+dan wil het programma object een ingang, dus moet het een nieuwe krijgen als
+er op dit moment nog geen bestaat. Het zelfde geldt als u een reflectie maakt van
+een object.
+
+<P><LI>Vanuit andere delen van de WPS (en &xwp;) om object referenties op te slaan.
+B.v., &xwp; gebruikt object ingangen om zich uw object toetsen in het &xcenter;
+te herinneren.
+
+<P><LI>Telkens als een object een object ID krijgt (die zaken die tussen rechte haken
+staan b.v. <CODE>&lt;WP_DESKTOP&gt;</CODE>).
+Object ID's worden opgeslagen in de <CODE>PM_Workplace:Location</CODE> sectie in
+<CODE>OS2.INI</CODE> tezamen met de object ingangen en kunnen alleen worden omgezet
+als de ingang geldig is.
+
+<P>Het grote probleem met deze implementatie is dat wanneer de bestandssysteem
+tabel defect is, de WPS de Werkplek niet meer kan vinden omdat het de
+<CODE>&lt;WP_DESKTOP&gt;</CODE> object ID gebruikt om hem bij het opstarten te
+lokaliseren.
+Als U de mededeling "Kan de Werkplek niet vinden" krijgt, is in 95% van alle
+gevallen de ingangen tabel defect.
+
+<P><LI>Vanuit applicatie programma's die de <CODE>Win*</CODE> API's gebruiken om
+Werkplek objecten te maken om daarmee te werken.
+Dat is normaliter alleen toelaatbaar als het een paar bestanden betreft.
+Helaas, hebben sommige van deze objecten (zoals <CODE>WinMoveObject</CODE>)
+object ingangen als invoer nodig.
+
+<P><LI>Voor iedere map die ooit was geopend. Dat is ook aanvaardbaar omdat de WPS
+de ingang van een map gebruikt om zijn positie op te slaan in <CODE>OS2.INI</CODE>
+zodat de positie van de map niet verloren gaat als de map wordt verplaatst.
+
+<P>Automatisch voor iedere ouder map in een bestandspad als een nieuwe ingang
+wordt gecre‰erd voor het bestand. Dat komt door de ingangsdatabase implementatie
+die alleen de korte naam van ieder bestandssysteem object opslaat en een referentie
+naar z'n ouder met een korte naam.
+Dit is zeer effici‰nt omdat als een map met veel sub-objecten wordt verplaatst, er
+alleen een enkele ingang in de database moet worden aangepast.
+Alleen de sub-objecten hebben een ouder ingang opgeslagen. die nog steeds werkt.
+
+<P><LI>Voor ieder gegevens bestand dat wordt geopend door een programma object
+koppeling.
+Dit is omdat de WPS de <CODE>WP_OBJHANDLE</CODE> omgevingsvariabele instelt naar de
+ingang van het gegevens bestand dat werd geopend.
+Sommige programma's steunen hierop, maar dit heeft ook het ongelukkige effect dat de
+ingang iedere keer wordt aangemaakt iedere keer dat u dubbel-klikt op een gegevens
+bestand, zelfs als de applicatie die ingang niet nodig heeft.
+
+<IFNDEF __NEVEREXTASSOCS__>
+
+<P>&xwp; staat U toe om dit gedrag uit te schakelen met zijn uitgebreide bestandskoppelingen.
+
+</IFNDEF>
+
+<IFNDEF __ALWAYSREPLACEREFRESH__>
+
+<P><LI>Helaas, maakt de WPS ingangen voor ieder object dat wordt vernieuwd gedurende
+een automatische vernieuwing van een map.
+Dat gebeurt, als een map is geopend en u doet er iets in vanuit een opdrachtregel
+(of een andere applicatie doet iets met de bestanden in die map), voor ieder bestand dat in
+de map wordt gewijzigd wordt een nieuwe bestandsingang gemaakt.
+
+<P>Een simpele proef is om een ZIP bestand te unzippen in een open map. Dit zal
+heel wat bestandssysteem ingangen cre‰ren die waarschijnlijk nooit meer worden gebruikt.
+Een redelijk groot aantal bestandssysteem ingangen worden er gemaakt als resultaat van dit
+gedrag.
+
+<P>En wederom, omdat object ingangen nooit verwijderd worden, blijven deze niet noodzakelijke
+ingangen voor altijd in het systeem staan.
+
+<P>Dit probleem wordt opgelost met &xwp; zijn vervanging van map vernieuwen.
+
+</IFNDEF>
+
+</OL>
+</BODY>
+</HTML>

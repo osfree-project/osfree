@@ -1,0 +1,51 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+XWorkplace Code You Might Find Useful
+</TITLE>
+</HEAD>
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This section should help you identify XWorkplace code sections which might
+also be useful to you.
+
+<OL><LI>This applies mostly to the code in the <CODE>HELPERS</CODE> directory.
+All of that code is not dependent on XWorkplace and could be used in any
+program. There are lots of Control Program, Presentation Manager and GPI
+helper functions which might solve problems that you are having.
+<P>To use the helper funcs, simply add <CODE>#include "helpers\xxx.h"</CODE>
+at the top of your code. See the top of the respective header for additional
+<CODE>#include</CODE>'s which are required by the helper.
+
+<P><LI>There are some functions in <CODE>src\shared\common.c</CODE> which might be
+useful to you, most notably to query some XWorkplace settings and NLS stuff.
+<CODE>cmnQuerySetting</CODE> will return a global setting,
+for example, or <CODE>cmnMessageBox</CODE> will display one of the pretty
+XWorkplace message boxes.
+
+<P><LI>To find out how to create a <CODE>WPAbstract</CODE> class from scratch,
+including a completely new view defined by your class (like the "Class list view"),
+you can take a look at <CODE>xclslist.idl</CODE> and <CODE>xclslist.c</CODE>,
+which do exactly this. See the comments in that file for instructions.
+
+<P><LI>To create a new settings object (which is not derived from WPSystem), take
+a look at <CODE>XWPSetup</CODE>, a direct subclass of <CODE>WPAbstract</CODE>,
+which is implemented this way.
+
+<P><LI>For easier maintenance of notebook dialog procs, I have created
+<CODE>src\shared\notebook.c</CODE>,
+which does just this using callbacks, so you don't have to rewrite the same
+stupid window procedures for each notebook page. This is used throughout XWorkplace's
+source code whenever settings pages are inserted, and has proven to be extremely
+useful.
+
+<P><LI>Finally, <CODE>src\shared\kernel.c</CODE> contains code which you can
+extend for certain tricky situations. For one, you can extend
+<CODE>krnInitializeXWorkplace</CODE> to have code executed upon Desktop startup;
+secondly, you can add messages to <CODE>krn_fnwpThread1Object</CODE> if you
+need code to absolutely always execute on thread 1 of PMSHELL.EXE, which cannot
+be guaranteed with open views of any kind (especially folder views).
+</OL>
+<BR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Objektkonfigurationsstring
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.4 -->
+<BODY>
+Das Eingabefeld "Konfigurationsstring"
+<!-- V0.9.16: on the "Object" page -->
+zeigt den Konfigurationsstring des aktuellen Objekts an.
+Dieser String wird von &xwp; direkt aus den Einstellungen des Objekts
+zusammengestellt.
+<!-- V0.9.16: changed this -->
+Das Eingabefeld ist nicht editierbar, aber der Inhalt kann mit
+Hilfe der Tasten <CODE>Strg+Einf</CODE> in die
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_clipboard.html">Zwischenablage</A>
+kopiert werden.
+ 
+<!-- V0.9.13: added this -->
+<!-- V0.9.16: slightly changed -->
+<P>Weitere Informationen Åber WPS-Konfigurationsstrings und eine Liste
+der am hÑufigsten gebrauchten
+siehe <A HREF="glossary/gls_objstrings.html">"Konfigurationsstrings"</A>.
+ 
+<!-- V0.9.13: removed chunk here -->
+ 
+Dieser Konfigurationsstring kann benutzt werden, um mit
+<!-- V0.9.20: added link -->
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A>-Funktionen
+ein Ñhnliches Objekt zu erstellen.
+<!-- V0..9.16 See the appendices of the <I>&xwp; User Guide</I> for more about those functions
+and a listing of many setup strings. -->
+ 
+<P>Zur Zeit ist &xwp; in der Lage, Konfigurationsstrings der folgenden Klassen
+zu verstehen:
+ 
+<!-- V0.9.16: added links -->
+<UL><LI><A HREF="objects/string_1wpobject.html">WPObject</A>
+<P><LI><A HREF="objects/string_2wpfolder.html">WPFolder</A>
+<!-- V0.9.20: removed XFolder link -->
+<P><LI><A HREF="objects/string_5wpprogram.html">WPProgram</A>;
+<!-- V0.9.20: removed "and XWPProgramFile;" -->
+bei diesen Klassen kann der Konfigurationsstring besonders lang werden.
+Sie werden auch bemerken, da· die WPS Variablen zur DOS-Konfiguration
+(SchaltflÑche "DOS"- oder "&winos2;-Einstellungen" auf der Seite "Sitzung") in der
+<!-- V0.9.20: link added -->
+<A HREF="glossary/gls_env.html">Umgebung</A> eines Programms mit Hilfe von
+Strings der Art <CODE>SET xxx=yyy</CODE> speichert.
+<P><LI><A HREF="objects/string_7xcenter.html">XCenter</A>
+ 
+</UL>Falls Konfigurationsstrings fÅr eine spezifischere Klasse definiert werden,
+&xwp; sie aber nicht dekodieren kann, erhÑlt man nur den Konfigurationsstring der
+Stammklasse(n).
+Insbesondere werden Konfigurationsstrings der Klassen
+WPPalette (und Unterklassen), WPDesktop/XFldDesktop,
+WPDisk/XFldDisk,
+WPHost, WPLaunchPad, WPNetgrp, WPPdr, WPPrinter, WPRPrinter, WPServer, WPShadow
+und WPUrl nicht unterstÅtzt.
+ 
+<P>Auch bei den oben genannten Klassen werden nicht alle
+Konfigurationsstrings von &xwp; unterstÅtzt,
+<!-- V0.9.13: rewrote all the following -->
+da es keine Standardschnittstelle fÅr das Auslesen gibt. Details siehe
+<A HREF="glossary/gls_objstrings.html">"Konfigurationsstrings"</A>.
+ 
+ 
+<BR>
+</BODY>
+</HTML>
+ 

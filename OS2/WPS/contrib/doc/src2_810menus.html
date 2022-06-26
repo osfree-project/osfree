@@ -1,0 +1,69 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Menu Manipulation
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+This is perhaps the most complex part of XWorkplace. After all, this is
+what I've started with, so some code parts may well be unchanged
+since December '97, when I neither knew much about C nor about WPS
+programming.
+<P>
+With V0.81, all the logic for manipulating and evaluating context
+menus has been moved to a new file, <CODE>menus.c</CODE>. All these functions have
+been given the <CODE>mnu*</CODE> prefix to make this a bit clearer.
+<P>
+The XWorkplace classes override <CODE>wpModifyPopupMenu</CODE> and
+<CODE>wpMenuItem[Help]Selected</CODE> for almost every replacement class. These
+overrides either handle the new context menu items in that method
+code or, for XFolder and XFldDisk, call the functions in <CODE>menus.c</CODE>,
+because these two classes share many common menu items, so we can
+share most of the code also.
+<P>
+All newly inserted menu items use <I>variable</I> menu IDs. You can tell
+this from their #define names, which have an <CODE>_OFS_</CODE> in their name
+(check <CODE>dlgids.h</CODE>). To all these values, XWorkplace adds the offset that
+is specified on the &quot;Paranoia&quot; notebook page.
+<P>
+For an introduction to how the config folder menu items work, see the
+"XWorkplace Internals" section in the
+<I>XWorkplace User Guide</I>.
+XWorkplace uses a fairly obscure system of global
+variables to be able to relate menu items to their intended
+functions. All the variable menu items are stored in a global linked
+list when the context menu is opened for a folder. In each list item,
+XWorkplace also stores what kind of object (template, program object,
+folder content item etc.) the menu item represents. This list is then
+examined by <CODE>wpMenuItemSelected</CODE> to perform the corresponding action
+(create a new object, start program etc.). After that, the list is
+destroyed, so it only eats up memory while the context menu is open.
+All this code is now (V0.81) in <CODE>menus.c</CODE>.
+<P>
+As opposed to the "regular" new menu items,
+the <B>folder content menus</B> are initially only inserted as empty submenu stubs.
+They are only filled with items when they're opened: XWorkplace
+intercepts <CODE>WM_INITMENU</CODE> in the subclassed folder frame proc
+(<CODE>fnwpSubclassedFolderFrame</CODE>, <CODE>src\filesys\folder.c</CODE>) and then
+populates the menu.
+These menu items are stored in the global list too and marked as
+folder content menu items so that <CODE>wpMenuItemSelected</CODE> will then simply
+open the corresponding Desktop object. The folder content code has now
+been moved to <CODE>menus.c</CODE> also.
+<P>
+Painting the icons is then done using owner-draw menu items; the
+messages which are necessary for this are also intercepted in
+<CODE>fnwpSubclassedFolderFrame</CODE> and then call corresponding functions in
+<CODE>menus.c</CODE>.
+<P>
+The folder content <I>menu windows</I> are also subclassed to be able to intercept
+right-mouse button clicks. The new window proc for this is called
+(suprise!) <CODE>fnwpFolderContentMenu</CODE>.
+<P>
+The <CODE>xfSelectingMenuItem</CODE> method introduced in V0.80 has been removed
+again with V0.81 due to the problems with SOM multiple inheritance.
+
+<BR>
+</BODY>
+</HTML>

@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Status Balken: Gemeenschappelijke Codes voor Alle Modi
+    </TITLE>
+</HEAD>
+<BODY>
+De volgende codes werken <B>in alle drie de modus:</B>
+<BR><DL>
+<DT><CITE>  $c      </CITE><DD>huidig aantal geselecteerde objecten
+<DT><CITE>  $C      </CITE><DD>totaal aantal objecten in de map
+<BR><DT><CITE>  $s<I>X</I>     </CITE><DD>totale grootte van de geselecteerde objecten
+<DT><CITE>  $S<I>X</I>     </CITE><DD>totale grootte van de map inhoud
+<DT><CITE>  $f<I>X</I>     </CITE><DD>vrije ruimte op het station van de map
+<DT><CITE>  $z<I>X</I>     </CITE><DD>totale grootte van het station van de map
+
+<P>In de vier hierboven, is <CODE><I>X</I></CODE> een speciaal
+<A HREF="fsys/stat_99format.html">opmaak specificatie</A> teken.
+
+<BR><DT><CITE>  $x(xxx) </CITE><DD>Links geori‰nteerde tabulator:
+druk de volgende informatie af op positie X "xxx" (relatief t.o.v. de linker kantlijn
+van de statusbalk).
+the status bar). -->
+<BR>Voorbeeld: <CITE>$x(300)$sK</CITE> zal altijd de totale grootte van de geselecteerde
+objecten afdrukken op positie 300.
+<DT><CITE>  $x(-xxx) </CITE><DD>zoals hiervoor, maar relatief t.o.v. de rechter kantlijn
+van de statusbalk.
+<BR>Voorbeeld: <CITE>$x(-150)$sK</CITE> zal de totale grootte van de geselecteerde objecten
+op positie X 100 afdrukken, als de huidige statusbalk 250 pixels lang is.
+<DT><CITE>  $x(xx%) </CITE><DD>zoals hiervoor, maar de X positie wordt nu berekend met gebruik van
+"xx" als een relatief percentage van de huidige lengte van de statusbalk.
+<BR>Voorbeeld: <CITE>$x(50%)$sK</CITE> zal altijd de totale grootte van de geselecteerde objecten
+in het centrum van de statusbalk afdrukken.
+
+</DL>
+<BR>
+</BODY>
+</HTML>
+
+

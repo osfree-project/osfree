@@ -1,0 +1,79 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Terminologi
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+F”ljande termer anv„nds genom den h„r dokumentationen, och du b”r d„rf”r
+bekanta dig med dessa.
+
+<UL><LI>En <B>"&xcenter; instans"</B> „r ett objekt av <CODE>&xcenter;</CODE> WPS klassen.
+Det kan endast finnas en ”ppen visning per &xcenter; s† att en &xcenter; instans „r
+identisk med en &xcenter; visning n„r den „r ”ppen, men det kan finnas ett flertal &xcenter;
+instanser p† ett system (t.ex. ett f”r varje sk„rmkant).
+
+<P>ven trots att &xcenter; sj„lv uppenbart „r ett Skrivbordobjekt, isolerar den
+totalt widgets internt fr†n WPS angel„genheter. Det „r varf”r k„nnedom om SOM/WPS programmering
+inte „r n”dv„ndig f”r att skriva en ny widget klass, men du kan fortfarande utf”ra WPS
+programmering om du vill.
+
+<P><LI>En <B>"widget"</B> „r ett PM subf”nster hos ett ”ppet &xcenter; vilket visar
+n†gonting. Ett ”ppet &xcenter; kan inneh†lla ingen, ett, eller flera widgets. Varje &xcenter;
+h†ller en lista p† widgets tillsammans med inst„llningarna i dess SOM instans data. Detta
+„r helt transparent f”r widgets, men om du „r intresserad, kan du se datat p† en "Widgets" sida
+hos ett &xcenter;'s notbok med inst„llningar.
+
+<P>Igen, f”r att klarg”ra: En widget „r ett separat PM f”nster inom &xcenter;.
+
+<P><LI>En <B>"widgetklass"</B> definierar en widget. Grundl„ggande, „r det en PM f”nsterklass
+med en ren C struktur som ett h”lje
+(<A HREF="plug_9xcenterwidgetclass.html"><CODE>XCENTERWIDGETCLASS</CODE></A>).
+Den strukturen h†ller namnet hos en PM f”nsterklass vilken anv„nds av &xcenter; f”r att skapa
+PM widget f”nster. Beroende p† widgetklassens attribut, kan det finnas en eller flera instanser
+av en widgetklass. Om du vill ha en annan widget i &xcenter;, m†ste du skriva en ny widgetklass.
+
+<P>Att skriva en widgetklass „r egentligen att skriva en PM f”nsterklass (se nedanf”r),
+med n†gra ytterligare regler att f”lja. F”r att g”ra saken lite enklare, kan dock †tskilliga 
+widget klasser dela samma PM klass.
+
+<P>Vissa widgetklasser „r direkt inbyggda i &xcenter; (m.a.o. i sj„lva <CODE>XFLDR.DLL</CODE>),
+men &xcenter; kan uppenbarligen ladda in externa plug-in DLL'er ocks†. tskilliga av
+de widgetklasser som kommer med &xwp; har skapats som plug-ins f”r att visa dig hur det „r utf”rt.
+Om du har <A HREF="notices_40source.html">&xwp; k„llkod</A>, leta efter <CODE>src\widgets</CODE> katalogen.
+
+<P><LI>en <B>"PM f”nsterklass"</B> „r inte en &xcenter; definition... detta „r f”rklarat
+i detalj i <I>Presentation Manager Programming Reference.</I>
+
+<P>Grundl„ggande organiserar PM f”nster i klasser. Till exempel, om du skapar en PM knapp, 
+anropar du <CODE>WinCreateWindow</CODE> med namnet och knapp f”nsterklassen
+(<CODE>WC_BUTTON</CODE>), vilken „r en standard f”nsterklass p† varje &os2; system.
+
+<P>Det „r dock m”jligt att skapa nya f”nsterklasser. &xcenter; anv„nder sig av den funktionen
+f”r att implementera widgetklasser. S† igen, en widgetklass „r en PM f”nsterklass med en del
+extra data att ge till &xcenter; mera information om de widgets som kan skapas f”r den klassen.
+
+<P>F”rdelen med att anv„nda separata PM f”nsterklasser „r att en widget „r v„sentligen fri
+att g”ra vad den vill. Den kan s„ga "Hello world", men den kan ocks† v„lja att starta ett dussin
+subtr†dar med spelning av videos.
+
+<P>Nackdelen med att skriva en PM f”nsterklass fr†n scratch „r att det „r lite sv†rare „n att anv„nda
+vanliga standardkontroller. Men det „r orsaken till att det finns †tskilliga exempel att l„ra
+sig av.
+
+<P>N„r en widget „r skapad (antingen d„rf”r att den „r tillagd hos ett ”ppet &xcenter; eller n„r
+ett &xcenter; „r ”ppnat f”rsta g†ngen och alla widgets m†ste skapas), anropar den 
+<CODE>WinCreateWindow</CODE> med PM f”nsterklassens namn som specificerades med widgetklassen. S† 
+detta „r inte n†got m„rkv„rdigt.
+
+<P><LI>En <B>"widget plugin DLL"</B> „r en separat DLL vilken finns i <CODE>plugins\xcenter</CODE>
+katalogen hos &xwp;'s installationskatalog. Den m†ste inneh†lla en eller flera widgetklasser. 
+Det finns tre procedurer som en widget plugin DLL m†ste exportera f”r att fungera p† &xcenter; se 
+widgetklasser. Det „r f”rklarat i detalj p† f”ljande sidor.
+
+</UL>
+</BODY>
+</HTML>
+
+

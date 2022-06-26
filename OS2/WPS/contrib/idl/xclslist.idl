@@ -1,0 +1,167 @@
+
+/*
+ * xclslist.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XWPClassList
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xclslist.c for details.
+ */
+
+/*
+ *      Copyright (C) 1998-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpabs.idl>         // this is SOM for WPAbstract
+
+/*
+   CLASS: XWPClassList
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ XWPClassList
+*/
+
+interface M_XWPClassList;               // forward reference to metaclass
+
+interface XWPClassList : WPAbstract
+{
+    /*
+     * New instance methods for XWPClassList:
+     *
+     */
+
+    ULONG xwpAddXWPClassListPages(in HWND hwndDlg);
+        /*@@ xwpAddXWPClassListPages:
+           this actually adds the new pages into the
+           "WPS Class List" notebook. */
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpAddXWPClassListPages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwlist_;
+        externalstem = xwlist;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xclslist;           //# specifies the filestem for sc-generated files
+        metaclass = M_XWPClassList;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XWPClassList:
+         *
+         */
+
+        BOOL    fShowSOMObject;     // TRUE: display tree from SOMObject
+                                    // FALSE: display tree from WPObject
+        BOOL    fShowMethods;       // show methods subwindow? (three or only two subwindows)
+        ULONG   ulSortID;           // menu item ID of current cnr sort function
+        ULONG   ulMethodsRadioB;    // ID of currently selected radio button
+                                    // (ID_XLDI_RADIO_INSTANCEMETHODS or ID_XLDI_RADIO_CLASSMETHODS)
+        HWND    hwndOpenView;       // window handle of currently open view or NULLHANDLE
+
+        BOOL    fMenuCnrWhitespace; // if TRUE, menu has been requested on cnr whitespace
+
+        /*
+         * WPAbstract methods overridden by XWPClassList:
+         *
+         */
+
+        wpInitData: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+
+        wpQueryDefaultView: override;
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+
+        wpOpen: override;
+
+        wpAddObjectWindowPage: override;
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XWPClassList : M_WPAbstract
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = xwlistM_;
+        externalstem = xwlistM;
+        functionprefix = xwlistM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xclslist;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPAbstract methods overridden by M_XWPClassList:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

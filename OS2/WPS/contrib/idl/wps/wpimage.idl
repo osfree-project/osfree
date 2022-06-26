@@ -1,0 +1,127 @@
+
+/*
+ * wpimage.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPImageFile
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+
+#ifndef wpimage_idl
+#define wpimage_idl
+
+#include "xfdataf.idl"
+#include <somcls.idl>
+
+interface M_WPImageFile;
+
+interface WPImageFile : XFldDataFile
+{
+    BOOL32 wpQueryBitmapHandle(inout HBITMAP phBitmap,
+                               inout HPAL phPalette,
+                               in ULONG ulWidth,
+                               in ULONG ulHeight,
+                               in ULONG ulFlags,
+                               in LONG lBackgroundColor,
+                               inout BOOL pbQuitEarly);
+
+    PBYTE wpQueryBitmapInfoHeader();
+
+    PBYTE wpQueryBitmapData(inout ULONG pulSize);
+
+    BOOL32 wpSetBitmapData(in PBYTE pBitmapData,
+                           in ULONG ulSize);
+
+    BOOL32 wpReadImageFile();
+
+    BOOL32 wpWriteImageFile();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpQueryBitmapHandle,
+            wpQueryBitmapInfoHeader,
+            wpQueryBitmapData,
+            wpSetBitmapData,
+            wpReadImageFile,
+            wpWriteImageFile;
+
+        externalstem = wpimg;
+        local;
+        externalprefix = img_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpimage;
+        metaclass = M_WPImageFile;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        //# the following is necessary or we'll stop the compiler
+        //# on the new method definitions above
+
+        passthru C_h =
+"#ifndef PMBITMAP_INCLUDED"
+"#include <pmbitmap.h>"
+"#endif"
+"";
+
+        somDefaultInit: override;
+        somDestruct: override;
+        wpQueryHandleFromContents: override;
+        wpSetContentsFromHandle: override;
+        wpUnInitData: override;
+    };
+#endif
+};
+
+interface M_WPImageFile : M_XFldDataFile
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = wpimg;
+        local;
+        externalprefix = imgM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpimage;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsQueryDefaultHelp: override;
+        wpclsQueryInstanceType: override;
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+    };
+#endif
+};
+
+#endif

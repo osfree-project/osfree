@@ -1,0 +1,157 @@
+<HTML NOSUBLINKS="xices" NOSUBLINKS="further" NOSUBLINKS="vers_" XPOS=right WIDTH=70%>
+<HEAD>
+    <TITLE>
+        Related Files
+    </TITLE>
+</HEAD>
+<!-- changes in this file:
+        V0.81: see notes below
+        V0.83: see notes below
+        V0.84: see notes below -->
+<!-- Changed with V0.9.0: replace XFolder with &xwp; -->
+<BODY>
+There are a number of files in the different subdirectory of the &xwp;
+installation directory that might be useful to you:
+
+<!-- this item changed with V0.83 -->
+<UL><LI><CITE><STRONG>BOOTMGR.CMD</STRONG></CITE> is new with V0.83.
+This script was supplied by
+Duane A. Chamblee &lt;duanec@ibm.net&gt; and will automatically add all the
+current BootManager choices to the &xwp; user-reboot actions for &xshutdown;.
+This is done by modifying the &xwp; keys in OS2.INI directly. No guarantee
+that this will actually work on your system!
+
+<P><LI><CITE><STRONG>CROBJxxx.CMD</STRONG></CITE>
+(with xxx being a three-digit language code,
+as described in <A HREF="inst_4nls.html">National Language Support</A>) are used
+by &xwp; to create the default Configuration Folders. These are just plain REXX
+scripts which create a number of objects on your desktop.
+<P>These scripts are called both after &xwp; has been installed (after the first
+Desktop restart) and also whenever &xwp; fails to locate its Configuration Folder.
+<P>You may modify these scripts to have a different default configuration created.
+However, you should be very careful in changing the various object settings, especially
+the <CITE>OBJECTID</CITE> keywords, because &xwp; might rely on these.
+
+<P><LI><CITE><STRONG>NEWOBJ.CMD</STRONG></CITE>
+was used in old XFolder versions
+(before 0.52)
+to create objects. This is
+<A HREF="menu_2template.html">now done with templates,</A> but this script is still
+included, for those who got used to it.
+<P>It needs the following parameters on the command line:
+<PRE>newobj &lt;wpsclass&gt; &lt;name&gt;</PRE>
+<P>It will create a new instance of <CITE>&lt;wpsclass&gt;</CITE> with the title
+<CITE>&lt;name&gt;</CITE> in the current directory. Please
+see the <A HREF="xices_1wpsclasses.html">"WPS Classes" page</A> for a list of WPS classes.
+Not all of these make sense when
+creating objects though.
+<P>Here's an example:
+<PRE>newobj WPFolder New_Folder</PRE>
+<P>will create a new folder called "New_Folder" in the current directory.
+<P><STRONG>Note:</STRONG> Since V0.41, XFolder can also create objects
+from templates. This has the advantage that you can create objects with certain
+default settings (namely for folders).
+
+<!-- this item changed with V0.84 -->
+<P><LI><CITE><STRONG>NETSCDDE.EXE</STRONG></CITE> (The Netscape DDE Interface):
+see the <A HREF="069netscdde.html">separate chapter</A> in this documentation.
+
+<!-- V0.9.19: updated the second line -->
+<P><LI><CITE><STRONG>REPCLASS.EXE</STRONG></CITE>
+was used by old XFolder versions to register the various &xwp; class and replace
+the standard WPS classes with them. It needs the following parameters on the command line:
+<PRE>repclass &lt;oldclass&gt; &lt;replacewithclass&gt; [&lt;dllname&gt;]</PRE>
+<P><CITE>&lt;oldclass&gt;</CITE> is the WPS class that you wish to replace.
+This is case-sensitive.
+<P><CITE>&lt;replacewithclass&gt;</CITE> is the new
+WPS class that you wish to register and at the same
+time replace <CITE>&lt;oldclass&gt;</CITE> with. This is also case-sensitive.
+<P><CITE>&lt;dllname&gt;</CITE> is the dynamic link library (DLL) that
+contains <CITE>&lt;replacewithclass&gt;</CITE>.
+If the DLL is not on the LIBPATH (as with XFolder), you will need
+to specify the full path.
+<P>If <CITE>&lt;dllname&gt;</CITE> is omitted, <CITE>&lt;replacewithclass&gt;</CITE>
+will be de-registered and removed
+from the replacement list for <CITE>&lt;oldclass&gt;</CITE>.
+<P>Example for &xwp; itself: the classes to be replaced are
+<CITE>WPFolder</CITE>, <CITE>WPDisk</CITE>, and <CITE>WPSystem</CITE>, the
+new XFolder classes are <CITE>XFolder</CITE>, <CITE>XFldDisk</CITE>, and <CITE>XFldSystem</CITE>,
+which all reside in the XFLDR.DLL file.
+<P>All action performed with this program will only have an effect after rebooting or restarting
+the WPS with WPSRESET.EXE (see below).
+
+<!-- V0.9.6: removed this
+Warning: Do not attempt to replace single &xwp; classes or to undo
+a certain &xwp; replacement manually. The &xwp; classes are designed to work
+together and are depend on each other. If you register / deregister not all of them,
+the WPS might hang itself up already at boot-up. For registering or deregistering
+of the &xwp; classes, always use the install script. -->
+
+<P><LI><CITE><STRONG>SOUNDxxx.CMD</STRONG></CITE>
+(with xxx being a three-digit language code,
+as described in <A HREF="inst_4nls.html">National Language Support</A>)
+<!-- V0.9.19: changed the following -->
+is automatically run by &xwp; when the
+new <A HREF="mm_2sounds.html">system sounds</A> are enabled.
+These little scripts will write a few language-dependent
+strings into the INI files of the &os2;
+Multimedia Subsystem (MMPM/2), which will then be visible in the &os2; "Sound" object.
+Only if &xwp; finds these, it will play system sounds
+at all.
+
+<P><LI><CITE><STRONG>SOUNDOFF.CMD</STRONG></CITE>
+will turn sounds off again by deleting the respective entries from the MMPM/2 INI files.
+&xwp; will then stop playing system sounds.
+
+<P><B>Note:</B> The <CITE>SOUND</CITE> files assume that that your MMPM/2 directory is <CITE>\MMOS2</CITE>
+on your boot drive. If it is not, you must alter the files yourself.
+
+<!-- this item added with V0.81 -->
+<P><LI><CITE><STRONG>TREESIZE.EXE</STRONG></CITE> is used by the new default
+menu item of the same name and displays the disk usage of a folder and all its
+subfolders in a Tree view. If Treesize is started with a directory name as a parameter,
+this directory is displayed, or the current directory otherwise.
+<P>After Treesize is done with its calculations, you may drag and drop new WPS folders
+onto the main window, whose size will be calculated then also.
+<P>Treesize offers you some settings using context menus.
+<P>All settings are saved when Treesize is closed.
+
+<P><LI><CITE><STRONG>WPSRESET.EXE</STRONG></CITE>
+can restart your WPS without rebooting your computer
+altogether (see the <A HREF="xsd_1restartwps.html">"Restart Desktop"</A> page for details).
+It is now (V0.71) only used by the install script any more, while &xwp; does its
+own Desktop restarting internally.
+In order to prevent accidental execution, WPSRESET.EXE must be started with a
+<CITE>"-D"</CITE> parameter on the command line.
+
+<P><LI><CITE><STRONG>XHELP.CMD</STRONG></CITE>
+is a powerful REXX script which can display language-dependent messages, both
+in HTML and simple ASCII format.
+It was taken out of the "OS/2 CommandPak" by the same author,
+also available at
+<!-- V0.9.13: replaced link -->
+<A HREF="http://www.xworkplace.org">xworkplace.org</A>. In that package, you will
+find extensive documentation of xhelp.
+
+<!-- V0.9.7: changed this -->
+<P>In &xwp;'s context, xhelp was previously used by the text-mode install program.
+&xwp; is now using WarpIN for installation, so xhelp is only included any more in
+case someone still wants to use the text-mode install.
+
+<P><LI><CITE><STRONG>XSHUTDWN.EXE</STRONG></CITE> has been removed with V0.9.7.
+
+<P><LI><STRONG>All the other .CMD files</STRONG> in the &xwp; directory
+are REXX scripts used by the default &xwp; configuration to quickly set
+certain folder settings (they can be found in the "Quick Settings" submenu).
+The scripts are very similar, varying only in the settings that are applied
+to a folder. ALWSSORT.CMD is commented, so you can look through it and see what it
+is doing. Copy ALWSSORT.CMD to some other filename and change the settings that
+are applied to the folder in order to apply customized settings to folders.
+<!-- V0.9.16 See the
+<A HREF="xices_30wpsstrings.html">"WPFolder Setup Strings"</A> page for a list
+of applicable settings. -->
+</UL>
+</BODY>
+</HTML>
+
+

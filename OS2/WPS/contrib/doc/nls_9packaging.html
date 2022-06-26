@@ -1,0 +1,42 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+<TITLE>
+Creating a WarpIN archive
+</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000AA" VLINK="#777777">
+<!-- V1.0.6: This page is new with version 1.0.6 -->
+Once you have created and successfully tested your NLS package, you should
+create a WarpIN package to make it available to other users. The XWorkplace
+build environment can do some of this for you but not everything.
+
+<P>To create a WarpIN archive:
+
+<UL><LI>Open the <CODE>MAKEWPIxxx.CMD</CODE> file in your NLS directory tree
+and change the country codes as per the included instructions. This file is
+later called to create the archive.
+
+<P><LI>Open the <CODE>NLSxxx.WIS</CODE> file. This is the WarpIN script
+that tells WarpIN what to do with the included files. Translate and
+adapt it as per the included instructions. Every location that has to
+be changed is preceded by an explanatory comment.
+
+<P><LI>Open a command line window in the root
+directory of your XWorkplace tree and issue the following command:
+
+<P><CODE>nmake wpi_nls</CODE>
+
+<P>This should copy a number of files and then invoke WarpIN. You will
+see some messages about added files and compression rates.
+
+<P><LI>Now test the archive by installing it. If WarpIN finishes the
+installation without errors switch to your language and see if
+everything works correctly.
+</UL>
+
+<P>If everything works correctly, don't forget to tell the XWorkplace
+maintainers about it so your changes can be committed to CVS!
+
+</BODY>
+</HTML>

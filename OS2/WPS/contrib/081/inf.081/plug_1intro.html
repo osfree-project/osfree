@@ -1,0 +1,37 @@
+<HTML WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Introduction
+    </TITLE>
+</HEAD>
+<!-- This is all new with V0.9.9. -->
+<BODY>
+The &xcenter; supports widget plug-in DLLs. To the &xcenter;, it doesn't matter whether
+a widget class is built into <CODE>XFLDR.DLL</CODE> itself or implemented externally
+through a plug-in DLL.
+See <A HREF="ctr_9plugin.html">"About plug-in DLLs"</A> for a general introduction
+to this feature of the &xcenter;.
+
+<P>The existing <A HREF="ctr_3stdwgt.html">standard widget classes</A> are partly
+built into <CODE>XFLDR.DLL</CODE> itself (if they make extensive use of WPS features,
+such as with the object button widget), but some of them are already implemented as
+plug-in DLLs. This was done for two reasons: first, to test that the plug-in
+DLL interface actually works, and second, to give potential developers the chance
+to look at how this can be done.
+
+<P>Please read through the <A HREF="plug_2terminology.html">Terminology</A> section
+first to make sure you know about the wording used here.
+
+<P>Then, basically, you can start with the minimal widget which comes with the
+&xwp; binary release. In this case, you do not even need the &xwp;
+source code. All you need is the &xcenter; include file, which now comes with &xwp;
+(see <CODE>toolkit\center.h</CODE>).
+
+<P>See <A HREF="plug_51simple.html">Step 1: One header only</A>
+for an introduction, which gets more complicated with the following steps.
+
+<BR>
+</BODY>
+</HTML>
+
+

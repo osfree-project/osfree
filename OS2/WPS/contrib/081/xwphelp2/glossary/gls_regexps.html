@@ -1,0 +1,252 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Regular Expressions
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.19
+    Changes:
+    V0.9.20: add &xwp; to title
+-->
+<BODY>
+Regular Expressions (REs) are commonly used used to determine
+if a character string of interest is matched somewhere in
+a set of character strings. They allow for specifying complex
+matching criteria and are thus much more flexible than regular
+search strings.
+
+<P>&xwp; uses a combination of many standards for RE syntaxes.
+The level of functionality is most closely modelled on extended
+regular expressions (EREs) as supported by the UNIX
+<CODE>egrep</CODE> and <CODE>awk</CODE> programs.
+Some enhancements introduced by POSIX, those typically found in UNIX
+<CODE>ex</CODE> and <CODE>vi</CODE>, and most found in GNU software
+are supported too.
+
+<P>The following rules apply (see
+<A HREF="glossary/gls_regexps_bnf.html">BNF definition</A> for a formal definition):
+
+<P><B>Basic characters</B>
+
+<UL>
+<LI>Most characters in an ERE can specified just by typing them.
+For example, <CODE>abc</CODE> matches <CODE>a</CODE>, then <CODE>b</CODE>,
+then <CODE>c</CODE>.
+
+<P><LI>Certain characters have special meanings, and will have to be escaped
+by preceding them with a backslash.
+This applies to the following characters:
+
+<PRE>
+    ~ . ^ $ ( ) { } [ ] ? + * |
+</PRE>
+For example, <CODE>1\*2</CODE> matches <CODE>1</CODE>, then <CODE>*</CODE>,
+then <CODE>2</CODE>.
+
+<P><LI>To match the backslash itself, it must be escaped too. For example,
+<CODE>c:\\config\.sys</CODE> matches <CODE>c:\config.sys</CODE>.
+
+<P><LI>The backslash can be used to describe characters which are difficult to
+type:
+
+<PRE>
+  \n    newline           ASCII 10
+  \t    tab               ASCII  9
+  \r    carriage return   ASCII 13
+  \b    backspace         ASCII  8
+  \f    formfeed
+  \e    escape            ASCII 27
+  \x07  bel               ASCII  7
+</PRE>
+
+C and C++ programmers will find this notation familiar.
+Strictly speaking, according to POSIX, if <CODE>\x2e</CODE> was put in an ERE
+it should mean "any character" (ASCII character 0x2e is the dot, which means
+any character, see later), but this implementation treats it as
+"match a full stop".
+
+<P><LI>Sometimes the backslash is used to introduce a special ERE feature.
+For example <CODE>\&lt;</CODE> means 'start of word' (see later).
+The character after the backslash is generally chosen to something that
+you would not need to escape, so this syntax should not cause any
+problems.
+
+</UL><B>Character sets</B>
+
+<P>Character sets are specified in angle brackets and
+define a set of acceptable characters, or possibly a set of unacceptable
+characters.
+
+<PRE>
+  [abc]   matches any one character which can be a, b, or c
+  [^abc]  matches any one character which is neither a, b, nor c
+  [a-z]   is the set of characters in the range 'a' to 'z'
+  [a-j-t] is the set of characters in the range 'a' to 't'
+</PRE>
+
+To match a <CODE>-</CODE>, <CODE>^</CODE>, <CODE>]</CODE> character
+in a bracket element, escape it with a backslash. For example,
+  <CODE>[\])}]</CODE> matches <CODE>]</CODE>, or <CODE>)</CODE>, or <CODE>}</CODE>.
+
+You can also specify a complete POSIX character classes in an <I>additional</I>
+brackets pair with colons. In that context,
+
+<PRE>
+  [:alnum:]   means all alphanumeric characters
+              (with ASCII, same as A-Za-z0-9)
+  [:lower:]   means all lowercase characters
+  ... etc.
+</PRE>
+
+For example, specifying <CODE>[[:alnum:] \t]</CODE> would
+allow all alphanumeric characters plus space plus tab.
+
+<P><B>Any character</B>
+
+<P>The dot (<CODE>.</CODE>) character matches any single character, without
+caring what it actually is. For example, <CODE>t.e</CODE> matches
+<CODE>the</CODE>, but not <CODE>tree</CODE>.
+
+<P><B>Word constituent characters</B>
+
+<P>GNU EREs define the term "word constituent character" to
+include any alphanumeric character, or the underscore <CODE>_</CODE>
+character to save some typing.
+
+<P><CODE>\w</CODE> is a shorthand for any word consitiuent character
+and is equivalent to <CODE>[[:alnum:]_]</CODE> or <CODE>[A-Za-z0-9_]</CODE>.
+<CODE>\W</CODE> for any non-word constituent character and is
+equivalent to <CODE>[^[:alnum:]_]</CODE> or <CODE>[^A-Za-z0-9_]</CODE>.
+
+<P>These shorthands are invalid within square bracket character sets.
+
+<P><B>Not a character</B>
+
+<P>A Microsoft extension to EREs is to allow you to say
+"any character except this character" by preceeding it with a tilde
+<CODE>~</CODE>.
+This is simply shorter to type than the equivelent
+square bracket character set
+(<CODE>~a</CODE> is shorter to type than <CODE>[^a]</CODE>).
+For example, <CODE>t~he</CODE> matches
+<CODE>tie</CODE>, but not <CODE>the</CODE>.
+
+<P><B>Anchors</B>
+
+<P>Anchors specify conditions where an expression may occur:
+
+<PRE>
+  ^       matches if we are at the start of the string
+  $       matches if we are at the end of the string
+  \`      GNU alternative way of writing ^
+  \'      GNU alternative way of writing $
+  \&lt;      matches if we are at the start of a word (or the whole string)
+  \&gt;      matches if we are at the end of a word (or the whole string)
+  \B      matches if we are within a word
+  \y      matches if we are at the start or end of a word (or whole string)
+</PRE>
+
+Here "word" is according to the GNU definition as given above.
+
+<P>For example, <CODE>^xyz</CODE> matches <CODE>xyz</CODE> only if it is at
+the start of the line. <CODE>\&lt;fred</CODE> matches <CODE>fred</CODE>,
+<CODE>freddy</CODE>, but not <CODE>alfred</CODE>.
+
+<P><B>Repetitions</B>
+
+<P>By using <CODE>?</CODE>, <CODE>+</CODE>, <CODE>{M}</CODE>, or <CODE>{M,N}</CODE>
+you can search for repetitions:
+
+<PRE>
+  ab?c      matches a, then zero or one occurrance of b, then c
+  ab+c      matches a, then one or more occurrances of b, then c
+  ab*c      matches a, then zero or more occurrances of b, then c
+  ab{M}c    matches a, then M occurrances of b, then c
+  ab{M,}c   matches a, then M or more occurrances of b, then c
+  ab{M,N}c  matches a, then between M and N occurrances of b, then c
+</PRE>
+
+<P>In the above, M and N are numbers given in decimal, where if both are
+given, M must be &lt;= N.
+
+<P>For example, <CODE>[A-Za-z_][A-Za-z0-9_]*</CODE>
+matches any legal C or C++ identifier. <CODE>\w{10,}</CODE> matches at least
+10 word constituent characters. <CODE>\&lt;[0-9]{5}\&gt;</CODE> matches a 5
+digit number.
+
+<P><B>Alternation</B>
+
+<P>You can search for one thing or another using the <CODE>|</CODE> symbol.
+For example, <CODE>fred|bill</CODE> matches <CODE>fred</CODE> or <CODE>bill</CODE>.
+<CODE>fred|bill|rob</CODE> matches any one of these 3 names.
+
+<P><B>Nested EREs</B>
+
+<P>Brackets may be used to group EREs into sub-EREs, so that operators
+such as the repetitions or alternation operator may be applied to them.
+For example, <CODE>(frog|toad)+</CODE> matches one or more occurence of
+<CODE>frog</CODE> or <CODE>toad</CODE>.
+
+<P>Nesting may be performed several levels deep.
+
+<P><B>Backreferences</B>
+
+<P>Every time a nested ERE is matched, what it matched is recorded.
+You can do a backreference later in the main ERE (which means that
+whatever was matched before must be matched again) by specifying
+the backslash with a single decimal number.
+Up to 9 nested EREs may thus be backreferenced.
+
+<P>For example, <CODE>\2</CODE> says the second nested ERE must
+be matched again. As a result,
+<CODE>(a|b)(c|d)\2\1</CODE> will match <CODE>acca</CODE>,
+or <CODE>adda</CODE>, or <CODE>bcca</CODE>, or <CODE>bddb</CODE>.
+
+<P>Note that the above example is <I>not</I> a shorthand for
+writing <CODE>(a|b)(c|d)(c|d)(a|b)</CODE>. Backreferences do
+not refer to the ERE, but to what was matched by it.
+
+<P>Backreferences can be done within nested EREs to backreference
+nested EREs. For example, <CODE>frog|((a|bc)d\1)</CODE> matches
+<CODE>frog</CODE>, or <CODE>ada</CODE>, or <CODE>bcdbc</CODE>,
+but not <CODE>adbc</CODE>.
+
+<!--
+<P><B>Substitutions</B>
+
+<P>Sometimes EREs are used to find or match information, and sometimes they
+are used as the 'find' part of a 'find and replace' operation.
+Programs providing 'find and replace' are provided with the extent of
+each match, and also the extents of the top level sub-EREs within them.
+So a replacement pattern can easily refer to these, (typically by using the
+backreference <CODE>\N</CODE> notation in the replacement string).
+
+<PRE>
+  eg: find                   ([0-9]+),"(~"*)"
+      replace-with           set \2 = \1
+      given-input            23,"Age"
+      gives-output           set Age = 23
+</PRE>
+
+<P>Consider using the ERE <CODE>(.+)(.+)</CODE> against the string
+<CODE>abcd</CODE>.
+Clearly there will be a match of length 4 characters, as an ERE matches
+the longest string it can.
+What isn't clear is what <CODE>\1</CODE> and <CODE>\2</CODE> are in the
+substitution, afterwards.
+eg: We could have any one of :-
+
+<P>
+<PRE>
+  \1 = a    \2 = bcd
+  \1 = ab   \2 = cd
+  \1 = abc  \2 = d
+</PRE>
+
+<P>Which you get is <I>undefined</I> in this implementation of EREs.
+-->
+
+<BR>
+</BODY>
+</HTML>
+

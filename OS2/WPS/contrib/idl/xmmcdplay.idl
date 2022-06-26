@@ -1,0 +1,195 @@
+
+/*
+ * xmmcdplay.idl:
+ *      SOM interface description file for the following
+ *      XWorkplace classes (in this order):
+ *          XMMCDPlayer
+ *      and the respective metaclasses.
+ *
+ *      See src\classes\xmmcdplay.c for details.
+ */
+
+/*
+ *      Copyright (C) 2000 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#include <wpabs.idl>         // this is SOM for WPAbstract
+
+/*
+   CLASS: XMMCDPlayer
+
+   CLASS HIERARCHY:
+
+       SOMObject
+         ÀÄÄ WPObject
+               ÀÄÄ WPAbstract
+                     ÀÄÄ XMMCDPlayer
+*/
+
+interface M_XMMCDPlayer;            // forward reference to metaclass
+
+interface XMMCDPlayer : WPAbstract
+{
+    /*
+     * New instance methods for XMMCDPlayer:
+     *
+     */
+
+    ULONG xwpCDQueryStatus();
+
+    BOOL xwpCDPlay();
+
+    BOOL xwpCDTogglePlay();
+
+    BOOL xwpCDPause();
+
+    BOOL xwpCDStop();
+
+    ULONG xwpCDQueryCurrentTrack();
+
+    BOOL xwpCDNextTrack();
+
+    BOOL xwpCDPrevTrack();
+
+    BOOL xwpCDEject();
+
+    BOOL xwpAddXMMCDPlayerPages(in HWND hwndNotebook);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            xwpCDQueryStatus,
+            xwpCDPlay,
+            xwpCDTogglePlay,
+            xwpCDPause,
+            xwpCDStop,
+            xwpCDQueryCurrentTrack,
+            xwpCDNextTrack,
+            xwpCDPrevTrack,
+            xwpCDEject,
+            xwpAddXMMCDPlayerPages;
+
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = cdp_;
+        externalstem = cdp;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xmmcdplay;           //# specifies the filestem for sc-generated files
+        metaclass = M_XMMCDPlayer;
+        dllname = "xfldr.dll";
+        callstyle = oidl;           //# forget CORBA stuff (*ev and such)
+
+        /*
+         * The following is forced into the .H file:
+         *
+         */
+
+        passthru C_h =
+"";
+
+        /*
+         * Internal instance variables for XMMCDPlayer:
+         *
+         */
+
+        HWND    hwndOpenView;           // client if frame is open; NULLHANDLE otherwise
+
+        PVOID   pvPlayer;               // pointer to XMMCDPLAYER structure, if running
+
+        LONG    lcolBackground;
+        LONG    lcolForeground;
+        PSZ     pszFont;
+
+        BOOL    fShowingOpenViewMenu;
+
+        /*
+         * WPAbstract methods overridden by XMMCDPlayer:
+         *
+         */
+
+        wpInitData: override;
+        wpUnInitData: override;
+        wpObjectReady: override;
+
+        wpSetup: override;
+
+        wpSaveState: override;
+        wpRestoreState: override;
+
+        wpFilterPopupMenu: override;
+        wpModifyPopupMenu: override;
+
+    //#    wpQueryDefaultHelp: override;    replaced with class method V0.9.20 (2002-07-12) [umoeller]
+        wpQueryDefaultView: override;
+
+        wpOpen: override;
+
+        wpAddObjectWindowPage: override;
+        wpAddSettingsPages: override;
+    };
+#endif
+};
+
+//#
+//#
+//# Now define Metaclass.
+//# ---------------------
+//#
+
+interface M_XMMCDPlayer : M_WPAbstract
+{
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        /*
+         * Class Modifiers:
+         *
+         */
+
+        externalprefix = cdpM_;
+        externalstem = cdpM;
+        functionprefix = cdpM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = xmmcdplay;           //# specifies the filestem for sc-generated files
+        dllname = "xfldr.dll";
+        callstyle = oidl;
+
+        /*
+         * Internal class variables:
+         *
+         */
+
+        /*
+         * M_WPAbstract methods overridden by M_XMMCDPlayer:
+         *
+         */
+
+        wpclsInitData: override;
+
+        wpclsQueryStyle: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDefaultHelp: override;
+
+        wpclsQueryIconData: override;
+    };
+#endif
+};
+
+

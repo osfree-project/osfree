@@ -1,0 +1,9 @@
+NAME H2I WINDOWCOMPAT
+
+Description '@#Ulrich M”ller:1.0.0#@ HTML-to-IPF converter'
+
+STACKSIZE   65536
+
+PROTMODE
+
+

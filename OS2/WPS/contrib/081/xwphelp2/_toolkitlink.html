@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Remark for Toolkit Documentation Links
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+Links from this documentation to the Toolkit documentation only
+work if all of the following are true:
+
+<OL><LI>You must have the Toolkit installed. The Toolkit provides
+the necessary tools, documentation, and header and library files for
+programming for the OS/2 and eComStation operating systems.
+<IFDEF __EWORKPLACE__>
+The Toolkit can be found on the eComStation installation CDs.
+</IFDEF>
+<IFNDEF __EWORKPLACE__>
+The Toolkit can be found on the installation CDs of the IBM Convenience
+Packs or eComStation.
+</IFNDEF>
+
+<P><LI>The Toolkit documentation environment variables must be set in
+&cfgsys;. For example, <CODE>SET CPREF=CP1.INF+CP2.INF+CP3.INF</CODE>
+defines that by using <CODE>view cpref</CODE>, you can open the entire
+<I>Control Program Programming Guide and Reference</I> even though it
+really consists of three INF books.
+
+<P><LI>The Toolkit INF books must reside in a directory on the
+<CODE>BOOKSHELF</CODE> (see <A HREF="glossary/gls_path_sys.html">System paths</A>).
+
+</OL>These conditions should be met if you have allowed the Toolkit
+installer to modify your &cfgsys; file.
+<BR>
+</BODY>
+</HTML>
+

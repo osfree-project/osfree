@@ -1,0 +1,41 @@
+<HTML NOSUBLINKS="config"  WIDTH=70% XPOS=right>
+<HEAD>
+    <TITLE>
+        Die Funktion "Dateinamen kopieren"
+    </TITLE>
+</HEAD>
+<!-- Changed with V0.9.0: see notes below -->
+<BODY>
+<!-- V0.9.0: add the following line -->
+<B>Klassen: XFldDataFile, XFolder</B><HR>
+<BR>
+XFolder kann den Dateinamen einer jeden Datei in die Zwischenablage kopieren,
+wenn aus deren Kontextmen "Dateinamen kopieren"
+ausgew„hlt wird. Beachten Sie, daá dies
+fr alle "echten" Dateien im Dateisystem gilt, also auch fr Ordner;
+es trifft allerdings nicht auf abstrakte WPS-Objekte (Referenzen, Programmobjekte
+etc.) zu, weil diese eben keinen Dateinamen haben.
+<P><IMG SRC="copyfilename.gif">
+<P>W„hlt man "Dateinamen kopieren" aus, <I>ohne</I> dabei die <B>Umschalt</B>-Taste
+gedrckt zu halten, kopiert &xwp; nur den reinen Dateinamen. Wenn man die
+Umschalt-Taste gedrckt h„lt,
+w„hrend man "Dateinamen kopieren" ausw„hlt, kopiert &xwp; den
+voll qualifizierten Dateinamen, d.h. den Laufwerksbuchstaben, den Pfad und
+den Dateinamen selbst.
+<P>Angenommen, der Ordner im obigen Bild l„ge auf der Arbeitsoberfl„che,
+so wrde "Dateinamen kopieren" die Zeichenkette
+<CITE>"C:\Arbeitsoberfl„che\Ordner"</CITE> in die Zwischenablage stellen,
+wenn Sie die Umschalttaste gedrckt hielten, ansonsten lediglich <CITE>"Ordner"</CITE>.
+<P>Dies funktioniert jetzt (V0.80) auch dann, wenn mehr als ein Objekt
+im Ordner ausgew„hlt ist. In diesem Fall werden die Dateinamen aller
+ausgew„hlten Objekte in die Zwischenablage kopiert, getrennt durch
+Leerzeichen.
+<P>&xwp; definiert jetzt auch Strg+Einfgen als Standard-<A HREF="fldr_5xelerators.html">Ordner-Tastenkrzel</A>,
+um die Dateinamen der momentan ausgew„hlten Objekte in die Zwischenablage zu kopieren.
+<P>In den <A HREF="sys_2global.html">Globalen Einstellungen</A>
+kann man den Meneintrag abschalten und die Tastenkrzel dafr neu
+definieren.
+</BODY>
+</HTML>
+ 
+ 

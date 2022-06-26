@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        Statusf„lt: Format Specifiering Tecken
+    </TITLE>
+</HEAD>
+<!-- this is all new with V0.9.13 -->
+<BODY>
+tskilliga statusf„ltskoder vilka visar bytesr„kning erfordrar ett extra
+formatspecifieringstecken efter de f”rsta tv† kodtecknen.
+Till exempel, med <CODE>$sX</CODE> kod 
+(f”r <A HREF="fsys/stat_4common.html">total storlek p† valda objekt</A>), d„r
+<CODE>X</CODE> „r formatspecifiering, och m†ste vara ett av:
+
+<UL><LI><CODE>b</CODE>: visa v„rde i bytes.
+<LI><CODE>k</CODE>: visa v„rdet i kBytes, i.e. bytes / 1000
+<LI><CODE>K</CODE>: visa v„rdet i KBytes, i.e. bytes / 1024
+<LI><CODE>m</CODE>: visa v„rdet i mBytes, i.e. bytes / 1,000,000
+<LI><CODE>M</CODE>: visa v„rdet i MBytes, i.e. bytes / 1,048,576
+<LI><CODE>a</CODE>: visa v„rdet i bytes/kBytes/mBytes, beroende p† storleken
+hos v„rdet
+<LI><CODE>A</CODE>: visa v„rdet i bytes/KBytes/MBytes, beroende p† storleken
+hos v„rdet
+</UL>
+</BODY>
+</HTML>
+

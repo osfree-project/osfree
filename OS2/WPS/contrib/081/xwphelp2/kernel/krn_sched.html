@@ -1,0 +1,105 @@
+<HTML RESID=&ID_XSH_SETTINGS_KERNEL1;>
+<HEAD>
+    <TITLE>
+        &xwp;: Scheduler
+    </TITLE>
+</HEAD>
+<!-- changed V0.9.0: see notes below -->
+<BODY>
+On this page you may modify the &cfgsys; settings which affect the &os2; scheduler.
+
+<!-- V0.9.13: changed this -->
+<P>See <A HREF="glossary/gls_scheduler.html">"Processes and threads"</A> for an introductory
+explanation of what the scheduler does.
+<!-- end V0.9.13 -->
+
+<P>This help page will explain the different settings only and relate them to
+the respective &cfgsys; commands.
+If the information on this page regarding the different &cfgsys; settings is
+not sufficient for you, you'll find additional explanations in the respective
+chapters of the <I>&os2; Command Reference.</I>
+
+<P>Press <B>"Apply"</B> to have the changes you've made written to the
+&cfgsys; file.
+This will only change the lines which correspond to the settings on this
+page. The lines corresponding to the other pages in the "&os2; Kernel" object will
+not be changed.
+Please note that you will have to restart the computer to let the changes
+take effect. A Desktop restart does <I>not</I> suffice.
+<P>Press <B>"Optimize"</B> to have &xwp; propose you new settings according to
+your system characteristics.
+&cfgsys; will only be changed after you press "Apply" also.
+<P>Press <B>"Default"</B> to have the &os2; default settings displayed on the notebook
+page.
+&cfgsys; will only be changed after you press "Apply" also.
+
+<!-- V0.9.7: added this line; made the following an unordered list -->
+<P>The following fields are available:
+
+<UL><LI>The <B>"Current thread count"</B> display shows you the total number of currently
+running threads on your system. This display is continually updated: if you start a
+new program you'll see that the thread count will increase.
+
+<P><LI>The <B>"Maximum thread count"</B> setting represents the <CITE>THREADS</CITE>
+setting in &cfgsys;. Here you can determine how many threads &os2; will be able to
+handle altoghether. The maximum value is 4096. You can reduce the scheduler's overhead
+and memory consumption by reducing this number.
+<!-- V0.9.13: added this -->
+&os2; uses at least one memory page (4 KB) for each thread. That is,
+if you specify 1024 threads, you have already used up 4 MB of memory.
+<!-- end V0.9.13 -->
+If you don't use any network functions, a number of 256 should be sufficient.
+<P>Please note however that your system might crash
+without further warning if you set this number too low. As a rule of thumb, you can
+use the "Current thread count" displayed above and add 50% to that number.
+<!-- V0.9.0: added the following -->
+This should give you enough security, because the majority of threads are started by the
+system at bootup and most additional processes only use one or two threads each.
+
+<!-- V0.9.7: added this line -->
+<P>See the <A HREF="cmdref.inf#threads">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P><LI>The <B>"Allow priority boost"</B> setting represents the <CITE>MAXWAIT</CITE>
+setting in &cfgsys;. This setting determines how many seconds a
+thread that is ready to execute will get processor time although other
+threads have a higher priority level. This setting only affects threads of the
+"regular" priority class. The default value is three seconds.
+<!-- V0.9.16 , which I consider
+an appropriate value for fast computers (Pentium or better). However, if you have
+a slower system (486) you might experience a better system response if you lower this
+setting to 2 or 1 second(s). --> By lowering this value, "background" threads will be given
+more processor time, but at the cost of the "foreground" threads, which will be
+interrupted more often. Experiment with this setting to find out which value suits
+best your system. You should not however set a number larger than 3 seconds.
+IBM has recommended that you should lower this setting if you use a lot of DOS/Windows
+applications, but you should NOT lower it if you don't have much memory on your system
+and therefore &os2; works on the swap file a lot.
+
+<!-- V0.9.7: added this line -->
+<P>See the <A HREF="cmdref.inf#maxwait">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+<P><LI>The <B>"Privilege foreground disk I/O"</B> setting represents the
+<CITE>PRIORITY_DISK_IO</CITE> setting in &cfgsys;.
+If this setting is enabled
+(which is the default),
+<!-- V0.9.12: rewrote the following -->
+the current foreground application will receive a
+priority boost when its disk operation is complete. This applies to the first
+time slice given to the thread after the disk operation is complete. After the
+time slice, the state is reset for the thread and the priority boost is removed.
+As a result, the foreground session will
+have a better response time, at least when it is accessing the disks on your system.
+<!-- end V0.9.12  -->
+<P>You may want to disable this setting if you're frequently running software in the
+background with heavy drive access, such as compilers.
+
+<!-- V0.9.7: added this line -->
+<P>See the <A HREF="cmdref.inf#priority_disk_io">documentation</A> in the
+<I>&os2; Command Reference</I> for details.
+
+</UL>
+</BODY>
+</HTML>
+

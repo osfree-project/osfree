@@ -1,0 +1,36 @@
+/*
+ * icons.rc:
+ *      this file describes the icons to be included in the
+ *      icons.dll file. Do not modify.
+ */
+
+/*
+ *      Copyright (C) 1997-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+POINTER 100 LOADONCALL MOVEABLE DISCARDABLE xfldr1.ico
+POINTER 101 LOADONCALL MOVEABLE DISCARDABLE xfldr2.ico
+POINTER 102 LOADONCALL MOVEABLE DISCARDABLE default.ico
+POINTER 103 LOADONCALL MOVEABLE DISCARDABLE dll.ico
+POINTER 104 LOADONCALL MOVEABLE DISCARDABLE dosfull.ico
+POINTER 105 LOADONCALL MOVEABLE DISCARDABLE doswin.ico
+POINTER 106 LOADONCALL MOVEABLE DISCARDABLE driver.ico
+POINTER 107 LOADONCALL MOVEABLE DISCARDABLE os2full.ico
+POINTER 108 LOADONCALL MOVEABLE DISCARDABLE os2win.ico
+POINTER 109 LOADONCALL MOVEABLE DISCARDABLE xfdataf.ico
+POINTER 110 LOADONCALL MOVEABLE DISCARDABLE xfdesk1.ico
+POINTER 111 LOADONCALL MOVEABLE DISCARDABLE xfdesk2.ico
+POINTER 112 LOADONCALL MOVEABLE DISCARDABLE xtrash1.ico
+POINTER 113 LOADONCALL MOVEABLE DISCARDABLE xtrash2.ico
+
+

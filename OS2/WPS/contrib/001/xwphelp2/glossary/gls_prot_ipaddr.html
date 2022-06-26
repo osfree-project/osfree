@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: IP Adresses
+    </TITLE>
+</HEAD>
+<!-- all new with V0.9.20 -->
+<BODY>
+In any &link_tcpip; network, <B>IP adresses</B> are used to uniquely
+identify computers. An IP adress is a 32-bit number, usually written
+as four numbers from 0 to 255 such as <CODE>123.123.123.123</CODE>
+(called the <B>dotted form</B> of an IP address).
+
+<P>Within an isolated network, you can assign freely assign IP addresses
+as long as each one is unique within the network. However, if the
+network is connected to the &link_internet;, it is required
+to use registered IP addresses to avoid duplicates.
+
+<P>TCP/IP stores both the sender and the target IP adresses with
+every packet that is sent over the network. Once the data has
+arrived at the target, the recipient can see the IP address of the
+sender and can respond by sending back data to the sender address
+in a new connection, reversing the operation.
+
+<P>Any IP address has two parts: a <B>network identifier</B> and the
+identifier of a particular device within that network, the
+<B>host identifier.</B>
+
+<UL><LI>On the &link_internet;, the network identifier is assigned
+globally by a Network Information Center (NIC). Since the Internet
+is really a connection of many individual networks, each network
+must know its own address and that of adjacent networks with which it
+can communicate. While packages travel over the Internet, only
+the network identifier is looked at by the computers that are
+encountered on the way.
+
+<P><LI>The <B>host identifier</B> identifies an individual computer
+within a network. When a package has arrived at the target network,
+it is then forwarded to that host.
+
+</UL>Since networks vary greatly in size, there are four different
+<B>IP adress classes</B>.
+The first few bits of each IP address indicate which of the address
+class formats it is using.
+
+<UL><LI><B>Class A</B> addresses are for large networks with many devices.
+These addresses have a top bit of <CODE>0</CODE>, then 7 bits for the
+network address, and 24 bits for the host address. As a result, there
+can only be 127 class A networks on the Internet.
+
+<P>In dotted form, these addresses break down into
+<CODE>network.local.local.local</CODE>.
+
+<P><LI><B>Class B</B> addresses are for medium-sized networks. They have
+the two top bits set to <CODE>10</CODE>, then 14 bits for the
+network address, and 16 bits for the host address.
+
+<P>In dotted form, these addresses break down into
+<CODE>network.network.local.local</CODE>.
+
+<P><LI><B>Class C</B> addresses are for small networks with up to 255
+devices. They have the top three bits set to <CODE>110</CODE>, then
+21 bits for the network address, and only 8 bits for the host.
+
+<P>In dotted form, these addresses break down into
+<CODE>network.network.network.local</CODE>.
+
+</UL>As you can see, even though a 32-bit IP address could theoretically
+allow for a giant number of computer identifiers, the above scheme
+limits the number of addresses that can practically be assigned. The
+large majority of networks are class C networks and will suffer from
+the "255 hosts" restrictions. As a result, many networks use techniques
+to economize on the number of IP addresses that are actually visible
+to the rest of the Internet. These techniques include
+subnets, IP forwarding, and Classless Inter-Domain Routing.
+
+<P>Most importantly, Internet Service Providers (ISPs) will assign
+<B>dynamic IPs</B> every time a user connects to the Internet. This
+allows the ISP to reuse addresses from its pool of addresses instead
+of having to assign each customer a static ID. As a result, your computer's
+IP address will vary from time to time every time you connect to the
+Internet.
+
+<BR>
+</BODY>
+</HTML>

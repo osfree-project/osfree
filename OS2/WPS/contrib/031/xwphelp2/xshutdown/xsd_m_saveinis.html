@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &xwp;: Opslaan INI's
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+Met de "Opslaan INI's" keuzelijst, kunt u aangeven hoe &xwp; uw
+gebruikers en systeem profielen zou moeten opslaan (standaard:
+<CODE>OS2.INI</CODE> en <CODE>OS2SYS.INI</CODE>) bij afsluiten. Deze instelling is niet
+van toepassing bij Werkplek herstart.
+
+<P>Deze instelling is toegevoegd in V0.9.5 om de problemen van veel gebruikers op te lossen
+die ze hadden tijdens &xshutdown; met erg grote INI bestanden (meerdere megabytes). Helaas,
+de OS/2 profiel (INI) functies hebben ernstige beperkingen om met erg grote bestanden om te gaan.
+Het lijkt er op dat deze API's nogal erg snel uit gedeeld geheugen lopen.
+
+<P>Vanwege deze reden, heeft &xwp; zijn eigen set functies toegevoegd die INI bestanden kan
+opslaan op schijf. Als gevolg hiervan kunt u nu opgeven hoe INI's opgeslagen zouden moeten worden:
+
+<UL><LI><B>"Nieuwe methode":</B> Dit zal de nieuwe profiel functies gebruiken die toegevoegd zijn
+aan &xwp; met V0.9.5 voor het opslaan van INI's.
+Deze gebruiken geen gedeeld geheugen, zodat het "Opslaan INI's" probleem veel minder vaak voor zal komen.
+Dit is de aanbevolen instelling.
+
+<P><LI><B>"Oude methode":</B> Dit gebruikt de &os2; profiel functies. Dit is hetgeen altijd
+gebruikt werd door XFolder en &xwp; voor V0.9.5.
+<!-- V0.9.6: added these 2 lines -->
+Hiervan was het bekend dat het problemen had met grote INI bestanden. Zie de "FAQ" sectie in de
+<I>&xwp; Gebruikershandleiding</I> voor details.
+
+<P><LI><B>"Sla INI's helemaal niet op":</B> Dit slaat de INI's niet op tijdens het afsluiten.
+U zult echter meer recente systeem instellingen verliezen tijdens &xshutdown;,
+dus gebruik deze alleen als de andere methodes niet werken op uw systeem.
+
+<P>&os2; slaat elke paar minuten de INI's automatisch op schijf op,
+dus u zult alle instellingen verliezen die gewijzigd zijn na de laatste automatische INI opslag. Dit komt
+behoorlijk overeen met het indrukken van Ctrl-Alt-Delete, wat uw INI's ook niet op zal slaan,
+en tot resultaat heeft dat alle &os2; instellingen die opgeslagen worden in de INI bestanden (Werkplek
+objecten, lettertypes, kleuren, programma instellingen) verloren gaan. Dus gebruik deze instelling
+voorzichtig.
+
+<P>In tegenstelling hierop, pictogram posities en andere informatie die in een object zijn
+<A HREF="glossary/gls_eas.html">uitgebreide kenmerken</A>
+opgeslagen worden, worden wel netjes weggeschreven.
+
+</UL>
+</BODY>
+</HTML>
+

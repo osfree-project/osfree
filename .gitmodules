@@ -25,3 +25,6 @@
 [submodule "SOM/Core/somfree"]
 	path = SOM/Core/somfree
 	url = https://github.com/osfree-project/somfree.git
+[submodule "OS2/WPS/xworkplace"]
+	path = OS2/WPS/xworkplace
+	url = https://github.com/rousseaux/netlabs.xworkplace

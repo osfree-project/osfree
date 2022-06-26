@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>
+        &os2;-Kernel: Automatische Prfung fr HPFS
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.5 -->
+<BODY>
+ 
+Das Eingabefeld <B>"Automatisch prfen"</B> enstpricht dem Parameter
+/AUTOCHECK:xxx innerhalb der HPFS- oder HPFS386-Anweisung der &cfgsys;.
+Hier kann angegeben werden, fr welches
+<!-- V0.9.20: replace drives with volumes -->
+Volumen &os2; automatisch ein
+<CITE>CHKDSK</CITE> beim Systemstart durchfhrt.
+<P>Geben Sie hier einfach die entsprechenden Laufwerksbuchstaben an (jeweils
+ohne "<CITE>:</CITE>"). &os2; prft dann jedes hier angegebene Laufwerk beim
+Systemstart, falls der vorhergehende Systemabschluá eventuell fehlerhaft
+oder unvollst„ndig war (beispielsweise nach einem Totalabsturz).
+ 
+<P>Gibt man <I>vor</I> einem Laufwerksbuchstaben ein Pluszeichen 
+("<CITE>+</CITE>") an, wird dieses Laufwerk immer geprft, was nicht
+wirklich unbedingt zu empfehlen w„re.
+<P>Beispiel: Wenn Sie "<CITE>C+DE</CITE>" eingeben, wird Laufwerk D: immer
+geprft, w„hrend dies fr C: und E: nur im Bedarfsfall gemacht wird.
+ 
+<P><B>Hinweis:</B> Fr HPFS-Volumen <!-- V0.9.20: replace drives with volumes -->
+ist das automatische Prfen absolut unverzichtbar, da der
+Zugriff auf "unsaubere" HPFS-Volumen zu Systemfehlern fhrt. Sie sollten
+hier die Buchstaben aller Ihrer
+HPFS-Volumen <!-- V0.9.20: replace drives with volumes -->
+angeben, da &os2; ansonsten beim Startvorgang Fehlermeldungen
+ausgibt oder (und das betrifft im Besonderen das Start-Volumen)
+<!-- V0.9.20: replace drive with volume -->
+&os2; sich sogar komplett zu starten weigert, wenn Sie keinen
+ordnungsgem„áen Systemabschluá durchgefhrt bzw. einen Absturz hatten.
+<P>Klicken Sie auf die Schaltfl„che <B>"Vorschlag"</B>, um alle HPFS-Volumen
+<!-- V0.9.20: replace drives with volumes -->
+des Systems entsprechend in das Eingabefeld zu bernehmen.
+ 
+<BR>
+</BODY>
+</HTML>
+ 
+ 

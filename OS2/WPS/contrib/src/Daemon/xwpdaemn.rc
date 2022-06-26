@@ -1,0 +1,41 @@
+
+/*
+ * xwpdaemn.rc:
+ *
+ */
+
+/*
+ *      Copyright (C) 1999-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+// #include <os2.h>
+
+POINTER 1 LOADONCALL MOVEABLE DISCARDABLE xwpdaemn.ico
+
+POINTER 120 LOADONCALL MOVEABLE DISCARDABLE scroll_e.ptr
+POINTER 121 LOADONCALL MOVEABLE DISCARDABLE scroll_ew.ptr
+POINTER 122 LOADONCALL MOVEABLE DISCARDABLE scroll_n.ptr
+POINTER 123 LOADONCALL MOVEABLE DISCARDABLE scroll_ne.ptr
+POINTER 124 LOADONCALL MOVEABLE DISCARDABLE scroll_nesw.ptr
+POINTER 125 LOADONCALL MOVEABLE DISCARDABLE scroll_ns.ptr
+POINTER 126 LOADONCALL MOVEABLE DISCARDABLE scroll_nw.ptr
+POINTER 127 LOADONCALL MOVEABLE DISCARDABLE scroll_s.ptr
+POINTER 128 LOADONCALL MOVEABLE DISCARDABLE scroll_se.ptr
+POINTER 129 LOADONCALL MOVEABLE DISCARDABLE scroll_sw.ptr
+POINTER 130 LOADONCALL MOVEABLE DISCARDABLE scroll_w.ptr
+
+BITMAP 140 LOADONCALL MOVEABLE DISCARDABLE base_ns.bmp
+BITMAP 141 LOADONCALL MOVEABLE DISCARDABLE base_ew.bmp
+BITMAP 142 LOADONCALL MOVEABLE DISCARDABLE base_nesw.bmp
+
+

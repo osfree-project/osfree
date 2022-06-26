@@ -1,0 +1,391 @@
+
+;
+; xwp.def:
+;       XWorkplace module definition file.
+;       Created manually from all the single .def files
+;       which the SOM compiler put into the \idl directory
+;       because the SOM compiler is too dumb for creating
+;       ONE .def file when several classes are put into
+;       one DLL.
+;
+;       Copyright (C) 1997-2007 Ulrich M”ller.
+;       This file is part of the XWorkplace source package.
+;       XWorkplace is free software; you can redistribute it and/or modify
+;       it under the terms of the GNU General Public License as published
+;       by the Free Software Foundation, in version 2 as it comes in the
+;       "COPYING" file of the XWorkplace main distribution.
+;       This program is distributed in the hope that it will be useful,
+;       but WITHOUT ANY WARRANTY; without even the implied warranty of
+;       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;       GNU General Public License for more details.
+;
+;  Generated using:
+;      SOM Precompiler somipc: 2.29.1.2
+;      SOM Emitter emitdef: 2.41
+
+LIBRARY xfldr INITGLOBAL TERMGLOBAL
+Description '@#Ulrich M”ller:1.1.0#@ XWorkplace main module'
+PROTMODE
+DATA SINGLE SHARED LOADONCALL
+
+SEGMENTS
+; these correspond to the pragma alloc_text in include\setup.h
+; note the LOADONCALL attribute is ignored anyway
+    FREQ_CODE1   CLASS 'CODE'    LOADONCALL
+    FREQ_CODE2   CLASS 'CODE'    LOADONCALL
+
+IMPORTS
+    DOSQPROCSTATUS              = DOSCALLS.154
+    DosQuerySysState            = DOSCALLS.368
+    DOS16GETINFOSEG             = DOSCALLS.8
+
+; interesting PMWP entry points (see http://home.clara.net/orac/os2/pmwp.htm)
+    ShlAllocMem                 = PMWP.150  ; added prefix to avoid confusion
+    ShlFreeMem                  = PMWP.151  ; added prefix to avoid confusion
+    ShlStoreString              = PMWP.428
+    ShlFreeString               = PMWP.429
+    FsQueryDriveData            = PMWP.FsQueryDriveData      ; exported by name
+    vDriveData                  = PMWP.513
+
+    WPImageFileCClassData       = PMWP.491
+    WPImageFileClassData        = PMWP.492
+    WPImageFileNewClass         = PMWP.493
+    M_WPImageFileCClassData     = PMWP.494
+    M_WPImageFileClassData      = PMWP.495
+    M_WPImageFileNewClass       = PMWP.496
+
+EXPORTS
+    apmhOpen
+    apmhReadStatus
+    apmhClose
+    csysQuerySwapperSize
+    cmnGetString
+    cmnLoadDlg
+    cmnMessageBox
+    cmnQueryActiveDesktopHWND
+    cmnQueryDefaultFont
+    cmnQueryHelpLibrary
+    cmnQueryNLSModuleHandle
+    cmnQueryMainResModuleHandle
+    cmnSetControlsFont
+    ctlMakeColorRect
+    ctrDefWidgetProc
+    ctrDisplayHelp
+    ctrFreeSetupValue
+    ctrIsXCenterView
+    ctrPaintStaticWidgetBorder
+    ctrParseColorString
+    ctrPlaceAndPopupMenu
+    ctrScanSetupString
+    ctrSetSetupString
+    dlghCreateDlg
+    doshMyPID
+    doshMyTID
+    doshEnumDrives
+    doshQueryDiskSize
+    doshQueryDiskFree
+    doshQueryDiskFSType
+    doshResolveImports
+    drvDisplayHelp
+    drv_memicmp
+    drv_sprintf
+    drv_strtok
+    drv_strstr
+    dskQueryInfo
+    gpihBox
+    gpihCreateBitmap
+    gpihCreateFont
+    gpihCreateMemPS
+    gpihCreateXBitmap
+    gpihDestroyXBitmap
+    gpihDraw3DFrame
+    gpihDraw3DFrame2
+    gpihDrawPointer
+    gpihFindPresFont
+    gpihLoadBitmapFile
+    gpihManipulateRGB
+    gpihMatchFont
+    gpihMediumRGB
+    gpihSetPointSize
+    gpihSplitPresFont
+    gpihSwitchToRGB
+    krnQueryDaemonObject
+    krnPostDaemonMsg
+    krnSendDaemonMsg
+    krnPostThread1ObjectMsg
+    lstAppendItem
+    lstClear
+    lstCountItems
+    lstCreate
+    lstFree
+    lstInit
+    lstMalloc
+    lstNodeFromIndex
+    lstQueryFirstNode
+    lstRemoveNode
+    lstStrDup
+    nlsDateTime
+    nlsDateTime2
+    nlsThousandsULong
+    strhDateTime
+    strhThousandsULong
+    strhBeautifyTitle
+    tmrStartXTimer
+    tmrStopXTimer
+    winhAdjustDlgItemSpinData
+    winhCenterWindow
+    winhFree
+    winhInsertMenuItem
+    winhInsertSubmenu
+    winhMergeMenus
+    winhMergeIntoSubMenu
+    winhQueryPresColor
+    winhQuerySwitchList
+    winhQueryWindowFont
+    winhSetDlgItemSpinData
+    winhSetPresColor
+    winhSetSliderTicks
+    winhSetWindowFont
+    xstrcat
+    xstrcatc
+    xstrcpy
+    xstrClear
+    xstrInit
+    xstrrpl
+    xstrEncode
+    xstrDecode
+    xstrPrintf
+    thrCreate
+    excHandlerLoud
+    excHandlerQuiet
+
+    XFldDataFileCClassData
+    XFldDataFileClassData
+    XFldDataFileNewClass
+    M_XFldDataFileCClassData
+    M_XFldDataFileClassData
+    M_XFldDataFileNewClass
+
+    XFldDesktopCClassData
+    XFldDesktopClassData
+    XFldDesktopNewClass
+    M_XFldDesktopCClassData
+    M_XFldDesktopClassData
+    M_XFldDesktopNewClass
+
+    XFldDiskCClassData
+    XFldDiskClassData
+    XFldDiskNewClass
+    M_XFldDiskCClassData
+    M_XFldDiskClassData
+    M_XFldDiskNewClass
+
+    XFolderCClassData
+    XFolderClassData
+    XFolderNewClass
+    M_XFolderCClassData
+    M_XFolderClassData
+    M_XFolderNewClass
+
+    XFldStartupCClassData
+    XFldStartupClassData
+    XFldStartupNewClass
+    M_XFldStartupCClassData
+    M_XFldStartupClassData
+    M_XFldStartupNewClass
+
+    XFldShutdownCClassData
+    XFldShutdownClassData
+    XFldShutdownNewClass
+    M_XFldShutdownCClassData
+    M_XFldShutdownClassData
+    M_XFldShutdownNewClass
+
+    XFldObjectCClassData
+    XFldObjectClassData
+    XFldObjectNewClass
+    M_XFldObjectCClassData
+    M_XFldObjectClassData
+    M_XFldObjectNewClass
+
+    XFldSystemCClassData
+    XFldSystemClassData
+    XFldSystemNewClass
+    M_XFldSystemCClassData
+    M_XFldSystemClassData
+    M_XFldSystemNewClass
+
+    XFldWPSCClassData
+    XFldWPSClassData
+    XFldWPSNewClass
+    M_XFldWPSCClassData
+    M_XFldWPSClassData
+    M_XFldWPSNewClass
+
+    XWPProgramFileCClassData
+    XWPProgramFileClassData
+    XWPProgramFileNewClass
+    M_XWPProgramFileCClassData
+    M_XWPProgramFileClassData
+    M_XWPProgramFileNewClass
+
+    XWPSetupCClassData
+    XWPSetupClassData
+    XWPSetupNewClass
+    M_XWPSetupCClassData
+    M_XWPSetupClassData
+    M_XWPSetupNewClass
+
+    XWPClassListCClassData
+    XWPClassListClassData
+    XWPClassListNewClass
+    M_XWPClassListCClassData
+    M_XWPClassListClassData
+    M_XWPClassListNewClass
+
+    XWPTrashCanCClassData
+    XWPTrashCanClassData
+    XWPTrashCanNewClass
+    M_XWPTrashCanCClassData
+    M_XWPTrashCanClassData
+    M_XWPTrashCanNewClass
+
+    XWPTrashObjectCClassData
+    XWPTrashObjectClassData
+    XWPTrashObjectNewClass
+    M_XWPTrashObjectCClassData
+    M_XWPTrashObjectClassData
+    M_XWPTrashObjectNewClass
+
+    XWPSoundCClassData
+    XWPSoundClassData
+    XWPSoundNewClass
+    M_XWPSoundCClassData
+    M_XWPSoundClassData
+    M_XWPSoundNewClass
+
+    XWPMouseCClassData
+    XWPMouseClassData
+    XWPMouseNewClass
+    M_XWPMouseCClassData
+    M_XWPMouseClassData
+    M_XWPMouseNewClass
+
+    XWPKeyboardCClassData
+    XWPKeyboardClassData
+    XWPKeyboardNewClass
+    M_XWPKeyboardCClassData
+    M_XWPKeyboardClassData
+    M_XWPKeyboardNewClass
+
+    XWPScreenCClassData
+    XWPScreenClassData
+    XWPScreenNewClass
+    M_XWPScreenCClassData
+    M_XWPScreenClassData
+    M_XWPScreenNewClass
+
+    XWPStringCClassData
+    XWPStringClassData
+    XWPStringNewClass
+    M_XWPStringCClassData
+    M_XWPStringClassData
+    M_XWPStringNewClass
+
+    XWPMediaCClassData
+    XWPMediaClassData
+    XWPMediaNewClass
+    M_XWPMediaCClassData
+    M_XWPMediaClassData
+    M_XWPMediaNewClass
+
+    XCenterCClassData
+    XCenterClassData
+    XCenterNewClass
+    M_XCenterCClassData
+    M_XCenterClassData
+    M_XCenterNewClass
+
+    XWPFileSystemCClassData
+    XWPFileSystemClassData
+    XWPFileSystemNewClass
+    M_XWPFileSystemCClassData
+    M_XWPFileSystemClassData
+    M_XWPFileSystemNewClass
+
+    XMMVolumeCClassData
+    XMMVolumeClassData
+    XMMVolumeNewClass
+    M_XMMVolumeCClassData
+    M_XMMVolumeClassData
+    M_XMMVolumeNewClass
+
+    XMMCDPlayerCClassData
+    XMMCDPlayerClassData
+    XMMCDPlayerNewClass
+    M_XMMCDPlayerCClassData
+    M_XMMCDPlayerClassData
+    M_XMMCDPlayerNewClass
+
+    XWPFontFolderCClassData
+    XWPFontFolderClassData
+    XWPFontFolderNewClass
+    M_XWPFontFolderCClassData
+    M_XWPFontFolderClassData
+    M_XWPFontFolderNewClass
+
+    XWPFontFileCClassData
+    XWPFontFileClassData
+    XWPFontFileNewClass
+    M_XWPFontFileCClassData
+    M_XWPFontFileClassData
+    M_XWPFontFileNewClass
+
+    XWPFontObjectCClassData
+    XWPFontObjectClassData
+    XWPFontObjectNewClass
+    M_XWPFontObjectCClassData
+    M_XWPFontObjectClassData
+    M_XWPFontObjectNewClass
+
+    XWPAdminCClassData
+    XWPAdminClassData
+    XWPAdminNewClass
+    M_XWPAdminCClassData
+    M_XWPAdminClassData
+    M_XWPAdminNewClass
+
+    XWPProgramCClassData
+    XWPProgramClassData
+    XWPProgramNewClass
+    M_XWPProgramCClassData
+    M_XWPProgramClassData
+    M_XWPProgramNewClass
+
+    XWPNetworkCClassData
+    XWPNetworkClassData
+    XWPNetworkNewClass
+    M_XWPNetworkCClassData
+    M_XWPNetworkClassData
+    M_XWPNetworkNewClass
+
+    XWPNetServerCClassData
+    XWPNetServerClassData
+    XWPNetServerNewClass
+    M_XWPNetServerCClassData
+    M_XWPNetServerClassData
+    M_XWPNetServerNewClass
+
+    XWPVCardCClassData
+    XWPVCardClassData
+    XWPVCardNewClass
+    M_XWPVCardCClassData
+    M_XWPVCardClassData
+    M_XWPVCardNewClass
+
+   XWPImageFileCClassData
+   XWPImageFileClassData
+   XWPImageFileNewClass
+   M_XWPImageFileCClassData
+   M_XWPImageFileClassData
+   M_XWPImageFileNewClass

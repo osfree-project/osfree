@@ -1,0 +1,236 @@
+<HTML WIDTH=70% XPOS=right NOSUBLINKS="intro" NOSUBLINKS="xices" NOSUBLINKS="vers_">
+<HEAD>
+    <TITLE>
+        &xwp; 0.9.19
+    </TITLE>
+</HEAD>
+<!-- Note: This file changes almost with every XFolder version.
+     I do not recommend translating it, because I do not keep logs
+     about changes to this file.
+     Simply use the English original instead. -->
+<BODY>
+<B>&xwp; 0.9.19 (July 2, 2002)</B>
+
+<P>New features:
+
+<UL><LI>Icon page: Implemented keyboard support for editing the object ID.
+
+<P><LI>Folders: "Select by name" dialog supports regular expressions now.
+
+<P><LI>Folders: Added "Rename objects" folder context menu item for batch
+renaming.
+
+<P><LI>&xcenter;: Added "IP monitor" widget.
+
+<P><LI>&xcenter;: X-Button widget now opens its menu when &xcenter; object
+hotkey is pressed.
+
+<P><LI>&xcenter;: X-Button widget supports user bitmaps now (open properties
+to set them).
+
+<P><LI>&xcenter;: Per default, an &xcenter; makes itself a screen border object
+automatically now. This can be disabled in the settings notebook.
+
+<P><LI>&xcenter;: Widget context menus have "Close" menu item now.
+
+<P><LI>&xcenter;: WIDGETS setup strings supports trays now. It is finally
+possible to set up a complete XCenter via setup strings. Note that the
+format has slightly changed; see the help for the object "Details" button
+on the "Icon" page for details. Changed the default XCenter setup while
+I was at it.
+
+<P><LI>&os2; Kernel: Added a couple more SYSLEVEL files.
+
+<P><LI>Hook: Added "Center over button-less dialogs" to
+auto-move pointer feature (Martin Lafaix).
+
+<P><LI>&pgr;: Reworked pager window display to allow for shaded colors in
+background and showing the program icons as well.
+
+<P><LI>&pgr;: Sticky window criteria are now much better; "Undo" works now too
+(Martin Lafaix). Also included regular expressions support.
+
+<P><LI>&pgr;: Pager window can now paint sticky and secondary windows too
+(Martin Lafaix).
+
+<P><LI>&pgr;: "Desktop follows focus" can now be disabled, for so many people
+didn't like this behavior.
+
+<P><LI>NetscapeDDE: uses default browser settings from WPUrl object now,
+if not overridden from the command line (Yuri Dario).
+
+</UL>Miscellaneous changes:
+
+<UL><LI>Common: Added better error messages for some error codes.
+
+<P><LI>Common: Found a way to give dialog windows a close button too.
+
+<P><LI>Startup: Much more detailed startup log which might help debugging WPS
+startup problems. Changed log file name to WPSTART.LOG.
+
+<P><LI>Config folders: The restriction that shadows to program objects
+in the config folders were not treated like program objects (for the special
+program object features) has been lifted. It is no longer necessary to copy
+program objects for that reason.
+
+<P><LI>Folder content menus: folder templates are no longer sorted with the
+other folders.
+
+<P><LI>File page replacement: rewritten, it's now sizeable too.
+
+<P><LI>File operations: Removed global "Replace true delete" setting. Added
+a checkbox to trash can instead.
+
+<P><LI>File operations: Reversed confirmations for "move to trash" and
+"empty trash". The real delete operation is to move something to the trash can;
+it really doesn't make sense to have every object confirmed when the trash can
+is emptied later.
+
+<P><LI>&xcenter;: Single click on empty space in tray widget will change trays now.
+
+<P><LI>&xcenter;: Made Diskfree (WarpCenter style) widget sizeable to avoid
+the permanent resizing.
+
+<P><LI>&xcenter;: Rewrote large parts of the window list widget, which no longer
+scans the window list itself, but uses XWPDAEMN.EXE instead. For one, this
+allows sharing the window list code between &pgr; and the window list widget;
+most importantly though, the window list no longer blocks the PM SIQ if a
+window doesn't care to respond to WM_QUERYICON. Added
+half-toned display for minimized and hidden windows as well.
+
+<P><LI>&xshutdown;: We no longer recover Windows to the current desktop and run the
+shutdown folder for "restart Desktop", but only for actual system shutdown.
+
+<P><LI>&pgr;: The remaining parts of PageMage were rewritten. There is now no
+legacy PageMage code left in &pgr;. Optimized window list scanning to use an
+additional background thread and to allow sharing the window list with the
+&xcenter; window list widget.
+
+</UL>Bugfixes:
+
+<UL><LI>Common: Some internal initialization code didn't get called for folders,
+which was the reason why renaming them neither refreshed their container record
+nor awake shadows properly. Fixed.
+
+<P><LI>Common: Fixed global variables which caused many dialogs to fail after
+NLS change. Also localized a few more hard-coded strings.
+
+<P><LI>Common: If NLS DLL cannot be found, &xwp; will automatically
+fall back to English NLS now. Of course this doesn't work if English
+is broken, but then &xwp; is hosed anyway.
+
+<P><LI>Common: Lots of rework on dialog manager to fix display oddities on
+resolutions lower than 1024x768. Hopefully this didn't break anything.
+
+<P><LI>Common: Fixed tooltips that would frequently not appear (Yuri Dario).
+
+<P><LI>Common: Added help to some &xwp; message boxes.
+
+<P><LI>Icon page replacement: didn't allow empty object titles, which is
+allowed in the WPS. Fixed.
+
+<P><LI>Programs: Now using XWPDAEMN.EXE for starting programs, which should help
+with applications hanging the system.
+
+<P><LI>Programs: Selecting "Cancel" in parameters prompt provoked a cryptic error
+message. Fixed.
+
+<P><LI>Programs: Added a missing mutex semaphore which might have caused hangs
+during WPS startup or later when program data was changed.
+
+<P><LI>Folder status bars: Finally fixed status bars for those Object Desktop
+classes that shouldn't have any.
+
+<P><LI>Folder status bars: Fixed garbage display if more than 4 GB of files
+were selected in a folder.
+
+<P><LI>Folders: "Select by name" never worked right from "Edit" pulldown menu
+if any files were selected in the folder view. Fixed.
+
+<P><LI>Folders: Opening settings notebook could take ages if turbo folders were off.
+Fixed.
+
+<P><LI>Folders: Details views weren't refresh properly during refresh. Fixed.
+
+<P><LI>Folders: Turbo folders had a few situations where real name
+changes weren't picked up properly, leading to duplicate or misnamed
+objects. Among other things, this could affect objects when the
+"Title clash" dialog popped up. Fixed.
+
+<P><LI>Folder auto-refresh: Fixed a couple cases where refresh notifications
+were confused.
+
+<P><LI>Folder content menus: Text wasn't centered vertically with icons, fixed
+(Martin Lafaix).
+
+<P><LI>Turbo folders: Fixed wrong icons for FTP-PM and other WPProgram subclasses.
+Also fixed wrong association icons for WPUrl objects.
+
+<P><LI>File operations: True delete replacement never worked if trash can was
+disabled. Fixed.
+
+<P><LI>File operations: Title clash dialog no longer appears when creating shadows.
+
+<P><LI>File operations: Trash can crashed when deleting several objects with the
+same title. Fixed.
+
+<P><LI>File dialog replacement: Double-clicking on object in right container didn't
+work. Fixed.
+
+<P><LI>Fonts folder: Installing fonts via drag and drop crashed the WPS internally.
+I'm not sure if the bug was in 0.9.18 or if I introduced it later, but it's
+working now anyway.
+
+<P><LI>&xcenter;: Largely rewrote widget creation and drag-n-drop code to handle
+dragging widgets between &xcenter;s, including trays. Apparently this also
+fixed malpositioned widgets in some situations.
+
+<P><LI>&xcenter;: Object button and X-button widgets crashed PM bad when objects
+from other processes were dragged over them. Fixed.
+
+<P><LI>&xcenter;: Object buttons would frequently not repaint correctly when
+hatching was supposed to disappear. Fixed.
+
+<P><LI>&xcenter;: Double-clicking on clock widget didn't quite open eCSClock
+correctly. Fixed.
+
+<P><LI>&xcenter;: Finally saves its height between restarts (Martin Lafaix).
+
+<P><LI>&xcenter;: Object button content menus behaved strange when &xcenter; border
+spacing was set to zero and the object button was at the very left of the &xcenter;.
+Fixed.
+
+<P><LI>&xcenter;: Some rework on DiskFree (WarpCenter style) widget (Yuri Dario).
+
+<P><LI>&xcenter;: Battery widget displayed wrong power source when battery was
+fully charged on some systems. Fixed, hopefully.
+
+<P><LI>&xcenter;: Fixed occasional zombie entries in system window list.
+
+<P><LI>&xcenter;: Crash while processing a timer would never release a private
+timer mutex, leading to system hangs. Fixed.
+
+<P><LI>XWPSetup: "Create object" buttons produced empty titles for some classes. Fixed.
+
+<P><LI>&xshutdown;: Fixed INI saving errors with empty applications in profiles
+(Paul Ratcliffe).
+
+<P><LI>Hook: Fixed major screwups if screen border objects were opened during
+startup or shutdown.
+
+<P><LI>Hook: Pre-populate caused &pgr; to no longer detect the WPS desktop. Fixed.
+
+<P><LI>Hook: Fixed a race which caused &pgr; to ignore the WPS desktop in certain
+conditions as well.
+
+<P><LI>Hook: Sliding focus never worked right with Mozilla subwindows such as
+menus. Fixed.
+
+<P><LI>Hook: "Function keys" page crashed if there were no function keys. Fixed.
+
+<P><LI>xfix: Fixed crashes with some broken handles situations (Paul Ratcliffe).
+
+</UL>
+</BODY>
+</HTML>
+

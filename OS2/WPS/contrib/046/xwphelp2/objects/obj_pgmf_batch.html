@@ -1,0 +1,52 @@
+<HTML RESID=&ID_XSH_PROGRAMFILE_BATCH;>
+<HEAD>
+    <TITLE>
+        &xwp;: Batch och Kommandofiler
+    </TITLE>
+</HEAD>
+<!-- this page is all new with V0.9.20 -->
+<BODY>
+<IMG SRC="img/os2_os2win.gif">
+<IMG SRC="img/os2_doswin.gif">
+
+<P>Batch och kommandofiler, eller <B>"script",</B> „r rena textfiler som inneh†ller
+en serie av <A HREF="glossary/gls_cmd.html">kommandon avsedda f”r kommandotolken.</A> De
+processas i sekvens n„r filen exekveras.
+
+<P>Batch och kommandofiler exekveras av en kommandotolk. Vilken som anv„nds beror
+p† filens „ndelse:
+
+<UL><LI>Om „ndelsen „r <CODE>.CMD</CODE> <B>(kommandofil),</B> k”rs den med
+&os2;'s kommandotolk, <CODE>CMD.EXE</CODE>. Filen antas vara en sekvens av kommandon,
+om den inte startar med en REXX kommentar (<CODE>/* ... */</CODE>). I det fallet, 
+kommer den att tolkas som ett
+<A HREF="glossary/gls_cmd_rexx.html">REXX</A> script.
+
+<P><LI>Filer med <CODE>.BAT</CODE> „ndelsen <B>(batchfiler)</B> k”rs i 
+<A HREF="glossary/gls_sessions.html">DOS sessioner</A> via DOS kommandotolk,
+<CODE>COMMAND.COM</CODE>. Notera att &os2;'s kommandotolk (<CODE>CMD.EXE</CODE>)
+k„nner igen „ven fil„ndelsen <CODE>.BAT</CODE>. Om du befinner dig vid en kommandoprompt
+och anger namnet hos en <CODE>.BAT</CODE> fil, kommer den automatiskt att starta en
+DOS session.
+
+</UL>Batch och kommandofiler „r anv„ndbara f”r att automatisera uppgifter. Till exempel,
+om du kommer p† dig sj„lv med att ange samma sekvens av kommandon g†ng p† g†ng
+vid kommandoprompten, kan du ist„llet l„gga in den sekvensen i en batch eller kommandofil 
+och exekvera det scriptet ist„llet f”r att spara din tid. Du kan skapa en s†dan fil
+med n†gon texteditor, till exempel, &os2;'s &eexe;.
+
+<P>Notera att s† fort du har skapat en batch eller kommandofil, kan du ocks† starta den 
+fr†n Workplace Shell. Du kan ocks† skapa &link_progobjs; f”r batch eller kommandofiler.
+
+<P>F”r ytterligare information, v„lj fr†n listan nedanf”r:
+
+<UL>
+<LI><A HREF="glossary/gls_cmd.html">Om kommandosessioner</A>
+<LI><A HREF="glossary/gls_cmdopers.html">Kommandon operatorer och omdirigeringar</A>
+<LI><A HREF="glossary/gls_cmdsubvars.html">Ers„ttningsvariabler</A>
+<LI><A HREF="objects/obj_pgmf_batch_expl.html">Batchfiler exempel</A>
+<LI><A HREF="objects/obj_pgmf_autoexec.html">AUTOEXEC.BAT</A>
+<LI><A HREF="glossary/gls_sessions.html">Sessionstyper</A>
+</UL>
+</BODY>
+</HTML>
