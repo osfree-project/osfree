@@ -2,13 +2,14 @@ PROJ     = pmwp
 TRGT     = $(PROJ).dll
 DESC     = WPS
 #DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
-srcfiles = $(p)init$(e) # $(p)wpobject$(e) 
+srcfiles = $(p)init$(e) $(p)wpobject$(e) 
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
+ADD_COPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
 # ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=dll_initterm
-UNI2H = 1
+#UNI2H = 1
 
 DEST_DIR =$(%OS2TK)$(SEP)idl
 DESTH_DIR =$(%OS2TK)$(SEP)h
@@ -48,11 +49,32 @@ HEADERS=$(DESTH_DIR)$(SEP)wpobject.h &
 			$(DESTH_DIR)$(SEP)wpabs.xh
 
 
+IHEADERS=$(PATH)$(SEP)wpobject.ih &
+			$(PATH)$(SEP)wpobject.xih &
+			$(PATH)$(SEP)wpdisk.ih &
+			$(PATH)$(SEP)wpdisk.xih &
+			$(PATH)$(SEP)wpkeybd.ih &
+			$(PATH)$(SEP)wpkeybd.xih &
+			$(PATH)$(SEP)wpmouse.ih &
+			$(PATH)$(SEP)wpmouse.xih &
+			$(PATH)$(SEP)wppgm.ih &
+			$(PATH)$(SEP)wppgm.xih &
+			$(PATH)$(SEP)wpshadow.ih &
+			$(PATH)$(SEP)wpshadow.xih &
+			$(PATH)$(SEP)wpsound.ih &
+			$(PATH)$(SEP)wpsound.xih &
+			$(PATH)$(SEP)wpsystem.ih &
+			$(PATH)$(SEP)wpsystem.xih &
+			$(PATH)$(SEP)wptypes.ih &
+			$(PATH)$(SEP)wptypes.xih &
+			$(PATH)$(SEP)wpabs.ih &
+			$(PATH)$(SEP)wpabs.xih
+
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_pm.mk
 
-TARGETS   = $(IDLS) $(IDLS2) $(HEADERS) $(OBJS)
+TARGETS   = $(IDLS) $(IDLS2) $(HEADERS) $(IHEADERS) $(OBJS)
 			
 SOURCES =	$(SRC_DIR)$(SEP)wpobject.idl &
 			$(SRC_DIR)$(SEP)wpdisk.idl &
@@ -68,6 +90,8 @@ SOURCES2 =	$(MYDIR)$(SEP)wpabs.idl
 
 $(HEADERS): $(IDLS) $(IDLS2)
 
+$(IHEADERS): $(IDLS) $(IDLS2)
+
 $(IDLS): $(SOURCES)
  @$(MDHIER) $(DEST_DIR)
  $(verbose)$(CP) $(SRC_DIR)$(SEP)$^. $^@ $(BLACKHOLE)
@@ -80,3 +104,5 @@ $(IDLS2): $(SOURCES2)
 .idl: $(SRC_DIR)
 .h: $(DEST_DIR)
 .xh: $(DEST_DIR)
+.ih: $(PATH)
+#.xih: $(PATH)

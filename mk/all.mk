@@ -279,7 +279,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
+SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -319,6 +319,8 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .xh:   $(PATH)
 
 .ih:   $(PATH)
+
+.xih:   $(PATH)
 
 .hlp: $(PATH)
 
@@ -438,6 +440,10 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .idl.ih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: $(ADD_SCOPT)
+
+.idl.xih: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxih $< -o $^: $(ADD_SCOPT)
 
 .idl.xh: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
