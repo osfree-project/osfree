@@ -20,7 +20,10 @@ SOM_HEADERS=	$(SOM_INTDIR)$(SEP)somobj.h		&
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS= $(SOMKERNP_KIH) $(SOM_HEADERS)
+TARGETS= pre $(SOMKERNP_KIH) $(SOM_HEADERS)
+
+pre: .symbolic
+ @$(MDHIER) $(SOM_INTDIR)
 
 ADD_SCOPT=-p -I$(SOM_DIR)somkpub$(SEP)som -I$(SOMIDL_IDL)
 
