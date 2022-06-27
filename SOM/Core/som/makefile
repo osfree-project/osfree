@@ -14,6 +14,9 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)sommutex$(e) &
 	 $(p)somkpath$(e) &
 	 $(p)rhbseh2$(e) &
+!ifeq %OS LINUX
+	 $(p)rhbseh$(e) &
+!endif
 	 $(p)somshlb$(e)
 
 DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
@@ -161,7 +164,7 @@ C = r
 #!include $(%ROOT)/mk/libsos2.mk
 
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src
+.c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
 
 .h: $(MYDIR)..$(SEP)contrib$(SEP)include
 
