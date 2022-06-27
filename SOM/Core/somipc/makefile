@@ -18,7 +18,7 @@ srcfiles = $(p)rhbsc$(e) &
 DEST = os2tk45$(SEP)som$(SEP)bin
 
 !ifeq %OS OS2
-OPTS =
+OPTS = -DHAVE_CONFIG_HPP
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
 !endif

@@ -60,6 +60,8 @@ static unsigned long SOMLINK SOMKERN_createMutexSem(somToken *sem)
 	struct rhbmutex_t *mutex=SOMMalloc(sizeof(*mutex));
 		RHBMUTEX_INIT(mutex);
 		*sem=mutex;
+        #elif defined(__OS2__)
+                DosCreateMutexSem(NULL, (HMTX *)sem, 0, 0);
 	#else
 		*sem=CreateMutex(NULL,0,NULL);
 	#endif
@@ -77,6 +79,13 @@ static unsigned long SOMLINK SOMKERN_destroyMutexSem(somToken sem)
 		RHBOPT_ASSERT(s)
 		RHBMUTEX_UNINIT(s);
 		SOMFree(s);
+        #elif defined(__OS2__)
+                if (DosCloseMutexSem(sem))
+                {
+		#ifdef _M_IX86
+			__asm int 3;
+		#endif
+                }
 	#else
 		if (!CloseHandle(sem)) 
 		{
@@ -96,6 +105,8 @@ static unsigned long SOMLINK SOMKERN_requestMutexSem(somToken sem)
 #ifdef USE_THREADS
 	#if defined(USE_PTHREADS)
 		RHBMUTEX_LOCK((struct rhbmutex_t *)sem)
+        #elif defined(__OS2__)
+                DosRequestMutexSem(sem, -1);
 	#else
 		WaitForSingleObject(sem,INFINITE);
 	#endif
@@ -119,6 +130,8 @@ static unsigned long SOMLINK SOMKERN_releaseMutexSem(somToken sem)
 		RHBOPT_ASSERT(s->count)
 
 		RHBMUTEX_UNLOCK(s)
+        #elif defined(__OS2__)
+                DosReleaseMutexSem(sem);
 	#else
 		ReleaseMutex(sem);
 	#endif

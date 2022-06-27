@@ -32,7 +32,14 @@ defs = $(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -bc $(OPTS)
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include $(OPTS)
+
+!ifeq %OS WIN32
+ADD_COPT += -bc
+!else ifeq %OS WIN64
+ADD_COPT += -bc
+!endif
+
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r

@@ -131,7 +131,7 @@ static void add_many(item **h,char *p)
 		while (p[len])
 		{
 			if (p[len]==
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 				';'
 #else
 				':'
@@ -302,8 +302,6 @@ int main(int argc,char **argv)
 	char *app=argv[0];
 	static _IDL_SEQUENCE_char zero={1,1,""};
 
-	printf("a\n");
-
 	add_many(&defines,"__SOMIDL__");
 
 #ifdef _PLATFORM_WIN32_
@@ -317,8 +315,6 @@ int main(int argc,char **argv)
 #ifdef _PLATFORM_X11_
 	add_many(&defines,"_PLATFORM_X11_");
 #endif
-
-	printf("b\n");
 
 	while (i < argc)
 	{
@@ -516,19 +512,16 @@ int main(int argc,char **argv)
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
 
-	printf("d\n");
-
 #if 1
 				buf[0]=0x0;
 #endif
 
-	printf("e\n");
 				/* get to start of file name */
 
 				while (len--)
 				{
 					if (
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 						(buf[len]=='/')||
 #endif
 						(buf[len]=='\\'))
@@ -537,7 +530,6 @@ int main(int argc,char **argv)
 						break;
 					}
 				}
-	printf("s\n");
 
 				if (appPathSpaces)
 				{
@@ -549,13 +541,9 @@ int main(int argc,char **argv)
 
 				add_str(&somipc,buf);
 				
-				printf("1\n");
-				
 				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
 
 				add_str(&somcpp,buf);
-
-				printf("2\n");
 
 				if (appPathSpaces)
 				{
@@ -616,8 +604,6 @@ int main(int argc,char **argv)
 
 					t=t->next;
 				}
-
-				printf("10\n");
 
 				t=includes;
 
@@ -700,7 +686,11 @@ int main(int argc,char **argv)
 					if (outputDir)
 					{
 						add_str(&somipc,outputDir);
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 						add_str(&somipc,"\\");
+#else
+						add_str(&somipc,"/");
+#endif
 					}
 
 					add_seq(&somipc,&idlname);
@@ -845,11 +835,13 @@ int main(int argc,char **argv)
 					int cppExitCode;
 					int somipcExitCode;
 					_IDL_SEQUENCE_char tmpf={0,0,NULL};
-
-				printf("20\n");
+					char *tmpdir = "/tmp";
 
 					tmpnam(name2);
-					add_str(&tmpf, getenv("TMP"));
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+					tmpdir = getenv("TMP");
+#endif
+					add_str(&tmpf, tmpdir);
 					add_str(&tmpf,"/");
 					add_str(&tmpf,&name2);
 
@@ -863,6 +855,7 @@ int main(int argc,char **argv)
 
 					add_seq(&somcpp,&zero);
 					add_seq(&somipc,&zero);
+
 #if 1
 					printf("somcpp: %s\n",somcpp._buffer);
 					printf("somipc: %s\n",somipc._buffer);

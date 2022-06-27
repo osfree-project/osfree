@@ -377,6 +377,8 @@ typedef struct som_globals_t
 #ifdef USE_THREADS
 	#ifdef USE_PTHREADS
 		pthread_key_t tls_key;
+        #elif defined(__OS2__)
+                ULONG tls_key;
 	#else
 		DWORD tls_key;
 	#endif
