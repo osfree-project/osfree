@@ -12,12 +12,12 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
-OPTS = -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_HPP -dHAVE_CONFIG_H
+OPTS = -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_HPP -dHAVE_CONFIG_H
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
-OPTS = -bm -br -dWIN32_LEAN_AND_MEAN -d_WIN32 -dHAVE_CONFIG_HPP -dHAVE_CONFIG_H
+OPTS = -bc -bm -br -dWIN32_LEAN_AND_MEAN -d_WIN32 -dHAVE_CONFIG_HPP -dHAVE_CONFIG_H
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
@@ -33,12 +33,6 @@ ADD_LINKOPT = lib clib3r
 !endif
 
 ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include $(OPTS)
-
-!ifeq %OS WIN32
-ADD_COPT += -bc
-!else ifeq %OS WIN64
-ADD_COPT += -bc
-!endif
 
 #STACKSIZE = 0x20000
 #UNI2H = 1
