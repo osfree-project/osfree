@@ -5,7 +5,7 @@ DESC     = WPS
 srcfiles = $(p)init$(e) $(p)wpobject$(e) 
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
 ADD_COPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
-# ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
+ADD_LINKOPT  = segment   type DATA nonshared lib $(%OS2TK)$(SEP)lib$(SEP)som.lib
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=dll_initterm
