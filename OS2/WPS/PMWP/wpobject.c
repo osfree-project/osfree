@@ -12,6 +12,7 @@
 
 #define INCL_WINSTDDRAG
 #define INCL_WINSTDCONTAINER
+#define INCL_PMWP
 #include <os2.h>
 
 #include <som.h>
@@ -1314,7 +1315,7 @@ SOM_Scope void  SOMLINK obj_somUninit(WPObject *somSelf)
 }
 
 SOM_Scope void SOMLINK obj_somDefaultInit(WPObject *somSelf, 
-                                          som3InitCtrl* ctrl)
+                                          somInitCtrl* ctrl)
 {
     WPObjectData *somThis; /* set in BeginInitializer */
     somInitCtrl globalCtrl;
@@ -1331,7 +1332,7 @@ SOM_Scope void SOMLINK obj_somDefaultInit(WPObject *somSelf,
 
 
 SOM_Scope void SOMLINK obj_somDestruct(WPObject *somSelf, octet doFree, 
-                                       som3DestructCtrl* ctrl)
+                                       somDestructCtrl* ctrl)
 {
     WPObjectData *somThis; /* set in BeginDestructor */
     somDestructCtrl globalCtrl;

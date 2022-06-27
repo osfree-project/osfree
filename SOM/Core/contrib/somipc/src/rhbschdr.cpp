@@ -7185,11 +7185,19 @@ void RHBheader_emitter::get_function_prefix(RHBinterface *iface,char *buf,size_t
 	RHBelement *el;
 	char n[256];
 
-	strncpy(n,"functionprefix",sizeof(n));
+	strncpy(n,"externalprefix",sizeof(n));
 	buf[0]=0;
 
 	el=iface->find_named_element(0,n,sizeof(n));
 
+	if (!el)
+	{
+		strncpy(n,"functionprefix",sizeof(n));
+		buf[0]=0;
+
+		el=iface->find_named_element(0,n,sizeof(n));
+	}
+	
 	if (el)
 	{
 		const char *p=el->modifier_data.get(0);
