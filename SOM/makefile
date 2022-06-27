@@ -3,6 +3,8 @@
 # (c) osFree project
 #
 
-DIRS = Core Frameworks 
+DIRS = &
+# Core &
+Frameworks
 
 !include $(%ROOT)/mk/all.mk
