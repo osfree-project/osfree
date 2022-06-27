@@ -21,3 +21,4 @@ EXPORTS = RectCopy.1, RectSet.2, RectIsEmpty.3, &
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
+

@@ -174,8 +174,8 @@ os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)uconv.h &
      $(OS2TKH)$(SEP)stddef.h &
      $(OS2TKH)$(SEP)time.h &
-     $(OUT)$(SEP)shared$(SEP)utlapi.h &
-     $(OUT)$(SEP)shared$(SEP)utlrectangles.h &
+     $(OS2TKH)$(SEP)utlapi.h &
+     $(OS2TKH)$(SEP)utlrectangles.h &
      .symbolic
 
 #     $(OS2TKH)$(SEP)bsexcpt.h &
@@ -468,9 +468,9 @@ $(OS2TKH)$(SEP)unidef.h: $(MYDIR)os2$(SEP)unidef.uni
 
 $(OS2TKH)$(SEP)uconv.h: $(MYDIR)os2$(SEP)uconv.uni
 
-$(OUT)$(SEP)shared$(SEP)utlapi.h: $(MYDIR)shared$(SEP)utlapi.uni
+$(OS2TKH)$(SEP)utlapi.h: $(MYDIR)shared$(SEP)utlapi.uni
 
-$(OUT)$(SEP)shared$(SEP)utlrectangles.h: $(MYDIR)shared$(SEP)utlapi$(SEP)utlrectangles.uni
+$(OS2TKH)$(SEP)utlrectangles.h: $(MYDIR)shared$(SEP)utlapi$(SEP)utlrectangles.uni
 
 ## POSIX API
 

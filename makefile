@@ -9,7 +9,7 @@
 # some of OS/2 executables as dos stubs.
 # SOM target comes before OS2 target because used to build WPS classes
 
-DIRS = tools bootseq DOS OS2 SOM
+DIRS = tools bootseq DOS SOM OS2
 
 !include $(%ROOT)/mk/all.mk
 

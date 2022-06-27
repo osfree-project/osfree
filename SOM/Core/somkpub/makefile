@@ -24,9 +24,36 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC)
+TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
+$(SOMIDL_HEADERS)$(SEP)somnames.h $(SOMIDL_HEADERS)$(SEP)somplatf.h $(SOMIDL_HEADERS)$(SEP)somcdev.h $(SOMIDL_HEADERS)$(SEP)somcorba.h &
+$(SOMIDL_HEADERS)$(SEP)somapi.h
 
-$(PRODUCTS_SC): $(SOM_IDL)
+$(PRODUCTS_SC): $(SOM_IDL) 
+
+$(SOMIDL_HEADERS)$(SEP)som.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)som.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somtypes.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somtypes.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)sombtype.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)sombtype.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somnames.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somnames.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somplatf.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somplatf.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somcdev.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somcdev.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somcorba.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somcorba.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somapi.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somapi.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
 
 $(PRODUCTS_PDL): $(SOM_IDL)
  @$(SAY) PDL      $^. $(LOG)
