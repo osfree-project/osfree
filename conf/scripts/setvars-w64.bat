@@ -21,5 +21,5 @@ set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\nt
 rem ;%WATCOM%\h\os21x
 set LIB=%WATCOM%\lib386\nt
 set WD_PATH=%WATCOM%\binnt
-set LANG=%WATCOM%
+rem set LANG=%WATCOM%
 set WIPFC=%WATCOM%\wipfc

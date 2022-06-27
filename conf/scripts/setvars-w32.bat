@@ -20,5 +20,5 @@ set PATH=e:\win32\bin;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%OS2TK%\bin;%OS2TK%\s
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\os21x;%WATCOM%\h\dos;%WATCOM%\h\nt
 set LIB=%WATCOM%\lib386\nt
 set WD_PATH=%WATCOM%\binnt
-set LANG=%WATCOM%
+rem set LANG=%WATCOM%
 set WIPFC=%WATCOM%\wipfc
