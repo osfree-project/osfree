@@ -25,36 +25,40 @@ ADD_SCOPT = -D__PRIVATE__ &
 
 
 !ifeq %OS OS2
-defs = $(%WATCOM)$(SEP)h$(SEP)os2
+defs = -d_PLATFORM_OS2_ -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
-defs = $(%WATCOM)$(SEP)h$(SEP)nt
+defs = -bc -bm -br -dWIN32_LEAN_AND_MEAN -i=$(%WATCOM)$(SEP)h$(SEP)nt
+ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
-defs = $(%WATCOM)$(SEP)h$(SEP)nt
+defs = -bc -bm -br -dWIN32_LEAN_AND_MEAN -i=$(%WATCOM)$(SEP)h$(SEP)nt
+ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS DOS
-defs = $(%WATCOM)$(SEP)h$(SEP)dos
+defs = -d_PLATFORM_DOS_ -i=$(%WATCOM)$(SEP)h$(SEP)dos
+ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS LINUX
-defs = $(%WATCOM)$(SEP)lh
+defs = -d_PLATFORM_UNIX_ -d_PLATFORM_X11_ -dHAVE_SIGNAL_H -i=$(%WATCOM)$(SEP)lh
+ADD_LINKOPT = lib clib3r
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_H &
+ADD_COPT = -dNDEBUG $(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -dHAVE_CONFIG_H &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)include &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)somtk$(SEP)include &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)somcdr$(SEP)include &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)rhbmtut$(SEP)include &
-           -i=$(ROOT)build$(SEP)include
+           -i=$(ROOT)build$(SEP)include -i=$(%OS2TK)$(SEP)som$(SEP)include
 
-ADD_LINKOPT = lib clbrdll
 #STACKSIZE = 0x20000
 C = r
 
 !include $(%ROOT)/mk/tools.mk
 
-IDLH=$(ROOT)build$(SEP)include$(SEP)$(SEP)
+IDLH=$(ROOT)build$(SEP)include$(SEP)
 
 TARGETS= &
 $(IDLH)somcdr.h &
