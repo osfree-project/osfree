@@ -136,14 +136,13 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 !endif
 !ifeq %OS LINUX
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_UNIX_ -D_PLATFORM_X11_ -DSTRICT -DBUILD_RHBSEH2 &
-    -DHAVE_UNISTD_H -DHAVE_SIGNAL_H
+    -DHAVE_UNISTD_H -DHAVE_SIGNAL_H -DHAVE_SETJMP_H
 ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
 SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
-#         -i=$(SOM_DIR)som$(SEP)$(%OS) &
          -i=$(SOM_DIR)som$(SEP)include &
 		 -i=$(SOM_DIR)som$(SEP)src &
 		 -i=$(SOM_DIR)somcdr$(SEP)include &
