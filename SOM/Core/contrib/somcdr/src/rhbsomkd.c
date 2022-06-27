@@ -39,6 +39,11 @@
 		#define RHBSOMKD_unlock(x)		pthread_mutex_unlock(&x->guardian.mutex); }
 		#define RHBSOMKD_lock2(x)	pthread_mutex_lock(&x->guardian.mutex); }
 		#define RHBSOMKD_unlock2(x)	{ pthread_mutex_unlock(&x->guardian.mutex); 
+        #elif defined(__OS2__)
+		#define RHBSOMKD_lock(x)	{ DosRequestMutexSem(x->guardian.mutex, -1);
+		#define RHBSOMKD_unlock(x)		DosReleaseMutexSem(x->guardian.mutex); }
+		#define RHBSOMKD_lock2(x)	DosRequestMutexSem(x->guardian.mutex, -1); }
+		#define RHBSOMKD_unlock2(x)	{ DosReleaseMutexSem(x->guardian.mutex); 
 	#else
 		#define RHBSOMKD_lock(x)	{ EnterCriticalSection(&x->guardian.crit_sect);
 		#define RHBSOMKD_unlock(x)		LeaveCriticalSection(&x->guardian.crit_sect); }
@@ -97,6 +102,8 @@ static void rhbgioporb_kds_uninit(
 #ifdef USE_THREADS
 	#ifdef USE_PTHREADS
 		pthread_mutex_destroy(&kds->guardian.mutex);
+        #elif defined(__OS2__)
+                DosCloseMutexSem(kds->guardian.mutex);
 	#else
 		DeleteCriticalSection(&kds->guardian.crit_sect);
 	#endif
@@ -427,6 +434,8 @@ RHBSOMUT_KeyDataSet * SOMLINK RHBCDR_kds_init(
 #ifdef USE_THREADS
 	#ifdef USE_PTHREADS
 		pthread_mutex_init(&kds->guardian.mutex,RHBOPT_pthread_mutexattr_default);
+        #elif defined(__OS2__)
+                DosCreateMutexSem(NULL, &kds->guardian.mutex, 0, 0);
 	#else
 		InitializeCriticalSection(&kds->guardian.crit_sect);
 	#endif

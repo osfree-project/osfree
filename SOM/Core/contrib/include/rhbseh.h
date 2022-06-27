@@ -123,7 +123,7 @@ struct __exception
 #endif
 
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
 #	if !defined(BUILD_RHBSEH2)
 #		pragma comment(lib,"rhbseh2.lib")
 #	endif

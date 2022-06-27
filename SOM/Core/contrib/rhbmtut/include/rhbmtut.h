@@ -39,6 +39,9 @@ typedef short rhbatomic_t;
 #	else
 typedef long rhbatomic_t;
 #	endif
+#elif defined(__OS2__)
+#define  INCL_BASE
+#include <os2.h>
 #else
 typedef int rhbatomic_t;
 #endif
@@ -55,6 +58,10 @@ struct rhbmutex_t
 		pthread_mutex_t mutex;
 	} mutex;
 	pthread_t RHBOPT_volatile tid;
+#elif defined(__OS2__)
+	LONG  RHBOPT_volatile count;
+	ULONG RHBOPT_volatile tid;
+	HMTX  mutex_crit,guardian_crit;
 #else
 	LONG RHBOPT_volatile count;
 	DWORD RHBOPT_volatile tid;
@@ -79,7 +86,21 @@ struct rhbmutex_t
 #	define RHBMUTEX_GUARD(x)		pthread_mutex_lock(&((x)->guardian.mutex));
 #	define RHBMUTEX_UNGUARD(x)		pthread_mutex_unlock(&((x)->guardian.mutex));
 #	define RHBMUTEX_UNINIT(x)		{ pthread_mutex_destroy(&((x)->mutex.mutex)); \
+
 									pthread_mutex_destroy(&((x)->guardian.mutex)); }
+#elif defined(__OS2__)
+#	define RHBMUTEX_GETSELF			ULONG rhbmutex_self; PTIB ptib; PPIB ppib; DosGetInfoBlock(&ptib, &ppib); rhbmutex_self = ptib->tib_ordinal;
+#	define RHBMUTEX_ISSELF(x)		(rhbmutex_self==(x)->tid)
+#	define RHBMUTEX_ACQUIRE(x)		DosRequestMutexSem(&((x)->mutex_crit), -1);
+#	define RHBMUTEX_RELEASE(x)		DosReleaseMutexSem(&((x)->mutex_crit));
+#	define RHBMUTEX_GUARD(x)		DosRequestMutexSem(&((x)->guardian_crit), -1);
+#	define RHBMUTEX_UNGUARD(x)		DosReleaseMutexSem(&((x)->guardian_crit));
+#	define RHBMUTEX_INIT(x)			{ PTIB ptib; PPIB ppib; DosGetInfoBlock(&ptib, &ppib); \
+                                                  (x)->count=0; (x)->tid = ptib->tib_ordinal; \
+										DosCreateMutexSem(NULL, &((x)->mutex_crit), 0, 0); \
+										DosCreateMutexSem(NULL, &((x)->guardian_crit), 0, 0); }
+#	define RHBMUTEX_UNINIT(x)		{ DosCloseMutexSem(&((x)->mutex_crit)); \
+										DosCloseMutexSem(&((x)->guardian_crit)); }
 #else
 #	define RHBMUTEX_GETSELF			DWORD rhbmutex_self=GetCurrentThreadId();
 #	define RHBMUTEX_ISSELF(x)		(rhbmutex_self==(x)->tid)
@@ -149,6 +170,23 @@ extern "C" {
 #if defined(_WIN32) && !defined(BUILD_RHBMTUT) && !defined(USE_PTHREADS)
 #	define	rhbatomic_inc(x)		InterlockedIncrement(x)
 #	define	rhbatomic_dec(x)		InterlockedDecrement(x)
+#elif defined(__OS2__)
+void LockedIncrement(ULONG x);
+#pragma aux LockedIncrement = \
+".386p                      " \
+"mov  eax, [esp + 4]        " \
+"lock inc dword ptr [eax]   " \
+parm [eax] modify [];
+
+void LockedDecrement(ULONG x);
+#pragma aux LockedDecrement =  \
+".386p                       " \
+"mov  eax, [esp + 4]         " \
+"lock dec dword ptr [eax]    " \
+parm [eax] modify [];
+
+#	define	rhbatomic_inc(x)		LockedIncrement(x)
+#	define	rhbatomic_dec(x)		LockedDecrement(x)
 #else
 RHBMTUTAPI_(rhbatomic_t) rhbatomic_inc(rhbatomic_t *);
 RHBMTUTAPI_(rhbatomic_t) rhbatomic_dec(rhbatomic_t *);
@@ -163,6 +201,8 @@ RHBMTUTAPI_(rhbatomic_t) rhbatomic_dec(rhbatomic_t *);
 	RHBMTUTAPI_(int) rhbmutex_wait(struct rhbmutex_t *,
 	#ifdef USE_PTHREADS
 			unsigned long,pthread_cond_t *
+        #elif defined(__OS2__)
+                        ULONG,HEV
 	#else
 			DWORD,HANDLE
 	#endif								 

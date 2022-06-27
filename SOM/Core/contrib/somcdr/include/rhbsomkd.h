@@ -43,6 +43,9 @@ typedef struct
 		#else
 			#define RHBSOMUT_CriticalSectionInit	{{0}}
 		#endif
+	#elif defined(__OS2__)
+                HMTX mutex;
+		#define RHBSOMUT_CriticalSectionInit	{{0}}
 	#else
 		CRITICAL_SECTION crit_sect;
 		#define RHBSOMUT_CriticalSectionInit	{{0}}

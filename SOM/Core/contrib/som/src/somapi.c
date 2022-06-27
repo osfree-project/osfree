@@ -139,6 +139,8 @@ static void somAssertFailed(void)
 			#else
 				pthread_exit((void *)-1);
 			#endif
+                #elif defined(__OS2__)
+                                DosExit(EXIT_THREAD, -1);
 		#else
 				RaiseException(
 					ERROR_INTERNAL_ERROR,

@@ -79,6 +79,8 @@ typedef struct SOMClassMgrData *SOMClassMgrDataPtr;
 			=RHBMUTEX_INIT_DATA
 #		endif
 			;
+#       elif defined(__OS2__)
+		static HMTX som_global_mutex;
 #	else
 		static CRITICAL_SECTION som_global_mutex;
 #	endif
@@ -210,6 +212,8 @@ SOM_Scope int SOMLINK SOMKERN_outchar(char c)
 #	else
 		HANDLE h=INVALID_HANDLE_VALUE;
 #	endif
+#elif defined(__OS2__)
+                HFILE h = NULLHANDLE;
 #endif
 		if (c==7) return 0;
 
@@ -223,6 +227,16 @@ SOM_Scope int SOMLINK SOMKERN_outchar(char c)
 		{
 			DWORD dw=1;
 			if (WriteFile(h,buf,dw,&dw,NULL))
+			{
+				return dw;
+			}
+		}
+#elif defined(__OS2__)
+		/* write to std out */
+		if (h!=NULLHANDLE)
+		{
+			ULONG dw=1;
+			if (!DosWrite(h,buf,dw,&dw))
 			{
 				return dw;
 			}
@@ -242,6 +256,8 @@ SOM_Scope void SOMLINK SOMKERN_error(int e_num,const char * file,int line)
 	somPrintf("SOMError #%d at %s:%d\n",e_num,file,line);
 #ifdef _WIN32
 	RaiseException(e_num,EXCEPTION_NONCONTINUABLE,0,NULL);
+#elif defined(__OS2__)
+        DosExit(EXIT_THREAD, e_num);
 #else
 	#ifdef _PLATFORM_MACINTOSH_
 		#ifdef USE_ASLM
@@ -770,7 +786,7 @@ SOMClass SOMSTAR SOMLINK somBuildClass (
 		}
 		#define SOM_THREAD_INIT_ONCE	pthread_once(&SOMKERN_once,SOMKERN_once_r);
 	#else
-		#ifdef _WIN32
+		#if defined(_WIN32) || defined(__OS2__)
 			/* DllMain will have done the job */
 			#define SOM_THREAD_INIT_ONCE
 		#else
@@ -1919,6 +1935,8 @@ SOMEXTERN void SOMLINK somStartCriticalSection(void)
 #ifdef USE_THREADS
 #	ifdef USE_RHBMUTEX_LOCK
 		RHBMUTEX_LOCK(&som_global_mutex);
+#       elif defined(__OS2__)
+                DosRequestMutexSem(som_global_mutex, -1);
 #	else
 		EnterCriticalSection(&som_global_mutex);
 #	endif
@@ -2007,6 +2025,8 @@ SOMEXTERN void SOMLINK somEndCriticalSection(void)
 #ifdef USE_THREADS
 #	ifdef USE_RHBMUTEX_LOCK
 		RHBMUTEX_UNLOCK(&som_global_mutex);
+#       elif defined(__OS2__)
+                DosReleaseMutexSem(som_global_mutex);
 #	else
 		LeaveCriticalSection(&som_global_mutex);
 #	endif
