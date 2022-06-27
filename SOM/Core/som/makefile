@@ -114,14 +114,17 @@ EXPORTS = somMainProgram, &
 
 !ifeq %OS OS2
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
+ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
-ADD_OPTS = -DSTRICT
+ADD_OPTS = -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
+ADD_LINKOPT = lib clbrdll
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2
+ADD_LINKOPT = lib clbrdll
+ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS DOS
@@ -131,6 +134,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 !ifeq %OS LINUX
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_UNIX_ -D_PLATFORM_X11_ -DSTRICT -DBUILD_RHBSEH2 &
     -DHAVE_UNISTD_H -DHAVE_SIGNAL_H
+ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
@@ -149,17 +153,6 @@ SOM_INCL= -i=$(SOM_DIR)include &
 ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM $(ADD_OPTS)
 
-!ifeq %OS WIN32
-ADD_COPT    += -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
-!else ifeq %OS WIN64
-ADD_COPT    += -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
-!else ifeq %OS LINUX
-ADD_LINKOPT = lib clib3r
-!else ifeq %OS OS2
-ADD_LINKOPT = lib clib3r
-!endif
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
