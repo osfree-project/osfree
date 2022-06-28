@@ -4,6 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = PMWP
+DIRS = &
+# PMWP
 
 !include $(%ROOT)/mk/all.mk

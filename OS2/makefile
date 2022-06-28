@@ -4,6 +4,17 @@
 # valerius, 2006/10/30
 #
 
-DIRS = Shared CPI CMD UtlAPI PM WPS MM REXX tests
+DIRS = &
+Shared &
+CPI    &
+lvm    &
+CMD    &
+UtlAPI &
+PM     &
+BDNLS  &
+WPS    &
+MM     &
+REXX   &
+tests
 
 !include $(%ROOT)/mk/all.mk

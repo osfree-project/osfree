@@ -22,7 +22,7 @@ INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
 LIB=$watcom/lib386:$watcom/lib386/dos:$watcom/lib286:$ROOT/lib
 PATH=$OS2TK/bin:$OS2TK/som/bin:$TOOLS:$watcom/binl:$FPCPATH:$ROOT:$PATH
 WD_PATH=$watcom/binl
-LANG=$watcom
+# LANG=$watcom
 WIPFC=$watcom/wipfc
 
 VARS="OS SHELL REXX REXX_PATH ENV WATCOM ROOT OS2TK TOOLS INCLUDE LIB PATH WD_PATH LANG WIPFC SERVERENV FPC ARCH _CWD LOG"
