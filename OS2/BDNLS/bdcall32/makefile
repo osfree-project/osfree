@@ -5,9 +5,10 @@
 #
 
 PROJ     = bdcall32
+TRGT     = $(PROJ).dll
 DESC     = osFree BiDirectional Language APIs
 #OBJS    = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
-srcfiles = $(p)bdcall32$(e) $(p)..$(SEP)bdcalls$(SEP)bdcalls$(e)
+srcfiles = $(p)..$(SEP)bdcalls$(SEP)bdcalls$(e) # $(p)bdcall32$(e)
 ADD_COPT = -bd -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI modules will be ready
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL      = 1
@@ -34,6 +35,6 @@ EXPORTS  = &
 # layout_32_object_setvalues.210=layout_32_object_setvalues, &
 # layout_32_object_getvalues.211=layout_32_object_getvalues
 
-DEST     = os2$(SEP)dll
+DEST = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

@@ -7,9 +7,11 @@
 DIRS = &
 Shared &
 CPI    &
+lvm    &
 CMD    &
 UtlAPI &
 PM     &
+BDNLS  &
 WPS    &
 MM     &
 REXX   &

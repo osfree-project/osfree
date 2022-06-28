@@ -5,11 +5,12 @@
 #
 
 PROJ     = bdcalls
+TRGT     = $(PROJ).dll
 DESC     = osFree BiDirectional Language APIs
 #OBJS    = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 32_BITS  = 0
 srcfiles = $(p)bdcalls$(e)
-ADD_COPT = -bd -i=$(%WATCOM)$(SEP)h$(SEP)os2 # untill UniAPI modules will be ready
+ADD_COPT = -bd -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI modules will be ready
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL      = 1
 DLLOPT   = initinstance terminstance
