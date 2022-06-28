@@ -1,11 +1,31 @@
 #include <os2.h>
 #include "unimpl.h"
 
+
+// To configure Windows or OS/2 version define one of bellow defines
+//#define PMOS2
+//#define PMWIN
+
+// To configure 32-bit version define bellow define
+#define BIT32
+
+#if !defined(PMWIN) && !defined(PMOS2)
+#	define PMOS2
+#endif
+
+#if define(PMWIN) && defined(BIT32)
+#	error 32-bit Windows API not supported (yet?)
+#endif
+
 /*
+
+Presentation Manager GPI and Windows GDI comparation
+
+						GPI													GDI
 BOOL APIENTRY GpiErase(HPS);
 HDC  APIENTRY GpiQueryDevice(HPS);
-BOOL APIENTRY GpiRestorePS(HPS,LONG); BOOL FAR PASCAL RestoreDC(HDC, short);
-LONG APIENTRY GpiSavePS(HPS); short FAR PASCAL SaveDC(HDC);
+BOOL APIENTRY GpiRestorePS(HPS,LONG); 							BOOL FAR PASCAL RestoreDC(HDC, short);
+LONG APIENTRY GpiSavePS(HPS);									SHORT FAR PASCAL SaveDC(HDC);
 LONG  APIENTRY GpiErrorSegmentData(HPS,PLONG,PLONG);
 LONG  APIENTRY GpiQueryDrawControl(HPS,LONG);
 LONG  APIENTRY GpiQueryDrawingMode(HPS);
@@ -91,7 +111,7 @@ BOOL  APIENTRY GpiCreateLogColorTable(HPS,ULONG,LONG,LONG,LONG,PLONG);
 BOOL  APIENTRY GpiQueryColorData(HPS,LONG,PLONG);
 LONG  APIENTRY GpiQueryColorIndex(HPS,ULONG,LONG);
 LONG  APIENTRY GpiQueryLogColorTable(HPS,ULONG,LONG,LONG,PLONG);
-LONG  APIENTRY GpiQueryNearestColor(HPS,ULONG,LONG); DWORD FAR PASCAL GetNearestColor(HDC, DWORD);
+LONG  APIENTRY GpiQueryNearestColor(HPS,ULONG,LONG);			DWORD FAR PASCAL GetNearestColor(HDC, DWORD);
 LONG  APIENTRY GpiQueryRealColors(HPS,ULONG,LONG,LONG,PLONG);
 LONG  APIENTRY GpiQueryRGBColor(HPS,ULONG,LONG);
 BOOL  APIENTRY GpiRealizeColorTable(HPS);
@@ -106,7 +126,7 @@ BOOL  APIENTRY GpiMove(HPS,PPOINTL);
 LONG  APIENTRY GpiPolyLine(HPS,LONG,PPOINTL);
 LONG  APIENTRY GpiQueryColor(HPS);
 LONG  APIENTRY GpiQueryPattern(HPS);
-BOOL  APIENTRY GpiSetColor(HPS,LONG); DWORD FAR PASCAL SetTextColor(HDC, DWORD);
+BOOL  APIENTRY GpiSetColor(HPS,LONG);							DWORD FAR PASCAL SetTextColor(HDC, DWORD);
 BOOL  APIENTRY GpiSetPattern(HPS,LONG);
 LONG  APIENTRY GpiCharStringPos(HPS,PRECTL,ULONG,LONG,PCH,PLONG);
 LONG  APIENTRY GpiCharStringPosAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,PLONG);
@@ -125,7 +145,7 @@ LONG  APIENTRY GpiPtVisible(HPS,PPOINTL);
 BOOL  APIENTRY GpiQueryArcParams(HPS,PARCPARAMS);
 LONG  APIENTRY GpiQueryAttrMode(HPS);
 LONG  APIENTRY GpiQueryAttrs(HPS,LONG,ULONG,PBUNDLE);
-LONG  APIENTRY GpiQueryBackColor(HPS); DWORD FAR PASCAL GetBkColor(HDC);
+LONG  APIENTRY GpiQueryBackColor(HPS);							DWORD FAR PASCAL GetBkColor(HDC);
 LONG  APIENTRY GpiQueryBackMix(HPS);
 BOOL  APIENTRY GpiQueryCharAngle(HPS,PGRADIENTL);
 BOOL  APIENTRY GpiQueryCharBox(HPS,PSIZEF);
@@ -153,9 +173,7 @@ LONG  APIENTRY GpiRectVisible(HPS,PRECTL);
 BOOL  APIENTRY GpiSetArcParams(HPS,PARCPARAMS);
 BOOL  APIENTRY GpiSetAttrMode(HPS,LONG);
 BOOL  APIENTRY GpiSetAttrs(HPS,LONG,ULONG,ULONG,PBUNDLE);
-
-BOOL  APIENTRY GpiSetBackColor(HPS,LONG); DWORD FAR PASCAL SetBkColor(HDC, DWORD);
-
+BOOL  APIENTRY GpiSetBackColor(HPS,LONG);						DWORD FAR PASCAL SetBkColor(HDC, DWORD);
 BOOL  APIENTRY GpiSetBackMix(HPS,LONG);
 BOOL  APIENTRY GpiSetCharAngle(HPS,PGRADIENTL);
 BOOL  APIENTRY GpiSetCharBox(HPS,PSIZEF);
@@ -204,27 +222,27 @@ LONG    APIENTRY GpiSetBitmapBits(HPS,LONG,LONG,PBYTE,PBITMAPINFO);
 BOOL    APIENTRY GpiSetBitmapDimension(HBITMAP,PSIZEL);
 BOOL    APIENTRY GpiSetBitmapId(HPS,HBITMAP,LONG);
 LONG    APIENTRY GpiSetPel(HPS,PPOINTL);
-LONG  APIENTRY GpiCombineRegion(HPS,HRGN,HRGN,HRGN,LONG);
-HRGN  APIENTRY GpiCreateRegion(HPS,LONG,PRECTL);
+LONG  APIENTRY GpiCombineRegion(HPS,HRGN,HRGN,HRGN,LONG);	int     WINAPI CombineRgn(HRGN, HRGN, HRGN, int);
+HRGN  APIENTRY GpiCreateRegion(HPS,LONG,PRECTL);			HRGN    WINAPI CreateRectRgn(int, int, int, int);
 BOOL  APIENTRY GpiDestroyRegion(HPS,HRGN);
-LONG  APIENTRY GpiEqualRegion(HPS,HRGN,HRGN);
+LONG  APIENTRY GpiEqualRegion(HPS,HRGN,HRGN);				BOOL    WINAPI EqualRgn(HRGN, HRGN);
 LONG  APIENTRY GpiExcludeClipRectangle(HPS,PRECTL);
 LONG  APIENTRY GpiIntersectClipRectangle(HPS,PRECTL);
 LONG  APIENTRY GpiOffsetClipRegion(HPS,PPOINTL);
-BOOL  APIENTRY GpiOffsetRegion(HPS,HRGN,PPOINTL);
+BOOL  APIENTRY GpiOffsetRegion(HPS,HRGN,PPOINTL);			int     WINAPI OffsetRgn(HRGN, int, int);
 LONG  APIENTRY GpiPaintRegion(HPS,HRGN);
-LONG  APIENTRY GpiPtInRegion(HPS,HRGN,PPOINTL);
-LONG  APIENTRY GpiQueryRegionBox(HPS,HRGN,PRECTL);
+LONG  APIENTRY GpiPtInRegion(HPS,HRGN,PPOINTL);				BOOL    WINAPI PtInRegion(HRGN, int, int);
+LONG  APIENTRY GpiQueryRegionBox(HPS,HRGN,PRECTL);			int     WINAPI GetRgnBox(HRGN, RECT FAR*);
 BOOL  APIENTRY GpiQueryRegionRects(HPS,HRGN,PRECTL,PRGNRECT,PRECTL);
-LONG  APIENTRY GpiRectInRegion(HPS,HRGN,PRECTL);
+LONG  APIENTRY GpiRectInRegion(HPS,HRGN,PRECTL);			BOOL    WINAPI RectInRegion(HRGN, const RECT FAR*);
 BOOL  APIENTRY GpiSetRegion(HPS,HRGN,LONG,PRECTL);
 LONG  APIENTRY GpiSetClipRegion(HPS,HRGN,PHRGN);
 HRGN  APIENTRY GpiQueryClipRegion(HPS);
 LONG  APIENTRY GpiQueryClipBox(HPS,PRECTL);
-HMF   APIENTRY GpiCopyMetaFile(HMF); HANDLE FAR PASCAL  CopyMetaFile(HANDLE, LPSTR);
-BOOL  APIENTRY GpiDeleteMetaFile(HMF); BOOL FAR PASCAL  DeleteMetaFile(HANDLE);
-HMF   APIENTRY GpiLoadMetaFile(HAB,PSZ);HANDLE FAR PASCAL  GetMetaFile(LPSTR);
-LONG  APIENTRY GpiPlayMetaFile(HPS,HMF,LONG,PLONG,PLONG,LONG,PSZ); BOOL FAR PASCAL  PlayMetaFile(HDC, HANDLE);
+HMF   APIENTRY GpiCopyMetaFile(HMF);						HANDLE FAR PASCAL  CopyMetaFile(HANDLE, LPSTR);
+BOOL  APIENTRY GpiDeleteMetaFile(HMF);						BOOL FAR PASCAL  DeleteMetaFile(HANDLE);
+HMF   APIENTRY GpiLoadMetaFile(HAB,PSZ);					HANDLE FAR PASCAL  GetMetaFile(LPSTR);
+LONG  APIENTRY GpiPlayMetaFile(HPS,HMF,LONG,PLONG,PLONG,LONG,PSZ);	BOOL FAR PASCAL  PlayMetaFile(HDC, HANDLE);
 BOOL  APIENTRY GpiQueryMetaFileBits(HMF,LONG,LONG,PBYTE);
 LONG  APIENTRY GpiQueryMetaFileLength(HMF);
 BOOL  APIENTRY GpiSaveMetaFile(HMF,PSZ);
@@ -238,6 +256,8 @@ BOOL  APIENTRY GpiSetDefAttrs(HPS,LONG,ULONG,PBUNDLE);
 BOOL  APIENTRY GpiSetDefTag(HPS,LONG);
 BOOL  APIENTRY GpiSetDefViewingLimits(HPS,PRECTL);
 */
+
+#include "gpi16control.c"
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVOPENDC(void)
@@ -275,71 +295,14 @@ USHORT APIENTRY16 DEVQUERYCAPS(void)
   return unimplemented(__FUNCTION__);
 }
 
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL a,ULONG b);
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL a,ULONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
-BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIRESETPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISAVEPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIRESTOREPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
-BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIERRORSEGMENTDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIERASE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWCONTROL(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWCONTROL(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIDRAWCHAIN(void)
@@ -359,17 +322,6 @@ USHORT APIENTRY16 GPIDRAWSEGMENT(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSTOPDRAW(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSTOPDRAW(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIREMOVEDYNAMICS(void)
@@ -383,17 +335,6 @@ USHORT APIENTRY16 GPIDRAWDYNAMICS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWINGMODE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWINGMODE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIGETDATA(void)
@@ -791,10 +732,19 @@ USHORT APIENTRY16 GPIQUERYREALCOLORS(void)
   return unimplemented(__FUNCTION__);
 }
 
+#ifdef PMWIN
+DWORD FAR PASCAL GetNearestColor(HDC hdc, DWORD a);
+#endif
+#ifdef PMOS2
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYNEARESTCOLOR(void)
+USHORT APIENTRY16 GPIQUERYNEARESTCOLOR(HPS hps, USHORT a, SHORT b)
+#endif
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return GpiQueryNearestColor(hps,a,b);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
@@ -809,24 +759,28 @@ USHORT APIENTRY16 GPIQUERYRGBCOLOR(void)
   return unimplemented(__FUNCTION__);
 }
 
+//COLORREF WINAPI SetTextColor(HDC, COLORREF);
 // fix prototype !!!
 USHORT APIENTRY16 GPISETCOLOR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+//COLORREF WINAPI GetTextColor(HDC);
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYCOLOR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+//COLORREF WINAPI SetBkColor(HDC, COLORREF);
 // fix prototype !!!
 USHORT APIENTRY16 GPISETBACKCOLOR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+//COLORREF WINAPI GetBkColor(HDC);
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYBACKCOLOR(void)
 {
@@ -1373,6 +1327,7 @@ USHORT APIENTRY16 GPIQUERYBITMAPBITS(void)
   return unimplemented(__FUNCTION__);
 }
 
+//BOOL    WINAPI BitBlt(HDC, int, int, int, int, HDC, int, int, DWORD);
 // fix prototype !!!
 USHORT APIENTRY16 GPIBITBLT(void)
 {
@@ -1451,6 +1406,7 @@ USHORT APIENTRY16 GPIQUERYREGIONRECTS(void)
   return unimplemented(__FUNCTION__);
 }
 
+//int     WINAPI SelectClipRgn(HDC, HRGN);
 // fix prototype !!!
 USHORT APIENTRY16 GPISETCLIPREGION(void)
 {
@@ -1463,6 +1419,7 @@ USHORT APIENTRY16 GPIQUERYCLIPREGION(void)
   return unimplemented(__FUNCTION__);
 }
 
+//int     WINAPI GetClipBox(HDC, RECT FAR*);
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYCLIPBOX(void)
 {
@@ -1487,6 +1444,7 @@ USHORT APIENTRY16 GPIOFFSETCLIPREGION(void)
   return unimplemented(__FUNCTION__);
 }
 
+//BOOL    WINAPI Polygon(HDC, const POINT FAR*, int);
 // fix prototype !!!
 USHORT APIENTRY16 GPIPAINTREGION(void)
 {
@@ -1577,11 +1535,6 @@ USHORT APIENTRY16 GPIFILLPATH(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEVICE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIVECTORSYMBOL(void)
@@ -1625,11 +1578,6 @@ USHORT APIENTRY16 GPICONVPSH(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 SEGSGWOPENSEGMENTWINDOW(void)
@@ -1859,6 +1807,7 @@ USHORT APIENTRY16 GPIPATHTOREGION(void)
   return unimplemented(__FUNCTION__);
 }
 
+//BOOL    WINAPI FloodFill(HDC, int, int, COLORREF);
 // fix prototype !!!
 USHORT APIENTRY16 GPIFLOODFILL(void)
 {
@@ -1895,36 +1844,42 @@ USHORT APIENTRY16 GPIQUERYFONTACTION(void)
   return unimplemented(__FUNCTION__);
 }
 
+//HPALETTE WINAPI CreatePalette(const LOGPALETTE FAR*);
 // fix prototype !!!
 USHORT APIENTRY16 GPICREATEPALETTE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+// UINT    WINAPI RealizePalette(HDC);
 // fix prototype !!!
 USHORT APIENTRY16 GPIDELETEPALETTE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+//HPALETTE WINAPI SelectPalette(HDC, HPALETTE, BOOL);
 // fix prototype !!!
 USHORT APIENTRY16 GPISELECTPALETTE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+//void    WINAPI AnimatePalette(HPALETTE, UINT, UINT, const PALETTEENTRY FAR*);
 // fix prototype !!!
 USHORT APIENTRY16 GPIANIMATEPALETTE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+// UINT    WINAPI SetPaletteEntries(HPALETTE, UINT, UINT, const PALETTEENTRY FAR*);
 // fix prototype !!!
 USHORT APIENTRY16 GPISETPALETTEENTRIES(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+// UINT    WINAPI GetPaletteEntries(HPALETTE, UINT, UINT, PALETTEENTRY FAR*);
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYPALETTE(void)
 {
