@@ -30,7 +30,7 @@ PATH  = $(PATH:build=)
 MYDIR = $(PATH:$(x)=)
 !endif
 
-PATH  = $(BLD)$(PATH)
+PATH  = $(BLD)$(PLATFORM)$(PATH)
 
 # change two slashes into one
 PATH  = $(PATH://=/)

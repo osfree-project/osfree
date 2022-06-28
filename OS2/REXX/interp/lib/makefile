@@ -5,7 +5,7 @@
 
 PROJ = rexx
 TRGT = $(PROJ).lib
-DEST = ..$(SEP)build$(SEP)lib
+DEST = ..$(SEP)..$(SEP)build$(SEP)lib
 srcfiles = &
 $(p)mygetopt$(e) &
 $(p)client$(e)   &

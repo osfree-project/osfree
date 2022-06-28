@@ -8,8 +8,10 @@
 
 32_BITS  = 1
 
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+
 !ifndef DEST
-DEST    = tools
+DEST    = $(PLATFORM)bin
 !endif
 
 CLEAN_ADD = *.oo2 *.ppo *.o

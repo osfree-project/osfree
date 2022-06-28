@@ -4,14 +4,15 @@ for %%i in (%root%) do set root=%%~fi\
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
-set os2tk=%root%bin\os2tk45
-set tools=%root%bin\tools
 set FPPATH=c:\fpc\3.2.2\bin\i386-win32
 set imgdir=\data\vm\img
 set mkisofs=\data\dev\cdrtools\mkisofs.exe
 set serverenv=win32
 set env=WIN64
 set os=WIN64
+set host=win32
+set os2tk=%root%build\bin\host\%host%\os2tk45
+set tools=%root%build\bin\host\%host%\bin
 set REGINA=c:\rexx
 set REXX=%REGINA%\regina
 set SERVERENV=win32

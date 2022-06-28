@@ -15,7 +15,7 @@ srcfiles = $(p)rhbsc$(e) &
 	 $(p)rhbsctc$(e) &
 	 $(p)rhbscapi$(e)
 
-DEST = os2tk45$(SEP)som$(SEP)bin
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 !ifeq %OS OS2
 OPTS = -DHAVE_CONFIG_HPP
