@@ -93,8 +93,8 @@ end
 if lastpos('\', root) \= length(root) then root = root || '\'
 
 host = 'os2'
-tools = root || 'build\bin\host\'host'\bin'
-os2tk = root || 'build\bin\host\'host'\os2tk45'
+tools = root || 'build\bin\host\' || host || '\bin'
+os2tk = root || 'build\bin\host\' || host || '\os2tk45'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || os2tk || '\som\bin;' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'

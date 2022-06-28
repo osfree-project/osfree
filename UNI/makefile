@@ -4,6 +4,8 @@
 # valerius, 2006/10/30
 #
 
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+
 !include $(%ROOT)/mk/all.mk
 
 OUT = $(%ROOT)build$(SEP)include$(SEP)
