@@ -19,7 +19,7 @@ srcfiles = $(p)somkern$(e) &
 !endif
 	 $(p)somshlb$(e)
 
-DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 #INSTALL_ADD = 1
 !if 0
 EXPORTS = somMainProgram, &

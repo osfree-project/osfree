@@ -8,8 +8,10 @@
 
 32_BITS  = 1
 
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+
 !ifndef DEST
-DEST    = tools
+DEST    = $(PLATFORM)bin
 !endif
 
 !include $(%ROOT)/mk/all.mk

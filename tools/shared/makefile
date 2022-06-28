@@ -6,6 +6,7 @@ PROJ = tools_shared
 TRGT = $(PROJ).lib
 DIRS = z
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)/mk/libs.mk
 

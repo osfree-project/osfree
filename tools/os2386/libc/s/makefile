@@ -16,6 +16,8 @@ C = s
 
 #TARGETS  = $(PATH)$(PROJ).lib
 
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)lib
+
 !include $(%ROOT)/mk/libsos2.mk
 
 .SUFFIXES:

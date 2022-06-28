@@ -6,7 +6,6 @@
 !define __appsos2_mk__
 
 32_BITS = 1
-PLATFORM = os2
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 
 !include $(%ROOT)/mk/dirs.mk
@@ -29,7 +28,7 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
 !ifneq NOLIBS 1
 ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
-               $(BLD)lib$(SEP)clibext$(C).lib,$(BLD)lib$(SEP)sub32.lib, &
+               $(%OS2TK)$(SEP)lib$(SEP)clibext$(C).lib,$(BLD)lib$(SEP)sub32.lib, &
 !ifeq CXX 1
                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
 !endif

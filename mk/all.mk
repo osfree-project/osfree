@@ -70,9 +70,9 @@ ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 # a file which includes this file.
 #
 # -q for quiet removes the credit from wcc386, wpp386 and wasm 
-COPT      = $(C_DEFS) -q &
+COPT      = $(C_DEFS) -q $(ADD_COPT) &
             -i=$(MYDIR) -i=$(MYDIR).. &
-            -i=$(PATH)  -i=$(PATH).. $(ADD_COPT)
+            -i=$(PATH)  -i=$(PATH)..
 COPT_LAST = $(DEFINES_LAST)
 
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
@@ -402,7 +402,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .wmp.map: .AUTODEPEND
  @$(SAY) WMP2MAP  $^. $(LOG)
- $(verbose)$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG2)
+ $(verbose)$(AWK) -f $(FILESDIR)$(SEP)host$(SEP)bin$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG2)
 
 .map.sym: .AUTODEPEND
  @$(SAY) MAPSYM   $^. $(LOG)

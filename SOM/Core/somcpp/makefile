@@ -6,7 +6,7 @@ DESC = SOM Compiler Preprocessor
 srcfiles = $(p)main$(e) $(p)directive$(e) $(p)eval$(e) $(p)expand$(e) &
            $(p)support$(e) $(p)system$(e) $(p)mbchar$(e)
 
-DEST = os2tk45$(SEP)som$(SEP)bin
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 #Notes:
 # awk lex and yacc files not added to repository

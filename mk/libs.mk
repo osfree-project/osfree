@@ -11,7 +11,7 @@
 !endif
 
 !ifndef DEST
-DEST     = ..$(SEP)build$(SEP)lib
+DEST     = ..$(SEP)..$(SEP)build$(SEP)lib
 !endif
 
 !include $(%ROOT)/mk/all.mk

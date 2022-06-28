@@ -19,5 +19,5 @@ UNI2H = 1
 
 $(PATH)read.obj: $(PATH)mbr.h
 
-$(PATH)mbr.h: $(%ROOT)bin$(SEP)boot$(SEP)sectors$(SEP)mbr.bin
+$(PATH)mbr.h: $(%ROOT)build$(SEP)bin$(SEP)boot$(SEP)sectors$(SEP)mbr.bin
  @$(REXX) $(MYDIR)mkstrct.cmd $[@ >$^@

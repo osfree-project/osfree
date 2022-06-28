@@ -92,8 +92,9 @@ end
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 
-tools = root || 'bin\tools'
-os2tk = root || 'bin\os2tk45'
+host = 'os2'
+tools = root || 'build\bin\host\'host'\bin'
+os2tk = root || 'build\bin\host\'host'\os2tk45'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || os2tk || '\som\bin;' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
@@ -128,7 +129,7 @@ else
 lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
 vars = 'WATCOM IMGDIR ROOT OS2TK IMGDIR1 TOOLS PATH INCLUDE LOG ',
-       'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
+       'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH HOST',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 
 if verbose = 'yes' then

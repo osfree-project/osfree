@@ -13,6 +13,7 @@ srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
 
 #DEST      = ..$(SEP)build$(SEP)lib
 #DEST      = $(MYDIR)$(SEP)lib
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 TARGETS = $(PATH)z.lib
 SRCDIR = $(PATH)
 

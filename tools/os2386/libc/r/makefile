@@ -14,6 +14,8 @@ ADD_LINKOPT = lib sub32.lib
 UNI2H = 1
 C = r
 
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)lib
+
 !include $(%ROOT)/mk/libsos2.mk
 
 .SUFFIXES:
