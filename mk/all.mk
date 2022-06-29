@@ -70,9 +70,9 @@ ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 # a file which includes this file.
 #
 # -q for quiet removes the credit from wcc386, wpp386 and wasm 
-COPT      = $(C_DEFS) -q $(ADD_COPT) &
+COPT      = $(C_DEFS) -q  &
             -i=$(MYDIR) -i=$(MYDIR).. &
-            -i=$(PATH)  -i=$(PATH)..
+            -i=$(PATH)  -i=$(PATH).. $(ADD_COPT)
 COPT_LAST = $(DEFINES_LAST)
 
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready

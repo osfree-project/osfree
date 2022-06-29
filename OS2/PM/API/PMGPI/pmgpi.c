@@ -1,4 +1,5 @@
 #include <os2.h>
+#include "unimpl.h"
 
 /*
 ULONG APIENTRY GpiQueryFontMappingFlags(HPS);
