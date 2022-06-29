@@ -12,8 +12,9 @@ SOMIR_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)..$(SEP)somir
 SOMREF_H=	$(SOMIDL_HEADERS)$(SEP)somref.h	&
 			$(SOMIDL_HEADERS)$(SEP)somref.xh
 
-SOMREF_IH=	$(SOMREF_INTDIR)$(SEP)somref.h	&
+SOMREF_IH=	$(SOMREF_INTDIR)$(SEP)somref.h &
 			$(SOMREF_INTDIR)$(SEP)somref.ih
+			
 
 SOMREF_PDL=	$(SOMIDL_IDL)$(SEP)somref.idl
 
@@ -60,9 +61,9 @@ SOMIR_3=	$(SOMIDL_IDL)$(SEP)intfacdf.idl		&
 
 MKDIRS=$(SOMTC_INTDIR) $(SOMREF_INTDIR) $(SOMIR_INTDIR)
 
-TARGETS=$(MKDIRS) $(SOMTCDAT_TC) $(SOMREF_H) $(SOMREF_IH) $(SOMREF_PDL) $(SOMIR_IH) $(SOMNEWIR)
+TARGETS=$(MKDIRS) $(SOMREF_IH) $(SOMTCDAT_TC) $(SOMREF_PDL) $(SOMREF_H) $(SOMIR_IH) $(SOMNEWIR)
 
-$(MKDIRS):
+$(MKDIRS): .symbolic
   @$(MDHIER) $@
 
 SOMTCDAT_TC=$(SOMTC_INTDIR)$(SEP)somtcdat.tc
@@ -71,23 +72,33 @@ $(SOMTCDAT_TC): $(SOM_DIR)somtc$(SEP)somtcdat.idl
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -stc $< -o $^: -p -D __GENERATE_SOMTC__ -I$(SOMIDL_IDL)
 
-$(SOMREF_H): $(SOMREF_PDL)
+#$(SOMREF_H): $(SOMREF_PDL)
 
-$(SOMREF_IH): $(SOMREF_PDL) 
+$(SOMREF_INTDIR)$(SEP)somref.ih: $(SOM_DIR)somref$(SEP)somref.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: -p -I$(SOMIDL_IDL)
 
-#$(SOMIR_IH): $(SOMIR_3)
+$(SOMREF_INTDIR)$(SEP)somref.h: $(SOM_DIR)somref$(SEP)somref.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -p  -I$(SOMIDL_IDL)
 
 $(SOMREF_PDL): $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) PDL      $^. $(LOG)
  @pdl.exe -d $(SOMIDL_IDL) $<
 
+$(SOMIDL_HEADERS)$(SEP)somref.h: $(SOMIDL_IDL)$(SEP)somref.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -I$(SOMIDL_IDL)
 
+$(SOMIDL_HEADERS)$(SEP)somref.xh: $(SOMIDL_IDL)$(SEP)somref.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: -I$(SOMIDL_IDL)
 
-ADD_SCOPT=-p -I$(SOM_DIR)somir -I$(SOMIDL_IDL)
+#ADD_SCOPT=-p -I$(SOM_DIR)somir -I$(SOMIDL_IDL)
 
-.idl: $(SOM_DIR)somkpub$(SEP)som;$(SOM_DIR)somir;$(SOM_DIR)somd;$(SOM_DIR)somestrm;$(SOM_DIR)somabs1;$(SOM_DIR)somnmf;$(SOM_DIR)somdcomm;$(SOM_DIR)somos;$(SOM_DIR)somu;$(SOM_DIR)somu2;$(SOM_DIR)somcslib;$(SOM_DIR)soms;$(SOM_DIR)somem;$(SOM_DIR)somst
-.h: $(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS)
-.ih: $(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS)
+.idl: $(SOM_DIR)somir
+.h: $(SOMIR_INTDIR);$(SOMIDL_HEADERS)
+.ih: $(SOMIR_INTDIR)
 
 #-----------------------------------------------------------
 #
