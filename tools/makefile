@@ -9,7 +9,11 @@
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
 DIRS = sed uniapi ..$(SEP)UNI yacc lex jwasm awk &
-       mkmsgf mkctxt critstrs freeinst libmmap os2386 genext2fs winrc &
+       mkmsgf mkctxt critstrs freeinst genext2fs winrc &
        shared qemu-img hlldump mapsym renmodul # rexxwrap ltools lxlite
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)/mk/all.mk
+
+qwe: .symbolic
+ @echo $(PATH)

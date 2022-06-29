@@ -115,6 +115,17 @@ EXPORTS = somMainProgram, &
 
 !endif
 
+SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
+SOM_INCL= -i=$(SOM_DIR)include &
+         -i=$(SOM_DIR)som$(SEP)include &
+		 -i=$(SOM_DIR)som$(SEP)src &
+		 -i=$(SOM_DIR)somcdr$(SEP)include &
+		 -i=$(SOM_DIR)rhbmtut$(SEP)include &
+		 -i=$(SOM_DIR)somcdr$(SEP)src 	&
+		 -i=$(%OS2TK)$(SEP)som$(SEP)include &
+		 -i=$(SOM_DIR)somkpub$(SEP)include &
+		 -i=$(SOM_DIR)somtk$(SEP)include
+
 !ifeq %OS OS2
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
 ADD_LINKOPT = lib clib3r
@@ -141,20 +152,8 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
-SOM_INCL= -i=$(SOM_DIR)include &
-         -i=$(SOM_DIR)som$(SEP)include &
-		 -i=$(SOM_DIR)som$(SEP)src &
-		 -i=$(SOM_DIR)somcdr$(SEP)include &
-		 -i=$(SOM_DIR)rhbmtut$(SEP)include &
-		 -i=$(SOM_DIR)somcdr$(SEP)src 	&
-		 -i=$(%OS2TK)$(SEP)som$(SEP)include &
-		 -i=$(SOM_DIR)somkpub$(SEP)include &
-		 -i=$(SOM_DIR)somtk$(SEP)include
-
 ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
-           $(SOM_INCL) -DBUILD_SOM $(ADD_OPTS)
-
+           $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
