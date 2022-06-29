@@ -4,7 +4,7 @@
 #
 
 DIRS = &
-Core &
+#Core &
 Frameworks
 
 !include $(%ROOT)/mk/all.mk
