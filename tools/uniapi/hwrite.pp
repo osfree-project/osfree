@@ -171,7 +171,10 @@ begin
       if ATypeDecl then wrt('void * ');
     end;
     wrt(ConvertToCType(TPasAliasType(AType).Name));
-    if (not ATypeDecl) and (TPasAliasType(AType).Name='') and Assigned(TPasPointerType(AType).DestType) then wrt(ConvertToCType(TPasPointerType(AType).DestType.Name)+' * ');
+    if (not ATypeDecl) and (TPasAliasType(AType).Name='') and Assigned(TPasPointerType(AType).DestType) then
+	begin
+	  wrt(ConvertToCType(TPasPointerType(AType).DestType.Name)+' * ');
+	end;
     if ATypeDecl then wrtln(';');
   end else if AType.ClassType = TPasAliasType then
   begin
@@ -420,11 +423,13 @@ procedure THWriter.WriteConstant(AVar: TPasConst);
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then
-  wrt('#define '+AVar.Name+' ');
-  if (trim(AVar.Value)[1]='-') then wrt('(');
-  Wrt(ConvertToC(AVar.Value));
-  if (trim(AVar.Value)[1]='-') then wrt(')');
-  Wrtln('');
+  begin
+    wrt('#define '+AVar.Name+' ');
+    if (trim(AVar.Value)[1]='-') then wrt('(');
+    Wrt(ConvertToC(AVar.Value));
+    if (trim(AVar.Value)[1]='-') then wrt(')');
+    Wrtln('');
+  end;
 end;
 
 procedure THWriter.WriteProcDecl(AProc: TPasProcedure);
@@ -669,8 +674,11 @@ begin
     begin
       wrtln(ConvertToCType(TPasArrayType(Variable.VarType).ElType.Name)+' '+Variable.Name+'[' + TPasArrayType(Variable.VarType).IndexRange + '];');
     end else begin
+    if Variable.VarType.ClassType = TPasPointerType then
+	  if (AElement.Name=TPasPointerType(Variable.VarType).DestType.Name) then wrt('struct ');
+	  
       WriteType(TPasType(Variable.VarType), false);
-      wrtln(' '+Variable.Name+';'); //ConvertToCType(TPasType(Variable.VarType).Name)+
+      wrtln(' '+Variable.Name+';'); //{'+Variable.VarType.ClassName+'}
 
     end;
   end;

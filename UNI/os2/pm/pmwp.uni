@@ -25,7 +25,7 @@ end;
 type POBJECTIMAGE=^OBJECTIMAGE;
 
 type OBJCLASS = structure
-        pNext:          PVOID; (* ^OBJCLASS; *)
+        pNext:          ^OBJCLASS;
         pszClassName:   PSZ;
         pszModName:     PSZ;
 end;
