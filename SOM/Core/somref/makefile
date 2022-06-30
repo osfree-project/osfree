@@ -1,16 +1,63 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-TARGETS=$(ROOT)build$(SEP)include$(SEP)somref.h
+PROJ = somref
+TRGT = $(PROJ).dll
+DLL = 1
+DESC = SOMREF
+DLLOPT  = initinstance terminstance
+OPTIONS = manyautodata
+srcfiles = $(p)somref$(e)
 
-ADD_SCOPT = -D__PRIVATE__ &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somref &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somd &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
+#INSTALL_ADD = 1
+!if 0
+EXPORTS = 
+!endif
+
+SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
+SOM_INCL= -i=$(SOM_DIR)include &
+		-i=$(SOM_DIR)somkpub$(SEP)include &
+		-i=$(SOM_DIR)somtk$(SEP)include &
+		-i=$(%OS2TK)$(SEP)som$(SEP)include
+
+!ifeq %OS OS2
+ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT
+ADD_LINKOPT = lib clib3r
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+!endif
+!ifeq %OS WIN32
+ADD_OPTS = -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
+ADD_LINKOPT = lib clbrdll
+defs = $(%WATCOM)$(SEP)h$(SEP)nt
+!endif
+!ifeq %OS WIN64
+ADD_LINKOPT = lib clbrdll
+ADD_OPTS = -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
+defs = $(%WATCOM)$(SEP)h$(SEP)nt
+!endif
+!ifeq %OS DOS
+ADD_OPTS = 
+defs = $(%WATCOM)$(SEP)h$(SEP)dos
+!endif
+!ifeq %OS LINUX
+ADD_OPTS = -D_PLATFORM_UNIX_ -D_PLATFORM_X11_ -DSTRICT &
+    -DHAVE_UNISTD_H -DHAVE_SIGNAL_H
+ADD_LINKOPT = lib clib3r
+defs = $(%WATCOM)$(SEP)lh
+!endif
+
+ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+           $(SOM_INCL)  -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
+
+#STACKSIZE = 0x20000
+#UNI2H = 1
+C = r
+
+!include $(%ROOT)/mk/tools.mk
+#!include $(%ROOT)/mk/libsos2.mk
 
 
-!include $(%ROOT)/mk/all.mk
+.c: $(MYDIR)..$(SEP)contrib$(SEP)somref$(SEP)src
 
-.idl: $(MYDIR)..$(SEP)contrib$(SEP)somref
-.h: $(ROOT)build$(SEP)include
+.h: $(MYDIR)..$(SEP)contrib$(SEP)include
 
-$(ROOT)build$(SEP)include$(SEP)somref.h: $(MYDIR)..$(SEP)contrib$(SEP)somref$(SEP)somref.idl
