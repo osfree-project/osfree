@@ -420,8 +420,11 @@ procedure THWriter.WriteConstant(AVar: TPasConst);
 begin
   if (AVar.Parent.ClassType <> TPasClassType) and
     (AVar.Parent.ClassType <> TPasRecordType) then
-  wrt('#define '+AVar.Name + ' ');
-  Wrtln(ConvertToC(AVar.Value));
+  wrt('#define '+AVar.Name+' ');
+  if (trim(AVar.Value)[1]='-') then wrt('(');
+  Wrt(ConvertToC(AVar.Value));
+  if (trim(AVar.Value)[1]='-') then wrt(')');
+  Wrtln('');
 end;
 
 procedure THWriter.WriteProcDecl(AProc: TPasProcedure);
