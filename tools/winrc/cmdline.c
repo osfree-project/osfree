@@ -37,10 +37,15 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#ifndef _LINUX_
 #include <io.h>
+#endif
 #include "define.h"
 #include "rc.h"
 #include "buffer.h"
+#ifdef _LINUX_
+#include "lio.h"
+#endif
 
 FILE *out, *ep, *fp, *cp;
 extern FILE *yyin;
