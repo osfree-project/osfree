@@ -37,7 +37,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
-#ifndef _LINUX_
+#ifndef __LINUX__
 #include <io.h>
 #endif
 #include "define.h"
