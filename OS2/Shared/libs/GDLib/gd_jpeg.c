@@ -249,7 +249,9 @@ gdImageJpegCtx (gdImagePtr im, gdIOCtx * outfile, int quality)
        }
     }
   jpeg_finish_compress (&cinfo);
+#if BITS_IN_JSAMPLE == 12
 error:
+#endif
   jpeg_destroy_compress (&cinfo);
   gdFree (row);
 }
@@ -612,7 +614,7 @@ fill_input_buffer (j_decompress_ptr cinfo)
     }
   
 
-    if (nbytes <= 0)
+    if (nbytes == 0)
     {
       if (src->start_of_file)  /* Treat empty input file as fatal error */
        ERREXIT (cinfo, JERR_INPUT_EMPTY);

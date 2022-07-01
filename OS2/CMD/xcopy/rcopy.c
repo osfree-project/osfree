@@ -63,6 +63,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef __LINUX__
+#include <direct.h>
+#endif
 
 #define INCL_DOSERRORS
 #define INCL_DOSFILEMGR
@@ -162,7 +165,11 @@ CheckPath(char *path,int create)
         }
         else
         {
+#ifndef __LINUX__
+            if( mkdir(dir) )
+#else
             if( mkdir(dir, 0) )
+#endif
             {
                 Verbose(1,"mkdir(%s) - errno %u (%s)",dir,errno,strerror(errno));
                 return errno;
