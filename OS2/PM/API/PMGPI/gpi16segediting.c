@@ -1,97 +1,8 @@
-#ifndef GPI16CONTROL_INCLUDED
-#define GPI16CONTROL_INCLUDED
-
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions);
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions)
-{
-#ifdef BIT32
-	return GpiCreatePS(hab,hdc,psizlSize,flOptions);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
-BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
-{
-#ifdef BIT32
-	return GpiDestroyPS(hps);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
-BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
-{
-#ifdef BIT32
-	return GpiAssociate(hps, hdc);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-#ifdef PMWIN
-BOOL FAR PASCAL RestoreDC(HDC, SHORT);
-#endif
-#ifdef PMOS2
-// fix prototype !!!
-USHORT APIENTRY16 GPIRESTOREPS(HPS hps,SHORT a)
-#endif
-{
-#ifdef BIT32
-	return GpiRestorePS(hps, a);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-#ifdef PMWIN
-SHORT FAR PASCAL SaveDC(HDC hdc);
-#endif
-#ifdef PMOS2
-USHORT APIENTRY16 GPISAVEPS(HPS hps)
-#endif
-{
-#ifdef BIT32
-	return GpiSavePS(hps);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-//BOOL  APIENTRY GpiErase( HPS hps );
-// fix prototype !!!
-BOOL APIENTRY16 GPIERASE(HPS hps)
-{
-#ifdef BIT32
-	return GpiErase(hps);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
+#ifndef GPI16SEGEDITING_INCLUDED
+#define GPI16SEGEDITING_INCLUDED
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEVICE(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-BOOL  APIENTRY16 GpiResetPS( HPS hps, ULONG flOptions )
-{
-#ifdef BIT32
-	return GpiResetPS(hps, flOptions);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPS(void)
+USHORT APIENTRY16 GPISETEDITMODE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -101,7 +12,7 @@ USHORT APIENTRY16 GPISETPS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPS(void)
+USHORT APIENTRY16 GPIQUERYEDITMODE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -111,7 +22,7 @@ USHORT APIENTRY16 GPIQUERYPS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIERRORSEGMENTDATA(void)
+USHORT APIENTRY16 GPISETELEMENTPOINTER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -121,7 +32,7 @@ USHORT APIENTRY16 GPIERRORSEGMENTDATA(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWCONTROL(void)
+USHORT APIENTRY16 GPIQUERYELEMENTPOINTER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -131,7 +42,7 @@ USHORT APIENTRY16 GPIQUERYDRAWCONTROL(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWCONTROL(void)
+USHORT APIENTRY16 GPIOFFSETELEMENTPOINTER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -141,7 +52,7 @@ USHORT APIENTRY16 GPISETDRAWCONTROL(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWINGMODE(void)
+USHORT APIENTRY16 GPIDELETEELEMENT(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -151,7 +62,7 @@ USHORT APIENTRY16 GPISETDRAWINGMODE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWINGMODE(void)
+USHORT APIENTRY16 GPIDELETEELEMENTRANGE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -161,7 +72,7 @@ USHORT APIENTRY16 GPIQUERYDRAWINGMODE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETSTOPDRAW(void)
+USHORT APIENTRY16 GPILABEL(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -171,7 +82,67 @@ USHORT APIENTRY16 GPISETSTOPDRAW(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSTOPDRAW(void)
+USHORT APIENTRY16 GPISETELEMENTPOINTERATLABEL(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIDELETEELEMENTSBETWEENLABELS(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIQUERYELEMENTTYPE(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIQUERYELEMENT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIELEMENT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIBEGINELEMENT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIENDELEMENT(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);

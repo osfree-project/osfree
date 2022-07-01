@@ -257,414 +257,14 @@ BOOL  APIENTRY GpiSetDefTag(HPS,LONG);
 BOOL  APIENTRY GpiSetDefViewingLimits(HPS,PRECTL);
 */
 
+#include "gpi16dev.c"
 #include "gpi16control.c"
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVOPENDC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVCLOSEDC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVESCAPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVQUERYCAPS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-
-
-
-
-
-
-
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWCHAIN(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWFROM(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWSEGMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIREMOVEDYNAMICS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWDYNAMICS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIGETDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIPUTDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPICKAPERTURESIZE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPICKAPERTURESIZE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPICKAPERTUREPOSITION(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPICKAPERTUREPOSITION(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETTAG(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYTAG(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICORRELATECHAIN(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICORRELATEFROM(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICORRELATESEGMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIRESETBOUNDARYDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBOUNDARYDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIOPENSEGMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICLOSESEGMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETESEGMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETESEGMENTS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTNAMES(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETINITIALSEGMENTATTRS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYINITIALSEGMENTATTRS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTATTRS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTATTRS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTPRIORITY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTPRIORITY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETEDITMODE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYEDITMODE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETELEMENTPOINTER(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENTPOINTER(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIOFFSETELEMENTPOINTER(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENTRANGE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPILABEL(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETELEMENTPOINTERATLABEL(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENTSBETWEENLABELS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENTTYPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIELEMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGINELEMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDELEMENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMODELTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMODELTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICALLSEGMENTMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFAULTVIEWMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFAULTVIEWMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPAGEVIEWPORT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPAGEVIEWPORT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGTRANSFORMMATRIX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETGRAPHICSFIELD(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYGRAPHICSFIELD(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGLIMITS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGLIMITS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICONVERT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+#include "gpi16correlation.c"
+#include "gpi16segments.c"
+#include "gpi16segediting.c"
+#include "gpi16transforms.c"
+#include "gpi16paths.c"
+#include "gpi16logcolortable.c"
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETATTRMODE(void)
@@ -696,68 +296,14 @@ USHORT APIENTRY16 GPIQUERYATTRS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICREATELOGCOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIREALIZECOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIUNREALIZECOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCOLORDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLOGCOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYREALCOLORS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-#ifdef PMWIN
-DWORD FAR PASCAL GetNearestColor(HDC hdc, DWORD a);
-#endif
-#ifdef PMOS2
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYNEARESTCOLOR(HPS hps, USHORT a, SHORT b)
-#endif
-{
-#ifdef BIT32
-	return GpiQueryNearestColor(hps,a,b);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCOLORINDEX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYRGBCOLOR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 //COLORREF WINAPI SetTextColor(HDC, COLORREF);
 // fix prototype !!!
@@ -1499,41 +1045,11 @@ USHORT APIENTRY16 GPIQUERYMETAFILELENGTH(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCLIPPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGINPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICLOSEFIGURE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIMODIFYPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIFILLPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!!
@@ -1700,12 +1216,6 @@ USHORT APIENTRY16 GPIWCBITBLT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISTROKEPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
 USHORT APIENTRY16 SEGSGWNEXTORDERF(void)
 {
   return unimplemented(__FUNCTION__);
@@ -1723,11 +1233,6 @@ USHORT APIENTRY16 GPIRESUMEPLAY(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOUTLINEPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETDEFTAG(void)
@@ -1777,23 +1282,6 @@ USHORT APIENTRY16 GPIQUERYDEFARCPARAMS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPITRANSLATE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISCALE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIROTATE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIPOLYLINEDISJOINT(void)
@@ -1957,5 +1445,4 @@ USHORT APIENTRY16 DSPINITSYSTEMDRIVERNAME(void)
 {
   return unimplemented(__FUNCTION__);
 }
-
 
