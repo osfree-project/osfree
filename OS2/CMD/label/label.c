@@ -179,7 +179,7 @@ BOOL isVolumeLabelValid(PSZ szVolume)
                                  '+', '=', '[', ']', ';','.',
                                  '\0'
                                 };
-   if (strpbrk(szVolume, (char *)forbidden_chars) > 0)
+   if (strpbrk(szVolume, forbidden_chars) != NULL)
     return FALSE;
 
   return TRUE;
