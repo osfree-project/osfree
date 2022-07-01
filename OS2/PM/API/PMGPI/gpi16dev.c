@@ -4,37 +4,61 @@
 // fix prototype !!!
 USHORT APIENTRY16 DEVOPENDC(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVCLOSEDC(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVESCAPE(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 DEVQUERYCAPS(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 

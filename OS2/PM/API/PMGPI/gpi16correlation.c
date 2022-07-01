@@ -4,67 +4,111 @@
 // fix prototype !!!
 USHORT APIENTRY16 GPICORRELATECHAIN(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPICORRELATEFROM(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPICORRELATESEGMENT(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIRESETBOUNDARYDATA(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYBOUNDARYDATA(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETPICKAPERTURESIZE(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYPICKAPERTURESIZE(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETPICKAPERTUREPOSITION(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYPICKAPERTUREPOSITION(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETTAG(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
 USHORT APIENTRY16 GPIQUERYTAG(void)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 #endif
