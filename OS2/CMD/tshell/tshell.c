@@ -5,6 +5,7 @@
 #include <os2.h>;
 
 #include <stdio.h>
+#include <conio.h>
 
 int exec(VOID) {
  UCHAR       LoadError[CCHMAXPATH] = {0};
