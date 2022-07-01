@@ -263,6 +263,8 @@ BOOL  APIENTRY GpiSetDefViewingLimits(HPS,PRECTL);
 #include "gpi16segments.c"
 #include "gpi16segediting.c"
 #include "gpi16transforms.c"
+#include "gpi16paths.c"
+#include "gpi16logcolortable.c"
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETATTRMODE(void)
@@ -294,68 +296,14 @@ USHORT APIENTRY16 GPIQUERYATTRS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICREATELOGCOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIREALIZECOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIUNREALIZECOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCOLORDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLOGCOLORTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYREALCOLORS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-#ifdef PMWIN
-DWORD FAR PASCAL GetNearestColor(HDC hdc, DWORD a);
-#endif
-#ifdef PMOS2
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYNEARESTCOLOR(HPS hps, USHORT a, SHORT b)
-#endif
-{
-#ifdef BIT32
-	return GpiQueryNearestColor(hps,a,b);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCOLORINDEX(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYRGBCOLOR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 //COLORREF WINAPI SetTextColor(HDC, COLORREF);
 // fix prototype !!!
@@ -1097,41 +1045,11 @@ USHORT APIENTRY16 GPIQUERYMETAFILELENGTH(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCLIPPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGINPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICLOSEFIGURE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIMODIFYPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIFILLPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!!
@@ -1298,12 +1216,6 @@ USHORT APIENTRY16 GPIWCBITBLT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISTROKEPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
 USHORT APIENTRY16 SEGSGWNEXTORDERF(void)
 {
   return unimplemented(__FUNCTION__);
@@ -1321,11 +1233,6 @@ USHORT APIENTRY16 GPIRESUMEPLAY(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOUTLINEPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 // fix prototype !!!
 USHORT APIENTRY16 GPISETDEFTAG(void)
