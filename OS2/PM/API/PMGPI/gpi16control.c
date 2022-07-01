@@ -14,13 +14,21 @@ HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions)
 BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
 BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return GpiDestroyPS(hps);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
 BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return GpiAssociate(hps, hdc);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 #ifdef PMWIN
@@ -56,7 +64,11 @@ USHORT APIENTRY16 GPISAVEPS(HPS hps)
 // fix prototype !!!
 BOOL APIENTRY16 GPIERASE(HPS hps)
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return GpiErase(hps);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
@@ -67,7 +79,11 @@ USHORT APIENTRY16 GPIQUERYDEVICE(void)
 
 BOOL  APIENTRY16 GpiResetPS( HPS hps, ULONG flOptions )
 {
-  return unimplemented(__FUNCTION__);
+#ifdef BIT32
+	return GpiResetPS(hps, flOptions);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
 }
 
 // fix prototype !!!
