@@ -1,8 +1,8 @@
-#ifndef GPI16TRANSFORMS_INCLUDED
-#define GPI16TRANSFORMS_INCLUDED
+#ifndef GPI16REGIONS_INCLUDED
+#define GPI16REGIONS_INCLUDED
 
 // fix prototype !!!
-USHORT APIENTRY16 GPICONVERT(void)
+USHORT APIENTRY16 GPICOMBINEREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -12,7 +12,7 @@ USHORT APIENTRY16 GPICONVERT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPICALLSEGMENTMATRIX(void)
+USHORT APIENTRY16 GPICREATEREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -22,7 +22,7 @@ USHORT APIENTRY16 GPICALLSEGMENTMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFAULTVIEWMATRIX(void)
+USHORT APIENTRY16 GPIDESTROYREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -32,7 +32,7 @@ USHORT APIENTRY16 GPIQUERYDEFAULTVIEWMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYGRAPHICSFIELD(void)
+USHORT APIENTRY16 GPIEQUALREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -42,7 +42,7 @@ USHORT APIENTRY16 GPIQUERYGRAPHICSFIELD(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMODELTRANSFORMMATRIX(void)
+USHORT APIENTRY16 GPIEXCLUDECLIPRECTANGLE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -52,7 +52,7 @@ USHORT APIENTRY16 GPIQUERYMODELTRANSFORMMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPAGEVIEWPORT(void)
+USHORT APIENTRY16 GPIINTERSECTCLIPRECTANGLE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -62,7 +62,7 @@ USHORT APIENTRY16 GPIQUERYPAGEVIEWPORT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTTRANSFORMMATRIX(void)
+USHORT APIENTRY16 GPIOFFSETCLIPREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -72,7 +72,18 @@ USHORT APIENTRY16 GPIQUERYSEGMENTTRANSFORMMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGTRANSFORMMATRIX(void)
+USHORT APIENTRY16 GPIOFFSETREGION(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+//BOOL    WINAPI Polygon(HDC, const POINT FAR*, int);
+// fix prototype !!!
+USHORT APIENTRY16 GPIPAINTREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -82,7 +93,7 @@ USHORT APIENTRY16 GPIQUERYVIEWINGTRANSFORMMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGLIMITS(void)
+USHORT APIENTRY16 GPIPTINREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -92,7 +103,7 @@ USHORT APIENTRY16 GPIQUERYVIEWINGLIMITS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIROTATE(void)
+USHORT APIENTRY16 GPIQUERYREGIONBOX(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -102,7 +113,7 @@ USHORT APIENTRY16 GPIROTATE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISCALE(void)
+USHORT APIENTRY16 GPIQUERYREGIONRECTS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -112,7 +123,7 @@ USHORT APIENTRY16 GPISCALE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETDEFAULTVIEWMATRIX(void)
+USHORT APIENTRY16 GPIRECTINREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -122,7 +133,18 @@ USHORT APIENTRY16 GPISETDEFAULTVIEWMATRIX(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETGRAPHICSFIELD(void)
+USHORT APIENTRY16 GPISETREGION(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+//int     WINAPI SelectClipRgn(HDC, HRGN);
+// fix prototype !!!
+USHORT APIENTRY16 GPISETCLIPREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -132,7 +154,7 @@ USHORT APIENTRY16 GPISETGRAPHICSFIELD(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETMODELTRANSFORMMATRIX(void)
+USHORT APIENTRY16 GPIQUERYCLIPREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -141,8 +163,9 @@ USHORT APIENTRY16 GPISETMODELTRANSFORMMATRIX(void)
 #endif
 }
 
+//int     WINAPI GetClipBox(HDC, RECT FAR*);
 // fix prototype !!!
-USHORT APIENTRY16 GPISETPAGEVIEWPORT(void)
+USHORT APIENTRY16 GPIQUERYCLIPBOX(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -150,59 +173,5 @@ USHORT APIENTRY16 GPISETPAGEVIEWPORT(void)
 	return unimplemented(__FUNCTION__);
 #endif
 }
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTTRANSFORMMATRIX(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGLIMITS(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGTRANSFORMMATRIX(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPITRANSLATE(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-#if APILEVEL > 1
-
-// fix prototype !!!
-USHORT APIENTRY16 GPICONVERTWITHMATRIX(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-#endif
 
 #endif

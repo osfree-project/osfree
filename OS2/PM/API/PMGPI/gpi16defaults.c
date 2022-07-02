@@ -1,8 +1,8 @@
-#ifndef GPI16DEV_INCLUDED
-#define GPI16DEV_INCLUDED
+#ifndef GPI16DEFAULTS_INCLUDED
+#define GPI16DEFAULTS_INCLUDED
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVOPENDC(void)
+USHORT APIENTRY16 GPIQUERYDEFARCPARAMS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -12,7 +12,7 @@ USHORT APIENTRY16 DEVOPENDC(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVCLOSEDC(void)
+USHORT APIENTRY16 GPIQUERYDEFATTRS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -22,7 +22,7 @@ USHORT APIENTRY16 DEVCLOSEDC(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
+USHORT APIENTRY16 GPIQUERYDEFTAG(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -32,7 +32,7 @@ USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVESCAPE(void)
+USHORT APIENTRY16 GPIQUERYDEFVIEWINGLIMITS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -42,7 +42,7 @@ USHORT APIENTRY16 DEVESCAPE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
+USHORT APIENTRY16 GPISETDEFARCPARAMS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -52,7 +52,7 @@ USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYCAPS(void)
+USHORT APIENTRY16 GPISETDEFATTRS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -60,11 +60,9 @@ USHORT APIENTRY16 DEVQUERYCAPS(void)
 	return unimplemented(__FUNCTION__);
 #endif
 }
-
-#if APILEVEL > 1
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYDEVICENAMES(void)
+USHORT APIENTRY16 GPISETDEFTAG(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -73,6 +71,14 @@ USHORT APIENTRY16 DEVQUERYDEVICENAMES(void)
 #endif
 }
 
+// fix prototype !!!
+USHORT APIENTRY16 GPISETDEFVIEWINGLIMITS(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
 #endif
+}
 
 #endif

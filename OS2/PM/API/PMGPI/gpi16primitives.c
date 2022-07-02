@@ -775,4 +775,16 @@ USHORT APIENTRY16 GPISETPATTERNSET(void)
 #endif
 }
 
+#if APILEVEL > 1
+// fix prototype !!!
+USHORT APIENTRY16 GPIPOLYLINEDISJOINT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+#endif
+
 #endif
