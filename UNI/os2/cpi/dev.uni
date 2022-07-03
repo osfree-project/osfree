@@ -1,0 +1,104 @@
+group dev;
+
+constant DEVESC_QUERYESCSUPPORT     =    0;
+constant DEVESC_GETSCALINGFACTOR    =    1;
+constant DEVESC_QUERYVIOCELLSIZES   =    2;
+constant DEVESC_GETCP               = 8000;
+constant DEVESC_SETABORTPROC        = 8001;
+constant DEVESC_QUERYPDL            = 8002;
+constant DEVESC_STARTDOC            = 8150;
+constant DEVESC_ENDDOC              = 8151;
+constant DEVESC_NEXTBAND            = 8152;
+constant DEVESC_ABORTDOC            = 8153;
+constant DEVESC_GETJOBID            = 8160;
+constant DEVESC_QUERY_RASTER        = 8161;
+constant DEVESC_QUERYSIZE           = 8162;
+constant DEVESC_QUERYJOBPROPERTIES  = 8163;
+constant DEVESC_SETJOBPROPERTIES    = 8164;
+constant DEVESC_DEFAULTJOBPROPERTIES= 8165;
+constant DEVESC_CHANGEOUTPUTPORT    = 8166;
+constant DEVESC_NEWFRAME            =16300;
+constant DEVESC_DRAFTMODE           =16301;
+constant DEVESC_FLUSHOUTPUT         =16302;
+constant DEVESC_RAWDATA             =16303;
+constant DEVESC_SETMODE             =16304;
+constant DEVESC_SEP                 =16305;
+constant DEVESC_MACRO               =16307;
+constant DEVESC_BEGIN_BITBLT        =16309;
+constant DEVESC_END_BITBLT          =16310;
+constant DEVESC_SEND_COMPDATA       =16311;
+constant DEVESC_DBE_FIRST           =24450;
+constant DEVESC_DBE_LAST            =24455;
+constant DEVESC_CHAR_EXTRA          =16998;
+constant DEVESC_BREAK_EXTRA         =16999;
+constant DEVESC_STD_JOURNAL         =32600;
+constant DEVESC_SETPS               =49149;
+constant DEVESC_STARTDOC_WPROP      =49150;
+constant DEVESC_NEWFRAME_WPROP      =49151;
+
+constant DPDM_ERROR   =  -1;
+constant DPDM_NONE    =    0;
+
+constant DPDM_POSTJOBPROP =0;
+constant DPDM_CHANGEPROP  =1;
+constant DPDM_QUERYJOBPROP=2;
+
+constant DQHC_ERROR=-1;
+
+constant HCAPS_CURRENT    =1;
+constant HCAPS_SELECTABLE =2;
+
+type VIOSIZECOUNT=structure
+    maxcount: LONG;
+    count: LONG;
+end;
+type PVIOSIZECOUNT=^VIOSIZECOUNT;
+
+type VIOFONTCELLSIZE=structure
+    cx: LONG;
+    cy: LONG;
+end;
+type PVIOFONTCELLSIZE=^VIOFONTCELLSIZE;
+
+type SFACTORS=structure
+    x: LONG;
+    y: LONG;
+end;
+type PSFACTORS=^SFACTORS;
+
+type BANDRECT=structure
+     xleft: LONG;
+     ybottom: LONG;
+     xright: LONG;
+     ytop: LONG;
+end;
+type PBANDRECT=^BANDRECT;
+
+type HCINFO=structure
+    szFormname: array[32] of CHAR;
+    cx: LONG;
+    cy: LONG;
+    xLeftClip: LONG;
+    yBottomClip: LONG;
+    xRightClip: LONG;
+    yTopClip: LONG;
+    xPels: LONG;
+    yPels: LONG;
+    flAttributes: LONG;
+end;
+type PHCINFO=^HCINFO;
+
+type STR16=array[16] of CHAR;
+type PSTR16=^STR16;
+type STR32=array[32] of CHAR;
+type PSTR32=^STR32;
+type STR64=array[64] of CHAR;
+type PSTR64=^STR64;
+
+function DevEscape(in hdc: HDC, in a: LONG, in b: LONG, in c: PBYTE, in d:PLONG, in e: PBYTE): LONG;
+function DevPostDeviceModes(in hab: HAB, in a:PDRIVDATA, in b:PCSZ,in c:PCSZ, in d:PCSZ, in e:ULONG): LONG;
+function DevPostEscape(in a: PCSZ, in b: PCSZ, in c: PCSZ, in d: PCSZ, in e:ULONG, in f: ULONG,in g: PBYTE,in h:ULONG,in i:PBYTE): LONG;
+function DevQueryDeviceNames(in hab: HAB, in a: PCSZ, in b: PLONG, in c: PSTR32, in d: PSTR64, in e: PLONG, in f: PSTR16): BOOL;
+function DevQueryHardcopyCaps(in hdc: HDC, in a: LONG, in b:LONG, in c:PHCINFO): LONG;
+
+end;

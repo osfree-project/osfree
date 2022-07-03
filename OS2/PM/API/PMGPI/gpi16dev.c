@@ -73,6 +73,16 @@ USHORT APIENTRY16 DEVQUERYDEVICENAMES(void)
 #endif
 }
 
+// fix prototype !!!
+USHORT   APIENTRY16 DEVPOSTESCAPE(PCSZ a,PCSZ b,PCSZ c,PCSZ d,ULONG e,ULONG f,PBYTE g,ULONG h,PBYTE i)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
 #endif
 
 #endif

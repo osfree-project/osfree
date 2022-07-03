@@ -86,6 +86,7 @@ os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)pmbase.h &
      $(OS2TKH)$(SEP)pmdev.h &
      $(OS2TKH)$(SEP)devcommon.h &
+     $(OS2TKH)$(SEP)dev.h &
      $(OS2TKH)$(SEP)pmshl.h &
      $(OS2TKH)$(SEP)winswitchlistcommon.h &
      $(OS2TKH)$(SEP)winswitchlist.h &
@@ -435,6 +436,8 @@ $(OS2TKH)$(SEP)pmgpi.h: $(MYDIR)os2$(SEP)pm$(SEP)pmgpi.uni
 $(OS2TKH)$(SEP)pmdev.h: $(MYDIR)os2$(SEP)pm$(SEP)pmdev.uni
 
 $(OS2TKH)$(SEP)devcommon.h: $(MYDIR)os2$(SEP)cpi$(SEP)devcommon.uni
+
+$(OS2TKH)$(SEP)dev.h: $(MYDIR)os2$(SEP)cpi$(SEP)dev.uni
 
 $(OS2TKH)$(SEP)gpiprimitives.h: $(MYDIR)os2$(SEP)pm$(SEP)gpi$(SEP)gpiprimitives.uni
 

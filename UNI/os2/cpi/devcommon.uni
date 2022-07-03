@@ -126,7 +126,7 @@ constant OD_METAFILE        = 7;
 constant OD_MEMORY          = 8;
 constant OD_METAFILE_NOQUERY = 9;
 
-constant DQHC_ERROR                   = (-1);
+(* constant DQHC_ERROR                   = (-1); *)
 
 constant HCAPS_CURRENT                 =  1;
 constant HCAPS_SELECTABLE              =  2;
