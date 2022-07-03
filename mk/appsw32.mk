@@ -51,7 +51,7 @@ deps = $(RESOURCE)
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ SYSTEM win32 $(dllopts)
  @%append $^@ NAME $^*

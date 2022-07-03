@@ -97,7 +97,7 @@ link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  @$(SAY) LINK     $(T)$(S).$(E) $(LOG)
  $(verbose)$(LINKER) @$< $(LOG2)
 
-$(PATH)$(T)$(S).lnk: $(OBJS)
+$(PATH)$(T)$(S).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ system os2v2 dll
  @%append $^@ output raw offset=0x10000

@@ -141,7 +141,7 @@ bintype =
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ FORMAT os2 lx $(dllopts) $(bintype)
  @%append $^@ NAME $^*

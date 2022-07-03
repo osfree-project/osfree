@@ -37,7 +37,7 @@ deps = $(RESOURCE)
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ SYSTEM os2 $(dllopts)
  @%append $^@ NAME $^*

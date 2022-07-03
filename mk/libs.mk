@@ -25,7 +25,7 @@ $(LIBS) $(OBJS): $(MYDIR)makefile
 !endif
 
 # makes library $(library) from object files $(OBJS)
-library: $(OBJS) $(LIBS) .symbolic
+library: $(OBJS) $(LIBS) $(MYDIR)makefile .symbolic
  @$(SAY) LIB      $(PROJ).lib
 !ifndef NODELETE
 !ifeq UNIX TRUE

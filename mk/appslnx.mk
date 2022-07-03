@@ -53,7 +53,7 @@ deps = $(RESOURCE)
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
  #@%append $^@ system linux dll
  @%append $^@ format elf $(dllopts)
