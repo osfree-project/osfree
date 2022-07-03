@@ -1,18 +1,8 @@
-#ifndef GPI16DEV_INCLUDED
-#define GPI16DEV_INCLUDED
+#ifndef GPI16METAFILES_INCLUDED
+#define GPI16METAFILES_INCLUDED
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVOPENDC(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-#	include "devopendc.c"
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 DEVCLOSEDC(void)
+USHORT APIENTRY16 GPICOPYMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -22,7 +12,7 @@ USHORT APIENTRY16 DEVCLOSEDC(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
+USHORT APIENTRY16 GPIDELETEMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -32,7 +22,7 @@ USHORT APIENTRY16 DEVPOSTDEVICEMODES(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVESCAPE(void)
+USHORT APIENTRY16 GPILOADMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -42,7 +32,7 @@ USHORT APIENTRY16 DEVESCAPE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
+USHORT APIENTRY16 GPIPLAYMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -52,7 +42,37 @@ USHORT APIENTRY16 DEVQUERYHARDCOPYCAPS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYCAPS(void)
+USHORT APIENTRY16 GPIQUERYMETAFILEBITS(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPIQUERYMETAFILELENGTH(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPISAVEMETAFILE(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+USHORT APIENTRY16 GPISETMETAFILEBITS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -62,9 +82,8 @@ USHORT APIENTRY16 DEVQUERYCAPS(void)
 }
 
 #if APILEVEL > 1
-
 // fix prototype !!!
-USHORT APIENTRY16 DEVQUERYDEVICENAMES(void)
+USHORT APIENTRY16 GPISUSPENDPLAY(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -74,7 +93,7 @@ USHORT APIENTRY16 DEVQUERYDEVICENAMES(void)
 }
 
 // fix prototype !!!
-USHORT   APIENTRY16 DEVPOSTESCAPE(PCSZ a,PCSZ b,PCSZ c,PCSZ d,ULONG e,ULONG f,PBYTE g,ULONG h,PBYTE i)
+USHORT APIENTRY16 GPIRESUMEPLAY(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -82,7 +101,7 @@ USHORT   APIENTRY16 DEVPOSTESCAPE(PCSZ a,PCSZ b,PCSZ c,PCSZ d,ULONG e,ULONG f,PB
 	return unimplemented(__FUNCTION__);
 #endif
 }
-
 #endif
 
 #endif
+
