@@ -257,7 +257,7 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 TARGETS: $(PRODUCTS_PDL) $(SOMDTYPE_SC) $(PRODUCTS_SC)
 
 $(PRODUCTS_PDL): $(SOM_IDL)
- @$(SAY) PDL       $^. $(LOG)
+ @$(SAY) PDL      $^. $(LOG)
  $(verbose)pdl.exe -d $(SOMIDL_IDL) $<
 
 $(SOMIDL_HEADERS)$(SEP)somdtype.h: $(SOMIDL_IDL)$(SEP)somdtype.idl
