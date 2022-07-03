@@ -44,7 +44,11 @@ RCOPT    = -I$(MYDIR) -I$(PATH) -I. -I$(MYDIR)..$(SEP)..$(SEP)include -I$(MYDIR)
 deps = $(RESOURCE)
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*
@@ -77,9 +81,9 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  $(ADDFILES_CMD)
 
 !ifeq DLL 1
-$(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk $(OBJS)
+$(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 !else
-$(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
+$(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)

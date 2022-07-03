@@ -23,7 +23,8 @@ C = r
 
 ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%OS2TK)$(SEP)h &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifneq NOLIBS 1
 ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
@@ -136,7 +137,11 @@ bintype = virtdevice
 bintype =
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ FORMAT os2 lx $(dllopts) $(bintype)
  @%append $^@ NAME $^*

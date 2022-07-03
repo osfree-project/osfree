@@ -18,6 +18,12 @@ DEST     = ..$(SEP)..$(SEP)build$(SEP)lib
 
 $(PATH)$(PROJ).lib:
 
+!ifdef LIBS
+$(LIBS) $(OBJS): $(MYDIR)makefile
+!else ifdef OBJS
+$(LIBS) $(OBJS): $(MYDIR)makefile
+!endif
+
 # makes library $(library) from object files $(OBJS)
 library: $(OBJS) $(LIBS) .symbolic
  @$(SAY) LIB      $(PROJ).lib

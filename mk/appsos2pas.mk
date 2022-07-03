@@ -9,6 +9,8 @@
 32_BITS  = 1
 CLEAN_ADD = *.oo2 *.ppo *.o
 
+#OBJS = $(PATH)*.o
+
 !ifndef DEST
 DEST    = os2
 !endif
@@ -25,6 +27,8 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 !include $(%ROOT)/mk/all.mk
 
-$(PATH)$(PROJ).lnk: .symbolic
+$(TARGETS): $(MYDIR)makefile
+
+$(PATH)$(PROJ).lnk: $(OBJS) .symbolic
 
 !endif

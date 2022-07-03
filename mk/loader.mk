@@ -136,6 +136,10 @@ $(PATH)$(T)$(S).lnk: $(OBJS)
  @%append $^@ LIBRARY ldr_shared.lib
  @for %%i in ($(OBJS))   do @%append $^@ FILE %%i
 
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
 .c:   $(MYDIR)
 
 .asm: $(MYDIR)

@@ -18,5 +18,6 @@ OPTIONS     = manyautodata
 DLL         = 1
 DLLOPT      = initinstance terminstance
 UNI2H       = 1
+C = s
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

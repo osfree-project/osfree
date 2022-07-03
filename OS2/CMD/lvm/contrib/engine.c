@@ -569,7 +569,7 @@ void _System Open_LVM_Engine2( BOOLEAN Ignore_CHS, LVM_Interface_Types Interface
   {
 
     /* Install the exit procedure which enables PRM Rediscovery. */
-    DosExitList(EXLST_ADD, &Exit_Procedure);
+    DosExitList(EXLST_ADD, (void *)&Exit_Procedure);
 
     /* Now disable PRM Rediscovery while the engine is running. */
     PRM_Rediscovery_Control(FALSE);

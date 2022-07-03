@@ -5,14 +5,15 @@ DESC = PM REXX console
 DIRS = pmrexxio help
 srcfiles     = $(p)pmrexx$(e) $(p)rxhafile$(e)
 inc          = $(MYDIR)include
-ADD_COPT     = -i=$(inc) -sg -3r # -3s
-#ADD_LINKOPT  = lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
+ADD_COPT     = -i=$(inc) -sg -3s # -3r
+ADD_LINKOPT  = lib os2386.lib,clib3s.lib,math387s.lib,emu387.lib,rexx.lib
 OPTIONS      = heapsize=8192
 STACKSIZE    = 16384
 PM           = 1
-IMPORTS      = RexxCreateIOWindow_    PMREXXIO.RexxCreateIOWindow, &
-    	       RexxDestroyIOWindow_   PMREXXIO.RexxDestroyIOWindow
+IMPORTS      = RexxCreateIOWindow    PMREXXIO.RexxCreateIOWindow, &
+    	       RexxDestroyIOWindow   PMREXXIO.RexxDestroyIOWindow
 UNI2H        = 1
+C            = s
 
 !include $(%ROOT)/mk/appsos2.mk
 

@@ -47,6 +47,10 @@ RCOPT    = -bt=nt $(RCOPT)
 deps = $(RESOURCE)
 !endif
 
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM win32 $(dllopts)

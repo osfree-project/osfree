@@ -20,7 +20,6 @@ print_vars: .symbolic
         @echo RELDIR   $(RELDIR)
         @echo PATH     $(PATH) 
         @echo BLD      $(BLD)
-        @echo RELDIR   $(RELDIR)
         @echo TOOLDIR  $(TOOLDIR)
         @echo DEST     $(DEST)
         @echo x        $(x)

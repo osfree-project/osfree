@@ -1927,7 +1927,7 @@ ConstructDiskPanels ( uint  top_row,
     Disk_panel.box.border_attribute = Panel_border_attribute;
     Disk_panel.text_line = Disk_panel_text;
     Disk_panel.callback = disk_panel_callback;
-    Disk_panel.help.routine = DoHelpPanel;
+    Disk_panel.help.routine = (void *)DoHelpPanel;
     Disk_panel.help.default_message = DISK_HELP_MESSAGE;
 
     /* Disk_options_menu */
@@ -1939,7 +1939,7 @@ ConstructDiskPanels ( uint  top_row,
     Disk_options_menu.box.attribute = Menu_attribute;
     Disk_options_menu.box.border_attribute = Menu_border_attribute;
     Disk_options_menu.text_line = Disk_options_text;
-    Disk_options_menu.help.routine = DoHelpPanel;
+    Disk_options_menu.help.routine = (void *)DoHelpPanel;
     Disk_options_menu.help.array = Disk_options_help_array;
     Disk_options_menu.help.array_size = Disk_options_help_array_size;
 
@@ -1997,7 +1997,7 @@ ConstructDiskPanels ( uint  top_row,
     Partition_panel.box.attribute = Panel_attribute;
     Partition_panel.box.border_attribute = Panel_border_attribute;
     Partition_panel.text_line = Partition_panel_text [ 0 ];
-    Partition_panel.help.routine = DoHelpPanel;
+    Partition_panel.help.routine = (void *)DoHelpPanel;
     Partition_panel.help.default_message = DISK_HELP_MESSAGE;
 
     /* Partition_options_menu */

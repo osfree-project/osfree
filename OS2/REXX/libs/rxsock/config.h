@@ -55,7 +55,7 @@
 #define HAVE_GETHOSTID 1
 
 /* Define if you have the strerror function.  */
-#undef HAVE_STRERROR
+#define HAVE_STRERROR 1
 
 /* Define if you have the <ctype.h> header file.  */
 #define HAVE_CTYPE_H 1
