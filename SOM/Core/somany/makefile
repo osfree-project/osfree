@@ -17,7 +17,13 @@ ADD_SCOPT = -D__PRIVATE__ &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somcslib &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somir
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
+
 !include $(%ROOT)/mk/all.mk
 
-.idl: $(MYDIR)..$(SEP)contrib$(SEP)somany
+.idl: $(SRC)contrib$(SEP)somany
 .h: $(IDLH)

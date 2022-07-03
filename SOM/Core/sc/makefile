@@ -6,6 +6,9 @@ DESC = SOM Compiler
 srcfiles = $(p)sc$(e)
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
+!ifdef HOSTBLD
+
+SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -32,17 +35,29 @@ defs = $(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include $(OPTS)
+!else
+
+SRC = $(MYDIR)..$(SEP)
+OPTS =
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+ADD_LINKOPT = lib clib3r
+
+!endif
+
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC)contrib$(SEP)include $(OPTS)
 
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
+!endif
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)sc$(SEP)src
+.c: $(SRC)contrib$(SEP)sc$(SEP)src
 
-.h: $(MYDIR)..$(SEP)contrib$(SEP)include
+.h: $(SRC)contrib$(SEP)include
 
 #.$(O): $(PATH)
-

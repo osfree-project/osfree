@@ -115,7 +115,7 @@ EXPORTS = somMainProgram, &
 
 !endif
 
-SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
+SOM_DIR=$(SRC)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
          -i=$(SOM_DIR)som$(SEP)include &
 		 -i=$(SOM_DIR)som$(SEP)src &
@@ -126,6 +126,9 @@ SOM_INCL= -i=$(SOM_DIR)include &
 		 -i=$(SOM_DIR)somkpub$(SEP)include &
 		 -i=$(SOM_DIR)somtk$(SEP)include
 
+!ifdef HOSTBLD
+
+SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
 ADD_LINKOPT = lib clib3r
@@ -152,19 +155,32 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
+!else
+
+SRC = $(MYDIR)..$(SEP)
+ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
+ADD_LINKOPT = lib clib3r
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+
+!endif
+
 ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
 #!include $(%ROOT)/mk/libsos2.mk
+!endif
 
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
+.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
 
-.h: $(MYDIR)..$(SEP)contrib$(SEP)include
+.h: $(SRC)contrib$(SEP)include
 
 #install_add: .SYMBOLIC $(PATH)som.dll
 # @$(MDHIER) $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
@@ -217,4 +233,3 @@ C = r
 #$(INTDIR)/somirdll.h: ../unix/som.mak 
 #	$(SHLB_DLO) -s somir >$@
 #	cat $@
-

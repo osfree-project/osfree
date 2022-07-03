@@ -1,7 +1,12 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
 
-SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som
+SOM_DIR=$(SRC)contrib$(SEP)somkpub$(SEP)som
 SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
 SOMIDL_HEADERS=$(SOMIDL_IDL)   #$(SEP)$(%OS)
 

@@ -10,19 +10,27 @@ srcfiles = $(p)rhbsomue$(e) &
 
 #$(p)rhbsomut$(e) & $(p)rhbsomkd$(e) &
 
-ADD_SCOPT = -D__PRIVATE__ &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somd &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somestrm &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somnmf &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somabs1 &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somu &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somcorba &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somref &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somos &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somcslib &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somir
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
 
+ADD_SCOPT = -D__PRIVATE__ &
+            -I$(SRC)contrib$(SEP)somkpub$(SEP)som &
+            -I$(SRC)contrib$(SEP)somd &
+            -I$(SRC)contrib$(SEP)somestrm &
+            -I$(SRC)contrib$(SEP)somnmf &
+            -I$(SRC)contrib$(SEP)somabs1 &
+            -I$(SRC)contrib$(SEP)somu &
+            -I$(SRC)contrib$(SEP)somcorba &
+            -I$(SRC)contrib$(SEP)somref &
+            -I$(SRC)contrib$(SEP)somos &
+            -I$(SRC)contrib$(SEP)somcslib &
+            -I$(SRC)contrib$(SEP)somir
+
+
+!ifdef HOSTBLD
 
 !ifeq %OS OS2
 defs = -d_PLATFORM_OS2_ -i=$(%WATCOM)$(SEP)h$(SEP)os2
@@ -45,18 +53,29 @@ defs = -d_PLATFORM_UNIX_ -d_PLATFORM_X11_ -dHAVE_SIGNAL_H -i=$(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
 
-ADD_COPT = -dNDEBUG $(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -dHAVE_CONFIG_H &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somtk$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somcdr$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)rhbmtut$(SEP)include &
+!else
+
+defs = -d_PLATFORM_OS2_ -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_LINKOPT = lib clib3r
+
+!endif
+
+ADD_COPT = -dNDEBUG $(defs) -i=$(SRC)contrib$(SEP)include -dHAVE_CONFIG_H &
+           -i=$(SRC)contrib$(SEP)som$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somtk$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somcdr$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somkpub$(SEP)include &
+           -i=$(SRC)contrib$(SEP)rhbmtut$(SEP)include &
            -i=$(ROOT)build$(SEP)include -i=$(%OS2TK)$(SEP)som$(SEP)include
 
 #STACKSIZE = 0x20000
 C = r
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
+!endif
 
 IDLH=$(ROOT)build$(SEP)include$(SEP)
 
@@ -67,8 +86,8 @@ $(TRGT)
 
 $(p)rhbsomue$(e): $(IDLH)somcdr.h .SYMBOLIC
 
-.idl: $(MYDIR)..$(SEP)contrib$(SEP)somcdr
+.idl: $(SRC)contrib$(SEP)somcdr
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)somcdr$(SEP)src
+.c: $(SRC)contrib$(SEP)somcdr$(SEP)src
 
-.h: $(IDLH);$(MYDIR)..$(SEP)contrib$(SEP)include
+.h: $(IDLH);$(SRC)contrib$(SEP)include

@@ -6,6 +6,12 @@ DESC = SOM Compiler Preprocessor
 srcfiles = $(p)main$(e) $(p)directive$(e) $(p)eval$(e) $(p)expand$(e) &
            $(p)support$(e) $(p)system$(e) $(p)mbchar$(e)
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
+
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 #Notes:
@@ -14,4 +20,11 @@ DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 ADD_COPT = -i=..$(SEP)include -sg -d2
 STACKSIZE = 6553500
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
+!endif
+
+.c: $(SRC)somcpp
+.h: $(SRC)somcpp
