@@ -53,7 +53,7 @@
 #	define PMOS2
 #endif
 
-#if define(PMWIN) && defined(BIT32)
+#if defined(PMWIN) && defined(BIT32)
 #	error 32-bit Windows API not supported (yet?)
 #endif
 
