@@ -30,7 +30,11 @@ TARGETS  = $(PATH)$(PROJ).com # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
+$(PATH)$(PROJ).lnk: $(OBJS)
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
  @%append $^@ NAME $^*
@@ -50,7 +54,7 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
 
-$(PATH)$(TRGT): $(PATH)$(PROJ).lnk $(OBJS)
+$(PATH)$(TRGT): $(PATH)$(PROJ).lnk
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 

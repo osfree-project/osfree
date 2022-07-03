@@ -24,6 +24,8 @@ TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-$(PATH)$(PROJ).lnk: .symbolic
+$(TARGETS): $(MYDIR)makefile
+
+$(PATH)$(PROJ).lnk: $(OBJS) .symbolic
 
 !endif

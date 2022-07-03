@@ -49,6 +49,10 @@ dllopts =
 deps = $(RESOURCE)
 !endif
 
+!ifdef OBJS
+$(OBJS): $(MYDIR)makefile
+!endif
+
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  #@%append $^@ system linux dll

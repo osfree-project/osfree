@@ -41,7 +41,7 @@ $(mf): $(MYDIR)makefile
  @%append $(mf) $# don't edit!
  @%append $(mf) $#
  @%append $(mf)
- @%append $(mf) !include $$(%ROOT)$(RELDIR)makefile
+ @%append $(mf) !include $$(%ROOT)$(RELDIR:\=/)makefile
  @%append $(mf)
 !ifdef __UNIX__ 
  # generate ordinary .obj's lists

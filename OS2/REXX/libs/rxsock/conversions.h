@@ -23,7 +23,8 @@
 
 #include "rxpack.h"
 
-#ifdef __OS2__
+#ifdef HAVE_TYPES_H
+#undef _POSIX_SOURCE
 #include <types.h>
 #endif
 

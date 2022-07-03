@@ -32,6 +32,7 @@
 #endif
 
 #ifdef HAVE_TYPES_H
+#undef _POSIX_SOURCE
 # include <types.h>
 #endif
 
@@ -108,6 +109,9 @@
 #  define INCL_RXSYSEXIT  /* System exit routines */
 #  define INCL_RXSUBCOM   /* Subcommand routines */
 #  include <os2.h>
+#  ifdef __WATCOMC__
+#   include <rexxsaa.h>
+#  endif
 # else
 #  include <os2.h>
 #  define INCL_RXSHV      /* Shared variable support */

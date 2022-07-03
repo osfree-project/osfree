@@ -5343,7 +5343,7 @@ void _System Get_Required_LVM_Version( CARDINAL32 * Major_Version_Number, CARDIN
 #define MAX_HELP_MESSAGE_SIZE           (1024 * 12)
 #define DRIVE_LINKING_HELP_MESSAGE      5026
 
-uint _System DosGetMessage ( char **, uint, char *, uint, uint, char *, uint *);
+//uint _System DosGetMessage ( char **, uint, char *, uint, uint, char *, uint *);
 char *help_message=NULL;
 #ifdef __DLL__ 
 char chars_less_than_greater_than[2] = {'<', '>'};

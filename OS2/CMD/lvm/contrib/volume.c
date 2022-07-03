@@ -2329,7 +2329,7 @@ ConstructVolumePanels ( uint  top_row,
     Volume_panel.box.border_attribute = Panel_border_attribute;
     Volume_panel.text_line = Volume_panel_text;
     Volume_panel.callback = volume_panel_callback;
-    Volume_panel.help.routine = DoHelpPanel;
+    Volume_panel.help.routine = (void *)DoHelpPanel;
     Volume_panel.help.default_message = VOLUME_HELP_MESSAGE;
 
     /* Volume_options_menu */
@@ -2341,7 +2341,7 @@ ConstructVolumePanels ( uint  top_row,
     Volume_options_menu.box.attribute = Menu_attribute;
     Volume_options_menu.box.border_attribute = Menu_border_attribute;
     Volume_options_menu.text_line = Volume_options_text2;
-    Volume_options_menu.help.routine = DoHelpPanel;
+    Volume_options_menu.help.routine = (void *)DoHelpPanel;
     Volume_options_menu.help.array = Volume_options_help_array;
     Volume_options_menu.help.array_size = Volume_options_help_array_size;
 
@@ -2374,7 +2374,7 @@ ConstructVolumePanels ( uint  top_row,
     Bootable_panel.box.attribute = Choice_attribute;
     Bootable_panel.box.border_attribute = Choice_border_attribute;
     Bootable_panel.text_line = Bootable_text;
-    Bootable_panel.help.routine = DoHelpPanel;
+    Bootable_panel.help.routine = (void *)DoHelpPanel;
     Bootable_panel.help.array = Bootable_help_array;
     Bootable_panel.help.array_size = Bootable_help_array_size;
 
@@ -2401,7 +2401,7 @@ ConstructVolumePanels ( uint  top_row,
     Drive_letter_panel.box.attribute = Choice_attribute;
     Drive_letter_panel.box.border_attribute = Choice_border_attribute;
     Drive_letter_panel.text_line = Drive_letter_text;
-    Drive_letter_panel.help.routine = DoHelpPanel;
+    Drive_letter_panel.help.routine = (void *)DoHelpPanel;
     Drive_letter_panel.help.default_message = DRIVE_LETTER_HELP_MESSAGE;
 
     /* Volume_name_panel */
@@ -2455,7 +2455,7 @@ ConstructVolumePanels ( uint  top_row,
     Partitions_panel.box.attribute = Panel_attribute;
     Partitions_panel.box.border_attribute = Panel_border_attribute;
     Partitions_panel.text_line = Empty_text;
-    Partitions_panel.help.routine = DoHelpPanel;
+    Partitions_panel.help.routine = (void *)DoHelpPanel;
     Partitions_panel.help.default_message = VOLUME_HELP_MESSAGE;
 
     /* Partitions_options_menu */
@@ -2478,7 +2478,7 @@ ConstructVolumePanels ( uint  top_row,
     Volume_select_feature_menu.box.border_attribute = Menu_border_attribute;
     Volume_select_feature_menu.title_line = Volume_select_feature_title;
     Volume_select_feature_menu.text_line = Volume_feature_text;
-    Volume_select_feature_menu.help.routine = DoHelpPanel;
+    Volume_select_feature_menu.help.routine = (void *)DoHelpPanel;
     Volume_select_feature_menu.help.default_message = SELECT_FEATURES_HELP_MESSAGE;
     Volume_select_feature_menu.callback = Volume_select_feature_callback;
 
@@ -2491,7 +2491,7 @@ ConstructVolumePanels ( uint  top_row,
     Volume_order_feature_menu.box.border_attribute = Menu_border_attribute;
     Volume_order_feature_menu.title_line = Volume_order_feature_title;
     Volume_order_feature_menu.text_line = 0;
-    Volume_order_feature_menu.help.routine = DoHelpPanel;
+    Volume_order_feature_menu.help.routine = (void *)DoHelpPanel;
     Volume_order_feature_menu.help.default_message = ORDER_FEATURES_HELP_MESSAGE;
     Volume_order_feature_menu.callback = Volume_order_feature_callback;
 
@@ -2522,7 +2522,7 @@ ConstructVolumePanels ( uint  top_row,
     Volume_aggregates_panel.box.border_attribute = Panel_border_attribute;
     Volume_aggregates_panel.text_line = Volume_aggregates_panel_text;
     Volume_aggregates_panel.callback = volume_aggregates_panel_callback;
-    Volume_aggregates_panel.help.routine = DoHelpPanel;
+    Volume_aggregates_panel.help.routine = (void *)DoHelpPanel;
     Volume_aggregates_panel.help.default_message = NAVIGATE_FEATURES_HELP_MESSAGE;
 
 
@@ -2554,7 +2554,7 @@ ConstructVolumePanels ( uint  top_row,
     Aggregate_features_panel.box.attribute = Panel_attribute;
     Aggregate_features_panel.box.border_attribute = Panel_border_attribute;
     Aggregate_features_panel.text_line = Empty_text;
-    Aggregate_features_panel.help.routine = DoHelpPanel;
+    Aggregate_features_panel.help.routine = (void *)DoHelpPanel;
     Aggregate_features_panel.help.default_message = NAVIGATE_FEATURES_HELP_MESSAGE;
 
     /* Aggregate_feature_options_menu */
@@ -2566,7 +2566,7 @@ ConstructVolumePanels ( uint  top_row,
     Aggregate_feature_options_menu.box.attribute = Menu_attribute;
     Aggregate_feature_options_menu.box.border_attribute = Menu_border_attribute;
     Aggregate_feature_options_menu.text_line = Aggregate_feature_options_text;
-    Aggregate_feature_options_menu.help.routine = DoHelpPanel;
+    Aggregate_feature_options_menu.help.routine = (void *)DoHelpPanel;
     Aggregate_feature_options_menu.help.default_message = NAVIGATE_FEATURES_HELP_MESSAGE;
 
 

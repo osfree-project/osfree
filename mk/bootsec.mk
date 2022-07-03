@@ -28,6 +28,8 @@ $(PATH)$(PROJ).bin: $(PATH)$(PROJ).lnk
  @$(SAY) LINK     $^. $(LOG)
  @$(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
+$(PATH)$(PROJ0).$(O): $(MYDIR)makefile
+
 $(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O)
  @%create $^@
  @%append $^@ SYSTEM dos com
