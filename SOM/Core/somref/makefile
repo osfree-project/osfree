@@ -14,11 +14,19 @@ DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 EXPORTS = 
 !endif
 
-SOM_DIR=$(MYDIR)..$(SEP)contrib$(SEP)
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
+
+SOM_DIR=$(SRC)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
 		-i=$(SOM_DIR)somkpub$(SEP)include &
 		-i=$(SOM_DIR)somtk$(SEP)include &
 		-i=$(%OS2TK)$(SEP)som$(SEP)include
+
+!ifdef HOSTBLD
 
 !ifeq %OS OS2
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT
@@ -46,6 +54,14 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
+!else
+
+ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT
+ADD_LINKOPT = lib clib3r
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+
+!endif
+
 ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL)  -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 
@@ -53,11 +69,13 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
 #UNI2H = 1
 C = r
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
 #!include $(%ROOT)/mk/libsos2.mk
+!endif
 
+.c: $(SRC)contrib$(SEP)somref$(SEP)src
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)somref$(SEP)src
-
-.h: $(MYDIR)..$(SEP)contrib$(SEP)include
-
+.h: $(SRC)contrib$(SEP)include

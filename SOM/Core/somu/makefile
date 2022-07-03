@@ -8,11 +8,17 @@ $(IDLH)somida.h &
 $(IDLH)somproxy.h &
 $(IDLH)somsid.h &
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
+
 ADD_SCOPT = -D__PRIVATE__ &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somu
+            -I$(SRC)contrib$(SEP)somkpub$(SEP)som &
+            -I$(SRC)contrib$(SEP)somu
 
 !include $(%ROOT)/mk/all.mk
 
-.idl: $(MYDIR)..$(SEP)contrib$(SEP)somu
+.idl: $(SRC)contrib$(SEP)somu
 .h: $(IDLH)

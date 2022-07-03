@@ -20,14 +20,20 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+!else
+SRC = $(MYDIR)..$(SEP)
+!endif
+
 ADD_COPT = -dNDEBUG -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_H &
-           -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somir$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)rhbmtut$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somtk$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somtc$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include &
+           -i=$(defs) -i=$(SRC)contrib$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somir$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somirfmt$(SEP)include &
+           -i=$(SRC)contrib$(SEP)rhbmtut$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somtk$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somtc$(SEP)include &
+           -i=$(SRC)contrib$(SEP)somkpub$(SEP)include &
            -i=$(ROOT)build$(SEP)include
 
 ADD_LINKOPT = lib clbrdll
@@ -40,9 +46,9 @@ SRCDIR = $(PATH)
 
 !include $(%ROOT)/mk/libs.mk
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)src
+.c: $(SRC)contrib$(SEP)somirfmt$(SEP)src
 
-.h: $(MYDIR)..$(SEP)contrib$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somir$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include
+.h: $(SRC)contrib$(SEP)include;$(SRC)contrib$(SEP)somir$(SEP)include;$(SRC)contrib$(SEP)somkpub$(SEP)include
 
 DEST      = $(BLD)$(SEP)lib
 

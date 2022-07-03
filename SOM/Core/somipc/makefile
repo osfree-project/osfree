@@ -17,6 +17,9 @@ srcfiles = $(p)rhbsc$(e) &
 
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
+!ifdef HOSTBLD
+
+SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 OPTS = -DHAVE_CONFIG_HPP
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -43,20 +46,32 @@ defs = $(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -i=$(MYDIR)..$(SEP)contrib$(SEP)somipc$(SEP)include -bc $(OPTS) &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)include
+!else
+
+SRC = $(MYDIR)..$(SEP)
+OPTS = -DHAVE_CONFIG_HPP
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+ADD_LINKOPT = lib clib3r
+
+!endif
+
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC)contrib$(SEP)include -i=$(SRC)contrib$(SEP)somipc$(SEP)include -bc $(OPTS) &
+           -i=$(SRC)contrib$(SEP)somirfmt$(SEP)include
 
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
 
+!ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
+!else
+!include $(%ROOT)/mk/appsos2.mk
+!endif
 
-.cpp: $(MYDIR)..$(SEP)contrib$(SEP)somipc$(SEP)src
+.cpp: $(SRC)contrib$(SEP)somipc$(SEP)src
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)rhbseh2$(SEP)src
+.c: $(SRC)contrib$(SEP)rhbseh2$(SEP)src
 
-.h: $(MYDIR)..$(SEP)contrib$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somipc$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)include
+.h: $(SRC)contrib$(SEP)include;$(SRC)contrib$(SEP)somipc$(SEP)include;$(SRC)contrib$(SEP)somirfmt$(SEP)include
 
 #.$(O): $(PATH)
-
