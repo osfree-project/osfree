@@ -19,7 +19,6 @@ srcfiles = $(p)somkern$(e) &
 !endif
 	 $(p)somshlb$(e)
 
-DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 #INSTALL_ADD = 1
 !if 0
 EXPORTS = somMainProgram, &
@@ -128,6 +127,8 @@ SOM_INCL= -i=$(SOM_DIR)include &
 
 !ifdef HOSTBLD
 
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
+
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
@@ -156,6 +157,8 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 
 !else
+
+DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 SRC = $(MYDIR)..$(SEP)
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2

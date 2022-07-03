@@ -7,13 +7,15 @@ srcfiles = $(p)main$(e) $(p)directive$(e) $(p)eval$(e) $(p)expand$(e) &
            $(p)support$(e) $(p)system$(e) $(p)mbchar$(e)
 
 !ifdef HOSTBLD
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
+
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 !else
+DEST = os2tk45$(SEP)som$(SEP)bin
+
 ADD_COPT = -u__LINUX__ -d__OS2__
 SRC = $(MYDIR)..$(SEP)
 !endif
-
-DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 #Notes:
 # awk lex and yacc files not added to repository

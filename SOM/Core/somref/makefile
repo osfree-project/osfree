@@ -8,7 +8,6 @@ DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
 srcfiles = $(p)somref$(e)
 
-DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 #INSTALL_ADD = 1
 !if 0
 EXPORTS = 
@@ -27,6 +26,7 @@ SOM_INCL= -i=$(SOM_DIR)include &
 		-i=$(%OS2TK)$(SEP)som$(SEP)include
 
 !ifdef HOSTBLD
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 !ifeq %OS OS2
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT
@@ -55,6 +55,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 
 !else
+DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT
 ADD_LINKOPT = lib clib3r
