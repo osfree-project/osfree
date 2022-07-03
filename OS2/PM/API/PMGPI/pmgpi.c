@@ -1,3 +1,4 @@
+#define INCL_DEV
 #include <os2.h>
 #include "unimpl.h"
 
@@ -13,6 +14,8 @@ LONG   APIENTRY GpiTabbedCharStringAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,LONG,PUL
 HRGN   APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect);
 HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, LONG lVRound);
 */
+
+#include "gpi32dev.c"
 
 BOOL   APIENTRY GpiAssociate(HPS hps, HDC hdc)
 {
@@ -1266,45 +1269,6 @@ LONG    APIENTRY GpiDrawBits(HPS hps,PVOID a,PBITMAPINFO2 b,LONG c,PPOINTL d,LON
   return unimplemented(__FUNCTION__);
 }
 
-
-HMF    APIENTRY DevCloseDC(HDC hdc)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-ULONG APIENTRY DevEscape(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY DevQueryCaps(HDC hdc,LONG a,LONG b,PLONG c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-ULONG APIENTRY DevQueryDeviceNames(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-ULONG APIENTRY DevQueryHardcopyCaps(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY DevPostDeviceModes(HAB hab,PDRIVDATA a,PCSZ b,PCSZ c,PCSZ d,ULONG e)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-HDC    APIENTRY DevOpenDC(HAB hab,LONG a,PCSZ b,LONG c,PDEVOPENDATA d,HDC hdc)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiDestroyRegion(HPS hps, HRGN hrgn)
 {
   return unimplemented(__FUNCTION__);
@@ -1803,12 +1767,6 @@ ULONG APIENTRY undoc727(void)
 
 // fix prototype !!!
 ULONG APIENTRY GpiSaveMetaFile2(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-ULONG APIENTRY DEVPOSTESCAPE(void)
 {
   return unimplemented(__FUNCTION__);
 }

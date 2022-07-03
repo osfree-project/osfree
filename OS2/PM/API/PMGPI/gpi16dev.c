@@ -7,7 +7,7 @@ USHORT APIENTRY16 DEVOPENDC(void)
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
 #else
-	return unimplemented(__FUNCTION__);
+#	include "devopendc.c"
 #endif
 }
 
