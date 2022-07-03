@@ -29,6 +29,6 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 $(TARGETS): $(MYDIR)makefile
 
-$(PATH)$(PROJ).lnk: $(OBJS) .symbolic
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .symbolic
 
 !endif

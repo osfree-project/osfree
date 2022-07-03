@@ -55,7 +55,7 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(OBJS)
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
 !ifeq DLL 1
  @%append $^@ NAME $^*.dll

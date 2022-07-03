@@ -15,9 +15,8 @@ srcfiles = $(p)rhbsc$(e) &
 	 $(p)rhbsctc$(e) &
 	 $(p)rhbscapi$(e)
 
-DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
-
 !ifdef HOSTBLD
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
@@ -47,6 +46,7 @@ ADD_LINKOPT = lib clib3r
 !endif
 
 !else
+DEST = os2tk45$(SEP)som$(SEP)bin
 
 SRC = $(MYDIR)..$(SEP)
 OPTS = -DHAVE_CONFIG_HPP

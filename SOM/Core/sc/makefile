@@ -4,9 +4,10 @@ PROJ = sc
 TRGT = $(PROJ).exe
 DESC = SOM Compiler
 srcfiles = $(p)sc$(e)
-DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 !ifdef HOSTBLD
+
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
@@ -36,6 +37,8 @@ ADD_LINKOPT = lib clib3r
 !endif
 
 !else
+
+DEST = os2tk45$(SEP)som$(SEP)bin
 
 SRC = $(MYDIR)..$(SEP)
 OPTS =

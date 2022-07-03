@@ -33,7 +33,7 @@ TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEA
 $(SOMIDL_HEADERS)$(SEP)somnames.h $(SOMIDL_HEADERS)$(SEP)somplatf.h $(SOMIDL_HEADERS)$(SEP)somcdev.h $(SOMIDL_HEADERS)$(SEP)somcorba.h &
 $(SOMIDL_HEADERS)$(SEP)somapi.h
 
-$(PRODUCTS_SC): $(SOM_IDL) 
+$(PRODUCTS_SC): $(SOM_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)som.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)som.h
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
