@@ -15,5 +15,7 @@ $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR)
 # Below not correct yet
 # somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks
 
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+
 !include $(%ROOT)/mk/all.mk
 

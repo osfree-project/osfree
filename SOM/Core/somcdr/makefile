@@ -52,11 +52,13 @@ ADD_LINKOPT = lib clbrdll
 defs = -d_PLATFORM_UNIX_ -d_PLATFORM_X11_ -dHAVE_SIGNAL_H -i=$(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
+OS2TK = $(%OS2TK)
 
 !else
 
 defs = -d_PLATFORM_OS2_ -i=$(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 
 !endif
 
@@ -66,7 +68,7 @@ ADD_COPT = -dNDEBUG $(defs) -i=$(SRC)contrib$(SEP)include -dHAVE_CONFIG_H &
            -i=$(SRC)contrib$(SEP)somcdr$(SEP)include &
            -i=$(SRC)contrib$(SEP)somkpub$(SEP)include &
            -i=$(SRC)contrib$(SEP)rhbmtut$(SEP)include &
-           -i=$(ROOT)build$(SEP)include -i=$(%OS2TK)$(SEP)som$(SEP)include
+           -i=$(ROOT)build$(SEP)include -i=$(OS2TK)$(SEP)som$(SEP)include
 
 #STACKSIZE = 0x20000
 C = r

@@ -2,17 +2,21 @@
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
+SOM_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)..$(SEP)som
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !else
 SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
+SOM_INTDIR=$(BLD)$(RELDIR)..$(SEP)som
 !endif
 
 SOM_DIR=$(SRC)contrib$(SEP)
-SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
 SOMIDL_HEADERS=$(SOMIDL_IDL) #$(SEP)$(%OS)
 
 
 
-SOM_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)..$(SEP)som
 SOMKERNP_KIH=$(SOM_INTDIR)$(SEP)somkernp.kih
 SOM_IDL=$(SOM_DIR)somkpub$(SEP)som$(SEP)somobj.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcls.idl  $(SOM_DIR)somkpub$(SEP)som$(SEP)somcm.idl
 
@@ -34,7 +38,7 @@ pre: .symbolic
 ADD_SCOPT=-p -I$(SOM_DIR)somkpub$(SEP)som -I$(SOMIDL_IDL)
 
 $(SOMKERNP_KIH): $(SOM_DIR)som$(SEP)somkernp.idl
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
+ $(verbose)sc.exe -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
 
 $(SOM_HEADERS): $(SOM_IDL) $(SOM_DIR)somcdr$(SEP)rhbsomuk.idl
 

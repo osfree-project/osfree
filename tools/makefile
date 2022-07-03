@@ -14,6 +14,3 @@ DIRS = sed uniapi ..$(SEP)UNI yacc lex jwasm awk &
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)/mk/all.mk
-
-qwe: .symbolic
- @echo $(PATH)

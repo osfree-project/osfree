@@ -15,15 +15,17 @@ EXPORTS =
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
 !else
 SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
 
 SOM_DIR=$(SRC)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
 		-i=$(SOM_DIR)somkpub$(SEP)include &
 		-i=$(SOM_DIR)somtk$(SEP)include &
-		-i=$(%OS2TK)$(SEP)som$(SEP)include
+		-i=$(OS2TK)$(SEP)som$(SEP)include
 
 !ifdef HOSTBLD
 DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll

@@ -2,12 +2,15 @@
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !else
 SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
 
 SOM_DIR=$(SRC)contrib$(SEP)somkpub$(SEP)som
-SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
 SOMIDL_HEADERS=$(SOMIDL_IDL)   #$(SEP)$(%OS)
 
 SOM_IDL=$(SOM_DIR)$(SEP)somobj.idl $(SOM_DIR)$(SEP)somcls.idl $(SOM_DIR)$(SEP)somcm.idl

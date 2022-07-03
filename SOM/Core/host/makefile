@@ -13,6 +13,8 @@ DIRS = $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR)
 # Below not correct yet
 # somref somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks
 
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+
 !include $(%ROOT)/mk/all.mk
 
 #prepr: .symbolic

@@ -15,7 +15,9 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)somkpath$(e) &
 	 $(p)rhbseh2$(e) &
 !ifeq %OS LINUX
+!ifdef HOSTBLD
 	 $(p)rhbseh$(e) &
+!endif
 !endif
 	 $(p)somshlb$(e)
 
@@ -114,6 +116,14 @@ EXPORTS = somMainProgram, &
 
 !endif
 
+!ifdef HOSTBLD
+SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
+!else
+SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
+!endif
+
 SOM_DIR=$(SRC)contrib$(SEP)
 SOM_INCL= -i=$(SOM_DIR)include &
          -i=$(SOM_DIR)som$(SEP)include &
@@ -121,7 +131,7 @@ SOM_INCL= -i=$(SOM_DIR)include &
 		 -i=$(SOM_DIR)somcdr$(SEP)include &
 		 -i=$(SOM_DIR)rhbmtut$(SEP)include &
 		 -i=$(SOM_DIR)somcdr$(SEP)src 	&
-		 -i=$(%OS2TK)$(SEP)som$(SEP)include &
+		 -i=$(OS2TK)$(SEP)som$(SEP)include &
 		 -i=$(SOM_DIR)somkpub$(SEP)include &
 		 -i=$(SOM_DIR)somtk$(SEP)include
 
@@ -129,7 +139,6 @@ SOM_INCL= -i=$(SOM_DIR)include &
 
 DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
-SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
 ADD_LINKOPT = lib clib3r
@@ -156,19 +165,22 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
+ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+           $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
+
 !else
 
 DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
-SRC = $(MYDIR)..$(SEP)
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
 ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 
+ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+           $(SOM_INCL) -DBUILD_SOM -i=$(BLD)$(RELDIR) $(ADD_OPTS)
+
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
-           $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
@@ -186,8 +198,8 @@ C = r
 .h: $(SRC)contrib$(SEP)include
 
 #install_add: .SYMBOLIC $(PATH)som.dll
-# @$(MDHIER) $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll
-# $(verbose)$(CP) $(PATH)som.dll $(%OS2TK)$(SEP)som$(SEP)common$(SEP)dll $(BLACKHOLE)
+# @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)common$(SEP)dll
+# $(verbose)$(CP) $(PATH)som.dll $(OS2TK)$(SEP)som$(SEP)common$(SEP)dll $(BLACKHOLE)
 
 #.$(O): $(PATH)
 

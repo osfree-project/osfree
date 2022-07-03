@@ -2,12 +2,15 @@
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !else
 SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
 
 SOM_DIR=$(SRC)contrib$(SEP)
-SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
 SOMIDL_HEADERS=$(SOMIDL_IDL) #$(SEP)$(%OS)
 
 SOM_IDL=		$(SOM_DIR)somir$(SEP)containd.idl		&
@@ -262,11 +265,11 @@ $(PRODUCTS_PDL): $(SOM_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)somdtype.h: $(SOMIDL_IDL)$(SEP)somdtype.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT) -DEMIT_SOMDTYPES
+ $(verbose)sc.exe -sh $< -o $^: $(ADD_SCOPT) -DEMIT_SOMDTYPES
 
 $(SOMIDL_HEADERS)$(SEP)somdtype.xh: $(SOMIDL_IDL)$(SEP)somdtype.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)  -DEMIT_SOMDTYPES
+ $(verbose)sc.exe -sxh $< -o $^: $(ADD_SCOPT)  -DEMIT_SOMDTYPES
 
 .idl: $(SOM_DIR)somkpub$(SEP)som;$(SOM_DIR)somir;$(SOM_DIR)somd;$(SOM_DIR)somestrm;$(SOM_DIR)somabs1;$(SOM_DIR)somnmf;$(SOM_DIR)somdcomm;$(SOM_DIR)somos;$(SOM_DIR)somu;$(SOM_DIR)somu2;$(SOM_DIR)somcslib;$(SOM_DIR)soms;$(SOM_DIR)somem;$(SOM_DIR)somst
 .h: $(SOMIDL_HEADERS)

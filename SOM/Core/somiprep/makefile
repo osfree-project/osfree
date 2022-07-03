@@ -2,12 +2,14 @@
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
+OS2TK = $(%OS2TK)
 !else
 SRC = $(MYDIR)..$(SEP)
+OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
 
 SOM_DIR=$(SRC)contrib$(SEP)
-SOMIDL_IDL=$(%OS2TK)$(SEP)som$(SEP)include
+SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
 SOMIDL_HEADERS=$(SOMIDL_IDL)
 
 SOMTC_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)..$(SEP)somtc
@@ -76,17 +78,17 @@ SOMTCDAT_TC=$(SOMTC_INTDIR)$(SEP)somtcdat.tc
 
 $(SOMTCDAT_TC): $(SOM_DIR)somtc$(SEP)somtcdat.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -stc $< -o $^: -p -D __GENERATE_SOMTC__ -I$(SOMIDL_IDL)
+ $(verbose)sc.exe -stc $< -o $^: -p -D __GENERATE_SOMTC__ -I$(SOMIDL_IDL)
 
 #$(SOMREF_H): $(SOMREF_PDL)
 
 $(SOMREF_INTDIR)$(SEP)somref.ih: $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: -p -I$(SOMIDL_IDL)
+ $(verbose)sc.exe -sih $< -o $^: -p -I$(SOMIDL_IDL)
 
 $(SOMREF_INTDIR)$(SEP)somref.h: $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -p  -I$(SOMIDL_IDL)
+ $(verbose)sc.exe -sh $< -o $^: -p  -I$(SOMIDL_IDL)
 
 $(SOMREF_PDL): $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) PDL      $^. $(LOG)
@@ -94,11 +96,11 @@ $(SOMREF_PDL): $(SOM_DIR)somref$(SEP)somref.idl
 
 $(SOMIDL_HEADERS)$(SEP)somref.h: $(SOMIDL_IDL)$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -I$(SOMIDL_IDL)
+ $(verbose)sc.exe -sh $< -o $^: -I$(SOMIDL_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)somref.xh: $(SOMIDL_IDL)$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: -I$(SOMIDL_IDL)
+ $(verbose)sc.exe -sxh $< -o $^: -I$(SOMIDL_IDL)
 
 #ADD_SCOPT=-p -I$(SOM_DIR)somir -I$(SOMIDL_IDL)
 
