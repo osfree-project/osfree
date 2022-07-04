@@ -38,7 +38,7 @@ pre: .symbolic
 ADD_SCOPT=-p -I$(SOM_DIR)somkpub$(SEP)som -I$(SOMIDL_IDL)
 
 $(SOMKERNP_KIH): $(SOM_DIR)som$(SEP)somkernp.idl
- $(verbose)sc.exe -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
 
 $(SOM_HEADERS): $(SOM_IDL) $(SOM_DIR)somcdr$(SEP)rhbsomuk.idl
 

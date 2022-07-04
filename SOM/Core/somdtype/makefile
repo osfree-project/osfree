@@ -265,11 +265,11 @@ $(PRODUCTS_PDL): $(SOM_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)somdtype.h: $(SOMIDL_IDL)$(SEP)somdtype.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)sc.exe -sh $< -o $^: $(ADD_SCOPT) -DEMIT_SOMDTYPES
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT) -DEMIT_SOMDTYPES
 
 $(SOMIDL_HEADERS)$(SEP)somdtype.xh: $(SOMIDL_IDL)$(SEP)somdtype.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)sc.exe -sxh $< -o $^: $(ADD_SCOPT)  -DEMIT_SOMDTYPES
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)  -DEMIT_SOMDTYPES
 
 .idl: $(SOM_DIR)somkpub$(SEP)som;$(SOM_DIR)somir;$(SOM_DIR)somd;$(SOM_DIR)somestrm;$(SOM_DIR)somabs1;$(SOM_DIR)somnmf;$(SOM_DIR)somdcomm;$(SOM_DIR)somos;$(SOM_DIR)somu;$(SOM_DIR)somu2;$(SOM_DIR)somcslib;$(SOM_DIR)soms;$(SOM_DIR)somem;$(SOM_DIR)somst
 .h: $(SOMIDL_HEADERS)
