@@ -60,6 +60,9 @@
 #	include <unistd.h>
 #	include <stdio.h>
 #	include <stdlib.h>
+#	ifdef __WATCOMC__
+#	include <setjmp.h>
+#	endif
 #   include <signal.h>
 #   if !defined(HAVE_RAISE) && !defined(raise)
 #       define raise(s)     kill(getpid(),(s))

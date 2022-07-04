@@ -80,7 +80,7 @@ typedef struct SOMClassMgrData *SOMClassMgrDataPtr;
 #		endif
 			;
 #       elif defined(__OS2__)
-		static HMTX som_global_mutex;
+		static struct rhbmutex_t som_global_mutex;
 #	else
 		static CRITICAL_SECTION som_global_mutex;
 #	endif
@@ -841,6 +841,13 @@ static som_thread_globals_t *SOMKERN_get_thread_globals(char make)
 			pthread_setspecific(som_globals.tls_key,ev);
 #endif
 		}
+	#elif defined(__OS2__)
+			ev=(som_thread_globals_t *)*(void **)som_globals.tls_key;
+			if (!ev && make)
+			{
+				ev=make_globals();
+				*(som_thread_globals_t **)som_globals.tls_key = ev;
+			}
 	#else
 			ev=(som_thread_globals_t *)TlsGetValue(som_globals.tls_key);
 			if (!ev && make)
@@ -1831,6 +1838,8 @@ static void SOMKERN_UnbootStrap(void)
 		SOMKERN_end_thread(ev);
 	#ifdef USE_PTHREADS
 		pthread_setspecific(som_globals.tls_key,NULL);
+	#elif defined(__OS2__)
+		*(void **)som_globals.tls_key = 0;
 	#else
 		TlsSetValue(som_globals.tls_key,NULL);
 	#endif
@@ -1936,7 +1945,7 @@ SOMEXTERN void SOMLINK somStartCriticalSection(void)
 #	ifdef USE_RHBMUTEX_LOCK
 		RHBMUTEX_LOCK(&som_global_mutex);
 #       elif defined(__OS2__)
-                DosRequestMutexSem(som_global_mutex, -1);
+                DosRequestMutexSem(&som_global_mutex, -1);
 #	else
 		EnterCriticalSection(&som_global_mutex);
 #	endif
@@ -2026,7 +2035,7 @@ SOMEXTERN void SOMLINK somEndCriticalSection(void)
 #	ifdef USE_RHBMUTEX_LOCK
 		RHBMUTEX_UNLOCK(&som_global_mutex);
 #       elif defined(__OS2__)
-                DosReleaseMutexSem(som_global_mutex);
+                DosReleaseMutexSem(&som_global_mutex);
 #	else
 		LeaveCriticalSection(&som_global_mutex);
 #	endif
@@ -2836,6 +2845,8 @@ SOMEXTERN void SOMLINK somFreeThreadData(void)
 #ifdef USE_THREADS
 	#ifdef USE_PTHREADS
 		pthread_setspecific(som_globals.tls_key,NULL);
+	#elif defined(__OS2__)
+		*(void **)som_globals.tls_key = 0;
 	#else
 		TlsSetValue(som_globals.tls_key,NULL);
 	#endif
@@ -2887,11 +2898,35 @@ __declspec(dllexport) BOOL CALLBACK DllMain(HMODULE hInst,DWORD reason,LPVOID ex
 #endif
 		return 1;
 	}
-    
+
 	SOM_IgnoreWarning(hInst);
 	SOM_IgnoreWarning(extra);
 
    	return 1;
+}
+#endif
+
+#ifdef __OS2__
+APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
+void SOM_dll_init(void);
+void SOM_dll_term(void);
+
+APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
+{
+  APIRET rc;
+
+  // call C startup first
+  rc = __DLLstart_(hmod, flag);
+
+  if (!rc)
+    return 0;
+
+  if (flag)
+    SOM_dll_term();
+  else
+    SOM_dll_init();
+
+  return 1;
 }
 #endif
 
@@ -2940,6 +2975,12 @@ static void SOM_dll_init(void)
 			RHBMUTEX_INIT(&som_global_mutex);
 			RHBCDR_kds_init(&SOMClassMgrObjectData.SOMClassMgr_data.classList);
 		#endif
+	#elif defined(__OS2__)
+			if (! som_globals.tls_key)
+			{
+				DosAllocThreadLocalMemory(1, (void **)&som_globals.tls_key);
+				RHBMUTEX_INIT(&som_global_mutex);
+			}
 	#else
 			som_globals.tls_key=TlsAlloc();
 			InitializeCriticalSection(&som_global_mutex);
@@ -2962,6 +3003,11 @@ static void SOM_dll_term(void)
 		#ifdef HAVE_PTHREAD_KEY_DELETE
 			pthread_key_delete(som_globals.tls_key);
 		#endif
+	#elif defined(__OS2__)
+			if (som_globals.tls_key)
+			{
+				DosFreeThreadLocalMemory(som_globals.tls_key);
+			}
 	#else
 			DeleteCriticalSection(&som_global_mutex);
 			TlsFree(som_globals.tls_key);

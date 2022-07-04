@@ -9,7 +9,7 @@ SOM_KERNEL = somkpub somdtype somkprep som
 SOM_IR = #somiprep somref
 
 DIRS = &
-host   &
+#host   &
 $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR)
 
 # Below not correct yet

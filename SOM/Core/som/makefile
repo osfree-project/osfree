@@ -5,7 +5,6 @@ TRGT = $(PROJ).dll
 DLL = 1
 DESC = SOM Kernel
 DLLOPT  = initinstance terminstance
-OPTIONS = manyautodata
 srcfiles = $(p)somkern$(e) &
 	 $(p)rhbsomid$(e) &
 	 $(p)somalloc$(e) &
@@ -140,7 +139,7 @@ SOM_INCL= -i=$(SOM_DIR)include &
 DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 !ifeq %OS OS2
-ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
+ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2 -DSOMKERN_DLL_TERM
 ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
@@ -164,6 +163,7 @@ ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_UNIX_ -D_PLATFORM_X11_ -DSTRI
 ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)lh
 !endif
+OPTIONS = manyautodata
 
 ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
@@ -172,11 +172,12 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
 
 DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
-ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2
+ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2 -DSOMKERN_DLL_TERM
 ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
+OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+ADD_COPT = -u__LINUX__ -d__OS2__ -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)$(RELDIR) $(ADD_OPTS)
 
 !endif

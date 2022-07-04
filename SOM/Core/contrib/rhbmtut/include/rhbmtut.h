@@ -89,13 +89,13 @@ struct rhbmutex_t
 
 									pthread_mutex_destroy(&((x)->guardian.mutex)); }
 #elif defined(__OS2__)
-#	define RHBMUTEX_GETSELF			ULONG rhbmutex_self; PTIB ptib; PPIB ppib; DosGetInfoBlock(&ptib, &ppib); rhbmutex_self = ptib->tib_ordinal;
+#	define RHBMUTEX_GETSELF			ULONG rhbmutex_self; PTIB ptib; PPIB ppib; DosGetInfoBlocks(&ptib, &ppib); rhbmutex_self = ptib->tib_ordinal;
 #	define RHBMUTEX_ISSELF(x)		(rhbmutex_self==(x)->tid)
 #	define RHBMUTEX_ACQUIRE(x)		DosRequestMutexSem(&((x)->mutex_crit), -1);
 #	define RHBMUTEX_RELEASE(x)		DosReleaseMutexSem(&((x)->mutex_crit));
 #	define RHBMUTEX_GUARD(x)		DosRequestMutexSem(&((x)->guardian_crit), -1);
 #	define RHBMUTEX_UNGUARD(x)		DosReleaseMutexSem(&((x)->guardian_crit));
-#	define RHBMUTEX_INIT(x)			{ PTIB ptib; PPIB ppib; DosGetInfoBlock(&ptib, &ppib); \
+#	define RHBMUTEX_INIT(x)			{ PTIB ptib; PPIB ppib; DosGetInfoBlocks(&ptib, &ppib); \
                                                   (x)->count=0; (x)->tid = ptib->tib_ordinal; \
 										DosCreateMutexSem(NULL, &((x)->mutex_crit), 0, 0); \
 										DosCreateMutexSem(NULL, &((x)->guardian_crit), 0, 0); }
