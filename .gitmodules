@@ -13,9 +13,6 @@
 [submodule "DOS"]
 	path = DOS
 	url = https://github.com/osfree-project/DOS
-[submodule "OS2/SOM/Frameworks/Emitter/some"]
-	path = SOM/Frameworks/Emitter/some
-	url = https://github.com/osfree-project/some.git
 [submodule "bootseq"]
 	path = bootseq
 	url = https://github.com/osfree-project/FreeLdr.git

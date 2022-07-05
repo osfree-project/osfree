@@ -1,0 +1,20 @@
+:prologS
+;
+;  SOM Compiler Watcom Linker Emitter (C) Yuri Prokushev
+;                                     (C) Andrey Vasilkin
+;
+name      <lnkDLLName>
+format    os2 lx dll INITINSTANCE TERMINSTANCE
+option    manyautodata
+option    caseexact
+lib       somtk.lib
+?lib      <lnkLibs>
+option    map=<classSourceFileStem>.wmp
+option    eliminate
+option    showdead
+?<lnkInclude>
+?file      <lnkObjects>
+:classS
+export    <className>ClassData
+export    <className>CClassData
+export    <className>NewClass
