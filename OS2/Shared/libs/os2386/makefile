@@ -11,7 +11,13 @@ lbcs =  bdcalls.lbc doscalls.lbc helpmgr.lbc sub32.lbc  &
         pmspl.lbc pmshapi.lbc pmviop.lbc pmwin.lbc pmwp.lbc quecalls.lbc sesmgr.lbc
 UNI2H = 1
 
+!ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)lib
+SRC  = $(MYDIR)
+!else
+DEST = os2tk45$(SEP)lib
+SRC  = $(MYDIR)..$(SEP)..$(SEP)os2386$(SEP)
+!endif
 
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 
@@ -31,7 +37,11 @@ LOPT = -q -n
 
 .def: $(MYDIR)
 
+.def: $(SRC)
+
 .asm: $(MYDIR)
+
+.asm: $(SRC)
 
 .asm.obj: .AUTODEPEND
  @$(SAY) ASM      $^. $(LOG)
@@ -46,7 +56,7 @@ $(PATH)os2386.lbc: $(lbcs)
 !endif
 
 .def.lbc:
-        @sed -f $(MYDIR)def2lbc.sed $(MYDIR)$[@ >$(PATH)$^@
+        @sed -f $(SRC)def2lbc.sed $[@ >$(PATH)$^@
 
 $(PATH)$(PROJ).lib: $(PATH)os2386.lbc $(PATH)msgseg32.obj
         @$(LIB) $(LOPT) $@ @$[@ +$]@ $(LOG2)
