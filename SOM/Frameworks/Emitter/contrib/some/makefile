@@ -31,18 +31,21 @@ srcfiles = $(p)emitlib$(e) &
 		$(p)scparm$(e) &
 		$(p)scusrtyp$(e)
 
+
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
 !ifdef HOSTBLD
 SRC = $(MYDIR)
 OS2TK = $(%OS2TK)
+SOM_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)
 !else
-SRC = $(MYDIR)..$(SEP)
+SRC = $(MYDIR)
 OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
+SOM_INTDIR=$(BLD)$(RELDIR)
 !endif
 
 SOM_DIR=$(SRC)
-SOM_INCL= -i=$(SOM_DIR) &
+SOM_INCL= -i=$(SOM_INTDIR) &
           -i=$(SOM_DIR)$(SEP)..$(SEP)somipc &
 		  -i=$(OS2TK)$(SEP)som$(SEP)include
 
@@ -97,7 +100,7 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 UNI2H = 1
 C = r
 
-ADD_SCOPT = -I$(SOM_DIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
+ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 !ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
@@ -109,55 +112,55 @@ ADD_SCOPT = -I$(SOM_DIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 .c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
 .idl: $(SRC)..$(SEP)idl
-.xih: $(SRC)
+.xih: $(SOM_INTDIR)
 #.xh: $(SRC)
 
-PRIVATE_HEADERS=$(SRC)$(SEP)scentry.xh &
-			$(SRC)$(SEP)scentry.xih &
-			$(SRC)$(SEP)scmeta.xh &
-			$(SRC)$(SEP)scmeta.xih &
-			$(SRC)$(SEP)sctdef.xh &
-			$(SRC)$(SEP)sctdef.xih &
-			$(SRC)$(SEP)scstruct.xh &
-			$(SRC)$(SEP)scstruct.xih &
-			$(SRC)$(SEP)scenum.xh &
-			$(SRC)$(SEP)scenum.xih &
-			$(SRC)$(SEP)scunion.xh &
-			$(SRC)$(SEP)scunion.xih &
-			$(SRC)$(SEP)scenumnm.xh &
-			$(SRC)$(SEP)scenumnm.xih &
-			$(SRC)$(SEP)scclass.xh &
-			$(SRC)$(SEP)scclass.xih &
-			$(SRC)$(SEP)scconst.xh &
-			$(SRC)$(SEP)scconst.xih &
-			$(SRC)$(SEP)scbase.xh &
-			$(SRC)$(SEP)scbase.xih &
-			$(SRC)$(SEP)scattrib.xh &
-			$(SRC)$(SEP)scattrib.xih &
-			$(SRC)$(SEP)sccommon.xh &
-			$(SRC)$(SEP)sccommon.xih &
-			$(SRC)$(SEP)scpass.xh &
-			$(SRC)$(SEP)scpass.xih &
-			$(SRC)$(SEP)scdata.xh &
-			$(SRC)$(SEP)scdata.xih &
-			$(SRC)$(SEP)scmodule.xh &
-			$(SRC)$(SEP)scmodule.xih &
-			$(SRC)$(SEP)scemit.xh &
-			$(SRC)$(SEP)scemit.xih &
-			$(SRC)$(SEP)somstrt.xh &
-			$(SRC)$(SEP)somstrt.xih &
-			$(SRC)$(SEP)sctmplt.xh &
-			$(SRC)$(SEP)sctmplt.xih &
-			$(SRC)$(SEP)scmethod.xh &
-			$(SRC)$(SEP)scmethod.xih &
-			$(SRC)$(SEP)scstring.xh &
-			$(SRC)$(SEP)scstring.xih &
-			$(SRC)$(SEP)scseqnce.xh &
-			$(SRC)$(SEP)scseqnce.xih &
-			$(SRC)$(SEP)scparm.xh &
-			$(SRC)$(SEP)scparm.xih &
-			$(SRC)$(SEP)scusrtyp.xh &
-			$(SRC)$(SEP)scusrtyp.xih
+PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
+			$(SOM_INTDIR)$(SEP)scentry.xih &
+			$(SOM_INTDIR)$(SEP)scmeta.xh &
+			$(SOM_INTDIR)$(SEP)scmeta.xih &
+			$(SOM_INTDIR)$(SEP)sctdef.xh &
+			$(SOM_INTDIR)$(SEP)sctdef.xih &
+			$(SOM_INTDIR)$(SEP)scstruct.xh &
+			$(SOM_INTDIR)$(SEP)scstruct.xih &
+			$(SOM_INTDIR)$(SEP)scenum.xh &
+			$(SOM_INTDIR)$(SEP)scenum.xih &
+			$(SOM_INTDIR)$(SEP)scunion.xh &
+			$(SOM_INTDIR)$(SEP)scunion.xih &
+			$(SOM_INTDIR)$(SEP)scenumnm.xh &
+			$(SOM_INTDIR)$(SEP)scenumnm.xih &
+			$(SOM_INTDIR)$(SEP)scclass.xh &
+			$(SOM_INTDIR)$(SEP)scclass.xih &
+			$(SOM_INTDIR)$(SEP)scconst.xh &
+			$(SOM_INTDIR)$(SEP)scconst.xih &
+			$(SOM_INTDIR)$(SEP)scbase.xh &
+			$(SOM_INTDIR)$(SEP)scbase.xih &
+			$(SOM_INTDIR)$(SEP)scattrib.xh &
+			$(SOM_INTDIR)$(SEP)scattrib.xih &
+			$(SOM_INTDIR)$(SEP)sccommon.xh &
+			$(SOM_INTDIR)$(SEP)sccommon.xih &
+			$(SOM_INTDIR)$(SEP)scpass.xh &
+			$(SOM_INTDIR)$(SEP)scpass.xih &
+			$(SOM_INTDIR)$(SEP)scdata.xh &
+			$(SOM_INTDIR)$(SEP)scdata.xih &
+			$(SOM_INTDIR)$(SEP)scmodule.xh &
+			$(SOM_INTDIR)$(SEP)scmodule.xih &
+			$(SOM_INTDIR)$(SEP)scemit.xh &
+			$(SOM_INTDIR)$(SEP)scemit.xih &
+			$(SOM_INTDIR)$(SEP)somstrt.xh &
+			$(SOM_INTDIR)$(SEP)somstrt.xih &
+			$(SOM_INTDIR)$(SEP)sctmplt.xh &
+			$(SOM_INTDIR)$(SEP)sctmplt.xih &
+			$(SOM_INTDIR)$(SEP)scmethod.xh &
+			$(SOM_INTDIR)$(SEP)scmethod.xih &
+			$(SOM_INTDIR)$(SEP)scstring.xh &
+			$(SOM_INTDIR)$(SEP)scstring.xih &
+			$(SOM_INTDIR)$(SEP)scseqnce.xh &
+			$(SOM_INTDIR)$(SEP)scseqnce.xih &
+			$(SOM_INTDIR)$(SEP)scparm.xh &
+			$(SOM_INTDIR)$(SEP)scparm.xih &
+			$(SOM_INTDIR)$(SEP)scusrtyp.xh &
+			$(SOM_INTDIR)$(SEP)scusrtyp.xih
 
 $(OBJS): $(PRIVATE_HEADERS)
 #  echo $(ADD_CPPOPT)
