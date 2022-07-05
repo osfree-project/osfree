@@ -4,9 +4,8 @@
 # valerius, 2006/10/30
 #
 
-DIRS = libmmap os2386 GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff &
-  libvorbis lpng PDCurses zlib xwphelpers acpitk lvmtk &
-  target
+PLATFORM =
+DIRS = os2386
 
 !include $(%ROOT)/mk/all.mk
 

@@ -9,6 +9,14 @@
 PROJ = mkmsgf
 TRGT = $(PROJ).exe
 DESC = Make message file tool
-DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 
+!ifndef TARGETBLD
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 !include $(%ROOT)/mk/toolspas.mk
+!else
+DEST = os2tk45$(SEP)bin
+SRC = $(MYDIR)..$(SEP)..$(SEP)mkmsgf$(SEP)
+!include $(%ROOT)/mk/appsos2pas.mk
+!endif
+
+.pas: $(SRC)

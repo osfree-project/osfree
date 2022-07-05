@@ -14,7 +14,13 @@ ADD_LINKOPT = lib sub32.lib
 UNI2H = 1
 C = r
 
+!ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)lib
+!else
+DEST = os2tk45$(SEP)lib
+SRC  = $(MYDIR)..$(SEP)..$(SEP)..$(SEP)..$(SEP)os2386$(SEP)libc$(SEP)r$(SEP)
+ADD_COPT += -i=$(SRC)..
+!endif
 
 !include $(%ROOT)/mk/libsos2.mk
 
@@ -23,7 +29,11 @@ DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)lib
 
 .c: $(MYDIR)..
 
+.c: $(SRC)..
+
 .h: $(MYDIR)..
+
+.h: $(SRC)..
 
 .obj: $(PATH)
 
