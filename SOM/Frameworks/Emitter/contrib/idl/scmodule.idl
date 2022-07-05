@@ -76,9 +76,7 @@ interface SOMTModuleEntryC : SOMTEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = scmodule;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     //# Method Modifiers

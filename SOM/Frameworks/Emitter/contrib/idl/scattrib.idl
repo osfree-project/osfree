@@ -69,9 +69,7 @@ SOMTMethodEntryC somtGetNextSetMethod();
 
     //# Class Modifiers
     filestem = scattrib;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
     majorversion = 2;
     minorversion = 1;

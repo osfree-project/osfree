@@ -112,9 +112,7 @@ interface SOMTCommonEntryC : SOMTEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = sccommon;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
 
     passthru C_h = "typedef enum somtVisibilityT { somtInternalVE, somtPublicVE, somtPrivateVE } somtVisibilityT;";

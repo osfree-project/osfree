@@ -36,9 +36,7 @@ interface SOMTStringEntryC : SOMTEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = scstring;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     //# Method Modifiers

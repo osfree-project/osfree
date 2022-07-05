@@ -68,9 +68,7 @@ interface SOMTConstEntryC : SOMTEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = scconst;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     //# Method Modifiers

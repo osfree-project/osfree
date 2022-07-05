@@ -274,9 +274,7 @@ interface SOMTClassEntryC : SOMTEntryC
 
     //# Class Modifiers
     filestem = scclass;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
     majorversion = 2;
     minorversion = 1;

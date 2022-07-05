@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, 2017, 2018, Yuri Prokushev
+ *  Copyright 2022, Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -19,40 +19,9 @@
  *
  */
 
+#ifndef sctypes_xh
+#define sctypes_xh
 
-#ifndef scenum_idl
-#define scenum_idl
+#include <sctypes.h>
 
-#include <scentry.idl>
-
-interface SOMTEnumNameEntryC;
-
-interface SOMTEnumEntryC : SOMTEntryC
-{
-SOMTEnumNameEntryC somtGetFirstEnumName();
-SOMTEnumNameEntryC somtGetNextEnumName();
-
-#ifdef __SOMIDL__
-  implementation {
-    releaseorder: somtGetFirstEnumName, somtGetNextEnumName;
-  
-
-    //# Class Modifiers
-    majorversion = 2;
-    minorversion = 1;
-    filestem = scenum;
-    dllname = "some.dll";
-    callstyle = oidl;
-  
-    //# Method Modifiers
-    //somDumpSelfInt: override;
-    //somtSetSymbolsOnEntry: override;
-  
-    //# Attribute Modifiers
-    somtEnumNames: nodata;
-  };
-#endif /* __SOMIDL__ */
-};
-
-
-#endif  /* scenum*/
+#endif /* sctypes_xh */

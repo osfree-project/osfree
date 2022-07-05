@@ -60,9 +60,7 @@ interface SOMTUnionEntryC : SOMTEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = scunion;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     //# Method Modifiers

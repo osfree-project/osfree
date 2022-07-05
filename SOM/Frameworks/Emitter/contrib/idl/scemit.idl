@@ -421,9 +421,7 @@ interface SOMTEmitC : SOMObject
     majorversion = 2;
     minorversion = 1;
     filestem = scemit;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl; 
   
     passthru C_h_after = "#include <sctypes.h>"

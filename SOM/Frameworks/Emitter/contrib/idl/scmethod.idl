@@ -160,9 +160,7 @@ interface SOMTMethodEntryC : SOMTCommonEntryC
     majorversion = 2;
     minorversion = 1;
     filestem = scmethod;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl; 
   
     //# Internal Instance Variables

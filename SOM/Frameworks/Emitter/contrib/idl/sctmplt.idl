@@ -191,9 +191,7 @@ interface SOMTTemplateOutputC : SOMObject
     majorversion = 2;
     minorversion = 1;
     filestem = sctmplt;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     passthru C_h =        "#include <stdio.h>"

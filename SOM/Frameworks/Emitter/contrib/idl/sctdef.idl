@@ -50,9 +50,7 @@ SOMTCommonEntryC somtGetNextDeclarator();
     majorversion = 2;
     minorversion = 2; // 1->2 when override _get_somtTypeCode
     filestem = sctdef;
-#ifdef _WIN32
     dllname = "some.dll";
-#endif
     callstyle = oidl;
   
     //# Method Modifiers
