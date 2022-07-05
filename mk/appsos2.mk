@@ -43,7 +43,7 @@ ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
 
 # use Watcom headers
 
-ADD_COPT    +=         -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_COPT    +=         -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !endif
 
