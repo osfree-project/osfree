@@ -190,7 +190,6 @@ C = r
 !include $(%ROOT)/mk/tools.mk
 !else
 !include $(%ROOT)/mk/appsos2.mk
-#!include $(%ROOT)/mk/libsos2.mk
 !endif
 
 
@@ -198,54 +197,3 @@ C = r
 
 .h: $(SRC)contrib$(SEP)include
 
-#install_add: .SYMBOLIC $(PATH)som.dll
-# @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)common$(SEP)dll
-# $(verbose)$(CP) $(PATH)som.dll $(OS2TK)$(SEP)som$(SEP)common$(SEP)dll $(BLACKHOLE)
-
-#.$(O): $(PATH)
-
-#----------------------------------
-
-
-#CC_OPT=$(STDOPT) $(SOM_INCL) 
-
-
-
-#$(TARGET): $(OBJS)
-#	$(LINKDLL) $(LINKDLL_HEAD) \
-#		-o $@\
-#		$(OBJS) \
-#		`$(SHLB_EXP) som som` \
-#		`$(SHLB_ENT) somEnvironmentNew` \
-#		`$(ARLB_REF) rhbmtuta rhbmtuta` \
-#		`$(SHLB_MAP) som som` \
-#		$(STDLIB) \
-#		$(LINKDLL_TAIL)
-
-#$(INTDIR)/rhbsomid.o: ../../somid/src/rhbsomid.c 
-#	$(CC_DLL) $(CC_OPT) -c ../../somid/src/rhbsomid.c -o $@
-
-#$(INTDIR)/somalloc.o: ../src/somalloc.c 
-#	$(CC_DLL) $(CC_OPT) -c ../src/somalloc.c -o $@ 
-
-#$(INTDIR)/sommutex.o: ../src/sommutex.c 
-#	$(CC_DLL) $(CC_OPT) -c ../src/sommutex.c -o $@ 
-
-#$(INTDIR)/somapi.o: ../src/somapi.c 
-#	$(CC_DLL) $(CC_OPT) -c ../src/somapi.c -o $@ 
-
-#$(INTDIR)/somkpath.o: ../src/somkpath.c 
-#	$(CC_DLL) $(CC_OPT) -c ../src/somkpath.c -o $@ 
-
-#$(INTDIR)/somobjva.o: ../src/somobjva.c 
-#	$(CC_DLL) $(CC_OPT) -c ../src/somobjva.c -o $@ 
-
-#$(INTDIR)/somshlb.o: ../src/somshlb.c ../../shlbtest/$(PLATFORM)/$(BUILDTYPE)/shlbtest.h
-#	$(CC_DLL) $(CC_OPT) -I../../shlbtest/$(PLATFORM)/$(BUILDTYPE) -c ../src/somshlb.c -o $@ 
-
-#$(INTDIR)/somkern.o: ../src/somkern.c $(INTDIR)/somkernp.kih $(INTDIR)/somirdll.h ../src/somobj.c ../src/somcls.c ../src/somcm.c
-#	$(CC_DLL) $(CC_OPT) -c ../src/somkern.c -o $@ 
-
-#$(INTDIR)/somirdll.h: ../unix/som.mak 
-#	$(SHLB_DLO) -s somir >$@
-#	cat $@
