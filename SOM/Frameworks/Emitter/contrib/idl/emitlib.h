@@ -1,21 +1,22 @@
-/*
- *   COMPONENT_NAME: somc
+/**************************************************************************
  *
- *   ORIGINS: 27
+ *  Copyright 2022, Yuri Prokushev
  *
+ *  This file is part of osFree project
  *
- *   10H9767, 10H9769  (C) COPYRIGHT International Business Machines Corp. 1992,1994
- *   All Rights Reserved
- *   Licensed Materials - Property of IBM
- *   US Government Users Restricted Rights - Use, duplication or
- *   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
- */
-/* @(#) somc/emitlib.pub 2.7 6/7/96 14:29:25 [12/22/96 21:11:33] */
-
-
-/*
- *         File:    emitlib.h.
- *     Contents:    General routines used by Emitter Framework.
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
  */
 
 #ifndef emitlib_h

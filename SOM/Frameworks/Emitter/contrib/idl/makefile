@@ -109,7 +109,6 @@ TARGETS=$(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMI
 
 $(PRODUCTS_SC): $(SOM_IDL)
 
-
 $(PRODUCTS_PDL): $(SOM_IDL)
  @$(SAY) PDL      $^. $(LOG)
  @$(MDHIER) $(SOMIDL_IDL)
@@ -134,5 +133,3 @@ $(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
 
 .idl: $(SOM_DIR)
 
-#.h: $(SOMIDL_HEADERS)
-#.xh: $(SOMIDL_HEADERS)

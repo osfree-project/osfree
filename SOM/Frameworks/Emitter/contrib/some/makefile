@@ -51,7 +51,7 @@ SOM_INCL= -i=$(SOM_INTDIR) &
 
 !ifdef HOSTBLD
 
-DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)lib
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 !ifeq %OS OS2
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT 
@@ -60,11 +60,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll, somtk
+ADD_LINKOPT = lib clbrdll
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll, somtk
+ADD_LINKOPT = lib clbrdll
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -100,13 +100,20 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 UNI2H = 1
 C = r
 
-ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -p
+ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 !ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
 !else
 !include $(%ROOT)/mk/appsos2.mk
 !endif
+
+
+
+.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
+.idl: $(SRC)..$(SEP)idl
+.xih: $(SOM_INTDIR)
+#.xh: $(SRC)
 
 PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
 			$(SOM_INTDIR)$(SEP)scentry.xih &
@@ -156,3 +163,4 @@ PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
 			$(SOM_INTDIR)$(SEP)scusrtyp.xih
 
 $(OBJS): $(PRIVATE_HEADERS)
+#  echo $(ADD_CPPOPT)
