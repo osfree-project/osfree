@@ -1,0 +1,132 @@
+/**************************************************************************
+ *
+ *  Copyright 2015, Yuri Prokushev
+ *
+ *  This file is part of osFree project
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+
+#ifndef somstrt_idl
+#define somstrt_idl
+
+#include <somobj.idl>
+
+typedef struct entryT {
+    string key;
+    string value;
+    entryT *next;
+} *tablePT;
+
+interface SOMStringTableC : SOMObject
+// Объектами класса SOMStringTableC являются символьные таблицы, которые отображают
+// строки на строки (ключ-значение, ассоциативные массивы). Любой экземпляр класса 
+// может хранить неограниченное число элементов. При увеличении количества строк
+// время поиска строки увеличивается. Ключи регистронезависимые.
+
+{
+
+  attribute unsigned long somstTargetCapacity;
+  // Емкость ассоциативного массива.
+  // Значение не влияет на работу и сохранено для совместимости.
+
+  readonly attribute unsigned long somstAssociationsCount;
+  // Текущее число ассоциаций в массиве
+
+  short somstAssociate(in string key, in string value);
+  // Устанавливает связь <key> и <value>.  
+  // Возвращает 0, если связь не может быть установлена
+  // (<key> нулевой или недостаточно памяти); -1 - ассоциация успешна выполнена,
+  // но <key> уже имел значение до вызова метода,
+  // 1 - ассоциация успешно выполнена и <key> не существовал.
+  // Замечание: массив сохраняет ссылки на <key> и <value>, передаваемые в аргументах.
+  // Копия значений не <key> и <value> создается.
+  // При уничтожении объекта память, занимаемая <key> и <value> освобождается
+  // с помощью SOMFree, т.е. память под <key> и <value> должна быть выделена с помощью 
+  // SOMMalloc и аналогичных функций.
+  // Замечание: При замене <value> при имеющемся <key> старое <value> заменаяется, 
+  // память не освобождается
+
+  short somstAssociateCopyKey(in string key, in string value);
+  // То же, что и <somstAssociate>, но массив содержит копии значений <key>.
+  // Значение <key> копируется в выделяемую с помощью SOMMalloc память.
+
+  short somstAssociateCopyValue(in string key, in string value);
+  // То же, что и <somstAssociate>, но массив содержит копии значений <value>.
+  // Значение <value> копируется в выделяемую с помощью SOMMalloc память.
+
+  short somstAssociateCopyBoth(in string key, in string value);
+  // То же, что и <somstAssociate>, но массив содержит копии значений <key> и <value>.
+  // Значения <key> и <value> копируются в выделяемую с помощью SOMMalloc память.
+
+  string somstGetAssociation(in string key);
+  // Возвращается строка, ассоциированная с <key>, или NULL, если нет ассоциации.
+  // Массив продолжает хранить указатель на значение.
+
+  boolean somstClearAssociation(in string key);
+  // В данной версии не реализован.
+  // The association for <key>, if any, is removed.
+  // 1 is returned if <key> had an association, and 0 is returned if
+  // it did not.
+
+  string somstGetIthKey(in unsigned long i);
+  // Возвращает ключевую часть <i>-й по счету ассоциации.
+  // Если нет ассоциации, то вазвращает NULL.
+  // Порядок ассоциации в массиве не определен, но остается постоянным до следующей модификации.
+
+  string somstGetIthValue(in unsigned long i);
+  // Возвращает значимую часть <i>-й по счету ассоциации.
+  // Если нет ассоциации, то вазвращает NULL.
+  // Порядок ассоциации в массиве не определен, но остается постоянным до следующей модификации.
+
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somstTargetCapacity, _set_somstTargetCapacity,
+                  _get_somstAssociationsCount, 
+                  somstAssociate,somstAssociateCopyKey,somstAssociateCopyValue, 
+                  somstAssociateCopyBoth,somstGetAssociation,
+                  somstClearAssociation,somstGetIthKey,somstGetIthValue;
+  
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = somstrt;
+    dllname = "some.dll";
+    callstyle = oidl;
+  
+    //# Internal Instance Variables
+    unsigned long tableSize;
+    // Размер массива. 
+    struct entryT * table;
+    // Указатель на начало массива. 
+    unsigned long numberOfEntries;
+    // Число записей в массиве
+  
+    //# Method Modifiers
+    somDefaultInit: override, init;
+    // Конструктор
+    somDestruct: override;
+    // Деструктор
+    somDumpSelfInt: override;
+    // Дамп значений массива
+    
+    somstTargetCapacity: nodata;
+    somstAssociationsCount: noget;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* somstrt_idl */

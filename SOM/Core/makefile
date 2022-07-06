@@ -10,7 +10,7 @@ SOM_IR = #somiprep somref
 
 DIRS = &
 host   &
-$(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR)
+$(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR) somtk
 
 # Below not correct yet
 # somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks

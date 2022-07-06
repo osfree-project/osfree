@@ -1,0 +1,318 @@
+/**************************************************************************
+ *
+ *  Copyright 2015, 2017, 2018, Yuri Prokushev
+ *
+ *  This file is part of osFree project
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+
+#ifndef scclass_idl
+#define scclass_idl
+
+#include <scentry.idl>
+interface SOMTPassthruEntryC;
+interface SOMTBaseClassEntryC;
+interface SOMTMetaClassEntryC;
+interface SOMTCommonEntryC;
+interface SOMTMethodEntryC;
+interface SOMTModuleEntryC;
+interface SOMTDataEntryC;
+interface SOMTAttributeEntryC;
+interface SOMTStructEntryC;
+interface SOMTTypedefEntryC;
+interface SOMTUnionEntryC;
+interface SOMTEnumEntryC;
+interface SOMTConstEntryC;
+interface SOMTSequenceEntryC;
+
+interface SOMTClassEntryC : SOMTEntryC
+
+// This entry is the anchor for all information about a class
+// definition. The part it inherits from <SOMTEntryC> concerns
+// the actual class statement in the interface definition.  The new
+// methods and attributes provided by the class concern the class
+// definition as a whole.
+// A number of the possible statements in a class definition are
+// optional, when they are missing from the class definition then
+// methods that would return an entry for this kind of statement, will
+// return NULL.
+
+{
+  readonly attribute string somtSourceFileName;
+  
+  // Returns the name of file containing the definition of this class.
+
+  readonly attribute SOMTMetaClassEntryC somtMetaClassEntry;
+  
+  // Returns the entry for the meta class statement in class
+  // definition or NULL if there is no meta class statement.
+  // Note: the SOM architecture requires that all classes have a meta
+  // class, however <SOMClass> is its own metaclass. Thus, any attempt
+  // to walk up the metaclass chain must terminate when it finds a
+  // class that is its own meta class, otherwise an infinite loop is
+  // possible.
+
+  readonly attribute SOMTModuleEntryC somtClassModule;
+  // The module that contains this class, or NULL if there is not one.
+
+  readonly attribute long somtNewMethodCount;
+  
+  // Returns the number of new methods introduced in this class
+  // definition.
+
+  readonly attribute boolean somtLocalInclude;
+  
+  // Returns true if the header files associated with this class
+  // definition should be included using local search, eg, "name.h"
+  // instead of <name.h>
+
+  readonly attribute long somtPrivateMethodCount;
+  
+  // Returns number of new private methods in class.
+
+  readonly attribute long somtStaticMethodCount;
+  
+  // Returns number of new static methods in class.
+
+  readonly attribute long somtOverrideMethodCount;
+  
+  // Returns number of new override methods in class.
+
+  readonly attribute long somtProcMethodCount;
+  
+  // Returns number of procedure methods for class.
+
+  readonly attribute long somtVAMethodCount;
+  
+  // Returns number of VarArg methods for class.
+
+  readonly attribute long somtBaseCount;
+  
+  // Returns number of base classes for class.
+
+  readonly attribute long somtExternalDataCount;
+  
+  // Returns number of external (public or private) data members for class.
+
+  readonly attribute long somtPublicDataCount;
+  
+  // Returns number of public data members for class.
+
+  readonly attribute long somtPrivateDataCount;
+  
+  // Returns number of private data members for class.
+
+  readonly attribute SOMTClassEntryC somtMetaclassFor;
+
+  // If this is a metaclass, the class for which it is a metaclass, else NULL.
+
+  readonly attribute boolean somtForwardRef;
+
+  // Whether this is a forward reference or not.
+
+  SOMTBaseClassEntryC somtGetFirstBaseClass();
+  
+  // Returns the entry for the "left most" direct base class form for
+  // this class, if it has one and NULL otherwise.  Note: <SOMObject>
+  // does not have any base classes and therefore will terminate an
+  // attempt to walk up the base class chain.
+
+  SOMTBaseClassEntryC somtGetNextBaseClass();
+  
+  // Returns the entry for the next direct base class form of this
+  // class, if it has one and NULL otherwise.  The direct base classes
+  // of a derived class are ordered from "left to right".
+
+  string somtGetFirstReleaseName();
+  
+  // Returns the first name in the release order statement for this
+  // entry if it has one and NULL otherwise.
+
+  string somtGetNextReleaseName();
+  
+  // Returns the next name in the release order statement for this
+  // entry if it has one and NULL otherwise.
+
+  long somtGetReleaseNameList(in string buffer);
+  
+  // Puts all the release names in <buffer> in template output form,
+  // buffer must be large enough, no tests are made.  The number of
+  // release names is returned.
+
+  SOMTPassthruEntryC somtGetFirstPassthru();
+  
+  // Returns the first passthru entry for this class definition if it
+  // has one and NULL otherwise.
+
+  SOMTPassthruEntryC somtGetNextPassthru();
+  
+  // Returns the next passthru entry for this class definition if it
+  // has one and NULL otherwise.  The passthru entry will be returned
+  // in an order based on the appearence of passthru statements in the
+  // class definition.
+
+  SOMTDataEntryC somtGetFirstData();
+  
+  // Returns the first data entry for this class definition if it has
+  // one and NULL otherwise.
+
+  SOMTDataEntryC somtGetNextData();
+  
+  // Returns the next data entry for this class definition if it has
+  // one and NULL otherwise.  The data entries will be returned in an
+  // order based on the appearence data member declarations in the
+  // class definition.
+
+  SOMTDataEntryC somtGetFirstStaticData();
+  
+  // Returns the first static data entry for this class definition if it has
+  // one and NULL otherwise. Static data is handled specialy in SOM so a
+  // different accessor method is provided.
+
+  SOMTDataEntryC somtGetNextStaticData();
+  
+  // Returns the next static data entry for this class definition if it has
+  // one and NULL otherwise.  The data entries will be returned in an
+  // order based on the release order
+
+  SOMTMethodEntryC somtGetFirstMethod();
+  
+  // Returns the first method entry for this class definition if it
+  // has one and NULL otherwise.  Method entries may be for new or
+  // overridden methods.
+
+  SOMTMethodEntryC somtGetNextMethod();
+  
+  // Returns the next method entry for this class definition if it has
+  // one and NULL otherwise.  The method entries will be returned in an
+  // order based on the appearence method declarations in the
+  // class definition.  Method entries may be for new or overridden methods.
+
+  SOMTMethodEntryC somtGetFirstInheritedMethod();
+  
+  // Returns the first inherited and not overridden method entry for
+  // this class definition if it has one and NULL otherwise.
+
+  SOMTMethodEntryC somtGetNextInheritedMethod();
+  
+  // Returns the next inherited and not overridden method entry for
+  // this class definition if it has one and NULL otherwise.  The
+  // method entries will be returned in an unspecified, but constant
+  // order.
+
+  SOMTAttributeEntryC somtGetFirstAttribute();
+  SOMTAttributeEntryC somtGetNextAttribute();
+  SOMTStructEntryC somtGetFirstStruct ();
+  SOMTStructEntryC somtGetNextStruct ();
+  SOMTTypedefEntryC somtGetFirstTypedef ();
+  SOMTTypedefEntryC somtGetNextTypedef ();
+  SOMTUnionEntryC somtGetFirstUnion ();
+  SOMTUnionEntryC somtGetNextUnion ();
+  SOMTEnumEntryC somtGetFirstEnum ();
+  SOMTEnumEntryC somtGetNextEnum ();
+  SOMTConstEntryC somtGetFirstConstant ();
+  SOMTConstEntryC somtGetNextConstant ();
+  SOMTSequenceEntryC somtGetFirstSequence ();
+  SOMTSequenceEntryC somtGetNextSequence ();
+  SOMTEntryC somtGetFirstPubdef ();
+  SOMTEntryC somtGetNextPubdef ();
+
+  boolean somtFilterNew(in SOMTMethodEntryC entry);
+  
+  // Returns 1 if entry is new in the class.
+
+  boolean somtFilterOverridden(in SOMTMethodEntryC entry);
+  
+  // Returns 1 if entry is an overriding method of the class.
+
+  boolean somtFilterPrivOrPub(in SOMTCommonEntryC entry);
+  
+  // Returns TRUE if entry is Private or Public.
+
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somtSourceFileName, _get_somtMetaClassEntry, 
+                  _get_somtNewMethodCount, _get_somtLocalInclude, 
+                  _get_somtPrivateMethodCount, _get_somtStaticMethodCount, 
+                  _get_somtOverrideMethodCount, _get_somtProcMethodCount, 
+                  _get_somtVAMethodCount, _get_somtBaseCount, 
+                  _get_somtExternalDataCount, _get_somtPublicDataCount, 
+                  _get_somtPrivateDataCount, somtGetFirstBaseClass, 
+                  somtGetNextBaseClass, somtGetFirstReleaseName, 
+                  somtGetNextReleaseName, somtGetReleaseNameList, 
+                  somtGetFirstPassthru, somtGetNextPassthru, 
+                  somtGetFirstData, somtGetNextData, 
+                  somtGetFirstMethod, somtGetNextMethod, 
+                  somtGetFirstInheritedMethod, somtGetNextInheritedMethod, 
+                  somtFilterNew, somtFilterOverridden, 
+                  somtFilterPrivOrPub, _get_somtMetaclassFor, 
+                  _get_somtForwardRef, somtGetFirstAttribute, 
+                  somtGetNextAttribute, somtGetFirstStruct, 
+                  somtGetNextStruct, somtGetFirstTypedef, 
+                  somtGetNextTypedef, somtGetFirstUnion, 
+                  somtGetNextUnion, somtGetFirstEnum, 
+                  somtGetNextEnum, somtGetFirstConstant, 
+                  somtGetNextConstant, somtGetFirstSequence, 
+                  somtGetNextSequence, _get_somtClassModule,
+		  somtGetFirstPubdef, somtGetNextPubdef,
+		  somtGetFirstStaticData, somtGetNextStaticData;
+
+
+    //# Class Modifiers
+    filestem = scclass;
+    dllname = "some.dll";
+    callstyle = oidl;
+    majorversion = 2;
+    minorversion = 1;
+  
+    //# Instance variable
+#ifdef __PRIVATE__
+    SOMTConstEntryC cons;
+    SOMTAttributeEntryC attrs;
+#endif
+    //# Method Modifiers
+    somDefaultInit: override;
+    somDumpSelfInt: override;
+    somtSetSymbolsOnEntry: override;
+    somtSetEntryStruct: override;
+    _get_somtCScopedName: override;
+    _get_somtIDLScopedName: override;
+  
+    //# Attribute Modifiers
+    somtSourceFileName: nodata;
+    somtMetaClassEntry: nodata;
+    somtNewMethodCount: nodata;
+    somtLocalInclude: nodata;
+    somtPrivateMethodCount: nodata;
+    somtStaticMethodCount: nodata;
+    somtOverrideMethodCount: nodata;
+    somtProcMethodCount: nodata;
+    somtVAMethodCount: nodata;
+    somtBaseCount: nodata;
+    somtPublicDataCount: nodata;
+    somtPrivateDataCount: nodata;
+    somtExternalDataCount: nodata;
+    somtMetaclassFor: nodata;
+    somtForwardRef: nodata;
+    somtClassModule: nodata;
+  
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scclass_idl */

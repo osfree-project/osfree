@@ -1,0 +1,103 @@
+:prologS
+#ifndef <classSourceFileStem>_idl
+#define <classSourceFileStem>_idl
+
+:somclsIncludeS
+//clsInclude
+#include \<somcls.idl\>
+:baseIncludesS
+//baseInclude
+#include <baseInclude>
+:basePrologS
+:baseS
+:baseEpilogS
+:metaIncludeS
+//metaInclude
+#include <metaInclude>
+:forwardDeclarationsS
+
+?<forwardDeclarations>
+:interfacePrologS
+interface <className><baseNames>
+?//# Comment for parent <baseName>:\n<-- parentComment>
+?<-- classComment>\n
+{
+:constantPrologS
+//# constants 
+:constantS
+  const <constantType> <constantName> = <constantValueEvaluated>
+
+:attributePrologS
+//# attributes
+:attributeS
+  attribute <attributeBaseType> <attributeName>;<@34><-- attributeComment>
+:attributeEpilogS
+
+:newMethodsPrologS
+:newMethodsS
+?  <-- groupComment>\n
+  <methodReturnType> <methodName>(<methodSOMPrototype, ...>);
+?  <-- methodComment>\n
+:newMethodsEpilogS
+
+:classPrologS
+
+#ifdef __SOMIDL__
+:classS
+  implementation {
+
+?    releaseorder: <classReleaseOrder, ...>;\n
+    //# Class Modifiers
+?    <-- releaseComment>\n
+    <classMods; ...>;
+?    metaclass = <metaName>;
+    callstyle = oidl;
+
+:passthruPrologS
+:passthruS
+    passthru <passthruLanguage>_<passthruTarget>_<passthruBeforeAfter> = <@23> <passthruBody>;
+?    <-- passthruComment>
+:passthruEpilogS
+
+:dataPrologS
+    //# Internal Instance Variables
+?    <-- dataSectionComment>
+:dataS
+    <dataSourceText>;<@34><-- dataComment>
+:dataEpilogS
+
+
+:attributeMPrologS
+    //# Attribute Modifiers.
+:attributeMS
+    <dataName>: indirect;
+:attributeMEpilogS
+
+:methodModifiersPrologS
+    //# Method Modifiers
+:methodModifiersS
+?    <-- groupComment>\n
+?    <methodName>: <methodMods, ...>;    
+?    <-- overrideComment>
+:methodModifiersEpilogS
+
+:dataModifiersPrologS
+    //# Data Modifiers
+:dataModifiersS
+?    <dataName>: <dataMods, ...>;
+:dataModifiersEpilogS
+
+:privatePrologS
+#ifdef __PRIVATE__
+
+:privateEpilogS
+#endif
+
+:classEpilogS
+  };
+#endif /* __SOMIDL__ */
+:interfaceEpilogS
+};
+
+:epilogS
+#endif  /* <classSourceFileStem>_idl */

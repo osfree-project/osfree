@@ -11,7 +11,7 @@ OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 
 SOM_DIR=$(SRC)contrib$(SEP)somkpub$(SEP)som
 SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
-SOMIDL_HEADERS=$(SOMIDL_IDL)   #$(SEP)$(%OS)
+SOMIDL_HEADERS=$(SOMIDL_IDL)
 
 SOM_IDL=$(SOM_DIR)$(SEP)somobj.idl $(SOM_DIR)$(SEP)somcls.idl $(SOM_DIR)$(SEP)somcm.idl
 
@@ -32,13 +32,16 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
+TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.xh $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
 $(SOMIDL_HEADERS)$(SEP)somnames.h $(SOMIDL_HEADERS)$(SEP)somplatf.h $(SOMIDL_HEADERS)$(SEP)somcdev.h $(SOMIDL_HEADERS)$(SEP)somcorba.h &
 $(SOMIDL_HEADERS)$(SEP)somapi.h
 
 $(PRODUCTS_SC): $(SOM_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)som.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)som.h
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)som.xh: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)som.xh
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)somtypes.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somtypes.h
@@ -61,7 +64,6 @@ $(SOMIDL_HEADERS)$(SEP)somcorba.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somcorba
 
 $(SOMIDL_HEADERS)$(SEP)somapi.h: $(SOM_DIR)$(SEP)..$(SEP)include$(SEP)somapi.h
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
-
 
 $(PRODUCTS_PDL): $(SOM_IDL)
  @$(SAY) PDL      $^. $(LOG)
