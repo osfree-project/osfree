@@ -1,0 +1,422 @@
+:copyrightS
+/* @(#) /03 1.86 6/20/96 11:20:06 [12/24/96 07:52:30] */
+
+/*
+ *   COMPONENT_NAME: some
+ *
+ *   ORIGINS: 27
+ *
+ *
+ *   10H9767, 25H7912  (C) COPYRIGHT International Business Machines Corp. 1992,1996 
+ *   All Rights Reserved
+ *   Licensed Materials - Property of IBM
+ *   US Government Users Restricted Rights - Use, duplication or
+ *   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+ */
+
+:headerS
+// Generated from <classSourceFile> at <NLSTimeStamp>
+// By the IBM DTS C++ header emitter version <release>.<version>
+// Using cpp.efw file version 1.86
+
+:rootIncludeS
+#include \<somh.hh\>
+
+:childIncludeS
+#include \<som.hh\>
+
+:modulePrologS
+
+/* Start Module <moduleCScopedName> */
+
+:prologS
+
+/* Start Interface <classCScopedName> */
+
+:moduleS
+
+?<-- moduleComment>
+class <moduleName> {
+#if defined(__SOM__MODULES__)
+#pragma SOMModule (*,"<moduleName>")
+#endif
+
+:cppmoduleS
+
+?<-- moduleComment>
+<cppmoduledecl> {
+#if defined(__SOM__MODULES__)
+#pragma SOMModule (*,"<moduleName>")
+#endif
+
+:moduleEpilogS
+};
+
+/* End <moduleCScopedName> */
+
+:baseIncludeS
+#include \<<baseSourceFileStem>.hh>
+:metaIncludeS
+#include \<<metaSourceFileStem>.hh>
+:otherIncludeS
+#include \<<includeFileStem>.<includeFileExtension>>
+:includeFileS
+#include \<<includeFile>>
+:class1S
+
+?<forwardClassTemplate>
+<cppClassDeclaration> {
+?<-- classComment>
+
+:class2S
+
+?<forwardClassTemplate>
+class <cppClassName> : <parentList, ...> {
+?<-- classComment>
+
+:noparentClassS
+class <cppClassName> {
+?<-- classComment>
+:classSOMClassNamePragmaS
+#if defined(__SOM__MODULES__)
+    #pragma SOMClassName(*, "<className>")
+#else
+    #pragma SOMClassName(*, "<classCScopedName>")
+#endif
+:classSOMClassNameNoModulePragmaS
+    #pragma SOMClassName(*, "<className>")
+:classSOMNoManglingPragmaS
+    #pragma SOMNoMangling(*)
+:classSOMNonDTSPragmaS
+    #pragma SOMNonDTS(*)
+
+:epilogS
+};
+
+:noModuleEpilogS
+/* End <cppClassName> */
+:releasePrologS
+
+    #pragma SOMReleaseOrder ( \\
+:releaseS
+			      <releaseName>, \\
+:staticReleaseS
+			      __som_staticdata__<releaseName>, \\
+:releaseEpilogS
+			      <releaseName>)
+:staticReleaseEpilogS
+			      __som_staticdata__<releaseName>)
+:emptyReleaseS
+
+    #pragma SOMReleaseOrder ()
+
+:endReleaseS
+:friendForwardS
+    <friend>;
+:friendS
+    friend <friend>;
+:classWithMetaclassMapS
+    #pragma SOMMetaClass (*, <cppMetaClassName>)
+:classInitS
+    #pragma SOMClassInit (<classinit>)
+:versionS
+    #pragma SOMClassVersion (<cppClassName>, <classMajorVersion>, <classMinorVersion>)
+:callstyleS
+    #pragma SOMCallstyle (<callstyle>)
+:constantS
+?    <-- constantComment>
+    /* IDL constant: <constantIDLScopedName> */
+    #define <constantCScopedName> <constantValueEvaluated>
+:constantOriginalDeclarationS
+?    <-- constantComment>
+    <constantOriginalDeclaration>
+:typedefS
+?    <-- typedefComment>
+    typedef <typedefBaseType> <typedefPointers><typedefName><typedefArrayDimensions>;
+:typedefOriginalDeclarationS
+?    <-- typedefComment>
+    <typedefOriginalDeclaration>
+:enumS
+?    <-- enumComment>
+    enum <enumName> {<enumNames, ...>};
+:enumOriginalDeclarationS
+?    <-- enumComment>
+    <enumOriginalDeclaration>
+:enumFromIDLS
+?    <-- enumComment>
+    enum <enumName> { <enumFirstEntry> = 1, <enumEntries, ...> };
+:structForwardS
+?    <-- structComment>
+    struct <structName>;
+:emptyStructExceptionS
+?    <-- structComment>
+#define ex_<structCScopedName> "<structIDLScopedName>"
+:structExceptionS
+?    <-- structComment>
+#define ex_<structCScopedName> "<structIDLScopedName>"
+    typedef struct <structName> {
+:structS
+?    <-- structComment>
+    typedef struct <structName> {
+:structMemberS
+?              <-- memberComment>
+	      <memberTypeWithStars> <memberPointers><memberName><memberArrayDimensions>;
+:structEpilogS
+    } <structName>;
+:unionForwardS
+?    <-- unionComment>
+    struct <unionName>;
+:unionPrologS
+?    <-- unionComment>
+    typedef struct <unionName> {
+        enum _v { 
+:caseLabelS
+                 <caseEntry, ...>
+:unionS
+        };
+        <switchType> _d;
+        union {
+:unionMemberS
+	        <memberTypeWithStars> <memberPointers><memberName><memberArrayDimensions>;
+:unionEpilogS
+        } _u;
+    } <unionName>;
+:methodOriginalDeclarationS
+?    <-- methodComment>
+    <methodOriginalDeclaration>
+:methodsPrologS
+:methodsS
+?    <-- methodComment>
+    <methodCppReturnType> <methodCppName>(<methodCppParamList, ...>);
+:methodsEpilogS
+:methodTypeDefS
+
+    // new method: <methodCppName>
+    typedef <methodCppReturnType> SOMLINK somTP_<methodCppName>(<methodFullCppParamList, ...>);
+    typedef somTP_<methodCppName>* somTD_<methodCppName>;
+:staticMethodS
+?    <-- methodComment>
+    static <methodCppReturnType> <methodCppName>(<methodFullCppParamList, ...>);
+:virtualMethodsS
+?    <-- methodComment>
+    virtual <methodCppReturnType> <methodCppName>(<methodCppParamList, ...>);
+:methodMapPragmaS
+    #pragma SOMMethodName (<methodCppName>, "<methodName>")
+:originalDataS
+?    <--dataComment>
+    <dataOriginalDeclaration>
+:dataPrologS
+:dataS
+
+?    <--dataComment>
+    <dataBaseType> <dataPointers><dataCppName><dataArrayDimensions>;
+:objectDataS
+
+?    <--dataComment>
+    <dataBaseType> *<dataPointers><dataCppName><dataArrayDimensions>;
+:staticDataS
+
+?    <--dataComment>
+    static <dataBaseType> <dataPointers><dataCppName><dataArrayDimensions>;
+:staticAttrDataS
+?    <--dataComment>
+    static <dataBaseType> <dataPointers>__som_staticdata__<dataCppName><dataArrayDimensions>;
+    <dataBaseType> <dataPointers><dataCppName><dataArrayDimensions>;
+:objectStaticDataS
+?    <--dataComment>
+    static <dataBaseType> *<dataPointers><dataCppName><dataArrayDimensions>;
+:objectStaticAttrDataS
+?    <--dataComment>
+    static <dataBaseType> *<dataPointers>__som_staticdata__<dataCppName><dataArrayDimensions>;
+    <dataBaseType> *<dataPointers><dataCppName><dataArrayDimensions>;
+:dataAttributePragmaS
+    #pragma SOMAttribute(<dataCppName><, noValueModifiers, ...>)
+:staticDataAttributePragmaS
+    #pragma SOMAttribute(<dataCppName>, nodata,noget,noset <, noValueModifiers, ...>)
+:dataMapPragmaS
+    #pragma SOMDataName (<dataCppName>, "<dataName>")
+:dataEpilogS
+:accessStatementS
+
+  <accessMode> :
+:interfaceS
+?<forwardClassTemplate>
+class <forwardClassName>;
+:structInterfaceS
+?<forwardStructTemplate>
+struct <forwardClassName>;
+:passthruPrologS
+:passthruS
+?<passthruBody>
+:passthruEpilogS
+:sequencePrologS
+#ifndef <sequenceName>_defined
+#define <sequenceName>_defined
+:sequenceStandardPartsS
+    typedef struct {
+        unsigned long _maximum;
+	unsigned long _length;
+:sequenceS
+	<sequenceType> *_buffer;
+:structSequenceS
+	struct <sequenceType> *_buffer;
+:objectSequenceS
+	<sequenceType> **_buffer;
+:sequenceEpilogS
+    } <sequenceName>;
+#endif // <sequenceName>_defined
+:sequencePrologUserTypeS
+#ifndef <className>_<sequenceName>_defined
+#define <className>_<sequenceName>_defined
+:sequencePrologUserTypeModuleS
+#ifndef <moduleName>_<sequenceName>_defined
+#define <moduleName>_<sequenceName>_defined
+:sequenceEpilogUserTypeS
+    } <sequenceName>;
+#endif // <className>_<sequenceName>_defined 
+:sequenceEpilogUserTypeModuleS
+    } <sequenceName>;
+#endif // <moduleName>_<sequenceName>_defined 
+:sequenceUserTypeS
+    typedef <sequenceName>;
+:bindingsOnPragmaS
+    #pragma SOMAsDefault(on)
+:bindingsOffPragmaS
+    #pragma SOMAsDefault(off)
+:bindingsPopPragmaS
+    #pragma SOMAsDefault(pop)
+:nondtsPragmasS
+#pragma SOMNonDTS(on)
+:nondtsPopPragmasS
+    #pragma SOMNonDTS(pop)
+:nondtsMethodPragmaS
+:nondtsMethodPopPragmaS
+:SOMObjectnondtsPragmaS
+    #pragma SOMNonDTS(on)
+:SOMObjectnondtsPopPragmaS
+    #pragma SOMNonDTS(pop)
+:NonDTSSpecialsS
+    <className>();
+    <className>(<className>&);
+    virtual ~<className>();
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual <className>& somAssign(<className>&);
+#else
+    virtual SOMObject* somDefaultAssign(som3AssignCtrl*, SOMObject*);
+#endif
+
+:SOMObjectSpecialMethodsS
+    SOMObject();
+    SOMObject(SOMObject&);
+    SOMObject(const SOMObject&);
+    SOMObject(volatile SOMObject&);
+    SOMObject(const volatile SOMObject&);
+    virtual ~SOMObject();
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual SOMObject& somAssign(SOMObject&);
+    virtual SOMObject& somAssign(const SOMObject&);
+    virtual SOMObject& somAssign(volatile SOMObject&);
+    virtual SOMObject& somAssign(const volatile SOMObject&);
+#else
+    virtual SOMObject* somDefaultAssign(som3AssignCtrl*, SOMObject*);
+    virtual SOMObject* somDefaultConstAssign(som3AssignCtrl*, const SOMObject*);
+    virtual SOMObject* somDefaultVAssign(som3AssignCtrl*, volatile SOMObject*);
+    virtual SOMObject* somDefaultConstVAssign(som3AssignCtrl*, const volatile SOMObject*);
+#endif
+
+:dtsDefaultsS
+    // dtsdefault ctor
+    <cppClassNameNP>();
+
+:nonSOMObjectConstructorS
+?    <-- methodComment>
+    <cppClassNameNP>(<methodCppParamList, ...>);
+    #pragma SOMMethodName( <cppClassNameNP>(<methodCppParamList, ...>), "<methodName>")
+
+:destructorS
+?    <-- methodComment>
+    virtual ~<cppClassNameNP>();
+
+:noArgConstructorS
+?    <-- methodComment>
+    <cppClassNameNP>();  
+
+:defaultCopyInitS
+?    <-- methodComment>
+    <cppClassNameNP>(<cppClassName>&);  
+
+:defaultVCopyInitS
+?    <-- methodComment>
+    <cppClassNameNP>(volatile <cppClassName>&);  
+
+:defaultConstCopyInitS
+?    <-- methodComment>
+    <cppClassNameNP>(const <cppClassName>&);  
+
+:defaultConstVCopyInitS
+?    <-- methodComment>
+    <cppClassNameNP>(const volatile <cppClassName>&);  
+
+:defaultAssignS
+?    <-- methodComment>
+<beginassign>
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual <cppClassNameNP>& somAssign(<cppClassName>&);
+#else
+    virtual SOMObject* somDefaultAssign(som3AssignCtrl*, SOMObject*);
+#endif
+<endassign>
+
+:defaultConstAssignS
+?    <-- methodComment>
+<beginassign>
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual <cppClassNameNP>& somAssign(const <cppClassName>&);
+#else
+    virtual SOMObject* somDefaultConstAssign(som3AssignCtrl * ctrl, const SOMObject*);
+#endif
+<endassign>
+
+:defaultVAssignS
+?    <-- methodComment>
+<beginassign>
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual <cppClassNameNP>& somAssign(volatile <cppClassName>&);
+#else
+    virtual SOMObject* somDefaultVAssign(som3AssignCtrl * ctrl, volatile SOMObject*);
+#endif
+<endassign>
+
+:defaultConstVAssignS
+?    <-- methodComment>
+<beginassign>
+#ifdef __EXTENDED__SOM__ASSIGNMENTS__
+    virtual <cppClassNameNP>& somAssign(const volatile <cppClassName>&);
+#else
+    virtual SOMObject* somDefaultConstVAssign(som3AssignCtrl * ctrl, const volatile SOMObject*);
+#endif
+<endassign>
+
+:classData1S
+#pragma SOMAsDefault(off)
+typedef struct {
+	SOMClass *classObject;
+:classData2S
+} __ClassDataStruct;
+#pragma SOMAsDefault(pop)
+#ifdef __HIGHC__
+#define SOM_MTOKEN_<classCScopedName>(mName) \\
+	(((<classIDLScopedName>::__ClassDataStruct*)&<classIDLScopedName>::__ClassData)->mName)
+#define SOM_PARENT_<classCScopedName>(obj,mName,icls,mToken) ((icls::somTD_ ## mName) \\
+	somPCallResolve(obj,<classIDLScopedName>::__ClassObject,mToken))
+#else
+#define SOM_MTOKEN_<classCScopedName>(mName) \\
+	(((<classIDLScopedName>::__ClassDataStruct*)&<classCScopedName>ClassData)->mName)
+#define SOM_PARENT_<classCScopedName>(obj,mName,icls,mToken) ((icls::somTD_ ## mName) \\
+	somPCallResolve(obj,<classIDLScopedName>::__ClassObject,mToken))
+#endif
+
+
+:dummyEndS
+
+
