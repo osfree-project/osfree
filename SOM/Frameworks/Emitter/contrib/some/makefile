@@ -51,7 +51,7 @@ SOM_INCL= -i=$(SOM_INTDIR) &
 
 !ifdef HOSTBLD
 
-DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)lib
 
 !ifeq %OS OS2
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT 
