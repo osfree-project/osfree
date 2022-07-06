@@ -10,8 +10,7 @@
 {ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß}
 
 {$S-,R-,Q-,I-}
-
-{$ifndef fpc}{$Cdecl-,OrgName-,AlignRec-,Use32+}{$endif}
+{$ifndef fpc}{$Cdecl-,OrgName-,AlignRec-,Use32+}{$else}{$Align 1}{$endif}
 
 unit Crt;
 
@@ -209,7 +208,11 @@ end;
 
 procedure ReadNormAttr;
 var
-  Cell,Size: Word; {SmallWord;}
+{$ifdef fpc}
+  Cell,Size: Word;
+{$else}
+  Cell,Size: SmallWord;
+{$endif}
 begin
   Size := 2;
   VioReadCellStr(Cell, Size, WhereY-1, WhereX-1, 0);

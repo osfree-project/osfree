@@ -1,7 +1,13 @@
-{$A-,B-,D+,I-,O-,P+,Q-,R-,S-,T-,V-,X+}
-{&AlignCode-,AlignData-,AlignRec-,Asm-,Cdecl-,Delphi+,W-,Frame-,G3+}
-{&LocInfo+,Optimise+,OrgName-,SmartLink+,Speed-,Z-,ZD-,Use32+}
-{$ifndef fpc}{$F-,G-,L+,N-,Y+,E-}{$endif}
+{$A-,B-,D+,G-,I-,O-,P+,Q-,R-,S-,T-,V-,X+}
+{&W-,G3+}
+{$ifndef fpc}
+{$E-,F-,L+,N-,Y+}{&AlignCode-,AlignData-,AlignRec-,Optimise+,OrgName-,Asm-,Cdecl-,Delphi+,Frame-,LocInfo+,SmartLink+,Speed-,Z-,ZD-,Use32+}
+{$else}
+{$asmmode intel}
+{ -- $mode objfpc}
+{$Align 1}
+{$Optimization STACKFRAME}
+{$endif}
 
 Unit SysLib;
 
@@ -47,7 +53,7 @@ type
   end;
 
   PFea2 = ^Fea2;
-{EndIf}
+{$EndIf}
 
 type
 {$ifDef OS2}
@@ -134,8 +140,7 @@ type
  Function  GetResourceString(ID : Longint) : string;
 {$endIf}
 
-Implementation uses strOp, Streams, strings
-{$ifDef OS2}{$ifnDef FPC}, os2base{else}, doscalls{$endIf}{$endIf};
+Implementation uses strOp, Streams, strings, sysutils;
 
 function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; external 'DOSCALLS' index 417;
 
@@ -258,7 +263,7 @@ begin
   then begin resFree; Fail; end;
  I := 0;
 {$ifndef FPC}
- GetMem(eaBuf.fpFEA2List, fStat^.cbList);
+ GetMem(eaBuf.fpFEA2List, fStat.cbList);
  eaBuf.fpGEA2List := @Buff^;
 {$else}
  GetMem(eaBuf^.fpFEA2List, PFileStatus4(fStat)^.cbList);
@@ -280,10 +285,11 @@ begin
    pLong(@Buff^[0])^ := sV;
 {$ifndef FPC}
    eaBuf.fpFEA2List^.cbList := fStat.cbList;
+   if DosQueryPathInfo(@fN, Fil_QueryEAsFromList, eaBuf, sizeOf(eaBuf)) = 0
 {$else}
    eaBuf^.fpFEA2List^.ListLen := PFileStatus4(fStat)^.cbList;
-{$endif}
    if DosQueryPathInfo(@fN, Fil_QueryEAsFromList, PFileStatus(eaBuf), sizeOf(eaBuf)) = 0
+{$endif}
     then begin
 {$ifndef FPC}
           pEA := @eaBuf.fpFEA2List^.list;
@@ -337,7 +343,11 @@ begin
 {temporary remove hidden/readonly attributes}
  oldAttr := fInfo.attrFile;
  fInfo.attrFile := fInfo.attrFile and not (file_ReadOnly + file_System + file_Hidden);
+{$ifndef FPC}
+ DosSetPathInfo(@fN, fil_Standard, fInfo, SizeOf(fInfo), 0);
+{$else}
  DosSetPathInfo(@fN, fil_Standard, @fInfo, SizeOf(fInfo), 0);
+{$endif}
  fInfo.attrFile := oldAttr;
 
  For I := 0 to pred(Count) do
@@ -359,9 +369,17 @@ begin
     Move(szName, Buff^[9], cbName);
     Buff^[9 + cbName] := 0;
     Move(oNextEntryOffset, oneEA^[4], sizeOf(Fea2) + cbName + cbValue);
+{$ifndef FPC}
+    DosSetPathInfo(@fN, fil_QueryEAsize, eaBuf, sizeOf(eaBuf), 0);
+{$else}
     DosSetPathInfo(@fN, fil_QueryEAsize, @eaBuf, sizeOf(eaBuf), 0);
+{$endif}
    end;
+{$ifndef FPC}
+ Attach := DosSetPathInfo(@fN, fil_Standard, fInfo, SizeOf(fInfo), 0) = 0;
+{$else}
  Attach := DosSetPathInfo(@fN, fil_Standard, @fInfo, SizeOf(fInfo), 0) = 0;
+{$endif}
 locEx:
  FreeMem(oneEA, maxEA);
  if Buff <> nil then FreeMem(Buff, eaNameBfSz);
@@ -373,7 +391,6 @@ begin
   then with pFea2(Item)^ do
         FreeMem(Item, sizeOf(Fea2) + cbName + cbValue);
 end;
-{$endIf}
 
 Function fileExist;
 var
@@ -523,6 +540,17 @@ begin
   else tempFileName := R;
 end;
 
+{$ifDef fpc}
+Function SourcePath : String;
+var
+  j    : Byte;
+  S    : String;
+begin
+    S := ExtractFileDir(ParamStr(0));
+    for j := 1 to byte(S[0]) do if S[j] = '\' then S[j] := '/';
+    SourcePath :=  S + '/';
+end;
+{$else}
 Function SourcePath; assembler {&uses esi,edi};
 {$ifDef OS2}
 asm             mov     edi,Environment
@@ -583,6 +611,7 @@ asm             push    ds
                 rep     movsb
                 pop     ds
 end;
+{$endIf}
 {$endIf}
 
 procedure fSplit;
@@ -748,22 +777,31 @@ var
  pS : pByte;
  I  : Integer;
  S  : string;
+ rc : APIRET;
 begin
+  rc := DosGetResource(nullHandle,
+         {$ifndef FPC}rt_String{$else}rtString{$endif},
+         ID div 16 + 1,
+         Pointer(pS));
+  if rc <> 0 then
+  begin
+      writeln('+ rc=', rc);
+      writeln('+ ID=', ID);
+      GetResourceString := '';
+      exit;
+  end;
+  Inc(pS, sizeOf(Word16)); {skip codepage}
 {$ifndef FPC}
- if DosGetResource(nullHandle, rt_String, ID div 16 + 1, Pointer(pS)) <> 0
+  For I := 1 to ID and $0F do Inc(pS, succ(pS^));
+  Move(pS^, S, pS^);
 {$else}
- if DosGetResource(nullHandle, rtString, ID div 16 + 1, Pointer(pS)) <> 0
+  For I := 1 to ID and $0F do Inc(pS, succ(longint(pS)));
+  Move(pS, S, longint(pS));
 {$endif}
-  then begin
-        GetResourceString := '';
-        exit;
-       end;
- Inc(pS, sizeOf(Word16)); {skip codepage}
- For I := 1 to ID and $0F do Inc(pS, succ(pS^));
- Move(pS^, S, pS^);
- Dec(byte(S[0]));
- DosFreeResource(pS);
- GetResourceString := S;
+  Dec(byte(S[0]));
+  DosFreeResource(pS);
+  writeln('+ S=', S);
+  GetResourceString := S;
 end;
 
 Function unlockModule(const fName : string) : boolean;
@@ -894,4 +932,3 @@ begin
 end;
 
 end.
-

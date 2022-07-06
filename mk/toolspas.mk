@@ -24,7 +24,11 @@ TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-$(TARGETS): $(MYDIR)makefile
+!ifdef RESOURCE
+deps = $(RESOURCE)
+!endif
+
+$(TARGETS): $(deps) $(MYDIR)makefile
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .symbolic
 

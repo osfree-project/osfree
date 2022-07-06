@@ -13,7 +13,11 @@
 {          c) It was not mine :-)                                            }
 {          ... and I wrote this one. Hope you like it.                       }
 {****************************************************************************}
+{$ifndef fpc}
 {$frame-,speed-,smartlink+}
+{$else}
+{$Optimization STACKFRAME}
+{$endif}
 {$R sysIcons.res}
 uses Dos, Strings, os2def, os2base, os2pmapi, miscUtil, strOp;
 

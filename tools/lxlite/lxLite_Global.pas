@@ -1,4 +1,10 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
+{&G3+}
+{$ifndef fpc}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$Optimization STACKFRAME}
+{$endif}
 Unit lxLite_Global;
 
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;

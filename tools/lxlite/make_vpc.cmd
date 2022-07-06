@@ -6,7 +6,7 @@ set PATH=%vpbase%\bin.os2;%watcom%\binp;%PATH%
 rem set INCLUDE=f:\os2tk45\h;%INCLUDE%
 set BEGINLIBPATH = %vpbase%\bin.os2;
 
-set vpcopt=/$P+ /$S- /$Speed- /$I- /$AlignCode- /$AlignData- /$Delphi+ /ucommon;%vpbase%\units.os2;%vpbase%\source\rtl;%vpbase%\source\os2 /i%vpbase%\source\rtl /l%vpbase%\lib.os2 /oout /m
+set vpcopt=/$P+ /$S- /$Speed- /$I- /$AlignCode- /$AlignData- /$Delphi+ /ucommon;%vpbase%\units.os2;%vpbase%\source\rtl;%vpbase%\source\os2 /i%vpbase%\source\rtl /l%vpbase%\lib.os2;%vpbase%\units.os2 /r%vpbase%\res.os2 /oout /m
 rem set rcopt=-r -n -i %vpbase%\source\rtl
 set rcopt=-bt=os2 -r -zm -i=%vpbase%\source\rtl -i=%watcom%\h\os2
 

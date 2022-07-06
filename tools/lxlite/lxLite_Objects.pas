@@ -1,8 +1,15 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
-{$P+}{$ifdef fpc}{$mode objfpc}{$endif}
+{$P+}
+{&G3+}
+{$ifndef fpc}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$mode objfpc}
+{$Optimization STACKFRAME}
+{$endif}
 Unit lxLite_Objects;
 
-Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
+Interface uses exe286, exe386, os2exe, miscUtil, sysLib, {$ifdef fpc}drivers,{$endif}
                strOp, Country, Collect, lxlite_Global;
 
 type
@@ -68,7 +75,11 @@ var
 begin
  For I := low(Params) to High(Params) do
   nP[I - low(Params)] := pLong(@Params[I])^;
+{$ifndef fpc}
  StrOp.FormatStr(Result, GetResourceString(Template), nP);
+{$else}
+ Drivers.FormatStr(Result, GetResourceString(Template), nP);
+{$endif}
 end;
 
 procedure PrintHeader;
@@ -1090,16 +1101,19 @@ var
  S    : string;
 begin
  S := sourcePath + cfgFname;
+ writeln('S=', S);
  Assign(T, S); Reset(T);
  if ioResult <> 0 then Stop(msgCannotLoadCFG, S);
  New(iPos, Create(4, 4));
  Mode := 0;
  While (ioResult = 0) and (not SeekEOF(T)) do
   begin
-   Readln(T, S);
+   writeln('000');
+   Readln(T, S); ////
    DelTrailingSpaces(S);
    if First(';', S) <> 0
     then Delete(S, First(';', S), 255);
+   writeln('001: ', S);
    While S <> '' do
     begin
      case Mode of
@@ -1137,7 +1151,10 @@ newID:           Delete(S, 1, 1); Mode := 1;
  Dispose(iPos, Destroy);
  for I := cfgIDs^.Count downto 1 do
   begin
-   S := pString(cfgIDs^.At(pred(I)))^;
+   writeln('002: i=', i);
+   S := pString(cfgIDs^.At(pred(I)))^; ////
+   writeln('003');
+   writeln('004: ', S);
    if S[1] = '/'
     then begin
           Delete(S, 1, 1);

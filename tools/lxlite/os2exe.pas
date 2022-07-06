@@ -5,8 +5,14 @@
 (*                                                                          *)
 (*        Copyright (c) FRIENDS software, 1996   No Rights Reserved         *)
 (****************************************************************************)
-{&AlignCode-,AlignData-,AlignRec-,G3+,R-,Speed-,Frame-,Use32+}
-{$ifndef fpc}{$Use32+}{$else}{$define use32}{$asmmode intel}{$endif}
+{&G3+,R-}
+{$ifndef fpc}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$asmmode intel}
+{$Optimization STACKFRAME}
+{$endif}
 Unit os2exe;
 
 Interface uses exe286, exe386, miscUtil, SysLib, Collect, Streams;
@@ -363,11 +369,88 @@ var
  src      : tByteArray absolute srcData;
  dst      : tByteArray absolute dstData;
 
+{$ifdef fpc}
+
+function Search : boolean;
+var
+  src, src0: longint;
+  dst, dst0: longint;
+  x, y, z:   longint;
+  cnt:       byte;
+
+begin
+    src := longint(@srcData) + sOf;
+    dst := longint(@srcData) + tOf;
+
+    z := 0;
+
+    cnt := packLevel;
+
+    if cnt <> 255 then
+    begin
+        x := dst - src;
+        if x > cnt then z := x - cnt;
+    end;
+
+    MatchOff := z;
+    src := src + z;
+
+    repeat
+        src0 := src;
+        dst0 := dst;
+
+        z := srcDataSize - tOf;
+        x := dst - src;
+
+        if z >= x then
+        begin
+            y := z div x;
+            cnt := x;
+
+            repeat
+                if memcmp(src, dst, cnt) = 0 then break;
+                z := z - 1;
+            until z <> 0;
+
+            if z <> y then
+            begin
+                z := y - z + 1;
+                y := x;
+                x := x * z - 4;
+
+                if x >= 0 then
+                begin
+                    if x > cnt then
+                    begin
+                        MatchCnt := z;
+                        MatchLen := cnt;
+
+                        src := src0;
+                        dst := dst0;
+
+                        Search := true;
+                    end
+                end
+            end 
+        end;
+
+        src := src0;
+        dst := dst0;
+
+        src := src + 1;
+        MatchOff := MatchOff + 1;
+
+    until src >= dst;
+
+    Search := false;
+end;
+
+{$else}
+
 {&uses ebx,esi,edi}
 { Trick: In FRAME- state BP register is not altered so we can }
 { address external data via [bp+XX]; however we must address }
 { it via var[bp][-4] because compiler thinks that BP is modified }
-{$ifndef FPC}
 function Search : boolean; assembler;
 asm             cld
                 mov     esi,srcData
@@ -428,71 +511,9 @@ asm             cld
                 mov     al,0
 @@locEx:
 end;
-
-{$else}
-
-function Search : boolean; assembler;
-asm             cld
-                mov     esi,[ebp+20]
-                mov     edi,esi
-                add     edi,ebp[-4-8] {!!! and so on !!!} {tOf}
-                add     esi,ebp[-4-0] {sOf}
-                xor     eax,eax
-                mov     ecx,[ebp]{packLevel}
-                cmp     cl,255
-                je      @@setStart
-                mov     ebx,edi
-                sub     ebx,esi
-                cmp     ebx,ecx
-                jbe     @@setStart
-                mov     eax,ebx
-                sub     eax,ecx
-@@setStart:     mov     ebp[-4-12],eax {MatchOff}
-                add     esi,eax
-@@nextPatt:     push    esi
-                push    edi
-                mov     eax,[ebp+12] {srcDataSize}
-                sub     eax,ebp[-4-8] {tOf}
-                mov     ebx,edi
-                sub     ebx,esi
-                cmp     ebx,eax
-                ja      @@noMatch
-                xor     edx,edx
-                div     ebx
-                mov     edx,eax                 {EDX = EAX = max matches}
-@@nextMatch:    mov     ecx,ebx                 {EBX = ECX = pattern length}
-                repe    cmpsb
-                jne     @@notEQ
-                dec     eax
-                jnz     @@nextMatch
-@@notEQ:        cmp     eax,edx
-                je      @@noMatch
-                sub     eax,edx
-                neg     eax
-                inc     eax                     {EAX = number of actual matches}
-                mov     edx,ebx
-                db      $0F,$AF,$D8             {imul    ebx,eax}
-                sub     ebx,2+2
-                jc      @@noMatch
-                cmp     ebx,edx
-                jbe     @@noMatch
-                mov     ebp[-4-16],eax {MatchCnt}
-                mov     ebp[-4-20],edx {MatchLen}
-                pop     esi
-                pop     edi
-                mov     al,1
-                jmp     @@locEx
-@@noMatch:      pop     edi
-                pop     esi
-                inc     esi
-                inc     ebp[-4-12] {MatchOff}
-                cmp     esi,edi
-                jb      @@nextPatt
-                mov     al,0
-@@locEx:
-end;
-{$endif}
 {&uses none}
+
+{$endif}
 
 function dstAvail(N : Longint) : boolean;
 begin
@@ -555,9 +576,69 @@ var
  src         : tByteArray absolute srcData;
  dst         : tByteArray absolute dstData;
 
-{&uses esi,edi,ebx}
-{$ifndef fpc}
+{$ifdef fpc}
 
+function Search : boolean;
+label maxLen, endOfChain;
+var
+    src:           pWord16Array;
+    dst:           longint;
+    x, a, b, cnt:  longint;
+    ret:           boolean;
+
+begin
+    x := srcDataSize - tOf;
+    ret := false;
+
+    if x > 2 then
+    begin
+        src := pWord16Array(longint(@srcData) + tOf);
+        dst := longint(src);
+
+        a := (src^[word(tOf)] and $0FFF) shl 1;
+        a := (a + longint(@ChainHead)) and maxMatchLen;
+
+        repeat
+            repeat
+                repeat
+                    if ChainHead^[a] = -1 then goto endOfChain;
+
+                    a := Chain^[ChainHead^[a] shl 1];
+                    dst := longint(srcData);
+                    cnt := x;
+                    if memcmp(src, dst, cnt) = 0 then goto maxLen;
+                    cnt := x - cnt;
+                    x := x - cnt;
+                    cnt := cnt - 1;
+                until cnt > maxMatchLen;
+
+                dst := dst - longint(srcData);
+                maxMatchlen := cnt;
+                maxMatchPos := dst;
+                b := tOf - 1;
+
+            until b > dst;
+        until cnt > 63;
+
+        goto endOfChain;
+
+maxLen:
+        dst := dst - x - longint(srcData);
+        maxMatchLen := x;
+        maxMatchPos := dst;
+
+endOfChain:
+        ret := false;
+
+        if maxMatchLen >= 3 then ret := true;
+    end;
+
+    Search := ret;
+end;
+
+{$else}
+
+{&uses esi,edi,ebx}
 function Search : boolean; assembler;
 asm             cld
                 mov     edx,srcDataSize
@@ -616,69 +697,9 @@ asm             cld
 @@noMatch:      pop     esi
 @@locEx:
 end;
-
-{$else}
-
-function Search : boolean; assembler;
-asm             cld
-                mov     edx,[ebp+8] {srcDataSize}
-                sub     edx,ebp[-4-16] {tOf}
-                mov     al,0
-                cmp     edx,2
-                jbe     @@locEx
-                mov     esi,[ebp+16] {srcData}
-                mov     edi,esi
-                add     esi,ebp[-4-16] {tOf}
-                mov     ax,[esi]
-                and     eax,0FFFh
-                shl     eax,1
-                add     eax,ebp[-4-4] {ChainHead}
-                and     ebp[-4-28],0 {maxMatchLen}
-
-@@nextSearch:   push    esi
-                movsx   edi,word ptr [eax]
-                cmp     edi,-1
-                je      @@endOfChain
-                mov     eax,edi
-                shl     eax,1
-                add     eax,ebp[-4] {Chain}
-                add     edi,[ebp+16] {srcData}
-                mov     ecx,edx
-                repe    cmpsb
-                jz      @@maxLen
-                pop     esi
-                sub     ecx,edx
-                neg     ecx
-                sub     edi,ecx
-                dec     ecx
-                cmp     ecx,ebp[-4-28] {maxMatchLen}
-                jbe     @@nextSearch
-                sub     edi,[ebp+16] {srcData}
-                mov     ebp[-4-28],ecx {maxMatchLen}
-                mov     ebp[-4-32],edi {maxMatchPos}
-                mov     ebx,ebp[-4-16] {tOf}
-                dec     ebx
-                cmp     ebx,edi                 {Prefer RL encoding since it}
-                jne     @@nextSearch            {packs longer strings}
-                cmp     ecx,63                  {Strings up to 63 chars are always}
-                jbe     @@nextSearch            {packed effectively enough}
-                push    esi
-                jmp     @@endOfChain
-
-@@maxLen:       sub     edi,edx
-                sub     edi,[ebp+16] {srcData}
-                mov     ebp[-4-28],edx {maxMatchLen}
-                mov     ebp[-4-32],edi {maxMatchPos}
-
-@@endOfChain:   mov     al,0
-                cmp     ebp[-4-28],3 {maxMatchLen}
-                jb      @@noMatch
-                inc     al
-@@noMatch:      pop     esi
-@@locEx:
-end;
-{$endif}
 {&uses none}
+
+{$endif}
 
 function dstAvail(N : Longint) : boolean;
 begin

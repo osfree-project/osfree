@@ -1,5 +1,10 @@
-{Frame-}
-{$ifndef FPC}{$Speed-,$G3+,AlignCode-,AlignData-,AlignRec-,Use32+}{$endif}
+{&G3+}
+{$ifndef fpc}
+{$AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$Optimization STACKFRAME}
+{$endif}
 unit Country;
 
 Interface uses os2def, {$ifndef FPC}os2base{$else}doscalls{$endif}, miscUtil, strOp;

@@ -1,5 +1,5 @@
-{$A-,B-,D+,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
-{$ifndef fpc}{$F-,G-,L+,N-,Y+,E-,Y+,Use32+}{$endif}
+{$A-,B-,D+,G-,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
+{$ifndef fpc}{$E-,F-,L+,N-,Y+,Use32+}{$endif}
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 { Collections (dynamic arrays) ver. 1.1                                      }
 { Portable source code (tested on DOS and OS/2)                              }

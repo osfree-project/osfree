@@ -1,5 +1,13 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Delphi+,Use32+}
+{&G3+}
+{$ifndef fpc}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Delphi+,Use32+}
+{$else}
+{$Align 1}
+{$asmmode intel}
+{$Optimization STACKFRAME}
+{$endif}
 {&define OS_MAP_CASE}
+
 {$P+}
 Unit strOp;
 
@@ -50,7 +58,9 @@ var
 
 {FormatStr is the same as in Borland`s DRIVERS unit}
 {$ifdef VER70} {$P-} {$endif}
+{$ifndef fpc}
  Procedure FormatStr(var Result: String; const Format: String; var Params);
+{$endif}
 {$ifdef VER70} {$P+} {$endif}
 
 {Return decimal representation of A right-justified in N positions filled with Ch}
@@ -362,6 +372,7 @@ end;
 {   'x' means the parameter is a Longint to be displayed in hexadecimal.}
 {   '#' sets the parameter index to nnn.                                }
 {$V+}
+{$ifndef fpc}
 procedure FormatStr(var Result: String; const Format: String; var Params);
   assembler; {$IFNDEF FPC}{&USES ebx,esi,edi}{&FRAME+}{$ENDIF}
 var ParOfs    : Longint;
@@ -521,6 +532,7 @@ asm
                 jmp     @@1
 @@Done:
 end; {&FRAME-}
+{$endif}
 
 Function Strg; assembler;
 asm             cld

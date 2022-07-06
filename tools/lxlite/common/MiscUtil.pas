@@ -1,6 +1,13 @@
-{$ifndef fpc}{$A-,B-,F-,G+,N-,O-}{$endif}
-{D+,E-,I-,L+,P-,Q-,R-,S-,T-,V-,X+}
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
+{$A-,B-,D+,G+,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
+{&G3+}
+{$ifndef fpc}
+{$E-,F-,L+,N-}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$asmmode intel}
+{$Optimization STACKFRAME}
+{$endif}
 Unit miscUtil;
 
 Interface
@@ -182,20 +189,20 @@ Implementation {$ifDef os2} uses {$ifnDef FPC} os2base; {$else} doscalls, math; 
 
 {北北北北北北北北北北北北北北 High-level functions 北北北北北北北北北北北北北}
 
- Function  minL(A,B : Longint) : Longint;
 {$ifnDef VirtualPascal}
+ Function  minL(A,B : Longint) : Longint;
  begin if A <= B then minL := A else minL := B; end;
 {$endIf}
- Function  maxL(A,B : Longint) : Longint;
 {$ifnDef VirtualPascal}
+ Function  maxL(A,B : Longint) : Longint;
  begin if A >= B then maxL := A else maxL := B; end;
 {$endIf}
- Function  minI(A,B : Integer) : Integer;
 {$ifnDef VirtualPascal}
+ Function  minI(A,B : Integer) : Integer;
  begin if A <= B then minI := A else minI := B; end;
 {$endIf}
- Function  maxI(A,B : Integer) : Integer;
 {$ifnDef VirtualPascal}
+ Function  maxI(A,B : Integer) : Integer;
  begin if A >= B then maxI := A else maxI := B; end;
 {$endIf}
 

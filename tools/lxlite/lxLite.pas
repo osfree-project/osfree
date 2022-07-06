@@ -1,10 +1,18 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-}
-{$ifndef fpc}{$Use32+}{$else}{$define use32}{$asmmode intel}{$mode objfpc}{$endif}
+{&G3+}
+{$ifndef fpc}
+{$R lxlite.res}
+{$R os2api.res}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {&M 262144}
-{&R lxlite.res}
-{&R os2api.res}
+{$else}
+{$MinStackSize 262144}
+{$Align 1}
+{$mode objfpc}
+{$asmmode intel}
+{$Optimization STACKFRAME}
+{$endif}
 uses
- Dos, Crt, os2def, {$ifndef fpc} os2base, {$else} doscalls, {$endif}
+ Dos, Crt, os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif}
  exe386, os2exe, strOp, miscUtil, SysLib, Collect, Country, Strings,
  lxLite_Global, lxLite_Objects;
 
@@ -818,7 +826,9 @@ begin
         Write(#13);
         SetColor($07); ClearToEOL;
        end;
+{$ifndef fpc}
  OldExit;
+{$endif}
  Halt(exitCode);
 end;
 
@@ -882,4 +892,3 @@ done:
  if not RedirOutput then Write(#13);
  Writeln(GetResourceString(msgDone));
 end.
-

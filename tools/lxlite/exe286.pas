@@ -7,7 +7,13 @@
 (*               (C) Copyright Microsoft Corp 1984-1987                     *)
 (*            C->Pascal conversion (c) FRIENDS software, 1996               *)
 (****************************************************************************)
-{$AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
+{&G3+}
+{$ifndef fpc}
+{$AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
+{$else}
+{$Align 1}
+{$Optimization STACKFRAME}
+{$endif}
 Unit exe286;
 
 Interface uses MiscUtil;

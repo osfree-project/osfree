@@ -1,5 +1,12 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-}
+{&G3+}
+{$ifndef fpc}
+{&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-}
 {$M 262144}
+{$else}
+{$Align 1}
+{$Optimization STACKFRAME}
+{$MinStackSize 262144}
+{$endif}
 uses  os2base, miscUtil, SysLib, CmdLine, Collect,
       strOp, Crt, Dos, lxlite_Global;
 const
