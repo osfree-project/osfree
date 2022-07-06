@@ -51,20 +51,20 @@ SOM_INCL= -i=$(SOM_INTDIR) &
 
 !ifdef HOSTBLD
 
-DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
+DEST    = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)lib
 
 !ifeq %OS OS2
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT 
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST)
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -75,7 +75,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 !ifeq %OS LINUX
 ADD_OPTS =  -D_PLATFORM_UNIX_ -D_PLATFORM_X11_ -DSTRICT  &
     -D_POSIX_SOURCE -DHAVE_UNISTD_H -DHAVE_SIGNAL_H
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST)
 defs = $(%WATCOM)$(SEP)lh
 !endif
 OPTIONS = manyautodata
@@ -163,4 +163,3 @@ PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
 			$(SOM_INTDIR)$(SEP)scusrtyp.xih
 
 $(OBJS): $(PRIVATE_HEADERS)
-#  echo $(ADD_CPPOPT)
