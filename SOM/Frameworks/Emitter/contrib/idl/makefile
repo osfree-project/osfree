@@ -105,7 +105,7 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMIDL_HEADERS)$(SEP)sctypes.xh $(SOMIDL_HEADERS)$(SEP)sm.h $(PRIVATE_HEADERS) $(SOMIDL_HEADERS)$(SEP)sm.xh $(PRODUCTS_PDL) $(PRODUCTS_SC) 
+TARGETS=$(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMIDL_HEADERS)$(SEP)sctypes.xh $(SOMIDL_HEADERS)$(SEP)sm.h $(PRIVATE_HEADERS) $(SOMIDL_HEADERS)$(SEP)sm.xh $(PRODUCTS_PDL) $(PRODUCTS_SC) 
 
 $(PRODUCTS_SC): $(SOM_IDL)
 
@@ -126,6 +126,9 @@ $(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
+ $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 

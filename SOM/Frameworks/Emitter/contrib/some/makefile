@@ -100,20 +100,13 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 UNI2H = 1
 C = r
 
-ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
+ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -p
 
 !ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
 !else
 !include $(%ROOT)/mk/appsos2.mk
 !endif
-
-
-
-.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
-.idl: $(SRC)..$(SEP)idl
-.xih: $(SOM_INTDIR)
-#.xh: $(SRC)
 
 PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
 			$(SOM_INTDIR)$(SEP)scentry.xih &
@@ -163,4 +156,3 @@ PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)scentry.xh &
 			$(SOM_INTDIR)$(SEP)scusrtyp.xih
 
 $(OBJS): $(PRIVATE_HEADERS)
-#  echo $(ADD_CPPOPT)

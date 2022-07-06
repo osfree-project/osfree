@@ -163,7 +163,8 @@ SOM_Scope void SOMLINK somtSetEntryStruct(SOMTClassEntryC * somSelf,
   SOMTClassEntryCData *somThis = SOMTClassEntryCGetData(somSelf);
   SOMTClassEntryCMethodDebug("SOMTClassEntryC","somtSetEntryStruct");
   
-  SOMTClassEntryC_parent_SOMTEntryC_somtSetEntryStruct(somSelf, es);
+  //SOMTClassEntryC_parent_SOMTEntryC_somtSetEntryStruct(somSelf, es);
+  parent_somtSetEntryStruct(somSelf, es);
 }
 
 SOM_Scope SOMTUnionEntryC * SOMLINK somtGetNextUnion(SOMTClassEntryC * somSelf)
@@ -569,7 +570,9 @@ SOM_Scope string SOMLINK _get_somtSourceFileName(SOMTClassEntryC * somSelf)
   SOMTClassEntryCData *somThis = SOMTClassEntryCGetData(somSelf);
   SOMTClassEntryCMethodDebug("SOMTClassEntryC","_get_somtSourceFileName");
   
-  Entry *es=SOMTClassEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf);
+  //Entry *es=SOMTClassEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf);
+  //Entry *es=SOMTClassEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf);
+  Entry *es=somSelf->_get_somtEntryStruct();
   
   return es->data->defined_in->id;
 }
