@@ -60,11 +60,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll, somtk
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll, somtk
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif

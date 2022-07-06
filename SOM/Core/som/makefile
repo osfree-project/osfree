@@ -1,4 +1,3 @@
-# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 PROJ = som
 TRGT = $(PROJ).dll
@@ -6,114 +5,21 @@ DLL = 1
 DESC = SOM Kernel
 DLLOPT  = initinstance terminstance
 srcfiles = $(p)somkern$(e) &
-	 $(p)rhbsomid$(e) &
-	 $(p)somalloc$(e) &
-	 $(p)somobjva$(e) &
-	 $(p)somapi$(e) &
-	 $(p)sommutex$(e) &
-	 $(p)somkpath$(e) &
-	 $(p)rhbseh2$(e) &
+		$(p)rhbsomid$(e) &
+		$(p)somalloc$(e) &
+		$(p)somobjva$(e) &
+		$(p)somapi$(e) &
+		$(p)sommutex$(e) &
+		$(p)somkpath$(e) &
+		$(p)rhbseh2$(e) &
 !ifeq %OS LINUX
 !ifdef HOSTBLD
-	 $(p)rhbseh$(e) &
+		$(p)rhbseh$(e) &
 !endif
 !endif
-	 $(p)somshlb$(e)
+		$(p)somshlb$(e)
 
 #INSTALL_ADD = 1
-!if 0
-EXPORTS = somMainProgram, &
-		DllMain, & 
-		SOMInitModule, & 
-			SOMObjectClassData , &
-			SOMObjectCClassData , &
-			SOM_WarnLevel                       , &
-			SOMClassMgrObject                   , &
-			SOMRequestMutexSem                  , &
-			SOMReleaseMutexSem                  , &
-			SOMMalloc                           , &
-			SOMCalloc                           , &
-			SOMRealloc                          , &
-			SOMFree                             , &
-			SOMClassCClassData                  , &
-			SOMClassClassData                   , &
-			SOM_TraceLevel                      , &
-			SOM_AssertLevel                     , &
-			SOMError                            , &
-			SOMGetThreadId                      , &
-			SOM_MaxThreads                      , &
-			SOMClassMgrClassData                , &
-			SOMCreateMutexSem                   , &
-			SOMClassMgrCClassData               , &
-			SOMDeleteModule                     , &
-			SOMLoadModule                       , &
-			SOMClassInitFuncName                , &
-			SOM_MajorVersion                    , &
-			SOM_MinorVersion                    , &
-			SOMDestroyMutexSem                  , &
-			SOMObjectNewClass                   , &
-			SOMClassNewClass                    , &
-			SOMClassMgrNewClass                 , &
-			somRegisterClassLibrary             , &
-			somEnvironmentNew                   , &
-			somDataResolve                      , &
-			somDataResolveChk                   , &
-			somResolve                          , &
-			somParentNumResolve                 , &
-			somClassResolve                     , &
-			somAncestorResolve                  , &
-			somResolveByName                    , &
-			somParentResolve                    , &
-			somGetClassFromMToken               , &
-			somBuildClass                       , &
-			somConstructClass                   , &
-			somApply                            , &
-			somEnvironmentEnd                   , &
-			somCheckId                          , &
-			somRegisterId                       , &
-			somIdFromString                     , &
-			somStringFromId                     , &
-			somCompareIds                       , &
-			somUniqueKey                        , &
-			somTotalRegIds                      , &
-			somSetExpectedIds                   , &
-			somBeginPersistentIds               , &
-			somEndPersistentIds                 , &
-			somAbnormalEnd                      , &
-			somLPrintf                          , &
-			somPrintf                           , &
-			somVprintf                          , &
-			somPrefixLevel                      , &
-			somIsObj                            , &
-			somTestCls                          , &
-			somTest                             , &
-			somAssert                           , &
-			somSetOutChar                       , &
-			somExceptionId                      , &
-			somExceptionValue                   , &
-			somExceptionFree                    , &
-			somSetException                     , &
-			somGetGlobalEnvironment             , &
-			somIdMarshal                        , &
-			somStartCriticalSection             , &
-			somEndCriticalSection               , &
-			SOMOutCharRoutine                   , &
-			somCheckArgs                        , &
-			somFreeThreadData                   , &
-			somva_SOMObject_somDispatchV        , &
-			somva_SOMObject_somDispatchL        , &
-			somva_SOMObject_somDispatchA        , &
-			somva_SOMObject_somDispatchD        , &
-			somva_SOMObject_somDispatch         , &
-			somva_SOMObject_somClassDispatch    , &
-			va_SOMObject_somDispatchV           , &
-			va_SOMObject_somDispatchL           , &
-			va_SOMObject_somDispatchA           , &
-			va_SOMObject_somDispatchD           , &
-			va_SOMObject_somDispatch            , &
-			va_SOMObject_somClassDispatch
-
-!endif
 
 !ifdef HOSTBLD
 SRC = $(MYDIR)..$(SEP)..$(SEP)
