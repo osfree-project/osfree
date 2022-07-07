@@ -1,0 +1,19 @@
+#ifndef GENEmitter_idl
+#define GENEmitter_idl
+
+#include <scemit.idl>
+
+interface GENEmitter : SOMTEmitC
+{
+#ifdef __SOMIDL__
+  implementation {
+    //# Class Modifiers
+    callstyle = oidl;
+
+    //# Method Modifiers
+    somtGenerateSections: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* GENEmitter_idl */
