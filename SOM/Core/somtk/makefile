@@ -12,7 +12,7 @@ OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 TARGETS= pre $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
 $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)common$(SEP)dll$(SEP)som.dll
-	$(verbose)$(LIB) $^@ +$< $(BLACKHOLE)
+	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
 
 pre: .symbolic
  @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)lib

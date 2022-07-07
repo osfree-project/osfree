@@ -316,6 +316,10 @@ int main(int argc,char **argv)
 	add_many(&defines,"_PLATFORM_X11_");
 #endif
 
+#ifdef __OS2__
+	add_many(&defines,"__SOMIDL_VERSION_1__");
+#endif
+
 	while (i < argc)
 	{
 		char *p=argv[i++];
@@ -361,6 +365,7 @@ int main(int argc,char **argv)
 					add_many(&undefines,argv[i++]);
 				}
 				break;
+			case 'a':			// Undocumented. Same as -m
 			case 'm':
 				if (p[2])
 				{
