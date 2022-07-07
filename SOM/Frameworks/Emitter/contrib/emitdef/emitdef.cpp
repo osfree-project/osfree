@@ -42,7 +42,7 @@ SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
     }
     else if (cls->type == SOMTModuleE) {
 
-        fp = somtopenEmitFile(file, "pas");
+        fp = somtopenEmitFile(file, "def");
         mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
         emitter = new DEFEmitter();
         emitter->_set_somtTargetFile(fp);

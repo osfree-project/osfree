@@ -97,6 +97,18 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 
 !endif
 
+EXPORTS = somtEntryTypeName.70, &
+		somtGetFileStem.71, &
+  somtGetObjectWrapper            .72, &
+  somtMakeIncludeStr              .73, &
+  somtNewSymbol                   .74, &
+  somtShowEntry                   .75, &
+  somtStrCat                      .76, &
+  somtStrDup                      .77, &
+  somtopenEmitFile, &
+  somtfclose
+
+
 UNI2H = 1
 C = r
 
@@ -108,6 +120,13 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
+TARGETS= pre $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+
+$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)some.dll
+	$(verbose)$(LIB) $^@ +$< $(BLACKHOLE)
+
+pre: .symbolic
+ @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)lib
 
 
 .c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src

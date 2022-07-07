@@ -4,7 +4,7 @@
 # prokushev, 2022/07/05
 #
 
-DIRS = idl some
+DIRS = idl some emitdef emitlnk
 
 !include $(%ROOT)/mk/all.mk
 
