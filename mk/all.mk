@@ -510,9 +510,11 @@ $(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
 
 install3: $(PATH)$(file) .symbolic
 # @if exist $(DEST)$(SEP)$(file) @%quit
+!ifneq DEST $(PATH)
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
  $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+!endif
 
 #install: build .symbolic
 #!ifeq PROJ

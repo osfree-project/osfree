@@ -8,8 +8,7 @@
 
 PROJ  = lxlite
 PROJ1 = lxlite1
-PROJ2 = lxlite2
-#TRGT  = $(PROJ2).exe
+TRGT  = $(PROJ).exe
 !ifeq %OS OS2
 defs = -dOS2
 !endif
@@ -25,23 +24,21 @@ defs = -dLINUX
 defs = $(defs) -dUSE32
 DESC  = lxlite and utilities
 ADD_PCOPT = $(defs) -Fucommon -duse32 -Rintel -So -Xm
-#RESOURCE = $(PATH)$(PROJ).res
-TARGETS  = $(PATH)$(PROJ2).exe
+TARGETS  = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)/mk/toolspas.mk
 
-$(PATH)lxlite.res: $(MYDIR)lxlite.rc
+$(PATH)rc.rc: $(MYDIR)os2api.rc $(MYDIR)lxlite.rc
+!ifeq UNIX TRUE
+ $(verbose)cat $(MYDIR)lxlite.rc $(MYDIR)os2api.rc >$(PATH)rc.rc
+!else
+ $(verbose)copy /b $(MYDIR)os2api.rc+$(MYDIR)lxlite.rc $(PATH)rc.rc
+!endif
 
-$(PATH)os2api.res: $(MYDIR)os2api.rc
-
-$(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(MYDIR)os2api.rc
+$(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc
  @$(SAY) RESCMP   $^. $(LOG)
- wrc -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2 $(defs) $(MYDIR)os2api.rc $(PATH)$(PROJ1).exe -fe=$@ -fo=$(PATH)os2api.res
+ $(verbose)$(RC) -bt=os2 -zm $(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 $(PATH)rc.rc $(PATH)$(PROJ1).exe -fe=$@ -fo=$(PATH)rc.res
 
-$(PATH)$(PROJ1).exe: $(PATH)$(PROJ2).exe $(MYDIR)lxlite.rc
- @$(SAY) RESCMP   $^. $(LOG)
- wrc -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2 $(defs) $(MYDIR)lxlite.rc $(PATH)$(PROJ2).exe -fe=$@ -fo=$(PATH)$(PROJ).res
-
-$(PATH)$(PROJ2).exe: $(MYDIR)$(PROJ).pas .symbolic
+$(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ).pas .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $<
+ $(verbose)$(PC) $(PCOPT) -FE$(PATH) -Fe$(PATH) -o$(PROJ1).exe $(PROJ).pas 

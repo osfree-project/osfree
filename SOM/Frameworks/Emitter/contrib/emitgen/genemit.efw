@@ -1,0 +1,13 @@
+:prologS
+;
+;  SOM Compiler Definition File Emitter (C) Yuri Prokushev
+;                                       (C) Andrey Vasilkin
+;
+LIBRARY <lnkDLLName> INITINSTANCE
+DESCRIPTION '<className> Definition File'
+PROTMODE
+DATA MULTIPLE NONSHARED LOADONCALL
+EXPORTS
+   <className>ClassData
+   <className>CClassData
+   <className>NewClass

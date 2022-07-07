@@ -780,27 +780,19 @@ var
  rc : APIRET;
 begin
   rc := DosGetResource(nullHandle,
-         {$ifndef FPC}rt_String{$else}rtString{$endif},
+         {$ifndef fpc}rt_String{$else}rtString{$endif},
          ID div 16 + 1,
          Pointer(pS));
   if rc <> 0 then
   begin
-      writeln('+ rc=', rc);
-      writeln('+ ID=', ID);
       GetResourceString := '';
       exit;
   end;
   Inc(pS, sizeOf(Word16)); {skip codepage}
-{$ifndef FPC}
-  For I := 1 to ID and $0F do Inc(pS, succ(pS^));
+  For I := 1 to ID and $0F do Inc(pS, pS^ + 1);
   Move(pS^, S, pS^);
-{$else}
-  For I := 1 to ID and $0F do Inc(pS, succ(longint(pS)));
-  Move(pS, S, longint(pS));
-{$endif}
   Dec(byte(S[0]));
   DosFreeResource(pS);
-  writeln('+ S=', S);
   GetResourceString := S;
 end;
 
