@@ -8,7 +8,7 @@ srcfiles = $(p)rhbsc$(e) &
 	 $(p)rhbscemt$(e) &
 	 $(p)rhbsctyp$(e) &
 	 $(p)rhbscpp$(e) &
-	 $(p)rhbsctxt $(e) &
+	 $(p)rhbsctxt$(e) &
 	 $(p)rhbscsome$(e)
 
  
@@ -69,10 +69,3 @@ C = r
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
-#.cpp: $(SRC)
-
-#.c: $(SRC)
-
-#.h: $(SRC)
-
-#.$(O): $(PATH)
