@@ -4,7 +4,7 @@
 # prokushev, 2022/07/05
 #
 
-DIRS = idl some emitdef emitlnk emitgen
+DIRS = idl some emitdef emitlnk emitgen emith
 
 !include $(%ROOT)/mk/all.mk
 
