@@ -509,7 +509,7 @@ $(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
  @$(MAKE) $(MAKEOPT) file=$(TRGT) install3
 
 install3: $(PATH)$(file) .symbolic
- @if exist $(DEST)$(SEP)$(file) @%quit
+# @if exist $(DEST)$(SEP)$(file) @%quit
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
  $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)

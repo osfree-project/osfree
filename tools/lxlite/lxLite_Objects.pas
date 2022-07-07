@@ -9,7 +9,7 @@
 {$endif}
 Unit lxLite_Objects;
 
-Interface uses exe286, exe386, os2exe, miscUtil, sysLib, {$ifdef fpc}drivers,{$endif}
+Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
                strOp, Country, Collect, lxlite_Global;
 
 type
@@ -50,7 +50,7 @@ var
  procedure setConfig(const ID : string);
  procedure ShowConfig;
 
-Implementation uses Crt, Dos, Strings;
+Implementation uses Crt, Dos, Strings{$ifdef fpc}, SysUtils{$endif};
 
 var
  CmdLineStack : pStringCollection;
@@ -70,15 +70,21 @@ end;
 
 function FormatStr(Template : Longint; Params : array of const) : string;
 var
- nP : array[0..31] of Longint;
- I  : Word;
+ nP  : array[0..31] of Longint;
+ I   : Word;
+ fmt : String;
+ S   : String;
 begin
  For I := low(Params) to High(Params) do
   nP[I - low(Params)] := pLong(@Params[I])^;
+ fmt := GetResourceString(Template);
 {$ifndef fpc}
- StrOp.FormatStr(Result, GetResourceString(Template), nP);
+ StrOp.FormatStr(Result, fmt, nP);
 {$else}
- Drivers.FormatStr(Result, GetResourceString(Template), nP);
+ {S := fmt;}
+ {SysUtils.FmtStr(S, fmt, Params);}
+ {Drivers.FormatStr(S, fmt, Params);}
+ Result := fmt;
 {$endif}
 end;
 
@@ -1101,19 +1107,16 @@ var
  S    : string;
 begin
  S := sourcePath + cfgFname;
- writeln('S=', S);
  Assign(T, S); Reset(T);
  if ioResult <> 0 then Stop(msgCannotLoadCFG, S);
  New(iPos, Create(4, 4));
  Mode := 0;
  While (ioResult = 0) and (not SeekEOF(T)) do
   begin
-   writeln('000');
-   Readln(T, S); ////
+   Readln(T, S);
    DelTrailingSpaces(S);
    if First(';', S) <> 0
     then Delete(S, First(';', S), 255);
-   writeln('001: ', S);
    While S <> '' do
     begin
      case Mode of
@@ -1151,10 +1154,7 @@ newID:           Delete(S, 1, 1); Mode := 1;
  Dispose(iPos, Destroy);
  for I := cfgIDs^.Count downto 1 do
   begin
-   writeln('002: i=', i);
-   S := pString(cfgIDs^.At(pred(I)))^; ////
-   writeln('003');
-   writeln('004: ', S);
+   S := pString(cfgIDs^.At(pred(I)))^;
    if S[1] = '/'
     then begin
           Delete(S, 1, 1);
