@@ -480,7 +480,7 @@ targets: prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 !ifdef PROJ
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile $(PATH)makefile
 !endif
 
 !ifeq  DEST none
@@ -516,7 +516,7 @@ $(DEST)$(SEP)subdirs: .symbolic
 
 $(PATH)subdirs: .symbolic
 
-!ifneq FLG ""
+!ifneq TRGT ""
 $(PATH)$(FLG): .symbolic
 !endif
 
