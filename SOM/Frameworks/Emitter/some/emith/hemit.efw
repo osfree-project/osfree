@@ -1,0 +1,244 @@
+:prologS
+/* generated from <classSourceFile> */
+/* internal conditional is SOM_Module_<classSourceFileStem>_Source */
+#ifndef SOM_Module_<classSourceFileStem>_Header_h
+	#define SOM_Module_<classSourceFileStem>_Header_h 
+	#include \<som.h>
+:baseIncludesS
+#include \<<baseSourceFileStem>.h>
+:classS
+/*
+ * Define the class name as an object type
+ */
+ 
+	#ifndef _IDL_<classCScopedName>_defined
+		#define _IDL_<classCScopedName>_defined
+		typedef SOMObject <classCScopedName>;
+	#endif /* _IDL_<classCScopedName>_defined */
+
+	#ifndef _IDL_SEQUENCE_<classCScopedName>_defined
+		#define _IDL_SEQUENCE_<classCScopedName>_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(<classCScopedName> SOMSTAR ,sequence(<classCScopedName>));
+	#endif /* _IDL_SEQUENCE_<classCScopedName>_defined */
+  
+	#ifndef <classCScopedName>_MajorVersion
+		#define <classCScopedName>_MajorVersion   <classMajorVersion>
+	#endif /* <classCScopedName>_MajorVersion */
+	#ifndef <classCScopedName>_MinorVersion
+		#define <classCScopedName>_MinorVersion   <classMinorVersion>
+	#endif /* <classCScopedName>_MinorVersion */
+
+/*
+ * Declare the class creation procedure
+ */
+  
+	SOMClass SOMSTAR SOMLINK <classCScopedName>NewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+
+/*
+ * Class Object and Method Token Macros
+ */
+
+	#define _SOMCLASS_<classCScopedName> (<classCScopedName>ClassData.classObject)
+	#ifndef SOMGD_<classCScopedName>
+		#if (defined(_<classCScopedName>) || defined(__<classCScopedName>))
+			#undef _<classCScopedName>
+			#undef __<classCScopedName>
+			#define SOMGD_<classCScopedName> 1
+		#else
+			#define _<classCScopedName> _SOMCLASS_<classCScopedName>
+		#endif /* _<classCScopedName> */
+	#endif /* SOMGD_<classCScopedName> */
+	#define <classCScopedName>_classObj _SOMCLASS_<classCScopedName>
+	#define _SOMMTOKEN_<classCScopedName>(method) ((somMToken)(<classCScopedName>ClassData.method))
+
+/*
+ * New and Renew macros for <classCScopedName>
+ */
+  
+	#ifndef <classCScopedName>New
+		#define <classCScopedName>New() ( _<classCScopedName> ? \\
+			(SOMClass_somNew(_<classCScopedName>)) : \\
+			( <classCScopedName>NewClass( \\
+				<classCScopedName>_MajorVersion, \\
+				<classCScopedName>_MinorVersion), \\
+			SOMClass_somNew(_<classCScopedName>))) 
+	#endif /* <classCScopedName>New */
+  
+:methodS
+/*
+ * New Method: <methodName> !! «десь надо генерить возврат фунок и аргументы
+ */
+ 
+	#ifdef __IBMC__
+		typedef SOMTEntryC SOMSTAR (somTP_<classCScopedName>__get_somtConstTypeObj)(
+			<classCScopedName> SOMSTAR somSelf);
+		#pragma linkage(somTP_<classCScopedName>__get_somtConstTypeObj,system)
+		typedef somTP_<classCScopedName>__get_somtConstTypeObj *somTD_<classCScopedName>__get_somtConstTypeObj;
+	#else /* __IBMC__ */
+		typedef SOMTEntryC SOMSTAR (SOMLINK * somTD_<classCScopedName>__get_somtConstTypeObj)(
+			<classCScopedName> SOMSTAR somSelf);
+	#endif /* __IBMC__ */
+/*
+ *  !!Comment from method here !!
+ */
+  
+	#ifndef SOMTConstEntryC__get_somtConstTypeObj
+		#define SOMTConstEntryC__get_somtConstTypeObj(somSelf) \
+			SOM_Resolve(somSelf,SOMTConstEntryC,_get_somtConstTypeObj)  \
+				(somSelf)
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD___get_somtConstTypeObj
+				#if defined(__get_somtConstTypeObj)
+					#undef __get_somtConstTypeObj
+					#define SOMGD___get_somtConstTypeObj
+				#else
+					#define __get_somtConstTypeObj SOMTConstEntryC__get_somtConstTypeObj
+				#endif
+			#endif /* SOMGD___get_somtConstTypeObj */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#endif /* SOMTConstEntryC__get_somtConstTypeObj */
+  
+:epilogS
+#endif /* SOM_Module_<classSourceFileStem>_Header_h */
+ 
+
+/*
+ * Declare the ABI 2 ClassData structure
+ */
+ 
+	typedef struct SOMTConstEntryCClassDataStructure
+	{
+		SOMClass SOMSTAR classObject;
+		somMToken _get_somtConstStringVal;
+		somMToken _get_somtConstNumVal;
+		somMToken _get_somtConstType;
+		somMToken _get_somtConstTypeObj;
+		somMToken _get_somtConstVal;
+		somMToken _get_somtConstNumNegVal;
+		somMToken _get_somtConstIsNegative;
+	} SOMTConstEntryCClassDataStructure;
+
+/*
+ * Declare the ABI 2 CClassData structure
+ */
+  
+	typedef struct SOMTConstEntryCCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} SOMTConstEntryCCClassDataStructure;
+  
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_scconst_Source) || defined(SOMTConstEntryC_Class_Source)
+			SOMEXTERN struct SOMTConstEntryCClassDataStructure _SOMTConstEntryCClassData;
+			#ifndef SOMTConstEntryCClassData
+				#define SOMTConstEntryCClassData    _SOMTConstEntryCClassData
+			#endif /* SOMTConstEntryCClassData */
+		#else
+			SOMEXTERN struct SOMTConstEntryCClassDataStructure * SOMLINK resolve_SOMTConstEntryCClassData(void);
+			#ifndef SOMTConstEntryCClassData
+				#define SOMTConstEntryCClassData    (*(resolve_SOMTConstEntryCClassData()))
+			#endif /* SOMTConstEntryCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_scconst_Source) || defined(SOMTConstEntryC_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+		struct SOMTConstEntryCClassDataStructure SOMDLINK SOMTConstEntryCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_scconst_Source) || defined(SOMTConstEntryC_Class_Source)
+			SOMEXTERN struct SOMTConstEntryCCClassDataStructure _SOMTConstEntryCCClassData;
+			#ifndef SOMTConstEntryCCClassData
+				#define SOMTConstEntryCCClassData    _SOMTConstEntryCCClassData
+			#endif /* SOMTConstEntryCCClassData */
+		#else
+			SOMEXTERN struct SOMTConstEntryCCClassDataStructure * SOMLINK resolve_SOMTConstEntryCCClassData(void);
+			#ifndef SOMTConstEntryCCClassData
+				#define SOMTConstEntryCCClassData    (*(resolve_SOMTConstEntryCCClassData()))
+			#endif /* SOMTConstEntryCCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_scconst_Source) || defined(SOMTConstEntryC_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+		struct SOMTConstEntryCCClassDataStructure SOMDLINK SOMTConstEntryCCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern 
+	#if defined(SOM_Module_scconst_Source) || defined(SOMTConstEntryC_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_scconst_Source || SOMTConstEntryC_Class_Source */
+  
+      
+  
+  
+
+#ifndef SOM_DONT_USE_INHERITED_MACROS
+#define SOMTConstEntryC_somInit SOMObject_somInit
+#define SOMTConstEntryC_somUninit SOMObject_somUninit
+#define SOMTConstEntryC_somFree SOMObject_somFree
+#define SOMTConstEntryC_somGetClass SOMObject_somGetClass
+#define SOMTConstEntryC_somGetClassName SOMObject_somGetClassName
+#define SOMTConstEntryC_somGetSize SOMObject_somGetSize
+#define SOMTConstEntryC_somIsA SOMObject_somIsA
+#define SOMTConstEntryC_somIsInstanceOf SOMObject_somIsInstanceOf
+#define SOMTConstEntryC_somRespondsTo SOMObject_somRespondsTo
+#define SOMTConstEntryC_somDispatch SOMObject_somDispatch
+#define SOMTConstEntryC_somClassDispatch SOMObject_somClassDispatch
+#define SOMTConstEntryC_somCastObj SOMObject_somCastObj
+#define SOMTConstEntryC_somResetObj SOMObject_somResetObj
+#define SOMTConstEntryC_somPrintSelf SOMObject_somPrintSelf
+#define SOMTConstEntryC_somDumpSelf SOMObject_somDumpSelf
+#define SOMTConstEntryC_somDumpSelfInt SOMObject_somDumpSelfInt
+#define SOMTConstEntryC_somDefaultInit SOMObject_somDefaultInit
+#define SOMTConstEntryC_somDefaultCopyInit SOMObject_somDefaultCopyInit
+#define SOMTConstEntryC_somDefaultConstCopyInit SOMObject_somDefaultConstCopyInit
+#define SOMTConstEntryC_somDefaultVCopyInit SOMObject_somDefaultVCopyInit
+#define SOMTConstEntryC_somDefaultConstVCopyInit SOMObject_somDefaultConstVCopyInit
+#define SOMTConstEntryC_somDefaultAssign SOMObject_somDefaultAssign
+#define SOMTConstEntryC_somDefaultConstAssign SOMObject_somDefaultConstAssign
+#define SOMTConstEntryC_somDefaultVAssign SOMObject_somDefaultVAssign
+#define SOMTConstEntryC_somDefaultConstVAssign SOMObject_somDefaultConstVAssign
+#define SOMTConstEntryC_somDestruct SOMObject_somDestruct
+#define SOMTConstEntryC__get_somtEntryStruct SOMTEntryC__get_somtEntryStruct
+#define SOMTConstEntryC__set_somtEntryName SOMTEntryC__set_somtEntryName
+#define SOMTConstEntryC__get_somtEntryName SOMTEntryC__get_somtEntryName
+#define SOMTConstEntryC__set_somtElementType SOMTEntryC__set_somtElementType
+#define SOMTConstEntryC__get_somtElementType SOMTEntryC__get_somtElementType
+#define SOMTConstEntryC__get_somtElementTypeName SOMTEntryC__get_somtElementTypeName
+#define SOMTConstEntryC__get_somtEntryComment SOMTEntryC__get_somtEntryComment
+#define SOMTConstEntryC__get_somtSourceLineNumber SOMTEntryC__get_somtSourceLineNumber
+#define SOMTConstEntryC__get_somtTypeCode SOMTEntryC__get_somtTypeCode
+#define SOMTConstEntryC__get_somtIsReference SOMTEntryC__get_somtIsReference
+#define SOMTConstEntryC__get_somtIDLScopedName SOMTEntryC__get_somtIDLScopedName
+#define SOMTConstEntryC__get_somtCScopedName SOMTEntryC__get_somtCScopedName
+#define SOMTConstEntryC_somtGetModifierValue SOMTEntryC_somtGetModifierValue
+#define SOMTConstEntryC_somtGetFirstModifier SOMTEntryC_somtGetFirstModifier
+#define SOMTConstEntryC_somtGetNextModifier SOMTEntryC_somtGetNextModifier
+#define SOMTConstEntryC_somtFormatModifier SOMTEntryC_somtFormatModifier
+#define SOMTConstEntryC_somtGetModifierList SOMTEntryC_somtGetModifierList
+#define SOMTConstEntryC_somtSetSymbolsOnEntry SOMTEntryC_somtSetSymbolsOnEntry
+#define SOMTConstEntryC_somtSetEntryStruct SOMTEntryC_somtSetEntryStruct
+#endif /* SOM_DONT_USE_INHERITED_MACROS */
+

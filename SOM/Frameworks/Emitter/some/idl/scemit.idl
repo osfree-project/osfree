@@ -1,0 +1,454 @@
+/**************************************************************************
+ *
+ *  Copyright 2015, 2017, 2018, Yuri Prokushev
+ *
+ *  This file is part of osFree project
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+
+#ifndef scemit_idl
+#define scemit_idl
+
+#include <somobj.idl>
+#include <sctmplt.idl>
+#include "sctypes.h"
+
+interface SOMTClassEntryC;
+interface SOMTModuleEntryC;
+interface SOMTBaseClassEntryC;
+interface SOMTPassthruEntryC;
+interface SOMTDataEntryC;
+interface SOMTStructEntryC;
+interface SOMTTypedefEntryC;
+interface SOMTUnionEntryC;
+interface SOMTEnumEntryC;
+interface SOMTConstEntryC;
+interface SOMTAttributeEntryC;
+interface SOMTSequenceEntryC;
+interface SOMTMethodEntryC;
+interface SOMTEntryC;
+
+interface SOMTEmitC : SOMObject
+
+// This is the pluggable unit in the SOM emitter framework. An emitter
+// is constructed by subclassing this class and then running the
+// master emitter program providing the name of the subclass as one of
+// its command line arguments.
+// The concepts of this class are simple:
+//
+//   Emitters always consist of a set of sections
+//   The sections are in a particular order for any particular
+//   emitter, and the order does not vary with the data processed by
+//   the emitter.
+//   A number of the sections of an emitter are common (maybe with
+//   slight variation) across several (or even most) emitters.
+//   There are a number of constructs that occur in varying numbers,
+//   eg, method declarations, data declarations, and attribute
+//   declarations.
+// Consequently, this class provides methods for:
+//   Methods for many common sections, including several that may be
+//   useful without overridding in several different emitters
+//   Sequencing through the sections of the emitter
+//   Iterating through the constructs that occur in varying numbers
+
+{
+  attribute SOMTTemplateOutputC somtTemplate;
+  // The template is to provide template output and maintains a symbol
+  // table that provides a sort of global context for the emitter.
+
+  attribute FILE *somtTargetFile;
+  // The target file is the one to which all emitter output is to be
+  // directed.
+
+  attribute SOMTClassEntryC somtTargetClass;
+  // The target class is the class definition for which code is to be
+  // emitted.
+
+  attribute SOMTModuleEntryC somtTargetModule;
+  // The target module is the module definition for which code is to be
+  // emitted.
+
+  attribute SOMTTargetTypeT somtTargetType;
+  // The target type indicates what type of output file is being
+  // produced, public, private, or implementation.  This allows the
+  // same emitter subclass to produce several different output files
+  // that generally differ only in how much of the class definition
+  // they cover. Eg, .csc, .sc, and .psc.
+  // This is attribute is for OIDL compatibility only.
+
+  attribute string somtEmitterName;
+  // The short name of the emitter (the name used to invoke it via the
+  // SOM Compiler.  Typically this is the file stem of the subclass
+  // of SOMTEmitC. This attribute should be set in the driver program
+  // that runs the emitter.  It is used to filter passthrus so that only
+  // passthrus directed to a particular emitter are seen by it.
+
+  boolean somtGenerateSections();
+  // Calls each of the section methods in order.  The order is:
+  //
+  //   somtEmitProlog
+  //   when emitting a class:
+  //   	  somtEmitClass
+  //   	  somtEmitBase
+  //   	  somtEmitMeta
+  //   somtEmitConstant
+  //   somtEmitTypedef
+  //   somtEmitStruct
+  //   somtEmitUnion
+  //   somtEmitEnum
+  //   when emitting a class:
+  //      somtEmitAttribute
+  //      somtEmitMethod
+  //      somtEmitRelease
+  //      somtEmitPassthru
+  //      somtEmitData
+  //   when emitting a module:
+  //       somtEmitInterface
+  //       somtEmitModule
+  //   somtEmitEpilog
+  //
+  // This method will need to be overridden by many emitters in order
+  // to rearange the order of the sections and to add or delete
+  // sections.
+  // Note: repeating sections such as methods, data, and passthru,
+  // have a prolog and epilog method as well. The prolog method is
+  // called before the first sections is processed and the epilog method
+  // is called after the last section is processed.
+
+  FILE* somtOpenSymbolsFile(in string file, 
+                           in string mode);
+  
+  // This method attempts to open the symbols file.
+  // If file doesn't exist then it will attempt to find it in the
+  // directories specified in the SMINCLUDE environment variable.
+  // If the file can be found a FILE * pointer is returned, otherwise
+  // NULL is returned.
+
+  void somtSetPredefinedSymbols();
+  
+  // Set predefined symbols that are used for such things as section
+  // names etc.
+
+  void somtFileSymbols();
+  
+  // Symbols that are common to the file.  This includes the target
+  // class symbols, and the metaclass symbols, and special symbols
+  // like <timeStamp>.  IE, all symbols that have a single definition.
+
+  void somtEmitProlog();
+  void somtEmitBaseIncludesProlog();
+  void somtEmitBaseIncludes(in SOMTBaseClassEntryC base);
+  void somtEmitBaseIncludesEpilog();
+  void somtEmitMetaInclude();
+  void somtEmitClass();
+  void somtEmitMeta();
+  void somtEmitBaseProlog();
+  void somtEmitBase(in SOMTBaseClassEntryC base);
+  void somtEmitBaseEpilog();
+  void somtEmitPassthruProlog();
+  void somtEmitPassthru(in SOMTPassthruEntryC entry);
+  void somtEmitPassthruEpilog();
+  void somtEmitRelease();
+  void somtEmitDataProlog();
+  void somtEmitData(in SOMTDataEntryC entry);
+  void somtEmitDataEpilog();
+  void somtEmitAttributeProlog();
+  void somtEmitAttribute(in SOMTAttributeEntryC att);
+  void somtEmitAttributeEpilog();
+  void somtEmitConstantProlog();
+  void somtEmitConstant(in SOMTConstEntryC con);
+  void somtEmitConstantEpilog();
+  void somtEmitTypedefProlog();
+  void somtEmitTypedef(in SOMTTypedefEntryC td);
+  void somtEmitTypedefEpilog();
+  void somtEmitStructProlog();
+  void somtEmitStruct(in SOMTStructEntryC struc);
+  void somtEmitStructEpilog();
+  void somtEmitUnionProlog();
+  void somtEmitUnion(in SOMTUnionEntryC un);
+  void somtEmitUnionEpilog();
+  void somtEmitEnumProlog();
+  void somtEmitEnum(in SOMTEnumEntryC en);
+  void somtEmitEnumEpilog();
+  void somtEmitInterfaceProlog();
+  void somtEmitInterface(in SOMTClassEntryC intfc);
+  void somtEmitInterfaceEpilog();
+  void somtEmitModuleProlog();
+  void somtEmitModule(in SOMTModuleEntryC mod);
+  void somtEmitModuleEpilog();
+  void somtEmitMethodsProlog();
+  void somtEmitMethods(in SOMTMethodEntryC method);
+  void somtEmitMethodsEpilog();
+  void somtEmitMethod(in SOMTMethodEntryC entry);
+  void somtEmitEpilog();
+  boolean somtScanBases(in string prolog, 
+                   in string each, 
+                   in string epilog);
+  boolean somtScanBaseIncludes(in string prolog, 
+                   in string each, 
+                   in string epilog);
+
+  boolean somtCheckVisibility(in SOMTMethodEntryC entry);
+  // Return 1 (true) if <entry> should be visible in the current
+  // target file.  This method is used by each of the following filter
+  // methods that are concerned with visibility.
+  // The default rule for visibility is:
+  //   only private methods are visible in private target files,
+  //   only public methods are visibile in public target files,
+  //   all methods are visibile in implementation or <somtAllE> target
+  //   files.
+
+  boolean somtNew(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is a method introduced by the target
+  // class and its visibility matches <somtTargetType> (somtImplementationE
+  // matches both private and public)
+
+  boolean somtImplemented(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is a method introduced or overridden
+  // by the target class and its visibility matches <somtTargetType>
+  // (somtImplementationE matches both private and public)
+
+  boolean somtOverridden(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is an overridding method of the target class 
+  // and its visibility matches <somtTargetType> (somtImplementationE
+  // matches both private and public)
+
+  boolean somtInherited(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is inherited 
+  // by the target class and its visibility matches <somtTargetType>
+  // (somtImplementationE matches both private and public)
+
+  boolean somtAllVisible(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is supported by the target class and
+  // its visibility matches <somtTargetType> (somtImplementationE
+  // matches both private and public)
+
+  boolean somtAll(in SOMTMethodEntryC entry);
+  // Returns 1 (true) if <entry> is supported by the target class.
+
+  boolean somtNewNoProc(in SOMTEntryC entry);
+  // Returns 1 (true) if somtNew does and the method
+  // IS NOT a direct call Procedure.
+
+  boolean somtPrivOrPub(in SOMTEntryC entry);
+  // Returns 1 (true) if entry is Private or Public.
+
+  boolean somtNewProc(in SOMTEntryC entry);
+  // Returns 1 (true) if somtNew does and the method
+  // IS a direct call Procedure.
+
+  boolean somtLink(in SOMTEntryC entry);
+  // Returns 1 (true) if "nolink" is not set.
+
+  boolean somtVA(in SOMTEntryC entry);
+  // Returns 1 (true) if entry is a VarArgs method.
+
+  boolean somtScanMethods(in string filter, 
+                     in string prolog, 
+                     in string each, 
+                     in string epilog, 
+                     in boolean forceProlog);
+  
+  // Will only call <each> on methods accepted by <filter>.
+  // If <forceProlog> is not true then the prolog and epilog emiters
+  // will be called only if there is at least one method that passes
+  // the filter.
+
+  boolean somtScanConstants(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanTypedefs(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanStructs(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanUnions(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanEnums(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanData(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanAttributes(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanInterfaces(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanModules(in string prolog, 
+                  in string each, 
+                  in string epilog);
+
+  boolean somtScanPassthru(in boolean before, 
+                      in string prolog, 
+                      in string each, 
+                      in string epilog);
+
+  void somtEmitFullPassthru(in boolean before, in string language);
+  
+  // Emits each passthru section defined for the language and targetType,
+  // and the result of the somtIsBeforePassthru method is equal to the
+  // before parameter.  (before = 1(true), or before = 0(false), i.e. after.)
+
+  boolean somtScanDataF(in string filter, 
+                   in string prolog, 
+                   in string each, 
+                   in string epilog, 
+                   in boolean forceProlog);
+  
+  // This method is like somtScanData but it also provides a paramater
+  // for a filter method.
+
+  boolean somtScanBasesF(in string filter, 
+                    in string prolog, 
+                    in string each, 
+                    in string epilog, 
+                    in boolean forceProlog);
+  
+  // This method is like somtScanBases but it also provides a paramater
+  // for a filter method.
+
+  string somtGetGlobalModifierValue(in string modifierName);
+  // Returns the value of the specified global modifier.
+  // Global modifiers are specified when the SOM Compiler is invoked,
+  // via the "-a" option.  For example, 
+  //                       sc -a"foo=bar"  file.idl
+  // specifies to the SOM Compiler and the emitters being run that
+  // the global modifier "foo" has the value "bar."
+  // Values of global modifiers are transient; they last only for the
+  // duration of the compile for which they were specified.
+  // If a modifier is specified in the "sc" command with no value,
+  // as in 
+  //                       sc -afoo file.idl
+  // then the result of this method will be non-NULL.
+  // If no such modifier is specified, then the result is NULL.
+
+  SOMTEntryC somtGetFirstGlobalDefinition();
+  // Returns the first type or constant definition that is not
+  // associated with any interface or module.
+  // These global definitions must be surrounded by the somemittypes
+  // pragmas for them to be visible via this method.
+  // E.g., #pragma somemittypes on
+  //       ....
+  //       #pragma someemittypes off
+  // The list of global definitions returned by this method and
+  // the somtGetNextGlobalDefinition method may include entries
+  // for forward declarations as well as typedefs and constants.
+  // Global structs and unions are also included in the list.
+
+  SOMTEntryC somtGetNextGlobalDefinition();
+  // Returns the next type or constant definition that is not
+  // associated with any interface or module, relative to a
+  // previous call to somtGetFirstGlobalDefinition or
+  // somtGetNextGlobalDefinition.
+
+#ifdef __SOMIDL__
+  implementation {
+  
+    releaseorder: _get_somtTemplate, _get_somtTargetFile, 
+                  _set_somtTargetFile, _get_somtTargetClass, 
+                  _set_somtTargetClass, _get_somtTargetModule, 
+                  _set_somtTargetModule, _get_somtTargetType, 
+                  _set_somtTargetType, somtGenerateSections, 
+                  somtOpenSymbolsFile, somtSetPredefinedSymbols, 
+                  somtFileSymbols, somtEmitProlog, 
+                  somtEmitBaseIncludesProlog, somtEmitBaseIncludes, 
+                  somtEmitBaseIncludesEpilog, somtEmitMetaInclude, 
+                  somtEmitClass, somtEmitMeta, 
+                  somtEmitBaseProlog, somtEmitBase, 
+                  somtEmitBaseEpilog, somtEmitPassthruProlog, 
+                  somtEmitPassthru, somtEmitPassthruEpilog, 
+                  somtEmitRelease, somtEmitDataProlog, 
+                  somtEmitData, somtEmitDataEpilog, 
+                  somtEmitMethodsProlog, somtEmitMethods, 
+                  somtEmitMethodsEpilog, somtEmitMethod, 
+                  somtEmitEpilog, somtScanBases, somtScanConstants,
+                  somtCheckVisibility, somtNew, 
+                  somtImplemented, somtOverridden, 
+                  somtInherited, somtAllVisible, 
+                  somtAll, somtNewNoProc, 
+                  somtPrivOrPub, somtNewProc, 
+                  somtLink, somtVA, 
+                  somtScanMethods, somtScanData, 
+                  somtScanPassthru, somtEmitFullPassthru, 
+                  somtScanDataF, somtScanBasesF, 
+                  _set_somtTemplate, _set_somtEmitterName, 
+                  _get_somtEmitterName, somtEmitAttributeProlog, 
+                  somtEmitAttribute, somtEmitAttributeEpilog, 
+                  somtEmitConstantProlog, somtEmitConstant, 
+                  somtEmitConstantEpilog, somtEmitTypedefProlog, 
+                  somtEmitTypedef, somtEmitTypedefEpilog, 
+                  somtEmitStructProlog, somtEmitStruct, 
+                  somtEmitStructEpilog, somtEmitUnionProlog, 
+                  somtEmitUnion, somtEmitUnionEpilog, 
+                  somtEmitEnumProlog, somtEmitEnum, 
+                  somtEmitEnumEpilog, somtEmitInterfaceProlog, 
+                  somtEmitInterface, somtEmitInterfaceEpilog, 
+                  somtEmitModuleProlog, somtEmitModule, 
+                  somtEmitModuleEpilog, somtScanAttributes, 
+                  somtScanTypedefs, somtScanStructs, 
+                  somtScanUnions, somtScanEnums, 
+                  somtScanInterfaces, somtScanModules, 
+                  somtGetGlobalModifierValue,
+		  somtGetFirstGlobalDefinition, somtGetNextGlobalDefinition;
+
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scemit;
+    dllname = "some.dll";
+    callstyle = oidl; 
+  
+    passthru C_h_after = "#include <sctypes.h>"
+  "#include <sctmplt.h>"
+  "#include <scclass.h>"
+  "#include <scmeta.h>"
+  "#include <scmethod.h>"
+  "#include <scpass.h>";
+    passthru C_xh_after = "#include <sctypes.h>"
+  "#include <sctmplt.xh>"
+  "#include <scclass.xh>"
+  "#include <scmeta.xh>"
+  "#include <scmethod.xh>"
+  "#include <scpass.xh>";
+  
+    //# Method Modifiers
+    somDefaultInit: override;
+//    somDestruct: override;
+    somDumpSelfInt: override;
+    //somtTargetFile: noset;
+    //_get_somtTargetFile: mplan=none;
+    //_set_somtTargetFile: mplan=none;
+    somtOpenSymbolsFile: mplan=none;
+
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scemit_idl */

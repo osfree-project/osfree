@@ -1,8 +1,0 @@
-LIBRARY emith.dll
-HEAPSIZE 10240000
-EXPORTS
-   HEmitterNewClass
-   HEmitterClassData
-   HEmitterCClassData
-   
-   emit
