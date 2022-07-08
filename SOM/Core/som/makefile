@@ -71,7 +71,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 OPTIONS = manyautodata
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 
 !else
@@ -83,7 +83,7 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 
-ADD_COPT = -u__LINUX__ -d__OS2__ -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
+ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)$(RELDIR) $(ADD_OPTS)
 
 !endif

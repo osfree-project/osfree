@@ -83,10 +83,8 @@ void RHBemitter::get_ir_name(RHBelement *element,char *buf,size_t buflen)
 boolean RHBemitter::ShouldEmit(RHBelement *t)
 {
 	if (!t->defined_in) return 0;
-printf(("77.1 %s\n"),idl_name);
 	if (strcmp(idl_name,t->defined_in->id))
 	{
-printf(("77.1.1 %s\n"),idl_name);
 		/* this allows a module statement to
 		wrap an include file,
 		ideally should only emit include
@@ -100,25 +98,20 @@ printf(("77.1.1 %s\n"),idl_name);
 
 		return 0;
 	}
-printf(("77.2\n"));
 
 	if (t->parent() != GetRepository())
 	{
 		return ShouldEmit(t->parent());
 	}
-printf(("77.3\n"));
 
 	if (t->is_interface())
 	{
-printf(("77.3.1\n"));
 		return 1;
 	}
-printf(("77.4\n"));
 	if (t->is_module())
 	{
 		return 1;
 	}
-printf(("77.5\n"));
 	return t->emit_root(t);
 }
 

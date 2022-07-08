@@ -135,38 +135,33 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emit
     emit = (EMITFUNC)GetProcAddress(handle, "emit");  
     if (!emit)  
     {  
-      printf("No emit function");
+      printf("No emit function\n");
     }      
   }
   
-  printf("Emitter loaded");
+  printf("Emitter loaded\n");
   // TODO Добавить поддержку модулей
   
   RHBmodule *mod=GetRepository();
   RHBelement *e=mod->children();
 
-  printf("root element");
 
   while (e)
   {
-	printf("7.1\n");
     RHBinterface *iface=e->is_interface();
-	printf("7.2\n");
     if (iface) 
     {
-	printf("7.3\n");
       if (ShouldEmit(iface))
       {
         Entry es;
-	printf("7.4\n");
         es.name=iface->id;
         es.type=SOMTClassE;
         es.data=iface;
         es.filestem=idl_filestem;
 
-		printf("Call emitter %s\n", f);
+	printf("Call emitter %s\n", buf);
         FILE *fh=emit((char *)f, &es, NULL);
-		printf("Exit emitter\n");
+	printf("Exit emitter\n");
       }
     }
 		e=e->next();

@@ -1,9 +1,9 @@
 @echo off
 
 setlocal
-
-set SOMBASE=d:\osfree\build\bin\host\win32\os2tk45\som
-set path=d:\osfree\build\bin\host\win32\os2tk45\som\bin;d:\osfree\build\bin\host\win32\os2tk45\som\common\dll;d:\osfree\build\bin\host\win32\os2tk45\som\lib;%path%
+set root=c:\yuri
+set SOMBASE=%root%\osfree\build\bin\host\win32\os2tk45\som
+set path=%sombase%\bin;%sombase%\common\dll;%sombase%\lib;%path%
 if !%SOMBASE%!==!! goto error
 if "%2"=="" goto usage
 
@@ -67,6 +67,7 @@ echo interface %class% {}; > %stem%.idl
 
 echo %stem%.idl:
 %SOMBASE%\bin\sc.exe -v -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
+exit
 del %stem%.idl
 rename _%stem%.idl %stem%.idl
 

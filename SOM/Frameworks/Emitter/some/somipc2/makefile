@@ -1,3 +1,4 @@
+# Makefile
 
 PROJ = somipc2
 TRGT = $(PROJ).exe
@@ -66,4 +67,4 @@ C = r
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
-.c: $(SRC)..\somipc2
+.c: $(SRC)$(SEP)..$(SEP)somipc2

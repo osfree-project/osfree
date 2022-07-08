@@ -1,6 +1,5 @@
-# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
+# Makefile for SO
 
-verbose=1
 PROJ = some
 TRGT = $(PROJ).dll
 DLL = 1
@@ -92,7 +91,7 @@ ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
+ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
            $(SOM_INCL) -i=$(BLD)$(RELDIR) $(ADD_OPTS)
 
 !endif
