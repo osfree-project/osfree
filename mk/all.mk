@@ -484,27 +484,21 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile $(PATH)makefile
 !endif
 
 !ifeq  DEST none
-FLG1  =
+
+FLG  =
+
 !else ifdef DEST
 
 !ifdef TRGT
-FLG1  = $(TRGT)
-!else ifneq TRGT ""
-FLG1  = $(TARGETS:$(PATH)=)
+FLG  = $(TRGT)
+!else
+FLG  = $(TARGETS:$(PATH)=)
 !endif
 
 !endif
 
 !ifdef INSTALL
-FLG1  = install2
-!endif
-
-!ifeq FLG1 ""
-FLG = 
-!else ifeq FLG1 install2
-FLG = install2
-!else
-FLG = $(FLG1)
+FLG  = install2
 !endif
 
 install: targets $(DEST)$(SEP)$(FLG) .symbolic
@@ -520,27 +514,32 @@ $(PATH)subdirs: .symbolic
 $(PATH)$(FLG): .symbolic
 !endif
 
-$(DEST)$(SEP)install2: .symbolic
- @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
-
+!ifndef TRGT
 install3: $(PATH)$(file) .symbolic
+!else
+install3: .symbolic
+!endif
 !ifneq DEST
 !ifneq DEST $(PATH)
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
- $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+ $(verbose) $(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 !endif
 !endif
 
-!ifneq FLG ""
-!ifneq FLG install2
+!ifdef INSTALL
+
+$(DEST)$(SEP)install2: .symbolic
+ @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+
+!else
+
 $(DEST)$(SEP)$(FLG): .symbolic
  @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
-!endif
+
 !endif
 
 precopy: .symbolic
-# @$(SAY) PRECOPY  scrpits >>$(LOG)
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
 
 # prebuild libs

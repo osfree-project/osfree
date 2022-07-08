@@ -5,7 +5,7 @@
 #
 
 PROJ = rexxtry
-TRGT = $(PROJ).cmd
+#TRGT = $(PROJ).cmd
 DESC = Rexxtry
 CLEAN_ADD = *.cmd
 DEST    = os2
@@ -25,6 +25,8 @@ DEST    = os2
 # @$(CD) $(MYDIR) $(BLACKHOLE)
 
 !include $(%ROOT)/mk/all.mk
+
+TARGETS = $(PATH)$(PROJ).cmd
 
 $(PATH)$(PROJ).cmd: $(MYDIR)$(PROJ).cmd
  @$(CP) $< $^@ $(BLACKHOLE)

@@ -97,7 +97,7 @@ cplist = en pl ru
  @$(SAY) MKMSGF   $^. $(LOG)
  $(verbose)$(MC) @$< $(LOG2)
 
-rsf: .SYMBOLIC .PROCEDURE
+rsf: .SYMBOLIC .PROCEDURE .ALWAYS
  @%create $(PATH)$(T)
  #@for %i in ($(cplist)) do @%append $@ $(MYDIR)en$(SEP)oso001.txt $(PATH)oso001.%i
  @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /P 850 /L 1,1
@@ -141,7 +141,7 @@ bintype =
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ FORMAT os2 lx $(dllopts) $(bintype)
  @%append $^@ NAME $^*

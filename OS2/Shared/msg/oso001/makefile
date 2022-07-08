@@ -17,5 +17,5 @@ $(PATH)oso001.pl:
 
 $(PATH)oso001.ru:
 
-$(PATH)oso001.rsf:
+$(PATH)oso001.rsf: .always
  @$(MAKE) $(MAKEOPT) T=$^. rsf

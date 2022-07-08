@@ -34,7 +34,7 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 $(OBJS): $(MYDIR)makefile
 !endif
 
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
  @%append $^@ NAME $^*

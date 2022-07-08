@@ -93,11 +93,11 @@ LOUT         = lbi
  #@if exist $[@ @$(DC) $[@ $(BLACKHOLE)
 !endif
 
-link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
+link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE .ALWAYS
  @$(SAY) LINK     $(T)$(S).$(E) $(LOG)
  $(verbose)$(LINKER) @$< $(LOG2)
 
-$(PATH)$(T)$(S).lnk: $(OBJS) $(MYDIR)makefile
+$(PATH)$(T)$(S).lnk: $(OBJS) $(MYDIR)makefile .explicit
  @%create $^@
  @%append $^@ system os2v2 dll
  @%append $^@ output raw offset=0x10000
