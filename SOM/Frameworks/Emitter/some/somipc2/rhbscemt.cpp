@@ -110,6 +110,7 @@ printf(("77.3\n"));
 
 	if (t->is_interface())
 	{
+printf(("77.3.1\n"));
 		return 1;
 	}
 printf(("77.4\n"));

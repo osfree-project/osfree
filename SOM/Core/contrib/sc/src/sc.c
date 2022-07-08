@@ -299,6 +299,7 @@ int main(int argc,char **argv)
 	item *modifiers=NULL;
 	int i=1;
 	int update=0;
+	int verbose=0;
 	char *app=argv[0];
 	static _IDL_SEQUENCE_char zero={1,1,""};
 
@@ -427,7 +428,7 @@ int main(int argc,char **argv)
 				// string buffer //ignore
 				break;
 			case 'v':
-				// verbose
+				verbose=1;
 				break;
 			case 'c':
 				// ignore all comments
@@ -506,6 +507,7 @@ int main(int argc,char **argv)
 			{
 				_IDL_SEQUENCE_char somcpp={0,0,NULL};
 				_IDL_SEQUENCE_char somipc={0,0,NULL};
+				_IDL_SEQUENCE_char somipc2={0,0,NULL};
 				_IDL_SEQUENCE_char idlname={0,0,NULL};
 				char buf[512];
 #if 0
@@ -538,12 +540,15 @@ int main(int argc,char **argv)
 
 				if (appPathSpaces)
 				{
+					add_str(&somipc2,"\"");
 					add_str(&somipc,"\"");
 					add_str(&somcpp,"\"");
 				}
 
-				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
+				strncpy(buf+len+1,"somipc2.exe",sizeof(buf)-len);
+				add_str(&somipc2,buf);
 
+				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
 				add_str(&somipc,buf);
 				
 				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
@@ -552,6 +557,7 @@ int main(int argc,char **argv)
 
 				if (appPathSpaces)
 				{
+					add_str(&somipc2,"\"");
 					add_str(&somipc,"\"");
 					add_str(&somcpp,"\"");
 				}
@@ -625,10 +631,13 @@ int main(int argc,char **argv)
 				}
 
 				{
+					add_str(&somipc2," -s");
 					add_str(&somipc," -s");
+					add_seq(&somipc2,&emitter->data);
 					add_seq(&somipc,&emitter->data);
 				}
 
+				add_str(&somipc2," -o ");
 				add_str(&somipc," -o ");
 
 				if ((emitter->data._length==2)&&(!memcmp(emitter->data._buffer,"ir",2)))
@@ -683,23 +692,31 @@ int main(int argc,char **argv)
 					}
 					}
 #endif
+					add_str(&somipc2,filename);
 					add_str(&somipc,filename);
+					add_str(&somipc2," ");
 					add_str(&somipc," ");
 				}
 				else
 				{
 					if (outputDir)
 					{
+						add_str(&somipc2,outputDir);
 						add_str(&somipc,outputDir);
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+						add_str(&somipc2,"\\");
 						add_str(&somipc,"\\");
 #else
+						add_str(&somipc2,"/");
 						add_str(&somipc,"/");
 #endif
 					}
 
+					add_seq(&somipc2,&idlname);
 					add_seq(&somipc,&idlname);
+					add_str(&somipc2,".");
 					add_str(&somipc,".");
+					add_seq(&somipc2,&emitter->data);
 					add_seq(&somipc,&emitter->data);
 				}
 
@@ -707,7 +724,9 @@ int main(int argc,char **argv)
 
 				while (t)
 				{
+					add_str(&somipc2," -m ");
 					add_str(&somipc," -m ");
+					add_seq(&somipc2,&t->data);
 					add_seq(&somipc,&t->data);
 
 					t=t->next;
@@ -716,6 +735,7 @@ int main(int argc,char **argv)
 #ifdef _USE_PIPES_
 				{
 					add_seq(&somcpp,&zero);
+					add_seq(&somipc2,&zero);
 					add_seq(&somipc,&zero);
 					STARTUPINFO cpp_startup,somipc_startup;
 					PROCESS_INFORMATION cpp_pinfo={0,0,0,0},somipc_pinfo={0,0,0,0};
@@ -855,18 +875,40 @@ int main(int argc,char **argv)
 					add_str(&somcpp," > ");
 					add_seq(&somcpp,&tmpf);
 
+					add_str(&somipc2," ");
 					add_str(&somipc," ");
+					add_seq(&somipc2,&tmpf);
 					add_seq(&somipc,&tmpf);
 
 					add_seq(&somcpp,&zero);
+					add_seq(&somipc2,&zero);
 					add_seq(&somipc,&zero);
 
-#if 1
-					printf("somcpp: %s\n",somcpp._buffer);
-					printf("somipc: %s\n",somipc._buffer);
-#endif
+					if (verbose)
+					{
+						add_str(&somipc2," -v ");
+						add_str(&somipc," -v ");
+
+						printf("Running shell command:\n");
+						printf("%s\n",somcpp._buffer);
+					}
+
 					cppExitCode=system(somcpp._buffer);
-					somipcExitCode=system(somipc._buffer);
+
+					if (verbose)
+					{
+						printf("%s\n",somipc2._buffer);
+					}
+					somipcExitCode=system(somipc2._buffer);
+					//printf("%d\n", somipcExitCode);
+					if (somipcExitCode==1)
+					{
+						if (verbose)
+						{
+							printf("%s\n",somipc._buffer);
+						}
+						somipcExitCode=system(somipc._buffer);
+					}
 					unlink(tmpf._buffer);
 
 					if (somipcExitCode || cppExitCode)

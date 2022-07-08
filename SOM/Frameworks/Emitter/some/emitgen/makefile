@@ -7,6 +7,11 @@ DLLOPT  = initinstance terminstance
 srcfiles = $(p)emitgen$(e) &
 		$(p)genemit$(e)
 
+EXPORTS =    GENEmitterNewClass, &
+   GENEmitterClassData, &
+   GENEmitterCClassData, &
+   emit
+
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
@@ -55,7 +60,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 OPTIONS = manyautodata
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
+ADD_COPT = -bd  -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
            $(SOM_INCL) -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 
 !else
@@ -85,9 +90,9 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 
 
-.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src
+#.c: $(SRC)
 .idl: $(SRC)..$(SEP)idl
-.xih: $(SOM_INTDIR)
+#.xih: $(SOM_INTDIR)
 #.xh: $(SRC)
 
 PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)genemit.xh &

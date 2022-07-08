@@ -11,8 +11,6 @@ srcfiles = $(p)rhbsc$(e) &
 	 $(p)rhbsctxt$(e) &
 	 $(p)rhbscsome$(e)
 
- 
-
 HOSTBLD=1
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !ifdef HOSTBLD
@@ -68,3 +66,4 @@ C = r
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
+.c: $(SRC)..\somipc2

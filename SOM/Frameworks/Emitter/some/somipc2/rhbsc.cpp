@@ -1,5 +1,5 @@
 /**************************************************************************
- *
+ * 
  *  Copyright 1998-2010, Roger Brown
  *
  *  This file is part of Roger Brown's Toolkit.
