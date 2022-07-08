@@ -483,64 +483,61 @@ targets: prereq subdirs .symbolic
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
 !endif
 
-!ifndef TRGT
 !ifdef INSTALL
-FLG  = install2
+FLG1  = install2
 !else
-FLG  = 
+
+!ifeq  DEST none
+FLG1  = 
+!else ifneq DEST ""
+!ifneq TRGT ""
+FLG1  = $(TRGT)
+!else
+FLG1  = $(TARGETS:$(PATH)=)
 !endif
-!else ifeq  DEST none
-FLG  =
-!else ifneq DEST
-FLG  = $(DEST)$(SEP)$(TRGT)
 !else
-FLG  = # $(PATH)$(TRGT)
+FLG1  =
 !endif
 
-install: targets $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
+!endif
+
+!ifeq FLG1 ""
+FLG = 
+!else ifeq FLG1 install2
+FLG = install2
+!else
+FLG = $(FLG1)
+!endif
+
+install: targets $(DEST)$(SEP)$(FLG) .symbolic
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
-install2: .symbolic
+$(DEST)$(SEP)install2: .symbolic
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
 
-$(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
- @$(MAKE) $(MAKEOPT) file=$(TRGT) install3
-
 install3: $(PATH)$(file) .symbolic
-# @if exist $(DEST)$(SEP)$(file) @%quit
+!ifneq DEST ""
 !ifneq DEST $(PATH)
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
  $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 !endif
+!endif
 
-#install: build .symbolic
-#!ifeq PROJ
-# %null
-#!else
-# @$(SAY) INST     $(PROJ) $(LOG)
-#!ifeq INSTALL_PRE 1
-# @$(MAKE) $(MAKEOPT) install_pre
-#!endif
-#!ifneq DEST
-# #-$(MDHIER) $(DEST)
-# @if not $(DEST) == none $(verbose)$(MDHIER) $(DEST)
-# @for %i in ($(TARGETS)) do @if exist %i @if not $(DEST) == none @$(CP) %i $(DEST) $(BLACKHOLE)
-#!endif
-#!ifeq INSTALL_ADD 1
-# @$(MAKE) $(MAKEOPT) install_add
-#!endif
-# @wtouch $(PATH)$(PROJ).flg
-#!endif
+!ifneq FLG ""
+!ifneq FLG install2
 
-#.ignore
+$(DEST)$(SEP)$(FLG): .symbolic
+ @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
+
+!endif
+!endif
+
 precopy: .symbolic
 # @$(SAY) PRECOPY  scrpits >>$(LOG)
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
-
-# $(FILESDIR)$(SEP)libs-built-flag: prelibs .symbolic
 
 # prebuild libs
 prelibs: .symbolic
