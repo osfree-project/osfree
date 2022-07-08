@@ -483,22 +483,20 @@ targets: prereq subdirs .symbolic
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
 !endif
 
-!ifdef INSTALL
-FLG1  = install2
-!else
-
 !ifeq  DEST none
-FLG1  = 
-!else ifneq DEST ""
-!ifneq TRGT ""
+FLG1  =
+!else ifdef DEST
+
+!ifdef TRGT
 FLG1  = $(TRGT)
-!else
+!else ifneq TRGT ""
 FLG1  = $(TARGETS:$(PATH)=)
 !endif
-!else
-FLG1  =
+
 !endif
 
+!ifdef INSTALL
+FLG1  = install2
 !endif
 
 !ifeq FLG1 ""
@@ -514,11 +512,15 @@ install: targets $(DEST)$(SEP)$(FLG) .symbolic
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
+$(DEST)$(SEP)subdirs: .symbolic
+
+$(PATH)subdirs: .symbolic
+
 $(DEST)$(SEP)install2: .symbolic
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
 
 install3: $(PATH)$(file) .symbolic
-!ifneq DEST ""
+!ifneq DEST
 !ifneq DEST $(PATH)
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
@@ -528,10 +530,8 @@ install3: $(PATH)$(file) .symbolic
 
 !ifneq FLG ""
 !ifneq FLG install2
-
 $(DEST)$(SEP)$(FLG): .symbolic
  @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
-
 !endif
 !endif
 

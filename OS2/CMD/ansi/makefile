@@ -5,7 +5,7 @@
 #
 
 PROJ = ansi
-#TRGT = $(PROJ).exe
+TRGT = $(PROJ).exe
 DESC = Control utility for ANSI
 #defines object file names in format objname.$(O)
 srcfiles = $(p)ansi$(e)
