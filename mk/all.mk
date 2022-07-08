@@ -516,6 +516,10 @@ $(DEST)$(SEP)subdirs: .symbolic
 
 $(PATH)subdirs: .symbolic
 
+!ifneq FLG ""
+$(PATH)$(FLG): .symbolic
+!endif
+
 $(DEST)$(SEP)install2: .symbolic
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
 
