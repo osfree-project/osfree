@@ -1,10 +1,12 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 !ifdef HOSTBLD
+DEST = none
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 OS2TK = $(%OS2TK)
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !else
+DEST = none
 SRC = $(MYDIR)..$(SEP)
 OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
@@ -32,7 +34,7 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.xh $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
+TARGETS = $(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.xh $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
 $(SOMIDL_HEADERS)$(SEP)somnames.h $(SOMIDL_HEADERS)$(SEP)somplatf.h $(SOMIDL_HEADERS)$(SEP)somcdev.h $(SOMIDL_HEADERS)$(SEP)somcorba.h &
 $(SOMIDL_HEADERS)$(SEP)somapi.h
 

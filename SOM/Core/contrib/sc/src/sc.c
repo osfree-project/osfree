@@ -901,7 +901,7 @@ int main(int argc,char **argv)
 					}
 					somipcExitCode=system(somipc2._buffer);
 					//printf("%d\n", somipcExitCode);
-					if (somipcExitCode==1)
+					if (somipcExitCode==127) //1)
 					{
 						if (verbose)
 						{

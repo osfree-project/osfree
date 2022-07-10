@@ -313,13 +313,19 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .c16: $(PATH)
 
+.c:   $(SRC)
+
+.h:   $(HDRS)
+
 .h:   $(PATH)
 
-.xh:   $(PATH)
+.h:   $(SRC)
 
-.ih:   $(PATH)
+.xh:  $(PATH)
 
-.xih:   $(PATH)
+.ih:  $(PATH)
+
+.xih: $(PATH)
 
 .hlp: $(PATH)
 
@@ -483,7 +489,7 @@ targets: prereq subdirs .symbolic
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile $(PATH)makefile
 !endif
 
-!ifeq  DEST none
+!ifeq  DEST $(PATH)
 
 FLG  =
 
@@ -502,11 +508,9 @@ FLG  = install2
 !endif
 
 install: targets $(DEST)$(SEP)$(FLG) .symbolic
-!ifeq INSTALL_ADD 1
+!ifdef INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
-
-$(DEST)$(SEP)subdirs: .symbolic
 
 $(PATH)subdirs: .symbolic
 
@@ -521,9 +525,11 @@ install3: .symbolic
 !endif
 !ifneq DEST
 !ifneq DEST $(PATH)
+!ifneq file subdirs
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
  $(verbose) $(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+!endif
 !endif
 !endif
 

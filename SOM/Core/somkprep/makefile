@@ -1,11 +1,13 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 !ifdef HOSTBLD
+DEST = none
 SRC = $(MYDIR)..$(SEP)..$(SEP)
 OS2TK = $(%OS2TK)
 SOM_INTDIR=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR)..$(SEP)som
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 !else
+DEST = none
 SRC = $(MYDIR)..$(SEP)
 OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 SOM_INTDIR=$(BLD)$(RELDIR)..$(SEP)som
@@ -30,7 +32,7 @@ SOM_HEADERS=	$(SOM_INTDIR)$(SEP)somobj.h		&
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS= pre $(SOMKERNP_KIH) $(SOM_HEADERS)
+TARGETS = pre $(SOMKERNP_KIH) $(SOM_HEADERS)
 
 pre: .symbolic
  @$(MDHIER) $(SOM_INTDIR)

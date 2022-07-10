@@ -9,7 +9,8 @@ srcfiles = $(p)sc$(e)
 
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
-SRC = $(MYDIR)..$(SEP)..$(SEP)
+SRC  = $(MYDIR)..$(SEP)..$(SEP)contrib$(SEP)sc$(SEP)src
+HDRS = $(MYDIR)..$(SEP)..$(SEP)contrib$(SEP)include
 !ifeq %OS OS2
 OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -40,14 +41,15 @@ ADD_LINKOPT = lib clib3r
 
 DEST = os2tk45$(SEP)som$(SEP)bin
 
-SRC = $(MYDIR)..$(SEP)
+SRC  = $(MYDIR)..$(SEP)contrib$(SEP)sc$(SEP)src
+HDRS = $(MYDIR)..$(SEP)contrib$(SEP)include
 OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
 
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC)contrib$(SEP)include $(OPTS)
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC) -i=$(HDRS) $(OPTS)
 
 #STACKSIZE = 0x20000
 #UNI2H = 1
@@ -58,9 +60,3 @@ C = r
 !else
 !include $(%ROOT)/mk/appsos2.mk
 !endif
-
-.c: $(SRC)contrib$(SEP)sc$(SEP)src
-
-.h: $(SRC)contrib$(SEP)include
-
-#.$(O): $(PATH)

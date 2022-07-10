@@ -15,7 +15,7 @@ end; else if os = 'WIN32' | os = 'WIN64' then do
   del = '@del '
   nul = 'nul'
 end; else do
-  del = '@rm -f '
+  del = 'rm -f '
   nul = '/dev/null'
 end
 
