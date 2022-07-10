@@ -1,0 +1,8 @@
+LIBRARY emitdef.dll
+HEAPSIZE 10240000
+EXPORTS
+   DEFEmitterNewClass
+   DEFEmitterClassData
+   DEFEmitterCClassData
+   
+   emit

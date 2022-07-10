@@ -1,0 +1,19 @@
+#ifndef HEmitter_idl
+#define HEmitter_idl
+
+#include <scemit.idl>
+
+interface HEmitter : SOMTEmitC
+{
+#ifdef __SOMIDL__
+  implementation {
+    //# Class Modifiers
+    callstyle = oidl;
+    functionprefix = "hemit_";
+
+    somtGenerateSections: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* HEmitter_idl */

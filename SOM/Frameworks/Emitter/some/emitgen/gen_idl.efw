@@ -1,0 +1,19 @@
+:template
+#ifndef <className>_idl
+#define <className>_idl
+
+#include \<scemit.idl\>
+interface <className> : SOMTEmitC
+{
+#ifdef __SOMIDL__
+  implementation {
+    //# Class Modifiers
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    somtGenerateSections: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* <className>_idl */
