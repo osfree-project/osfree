@@ -1,0 +1,60 @@
+#@(#) somx/makefile 2.3 1/20/94 09:51:17 [4/20/94 17:18:42]
+
+# 96F8647, 96F8648, 96F8850 (C) Copyright IBM Corp. 1992, 1994
+# All Rights Reserved
+# Licensed Materials - Property of IBM
+
+# DISCLAIMER OF WARRANTIES.
+# The following [enclosed] code is sample code created by IBM
+# Corporation. This sample code is not part of any standard or IBM
+# product and is provided to you solely for the purpose of assisting
+# you in the development of your applications.  The code is provided
+# "AS IS". IBM MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT
+# NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, REGARDING THE FUNCTION OR PERFORMANCE OF
+# THIS CODE.  IBM shall not be liable for any damages arising out of
+# your use of the sample code, even if they have been advised of the
+# possibility of such damages.
+#
+# DISTRIBUTION.
+# This sample code can be freely distributed, copied, altered, and
+# incorporated into other software, provided that it bears the above
+# Copyright notice and DISCLAIMER intact.
+
+
+OBJS       = animal.obj dog.obj bdog.obj ldog.obj sominit.obj
+TARGET     = animals.dll
+CLEANFILES = animal.h dog.h bdog.h ldog.h
+
+SCFLAGS     = -p -sh;ih -m addstar -u -E SOMIR=ORXSMP.IR
+CC          = icc
+CFLAGS      = -Q+ -W3 -D__MIG_LIB__ -Ge- /ti+
+LINKER      = link386
+LDFLAGS     = /packd /packc /exepack /align:16 /noi /m $(LDEBUG) /nol /De /PM:VIO
+LIBLIST     = $(SOMBASE)\lib\somtk os2386
+
+.SUFFIXES: .c .idl .ih .obj
+
+.c.obj:
+   $(CC) -I. $(SOMBASE)\include $(CFLAGS) -c $<
+
+.idl.ih:
+   sc $(SCFLAGS) $*.idl
+
+$(TARGET): $(OBJS)
+   $(LINKER) $(LDFLAGS) $(OBJS), $*.dll, $*/m, $(LIBLIST), animals.def
+
+clean:
+   -del *.obj *.exe *.map *.ih $(CLEANFILES) >nul 2>&1
+
+animal.ih: animal.idl
+dog.ih: dog.idl animal.idl
+bdog.ih: bdog.idl dog.idl
+ldog.ih: ldog.idl dog.idl
+
+animal.obj: animal.c animal.ih
+dog.obj: dog.c dog.ih animal.ih
+bdog.obj: bdog.c bdog.ih dog.ih
+ldog.obj: ldog.c ldog.ih dog.ih
+
+sominit.obj: sominit.c animal.ih dog.ih bdog.ih ldog.ih
