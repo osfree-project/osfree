@@ -336,17 +336,18 @@ interface SOMTEmitC : SOMObject
   string somtGetGlobalModifierValue(in string modifierName);
   // Returns the value of the specified global modifier.
   // Global modifiers are specified when the SOM Compiler is invoked,
-  // via the "-a" option.  For example, 
-  //                       sc -a"foo=bar"  file.idl
+  // via the "-m" option.  For example, 
+  //                       sc -m"foo=bar"  file.idl
   // specifies to the SOM Compiler and the emitters being run that
   // the global modifier "foo" has the value "bar."
   // Values of global modifiers are transient; they last only for the
   // duration of the compile for which they were specified.
   // If a modifier is specified in the "sc" command with no value,
   // as in 
-  //                       sc -afoo file.idl
+  //                       sc -mfoo file.idl
   // then the result of this method will be non-NULL.
   // If no such modifier is specified, then the result is NULL.
+  // Older SOM compiler version uses "-a" option which is same as "-m" option.
 
   SOMTEntryC somtGetFirstGlobalDefinition();
   // Returns the first type or constant definition that is not

@@ -1,4 +1,4 @@
-# Makefile
+# Makefile for SOM Compiler for
 
 PROJ = somipc2
 TRGT = $(PROJ).exe

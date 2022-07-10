@@ -39,7 +39,7 @@ typedef FILE * (CALLBACK * EMITFUNC)(char *file, Entry * cls, Stab * stab);
 static const char retVal_name[]="_somC_retVal";
 static const char extern_C_static[]="SOM_EXTERN_C_STATIC";
 const char *RHBsome_emitter::szSOM_RESOLVE_DATA="SOM_RESOLVE_DATA";
-
+#if 0
 class extern_c_proto_t
 {
 	RHBsome_emitter *emit;
@@ -68,7 +68,7 @@ public:
 		}
 	}
 };
-
+#endif
 /* main emitter */
 
 RHBsome_emitter::RHBsome_emitter(RHBrepository *rr)
@@ -173,7 +173,7 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emit
 }
 
 
-
+#if 0
 
 void RHBsome_emitter::generate_passthrus(RHBoutput *out,
 			RHBelement *root,int nest)
@@ -219,6 +219,9 @@ void RHBsome_emitter::generate_passthrus(RHBoutput *out,
 	}
 }
 
+#endif
+
+#if 0
 void RHBsome_emitter::generate_module(RHBoutput *out,RHBmodule *mod,int nest)
 {
 	if (!internal)
@@ -231,8 +234,9 @@ void RHBsome_emitter::generate_module(RHBoutput *out,RHBmodule *mod,int nest)
 	generate_classes(out,mod,nest,0);
 	generate_modules(out,mod,nest+1);
 }
+#endif
 
-
+#if 0
 void RHBsome_emitter::generate_headers(RHBoutput *out,int nest)
 {
 	RHBinclude_list *g=GetRepository()->_pp.includes;
@@ -4472,6 +4476,7 @@ boolean RHBsome_emitter::does_override(RHBinterface *iface,const char *name)
 
 	return 0;
 }
+#endif
 
 #if 0
 void RHBsome_emitter::generate_begininit(
@@ -5041,6 +5046,7 @@ void RHBsome_emitter::generate_parent_initdestruct(
 }
 #endif
 
+#if 0
 void RHBsome_emitter::generate_internal_cclass_data(RHBoutput *out,RHBinterface *iface)
 {
 	char n[256];
@@ -9476,3 +9482,4 @@ boolean RHBsome_emitter::do_const_param(RHBparameter *param)
 	return 0;
 }
 
+#endif

@@ -988,8 +988,8 @@ public:
 	boolean cplusplus;
 	boolean internal;
 	boolean testonly;
-
 	void preflight_macros_from_idl_filename(const char *);
+#if 0
 
 	void undoublebar(RHBoutput *out,const char *);
 
@@ -1008,8 +1008,9 @@ public:
 	void generate_prototype(RHBtype *type,RHBoutput *out);
 	void generate_passthrus(RHBoutput *out,RHBelement *root,int nest);
 	void generate_usage(RHBtype *type,RHBoutput *out);
+#endif
 	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
-
+#if 0
 	void generate_exception(RHBexception *s,RHBoutput *out,int nesting,const char *alias_name);
 	void generate_struct(RHBstruct *s,RHBoutput *out,int nesting,const char *alias_name,boolean user_data,boolean instanceData);
 	void generate_union(RHBunion *s,RHBoutput *out,int nesting,boolean user_data);
@@ -1142,6 +1143,7 @@ public:
 
 	void public_class_data(RHBoutput *out,int nest,RHBinterface *iface,const char *n);
 	void public_class_data_resolve(RHBoutput *out,int nest,RHBinterface *iface,const char *n);
+#endif
 };
 #endif //_USE_SOME_
 

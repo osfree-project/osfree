@@ -1,4 +1,4 @@
-# Makefile for
+# Makefile for SOM Gene
 
 PROJ = emitgen
 TRGT = $(PROJ).dll

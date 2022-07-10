@@ -2,8 +2,6 @@
 #include <emitlib.h>
 #include "genemit.xh"
 
-#define SYMBOLS_FILE   "genemit.efw"
-
 SOMEXTERN FILE * SOMLINK   emit(char *file, Entry * cls, Stab * stab)
 {
 
@@ -25,7 +23,9 @@ SOMEXTERN FILE * SOMLINK   emit(char *file, Entry * cls, Stab * stab)
         emitter->_set_somtEmitterName("gen");
         t = emitter->_get_somtTemplate();
         t->_set_somtCommentStyle(somtCPPE);
-        if (genfile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
+printf("a=%s\n", emitter->somtGetGlobalModifierValue("deffile"));
+	
+        if (genfile = emitter->somtOpenSymbolsFile(emitter->somtGetGlobalModifierValue("deffile"), "r")) {
             t->somtReadSectionDefinitions(genfile);
             somtfclose(genfile);
         }
@@ -49,7 +49,7 @@ SOMEXTERN FILE * SOMLINK   emit(char *file, Entry * cls, Stab * stab)
         emitter->_set_somtTargetModule(mod);
         t = emitter->_get_somtTemplate();
         t->_set_somtCommentStyle(somtCPPE);
-        if (genfile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
+	if (genfile = emitter->somtOpenSymbolsFile(emitter->somtGetGlobalModifierValue("deffile"), "r")) {
             t->somtReadSectionDefinitions(genfile);
             somtfclose(genfile);
         }

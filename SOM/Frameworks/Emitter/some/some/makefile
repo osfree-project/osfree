@@ -1,4 +1,4 @@
-# Makefile for SO
+# Makefile for SOM
 
 PROJ = some
 TRGT = $(PROJ).dll

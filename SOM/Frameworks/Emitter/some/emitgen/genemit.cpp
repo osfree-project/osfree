@@ -33,6 +33,7 @@ SOM_Scope boolean  SOMLINK somtGenerateSections(GENEmitter *somSelf)
 
   GENEmitterMethodDebug("GENEmitter","somtGenerateSections");
 
+printf("ok");
  if ( cls )
  {
    DllName=somSelf->somtGetGlobalModifierValue("dllname");
