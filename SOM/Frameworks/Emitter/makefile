@@ -6,8 +6,7 @@
 #
 
 DIRS =	&
-#		some &
-		Emitters
+#		some
 
 !include $(%ROOT)/mk/all.mk
 
