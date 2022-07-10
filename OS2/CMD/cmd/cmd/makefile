@@ -1,7 +1,7 @@
 
 PROJ = cmd1
 PROJ1 = cmd
-TRGT = $(PROJ1).exe
+#TRGT = $(PROJ1).exe
 DESC = Command processor
 srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(e) $(p)eval$(e) &
            $(p)ea$(e) $(p)dircmds$(e) $(p)filecmds$(e) $(p)syscmds$(e) $(p)os2cmds$(e)   &
@@ -26,7 +26,7 @@ UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-#TARGETS =  $(PATH)$(PROJ1).exe
+TARGETS =  $(PATH)$(PROJ1).exe
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)4os2.rc
  @$(SAY) RESCMP   $^. $(LOG)

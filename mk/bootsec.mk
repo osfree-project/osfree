@@ -30,7 +30,7 @@ $(PATH)$(PROJ).bin: $(PATH)$(PROJ).lnk
 
 $(PATH)$(PROJ0).$(O): $(MYDIR)makefile
 
-$(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O) $(MYDIR)makefile
+$(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ SYSTEM dos com
  @%append $^@ OPTION MAP=$^*.wmp

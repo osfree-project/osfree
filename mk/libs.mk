@@ -24,6 +24,8 @@ $(LIBS) $(OBJS): $(MYDIR)makefile
 $(LIBS) $(OBJS): $(MYDIR)makefile
 !endif
 
+TARGETS = $(PATH)$(PROJ).lib
+
 # makes library $(library) from object files $(OBJS)
 library: $(OBJS) $(LIBS) $(MYDIR)makefile .symbolic
  @$(SAY) LIB      $(PROJ).lib

@@ -30,6 +30,6 @@ deps = $(RESOURCE)
 
 $(TARGETS): $(deps) $(MYDIR)makefile
 
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .symbolic
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .symbolic .always
 
 !endif

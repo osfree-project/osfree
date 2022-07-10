@@ -480,67 +480,67 @@ targets: prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 !ifdef PROJ
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile $(PATH)makefile
 !endif
 
-!ifndef TRGT
+!ifeq  DEST none
+
+FLG  =
+
+!else ifdef DEST
+
+!ifdef TRGT
+FLG  = $(TRGT)
+!else
+FLG  = $(TARGETS:$(PATH)=)
+!endif
+
+!endif
+
 !ifdef INSTALL
 FLG  = install2
-!else
-FLG  = 
-!endif
-!else ifeq  DEST none
-FLG  =
-!else ifneq DEST
-FLG  = $(DEST)$(SEP)$(TRGT)
-!else
-FLG  = # $(PATH)$(TRGT)
 !endif
 
-install: targets $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
+install: targets $(DEST)$(SEP)$(FLG) .symbolic
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
-install2: .symbolic
- @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+$(DEST)$(SEP)subdirs: .symbolic
 
-$(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
- @$(MAKE) $(MAKEOPT) file=$(TRGT) install3
+$(PATH)subdirs: .symbolic
 
+!ifneq TRGT ""
+$(PATH)$(FLG): .symbolic
+!endif
+
+!ifndef TRGT
 install3: $(PATH)$(file) .symbolic
-# @if exist $(DEST)$(SEP)$(file) @%quit
+!else
+install3: .symbolic
+!endif
+!ifneq DEST
 !ifneq DEST $(PATH)
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
- $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+ $(verbose) $(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+!endif
 !endif
 
-#install: build .symbolic
-#!ifeq PROJ
-# %null
-#!else
-# @$(SAY) INST     $(PROJ) $(LOG)
-#!ifeq INSTALL_PRE 1
-# @$(MAKE) $(MAKEOPT) install_pre
-#!endif
-#!ifneq DEST
-# #-$(MDHIER) $(DEST)
-# @if not $(DEST) == none $(verbose)$(MDHIER) $(DEST)
-# @for %i in ($(TARGETS)) do @if exist %i @if not $(DEST) == none @$(CP) %i $(DEST) $(BLACKHOLE)
-#!endif
-#!ifeq INSTALL_ADD 1
-# @$(MAKE) $(MAKEOPT) install_add
-#!endif
-# @wtouch $(PATH)$(PROJ).flg
-#!endif
+!ifdef INSTALL
 
-#.ignore
+$(DEST)$(SEP)install2: .symbolic
+ @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+
+!else
+
+$(DEST)$(SEP)$(FLG): .symbolic
+ @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
+
+!endif
+
 precopy: .symbolic
-# @$(SAY) PRECOPY  scrpits >>$(LOG)
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
-
-# $(FILESDIR)$(SEP)libs-built-flag: prelibs .symbolic
 
 # prebuild libs
 prelibs: .symbolic

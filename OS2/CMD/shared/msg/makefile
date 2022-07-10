@@ -17,5 +17,5 @@ $(PATH)lvm.pl:
 
 $(PATH)lvm.ru:
 
-$(PATH)lvm.rsf:
+$(PATH)lvm.rsf: .always
  @$(MAKE) $(MAKEOPT) T=$^. rsf

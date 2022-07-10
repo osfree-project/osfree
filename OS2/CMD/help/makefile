@@ -5,11 +5,13 @@
 #
 
 PROJ = help
-TRGT = $(PROJ).cmd
+#TRGT = $(PROJ).cmd
 DESC = Show help info
 CLEAN_ADD = *.cmd
 
 !include $(%ROOT)/mk/all.mk
+
+TARGETS = $(PATH)$(PROJ).cmd
 
 $(PATH)$(PROJ).cmd: $(MYDIR)$(PROJ).cmd
  @$(CP) $< $^@ $(BLACKHOLE)
