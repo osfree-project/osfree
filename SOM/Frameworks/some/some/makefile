@@ -5,6 +5,7 @@ PROJ = some
 DLL = 1
 DESC = SOM Emitter Framework
 DLLOPT  = initinstance terminstance
+INSTALL_ADD = 1
 srcfiles = $(p)emitlib$(e) &
 		$(p)scentry$(e) &
 		$(p)scmeta$(e) &
@@ -122,7 +123,11 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 #TARGETS= $(PROJ).dll #$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
+install_add: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+
+
 $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)some.dll
+	$(verbose)$(SAY) LIB     $^. $(LOG)
 	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
 
 #pre: .symbolic
