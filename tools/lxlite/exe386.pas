@@ -16,7 +16,7 @@
 {$endif}
 Unit exe386;
 
-Interface uses miscUtil;
+Interface uses MiscUtil;
 
 const
  lxMagic         = $584C;             { New magic number  "LX" }

@@ -183,10 +183,10 @@ var
  Function  HexChar(A : Byte) : Char;
 
 Implementation
-uses miscUtil,
+uses miscUtil
 {$IfDef OS2}
-{$IfnDef FPC} os2base {$Else} doscalls {$EndIf};
-{$EndIf}
+{$IfnDef FPC}, os2base {$Else}, doscalls {$EndIf}
+{$EndIf};
 
 {&SAVES ebx,esi,edi}
 

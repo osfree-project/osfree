@@ -15,9 +15,14 @@
 {$endif}
 Unit os2exe;
 
-Interface uses exe286, exe386, miscUtil, SysLib, Collect, Streams;
+Interface uses exe286, exe386, MiscUtil, SysLib, Collect, Streams;
 
 const
+  open_share_DenyWrite      = $00000020;
+  open_share_DenyReadWrite  = $00000010;
+  open_access_ReadWrite     = $00000002;
+  open_access_ReadOnly      = $00000000;
+
 { tLX object error codes }
  lxeOK            = 0;
  lxeReadError     = 1;

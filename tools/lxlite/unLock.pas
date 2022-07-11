@@ -7,9 +7,9 @@
 {$Align 1}
 {$Optimization STACKFRAME}
 {$endif}
-uses os2base, miscUtil, SysLib, CmdLine, Collect,
-     strOp, Strings, Dos, lxlite_Global,
-     os2def, VpUtils, Crt;
+uses os2base, MiscUtil, SysLib, CmdLine, Collect,
+     StrOp, Strings, Dos, lxlite_Global,
+     os2def, VpUtils, Crtx;
 
 const
  Recurse : boolean = FALSE;

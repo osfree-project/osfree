@@ -85,7 +85,7 @@ begin
 end;
 
 begin
- GetDate(Year,Month,Day,DayOfWeek);
+ {GetDate(Year,Month,Day,DayOfWeek); !!!! }
  case datefmt of
   0 : S := 'wmdy';
   1 : S := 'wdmy';
@@ -108,7 +108,7 @@ var I,V,W : Longint;
     sep   : Char;
     Hour,Minute,Second,Sec100:Word;
 begin
- GetTime(Hour,Minute,Second,Sec100);
+ {GetTime(Hour,Minute,Second,Sec100); !!!! }
  S := '';
  For I := 1 to 4 do
   begin

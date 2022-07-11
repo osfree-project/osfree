@@ -9,17 +9,18 @@
 {$endif}
 Unit lxLite_Objects;
 
-Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
-               strOp, Country, Collect, lxlite_Global, 
+Interface uses exe286, exe386, os2exe, MiscUtil, SysLib,
+               StrOp, Country, Collect, lxlite_Global, Crtx
 {$ifndef fpc}
-               vpsyslow,
-               os2base;
+               , vpsyslow
+{$ifdef os2}
+               , os2base
+{$endif}
 {$else}
-{$ifdef OS2}
-               doscalls,
+{$ifdef os2}
+               , doscalls
 {$endif}
-               iostream;
-{$endif}
+{$endif};
 
 type
  pMyCmdLineParser = ^tMyCmdLineParser;
@@ -62,7 +63,7 @@ var
  procedure setConfig(const ID : string);
  procedure ShowConfig;
 
-Implementation uses Dos, Strings{$ifdef fpc}, SysUtils{$endif}, Crt;
+Implementation uses Dos, Strings{$ifdef fpc}, Drivers{$endif};
 
 var
  CmdLineStack : pStringCollection;
@@ -87,7 +88,11 @@ var
  msgNL : string;
 begin
  msgNL := msg + NewLineStr;
- DosPutMessage({$ifdef virtualpascal}SysFileStdErr{$else}2{$endif}, Length(msgNL), @msgNL[1]);
+{$ifdef virtualpascal}
+ DosPutMessage(SysFileStdErr, Length(msgNL), @msgNL[1]);
+{$else}
+ Write(msgNL);
+{$endif}
 end;
 
 function FormatStr(Template : Longint; Params : array of const) : string;
@@ -103,10 +108,10 @@ begin
 {$ifndef fpc}
  StrOp.FormatStr(Result, fmt, nP);
 {$else}
- {S := fmt;}
+ S := fmt;
  {SysUtils.FmtStr(S, fmt, Params);}
- {Drivers.FormatStr(S, fmt, Params);}
- Result := fmt;
+ Drivers.FormatStr(S, '', Params);
+ Result := S;
 {$endif}
 end;
 

@@ -4,9 +4,10 @@
 {$E-,F-,L+,N-,Y+}{&AlignCode-,AlignData-,AlignRec-,Optimise+,OrgName-,Asm-,Cdecl-,Delphi+,Frame-,LocInfo+,SmartLink+,Speed-,Z-,ZD-,Use32+}
 {$else}
 {$asmmode intel}
-{ -- $mode objfpc}
+{$mode objfpc}
 {$Align 1}
 {$Optimization STACKFRAME}
+{$ModeSwitch nestedprocvars}
 {$endif}
 
 Unit SysLib;
@@ -49,7 +50,7 @@ type
  APIRET = longint;
 
   Fea2 = record
-    oNextEntryOffset : ULong;     // Offset to next entry
+    oNextEntryOffset : LongInt;     // Offset to next entry
     fEA              : Byte;      // Extended attributes flag
     cbName           : Byte;      // Length of szName, not including NULL
     cbValue          : SmallWord; // Value length
@@ -60,7 +61,6 @@ type
 {$EndIf}
 
 type
-{$ifDef OS2}
  pFileMatch = ^tFileMatch;
  tFileMatch = object(tObject)
   matchStrings : pZTstrCollection;
@@ -70,6 +70,7 @@ type
   destructor  Destroy; virtual;
  end;
 
+{$ifDef OS2}
  pEAcollection = ^tEAcollection;
  tEAcollection = object(tCollection)
   constructor Fetch(const fName : string);
@@ -144,16 +145,23 @@ type
 { Return an string from resourse (from string table) }
  Function  GetResourceString(ID : Longint) : string;
 
-Implementation uses strOp, Streams, strings
-{$ifdef OS2}{$ifdef virtualpascal}, vpsyslow{$endif}{$endif};
+Implementation uses StrOp, Streams, strings
+{$ifdef fpc}
+  , SysUtils
+{$endif}
+{$ifdef OS2}
+{$ifdef virtualpascal}
+  , vpsyslow
+{$endif}
+{$endif};
 
-constructor tFileMatch.Create;
+constructor tFileMatch.Create(const fMasks : string);
 begin
  New(matchStrings, Create(4, 4));
  AddMask(fMasks);
 end;
 
-{$IFNDEF OS2}
+{$ifndef os2}
 function MatchStr(Pat, Txt: string): Boolean;
 var
   SubLen, ComPos, NextStar, SubPos: LongInt;
@@ -281,9 +289,9 @@ begin
     end else
         DosEditName := 111; // ERROR_BUFFER_OVERFLOW;
 end;
-{$ENDIF}
+{$endif}
 
-procedure tFileMatch.AddMask;
+procedure tFileMatch.AddMask(const fMasks : string);
 var
  I,oPos,
  Pos1,Pos2 : Word;
@@ -316,7 +324,7 @@ begin
  until iDone;
 end;
 
-function tFileMatch.Matches;
+function tFileMatch.Matches(const fName : string) : boolean;
 var I      : Integer;
     Source,
     Target : array[0..255] of Char;
@@ -343,7 +351,7 @@ end;
 {$ifdef OS2}
 function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; external 'DOSCALLS' index 417;
 
-constructor tEAcollection.Fetch;
+constructor tEAcollection.Fetch(const fName : string);
 const
  eaNameBfSz = 1024;
  secureSize = 256; {F$#%^k! Bug in DosEnumAttribute}
@@ -450,7 +458,7 @@ begin
  resFree;
 end;
 
-Function tEAcollection.Attach;
+Function tEAcollection.Attach(const fName : string) : boolean;
 label
  locEx;
 const
@@ -525,7 +533,7 @@ locEx:
  if Buff <> nil then FreeMem(Buff, eaNameBfSz);
 end;
 
-procedure tEAcollection.FreeItem;
+procedure tEAcollection.FreeItem(Item: Pointer);
 begin
  if Item <> nil
   then with pFea2(Item)^ do
@@ -533,7 +541,7 @@ begin
 end;
 {$endIf}
 
-Function fileExist;
+Function fileExist(const fName : string) : Boolean;
 var
  sr : SearchRec;
 begin
@@ -544,21 +552,21 @@ begin
 {$endIf}
 end;
 
-Function fileRename;
+Function fileRename(const sName,dName : string) : Boolean;
 var F : File;
 begin
  Assign(F, sName); Rename(F, dName);
  fileRename := ioResult = 0;
 end;
 
-Function fileErase;
+Function fileErase(const fName : string) : Boolean;
 var F : File;
 begin
  Assign(F, FName); SetFAttr(F, Archive);
  Erase(F); fileErase := ioResult = 0;
 end;
 
-Function fileLength;
+Function fileLength(const fName : string) : Longint;
 var F : File;
     I : Longint;
 begin
@@ -573,7 +581,7 @@ begin
        end;
 end;
 
-Function fileCopy;
+Function fileCopy(const sName,dName : string) : boolean;
 {$ifDef virtualpascal}
 var
  sn,dn : pChar;
@@ -595,26 +603,26 @@ begin
 end;
 {$else}
 var
- IS,OS : pFileStream;
+ INS,OS : pFileStream;
  At    : Word;
  FT    : Longint;
 begin
  fileCopy := FALSE;
- New(IS, Create(sName, stmReadOnly));
- if (IS = nil) or (IS^.Error <> steOK)
+ New(INS, Create(sName, stmReadOnly));
+ if (INS = nil) or (INS^.Error <> steOK)
   then begin
-        if IS <> nil then Dispose(IS, Destroy);
+        if INS <> nil then Dispose(INS, Destroy);
         exit;
        end;
  New(OS, Create(dName, stmWriteOnly));
- FT := IS^.GetTime; At := IS^.GetAttr;
+ FT := INS^.GetTime; At := INS^.GetAttr;
  if (OS = nil) or (OS^.Error <> steOK)
   then begin
-        Dispose(IS, Destroy);
+        Dispose(INS, Destroy);
         if OS <> nil then Dispose(OS, Destroy);
         exit;
        end;
- if IS^.Size <> OS^.CopyFrom(IS^, -1)
+ if INS^.Size <> OS^.CopyFrom(INS^, -1)
   then begin
         Dispose(OS, Erase);
         fileCopy := FALSE;
@@ -625,7 +633,7 @@ begin
         Dispose(OS, Destroy);
         fileCopy := TRUE;
        end;
- Dispose(IS, Destroy);
+ Dispose(INS, Destroy);
 end;
 {$endIf}
 
@@ -651,7 +659,7 @@ begin
  makeDirTree := TRUE;
 end;
 
-Function tempFileName;
+Function tempFileName(const fName : string) : string;
 var
  D,N,R : string;
  Count : Integer;
@@ -688,6 +696,17 @@ begin
   else tempFileName := R;
 end;
 
+{$ifDef fpc}
+Function SourcePath : String;
+var
+  j    : Byte;
+  S    : String;
+begin
+    S := ExtractFileDir(ParamStr(0));
+    for j := 1 to byte(S[0]) do if S[j] = '\' then S[j] := '/';
+    SourcePath :=  S + '/';
+end;
+{$else}
 {$ifdef WIN32}
 Function SourcePath : string;
 var len   :integer;
@@ -706,8 +725,8 @@ begin
   SourcePath := ename;
 end;
 {$else}
-Function SourcePath; assembler {&uses esi,edi};
 {$ifDef OS2}
+Function SourcePath; assembler {&uses esi,edi};
 asm             mov     edi,Environment
                 mov     al,0
                 mov     ecx,-1
@@ -768,8 +787,10 @@ asm             push    ds
 end;
 {$endIf}
 {$endIf}
+{$endIf}
 
-procedure fSplit;
+procedure fSplit(const Path : PathStr; var Dir : DirStr; var Name : NameStr;
+                  var Ext : ExtStr);
 var
  I,J : Integer;
 begin
@@ -810,7 +831,7 @@ begin
 end;
 
 {$ifDef OS2}
-function fmsInit; assembler {&uses none};
+function fmsInit(var Sem : tMutexSem) : boolean; assembler {&uses none};
 asm             mov     ecx,Sem
            lock bts     [ecx].tMutexSem.Owner,31      {Lock semaphore updates}
                 jnc     @@ok
@@ -822,7 +843,7 @@ asm             mov     ecx,Sem
                 mov     al,1
 end;
 
-function fmsRequest; assembler {&uses none};
+function fmsRequest(var Sem : tMutexSem) : boolean; assembler {&uses none};
 asm             mov     eax,fs:[12]            {Get ^Thread Information Block}
                 push    dword ptr [eax]                      {Owner : Longint}
                 push    eax                                   {Next : Pointer}
@@ -865,7 +886,7 @@ asm             mov     eax,fs:[12]            {Get ^Thread Information Block}
                 mov     al,1
 end;
 
-function fmsRelease; assembler {&uses none};
+function fmsRelease(var Sem : tMutexSem) : boolean; assembler {&uses none};
 asm
 @@testSem:      mov     ecx,Sem
            lock bts     [ecx].tMutexSem.Owner,31      {Lock semaphore updates}
@@ -920,7 +941,7 @@ asm
                 mov     al,1
 end;
 
-function fmsCheck; assembler {&uses none};
+function fmsCheck(var Sem : tMutexSem) : boolean; assembler {&uses none};
 asm             mov     eax,Sem
                 mov     eax,[eax].tMutexSem.Owner
                 and     eax,7FFFFFFFh
@@ -936,7 +957,7 @@ end;
 {$endIf}
 
 function GetResourceString(ID : Longint) : string;
-{$IFDEF OS2}
+{$ifdef os2}
 var
  pS : pByte;
  I  : Integer;
@@ -953,17 +974,22 @@ begin
  Dec(byte(S[0]));
  DosFreeResource(pS);
  GetResourceString := S;
-{$ELSE}
+{$endif}
+{$ifdef win32}
 var
  buf: array [0..511] of char;
 begin
  SysLoadResourceString(ID, buf, sizeof(buf));
  GetResourceString := StrPas(buf);
-{$ENDIF}
+{$endif}
+{$ifdef linux}
+begin
+ GetResourceString := ''; { !!!! }
+{$endif}
 end;
 
 
-procedure tCommandLineParser.Parse;
+procedure tCommandLineParser.Parse(var S : string);
 begin
  PreProcess(S);
  While S <> '' do
@@ -986,12 +1012,17 @@ var
  ParmStr : string;
  CPtr    : pchar;
 begin
-{$ifDef OS2}
+{$ifdef linux}
  if CmdLine = nil
   then ParmStr := ''
   else ParmStr := StrPas(GetASCIIZptr(CmdLine^, 2));
-{$else}
-{$ifDef WIN32}
+{$endif}
+{$ifdef os2}
+ if CmdLine = nil
+  then ParmStr := ''
+  else ParmStr := StrPas(GetASCIIZptr(CmdLine^, 2));
+{$endif}
+{$ifdef win32}
  CPtr := CmdLine;
  if CPtr<>nil then 
  begin
@@ -1005,14 +1036,14 @@ begin
     if CPtr<>nil then inc(CPtr);
  end;
  if CPtr=nil then ParmStr:='' else ParmStr:=StrPas(CPtr);
-{$else}
+{$endif}
+{$ifdef dos}
  Move(mem[PrefixSeg:$80], ParmStr, succ(mem[PrefixSeg:$80]));
-{$endIf}
-{$endIf}
+{$endif}
  Parse(ParmStr);
 end;
 
-Function tCommandLineParser.GetWord;
+Function tCommandLineParser.GetWord(var ParmStr : string; StartChar : Word; var DestStr : string) : Word;
 var
  I,J : Word;
  fCh : Char;
@@ -1035,7 +1066,8 @@ begin
  GetWord := I - StartChar;
 end;
 
-function tCommandLineParser.GetOpt;
+function tCommandLineParser.GetOpt(const parmStr : string; StartChar : Word; const OptChars : string;
+               OptFlags : array of Longint; var Option : Longint) : Word;
 var
  I,J,K : Longint;
  Ch    : Char;
@@ -1077,7 +1109,7 @@ begin
  GetOpt := StartChar - K;
 end;
 
-function tCommandLineParser.ParmHandler;
+function tCommandLineParser.ParmHandler(var ParmStr : string) : Word;
 var
  I : Integer;
 begin
@@ -1085,12 +1117,12 @@ begin
  ParmHandler := I;
 end;
 
-function tCommandLineParser.NameHandler;
+function tCommandLineParser.NameHandler(var ParmStr : string) : Word;
 begin
  NameHandler := ParmHandler(ParmStr);
 end;
 
-procedure tCommandLineParser.PreProcess;
+procedure tCommandLineParser.PreProcess(var ParmStr : string);
 begin
 end;
 

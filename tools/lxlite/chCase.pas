@@ -7,8 +7,8 @@
 {$Optimization STACKFRAME}
 {$MinStackSize 262144}
 {$endif}
-uses  os2base, miscUtil, SysLib, CmdLine, Collect,
-      strOp, Dos, lxlite_Global, Crt;
+uses  os2base, MiscUtil, SysLib, CmdLine, Collect,
+      strOp, Dos, lxlite_Global, Crtx;
 const
  Recurse   : boolean = FALSE;
  Pause     : boolean = FALSE;

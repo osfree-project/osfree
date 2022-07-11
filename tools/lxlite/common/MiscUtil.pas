@@ -13,14 +13,10 @@ Unit miscUtil;
 Interface
 
 const
-{$ifdef OS2}
- tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
-{$endIf}
-{$ifdef WIN32}
- tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
-{$endIf}
 {$ifndef VIRTUALPASCAL}
-// tickerFreq             = 5494; { = 100000/18.2 }
+ tickerFreq             = 5494; { = 100000/18.2 }
+{$else}
+ tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
 {$endIf}
 
 type
@@ -190,8 +186,10 @@ type
  Function level2call(Proc,Info : Pointer) : boolean;
 
 Implementation
-{$ifDef os2} uses {$ifnDef FPC} os2base; {$else} doscalls, math; {$endif} {$endIf}
-{$ifDef win32} uses windows; {$endIf}
+uses
+  SysUtils
+{$ifDef os2}{$ifnDef FPC}, os2base {$else}, doscalls, math{$endif}{$endIf}
+{$ifDef win32}, windows{$endIf};
 
 {北北北北北北北北北北北北北北 High-level functions 北北北北北北北北北北北北北}
 

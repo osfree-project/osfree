@@ -3,6 +3,7 @@
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
 {$Align 1}
+{$mode objfpc}
 {$Optimization STACKFRAME}
 {$endif}
 Unit lxLite_Global;
@@ -280,9 +281,6 @@ const
  cfgFname         = 'lxLite.cfg';
  logFname         = 'lxLite.log';
 
- RedirOutput: boolean = False; {True if stdOut is redirected}
- RedirInput:  boolean = False; {True if stdIn is redirected}
-
 {-Configuration parameters-}
  Opt              : record
   Verbose      : Longint;
@@ -399,22 +397,19 @@ var
  newStub   : Pointer;
  newStubSz : Longint;
 
- StdIn,                        { Old standard input }
- StdOut: Text;                 { and output streams }
-
 procedure SetColor(Color : Byte);
 procedure ClearToEOL;
 
-Implementation uses StrOp, Crt,
+Implementation uses StrOp, Crtx
 {$ifdef os2}
 {$ifdef fpc}
-      doscalls;
+  , doscalls
 {$else}
-      os2base;
+  , os2base
 {$endif}
-{$endif}
+{$endif};
 
-procedure SetColor;
+procedure SetColor(Color : Byte);
 const
  ColorTranslate : array[0..15] of Byte =
  (0, 7, 7, 7, 7, 7, 7, 7, 8, 7, 15, 15, 15, 15, 15, 15);
@@ -430,32 +425,6 @@ begin
        end;
 end;
 
-Procedure AssignConToCrt;
-var hType,hAttr : Longint;
-begin
-{$IFDEF OS2}
- Move(Input, StdIn, sizeOf(StdIn));
- Move(Output, StdOut, sizeOf(StdOut));
- DosQueryHType(0, hType, hAttr);
- if (hType and 3 = 1) and (hAttr and 1 <> 0)
-  then begin
-        AssignCrt(Input);
-        Reset(Input);
-       end
-  else RedirInput := True;
- DosQueryHType(1, hType, hAttr);
- if (hType and 3 = 1) and (hAttr and 2 <> 0)
-  then begin
-        AssignCrt(Output);
-        ReWrite(Output);
-       end
-  else RedirOutput := True;
-{$ELSE}
-  AssignCrt(Input);  Reset(Input);
-  AssignCrt(Output); ReWrite(Output);
-{$ENDIF}
-end;
-
 procedure ClearToEOL;
 var
  Spaces : Integer;
@@ -469,11 +438,9 @@ begin
         else ClrEOL;
 end;
 
-procedure tModuleCollection.FreeItem;
+procedure tModuleCollection.FreeItem(Item: Pointer);
 begin
  Dispose(pModuleDef(Item));
 end;
 
-begin
-  AssignConToCrt;
 end.

@@ -5,21 +5,21 @@
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {&M 262144}
 {$else}
-{$MinStackSize 262144}
+{ -- $MinStackSize 262144}
 {$Align 1}
 {$mode objfpc}
 {$asmmode intel}
 {$Optimization STACKFRAME}
 {$endif}
 uses
- Dos, Crt,
+ Dos, Crtx,
 {$ifdef virtualpascal}
  vpsyslow,
 {$endif}
 {$IFDEF OS2}
  os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
 {$ENDIF}
- exe386, os2exe, strOp, miscUtil,
+ exe386, os2exe, StrOp, MiscUtil,
  SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
 
 label
