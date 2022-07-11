@@ -36,12 +36,6 @@ SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
   return oCls;
 }
 
-FILE * SOMLINK somtopenEmitFile (char *file, char *ext)
-{
-  // Здесь необходимо предварительно добавить или заменить расширение на ext
-  return fopen(file, "w");
-};
-
 int SOMLINK somtfclose (FILE *fp)
 {
   return fclose(fp);
