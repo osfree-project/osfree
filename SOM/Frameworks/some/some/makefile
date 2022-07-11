@@ -1,7 +1,7 @@
 # Makefile for SOM
 
 PROJ = some
-TRGT = $(PROJ).dll
+#TRGT = $(PROJ).dll
 DLL = 1
 DESC = SOM Emitter Framework
 DLLOPT  = initinstance terminstance
@@ -119,7 +119,7 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
-TARGETS= pre $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+TARGETS= pre $(PROJ).dll $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
 $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)some.dll
 	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)

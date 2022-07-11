@@ -1,6 +1,7 @@
 
 SRC = $(MYDIR)
 OS2TK = $(%OS2TK)
+DEST = none
 
 SOM_DIR=$(SRC)
 SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include

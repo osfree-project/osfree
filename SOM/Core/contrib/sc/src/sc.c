@@ -901,7 +901,12 @@ int main(int argc,char **argv)
 					}
 					somipcExitCode=system(somipc2._buffer);
 					//printf("%d\n", somipcExitCode);
+					#ifdef __LINUX__
 					if (somipcExitCode==127) //1)
+					#endif
+					#ifdef _WIN32
+					if (somipcExitCode==1)
+					#endif
 					{
 						if (verbose)
 						{
