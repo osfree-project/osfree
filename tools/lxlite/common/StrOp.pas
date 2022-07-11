@@ -1419,4 +1419,3 @@ begin
    then lCaseMap[uCaseMap[char(I)]] := char(I);
 {$endIf}
 end.
-

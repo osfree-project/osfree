@@ -12,16 +12,15 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses
- Dos, Crt, os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif}
- exe386, os2exe, strOp, miscUtil, SysLib, Collect, Country, Strings,
- lxLite_Global, lxLite_Objects;
+ Dos, Crt, 
+{$IFDEF OS2}
+ os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
+{$ENDIF}
+ exe386, os2exe, strOp, miscUtil,
+ SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects, vpsyslow;
 
 label
  done;
-
-const
- PRTYS_PROCESSTREE = 1;
- PRTYC_IDLETIME    = 1;
 
 Procedure LoadStub;
 type
@@ -49,10 +48,29 @@ var
  EH   : pDosEXEheader;
  P    : pByteArray;
  S,hS : Longint;
+ stubPath: string;
+ unixroot: string;
 begin
  if (opt.tresholdStub <= 0) or (opt.stubName = '')
   then begin NewStubSz := 0; exit; end;
+ //
+ // 1.) we search the stub with the full name
+ // 2.) we search the stub in the unixroot/usr/share/lxLite dir
+ // 3.) we search the stub in the exe dir
+ // 
  Assign(F, opt.stubName); Reset(F, 1);
+ if ioResult <> 0
+  then begin 
+{$ifdef OS2}
+   unixroot := GetEnv('UNIXROOT');
+{$else}
+   unixroot := '';
+{$endif}
+   if unixroot <> '' then begin
+    stubPath := unixroot + '\usr\share\lxLite\'; 
+    Assign(F, stubPath + opt.stubName); Reset(F, 1);
+   end;
+  end;
  if ioResult <> 0
   then begin Assign(F, SourcePath + opt.stubName); Reset(F, 1); end;
  if ioResult <> 0 then Stop(msgCantLoadStub, opt.stubName);
@@ -243,12 +261,14 @@ begin
   2 : exit;
   3 : begin allDone := TRUE; exit; end;
  end;
+{$IFDEF OS2}
  if not unlockModule(fName)
   then begin
         SetColor($0C);
         Writeln(FormatStr(msgModInUseCant, [fName]));
         exit;
        end;
+{$ENDIF}
  CheckUseCount := FALSE;
 end;
 
@@ -323,6 +343,8 @@ begin
         _d := GetResourceString(rc);
         Writeln(logFile, FormatStr(msgLogError, [bk, Short, _d]));
        end;
+ // we also write all errors to stderr
+ WriteError(GetResourceString(rc));
 end;
 
 const
@@ -411,11 +433,11 @@ begin
  if opt.doUnpack
   then begin
         opt.Unpack := TRUE;
-        opt.PackMode := opt.PackMode and not (pkfRunLength or pkfLempelZiv);
+        opt.PackMode := opt.PackMode and not (pkfRunLength or pkfLempelZiv or pkfSixPack);
        end;
 
  exT := ntfLXmodule;
- rc := LX^.LoadLX(fName);
+ rc := LX^.LoadLX(fName, opt.pageToEnlarge); { 2011-11-16 SHL  }
  if (rc = lxeIsNEformat) and (opt.NEloadMode and lneAlways <> 0)
   then begin
         rc := LX^.LoadNE(fName, opt.NEloadMode);
@@ -479,6 +501,12 @@ begin
       TrackProcess;
    end;
  end;
+
+ if (opt.PageWriteOpt and 1)<>0 then
+   LX^.WritePagesToFile(opt.PageRWStart,opt.PageRWEnd,opt.pageFileName,opt.PageWriteOpt)
+ else
+ if opt.PageRWStart>0 then
+   LX^.ReadPagesFromFile(opt.PageRWStart,opt.PageRWEnd,opt.pageFileName,opt.PageReadPack);
 
  if opt.tresholdStub > 0 then I := newStubSz else I := -1;
  if (not opt.ForceRepack) and (askD <> 1) and (askX <> 1) and (not opt.doUnpack) and
@@ -545,8 +573,8 @@ begin
           then lxMFlags := (lxMFlags and (not lxModType)) or opt.NewType;
         end;
 
- if opt.Unpack then LX^.Unpack;
- if opt.ApplyFixups then LX^.ApplyFixups;
+ if opt.Unpack then LX^.Unpack(opt.AllowZTrunc);
+ if opt.ApplyFixups then LX^.ApplyFixups(opt.ForceApply, opt.ApplyMask);
 
  if opt.Verbose <> 0
   then begin
@@ -556,18 +584,19 @@ begin
         LX^.DisplayExeInfo;
        end;
 
-{ Realignment must follow LX^.DisplayExeInfo 
+{ Realignment must follow LX^.DisplayExeInfo
   but precede LX^.Pack for better compression }
  if opt.Realign <> NoRealign then LX^.Header.lxPageShift := opt.Realign;
 
- if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfFixups) <> 0)
+ if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfSixPack or pkfFixups) <> 0)
   then begin
         prevProgressValue := -1;
 {$ifndef fpc}
-        LX^.Pack(opt.PackMode, showProgress);
+        LX^.Pack(opt.PackMode, showProgress, opt.AllowZTrunc);
 {$else}
-        LX^.Pack(opt.PackMode, @showProgress);
+        LX^.Pack(opt.PackMode, @showProgress, opt.AllowZTrunc);
 {$endif}
+
        end;
  Write(#13); ClearToEOL;
  if (opt.FinalWrite = 0) then Goto locEx;
@@ -588,8 +617,8 @@ begin
                 4 : begin allDone := TRUE; Goto locEx; end;
                end;
               end;
-        SetColor($0B); Write(FormatStr(msgBackingUp, [Short]));
-        if not FileCopy(fName, bk)
+        SetColor($0B); Write(FormatStr(msgBackingUp, [Short, bk]));
+        if not FileRename(fName, bk)
          then begin
                SetColor($0C); Write(GetResourceString(msgBackupError));
                SetColor($0B); Writeln(#13'Ã');
@@ -610,7 +639,11 @@ SaveLX:
                Goto locEx;
               end;
         if opt.Backup and bkf = 0
-         then FileErase(bk)
+         then begin
+               FileErase(bk);
+               Write(#13); ClearToEOL;
+               SetColor($0B); Write(FormatStr(msgDelBackup, [bk]));
+              end
          else if opt.backupDir <> ''
                then begin
                      newbk := opt.backupDir;
@@ -862,8 +895,9 @@ begin
  setConfig('default');
  Parser^.ParseCommandLine;
  PrintHeader;
-
+{$IFDEF OS2}
  if opt.ForceIdle then DosSetPriority(Prtys_ProcessTree, Prtyc_IdleTime, 16, 0);
+{$ENDIF}
  if opt.QueryCfgList then begin ShowConfigList; Goto Done; end;
  if (fNames^.Count = 0) and (not opt.ShowConfig) then Stop(1, '');
  LoadModuleDefs;

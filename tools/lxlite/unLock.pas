@@ -8,7 +8,8 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses os2base, miscUtil, SysLib, CmdLine, Collect,
-     strOp, Strings, Crt, Dos, lxlite_Global;
+     strOp, Strings, Crt, Dos, lxlite_Global,
+     os2def, VpUtils;
 const
  Recurse : boolean = FALSE;
  Pause   : boolean = FALSE;
@@ -17,6 +18,13 @@ var
  OldExit : Procedure;
  fNames  : pStringCollection;
  allDone : boolean;
+
+{$IfDef OS2}
+{$Cdecl+,Orgname+}
+function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet;
+  external 'DOSCALLS' index 417;
+{$Cdecl-,Orgname-}
+{$EndIf OS2}
 
 Procedure Stop(eCode : Byte);
 begin
@@ -28,14 +36,19 @@ begin
                 Writeln('Ã Invalid switch - see help below for details');
                end;
          TextAttr := $07;
-         Writeln('Ã Usage: unLock [FileMask( FileMask)] {[?|-]Options}');
+         Writeln('Ã Usage for executable unlock: unLock [FileMask( FileMask)] {[?|-]Options}');
          Writeln('Ã /P{+|-} Enable (+) or disable (-) pause before each file');
          Writeln('Ã /R{+|-} [R]ecursive (+) file search through subdirectories');
          Writeln('Ã /V{+|-} Verbose (show additional information)');
          Writeln('Ã /?,/H   Show this help screen');
          Writeln('Ã´Default: /P- /R- /V-');
          TextAttr := $08;
-         Writeln('À´Example: unLock d:\*.exe d:\*.dll /r');
+         Writeln('Ã´Example: unLock d:\*.exe d:\*.dll /r');
+         TextAttr := $07;
+         Writeln('|');
+         Writeln('Ã Usage for IBM UDF unlock: unLock drive:');
+         TextAttr := $08;
+         Writeln('À´Example: unLock S:');
         end;
  end;
  Halt(eCode);
@@ -83,7 +96,7 @@ end;
 Procedure MyExitProc;
 begin
  Write(#13);
- TextAttr := $07; ClrEOL;
+ TextAttr := $07; ClearToEOL;
  OldExit;
 end;
 
@@ -113,14 +126,14 @@ Procedure NotLocked;
 begin
  if Verbose
   then begin Write(' not locked'); textAttr := $0B; Writeln(#13'Ã'); end
-  else begin Write(#13); ClrEOL; end;
+  else begin Write(#13); ClearToEOL; end;
 end;
 
 begin
  if length(fName) >= 255 then exit;
  _n := extractName(fName);
  textAttr := $0B;
- Write(#13); ClrEOL;
+ Write(#13); ClearToEOL;
  Write('À Processing file ', Copy(_n, 1, 28));
  FileMode := open_share_DenyReadWrite or open_access_ReadOnly;
  Assign(F, fName); Reset(F, 1);
@@ -178,7 +191,7 @@ begin
  if nf = 0
   then begin
         textAttr := $0B; Write('À ', Short(_d, 77));
-        ClrEOL; Write(#13);
+        ClearToEOL; Write(#13);
        end;
  FindFirst(_d + '*', Archive or Hidden or SysFile or Directory, sr);
  While (dosError = 0) and (not allDone) do
@@ -191,10 +204,124 @@ begin
  FindClose(sr);
 end;
 
+// write a string to StdErr
+procedure WriteMessage(const Msg:String);
+  begin
+    DosPutMessage(SysFileStdErr,Length(Msg),@Msg[1]);
+  end;
+
+// retrieve, format and write a SYSxxxx message
+procedure DispayMessage(const message_number:word;const fillin1:PChar);
+  var
+    cTable              :Word;
+    Buf                 :string[80];
+    cbMessage           :Word;
+
+  begin
+    if Assigned(fillin1) then cTable:=1 else cTable:=0;
+    FillChar(Buf,SizeOf(Buf),0);
+    DosGetMessage(@fillin1,cTable,@Buf[1],SizeOf(Buf)-1,message_number,'OSO001.MSG',cbMessage);
+    SetLength(Buf,cbMessage);
+    WriteMessage(Buf);
+  end;
+
+// emulate IBM UNLOCK.EXE, from the UDF package
+// differences:
+//   - object code size :)
+//   - passes useful return code
+function UnlockMedia(const drive:string):ApiRet;
+  var
+    drive_filename      :array[0..3] of char;
+    drive_handle        :Word;
+    rc                  :ApiRet;
+    action              :Word;
+
+    parameter           :
+      packed record
+        Length_Command_Information:byte;
+        Drive_Unit      :byte;
+      end;
+
+    parameter_length    :Word;
+
+
+  begin
+    drive_handle:=High(drive_handle);
+
+    if (Length(drive)<>2)
+    or (not (UpCase(drive[1]) in ['A'..'Z']))
+    or (drive[2]<>':')
+     then
+       begin
+         DispayMessage(msg_Bad_Syntax,nil); // 1003
+         Result:=error_Invalid_Parameter; // IBM Unlock sets zero!
+         Exit;
+       end;
+
+    Os2Base.DosError(ferr_DisableHardErr+ferr_DisableException); // not restored..
+
+    StrPCopy(drive_filename,drive);
+    drive_filename[0]:=UpCase(drive_filename[0]);
+
+    rc:=DosOpen(
+          drive_filename,
+          drive_handle,
+          action,
+          0,
+          0,
+          open_action_Open_If_Exists+open_action_Fail_If_New,
+          open_flags_Dasd+open_flags_Fail_On_Error+open_flags_No_Locality+open_share_DenyNone+open_access_ReadOnly,
+          nil);
+
+    // unlock ignores rc??
+    with parameter do
+      begin
+        Length_Command_Information:=0; // Unlock
+        Drive_Unit:=Ord(drive_filename[0])-Ord('A');
+      end;
+    parameter_length:=SizeOf(parameter);
+
+    if rc=no_Error then
+      rc:=DosDevIOCtl(
+            drive_handle,ioctl_Disk,dsk_UnlockEjectMedia,
+            @parameter,parameter_length,@parameter_length,
+            nil       ,0               ,nil);
+
+    case rc of
+      no_Error:                 //   0
+        ;
+      error_Access_Denied,      //   5
+      error_Invalid_Drive,      //  15
+      error_Not_Ready,          //  21
+      error_Gen_Failure,        //  31
+      error_Drive_Locked:       // 108
+        DispayMessage(rc,@drive_filename);
+
+    else
+      WriteMessage('Error On Lock rc='+Int2Str(rc)+' ');
+      DispayMessage(error_Bad_Command,@drive_filename); // command not recognized by device
+    end;
+
+    Result:=rc;
+
+    if drive_handle<>High(drive_handle) then
+      DosClose(drive_handle);
+
+  end;
+
 var
  I : Longint;
 
 begin
+
+ if  (ParamCount=1)
+ and (Length(ParamStr(1))=Length('X:'))
+ and (UpCase(ParamStr(1)[1]) in ['A'..'Z'])
+ and (ParamStr(1)[2]=':') then
+   begin
+     Halt(UnlockMedia(ParamStr(1)));
+   end;
+
  TextAttr := $0F;
  Writeln('Ú[ unLock ]ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ[ Version '+Version+' ]¿');
  Writeln('Ã Copyright 1996 by FRIENDS software Ä No rights reserved Ù');
@@ -210,6 +337,6 @@ begin
    if allDone then break;
   end;
 
- TextAttr := $01; ClrEOL;
+ TextAttr := $01; ClearToEOL;
  Writeln('À´Done');
 end.

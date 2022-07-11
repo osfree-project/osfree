@@ -27,6 +27,11 @@ const
   Mono          = 7;            { 80x25 on Monochrome Adapter  }
   Font8x8       = 256;          { Add-in for 8x8 font          }
 
+  MON1          = $FE;          { Monochrome, ASCII chars only }
+  MON2          = $FD;          { Monochrome, graphics chars   }
+  COL1          = $FC;          { Color, ASCII chars only      }
+  COL2          = $FB;          { Color, graphics chars        }
+
 { Foreground and background color constants }
 
   Black         = 0;
@@ -104,12 +109,16 @@ procedure NoSound;
 use new procedure PlaySound instead
 
 }
+{$IFDEF DPMI32}
+procedure Sound(Hz: Word);
+procedure NoSound;
+{$ENDIF}
 
 procedure PlaySound(Freq,Duration: Longint);
 
 implementation
 
-uses Dos, Os2Def, {$IFDEF FPC} DosCalls, KbdCalls, VioCalls; {$ELSE} Os2Base; {$ENDIF}
+uses Dos, {$ifdef OS2}Os2Def, {$IFDEF FPC} DosCalls, KbdCalls, VioCalls; {$ELSE} Os2Base; {$ENDIF}{$endif}
 
 { Private variables }
 
@@ -161,6 +170,12 @@ const
   QSV_INT10ENABLED          = 31;
   QSV_MAX                   = QSV_INT10ENABLED;
 
+var
+  NormAttr: Byte;
+  DelayCount: Longint;
+  PrevXcptProc: Pointer;
+  ScreenSize: tSysPoint;
+
 { Determines if a key has been pressed on the keyboard and returns True }
 { if a key has been pressed                                             }
 
@@ -168,8 +183,7 @@ function KeyPressed: Boolean;
 var
   Key: KbdKeyInfo;
 begin
-  KbdPeek(Key,0);
-  KeyPressed := (ScanCode <> 0) or ((Key.fbStatus and kbdtrf_Final_Char_In) <> 0);
+  KeyPressed := SysKeyPressed;
 end;
 
 { Reads a character from the keyboard and returns a character or an     }
@@ -179,44 +193,15 @@ function ReadKey: Char;
 var
   Key: KbdKeyInfo;
 begin
- if RedirInput
-  then Read(Input, Key.chChar)
-  else begin
-        If ScanCode <> 0
-         then begin
-               Key.chChar := Chr(ScanCode);
-               ScanCode := 0;
-              end
-         else begin
-               KbdCharIn(Key,io_Wait,0);
-               case Key.chChar of
-                #0:
-                 ScanCode := Key.chScan;
-                #$E0:           {   Up, Dn, Left Rt Ins Del Home End PgUp PgDn C-Home C-End C-PgUp C-PgDn C-Left C-Right C-Up C-Dn }
-                 if Key.chScan in [$48,$50,$4B,$4D,$52,$53,$47, $4F,$49, $51, $77,   $75,  $84,   $76,   $73,   $74,    $8D, $91]
-                  then begin
-                        ScanCode := Key.chScan;
-                        Key.chChar := #0;
-                       end;
-               end;
-              end;
-       end;
- ReadKey := Key.chChar;
+  ReadKey := SysReadKey;
 end;
 
 { Reads normal character attribute }
 
 procedure ReadNormAttr;
 var
-{$ifdef fpc}
-  Cell,Size: Word;
-{$else}
-  Cell,Size: SmallWord;
-{$endif}
 begin
-  Size := 2;
-  VioReadCellStr(Cell, Size, WhereY-1, WhereX-1, 0);
-  NormAttr := Hi(Cell) and $7F;
+  NormAttr := SysReadAttributesAt(WhereX-1, WhereY-1);
   NormVideo;
 end;
 
@@ -225,23 +210,14 @@ end;
 procedure SetWindowPos;
 begin
   WindMin := 0;
-  WindMax := VioMode.Col - 1 + (VioMode.Row - 1) shl 8;
+  WindMax := ScreenSize.x - 1 + (ScreenSize.y - 1) shl 8;
 end;
 
 { Stores current video mode in LastMode }
 
 procedure GetLastMode;
 begin
-  VioMode.cb := SizeOf(VioMode);
-  VioGetMode(VioMode, 0);
-  with VioMode do
-  begin
-    if Col = 40 then LastMode := BW40 else LastMode := BW80;
-    if (fbType and vgmt_DisableBurst) = 0 then
-      if LastMode = BW40 then LastMode := CO40 else LastMode := CO80;
-    if Color = 0 then LastMode := Mono;
-    if Row > 25 then Inc(LastMode,Font8x8);
-  end;
+  LastMode := SysTvGetScrMode( @ScreenSize, False );
 end;
 
 { Selects a specific text mode. The valid text modes are:               }
@@ -255,52 +231,12 @@ end;
 procedure TextMode(Mode: Integer);
 var BiosMode: Byte; Cell: SmallWord; VideoConfig: VioConfigInfo;
 begin
-  GetLastMode;
   TextAttr := LightGray;
-  BiosMode := Lo(Mode);
-  VideoConfig.cb := SizeOf(VideoConfig);
-  VioGetConfig(0, VideoConfig, 0);
-  with VioMode do
-  begin
-    cb := SizeOf(VioMode);
-    fbType := vgmt_Other;
-    Color := colors_16;         { Color }
-    Row := 25;                  { 80x25 }
-    Col := 80;
-    VRes := 400;
-    HRes := 720;
-    case BiosMode of            { 40x25 }
-      BW40,CO40:
-        begin
-          Col := 40; HRes := 360;
-        end;
-    end;
-    if (Mode and Font8x8) <> 0 then
-    case VideoConfig.Adapter of { 80x43 }
-      display_Monochrome..display_CGA: ;
-      display_EGA:
-        begin
-          Row := 43; VRes := 350; HRes := 640;
-        end;
-      else                      { 80x50 }
-        begin
-          Row := 50; VRes := 400; HRes := 720;
-        end;
-    end;
-    case BiosMode of            { Black and white }
-      BW40,BW80: fbType := vgmt_Other + vgmt_DisableBurst;
-      Mono:
-        begin                   { Monochrome }
-          HRes := 720; VRes := 350; Color := 0; fbType := 0;
-        end;
-    end;
-  end;
-  VioSetMode(VioMode, 0);
-  VioGetMode(VioMode, 0);
+  SysTvSetScrMode( Mode );
+  GetLastMode;
   NormVideo;
   SetWindowPos;
-  Cell := Ord(' ') + TextAttr shl 8;    { Clear entire screen }
-  VioScrollUp(0,0,65535,65535,65535,Cell,0);
+  ClrScr;
 end;
 
 { Defines a text window on the screen.                                  }
@@ -315,7 +251,7 @@ begin
     begin
       Dec(X2);
       Dec(Y2);
-      if (X2 < VioMode.Col) and (Y2 < VioMode.Row) then
+      if (X2 < ScreenSize.x) and (Y2 < ScreenSize.y) then
       begin
         WindMin := X1 + Y1 shl 8;
         WindMax := X2 + Y2 shl 8;
@@ -335,7 +271,8 @@ begin
   begin
     X1 := X - 1 + Lo(WindMin);
     Y1 := Y - 1 + Hi(WindMin);
-    if (X1 <= Lo(WindMax)) and (Y1 <= Hi(WindMax)) then VioSetCurPos(Y1,X1,0);
+    if (X1 <= Lo(WindMax)) and (Y1 <= Hi(WindMax)) then
+      SysTVSetCurPos( X1, Y1 );
   end;
 end;
 
@@ -345,7 +282,7 @@ function WhereX: Byte;
 var
   X,Y: SmallWord;
 begin
-  VioGetCurPos(Y,X,0);
+  SysGetCurPos(X, Y);
   WhereX := X - Lo(WindMin) + 1;
 end;
 
@@ -355,7 +292,7 @@ function WhereY: Byte;
 var
   X,Y: SmallWord;
 begin
-  VioGetCurPos(Y,X,0);
+  SysGetCurPos(X,Y);
   WhereY := Y - Hi(WindMin) + 1;
 end;
 
@@ -365,8 +302,7 @@ procedure ClrScr;
 var
   Cell: SmallWord;
 begin
-  Cell := Ord(' ') + TextAttr shl 8;
-  VioScrollUp(Hi(WindMin),Lo(WindMin),Hi(WindMax),Lo(WindMax),Hi(WindMax)-Hi(WindMin)+1,Cell,0);
+  SysScrollUp( Lo(WindMin), Hi(WindMin), Lo(WindMax), Hi(WindMax), Hi(WindMax)-Hi(WindMin)+1, Ord( ' ' ) + TextAttr shl 8 );
   GotoXY(1,1);
 end;
 
@@ -375,11 +311,13 @@ end;
 
 procedure ClrEol;
 var
-  Cell,X,Y: SmallWord;
+  X,Y, Len: SmallWord;
+  Buffer: Array[0..255] of char;}
 begin
-  Cell := Ord(' ') + TextAttr shl 8;
-  VioGetCurPos(Y,X,0);
-  VioScrollUp(Y,X,Y,Lo(WindMax),1,Cell,0);
+  SysGetCurPos(X, Y);
+  Len := succ(Lo(WindMax)-X);
+  fillchar(Buffer, Len, ' ');
+  SysWrtCharStrAtt(@Buffer, Len, X, Y, TextAttr);
 end;
 
 { Inserts an empty line at the cursor position.                         }
@@ -389,8 +327,8 @@ var
   Cell,X,Y: SmallWord;
 begin
   Cell := Ord(' ') + TextAttr shl 8;
-  VioGetCurPos(Y,X,0);
-  VioScrollDn(Y,Lo(WindMin),Hi(WindMax),Lo(WindMax),1,Cell,0);
+  SysGetCurPos(X,Y);
+  SysScrollDn(Lo(WindMin),Y,Lo(WindMax),Hi(WindMax),1,Cell);
 end;
 
 { Deletes the line containing the cursor.                               }
@@ -400,8 +338,8 @@ var
   Cell,X,Y: SmallWord;
 begin
   Cell := Ord(' ') + TextAttr shl 8;
-  VioGetCurPos(Y,X,0);
-  VioScrollUp(Y,Lo(WindMin),Hi(WindMax),Lo(WindMax),1,Cell,0);
+  SysGetCurPos(X,Y);
+  SysScrollUp(Lo(WindMin),Y,Lo(WindMax),Hi(WindMax),1,Cell);
 end;
 
 { Selects the foreground character color.                               }
@@ -440,66 +378,33 @@ begin
   TextAttr := TextAttr or $08;
 end;
 
-{ Waits for next timer tick or delays 1ms }
-
-function DelayLoop(Count: Longint; var StartValue: ULong): Longint;
-var
-  Value: ULong;
-begin
-  repeat
-    DosQuerySysInfo(qsv_Ms_Count,qsv_Ms_Count,Value,SizeOf(Value));
-    Dec(Count);
-  until (Value <> StartValue) or (Count = -1);
-  StartValue := Value;
-  DelayLoop := Count;
-end;
-
-{ Delays a specified number of milliseconds. DosSleep is too inexact on }
-{ small time intervals. More over, the least time interval for DosSleep }
-{ is 1 timer tick (usually 31ms). That is why for small time intervals  }
-{ special delay routine is used. Unfortunately, even this routine cannot}
-{ be exact in the multitasking environment.                             }
+{
+{ Delays a specified number of milliseconds. }
 
 procedure Delay(MS: Longint);
-var
-  StartValue,Value: ULong;
-  Count: Longint;
 begin
-  if MS >= 31 then DosSleep(MS)
- else
-  begin
-    DosQuerySysInfo(qsv_Ms_Count,qsv_Ms_Count,StartValue,SizeOf(StartValue));
-    Value := StartValue;
-    Count := MS;
-    repeat
-      DelayLoop(DelayCount,Value);
-      Dec(Count)
-    until (Value-StartValue >= MS) or (Count <= 0);
-  end;
-end;
-
-{ Calculates 1ms delay count for DelayLoop routine. }
-{ CalcDelayCount is called once at startup.         }
-
-procedure CalcDelayCount;
-var
-  Interval,StartValue,Value: ULong;
-begin
-  DosQuerySysInfo(qsv_Timer_Interval,qsv_Timer_Interval,Interval,SizeOf(Interval));
-  DosQuerySysInfo(qsv_Ms_Count,qsv_Ms_Count,StartValue,SizeOf(StartValue));
-  repeat
-    DosQuerySysInfo(qsv_Ms_Count,qsv_Ms_Count,Value,SizeOf(Value));
-  until Value <> StartValue;
-  DelayCount := -DelayLoop(-1,Value) div Interval * 10;
-  if DelayCount = 0 then Inc(DelayCount);
+  SysCtrlSleep( MS );
 end;
 
 { Plays sound of a specified frequency and duration.                    }
 
 procedure PlaySound(Freq,Duration: Longint);
 begin
-  DosBeep(Freq,Duration);
+  SysBeepEx(Freq, Duration);
 end;
+
+{$IFDEF DPMI32}
+procedure Sound(Hz: Word);
+begin
+  SysSound(Hz);
+end;
+
+procedure NoSound;
+begin
+  SysNoSound;
+end;
+{$ENDIF}
+}
 
 { Do line feed operation }
 
@@ -508,64 +413,108 @@ var
   Cell: SmallWord;
 begin
   Cell := Ord(' ') + TextAttr shl 8;
-  VioScrollUp(Hi(WindMin),Lo(WindMin),Hi(WindMax),Lo(WindMax),1,Cell,0);
+  SysScrollUp(Lo(WindMin),Hi(WindMin),Lo(WindMax),Hi(WindMax),1,Cell);
 end;
 
 { Outputs packed string to the CRT device }
 
-procedure WritePackedString(S: PChar; Len: Longint);
-var X,Y,cX,cY : SmallWord;
-    i,sP,sL   : Longint;
-    C         : Char;
-begin
- VioGetCurPos(Y,X,0);
- i := 0;
- While i < Len do
-  begin
-   sP := i; sL := 0;
-   cX := X; cY := Y;
-   repeat
-    C := S[i]; Inc(i);
-    if C in [^J,^M,^H,^G] then break;
-    Inc(sL); Inc(X);
-   until (i >= pred(Len)) or (X > Lo(WindMax));
-   if sL <> 0 then VioWrtCharStrAtt(@S[sP], sL, cY, cX, TextAttr, 0);
-   case C of
-    ^J : if Y >= Hi(WindMax) then LineFeed else Inc(Y); { Line Feed       }
-    ^M : X := Lo(WindMin);                              { Carriage return }
-    ^H : if X > Lo(WindMin) then Dec(X);                { Backspace       }
-    ^G : begin                                          { Bell            }
-          if (X <> cX) or (Y <> cY) then VioSetCurPos(Y,X,0);
-          cX := X; cY := Y;
-          VioWrtTTY(@C,1,0);
-         end;
-   end;
-   if X > Lo(WindMax)
-    then begin
-          X := Lo(WindMin);
-          Inc(Y);
-         end;
-   if Y > Hi(WindMax)
-    then begin
-          LineFeed;
-          Y := Hi(WindMax);
-         end;
-   if (X <> cX) or (Y <> cY) then VioSetCurPos(Y,X,0);
+type
+  PWin32Cell = ^TWin32Cell;
+  TWin32Cell = record
+    Ch:     SmallWord;
+    Attr:   SmallWord;
   end;
+
+procedure WritePackedString(S: PChar; Len: Longint);
+var
+  Buf: array[1..256] of Char;
+  I,BufChars: Integer;
+  X,Y:        SmallWord;
+  X1,Y1:      Longint;
+  C:          Char;
+
+  procedure FlushBuffered;
+  begin
+    If BufChars > 0 then
+    begin
+      SysWrtCharStrAtt(@Buf, BufChars, X1, Y1, TextAttr);
+      BufChars := 0;
+      X1 := X;
+      Y1 := Y;
+    end;
+  end;
+
+begin
+  SysGetCurPos(X, Y);
+  BufChars := 0;
+  X1 := X;
+  Y1 := Y;
+  for I := 0 to Len - 1 do
+  begin
+    C := S[I];
+    case C of
+      ^J:               { Line Feed }
+        begin
+          FlushBuffered;
+          {$IFDEF LINUX}
+          X := Lo(WindMin);
+          x1 := x;
+          {$ENDIF}
+          if Y >= Hi(WindMax) then LineFeed else Inc(Y);
+          y1 := y;
+        end;
+      //--{$IFNDEF LINUX}
+      ^M:               { Carriage return }
+        begin
+          FlushBuffered;
+          X := Lo(WindMin);
+          x1 := x;
+        end;
+      //--{$ENDIF}
+      ^H:               { Backspace }
+        begin
+          FlushBuffered;
+          if X > Lo(WindMin) then Dec(X);
+          if X1 > Lo(WindMin) then Dec(X1);
+        end;
+      ^G:               { Bell }
+        SysBeep;
+      else
+        Inc(BufChars);
+        Buf[BufChars] := C;
+        Inc(X);
+        if X > Lo(WindMax) then
+        begin
+          FlushBuffered;
+          X := Lo(WindMin);
+          X1 := X;
+          Inc(Y);
+          if Y > Hi(WindMax) then
+          begin
+            FlushBuffered;
+            LineFeed;
+            Y := Hi(WindMax);
+          end;
+          Y1 := Y;
+        end;
+    end;
+  end;
+  FlushBuffered;
+  SysTVSetCurPos(X, Y);
 end;
 
 { CRT text file I/O functions }
 
 function CrtRead(var F: Text): Longint;
 var
-  CurPos : Longint;
-  C      : Char;
+  CurPos: Longint;
+  C: Char;
 begin
   with TextRec(F) do
   begin
     CurPos := 0;
     repeat
-      ScanCode := 0;
+      SysFlushKeyBuf;
       C := ReadKey;
       case C of
         ^H:                     { Backspace }
@@ -618,13 +567,27 @@ begin
   CrtReturn := 0;               { I/O result = 0: success }
 end;
 
+function CrtClose(var F: Text): Longint;
+begin
+  {$IfDef Linux}
+  if TextRec(F).Mode = fmInput then
+    SysTVDoneCursor  // There is no SysTvDoneKbd
+  else
+    SysTVDoneCursor;
+  {$EndIf Linux}
+  CrtClose := 0;                { I/O result = 0: success }  
+end;
+
 function CrtOpen(var F: Text): Longint;
 begin
   with TextRec(F) do
   begin
-    CloseFunc := @CrtReturn;
+    CloseFunc := @CrtClose;
     if Mode = fmInput then
     begin
+      {$IFDEF LINUX}
+      SysTvKbdInit;
+      {$ENDIF}
       InOutFunc := @CrtRead;
       FlushFunc := @CrtReturn;
     end
@@ -655,21 +618,24 @@ end;
 
 { Signal Handler }
 
-function CtrlBreakHandler(Report:       PExceptionReportRecord;
-                          Registration: PExceptionRegistrationRecord;
-                          Context:      PContextRecord;
-                          P:            Pointer): ULong; cdecl;
+var
+  PrevCtrlBreakHandler : TCtrlBreakHandler = nil;
+
+function CrtCtrlBreakHandler: Boolean;
 begin
-{$IFNDEF FPC}
-  if not CheckBreak and (Report^.ExceptionNum = xcpt_Signal)
-    then CtrlBreakHandler := xcpt_Continue_Execution
-    else CtrlBreakHandler := xcpt_Continue_Search;
-{$ENDIF}
+  Result:=false;
+  // let other CtrlBreakHandler process it (TVision)
+  if Assigned(PrevCtrlBreakHandler) then
+    Result:=PrevCtrlBreakHandler;
+  // if not handled  we look at CheckBreak flag  if me may terminate
+  if not Result then
+    Result := not CheckBreak;
 end;
 
 Procedure AssignConToCrt;
 var hType,hAttr : Longint;
 begin
+{$IFDEF OS2}
  Move(Input, StdIn, sizeOf(StdIn));
  Move(Output, StdOut, sizeOf(StdOut));
  DosQueryHType(0, hType, hAttr);
@@ -686,18 +652,19 @@ begin
         ReWrite(Output);
        end
   else RedirOutput := True;
+{$ELSE}
+  AssignCrt(Input);  Reset(Input);
+  AssignCrt(Output); ReWrite(Output);
+{$ENDIF}
 end;
 
 begin
- GetLastMode;
- if (VioMode.fbType and vgmt_Graphics) <> 0 then TextMode(CO80);
- ReadNormAttr;
- SetWindowPos;
- AssignConToCrt;
- CalcDelayCount;
-{$IFNDEF FPC}
- PrevXcptProc := XcptProc;
- XcptProc := @CtrlBreakHandler;
-{$ENDIF}
+  SysTvInitCursor;
+  GetLastMode;
+  SetWindowPos;
+  ReadNormAttr;
+  AssignConToCrt;
+  PrevCtrlBreakHandler := CtrlBreakHandler;
+  CtrlBreakHandler := CrtCtrlBreakHandler;
+  SysCtrlSetCBreakHandler;
 end.
-

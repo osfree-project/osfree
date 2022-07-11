@@ -123,8 +123,7 @@ begin
         if Error <> steOK
          then begin
                Error := steOK;
-               { bsz := minL(minL(maxAvail, $FFF0), bytes); }
-               bsz := minL($FFF0, bytes);
+               bsz := minL(minL(maxAvail, $FFF0), bytes);
                GetMem(buff, bsz);
                if buff <> nil
                 then begin
@@ -214,8 +213,7 @@ var
  i,rc : longint;
 begin
  CopyFrom := 0;
- { bSz := minL($FFF0, maxAvail); }
- bSz := $FFF0;
+ bSz := minL($FFF0, maxAvail);
  GetMem(Buff, bSz);
  if Buff = nil then begin Error := steNoMemory; exit; end;
  rc := 0;
@@ -477,4 +475,3 @@ begin
 end;
 
 end.
-

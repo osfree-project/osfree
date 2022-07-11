@@ -13,11 +13,15 @@ Unit SysLib;
 
 Interface uses Dos, miscUtil, Collect
 {$IfDef OS2}, os2def{$IfnDef FPC},os2base{$Else}, doscalls{$EndIf}{$EndIf};
+{$ifdef win32},windows{$endif};
 
 {$IfDef OS2}
 {$IfnDef FPC}
 function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; cdecl; orgname;
 {$EndIf}
+{$else}
+// replacement for use in Windows build
+function DosEditName(MetaLevel: LongInt; Source,Edit: PChar; Target: PChar; cbTarget: LongInt): LongInt;
 {$EndIf OS2}
 
 const
@@ -136,19 +140,148 @@ type
 { Unlock a executable module if it is already in use }
  Function  unlockModule(const fName : string) : boolean;
 
+{$endIf}
 { Return an string from resourse (from string table) }
  Function  GetResourceString(ID : Longint) : string;
-{$endIf}
 
-Implementation uses strOp, Streams, strings, sysutils;
-
-function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; external 'DOSCALLS' index 417;
+Implementation uses strOp, Streams, strings
+{$ifdef OS2}, os2base {$endif}, vpsyslow;
 
 constructor tFileMatch.Create;
 begin
  New(matchStrings, Create(4, 4));
  AddMask(fMasks);
 end;
+
+{$IFNDEF OS2}
+function MatchStr(Pat, Txt: string): Boolean;
+var
+  SubLen, ComPos, NextStar, SubPos: LongInt;
+begin
+  // First make sure that the pattern doesn't start with *, and always
+  // ends with *.  Change the text accordingly.
+  Pat := #0 + Pat + #0 + '*';
+  Txt := #0 + Txt    + #0;
+
+  Result := True;
+
+  while (Pat <> '') and Result do
+    begin
+      // Look for the first *.  At least 1 character before this will be
+      // a normal character, i.e. neither ? nor *
+      NextStar := Pos('*', Pat);
+
+      SubLen := NextStar - 1;
+
+      // Ignore double-*
+      while (NextStar < Length(Pat)) and (Pat[NextStar + 1] = '*') do
+        Inc(NextStar);
+
+      SubPos := 0;
+
+      repeat
+        Inc(SubPos);
+        Result := True;
+        ComPos := 0;
+        while (ComPos < SubLen) and Result do
+          begin
+            if (Txt[SubPos + ComPos] <> Pat[ComPos + 1]) and
+               (Pat[ComPos + 1] <> '?') then
+              Result := False;
+
+            Inc(ComPos);
+          end;
+      until (SubPos + SubLen > Length(Txt)) or Result;
+
+      // When a match is found, cut a piece off the text and continue.
+      if Result then
+        begin
+          Delete(Txt, 1, SubPos + SubLen - 1);
+          Delete(Pat, 1, NextStar);
+        end;
+    end;
+end;
+
+function DosEditName(MetaLevel: LongInt; Source,Edit: PChar; Target: PChar; cbTarget: LongInt): LongInt;
+var  rcLen, ii : longint;
+     pSrc, pEd, pRes, pDelimit : PChar;
+begin
+    if MetaLevel<>1 then 
+    begin 
+       DosEditName := 87; // ERROR_INVALID_PARAMETER;
+       exit;
+    end;
+    DosEditName := 123; // ERROR_INVALID_NAME;
+    ii := 0;
+    while Source[ii] <> #0 do
+       if (Source[ii] = '\') or (Source[ii] = '/') then exit else inc(ii);
+    while Edit[ii] <> #0 do
+       if (Edit[ii] = '\') or (Edit[ii] = '/') then exit else inc(ii);
+
+    pSrc  := Source;
+    pEd   := Edit;
+    pRes  := Target;
+    rcLen := 0;
+    while pEd[0] <> #0 do
+    begin
+        if rcLen<cbTarget then
+        begin
+            case pEd[0] of
+            '*':begin
+                    pDelimit := pEd;
+                    inc(pDelimit);
+                    while (rcLen < cbTarget) and (pSrc[0] <> #0) and
+                        (upcase(pSrc[0]) <> upcase(pDelimit[0])) do
+                    begin
+                        if rcLen < cbTarget then
+                        begin
+                            pRes[0] := upcase(pSrc[0]);
+                            inc(pRes); inc(pSrc); inc(rcLen);
+                        end;
+                    end;
+                end;
+            '?':begin
+                    if (pSrc[0] <> '.') and (pSrc[0] <> #0) then
+                    begin
+                        if rcLen < cbTarget then
+                        begin
+                            pRes[0] := upcase(pSrc[0]);
+                            inc(pRes); inc(pSrc); inc(rcLen);
+                        end;
+                    end;
+                end;
+            '.':begin
+                    while (pSrc[0] <> '.') and (pSrc[0] <> #0) do inc(pSrc);
+                    pRes[0] := '.';
+                    inc(pRes);
+                    inc(rcLen);
+                    if pSrc[0] <> #0 then inc(pSrc);
+                end;
+            else begin
+                    if (pSrc[0] <> '.') and (pSrc[0] <> #0) then inc(pSrc);
+                    if rcLen <cbTarget then
+                    begin
+                        pRes[0] := upcase(pEd[0]);
+                        inc(pRes);
+                        inc(rcLen);
+                    end;
+                end;
+            end;
+            inc(pEd);
+        end else
+        begin
+            DosEditName := 111; // ERROR_BUFFER_OVERFLOW;
+            exit;
+        end
+    end;
+    if rcLen < cbTarget then
+    begin
+        pRes[0] := #0;
+        DosEditName := 0;
+    end else
+        DosEditName := 111; // ERROR_BUFFER_OVERFLOW;
+end;
+{$ENDIF}
 
 procedure tFileMatch.AddMask;
 var
@@ -191,9 +324,13 @@ begin
  Matches := TRUE;
  StrUpper(StrPcopy(Source, fName));
  For I := 0 to pred(matchStrings^.Count) do
+{$IFDEF OS2}
   if (DosEditName(1, Source, matchStrings^.At(I), Target, sizeOf(Target)) = 0) and
      (StrComp(Source, Target) = 0)
-   then exit;
+{$ELSE}
+  if MatchStr(StrPas(matchStrings^.At(I)), StrPas(Source))
+{$ENDIF}
+        then exit;
  Matches := FALSE;
 end;
 
@@ -202,6 +339,9 @@ begin
  Dispose(matchStrings, Destroy);
  inherited Destroy;
 end;
+
+{$ifdef OS2}
+function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; external 'DOSCALLS' index 417;
 
 constructor tEAcollection.Fetch;
 const
@@ -391,6 +531,7 @@ begin
   then with pFea2(Item)^ do
         FreeMem(Item, sizeOf(Fea2) + cbName + cbValue);
 end;
+{$endIf}
 
 Function fileExist;
 var
@@ -398,7 +539,7 @@ var
 begin
  Dos.FindFirst(fName, AnyFile, sr);
  fileExist := Dos.DosError = 0;
-{$ifDef OS2}
+{$ifDef virtualpascal}
  Dos.FindClose(sr);
 {$endIf}
 end;
@@ -433,7 +574,7 @@ begin
 end;
 
 Function fileCopy;
-{$ifDef OS2}
+{$ifDef virtualpascal}
 var
  sn,dn : pChar;
 begin
@@ -441,7 +582,14 @@ begin
  GetMem(dn, succ(length(dName)));
  StrPCopy(sn, sName);
  StrPCopy(dn, dName);
+{$ifdef WIN32}
+ fileCopy := CopyFile(sn, dn, False);
+{$else}
+ fileCopy := False;
+{$endif}
+{$ifdef OS2}
  fileCopy := DosCopy(sn, dn, dcpy_Existing) = 0;
+{$endif}
  FreeMem(sn, succ(length(sName)));
  FreeMem(dn, succ(length(dName)));
 end;
@@ -540,15 +688,22 @@ begin
   else tempFileName := R;
 end;
 
-{$ifDef fpc}
-Function SourcePath : String;
-var
-  j    : Byte;
-  S    : String;
+{$ifdef WIN32}
+Function SourcePath : string;
+var len   :integer;
+    ename :ShortString;
 begin
-    S := ExtractFileDir(ParamStr(0));
-    for j := 1 to byte(S[0]) do if S[j] = '\' then S[j] := '/';
-    SourcePath :=  S + '/';
+  SysCmdlnParam(0,ename);
+  len:=length(ename);
+  while len>0 do
+    if ename[len] in ['\','/'] then
+    begin
+      ename[0]:=char(len);
+      break
+    end else 
+      dec(len);
+
+  SourcePath := ename;
 end;
 {$else}
 Function SourcePath; assembler {&uses esi,edi};
@@ -772,38 +927,41 @@ asm             mov     eax,Sem
                 setz    al
 end;
 
-function GetResourceString(ID : Longint) : string;
-var
- pS : pByte;
- I  : Integer;
- S  : string;
- rc : APIRET;
-begin
-  rc := DosGetResource(nullHandle,
-         {$ifndef fpc}rt_String{$else}rtString{$endif},
-         ID div 16 + 1,
-         Pointer(pS));
-  if rc <> 0 then
-  begin
-      GetResourceString := '';
-      exit;
-  end;
-  Inc(pS, sizeOf(Word16)); {skip codepage}
-  For I := 1 to ID and $0F do Inc(pS, pS^ + 1);
-  Move(pS^, S, pS^);
-  Dec(byte(S[0]));
-  DosFreeResource(pS);
-  GetResourceString := S;
-end;
-
 Function unlockModule(const fName : string) : boolean;
 var
  tmp : array[0..256] of Char;
 begin
  unlockModule := DosReplaceModule(strPCopy(tmp, fName), nil, nil) = 0;
 end;
-
 {$endIf}
+
+function GetResourceString(ID : Longint) : string;
+{$IFDEF OS2}
+var
+ pS : pByte;
+ I  : Integer;
+ S  : string;
+begin
+ if DosGetResource(nullHandle, rt_String, ID div 16 + 1, Pointer(pS)) <> 0
+  then begin
+        GetResourceString := '';
+        exit;
+       end;
+ Inc(pS, sizeOf(Word16)); {skip codepage}
+ For I := 1 to ID and $0F do Inc(pS, succ(pS^));
+ Move(pS^, S, pS^);
+ Dec(byte(S[0]));
+ DosFreeResource(pS);
+ GetResourceString := S;
+{$ELSE}
+var
+ buf: array [0..511] of char;
+begin
+ SysLoadResourceString(ID, buf, sizeof(buf));
+ GetResourceString := StrPas(buf);
+{$ENDIF}
+end;
+
 
 procedure tCommandLineParser.Parse;
 begin
@@ -826,13 +984,30 @@ end;
 procedure tCommandLineParser.ParseCommandLine;
 var
  ParmStr : string;
+ CPtr    : pchar;
 begin
 {$ifDef OS2}
  if CmdLine = nil
   then ParmStr := ''
   else ParmStr := StrPas(GetASCIIZptr(CmdLine^, 2));
 {$else}
+{$ifDef WIN32}
+ CPtr := CmdLine;
+ if CPtr<>nil then 
+ begin
+    if (CPtr^='"') then
+    begin
+       inc(CPtr);
+       CPtr:=StrScan(CPtr, '"');
+    end else
+       CPtr:=StrScan(CPtr, ' ');
+    
+    if CPtr<>nil then inc(CPtr);
+ end;
+ if CPtr=nil then ParmStr:='' else ParmStr:=StrPas(CPtr);
+{$else}
  Move(mem[PrefixSeg:$80], ParmStr, succ(mem[PrefixSeg:$80]));
+{$endIf}
 {$endIf}
  Parse(ParmStr);
 end;

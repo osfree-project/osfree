@@ -1,0 +1,6 @@
+This directory contains the source code for lxLite resources. Resources
+contain all lxLite messages as well as all API names that lxLite knows.
+You can add your own sets of API functions to file OS2API.RC then to
+recompile resources using OS/2 Resource Compiler (use LXRC.CMD for this).
+
+NOTE: You are not allowed to change program copyright message.

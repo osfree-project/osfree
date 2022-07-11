@@ -1,0 +1,873 @@
+lxLite User's Guide
+
+Contents
+
+1.) Introduction
+2.) License
+3.) Features
+4.) Command-line switches
+5.) Configuration file
+6.) Error messages
+7.) Known bugs and limitations
+8.) Authors, contributors, acknowledgments
+
+1.) Introduction
+
+The program is written exclusively using Virtual Pascal, with use of
+its built-in 32-bit assembler. This is an excellent language which takes
+full advantages of OS/2's possibilities, is BorlandPascal compatible, and
+have a much more powerful than BP built-in optimizer.
+
+All end-users are really bored of the big size and reduced functionality of 
+all those modern executables written to run under OS/2 (windows too). I don't 
+understand why they are so big, because most compilers, even IBM CSet/VACPP 
+generate a modest size code. For a widely known example let's take MultiMaint. 
+What a complex task it performs that its executable occupies more that 700K? 
+I don't understand. Moreover, WHY duplicate (and triplicate) almost the same 
+executable as it does (I mean MultiSafe and IniMaint which comes along with 
+MultiMaint). It performs a nice work, but it is TOO big for the task it 
+accomplishes. OS/2 kernel have the same size, and performs INCOMPARABLY much 
+more things. I cannot afford such a large pile of shit on my HD, so I killed 
+MultiMaint & Cø. :-(. Too bad for its author.
+
+
+Here is a workaround for this. You can just pack the executable so it will
+be twice smaller and still perform the same task. Alas, it will grab the
+same amount of memory as original executable does - this is the fault of the
+program's author. But it will load (and swap) faster in most cases (unless you
+have a Fast UltraWide SCSI 2 HD :-)
+
+
+As far as I know there is only one program which does the same - REPACK
+from IBM (EWS?). But compared to lxLite it gives less compression using same
+algorithm. For example, COURIER.FON from OS/2 v8.192 it compresses into 44K
+and lxLite into 34K. Feel the difference. BTW, LINK386+Resource Compiler
+compiles COURIER.FON also into 44K-size file. This makes me think that they
+use the same common compression code.
+
+
+I've packed ALL my executables (including but not limiting to ?:\os2\*.exe,
+?:\os2\dll\*.* and ?:\os2\dll\ibmnull;laserjet) and my system is still
+working fine :-) One of lxLite users (Pavel Roskin) observed that lxLite
+packs even os2krnl :-) This is a very nice feature to create a SINGLE OS/2
+boot diskette, moreover, since version 1.1.8 lxLite has the ability to pack
+even device drivers, so you can even gain a little of free space on that 
+diskette, enough to put there say FC/2 or other text-mode shell.
+
+2.) License
+
+Starting from version 1.1.9 I at last decided (really I at last realized
+what it really is :-) ) to distribute lxLite under GNU General Public License 
+(GPL).
+
+The GPL license can be found in the companion file gpl.txt
+
+3.) Features
+
+lxLite compresses the files in the same way as LINK386 does. There is NO
+way of implementing an effective (by memory requirements) compression method
+other than those two which Warp kernel knows and will recognize (or the only
+for 2.x) since unlike DOS OS/2 does paging and pages are loaded by kernel
+paging mechanism which runs at ring 0. There is no documented way to intrude
+inside the OS/2 kernel even from device drivers (which also runs in ring 0).
+
+So, here is a brief description of these two algorithms:
+
+Run-length packing. This is generally the same method that Microsoft C
+for DOS uses. It gives VERY bad results because the structure of executable
+files aren't suited for that kind of packing. For example, PCX files uses
+approximately the same packing method.
+Kinda Lempel-Ziv algorithm. Lempel-Ziv is the same method which almost
+all DOS executables packers use - LZEXE, PKLITE, PGMPAK etc. The method
+standardized for OS/2 executable files is not the most effective (IMHO).
+Other thing is that OS/2 executable have a different loading algorithm in
+contrast to DOS executables - parts of OS/2 executables are loaded only when
+they are needed. So, Lempel-Ziv dictionary cannot cross the bound of a
+single page (4096 bytes). Because of this, it gives not such good results as
+it can.
+
+lxLite can use any of these two methods either for packing or unpacking.
+Generally the second gives best compression rates, but may be (?) there are
+some files on which first will work better. Because of this the default is
+to try to pack page using both methods and then choose the smaller result.
+lxLite can be used as well for unpacking the files that previously have been
+packed - either by lxLite, LINK386 or REPACK from IBM. In some (seldom) cases
+you should specify the /F (force) option to force repacking - otherwise lxLite
+can give the "module is already packed" message.
+
+What kind of files you can compress? The LX format is used almost
+everywhere in OS/2: almost everything is in LX format. So, you don't have
+to limit only to .EXE files: you can pack .DLL, .PDR, .QPR, .DRV, .FON, .SYS
+(Virtual Device Drivers (VDDs) in \OS2\MDOS) as well. You can run lxLite on
+virtually any file: if it is not in Linear Executable (LX) format it will
+fail to process it.
+
+Versions above 1.1.7 of lxLite can also convert to LX and compress most NE
+executables: this is a tricky thing but seems that in most cases it works
+well. If it cannot be accomplished, lxLite will give you an error message.
+If you don't like this, you can disable this by using the /N- option on the
+command line. By default lxLite will convert *only* .EXE and .DLL files, which
+doesn't contain resources, are long-filenames aware (.EXEs) and are not 
+'bound executable's (.EXEs).
+
+Some conversion considerations: NE files have a bit in the header that
+shows if the module handles long file names (since OS/2 v1.0 didn't have long
+file names: HPFS was introduced in version 1.2). Executables with this bit
+set will see files with LFNs, when this bit is not set whey will work just
+like DOS programs do, i.e. won't see files with LFN. Many NE executables
+doesn't have this bit set, although they don't care at all about filenames
+(for example, ARP.EXE, IFCONFIG.EXE from TCP/IP). Moreover, many executables
+that even works with file names will work as well with the long file names
+(for example I tried some UUENCODE/UUDECODE clones). By default lxLite will
+fail to convert such files into LX since LX modules doesn't have such a bit
+in header, but you can force conversion by using the /NL switch. Default
+configuration file instructs lxLite to ignore this bit for all known to me
+kinds of dynamic-link libraries: DLL, DRV, FON, PDR, QPR (although last
+four extensions, as far as I know, always are LX modules).
+
+Also there is a number of NE executables (for example most EXEs from SIO or
+MASM 6.0 package) which are so-called 'bounded' (also known as "Family API")
+executables. A bounded executable can run both under DOS and OS/2, but not
+the way as LX modules do (one file contains TWO different executables; DOS
+executable is bonded as stub to OS/2 LX executable), but other way: DOS stub
+is a small program which loads and executes NE executable under plain DOS,
+and emulates a (very) limited set of OS/2 API calls via BIOS and DOS
+interrupts. By default lxLite will also fail to convert such executables
+into LX modules since resulting executables won't run under DOS anymore:
+however, if you have PROTECTONLY=YES in CONFIG.SYS or simply don't need the
+executable to run under DOS, you can change the behavior of lxLite using the
+/NB switch on the command line.
+
+Another incompatibility between LX and NE files are resources. If NE
+module contains resources and they're loaded using the Dos16GetResource API
+function, API will return an error code when trying to load same resources
+from an LX file. So, by default, lxLite will fail to convert NE modules that
+contains resources (however, there are not too much such modules). However,
+you can override this by using the /NR switch. As a example of a DLL with
+resources you can look at \TCPIP\DLL\TCPMRI.DLL. Many NE utilities (such as
+ARP, PING etc) uses Dos16GetResource to load resources from TCPMRI.DLL, and
+will display an 'Failure in national language support' instead of almost all
+messages. There is an alternative API function for 16-bit modules:
+DosGetResource2, which will work well for an LX file. So if you're sure that
+all resources in a file are loaded exclusively through DosLoadModule2, you
+can force lxLite to convert such NE files by using the /NR switch.
+
+lxLite version 1.00 and above can replace executable modules even if they
+are currently in use. In this case it will warn you that module is already
+in use by another process, and will propose you either to replace it by its
+packed version or either to skip this module. Choose at your wish, but keep
+in mind that the modules you have replaced are kept now (their old versions)
+in memory, so they eat up your swapfile space. Better reboot as soon as you
+have this opportunity.
+
+You can also consider compressing your entire \OS2\*\ directory structure,
+it will give you a lot of extra space and absolutely no overhead! The time
+spent for decompressing executables is recovered by the time which system
+does not spend for reading the executable from HD because it's much smaller!
+You can even compress the DLLs which are currently locked (lxLite will unlock
+them, but swap file will increase, so you will need to reboot after this).
+For this, you have to type:
+
+lxLite #:\os2\* /r /yur
+
+where # is drive letter of your boot drive.
+
+Version 1.1.0 and above detects executables which contains some data after
+the LX structure itself (i.e. what's called in DOS overlay data). For
+= 10.0) and Watcom VX-REXX executables have such structure. 
+In this case lxLite shows an warning message and asks for confirmation 
+whenever you really want to pack such executable. It is STRONGLY recommended 
+that you backup the executable in question before trying to do it because 
+it is VERY possible that it will become non-functional if something gets 
+changed in it (because lxLite does not change any of possible pointers in 
+data bonded to LX as in VXREXX executables). Default configuration file 
+instructs lxLite to back up automatically such executables (by using the /BX 
+switch). All backed up filenames are stored by default into the \lxLite.bak 
+directory.
+
+
+
+4.) Command-line switches
+
+There are a lot of options in lxLite. I simply like options :-) So, you can 
+configure almost anything in lxLite. Moreover, to protect the user from need 
+of writing the same options lxLite support multiple configurations which are 
+kept in a single file. lxLite comes with some example configurations ('factory
+defaults') which are listed below: 
+ 
+
+  default (loaded by default) 
+  It is a 'work' configuration. All parameters are set to optimal level
+of compression without too much effort applied. File backup is disabled except
+for files that have extra data after LX structure. Note that this configuration
+is ALWAYS loaded before any other options are in effect, so even /C{#} option
+is executed AFTER default configuration is loaded. 
+  unpack (loaded for /X option) 
+  This configuration is loaded when you request to unpack the file (/X).
+By default it is empty; you can add here everything you want to happen when 
+files are unpacked. 
+  ver2x 
+  Optimal for pre-Warp versions of OS/2. Versions before Warp (3.0) does
+not know of the Lempel-Ziv (/EXEPACK:2) method. DON'T PACK EXECUTABLES WITH 
+LEMPEL-ZIV's ALGORITHM if there is a chance to run your program on OS/2 v2.xx
+(except 2.99). 
+  max 
+  Tightest compression level. VERY SLOW! It is rarely needed to use this 
+configuration. 
+  newStub 
+  This is a particular configuration used to replace one DOS stub in
+LX executable by another without altering anything else. You have to specify 
+a filename for new stub - this configuration only tells lxLite not to depack
+old objects and not to pack unpacked objects. 
+  minStub 
+  This is a configuration which is linked to newStub and replaces stubs
+in given files by minimal possible stub of 'say-error-and-exit' type. You 
+cannot make it smaller (at least I doubt it), only if you shorten the error 
+message. 
+  vdmStub 
+  This configuration tells lxLite to replace in specified files stub
+by a 'run-from-VDM'-style one. This is also as short as possible :-) Please 
+read the /T{#} option description for further details. 
+  info 
+  Use this configuration to get the most important information about executables
+(see option /V) without altering them. 
+  exehdr 
+  Shows complete information about the executable header. Module file
+is not altered in any way. 
+  exemap 
+  Shows anything about the executable structure. This can generate sometimes 
+very long data sheets, so use it only if really needed. 
+  map 
+  Shows the memory map of the executable: memory objects and pages which 
+makes the object. 
+  exp 
+  Shows everything that is exported from the module (exported names and 
+exported entry points) 
+  imp 
+  Shows module import tables 
+  pdd 
+  This configuration can be used for physical device drivers (especially
+in NE format). 
+  dll 
+  This configuration is useful for dynamic-link libraries. 
+
+ 
+ 
+ To use a specific configuration use the /C:# switch where # is configuration's
+identifier. Settings are loaded from file lxLite.CFG in the same directory
+where lxLite.EXE resides. You shouldn't care about paths - lxLite will always
+find it. For example, to use 'max' configuration run lxLite /c:Max. For a
+detailed description of .CFG file format see section right below the following. 
+
+ 
+ Here is a detailed explanation of what each switch does. Note that any 
+switch which accepts '+' or '-' sign after it (to enable/disable the action 
+which switch symbolizes) can be used without anything after it - this is accepted
+as '+'. For example, /V+ is equivalent to /V. 
+ 
+ 
+
+  /A[{P|S|N{P|S}}{:#}] 
+  Set alignment method for first and rest of objects. First object can
+be aligned on [P]age shift, [S]ector or [N]o boundary. Note that the last 
+option (No boundary) cannot be achieved by using LINK386, but it works well,
+and the LX format allows it. All objects except first MUST be aligned on
+at least PageShift boundary. PageShift is a value that is specified in LX
+header. You can redefine it too by specifying a semicolon and a decimal value
+after it: for example the /APP:512 switch will place all pages in executable
+on 512 bytes boundary. Note that the # value must be a power of two (i.e.
+1,2,4,8,16,32,...). 
+  /B(D|X|+|-){:%} 
+  Enable (+) or disable (-) copying original file into *.BAK; optionaly 
+lxLite can do it only when [D]ebug and/or e[X]tra data are detected. Also
+you can specify an directory % for backed up files (relative to root). The
+entire directory tree will be re-created inside the backup directory. For
+example, the /BX:c:\lxlite.bak switch will instruct lxLite to back up files
+only when e[X]tra data is present in module and to place them into the directory
+structure under the c:\lxlite.bak directory. 
+  /C{S}{+|-} 
+  Enable (+) or disable (-) colored output. You can specify {S} to force 
+lxLite to use StdOut instead of VioXXX functions. 
+  /C[:%] 
+  Use configuration with ID = %; The two predefined configuration names
+are "default" and "unpack". First is always loaded as lxLite starts and second
+is used when /X+ option is specified (this is NOT equivalent to /c:Unpack). 
+  
+  /E{#} 
+  Set [E]xclude filemask. All files that fits given filemask(s) will
+be bypassed by lxLite. All filemasks must be separated by ':' (because it 
+cannot be a part of filemask). For example /D*.zip:*.arj:*.rar switch will
+instruct lxLite to avoid all .zip, .arj and .rar files. Default lxlite configuration
+(/C:default) includes the /C:exclude configuration which instructs lxLite
+to avoid all executables which are known to have problems when packed. Note
+that the /D switches are additive, so /D*.zip /D*.arj /D*.rar is equivalent
+to the example above. To clear exclusion list use specify /D. 
+  /F{+|-} 
+  Force repacking. Use /F+ to bypass 'already processed' message, i.e. 
+when lxLite thinks that file was already processed and it really wasn't. This
+usually doesn't happen, but can happen when you try to replace a stub by
+another of the same size in a already packed file. 
+  /I{+|-} 
+  Force (+) lxLite to run at idle priority. This mean that lxLite will
+do its work only when no other activity in system occurs (waiting for an keyboard/mouse
+event etc). This is the best in my opinion choice because you can run lxLite
+in background and it will not degrade almost at all system performance. However
+if you'll run an 'badly-behaved' VDM session which grabs all CPU time lxLite
+will completely stop. When run with /I- option lxLite does not changes its
+priority (i.e. you can run lxLite /I- via priority.exe program which starts
+programs with given priority). 
+  /J[A|E|L|P|V](E|L|P|V|N|X|+|-) 
+  Change module type: Leave [A]s-is, [E]xecutable module, [L]ibrary module, 
+[P]hysical or [V]irtual driver. Especially useful when converting NE drivers.
+Optionaly you can restrict this to work only on [E]xecutables, [L]ibraries,
+[P]hysical or [V]irtual drivers, [N]E or L[X] executables and any combination
+of them. [N]E and [L]X conditions are considered with an AND operator; all
+others with OR, i.e. /JPELN will mean: "Change module type into [P]hysical
+device driver for all [E]xecutables OR [L]ibraries which also are (AND) [N]E
+modules" 
+  /L(A|S|U|+|-){:%} 
+  Instructs lxLite to maintain an log file. If no file name is specified, 
+lxLite.log is used in the home directory of lxLite. Beside the filename, the
+start and final file size is written into log along with the problems (if
+any) that were encountered when processing (for example: 'Executable has
+been used by another process and replaced'). You can also optionaly choose
+to log either [S]uccessful or [U]nsuccessful cases or [A]ll (which means
+more than just /SU+: lxLite will also log 'already processed' files). 
+  /M[R[N|1|2|3]|L[N|1]|F[N|1|2]] 
+  Set packing method & parameters. Second character (after M) defines
+the method to set-up: 'R' stands for run-length (/EXEPACK:1), 'L' for Lempel-Ziv
+(/EXEPACK:2) and 'F' for Fixup packing method. The third character is the
+level of compression using that method; if N is specified the method is disabled.
+Three levels of packing are provided for run-length compression. The level
+1 is the fastest. It searches only for 1-character strings. For example,
+the 'AAAAAAAA' string will be detected and packed as 8, 1, 'A' while 'ABABABAB'
+string will be stored as unpacked text. Level 2 detects repeated strings
+of up to 16 characters length, so the example above will be encoded as 4,2,'AB'. 
+This is the default setting for most 'factory' configurations. And last, 3rd
+level searches for ALL strings of any length (up to page size/2 = 2048). This
+compresses VERY slow and seldom gives real results, so use it only when you
+really need it. The Lempel-Ziv algorithm can be either disabled (/MLN) or
+enabled (/ML1). When enabled it searches for all matches using a relatively
+fast hash-table, so there is no need in gradations by compression speed.
+The fixup packing method can be set to [N]one, level 1 end level 2; fixups
+packed using Level 1 are recognized by any OS/2 version above 2.x; however
+level 2 compressed fixups will work only in OS/2 Warp 3.0 with (fixpack #17
+(I believe)) and above (Warp 4.0 too). Note that when /MF1 or /MF2 is in
+use, the /U{+|-} option is ignored - module is always unpacked first. 
+  /N(B|L|A|+|-) 
+  [N]E executables: convert into LX (+) or reject (-) modules that are 
+[B]ound, not [L]FN-aware or [A]ll. For more information about [B] and [L]
+option see the 'Features' section above. For example, the /NA- option will
+instruct lxLite not to convert NE files into LX, the /NA+ will instruct to
+convert always; the /NA-LB+ will instruct lxLite to convert ONLY non-[L]FN-aware
+and [B]ound executables, the /NA+LB- will instruct lxLite to convert [A]ll
+except non-[L]FN-aware and [B]ound executables. 
+  /O(X|D|S|A|+|-){:%} 
+  [O]utput e[X]tra/[D]ebug/[S]tub data into an external file; filename
+is determined by applying mask % onto original filename. Data is written [A]lways
+in the A+ state and only when removed in the A- state. For example, the /OD:*.$d$
+switch will have effect on the TEST.EXE executable which contains debug info
+only when you choose to discard it and will place it into the file TEST.$d$. 
+  
+  /P{+|-} 
+  Enable (+) or disable (-) pause before each file. The program shows
+the name of file which will be processed and offers a choice to continue
+or to abort. 
+  /Q{+|-} 
+  Query all configuration options. Basically it simply types a colored 
+version of lxLite.cfg file through a MORE-style filter :-) All other options
+on the command line (if any) are ignored. 
+  /R{+|-} 
+  Enable (+) or disable (-) [R]ecursive file search through subdirectories. 
+  
+  /S{+|-} 
+  Show (+) or don't show (-) configuration in effect. This is useful
+for examining which settings are stored into .CFG file, especially for linked 
+configurations (see below). For example lxLite /Cdefault /S will show the
+default settings. 
+  /T{:%} 
+  Use specified file as new DOS stub. DOS stub is (usually) a tiny DOS
+.EXE file linked to OS/2's module which is typically used to type an error 
+message in the case if the executable is not run from DOS command line. Usually
+this looks like:
+ 
+ This is an OS/2 executable module
+ 
+ Along with lxLite are enclosed two stubs: stub_min.bin and stub_vdm.bin. 
+First is the standard 'type-error-and-exit' type, but it is slightly smaller
+than usual stubs used by various linkers. The second is an stub which starts
+a new OS/2 session and runs program from it again. If OS/2 is not detected
+it types the same error message and exits. The default for stub_vdm.bin is
+to let OS/2 decide the type of your executable itself. Alternatively, you
+can specify the type of session to be started by stub_vdm.bin. For this you
+need any hex editor - find the pattern 'SesType->' in stub and replace
+the byte that comes after arrow (->) by needed session type. OS/2 recognizes
+next session types: 
+    
+ 00 - OS/2 session manager determines type (default) 
+      01 - OS/2 full-screen session 
+      02 - OS/2 windowed session 
+      03 - PM application 
+      04 - VDM full-screen session 
+      07 - VDM windowed session 
+    
+ 
+     You can use stubs to do some neat tricks. Say you have two executables: 
+ZIP for OS/2 and ZIP for DOS (I mean GNU ZIP, not PKZIP). They offer the same
+interface, does the same thing and share the same name. To avoid conflicts
+(and avoid placing them in different directories) you can link them both
+together into one EXE file which can be ran either from DOS or OS/2 mode.
+This can be achieved by following command line: 
+ lxLite /t:dos\zip.exe os2\zip.exe 
+     If stub size is bigger than certain threshold size (default - 1024
+bytes) it will not be replaced. This is done since stubs of bigger size usually 
+does something useful (for example, this can be already an 'dual-mode' executable).
+It is useful for batch conversions and not too useful when you do tricks
+like described above: so you can wish to change this threshold value to zero.
+This can be achieved using the /Z switch (see below for details). 
+ 
+  /U{+|-} 
+  Enable (+) or disable (-) unpacking file before packing. lxLite know
+how to unpack any of two packing methods described, so default option state 
+is enabled. Disable it only when compression time savings are more important
+than disk space savings. This option is ignored (and file is anyway unpacked)
+when /MF2 packing is enabled. 
+  /V[{0123OCRNMPEFXD}{+|-}] 
+  [V]erbose (show a lot of file information).
+ This is a switch for curious ones :-) It has different levels of verbosity,
+you can choose which kind of information to include in overall output. For
+example: /V0-12+3-O+. Here is an detailed description of what each key shows: 
+    
+ 0
+ Show basic information about executable: 
+        
+  module type 
+           required CPU 
+           module version 
+           page size (on Intel platform always 4096 :-) 
+           page shift 
+           object count 
+           resource count 
+           imported entries count 
+           debug info size 
+           start object and EIP 
+           stack object and ESP 
+           module name 
+           module description 
+        
+ 
+      1 
+        
+  OS required to run the executable (always OS/2 :-) 
+           Number of pages present in file 
+           Fixup table overall size 
+           Fixup table overall CRC 
+           Resident portion of header size 
+           Resident portion of header CRC 
+           Automatic data object (valid only for 16-bit executables) 
+          
+           Number of preloaded pages 
+           Additional stack size (has no effect in LX files) 
+           Heap size (extra auto-data-object size; has no effect in LX
+files) 
+        
+ 
+      2 
+        
+  Uncompressed Page data offset (relative to LX header) 
+           Compressed data offset (relative to LX header) 
+           Page fixup table offset (relative to LX header) 
+           Fixup table offset (relative to LX header) 
+           Imported modules table offset (relative to LX header) 
+           Debug Info data offset (absolute) 
+        
+ 
+      3 
+        
+  Object Table offset (relative to LX header) 
+           Resource Table offset (relative to LX header) 
+           Object Page Map Table offset (relative to LX header) 
+           Module Directives Table offset (relative to LX header) 
+           Non-resident name table offset (relative to LX header) 
+           Non-resident name table size 
+           Imported procedures table offset (relative to LX header) 
+           Entry points table offset (relative to LX header) 
+        
+ 
+      O
+ Show object info (i.e. information about objects contained in file). Output
+looks as follows: 
+        ## - Base --- Size --R-W-E-Res-Dis-Shr-Pre-Inv-Swp-Rsd-Loc-A16-32B-Cnf-IOP- 1 00010000 00001000 Y Y Y  Y   Y   Y   Y   Y   Y   Y   Y   Y   Y   Y   Y
+ 
+        
+          ## 
+          Object's ordinal number 
+          Base 
+          Object's base address, i.e. linear address at which it can
+be placed without applying self-addressing fixups 
+          Size 
+          Size of the object 
+        
+ Further follows object's flags which describe different attributes of object: 
+        
+  R - Object is readable 
+           W - Object is writable 
+           E - Object is executable 
+           Res - Object is resource 
+           Dis - Object is discardable 
+           Shr - Object is shared among instances (DLLs only) 
+           Pre - Object must be preloaded (this doesn't work as far as
+I know) 
+           Inv - Object is invalid 
+           Swp - Object is swappable 
+           Rsd - Object is resident (for ring 0 drivers only, AFAIK) 
+           Loc - Object can be long-term locked (drivers only) 
+           A16 - Alias16, object has an alias in 16:16 format 
+           32B - Object is 32-bit 
+           Cnf - Object is code-conforming (16-bit drivers only, never
+seen it) 
+           IOP - I/O privilege. Object is authorized to access I/O ports. 
+          
+        
+ 
+      C
+ Object [C]ontents: show pages which makes object. This key enforces /VO. 
+Output looks something like: 
+        ++- Index --+ FileOffs + Size + Attribute + + 00000001 + 00012340 + 0123 + LZ-packed +
+ 
+        
+          Index 
+          Page number in executable (absolute, not relative) 
+          FileOffs 
+          Offset of page data in file (absolute) 
+          Size 
+          Size of page data in file 
+          Attribute 
+          Page attribute: 
+          Valid 
+          An valid unpacked page 
+          RL-packed 
+          Compressed using Run-Length encoding (EXEPACK) 
+          Invalid 
+          Page is invalid 
+          Zeroed 
+          Page must be zeroed 
+          Range 
+          ???, no info, never seen one 
+          LZ-packed 
+          Compressed using Lempel-Ziv encoding (EXEPACK2) 
+        
+ 
+      R
+ [R]esident Names Table: This is an table which usually contains all exported
+by name procedures. First entry always contains module name. Display format: 
+        + Indx + Name ----------------------------------------------| 0000 | TCPIPDLL| 0001 | _dn_skipname| 0002 | _res_query| 0003 | _writev[.....................]+ 006F + _gethostent
+ 
+        
+          Indx 
+          This is the index into the Module Entry Table which describes 
+the actual address of routine 
+          Name 
+          The name of routine as it is imported into other programs. 
+        
+ 
+      N
+ [N]on-Resident Name Table: This is an table which contains miscellaneous entry
+points which are not exported. First entry contains module description (if
+defined). Display format is the same as above. 
+      M
+ Imported [M]odule Names Table: This table contains names of all external
+dynamic-link libraries which uses current module. Display format:
+ 
+        + Indx + Offs + Name ---------------------------------------| 0001 | 0000 | SO32DLL| 0002 | 0008 | TCP32DLL| 0003 | 0011 | so32dll| 0004 | 0019 | tcp32dll| 0005 | 0022 | DOSCALLS| 0006 | 002B | NLS| 0007 | 002F | MSG+ 0008 + 0033 + setloc1
+ 
+        
+          Indx 
+          Index into the module names table; This is often used in fixup
+records although lxLite resolve such references automatically and shows directly
+entry name. 
+          Offs 
+          Offset in the table = sum of lengths of all previous names.
+This is not used for Module Names Table but is used for Procedure Names Table
+which is displayed in similar format. 
+          Name 
+          The name of entry. 
+        
+ 
+      P
+ Imported [P]rocedure Names Table: This table contains names of all external
+procedures which are imported by name. Display format is similar to Module
+Names Table. 
+      E
+ Module Entry Table: This is an table which defines some entry points into
+the current module; not necessarily all entry points are defined here: only
+those which are exported MUST be defined here. Here is an sample display: 
+        + Indx + Entry Type + Entry Attributes ---------------------| 0005 |    0:32    | 1:00000000, Exported, Shared Data| 000B |    0:32    | 1:00008C90, Exported, Shared Data| 000C |    0:32    | 1:00008FB4, Exported, Shared Data| 002B |    16:16   | 4:02EC, Exported, Shared Data| 002E |    0:32    | 1:00009468, Exported, Shared Data+ 0056 +    0:32    + 1:00001448, Exported, Shared Data
+ 
+        
+          Indx 
+          Index into the entry table. Entry table is always sequential,
+and all 'holes' between indices are filled with 'unused' entry points (for
+example, entry point index 10 cannot follow index 5: there must be entries
+6,7,8,9 between them marked as 'unused'). lxLite doesn't show 'unused' entries
+since this is not useful; however they are there, just for your information. 
+          
+          Entry Type 
+          Type of entry point. Entry points can be located in different 
+segments (16-bit, 32-bit, it can be an Call Gate etc), so OS/2 needs a flag
+which will describe how to handle each entry point. There are also "forwarders"
+- fake entry points into the module which are in fact redirected into another
+module. For example, PMWIN.DLL, PMGPI.DLL and many other DLLs are simply
+a bunch of forwarders which all points to PMMERGE.DLL. 
+          Entry Attributes 
+          These depends of the entry type. For example, 0:32 entries
+has Object:Offset32 attribute, 16:16 entries have Object:Offset16 attribute,
+forwarders have attributes which describe to which module and which procedure
+to redirect this entry etc. 
+        
+ 
+      F
+ [F]ixup table. This is useful, I think, only for me and, may be, for those
+who write compilers :-) Display format: 
+        + Object index: 1 Page index: 1 Absolute page: 1| 32-bit relative offset of import SETLOC1.4| 045C 0494 04B8| 32-bit relative offset of import SETLOC1.5| 035F 0CBA[.....................]+ Object index: 1 Page index: 2 Absolute page: 2| 32-bit relative offset of import SETLOC1.4| 02B6 0328 0354 090E[.....................]+ Object index: 1 Page index: 42 Absolute page: 42| 32-bit relative offset of import DOSCALLS.256(DosSetFilePtr)| 066F 0C5D 0CD5| 32-bit relative offset of import DOSCALLS.272(DosSetFileSize)| 0CB2| 32-bit relative offset of import DOSCALLS.273(DosOpen)| 0B9D[.....................]
+ Imports by ordinals are handled in a special way: lxLite has a resource table
+which contains information which allows lxLite to transform MODULE:ORDINAL
+form into an MODULE:NAME pair. By default lxLite contains a list of ordinals
+for all base OS/2 DLL's, but if you want to add your own or if you need something
+special, you can add your module entries to lxLite.rc file in the API subdirectory
+and then to re-attach resources to lxLite (using Resource Compiler). 
+      X
+ Always inform about e[X]tra data contained in module (in spite of /ZX{:#}
+setting). 
+      D
+ Always inform about [D]ebug info contained in module (in spite of /ZD{:#}
+setting). 
+    
+ 
+  /W(W|S|+|-) 
+  [W]rite (+) or [S]imulate writing of resulting file. In the /WW- state 
+lxLite will do nothing (useful for /V option); in the /WS+ state lxLite will
+even display compression ratio, but won't alter the module file on disk.
+Useful for /V{...} switch, but also can be useful for debugging your options. 
+  
+  /X{+|-} 
+  e[X]pand (+) or pack (-) given files. Use this switch to decompress
+files. lxLite can decompress files which has been compressed by itself as
+well as by other programs which uses standard methods (i.e. Resource Compiler,
+LINK386, REPACK). It is NOT identical to /c:Unpack option. 
+  /Y[U|X|B|C|D]{?} 
+  auto-repl[Y] '?' on one of questions: 
+    
+  file in [U]se /Answer: [R]eplace, [S]kip, [A]bort/ 
+       [D]ebug info in file /Answer: [D]iscard, [L]eave, [S]kip, [A]bort/ 
+      
+       e[X]tra data in file /[D]iscard, [L]eave, [S]kip, [A]bort/ 
+       [B]ackup file exists /[O]verwrite, [N]o backup, [S]kip, [A]bort/ 
+      
+       [C]onfirmation on /P+ /[P]rocess, [S]kip, [A]bort/ 
+    
+ If reply (?) is missing, lxLite will ask you interactively each time. When 
+lxLite asks you a question, you can press Alt+letter which will set the default
+answer for all following similar questions. 
+  /Z[X|D|S{:#}] 
+  This option sets the 'threshold' si[Z]e for e[X]tra, [D]ebug, or [S]tub
+data contained in the module. If size is under given threshold then the data
+is discarded. When {:#} is omitted, threshold is considered VERY big.
+  In stub case this option helps lxLite to determine whether the stub
+is a 'dummy' one, or it is a functional program. There are a number of programs
+(for example, \os2\xdfloppy.exe) which runs both under DOS and OS/2 - in
+such programs DOS executable is implemented into OS/2's LX as a DOS stub.
+By default lxLite considers all stubs bigger than 1024 bytes as functional
+programs, and therefore for such executables the /T{:%} option has no effect.
+If you want stub to be always replaced, use the /ZS option. If you want to
+disable the /T option, use /ZS:-1. 
+  /?,/H 
+  Show a brief help. This is useful when you forget a particular switch 
+from all that list :-) 
+
+
+5.) Configuration file
+
+The .CFG file format is as simple as possible: it is a plain ASCII text
+file which you can edit using any editor which supports them (almost any).
+Any characters after a semicolon ';' are ignored, i.e. you can put comments
+in configuration file like this:
+
+; This is an comment
+
+
+You can define sections using widely used unix-configuration-file style, i.e.
+
+[section 1]
+section 1 content
+
+[section 2]
+section 2 content
+
+...
+
+The word in square brackets is used to identify the configuration.
+This is an example of a configuration entry:
+
+[newStub]
+ /ANP:0 /F+ /YDL /YXL /MRN /MLN /U-
+
+
+As you can see, inside the section you should put any switches just like you do
+on the command line. Recursive /C options are NOT ignored, so you can link
+one configuration to another. Note, however, that lxLite will refuse to load
+same configuration twice to avoid infinite-loop recursion, i.e.
+"lxLite /c:One /c:Two /c:One" will load 'One' configuration only ONCE.
+
+Every section can have multiple names, for example:
+
+[newStub ReplaceStub SetNewStub]
+ /ANP:0 /F+ /YDL /YXL /MRN /MLN /U-
+
+
+This section is identified by three identifiers, i.e. /c:newstub, /c:replacestub and
+/c:setnewstub switches will have same effect. If section identifier begins with a /
+(slash) character, it is treated as a special case: the text following the slash
+is treated as a list of file masks on which this section will be applied automatically.
+For example, if we want to remove stubs automatically on all .DLL files, we have to
+write a configuration section like:
+
+[/*.dll]
+ /t /zs
+
+6.) Error messages
+
+Like most normal programs :-) lxLite can eventually generate error
+messages. Some of them can appear in similar conditions, but caused by
+different causes. Here is a short list of the most frequent errors:
+
+Invalid configuration file format
+Self-explaining, I think :-)
+Error reading configuration file
+Self explaining.
+error reading executable
+This is generated if executable is physically unreadable.
+error writing executable
+This is generated if executable cannot be written onto disk. The cause can
+be insufficient disk space - lxLite does not check for this
+particular error.
+invalid executable file format
+The file is not in [L]inear [E]xecutable. Note that you can get this
+message for files with .EXE extension in the cause they are in old, 'New
+Exe' (bwhahaha) format or DOS executable or winDOS executable.
+unsupported executable format revision
+This error can happen (may be :-) if you try to process an executable with
+other revision number than 0. OS/2 Warp works only with revision 0, so you
+will not normally encounter this problem.
+invalid word/dword ordering in executable
+The executable uses little-endian byte order. Seems that it is not for
+Intel platform machines.
+executable target is an unsupported CPU type
+This happen if the target CPU is other than 286, 386, 486 or P5.
+executable target is an unsupported OS
+This mean that the executable is not for OS/2. Windows and windows 95 uses
+similar format, but its magic number is not 'LX' but 'LE', so usually
+program will abort with an 'invalid format' error.
+unknown entry bundle type in executable
+unknown page flags in executable
+invalid object page detected in executable
+It's something about internal structure that lxLite doesn't know about.
+Please mail me if you encounter such files.
+not enough memory to load executable
+I doubt this error can happen in OS/2 :-) Rather a swap-file full fault
+will occur. BTW, it's a bad idea of IBM programmers to trap instead of
+returning NIL pointer on a memory request :-(
+invalid stub
+Stub size must be greater or equal to 64 bytes. This requirement is due to
+limitation that offset to LX header must reside on the offset 60 in the
+stub; however it is unlikely that you'll got this message since lxLite will
+add trailing zeros to such stubs.
+error reading EAs
+Cannot explain :-)
+error writing EAs
+this one too :-)
+invalid fixup record
+lxLite above 1.1.8 will depack and try to re-pack fixup records. Previous
+versions just read/write fixup table as a bunch of bytes; new versions will
+try to see what they contain. This error can happen when converting NE
+files since some of them (TFTP.EXE for example) contains so-called OSFIXUP
+records that is outdated and don't have analogue in LX executable format.
+However, these executables are seldom encountered (I've seen only mentioned
+TFTP). I don't know an workaround for this: you cannot convert such NE
+files.
+bound application
+Executable is an bound application. Bound application is an NE executable
+which runs both in DOS and OS/2 mode. These are NOT two different
+executables bundled together (as most dual-mode programs are done: you can
+do this with lxLite inserting an different DOS stub into LX executable) but
+rather an tiny 'OS/2 emulator for DOS mode' bonded together with NE file.
+These are usually programs with the simplest possible user interface - such
+as most executables from MASM 6.0 package. These executables can still be
+converted by overriding this with the /NB+ option, but they won't run in
+DOS mode anymore.
+doesn't support long filenames
+Executable is not long file name - aware. NE files uses a bit in NE header
+which shows whenever executables handle long file names. If it isn't, OS/2
+doesn't show him LFN (just as for DOS programs). In some (most that I
+seen) cases this is of no importance since such executables doesn't work
+with files (for example ARP.EXE or INETD.EXE from TCP/IP). You can
+override this error message by using the /NL+ option.
+incompatible segment definition
+NE executable contains an segment which don't have direct analogue in LX
+executable format. This is done mostly since I haven't seen executables
+with such segments (namely GDT and HUGE). If you encounter any, let me
+know, please.
+bad executable segment
+Executables contain an bad segment definition (either it is bigger than its
+declared size, or it is partially (or fully) out of executable file). If
+it works, I will be surprised :-)
+
+7.) Known bugs and limitations
+
+
+Known bugs and limitations
+
+Here are a list of executables which failed for some reasons to work
+packed; avoid packing them (lxLite will do it automatically, but if you
+renamed them lxLite will not recognize them).
+
+PMJPEG. However, even IBM's REPACK cannot repack it, so I think
+this is because of either a bug in a linker used to generate it (and its
+executable has a strange structure) or a kind of debug protection (executable
+checksum checking?)
+VX-REXX executables. The main body of such executables (REXX ciphered
+code) is simply appended to a small LX stub. Such executables have an
+unknown structure and after lxLite packs its stub they become completely
+obsolete.
+=10.0. Seems that Watcom likes to append garbage to LX
+files. These executables are meant for running in both OS/2 and DOS sessions
+and also have a strange structure.
+InterCom since it is protected from any kind of tampering.
+\OS2BOOT. OS2LDR expects OS2BOOT to be in NE format.
+
+8.) Authors, contributors, acknowledgments
+
+The original author, Andrew Zabolotny, dedicated this software to his 
+little daughter Alice, born 12 Feb, 1996 at 03:45.
+
+He would also like to thank
+
+Dmitry Goldobin
+who digged from OS2LDR information regarding /EXEPACK:2 packing method; the
+idea about lxLite was born when I was looking this;
+
+Rinat Sadretinow
+who gave me some ideas and informed me about some enhancements in OS/2 v4.0
+regarding LX modules;
+
+Ilfak Guilfanov
+who gave me the information about new type of chained fixups in LX modules
+which appeared in OS/2 v4.0.
+
+The last version released by Andrew is 1.2.1. 
+
+Since version 1.3.0 lxLite was maintained by Max Alekseyev.
+
+There have also been contributions by Steven H. Levine to lxlite
+
+From version 1.3.9 onward bww bitwise works GmbH maintains lxlite.

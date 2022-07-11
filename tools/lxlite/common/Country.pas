@@ -7,7 +7,11 @@
 {$endif}
 unit Country;
 
-Interface uses os2def, {$ifndef FPC}os2base{$else}doscalls{$endif}, miscUtil, strOp;
+Interface uses
+{$ifdef OS2}
+  os2def, {$ifndef FPC}os2base{$else}doscalls{$endif},
+{$endif} 
+  miscUtil, strOp, dos;
 
 const
     cyDefault    = 0; {Use default country}
@@ -32,7 +36,7 @@ const
 type
     pCountry = ^tCountry;
     tCountry = object(tObject)
-     Info        : CountryInfo;
+     datefmt     : Integer;
      constructor Create(Country,CodePage : Word);
      function    DateStr(Options : Word) : string;
      function    TimeStr(Options : Word) : string;
@@ -41,28 +45,31 @@ type
 Implementation
 
 constructor tCountry.Create;
+{$ifdef OS2}
 var cc  : CountryCode;
     len : Longint;
+    Info: CountryInfo;
+{$endif}
 begin
  inherited Create;
+{$ifdef OS2}
  cc.Country := Country;
  cc.CodePage := CodePage;
  if DosQueryCtryInfo(sizeOf(Info), cc, Info, len) <> 0 then Fail;
+ datefmt := Info.fsDateFmt;
+{$else}
+ datefmt := 1;
+{$endif}
 end;
 
 function tCountry.DateStr;
-var 
-{$ifndef fpc}
-    dt : DateTime;
-{$else}
-    dt : TDateTime;
-{$endif}
-    S  : string[16];
+var S  : string[16];
     I  : Integer;
+    Year,Month,Day,DayOfWeek:Word;
 
 Procedure DateAdd(optMask, Val, Digits : Longint; Sep : Char);
 const
-    DOWname : array[0..6] of String[3] = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');
+    DOWname : array[0..6] of String[3] = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 var fst,lst : boolean;
 begin
  Delete(S, I, 1);
@@ -76,8 +83,8 @@ begin
 end;
 
 begin
- DosGetDateTime(dt);
- case Info.fsDateFmt of
+ GetDate(Year,Month,Day,DayOfWeek);
+ case datefmt of
   0 : S := 'wmdy';
   1 : S := 'wdmy';
   2 : S := 'wymd';
@@ -85,43 +92,38 @@ begin
  end;
  For I := length(S) downto 1 do
   case S[I] of
-   'y' : DateAdd(doYear,  dt.Year,    0,  '/');
-   'm' : DateAdd(doMonth, dt.Month,   2,  '/');
-   'd' : DateAdd(doDay,   dt.Day,     2,  '/');
-   'w' : DateAdd(doDOW,   dt.WeekDay, -1, ' ');
+   'y' : DateAdd(doYear,  Year+1980,    0,  '/');
+   'm' : DateAdd(doMonth, Month,   2,  '/');
+   'd' : DateAdd(doDay,   Day,     2,  '/');
+   'w' : DateAdd(doDOW,   DayOfWeek, -1, ' ');
   end;
  DateStr := S;
 end;
 
 function tCountry.TimeStr;
-var
-{$ifndef fpc}
-    dt    : DateTime;
-{$else}
-    dt    : TDateTime;
-{$endif}
-    I,V,W : Longint;
+var I,V,W : Longint;
     S     : String[16];
     sep   : Char;
+    Hour,Minute,Second,Sec100:Word;
 begin
- DosGetDateTime(dt);
+ GetTime(Hour,Minute,Second,Sec100);
  S := '';
  For I := 1 to 4 do
   begin
    Sep := ':'; W := 2;
    case I of
     1 : if Options and toHour <> 0
-         then V := dt.Hours
+         then V := Hour
          else break;
     2 : if Options and toMinute <> 0
-         then V := dt.Minutes
+         then V := Minute
          else break;
     3 : if Options and toSecond <> 0
-         then V := dt.Seconds
+         then V := Second
          else break;
     4 : if Options and toHundredths <> 0
          then begin
-               V := dt.Hundredths;
+               V := Sec100;
                Sep := '.'; W := 3;
               end
          else break;
@@ -133,4 +135,3 @@ begin
 end;
 
 end.
-
