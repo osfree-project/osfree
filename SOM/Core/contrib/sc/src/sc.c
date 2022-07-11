@@ -907,6 +907,9 @@ int main(int argc,char **argv)
 					#ifdef _WIN32
 					if (somipcExitCode==1)
 					#endif
+					#ifdef __OS2__
+					if (somipcExitCode==1041)
+					#endif
 					{
 						if (verbose)
 						{
