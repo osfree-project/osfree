@@ -6,6 +6,7 @@ PLATFORM = host$(SEP)$(%HOST)$(SEP)
 OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 !endif
 
+DEST = none
 
 !include $(%ROOT)/mk/all.mk
 

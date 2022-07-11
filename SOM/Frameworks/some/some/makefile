@@ -119,13 +119,14 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
-TARGETS= pre $(PROJ).dll $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+
+#TARGETS= $(PROJ).dll #$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
 $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)some.dll
 	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
 
-pre: .symbolic
- @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)lib
+#pre: .symbolic
+# @$(MDHIER) $(OS2TK)$(SEP)som$(SEP)lib
 
 
 .c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
