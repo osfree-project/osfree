@@ -1,7 +1,0 @@
-
-#make
-*.res
-*.exe
-/src/out/
-/lxLite
-*.zip
