@@ -40,7 +40,6 @@
  void somtresetEmitSignals();
  void somtunsetEmitSignals(void);
  void somtwarn(char *file, long lineno, char *fmt, ...);
- SOMTEntryC * somtGetObjectWrapper(Entry * ep);
 #endif
 
 FILE * SOMLINK somtopenEmitFileSL(char *file, char *ext);
@@ -52,7 +51,6 @@ void SOMLINK somtmsgSL(char *file, long lineno, char *fmt, ...);
 void SOMLINK somtresetEmitSignalsSL();
 void SOMLINK somtunsetEmitSignalsSL(void);
 void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...);
-SOMTEntryC * SOMLINK somtGetObjectWrapperSL(Entry * ep);
 
 #ifdef __cplusplus
  }

@@ -13,7 +13,7 @@ host   &
 $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR) somtk
 
 # Below not correct yet
-# somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks
+# somcorba somir somd somnmf somcdr somany somu somestrm somirfmt
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 

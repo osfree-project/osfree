@@ -5,7 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = #some
+DIRS = somc some
 
 !include $(%ROOT)/mk/all.mk
 
