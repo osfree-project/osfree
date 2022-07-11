@@ -1,6 +1,6 @@
 unit pack2;
 interface
-uses use32;
+{$ifndef fpc}uses use32;{$endif}
 
 Function Compress  (Length:longint;Source,Destin:PByte):longint;
 
@@ -678,7 +678,7 @@ begin
  _compress(TERMINATE);
  Flush_Bits;
  Dispose(Head);Dispose(Tail);Dispose(Next);Dispose(Prev);Dispose(buffer);
- Result:=longint(CurBuf)-longint(Destin);
+ Compress:=longint(CurBuf)-longint(Destin);
 END;
 
 
@@ -795,7 +795,7 @@ fuck:
   Update_Model(C);
  end;
  Dispose(buffer);
- Result:=longint(CurBuf)-longint(Destin);
+ Decompress:=longint(CurBuf)-longint(Destin);
 END;
 
 

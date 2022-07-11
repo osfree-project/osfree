@@ -10,8 +10,17 @@
 Unit lxLite_Objects;
 
 Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
-               strOp, Country, Collect, lxlite_Global, vpsyslow,
+               strOp, Country, Collect, lxlite_Global, 
+{$ifndef fpc}
+               vpsyslow,
                os2base;
+{$else}
+{$ifdef OS2}
+               doscalls,
+{$endif}
+               iostream;
+{$endif}
+
 type
  pMyCmdLineParser = ^tMyCmdLineParser;
  tMyCmdLineParser = object(tCommandLineParser)
@@ -53,7 +62,7 @@ var
  procedure setConfig(const ID : string);
  procedure ShowConfig;
 
-Implementation uses Crt, Dos, Strings{$ifdef fpc}, SysUtils{$endif};
+Implementation uses Dos, Strings{$ifdef fpc}, SysUtils{$endif}, Crt;
 
 var
  CmdLineStack : pStringCollection;
@@ -78,7 +87,7 @@ var
  msgNL : string;
 begin
  msgNL := msg + NewLineStr;
- DosPutMessage(SysFileStdErr, Length(msgNL), @msgNL[1]);
+ DosPutMessage({$ifdef virtualpascal}SysFileStdErr{$else}2{$endif}, Length(msgNL), @msgNL[1]);
 end;
 
 function FormatStr(Template : Longint; Params : array of const) : string;

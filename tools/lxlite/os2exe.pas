@@ -170,7 +170,14 @@ type
   destructor  Destroy;virtual;
  end;
 
-Implementation uses Dos, {$IFDEF OS2}os2base, {$ENDIF} pack2, vpsyslow;
+Implementation uses Dos, {$IFDEF OS2}{$ifndef fpc}os2base, vpsyslow, {$else}doscalls, {$endif}{$ENDIF} pack2;
+
+{$ifndef DOS}
+function MemAvail : longint;
+begin
+ MemAvail := High(longint);
+end;
+{$endif}
 
 procedure tFixupCollection.FreeItem;
 begin
@@ -851,7 +858,7 @@ var dst:pointer;
 begin
  GetMem(dst, srcDataSize * 3);
  len:=pack2.Compress(srcDataSize,@srcData,dst);
- result:=len<$FFC;
+ PackMethod3:=len<$FFC;
  if len<$FFC then
  begin
    move(dst^,dstData,len);
@@ -919,7 +926,7 @@ begin
   XchgL(PageOrder^[N1], PageOrder^[N2]);
 end;
 
-function tLX.LoadLX(const fName : string) : Byte;
+function    tLX.LoadLX(const fName : string; pageToEnlarge_ : LongInt) : Byte;
 label locEx;
 var
  F       : File;
@@ -3187,7 +3194,7 @@ begin
  Dispose(Fx, Destroy);
 end;
 
-function tLX.UnpackPage(PageNo : Integer) : boolean;
+function tLX.UnpackPage(PageNo : Integer; AllowTrunc:boolean) : boolean;
 var
  J       : Integer;
  uD,pD   : pByteArray;

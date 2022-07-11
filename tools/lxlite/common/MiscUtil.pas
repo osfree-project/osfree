@@ -20,7 +20,7 @@ const
  tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
 {$endIf}
 {$ifndef VIRTUALPASCAL}
- tickerFreq             = 5494; { = 100000/18.2 }
+// tickerFreq             = 5494; { = 100000/18.2 }
 {$endIf}
 
 type
@@ -189,7 +189,6 @@ type
 {&saves ebx,esi,edi}
  Function level2call(Proc,Info : Pointer) : boolean;
 
-<<<<<<< HEAD
 Implementation
 {$ifDef os2} uses {$ifnDef FPC} os2base; {$else} doscalls, math; {$endif} {$endIf}
 {$ifDef win32} uses windows; {$endIf}

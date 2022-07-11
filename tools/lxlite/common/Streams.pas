@@ -93,6 +93,13 @@ type
 
 Implementation uses Dos, Strings;
 
+{$ifndef DOS}
+function MaxAvail : longint;
+begin
+ MaxAvail := High(longint);
+end;
+{$endif}
+
 function tStream.Name;
 begin
  Name := '';
@@ -213,7 +220,8 @@ var
  i,rc : longint;
 begin
  CopyFrom := 0;
- bSz := minL($FFF0, maxAvail);
+ { bSz := minL($FFF0, maxAvail); }
+ bSz := $FFF0;
  GetMem(Buff, bSz);
  if Buff = nil then begin Error := steNoMemory; exit; end;
  rc := 0;

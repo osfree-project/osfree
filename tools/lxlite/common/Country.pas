@@ -4,6 +4,8 @@
 {$else}
 {$Align 1}
 {$Optimization STACKFRAME}
+{$mode objfpc}
+{$ModeSwitch nestedprocvars}
 {$endif}
 unit Country;
 
@@ -44,7 +46,7 @@ type
 
 Implementation
 
-constructor tCountry.Create;
+constructor tCountry.Create(Country,CodePage : Word);
 {$ifdef OS2}
 var cc  : CountryCode;
     len : Longint;
@@ -62,7 +64,7 @@ begin
 {$endif}
 end;
 
-function tCountry.DateStr;
+function tCountry.DateStr(Options : Word) : string;
 var S  : string[16];
     I  : Integer;
     Year,Month,Day,DayOfWeek:Word;
@@ -100,7 +102,7 @@ begin
  DateStr := S;
 end;
 
-function tCountry.TimeStr;
+function tCountry.TimeStr(Options : Word) : string;
 var I,V,W : Longint;
     S     : String[16];
     sep   : Char;

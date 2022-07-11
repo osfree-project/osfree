@@ -8,8 +8,9 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses os2base, miscUtil, SysLib, CmdLine, Collect,
-     strOp, Strings, Crt, Dos, lxlite_Global,
-     os2def, VpUtils;
+     strOp, Strings, Dos, lxlite_Global,
+     os2def, VpUtils, Crt;
+
 const
  Recurse : boolean = FALSE;
  Pause   : boolean = FALSE;

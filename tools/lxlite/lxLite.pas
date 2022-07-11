@@ -12,15 +12,22 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses
- Dos, Crt, 
+ Dos, Crt,
+{$ifdef virtualpascal}
+ vpsyslow,
+{$endif}
 {$IFDEF OS2}
  os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
 {$ENDIF}
  exe386, os2exe, strOp, miscUtil,
- SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects, vpsyslow;
+ SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
 
 label
  done;
+
+const
+ PRTYS_PROCESSTREE = 1;
+ PRTYC_IDLETIME    = 1;
 
 Procedure LoadStub;
 type

@@ -12,8 +12,8 @@
 Unit SysLib;
 
 Interface uses Dos, miscUtil, Collect
-{$IfDef OS2}, os2def{$IfnDef FPC},os2base{$Else}, doscalls{$EndIf}{$EndIf};
-{$ifdef win32},windows{$endif};
+{$ifdef win32}, windows{$endif}
+{$IfDef OS2}, os2def{$IfnDef FPC}, os2base{$Else}, doscalls{$EndIf}{$EndIf};
 
 {$IfDef OS2}
 {$IfnDef FPC}
@@ -22,7 +22,7 @@ function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; cde
 {$else}
 // replacement for use in Windows build
 function DosEditName(MetaLevel: LongInt; Source,Edit: PChar; Target: PChar; cbTarget: LongInt): LongInt;
-{$EndIf OS2}
+{$EndIf}
 
 const
  fMaskDelim1 = ':'; {fileMask delimiter char}
@@ -145,7 +145,7 @@ type
  Function  GetResourceString(ID : Longint) : string;
 
 Implementation uses strOp, Streams, strings
-{$ifdef OS2}, os2base {$endif}, vpsyslow;
+{$ifdef OS2}{$ifdef virtualpascal}, vpsyslow{$endif}{$endif};
 
 constructor tFileMatch.Create;
 begin
@@ -942,7 +942,7 @@ var
  I  : Integer;
  S  : string;
 begin
- if DosGetResource(nullHandle, rt_String, ID div 16 + 1, Pointer(pS)) <> 0
+ if DosGetResource(nullHandle, {$ifndef FPC}rt_String{$else}rtString{$endif}, ID div 16 + 1, Pointer(pS)) <> 0
   then begin
         GetResourceString := '';
         exit;
