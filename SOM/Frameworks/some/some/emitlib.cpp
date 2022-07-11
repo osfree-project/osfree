@@ -36,11 +36,6 @@ SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
   return oCls;
 }
 
-int SOMLINK somtfclose (FILE *fp)
-{
-  return fclose(fp);
-}
-
 char * SOMLINK somtStrCat(int count,...)
 {
   return NULL;
