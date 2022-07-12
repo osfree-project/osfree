@@ -92,7 +92,7 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(SOMIDL_HEADERS) -D__PRIVATE__
 install_add: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
 $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somc.dll
-	$(verbose)$(SAY) LIB     $^. $(LOG)
+	$(verbose)$(SAY) LIB      $^. $(LOG)
 	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
 
 
@@ -104,10 +104,13 @@ $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somc.
 $(OBJS): $(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sm.h $(SOMIDL_HEADERS)$(SEP)sm.xh
 
 $(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)

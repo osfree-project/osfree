@@ -51,6 +51,11 @@
     #include <stdio.h>
     #include <string.h>
     #include <som.h>
+    #ifdef __cplusplus
+    #include <sctypes2.xh>
+	#else
+    #include <sctypes2.h>
+    #endif
 #endif  /* __SOMIDL__ */
 
 #include <sm.h>
@@ -88,11 +93,11 @@ typedef enum SOMTTargetTypeT SOMTTargetTypeT;
 #endif
 
 #ifdef SOM_STRICT_IDL
-//SOMEXTERN SOMTEntryC SOMLINK somtGetObjectWrapper(Entry * ep);
+SOMEXTERN SOMTEntryC SOMLINK somtGetObjectWrapper(Entry * ep);
 //SOMEXTERN void SOMLINK printEntry(SOMTEntryC entry, int level);
 //SOMEXTERN void SOMLINK dumpEntry(SOMTEntryC entry, int level);
 #else
-//SOMEXTERN SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep);
+SOMEXTERN SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep);
 //SOMEXTERN void SOMLINK printEntry(SOMTEntryC * entry, int level);
 //SOMEXTERN void SOMLINK dumpEntry(SOMTEntryC * entry, int level);
 #endif

@@ -29,9 +29,13 @@ SOM_IDL=$(SOM_DIR)$(SEP)scattrib.idl &
 		$(SOM_DIR)$(SEP)sctmplt.idl &
 		$(SOM_DIR)$(SEP)scunion.idl &
 		$(SOM_DIR)$(SEP)scusrtyp.idl &
+		$(SOM_DIR)$(SEP)sctypes2.idl &
 		$(SOM_DIR)$(SEP)somstrt.idl
 
-PRODUCTS_SC=$(SOMIDL_HEADERS)$(SEP)scattrib.h &
+PRODUCTS_SC= &
+			$(SOMIDL_HEADERS)$(SEP)sctypes2.h &
+			$(SOMIDL_HEADERS)$(SEP)sctypes2.xh &
+			$(SOMIDL_HEADERS)$(SEP)scattrib.h &
 			$(SOMIDL_HEADERS)$(SEP)scattrib.xh &
 			$(SOMIDL_HEADERS)$(SEP)scbase.h &
 			$(SOMIDL_HEADERS)$(SEP)scbase.xh &
@@ -99,6 +103,7 @@ PRODUCTS_PDL=$(SOMIDL_IDL)$(SEP)scattrib.idl &
 			$(SOMIDL_IDL)$(SEP)sctdef.idl &
 			$(SOMIDL_IDL)$(SEP)sctmplt.idl &
 			$(SOMIDL_IDL)$(SEP)scunion.idl &
+			$(SOMIDL_IDL)$(SEP)sctypes2.idl &
 			$(SOMIDL_IDL)$(SEP)scusrtyp.idl &
 			$(SOMIDL_IDL)$(SEP)somstrt.idl
 

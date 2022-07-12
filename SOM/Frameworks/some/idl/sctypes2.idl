@@ -1,0 +1,26 @@
+#ifndef sctypes2_idl
+#define sctypes2_idl
+
+    interface SOMTEntryC;
+    interface SOMTEmitC;
+    interface SOMTMetaClassEntryC;
+    interface SOMTAttributeEntryC;
+    interface SOMTTypedefEntryC;
+    interface SOMTBaseClassEntryC;
+    interface SOMTPassthruEntryC;
+    interface SOMTDataEntryC;
+    interface SOMTMethodEntryC;
+    interface SOMTClassEntryC;
+    interface SOMTModuleEntryC;
+    interface SOMTParameterEntryC;
+    interface SOMTStructEntryC;
+    interface SOMTUnionEntryC;
+    interface SOMTEnumEntryC;
+    interface SOMTConstEntryC;
+    interface SOMTSequenceEntryC;
+    interface SOMTStringEntryC;
+    interface SOMTEnumNameEntryC;
+    interface SOMTCommonEntryC;
+    interface SOMTUserDefinedTypeEntryC;
+
+#endif

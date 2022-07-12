@@ -25,9 +25,6 @@
 
 #define SOMTEntryC_Class_Source
 
-#ifndef SOMTEntryC
-    #define SOMTEntryC SOMObject
-#endif /* SOMTEntryC */
 
 #define __PRIVATE__
 #include <rhbopt.h>
