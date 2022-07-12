@@ -35,6 +35,7 @@
 
 //FILE *emit(char *file, Entry * cls, Stab * stab);
 typedef FILE * (CALLBACK * EMITFUNC)(char *file, Entry * cls, Stab * stab);
+typedef FILE * (CALLBACK * SOMLINK EMITSLFUNC)(char *file, Entry * cls, Stab * stab);
 
 static const char retVal_name[]="_somC_retVal";
 static const char extern_C_static[]="SOM_EXTERN_C_STATIC";
@@ -122,6 +123,7 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emit
 {
   HINSTANCE handle;
   EMITFUNC emit;
+  EMITSLFUNC emitSL;
   char buf[1024] = "";
 
   strcat(buf, "emit");
@@ -132,11 +134,15 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emit
     fprintf(stderr, "Unknown emitter %s\n", buf/*emitter_name*/);
     exit(EXIT_FAILURE);
   } else {
-    emit = (EMITFUNC)GetProcAddress(handle, "emit");  
-    if (!emit)  
+    emitSL = (EMITSLFUNC)GetProcAddress(handle, "emitSL");  
+    if (!emitSL)  
     {  
-      printf("No emit function\n");
-    }      
+      emit = (EMITFUNC)GetProcAddress(handle, "emit");  
+      if (!emit)  
+      {  
+        printf("No emit function\n");
+      }
+    }
   }
   
   printf("Emitter loaded\n");
@@ -160,7 +166,12 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emit
         es.filestem=idl_filestem;
 
 	printf("Call emitter %s\n", buf);
-        FILE *fh=emit((char *)f, &es, NULL);
+        if (emitSL)
+	{
+		FILE *fh=emitSL((char *)f, &es, NULL);
+	} else {
+	        FILE *fh=emit((char *)f, &es, NULL);
+	}
 	printf("Exit emitter\n");
       }
     }

@@ -5,7 +5,7 @@
 
 #define SYMBOLS_FILE   "lnkemit.efw"
 
-SOMEXTERN FILE * SOMLINK emit(char *file, Entry * cls, Stab * stab)
+SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
 {
 
     FILE *fp;

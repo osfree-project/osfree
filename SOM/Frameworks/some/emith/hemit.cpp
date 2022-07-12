@@ -108,7 +108,7 @@ SOM_Scope boolean  SOMLINK hemit_somtGenerateSections(HEmitter *somSelf)
 
 #define SYMBOLS_FILE   "hemit.efw"
 
-FILE * SOMLINK emit(char *file, Entry * cls, Stab * stab)
+FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
 {
 
     FILE * fp;
