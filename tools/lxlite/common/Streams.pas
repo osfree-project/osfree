@@ -93,6 +93,13 @@ type
 
 Implementation uses Dos, Strings;
 
+{$ifndef DOS}
+function MaxAvail : longint;
+begin
+ MaxAvail := High(longint);
+end;
+{$endif}
+
 function tStream.Name;
 begin
  Name := '';
@@ -123,8 +130,7 @@ begin
         if Error <> steOK
          then begin
                Error := steOK;
-               { bsz := minL(minL(maxAvail, $FFF0), bytes); }
-               bsz := minL($FFF0, bytes);
+               bsz := minL(minL(maxAvail, $FFF0), bytes);
                GetMem(buff, bsz);
                if buff <> nil
                 then begin
@@ -477,4 +483,3 @@ begin
 end;
 
 end.
-

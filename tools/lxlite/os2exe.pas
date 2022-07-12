@@ -15,9 +15,14 @@
 {$endif}
 Unit os2exe;
 
-Interface uses exe286, exe386, miscUtil, SysLib, Collect, Streams;
+Interface uses exe286, exe386, MiscUtil, SysLib, Collect, Streams;
 
 const
+  open_share_DenyWrite      = $00000020;
+  open_share_DenyReadWrite  = $00000010;
+  open_access_ReadWrite     = $00000002;
+  open_access_ReadOnly      = $00000000;
+
 { tLX object error codes }
  lxeOK            = 0;
  lxeReadError     = 1;
@@ -73,6 +78,7 @@ const
  pkfRunLength     = $01000000;{Pack using run-length packing}
  pkfLempelZiv     = $02000000;{Pack using kinda Lempel-Ziv(WARP ONLY!)}
  pkfFixups        = $04000000;{Pack fixups}
+ pkfSixPack       = $08000000;
 type
  pFixupCollection = ^tFixupCollection;
  tFixupCollection = object(tCollection)
@@ -137,17 +143,21 @@ type
   DebugInfo   : pByteArray;
   Overlay     : pByteArray;
   OverlaySize : Longint;
+{$IFDEF OS2}
   EA          : pEAcollection;
+{$ENDIF}
+  pageToEnlarge: LongInt ; { 2011-11-16 SHL added }
   constructor Create;
   procedure   Initialize; virtual;
-  function    LoadLX(const fName : string) : Byte;
+  function    LoadLX(const fName : string; pageToEnlarge_ : LongInt) : Byte;    { 2011-11-16 SHL  }
   function    LoadNE(const fName : string; loadFlags : byte) : Byte;
   function    Save(const fName : string; saveFlags : Longint) : Byte;
   procedure   FreeModule;
  {Unpack a single page}
-  function    UnpackPage(PageNo : Integer) : boolean;
-  procedure   Unpack;
-  procedure   Pack(packFlags : longint; Progress : tProgressFunc);
+  function    UnpackPage(PageNo : Integer; AllowTrunc:boolean) : boolean;
+  function    UnpackPageNoTouch(PageNo : Integer; var UnpPageSize:longint) : pointer;
+  procedure   Unpack(AllowTrunc:boolean);
+  procedure   Pack(packFlags : longint; Progress : tProgressFunc; AllowTrunc:boolean);
   function    BundleRecSize(BndType : Byte) : Longint;
   function    SetFixups(PageNo : Longint; Fixups : pFixupCollection) : boolean;
   function    FixupsSize(Fixups : pFixupCollection) : longint;
@@ -155,19 +165,26 @@ type
   function    GetFixups(PageNo : Longint; Fixups : pFixupCollection) : boolean;
  {PackFixups() will unpack all pages if pkfFixupsVer4 is used}
   procedure   PackFixups(packFlags : longint);
-  procedure   ApplyFixups;
+  procedure   ApplyFixups(ForceApply : boolean; ApplyMask : byte);
   procedure   DeletePage(PageNo : Longint);
   procedure   MinimizePage(PageNo : Longint);
   function    UsedPage(PageNo : Longint) : boolean;
-  procedure   RemoveEmptyPages;
+  procedure   RemoveEmptyPages(AllowMinimize:boolean);
   function    isPacked(newAlign,newStubSize,packFlags,saveFlags,oldDbgOfs : longint;
                var NewSize : longint) : boolean;
   destructor  Destroy;virtual;
  end;
 
-Implementation uses Dos, {$ifndef FPC}os2base{$else}doscalls{$endif};
+Implementation uses Dos, {$IFDEF OS2}{$ifndef fpc}os2base, vpsyslow, {$else}doscalls, {$endif}{$ENDIF} pack2;
 
-procedure tFixupCollection.FreeItem(Item: Pointer);
+{$ifndef DOS}
+function MemAvail : longint;
+begin
+ MemAvail := High(longint);
+end;
+{$endif}
+
+procedure tFixupCollection.FreeItem;
 begin
  with pLXreloc(Item)^ do
   if (sType and nrChain <> 0) and (targetCount > 0)
@@ -357,6 +374,13 @@ begin
  FillChar(dst[dOf], dstDataSize - dOf, 0);
  dstDataSize := dOf;
  UnpackMethod2 := TRUE;
+end;
+
+Function UnpackMethod3(var srcData, destData; srcDataSize : Longint;
+                       var dstDataSize : Longint) : boolean;
+begin
+  dstDataSize:=pack2.Decompress(srcDataSize,addr(srcData),addr(destData));
+  UnpackMethod3 := TRUE;
 end;
 
 function PackMethod1(var srcData,dstData; srcDataSize : longint;
@@ -833,6 +857,22 @@ locEx:
  FreeMem(Chain, srcDataSize * 2);
 end;
 
+function PackMethod3(var srcData,dstData; srcDataSize : longint; var dstDataSize : Longint) : boolean;
+var dst:pointer;
+    len:longint;
+begin
+ GetMem(dst, srcDataSize * 3);
+ len:=pack2.Compress(srcDataSize,@srcData,dst);
+ PackMethod3:=len<$FFC;
+ if len<$FFC then
+ begin
+   move(dst^,dstData,len);
+   dstDataSize:=len;
+ end;
+ FreeMem(dst, srcDataSize * 3);
+end;
+
+
 {********************* LX executable object implementation ******************}
 
 constructor tLX.Create;
@@ -866,7 +906,8 @@ begin
     case PageFlags of
      pgValid     : L1 := Header.lxDataPageOfs + PageDataOffset shl Header.lxPageShift;
      pgIterData,
-     pgIterData2 : L1 := Header.lxIterMapOfs + PageDataOffset shl Header.lxPageShift;
+     pgIterData2,
+     pgIterData3 : L1 := Header.lxIterMapOfs + PageDataOffset shl Header.lxPageShift;
      pgInvalid,
      pgZeroed    : L1 := $7FFFFFFF;
     end;
@@ -874,7 +915,8 @@ begin
     case PageFlags of
      pgValid     : L2 := Header.lxDataPageOfs + PageDataOffset shl Header.lxPageShift;
      pgIterData,
-     pgIterData2 : L2 := Header.lxIterMapOfs + PageDataOffset shl Header.lxPageShift;
+     pgIterData2,
+     pgIterData3 : L2 := Header.lxIterMapOfs + PageDataOffset shl Header.lxPageShift;
      pgInvalid,
      pgZeroed    : L2 := $7FFFFFFF;
     end;
@@ -889,7 +931,7 @@ begin
   XchgL(PageOrder^[N1], PageOrder^[N2]);
 end;
 
-function tLX.LoadLX(const fName : string) : Byte;
+function    tLX.LoadLX(const fName : string; pageToEnlarge_ : LongInt) : Byte;
 label locEx;
 var
  F       : File;
@@ -916,9 +958,12 @@ end;
 begin
  freeModule;
  Res := lxeReadError;
+ pageToEnlarge := pageToEnlarge_; { 2011-11-16 SHL }
  Assign(F, fName);
+{$IFDEF OS2}
  New(EA, Fetch(fName));
  if EA = nil then begin Res := lxeEAreadError; GoTo locEx; end;
+{$ENDIF}
  I := FileMode; FileMode := open_share_DenyWrite;
  GetFAttr(F, FileAttr); Reset(F, 1); FileMode := I;
  if inOutRes <> 0 then GoTo locEx;
@@ -974,10 +1019,15 @@ begin
         For I := 1 to Header.lxObjCnt do
          with ObjTable^[I] do
           begin
+           { 2011-11-16 SHL expand object containing /X:pagenum page to max size
+             fixme to complain if not last page in object?
+           }
+           if (pageToEnlarge > 0) and (pageToEnlarge >= oPageMap) and (pageToEnlarge < oPageMap + oMapSize) then
+             oSize := (oSize + (Header.lxPageSize - 1)) and not (Header.lxPageSize - 1);
            L := pred(oPageMap + oMapSize);
            if L > J then J := L;
           end;
-        if Header.lxMPages > J  { Fix for some poor-constructed executables }
+        if Header.lxMPages > J  { Fix for some poorly-constructed executables }
          then Header.lxMPages := J;
        end
   else begin
@@ -1033,7 +1083,7 @@ begin
         Seek(F, Header.lxNResTabOfs);
         repeat
          BlockRead(F, S, sizeOf(Byte));
-         if (S='') or (FilePos(F)+length(S)+sizeOf(Word16) - Header.lxNResTabOfs > Header.lxNResTabSize) 
+         if (S='') or (FilePos(F)+length(S)+sizeOf(Word16) - Header.lxNResTabOfs > Header.lxNResTabSize)
                    or (FilePos(F)+length(S)+sizeOf(Word16) > fSz) then break;
          BlockRead(F, S[1], length(S));
          New(NTR);
@@ -1188,7 +1238,8 @@ begin
     case PageFlags of
      pgValid     : L := Header.lxDataPageOfs;
      pgIterData,
-     pgIterData2 : L := Header.lxIterMapOfs;
+     pgIterData2,
+     pgIterData3 : L := Header.lxIterMapOfs;
      pgInvalid,
      pgZeroed    : begin
                     PageDataOffset := 0;
@@ -1229,8 +1280,16 @@ begin
  if (Header.lxDebugInfoOfs <> 0) and (Header.lxDebugInfoOfs < fSz)
   then begin
         Seek(F, Header.lxDebugInfoOfs);
-        GetMem(DebugInfo, Header.lxDebugLen);
-        BlockRead(F, DebugInfo^, Header.lxDebugLen);
+        { 2012-12-01 SHL Avoid out of memory 203 }
+        if (Header.lxDebugLen <= MemAvail - $10000) then begin
+            GetMem(DebugInfo, Header.lxDebugLen);
+            BlockRead(F, DebugInfo^, Header.lxDebugLen)
+        end
+        else begin
+            Seek(F, Header.lxDebugInfoOfs + Header.lxDebugLen);
+            Header.lxDebugInfoOfs := 0;
+            Header.lxDebugLen := 0
+        end;
         updateLast;
        end
   else begin
@@ -1482,8 +1541,10 @@ begin
  freeModule;
  Res := lxeReadError;
  Assign(F, fName);
+{$IFDEF OS2}
  New(EA, Fetch(fName));
  if EA = nil then begin Res := lxeEAreadError; GoTo locEx; end;
+{$ENDIF}
  I := FileMode; FileMode := open_share_DenyWrite;
  GetFAttr(F, FileAttr); Reset(F, 1); FileMode := I;
  if inOutRes <> 0 then GoTo locEx;
@@ -1701,7 +1762,7 @@ begin
         Seek(F, neHdr.neNResTab);
         repeat
          BlockRead(F, S, sizeOf(Byte));
-         if (S='') or (FilePos(F)+length(S)+sizeOf(Word16) > fSz) 
+         if (S='') or (FilePos(F)+length(S)+sizeOf(Word16) > fSz)
                    or (FilePos(F)+length(S)+sizeOf(Word16)-neHdr.neNResTab > neHdr.neCbNResTab) then break;
          BlockRead(F, S[1], length(S));
          New(NTR);
@@ -2089,7 +2150,8 @@ begin
      case PageFlags of
       pgValid     : pL := @Header.lxDataPageOfs;
       pgIterData,
-      pgIterData2 : begin
+      pgIterData2,
+      pgIterData3 : begin
                      Header.lxIterMapOfs := Header.lxDataPageOfs;
                      pL := @Header.lxIterMapOfs;
                     end;
@@ -2161,9 +2223,15 @@ locEx:
  if ioResult <> 0 then Res := lxeWriteError;
  if TimeStamp <> 0 then SetFTime(F, TimeStamp);
  Save := Res;  Close(F); inOutRes := 0;
- if (Res = lxeOK) and (not EA^.Attach(fName))
-  then Save := lxeEAwriteError
-  else SetFattr(F, FileAttr);
+ if (Res = lxeOK) 
+{$IFDEF OS2}
+   and (not EA^.Attach(fName))
+   then Save := lxeEAwriteError
+   else 
+{$ELSE}
+   then
+{$ENDIF}
+     SetFattr(F, FileAttr);
 end;
 
 procedure tLX.freeModule;
@@ -2228,8 +2296,9 @@ begin
 
  if OverlaySize <> 0
   then FreeMem(Overlay, OverlaySize);
-
+{$IFDEF OS2}
  if EA <> nil then Dispose(EA, Destroy);
+{$ENDIF}
  Initialize;
 end;
 
@@ -2638,7 +2707,7 @@ begin
               ((Fix^.sType and nrChain) <> 0)
             then exit;
            if PageFlags <> pgValid
-            then UnpackPage(PageNo);
+            then UnpackPage(PageNo,true);
            if (PageFlags <> pgValid)
             then exit;
            Page := Pages^[pred(PageNo)];
@@ -2988,7 +3057,7 @@ begin
     then tmpPF := (tmpPF and (not pkfFixupsLvl)) or pkfFixupsVer2
     else with ObjMap^[P] do
           begin
-           UnpackPage(P);
+           UnpackPage(P,true);
            if PageFlags <> pgValid then Continue;
            GetMem(nP, Header.lxPageSize);
            Move(Pages^[Pred(P)]^, nP^, PageSize);
@@ -3040,7 +3109,7 @@ begin
  Dispose(Fx, Destroy);
 end;
 
-procedure tLX.ApplyFixups;
+procedure tLX.ApplyFixups(ForceApply : boolean; ApplyMask : byte);
 var
  Fx   : pFixupCollection;
  F    : pLXreloc;
@@ -3055,8 +3124,8 @@ var
  tmpP : pByteArray;
 
 begin
- if (Header.lxMFlags and lxModType <> lxEXE){ Applicable only to EXE modules }
-  then exit;
+ { Applicable only to EXE modules OR /FB+ was specified }
+ if (Header.lxMFlags and lxModType <> lxEXE) and not ForceApply then exit;
  New(Fx, Create(16, 16));
  For P := 1 to Header.lxMPages do
   begin
@@ -3075,7 +3144,7 @@ begin
                (ObjTable^[F^.ObjMod].oBase = 0)  { Unassigned object address }
              then break;
             if (ObjMap^[P].PageFlags <> pgValid)
-             then UnpackPage(P);
+             then UnpackPage(P,true);
             if (ObjMap^[P].PageFlags <> pgValid)
              then break;
             if (ObjMap^[P].PageSize < Header.lxPageSize)
@@ -3094,12 +3163,12 @@ begin
              then Inc(A.L, F^.addFixup);
             Inc(A.L, F^.Target.intRef);
             case F^.sType and nrSType of
-             nrSByte  : S := 1;
+             nrSByte  : if ApplyMask and 1 <> 0 then S := 1 else break;
              nrSSeg   : break;{ CS is known only at runtime }
              nrSPtr   : break;{ CS is known only at runtime }
-             nrSOff   : S := 2;
+             nrSOff   : if ApplyMask and 2 <> 0 then S := 2 else break;
              nrPtr48  : break;{ CS is known only at runtime }
-             nrOff32  : S := 4;
+             nrOff32  : if ApplyMask and 4 <> 0 then S := 4 else break;
              nrSoff32 : break;{ Not supported (yet?) }
             end;
             if (F^.sType and nrChain <> 0)
@@ -3130,7 +3199,7 @@ begin
  Dispose(Fx, Destroy);
 end;
 
-function tLX.UnpackPage(PageNo : Integer) : boolean;
+function tLX.UnpackPage(PageNo : Integer; AllowTrunc:boolean) : boolean;
 var
  J       : Integer;
  uD,pD   : pByteArray;
@@ -3142,6 +3211,7 @@ begin
    case PageFlags of
     pgIterData  : @UnpFunc := @UnpackMethod1;
     pgIterData2 : @UnpFunc := @UnpackMethod2;
+    pgIterData3 : @UnpFunc := @UnpackMethod3;
     pgValid     : @UnpFunc := nil;
     else exit;
    end;
@@ -3160,33 +3230,80 @@ begin
                 end;
           FreeMem(uD, Header.lxPageSize);
          end;
-   J := PageSize;
-   While (J > 0) and (pD^[pred(J)] = 0) do Dec(J);
-   if J <> PageSize
-    then begin
-          GetMem(uD, J);
-          Move(pD^, uD^, J);
-          Pages^[pred(PageNo)] := uD;
-          FreeMem(pD, PageSize);
-          PageSize := J;
-         end;
+   if AllowTrunc then
+   begin
+    J := PageSize;
+    While (J > 0) and (pD^[pred(J)] = 0) do Dec(J);
+    { 2011-11-16 SHL expand /X:pagenum page to max size }
+    if (PageNo = pageToEnlarge) and (J < Header.lxPageSize) then begin
+     GetMem(uD, Header.lxPageSize);
+     Move(pD^, uD^, PageSize);
+     FreeMem(pD, PageSize);
+     pD := uD;
+     Pages^[pred(PageNo)] := pD;
+     PageSize := Header.lxPageSize;
+     FillChar(pD^[pred(J)], Header.lxPageSize - J + 1, 0);
+     J := Header.lxPageSize
+    end;
+    if J <> PageSize
+     then begin
+           GetMem(uD, J);
+           Move(pD^, uD^, J);
+           Pages^[pred(PageNo)] := uD;
+           FreeMem(pD, PageSize);
+           PageSize := J;
+          end;
+   end;
   end;
  UnpackPage := TRUE;
+end;
+
+function tLX.UnpackPageNoTouch(PageNo : Integer; var UnpPageSize:longint) : pointer;
+var
+ J       : Integer;
+ uD,pD   : pByteArray;
+ UnpFunc : Function(var srcData, destData; srcDataSize : longint; var dstDataSize : Longint) : boolean;
+ rc      : boolean;
+begin
+ uD:= nil;
+ with ObjMap^[PageNo] do
+ begin
+   case PageFlags of
+    pgIterData  : @UnpFunc := @UnpackMethod1;
+    pgIterData2 : @UnpFunc := @UnpackMethod2;
+    pgIterData3 : @UnpFunc := @UnpackMethod3;
+    else exit;
+   end;
+   pD := Pages^[pred(PageNo)];
+   if @UnpFunc <> nil then
+   begin
+     GetMem(uD, Header.lxPageSize); J := Header.lxPageSize;
+     rc := UnpFunc(pD^, uD^, PageSize, J);
+     if not rc then
+     begin
+       FreeMem(uD, Header.lxPageSize);
+       uD:=nil;
+     end else
+       UnpPageSize:=J;
+   end;
+ end;
+ if uD=nil then UnpPageSize:=0;
+ UnpackPageNoTouch := uD;
 end;
 
 procedure tLX.Unpack;
 var
  I : Integer;
 begin
- For I := 1 to Header.lxMpages do UnpackPage(I);
+ For I := 1 to Header.lxMpages do UnpackPage(I,AllowTrunc);
 end;
 
 procedure tLX.Pack;
 const
     maxLen  : array[0..2] of Byte = (1, 16, 255);
 var
- I,S1,S2 : Longint;
- Bf1,Bf2 : Pointer;
+ I,S1,S2,S3 : Longint;
+ Bf1,Bf2,Bf3: Pointer;
 
 Procedure SetPage(var oD : Pointer; nD : Pointer; var oS : Word16; nS : Longint);
 begin
@@ -3199,24 +3316,34 @@ begin
 { Now pack fixup records }
  PackFixups(packFlags);
 { Remove empty pages }
- RemoveEmptyPages;
- if packFlags and (pkfRunLength or pkfLempelZiv) = 0 then exit;
+ RemoveEmptyPages(AllowTrunc);
+ if packFlags and (pkfRunLength or pkfLempelZiv or pkfSixPack) = 0 then exit;
 
  GetMem(Bf1, Header.lxPageSize);
  GetMem(Bf2, Header.lxPageSize);
+ GetMem(Bf3, Header.lxPageSize);
  For I := 1 to Header.lxMPages do
   with ObjMap^[I] do
    if (PageFlags = pgValid) and (PageSize > 0)
     then begin
           if @Progress <> nil then Progress(pred(I), Header.lxMPages);
-          S1 := Header.lxPageSize; S2 := Header.lxPageSize;
+          S1 := Header.lxPageSize; S2 := Header.lxPageSize; S3 := Header.lxPageSize;
           if (packFlags and pkfRunLength = 0) or
              (not PackMethod1(Pages^[pred(I)]^, Bf1^, PageSize, S1, maxLen[packFlags and pkfRunLengthLvl]))
            then S1 := $7FFFFFFF;
           if (packFlags and pkfLempelZiv = 0) or
              (not PackMethod2(Pages^[pred(I)]^, Bf2^, PageSize, S2))
            then S2 := $7FFFFFFF;
-          if (S1 < S2) and (S1 < Header.lxPageSize) {RL-coding is effective enough?}
+          if (packFlags and pkfSixPack = 0) or (PageSize < 64) or
+             (not PackMethod3(Pages^[pred(I)]^, Bf3^, PageSize, S3))
+           then S3 := $7FFFFFFF;
+          if (S3 < S2) and (S3 < S1) and (S3 < PageSize)
+           then begin
+                 PageFlags := pgIterData3;
+                 SetPage(Pages^[pred(I)], Bf3, PageSize, S3);
+                end
+           else
+          if (S1 < S2) and (S1 < PageSize) {RL-coding is effective enough?}
            then begin
                  PageFlags := pgIterData;
                  SetPage(Pages^[pred(I)], Bf1, PageSize, S1);
@@ -3229,6 +3356,7 @@ begin
                 end;
          end;
  if @Progress <> nil then Progress(1, 1);
+ FreeMem(Bf3, Header.lxPageSize);
  FreeMem(Bf2, Header.lxPageSize);
  FreeMem(Bf1, Header.lxPageSize);
 end;
@@ -3327,16 +3455,17 @@ var
  I,J : Integer;
 begin
 { Minimize space occupied by all pages }
- For I := 1 to Header.lxMpages do MinimizePage(I);
+ if AllowMinimize then
+  For I := 1 to Header.lxMpages do MinimizePage(I);
 { Remove all absolutely empty pages at ends of objects }
  For I := 1 to Header.lxObjCnt do
   with ObjTable^[I] do
    For J := pred(oPageMap + oMapSize) downto oPageMap do
     with ObjMap^[J] do
-     if ((PageFlags = pgValid) or (PageFlags = pgIterData) or (PageFlags = pgIterData2))
-      and (PageSize = 0) and (FixRecSize^[pred(J)] = 0)
-      then DeletePage(J)
-      else break;
+     if ((PageFlags = pgValid) or (PageFlags = pgIterData) or (PageFlags = pgIterData2) or
+      (PageFlags = pgIterData3)) and (PageSize = 0) and (FixRecSize^[pred(J)] = 0)
+        then DeletePage(J)
+        else break;
 end;
 
 function tLX.isPacked;
@@ -3355,7 +3484,7 @@ begin
 
  cp := StubSize + sizeOf(Header);
 { Remove empty pages }
- RemoveEmptyPages;
+ RemoveEmptyPages(false);
 { Now pack fixup records }
 { PackFixups(packFlags); }
 
@@ -3487,13 +3616,15 @@ begin
                      if PageSize > 6 then f := f or 1;
                     end;
       pgIterData,
-      pgIterData2 : begin
+      pgIterData2,
+      pgIterData3 : begin
                      if Header.lxIterMapOfs <> Header.lxDataPageOfs then isPacked := FALSE;
                      Header.lxIterMapOfs := Header.lxDataPageOfs;
                      pL := @Header.lxIterMapOfs;
                      case PageFlags of
                       pgIterData  : f := f or 2;
                       pgIterData2 : f := f or 4;
+                      pgIterData3 : f := f or 8;
                      end;
                     end;
       pgInvalid,
@@ -3517,6 +3648,10 @@ begin
  if (packFlags and pkfRunLength <> 0) and
     (packFlags and pkfLempelZiv = 0) and
     (f and 2 = 0) and
+    (f and 1 <> 0)
+  then isPacked := FALSE;
+ if (packFlags and pkfSixPack <> 0) and
+    (f and 8 = 0) and
     (f and 1 <> 0)
   then isPacked := FALSE;
 

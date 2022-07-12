@@ -13,10 +13,10 @@ Unit miscUtil;
 Interface
 
 const
-{$ifDef OS2}
- tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
-{$else}
+{$ifndef VIRTUALPASCAL}
  tickerFreq             = 5494; { = 100000/18.2 }
+{$else}
+ tickerFreq             = 100;  {ticker frequence in 100000/Freq (1000)}
 {$endIf}
 
 type
@@ -185,7 +185,11 @@ type
 {&saves ebx,esi,edi}
  Function level2call(Proc,Info : Pointer) : boolean;
 
-Implementation {$ifDef os2} uses {$ifnDef FPC} os2base; {$else} doscalls, math; {$endif} {$endIf}
+Implementation
+uses
+  SysUtils
+{$ifDef os2}{$ifnDef FPC}, os2base {$else}, doscalls, math{$endif}{$endIf}
+{$ifDef win32}, windows{$endIf};
 
 {±±±±±±±±±±±±±±±±±±±±±±±±±±±± High-level functions ±±±±±±±±±±±±±±±±±±±±±±±±±±}
 
@@ -362,8 +366,12 @@ end;
 Function lTicker : Longint;
 var L : Longint;
 begin
+{$IFDEF OS2}
  DosQuerySysInfo(qsv_Ms_Count, qsv_Ms_Count, L, SizeOf(L));
  lTicker := L;
+{$ELSE}
+ lTicker := GetTickCount;
+{$ENDIF}
 end;
 
 Function wTicker : Word;
@@ -857,4 +865,3 @@ end;
 {$endIf €€€€€€€€€€€€€€€€€€€ end of compiler - specific  section €€€€€€€€€€€€€}
 
 end.
-

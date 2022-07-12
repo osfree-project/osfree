@@ -19,7 +19,7 @@
 {$Optimization STACKFRAME}
 {$endif}
 {$R sysIcons.res}
-uses Dos, Strings, os2def, os2base, os2pmapi, miscUtil, strOp;
+uses Dos, Strings, os2def, os2base, os2pmapi, MiscUtil, StrOp;
 
 const
 {* Dialog control IDs converted from sysicons.h *}

@@ -7,8 +7,13 @@
 {$Optimization STACKFRAME}
 {$MinStackSize 262144}
 {$endif}
-uses  os2base, miscUtil, SysLib, CmdLine, Collect,
-      strOp, Crt, Dos, lxlite_Global;
+uses  os2base, MiscUtil, SysLib, CmdLine, Collect,
+      strOp, Dos, lxlite_Global
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
+{$endif};
 const
  Recurse   : boolean = FALSE;
  Pause     : boolean = FALSE;
@@ -304,4 +309,3 @@ begin
  TextAttr := $01; ClrEOL;
  Writeln('À´Done');
 end.
-

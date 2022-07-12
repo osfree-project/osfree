@@ -3,25 +3,39 @@
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
 {$Align 1}
+{$mode objfpc}
 {$Optimization STACKFRAME}
 {$endif}
 Unit lxLite_Global;
 
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
 
+{$ifdef fpc}
+var
+ StdIn,                        { Old standard input }
+ StdOut: Text;                 { and output streams }
+
 const
- Version          : string[6] = '1.3.3';
+ RedirOutput: boolean = False; {True if stdOut is redirected}
+ RedirInput: boolean = False;  {True if stdIn is redirected}
+{$endif}
+
+const
+ Version          : string[6] = '1.3.9';
 
 { Message Identifiers }
  msgProgHeader1   = 100;
  msgProgHeader2   = 101;
  msgProgHeader3   = 102;
- msgDone          = 103;
- msgMore          = 104;
- msgInvalidSwitch = 105;
- msgAborted       = 106;
- msgRuntime1      = 107;
- msgRuntime2      = 108;
+ msgProgHeader4   = 103;
+ msgProgHeader5   = 104;
+ msgProgHeader6   = 105;
+ msgDone          = 106;
+ msgMore          = 107;
+ msgInvalidSwitch = 108;
+ msgAborted       = 109;
+ msgRuntime1      = 110;
+ msgRuntime2      = 111;
 
  msgCantLoadStub  = 151;
  msgFatalIOerror  = 152;
@@ -36,6 +50,8 @@ const
  msgCantCreateDir = 161;
  msgCantCopyBackup= 162;
  msgCfgLoadFailed = 163;
+ msgCantWriteBin  = 164;
+ msgCantReadBin   = 165;
 
  msgEmpty         = 192;
 
@@ -139,6 +155,10 @@ const
  msgFXv2          = 326;
  msgFXv4          = 327;
  msgFXmax         = 328;
+ msgSixPack       = 329;
+ msgPageM3        = 330;
+ msgWritingPage   = 331;
+ msgReadingPage   = 332;
 
  msgLXerror       = 350;
 
@@ -184,6 +204,7 @@ const
  msgLogOverall    = 444;
  msgLogNResRmv    = 445;
  msgLogNResKept   = 446;
+ msgDelBackup     = 447;
 
  msgCantFindFile  = 450;
  msgConfirmAsk    = 451;
@@ -203,7 +224,7 @@ const
  msgListSel       = 481;
 
  msgHelpFirst     = 500;
- msgHelpLast      = 601;
+ msgHelpLast      = 616;
 
 {-Backup flags-}
  bkfIfDebug       = $0001;
@@ -274,12 +295,15 @@ const
  Opt              : record
   Verbose      : Longint;
   NewType      : Longint;
-  NewTypeCond  : Longint;                               {ntfXXXX flags}
-  doUnpack     : boolean;             {Unpack LX and save unpacked}
-  Unpack       : boolean;                 {Unpack LX before packing}
+  NewTypeCond  : Longint;               {ntfXXXX flags}
+  doUnpack     : boolean;               {Unpack LX and save unpacked}
+  pageToEnlarge: LongInt;               {page to enlarge to maximum size when unpacking 2011-11-16 SHL}
+  Unpack       : boolean;               {Unpack LX before packing}
   Backup       : longint;
   Pause        : boolean;
   ApplyFixups  : boolean;
+  ForceApply   : boolean;
+  ApplyMask    : byte;
   SaveMode     : longint;
   PackMode     : longint;
   NEloadMode   : longint;
@@ -287,6 +311,10 @@ const
   ForceOut     : longint;
   Log          : longint;
   FinalWrite   : longint;
+  PageReadPack : longint;
+  PageWriteOpt : longint;
+  PageRWStart  : longint;
+  PageRWEnd    : longint;
   ForceRepack  : boolean;
   ForceIdle    : boolean;
   ShowConfig   : boolean;
@@ -295,11 +323,13 @@ const
   DiscardXOpts : boolean;
   ColoredOutput: boolean;
   UseStdOut    : boolean;
+  AllowZTrunc  : boolean;
   tresholdStub : Longint;
   tresholdXtra : Longint;
   tresholdDbug : Longint;
   stubName     : string;
   logFileName  : string;
+  pageFileName : string;
   backupDir    : string;
   xdFileMask   : string;
   ddFileMask   : string;
@@ -311,12 +341,15 @@ const
  end =
  (Verbose      : 0;
   NewType      : 0;
-  NewTypeCond  : 0;                               {ntfXXXX flags}
-  doUnpack     : FALSE;             {Unpack LX and save unpacked}
-  Unpack       : TRUE;                 {Unpack LX before packing}
+  NewTypeCond  : 0;                     {ntfXXXX flags}
+  doUnpack     : FALSE;                 {Unpack LX and save unpacked}
+  pageToEnlarge: 0;                     {page to enlarge to maximum size when unpacking}
+  Unpack       : TRUE;                  {Unpack LX before packing}
   Backup       : 0;
   Pause        : FALSE;
   ApplyFixups  : TRUE;
+  ForceApply   : FALSE;
+  ApplyMask    : 7;
   SaveMode     : svfFOalnNone + svfEOalnShift;
   PackMode     : pkfLempelZiv + pkfFixups + pkfFixupsVer2;
   NEloadMode   : 0;
@@ -324,6 +357,10 @@ const
   ForceOut     : 0;
   Log          : lcfSucc;
   FinalWrite   : fwfWrite;
+  PageReadPack : 0;
+  PageWriteOpt : 0;
+  PageRWStart  : -1;
+  PageRWEnd    : -1;
   ForceRepack  : FALSE;
   ForceIdle    : TRUE;
   ShowConfig   : FALSE;
@@ -332,11 +369,13 @@ const
   DiscardXOpts : FALSE;
   ColoredOutput: TRUE;
   UseStdOut    : FALSE;
+  AllowZTrunc  : TRUE;
   tresholdStub : 0;
   tresholdXtra : 1024;
   tresholdDbug : $7FFFFFFF;
   stubName     : '';
   logFileName  : '';
+  pageFileName : '';
   backupDir    : '';
   xdFileMask   : '';
   ddFileMask   : '';
@@ -371,9 +410,21 @@ var
 procedure SetColor(Color : Byte);
 procedure ClearToEOL;
 
-Implementation uses Crt, StrOp;
+Implementation uses StrOp
+{$ifdef os2}
+{$ifdef fpc}
+  , doscalls
+{$else}
+  , os2base
+{$endif}
+{$endif}
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
+{$endif};
 
-procedure SetColor;
+procedure SetColor(Color : Byte);
 const
  ColorTranslate : array[0..15] of Byte =
  (0, 7, 7, 7, 7, 7, 7, 7, 8, 7, 15, 15, 15, 15, 15, 15);
@@ -402,9 +453,37 @@ begin
         else ClrEOL;
 end;
 
-procedure tModuleCollection.FreeItem;
+procedure tModuleCollection.FreeItem(Item: Pointer);
 begin
  Dispose(pModuleDef(Item));
 end;
 
+Procedure AssignConToCrt;
+var hType,hAttr : Longint;
+begin
+{$IFDEF OS2}
+ Move(Input, StdIn, sizeOf(StdIn));
+ Move(Output, StdOut, sizeOf(StdOut));
+ DosQueryHType(0, hType, hAttr);
+ if (hType and 3 = 1) and (hAttr and 1 <> 0)
+  then begin
+        AssignCrt(Input);
+        Reset(Input);
+       end
+  else RedirInput := True;
+ DosQueryHType(1, hType, hAttr);
+ if (hType and 3 = 1) and (hAttr and 2 <> 0)
+  then begin
+        AssignCrt(Output);
+        ReWrite(Output);
+       end
+  else RedirOutput := True;
+{$ELSE}
+  AssignCrt(Input);  Reset(Input);
+  AssignCrt(Output); ReWrite(Output);
+{$ENDIF}
+end;
+
+begin
+  AssignConToCrt;
 end.
