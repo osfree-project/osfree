@@ -34,7 +34,7 @@ $(wcc):
  @chmod 755 $^@
 !endif
 
-$(mf): $(MYDIR)makefile
+$(mf): $(MYDIR)makefile .always
  @%create $(mf)
  @%append $(mf) $#
  @%append $(mf) $# This is auto-generated file,
