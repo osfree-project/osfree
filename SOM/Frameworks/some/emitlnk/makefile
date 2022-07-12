@@ -7,6 +7,7 @@ DLLOPT  = initinstance terminstance
 srcfiles = $(p)emitlnk$(e) &
 		$(p)lnkemit$(e)
 
+EXPORTS = emitSL
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1

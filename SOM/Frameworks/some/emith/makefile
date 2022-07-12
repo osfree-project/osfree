@@ -6,6 +6,8 @@ DESC = SOM H Emitter
 DLLOPT  = initinstance terminstance
 srcfiles = $(p)hemit$(e)
 
+EXPORTS = emitSL
+
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
