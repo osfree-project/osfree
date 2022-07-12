@@ -37,7 +37,7 @@ $(PATH)rc.rc: $(MYDIR)os2api.rc $(MYDIR)lxlite.rc
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc
  @$(SAY) RESCMP   $^. $(LOG)
- $(verbose)$(RC) -bt=os2 -zm $(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 $(PATH)rc.rc $(PATH)$(PROJ1).exe -fe=$@ -fo=$(PATH)rc.res
+ $(verbose)$(RC)  -zm $(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 $(PATH)rc.rc $(PATH)$(PROJ1).exe -fe=$@ -fo=$(PATH)rc.res
 
 $(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ).pas .symbolic
  @$(SAY) PPC      $^. $(LOG)

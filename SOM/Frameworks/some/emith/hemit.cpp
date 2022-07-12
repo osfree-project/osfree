@@ -108,7 +108,7 @@ SOM_Scope boolean  SOMLINK hemit_somtGenerateSections(HEmitter *somSelf)
 
 #define SYMBOLS_FILE   "hemit.efw"
 
-FILE *emit(char *file, Entry * cls, Stab * stab)
+FILE * SOMLINK emit(char *file, Entry * cls, Stab * stab)
 {
 
     FILE * fp;
@@ -128,7 +128,6 @@ FILE *emit(char *file, Entry * cls, Stab * stab)
         oCls = (SOMTClassEntryC *) somtGetObjectWrapper(cls);
         //oCls->somDumpSelf(0);
         emitter = new SOMTEmitC();
-          
         emitter->_set_somtTargetFile(fp);
         emitter->_set_somtTargetClass(oCls);
         emitter->_set_somtEmitterName("h");
@@ -137,7 +136,7 @@ FILE *emit(char *file, Entry * cls, Stab * stab)
 
         if (deffile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
             t->somtReadSectionDefinitions(deffile);
-            somtfclose(deffile);
+            somtfcloseSL(deffile);
         }
         else {
             exit(-1);
@@ -151,7 +150,7 @@ FILE *emit(char *file, Entry * cls, Stab * stab)
     }
     #if 0
     else if (cls->type == SOMTModuleE) {
-        fp = somtopenEmitFile(file, "def");
+        fp = somtopenEmitFileSL(file, "def");
         mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
         emitter = SOMTEmitCNew();
         __set_somtTargetFile(emitter, fp);
@@ -160,7 +159,7 @@ FILE *emit(char *file, Entry * cls, Stab * stab)
         __set_somtCommentStyle(t, somtCPPE);
         if (deffile = _somtOpenSymbolsFile(emitter, SYMBOLS_FILE, "r")) {
             _somtReadSectionDefinitions(t, deffile);
-            somtfclose(deffile);
+            somtfcloseSL(deffile);
         }
         else {
             exit(-1);

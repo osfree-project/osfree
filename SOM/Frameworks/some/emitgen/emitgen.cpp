@@ -2,7 +2,7 @@
 #include <emitlib.h>
 #include "genemit.xh"
 
-SOMEXTERN FILE * SOMLINK   emit(char *file, Entry * cls, Stab * stab)
+SOMEXTERN FILE * SOMLINK emit(char *file, Entry * cls, Stab * stab)
 {
 
     FILE *fp;
@@ -15,7 +15,7 @@ SOMEXTERN FILE * SOMLINK   emit(char *file, Entry * cls, Stab * stab)
     /* if this is a class, rather than a module: */
     if (cls->type == SOMTClassE) {
         file=strcat(file, ""); //  Модификатор файла. Если такую штуку не делать, то может быть трап.
-        fp = somtopenEmitFile(file, "gen");
+        fp = somtopenEmitFileSL(file, "gen");
         oCls = (SOMTClassEntryC *)somtGetObjectWrapper(cls);
         emitter = new GENEmitter();
         emitter->_set_somtTargetFile(fp);
@@ -27,7 +27,7 @@ printf("a=%s\n", emitter->somtGetGlobalModifierValue("deffile"));
 	
         if (genfile = emitter->somtOpenSymbolsFile(emitter->somtGetGlobalModifierValue("deffile"), "r")) {
             t->somtReadSectionDefinitions(genfile);
-            somtfclose(genfile);
+            somtfcloseSL(genfile);
         }
         else {
 //            debug("Не могу открыть файл символов \" %s \".\n",
@@ -42,7 +42,7 @@ printf("a=%s\n", emitter->somtGetGlobalModifierValue("deffile"));
     }
     else if (cls->type == SOMTModuleE) {
 
-        fp = somtopenEmitFile(file, "gen");
+        fp = somtopenEmitFileSL(file, "gen");
         mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
         emitter = new GENEmitter();
         emitter->_set_somtTargetFile(fp);
@@ -51,7 +51,7 @@ printf("a=%s\n", emitter->somtGetGlobalModifierValue("deffile"));
         t->_set_somtCommentStyle(somtCPPE);
 	if (genfile = emitter->somtOpenSymbolsFile(emitter->somtGetGlobalModifierValue("deffile"), "r")) {
             t->somtReadSectionDefinitions(genfile);
-            somtfclose(genfile);
+            somtfcloseSL(genfile);
         }
         else {
 //            debug("Cannot open Symbols file \" %s \".\n",

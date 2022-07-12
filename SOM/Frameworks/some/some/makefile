@@ -7,9 +7,9 @@ DESC = SOM Emitter Framework
 DLLOPT  = initinstance terminstance
 INSTALL_ADD = 1
 srcfiles = $(p)emitlib$(e) &
-		$(p)scentry$(e) &
 		$(p)scmeta$(e) &
 		$(p)sctdef$(e) &
+		$(p)scemit$(e) &
 		$(p)scstruct$(e) &
 		$(p)scenum$(e) &
 		$(p)scunion$(e) &
@@ -22,14 +22,14 @@ srcfiles = $(p)emitlib$(e) &
 		$(p)scpass$(e) &
 		$(p)scdata$(e) &
 		$(p)scmodule$(e) &
-		$(p)scemit$(e) &
 		$(p)somstrt$(e) &
 		$(p)sctmplt$(e) &
 		$(p)scmethod$(e) &
 		$(p)scstring$(e) &
 		$(p)scseqnce$(e) &
 		$(p)scparm$(e) &
-		$(p)scusrtyp$(e)
+		$(p)scusrtyp$(e) &
+		$(p)scentry$(e)
 
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
@@ -104,9 +104,7 @@ EXPORTS = somtEntryTypeName.70, &
 		somtNewSymbol.74, &
 		somtShowEntry.75, &
 		somtStrCat.76, &
-		somtStrDup.77, &
-		somtopenEmitFile, &
-		somtfclose
+		somtStrDup.77
 
 
 UNI2H = 1

@@ -25,13 +25,13 @@
 
 #define SOMTEntryC_Class_Source
 
+
 #define __PRIVATE__
 #include <rhbopt.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "rhbsc.h"
-
 
 #include "scentry.xih"
 
