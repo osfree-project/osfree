@@ -9,7 +9,12 @@
 {$endif}
 uses os2base, MiscUtil, SysLib, CmdLine, Collect,
      StrOp, Strings, Dos, lxlite_Global,
-     os2def, VpUtils, Crtx;
+     os2def, VpUtils
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
+{$endif};
 
 const
  Recurse : boolean = FALSE;

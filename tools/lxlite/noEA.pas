@@ -8,7 +8,12 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses  Dos, os2base, MiscUtil, SysLib, StrOp, Collect,
-      CmdLine, lxlite_Global, Crtx;
+      CmdLine, lxlite_Global
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
+{$endif};
 
 const
  Recurse   : boolean = FALSE;

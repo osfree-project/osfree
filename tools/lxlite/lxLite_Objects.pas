@@ -10,7 +10,12 @@
 Unit lxLite_Objects;
 
 Interface uses exe286, exe386, os2exe, MiscUtil, SysLib,
-               StrOp, Country, Collect, lxlite_Global, Crtx
+               StrOp, Country, Collect, lxlite_Global
+{$ifdef fpc}
+               , Crt
+{$else}
+               , MyCrt
+{$endif}
 {$ifndef fpc}
                , vpsyslow
 {$ifdef os2}

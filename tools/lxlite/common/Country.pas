@@ -4,7 +4,7 @@
 {$else}
 {$Align 1}
 {$Optimization STACKFRAME}
-{$mode objfpc}
+{$mode delphi}
 {$ModeSwitch nestedprocvars}
 {$endif}
 unit Country;
@@ -13,7 +13,7 @@ Interface uses
 {$ifdef OS2}
   os2def, {$ifndef FPC}os2base{$else}doscalls{$endif},
 {$endif} 
-  miscUtil, strOp, dos;
+  MiscUtil, StrOp, dos;
 
 const
     cyDefault    = 0; {Use default country}
@@ -67,7 +67,7 @@ end;
 function tCountry.DateStr(Options : Word) : string;
 var S  : string[16];
     I  : Integer;
-    Year,Month,Day,DayOfWeek:Word;
+    Year,Month,Day,DayOfWeek:{$ifdef fpc}Word16{$else}Word{$endif};
 
 Procedure DateAdd(optMask, Val, Digits : Longint; Sep : Char);
 const
@@ -85,7 +85,7 @@ begin
 end;
 
 begin
- {GetDate(Year,Month,Day,DayOfWeek); !!!! }
+ GetDate(Year,Month,Day,DayOfWeek);
  case datefmt of
   0 : S := 'wmdy';
   1 : S := 'wdmy';
@@ -106,9 +106,9 @@ function tCountry.TimeStr(Options : Word) : string;
 var I,V,W : Longint;
     S     : String[16];
     sep   : Char;
-    Hour,Minute,Second,Sec100:Word;
+    Hour,Minute,Second,Sec100:{$ifdef fpc}Word16{$else}Word{$endif};
 begin
- {GetTime(Hour,Minute,Second,Sec100); !!!! }
+ GetTime(Hour,Minute,Second,Sec100);
  S := '';
  For I := 1 to 4 do
   begin
