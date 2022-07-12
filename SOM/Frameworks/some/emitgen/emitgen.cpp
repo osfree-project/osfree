@@ -2,7 +2,7 @@
 #include <emitlib.h>
 #include "genemit.xh"
 
-SOMEXTERN FILE * SOMLINK emit(char *file, Entry * cls, Stab * stab)
+SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
 {
 
     FILE *fp;
