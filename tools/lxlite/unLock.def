@@ -1,5 +1,4 @@
 NAME unLock WINDOWCOMPAT
 EXETYPE OS2
 DESCRIPTION "Executable unlocker for OS/2"
-STUB "..\lxLite\stub_min.bin"
 

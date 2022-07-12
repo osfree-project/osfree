@@ -7,8 +7,9 @@
 {$Align 1}
 {$Optimization STACKFRAME}
 {$endif}
-uses  Crt, Dos, os2base, miscUtil, SysLib, strOp, Collect,
-      CmdLine, lxlite_Global;
+uses  Dos, os2base, MiscUtil, SysLib, StrOp, Collect,
+      CmdLine, lxlite_Global, Crtx;
+
 const
  Recurse   : boolean = FALSE;
  Pause     : boolean = FALSE;

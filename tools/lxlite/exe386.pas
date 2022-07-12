@@ -16,7 +16,7 @@
 {$endif}
 Unit exe386;
 
-Interface uses miscUtil;
+Interface uses MiscUtil;
 
 const
  lxMagic         = $584C;             { New magic number  "LX" }
@@ -293,6 +293,7 @@ const
  pgZeroed      = $0003;              { Zero Filled Page }
  pgRange       = $0004;              { Range of pages }
  pgIterData2   = $0005;              { Iterated Data Page Type II }
+ pgIterData3   = $0008;
 
 { RESOURCE TABLE }
 
