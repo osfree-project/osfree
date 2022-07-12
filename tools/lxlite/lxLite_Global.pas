@@ -10,6 +10,16 @@ Unit lxLite_Global;
 
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
 
+{$ifdef fpc}
+var
+ StdIn,                        { Old standard input }
+ StdOut: Text;                 { and output streams }
+
+const
+ RedirOutput: boolean = False; {True if stdOut is redirected}
+ RedirInput: boolean = False;  {True if stdIn is redirected}
+{$endif}
+
 const
  Version          : string[6] = '1.3.9';
 
@@ -448,4 +458,32 @@ begin
  Dispose(pModuleDef(Item));
 end;
 
+Procedure AssignConToCrt;
+var hType,hAttr : Longint;
+begin
+{$IFDEF OS2}
+ Move(Input, StdIn, sizeOf(StdIn));
+ Move(Output, StdOut, sizeOf(StdOut));
+ DosQueryHType(0, hType, hAttr);
+ if (hType and 3 = 1) and (hAttr and 1 <> 0)
+  then begin
+        AssignCrt(Input);
+        Reset(Input);
+       end
+  else RedirInput := True;
+ DosQueryHType(1, hType, hAttr);
+ if (hType and 3 = 1) and (hAttr and 2 <> 0)
+  then begin
+        AssignCrt(Output);
+        ReWrite(Output);
+       end
+  else RedirOutput := True;
+{$ELSE}
+  AssignCrt(Input);  Reset(Input);
+  AssignCrt(Output); ReWrite(Output);
+{$ENDIF}
+end;
+
+begin
+  AssignConToCrt;
 end.
