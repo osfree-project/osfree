@@ -12,13 +12,18 @@
 {$Optimization STACKFRAME}
 {$endif}
 uses
- Dos, Crtx,
+ Dos,
 {$ifdef virtualpascal}
  vpsyslow,
 {$endif}
 {$IFDEF OS2}
  os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
 {$ENDIF}
+{$ifdef fpc}
+      Crt,
+{$else}
+      MyCrt,
+{$endif}
  exe386, os2exe, StrOp, MiscUtil,
  SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
 
@@ -598,11 +603,8 @@ begin
  if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfSixPack or pkfFixups) <> 0)
   then begin
         prevProgressValue := -1;
-{$ifndef fpc}
-        LX^.Pack(opt.PackMode, showProgress, opt.AllowZTrunc);
-{$else}
-        LX^.Pack(opt.PackMode, @showProgress, opt.AllowZTrunc);
-{$endif}
+
+        LX^.Pack(opt.PackMode, {$ifdef fpc}@{$endif}showProgress, opt.AllowZTrunc);
 
        end;
  Write(#13); ClearToEOL;

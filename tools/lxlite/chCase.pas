@@ -8,7 +8,12 @@
 {$MinStackSize 262144}
 {$endif}
 uses  os2base, MiscUtil, SysLib, CmdLine, Collect,
-      strOp, Dos, lxlite_Global, Crtx;
+      strOp, Dos, lxlite_Global
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
+{$endif};
 const
  Recurse   : boolean = FALSE;
  Pause     : boolean = FALSE;

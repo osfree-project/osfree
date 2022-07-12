@@ -400,13 +400,18 @@ var
 procedure SetColor(Color : Byte);
 procedure ClearToEOL;
 
-Implementation uses StrOp, Crtx
+Implementation uses StrOp
 {$ifdef os2}
 {$ifdef fpc}
   , doscalls
 {$else}
   , os2base
 {$endif}
+{$endif}
+{$ifdef fpc}
+      , Crt
+{$else}
+      , MyCrt
 {$endif};
 
 procedure SetColor(Color : Byte);
