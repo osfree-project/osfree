@@ -58,7 +58,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 OPTIONS = manyautodata, heapsize=40960
 
-ADD_COPT = -ecs -sg -bd  -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
+ADD_COPT = -pl -sg -bd  -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
            $(SOM_INCL) -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 
 !else

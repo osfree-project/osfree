@@ -30,7 +30,7 @@
 #include <scentry.xih>
 #include <scclass.xih>
 
-SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
+SOMEXTERN SOMDLLEXPORT SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
 {
   SOMTClassEntryC * oCls;
   oCls=new SOMTClassEntryC();

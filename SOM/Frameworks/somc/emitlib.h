@@ -31,26 +31,26 @@
 #endif
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
- FILE *  somtopenEmitFile(char *file, char *ext);
- int  somtfclose(FILE *fp);
- void somterror(char *file, long lineno, char *fmt, ...);
- void somtfatal(char *file, long lineno, char *fmt, ...);
- void somtinternal(char *file, long lineno, char *fmt, ...);
- void somtmsg(char *file, long lineno, char *fmt, ...);
- void somtresetEmitSignals();
- void somtunsetEmitSignals(void);
- void somtwarn(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT FILE *  somtopenEmitFile(char *file, char *ext);
+SOMEXTERN SOMDLLIMPORT int  somtfclose(FILE *fp);
+SOMEXTERN SOMDLLIMPORT void somterror(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void somtfatal(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void somtinternal(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void somtmsg(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void somtresetEmitSignals();
+SOMEXTERN SOMDLLIMPORT void somtunsetEmitSignals(void);
+SOMEXTERN SOMDLLIMPORT void somtwarn(char *file, long lineno, char *fmt, ...);
 #endif
 
-FILE * SOMLINK somtopenEmitFileSL(char *file, char *ext);
-int SOMLINK somtfcloseSL(FILE *fp);
-void SOMLINK somterrorSL(char *file, long lineno, char *fmt, ...);
-void SOMLINK somtfatalSL(char *file, long lineno, char *fmt, ...);
-void SOMLINK somtinternalSL(char *file, long lineno, char *fmt, ...);
-void SOMLINK somtmsgSL(char *file, long lineno, char *fmt, ...);
-void SOMLINK somtresetEmitSignalsSL();
-void SOMLINK somtunsetEmitSignalsSL(void);
-void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT FILE * SOMLINK somtopenEmitFileSL(char *file, char *ext);
+SOMEXTERN SOMDLLIMPORT int SOMLINK somtfcloseSL(FILE *fp);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somterrorSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtfatalSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtinternalSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtmsgSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtresetEmitSignalsSL();
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtunsetEmitSignalsSL(void);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...);
 
 #ifdef __cplusplus
  }

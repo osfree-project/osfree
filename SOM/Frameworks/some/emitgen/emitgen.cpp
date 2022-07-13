@@ -12,6 +12,7 @@ SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
     GENEmitter *emitter;
     SOMTTemplateOutputC *t;
 
+
     /* if this is a class, rather than a module: */
     if (cls->type == SOMTClassE) {
         file=strcat(file, ""); //  Модификатор файла. Если такую штуку не делать, то может быть трап.

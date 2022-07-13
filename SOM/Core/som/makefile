@@ -51,11 +51,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll option nostdcall
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll option nostdcall
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif

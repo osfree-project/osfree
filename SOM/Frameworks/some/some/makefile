@@ -60,11 +60,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST) option nostdcall
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST) option nostdcall
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -97,6 +97,8 @@ ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 
 !endif
 
+!if 0
+
 EXPORTS = somtEntryTypeName.70, &
 		somtGetFileStem.71, &
 		somtGetObjectWrapper.72, &
@@ -106,6 +108,7 @@ EXPORTS = somtEntryTypeName.70, &
 		somtStrCat.76, &
 		somtStrDup.77
 
+!endif
 
 UNI2H = 1
 C = r
