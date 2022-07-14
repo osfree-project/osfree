@@ -4,7 +4,6 @@
 {$else}
 {$Align 1}
 {$Optimization STACKFRAME}
-{$mode delphi}
 {$ModeSwitch nestedprocvars}
 {$endif}
 unit Country;
@@ -46,7 +45,7 @@ type
 
 Implementation
 
-constructor tCountry.Create(Country,CodePage : Word);
+constructor tCountry.Create;
 {$ifdef OS2}
 var cc  : CountryCode;
     len : Longint;
@@ -64,7 +63,7 @@ begin
 {$endif}
 end;
 
-function tCountry.DateStr(Options : Word) : string;
+function tCountry.DateStr;
 var S  : string[16];
     I  : Integer;
     Year,Month,Day,DayOfWeek:{$ifdef fpc}Word16{$else}Word{$endif};
@@ -72,7 +71,7 @@ var S  : string[16];
 Procedure DateAdd(optMask, Val, Digits : Longint; Sep : Char);
 const
     DOWname : array[0..6] of String[3] = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
-var fst,lst : boolean;
+{var fst,lst : boolean;}
 begin
  Delete(S, I, 1);
  if Options and optMask <> 0
@@ -102,7 +101,7 @@ begin
  DateStr := S;
 end;
 
-function tCountry.TimeStr(Options : Word) : string;
+function tCountry.TimeStr;
 var I,V,W : Longint;
     S     : String[16];
     sep   : Char;

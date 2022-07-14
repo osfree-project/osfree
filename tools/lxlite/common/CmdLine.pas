@@ -17,7 +17,7 @@ type
 {however if parameter contains quotes they are removed from DestStr         }
  Function  ParseName(var ParmStr : string; StartChar : Word; var DestStr : string) : Word;
 
-Implementation uses Strings, strOp;
+Implementation uses Strings, StrOp;
 
 Procedure ParseCommandLine;
 var S : String;
