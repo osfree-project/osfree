@@ -36,11 +36,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif

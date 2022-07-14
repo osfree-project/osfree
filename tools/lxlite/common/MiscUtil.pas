@@ -5,10 +5,12 @@
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
 {$Align 1}
+{$mode objfpc}
 {$asmmode intel}
 {$Optimization STACKFRAME}
+{$H-}
 {$endif}
-Unit miscUtil;
+Unit MiscUtil;
 
 Interface
 
@@ -167,7 +169,6 @@ type
  Function wTicker : Word;
  Function lTicker : Longint;
 {$else use32}
-{$ifndef fpc}
  Function bTicker : Byte;
  InLine( $8E/$06/seg0040/   { mov   es,seg0040   }
          $26/$A0/$6C/$00);  { mov   ax,es:[6Ch] }
@@ -178,7 +179,6 @@ type
  InLine( $8E/$06/seg0040/   { mov   es,seg0040   }
          $26/$A1/$6C/$00/   { mov   ax,es:[6Ch] }
          $26/$8B/$16/$6E/$00);{mov  dx,es:[6Eh] }
-{$endif}
 {$endIf use32}
 
 { Trick: call a embedded (ONLY level 2!) procedure }
@@ -238,8 +238,9 @@ asm             mov    eax,ParmBlock
                 push   [eax].tThreadParmBlock.MySelf
                 push   [eax].tThreadParmBlock.Func
                 push   eax
-                push   type tThreadParmBlock
-{$ifndef FPC}
+                mov    eax, type tThreadParmBlock
+                push   eax
+{$ifndef fpc}
                 call   _MemFree
 {$else}
                 call   FreeMem
@@ -248,17 +249,17 @@ asm             mov    eax,ParmBlock
                 call   eax
 end;
 
-function tObject.Detach;
+function tObject.Detach(ObjFunc, Parm : Pointer; StackSize : Word; Ready : boolean) : Longint;
 var
  tpb : pThreadParmBlock;
- tid : Longint;
+ tid : {$ifdef fpc}LongWord{$else}Longint{$endif};
 begin
  New(tpb);
  tpb^.Func := ObjFunc;
  tpb^.MySelf := @Self;
  tpb^.Parm := Parm;
  tid := 0;
- BeginThread(nil, StackSize, stubThread, tpb,
+ BeginThread(nil, StackSize, {$ifdef fpc}@{$endif}stubThread, tpb,
   create_Suspended * byte(not Ready) + stack_Sparse, tid);
  Detach := tid;
 end;
@@ -275,7 +276,7 @@ end;
 
 const EmptyStr : string[1] = '';
 
-Function NewStr;
+Function NewStr(const S : String) : pString;
 var p : PString;
 begin
  if S = ''
@@ -287,7 +288,7 @@ begin
  NewStr := p;
 end;
 
-Procedure DisposeStr;
+Procedure DisposeStr(P : PString);
 begin
  if p<>@EmptyStr then FreeMem(p, succ(integer(length(p^))));
  p := nil;
@@ -385,7 +386,8 @@ begin
 end;
 
 
-Procedure QuickSort;
+Procedure QuickSort(var Buff; First,Last : Word; ElementSize : Byte;
+                     cmpFunc : tCmpFunc; xchgProc : tXchgProc);
 
 function CmpInt(var Buff; N1,N2:Word):boolean;
 begin
@@ -454,20 +456,20 @@ end;
 
 
 {北北北北北北北北北北北北北北 Low-level functions 北北北北北北北北北北北北北眪
-Function bitTest; assembler;
+Function bitTest(var bitArray; BitNo : Word) : boolean; assembler;
 asm             mov     eax,bitArray
                 mov     ecx,bitNo
                 bt      [eax],ecx
                 setc    al
 end;
 
-Procedure bitSet; assembler;
+Procedure bitSet(var bitArray; BitNo : Word); assembler;
 asm             mov     eax,bitArray
                 mov     ecx,bitNo
                 bts     [eax],ecx
 end;
 
-Procedure bitReset; assembler;
+Procedure bitReset(var bitArray; BitNo : Word); assembler;
 asm             mov     eax,bitArray
                 mov     ecx,bitNo
                 btr     [eax],ecx
@@ -489,7 +491,7 @@ asm             mov     ecx,A
                 mov     [ecx],ax
 end;
 
-Procedure XchgL; assembler;
+Procedure XchgL(var A,B); assembler;
 asm             mov     ecx,A
                 mov     edx,B
                 mov     eax,[ecx]
@@ -511,7 +513,7 @@ asm             mov     ebx,A
 end;
 
 {&uses esi,edi}
-Procedure linearMove; assembler;
+Procedure linearMove(var A,B; Size : Word); assembler;
 asm             cld
                 mov     esi,A
                 mov     edi,B
@@ -520,7 +522,7 @@ asm             cld
 end;
 
 {&uses none}
-Function BitSF; assembler;
+Function BitSF(A : Longint) : Byte; assembler;
 asm             mov     eax,A
                 bsf     eax,eax
                 jnz     @@ok
@@ -528,7 +530,7 @@ asm             mov     eax,A
 @@ok:
 end;
 
-Function BitSR; assembler;
+Function BitSR(A : Longint) : Byte; assembler;
 asm             mov     eax,A
                 bsr     eax,eax
                 jnz     @@ok
@@ -537,7 +539,7 @@ asm             mov     eax,A
 end;
 
 {&uses esi,edi}
-Function MemCmp; assembler;
+Function MemCmp(var A,B; Size : Word) : Shortint; assembler;
 asm             cld
                 mov    esi,A
                 mov    edi,B
@@ -550,7 +552,7 @@ asm             cld
 end;
 
 {&uses esi,edi}
-Function Search; assembler;
+Function Search(var Buff; BuffLen : Word; var Target; TargetLen : Word) : Word; assembler;
 asm             cld
                 mov     edi,Buff
                 mov     ecx,BuffLen
@@ -589,7 +591,7 @@ asm             push    ebp
 end;
 
 {&uses edi}
-Function MemScanFwd; assembler;
+Function MemScanFwd(var Buff; BuffLen : Word; Value : byte) : Word; assembler;
 asm             cld
                 mov     edi,Buff
                 mov     ecx,BuffLen
@@ -603,7 +605,7 @@ asm             cld
 end;
 
 {&uses edi}
-Function MemScanBwd; assembler;
+Function MemScanBwd(var Buff; BuffLen : Word; Value : byte) : Word; assembler;
 asm             std
                 mov     edi,Buff
                 mov     ecx,BuffLen

@@ -46,6 +46,11 @@
 
 #ifdef __WATCOMC__
 #	undef	SOMLINK
+
+#pragma aux __cdecl "*" \
+parm caller [] \
+value struct float struct routine [eax] \
+modify [eax ecx edx]
 #endif
 
 #ifndef SOMLINK

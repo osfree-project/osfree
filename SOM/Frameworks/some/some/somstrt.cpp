@@ -31,6 +31,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#define __PRIVATE__
+#include "rhbopt.h"
+
 #include "somstrt.xih"
 
 

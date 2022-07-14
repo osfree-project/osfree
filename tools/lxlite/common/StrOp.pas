@@ -9,7 +9,7 @@
 {&define OS_MAP_CASE}
 
 {$P+}
-Unit strOp;
+Unit StrOp;
 
 Interface
 
@@ -183,7 +183,7 @@ var
  Function  HexChar(A : Byte) : Char;
 
 Implementation
-uses miscUtil
+uses MiscUtil
 {$IfDef OS2}
 {$IfnDef FPC}, os2base {$Else}, doscalls {$EndIf}
 {$EndIf};
@@ -335,11 +335,7 @@ begin
  right := Copy(S, succ(length(S) - N), N);
 end;
 
-{$ifndef FPC}
-Function Center(const S : string; N : integer; Fill : Char) : shortstring;
-{$else}
-Function Center(const S : shortstring; N : smallint; Fill : Char) : shortstring;
-{$endif}
+Function Center;
 var
  tS    : string;
  l,f,c : Integer;
