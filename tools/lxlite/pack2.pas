@@ -1,6 +1,10 @@
 unit pack2;
+
 interface
-{$ifndef fpc}uses use32;{$endif}
+
+{$ifndef fpc}
+uses use32;
+{$endif}
 
 Function Compress  (Length:longint;Source,Destin:PByte):longint;
 
@@ -47,7 +51,7 @@ CONST
   MaxSize = 21839 + MAXCOPY;}   { @@@ }
   CopyMin : Copy_Type = (0,16,80,320,1024,4096,16384);
   CopyMax : Copy_Type = (15,79,319,1023,4095,16383,32768-Maxcopy);
-  MaxDistance : Integer = 32768-Maxcopy;
+  MaxDistance : LongInt = 32768-Maxcopy;
   MaxSize = 32768;   { @@@ }
 
 

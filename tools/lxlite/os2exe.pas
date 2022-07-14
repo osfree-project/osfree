@@ -192,7 +192,7 @@ begin
  Dispose(pLXreloc(Item));
 end;
 
-function tFixupCollection.GetItem(var S : tStream) : Pointer;
+function tFixupCollection.GetItem;
 var
  Fx : pLXreloc;
 begin
@@ -207,7 +207,7 @@ begin
  GetItem := Fx;
 end;
 
-procedure tFixupCollection.PutItem(var S : tStream; Item : Pointer);
+procedure tFixupCollection.PutItem;
 begin
  with pLXreloc(Item)^ do
   begin
@@ -217,18 +217,18 @@ begin
   end;
 end;
 
-procedure tEntryCollection.FreeItem(Item: Pointer);
+procedure tEntryCollection.FreeItem;
 begin
  Dispose(pEntryPoint(Item));
 end;
 
-procedure tNamedEntryCollection.FreeItem(Item: Pointer);
+procedure tNamedEntryCollection.FreeItem;
 begin
  DisposeStr(pNameTblRec(Item)^.Name);
  Dispose(pNameTblRec(Item));
 end;
 
-function tNamedEntryCollection.Compare(Key1, Key2 : Pointer) : Integer;
+function tNamedEntryCollection.Compare;
 begin
  if pNameTblRec(Key1)^.Ord > pNameTblRec(Key2)^.Ord
   then Compare := +1

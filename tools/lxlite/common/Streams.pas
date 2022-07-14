@@ -1,5 +1,10 @@
 {$A-,B-,D+,G-,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
-{$ifndef fpc}{$E-,F-,L+,N-,Y+,Use32+}{$endif}
+{$ifndef fpc}
+{$E-,F-,L+,N-,Y+,Use32+}
+{$else}
+{$mode objfpc}
+{$H-}
+{$endif}
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 { Streams                                                                    }
 { Portable source code (tested on DOS and OS/2)                              }
@@ -7,7 +12,7 @@
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 Unit Streams;
 
-Interface uses miscUtil;
+Interface uses MiscUtil;
 
 const
  steOK               = 0;
@@ -100,26 +105,26 @@ begin
 end;
 {$endif}
 
-function tStream.Name;
+function tStream.Name : string;
 begin
  Name := '';
 end;
 
-function tStream.Get;
+function tStream.Get(var Data; bytes : word) : word;
 begin
  Get := 0;
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-function tStream.Put;
+function tStream.Put(var Data; bytes : word) : word;
 begin
  Put := 0;
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-procedure tStream.Skip;
+procedure tStream.Skip(bytes : longint);
 var
  buff  : Pointer;
  bsz,I : Word;
@@ -146,39 +151,39 @@ begin
        end;
 end;
 
-procedure tStream.Seek;
+procedure tStream.Seek(newPos : longint);
 begin
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-function tStream.GetPos;
+function tStream.GetPos : longint;
 begin
  GetPos := -1;
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-function tStream.Size;
+function tStream.Size : longint;
 begin
  Size := -1;
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-function tStream.EOS;
+function tStream.EOS : boolean;
 begin
  EOS := TRUE;
  if Error = steOK
   then Error := steNotApplicable;
 end;
 
-procedure tStream.PutStr;
+procedure tStream.PutStr(var S : string);
 begin
  Put(S, succ(length(S)));
 end;
 
-function tStream.GetStr;
+function tStream.GetStr : string;
 var
  S : string;
 begin
@@ -188,7 +193,7 @@ begin
  GetStr := S;
 end;
 
-procedure tStream.PutZTstr;
+procedure tStream.PutZTstr(S : pChar);
 var
  I : SmallWord;
 begin
@@ -197,7 +202,7 @@ begin
  Put(S^, I);
 end;
 
-function tStream.GetZTstr;
+function tStream.GetZTstr : pChar;
 var
  I : SmallWord;
  S : pChar;
@@ -213,15 +218,14 @@ begin
  GetZTstr := S;
 end;
 
-function tStream.CopyFrom;
+function tStream.CopyFrom(var S : tStream; bytes : longint) : longint;
 var
  Buff : Pointer;
  bSz  : Word;
  i,rc : longint;
 begin
  CopyFrom := 0;
- { bSz := minL($FFF0, maxAvail); }
- bSz := $FFF0;
+ bSz := minL($FFF0, maxAvail);
  GetMem(Buff, bSz);
  if Buff = nil then begin Error := steNoMemory; exit; end;
  rc := 0;
@@ -240,20 +244,20 @@ begin
  CopyFrom := rc;
 end;
 
-constructor tFilter.Create;
+constructor tFilter.Create(Chain : pStream);
 begin
  inherited Create;
  ChainStream := Chain;
 end;
 
-function tFilter.Name;
+function tFilter.Name : string;
 begin
  if ChainStream <> nil
   then Name := ChainStream^.Name
   else Name := inherited Name;
 end;
 
-function tFilter.Get;
+function tFilter.Get(var Data; bytes : word) : word;
 begin
  if Error = steOK
   then if ChainStream <> nil
@@ -265,7 +269,7 @@ begin
   else Get := 0;
 end;
 
-function tFilter.Put;
+function tFilter.Put(var Data; bytes : word) : word;
 begin
  if Error = steOK
   then if ChainStream <> nil
@@ -277,7 +281,7 @@ begin
   else Put := 0;
 end;
 
-procedure tFilter.Skip;
+procedure tFilter.Skip(bytes : longint);
 begin
  if Error = steOK
   then if (ChainStream <> nil)
@@ -288,7 +292,7 @@ begin
         else inherited Skip(bytes);
 end;
 
-function tFilter.EOS;
+function tFilter.EOS : boolean;
 begin
  if ChainStream <> nil
   then begin
@@ -298,7 +302,7 @@ begin
   else EOS := inherited EOS;
 end;
 
-constructor tFileStream.Create;
+constructor tFileStream.Create(const fName : string; openMode : Word);
 label
  fCreate;
 var
@@ -327,7 +331,7 @@ fCreate:          Rewrite(F, 1);
  FileMode := oldMode;
 end;
 
-function tFileStream.Name;
+function tFileStream.Name : string;
 begin
 {$ifndef FPC}
  Name := strPas(FileRec(F).Name);
@@ -336,7 +340,7 @@ begin
 {$endif}
 end;
 
-function tFileStream.Put;
+function tFileStream.Put(var Data; bytes : word) : word;
 var
  L : Word;
 begin
@@ -349,7 +353,7 @@ begin
        end;
 end;
 
-function tFileStream.Get;
+function tFileStream.Get(var Data; bytes : word) : word;
 var
  L : Word;
 begin
@@ -362,7 +366,7 @@ begin
        end;
 end;
 
-procedure tFileStream.Skip;
+procedure tFileStream.Skip(bytes : longint);
 begin
  if Error = steOK
   then begin
@@ -373,7 +377,7 @@ begin
        end;
 end;
 
-function tFileStream.GetPos;
+function tFileStream.GetPos : longint;
 begin
  if Error = steOK
   then begin
@@ -384,7 +388,7 @@ begin
   else GetPos := -1;
 end;
 
-procedure tFileStream.Seek;
+procedure tFileStream.Seek(newPos : longint);
 begin
  if Error = steOK
   then begin
@@ -393,7 +397,7 @@ begin
        end;
 end;
 
-function tFileStream.Size;
+function tFileStream.Size : longint;
 begin
  if Error = steOK
   then begin
@@ -404,7 +408,7 @@ begin
   else Size := -1;
 end;
 
-function tFileStream.EOS;
+function tFileStream.EOS : boolean;
 begin
  if Error = steOK
   then begin
@@ -415,7 +419,7 @@ begin
   else EOS := TRUE;
 end;
 
-function tFileStream.GetTime;
+function tFileStream.GetTime : longint;
 var
  L : longint;
 begin
@@ -428,7 +432,7 @@ begin
   else GetTime := 0;
 end;
 
-procedure tFileStream.SetTime;
+procedure tFileStream.SetTime(Time : longint);
 begin
  if (Error = steOK) and (Time <> 0)
   then begin
@@ -437,9 +441,9 @@ begin
        end;
 end;
 
-function tFileStream.GetAttr;
+function tFileStream.GetAttr : longint;
 var
- W : {$ifndef FPC}word{$else}smallint{$endif};
+ W : {$ifdef fpc}Word16{$else}word{$endif};
 begin
  if Error = steOK
   then begin
@@ -450,7 +454,7 @@ begin
   else GetAttr := 0;
 end;
 
-procedure tFileStream.SetAttr;
+procedure tFileStream.SetAttr(Attr : longint);
 begin
  if (Error = steOK) and (Attr <> 0)
   then begin
