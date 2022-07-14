@@ -5,6 +5,6 @@
 
 DIRS = &
 #Core &
-Frameworks
+#Frameworks
 
 !include $(%ROOT)/mk/all.mk

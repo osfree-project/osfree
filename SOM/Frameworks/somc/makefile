@@ -1,13 +1,11 @@
+# Makefile for SOM
 
-PROJ = emith
-TRGT = $(PROJ).dll
+PROJ = somc
 DLL = 1
-DESC = SOM H Emitter
+DESC = SOM Emitter Framework
 DLLOPT  = initinstance terminstance
-srcfiles = $(p)hemit$(e)
-
-EXPORTS = emitSL
-
+INSTALL_ADD = 1
+srcfiles = $(p)somc$(e)
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
@@ -21,9 +19,11 @@ OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 SOM_INTDIR=$(BLD)$(RELDIR)
 !endif
 
+SOMIDL_IDL=$(OS2TK)$(SEP)som$(SEP)include
+SOMIDL_HEADERS=$(SOMIDL_IDL)
 SOM_DIR=$(SRC)
 SOM_INCL= -i=$(SOM_INTDIR) &
-		  -i=$(OS2TK)$(SEP)som$(SEP)include
+	  -i=$(SOMIDL_HEADERS)
 
 !ifdef HOSTBLD
 
@@ -61,22 +61,27 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 
 !else
 
-DEST    = os2tk45$(SEP)som$(SEP)lib
+DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 ADD_OPTS = -D_PLATFORM_OS2_ -DSTRICT 
-ADD_LINKOPT = lib clib3r, somtk libpath $(DEST)
+ADD_LINKOPT = lib clib3r
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 
-ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
+ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
            $(SOM_INCL) -i=$(BLD)$(RELDIR) $(ADD_OPTS)
 
 !endif
 
+EXPORTS = 	somtopenEmitFile, &
+		somtopenEmitFileSL, &
+		somtfclose, &
+		somtfcloseSL
+
 UNI2H = 1
 C = r
 
-ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
+ADD_SCOPT = -I$(SOM_INTDIR) -I$(SOMIDL_HEADERS) -D__PRIVATE__
 
 !ifdef HOSTBLD
 !include $(%ROOT)/mk/tools.mk
@@ -84,14 +89,28 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 !include $(%ROOT)/mk/appsos2.mk
 !endif
 
+install_add: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+
+$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somc.dll
+	$(verbose)$(SAY) LIB      $^. $(LOG)
+	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
 
 
-.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src
-.idl: $(SRC)..$(SEP)idl
+.c: $(SRC)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src;$(SOM_DIR)rhbseh$(SEP)src
+#.idl: $(SRC)..$(SEP)idl
 .xih: $(SOM_INTDIR)
 #.xh: $(SRC)
 
-PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)hemit.xh &
-			$(SOM_INTDIR)$(SEP)hemit.xih
+$(OBJS): $(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sm.h $(SOMIDL_HEADERS)$(SEP)sm.xh
 
-$(OBJS): $(PRIVATE_HEADERS)
+$(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
+	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)

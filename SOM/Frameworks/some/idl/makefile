@@ -29,9 +29,13 @@ SOM_IDL=$(SOM_DIR)$(SEP)scattrib.idl &
 		$(SOM_DIR)$(SEP)sctmplt.idl &
 		$(SOM_DIR)$(SEP)scunion.idl &
 		$(SOM_DIR)$(SEP)scusrtyp.idl &
+		$(SOM_DIR)$(SEP)sctypes2.idl &
 		$(SOM_DIR)$(SEP)somstrt.idl
 
-PRODUCTS_SC=$(SOMIDL_HEADERS)$(SEP)scattrib.h &
+PRODUCTS_SC= &
+			$(SOMIDL_HEADERS)$(SEP)sctypes2.h &
+			$(SOMIDL_HEADERS)$(SEP)sctypes2.xh &
+			$(SOMIDL_HEADERS)$(SEP)scattrib.h &
 			$(SOMIDL_HEADERS)$(SEP)scattrib.xh &
 			$(SOMIDL_HEADERS)$(SEP)scbase.h &
 			$(SOMIDL_HEADERS)$(SEP)scbase.xh &
@@ -99,6 +103,7 @@ PRODUCTS_PDL=$(SOMIDL_IDL)$(SEP)scattrib.idl &
 			$(SOMIDL_IDL)$(SEP)sctdef.idl &
 			$(SOMIDL_IDL)$(SEP)sctmplt.idl &
 			$(SOMIDL_IDL)$(SEP)scunion.idl &
+			$(SOMIDL_IDL)$(SEP)sctypes2.idl &
 			$(SOMIDL_IDL)$(SEP)scusrtyp.idl &
 			$(SOMIDL_IDL)$(SEP)somstrt.idl
 
@@ -106,7 +111,7 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMIDL_HEADERS)$(SEP)sctypes.xh $(SOMIDL_HEADERS)$(SEP)sm.h $(PRIVATE_HEADERS) $(SOMIDL_HEADERS)$(SEP)sm.xh $(PRODUCTS_PDL) $(PRODUCTS_SC) 
+TARGETS= $(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMIDL_HEADERS)$(SEP)sctypes.xh $(PRIVATE_HEADERS) $(PRODUCTS_PDL) $(PRODUCTS_SC) 
 
 $(PRODUCTS_SC): $(SOM_IDL)
 
@@ -122,14 +127,6 @@ $(SOMIDL_HEADERS)$(SEP)sctypes.h: $(SOM_DIR)$(SEP)sctypes.h
 $(SOMIDL_HEADERS)$(SEP)sctypes.xh: $(SOM_DIR)$(SEP)sctypes.xh
  $(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
-$(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
-
-$(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
-
-$(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
- $(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 
 .idl: $(SOM_DIR)

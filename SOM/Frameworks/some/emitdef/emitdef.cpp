@@ -4,7 +4,7 @@
 
 #define SYMBOLS_FILE   "defemit.efw"
 
-SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
+SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
 {
 
     FILE *fp;
@@ -17,7 +17,7 @@ SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
     /* if this is a class, rather than a module: */
     if (cls->type == SOMTClassE) {
         file=strcat(file, ""); //  Модификатор файла. Если такую штуку не делать, то может быть трап.
-        fp = somtopenEmitFile(file, "def");
+        fp = somtopenEmitFileSL(file, "def");
         oCls = (SOMTClassEntryC *)somtGetObjectWrapper(cls);
         emitter = new DEFEmitter();
         emitter->_set_somtTargetFile(fp);
@@ -27,7 +27,7 @@ SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
         t->_set_somtCommentStyle(somtCPPE);
         if (deffile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
             t->somtReadSectionDefinitions(deffile);
-            somtfclose(deffile);
+            somtfcloseSL(deffile);
         }
         else {
 //            debug("Не могу открыть файл символов \" %s \".\n",
@@ -42,7 +42,7 @@ SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
     }
     else if (cls->type == SOMTModuleE) {
 
-        fp = somtopenEmitFile(file, "def");
+        fp = somtopenEmitFileSL(file, "def");
         mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
         emitter = new DEFEmitter();
         emitter->_set_somtTargetFile(fp);
@@ -51,7 +51,7 @@ SOMEXTERN FILE *emit(char *file, Entry * cls, Stab * stab)
         t->_set_somtCommentStyle(somtCPPE);
         if (deffile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
             t->somtReadSectionDefinitions(deffile);
-            somtfclose(deffile);
+            somtfcloseSL(deffile);
         }
         else {
 //            debug("Cannot open Symbols file \" %s \".\n",

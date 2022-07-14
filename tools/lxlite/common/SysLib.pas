@@ -988,6 +988,16 @@ begin
  GetResourceString := S;
 {$endif}
 {$ifdef win32}
+
+{$ifdef fpc}
+function SysLoadResourceString(ID: Longint; Buffer: PChar; BufSize: Longint): PChar;
+begin
+  Buffer[0] := #0;
+  LoadString(HInstance, ID, Buffer, BufSize);
+  Result := Buffer;
+end;
+{$endif}
+
 var
  buf: array [0..511] of char;
 begin

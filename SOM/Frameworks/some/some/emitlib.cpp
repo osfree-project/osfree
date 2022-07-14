@@ -19,12 +19,16 @@
  *
  */
 
-#include <sm.h>
-#include <sctypes.h>
 
-#include <scentry.xh>
-#include <scclass.xh>
-#include <emitlib.h>
+#define __PRIVATE__
+#include <rhbopt.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "rhbsc.h"
+
+#include <scentry.xih>
+#include <scclass.xih>
 
 SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
 {
@@ -34,17 +38,6 @@ SOMTEntryC * SOMLINK somtGetObjectWrapper(Entry * ep)
   oCls->somtSetEntryStruct(ep);
 
   return oCls;
-}
-
-FILE * SOMLINK somtopenEmitFile (char *file, char *ext)
-{
-  // Здесь необходимо предварительно добавить или заменить расширение на ext
-  return fopen(file, "w");
-};
-
-int SOMLINK somtfclose (FILE *fp)
-{
-  return fclose(fp);
 }
 
 char * SOMLINK somtStrCat(int count,...)
