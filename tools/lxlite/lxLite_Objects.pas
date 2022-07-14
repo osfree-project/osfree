@@ -3,8 +3,9 @@
 {$ifndef fpc}
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
-{$Align 1}
 {$mode objfpc}
+{$H-}
+{$Align 1}
 {$Optimization STACKFRAME}
 {$endif}
 Unit lxLite_Objects;
@@ -68,7 +69,7 @@ var
  procedure setConfig(const ID : string);
  procedure ShowConfig;
 
-Implementation uses Dos, Strings{$ifdef fpc}, Drivers{$endif};
+Implementation uses Dos, Strings{$ifdef fpc}, SysUtils{$endif};
 
 var
  CmdLineStack : pStringCollection;
@@ -114,8 +115,12 @@ begin
  StrOp.FormatStr(Result, fmt, nP);
 {$else}
  S := fmt;
- {SysUtils.FmtStr(S, fmt, Params);}
- Drivers.FormatStr(S, '', Params);
+ try
+   S := Format(fmt, Params);
+ except
+   on e: Exception do
+     writeln('Exception caught: ', e.Message);
+ end;
  Result := S;
 {$endif}
 end;
@@ -1416,7 +1421,9 @@ var
  Mode : Byte;
  iPos : pCollection;
  pSC  : pStringCollection;
- S    : string;
+ p    : Pointer;
+ pS   : pShortString;
+ S    : ShortString;
  cfgPath : string;
  unixroot: string;
  
@@ -1479,7 +1486,9 @@ newID:           Delete(S, 1, 1); Mode := 1;
  Dispose(iPos, Destroy);
  for I := cfgIDs^.Count downto 1 do
   begin
-   S := pString(cfgIDs^.At(pred(I)))^;
+   p := cfgIDs^.At(pred(I));
+   pS := pShortString(p);
+   S  := pS^;
    if S[1] = '/'
     then begin
           Delete(S, 1, 1);
@@ -1510,7 +1519,7 @@ begin
  if pSC <> nil
   then For I := 1 to pSC^.Count do
         begin
-         S := pString(pSC^.At(pred(I)))^;
+         S := pShortString(pSC^.At(pred(I)))^; /////
          Parser^.Parse(S);
         end;
 end;

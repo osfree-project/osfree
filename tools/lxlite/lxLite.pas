@@ -10,6 +10,7 @@
 {$mode objfpc}
 {$asmmode intel}
 {$Optimization STACKFRAME}
+{$H-}
 {$endif}
 uses
  Dos,
@@ -20,9 +21,9 @@ uses
  os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
 {$ENDIF}
 {$ifdef fpc}
-      Crt,
+ Crt,
 {$else}
-      MyCrt,
+ MyCrt,
 {$endif}
  exe386, os2exe, StrOp, MiscUtil,
  SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
@@ -406,7 +407,7 @@ end;
 procedure CheckExtraOptions;
 var
  I,J : Integer;
- S   : string;
+ S   : ShortString;
  pSC : pStringCollection;
 begin
  S := _n + _e;
@@ -743,7 +744,7 @@ end;
 procedure LoadModuleDefs;
 var
  I  : Integer;
- S  : string;
+ S  : ShortString;
  MD : pModuleDef;
 begin
  New(ModDef, Create(16, 16));
@@ -904,7 +905,7 @@ begin
  New(pfNames, Create(16, 16));
  writeln('a');
 
- setConfig('default');
+ setConfig('default'); /////
  Parser^.ParseCommandLine;
  PrintHeader;
  writeln('a');
@@ -927,7 +928,7 @@ begin
  I := 0;
  While I < fNames^.Count do
   begin
-   ProcessFiles(pString(fNames^.At(I))^, 0);
+   ProcessFiles(pShortString(fNames^.At(I))^, 0); ///// Out of memory
    if allDone then break else Inc(I);
   end;
 

@@ -1,5 +1,10 @@
 {$A-,B-,D+,G-,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
-{$ifndef fpc}{$E-,F-,L+,N-,Y+,Use32+}{$endif}
+{$ifndef fpc}
+{$E-,F-,L+,N-,Y+,Use32+}
+{$else}
+{$mode objfpc}
+{$H-}
+{$endif}
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 { Collections (dynamic arrays) ver. 1.1                                      }
 { Portable source code (tested on DOS and OS/2)                              }
@@ -10,7 +15,7 @@
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 Unit Collect;
 
-Interface uses miscUtil, Strings, Streams;
+Interface uses MiscUtil, Strings, Streams;
 
 const
 {$ifDef use32}
@@ -97,7 +102,7 @@ type
   destructor  Destroy; virtual;
  end;
 
-function tFakeStream.Put;
+function tFakeStream.Put(var Data; bytes : word) : word;
 var
  nP : pByteArray;
 begin
@@ -111,7 +116,7 @@ begin
  Put := bytes;
 end;
 
-function tFakeStream.Get;
+function tFakeStream.Get(var Data; bytes : word) : word;
 var
  I : word;
 begin
@@ -135,7 +140,7 @@ begin
  inherited Destroy;
 end;
 
-constructor tCollection.Create;
+constructor tCollection.Create(ALimit, ADelta : Integer);
 begin
  inherited Create;
  Items := nil;
@@ -145,7 +150,7 @@ begin
  SetLimit(ALimit);
 end;
 
-constructor tCollection.Load;
+constructor tCollection.Load(var S : tStream);
 var
  C,I : Integer;
 begin
@@ -160,7 +165,7 @@ begin
  for I := 0 to C - 1 do AtReplace(I, GetItem(S));
 end;
 
-constructor tCollection.Clone;
+constructor tCollection.Clone(C : pCollection);
 var
  I : Integer;
  S : pFakeStream;
@@ -184,14 +189,14 @@ begin
  inherited Destroy;
 end;
 
-function tCollection.At;
+function tCollection.At(Index : Integer): Pointer;
 begin
  if (Index < Count)
   then At := Items^[Index]
   else At := nil;
 end;
 
-procedure tCollection.AtDelete;
+procedure tCollection.AtDelete(Index : Integer);
 begin
  if (Index < Count)
   then begin
@@ -200,7 +205,7 @@ begin
        end;
 end;
 
-function tCollection.AtInsert;
+function tCollection.AtInsert(Index : Integer; Item : Pointer) : boolean;
 begin
  AtInsert := FALSE;
  if Index <= Count
@@ -217,13 +222,13 @@ begin
        end;
 end;
 
-procedure tCollection.AtReplace;
+procedure tCollection.AtReplace(Index : Integer; Item : Pointer);
 begin
  if (Index < Count)
   then Items^[Index] := Item;
 end;
 
-function tCollection.FirstThat;
+function tCollection.FirstThat(Test : Pointer) : Pointer;
 label
  Found;
 var
@@ -241,7 +246,7 @@ Found:
  FirstThat := P;
 end;
 
-function tCollection.LastThat;
+function tCollection.LastThat(Test : Pointer) : Pointer;
 label
  Found;
 var
@@ -259,7 +264,7 @@ Found:
  LastThat := P;
 end;
 
-procedure tCollection.ForEach;
+procedure tCollection.ForEach(Action : Pointer);
 var
  I : Integer;
 begin
@@ -267,7 +272,7 @@ begin
   level2call(Action, At(I));
 end;
 
-function tCollection.IndexOf;
+function tCollection.IndexOf(Item : Pointer) : Integer;
 var
  I : Integer;
 begin
@@ -280,7 +285,7 @@ begin
  IndexOf := -1;
 end;
 
-procedure tCollection.AtFree;
+procedure tCollection.AtFree(Index : Integer);
 var
  Item : Pointer;
 begin
@@ -289,7 +294,7 @@ begin
  FreeItem(Item);
 end;
 
-procedure tCollection.Delete;
+procedure tCollection.Delete(Item : Pointer);
 begin
  AtDelete(IndexOf(Item));
 end;
@@ -307,12 +312,12 @@ begin
  DeleteAll; SetLimit(0);
 end;
 
-procedure tCollection.FreeItem;
+procedure tCollection.FreeItem(Item : Pointer);
 begin
  Dispose(pObject(Item), Destroy);
 end;
 
-function tCollection.GetItem;
+function tCollection.GetItem(var S : tStream) : Pointer;
 var P : Pointer;
 begin
  if S.Get(P, sizeOf(P)) = sizeOf(P)
@@ -320,19 +325,19 @@ begin
   else GetItem := nil;
 end;
 
-procedure tCollection.PutItem;
+procedure tCollection.PutItem(var S : tStream; Item : Pointer);
 begin
  S.Put(Item, sizeOf(Item));
 end;
 
-function tCollection.Insert;
+function tCollection.Insert(Item : Pointer) : Integer;
 begin
  Insert := Count;
  if not AtInsert(Count, Item)
   then Insert := -1;
 end;
 
-procedure tCollection.SetLimit;
+procedure tCollection.SetLimit(ALimit : Integer);
 var
  AItems : pPointerArray;
 begin
@@ -354,7 +359,7 @@ begin
        end;
 end;
 
-procedure tCollection.Store;
+procedure tCollection.Store(var S : tStream);
 
 procedure DoPutItem(P : Pointer); far;
 begin
@@ -366,24 +371,24 @@ begin
  ForEach(@DoPutItem);
 end;
 
-constructor tSortedCollection.Create;
+constructor tSortedCollection.Create(ALimit, ADelta : Integer);
 begin
  inherited Create(ALimit, ADelta);
  Duplicates := False;
 end;
 
-constructor tSortedCollection.Load;
+constructor tSortedCollection.Load(var S : tStream);
 begin
  inherited Load(S);
  S.Get(Duplicates, SizeOf(Duplicates));
 end;
 
-function tSortedCollection.Compare;
+function tSortedCollection.Compare(Key1, Key2 : Pointer) : Integer;
 begin
  Compare := Integer(Key1 = Key2);
 end;
 
-function tSortedCollection.IndexOf(Item: Pointer): Integer;
+function tSortedCollection.IndexOf(Item : Pointer) : Integer;
 var
  I : Integer;
 begin
@@ -396,7 +401,7 @@ begin
        end;
 end;
 
-function tSortedCollection.Insert;
+function tSortedCollection.Insert(Item : Pointer) : Integer;
 var
  I : Integer;
 begin
@@ -407,12 +412,12 @@ begin
   else Insert := -1;
 end;
 
-function tSortedCollection.KeyOf;
+function tSortedCollection.KeyOf(Item : Pointer) : Pointer;
 begin
  KeyOf := Item;
 end;
 
-function tSortedCollection.Search;
+function tSortedCollection.Search(Key : Pointer; var Index : Integer) : Boolean;
 var
  L,H,I,C : Integer;
 begin
@@ -437,13 +442,13 @@ begin
  Index := L;
 end;
 
-procedure tSortedCollection.Store;
+procedure tSortedCollection.Store(var S : tStream);
 begin
  inherited Store(S);
  S.Put(Duplicates, SizeOf(Duplicates));
 end;
 
-function tStringCollection.Compare;
+function tStringCollection.Compare(Key1, Key2 : Pointer) : Integer;
 var
  Res : Integer;
 begin
@@ -459,42 +464,42 @@ begin
  Compare := Res;
 end;
 
-procedure tStringCollection.FreeItem;
+procedure tStringCollection.FreeItem(Item : Pointer);
 begin
  DisposeStr(Item);
 end;
 
-function tStringCollection.GetItem;
+function tStringCollection.GetItem(var S : tStream) : Pointer;
 begin
  GetItem := NewStr(S.GetStr);
 end;
 
-procedure tStringCollection.PutItem;
+procedure tStringCollection.PutItem(var S : tStream; Item : Pointer);
 begin
  S.PutStr(pString(Item)^);
 end;
 
-function tZTstrCollection.Compare;
+function tZTstrCollection.Compare(Key1, Key2 : Pointer) : Integer;
 begin
  Compare := StrComp(Key1, Key2);
 end;
 
-procedure tZTstrCollection.FreeItem;
+procedure tZTstrCollection.FreeItem(Item : Pointer);
 begin
  StrDispose(Item);
 end;
 
-function tZTstrCollection.GetItem;
+function tZTstrCollection.GetItem(var S : tStream) : Pointer;
 begin
  GetItem := S.GetZTstr;
 end;
 
-procedure tZTstrCollection.PutItem;
+procedure tZTstrCollection.PutItem(var S : tStream; Item : Pointer);
 begin
  S.PutZTstr(Item);
 end;
 
-procedure tValueCollection.FreeItem;
+procedure tValueCollection.FreeItem(Item : Pointer);
 begin
 end;
 
