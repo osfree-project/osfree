@@ -461,9 +461,25 @@ end;
 Procedure AssignConToCrt;
 var hType,hAttr : Longint;
 begin
-{$IFDEF OS2}
  Move(Input, StdIn, sizeOf(StdIn));
  Move(Output, StdOut, sizeOf(StdOut));
+{$IFDEF WIN32}
+ hAttr := GetFileType(0);
+ if hAttr = FILE_TYPE_PIPE
+  then begin
+        AssignCrt(Input);
+        Reset(Input);
+       end
+  else RedirInput := True;
+ hAttr := GetFileType(1);
+ if hAttr = FILE_TYPE_PIPE
+  then begin
+        AssignCrt(Output);
+        Reset(Output);
+       end
+  else RedirOutput := True;
+{$ENDIF}
+{$IFDEF OS2}
  DosQueryHType(0, hType, hAttr);
  if (hType and 3 = 1) and (hAttr and 1 <> 0)
   then begin
@@ -478,7 +494,8 @@ begin
         ReWrite(Output);
        end
   else RedirOutput := True;
-{$ELSE}
+{$ENDIF}
+{$IF 0}
   AssignCrt(Input);  Reset(Input);
   AssignCrt(Output); ReWrite(Output);
 {$ENDIF}
