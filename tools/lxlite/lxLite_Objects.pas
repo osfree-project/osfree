@@ -1431,7 +1431,8 @@ begin
   if not FileExist(cfgPath + cfgFname) then cfgPath := sourcePath;
  end else cfgPath := sourcePath;
  S := cfgPath + cfgFname;
- Assign(T, S); Reset(T);
+ Assign(T, S); 
+ Reset(T);
  if ioResult <> 0 then Stop(msgCannotLoadCFG, S);
  New(iPos, Create(4, 4));
  Mode := 0;

@@ -890,7 +890,9 @@ begin
  New(cfgOpts, Create(16, 16));
  New(extra, Create(16, 16));
  New(extraOpts, Create(16, 16));
+ writeln('a');
  LoadConfig;
+ writeln('a');
 
  New(Cntry, Create(cyDefault, cpDefault));
  if Cntry = nil then Stop(msgNoCountryInfo, '');
@@ -900,18 +902,26 @@ begin
  New(Parser, Create);
  New(exclude, Create(''));
  New(pfNames, Create(16, 16));
+ writeln('a');
 
  setConfig('default');
  Parser^.ParseCommandLine;
  PrintHeader;
+ writeln('a');
 {$IFDEF OS2}
  if opt.ForceIdle then DosSetPriority(Prtys_ProcessTree, Prtyc_IdleTime, 16, 0);
 {$ENDIF}
+ writeln('a');
  if opt.QueryCfgList then begin ShowConfigList; Goto Done; end;
+ writeln('a');
  if (fNames^.Count = 0) and (not opt.ShowConfig) then Stop(1, '');
+ writeln('a');
  LoadModuleDefs;
+ writeln('a');
  LoadStub;
+ writeln('a');
  InitLogFile;
+ writeln('a');
  if opt.ShowConfig then ShowConfig;
 
  I := 0;

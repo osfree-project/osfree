@@ -703,8 +703,8 @@ var
   S    : String;
 begin
     S := ExtractFileDir(ParamStr(0));
-    for j := 1 to byte(S[0]) do if S[j] = '\' then S[j] := '/';
-    SourcePath :=  S + '/';
+    for j := 1 to byte(S[0]) do if S[j] = '\' then S[j] := DirectorySeparator;
+    SourcePath :=  S + DirectorySeparator ;
 end;
 {$else}
 {$ifdef WIN32}
