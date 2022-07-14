@@ -4,6 +4,8 @@
 {$E-,F-,L+,N-,Y+}{&AlignCode-,AlignData-,AlignRec-,Optimise+,OrgName-,Asm-,Cdecl-,Delphi+,Frame-,LocInfo+,SmartLink+,Speed-,Z-,ZD-,Use32+}
 {$else}
 {$asmmode intel}
+{$mode delphi}
+{$H-}
 {$Align 1}
 {$Optimization STACKFRAME}
 {$ModeSwitch nestedprocvars}
@@ -616,26 +618,26 @@ begin
 end;
 {$else}
 var
- IS,OS : pFileStream;
+ ISS,OS : pFileStream;
  At    : Word;
  FT    : Longint;
 begin
  fileCopy := FALSE;
- New(IS, Create(sName, stmReadOnly));
- if (IS = nil) or (IS^.Error <> steOK)
+ New(ISS, Create(sName, stmReadOnly));
+ if (ISS = nil) or (ISS^.Error <> steOK)
   then begin
-        if IS <> nil then Dispose(IS, Destroy);
+        if ISS <> nil then Dispose(ISS, Destroy);
         exit;
        end;
  New(OS, Create(dName, stmWriteOnly));
- FT := IS^.GetTime; At := IS^.GetAttr;
+ FT := ISS^.GetTime; At := ISS^.GetAttr;
  if (OS = nil) or (OS^.Error <> steOK)
   then begin
-        Dispose(IS, Destroy);
+        Dispose(ISS, Destroy);
         if OS <> nil then Dispose(OS, Destroy);
         exit;
        end;
- if IS^.Size <> OS^.CopyFrom(IS^, -1)
+ if ISS^.Size <> OS^.CopyFrom(ISS^, -1)
   then begin
         Dispose(OS, Erase);
         fileCopy := FALSE;
@@ -646,7 +648,7 @@ begin
         Dispose(OS, Destroy);
         fileCopy := TRUE;
        end;
- Dispose(IS, Destroy);
+ Dispose(ISS, Destroy);
 end;
 {$endIf}
 
