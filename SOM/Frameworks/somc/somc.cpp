@@ -30,7 +30,7 @@ __declspec(dllexport) FILE * SOMLINK somtopenEmitFileSL (char *file, char *ext)
 };
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall
+// Under Win32 this is __fastcall?
 __declspec(dllexport) FILE * somtopenEmitFile (char *file, char *ext)
 {
   return somtopenEmitFileSL (file, ext);
@@ -43,7 +43,7 @@ __declspec(dllexport) int SOMLINK somtfcloseSL (FILE *fp)
 }
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall
+// Under Win32 this is __fastcall?
 extern "C" __declspec(dllexport) int somtfclose (FILE *fp)
 {
   return somtfcloseSL (fp);
