@@ -38,11 +38,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -D_WIN32 -DSTRICT -zw -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbsdll, somtk libpath $(DEST)
+ADD_LINKOPT = lib clbsdll, somtk libpath $(DEST) option nostdcall
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbsdll, somtk libpath $(DEST)
+ADD_LINKOPT = lib clbsdll, somtk libpath $(DEST) option nostdcall
 ADD_OPTS = -D_WIN32 -DSTRICT -zw -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -58,7 +58,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 OPTIONS = manyautodata, heapsize=40960
 
-ADD_COPT = -ecs -sg -bd  -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
+ADD_COPT = -sg -bd  -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
            $(SOM_INCL) -i=$(BLD)host$(SEP)$(%HOST)$(SEP)$(RELDIR) $(ADD_OPTS)
 
 !else

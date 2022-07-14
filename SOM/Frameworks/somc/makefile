@@ -35,13 +35,13 @@ ADD_LINKOPT = lib clib3r, somtk libpath $(DEST)
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
-ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
+ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -dWIN32_LEAN_AND_MEAN
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
-ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
+ADD_LINKOPT = lib clib3r, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
+ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS DOS
@@ -73,10 +73,10 @@ ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 
 !endif
 
-EXPORTS = 	somtopenEmitFile, &
-		somtopenEmitFileSL, &
-		somtfclose, &
-		somtfcloseSL
+#EXPORTS = 	somtopenEmitFile, &
+#		somtopenEmitFileSL, &
+#		somtfclose, &
+#		somtfcloseSL
 
 UNI2H = 1
 C = r
@@ -104,13 +104,13 @@ $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somc.
 $(OBJS): $(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sm.h $(SOMIDL_HEADERS)$(SEP)sm.xh
 
 $(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
-	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(SAY) CP       $^. $(LOG)
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
-	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(SAY) CP       $^. $(LOG)
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
-	$(verbose)$(SAY) CP      $^. $(LOG)
+	$(verbose)$(SAY) CP       $^. $(LOG)
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)

@@ -44,6 +44,15 @@
 #	endif
 #endif
 
+#ifdef __WATCOMC__
+#	undef	SOMLINK
+
+#pragma aux __cdecl "*" \
+parm caller [] \
+value struct float struct routine [eax] \
+modify [eax ecx edx]
+#endif
+
 #ifndef SOMLINK
 #	ifdef _WIN32
 #		if 1
@@ -53,7 +62,7 @@
 #		endif
 #	else
 #		ifdef __OS2__
-#			if defined(__BORLANDC__) || defined(__BCPLUSPLUS__))
+#			if (defined(__BORLANDC__) || defined(__BCPLUSPLUS__))
 #				define SOMLINK __syscall
 #			else
 #				define SOMLINK _System

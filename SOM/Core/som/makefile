@@ -1,3 +1,4 @@
+# Makefile
 
 PROJ = som
 TRGT = $(PROJ).dll
@@ -18,6 +19,17 @@ srcfiles = $(p)somkern$(e) &
 !endif
 !endif
 		$(p)somshlb$(e)
+
+!if 0
+EXPORTS =     somLPrintf=_somLPrintf, &
+              somPrintf=_somPrintf, &
+              somva_SOMObject_somClassDispatch=_somva_SOMObject_somClassDispatch, &
+              somva_SOMObject_somDispatch=_somva_SOMObject_somDispatch, &
+              somva_SOMObject_somDispatchA=_somva_SOMObject_somDispatchA, &
+              somva_SOMObject_somDispatchD=_somva_SOMObject_somDispatchD, &
+              somva_SOMObject_somDispatchL=_somva_SOMObject_somDispatchL, &
+              somva_SOMObject_somDispatchV=_somva_SOMObject_somDispatchV
+!endif
 
 #INSTALL_ADD = 1
 
@@ -51,11 +63,11 @@ defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbrdll option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2 -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -79,9 +91,9 @@ ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
 DEST    = os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_PLATFORM_OS2_ -DSTRICT -DBUILD_RHBSEH2 -DSOMKERN_DLL_TERM
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clib3r 
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
-OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm
+OPTIONS = manyautodata, caseexact, heapsize=40960, start=dll_initterm, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 
 ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM -i=$(BLD)$(RELDIR) $(ADD_OPTS)

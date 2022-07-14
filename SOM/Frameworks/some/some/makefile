@@ -1,4 +1,4 @@
-# Makefile for SOM
+# Makefile for SOM Emitter Framework
 
 PROJ = some
 #TRGT = $(PROJ).dll
@@ -31,7 +31,6 @@ srcfiles = $(p)emitlib$(e) &
 		$(p)scusrtyp$(e) &
 		$(p)scentry$(e)
 
-
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
 !ifdef HOSTBLD
@@ -59,12 +58,12 @@ ADD_LINKOPT = lib clib3r, somtk libpath $(DEST)
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 !ifeq %OS WIN32
-ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
+ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN 
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST)
+ADD_LINKOPT = lib clbrdll, somtk libpath $(DEST) option nostdcall, IMPLIB=$(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 ADD_OPTS = -D_WIN32 -DSTRICT -bc -bm -br -dWIN32_LEAN_AND_MEAN
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
@@ -97,6 +96,8 @@ ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_HPP -d_USE_SOME_ &
 
 !endif
 
+!if 0
+
 EXPORTS = somtEntryTypeName.70, &
 		somtGetFileStem.71, &
 		somtGetObjectWrapper.72, &
@@ -106,6 +107,7 @@ EXPORTS = somtEntryTypeName.70, &
 		somtStrCat.76, &
 		somtStrDup.77
 
+!endif
 
 UNI2H = 1
 C = r
