@@ -8,8 +8,10 @@
 {$endif}
 Unit lxLite_Global;
 
-Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
-
+Interface uses exe286, exe386, os2exe, Collect, SysLib, Country
+{$ifdef win32}
+  , windows
+{$endif};
 {$ifdef fpc}
 var
  StdIn,                        { Old standard input }
@@ -464,18 +466,18 @@ begin
  Move(Input, StdIn, sizeOf(StdIn));
  Move(Output, StdOut, sizeOf(StdOut));
 {$IFDEF WIN32}
- hAttr := GetFileType(0);
- if hAttr = FILE_TYPE_PIPE
+ hAttr := GetFileType(GetStdHandle(STD_INPUT_HANDLE));
+ if hAttr <> FILE_TYPE_CHAR
   then begin
         AssignCrt(Input);
         Reset(Input);
        end
   else RedirInput := True;
- hAttr := GetFileType(1);
- if hAttr = FILE_TYPE_PIPE
+ hAttr := GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+ if hAttr <> FILE_TYPE_CHAR
   then begin
         AssignCrt(Output);
-        Reset(Output);
+        ReWrite(Output);
        end
   else RedirOutput := True;
 {$ENDIF}
