@@ -146,6 +146,8 @@ Implementation uses StrOp, Streams, strings
 {$endif}
 {$endif};
 
+{$I LxLite.inc}
+
 constructor tFileMatch.Create;
 begin
  New(matchStrings, Create(4, 4));
@@ -1003,12 +1005,13 @@ end;
 var
  buf: array [0..511] of char;
 begin
- SysLoadResourceString(ID, buf, sizeof(buf));
- GetResourceString := StrPas(buf);
+// SysLoadResourceString(ID, buf, sizeof(buf));
+// GetResourceString := StrPas(buf);
+ GetResourceString := ResourceStrings[id]; 
 {$endif}
 {$ifdef linux}
 begin
- GetResourceString := ''; { !!!! }
+ GetResourceString := ResourceStrings[id]; 
 {$endif}
 end;
 
