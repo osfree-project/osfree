@@ -8,8 +8,10 @@
 {$endif}
 Unit lxLite_Global;
 
-Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
-
+Interface uses exe286, exe386, os2exe, Collect, SysLib, Country
+{$ifdef win32}
+  , windows
+{$endif};
 {$ifdef fpc}
 var
  StdIn,                        { Old standard input }
@@ -461,9 +463,25 @@ end;
 Procedure AssignConToCrt;
 var hType,hAttr : Longint;
 begin
-{$IFDEF OS2}
  Move(Input, StdIn, sizeOf(StdIn));
  Move(Output, StdOut, sizeOf(StdOut));
+{$IFDEF WIN32}
+ hAttr := GetFileType(GetStdHandle(STD_INPUT_HANDLE));
+ if hAttr <> FILE_TYPE_CHAR
+  then begin
+        AssignCrt(Input);
+        Reset(Input);
+       end
+  else RedirInput := True;
+ hAttr := GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+ if hAttr <> FILE_TYPE_CHAR
+  then begin
+        AssignCrt(Output);
+        ReWrite(Output);
+       end
+  else RedirOutput := True;
+{$ENDIF}
+{$IFDEF OS2}
  DosQueryHType(0, hType, hAttr);
  if (hType and 3 = 1) and (hAttr and 1 <> 0)
   then begin
@@ -478,7 +496,8 @@ begin
         ReWrite(Output);
        end
   else RedirOutput := True;
-{$ELSE}
+{$ENDIF}
+{$IF 0}
   AssignCrt(Input);  Reset(Input);
   AssignCrt(Output); ReWrite(Output);
 {$ENDIF}
