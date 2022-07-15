@@ -97,7 +97,7 @@ begin
 {$ifdef virtualpascal}
  DosPutMessage(SysFileStdErr, Length(msgNL), @msgNL[1]);
 {$else}
- Write(msgNL);
+ Write(StdErr, msgNL);
 {$endif}
 end;
 
