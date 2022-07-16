@@ -11,6 +11,7 @@
 {$ifndef fpc}
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
+{$H-}
 {$Align 1}
 {$Optimization STACKFRAME}
 {$endif}
@@ -406,7 +407,7 @@ type
 type
  pNameTblRec = ^tNameTblRec;
  tNameTblRec = record
-  Name : pString;
+  Name : pShortString;
   Ord  : Word16;
  end;
 

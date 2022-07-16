@@ -10,7 +10,9 @@
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
 {$else}
 {$Align 1}
+{$H-}
 {$asmmode intel}
+{$ModeSwitch nestedprocvars}
 {$Optimization STACKFRAME}
 {$endif}
 Unit os2exe;
@@ -393,27 +395,32 @@ var
  src      : tByteArray absolute srcData;
  dst      : tByteArray absolute dstData;
 
-{$ifdef fpc}
+{$ifndef notdef}
 
 function Search : boolean;
+label
+  xx;
 var
   src, src0: longint;
   dst, dst0: longint;
   x, y, z:   longint;
-  cnt:       byte;
+  count:     longint;
+  ret:       boolean;
 
 begin
+    // x: ebx; count: ecx; z: eax; y: edx
     src := longint(@srcData) + sOf;
     dst := longint(@srcData) + tOf;
 
+    ret := false;
     z := 0;
 
-    cnt := packLevel;
+    count := packLevel;
 
-    if cnt <> 255 then
+    if count <> 255 then
     begin
         x := dst - src;
-        if x > cnt then z := x - cnt;
+        if x > count then z := x - count;
     end;
 
     MatchOff := z;
@@ -426,15 +433,24 @@ begin
         z := srcDataSize - tOf;
         x := dst - src;
 
-        if z >= x then
+        if x <= z then
         begin
             y := z div x;
-            cnt := x;
 
             repeat
-                if memcmp(src, dst, cnt) = 0 then break;
+                count := x;
+
+                while pByte(src)^ = pByte(dst)^ do
+                begin
+                    inc(src); inc(dst);
+                    dec(count);
+                    if count = 0 then break;
+                end;
+
+                if count > 0 then break;
+
                 z := z - 1;
-            until z <> 0;
+            until z = 0;
 
             if z <> y then
             begin
@@ -444,15 +460,16 @@ begin
 
                 if x >= 0 then
                 begin
-                    if x > cnt then
+                    if x > y then
                     begin
                         MatchCnt := z;
-                        MatchLen := cnt;
+                        MatchLen := y;
 
-                        src := src0;
-                        dst := dst0;
+                        src := dst0;
+                        dst := src0;
 
-                        Search := true;
+                        ret := true;
+                        break;
                     end
                 end
             end 
@@ -461,12 +478,12 @@ begin
         src := src0;
         dst := dst0;
 
-        src := src + 1;
-        MatchOff := MatchOff + 1;
+        inc(src);
+        inc(MatchOff);
 
     until src >= dst;
 
-    Search := false;
+    Search := ret;
 end;
 
 {$else}
@@ -600,61 +617,82 @@ var
  src         : tByteArray absolute srcData;
  dst         : tByteArray absolute dstData;
 
-{$ifdef fpc}
+{$ifndef notdef}
 
 function Search : boolean;
-label maxLen, endOfChain;
+label
+    maxLen,
+    endOfChain;
 var
-    src:           pWord16Array;
+    src, src0:     longint;
     dst:           longint;
-    x, a, b, cnt:  longint;
+    dx, count:     longint;
+    p:             pWord16;
     ret:           boolean;
-
 begin
-    x := srcDataSize - tOf;
+    // dx: edx; p: eax; count: ecx; 
+    dx := srcDataSize - tOf;
     ret := false;
 
-    if x > 2 then
+    if dx > 2 then
     begin
-        src := pWord16Array(longint(@srcData) + tOf);
-        dst := longint(src);
+        src := longint(@srcData) + tOf;
+        src0 := src;
+        dst := longint(@srcData);
 
-        a := (src^[word(tOf)] and $0FFF) shl 1;
-        a := (a + longint(@ChainHead)) and maxMatchLen;
+        p := pWord16(((pWord16(src)^ and $0FFF) shl 1) + longint(ChainHead));
+        maxMatchLen := 0;
 
         repeat
             repeat
                 repeat
-                    if ChainHead^[a] = -1 then goto endOfChain;
+                    src0 := src;
+                    dst := p^;
 
-                    a := Chain^[ChainHead^[a] shl 1];
-                    dst := longint(srcData);
-                    cnt := x;
-                    if memcmp(src, dst, cnt) = 0 then goto maxLen;
-                    cnt := x - cnt;
-                    x := x - cnt;
-                    cnt := cnt - 1;
-                until cnt > maxMatchLen;
+                    if dst and $8000 = $8000 then dst := dst or $0FFFF0000;
+                    if dst = -1 then goto endOfChain;
 
-                dst := dst - longint(srcData);
-                maxMatchlen := cnt;
+                    p := pWord16(longint(Chain) + (dst shl 1));
+                    dst := dst + longint(@srcData);
+
+                    count := dx;
+
+                    while pByte(src)^ = pByte(dst)^ do
+                    begin
+                        inc(src); inc(dst);
+                        dec(count);
+
+                        if count = 0 then goto maxLen;
+                    end;
+
+                    src := src0;
+                    count := dx - count;
+                    dec(dst, count);
+                    dec(count);
+                until count > maxMatchLen;
+
+                dst := dst - longint(@srcData);
+                maxMatchlen := count;
                 maxMatchPos := dst;
-                b := tOf - 1;
 
-            until b > dst;
-        until cnt > 63;
+            until tOf - 1 = dst;
+        until count > 63;
+        src0 := src;
 
         goto endOfChain;
 
 maxLen:
-        dst := dst - x - longint(srcData);
-        maxMatchLen := x;
+        dst := dst - dx - longint(@srcData);
+
+        maxMatchLen := dx;
         maxMatchPos := dst;
 
 endOfChain:
         ret := false;
 
         if maxMatchLen >= 3 then ret := true;
+
+        src := src0;
     end;
 
     Search := ret;
@@ -861,6 +899,7 @@ function PackMethod3(var srcData,dstData; srcDataSize : longint; var dstDataSize
 var dst:pointer;
     len:longint;
 begin
+ //writeln('pxe');
  GetMem(dst, srcDataSize * 3);
  len:=pack2.Compress(srcDataSize,@srcData,dst);
  PackMethod3:=len<$FFC;
@@ -3323,6 +3362,8 @@ begin
  GetMem(Bf2, Header.lxPageSize);
  GetMem(Bf3, Header.lxPageSize);
  For I := 1 to Header.lxMPages do
+ begin
+  if I > Header.lxMPages then break;
   with ObjMap^[I] do
    if (PageFlags = pgValid) and (PageSize > 0)
     then begin
@@ -3355,6 +3396,7 @@ begin
                  SetPage(Pages^[pred(I)], Bf2, PageSize, S2);
                 end;
          end;
+ end;
  if @Progress <> nil then Progress(1, 1);
  FreeMem(Bf3, Header.lxPageSize);
  FreeMem(Bf2, Header.lxPageSize);
@@ -3424,6 +3466,10 @@ begin
   if PageFlags = pgValid
    then begin
          dOf := PageSize - MemScanBwd(Pages^[pred(PageNo)]^, PageSize, 0);
+
+         //if dOf < 0 then dOf := 0;
+         //if dOf >= PageSize then dOf := 0;
+
          dOf := (dOf + pred(1 shl Header.lxPageShift)) and
                 ($FFFFFFFF shl Header.lxPageShift);
          if PageSize <> dOf
@@ -3456,7 +3502,7 @@ var
 begin
 { Minimize space occupied by all pages }
  if AllowMinimize then
-  For I := 1 to Header.lxMpages do MinimizePage(I);
+  For I := 1 to Header.lxMpages do begin MinimizePage(I); end;
 { Remove all absolutely empty pages at ends of objects }
  For I := 1 to Header.lxObjCnt do
   with ObjTable^[I] do

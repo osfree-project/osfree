@@ -88,8 +88,8 @@ type
  end;
 
 { Dynamic string [de]allocation routines }
- Function  NewStr(const S : String) : pString;
- Procedure DisposeStr(P : PString);
+ Function  NewStr(const S : ShortString) : pShortString;
+ Procedure DisposeStr(P : PShortString);
 { Return interval in minutes between two events }
  Function  TimeInterval(sYear,sMonth,sDay,sHour,sMin,
                         fYear,fMonth,fDay,fHour,fMin : Word) : Longint;
@@ -238,8 +238,7 @@ asm             mov    eax,ParmBlock
                 push   [eax].tThreadParmBlock.MySelf
                 push   [eax].tThreadParmBlock.Func
                 push   eax
-                mov    eax, type tThreadParmBlock
-                push   eax
+                push   type tThreadParmBlock
 {$ifndef fpc}
                 call   _MemFree
 {$else}
@@ -276,8 +275,8 @@ end;
 
 const EmptyStr : string[1] = '';
 
-Function NewStr(const S : String) : pString;
-var p : PString;
+Function NewStr(const S : ShortString) : pShortString;
+var p : PShortString;
 begin
  if S = ''
   then p := @EmptyStr                { to allow length() call on empty strings }
@@ -288,7 +287,7 @@ begin
  NewStr := p;
 end;
 
-Procedure DisposeStr(P : PString);
+Procedure DisposeStr(P : PShortString);
 begin
  if p<>@EmptyStr then FreeMem(p, succ(integer(length(p^))));
  p := nil;

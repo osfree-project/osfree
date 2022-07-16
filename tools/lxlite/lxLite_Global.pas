@@ -4,6 +4,7 @@
 {$else}
 {$Align 1}
 {$mode objfpc}
+{$H-}
 {$Optimization STACKFRAME}
 {$endif}
 Unit lxLite_Global;
@@ -497,7 +498,7 @@ begin
        end
   else RedirOutput := True;
 {$ENDIF}
-{$IF 0}
+{$IFDEF nonexxx}
   AssignCrt(Input);  Reset(Input);
   AssignCrt(Output); ReWrite(Output);
 {$ENDIF}
