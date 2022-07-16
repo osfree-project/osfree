@@ -3467,8 +3467,8 @@ begin
    then begin
          dOf := PageSize - MemScanBwd(Pages^[pred(PageNo)]^, PageSize, 0);
 
-         //if dOf < 0 then dOf := 0;
-         //if dOf >= PageSize then dOf := 0;
+         if dOf < 0 then dOf := 0;
+         if dOf >= PageSize then dOf := PageSize;
 
          dOf := (dOf + pred(1 shl Header.lxPageShift)) and
                 ($FFFFFFFF shl Header.lxPageShift);

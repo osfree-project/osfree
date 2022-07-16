@@ -41,4 +41,4 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc
 
 $(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ).pas .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -FE$(PATH) -Fe$(PATH) -o$(PROJ1).exe $(PROJ).pas 
+ $(verbose)$(PC) $(PCOPT) -FE$(PATH) -Fe$(PATH) -o$(PROJ1).exe $(PROJ).pas
