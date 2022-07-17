@@ -10,6 +10,9 @@
 Unit lxLite_Global;
 
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country
+{$ifdef linux}
+  , termio
+{$endif}
 {$ifdef win32}
   , windows
 {$endif};
