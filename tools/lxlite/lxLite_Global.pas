@@ -466,35 +466,33 @@ var hType,hAttr : Longint;
 begin
  Move(Input, StdIn, sizeOf(StdIn));
  Move(Output, StdOut, sizeOf(StdOut));
+{$IFDEF LINUX}
+ if isatty(0) = 0 then RedirInput  := True;
+ if isatty(1) = 0 then RedirOutput := True;
+{$ENDIF}
 {$IFDEF WIN32}
  hAttr := GetFileType(GetStdHandle(STD_INPUT_HANDLE));
- if hAttr <> FILE_TYPE_CHAR
-  then begin
-        AssignCrt(Input);
-        Reset(Input);
-       end
-  else RedirInput := True;
+ if hAttr <> FILE_TYPE_CHAR then RedirInput := True;
  hAttr := GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
- if hAttr <> FILE_TYPE_CHAR
-  then begin
-        AssignCrt(Output);
-        ReWrite(Output);
-       end
-  else RedirOutput := True;
+ if hAttr <> FILE_TYPE_CHAR then RedirOutput := True;
 {$ENDIF}
 {$IFDEF OS2}
  DosQueryHType(0, hType, hAttr);
  if (hType and 3 = 1) and (hAttr and 1 <> 0)
   then begin
+{$ifndef fpc}
         AssignCrt(Input);
         Reset(Input);
+{$endif}
        end
   else RedirInput := True;
  DosQueryHType(1, hType, hAttr);
  if (hType and 3 = 1) and (hAttr and 2 <> 0)
   then begin
+{$ifndef fpc}
         AssignCrt(Output);
         ReWrite(Output);
+{$endif}
        end
   else RedirOutput := True;
 {$ENDIF}
