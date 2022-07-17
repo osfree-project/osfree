@@ -1036,9 +1036,16 @@ var
  ParmStr : string;
  CPtr    : pchar;
 begin
-{$ifdef win32}
+{$ifdef os2}
+ if CmdLine = nil
+  then ParmStr := ''
+  else ParmStr := StrPas(GetASCIIZptr(CmdLine^, 2));
+{$else}
+{$ifdef dos}
+ Move(mem[PrefixSeg:$80], ParmStr, succ(mem[PrefixSeg:$80]));
+{$else} {windows & linux}
  CPtr := CmdLine;
- if CPtr<>nil then 
+ if CPtr<>nil then
  begin
     if (CPtr^='"') then
     begin
@@ -1049,14 +1056,9 @@ begin
     
     if CPtr<>nil then inc(CPtr);
  end;
- if CPtr=nil then ParmStr:='' else ParmStr:=StrPas(CPtr);
-{$else}
-{$ifdef dos}
- Move(mem[PrefixSeg:$80], ParmStr, succ(mem[PrefixSeg:$80]));
-{$else}
- if CmdLine = nil
-  then ParmStr := ''
-  else ParmStr := StrPas(GetASCIIZptr(CmdLine^, 2));
+ if CPtr=nil
+  then ParmStr:=''
+  else ParmStr:=StrPas(CPtr);
 {$endif}
 {$endif}
  Parse(ParmStr);
