@@ -1,11 +1,10 @@
 {&G3+}
+{$M 400000, 400000}
 {$ifndef fpc}
 {$R lxlite.res}
 {$R os2api.res}
 {&AlignCode-,AlignData-,AlignRec-,Speed-,Frame-,Use32+}
-{&M 262144}
 {$else}
-{ -- $MinStackSize 262144}
 {$Align 1}
 {$mode objfpc}
 {$asmmode intel}

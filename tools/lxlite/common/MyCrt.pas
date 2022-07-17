@@ -620,7 +620,7 @@ begin
        end
   else RedirOutput := True;
 {$ENDIF}
-{$IF 0}
+{$IFDEF nonexxx}
   AssignCrt(Input);  Reset(Input);
   AssignCrt(Output); ReWrite(Output);
 {$ENDIF}
