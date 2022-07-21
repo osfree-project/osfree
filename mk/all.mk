@@ -466,19 +466,21 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
+
+TARGET = install
+
 subdirs: .symbolic
 !ifeq UNIX TRUE
- @for %d in ($(DIRS)) do @if [ -d %d ]; then cd %d && $(MAKE) $(MAKEOPT) install && cd ..; fi
+ @for %d in ($(DIRS)) do @if [ -d %d ]; then cd %d && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..; fi
 !else
- @for %d in ($(DIRS)) do @if exist %d cd %d && $(MAKE) $(MAKEOPT) install
+ @for %d in ($(DIRS)) do @if exist %d cd %d && $(MAKE) $(MAKEOPT) $(TARGET)
 !endif
 
 dirhier: .symbolic
  $(verbose)$(SAY) CD       $(RELDIR) $(LOG)
  $(verbose)$(MDHIER) $(PATH)
 
-clean: .SYMBOLIC
- @$(SAY) clean    $(LOG)
+clean: .symbolic
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
 
