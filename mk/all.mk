@@ -161,7 +161,7 @@ ADDFILES_CMD = @for %i in ($(OBJS)) do @%append $^@ FILE %i
 #
 # Extensions to clean up
 #
-CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst *.res $(CLEAN_ADD)
+CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.mbr *.err *.log *.bak *.lib *.com *.sym *.bin *.exe *.dll *.wmp *.ppu *.rst *.res $(CLEAN_ADD)
 
 !ifeq UNIX FALSE                 # Non-unix
 

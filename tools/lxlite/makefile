@@ -7,7 +7,10 @@
 #
 
 PROJ  = lxlite
+# USE_RESOURCES = 1
+!ifdef USE_RESOURCES
 PROJ1 = lxlite1
+!endif
 TRGT  = $(PROJ).exe
 !ifeq %OS OS2
 defs = -dOS2
@@ -28,6 +31,7 @@ TARGETS  = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)/mk/toolspas.mk
 
+!ifdef USE_RESOURCES
 $(PATH)rc.rc: $(MYDIR)os2api.rc $(MYDIR)lxlite.rc
 !ifeq UNIX TRUE
  $(verbose)cat $(MYDIR)lxlite.rc $(MYDIR)os2api.rc >$(PATH)rc.rc
@@ -42,3 +46,4 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc
 $(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ).pas .symbolic
  @$(SAY) PPC      $^. $(LOG)
  $(verbose)$(PC) $(PCOPT) -FE$(PATH) -Fe$(PATH) -o$(PROJ1).exe $(PROJ).pas
+!endif

@@ -972,6 +972,12 @@ begin
 end;
 {$endIf}
 
+{$ifdef fpc}
+function GetResourceString;
+begin
+ GetResourceString := ResourceStrings[id];
+end;
+{$else}
 function GetResourceString;
 {$ifdef os2}
 var
@@ -1005,15 +1011,11 @@ end;
 var
  buf: array [0..511] of char;
 begin
-// SysLoadResourceString(ID, buf, sizeof(buf));
-// GetResourceString := StrPas(buf);
- GetResourceString := ResourceStrings[id]; 
-{$endif}
-{$ifdef linux}
-begin
- GetResourceString := ResourceStrings[id]; 
+ SysLoadResourceString(ID, buf, sizeof(buf));
+ GetResourceString := StrPas(buf);
 {$endif}
 end;
+{$endif}
 
 
 procedure tCommandLineParser.Parse;
