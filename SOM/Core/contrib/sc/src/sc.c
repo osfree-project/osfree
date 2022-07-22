@@ -1,8 +1,10 @@
 /**************************************************************************
  *
  *  Copyright 2008, Roger Brown
+ *  Copyright 2022, Yuri Prokushev
  *
  *  This file is part of Roger Brown's Toolkit.
+ *  This file is part of osFree project.
  *
  *  This program is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the
@@ -247,6 +249,7 @@ void usage(void)
   printf("        -d <dir>          - output directory for each emitted file.\n");
   printf("        -o <dir>          - -d option alias.\n");
   printf("        -h                - this message.\n");
+  printf("        -?                - -h option alias.\n");
   printf("        -i <file>         - use this file name as supplied.\n");
   printf("        -m <name[=value]> - add global modifier.\n");
   printf("        -p                - shorthand for -D__PRIVATE__.\n");
@@ -317,9 +320,7 @@ int main(int argc,char **argv)
 	add_many(&defines,"_PLATFORM_X11_");
 #endif
 
-#ifdef __OS2__
 	add_many(&defines,"__SOMIDL_VERSION_1__");
-#endif
 
 	while (i < argc)
 	{
@@ -416,6 +417,9 @@ int main(int argc,char **argv)
 				break;
 			case 'u':
 				update=1; // update IR
+				add_many(&emitters,"ir");
+				add_many(&modifiers,"updateir");
+				else
 				break;
 			case 'h':
 			case '?':
@@ -437,7 +441,11 @@ int main(int argc,char **argv)
 				// check releaseorder
 				break;
 			case 'V':
-				// version
+				printf("somFree Compiler: 'sc', Version: 1.00.\n");
+				printf("Copyright 2008, Roger Brown\n");
+				printf("Copyright 2022, Yuri Prokushev\n");
+				printf("This file is part of Roger Brown's Toolkit.\n");
+				printf("Date Last Compiled: [" __DATE__ "]\n");
 				return 0;
 			case 'i':
 /*				item *t=itemNew(p,strlen(p));
@@ -505,10 +513,12 @@ int main(int argc,char **argv)
 
 			while (emitter)
 			{
-				_IDL_SEQUENCE_char somcpp={0,0,NULL};
-				_IDL_SEQUENCE_char somipc={0,0,NULL};
-				_IDL_SEQUENCE_char somipc2={0,0,NULL};
-				_IDL_SEQUENCE_char idlname={0,0,NULL};
+				_IDL_SEQUENCE_char somcpp={0,0,NULL};	// SOM IDL Pre-Processor
+				_IDL_SEQUENCE_char somipc={0,0,NULL};	// SOM IDL Compiler (no Emitter Framework)
+				_IDL_SEQUENCE_char somipc2={0,0,NULL};	// SOM IDL Compiler (Emitter Framework) 
+				_IDL_SEQUENCE_char spp={0,0,NULL};		// SOM OIDL Pre-Processor
+				_IDL_SEQUENCE_char somopc={0,0,NULL};	// SOM OIDL Compiler (CSC to IDL converter)
+				_IDL_SEQUENCE_char idlname={0,0,NULL};	// IDL FQFN
 				char buf[512];
 #if 0
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
@@ -635,6 +645,12 @@ int main(int argc,char **argv)
 					add_str(&somipc," -s");
 					add_seq(&somipc2,&emitter->data);
 					add_seq(&somipc,&emitter->data);
+				}
+
+				if (verbose)
+				{
+					add_str(&somipc2," -v ");
+					add_str(&somipc," -v ");
 				}
 
 				add_str(&somipc2," -o ");
@@ -900,9 +916,8 @@ int main(int argc,char **argv)
 						printf("%s\n",somipc2._buffer);
 					}
 					somipcExitCode=system(somipc2._buffer);
-					//printf("%d\n", somipcExitCode);
 					#ifdef __LINUX__
-					if (somipcExitCode==127) //1)
+					if (somipcExitCode==127)
 					#endif
 					#ifdef _WIN32
 					if (somipcExitCode==1)
@@ -916,6 +931,10 @@ int main(int argc,char **argv)
 							printf("%s\n",somipc._buffer);
 						}
 						somipcExitCode=system(somipc._buffer);
+					}
+					if (verbose)
+					{
+						printf("Status: %d\n", somipcExitCode);
 					}
 					unlink(tmpf._buffer);
 
