@@ -1,0 +1,92 @@
+:template
+#define <className>_Class_Source
+#include "<classSourceFileStem>.ih"
+
+SOM_Scope boolean  SOMLINK somtGenerateSections(<className> *somSelf)
+{
+    /* <className>Data *somThis = <className>GetData(somSelf); */
+    SOMTClassEntryC *cls = __get_somtTargetClass(somSelf);
+    SOMTTemplateOutputC *template = __get_somtTemplate(somSelf);
+    <className>MethodDebug("<className>","somtGenerateSections");
+
+    /*
+     * Setup symbols that are common to the whole file 
+     */
+    _somtFileSymbols(somSelf);
+
+    _somtEmitProlog(somSelf);
+
+    if (cls != (SOMTClassEntryC *) NULL) {
+        _somtScanBases(somSelf,
+                       "somtEmitBaseIncludesProlog",
+                       "somtEmitBaseIncludes",
+                       "somtEmitBaseIncludesEpilog");
+
+        _somtEmitMetaInclude(somSelf);
+
+        _somtEmitClass(somSelf);
+
+        _somtScanBases(somSelf,
+                       "somtEmitBaseProlog",
+                       "somtEmitBase",
+                       "somtEmitBaseEpilog");
+
+        _somtEmitMeta(somSelf);
+    }
+    _somtScanConstants(somSelf, "somtEmitConstantProlog",
+                      "somtEmitConstant", "somtEmitConstantEpilog");
+
+    _somtScanTypedefs(somSelf, "somtEmitTypedefProlog",
+                      "somtEmitTypedef", "somtEmitTypedefEpilog");
+
+    _somtScanStructs(somSelf, "somtEmitStructProlog",
+                     "somtEmitStruct", "somtEmitStructEpilog");
+
+    _somtScanUnions(somSelf, "somtEmitUnionProlog",
+                    "somtEmitUnion", "somtEmitUnionEpilog");
+
+    _somtScanEnums(somSelf, "somtEmitEnumProlog",
+                   "somtEmitEnum", "somtEmitEnumEpilog");
+
+    if (cls != (SOMTClassEntryC *) NULL) {
+        _somtScanAttributes(somSelf, "somtEmitAttributeProlog",
+                            "somtEmitAttribute", "somtEmitAttributeEpilog");
+
+        _somtScanMethods(somSelf,
+                         "somtImplemented",
+                         "somtEmitMethodsProlog",
+                         "somtEmitMethod",
+                         "somtEmitMethodsEpilog",
+                         0);
+
+        _somtEmitRelease(somSelf);
+
+        _somtScanPassthru(somSelf, 1,
+                          "somtEmitPassthruProlog",
+                          "somtEmitPassthru",
+                          "somtEmitPassthruEpilog");
+
+        _somtScanPassthru(somSelf, 0,
+                          "somtEmitPassthruProlog",
+                          "somtEmitPassthru",
+                          "somtEmitPassthruEpilog");
+
+        _somtScanData(somSelf,
+                      "somtEmitDataProlog",
+                      "somtEmitData",
+                      "somtEmitDataEpilog");
+    }
+
+    if (__get_somtTargetModule(somSelf) != (SOMTModuleEntryC *) NULL) {
+
+        _somtScanInterfaces(somSelf, "somtEmitInterfaceProlog",
+                            "somtEmitInterface", "somtEmitInterfaceEpilog");
+
+        _somtScanModules(somSelf, "somtEmitModuleProlog",
+                         "somtEmitModule", "somtEmitModuleEpilog");
+    }
+
+    _somtEmitEpilog(somSelf);
+
+    return (TRUE);
+}

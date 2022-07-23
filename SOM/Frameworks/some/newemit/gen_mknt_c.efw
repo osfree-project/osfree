@@ -1,0 +1,43 @@
+:template
+DLLDEST     = $(SOMBASE)\\lib
+EFWDEST     = $(SOMBASE)\\include
+INCLUDEPATH = -I$(SOMBASE)\\include
+LIBDIRPATH  = $(SOMBASE)\\lib
+
+SRCS        = emit<classSourceFileStem>.c <classSourceFileStem>.c <classSourceFileStem>.efw <classSourceFileStem>.idl
+OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
+TARGET      = emit<classSourceFileStem>.dll
+CLEANFILES  = <classSourceFileStem>.h
+
+SCFLAGS     = -D__PRIVATE__ -sh;ih -m addstar
+CC	    = icc
+CFLAGS	    = -Q+ -I. -Ti+ -W3 
+LINKER      = ilink
+LDFLAGS     = /DEBUG 
+LIBLIST     = somtk.lib 
+
+.SUFFIXES: .c .idl .ih .obj
+
+.c.obj:
+	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
+
+.idl.ih:
+	cmd /c "sc $(SCFLAGS) $*.idl"
+
+
+
+$(TARGET): $(OBJS) $*.exp
+	$(LINKER) /DLL /OUT:$@ $(LDFLAGS) $(OBJS) $*.exp $(LIBLIST)
+
+$(TARGET:dll=exp): $(TARGET:dll=nid)
+	ilib /GI $*.nid
+
+clean:
+	-del *.obj *.dll *.map *.ih $(CLEANFILES)
+
+emit<classSourceFileStem>.obj: emit<classSourceFileStem>.c <classSourceFileStem>.ih
+
+<classSourceFileStem>.obj: <classSourceFileStem>.c <classSourceFileStem>.ih
+
+<classSourceFileStem>.ih: <classSourceFileStem>.idl
+

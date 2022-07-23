@@ -1,0 +1,69 @@
+:template
+#include \<scentry.h\>
+#include \<emitlib.h\>
+#include "<classSourceFileStem>.h"
+
+#define SYMBOLS_FILE   "<classSourceFileStem>.efw"
+
+SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
+{
+    FILE *fp;
+    FILE *deffile;
+    SOMTClassEntryC *oCls;
+    SOMTModuleEntryC *mod;
+    <className> *emitter;
+    SOMTTemplateOutputC *t;
+
+    /* if this is a class, rather than a module: */
+    if (cls->type == SOMTClassE) {
+
+        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
+        oCls = (SOMTClassEntryC *) somtGetObjectWrapper(cls);
+        emitter = <className>New();
+        __set_somtTargetFile(emitter, fp);
+        __set_somtTargetClass(emitter, oCls);
+	__set_somtEmitterName(emitter, "<classSourceFileStem>");
+        t = __get_somtTemplate(emitter);
+        __set_somtCommentStyle(t, somtCPPE);
+        if (deffile = _somtOpenSymbolsFile(emitter, SYMBOLS_FILE, "r")) {
+            _somtReadSectionDefinitions(t, deffile);
+            somtfcloseSL(deffile);
+        }
+        else {
+            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
+			     SYMBOLS_FILE);
+            exit(-1);
+        }
+        _somtGenerateSections(emitter);
+        _somFree(emitter);
+	_somFree(oCls);
+
+        return (fp);
+    }
+    else if (cls->type == SOMTModuleE) {
+
+        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
+	mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
+        emitter = <className>New();
+        __set_somtTargetFile(emitter, fp);
+        __set_somtTargetModule(emitter, mod);
+        t = __get_somtTemplate(emitter);
+        __set_somtCommentStyle(t, somtCPPE);
+        if (deffile = _somtOpenSymbolsFile(emitter, SYMBOLS_FILE, "r")) {
+            _somtReadSectionDefinitions(t, deffile);
+            somtfcloseSL(deffile);
+        }
+        else {
+            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
+			     SYMBOLS_FILE);
+            exit(-1);
+        }
+        _somtGenerateSections(emitter);
+        _somFree(emitter);
+        _somFree(mod);
+
+        return (fp);
+    }
+
+    else return ((FILE *) NULL);
+}

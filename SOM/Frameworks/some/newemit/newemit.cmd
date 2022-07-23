@@ -5,6 +5,7 @@ set root=c:\yuri
 set SOMBASE=%root%\osfree\build\bin\host\win32\os2tk45\som
 set path=%sombase%\bin;%sombase%\common\dll;%sombase%\lib;%path%
 if !%SOMBASE%!==!! goto error
+set SC=%SOMBASE%\bin\sc.exe
 if "%2"=="" goto usage
 
 set targetlang=c
@@ -66,33 +67,33 @@ set stem=%2
 echo interface %class% {}; > %stem%.idl
 
 echo %stem%.idl:
-%SOMBASE%\bin\sc.exe -v -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
 exit
 del %stem%.idl
 rename _%stem%.idl %stem%.idl
 
 echo %stem%.%targetlang%:
-%SOMBASE%\bin\sc.exe -aemitfile=%stem%.%targetlang% -adeffile=gen_%targetlang%.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=%stem%.%targetlang% -adeffile=gen_%targetlang%.efw -sgen -mnochk %stem%.idl
 
 echo emit%stem%.%targetlang%:
-%SOMBASE%\bin\sc.exe -aemitfile=emit%stem%.%targetlang% -adeffile=gen_emit_%targetlang%.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=emit%stem%.%targetlang% -adeffile=gen_emit_%targetlang%.efw -sgen -mnochk %stem%.idl
 
 echo Makefile:
-%SOMBASE%\bin\sc.exe -aemitfile=Makefile -adeffile=gen_make_%targetlang%.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=Makefile -adeffile=gen_make_%targetlang%.efw -sgen -mnochk %stem%.idl
 
 echo %stem%.def
-%SOMBASE%\bin\sc.exe -aemitfile=emit%stem%.def -adeffile=gen_def.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=emit%stem%.def -adeffile=gen_def.efw -sgen -mnochk %stem%.idl
 
 if exist makefile.nt rename makefile.nt makefile.bak
 
 echo makefile.nt:
-%SOMBASE%\bin\sc.exe -aemitfile=makefile.nt -adeffile=gen_mknt_%targetlang%.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=makefile.nt -adeffile=gen_mknt_%targetlang%.efw -sgen -mnochk %stem%.idl
 
 echo %stem%.nid:
-%SOMBASE%\bin\sc.exe -aemitfile=emit%stem%.nid -adeffile=gen_nid.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=emit%stem%.nid -adeffile=gen_nid.efw -sgen -mnochk %stem%.idl
 
 echo Makefile.32:
-%SOMBASE%\bin\sc.exe -aemitfile=Makefile.32 -adeffile=gen_mk32_%targetlang%.efw -sgen -mnochk %stem%.idl
+%SC% -aemitfile=Makefile.32 -adeffile=gen_mk32_%targetlang%.efw -sgen -mnochk %stem%.idl
 
 echo %stem%.efw:
 if not exist %SOMBASE%\include\gen_temp.efw copy %SOMBASE%\include\gen_temp.efw %stem%.efw

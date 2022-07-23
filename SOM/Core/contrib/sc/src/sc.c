@@ -259,6 +259,7 @@ void usage(void)
   printf("        -u                - update interface repository.\n");
   printf("        -v                - verbose debugging mode (default: FALSE).\n");
   printf("        -w                - don't display warnings (default: FALSE).\n");
+  printf("        -\%                - show percent of processed files.\n");
   printf("\n");
   printf("Modifiers:\n");
   printf("        addprefixes : adds 'functionprefix' to method names in template file\n");
@@ -302,7 +303,11 @@ int main(int argc,char **argv)
 	item *modifiers=NULL;
 	int i=1;
 	int update=0;
-	int verbose=0;
+	int verbose=1;
+	int warnings=0;
+	int releaseorder=0;
+	int nocomments=1;
+	int showpercent=0;
 	char *app=argv[0];
 	static _IDL_SEQUENCE_char zero={1,1,""};
 
@@ -310,6 +315,7 @@ int main(int argc,char **argv)
 
 #ifdef _PLATFORM_WIN32_
 	add_many(&defines,"_PLATFORM_WIN32_");
+	add_many(&defines,"_WIN32");
 #endif
 
 #ifdef _PLATFORM_UNIX_
@@ -419,32 +425,43 @@ int main(int argc,char **argv)
 				update=1; // update IR
 				add_many(&emitters,"ir");
 				add_many(&modifiers,"updateir");
-				else
 				break;
 			case 'h':
 			case '?':
 				usage();
 				return 0;
 			case 'C':
-				// comment buffer //ignore
+				// comment buffer //ignored
 				break;
 			case 'S':
-				// string buffer //ignore
+				// string buffer //ignored
 				break;
 			case 'v':
+				// verbose mode
 				verbose=1;
+				break;
+			case 'w':
+				// show warnings
+				warnings=1;
+				break;
+			case '%':
+				// show percent
+				showpercent=1;
 				break;
 			case 'c':
 				// ignore all comments
+				nocomments=1;
 				break;
 			case 'r':
 				// check releaseorder
+				releaseorder=1;
 				break;
 			case 'V':
 				printf("somFree Compiler: 'sc', Version: 1.00.\n");
 				printf("Copyright 2008, Roger Brown\n");
 				printf("Copyright 2022, Yuri Prokushev\n");
 				printf("This file is part of Roger Brown's Toolkit.\n");
+				printf("This file is part of osFree project.\n");
 				printf("Date Last Compiled: [" __DATE__ "]\n");
 				return 0;
 			case 'i':
@@ -520,16 +537,16 @@ int main(int argc,char **argv)
 				_IDL_SEQUENCE_char somopc={0,0,NULL};	// SOM OIDL Compiler (CSC to IDL converter)
 				_IDL_SEQUENCE_char idlname={0,0,NULL};	// IDL FQFN
 				char buf[512];
-#if 0
+#ifdef _WIN32
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
-				long len=0;
+				long len=1;
 #endif
 				item *t;
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
 
-#if 1
+#ifndef _WIN32
 				buf[0]=0x0;
 #endif
 
@@ -555,13 +572,13 @@ int main(int argc,char **argv)
 					add_str(&somcpp,"\"");
 				}
 
-				strncpy(buf+len+1,"somipc2.exe",sizeof(buf)-len);
+				strncpy(buf+len,"somipc2.exe",sizeof(buf)-len);
 				add_str(&somipc2,buf);
 
-				strncpy(buf+len+1,"somipc.exe",sizeof(buf)-len);
+				strncpy(buf+len,"somipc.exe",sizeof(buf)-len);
 				add_str(&somipc,buf);
 				
-				strncpy(buf+len+1,"somcpp.exe",sizeof(buf)-len);
+				strncpy(buf+len,"somcpp.exe",sizeof(buf)-len);
 
 				add_str(&somcpp,buf);
 
@@ -651,6 +668,26 @@ int main(int argc,char **argv)
 				{
 					add_str(&somipc2," -v ");
 					add_str(&somipc," -v ");
+				}
+
+				if (warnings)
+				{
+					add_str(&somipc2," -w ");
+					add_str(&somipc," -w ");
+				}
+
+				if (releaseorder)
+				{
+					add_str(&somipc2," -r ");
+					add_str(&somipc," -r ");
+				}
+
+				if (nocomments)
+				{
+					add_str(&somipc2," -c ");
+					add_str(&somipc," -c ");
+				} else {
+					add_str(&somcpp," -C ");
 				}
 
 				add_str(&somipc2," -o ");
@@ -883,7 +920,11 @@ int main(int argc,char **argv)
 					tmpdir = getenv("TMP");
 #endif
 					add_str(&tmpf, tmpdir);
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 					add_str(&tmpf,"/");
+#else
+					add_str(&tmpf,"\\");
+#endif
 					add_str(&tmpf,&name2);
 
 					add_str(&somcpp," ");
@@ -934,9 +975,17 @@ int main(int argc,char **argv)
 					}
 					if (verbose)
 					{
-						printf("Status: %d\n", somipcExitCode);
+						if (somipcExitCode)
+						{
+							printf("Status: %d\n", somipcExitCode);
+						}
 					}
+
 					unlink(tmpf._buffer);
+					if (verbose)
+					{
+						printf("Removed  \"%s\"\n", tmpf._buffer);
+					}
 
 					if (somipcExitCode || cppExitCode)
 					{

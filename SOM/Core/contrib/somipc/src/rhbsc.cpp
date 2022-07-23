@@ -473,8 +473,22 @@ int main(int argc,char **argv)
 						}
 						else
 						{
-							fprintf(stderr,"%s: Unknown switch \'%s\'\n",appname,p);
-							return 1;
+							if ((p[1]=='v'))
+							{
+								drop=1;
+							}
+							else
+							{
+								if ((p[1]=='c'))
+								{
+									drop=1;
+								}
+								else
+								{
+									fprintf(stderr,"%s: Unknown switch \'%s\'\n",appname,p);
+									return 1;
+								}
+							}
 						}
 					}
 				}
