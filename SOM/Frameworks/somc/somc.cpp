@@ -530,3 +530,25 @@ SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char
    236        0005171A        tciPrintf
    237        00051724        tciSetException
 */
+
+/*
+
+somtf_f is a global flags structure
+
+somtg_f + 8
+somipc option		flag
+	s		+8
+	r		+4
+	y		+2
+	l		+1
+
+somtg_f
+	x		+8
+	w		-4
+	v		+1
+	q		+2
+	c		-16
+
+somtg_f + A0H  - misc modifiers?
+
+*/
