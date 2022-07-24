@@ -217,7 +217,7 @@ SOMEXTERN __declspec(dllexport) char * OPTLINK_DECL somtsearchFile(char *file, c
 SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char *fullpath, char *env)
 {
   char *path;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
   char magic=';';
 #else
   char magic=':';
@@ -233,14 +233,14 @@ SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char
   else
   {
     if (file[0]=='/') return NULL;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
     if (file[0]=='\\') return NULL;
     if (file[1]==':') return NULL;
 #endif
 
     path=getenv(env);
 
-#ifndef _WIN32
+#if !defined(_WIN32) || !defined(__OS2__) || !defined(__DOS__)
     if (!path) path="/bin:/usr/bin:";
 #endif
 
@@ -273,7 +273,7 @@ SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char
           {
             _getcwd(buf,sizeof(buf));
           }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
           strncat(buf,"\\",sizeof(buf)-1);
 #else
           strncat(buf,"/",sizeof(buf)-1);
@@ -485,7 +485,7 @@ SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char
    191        00051480        somtsaved
    192        0005148A        somtscbuf
    193        00051494        somtscmsg
-   194        0005149E        somtsearchFile
++   194        0005149E        somtsearchFile
    195        000514AD        somtsetDefaultDesc
    196        000514C0        somtsetEmitSignals
    197        000514D3        somtsetInternalMessages
