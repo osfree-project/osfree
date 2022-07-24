@@ -533,7 +533,7 @@ int main(int argc,char **argv)
 				_IDL_SEQUENCE_char somcpp={0,0,NULL};	// SOM IDL Pre-Processor
 				_IDL_SEQUENCE_char somipc={0,0,NULL};	// SOM IDL Compiler (no Emitter Framework)
 				_IDL_SEQUENCE_char somipc2={0,0,NULL};	// SOM IDL Compiler (Emitter Framework) 
-				_IDL_SEQUENCE_char spp={0,0,NULL};		// SOM OIDL Pre-Processor
+				_IDL_SEQUENCE_char spp={0,0,NULL};	// SOM OIDL Pre-Processor
 				_IDL_SEQUENCE_char somopc={0,0,NULL};	// SOM OIDL Compiler (CSC to IDL converter)
 				_IDL_SEQUENCE_char idlname={0,0,NULL};	// IDL FQFN
 				char buf[512];
@@ -913,7 +913,7 @@ int main(int argc,char **argv)
 					int cppExitCode;
 					int somipcExitCode;
 					_IDL_SEQUENCE_char tmpf={0,0,NULL};
-					char *tmpdir = "/tmp";
+					char *tmpdir = "/tmp";		// Default value for most UNIXes
 
 					tmpnam(name2);
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)

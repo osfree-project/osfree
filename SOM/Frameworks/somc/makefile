@@ -1,8 +1,8 @@
-# Makefile for SOM
+# Makefile for SOM Compiler Library
 
 PROJ = somc
 DLL = 1
-DESC = SOM Emitter Framework
+DESC = SOM Compiler Library
 DLLOPT  = initinstance terminstance
 INSTALL_ADD = 1
 srcfiles = $(p)somc$(e)
