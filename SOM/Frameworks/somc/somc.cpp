@@ -22,8 +22,17 @@
 
 #include <emitlib.h>
 
+//extern "C" __declspec(dllexport) int somtopenEmitFileCalled=0;
+
+//extern "C" __declspec(dllexport) int somtremoveExt(char *file, char *filename, char *fileext)
+//{
+//}
+
 extern "C" __declspec(dllexport) FILE * SOMLINK somtopenEmitFileSL (char *file, char *ext)
 {
+  somtopenEmitFileCalled=1;
+//  somtremoveExt(file, filename, fileext);
+//  somtaddExt();
   // Здесь необходимо предварительно добавить или заменить расширение на ext
   return fopen(file, "w");
 };

@@ -234,6 +234,15 @@ static int load_somir(const char *app,const char *f)
 	return retVal;
 }
 
+/*
+
+Options found in SOM Compiler but not know how it works
+
+e not found info yet
+q not found info yet
+
+*/
+
 void usage(void)
 {
   printf("usage: sc [-C:D:E:I:S:VU:cd:hi:m:prsvw] f1 f2 ...\n");
@@ -340,10 +349,10 @@ int main(int argc,char **argv)
 		{
 			switch (p[1])
 			{
-			case 'p':
+			case 'p': // Alias for -D__PRIVATE__
 				add_many(&defines,"__PRIVATE__");
 				break;
-			case 'E':
+			case 'E': // Set environment variable
 				if (p[2])
 				{
 					setenv(p+2,"1",1);
@@ -373,8 +382,8 @@ int main(int argc,char **argv)
 					add_many(&undefines,argv[i++]);
 				}
 				break;
-			case 'a':			// Undocumented. Same as -m
-			case 'm':
+			case 'a': // Undocumented. Same as -m. Comes from SOM 1.0 Compiler and was named as global attribute.
+			case 'm': // Global modifier
 				if (p[2])
 				{
 					add_many(&modifiers,p+2);
@@ -384,7 +393,7 @@ int main(int argc,char **argv)
 					add_many(&modifiers,argv[i++]);
 				}
 				break;
-			case 'I':
+			case 'I': // Includes
 				if (p[2])
 				{
 					add_many(&includes,p+2);
@@ -394,8 +403,8 @@ int main(int argc,char **argv)
 					add_many(&includes,argv[i++]);
 				}
 				break;
-			case 's':
-			case 'e':
+			case 's': // Emitters list
+			case 'e': // Seems to be this option used by original SOM Compiler for another tasks
 				if (p[2])
 				{
 					add_many(&emitters,p+2);
@@ -405,8 +414,8 @@ int main(int argc,char **argv)
 					add_many(&emitters,argv[i++]);
 				}
 				break;
-			case 'd':
-			case 'o':
+			case 'd': // Output directory
+			case 'o': // Output directory
 				if (outputDir)
 				{
 					fprintf(stderr,"%s: output dir already set\n",app);
@@ -421,39 +430,38 @@ int main(int argc,char **argv)
 					outputDir=argv[i++];
 				}
 				break;
-			case 'u':
-				update=1; // update IR
+			case 'u': // update IR
+				update=1;
 				add_many(&emitters,"ir");
 				add_many(&modifiers,"updateir");
 				break;
-			case 'h':
-			case '?':
+			case 'h': // Help
+			case 'H': // Help
+			case '?': // Help
 				usage();
 				return 0;
-			case 'C':
-				// comment buffer //ignored
+			case 'q': // unknown. Seems to be passed to somipc
 				break;
-			case 'S':
-				// string buffer //ignored
+			case 0x01: // Easter egg. Info about authors
+				printf("somFree Compiler\n");
 				break;
-			case 'v':
-				// verbose mode
+			case 'C': // comment buffer //ignored
+				break;
+			case 'S': // string buffer //ignored
+				break;
+			case 'v': // verbose mode
 				verbose=1;
 				break;
-			case 'w':
-				// show warnings
+			case 'w': // show warnings
 				warnings=1;
 				break;
-			case '%':
-				// show percent
+			case '%': // show percent
 				showpercent=1;
 				break;
-			case 'c':
-				// ignore all comments
+			case 'c': // ignore all comments
 				nocomments=1;
 				break;
-			case 'r':
-				// check releaseorder
+			case 'r': // check releaseorder
 				releaseorder=1;
 				break;
 			case 'V':
@@ -921,9 +929,9 @@ int main(int argc,char **argv)
 #endif
 					add_str(&tmpf, tmpdir);
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
-					add_str(&tmpf,"/");
-#else
 					add_str(&tmpf,"\\");
+#else
+					add_str(&tmpf,"/");
 #endif
 					add_str(&tmpf,&name2);
 
