@@ -19,10 +19,13 @@
  *
  */
 
-
 #include <emitlib.h>
 
-//extern "C" __declspec(dllexport) int somtopenEmitFileCalled=0;
+#include <direct.h> // _getcwd
+
+//extern "C" __declspec(dllexport) int somtopenEmitFileCalled;
+
+int somtopenEmitFileCalled=0;
 
 //extern "C" __declspec(dllexport) int somtremoveExt(char *file, char *filename, char *fileext)
 //{
@@ -38,31 +41,32 @@ extern "C" __declspec(dllexport) FILE * SOMLINK somtopenEmitFileSL (char *file, 
 };
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) FILE * somtopenEmitFile (char *file, char *ext)
+SOMEXTERN SOMDLLIMPORT FILE * OPTLINK_DECL somtopenEmitFile (char *file, char *ext)
 {
+  OPTLINK_2ARGS(file,ext);
   return somtopenEmitFileSL (file, ext);
 };
 #endif
 
-extern "C" __declspec(dllexport) int SOMLINK somtfcloseSL (FILE *fp)
+SOMEXTERN SOMDLLEXPORT int SOMLINK somtfcloseSL (FILE *fp)
 {
   return fclose(fp);
 }
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) int somtfclose (FILE *fp)
+SOMEXTERN int OPTLINK_DECL somtfclose (FILE *fp)
 {
+  OPTLINK_1ARG(fp);
   return somtfcloseSL (fp);
 }
 #endif
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) void somtmsg(char *file, long lineno, char *fmt, ...)
+SOMEXTERN void OPTLINK_DECL somtmsg(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
+
+  OPTLINK_3ARGS(file, lineno, fmt);
 
   printf("(%s: %d) ", file, lineno);
   va_start(args, fmt);
@@ -73,7 +77,7 @@ extern "C" __declspec(dllexport) void somtmsg(char *file, long lineno, char *fmt
 #endif
 
 
-extern "C" __declspec(dllexport) void SOMLINK somtmsgSL(char *file, long lineno, char *fmt, ...)
+SOMEXTERN __declspec(dllexport) void SOMLINK somtmsgSL(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
@@ -85,12 +89,13 @@ extern "C" __declspec(dllexport) void SOMLINK somtmsgSL(char *file, long lineno,
 }
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) void somtwarn(char *file, long lineno, char *fmt, ...)
+SOMEXTERN void OPTLINK_DECL somtwarn(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Warning: (%s: %d) ", file, lineno);
+  OPTLINK_3ARGS(file, lineno, fmt);
+
+  printf("warning: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
@@ -98,11 +103,11 @@ extern "C" __declspec(dllexport) void somtwarn(char *file, long lineno, char *fm
 }
 #endif
 
-extern "C" __declspec(dllexport) void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...)
+SOMEXTERN __declspec(dllexport) void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Warning: (%s: %d) ", file, lineno);
+  printf("warning: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
@@ -115,12 +120,13 @@ extern "C" __declspec(dllexport) void SOMLINK somtwarnSL(char *file, long lineno
 //SOMEXTERN SOMDLLIMPORT void somtunsetEmitSignals(void);
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) void somterror(char *file, long lineno, char *fmt, ...)
+SOMEXTERN void OPTLINK_DECL somterror(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Error: (%s: %d) ", file, lineno);
+  OPTLINK_3ARGS(file, lineno, fmt);
+
+  printf("error: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
@@ -128,11 +134,11 @@ extern "C" __declspec(dllexport) void somterror(char *file, long lineno, char *f
 }
 #endif
 
-extern "C" __declspec(dllexport) void SOMLINK somterrorSL(char *file, long lineno, char *fmt, ...)
+SOMEXTERN __declspec(dllexport) void SOMLINK somterrorSL(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Error: (%s: %d) ", file, lineno);
+  printf("error: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
@@ -140,8 +146,21 @@ extern "C" __declspec(dllexport) void SOMLINK somterrorSL(char *file, long linen
 }
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) void somtfatal(char *file, long lineno, char *fmt, ...)
+SOMEXTERN void OPTLINK_DECL somtfatal(char *file, long lineno, char *fmt, ...)
+{
+  va_list args;
+
+  OPTLINK_3ARGS(file, lineno, fmt);
+
+  printf("fatal error: (%s: %d) ", file, lineno);
+  va_start(args, fmt);
+  vprintf(fmt, args);
+  va_end( args );
+  printf("\n");
+}
+#endif
+
+SOMEXTERN __declspec(dllexport) void SOMLINK somtfatalSL(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
@@ -151,26 +170,15 @@ extern "C" __declspec(dllexport) void somtfatal(char *file, long lineno, char *f
   va_end( args );
   printf("\n");
 }
-#endif
-
-extern "C" __declspec(dllexport) void SOMLINK somtfatalSL(char *file, long lineno, char *fmt, ...)
-{
-  va_list args;
-
-  printf("Fatal error: (%s: %d) ", file, lineno);
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end( args );
-  printf("\n");
-}
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-// Under Win32 this is __fastcall?
-extern "C" __declspec(dllexport) void somtinternal(char *file, long lineno, char *fmt, ...)
+SOMEXTERN void OPTLINK_DECL somtinternal(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Internal error: (%s: %d) ", file, lineno);
+  OPTLINK_3ARGS(file, lineno, fmt);
+
+  printf("internal error: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
@@ -178,15 +186,109 @@ extern "C" __declspec(dllexport) void somtinternal(char *file, long lineno, char
 }
 #endif
 
-extern "C" __declspec(dllexport) void SOMLINK somtinternalSL(char *file, long lineno, char *fmt, ...)
+SOMEXTERN __declspec(dllexport) void SOMLINK somtinternalSL(char *file, long lineno, char *fmt, ...)
 {
   va_list args;
 
-  printf("Internal error: (%s: %d) ", file, lineno);
+  printf("internal error: (%s: %d) ", file, lineno);
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end( args );
   printf("\n");
+}
+
+SOMEXTERN BOOL OPTLINK_DECL somtfexists(char *file)
+{
+  OPTLINK_1ARG(file);
+
+  return somtfexistsSL(file);
+}
+
+SOMEXTERN __declspec(dllexport) BOOL SOMLINK somtfexistsSL(char *file)
+{
+  return (_access(file, 4)==0);  // Try RO access
+}
+
+SOMEXTERN __declspec(dllexport) char * OPTLINK_DECL somtsearchFile(char *file, char *fullpath, char *env)
+{
+  return somtsearchFileSL(file, fullpath, env);
+}
+
+SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char *fullpath, char *env)
+{
+  char *path;
+#ifdef _WIN32
+  char magic=';';
+#else
+  char magic=':';
+#endif
+
+  if (!file) return NULL;
+  if (!file[0]) return NULL;
+
+  if (somtfexistsSL(file))
+  {
+    return strcpy(fullpath, file);
+  }
+  else
+  {
+    if (file[0]=='/') return NULL;
+#ifdef _WIN32
+    if (file[0]=='\\') return NULL;
+    if (file[1]==':') return NULL;
+#endif
+
+    path=getenv(env);
+
+#ifndef _WIN32
+    if (!path) path="/bin:/usr/bin:";
+#endif
+
+    if (path)
+    {
+      while (*path)
+      {
+        char buf[1024];
+        char *q;
+
+        q=buf;
+
+        while ((*path)&&(*path !=magic))
+        {
+          *q=*path;
+          path++;
+          q++;
+        }
+        *q=0;
+        if (*path) path++;
+
+        if (!buf[0])
+        {
+          _getcwd(buf,sizeof(buf));
+        }
+
+        if (buf[0])
+        {
+          if (!strcmp(buf,"."))
+          {
+            _getcwd(buf,sizeof(buf));
+          }
+#ifdef _WIN32
+          strncat(buf,"\\",sizeof(buf)-1);
+#else
+          strncat(buf,"/",sizeof(buf)-1);
+#endif
+          strncat(buf,file,sizeof(buf)-1);
+
+          if (somtfexistsSL(buf))
+          {
+            return strcpy(fullpath,buf);
+          }
+        }
+      }
+    }
+    return NULL;
+  }
 }
 
 /*
@@ -275,7 +377,7 @@ extern "C" __declspec(dllexport) void SOMLINK somtinternalSL(char *file, long li
 +    83        00050E6E        somtfatalSL
 +    84        00050E7A        somtfclose
 +    85        00050E85        somtfcloseSL
-    86        00050E92        somtfexists
++    86        00050E92        somtfexists
     87        00050E9E        somtfilePath
     88        00050EAB        somtfileStem
     89        00050EB8        somtfindBaseEp

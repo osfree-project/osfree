@@ -21,7 +21,10 @@
 
 #ifndef emitlib_h
 #define emitlib_h
-
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <io.h>	
 #include <stdio.h>
 #include <stdlib.h>
 #include <sm.h>
@@ -30,16 +33,38 @@
  extern "C" {
 #endif
 
+// OPTLINK emulation for MSVC
+#if defined(_WIN32) && defined(_M_IX86) && !defined(_WIN64)
+        #define OPTLINK_3ARGS(a,b,c)            \
+                        __asm { mov             a,eax   }       \
+                        __asm { mov             b,edx   }       \
+                        __asm { mov             c,ecx   }
+        #define OPTLINK_2ARGS(a,b)            \
+                        __asm { mov             a,eax   }       \
+                        __asm { mov             b,edx   }       
+        #define OPTLINK_1ARG(a)            \
+                        __asm { mov             a,eax   }
+        #define OPTLINK_DECL    __cdecl
+#else
+        #define OPTLINK_3ARGS(a,b,c)
+        #define OPTLINK_2ARGS(a,b)
+        #define OPTLINK_1ARG(a)
+        #define OPTLINK_DECL
+#endif
+
+// Here old Optlink caling convention functions having SOMLINK equals
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-SOMEXTERN SOMDLLIMPORT FILE *  somtopenEmitFile(char *file, char *ext);
-SOMEXTERN SOMDLLIMPORT int  somtfclose(FILE *fp);
-SOMEXTERN SOMDLLIMPORT void somterror(char *file, long lineno, char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT void somtfatal(char *file, long lineno, char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT void somtinternal(char *file, long lineno, char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT void somtmsg(char *file, long lineno, char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT void somtresetEmitSignals();
-SOMEXTERN SOMDLLIMPORT void somtunsetEmitSignals(void);
-SOMEXTERN SOMDLLIMPORT void somtwarn(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT BOOL OPTLINK_DECL somtfexists(char *file);
+SOMEXTERN SOMDLLIMPORT FILE * OPTLINK_DECL somtopenEmitFile(char *file, char *ext);
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtfclose(FILE *fp);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somterror(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtfatal(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtinternal(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtmsg(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtresetEmitSignals();
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtunsetEmitSignals(void);
+SOMEXTERN SOMDLLIMPORT void OPTLINK_DECL somtwarn(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtsearchFile(char *file, char *fullpath, char *env);
 #endif
 
 SOMEXTERN SOMDLLIMPORT FILE * SOMLINK somtopenEmitFileSL(char *file, char *ext);
@@ -51,6 +76,8 @@ SOMEXTERN SOMDLLIMPORT void SOMLINK somtmsgSL(char *file, long lineno, char *fmt
 SOMEXTERN SOMDLLIMPORT void SOMLINK somtresetEmitSignalsSL();
 SOMEXTERN SOMDLLIMPORT void SOMLINK somtunsetEmitSignalsSL(void);
 SOMEXTERN SOMDLLIMPORT void SOMLINK somtwarnSL(char *file, long lineno, char *fmt, ...);
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtfexistsSL(char *file);
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtsearchFileSL(char *file, char *fullpath, char *env);
 
 #ifdef __cplusplus
  }
