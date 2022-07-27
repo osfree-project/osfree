@@ -4,8 +4,8 @@
  *      SOM Emitter emitctm: 2.23.1.9
  */
 
-#ifndef SOM_Module_def_Source
-#define SOM_Module_def_Source
+#ifndef SOM_Module_mods_Source
+#define SOM_Module_mods_Source
 #endif
 #define MODSEmitter_Class_Source
 
@@ -31,7 +31,7 @@ SOM_Scope boolean  SOMLINK somtGenerateSections(MODSEmitter *somSelf)
   SOMTClassEntryC       *cls = somSelf->_get_somtTargetClass();
 //  MODSEmitterData     *EmitterData = MODSEmitterGetData(somSelf);
 
-  DEFEmitterMethodDebug("MODSEmitter","somtGenerateSections");
+  MODSEmitterMethodDebug("MODSEmitter","somtGenerateSections");
 
  if ( cls )
  {

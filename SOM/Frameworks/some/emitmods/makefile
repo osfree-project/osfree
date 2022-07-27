@@ -1,11 +1,11 @@
 
-PROJ = emitdef
+PROJ = emitmods
 TRGT = $(PROJ).dll
 DLL = 1
-DESC = SOM DEF Emitter
+DESC = SOM MODS Emitter
 DLLOPT  = initinstance terminstance
-srcfiles = $(p)emitdef$(e) &
-		$(p)defemit$(e)
+srcfiles = $(p)emitmods$(e) &
+		$(p)modsemit$(e)
 
 EXPORTS = emitSL
 
@@ -91,7 +91,7 @@ ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 .xih: $(SOM_INTDIR)
 #.xh: $(SRC)
 
-PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)defemit.xh &
-			$(SOM_INTDIR)$(SEP)defemit.xih
+PRIVATE_HEADERS=$(SOM_INTDIR)$(SEP)modsemit.xh &
+			$(SOM_INTDIR)$(SEP)modsemit.xih
 
 $(OBJS): $(PRIVATE_HEADERS)
