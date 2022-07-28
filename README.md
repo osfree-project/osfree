@@ -108,9 +108,9 @@ FreeLDR project which was evolved in full featured kernel loader
 
 GRUB which was good codebase for FreeLDR project
 
-MTDORB used as SOM CPP base
+MCPP (https://sourceforge.net/projects/mcpp/) used as SOM CPP base
 
-somFree used as SOM replacement base
+somFree (https://sourceforge.net/projects/somfree/) used as SOM replacement base
 
 GBM used as core of Image Format I/O Procedures
 
@@ -148,8 +148,6 @@ LVMPM
 
 HX DOS Extender
 
-somFree
-
 CWMM Classes
 
 Open Watcom
@@ -163,6 +161,8 @@ ACPITK
 XWPHelpers
 
 4os2
+
+XWorkplace
 
 and other projects here. Please add it if we missed one.
 
