@@ -19,25 +19,41 @@
  *
  */
 
-#undef _case
-#undef _switch
-#undef _struct
-#undef _typedef
-#undef _name
+#ifndef smstd_h
+#define smstd_h
 
-#ifdef __SOMIDL__
-    /*
-     * The _case and _switch macro are for IDL Unions.
-     */
-    #define _case(n)                       case n:
-    #define _switch(t)                     switch(t)
-    #define _struct
-    #define _typedef
-    #define _name(name)
-#else
-    #define _case(n)
-    #define _switch(t)
-    #define _struct                        struct
-    #define _typedef                       typedef
-    #define _name(name)                    name
+#ifdef __cplusplus      /* Turn off inlining of strcmp, etc for C++ */
+#undef __STR__
 #endif
+
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+#ifndef TRUE
+    #define TRUE 1
+#endif
+#ifndef FALSE
+    #define FALSE 0
+#endif
+
+/*
+ *  Standard typedefs:
+ */
+//typedef int bool;
+
+#define global /* Maps onto nothing, used as a prefix to global variables */
+
+/*
+ *  Standard NULL casts:
+ */
+#ifndef NULL
+#define NULL   0
+#endif
+#define CNULL       ((char *)0)
+#define FNULL       ((FILE *)0)
+#define VNULL       ((void *)0)
+#define INULL       ((int  *)0)
+
+#endif /* smstd_h */

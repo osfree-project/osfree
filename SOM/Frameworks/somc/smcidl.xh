@@ -19,25 +19,9 @@
  *
  */
 
-#undef _case
-#undef _switch
-#undef _struct
-#undef _typedef
-#undef _name
+#ifndef smcidl_xh
+#define smcidl_xh
 
-#ifdef __SOMIDL__
-    /*
-     * The _case and _switch macro are for IDL Unions.
-     */
-    #define _case(n)                       case n:
-    #define _switch(t)                     switch(t)
-    #define _struct
-    #define _typedef
-    #define _name(name)
-#else
-    #define _case(n)
-    #define _switch(t)
-    #define _struct                        struct
-    #define _typedef                       typedef
-    #define _name(name)                    name
-#endif
+#include <smcidl.h>
+
+#endif /* smcidl_xh */
