@@ -33,24 +33,7 @@
  extern "C" {
 #endif
 
-// OPTLINK emulation for MSVC
-#if defined(_WIN32) && defined(_M_IX86) && !defined(_WIN64)
-        #define OPTLINK_3ARGS(a,b,c)            \
-                        __asm { mov             a,eax   }       \
-                        __asm { mov             b,edx   }       \
-                        __asm { mov             c,ecx   }
-        #define OPTLINK_2ARGS(a,b)            \
-                        __asm { mov             a,eax   }       \
-                        __asm { mov             b,edx   }       
-        #define OPTLINK_1ARG(a)            \
-                        __asm { mov             a,eax   }
-        #define OPTLINK_DECL    __cdecl
-#else
-        #define OPTLINK_3ARGS(a,b,c)
-        #define OPTLINK_2ARGS(a,b)
-        #define OPTLINK_1ARG(a)
-        #define OPTLINK_DECL
-#endif
+#include <optlink.h>
 
 // Here old Optlink caling convention functions having SOMLINK equals
 #ifndef SOM_SOMC_NO_BACKCOMPAT

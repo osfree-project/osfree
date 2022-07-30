@@ -5,7 +5,7 @@ DLL = 1
 DESC = SOM Compiler Library
 DLLOPT  = initinstance terminstance
 INSTALL_ADD = 1
-srcfiles = $(p)somc$(e)
+srcfiles = $(p)somc$(e) $(p)symtab$(e)
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
