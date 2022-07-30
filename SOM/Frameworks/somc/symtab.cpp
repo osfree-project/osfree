@@ -21,72 +21,107 @@
 
 #include <symtab.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #ifndef SOM_SOMC_NO_BACKCOMPAT
 SOMEXTERN char * OPTLINK_DECL somtallocBuf(MemBuf *membuf, void *buf, long len)
 {
-  return NULL;
+  OPTLINK_3ARGS(membuf, buf, len);
+
+  return somtallocBufSL(membuf, buf, len);
 }
 
 SOMEXTERN char * OPTLINK_DECL somtuniqString(MemBuf *membuf, char *s)
 {
-  return NULL;
+  OPTLINK_2ARGS(membuf, s);
+
+  return somtuniqStringSL(membuf, s);
 }
 
 SOMEXTERN long OPTLINK_DECL somtkeyword(KeytabEntry *keytab, char *kword, long keytabsize)
 {
-  return 0;
+  OPTLINK_3ARGS(keytab, kword, keytabsize);
+
+  return somtkeywordSL(keytab, kword, keytabsize);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtaddEntry(Stab *stab, char *name, void *ep)
 {
-  return NULL;
+  OPTLINK_3ARGS(stab, name, ep);
+
+  return somtaddEntrySL(stab, name, ep);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtgetEntry(Stab *stab, char *name)
 {
-  return NULL;
+  OPTLINK_2ARGS(stab, name);
+
+  return somtgetEntrySL(stab, name);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtstabFirst(Stab *stab, Sep **sepp)
 {
-  return NULL;
+  OPTLINK_2ARGS(stab, sepp);
+
+  return somtstabFirstSL(stab, sepp);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtstabFirstName(Stab *stab, char *name, Sep **sepp)
 {
-  return NULL;
+  OPTLINK_3ARGS(stab, name, sepp);
+
+  return somtstabFirstNameSL(stab, name, sepp);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtstabNext(Stab *stab, Sep **sepp)
 {
-  return NULL;
+  OPTLINK_2ARGS(stab, sepp);
+
+  return somtstabNextSL(stab, sepp);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtstabNextName(Stab *stab, Sep **sepp)
 {
-  return NULL;
+  OPTLINK_2ARGS(stab, sepp);
+
+  return somtstabNextNameSL(stab, sepp);
 }
 
 SOMEXTERN void OPTLINK_DECL somtcreateMemBuf(MemBuf **membufp, size_t bufsize, long stabsize)
 {
+  OPTLINK_3ARGS(membufp, bufsize, stabsize);
+
+  somtcreateMemBufSL(membufp, bufsize, stabsize);
 }
 
 SOMEXTERN void OPTLINK_DECL somtcreateStab(Stab *stab, long stabsize, long entrysize)
 {
+  OPTLINK_3ARGS(stab, stabsize, entrysize);
+
+  somtcreateStabSL(stab, stabsize, entrysize);
 }
 
 SOMEXTERN int OPTLINK_DECL somticstrcmp(char *s, char *t)
 {
-  return 0;
+  OPTLINK_2ARGS(s, t);
+
+  return somticstrcmpSL(s, t);
 }
 
 SOMEXTERN void * OPTLINK_DECL somtaddEntryBuf(Stab *stab, char *name, void *ep, void *buf, size_t len)
 {
-  return NULL;
+  OPTLINK_3ARGS(stab, name, ep);
+
+  return somtaddEntryBufSL(stab, name, ep, buf, len);
 }
 
-SOMEXTERN void OPTLINK_DECL somtFreeStab(Stab *stab, bool freeEp)
+SOMEXTERN void OPTLINK_DECL somtFreeStab(Stab *stab, BOOL freeEp)
 {
+  OPTLINK_2ARGS(stab, freeEp);
+
+  somtFreeStabSL(stab, freeEp);
 }
 
 #endif
@@ -154,7 +189,7 @@ SOMEXTERN void * SOMLINK somtaddEntryBufSL(Stab *stab, char *name, void *ep, voi
   return NULL;
 }
 
-SOMEXTERN void SOMLINK somtFreeStabSL(Stab *stab, bool freeEp)
+SOMEXTERN void SOMLINK somtFreeStabSL(Stab *stab, BOOL freeEp)
 {
 }
 

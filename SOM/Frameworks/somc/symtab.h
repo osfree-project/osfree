@@ -28,6 +28,10 @@
 
 #include <som.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 //#ifndef bool
 //#define bool boolean
 //#endif
@@ -109,7 +113,7 @@ SOMEXTERN void  OPTLINK_DECL somtcreateMemBuf(MemBuf **membufp, size_t bufsize, 
 SOMEXTERN void  OPTLINK_DECL somtcreateStab(Stab *stab, long stabsize, long entrysize);
 SOMEXTERN int  OPTLINK_DECL somticstrcmp(char *s, char *t);
 SOMEXTERN void * OPTLINK_DECL somtaddEntryBuf(Stab *stab, char *name, void *ep, void *buf, size_t len);
-SOMEXTERN void  OPTLINK_DECL somtFreeStab(Stab *stab, bool freeEp);
+SOMEXTERN void  OPTLINK_DECL somtFreeStab(Stab *stab, BOOL freeEp);
 #endif
 
 SOMEXTERN char * SOMLINK somtallocBufSL(MemBuf *membuf, void *buf, long len);
@@ -125,7 +129,7 @@ SOMEXTERN void SOMLINK somtcreateMemBufSL(MemBuf **membufp, size_t bufsize, long
 SOMEXTERN void SOMLINK somtcreateStabSL(Stab *stab, long stabsize, long entrysize);
 SOMEXTERN int SOMLINK somticstrcmpSL(char *s, char *t);
 SOMEXTERN void * SOMLINK somtaddEntryBufSL(Stab *stab, char *name, void *ep, void *buf, size_t len);
-SOMEXTERN void SOMLINK somtFreeStabSL(Stab *stab, bool freeEp);
+SOMEXTERN void SOMLINK somtFreeStabSL(Stab *stab, BOOL freeEp);
 #endif  /* __SOMIDL__ */
 
 #endif  /* symtab_h */
