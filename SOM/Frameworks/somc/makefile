@@ -5,7 +5,7 @@ DLL = 1
 DESC = SOM Compiler Library
 DLLOPT  = initinstance terminstance
 INSTALL_ADD = 1
-srcfiles = $(p)somc$(e)
+srcfiles = $(p)somc$(e) $(p)symtab$(e)
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 HOSTBLD=1
@@ -101,9 +101,27 @@ $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somc.
 .xih: $(SOM_INTDIR)
 #.xh: $(SRC)
 
-$(OBJS): $(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sm.h $(SOMIDL_HEADERS)$(SEP)sm.xh
+$(OBJS): $(SOMIDL_HEADERS)$(SEP)emitlib.h $(SOMIDL_HEADERS)$(SEP)sm.h $(SOMIDL_HEADERS)$(SEP)sm.xh $(SOMIDL_HEADERS)$(SEP)smcidl.h &
+         $(SOMIDL_HEADERS)$(SEP)smcidl.xh $(SOMIDL_HEADERS)$(SEP)optlink.h $(SOMIDL_HEADERS)$(SEP)smlib.h $(SOMIDL_HEADERS)$(SEP)smstd.h &
+         $(SOMIDL_HEADERS)$(SEP)symtab.h $(SOMIDL_HEADERS)$(SEP)somc_msg.h
 
 $(SOMIDL_HEADERS)$(SEP)sm.h: $(SOM_DIR)$(SEP)sm.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)smstd.h: $(SOM_DIR)$(SEP)smstd.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)smlib.h: $(SOM_DIR)$(SEP)smlib.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)smcidl.h: $(SOM_DIR)$(SEP)smcidl.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)smcidl.xh: $(SOM_DIR)$(SEP)smcidl.xh
 	$(verbose)$(SAY) CP       $^. $(LOG)
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
@@ -112,5 +130,17 @@ $(SOMIDL_HEADERS)$(SEP)sm.xh: $(SOM_DIR)$(SEP)sm.xh
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 $(SOMIDL_HEADERS)$(SEP)emitlib.h: $(SOM_DIR)$(SEP)emitlib.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)optlink.h: $(SOM_DIR)$(SEP)optlink.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)symtab.h: $(SOM_DIR)$(SEP)symtab.h
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(SOMIDL_HEADERS)$(SEP)somc_msg.h: $(SOM_DIR)$(SEP)somc_msg.h
 	$(verbose)$(SAY) CP       $^. $(LOG)
 	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
