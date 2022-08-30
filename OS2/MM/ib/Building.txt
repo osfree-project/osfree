@@ -1,0 +1,67 @@
+
+Building IMAGE                               			02 Apr 2003 
+==============
+
+Image is a simple, fast image viewer that works with OS/2's MMPM/2 and 
+includes some editing features.  It is intended for use with File Manager/2 
+(FM/2).  Image is free software from Mark Kimes.
+
+
+Tools
+=====
+
+The following tools have been used to build binary distributions:
+
+  IBM VisualAge C++ V3 with FP8
+  IBM Developers Toolkit v4.5
+
+Older versions of the Toolkit may work.  There are no known special setup requirements.
+
+
+Building
+========
+
+Unzip the source code distribution to a work directory.
+
+Build the release version with:
+
+  NMAKE
+
+Build the debug version with:
+
+  NMAKE DEBUG=1
+
+The final build output is:
+
+  IMAGE.EXE
+
+
+About IMAGE
+===========
+
+IMAGE was originally written by:
+
+  Mark Kimes
+  <hectorplasmic@worldnet.att.net>
+
+He has kindly allowed me to take over maintenance and support of IMAGE and 
+to release the program under the GNU GPL license.  I'm sure he would 
+appreciate a Thank You note for his generosity.
+
+
+Support
+=======
+
+Please address support questions and enhancement requests to:
+
+  Steven H. Levine
+  steve53@earthlink.net
+
+I monitor the comp.os.os2.programmer.misc newsgroup and others in the 
+comp.os.os2.* hierarchy.
+
+
+Thanks and enjoy.
+
+$TLIB$: $ &(#) %n - Ver %v, %f $
+TLIB: $ $
