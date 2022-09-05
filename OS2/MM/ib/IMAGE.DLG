@@ -1,0 +1,88 @@
+DLGINCLUDE 1 "image.h"
+
+DLGTEMPLATE LIMGS_FRAME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "FM/2:  Open an image file", LIMGS_FRAME, 12, 8, 300, 152, 
+            WS_VISIBLE, FCF_TITLEBAR
+    BEGIN
+        CTEXT           "", 261, 9999, 9975, 0, 0, DT_VCENTER | NOT 
+                        WS_VISIBLE
+        CTEXT           "", 263, 9999, 9975, 0, 0, DT_VCENTER | NOT 
+                        WS_VISIBLE
+        CONTROL         "", 262, 9999, 9975, 0, 0, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST
+        RTEXT           "Filename:", 257, 4, 138, 48, 8, DT_VCENTER | NOT 
+                        WS_GROUP
+        ENTRYFIELD      "", 258, 56, 138, 236, 8, ES_MARGIN
+        CTEXT           "Drives & Dirs:", 259, 4, 126, 118, 8, DT_VCENTER
+        CONTROL         "", 260, 4, 5, 118, 119, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | LS_HORZSCROLL | WS_TABSTOP | 
+                        WS_VISIBLE
+        LISTBOX         264, 4, 5, 118, 106, LS_OWNERDRAW | LS_HORZSCROLL | 
+                        WS_GROUP
+        CTEXT           "Files:", 265, 126, 127, 172, 8, DT_VCENTER
+        LISTBOX         266, 126, 20, 172, 105, LS_HORZSCROLL
+        DEFPUSHBUTTON   "Okay", DID_OK, 128, 4, 40, 14, BS_NOPOINTERFOCUS | 
+                        WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 256, 4, 40, 14, 
+                        BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE IMGS_FRAME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "FM/2:", IMGS_FRAME, 12, 8, 300, 152, WS_VISIBLE, FCF_TITLEBAR
+    BEGIN
+        CTEXT           "", 261, 9999, 9975, 0, 0, DT_VCENTER | NOT 
+                        WS_VISIBLE
+        CTEXT           "", 263, 9999, 9975, 0, 0, DT_VCENTER | NOT 
+                        WS_VISIBLE
+        CONTROL         "", 262, 9999, 9975, 0, 0, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST
+        RTEXT           "Filename:", 257, 4, 138, 48, 8, DT_VCENTER | NOT 
+                        WS_GROUP
+        ENTRYFIELD      "", 258, 56, 138, 236, 8, ES_MARGIN
+        CTEXT           "Image type:", -1, 4, 127, 118, 8, DT_VCENTER
+        CONTROL         "", IMGS_LISTBOX, 4, 5, 118, 120, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | LS_HORZSCROLL | WS_TABSTOP | 
+                        WS_VISIBLE
+        RTEXT           "Color bits:", IMGS_BITCOUNTHDR, 224, 126, 40, 8, 
+                        DT_VCENTER
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Helv"
+        CONTROL         "", IMGS_BITCOUNT, 266, 57, 30, 78, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Helv"
+        CTEXT           "Drives & Dirs:", 259, 4, 103, 118, 8, DT_VCENTER
+        CONTROL         "", 260, 4, 5, 118, 96, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | LS_HORZSCROLL | WS_TABSTOP | 
+                        WS_VISIBLE
+        LISTBOX         264, 4, 5, 118, 82, LS_OWNERDRAW | LS_HORZSCROLL | 
+                        WS_GROUP
+        RTEXT           "Files:", 265, 126, 126, 96, 8, DT_VCENTER
+        LISTBOX         266, 126, 20, 172, 104, LS_HORZSCROLL
+        DEFPUSHBUTTON   "Okay", DID_OK, 128, 4, 40, 14, BS_NOPOINTERFOCUS | 
+                        WS_GROUP
+        AUTOCHECKBOX    "Iconify", IMGS_ICONIFY, 190, 4, 50, 10
+        PUSHBUTTON      "Cancel", DID_CANCEL, 256, 4, 40, 14, 
+                        BS_NOPOINTERFOCUS
+    END
+END
+
+DLGTEMPLATE RSZ_FRAME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Resize image", RSZ_FRAME, 12, 6, 148, 84, WS_VISIBLE, 
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        ICON            ID_IMAGE, -1, 122, 50, 20, 16, WS_GROUP
+        LTEXT           "New size:", -1, 4, 58, 63, 8, NOT WS_GROUP
+        CTEXT           "X", -1, 38, 46, 20, 8, DT_VCENTER | NOT WS_GROUP
+        LTEXT           "Old size:", RSZ_OLDSIZE, 4, 72, 140, 8, DT_VCENTER | 
+                        NOT WS_GROUP
+        ENTRYFIELD      "", RSZ_XSIZE, 10, 46, 26, 8, ES_MARGIN | WS_GROUP
+        ENTRYFIELD      "", RSZ_YSIZE, 60, 46, 26, 8, ES_MARGIN
+        AUTOCHECKBOX    "Maintain aspect ratio", RSZ_RATIO, 12, 26, 130, 10, 
+                        WS_GROUP
+        DEFPUSHBUTTON   "Okay", DID_OK, 4, 4, 40, 14, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 104, 4, 40, 14
+    END
+END

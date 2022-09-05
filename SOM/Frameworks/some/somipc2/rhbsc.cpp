@@ -295,6 +295,33 @@ public:
 	}
 };
 
+/*
+
+a
+m
+c
+e
+h
+H
+?
+i
+o
+q
+s
+v
+w
+x
+S
+C
+D
+I
+U
+l
+y
+r
+V
+
+*/
 int main(int argc,char **argv)
 {
 	const char *appname=argv[0];

@@ -1,0 +1,19 @@
+#ifndef MODSEmitter_idl
+#define MODSEmitter_idl
+
+#include <scemit.idl>
+
+interface MODSEmitter : SOMTEmitC
+{
+#ifdef __SOMIDL__
+  implementation {
+    //# Class Modifiers
+    callstyle = oidl;
+
+    //# Method Modifiers
+    somtGenerateSections: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* MODSEmitter_idl */

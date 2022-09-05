@@ -1,0 +1,8 @@
+LIBRARY emitmods.dll
+HEAPSIZE 10240000
+EXPORTS
+   MODSEmitterNewClass
+   MODSEmitterClassData
+   MODSEmitterCClassData
+   
+   emit

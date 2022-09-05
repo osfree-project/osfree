@@ -1,4 +1,4 @@
-# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
+# Makefile for SOM Compiler frontend HOST version
 
 !define  HOSTBLD
 !include ../../sc/makefile

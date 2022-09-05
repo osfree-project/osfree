@@ -1,3 +1,5 @@
+Exported symbols
+
      1        00050973        TCCalloc
      2        0005097C        TCFree
      3        00050983        TCMalloc
@@ -235,3 +237,5 @@
    235        00051707        somvalistSetTarget
    236        0005171A        tciPrintf
    237        00051724        tciSetException
+
+Used by emitters

@@ -1,0 +1,39 @@
+:template
+DLLDEST     = $(SOMBASE)\\lib
+EFWDEST     = $(SOMBASE)\\include
+INCLUDEPATH = -I$(SOMBASE)\\include
+LIBDIRPATH  = $(SOMBASE)\\lib
+
+SRCS        = emit<classSourceFileStem>.c <classSourceFileStem>.c <classSourceFileStem>.efw <classSourceFileStem>.idl
+OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
+TARGET      = emit<classSourceFileStem>.dll
+CLEANFILES  = <classSourceFileStem>.h
+
+SCFLAGS     = -D__PRIVATE__ -sh;ih -m addstar
+CC	    = icc
+CFLAGS	    = -I. -Q+ -W3 -D_OS2 -D__MIG_LIB__
+LINKER      = $(LINK)
+LDFLAGS     = /packd /packc /exepack /align:4 /noi /m $(LDEBUG) /nol /PM:VIO 
+LIBLIST     = $(LIBDIRPATH)\\somtk os2386 
+
+.SUFFIXES: .c .idl .ih .obj
+
+.c.obj:
+	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
+
+.idl.ih:
+	cmd /c "sc $(SCFLAGS) $*.idl"
+
+$(TARGET): $(OBJS)
+	$(LINKER) $(LDFLAGS) $(OBJS), \\
+	$*.dll, $* /m, $(LIBLIST), $*.def
+
+clean:
+	-del *.obj *.dll *.map *.ih $(CLEANFILES)
+
+emit<classSourceFileStem>.obj: emit<classSourceFileStem>.c <classSourceFileStem>.ih
+
+<classSourceFileStem>.obj: <classSourceFileStem>.c <classSourceFileStem>.ih
+
+<classSourceFileStem>.ih: <classSourceFileStem>.idl
+
