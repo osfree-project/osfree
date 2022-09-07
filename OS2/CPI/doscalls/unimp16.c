@@ -2538,13 +2538,6 @@ USHORT APIENTRY16         BKSMAIN(void)
 
 
 // fix prototype !!! (undoc)
-USHORT APIENTRY16         BMSMAIN(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!! (undoc)
 USHORT APIENTRY16         DOS16SMSYSINIT(void)
 {
   return unimplemented(__FUNCTION__);

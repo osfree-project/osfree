@@ -69,14 +69,20 @@ srcfiles = $(p)msg$(e) &
            $(p)token$(e) &
            $(p)monitors$(e) &
            $(p)viocalls$(e) &
+           $(p)BmsMain$(e) &
+           $(p)BksMain$(e) &
+           $(p)KbdRoute$(e) &
+           $(p)MouRoute$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
+ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
 # UNI2H = 1
+JWASM   = 1
 
 IMPORTS = &
         _KalAllocMem             KAL.KalAllocMem, &
@@ -1270,6 +1276,11 @@ EXPORTS = &
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
+
+.asm: $(ROOT)shared$(SEP)mou
+.asm: $(ROOT)shared$(SEP)kbd
+.asm: $(ROOT)shared$(SEP)bms
+.asm: $(ROOT)shared$(SEP)bks
 
 # <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
 # <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)
