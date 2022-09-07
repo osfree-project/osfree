@@ -183,58 +183,6 @@ APIRET APIENTRY GreInitialize(void)
 }
 
 
-APIRET APIENTRY GreEntry2(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry3(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry4(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry5(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry6(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry7(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry8(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry9(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY GreEntry10(void)
-{
-    return unimplemented(__FUNCTION__);
-}
 
 
 APIRET APIENTRY GetDriverInfo(void)
@@ -1875,58 +1823,6 @@ APIRET APIENTRY Gpi32LoadBitmap(void)
 }
 
 
-APIRET APIENTRY Gre32Entry10(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry2(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry3(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry4(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry5(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry6(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry7(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry8(void)
-{
-    return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY Gre32Entry9(void)
-{
-    return unimplemented(__FUNCTION__);
-}
 
 
 APIRET APIENTRY GetIconWindowsEXE(void)

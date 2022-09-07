@@ -1,5 +1,5 @@
 #
-# A Makefile for viocalls.dll
+# A Makefile for lvm.dll
 # (c) osFree project,
 # author, date
 #
