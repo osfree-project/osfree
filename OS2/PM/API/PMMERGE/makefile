@@ -7,9 +7,10 @@
 PROJ     = pmmerge
 TRGT     = $(PROJ).dll
 DESC     = OS/2 PM Merged Library
-DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
+DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors gre
 srcfiles = $(p)init$(e) $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
            $(p)input$(SEP)input$(e) $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) &
+           $(p)gre$(SEP)gre$(e) &
            $(p)errors$(SEP)errors$(e) $(p)errors$(SEP)f_errors$(e) $(p)windowmgr$(SEP)windowmgr$(e) &
            $(p)windowmgr$(SEP)WindowClass$(e) $(p)load$(SEP)load$(e) $(p)Fc_config$(e) $(p)util$(e) &
            $(p)F_debug$(e) $(p)unimpl$(e) # $(p)dialogs$(SEP)windlgbox$(e)
@@ -1262,6 +1263,7 @@ $(PATH)load$(SEP)load.obj: $(MYDIR)load$(SEP)load.c
 $(PATH)dialogs$(SEP)windlgbox.obj: $(MYDIR)dialogs$(SEP)windlgbox.c
 $(PATH)errors$(SEP)errors.obj: $(MYDIR)errors$(SEP)errors.cpp
 $(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
+$(PATH)gre$(SEP)gre.obj: $(MYDIR)gre$(SEP)gre.cpp
 
 .$(O): $(PATH)rectangles
 .$(O): $(PATH)habmgr
@@ -1272,6 +1274,7 @@ $(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
 .$(O): $(PATH)load
 .$(O): $(PATH)dialogs
 .$(O): $(PATH)errors
+.$(O): $(PATH)gre
 
 .c: $(MYDIR)rectangles
 .c: $(MYDIR)habmgr
@@ -1282,6 +1285,7 @@ $(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
 .c: $(MYDIR)load
 .c: $(MYDIR)dialogs
 .c: $(MYDIR)errors
+.c: $(MYDIR)gre
 
 .cpp: $(MYDIR)rectangles
 .cpp: $(MYDIR)habmgr
@@ -1292,6 +1296,7 @@ $(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
 .cpp: $(MYDIR)load
 .cpp: $(MYDIR)dialogs
 .cpp: $(MYDIR)errors
+.cpp: $(MYDIR)gre
 
 #TARGETS = subdirs $(PATH)$(PROJ).dll
 #TARGET = all

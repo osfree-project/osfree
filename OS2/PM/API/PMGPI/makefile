@@ -14,7 +14,18 @@ NOLIBS       = 1
 DLL          = 1
 DLLOPT       = initinstance terminstance
 OPTIONS      = manyautodata, caseexact
-IMPORTS      = GpiLoadBitmap PMMERGE.5047
+IMPORTS      = &
+GpiLoadBitmap PMMERGE.5047, &
+Gre32Entry2   PMGRE.00062,  &
+Gre32Entry3   PMGRE.00063,  &
+Gre32Entry4   PMGRE.00064,  &
+Gre32Entry5   PMGRE.00065,  &
+Gre32Entry6   PMGRE.00066,  &
+Gre32Entry7   PMGRE.00067,  &
+Gre32Entry8   PMGRE.00068,  &
+Gre32Entry9   PMGRE.00069,  &
+Gre32Entry10  PMGRE.00070
+
 EXPORTS      = &
 # 16-bit functions
 DEVOPENDC                              .0001 RESIDENT, &
