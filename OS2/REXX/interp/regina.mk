@@ -51,8 +51,28 @@ ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
 UNI2H = 1
 # NOLIBS = 1
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
 
+
+$(PATH)client.$(O):: $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
+
+$(PATH)rexxsaa.$(O):: $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
+
+$(PATH)yaccsrc.$(O):: $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
+ @$(SAY) CC       $^. $(LOG)
+ @$(CC) $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $(SRC)yaccsrc.c $(LOG)
+
+$(PATH)drexx.obj:: $(SRC)rexx.c $(HFILES)
+ @$(SAY) CC       $^. $(LOG)
+ @$(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $(SRC)rexx.c
+
+$(PATH)eextstack.obj:: $(SRC)extstack.c $(HFILES)
+ @$(SAY) CC       $^. $(LOG)
+ @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)extstack.c
+
+$(PATH)erexxbif.obj:: $(SRC)rexxbif.c $(HFILES)
+ @$(SAY) CC       $^. $(LOG)
+ @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)rexxbif.c
+!include $(%ROOT)/mk/appsos2_cmd.mk
 .c: $(SRC)
 
 .c: $(SRC)..
@@ -64,23 +84,3 @@ UNI2H = 1
 .h: $(SRC)..
 
 .h: $(SRC)gci
-
-$(PATH)client.$(O): $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
-
-$(PATH)rexxsaa.$(O): $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
-
-$(PATH)yaccsrc.$(O): $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
- @$(SAY) CC       $^. $(LOG)
- @$(CC) $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $(SRC)yaccsrc.c $(LOG)
-
-$(PATH)drexx.obj: $(SRC)rexx.c $(HFILES)
- @$(SAY) CC       $^. $(LOG)
- @$(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $(SRC)rexx.c
-
-$(PATH)eextstack.obj: $(SRC)extstack.c $(HFILES)
- @$(SAY) CC       $^. $(LOG)
- @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)extstack.c
-
-$(PATH)erexxbif.obj: $(SRC)rexxbif.c $(HFILES)
- @$(SAY) CC       $^. $(LOG)
- @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)rexxbif.c

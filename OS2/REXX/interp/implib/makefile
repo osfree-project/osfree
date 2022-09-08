@@ -11,10 +11,11 @@ DEST        = ..$(SEP)..$(SEP)build$(SEP)lib
 OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll
 #OPTIONS     = caseexact, quiet
 
+
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
-TARGETS = $(PATH)$(PROJ).lib
+#TARGETS = $(PATH)$(PROJ).lib
 
 $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll: $(PATH)..$(SEP)dll$(SEP)$(PROJ).lnk
 

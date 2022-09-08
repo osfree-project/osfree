@@ -7,7 +7,7 @@
 #define __MSG_H__
 
 /* message file header magic */
-#define HDR_MAGIC "ÿMKMSGF"
+#define HDR_MAGIC "\0xFFMKMSGF"
 
 /* are offsets 16/32 bits? */
 #define OFS_32BITS 0
