@@ -1,0 +1,1 @@
+This is legacy (aka 16-bit) OS/2 API. It is mostly wrappers around 32-bit functions.
