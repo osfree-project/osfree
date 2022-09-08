@@ -19,6 +19,10 @@
  *
  */
 
+/*
+ * This is implementation of Symbol Tables for SOM Compiler.
+ */
+
 #ifndef symtab_h
 #define symtab_h
 
@@ -32,10 +36,6 @@
 #include <windows.h>
 #endif
 
-//#ifndef bool
-//#define bool boolean
-//#endif
-
 #define SepNULL     (Sep *) NULL
 
 /*
@@ -43,7 +43,7 @@
  */
 struct Stab;
 
-/*
+/*               
  * Default Entry for a symbol table
  */
 _typedef struct SEntry {
@@ -63,8 +63,8 @@ _typedef struct KeyTabEntry {
  */
 _typedef struct Sep {
     size_t posn;
-    SEntry *ep;
-    struct Sep *next;
+    SEntry *ep;		// Entry
+    struct Sep *next;	// Next liked list item
 } _name(Sep);
 
 /*
@@ -81,17 +81,17 @@ _typedef struct MemBuf {
 } _name(MemBuf);
 
 /*
- * Basic Symbol Table (STab) structure.
+ * Basic Symbol Table/Hash table (STab) structure.
  */
 _typedef struct Stab {
-    size_t size;
-    long entrysize;
-    size_t nelms;
-    Sep *base;
-    Sep *limit;
-    Sep *buf;
-    MemBuf *membuf;
-    bool ignorecase;
+    size_t size;		// Size of buscet
+    long entrysize;		// Size of entry?
+    size_t nelms;		// Number of elements
+    Sep *base;			// Start slot
+    Sep *limit;			// Max of slots
+    Sep *buf;			// Start of buffer
+    MemBuf *membuf;             // Parent(?) memory buffer which stores Stab
+    BOOL ignorecase;		// Ignore case os string
 } _name(Stab);
 
 #ifndef __SOMIDL__
@@ -100,36 +100,62 @@ _typedef struct Stab {
 
 // Here old Optlink caling convention functions having SOMLINK equals
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-SOMEXTERN char * OPTLINK_DECL somtallocBuf(MemBuf *membuf, void *buf, long len);
-SOMEXTERN char * OPTLINK_DECL somtuniqString(MemBuf *membuf, char *s);
-SOMEXTERN long  OPTLINK_DECL somtkeyword(KeytabEntry *keytab, char *kword, long keytabsize);
-SOMEXTERN void * OPTLINK_DECL somtaddEntry(Stab *stab, char *name, void *ep);
-SOMEXTERN void * OPTLINK_DECL somtgetEntry(Stab *stab, char *name);
-SOMEXTERN void * OPTLINK_DECL somtstabFirst(Stab *stab, Sep **sepp);
-SOMEXTERN void * OPTLINK_DECL somtstabFirstName(Stab *stab, char *name, Sep **sepp);
-SOMEXTERN void * OPTLINK_DECL somtstabNext(Stab *stab, Sep **sepp);
-SOMEXTERN void * OPTLINK_DECL somtstabNextName(Stab *stab, Sep **sepp);
-SOMEXTERN void  OPTLINK_DECL somtcreateMemBuf(MemBuf **membufp, size_t bufsize, long stabsize);
-SOMEXTERN void  OPTLINK_DECL somtcreateStab(Stab *stab, long stabsize, long entrysize);
-SOMEXTERN int  OPTLINK_DECL somticstrcmp(char *s, char *t);
-SOMEXTERN void * OPTLINK_DECL somtaddEntryBuf(Stab *stab, char *name, void *ep, void *buf, size_t len);
-SOMEXTERN void  OPTLINK_DECL somtFreeStab(Stab *stab, BOOL freeEp);
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtallocBuf(MemBuf *membuf, void *buf, long len);
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtuniqString(MemBuf *membuf, char *s);
+SOMEXTERN SOMDLLIMPORT long  OPTLINK_DECL somtkeyword(KeytabEntry *keytab, char *kword, long keytabsize);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtaddEntry(Stab *stab, char *name, void *ep);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtgetEntry(Stab *stab, char *name);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtstabFirst(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtstabFirstName(Stab *stab, char *name, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtstabNext(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtstabNextName(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcreateMemBuf(MemBuf **membufp, size_t bufsize, long stabsize);
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcreateStab(Stab *stab, long stabsize, long entrysize);
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somticstrcmp(char *s, char *t);
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtaddEntryBuf(Stab *stab, char *name, void *ep, void *buf, size_t len);
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtFreeStab(Stab *stab, BOOL freeEp);
+#else
+#define somtallocBuf somtallocBufSL
+#define somtuniqString somtuniqStringSL
+#define somtkeyword somtkeywordSL
+#define somtaddEntry somtaddEntrySL
+#define somtgetEntry somtgetEntrySL
+#define somtstabFirst somtstabFirstSL
+#define somtstabFirstName somtstabFirstNameSL
+#define somtstabNext somtstabNextSL
+#define somtstabNextName somtstabNextNameSL
+#define somtcreateMemBuf somtcreateMemBufSL
+#define somtcreateStab somtcreateStabSL
+#define somticstrcmp somticstrcmpSL
+#define somtaddEntryBuf somtaddEntryBufSL
+#define somtFreeStab somtFreeStabSL
 #endif
 
-SOMEXTERN char * SOMLINK somtallocBufSL(MemBuf *membuf, void *buf, long len);
-SOMEXTERN char * SOMLINK somtuniqStringSL(MemBuf *membuf, char *s);
-SOMEXTERN long SOMLINK somtkeywordSL(KeytabEntry *keytab, char *kword, long keytabsize);
-SOMEXTERN void * SOMLINK somtaddEntrySL(Stab *stab, char *name, void *ep);
-SOMEXTERN void * SOMLINK somtgetEntrySL(Stab *stab, char *name);
-SOMEXTERN void * SOMLINK somtstabFirstSL(Stab *stab, Sep **sepp);
-SOMEXTERN void * SOMLINK somtstabFirstNameSL(Stab *stab, char *name, Sep **sepp);
-SOMEXTERN void * SOMLINK somtstabNextSL(Stab *stab, Sep **sepp);
-SOMEXTERN void * SOMLINK somtstabNextNameSL(Stab *stab, Sep **sepp);
-SOMEXTERN void SOMLINK somtcreateMemBufSL(MemBuf **membufp, size_t bufsize, long stabsize);
-SOMEXTERN void SOMLINK somtcreateStabSL(Stab *stab, long stabsize, long entrysize);
-SOMEXTERN int SOMLINK somticstrcmpSL(char *s, char *t);
-SOMEXTERN void * SOMLINK somtaddEntryBufSL(Stab *stab, char *name, void *ep, void *buf, size_t len);
-SOMEXTERN void SOMLINK somtFreeStabSL(Stab *stab, BOOL freeEp);
-#endif  /* __SOMIDL__ */
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtallocBufSL(MemBuf *membuf, void *buf, long len);
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtuniqStringSL(MemBuf *membuf, char *s);
+SOMEXTERN SOMDLLIMPORT long SOMLINK somtkeywordSL(KeytabEntry *keytab, char *kword, long keytabsize);
 
+// Add 'ep' Entry structure to 'stab' Symbol Table under 'name' symbol
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtaddEntrySL(Stab *stab, char *name, void *ep);
+
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtgetEntrySL(Stab *stab, char *name);
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtstabFirstSL(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtstabFirstNameSL(Stab *stab, char *name, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtstabNextSL(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtstabNextNameSL(Stab *stab, Sep **sepp);
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtcreateMemBufSL(MemBuf **membufp, size_t bufsize, long stabsize);
+
+// Create Symbol Table.
+// Initialize Stab structure and allocate Hash index table space.
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtcreateStabSL(Stab *stab, long stabsize, long entrysize);
+
+// Case-insenstive ANSI string  comparation
+SOMEXTERN SOMDLLIMPORT int SOMLINK somticstrcmpSL(char *s, char *t);
+
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtaddEntryBufSL(Stab *stab, char *name, void *ep, void *buf, size_t len);
+
+
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtFreeStabSL(Stab *stab, BOOL freeEp);
+
+#endif  /* __SOMIDL__ */
 #endif  /* symtab_h */

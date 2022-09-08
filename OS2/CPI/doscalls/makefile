@@ -72,7 +72,9 @@ srcfiles = $(p)msg$(e) &
            $(p)BmsMain$(e) &
            $(p)BksMain$(e) &
            $(p)KbdRoute$(e) &
+           $(p)kbddebug$(e) &
            $(p)MouRoute$(e) &
+           $(p)moudebug$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
@@ -80,7 +82,7 @@ ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
-OPTIONS = manyautodata
+OPTIONS = manyautodata OPTION CASEEXACT
 # UNI2H = 1
 JWASM   = 1
 
@@ -266,7 +268,7 @@ EXPORTS = &
         DOS16EXIT                  .5, &
         DOS16EXITCRITSEC           .6, &
         DOS16EXITLIST              .7, &
-        DOS16GETINFOSEG            .8, &
+        DOS16GETINFOSEG            .8=DOSGETINFOSEG, &
         DOS16GETPRTY               .9, &
         DOS16KILLPROCESS           .10, &
         DOS16SETPRTY               .11, &
@@ -281,7 +283,7 @@ EXPORTS = &
         DOS16SEMSETWAIT            .20, &
         DOSISEMWAIT                .21, &
         DOS16MUXSEMWAIT            .22, &
-        DOS16CLOSESEM              .23, &
+        DOS16CLOSESEM              .23=DOSCLOSE, &
         DOS16CREATESEM             .24, &
         DOS16OPENSEM               .25, &
         DOS16RESUMETHREAD          .26, &
@@ -302,22 +304,22 @@ EXPORTS = &
         DOS16GETHUGESHIFT          .41, &
         DOS16REALLOCHUGE           .42, &
         DOS16CREATECSALIAS         .43, &
-        DOS16LOADMODULE            .44, &
-        DOS16GETPROCADDR           .45, &
-        DOS16FREEMODULE            .46, &
+        DOS16LOADMODULE            .44=DOSLOADMODULE, &
+        DOS16GETPROCADDR           .45=DOSGETPROCADDR, &
+        DOS16FREEMODULE            .46=DOSFREEMODULE, &
         DOS16GETMODHANDLE          .47, &
         DOS16GETMODNAME            .48, &
         DOS16GETMACHINEMODE        .49, &
         DOS16BEEP                  .50, &
         DOS16CLIACCESS             .51, &
         DOS16DEVCONFIG             .52, &
-        DOS16DEVIOCTL              .53, &
+        DOS16DEVIOCTL              .53=DOSDEVIOCTL, &
         DOS16SGSWITCH              .54, &
         DOS16SGSWITCHME            .55, &
         DOS16BUFRESET              .56, &
         DOS16CHDIR                 .57, &
         DOS16CHGFILEPTR            .58, &
-        DOS16CLOSE                 .59, &
+        DOS16CLOSE                 .59=DOSCLOSE, &
         DOS16DELETE                .60, &
         DOS16DUPHANDLE             .61, &
         DOS16FILELOCKS             .62, &
@@ -328,7 +330,7 @@ EXPORTS = &
         DOS16MOVE                  .67, &
         DOS16NEWSIZE               .68, &
         DOS16PORTACCESS            .69, &
-        DOS16OPEN                  .70, &
+        DOS16OPEN                  .70=DOSOPEN, &
         DOS16QCURDIR               .71, &
         DOS16QCURDISK              .72, &
         DOS16QFHANDSTATE           .73, &

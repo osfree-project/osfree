@@ -319,7 +319,7 @@ USHORT APIENTRY16   DOS16EXITLIST(USHORT FcnCode_Order, FNEXITLIST * _Seg16 RtnA
 }
 
 
-USHORT APIENTRY16   DOS16GETINFOSEG(USHORT * _Seg16 pGlobalSeg,
+USHORT APIENTRY16   DOSGETINFOSEG(USHORT * _Seg16 pGlobalSeg,
                                     USHORT * _Seg16 pLocalSeg)
 {
   return unimplemented(__FUNCTION__);
@@ -545,21 +545,21 @@ USHORT APIENTRY16   DOS16CREATECSALIAS(SEL DataSelector, SEL * _Seg16 CodeSelect
 }
 
 
-USHORT APIENTRY16   DOS16LOADMODULE(char * _Seg16 pszNameBuf, USHORT cbBufLen,
+USHORT APIENTRY16   DOSLOADMODULE(char * _Seg16 pszNameBuf, USHORT cbBufLen,
                                     char * _Seg16 pszModName, HMODULE * _Seg16 phmod)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT APIENTRY16   DOS16GETPROCADDR(HMODULE hmod, char * _Seg16 pszProcName,
+USHORT APIENTRY16   DOSGETPROCADDR(HMODULE hmod, char * _Seg16 pszProcName,
                                      PFN16 ppfn)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT APIENTRY16   DOS16FREEMODULE(HMODULE hmod)
+USHORT APIENTRY16   DOSFREEMODULE(HMODULE hmod)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -595,7 +595,7 @@ USHORT APIENTRY16   DOS16DEVCONFIG(void * _Seg16 DeviceInfo, USHORT item, USHORT
 }
 
 
-USHORT APIENTRY16   DOS16DEVIOCTL(void * _Seg16 data, void * _Seg16 parm,
+USHORT APIENTRY16   DOSDEVIOCTL(void * _Seg16 data, void * _Seg16 parm,
                                   USHORT func, USHORT cat, HFILE hf)
 {
   return unimplemented(__FUNCTION__);
@@ -678,7 +678,7 @@ USHORT APIENTRY16   DOS16PORTACCESS(USHORT reserved, USHORT type,
 }
 
 
-USHORT APIENTRY16   DOS16OPEN(char * _Seg16 pszFileName, HFILE * _Seg16 phf,
+USHORT APIENTRY16   DOSOPEN(char * _Seg16 pszFileName, HFILE * _Seg16 phf,
                               USHORT * _Seg16 action, ULONG cbSize, USHORT attr,
                               USHORT usOpenFlags, USHORT usOpenMode, ULONG reserved)
 {
@@ -2175,182 +2175,35 @@ USHORT APIENTRY16       DOS16SMSETSESSIONTYPE(void)
 }
 
 
-/* MouCalls */
 
-
-USHORT APIENTRY16 MOUREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryName,
-                              const ULONG flFuns)
+USHORT APIENTRY16 KBDREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryPt,
+                            const ULONG FunMask)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT APIENTRY16 MOUDEREGISTER(VOID)
+USHORT APIENTRY16 KBDDEREGISTER(VOID)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY16 KBDSYNCH(const USHORT fsWait)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT APIENTRY16 MOUFLUSHQUE(const HMOU hmou)
+USHORT APIENTRY16 KBDSETFGND(VOID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT APIENTRY16 MOUGETPTRPOS(PTRLOC * _Seg16 pmouLoc, const HMOU hmou)
+USHORT APIENTRY16 KBDSETHWID(const KBDHWID * _Seg16 pkbdhwid, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-USHORT APIENTRY16 MOUSETPTRPOS(const PTRLOC * _Seg16 pmouLoc, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUSETPTRSHAPE(const BYTE * _Seg16 pBuf, const PTRSHAPE * _Seg16 pmoupsInfo, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETPTRSHAPE(BYTE * _Seg16 pBuf, PTRSHAPE * _Seg16 pmoupsInfo, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETDEVSTATUS(USHORT * _Seg16 pfsDevStatus, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETNUMBUTTONS(USHORT * _Seg16 pcButtons, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETNUMMICKEYS(USHORT * _Seg16 pcMickeys, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUREADEVENTQUE(MOUEVENTINFO * _Seg16 pmouevEvent, const USHORT * _Seg16 pfWait, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETNUMQUEEL(MOUQUEINFO * _Seg16 qmouqi, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETEVENTMASK(USHORT * _Seg16 pfsEvents, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUSETEVENTMASK(const USHORT * _Seg16 pfsEvents, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUGETSCALEFACT(SCALEFACT * _Seg16 pmouscFactors, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUSETSCALEFACT(const SCALEFACT * _Seg16 pmouscFactors, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUOPEN(const char * _Seg16 pszDvrName, HMOU * _Seg16 phmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUCLOSE(const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUREMOVEPTR(const NOPTRRECT * _Seg16 pmourtRect, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUDRAWPTR(const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUSETDEVSTATUS(const USHORT * _Seg16 pfsDevStatus, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUINITREAL(const char * _Seg16 str)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUSYNCH(const USHORT ioWait)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-//USHORT APIENTRY16 MOUGETTHRESHOLD(THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
-USHORT APIENTRY16 MOUGETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-//USHORT APIENTRY16 MOUSETTHRESHOLD(const THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
-USHORT APIENTRY16 MOUSETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!! (undoc)
-USHORT APIENTRY16 MOUGETHOTKEY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!! (undoc)
-USHORT APIENTRY16 MOUSETHOTKEY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-// fix prototype !!! (undoc)
-USHORT APIENTRY16 MOUSHELLINIT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 // fix prototype !!! (undoc)
 USHORT APIENTRY16       KBDINIT(void)
@@ -2387,126 +2240,6 @@ USHORT APIENTRY16         KBDFREE(void)
 }
 
 
-USHORT APIENTRY16 KBDREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryPt,
-                            const ULONG FunMask)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDDEREGISTER(VOID)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDCHARIN(KBDKEYINFO * _Seg16 pkbci, const USHORT fWait, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDPEEK(KBDKEYINFO * _Seg16 pkbci, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDFLUSHBUFFER(const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSTRINGIN(CHAR * _Seg16 pch, STRINGINBUF * _Seg16 pchIn,
-                              const USHORT fsWait, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSETSTATUS(const KBDINFO * _Seg16 pkbdinfo, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDGETSTATUS(KBDINFO * _Seg16 pkbdinfo, const HKBD hdbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSETCP(const USHORT usReserved, const USHORT pidCP, const HKBD hdbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDGETCP(const ULONG ulReserved, USHORT * _Seg16 pidCP, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDOPEN(HKBD * _Seg16 hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDCLOSE(const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDGETFOCUS(const USHORT fWait, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDFREEFOCUS(const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSYNCH(const USHORT fsWait)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSETFGND(VOID)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDGETHWID(PKBDHWID * _Seg16 kbdhwid, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSETHWID(const KBDHWID * _Seg16 pkbdhwid, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDXLATE(const KBDTRANS * _Seg16 pkbdtrans, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 KBDSETCUSTXT(const USHORT * _Seg16 usCodePage, const HKBD hkbd)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (undoc)
@@ -2529,12 +2262,6 @@ USHORT APIENTRY16 BVSGETPTRDRAWNAME(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-// fix prototype !!! (undoc)
-USHORT APIENTRY16         BKSMAIN(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (undoc)
@@ -2759,6 +2486,34 @@ APIRET APIENTRY16         DOSISETFILESIZEL(void)
 
 // fix prototype !!! (internal)
 APIRET APIENTRY16         DOSIPROTECTSETFILESIZEL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+/* MouCalls */
+
+
+USHORT APIENTRY16 MOUREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryName,
+                              const ULONG flFuns)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16 MOUDEREGISTER(VOID)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+//USHORT APIENTRY16 MOUGETTHRESHOLD(THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
+USHORT APIENTRY16 MOUGETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+//USHORT APIENTRY16 MOUSETTHRESHOLD(const THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
+USHORT APIENTRY16 MOUSETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }

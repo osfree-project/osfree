@@ -28,12 +28,16 @@
         #define OPTLINK_2ARGS(a,b)            \
                         __asm { mov             a,eax   }       \
                         __asm { mov             b,edx   }       
+	#define OPTLINK_2ARGS_DWORD_BYTE(a,b)            \
+                        __asm { mov             a,eax   }       \
+                        __asm { mov             b,dl    }       
         #define OPTLINK_1ARG(a)            \
                         __asm { mov             a,eax   }
         #define OPTLINK_DECL    __cdecl
 #else
         #define OPTLINK_3ARGS(a,b,c)
         #define OPTLINK_2ARGS(a,b)
+	#define OPTLINK_2ARGS_DWORD_BYTE(a,b)
         #define OPTLINK_1ARG(a)
         #define OPTLINK_DECL
 #endif
