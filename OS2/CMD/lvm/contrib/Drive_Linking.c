@@ -59,6 +59,9 @@
 #include <stdio.h>    /* sprintf */
 #include <string.h>   /* strlen */
 
+#define INCL_DOSMISC
+#include <os2.h>      /* DosGetMessage */
+
 #include "engine.h"   /* Included for access to the global types and variables. */
 #include "diskio.h"   /*  */
 
@@ -5365,8 +5368,8 @@ void get_char_message ( char    *memory,
     register
     char    *line;
     uint    rc,
-            index = 0,
-            length;
+            index = 0;
+    ULONG   length;
 
     FEATURE_FUNCTION_ENTRY("get_char_message")
 
@@ -5393,7 +5396,7 @@ char * get_line_message ( char *memory,         /* user supplied memory */
                           uint message_number)
 {
    unsigned long error;
-   unsigned int  len;
+   unsigned long len;
    char *temp = NULL;
 
    FEATURE_FUNCTION_ENTRY("get_line_message")
@@ -5433,8 +5436,9 @@ void * get_help_message ( uint    message_number )
     char    *memory,
             *text_line;
     uint    rc,
-            index,
-            length;
+            index;
+
+    ULONG   length;
     bool    no_help = TRUE;
 
     FEATURE_FUNCTION_ENTRY("get_help_message")
