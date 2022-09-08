@@ -408,8 +408,8 @@ typedef struct _Program_Global_Data {
  ** SUBCLASSED WINDOW PROCEDURES                                           **
  *****************************************************************************/
 
-PFNWP g_pfnRecProc;             // Default SS_FGNDFRAME window procedure
-PFNWP g_pfnTextProc;            // Default SS_TEXT window procedure
+extern PFNWP g_pfnRecProc;             // Default SS_FGNDFRAME window procedure
+extern PFNWP g_pfnTextProc;            // Default SS_TEXT window procedure
 
 
 /*****************************************************************************

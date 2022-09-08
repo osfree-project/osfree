@@ -100,7 +100,7 @@ void DiskRewriteMBR( HWND hwnd )
         else {
             SetModified( hwnd, TRUE );
             pGlobal->fsEngine &= ~FS_ENGINE_AIRBOOT;
-            MenuItemEnable( pGlobal->hwndMenu, NULL, ID_AIRBOOT_REMOVE, FALSE );
+            MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_AIRBOOT_REMOVE, FALSE );
             WinLoadString( pGlobal->hab, pGlobal->hmri,
                            IDS_SUCCESS_TITLE, STRING_RES_MAXZ, szRes1 );
             WinLoadString( pGlobal->hab, pGlobal->hmri,

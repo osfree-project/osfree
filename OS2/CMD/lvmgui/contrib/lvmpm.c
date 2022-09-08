@@ -19,6 +19,8 @@
  *****************************************************************************/
 #include "lvmpm.h"
 
+PFNWP g_pfnRecProc;             // Default SS_FGNDFRAME window procedure
+PFNWP g_pfnTextProc;            // Default SS_TEXT window procedure
 
 /* ------------------------------------------------------------------------- *
  * main()                                                                    *
@@ -1999,7 +2001,7 @@ MRESULT EXPENTRY VolumesPanelProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 
                                               0, 0, 0, 0, hwnd, HWND_TOP,
                                               IDD_VOL_INFO, &infodata, NULL );
 
-            pGlobal->hwndPopupVolume;
+//            pGlobal->hwndPopupVolume;
 
             WinSetWindowPtr( hwnd, 0, pCtl );
             return (MRESULT) FALSE;
@@ -3132,7 +3134,7 @@ void DiskListSelect( HWND hwnd, USHORT usDisk, BOOL bSelected )
     if ( bSelected && ( pGlobal->disks[ usDisk ].fUnusable ))
         bSelected = FALSE;
 
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_DISK, bSelected? TRUE: FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_DISK, bSelected? TRUE: FALSE );
 }
 
 
@@ -3426,7 +3428,7 @@ void VolumeContainerSelect( HWND hwnd, HWND hwndContext, PDVMVOLUMERECORD pRec )
     if ( hwndContext )
         WinCheckMenuItem( hwndContext, ID_VOLUME_STARTABLE, fCheck );
 
-cleanup:
+//cleanup:
     LvmFreeMem( pia.Partition_Array );
 }
 
@@ -3743,8 +3745,8 @@ void ChangeSizeDisplay( HWND hwnd, PDVMGLOBAL pGlobal )
         usParts = (USHORT) WinSendMsg( pGlobal->hwndTT, TTM_GETTOOLCOUNT, 0, 0 );
         for ( i = 0; i < usParts; i++ ) {
             ttinfo.ulFlags       = 0;
-            ttinfo.hwndTool      = NULL;
-            ttinfo.hwndToolOwner = NULL;
+            ttinfo.hwndTool      = NULLHANDLE;
+            ttinfo.hwndToolOwner = NULLHANDLE;
             ttinfo.pszText       = NULL;
             if ( ! WinSendMsg( pGlobal->hwndTT, TTM_ENUMTOOLS,
                                MPFROMSHORT( i ), MPFROMP( &ttinfo )))
@@ -3997,7 +3999,7 @@ void SetBootMgrActions( PDVMGLOBAL pGlobal )
     }
 
     // Disable the Bootable menu options by default
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_VOLUME_BOOTABLE,    FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_VOLUME_BOOTABLE,    FALSE );
     MenuItemEnable( pGlobal->hwndMenu, pGlobal->hwndPopupPartition, ID_PARTITION_BOOTABLE, FALSE );
 }
 
@@ -4022,31 +4024,31 @@ void SetAvailableActions( HWND hwnd )
     if ( !pGlobal ) return;
 
     // Always enable these items (as long as LVM is open )
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_LVM_BOOTMGR, TRUE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_VOLUME, TRUE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_PARTITION, TRUE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_NEWMBR, TRUE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_REFRESH,  TRUE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_LVM_BOOTMGR, TRUE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_VOLUME, TRUE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_PARTITION, TRUE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_NEWMBR, TRUE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_REFRESH,  TRUE );
 
     // Enable Air-Boot removal if (and only if) Air-Boot is installed
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_AIRBOOT_REMOVE,
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_AIRBOOT_REMOVE,
                     (BOOL)( pGlobal->fsEngine & FS_ENGINE_AIRBOOT ));
 
     // Disable Air-Boot install if the install program is missing
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_AIRBOOT_INSTALL,
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_AIRBOOT_INSTALL,
                     (BOOL)( pGlobal->fsProgram & FS_APP_ENABLE_AB ));
 
     if ( pGlobal->fsEngine & FS_ENGINE_BOOTMGR ) {
         // If IBM Boot Manager is installed...
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_INSTALL, FALSE );
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_REMOVE,  TRUE );
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_OPTIONS, TRUE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_INSTALL, FALSE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_REMOVE,  TRUE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_OPTIONS, TRUE );
     }
     else {
         // Otherwise...
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_INSTALL, TRUE );
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_REMOVE,  FALSE );
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_BM_OPTIONS, FALSE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_INSTALL, TRUE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_REMOVE,  FALSE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_BM_OPTIONS, FALSE );
     }
 
     // Leave ID_LVM_DISK disabled (will enable when a disk is selected)
@@ -4084,7 +4086,7 @@ void SetModified( HWND hwnd, BOOL fModified )
         pGlobal->fsEngine |= FS_ENGINE_PENDING;
 
         // Enable the Save menuitem
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_SAVE, TRUE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_SAVE, TRUE );
 
         // Update the status display
         WinLoadString( pGlobal->hab, pGlobal->hmri,
@@ -4093,7 +4095,7 @@ void SetModified( HWND hwnd, BOOL fModified )
     }
     else {
         pGlobal->fsEngine &= ~FS_ENGINE_PENDING;
-        MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_SAVE, FALSE );
+        MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_SAVE, FALSE );
         WinSetDlgItemText( hwnd, IDD_STATUS_MODIFIED, "");
     }
 }
@@ -4149,11 +4151,11 @@ void LVM_Stop( PDVMGLOBAL pGlobal )
     LvmClose();
 
     // Disable these menu items
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_LVM_BOOTMGR, FALSE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_NEWMBR,   FALSE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, ID_LVM_REFRESH,  FALSE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_VOLUME,      FALSE );
-    MenuItemEnable( pGlobal->hwndMenu, NULL, IDM_PARTITION,   FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_LVM_BOOTMGR, FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_NEWMBR,   FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, ID_LVM_REFRESH,  FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_VOLUME,      FALSE );
+    MenuItemEnable( pGlobal->hwndMenu, NULLHANDLE, IDM_PARTITION,   FALSE );
 
     if ( pGlobal->pLog ) {
         fprintf( pGlobal->pLog, "-------------------------------------------------------------------------------\n");

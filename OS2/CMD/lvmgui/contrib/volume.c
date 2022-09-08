@@ -254,7 +254,7 @@ MRESULT EXPENTRY VolumeCreate1WndProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM 
                                                         LM_QUERYSELECTION,
                                                         MPFROMSHORT( LIT_FIRST ),
                                                         0 );
-                    if ( usIdx != LIT_NONE ) {
+                    if ( usIdx != (USHORT)LIT_NONE ) {
                         cch =  WinQueryLboxItemTextLength(
                                  WinWindowFromID( hwnd, IDD_VOLUME_LETTER_LIST ),
                                  usIdx );
