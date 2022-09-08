@@ -95,14 +95,13 @@ cplist = en pl ru
 
 .rsf.msg:
  @$(SAY) MKMSGF   $^. $(LOG)
- $(verbose)$(MC) @$< $(LOG2)
+ $(verbose)$(MC) @$< -q $(LOG2)
 
 rsf: .SYMBOLIC .PROCEDURE .ALWAYS
  @%create $(PATH)$(T)
- #@for %i in ($(cplist)) do @%append $@ $(MYDIR)en$(SEP)oso001.txt $(PATH)oso001.%i
- @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /P 850 /L 1,1
- @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /P 852 /L 48,1
- @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /P 866 /L 25,1
+ @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /Q /P 850 /L 1,1
+ @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /Q /P 852 /L 48,1
+ @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /Q /P 866 /L 25,1
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
@@ -138,7 +137,7 @@ bintype =
 !endif
 
 !ifdef OBJS
-$(OBJS): $(MYDIR)makefile
+$(OBJS):: $(MYDIR)makefile
 !endif
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
