@@ -2,47 +2,6 @@
 osFree(OS/3): The reincarnation of OS/2.
 
 
-Русский:
-
-Russian:
-
-# Получение исходников
-
-Исходные коды osFree состоят из главного Git-репозитория и нескольких
-субмодулей. Главный репозиторий: osfree и субмодули: 
-
-FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
-
-Поэтому нужно сначала скачать главный репозиторий osfree, и затем подтянуть 
-субмодули:
-
-> git clone https://github.com/osfree-project/osfree.git
-
-> git submodule update --init --recursive
-
-> git submodule update --remote --recursive
-
-# Система сборки osFree
-
-Сначала, запустите %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, чтобы скачать необходимые
-зависимости для сборки. Но прежде всего, нужно установить wget (для случая Windows), если
-он у вас еще не установлен. Для сборки нужен только OpenWatcom, FreePascal, а также Regina
-REXX (но, в случае OS/2 хоста, вы можете использовать уже установленную инсталляцию REXX).
-
-Запустите _setup.* для скачивания и установки системы сборки.
-После окончания работы скрипта можно запустить сборку с помощью _wcc.{cmd|sh}.
-
-Но перед сборкой нужно подправить %root%\conf\scripts\setvars.{sh|cmd|bat}, чтобы указать правильные
-пути к необходимым для сборки программам, после чего, можно запустить _wcc.{sh|cmd} для
-сборки.
-
-Замечание. _wcc.cmd автоопределяет ОС (OS/2, win32 или win64) автоматически.
-
-В общем случае, скрипты с расширением .bat у нас обычно специфичны для windows хоста,
-.cmd для OS/2 хоста, и .sh для UNIX/Linux хоста.
-
-
----
 
 Английский:
 
@@ -82,6 +41,47 @@ Note that _wcc.cmd autodetects OS (OS/2, win32 or win64).
 
 Generally, we use .bat scripts specific for windows, .cmd specific to OS/2, and
 .sh specific to UNIX/Linux.
+
+---
+
+Русский:
+
+Russian:
+
+# Получение исходников
+
+Исходные коды osFree состоят из главного Git-репозитория и нескольких
+субмодулей. Главный репозиторий: osfree и субмодули: 
+
+FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
+
+Поэтому нужно сначала скачать главный репозиторий osfree, и затем подтянуть 
+субмодули:
+
+> git clone https://github.com/osfree-project/osfree.git
+
+> git submodule update --init --recursive
+
+> git submodule update --remote --recursive
+
+# Система сборки osFree
+
+Сначала, запустите %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, чтобы скачать необходимые
+зависимости для сборки. Но прежде всего, нужно установить wget (для случая Windows), если
+он у вас еще не установлен. Для сборки нужен только OpenWatcom, FreePascal, а также Regina
+REXX (но, в случае OS/2 хоста, вы можете использовать уже установленную инсталляцию REXX).
+
+Запустите _setup.* для скачивания и установки системы сборки.
+После окончания работы скрипта можно запустить сборку с помощью _wcc.{cmd|sh}.
+
+Но перед сборкой нужно подправить %root%\conf\scripts\setvars.{sh|cmd|bat}, чтобы указать правильные
+пути к необходимым для сборки программам, после чего, можно запустить _wcc.{sh|cmd} для
+сборки.
+
+Замечание. _wcc.cmd автоопределяет ОС (OS/2, win32 или win64) автоматически.
+
+В общем случае, скрипты с расширением .bat у нас обычно специфичны для windows хоста,
+.cmd для OS/2 хоста, и .sh для UNIX/Linux хоста.
 
 
 (c) osFree project, 2002-2022
