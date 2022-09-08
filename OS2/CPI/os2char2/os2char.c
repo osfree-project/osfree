@@ -8,7 +8,19 @@
 
 APIRET APIENTRY  KbdCharIn(PKBDKEYINFO CharData, ULONG Wait, HKBD hkbd)
 {
-  return EMXKbdCharIn(CharData, Wait, hkbd);
+  KBDKEYINFO16 kbdki;
+  APIRET16 rc;
+  
+  rc=EMXKbdCharIn(&kbdki, Wait, hkbd);
+
+  CharData->chChar=kbdki.chChar;
+  CharData->chScan=kbdki.chScan;
+  CharData->fbStatus=kbdki.fbStatus;
+  CharData->bNlsShift=kbdki.bNlsShift;
+  CharData->fsState=kbdki.fsState;
+  CharData->time=kbdki.time;
+
+  return rc;
 }
 
 APIRET APIENTRY  KbdGetConsole(PVOID Data, PULONG Kind, ULONG Flags,
@@ -27,9 +39,18 @@ APIRET APIENTRY  KbdGetCp(ULONG ulReserved, PUSHORT pidCP, HKBD hkbd)
   return EMXKbdGetCp(ulReserved, pidCP, hkbd);
 }
 
-APIRET APIENTRY  KbdGetHWID (PKBDHWID pkbdhwid, HKBD hkbd)
+APIRET APIENTRY  KbdGetHWID(PKBDHWID pkbdhwid, HKBD hkbd)
 {
-  return 0;
+  KBDHWID16 hwid;
+  APIRET16 rc;
+
+  rc=EMXKbdGetHWID(&hwid, hkbd);
+
+  pkbdhwid->cb=sizeof(KBDHWID);
+  pkbdhwid->idKbd=hwid.idKbd;
+  pkbdhwid->idSecond=hwid.usReserved1;
+
+  return rc;
 }
 
 APIRET APIENTRY  KbdGetLayout(PSZ name, HKBD hkbd)
@@ -44,17 +65,31 @@ APIRET APIENTRY  KbdGetLayoutUni(USHORT * name, HKBD hkbd)
 
 APIRET APIENTRY  KbdGetStatus (PKBDINFO pkbdinfo, HKBD hkbd)
 {
-  return 0;
+  return EMXKbdGetStatus(pkbdinfo, hkbd);
 }
 
-APIRET APIENTRY  KbdPeek (PKBDKEYINFO pkbci, HKBD hkbd)
+APIRET APIENTRY  KbdPeek(PKBDKEYINFO pkbci, HKBD hkbd)
 {
-  return 0;
+  KBDKEYINFO16 ki;
+  APIRET16 rc;
+
+  rc=EMXKbdPeek(&ki, hkbd);
+  pkbci->chChar=ki.chChar;
+  pkbci->chScan=ki.chScan;
+  pkbci->fbStatus=ki.fbStatus;
+  pkbci->bNlsShift=ki.bNlsShift;
+  pkbci->fsState=ki.fsState;
+  pkbci->time=ki.time;
+  pkbci->ucUniChar=ki.chChar;
+  pkbci->VKey=0;
+  pkbci->resv=0;
+
+  return rc;
 }
 
-APIRET APIENTRY  KbdSetCp (ULONG ulReserved, USHORT pidCP,  HKBD hkbd)
+APIRET APIENTRY  KbdSetCp(ULONG ulReserved, USHORT pidCP, HKBD hkbd)
 {
-  return 0;
+  return EMXKbdSetCp(ulReserved, pidCP, hkbd);
 }
 
 APIRET APIENTRY  KbdSetLayout(PSZ name, HKBD hkbd)
@@ -74,7 +109,7 @@ APIRET APIENTRY  KbdSetRate (ULONG rate, ULONG delay, HKBD hkbd)
 
 APIRET APIENTRY  KbdSetStatus (PKBDINFO pkbdinfo, HKBD hkbd)
 {
-  return 0;
+  return EMXKbdSetStatus(pkbdinfo, hkbd);
 }
 
 APIRET APIENTRY  KbdStringIn (PCH pch, PSTRINGINBUF pchIn,
@@ -111,17 +146,17 @@ APIRET APIENTRY  VioCheckCharType (PULONG pType, ULONG ulRow,
   return 0;
 }
 
-APIRET APIENTRY  VioCreateLogFont(PFATTRS pfat, ULONG lcid, PSTR8 pstr8Name,
-                                 HVIO hvps)
-{
-  return 0;
-}
+//APIRET APIENTRY  VioCreateLogFont(PFATTRS pfat, ULONG lcid, PSTR8 pstr8Name,
+//                                 HVIO hvps)
+//{
+//  return 0;
+//}
 
-APIRET APIENTRY  VioCreatePS(PHVIO phvps, ULONG Rows, ULONG Columns,
-                            ULONG Format, ULONG AttrBytes, HVIO hvps)
-{
-  return 0;
-}
+//APIRET APIENTRY  VioCreatePS(PHVIO phvps, ULONG Rows, ULONG Columns,
+//                            ULONG Format, ULONG AttrBytes, HVIO hvps)
+//{
+//  return 0;
+//}
 
 APIRET APIENTRY  VioDeleteSetId(ULONG lcid, HVIO hvps)
 {
@@ -217,19 +252,19 @@ APIRET APIENTRY  VioPrtScToggle (HVIO hvio)
   return 0;
 }
 
-APIRET APIENTRY  VioQueryFonts(PULONG Remfonts, PFONTMETRICS Metrics,
-                              ULONG MetricsLength, PULONG Fonts,
-                              PSZ Facename, ULONG Options, HVIO hvps)
-{
-  return 0;
-}
+//APIRET APIENTRY  VioQueryFonts(PULONG Remfonts, PFONTMETRICS Metrics,
+//                              ULONG MetricsLength, PULONG Fonts,
+//                              PSZ Facename, ULONG Options, HVIO hvps)
+//{
+//  return 0;
+//}
 
-APIRET APIENTRY  VioQueryFontsUni(PULONG Remfonts, PFONTMETRICS Metrics,
-                              ULONG MetricsLength, PULONG Fonts,
-                              USHORT * Facename, ULONG Options, HVIO hvps)
-{
-  return 0;
-}
+//APIRET APIENTRY  VioQueryFontsUni(PULONG Remfonts, PFONTMETRICS Metrics,
+//                              ULONG MetricsLength, PULONG Fonts,
+//                              USHORT * Facename, ULONG Options, HVIO hvps)
+//{
+//  return 0;
+//}
 
 APIRET APIENTRY  VioQuerySetIds(PULONG lcids, PSTR8 Names,
                                PULONG Types, ULONG count, HVIO hvps)
@@ -405,10 +440,6 @@ APIRET APIENTRY  MouDrawPtr (HMOU hmou)
   return 0;
 }
 
-APIRET APIENTRY  MouFlushQue (HMOU hmou)
-{
-  return 0;
-}
 
 APIRET APIENTRY  MouGetDevStatus (PULONG  DevStat, HMOU hmou)
 {

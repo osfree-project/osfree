@@ -19,9 +19,9 @@ DEST     = ..$(SEP)..$(SEP)build$(SEP)lib
 $(PATH)$(PROJ).lib:
 
 !ifdef LIBS
-$(LIBS) $(OBJS): $(MYDIR)makefile
+$(LIBS) $(OBJS):: $(MYDIR)makefile
 !else ifdef OBJS
-$(LIBS) $(OBJS): $(MYDIR)makefile
+$(LIBS) $(OBJS):: $(MYDIR)makefile
 !endif
 
 TARGETS = $(PATH)$(PROJ).lib

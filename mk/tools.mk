@@ -52,7 +52,7 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 
 !ifdef OBJS
-$(OBJS): $(MYDIR)makefile
+$(OBJS):: $(MYDIR)makefile
 !endif
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always

@@ -28,9 +28,7 @@ program mkmsgf;
 {$DEFINE xDEBUG}
 
 Uses
-  SysUtils(*,
-  Classes,
-  XMLRead*);
+  SysUtils;
 
 const
   LineEnding=#10#13;
@@ -136,14 +134,17 @@ Var
 //  CodePages : Word; //= 866
 //  CP_type   : Boolean; // SBCS
   CmdLine: String;
-
+  Quiet: Boolean;
 
 Procedure Copyright;
 Begin
-  WriteLn(msg_name);
-  WriteLn(msg_version);
-  WriteLn(msg_copyright);
-  WriteLn;
+  If not Quiet then
+  begin
+    WriteLn(msg_name);
+    WriteLn(msg_version);
+    WriteLn(msg_copyright);
+    WriteLn;
+  end;
 End;
 
 Type
@@ -243,6 +244,7 @@ Begin
       'V': begin
       end;
       'Q': begin
+        Quiet:=True;
       end;
       'I': begin
       end;
@@ -251,6 +253,7 @@ Begin
       'C': begin
       end;
       '?', 'H': begin
+        Usage;
       end;
     else
       WriteLn(msg_incorrect_switch);
@@ -376,7 +379,7 @@ Begin
   Header.Identifier[3]:=S[3];
 
   S:='Let''s play the Yuri''s game';
-  WriteLn('Reading messages from ', StrIn);
+  If not Quiet then WriteLn('Reading messages from ', StrIn);
   While not EOF(Fin) do
   begin
     If S='Let''s play the Yuri''s game' then
@@ -471,7 +474,7 @@ Begin
 //    Filename:='oso001h.msg'#0); // Name of file
   end;
 
-  WriteLn('Writing MSG-file to ', StrOut);
+  If not Quiet then WriteLn('Writing MSG-file to ', StrOut);
   Assign(Fout, StrOut);
   Rewrite(Fout, 1);
   BlockWrite(Fout, Header, SizeOf(Header), Res);
@@ -520,7 +523,7 @@ writeln(Number);
   WriteLn(Res);
   {$endif}
   Close(Fout);
-  WriteLn('MSG-file created');
+  If not Quiet then WriteLn('MSG-file created');
 End;
 
 
@@ -543,15 +546,21 @@ Begin
     CommandLine:=CommandLine+#0;
     CmdLine:=CommandLine;
     ParseCommandLine(CmdLine);
+    Copyright;
     Compile;
   end;
   Close(F);
 End;
 
+Procedure Init;
+Begin
+  Quiet:=False;
+End;
+
 Var
   I: Longint;
 begin
-  Copyright;
+  Init;
   For I:=1 to ParamCount do
     If Pos(' ', ParamStr(I))>0 then
       CmdLine:=CmdLine+' "'+ParamStr(I)+'"'
@@ -566,6 +575,7 @@ begin
     ParseControlFile(ParamStr(1))
   else begin
     ParseCommandLine(CmdLine);
+    Copyright;
     Compile;
   end;
 end.

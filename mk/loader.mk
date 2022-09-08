@@ -137,7 +137,7 @@ $(PATH)$(T)$(S).lnk: $(OBJS) $(MYDIR)makefile .explicit
  @for %%i in ($(OBJS))   do @%append $^@ FILE %%i
 
 !ifdef OBJS
-$(OBJS): $(MYDIR)makefile
+$(OBJS):: $(MYDIR)makefile
 !endif
 
 .c:   $(MYDIR)
