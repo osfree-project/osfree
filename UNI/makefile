@@ -7,10 +7,12 @@
 !ifndef TARGETBLD
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 OS2TKH = $(%OS2TK)$(SEP)h$(SEP)
+OS2TKINC = $(%OS2TK)$(SEP)inc$(SEP)
 SRC = $(MYDIR)
 !else
 PLATFORM =
 OS2TKH = $(%ROOT)build$(SEP)bin$(SEP)os2tk45$(SEP)h$(SEP)
+OS2TKINC = $(%ROOT)build$(SEP)bin$(SEP)os2tk45$(SEP)inc$(SEP)
 SRC = $(MYDIR)..$(SEP)..$(SEP)..$(SEP)UNI$(SEP)
 !endif
 
@@ -19,9 +21,11 @@ SRC = $(MYDIR)..$(SEP)..$(SEP)..$(SEP)UNI$(SEP)
 OUT = $(%ROOT)build$(SEP)include$(SEP)
 LIBOUT = $(%ROOT)build$(SEP)lib$(SEP)
 
-install: h .symbolic
+install: inc h .symbolic
 
-outdirs = $(OUT) $(LIBOUT) $(OUT)$(SEP)dos $(OS2TKH) $(OUT)$(SEP)shared
+outdirs = $(OUT) $(OS2TKINC) $(LIBOUT) $(OUT)$(SEP)dos $(OS2TKH) $(OUT)$(SEP)shared
+
+inc: pre .symbolic
 
 h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos .symbolic
 
@@ -39,7 +43,16 @@ workaround: $(SRC)cdeftypes2.h $(SRC)dosfilemgrcommon.h $(SRC)exe386.h $(SRC)new
   @$(CP) $(SRC)exe386.h $(OS2TKH) $(BLACKHOLE)
   @$(CP) $(SRC)dosfilemgrcommon.h $(OS2TKH) $(BLACKHOLE)
 
-## OS/2 Personality files
+## OS/2 Personality INC files
+os2inc: $(OS2TKINC)$(SEP)os2.inc &
+	$(OS2TKINC)$(SEP)bseerr.inc &
+	$(OS2TKINC)$(SEP)bsedos.inc &
+	$(OS2TKINC)$(SEP)bsesub.inc &
+	$(OS2TKINC)$(SEP)sas.inc &
+	$(OS2TKINC)$(SEP)mac.inc &
+	.symbolic
+
+## OS/2 Personality H files
 os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)os2def.h &
      $(OS2TKH)$(SEP)bse.h &
@@ -185,6 +198,7 @@ os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)time.h &
      $(OS2TKH)$(SEP)utlapi.h &
      $(OS2TKH)$(SEP)utlrectangles.h &
+     os2inc &
      .symbolic
 
 #     $(OS2TKH)$(SEP)bsexcpt.h &
@@ -482,6 +496,31 @@ $(OS2TKH)$(SEP)uconv.h: $(SRC)os2$(SEP)uconv.uni
 $(OS2TKH)$(SEP)utlapi.h: $(SRC)shared$(SEP)utlapi.uni
 
 $(OS2TKH)$(SEP)utlrectangles.h: $(SRC)shared$(SEP)utlapi$(SEP)utlrectangles.uni
+
+### OS/2 Personality
+$(OS2TKINC)$(SEP)os2.inc: $(SRC)inc$(SEP)os2.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(OS2TKINC)$(SEP)bseerr.inc: $(SRC)inc$(SEP)bseerr.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(OS2TKINC)$(SEP)bsedos.inc: $(SRC)inc$(SEP)bsedos.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(OS2TKINC)$(SEP)bsesub.inc: $(SRC)inc$(SEP)bsesub.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(OS2TKINC)$(SEP)sas.inc: $(SRC)inc$(SEP)sas.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
+
+$(OS2TKINC)$(SEP)mac.inc: $(SRC)inc$(SEP)mac.inc
+	$(verbose)$(SAY) CP       $^. $(LOG)
+	$(verbose)$(CP) $< $^@ $(BLACKHOLE)
 
 ## POSIX API
 

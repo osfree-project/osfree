@@ -407,11 +407,12 @@ USHORT APIENTRY16 VIOCHECKCHARTYPE (PUSHORT pType,
   return Vio32CheckCharType(pType, usRow, usColumn, hvio);
 }
 
+*/
 USHORT APIENTRY16 VIOWRTTTY(const PCHAR Str, const USHORT Count, const HVIO Handle)
 {
   return Vio32WrtTTY(Str, Count, Handle);
 }
-
+/*
 USHORT APIENTRY16 VIOFREE(void)
 {
   return unimplemented(__FUNCTION__);

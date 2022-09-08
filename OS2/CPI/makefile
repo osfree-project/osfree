@@ -6,9 +6,7 @@
 
 DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls moncalls quecalls viocalls &
        doscalls nampipes startlw bkscalls bmscalls bvscalls bvh32 os2char sub32 &
-       udsk
+       udsk #os2char2
 
 !include $(%ROOT)/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all

@@ -294,106 +294,664 @@ SOMEXTERN __declspec(dllexport) char * SOMLINK somtsearchFileSL(char *file, char
 }
 
 #ifndef SOM_SOMC_NO_BACKCOMPAT
-SOMEXTERN SOMDLLIMPORT int OPTLINK_DECL somttraverseParents(FILE *fp, Entry * cls, Entry *arg, int (*fn)(FILE*,Entry*,Entry*), SMTraverse flg);
-SOMEXTERN SOMDLLIMPORT AttList * OPTLINK_DECL somtattalloc(MemBuf *membuf, char *name, char *value);
-SOMEXTERN SOMDLLIMPORT AttList * OPTLINK_DECL somtgetap(AttList *ap, char *att);
-SOMEXTERN SOMDLLIMPORT EmitFn  OPTLINK_DECL somtload(char *fileName, char *functionName, void **modHandle);
-SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtfindBaseEp(Entry *ep);
-SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtgetType(char *name, SOMTTypes type);
-SOMEXTERN SOMDLLIMPORT FILE * OPTLINK_DECL somtokfopen(char *path, char *mode);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfprintf(FILE *, const char *, ...);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfputs(const char *, FILE *);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfputc(const char, FILE *);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtokfgets(char *, int, FILE *);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtokrewind(FILE *);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokrename(const char*, const char *);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtisDbcs(int c);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtaddExt(char *name, char *ext, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtarrayToPtr(Entry *ep, char *stars, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtattNormalise(char *name, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtbasename(char *path);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtctos(Const *con, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsPostincr(char **p);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsPreincr(char **p);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrchr(char *s, int c);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrrchr(char *s, int c);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrstr(char *s1, char *s2);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somteptotype(Entry *ep, char *ptrs, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetDesc(Stab *stab, Entry *cls, Entry *method, char *desc, bool addQuotes, bool use, bool versflg);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetVersion(char *sccsid, char *version);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetgatt(char *s);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtnextword(const char *s, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtnormaliseDesc(char *desc, char *normal);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtsatos(char **sa, char *sep, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtskipws(const char *s);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtstringFmt(char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somttype(SOMTTypes type);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtuniqFmt(MemBuf *membuf, char *fmt, ...);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtargFlag(int *argc, char ***argv);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtattjoin(register AttList *ap1, AttList *ap2);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdbcsLastChar(char *buf);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdbcsScan(char **buf);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdiskFull(FILE *fp);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtisparent(Entry *cls, Entry *parent);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmget(int setnum, int msgnum, char *msgbuf);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmopen(char *filename);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmprintf(int setnum, int msgnum, ...);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokremove(char *file);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtunload(void *modHandle);
-SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtwriteaccess(char *file);
-SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtsmalloc(size_t nbytes, bool clear);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtaddGAtt(MemBuf **membuf, AttList **ap, char *buf);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcalcFileName(char *def, char *over, char *ext);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcleanFilesFatal(int status);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtemitTypes(FILE *fp, Mlist *mp, Stab *stab);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmclose(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtreadDescFile(Stab *stab, char *file);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetDefaultDesc(Stab *stab);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetEmitSignals(void(*cleanup) (int), void (*internal) (int));
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetTypeDefn(Entry *type, Entry *ep, char *ptrs, Entry *ret, bool array);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetext(int csc);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtshowVersion(char *s, char *progname, char *sccsid);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsmfree(void *first, ...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtunsetEmitSignals(void);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtuppercase(char *s, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtlowercase(char *s, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsuppercase(char *s, char *buf);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcslowercase(char *s, char *buf);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtresetEmitSignals(void);
-SOMEXTERN SOMDLLIMPORT size_t  OPTLINK_DECL somtsizeofEntry(SOMTTypes type);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtepname(Entry *ep, char *buf, bool suppressImpctxCheck);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgenSeqName(long n, Entry *base, char *buf, bool fullname);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrifatal(char *file, long lineno, int msgnum,...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmriinternal(char *file, long lineno, int msgnum,...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrierror(char *file, long lineno, int msgnum,...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrimsg(char *file, long lineno, int msgnum,...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmriwarn(char *file, long lineno, int msgnum,...);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetInternalMessages(char *too_long, char *cant_continue, char *segv, char *bus);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtisvoid(Entry *type, char *defn);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtreturnsStruct(Entry *ep);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtreturnsPtr(Entry *ep);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtsimpleName(Entry *ep);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtqualifyNames(Stab * stab, bool fully);
-SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtfindBaseEpNonPtr(Entry *ep);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtprocessTraps(void);
-SOMEXTERN SOMDLLIMPORT Mlist * OPTLINK_DECL somtallocMlist(Entry * ep);
-SOMEXTERN SOMDLLIMPORT Mlist * OPTLINK_DECL somtmlistend(Mlist * mp, char *name);
-SOMEXTERN SOMDLLIMPORT bool  OPTLINK_DECL somtisMutRef(Entry *ep, Mlist *seen, bool isself, long level);
-SOMEXTERN SOMDLLIMPORT Mlist *  OPTLINK_DECL somtfreeMlist(Mlist *mp);
-SOMEXTERN SOMDLLIMPORT Mlist *  OPTLINK_DECL somtdupMlist(Mlist *mp, Entry *ep);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtfreeWorld();
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtinitMalloc(bool dynamic);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseEmitlib(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmmeta(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseCreatetc(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmtypes(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSomc(void);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmsmall(void);
-SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtattMap(char *name);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtexit(SOMTExitBuf *ebuf, int status);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtdymain(char *file, Entry *cls, EmitFn emitfn, char *emitter, int first, char *version, Stab *stab);
-SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtaddHeader(char *file, FILE *fp, char *ext);
+SOMEXTERN SOMDLLIMPORT int OPTLINK_DECL somttraverseParents(FILE *fp, Entry * cls, Entry *arg, int (*fn)(FILE*,Entry*,Entry*), SMTraverse flg)
+{
+  OPTLINK_3ARGS(fp, cls, arg);
+
+  return somttraverseParentsSL(fp, cls, arg, fn, flg);
+}
+
+SOMEXTERN SOMDLLIMPORT AttList * OPTLINK_DECL somtattalloc(MemBuf *membuf, char *name, char *value)
+{
+  OPTLINK_3ARGS(membuf, name, value);
+
+  return somtattallocSL(membuf, name, value);
+}
+
+SOMEXTERN SOMDLLIMPORT AttList * OPTLINK_DECL somtgetap(AttList *ap, char *att)
+{
+  OPTLINK_2ARGS(ap, att);
+
+  return somtgetapSL(ap, att);
+}
+
+SOMEXTERN SOMDLLIMPORT EmitFn  OPTLINK_DECL somtload(char *fileName, char *functionName, void **modHandle)
+{
+  OPTLINK_3ARGS(fileName, functionName, modHandle);
+
+  return somtloadSL(fileName, functionName, modHandle);
+}
+
+SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtfindBaseEp(Entry *ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtfindBaseEpSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtgetType(char *name, SOMTTypes type)
+{
+  OPTLINK_2ARGS(name, type);
+
+  return somtgetTypeSL(name, type);
+}
+
+SOMEXTERN SOMDLLIMPORT FILE * OPTLINK_DECL somtokfopen(char *path, char *mode)
+{
+  OPTLINK_2ARGS(path, mode);
+
+  return somtokfopenSL(path, mode);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfprintf(FILE *, const char *, ...)
+{
+  return 0;
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfputs(const char * c, FILE * f)
+{
+  OPTLINK_2ARGS(c, f);
+
+  return somtokfputsSL(c, f);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokfputc(const char c, FILE * f)
+{
+  OPTLINK_2ARGS(c, f);
+
+  return somtokfputcSL(c, f);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtokfgets(char * c, int n, FILE * f)
+{
+  OPTLINK_3ARGS(c, n, f);
+
+  return somtokfgetsSL(c, n, f);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtokrewind(FILE * f)
+{
+  OPTLINK_1ARG(f);
+
+  somtokrewindSL(f);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokrename(const char * a, const char * b)
+{
+  OPTLINK_2ARGS(a, b);
+
+  return somtokrenameSL(a, b);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL OPTLINK_DECL somtisDbcs(int c)
+{
+  OPTLINK_1ARG(c);
+
+  return somtisDbcsSL(c);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf)
+{
+  OPTLINK_3ARGS(name, ext, buf);
+
+  return somtremoveExtSL(name, ext, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtaddExt(char *name, char *ext, char *buf)
+{
+  OPTLINK_3ARGS(name, ext, buf);
+
+  return somtaddExtSL(name, ext, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtarrayToPtr(Entry *ep, char *stars, char *buf)
+{
+  OPTLINK_3ARGS(ep, stars, buf);
+
+  return somtarrayToPtrSL(ep, stars, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtattNormalise(char *name, char *buf)
+{
+  OPTLINK_2ARGS(name, buf);
+
+  return somtattNormaliseSL(name, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtbasename(char *path)
+{
+  OPTLINK_1ARG(path);
+
+  return somtbasenameSL(path);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtctos(Const *con, char *buf)
+{
+  OPTLINK_2ARGS(con, buf);
+
+  return somtctosSL(con, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsPostincr(char **p)
+{
+  OPTLINK_1ARG(p);
+
+  return somtdbcsPostincrSL(p);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsPreincr(char **p)
+{
+  OPTLINK_1ARG(p);
+
+  return somtdbcsPreincrSL(p);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrchr(char *s, int c)
+{
+  OPTLINK_2ARGS(s, c);
+
+  return somtdbcsStrchrSL(s, c);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrrchr(char *s, int c)
+{
+  OPTLINK_2ARGS(s, c);
+
+  return somtdbcsStrrchrSL(s, c);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsStrstr(char *s1, char *s2)
+{
+  OPTLINK_2ARGS(s1, s2);
+
+  return somtdbcsStrstrSL(s1, s2);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somteptotype(Entry *ep, char *ptrs, char *buf)
+{
+  OPTLINK_3ARGS(ep, ptrs, buf);
+
+  return somteptotypeSL(ep, ptrs, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetDesc(Stab *stab, Entry *cls, Entry *method, char *desc, BOOL addQuotes, BOOL use, BOOL versflg)
+{
+  OPTLINK_3ARGS(stab, cls, method);
+
+  return somtgetDescSL(stab, cls, method, desc, addQuotes, use, versflg);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetVersion(char *sccsid, char *version)
+{
+  OPTLINK_2ARGS(sccsid, version);
+
+  return somtgetVersion(sccsid, version);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgetgatt(char *s)
+{
+  OPTLINK_1ARG(s);
+
+  return somtgetgattSL(s);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtnextword(const char *s, char *buf)
+{
+  OPTLINK_2ARGS(s, buf);
+
+  return somtnextwordSL(s, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtnormaliseDesc(char *desc, char *normal)
+{
+  OPTLINK_2ARGS(desc, normal);
+
+  return somtnormaliseDescSL(desc, normal);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtsatos(char **sa, char *sep, char *buf)
+{
+  OPTLINK_3ARGS(sa, sep, buf);
+
+  return somtsatosSL(sa, sep, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtskipws(const char *s)
+{
+  OPTLINK_1ARG(s);
+
+  return somtskipwsSL(s);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtstringFmt(char *fmt, ...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somttype(SOMTTypes type)
+{
+  OPTLINK_1ARG(type);
+
+  return somttypeSL(type);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtuniqFmt(MemBuf *membuf, char *fmt, ...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtargFlag(int *argc, char ***argv)
+{
+  OPTLINK_2ARGS(argc, argv);
+
+  return somtargFlagSL(argc, argv);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtattjoin(register AttList *ap1, AttList *ap2)
+{
+  OPTLINK_2ARGS(ap1, ap2);
+
+  return somtattjoinSL(ap1, ap2);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdbcsLastChar(char *buf)
+{
+  OPTLINK_1ARG(buf);
+
+  return somtdbcsLastCharSL(buf);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdbcsScan(char **buf)
+{
+  OPTLINK_1ARG(buf);
+
+  return somtdbcsScanSL(buf);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtdiskFull(FILE *fp)
+{
+  OPTLINK_1ARG(fp);
+
+  return somtdiskFullSL(fp);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtisparent(Entry *cls, Entry *parent)
+{
+  OPTLINK_2ARGS(cls, parent);
+
+  return somtisparentSL(cls, parent);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmget(int setnum, int msgnum, char *msgbuf)
+{
+  OPTLINK_3ARGS(setnum, msgnum, msgbuf);
+
+  return somtmgetSL(setnum, msgnum, msgbuf);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmopen(char *filename)
+{
+  OPTLINK_1ARG(filename);
+
+  return somtmopenSL(filename);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtmprintf(int setnum, int msgnum, ...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtokremove(char *file)
+{
+  OPTLINK_1ARG(file);
+
+  return somtokremoveSL(file);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtunload(void *modHandle)
+{
+  OPTLINK_1ARG(modHandle);
+
+  return somtunloadSL(modHandle);
+}
+
+SOMEXTERN SOMDLLIMPORT int  OPTLINK_DECL somtwriteaccess(char *file)
+{
+  OPTLINK_1ARG(file);
+
+  return somtwriteaccessSL(file);
+}
+
+SOMEXTERN SOMDLLIMPORT void * OPTLINK_DECL somtsmalloc(size_t nbytes, BYTE clear)
+{
+  OPTLINK_2ARGS_DWORD_BYTE(nbytes, clear);
+
+  return somtsmallocSL(nbytes, clear);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtaddGAtt(MemBuf **membuf, AttList **ap, char *buf)
+{
+  OPTLINK_3ARGS(membuf, ap, buf);
+
+  somtaddGAttSL(membuf, ap, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcalcFileName(char *def, char *over, char *ext)
+{
+  OPTLINK_3ARGS(def, over, ext);
+
+  somtcalcFileNameSL(def, over, ext);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtcleanFilesFatal(int status)
+{
+  OPTLINK_1ARG(status);
+
+  somtcleanFilesFatalSL(status);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtemitTypes(FILE *fp, Mlist *mp, Stab *stab)
+{
+  OPTLINK_3ARGS(fp, mp, stab);
+
+  somtemitTypesSL(fp, mp, stab);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmclose(void)
+{
+  somtmcloseSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtreadDescFile(Stab *stab, char *file)
+{
+  OPTLINK_2ARGS(stab, file);
+
+  somtreadDescFileSL(stab, file);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetDefaultDesc(Stab *stab)
+{
+  OPTLINK_1ARG(stab);
+
+  return somtsetDefaultDescSL(stab);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetEmitSignals(void(*cleanup) (int), void (*internal) (int))
+{
+  OPTLINK_2ARGS(cleanup, internal);
+
+  somtsetEmitSignalsSL(cleanup, internal);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetTypeDefn(Entry *type, Entry *ep, char *ptrs, Entry *ret, BOOL array)
+{
+  OPTLINK_3ARGS(type, ep, ptrs);
+
+  somtsetTypeDefnSL(type, ep, ptrs, ret, array);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetext(int csc)
+{
+  OPTLINK_1ARG(csc);
+
+  somtsetextSL(csc);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtshowVersion(char *s, char *progname, char *sccsid)
+{
+  OPTLINK_3ARGS(s, progname, sccsid);
+
+  return somtshowVersionSL(s, progname, sccsid);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsmfree(void *first, ...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtunsetEmitSignals(void)
+{
+  somtunsetEmitSignalsSL();
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtuppercase(char *s, char *buf)
+{
+  OPTLINK_2ARGS(s, buf);
+
+  return somtuppercaseSL(s, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtlowercase(char *s, char *buf)
+{
+  OPTLINK_2ARGS(s, buf);
+
+  return somtlowercaseSL(s, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcsuppercase(char *s, char *buf)
+{
+  OPTLINK_2ARGS(s, buf);
+
+  return somtdbcsuppercaseSL(s, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtdbcslowercase(char *s, char *buf)
+{
+  OPTLINK_2ARGS(s, buf);
+
+  return somtdbcslowercaseSL(s, buf);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtresetEmitSignals(void)
+{
+  somtresetEmitSignalsSL();
+}
+
+SOMEXTERN SOMDLLIMPORT size_t  OPTLINK_DECL somtsizeofEntry(SOMTTypes type)
+{
+  OPTLINK_1ARG(type);
+
+  return somtsizeofEntrySL(type);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtepname(Entry *ep, char *buf, BOOL suppressImpctxCheck)
+{
+  OPTLINK_3ARGS(ep, buf, suppressImpctxCheck);
+
+  return somtepnameSL(ep, buf, suppressImpctxCheck);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtgenSeqName(long n, Entry *base, char *buf, BOOL fullname)
+{
+  OPTLINK_3ARGS(n, base, buf);
+
+  return somtgenSeqNameSL(n, base, buf, fullname);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrifatal(char *file, long lineno, int msgnum,...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmriinternal(char *file, long lineno, int msgnum,...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrierror(char *file, long lineno, int msgnum,...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmrimsg(char *file, long lineno, int msgnum,...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtmriwarn(char *file, long lineno, int msgnum,...)
+{
+  return ;
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtsetInternalMessages(char *too_long, char *cant_continue, char *segv, char *bus)
+{
+  OPTLINK_3ARGS(too_long, cant_continue, segv);
+
+  somtsetInternalMessagesSL(too_long, cant_continue, segv, bus);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL  OPTLINK_DECL somtisvoid(Entry *type, char *defn)
+{
+  OPTLINK_2ARGS(type, defn);
+
+  return somtisvoidSL(type, defn);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL  OPTLINK_DECL somtreturnsStruct(Entry *ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtreturnsStructSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL  OPTLINK_DECL somtreturnsPtr(Entry *ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtreturnsPtrSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtsimpleName(Entry *ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtsimpleNameSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtqualifyNames(Stab * stab, BOOL fully)
+{
+  OPTLINK_2ARGS(stab, fully);
+
+  return somtqualifyNamesSL(stab, fully);
+}
+
+SOMEXTERN SOMDLLIMPORT Entry * OPTLINK_DECL somtfindBaseEpNonPtr(Entry *ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtfindBaseEpNonPtrSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL  OPTLINK_DECL somtprocessTraps(void)
+{
+  return somtprocessTrapsSL();
+}
+
+SOMEXTERN SOMDLLIMPORT Mlist * OPTLINK_DECL somtallocMlist(Entry * ep)
+{
+  OPTLINK_1ARG(ep);
+
+  return somtallocMlistSL(ep);
+}
+
+SOMEXTERN SOMDLLIMPORT Mlist * OPTLINK_DECL somtmlistend(Mlist * mp, char *name)
+{
+  OPTLINK_2ARGS(mp, name);
+
+  return somtmlistendSL(mp, name);
+}
+
+SOMEXTERN SOMDLLIMPORT BOOL  OPTLINK_DECL somtisMutRef(Entry *ep, Mlist *seen, BOOL isself, long level)
+{
+  OPTLINK_3ARGS(ep, seen, isself);
+
+  return somtisMutRefSL(ep, seen, isself, level);
+}
+
+SOMEXTERN SOMDLLIMPORT Mlist *  OPTLINK_DECL somtfreeMlist(Mlist *mp)
+{
+  OPTLINK_1ARG(mp);
+
+  return somtfreeMlistSL(mp);
+}
+
+SOMEXTERN SOMDLLIMPORT Mlist *  OPTLINK_DECL somtdupMlist(Mlist *mp, Entry *ep)
+{
+  OPTLINK_2ARGS(mp, ep);
+
+  return somtdupMlistSL(mp, ep);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtfreeWorld()
+{
+  somtfreeWorldSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtinitMalloc(BOOL dynamic)
+{
+  OPTLINK_1ARG(dynamic);
+
+  somtinitMallocSL(dynamic);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseEmitlib(void)
+{
+  somtInitialiseEmitlibSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmmeta(void)
+{
+  somtInitialiseSmmetaSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseCreatetc(void)
+{
+  somtInitialiseCreatetcSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmtypes(void)
+{
+  somtInitialiseSmtypesSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSomc(void)
+{
+  somtInitialiseSomcSL();
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtInitialiseSmsmall(void)
+{
+  somtInitialiseSmsmallSL();
+}
+
+SOMEXTERN SOMDLLIMPORT char * OPTLINK_DECL somtattMap(char *name)
+{
+  OPTLINK_1ARG(name);
+
+  return somtattMapSL(name);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtexit(SOMTExitBuf *ebuf, int status)
+{
+  OPTLINK_2ARGS(ebuf, status);
+
+  somtexitSL(ebuf, status);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtdymain(char *file, Entry *cls, EmitFn emitfn, char *emitter, int first, char *version, Stab *stab)
+{
+  OPTLINK_3ARGS(file, cls, emitfn);
+
+  return somtdymain(file, cls, emitfn, emitter, first, version, stab);
+}
+
+SOMEXTERN SOMDLLIMPORT void  OPTLINK_DECL somtaddHeader(char *file, FILE *fp, char *ext)
+{
+  OPTLINK_3ARGS(file, fp, ext);
+
+  return somtaddHeaderSL(file, fp, ext);
+}
+
 #endif
 
 SOMEXTERN SOMDLLIMPORT int SOMLINK somttraverseParentsSL(FILE *fp, Entry * cls, Entry *arg, int (*fn)(FILE*,Entry*,Entry*), SMTraverse flg)
@@ -460,12 +1018,12 @@ SOMEXTERN SOMDLLIMPORT int  SOMLINK somtokrenameSL(const char*, const char *)
   return 0;
 }
 
-SOMEXTERN SOMDLLIMPORT bool  SOMLINK somtisDbcsSL(int c)
+SOMEXTERN SOMDLLIMPORT BOOL  SOMLINK somtisDbcsSL(int c)
 {
   return FALSE;
 }
 
-SOMEXTERN SOMDLLIMPORT bool  SOMLINK somtremoveExtSL(char *name, char *ext, char *buf)
+SOMEXTERN SOMDLLIMPORT BOOL  SOMLINK somtremoveExtSL(char *name, char *ext, char *buf)
 {
   return NULL;
 }
@@ -525,7 +1083,7 @@ SOMEXTERN SOMDLLIMPORT char * SOMLINK somteptotypeSL(Entry *ep, char *ptrs, char
   return NULL;
 }
 
-SOMEXTERN SOMDLLIMPORT char * SOMLINK somtgetDescSL(Stab *stab, Entry *cls, Entry *method, char *desc, bool addQuotes, bool use, bool versflg)
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtgetDescSL(Stab *stab, Entry *cls, Entry *method, char *desc, BOOL addQuotes, BOOL use, BOOL versflg)
 {
   return NULL;
 }
@@ -635,9 +1193,14 @@ SOMEXTERN SOMDLLIMPORT int SOMLINK somtwriteaccessSL(char *file)
   return 0;
 }
 
-SOMEXTERN SOMDLLIMPORT void * SOMLINK somtsmallocSL(size_t nbytes, bool clear)
+// @fix params checks
+// @fix somtmalloc checks
+SOMEXTERN SOMDLLIMPORT void * SOMLINK somtsmallocSL(size_t nbytes, BOOL clear)
 {
-  return NULL;
+  void * buf;
+  buf=somtmalloc(nbytes);
+  if (clear) memset(buf, 0, nbytes);
+  return buf;
 }
 
 SOMEXTERN SOMDLLIMPORT void SOMLINK somtaddGAttSL(MemBuf **membuf, AttList **ap, char *buf)
@@ -668,7 +1231,7 @@ SOMEXTERN SOMDLLIMPORT void SOMLINK somtsetDefaultDescSL(Stab *stab)
 {
 }
 
-SOMEXTERN SOMDLLIMPORT void SOMLINK somtsetTypeDefnSL(Entry *type, Entry *ep, char *ptrs, Entry *ret, bool array)
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtsetTypeDefnSL(Entry *type, Entry *ep, char *ptrs, Entry *ret, BOOL array)
 {
 }
 
@@ -717,12 +1280,12 @@ SOMEXTERN SOMDLLIMPORT size_t SOMLINK somtsizeofEntrySL(SOMTTypes type)
   return 0;
 }
 
-SOMEXTERN SOMDLLIMPORT char * SOMLINK somtepnameSL(Entry *ep, char *buf, bool suppressImpctxCheck)
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtepnameSL(Entry *ep, char *buf, BOOL suppressImpctxCheck)
 {
   return NULL;
 }
 
-SOMEXTERN SOMDLLIMPORT char * SOMLINK somtgenSeqNameSL(long n, Entry *base, char *buf, bool fullname)
+SOMEXTERN SOMDLLIMPORT char * SOMLINK somtgenSeqNameSL(long n, Entry *base, char *buf, BOOL fullname)
 {
   return NULL;
 }
@@ -751,17 +1314,17 @@ SOMEXTERN SOMDLLIMPORT void SOMLINK somtsetInternalMessagesSL(char *too_long, ch
 {
 }
 
-SOMEXTERN SOMDLLIMPORT bool SOMLINK somtisvoidSL(Entry *type, char *defn)
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtisvoidSL(Entry *type, char *defn)
 {
   return FALSE;
 }
 
-SOMEXTERN SOMDLLIMPORT bool SOMLINK somtreturnsStructSL(Entry *ep)
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtreturnsStructSL(Entry *ep)
 {
   return FALSE;
 }
 
-SOMEXTERN SOMDLLIMPORT bool SOMLINK somtreturnsPtrSL(Entry *ep)
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtreturnsPtrSL(Entry *ep)
 {
   return FALSE;
 }
@@ -771,7 +1334,7 @@ SOMEXTERN SOMDLLIMPORT char * SOMLINK somtsimpleNameSL(Entry *ep)
   return NULL;
 }
 
-SOMEXTERN SOMDLLIMPORT void SOMLINK somtqualifyNamesSL(Stab * stab, bool fully)
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtqualifyNamesSL(Stab * stab, BOOL fully)
 {
 }
 
@@ -780,7 +1343,7 @@ SOMEXTERN SOMDLLIMPORT Entry * SOMLINK somtfindBaseEpNonPtrSL(Entry *ep)
   return NULL;
 }
 
-SOMEXTERN SOMDLLIMPORT bool SOMLINK somtprocessTrapsSL(void)
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtprocessTrapsSL(void)
 {
   return FALSE;
 }
@@ -795,7 +1358,7 @@ SOMEXTERN SOMDLLIMPORT Mlist * SOMLINK somtmlistendSL(Mlist * mp, char *name)
   return NULL;
 }
 
-SOMEXTERN SOMDLLIMPORT bool SOMLINK somtisMutRefSL(Entry *ep, Mlist *seen, bool isself, long level)
+SOMEXTERN SOMDLLIMPORT BOOL SOMLINK somtisMutRefSL(Entry *ep, Mlist *seen, BOOL isself, long level)
 {
   return FALSE;
 }
@@ -814,7 +1377,7 @@ SOMEXTERN SOMDLLIMPORT void SOMLINK somtfreeWorldSL()
 {
 }
 
-SOMEXTERN SOMDLLIMPORT void SOMLINK somtinitMallocSL(bool dynamic)
+SOMEXTERN SOMDLLIMPORT void SOMLINK somtinitMallocSL(BOOL dynamic)
 {
 }
 

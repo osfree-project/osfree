@@ -38,7 +38,7 @@ ADD_COPT += -i=$(SRC)..
 .obj: $(PATH)
 
 .c.obj: .AUTODEPEND
- $(verbose)echo CC      $^. $(LOG)
+ $(verbose)echo CC       $^. $(LOG)
  $(verbose)wcc386 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 $(PATH)$(PROJ).lib: $(OBJS)
