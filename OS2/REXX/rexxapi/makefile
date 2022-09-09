@@ -80,6 +80,7 @@ UNI2H        = 1
 
 .h: $(PATH)
 
+
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
 $(PATH)rexxapi16.obj: $(PATH)wrappers.h

@@ -54,11 +54,13 @@ srcfiles = &
  $(p)rexxbif$(e) &
  $(p)nosaa$(e)
 
+$(PATH)$(PROJ).exe: $(OBJS)
+
+
+
 
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
-
-$(PATH)$(PROJ).exe: $(OBJS)
 
 $(OBJS):: $(HFILES)
 
