@@ -79,11 +79,11 @@ DEST         = os2$(SEP)dll
 UNI2H        = 1
 
 .h: $(PATH)
+$(PATH)wrappers.h:
+ @$(REXX) $(MYDIR)genwrap.cmd $(NUMWRAP) >$^@
 
+$(PATH)rexxapi16.obj:: $(PATH)wrappers.h
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-$(PATH)rexxapi16.obj: $(PATH)wrappers.h
 
-$(PATH)wrappers.h:
- @$(REXX) $(MYDIR)genwrap.cmd $(NUMWRAP) >$^@
