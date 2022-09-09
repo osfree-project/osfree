@@ -9,8 +9,8 @@
    @author Bartosz Tomasik <bart2@asua.org.pl>
 */
 
+/* system header */
 #define INCL_DOSERRORS
-//#include <osfree.h> /* system header */
 #include <os2.h>
 
 /* C standard library headers */

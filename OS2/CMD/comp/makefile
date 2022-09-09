@@ -8,7 +8,7 @@ PROJ = comp
 TRGT = $(PROJ).exe
 DESC = Compare tool
 #defines object file names in format objname.$(O)
-srcfiles = $(p)cmp$(e)
+srcfiles = $(p)comp$(e)
 # defines additional options for C compiler
 ADD_COPT = -i=..$(SEP)include
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
