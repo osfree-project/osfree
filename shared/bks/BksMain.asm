@@ -18,6 +18,7 @@
 		include bseerr.inc
 INCL_KBD	EQU	1
 		include bsesub.inc
+		include bsedos.inc
 
 _TEXT		SEGMENT BYTE PUBLIC 'CODE' USE16
 
