@@ -4,8 +4,8 @@
 # valerius, 2006/10/30
 #
 
-DIRS = rexx rexxapi libs cmd rexxinit
-       #& #interp
+DIRS = interp rexx rexxapi libs cmd rexxinit
+
 !include $(%ROOT)/mk/all.mk
 
 #TARGETS = subdirs
