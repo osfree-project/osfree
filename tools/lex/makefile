@@ -14,7 +14,7 @@ STACKSIZE = 65536
 
 #$(PATH)scan.obj:  $(PATH)scan.c
 
-$(PATH)parse.obj:: $(PATH)parse.c
+$(PATH)parse.obj: $(PATH)parse.c
 
 #$(PATH)scan.c:  $(MYDIR)scan.c
 # @$(CP) $^@ $[@

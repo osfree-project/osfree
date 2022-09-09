@@ -22,7 +22,6 @@ UNI2H        = 1
 
 TARGETS = $(PATH)$(PROJ1).exe # subdirs
 #TARGET = all
-
 $(PATH)regina.obj: $(SRC)regina.c $(HFILES)
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)reginaos2.rc

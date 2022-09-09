@@ -1251,19 +1251,19 @@ DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-$(PATH)rectangles$(SEP)rectangles.obj:: $(MYDIR)rectangles$(SEP)rectangles.c
-$(PATH)habmgr$(SEP)habmgr.obj:: $(MYDIR)habmgr$(SEP)habmgr.cpp
-$(PATH)messagemgr$(SEP)messages.obj:: $(MYDIR)messagemgr$(SEP)messages.cpp
-$(PATH)messagemgr$(SEP)queue.obj:: $(MYDIR)messagemgr$(SEP)queue.cpp
-$(PATH)framemgr$(SEP)framemgr.obj:: $(MYDIR)framemgr$(SEP)framemgr.cpp
-$(PATH)windowmgr$(SEP)WindowClass.obj:: $(MYDIR)windowmgr$(SEP)WindowClass.cpp
-$(PATH)windowmgr$(SEP)windowmgr.obj:: $(MYDIR)windowmgr$(SEP)windowmgr.cpp
-$(PATH)input$(SEP)input.obj:: $(MYDIR)input$(SEP)input.cpp
-$(PATH)load$(SEP)load.obj:: $(MYDIR)load$(SEP)load.c
-$(PATH)dialogs$(SEP)windlgbox.obj:: $(MYDIR)dialogs$(SEP)windlgbox.c
-$(PATH)errors$(SEP)errors.obj:: $(MYDIR)errors$(SEP)errors.cpp
-$(PATH)errors$(SEP)f_errors.obj:: $(MYDIR)errors$(SEP)f_errors.cpp
-$(PATH)gre$(SEP)gre.obj:: $(MYDIR)gre$(SEP)gre.cpp
+$(PATH)rectangles$(SEP)rectangles.obj: $(MYDIR)rectangles$(SEP)rectangles.c
+$(PATH)habmgr$(SEP)habmgr.obj: $(MYDIR)habmgr$(SEP)habmgr.cpp
+$(PATH)messagemgr$(SEP)messages.obj: $(MYDIR)messagemgr$(SEP)messages.cpp
+$(PATH)messagemgr$(SEP)queue.obj: $(MYDIR)messagemgr$(SEP)queue.cpp
+$(PATH)framemgr$(SEP)framemgr.obj: $(MYDIR)framemgr$(SEP)framemgr.cpp
+$(PATH)windowmgr$(SEP)WindowClass.obj: $(MYDIR)windowmgr$(SEP)WindowClass.cpp
+$(PATH)windowmgr$(SEP)windowmgr.obj: $(MYDIR)windowmgr$(SEP)windowmgr.cpp
+$(PATH)input$(SEP)input.obj: $(MYDIR)input$(SEP)input.cpp
+$(PATH)load$(SEP)load.obj: $(MYDIR)load$(SEP)load.c
+$(PATH)dialogs$(SEP)windlgbox.obj: $(MYDIR)dialogs$(SEP)windlgbox.c
+$(PATH)errors$(SEP)errors.obj: $(MYDIR)errors$(SEP)errors.cpp
+$(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
+$(PATH)gre$(SEP)gre.obj: $(MYDIR)gre$(SEP)gre.cpp
 
 .$(O): $(PATH)rectangles
 .$(O): $(PATH)habmgr
