@@ -137,7 +137,7 @@ bintype =
 !endif
 
 !ifdef OBJS
-$(OBJS):: $(MYDIR)makefile
+#$(OBJS):: $(MYDIR)makefile
 !endif
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always

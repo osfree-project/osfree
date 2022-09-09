@@ -16,13 +16,10 @@ OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll
 
 TARGETS = $(PATH)$(PROJ).lib
 
+$(PATH)..$(SEP)dll$(SEP)$(PROJ).dll: $(PATH)..$(SEP)dll$(SEP)$(PROJ).lnk
+
+.lnk: $(PATH)..$(SEP)dll
+
 $(PATH)$(PROJ).lib: $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll # $(OBJS)
  @$(SAY) LIB      $^.
  @$(LIB) $(LIBOPT) $^@ +$[@
-
-
-
-#$(PATH)..$(SEP)dll$(SEP)$(PROJ).dll: $(PATH)..$(SEP)dll$(SEP)$(PROJ).lnk
-
-#.lnk: $(PATH)..$(SEP)dll
-

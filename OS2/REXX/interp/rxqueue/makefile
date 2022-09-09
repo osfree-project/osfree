@@ -17,7 +17,7 @@ ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,tcpip32.lib
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
-$(PATH)rxqueue.obj:: $(SRC)rxqueue.c $(HFILES)
+$(PATH)rxqueue.obj: $(SRC)rxqueue.c $(HFILES)
  @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)rxqueue.c
 

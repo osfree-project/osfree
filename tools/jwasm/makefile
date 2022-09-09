@@ -41,11 +41,11 @@ C = r
 
 .$(O): $(PATH)
 
-$(PATH)msgtext.$(O):: $(MYDIR)contrib$(SEP)src$(SEP)msgtext.c &
+$(PATH)msgtext.$(O): $(MYDIR)contrib$(SEP)src$(SEP)msgtext.c &
                      $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)msgdef.h &
                      $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)globals.h
 
-$(PATH)reswords.$(O):: $(MYDIR)contrib$(SEP)src$(SEP)reswords.c &
+$(PATH)reswords.$(O): $(MYDIR)contrib$(SEP)src$(SEP)reswords.c &
                       $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)instruct.h &
                       $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)special.h  &
                       $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)directve.h

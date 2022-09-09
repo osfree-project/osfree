@@ -81,9 +81,9 @@ UNI2H        = 1
 
 .h: $(PATH)
 
-$(OBJS):: $(PATH)wrappers.h
+$(OBJS): $(PATH)wrappers.h
 
-$(PATH)rexxapi16.obj:: $(PATH)wrappers.h
+$(PATH)rexxapi16.obj: $(PATH)wrappers.h
 
 $(PATH)wrappers.h: 
  @$(REXX) $(MYDIR)genwrap.cmd $(NUMWRAP) >$^@

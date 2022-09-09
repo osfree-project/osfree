@@ -22,11 +22,11 @@ ADD_COPT = -dNOAPIPROTO -u_MAX_DRIVE -i=. -i=$(MYDIR)include # -i=$(%ROOT)DOS$(S
 
 #TARGETS = $(PATH)$(PROJ).exe
 
-$(PATH)rclex.obj:: $(PATH)rclex.c
+$(PATH)rclex.obj: $(PATH)rclex.c
 
-$(PATH)rcyacc.obj:: $(PATH)rcyacc.c
+$(PATH)rcyacc.obj: $(PATH)rcyacc.c
 
-$(PATH)ifyacc.obj:: $(PATH)ifyacc.flg
+$(PATH)ifyacc.obj: $(PATH)ifyacc.flg
 
 $(PATH)ifyacc.h: $(MYDIR)ifyacc.y
 
