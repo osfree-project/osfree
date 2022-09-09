@@ -54,20 +54,22 @@ srcfiles = &
  $(p)rexxbif$(e) &
  $(p)nosaa$(e)
 
+$(PATH)$(PROJ).exe: $(OBJS)
+
+
+
 
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
-$(PATH)$(PROJ).exe: $(OBJS)
+$(OBJS):: $(HFILES)
 
-$(OBJS): $(HFILES)
+$(PATH)drexx.obj:: $(SRC)rexx.c $(HFILES)
 
-$(PATH)drexx.obj: $(SRC)rexx.c $(HFILES)
+$(PATH)client.obj:: $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 
-$(PATH)client.obj: $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
+$(PATH)rexxsaa.obj:: $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 
-$(PATH)rexxsaa.obj: $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
+$(PATH)yaccsrc.obj:: $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
 
-$(PATH)yaccsrc.obj: $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
-
-$(PATH)lexsrc.obj: $(SRC)lexsrc.c $(SRC)yaccsrc.h $(SRC)rexx.h
+$(PATH)lexsrc.obj:: $(SRC)lexsrc.c $(SRC)yaccsrc.h $(SRC)rexx.h

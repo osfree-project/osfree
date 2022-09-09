@@ -13,7 +13,8 @@ srcfiles    = $(p)execiser$(e)
 ADD_COPT    = $(THREADING) $(HAVE_GCI)
 ADD_LINKOPT = lib $(PATH)..$(SEP)implib$(SEP)regina.lib
 
+$(PATH)execiser.obj:: $(SRC)execiser.c $(HFILES)
+
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
-$(PATH)execiser.obj: $(SRC)execiser.c $(HFILES)

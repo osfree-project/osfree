@@ -68,6 +68,7 @@ srcfiles = $(p)msg$(e) &
            $(p)dossearchpath$(e) &
            $(p)token$(e) &
            $(p)monitors$(e) &
+           $(p)monitors16$(e) &
            $(p)viocalls$(e) &
            $(p)BmsMain$(e) &
            $(p)BksMain$(e) &

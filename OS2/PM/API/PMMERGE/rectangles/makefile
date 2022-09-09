@@ -9,6 +9,6 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include -bd
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-#DEST = none
+DEST = none
 TARGETS = $(OBJS)
 TARGET = all

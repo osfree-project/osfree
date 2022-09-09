@@ -32,7 +32,6 @@ DIRS =        shared &
               mkdir &
               mode &
               more &
-              newmbr &
               recover &
               screenrs &
               sort &
@@ -46,6 +45,7 @@ DIRS =        shared &
               vol &
               xcopy &
               zip &
+              newmbr &
               print
 
 #              diskcomp
