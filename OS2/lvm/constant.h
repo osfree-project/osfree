@@ -1,2 +1,0 @@
-/* constant.h */
-/* dummy */

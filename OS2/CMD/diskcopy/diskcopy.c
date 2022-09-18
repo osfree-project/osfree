@@ -27,11 +27,9 @@
 #define BUFSIZE   1024
 #define OPENFLAGS (OPEN_FLAGS_DASD | OPEN_SHARE_DENYREADWRITE | OPEN_ACCESS_READWRITE)
 
-  /* Note, for the lockdrive/unlockdrive macros, the global variable _lockCmd
-  **  must be accessable and set to zero!
-  */
-//#define lockdrive(hf)   (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_LOCKDRIVE,   IOCTL_DISK, hf))
-//#define unlockdrive(hf) (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_UNLOCKDRIVE, IOCTL_DISK, hf))
+/* Note, for the lockdrive/unlockdrive macros, the global variable _lockCmd
+**  must be accessable and set to zero!
+*/
 #define lockdrive(hf)   (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_LOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
 #define unlockdrive(hf) (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_UNLOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
 
@@ -137,7 +135,7 @@ HFILE opendrive(char *drive)
     _DosError = ERROR_INVALID_DATA;
   else
     do
-      { /* DosOpen(PCSZ,PHFILE,PULONG,ULONG,ULONG,ULONG,ULONG,PEAOP2); */
+      {
       _DosError = DosOpen(drive, &dHandle, &result, 0L, 0, FILE_OPEN, OPENFLAGS, 0L);
       if (_DosError == ERROR_NOT_READY)
         {
@@ -246,7 +244,6 @@ int readsource(HFILE hf)
         sourceLayout->usHead = hd;
         if ((sourceBuffer[trk+hd] = (PBYTE)Alloc(bytesPerTrack, sizeof(BYTE))) == NULL)
           errorexit(hf);
-        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_READTRACK, IOCTL_DISK, hf))
         if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_READTRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
                                         sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
@@ -306,7 +303,6 @@ int writetarget(HFILE hf)
   int          i, trk, hd, cyl, needFormat = FALSE;
 
   /* Get target disk parameters */
-  //_DosError = DosDevIOCtl(&targetParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
   _DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_GETDEVICEPARAMS, &_parmCmd, sizeof(_parmCmd), &_sizeCmd,
                               &targetParms, sizeof(targetParms), &_sizeParms);
 
@@ -348,7 +344,8 @@ int writetarget(HFILE hf)
            sourceTracks / sourceParms.cHeads, sourceParms.cHeads,
            sourceParms.usSectorsPerTrack,     sourceParms.usBytesPerSector);
     if (needFormat)
-      puts("Formatting while copying."); //1252
+      cmd_ShowSystemMessage(1252, 0);
+//      puts("Formatting while copying."); //1252
 
     for (trk = 0, cyl = 0; trk < sourceTracks; trk += sourceParms.cHeads, cyl++)
       {
@@ -388,12 +385,10 @@ int writetarget(HFILE hf)
     puts("");
 #endif
 
-          //if (_DosError = DosDevIOCtl(&_fmtData, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf))
           if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_FORMATVERIFY, trkfmt, sizeof(trkfmt), &_sizeCmd,
                                           &_fmtData, sizeof(_fmtData), &_sizeParms))
             errorexit(hf);
           }
-        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_WRITETRACK, IOCTL_DISK, hf))
         if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_WRITETRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
                                         sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
@@ -456,7 +451,8 @@ void errorexit(HFILE hf)
   if (_DosError == DSKCPY_ERROR_WRONG_FORMAT)
     {
     /* Special handling for this non-fatal error */
-    fprintf(stderr, "\nThe TARGET disk is not the correct format!"); //1253??
+    cmd_ShowSystemMessage(1253, 0);
+//    fprintf(stderr, "\nThe TARGET disk is not the correct format!"); 
     fprintf(stderr, "\nStrike any key to return to menu..");
     getch();
     fprintf(stderr, "\n\n");
@@ -467,7 +463,8 @@ void errorexit(HFILE hf)
   if (_DosError == DSKCPY_ERROR_CANT_FORMAT)
     {
     /* Special handling for this non-fatal error */
-    fprintf(stderr, "\nThe TARGET disk must be preformatted!"); // //1257
+    cmd_ShowSystemMessage(1257, 0);
+//    fprintf(stderr, "\nThe TARGET disk must be preformatted!"); // //1257
     fprintf(stderr, "\nStrike any key to return to menu..");
     getch();
     fprintf(stderr, "\n\n");
@@ -475,15 +472,17 @@ void errorexit(HFILE hf)
     }
 #endif
 
-  puts("");
-  if ((msgBuf = (PCHAR)calloc(BUFSIZE, sizeof(CHAR))) != NULL)
-    {
-    DosGetMessage(NULL, 0, msgBuf, BUFSIZE, _DosError, "oso001.msg", &cbBuf);
-    fputs(msgBuf, stderr);
-    free(msgBuf);
-    }
-  else
-    fprintf(stderr, "SYS%04d: error text unavailable\n", _DosError);
+  cmd_ShowSystemMessage(_DosError, 0);
+
+//  puts("");
+//  if ((msgBuf = (PCHAR)calloc(BUFSIZE, sizeof(CHAR))) != NULL)
+//    {
+//    DosGetMessage(NULL, 0, msgBuf, BUFSIZE, _DosError, "oso001.msg", &cbBuf);
+//    fputs(msgBuf, stderr);
+//    free(msgBuf);
+//    }
+//  else
+//    fprintf(stderr, "SYS%04d: error text unavailable\n", _DosError);
 
   if (hf) DosClose(hf);
   fprintf(stderr, "Strike any key to exit..");

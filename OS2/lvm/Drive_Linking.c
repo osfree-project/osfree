@@ -81,10 +81,10 @@
 
 #include "Drive_Linking.h"
 
-#include "constant.h"
-#include "panels.h"
-#include "display.h"
-#include "getkey.h"
+//#include "constant.h"
+//#include "panels.h"
+//#include "display.h"
+//#include "getkey.h"
 
 
 #ifdef DEBUG
@@ -200,11 +200,11 @@ static Plugin_Function_Table_V1   Function_Table;
 static LVM_Common_Services_V1  *  LVM_Common_Services;
 static Feature_ID_Data            Feature_ID_Record;
 
-static panel_t DL_help_panel = {0};
+//static panel_t DL_help_panel = {0};
 static char ** DL_help_panel_text;
-static panel_t DL_group_panel = {0};
+//static panel_t DL_group_panel = {0};
 static char ** DL_group_panel_text;
-static panel_t message_bar_panel = {0};
+//static panel_t message_bar_panel = {0};
 static char *message_bar_panel_text[2] = {NULL, NULL};
 static unsigned int DL_group_panel_cursor = 0;
 static unsigned int DL_group_partition_count;
@@ -266,18 +266,18 @@ static void     _System Find_Duplicate_ANames( ADDRESS Object, TAG ObjectTag, CA
 
 void _System VIO_Help_Panel (CARDINAL32 Help_Index, CARDINAL32 * Error_Code);
 //void _System VIO_Create_and_Configure ( CARDINAL32 ID, ADDRESS InputBuffer, CARDINAL32 InputBufferSize, ADDRESS * OutputBuffer, CARDINAL32 * OutputBufferSize, CARDINAL32 * Error_Code);
-unsigned int _System Create_and_Configure_callback (panel_t *panel);
-void Init_VIO_Help_Panel(void);
-unsigned long VIO_ShowMessageBar(unsigned long message_number);
-void VIO_ClearMessageBar(void);
-void get_char_message ( char    *memory,           /* user supplied memory */
-                        uint    message_number,
-                        char    *array,
-                        uint    array_length );
-char * get_line_message ( char *memory,            /* user supplied memory */
-                          uint message_number);
+//unsigned int _System Create_and_Configure_callback (panel_t *panel);
+//void Init_VIO_Help_Panel(void);
+//unsigned long VIO_ShowMessageBar(unsigned long message_number);
+//void VIO_ClearMessageBar(void);
+//void get_char_message ( char    *memory,           /* user supplied memory */
+//                        uint    message_number,
+//                        char    *array,
+//                        uint    array_length );
+//char * get_line_message ( char *memory,            /* user supplied memory */
+//                          uint message_number);
 
-void * get_help_message ( uint    message_number );
+//void * get_help_message ( uint    message_number );
 
 bool MoveMenuCursor( unsigned int cur_position,
                      unsigned int *new_position,
@@ -5355,6 +5355,8 @@ char chars_less_than_greater_than[2] = {'<', '>'};
 extern char chars_less_than_greater_than[2];
 
 #endif
+
+#if 0
 /*
  * from lvmexe\strings.c
  * build the outlines and scroll bars from the message file entries.
@@ -5429,7 +5431,6 @@ char * get_line_message ( char *memory,         /* user supplied memory */
  *
  */
 
-
 void * get_help_message ( uint    message_number )
 {
     register
@@ -5478,7 +5479,6 @@ void * get_help_message ( uint    message_number )
     return  memory;
 }
 
-#if 0
 void Init_VIO_Help_Panel()
 {
    char *memory;
