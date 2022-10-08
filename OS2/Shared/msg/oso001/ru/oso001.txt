@@ -461,7 +461,7 @@ SYS0141I: The system tried to substitute a drive to a directory on
 a joined drive.
 ;
 ;
-SYS0142E: The system cannot perform a JOIN or SUBST at this time.
+SYS0142E:В настоящее время система не может выполнить JOIN или SUBST.
 ;
 ;
 SYS0143I: The system cannot join or substitute a drive to or for a
@@ -548,7 +548,7 @@ SYS0167I: Система не может заблокировать запрошенный в памяти сегмент.
 ;
 ;
 SYS0168I: Система столкнулась с ошибкой во время загрузки сегмента в память.
-;Система получила опыт (exp) во время подкаки сегмента в память.
+;
 ;
 SYS0169I: Система не может выгрузить данные в сегмент.
 ;
@@ -556,7 +556,7 @@ SYS0169I: Система не может выгрузить данные в сегмент.
 SYS0170I: Сегмент используется другим процессом.
 ;
 ;
-SYS0171E: У программы работающей в этой сессии возникли проблемы.
+SYS0171E: У программы, работающей в этой сессии, возникли проблемы.
 Продолжение выполнения программы невозможно.
 ;
 ;
@@ -696,7 +696,7 @@ SYS0214E: Слишком много динамически подклюаемых модулей подключено
 SYS0215?:
 ;
 ;
-SYS0216I: Ring 2 stack не мжет быть уменьшен.
+SYS0216I: Ring 2 stack не может быть уменьшен.
 ;
 ;
 SYS0217?:
@@ -770,7 +770,7 @@ SYS0238?:
 SYS0239?:
 ;
 ;
-SYS0240E: The network connection is disconnected.
+SYS0240E: Сетевое соединение разорвано.
 ;
 ;
 SYS0241E: The network name given was not found.
@@ -800,16 +800,16 @@ SYS0248?:
 SYS0249?:
 ;
 ;
-SYS0250E: The move or rename operation is not allowed.
+SYS0250E: Операция перемещения или переименования не разрешена.
 ;
 ;
-SYS0251E: The move or rename operation is not allowed.
+SYS0251E: Операция перемещения или переименования не разрешена.
 ;
 ;
-SYS0252E: The specified file system name is incorrect.
+SYS0252E: Указано некорректное имя файловой системы.
 ;
 ;
-SYS0253E: The specified device name is incorrect.
+SYS0253E: Указано некорректное имя устройства.
 ;
 ;
 SYS0254E: An incorrect extended attribute name was used.
@@ -962,7 +962,7 @@ SYS0299E: The event semaphore has already been posted.
 SYS0300E: The event semaphore has already been reset.
 ;
 ;
-SYS0301E: The semaphore is in use.
+SYS0301E: Семафор уже используется.
 ;
 ;
 SYS0302?:
@@ -1017,13 +1017,13 @@ in message file %2.
 SYS0318E: Message file %2 cannot be found for message %1.
 ;
 ;
-SYS0319E: The system cannot read message file %1.
+SYS0319E: Система не может прочитать файл сообщений %1.
 ;
 ;
 SYS0320E: A programming error occurred when using the message retriever.
 ;
 ;
-SYS0321E: The system cannot display the message.
+SYS0321E: Система не может отобразить сообщение.
 ;
 ;
 SYS0322?:
@@ -1257,10 +1257,10 @@ SYS0394?:
 SYS0395?:
 ;
 ;
-SYS0396E: The system cannot find the COUNTRY.SYS file.
+SYS0396E: Система не может найти файл COUNTRY.SYS.
 ;
 ;
-SYS0397E: OS/2 cannot open the COUNTRY.SYS file.
+SYS0397E: OS/2 не может открыть файл COUNTRY.SYS.
 ;
 ;
 SYS0398E: The system cannot find the country code or
@@ -3630,39 +3630,39 @@ SYS1119I: Revision %1.%2 %0
 SYS1120I:
 
             ╔═════════════════════════════════════════════════════╗
-            ║                       osFree                        ║
-            ║                    Installation                     ║
+            ║                     Установка                       ║
+            ║                      osFree                         ║
             ╚═════════════════════════════════════════════════════╝
 
 
                            (C) Copyright osFree team
 
 
-           Remove the diskette from drive A.
+           Извлеките дискету из дисковода A.
 
-           Insert osFree Diskette %1
-           into drive A. Then, press Enter.
+           Вставьте дискету osFree №%1
+           в дисковод A и нажмите Enter.
 ;
 ;
-SYS1121P: Sun%0
+SYS1121P: Вск%0
 ;
 ;
-SYS1122P: Mon%0
+SYS1122P: Пнд%0
 ;
 ;
-SYS1123P: Tue%0
+SYS1123P: Втр%0
 ;
 ;
-SYS1124P: Wed%0
+SYS1124P: Срд%0
 ;
 ;
-SYS1125P: Thu%0
+SYS1125P: Чтв%0
 ;
 ;
-SYS1126P: Fri%0
+SYS1126P: Птн%0
 ;
 ;
-SYS1127P: Sat%0
+SYS1127P: Сбт%0
 ;
 ;
 SYS1128E: An incorrect process ID was entered for the command.
@@ -3721,7 +3721,7 @@ SYS1139P: Press Enter to begin adding files.
 SYS1140P: Press Enter to begin replacing files.
 ;
 ;
-SYS1141E: The system cannot find the files specified: %1.
+SYS1141E: Система не может найти указанные файлы: %1.
 ;
 ;
 SYS1142I:
@@ -3791,10 +3791,10 @@ SYS1160?:
 SYS1161P: Do you want to compare more files (Y/N)? %0
 ;
 ;
-SYS1162P: Enter the first file name.
+SYS1162P: Введите имя первого файла.
 ;
 ;
-SYS1163P: Enter the second file name.
+SYS1163P: Введите имя второго файла.
 ;
 ;
 SYS1164I: The files compare OK.
@@ -3817,7 +3817,7 @@ SYS1169I: The files are different sizes.  Do you want to
 continue (Y/N)? %0
 ;
 ;
-SYS1170I: Compare file %1 and file %2.
+SYS1170I: Сравнение файла %1 и файла %2.
 ;
 ;
 SYS1171W: The system cannot find the %1 path.
@@ -3860,7 +3860,7 @@ SYS1182I: The DOS Programs device driver is loaded.
 SYS1183?:
 ;
 ;
-SYS1184E: The system cannot copy the file.
+SYS1184E: Система не может скопировать файл.
 ;
 ;
 SYS1185E: Internal error %1 occurred during XCOPY.
@@ -4000,7 +4000,7 @@ SYS1214?:
 SYS1215?:
 ;
 ;
-SYS1216I: %1 file(s) unpacked.
+SYS1216I: %1 файл(а/ов) распаковано.
 ;
 ;
 SYS1217E: The file cannot be decompressed with this version of the
@@ -4008,7 +4008,7 @@ OS/2 UNPACK command.
 ;
 ;
 SYS1218I:
-              Installing %1
+              Устанавливается %1
 
 
 
@@ -4016,10 +4016,10 @@ SYS1218I:
 
 
 
-            Remove the diskette from drive %2.
+            Извлеките дискету из дисковода %2.
 
-            Insert the %1
-            Installation Diskette into drive %2.  Then, press Enter.
+            Вставьте установочную дискету %1
+            в дисковод %2 и нажмите Enter.
 ;
 ;
 SYS1219I:  %1      %2       %3      %4    %5      %6     %7  Delayed
@@ -4047,7 +4047,7 @@ SYS1222I:
 ╔════════════════════════════════════════════════════════════════════════╗
 ║                                                                        ║
 ║                                                                        ║
-║                    Transferring files, please wait...                  ║
+║                        Перенос файлов, ожидайте...                     ║
 ║                                                                        ║
 ║                                                                        ║
 ╚════════════════════════════════════════════════════════════════════════╝
@@ -4296,7 +4296,7 @@ SYS1292I: The system disk is missing file %1.
 SYS1293I: The new type of file system is %1.
 ;
 ;
-SYS1294I: Formatting has been completed.
+SYS1294I: Форматирование завершено.
 ;
 ;
 SYS1295E: The specified volume has a size greater than 64 Gigabytes.
@@ -4347,7 +4347,7 @@ SYS1309P: Formatting this disk might take up to %1 minutes.
 Do you want to continue (Y/N)? %0
 ;
 ;
-SYS1310E: A drive letter must be specified.
+SYS1310E: Должна быть указана буква диска.
 ;
 ;
 SYS1311E: The system files are missing.
@@ -5025,7 +5025,7 @@ o  Type EXIT to end this DOS session.
 
 ;
 ;
-SYS1495P:   DOS      Ctrl+Esc = Window List                             Type HELP = help                                                      %0
+SYS1495P:   DOS      Ctrl+Esc = Список задач                            HELP = помощь      %0
 ;
 ;
 SYS1496I: The message file %1 cannot be found.  It is
@@ -5287,7 +5287,7 @@ SYS1563P: %1 is not a correct choice.  Enter a correct choice.
 SYS1564P: %1 is not a correct choice.  Enter Y or N
 ;
 ;
-SYS1565I: No hard disks are present.
+SYS1565I: Отсутствует жесткий диск.
 ;
 ;
 SYS1566I: An error occurred when reading data from the hard disk.
@@ -5413,7 +5413,7 @@ SYS1603I: Lines per inch has been set.
 SYS1604I: Infinite retry has been set.
 ;
 ;
-SYS1605I: -- More --%0
+SYS1605I: -- Еще --%0
 ;
 ;
 SYS1606I: Infinite retry has been reset

@@ -147,6 +147,10 @@ usage(nl_catd cat)
 
     if (err)
         WriteString(catgets(cat, 2, 0, "Invalid parameter\r\n"), StdERR);
+
+    cmd_ShowSystemMessage(cmd_MSG_SORT_HELP,0);
+
+#if 0
     WriteString(catgets(cat, 0, 0, "    SORT [/R] [/+num] [/?]\r\n"), StdERR);
     WriteString(catgets(cat, 0, 1, "    /R    Reverse order\r\n"), StdERR);
 #ifdef __MSDOS__
@@ -155,7 +159,7 @@ usage(nl_catd cat)
     WriteString(catgets(cat, 0, 3,
         "    /+num start sorting with column num, 1 based\r\n"), StdERR);
     WriteString(catgets(cat, 0, 4, "    /?    help\r\n"), StdERR);
-
+#endif
 }
 
 typedef int (*cmpr_t)(const void *, const void *);

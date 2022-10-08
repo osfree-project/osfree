@@ -3,7 +3,7 @@
 # (c) osFree project,
 #
 
-DIRS = IOProcs minstall api
+DIRS = api IOProcs minstall # ib
 
 !include $(%ROOT)/mk/all.mk
 

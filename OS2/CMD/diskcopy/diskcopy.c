@@ -1,3 +1,5 @@
+// @todo Use OSO001.MSG
+
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -7,6 +9,8 @@
 #define INCL_BASE
 #define INCL_DOSDEVIOCTL
 #include <os2.h>
+
+#include <cmd_shared.h>
 
 /* ------------------------------------------------------------------------ */
 
@@ -23,11 +27,9 @@
 #define BUFSIZE   1024
 #define OPENFLAGS (OPEN_FLAGS_DASD | OPEN_SHARE_DENYREADWRITE | OPEN_ACCESS_READWRITE)
 
-  /* Note, for the lockdrive/unlockdrive macros, the global variable _lockCmd
-  **  must be accessable and set to zero!
-  */
-//#define lockdrive(hf)   (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_LOCKDRIVE,   IOCTL_DISK, hf))
-//#define unlockdrive(hf) (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_UNLOCKDRIVE, IOCTL_DISK, hf))
+/* Note, for the lockdrive/unlockdrive macros, the global variable _lockCmd
+**  must be accessable and set to zero!
+*/
 #define lockdrive(hf)   (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_LOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
 #define unlockdrive(hf) (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_UNLOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
 
@@ -133,7 +135,7 @@ HFILE opendrive(char *drive)
     _DosError = ERROR_INVALID_DATA;
   else
     do
-      { /* DosOpen(PCSZ,PHFILE,PULONG,ULONG,ULONG,ULONG,ULONG,PEAOP2); */
+      {
       _DosError = DosOpen(drive, &dHandle, &result, 0L, 0, FILE_OPEN, OPENFLAGS, 0L);
       if (_DosError == ERROR_NOT_READY)
         {
@@ -242,7 +244,6 @@ int readsource(HFILE hf)
         sourceLayout->usHead = hd;
         if ((sourceBuffer[trk+hd] = (PBYTE)Alloc(bytesPerTrack, sizeof(BYTE))) == NULL)
           errorexit(hf);
-        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_READTRACK, IOCTL_DISK, hf))
         if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_READTRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
                                         sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
@@ -302,7 +303,6 @@ int writetarget(HFILE hf)
   int          i, trk, hd, cyl, needFormat = FALSE;
 
   /* Get target disk parameters */
-  //_DosError = DosDevIOCtl(&targetParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
   _DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_GETDEVICEPARAMS, &_parmCmd, sizeof(_parmCmd), &_sizeCmd,
                               &targetParms, sizeof(targetParms), &_sizeParms);
 
@@ -344,7 +344,8 @@ int writetarget(HFILE hf)
            sourceTracks / sourceParms.cHeads, sourceParms.cHeads,
            sourceParms.usSectorsPerTrack,     sourceParms.usBytesPerSector);
     if (needFormat)
-      puts("Formatting while copying.");
+      cmd_ShowSystemMessage(1252, 0);
+//      puts("Formatting while copying."); //1252
 
     for (trk = 0, cyl = 0; trk < sourceTracks; trk += sourceParms.cHeads, cyl++)
       {
@@ -384,19 +385,17 @@ int writetarget(HFILE hf)
     puts("");
 #endif
 
-          //if (_DosError = DosDevIOCtl(&_fmtData, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf))
           if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_FORMATVERIFY, trkfmt, sizeof(trkfmt), &_sizeCmd,
                                           &_fmtData, sizeof(_fmtData), &_sizeParms))
             errorexit(hf);
           }
-        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_WRITETRACK, IOCTL_DISK, hf))
         if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_WRITETRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
                                         sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
         }
       }
 
-    puts("\rDone.                 \n");
+    puts("\rDone.                 \n");  //1266
     if (needFormat) free(trkfmt);
     }
 
@@ -452,7 +451,8 @@ void errorexit(HFILE hf)
   if (_DosError == DSKCPY_ERROR_WRONG_FORMAT)
     {
     /* Special handling for this non-fatal error */
-    fprintf(stderr, "\nThe TARGET disk is not the correct format!");
+    cmd_ShowSystemMessage(1253, 0);
+//    fprintf(stderr, "\nThe TARGET disk is not the correct format!"); 
     fprintf(stderr, "\nStrike any key to return to menu..");
     getch();
     fprintf(stderr, "\n\n");
@@ -463,7 +463,8 @@ void errorexit(HFILE hf)
   if (_DosError == DSKCPY_ERROR_CANT_FORMAT)
     {
     /* Special handling for this non-fatal error */
-    fprintf(stderr, "\nThe TARGET disk must be preformatted!");
+    cmd_ShowSystemMessage(1257, 0);
+//    fprintf(stderr, "\nThe TARGET disk must be preformatted!"); // //1257
     fprintf(stderr, "\nStrike any key to return to menu..");
     getch();
     fprintf(stderr, "\n\n");
@@ -471,15 +472,17 @@ void errorexit(HFILE hf)
     }
 #endif
 
-  puts("");
-  if ((msgBuf = (PCHAR)calloc(BUFSIZE, sizeof(CHAR))) != NULL)
-    {
-    DosGetMessage(NULL, 0, msgBuf, BUFSIZE, _DosError, "oso001.msg", &cbBuf);
-    fputs(msgBuf, stderr);
-    free(msgBuf);
-    }
-  else
-    fprintf(stderr, "SYS%04d: error text unavailable\n", _DosError);
+  cmd_ShowSystemMessage(_DosError, 0);
+
+//  puts("");
+//  if ((msgBuf = (PCHAR)calloc(BUFSIZE, sizeof(CHAR))) != NULL)
+//    {
+//    DosGetMessage(NULL, 0, msgBuf, BUFSIZE, _DosError, "oso001.msg", &cbBuf);
+//    fputs(msgBuf, stderr);
+//    free(msgBuf);
+//    }
+//  else
+//    fprintf(stderr, "SYS%04d: error text unavailable\n", _DosError);
 
   if (hf) DosClose(hf);
   fprintf(stderr, "Strike any key to exit..");
@@ -543,17 +546,17 @@ int dskcpy_menu(int mlevel, char *drive)
 
 
 int main(int argc, char **argv)
-  {
+{
   HFILE dHandle;
   char  *drive = "a:";
   int   choice;
 
   copyr();
   if ((argc > 2) || ((argc == 2) && (argv[1][1] != ':')))
-    {
-    fputs("usage: dskcpy2 drive_letter:", stderr);
+  {
+    cmd_ShowSystemMessage(3096, 0);
     exit(1);
-    }
+  }
 
   if (argc == 2)
     drive = argv[1];
@@ -565,7 +568,7 @@ int main(int argc, char **argv)
     switch (choice)
       {
       case READ_SOURCE:
-        query("Place SOURCE disk in drive %s and strike any key when ready..", drive);
+        query("Place SOURCE disk in drive %s and strike any key when ready..", drive); // 1232
         if ((dHandle = opendrive(drive)) == 0) errorexit(dHandle);
         if (lockdrive(dHandle))                errorexit(dHandle);
         if (readsource(dHandle))               errorexit(dHandle);
@@ -573,7 +576,7 @@ int main(int argc, char **argv)
         DosClose(dHandle);
         break;
       case COPY_TARGET:
-        query("Place TARGET disk in drive %s and strike any key when ready..", drive);
+        query("Place TARGET disk in drive %s and strike any key when ready..", drive); // 1233
         if ((dHandle = opendrive(drive)) == 0) errorexit(dHandle);
         if (lockdrive(dHandle))                errorexit(dHandle);
         if (writetarget(dHandle))              errorexit(dHandle);

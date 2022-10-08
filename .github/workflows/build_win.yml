@@ -38,8 +38,7 @@ jobs:
             # Update references
             - name: Git Sumbodule Update
               run: |
-                  git submodule update --init --recursive
-                  git submodule update --remote --recursive
+                  git submodule update --init --recursive --force --remote
 
             # Commit
             #- name: Commit update

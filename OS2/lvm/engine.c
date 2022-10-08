@@ -103,7 +103,7 @@
 #include "Partition_Manager.h" /* Initialize_Partition_Manager, Close_Partition_Manager, Discover_Partitions, Commit_Partition_Changes */
 #include "Volume_Manager.h"    /* Initialize_Volume_Manger, Close_Volume_Manager, Discover_Volumes, Commit_Volume_Changes */
 #include "BootManager.h"       /* Discover_Boot_Manager */
-#include "crc.h"               /* Build_CRC_Table, CalculateCRC, INITIAL_CRC */
+#include "crc.h"               /* CalculateCRC, INITIAL_CRC */
 #include "logging.h"           /* Log_Current_Configuration, Write_Log_Buffer, Logging_Enabled */
 #include "lvm_plug.h"          /* LVM_Plugin_DLL_Interface, LVM_Common_Services_V1, Plugin_Function_Table_V1, PLUGIN_FUNCTION_TABLE_V1_TAG */
 #include "Bad_Block_Relocation.h"
@@ -422,9 +422,6 @@ void _System Open_LVM_Engine2( BOOLEAN Ignore_CHS, LVM_Interface_Types Interface
 
   /* Initialize the Kill_Sector to all 0xf6. */
   memset(&Kill_Sector,0xf6,BYTES_PER_SECTOR);
-
-  /* Now let's build the CRC table so that the CalculateCRC function will work. */
-  Build_CRC_Table();
 
   /* Now lets  initialize the Handle Manager. */
   if ( ! Initialize_Handle_Manager() )

@@ -26,18 +26,11 @@
 
 /*
  * Functions: CARDINAL32 CalculateCRC
- *            void       Build_CRC_Table
  *
  * Description: The functions in this module provide a means of calculating
- *              the 32 bit CRC for a block of data.  Build_CRC_Table must
- *              be called to initialize this module.  CalculateCRC must
- *              NOT be used until after Build_CRC_Table has been called.
- *              Once Build_CRC_Table has been called, CalculateCRC can
+ *              the 32 bit CRC for a block of data. CalculateCRC can
  *              be used to calculate the CRC of the data residing in a
  *              user specified buffer.
- *
- * Notes: Build_CRC_Table only needs to be called once.  Once the internal
- *        CRC table has been built, there is no need to build it again.
  *
  */
 
@@ -65,39 +58,9 @@
    of the loop, there is no previous value.  In this case, you use INITIAL_CRC as the previous value.                        */
 #define INITIAL_CRC  0xFFFFFFFFL
 
-
-
-
-
 /*--------------------------------------------------
  * Public Functions Available
  --------------------------------------------------*/
-
-
-/*********************************************************************/
-/*                                                                   */
-/*   Function Name: Build_CRC_Table                                  */
-/*                                                                   */
-/*   Descriptive Name: This module implements the CRC function using */
-/*                     a table driven method.  The required table    */
-/*                     must be setup before the CalculateCRC function*/
-/*                     can be used.  This table only needs to be set */
-/*                     up once.  This function sets up the CRC table */
-/*                     needed by CalculateCRC.                       */
-/*                                                                   */
-/*   Input: None                                                     */
-/*                                                                   */
-/*   Output: None                                                    */
-/*                                                                   */
-/*   Error Handling: N/A                                             */
-/*                                                                   */
-/*   Side Effects:  The internal CRC Table is initialized.           */
-/*                                                                   */
-/*   Notes:  None.                                                   */
-/*                                                                   */
-/*********************************************************************/
-void _System Build_CRC_Table( void );
-
 
 /*********************************************************************/
 /*                                                                   */

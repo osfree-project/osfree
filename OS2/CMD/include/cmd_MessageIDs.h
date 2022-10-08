@@ -10,7 +10,7 @@
     @author Bartosz Tomasik <bart2@asua.org.pl>
     @author Cristiano Guadagnino <criguada@tin.it>
 
-    @todo remove this file because duplicates OS/2 include files
+    @todo remove part or whole of this file because duplicates OS/2 include file bseerr and bsemid
 */
 
 #ifndef _CMD_MESSAGEIDS_H_
@@ -41,6 +41,8 @@
 /* help screens */
 #define cmd_MSG_LABEL_HELP              3037  /*!< Help screen for label */
 #define cmd_MSG_DIR_HELP                3039  /*!< Help screen for dir */
+#define cmd_MSG_CALL_HELP               3040  /*!< Help screen for call */
+#define cmd_MSG_CHCP_HELP               3041  /*!< Help screen for chcp */
 #define cmd_MSG_RENAME_HELP             3042  /*!< Help screen for rename */
 #define cmd_MSG_DEL_HELP                3043  /*!< Help screen for del */
 #define cmd_MSG_TYPE_HELP               3044  /*!< Help screen for type */
@@ -58,16 +60,24 @@
 #define cmd_MSG_SET_HELP                3057  /*!< Help screen for set */
 #define cmd_MSG_PROMPT_HELP             3058  /*!< Help screen for prompt */
 #define cmd_MSG_PATH_HELP               3059  /*!< Help screen for path */
+#define cmd_MSG_EXIT_HELP               3060  /*!< Help screen for exit */
+#define cmd_MSG_ECHO_HELP               3062  /*!< Help screen for echo */
+#define cmd_MSG_GOTO_HELP               3063  /*!< Help screen for goto */
+#define cmd_MSG_SHIFT_HELP              3064  /*!< Help screen for shift */
+#define cmd_MSG_IF_HELP                 3065  /*!< Help screen for if */
+#define cmd_MSG_FOR_HELP                3066  /*!< Help screen for for */
 #define cmd_MSG_CLS_HELP                3067  /*!< Help screen for cls */
 #define cmd_MSG_ATTRIB_HELP             3092  /*!< Help screen for attrib */
 #define cmd_MSG_CHKDSK_HELP             3093  /*!< Help screen for chkdsk */
 #define cmd_MSG_COMP_HELP               3094  /*!< Help screen for comp */
 #define cmd_MSG_DISKCOPY_HELP           3096L /*!< Help screen for diskcopy */
+#define cmd_MSG_MOVE_HELP               3098  /*!< Help screen for move */
 #define cmd_MSG_FIND_HELP               3099L /*!< Help screen for find */
 #define cmd_MSG_FORMAT_HELP             3120  /*!< Help screen for format */
 #define cmd_MSG_MODE_HELP               3133L /*!< Help screen for mode */
 #define cmd_MSG_PRINT_HELP              3136L /*!< Help screen for print */
 #define cmd_MSG_RECOVER_HELP            3137L /*!< Help screen for recover */
+#define cmd_MSG_SORT_HELP               3139L /*!< Help screen for recover */
 #define cmd_MSG_TREE_HELP               3148L /*!< Help screen for tree */
 #define cmd_MSG_UNDELETE_HELP           3149L /*!< Help screen for undelete */
 #define cmd_MSG_KEYB_HELP               8080L /*!< Help screen for keyb */

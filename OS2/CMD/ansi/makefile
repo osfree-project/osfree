@@ -7,7 +7,7 @@
 PROJ = ansi
 TRGT = $(PROJ).exe
 DESC = Control utility for ANSI
-#defines object file names in format objname.$(O)
+#defines object file names in format $(p)objname$(e)
 srcfiles = $(p)ansi$(e)
 # defines additional options for C compiler
 ADD_COPT    = -i=$(MYDIR)..$(SEP)include

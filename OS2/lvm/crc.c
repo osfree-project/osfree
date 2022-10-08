@@ -43,13 +43,13 @@
 
 #define NEED_BYTE_DEFINED
 #include "lvm_gbls.h" /* CARDINAL32, BYTE, ADDRESS */
+#include "logging.h"  /* FUNCTION_ENTRY, FUNCTION_EXIT */
 
 
 /*--------------------------------------------------
  * Private Constants
  --------------------------------------------------*/
 #define CRC_POLYNOMIAL     0xEDB88320L
-
 
 
 /*--------------------------------------------------
@@ -62,17 +62,12 @@
  --------------------------------------------------*/
 static CARDINAL32 CRC_Table[ 256 ];                     /* Used by the CalculateCRC function. */
 
-
-/*--------------------------------------------------
- * There are no Private functions.
- --------------------------------------------------*/
-
+static BOOLEAN CRC_Table_Built=FALSE;  /* TRUE=table is built, FALSE=table not built yet */
 
 
 /*--------------------------------------------------
- * Public Functions Available
+ * Private functions.
  --------------------------------------------------*/
-
 
 /*********************************************************************/
 /*                                                                   */
@@ -119,9 +114,12 @@ void _System Build_CRC_Table( void )
       CRC_Table[ i ] = CRC;
 
     }
-
+    CRC_Table_Built = TRUE;
 }
 
+/*--------------------------------------------------
+ * Public Functions Available
+ --------------------------------------------------*/
 
 /*********************************************************************/
 /*                                                                   */
@@ -158,8 +156,13 @@ CARDINAL32 _System CalculateCRC( CARDINAL32 CRC, ADDRESS Buffer, CARDINAL32 Buff
   CARDINAL32 Temp2;
   CARDINAL32 I;             /* Used to walk the buffer. */
 
+//  FUNCTION_ENTRY(__FUNCTION__);
+
   /* Establish access to the buffer on a byte by byte basis. */
   Current_Byte = ( BYTE *) Buffer;
+
+  /* Make sure the CRC table is available */
+  if (CRC_Table_Built==FALSE)  Build_CRC_Table();
 
   /* Process each byte in the buffer. */
   for ( I = 0; I < BufferSize; I++ )
@@ -172,9 +175,6 @@ CARDINAL32 _System CalculateCRC( CARDINAL32 CRC, ADDRESS Buffer, CARDINAL32 Buff
 
   }
 
+//  FUNCTION_EXIT(__FUNCTION__);
   return( CRC );
-
 }
-
-
-
