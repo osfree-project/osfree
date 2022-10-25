@@ -1,5 +1,7 @@
 #define INCL_DEV
+#define INCL_GREALL
 #include <os2.h>
+#include "pmddi.h"
 #include "unimpl.h"
 
 /*
