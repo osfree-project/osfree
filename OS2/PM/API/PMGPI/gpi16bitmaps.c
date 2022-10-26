@@ -1,22 +1,34 @@
+/*!
+   @file
+
+   @ingroup pm
+
+   @brief Presentation Manager 16-bit Graphics Programming Interface
+
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
+   for licence see licence.txt in root directory, or project website
+
+   @author Yuri Prokushev (yuri.prokushev@gmail.com)
+
+*/
+
 #ifndef GPI16BITMAPS_INCLUDED
 #define GPI16BITMAPS_INCLUDED
 
 //BOOL    WINAPI BitBlt(HDC, int, int, int, int, HDC, int, int, DWORD);
-// fix prototype !!!
-USHORT APIENTRY16 GPIBITBLT(void)
+LONG APIENTRY16 GPIBITBLT(HPS a, HPS b, LONG c, PPOINTL d, LONG e, ULONG f)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiBitBlt(a, b, c, d, e, f);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEBITMAP(void)
+BOOL APIENTRY16 GPIDELETEBITMAP(HBITMAP a)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteBitmap(a);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
@@ -24,138 +36,129 @@ USHORT APIENTRY16 GPIDELETEBITMAP(void)
 
 #ifndef BIT32
 // For BIT32 imported from pmmerge and not found 16bit version
-// fix prototype !!!
-USHORT APIENTRY16 GPILOADBITMAP(void)
+HBITMAP APIENTRY16 GPILOADBITMAP(HPS a, HMODULE b, USHORT c, LONG d, LONG e)
 {
   return unimplemented(__FUNCTION__);
 }
 #endif
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBITMAP(void)
+HBITMAP APIENTRY16 GPISETBITMAP(HPS a, HBITMAP b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetBitmap(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIWCBITBLT(void)
+LONG APIENTRY16 GPIWCBITBLT(HPS a, HBITMAP b, LONG c, PPOINTL d, LONG e, ULONG f)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiWCBitBlt(a, b, c, d, e, f);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICREATEBITMAP(void)
+HBITMAP APIENTRY16 GPICREATEBITMAP(HPS a, PBITMAPINFOHEADER b, ULONG c, PBYTE d, PBITMAPINFO e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+// @todo convert BITMAPINFOHEADER/BITMAPINFOHEADER2 and BITMAPINFO/BITMAPINFO2
+//HBITMAP APIENTRY GpiCreateBitmap(HPS,PBITMAPINFOHEADER2,ULONG,PBYTE,PBITMAPINFO2);
+	return GpiCreateBitmap(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBITMAPBITS(void)
+LONG APIENTRY16 GPIQUERYBITMAPBITS(HPS a, LONG b, LONG c, PBYTE d, PBITMAPINFO e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+// @todo convert BITMAPINFO/BITMAPINFO2
+	return GpiQueryBitmapBits(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBITMAPDIMENSION(void)
+BOOL APIENTRY16 GPIQUERYBITMAPDIMENSION(HBITMAP a, PSIZEL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryBitmapDimension(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBITMAPHANDLE(void)
+HBITMAP APIENTRY16 GPIQUERYBITMAPHANDLE(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryBitmapHandle(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBITMAPPARAMETERS(void)
+
+BOOL APIENTRY16 GPIQUERYBITMAPPARAMETERS(HBITMAP a, PBITMAPINFOHEADER b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryBitmapParameters(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEVICEBITMAPFORMATS(void)
+BOOL APIENTRY16 GPIQUERYDEVICEBITMAPFORMATS(HPS a, LONG b, PLONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDeviceBitmapFormats(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPEL(void)
+LONG APIENTRY16 GPIQUERYPEL(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryPel(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBITMAPBITS(void)
+LONG APIENTRY16 GPISETBITMAPBITS(HPS a, LONG b, LONG c, PBYTE d, PBITMAPINFO e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+// @todo convert BITMAPINFO/BITMAPINFO2
+	return GpiSetBitmapBits(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBITMAPDIMENSION(void)
+BOOL APIENTRY16 GPISETBITMAPDIMENSION(HBITMAP a, PSIZEL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetBitmapDimension(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBITMAPID(void)
+BOOL APIENTRY16 GPISETBITMAPID(HPS a, HBITMAP b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetBitmapId(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPEL(void)
+LONG APIENTRY16 GPISETPEL(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetPel(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif

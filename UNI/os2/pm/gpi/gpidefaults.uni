@@ -1,0 +1,12 @@
+group gpidefaults;
+
+function GpiQueryDefArcParams(in a: HPS, in b: PARCPARAMS): BOOL;
+function GpiQueryDefAttrs(in a: HPS, in b: LONG, in c: ULONG, in d: PBUNDLE): BOOL;
+function GpiQueryDefTag(in a: HPS, in b: PLONG): BOOL;
+function GpiQueryDefViewingLimits(in a: HPS, in b: PRECTL): BOOL;
+function GpiSetDefArcParams(in a: HPS, in b: PARCPARAMS): BOOL;
+function GpiSetDefAttrs(in a: HPS, in b: LONG, in c: ULONG, in d: PBUNDLE): BOOL;
+function GpiSetDefTag(in a: HPS, in b: LONG): BOOL;
+function GpiSetDefViewingLimits(in a: HPS, in b: PRECTL): BOOL;
+
+end.

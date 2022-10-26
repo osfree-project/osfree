@@ -1,81 +1,87 @@
+/*!
+   @file
+
+   @ingroup pm
+
+   @brief Presentation Manager 16-bit Graphics Programming Interface
+
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
+   for licence see licence.txt in root directory, or project website
+
+   @author Yuri Prokushev (yuri.prokushev@gmail.com)
+
+*/
+
 #ifndef GPI16DEFAULTS_INCLUDED
 #define GPI16DEFAULTS_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFARCPARAMS(void)
+BOOL APIENTRY16 GPIQUERYDEFARCPARAMS(HPS a, PARCPARAMS b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefArcParams(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFATTRS(void)
+BOOL APIENTRY16 GPIQUERYDEFATTRS(HPS a, LONG b, ULONG c, PBUNDLE d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefAttrs(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFTAG(void)
+BOOL APIENTRY16 GPIQUERYDEFTAG(HPS a, PLONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefTag(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFVIEWINGLIMITS(void)
+BOOL APIENTRY16 GPIQUERYDEFVIEWINGLIMITS(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefViewingLimits(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFARCPARAMS(void)
+BOOL APIENTRY16 GPISETDEFARCPARAMS(HPS a, PARCPARAMS b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDefArcParams(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFATTRS(void)
+BOOL APIENTRY16 GPISETDEFATTRS(HPS a, LONG b, ULONG c, PBUNDLE d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDefAttrs(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFTAG(void)
+BOOL APIENTRY16 GPISETDEFTAG(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDefTag(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFVIEWINGLIMITS(void)
+BOOL APIENTRY16 GPISETDEFVIEWINGLIMITS(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDefViewingLimits(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif

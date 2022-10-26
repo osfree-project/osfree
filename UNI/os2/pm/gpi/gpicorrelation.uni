@@ -1,0 +1,23 @@
+group gpicorrelation;
+
+constant PICKAP_DEFAULT = 0L;
+constant PICKAP_REC     = 2L;
+
+constant PICKSEL_VISIBLE = 0L;
+constant PICKSEL_ALL     = 1L;
+
+constant GPI_HITS = 2L;
+
+function GpiCorrelateChain(in a: HPS, in b: LONG, in c: PPOINTL, in d: LONG, in e: LONG, in f: PLONG): LONG;
+function GpiCorrelateFrom(in a: HPS, in b: LONG, in c: LONG, in d: LONG, in e: PPOINTL, in f: LONG, in g: LONG, in h:PLONG): LONG;
+function GpiCorrelateSegment(in a: HPS, in b: LONG, in c: LONG, in d: PPOINTL, in e: LONG, in f: LONG, in g: PLONG): LONG;
+function GpiQueryBoundaryData(in a: HPS, in b: PRECTL): BOOL;
+function GpiQueryPickAperturePosition(in a: HPS, in b: PPOINTL): BOOL;
+function GpiQueryPickApertureSize(in a: HPS, in b: PSIZEL): BOOL;
+function GpiQueryTag(in a: HPS, in b: PLONG): BOOL;
+function GpiResetBoundaryData(in a: HPS): BOOL;
+function GpiSetPickAperturePosition(in a: HPS, in b:PPOINTL): BOOL;
+function GpiSetPickApertureSize(in a: HPS, in b: LONG, in c: PSIZEL): BOOL;
+function GpiSetTag(in a: HPS, in b: LONG): BOOL;
+
+end.

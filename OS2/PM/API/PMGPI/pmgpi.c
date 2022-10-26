@@ -1,5 +1,21 @@
+/*!
+   @file
+
+   @ingroup pm
+
+   @brief Presentation Manager 32-bit Graphics Programming Interface
+
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
+   for licence see licence.txt in root directory, or project website
+
+   @author Yuri Prokushev (yuri.prokushev@gmail.com)
+
+*/
+
 #define INCL_DEV
+#define INCL_GREALL
 #include <os2.h>
+#include "pmddi.h"
 #include "unimpl.h"
 
 /*
@@ -16,6 +32,7 @@ HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, 
 */
 
 #include "gpi32dev.c"
+#include "gpi32lines.c"
 
 BOOL   APIENTRY GpiAssociate(HPS hps, HDC hdc)
 {
@@ -336,10 +353,6 @@ LONG   APIENTRY GpiPolyFilletSharp(HPS hps,LONG a,PPOINTL b,PFIXED c)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolyLine(HPS hps, LONG lCount, PPOINTL aptlPoints)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG   APIENTRY GpiPolyMarker(HPS hps,LONG a,PPOINTL b)
 {
@@ -466,10 +479,6 @@ ULONG APIENTRY GpiQueryCp(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCurrentPosition(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 BOOL   APIENTRY GpiQueryDefCharBox(HPS hps,PSIZEL a)
 {
@@ -855,11 +864,6 @@ BOOL  APIENTRY GpiSetCp(HPS hps,ULONG a)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCurrentPosition(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSetDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF b,LONG c)
 {
   return unimplemented(__FUNCTION__);
@@ -1043,10 +1047,6 @@ LONG    APIENTRY GpiWCBitBlt(HPS hps,HBITMAP a,LONG f,PPOINTL b,LONG c,ULONG d)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 HRGN   APIENTRY GpiPathToRegion(HPS hps,LONG a,LONG b)
 {

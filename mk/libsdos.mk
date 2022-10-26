@@ -1,6 +1,6 @@
 #
 # make macros
-# for building OS/2 static libs
+# for building DOS static libs
 #
 
 !ifndef __libsdos_mk__
