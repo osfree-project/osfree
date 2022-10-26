@@ -181,6 +181,7 @@ os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)gpilcids.h &
      $(OS2TKH)$(SEP)gpicorrelation.h &
      $(OS2TKH)$(SEP)gpicontrol.h &
+     $(OS2TKH)$(SEP)gpimetafiles.h &
      $(OS2TKH)$(SEP)gpicontrolcommon.h &
      $(OS2TKH)$(SEP)gpidefaults.h &
      $(OS2TKH)$(SEP)gpibitmapscommon.h &
@@ -483,6 +484,8 @@ $(OS2TKH)$(SEP)gpipolygons.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpipolygons.uni
 $(OS2TKH)$(SEP)gpiregions.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpiregions.uni
 
 $(OS2TKH)$(SEP)gpidefaults.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpidefaults.uni
+
+$(OS2TKH)$(SEP)gpimetafiles.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpimetafiles.uni
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: $(SRC)dos$(SEP)os2me.uni
 
