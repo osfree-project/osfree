@@ -1,3 +1,17 @@
+/*!
+   @file
+
+   @ingroup pm
+
+   @brief Presentation Manager 16-bit Graphics Programming Interface
+
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
+   for licence see licence.txt in root directory, or project website
+
+   @author Yuri Prokushev (yuri.prokushev@gmail.com)
+
+*/
+
 #ifndef GPI16PATHS_INCLUDED
 #define GPI16PATHS_INCLUDED
 

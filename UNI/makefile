@@ -179,7 +179,10 @@ os2: $(OS2TKH)os2.h &
      $(OS2TKH)$(SEP)gpiprimitives.h &
      $(OS2TKH)$(SEP)gpiprimitives2.h &
      $(OS2TKH)$(SEP)gpilcids.h &
+     $(OS2TKH)$(SEP)gpicorrelation.h &
+     $(OS2TKH)$(SEP)gpicontrol.h &
      $(OS2TKH)$(SEP)gpicontrolcommon.h &
+     $(OS2TKH)$(SEP)gpidefaults.h &
      $(OS2TKH)$(SEP)gpibitmapscommon.h &
      $(OS2TKH)$(SEP)gpibitmaps.h &
      $(OS2TKH)$(SEP)gpilogcoltable.h &
@@ -467,6 +470,10 @@ $(OS2TKH)$(SEP)gpibitmapscommon.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpibitmapscom
 
 $(OS2TKH)$(SEP)gpibitmaps.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpibitmaps.uni
 
+$(OS2TKH)$(SEP)gpicorrelation.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpicorrelation.uni
+
+$(OS2TKH)$(SEP)gpicontrol.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpicontrol.uni
+
 $(OS2TKH)$(SEP)gpicontrolcommon.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpicontrolcommon.uni
 
 $(OS2TKH)$(SEP)gpilogcoltable.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpilogcoltable.uni
@@ -474,6 +481,8 @@ $(OS2TKH)$(SEP)gpilogcoltable.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpilogcoltable.
 $(OS2TKH)$(SEP)gpipolygons.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpipolygons.uni
 
 $(OS2TKH)$(SEP)gpiregions.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpiregions.uni
+
+$(OS2TKH)$(SEP)gpidefaults.h: $(SRC)os2$(SEP)pm$(SEP)gpi$(SEP)gpidefaults.uni
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: $(SRC)dos$(SEP)os2me.uni
 

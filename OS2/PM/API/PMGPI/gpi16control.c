@@ -1,8 +1,22 @@
+/*!
+   @file
+
+   @ingroup pm
+
+   @brief Presentation Manager 16-bit Graphics Programming Interface
+
+   (c) osFree Project 2002-2008, <http://www.osFree.org>
+   for licence see licence.txt in root directory, or project website
+
+   @author Yuri Prokushev (yuri.prokushev@gmail.com)
+
+*/
+
 #ifndef GPI16CONTROL_INCLUDED
 #define GPI16CONTROL_INCLUDED
 
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions);
-HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions)
+//HPS APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions);
+HPS APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions)
 {
 #ifdef BIT32
 	return GpiCreatePS(hab,hdc,psizlSize,flOptions);
@@ -11,7 +25,7 @@ HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL psizlSize,ULONG flOptions)
 #endif
 }
 
-BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
+//BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
 BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
 {
 #ifdef BIT32
@@ -21,7 +35,7 @@ BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
 #endif
 }
 
-BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
+//BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
 BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
 {
 #ifdef BIT32
@@ -35,8 +49,7 @@ BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
 BOOL FAR PASCAL RestoreDC(HDC, SHORT);
 #endif
 #ifdef PMOS2
-// fix prototype !!!
-USHORT APIENTRY16 GPIRESTOREPS(HPS hps,SHORT a)
+BOOL APIENTRY16 GPIRESTOREPS(HPS hps, LONG a)
 #endif
 {
 #ifdef BIT32
@@ -50,7 +63,7 @@ USHORT APIENTRY16 GPIRESTOREPS(HPS hps,SHORT a)
 SHORT FAR PASCAL SaveDC(HDC hdc);
 #endif
 #ifdef PMOS2
-USHORT APIENTRY16 GPISAVEPS(HPS hps)
+LONG APIENTRY16 GPISAVEPS(HPS hps)
 #endif
 {
 #ifdef BIT32
@@ -60,8 +73,6 @@ USHORT APIENTRY16 GPISAVEPS(HPS hps)
 #endif
 }
 
-//BOOL  APIENTRY GpiErase( HPS hps );
-// fix prototype !!!
 BOOL APIENTRY16 GPIERASE(HPS hps)
 {
 #ifdef BIT32
@@ -71,17 +82,16 @@ BOOL APIENTRY16 GPIERASE(HPS hps)
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEVICE(void)
+HDC APIENTRY16 GPIQUERYDEVICE(HPS a)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDevice(a);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-BOOL  APIENTRY16 GpiResetPS( HPS hps, ULONG flOptions )
+BOOL APIENTRY16 GPIRESETPS(HPS hps, ULONG flOptions)
 {
 #ifdef BIT32
 	return GpiResetPS(hps, flOptions);
@@ -90,8 +100,25 @@ BOOL  APIENTRY16 GpiResetPS( HPS hps, ULONG flOptions )
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPS(void)
+BOOL APIENTRY16 GPISETPS(HPS a, PSIZEL b, ULONG c)
+{
+#ifdef BIT32
+	return GpiSetPS(a, b, c);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+ULONG APIENTRY16 GPIQUERYPS(HPS a, PSIZEL b)
+{
+#ifdef BIT32
+	return GpiQueryPS(a, b);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+LONG APIENTRY16 GPIERRORSEGMENTDATA(HPS a, PLONG b, PLONG c)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -100,81 +127,55 @@ USHORT APIENTRY16 GPISETPS(void)
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPS(void)
+LONG APIENTRY16 GPIQUERYDRAWCONTROL(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDrawControl(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIERRORSEGMENTDATA(void)
+BOOL APIENTRY16 GPISETDRAWCONTROL(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDrawControl(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWCONTROL(void)
+BOOL APIENTRY16 GPISETDRAWINGMODE(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDrawingMode(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWCONTROL(void)
+LONG APIENTRY16 GPIQUERYDRAWINGMODE(HPS a)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDrawingMode(a);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDRAWINGMODE(void)
+BOOL APIENTRY16 GPISETSTOPDRAW(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetStopDraw(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDRAWINGMODE(void)
+LONG APIENTRY16 GPIQUERYSTOPDRAW(HPS a)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSTOPDRAW(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSTOPDRAW(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryStopDraw(a);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
