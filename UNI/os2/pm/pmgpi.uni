@@ -30,6 +30,7 @@ uses gpibitmaps default;
 uses gpilogcoltable default;
 uses gpimetafiles default;
 uses gpipolygons default;
+uses gpipaths default;
 uses gpiregions default;
 
 end.
