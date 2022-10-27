@@ -32,5 +32,7 @@ uses gpimetafiles default;
 uses gpipolygons default;
 uses gpipaths default;
 uses gpiregions default;
+uses gpisegediting default;
+uses gpisegments default;
 
 end.
