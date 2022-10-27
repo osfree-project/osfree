@@ -15,786 +15,709 @@
 #ifndef GPI16PRIMITIVES_INCLUDED
 #define GPI16PRIMITIVES_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGINAREA(void)
+BOOL APIENTRY16 GPIBEGINAREA(HPS a, ULONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiBeginArea(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBOX(void)
+LONG APIENTRY16 GPIBOX(HPS a, LONG b, PPOINTL c, LONG d, LONG e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiBox(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICHARSTRING(void)
+LONG APIENTRY16 GPICHARSTRING(HPS a, LONG b, PCH c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCharString(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICHARSTRINGAT(void)
+LONG APIENTRY16 GPICHARSTRINGAT(HPS a, PPOINTL b, LONG c, PCH d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCharStringAt(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDAREA(void)
+LONG APIENTRY16 GPIENDAREA(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiEndArea(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPILINE(void)
+LONG APIENTRY16 GPILINE(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiLine(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIMOVE(void)
+BOOL APIENTRY16 GPIMOVE(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiMove(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYLINE(void)
+LONG APIENTRY16 GPIPOLYLINE(HPS a, LONG b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolyLine(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //COLORREF WINAPI GetTextColor(HDC);
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCOLOR(void)
+LONG APIENTRY16 GPIQUERYCOLOR(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryColor(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPATTERN(void)
+LONG APIENTRY16 GPIQUERYPATTERN(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryPattern(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //COLORREF WINAPI SetTextColor(HDC, COLORREF);
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCOLOR(void)
+BOOL APIENTRY16 GPISETCOLOR(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetColor(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPATTERN(void)
+BOOL APIENTRY16 GPISETPATTERN(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetPattern(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICHARSTRINGPOS(void)
+LONG APIENTRY16 GPICHARSTRINGPOS(HPS a, PRECTL b, ULONG c, LONG d, PCH e, PLONG f)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCharStringPos(a, b, c, d, e, f);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICHARSTRINGPOSAT(void)
+LONG APIENTRY16 GPICHARSTRINGPOSAT(HPS a, PPOINTL b, PRECTL c, ULONG d, LONG e, PCH f, PLONG g)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCharStringPosAt(a, b, c, d, e, f, g);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICOMMENT(void)
+BOOL APIENTRY16 GPICOMMENT(HPS a, LONG b, PBYTE c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiComment(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIFULLARC(void)
+LONG APIENTRY16 GPIFULLARC(HPS a, LONG b, FIXED c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiFullArc(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIIMAGE(void)
+LONG APIENTRY16 GPIIMAGE(HPS a, LONG b, PSIZEL c, LONG d, PBYTE e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiImage(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIMARKER(void)
+LONG APIENTRY16 GPIMARKER(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiMarker(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPARTIALARC(void)
+LONG APIENTRY16 GPIPARTIALARC(HPS a, PPOINTL b, FIXED c, FIXED d, FIXED e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPartialArc(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOINTARC(void)
+LONG APIENTRY16 GPIPOINTARC(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPointArc(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYFILLET(void)
+LONG APIENTRY16 GPIPOLYFILLET(HPS a, LONG b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolyFillet(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYFILLETSHARP(void)
+LONG APIENTRY16 GPIPOLYFILLETSHARP(HPS a, LONG b, PPOINTL c, PFIXED d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolyFilletSharp(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYMARKER(void)
+LONG APIENTRY16 GPIPOLYMARKER(HPS a, LONG b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolyMarker(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYSPLINE(void)
+LONG APIENTRY16 GPIPOLYSPLINE(HPS a, LONG b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolySpline(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOP(void)
+BOOL APIENTRY16 GPIPOP(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPop(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPTVISIBLE(void)
+LONG APIENTRY16 GPIPTVISIBLE(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPtVisible(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYARCPARAMS(void)
+BOOL APIENTRY16 GPIQUERYARCPARAMS(HPS a, PARCPARAMS b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryArcParams(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYATTRMODE(void)
+LONG APIENTRY16 GPIQUERYATTRMODE(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryAttrMode(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYATTRS(void)
+LONG APIENTRY16 GPIQUERYATTRS(HPS a, LONG b, ULONG c, PBUNDLE d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryAttrs(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //COLORREF WINAPI GetBkColor(HDC);
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBACKCOLOR(void)
+LONG APIENTRY16 GPIQUERYBACKCOLOR(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryBackColor(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBACKMIX(void)
+LONG APIENTRY16 GPIQUERYBACKMIX(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryBackMix(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARANGLE(void)
+BOOL APIENTRY16 GPIQUERYCHARANGLE(HPS a, PGRADIENTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharAngle(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARBOX(void)
+BOOL APIENTRY16 GPIQUERYCHARBOX(HPS a, PSIZEF b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARDIRECTION(void)
+LONG APIENTRY16 GPIQUERYCHARDIRECTION(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharDirection(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARMODE(void)
+LONG APIENTRY16 GPIQUERYCHARMODE(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharMode(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARSET(void)
+LONG APIENTRY16 GPIQUERYCHARSET(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharSet(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARSHEAR(void)
+BOOL APIENTRY16 GPIQUERYCHARSHEAR(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharShear(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARSTRINGPOS(void)
+BOOL APIENTRY16 GPIQUERYCHARSTRINGPOS(HPS a, ULONG b, LONG c, PCH d, PLONG e, PPOINTL f)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharStringPos(a, b, c, d, e, f);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARSTRINGPOSAT(void)
+BOOL APIENTRY16 GPIQUERYCHARSTRINGPOSAT(HPS a, PPOINTL b, ULONG c, LONG d, PCH e, PLONG f, PPOINTL g)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCharStringPosAt(a, b, c, d, e, f, g);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCURRENTPOSITION(void)
+BOOL APIENTRY16 GPIQUERYCURRENTPOSITION(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryCurrentPosition(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFCHARBOX(void)
+BOOL APIENTRY16 GPIQUERYDEFCHARBOX(HPS a, PSIZEL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefCharBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLINEEND(void)
+LONG APIENTRY16 GPIQUERYLINEEND(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryLineEnd(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLINEJOIN(void)
+LONG APIENTRY16 GPIQUERYLINEJOIN(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryLineJoin(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLINETYPE(void)
+LONG APIENTRY16 GPIQUERYLINETYPE(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryLineType(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLINEWIDTH(void)
+FIXED APIENTRY16 GPIQUERYLINEWIDTH(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryLineWidth(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLINEWIDTHGEOM(void)
+LONG APIENTRY16 GPIQUERYLINEWIDTHGEOM(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryLineWidthGeom(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMARKER(void)
+LONG APIENTRY16 GPIQUERYMARKER(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryMarker(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMARKERBOX(void)
+BOOL APIENTRY16 GPIQUERYMARKERBOX(HPS a, PSIZEF b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryMarkerBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMARKERSET(void)
+LONG APIENTRY16 GPIQUERYMARKERSET(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryMarkerSet(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMIX(void)
+LONG APIENTRY16 GPIQUERYMIX(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryMix(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPATTERNREFPOINT(void)
+BOOL APIENTRY16 GPIQUERYPATTERNREFPOINT(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryPatternRefPoint(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPATTERNSET(void)
+LONG APIENTRY16 GPIQUERYPATTERNSET(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryPatternSet(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYTEXTBOX(void)
+BOOL APIENTRY16 GPIQUERYTEXTBOX(HPS a, LONG b, PCH c, LONG d, PPOINTL e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryTextBox(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIRECTVISIBLE(void)
+LONG APIENTRY16 GPIRECTVISIBLE(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiRectVisible(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETARCPARAMS(void)
+BOOL APIENTRY16 GPISETARCPARAMS(HPS a, PARCPARAMS b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetArcParams(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETATTRMODE(void)
+BOOL APIENTRY16 GPISETATTRMODE(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetAttrMode(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETATTRS(void)
+BOOL APIENTRY16 GPISETATTRS(HPS a, LONG b, ULONG c, ULONG d, PBUNDLE e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetAttrs(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //COLORREF WINAPI SetBkColor(HDC, COLORREF);
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBACKCOLOR(void)
+BOOL APIENTRY16 GPISETBACKCOLOR(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetBackColor(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETBACKMIX(void)
+BOOL APIENTRY16 GPISETBACKMIX(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetBackMix(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARANGLE(void)
+BOOL APIENTRY16 GPISETCHARANGLE(HPS a, PGRADIENTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharAngle(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARBOX(void)
+BOOL APIENTRY16 GPISETCHARBOX(HPS a, PSIZEF b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARDIRECTION(void)
+BOOL APIENTRY16 GPISETCHARDIRECTION(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharDirection(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARMODE(void)
+BOOL APIENTRY16 GPISETCHARMODE(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharMode(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARSET(void)
+BOOL APIENTRY16 GPISETCHARSET(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharSet(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCHARSHEAR(void)
+BOOL APIENTRY16 GPISETCHARSHEAR(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCharShear(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCURRENTPOSITION(void)
+BOOL APIENTRY16 GPISETCURRENTPOSITION(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetCurrentPosition(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETLINEEND(void)
+
+BOOL APIENTRY16 GPISETLINEEND(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetLineEnd(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETLINEJOIN(void)
+BOOL APIENTRY16 GPISETLINEJOIN(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetLineJoin(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETLINETYPE(void)
+BOOL APIENTRY16 GPISETLINETYPE(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetLineType(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETLINEWIDTH(void)
+BOOL APIENTRY16 GPISETLINEWIDTH(HPS a, FIXED b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetLineWidth(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETLINEWIDTHGEOM(void)
+BOOL APIENTRY16 GPISETLINEWIDTHGEOM(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetLineWidthGeom(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMARKER(void)
+BOOL APIENTRY16 GPISETMARKER(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetMarker(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMARKERBOX(void)
+BOOL APIENTRY16 GPISETMARKERBOX(HPS a, PSIZEF b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetMarkerBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMARKERSET(void)
+BOOL APIENTRY16 GPISETMARKERSET(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetMarkerSet(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMIX(void)
+BOOL APIENTRY16 GPISETMIX(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetMix(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPATTERNREFPOINT(void)
+BOOL APIENTRY16 GPISETPATTERNREFPOINT(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetPatternRefPoint(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPATTERNSET(void)
+BOOL APIENTRY16 GPISETPATTERNSET(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetPatternSet(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 #if APILEVEL > 1
-// fix prototype !!!
-USHORT APIENTRY16 GPIPOLYLINEDISJOINT(void)
+LONG APIENTRY16 GPIPOLYLINEDISJOINT(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPolyLineDisjoint(hps, lCount, aptlPoints);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
