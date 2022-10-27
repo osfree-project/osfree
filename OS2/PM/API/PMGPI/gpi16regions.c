@@ -15,174 +15,157 @@
 #ifndef GPI16REGIONS_INCLUDED
 #define GPI16REGIONS_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICOMBINEREGION(void)
+LONG APIENTRY16 GPICOMBINEREGION(HPS a, HRGN b, HRGN c, HRGN d, LONG e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCombineRegion(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICREATEREGION(void)
+HRGN APIENTRY16 GPICREATEREGION(HPS a, LONG b, PRECTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCreateRegion(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDESTROYREGION(void)
+BOOL APIENTRY16 GPIDESTROYREGION(HPS a, HRGN b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDestroyRegion(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIEQUALREGION(void)
+LONG APIENTRY16 GPIEQUALREGION(HPS a, HRGN b, HRGN c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiEqualRegion(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIEXCLUDECLIPRECTANGLE(void)
+LONG APIENTRY16 GPIEXCLUDECLIPRECTANGLE(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiExcludeClipRectangle(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIINTERSECTCLIPRECTANGLE(void)
+LONG APIENTRY16 GPIINTERSECTCLIPRECTANGLE(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiIntersectClipRectangle(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOFFSETCLIPREGION(void)
+LONG APIENTRY16 GPIOFFSETCLIPREGION(HPS a, PPOINTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiOffsetClipRegion(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOFFSETREGION(void)
+BOOL APIENTRY16 GPIOFFSETREGION(HPS a, HRGN b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiOffsetRegion(a, b ,c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //BOOL    WINAPI Polygon(HDC, const POINT FAR*, int);
-// fix prototype !!!
-USHORT APIENTRY16 GPIPAINTREGION(void)
+LONG APIENTRY16 GPIPAINTREGION(HPS a, HRGN b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPaintRegion(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPTINREGION(void)
+LONG APIENTRY16 GPIPTINREGION(HPS a, HRGN b, PPOINTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPtInRegion(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYREGIONBOX(void)
+LONG APIENTRY16 GPIQUERYREGIONBOX(HPS a, HRGN b, PRECTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryRegionBox(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYREGIONRECTS(void)
+BOOL APIENTRY16 GPIQUERYREGIONRECTS(HPS a, HRGN b, PRECTL c, PRGNRECT d, PRECTL e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryRegionRects(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIRECTINREGION(void)
+LONG APIENTRY16 GPIRECTINREGION(HPS a, HRGN b, PRECTL c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiRectInRegion(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETREGION(void)
+BOOL APIENTRY16 GPISETREGION(HPS a, HRGN b, LONG c, PRECTL d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetRegion(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //int     WINAPI SelectClipRgn(HDC, HRGN);
-// fix prototype !!!
-USHORT APIENTRY16 GPISETCLIPREGION(void)
+LONG APIENTRY16 GPISETCLIPREGION(HPS a, HRGN b, PHRGN c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetClipRegion(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCLIPREGION(void)
+HRGN APIENTRY16 GPIQUERYCLIPREGION(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryClipRegion(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
 //int     WINAPI GetClipBox(HDC, RECT FAR*);
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCLIPBOX(void)
+LONG APIENTRY16 GPIQUERYCLIPBOX(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryClipBox(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif

@@ -15,151 +15,136 @@
 #ifndef GPI16SEGEDITING_INCLUDED
 #define GPI16SEGEDITING_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETEDITMODE(void)
+BOOL APIENTRY16 GPISETEDITMODE(HPS a, LONG b, PSZ c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiBeginElement(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYEDITMODE(void)
+LONG APIENTRY16 GPIQUERYEDITMODE(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryEditMode(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETELEMENTPOINTER(void)
+BOOL APIENTRY16 GPISETELEMENTPOINTER(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetElementPointer(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENTPOINTER(void)
+LONG APIENTRY16 GPIQUERYELEMENTPOINTER(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryElementPointer(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOFFSETELEMENTPOINTER(void)
+BOOL APIENTRY16 GPIOFFSETELEMENTPOINTER(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiOffsetElementPointer(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENT(void)
+BOOL APIENTRY16 GPIDELETEELEMENT(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteElement(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENTRANGE(void)
+BOOL APIENTRY16 GPIDELETEELEMENTRANGE(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteElementRange(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPILABEL(void)
+BOOL APIENTRY16 GPILABEL(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiLabel(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETELEMENTPOINTERATLABEL(void)
+BOOL APIENTRY16 GPISETELEMENTPOINTERATLABEL(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetElementPointerAtLabel(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETEELEMENTSBETWEENLABELS(void)
+BOOL APIENTRY16 GPIDELETEELEMENTSBETWEENLABELS(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteElementsBetweenLabels(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENTTYPE(void)
+LONG APIENTRY16 GPIQUERYELEMENTTYPE(HPS a, PLONG b, LONG c, PSZ d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryElementType(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYELEMENT(void)
+LONG APIENTRY16 GPIQUERYELEMENT(HPS a, LONG b, LONG c, PBYTE d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryElement(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIELEMENT(void)
+LONG APIENTRY16 GPIELEMENT(HPS a, LONG b, PSZ c, LONG d, PBYTE e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiElement(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGINELEMENT(void)
+BOOL APIENTRY16 GPIBEGINELEMENT(HPS a, LONG b, PSZ c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiBeginElement(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDELEMENT(void)
+BOOL APIENTRY16 GPIENDELEMENT(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiEndElement(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
