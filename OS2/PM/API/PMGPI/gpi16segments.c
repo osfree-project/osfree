@@ -15,182 +15,163 @@
 #ifndef GPI16SEGMENTS_INCLUDED
 #define GPI16SEGMENTS_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIOPENSEGMENT(void)
+BOOL APIENTRY16 GPIOPENSEGMENT(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiOpenSegment(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICLOSESEGMENT(void)
+BOOL APIENTRY16 GPICLOSESEGMENT(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCloseSegment(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETESEGMENT(void)
+BOOL APIENTRY16 GPIDELETESEGMENT(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteSegment(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDELETESEGMENTS(void)
+BOOL APIENTRY16 GPIDELETESEGMENTS(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDeleteSegments(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTNAMES(void)
+LONG APIENTRY16 GPIQUERYSEGMENTNAMES(HPS a, LONG b, LONG c, LONG d, PLONG e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQuerySegmentNames(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETINITIALSEGMENTATTRS(void)
+BOOL APIENTRY16 GPISETINITIALSEGMENTATTRS(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetInitialSegmentAttrs(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYINITIALSEGMENTATTRS(void)
+LONG APIENTRY16 GPIQUERYINITIALSEGMENTATTRS(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryInitialSegmentAttrs(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTATTRS(void)
+BOOL APIENTRY16 GPISETSEGMENTATTRS(HPS a, LONG b, LONG c, LONG d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetSegmentAttrs(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTATTRS(void)
+LONG APIENTRY16 GPIQUERYSEGMENTATTRS(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQuerySegmentAttrs(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTPRIORITY(void)
+BOOL APIENTRY16 GPISETSEGMENTPRIORITY(HPS a, LONG b, LONG c, LONG d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetSegmentPriority(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTPRIORITY(void)
+LONG APIENTRY16 GPIQUERYSEGMENTPRIORITY(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQuerySegmentPriority(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIGETDATA(void)
+LONG APIENTRY16 GPIGETDATA(HPS a, LONG b, PLONG c, LONG d, LONG e, PBYTE f)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiGetData(a, b, c, d, e, f);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIPUTDATA(void)
+LONG APIENTRY16 GPIPUTDATA(HPS a, LONG b, PLONG c, PBYTE d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiPutData(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWCHAIN(void)
+BOOL APIENTRY16 GPIDRAWCHAIN(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDrawChain(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWFROM(void)
+BOOL APIENTRY16 GPIDRAWFROM(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDrawFrom(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWSEGMENT(void)
+BOOL APIENTRY16 GPIDRAWSEGMENT(HPS a, LONG b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDrawSegment(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIREMOVEDYNAMICS(void)
+BOOL APIENTRY16 GPIREMOVEDYNAMICS(HPS a, LONG b, LONG c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiRemoveDynamics(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDRAWDYNAMICS(void)
+BOOL APIENTRY16 GPIDRAWDYNAMICS(HPS hps)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiDrawDynamics(hps);
 #else
 	return unimplemented(__FUNCTION__);
 #endif

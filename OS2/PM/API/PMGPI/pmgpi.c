@@ -44,8 +44,7 @@ BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiBeginElement(void)
+BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -140,20 +139,17 @@ BOOL    APIENTRY GpiDeleteBitmap(HBITMAP hbm)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteElement(void)
+BOOL  APIENTRY GpiDeleteElement(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteElementRange(void)
+BOOL  APIENTRY GpiDeleteElementRange(HPS a, LONG b, LONG c)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteElementsBetweenLabels(void)
+BOOL  APIENTRY GpiDeleteElementsBetweenLabels(HPS a, LONG b, LONG c)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -203,8 +199,7 @@ BOOL   APIENTRY GpiDrawSegment(HPS hps,LONG a)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiElement(void)
+LONG  APIENTRY GpiElement(HPS a, LONG b, PSZ c, LONG d, PBYTE e)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -214,8 +209,7 @@ LONG   APIENTRY GpiEndArea(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiEndElement(void)
+BOOL  APIENTRY GpiEndElement(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -271,8 +265,7 @@ LONG   APIENTRY GpiIntersectClipRectangle(HPS hps, PRECTL prclRectangle)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiLabel(void)
+BOOL  APIENTRY GpiLabel(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -312,8 +305,7 @@ LONG   APIENTRY GpiOffsetClipRegion(HPS hps, PPOINTL pptlPoint)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiOffsetElementPointer(void)
+BOOL  APIENTRY GpiOffsetElementPointer(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -510,26 +502,22 @@ LONG   APIENTRY GpiQueryDrawingMode(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryEditMode(void)
+LONG  APIENTRY GpiQueryEditMode(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryElement(void)
+LONG  APIENTRY GpiQueryElement(HPS a, LONG b, LONG c, PBYTE d)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryElementPointer(void)
+LONG  APIENTRY GpiQueryElementPointer(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryElementType(void)
+LONG  APIENTRY GpiQueryElementType(HPS a, PLONG b, LONG c, PSZ d)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -879,20 +867,17 @@ BOOL   APIENTRY GpiSetDrawingMode(HPS hps,LONG a)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetEditMode(void)
+BOOL  APIENTRY GpiSetEditMode(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetElementPointer(void)
+BOOL APIENTRY GpiSetElementPointer(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetElementPointerAtLabel(void)
+BOOL APIENTRY GpiSetElementPointerAtLabel(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
 }

@@ -15,191 +15,172 @@
 #ifndef GPI16TRANSFORMS_INCLUDED
 #define GPI16TRANSFORMS_INCLUDED
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICONVERT(void)
+BOOL APIENTRY16 GPICONVERT(HPS a, LONG b, LONG c, LONG d, PPOINTL e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiConvert(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICALLSEGMENTMATRIX(void)
+LONG APIENTRY16 GPICALLSEGMENTMATRIX(HPS a, LONG b, LONG c, PMATRIXLF d, LONG e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiCallSegmentMatrix(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYDEFAULTVIEWMATRIX(void)
+BOOL APIENTRY16 GPIQUERYDEFAULTVIEWMATRIX(HPS a, LONG b, PMATRIXLF c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryDefaultViewMatrix(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYGRAPHICSFIELD(void)
+BOOL APIENTRY16 GPIQUERYGRAPHICSFIELD(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryGraphicsField(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYMODELTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPIQUERYMODELTRANSFORMMATRIX(HPS a, LONG b, PMATRIXLF c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryModelTransformMatrix(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPAGEVIEWPORT(void)
+BOOL APIENTRY16 GPIQUERYPAGEVIEWPORT(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryPageViewport(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYSEGMENTTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPIQUERYSEGMENTTRANSFORMMATRIX(HPS a, LONG b, LONG c, PMATRIXLF d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQuerySegmentTransformMatrix(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPIQUERYVIEWINGTRANSFORMMATRIX(HPS a, LONG b, PMATRIXLF c)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryViewingTransformMatrix(a, b, c);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIQUERYVIEWINGLIMITS(void)
+BOOL APIENTRY16 GPIQUERYVIEWINGLIMITS(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiQueryViewingLimits(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIROTATE(void)
+BOOL APIENTRY16 GPIROTATE(HPS a, PMATRIXLF b, LONG c, FIXED d, PPOINTL e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiRotate(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISCALE(void)
+BOOL APIENTRY16 GPISCALE(HPS a, PMATRIXLF b, LONG c, PFIXED d, PPOINTL e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiScale(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETDEFAULTVIEWMATRIX(void)
+BOOL APIENTRY16 GPISETDEFAULTVIEWMATRIX(HPS a, LONG b, PMATRIXLF c, LONG d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetDefaultViewMatrix(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETGRAPHICSFIELD(void)
+BOOL APIENTRY16 GPISETGRAPHICSFIELD(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetGraphicsField(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETMODELTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPISETMODELTRANSFORMMATRIX(HPS a, LONG b, PMATRIXLF c, LONG d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetModelTransformMatrix(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETPAGEVIEWPORT(void)
+BOOL APIENTRY16 GPISETPAGEVIEWPORT(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetPageViewport(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETSEGMENTTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPISETSEGMENTTRANSFORMMATRIX(HPS a, LONG b, LONG c, PMATRIXLF d, LONG e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetSegmentTransformMatrix(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGLIMITS(void)
+BOOL APIENTRY16 GPISETVIEWINGLIMITS(HPS a, PRECTL b)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetViewingLimits(a, b);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPISETVIEWINGTRANSFORMMATRIX(void)
+BOOL APIENTRY16 GPISETVIEWINGTRANSFORMMATRIX(HPS a, LONG b, PMATRIXLF c, LONG d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiSetViewingTransformMatrix(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPITRANSLATE(void)
+BOOL APIENTRY16 GPITRANSLATE(HPS a, PMATRIXLF b, LONG c, PPOINTL d)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiTranslate(a, b, c, d);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
@@ -207,11 +188,10 @@ USHORT APIENTRY16 GPITRANSLATE(void)
 
 #if APILEVEL > 1
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICONVERTWITHMATRIX(void)
+BOOL APIENTRY16 GPICONVERTWITHMATRIX(HPS a, LONG b, PPOINTL c, LONG d, PMATRIXLF e)
 {
 #ifdef BIT32
-	return unimplemented(__FUNCTION__);
+	return GpiConvertWithMatrix(a, b, c, d, e);
 #else
 	return unimplemented(__FUNCTION__);
 #endif
