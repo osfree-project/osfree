@@ -40,6 +40,9 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%append $^@ NAME $^*
  @%append $^@ libpath %WATCOM%/lib286
  @%append $^@ libpath %WATCOM%/lib286/dos
+!ifdef DEBUG
+ @%append $^@ DEBUG $(DEBUG)
+!endif
 !ifneq NOLIBS 1
 !ifeq COM 1
  @%append $^@ libfile cstart_t.obj
