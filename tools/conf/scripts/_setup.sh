@@ -23,7 +23,7 @@ wget https://downloads.sourceforge.net/project/freepascal/Linux/3.2.2/fpc-3.2.2.
 tar xf fpc-3.2.2.i386-linux.tar
 cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
-for file in $CWD/dist/os2/*.zip; do
+for file in $_CWD/dist/os2/*.zip; do
   unzip -o $file units/* fpmkinst/* -d /usr/lib/fpc/3.2.2/
 done
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
