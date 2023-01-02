@@ -11,7 +11,7 @@ OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll
 #OPTIONS     = caseexact, quiet
 
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 TARGETS = $(PATH)$(PROJ).lib

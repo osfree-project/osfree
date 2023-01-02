@@ -14,7 +14,7 @@ ADD_COPT    = $(THREADING) $(HAVE_GCI)
 ADD_LINKOPT = lib $(PATH)..$(SEP)implib$(SEP)regina.lib
 
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 

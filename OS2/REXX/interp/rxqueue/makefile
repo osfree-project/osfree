@@ -14,7 +14,7 @@ ADD_COPT    = $(THREADING) $(HAVE_GCI) # $(DYN_CFLAGS) #-bd
 ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,tcpip32.lib
 # ALIASES     = main_=main
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 $(PATH)rxqueue.obj: $(SRC)rxqueue.c $(HFILES)
