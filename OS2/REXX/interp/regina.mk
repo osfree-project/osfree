@@ -72,7 +72,9 @@ $(PATH)eextstack.obj: $(SRC)extstack.c $(HFILES)
 $(PATH)erexxbif.obj: $(SRC)rexxbif.c $(HFILES)
  @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $(SRC)rexxbif.c
-!include $(%ROOT)/mk/appsos2_cmd.mk
+
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
+
 .c: $(SRC)
 
 .c: $(SRC)..

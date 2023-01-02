@@ -26,6 +26,11 @@ if ll > 0 then root = delstr(root, ll)
 say root
 
 ll = lastpos('\', root)
+if ll > 0 then root = delstr(root, ll)
+
+say root
+
+ll = lastpos('\', root)
 if ll > 0 then root = delstr(root, ll + 1)
 
 say root
