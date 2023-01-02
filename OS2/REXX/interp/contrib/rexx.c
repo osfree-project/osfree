@@ -376,6 +376,11 @@ static int check_args( tsd_t *TSD, int argc, char **argv,
             }
             else
                set_trace_char( TSD, 'A' );
+            /*
+             * Ensure PARSE SOURCE does not crash; Bug #571
+             */
+            TSD->systeminfo->input_file = Str_crestrTSD( "<stdin>" );
+            TSD->systeminfo->input_fp = NULL;
             intertrace( TSD );
             intertrace( TSD );
             break;

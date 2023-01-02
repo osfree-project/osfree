@@ -46,7 +46,7 @@ ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
 !endif
 
 ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
-                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)..$(SEP)regina-ver.h &
+                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)..$(SEP)reginaver.h &
                   -dOS2 -i=$(PATH) -i=$(SRC) -i=$(SRC).. $(ADD_COPT)
 UNI2H = 1
 # NOLIBS = 1

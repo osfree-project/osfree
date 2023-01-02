@@ -200,8 +200,7 @@ ZIP_CSRCFILES = funcs.c builtin.c error.c variable.c \
 	contrib/time64.c contrib/fnmatch.h contrib/fnmatch.c \
 	contrib/LibSha1.c contrib/LibSha1.h \
 	apphead.h \
-	common/*.nsh common/*.ico common/fixrc.rexx \
-	common/*.nsh common/*.ico common/generatensi.rexx \
+	common/*.nsh common/*.ico common/fixrc.rexx common/generatensi.rexx \
 	common/*.m4 \
 	os2/*.c os2/*.def \
 	gci/*.c gci/*.h gci/00README \

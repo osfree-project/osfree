@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/inifile.c,v 1.4 2014/10/19 10:25:57 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/inifile.c,v 1.5 2022/08/21 23:16:42 mark Exp $
  */
 #ifndef _WIN32
 # include <unistd.h>
@@ -32,6 +32,9 @@
 
 #include "inifile.h"
 
+#if defined(DOS)
+# include <io.h>
+#endif
 typedef struct value_T {
    struct value_T * N;
    char * name;
@@ -80,6 +83,66 @@ static void delete_section(sec_t st)
    free(st);
 }
 
+#if defined(DOS)
+static int ftruncate( int fno, long size )
+{
+  return _chsize( fno, size );
+}
+
+/* file locks ignored; it is DOS */
+static void release_lock(inif_t fit)
+{
+   return;
+}
+
+/* take a read lock on the file. returns -1 on error, 0 if the file needs
+ * to be re-read, and 1 if everything's fine */
+static int take_read_lock(inif_t fit)
+{
+   struct stat st;
+   int rc;
+
+   rc = fstat(fileno(fit->fp), &st);
+   if (rc == -1) return release_lock(fit), -1;
+
+   if (fit->mt == st.st_mtime && fit->len == st.st_size) {
+      rc = 1;
+   }
+   else {
+      rc = 0;
+   }
+
+   return rc;
+}
+
+/* take a write lock on the file. returns -1 on error, 0 if the file needs
+ * to be re-read, and 1 if everything's fine */
+static int take_write_lock(inif_t fit)
+{
+   struct stat st;
+   int rc;
+
+   /* file must be opened in write mode */
+   if (!fit->write_mode) {
+      fit->fp = freopen(fit->name, "r+", fit->fp);
+      if (fit->fp) {
+         fit->write_mode = 1;
+      }
+      else
+         return -1;
+   }
+
+   fstat(fileno(fit->fp), &st);
+
+   if (fit->mt == st.st_mtime && fit->len == st.st_size) {
+      rc = 0;
+   }
+   else {
+      rc = 1;
+   }
+   return rc;
+}
+#else
 /* get rid of all locks on the file. */
 static void release_lock(inif_t fit)
 {
@@ -154,6 +217,7 @@ static int take_write_lock(inif_t fit)
    }
    return rc;
 }
+#endif
 
 
 #define CV_WHITE 0

@@ -9,8 +9,10 @@ case "$1" in
 
     if [ -f /usr/bin/systemctl -o -f /bin/systemctl ]; then
         # systemd
-        systemctl enable rxstack
+        echo "Adding system user rxstack" >&2
+        adduser --quiet --system --group --no-create-home --home /nonexistent --disabled-password rxstack
         echo "Enabling systemd rxstack service" >&2
+        systemctl enable rxstack
     else
         if [ -f /sbin/initctl ]; then
             # upstart

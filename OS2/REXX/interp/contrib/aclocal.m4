@@ -1120,7 +1120,11 @@ case "$target" in
       BUNDLE=".junk"
       SHL_LD="${CC} ${EEXTRA} -dynamiclib ${LDFLAGS} -headerpad_max_install_names -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
       SHL_BASE="${LIBPRE}${SHLFILE}${SHLPST}"
-      OTHER_INSTALLS="installmaclib"
+      if test "$brewaddonsdir" = ""; then
+         OTHER_INSTALLS="installmaclib"
+      else
+         OTHER_INSTALLS="installbrewlib"
+      fi
       ;;
    *)
       MH_HOWTO_SHARED_LIBRARY()

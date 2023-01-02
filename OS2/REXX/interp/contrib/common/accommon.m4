@@ -85,7 +85,11 @@ case "$with_rexx" in
          REXX_VER=`regina-config --version`
          REXX_USING_CONFIG=yes
          regina_prefix=`regina-config --prefix`
-         regina_addons=`regina-config --addons`
+         if test "$with_brew_addon_dir" = no ; then
+            regina_addons=`regina-config --addons`
+         else
+            regina_addons="$with_brew_addon_dir"
+         fi
          REGINA_ADDONS="$regina_addons"
          AX_COMPARE_VERSION([$REXX_VER],[gt],[3.6],[REXX_ADDONS=$REGINA_ADDONS],[REXX_ADDONS=$libdir])
       else
@@ -527,7 +531,7 @@ else
       MH_X11_LIBS="Xaw Xmu Xt X11"
    fi
 fi
-MH_X11R6_LIBS="SM ICE Xext Xpm"
+MH_X11R6_LIBS="Xext Xpm"
 mh_x11r6=no
 
 which dpkg-architecture > /dev/null
@@ -1898,19 +1902,76 @@ fi
 AC_DEFUN([MH_CHECK_PDCURSES_X11],
 [
 curs=$1
-PDCURSES_PKG="lib${curs}"
-# look for pkg-config first
-AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
-if test "$ac_cv_prog_pkg_config" = yes; then
-   # we have pkg_config, do we have ncursesw?
-   pkg-config --exists ${PDCURSES_PKG} > /dev/null
-   if test $? -eq 0; then
-      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
-      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
-      curses_h="curses.h" #xcurses.h
-      curses_l="XCurses"
+builtin=$2
+flags=$3
+if test $builtin_curses = yes; then
+   MH_CHECK_X_INC
+   MH_CHECK_X_LIB
+   MH_CURSES_INC="$flags -DXCURSES $MH_XINC_DIR"
+   MH_CURSES_LIB="pdc-obj/libpdcurses.a $MH_XLIBS"
+   CURSES_BUILD=$with_curses
+   CURSES_CONFIG="builtin PDCursesMod"
+   curses_h="curses.h"
+   curses_l="pdcurses"
+else
+   PDCURSES_PKG="lib${curs}"
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have ncursesw?
+      pkg-config --exists ${PDCURSES_PKG} > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+         MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+         curses_h="curses.h" #xcurses.h
+         curses_l="XCurses"
+      else
+         AC_MSG_ERROR(pkg-config cannot find ${PDCURSES_PKG} package; cannot configure)
+      fi
+   fi
+fi
+])
+
+AC_DEFUN([MH_CHECK_PDCURSES_SDL],
+[
+curs=$1
+builtin=$2
+pkg=$3
+flags=$4
+if test $builtin_curses = yes; then
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have sdl or SDL_ttf?
+      pkg-config --exists $pkg > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="$flags `pkg-config --cflags $pkg`"
+         MH_CURSES_LIB="pdc-obj/libpdcurses.a `pkg-config --libs $pkg`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="builtin PDCursesMod"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      else
+         AC_MSG_ERROR(--with-curses=$with_curses requires $pkg package installed; THE cannot be configured)
+      fi
    else
-      AC_MSG_ERROR(pkg-config cannot find ${PDCURSES_PKG} package; cannot configure)
+      AC_MSG_ERROR(--with-curses=$with_curses requires pkg-config and $pkg package installed; THE cannot be configured)
+   fi
+else
+   PDCURSES_PKG="lib${curs}"
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have pdcurses package?
+      pkg-config --exists ${PDCURSES_PKG} > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+         MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      fi
    fi
 fi
 ])
@@ -1918,19 +1979,43 @@ fi
 AC_DEFUN([MH_CHECK_PDCURSES_SDL1],
 [
 curs=$1
-PDCURSES_PKG="lib${curs}"
-# look for pkg-config first
-AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
-if test "$ac_cv_prog_pkg_config" = yes; then
-   # we have pkg_config, do we have ncursesw?
-   pkg-config --exists ${PDCURSES_PKG} > /dev/null
-   if test $? -eq 0; then
-      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
-      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
-      CURSES_BUILD=$with_curses
-      CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
-      curses_h="curses.h"
-      curses_l="pdcurses"
+builtin=$2
+pkg=$3
+flags=$4
+if test $builtin_curses = yes; then
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have sdl or SDL_ttf?
+      pkg-config --exists $pkg > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="-DPDC_WIDE `pkg-config --cflags $pkg`"
+         MH_CURSES_LIB="pdc-obj/libpdcurses.a `pkg-config --libs $pkg`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="builtin PDCursesMod"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      else
+         AC_MSG_ERROR(--with-curses=$with_curses requires $pkg package installed; THE cannot be configured)
+      fi
+   else
+      AC_MSG_ERROR(--with-curses=$with_curses requires pkg-config and $pkg package installed; THE cannot be configured)
+   fi
+else
+   PDCURSES_PKG="lib${curs}"
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have pdcurses package?
+      pkg-config --exists ${PDCURSES_PKG} > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+         MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      fi
    fi
 fi
 ])
@@ -1938,21 +2023,91 @@ fi
 AC_DEFUN([MH_CHECK_PDCURSES_SDL2],
 [
 curs=$1
-PDCURSES_PKG="lib${curs}"
-# look for pkg-config first
-AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
-if test "$ac_cv_prog_pkg_config" = yes; then
-   # we have pkg_config, do we have ncursesw?
-   pkg-config --exists ${PDCURSES_PKG} > /dev/null
-   if test $? -eq 0; then
-      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
-      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
-      CURSES_BUILD=$with_curses
-      CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
-      curses_h="curses.h"
-      curses_l="pdcurses"
+builtin=$2
+if test $builtin_curses = yes; then
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have SDL2_ttf?
+      pkg-config --exists SDL2_ttf > /dev/null
+      if test $? -eq 0; then
+         flag=''
+         case "$curs" in
+            pdcurses-sdl2w)
+               flag="-DPDC_WIDE"
+               ;;
+            pdcurses-sdl2w8)
+               flag="-DPDC_WIDE -DPDC_FORCE_UTF8"
+               ;;
+            *)
+               ;;
+         esac
+         MH_CURSES_INC="$flag `pkg-config --cflags SDL2_ttf`"
+         MH_CURSES_LIB="pdc-obj/libpdcurses.a `pkg-config --libs SDL2_ttf`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="builtin PDCursesMod"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      else
+         AC_MSG_ERROR(--with-curses=$with_curses requires SDL2_ttf package installed; THE cannot be configured)
+      fi
+   else
+      AC_MSG_ERROR(--with-curses=$with_curses requires pkg-config and SDL2_ttf package installed; THE cannot be configured)
+   fi
+else
+   PDCURSES_PKG="lib${curs}"
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have ncursesw?
+      pkg-config --exists ${PDCURSES_PKG} > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+         MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      fi
    fi
 fi
+])
+
+AC_DEFUN([MH_CHECK_PDCURSES_VT],
+[
+curs=$1
+builtin_curses=$2
+flags=$3
+if test $builtin_curses = yes; then
+   MH_CURSES_INC="$flags -I$srcdir/src/PDCursesMod"
+   MH_CURSES_LIB="pdc-obj/libpdcurses.a"
+   CURSES_BUILD=$with_curses
+   CURSES_CONFIG="builtin PDCursesMod"
+   curses_h="curses.h"
+   curses_l="pdcurses"
+else
+   PDCURSES_PKG="lib${curs}"
+   # look for pkg-config first
+   AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+   if test "$ac_cv_prog_pkg_config" = yes; then
+      # we have pkg_config, do we have ncursesw?
+      pkg-config --exists ${PDCURSES_PKG} > /dev/null
+      if test $? -eq 0; then
+         MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+         MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+         CURSES_BUILD=$with_curses
+         CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+         curses_h="curses.h"
+         curses_l="pdcurses"
+      fi
+   fi
+fi
+])
+
+AC_DEFUN([MH_CHECK_X_CONFIG],
+[
+MH_CHECK_X_INC
+MH_CHECK_X_LIB
 ])
 
 dnl ---------------------------------------------------------------------------
@@ -1980,14 +2135,41 @@ case "$with_curses" in
    ncurses|ncursesw|ncursesw8)
       MH_CHECK_NCURSES($with_curses)
       ;;
-   pdcurses-x11|pdcurses-x11w|pdcurses-x11w8)
-      MH_CHECK_PDCURSES_X11($with_curses)
+   pdcurses-x11)
+      MH_CHECK_PDCURSES_X11($with_curses,$1,'')
       ;;
-   pdcurses-sdl1|pdcurses-sdl1w|pdcurses-sdl1w8)
-      MH_CHECK_PDCURSES_SDL1($with_curses)
+   pdcurses-x11w)
+      MH_CHECK_PDCURSES_X11($with_curses,$1,'-DPDC_WIDE')
       ;;
-   pdcurses-sdl2|pdcurses-sdl2w|pdcurses-sdl2w8)
-      MH_CHECK_PDCURSES_SDL2($with_curses)
+   pdcurses-x11w8)
+      MH_CHECK_PDCURSES_X11($with_curses,$1,'-DPDC_WIDE -DPDC_FORCE_UTF8')
+      ;;
+   pdcurses-sdl1)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,sdl,'')
+      ;;
+   pdcurses-sdl1w)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,SDL_ttf,'-DPDC_WIDE')
+      ;;
+   pdcurses-sdl1w8)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,SDL_ttf,'-DPDC_WIDE -DPDC_FORCE_UTF8')
+      ;;
+   pdcurses-sdl2)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,sdl2,'')
+      ;;
+   pdcurses-sdl2w)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,SDL2_ttf,'-DPDC_WIDE')
+      ;;
+   pdcurses-sdl2w8)
+      MH_CHECK_PDCURSES_SDL($with_curses,$1,SDL2_ttf,'-DPDC_WIDE -DPDC_FORCE_UTF8')
+      ;;
+   pdcurses-vt)
+      MH_CHECK_PDCURSES_VT($with_curses,$1,'')
+      ;;
+   pdcurses-vtw)
+      MH_CHECK_PDCURSES_VT($with_curses,$1,'-DPDC_WIDE')
+      ;;
+   pdcurses-vtw8)
+      MH_CHECK_PDCURSES_VT($with_curses,$1,'-DPDC_WIDE -DPDC_FORCE_UTF8')
       ;;
    *)
       # none specified
@@ -1996,245 +2178,10 @@ AC_SUBST(MH_CURSES_INC)
 AC_SUBST(MH_CURSES_LIB)
 CURSES_BUILD=$with_curses
 AC_SUBST(CURSES_BUILD)
+APK_CURSES_BUILD="`echo ${with_curses} | sed -e s/-/_/g`"
+AC_SUBST(APK_CURSES_BUILD)
 AC_MSG_RESULT($CURSES_BUILD)
 ])
-
-AC_DEFUN([MH_CHECK_CURSES_OLD],
-[
-case "$target" in
-   *hpux1*)
-         mh_curses_colr=yes
-         mh_pre_curses_h_include="stdarg"
-      ;;
-   *aix*4.2*)
-         mh_curses_colr=no
-         mh_pre_curses_h_include="stdarg"
-      ;;
-   *)
-         mh_curses_colr=no
-         mh_pre_curses_h_include=""
-esac
-
-if test "$with_xcurses" = yes; then
-   CURSES_TARGET="XCurses"
-   AC_DEFINE(USE_XCURSES)
-   AC_CHECK_PROG(xcurses_config, [xcurses-config], yes, no)
-   curses_h="xcurses.h"
-   curses_l="XCurses"
-else
-   if test "$with_pdcurses" = yes; then
-      CURSES_TARGET="pdcurses"
-      AC_DEFINE(USE_PDCURSES)
-      curses_h="curses.h"
-      curses_l="pdcurses"
-   else
-      if test "$with_ncurses" = yes; then
-         CURSES_TARGET="ncurses"
-         AC_DEFINE(USE_NCURSES)
-         AC_CHECK_PROG(ncurses5_config, [ncurses5-config], yes, no)
-         if test "$ac_cv_prog_ncurses5_config" = yes; then
-            ncurses_config_bin="ncurses5-config"
-         else
-            AC_CHECK_PROG(ncursesw5_config, [ncursesw5-config], yes, no)
-            if test "$ac_cv_prog_ncursesw5_config" = yes; then
-               ncurses_config_bin="ncurses5.4-config"
-            else
-               ncurses_config_bin=""
-            fi
-         fi
-         curses_h="ncurses.h"
-         curses_l="ncurses"
-      else
-         if test "$with_extcurses" = yes; then
-            CURSES_TARGET="extcurses"
-            AC_DEFINE(USE_EXTCURSES)
-            curses_h="cur00.h"
-            curses_l="cur"
-         else
-            if test "$with_dwindows" = yes; then
-               CURSES_TARGET="dwindows"
-               AC_DEFINE(USE_DWINDOWS)
-               AC_CHECK_PROG(dw_config, [dw-config], yes, no)
-               curses_h="dw.h"
-               curses_l="dwindows"
-            else
-               CURSES_TARGET="curses"
-               if test "$mh_curses_colr" = yes; then
-                  curses_h="curses.h"
-                  curses_l="cur_colr"
-               else
-                  curses_h="curses.h"
-                  curses_l="curses"
-               fi
-            fi
-         fi
-      fi
-   fi
-fi
-AC_SUBST(CURSES_TARGET)
-
-dnl look for curses header and library, exit if not found
-if test "$ac_cv_prog_xcurses_config" = yes -a "$with_cursesincdir" = no; then
-   AC_MSG_CHECKING(for location of $curses_h header file)
-   AC_MSG_RESULT(obtained from xcurses-config)
-   MH_CURSES_INC=`xcurses-config --cflags`
-   AC_SUBST(MH_CURSES_INC)
-else
-   if test "$ac_cv_prog_ncurses5_config" = yes -a "$with_cursesincdir" = no; then
-      AC_MSG_CHECKING(for location of $curses_h header file)
-      AC_MSG_RESULT(obtained from ncurses5-config)
-      MH_CURSES_INC=`ncurses5-config --cflags`
-      AC_SUBST(MH_CURSES_INC)
-   else
-      if test "$ac_cv_prog_ncursesw5_config" = yes -a "$with_cursesincdir" = no; then
-         AC_MSG_CHECKING(for location of $curses_h header file)
-         AC_MSG_RESULT(obtained from ncursesw5-config)
-         MH_CURSES_INC=`ncursesw5-config --cflags`
-         AC_SUBST(MH_CURSES_INC)
-      else
-         if test "$ac_cv_prog_dw_config" = yes -a "$with_cursesincdir" = no; then
-            AC_MSG_CHECKING(for location of $curses_h header file)
-            AC_MSG_RESULT(obtained from dw-config)
-            MH_CURSES_INC=`dw-config --cflags`
-            AC_SUBST(MH_CURSES_INC)
-         else
-            AC_MSG_CHECKING(for location of $curses_h header file)
-            mh_curses_inc_dir=""
-            mh_inc_dirs="\
-                ${CURSESINCDIR}           \
-                ${mh_sysv_incdir}         \
-                ${exec_prefix}/include    \
-                ${HOME}/include           \
-                /usr/local/include        \
-                /usr/contrib/include      \
-                /usr/include/curses_colr  \
-                /opt/include              \
-                /usr/include              \
-                /usr/ucbinclude           \
-                /usr/ucbinc               \
-                /opt/sfw/include          \
-                /sw/include               \
-                /usr/unsupported/include  \
-                /boot/home/config/include \
-                /boot/home/config/include/ncurses"
-dnl
-dnl Provide for user supplying directory
-dnl
-            if test "$with_cursesincdir" != no ; then
-               mh_inc_dirs="$with_cursesincdir $mh_inc_dirs"
-            fi
-dnl
-dnl Try to determine the directory containing curses header
-dnl
-            for ac_dir in $mh_inc_dirs ; do
-              if test -r $ac_dir/$curses_h; then
-                mh_curses_inc_dir=$ac_dir
-                break
-              fi
-            done
-            if test "x$mh_curses_inc_dir" != "x" ; then
-               AC_MSG_RESULT(found in $mh_curses_inc_dir)
-               MH_CURSES_INC="-I$mh_curses_inc_dir"
-dnl
-dnl If the curses header file contains NCURSES_VERSION then we can assume it is
-dnl ncurses, so AC_DEFINE(USE_NCURSES)
-      AC_TRY_COMPILE(
-      [#include <$curses_h>],
-      [int xxx=NCURSES_VERSION_MAJOR],
-      [mh_is_ncurses=yes],
-      [mh_is_ncurses=no]
-      )
-      if test "$mh_is_ncurses" = yes ; then
-         AC_DEFINE(USE_NCURSES)
-      fi
-dnl
-dnl If using gcc under Solaris 2, don't use -I/usr/include
-dnl
-            case "$target" in
-               *solaris*)
-                  if test "$ac_cv_prog_gcc" = yes ; then
-                     if test "x$mh_curses_inc_dir" = "x/usr/include" ; then
-                     MH_CURSES_INC=""
-                     fi
-                  fi
-                  ;;
-            esac
-               AC_SUBST(MH_CURSES_INC)
-            else
-               AC_MSG_ERROR(Cannot find curses header file: $curses_h; cannot configure)
-            fi
-         fi
-      fi
-   fi
-fi
-
-if test "$ac_cv_prog_xcurses_config" = yes -a "$with_curseslibdir" = no; then
-AC_MSG_CHECKING(for location of $curses_l library file)
-   AC_MSG_RESULT(obtained from xcurses-config)
-   MH_CURSES_LIB=`xcurses-config --libs`
-   AC_SUBST(MH_CURSES_LIB)
-else
-   if test "$ac_cv_prog_ncurses5_config" = yes -a "$with_curseslibdir" = no; then
-   AC_MSG_CHECKING(for location of $curses_l library file)
-      AC_MSG_RESULT(obtained from ncurses5-config)
-      MH_CURSES_LIB=`ncurses5-config --libs`
-      AC_SUBST(MH_CURSES_LIB)
-   else
-      if test "$ac_cv_prog_dw_config" = yes -a "$with_curseslibdir" = no; then
-      AC_MSG_CHECKING(for location of $curses_l library file)
-         AC_MSG_RESULT(obtained from dw-config)
-         MH_CURSES_LIB=`dw-config --libs`
-         AC_SUBST(MH_CURSES_LIB)
-      else
-         AC_MSG_CHECKING(for location of $curses_l library file)
-         mh_curses_lib_dir=""
-         mh_lib_dirs="\
-             ${CURSESLIBDIR}           \
-             ${mh_sysv_libdir}         \
-             ${exec_prefix}/lib64      \
-             ${exec_prefix}/lib        \
-             ${HOME}/lib64             \
-             ${HOME}/lib               \
-             /usr/local/lib64          \
-             /usr/local/lib            \
-             /usr/contrib/lib          \
-             /opt/lib                  \
-             /usr/lib64                \
-             /usr/lib                  \
-             /usr/ccs/lib              \
-             /usr/ucblib               \
-             /opt/sfw/lib              \
-             /sw/lib                   \
-             /usr/unsupported/lib      \
-             /boot/home/config/lib"
-dnl
-dnl Provide for user supplying directory
-dnl
-         if test "$with_curseslibdir" != no ; then
-            mh_lib_dirs="$with_curseslibdir $mh_lib_dirs"
-         fi
-dnl
-dnl Try to determine the directory containing curses library
-dnl
-         for ac_dir in $mh_lib_dirs ; do
-            for mh_ext in lib${curses_l}.a lib${curses_l}.so lib${curses_l}.sl ${curses_l}.lib ${curses_l}3r.lib lib${curses_l}.dylib; do
-              if test -r $ac_dir/$mh_ext; then
-                 mh_curses_lib_dir=$ac_dir
-                 break 2
-              fi
-            done
-         done
-         if test "x$mh_curses_lib_dir" != "x" ; then
-            MH_CURSES_LIB="-L$mh_curses_lib_dir -l$curses_l"
-            AC_MSG_RESULT(found in $mh_curses_lib_dir)
-            AC_SUBST(MH_CURSES_LIB)
-         else
-            AC_MSG_ERROR(Cannot find curses library file: $curses_l; cannot configure)
-         fi
-      fi
-   fi
-fi
-])dnl
 
 dnl ---------------------------------------------------------------------------
 dnl Wrapper for AC_CHECK_FUNCS.

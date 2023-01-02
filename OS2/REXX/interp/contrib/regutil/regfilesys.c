@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regfilesys.c,v 1.19 2019/10/06 04:06:17 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regfilesys.c,v 1.20 2022/08/21 23:16:42 mark Exp $
  */
 #ifdef __EMX__
 # define INCL_DOSFILEMGR
@@ -38,12 +38,16 @@
 # include <unistd.h>
 # include <utime.h>
 # include <sys/types.h>
-# include <sys/param.h>
+# ifndef DOS
+#  include <sys/param.h>
+# endif
 # ifdef HAVE_SYS_MOUNT_H
 #  include <sys/mount.h>
 # endif
 # include <sys/stat.h>
-# include <dirent.h>
+# ifndef DOS
+#  include <dirent.h>
+#endif
 # define _GNU_SOURCE 1
 # include <fnmatch.h>
 # include <limits.h>
@@ -53,6 +57,10 @@
 # define MAX_USHORT 65535 /* or so they say */
 # define MAXPATHLEN 32767
 # define F_OK 0
+#endif
+
+#ifdef DOS
+# include <direct.h>
 #endif
 
 #ifndef MAXPATHLEN
@@ -391,6 +399,13 @@ rxfunc(sysfilesystemtype)
    DosError(1);                         /* Enable hard-error pop-up   */
    return 0;
 }
+#elif defined(DOS)
+rxfunc(sysfilesystemtype)
+{
+   memcpy(result->strptr, "FAT", 3);
+   result->strlength = 3;
+   return 0;
+}
 #else /* unix */
 # ifndef INITMOUNTNAMES
 /* if initmountnames doesn't exist, we'll call the file system ufs and hope
@@ -625,11 +640,13 @@ static void get_matched_files(chararray * ca, const char * dir,
 #ifdef S_IFBLK
                   case S_IFBLK: ftype = 'b'; break;
 #endif
+#if !defined ( DOS )
 #ifdef S_IFLNK
                   case S_IFLNK: ftype = 'l'; break;
 #endif
 #ifdef S_IFSOCK
                   case S_IFSOCK: ftype = 's'; break;
+#endif
 #endif
                }
                if ( huge_files)
@@ -1054,7 +1071,7 @@ rxfunc(sysmkdir)
 
     rxstrdup(dirname, argv[0]);
 
-#ifdef _WIN32
+#if defined( _WIN32 ) || defined( DOS )
     rc = mkdir(dirname);
 #else
     rc = mkdir(dirname, 0755);
@@ -1320,7 +1337,7 @@ rxfunc(syscreateshadow)
    rxstrdup(from, argv[0]);
    rxstrdup(to, argv[1]);
 
-#if !defined( _WIN32 ) && !defined(__EMX__)
+#if !defined( _WIN32 ) && !defined(__EMX__) && !defined( DOS )
    /* hard link if possible, symlink if necessary */
    rc = link(from, to);
    if (rc == -1 && errno == EXDEV) {

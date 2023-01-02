@@ -105,19 +105,27 @@ static streng *num_to_str( const tsd_t *TSD, num_descr *input )
 }
 
 /* can't use str as it seems to be NULL all the time :-( */
-static int num_to_bool( tsd_t *TSD, const num_descr *input, streng *str, int suberror )
+static int num_to_bool( tsd_t *TSD, const num_descr *input, streng *str, int suberror, const char *op )
 {
    char ch=' ' ;
 
    if (input==NULL)
    {
-      exiterror( ERR_UNLOGICAL_VALUE, suberror, "" )  ;
+      if ( op )
+         exiterror( ERR_UNLOGICAL_VALUE, suberror, op, tmpstr_of( TSD, str ) )  ;
+      else
+         exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
    }
 
    if (input->size!=1 || input->exp!=1)
    {
       if ( str )
-         exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
+      {
+         if ( op )
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, op, tmpstr_of( TSD, str ) )  ;
+         else
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
+      }
       else
          exiterror( ERR_UNLOGICAL_VALUE, 0 );
    }
@@ -127,14 +135,22 @@ static int num_to_bool( tsd_t *TSD, const num_descr *input, streng *str, int sub
    if ( input->negative && ch!='0' )
    {
       if ( str )
-         exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
+      {
+         if ( op )
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, op, tmpstr_of( TSD, str ) )  ;
+         else
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
+      }
       else
          exiterror( ERR_UNLOGICAL_VALUE, 0 );
    }
    if (ch!='0' && ch!='1')
    {
       if ( str )
-         exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
+         if ( op )
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, op, tmpstr_of( TSD, str ) )  ;
+         else
+            exiterror( ERR_UNLOGICAL_VALUE, suberror, tmpstr_of( TSD, str ) )  ;
       else
          exiterror( ERR_UNLOGICAL_VALUE, 0 );
    }
@@ -843,7 +859,7 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
       case X_U_MINUS:
       case X_U_PLUSS:
          ntmp = NULL;
-         tmp = num_to_bool( TSD, calcul( TSD, thisptr, &ntmp, SIDE_LEFT, thisptr->type ), thisptr->name, suberror ) ;
+         tmp = num_to_bool( TSD, calcul( TSD, thisptr, &ntmp, SIDE_LEFT, thisptr->type ), thisptr->name, suberror, op ) ;
          if (ntmp)
          {
             FreeTSD( ntmp->num ) ;
@@ -870,7 +886,7 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
                }
             }
          }
-         return num_to_bool( TSD, thisptr->u.number, thisptr->name, suberror ) ;
+         return num_to_bool( TSD, thisptr->u.number, thisptr->name, suberror, op ) ;
 
       case X_SIM_SYMBOL:
       case X_STEM_SYMBOL:
@@ -892,7 +908,7 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
             }
             return tmp;
          }
-         return num_to_bool( TSD, shortcutnum( TSD, thisptr ), thisptr->name, suberror ) ;
+         return num_to_bool( TSD, shortcutnum( TSD, thisptr ), thisptr->name, suberror, op ) ;
 
       case X_HEAD_SYMBOL:
          if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
@@ -918,7 +934,7 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
             Free_stringTSD( stmp1 );
             return tmp;
          }
-         return num_to_bool( TSD, fix_compoundnum( TSD, thisptr, NULL, NULL ), thisptr->name, suberror );
+         return num_to_bool( TSD, fix_compoundnum( TSD, thisptr, NULL, NULL ), thisptr->name, suberror, op );
 
       case X_IN_FUNC:
       case X_IS_INTERNAL:

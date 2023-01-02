@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regscreen.c,v 1.4 2021/10/12 22:33:36 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regscreen.c,v 1.5 2022/08/21 23:16:42 mark Exp $
  */
 #include "regutil.h"
 
@@ -368,14 +368,21 @@ rxfunc(sysgetline)
    char *expansion;
    char *line;
    int rc;
+   int len;
 
    if (argc > 0 && argv[0].strptr)
    {
       prompt = argv[0].strptr;
    }
+fprintf(stderr,"In sysgetline() before\n");
    line = readline( prompt );
    if ( line && line[0] )
    {
+
+expansion = line;
+fprintf(stderr,"In sysgetline() after: %s\n",line);
+
+/*
       rc = history_expand(line, &expansion);
       if (rc)
          fprintf (stderr, "%s\n", expansion);
@@ -385,10 +392,19 @@ rxfunc(sysgetline)
          free (expansion);
       }
       else
+*/
       {
          add_history(expansion);
-         strncpy(result->strptr, expansion, strlen(expansion));
-         result->strlength = strlen( result->strptr );
+         len = strlen(expansion);
+fprintf(stderr,"In sysgetline() len: %d result->strptr before %x\n",len, result->rxstrptr);
+         if ( len > DEFAULTSTRINGSIZE )
+         {
+            result->strptr = REXXALLOCATEMEMORY(len + 1);
+         }
+fprintf(stderr,"In sysgetline() result->strptr after %x\n",result->rxstrptr);
+         strncpy(result->strptr, expansion, len);
+fprintf(stderr,"In sysgetline() after strncpy\n");
+         result->strlength = len;
          free(expansion);
       }
    }

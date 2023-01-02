@@ -9,6 +9,8 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/rxstack
 Restart=always
+User=rxstack
+Group=rxstack
 
 [Install]
 WantedBy=multi-user.target

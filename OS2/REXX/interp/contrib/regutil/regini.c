@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regini.c,v 1.20 2021/07/11 05:11:41 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regini.c,v 1.21 2022/08/21 23:16:42 mark Exp $
  */
 #ifdef __EMX__
 # define INCL_DOSMISC
@@ -31,10 +31,12 @@
 # include <windows.h>
 #else
 # include <unistd.h>
-# include <sys/utsname.h>
-# include <sys/param.h>
-# include <sys/time.h>
-# if !defined(__QNX__) && !defined(__EMX__) && !defined(__BEOS__)
+# ifndef DOS
+#  include <sys/utsname.h>
+#  include <sys/param.h>
+#  include <sys/time.h>
+# endif
+# if !defined(__QNX__) && !defined(__EMX__) && !defined(__BEOS__) && !defined(DOS)
 #  include <sys/resource.h>
 #  include <poll.h>
 # endif
@@ -60,6 +62,10 @@
 #   include <sys/vfs.h>
 #  endif
 # endif
+#endif
+
+#ifdef DOS
+# include <strings.h>
 #endif
 
 /* ******************************************************************** */
@@ -443,6 +449,23 @@ rxfunc(syswinver)
                                un.version, un.release);
    return 0;
 }
+#elif defined(__WATCOMC__) && defined(DOS)
+rxfunc(sysbootdrive)
+{
+   checkparam(0,0);
+
+   result->strlength =  sprintf(result->strptr, "C:" );
+   return 0;
+}
+
+/* syswinver() */
+rxfunc(syswinver)
+{
+   checkparam(0,0);
+
+   result->strlength = sprintf(result->strptr, "%d.%d", _osmajor, _osminor );
+   return 0;
+}
 #else
 
 #ifdef HAVE_PATHS_H
@@ -818,7 +841,7 @@ rxfunc(syssetpriority)
 {
    char * sclass, *sprio;
    int class, prio;
-   int rc;
+   int rc=0;
 
    checkparam(2, 2);
    rxstrdup(sclass, argv[0]);
@@ -846,6 +869,7 @@ rxfunc(syssetpriority)
 #elif defined(__BEOS__)
 #elif defined(__HAIKU__)
 #elif defined(__EMX__)
+#elif defined(DOS)
 #else
    rc = setpriority(PRIO_PROCESS, 0, -prio);
 #endif
@@ -869,6 +893,18 @@ int usleep(unsigned int usecs)
    /* win32 doesn't let you usleep -- but it lets you millisleep, which is
     * still pretty good. */
    Sleep(usecs/1000);
+   return 0;
+}
+#endif
+
+#if defined(DOS) && defined(__WATCOMC__)
+
+/* sleep for a certain number of microseconds */
+int usleep(unsigned int usecs)
+{
+   /* DOS doesn't let you usleep -- but it lets you millisleep, which is
+    * still pretty good. */
+   delay(usecs/1000);
    return 0;
 }
 #endif
@@ -947,6 +983,9 @@ rxfunc(syssystemdirectory)
 {
 #ifdef _WIN32
    result->strlength = GetSystemDirectory(result->strptr, DEFAULTSTRINGSIZE);
+#elif defined(DOS)
+   strcpy(result->strptr, "");
+   result->strlength = strlen(result->strptr);
 #else
    memcpy(result->strptr, "/etc", 4);
    result->strlength = 4;
@@ -960,11 +999,12 @@ rxfunc(syshomedirectory)
 {
 #ifdef _WIN32
    strcpy(result->strptr, getenv("USERPROFILE") );
-   result->strlength = strlen(result->strptr);
+#elif defined(DOS)
+   strcpy(result->strptr, "");
 #else
    strcpy(result->strptr, getenv("HOME"));
-   result->strlength = strlen(result->strptr);
 #endif
+   result->strlength = strlen(result->strptr);
 
    return 0;
 }
@@ -1030,7 +1070,7 @@ rxfunc(sysvolumelabel)
 
 rxfunc(syswaitnamedpipe)
 {
-#if defined( __QNX__ ) || defined(__EMX__) || defined(__BEOS__)
+#if defined( __QNX__ ) || defined(__EMX__) || defined(__BEOS__) || defined(DOS)
    strcpy(result->strptr, notimp);
    result->strlength = sizeof(notimp)-1;
 #else

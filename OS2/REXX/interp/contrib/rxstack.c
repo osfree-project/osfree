@@ -457,6 +457,63 @@ static int tosuicide = 0;
 
 void empty_queue( RxQueue *q ) ;
 
+#define MAX_LEN 128
+
+struct param
+{
+    char name[MAX_LEN];
+    char value[MAX_LEN];
+};
+
+static void strtrim(char *s)
+{
+   char *p = s + strlen(s);
+
+   while (--p >= s && isspace(*p))
+      *p = '\0';
+}
+
+static void read_params(FILE *in)
+{
+   long pport;
+   char s[MAX_LEN];
+   struct param p, *pp=&p;
+
+
+   while ( fgets(s, MAX_LEN, in) )
+   {
+      if (sscanf(s, " %[#\n\r]", pp->name)) /* emty line or comment */
+         continue;
+      if (sscanf(s, " %[a-z_A-Z0-9] = %[^#\n\r]", pp->name, pp->value) < 2)
+      {
+         fprintf(stderr, "error at line: %s\n", s);
+         return;
+      }
+      strtrim(pp->value);
+      if ( strcmp( pp->name, "port" ) == 0 )
+      {
+         pport = atol( pp->value );
+         if ( pport == 0
+         || pport > 0xFFFF )
+         {
+         }
+         else
+         {
+            portno = pport;
+            DEBUGDUMP(printf("port from config: %ld\n",portno);)
+         }
+      }
+      else if ( strcmp( pp->name, "world" ) == 0 )
+      {
+         DEBUGDUMP(printf("world from config: %s\n",pp->value);)
+         if ( strcasecmp( pp->value, "yes" ) == 0 ) world = 1;
+         if ( strcasecmp( pp->value, "no" ) == 0 ) world = 0;
+      }
+   }
+
+   return;
+}
+
 #if !defined(HAVE_STRERROR)
 /*
  * Sigh! This must probably be done this way, although it's incredibly
@@ -2992,6 +3049,7 @@ int rxstack_doit( )
    }
 #else
    printf( "rxstack listening on port: %ld\n", portno );
+   printf( "rxstack world access: %s\n", (world) ? "yes" : "no" );
    fflush(stdout);
 #endif
    /*
@@ -3192,6 +3250,18 @@ static void checkDebug(void)
       debug = 1 ;
 }
 
+static void getDefaultsFromConfig(void)
+{
+#if defined(UNIX)
+   /* look in /etc/rxstack.conf */
+   FILE *fp;
+
+   fp = fopen( "/etc/rxstack.conf", "r");
+   if (fp == NULL) return;
+   read_params(fp);
+#endif
+}
+
 int runNormal( int argc, char **argv )
 {
    int rc = 0 ;
@@ -3208,7 +3278,7 @@ int runNormal( int argc, char **argv )
       {"daemon",  no_argument,       0,  'd' },
       {0,         0,                 0,  0 }
   };
-
+   getDefaultsFromConfig();
    checkDebug();
    while (1)
    {

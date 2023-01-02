@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /*
  * Test program for Regina 3.3
  *

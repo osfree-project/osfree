@@ -3,10 +3,6 @@
 
 Changes in this release (from 3.9.3)
 ------------------------------------
-  * Fix for bug #543, #550, #566,
-  * Fix for bug #450; breakage under Windows; daylight savings time is already included
-    in localtime calculations
-  * Added Feature Request #43 (Thanks Shmuel)
   * Added "CALLER" as valid environment for VALUE BIF.
   * Enabled GETCALLSTACK to display to stderr if no stem argument specified
   * Rearranged build process. Package builds now self-contained
@@ -18,3 +14,10 @@ Changes in this release (from 3.9.3)
   * When calling UNAME('S') under Windows 11, it will return "WIN10" as the system version.
     This is Microsoft's idea of version control!  To distinguish between Windows 10 and 11
     check that UNAME('R') is 21996 or greater.
+  * Bugs Fixed:
+    - #543 b2x ignores a trailing
+    - #550 unary operator (in an  IF  or  WHEN  statement using an unary operator isn't being handled/processed correctly
+    - #566 Typos and friends
+    - #450 Time('O') jumps 2hrs for Daylight Savings Time (Breakage under Windows; daylight savings time is already included in localtime calculations)
+  * Feature Requests:
+    - #43 Support both AA and AC as Logical Not (Thanks Shmuel)

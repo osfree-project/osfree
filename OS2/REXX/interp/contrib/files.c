@@ -139,7 +139,7 @@
 # include <io.h>
 #endif
 
-#ifdef WIN32
+#if defined(WIN32)
 # ifdef _MSC_VER
 #  if _MSC_VER >= 1100
 /* Stupid MSC can't compile own headers without warning at least in VC 5.0 */
@@ -721,6 +721,8 @@ static rx_64 positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxpt
 static rx_64 positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno, int from );
 static void handle_file_error( tsd_t *TSD, fileboxptr ptr, int rc, const char *errmsg, int level) ;
 static int flush_output( tsd_t *TSD, fileboxptr ptr );
+static const char *translateTilde( tsd_t *TSD, const char *src );
+int my_rx_stat(  tsd_t *TSD, const char *src, struct stat *statbuf );
 
 /*
  * Based on the st_mode filed returned from stat(), determine the Regina "stream type".
@@ -4080,7 +4082,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
        * If we don't have S_ISREG macro, then revert to a simple check; if the
        * stream is a directory it is transent; ugly!
        */
-      rc = rx_stat( fn, &buffer ) ;
+      rc = my_rx_stat( TSD, fn, &buffer ) ;
       if ( rc != 0 )
          streamtype = STREAMTYPE_UNKNOWN;
       else
@@ -6057,7 +6059,7 @@ streng *arexx_exists( tsd_t *TSD, cparamboxptr parms )
    checkparam( parms, 1, 1, "EXISTS" ) ;
 
    name = str_of( TSD, parms->value ) ;
-   retval = int_to_streng( TSD, rx_stat( name, &st ) != -1 ) ;
+   retval = int_to_streng( TSD, my_rx_stat( TSD, name, &st ) != -1 ) ;
    Free_TSD( TSD, name ) ;
 
    return retval;
@@ -6557,33 +6559,14 @@ int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 
 int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
+   const char *source=NULL;
    /* hack for leading ~/ */
-   int len = strlen( src );
-   char *source=NULL;
-   char *copy=NULL;
-   if ( ( len > 1 && strncmp( src, "~/", 2 ) == 0 ) || ( len == 1 && strncmp( src, "~", 1 ) == 0) )
-   {
-      char *env = getenv( "HOME" );
-      if ( env != NULL )
-      {
-         int len2 = strlen( env );
-         copy = (char *)MallocTSD( len+len2+2 ) ;
-         strcpy( copy, env );
-         strcat( copy, src+1 );
-         source = copy;
-      }
-      else
-      {
-         source = src;
-      }
-   }
-   else
-   {
-      source = src;
-   }
+   source = translateTilde( TSD, src );
    realpath( source, dst );
-   if ( copy )
-      FreeTSD( copy );
+   if ( source != src )
+   {
+      FreeTSD( source );
+   }
 
    return 0;
 }
@@ -6779,5 +6762,60 @@ int my_splitpath2( const char *in, char *out, char **drive, char **dir, char **n
       *(*name+inlen) = '\0';
    }
    return(0);
+}
+#endif
+
+/*
+ * Enable ~ to be translated to $HOME under linux
+ * The caller is responsible for freeing the return value ONLY if
+ * the return value is NOT the same as the input parameter
+ */
+#ifdef UNIX
+static const char *translateTilde( tsd_t *TSD, const char *src )
+{
+   int len = strlen( src );
+   char *copy = (char *)src;
+   if ( ( len > 1 && strncmp( src, "~/", 2 ) == 0 ) || ( len == 1 && strncmp( src, "~", 1 ) == 0) )
+   {
+      char *env = getenv( "HOME" );
+      if ( env != NULL )
+      {
+         int len2 = strlen( env );
+         copy = (char *)MallocTSD( len+len2+2 ) ;
+         strcpy( copy, env );
+         strcat( copy, src+1 );
+      }
+      else
+      {
+         copy = (char *)src;
+      }
+   }
+   else
+   {
+      copy = (char *)src;
+   }
+   return copy;
+}
+int my_rx_stat(  tsd_t *TSD, const char *src, struct stat *statbuf )
+{
+   int rc;
+   char *source = (char *)translateTilde( TSD, src );
+
+   rc = rx_stat( source, statbuf ) ;
+   if ( source != src )
+   {
+      FreeTSD( source );
+   }
+   return rc;
+}
+#else
+static const char *translateTilde( tsd_t *TSD, const char *src )
+{
+   return src;
+}
+
+int my_rx_stat(  tsd_t *TSD, const char *src, struct stat *statbuf )
+{
+   return rx_stat( src, statbuf ) ;
 }
 #endif

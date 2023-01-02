@@ -21,6 +21,14 @@
 
 #include "wrappers.h"
 
+#if defined(OS2) || defined(DOS)
+# include "reginaver.h"
+#endif
+
+#if defined(__WATCOMC__) && defined(DOS)
+# define NO_EXTERNAL_QUEUES
+#endif
+
 #if defined(__APPLE__) && defined(__MACH__)
 # undef REGINA_BITS
 # if defined(__x86_64__) || defined(__ppc64__) || defined(__aarch64__)
