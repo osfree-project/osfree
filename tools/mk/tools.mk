@@ -14,7 +14,7 @@ PLATFORM = host$(SEP)$(%HOST)$(SEP)
 DEST    = $(PLATFORM)bin
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 # Building tools for OS/2 on Linux
 # system os2v2   
 # -bt=os2v2 -d__OS2__

@@ -10,8 +10,8 @@
 
 all: precopy install .symbolic
 
-!include $(%ROOT)/mk/dirs.mk
-!include $(%ROOT)/mk/genrules.mk
+!include $(%ROOT)/tools/mk/dirs.mk
+!include $(%ROOT)/tools/mk/genrules.mk
 
 print_vars: .symbolic
         @echo FILESDIR $(FILESDIR)

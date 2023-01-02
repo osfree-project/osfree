@@ -25,4 +25,4 @@ ADD_COPT      = $(DEFINES) -i=.
 
 srcfiles = $(p)getline$(e) $(p)strtof$(e) $(p)genext2fs$(e)
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk

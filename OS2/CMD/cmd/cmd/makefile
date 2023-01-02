@@ -24,7 +24,7 @@ IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
 UNI2H = 1
 #DEST = os2
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 TARGETS =  $(PATH)$(PROJ1).exe
 

@@ -8,7 +8,7 @@ OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45
 
 DEST = none
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS= pre $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
 

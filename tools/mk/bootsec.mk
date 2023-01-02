@@ -14,7 +14,7 @@ SUF = .bin
 DEST = boot$(SEP)sectors
 !endif
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/tools/mk/bootseq.mk
 
 !ifndef TARGETS
 TARGETS = $(PATH)$(PROJ).bin

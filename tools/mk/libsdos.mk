@@ -12,6 +12,6 @@ ADD_COPT =            $(ADD_COPT) &
 #                     -i=$(ROOT)$(SEP)build$(SEP)include &
 #                     -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)/tools/mk/libs.mk
 
 !endif

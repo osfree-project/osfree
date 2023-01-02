@@ -8,7 +8,7 @@
 !ifndef __bootseq_mk__
 !define __bootseq_mk__
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 ADD_COPT   = -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD  -i=. -i=.. $(ADD_COPT) -bt=OS2
 ADD_ASMOPT = -i=. -i=.. $(ADD_ASMOPT) -bt=OS2

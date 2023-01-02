@@ -101,6 +101,6 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)nt &
 
 !endif
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)/tools/mk/libs.mk
 
 !endif

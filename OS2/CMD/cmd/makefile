@@ -10,7 +10,7 @@
 #   is not available.
 DIRS = shared cmd keystack shralias option2 jpos2dll help
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

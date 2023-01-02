@@ -29,7 +29,7 @@ DESC  = lxlite and utilities
 ADD_PCOPT = $(defs) -Fucommon -duse32 -Rintel -So -Xm
 TARGETS  = $(PATH)$(PROJ).exe
 
-!include $(%ROOT)/mk/toolspas.mk
+!include $(%ROOT)tools/mk/toolspas.mk
 
 !ifdef USE_RESOURCES
 $(PATH)rc.rc: $(MYDIR)os2api.rc $(MYDIR)lxlite.rc

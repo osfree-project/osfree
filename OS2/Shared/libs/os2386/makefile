@@ -21,7 +21,7 @@ SRC  = $(MYDIR)..$(SEP)..$(SEP)os2386$(SEP)
 
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 .SUFFIXES:
 .SUFFIXES: .lib .lbc .def .obj .asm

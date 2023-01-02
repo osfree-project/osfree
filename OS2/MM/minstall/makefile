@@ -5,7 +5,7 @@
 
 DIRS = shared src genin # dll
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

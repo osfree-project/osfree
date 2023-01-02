@@ -21,7 +21,7 @@ IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
        DOSQUERYMODFROMEIP DOSCALL1.360 
 #UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/appsos2_pm.mk
 
 .c: $(MYDIR)contrib
 

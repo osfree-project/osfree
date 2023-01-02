@@ -17,4 +17,4 @@ MM     &
 REXX   &
 tests
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk

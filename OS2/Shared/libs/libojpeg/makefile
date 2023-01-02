@@ -11,7 +11,7 @@ srcfiles = $(p)bio$(e) $(p)cio$(e) $(p)dwt$(e) $(p)event$(e) $(p)image$(e) &
            $(p)mqc$(e) $(p)openjpeg$(e) $(p)pi$(e) $(p)raw$(e) $(p)t1$(e) &
            $(p)t2$(e) $(p)tcd$(e) $(p)tgt$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib
 

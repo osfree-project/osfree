@@ -18,7 +18,7 @@ srcfiles = $(p)wrppm$(e) $(p)wrtarga$(e) $(p)jcapimin$(e) $(p)jcapistd$(e) $(p)j
            $(p)jmemnobs$(e) $(p)jquant1$(e) $(p)jquant2$(e) $(p)jutils$(e) $(p)rdbmp$(e) $(p)rdcolmap$(e) $(p)rdgif$(e) &
            $(p)rdppm$(e) $(p)rdswitch$(e) $(p)rdtarga$(e) $(p)wrbmp$(e) $(p)wrgif$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

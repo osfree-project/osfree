@@ -7,7 +7,7 @@
 #srcfiles = $(p)rectangles$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -bd
 
-!include $(%ROOT)/mk/appsos2_fpm.mk
+!include $(%ROOT)tools/mk/appsos2_fpm.mk
 
 DEST = none
 TARGETS = $(OBJS)

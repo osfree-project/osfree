@@ -11,7 +11,7 @@ INSTALL_ADD = 1
 ADD_COPT = -i=..$(SEP)include -dHAVE_CONFIG_H
 STACKSIZE = 65536
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 #TARGETS = inst
 

@@ -8,7 +8,7 @@ DIRS = shared PMMERGE PMDRAG PMWIN PMMLE PMSHAPI PMGRE OS2SM PMGPI
 #       PMVIOP PMWINX REGISTRY
 #PMATM PMUNIF PMCLIP PMCTLS PMDDE PMDDEML PMGPI &
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

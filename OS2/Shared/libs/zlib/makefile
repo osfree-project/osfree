@@ -14,7 +14,7 @@ srcfiles = $(p)adler32$(e) $(p)crc32$(e) $(p)deflate$(e) $(p)infback$(e) &
            $(p)compress$(e) $(p)uncompr$(e) $(p)gzclose$(e) $(p)gzlib$(e) $(p)gzread$(e) &
            $(p)gzwrite$(e) 
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 .c: $(MYDIR)contrib
 

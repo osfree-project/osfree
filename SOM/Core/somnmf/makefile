@@ -26,7 +26,7 @@ ADD_SCOPT = -D__PRIVATE__ &
             -I$(SRC)contrib$(SEP)somabs1 &
             -I$(SRC)contrib$(SEP)somos
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 .idl: $(SRC)contrib$(SEP)somnmf
 .h: $(IDLH)

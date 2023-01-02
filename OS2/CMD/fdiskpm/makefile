@@ -5,7 +5,7 @@ PROJ = fdiskpm
 DESC = Disk volumes manager for PM
 CLEAN_ADD = *.cmd
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = $(PATH)$(PROJ).cmd
 

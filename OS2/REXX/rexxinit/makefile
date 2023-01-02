@@ -20,7 +20,7 @@ EXPORTS      = RxApiInit.1, &
 DEST         = os2$(SEP)dll
 UNI2H        = 1
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 #TARGETS = $(PATH)$(PROJ).exe # subdirs
 #TARGET = all

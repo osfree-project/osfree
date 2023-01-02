@@ -73,10 +73,10 @@ ADD_COPT = -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
 C = r
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
-!include $(%ROOT)/mk/appsos2.mk
-#!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
+#!include $(%ROOT)tools/mk/libsos2.mk
 !endif
 
 .c: $(SRC)contrib$(SEP)somref$(SEP)src

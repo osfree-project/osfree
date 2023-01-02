@@ -105,9 +105,9 @@ ADD_COPT = -bd -dNDEBUG -i=$(defs) -dHAVE_CONFIG_H &
 C = r
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 !endif
 
 

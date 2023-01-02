@@ -5,7 +5,7 @@
 !ifndef __dirs_mk__
 !define __dirs_mk__
 
-!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)/tools/mk/site.mk
 
 !ifeq UNIX FALSE
 MYDIR        = $(%cdrive):$(%cwd)$(SEP)

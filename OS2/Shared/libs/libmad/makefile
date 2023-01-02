@@ -11,7 +11,7 @@ srcfiles = &
  $(p)version$(e) $(p)fixed$(e) $(p)bit$(e) $(p)timer$(e) $(p)stream$(e) &
  $(p)frame$(e) $(p)synth$(e) $(p)decoder$(e) $(p)layer12$(e) $(p)layer3$(e) $(p)huffman$(e) 
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 

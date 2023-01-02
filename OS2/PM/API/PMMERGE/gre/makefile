@@ -6,7 +6,7 @@
 
 ADD_COPT = -i=$(MYDIR).. -bd
 
-!include $(%ROOT)/mk/appsos2_fpm.mk
+!include $(%ROOT)tools/mk/appsos2_fpm.mk
 
 TARGETS = $(OBJS)
 TARGET = all

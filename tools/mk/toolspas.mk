@@ -3,21 +3,20 @@
 # for building tools
 #
 
-!ifndef __appsos2pas_mk__
-!define __appsos2pas_mk__
+!ifndef __toolspas_mk__
+!define __toolspas_mk__
 
 32_BITS  = 1
-CLEAN_ADD = *.oo2 *.ppo *.o
 
-#OBJS = $(PATH)*.o
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !ifndef DEST
-DEST    = os2
+DEST    = $(PLATFORM)bin
 !endif
 
-ADD_PCOPT = -Tos2
+CLEAN_ADD = *.oo2 *.ppo *.o
 
-#CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
+!include $(%ROOT)/tools/mk/all.mk
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
@@ -25,9 +24,11 @@ TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!ifdef RESOURCE
+deps = $(RESOURCE)
+!endif
 
-$(TARGETS): $(MYDIR)makefile
+$(TARGETS): $(deps) $(MYDIR)makefile
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .symbolic .always
 

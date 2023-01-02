@@ -7,7 +7,7 @@
 PROJ      = acpi32
 TRGT      = $(PROJ).lib
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)tools/mk/libs.mk
 
 TARGETS   = $(PATH)$(TRGT)
 #DEST = none

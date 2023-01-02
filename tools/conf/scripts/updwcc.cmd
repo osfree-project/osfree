@@ -2,7 +2,7 @@
  *
  * Usage:
  *    cd %ROOT%
- *    find . -type f -name _wcc.sh -exec /usr/local/bin/rexx ./conf/scripts/updwcc.cmd {} / \;
+ *    find . -type f -name _wcc.sh -exec /usr/local/bin/rexx ./tools/conf/scripts/updwcc.cmd {} / \;
  *    find . -type f -name _wcc.sh -exec chmod 755 {} \;
  *    find . -type f -name _wcc.sh -exec git add {} \;
  *
@@ -22,7 +22,7 @@ l   = levels(fn2)
 p   = lastpos('.', fn)
 ext = substr(fn, p + 1)
 
-verbose'sed -e "s,\@RT\@,'l'," 'root'conf/scripts/_wcc.'ext'-template >'fn
+verbose'sed -e "s,\@RT\@,'l'," 'root'tools/conf/scripts/_wcc.'ext'-template >'fn
 
 exit
 /* ----------------------------------- */

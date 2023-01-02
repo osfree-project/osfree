@@ -53,9 +53,9 @@ ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC)contrib$(SEP)include -bc -bm -dHAVE_CONF
 C = r
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 !endif
 
 .c: $(SRC)contrib$(SEP)pdl$(SEP)src

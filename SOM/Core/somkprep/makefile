@@ -30,7 +30,7 @@ SOM_HEADERS=	$(SOM_INTDIR)$(SEP)somobj.h		&
 				$(SOM_INTDIR)$(SEP)somcm.ih		&
 				$(SOM_INTDIR)$(SEP)rhbsomuk.h
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = pre $(SOMKERNP_KIH) $(SOM_HEADERS)
 

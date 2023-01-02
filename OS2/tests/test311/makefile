@@ -24,4 +24,4 @@ UNI2H = 1
 #          DosExecPgm            DOSCALLS.283  , &
 #          DosSetDefaultDisk     DOSCALLS.220
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

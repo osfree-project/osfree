@@ -27,4 +27,4 @@ defs = -dLINUX
 ADD_COPT += $(defs) -dQEMU_TOOL -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib z.lib
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk

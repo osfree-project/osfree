@@ -8,7 +8,7 @@
 
 CLEAN_ADD = *.c *.h
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)/tools/mk/libs.mk
 
 ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 

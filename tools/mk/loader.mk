@@ -24,7 +24,7 @@ ADD_ASMOPT   = $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)u
 DEST         = boot
 !endif
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)/tools/mk/bootseq.mk
 
 SHIFT = 0x100
 

@@ -8,7 +8,7 @@ DIRS = libmmap os2386 GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff &
   libvorbis lpng PDCurses zlib xwphelpers acpitk lvmtk &
   target
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

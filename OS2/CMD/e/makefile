@@ -23,7 +23,7 @@ HEAPSIZE     = 10240
 STACKSIZE    = 24576
 # UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/appsos2_pm.mk
 
 TARGETS = $(PATH)$(PROJ1).exe subdirs
 TARGET  = all

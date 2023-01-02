@@ -17,7 +17,7 @@ PLATFORM = host$(SEP)$(%HOST)$(SEP)
 TARGETS = $(PATH)z.lib
 SRCDIR = $(PATH)
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)tools/mk/libs.mk
 
 DEST      = $(BLD)$(SEP)lib
 

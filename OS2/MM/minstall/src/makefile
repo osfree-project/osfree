@@ -34,4 +34,4 @@ ADD_LINKOPT = lib mm_shared
 UNI2H = 1
 DEST  = mmos2
 
-!include $(%ROOT)/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/appsos2_pm.mk

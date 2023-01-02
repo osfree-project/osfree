@@ -24,7 +24,7 @@ comma = ,
 comma =
 !endif
 
-!include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)/tools/mk/dirs.mk
 
 SrvDir = $(%ROOT)OS2$(SEP)Server$(SEP)
 
@@ -43,7 +43,7 @@ ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)os2 &
               $(ADD_LINKOPT) lib libmmap.lib
 ALIASES = $(ALIASES) $(comma)mmap_=_mmap,munmap_=_munmap
 OPTIONS = internalrelocs
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/tools/mk/appsos2.mk
 
 !else ifeq ARCH linux
 
@@ -66,7 +66,7 @@ ADD_LINKOPT = lib kernel32 libpath $(%WATCOM)$(SEP)lib386$(SEP)nt &
               $(ADD_LINKOPT)
 OPTIONS = OFFSET=524288
 # -mthreads
-!include $(%ROOT)/mk/appsw32.mk
+!include $(%ROOT)/tools/mk/appsw32.mk
 
 !endif
 

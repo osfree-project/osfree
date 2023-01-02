@@ -4,7 +4,7 @@ PROJ = rexxwrapper
 TRGT = $(PROJ).exe
 DESC = rexx to executable wrapper
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 #TARGETS = $(PATH)$(PROJ).exe
 

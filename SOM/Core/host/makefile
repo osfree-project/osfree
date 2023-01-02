@@ -15,5 +15,5 @@ DIRS = $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR) somtk
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 

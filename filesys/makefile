@@ -5,11 +5,11 @@
 #
 
 !include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)tools/mk/site.mk
 
 DIRS = fat ext2fs hpfs jfs
 
-!include $(%ROOT)/mk/bootseq.mk
+!include $(%ROOT)tools/mk/bootseq.mk
 
 all: .SYMBOLIC
  $(MAKE) $(MAKEOPT) TARGET=$^@ subdirs

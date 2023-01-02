@@ -23,7 +23,7 @@ $(p)pngwrite$(e) &
 $(p)pngwtran$(e) &
 $(p)pngwutil$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

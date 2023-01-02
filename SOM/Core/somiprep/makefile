@@ -65,7 +65,7 @@ SOMIR_3=	$(SOMIDL_IDL)$(SEP)intfacdf.idl		&
 			$(SOMIDL_IDL)$(SEP)constdef.idl		&
 			$(SOMIDL_IDL)$(SEP)repostry.idl
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 MKDIRS=$(SOMTC_INTDIR) $(SOMREF_INTDIR) $(SOMIR_INTDIR)
 

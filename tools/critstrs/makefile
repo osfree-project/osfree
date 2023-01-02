@@ -10,5 +10,5 @@ DESC = Critical Error Strings compiler
 srcfiles = $(p)critstrs$(e)
 ADD_COPT = -i=..$(SEP)include
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 

@@ -4,4 +4,4 @@ PROJ = helpmsg
 TRGT = $(PROJ).exe
 DESC = Help message shower
 
-!include $(%ROOT)/mk/appsos2pas.mk
+!include $(%ROOT)tools/mk/appsos2pas.mk

@@ -29,7 +29,7 @@ mf  = $(PATH)makefile
 prereq: dirhier $(wcc) $(mf) .symbolic
 
 $(wcc):
- @$(REXX) $(ROOT)conf$(SEP)scripts$(SEP)updwcc.cmd $^@ $(SEP)
+ @$(REXX) $(ROOT)tools$(SEP)conf$(SEP)scripts$(SEP)updwcc.cmd $^@ $(SEP)
 !ifeq UNIX TRUE
  @chmod 755 $^@
 !endif

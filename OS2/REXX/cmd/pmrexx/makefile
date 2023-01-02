@@ -15,7 +15,7 @@ IMPORTS      = RexxCreateIOWindow    PMREXXIO.RexxCreateIOWindow, &
 UNI2H        = 1
 C            = s
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 
 TARGETS = $(PATH)$(PROJ1).exe # subdirs
 #TARGET = all

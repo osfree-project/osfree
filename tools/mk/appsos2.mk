@@ -8,7 +8,7 @@
 32_BITS = 1
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 
-!include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)/tools/mk/dirs.mk
 
 ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
@@ -55,7 +55,7 @@ DEST    = os2
 
 SUF += .msg .rsf
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 ADD_COPT    +=        -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3

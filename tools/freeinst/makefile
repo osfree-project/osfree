@@ -22,4 +22,4 @@ defs = -dLINUX
 !endif
 ADD_PCOPT = $(defs)
 DESC  = FreeLDR installer by Yoda
-!include $(%ROOT)/mk/toolspas.mk
+!include $(%ROOT)tools/mk/toolspas.mk

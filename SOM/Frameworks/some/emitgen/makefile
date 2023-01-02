@@ -81,9 +81,9 @@ C = s
 ADD_SCOPT = -I$(SOM_INTDIR) -I$(OS2TK)$(SEP)som$(SEP)include -D__PRIVATE__
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 !endif
 
 

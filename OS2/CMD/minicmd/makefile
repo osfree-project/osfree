@@ -17,4 +17,4 @@ UNI2H = 1
 IMPORTS = KbdStringIn        EMXWRAP.209, &
           VioWrtTTY          EMXWRAP.119
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

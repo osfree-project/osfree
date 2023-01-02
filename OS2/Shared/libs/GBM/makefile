@@ -17,7 +17,7 @@ srcfiles = $(p)gbm$(e)    $(p)gbmpbm$(e)  $(p)gbmpgm$(e) $(p)gbmppm$(e) $(p)gbmp
 #          gbmj2k.obj gbmpng.obj gbmxpm.obj gbmxpmcn.obj gbmraw.obj gbmhelp.obj gbmmap.obj 
 #          gbmmem.obj
           
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib
 

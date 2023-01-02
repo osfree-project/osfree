@@ -6,7 +6,7 @@
 !ifndef __appsdos_mk__
 !define __appsdos_mk__
 
-!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)/tools/mk/site.mk
 
 ADD_COPT =            $(ADD_COPT) -bt=dos
 
@@ -14,7 +14,7 @@ ADD_COPT =            $(ADD_COPT) -bt=dos
 DEST     = os2$(SEP)mdos
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 !ifeq COM 1
 comf = com

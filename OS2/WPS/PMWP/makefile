@@ -72,7 +72,7 @@ IHEADERS=$(PATH)$(SEP)wpobject.ih &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/appsos2_pm.mk
 
 TARGETS   = $(IDLS) $(IDLS2) $(HEADERS) $(IHEADERS) $(OBJS)
 			

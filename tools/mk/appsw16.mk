@@ -18,7 +18,7 @@ ADD_LINKOPT = path $(WATCOM)$(SEP)lib286 &
 DEST     = os2$(SEP)mdos$(SEP)winos2
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 !ifdef DLL
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym

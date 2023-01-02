@@ -4,7 +4,7 @@ PROJ = bff
 DESC = Binary File Firmat parser
 srcfiles = $(p)bff$(e) $(p)bff_lex$(e) 
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 ADD_COPT = -i=$(PATH) -i=$(MYDIR) -pil
 STACKSIZE = 65536

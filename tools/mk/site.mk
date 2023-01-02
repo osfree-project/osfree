@@ -15,7 +15,7 @@ ROOT       = $(%ROOT)
 WATCOM     = $(%WATCOM)
 !endif
 
-!include $(%ROOT)mk/build.conf
+!include $(%ROOT)/tools/mk/build.conf
 
 # Version macro. Not to be changed for a long time yet.
 

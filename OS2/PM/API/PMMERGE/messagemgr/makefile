@@ -7,7 +7,7 @@
 #srcfiles = $(p)messages$(e) $(p)queue$(e)
 ADD_COPT = -i=$(MYDIR).. -bd
 
-!include $(%ROOT)/mk/appsos2_fpm.mk
+!include $(%ROOT)tools/mk/appsos2_fpm.mk
 
 #DEST = none
 TARGETS = $(OBJS)

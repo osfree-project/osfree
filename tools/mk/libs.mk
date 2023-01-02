@@ -14,7 +14,7 @@
 DEST     = ..$(SEP)..$(SEP)build$(SEP)lib
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 $(PATH)$(PROJ).lib:
 

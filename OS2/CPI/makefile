@@ -8,5 +8,5 @@ DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls moncalls quecalls viocal
        doscalls nampipes startlw bkscalls bmscalls bvscalls bvh32 os2char sub32 &
        udsk os2char2
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 

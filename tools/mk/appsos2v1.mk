@@ -15,7 +15,7 @@ ADD_LINKOPT = $(ADD_LINKOPT) OPTION REDEFSOK # lib clibs.lib,os2.lib
 DEST     = os2
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)/tools/mk/all.mk
 
 !ifdef DLL
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym

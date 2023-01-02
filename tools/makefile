@@ -15,4 +15,4 @@ DIRS = sed uniapi ..$(SEP)UNI yacc lex jwasm awk &
        target
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
