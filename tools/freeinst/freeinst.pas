@@ -1,4 +1,21 @@
-                          
+{
+
+ osFree FreeLDR Installer (C) 2010 by Yoda
+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License (GPL) as published by
+ the Free Software Foundation; either version 2 of the License, or (at
+ your option) any later version. This program is distributed in the hope
+ that it will be useful, but WITHOUT ANY WARRANTY; without even the
+ implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.
+ See the GNU General Public License for more details. You should have
+ received a copy of the GNU General Public License along with this
+ program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ Place - Suite 330, Boston, MA 02111-1307, USA.
+
+}
+
 Program osFree_Install;
 
 {&Linker
@@ -7,12 +24,16 @@ DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en
 
 // Compiler settings
 {$H+,I+,P+,Q+,R+,S+,T-,V-,X+}
-{$IFNDEF FPC}{$B-,J+,W-}{$ENDIF}
+{$IFNDEF FPC}{$B-,W-,J+}{$ENDIF}
 {&AlignCode+,AlignData+,AlignRec-,Cdecl-,Delphi+,Frame+}
 {&Open32-,Optimise+,OrgName-,Speed+}
+{$codePage CP437}
 {$M 32768}
 
 Uses
+{$IFDEF WIN32}
+              windows,
+{$ENDIF}
               Common, Utl, SysLow,
 {$IFDEF OS2}
               Os2def,
@@ -28,7 +49,7 @@ Uses
 {$IFDEF LINUX}
               Impl_LNX,
 {$ENDIF}
-              Strings, SysUtils, Crt, Dos;
+              Strings, SysUtils, Crt, Dos, tpcrt, tpwindow;
 
 
 {$IFDEF FPC}
@@ -750,22 +771,28 @@ End;
 
 
 Procedure Header;
+var
+  W: WindowPtr;
 Begin
+TextBackground(Blue);
+TextColor(Cyan);
+HighVideo;
 ClrScr;
-Writeln('                     ',version);
-Writeln('                     ---------------------------------------');
+WriteLn;
+Writeln(' ',version);
+Writeln(' '#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205);
+MakeWindow(W, 17, 5, 63, 15, True, True, True, Yellow or (Red shl 4), White or (Red shl 4), Yellow or (Red shl 4), ' WARNING! ');
+DisplayWindow(W);
 Writeln;
-Writeln(' ***************************   W A R N I N G  *********************************');
-writeln;
-Writeln(' This is experimental software - that can *COMPLETELY* destroy your harddisk(s)');
-Writeln;
-Writeln(' Don''t use this software, unless you have a full system backup of all your HDs');
-Writeln;
-writeln(' ******************************************************************************');
-
-Writeln;
-Writeln('                   Partition ',drive1,' is selected for install');
-Writeln;
+Writeln(' This is experimental software that');
+Writeln(' can *COMPLETELY* destroy your harddisk(s).');
+Writeln; 
+Writeln(' Don''t use this software, unless you have');
+WriteLn(' a full system backup of all your HDs');
+DisposeWindow(W);
+//Writeln;
+//Writeln('                   Partition ',drive1,' is selected for install');
+//Writeln;
 End;
 
 
@@ -777,7 +804,7 @@ Var
 Begin
 // This program outputs a list of drives and their type
 GetValidDrives( Drives );
-Header;
+//Header;
 Writeln( 'This system has the following drives available for install: ' );
 Writeln;
 for Drive3 := 'A' to 'Z' do
@@ -810,14 +837,62 @@ DriveT := GetDriveType(drive1[1]);
 end;
 
 
+{$IFDEF WIN32}
 
+Const
+ SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority = (Value: (0, 0, 0, 0, 0, 5));
+ SECURITY_BUILTIN_DOMAIN_RID = $00000020;
+ DOMAIN_ALIAS_RID_ADMINS     = $00000220;
+ DOMAIN_ALIAS_RID_USERS      = $00000221;
+ DOMAIN_ALIAS_RID_GUESTS     = $00000222;
+ DOMAIN_ALIAS_RID_POWER_USERS= $00000223;
+
+ function CheckTokenMembership(TokenHandle: THandle; SidToCheck: PSID; var IsMember: BOOL): BOOL; stdcall; external advapi32;
+
+ function  UserInGroup(Group :DWORD) : Boolean;
+ var
+  pIdentifierAuthority :TSIDIdentifierAuthority;
+  pSid : Windows.PSID;
+  IsMember    : BOOL;
+ begin
+  pIdentifierAuthority := SECURITY_NT_AUTHORITY;
+  Result := AllocateAndInitializeSid(pIdentifierAuthority,2, SECURITY_BUILTIN_DOMAIN_RID, Group, 0, 0, 0, 0, 0, 0, pSid);
+  try
+    if Result then
+      if not CheckTokenMembership(0, pSid, IsMember) then //passing 0 means which the function will be use the token of the calling thread.
+         Result:= False
+      else
+         Result:=IsMember;
+  finally
+     FreeSid(pSid);
+  end;
+ end;
+
+{$ENDIF}
 
 { ***********************************************************************************************************
   ********************************************       MAIN      **********************************************
   *********************************************************************************************************** }
 
 Begin
-Drive := Drive2;
+{$IFDEF WIN32}
+  if not UserInGroup(DOMAIN_ALIAS_RID_ADMINS) then
+  begin
+    WriteLn;
+    WriteLn('This program must be run as Administrator');
+    Exit;
+  end;
+
+  // Tune FPC CRT for correct codepage usage
+  SetSafeCPSwitching(False);
+  SetUseACP(True);
+  SetTextCodePage(Output, 437);
+{$ENDIF}
+
+  // Configure TPCRT
+  FrameChars:=BoldFrameChars;
+
+  Drive := Drive2;
 {
 If ParamCount > 0 Then
   Drive1 := ParamStr(1)  // Driveletter expected as first parameter on cmd line.
@@ -828,25 +903,30 @@ Drive := StrPCopy(Drive,drive1);
 DriveT := GetDriveType(drive1[1]);
 }
 Header;
-Gotoxy(1,12);
-Write('                   Are you sure, you want to continue ? (Y/N) ');
+Gotoxy(1,8);
+Write(' Are you sure, you want to continue ? (Y/N) ');
 If NOT (readkey in ['y','Y']) Then Halt(9);
+Window(2,5,80,25);
+TextBackground(Blue);
+TextColor(Cyan);
+ClrScr;
+
 DriveInfo;              // Ask user which drive to install to.
 
 // SetVideoMode(80,40);
 Repeat
-  Header;
-  Writeln(' What do you want to do ? ');
+  ClrScr;
+  Writeln('What do you want to do ? ');
   Writeln;
-  Writeln(' 1:  Install new MBR for FreeLDR ');
-  Writeln(' 2:  Install FreeLDR on a partition');
+  Writeln('1:  Install new MBR for FreeLDR ');
+  Writeln('2:  Install FreeLDR on a partition');
 //  Writeln(' 3:  Backup or Restore a MBR / BootSector / BootBlock');
-  Writeln(' 3:  Backup MBR sector. ');
-  Writeln(' 4:  Backup a BootBlock.');
-  Writeln(' 5:  Restore MBR sector from backup file.');
-  Writeln(' 6:  Restore a BootBlock from backup file.');
-  Writeln(' 9:  Change partition to install, backup or restore to.');
-  Writeln(' 0:  Exit');
+  Writeln('3:  Backup MBR sector. ');
+  Writeln('4:  Backup a BootBlock.');
+  Writeln('5:  Restore MBR sector from backup file.');
+  Writeln('6:  Restore a BootBlock from backup file.');
+  Writeln('9:  Change partition to install, backup or restore to.');
+  Writeln('0:  Exit');
   Writeln('');
   Write('(1,2,3,4,5,6,9,0) ');
   ch := ReadKey;

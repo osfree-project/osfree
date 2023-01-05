@@ -20,6 +20,6 @@ defs = -dDPMI32
 !ifeq ENV LINUX
 defs = -dLINUX
 !endif
-ADD_PCOPT = $(defs)
+ADD_PCOPT = -WC -B -Fccp437 $(defs)
 DESC  = FreeLDR installer by Yoda
 !include $(%ROOT)tools/mk/toolspas.mk
