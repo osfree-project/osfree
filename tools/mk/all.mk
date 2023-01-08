@@ -278,7 +278,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
+SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -431,6 +431,10 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG2)
 
 .lnk.exe: .autodepend
+ @$(SAY) LINK     $^. $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
+
+.lnk.com: .autodepend
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
