@@ -1,22 +1,36 @@
 {
 
- osFree FreeLDR Installer (C) 2010 by Yoda
+     osFree FreeLDR Installer (C) 2010 by Yoda
+     Copyright (C) 2022 osFree
 
- This program is free software; you can redistribute it and/or modify it
- under the terms of the GNU General Public License (GPL) as published by
- the Free Software Foundation; either version 2 of the License, or (at
- your option) any later version. This program is distributed in the hope
- that it will be useful, but WITHOUT ANY WARRANTY; without even the
- implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.
- See the GNU General Public License for more details. You should have
- received a copy of the GNU General Public License along with this
- program; if not, write to the Free Software Foundation, Inc., 59 Temple
- Place - Suite 330, Boston, MA 02111-1307, USA.
+     All rights reserved.
+
+     Redistribution  and  use  in  source  and  binary  forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+     *  Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+     *  Redistributions  in  binary  form  must  reproduce the above copyright
+notice,   this  list  of  conditions  and  the  following  disclaimer  in  the
+documentation and/or other materials provided with the distribution.
+     * Neither the name of the osFree nor the names of its contributors may be
+used  to  endorse  or  promote  products  derived  from  this software without
+specific prior written permission.
+
+     THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS"  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN  NO  EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES  (INCLUDING,  BUT  NOT  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES;  LOSS  OF  USE,  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 }
 
-Program osFree_Install;
+Program freeinst;
 
 {&Linker
 DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
@@ -49,7 +63,8 @@ Uses
 {$IFDEF LINUX}
               Impl_LNX,
 {$ENDIF}
-              Strings, SysUtils, Crt, Dos, tpcrt, tpwindow;
+              Strings, SysUtils, Crt, Dos,
+              tpcrt, tpwindow, colordef, tpmenu;
 
 
 {$IFDEF FPC}
@@ -769,32 +784,16 @@ Writeln('Press Enter to continue...');
 Readln;
 End;
 
-
-Procedure Header;
-var
-  W: WindowPtr;
-Begin
-TextBackground(Blue);
-TextColor(Cyan);
-HighVideo;
-ClrScr;
-WriteLn;
-Writeln(' ',version);
-Writeln(' '#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205);
-MakeWindow(W, 17, 5, 63, 15, True, True, True, Yellow or (Red shl 4), White or (Red shl 4), Yellow or (Red shl 4), ' WARNING! ');
-DisplayWindow(W);
-Writeln;
-Writeln(' This is experimental software that');
-Writeln(' can *COMPLETELY* destroy your harddisk(s).');
-Writeln; 
-Writeln(' Don''t use this software, unless you have');
-WriteLn(' a full system backup of all your HDs');
-DisposeWindow(W);
-//Writeln;
-//Writeln('                   Partition ',drive1,' is selected for install');
-//Writeln;
-End;
-
+Procedure InitDesktop;
+begin
+  TextBackground(Blue);
+  TextColor(Cyan);
+  HighVideo;
+  ClrScr;
+  WriteLn;
+  Writeln(' ',version);
+  Writeln(' '#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205#205);
+end;
 
 Procedure DriveInfo;
 Var
@@ -804,7 +803,6 @@ Var
 Begin
 // This program outputs a list of drives and their type
 GetValidDrives( Drives );
-//Header;
 Writeln( 'This system has the following drives available for install: ' );
 Writeln;
 for Drive3 := 'A' to 'Z' do
@@ -838,7 +836,6 @@ end;
 
 
 {$IFDEF WIN32}
-
 Const
  SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority = (Value: (0, 0, 0, 0, 0, 5));
  SECURITY_BUILTIN_DOMAIN_RID = $00000020;
@@ -868,29 +865,116 @@ Const
   end;
  end;
 
-{$ENDIF}
-
-{ ***********************************************************************************************************
-  ********************************************       MAIN      **********************************************
-  *********************************************************************************************************** }
-
-Begin
-{$IFDEF WIN32}
+procedure InitWindows;
+begin
   if not UserInGroup(DOMAIN_ALIAS_RID_ADMINS) then
   begin
     WriteLn;
     WriteLn('This program must be run as Administrator');
-    Exit;
+    Halt(-1);
   end;
 
   // Tune FPC CRT for correct codepage usage
-  SetSafeCPSwitching(False);
+  SetSafeCPSwitching(True);
   SetUseACP(True);
   SetTextCodePage(Output, 437);
+end;
 {$ENDIF}
 
+procedure InitTPro;
+begin
   // Configure TPCRT
   FrameChars:=BoldFrameChars;
+end;
+
+procedure ShowWarning;
+const
+  Colors : MenuColorArray =
+  ($17,                      {FrameColor}
+    $4E,                     {HeaderColor}
+    WhiteOnRed,              {BodyColor}
+    RedOnLtGray,             {SelectColor}
+    $1E,                     {HiliteColor}
+    $0E,                     {HelpColor}
+    $17,                     {DisabledColor}
+    $03                      {ShadowColor}
+    );
+
+type
+  MakeCommands =             {codes returned by each menu selection}
+  (Mnone,                    {no command}
+   Myes,                    {main menu root}
+   Mno);              {select item to edit}
+var
+  W: WindowPtr;
+  YN: Menu;
+  SelectKey: Char;
+Begin
+  MakeWindow(W, 17, 5, 63, 19, True, True, True, YellowOnRed, WhiteOnRed, YellowOnRed, ' WARNING! ');
+  DisplayWindow(W);
+  Writeln;
+  Writeln(' This is experimental software that');
+  Writeln(' can *COMPLETELY* destroy your harddisk(s).');
+  Writeln; 
+  Writeln(' Don''t use this software, unless you have');
+  WriteLn(' a full system backup of all your HDs');
+  WriteLn;
+  WriteLn(' Are you sure, you want to continue?');
+
+  YN:=NewMenu([], nil);
+  SubMenu(20, 10, 0, Vertical, LotusFrame, Colors, '');
+  MenuItem(' Yes ', 1, 1, Ord(Myes), '');
+  MenuItem(' No ', 2, 1, Ord(Mno), '');
+  ResetMenu(YN);
+  if MenuChoice(YN, SelectKey)=ord(Mno) then Halt(9);;
+
+  DisposeWindow(W);
+
+  // @todo temporary solution until implement KillWindow or EraseTopWindow
+  Window(2,5,80,25);
+  TextBackground(Blue);
+  TextColor(Cyan);
+  ClrScr;
+end;
+{ ***********************************************************************************************************
+  ********************************************       MAIN      **********************************************
+  *********************************************************************************************************** }
+
+// SetVideoMode(80,40);
+const
+  Colors : MenuColorArray =
+  ($88+WhiteOnBlue,                      {FrameColor}
+    $4E,                     {HeaderColor}
+    $08+CyanOnBlue,          {BodyColor}
+    BlackOnCyan,             {SelectColor}
+    $1E,                     {HiliteColor}
+    $0E,                     {HelpColor}
+    $17,                     {DisabledColor}
+    $03                      {ShadowColor}
+    );
+
+type
+  MakeCommands =             {codes returned by each menu selection}
+  (Mnone,                    {no command}
+   MInstallMBR,                    {main menu root}
+   MInstallFreeLdr,
+   MBackUpMBR,
+   MBackupBootBlock,
+   MRestoreMBR,
+   MRestoreBootBlock,
+   MChangePartition,
+   MExit
+  );
+var
+  YN: Menu;
+  SelectKey: Char;
+  MK: MenuKey;
+
+Begin
+{$IFDEF WIN32}
+  InitWindows;
+{$ENDIF}
+  InitTPro;
 
   Drive := Drive2;
 {
@@ -902,38 +986,34 @@ Drive := StrPCopy(Drive,drive1);
 
 DriveT := GetDriveType(drive1[1]);
 }
-Header;
-Gotoxy(1,8);
-Write(' Are you sure, you want to continue ? (Y/N) ');
-If NOT (readkey in ['y','Y']) Then Halt(9);
-Window(2,5,80,25);
-TextBackground(Blue);
-TextColor(Cyan);
-ClrScr;
+  InitDesktop;
+  ShowWarning;
+  DriveInfo;              // Ask user which drive to install to.
 
-DriveInfo;              // Ask user which drive to install to.
 
-// SetVideoMode(80,40);
 Repeat
+  
   ClrScr;
-  Writeln('What do you want to do ? ');
-  Writeln;
-  Writeln('1:  Install new MBR for FreeLDR ');
-  Writeln('2:  Install FreeLDR on a partition');
-//  Writeln(' 3:  Backup or Restore a MBR / BootSector / BootBlock');
-  Writeln('3:  Backup MBR sector. ');
-  Writeln('4:  Backup a BootBlock.');
-  Writeln('5:  Restore MBR sector from backup file.');
-  Writeln('6:  Restore a BootBlock from backup file.');
-  Writeln('9:  Change partition to install, backup or restore to.');
-  Writeln('0:  Exit');
-  Writeln('');
-  Write('(1,2,3,4,5,6,9,0) ');
-  ch := ReadKey;
-  Write(#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8);
-  Case ch of
-    '1': Install_MBR;
-    '2': Begin
+Writeln;
+Writeln('                   Partition ',drive1,' is selected for install');
+Writeln;
+  YN:=NewMenu([], nil);
+  SubMenu(10, 1, 0, Vertical, BoldFrameChars, Colors, '');
+  MenuItem(' 1:  Install new MBR for FreeLDR ', 1, 1, Ord(MInstallMBR), '');
+  MenuItem(' 2:  Install FreeLDR on a partition ', 2, 2, Ord(MInstallFreeLdr), '');
+  MenuItem(' 3:  Backup MBR sector ', 3, 2, Ord(MBackupMBR), '');
+  MenuItem(' 4:  Backup a BootBlock ', 4, 2, Ord(MBackUpBootBlock), '');
+  MenuItem(' 5:  Restore MBR sector from backup file ', 5, 2, Ord(MRestoreMBR), '');
+  MenuItem(' 6:  Restore a BootBlock from backup file ', 6, 2, Ord(MRestoreBootBlock), '');
+  MenuItem(' 9:  Change partition to install, backup or restore to ', 7, 2, Ord(MChangePartition), '');
+  MenuItem(' 0:  Exit ', 8, 2, Ord(MExit), '');
+  ResetMenu(YN);
+  MK:=MenuChoice(YN, SelectKey);
+  ClrScr;
+  
+  case MK of
+    Ord(MInstallMBR): Install_MBR;
+    Ord(MInstallFreeLdr): Begin
          Case DriveT Of
            dtFloppy    : Install_Fat;
            dtHDFAT     : Install_Fat;
@@ -950,19 +1030,17 @@ Repeat
            End;
          End;
 
-    '3': Backup_MBR_sector;
-    '4': BackUp_BootBlock;
-    '5': Restore_MBR_Sector;
-    '6': Restore_Bootblock;
-    '9': Begin
+    Ord(MBackUpMBR): Backup_MBR_sector;
+    Ord(MBackUpBootBlock): BackUp_BootBlock;
+    Ord(MRestoreMBR): Restore_MBR_Sector;
+    Ord(MRestoreBootBlock): Restore_Bootblock;
+    Ord(MChangePArtition): Begin
          DriveInfo;
          End;
-    '0': ;
-    Else Writeln('Typo !!!  Exiting...');
-    End;
+    Ord(Mexit): break;
+  end;
   Delay(100);
-Until NOT( ch IN ['1'..'9']);
-
+until false;
 
 End.
 
