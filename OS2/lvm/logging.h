@@ -119,6 +119,8 @@ void _System Write_Log_Buffer( void );
 
 
 #define LOG_BUFFER_SIZE   512
+#define FUNCTION_ENTRY_BORDER   "*****FUNCTION ENTRY*****\n"
+#define FUNCTION_EXIT_BORDER    "*****FUNCTION EXIT******\n"
 
 
 /*--------------------------------------------------
