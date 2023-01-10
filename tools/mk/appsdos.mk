@@ -38,6 +38,9 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
  @%append $^@ NAME $^*
+!ifdef DEBUG
+ @%append $^@ DEBUG $(DEBUG)
+!endif
  @%append $^@ libpath %WATCOM%/lib286
  @%append $^@ libpath %WATCOM%/lib286/dos
 !ifdef DEBUG
