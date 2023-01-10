@@ -1,6 +1,6 @@
 /*
  *
- *   Copyright (c) International Business Machines  Corp., 2000
+ *   (C) Copyright IBM Corp. 2000, 2001, 2003
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -97,24 +97,23 @@ void _System Build_CRC_Table( void )
     CARDINAL32 j;
     CARDINAL32 CRC;
 
+    FUNCTION_ENTRY(__FUNCTION__);
+
     for ( i = 0; i <= 255 ; i++ )
     {
-
       CRC = i;
-
       for ( j = 8 ; j > 0; j-- )
       {
-
          if ( CRC & 1 )
             CRC = ( CRC >> 1 ) ^ CRC_POLYNOMIAL;
           else
             CRC >>= 1;
       }
-
       CRC_Table[ i ] = CRC;
-
     }
     CRC_Table_Built = TRUE;
+
+  FUNCTION_EXIT(__FUNCTION__);
 }
 
 /*--------------------------------------------------
@@ -156,7 +155,7 @@ CARDINAL32 _System CalculateCRC( CARDINAL32 CRC, ADDRESS Buffer, CARDINAL32 Buff
   CARDINAL32 Temp2;
   CARDINAL32 I;             /* Used to walk the buffer. */
 
-//  FUNCTION_ENTRY(__FUNCTION__);
+  FUNCTION_ENTRY(__FUNCTION__);
 
   /* Establish access to the buffer on a byte by byte basis. */
   Current_Byte = ( BYTE *) Buffer;
@@ -175,6 +174,7 @@ CARDINAL32 _System CalculateCRC( CARDINAL32 CRC, ADDRESS Buffer, CARDINAL32 Buff
 
   }
 
-//  FUNCTION_EXIT(__FUNCTION__);
+  FUNCTION_EXIT(__FUNCTION__);
+
   return( CRC );
 }
