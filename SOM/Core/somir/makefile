@@ -25,7 +25,7 @@ ADD_SCOPT = -D__PRIVATE__ &
             -I$(SRC)contrib$(SEP)somir &
             -I$(SRC)contrib$(SEP)somref
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 .idl: $(SRC)contrib$(SEP)somir
 .h: $(ROOT)build$(SEP)include

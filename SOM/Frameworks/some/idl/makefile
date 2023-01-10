@@ -109,7 +109,7 @@ PRODUCTS_PDL=$(SOMIDL_IDL)$(SEP)scattrib.idl &
 
 ADD_SCOPT = -I$(SOMIDL_IDL) 
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS= $(SOMIDL_HEADERS)$(SEP)sctypes.h $(SOMIDL_HEADERS)$(SEP)sctypes.xh $(PRIVATE_HEADERS) $(PRODUCTS_PDL) $(PRODUCTS_SC) 
 

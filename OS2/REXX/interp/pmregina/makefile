@@ -17,7 +17,7 @@ RESOURCE    = $(PATH)reginaos2.res
 WINDOWCOMPAT = 1
 UNI2H        = 1
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 TARGETS = $(PATH)$(PROJ1).exe # subdirs

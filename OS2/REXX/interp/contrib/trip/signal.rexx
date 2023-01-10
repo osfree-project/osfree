@@ -5,7 +5,7 @@
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version. 
+ *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-written = 0 
+written = 0
 trace off
 
 
@@ -40,7 +40,7 @@ test002:
 /* === 002 : Does CALL ON terminate statement =========================== */
 /*   call notify 'call_on' */
    call random ,,1000
-   num = random() 
+   num = random()
    call on halt name halt002
    call substr 'kill'("-15" getpid()),1,random()
 
@@ -54,7 +54,7 @@ test002:
 
    halt002:
       magic = '002'
-      return 
+      return
 
 
 test003:
@@ -141,7 +141,7 @@ test007:
    syntax007:
       if where ^== 'one' then
          call complain "SIGNAL OFF XXX NAME YYY is (illegally) allowed"
-      
+
    next007:
    signal on syntax name syntax007_2
    where = 'two'
@@ -152,17 +152,17 @@ test007:
    syntax007_2:
       if where ^== 'two' then
          call complain "CALL OFF XXX NAME YYY is (illegally) allowed"
-      
-   signal test008 
+
+   signal test008
 
 
 test008:
-/* === 008 : Check that DELAY mode works for the conditions it is 
+/* === 008 : Check that DELAY mode works for the conditions it is
              supposed to work for (ERROR/FAILURE/NOTREADY) =========== */
 call notify 'delay'
 
-   call on error name error008 
-   current = condition('d') 
+   call on error name error008
+   current = condition('d')
    'rc 10'
    if (rc^==11) then
       call complain 'Variable RC set in errorhandler does not survive return'
@@ -175,20 +175,20 @@ call notify 'delay'
       if (rc^=='10') then
          call complain 'Variable RC not properly set after ERROR condition'
       'rc' 11
-      if (rc^=='11') then 
+      if (rc^=='11') then
          call complain 'Variable RC seems to be locked in delayed mode'
       if (condition('d')^='rc 10') then
          call complain 'ERROR condition does not delay further ERRORS'
-      return 
+      return
 
 
 test009:
 /* === 009 : If HALT delayed? It should not be ==================== */
-   call notify 'halt' 
+   call notify 'halt'
    signal off syntax
    call on halt name halt009
    count = 0
-   junk = 'kill'('-15' getpid()) 
+   junk = 'kill'('-15' getpid())
    if ( ref == ref2 ) then
       call complain 'CALL ON HALT appears to be ingored while delayed'
 
@@ -203,7 +203,7 @@ test009:
    halt009:
       if (count = 0) then do
          ref = sigl
-         count = 1 
+         count = 1
          junk = 'kill'('-15', getpid())
          junk = junk || junk
          call on halt name halt009
@@ -218,15 +218,15 @@ test009:
 
 
 test010:
-/* === 010 : NOVALUE must trigger on both unset and dropped 
+/* === 010 : NOVALUE must trigger on both unset and dropped
              variables ============================================== */
    call notify 'novalue'
    signal on novalue name noval010
    junk = 'just junk'
    message = ''
-   junk = has_not_been_set 
+   junk = has_not_been_set
    call complain "NOVALUE does not trap unset variables"
-   
+
    noval010:
    if junk^=='just junk' then
       call complain 'SIGNAL ON NOVALUE was not interrupted'
@@ -234,7 +234,7 @@ test010:
    signal on novalue name noval010_2
    junk = 'bar'
    has_been_dropped = 'foo'
-   drop has_been_dropped 
+   drop has_been_dropped
    message = 'just before'
    junk = has_been_dropped
    call complain 'SIGNAL ON NOVALUE does not seem to have been triggered'
@@ -256,14 +256,14 @@ test011:
 /* === 011 : SIGNAL stops execution, CALL continues it =========== */
    call notify 'execution'
    call random ,,1000
-   first = random() 
+   first = random()
    second = random()
    third = random()
    call random ,,1000
-   signal on halt name halt011 
+   signal on halt name halt011
    junk = '.' 'kill'('-15' getpid()) '.' random()
    call complain 'SIGNAL ON HALT does not seem to work'
- 
+
    halt011:
       if (first ^== random()) then
          call complain 'SIGNAL ON HALT does not seem to break statement'
@@ -272,7 +272,7 @@ test011:
       call random ,,1000
       junk = '.' "kill"('-15' getpid()) '.' random()
       if (third ^== random()) then
-         call complain 'CALL ON HALT evalueate expression twice?'
+         call complain 'CALL ON HALT evaluates expression twice?'
 
       signal test012
 
@@ -285,7 +285,7 @@ test011:
 test012:
 /* === 012 : Make sure that CALL ON triggered in the expression
              of an IF, DO or SELECT, is effectuated at the next
-             statement boundary, not after the (structured) 
+             statement boundary, not after the (structured)
              statement is finished ==================================== */
    call notify 'triggered'
    count = 0
@@ -306,9 +306,9 @@ test012:
       drop two
       select
          when 0 then nop
-         when 'two' then 
+         when 'two' then
             call complain 'SYNTAX ON exectues contents after error in WHEN'
-         when 1 then 
+         when 1 then
             call complain 'SYNTAX ON executes rest of WHEN after error'
          otherwise
             nop
@@ -332,8 +332,8 @@ test013:
    signal test014
 
    sub013:
-      count = 1 
-      return 
+      count = 1
+      return
 
    halt013:
       if count^==0 then
@@ -366,19 +366,19 @@ test015: trace off
 /* === 015 : Get the lineno right in INTERPRET ====================== */
    call notify 'lineno1'
    signal on syntax name syntax015
-   rc = 0 
+   rc = 0
    statement = "junk = 'foobar' ; call left() ; morejunk = 'xyzzy'"
-   thisline = syntax015() 
+   thisline = syntax015()
    interpret statement
    call complain 'SIGNAL SYNTAX did not trigger'
    signal test016
 
    syntax015:
-      if rc=0 then 
+      if rc=0 then
          return sigl
       if thisline ^== sigl-1 then
          call complain 'SIGL not properly set when SYNTAX in INTERPRET'
-      signal test016      
+      signal test016
 
 
 
@@ -386,9 +386,9 @@ test016:
 /* === 015 : Get the lineno right in INTERPRET ====================== */
    call notify 'lineno2'
    call on halt name halt016
-   count = 0 
+   count = 0
    statement = "junk='foobar'; junk='kill'('-15' getpid()); morejunk='xyzzy'"
-   thisline = halt016() 
+   thisline = halt016()
    interpret statement
    signal test017
 
@@ -399,17 +399,17 @@ test016:
          end
       if thisline ^== sigl-1 then
          call complain 'SIGL not properly set when CALL ON HALT in INTERPRET'
-      return      
+      return
 
 
 
 test017:
-/* === 017 : When in delayed mode, ERRORs are ignored, and only 
+/* === 017 : When in delayed mode, ERRORs are ignored, and only
              the last is remembered ================================ */
    call notify 'in_delay'
    call on halt name halt017
-   count = 1 
-   junk = 'kill'( '-2' getpid()) 
+   count = 1
+   junk = 'kill'( '-2' getpid())
    if count^=='4' then
       call complain 'Something is wrong in the order ERRORs are handled'
 
@@ -421,11 +421,11 @@ test017:
             call complain 'Result from condition() is incorrect'
 
          junk = 'kill'( '-1' getpid())
-         if (condition('D')^=='SIGINT') then 
+         if (condition('D')^=='SIGINT') then
             call complain 'ERRORs not ignored while in handler'
 
          junk = 'kill'( '-15' getpid())
-         count = 2 
+         count = 2
          call on halt name halt017
          return
          end
@@ -438,7 +438,7 @@ test017:
          return
          end
 
-      count = 4 
+      count = 4
       if condition('D')^=='SIGHUP' then
          call complain 'Wrong order in which ERRORs are handled'
 
@@ -451,8 +451,8 @@ test018:
    call notify 'stacking'
    call on halt name halt018
    call on error name error018
-   
-   count = 0 
+
+   count = 0
    junk = 'kill'( '-15' getpid())
    if count ^== '7' then
       call complain 'did not trigger both ERROR and HALT'
@@ -462,14 +462,14 @@ test018:
    halt018:
       if count^=='0' then
          call complain 'HALT not called initially'
-      
+
       count = count + 1
       'rc 10'
       if count^=='3' then
          call complain 'ERROR couldnt trigger when HALT was DELAYed'
 
       count = count + 4
-      return      
+      return
 
    error018:
       if count^=='1' then
@@ -477,7 +477,7 @@ test018:
 
       count = count + 2
       return
-      
+
 
 
 test019:
@@ -498,7 +498,7 @@ test019:
 
 
 test020:
-/* === 020 : That CALL ON HALT in DELAYed mode is processed 
+/* === 020 : That CALL ON HALT in DELAYed mode is processed
              afterwards, when the DELAY mode is removed ============== */
    call notify 'after_delay'
    call on halt name halt020
@@ -506,12 +506,12 @@ test020:
    junk = 'kill'( '-2' getpid())
    if (count^==15) then
       call complain 'CALL ON HALT does not seem to work'
-   
+
    signal test021
 
    halt020:
       if count=0 then do
-         count = count + 1 
+         count = count + 1
          junk = 'kill'( '-15' getpid())
          if (count^==1) then
             call complain 'CALL ON HALT not in DELAYed mode'
@@ -520,11 +520,11 @@ test020:
          if (count^==15) then
             call complain 'CALL ON HALT did not remove DELAYed mode'
 
-         return 
+         return
          end
-  
+
       if count=1 then do
-         count = count + 2 
+         count = count + 2
          call on halt name halt020
          if (count^==3) then
             call complain 'CALL ON HALT not in DELAYed mode'
@@ -534,7 +534,7 @@ test020:
             call complain 'CALL ON HALT did not clear DELAYED mode'
          return
          end
-   
+
       if (count=3) then do
          count = count + 4
          junk = 'kill'( '-2' getpid())
@@ -544,7 +544,7 @@ test020:
          end
 
       if (count=7) then do
-         count = count + 8 
+         count = count + 8
          return
          end
 
@@ -559,7 +559,7 @@ test021:
    count = 0
    call on error name err021_1
    'rc 10'
-   if (count^==1) then 
+   if (count^==1) then
       call complain 'ERROR not triggered'
 
    call sub021
@@ -567,7 +567,7 @@ test021:
    'rc 10'
    if count^==4 then
       call complain 'Trap information set by handler'
-      
+
    signal test022
 
    err021_2:
@@ -576,15 +576,15 @@ test021:
 
    sub021:
       call on error name err022_2
-      return      
-      
+      return
+
    err021_1:
       if count^==0 & count^==3 then
          call complain 'Wrong error handler called'
 
       count = count + 1
       call on error name err022_2
-      return 
+      return
 
 
 
@@ -604,10 +604,10 @@ test022:
       count = count + 1
       if (count^==1) then
          call complain 'ERROR handler called incorrectly'
-  
+
       call sub022
-      'rc 10' 
-      return 
+      'rc 10'
+      return
 
    sub022:
       call off error
@@ -616,7 +616,7 @@ test022:
 
 
 test023:
-/* === 023 : Information about the current trapped condition is to 
+/* === 023 : Information about the current trapped condition is to
              be saved across routine calls =========================== */
    call notify 'ctc/sub'
    signal on error name err023_1
@@ -630,21 +630,21 @@ test023:
    call sub023
    if (condition('D')^=='rc 10') then
       call complain 'Current trapped condition info not saved across subs'
- 
+
    signal test024
 
    sub023:
       signal on error name err023_2
-      if (condition('D')^=='rc 10') then 
+      if (condition('D')^=='rc 10') then
          call complain 'CTC not "exposed" to subroutines'
 
       'rc 11'
       call complain 'ERROR was not properly triggered'
-      
+
       err023_2:
-      if (condition('D')^=='rc 11') then 
+      if (condition('D')^=='rc 11') then
          call complain 'CTC was not properly set in sub routine'
-      
+
       return
 
 
@@ -656,10 +656,10 @@ test024:
    signal off error
    'rc 10'
    signal test025
-   
+
    err024:
       call complain 'SIGNAL OFF does not remove a CALL ON'
-      return 
+      return
 
 
 
@@ -671,7 +671,7 @@ test025:
    junk = 'kill'( '-15' getpid())
    if (sigl=='junk') then
       call complain 'SIGL not set during CALL ON HALT'
-  
+
    signal test026
 
    halt025:
@@ -685,7 +685,7 @@ test026:
    signal on novalue name noval026_1
    junk = no_such_var_026
    call complain 'NOVALUE not triggered at simple value'
-   
+
    noval026_1:
    signal on novalue name noval026_2
    junk = no_such_stem_026.
@@ -757,7 +757,7 @@ test028:
 exit 0
 
 
-ch: procedure expose sigl 
+ch: procedure expose sigl
    parse arg first, second
    if first ^== second then do
       say

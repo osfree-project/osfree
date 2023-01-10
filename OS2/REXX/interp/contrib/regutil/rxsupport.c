@@ -18,13 +18,13 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/rxsupport.c,v 1.3 2012/09/14 01:56:31 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/rxsupport.c,v 1.4 2022/08/21 23:16:42 mark Exp $
  */
 #include "rxproto.h"
 
 #include <time.h>
 #include <ctype.h>
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(DOS)
 # include <sys/param.h>
 #endif
 

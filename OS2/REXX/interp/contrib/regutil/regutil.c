@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regutil.c,v 1.8 2021/07/11 05:11:20 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regutil.c,v 1.10 2022/08/22 01:46:05 mark Exp $
  */
 #ifdef _WIN32
 # include <windows.h>
@@ -40,7 +40,8 @@ static void gettimeofday(struct timeval * tv, struct timezone * tz)
    tv->tv_usec = st.wMilliseconds * 1000;
 }
 
-
+#elif defined(DOS) && defined(__WATCOMC__)
+# include <bios.h>
 #else
 # include <sys/time.h>
 #endif
@@ -52,7 +53,8 @@ static void gettimeofday(struct timeval * tv, struct timezone * tz)
 
 struct {
     char * name;
-    APIRET (APIENTRY*funcptr)(PUCHAR fname, ULONG argc, PRXSTRING argv, PSZ pSomething, PRXSTRING result);
+/*    APIRET (APIENTRY*funcptr)(PUCHAR fname, ULONG argc, PRXSTRING argv, PSZ pSomething, PRXSTRING result);*/
+    APIRET (APIENTRY*funcptr)(PCSZ fname, ULONG argc, PRXSTRING argv, PCSZ pSomething, PRXSTRING result);
 } funclist[] = {
     {"SYSADDREXXMACRO", sysaddrexxmacro},
     {"SYSCLEARREXXMACROSPACE", sysclearrexxmacrospace},
@@ -154,6 +156,19 @@ struct {
 };
 
 
+#if defined(DOS) && defined(__WATCOMC__)
+void init_random(void)
+{
+   static rxbool done = false;
+   if (!done) {
+      long clicks;
+      _bios_timeofday( _TIME_GETCLOCK, &clicks );
+      srand(clicks);
+
+      done = true;
+   }
+}
+#else
 void init_random(void)
 {
    static rxbool done = false;
@@ -166,11 +181,12 @@ void init_random(void)
       done = true;
    }
 }
+#endif
 
 
 #ifdef DYNAMIC_STATIC
 /* for static loading -- see the Regina distribution for details */
-extern void *getRexxUtilFunctionAddress( char *name )
+void *getRexxUtilFunctionAddress( char *name )
 {
    register int i;
    void * fn = NULL;

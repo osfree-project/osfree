@@ -24,10 +24,10 @@ ADD_COPT += -i=..$(SEP)include -sg -d2
 STACKSIZE = 6553500
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
 UNI2H = 1
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 !endif
 
 .c: $(SRC)somcpp

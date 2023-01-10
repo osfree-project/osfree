@@ -12,7 +12,7 @@ ADD_COPT     = -i=. -bm -od -mf -sg -d2 -mf
 WINDOWCOMPAT = 1
 UNI2H        = 1
 
-!include $(%ROOT)/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/appsos2_pm.mk
 
 #TARGETS = subdirs $(PATH)$(PROJ).exe
 #TARGET  = all

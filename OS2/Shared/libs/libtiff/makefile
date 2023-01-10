@@ -12,7 +12,7 @@ srcfiles = $(p)tif_aux$(e) $(p)tif_close$(e) $(p)tif_codec$(e) $(p)tif_color$(e)
            $(p)tif_read$(e) $(p)tif_strip$(e) $(p)tif_swab$(e) $(p)tif_thunder$(e) $(p)tif_tile$(e) $(p)tif_version$(e) &
            $(p)tif_warning$(e) $(p)tif_write$(e) $(p)tif_zip$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib
 

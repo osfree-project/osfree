@@ -14,7 +14,7 @@ ADD_COPT    = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) # -bd
 ADD_LINKOPT = lib $(BLD)lib$(SEP)$(PROJ).lib
 
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 

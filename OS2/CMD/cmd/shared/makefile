@@ -7,7 +7,7 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include
 UNI2H = 1
 DEST    = none
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 
 TARGETS = $(PATH)$(PROJ).$(O)
 #TARGETS = $(OBJS)

@@ -19,4 +19,4 @@ EXPORTS = FPM_DeviceStart
 
 DEST = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_fpm.mk
+!include $(%ROOT)tools/mk/appsos2_fpm.mk

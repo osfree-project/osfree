@@ -15,4 +15,4 @@ ADD_LINKOPT = lib plib3r.lib
 # STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

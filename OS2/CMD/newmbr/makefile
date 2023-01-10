@@ -4,7 +4,7 @@
 # author, date
 #
 
-!include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 
 PROJ     = newmbr
 TRGT     = $(PROJ).exe
@@ -16,7 +16,7 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 1
 
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 $(PATH)read.obj: $(PATH)mbr.h
 

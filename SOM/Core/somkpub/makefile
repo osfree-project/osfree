@@ -32,7 +32,7 @@ PRODUCTS_PDL=	$(SOMIDL_IDL)$(SEP)somobj.idl	&
 
 ADD_SCOPT = -I$(SOMIDL_IDL)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = $(PRODUCTS_PDL) $(PRODUCTS_SC) $(SOMIDL_HEADERS)$(SEP)som.xh $(SOMIDL_HEADERS)$(SEP)som.h $(SOMIDL_HEADERS)$(SEP)somtypes.h $(SOMIDL_HEADERS)$(SEP)sombtype.h &
 $(SOMIDL_HEADERS)$(SEP)somnames.h $(SOMIDL_HEADERS)$(SEP)somplatf.h $(SOMIDL_HEADERS)$(SEP)somcdev.h $(SOMIDL_HEADERS)$(SEP)somcorba.h &

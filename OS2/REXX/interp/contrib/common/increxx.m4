@@ -23,4 +23,10 @@ AC_ARG_WITH(rexxlibdir,
 	[with_rexxlibdir=$withval],
 	[with_rexxlibdir=no],
 )
+dnl allow --with-brew-addon-dir to override regina-config --addons for HomeBrew install
+AC_ARG_WITH(brew-addon-dir,
+   [  --with-brew-addon-dir=dir    location of HomeBrew internal addons dir (default from Regina)],
+   [with_brew_addon_dir=$withval],
+   [with_brew_addon_dir=no],
+)
 CHECK_REXX

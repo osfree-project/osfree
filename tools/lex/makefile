@@ -10,7 +10,7 @@ ADD_COPT = -i=$(PATH) -i=$(MYDIR) -pil
 STACKSIZE = 65536
 
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 #$(PATH)scan.obj:  $(PATH)scan.c
 

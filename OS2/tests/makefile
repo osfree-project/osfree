@@ -316,7 +316,7 @@ DIRS = test01 &
        test310 &
        test311
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

@@ -1042,7 +1042,7 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
          if (sec)
             answer->len = sprintf( answer->value,"%ld.%06lu", (long)sec, (unsigned long)usec );
          else
-            answer->len = sprintf( answer->value,".%06lu", (unsigned long)usec );
+            answer->len = sprintf( answer->value,"0.%06lu", (unsigned long)usec );
          break ;
 
       case 'H':

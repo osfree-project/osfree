@@ -11,4 +11,4 @@ srcfiles = $(p)sedcomp$(e) $(p)sedexec$(e)
 ADD_COPT = -i=..$(SEP)include -za
 STACKSIZE = 65536
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk

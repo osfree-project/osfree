@@ -41,7 +41,7 @@ srcfiles = $(p)renmodul$(e) $(p)main$(e)
 #OBJS2 = renmodul.$(O) dllmain.$(O)
 #OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 #TARGETS = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).dll
 ADD_COPT = -bt=os2 -s -wx -zq $(MODE_COPT)

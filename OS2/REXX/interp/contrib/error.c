@@ -314,7 +314,7 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  94,104,"[Invalid format for queue name: \"%s\"]|<queuename>" },
    {  94,105,"[Unable to start Windows Socket interface: %s]|<systemerror>" },
    {  94,106,"[Maximum number of external queues exceeded: %d]|<maxqueues>" },
-   {  94,107,"[Error occured reading socket: %s]|<systemerror>" },
+   {  94,107,"[Error occurred reading socket: %s]|<systemerror>" },
    {  94,108,"[Invalid switch passed. Must be one of \"%s\"]|<switch>" },
    {  94,109,"[Queue \"%s\" not found]|<queuename>" },
    {  94,110,"[%s invalid for external queues]|<bif>" },

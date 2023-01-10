@@ -12,4 +12,4 @@ PLATFORM = host$(SEP)$(%HOST)$(SEP)
 DIRS = uniapi &
 #mkmsgf
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk

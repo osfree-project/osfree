@@ -44,7 +44,7 @@ C = r
 TARGETS = $(PATH)$(TRGT)
 SRCDIR = $(PATH)
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)tools/mk/libs.mk
 
 .c: $(SRC)contrib$(SEP)somirfmt$(SEP)src
 

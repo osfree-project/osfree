@@ -9,7 +9,7 @@ ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 
 srcfiles = $(p)framing$(e) $(p)bitwise$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 #TARGET = all

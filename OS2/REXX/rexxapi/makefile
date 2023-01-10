@@ -77,7 +77,7 @@ EXPORTS      = &
 DEST         = os2$(SEP)dll
 UNI2H        = 1
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 .h: $(PATH)
 

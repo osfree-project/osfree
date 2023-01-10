@@ -20,5 +20,5 @@ EXPORTS = RectCopy.1, RectSet.2, RectIsEmpty.3, &
           RectMakePoints.13
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 

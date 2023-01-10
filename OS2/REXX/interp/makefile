@@ -7,7 +7,7 @@
 DIRS = exe dll lib implib regina pmregina execiser &
        rxqueue rxstack threader
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

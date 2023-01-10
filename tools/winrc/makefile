@@ -18,7 +18,7 @@ $(p)mdc$(e)
 
 ADD_COPT = -dNOAPIPROTO -u_MAX_DRIVE -i=. -i=$(MYDIR)include # -i=$(%ROOT)DOS$(SEP)WIN16$(SEP)include
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 #TARGETS = $(PATH)$(PROJ).exe
 

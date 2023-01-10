@@ -15,4 +15,4 @@ IMPORTS   = DosPutMessage DOSCALLS.387
 STACKSIZE = 32k
 DEST        = os2$(SEP)test
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

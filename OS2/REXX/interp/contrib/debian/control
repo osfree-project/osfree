@@ -11,7 +11,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, dpkg-dev (>= 1.16.0)
 Conflicts: regina3, Regina-REXX-lib
 Replaces: regina3, Regina-REXX-lib
-Description: The Regina REXX interpreter, run-time library
+Description: Regina REXX interpreter, run-time library
  Regina is an ANSI compliant REXX interpreter for multiple platforms.
  .
  REXX is a procedural language that allows programs and algorithms
@@ -26,7 +26,7 @@ Architecture: any
 Depends: ${regver:Depends}, libc6-dev, cpp
 Conflicts: regina2-dev, regina3-dev, Regina-REXX-dev
 Replaces:  regina2-dev, regina3-dev, Regina-REXX-dev
-Description: The Regina REXX interpreter, development files
+Description: Regina REXX interpreter, development files
  Regina is an ANSI compliant REXX interpreter for multiple platforms.
  .
  REXX is a procedural language that allows programs and algorithms
@@ -38,10 +38,10 @@ Description: The Regina REXX interpreter, development files
 Package: regina-rexx
 Section: interpreters
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, adduser
 Conflicts: Regina-REXX
 Replaces:  Regina-REXX
-Description: The Regina REXX interpreter
+Description: Regina REXX interpreter
  Regina is an ANSI compliant REXX interpreter for multiple platforms.
  .
  REXX is a procedural language that allows programs and algorithms

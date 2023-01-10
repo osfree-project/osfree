@@ -33,7 +33,7 @@ ADD_COPT = -dNDEBUG -i=$(MYDIR)contrib$(SEP)include -3s # -ecs
 #UNI2H  = 1
 C      = s
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 .c: $(MYDIR)contrib
 

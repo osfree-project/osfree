@@ -24,7 +24,7 @@ DEST    = os2
 # @for %i in ($(filelist)) do @$(CP) %i $(DEST) $(BLACKHOLE)
 # @$(CD) $(MYDIR) $(BLACKHOLE)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = $(PATH)$(PROJ).cmd
 

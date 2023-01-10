@@ -7,7 +7,7 @@ PROJ    = oso001
 TRGT    = $(PROJ).msg
 DEST    = os2$(SEP)system
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 
 TARGETS = $(PATH)oso001.msg  $(PATH)oso001.pl  $(PATH)oso001.ru
 

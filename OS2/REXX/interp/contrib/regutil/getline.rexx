@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /*
  * Example of how to use sysgetline() and sysgetlinehistory()
  */

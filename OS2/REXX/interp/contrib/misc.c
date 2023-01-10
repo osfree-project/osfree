@@ -47,6 +47,9 @@ static const long __stack = 0x6000;
 # endif
 #endif
 
+#if defined(WIN32)
+# include <windows.h>
+#endif
 /*
  * The idea is to initialize the character operation table only once.
  * Everything is cached until the end of the process.
@@ -521,19 +524,49 @@ const char *get_sys_errlist( int num )
 }
 #endif
 
+#define NANO_SECS_IN_SEC 1000000000
 
 double cpu_time( void )
 {
-#ifndef CLOCKS_PER_SEC
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+   /* clock_gettime() is more accurate than clock() */
+   struct timespec tp;
+   rx_64u nsecs = 0;
+   clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &tp );
+   nsecs = (tp.tv_sec * NANO_SECS_IN_SEC) + tp.tv_nsec;
+   return ((double)(nsecs)/(double)(NANO_SECS_IN_SEC));
+#elif defined(WIN32) || defined(WIN64)
+   /*
+    * Windows clock() does not follow the ISO standard; of course!!
+    * It returns elapsed time, so we have to write something special just for
+    * Windows; I hate Windows!!
+    */
+   FILETIME creation_time;
+   FILETIME exit_time;
+   FILETIME kernel_time;
+   FILETIME user_time;
+   uint64_t usec = 0;
+   if ( GetProcessTimes( GetCurrentProcess(), &creation_time, &exit_time, &kernel_time, &user_time ) )
+   {
+      /* Convert kernel and user times to microseconds with rounding. */
+      uint64_t kernel_usec = ((((uint64_t) kernel_time.dwHighDateTime << 32) | (uint64_t) kernel_time.dwLowDateTime) + 5) / 10;
+      uint64_t user_usec = ((((uint64_t) user_time.dwHighDateTime << 32) | (uint64_t) user_time.dwLowDateTime) + 5) / 10;
+      /* sum kernel and user time */
+      usec = kernel_usec + user_usec;
+   }
+   return ((double)(usec))/((double)(1000000U)) ;
+#else
+# ifndef CLOCKS_PER_SEC
 /*
  * Lots of systems don't seem to get this ANSI C piece of code correctly
  * but most of them seems to use one million ...  Using a million for
  * those systems that haven't defined CLOCKS_PER_SEC may give an incorrect
  * value if clock() does not return microseconds!
  */
-# define CLOCKS_PER_SEC 1000000
-#endif
+#  define CLOCKS_PER_SEC 1000000
+# endif
    return ((double)(clock()))/((double)(CLOCKS_PER_SEC)) ;
+#endif
 }
 
 /* HIGHBIT is an unsigned with the highest bit set */

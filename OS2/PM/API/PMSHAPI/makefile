@@ -309,4 +309,4 @@ EXPORTS = SHEPIINITIALISE               .00001,  &
           SHPPI16SHUTDOWN               .00213
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

@@ -7,7 +7,7 @@
 # before build command line tools build "shared" libraries
 DIRS=src
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 #TARGETS = subdirs
 #TARGET = all

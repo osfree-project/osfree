@@ -43,4 +43,4 @@ exports = MINSTALL_Init, &
           MINSTALL_CleanUp
 ADD_LINKOPT = lib mm_shared
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

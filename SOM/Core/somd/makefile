@@ -50,7 +50,7 @@ ADD_SCOPT = -D__PRIVATE__ &
             -I$(SRC)contrib$(SEP)somcslib &
             -I$(SRC)contrib$(SEP)somir
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 IDL = $(SRC)contrib$(SEP)somd
 

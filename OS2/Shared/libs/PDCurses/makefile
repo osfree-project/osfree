@@ -14,7 +14,7 @@ srcfiles = $(p)addch$(e) $(p)addchstr$(e) $(p)addstr$(e) $(p)attr$(e) $(p)beep$(
            $(p)pdcsetsc$(e) $(p)pdcutil$(e)
 UNI2H = 1
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib
 

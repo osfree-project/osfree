@@ -29,7 +29,7 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 #libdir=$(destprefix)/lib/$(DEB_HOST_MULTIARCH)
 malibdir=lib/$(DEB_HOST_MULTIARCH)
 
-confflags=--prefix=/$(destprefix) --with-addon-dir=/$(destprefix)/$(malibdir)/regina-rexx/addons --libdir=/$(destprefix)/$(malibdir)
+confflags=--prefix=/$(destprefix) --with-addon-dir=/$(destprefix)/$(malibdir)/regina-rexx/addons --libdir=/$(destprefix)/$(malibdir) --sysconfdir=/etc
 # Enable Regina GCI only on supported platforms.
 # Let configure work it out!
 #ifneq ($(filter alpha amd64 i386,$(DEB_HOST_ARCH)), )
@@ -76,6 +76,7 @@ binary-arch: checkroot build
 #
 	install -m 755 debian/$(rexxpackage).postinst debian/tmp-rexx/DEBIAN/postinst
 	install -m 755 debian/$(rexxpackage).prerm debian/tmp-rexx/DEBIAN/prerm
+	install -m 644 debian/$(rexxpackage).conffiles debian/tmp-rexx/DEBIAN/conffiles
 #
 	install -m 755 debian/$(package).postinst debian/tmp-lib/DEBIAN/postinst
 	install -m 755 debian/$(package).postrm debian/tmp-lib/DEBIAN/postrm
@@ -93,7 +94,9 @@ binary-arch: checkroot build
 #
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/libregina.so.$(soversion)
-	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/addons/libregutil.so
+	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/@VERSION_UNQUOTED@/libregutil.so
+#	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/@VERSION_UNQUOTED@/librxtest1.so
+#	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/@VERSION_UNQUOTED@/librxtest2.so
 	strip --strip-debug debian/tmp-dev/$(destprefix)/$(malibdir)/libregina.a
 	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/regina
 	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/rexx-regina-rexx
@@ -104,20 +107,20 @@ endif
 #	cp README.[0-9]* debian/tmp-lib/$(destprefix)/share/doc/$(package)
 	cp $(changelog) debian/tmp-lib/$(destprefix)/share/doc/$(package)/changelog
 	cp debian/changelog  debian/tmp-lib/$(destprefix)/share/doc/$(package)/changelog.Debian
-	gzip -9f debian/tmp-lib/$(destprefix)/share/doc/$(package)/*
+	gzip -9fn debian/tmp-lib/$(destprefix)/share/doc/$(package)/*
 	cp debian/copyright debian/tmp-lib/$(destprefix)/share/doc/$(package)
 #
-	gzip -9f debian/tmp-rexx/$(destprefix)/share/man/man1/*.1
+	gzip -9fn debian/tmp-rexx/$(destprefix)/share/man/man1/*.1
 #	ln -sf regina.1.gz debian/tmp-rexx/$(destprefix)/share/man/man1/rexx-regina-rexx.1.gz
 	cp $(changelog) debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog
 	cp debian/changelog  debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog.Debian
-	gzip -9f debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog*
+	gzip -9fn debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog*
 	cp debian/copyright debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)
 #
-	gzip -9f debian/tmp-dev/$(destprefix)/share/man/man1/*.1
+	gzip -9fn debian/tmp-dev/$(destprefix)/share/man/man1/*.1
 	cp $(changelog) debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev/changelog
 	cp debian/changelog  debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev/changelog.Debian
-	gzip -9f debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev/changelog*
+	gzip -9fn debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev/changelog*
 	cp debian/copyright debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev
 #
 	LD_LIBRARY_PATH=/$(destprefix)/lib/libfakeroot:$(DESTDIR)-lib/$(destprefix)/$(malibdir) dpkg-shlibdeps debian/tmp-lib/$(destprefix)/$(malibdir)/libregina.so.$(soversion)

@@ -45,6 +45,7 @@ datadir = @datadir@
 sharedir = $(datadir)/$(PACKAGE)
 examplesdir = $(sharedir)/examples
 addonsdir = @addonsdir@
+brewaddonsdir = @brewaddonsdir@
 target = @target@
 gcidir = $(srcdir)/gci
 binarybitprefix=@binarybitprefix@
@@ -52,6 +53,7 @@ packagesdir = @packagesdir@
 debtopdir = @debtopdir@
 rpmtopdir = @rpmtopdir@
 apktopdir = @apktopdir@
+packagedir = $(libdir)/$(PACKAGE)/$(VERDOTUNQUOTED)
 
 INSTALL  = $(srcdir)/install-sh
 
@@ -247,13 +249,13 @@ CONFFILES = $(REG_DIR)/configure.in $(REG_DIR)/config.h.in $(REG_DIR)/Makefile.i
 	$(REG_DIR)/install-sh $(REG_DIR)/common/config.guess $(REG_DIR)/common/config.sub $(REG_DIR)/aclocal.m4 \
 	$(REG_DIR)/configure $(REG_DIR)/descrip.mms $(REG_DIR)/build.com $(REG_DIR)/regina-config.in  $(REG_DIR)/libregina.pc.in\
 	$(REG_DIR)/Regina.spec.in $(REG_DIR)/rxstack.init.d.in $(REG_DIR)/rxstack.conf $(REG_DIR)/rxstack.service \
-	$(REG_DIR)/APKBUILD.in \
+	$(REG_DIR)/APKBUILD.in $(REG_DIR)/rxstack.conf.etc \
 	$(REG_DIR)/nsis/regina_*.ini $(REG_DIR)/regina.nsi.in $(REG_DIR)/regina.nsi.files $(REG_DIR)/regina.ver $(REG_DIR)/regina64.xpm
 ZIP_CONFFILES = configure.in config.h.in Makefile.in Makefile.aix.in \
 	install-sh common/config.guess common/config.sub aclocal.m4 \
 	configure descrip.mms build.com regina-config.in libregina.pc.in \
 	Regina.spec.in rxstack.init.d.in rxstack.conf rxstack.service \
-	APKBUILD.in \
+	APKBUILD.in rxstack.conf.etc \
 	nsis/regina_*.ini regina.nsi.in regina.nsi.files regina.ver regina64.xpm
 
 EPOC32FILES = $(REG_DIR)/epoc32/bmarm/*.def \
@@ -309,9 +311,9 @@ ZIP_CFILES = $(ZIP_CSRCFILES) yaccsrc.c lexsrc.c execiser.c threader.c \
 	 rxqueue.c rxstack.c rexxbif.c extstack.c mac.c msgcmp.c \
 	 regutil/*.c regutil/*.h regutil/regutil.def
 DEBIANFILES = $(DEBIAN_DIR)/rules.in $(DEBIAN_DIR)/control $(DEBIAN_DIR)/changelog $(DEBIAN_DIR)/md5_sums \
-	$(DEBIAN_DIR)/*.postinst $(DEBIAN_DIR)/*.prerm $(DEBIAN_DIR)/*.postrm $(DEBIAN_DIR)/copyright
+	$(DEBIAN_DIR)/*.postinst $(DEBIAN_DIR)/*.prerm $(DEBIAN_DIR)/*.postrm $(DEBIAN_DIR)/copyright $(DEBIAN_DIR)/*.conffiles
 ZIP_DEBIANFILES = debian/rules.in debian/control debian/changelog debian/md5_sums \
-	debian/*.postinst debian/*.prerm debian/*.postrm debian/postrm-dev debian/copyright
+	debian/*.postinst debian/*.prerm debian/*.postrm debian/postrm-dev debian/copyright debian/*.conffiles
 
 ##JUNK = *.o *.so.$(OBJ) $(STATICLIB) execiser$(binarybitprefix)$(EXE) threader$(binarybitprefix)$(EXE) rxqueue$(binarybitprefix)$(EXE) rxstack$(binarybitprefix)$(EXE) rexx$(binarybitprefix)$(EXE) msgcmp$(binarybitprefix)$(EXE) $(SHL_TARGETS) $(SHLPRE)$(SHLFILE)$(SHLPST)* config.cache config.log gci_convert.h *.mtb $(LIBPRE)$(SHLFILE)$(LIBPST)
 JUNK = *.o *.so.$(OBJ) $(STATICLIB) execiser$(binarybitprefix)$(EXE) threader$(binarybitprefix)$(EXE) rxqueue$(binarybitprefix)$(EXE) rxstack$(binarybitprefix)$(EXE) rexx$(binarybitprefix)$(EXE) msgcmp$(binarybitprefix)$(EXE) $(SHL_TARGETS) $(SHLPRE)$(SHLFILE)$(SHLPST)* config.cache config.log gci_convert.h *.mtb $(SHL_NAME_REGINA)
@@ -1050,10 +1052,12 @@ installbase: all
 	$(INSTALL) -m 755 -d $(DESTDIR)$(includedir)
 	$(INSTALL) -m 755 -d $(DESTDIR)$(sharedir)
 	$(INSTALL) -m 755 -d $(DESTDIR)$(examplesdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man1
 	$(INSTALL) -s -m 755 -c ./rexx$(binarybitprefix)$(EXE) $(DESTDIR)$(bindir)/rexx$(binarybitprefix)$(EXE)
 	$(INSTALL) -s -m 755 -c ./rxqueue$(binarybitprefix)$(EXE) $(DESTDIR)$(bindir)/rxqueue$(binarybitprefix)$(EXE)
 	$(INSTALL) -s -m 755 -c ./rxstack$(binarybitprefix)$(EXE) $(DESTDIR)$(bindir)/rxstack$(binarybitprefix)$(EXE)
+	$(INSTALL) -m 644 -c $(srcdir)/rxstack.conf.etc $(DESTDIR)$(sysconfdir)/rxstack.conf
 	$(INSTALL) -m 755 -c ./regina-config $(DESTDIR)$(bindir)/regina-config
 	$(INSTALL) -m 755 -c ./libregina.pc $(DESTDIR)$(libdir)/pkgconfig/libregina.pc
 	-$(INSTALL) -m 644 -c ./$(LIBPRE)$(LIBFILE)$(LIBPST) $(DESTDIR)$(libdir)/$(LIBPRE)$(LIBFILE)$(LIBPST)
@@ -1077,12 +1081,12 @@ installbase: all
 	$(INSTALL) -m 644 -c ./pl.mtb $(DESTDIR)$(sharedir)/pl.mtb
 	$(INSTALL) -m 644 -c ./tr.mtb $(DESTDIR)$(sharedir)/tr.mtb
 	$(INSTALL) -m 644 -c ./sv.mtb $(DESTDIR)$(sharedir)/sv.mtb
-	$(INSTALL) -m 755 $(srcdir)/demo/rexxcps.rexx  $(DESTDIR)$(examplesdir)/rexxcps.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/animal.rexx   $(DESTDIR)$(examplesdir)/animal.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/block.rexx    $(DESTDIR)$(examplesdir)/block.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/dateconv.rexx $(DESTDIR)$(examplesdir)/dateconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/timeconv.rexx $(DESTDIR)$(examplesdir)/timeconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/newstr.rexx   $(DESTDIR)$(examplesdir)/newstr.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/rexxcps.rexx  $(DESTDIR)$(examplesdir)/rexxcps.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/animal.rexx   $(DESTDIR)$(examplesdir)/animal.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/block.rexx    $(DESTDIR)$(examplesdir)/block.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/dateconv.rexx $(DESTDIR)$(examplesdir)/dateconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/timeconv.rexx $(DESTDIR)$(examplesdir)/timeconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/newstr.rexx   $(DESTDIR)$(examplesdir)/newstr.rexx
 
 installdoc:
 	$(INSTALL) -m 644 -c ./doc/regina.pdf $(DESTDIR)/$(PACKAGE)-$(VERDOTUNQUOTED)-doc.pdf
@@ -1092,26 +1096,52 @@ installregina:
 	$(INSTALL) -s -m 755 -c ./regina$(binarybitprefix)$(EXE) $(DESTDIR)$(bindir)/regina$(binarybitprefix)$(EXE)
 	$(INSTALL) -m 755 -c $(srcdir)/demo/dynfunc.rexx  $(DESTDIR)$(examplesdir)/dynfunc.rexx
 	$(INSTALL) -m 755 -c $(srcdir)/regutil/regutil.rexx  $(DESTDIR)$(examplesdir)/regutil.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/regutil/getline.rexx  $(DESTDIR)$(examplesdir)/getline.rexx
 
 installlib: installregina
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(addonsdir)
 ##	$(INSTALL) -s -m 755 -c ./$(SHLPRE)$(SHLFILE)$(SHLPST) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST)
 ##	$(INSTALL) -s -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
 ##	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
 ##	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
 	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_REGINA) $(DESTDIR)$(libdir)/$(SHL_NAME_REGINA)
-	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_REGUTIL) $(DESTDIR)$(addonsdir)/$(SHL_NAME_REGUTIL)
-	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST1) $(DESTDIR)$(addonsdir)/$(SHL_NAME_RXTEST1)
-	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST2) $(DESTDIR)$(addonsdir)/$(SHL_NAME_RXTEST2)
+	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_REGUTIL) $(DESTDIR)$(packagedir)/$(SHL_NAME_REGUTIL)
+	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST1) $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST1)
+	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST2) $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST2)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHL_NAME_REGUTIL) $(DESTDIR)$(addonsdir)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST1) $(DESTDIR)$(addonsdir)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST2) $(DESTDIR)$(addonsdir)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_REGUTIL) .)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST1) .)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST2) .)
+
+#	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_REGUTIL) $(DESTDIR)$(addonsdir)/$(SHL_NAME_REGUTIL)
+#	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST1) $(DESTDIR)$(addonsdir)/$(SHL_NAME_RXTEST1)
+#	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_RXTEST2) $(DESTDIR)$(addonsdir)/$(SHL_NAME_RXTEST2)
 
 installabilib: installregina
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(addonsdir)
 	-$(INSTALL) -s -m 755 -c ./$(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI)
 	-rm -f $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI_MAJOR)
 	-(cd $(DESTDIR)$(libdir);$(LN_S) $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI) $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI_MAJOR) )
 	-rm -f $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST)
 	-(cd $(DESTDIR)$(libdir);$(LN_S) $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI_MAJOR) $(SHLPRE)$(SHLFILE)$(SHLPST) )
-	$(INSTALL) -s -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
-	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
-	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
+
+	$(INSTALL) -s -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST)
+	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST)
+	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)
+#	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_REGUTIL) .)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST1) .)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST2) .)
+
+#	$(INSTALL) -s -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
+#	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
+#	$(INSTALL) -s -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
 
 installcyglib:
 	$(INSTALL) -s -m 755 -c ./$(SHL_NAME_REGINA) $(DESTDIR)$(bindir)/$(SHL_NAME_REGINA)
@@ -1123,10 +1153,31 @@ installcyglib:
 # Can't strip .dylib on OSX
 #
 installmaclib: installregina
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(addonsdir)
 	$(INSTALL) -m 755 -c ./$(SHLPRE)$(SHLFILE)$(SHLPST) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST)
-	$(INSTALL) -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
-	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
-	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
+
+	$(INSTALL) -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST)
+	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST)
+	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)
+
+#
+# Can't strip .dylib on OSX
+#
+installbrewlib: installregina
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(brewaddonsdir)
+	$(INSTALL) -m 755 -c ./$(SHLPRE)$(SHLFILE)$(SHLPST) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST)
+
+	$(INSTALL) -m 755 -c ./$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST)
+	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST)
+	$(INSTALL) -m 755 -c ./$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)regutil$(MODPST) $(DESTDIR)$(brewaddonsdir)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(brewaddonsdir)
+	ln -sf $(DESTDIR)$(packagedir)/$(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(brewaddonsdir)
 
 uninstall:
 	-rm -f $(DESTDIR)$(bindir)/rexx$(binarybitprefix)$(EXE)
@@ -1144,6 +1195,7 @@ uninstall:
 	-rm -f $(DESTDIR)$(bindir)/regina$(binarybitprefix)$(EXE)
 	-rm -f $(DESTDIR)$(libdir)/$(SHLPRE)regina$(SHLPST)
 	-rm -f $(DESTDIR)$(libdir)/$(SHLPRE)regina$(SHLPST).*
+	-rm -fr $(DESTDIR)$(packagedir)
 	-rm -fr $(DESTDIR)$(addonsdir)
 	-rm -fr $(DESTDIR)$(examplesdir)
 	-rm -fr $(DESTDIR)$(sharedir)
@@ -1177,18 +1229,20 @@ beosinstall: all
 	$(INSTALL) -m 644 -c ./pl.mtb $(sharedir)/pl.mtb
 	$(INSTALL) -m 644 -c ./tr.mtb $(sharedir)/tr.mtb
 	$(INSTALL) -m 644 -c ./sv.mtb $(sharedir)/sv.mtb
-	$(INSTALL) -m 755 $(srcdir)/demo/rexxcps.rexx    /boot/home/config/bin/rexxcps.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/animal.rexx     /boot/home/config/bin/animal.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/block.rexx      /boot/home/config/bin/block.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/dateconv.rexx   /boot/home/config/bin/dateconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/timeconv.rexx   /boot/home/config/bin/timeconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/dynfunc.rexx    /boot/home/config/bin/dynfunc.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/newstr.rexx     /boot/home/config/bin/newstr.rexx
-	$(INSTALL) -m 755 $(srcdir)/regutil/regutil.rexx /boot/home/config/bin/regutil.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/rexxcps.rexx    /boot/home/config/bin/rexxcps.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/animal.rexx     /boot/home/config/bin/animal.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/block.rexx      /boot/home/config/bin/block.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/dateconv.rexx   /boot/home/config/bin/dateconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/timeconv.rexx   /boot/home/config/bin/timeconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/dynfunc.rexx    /boot/home/config/bin/dynfunc.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/newstr.rexx     /boot/home/config/bin/newstr.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/regutil/regutil.rexx /boot/home/config/bin/regutil.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/regutil/getline.rexx /boot/home/config/bin/getline.rexx
 
 haikuinstall: all
 	$(INSTALL) -m 755 -d $(DESTDIR)/bin
 	$(INSTALL) -m 755 -d $(DESTDIR)/lib
+	$(INSTALL) -m 755 -d $(DESTDIR)/lib/$(PACKAGE)/addons
 	$(INSTALL) -m 755 -d $(DESTDIR)/data/licenses
 	$(INSTALL) -m 755 -d $(DESTDIR)/documentation/man/man1
 	$(INSTALL) -m 755 -d $(DESTDIR)/data/$(PACKAGE)
@@ -1213,14 +1267,15 @@ haikuinstall: all
 	$(INSTALL) -m 744 -c $(srcdir)/regina.1 $(DESTDIR)/documentation/man/man1/rexx.1
 	$(INSTALL) -m 744 -c $(srcdir)/rxstack.1 $(DESTDIR)/documentation/man/man1/rxstack.1
 	$(INSTALL) -m 744 -c $(srcdir)/rxqueue.1 $(DESTDIR)/documentation/man/man1/rxqueue.1
-	$(INSTALL) -m 755 $(srcdir)/demo/rexxcps.rexx $(DESTDIR)/data/$(PACKAGE)/examples/rexxcps.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/animal.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/animal.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/block.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/block.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/dateconv.rexx $(DESTDIR)/data/$(PACKAGE)/examples/dateconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/timeconv.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/timeconv.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/dynfunc.rexx $(DESTDIR)/data/$(PACKAGE)/examples/dynfunc.rexx
-	$(INSTALL) -m 755 $(srcdir)/demo/newstr.rexx    $(DESTDIR)/data/$(PACKAGE)/examples/newstr.rexx
-	$(INSTALL) -m 755 $(srcdir)/regutil/regutil.rexx $(DESTDIR)/data/$(PACKAGE)/examples/regutil.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/rexxcps.rexx $(DESTDIR)/data/$(PACKAGE)/examples/rexxcps.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/animal.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/animal.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/block.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/block.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/dateconv.rexx $(DESTDIR)/data/$(PACKAGE)/examples/dateconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/timeconv.rexx  $(DESTDIR)/data/$(PACKAGE)/examples/timeconv.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/dynfunc.rexx $(DESTDIR)/data/$(PACKAGE)/examples/dynfunc.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/demo/newstr.rexx    $(DESTDIR)/data/$(PACKAGE)/examples/newstr.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/regutil/regutil.rexx $(DESTDIR)/data/$(PACKAGE)/examples/regutil.rexx
+	$(INSTALL) -m 755 -c $(srcdir)/regutil/getline.rexx $(DESTDIR)/data/$(PACKAGE)/examples/getline.rexx
 	$(INSTALL) -m 644 -c ./PackageInfo $(DESTDIR)/.PackageInfo
 
 haikuinstall-devel: all
@@ -1336,9 +1391,14 @@ rpminstall-devel:
 # Debian targets
 #
 install-lib: $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(addonsdir)
 	$(INSTALL) -m 644 -c $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI)
 	$(LN_S) -f $(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI) $(DESTDIR)$(libdir)/$(SHLPRE)$(SHLFILE)$(SHLPST).$(ABI_MAJOR)
-	$(INSTALL) -m 644 -c $(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
+#	$(INSTALL) -m 644 -c $(SHLPRE)regutil$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)regutil$(MODPST)
+	$(INSTALL)  -m 644 -c $(SHL_NAME_REGUTIL) $(DESTDIR)$(packagedir)/$(SHL_NAME_REGUTIL)
+#	$(LN_S) -f $(packagedir)/$(SHL_NAME_REGUTIL) $(DESTDIR)$(addonsdir)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_REGUTIL) .)
 
 install-dev: $(LIBPRE)$(LIBFILE)$(LIBPST)
 	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir)
@@ -1359,19 +1419,31 @@ install-dev: $(LIBPRE)$(LIBFILE)$(LIBPST)
 	$(INSTALL) -m 755 -c ./libregina.pc $(DESTDIR)$(libdir)/pkgconfig/libregina.pc
 
 install-rexx: rexx$(EXE) regina$(EXE) @initinstaller@-deb
+	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(addonsdir)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(sysconfdir)
 	$(INSTALL) -c -m 755 $(srcdir)/rexx $(DESTDIR)$(bindir)/rexx-$(PACKAGE)
 #	ln -sf $(DESTDIR)/usr/bin/rexx-$(PACKAGE) $(DESTDIR)/usr/bin/rexx
 	$(INSTALL) -c -m 755 $(srcdir)/regina $(DESTDIR)$(bindir)/regina
 	$(INSTALL) -c -m 755 $(srcdir)/rxqueue $(DESTDIR)$(bindir)/rxqueue-$(PACKAGE)
 #	ln -sf $(DESTDIR)/usr/bin/rxqueue-$(PACKAGE) $(DESTDIR)/usr/bin/rxqueue
 	$(INSTALL) -c -m 755 $(srcdir)/rxstack $(DESTDIR)$(bindir)/rxstack
+	$(INSTALL) -m 644 -c $(srcdir)/rxstack.conf.etc $(DESTDIR)$(sysconfdir)/rxstack.conf
 	$(INSTALL) -c -m 644 $(srcdir)/regina.1 $(DESTDIR)$(mandir)/man1/regina.1
 	$(INSTALL) -c -m 644 $(srcdir)/regina.1 $(DESTDIR)$(mandir)/man1/rexx-$(PACKAGE).1
 	$(INSTALL) -c -m 644 $(srcdir)/rxstack.1 $(DESTDIR)$(mandir)/man1/rxstack.1
 	$(INSTALL) -c -m 644 $(srcdir)/rxqueue.1 $(DESTDIR)$(mandir)/man1/rxqueue-$(PACKAGE).1
 #	ln -sf $(DESTDIR)/usr/share/man/man1/rxqueue-$(PACKAGE).1 $(DESTDIR)/usr/bin/rxqueue.1
-	$(INSTALL) -m 644 -c $(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
-	$(INSTALL) -m 644 -c $(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
+	$(INSTALL)  -m 644 -c $(SHL_NAME_RXTEST1) $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST1)
+	$(INSTALL)  -m 644 -c $(SHL_NAME_RXTEST2) $(DESTDIR)$(packagedir)/$(SHL_NAME_RXTEST2)
+
+#	$(LN_S) -f $(packagedir)/$(SHL_NAME_RXTEST1) $(DESTDIR)$(addonsdir)
+#	$(LN_S) -f $(packagedir)/$(SHL_NAME_RXTEST2) $(DESTDIR)$(addonsdir)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST1) .)
+	-(cd $(DESTDIR)$(addonsdir);$(LN_S) ../$(VERDOTUNQUOTED)/$(SHL_NAME_RXTEST2) .)
+
+#	$(INSTALL) -m 644 -c $(SHLPRE)rxtest1$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest1$(MODPST)
+#	$(INSTALL) -m 644 -c $(SHLPRE)rxtest2$(MODPST) $(DESTDIR)$(addonsdir)/$(SHLPRE)rxtest2$(MODPST)
 	@echo
 	for i in `ls $(srcdir)/demo/*.rexx`; do \
 	   echo "Installing $$i..." ; \
@@ -1452,6 +1524,7 @@ $(apktopdir):
 
 apk: dist $(apktopdir)
 	cp $(packagesdir)/$(REG_DIR).tar.gz .
+	-rm -fr $(apktopdir)/*/*/$(PACKAGE)*-$(VERDOTUNQUOTED)*.apk
 # we need to copy these files from the alpine directory even though they will be
 # overridden by the scripts in APKBUILD because abuild expects them to be in the
 # source directory as part of the pre-build sanity check
@@ -1459,6 +1532,9 @@ apk: dist $(apktopdir)
 #	cp $(srcdir)/alpine/$(PACKAGE).pre-deinstall .
 	abuild checksum
 	abuild -P @apktopdir@
+	mv $(apktopdir)/*/*/$(PACKAGE)-$(VERDOTUNQUOTED)-r[0-9]*.apk `dirname $(apktopdir)/*/*/$(PACKAGE)-$(VERDOTUNQUOTED)-r[0-9]*.apk`/`basename $(apktopdir)/*/*/$(PACKAGE)-$(VERDOTUNQUOTED)-r[0-9]*.apk .apk`-$(MACH_ARCH)-$(MYDISTRO).apk
+	mv $(apktopdir)/*/*/$(PACKAGE)-doc-$(VERDOTUNQUOTED)-r[0-9]*.apk `dirname $(apktopdir)/*/*/$(PACKAGE)-doc-$(VERDOTUNQUOTED)-r[0-9]*.apk`/`basename $(apktopdir)/*/*/$(PACKAGE)-doc-$(VERDOTUNQUOTED)-r[0-9]*.apk .apk`-noarch-$(MYDISTRO).apk
+	mv $(apktopdir)/*/*/$(PACKAGE)-dev-$(VERDOTUNQUOTED)-r[0-9]*.apk `dirname $(apktopdir)/*/*/$(PACKAGE)-dev-$(VERDOTUNQUOTED)-r[0-9]*.apk`/`basename $(apktopdir)/*/*/$(PACKAGE)-dev-$(VERDOTUNQUOTED)-r[0-9]*.apk .apk`-$(MACH_ARCH)-$(MYDISTRO).apk
 	ls -l @apktopdir@/*/*/$(PACKAGE)*.apk
 
 hpkg:

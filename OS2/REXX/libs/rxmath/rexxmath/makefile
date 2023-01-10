@@ -43,5 +43,5 @@ EXPORTS     = &
               TAN.31           = mathfunc1, &
               TANH.32          = mathfunc1
 
-!include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)rxmath.mk

@@ -589,12 +589,20 @@ AC_SUBST(REXXSOCKET)
 
 dnl --------------- allow --with-addon-dir to specify location of external function packages
 AC_ARG_WITH(addon-dir,
-   [  --with-addon-dir=dir    location of external function packages (default blank)],
+   [  --with-addon-dir=dir    location of external function packages (default libdir/regina-rexx/addons)],
    [addonsdir=$withval],
    [addonsdir=$libdir/regina-rexx/addons],
 )
 AC_DEFINE_DIR(HAVE_REGINA_ADDON_DIR,"$addonsdir")
 AC_SUBST(addonsdir)
+
+dnl --------------- allow --with-brew-addon-dir to specify location HomeBrew internal addons dir
+AC_ARG_WITH(brew-addon-dir,
+   [  --with-brew-addon-dir=dir    location of HomeBrew internal addons dir (default blank)],
+   [brewaddonsdir=$withval],
+   [brewaddonsdir=""],
+)
+AC_SUBST(brewaddonsdir)
 
 dnl
 #MH_CHECK_RPM

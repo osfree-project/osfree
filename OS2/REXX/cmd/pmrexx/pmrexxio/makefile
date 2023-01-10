@@ -21,7 +21,7 @@ DEST         = os2$(SEP)dll
 UNI2H        = 1
 C            = s
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 
 #TARGETS =  $(PATH)$(PROJ).dll
 TARGETS =  $(PATH)$(PROJ1).dll

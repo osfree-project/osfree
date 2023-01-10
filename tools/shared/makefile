@@ -8,7 +8,7 @@ DIRS = z
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
-!include $(%ROOT)/mk/libs.mk
+!include $(%ROOT)tools/mk/libs.mk
 
 $(PATH)$(PROJ).lib: $(LIBS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

@@ -8,7 +8,7 @@ architecture @MACH_ARCH@
 version      @VERSION_UNQUOTED@-1
 copyrights {
              "1992-1993 Anders Christensen"
-             "1993-2021 Mark Hessling"
+             "1993-2022 Mark Hessling"
            }
 licenses   {
              "GNU LGPL v2"
@@ -17,7 +17,7 @@ urls       {
              "https://regina-rexx.sourceforge.io/"
            }
 source-urls {
-             "https://regina-rexx.sf.net/downloads/regina-rexx.3.9.4.tar.bz2"
+             "https://regina-rexx.sf.net/downloads/regina-rexx.@VERSION_UNQUOTED@.tar.bz2"
            }
 provides   {
              libregina3 = @VERSION_UNQUOTED@

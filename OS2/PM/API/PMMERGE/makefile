@@ -1249,7 +1249,7 @@ EXPORTS = &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_fpm.mk
+!include $(%ROOT)tools/mk/appsos2_fpm.mk
 
 $(PATH)rectangles$(SEP)rectangles.obj: $(MYDIR)rectangles$(SEP)rectangles.c
 $(PATH)habmgr$(SEP)habmgr.obj: $(MYDIR)habmgr$(SEP)habmgr.cpp

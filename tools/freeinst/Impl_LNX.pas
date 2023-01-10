@@ -1,6 +1,6 @@
 {*************************************
  *  System-dependent implementation  *
- *  of low-level functions for Win32 *
+ *  of low-level functions for Linux *
  *************************************}
 
 {$IFDEF FPC}

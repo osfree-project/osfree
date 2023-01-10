@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /*
  * External queues are identified by '@' in the queue name. MYQ@ is a queue available on the local
  * machine with rxstack listening on the default port: 5757

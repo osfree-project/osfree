@@ -29,5 +29,5 @@ EXPORTS     = &
               RXCALCPOW.17        = mathpow, &
               RXCALCPI.18         = mathpi
 
-!include $(%ROOT)/mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)rxmath.mk

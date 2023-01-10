@@ -4,7 +4,7 @@ PROJ = pmrexxio
 TRGT = $(PROJ).hlp
 DEST = os2$(SEP)help
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 
 $(PATH)$(PROJ).hlp:
 

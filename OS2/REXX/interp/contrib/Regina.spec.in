@@ -126,6 +126,7 @@ ln -sf %{_sysconfdir}/alternatives/rxqueue.1.gz %{buildroot}%{_mandir}/man1/rxqu
 %{_datadir}/%{name}/examples/newstr.rexx
 %{_datadir}/%{name}/examples/dynfunc.rexx
 %{_datadir}/%{name}/examples/regutil.rexx
+%{_datadir}/%{name}/examples/getline.rexx
 %{_datadir}/%{name}/de.mtb
 %{_datadir}/%{name}/en.mtb
 %{_datadir}/%{name}/es.mtb
@@ -141,7 +142,10 @@ ln -sf %{_sysconfdir}/alternatives/rxqueue.1.gz %{buildroot}%{_mandir}/man1/rxqu
 %{_bindir}/rxqueue-%{name}
 %{_bindir}/rxstack
 %{_libdir}/%{name}/addons/librxtest1.so
+%{_libdir}/%{name}/%{version}/librxtest1.so
 %{_libdir}/%{name}/addons/librxtest2.so
+%{_libdir}/%{name}/%{version}/librxtest2.so
+%config(missingok, noreplace) %{_sysconfdir}/rxstack.conf
 %ghost %{_sysconfdir}/alternatives/rexx
 %ghost %{_sysconfdir}/alternatives/rexx.1.gz
 %ghost %{_sysconfdir}/alternatives/rxqueue
@@ -179,9 +183,12 @@ ln -sf %{_sysconfdir}/alternatives/rxqueue.1.gz %{buildroot}%{_mandir}/man1/rxqu
 %{_libdir}/libregina.so.@VER_SOMAJOR@.@VER_SOMINOR@
 %{_libdir}/libregina.so.@VER_SOMAJOR@
 %{_libdir}/%{name}/addons/libregutil.so
+%{_libdir}/%{name}/%{version}/libregutil.so
 
 #******************************************************************************
 %post
+echo "Adding system user rxstack" >&2
+adduser --system --user-group --no-create-home rxstack
 # Add the rxstack service
 %if "%{?initservice}" == "installsystemd"
 systemctl enable rxstack

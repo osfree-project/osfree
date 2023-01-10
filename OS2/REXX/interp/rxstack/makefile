@@ -16,7 +16,7 @@ ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,tcpip32.lib
 
 .c: $(SRC)
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 $(PATH)rxstack.obj: $(SRC)rxstack.c $(HFILES)

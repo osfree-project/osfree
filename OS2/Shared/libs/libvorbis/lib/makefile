@@ -14,7 +14,7 @@ srcfiles = &
  $(p)res0$(e) $(p)mapping0$(e) $(p)registry$(e) $(p)codebook$(e) $(p)sharedbook$(e) &
  $(p)lookup$(e) $(p)bitrate$(e) $(p)vorbisfile$(e) $(p)vorbisenc$(e)  $(p)porting$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 

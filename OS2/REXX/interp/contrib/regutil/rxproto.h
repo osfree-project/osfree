@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/rxproto.h,v 1.7 2010/07/02 22:02:07 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/rxproto.h,v 1.8 2022/08/21 23:16:42 mark Exp $
  */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -56,7 +56,8 @@
  * to something else, and a pointer to the result string.
  * It returns 0 for success, and some other value for failure */
 
-#define rxfunc(x) APIRET APIENTRY x(PUCHAR fname, ULONG argc, PRXSTRING argv, PSZ pSomething, PRXSTRING result)
+/*#define rxfunc(x) APIRET APIENTRY x(PUCHAR fname, ULONG argc, PRXSTRING argv, PSZ pSomething, PRXSTRING result) */
+#define rxfunc(x) APIRET APIENTRY x(PCSZ fname, ULONG argc, PRXSTRING argv, PCSZ pSomething, PRXSTRING result)
 
 /* return codes. 22 is rc for invalid call */
 #define NOMEMORY 5

@@ -7,4 +7,4 @@
 DIRS = &
 # PMWP
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk

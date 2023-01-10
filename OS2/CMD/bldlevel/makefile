@@ -5,7 +5,7 @@ PROJ = bldlevel
 DESC = Build level display facility
 CLEAN_ADD = *.cmd
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = $(PATH)$(PROJ).cmd
 

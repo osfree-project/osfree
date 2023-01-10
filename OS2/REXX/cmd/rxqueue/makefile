@@ -12,4 +12,4 @@ IMPORTS      = RexxAddQueue     REXXAPI.3, &
     	       RexxPullQueue    REXXAPI.4, &
     	       RexxQueryQueue   REXXAPI.5
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

@@ -255,7 +255,7 @@ PRODUCTS_SC=	$(PRODUCTS_SC1)					&
 
 ADD_SCOPT = -I$(SOMIDL_IDL)
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS: $(PRODUCTS_PDL) $(SOMDTYPE_SC) $(PRODUCTS_SC)
 

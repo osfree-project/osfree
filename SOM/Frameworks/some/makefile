@@ -6,5 +6,5 @@
 
 DIRS = idl some emitdef emitlnk emitgen emith somipc2
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 

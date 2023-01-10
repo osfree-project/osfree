@@ -8,7 +8,7 @@ DEST    = host$(SEP)$(%HOST)$(SEP)bin
 
 #TARGETS = tools
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin
 filelist = *.cmd *.awk *.cfg

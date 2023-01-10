@@ -11,6 +11,6 @@ STACK    = 65536
 STUB     = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)diskcomp.exe
 UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 # FORMAT OS2 LX PMCOMPATIBLE

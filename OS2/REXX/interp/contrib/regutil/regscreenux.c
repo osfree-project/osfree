@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regscreenux.c,v 1.11 2021/07/11 05:09:22 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regscreenux.c,v 1.12 2022/08/21 23:16:42 mark Exp $
  */
 #include "regutil.h"
 #ifdef USE_TERMCAP_DB
@@ -284,7 +284,7 @@ rxfunc(sysgetline)
    char *prompt = NULL;
    char *expansion;
    char *line;
-   int rc;
+   int rc,len;
 
    if (argc > 0 && argv[0].strptr)
    {
@@ -304,8 +304,13 @@ rxfunc(sysgetline)
       else
       {
          add_history(expansion);
-         strncpy(result->strptr, expansion, strlen(expansion));
-         result->strlength = strlen( result->strptr );
+         len = strlen( expansion );
+         if ( len > DEFAULTSTRINGSIZE )
+         {
+            result->strptr = REXXALLOCATEMEMORY( len + 1 );
+         }
+         strncpy(result->strptr, expansion, len);
+         result->strlength = len;
          free(expansion);
       }
    }

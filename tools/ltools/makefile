@@ -18,7 +18,7 @@ DESC = Generate/convert HDD images
 srcfiles = $(p)main$(e)  $(p)readdisk$(e) $(p)dir$(e)  $(p)super$(e) &
            $(p)inode$(e) $(p)group$(e)    $(p)util$(e) $(p)rfs$(e)
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 TARGETS = inst
 

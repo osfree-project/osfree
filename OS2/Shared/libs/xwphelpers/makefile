@@ -76,7 +76,7 @@ IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
 
 #UNI2H = 1
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 .c: $(MYDIR)contrib$(SEP)src$(SEP)helpers
 

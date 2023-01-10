@@ -59,7 +59,7 @@ $(PATH)$(PROJ).exe: $(OBJS)
 
 
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 $(OBJS): $(HFILES)

@@ -1711,14 +1711,16 @@ endloop: if (s.increment)
           */
          innerloop = NULL;
 
-         set_reserved_value( TSD, POOL0_SIGL, NULL, thisptr->lineno, VFLAG_NUM );
          entry = getlabel( TSD, cptr );
          /*
           * We have to make a temporary copy of the label we are signalling
           * in case it doesn't exist because the "kill" processing will destroy
           * the value.
+          * Also set_reserved_value() also destroys the value.
           */
          tmp_str = tmpstr_of( TSD, cptr );
+
+         set_reserved_value( TSD, POOL0_SIGL, NULL, thisptr->lineno, VFLAG_NUM );
 
          if ( kill )
             Free_stringTSD( kill );

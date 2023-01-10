@@ -9,7 +9,7 @@ PROJ = lvmgui
 DESC = GUI frontent for LVM
 CLEAN_ADD = *.cmd
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 TARGETS = $(PATH)$(PROJ).cmd
 

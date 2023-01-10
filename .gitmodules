@@ -22,3 +22,6 @@
 [submodule "OS2/WPS/xworkplace"]
 	path = OS2/WPS/xworkplace
 	url = https://github.com/rousseaux/netlabs.xworkplace
+[submodule "tools/jwasm/contrib"]
+	path = tools/jwasm/contrib
+	url = https://github.com/Baron-von-Riedesel/JWasm

@@ -23,7 +23,7 @@ SRC = $(MYDIR)..$(SEP)..$(SEP)
 SRC = $(MYDIR)..$(SEP)
 !endif
 
-!include $(%ROOT)/mk/all.mk
+!include $(%ROOT)tools/mk/all.mk
 
 .idl: $(SRC)contrib$(SEP)somany
 .h: $(IDLH)

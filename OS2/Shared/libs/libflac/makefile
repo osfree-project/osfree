@@ -6,7 +6,7 @@ PROJ = libflac
 TRGT = $(PROJ).lib
 !define DEB
 
-!include $(%ROOT)/mk/site.mk
+!include $(%ROOT)tools/mk/site.mk
 
 !ifeq UNIX TRUE
 def=-dVERSION=\"1.0.4\"
@@ -42,7 +42,7 @@ srcfiles = &
  $(p)stream_encoder$(e) &
  $(p)stream_encoder_framing$(e)
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib
 

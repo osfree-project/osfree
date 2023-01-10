@@ -39,7 +39,7 @@ UNI2H = 1
 #          MouClose                    EMXWRAP.309, &
 #          MouSetEventMask             EMXWRAP.316
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 #install_add: .SYMBOLIC $(MYDIR)tedit.hlp
 # @$(CP) tedit.hlp $(DEST) $(BLACKHOLE)

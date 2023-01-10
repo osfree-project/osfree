@@ -171,4 +171,4 @@ EXPORTS = INNERGREENTRY      .00003,  &
           SETDEVICESURFACE   .00510
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk

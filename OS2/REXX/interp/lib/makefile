@@ -52,7 +52,7 @@ $(p)os_os2$(e)   &
 $(p)extstack$(e) &
 $(p)rexxbif$(e)
 
-!include $(%ROOT)mk/dirs.mk
+!include $(%ROOT)tools/mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk
 
 TARGETS = $(PATH)$(PROJ).lib

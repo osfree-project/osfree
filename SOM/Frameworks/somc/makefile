@@ -84,9 +84,9 @@ C = r
 ADD_SCOPT = -I$(SOM_INTDIR) -I$(SOMIDL_HEADERS) -D__PRIVATE__
 
 !ifdef HOSTBLD
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 !else
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk
 !endif
 
 install_add: $(OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib

@@ -13,4 +13,4 @@ ADD_COPT = -zp=1 -i=$(%WATCOM)$(SEP)h$(SEP)os2
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 STACKSIZE=65535
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)tools/mk/appsos2.mk

@@ -4,7 +4,7 @@ PROJ = cmdref
 TRGT = $(PROJ).inf
 DEST    = os2$(SEP)book
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
 
 $(PATH)$(PROJ).inf:
 

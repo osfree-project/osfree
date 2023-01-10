@@ -33,7 +33,7 @@ STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)tools/mk/tools.mk
 
 .c: $(MYDIR)contrib$(SEP)src
 

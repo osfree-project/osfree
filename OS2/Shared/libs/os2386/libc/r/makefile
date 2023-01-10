@@ -22,7 +22,7 @@ SRC  = $(MYDIR)..$(SEP)..$(SEP)..$(SEP)..$(SEP)os2386$(SEP)libc$(SEP)r$(SEP)
 ADD_COPT += -i=$(SRC)..
 !endif
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)tools/mk/libsos2.mk
 
 .SUFFIXES:
 .SUFFIXES: .lib .obj .c .h
