@@ -6,6 +6,10 @@ DEST    = os2$(SEP)book
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
 
-$(PATH)$(PROJ).inf:
+$(PATH)$(PROJ).inf: $(MYDIR)..$(SEP)..$(SEP)contrib$(SEP)4os2.ipf
+ @$(SAY) IPFC     $^. $(LOG)
+ $(verbose)$(HC) -i $[@ -o $^@ $(LOG2)
+
+#$(PATH)$(PROJ).inf:
 
 TARGETS = $(PATH)$(PROJ).inf

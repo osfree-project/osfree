@@ -1,0 +1,99 @@
+# 4OS2 master makefile
+
+# Tools setup
+
+cc = wcc386
+as = wasm
+link = wlink
+
+# Build flags
+
+cflags = -zq -wx -we -i=..\h
+aflags = -zq
+lflags =
+
+!ifdef debug
+cflags += -d2
+aflags += -d2
+lflags += debug all
+!else
+cflags += -ox
+!endif
+
+# File locations
+
+.c: ../c
+.h: ../h
+.asm: ../a
+
+# Implicit build rules
+
+.c.obj: .autodepend
+   $(cc) $(cflags) $[@
+
+.asm.obj
+   $(as) $(aflags) $[@
+
+# Targets and explicit rules
+
+all : 4os2.exe jpos2dll.dll option2.exe shralias.exe keystack.exe &
+      4os2h.msg 4os2.inf
+
+4os2objs = main.obj parser.obj os2init.obj cmds.obj expand.obj eval.obj &
+           ea.obj dircmds.obj filecmds.obj syscmds.obj os2cmds.obj      &
+           os2calls.obj misc.obj env.obj batch.obj screenio.obj msg.obj &
+           error.obj window.obj listall.obj lines.obj kparse.obj        &
+           iofmt32.obj select.obj os2tty.obj istring.obj iparse.obj     &
+           bcd32.obj os32util.obj
+
+4os2.exe : $(4os2objs) 4os2.res ..\4os2.wlk vdm2os2.exe
+    $(link) $(lflags) @..\4os2.wlk file { $(4os2objs) }
+#   msgbind msgfile
+    rc 4os2.res $@
+
+4os2.res : ..\4os2.rc ..\4os2.ico
+   rc -r ..\4os2.rc $@
+
+opt2objs = option2.obj os2cfg.obj os2nb.obj istring.obj
+
+option2.exe : $(opt2objs) option2.res ..\option2.wlk
+    $(link) $(lflags) @..\option2.wlk file { $(opt2objs) }
+    rc option2.res $@
+
+option2.res : ..\option2.rc ..\option2.dlg ..\4os2.ico resource.h
+   rc -r -i ..\h ..\option2.rc $@
+
+jpdllobjs = jpos2dll.obj
+
+jpos2dll.dll : $(jpdllobjs) ..\jpos2dll.wlk
+    $(link) $(lflags) @..\jpos2dll.wlk file { $(jpdllobjs) }
+
+shraobjs = shralias.obj
+
+shralias.exe : $(shraobjs) ..\shralias.wlk
+    $(link) $(lflags) @..\shralias.wlk file { $(shraobjs) }
+
+kstackobjs = keystack.obj
+
+keystack.exe : $(kstackobjs) ..\keystack.wlk
+    $(link) $(lflags) @..\keystack.wlk file { $(kstackobjs) }
+
+vdm2os2.exe : vdm2os2.c
+    wcl -zq -Lr $<
+
+4os2h.msg : ..\4os2h.txt
+    mkmsgf $< $@
+
+4os2.inf : ..\4os2.ipf
+    ipfc -i $< $@
+
+# Clean target
+
+clean : .symbolic
+    @if exist *.obj del *.obj
+    @if exist *.exe del *.exe
+    @if exist *.dll del *.dll
+    @if exist *.res del *.res
+    @if exist *.msg del *.msg
+    @if exist *.inf del *.inf
+    @if exist *.map del *.map

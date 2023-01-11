@@ -9,7 +9,7 @@ PROJ = jpos2dll
 TRGT = $(PROJ).dll
 DESC = CMD.EXE helper
 srcfiles = $(p)jpos2dll$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -bd
+ADD_COPT = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include -bd
 ADD_LINKOPT  = segment   type DATA shared # lib os2386.lib lib clib3r.lib
 DLL      = 1
 OPTIONS  = manyautodata, caseexact #, mixed1632
@@ -20,3 +20,7 @@ UNI2H = 1
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+
+.c: $(MYDIR)..$(SEP)contrib$(SEP)c
+
+.h: $(MYDIR)..$(SEP)contrib$(SEP)h

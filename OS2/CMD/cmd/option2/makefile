@@ -5,7 +5,7 @@ DESC =  Settings notebook for 4os2
 srcfiles    = $(p)option2$(e) $(p)os2cfg$(e) $(p)os2nb$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
 #inc         =  -i=. -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include &
 #               -i=$(BLD)include$(SEP)shared -i=$(BLD)include -i=$(BLD)include$(SEP)os2
-inc         =  -i=. -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include &
+inc         =  -i=. -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include &
                -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(BLD)include
 ADD_COPT    += $(inc)
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
@@ -16,9 +16,13 @@ DEST = os2
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk
 
+.c: $(MYDIR)..$(SEP)contrib$(SEP)c
+
+.h: $(MYDIR)..$(SEP)contrib$(SEP)h
+
 TARGETS = $(PATH)$(PROJ1).exe
 #TARGET = all
 
-$(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ1).rc $(PATH)$(PROJ).exe
+$(PATH)$(PROJ1).exe: $(MYDIR)..$(SEP)contrib$(SEP)$(PROJ1).rc $(PATH)$(PROJ).exe
  @$(SAY) RESCMP   $^. $(LOG)
  @$(RC) -bt=os2 $(inc) $[@ $]@ -fo=$(PATH)$(PROJ1).res -fe=$@

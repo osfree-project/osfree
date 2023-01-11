@@ -3,7 +3,7 @@
 
 PROJ = istring
 sources = $(p)istring$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include
 UNI2H = 1
 DEST    = none
 
@@ -13,3 +13,7 @@ TARGETS = $(PATH)$(PROJ).$(O)
 #TARGETS = $(OBJS)
 
 $(PATH)$(PROJ).$(O):
+
+.c: $(MYDIR)..$(SEP)contrib$(SEP)c
+
+.h: $(MYDIR)..$(SEP)contrib$(SEP)h

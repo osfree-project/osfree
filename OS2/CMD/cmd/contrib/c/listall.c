@@ -706,8 +706,7 @@ void ListSetCurrent( long lOffset )
 static INT DisplayLine( UINT nRow, LONG lLinePtr )
 {
     int i, n;
-    INT nLength, nHOffset = 0, nHexOffset;
-    int nBytesPrinted = 0;
+    INT nLength, nBytesPrinted = 0, nHOffset = 0, nHexOffset;
     CHAR *arg, szBuffer[512], cSave;
 
     ListSetCurrent( lLinePtr );
