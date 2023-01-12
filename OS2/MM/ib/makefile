@@ -14,6 +14,6 @@ DEST = mmos2
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk
 
-#.c: $(MYDIR)contrib
+.c: $(MYDIR)contrib
 
-#.h: $(MYDIR)contrib$(SEP)include
+.h: $(MYDIR)contrib
