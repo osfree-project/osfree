@@ -26,17 +26,21 @@ defs = -dLINUX
 !endif
 defs = $(defs) -dUSE32
 DESC  = lxlite and utilities
-ADD_PCOPT = $(defs) -Fucommon -duse32 -Rintel -So -Xm
+ADD_PCOPT = $(defs) -Fucontrib$(SEP)src$(SEP)common -duse32 -Rintel -So -Xm
 TARGETS  = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)tools/mk/toolspas.mk
 
+.pas: $(MYDIR)contrib$(SEP)src
+
+.inc: $(MYDIR)contrib$(SEP)src
+
 !ifdef USE_RESOURCES
-$(PATH)rc.rc: $(MYDIR)os2api.rc $(MYDIR)lxlite.rc
+$(PATH)rc.rc: $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc $(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc
 !ifeq UNIX TRUE
- $(verbose)cat $(MYDIR)lxlite.rc $(MYDIR)os2api.rc >$(PATH)rc.rc
+ $(verbose)cat $(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc >$(PATH)rc.rc
 !else
- $(verbose)copy /b $(MYDIR)os2api.rc+$(MYDIR)lxlite.rc $(PATH)rc.rc
+ $(verbose)copy /b $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc+$(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc $(PATH)rc.rc
 !endif
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc

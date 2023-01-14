@@ -83,4 +83,4 @@ MENU ID_IMAGE
   MENUITEM "E~xit\tF3",                               IDM_CLOSE
 }
 
-RCINCLUDE     image.dlg
+RCINCLUDE     "contrib/image.dlg"
