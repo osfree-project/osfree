@@ -5,7 +5,8 @@ PROJ = ib1
 #TRGT = $(PROJ).exe
 DESC = Image Browser
 srcfiles = $(p)image$(e)
-ADD_COPT = -i=$(MYDIR)contrib
+inc = -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(MYDIR)contrib
+ADD_COPT += $(inc)
 ADD_LINKOPT  = lib mmpm2
 PM           = 1
 #IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
