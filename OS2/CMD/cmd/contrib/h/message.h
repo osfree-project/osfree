@@ -207,8 +207,15 @@ extern char DIRECTORY_OF[];
 // extern char DIRECTORY_DESCRIPTION[];
 extern char DIR_FILE_SIZE[];
 extern char DIR_BYTES_IN_FILES[];
+extern char DIR_BYTES_IN_FILES_NEW1[];
+extern char DIR_BYTES_IN_FILES_NEW2[];
 extern char DIR_BYTES_ALLOCATED[];
+extern char DIR_BYTES_ALLOCATED_NEW1[];
+extern char DIR_BYTES_ALLOCATED_NEW2[];
 extern char DIR_BYTES_FREE[];
+extern char DIR_BYTES_FREE2[];
+extern char DIR_BYTES_MB[];
+extern char DIR_BYTES_GB[];
 extern char DIR_TOTAL[];
 extern char DIR_LABEL[];
 extern char HPFS_DIR_LABEL[];
@@ -265,9 +272,9 @@ extern char NO_DPATH[];
 extern char SHUTDOWN_COMPLETE[];
 extern char DOS_SYS[];
 extern char SHUTDOWN_OS2_QUERY[];
-extern char TOTAL_OS2_PHYSICAL_RAM[];
-extern char TOTAL_OS2_RESIDENT_RAM[];
-extern char OS2_BYTES_FREE[];
+extern char TOTAL_OS2_PHYSICAL_MEM[];
+extern char TOTAL_OS2_AVAIL_MEM[];
+extern char TOTAL_OS2_RESIDENT_MEM[];
 extern char OS2_SWAPNAME[];
 extern char OS2_SWAPFILE_SIZE[];
 // extern char OS2_SPOOLNAME[];
@@ -275,6 +282,8 @@ extern char OS2_SWAPFILE_SIZE[];
 extern char TOTAL_ENVIRONMENT[];
 extern char TOTAL_ALIAS[];
 extern char TOTAL_HISTORY[];
+// 2013-04-25 SHL
+extern char TOTAL_DIRHISTORY[];
 extern char TOTAL_DISK_USED[];
 
 
@@ -301,6 +310,7 @@ extern char OS2_WIN[];
 extern char COMSPEC_OS2[];
 extern char NO_DLL[];
 extern char OS2_TITLE[];
+extern char TRACE_STARTUP_MSG[];
 
 
 // ENV.C
@@ -309,6 +319,7 @@ extern char UNSET_COMMAND[];
 extern char SEMAPHORE_NAME[];
 extern char BEGINLIBPATH[];
 extern char ENDLIBPATH[];
+extern char LIBPATH_STRICT[];
 
 
 // ERROR.C
@@ -402,6 +413,7 @@ extern char KEYS_LIST[];
 #define VAR_OS2_PPID 65         // parent process ID
 #define VAR_OS2_SID 66          // session ID
 #define VAR_OS2_PTYPE 67        // process type
+#define VAR_TMSMP 68
 
 // defines for variable function array
 #define FUNC_ALIAS 0

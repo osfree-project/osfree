@@ -99,15 +99,18 @@ int ffind_cmd( int argc, char **argv )
 //      if ( argv[1] == NULL )
 //      return ( usage( FFIND_USAGE ));
 
-        // get date/time/size ranges
-        if ( GetRange( argv[1], &aRanges, 1 ) != 0 )
+    // get date/time/size ranges
+    if ( GetRange( argv[1], &aRanges, 1 ) != 0 )
         return ERROR_EXIT;
 
-        init_page_size();
+    init_page_size();
 
-        // check for and remove switches; abort if no filename arguments
-        for ( argc = 0; (( arg = ntharg( argv[1], argc | 0x1000 )) != NULL ) && ( *arg == gpIniptr->SwChr ); argc++ ) {
-
+    // check for and remove switches; abort if no filename arguments
+    for ( argc = 0;
+          ( arg = ntharg( argv[1], argc | NTHARG_BACKQUOTE_IS_DATA )) != NULL &&
+            *arg == gpIniptr->SwChr;
+          argc++ )
+    {
         // point past switch character
         for ( arg++; ( *arg != '\0' ); ) {
 
@@ -205,15 +208,15 @@ int ffind_cmd( int argc, char **argv )
                 return ( usage( FFIND_USAGE ));
             }
         }
-        }
+    }
 
-        // skip the switch statements
-        if ( gpNthptr == NULL ) {
+    // skip the switch statements
+    if ( gpNthptr == NULL ) {
         if ( QueryIsPipeHandle( STDIN ))
             argv[1] = CONSOLE;
         else
             return ( usage( FFIND_USAGE ));
-        } else
+    } else
         strcpy( argv[1], gpNthptr );
 
     Find.fFlags |= FFIND_NOERROR;
@@ -239,89 +242,89 @@ int ffind_cmd( int argc, char **argv )
 
         for ( n = 0; (( Find.szDrives[n] != '\0' ) && ( fEndSearch == 0 )); n++ ) {
 
-        if (( arg = ntharg( argv[1], argc )) == NULL ) {
-            fEndSearch = 1;
-            break;
-        }
-
-        // no multi-drive specs if drive already named!
-        if (( Find.fFlags & FFIND_ALL ) && ( arg[1] != ':' ) && (arg[1] != '\\' )) {
-
-            // check for drive range (c-f)
-            if ( Find.szDrives[n] == '-' ) {
-                if (( n > 0 ) && ( Find.szDrives[n+1] > (char)( Find.szDrives[n-1] + 1)))
-                    Find.szDrives[--n] += 1;
-                else
-                    n++;
+            if (( arg = ntharg( argv[1], argc )) == NULL ) {
+                fEndSearch = 1;
+                break;
             }
-            i = Find.szDrives[n];
 
-            strins( arg, " :\\" );
-            *arg = (char)i;
+            // no multi-drive specs if drive already named!
+            if (( Find.fFlags & FFIND_ALL ) && ( arg[1] != ':' ) && (arg[1] != '\\' )) {
 
-        } else
-            n = strlen( Find.szDrives ) - 1;
+                // check for drive range (c-f)
+                if ( Find.szDrives[n] == '-' ) {
+                    if (( n > 0 ) && ( Find.szDrives[n+1] > (char)( Find.szDrives[n-1] + 1)))
+                        Find.szDrives[--n] += 1;
+                    else
+                        n++;
+                }
+                i = Find.szDrives[n];
 
-        // build the source name
-        if (( QueryIsDevice( arg )) && ( QueryIsCON( arg )))
-           uListFlags |= LIST_STDIN;
+                strins( arg, " :\\" );
+                *arg = (char)i;
 
-        else if ( mkfname( arg, 0 ) == NULL ) {
-            rval = ERROR_EXIT;
-            goto ffind_bye;
+            } else
+                n = strlen( Find.szDrives ) - 1;
 
-        } else {
+            // build the source name
+            if (( QueryIsDevice( arg )) && ( QueryIsCON( arg )))
+               uListFlags |= LIST_STDIN;
 
-            if ( glDirFlags & DIRFLAGS_UPPER_CASE )
-            strupr( arg );
+            else if ( mkfname( arg, 0 ) == NULL ) {
+                rval = ERROR_EXIT;
+                goto ffind_bye;
 
-            // check to see if it's an HPFS partition
-            if ( ifs_type( arg ) != 0 )
-            glDirFlags |= DIRFLAGS_HPFS;
+            } else {
 
-            // if a directory, append "\*.*"
-            // if not a directory, append a ".*" to files with no extension
-            if ( is_dir( arg ))
-                mkdirname( arg, (( glDirFlags & DIRFLAGS_HPFS ) ? "*" : WILD_FILE ));
-            // don't do this stuff on an LFN / NTFS volume!
-            else if (( glDirFlags & DIRFLAGS_HPFS ) == 0 ) {
+                if ( glDirFlags & DIRFLAGS_UPPER_CASE )
+                strupr( arg );
 
-                // if no include list & no extension specified, add default one
-                //   else if no filename, insert a wildcard filename
-                if ( strchr( arg, ';' ) == NULL ) {
+                // check to see if it's an HPFS partition
+                if ( ifs_type( arg ) != 0 )
+                glDirFlags |= DIRFLAGS_HPFS;
 
-                    if ( ext_part( arg ) == NULL ) {
-            if ( strpbrk( arg, WILD_CHARS ) == NULL )
-                            strcat( arg, WILD_FILE );
-                    } else {
-                        // point to the beginning of the filename
-                        ptr = arg + strlen( path_part( arg ));
-                        if ( *ptr == '.' )
-                            strins( ptr, "*" );
+                // if a directory, append "\*.*"
+                // if not a directory, append a ".*" to files with no extension
+                if ( is_dir( arg ))
+                    mkdirname( arg, (( glDirFlags & DIRFLAGS_HPFS ) ? "*" : WILD_FILE ));
+                // don't do this stuff on an LFN / NTFS volume!
+                else if (( glDirFlags & DIRFLAGS_HPFS ) == 0 ) {
+
+                    // if no include list & no extension specified, add default one
+                    //   else if no filename, insert a wildcard filename
+                    if ( strchr( arg, ';' ) == NULL ) {
+
+                        if ( ext_part( arg ) == NULL ) {
+                if ( strpbrk( arg, WILD_CHARS ) == NULL )
+                                strcat( arg, WILD_FILE );
+                        } else {
+                            // point to the beginning of the filename
+                            ptr = arg + strlen( path_part( arg ));
+                            if ( *ptr == '.' )
+                                strins( ptr, "*" );
+                        }
                     }
                 }
             }
-        }
 
-        copy_filename( Find.szSource, arg );
+            copy_filename( Find.szSource, arg );
 
-        // save the source filename part ( for recursive calls &
-        //   include lists)
-        nLength = 0;
-        if (( arg = path_part( Find.szSource )) != NULL )
-            nLength = strlen( arg );
-        strcpy( Find.szFilename, Find.szSource + nLength );
+            // save the source filename part ( for recursive calls &
+            //   include lists)
+            nLength = 0;
+            if (( arg = path_part( Find.szSource )) != NULL )
+                nLength = strlen( arg );
+            strcpy( Find.szFilename, Find.szSource + nLength );
 
-        i = _ffind( &Find );
+            i = _ffind( &Find );
 
-        if (( setjmp( cv.env) == -1 ) || ( i == CTRLC )) {
-            rval = CTRLC;
-            fEndSearch = 1;
-            break;
-        }
-        EnableSignals();
-        if ( i != 0 )
-            rval = ERROR_EXIT;
+            if (( setjmp( cv.env) == -1 ) || ( i == CTRLC )) {
+                rval = CTRLC;
+                fEndSearch = 1;
+                break;
+            }
+            EnableSignals();
+            if ( i != 0 )
+                rval = ERROR_EXIT;
         }
     }
 
@@ -359,7 +362,7 @@ static int _ffind( FFIND_STRUCT *Find )
 {
     unsigned int i;
     char *arg;
-    int c, n = 0, rval = 0, nLength;
+    int c, n, rval = 0, nLength;
     unsigned int entries = 0;
     long lLines;
     DIR_ENTRY *files = 0L;    // file array in system memory
@@ -397,7 +400,6 @@ static int _ffind( FFIND_STRUCT *Find )
             if ( Find->fFlags & FFIND_TEXT ) {
 
                 if ( uListFlags & LIST_STDIN ) {
-
                     LFile.hHandle = STDIN;
                     LFile.lSize = (ULONG)-1;
                 } else if (( LFile.hHandle = _sopen( LFile.szName, (O_BINARY | O_RDONLY), SH_DENYNO )) == -1 ) {
@@ -407,15 +409,20 @@ static int _ffind( FFIND_STRUCT *Find )
 
                 if ( LFile.hHandle != STDIN )
                     LFile.lSize = QuerySeekSize( LFile.hHandle );
-                LFile.lpEOF = 0L;
+                LFile.lpEOF = 0;
 
                 ListHome();
-                lLines = 0L;
+                lLines = 0;
+                n = 0;
                 if ( Find->fFlags & FFIND_REVERSE_SEARCH ) {
                     // goto the last row
                     while ( ListMoveLine( 1 ) != 0 )
                         ;
-// TODO:                }
+                }
+
+                while ( SearchFile( Find->fFlags ) ) {
+                    // found string, increment line counter
+                    lLines++;
 
                     // display filename
                     if ( glDirFlags & DIRFLAGS_NAMES_ONLY ) {
@@ -441,27 +448,27 @@ static int _ffind( FFIND_STRUCT *Find )
                         // display line number
                         nLength = 0;
                         if ( Find->fFlags & FFIND_LINE_NUMBERS )
-                        nLength = sprintf( Find->szText, "[%ld] ", LFile.lCurrentLine + gpIniptr->ListRowStart );
+                            nLength = sprintf( Find->szText, "[%ld] ", LFile.lCurrentLine + gpIniptr->ListRowStart );
 
                         // display the line
                         while ((( c = GetNextChar()) != EOF ) && ( c != LF ) && ( c != CR ) && ( nLength < 511)) {
-                        if ( c == 0 )
-                            c = ' ';
-                        Find->szText[ nLength++ ] = (char)c;
+                            if ( c == 0 )
+                                c = ' ';
+                            Find->szText[ nLength++ ] = (char)c;
                         }
                         Find->szText[ nLength ] = '\0';
                         more_page( Find->szText, 0 );
                     }
 
                     if (( Find->fFlags & FFIND_SHOWALL ) == 0 )
-                    break;
+                        break;
 
                     // skip to next line
                     if (( Find->fFlags & FFIND_REVERSE_SEARCH ) == 0 ) {
-                    if ( Find->fFlags & FFIND_HEX_DISPLAY )
-                        LFile.lViewPtr += LFile.nSearchLen;
+                        if ( Find->fFlags & FFIND_HEX_DISPLAY )
+                            LFile.lViewPtr += LFile.nSearchLen;
                         else if ( ListMoveLine( 1 ) == 0 )
-                        break;
+                            break;
                     }
 
                     ListSetCurrent( LFile.lViewPtr );
@@ -706,7 +713,8 @@ void ListSetCurrent( long lOffset )
 static INT DisplayLine( UINT nRow, LONG lLinePtr )
 {
     int i, n;
-    INT nLength, nBytesPrinted = 0, nHOffset = 0, nHexOffset;
+    INT nLength, nHOffset = 0, nHexOffset;
+    int nBytesPrinted = 0;
     CHAR *arg, szBuffer[512], cSave;
 
     ListSetCurrent( lLinePtr );
@@ -945,55 +953,55 @@ static LONG MoveViewPtr(LONG lFilePtr, LONG *ptrRow)
 
         } else {
 
-        // move backwards
-        for ( ; ( lRowCount > lRow); lRowCount--) {
+            // move backwards
+            for ( ; ( lRowCount > lRow); lRowCount--) {
 
-            lSaveOffset = LFile.lFileOffset;
+                lSaveOffset = LFile.lFileOffset;
 
-            // get previous line
-            lpEnd = LFile.lpCurrent;
-            n = GetPrevChar();
-            while ((( i = GetPrevChar()) != EOF ) && ( i != LFile.fEoL ))
-                ;
+                // get previous line
+                lpEnd = LFile.lpCurrent;
+                n = GetPrevChar();
+                while ((( i = GetPrevChar()) != EOF ) && ( i != LFile.fEoL ))
+                    ;
 
-            // if not at start of file, move to beginning
-            //   of the line
-            if ( i == EOF ) {
-                if ( lpEnd == LFile.lpCurrent)
-                    break;
-            } else
-                GetNextChar();
+                // if not at start of file, move to beginning
+                //   of the line
+                if ( i == EOF ) {
+                    if ( lpEnd == LFile.lpCurrent)
+                        break;
+                } else
+                    GetNextChar();
 
-            lpTemp = lpSave = LFile.lpCurrent;
+                lpTemp = lpSave = LFile.lpCurrent;
 
-            // check for buffer move
-            if ( LFile.lFileOffset != lSaveOffset)
-                lpEnd += LFile.uBufferSize;
-            if ( lpEnd > LFile.lpBufferEnd)
-                lpEnd = LFile.lpBufferEnd;
+                // check for buffer move
+                if ( LFile.lFileOffset != lSaveOffset)
+                    lpEnd += LFile.uBufferSize;
+                if ( lpEnd > LFile.lpBufferEnd)
+                    lpEnd = LFile.lpBufferEnd;
 
-            // adjust for long or wrapped lines
-            for ( n = 0; ( lpTemp < lpEnd ); lpTemp++ ) {
+                // adjust for long or wrapped lines
+                for ( n = 0; ( lpTemp < lpEnd ); lpTemp++ ) {
 
-                if ( *lpTemp != (char)LFile.fEoL ) {
+                    if ( *lpTemp != (char)LFile.fEoL ) {
 
-                // check if past right margin but less
-                //   than current position
-                if (( n >= nRightMargin ) && ( lpTemp + 1 < lpEnd)) {
-                    n = 0;
-                    lpSave = lpTemp;
+                    // check if past right margin but less
+                    //   than current position
+                    if (( n >= nRightMargin ) && ( lpTemp + 1 < lpEnd)) {
+                        n = 0;
+                        lpSave = lpTemp;
+                    }
+
+                    // kludge for TAB offsets
+                    if ( *lpTemp == TAB )
+                        n = ((( n + TABSIZE ) / TABSIZE ) * TABSIZE );
+                    else
+                        n++;
+                    }
                 }
 
-                // kludge for TAB offsets
-                if ( *lpTemp == TAB )
-                    n = ((( n + TABSIZE ) / TABSIZE ) * TABSIZE );
-                else
-                    n++;
-                }
+                lOffset += (long)((long)lpSave - (long)lpEnd );
             }
-
-            lOffset += (long)((long)lpSave - (long)lpEnd );
-        }
         }
 
         *ptrRow = lRowCount;
@@ -1005,14 +1013,14 @@ static LONG MoveViewPtr(LONG lFilePtr, LONG *ptrRow)
 
         // Limit Checking
         if ((( lFilePtr == 0 ) && ( lRow < 0 )) || (( lFilePtr == LFile.lSize) && ( lRow > 0 ))){
-        lOffset = 0L;
-        *ptrRow = 0;
+            lOffset = 0L;
+            *ptrRow = 0;
         } else if (( lFilePtr + lOffset) < 0 ) {
-        lOffset = -lFilePtr;
-        *ptrRow = (INT)( lOffset / 16);
+            lOffset = -lFilePtr;
+            *ptrRow = (INT)( lOffset / 16);
         } else if (( lFilePtr + lOffset) > LFile.lSize) {
-        lOffset = (LONG)(LFile.lSize - lFilePtr);
-        *ptrRow = (INT)( lOffset / 16);
+            lOffset = (LONG)(LFile.lSize - lFilePtr);
+            *ptrRow = (INT)( lOffset / 16);
         }
     }
 

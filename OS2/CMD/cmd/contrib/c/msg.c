@@ -147,7 +147,7 @@ ANSI_COLORS colors[] = {
 
 
 
-// 4xxx error messages
+// Index with ERROR_4DOS_... symbols (see 4all.h)
 char *int_4dos_errors[] =
 {
         "Syntax error",
@@ -214,12 +214,12 @@ char BREAK_USAGE[] = "[ON | OFF]";
 char CALL_USAGE[] = "[/Q] ?";
 char CDD_USAGE[] = "[/AS] ~";
 char COLOR_USAGE[] = "# [BORDER bc]";
-char COPY_USAGE[] = "[/A:-rhsda /CEHKMNPQRSTUVWXZ] ?...[/AB] ?[/AB]";
+char COPY_USAGE[] = "[/A:-rhsda /CEHKJMNPQRSTUVWXZ] ?...[/AB] ?[/AB]";
 char DATE_USAGE[] = "[/T] [date]";
 char DELETE_USAGE[] = "[/A:-rhsda /EFNPQSTWXYZ] ?...";
 char DESCRIBE_USAGE[] = "?... [/D]";
 char DETACH_USAGE[] = "command";
-char DIR_USAGE[] = "[/A:-rhsda /O:-deginrsu /T:acw /124BDEFGHIJKLMNPRSTUVWZ] ?...";
+char DIR_USAGE[] = "[/A:-rhsda /O:-adeginrsu /T:acw /124BDEFGHIJKLMNPQRSTUVWZ] ?...";
 char DO_USAGE[] = "[repetitor] [WHILE][UNTIL] ...] ... ENDDO";
 char DRAWBOX_USAGE[] = "top left bottom right style # [FILL bg] [SHA] [ZOOM]";
 char DRAWLINE_USAGE[] = "row col len style #";
@@ -230,7 +230,7 @@ char FOR_USAGE[] = "[/A[:-rhsda] /DFHLR] %var IN (set) DO ... [args]";
 char GLOBAL_USAGE[] = "[/HIPQ] ...";
 char HISTORY_USAGE[] = "[/AFP /R ?]";
 char IF_USAGE[] = "[NOT] condition ...";
-char IFF_USAGE[] = "[NOT] condition THEN & ... [ELSE[IFF] & ...] ENDIFF";
+char IFF_USAGE[] = "[NOT] condition THEN ... [ & ELSE[IFF] ... ] & ENDIFF";
 char INKEY_USAGE[] = "[/CDPX /K\"mask\" /Wn] [text] %%var";
 char INPUT_USAGE[] = "[/CDENPX /Ln /Wn] [text] %%var";
 char KEYBD_USAGE[] = "[/Cn /Nn /Sn]";
@@ -239,7 +239,7 @@ char KEYS_USAGE[] = "[ON | OFF | LIST]";
 char LIST_USAGE[] = "[/A:-rhsda /T\"text\" /HIRSWX] ?...";
 char LOG_USAGE[] = "[/H][ON | OFF | /W ?][text]";
 char MD_USAGE[] = "[/NS] ~...";
-char MOVE_USAGE[] = "[/A:-rhsda /CDEFHMNPQRSTUV] ?[... ?]";
+char MOVE_USAGE[] = "[/A:-rhsda /CDEFHJMNPQRSTUV] ?[... ?]";
 char ON_USAGE[] = "[BREAK | ERROR | ERRORMSG] ...";
 char POPD_USAGE[] = "[*]";
 char PROCESS_USAGE[] = "[/K[pid][hwnd][title]]";
@@ -254,7 +254,7 @@ char SHRALIAS_USAGE[] = "[/U]";
 char TEE_USAGE[] = "[/A] ?...";
 char TIME_USAGE[] = "[/T] [hh:mm:ss]";
 char TIMER_USAGE[] = "[/123S]";
-char TITLE_USAGE[] = "text";
+char TITLE_USAGE[] = "text | /C set back to default | /D title follows current path";
 char TOUCH_USAGE[] = "[/CEFQ /D[acw]date /T[acw]time] ?...";
 char TREE_USAGE[] = "[/ABFHPS /T[acw]] dir...";
 char TYPE_USAGE[] = "[/A:-rhsda /LP] ?...";
@@ -316,9 +316,16 @@ char ONE_DIR[] = "dir";
 char MANY_DIRS[] = "dirs";
 char DIRECTORY_OF[] = " Directory of  %s";
 char DIR_FILE_SIZE[] = "KMG";
-char DIR_BYTES_IN_FILES[] = "%15Lq bytes in %Lu %s and %Lu %s";
+//char DIR_BYTES_IN_FILES[] = "%15Lq bytes in %Lu %s and %Lu %s";
+char DIR_BYTES_IN_FILES_NEW1[] = "%16Lq bytes";
+char DIR_BYTES_IN_FILES_NEW2[] = " in %Lu %s and %Lu %s";
 char DIR_BYTES_ALLOCATED[] = "    %Lq bytes allocated";
-char DIR_BYTES_FREE[] = "%15Lq bytes free";
+char DIR_BYTES_ALLOCATED_NEW1[] = "\r\n%16Lq bytes";
+char DIR_BYTES_ALLOCATED_NEW2[] = " allocated";
+char DIR_BYTES_FREE[] = "%16Lq bytes";
+char DIR_BYTES_FREE2[] = " free";
+char DIR_BYTES_MB[] = " (%LqMB)";
+char DIR_BYTES_GB[] = " (%LqGB)";
 char DIR_TOTAL[] = "    Total for:  %s";
 char DIR_LABEL[] = " <DIR>   ";
 char HPFS_DIR_LABEL[] = "        <DIR>  ";
@@ -341,9 +348,10 @@ char KBD_CAPS_LOCK[] = "Caps=%s\n";
 char KBD_NUM_LOCK[] = "Num=%s\n";
 char KBD_SCROLL_LOCK[] = "Scroll=%s\n";
 char REBOOT_IT[] = "Confirm system reboot";
-char TOTAL_ENVIRONMENT[] = "\n%15Lu bytes total environment\n";
-char TOTAL_ALIAS[] = "\n%15Lu bytes total alias\n";
-char TOTAL_HISTORY[] = "\n%15Lu bytes total history\n";
+char TOTAL_ENVIRONMENT[] = "\n%15Lu bytes total environment memory\n";
+char TOTAL_ALIAS[] = "\n%15Lu bytes total alias memory\n";
+char TOTAL_HISTORY[] = "\n%15Lu bytes total command history\n";
+char TOTAL_DIRHISTORY[] = "%15Lu bytes total directory history\n";
 char TOTAL_DISK_USED[] = "%15Lq bytes total disk space\n%15Lq bytes used\n";
 
 char START_TRANSIENT_STR[] = "c";
@@ -376,9 +384,9 @@ char NO_DPATH[] = "No DPATH";
 
 char SHUTDOWN_COMPLETE[] = "Shutdown complete; turn the system off or press Ctrl-Alt-Del to reboot.\n";
 char DOS_SYS[] = "DOS.SYS";
-char TOTAL_OS2_PHYSICAL_RAM[] = "\n%15Lu bytes total physical RAM\n";
-char TOTAL_OS2_RESIDENT_RAM[] = "%15Lu bytes total resident RAM\n";
-char OS2_BYTES_FREE[] = "\n%15Lu bytes largest free block\n";
+char TOTAL_OS2_PHYSICAL_MEM[] = "\n%15Lu bytes total physical memory\n";
+char TOTAL_OS2_AVAIL_MEM[] = "%15Lu bytes total available memory\n";
+char TOTAL_OS2_RESIDENT_MEM[] = "\n%15Lu bytes of resident memory\n";
 char OS2_SWAPNAME[64] = "C:\\OS2\\SYSTEM\\SWAPPER.DAT";
 char OS2_SWAPFILE_SIZE[] = "\n%15Lu bytes total swap file\n";
 
@@ -404,13 +412,18 @@ char OS2_INI[] = "4OS2.INI";
 char OS2_FS[] = "OS/2 Full Screen";
 char OS2_WIN[] = "OS/2 Window";
 char NO_DLL[] = "Warning:  Can't load JPOS2DLL";
-
+#ifdef __DEBUG__
+char TRACE_STARTUP_MSG[] = "\n 4OS2 - Build "__DATE__"  "__TIME__"  DEBUG_BUILD";
+#else
+char TRACE_STARTUP_MSG[] = "\n 4OS2 - Build "__DATE__"  "__TIME__;
+#endif
 
 // ENV.C
 char SET_COMMAND[] = "SET";
 char UNSET_COMMAND[] = "UNSET";
 char BEGINLIBPATH[] = "BeginLIBPATH";
 char ENDLIBPATH[] = "EndLIBPATH";
+char LIBPATH_STRICT[] = "LIBPATHSTRICT";
 char SEMAPHORE_NAME[] = "\\SEM32\\4OS2\\ALIAS.SEM";
 
 
@@ -516,6 +529,7 @@ char *VAR_ARRAY[] = {
         "ppid",                 // parent process ID
         "sid",                  // session ID
         "ptype",                // process type
+        "tmsmp",                // time stamp
         NULL
 };
 
@@ -662,8 +676,10 @@ char LIST_GOTO[] = "Line: ";
 char LIST_GOTO_OFFSET[] = "Hex Offset: ";
 char LIST_INFO_PIPE[] = "LIST is displaying the output of a pipe.";
 
-char LIST_INFO_FAT[] = "File:  %s\nDesc:  %.60s\nSize:  %Ld bytes\nDate:  %s\nTime:  %02u%c%02u\n";
-char LIST_INFO_HPFS[] = "File:         %s\nDescription:  %.50s\nSize:         %Ld bytes\nLast Write:   %-8s  %02u%c%02u\nLast Access:  %-8s  %02u%c%02u\nCreated:      %-8s  %02u%c%02u";
+char LIST_INFO_FAT[] = "File:  %s\nDesc:  %.60s\nSize:  %Lq bytes\nDate:  %s\nTime:  %02u%c%02u\n";
+char LIST_INFO_HPFS[] = "File:         %s\nDescription:  %.50s\nSize:         %Lq bytes\n"
+                        "Last Write:   %-8s  %02u%c%02u\nLast Access:  %-8s  %02u%c%02u\n"
+                        "Created:      %-8s  %02u%c%02u";
 
 char LIST_HEADER[] = " %-12.12s %c F1 Help %c Commands: BFGHINPWX %c";
 char LIST_LINE[] = "Col %-3d  Line %-9Lu%3d%%";

@@ -11,7 +11,7 @@
 */
 
 #define INCL_BASE
-#include <osfree.h>
+#include <os2.h>
 
 #include "shralias.h"
 
@@ -24,51 +24,51 @@ char BadRun[] = "SHRALIAS.EXE cannot be run manually -- you must use the 4OS2 or
 
 int main( int argc, char **argv )
 {
-        unsigned int nAlias, nHistory, nDirectory;
-        unsigned long ulDummy;
-        PCH AliasList, HistoryList, DirectoryList;
-        HEV hev = 0;
+    unsigned int nAlias, nHistory, nDirectory;
+    unsigned long ulDummy;
+    PCH AliasList, HistoryList, DirectoryList;
+    HEV hev = 0;
 
-        // check for reasonable-looking parameters
-        if (( argc <= 1 ) || ( argv[1][0] != '/' ) || (( argv[1][1] != '4') && ( argv[1][1] != 't' ))) {
-                DosWrite(2, BadRun, sizeof(BadRun) - 1, &ulDummy);
-                return 1;
-        }
+    // check for reasonable-looking parameters
+    if ( ( argc <= 1 ) || ( argv[1][0] != '/' ) || (( argv[1][1] != '4') && ( argv[1][1] != 't' )) ) {
+        DosWrite(2, BadRun, sizeof(BadRun) - 1, &ulDummy);
+        return 1;
+    }
 
 #if 0
-        // check for invocation by Take Command
-        if ( argv[1][1] == 't' ) {
-                SharedAliases = SHR_TCOS2_ALIAS;
-                SharedHistory = SHR_TCOS2_HISTORY;
-                SharedDirHist = SHR_TCOS2_DIRHIST;
-                SentinelSem = SHR_TCOS2_SENTINEL;
-        }
+    // check for invocation by Take Command
+    if ( argv[1][1] == 't' ) {
+        SharedAliases = SHR_TCOS2_ALIAS;
+        SharedHistory = SHR_TCOS2_HISTORY;
+        SharedDirHist = SHR_TCOS2_DIRHIST;
+        SentinelSem = SHR_TCOS2_SENTINEL;
+    }
 #endif
 
-        // try to attach to the 4OS2 or Take Command shared memory areas
-        nAlias = DosGetNamedSharedMem( (PVOID)&AliasList, SharedAliases, PAG_READ | PAG_WRITE );
-        nHistory = DosGetNamedSharedMem( (PVOID)&HistoryList, SharedHistory, PAG_READ | PAG_WRITE );
-        nDirectory = DosGetNamedSharedMem( (PVOID)&DirectoryList, SharedDirHist, PAG_READ | PAG_WRITE );
+    // try to attach to the 4OS2 or Take Command shared memory areas
+    nAlias = DosGetNamedSharedMem( (PVOID)&AliasList, SharedAliases, PAG_READ | PAG_WRITE );
+    nHistory = DosGetNamedSharedMem( (PVOID)&HistoryList, SharedHistory, PAG_READ | PAG_WRITE );
+    nDirectory = DosGetNamedSharedMem( (PVOID)&DirectoryList, SharedDirHist, PAG_READ | PAG_WRITE );
 
-        if (( nAlias == 0) || ( nHistory == 0 ) || ( nDirectory == 0 )) {
+    if ( ( nAlias == 0) || ( nHistory == 0 ) || ( nDirectory == 0 ) ) {
 
-                // create the sentinel semaphore
-                if ( DosCreateEventSem( SentinelSem, &hev, 0, 0 ) == 0 ) {
+        // create the sentinel semaphore
+        if ( DosCreateEventSem( SentinelSem, &hev, 0, 0 ) == 0 ) {
 
-                        // wait forever on sentinel semaphore - if it's
-                        //   posted, then an unload (/U) is in process
-                        DosWaitEventSem( hev, (unsigned long int) -1 );
-                        DosCloseEventSem( hev );
-                }
-
-                // free up any shared memory we managed to attach to
-                if ( nAlias == 0 )
-                        DosFreeMem( AliasList );
-                if ( nHistory == 0 )
-                        DosFreeMem( HistoryList );
-                if ( nDirectory == 0 )
-                        DosFreeMem( DirectoryList );
+            // wait forever on sentinel semaphore - if it's
+            //   posted, then an unload (/U) is in process
+            DosWaitEventSem( hev, (unsigned long int) -1 );
+            DosCloseEventSem( hev );
         }
 
-        return 0;
+        // free up any shared memory we managed to attach to
+        if ( nAlias == 0 )
+            DosFreeMem( AliasList );
+        if ( nHistory == 0 )
+            DosFreeMem( HistoryList );
+        if ( nDirectory == 0 )
+            DosFreeMem( DirectoryList );
+    }
+
+    return 0;
 }

@@ -10,7 +10,7 @@ inc         =  -i=. -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP
 ADD_COPT    += $(inc)
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 # RESOURCE    = $(PATH)$(PROJ).res
-# UNI2H = 1
+#UNI2H = 1
 WINDOWCOMPAT = 1
 DEST = os2
 

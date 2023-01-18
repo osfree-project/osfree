@@ -3,6 +3,7 @@
 
 #define ID_RESOURCE 1
 
-POINTER ID_RESOURCE "../contrib/4os2.ico"
+POINTER ID_RESOURCE "../4os2.ico"
 
-rcinclude "../contrib/option2.dlg"
+rcinclude "option2.dlg"
+

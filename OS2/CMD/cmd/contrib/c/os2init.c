@@ -13,6 +13,7 @@
 
 #define INCL_ORDINALS
 #include "4all.h"
+#include "wrappers.h"
 
 static void RemoveQuotes( char * );
 static void init_env( void );
@@ -20,10 +21,10 @@ static void InitSystemVariables( void );
 static void init_ini( void );
 static int  process_ini(char *);
 static void default_ini( void );
-static void set_window( void );
 
 
 HAB ghHAB;
+HMQ ghHMQ;
 
 static int ini_done = 0;                // finished .INI file flag
 int nSignalHandler = 2;                 // 0=default, 1=ignore, 2=install handler
@@ -40,13 +41,21 @@ void InitOS( int argc, char **argv )
     ULONG ulTimes = 0L;
     char *errmsg, *pszOpts;
 
-    (void)_setmode( STDIN, O_TEXT );
-    (void)_setmode( STDOUT, O_TEXT );
-    (void)_setmode( STDERR, O_TEXT );
+    TRACE("\n\n");
+    TRACE("--------------------------------------------------------------");
+    TRACE("%s", &TRACE_STARTUP_MSG[1]);
+    TRACE("--------------------------------------------------------------");
+
+    _setmode( STDIN, O_TEXT );
+    _setmode( STDOUT, O_TEXT );
+    _setmode( STDERR, O_TEXT );
 
     // initialize the critical variables
     memset( &cv, '\0', sizeof(cv) );
     cv.bn = -1;
+
+    // 20090729 AB init wrapper (large file support)
+    WrapperInit();
 
     QueryCountryInfo();
     InitSystemVariables();          // initialize 4OS2 global variables
@@ -61,7 +70,7 @@ void InitOS( int argc, char **argv )
     // support the CMD.EXE SHELL syntax for specifying a COMSPEC
     //   directory - if first arg on line is a directory, it must
     //   be a COMSPEC request
-    if (( argv[1] != NULL ) && ( argv[1][0] != gpIniptr->SwChr ) && ( is_dir( argv[1] ))) {
+    if ( ( argv[1] != NULL ) && ( argv[1][0] != gpIniptr->SwChr ) && ( is_dir( argv[1] )) ) {
         strcpy( gszCmdline, strupr(*(++argv) ));
         mkdirname( gszCmdline, OS2_NAME );
     } else
@@ -75,24 +84,31 @@ void InitOS( int argc, char **argv )
 
     // get title; if none, change to "4OS2 Full Screen" or "4OS2 Window"
     gszSessionTitle[0] = '\0';
+    // 14 Jun 09 SHL Work around compile time default
+    if ( !ini_done )
+        gaInifile.TitleIsCurDir = FALSE;
     update_task_list( NULL );
+    // 14 Jun 09 SHL Work around compile time default
+    if ( !ini_done )
+        gaInifile.TitleIsCurDir = TRUE;
 
     if ( setjmp( cv.env ) == -1 )
         _exit( ERROR_EXIT );
 
     RemoveQuotes( pszCmdLineOpts );
-    for ( argc = 0; (( arg = ntharg( pszCmdLineOpts, argc )) != NULL ); argc++) {
-next_start_arg:
+    for ( argc = 0; (( arg = ntharg( pszCmdLineOpts, argc )) != NULL ); argc++ ) {
+        next_start_arg:
         // check for .INI filename
-        if ( *arg == '@' ) {
+        // 2017-02-18 SHL Support "@ cmd" in compiled REXX
+        if ( *arg == '@' && *( arg + 1 ) ) {
             // parse the user's file - if not an .INI file, must
             //  be something like "@COPY ..."
-            if ( process_ini( arg ))
+            if ( process_ini( arg ) )
                 break;
-        } else if (( *arg == gpIniptr->SwChr ) || ( *arg == '-' )) {
+        } else if ( ( *arg == gpIniptr->SwChr ) || ( *arg == '-' ) ) {
             // kludge to detect "//inistuff" because ntharg()
             //  only returns the first "/"
-            switch ( _ctoupper( gpNthptr[1] )) {
+            switch ( _ctoupper( gpNthptr[1] ) ) {
                 case '/':       // INI file line
                     // skip leading '/'
                     argc++;
@@ -104,8 +120,8 @@ next_start_arg:
 
                     // copy so IniLine can add an extra null
                     strcpy( gszCmdline, first_arg( arg+2 ));
-                    if ( IniLine( gszCmdline, &gaInifile, 0, 0, 0, &errmsg ))
-                            error( ERROR_4DOS_BAD_DIRECTIVE, arg );
+                    if ( IniLine( gszCmdline, &gaInifile, 0, 0, 0, &errmsg ) )
+                        error( ERROR_4DOS_BAD_DIRECTIVE, arg );
                     break;
 
                 case 'C':       // transient load
@@ -120,21 +136,21 @@ next_start_arg:
 
                     // check for a "4OS2 /C 4OS2" & turn it into
                     //   a "4OS2"
-                    if (( errmsg = ntharg( pszCmdLineOpts, argc+1 )) != NULL )
+                    if ( ( errmsg = ntharg( pszCmdLineOpts, argc+1 )) != NULL )
                         errmsg = fname_part( errmsg);
 
-                    if (( errmsg != NULL ) && ( cv.bn < 0 ) && ( stricmp( errmsg,OS2_NAME) == 0 )) {
+                    if ( ( errmsg != NULL ) && ( cv.bn < 0 ) && ( stricmp( errmsg,OS2_NAME) == 0 ) ) {
                         gnTransient = 0;
                         argc++;
                     }
 
                     break;
 
-            case 'K':       // permanent load in OS/2
+                case 'K':       // permanent load in OS/2
                     gpIniptr->ShellLevel = 0;
 
                     // OS/2 passes STARTUP.CMD as "/kSTARTUP.CMD"
-                    if ( isalnum( arg[2] )) {
+                    if ( isalnum( arg[2] ) ) {
                         arg += 2;
                         gpNthptr += 2;
                         goto next_start_arg;
@@ -142,50 +158,50 @@ next_start_arg:
 
                     break;
 
-            case 'L':       // set local alias & history lists
-                // be sure default INI file has been processed
-                //   so /L overrides
-                arg = gpNthptr;
-                default_ini();
+                case 'L':       // set local alias & history lists
+                    // be sure default INI file has been processed
+                    //   so /L overrides
+                    arg = gpNthptr;
+                    default_ini();
 
-                switch ( _ctoupper( arg[2] )) {
-                    case 'A':
-                        gpIniptr->LocalAliases = 1;
-                        break;
-                    case 'D':
-                        gpIniptr->LocalDirHistory = 1;
-                        break;
-                    case 'H':
-                        gpIniptr->LocalHistory = 1;
-                        break;
-                    default:
-                        gpIniptr->LocalAliases = 1;
-                        gpIniptr->LocalHistory = 1;
-                        gpIniptr->LocalDirHistory = 1;
-                }
+                    switch ( _ctoupper( arg[2] ) ) {
+                        case 'A':
+                            gpIniptr->LocalAliases = 1;
+                            break;
+                        case 'D':
+                            gpIniptr->LocalDirHistory = 1;
+                            break;
+                        case 'H':
+                            gpIniptr->LocalHistory = 1;
+                            break;
+                        default:
+                            gpIniptr->LocalAliases = 1;
+                            gpIniptr->LocalHistory = 1;
+                            gpIniptr->LocalDirHistory = 1;
+                    }
 
-                break;
+                    break;
 
-            case 'Q':       // for compatibility w/CMD.EXE
-                break;
+                case 'Q':       // for compatibility w/CMD.EXE
+                    break;
 
-            case 'S':
-                // don't set up a ^C / ^BREAK handler; they
-                //   will be ignored
-                nSignalHandler = 1;
-                break;
+                case 'S':
+                    // don't set up a ^C / ^BREAK handler; they
+                    //   will be ignored
+                    nSignalHandler = 1;
+                    break;
 
-            default:
-                // kludge for "4OS2 -c ..."
-                if ( *arg == '-' )
-                    goto args_done;
-                error( ERROR_INVALID_PARAMETER, arg );
+                default:
+                    // kludge for "4OS2 -c ..."
+                    if ( *arg == '-' )
+                        goto args_done;
+                    error( ERROR_INVALID_PARAMETER, arg );
             }
         } else
-                break;
+            break;
     }
 
-args_done:
+    args_done:
     pszOpts = gpNthptr;
 
     // process the default INI file if necessary
@@ -195,7 +211,7 @@ args_done:
     SetCurSize(0 );
 
     // display the passed command line if requested
-    if (gpIniptr->INIDebug & INI_DB_SHOWTAIL) {
+    if ( gpIniptr->INIDebug & INI_DB_SHOWTAIL ) {
         qprintf( STDERR, TAILIS, NAME_HEADER, getcmd( gszCmdline ));
         (void)GetKeystroke( EDIT_NO_ECHO | EDIT_ECHO_CRLF );
     }
@@ -215,7 +231,7 @@ args_done:
     // set up ^C and ^BREAK handling
     HoldSignals();
 
-    if (nSignalHandler == 2) {
+    if ( nSignalHandler == 2 ) {
         // set signal handler (structure must be on main() stack)
         pExceptionStruct->prev_structure = 0;
         pExceptionStruct->ExceptionHandler = (_ERR *)&BreakHandler;
@@ -256,7 +272,7 @@ static void RemoveQuotes( char *line )
     int nLength;
 
     nLength = ( strlen( line ) - 1 );
-    if (( line[0] == '"' ) && ( line[ nLength ] == '"' ) && ( is_file( first_arg( line )) == 0 )) {
+    if ( ( line[0] == '"' ) && ( line[ nLength ] == '"' ) && ( is_file( first_arg( line )) == 0 ) ) {
         // remove the trailing double quote
         line[ nLength ] = '\0';
 
@@ -294,9 +310,9 @@ static void init_env( void )
     if ( gpIniptr->LocalDirHistory != 0 )
         sprintf( strend( szDirHistSharename ), ".%03d", gpLIS->sgCurrent );
 
-    if ( DosGetNamedSharedMem( (PVOID)&glpAliasList, szAliasSharename, (PAG_READ | PAG_WRITE) )) {
+    if ( DosGetNamedSharedMem( (PVOID)&glpAliasList, szAliasSharename, (PAG_READ | PAG_WRITE) ) ) {
         // allocate 4K out of a 64K sparse memory block
-        if (( DosAllocSharedMem( (PVOID)&glpAliasList, szAliasSharename, 65535L, (PAG_READ | PAG_WRITE))) || ( DosSetMem( glpAliasList, ALIAS_SIZE, (PAG_COMMIT | PAG_READ | PAG_WRITE))))
+        if ( ( DosAllocSharedMem( (PVOID)&glpAliasList, szAliasSharename, 65535L, (PAG_READ | PAG_WRITE))) || ( DosSetMem( glpAliasList, ALIAS_SIZE, (PAG_COMMIT | PAG_READ | PAG_WRITE))) )
             _exit( error(ERROR_NOT_ENOUGH_MEMORY, NULL ));
 
         // initialize the alias list to 0's
@@ -307,9 +323,9 @@ static void init_env( void )
     gpIniptr->DirHistoryNew = gpIniptr->DirHistorySize;
     gpIniptr->HistoryNew = gpIniptr->HistorySize;
 
-    if ( DosGetNamedSharedMem( (PVOID)&glpHistoryList, szHistorySharename, (PAG_READ | PAG_WRITE) )) {
+    if ( DosGetNamedSharedMem( (PVOID)&glpHistoryList, szHistorySharename, (PAG_READ | PAG_WRITE) ) ) {
         // default history size is 1K
-        if ( DosAllocSharedMem( (PVOID)&glpHistoryList, szHistorySharename, gpIniptr->HistorySize + sizeof(UINT), (PAG_READ | PAG_WRITE | PAG_COMMIT) ))
+        if ( DosAllocSharedMem( (PVOID)&glpHistoryList, szHistorySharename, gpIniptr->HistorySize + sizeof(UINT), (PAG_READ | PAG_WRITE | PAG_COMMIT) ) )
             _exit( error( ERROR_NOT_ENOUGH_MEMORY, NULL ));
 
         // initialize the history list to 0's
@@ -326,9 +342,9 @@ static void init_env( void )
 
     glpHistoryList += sizeof(UINT);
 
-    if ( DosGetNamedSharedMem( (PVOID)&glpDirHistory, szDirHistSharename, (PAG_READ | PAG_WRITE) )) {
+    if ( DosGetNamedSharedMem( (PVOID)&glpDirHistory, szDirHistSharename, (PAG_READ | PAG_WRITE) ) ) {
         // default directory history size is 256 bytes
-        if ( DosAllocSharedMem( (PVOID)&glpDirHistory, szDirHistSharename, gpIniptr->DirHistorySize + sizeof(UINT), (PAG_READ | PAG_WRITE | PAG_COMMIT) ))
+        if ( DosAllocSharedMem( (PVOID)&glpDirHistory, szDirHistSharename, gpIniptr->DirHistorySize + sizeof(UINT), (PAG_READ | PAG_WRITE | PAG_COMMIT) ) )
             _exit( error( ERROR_NOT_ENOUGH_MEMORY, NULL ));
 
         // initialize the directory history list to 0's
@@ -355,6 +371,11 @@ static void init_env( void )
     // set COMSPEC
     sprintf( gszCmdline, COMSPEC_OS2, COMSPEC, _pgmptr );
     add_variable( gszCmdline );
+
+    // 20110530 AB ticket #7
+    // set WORKPLACE_PRIMARY_CP so that new session inherits active codepage
+    // from current session on OS/2 4.5 or later
+    if( get_variable( "WORKPLACE_PRIMARY_CP" )) add_variable( "WORKPLACE_PRIMARY_CP=?" );
 }
 
 
@@ -375,12 +396,17 @@ static void InitSystemVariables( void )
     ULONG   *pulW16 = (PULONG)&pWork16, ulTemp;
     PFN     pfnWSTAI32;
     APIRET  rc;
+    BOOL    fHaveGUI = FALSE;
+    extern char *_LpPgmName;
 
     // allow 40 file handles
     (void)DosSetMaxFH( 40 );
 
     // read the info seg for session number & parent PID
     (void)DosGetInfoSeg( &selGlobalSeg, &selLocalSeg );
+
+    // get DBCS ranges
+    InitDBCSLead();
 
     // KLUDGE for WATCOM C problems in converting a pointer to a 16-bit segment.
     // We have to convert to a long first, then store it, otherwise Watcom C
@@ -406,18 +432,20 @@ static void InitSystemVariables( void )
 
     // save the command line pointer before it gets overwritten
     ppib->pib_pchcmd = strdup( ppib->pib_pchcmd );
+    // save the program full path before it gets overwritten
+    _LpPgmName = strdup(_LpPgmName);
 
     glpMasterEnvironment = glpEnvironment = ppib->pib_pchenv;
 
     // save the boot drive
     DosQuerySysInfo(QSV_BOOT_DRIVE, QSV_BOOT_DRIVE, &ulTemp, sizeof(ulTemp));
     gchSysBootDrive = (char)( ulTemp + 'A' - 1);
-
+    
     DosQuerySysInfo(QSV_VERSION_REVISION, QSV_VERSION_REVISION, &ulTemp, sizeof(ulTemp));
     gnOS2_Revision = (unsigned int)( ulTemp + 'A' );
 
     // check to see if it's a child pipe process
-    if (( fptr = get_variable( SHAREMEM_PIPE_ENV )) != NULL ) {
+    if ( ( fptr = get_variable( SHAREMEM_PIPE_ENV )) != NULL ) {
 
         if ( DosGetNamedSharedMem( (PPVOID)&gpPipeParent, fptr, PAG_READ | PAG_WRITE) == 0 ) {
 
@@ -463,11 +491,22 @@ static void InitSystemVariables( void )
         add_variable( SHAREMEM_PIPE_ENV );
     }
 
+    if ( DosQueryModuleHandle( "PMCTLS", &hmod ) == NO_ERROR ) {
+        // PMCTLS is loaded in the process, so there's extremely high
+        // probability that we're running with PM. Otherwise don't touch
+        // PMWIN & Co. NB: Just because PMWIN.DLL is loaded does *not*
+        // mean PM is really running.
+        fHaveGUI = TRUE;
+    }
+
     // get WinQueryWindowPos, WinSetWindowPos, WinQuerySysValue,
     //   WinPostMessage, and WinSetKeyboardStateTable
-    if ( DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), "PMWIN", &hmod ) == 0 ) {
+    if ( fHaveGUI && DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), "PMWIN", &hmod ) == 0 ) {
         DosQueryProcAddr( hmod, ORD_WIN32INITIALIZE, NULL, (PFN *)&pfnWINIT );
         DosQueryProcAddr( hmod, ORD_WIN32TERMINATE, NULL, (PFN *)&pfnWTERM );
+        DosQueryProcAddr( hmod, ORD_WIN32CREATEMSGQUEUE, NULL, (PFN *)&pfnWCMQ );
+        DosQueryProcAddr( hmod, ORD_WIN32DESTROYMSGQUEUE, NULL, (PFN *)&pfnWDMQ );
+        DosQueryProcAddr( hmod, ORD_WIN32CANCELSHUTDOWN, NULL, (PFN *)&pfnWCS );
         DosQueryProcAddr( hmod, ORD_WIN32SETACTIVEWINDOW, NULL, (PFN *)&pfnWSAW );
         DosQueryProcAddr( hmod, ORD_WIN32GETLASTERROR, NULL, (PFN *)&pfnWGLE );
         DosQueryProcAddr( hmod, ORD_WIN32SETWINDOWPOS, NULL, (PFN *)&pfnWSWP );
@@ -488,11 +527,22 @@ static void InitSystemVariables( void )
     if ( pfnWINIT != NULL )
         ghHAB = (*pfnWINIT)( 0 );
 
+    if ( ghHAB != NULLHANDLE ) {
+        // Morph into a PM app and create a message queue. This is required
+        // for WinSetWindowText to work
+        ppib->pib_ultype = 3;
+        ghHMQ = (*pfnWCMQ)( ghHAB, 0 );
+
+        // Call WinCancelShutdown so that we don't get WM_QUIT, since no one
+        // will be really servicing this message queue
+        (*pfnWCS)( ghHMQ, TRUE );
+    }
+
     // Get DosQueryExtLIBPATH and DosSetExtLIBPATH in Warp
     if ( gnOsVersion >= 230 ) {
         // Look for loaded JPOS2DLL.DLL first
         rc = DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), "JPOS2DLL", &hmod );
-        if (rc) {
+        if ( rc ) {
             // If that failed, try the 4OS2.EXE directory
             FindInstalledFile ( szHelperDllName, "JPOS2DLL.DLL" );
             rc = DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), szHelperDllName, &hmod );
@@ -500,15 +550,13 @@ static void InitSystemVariables( void )
         if ( rc == 0 ) {
             DosQueryProcAddr( hmod, 3, NULL, (PFN *)&pfnSendKeys );
             DosQueryProcAddr( hmod, 4, NULL, (PFN *)&pfnQuitSendKeys );
-        };// else We don't want to always see this stupid message
-//            qprintf( STDERR, NO_DLL );
+        }// else
+        //    qprintf( STDERR, NO_DLL );
     }
-
-
 
     // get WinSetTitleAndIcon, WinQuerySwitchEntry, WinQuerySwitchHandle,
     //   WinStartApp, and WinChangeSwitchEntry
-    if ( DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), "PMSHAPI", &hmod2 ) == 0 ) {
+    if ( fHaveGUI && DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), "PMSHAPI", &hmod2 ) == 0 ) {
         // KLUDGE for WATCOM C problems in converting a pointer to a 16-bit function.
         // We have to convert to a long first, then store it, otherwise Watcom C
         // converts it to 16-bit and immediately back to 32-bit
@@ -526,9 +574,17 @@ static void InitSystemVariables( void )
         DosQueryProcAddr( hmod2, ORD_PRF32WRITEPROFILEDATA, NULL, (PFN *)&pfnPWPD );
         DosQueryProcAddr( hmod2, ORD_PRF32CLOSEPROFILE, NULL, (PFN *)&pfnPCP );
 
-        if (( hSwitch = (HSWITCH)(*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
+        if ( ( hSwitch = (HSWITCH)(*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
             (*pfnWQSE)( hSwitch, &swctl );
-            ghwndWindowHandle = swctl.hwnd;
+            /* If VIO window assume OK to write to titlebar etc. (15 Jul 05 SHL)
+             * This usually means we are a base 4OS2 session or a child
+             * The goal is to avoid writing to windows created by PM apps
+             * because 4OS2 may have been DosExecPgm'ed from the message thread
+             * with a sync wait and any actions that require window messages
+             * will deadlock
+             */
+            //if ( swctl.bProgType == PROG_WINDOWABLEVIO )
+                ghwndWindowHandle = swctl.hwnd;
         }
     }
 }
@@ -565,7 +621,7 @@ static void init_ini( void )
     // set shell number, clear out dummy log file name
     gaInifile.ShellNum = (char)i;
 
-    if (( gaInifile.ShellNum != 0 ) && ( prev_shell_sharedmem != 0L )) {
+    if ( ( gaInifile.ShellNum != 0 ) && ( prev_shell_sharedmem != 0L ) ) {
         // we have an old INI file, see if we can inherit it (signature must
         // match and string / key data must fit in our data areas)
         prev_ini = (INIFILE *)(prev_ini_data = prev_shell_sharedmem);
@@ -611,7 +667,7 @@ static void init_ini( void )
             (void)process_ini( strcpy( szFname, gaInifile.StrData + gaInifile.NextININame ));
 
         // otherwise reprocess primary file if it had a [Secondary] section
-        else if (( gaInifile.PrimaryININame != INI_EMPTYSTR ) && (( gaInifile.SecFlag & INI_SECONDARY ) != 0 ))
+        else if ( ( gaInifile.PrimaryININame != INI_EMPTYSTR ) && (( gaInifile.SecFlag & INI_SECONDARY ) != 0 ) )
             (void)process_ini( strcpy( szFname, gaInifile.StrData + gaInifile.PrimaryININame ));
     }
 }
@@ -625,7 +681,7 @@ static void default_ini( void )
         strcpy( gszCmdline, _pgmptr );
         insert_path( gszCmdline, OS2_INI, gszCmdline );
 
-        if ( process_ini( gszCmdline ) && (( stricmp( gszCmdline+3, OS2_INI ) != 0 ) || ( gszCmdline[0] != gaInifile.BootDrive ))) {
+        if ( process_ini( gszCmdline ) && (( stricmp( gszCmdline+3, OS2_INI ) != 0 ) || ( gszCmdline[0] != gaInifile.BootDrive )) ) {
             strcpy( gszCmdline+3, OS2_INI );
             gszCmdline[0] = gaInifile.BootDrive;
             (void)process_ini( gszCmdline );
@@ -648,7 +704,7 @@ static int process_ini( char *fname )
     mkfname( fullname, 0 );
 
     // if it processes OK, save the name for next shell
-    if (( ecode = IniParse( fullname, (INIFILE *)&gaInifile, (( gaInifile.ShellNum != 0 ) ? INI_PRIMARY : INI_SECONDARY))) == 0 ) {
+    if ( ( ecode = IniParse( fullname, (INIFILE *)&gaInifile, (( gaInifile.ShellNum != 0 ) ? INI_PRIMARY : INI_SECONDARY))) == 0 ) {
         (void)ini_string( gpIniptr, (int *)(&( gpIniptr->PrimaryININame )), fullname, strlen( fullname ));
 
         // show we processed a file ==> skip any default
@@ -664,7 +720,7 @@ void SaveIniData( void )
 {
     PCH pass_ini;
 
-    if (( pass_ini = shell_sharedmem ) != NULL ) {
+    if ( ( pass_ini = shell_sharedmem ) != NULL ) {
         memmove( pass_ini, (char *)&gaInifile, sizeof(INIFILE) );
         pass_ini += sizeof(INIFILE);
         memmove( pass_ini, (char *)gaIniStrings, gaInifile.StrUsed );
@@ -675,7 +731,7 @@ void SaveIniData( void )
 
 
 // Set our window position if requested
-static void set_window( void )
+void set_window( void )
 {
     if ( ghwndWindowHandle != NULLHANDLE ) {
         // Pick window position. Default does nothing ==> OS/2 standard window
@@ -691,9 +747,9 @@ static void set_window( void )
 
             case 3:     // Resize / move the window
                 (void)(*pfnWSWP)( ghwndWindowHandle, (HWND)0,
-                    gpIniptr->WindowX, gpIniptr->WindowY,
-                    gpIniptr->WindowWidth, gpIniptr->WindowHeight,
-                    SWP_SIZE | SWP_MOVE);
+                                  gpIniptr->WindowX, gpIniptr->WindowY,
+                                  gpIniptr->WindowWidth, gpIniptr->WindowHeight,
+                                  SWP_SIZE | SWP_MOVE);
 
                 // kludge for OS/2 bug
                 (void)(*pfnWPM)( ghwndWindowHandle, WM_SYSCOMMAND, MPFROMSHORT(SC_RESTORE), MPFROM2SHORT(CMDSRC_MENU, TRUE));
@@ -708,4 +764,3 @@ void DisplayCopyright( void )
 {
   cmd_ShowSystemMessage(1047,1L,"%s",""); // @fix use not direct message number
 }
-

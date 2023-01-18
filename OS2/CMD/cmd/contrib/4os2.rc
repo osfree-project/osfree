@@ -1,3 +1,4 @@
 #define ID_APPNAME 1
 
-POINTER ID_APPNAME "../contrib/4os2.ico"
+POINTER ID_APPNAME "../4os2.ico"
+

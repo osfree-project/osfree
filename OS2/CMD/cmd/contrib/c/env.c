@@ -11,7 +11,18 @@
 #include <string.h>
 
 #include "4all.h"
+#include "wrappers.h"
 
+// Define constants which may not be present in Toolkit headers
+#ifndef BEGIN_LIBPATH
+    #define BEGIN_LIBPATH 1
+#endif
+#ifndef END_LIBPATH
+    #define END_LIBPATH   2
+#endif
+#ifndef LIBPATHSTRICT
+    #define LIBPATHSTRICT 3
+#endif
 
 #define SET_EXPRESSION 1
 #define SET_MASTER 2
@@ -122,6 +133,12 @@ int set_cmd( int argc, char **argv )
 
             if (( arg = get_list( ENDLIBPATH, pchList )) != 0L ) {
                 sprintf( szBuffer, FMT_TWO_EQUAL_STR, ENDLIBPATH, arg );
+                more_page( szBuffer, 0 );
+            }
+            
+            if (( arg = get_list( LIBPATH_STRICT, pchList )) != 0L ) {
+                printf("arg %s", arg);
+                sprintf( szBuffer, FMT_TWO_EQUAL_STR, LIBPATH_STRICT, arg );
                 more_page( szBuffer, 0 );
             }
         }
@@ -235,7 +252,7 @@ int eset_cmd( int argc, char **argv )
     int i, rval = 0;
     long fEset;
     PCH vname, feptr, pchList;
-    unsigned char buffer[CMDBUFSIZ];
+    char buffer[CMDBUFSIZ];
 
     // check for alias or master environment switches
     if (( GetSwitches( argv[1], "AM", &fEset, 1 ) != 0 ) || ( first_arg( argv[1] ) == NULL ))
@@ -264,7 +281,15 @@ int eset_cmd( int argc, char **argv )
         // length of alias/variable name
         nLength = (int)( feptr - vname );
 
-        sprintf( buffer, "%.*Fs%.*Fs", nLength, vname, (( CMDBUFSIZ - 1 ) - nLength), feptr );
+        // 2014-09-15 SHL Correct BEGINLIBPATH etc. logic. - was passing bad string to add_list
+        if (nLength)
+          sprintf( buffer, "%.*Fs%.*Fs", nLength, vname, (( CMDBUFSIZ - 1 ) - nLength), feptr );
+        else {
+          // Assume BEGINLIBPATH etc.
+          nLength = strlen( arg ) + 1;
+          sprintf( buffer, "%s=%.*Fs", arg, (( CMDBUFSIZ - 1 ) - nLength), feptr );
+          vname = buffer;
+        }
 
         // echo & edit the argument
         printf( FMT_FAR_PREC_STR, nLength, vname );
@@ -299,7 +324,7 @@ char * get_list( char *varname, PCH pchList )
     int wildflag;
     PCH pchEnv;
     PCH pchStart;
-    static char szLibPath[512];
+    static char szLibPath[1024];        // 2014-11-06 SHL inc from 512 -> 1024 to match kernel
 
     if ( pchList == 0L )
         pchList = glpEnvironment;
@@ -309,13 +334,21 @@ char * get_list( char *varname, PCH pchList )
         szLibPath[0] = '\0';
         if ( stricmp( varname, BEGINLIBPATH ) == 0 ) {
             if ((DosQueryExtLIBPATH( szLibPath, BEGIN_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
-                return szLibPath;
+                    return szLibPath;
             return 0L;
         }
 
         if ( stricmp( varname, ENDLIBPATH ) == 0 ) {
             if ((DosQueryExtLIBPATH( szLibPath, END_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' ))
-            return szLibPath;
+                return szLibPath;
+            return 0L;
+        }
+
+        if ( stricmp( varname, LIBPATH_STRICT ) == 0 ) {
+            if ((DosQueryExtLIBPATH( szLibPath, END_LIBPATH ) == NO_ERROR ) && ( szLibPath[0] != '\0' )) {
+                szLibPath[1] = 0;       // 2014-09-24 SHL API does not nul terminate string
+                return szLibPath;
+            }
             return 0L;
         }
     }
@@ -329,31 +362,33 @@ char * get_list( char *varname, PCH pchList )
         pchStart = pchEnv;
 
         do {
-
-            if (( pchList == glpAliasList ) && ( *pchEnv == '*' )) {
-                pchEnv++;
-                wildflag++;
-
-                // allow entry of "ab*cd=def"
-                if ( *arg == '*' )
-                    arg++;
-            }
-
-            if ((( *arg == '\0' ) || ( *arg == '=' )) && ((( *pchEnv == '=' ) && ( pchEnv != pchStart )) || ( wildflag ))) {
-
-                for ( ; ( *pchEnv ); pchEnv++ ) {
-                    if ( *pchEnv == '=' )
-                        return ++pchEnv;
+            if (pchList == glpHistoryList) {
+                if ( *arg == '\0' && *pchEnv == '\0')
+                    return pchEnv;
+            } else {
+                if (( pchList == glpAliasList ) && ( *pchEnv == '*' )) {
+                    pchEnv++;
+                    wildflag++;
+    
+                    // allow entry of "ab*cd=def"
+                    if ( *arg == '*' )
+                        arg++;
                 }
-                return NULL;
+    
+                if ((( *arg == '\0' ) || ( *arg == '=' )) && ((( *pchEnv == '=' ) && ( pchEnv != pchStart )) || ( wildflag ))) {
+    
+                    for ( ; ( *pchEnv ); pchEnv++ ) {
+                        if ( *pchEnv == '=' )
+                            return ++pchEnv;
+                    }
+                    return NULL;
+                }
             }
-
         } while ( _ctoupper( *pchEnv++ ) == _ctoupper( *arg++ ));
 
         while ( *pchEnv++ != '\0' )
             ;
     }
-
     return 0L;
 }
 
@@ -448,7 +483,7 @@ int add_list( char *envstr, PCH pchList )
 
     length = strlen( envstr ) + 1;
 
-    // special case for BeginLIBPATH and EndLIBPATH
+    // special case for BeginLIBPATH, EndLIBPATH and LIBPATHSTRICT
     sscanf( envstr, "%31[^=]", szVarName );
     if (stricmp( szVarName, BEGINLIBPATH ) == 0) {
         if ((DosSetExtLIBPATH( line, BEGIN_LIBPATH ) == NO_ERROR))
@@ -457,6 +492,12 @@ int add_list( char *envstr, PCH pchList )
     }
 
     if (stricmp( szVarName, ENDLIBPATH ) == 0) {
+        if ((DosSetExtLIBPATH( line, END_LIBPATH ) == NO_ERROR))
+            return 0;
+        return ERROR_EXIT;
+    }
+
+    if (stricmp( szVarName, LIBPATH_STRICT ) == 0) {
         if ((DosSetExtLIBPATH( line, END_LIBPATH ) == NO_ERROR))
             return 0;
         return ERROR_EXIT;
@@ -480,6 +521,7 @@ int add_list( char *envstr, PCH pchList )
 
     if ( *line != '\0' ) {
 
+        // insert/modify  new alias or environment variable
         // check for out of environment space
         if (( last_var + length ) >= env_end ) {
 

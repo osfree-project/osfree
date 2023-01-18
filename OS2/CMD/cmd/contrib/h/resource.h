@@ -1,7 +1,7 @@
 // RESOURCE.H -- Resource IDs for Take Command/16, Take Command/32, and
 // Take Command for OS/2
 
-// 	Copyright 1995  Rex Conn and JP Software Inc.  All rights reserved
+//  Copyright 1995  Rex Conn and JP Software Inc.  All rights reserved
 
 // Lines beginning with //NUM are designed for processing by RENUM.BTM.
 // DO NOT remove these lines!  See RENUM.BTM for syntax documentation.
@@ -485,7 +485,8 @@
 #define IDI_ANSI                1618
 #define IDI_DISPLAYOPTIONSGROUP 1619
 #define IDI_BrightBG            1620
-#define IDI_DISPLAY_END IDI_BrightBG
+#define IDI_ChangeTitle         1621
+#define IDI_DISPLAY_END IDI_ChangeTitle
 
 // Command line 1
 //NUM ROUND
@@ -516,7 +517,8 @@
 #define IDI_HistMove            1653
 #define IDI_HistWrap            1654
 #define IDI_AppendToDir         1655
-#define IDI_CMDLINE_END IDI_AppendToDir
+#define IDI_HistNoDups          1656
+#define IDI_CMDLINE_END IDI_HistNoDups
 
 // Command line 2
 //NUM ROUND
@@ -716,4 +718,9 @@
 #define IDD_CAVE_COMMAND        1833
 #define IDD_CAVE_ENABLE         1834
 #define IDD_CAVE_TTY            1835
+
+// text depending on configuration
+#define IDI_POPUPWINTOPLABEL_TOP_TEXT       "Top"
+#define IDI_POPUPWINTOPLABEL_ABOVE_TEXT     "Above"
+
 

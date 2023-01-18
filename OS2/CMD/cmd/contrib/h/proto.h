@@ -67,6 +67,7 @@ int ret_cmd( int, char ** );
 int scr_cmd( int, char ** );
 int scrput_cmd( int, char ** );
 int set_cmd( int, char ** );
+void set_window( void );
 int setdate_cmd( int, char ** );
 int select_cmd( int, char ** );
 int setdos_cmd( int, char ** );
@@ -86,6 +87,7 @@ int unset_cmd( int, char ** );
 int verify_cmd( int, char ** );
 int window_cmd( int, char ** );
 int y_cmd( int, char ** );
+
 
 // Support routines in all versions
 
@@ -166,8 +168,9 @@ extern int ini_string(INIFILE *, int *, char *, int );
 
 // IOFMT.C
 void IntToAscii( int, char *);
-int /*_cdecl */ sscanf_far(const char *, const char *, ...);
-int /* _cdecl */ sprintf_far( char *, const char *, ...);
+void IntToAscii2( int, char *);
+int sscanf_far(const char *, const char *, ...);
+int sprintf_far( char *, const char *, ...);
 int qprintf( int, const char *, ...);
 int color_printf( int, const char *, ...);
 int qputs(const char *);
@@ -187,6 +190,7 @@ int verify_row_col( unsigned int, unsigned int );
 
 // MISC.C
 long QuerySeekSize( int );
+long long QuerySeekSizeLL( int );
 long RewindFile( int );
 int cvtkey( unsigned int, unsigned int );
 int iswhite( char );
@@ -236,7 +240,7 @@ char *executable_ext( char * );
 int ExcludeFiles( char *, char * );
 int wild_cmp( char *, char *, int, int );
 void GetINIPath( char *, int );
-char * FormatDate( int, int, int );
+char * FormatDate( int, int, int, int );
 void honk( void );
 int QueryInputChar( char *, char * );
 char * stristr( char *, char * );
@@ -244,6 +248,7 @@ char * strins( char *, char * );
 char * strend( char * );
 char * strlast( char * );
 void more_page( char *, int );
+void more_page_bin( char *, int , int );
 void incr_column( char, int * );
 long GetRandom( long, long );
 int OffOn( char * );
@@ -362,6 +367,7 @@ unsigned int QuerySysInfo( int );
 int QueryIsPipeName( char *);
 int QueryIsPipeHandle( int );
 int QueryIsDevice( char *);
+int QueryIsDeviceHandle( int );
 int QueryDriveExists( int );
 int QueryDriveRemote( int );
 int QueryDriveReady( int );
@@ -380,6 +386,8 @@ int TCGetPrivateProfileInt( char *, char *, int );
 void TCWritePrivateProfileInt( char *, char *, int );
 void TCWritePrivateProfileStr( char *, char *, char *);
 int FindInstalledFile( char *path, char *filename );
+int GetClipboardText( unsigned long *pulState, PCSZ *ppszClipboardText );
+void ReleaseClipboardText( unsigned long *pulState );
 
 // OS2INIT.C
 void InitOS( int, char **);
@@ -417,6 +425,11 @@ MRESULT EXPENTRY SSDebugDlgProc( HWND, ULONG, MPARAM, MPARAM );
 
 // 4OS2UTIL.ASM
 char *_System DecodeMsg( int, char *);
-unsigned int __cdecl get_cpu( void );
-unsigned int __cdecl get_ndp( void );
+unsigned int ASMCALL get_cpu( void );
+unsigned int ASMCALL get_ndp( void );
 
+// DBCS.C
+void InitDBCSLead( void );
+BOOL IsDBCSLead( UCHAR );
+BOOL IsDBCSLeadStr( char *, char * );
+BOOL IsDBCSTrailStr( char *, char * );

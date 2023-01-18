@@ -3,8 +3,8 @@
 
 PROJ = istring
 sources = $(p)istring$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include
-UNI2H = 1
+ADD_COPT = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(BLD)include
+#UNI2H = 1
 DEST    = none
 
 !include $(%ROOT)tools/mk/appsos2.mk

@@ -34,7 +34,7 @@ POPWINDOWPTR wOpen( int top, int left, int bottom, int right, int attribute, cha
 {
     POPWINDOWPTR wn;
     unsigned int window_size;
-    USHORT width;
+    VIO_UTYPE width;
     char * fptr;
 
     wn = (POPWINDOWPTR)malloc( sizeof(POPWINDOW) );
@@ -604,9 +604,10 @@ static void ssort( char * * list, unsigned int entries )
 // popup a selection list
 char * wPopSelect( int top, int left, int height, int width, char * *list, int entries, int current, char *title, char *pszBottomTitle, char *pszKeys, int fOptions )
 {
-    int i, bottom, right;
+    int i, j, bottom, right;
     char *fptr = 0L;
     jmp_buf saved_env;
+    int iCurPosRow, iCurPosCol;
 
     if ( fOptions & SORT_LIST )
         ssort( list, entries );
@@ -618,11 +619,40 @@ char * wPopSelect( int top, int left, int height, int width, char * *list, int e
     if ( left > i )
         left = (( left == 999 ) ? i / 2 : i );
 
+    // check if requested height is bigger than window
     if (( i = (( GetScrRows() - 1 ) - height )) < 0 )
         i = 0;
 
-    if ( top > i )
-        top = (( top == 999 ) ? i / 2 : i );
+    // 20090417 AB: if PopupPosRelative is set, calculate y pos relative to current cursor
+    if ( gaInifile.PopupPosRelative ) {
+        GetCurPos( &iCurPosRow, &iCurPosCol );
+        if ( entries < height ) {
+            height = entries;
+        }
+        j = (int) GetScrRows();
+        if ( top < 0 ) {
+            // popup should be below cursor line
+            i = iCurPosRow - top;
+            if ( ( i + height + 3 ) > j ) {
+                // popup would cross lower window boundary
+                i = j - height - 2;
+            }
+        } else {
+            // popup above cursor line
+            i = iCurPosRow - top - height - 1;
+        }
+        if ( i < 1 ) {
+            i = 1;
+        }
+        top = i;
+    } else {
+        if ( top > i ) {
+            top = (( top == 999 ) ? i / 2 : i );
+        }
+        if ( top < 0 ) {
+            top = 0;
+        }
+    }
 
     bottom = ( top + height ) + 1;
     right = ( left + width ) + 1;
