@@ -147,9 +147,6 @@ MC        = mkmsgf.exe
 
 HC        = wipfc
 
-CD        = $(REXX) cdir.cmd
-MDHIER    = $(REXX) mdhier.cmd
-
 GENE2FS   = genext2fs
 
 SYS       = sys
@@ -198,6 +195,9 @@ NULL      = nul
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 
+CD        = $(REXX) cdir.cmd
+MDHIER    = $(REXX) mdhier.cmd
+
 CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
@@ -225,6 +225,9 @@ FINDFILE  = findfile
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = mkdir
+
+CD        = cd
+MDHIER    = mkdir -p
 
 CLEAN_CMD    = @for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i
 
@@ -278,7 +281,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
+SUF = $(SUF) .ico .sym .bin .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
