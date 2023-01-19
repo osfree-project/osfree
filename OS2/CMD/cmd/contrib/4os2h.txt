@@ -101,7 +101,7 @@ Usage:  COLOR [[BRIght] [BLInk] fg ON bg [BORder bc]]
 Valid colors are Black, Blue, Green, Red, Magenta, Cyan, Yellow, and White.
 JPS0014H: Copy or append one or more files.
 
-Usage:  COPY [/A:[[-]rhsda] /C /E /F /H /M /N /P /Q /R /S /T /U /V /Z]
+Usage:  COPY [/A:[[-]rhsda] /C /E /F /H /J /M /N /P /Q /R /S /T /U /V /Z]
              [d:][path]source[+]...[/A /B] [d:][path]destination [/A /B]
 
     /A  Copy in ASCII mode
@@ -112,6 +112,8 @@ Usage:  COPY [/A:[[-]rhsda] /C /E /F /H /M /N /P /Q /R /S /T /U /V /Z]
     /F  Fail if the source file has extended attributes and the destination
          file system doesn't support extended attributes
     /H  Copy hidden and system files too
+    /J  CMD directory copy behavior (copies the directory 
+        instead of files in the directory) 
     /M  Copy only those files with the archive bit set
     /N  Don't actually perform the copy
     /P  Confirm each file copy (Y or N)
@@ -134,7 +136,9 @@ Usage:  DATE [mm-dd-yy]
 
 If you don't enter a date, 4OS2 will display the current date and prompt for
 a new one.  The format for the date entry depends on the country code.  U.S.
-format is mm-dd-yy; European format is dd-mm-yy; Japanese is yy-mm-dd.
+format is mm-dd-yy; European format is dd-mm-yy; Japanese is yy-mm-dd or
+the date format you specify in the INI file. You can specify that years be 4
+digits in the INI file.
 JPS0016H: Default block for SWITCH.
 
 Usage:  DEFAULT
@@ -175,22 +179,23 @@ JPS0020H: Start an OS/2 program in detached mode.
 Usage:  DETACH [d:][filename[.ext]]
 JPS0021H: Display information about files and subdirectories.
 
-Usage:  DIR [/A[:-rhsda] /I"text" /O:-deginrsu /124BDEFGHJKLMNPRSTUVWZ]
+Usage:  DIR [/A[:-rhsda] /I"text" /O:-deginrsu /124BDEFGHJKLMNPQRSTUVWZ]
             [[d:][path]filename...]
 
-    /1  One column                     /L  Lower case filenames
-    /2  Two columns                    /M  Suppress footers
-    /4  Four columns                   /N  Display FAT volume in HPFS format
-    /A  Select files by attributes     /O  Sort order
-    /B  Display filenames only         /P  Pause after each page
-    /D  Disable colorization           /R  Disable description wrapping
-    /E  Upper case filenames           /S  Display subdirectories
-    /F  Display expanded filenames     /T  Display attributes
-    /G  Display allocated size         /T:acw  Date / time type
-    /H  Hide "." and ".."              /U  Summaries only
-    /I  Match descriptions             /V  Sort filenames vertically
-    /J  Justify filenames              /W  Wide display
-    /K  Suppress headers               /Z  Display HPFS volume in FAT format
+       /1  One column                  /M  Suppress footers
+       /2  Two columns                 /N  Display FAT volume in HPFS format
+       /4  Four columns                /O  Sort order
+       /A  Select files by attributes  /P  Pause after each page
+       /B  Display filenames only      /Q  Suppress non-fatal errors
+       /D  Disable colorization        /R  Disable description wrapping
+       /E  Upper case filenames        /S  Display subdirectories
+       /F  Display expanded filenames  /T  Display attributes
+       /G  Display allocated size      /T:acw  Date / time type
+       /H  Hide "." and ".."           /U  Summaries only
+       /I  Match descriptions          /V  Sort filenames vertically
+       /J  Justify filenames           /W  Wide display
+       /K  Suppress headers            /Z  Display HPFS volume in FAT format
+       /L  Lower case filenames
 JPS0022H: Display, read, or clear the directory history list.
 
 Usage:  DIRHISTORY [/A command] [/FP] [/R [d:][path]filename]
@@ -222,7 +227,7 @@ JPS0025H: Tells applications where to search for their files.
 Usage:  DPATH [[d:]path][[;[d:]path]...]]
         DPATH ;
 
-If you enter DPATH with no parameters, 4OS2 displays the current search 
+If you enter DPATH with no parameters, 4OS2 displays the current search
 path.  If you enter DPATH and a semicolon, 4OS2 clears the search path.
 JPS0026H: Draw a box on the screen.
 
@@ -503,7 +508,7 @@ Usage:  LOG [/H /W [d:]pathname] [ON | OFF | "text"]
     /H  Toggle history log
     /W  Specify new log filename and turn command logging on
 
-Entering LOG with no parameters displays the log status and file name. 
+Entering LOG with no parameters displays the log status and file name.
 Entering LOG with text writes the text to the log file, even if LOG is
 set OFF.
 JPS0057H: Create subdirectories.
@@ -526,7 +531,7 @@ Usage:  MKDIR [/S] [d:]pathname...
     /S  Create intermediate subdirectories
 JPS0060H: Move files to other directories and drives.
 
-Usage:  MOVE [/A:[[-]rhsda] /C /D /E /F /H /N /P /Q /R /S /T /U /V]
+Usage:  MOVE [/A:[[-]rhsda] /C /D /E /F /H /J /M /N /P /Q /R /S /T /U /V]
              [d:][path]source... [d:][path]destination
 
     /A: Select files by attribute
@@ -535,6 +540,9 @@ Usage:  MOVE [/A:[[-]rhsda] /C /D /E /F /H /N /P /Q /R /S /T /U /V]
     /E  Don't display non-fatal errors
     /F  Don't copy the file(s) to the DELDIR directory
     /H  Move all files, including hidden & system
+    /J  CMD directory move behavior (moves the directory 
+        instead of files in the directory) 
+    /M  Modified files only
     /N  Don't actually move the file(s)
     /P  Prompt to confirm each move
     /Q  Don't display filenames or totals
@@ -877,7 +885,7 @@ size, or change the window title.
 
 Usage:  WINDOW [MIN | MAX | RESTORE] [/POS=row,col,width,height] ["title"]
 
-    "title"   Change the window title.  
+    "title"   Change the window title.
     minimize  Minimize the 4OS2 window.
     maximize  Maximize the 4OS2 window.
     restore   Restore the 4OS2 window to its "normal" size.

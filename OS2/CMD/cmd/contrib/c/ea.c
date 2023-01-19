@@ -139,7 +139,8 @@ BOOL EAWriteASCII( PCHAR pszPathName, PCHAR pszEAName, PCHAR pszString )
     memcpy( peaASCII->cValue, pszString, nLength );
 
     // Create FEA-list
-    pFEAl = CreateFEAList( pszEAName, (PBYTE)peaASCII, sizeof(STRUC_EAT_SV) + (USHORT)nLength - 1 );
+    pFEAl = CreateFEAList( pszEAName, (PBYTE)peaASCII,
+                          (nLength == 0) ? 0 : sizeof(STRUC_EAT_SV) + (USHORT)nLength - 1 );
 
     // Create EAOP-structure
     pEAOP = CreateEAOPWr( pFEAl );

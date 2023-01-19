@@ -147,9 +147,6 @@ MC        = mkmsgf.exe
 
 HC        = wipfc
 
-CD        = $(REXX) cdir.cmd
-MDHIER    = $(REXX) mdhier.cmd
-
 GENE2FS   = genext2fs
 
 SYS       = sys
@@ -198,6 +195,9 @@ NULL      = nul
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 
+CD        = $(REXX) cdir.cmd
+MDHIER    = $(REXX) mdhier.cmd
+
 CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
@@ -225,6 +225,9 @@ FINDFILE  = findfile
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = mkdir
+
+CD        = cd
+MDHIER    = mkdir -p
 
 CLEAN_CMD    = @for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i
 

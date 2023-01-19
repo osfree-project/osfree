@@ -13,15 +13,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
+#include <dos.h>
 #include <share.h>
 #include <string.h>
 
 #include "4all.h"
+#include "wrappers.h"
 
 static char * NextRange(char *);
 static int GetRangeArgs(char *, RANGES *);
 static int GetStrTime(char *, int *, int *);
-static int GetStrSize(char *, unsigned long *);
+static int GetStrSize(char *, long long *);
 
 int wild_brackets(char *, int, int );
 
@@ -31,92 +33,99 @@ int fNoComma = 0;
 
 int QueryIsLFN( char *pszFilename )
 {
-        int n, fExt;
+    int n, fExt;
 
-        // check for LFN/HPFS/NTFS name w/spaces or other invalid chars
-        if ( strpbrk( pszFilename, " ,\t|=<>" ) != NULL )
+    // check for LFN/HPFS/NTFS name w/spaces or other invalid chars
+    if ( strpbrk( pszFilename, " ,\t|=<>" ) != NULL )
+        return 1;
+
+    // check name for multiple extensions or
+    //   > 8 char filename & 3 char extension
+    for ( n = 0, fExt = 0; ( pszFilename[n] != '\0' ); n++ ) {
+        if ( pszFilename[n] == '.' ) {
+            if ( ( fExt ) || ( n > 8 ) )
                 return 1;
-
-        // check name for multiple extensions or
-        //   > 8 char filename & 3 char extension
-        for ( n = 0, fExt = 0; ( pszFilename[n] != '\0' ); n++ ) {
-                if ( pszFilename[n] == '.' ) {
-                    if (( fExt ) || ( n > 8 ))
-                        return 1;
-                    fExt = strlen( pszFilename + n );
-                }
+            fExt = strlen( pszFilename + n );
         }
+    }
 
-        return (( n > 12 ) || (( fExt == 0 ) && ( n > 8 )) || ( fExt > 4 ));
+    return(( n > 12 ) || (( fExt == 0 ) && ( n > 8 )) || ( fExt > 4 ));
 }
 
 
 // Get a file's size via the handle
 long QuerySeekSize( int fh )
 {
-        return ( _lseek( fh, 0L, SEEK_END ));
+    return( _lseek( fh, 0L, SEEK_END ));
+}
+
+
+// Get a file's size via the handle
+long long QuerySeekSizeLL( int fh )
+{
+    return( xlseek( fh, 0LL, SEEK_END ));
 }
 
 
 // Rewind a file
 long RewindFile( int fh )
 {
-        return ( _lseek( fh, 0L, SEEK_SET ));
+    return( _lseek( fh, 0L, SEEK_SET ));
 }
 
 
 // convert keystrokes
 int cvtkey(unsigned int uKeyCode, unsigned int uContextBits)
 {
-        unsigned int i, uSearchKey;
-        unsigned int uKeyCount = gpIniptr->KeyUsed;
-        unsigned int *puScan = gpIniptr->Keys;
-        unsigned int *puSubstitute = gpIniptr->Keys + uKeyCount;
+    unsigned int i, uSearchKey;
+    unsigned int uKeyCount = gpIniptr->KeyUsed;
+    unsigned int *puScan = gpIniptr->Keys;
+    unsigned int *puSubstitute = gpIniptr->Keys + uKeyCount;
 
-        uSearchKey = _ctoupper( uKeyCode );
-        uContextBits <<= 8;
+    uSearchKey = _ctoupper( uKeyCode );
+    uContextBits <<= 8;
 
-        // scan the key mapping array
-        for ( i = 0; ( i < uKeyCount ); i++ ) {
+    // scan the key mapping array
+    for ( i = 0; ( i < uKeyCount ); i++ ) {
 
-                // if key and context bits match, return the mapped key
-                if ((uSearchKey == puScan[i]) && (( puSubstitute[i] & uContextBits) != 0 )) {
+        // if key and context bits match, return the mapped key
+        if ( (uSearchKey == puScan[i]) && (( puSubstitute[i] & uContextBits) != 0 ) ) {
 
-                        // if forced normal key return original code with force normal bit set
-                        if (( puSubstitute[i] & (MAP_NORM_KEY << 8)) != 0 )
-                                return (uKeyCode | (MAP_NORM_KEY << 8));
+            // if forced normal key return original code with force normal bit set
+            if ( ( puSubstitute[i] & (MAP_NORM_KEY << 8)) != 0 )
+                return(uKeyCode | (MAP_NORM_KEY << 8));
 
-                        // otherwise return new key
-                        return ( puSubstitute[i] & ((EXTKEY << 8) | 0xFF));
-                }
+            // otherwise return new key
+            return( puSubstitute[i] & ((EXTKEY << 8) | 0xFF));
         }
+    }
 
-        // no match, return original code
-        return uKeyCode;
+    // no match, return original code
+    return uKeyCode;
 }
 
 
 // replace RTL isspace() - we only want to check for spaces & tabs
 int iswhite( char c )
 {
-        return (( c == ' ' ) || ( c == '\t' ));
+    return(( c == ' ' ) || ( c == '\t' ));
 }
 
 
 // test for delimiter (" \t,")
 int isdelim( char c )
 {
-        return (( c == '\0' ) || ( iswhite( c )) || ( c == ',' ));
+    return(( c == '\0' ) || ( iswhite( c )) || ( c == ',' ));
 }
 
 
 // skip past leading white space and return pointer to first non-space char
 char * skipspace( char *line )
 {
-        while (( *line == ' ' ) || ( *line == '\t' ))
-                line++;
+    while ( ( *line == ' ' ) || ( *line == '\t' ) )
+        line++;
 
-        return line;
+    return line;
 }
 
 
@@ -124,105 +133,105 @@ char * skipspace( char *line )
 //   with nitwit CMD.EXE syntax)
 char * GetToken( char *pszLine, char *pszDelims, int nStart, int nEnd )
 {
-        int i, n;
-        BOOL fReverse;
-        char *ptr, *pszStartLine;
-        char *pszStart = NULL, *pszEnd = NULL;
+    int i, n;
+    BOOL fReverse;
+    char *ptr, *pszStartLine;
+    char *pszStart = NULL, *pszEnd = NULL;
 
-        // change to 0 offset!
-        fReverse = ( nStart < 0 );
-        nStart += (( fReverse ) ? 1 : -1 );
-        nEnd += (( fReverse ) ? 1 : -1 );
+    // change to 0 offset!
+    fReverse = ( nStart < 0 );
+    nStart += (( fReverse ) ? 1 : -1 );
+    nEnd += (( fReverse ) ? 1 : -1 );
 
-        pszStartLine = pszLine;
-        if (( fReverse ) && ( *pszLine != '\0' ))
-                pszLine = strend( pszLine ) - 1;
+    pszStartLine = pszLine;
+    if ( ( fReverse ) && ( *pszLine != '\0' ) )
+        pszLine = strend( pszLine ) - 1;
 
-        for ( i = nStart, n = 0; ; ) {
+    for ( i = nStart, n = 0; ; ) {
 
-                // find start of arg[i]
-                while (( *pszLine != '\0' ) && ( pszLine >= pszStartLine ) && ( strchr( pszDelims, *pszLine ) != NULL ))
-                    pszLine += (( fReverse ) ? -1 : 1 );
+        // find start of arg[i]
+        while ( ( *pszLine != '\0' ) && ( pszLine >= pszStartLine ) && ( strchr( pszDelims, *pszLine ) != NULL ) )
+            pszLine += (( fReverse ) ? -1 : 1 );
 
-                // search for next delimiter character
-                for ( ptr = pszLine; (( *pszLine != '\0' ) && ( pszLine >= pszStartLine )); ) {
+        // search for next delimiter character
+        for ( ptr = pszLine; (( *pszLine != '\0' ) && ( pszLine >= pszStartLine )); ) {
 
-                        if ( strchr( pszDelims, *pszLine ) != NULL )
-                                break;
+            if ( strchr( pszDelims, *pszLine ) != NULL )
+                break;
 
-                        pszLine += (( fReverse ) ? -1 : 1 );
-                }
-
-                if ( i == 0 ) {
-
-                        // this is the argument I want - copy it & return
-                        if (( n = (int)( pszLine - ptr )) < 0 ) {
-                                n = -n;
-                                pszLine++;
-                        } else
-                                pszLine = ptr;
-
-                        if ( pszStart == NULL ) {
-
-                                // located first argument - save pointer
-                                pszStart = pszLine;
-                                if ( nEnd == nStart )
-                                        goto GotArg;
-
-                                // reset & get last argument
-                                i = nEnd;
-                                pszLine = pszStartLine;
-                                continue;
-                        } else {
-GotArg:
-                                // located last argument - save pointer
-                                pszEnd = pszLine + n;
-                                break;
-                        }
-                }
-
-                if (( *pszLine == '\0' ) || ( pszLine <= pszStartLine ))
-                        break;
-
-                i += (( fReverse ) ? 1 : -1 );
+            pszLine += (( fReverse ) ? -1 : 1 );
         }
 
-        if ( i != 0 ) {
-                // failed to find at start and/or end
-                if ( pszStart == NULL ) {
-                        pszEnd = pszStart = pszStartLine;
-                } else
-                        pszEnd = strend( pszStart );
+        if ( i == 0 ) {
+
+            // this is the argument I want - copy it & return
+            if ( ( n = (int)( pszLine - ptr )) < 0 ) {
+                n = -n;
+                pszLine++;
+            } else
+                pszLine = ptr;
+
+            if ( pszStart == NULL ) {
+
+                // located first argument - save pointer
+                pszStart = pszLine;
+                if ( nEnd == nStart )
+                    goto GotArg;
+
+                // reset & get last argument
+                i = nEnd;
+                pszLine = pszStartLine;
+                continue;
+            } else {
+                GotArg:
+                // located last argument - save pointer
+                pszEnd = pszLine + n;
+                break;
+            }
         }
 
-        sprintf( pszStartLine, FMT_PREC_STR, ( pszEnd - pszStart ), pszStart );
+        if ( ( *pszLine == '\0' ) || ( pszLine <= pszStartLine ) )
+            break;
 
-        return pszStartLine;
+        i += (( fReverse ) ? 1 : -1 );
+    }
+
+    if ( i != 0 ) {
+        // failed to find at start and/or end
+        if ( pszStart == NULL ) {
+            pszEnd = pszStart = pszStartLine;
+        } else
+            pszEnd = strend( pszStart );
+    }
+
+    sprintf( pszStartLine, FMT_PREC_STR, ( pszEnd - pszStart ), pszStart );
+
+    return pszStartLine;
 }
 
 
 // return the first argument in the line
 char * first_arg( char *line )
 {
-        return ( ntharg( line, 0 ));
+    return( ntharg( line, 0 ));
 }
 
 
 // remove everthing up to the "argcount" argument(s)
 char * next_arg( char *line, int argcount )
 {
-        (void)ntharg( line, argcount );
-        return ( strcpy( line, (( gpNthptr != NULL ) ? gpNthptr : NULLSTR )));
+    (void)ntharg( line, argcount );
+    return( strcpy( line, (( gpNthptr != NULL ) ? gpNthptr : NULLSTR )));
 }
 
 
 // return the last argument in the line (skipping the first arg)
 char * last_arg( char *line, int *i )
 {
-        for ( *i = 1; ( ntharg( line, *i ) != NULL ); (*i)++ )
-                ;
+    for ( *i = 1; ( ntharg( line, *i ) != NULL ); (*i)++ )
+        ;
 
-        return (( *i == 1 ) ? NULL : ntharg( line, --(*i) ));
+    return(( *i == 1 ) ? NULL : ntharg( line, --(*i) ));
 }
 
 
@@ -230,65 +239,67 @@ char * last_arg( char *line, int *i )
 //   & switches) or NULL if no nth argument exists
 char * ntharg( char *line, int index )
 {
-        static char buf[ MAXARGSIZ+1 ];
-        static char delims[] = "  \t,", *qptr;
-        char *ptr;
+    static char buf[ MAXARGSIZ+1 ];
+    // delim[0] will be set to switch char or space as needed
+    // delim[3] will be set to comma or nul as needed
+    static char delims[] = "  \t,";
+    static char *qptr;
+    char *ptr;
 
-        gpNthptr = NULL;
-        if ( line == NULL )
-                return NULL;
-
-        qptr = QUOTES;
-        delims[3] = (char)(( fNoComma == 0 ) ? ',' : '\0' );
-
-        if ( index & 0x800 ) {
-                // trick to disable switch character as delimiter
-                delims[0] = ' ';
-        } else
-                delims[0] = gpIniptr->SwChr;
-
-        if ( index & 0x2000 ) {
-                // trick to allow []'s as quote chars
-                qptr = "`\"[";
-        }
-
-        if ( index & 0x4000 ) {
-                // trick to allow ( )'s as quote characters
-                qptr = "`\"([";
-        }
-
-        if ( index & 0x1000 ) {
-                // trick to disable ` as quote character
-                qptr++;
-        }
-
-        index &= 0x7FF;
-
-        for ( ; ; index-- ) {
-
-                // find start of arg[i]
-                line += strspn( line, delims+1 );
-                if (( *line == '\0' ) || ( index < 0 ))
-                        break;
-
-                // search for next delimiter or switch character
-                if (( ptr = scan(( *line == gpIniptr->SwChr ) ? line + 1 : line, delims, qptr )) == BADQUOTES)
-                        break;
-
-                if ( index == 0 ) {
-
-                        // this is the argument I want - copy it & return
-                        gpNthptr = line;
-                        if (( index = (int)( ptr - line )) > MAXARGSIZ )
-                                index = MAXARGSIZ;
-                        sprintf( buf, FMT_PREC_STR, index, line );
-                        return buf;
-                }
-
-                line = ptr;
-        }
-
+    gpNthptr = NULL;
+    if ( line == NULL )
         return NULL;
+
+    qptr = QUOTES;                      // Backquote and double quote
+    delims[3] = (char)( fNoComma == 0 ? ',' : '\0' );
+
+    if ( index & NTHARG_SWITCH_CHAR_IS_DATA ) {
+        // trick to disable switch character as delimiter
+        delims[0] = ' ';
+    } else
+        delims[0] = gpIniptr->SwChr;
+
+    if ( index & NTHARG_BRACKETS_ARE_QUOTES ) {
+        // trick to allow []'s as quote chars
+        qptr = "`\"[";
+    }
+
+    if ( index & NTHARG_PARENS_ARE_QUOTES ) {
+        // trick to allow ( )'s as quote characters
+        qptr = "`\"([";
+    }
+
+    if ( index & NTHARG_BACKQUOTE_IS_DATA ) {
+        // trick to disable ` as quote character
+        qptr++;
+    }
+
+    index &= 0x7FF;
+
+    for ( ; ; index-- ) {
+
+        // find start of arg[i] - switch char is not a delimiter
+        line += strspn( line, delims+1 );
+        if ( ( *line == '\0' ) || ( index < 0 ) )
+            break;
+
+        // search for next delimiter or switch character
+        if ( ( ptr = scan(( *line == gpIniptr->SwChr ) ? line + 1 : line, delims, qptr )) == BADQUOTES )
+            break;
+
+        if ( index == 0 ) {
+
+            // this is the argument I want - copy it & return
+            gpNthptr = line;
+            if ( ( index = (int)( ptr - line )) > MAXARGSIZ )
+                index = MAXARGSIZ;
+            sprintf( buf, FMT_PREC_STR, index, line );
+            return buf;
+        }
+
+        line = ptr;
+    }
+    return NULL;
 }
 
 
@@ -298,221 +309,221 @@ char * ntharg( char *line, int index )
 //   could be a pipe, compound command character, or conditional)
 char * scan( char *line, char *pszSearch, char *quotestr )
 {
-        unsigned char cQuote;
-        char *pSaveLine, cOpenParen, cCloseParen, fTerm;
+    unsigned char cQuote;
+    char *pSaveLine, cOpenParen, cCloseParen, fTerm;
 
-        // kludge to allow detection of "%+" when looking for command separator
-        fTerm = (char)(( pszSearch == NULL ) || ( strchr( pszSearch, gpIniptr->CmdSep ) != NULL ));
+    // kludge to allow detection of "%+" when looking for command separator
+    fTerm = (char)(( pszSearch == NULL ) || ( strchr( pszSearch, gpIniptr->CmdSep ) != NULL ));
 
-        if ( line != NULL ) {
+    if ( line != NULL ) {
 
-            while ( *line != '\0' ) {
+        while ( *line != '\0' ) {
 
-TestForQuotes:
-                // test for a quote character or a () or [] expression
-                if ((( *line == '(' ) || ( *line == '[' ) || (( gpIniptr->Expansion & EXPAND_NO_QUOTES ) == 0 )) && ( strchr( quotestr, *line ) != NULL ) && (( pszSearch == NULL ) || ( strchr( pszSearch, *line ) == NULL ))) {
+            TestForQuotes:
+            // test for a quote character or a () or [] expression
+            if ( (( *line == '(' ) || ( *line == '[' ) || (( gpIniptr->Expansion & EXPAND_NO_QUOTES ) == 0 )) && ( strchr( quotestr, *line ) != NULL ) && (( pszSearch == NULL ) || ( strchr( pszSearch, *line ) == NULL )) ) {
 
-                    if (( *line == '(' ) || ( *line == '[' )) {
+                if ( ( *line == '(' ) || ( *line == '[' ) ) {
 
-                        cOpenParen = *line;
-                        cCloseParen = (char)(( cOpenParen == '(' ) ? ')' : ']' );
+                    cOpenParen = *line;
+                    cCloseParen = (char)(( cOpenParen == '(' ) ? ')' : ']' );
 
-                        pSaveLine = line;
+                    pSaveLine = line;
 
-                        // ignore characters within parentheses / brackets
-                        for ( cQuote = 1; (( cQuote > 0 ) && ( *line != '\0' )); ) {
+                    // ignore characters within parentheses / brackets
+                    for ( cQuote = 1; (( cQuote > 0 ) && ( *line != '\0' )); ) {
 
-                            // nested parentheses?
-                            if ( *(++line) == cOpenParen )
-                                cQuote++;
-                            else if ( *line == cCloseParen )
-                                cQuote--;
-                            // skip escape characters
-                            else if (( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 ))
-                                line++;
-                            else if (( *line == '%' ) && ( line[1] == '=' ) && (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 )) {
-                                // convert %= to default escape char
-                                strcpy( line, line + 1 );
-                                *line++ = gpIniptr->EscChr;
-                            }
-                        }
-
-                        // if no trailing ], assume [ isn't a quote char!
-                        if ( *line == '\0' ) {
-
-                            if ( cOpenParen != '[' )
-                                break;
-                            line = pSaveLine;
-
-                        // if only looking for the trailing ) or ], return
-                        } else if (( pszSearch != NULL ) && ( *pszSearch == cCloseParen ))
-                            break;
-
-                    } else {
-
-                        // ignore characters within quotes
-                        for ( cQuote = *line; ( *(++line) != cQuote ); ) {
-
-                            // skip escape characters
-                            if (( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 ))
-                                line++;
-                            else if (( *line == '%' ) && ( line[1] == '=' )) {
-                                if (( cQuote == '"' ) && (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 )) {
-                                    // convert %= to default escape char
-                                    strcpy( line, line + 1 );
-                                    *line++ = gpIniptr->EscChr;
-                                } else
-                                    line += 2;
-                            }
-
-                            if ( *line == '\0' ) {
-
-                                // unclosed double quotes OK?
-                                if ( cQuote == '"' )
-                                    return line;
-
-                                error( ERROR_4DOS_NO_CLOSE_QUOTE, NULL );
-                                return BADQUOTES;
-                            }
+                        // nested parentheses?
+                        if ( *(++line) == cOpenParen )
+                            cQuote++;
+                        else if ( *line == cCloseParen )
+                            cQuote--;
+                        // skip escape characters
+                        else if ( ( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 ) )
+                            line++;
+                        else if ( ( *line == '%' ) && ( line[1] == '=' ) && (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) ) {
+                            // convert %= to default escape char
+                            strcpy( line, line + 1 );
+                            *line++ = gpIniptr->EscChr;
                         }
                     }
+
+                    // if no trailing ], assume [ isn't a quote char!
+                    if ( *line == '\0' ) {
+
+                        if ( cOpenParen != '[' )
+                            break;
+                        line = pSaveLine;
+
+                        // if only looking for the trailing ) or ], return
+                    } else if ( ( pszSearch != NULL ) && ( *pszSearch == cCloseParen ) )
+                        break;
 
                 } else {
 
-                    // skip escaped characters
-                    for ( ; ; ) {
+                    // ignore characters within quotes
+                    for ( cQuote = *line; ( *(++line) != cQuote ); ) {
 
-                        if (( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 )) {
-                            if ( *(++line) != '\0' ) {
-                                line++;
-                                goto TestForQuotes;
-                            } else
-                                break;
-                        } else if (( *line == '%' ) && ( line[1] == '=' )) {
-                            if (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) {
+                        // skip escape characters
+                        if ( ( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 ) )
+                            line++;
+                        else if ( ( *line == '%' ) && ( line[1] == '=' ) ) {
+                            if ( ( cQuote == '"' ) && (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) ) {
                                 // convert %= to default escape char
                                 strcpy( line, line + 1 );
-                                *line = gpIniptr->EscChr;
-                            } else {
+                                *line++ = gpIniptr->EscChr;
+                            } else
                                 line += 2;
-                                break;
-                            }
-                        } else
-                            break;
-                    }
-
-                    if ( *line == '\0' )
-                        break;
-
-                    if ( pszSearch == NULL ) {
-
-                        if (( gpIniptr->Expansion & EXPAND_NO_COMPOUNDS ) == 0 ) {
-
-                            // check for pipes, compounds, or conditionals
-                            if (( *line == '|' ) || (( *line == '&' ) && ( _strnicmp( line-1," && ", 4 ) == 0 )))
-                                break;
-
-                            // strange kludge when using & as a command
-                            //   separator - this fouls up things like
-                            //   |& and >&
-                            if (( *line == gpIniptr->CmdSep ) && ( line[-1] != '|' ) && ( line[-1] != '>' ))
-                                break;
                         }
 
-                    } else if ( strchr( pszSearch, *line ) != NULL ) {
+                        if ( *line == '\0' ) {
 
-                        // make sure switch character has something
-                        //  following it (kludge for "copy *.* a:/")
-                        if (( *line != gpIniptr->SwChr ) || ( isdelim( line[1] ) == 0 ))
-                            break;
-                    }
+                            // unclosed double quotes OK?
+                            if ( cQuote == '"' )
+                                return line;
 
-                    // check for %+ when looking for terminator
-                    if (( fTerm ) && ( *line == '%' ) && ( line[1] == '+' )) {
-
-                        if (( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) {
-// FIXME - Add kludge for %var%+%var%!
-                            strcpy( line, line + 1 );
-                            *line = gpIniptr->CmdSep;
-                            break;
+                            error( ERROR_4DOS_NO_CLOSE_QUOTE, NULL );
+                            return BADQUOTES;
                         }
-
-                        line++;
                     }
                 }
 
-                if ( *line )
-                    line++;
-            }
-        }
+            } else {
 
-        return line;
+                // skip escaped characters
+                for ( ; ; ) {
+
+                    if ( ( *line == gpIniptr->EscChr ) && (( gpIniptr->Expansion & EXPAND_NO_ESCAPES ) == 0 ) ) {
+                        if ( *(++line) != '\0' ) {
+                            line++;
+                            goto TestForQuotes;
+                        } else
+                            break;
+                    } else if ( ( *line == '%' ) && ( line[1] == '=' ) ) {
+                        if ( ( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) {
+                            // convert %= to default escape char
+                            strcpy( line, line + 1 );
+                            *line = gpIniptr->EscChr;
+                        } else {
+                            line += 2;
+                            break;
+                        }
+                    } else
+                        break;
+                }
+
+                if ( *line == '\0' )
+                    break;
+
+                if ( pszSearch == NULL ) {
+
+                    if ( ( gpIniptr->Expansion & EXPAND_NO_COMPOUNDS ) == 0 ) {
+
+                        // check for pipes, compounds, or conditionals
+                        if ( ( *line == '|' ) || (( *line == '&' ) && ( _strnicmp( line-1," && ", 4 ) == 0 )) )
+                            break;
+
+                        // strange kludge when using & as a command
+                        //   separator - this fouls up things like
+                        //   |& and >&
+                        if ( ( *line == gpIniptr->CmdSep ) && ( line[-1] != '|' ) && ( line[-1] != '>' ) )
+                            break;
+                    }
+
+                } else if ( strchr( pszSearch, *line ) != NULL ) {
+
+                    // make sure switch character has something
+                    //  following it (kludge for "copy *.* a:/")
+                    if ( ( *line != gpIniptr->SwChr ) || ( isdelim( line[1] ) == 0 ) )
+                        break;
+                }
+
+                // check for %+ when looking for terminator
+                if ( ( fTerm ) && ( *line == '%' ) && ( line[1] == '+' ) ) {
+
+                    if ( ( gpIniptr->Expansion & EXPAND_NO_VARIABLES ) == 0 ) {
+                        // FIXME - Add kludge for %var%+%var%!
+                        strcpy( line, line + 1 );
+                        *line = gpIniptr->CmdSep;
+                        break;
+                    }
+
+                    line++;
+                }
+            }
+
+            if ( *line )
+                line++;
+        }
+    }
+
+    return line;
 }
 
 
 int GetMultiCharSwitch( char *pszLine, char *pszSwitch, char *pszOutput, int nMaxLength )
 {
-        char *arg;
-        int i;
+    char *arg;
+    int i;
 
-        // check for and remove switches anywhere in the line
-        *pszOutput = '\0';
-        for ( i = 0; (( arg = ntharg( pszLine, i )) != NULL ); i++ ) {
+    // check for and remove switches anywhere in the line
+    *pszOutput = '\0';
+    for ( i = 0; (( arg = ntharg( pszLine, i )) != NULL ); i++ ) {
 
-                if (( *arg == gpIniptr->SwChr ) && ( _ctoupper( arg[1] ) == (int)*pszSwitch )) {
+        if ( ( *arg == gpIniptr->SwChr ) && ( _ctoupper( arg[1] ) == (int)*pszSwitch ) ) {
 
-                        // save the switch argument
-                        sprintf( pszOutput, FMT_PREC_STR, nMaxLength, arg + 2 );
+            // save the switch argument
+            sprintf( pszOutput, FMT_PREC_STR, nMaxLength, arg + 2 );
 
-                        // remove the switch(es)
-                        strcpy( gpNthptr, gpNthptr + strlen( arg ) );
-                        return 1;
-                }
+            // remove the switch(es)
+            strcpy( gpNthptr, gpNthptr + strlen( arg ) );
+            return 1;
         }
+    }
 
-        return 0;
+    return 0;
 }
 
 
 // Scan the line for matching arguments, set the flags, and remove the switches
 int GetSwitches( char *line, char *switch_list, long *fFlags, int fOnlyFirst )
 {
-        char *arg;
-        int i;
-        long lSwitch;
+    char *arg;
+    int i;
+    long lSwitch;
 
-        if ( *switch_list == '*' )
-                gchExclusiveMode = gchInclusiveMode = 0;
+    if ( *switch_list == '*' )
+        gchExclusiveMode = gchInclusiveMode = 0;
 
-        // check for and remove switches anywhere in the line
-        for ( i = 0, *fFlags = 0L; (( arg = ntharg( line, i )) != NULL ); ) {
+    // check for and remove switches anywhere in the line
+    for ( i = 0, *fFlags = 0L; (( arg = ntharg( line, i )) != NULL ); ) {
 
-                if ( *arg == gpIniptr->SwChr ) {
+        if ( *arg == gpIniptr->SwChr ) {
 
-                        if (( lSwitch = switch_arg( arg, switch_list )) == -1L )
-                                return ERROR_EXIT;
+            if ( ( lSwitch = switch_arg( arg, switch_list )) == -1L )
+                return ERROR_EXIT;
 
-                        if ( lSwitch == 0 ) {
-                                i++;
-                                continue;
-                        }
+            if ( lSwitch == 0 ) {
+                i++;
+                continue;
+            }
 
-                        *fFlags |= lSwitch;
+            *fFlags |= lSwitch;
 
-                        // remove the switch(es)
-                        if ( fOnlyFirst )
-                                strcpy( gpNthptr, skipspace( gpNthptr + strlen( arg )));
-                        else
-                                strcpy( gpNthptr, gpNthptr + strlen( arg ) );
+            // remove the switch(es)
+            if ( fOnlyFirst )
+                strcpy( gpNthptr, skipspace( gpNthptr + strlen( arg )));
+            else
+                strcpy( gpNthptr, gpNthptr + strlen( arg ) );
 
-                } else if ( fOnlyFirst ) {
-                        // only want opts at beginning!
-                        break;
-                } else
-                        i++;
-        }
+        } else if ( fOnlyFirst ) {
+            // only want opts at beginning!
+            break;
+        } else
+            i++;
+    }
 
-        return 0;
+    return 0;
 }
 
 
@@ -520,722 +531,752 @@ int GetSwitches( char *line, char *switch_list, long *fFlags, int fOnlyFirst )
 //   a bad switch argument, else ORed the matching arguments (1 2 4 8 etc.)
 long switch_arg( char *arg, char *match )
 {
-        int i;
-        long lVal = 0L, lTemp;
-        char *ptr;
+    int i;
+    long lVal = 0L, lTemp;
+    char *ptr;
 
-        if (( arg != NULL ) && ( *arg++ == gpIniptr->SwChr )) {
+    if ( ( arg != NULL ) && ( *arg++ == gpIniptr->SwChr ) ) {
 
-                // check for /A:rhsda
-                if (( _ctoupper( *arg ) == 'A' ) && ( arg[1] == ':' ) && ( *match == '*' )) {
-                        // set gchInclusiveMode and gchExclusiveMode
-                        GetSearchAttributes( arg + 1 );
-                        return 1;
-                }
-
-                for ( i = 0; ( arg[i] != '\0' ); i++ ) {
-
-                        // skip '*' denoting /A:xxx field
-                        if ((( ptr = strchr( match, _ctoupper( arg[i] ))) == NULL ) || ( *ptr == '*' )) {
-
-                                if ( isalpha( arg[i] )) {
-                                        error( ERROR_INVALID_PARAMETER, arg );
-                                        return -1L;
-                                }
-
-                                break;
-
-                        } else {
-                                lTemp = (long)( ptr - match );
-                                lVal |= ( 1L << lTemp );
-                        }
-                }
+        // check for /A:rhsda
+        if ( ( _ctoupper( *arg ) == 'A' ) && ( arg[1] == ':' ) && ( *match == '*' ) ) {
+            // set gchInclusiveMode and gchExclusiveMode
+            GetSearchAttributes( arg + 1 );
+            return 1;
         }
 
-        return lVal;
+        for ( i = 0; ( arg[i] != '\0' ); i++ ) {
+
+            // skip '*' denoting /A:xxx field
+            if ( (( ptr = strchr( match, _ctoupper( arg[i] ))) == NULL ) || ( *ptr == '*' ) ) {
+
+                if ( isalpha( arg[i] ) ) {
+                    error( ERROR_INVALID_PARAMETER, arg );
+                    return -1L;
+                }
+
+                break;
+
+            } else {
+                lTemp = (long)( ptr - match );
+                lVal |= ( 1L << lTemp );
+            }
+        }
+    }
+
+    return lVal;
 }
 
 
 // returns 1 if the argument is numeric
 int QueryIsNumeric( char *pszNum )
 {
-        if (( pszNum == NULL ) || ( *pszNum == '\0' ))
-                return 0;
+    if ( ( pszNum == NULL ) || ( *pszNum == '\0' ) )
+        return 0;
 
-        if (( is_signed_digit( *pszNum ) != 0 ) || (( *pszNum == gaCountryInfo.szDecimal[0] ) && ( isdigit ( pszNum[1] )) && ( strchr( pszNum+1, gaCountryInfo.szDecimal[0] ) == NULL ))) {
-                for ( ++pszNum; (( *pszNum != '\0' ) && ( isdigit( *pszNum ) || ( *pszNum == gaCountryInfo.szThousandsSeparator[0] ) || ( *pszNum == gaCountryInfo.szDecimal[0] ))); pszNum++ )
-                    ;
-        }
+    if ( ( is_signed_digit( *pszNum ) != 0 ) || (( *pszNum == gaCountryInfo.szDecimal[0] ) && ( isdigit ( pszNum[1] )) && ( strchr( pszNum+1, gaCountryInfo.szDecimal[0] ) == NULL )) ) {
+        for ( ++pszNum; (( *pszNum != '\0' ) && ( isdigit( *pszNum ) || ( *pszNum == gaCountryInfo.szThousandsSeparator[0] ) || ( *pszNum == gaCountryInfo.szDecimal[0] ))); pszNum++ )
+            ;
+    }
 
-        return ( *pszNum == '\0' );
+    return( *pszNum == '\0' );
 }
 
 
 // is the filename "CON"
 int QueryIsCON( char *pszFileName )
 {
-        return (( _stricmp( pszFileName, CONSOLE ) == 0 ) || ( _stricmp( pszFileName, DEV_CONSOLE ) == 0 ));
+    return(( _stricmp( pszFileName, CONSOLE ) == 0 ) || ( _stricmp( pszFileName, DEV_CONSOLE ) == 0 ));
 }
 
 
 // test if relative range spec is composed entirely of digits
 int QueryIsRelative( char *str )
 {
-        for ( ; (*str != '\0' ); str++) {
-                if ((*str < '0' ) || (*str > '9' )) {
-                        if ((*str == ',' ) || (*str == '@' ) || (*str == ']' ))
-                                break;
-                        return 0;
-                }
+    for ( ; (*str != '\0' ); str++ ) {
+        if ( (*str < '0' ) || (*str > '9' ) ) {
+            if ( (*str == ',' ) || (*str == '@' ) || (*str == ']' ) )
+                break;
+            return 0;
         }
+    }
 
-        return 1;
+    return 1;
 }
 
 
 // set the date / time / size range info for file searches
 int GetRange( char *line, RANGES *aRanges, int fOnlyFirst )
 {
-        static char szExclude[MAXLINESIZ];
+    static char szExclude[MAXLINESIZ];
 
-        char *arg;
-        char *pSaveNthptr;
-        char szBuffer[MAXLINESIZ];
-        int i, fExclude, rval = 0;
+    char *arg;
+    char *pSaveNthptr;
+    char szBuffer[MAXLINESIZ];
+    int i, fExclude, rval = 0;
 
-        // initialize start & end values
+    // initialize start & end values
 
-        szExclude[0] = '\0';
-        aRanges->pszExclude = NULL;
+    szExclude[0] = '\0';
+    aRanges->pszExclude = NULL;
 
-        // date & inclusive time
-        aRanges->DTRS.DTStart = 0L;
-        aRanges->DTRE.DTEnd = (ULONG)-1L;
+    // date & inclusive time
+    aRanges->DTRS.DTStart = 0L;
+    aRanges->DTRE.DTEnd = (ULONG)-1L;
 
-        // exclusive time
-        aRanges->TimeStart = 0;
-        aRanges->TimeEnd = 0xFFFF;
+    // exclusive time
+    aRanges->TimeStart = 0;
+    aRanges->TimeEnd = 0xFFFF;
 
-        // size
-        aRanges->SizeMin = 0L;
-        aRanges->SizeMax = (ULONG)-1L;
+    // size
+    aRanges->SizeMin = 0L;
+    aRanges->SizeMax = (long long) LONGLONG_MAX;//-1L; // 20090729 AB large file support
 
-        // default to "last write" on LFN / HPFS / NTFS
-        aRanges->DateType = aRanges->TimeType = 0;
-        if ( line == NULL )
+    // default to "last write" on LFN / HPFS / NTFS
+    aRanges->DateType = aRanges->TimeType = 0;
+    if ( line == NULL )
+        return 0;
+
+    // check for range switches in the line
+    for ( i = 0; (( arg = ntharg( line, i )) != NULL ); ) {
+
+        // if not a range argument, get next switch
+        if ( ( *arg != gpIniptr->SwChr ) || ( arg[1] != '[' ) ) {
+            if ( fOnlyFirst )
                 return 0;
-
-        // check for range switches in the line
-        for ( i = 0; (( arg = ntharg( line, i )) != NULL ); ) {
-
-                // if not a range argument, get next switch
-                if (( *arg != gpIniptr->SwChr ) || ( arg[1] != '[' )) {
-                        if ( fOnlyFirst )
-                                return 0;
-                        i++;
-                        continue;
-                }
-
-                // get start & end of switch
-                pSaveNthptr = arg = gpNthptr + 1;
-
-                // get start & end of switch
-                if (( arg = scan( arg, "]", "`\"[" )) == BADQUOTES )
-                        return ERROR_EXIT;
-                if ( *arg == ']' )
-                        *arg++ = '\0';
-
-                // check for filename exclusions
-                pSaveNthptr++;
-                if ( *pSaveNthptr == '!' ) {
-                        fExclude = 1;
-                        pSaveNthptr++;
-                } else
-                        fExclude = 0;
-
-                pSaveNthptr = strcpy( gpNthptr, pSaveNthptr );
-
-                // kludge to allow variable expansion on range arguments
-                //   for commands like EXCEPT, FOR, and SELECT
-                strcpy( szBuffer, pSaveNthptr );
-
-                if ( var_expand( szBuffer, 1 ) != 0 )
-                        return ERROR_EXIT;
-
-                if ( fExclude ) {
-
-                        if ( szExclude[0] != '\0' )
-                                return ( error( ERROR_4DOS_ALREADYEXCLUDED, szBuffer ));
-                        sprintf( szExclude, FMT_PREC_STR, MAXLINESIZ - 1, szBuffer );
-                        aRanges->pszExclude = szExclude;
-
-                } else if (( rval = GetRangeArgs( szBuffer, aRanges )) != 0 )
-                        return ( error( rval, line ));
-
-                // remove the switch
-                if ( fOnlyFirst )
-                        arg = skipspace( arg );
-                strcpy( pSaveNthptr, arg );
+            i++;
+            continue;
         }
 
-        return 0;
+        // get start & end of switch
+        pSaveNthptr = arg = gpNthptr + 1;
+
+        // get start & end of switch
+        if ( ( arg = scan( arg, "]", "`\"[" )) == BADQUOTES )
+            return ERROR_EXIT;
+        if ( *arg == ']' )
+            *arg++ = '\0';
+
+        // check for filename exclusions
+        pSaveNthptr++;
+        if ( *pSaveNthptr == '!' ) {
+            fExclude = 1;
+            pSaveNthptr++;
+        } else
+            fExclude = 0;
+
+        pSaveNthptr = strcpy( gpNthptr, pSaveNthptr );
+
+        // kludge to allow variable expansion on range arguments
+        //   for commands like EXCEPT, FOR, and SELECT
+        strcpy( szBuffer, pSaveNthptr );
+
+        if ( var_expand( szBuffer, 1 ) != 0 )
+            return ERROR_EXIT;
+
+        if ( fExclude ) {
+
+            if ( szExclude[0] != '\0' )
+                return( error( ERROR_4DOS_ALREADYEXCLUDED, szBuffer ));
+            sprintf( szExclude, FMT_PREC_STR, MAXLINESIZ - 1, szBuffer );
+            aRanges->pszExclude = szExclude;
+
+        } else if ( ( rval = GetRangeArgs( szBuffer, aRanges )) != 0 )
+            return( error( rval, line ));
+
+        // remove the switch
+        if ( fOnlyFirst )
+            arg = skipspace( arg );
+        strcpy( pSaveNthptr, arg );
+    }
+
+    return 0;
 }
 
 
 // skip to the next range argument
 static char * NextRange(char *arg)
 {
-        while (( *arg ) && ( *arg != ']' ) && ( *arg++ != ',' ))
-                ;
+    while ( ( *arg ) && ( *arg != ']' ) && ( *arg++ != ',' ) )
+        ;
 
-        return ( skipspace( arg ));
+    return( skipspace( arg ));
 }
 
 // TODO: revise signed/unsigned issues
 static int GetRangeArgs( char *arg, RANGES *aRanges )
 {
-        int c;
-        int hours, minutes;
-        unsigned int year, month, day;
-        long lStart, lEnd;
-        unsigned long lOffset;
-        DATETIME sysDateTime;
+    int c;
+    int hours, minutes;
+    unsigned int year, month, day;
+    long lStart, lEnd;
+    unsigned long lOffset;
+    long long llOffset;
+    DATETIME sysDateTime;
 
-        switch ( _ctoupper( *arg++ )) {
-        case 'D':               // date range
-                // check for Last Access or Created request
-                if (( c = _ctoupper( *arg )) == 'A' ) {
-                        aRanges->DateType = 1;
-                        arg++;
-                } else if ( c == 'C' ) {
-                        aRanges->DateType = 2;
-                        arg++;
-                } else if ( c == 'W' )
-                        arg++;
+    switch ( _ctoupper( *arg++ ) ) {
+        case 'D':                       // date range
+            // check for Last Access or Created request
+            if ( ( c = _ctoupper( *arg )) == 'A' ) {
+                aRanges->DateType = 1;
+                arg++;
+            } else if ( c == 'C' ) {
+                aRanges->DateType = 2;
+                arg++;
+            } else if ( c == 'W' )
+                arg++;
 
-                // get current date & time
-                MakeDaysFromDate( (unsigned long *)&lStart, NULLSTR );
-                lEnd = lStart;
+            // get current date & time
+            MakeDaysFromDate( (unsigned long *)&lStart, NULLSTR );
 
-                // get first arg
-                if ( is_signed_digit( *arg )) {
+            lEnd = lStart;
 
-                    if ( MakeDaysFromDate( &lOffset, arg ) != 0 )
-                        return ERROR_4DOS_INVALID_DATE;
+            // get first arg
+            if ( is_signed_digit( *arg ) ) {
 
-                    if ( *arg == '-' )
-                        lStart += lOffset;
-                    else if ( *arg == '+' )
-                        lEnd += lOffset;
-                    else
-                        lStart = lOffset;
-                }
-
-                // skip past separator
-                while (( *arg ) && ( *arg != ']' )) {
-
-                    // get time spec
-                    if ( *arg == '@' ) {
-                        if ( GetStrTime( ++arg, &hours, &minutes ) != 0 )
-                            return ERROR_4DOS_INVALID_TIME;
-                        aRanges->DTRS.DTS.TStart = (unsigned int)(( hours << 11 ) + (minutes << 5));
-                    }
-
-                    if ( *arg++ == ',' )
-                        break;
-                }
-
-                arg = skipspace( arg );
-
-                // get second arg
-                if ( is_signed_digit( *arg )) {
-
-                    if (MakeDaysFromDate( &lOffset, arg ) != 0 )
-                        return ERROR_4DOS_INVALID_DATE;
-
-                    if (*arg == '-' ) {
-                        lEnd = lStart;
-                        lStart += lOffset;
-                    } else if (*arg == '+' )
-                        lEnd = lStart + lOffset;
-                    else if (( lEnd = lOffset) < lStart) {
-                        lEnd = lStart;
-                        lStart = lOffset;
-                    }
-                }
-
-                // skip past date
-                while ((*arg ) && (*arg != ']' )) {
-
-                    // get time spec
-                    if (*arg++ == '@' ) {
-                        if (GetStrTime( arg, &hours, &minutes ) != 0 )
-                            return ERROR_4DOS_INVALID_TIME;
-                        aRanges->DTRE.DTE.TEnd = (unsigned int)((hours << 11) + (minutes << 5));
-                    }
-                }
-
-                MakeDateFromDays( lStart, &year, &month,&day );
-                aRanges->DTRS.DTS.DStart = ((year - 80 ) << 9) + (month << 5) + day;
-
-                MakeDateFromDays( lEnd, &year, &month, &day );
-                aRanges->DTRE.DTE.DEnd = ((year - 80 ) << 9) + (month << 5) + day;
-
-                break;
-
-        case 'S':               // size range
-                // get first arg
-// FIXME - add support for LONGLONG's!
-                GetStrSize( arg, &lOffset );
-                aRanges->SizeMin = lOffset;
-
-                // skip past separator
-                arg = NextRange( arg );
-
-                // get second arg
-                if ( is_signed_digit( *arg )) {
-
-                        GetStrSize( arg, &lOffset );
-
-                        if ( *arg == '-' ) {
-                                aRanges->SizeMax = aRanges->SizeMin;
-                                aRanges->SizeMin += lOffset;
-                        } else if ( *arg == '+' )
-                                aRanges->SizeMax = aRanges->SizeMin + lOffset;
-                        else
-                                aRanges->SizeMax = lOffset;
-                }
-
-                break;
-
-        case 'T':               // time range
-                // check for Last Access or Created request
-                if ((c = _ctoupper(*arg )) == 'A' ) {
-                        aRanges->TimeType = 1;
-                        arg++;
-                } else if (c == 'C' ) {
-                        aRanges->TimeType = 2;
-                        arg++;
-                } else if (c == 'W' )
-                        arg++;
-
-                // get current date & time
-                QueryDateTime( &sysDateTime );
-                lStart = (sysDateTime.hours * 60 ) + sysDateTime.minutes;
-                lEnd = lStart;
-
-                // get first arg
-                if ( GetStrTime( arg, &hours, &minutes ) != 0 )
-                        return ERROR_4DOS_INVALID_TIME;
+                if ( MakeDaysFromDate( &lOffset, arg ) != 0 )
+                    return ERROR_4DOS_INVALID_DATE;
 
                 if ( *arg == '-' )
-                        lStart += (long)hours;
+                    lStart += lOffset;
                 else if ( *arg == '+' )
-                        lEnd += (long)hours;
+                    lEnd += lOffset;
                 else
-                        lStart = (hours * 60 ) + minutes;
+                    lStart = lOffset;
+            }
 
-                // skip past separator
-                arg = NextRange( arg );
+            // skip past separator
+            while ( ( *arg ) && ( *arg != ']' ) ) {
 
-                // get second arg
-                if ( is_signed_digit( *arg )) {
-
-                    if ( GetStrTime( arg, &hours, &minutes ) != 0 )
+                // get time spec
+                if ( *arg == '@' ) {
+                    if ( GetStrTime( ++arg, &hours, &minutes ) != 0 )
                         return ERROR_4DOS_INVALID_TIME;
-
-                    if ( *arg == '-' ) {
-                        lEnd = lStart;
-                        lStart += (long)hours;
-                    } else if (*arg == '+' )
-                        lEnd = lStart + (long)hours;
-                    else if (( lEnd = (hours * 60 ) + minutes) < lStart) {
-                        lOffset = lEnd;
-                        lEnd = lStart;
-                        lStart = lOffset;
-                    }
+                    aRanges->DTRS.DTS.TStart = (unsigned int)(( hours << 11 ) + (minutes << 5));
                 }
 
-                // check for lStart < 0 or lEnd > 23:59, & adjust time
-                if ( lStart < 0L )
-                        lStart += 1440L;
-                if ( lEnd >= 1440L )
-                        lEnd -= 1440L;
+                if ( *arg++ == ',' )
+                    break;
+            }
 
-                aRanges->TimeStart = (unsigned int)((( lStart / 60 ) << 11) + (( lStart % 60 ) << 5));
-                aRanges->TimeEnd = (unsigned int)((( lEnd / 60 ) << 11) + (( lEnd % 60 ) << 5));
-        }
+            arg = skipspace( arg );
 
-        return 0;
+            // get second arg
+            if ( is_signed_digit( *arg ) ) {
+
+                if ( MakeDaysFromDate( &lOffset, arg ) != 0 )
+                    return ERROR_4DOS_INVALID_DATE;
+
+                if ( *arg == '-' ) {
+                    lEnd = lStart;
+                    lStart += lOffset;
+                } else if ( *arg == '+' )
+                    lEnd = lStart + lOffset;
+                else if ( ( lEnd = lOffset) < lStart ) {
+                    lEnd = lStart;
+                    lStart = lOffset;
+                }
+            }
+
+            // skip past date
+            while ( (*arg ) && (*arg != ']' ) ) {
+
+                // get time spec
+                if ( *arg++ == '@' ) {
+                    if ( GetStrTime( arg, &hours, &minutes ) != 0 )
+                        return ERROR_4DOS_INVALID_TIME;
+                    aRanges->DTRE.DTE.TEnd = (unsigned int)((hours << 11) + (minutes << 5));
+                }
+            }
+
+            MakeDateFromDays( lStart, &year, &month,&day );
+            year -= 1900;
+            aRanges->DTRS.DTS.DStart = ((year - 80 ) << 9) + (month << 5) + day;
+
+            MakeDateFromDays( lEnd, &year, &month, &day );
+            year -= 1900;
+            aRanges->DTRE.DTE.DEnd = ((year - 80 ) << 9) + (month << 5) + day;
+
+            break;
+
+        case 'S':                       // size range
+            // get first arg
+            // FIXME - add support for LONGLONG's!
+            // 20100118 AB changed to llOffset (LFS)
+            GetStrSize( arg, &llOffset );
+            aRanges->SizeMin = llOffset;
+
+            // skip past separator
+            arg = NextRange( arg );
+
+            // get second arg
+            if ( is_signed_digit( *arg ) ) {
+
+                GetStrSize( arg, &llOffset );
+
+                if ( *arg == '-' ) {
+                    aRanges->SizeMax = aRanges->SizeMin;
+                    aRanges->SizeMin += llOffset;
+                } else if ( *arg == '+' )
+                    aRanges->SizeMax = aRanges->SizeMin + llOffset;
+                else
+                    aRanges->SizeMax = llOffset;
+            }
+
+            break;
+
+        case 'T':                       // time range
+            // check for Last Access or Created request
+            if ( (c = _ctoupper(*arg )) == 'A' ) {
+                aRanges->TimeType = 1;
+                arg++;
+            } else if ( c == 'C' ) {
+                aRanges->TimeType = 2;
+                arg++;
+            } else if ( c == 'W' )
+                arg++;
+
+            // get current date & time
+            QueryDateTime( &sysDateTime );
+            lStart = (sysDateTime.hours * 60 ) + sysDateTime.minutes;
+            lEnd = lStart;
+
+            // get first arg
+            if ( GetStrTime( arg, &hours, &minutes ) != 0 )
+                return ERROR_4DOS_INVALID_TIME;
+
+            if ( *arg == '-' )
+                lStart += (long)hours;
+            else if ( *arg == '+' )
+                lEnd += (long)hours;
+            else
+                lStart = (hours * 60 ) + minutes;
+
+            // skip past separator
+            arg = NextRange( arg );
+
+            // get second arg
+            if ( is_signed_digit( *arg ) ) {
+
+                if ( GetStrTime( arg, &hours, &minutes ) != 0 )
+                    return ERROR_4DOS_INVALID_TIME;
+
+                if ( *arg == '-' ) {
+                    lEnd = lStart;
+                    lStart += (long)hours;
+                } else if ( *arg == '+' )
+                    lEnd = lStart + (long)hours;
+                else if ( ( lEnd = (hours * 60 ) + minutes) < lStart ) {
+                    lOffset = lEnd;
+                    lEnd = lStart;
+                    lStart = lOffset;
+                }
+            }
+
+            // check for lStart < 0 or lEnd > 23:59, & adjust time
+            if ( lStart < 0L )
+                lStart += 1440L;
+            if ( lEnd >= 1440L )
+                lEnd -= 1440L;
+
+            aRanges->TimeStart = (unsigned int)((( lStart / 60 ) << 11) + (( lStart % 60 ) << 5));
+            aRanges->TimeEnd = (unsigned int)((( lEnd / 60 ) << 11) + (( lEnd % 60 ) << 5));
+    }
+
+    return 0;
 }
 
 
 // get time
 static int GetStrTime(char *arg, int *hours, int *minutes)
 {
-        char szAmPm[2];
+    char szAmPm[2];
 
-        *hours = *minutes = 0;
-        szAmPm[0] = '\0';
+    *hours = *minutes = 0;
+    szAmPm[0] = '\0';
 
-        if ( is_signed_digit( *arg ) == 0 )
-                return ERROR_EXIT;
+    if ( is_signed_digit( *arg ) == 0 )
+        return ERROR_EXIT;
 
-        if (( *arg == '+' ) || ( *arg == '-' ) || ( QueryIsRelative( arg ))) {
+    if ( ( *arg == '+' ) || ( *arg == '-' ) || ( QueryIsRelative( arg )) ) {
 
-                *hours = atoi( arg );
-                if (is_unsigned_digit(*arg ))
-                        *arg = '+';
+        *hours = atoi( arg );
+        if ( is_unsigned_digit(*arg ) )
+            *arg = '+';
 
-        } else if ( sscanf( arg,"%u%*1s%u%*u %1[APap]",hours,minutes,szAmPm) >= 1) {
+    } else if ( sscanf( arg,"%u%*1s%u%*u %1[APap]",hours,minutes,szAmPm) >= 1 ) {
 
-                // check for AM/PM syntax
-                if (*szAmPm != '\0' ) {
-                        if ((*hours == 12) && (_ctoupper(*szAmPm) == 'A' ))
-                                *hours -= 12;
-                        else if ((_ctoupper(*szAmPm) == 'P' ) && (*hours < 12))
-                                *hours += 12;
-                }
+        // check for AM/PM syntax
+        if ( *szAmPm != '\0' ) {
+            if ( (*hours == 12) && (_ctoupper(*szAmPm) == 'A' ) )
+                *hours -= 12;
+            else if ( (_ctoupper(*szAmPm) == 'P' ) && (*hours < 12) )
+                *hours += 12;
         }
+    }
 
-        return 0;
+    return 0;
 }
 
 
 // get size
-static int GetStrSize(char *arg, unsigned long *lSize )
+static int GetStrSize(char *arg, long long *llSize )
 {
-        *lSize = 0L;
-        sscanf( arg, FMT_LONG, lSize );
-        while ( is_signed_digit( *arg ))
-                arg++;
+    *llSize = 0LL;
+    sscanf( arg, FMT_LONG, llSize );
+    while ( is_signed_digit( *arg ) )
+        arg++;
 
-        // check for Kb or Mb in size range
-        if ( *arg == 'k' )
-                *lSize *= 1000L;
-        else if ( *arg == 'K' )
-                *lSize <<= 10;
-        else if ( *arg == 'm' )
-                *lSize *= 1000000L;
-        else if ( *arg == 'M' )
-                *lSize <<= 20;
+    // check for Kb or Mb in size range
+    if ( *arg == 'k' )
+        *llSize *= 1000LL;
+    else if ( *arg == 'K' )
+        *llSize <<= 10;
+    else if ( *arg == 'm' )
+        *llSize *= 1000000LL;
+    else if ( *arg == 'M' )
+        *llSize <<= 20;
 
-        return 0;
+    // 20100118 AB added GByte
+    else if ( *arg == 'g' )
+        *llSize *= 1000000000LL;
+    else if ( *arg == 'G' )
+        *llSize <<= 30;
+
+    return 0;
 }
 
 
 // return the date from a string
 int GetStrDate(char *arg, unsigned int *month, unsigned int *day, unsigned int *year)
 {
-        int rval;
+    int rval;
+    char *DateFmt;
+    char *p;
+    char normDateFmt[15];
 
-        if ( gaCountryInfo.fsDateFmt == 0 ) {
-                // USA
-                rval = sscanf( arg, DATE_FMT, month, day, year );
-        } else if ( gaCountryInfo.fsDateFmt == 1 ) {
-                // Europe
-                rval = sscanf( arg, DATE_FMT, day, month, year );
-        } else {
-                // Japan
-                rval = sscanf( arg, DATE_FMT, year, month, day );
+    if ( gaInifile.DateFmt != INI_EMPTYSTR ) {
+        DateFmt = (char *) gpIniptr->StrData + gpIniptr->DateFmt;
+        strncpy(normDateFmt, DateFmt, sizeof(normDateFmt));
+        // Normalize format for comparees and sscanf
+        for ( p = normDateFmt; *p; p++ ) {
+            *p = toupper( *p );
+            if ( *p == '/' )
+                *p = '-';
         }
 
-        return rval;
+        // 2022-05-04 SHL strstr returns a pointer
+        // YY will match YY or YYYY - no need to check YYYY explicitly
+        if (strstr(normDateFmt, "YY-MM-DD"))
+            rval = sscanf( arg, DATE_FMT, year, month, day );
+        if (strstr(normDateFmt, "YY-DD-MM"))
+            rval = sscanf( arg, DATE_FMT, year, day, month );
+        if (strstr(normDateFmt, "MM-DD-YY"))
+            rval = sscanf( arg, DATE_FMT, month, day, year );
+        if (strstr(normDateFmt, "DD-MM-YY"))
+            rval = sscanf( arg, DATE_FMT, day, month, year );
+    } else {
+        if ( gaCountryInfo.fsDateFmt == 0 ) {
+            // USA
+            rval = sscanf( arg, DATE_FMT, month, day, year );
+        } else if ( gaCountryInfo.fsDateFmt == 1 ) {
+            // Europe
+            rval = sscanf( arg, DATE_FMT, day, month, year );
+        } else {
+            // Japan
+            rval = sscanf( arg, DATE_FMT, year, month, day );
+        }
+    }
+    return rval;
 }
 
 
 // get the number of days since 1/1/80 for the specified date
 int MakeDaysFromDate( unsigned long *lDays, char *szDate )
 {
-        unsigned int i;
-        unsigned int year = 80, month = 1, day = 1;
-        int rval = 0;
-        DATETIME sysDateTime;
+    unsigned int i;
+    unsigned int year = 1980, month = 1, day = 1;
+    int rval = 0;
+    DATETIME sysDateTime;
 
-        *lDays = 0L;
+    *lDays = 0L;
 
-        // if arg == NULLSTR, use current date
-        if ( *szDate == '\0' ) {
+    // if arg == NULLSTR, use current date
+    if ( *szDate == '\0' ) {
 
-                QueryDateTime(&sysDateTime );
-                year = sysDateTime.year;
-                month = sysDateTime.month;
-                day = sysDateTime.day;
-                rval = 3;
+        QueryDateTime(&sysDateTime );
+        year = sysDateTime.year;
+        month = sysDateTime.month;
+        day = sysDateTime.day;
+        rval = 3;
 
-        } else if (( *szDate == '+' ) || ( *szDate == '-' ) || ( QueryIsRelative( szDate ))) {
+    } else if ( ( *szDate == '+' ) || ( *szDate == '-' ) || ( QueryIsRelative( szDate )) ) {
 
-                sscanf( szDate, FMT_LONG, lDays );
+        sscanf( szDate, FMT_LONG, lDays );
 
-                // if it's not a date spec, force it to be a "+ relative" spec
-                if ( is_unsigned_digit( *szDate ))
-                        *szDate = '+';
-                return 0;
-
-        } else
-                rval = GetStrDate( szDate, &month, &day, &year );
-
-        if ( year < 80 )
-                year += 2000;
-        else if ( year < 100 )
-                year += 1900;
-
-        // don't allow anything before 1/1/1980
-        if (( rval < 3 ) || ( month > 12 ) || ( day > 31 ) || ( year > 2099 ) || ( year < 1980 ))
-                return ERROR_4DOS_INVALID_DATE;
-
-        // get days for previous years
-        for ( i = 1980; ( i < year ); i++ )
-                *lDays += ((( i % 4 ) == 0 ) ? 366 : 365 );
-
-        // get days for previous months
-        for ( i = 1; ( i < month ); i++ ) {
-            if ( i == 2 )
-                *lDays += ((( year % 4 ) == 0 ) ? 29 : 28 );
-            else
-                *lDays += ((( i == 4 ) || ( i == 6 ) || ( i == 9 ) || (i == 11)) ? 30 : 31);
-        }
-
-        *lDays += ( day - 1 );
-
+        // if it's not a date spec, force it to be a "+ relative" spec
+        if ( is_unsigned_digit( *szDate ) )
+            *szDate = '+';
         return 0;
+
+    } else
+        rval = GetStrDate( szDate, &month, &day, &year );
+    year %= 100;
+    if ( year < 80 )
+        year += 2000;
+    else if ( year < 100 )
+        year += 1900;
+
+    // don't allow anything before 1/1/1980
+    if ( ( rval < 3 ) || ( month > 12 ) || ( day > 31 ) || ( year > 2099 ) || ( year < 1980 ) )
+        return ERROR_4DOS_INVALID_DATE;
+
+    // get days for previous years
+    for ( i = 1980; ( i < year ); i++ )
+        *lDays += ((( i % 4 ) == 0 ) ? 366 : 365 );
+
+    // get days for previous months
+    for ( i = 1; ( i < month ); i++ ) {
+        if ( i == 2 )
+            *lDays += ((( year % 4 ) == 0 ) ? 29 : 28 );
+        else
+            *lDays += ((( i == 4 ) || ( i == 6 ) || ( i == 9 ) || (i == 11)) ? 30 : 31);
+    }
+
+    *lDays += ( day - 1 );
+
+    return 0;
 }
 
 
 // get a date from the number of days since 1/1/80
 int MakeDateFromDays( long lDays, unsigned int *year, unsigned int *month, unsigned int *day)
 {
-        // don't allow anything past 12/31/2099
-        if (( lDays > 43829L ) || ( lDays < 0L ))
-                return ERROR_INVALID_PARAMETER;
+    // don't allow anything past 12/31/2099
+    if ( ( lDays > 43829L ) || ( lDays < 0L ) )
+        return ERROR_INVALID_PARAMETER;
 
-        for (*year = 80; ; (*year)++) {
+    for ( *year = 1980; ; (*year)++ ) {
 
-            for (*month = 1; (*month <= 12); (*month)++) {
+        for ( *month = 1; (*month <= 12); (*month)++ ) {
 
-                if (*month == 2)
-                        *day = (((*year % 4) == 0 ) ? 29 : 28);
-                else
-                        *day = (((*month == 4) || (*month == 6) || (*month == 9) || (*month == 11)) ? 30 : 31);
+            if ( *month == 2 )
+                *day = (((*year % 4) == 0 ) ? 29 : 28);
+            else
+                *day = (((*month == 4) || (*month == 6) || (*month == 9) || (*month == 11)) ? 30 : 31);
 
-                if ((LONG)*day <= lDays)
-                        lDays -= *day;
-                else {
-                        *day = (unsigned int)( lDays + 1);
-                        return 0;
-                }
+            if ( (LONG)*day <= lDays )
+                lDays -= *day;
+            else {
+                *day = (unsigned int)( lDays + 1);
+                return 0;
             }
         }
+    }
 }
 
 
 // remove whitespace on both sides of the token
 void collapse_whitespace(char *arg, char *token)
 {
-        // collapse any whitespace around the token
-        for ( ; ; ) {
+    // collapse any whitespace around the token
+    for ( ; ; ) {
 
-                if (( arg == NULL ) || (( arg = scan( arg, token, QUOTES )) == BADQUOTES ) || ( *arg == '\0' ))
-                        return;
+        if ( ( arg == NULL ) || (( arg = scan( arg, token, QUOTES )) == BADQUOTES ) || ( *arg == '\0' ) )
+            return;
 
-                // collapse leading whitespace
-                while ( iswhite( arg[-1] )) {
-                        arg--;
-                        strcpy( arg, arg+1 );
-                }
-
-                // collapse following whitespace
-                arg++;
-                while ( iswhite( *arg ))
-                        strcpy( arg, arg+1 );
+        // collapse leading whitespace
+        while ( iswhite( arg[-1] ) ) {
+            arg--;
+            strcpy( arg, arg+1 );
         }
+
+        // collapse following whitespace
+        arg++;
+        while ( iswhite( *arg ) )
+            strcpy( arg, arg+1 );
+    }
 }
 
 
 // strip the specified leading characters
 void strip_leading( char *arg, char *delims )
 {
-        while (( *arg != '\0' ) && ( strchr( delims, *arg ) != NULL ))
-                strcpy( arg, arg+1 );
+    while ( ( *arg != '\0' ) && ( strchr( delims, *arg ) != NULL ) )
+        strcpy( arg, arg+1 );
 }
 
 
 // strip the specified trailing characters
 void strip_trailing(char *arg, char *delims)
 {
-        int i;
+    int i;
 
-        for ( i = strlen( arg ); ((--i >= 0 ) && ( strchr( delims, arg[i] ) != NULL )); )
-                arg[i] = '\0';
+    for ( i = strlen( arg ); ((--i >= 0 ) && ( strchr( delims, arg[i] ) != NULL )); )
+        arg[i] = '\0';
 }
 
 
 // look for TMP / TEMP / TEMP4DOS disk area defined in environment
 char *GetTempDirectory( char *pszName )
 {
-        char *feptr;
+    char *feptr;
 
-        if (( feptr = get_variable( "TMP" )) != 0L ) {
-                strcpy( pszName, feptr );
-                if ( is_dir( pszName ) == 0 )
-                        feptr = 0L;
-        }
+    if ( ( feptr = get_variable( "TMP" )) != 0L ) {
+        strcpy( pszName, feptr );
+        if ( is_dir( pszName ) == 0 )
+            feptr = 0L;
+    }
 
-        return feptr;
+    return feptr;
 }
 
 // check to see if user wants filenames in upper case
 char * filecase( char *filename )
 {
-#if _NT
-        // in NT 3.5, don't do _any_ case shifts
-        if (( gnOsVersion >= 350 ) && ( gpIniptr->Upper == 0 ))
-                return filename;
-#endif
-        // HPFS & NTFS preserve case in filenames, so just leave it alone
-        if ( ifs_type( filename ) != 0 )
-                return filename;
+    // HPFS & NTFS preserve case in filenames, so just leave it alone
+    if ( ifs_type( filename ) != 0 )
+        return filename;
 
-        return (( gpIniptr->Upper == 0 ) ? strlwr( filename ) : strupr( filename ));
+    return(( gpIniptr->Upper == 0 ) ? strlwr( filename ) : strupr( filename ));
 }
 
 
 void SetDriveString( char *pszDrives )
 {
-        int i, n;
+    int i, n;
 
-        // get all of the valid hard disks from C -> Z
-        memset( pszDrives, '\0', 30 );
-        for ( i = 0, n = 3; ( n <= 26 ); n++ ) {
-            pszDrives[i] = n + 64;
-            if (( QueryDriveExists( n )) && ( QueryDriveReady( n )) && ( QueryIsCDROM( pszDrives+i ) == 0 ) && ( QueryDriveRemote( n ) == 0 ) && ( QueryDriveRemovable( n ) == 0 ))
-                i++;
-        }
+    // get all of the valid hard disks from C -> Z
+    memset( pszDrives, '\0', 30 );
+    for ( i = 0, n = 3; ( n <= 26 ); n++ ) {
+        pszDrives[i] = n + 64;
+        if ( ( QueryDriveExists( n )) && ( QueryDriveReady( n )) && ( QueryIsCDROM( pszDrives+i ) == 0 ) && ( QueryDriveRemote( n ) == 0 ) && ( QueryDriveRemovable( n ) == 0 ) )
+            i++;
+    }
 
-        pszDrives[i] = '\0';
+    pszDrives[i] = '\0';
 }
 
 
 // get current directory, with leading drive specifier (or NULL if error)
 char * gcdir( char *pszDrive, int fNoError )
 {
-        static char szCurrent[MAXFILENAME];
-        int disk, rval;
-        unsigned long DirPathLen = MAXPATH;
+    static char szCurrent[MAXFILENAME];
+    int disk, rval;
+    unsigned long DirPathLen = MAXPATH;
 
-        disk = gcdisk( pszDrive );
-        sprintf( szCurrent, FMT_ROOT, disk+64 );
-        rval = DosQueryCurrentDir( disk, szCurrent+3, &DirPathLen );
+    disk = gcdisk( pszDrive );
+    sprintf( szCurrent, FMT_ROOT, disk+64 );
+    rval = DosQueryCurrentDir( disk, szCurrent+3, &DirPathLen );
 
-        if (rval) {
+    if ( rval ) {
 
-                if ( fNoError == 0 ) {
-                        // bad drive - format error message & return NULL
-                        sprintf( szCurrent, FMT_DISK, disk+64 );
-                        error( rval, szCurrent );
-                }
-
-                return NULL;
+        if ( fNoError == 0 ) {
+            // bad drive - format error message & return NULL
+            sprintf( szCurrent, FMT_DISK, disk+64 );
+            error( rval, szCurrent );
         }
 
-        return ( filecase( szCurrent ));
+        return NULL;
+    }
+
+    return( filecase( szCurrent ));
 }
 
 
 // return the specified (or default) drive as 1=A, 2=B, etc.
 int gcdisk( char *drive_spec )
 {
-        int nDrive;
-        if (( drive_spec != NULL ) && ( drive_spec[1] == ':' ))
-                return ( _ctoupper( *drive_spec ) - 64);
-        if (( nDrive = _getdrive()) < 0 )
-                nDrive = 0;
-        return nDrive;
+    int nDrive;
+    if ( ( drive_spec != NULL ) && ( drive_spec[1] == ':' ) )
+        return( _ctoupper( *drive_spec ) - 64);
+    if ( ( nDrive = _getdrive()) < 0 )
+        nDrive = 0;
+    return nDrive;
 }
 
 
 // return 1 if the specified name is "." or ".."
 int QueryIsDotName( char *pszFileName )
 {
-        return (( *pszFileName == '.' ) && (( pszFileName[1] == '\0' ) || (( pszFileName[1] == '.' ) && ( pszFileName[2] == '\0' ))));
+    return(( *pszFileName == '.' ) && (( pszFileName[1] == '\0' ) || (( pszFileName[1] == '.' ) && ( pszFileName[2] == '\0' ))));
 }
 
 
 // return the path stripped of the filename (or NULL if no path)
 char * path_part( char *s )
 {
-        static char buffer[MAXFILENAME];
+    static char buffer[MAXFILENAME];
 
-        copy_filename( buffer, s );
-        StripQuotes( buffer );
+    copy_filename( buffer, s );
+    StripQuotes( buffer );
 
-        // search path backwards for beginning of filename
-        for ( s = strend( buffer ); ( --s >= buffer ); ) {
+    // search path backwards for beginning of filename
+    for ( s = strend( buffer ); ( --s >= buffer ); ) {
 
-                // accept either forward or backslashes as path delimiters
-                if (( *s == '\\' ) || ( *s == '/' ) || ( *s == ':' )) {
-                        // take care of arguments like "d:.." & "..\.."
-                        if ( _stricmp( s+1, ".." ) != 0 )
-                                s[1] = '\0';
-                        return buffer;
-                }
+        // accept either forward or backslashes as path delimiters
+        if ( ( *s == '\\' ) || ( *s == '/' ) || ( *s == ':' ) ) {
+            // take care of arguments like "d:.." & "..\.."
+            if ( _stricmp( s+1, ".." ) != 0 )
+                s[1] = '\0';
+            return buffer;
         }
+    }
 
-        return NULL;
+    return NULL;
 }
 
 
 // return the filename stripped of path & disk spec
 char * fname_part( char *pszFileName )
 {
-        static char buf[MAXFILENAME];
-        char *s;
+    static char buf[MAXFILENAME];
+    char *s;
 
-        // search path backwards for beginning of filename
-        for ( s = strend( pszFileName ); ( --s >= pszFileName ); ) {
+    // search path backwards for beginning of filename
+    for ( s = strend( pszFileName ); ( --s >= pszFileName ); ) {
 
-                // accept either forward or backslashes as path delimiters
-                if (( *s == '\\' ) || ( *s == '/' ) || ( *s == ':' )) {
+        // accept either forward or backslashes as path delimiters
+        if ( ( *s == '\\' ) || ( *s == '/' ) || ( *s == ':' ) ) {
 
-                        // take care of arguments like "d:.." & "..\.."
-                        if ( _stricmp( s+1, ".." ) == 0 )
-                                s += 2;
-                        break;
-                }
+            // take care of arguments like "d:.." & "..\.."
+            if ( _stricmp( s+1, ".." ) == 0 )
+                s += 2;
+            break;
         }
+    }
 
-        // step past the delimiter char
-        s++;
+    // step past the delimiter char
+    s++;
 
-        // allow LFN / HPFS / NTFS long filenames
-        copy_filename( buf, s );
+    // allow LFN / HPFS / NTFS long filenames
+    copy_filename( buf, s );
 
-        StripQuotes( buf );
-        return buf;
+    StripQuotes( buf );
+    return buf;
 }
 
 
 // return the file extension only
 char * ext_part( char *s )
 {
-        static char szBuf[65];
-        char *ptr;
+    static char szBuf[65];
+    char *ptr;
 
-        // make sure extension is for filename, not a directory name
-        if (( s == NULL ) || (( ptr = strrchr( s, '.' )) == NULL ) || ( strpbrk( ptr, "\\/:" ) != NULL ))
-                return NULL;
+    // make sure extension is for filename, not a directory name
+    if ( ( s == NULL ) || (( ptr = strrchr( s, '.' )) == NULL ) || ( strpbrk( ptr, "\\/:" ) != NULL ) )
+        return NULL;
 
-        // don't read the next element in an include list
-        sscanf( ptr, "%64[^;\"]", szBuf );
+    // don't read the next element in an include list
+    sscanf( ptr, "%64[^;\"]", szBuf );
 
-        return szBuf;
+    return szBuf;
 }
 
 
 // copy a filename, max of 260 characters
 void copy_filename(char *target, char *source )
 {
-        sprintf( target, FMT_PREC_STR, MAXFILENAME-1, source );
+    sprintf( target, FMT_PREC_STR, MAXFILENAME-1, source );
 }
 
 
@@ -1243,41 +1284,42 @@ void copy_filename(char *target, char *source )
 //   and strip leading / trailing "
 void StripQuotes( char *pszFileName )
 {
-        char *ptr;
+    char *ptr;
 
-        while (( ptr = strchr( pszFileName, '"' )) != NULL )
-                strcpy( ptr, ptr+1 );
+    while ( ( ptr = strchr( pszFileName, '"' )) != NULL )
+        strcpy( ptr, ptr+1 );
 
-        // remove trailing whitespace
-        strip_trailing( pszFileName, WHITESPACE );
+    // remove trailing whitespace
+    strip_trailing( pszFileName, WHITESPACE );
 }
 
 
 void AddCommas( char *var )
 {
-        char *arg;
+    char *arg;
 
-        // format a long integer by inserting commas (or other
-        // character specified by country_info.szThousandsSeparator)
-        if (( *var == '-' ) || ( *var == '+' ))
-                var++;
-        for ( arg = var; (( isdigit( *arg )) && ( *arg != '\0' ) && ( *arg != gaCountryInfo.szDecimal[0] )); arg++ )
-                ;
-        while (( arg -= 3 ) > var )
-                strins( arg, gaCountryInfo.szThousandsSeparator );
+    // format a long integer by inserting commas (or other
+    // character specified by country_info.szThousandsSeparator)
+    if ( ( *var == '-' ) || ( *var == '+' ) )
+        var++;
+    for ( arg = var; (( isdigit( *arg )) && ( *arg != '\0' ) && ( *arg != gaCountryInfo.szDecimal[0] )); arg++ )
+        ;
+    while ( ( arg -= 3 ) > var )
+        strins( arg, gaCountryInfo.szThousandsSeparator );
 }
 
 
 int AddQuotes( char *pszFileName )
 {
-        // adjust for an LFN name with embedded whitespace
-        if (( *pszFileName != '"' ) && ( strpbrk( pszFileName, " \t,=+&<>|" ) != NULL )) {
-                strins( pszFileName, "\"" );
-                strcat( pszFileName, "\"" );
-                return 1;
-        }
+    // adjust for an LFN name with embedded whitespace
+    // 28 Aug 08 SHL add () and ; to list to match screenio.c INVALID_CHARS[] = "  ()|<> \t;,`+="
+    if ( ( *pszFileName != '"' ) && ( strpbrk( pszFileName, " \t,=+&<>|();`" ) != NULL ) ) {
+        strins( pszFileName, "\"" );
+        strcat( pszFileName, "\"" );
+        return 1;
+    }
 
-        return 0;
+    return 0;
 }
 
 
@@ -1285,296 +1327,298 @@ int AddQuotes( char *pszFileName )
 //   and then appending the filename
 int mkdirname( char *dname, char *pszFileName )
 {
-        int length;
+    int length;
 
-        length = strlen( dname );
+    length = strlen( dname );
 
-        if ( length >= ( MAXFILENAME - 2 ))
-                return ERROR_EXIT;
+    if ( length >= ( MAXFILENAME - 2 ) )
+        return ERROR_EXIT;
 
-        if (( *dname ) && ( strchr( "/\\:", dname[length-1] ) == NULL ) && ( *pszFileName != '\\' )) {
-                strcat( dname, "\\" );
-                length++;
-        }
+    if ( ( *dname ) && ( strchr( "/\\:", dname[length-1] ) == NULL ) && ( *pszFileName != '\\' ) ) {
+        strcat( dname, "\\" );
+        length++;
+    }
 
-        sprintf( strend( dname ), FMT_PREC_STR, (( MAXFILENAME - 1 ) - length ), pszFileName );
+    sprintf( strend( dname ), FMT_PREC_STR, (( MAXFILENAME - 1 ) - length ), pszFileName );
 
-        return 0;
+    return 0;
 }
 
 
 // manufacture a short 8.3 name from an LFN / HPFS / NTFS name
 int MakeShortFromLong( char *pszLong )
 {
-        char *arg;
-        char szShort[MAXFILENAME+1];
-        int i;
+    char *arg;
+    char szShort[MAXFILENAME+1];
+    int i;
 
-        if (( arg = strrchr( pszLong, '.' )) != NULL ) {
-                *arg++ = '\0';
-                sprintf( szShort, "%.8s.%.3s", pszLong, arg );
-        } else
-                sprintf( szShort, "%.8s", pszLong );
+    if ( ( arg = strrchr( pszLong, '.' )) != NULL ) {
+        *arg++ = '\0';
+        sprintf( szShort, "%.8s.%.3s", pszLong, arg );
+    } else
+        sprintf( szShort, "%.8s", pszLong );
 
-        for ( arg = szShort ; ( *arg != '\0' ); arg++ ) {
-                if (iswhite( *arg ))
-                        *arg = '_';
+    for ( arg = szShort ; ( *arg != '\0' ); arg++ ) {
+        if ( iswhite( *arg ) )
+            *arg = '_';
+    }
+
+    arg = strend( szShort ) - 1;
+    for ( i = '0'; ( is_file( szShort )); i++ ) {
+
+        if ( ext_part( szShort ) == NULL ) {
+            strcat( szShort, ".000" );
+            arg = strend( szShort ) - 1;
         }
 
-        arg = strend( szShort ) - 1;
-        for ( i = '0'; ( is_file( szShort )); i++ ) {
+        if ( *arg == '.' )
+            return ERROR_EXIT;
 
-                if ( ext_part( szShort ) == NULL ) {
-                        strcat( szShort, ".000" );
-                        arg = strend( szShort ) - 1;
-                }
-
-                if ( *arg == '.' )
-                        return ERROR_EXIT;
-
-                if ( i == '9' ) {
-                        arg--;
-                        i = '0';
-                }
-
-                *arg = (char)i;
+        if ( i == '9' ) {
+            arg--;
+            i = '0';
         }
 
-        return 0;
+        *arg = (char)i;
+    }
+
+    return 0;
 }
 
 
 // make a full file name including disk drive & path
 char * mkfname( char *pszFileName, int fFlags )
 {
-        char *ptr;
-        char temp[MAXFILENAME], *source, *curdir = NULLSTR;
+    char *ptr;
+    char temp[MAXFILENAME], *source, *curdir = NULLSTR;
 
-        if ( pszFileName != NULL )
-                StripQuotes( pszFileName );
+    if ( pszFileName != NULL )
+        StripQuotes( pszFileName );
 
-        if (( pszFileName == NULL ) || ( *pszFileName == '\0' )) {
-                if (( fFlags & MKFNAME_NOERROR ) == 0 )
-                        error( ERROR_FILE_NOT_FOUND, NULLSTR );
-                return NULL;
+    if ( ( pszFileName == NULL ) || ( *pszFileName == '\0' ) ) {
+        if ( ( fFlags & MKFNAME_NOERROR ) == 0 )
+            error( ERROR_FILE_NOT_FOUND, NULLSTR );
+        return NULL;
+    }
+
+    source = pszFileName;
+
+    // check for network server names (Novell Netware or Lan Manager)
+    //   or a named pipe ("\pipe\name...")
+    if ( ( is_net_drive( pszFileName )) || ( QueryIsPipeName( pszFileName )) ) {
+        // don't do anything if it's an oddball network name - just
+        //   return the filename, shifted to upper or lower case
+        return( filecase( pszFileName ));
+    }
+
+    // skip the disk specification
+    if ( ( *pszFileName ) && ( pszFileName[1] == ':' ) )
+        pszFileName += 2;
+
+    // get the current directory, & save to the temp buffer
+    if ( ( curdir = gcdir( source, ( fFlags & MKFNAME_NOERROR ))) == NULL )
+        return NULL;
+
+    // skip the disk spec for the default directory
+    copy_filename( temp, curdir );
+    if ( ( temp[0] == '\\' ) && ( temp[1] == '\\' ) ) {
+
+        // if it's a UNC name, skip the machine & sharename
+        curdir = temp + strlen( temp );
+        if ( ( ptr = strchr( temp+2, '\\' )) != NULL ) {
+            if ( ( ptr = strchr( ptr + 1, '\\' )) != NULL )
+                curdir = ptr + 1;
+        }
+    } else
+        curdir = temp + 3;
+
+    // if filespec defined from root, there's no default pathname
+    if ( ( *pszFileName == '\\' ) || ( *pszFileName == '/' ) ) {
+        pszFileName++;
+        *curdir = '\0';
+    }
+
+    // handle Netware-like CD changes (..., ...., etc.)
+    while ( ( ptr = strstr( pszFileName, "..." )) != NULL ) {
+
+        char *ptr2;
+
+        // HPFS and NTFS allow names like "abc...def"
+        if ( ifs_type( temp ) != 0 ) {
+
+            // check start
+            if ( ( ptr > pszFileName ) && ( ptr[-1] != '/' ) && ( ptr[-1] != '\\' ) )
+                break;
+
+            // check end
+            for ( ptr2 = ptr; ( *ptr2 == '.' ); ptr2++ )
+                ;
+            if ( ( *ptr2 != '\0' ) && ( *ptr2 != '\\' ) && ( *ptr2 != '/' ) )
+                break;
         }
 
-        source = pszFileName;
-
-        // check for network server names (Novell Netware or Lan Manager)
-        //   or a named pipe ("\pipe\name...")
-        if (( is_net_drive( pszFileName )) || ( QueryIsPipeName( pszFileName ))) {
-                // don't do anything if it's an oddball network name - just
-                //   return the filename, shifted to upper or lower case
-                return ( filecase( pszFileName ));
+        // make sure we're not over the max length
+        if ( ( strlen( pszFileName ) + 4 ) >= MAXFILENAME ) {
+            Mkfname_Error:
+            if ( ( fFlags & MKFNAME_NOERROR ) == 0 )
+                error( ERROR_FILE_NOT_FOUND, pszFileName );
+            return NULL;
         }
 
-        // skip the disk specification
-        if (( *pszFileName ) && ( pszFileName[1] == ':' ))
-                pszFileName += 2;
+        strins( ptr+2, "\\." );
+    }
 
-        // get the current directory, & save to the temp buffer
-        if (( curdir = gcdir( source, ( fFlags & MKFNAME_NOERROR ))) == NULL )
-                return NULL;
+    while ( ( pszFileName != NULL ) && ( *pszFileName ) ) {
 
-        // skip the disk spec for the default directory
-        copy_filename( temp, curdir );
-        if (( temp[0] == '\\' ) && ( temp[1] == '\\' )) {
-
-                // if it's a UNC name, skip the machine & sharename
-                curdir = temp + strlen( temp );
-                if (( ptr = strchr( temp+2, '\\' )) != NULL ) {
-                        if (( ptr = strchr( ptr + 1, '\\' )) != NULL )
-                                curdir = ptr + 1;
-                }
-        } else
-                curdir = temp + 3;
-
-        // if filespec defined from root, there's no default pathname
-        if (( *pszFileName == '\\' ) || ( *pszFileName == '/' )) {
-                pszFileName++;
-                *curdir = '\0';
+        // don't strip trailing \ in directory name
+        if ( ( ptr = strpbrk( pszFileName, "/\\" )) != NULL ) {
+            if ( ( ptr[1] != '\0' ) || ( ptr[-1] == '.' ) )
+                *ptr = '\0';
+            ptr++;
         }
 
-        // handle Netware-like CD changes (..., ...., etc.)
-        while (( ptr = strstr( pszFileName, "..." )) != NULL ) {
+        // handle references to parent directory ("..")
+        if ( _stricmp( pszFileName, ".." ) == 0 ) {
 
-                char *ptr2;
+            // don't delete root directory!
+            if ( ( pszFileName = strrchr( curdir, '\\' )) == NULL )
+                pszFileName = curdir;
+            *pszFileName = '\0';
 
-                // HPFS and NTFS allow names like "abc...def"
-                if ( ifs_type( temp ) != 0 ) {
-
-                        // check start
-                        if (( ptr > pszFileName ) && ( ptr[-1] != '/' ) && ( ptr[-1] != '\\' ))
-                                break;
-
-                        // check end
-                        for ( ptr2 = ptr; ( *ptr2 == '.' ); ptr2++ )
-                                ;
-                        if (( *ptr2 != '\0' ) && ( *ptr2 != '\\' ) && ( *ptr2 != '/' ))
-                                break;
-                }
-
-                // make sure we're not over the max length
-                if (( strlen( pszFileName ) + 4 ) >= MAXFILENAME ) {
-Mkfname_Error:
-                        if (( fFlags & MKFNAME_NOERROR ) == 0 )
-                                error( ERROR_FILE_NOT_FOUND, pszFileName );
-                        return NULL;
-                }
-
-                strins( ptr+2, "\\." );
+        } else if ( _stricmp( pszFileName, "." ) != 0 ) {
+            // append the directory or filename to the temp buffer
+            if ( mkdirname( temp, pszFileName ) )
+                goto Mkfname_Error;
         }
 
-        while (( pszFileName != NULL ) && ( *pszFileName )) {
+        pszFileName = ptr;
+    }
 
-                // don't strip trailing \ in directory name
-                if (( ptr = strpbrk( pszFileName, "/\\" )) != NULL ) {
-                        if (( ptr[1] != '\0' ) || ( ptr[-1] == '.' ))
-                                *ptr = '\0';
-                        ptr++;
-                }
+    copy_filename( source, temp );
 
-                // handle references to parent directory ("..")
-                if ( _stricmp( pszFileName, ".." ) == 0 ) {
-
-                        // don't delete root directory!
-                        if (( pszFileName = strrchr( curdir, '\\' )) == NULL )
-                                pszFileName = curdir;
-                        *pszFileName = '\0';
-
-                } else if ( _stricmp( pszFileName, "." ) != 0 ) {
-                        // append the directory or filename to the temp buffer
-                        if ( mkdirname( temp, pszFileName ))
-                                goto Mkfname_Error;
-                }
-
-                pszFileName = ptr;
-        }
-
-        copy_filename( source, temp );
-
-        // return expanded filename, shifted to upper or lower case
-        return ( filecase( source ));
+    // return expanded filename, shifted to upper or lower case
+    return( filecase( source ));
 }
 
 
 // make a filename with the supplied path & filename
 void insert_path( char *target, char *source, char *path )
 {
-        // get path part first in case "path" and / or "source" are the same
-        //   arg as "target"
-        path = path_part( path );
-        copy_filename( target, source );
+    // get path part first in case "path" and / or "source" are the same
+    //   arg as "target"
+    path = path_part( path );
+    copy_filename( target, source );
 
-        if ( path != NULL )
-                strins( target, path );
+    if ( path != NULL )
+        strins( target, path );
 }
 
 
 // return non-zero if the specified file exists
 int is_file( char *pszFileName )
 {
-        char wname[MAXFILENAME];
-        FILESEARCH dir;
+    char wname[MAXFILENAME];
+    FILESEARCH dir;
 
-        copy_filename( wname, pszFileName );
+    copy_filename( wname, pszFileName );
 
-        // check for valid drive, then expand filename to catch things
-        //   like "\4dos\." and "....\wonky\*.*"
-        if ( mkfname( wname, MKFNAME_NOERROR ) != NULL ) {
-                if ( find_file( FIND_FIRST, wname, 0x2107, &dir, NULL ) != NULL )
-                        return 1;
-        }
+    // check for valid drive, then expand filename to catch things
+    //   like "\4dos\." and "....\wonky\*.*"
+    if ( mkfname( wname, MKFNAME_NOERROR ) != NULL ) {
+        if ( find_file( FIND_FIRST, wname, FIND_4OS2_STD, &dir, NULL ) != NULL )
+            return 1;
+    }
 
-        return 0;
+    return 0;
 }
 
 
 // return non-zero if the specified file or directory exists
 int is_file_or_dir( char *pszFileName )
 {
-        int fNoDots;
-        char wname[MAXFILENAME];
-        FILESEARCH dir;
+    int fNoDots;
+    char wname[MAXFILENAME + 2];        // 2016-05-24 SHL +2 makes room for quotes
+    FILESEARCH dir;
 
-        // check for valid drive, then expand filename to catch things
-        //   like "\4dos\." and "....\wonky\*.*"
-        copy_filename( wname, pszFileName );
+    // check for valid drive, then expand filename to catch things
+    //   like "\4dos\." and "....\wonky\*.*"
+    strncpy( wname, pszFileName, sizeof(wname) ); // 2016-05-24 SHL
+    wname[sizeof(wname) - 1] = '\0';    // 2016-05-24 SHL
 
-        if ( mkfname( wname, MKFNAME_NOERROR ) != NULL ) {
+    if ( mkfname( wname, MKFNAME_NOERROR ) != NULL ) {
 
-                strip_trailing( (( wname[1] == ':' ) ? wname + 3 : wname + 1 ), "\\/" );
+        strip_trailing( (( wname[1] == ':' ) ? wname + 3 : wname + 1 ), "\\/" );
 
-                // if filename has wildcards, don't return "." or ".."
-                fNoDots = ( strpbrk( wname, WILD_CHARS ) != NULL );
-                if ( find_file( FIND_FIRST, wname, (( fNoDots ) ? 0xA117 : 0x2117), &dir, NULL ) != NULL )
-                        return (( dir.attrib & 0x10 ) ? 0x10 : 1 );
-        }
+        // if filename has wildcards, don't return "." or ".."
+        fNoDots = ( strpbrk( wname, WILD_CHARS ) != NULL );
+        if ( find_file( FIND_FIRST, wname, (( fNoDots ) ? 0xA117 : 0x2117), &dir, NULL ) != NULL )
+            // return (( dir.attrib & 0x10 ) ? 0x10 : 1 );
+            return(( dir.attrib & FILE_DIRECTORY ) ? FILE_DIRECTORY : 1 );
+    }
 
-        return 0;
+    return 0;
 }
 
 
 // returns 1 if it's a directory, 0 otherwise
 int is_dir( char *pszFileName )
 {
-        char *ptr;
-        char szDirName[MAXFILENAME];
-        FILESEARCH dir;
+    char *ptr;
+    char szDirName[MAXFILENAME];
+    FILESEARCH dir;
 
-        ptr = pszFileName;
+    ptr = pszFileName;
 
-        // check to see if the drive exists
-        if ( pszFileName[1] == ':' ) {
+    // check to see if the drive exists
+    if ( pszFileName[1] == ':' ) {
 
-                // Another Netware kludge:  skip past "d:" when scanning for
-                //   wildcards to allow for wacko drive names like ]:
-                ptr += 2;
+        // Another Netware kludge:  skip past "d:" when scanning for
+        //   wildcards to allow for wacko drive names like ]:
+        ptr += 2;
 
-                if ( QueryDriveExists( gcdisk( pszFileName )) == 0 )
-                        return 0;
-        }
+        if ( QueryDriveExists( gcdisk( pszFileName )) == 0 )
+            return 0;
+    }
 
-        // it can't be a directory if it has wildcards or include list
-        if ( strpbrk( ptr, "*?" ) != NULL )
-                return 0;
-
-        if ((( ptr = scan( ptr, "[;", "\"" )) != BADQUOTES ) && ( *ptr == '\0' )) {
-
-                // build a fully-qualified path name (& fixup Netware stuff)
-                copy_filename( szDirName, pszFileName );
-                if (( mkfname( szDirName, MKFNAME_NOERROR ) == NULL ) || ( szDirName[0] == '\0' ))
-                        return 0;
-
-                // "d:", "d:\" and "d:/" are assumed valid directories
-                // Novell names like "SYS:" are also assumed valid directories
-                if ((( szDirName[2] == '\0' ) || (( szDirName[2] == '\\' ) ||
-                  ( szDirName[2] == '/' )) && (szDirName[3] == '\0' )) ||
-                  (((( ptr = strchr( szDirName+2, ':' )) != NULL ) &&
-                  ( ptr[1] == '\0' ) && ((unsigned int)( ptr - szDirName ) < 6 ) &&
-                  ( strpbrk( szDirName, " ,\t=" ) == NULL )) &&
-                  ( QueryIsDevice( szDirName ) == 0 )))
-                        return 1;
-
-                // remove a trailing "\" or "/"
-                strip_trailing( szDirName, SLASHES );
-
-                // try searching for it & see if it exists
-                if ( find_file( FIND_FIRST, szDirName, 0x2317, &dir, NULL ) != NULL )
-                        return (( dir.attrib & 0x10 ) ? 1 : 0 );
-
-                // kludge for "\\server\dir" not working in NT & OS/2 & Netware
-                if (( szDirName[0] == '\\' ) && ( szDirName[1] == '\\' )) {
-
-                        // see if there are any subdirectories or files
-                        mkdirname( szDirName, WILD_FILE );
-                        if ( find_file( FIND_FIRST, szDirName, 0x2117, &dir, NULL ) != NULL )
-                                return 1;
-                }
-        }
-
+    // it can't be a directory if it has wildcards or include list
+    if ( strpbrk( ptr, "*?" ) != NULL )
         return 0;
+
+    if ( (( ptr = scan( ptr, "[;", "\"" )) != BADQUOTES ) && ( *ptr == '\0' ) ) {
+
+        // build a fully-qualified path name (& fixup Netware stuff)
+        copy_filename( szDirName, pszFileName );
+        if ( ( mkfname( szDirName, MKFNAME_NOERROR ) == NULL ) || ( szDirName[0] == '\0' ) )
+            return 0;
+
+        // "d:", "d:\" and "d:/" are assumed valid directories
+        // Novell names like "SYS:" are also assumed valid directories
+        if ( (( szDirName[2] == '\0' ) || (( szDirName[2] == '\\' ) ||
+                                           ( szDirName[2] == '/' )) && (szDirName[3] == '\0' )) ||
+             (((( ptr = strchr( szDirName+2, ':' )) != NULL ) &&
+               ( ptr[1] == '\0' ) && ((unsigned int)( ptr - szDirName ) < 6 ) &&
+               ( strpbrk( szDirName, " ,\t=" ) == NULL )) &&
+              ( QueryIsDevice( szDirName ) == 0 )) )
+            return 1;
+
+        // remove a trailing "\" or "/"
+        strip_trailing( szDirName, SLASHES );
+
+        // try searching for it & see if it exists
+        if ( find_file( FIND_FIRST, szDirName, 0x2317, &dir, NULL ) != NULL )
+            return(( dir.attrib & FILE_DIRECTORY ) ? 1 : 0 ); // 0x10
+
+        // kludge for "\\server\dir" not working in NT & OS/2 & Netware
+        if ( ( szDirName[0] == '\\' ) && ( szDirName[1] == '\\' ) ) {
+
+            // see if there are any subdirectories or files
+            mkdirname( szDirName, WILD_FILE );
+            if ( find_file( FIND_FIRST, szDirName, 0x2117, &dir, NULL ) != NULL )
+                return 1;
+        }
+    }
+
+    return 0;
 }
 
 
@@ -1582,7 +1626,7 @@ int is_dir( char *pszFileName )
 //   (like "\\server\blahblah" or "sys:blahblah")
 int is_net_drive( char *pszFileName )
 {
-        return ((( pszFileName[0] == '\\' ) && ( pszFileName[1] == '\\' )) || (( pszFileName[1] != '\0' ) && ( strchr( pszFileName+2, ':' ) != NULL )));
+    return((( pszFileName[0] == '\\' ) && ( pszFileName[1] == '\\' )) || (( pszFileName[1] != '\0' ) && ( strchr( pszFileName+2, ':' ) != NULL )));
 }
 
 
@@ -1590,28 +1634,28 @@ int is_net_drive( char *pszFileName )
 //   (kinda kludgy in order to support wildcards)
 char *executable_ext( char *ptr )
 {
-        PCH feptr;
+    PCH feptr;
 
-        for ( ptr++, feptr = glpEnvironment; ; feptr = next_env( feptr )) {
+    for ( ptr++, feptr = glpEnvironment; ; feptr = next_env( feptr ) ) {
 
-                if ( *feptr == '\0' ) {
-                        break;
-                }
-
-                if (( *feptr++ == '.' ) && ( wild_cmp( feptr, (char *)ptr, TRUE, TRUE ) == 0 )) {
-
-                        // get the argument
-                        while (( *feptr ) && ( *feptr++ != '=' ))
-                                ;
-                        break;
-                }
-
-// FIXME!
-//              while (( *feptr ) && ( *feptr++ != ';' ))
-//                      ;
+        if ( *feptr == '\0' ) {
+            break;
         }
 
-        return feptr;
+        if ( ( *feptr++ == '.' ) && ( wild_cmp( feptr, (char *)ptr, TRUE, TRUE ) == 0 ) ) {
+
+            // get the argument
+            while ( ( *feptr ) && ( *feptr++ != '=' ) )
+                ;
+            break;
+        }
+
+        // FIXME!
+        //              while (( *feptr ) && ( *feptr++ != ';' ))
+        //                      ;
+    }
+
+    return feptr;
 }
 
 
@@ -1624,127 +1668,127 @@ char *executable_ext( char *ptr )
 //         the test; - means match if included in the range.
 int wild_cmp( char *fpWildName, char *fpFileName, int fExtension, int fWildBrackets )
 {
-        int fWildStar = 0;
-        char *w_start, *f_start;
+    int fWildStar = 0;
+    char *w_start, *f_start;
 
-        // skip ".." and "." (will only match on *.*)
-        //   but add a kludge for HPFS names like ".toto"
-        //   and another kludge for "[!.]*"
-        if (( fpFileName[0] == '.' ) && ( *fpWildName != '[' ) && ( fExtension )) {
-                if (( fpFileName[1] == '.' ) && ( fpFileName[2] == '\0' ))
-                        fpFileName += 2;
-                else if ( fpFileName[1] == '\0' )
-                        fpFileName++;
-        }
+    // skip ".." and "." (will only match on *.*)
+    //   but add a kludge for HPFS names like ".toto"
+    //   and another kludge for "[!.]*"
+    if ( ( fpFileName[0] == '.' ) && ( *fpWildName != '[' ) && ( fExtension ) ) {
+        if ( ( fpFileName[1] == '.' ) && ( fpFileName[2] == '\0' ) )
+            fpFileName += 2;
+        else if ( fpFileName[1] == '\0' )
+            fpFileName++;
+    }
 
-        for ( ; ; ) {
+    for ( ; ; ) {
 
-                // skip quotes in LFN or HPFS-style names
-                while ( *fpWildName == '"' )
-                        fpWildName++;
+        // skip quotes in LFN or HPFS-style names
+        while ( *fpWildName == '"' )
+            fpWildName++;
 
-                if ( *fpWildName == '*' ) {
+        if ( *fpWildName == '*' ) {
 
-                        // skip past * and advance fpFileName until a match
-                        //   of the characters following the * is found.
-                        for ( fWildStar = 1; (( *(++fpWildName) == '*' ) || ( *fpWildName == '?' )); )
-                                ;
+            // skip past * and advance fpFileName until a match
+            //   of the characters following the * is found.
+            for ( fWildStar = 1; (( *(++fpWildName) == '*' ) || ( *fpWildName == '?' )); )
+                ;
 
-                } else if ( *fpWildName == '?' ) {
+        } else if ( *fpWildName == '?' ) {
 
-                        // ? matches any single character (or possibly
-                        //   no character, if at start of extension or EOS)
-                        if (( *fpFileName == '.' ) && ( fExtension )) {
+            // ? matches any single character (or possibly
+            //   no character, if at start of extension or EOS)
+            if ( ( *fpFileName == '.' ) && ( fExtension ) ) {
 
-                                // beginning of extension - throw away any
-                                //   more wildcards
-                                while (( *(++fpWildName ) == '?' ) || ( *fpWildName == '*' ))
-                                        ;
-                                if ( *fpWildName == '.' )
-                                        fpWildName++;
-                                fpFileName++;
+                // beginning of extension - throw away any
+                //   more wildcards
+                while ( ( *(++fpWildName ) == '?' ) || ( *fpWildName == '*' ) )
+                    ;
+                if ( *fpWildName == '.' )
+                    fpWildName++;
+                fpFileName++;
 
-                        } else {
-                                if ( *fpFileName )
-                                        fpFileName++;
-                                fpWildName++;
+            } else {
+                if ( *fpFileName )
+                    fpFileName++;
+                fpWildName++;
+            }
+
+        } else if ( ( fWildBrackets ) && ( *fpWildName == '[' ) && ( fWildStar == 0 ) ) {
+
+            // [ ] checks for a single character (including ranges)
+            if ( wild_brackets( fpWildName++, *fpFileName, TRUE ) != 0 )
+                break;
+
+            if ( *fpFileName )
+                fpFileName++;
+
+            while ( ( *fpWildName ) && ( *fpWildName++ != ']' ) )
+                ;
+
+        } else {
+
+            if ( fWildStar ) {
+
+                // following a '*'; so we need to do a complex
+                //   match since there could be any number of
+                //   preceding characters
+                for ( w_start = fpWildName, f_start = fpFileName; (( *fpFileName ) && ( *fpWildName != '*' )); ) {
+
+                    if ( ( *fpFileName == '.' ) && ( fExtension ) ) {
+                        // kludge for "*.[!x]*" in LFNs
+                        if ( *fpWildName == '.' ) {
+
+                            if ( ( fpWildName[1] == '[' ) || ( fpWildName[1] == '*' ) || ( fpWildName[1] == '?' ) )
+                                break;
                         }
+                    }
 
-                } else if (( fWildBrackets ) && ( *fpWildName == '[' ) && ( fWildStar == 0 )) {
+                    if ( *fpWildName == '[' ) {
 
-                        // [ ] checks for a single character (including ranges)
-                        if ( wild_brackets( fpWildName++, *fpFileName, TRUE ) != 0 )
-                                break;
+                        // get the first matching char
+                        if ( wild_brackets( fpWildName, *fpFileName, TRUE ) == 0 ) {
 
-                        if ( *fpFileName )
-                                fpFileName++;
-
-                        while (( *fpWildName ) && ( *fpWildName++ != ']' ))
+                            while ( ( *fpWildName ) && ( *fpWildName++ != ']' ) )
                                 ;
+                            fpFileName++;
+                            continue;
+                        }
+                    }
 
-                } else {
-
-                        if ( fWildStar ) {
-
-                                // following a '*'; so we need to do a complex
-                                //   match since there could be any number of
-                                //   preceding characters
-                                for ( w_start = fpWildName, f_start = fpFileName; (( *fpFileName ) && ( *fpWildName != '*' )); ) {
-
-                                        if (( *fpFileName == '.' ) && ( fExtension )) {
-                                                // kludge for "*.[!x]*" in LFNs
-                                                if ( *fpWildName == '.' ) {
-
-                                                    if (( fpWildName[1] == '[' ) || ( fpWildName[1] == '*' ) || ( fpWildName[1] == '?' ))
-                                                        break;
-                                                }
-                                        }
-
-                                        if ( *fpWildName == '[' ) {
-
-                                                // get the first matching char
-                                                if ( wild_brackets( fpWildName, *fpFileName, TRUE ) == 0 ) {
-
-                                                        while (( *fpWildName ) && ( *fpWildName++ != ']' ))
-                                                                ;
-                                                        fpFileName++;
-                                                        continue;
-                                                }
-                                        }
-
-                                        if (( *fpWildName != '?' ) && ( _ctoupper( *fpWildName ) != _ctoupper( *fpFileName ))) {
-                                                fpWildName = w_start;
-                                                fpFileName = ++f_start;
-                                        } else {
-                                                fpWildName++;
-                                                fpFileName++;
-                                        }
-                                }
-
-                                // if "fpWildName" is still an expression, we failed
-                                //   to find a match
-                                if ( *fpWildName == '[' )
-                                        break;
-
-                                fWildStar = 0;
-
-                        } else if (( _ctoupper( *fpWildName ) == _ctoupper( *fpFileName )) && ( *fpWildName != '\0' )) {
-
-                                fpWildName++;
-                                fpFileName++;
-
-                        } else if (( *fpWildName == '.' ) && ( *fpFileName == '\0' ) && ( fExtension ))
-                                fpWildName++;   // no extension
-
-                        else
-                                break;
+                    if ( ( *fpWildName != '?' ) && ( _ctoupper( *fpWildName ) != _ctoupper( *fpFileName )) ) {
+                        fpWildName = w_start;
+                        fpFileName = ++f_start;
+                    } else {
+                        fpWildName++;
+                        fpFileName++;
+                    }
                 }
-        }
 
-        // a ';' means we're at the end of a filename in a group list
-        // a '=' means we're at the end of an executable extension definition
-        // a '"' means we're at the end of a quoted filename
-        return ((( *fpWildName == ';' ) || ( *fpWildName == '=' ) || ( *fpWildName == '"' )) ? *fpFileName : *fpWildName - *fpFileName );
+                // if "fpWildName" is still an expression, we failed
+                //   to find a match
+                if ( *fpWildName == '[' )
+                    break;
+
+                fWildStar = 0;
+
+            } else if ( ( _ctoupper( *fpWildName ) == _ctoupper( *fpFileName )) && ( *fpWildName != '\0' ) ) {
+
+                fpWildName++;
+                fpFileName++;
+
+            } else if ( ( *fpWildName == '.' ) && ( *fpFileName == '\0' ) && ( fExtension ) )
+                fpWildName++;           // no extension
+
+            else
+                break;
+        }
+    }
+
+    // a ';' means we're at the end of a filename in a group list
+    // a '=' means we're at the end of an executable extension definition
+    // a '"' means we're at the end of a quoted filename
+    return((( *fpWildName == ';' ) || ( *fpWildName == '=' ) || ( *fpWildName == '"' )) ? *fpFileName : *fpWildName - *fpFileName );
 }
 
 
@@ -1752,375 +1796,607 @@ int wild_cmp( char *fpWildName, char *fpFileName, int fExtension, int fWildBrack
 // Returns 0 for match, 1 for failure
 int wild_brackets( char *str, int c, int fIgnoreCase )
 {
-        int inverse = 0;
+    int inverse = 0;
 
-        if ( fIgnoreCase )
-                c = _ctoupper( c );
+    if ( fIgnoreCase )
+        c = _ctoupper( c );
 
-        // check for inverse bracket "[!a-c]"
-        if ( *(++str) == '!' ) {
-                str++;
-                inverse++;
+    // check for inverse bracket "[!a-c]"
+    if ( *(++str) == '!' ) {
+        str++;
+        inverse++;
+    }
+
+    // check for [] or [!] match
+    if ( ( *str == ']' ) && ( c == 0 ) )
+        return(( inverse ) ? 1 : 0 );
+
+    // loop til ending bracket or until compare fails
+    for ( ; ; str++ ) {
+
+        if ( ( *str == ']' ) || ( *str == '\0' ) ) {
+            inverse--;
+            break;
         }
 
-        // check for [] or [!] match
-        if (( *str == ']' ) && ( c == 0 ))
-                return (( inverse ) ? 1 : 0 );
+        if ( str[1] == '-' ) {          // range test
 
-        // loop til ending bracket or until compare fails
-        for ( ; ; str++ ) {
+            if ( ( _ctoupper( *str ) <= _ctoupper( c )) && ( _ctoupper( c ) <= _ctoupper( str[2] )) )
+                break;
+            str += 2;
 
-                if (( *str == ']' ) || ( *str == '\0' )) {
-                        inverse--;
-                        break;
-                }
+            // single character
+        } else if ( *str == '?' ) {
 
-                if ( str[1] == '-' ) {          // range test
+            // kludge for [!?]
+            if ( c == 0 )
+                inverse--;
+            break;
 
-                        if (( _ctoupper( *str ) <= _ctoupper( c )) && ( _ctoupper( c ) <= _ctoupper( str[2] )))
-                                break;
-                        str += 2;
+        } else if ( c == (( fIgnoreCase ) ? _ctoupper( *str ) : *str ) )
+            break;
+    }
 
-                // single character
-                } else if ( *str == '?' ) {
-
-                        // kludge for [!?]
-                        if ( c == 0 )
-                                inverse--;
-                        break;
-
-                } else if ( c == (( fIgnoreCase ) ? _ctoupper( *str ) : *str ))
-                        break;
-        }
-
-        return (( inverse ) ? 1 : 0 );
+    return(( inverse ) ? 1 : 0 );
 }
 
 
 // exclude the specified file(s) from a directory search
 int ExcludeFiles( char *szFiles, char *szFilename )
 {
-        char *arg;
-        int i;
+    char *arg;
+    int i;
 
-        for ( i = 0; (( arg = ntharg( szFiles, i )) != NULL ); i++ ) {
-                StripQuotes( arg );
-                if ( wild_cmp( (char *)arg, (char *)szFilename, TRUE, TRUE ) == 0 )
-                        return 0;
-        }
+    for ( i = 0; (( arg = ntharg( szFiles, i )) != NULL ); i++ ) {
+        StripQuotes( arg );
+        if ( wild_cmp( (char *)arg, (char *)szFilename, TRUE, TRUE ) == 0 )
+            return 0;
+    }
 
-        return 1;
+    return 1;
 }
 
 
-// return the date, formatted appropriately by country type
-char * FormatDate( int month, int day, int year )
+/**
+ * return the date, formatted appropriately by country type or custom string
+ * @param fTmSmp requests TmSmpFmt (timestamp format) if true otherwise requests DateFmt
+ * @returns formatted string in static variable
+ */
+char * FormatDate( int month, int day, int year, int fTmSmp )
 {
-        static char date[10];
-        int i;
+    static char dateString[24];
+    char *p;
+    char *pRawFmt = 0;
+    BOOL useUserFmt = FALSE;
+    BOOL wantSec = FALSE;
+    char sep = 0;
+    char ch;
+    int datePart1;                      // date parts for output
+    int datePart2;
+    int datePart3;
+    char normFmt[24] = {0};
+    char *errMsg = "Invalid format string";
 
-        // make sure year is only 2 digits
-        year %= 100;
+    if ( gaInifile.DateFmt != INI_EMPTYSTR && ( !fTmSmp || gaInifile.TmSmpFmt == INI_EMPTYSTR ) ) {
+        // Format as date
+        pRawFmt = (char *)gpIniptr->StrData + gpIniptr->DateFmt;
+        strcpy(normFmt, pRawFmt);
+        // Normalize format string to simplify logic
+        // Remember if pattern contains separator
+        for ( p = normFmt; *p; p++ ) {
+            if ( *p == '-' )
+                sep = *p;
+            else if ( *p == '/' ) {
+                sep = *p;
+                *p = '-';
+            }
+            else
+              *p = toupper( *p );
+        }
+        if ( !sep )
+            return errMsg;
+
+        wantSec = strstr(normFmt, "SS") != NULL;        // 2022-12-14 SHL
+
+        useUserFmt = TRUE;              // Using DateFmt from ini file
+
+    } else if ( gaInifile.TmSmpFmt != INI_EMPTYSTR && fTmSmp ) {
+        // Format as timestamp
+        pRawFmt = (char *) gpIniptr->StrData + gpIniptr->TmSmpFmt;
+        strcpy(normFmt, pRawFmt);
+        strupr(normFmt);
+        // Unlike date format, we don't allow slashes in timestamp format
+        // Timestamp must include time part
+        if ( !strstr(normFmt, "H-M") && !strstr(normFmt, "HM") )
+            return errMsg;
+
+        wantSec = strstr(normFmt, "SS") != NULL;        // 2022-12-14 SHL
+        useUserFmt = TRUE;              // Using timestamp format from ini file
+
+        if ( strchr(normFmt, '-') ) {
+            // Want separators
+            sep = '-';
+            // Chop time part from normalized format string
+            p = strstr(normFmt, "-H");
+            if (p)
+                *p = 0;
+        }
+        else {
+            // Don't want separators
+            sep = 0;
+            // Chop time part from normalized format string
+            p = strstr(normFmt, "HH");
+            if (p)
+                *p = 0;                 // Chop HH-MM-SS etc.
+
+            // Add separators to format string to simplify parsing
+            p = strstr(normFmt, "YM");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "YD");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "DM");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "MD");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "MD");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "MY");
+            if (p)
+                *p = '-';
+            p = strstr(normFmt, "DY");
+            if (p)
+                *p = '-';
+        }
+    }
+
+    if ( useUserFmt ) {
+        // Use user specific format
+
+        if (!strstr(normFmt, "YYY"))
+            year %= 100;                // 2 digit year
+
+        // Reorder args to match format string
+        p = normFmt;
+        ch = *p;
+
+        if (ch == 'Y')
+            datePart1 = year;
+        else if (ch == 'D')
+            datePart1 = day;
+        else if (ch == 'M')
+            datePart1 = month;
+        else
+          return errMsg;
+
+        p = strchr(p, '-');
+        if (!p)
+            return errMsg;
+        p++;
+        ch = *p;
+
+        if (ch == 'Y')
+            datePart2 = year;
+        else if (ch == 'M')
+            datePart2 = month;
+        else if (ch == 'D')
+            datePart2 = day;
+        else
+            return errMsg;
+
+        p = strchr(p, '-');
+        if (!p)
+            return errMsg;
+        p++;
+        ch = *p;
+
+        if (ch == 'D')
+            datePart3 = day;
+        else if (ch == 'M')
+            datePart3 = month;
+        else if (ch == 'Y')
+            datePart3 = year;
+        else
+            return errMsg;
+    }
+    else {
+      // Use Country specific format
+      // make sure year is only 2 digits
+        if (!gaInifile.Year4Digit)
+            year %= 100;
+
+        sep = gaCountryInfo.szDateSeparator[0];
 
         if ( gaCountryInfo.fsDateFmt == 1 ) {
-
-                // Europe = dd-mm-yy
-                i = day;                        // swap day and month
-                day = month;
-                month = i;
-
+            // Europe = dd-mm-yy
+            datePart1 = day;
+            datePart2 = month;
+            datePart3 = year;
         } else if ( gaCountryInfo.fsDateFmt == 2 ) {
-
-                // Japan = yy-mm-dd
-                i = month;                      // swap everything!
-                month = year;
-                year = day;
-                day = i;
+            // Japan = yy-mm-dd
+            datePart1 = year;
+            datePart2 = month;
+            datePart3 = day;
         }
+        else {
+            // mm-dd-yy
+            datePart1 = month;
+            datePart2 = day;
+            datePart3 = year;
+        }
+    }
 
-        sprintf( date, TIME_FMT, month, gaCountryInfo.szDateSeparator[0], day, gaCountryInfo.szDateSeparator[0], year, 0 );
+    if ( fTmSmp && sep != 0 ) {
+        // Want timestamp with separators
+        sprintf( dateString, "%02u%c%02u%c%02u%c%s", datePart1, '-', datePart2, '-', datePart3, '-', gtime( 1 ), 0 );
+        // Map colons in formatted time to dashes
+        for (p = strchr(dateString, ':'); p; p = strchr(p + 1, ':'))
+            *p = '-';
 
-        return date;
+        if (!wantSec) {
+            // No seconds requested
+            p = strrchr(dateString, '-');
+            if (p)
+                *p = 0;                 // Chop seconds
+        }
+    } else if ( fTmSmp && sep == 0 ) {
+        // Want timestamp without separators
+        DATETIME sysDateTime;
+
+        sprintf( dateString, "%02u%02u%02u", datePart1, datePart2, datePart3 );
+        QueryDateTime( &sysDateTime );
+        // 2022-12-14 SHL provide leading zeros
+        sprintf(dateString + strlen(dateString), "%02u", sysDateTime.hours);
+        sprintf(dateString + strlen(dateString), "%02u", sysDateTime.minutes);
+
+        if (wantSec) {
+            // Seconds requested
+            sprintf(dateString + strlen(dateString), "%02u", sysDateTime.seconds);
+        }
+    } else {
+        // Want date only
+        // hack to turn off switches so date isn't truncated at slash (command resets it)
+        if (sep == '/')
+            gpIniptr->SwChr = 0x07;
+        sprintf( dateString, "%02u%c%02u%c%02u", datePart1, sep, datePart2, sep, datePart3, 0 );
+    }
+
+    return dateString;
 }
 
 
 // honk the speaker (but shorter & more pleasantly than COMMAND.COM)
 void honk( void )
 {
-        // flush the typeahead buffer before honking
-        if ( QueryIsConsole( STDIN )) {
-                while ( _kbhit() )
-                        (void)GetKeystroke( EDIT_NO_ECHO );
-        }
+    // flush the typeahead buffer before honking
+    if ( QueryIsConsole( STDIN ) ) {
+        while ( _kbhit() )
+            (void)GetKeystroke( EDIT_NO_ECHO );
+    }
 
-        SysBeep( gpIniptr->BeepFreq, gpIniptr->BeepDur );
+    SysBeep( gpIniptr->BeepFreq, gpIniptr->BeepDur );
 }
 
 
 void PopupEnvironment( int fAlias )
 {
-        unsigned int i, n, uSize = 0;
-        char *fptr;
-        char * *list = 0L;
+    unsigned int i, n, uSize = 0;
+    char *fptr;
+    char * *list = 0L;
 
-        // get the environment or alias list into an array
-        fptr = (( fAlias ) ? glpAliasList : glpEnvironment );
-        for ( i = 0; ( *fptr ); fptr = next_env( fptr )) {
+    // get the environment or alias list into an array
+    fptr = (( fAlias ) ? glpAliasList : glpEnvironment );
+    for ( i = 0; ( *fptr ); fptr = next_env( fptr ) ) {
 
-            // allocate memory for 32 entries at a time
-            if (( i % 32 ) == 0 ) {
+        // allocate memory for 32 entries at a time
+        if ( ( i % 32 ) == 0 ) {
+            uSize += 128;
+            list = (char * *)ReallocMem( (char *)list, uSize );
+        }
+
+        list[ i++ ] = fptr;
+    }
+
+    // get batch variables into the list
+    if ( ( fAlias == 0 ) && ( cv.bn >= 0 ) ) {
+
+        for ( n = bframe[cv.bn].Argv_Offset; ( bframe[ cv.bn ].Argv[ n ] != NULL ); n++ ) {
+
+            if ( ( i % 32 ) == 0 ) {
                 uSize += 128;
                 list = (char * *)ReallocMem( (char *)list, uSize );
             }
 
+            fptr = (char *)_alloca( strlen( bframe[ cv.bn ].Argv[ n ] ) + 6 );
+            sprintf( fptr, "%%%d=%s", n - bframe[cv.bn].Argv_Offset, bframe[ cv.bn ].Argv[ n ] );
             list[ i++ ] = fptr;
         }
+    }
 
-        // get batch variables into the list
-        if (( fAlias == 0 ) && ( cv.bn >= 0 )) {
-
-            for ( n = bframe[cv.bn].Argv_Offset; ( bframe[ cv.bn ].Argv[ n ] != NULL ); n++ ) {
-
-                if (( i % 32 ) == 0 ) {
-                    uSize += 128;
-                    list = (char * *)ReallocMem( (char *)list, uSize );
-                }
-
-                fptr = (char *)_alloca( strlen( bframe[ cv.bn ].Argv[ n ] ) + 6 );
-                sprintf( fptr, "%%%d=%s", n - bframe[cv.bn].Argv_Offset, bframe[ cv.bn ].Argv[ n ] );
-                list[ i++ ] = fptr;
-            }
-        }
-
-        // no entries or no matches?
-        if ( i > 0 ) {
-            // display the popup selection list
-            wPopSelect( gpIniptr->PWTop, gpIniptr->PWLeft, gpIniptr->PWHeight, gpIniptr->PWWidth, list, i, 1, (( fAlias ) ? "Alias list" : "Environment" ), NULL, NULL, 1 );
-            FreeMem( (char *)list );
-        }
+    // no entries or no matches?
+    if ( i > 0 ) {
+        // display the popup selection list
+        wPopSelect( gpIniptr->PWTop, gpIniptr->PWLeft, gpIniptr->PWHeight, gpIniptr->PWWidth, list, i, 1, (( fAlias ) ? "Alias list" : "Environment" ), NULL, NULL, 1 );
+        FreeMem( (char *)list );
+    }
 }
 
 
 // return a single character answer matching the input mask
 int QueryInputChar( char *pszPrompt, char *pszMask )
 {
-        int c, handle;
+    int c, handle;
 
-        handle = STDOUT;
-        // check for output redirected, but input NOT redirected
-        //   (this is for things like "echo y | del /q"
-        if (( QueryIsConsole( STDOUT ) == 0 ) && ( QueryIsConsole( STDIN )))
-                handle = STDERR;
+    handle = STDOUT;
+    // check for output redirected, but input NOT redirected
+    //   (this is for things like "echo y | del /q"
+    if ( ( QueryIsConsole( STDOUT ) == 0 ) && ( QueryIsConsole( STDIN )) )
+        handle = STDERR;
 
-        qprintf( handle, "%s (%s)? ", pszPrompt, pszMask );
+    qprintf( handle, "%s (%s)? ", pszPrompt, pszMask );
 
-        for ( ; ; ) {
+    for ( ; ; ) {
 
-            // get the character - if printable, display it
-            // if it's not a Y or N, backspace, beep & ask again
-            c = GetKeystroke( EDIT_NO_ECHO | EDIT_UC_SHIFT );
+        // get the character - if printable, display it
+        // if it's not a Y or N, backspace, beep & ask again
+        c = GetKeystroke( EDIT_NO_ECHO | EDIT_UC_SHIFT );
 
-            if ( c == EOF )
-                break;
+        if ( c == EOF )
+            break;
 
-            if (( c >= 27 ) && ( c < 0xFF ) && ( c != '/' )) {
+        if ( ( c >= 27 ) && ( c < 0xFF ) && ( c != '/' ) ) {
 
-                qputc( handle, (char)c );
-                if (( c == ESCAPE ) || ( strchr( pszMask, c ) != NULL )) {
+            qputc( handle, (char)c );
+            if ( ( c == ESCAPE ) || ( strchr( pszMask, c ) != NULL ) ) {
 
-                    if (( c == 'A' ) || ( c == 'V' )) {
+                if ( ( c == 'A' ) || ( c == 'V' ) ) {
 
-                        unsigned int i, uSize = 0;
-                        char *fptr;
-                        char * *list = 0L;
+                    unsigned int i, uSize = 0;
+                    char *fptr;
+                    char * *list = 0L;
 
-                        // get the environment or alias list into an array
-                        fptr = (( c == 'A' ) ? glpAliasList : glpEnvironment );
-                        for ( i = 0; ( *fptr ); fptr = next_env( fptr )) {
+                    // get the environment or alias list into an array
+                    fptr = (( c == 'A' ) ? glpAliasList : glpEnvironment );
+                    for ( i = 0; ( *fptr ); fptr = next_env( fptr ) ) {
 
-                            // allocate memory for 32 entries at a time
-                            if (( i % 32 ) == 0 ) {
-                                uSize += 128;
-                                list = (char * *)ReallocMem( (char *)list, uSize );
-                            }
-
-                            list[ i++ ] = fptr;
+                        // allocate memory for 32 entries at a time
+                        if ( ( i % 32 ) == 0 ) {
+                            uSize += 128;
+                            list = (char * *)ReallocMem( (char *)list, uSize );
                         }
 
-                        // no entries or no matches?
-                        if ( i > 0 ) {
+                        list[ i++ ] = fptr;
+                    }
 
-                            // display the popup selection list
-                            wPopSelect( gpIniptr->PWTop, gpIniptr->PWLeft, gpIniptr->PWHeight, gpIniptr->PWWidth, list, i, 1, (( c == 'A' ) ? "Alias list" : "Environment" ), NULL, NULL, 1 );
-                            FreeMem( (char *)list );
+                    // no entries or no matches?
+                    if ( i > 0 ) {
 
-                            // reenable signal handling after cleanup
-                            EnableSignals();
-                            qputc( handle, BS );
-                            continue;
-                        }
+                        // display the popup selection list
+                        wPopSelect( gpIniptr->PWTop, gpIniptr->PWLeft, gpIniptr->PWHeight, gpIniptr->PWWidth, list, i, 1, (( c == 'A' ) ? "Alias list" : "Environment" ), NULL, NULL, 1 );
+                        FreeMem( (char *)list );
 
-                    } else
-                        break;
-                }
+                        // reenable signal handling after cleanup
+                        EnableSignals();
+                        qputc( handle, BS );
+                        continue;
+                    }
 
-                qputc( handle, BS );
+                } else
+                    break;
             }
 
-            honk();
+            qputc( handle, BS );
         }
 
-        qputc( handle, '\n' );
+        honk();
+    }
 
-        return c;
+    qputc( handle, '\n' );
+
+    return c;
 }
 
 
 // do a case-insensitive strstr()
 char * stristr( char *str1, char *str2 )
 {
-        int i, nLength;
+    int i, nLength;
 
-        nLength = strlen( str2 );
-        for ( i = 0; ( i <= ( (int)strlen( str1 ) - nLength )); i++ ) {
-                if ( _strnicmp( str1 + i, str2, nLength ) == 0 )
-                        return ( str1 + i );
-        }
+    nLength = strlen( str2 );
+    for ( i = 0; ( i <= ( (int)strlen( str1 ) - nLength )); i++ ) {
+        if ( _strnicmp( str1 + i, str2, nLength ) == 0 )
+            return( str1 + i );
+    }
 
-        return NULL;
+    return NULL;
 }
 
 
 // insert a string inside another one
 char * strins( char *str, char *insert_str )
 {
-        unsigned int inslen;
+    unsigned int inslen;
 
-        // length of insert string
-        if (( inslen = strlen( insert_str )) > 0 ) {
+    // length of insert string
+    if ( ( inslen = strlen( insert_str )) > 0 ) {
 
-                // move original
-                memmove( str+inslen, str, ( strlen( str ) + 1 ));
+        // move original
+        memmove( str+inslen, str, ( strlen( str ) + 1 ));
 
-                // insert the new string into the hole
-                memmove( str, insert_str, inslen );
-        }
+        // insert the new string into the hole
+        memmove( str, insert_str, inslen );
+    }
 
-        return ( str);
+    return( str);
 }
 
 
 // return a pointer to the end of the string
 char * strend( char *s )
 {
-        return ( s + strlen( s ));
+    return( s + strlen( s ));
 }
 
 
 // return a pointer to the end of the string
 char * strlast( char *s )
 {
-        return (( *s != '\0' ) ? ( s + strlen( s )) - 1 : s );
+    return(( *s != '\0' ) ? ( s + strlen( s )) - 1 : s );
 }
 
 
 // write a long line to STDOUT & check for screen paging
 void more_page( char *start, int col )
 {
-        int columns, i, fConsole;
+    int columns, i, fConsole;
 
-        columns = GetScrCols();
+    columns = GetScrCols();
 
-        if (( fConsole = QueryIsConsole( STDOUT )) != 0 ) {
+    if ( ( fConsole = QueryIsConsole( STDOUT )) != 0 ) {
 
-                for ( i = 0; ( start[i] != '\0' ); ) {
+        for ( i = 0; ( start[i] != '\0' ); ) {
 
-                        // count up column position
-                        incr_column( start[i], &col );
+            // count up column position
+            incr_column( start[i], &col );
 
-                        if (( col > columns ) || ( start[i++] == '\n' )) {
-                                printf( FMT_FAR_PREC_STR, i, start );
-                                _page_break();
-                                start += i;
-                                i = col = 0;
-                        }
+            if ( ( col > columns ) || ( start[i++] == '\n' ) ) {
+                printf( FMT_FAR_PREC_STR, i, start );
+                _page_break();
+                start += i;
+                i = col = 0;
+            }
+        }
+    }
+
+    printf( FMT_FAR_STR, (char *)start );
+    if ( col != columns )
+        crlf();
+
+    if ( fConsole )
+        _page_break();
+}
+
+// 20100130 AB do not stop printing on '\0' characters but till iLen
+//  needed f.e. for 'type alsahlp$'
+// write a long line to STDOUT & check for screen paging, print
+void more_page_bin( char *start, int col, int iLen ) {
+    int columns, i, fConsole;
+    //char *pEnd;
+
+    if ( iLen > CMDBUFSIZ ) iLen = CMDBUFSIZ;
+    start[iLen] = '\0';
+
+    columns = GetScrCols();
+
+    if ( ( fConsole = QueryIsConsole( STDOUT )) != 0 ) {
+
+        i = 0;
+        for ( i = 0; i < iLen; i++ ) {
+
+            // count up column position
+            incr_column( start[i], &col );
+
+            if ( ( col > columns ) || ( start[i] == '\n') ) {
+                //if ( *start != '\0' ) {
+                printf( FMT_FAR_PREC_STR, i, start );
+                TRACE("col=%d, iLen=%d: %s", col, iLen, (char *)start);
+                _page_break();
+                //   }
+                start += i;
+                iLen -= i;
+                i = col = 0;
+                *start = '\0';
+            } else {
+                // skip '\0' chars
+                if ( *start == '\0' ) {
+                    start++;
+                    //i++;
                 }
+            }
+
         }
 
-        printf( FMT_FAR_STR, (char *)start );
-        if ( col != columns )
-                crlf();
+    }
 
-        if ( fConsole )
-                _page_break();
+    printf( FMT_FAR_STR, (char *)start );
+    TRACE("col=%d, iLen=%d, start[0]=0x%X %-40s", col, iLen, (int) *start, (char *)start);
+    if ( col != columns )
+        crlf();
+
+    if ( fConsole )
+        _page_break();
 }
 
 
 // increment the column counter
 void incr_column( char c, int *column )
 {
-        if ( c != TAB )
-                (*column)++;
-        else
-                *column += ( 8 - ( *column & 0x07 ));
+    if ( c != TAB )
+        (*column)++;
+    else
+        *column += ( 8 - ( *column & 0x07 ));
 }
 
 
 long GetRandom( long lStart, long lEnd )
 {
-        // return random value
-        static unsigned long lRandom = 1L;
-        DATETIME sysDateTime;
+    // return random value
+    static unsigned long lRandom = 1L;
+    DATETIME sysDateTime;
 
-        // set seed to random value based on initial time
-        if ( lRandom == 1L ) {
-                QueryDateTime( &sysDateTime );
-                lRandom *= (long)( sysDateTime.seconds * sysDateTime.hundredths );
-        }
+    // set seed to random value based on initial time
+    if ( lRandom == 1L ) {
+        QueryDateTime( &sysDateTime );
+        lRandom *= (long)( sysDateTime.seconds * sysDateTime.hundredths );
+    }
 
-        lEnd++;
-        lEnd -= lStart;
+    lEnd++;
+    lEnd -= lStart;
 
-        lRandom = (( lRandom * 214013L ) + 2531011L );
-        lRandom = ( lRandom << 16 ) | ( lRandom >> 16 );
+    lRandom = (( lRandom * 214013L ) + 2531011L );
+    lRandom = ( lRandom << 16 ) | ( lRandom >> 16 );
 
-        return (( lRandom % lEnd ) + lStart );
+    return(( lRandom % lEnd ) + lStart );
 }
 
 
 // Return a 0 if the arg == "OFF", 1 if == "ON", -1 otherwise
 int OffOn( char *arg )
 {
-        arg = skipspace( arg );
+    arg = skipspace( arg );
 
-        if ( _stricmp( arg, OFF ) == 0 )
-                return 0;
+    if ( _stricmp( arg, OFF ) == 0 )
+        return 0;
 
-        return (( _stricmp( arg, ON ) == 0 ) ? 1 : -1 );
+    return(( _stricmp( arg, ON ) == 0 ) ? 1 : -1 );
 }
 
 
 // get cursor position request, adjust if relative, & check for valid range
 int GetCursorRange( char *arg, int *row, int *column )
 {
-        int nRow, nCol, nLen;
+    int nRow, nCol, nLen;
 
-        GetCurPos( &nRow, &nCol );
+    GetCurPos( &nRow, &nCol );
 
-        if ( sscanf( arg, "%d %*[,] %n%d", row, &nLen, column ) == 3) {
+    if ( sscanf( arg, "%d %*[,] %n%d", row, &nLen, column ) == 3 ) {
 
-                // if relative range get current position & adjust
-                if (( *arg == '+' ) || ( *arg == '-' ))
-                        *row += nRow;
+        // if relative range get current position & adjust
+        if ( ( *arg == '+' ) || ( *arg == '-' ) )
+            *row += nRow;
 
-                arg += nLen;
-                if (( *arg == '+' ) || ( *arg == '-' ))
-                        *column += nCol;
+        arg += nLen;
+        if ( ( *arg == '+' ) || ( *arg == '-' ) )
+            *column += nCol;
 
-                return ( verify_row_col( *row, *column ));
-        }
+        return( verify_row_col( *row, *column ));
+    }
 
-        return ERROR_EXIT;
+    return ERROR_EXIT;
 }
 
 
@@ -2128,44 +2404,44 @@ int GetCursorRange( char *arg, int *row, int *column )
 // returns the attribute, and removes the colors from "pszStart"
 int GetColors( char *pszStart, int nBorderFlag )
 {
-        char *pszCurrent;
-        int nFG = -1, nBG = -1, nAttribute = -1;
+    char *pszCurrent;
+    int nFG = -1, nBG = -1, nAttribute = -1;
 
-        pszCurrent = pszStart;
-        pszCurrent = ParseColors( pszStart, &nFG, &nBG );
+    pszCurrent = pszStart;
+    pszCurrent = ParseColors( pszStart, &nFG, &nBG );
 
-        // if foreground & background colors are valid, set attribute
-        if (( nFG >= 0 ) && ( nBG >= 0 )) {
+    // if foreground & background colors are valid, set attribute
+    if ( ( nFG >= 0 ) && ( nBG >= 0 ) ) {
 
-                nAttribute = nFG + ( nBG << 4 );
+        nAttribute = nFG + ( nBG << 4 );
 
-                // check for border color set
-                if (( nBorderFlag ) && ( pszCurrent != NULL ) && ( _strnicmp( first_arg( pszCurrent),BORDER,3) == 0 )) {
+        // check for border color set
+        if ( ( nBorderFlag ) && ( pszCurrent != NULL ) && ( _strnicmp( first_arg( pszCurrent),BORDER,3) == 0 ) ) {
 
-                        char *arg;
+            char *arg;
 
-                        // skip "BORDER"
-                        arg = ntharg( pszCurrent, 1 );
-                        if (( arg != NULL ) && (( nFG = color_shade( arg )) <= 7 )) {
+            // skip "BORDER"
+            arg = ntharg( pszCurrent, 1 );
+            if ( ( arg != NULL ) && (( nFG = color_shade( arg )) <= 7 ) ) {
 
-                                // Set the border color
-                                VIOOVERSCAN overscan;
+                // Set the border color
+                VIOOVERSCAN overscan;
 
-                                overscan.cb = sizeof(overscan);
-                                overscan.type = 1;
-                                overscan.color = nFG;
-                                (void)VioSetState( &overscan, 0 );
-                                // skip the border color name
-                                ntharg( pszCurrent, 2 );
-                        }
-                }
-
-                // remove the color specs from the line
-                pszCurrent = (( gpNthptr != NULL ) ? gpNthptr : NULLSTR );
-                strcpy( pszStart, pszCurrent );
+                overscan.cb = sizeof(overscan);
+                overscan.type = 1;
+                overscan.color = nFG;
+                (void)VioSetState( &overscan, 0 );
+                // skip the border color name
+                ntharg( pszCurrent, 2 );
+            }
         }
 
-        return nAttribute;
+        // remove the color specs from the line
+        pszCurrent = (( gpNthptr != NULL ) ? gpNthptr : NULLSTR );
+        strcpy( pszStart, pszCurrent );
+    }
+
+    return nAttribute;
 }
 
 
@@ -2173,388 +2449,388 @@ int GetColors( char *pszStart, int nBorderFlag )
 //   screen attributes directly
 void set_colors( int attrib )
 {
-        // 4OS2 always forces ANSI on
-        printf( "\033[0;%s%s%u;%um", (( attrib & 0x08 ) ? "1;" : NULLSTR), ((attrib & 0x80 ) ? "5;" : NULLSTR ), colors[attrib & 0x07].ansi,(colors[(attrib & 0x70 ) >> 4].ansi) + 10 );
+    // 4OS2 always forces ANSI on
+    printf( "\033[0;%s%s%u;%um", (( attrib & 0x08 ) ? "1;" : NULLSTR), ((attrib & 0x80 ) ? "5;" : NULLSTR ), colors[attrib & 0x07].ansi,(colors[(attrib & 0x70 ) >> 4].ansi) + 10 );
 }
 
 
 // get foreground & background attributes from an ASCII string
 char * ParseColors( char *line, int *nFG, int *nBG )
 {
-        char *arg;
-        int i, nIntensity = 0, nAttrib;
+    char *arg;
+    int i, nIntensity = 0, nAttrib;
 
-        for ( ; ; ) {
+    for ( ; ; ) {
 
-                if (( arg = first_arg( line )) == NULL )
-                        return NULL;
+        if ( ( arg = first_arg( line )) == NULL )
+            return NULL;
 
-                if ( _strnicmp( arg, BRIGHT, 3 ) == 0 ) {
-                        // set intensity bit
-                        nIntensity |= 0x08;
-                } else if ( _strnicmp( arg, BLINK, 3 ) == 0 ) {
-                        // set blinking bit
-                        nIntensity |= 0x80;
-                } else
-                        break;
-
-                // skip BRIGHT or BLINK
-                line = (( ntharg( line, 1 ) != NULL ) ? gpNthptr : NULLSTR);
-        }
-
-        // check for foreground color match
-        if (( nAttrib = color_shade( arg )) <= 15)
-                *nFG = nIntensity + nAttrib;
-
-        // "ON" is optional
-        i = 1;
-        if ((( arg = ntharg( line, 1 )) != NULL ) && ( stricmp( arg, ON ) == 0 ))
-                i++;
-
-        // check for BRIGHT background
-        if ((( arg = ntharg( line, i )) != NULL ) && ( _strnicmp( arg, BRIGHT, 3 ) == 0 )) {
-                nIntensity = 0x08;
-                i++;
+        if ( _strnicmp( arg, BRIGHT, 3 ) == 0 ) {
+            // set intensity bit
+            nIntensity |= 0x08;
+        } else if ( _strnicmp( arg, BLINK, 3 ) == 0 ) {
+            // set blinking bit
+            nIntensity |= 0x80;
         } else
-                nIntensity = 0;
+            break;
 
-        // check for background color match
-        if (( nAttrib = color_shade( ntharg( line, i ))) <= 15 ) {
-                *nBG = nAttrib + nIntensity;
-                ntharg( line, ++i );
-        }
+        // skip BRIGHT or BLINK
+        line = (( ntharg( line, 1 ) != NULL ) ? gpNthptr : NULLSTR);
+    }
 
-        return gpNthptr;
+    // check for foreground color match
+    if ( ( nAttrib = color_shade( arg )) <= 15 )
+        *nFG = nIntensity + nAttrib;
+
+    // "ON" is optional
+    i = 1;
+    if ( (( arg = ntharg( line, 1 )) != NULL ) && ( stricmp( arg, ON ) == 0 ) )
+        i++;
+
+    // check for BRIGHT background
+    if ( (( arg = ntharg( line, i )) != NULL ) && ( _strnicmp( arg, BRIGHT, 3 ) == 0 ) ) {
+        nIntensity = 0x08;
+        i++;
+    } else
+        nIntensity = 0;
+
+    // check for background color match
+    if ( ( nAttrib = color_shade( ntharg( line, i ))) <= 15 ) {
+        *nBG = nAttrib + nIntensity;
+        ntharg( line, ++i );
+    }
+
+    return gpNthptr;
 }
 
 
 // match color against list
 int color_shade( char *arg )
 {
-        int i;
+    int i;
 
-        if ( arg != NULL ) {
+    if ( arg != NULL ) {
 
-                // allow 0-15 as well as Blue, Green, etc.
-                if ( is_signed_digit( *arg ))
-                        return ( atoi( arg ));
+        // allow 0-15 as well as Blue, Green, etc.
+        if ( is_signed_digit( *arg ) )
+            return( atoi( arg ));
 
-                for ( i = 0; ( i <= 7 ); i++ ) {
-                        // check for color match
-                        if ( _strnicmp( arg, colors[i].shade, 3 ) == 0 )
-                                return i;
-                }
+        for ( i = 0; ( i <= 7 ); i++ ) {
+            // check for color match
+            if ( _strnicmp( arg, colors[i].shade, 3 ) == 0 )
+                return i;
         }
+    }
 
-        return 0xFF;
+    return 0xFF;
 }
 
 
 // read / write the description file(s)
 int process_descriptions( char *inname, char *outname, int flags )
 {
-        int i;
-        char *dname_part;
-        int hFH, rval = 0;
-        unsigned int bytes_read, bytes_written, fLFN;
-        unsigned int nMode = (O_RDWR | O_BINARY), fTruncate = 0;
-        char *arg, szDName[MAXFILENAME], *new_description = NULLSTR;
-        char *dptr = 0L, *pchRead = 0L, *pchWrite = 0L;
-        char *fptr, *fdesc;
-        long lReadOffset, lWriteOffset;
-        unsigned int attrib = 0;
+    int i;
+    char *dname_part;
+    int hFH, rval = 0;
+    unsigned int bytes_read, bytes_written, fLFN;
+    unsigned int nMode = (O_RDWR | O_BINARY), fTruncate = 0;
+    char *arg, szDName[MAXFILENAME], *new_description = NULLSTR;
+    char *dptr = 0L, *pchRead = 0L, *pchWrite = 0L;
+    char *fptr, *fdesc;
+    long lReadOffset, lWriteOffset;
+    unsigned int attrib = 0;
 
-        // check if no description processing requested
-        if (( gpIniptr->Descriptions == 0 ) && (( flags & DESCRIPTION_PROCESS ) == 0 ))
-                return 0;
-        flags &= ~DESCRIPTION_PROCESS;
+    // check if no description processing requested
+    if ( ( gpIniptr->Descriptions == 0 ) && (( flags & DESCRIPTION_PROCESS ) == 0 ) )
+        return 0;
+    flags &= ~DESCRIPTION_PROCESS;
 
-        // check DescriptionName for EA storage
-        if ( stricmp( "ea", DESCRIPTION_FILE ) == 0 ) {
+    // check DescriptionName for EA storage
+    if ( stricmp( "ea", DESCRIPTION_FILE ) == 0 ) {
 
-                char szDescription[512];
-                int n;
+        char szDescription[512];
+        int n;
 
-                szDescription[0] = '\0';
-                if ( flags & DESCRIPTION_READ ) {
-                        n = 511;
-                        EAReadASCII( inname, SUBJECT_EA, szDescription, &n );
-                        if (( flags & DESCRIPTION_WRITE ) == 0 )
-                                strcpy( outname, szDescription );
-                }
-
-                // if we're writing a new description, it's in the
-                //   format "process_description(outname,description,flags)"
-                if ( flags & DESCRIPTION_CREATE ) {
-                        strcpy( szDescription, outname );
-                        outname = inname;
-                }
-
-                if ( flags & DESCRIPTION_WRITE ) {
-                        if ( EAWriteASCII( outname, SUBJECT_EA, szDescription ) == 0 )
-                                return ERROR_EXIT;
-                }
-
-                return 0;
+        szDescription[0] = '\0';
+        if ( flags & DESCRIPTION_READ ) {
+            n = 511;
+            EAReadASCII( inname, SUBJECT_EA, szDescription, &n );
+            if ( ( flags & DESCRIPTION_WRITE ) == 0 )
+                strcpy( outname, szDescription );
         }
 
-        // disable ^C / ^BREAK handling
-        HoldSignals();
+        // if we're writing a new description, it's in the
+        //   format "process_description(outname,description,flags)"
+        if ( flags & DESCRIPTION_CREATE ) {
+            strcpy( szDescription, outname );
+            outname = inname;
+        }
 
-        // read the descriptions ( from path if necessary)
-        if (( inname != NULL ) && ( flags & DESCRIPTION_READ )) {
-
-            // read 4K blocks
-            bytes_read = 4098;
-            if (( pchRead = AllocMem( &bytes_read )) == 0L )
+        if ( flags & DESCRIPTION_WRITE ) {
+            if ( EAWriteASCII( outname, SUBJECT_EA, szDescription ) == 0 )
                 return ERROR_EXIT;
+        }
 
-            insert_path( szDName, DESCRIPTION_FILE, inname );
+        return 0;
+    }
 
-            // it's not an error to not have a DESCRIPT.ION file!
-            if ((hFH = _sopen( szDName, (O_RDONLY | O_BINARY), SH_DENYWR )) >= 0 ) {
+    // disable ^C / ^BREAK handling
+    HoldSignals();
 
-                dname_part = fname_part( inname );
+    // read the descriptions ( from path if necessary)
+    if ( ( inname != NULL ) && ( flags & DESCRIPTION_READ ) ) {
 
-                // read 4K blocks of the DESCRIPT.ION file
-                for ( lReadOffset = 0L; (( FileRead( hFH, pchRead, 4096, &bytes_read ) == 0 ) && (bytes_read != 0 )); ) {
+        // read 4K blocks
+        bytes_read = 4098;
+        if ( ( pchRead = AllocMem( &bytes_read )) == 0L )
+            return ERROR_EXIT;
 
-                        // back up to the end of the last line & terminate there
-                        if (( i = bytes_read ) == 4096 ) {
-                                for ( ; ((--i > 0 ) && ( pchRead[i] != '\n' ) && ( pchRead[i] != '\r' )); )
-                                        ;
-                                i++;
-                        }
-                        pchRead[i] = '\0';
-                        lReadOffset += i;
+        insert_path( szDName, DESCRIPTION_FILE, inname );
 
-                        // read a line & try for a match
-                        for ( fptr = pchRead; (( *fptr != '\0' ) && ( *fptr != EoF )); ) {
+        // it's not an error to not have a DESCRIPT.ION file!
+        if ( (hFH = _sopen( szDName, (O_RDONLY | O_BINARY), SH_DENYWR )) >= 0 ) {
 
-                                // check for LFNs & strip quotes
-                                if ( *fptr == '"' ) {
+            dname_part = fname_part( inname );
 
-                                    if (( fdesc = strchr( ++fptr, '"' )) != 0L )
-                                        *fdesc++ = '\0';
+            // read 4K blocks of the DESCRIPT.ION file
+            for ( lReadOffset = 0L; (( FileRead( hFH, pchRead, 4096, &bytes_read ) == 0 ) && (bytes_read != 0 )); ) {
 
-                                } else {
+                // back up to the end of the last line & terminate there
+                if ( ( i = bytes_read ) == 4096 ) {
+                    for ( ; ((--i > 0 ) && ( pchRead[i] != '\n' ) && ( pchRead[i] != '\r' )); )
+                        ;
+                    i++;
+                }
+                pchRead[i] = '\0';
+                lReadOffset += i;
 
-                                    // skip to the description part (kinda kludgy
-                                    // to avoid problems if no description
-                                    for ( fdesc = fptr; ; fdesc++ ) {
+                // read a line & try for a match
+                for ( fptr = pchRead; (( *fptr != '\0' ) && ( *fptr != EoF )); ) {
 
-                                        if (( *fdesc == ' ' ) || ( *fdesc == ',' ) || ( *fdesc == '\t' ))
-                                                break;
-                                        if (( *fdesc == '\r' ) || ( *fdesc == '\n' ) || ( *fdesc == '\0' )) {
-                                                fdesc = 0L;
-                                                break;
-                                        }
-                                    }
-                                }
+                    // check for LFNs & strip quotes
+                    if ( *fptr == '"' ) {
 
-                                if ( fdesc != 0L ) {
+                        if ( ( fdesc = strchr( ++fptr, '"' )) != 0L )
+                            *fdesc++ = '\0';
 
-                                    // wipe out space between name & description
-                                    *fdesc++ = '\0';
+                    } else {
 
-                                    if ( stricmp( dname_part, fptr ) == 0 ) {
+                        // skip to the description part (kinda kludgy
+                        // to avoid problems if no description
+                        for ( fdesc = fptr; ; fdesc++ ) {
 
-                                        // just return the matching description?
-                                        if (( flags & DESCRIPTION_WRITE ) == 0 )
-                                                sscanf( fdesc, DESCRIPTION_SCAN, outname );
-
-                                        dptr = fdesc;
-                                        break;
-                                    }
-
-                                    fptr = fdesc;
-                                }
-
-                                // skip the description & get next filename
-                                for ( ; (( *fptr != '\0' ) && ( *fptr++ != '\n' )); )
-                                        ;
-                        }
-
-                        if (( dptr != 0L ) || ( bytes_read < 4096 ))
+                            if ( ( *fdesc == ' ' ) || ( *fdesc == ',' ) || ( *fdesc == '\t' ) )
                                 break;
+                            if ( ( *fdesc == '\r' ) || ( *fdesc == '\n' ) || ( *fdesc == '\0' ) ) {
+                                fdesc = 0L;
+                                break;
+                            }
+                        }
+                    }
 
-                        // seek to the end of the last line of the current block
-                        _lseek( hFH, lReadOffset, SEEK_SET );
+                    if ( fdesc != 0L ) {
+
+                        // wipe out space between name & description
+                        *fdesc++ = '\0';
+
+                        if ( stricmp( dname_part, fptr ) == 0 ) {
+
+                            // just return the matching description?
+                            if ( ( flags & DESCRIPTION_WRITE ) == 0 )
+                                sscanf( fdesc, DESCRIPTION_SCAN, outname );
+
+                            dptr = fdesc;
+                            break;
+                        }
+
+                        fptr = fdesc;
+                    }
+
+                    // skip the description & get next filename
+                    for ( ; (( *fptr != '\0' ) && ( *fptr++ != '\n' )); )
+                        ;
+                }
+
+                if ( ( dptr != 0L ) || ( bytes_read < 4096 ) )
+                    break;
+
+                // seek to the end of the last line of the current block
+                _lseek( hFH, lReadOffset, SEEK_SET );
+            }
+
+            _close( hFH );
+        }
+    }
+
+    if ( ( flags & DESCRIPTION_WRITE ) || ( flags & DESCRIPTION_REMOVE ) ) {
+
+        // if we're writing a new description, it's in the
+        //   format "process_description(outname,description,flags)"
+        if ( flags & DESCRIPTION_CREATE ) {
+
+            if ( dptr != 0L ) {
+                // save extended part of old description
+                sscanf( dptr, "%*[^\004\032\r\n]%n", &bytes_read );
+                dptr += bytes_read;
+                new_description = outname;
+            } else
+                dptr = (char *)outname;
+
+            outname = inname;
+        }
+
+        // if no description, and we're not removing descriptions, exit
+        if ( dptr == 0L ) {
+            if ( ( flags & DESCRIPTION_REMOVE ) == 0 )
+                goto descript_bye;
+        } else {
+            // if we're adding a description, we may need to create a file
+            nMode |= O_CREAT;
+        }
+
+        bytes_read = 4098;
+        if ( ( pchWrite = AllocMem( &bytes_read )) == 0L ) {
+            rval = ERROR_EXIT;
+            goto descript_bye;
+        }
+
+        // open the target DESCRIPT.ION file
+        insert_path( szDName, DESCRIPTION_FILE, outname );
+
+        if ( ( hFH = _sopen( szDName, nMode, SH_DENYRW, (S_IREAD | S_IWRITE))) < 0 )
+            rval = _doserrno;
+
+        else {
+
+            fLFN = ifs_type( szDName );
+            lReadOffset = lWriteOffset = 0L;
+
+            // point to the name part
+            dname_part = szDName + ((( dname_part = path_part( szDName )) != NULL ) ? strlen( dname_part ) : 0 );
+
+            // read 4k blocks of the DESCRIPT.ION file
+            while ( ( FileRead( hFH, pchWrite, 4096, &bytes_read ) == 0 ) && (bytes_read != 0 ) ) {
+
+                // back up to the end of the last line, and seek
+                //   to the end of the last line of the current block
+                for ( i = bytes_read; (( --i > 0 ) && ( pchWrite[i] != '\n' )); )
+                    ;
+
+                pchWrite[++i] = '\0';
+                lReadOffset += i;
+
+                // read a line & try for a match
+                for ( fptr = pchWrite; (( *fptr != '\0' ) && ( *fptr != EoF )); ) {
+
+                    // look for argument match or file not found
+                    // if not found, delete this description
+                    // check for LFNs
+                    if ( *fptr == '"' )
+                        sscanf( fptr, "\"%[^\"\n]%*[^\n]\n%n", dname_part, &nMode );
+                    else
+                        sscanf( fptr, "%[^ ,\t\n]%*c%*[^\n]\n%n", dname_part, &nMode );
+
+                    // don't let non-LFN OS kill LFN descriptions
+                    if ( ( fLFN == 0 ) && (( *fptr == '"' ) || ( strlen( dname_part ) > 12 )) ) {
+
+                        // point to beginning of next line
+                        fptr += nMode;
+
+                    } else if ( ( _stricmp( outname, szDName ) == 0 ) || (( flags & DESCRIPTION_REMOVE ) && ( QueryFileMode( szDName, &attrib ) == ERROR_FILE_NOT_FOUND )) ) {
+                        fTruncate = 1;
+
+                        // collapse matching or missing filename
+                        strcpy( fptr, fptr + nMode );
+
+                    } else
+                        // point to beginning of next line
+                        fptr += nMode;
+                }
+
+                if ( fTruncate ) {
+
+                    if ( ( i = strlen( pchWrite )) > 0 ) {
+
+                        _lseek( hFH, lWriteOffset, SEEK_SET );
+                        (void)FileWrite( hFH, pchWrite, i, (unsigned int *)&bytes_written );
+
+                        // save current write position &
+                        //   restore read position
+                        lWriteOffset += bytes_written;
+                    }
+
+                } else
+                    lWriteOffset = lReadOffset;
+
+                if ( bytes_read < 4096 )
+                    break;
+
+                _lseek( hFH, lReadOffset, SEEK_SET );
+            }
+
+            // if truncating, or we have a description, write it out
+            if ( ( fTruncate ) || ( dptr != 0L ) ) {
+
+                _lseek( hFH, lWriteOffset, SEEK_SET );
+
+                // truncate the file
+                if ( fTruncate )
+                    (void)_chsize( hFH, lWriteOffset );
+
+                // add the new description (if any) to the list
+                if ( dptr != 0L ) {
+
+                    // get description length
+                    for ( i = 0; (( dptr[i] ) && ( dptr[i] != '\r' ) && ( dptr[i] != '\n' )); i++ )
+                        ;
+
+                    // format is: filename description[cr][lf]
+                    if ( ( i ) || ( *new_description ) ) {
+
+                        // check for LFN/HPFS/NTFS name
+                        if ( ( arg = fname_part( outname )) != NULL ) {
+
+                            if ( QueryIsLFN( arg ) )
+                                qprintf( hFH, "\"%s\" %s%.*Fs\r\n", arg, new_description, i, dptr );
+                            else
+                                qprintf( hFH, "%s %s%.*Fs\r\n", arg, new_description, i, dptr );
+                        }
+
+                        // make sure we don't delete the list
+                        lWriteOffset = 1L;
+                    }
                 }
 
                 _close( hFH );
-            }
-        }
 
-        if (( flags & DESCRIPTION_WRITE ) || ( flags & DESCRIPTION_REMOVE )) {
+                // restore description file name
+                strcpy( dname_part, DESCRIPTION_FILE );
 
-            // if we're writing a new description, it's in the
-            //   format "process_description(outname,description,flags)"
-            if ( flags & DESCRIPTION_CREATE ) {
+                // if filesize == 0, delete the DESCRIPT.ION file
+                if ( lWriteOffset == 0L )
+                    remove( szDName );
 
-                if ( dptr != 0L ) {
-                        // save extended part of old description
-                        sscanf( dptr, "%*[^\004\032\r\n]%n", &bytes_read );
-                        dptr += bytes_read;
-                        new_description = outname;
-                } else
-                        dptr = (char *)outname;
+                else if ( lReadOffset == 0 ) {
 
-                outname = inname;
-            }
-
-            // if no description, and we're not removing descriptions, exit
-            if ( dptr == 0L ) {
-                if (( flags & DESCRIPTION_REMOVE ) == 0 )
-                    goto descript_bye;
-            } else {
-                // if we're adding a description, we may need to create a file
-                nMode |= O_CREAT;
-            }
-
-            bytes_read = 4098;
-            if (( pchWrite = AllocMem( &bytes_read )) == 0L ) {
-                rval = ERROR_EXIT;
-                goto descript_bye;
-            }
-
-            // open the target DESCRIPT.ION file
-            insert_path( szDName, DESCRIPTION_FILE, outname );
-
-            if (( hFH = _sopen( szDName, nMode, SH_DENYRW, (S_IREAD | S_IWRITE))) < 0 )
-                rval = _doserrno;
-
-            else {
-
-                fLFN = ifs_type( szDName );
-                lReadOffset = lWriteOffset = 0L;
-
-                // point to the name part
-                dname_part = szDName + ((( dname_part = path_part( szDName )) != NULL ) ? strlen( dname_part ) : 0 );
-
-                // read 4k blocks of the DESCRIPT.ION file
-                while (( FileRead( hFH, pchWrite, 4096, &bytes_read ) == 0 ) && (bytes_read != 0 )) {
-
-                        // back up to the end of the last line, and seek
-                        //   to the end of the last line of the current block
-                        for ( i = bytes_read; (( --i > 0 ) && ( pchWrite[i] != '\n' )); )
-                                ;
-
-                        pchWrite[++i] = '\0';
-                        lReadOffset += i;
-
-                        // read a line & try for a match
-                        for ( fptr = pchWrite; (( *fptr != '\0' ) && ( *fptr != EoF )); ) {
-
-                                // look for argument match or file not found
-                                // if not found, delete this description
-                                // check for LFNs
-                                if ( *fptr == '"' )
-                                        sscanf( fptr, "\"%[^\"\n]%*[^\n]\n%n", dname_part, &nMode );
-                                else
-                                        sscanf( fptr, "%[^ ,\t\n]%*c%*[^\n]\n%n", dname_part, &nMode );
-
-                                // don't let non-LFN OS kill LFN descriptions
-                                if (( fLFN == 0 ) && (( *fptr == '"' ) || ( strlen( dname_part ) > 12 ))) {
-
-                                        // point to beginning of next line
-                                        fptr += nMode;
-
-                                } else if (( _stricmp( outname, szDName ) == 0 ) || (( flags & DESCRIPTION_REMOVE ) && ( QueryFileMode( szDName, &attrib ) == ERROR_FILE_NOT_FOUND ))) {
-                                        fTruncate = 1;
-
-                                        // collapse matching or missing filename
-                                        strcpy( fptr, fptr + nMode );
-
-                                } else
-                                        // point to beginning of next line
-                                        fptr += nMode;
-                        }
-
-                        if ( fTruncate ) {
-
-                                if (( i = strlen( pchWrite )) > 0 ) {
-
-                                        _lseek( hFH, lWriteOffset, SEEK_SET );
-                                        (void)FileWrite( hFH, pchWrite, i, (unsigned int *)&bytes_written );
-
-                                        // save current write position &
-                                        //   restore read position
-                                        lWriteOffset += bytes_written;
-                                }
-
-                        } else
-                                lWriteOffset = lReadOffset;
-
-                        if ( bytes_read < 4096 )
-                                break;
-
-                        _lseek( hFH, lReadOffset, SEEK_SET );
+                    // make file hidden & set archive (for BACKUP)
+                    // but only if we just created it!
+                    (void)SetFileMode( szDName, (_A_HIDDEN | _A_ARCH) );
                 }
 
-                // if truncating, or we have a description, write it out
-                if (( fTruncate ) || ( dptr != 0L )) {
-
-                        _lseek( hFH, lWriteOffset, SEEK_SET );
-
-                        // truncate the file
-                        if ( fTruncate )
-                                (void)_chsize( hFH, lWriteOffset );
-
-                        // add the new description (if any) to the list
-                        if ( dptr != 0L ) {
-
-                                // get description length
-                                for ( i = 0; (( dptr[i] ) && ( dptr[i] != '\r' ) && ( dptr[i] != '\n' )); i++ )
-                                        ;
-
-                                // format is: filename description[cr][lf]
-                                if (( i ) || ( *new_description )) {
-
-                                    // check for LFN/HPFS/NTFS name
-                                    if (( arg = fname_part( outname )) != NULL ) {
-
-                                        if ( QueryIsLFN( arg ))
-                                            qprintf( hFH, "\"%s\" %s%.*Fs\r\n", arg, new_description, i, dptr );
-                                        else
-                                            qprintf( hFH, "%s %s%.*Fs\r\n", arg, new_description, i, dptr );
-                                    }
-
-                                    // make sure we don't delete the list
-                                    lWriteOffset = 1L;
-                                }
-                        }
-
-                        _close( hFH );
-
-                        // restore description file name
-                        strcpy( dname_part, DESCRIPTION_FILE );
-
-                        // if filesize == 0, delete the DESCRIPT.ION file
-                        if ( lWriteOffset == 0L )
-                                remove( szDName );
-
-                        else if ( lReadOffset == 0 ) {
-
-                                // make file hidden & set archive (for BACKUP)
-                                // but only if we just created it!
-                                (void)SetFileMode( szDName, (_A_HIDDEN | _A_ARCH) );
-                        }
-
-                } else
-                        _close( hFH );
-            }
+            } else
+                _close( hFH );
         }
+    }
 
-descript_bye:
+    descript_bye:
 
-        FreeMem( pchRead );
-        FreeMem( pchWrite );
+    FreeMem( pchRead );
+    FreeMem( pchWrite );
 
-        // enable ^C / ^BREAK handling
-        EnableSignals();
+    // enable ^C / ^BREAK handling
+    EnableSignals();
 
-        return rval;
+    return rval;
 }
 
 

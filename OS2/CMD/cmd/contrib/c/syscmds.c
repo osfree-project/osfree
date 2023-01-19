@@ -17,7 +17,8 @@
 #include <string.h>
 
 #include "4all.h"
-
+#include "wrappers.h"
+#include "inifile.h"
 
 static void GetFuzzyDir( char * );
 void UpdateFuzzyTree( char *, int );
@@ -38,14 +39,13 @@ int cd_cmd( int argc, char **argv )
 
         ptr = first_arg( argv[1] );
         if ( ptr && ( stricmp( ptr, "/N" ) == 0 ) ) {
-            fCD |= 2;
+            fCD |= CD_NOFUZZY;
             argv++;
         }
     }
 
-    // disable fuzzy searching
-    if ( fCD & 2 )
-        fFlags |= CD_NOFUZZY;
+    // disable fuzzy searching if requested
+    fFlags |= fCD;
 
     // if no args or arg == disk spec, print current working directory
     if (( argv[1] == NULL ) || ( _stricmp(( argv[1] ) + 1, ":" ) == 0 )) {
@@ -67,6 +67,10 @@ int cdd_cmd( int argc, char **argv )
     char *ptr, *arg;
     char szBuf[128], szDrives[32], szTreePath[260];
     int rval = 0, fFlags = CD_CHANGEDRIVE | CD_SAVELASTDIR, i;
+    int fh;
+    unsigned  attrib;
+    extern char *_LpPgmName;
+    struct _finddatai64_t fileinfo;
 
     // if /A, display current directory on all drives C: - Z:
     if ( argv[1] != NULL ) {
@@ -94,11 +98,24 @@ int cdd_cmd( int argc, char **argv )
         } else if ( _strnicmp( argv[1], "/S", 2 ) == 0 ) {
 
         // get tree index location
-        if ( gpIniptr->TreePath != INI_EMPTYSTR )
+        if ( gpIniptr->TreePath != INI_EMPTYSTR ) {
             ptr = (char *)( gpIniptr->StrData + gpIniptr->TreePath );
-        else
-            ptr = "C:\\";
-        strcpy( szTreePath, ptr );
+            strcpy( szTreePath, ptr );
+        }
+        else {
+            sprintf( szTreePath, "\"%s4OS2.EXE\"", path_part( _LpPgmName ));
+            _dos_getfileattr( szTreePath, &attrib );
+            if (fh = _findfirsti64( "C:\\jpstree.idx", &fileinfo )  != -1 ) {
+                strcpy(szTreePath, "C:\\");
+                _findclose( fh );
+                DosSleep(100);
+            }
+            else if ( (~attrib & _A_RDONLY) ) {
+                strcpy(szTreePath, path_part( _LpPgmName ));             }
+            else
+                sprintf(szTreePath, "%c%s", gaInifile.BootDrive, ":\\"); 
+            TCWritePrivateProfileStr("4OS2", "TreePath", szTreePath);
+        }
         mkdirname( szTreePath, "jpstree.idx" );
 
         // scan drive for wildcard searches
@@ -160,13 +177,31 @@ int cdd_cmd( int argc, char **argv )
 static void GetFuzzyDir( char *pszDir )
 {
     char *arg;
+    char szTreePath[260];
+    int fh;
+    unsigned attrib;
+    extern char *_LpPgmName;
+    struct _finddatai64_t fileinfo;
 
-    if ( gpIniptr->TreePath != INI_EMPTYSTR )
+    if ( gpIniptr->TreePath != INI_EMPTYSTR ) {
         arg = (char *)( gpIniptr->StrData + gpIniptr->TreePath );
-    else
-        arg = "C:\\";
-
-    strcpy( pszDir, arg );
+        strcpy(szTreePath, arg);
+    }
+    else {
+        sprintf( szTreePath, "\"%s4OS2.EXE\"", path_part( _LpPgmName ));
+        _dos_getfileattr( szTreePath, &attrib );
+        if (fh = _findfirsti64( "C:\\jpstree.idx", &fileinfo )  != -1 ) {
+            strcpy(szTreePath, "C:\\");
+            _findclose( fh );
+            DosSleep(100);
+        }
+        else if ( (~attrib & _A_RDONLY) ) {
+            strcpy(szTreePath, path_part( _LpPgmName ));             }
+        else
+            sprintf(szTreePath, "%c%s", gaInifile.BootDrive, ":\\"); 
+        TCWritePrivateProfileStr("4OS2", "TreePath", szTreePath);
+        }
+    strcpy( pszDir, szTreePath );
     mkdirname( pszDir, "jpstree.idx" );
 }
 
@@ -323,7 +358,7 @@ ExitUpdateFuzzy:
 }
 
 
-#if __WATCOMC__ < 1280
+#if defined(__WATCOMC__) && (__WATCOMC__ < 1280)
 int _chdrive( unsigned nDrive )
 {
     unsigned nTotDrives, nCurDrive;
@@ -380,8 +415,13 @@ int __cd( char *dir, int fFlags )
             SaveDirectory( glpDirHistory, ptr );
     }
 
-    if ( strpbrk( dir, WILD_CHARS ) == NULL ) {
+    // honor /N better 09 May 10 SHL
+    if ( gpIniptr->FuzzyCD == 0 )
+        fFlags |= CD_NOFUZZY;
 
+    if ( strpbrk( dir, WILD_CHARS ) == NULL  || ( fFlags & CD_NOFUZZY )) {
+
+        // No * or ? wildcards
         copy_filename( dirname, dir );
 
         // look for _CDPATH / CDPATH environment variable
@@ -432,8 +472,8 @@ ChangeDirectory:
         mkdirname( dirname, dir );
         }
 
-        if (( gpIniptr->FuzzyCD == 0 ) || ( fFlags & CD_NOFUZZY ))
-        return (( fFlags & CD_NOERROR ) ? ERROR_EXIT : error( ERROR_PATH_NOT_FOUND, dir ));
+        if ( fFlags & CD_NOFUZZY )
+            return (( fFlags & CD_NOERROR ) ? ERROR_EXIT : error( ERROR_PATH_NOT_FOUND, dir ));
     }
 
     // try wildcard matching
@@ -676,6 +716,7 @@ int DestroyDirectory( char *pszDirectory )
     return rval;
 }
 
+
 // save the current directory & change to new one
 int pushd_cmd( int argc, char **argv )
 {
@@ -769,7 +810,9 @@ int rd_cmd( int argc, char **argv )
         mkfname( dirname, 0 );
         strip_trailing( dirname+3, SLASHES );
 
-        for ( fval = FIND_FIRST; ( find_file( fval, dirname, (0x210 | FIND_DATERANGE), &dir, source ) != NULL ); fval = FIND_NEXT ) {
+#       define M ( FIND_DIRONLY | FILE_DIRECTORY)       // 0x210
+        for ( fval = FIND_FIRST; ( find_file( fval, dirname, (M | FIND_DATERANGE), &dir, source ) != NULL ); fval = FIND_NEXT ) {
+#       undef M
 
             if ( DestroyDirectory( source ) == -1 )
                 rval = error( _doserrno, source );
@@ -840,8 +883,10 @@ HaveDescription:
         if ( rc == argc )
             continue;
 
-        for ( fval = FIND_FIRST; ( find_file( fval, source, (0x1017 | FIND_BYATTS | FIND_DATERANGE | FIND_NO_DOTNAMES), &dir, fname ) != NULL ); fval = FIND_NEXT ) {
 
+#       define M ( FIND_CREATE | FILE_DIRECTORY | FILE_READONLY | FILE_HIDDEN | FILE_SYSTEM)    // 0x1017
+        for ( fval = FIND_FIRST; ( find_file( fval, source, (M | FIND_BYATTS | FIND_DATERANGE | FIND_NO_DOTNAMES), &dir, fname ) != NULL ); fval = FIND_NEXT ) {
+#       undef M
             mkfname( fname, 0 );
 
             // display current description & get new one
@@ -867,6 +912,7 @@ HaveDescription:
 
     return rval;
 }
+
 
 // return or set the path in the environment
 int path_cmd( int argc, char **argv )
@@ -949,7 +995,7 @@ int setdos_cmd( int argc, char **argv )
 {
     extern int fNoComma;
 
-    unsigned char *arg;
+    char *arg;
     int fDisable = 0, i;
 
     if ( argc == 1 ) {  // display current default parameters
@@ -1421,9 +1467,9 @@ int except_cmd( int argc, char **argv )
 
         // hide away the "excepted" files
         for ( argc = 0; (( rval == 0 ) && (( arg = ntharg( exceptlist, argc )) != NULL )); argc++) {
-
-            for ( fval = FIND_FIRST; ( find_file( fval, arg, 0x8810, &dir, szFileName ) != NULL ); fval = FIND_NEXT) {
-
+#           define M ( FIND_NO_DOTNAMES | FIND_DATERANGE | FILE_DIRECTORY)      // 0x8810
+            for ( fval = FIND_FIRST; ( find_file( fval, arg, M, &dir, szFileName ) != NULL ); fval = FIND_NEXT) {
+#           undef M
                 if (( rval = QueryFileMode( szFileName, &attrib )) == 0 ) {
                     // can't set directory attribute!
                     attrib &= ( _A_SUBDIR ^ 0xFFFF);
@@ -1447,8 +1493,9 @@ int except_cmd( int argc, char **argv )
     for ( argc = 0; (( arg = ntharg( exceptlist, argc )) != NULL ); argc++ ) {
 
         // unhide all of the "excepted" files
-        for ( fval = FIND_FIRST; ( find_file( fval, arg, 0x8117, &dir, szFileName ) != NULL ); fval = FIND_NEXT ) {
-
+#       define M ( FIND_NO_DOTNAMES | FIND_NOERRORS | FILE_DIRECTORY | FILE_READONLY | FILE_HIDDEN | FILE_SYSTEM )      // 0x8117
+        for ( fval = FIND_FIRST; ( find_file( fval, arg, M, &dir, szFileName ) != NULL ); fval = FIND_NEXT ) {
+#       undef M
             if ( QueryFileMode( szFileName, &attrib ) == 0 ) {
                 // can't set directory attribute!
                 attrib &= ( _A_SUBDIR ^ 0xFFFF );
@@ -1570,7 +1617,7 @@ char * gdate( int format_type )
     QueryDateTime( &sysDateTime );
 
     if ( format_type == 1 )
-        return ( FormatDate( sysDateTime.month, sysDateTime.day, sysDateTime.year ));
+        return ( FormatDate( sysDateTime.month, sysDateTime.day, sysDateTime.year, 0 ));
 
     else if ( gaCountryInfo.fsDateFmt != 1 ) {
         // USA or Japan
@@ -1764,7 +1811,8 @@ int help_cmd( int argc, char **argv )
         }
 
         // kludge to support "HELP 5" or "HELP SYS0005" syntax
-        if (( isdigit( arg[0] )) || ( isalpha( arg[0] ) && isalpha( arg[1] ) && isalpha( arg[2] ) && isdigit( arg[3] ))) {
+        if (( isdigit( arg[0] )) || ( isalpha( arg[0] ) && isalnum( arg[1] ) &&
+                                     isalnum( arg[2] ) && isdigit( arg[3] ))) {
             if (( argv[0] = searchpaths( "HELPMSG", NULL, TRUE )) != NULL )
                 return (external( 2, argv ));
         }
@@ -1793,6 +1841,14 @@ int option_cmd( int argc, char **argv )
     // If we are not in 4DOS, and there are arguments, parse them
     else {
 
+        unsigned int newHash;
+        unsigned int oldHash =
+          gaInifile.WindowHeight +
+          gaInifile.WindowState +
+          gaInifile.WindowWidth +
+          gaInifile.WindowX +
+          gaInifile.WindowY;
+
         // Holler if first argument does not start with //
         arg = argv[1];
         if (( *arg != '/' ) || ( arg[1] != '/' ))
@@ -1814,6 +1870,14 @@ int option_cmd( int argc, char **argv )
 
             arg = nextarg;
         }
+        newHash =
+          gaInifile.WindowHeight +
+          gaInifile.WindowState +
+          gaInifile.WindowWidth +
+          gaInifile.WindowX +
+          gaInifile.WindowY;
+        if (newHash != oldHash)
+          set_window();
     }
 
 //FIXME -- Need code here to reset option-dependent states:  colors, cursor shape,

@@ -146,7 +146,7 @@ Implementation uses StrOp, Streams, strings
 {$endif}
 {$endif};
 
-{$I LxLite.inc}
+{$I contrib/src/lxlite.inc}
 
 constructor tFileMatch.Create;
 begin

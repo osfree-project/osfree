@@ -1,8 +1,8 @@
 ;          title     OS32UTIL - Assembler utilities for 4OS2 & TCMD/OS2
-;
-;          ;
+
+          ;
 ;          page      ,132                ;make wide listing
-;          ;
+          ;
 ;          comment   }
 ;
 ;          (C) Copyright 1988 - 1996  Rex Conn & J.P. Software

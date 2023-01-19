@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "4all.h"
-
+#include "wrappers.h"
 
 char szWindowTitle[128];
 
@@ -307,8 +307,8 @@ int process_rexx( char *pszCmdName, char *line, int fRexx )
         // if it's a REXX comment (begins with "/*"), call the
         //   REXX interpreter
         if (( gszCmdline[0] == '/' ) && ( gszCmdline[1] == '*' )) {
-            // set flag for batch()
-            cv.call_flag = 0x200;
+            // Tell batch() this is a REXX script
+            cv.call_flag = CF_REXX_SCRIPT;
 
             // point gpRexxCmdline to processed but non-terminated
             //   command line arguments
@@ -317,9 +317,19 @@ int process_rexx( char *pszCmdName, char *line, int fRexx )
             strcpy( gpRexxCmdline, line );
         } else if ((( arg = first_arg( gszCmdline )) != NULL ) && ( stricmp( arg,"EXTPROC") == 0 )) {
             // EXTPROC request - call an external processor
-            //   next arg is processor name
+            // strip EXTPROC - use rest of line as processor name and arguments
             (void)next_arg( gszCmdline, 1 );
 
+            // add the .CMD name & options
+            if (( arg = path_part( gpBatchName )) == NULL )
+                    arg = NULLSTR;
+            sprintf( strend( gszCmdline )," %s%s%s", arg, fname_part( pszCmdName ), line );
+            return ( command( gszCmdline, 0 ));
+        } else if (gpIniptr->UnixPaths && ( arg = first_arg( gszCmdline )) != NULL && strnicmp( arg,"#!", 2) == 0 ) {
+            // 2012-06-12 SHL Support #! if unix paths
+            // #! request - call an external processor
+            // strip #! - use rest of line as processor name and arguments
+            strcpy(gszCmdline, gszCmdline + 2);
             // add the .CMD name & options
             if (( arg = path_part( gpBatchName )) == NULL )
                     arg = NULLSTR;
@@ -359,7 +369,13 @@ int EXPENTRY rexx_subcom( PRXSTRING cmd, PUSHORT flags, PRXSTRING result )
     memmove( gszCmdline, cmd->strptr, (UINT)(cmd->strlength) );
     gszCmdline[ (UINT)(cmd->strlength) ] = '\0';
 
+    // Tell batch() called from REXX subcommand handler
+    cv.call_flag |= CF_REXX_SUBCOMM;
     rc = command( gszCmdline, 0 );
+    cv.call_flag &= ~CF_REXX_SUBCOMM;
+
+    if ( rc == IFF_EXPR_FALSE || rc == IF_EXPR_FALSE )
+            rc = 0;
 
     if ( nRexxError )
         *flags = RXSUBCOM_ERROR;
@@ -587,7 +603,7 @@ int open_pipe( REDIR_IO *redirect, char *line )
     dup_handle( _hdopen( hPipeRead, O_TEXT | O_RDONLY ), STDIN );
 
     // make sure we're in text mode
-    (void)_setmode( STDIN, O_TEXT );
+    _setmode( STDIN, O_TEXT );
 
     // make the write handle non-inheritable ( so it will send EOF)
     NoInherit( hPipeWrite );
@@ -690,7 +706,7 @@ int open_pipe( REDIR_IO *redirect, char *line )
     dup_handle( _hdopen( hPipeWrite, O_TEXT | O_WRONLY ), STDOUT );
 
     // make sure we're in text mode
-    (void)_setmode( STDOUT, O_TEXT );
+    _setmode( STDOUT, O_TEXT );
 
     if ( c == '&' ) {
         // pipe STDERR too
@@ -725,7 +741,10 @@ int FileRead(int fd, char *fptr, unsigned int length, unsigned int *bytes_read)
 // write a block to the specified file
 int FileWrite( int fd, char *fptr, unsigned int length, unsigned int *bytes_written )
 {
-    return ( DosWrite( fd, fptr, (ULONG)length, (PULONG)bytes_written ));
+    APIRET    ulrc;       /*  Return Code. */
+
+    ulrc = DosWrite( fd, fptr, (ULONG)length, (PULONG)bytes_written );
+    return ( ulrc );
 }
 
 
@@ -844,16 +863,40 @@ int SetDateTime( DATETIME *sysDateTime )
 }
 
 
-// set the file date & time
+/**
+ * set file date & time
+ * @returns 0 if if file/directory accessible and date/time update ok
+ * @note older versions of this API did check if date/time set failed
+*/
 int SetFileDateTime( char *pszFilename, int hFile, DATETIME *sysDateTime, int fField )
 {
     int             rval = 0;
-    FILESTATUS3     FileInfoBuf;
+    FILESTATUS3L    FileInfoBuf;
     unsigned long   ulAction;
 
-    if (( hFile != 0 ) || (( rval = DosOpen( pszFilename, (PULONG)&hFile, &ulAction, 0L, 0L, OPEN_ACTION_OPEN_IF_EXISTS, OPEN_FLAGS_NOINHERIT | OPEN_SHARE_DENYWRITE | OPEN_ACCESS_READWRITE, 0L )) == 0 )) {
-        DosQueryFileInfo( (HFILE)hFile, 1, &FileInfoBuf, sizeof(FILESTATUS3) );
+    //20090507 AB LargeFile support added
+    LONGLONG        cbFile = 0LL;
+    unsigned int    ulAttribute;
+    BOOL            isDir;
 
+    // Check if pszFileName is a directory
+    if (hFile != 0)
+      isDir = FALSE;
+    else {
+        QueryFileMode( pszFilename, &ulAttribute );
+        isDir = ulAttribute & FILE_DIRECTORY;
+    }
+
+    if (isDir)
+        rval = DosQueryPathInfo( pszFilename, FIL_STANDARDL, &FileInfoBuf, sizeof(FILESTATUS3L) );
+    else
+    {
+        if ( hFile == 0 )
+            rval = xDosOpen( pszFilename, (PULONG)&hFile, &ulAction, cbFile, 0L, OPEN_ACTION_OPEN_IF_EXISTS, OPEN_FLAGS_NOINHERIT | OPEN_SHARE_DENYWRITE | OPEN_ACCESS_READWRITE, 0L );
+        if (rval == 0)
+            rval = DosQueryFileInfo( (HFILE)hFile, FIL_STANDARDL, &FileInfoBuf, sizeof(FILESTATUS3L) );
+    }
+    if (rval == 0) {
         if ( fField == 0 ) {
             FileInfoBuf.fdateLastWrite.year = sysDateTime->year - 1980;
             FileInfoBuf.fdateLastWrite.month = sysDateTime->month;
@@ -877,11 +920,16 @@ int SetFileDateTime( char *pszFilename, int hFile, DATETIME *sysDateTime, int fF
             FileInfoBuf.ftimeCreation.twosecs = sysDateTime->seconds;
         }
 
-        DosSetFileInfo( (HFILE)hFile, 1, &FileInfoBuf, sizeof(FILESTATUS3) );
+        if (isDir)
+            rval = DosSetPathInfo( pszFilename, FIL_STANDARDL, &FileInfoBuf, sizeof(FILESTATUS3L), 0 );
+        else
+            rval = DosSetFileInfo( (HFILE)hFile, FIL_STANDARDL, &FileInfoBuf, sizeof(FILESTATUS3L) );
 
-        if ( pszFilename != NULL )
-            DosClose( hFile );
-    }
+    } // if rval
+
+    // If not passed file handle, close now
+    if ( hFile && pszFilename != NULL )
+        DosClose( hFile );
 
     return rval;
 }
@@ -900,7 +948,9 @@ long QueryFileSize( char *fname, int fAllocated )
     if ( fAllocated )
         QueryDiskInfo( szFileName, &DiskInfo, 0 );
 
-    for ( ; ( find_file( fval, szFileName, 0x107, &dir, NULL ) != NULL ); fval = FIND_NEXT ) {
+#   define M ( FIND_NOERRORS | FILE_READONLY | FILE_HIDDEN | FILE_SYSTEM )      // 0x107
+    for ( ; ( find_file( fval, szFileName, M, &dir, NULL ) != NULL ); fval = FIND_NEXT ) {
+#   undef M
         if ( fAllocated ) {
             if ( dir.size > 0L )
                 lSize += (unsigned long)(( dir.size + ( DiskInfo.ClusterSize - 1 )) / DiskInfo.ClusterSize ) * DiskInfo.ClusterSize;
@@ -928,7 +978,7 @@ int QueryFileMode( char *fname, unsigned int *attrib)
 }
 
 
-// Set the file attributes
+// Get the file attributes
 int SetFileMode( char *fname, unsigned int attrib)
 {
     //APIRET16 APIENTRY16 DosSetFileMode(PSZ, USHORT, ULONG);
@@ -941,6 +991,8 @@ int SetFileMode( char *fname, unsigned int attrib)
 
     //return ( DosSetFileMode( fname,attrib,0L ));
     return rc;
+
+    return ( DosSetFileMode( fname,attrib,0L ));
 }
 
 
@@ -995,6 +1047,9 @@ int SetCodePage( int cp )
     }
 
     VioSetCp( 0, cp, 0 );
+
+    // get range of DBCS lead byte for new cp
+    InitDBCSLead();
 
     return 0;
 }
@@ -1064,7 +1119,7 @@ char *QueryVolumeInfo( char *arg, char *volume_name, unsigned long *serial_numbe
 // Check for ANSI - return 1 if loaded, 0 if absent
 int QueryIsANSI( void )
 {
-    USHORT usANSI = 0;
+    VIO_UTYPE   usANSI = 0;
 
     VioGetAnsi( &usANSI, 0 );
     return usANSI;
@@ -1073,7 +1128,8 @@ int QueryIsANSI( void )
 
 // return the file system type for the specified (or default) drive
 //      0 - FAT
-//      1 - HPFS or other ( usually LAN)
+//      1 - HPFS or other (usually LAN) except FAT32
+//      2 - FAT32
 int ifs_type( char *drive )
 {
     char FSQBuffer[64], DeviceName[3];
@@ -1096,10 +1152,15 @@ int ifs_type( char *drive )
 
     psz = (FSQBuffer + 9) + *((USHORT *)(FSQBuffer + 2));
     if ( psz == 0L )
-        return 0;
+        return FS_FAT;
 
     // LAN & unknown types drives default to HPFS type display (return 1 )
-    return ( _stricmp( psz, "FAT" ) != 0 );
+    if ( _stricmp( psz, "FAT" ) == 0 )
+        return FS_FAT;
+    else if ( _stricmp( psz, "FAT32" ) == 0 )
+        return FS_FAT32;
+
+    return FS_HPFS;
 }
 
 
@@ -1160,7 +1221,7 @@ int app_type( char *fname )
             if (( buffer[0] == 'M' ) && ( buffer[1] == 'Z' )) {
                 // seek to new .EXE header
                 new_exe_offset = _lseek( gnGFH, *((long *)(buffer + 0x3C)), SEEK_SET );
-                (void)_read( gnGFH, &ne, sizeof(ne) );
+                (void)_read( gnGFH, (char *)&ne, sizeof(ne) );
 
                 // seek to module reference table
                 _lseek( gnGFH, (new_exe_offset + ne.modtab), SEEK_SET );
@@ -1245,6 +1306,16 @@ int QueryIsDevice( char *fname )
         strcpy( fname, szFullName );
 
     return rval;
+}
+
+
+// check to see if the specified handle is connected to a device
+int QueryIsDeviceHandle(int handle )
+{
+    ULONG HandType = 0, FlagWord;
+
+    (void)DosQueryHType( handle, &HandType, &FlagWord );
+    return (HandType == 1);
 }
 
 
@@ -1404,7 +1475,7 @@ void SetOSVersion( void )
         sprintf( gszOsVersion, "%u%c%02u", _osmajor/10, gaCountryInfo.szDecimal[0], _osminor );
 
     // set PROGRAM and gszMyVersion
-    sprintf( PROGRAM, SET_PROGRAM, VER_MAJOR, gaCountryInfo.szDecimal[0], VER_MINOR, VER_REVISION );
+    sprintf( PROGRAM, SET_PROGRAM, VER_MAJOR, gaCountryInfo.szDecimal[0], VER_MINOR, "" VER_REVISION );
     sprintf( gszMyVersion, "%u%c%02u", VER_MAJOR, gaCountryInfo.szDecimal[0], VER_MINOR );
 
     // Set numeric version
@@ -1441,14 +1512,21 @@ char * strupr( char *source )
 // replace RTL chdir (which doesn't set _doserrno properly)
 int chdir( char *pathname )
 {
-    return ((( _doserrno = DosSetCurrentDir( pathname )) != 0 ) ? -1 : 0 );
+    _doserrno = DosSetCurrentDir( pathname );
+
+    // set new dir as window title
+    // 14 Jun 09 SHL Optmize
+    if ( gaInifile.TitleIsCurDir )
+        update_task_list( NULL );
+
+    return (( _doserrno != 0 ) ? -1 : 0 );
 }
 
 
 // replace RTL mkdir (which doesn't set _doserrno properly)
-int mkdir( char *pathname )
+int mkdir( const char *pathname )
 {
-    return ((( _doserrno = DosCreateDir( pathname, 0 )) != 0 ) ? -1 : 0 );
+    return ((( _doserrno = DosCreateDir( (PSZ)pathname, 0 )) != 0 ) ? -1 : 0 );
 }
 
 
@@ -1525,17 +1603,17 @@ char *MakeSFN( char *pszInputName, char *pszOutputName )
 
     szLongName[0] = '\0';
 
-    if ( ifs_type( pszInputName ) == FAT ) {
+    if ( ifs_type( pszInputName ) == FS_FAT ) {
 
         // if copying from FAT -> HPFS, check EA for .LONGNAME
-        if ( ifs_type( pszOutputName ) != FAT ) {
+        if ( ifs_type( pszOutputName ) != FS_FAT ) {
             // if copying from FAT to HPFS, check for longname
             uBufferSize = MAXFILENAME;
             if (( EAReadASCII( pszInputName, LONGNAME_EA, szLongName, (PINT)&uBufferSize ) != FALSE ) && ( szLongName[0] ))
                 insert_path( pszOutputName, szLongName, pszOutputName );
         }
 
-    } else if ( ifs_type( pszOutputName ) == FAT ) {
+    } else if ( ifs_type( pszOutputName ) == FS_FAT ) {
         // if copying from HPFS -> FAT, save name in .LONGNAME EA
         strcpy( szLongName, fname_part( pszOutputName ) );
 
@@ -1584,15 +1662,15 @@ char *MakeSFN( char *pszInputName, char *pszOutputName )
 //      fflag   Find First or Find Next flag
 //      arg     filename to search for
 //      attrib  search attribute to use
-//                 0x100 - don't display any error messages
-//                 0x200 - only return directories
-//                 0x400 - check inclusive/exclusive match
-//                 0x800 - check date / time range
+//                 0x100 - don't display any error messages - FIND_NOERRORS
+//                 0x200 - only return directories - FIND_DIRONLY
+//                 0x400 - check inclusive/exclusive match - FIND_BYATTS
+//                 0x800 - check date / time range - FIND_DATERANGE
 //              type of search handle to use
-//                 0x1000 - (FIND_CREATE) - HDIR_CREATE
+//                 0x1000 - (FIND_CREATE) - HDIR_CREATE - FIND_CREATE
 //                 anything else - HDIR_SYSTEM
-//                 0x4000 - don't do case conversion
-//                 0x8000 - don't return "." or ".."
+//                 0x4000 - don't do case conversion - FIND_NO_CASE_CONV
+//                 0x8000 - don't return "." or ".." - FIND_NO_DOTNAMES
 //      dir     pointer to directory structure
 //      filename  pointer to place to return filename
 char * find_file( int fflag, char *arg, unsigned int attrib, FILESEARCH *dir, char *filename )
@@ -1630,7 +1708,7 @@ next_list:
     //   well as in mkfname() for things like IF EXIST "file 1")
     StripQuotes( fname );
 
-    for ( mode = ( attrib & 0xFF ); ( srch_cnt != 0 ); ) {
+    for ( mode = ( attrib & ~FIND_4OS2_PRIVATE ); ( srch_cnt != 0 ); ) {
         // search for the next matching file
         if ( fval == FIND_FIRST ) {
 RetryFindFirst:
@@ -1638,13 +1716,19 @@ RetryFindFirst:
             dir->hdir = (( attrib & FIND_CREATE ) ? HDIR_CREATE : HDIR_SYSTEM );
 
             // set IFS type flag for upper/lower case setting
-            dir->fHPFS = ifs_type( arg );
+            dir->FSType = ifs_type( arg );
 
-            rval = DosFindFirst( fname, &(dir->hdir), mode, dir, sizeof(FILEFINDBUF4), &srch_cnt, FIL_QUERYEASIZE );
+            // 20090501 AB added large file support (FIL_QUERYEASIZEL)
+            // 20090820 AB FAT32 driver overwrites more than needed bytes in FILESEARCH struct if buffer size is not restricted to FILEFINDBUF4L
+            //      maybe
+            //      char    dummy[3];       // kludge for IFS overwrites of "hdir"
+            //      in FILESEARCH struct (4os2.h) would be not necessary any more, but who knows?
+            //rval = xDosFindFirst( fname, &(dir->hdir), mode, dir, sizeof(FILESEARCH), &srch_cnt, FIL_QUERYEASIZEL );
+            rval = xDosFindFirst( fname, &(dir->hdir), mode, dir, sizeof(FILEFINDBUF4L), &srch_cnt, FIL_QUERYEASIZEL );
         } else if ( strpbrk( fname, WILD_CHARS ) == NULL )
             rval = ERROR_FILE_NOT_FOUND;
         else
-            rval = DosFindNext( dir->hdir, (PVOID)dir, sizeof(FILEFINDBUF4), &srch_cnt );
+            rval = xDosFindNext( dir->hdir, (PVOID)dir, sizeof(FILEFINDBUF4L), &srch_cnt );
 
         if ( rval ) {
             // couldn't find file; if FIND_FIRST, display error
@@ -1671,7 +1755,7 @@ RetryFindFirst:
             }
 
             if (( fflag == FIND_FIRST ) || (( rval != ERROR_FILE_NOT_FOUND ) && ( rval != ERROR_NO_MORE_FILES ))) {
-                if (( attrib & 0x100 ) == 0 ) {
+                if (( attrib & FIND_NOERRORS ) == 0 ) {
                     // kludge to rebuild original name;
                     //   otherwise *WOK.WOK would display
                     //   as *.WOK
@@ -1706,7 +1790,7 @@ RetryFindFirst:
             continue;
 
         // only retrieving directories? (ignore "." and "..")
-        if (( attrib & 0x200 ) && ((( dir->attrib & _A_SUBDIR ) == 0 ) || ( QueryIsDotName( dir->name ) != 0 )))
+        if (( attrib & FIND_DIRONLY ) && ((( dir->attrib & _A_SUBDIR ) == 0 ) || ( QueryIsDotName( dir->name ) != 0 )))
             continue;
 
         // kludge for OS/2 bug returning directories instead of files
@@ -1714,7 +1798,7 @@ RetryFindFirst:
             continue;
 
         // check for inclusive / exclusive matches
-        if ( attrib & 0x400 ) {
+        if ( attrib & FIND_BYATTS ) {
             // retrieve files with specified attributes?
             if (( gchInclusiveMode & dir->attrib ) != gchInclusiveMode )
                 continue;
@@ -1725,7 +1809,7 @@ RetryFindFirst:
         }
 
         // check for date / time ranges
-        if ( attrib & 0x800 ) {
+        if ( attrib & FIND_DATERANGE ) {
             if ( dir->aRanges.DateType == 0 )
                 ulDTRange = ((long)( dir->fdLW.fdLWrite ) << 16) + dir->ftLW.ftLWrite;
             else if ( dir->aRanges.DateType == 1 )
@@ -1764,13 +1848,43 @@ RetryFindFirst:
         // check unusual wildcard matches
         if (( stricmp( name_part, dir->name ) == 0 ) || ( wild_cmp( name_part, dir->name, TRUE, fWildBrackets ) == 0 ))
             break;
+
+        // In /FS mode of FAT32.IFS, the dir->name(long name) may be different from name_part(short name).
+        if ( dir->FSType == FS_FAT32 ) {
+            char szLongName[MAXFILENAME];
+            char szShortName[MAXFILENAME];
+            unsigned long ulParamSize = sizeof( szLongName );
+            unsigned long ulDataSize = sizeof( szShortName );
+            unsigned long rc;
+
+            // make a full path with a dir->name
+            if (( ptr = path_part( fname )) != NULL )
+                strcpy( szLongName, ptr );
+            else
+                *szLongName = 0;
+
+            mkdirname( szLongName, dir->name );
+            mkfname( szLongName, MKFNAME_NOERROR );
+
+            // call FAT32.IFS function to convert long name to short name.
+            rc = DosFSCtl( szShortName, ulDataSize, &ulDataSize,
+                           szLongName, ulParamSize, &ulParamSize,
+                           0x800A, "FAT32", -1, FSCTL_FSDNAME );
+
+            // get name part of full path short name
+            strcpy( szShortName, fname_part( szShortName ));
+
+            // check unusual wildcard matches by short name
+            if ( !rc && (( stricmp( name_part, szShortName ) == 0 ) || ( wild_cmp( name_part, szShortName, TRUE, fWildBrackets ) == 0 )))
+                break;
+        }
     }
 
     // if no target filename requested, just return a non-NULL response
     if ( filename == NULL ) {
         // if no case conversion wanted, just return
-        if (( attrib & 0x4000 ) == 0 ) {
-            if (( gpIniptr->Upper == 0 ) && ( dir->fHPFS == 0 ) && (( attrib & _A_VOLID) == 0 ))
+        if (( attrib & FIND_NO_CASE_CONV ) == 0 ) {
+            if (( gpIniptr->Upper == 0 ) && ( dir->FSType == FS_FAT ) && (( attrib & _A_VOLID) == 0 ))
                 strlwr( dir->name );
         }
         return ( char *)-1;
@@ -1780,7 +1894,7 @@ RetryFindFirst:
     insert_path( filename, dir->name, fname );
 
     // return matching filename shifted to upper or lower case
-    if ( dir->fHPFS )
+    if ( dir->FSType != FS_FAT )
         return filename;
 
     return (( gpIniptr->Upper == 0 ) ? strlwr( filename ) : strupr( filename ));
@@ -1793,14 +1907,18 @@ void update_task_list( char *pszWindowTitle )
     SWCNTRL swctl;
     HSWITCH hswitch;
 
-    // if started with a /C, don't bother changing the title/icon
-    if (( gnTransient ) || ( pfnWSTAI == 0L ))
+    // if started with a /C or API unavailable, don't bother changing the title/icon
+    if(( gnTransient ) || pfnWSTAI == 0L )
+        return;
+
+    // if ChangeTitle is disabled, only allow changing to default
+    if( !gpIniptr->ChangeTitle && (pszWindowTitle != NULL) )
         return;
 
     szWindowTitle[0] = '\0';
 
     // WinQuerySwitchHandle
-    if (( hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
+    if( ghwndWindowHandle && (hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
         swctl.szSwtitle[0] = '\0';
 
         // WinQuerySwitchEntry
@@ -1808,19 +1926,36 @@ void update_task_list( char *pszWindowTitle )
 
         // if name is NULL, reset to the original title
         if ( pszWindowTitle == NULL ) {
-            if ( gszSessionTitle[0] == '\0' ) {
-                if (( swctl.szSwtitle[0] == '\0' ) || ( stricmp( fname_part( swctl.szSwtitle ), OS2_NAME ) == 0 )) {
-                    // if title is 4OS2.EXE, change to session type
-                    //   ("4OS2 Full Screen" or "4OS2 Window")
-                    strcpy( swctl.szSwtitle, (( gpLIS->typeProcess == PT_FULLSCREEN ) ? OS2_FS : OS2_WIN ));
+            // 20090330 AB
+            if ( gaInifile.TitleIsCurDir == TRUE && cv.bn < 0 ) {
+                // set title to current directory when not in a batch file
+                if (( gcdir( NULL, 0 )) != NULL ) {
+                    // set directory as title (if valid)
+                    strncpy ( swctl.szSwtitle, gcdir( NULL, 0 ), MAXNAMEL - 1 );
+                    swctl.szSwtitle[MAXNAMEL-1] = '\0';
+                    sprintf( gszSessionTitle, FMT_PREC_STR, 60, swctl.szSwtitle );
                 }
-                sprintf( gszSessionTitle, FMT_PREC_STR, 60, swctl.szSwtitle );
             } else {
-                // check for a title change by WINDOW in batch file
-                if (( cv.bn >= 0 ) && ( bframe[cv.bn].pszTitle != NULL ))
-                    sprintf( swctl.szSwtitle, FMT_PREC_STR, 60, bframe[cv.bn].pszTitle );
-                else
-                    strcpy( swctl.szSwtitle, gszSessionTitle );
+                // title should be not current directory
+                if ( gszSessionTitle[0] == '\0' ) {
+                    if (( swctl.szSwtitle[0] == '\0' ) || ( stricmp( fname_part( swctl.szSwtitle ), OS2_NAME ) == 0 )) {
+                        // if title is 4OS2.EXE, change to session type
+                        // set default window title ("4OS2 Full Screen" or "4OS2 Window")
+                        strcpy( swctl.szSwtitle, (( gpLIS->typeProcess == PT_FULLSCREEN ) ? OS2_FS : OS2_WIN ));
+                    }
+                    sprintf( gszSessionTitle, FMT_PREC_STR, 60, swctl.szSwtitle );
+                } else {
+                    // check for a title change by WINDOW in batch file
+                    if (( cv.bn >= 0 ) && ( bframe[cv.bn].pszTitle != NULL )) {
+                        sprintf( swctl.szSwtitle, FMT_PREC_STR, 60, bframe[cv.bn].pszTitle );
+                    } else {
+                        // 2020-12-22 SHL Avoid buffer overflow
+                        // strcpy( swctl.szSwtitle, gszSessionTitle );
+                        strncpy ( swctl.szSwtitle, gszSessionTitle, MAXNAMEL - 1 );
+                        swctl.szSwtitle[MAXNAMEL-1] = '\0';
+
+                    }
+                }
             }
         } else {
             // add title, less path
@@ -1963,5 +2098,74 @@ int start_session( STARTDATA *stdata, char *program_name )
     }
 
     return rval;
+}
+
+
+// If there is text on the OS/2 clipboard, open it and get the text.
+//
+// On success 0 is returned and *ppszClipboardText is pointing to the text.
+// returns error message number on failiure and *ppszClipboardText set to NULL.
+int GetClipboardText( unsigned long *pulState, PCSZ *ppszClipboardText )
+{
+    ULONG ram;
+    PVOID pvClipMemory;
+
+    *pulState = 0;
+    *ppszClipboardText = NULL;
+
+    // WinQueryClipbrdFmtInfo
+    if ( pfnWQCFI == NULL || (*pfnWQCFI)( ghHAB, CF_TEXT, &ram ) == FALSE ) {
+        return ERROR_4DOS_CLIPBOARD_NOT_TEXT;
+    }
+
+    // WinOpenClipbrd
+    if ( (*pfnWOC)( ghHAB ) == FALSE) {
+        return ERROR_4DOS_CLIPBOARD_INUSE;
+    }
+
+    // WinQueryClipbrdData
+    pvClipMemory = (PVOID)(*pfnWQCD)( ghHAB, CF_TEXT );
+    if ( pvClipMemory != NULL ) {
+
+        // kludge for OS/2 bug - it doesn't always make clipboard memory readable for VIO apps!
+        ULONG size = 0x1000;
+        ULONG flags = ~0UL;
+        APIRET rc = DosQueryMem( pvClipMemory, &size, &flags );
+        if ( rc ) /* Warp4 fixpack x had some kind of bug for some DosQueryMem calls. */
+            rc = DosQueryMem( pvClipMemory, &size, &flags );
+        if ( rc || (flags & (PAG_READ | PAG_COMMIT)) != (PAG_READ | PAG_COMMIT) ) {
+            rc = DosGetSharedMem( pvClipMemory, PAG_READ );
+            if ( rc == 0 ) {
+                *pulState = (unsigned long)pvClipMemory;
+            }
+        } else {
+            *pulState = ~0UL;
+        }
+        if ( !rc ) {
+            /* success! */
+            *ppszClipboardText = (PCSZ)pvClipMemory;
+            return 0;
+        }
+
+        // failure, close the clipboard and pretend there is no text on it.
+    }
+    // WinCloseClipbrd
+    (*pfnWCC)( ghHAB );
+
+    return ERROR_4DOS_CLIPBOARD_NOT_TEXT;
+}
+
+// End use of clipboard text obtained with GetClipboardText().
+void ReleaseClipboardText( unsigned long *pulState )
+{
+    if (*pulState) {
+        // WinCloseClipbrd
+        (*pfnWCC)( ghHAB );
+
+        // Free the memory if we called DosGetSharedMem.
+        if (*pulState != ~0UL) {
+            DosFreeMem( (PVOID) *pulState );
+        }
+    }
 }
 

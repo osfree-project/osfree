@@ -1,7 +1,5 @@
-//#ifndef OS2_INCLUDED
    #include <os2.h>
-//#endif
-DLGINCLUDE 1 "..\include\resource.h"
+DLGINCLUDE 1 "../h/resource.h"
 
 DLGTEMPLATE CONFIG_CMDDLGBOX LOADONCALL MOVEABLE DISCARDABLE
 BEGIN
@@ -87,7 +85,7 @@ BEGIN
                         CBS_DROPDOWNLIST | WS_TABSTOP | WS_VISIBLE
         LTEXT           "Left", IDI_POPUPWINLEFTLABEL, 53, 116, 24, 8,
                         DT_WORDBREAK | DT_MNEMONIC
-        LTEXT           "Top", IDI_POPUPWINTOPLABEL, 83, 116, 24, 8,
+        LTEXT           "Top/Above", IDI_POPUPWINTOPLABEL, 83, 116, 24, 8,
                         DT_WORDBREAK | DT_MNEMONIC
         LTEXT           "Width", IDI_POPUPWINWIDTHLABEL, 113, 116, 32, 8,
                         DT_WORDBREAK | DT_MNEMONIC
@@ -176,6 +174,7 @@ BEGIN
                         DT_WORDBREAK | DT_MNEMONIC
         AUTOCHECKBOX    "Co~py to end", IDI_HistCopy, 14, 67, 58, 10
         AUTOCHECKBOX    "Move to ~end", IDI_HistMove, 78, 67, 58, 10
+        AUTOCHECKBOX    "~No Dups", IDI_HistNoDups, 142, 80, 35, 10
         AUTOCHECKBOX    "~Wrap", IDI_HistWrap, 142, 67, 35, 10
         PUSHBUTTON      "~Save", IDI_SAVE, 15, 4, 40, 14, WS_GROUP
         DEFPUSHBUTTON   "~OK", DID_OK, 58, 4, 40, 14
@@ -227,9 +226,11 @@ BEGIN
         CONTROL         "", IDI_ListBoxBarColorsBG, 124, 27, 67, 54,
                         WC_COMBOBOX, CBS_DROPDOWNLIST | WS_TABSTOP |
                         WS_VISIBLE
-        GROUPBOX        "Options", IDI_DISPLAYOPTIONSGROUP, 4, 43, 194, 22,
+        GROUPBOX        "Options", IDI_DISPLAYOPTIONSGROUP, 4, 35, 194, 30,
                         DT_MNEMONIC
         AUTOCHECKBOX    "Bright Back~ground Colors", IDI_BrightBG, 14, 47,
+                        97, 10
+        AUTOCHECKBOX    "~Change Session Title", IDI_ChangeTitle, 14, 38,
                         97, 10
         PUSHBUTTON      "~Save", IDI_SAVE, 15, 4, 40, 14, WS_GROUP
         PUSHBUTTON      "~OK", DID_OK, 58, 4, 40, 14

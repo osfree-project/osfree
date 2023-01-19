@@ -2,10 +2,10 @@
 #include <mmioos2.h>
 #include "image.h"
 
-DEFAULTICON                 image.ico
-ICON          ID_IMAGE      image.ico
-ICON          ID_ARTICON    camera.ico
-ICON          ID_CROSSICON  cross.ico
+DEFAULTICON                 "contrib/image.ico"
+ICON          ID_IMAGE      "contrib/image.ico"
+ICON          ID_ARTICON    "contrib/camera.ico"
+ICON          ID_CROSSICON  "contrib/cross.ico"
 
 ACCELTABLE ID_IMAGE
 {
@@ -83,4 +83,4 @@ MENU ID_IMAGE
   MENUITEM "E~xit\tF3",                               IDM_CLOSE
 }
 
-RCINCLUDE     image.dlg
+RCINCLUDE     "contrib/image.dlg"

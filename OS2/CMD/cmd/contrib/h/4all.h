@@ -1,7 +1,35 @@
 // 4ALL.H - Include file for all 4xxx / TCMD products
 //   Copyright (c) 1988 - 1997  Rex C. Conn   All rights reserved
 
+#define INCL_LONGLONG
+#include <os2def.h>
 #include <limits.h>             // get int & long sizes
+
+// support crappy old compilers with no 64-bit integer support
+#if defined( __WATCOMC__ ) && ( __WATCOMC__ >= 1100 )
+    #define LONG_LONG   long long
+    #define HAVE_64BIT_INT
+#else
+    #define LONG_LONG   double
+#endif
+
+#ifdef __HIGHC__
+    #define ASMCALL
+#else
+    #define ASMCALL __cdecl
+#endif
+
+// 20100111 AB add trace definitions for Dennis Bareis pmprintf untility
+#ifdef __DEBUG_PMPRINTF__
+    #include "pmprintf.h"
+    #include <STDARG.H>
+    #define  __PMPRINTF__
+// compilers which support VA_ARGS
+    #define TRACE( ... )   PmpfF ( ( __VA_ARGS__ ) )        // doesn't work for VAC3.65 and ICCv4
+#else
+    #define TRACE( ... )
+#endif  // __DEBUG_PMPRINTF__
+// end trace definitions
 
 #define STDIN 0                 // standard input, output, error, aux, & prn
 #define STDOUT 1
@@ -28,11 +56,21 @@
 #define DESCRIPTION_REMOVE 0x10
 #define DESCRIPTION_PROCESS 0x20
 
+// find_file masks - augment os2.h FILE_... and MUST_HAVE_... flags
+#define FIND_NOERRORS 0x100
+#define FIND_DIRONLY 0x200
 #define FIND_BYATTS 0x400
 #define FIND_DATERANGE 0x800
 #define FIND_CREATE 0x1000      // tells find_file (OS2 & NT) to create a handle
 #define FIND_CLOSE_GLOBAL 0x2000
+#define FIND_NO_CASE_CONV 0x4000
 #define FIND_NO_DOTNAMES 0x8000
+
+// Standard flags for internal finds
+#define FIND_4OS2_STD ( FIND_CLOSE_GLOBAL | FIND_NOERRORS | FILE_READONLY | FILE_HIDDEN | FILE_SYSTEM ) // 0x2107
+
+// All 4OS2 private find flags are in upper byte
+#define FIND_4OS2_PRIVATE 0xFF00
 
 #define BREAK_STACK_OVERFLOW 0x100
 #define BREAK_CANCEL_PROCESSING 0x400
@@ -47,105 +85,105 @@
 
 // disable macro definitions of toupper() and tolower()
 #ifdef toupper
-#undef toupper
-#undef tolower
+    #undef toupper
+    #undef tolower
 #endif
 
 #include <setjmp.h>
 
+// call_flag bit masks
+#define CF_NESTED_BATCH 1               // Nested batch requested (i.e. call)
+#define CF_CALL_Q 0x100                 // Invoked by call /q syntax
+#define CF_REXX_SCRIPT 0x200            // Batch is REXX script
+#define CF_REXX_SUBCOMM 0x400           // REXX subcommand handler active
 
-typedef struct
-{
-        // These variables need to be saved when doing an INT 2Eh or
-        //   REXX "back door"
-        int bn;                 // current batch nesting level
-        int call_flag;          // 0 for batch overwrite, 1 for nesting, 2 for NT "call :label args"
-        int exception_flag;     // ^C or stack overflow detected flag
-        jmp_buf env;            // setjmp save state
-        unsigned char verbose;          // command line ECHO ON flag
-        union {
-            long lFlags;
-            struct {
-                unsigned char _else;    // waiting for ELSE/ENDIFF
-                unsigned _iff : 4;      // parsing an IFF/THEN
-                unsigned _endiff : 4;   // ENDIFF nesting level
-                unsigned _do : 4;       // parsing a DO/WHILE
-                unsigned _do_end : 4;   // ENDDO nesting level
-                unsigned _do_leave : 4;
-            } flag;
-        } f;
+typedef struct {
+    // These variables need to be saved when doing an INT 2Eh or
+    //   REXX "back door"
+    int bn;                 // current batch nesting level
+    int call_flag;          // 0 for batch overwrite, 1 for nesting, 2 for NT "call :label args"
+    int exception_flag;     // ^C or stack overflow detected flag
+    jmp_buf env;            // setjmp save state
+    unsigned char verbose;          // command line ECHO ON flag
+    union {
+        long lFlags;
+        _Packed struct {
+            unsigned char _else;    // waiting for ELSE/ENDIFF
+            unsigned _iff : 4;      // parsing an IFF/THEN
+            unsigned _endiff : 4;   // ENDIFF nesting level
+            unsigned _do : 4;       // parsing a DO/WHILE
+            unsigned _do_end : 4;   // ENDDO nesting level
+            unsigned _do_leave : 4;
+        } flag;
+    } f;
 } CRITICAL_VARS;
 
 
-typedef struct
-{
-        union {
-                unsigned long DTStart;
-                struct {
-                        unsigned short TStart;
-                        unsigned short DStart;
-                } DTS;
-        } DTRS;
-        union {
-                unsigned long DTEnd;
-                struct {
-                        unsigned short TEnd;
-                        unsigned short DEnd;
-                } DTE;
-        } DTRE;
-        unsigned short DateType;        // 0=last write, 1=last access; 2=created
-        unsigned short TimeStart;
-        unsigned short TimeEnd;
-        unsigned short TimeType;        // 0=last write, 1=last access; 2=created
-        unsigned long SizeMin;
-        unsigned long SizeMax;
-        char *pszExclude;
+typedef struct {
+    union {
+        unsigned long DTStart;
+        struct {
+            unsigned short TStart;
+            unsigned short DStart;
+        } DTS;
+    } DTRS;
+    union {
+        unsigned long DTEnd;
+        struct {
+            unsigned short TEnd;
+            unsigned short DEnd;
+        } DTE;
+    } DTRE;
+    unsigned short DateType;        // 0=last write, 1=last access; 2=created
+    unsigned short TimeStart;
+    unsigned short TimeEnd;
+    unsigned short TimeType;        // 0=last write, 1=last access; 2=created
+    long long SizeMin;
+    long long SizeMax;
+    char *pszExclude;
 } RANGES;
 
 
 // directory structure
-typedef struct
-{
-        unsigned char dummy_pad;
-        unsigned char attribute;        // file attribute
-        union {
-                unsigned short ufTime;
-                struct {
-                        unsigned seconds : 5;
-                        unsigned minutes : 6;
-                        unsigned hours : 5;
-                } file_time;
-        } ft;
-        union {
-                unsigned short ufDate;
-                struct {
-                        unsigned days : 5;
-                        unsigned months : 4;
-                        unsigned years : 7;
-                } file_date;
-        } fd;
-        unsigned long file_size;
-        unsigned char file_name[13];
-        unsigned char ampm;             // am/pm for filetime
-        unsigned short file_mark;       // SELECT file marker
-        short color;
-        unsigned int comp_ratio;        // compression ratio for DBLSPACE
-        unsigned char *file_id;   // optional file description
-        unsigned long ea_size;
-        unsigned char *hpfs_name;
-        unsigned char *hpfs_base;
+typedef struct {
+    unsigned char dummy_pad;
+    unsigned char attribute;        // file attribute
+    union {
+        unsigned short ufTime;
+        struct {
+            unsigned seconds : 5;
+            unsigned minutes : 6;
+            unsigned hours : 5;
+        } file_time;
+    } ft;
+    union {
+        unsigned short ufDate;
+        struct {
+            unsigned days : 5;
+            unsigned months : 4;
+            unsigned years : 7;
+        } file_date;
+    } fd;
+    LONGLONG file_size;
+    char file_name[13];
+    unsigned char ampm;             // am/pm for filetime
+    unsigned short file_mark;       // SELECT file marker
+    short color;
+    unsigned int comp_ratio;        // compression ratio for DBLSPACE
+    char *file_id;   // optional file description
+    unsigned long ea_size;
+    char *hpfs_name;
+    char *hpfs_base;
 } DIR_ENTRY;
 
 
 // Disk info (free space, total space, and cluster size) (Except for NT!)
-// TODO: revise double / long long
-typedef struct
-{
-        double BytesFree;
-        double BytesTotal;
-        long ClusterSize;
-        char szBytesFree[16];
-        char szBytesTotal[16];
+typedef struct {
+    LONG_LONG BytesFree;
+    LONG_LONG BytesTotal;
+    long ClusterSize;
+    char szBytesFree[16];
+    char szBytesTotal[16];
 } QDISKINFO;
 
 
@@ -158,8 +196,9 @@ typedef struct
 
 // DIR flags
 
-#define FAT 0
-#define HPFS 1
+#define FS_FAT   0
+#define FS_HPFS  1
+#define FS_FAT32 2
 
 #define DIRFLAGS_UPPER_CASE 1
 #define DIRFLAGS_LOWER_CASE 2
@@ -185,22 +224,20 @@ typedef struct
 #define DIRFLAGS_TRUNCATE_DESCRIPTION 0x200000L
 #define DIRFLAGS_TREE 0x400000L
 #define DIRFLAGS_ALLOCATED 0x800000L
+#define DIRFLAGS_NO_ERRORS 0x1000000L
 
-
-typedef struct
-{
-        char cname[30];
-        short color;
+typedef struct {
+    char cname[30];
+    short color;
 } CDIR;
 
 
 // array used for internal commands (indirect function calls)
-typedef struct
-{
-        char *cmdname;                  // command name
-        int (* func)(int, char **);     // pointer to function
-        int pflag;                      // command line parse control flag
-        int index;                      // command index in OSO001.MSG file
+typedef struct {
+    char *cmdname;                  // command name
+    int (* func)(int, char **);     // pointer to function
+    int pflag;                      // command line parse control flag
+    int index;                      // command index in OSO001.MSG file
 } BUILTIN;
 
 
@@ -228,31 +265,32 @@ typedef struct
 #define EXPAND_NO_QUOTES 0x40
 #define EXPAND_NO_ESCAPES 0x80
 
+#define NTHARG_SWITCH_CHAR_IS_DATA 0x800
+#define NTHARG_BACKQUOTE_IS_DATA   0x1000
+#define NTHARG_BRACKETS_ARE_QUOTES 0x2000
+#define NTHARG_PARENS_ARE_QUOTES   0x4000
 
 // structure used by COLOR to set screen colors via ANSI escape sequences
-typedef struct
-{
-        unsigned char *shade;
-        unsigned char ansi;
+typedef struct {
+    char            *shade;
+    unsigned char   ansi;
 } ANSI_COLORS;
 
 
 // structure used by COLORDIR to set screen colors based on attributes
-typedef struct
-{
-        unsigned char *type;
-        unsigned char attr;
+typedef struct {
+    char            *type;
+    unsigned char   attr;
 } COLORD;
 
 
 // start time for three timers
-typedef struct
-{
-        int timer_flag;
-        int thours;
-        int tminutes;
-        int tseconds;
-        int thundreds;
+typedef struct {
+    int timer_flag;
+    int thours;
+    int tminutes;
+    int tseconds;
+    int thundreds;
 } TIMERS;
 
 
@@ -265,35 +303,34 @@ typedef struct
 
 // We define structures ("frames") for batch files; allowing us to nest batch
 //   files without the overhead of calling a copy of the command processor
-typedef struct
-{
-        unsigned char *pszBatchName;            // fully qualified filename
-        unsigned char **Argv;                   // pointer to argument list
-        int bfd;                                // file handle for batch file
-        int Argv_Offset;                        // offset into Argv list
-        long offset;                            // current file pointer position
-        unsigned int uBatchLine;                // current file line (0-based)
-        int gsoffset;                           // current gosub nesting level
-        unsigned int echo_state;                // current batch echo state (0 = OFF)
-        unsigned char *OnBreak;                 // command to execute on ^C
-        unsigned char *OnError;                 // command to execute on error
-        unsigned char *OnErrorMsg;              // command to execute on error message
-        unsigned int OnErrorState;              // prior state of error popups
-        unsigned char *pszTitle;                // window/icon title
-        unsigned char *local_dir;               // saved disk and directory
-        unsigned char *local_env;          // saved environment for SETLOCAL
-        unsigned int local_env_size;
-        unsigned char *local_alias;        // saved alias list for SETLOCAL
-        unsigned int local_alias_size;
-        unsigned char *in_memory_buffer;   // pointer to buffer for .BTM files
-        int flags;                              // see below
-        int nReturn;                            // return value
-        unsigned int uChildPipeProcess;
-        char cLocalParameter;
-        char cLocalEscape;
-        char cLocalSeparator;
-        char cLocalDecimal;
-        char cLocalThousands;
+typedef struct {
+    char *pszBatchName;             // fully qualified filename
+    char **Argv;                    // pointer to argument list
+    int bfd;                        // file handle for batch file
+    int Argv_Offset;                // offset into Argv list
+    long offset;                    // current file pointer position
+    unsigned int uBatchLine;        // current file line (0-based)
+    int gsoffset;                   // current gosub nesting level
+    unsigned int echo_state;        // current batch echo state (0 = OFF)
+    char *OnBreak;                  // command to execute on ^C
+    char *OnError;                  // command to execute on error
+    char *OnErrorMsg;               // command to execute on error message
+    unsigned int OnErrorState;      // prior state of error popups
+    char *pszTitle;                 // window/icon title
+    char *local_dir;                // saved disk and directory
+    char *local_env;                // saved environment for SETLOCAL
+    unsigned int local_env_size;
+    char *local_alias;              // saved alias list for SETLOCAL
+    unsigned int local_alias_size;
+    char *in_memory_buffer;         // pointer to buffer for .BTM files
+    int flags;                      // see below
+    int nReturn;                    // return value
+    unsigned int uChildPipeProcess;
+    char cLocalParameter;
+    char cLocalEscape;
+    char cLocalSeparator;
+    char cLocalDecimal;
+    char cLocalThousands;
 } BATCHFRAME;
 
 #define BATCH_REXX 1
@@ -323,41 +360,41 @@ typedef struct
 
 // LIST file info structure
 typedef struct {
-        char  szName[260];
-        int   hHandle;
-        int   fEoL;             // line end character (CR or LF)
-        union {
-                unsigned short ufTime;
-                struct {
-                        unsigned seconds : 5;
-                        unsigned minutes : 6;
-                        unsigned hours : 5;
-                } file_time;
-        } ft;
-        union {
-                unsigned short ufDate;
-                struct {
-                        unsigned days : 5;
-                        unsigned months : 4;
-                        unsigned years : 7;
-                } file_date;
-        } fd;
-        long  lSize;
-        long  lCurrentLine;
+    char  szName[260];
+    int   hHandle;
+    int   fEoL;             // line end character (CR or LF)
+    union {
+        unsigned short ufTime;
+        struct {
+            unsigned seconds : 5;
+            unsigned minutes : 6;
+            unsigned hours : 5;
+        } file_time;
+    } ft;
+    union {
+        unsigned short ufDate;
+        struct {
+            unsigned days : 5;
+            unsigned months : 4;
+            unsigned years : 7;
+        } file_date;
+    } fd;
+    long  lSize;
+    long  lCurrentLine;
 
-        long lViewPtr;                  // pointer to top line
-        long lFileOffset;               // offset of block
+    long lViewPtr;                  // pointer to top line
+    long lFileOffset;               // offset of block
 
-        char *lpBufferEnd;         // end of file buffer
-        char *lpEOF;               // pointer to EOF in buffer
-        char *lpCurrent;           // current char in get buffer
-        char *lpBufferStart;       // beginning of file buffer
+    char *lpBufferEnd;         // end of file buffer
+    char *lpEOF;               // pointer to EOF in buffer
+    char *lpCurrent;           // current char in get buffer
+    char *lpBufferStart;       // beginning of file buffer
 
-        unsigned int uTotalSize;        // size of entire buffer
-        unsigned int uBufferSize;       // size of each buffer block
-        int nListHorizOffset;           // horizontal scroll offset
-        int nSearchLen;
-        int fDisplaySearch;
+    unsigned int uTotalSize;        // size of entire buffer
+    unsigned int uBufferSize;       // size of each buffer block
+    int nListHorizOffset;           // horizontal scroll offset
+    int nSearchLen;
+    int fDisplaySearch;
 } LISTFILESTRUCT;
 
 
@@ -376,22 +413,21 @@ extern INIFILE *iniptr;
 
 
 // popup text window control block
-typedef struct
-{
-        int top;                // upper left (inside) corner of window
-        int left;
-        int bottom;
-        int right;
-        int attrib;             // attribute to be used in window
-        int inverse;            // inverse of "attrib"
-        int c_row;              // current cursor offset in window
-        int c_col;
-        int old_row;            // cursor position when window was
-        int old_col;            //   opened (used for screen restore)
-        int hoffset;            // horizontal scroll offset
-        int fShadow;            // if != 0, draw shadow
-        int fPopupFlags;        // flags for window
-        char *screen_save; // pointer to screen save buffer
+typedef struct {
+    int top;                // upper left (inside) corner of window
+    int left;
+    int bottom;
+    int right;
+    int attrib;             // attribute to be used in window
+    int inverse;            // inverse of "attrib"
+    int c_row;              // current cursor offset in window
+    int c_col;
+    int old_row;            // cursor position when window was
+    int old_col;            //   opened (used for screen restore)
+    int hoffset;            // horizontal scroll offset
+    int fShadow;            // if != 0, draw shadow
+    int fPopupFlags;        // flags for window
+    char *screen_save; // pointer to screen save buffer
 } POPWINDOW, *POPWINDOWPTR;
 
 
@@ -484,6 +520,9 @@ typedef struct
 #define ERROR_EXIT 2
 // #define CTRLC 3
 
+// 4OS specials for internal use
+#define IFF_EXPR_FALSE 0x666            // Iff expression returned false
+#define IF_EXPR_FALSE 0x667             // If express returned false
 
 #define EOS '\0'                // standard end of string
 #define FALSE 0
@@ -594,6 +633,7 @@ typedef struct
 
 #include "version.h"
 
+#define INCL_BASE
 #define INCL_SUB
 #define INCL_DOSMONITORS
 
@@ -618,6 +658,7 @@ typedef struct
 #define INCL_DEV
 #define INCL_ERRORS
 #define INCL_WIN
+#define INCL_PM
 #define INCL_GPI
 
 #include <os2.h>

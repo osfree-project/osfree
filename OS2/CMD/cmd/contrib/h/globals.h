@@ -47,14 +47,14 @@ INIFILE *gpIniptr = (INIFILE *)&gaInifile;      // pointer to inifile
 char gaIniStrings[INI_STRMAX];
 
 UINT gaIniKeys[(2 * INI_KEYMAX)] = {
-        CTL_BS,                 // ^Bksp -> ^R
-        TAB,                    // TAB -> F9
-        SHIFT_TAB,              // Shift-Tab -> F8
-        CTL_TAB,                // ^Tab -> F7
-        18 + (MAP_GEN << 8),    // ^Bksp -> ^R, general keys
-        F9 + (MAP_EDIT << 8),   // TAB -> F9, editing keys
-        F8 + (MAP_EDIT << 8),   // Shift-Tab -> F8, editing keys
-        F7 + (MAP_EDIT << 8),   // ^Tab -> F7, editing keys
+    CTL_BS,                 // ^Bksp -> ^R
+    TAB,                    // TAB -> F9
+    SHIFT_TAB,              // Shift-Tab -> F8
+    CTL_TAB,                // ^Tab -> F7
+    18 + (MAP_GEN << 8),    // ^Bksp -> ^R, general keys
+    F9 + (MAP_EDIT << 8),   // TAB -> F9, editing keys
+    F8 + (MAP_EDIT << 8),   // Shift-Tab -> F8, editing keys
+    F7 + (MAP_EDIT << 8),   // ^Tab -> F7, editing keys
 };
 
 int gnOsVersion;                // combined major & minor version
@@ -90,9 +90,12 @@ PCH _pgmptr;
 WSTAI pfnWSTAI = 0L;            // WinSetTitleAndIcon
 SKEYS *pfnSendKeys = 0L;        // SendKeys
 QUITSKEYS *pfnQuitSendKeys = 0L; // QuitSendKeys
-#if _PM == 0
+    #if _PM == 0
 WINIT *pfnWINIT = 0L;           // WinInitialize
 WTERM *pfnWTERM = 0L;           // WinTerminate
+WCMQ *pfnWCMQ = 0L;             // WinCreateMsgQueue
+WDMQ *pfnWDMQ = 0L;             // WinDestroyMsgQueue
+WCS *pfnWCS = 0L;               // WinCancelShutdown
 WSAW *pfnWSAW = 0L;             // WinSetActiveWindow
 WGLE *pfnWGLE = 0L;             // WinGetLastError
 WQSL *pfnWQSL = 0L;             // WinQuerySwitchList
@@ -118,7 +121,7 @@ POP *pfnPOP = 0L;               // PrfOpenProfile
 PQPD *pfnPQPD = 0L;             // PrfQueryProfileData
 PWPD *pfnPWPD = 0L;             // PrfWriteProfileData
 PCP *pfnPCP = 0L;               // PrfCloseProfile
-#endif
+    #endif
 
 // points to exception structure in "main()"
 PEXCEPTIONREGISTRATIONRECORD pExceptionStruct;
@@ -190,6 +193,7 @@ extern char *gpRexxCmdline;
 
 
 extern HAB ghHAB;
+extern HMQ ghHMQ;
 extern HWND ghwndWindowHandle;
 extern char gszQueueName[];
 
@@ -208,6 +212,9 @@ extern SKEYS *pfnSendKeys;      // SendKeys
 extern QUITSKEYS *pfnQuitSendKeys; // QuitSendKeys
 extern WINIT *pfnWINIT;         // WinInitialize
 extern WTERM *pfnWTERM;         // WinTerminate
+extern WCMQ *pfnWCMQ;           // WinCreateMsgQueue
+extern WDMQ *pfnWDMQ;           // WinDestroyMsgQueue
+extern WCS *pfnWCS;             // WinCancelShutdown
 extern WSAW *pfnWSAW;           // WinSetActiveWindow
 extern WGLE *pfnWGLE;           // WinGetLastError
 extern WQSL *pfnWQSL;           // WinQuerySwitchList
@@ -238,4 +245,3 @@ extern PEXCEPTIONREGISTRATIONRECORD pExceptionStruct;
 extern PEXCEPTIONREGISTRATIONRECORD pRexxExceptionStruct;
 
 #endif          // DEFINE GLOBALS
-

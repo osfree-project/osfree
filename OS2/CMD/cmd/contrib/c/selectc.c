@@ -6,10 +6,6 @@ static int getmark(SELECT_ARGS *sel);
 static void dirprint(SELECT_ARGS *, int, unsigned int, unsigned int);
 
 
-#if _DOS && (_WIN == 0)
-#pragma alloc_text( _TEXT, select_cmd )
-#endif
-
 // select the files for a command
 int select_cmd( int argc, char **argv )
 {
@@ -56,7 +52,7 @@ int select_cmd( int argc, char **argv )
 
         if ( setjmp( cv.env ) == -1 ) {
         dir_free( sel.sfiles );
-        clear_screen();
+        (void)clear_screen();
         rval = CTRLC;
         goto select_bye;
         }
@@ -91,7 +87,7 @@ int select_cmd( int argc, char **argv )
         if ( sel.entries > 0 ) {
 
         // clear the screen
-        clear_screen();
+        (void)clear_screen();
 
         // get default normal and inverse attributes
         if ( gpIniptr->SelectColor != 0 )
@@ -113,7 +109,7 @@ int select_cmd( int argc, char **argv )
         // get the selection list
         if ( getmark( &sel ) == -1 )
             sel.marked = 0;
-        clear_screen();
+        (void)clear_screen();
 
         if ( sel.length >= MAXLINESIZ) {
             rval = error( ERROR_4DOS_COMMAND_TOO_LONG, NULL );
@@ -434,7 +430,7 @@ static void dirprint(SELECT_ARGS *sel, int page, unsigned int line, unsigned int
 
     // display the number of files marked & the size (in Kb)
     sprintf( szBuffer, MARKED_FILES, sel->uMarkedFiles, sel->lTotalSize );
-    WriteStrAtt( 1, columns-(strlen(MARKED_FILES)+3), sel->normal, szBuffer );
+    WriteStrAtt( 1, columns-(strlen(MARKED_FILES)+5), sel->normal, szBuffer );
 
     // last row to print
     last = ((page > 0 ) ? sel->dirlast : line);
@@ -454,16 +450,16 @@ static void dirprint(SELECT_ARGS *sel, int page, unsigned int line, unsigned int
             nOffset = sprintf( szBuffer, "%c%-12Fs", (( sel->sfiles[line].file_mark > 0 ) ? gchRightArrow : ' '), sel->sfiles[line].file_name );
 
         } else {
-            // display the HPFS filename (max of first 45 chars
+            // display the HPFS filename (max of first 42 chars
             //   displayable on an 80-columns display)
-            nOffset = sprintf( szBuffer, "%c%-*.*Fs", (( sel->sfiles[line].file_mark > 0 ) ? gchRightArrow : ' '), (columns-35), (columns-35), sel->sfiles[line].hpfs_name );
+            nOffset = sprintf( szBuffer, "%c%-*.*Fs", (( sel->sfiles[line].file_mark > 0 ) ? gchRightArrow : ' '), (columns-38), (columns-38), sel->sfiles[line].hpfs_name );
         }
 
         if (((glDirFlags & DIRFLAGS_HPFS) == 0 ) || (glDirFlags & DIRFLAGS_HPFS_TO_FAT)) {
 
             nOffset += sprintf( szBuffer+nOffset, ( sel->sfiles[line].attribute & _A_SUBDIR) ? DIR_LABEL : "%9lu",sel->sfiles[line].file_size );
             nOffset += sprintf( szBuffer+nOffset, ((gaCountryInfo.fsTimeFmt == 0 ) ? "  %s %2u%c%02u%c" : "  %s  %2u%c%02u"),
-                FormatDate( sel->sfiles[line].fd.file_date.months, sel->sfiles[line].fd.file_date.days,sel->sfiles[line].fd.file_date.years+80 ),
+                FormatDate( sel->sfiles[line].fd.file_date.months, sel->sfiles[line].fd.file_date.days,sel->sfiles[line].fd.file_date.years+1980, 0 ),
                 sel->sfiles[line].ft.file_time.hours, gaCountryInfo.szTimeSeparator[0],sel->sfiles[line].ft.file_time.minutes, sel->sfiles[line].ampm);
             {
                 n = strlen( sel->sfiles[line].file_id);
@@ -480,7 +476,7 @@ static void dirprint(SELECT_ARGS *sel, int page, unsigned int line, unsigned int
         } else {
             nOffset += sprintf( szBuffer+nOffset, ( sel->sfiles[line].attribute & _A_SUBDIR) ? HPFS_DIR_LABEL : "%15Lu", sel->sfiles[line].file_size );
 
-            sprintf( szBuffer+nOffset, "  %s  %2u%c%02u%c", FormatDate( sel->sfiles[line].fd.file_date.months, sel->sfiles[line].fd.file_date.days, sel->sfiles[line].fd.file_date.years+80 ),
+            sprintf( szBuffer+nOffset, "  %s  %2u%c%02u%c", FormatDate( sel->sfiles[line].fd.file_date.months, sel->sfiles[line].fd.file_date.days, sel->sfiles[line].fd.file_date.years+1980, 0 ),
                 sel->sfiles[line].ft.file_time.hours, gaCountryInfo.szTimeSeparator[0], sel->sfiles[line].ft.file_time.minutes, sel->sfiles[line].ampm );
             WriteStrAtt( current_row, 0, color, szBuffer );
         }

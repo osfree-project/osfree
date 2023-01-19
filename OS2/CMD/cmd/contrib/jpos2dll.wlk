@@ -4,7 +4,7 @@ name      jpos2dll.dll
 system    os2v2 dll initglobal
 option    map
 option    quiet
-option    description 'JPOS2DLL.DLL  Copyright 2002, Rex Conn and JP Software Inc.  All Rights Reserved'
+option    description @..\buildlevel.txt
 option    manyautodata
 segment   type DATA shared
 lib       clib3r, os2386
