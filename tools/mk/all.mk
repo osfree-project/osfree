@@ -281,7 +281,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .bin .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
+SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .xih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
