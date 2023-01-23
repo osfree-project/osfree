@@ -190,6 +190,9 @@ CD        = cd /d
 !else ifeq ENV WIN32
 NULL      = nul
 CD        = cd /d
+!else ifeq ENV WIN64
+NULL      = nul
+CD        = cd /d
 !else
 NULL      = nul
 CD        = $(REXX) cdir.cmd
