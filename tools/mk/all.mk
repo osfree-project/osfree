@@ -186,17 +186,19 @@ FINDFILE  = $(REXX) findfile.cmd
 
 !ifeq ENV Windows
 NULL      = nul
+CD        = cd /d
 !else ifeq ENV WIN32
 NULL      = nul
+CD        = cd /d
 !else
 NULL      = nul
+CD        = $(REXX) cdir.cmd
 !endif
+
+MDHIER    = $(REXX) mdhier.cmd
 
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
-
-CD        = $(REXX) cdir.cmd
-MDHIER    = $(REXX) mdhier.cmd
 
 CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
