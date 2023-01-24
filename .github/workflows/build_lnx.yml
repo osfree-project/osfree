@@ -31,11 +31,6 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   submodules: recursive
 
-            # Update references
-            - name: Git Sumbodule Update
-              run: |
-                  git submodule update --init --recursive --force --remote
-
             # Commit
             #- name: Commit update
             #  run: |
