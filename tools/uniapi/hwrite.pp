@@ -153,6 +153,7 @@ begin
   if S='T_DWORD' then Result:='unsigned long' else
   if S='T_INT16' then Result:='short' else
   if S='T_INT32' then Result:='long';
+  if S='T_UINT' then Result:='unsigned int';
 end;
 
 procedure THWriter.WriteType(AType: TPasType; ATypeDecl: boolean);

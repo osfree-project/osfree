@@ -11,7 +11,7 @@ type WORD   = T_WORD; (* 16bit *)
 type DWORD  = T_DWORD; (* 32bit *)
 
 type INT   = T_INT32;
-type UINT  = T_DWORD;
+type UINT  = T_UINT;
 type CHAR  = T_CHAR;
 
 type SHANDLE = USHORT;

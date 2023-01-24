@@ -344,6 +344,7 @@ begin
         else if s = 'T_INT16'   then Name := 'T_INT16'
         else if s = 'T_INT32'   then Name := 'T_INT32'
         else if s = 'T_INT64'   then Name := 'T_INT64'
+        else if s = 'T_UINT'   then Name := 'T_UINT'
         else if s = 'T_DWORD'   then Name := 'T_DWORD'
         else if s = 'T_WORD'    then Name := 'T_WORD'
         else
