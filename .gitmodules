@@ -1,32 +1,32 @@
 [submodule "fat"]
 	path = filesys/fat
 	url = https://github.com/osfree-project/fat32.git
-	update = rebase
+	update = merge
 [submodule "jfs"]
 	path = filesys/jfs
 	url = https://github.com/osfree-project/openjfs.git
-	update = rebase
+	update = merge
 [submodule "OS2/Server"]
 	path = OS2/Server
 	url = https://github.com/osfree-project/os3.git
-	update = rebase
+	update = merge
 [submodule "OS2/MM/WPS"]
 	path = OS2/MM/WPS
 	url = https://github.com/osfree-project/CWMM.git
-	update = rebase
+	update = merge
 [submodule "DOS"]
 	path = DOS
 	url = https://github.com/osfree-project/DOS
-	update = rebase
+	update = merge
 [submodule "bootseq"]
 	path = bootseq
 	url = https://github.com/osfree-project/FreeLdr.git
-	update = rebase
+	update = merge
 [submodule "Win32"]
 	path = Win32
 	url = https://github.com/cl91/NeptuneOS
-	update = rebase
+	update = merge
 [submodule "OS2/WPS/xworkplace"]
 	path = OS2/WPS/xworkplace
 	url = https://github.com/rousseaux/netlabs.xworkplace
-	update = rebase
+	update = merge
