@@ -8,8 +8,8 @@
 
 rcinclude rxiohlp.rc
 
-ICON    RXHOST_WIN pmrexx.ico
-POINTER 1 pmrexx.ico
+ICON    RXHOST_WIN "pmrexx.ico"
+POINTER 1 "pmrexx.ico"
 
 MENU    RXHOST_WIN PRELOAD
 BEGIN

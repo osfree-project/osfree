@@ -19,7 +19,7 @@ DEST    = $(PLATFORM)bin
 # system os2v2   
 # -bt=os2v2 -d__OS2__
 
-ADD_COPT = $(ADD_COPT) -i=. -i=$(%ROOT)$(SEP)include $(DEFINES)
+ADD_COPT = $(ADD_COPT) -i=. -i=$(%ROOT)include $(DEFINES)
 
 # Building tools for Linux
 # -dUNIX
@@ -43,10 +43,12 @@ ADD_LINKOPT    += system nt_dll
 # because add_copt is overwritten in this file.
 CLEAN_ADD = *.c *.h
 
+!ifndef TARGETS
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+!endif
 !endif
 
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk

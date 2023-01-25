@@ -3,6 +3,7 @@
 PROJ = jwasm
 TRGT = $(PROJ).exe
 DESC = Enhanced OW assembler
+#DIRS = port
 srcfiles = $(p)apiemu$(e) $(p)assemble$(e) $(p)assume$(e) $(p)atofloat$(e) $(p)backptch$(e) &
   $(p)bin$(e) $(p)branch$(e) $(p)cmdline$(e) $(p)codegen$(e) $(p)coff$(e) $(p)condasm$(e)   &
   $(p)context$(e) $(p)cpumodel$(e) $(p)data$(e) $(p)dbgcv$(e) $(p)directiv$(e) $(p)elf$(e)  &
@@ -27,25 +28,26 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(MYDIR)contrib$(SEP)src$(SEP)H -i=$(defs)
+!include $(%ROOT)tools/mk/tools.mk
+!include $(MYDIR)jwasm.mk
+
+ADD_COPT = -dNDEBUG -i=$(PORT_BASE)src$(SEP)H -i=$(defs)
 ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
 
-!include $(%ROOT)tools/mk/tools.mk
+.c: $(PORT_BASE)src
 
-.c: $(MYDIR)contrib$(SEP)src
-
-.h: $(MYDIR)contrib$(SEP)src$(SEP)H
+.h: $(PORT_BASE)src$(SEP)H
 
 .$(O): $(PATH)
 
-$(PATH)msgtext.$(O): $(MYDIR)contrib$(SEP)src$(SEP)msgtext.c &
-                     $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)msgdef.h &
-                     $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)globals.h
+$(PATH)msgtext.$(O): $(PORT_BASE)src$(SEP)msgtext.c &
+                     $(PORT_BASE)src$(SEP)H$(SEP)msgdef.h &
+                     $(PORT_BASE)src$(SEP)H$(SEP)globals.h
 
-$(PATH)reswords.$(O): $(MYDIR)contrib$(SEP)src$(SEP)reswords.c &
-                      $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)instruct.h &
-                      $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)special.h  &
-                      $(MYDIR)contrib$(SEP)src$(SEP)H$(SEP)directve.h
+$(PATH)reswords.$(O): $(PORT_BASE)src$(SEP)reswords.c &
+                      $(PORT_BASE)src$(SEP)H$(SEP)instruct.h &
+                      $(PORT_BASE)src$(SEP)H$(SEP)special.h  &
+                      $(PORT_BASE)src$(SEP)H$(SEP)directve.h

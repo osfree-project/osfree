@@ -1,2 +1,2 @@
 !define TARGETBLD
-!include ../../../UNI/makefile
+!include $(%ROOT)UNI/makefile

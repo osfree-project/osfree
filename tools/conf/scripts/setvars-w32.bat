@@ -2,7 +2,7 @@
 rem canonicalize root
 for %%i in (%root%) do set root=%%~fi\
 
-set WATCOM=c:\watcom
+set WATCOM=e:\dev\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
 set FPPATH=c:\fpc\3.2.2\bin\i386-win32
 set imgdir=\data\vm\img
@@ -16,6 +16,7 @@ set tools=%root%build\bin\host\%host%\bin
 set REGINA=c:\rexx
 set REXX=%REGINA%\regina
 set SERVERENV=win32
+set TMP=%TEMP%
 
 set PATH=e:\win32\bin;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%OS2TK%\bin;%OS2TK%\som\bin;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\os21x;%WATCOM%\h\dos;%WATCOM%\h\nt

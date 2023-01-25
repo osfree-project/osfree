@@ -8,62 +8,39 @@
 !include $(%ROOT)/tools/mk/site.mk
 
 !ifeq UNIX FALSE
-MYDIR        = $(%cdrive):$(%cwd)$(SEP)
+CWD         = $(%cdrive):$(%cwd)$(SEP)
 !else
-MYDIR        = $(%cwd)$(SEP)
+CWD         = $(%cwd)$(SEP)
 !endif
 
-ROOT         = $(%ROOT)
+ROOT        = $(%ROOT)
+BLD         = $(%ROOT)build$(SEP)
 
-RELDIR       = $(MYDIR:$(ROOT)=)
+RD          = $(CWD:$(%ROOT)=)
+RELDIR_PWD  = $(RD:build$(SEP)=)
+RELDIR      = $(RELDIR_PWD:host$(SEP)$(%HOST)$(SEP)=)
 
-PATH         = $(RELDIR)
+MYDIR       = $(ROOT)$(RELDIR)
+PATH        = $(BLD)$(PLATFORM)$(RELDIR)
 
-BLD  = $(ROOT)build$(SEP)
+CONTRIB     = $(ROOT)contrib$(SEP)
+PORT_BASE   = $(CONTRIB)$(PORT_NAME)$(SEP)
 
-q = $(MYDIR:$(BLD)=)
-x = build
-
-!ifneq q $(MYDIR)
-# we're starting make in build dir, not in src dir
-PATH  = $(PATH:build=)
-MYDIR = $(PATH:$(x)=)
-!endif
-
-PATH  = $(BLD)$(PLATFORM)$(PATH)
-
-# change two slashes into one
-PATH  = $(PATH://=/)
-PATH  = $(PATH:/\=/)
-PATH  = $(PATH:\/=/)
-PATH  = $(PATH:\\=/)
-
-MYDIR = $(MYDIR://=/)
-MYDIR = $(MYDIR:/\=/)
-MYDIR = $(MYDIR:\/=/)
-MYDIR = $(MYDIR:\\=/)
-
-# change slashes according to $(SEP)
-!ifneq SEP /
-PATH  = $(PATH:/=\)
-MYDIR = $(MYDIR:/=\)
-!endif
-
-TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
+TOOLDIR     = $(ROOT)tools$(SEP)
 
 !ifndef DEST
-DEST = $(FILESDIR)$(SEP)os2
+DEST = $(FILESDIR)os2
 !else ifeq DEST none
 # stay in build directory
 DEST = $(PATH)
 !else
 # DEST is relative from $(FILESDIR)
-DEST = $(FILESDIR)$(SEP)$(DEST)
+DEST = $(FILESDIR)$(DEST)
 !endif
 
 !ifneq DEST1
 # DEST is relative from $(FILESDIR)
-DEST1 = $(FILESDIR)$(SEP)$(DEST1)
+DEST1 = $(FILESDIR)$(DEST1)
 !endif
 
 !endif

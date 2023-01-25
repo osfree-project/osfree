@@ -19,11 +19,17 @@ DEST = mmos2
 
 TARGETS = $(PATH)$(PROJ1).exe
 
+.SUFFIXES: .dlg
+
 .rc: $(MYDIR)contrib
 
 .c: $(MYDIR)contrib
 
 .h: $(MYDIR)contrib
+
+.dlg: $(MYDIR)contrib
+
+.ico: $(MYDIR)contrib
 
 $(PATH)$(PROJ1).exe: $(MYDIR)contrib$(SEP)image.rc $(PATH)$(PROJ).exe
  @$(SAY) RESCMP   $^. $(LOG)

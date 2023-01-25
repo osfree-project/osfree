@@ -10,8 +10,8 @@
 
 all: precopy install .symbolic
 
-!include $(%ROOT)/tools/mk/dirs.mk
-!include $(%ROOT)/tools/mk/genrules.mk
+!include $(%ROOT)tools/mk/dirs.mk
+!include $(%ROOT)tools/mk/genrules.mk
 
 print_vars: .symbolic
         @echo FILESDIR $(FILESDIR)
@@ -22,11 +22,10 @@ print_vars: .symbolic
         @echo BLD      $(BLD)
         @echo TOOLDIR  $(TOOLDIR)
         @echo DEST     $(DEST)
-        @echo x        $(x)
-        @echo q        $(q)
         @echo OS_REXX  $(OS_REXX)
         @echo OS_SHELL $(OS_SHELL)
         @echo ENV      $(ENV)
+        @echo OS       $(%OS)
         @echo IMGDIR   $(IMGDIR)
         @echo IMGDIR1  $(IMGDIR1)
         @echo LIBDIR   $(LIBDIR)
@@ -245,10 +244,10 @@ DLL_SUFFIX = .so
 
 !endif
 
-DIR_PWD   = $+ $(%cwd) $-
-m  = $(MYDIR:$(SEP)$(SEP)=$(SEP))
-RELDIR       = $(MYDIR:$(ROOT)=)
-RELDIR_PWD       = $+  $(DIR_PWD:$(ROOT)=) $-
+#DIR_PWD   = $+ $(%cwd) $-
+#m  = $(MYDIR:$(SEP)$(SEP)=$(SEP))
+#RELDIR       = $(MYDIR:$(ROOT)=)
+#RELDIR_PWD       = $+  $(DIR_PWD:$(ROOT)=) $-
 # This tells wmake to always read the current directory each time the variable DIR_PWD is read.
 # Without it, the first time value stays the same (wmake caches it).
 # $(%PWD)
@@ -377,11 +376,11 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .cpp: $(MYDIR)
 
-.cc: $(MYDIR)
+.cc:  $(MYDIR)
 
 .h:   $(MYDIR)
 
-.idl:   $(MYDIR)
+.idl: $(MYDIR)
 
 .asm: $(MYDIR)
 
@@ -483,9 +482,9 @@ TARGET = install
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- @for %d in ($(DIRS)) do @if [ -d %d ]; then cd %d && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..; fi
+ @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..; fi
 !else
- @for %d in ($(DIRS)) do @if exist %d cd %d && $(MAKE) $(MAKEOPT) $(TARGET)
+ @for %d in ($(DIRS)) do @if exist $(MYDIR)%d $(CD) $(MYDIR)%d && $(MAKE) $(MAKEOPT) $(TARGET)
 !endif
 
 dirhier: .symbolic
@@ -496,7 +495,7 @@ clean: .symbolic
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
 
-targets: prereq subdirs .symbolic
+targets: prereq subdirs prep .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 !ifdef PROJ
@@ -560,11 +559,11 @@ $(DEST)$(SEP)$(FLG): .symbolic
 !endif
 
 precopy: .symbolic
- @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
+ @$(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile tools
 
 # prebuild libs
 prelibs: .symbolic
- @if exist $(FILESDIR)$(SEP)libs-built-flag.flg @%quit
+ @if exist $(FILESDIR)libs-built-flag.flg @%quit
 !ifdef __appsos2_mk__
  # build all_shared.lib
  $(verbose)cd $(ROOT)OS2$(SEP)Shared && $(MAKE) $(MAKEOPT) install
@@ -577,7 +576,7 @@ prelibs: .symbolic
  # build pm_shared.lib
  $(verbose)cd $(ROOT)OS2$(SEP)PM$(SEP)shared && $(MAKE) $(MAKEOPT) install
 !endif
- @wtouch $(FILESDIR)$(SEP)libs-built-flag.flg
+ @wtouch $(FILESDIR)libs-built-flag.flg
  $(verbose)cd $(MYDIR)
 
 !ifndef WRAPPERS
@@ -590,6 +589,10 @@ gen_compile_rules_wrapper: .symbolic
 gen_deps_wrapper: .symbolic
  @%null
 
+!endif
+
+!ifndef __port_mk__
+prep: .symbolic
 !endif
 
 !endif

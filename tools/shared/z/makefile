@@ -14,12 +14,12 @@ srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
 #DEST      = ..$(SEP)build$(SEP)lib
 #DEST      = $(MYDIR)$(SEP)lib
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
-TARGETS = $(PATH)z.lib
+#TARGETS = $(PATH)z.lib
 SRCDIR = $(PATH)
 
 !include $(%ROOT)tools/mk/libs.mk
 
-DEST      = $(BLD)$(SEP)lib
+DEST      = $(BLD)lib
 
 $(TARGETS): $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library

@@ -5,9 +5,9 @@ TRGT = $(PROJ1).dll
 # TRGT = $(PROJ).dll
 DESC = PM REXX I/O dll
 srcfiles     = $(p)pmrexxio$(e) $(p)pmrxsubs$(e)
-inc          = $(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(BLD)include -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
-ADD_COPT     = -i=$(inc) -sg -3s # -3r
-ADD_RCOPT    = -i=$(inc)
+inc          = -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(BLD)include -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
+ADD_COPT     = $(inc) -sg -3s # -3r
+ADD_RCOPT    = $(inc)
 ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3s.lib,math387s.lib,emu387.lib,rexx.lib
 DLL          = 1
 WINDOWCOMPAT = 1
@@ -23,10 +23,14 @@ C            = s
 
 !include $(%ROOT)tools/mk/appsos2.mk
 
+.ico: $(MYDIR)
+
+.rc:  $(MYDIR)
+
 #TARGETS =  $(PATH)$(PROJ).dll
 TARGETS =  $(PATH)$(PROJ1).dll
 #TARGET = all
 
 $(PATH)$(PROJ1).dll: $(PATH)$(PROJ).dll $(MYDIR)$(PROJ1).rc
  @$(SAY) RESCMP   $^. $(LOG)
- $(RC) -bt=os2 -i=$(inc) $]@ $[@ -fe=$@ -fo=$(PATH)$(PROJ1).res
+ $(RC) -bt=os2 $(inc) $]@ $[@ -fe=$@ -fo=$(PATH)$(PROJ1).res

@@ -10,7 +10,7 @@ DESC = PM Window user interface backend
 #defines object file names in format objname.$(O)
 srcfiles = $(p)Fs_PMdev$(e)
 # defines additional options for C compiler
-ADD_COPT    = -i=..$(SEP)include -i=..$(SEP).. -bm -od -mf -sg -s
+ADD_COPT    =  -i=$(MYDIR)..$(SEP).. -bm -od -mf -sg -s
 ADD_LIB     = cmd_shared.lib,all_shared.lib
 # ADD_LINKOPT = lib os2386.lib lib clib3r.lib
 UNI2H   = 1
