@@ -18,11 +18,6 @@
 	url = https://github.com/osfree-project/CWMM.git
 	update = merge
 	branch = master
-[submodule "DOS"]
-	path = DOS
-	url = https://github.com/osfree-project/DOS
-	update = merge
-	branch = master
 [submodule "bootseq"]
 	path = bootseq
 	url = https://github.com/osfree-project/FreeLdr.git
@@ -37,4 +32,8 @@
 	path = OS2/WPS/xworkplace
 	url = https://github.com/rousseaux/netlabs.xworkplace
 	update = merge
+	branch = master
+[submodule "DOS"]
+	path = DOS
+	url = https://github.com/osfree-project/DOS
 	branch = master
