@@ -19,6 +19,8 @@ print_vars: .symbolic
         @echo ROOT     $(ROOT)  
         @echo RELDIR   $(RELDIR)
         @echo PATH     $(PATH) 
+        @echo CONTRIB  $(CONTRIB) 
+        @echo PORT_BASE $(PORT_BASE)
         @echo BLD      $(BLD)
         @echo TOOLDIR  $(TOOLDIR)
         @echo DEST     $(DEST)

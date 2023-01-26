@@ -23,10 +23,9 @@ RELDIR      = $(RELDIR_PWD:host$(SEP)$(%HOST)$(SEP)=)
 MYDIR       = $(ROOT)$(RELDIR)
 PATH        = $(BLD)$(PLATFORM)$(RELDIR)
 
+TOOLDIR     = $(ROOT)tools$(SEP)
 CONTRIB     = $(ROOT)contrib$(SEP)
 PORT_BASE   = $(CONTRIB)$(PORT_NAME)$(SEP)
-
-TOOLDIR     = $(ROOT)tools$(SEP)
 
 !ifndef DEST
 DEST = $(FILESDIR)os2
