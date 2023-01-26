@@ -4,7 +4,8 @@
 bin
 dist
 build
-build.txt
+contrib
+build*.txt
 commit.txt
 gitlog.txt
 git.diff
