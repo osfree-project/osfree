@@ -41,12 +41,11 @@ rem "%tmp%\unzip" -o "%tmp%/JWasm_v215_win32.zip" JWasm.exe -d c:\watcom\binnt
 rem Download Regina REXX
 rem wget --no-check-certificate https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w32.exe -P "c:/Documents and settings/Downloads"
 if not exist "%tmp%\Regina394w32.exe" (
-%wget% --no-check-certificate https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.5/Regina395w32.exe/download -P "%tmp%" -c
-
-if errorlevel 1 (
-  echo Error downloading Regina REXX
-  goto exit
-)
+  %wget% --no-check-certificate https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.5/Regina395w32.exe/download -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading Regina REXX
+    goto exit
+  )
 )
 
 rem Install Regina REXX
@@ -57,19 +56,19 @@ rem Download FPC
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "c:/Documents and settings/Downloads"
 if not exist "%tmp%\fpc-3.2.2.i386-win32.exe" (
-%wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/Win32/3.2.2/fpc-3.2.2.i386-win32.exe/download -P "%tmp%" -c
-if errorlevel 1 (
-  echo Error downloading Free Pascal for Win32
-  goto exit
-)
+  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/Win32/3.2.2/fpc-3.2.2.i386-win32.exe/download -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading Free Pascal for Win32
+    goto exit
+  )
 )
 
 if not exist "%tmp%\os2322.zip" (
-%wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/OS_2/3.2.2/os2322.zip/download -P "%tmp%" -c
-if errorlevel 1 (
-  echo Error downloading Free Pascal for OS/2
-  goto exit
-)
+  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/OS_2/3.2.2/os2322.zip/download -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading Free Pascal for OS/2
+    goto exit
+  )
 )
 
 rem install fpc
