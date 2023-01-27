@@ -41,7 +41,7 @@ rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepa
 %wget% --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "%tmp%" -c
 
 rem install fpc
-"%tmp%\fpc-3.2.2.i386-win32.exe" /silent
+"%tmp%\fpc-3.2.2.i386-win32.exe" /verysilent
 "%tmp%\unzip" -o "%tmp%\os2322.zip" -d "%tmp%"
 "%tmp%\unzip" -o "%tmp%\baseos2.zip" units\* -dc:\fpc\3.2.2
 
