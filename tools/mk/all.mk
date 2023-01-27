@@ -497,7 +497,11 @@ clean: .symbolic
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
 
-targets: prereq subdirs prep .symbolic
+prepall: .symbolic
+ @$(MAKE) $(MAKEOPT) prep
+ @$(MAKE) $(MAKEOPT) TARGET=prepall subdirs
+
+targets: prep prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 !ifdef PROJ

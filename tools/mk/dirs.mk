@@ -25,7 +25,12 @@ PATH        = $(BLD)$(PLATFORM)$(RELDIR)
 
 TOOLDIR     = $(ROOT)tools$(SEP)
 CONTRIB     = $(ROOT)contrib$(SEP)
+
+!ifeq PORT_NAME subproj
+PORT_BASE   = $(MYDIR)src$(SEP)
+!else
 PORT_BASE   = $(CONTRIB)$(PORT_NAME)$(SEP)
+!endif
 
 !ifndef DEST
 DEST = $(FILESDIR)os2
