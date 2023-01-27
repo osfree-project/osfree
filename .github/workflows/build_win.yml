@@ -51,7 +51,7 @@ jobs:
 
             # Install prerequisites
             - name:  Install prerequisites
-              run:   tools\conf\scripts\_setup.bat
+              run:   cd tools\conf\scripts\ && _setup.bat
 
             # Build
             - name:  Build
