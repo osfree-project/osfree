@@ -63,7 +63,7 @@ if not exist "%tmp%\Regina394w32.exe" (
 
 rem Install Regina REXX
 rem if exist C:\REXX\uninstall.exe C:\REXX\uninstall /S
-"%tmp%\Regina394w32.exe" /S /D=C:\REXX
+"%tmp%\Regina395w32.exe" /S /D=C:\REXX
 
 rem Download FPC
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
