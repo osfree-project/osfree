@@ -69,7 +69,7 @@ rem Download FPC
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "c:/Documents and settings/Downloads"
 if not exist "%tmp%\fpc-3.2.2.i386-win32.exe" (
-  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/Win32/3.2.2/fpc-3.2.2.i386-win32.exe/download -P "%tmp%" -c
+  %wget% --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading Free Pascal for Win32
     goto exit
@@ -77,7 +77,7 @@ if not exist "%tmp%\fpc-3.2.2.i386-win32.exe" (
 )
 
 if not exist "%tmp%\os2322.zip" (
-  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/OS_2/3.2.2/os2322.zip/download -P "%tmp%" -c
+  %wget% --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading Free Pascal for OS/2
     goto exit
