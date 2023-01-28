@@ -35,7 +35,7 @@ prep_wget: .symbolic
 
 prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
- $(verbose)git clone $(PORT_URL) $(PORT_BASE)
+ $(verbose)git clone $(PORT_URL) $(PORT_BASE) --recursive
  $(verbose)$(CD) $(PORT_BASE) && git checkout $(PORT_REV)
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
  $(verbose)wtouch $(PORT_FLAG)
