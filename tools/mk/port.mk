@@ -8,11 +8,11 @@
 
 prep: .symbolic
 !ifeq PORT_TYPE wget
- @if not exist $(CONTRIB)$(PORT_NAME).flg $(MAKE) $(MAKEOPT) prep_wget
+ $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_wget
 !else ifeq PORT_TYPE git
- @if not exist $(CONTRIB)$(PORT_NAME).flg $(MAKE) $(MAKEOPT) prep_git
+ $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_git
 !else ifeq PORT_TYPE svn
- @if not exist $(CONTRIB)$(PORT_NAME).flg $(MAKE) $(MAKEOPT) prep_svn
+ $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_svn
 !endif
 
 patch: .symbolic
@@ -30,15 +30,19 @@ prep_wget: .symbolic
  $(verbose)unzip -o $(%TMP)$(SEP)qw.zip -d $(PORT_BASE)
  $(verbose)$(DC) $(%TMP)$(SEP)qw.zip
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
- $(verbose)wtouch $(CONTRIB)$(PORT_NAME).flg
+ $(verbose)wtouch $(PORT_FLAG)
 
 prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
  $(verbose)git clone $(PORT_URL) $(PORT_BASE)
  $(verbose)$(CD) $(PORT_BASE) && git checkout $(PORT_REV)
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
- $(verbose)wtouch $(CONTRIB)$(PORT_NAME).flg
+ $(verbose)wtouch $(PORT_FLAG)
 
 prep_svn: .symbolic
+ $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
+ $(verbose)svn co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+ $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
+ $(verbose)wtouch $(PORT_FLAG)
 
 !endif

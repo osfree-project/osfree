@@ -1,7 +1,0 @@
-<bodystyle fontstyle=sansserif size=10>
-<titlestyle fontstyle=sansserif size=14>
-<listbullet1style bulletchar=149>
-<listbullet2style bulletchar=45>
-<tipeffects text="Tip:" bold=yes leftindent=36>
-<noteeffects text="Note:" bold=yes leftindent=36>
-<importanteffects text="Important:" bold=yes leftindent=60>

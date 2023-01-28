@@ -1,8 +1,0 @@
-#
-# Don't use this makefile!!!
-#
-all:
-	echo Use the autoconf script 'configure' to build Regina with Cygwin
-#
-# End of makefile
-#

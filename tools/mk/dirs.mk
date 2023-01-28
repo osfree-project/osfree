@@ -28,8 +28,10 @@ CONTRIB     = $(ROOT)contrib$(SEP)
 
 !ifeq PORT_NAME subproj
 PORT_BASE   = $(MYDIR)src$(SEP)
+PORT_FLAG   = $(MYDIR)src.flg
 !else
 PORT_BASE   = $(CONTRIB)$(PORT_NAME)$(SEP)
+PORT_FLAG   = $(CONTRIB)$(PORT_NAME).flg
 !endif
 
 !ifndef DEST

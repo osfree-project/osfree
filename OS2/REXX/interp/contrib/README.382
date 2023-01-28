@@ -1,7 +1,0 @@
-                         Regina 3.8.2
-                         22 June 2014
-
-Changes in this release (from 3.8)
-----------------------------------
-  * Fix for Bugs #429, #430, #387
-  * Add extra level of versioning to enable quicker releases when minor fixes corrected.

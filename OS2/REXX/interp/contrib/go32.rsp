@@ -1,1 +1,0 @@
-funcs.o builtin.o error.o variable.o interprt.o debug.o dbgfuncs.o memory.o parsing.o files.o misc.o unxfuncs.o cmsfuncs.o shell.o rexxext.o stack.o tracing.o interp.o cmath.o convert.o strengs.o library.o strmath.o signals.o macros.o envir.o expr.o yaccsrc.o lexsrc.o wrappers.o options.o os_other.o os2funcs.o instore.o mt_notmt.o extstack.o rexxbif.o arxfuncs.o

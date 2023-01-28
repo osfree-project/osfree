@@ -1,7 +1,0 @@
-                         Regina 3.9.0
-                       17 October 2014
-
-Changes in this release (from 3.8.3)
-----------------------------------
-  * Fix for Bug #436. This allows for errors generated in the parsing stage to be trapped by
-    a system exit.
