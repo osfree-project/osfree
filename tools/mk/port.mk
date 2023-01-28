@@ -42,8 +42,11 @@ prep_git: .symbolic
 
 prep_svn: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
+!ifeq %HOST win32
  $(verbose)git svn clone $(PORT_URL)$(PORT_REV) $(PORT_BASE)
- #$(verbose)svn co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+!else
+ $(verbose)svn co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+!endif
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
  $(verbose)wtouch $(PORT_FLAG)
 
