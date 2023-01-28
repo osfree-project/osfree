@@ -8,6 +8,7 @@ rem Install wget
 rem choco install wget --no-progress
 set wget=..\wget-win32.exe
 
+rem Download Unzip
 if not exist "%tmp%\unzip.exe" (
   %wget% http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe -P "%tmp%" -c
   if errorlevel 1 (
@@ -16,7 +17,19 @@ if not exist "%tmp%\unzip.exe" (
   )
 )
 
-rem Download latest Open Watcom
+rem Download dos2unix
+if not exist "%tmp%\dos2unix-7.4.3-win32.zip" (
+  %wget% https://downloads.sourceforge.net/project/dos2unix/dos2unix/7.4.3/dos2unix-7.4.3-win32.zip -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading dos2unix
+    goto exit
+  )
+)
+
+rem Install Dos2Unix
+"%tmp%\unzip" -j -o "%tmp%/dos2unix-7.4.3-win32.zip" bin/dos2unix.exe -d c:\fpc\3.2.2\bin\i386-win32
+
+rem Download Open Watcom 1.9
 rem wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"
 rem wget ftp://ftp.osfree.org/upload/ow/ow-1.9.zip -P "c:/Documents and Settings/Downloads"
 if not exist "%tmp%/ow-1.9.zip" (
@@ -56,7 +69,7 @@ rem Download FPC
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
 rem wget --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "c:/Documents and settings/Downloads"
 if not exist "%tmp%\fpc-3.2.2.i386-win32.exe" (
-  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/Win32/3.2.2/fpc-3.2.2.i386-win32.exe/download -P "%tmp%" -c
+  %wget% --no-check-certificate https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading Free Pascal for Win32
     goto exit
@@ -64,7 +77,7 @@ if not exist "%tmp%\fpc-3.2.2.i386-win32.exe" (
 )
 
 if not exist "%tmp%\os2322.zip" (
-  %wget% --no-check-certificate https://sourceforge.net/projects/freepascal/files/OS_2/3.2.2/os2322.zip/download -P "%tmp%" -c
+  %wget% --no-check-certificate https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading Free Pascal for OS/2
     goto exit
