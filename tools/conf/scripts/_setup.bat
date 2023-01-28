@@ -28,6 +28,7 @@ if not exist "%tmp%\dos2unix-7.4.3-win32.zip" (
 
 rem Install Dos2Unix
 "%tmp%\unzip" -j -o "%tmp%/dos2unix-7.4.3-win32.zip" bin/dos2unix.exe -d c:\fpc\3.2.2\bin\i386-win32
+"%tmp%\unzip" -j -o "%tmp%/dos2unix-7.4.3-win32.zip" bin/unix2dos.exe -d c:\fpc\3.2.2\bin\i386-win32
 
 rem Download Open Watcom 1.9
 rem wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"

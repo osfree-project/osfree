@@ -18,7 +18,8 @@ prep: .symbolic
 patch: .symbolic
  $(verbose)$(SAY) PATCH    $(PORT_NAME) $(LOG)
 !ifeq %HOST win32
- $(verbose)for %i in ($(PORT_PATCHES)) do dos2unix -n $(MYDIR)patches$(SEP)%i $(PATH)%i
+ $(verbose)$(MDHIER) $(PATH)
+ $(verbose)for %i in ($(PORT_PATCHES)) do unix2dos -n $(MYDIR)patches$(SEP)%i $(PATH)%i
  $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -p1 <$(PATH)%i
 !else
  $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -p1 <$(MYDIR)patches$(SEP)%i
