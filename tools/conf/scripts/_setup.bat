@@ -54,7 +54,7 @@ rem "%tmp%\unzip" -o "%tmp%/JWasm_v215_win32.zip" JWasm.exe -d c:\watcom\binnt
 rem Download Regina REXX
 rem wget --no-check-certificate https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w32.exe -P "c:/Documents and settings/Downloads"
 if not exist "%tmp%\Regina394w32.exe" (
-  %wget% --no-check-certificate https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.5/Regina395w32.exe/download -P "%tmp%" -c
+  %wget% --no-check-certificate https://downloads.sourceforge.net/project/regina-rexx/regina-rexx/3.9.5/Regina395w32.exe -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading Regina REXX
     goto exit
@@ -62,7 +62,7 @@ if not exist "%tmp%\Regina394w32.exe" (
 )
 
 rem Install Regina REXX
-if exist C:\REXX\uninstall.exe C:\REXX\uninstall /S
+rem if exist C:\REXX\uninstall.exe C:\REXX\uninstall /S
 "%tmp%\Regina394w32.exe" /S /D=C:\REXX
 
 rem Download FPC
