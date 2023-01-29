@@ -30,6 +30,9 @@
 #include <malloc.h>
 #include <string.h>
 
+#include <process.h>
+typedef void (*THREADFUNC)(void *);
+
 #include <global.h>
 #include <cfgsys.h>
 #include <crcs.h>

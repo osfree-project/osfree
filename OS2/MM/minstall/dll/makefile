@@ -13,7 +13,7 @@ srcfiles = $(p)mmi_main$(e) $(p)mmi_basescr$(e) $(p)mmi_ctrlscr$(e) &
            $(p)mmi_inistuff$(e) $(p)mmi_cardinfo$(e) $(p)mmi_helper$(e) &
            $(p)mmi_install.obj$(e) # $(p)file$(e) $(p)globstr$(e) $(p)mciini$(e) &
            $(p)msg$(e) $(p)dll$(e) $(p)crc$(e)
-UNI2H   = 1
+#UNI2H   = 1
 DLL     = 1
 DLLOPT  = initinstance terminstance op manyautodata
 # defines additional options for C compiler
