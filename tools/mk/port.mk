@@ -17,6 +17,8 @@ prep: .symbolic
 
 patch: .symbolic
  $(verbose)$(SAY) PATCH    $(PORT_NAME) $(LOG)
+ $(verbose)if exist $(MYDIR)patches$(SEP)fixcase.cmd &
+     @$(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE)
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PATH)
  $(verbose)for %i in ($(PORT_PATCHES)) do unix2dos -n $(MYDIR)patches$(SEP)%i $(PATH)%i
