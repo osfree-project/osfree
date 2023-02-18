@@ -18,6 +18,8 @@ DEST     = os2$(SEP)mdos
 
 !ifeq COM 1
 comf = com
+!else ifeq RAW 1
+comf = com
 !else
 comf = 
 !endif
@@ -26,6 +28,8 @@ comf =
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 !else ifeq COM 1
 TARGETS  = $(PATH)$(PROJ).com # $(PATH)$(PROJ).sym
+!else ifeq RAW 1
+TARGETS  = $(PATH)$(PROJ).bin # $(PATH)$(PROJ).sym
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
@@ -37,7 +41,11 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
+!ifeq RAW 1
+ @%append $^@ NAME $^*.bin
+!else
  @%append $^@ NAME $^*
+!endif
 !ifdef DEBUG
  @%append $^@ DEBUG $(DEBUG)
 !endif
@@ -63,5 +71,9 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
 $(PATH)$(TRGT): $(PATH)$(PROJ).lnk
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
+
+$(PATH)$(PROJ).bin: $(PATH)$(PROJ).lnk
+ @$(SAY) LINK     $^. $(LOG)
+ @$(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 !endif
