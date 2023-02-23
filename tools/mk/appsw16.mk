@@ -8,9 +8,12 @@
 #  -i=$(ROOT)$(SEP)DOS$(SEP)WIN16$(SEP)include 
 
 ADD_COPT = -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
+
+!ifneq NOLIBS 1
 ADD_LINKOPT = path $(WATCOM)$(SEP)lib286 &
   path $(WATCOM)$(SEP)lib286$(SEP)win &
   lib clibs.lib,windows.lib,shell.lib
+!endif
 
 #  file $(WATCOM)$(SEP)lib286$(SEP)dos$(SEP)cstart_t.obj
 
