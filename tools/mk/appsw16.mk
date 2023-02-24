@@ -10,7 +10,7 @@
 ADD_COPT = -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
 
 !ifneq NOLIBS 1
-ADD_LINKOPT = path $(WATCOM)$(SEP)lib286 &
+ADD_LINKOPT += path $(WATCOM)$(SEP)lib286 &
   path $(WATCOM)$(SEP)lib286$(SEP)win &
   lib clibs.lib,windows.lib,shell.lib
 !endif
@@ -53,17 +53,33 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
  @%create $^@
- @%append $^@ SYSTEM windows $(dllopt)
+# @%append $^@ SYSTEM windows $(dllopt)
+ @%append $^@ FORMAT windows $(dllopt)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 #!ifdef DEBUG
 # @%append $^@ DEBUG $(DEBUG)
 #!endif
+ @%append $^@ option nocaseexact
+ @%append $^@ libpath $(%WATCOM)/lib286
+ @%append $^@ libpath $(%WATCOM)/lib286/win
+!ifdef DLL
+!ifndef NODEFAULTLIBS
+!ifndef NOLIBS
+ @%append $^@ libfile libentry.obj
+!endif
+!endif
+!endif
+!ifdef NODEFAULTLIBS
+ @%append $^@ OPTION NODEFAULTLIBS
+!endif
 !ifdef HEAPSIZE
  @%append $^@ OPTION HEAP=$(HEAPSIZE)
 !endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
+!else
+ @%append $^@ OPTION ST=8k
 !endif
 !ifdef RESOURCE
  @%append $^@ OPTION RESOURCE=$(RESOURCE)
