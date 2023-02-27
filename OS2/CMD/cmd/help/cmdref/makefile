@@ -5,8 +5,9 @@ TRGT = $(PROJ).inf
 DEST    = os2$(SEP)book
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)..$(SEP)..$(SEP)port$(SEP)4os2.mk
 
-$(PATH)$(PROJ).inf: $(MYDIR)..$(SEP)..$(SEP)contrib$(SEP)4os2.ipf
+$(PATH)$(PROJ).inf: $(PORT_BASE)4os2.ipf
  @$(SAY) IPFC     $^. $(LOG)
  $(verbose)$(HC) -i $[@ -o $^@ $(LOG2)
 

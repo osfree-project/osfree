@@ -9,31 +9,34 @@ srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(
            $(p)error$(e) $(p)window$(e) $(p)listall$(e) $(p)lines$(e) $(p)kparse$(e)        &
            $(p)iofmt32$(e) $(p)select$(e) $(p)os2tty$(e) $(p)iparse$(e) $(p)dbcs$(e)   &
            $(p)bcd32$(e) $(p)os32util$(e) $(p)..$(SEP)shared$(SEP)istring$(e) $(p)wrappers$(e)
-ADD_COPT    = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
-NODEFAULTLIBS = 1
-#    $(BLD)$(SEP)lib$(SEP)os2386.lib,
-#   clibext.lib,
+
 ADD_LINKOPT = lib os2386.lib, clib3r.lib, math387r.lib, emu387.lib #, sub32.lib
 # ADD_LINKOPT =
-inc         =  -i=. -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include &
-               -i=$(BLD)include # -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
-ADD_COPT    += $(inc)
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 # RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
+
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)..$(SEP)port$(SEP)4os2.mk
+
+ADD_COPT    = -i=$(%ROOT)include$(SEP)os3 -i=$(BLD)include -ox
+NODEFAULTLIBS = 1
+#    $(BLD)$(SEP)lib$(SEP)os2386.lib,
+#   clibext.lib,
+inc         =  -i=. -i=$(PORT_BASE)h -i=$(MYDIR)..$(SEP)..$(SEP)include &
+               -i=$(BLD)include # -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
+ADD_COPT    += $(inc)
 #UNI2H = 1
 #DEST = os2
 
-!include $(%ROOT)tools/mk/appsos2_cmd.mk
+.asm: $(PORT_BASE)a
 
-.asm: $(MYDIR)..$(SEP)contrib$(SEP)a
+.c: $(PORT_BASE)c
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)c
-
-.h: $(MYDIR)..$(SEP)contrib$(SEP)h
+.h: $(PORT_BASE)h
 
 TARGETS =  $(PATH)$(PROJ1).exe
 
-$(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)..$(SEP)contrib$(SEP)4os2.rc
+$(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(PORT_BASE)4os2.rc
  @$(SAY) RESCMP   $^. $(LOG)
  $(RC) -bt=os2 -i=$(inc) $]@ $[@ -fe=$@ -fo=$(PATH)4os2.res

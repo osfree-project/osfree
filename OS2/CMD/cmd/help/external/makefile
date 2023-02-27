@@ -5,8 +5,9 @@ TRGT = $(PROJ).inf
 DEST    = os2$(SEP)book
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)..$(SEP)..$(SEP)port$(SEP)4os2.mk
 
-.ipf: $(MYDIR)..$(SEP)..$(SEP)contrib
+.ipf: $(PORT_BASE)
 
 $(PATH)$(PROJ).inf:
 

@@ -2,18 +2,20 @@
 #
 
 PROJ = istring
-sources = $(p)istring$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)contrib$(SEP)h -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(BLD)include
+srcfiles = $(p)istring$(e)
 #UNI2H = 1
 DEST    = none
 
 !include $(%ROOT)tools/mk/appsos2.mk
+!include $(MYDIR)..$(SEP)port$(SEP)4os2.mk
 
+ADD_COPT = -i=$(PORT_BASE)h -i=$(MYDIR)..$(SEP)..$(SEP)include &
+    -i=$(%ROOT)include$(SEP)os3 -i=$(BLD)include
 TARGETS = $(PATH)$(PROJ).$(O)
 #TARGETS = $(OBJS)
 
 $(PATH)$(PROJ).$(O):
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)c
+.c: $(PORT_BASE)c
 
-.h: $(MYDIR)..$(SEP)contrib$(SEP)h
+.h: $(PORT_BASE)h

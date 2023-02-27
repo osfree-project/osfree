@@ -3,6 +3,3 @@
 DIRS = cmdref external
 
 !include $(%ROOT)tools/mk/all.mk
-
-#TARGETS = subdirs
-#TARGET = all
