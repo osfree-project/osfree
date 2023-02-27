@@ -25,22 +25,27 @@ defs = -dDPMI32
 defs = -dLINUX
 !endif
 defs = $(defs) -dUSE32
-DESC  = lxlite and utilities
-ADD_PCOPT = $(defs) -Fucontrib$(SEP)src$(SEP)common -duse32 -Rintel -So -Xm
+DESC = lxlite and utilities
+DIRS = port
 TARGETS  = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)tools/mk/toolspas.mk
+!include $(MYDIR)port$(SEP)lxlite.mk
 
-.pas: $(MYDIR)contrib$(SEP)src
+ADD_PCOPT = $(defs) -Fu$(PORT_BASE)src -Fu$(PORT_BASE)src$(SEP)common -duse32 -Rintel -So -Xm
 
-.inc: $(MYDIR)contrib$(SEP)src
+.pas: $(PORT_BASE)src$(SEP)common
+
+.pas: $(PORT_BASE)src
+
+.inc: $(PORT_BASE)src
 
 !ifdef USE_RESOURCES
-$(PATH)rc.rc: $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc $(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc
+$(PATH)rc.rc: $(PORT_BASE)src$(SEP)os2api.rc $(PORT_BASE)src$(SEP)lxlite.rc
 !ifeq UNIX TRUE
- $(verbose)cat $(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc >$(PATH)rc.rc
+ $(verbose)cat $(PORT_BASE)src$(SEP)lxlite.rc $(PORT_BASE)src$(SEP)os2api.rc >$(PATH)rc.rc
 !else
- $(verbose)copy /b $(MYDIR)contrib$(SEP)src$(SEP)os2api.rc+$(MYDIR)contrib$(SEP)src$(SEP)lxlite.rc $(PATH)rc.rc
+ $(verbose)copy /b $(PORT_BASE)src$(SEP)os2api.rc+$(PORT_BASE)src$(SEP)lxlite.rc $(PATH)rc.rc
 !endif
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ1).exe $(PATH)rc.rc

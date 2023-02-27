@@ -11,8 +11,8 @@
 DIRS = sed uniapi ..$(SEP)UNI yacc lex jwasm awk &
        mkmsgf mkctxt critstrs genext2fs winrc &
        shared qemu-img hlldump mapsym renmodul &
-# rexxwrap ltools lxlite &
-       target
+# rexxwrap ltools &
+       lxlite target
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)tools/mk/all.mk
