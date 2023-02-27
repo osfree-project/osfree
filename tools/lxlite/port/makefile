@@ -1,1 +1,0 @@
-!include $(MYDIR)lxlite.mk

@@ -31,47 +31,7 @@ diff -urwN -x .git orig/doc/whatsnew.txt contrib/doc/whatsnew.txt
    [*]  The option /GX*.$x$ is used by default. This was done for those
         executables which failed to run after packing because the extra data
 diff -urwN -x .git orig/.gitignore contrib/.gitignore
---- orig/.gitignore	2022-07-10 04:10:57.089150773 +0300
-+++ contrib/.gitignore	1970-01-01 03:00:00.000000000 +0300
-@@ -1,7 +0,0 @@
--
--#make
--*.res
--*.exe
--/src/out/
--/lxLite
--*.zip
 diff -urwN -x .git orig/README.md contrib/README.md
---- orig/README.md	2022-07-10 04:10:57.089150773 +0300
-+++ contrib/README.md	1970-01-01 03:00:00.000000000 +0300
-@@ -1,27 +0,0 @@
--Build instructions
--
--1. change to src directory
--
--2. The common subdirectory contains a number of my commonly-used libraries.
--Between them is a improved version of CRT.PAS which:
--a) features a speedy screen output (VP`s CRT is pretty slow...)
--b) Handles properly input and output redirection. Two additional
--boolean variables: RedirInput and RedirOutput are available.
--
--3. set VPDIR env to your base VP directory (set VPDIR=x:\your\path\to\vp\base).
--
--4. Run MAKE.CMD. This should create the directory OUT into which all output will go.
--
--5. Follow instructions on screen.
--
------------------------------------------------------------------------------
--
--To build Win32 version:
--* VP in path
--* brc32 from Borland Delphi (I got one from 4.0, may be BCC 5.5 will be good
--  too).
--
--  mklxlite.cmd
--
--  Sorry, I used LXLITE only as EXE manipulation tool for development, so any
--changes performed in random quick way ;)
 diff -urwN -x .git orig/src/chCase.pas contrib/src/chCase.pas
 --- orig/src/chCase.pas	2022-07-10 04:10:57.121151446 +0300
 +++ contrib/src/chCase.pas	2023-01-08 21:46:49.614031654 +0300
@@ -2523,7 +2483,7 @@ diff -urwN -x .git orig/src/common/SysLib.pas contrib/src/common/SysLib.pas
 +{$endif}
 +{$endif};
 +
-+{$I contrib/src/lxlite.inc}
++{$I lxlite.inc}
  
  constructor tFileMatch.Create;
  begin

@@ -26,13 +26,12 @@ defs = -dLINUX
 !endif
 defs = $(defs) -dUSE32
 DESC = lxlite and utilities
-DIRS = port
-TARGETS  = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)tools/mk/toolspas.mk
-!include $(MYDIR)port$(SEP)lxlite.mk
+!include $(MYDIR)lxlite.mk
 
-ADD_PCOPT = $(defs) -Fu$(PORT_BASE)src -Fu$(PORT_BASE)src$(SEP)common -duse32 -Rintel -So -Xm
+ADD_PCOPT = $(defs) -Fi$(PORT_BASE)src -Fu$(PORT_BASE)src -Fu$(PORT_BASE)src$(SEP)common -duse32 -Rintel -So -Xm
+TARGETS  = $(PATH)$(PROJ).exe
 
 .pas: $(PORT_BASE)src$(SEP)common
 
