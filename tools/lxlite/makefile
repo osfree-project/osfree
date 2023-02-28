@@ -11,7 +11,7 @@ PROJ  = lxlite
 !ifdef USE_RESOURCES
 PROJ1 = lxlite1
 !endif
-TRGT  = $(PROJ).exe
+#TRGT  = $(PROJ).exe
 !ifeq %OS OS2
 defs = -dOS2
 !endif

@@ -59477,9 +59477,9 @@ diff -urwN -x .git orig/src/lxLite_Objects.pas contrib/src/lxLite_Objects.pas
           Parser^.Parse(S);
          end;
  end;
-diff -urwN -x .git orig/src/lxLite.pas contrib/src/lxLite.pas
---- orig/src/lxLite.pas	2022-07-10 04:10:57.125151530 +0300
-+++ contrib/src/lxLite.pas	2023-01-08 21:46:49.618031737 +0300
+diff -urwN -x .git orig/src/lxlite.pas contrib/src/lxlite.pas
+--- orig/src/lxlite.pas	2022-07-10 04:10:57.125151530 +0300
++++ contrib/src/lxlite.pas	2023-01-08 21:46:49.618031737 +0300
 @@ -1,18 +1,39 @@
 -{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
 -{&M 262144}
