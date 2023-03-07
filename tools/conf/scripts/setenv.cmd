@@ -109,6 +109,7 @@ wipfc = watcom || '\wipfc'
 
 if os == 'OS2' then do
   patch = 'patch'
+  wget = 'wget'
   help = value('HELP',, env)
   help = watcom || wosdir || '\help;' || help
   tmp  = value('TMP',, env)
@@ -138,7 +139,7 @@ lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win
 
 vars = 'WATCOM IMGDIR ROOT OS2TK IMGDIR1 TOOLS PATH INCLUDE LOG ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH HOST TMP',
-       'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC PATCH'
+       'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC PATCH WGET'
 
 if verbose = 'yes' then
   vars = vars || ' VERBOSE'

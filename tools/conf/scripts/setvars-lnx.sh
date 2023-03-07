@@ -17,7 +17,8 @@ REXX_PATH=`which rexx`
 SERVERENV=os2
 #ARCH=`dpkg --print-architecture`
 TMP=/tmp
-patch=patch
+patch=`which patch`
+wget=`which wget`
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45
@@ -31,7 +32,7 @@ WIPFC=$watcom/wipfc
 # list of all vars
 VARS="OS SHELL REXX REXX_PATH ENV HOST WATCOM \
   ROOT OS2TK TOOLS INCLUDE LIB PATH WD_PATH LANG \
-  WIPFC SERVERENV FPC ARCH _CWD LOG TMP"
+  WIPFC SERVERENV FPC ARCH _CWD LOG TMP patch wget"
 
 # export all vars
 export $VARS

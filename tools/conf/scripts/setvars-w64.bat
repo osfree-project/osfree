@@ -12,6 +12,7 @@ set env=WIN64
 set os=WIN64
 set host=win32
 set patch=%root%\tools\conf\patch-win32.exe
+set wget=%root%\tools\conf\wget-win32.exe
 set os2tk=%root%build\bin\host\%host%\os2tk45
 set tools=%root%build\bin\host\%host%\bin
 set REGINA=c:\rexx

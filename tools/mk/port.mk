@@ -29,7 +29,7 @@ patch: .symbolic
 
 prep_wget: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
- $(verbose)wget --no-check-certificate $(PORT_URL) -O $(%TMP)$(SEP)qw.zip
+ $(verbose)$(%wget) --no-check-certificate $(PORT_URL) -O $(%TMP)$(SEP)qw.zip
  $(verbose)unzip -o $(%TMP)$(SEP)qw.zip -d $(PORT_BASE)
  $(verbose)$(DC) $(%TMP)$(SEP)qw.zip
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch
