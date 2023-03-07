@@ -21,7 +21,7 @@ patch: .symbolic
      @$(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE)
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PATH)
- $(verbose)for %i in ($(PORT_PATCHES)) do unix2dos -n $(MYDIR)patches$(SEP)%i $(PATH)%i
+ $(verbose)for %i in ($(PORT_PATCHES)) do unix2dos -f -n $(MYDIR)patches$(SEP)%i $(PATH)%i
  $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -p1 <$(PATH)%i
 !else
  $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -p1 <$(MYDIR)patches$(SEP)%i
@@ -29,7 +29,7 @@ patch: .symbolic
 
 prep_wget: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
- $(verbose)wget $(PORT_URL) -O $(%TMP)$(SEP)qw.zip
+ $(verbose)wget --no-check-certificate $(PORT_URL) -O $(%TMP)$(SEP)qw.zip
  $(verbose)unzip -o $(%TMP)$(SEP)qw.zip -d $(PORT_BASE)
  $(verbose)$(DC) $(%TMP)$(SEP)qw.zip
  $(verbose)if exist $(MYDIR)patches $(MAKE) $(MAKEOPT) patch

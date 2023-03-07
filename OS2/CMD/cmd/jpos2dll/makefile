@@ -21,7 +21,7 @@ DEST     = os2$(SEP)dll
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
 !include $(MYDIR)..$(SEP)port$(SEP)4os2.mk
 
-ADD_COPT = -i=$(PORT_BASE)h -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(BLD)include &
+ADD_COPT += -i=$(PORT_BASE)h -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(BLD)include &
      -i=$(%ROOT)include$(SEP)os3 -i=$(BLD)include -s -bd
 
 .c: $(PORT_BASE)c
