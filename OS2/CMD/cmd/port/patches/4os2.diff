@@ -1,6 +1,6 @@
-diff -urwN contrib-orig/4os2.ipf contrib/4os2.ipf
---- contrib-orig/4os2.ipf	2023-01-18 12:18:27.231535401 +0300
-+++ contrib/4os2.ipf	2023-01-18 12:18:33.431665013 +0300
+diff -urwN 4os2-xx/4os2.ipf 4os2/4os2.ipf
+--- 4os2-xx/4os2.ipf	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/4os2.ipf	2023-03-07 06:28:36.980034363 +0300
 @@ -10,6 +10,8 @@
  .nameit symbol=8ver     text='3.08'
  .nameit symbol=9ver     text='3.09'
@@ -5030,9 +5030,9 @@ diff -urwN contrib-orig/4os2.ipf contrib/4os2.ipf
  :p.
  :hp2.Wildcard:ehp2.&colon. A character ("*" or "?") used in a filename to
  specify the possibility that any single character ("?") or sequence of
-diff -urwN contrib-orig/a/bcd32.asm contrib/a/bcd32.asm
---- contrib-orig/a/bcd32.asm	2023-01-18 02:41:34.430095118 +0300
-+++ contrib/a/bcd32.asm	2023-01-18 08:11:37.929697533 +0300
+diff -urwN 4os2-xx/a/bcd32.asm 4os2/a/bcd32.asm
+--- 4os2-xx/a/bcd32.asm	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/a/bcd32.asm	2023-03-07 06:28:36.980034363 +0300
 @@ -1,18 +1,18 @@
 -          title     BCD32.ASM - 32-bit BCD utilities for 4OS32
 -
@@ -5067,9 +5067,9 @@ diff -urwN contrib-orig/a/bcd32.asm contrib/a/bcd32.asm
  
          .386P
  
-diff -urwN contrib-orig/a/os32util.asm contrib/a/os32util.asm
---- contrib-orig/a/os32util.asm	2023-01-18 02:41:34.430095118 +0300
-+++ contrib/a/os32util.asm	2023-01-18 08:12:40.139012711 +0300
+diff -urwN 4os2-xx/a/os32util.asm 4os2/a/os32util.asm
+--- 4os2-xx/a/os32util.asm	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/a/os32util.asm	2023-03-07 06:28:36.980034363 +0300
 @@ -1,16 +1,16 @@
 -          title     OS32UTIL - Assembler utilities for 4OS2 & TCMD/OS2
 +;          title     OS32UTIL - Assembler utilities for 4OS2 & TCMD/OS2
@@ -5097,9 +5097,9 @@ diff -urwN contrib-orig/a/os32util.asm contrib/a/os32util.asm
  
          .586
          .387
-diff -urwN contrib-orig/c/batch.c contrib/c/batch.c
---- contrib-orig/c/batch.c	2023-01-18 02:41:34.490096387 +0300
-+++ contrib/c/batch.c	2023-01-18 08:19:49.344081281 +0300
+diff -urwN 4os2-xx/c/batch.c 4os2/c/batch.c
+--- 4os2-xx/c/batch.c	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/c/batch.c	2023-03-07 06:28:36.980034363 +0300
 @@ -166,7 +166,7 @@
      // add the line size to avoid protection violation
      uSize = (UINT)(lOSize + CMDBUFSIZ);
@@ -5109,9 +5109,9 @@ diff -urwN contrib-orig/c/batch.c contrib/c/batch.c
          FreeMem(fptr);
          close_batch_file();
          return(error( ERROR_NOT_ENOUGH_MEMORY, bframe[cv.bn].pszBatchName ));
-diff -urwN contrib-orig/c/cmds.c contrib/c/cmds.c
---- contrib-orig/c/cmds.c	2023-01-18 02:41:34.490096387 +0300
-+++ contrib/c/cmds.c	2023-01-18 09:54:03.167748576 +0300
+diff -urwN 4os2-xx/c/cmds.c 4os2/c/cmds.c
+--- 4os2-xx/c/cmds.c	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/c/cmds.c	2023-03-07 06:28:36.984034449 +0300
 @@ -8,6 +8,7 @@
  
  #include "4all.h"
@@ -5374,9 +5374,9 @@ diff -urwN contrib-orig/c/cmds.c contrib/c/cmds.c
 +
 +        return -1;
 +}
-diff -urwN contrib-orig/c/dircmds.c contrib/c/dircmds.c
---- contrib-orig/c/dircmds.c	2023-01-18 02:41:34.494096472 +0300
-+++ contrib/c/dircmds.c	2023-01-18 08:21:09.837781295 +0300
+diff -urwN 4os2-xx/c/dircmds.c 4os2/c/dircmds.c
+--- 4os2-xx/c/dircmds.c	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/c/dircmds.c	2023-03-07 06:28:36.984034449 +0300
 @@ -153,196 +153,6 @@
  }
  
@@ -5574,9 +5574,9 @@ diff -urwN contrib-orig/c/dircmds.c contrib/c/dircmds.c
  // display a directory list
  int dir_cmd( int argc, char **argv )
  {
-diff -urwN contrib-orig/c/env.c contrib/c/env.c
---- contrib-orig/c/env.c	2023-01-18 02:41:34.494096472 +0300
-+++ contrib/c/env.c	2023-01-18 10:12:13.219211435 +0300
+diff -urwN 4os2-xx/c/env.c 4os2/c/env.c
+--- 4os2-xx/c/env.c	2023-03-07 06:27:36.426726981 +0300
++++ 4os2/c/env.c	2023-03-07 06:28:36.984034449 +0300
 @@ -333,31 +333,25 @@
  
          szLibPath[0] = '\0';
@@ -5635,9 +5635,9 @@ diff -urwN contrib-orig/c/env.c contrib/c/env.c
              return 0;
          return ERROR_EXIT;
      }
-diff -urwN contrib-orig/c/filecmds.c contrib/c/filecmds.c
---- contrib-orig/c/filecmds.c	2023-01-18 02:41:34.498096557 +0300
-+++ contrib/c/filecmds.c	2023-01-18 08:34:45.963012123 +0300
+diff -urwN 4os2-xx/c/filecmds.c 4os2/c/filecmds.c
+--- 4os2-xx/c/filecmds.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/filecmds.c	2023-03-07 06:28:36.984034449 +0300
 @@ -1590,6 +1590,9 @@
      if ( ( GetSwitches( argv[1], "*EFNPQSTXYZDW", &(Del.fFlags), 0 ) != 0 ) || ( first_arg( argv[1]) == NULL ) )
          return( usage( DELETE_USAGE ));
@@ -5938,9 +5938,9 @@ diff -urwN contrib-orig/c/filecmds.c contrib/c/filecmds.c
  // change a file's date & time
  int touch_cmd( int argc, char **argv )
  {
-diff -urwN contrib-orig/c/jpos2dll.c contrib/c/jpos2dll.c
---- contrib-orig/c/jpos2dll.c	2023-01-18 02:41:34.562097910 +0300
-+++ contrib/c/jpos2dll.c	2023-01-18 08:37:12.182098677 +0300
+diff -urwN 4os2-xx/c/jpos2dll.c 4os2/c/jpos2dll.c
+--- 4os2-xx/c/jpos2dll.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/jpos2dll.c	2023-03-07 06:28:36.984034449 +0300
 @@ -11,10 +11,10 @@
  #include <stdlib.h>
  #include <string.h>
@@ -6013,9 +6013,9 @@ diff -urwN contrib-orig/c/jpos2dll.c contrib/c/jpos2dll.c
  // This is the Journal Playback hook callback function.  Every time it is
  // called, PM is requesting the next keyboard event to be played back.
  // This function fills a QMSG structure with the correct information about
-diff -urwN contrib-orig/c/keystack.c contrib/c/keystack.c
---- contrib-orig/c/keystack.c	2023-01-18 02:41:34.562097910 +0300
-+++ contrib/c/keystack.c	2023-01-18 08:37:25.958389480 +0300
+diff -urwN 4os2-xx/c/keystack.c 4os2/c/keystack.c
+--- 4os2-xx/c/keystack.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/keystack.c	2023-03-07 06:28:36.984034449 +0300
 @@ -5,8 +5,8 @@
  
  #include <string.h>
@@ -6027,9 +6027,9 @@ diff -urwN contrib-orig/c/keystack.c contrib/c/keystack.c
  #include <os2.h>
  
  
-diff -urwN contrib-orig/c/listall.c contrib/c/listall.c
---- contrib-orig/c/listall.c	2023-01-18 02:41:34.562097910 +0300
-+++ contrib/c/listall.c	2023-01-18 08:38:16.003445865 +0300
+diff -urwN 4os2-xx/c/listall.c 4os2/c/listall.c
+--- 4os2-xx/c/listall.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/listall.c	2023-03-07 06:28:36.984034449 +0300
 @@ -713,7 +713,8 @@
  static INT DisplayLine( UINT nRow, LONG lLinePtr )
  {
@@ -6040,9 +6040,9 @@ diff -urwN contrib-orig/c/listall.c contrib/c/listall.c
      CHAR *arg, szBuffer[512], cSave;
  
      ListSetCurrent( lLinePtr );
-diff -urwN contrib-orig/c/listc.c contrib/c/listc.c
---- contrib-orig/c/listc.c	2023-01-18 02:41:34.562097910 +0300
-+++ contrib/c/listc.c	2023-01-18 08:39:15.184695094 +0300
+diff -urwN 4os2-xx/c/listc.c 4os2/c/listc.c
+--- 4os2-xx/c/listc.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/listc.c	2023-03-07 06:28:36.984034449 +0300
 @@ -71,7 +71,7 @@
      if ( setjmp( cv.env ) == -1 ) {
  list_abort:
@@ -6061,9 +6061,9 @@ diff -urwN contrib-orig/c/listc.c contrib/c/listc.c
  
              if (( rval = _list( szFileName )) == CTRLC )
                  goto list_abort;
-diff -urwN contrib-orig/c/main.c contrib/c/main.c
---- contrib-orig/c/main.c	2023-01-18 02:41:34.562097910 +0300
-+++ contrib/c/main.c	2023-01-18 08:41:04.818996610 +0300
+diff -urwN 4os2-xx/c/main.c 4os2/c/main.c
+--- 4os2-xx/c/main.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/main.c	2023-03-07 06:28:36.988034536 +0300
 @@ -1,5 +1,14 @@
 -// MAIN.C - main() for 4os2 family
 -//   (c) 1993 - 1998  Rex C. Conn  All rights reserved
@@ -6081,9 +6081,9 @@ diff -urwN contrib-orig/c/main.c contrib/c/main.c
  
  #include "product.h"
  
-diff -urwN contrib-orig/c/misc.c contrib/c/misc.c
---- contrib-orig/c/misc.c	2023-01-18 02:41:34.566097994 +0300
-+++ contrib/c/misc.c	2023-01-18 08:44:03.582745442 +0300
+diff -urwN 4os2-xx/c/misc.c 4os2/c/misc.c
+--- 4os2-xx/c/misc.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/misc.c	2023-03-07 06:28:36.988034536 +0300
 @@ -2834,3 +2834,66 @@
  }
  
@@ -6151,9 +6151,9 @@ diff -urwN contrib-orig/c/misc.c contrib/c/misc.c
 +
 +    return 0;
 +}
-diff -urwN contrib-orig/c/msg.c contrib/c/msg.c
---- contrib-orig/c/msg.c	2023-01-18 02:41:34.566097994 +0300
-+++ contrib/c/msg.c	2023-01-18 08:47:12.990724136 +0300
+diff -urwN 4os2-xx/c/msg.c 4os2/c/msg.c
+--- 4os2-xx/c/msg.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/msg.c	2023-03-07 06:28:36.988034536 +0300
 @@ -210,7 +210,6 @@
  // USAGE messages
  char ACTIVATE_USAGE[] = "\"title\" [CLOSE | MIN | MAX | RESTORE]";
@@ -6210,9 +6210,9 @@ diff -urwN contrib-orig/c/msg.c contrib/c/msg.c
  // SCREENIO.C
  char HISTORY_TITLE[] = " History ";
  char DIRECTORY_TITLE[] = " Directories ";
-diff -urwN contrib-orig/c/option2.c contrib/c/option2.c
---- contrib-orig/c/option2.c	2023-01-18 02:41:34.566097994 +0300
-+++ contrib/c/option2.c	2023-01-18 08:48:54.080849685 +0300
+diff -urwN 4os2-xx/c/option2.c 4os2/c/option2.c
+--- 4os2-xx/c/option2.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/option2.c	2023-03-07 06:28:36.988034536 +0300
 @@ -3,8 +3,8 @@
  
  #include "product.h"
@@ -6251,9 +6251,9 @@ diff -urwN contrib-orig/c/option2.c contrib/c/option2.c
  {
      switch ( msg ) {
          case WM_USER:
-diff -urwN contrib-orig/c/os2calls.c contrib/c/os2calls.c
---- contrib-orig/c/os2calls.c	2023-01-18 02:41:34.566097994 +0300
-+++ contrib/c/os2calls.c	2023-01-18 08:58:19.848761261 +0300
+diff -urwN 4os2-xx/c/os2calls.c 4os2/c/os2calls.c
+--- 4os2-xx/c/os2calls.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/os2calls.c	2023-03-07 06:28:36.988034536 +0300
 @@ -455,12 +455,21 @@
  
          lpMsg = AllocMem( &size );
@@ -6332,9 +6332,9 @@ diff -urwN contrib-orig/c/os2calls.c contrib/c/os2calls.c
  
      return (int)CodePageList;
  }
-diff -urwN contrib-orig/c/os2cfg.c contrib/c/os2cfg.c
---- contrib-orig/c/os2cfg.c	2023-01-18 02:41:34.622099178 +0300
-+++ contrib/c/os2cfg.c	2023-01-18 08:58:48.197358548 +0300
+diff -urwN 4os2-xx/c/os2cfg.c 4os2/c/os2cfg.c
+--- 4os2-xx/c/os2cfg.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/os2cfg.c	2023-03-07 06:28:36.988034536 +0300
 @@ -51,7 +51,7 @@
  
  #define CONTROLDATASIZE ((IDI_ID_MAX - IDI_BASE + 1) * sizeof(IDI_CONTROL))
@@ -6353,9 +6353,9 @@ diff -urwN contrib-orig/c/os2cfg.c contrib/c/os2cfg.c
  {
      unsigned int i, nIDIValue;
      int nCtlType, nRadioCnt, nIntDataValue, nIntNewValue;
-diff -urwN contrib-orig/c/os2cmds.c contrib/c/os2cmds.c
---- contrib-orig/c/os2cmds.c	2023-01-18 02:41:34.770102309 +0300
-+++ contrib/c/os2cmds.c	2023-01-18 10:01:22.113267262 +0300
+diff -urwN 4os2-xx/c/os2cmds.c 4os2/c/os2cmds.c
+--- 4os2-xx/c/os2cmds.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/os2cmds.c	2023-03-07 06:28:36.988034536 +0300
 @@ -89,34 +89,11 @@
  }
  
@@ -6425,9 +6425,9 @@ diff -urwN contrib-orig/c/os2cmds.c contrib/c/os2cmds.c
  // change the window state (minimized, maximized, or normalized)
  int window_cmd( int argc, char **argv )
  {
-diff -urwN contrib-orig/c/os2init.c contrib/c/os2init.c
---- contrib-orig/c/os2init.c	2023-01-18 02:41:34.922105523 +0300
-+++ contrib/c/os2init.c	2023-01-18 09:03:23.911168892 +0300
+diff -urwN 4os2-xx/c/os2init.c 4os2/c/os2init.c
+--- 4os2-xx/c/os2init.c	2023-03-07 06:27:36.430727067 +0300
++++ 4os2/c/os2init.c	2023-03-07 06:28:36.988034536 +0300
 @@ -548,12 +548,10 @@
              rc = DosLoadModule( szOs2CmdLine, sizeof( szOs2CmdLine ), szHelperDllName, &hmod );
          }
@@ -6452,9 +6452,9 @@ diff -urwN contrib-orig/c/os2init.c contrib/c/os2init.c
 -    crlf();
 +  cmd_ShowSystemMessage(1047,1L,"%s",""); // @fix use not direct message number
  }
-diff -urwN contrib-orig/c/parser.c contrib/c/parser.c
---- contrib-orig/c/parser.c	2023-01-18 02:41:34.922105523 +0300
-+++ contrib/c/parser.c	2023-01-18 09:05:25.821738544 +0300
+diff -urwN 4os2-xx/c/parser.c 4os2/c/parser.c
+--- 4os2-xx/c/parser.c	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/c/parser.c	2023-03-07 06:28:36.988034536 +0300
 @@ -1392,6 +1392,10 @@
      char *ptr;
      PCH feptr;
@@ -6479,9 +6479,9 @@ diff -urwN contrib-orig/c/parser.c contrib/c/parser.c
  
                          // kludge if we're on line 0
                          GetCurPos( &i, &n );
-diff -urwN contrib-orig/c/replaced/attrib.c contrib/c/replaced/attrib.c
---- contrib-orig/c/replaced/attrib.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/attrib.c	2023-01-18 09:12:08.886235805 +0300
+diff -urwN 4os2-xx/c/replaced/attrib.c 4os2/c/replaced/attrib.c
+--- 4os2-xx/c/replaced/attrib.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/attrib.c	2023-03-07 06:28:36.988034536 +0300
 @@ -0,0 +1,284 @@
 +/* Replaced by osFree team implementation
 +
@@ -6767,9 +6767,9 @@ diff -urwN contrib-orig/c/replaced/attrib.c contrib/c/replaced/attrib.c
 +    return atts;
 +}
 +*/
-diff -urwN contrib-orig/c/replaced/cls.c contrib/c/replaced/cls.c
---- contrib-orig/c/replaced/cls.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/cls.c	2023-01-18 09:11:38.173588278 +0300
+diff -urwN 4os2-xx/c/replaced/cls.c 4os2/c/replaced/cls.c
+--- 4os2-xx/c/replaced/cls.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/cls.c	2023-03-07 06:28:36.988034536 +0300
 @@ -0,0 +1,31 @@
 +/* Replaced by osFree team implementation
 +
@@ -6802,9 +6802,9 @@ diff -urwN contrib-orig/c/replaced/cls.c contrib/c/replaced/cls.c
 +    return rval;
 +}
 +*/
-diff -urwN contrib-orig/c/replaced/mkdir.c contrib/c/replaced/mkdir.c
---- contrib-orig/c/replaced/mkdir.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/mkdir.c	2023-01-18 09:12:55.295214277 +0300
+diff -urwN 4os2-xx/c/replaced/mkdir.c 4os2/c/replaced/mkdir.c
+--- 4os2-xx/c/replaced/mkdir.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/mkdir.c	2023-03-07 06:28:36.988034536 +0300
 @@ -0,0 +1,53 @@
 +/* Replaced by osFree team implementation
 +
@@ -6859,9 +6859,9 @@ diff -urwN contrib-orig/c/replaced/mkdir.c contrib/c/replaced/mkdir.c
 +
 +
 +*/
-diff -urwN contrib-orig/c/replaced/tree.c contrib/c/replaced/tree.c
---- contrib-orig/c/replaced/tree.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/tree.c	2023-01-18 09:14:24.861106485 +0300
+diff -urwN 4os2-xx/c/replaced/tree.c 4os2/c/replaced/tree.c
+--- 4os2-xx/c/replaced/tree.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/tree.c	2023-03-07 06:28:36.992034622 +0300
 @@ -0,0 +1,193 @@
 +/* Replaced by osFree team implementation
 +
@@ -7056,9 +7056,9 @@ diff -urwN contrib-orig/c/replaced/tree.c contrib/c/replaced/tree.c
 +
 +
 +*/
-diff -urwN contrib-orig/c/replaced/ver.c contrib/c/replaced/ver.c
---- contrib-orig/c/replaced/ver.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/ver.c	2023-01-18 09:15:09.506053948 +0300
+diff -urwN 4os2-xx/c/replaced/ver.c 4os2/c/replaced/ver.c
+--- 4os2-xx/c/replaced/ver.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/ver.c	2023-03-07 06:28:36.992034622 +0300
 @@ -0,0 +1,26 @@
 +/* Replaced by osFree team implementation
 +
@@ -7086,9 +7086,9 @@ diff -urwN contrib-orig/c/replaced/ver.c contrib/c/replaced/ver.c
 +}
 +
 +*/
-diff -urwN contrib-orig/c/replaced/vol.c contrib/c/replaced/vol.c
---- contrib-orig/c/replaced/vol.c	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/c/replaced/vol.c	2023-01-18 09:16:10.667351254 +0300
+diff -urwN 4os2-xx/c/replaced/vol.c 4os2/c/replaced/vol.c
+--- 4os2-xx/c/replaced/vol.c	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/c/replaced/vol.c	2023-03-07 06:28:36.992034622 +0300
 @@ -0,0 +1,27 @@
 +/* Replaced by osFree team implementation
 +
@@ -7117,9 +7117,9 @@ diff -urwN contrib-orig/c/replaced/vol.c contrib/c/replaced/vol.c
 +
 +
 +*/
-diff -urwN contrib-orig/c/select.c contrib/c/select.c
---- contrib-orig/c/select.c	2023-01-18 02:41:34.922105523 +0300
-+++ contrib/c/select.c	2023-01-18 10:16:29.840683820 +0300
+diff -urwN 4os2-xx/c/select.c 4os2/c/select.c
+--- 4os2-xx/c/select.c	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/c/select.c	2023-03-07 06:28:36.992034622 +0300
 @@ -164,7 +164,7 @@
      for ( *szCmdline = '\0', n = 0, i = 1; ((rval != CTRLC) && (i <= sel->marked)); ) {
  
@@ -7129,9 +7129,9 @@ diff -urwN contrib-orig/c/select.c contrib/c/select.c
              rval = CTRLC;
              break;
          }
-diff -urwN contrib-orig/c/selectc.c contrib/c/selectc.c
---- contrib-orig/c/selectc.c	2023-01-18 02:41:34.926105608 +0300
-+++ contrib/c/selectc.c	2023-01-18 09:06:41.751339123 +0300
+diff -urwN 4os2-xx/c/selectc.c 4os2/c/selectc.c
+--- 4os2-xx/c/selectc.c	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/c/selectc.c	2023-03-07 06:28:36.992034622 +0300
 @@ -52,7 +52,7 @@
  
          if ( setjmp( cv.env ) == -1 ) {
@@ -7159,9 +7159,9 @@ diff -urwN contrib-orig/c/selectc.c contrib/c/selectc.c
  
          if ( sel.length >= MAXLINESIZ) {
              rval = error( ERROR_4DOS_COMMAND_TOO_LONG, NULL );
-diff -urwN contrib-orig/c/shralias.c contrib/c/shralias.c
---- contrib-orig/c/shralias.c	2023-01-18 02:41:34.934105777 +0300
-+++ contrib/c/shralias.c	2023-01-18 09:06:53.575588382 +0300
+diff -urwN 4os2-xx/c/shralias.c 4os2/c/shralias.c
+--- 4os2-xx/c/shralias.c	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/c/shralias.c	2023-03-07 06:28:36.992034622 +0300
 @@ -10,7 +10,7 @@
     It should only be run from 4OS2 or Take Command.
  */
@@ -7171,9 +7171,9 @@ diff -urwN contrib-orig/c/shralias.c contrib/c/shralias.c
  #include <os2.h>
  
  #include "shralias.h"
-diff -urwN contrib-orig/c/syscmds.c contrib/c/syscmds.c
---- contrib-orig/c/syscmds.c	2023-01-18 02:41:34.934105777 +0300
-+++ contrib/c/syscmds.c	2023-01-18 09:08:24.733510083 +0300
+diff -urwN 4os2-xx/c/syscmds.c 4os2/c/syscmds.c
+--- 4os2-xx/c/syscmds.c	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/c/syscmds.c	2023-03-07 06:28:36.992034622 +0300
 @@ -717,56 +717,6 @@
  }
  
@@ -7285,9 +7285,9 @@ diff -urwN contrib-orig/c/syscmds.c contrib/c/syscmds.c
  // return or set the path in the environment
  int path_cmd( int argc, char **argv )
  {
-diff -urwN contrib-orig/external.ipf contrib/external.ipf
---- contrib-orig/external.ipf	1970-01-01 03:00:00.000000000 +0300
-+++ contrib/external.ipf	2023-01-18 07:54:30.896025159 +0300
+diff -urwN 4os2-xx/external.ipf 4os2/external.ipf
+--- 4os2-xx/external.ipf	1970-01-01 03:00:00.000000000 +0300
++++ 4os2/external.ipf	2023-03-07 06:28:36.992034622 +0300
 @@ -0,0 +1,101 @@
 +.nameit symbol=date     text='2 Sep'
 +.nameit symbol=4verprev text='3.03'
@@ -7390,9 +7390,14 @@ diff -urwN contrib-orig/external.ipf contrib/external.ipf
 +:eparml.:lm margin=1.
 +
 +:euserdoc.
-diff -urwN contrib-orig/h/4all.h contrib/h/4all.h
---- contrib-orig/h/4all.h	2023-01-18 02:41:34.938105862 +0300
-+++ contrib/h/4all.h	2023-01-18 08:05:24.829804242 +0300
+diff -urwN 4os2-xx/.git/config 4os2/.git/config
+Binary files 4os2-xx/.git/index and 4os2/.git/index differ
+diff -urwN 4os2-xx/.git/logs/HEAD 4os2/.git/logs/HEAD
+diff -urwN 4os2-xx/.git/logs/refs/heads/main 4os2/.git/logs/refs/heads/main
+diff -urwN 4os2-xx/.git/logs/refs/remotes/origin/HEAD 4os2/.git/logs/refs/remotes/origin/HEAD
+diff -urwN 4os2-xx/h/4all.h 4os2/h/4all.h
+--- 4os2-xx/h/4all.h	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/h/4all.h	2023-03-07 06:28:36.992034622 +0300
 @@ -237,6 +237,7 @@
      char *cmdname;                  // command name
      int (* func)(int, char **);     // pointer to function
@@ -7445,9 +7450,9 @@ diff -urwN contrib-orig/h/4all.h contrib/h/4all.h
  #include "4os2.h"
  
  #include "globals.h"            // global variables
-diff -urwN contrib-orig/h/globals.h contrib/h/globals.h
---- contrib-orig/h/globals.h	2023-01-18 02:41:34.938105862 +0300
-+++ contrib/h/globals.h	2023-01-18 08:31:02.038285053 +0300
+diff -urwN 4os2-xx/h/globals.h 4os2/h/globals.h
+--- 4os2-xx/h/globals.h	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/h/globals.h	2023-03-07 06:28:36.992034622 +0300
 @@ -88,8 +88,6 @@
  PCH _pgmptr;
  
@@ -7466,9 +7471,9 @@ diff -urwN contrib-orig/h/globals.h contrib/h/globals.h
  extern SKEYS *pfnSendKeys;      // SendKeys
  extern QUITSKEYS *pfnQuitSendKeys; // QuitSendKeys
  extern WINIT *pfnWINIT;         // WinInitialize
-diff -urwN contrib-orig/h/inifile.h contrib/h/inifile.h
---- contrib-orig/h/inifile.h	2023-01-18 02:41:34.938105862 +0300
-+++ contrib/h/inifile.h	2023-01-18 08:08:09.525289410 +0300
+diff -urwN 4os2-xx/h/inifile.h 4os2/h/inifile.h
+--- 4os2-xx/h/inifile.h	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/h/inifile.h	2023-03-07 06:28:36.992034622 +0300
 @@ -468,7 +468,7 @@
      "SelectStatBarColors", INI_COLOR, 0, VNULL, &gaInifile.SelectStatusColor, DLG_DATA(IDI_SelectStatBarColors, INI_CTL_COLOR, 0)
  
@@ -7478,9 +7483,20 @@ diff -urwN contrib-orig/h/inifile.h contrib/h/inifile.h
      "CMDDirMvCpy", INI_CHOICE, 0, &V_YesNo, &gaInifile.CMDDirMvCpy, DLG_NULL
      "LocalAliases", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalAliases, DLG_DATA(IDI_LocalAliases, INI_CTL_CHECK, 0)
      "LocalDirHistory", INI_CHOICE, 0, &V_YesNo, &gaInifile.LocalDirHistory, DLG_DATA(IDI_LocalDirHistory, INI_CTL_CHECK, 0)
-diff -urwN contrib-orig/h/message.h contrib/h/message.h
---- contrib-orig/h/message.h	2023-01-18 02:41:34.938105862 +0300
-+++ contrib/h/message.h	2023-01-18 08:08:45.558051850 +0300
+@@ -476,8 +476,8 @@
+     "NextINIFile", INI_STR, 0, VNULL, &gaInifile.NextININame, DLG_NULL
+     "DateFmt", INI_STR, 0, VNULL, &gaInifile.DateFmt, DLG_NULL
+     "TmSmpFmt", INI_STR, 0, VNULL, &gaInifile.TmSmpFmt, DLG_NULL
+-    "Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
+-    "Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
++    //"Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
++    //"Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
+ 
+     // Dummy item to hold name of primary INI file, set up here so
+     // INIStr will move it around as needed, but with blank name so user
+diff -urwN 4os2-xx/h/message.h 4os2/h/message.h
+--- 4os2-xx/h/message.h	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/h/message.h	2023-03-07 06:28:36.992034622 +0300
 @@ -308,10 +308,6 @@
  extern char OS2_FS[];
  extern char OS2_WIN[];
@@ -7492,9 +7508,9 @@ diff -urwN contrib-orig/h/message.h contrib/h/message.h
  extern char NO_DLL[];
  extern char OS2_TITLE[];
  extern char TRACE_STARTUP_MSG[];
-diff -urwN contrib-orig/h/proto.h contrib/h/proto.h
---- contrib-orig/h/proto.h	2023-01-18 02:41:34.938105862 +0300
-+++ contrib/h/proto.h	2023-01-18 08:10:46.044600413 +0300
+diff -urwN 4os2-xx/h/proto.h 4os2/h/proto.h
+--- 4os2-xx/h/proto.h	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/h/proto.h	2023-03-07 06:28:36.992034622 +0300
 @@ -3,7 +3,6 @@
  
  // Prototypes for internal commands
@@ -7549,9 +7565,9 @@ diff -urwN contrib-orig/h/proto.h contrib/h/proto.h
  
  // MAIN.C
  int main( int, char ** );
-diff -urwN contrib-orig/option2.dlg contrib/option2.dlg
---- contrib-orig/option2.dlg	2023-01-18 02:41:34.942105946 +0300
-+++ contrib/option2.dlg	2023-01-18 07:59:53.154812770 +0300
+diff -urwN 4os2-xx/option2.dlg 4os2/option2.dlg
+--- 4os2-xx/option2.dlg	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/option2.dlg	2023-03-07 06:28:36.992034622 +0300
 @@ -1,7 +1,5 @@
 -#ifndef OS2_INCLUDED
     #include <os2.h>
@@ -7561,9 +7577,9 @@ diff -urwN contrib-orig/option2.dlg contrib/option2.dlg
  
  DLGTEMPLATE CONFIG_CMDDLGBOX LOADONCALL MOVEABLE DISCARDABLE
  BEGIN
-diff -urwN contrib-orig/option2.rc contrib/option2.rc
---- contrib-orig/option2.rc	2023-01-18 02:41:34.942105946 +0300
-+++ contrib/option2.rc	2023-01-18 07:55:43.341550394 +0300
+diff -urwN 4os2-xx/option2.rc 4os2/option2.rc
+--- 4os2-xx/option2.rc	2023-03-07 06:27:36.434727153 +0300
++++ 4os2/option2.rc	2023-03-07 06:28:36.992034622 +0300
 @@ -5,5 +5,5 @@
  
  POINTER ID_RESOURCE "../4os2.ico"
@@ -7571,16 +7587,3 @@ diff -urwN contrib-orig/option2.rc contrib/option2.rc
 -rcinclude "..\option2.dlg"
 +rcinclude "option2.dlg"
  
---- contrib-orig/h/inifile2.h	2023-02-28 00:20:19.104342899 +0300
-+++ contrib/h/inifile.h	2023-02-27 23:54:43.060486048 +0300
-@@ -476,8 +476,8 @@
-     "NextINIFile", INI_STR, 0, VNULL, &gaInifile.NextININame, DLG_NULL
-     "DateFmt", INI_STR, 0, VNULL, &gaInifile.DateFmt, DLG_NULL
-     "TmSmpFmt", INI_STR, 0, VNULL, &gaInifile.TmSmpFmt, DLG_NULL
--    "Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
--    "Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
-+    //"Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
-+    //"Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
- 
-     // Dummy item to hold name of primary INI file, set up here so
-     // INIStr will move it around as needed, but with blank name so user
