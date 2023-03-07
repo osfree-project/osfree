@@ -17,6 +17,7 @@ REXX_PATH=`which rexx`
 SERVERENV=os2
 #ARCH=`dpkg --print-architecture`
 TMP=/tmp
+patch=patch
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45

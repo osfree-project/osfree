@@ -11,6 +11,7 @@ set serverenv=win32
 set env=WIN32
 set os=WIN32
 set host=win32
+set patch=%root%\tools\conf\patch-win32.exe
 set os2tk=%root%build\bin\host\%host%\os2tk45
 set tools=%root%build\bin\host\%host%\bin
 set REGINA=c:\rexx
