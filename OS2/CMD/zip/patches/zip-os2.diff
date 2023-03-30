@@ -1,17 +1,17 @@
 diff -urwN -x .git zip-os2-o/os2/os2.c zip-os2/os2/os2.c
 --- zip-os2-o/os2/os2.c	2023-03-30 21:25:26.682243412 +0300
-+++ zip-os2/os2/os2.c	2023-03-30 21:23:53.100260494 +0300
-@@ -40,6 +40,17 @@
- local char *readd OF((DIR *));
- 
++++ zip-os2/os2/os2.c	2023-03-31 02:46:31.271356823 +0300
+@@ -26,6 +26,10 @@
+ #define PAD 0
+ #define PATH_END '/'
  
 +#ifdef __WATCOMC__
 +#include <ctype.h>
 +#endif
 +
- local char *readd(d)
- DIR *d;                 /* directory stream to read from */
- /* Return a pointer to the next name in the directory stream d, or NULL if
+ 
+ #include "os2zip.h"
+ 
 diff -urwN -x .git zip-os2-o/os2/os2zip.c zip-os2/os2/os2zip.c
 --- zip-os2-o/os2/os2zip.c	2023-03-30 21:25:26.682243412 +0300
 +++ zip-os2/os2/os2zip.c	2023-03-30 21:13:51.535579875 +0300
