@@ -9,9 +9,8 @@ TRGT = $(PROJ).exe
 DESC = ZIP file archiver
 # defines additional options for C compiler
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
-ADD_COPT = -dOS2 -dNO_ASM -dNO_SYMLINKS &
-           -zq -Ox -s -Zp1 -i=$(MYDIR)$(SEP)os2 -d3 # -sg -ecw 
-ADD_ASMOPT = -zq -3p
+DIRSEP="\\"
+AS_DIRSEP="\\"
 ADD_LINKOPT = debug all # op caseexact
 STACK=0x50000
 srcfiles = $(p)zip$(e) $(p)zipfile$(e) $(p)zipup$(e) $(p)fileio$(e) $(p)util$(e) &
@@ -32,3 +31,14 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 # $(p)crctab$(e)
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)zip.mk
+
+ADD_COPT = -dOS2 -dNO_ASM -dNO_SYMLINKS -i=$(PORT_BASE) -i=$(PORT_BASE)os2 &
+           -zq -Ox -s -Zp1 -d3 # -sg -ecw
+ADD_ASMOPT = -zq -3p -ml
+
+.asm: $(PORT_BASE)os2
+
+.c: $(PORT_BASE)os2;$(PORT_BASE)
+
+.h: $(PORT_BASE)os2;$(PORT_BASE)

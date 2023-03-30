@@ -1,0 +1,40 @@
+diff -urwN -x .git zip-os2-o/os2/os2.c zip-os2/os2/os2.c
+--- zip-os2-o/os2/os2.c	2023-03-30 21:25:26.682243412 +0300
++++ zip-os2/os2/os2.c	2023-03-30 21:23:53.100260494 +0300
+@@ -40,6 +40,17 @@
+ local char *readd OF((DIR *));
+ 
+ 
++#ifdef __WATCOMC__
++#include <ctype.h>
++#endif
++
+ local char *readd(d)
+ DIR *d;                 /* directory stream to read from */
+ /* Return a pointer to the next name in the directory stream d, or NULL if
+diff -urwN -x .git zip-os2-o/os2/os2zip.c zip-os2/os2/os2zip.c
+--- zip-os2-o/os2/os2zip.c	2023-03-30 21:25:26.682243412 +0300
++++ zip-os2/os2/os2zip.c	2023-03-30 21:13:51.535579875 +0300
+@@ -1052,18 +1052,20 @@
+   struct stat s;
+ 
+   strcpy( szName, z->name);
++#ifdef __KLIBC__
+   // check if file is a symlink, query EAs from resolved file.
+   if (linkput == 0 && lstat(z->name, &s) == 0)
+   {
+     if ((s.st_mode & S_IFLNK) == S_IFLNK)
+       realpath( z->name, szName);
+   }
++#endif
+ 
+   /* store EA data in local header, and size only in central headers */
+-  GetEAs(szName, &z->extra, &z->ext, &z->cextra, &z->cext);
++  GetEAs(szName, &z->extra, (size_t *)&z->ext, &z->cextra, (size_t *)&z->cext);
+ 
+   /* store ACL data in local header, and size only in central headers */
+-  GetACL(szName, &z->extra, &z->ext, &z->cextra, &z->cext);
++  GetACL(szName, &z->extra, (size_t *)&z->ext, &z->cextra, (size_t *)&z->cext);
+ 
+ #ifdef USE_EF_UT_TIME
+   /* store extended time stamps in both headers */
