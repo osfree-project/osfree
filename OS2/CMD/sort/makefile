@@ -15,3 +15,8 @@ ADD_COPT = -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 UNI2H = 1
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)sort.mk
+
+.c: $(PORT_BASE)src;$(PORT_BASE)kitten;$(PORT_BASE)tnyprntf;
+
+.h: $(PORT_BASE)src;$(PORT_BASE)kitten;$(PORT_BASE)tnyprntf;
