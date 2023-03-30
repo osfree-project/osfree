@@ -15,3 +15,8 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 UNI2H = 1
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(MYDIR)find.mk
+
+.c: $(PORT_BASE)src;$(PORT_BASE)kitten;
+
+.h: $(PORT_BASE)src;$(PORT_BASE)kitten;

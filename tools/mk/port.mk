@@ -22,7 +22,7 @@ patch: .symbolic
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PATH)
  $(verbose)for %i in ($(PORT_PATCHES)) do unix2dos -f -n $(MYDIR)patches$(SEP)%i $(PATH)%i
- $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && $(%patch) -p1 <$(PATH)%i
+ $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && $(%PATCH) -p1 <$(PATH)%i
 !else
  $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -p1 <$(MYDIR)patches$(SEP)%i
 !endif

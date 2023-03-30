@@ -1,0 +1,841 @@
+diff -urwN find-o/kitten/kitten.c find-x/kitten/kitten.c
+--- find-o/kitten/kitten.c	2023-03-30 11:32:44.206879150 +0300
++++ find-x/kitten/kitten.c	2023-03-30 14:35:44.061843284 +0300
+@@ -24,12 +24,15 @@
+ #include <string.h>			/* strchr */
+ #include <fcntl.h>
+ #include <dos.h>
+-#include <sys/stat.h>
+-#include <sys/types.h>
++#include <io.h>                         /* read, write, close */
++
++/* assert we are running in small model */
++/* else pointer below has to be done correctly */
++/* char verify_small_pointers[sizeof(void*) == 2 ? 1 : -1]; */
+ 
+ #include "kitten.h"
+ 
+-char catcontents[6144];	/* *** Maximum size of PROGRAM.%LANG% file *** */
++char catcontents[8192];
+ 
+ struct catstring{
+   char key1;
+@@ -39,7 +42,7 @@
+ 
+ typedef struct catstring catstring_t;
+ 
+-catstring_t catpoints[128];		/* max 128 strings can be defined... */
++catstring_t catpoints[128];
+ 
+ 
+ /* Local prototypes */
+@@ -59,67 +62,12 @@
+ nl_catd _kitten_catalog = 0;	/* _kitten_catalog descriptor or 0 */
+ char catfile[128];		/* full path to _kitten_catalog */
+ 
+-char getlbuf[1024]; /* read buffer (better speed) -- 7/2004: 1k, not 8k */
++char getlbuf[8192]; /* read buffer for better speed  */
+ char * getlp;       /* current point in buffer       */
+ int getlrem = -1;   /* remaining bytes in buffer     */
++char lastcr = 0;    /* for 2byte CR LF sequences     */
+ 
+ 
+-#if defined(__TURBOC__)
+-/* DOS handle based file usage */
+-
+-int dos_open(char *filename, int mode)
+-{
+-	union REGS r;
+-        struct SREGS s;
+-	(void)mode;		/* mode ignored - readonly supported */
+-	r.h.ah = 0x3d;
+-	r.h.al = 0;		/* read mode only supoported now !! */
+-	r.x.dx = FP_OFF(filename);
+-        s.ds = FP_SEG(filename);
+-	intdosx(&r,&r,&s);
+-	return ( (r.x.cflag) ? -1 : r.x.ax );
+-}
+-
+-
+-int dos_read(int file, void *ptr, unsigned count)
+-{
+-	union REGS r;
+-        struct SREGS s;
+-	r.h.ah = 0x3f;
+-	r.x.bx = file;
+-	r.x.cx = count;
+-	r.x.dx = FP_OFF(ptr);
+-        s.ds = FP_SEG(ptr);
+-	intdosx(&r,&r,&s);
+-	return ( (r.x.cflag) ? 0 : r.x.ax );
+-}
+-
+-
+-int dos_write(int file, void *ptr, unsigned count)
+-{
+-	union REGS r;
+-	struct SREGS s;
+-	r.h.ah = 0x40;
+-	r.x.bx = file;
+-	r.x.cx = count;
+-	r.x.dx = FP_OFF(ptr);
+-        s.ds = FP_SEG(ptr);
+-	intdosx(&r,&r,&s);
+-	return ( (r.x.cflag) ? 0 : r.x.ax );
+-}
+-
+-
+-void dos_close(int file)
+-{
+-	union REGS r;
+-	r.h.ah = 0x3e;
+-	r.x.bx = file;
+-	intdos(&r,&r);
+-}
+-#else
+-#include <unistd.h>
+-#endif
+-
+ 
+ /* Functions */
+ 
+@@ -164,22 +112,26 @@
+   /* Open the _kitten_catalog file */
+   /* The value of `_kitten_catalog' will be set based on catread */
+ 
++
+   if (_kitten_catalog) { /* Already one open */
+-    write(1,"cat already open\r\n",strlen("cat already open\r\n"));
++    fprintf(stderr,"cat already open\r\n");
+     return (-1);
+   }
+ 
++
+   for (i=0; i<128; i++)
+     catpoints[i].text = NULL;
+ 
++
+   if (strchr (name, '\\')) {
+     /* unusual case: 'name' is a filename */
+-    write(1,"found \\\r\n",9);
++    fprintf(stderr,"found \\\r\n",9);
+     _kitten_catalog = catread (name);
+     if (_kitten_catalog)
+       return (_kitten_catalog);
+   }
+ 
++
+   /* If the message _kitten_catalog file name does not contain a directory *
+    * separator, then we need to try to locate the message _kitten_catalog. */
+ 
+@@ -188,24 +140,26 @@
+ 
+   lang = getenv ("LANG");
+ 
++
+   if (lang == NULL) {
+       /* printf("no lang= found\n"); */ /* not fatal, though */
+       /* Return failure - we won't be able to locate the cat file */
+       return (-1);
+   }
+ 
+-  if ( ( strlen(lang) < 2 ) ||
+-       ( (strlen(lang) > 2) && (lang[2] != '-') ) ) {
++  if ( ( strlen(lang) < 2 ) ) {
+       /* Return failure - we won't be able to locate the cat file */
+       return (-1);
+   }
+ 
++
+   memcpy(catlang, lang, 2);
+   /* we copy the full LANG value or the part before "-" if "-" found */
+   catlang[2] = '\0';
+ 
+   /* step through NLSPATH */
+ 
++
+   nlsptr = getenv ("NLSPATH");
+ 
+   if (nlsptr == NULL) {
+@@ -216,6 +170,7 @@
+ 
+   catfile[0] = '\0';
+ 
++
+   while (nlsptr != NULL) {
+       char *tok = strchr(nlsptr, ';');
+       int toklen;
+@@ -223,13 +178,13 @@
+       if (tok == NULL)
+         toklen = strlen(nlsptr); /* last segment */
+       else
+-        toklen = (int)(tok - nlsptr); /* segment terminated by ';' */
++        toklen = tok - nlsptr; /* segment terminated by ';' */
+       
+       /* catfile = malloc(toklen+1+strlen(name)+1+strlen(lang)+1); */
+       /* Try to find the _kitten_catalog file in each path from NLSPATH */
+ 
+       if ((toklen+6+strlen(name)) > sizeof(catfile)) {
+-        write(1,"NLSPATH overflow\r\n",strlen("NLSPATH overflow\r\n"));
++        fprintf(stderr,"NLSPATH overflow\r\n");
+         return 0; /* overflow in NLSPATH, should never happen */
+       }
+ 
+@@ -240,6 +195,7 @@
+         strcat(catfile,catlang);
+         strcat(catfile,"\\");
+         strcat(catfile,name);
++
+         _kitten_catalog = catread (catfile);
+         if (_kitten_catalog)
+ 	  return (_kitten_catalog);
+@@ -255,6 +211,7 @@
+         if (_kitten_catalog)
+ 	  return (_kitten_catalog);
+ 
++
+       /* Grab next tok for the next while iteration */
+ 
+         nlsptr = tok;
+@@ -275,13 +232,14 @@
+ int catread (char *catfile)
+ {
+   int   file;				/* pointer to the catfile */
+-  int   i;
++  unsigned int   i;
+   char  *where;
+   char  *tok;
+ 
+   /* Get the whole catfile into a buffer and parse it */
+   
+-  file = open (catfile, O_RDONLY);
++  //file = _dos_open (catfile, O_RDONLY | O_TEXT, &file);
++  file = open (catfile, O_RDONLY | O_TEXT);
+   if (file < 0) 
+       /* Cannot open the file.  Return failure */
+       return 0;
+@@ -293,6 +251,7 @@
+     catcontents[i] = '\0';
+ 
+   /* Read the file into memory */
++  //_dos_read (file, catcontents, sizeof(catcontents)-1, &i);
+   i = read (file, catcontents, sizeof(catcontents)-1);
+ 
+   if ((i == sizeof(catcontents)-1) || (i < 1))
+@@ -310,6 +269,7 @@
+     tok = strchr(where, '\n');
+ 
+     if (tok == NULL) { /* done? */
++      //_dos_close(file);
+       close(file);
+       return 1; /* success */
+     }
+@@ -507,18 +467,20 @@
+ int get_char(int file) {
+   int rval = -1;
+ 
++
+   if (getlrem <= 0) { /* (re)init buffer */
++    //_dos_read(file, getlbuf, sizeof(getlbuf), &getlrem);
+     getlrem = read(file, getlbuf, sizeof(getlbuf));
+     if (getlrem <= 0)
+       return -1; /* fail: read error / EOF */
+     getlp = getlbuf; /* init pointer */
+   }
+ 
+-  if (getlrem > 0) { /* consume byte from buffer */
++  /* consume byte from buffer */
+     rval = getlp[0];
+     getlp++;
+     getlrem--;
+-  }
++
+ 
+   return rval;
+ }
+@@ -531,38 +493,32 @@
+  * be used for 2 files at the same time.
+  */
+ 
+-int get_line (int file, char *orig_str, int size)
++int get_line (int file, char *istr, int size)
+ {
++  int success = 0;
+   int ch;
+-  char *str = orig_str;
++  char *str=istr;
+ 
+   if ((size == 0) || (str == NULL)) { /* re-init get_line buffers */
+     getlp = getlbuf;
+     getlrem = -1;
++    lastcr = 0;
+     return 0;
+   }
+ 
+   str[0] = '\0';
+ 
+-  while (size > 0) {
++  while ( (size > 0) && (success == 0) ) {
+     ch = get_char (file);
+-    if (ch < 0) {
+-      /* encountered EOF / read error, so no more content*/
+-      str[0] = '\0';
+-
+-      /* test if the pointers are equal, there is not content in the buffer */
+-      if(str == orig_str)
+-        return 0;  /* fail, no more content */
+-      
+-      return 1; /* success */
+-    }
++    if (ch < 0)
++      break; /* (can cause fail if no \n found yet) */
+ 
+     if (ch == '\r')
+       ch = get_char (file); /* ignore \r */
+ 
+     str[0] = ch;
+ 
+-    if ( (ch == '\n') || (ch == '\r') || (ch < 0) ) { /* done? */
++    if ( (ch == '\n') || (ch == '\r') ) { /* done? */
+       str[0] = '\0';
+       return 1; /* success */
+     }
+@@ -574,7 +530,7 @@
+ 
+   str[0] = '\0'; /* terminate buffer */
+ 
+-  return 0; /* fail, because the line is longer than the buffer? */
++  return success;
+ 
+ }
+ 
+diff -urwN find-o/kitten/kitten.h find-x/kitten/kitten.h
+--- find-o/kitten/kitten.h	2023-03-30 11:32:44.206879150 +0300
++++ find-x/kitten/kitten.h	2023-03-30 14:35:44.061843284 +0300
+@@ -29,22 +29,14 @@
+ 
+ /* Data types */
+ 
+-#if defined(__GNUC__)
+-typedef int __attribute__((used)) nl_catd;
+-#else
+ typedef int nl_catd;
+-#endif
+ 
+ /* Functions */
+-#ifdef NOCATS             /* #define NOCATS to disable completely */
+-#define catgets(c,x,y,s) s
+-#define catopen(x,y) 1
+-#define catclose(x)
+-#else
++
+ #define catgets(catalog, set,message_number,message) kittengets(set,message_number,message)
+ #define catopen(name,flag) kittenopen(name)
+ #define catclose(catalog)  kittenclose()
+-#endif
++
+ 
+ char *  kittengets( int set_number, int message_number,char *message);
+ nl_catd kittenopen(char *name);
+@@ -52,19 +44,17 @@
+ 
+ int get_line (int file, char *buffer, int size);
+ 
+-#if defined(__TURBOC__)
+-int dos_open(char *filename, int mode);
+-#define open(filename,mode) dos_open(filename,mode)
+-
+-int dos_read(int file, void *ptr, unsigned count);
+-#define read(file, ptr, count) dos_read(file,ptr,count)
+-
+-int dos_write(int file, void *ptr, unsigned count);
+-#define write(file, ptr, count) dos_write(file,ptr,count)
+-
+-void dos_close(int file);
+-#define close(file) dos_close(file)
+-#endif
++//int dos_open(char *filename, int mode);
++//#define open(filename,mode) dos_open(filename,mode)
++
++//int dos_read(int file, void *ptr, unsigned count);
++//#define read(file, ptr, count) dos_read(file,ptr,count)
++
++//int dos_write(int file, void *ptr, unsigned count);
++//#define write(file, ptr, count) dos_write(file,ptr,count)
++
++//void dos_close(int file);
++//#define close(file) dos_close(file)
+ 
+ #ifdef __cplusplus
+ }
+diff -urwN find-o/src/find.c find-x/src/find.c
+--- find-o/src/find.c	2023-03-30 14:51:57.841324715 +0300
++++ find-x/src/find.c	2019-10-10 07:34:32.346452245 +0300
+@@ -1,5 +1,6 @@
+ /* find.c */
+ 
++/* Copyright (C) 2009, osFree.org */
+ /* Copyright (C) 1994-2002, Jim Hall <jhall@freedos.org> */
+ 
+ /*
+@@ -22,65 +23,46 @@
+  * that contain the string.  Multiple files are clearly separated.
+  */
+ 
++#define INCL_DOSERRORS
++#define INCL_VIO
++
++#include <osfree.h>             // Include file for osfree
++#include <cmd_shared.h>         // Include file for cmd tools
++
++#include <stdio.h>
+ #include <stdlib.h>			/* borland needs this for 'exit' */
+ #include <fcntl.h>			/* O_RDONLY */
+ #include <string.h>
+ #include <ctype.h>
+ 
++#include <direct.h>                        /* for findfirst, findnext */
+ #include <dos.h>			/* for findfirst, findnext */
+ 
+-#ifdef __TURBOC__
+-#include <dir.h>			/* for findfirst, findnext */
+-#else
+-#include <unistd.h>
+-/* redefine struct name */
+-#define ffblk find_t
+-/* rename one of the member of that struct */
+-#define ff_name name
+-#define findfirst(pattern, buf, attrib) \
+-  _dos_findfirst((pattern), (attrib), (struct find_t *)(buf))
+-#define findnext(buf) _dos_findnext((struct find_t *)(buf))
+-#endif
+-
+-#if defined(__WATCOMC__)
+-#include <io.h>				/* for findfirst, findnext */
+-#endif
+-
+-#if defined(__GNUC__)
+-#include <libi86/stdlib.h>
+-#define far __far
+-#endif
+-
+ #include "find_str.h"			/* find_str() back-end */
+ 
+-#include "../kitten/kitten.h"		/* Kitten message library */
+-#include "../tnyprntf/tnyprntf.h"
+-
+-
+-/* Functions */
++/* Show usage */
+ 
+-void usage (nl_catd cat);
++void usage()
++{
++  cmd_ShowSystemMessage(cmd_MSG_FIND_HELP,0L);
++}
+ 
+ 
+ /* Main program */
+ 
+-#ifndef MAXDIR
+-#define MAXDIR 256
+-#endif
+ 
+-int
+-main (int argc, char **argv)
++int main (int argc, char* argv[], char* envp[])
+ {
+   char *s, *needle;
+   int c, i, done, ret;
+ 
+   unsigned drive /* , thisdrive */ ;	/* used to store, change drive */
+-  char cwd[MAXDIR], thiscwd[MAXDIR];	/* used to store, change cwd */
+-  char cwd2[MAXDIR];			/* store cwd of other drive */
++  char cwd[CCHMAXPATH], thiscwd[CCHMAXPATH];    /* used to store, change cwd */
++  char cwd2[CCHMAXPATH];                    /* store cwd of other drive */
+ 
+   /* char drv[MAXDRIVE]; */		/* temporary buffer */
+   unsigned drv;				/* drive found in argument */
+-  unsigned maxdrives;
++  unsigned maxdrives;                   /* not used */
+ 
+   int invert_search = 0;		/* flag to invert the search */
+   int count_lines = 0;			/* flag to whether/not count lines */
+@@ -89,17 +71,11 @@
+ 
+   /* FILE *pfile; */			/* file pointer */
+   int thefile;				/* file handler */
+-  nl_catd cat;				/* message catalog */
+-  struct ffblk ffblk;			/* findfirst, findnext block */
+-
+-  /* Message catalog */
+-
+-  cat = catopen ("find", 0);
++  struct find_t ffblk;                   /* findfirst, findnext block */
+ 
+   /* Scan the command line */
+   c = 1; /* argv[0] is the path of the exectutable! */
+ 
+-
+   /* first, expect all slashed arguments */
+   while ((c < argc) && (argv[c][0] == '/') ) {
+       /* printf("arg: %s\n",argv[c]); */
+@@ -125,8 +101,7 @@
+ 	    break;
+ 
+ 	  default:
+-	    usage (cat);
+-	    catclose (cat);
++            usage();
+ 	    exit (2);		/* syntax error .. return errorlevel 2 */
+ 	    break;
+ 	    
+@@ -134,14 +109,14 @@
+       c++;	/* next argument */
+   } /* end while */
+ 
++
+   /* Get the string */
+ 
+   if (c >= argc)
+     {
+       /* No string? */
+       /* printf("no string"); */
+-      usage (cat);
+-      catclose (cat);
++      usage ();
+       exit (1);
+     }
+   else
+@@ -162,13 +137,8 @@
+      drive & cwd at the end.  This is probably not the most efficient
+      way of doing it, but it works.  -jh */
+ 
+-  _dos_getdrive (&drive); 		/* 1 for A, 2 for B, ... */
+-  getcwd (cwd, MAXDIR);			/* also stores drive letter */
+-
+-#if 0 /* debugging */
+-  /* printf ("drive=%c\n", (drive+'A'-1)); */
+-  /* printf ("cwd=%s\n", cwd); */
+-#endif /* debugging */
++  _dos_getdrive(&drive); /* uses dir.h */
++  getcwd (cwd, CCHMAXPATH);                 /* also stores drive letter */
+ 
+   /* Scan the files for the string */
+ 
+@@ -206,19 +176,18 @@
+ 	    }
+ 	  }
+ 
+-          /* printf("drive (0=A:)=%d dir=%s\n", drv, thiscwd); */
+ 
+ 	  /* use findfirst/findnext to expand the filemask */
+ 
+-	  done = findfirst (argv[i], &ffblk, 0);
++          done = _dos_findfirst (argv[i], 0, &ffblk);
++
+ 
+ 	  if (done)
+ 	    {
+ 	      /* We were not able to find a file. Display a message and
+ 		 set the exit status. */
+ 
+-	      s = catgets (cat, 2, 1, "No such file");
+-	      PRINTF("FIND: %s: %s\n", argv[i], s);
++              cmd_ShowSystemMessage(MSG_FILE_NOT_FOUND, 0L);
+ 	    }
+ 
+ 	  while (!done)
+@@ -227,47 +196,51 @@
+ 
+ 	      /* set cwd to the filemask */
+ 
+-	      _dos_setdrive (drv + 1, &maxdrives);
+-	      getcwd(cwd2,MAXDIR); /* remember cwd here, too */
++              /* _dos_setdrive (('A' - drv[0] + 1), &maxdrives); */
++              /* this was the wrong way round! */
++
++              (void) _dos_setdrive (drv, &maxdrives); /* dir.h */
++
++              getcwd(cwd2,CCHMAXPATH); /* remember cwd here, too */
+ 
+ 	      if (chdir (thiscwd) < 0) {
+-		  s = catgets (cat, 2, 2, "Cannot change to directory");
+-		  PRINTF("FIND: %s: %s\n", argv[i], s);
++                  if (strcmp(thiscwd, ".")) {
++                    cmd_ShowSystemMessage(1103, 0L);
++                  }
+ 	      };
+ 
+ 	      /* open the file, or not */
+ 
+-	      if ((thefile = open (ffblk.ff_name, O_RDONLY)) != -1)
++
++              if (_dos_open (ffblk.name, O_RDONLY, &thefile) == 0)
+ 		{
+-		  PRINTF("---------------- %s\n", ffblk.ff_name);
++                  fprintf (stderr, "---------------- %s\n", ffblk.name);
+ 		  ret = find_str (needle, thefile, invert_search, count_lines, number_output, ignore_case);
+-		  close (thefile);
++                  _dos_close (thefile);
+ 		}
+-
+ 	      else
+ 		{
+-		  s = catgets (cat, 2, 0, "Cannot open file");
+-		  PRINTF("FIND: %s: %s\n", argv[i], s);
++                  cmd_ShowSystemMessage(MSG_FILE_NOT_FOUND, 0L);
+ 		}
+ 
+ 	      /* return the cwd */
+ 
+ 	      chdir (cwd2); /* restore cwd on THAT drive */
+ 
+-	      _dos_setdrive (drive, &maxdrives);
++              /* _dos_setdrive (drive, &maxdrives); */
++              (void) _dos_setdrive (drive, &maxdrives); /* dir.h */
+ 	      chdir (cwd);
+ 
+ 	      /* find next file to match the filemask */
+ 
+-	      done = findnext (&ffblk);
++              done = _dos_findnext (&ffblk);
+ 	    } /* while !done */
+ 	} /* for each argv */
+     } /* else */
+ 
+   /* Done */
+ 
+-  catclose (cat);
+-
++  _dos_findclose (&ffblk);
+ 
+  /* RETURN: If the string was found at least once, returns 0.
+   * If the string was not found at all, returns 1.
+@@ -278,37 +251,3 @@
+   return (ret ? 0 : 1);
+ 
+ }
+-
+-/* Show usage */
+-
+-void
+-usage (nl_catd cat)
+-{
+-  char *s, *s2;
+-
+-  (void)cat; /* avoid unused argument error message in kitten */
+-
+-  PRINTF("FreeDOS Find, version 2.9\n");
+-  PRINTF("GNU GPL - copyright 1994-2002 Jim Hall <jhall@freedos.org>\n");
+-  PRINTF("          copyright 2003 Eric Auer <eric@coli.uni-sb.de>\n\n");
+-
+-  s = catgets (cat, 0, 0, "Prints all lines of a file that contain a string");
+-  PRINTF("FIND: %s\n", s);
+-
+-  s = catgets (cat, 1, 1, "string");
+-  s2 = catgets (cat, 1, 0, "file");
+-  PRINTF("FIND [ /C ] [ /I ] [ /N ] [ /V ] \"%s\" [ %s ... ]\n", s, s2);
+-
+-  s = catgets (cat, 0, 1, "Only count the matching lines");
+-  PRINTF("  /C  %s\n", s);
+-
+-  s = catgets (cat, 0, 2, "Ignore case");
+-  PRINTF("  /I  %s\n", s);
+-
+-  s = catgets (cat, 0, 3, "Show line numbers");
+-  PRINTF("  /N  %s\n", s);
+-
+-  s = catgets (cat, 0, 4, "Print lines that do not contain the string");
+-  PRINTF("  /V  %s\n", s);
+-}
+-
+diff -urwN find-o/src/find_str.c find-x/src/find_str.c
+--- find-o/src/find_str.c	2023-03-30 14:51:57.841324715 +0300
++++ find-x/src/find_str.c	2023-03-30 15:07:05.628328493 +0300
+@@ -21,49 +21,17 @@
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    */
+ 
++#include <stdio.h>
+ #include <ctype.h>
+ #include <string.h>
+ #include <stdlib.h> /* ltoa */
+ 
+ #include "../kitten/kitten.h"
+ 
+-#ifndef __TURBOC__
+-#include <unistd.h>
+-#endif
+-
+-#if defined(__GNUC__)
+-#include <libi86/stdlib.h>
+-#define far __far
+-#endif
+-
+-#ifdef __MSDOS__
+-#include <dos.h> /* intdosx */
+-
+-/*
+-NLS is int 21.65 -> get tables... country=-1 is current... The data:
+-02 - upcase table: 128 bytes of "what is that 0x80..0xff char in uppercase?"
+-...
+-The returned buffer contents are NOT the tables but a byte followed by
+-a far POINTER to the actual tables!
+-All tables are prefixed by a word indicating the table size (128, 256...)!
+-Minimum DOS version for NLS stuff is 3.3 ... For table request, give BX
+-and DX as codepage / country, or -1 to use current. You must provide a
+-buffer at ES:DI and tell its length in CX. On return, CY / buffer / CX set.
+-Only if NLSFUNC loaded, other codepages / countries than current are avail.
+-
+-From DOS 4.0 on, you also have:
+-Upcase char:   21.6520.dl -> dl
+-Upcase array:  21.6521.ds:dx.cx (string at ds:dx, length cx)
+-Upcase string: 21.6522.ds:dx (string terminated by 0 byte)
+-*/
+-
+-unsigned char far * upcasetab = NULL;
+-#endif
+-
+ 
+ /* Symbolic constants */
+ 
+-#define MAX_STR 1024 /* 128 */ /* max line length */
++#define MAX_STR 1024 /* max line length */
+ 
+ 
+ /* Functions */
+@@ -76,73 +44,32 @@
+  */
+ 
+ /* save some stack space: */
+-char temp_str[MAX_STR];
+-char this_line[MAX_STR+3]; /* extra space for \r\n\0 */
++  unsigned char temp_str[MAX_STR];
++  unsigned char this_line[MAX_STR+3]; /* extra space for \r\n\0 */
+ 
+ int
+-find_str (char *sz, int thefile,
++find_str (unsigned char *sz, int thefile,
+        int invert_search, int count_lines, int number_output, int ignore_case)
+ {
+   int i, length;
+   long line_number = 0, total_lines = 0;
+-  char *c;
++  unsigned char *c;
+   char numbuf[16]; /* for itoa */
+ 
+-#ifdef __MSDOS__
+-    /* MAKE SURE THAT YOU USE BYTE ALIGNMENT HERE! */
+-    struct NLSBUF {
+-        char id;
+-        unsigned char far * content;
+-    } upcasebuf;
+-    union REGS     dosr;
+-    struct SREGS   doss;
+-#endif
+-
+   (void)get_line (thefile, NULL, 0); /* init buffers */
+ 
+   /* Convert to upper if needed */
+ 
+   if (ignore_case)
+     {
+-#ifdef __MSDOS__
+-	if (upcasetab == NULL) {
+-	    /* LOAD TABLE IF NOT DONE YET BUT POSSIBLE */
+-            if ( (_osmajor > 3) ||
+-                 ((_osmajor >= 3) && (_osminor >= 3)) ) {
+-                dosr.x.ax = 0x6502; /* get upper case table */
+-                dosr.x.bx = 0xffff; /* default codepage  */
+-                dosr.x.dx = 0xffff; /* default country   */
+-                dosr.x.cx = 5;      /* buffer size   */
+-                doss.es = FP_SEG(&upcasebuf);
+-                dosr.x.di = FP_OFF(&upcasebuf);
+-                intdosx(&dosr,&dosr,&doss);
+-                if ((dosr.x.cflag) == 1) {
+-                    /* upcasetab still NULL */ /* bad luck! */
+-                } else {
+-                    /* ... CX is returned as table length ... */
+-                    upcasetab = upcasebuf.content; /* table pointer */
+-                    upcasetab++; /* skip leading word, which is */
+-                    upcasetab++; /* not part of the table */
+-                } /* end success loading uppercase table */
+-            } /* end if at least DOS 3.3 */
+-	} /* end load table */
+-#endif
+       length = strlen (sz);
+       for (i = 0; i < length; i++)
+-#ifndef __MSDOS__
+ 	sz[i] = toupper (sz[i]);
+-#else
+-        if ((sz[i] < 128) || (upcasetab == NULL)) {
+-	    sz[i] = toupper (sz[i]);
+-	} else {
+-	    /* USE TABLE (OR, DOS 4+, DOS FUNC...) */
+-	    sz[i] = upcasetab[sz[i]-128];
+-	}
+-#endif
+     }
+ 
+   /* Scan the file until EOF */
+ 
++
+   while ( get_line (thefile, temp_str, sizeof(temp_str)) )
+     /* ( fgets (temp_str, MAX_STR, p) != NULL ) */
+     /* get_line of kitten is smaller than f-stuff overhead */
+@@ -150,6 +77,7 @@
+ 
+       /* Remove the trailing newline, if any */
+ 
++
+       length = strlen (temp_str);
+       if (temp_str[length-1] == '\n')
+ 	{
+@@ -173,16 +101,7 @@
+ 	{
+ 	  for (i = 0; i < length; i++)
+ 	    {
+-#ifndef __MSDOS__
+-	      temp_str[i] = toupper (temp_str[i]);
+-#else
+-              if ((temp_str[i] < 128) || (upcasetab==NULL)) {
+ 	          temp_str[i] = toupper (temp_str[i]);
+-	      } else {
+-	          /* USE TABLE (OR, DOS 4+, DOS FUNC...) */
+-	          temp_str[i] = upcasetab[temp_str[i]-128];
+-	      }
+-#endif
+ 	    }
+ 	}
+ 
+@@ -202,8 +121,7 @@
+ 	      if (number_output) {
+ 		/* printf ("%ld:", line_number); */
+ 		ltoa(line_number, numbuf, 10);
+-		write(1,numbuf,strlen(numbuf));
+-		write(1,":",1);
++                fprintf(stderr,"%s:", numbuf);
+ 	      }
+ 
+ 	      /* Print the line of text, after adding \r\n\0 */
+@@ -212,8 +130,7 @@
+               c[0] = '\r';
+               c[1] = '\n';
+               c[2] = '\0';
+-	      write(1 /* stdout */, this_line, strlen(this_line));
+-	      /* was: puts (this_line); */
++              fprintf(stderr, "%s", this_line);
+ 	    }
+ 
+ 	  total_lines++;
+@@ -225,8 +142,7 @@
+       /* Just show num. lines that contain the string */
+       /* printf ("%ld\n", total_lines); */
+       ltoa(total_lines, numbuf, 10);
+-      write(1,numbuf,strlen(numbuf));
+-      write(1,"\r\n",2);
++      fprintf(stderr, "%s\r\n", numbuf);
+     }
+ 
+ 
