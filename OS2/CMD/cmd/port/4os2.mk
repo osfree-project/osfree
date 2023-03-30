@@ -1,6 +1,6 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-PORT_NAME = 4os2
+PORT_NAME = os2$(SEP)4os2
 PORT_TYPE = git
 PORT_URL  = https://github.com/StevenLevine/4os2
 PORT_REV  = main
