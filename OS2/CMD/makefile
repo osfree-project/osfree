@@ -41,6 +41,7 @@ DIRS =        shared &
               tree &
               tshell &
               undelete &
+              unzip &
               ver &
               vol &
               xcopy &
