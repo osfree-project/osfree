@@ -15,7 +15,7 @@ srcfiles = $(p)jaricom$(e) $(p)jcapimin$(e) $(p)jcapistd$(e) $(p)jcarith$(e) $(p
         $(p)jddctmgr$(e) $(p)jdhuff$(e) $(p)jdinput$(e) $(p)jdmainct$(e) $(p)jdmarker$(e) $(p)jdmaster$(e) &
         $(p)jdmerge$(e) $(p)jdpostct$(e) $(p)jdsample$(e) $(p)jdtrans$(e) $(p)jerror$(e) $(p)jfdctflt$(e) &
         $(p)jfdctfst$(e) $(p)jfdctint$(e) $(p)jidctflt$(e) $(p)jidctfst$(e) $(p)jidctint$(e) $(p)jquant1$(e) &
-        $(p)jquant2$(e) $(p)jutils$(e) $(p)jmemmgr$(e)
+        $(p)jquant2$(e) $(p)jutils$(e) $(p)jmemmgr$(e) $(p)jmemnobs$(e)
 
 !include $(%ROOT)tools/mk/libsos2.mk
 !include $(MYDIR)ijg.mk
