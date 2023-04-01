@@ -4,6 +4,6 @@ PORT_NAME = os2$(SEP)gbm
 PORT_TYPE = wget
 PORT_URL  = https://www.os2site.com/sw/graphics/gbm/gbmos2pm160_gbm176_lu143_moz147_src.zip
 PORT_REV  = 
-PORT_PATCHES  = 
+PORT_PATCHES  = gbm.diff
 
 !include $(%ROOT)tools/mk/port.mk

@@ -1,0 +1,21 @@
+diff -urwN gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c gbm/gbmos2pm_gbm_gbmplugins.src/gbm.o/gbmpng.c
+--- gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c	Fri Sep 24 15:17:08 2010
++++ gbm/gbmos2pm_gbm_gbmplugins.src/gbm.o/gbmpng.c	Sat Apr 01 17:21:52 2023
+@@ -1770,7 +1770,7 @@
+     fn=fn; /* Suppress 'unref arg' compiler warnings */
+ 
+     /* check for height processing limitations */
+-    if (gbm->h > PNG_UINT_32_MAX/png_sizeof(png_bytep))
++    if (gbm->h > PNG_UINT_32_MAX/sizeof(png_bytep))
+     {
+        return GBM_ERR_WRITE;
+     }
+@@ -1856,7 +1856,7 @@
+ 
+           /* set the palette, REQUIRED for indexed-color images */
+           png_priv.palette_ptr = (png_colorp) png_malloc(png_ptr,
+-                                                         palette_entries * png_sizeof(png_color));
++                                                         palette_entries * sizeof(png_color));
+ 
+           /* copy gbm palette -> libpng palette */
+           for (i = 0; i < palette_entries; i++)
