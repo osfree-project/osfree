@@ -15,12 +15,11 @@ srcfiles = $(p)adler32$(e) $(p)crc32$(e) $(p)deflate$(e) $(p)infback$(e) &
            $(p)gzwrite$(e) 
 
 !include $(%ROOT)tools/mk/libsos2.mk
+!include $(MYDIR)zlib.mk
 
-.c: $(MYDIR)contrib
+.c: $(PORT_BASE)$(SEP)zlib-1.2.13
 
-.h: $(MYDIR)contrib
-
-#.$(O): $(PATH)
+.h: $(PORT_BASE)$(SEP)zlib-1.2.13
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
