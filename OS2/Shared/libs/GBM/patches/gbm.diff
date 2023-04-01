@@ -1,6 +1,6 @@
-diff -urwN gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c gbm/gbmos2pm_gbm_gbmplugins.src/gbm.o/gbmpng.c
---- gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c	Fri Sep 24 15:17:08 2010
-+++ gbm/gbmos2pm_gbm_gbmplugins.src/gbm.o/gbmpng.c	Sat Apr 01 17:21:52 2023
+diff -urwN gbm-o/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c
+--- gbm-o/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c	2023-04-01 14:15:46.215144423 +0300
++++ gbm/gbmos2pm_gbm_gbmplugins.src/gbm/gbmpng.c	2023-04-01 14:17:25.317269251 +0300
 @@ -1770,7 +1770,7 @@
      fn=fn; /* Suppress 'unref arg' compiler warnings */
  
