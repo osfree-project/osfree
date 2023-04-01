@@ -11,6 +11,9 @@ DESC = UNZIP file unarchiver
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 DIRSEP="\\"
 AS_DIRSEP="\\"
+ADD_COPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -Ox -s -Zp1 -d3 # -sg -ecw
+ADD_ASMOPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -3p -ml
+
 ADD_LINKOPT = debug all # op caseexact
 STACK=0x50000
 srcfiles = $(p)unzip$(e) $(p)crypt$(e) $(p)envargs$(e) $(p)explode$(e) $(p)extract$(e) &
@@ -28,16 +31,14 @@ srcfiles = $(p)unzip$(e) $(p)crypt$(e) $(p)envargs$(e) $(p)explode$(e) $(p)extra
 #           good_match=_good_match, &
 #           nice_match=_nice_match
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-# $(p)crctab$(e)
+NODEFAULTLIBS = 1
+UNI2H = 1
 
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
 !include $(MYDIR)unzip.mk
 
-ADD_COPT = -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -i=$(PORT_BASE)os2 -i=$(PORT_BASE) &
-           -zq -Ox -s -Zp1 -d3 # -sg -ecw
-ADD_ASMOPT = -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -i=$(PORT_BASE)os2 -i=$(PORT_BASE) -zq -3p -ml
-NODEFAULTLIBS = 1
-UNI2H = 1
+ADD_COPT += -i=$(PORT_BASE)os2 -i=$(PORT_BASE)
+ADD_ASMOPT += -i=$(PORT_BASE)os2 -i=$(PORT_BASE)
 
 .asm: $(PORT_BASE)os2
 

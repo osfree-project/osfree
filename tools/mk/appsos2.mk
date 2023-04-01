@@ -21,7 +21,7 @@ C = r
 
 # generated uni2h headers
 
-ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
+ADD_COPT   += -bt=os2 -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%OS2TK)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
                       -i=$(%WATCOM)$(SEP)h$(SEP)os2

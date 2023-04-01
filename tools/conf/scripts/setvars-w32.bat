@@ -21,7 +21,7 @@ set SERVERENV=win32
 set TMP=%TEMP%
 
 set PATH=e:\win32\bin;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%OS2TK%\bin;%OS2TK%\som\bin;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
-set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\nt
+set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\nt;
 rem %WATCOM%\h\os21x;
 set LIB=%WATCOM%\lib386\nt
 set WD_PATH=%WATCOM%\binnt
