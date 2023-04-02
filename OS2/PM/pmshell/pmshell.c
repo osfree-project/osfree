@@ -12,8 +12,7 @@
 #define  INCL_DOSEXCEPTIONS
 #include <os2.h>
 
-#include <string.h>
-#include <stdio.h>
+#include <string.h>	// strcasecmp
 
 #define ORD_SHLSTARTWORKPLACE   211
 #define ORD_SHLEXCEPTIONHANDLER 212
@@ -33,9 +32,9 @@ APIRET APIENTRY SaveEnv (PEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler)
 APIRET APIENTRY StartWorkplace (HAB hab, HMQ hmq)
 {
   STARTDATA sd;
-  char      objbuf[256];
+  CHAR      objbuf[256];
   ULONG     ulSessID, ulPID;
-  char      *pszValue;
+  PSZ       pszValue;
   APIRET    rc;
 
   if (!(rc = DosScanEnv("RUNWORKPLACE", &pszValue)))
@@ -80,31 +79,27 @@ APIRET APIENTRY MsgLoop (HAB hab)
 
     hwnd = (HWND)qmsg.mp2;
 
-    if ((HWND)qmsg.msg != WM_QUIT)
-      continue;
-
-    if (WinIsWindow(hab, hwnd) == 0)
-      continue;
-
-    WinSendMsg(hwnd, (ULONG)WM_SYSCOMMAND, (MPARAM)0x8004, (MPARAM)2);
+    if (((HWND)qmsg.msg == WM_QUIT) && (WinIsWindow(hab, hwnd)))
+      WinSendMsg(hwnd, (ULONG)WM_SYSCOMMAND, (MPARAM)SC_CLOSE, (MPARAM)CMDSRC_MENU);
   }
 
   return 0;
 }
 
-int getfunc (int nowps)
+int getfunc (BOOL bNoWPS)
 {
-  char    LoadError[256];
+  CHAR    LoadError[256];
   HMODULE hmod;
   APIRET  rc;
 
-  ShlStartWorkplace   = 0;
   ShlExceptionHandler = 0;
-  ShlSaveEnv          = 0;
-  MessageLoopProc     = 0;
 
+  // Not required. Will be set in any case or not used
+//  ShlStartWorkplace   = 0;
+//  ShlSaveEnv          = 0;
+//  MessageLoopProc     = 0;
 
-  if (nowps)
+  if (bNoWPS)
   {
     ShlSaveEnv = (void *)&SaveEnv;
     MessageLoopProc = (void *)&MsgLoop;
@@ -112,17 +107,13 @@ int getfunc (int nowps)
   }
   else
   {
-    rc = DosLoadModule(LoadError, sizeof(LoadError), "PMWP", &hmod);
-
-    if (rc)
+    if (!(rc = DosLoadModule(LoadError, sizeof(LoadError), "PMWP", &hmod)))
+    if (!(rc = DosQueryProcAddr(hmod, ORD_SHLSTARTWORKPLACE  , 0, (PFN *)&ShlStartWorkplace)))
+    if (!(rc = DosQueryProcAddr(hmod, ORD_SHLEXCEPTIONHANDLER, 0, (PFN *)&ShlExceptionHandler)))
+    if (!(rc = DosQueryProcAddr(hmod, ORD_SHLSAVEENV         , 0, (PFN *)&ShlSaveEnv)))
+    if (!(rc = DosQueryProcAddr(hmod, ORD_MESSAGELOOPPROC,     0, (PFN *)&MessageLoopProc)))
       return rc;
-
-    DosQueryProcAddr(hmod, ORD_SHLSTARTWORKPLACE  , 0, (PFN *)&ShlStartWorkplace);
-    DosQueryProcAddr(hmod, ORD_SHLEXCEPTIONHANDLER, 0, (PFN *)&ShlExceptionHandler);
-    DosQueryProcAddr(hmod, ORD_SHLSAVEENV         , 0, (PFN *)&ShlSaveEnv);
-    DosQueryProcAddr(hmod, ORD_MESSAGELOOPPROC,     0, (PFN *)&MessageLoopProc);
   }
-
 
   return 0;
 }
@@ -131,24 +122,24 @@ int main (int argc, char **argv)
 {
   EXCEPTIONREGISTRATIONRECORD err;
   /* Env. variable name */
-  char   pszName[] = "WORKPLACE_PROCESS";
-  char   *pszValue;
+  CHAR   pszName[] = "WORKPLACE_PROCESS";
+  PSZ    pszValue;
   HAB    hab;
   HMQ    hmq;
   QMSG   qmsg;
   PTIB   ptib;
   PPIB   ppib;
   APIRET rc;
-  int    nowps = 0;  
+  BOOL   bNoWPS = FALSE;
 
   DosGetInfoBlocks(&ptib, &ppib);
   ppib->pib_ultype = 3; // "morph" into a PM application
 
   if (argc > 1 && (!strcasecmp(argv[1], "/nowps") || 
       !strcasecmp(argv[1], "-nowps")))
-    nowps = 1;
+    bNoWPS = TRUE;
 
-  if (rc = getfunc(nowps))
+  if (rc = getfunc(bNoWPS))
     return rc;
 
   hab = WinInitialize(0);
