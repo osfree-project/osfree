@@ -50,7 +50,7 @@ diff -urwN libgd/src/gd_errors.h libgd.o\src\gd_errors.h
 -#ifndef _WIN32
 -# include <syslog.h>
 -#else
-+#if defined(_WIN32) | defined(__OS2__)
++#if defined(_WIN32) || defined(__OS2__)
  /*
   * priorities/facilities are encoded into a single 32-bit quantity, where the
   * bottom 3 bits are the priority (0-7) and the top 28 bits are the facility
