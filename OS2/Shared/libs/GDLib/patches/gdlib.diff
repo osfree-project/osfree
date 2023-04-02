@@ -1,0 +1,83 @@
+diff -urwN libgd.o\src\gd.h libgd\src\gd.h
+--- libgd.o\src\gd.h	Sun Apr 02 11:06:04 2023
++++ libgd\src\gd.h	Sun Apr 02 11:15:10 2023
+@@ -45,7 +45,7 @@
+    the gd sources in a project. */
+ 
+ /* http://gcc.gnu.org/wiki/Visibility */
+-#if defined(_WIN32) || defined(CYGWIN) || defined(_WIN32_WCE)
++#if defined(_WIN32) || defined(CYGWIN) || defined(_WIN32_WCE) || defined(__OS2__)
+ # ifdef BGDWIN32
+ #  ifdef NONDLL
+ #   define BGD_EXPORT_DATA_PROT
+diff -urwN libgd.o\src\gd_errors.h libgd\src\gd_errors.h
+--- libgd.o\src\gd_errors.h	Sun Apr 02 11:06:02 2023
++++ libgd\src\gd_errors.h	Sun Apr 02 11:11:53 2023
+@@ -1,9 +1,7 @@
+ #ifndef GD_ERRORS_H
+ #define GD_ERRORS_H
+ 
+-#ifndef _WIN32
+-# include <syslog.h>
+-#else
++#if defined(_WIN32) | defined(__OS2__)
+ /*
+  * priorities/facilities are encoded into a single 32-bit quantity, where the
+  * bottom 3 bits are the priority (0-7) and the top 28 bits are the facility
+@@ -21,6 +19,8 @@
+ # define LOG_NOTICE      5       /* normal but significant condition */
+ # define LOG_INFO        6       /* informational */
+ # define LOG_DEBUG       7       /* debug-level messages */
++#else
++# include <syslog.h>
+ #endif
+ 
+ /*
+diff -urwN libgd.o\src\gd_filter.c libgd\src\gd_filter.c
+--- libgd.o\src\gd_filter.c	Sun Apr 02 11:06:02 2023
++++ libgd\src\gd_filter.c	Sun Apr 02 11:32:29 2023
+@@ -14,6 +14,9 @@
+ #ifdef _WIN32
+ # include <windows.h>
+ #else
++#ifdef __OS2__
++# include <process.h>
++#endif
+ # include <unistd.h>
+ #endif
+ #include <stdlib.h>
+diff -urwN libgd.o\src\gd_interpolation.c libgd\src\gd_interpolation.c
+--- libgd.o\src\gd_interpolation.c	Sun Apr 02 11:06:04 2023
++++ libgd\src\gd_interpolation.c	Sun Apr 02 11:24:56 2023
+@@ -295,8 +295,9 @@
+ }
+ 
+ double filter_linear(const double x, const double support) {
++	double ax;
+ 	ARG_NOT_USED(support);
+-	double ax = fabs(x);
++	ax = fabs(x);
+ 	if (ax < 1.0f) {
+ 		return (1.0f - ax);
+ 	}
+@@ -339,8 +340,9 @@
+ /* CubicSpline filter, default radius 2 */
+ static double filter_cubic_spline(const double x1, const double support)
+ {
+-	ARG_NOT_USED(support);
+ 	const double x = x1 < 0.0 ? -x1 : x1;
++	ARG_NOT_USED(support);
++	
+ 
+ 	if (x < 1.0 ) {
+ 		const double x2 = x*x;
+@@ -559,8 +561,8 @@
+ 
+ static double filter_power(const double x, const double support)
+ {
+-	ARG_NOT_USED(support);
+ 	const double a = 2.0f;
++	ARG_NOT_USED(support);
+ 	if (fabs(x)>1) return 0.0f;
+ 	return (1.0f - (double)fabs(pow(x,a)));
+ }
