@@ -2,8 +2,8 @@
 #
 #  Viking
 
-PROJ = pmsrv
-TRGT = $(PROJ).dll
+PROJ = pmserver
+TRGT = $(PROJ).exe
 DESC = FreePM Server
 DIRS = drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
@@ -15,8 +15,8 @@ ADD_COPT = -bm -od -mf -sg -s
 #ADD_LINKOPT  = lib gdlib.lib
 ADD_LINKOPT  = segment type DATA nonshared lib gdlib.lib
 UNI2H   = 1
-DLL     = 1
-DLLOPT  = initinstance terminstance
+#DLL     = 1
+#DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=init
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
@@ -27,7 +27,7 @@ OPTIONS = manyautodata, caseexact, start=init
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
-DEST = os2$(SEP)dll
+DEST = os2
 
 !include $(%ROOT)tools/mk/appsos2_fpm.mk
 
