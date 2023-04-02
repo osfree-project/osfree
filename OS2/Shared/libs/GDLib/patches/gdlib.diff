@@ -1,6 +1,6 @@
-diff -urwN libgd.o\src\gd.h libgd\src\gd.h
---- libgd.o\src\gd.h	Sun Apr 02 11:06:04 2023
-+++ libgd\src\gd.h	Sun Apr 02 11:15:10 2023
+diff -urwN libgd/src/gd.h libgd.o/src/gd.h
+--- libgd/src/gd.h	Sun Apr 02 12:24:21 2023
++++ libgd.o/src/gd.h	Sun Apr 02 12:22:17 2023
 @@ -45,7 +45,7 @@
     the gd sources in a project. */
  
@@ -10,9 +10,39 @@ diff -urwN libgd.o\src\gd.h libgd\src\gd.h
  # ifdef BGDWIN32
  #  ifdef NONDLL
  #   define BGD_EXPORT_DATA_PROT
-diff -urwN libgd.o\src\gd_errors.h libgd\src\gd_errors.h
---- libgd.o\src\gd_errors.h	Sun Apr 02 11:06:02 2023
-+++ libgd\src\gd_errors.h	Sun Apr 02 11:11:53 2023
+@@ -53,17 +53,29 @@
+ #   ifdef __GNUC__
+ #    define BGD_EXPORT_DATA_PROT __attribute__ ((__dllexport__))
+ #   else
++#    ifndef __OS2__
+ #    define BGD_EXPORT_DATA_PROT __declspec(dllexport)
++#    else
++#     define BGD_EXPORT_DATA_PROT
++#    endif
+ #   endif
+ #  endif
+ # else
+ #  ifdef __GNUC__
+ #   define BGD_EXPORT_DATA_PROT __attribute__ ((__dllimport__))
+ #  else
++#   ifndef __OS2__
+ #   define BGD_EXPORT_DATA_PROT __declspec(dllimport)
++#   else
++#    define BGD_EXPORT_DATA_PROT
++#   endif
+ #  endif
+ # endif
++# ifndef __OS2__
+ # define BGD_STDCALL __stdcall
++# else
++#  define BGD_STDCALL
++# endif
+ # define BGD_EXPORT_DATA_IMPL
+ # define BGD_MALLOC
+ #else
+diff -urwN libgd/src/gd_errors.h libgd.o\src\gd_errors.h
+--- libgd/src/gd_errors.h	Sun Apr 02 12:24:19 2023
++++ libgd.o/src/gd_errors.h	Sun Apr 02 12:09:35 2023
 @@ -1,9 +1,7 @@
  #ifndef GD_ERRORS_H
  #define GD_ERRORS_H
@@ -33,9 +63,9 @@ diff -urwN libgd.o\src\gd_errors.h libgd\src\gd_errors.h
  #endif
  
  /*
-diff -urwN libgd.o\src\gd_filter.c libgd\src\gd_filter.c
---- libgd.o\src\gd_filter.c	Sun Apr 02 11:06:02 2023
-+++ libgd\src\gd_filter.c	Sun Apr 02 11:32:29 2023
+diff -urwN libgd/src/gd_filter.c libgd.o/src/gd_filter.c
+--- libgd/src/gd_filter.c	Sun Apr 02 12:24:19 2023
++++ libgd.o/src/gd_filter.c	Sun Apr 02 12:09:35 2023
 @@ -14,6 +14,9 @@
  #ifdef _WIN32
  # include <windows.h>
@@ -46,9 +76,9 @@ diff -urwN libgd.o\src\gd_filter.c libgd\src\gd_filter.c
  # include <unistd.h>
  #endif
  #include <stdlib.h>
-diff -urwN libgd.o\src\gd_interpolation.c libgd\src\gd_interpolation.c
---- libgd.o\src\gd_interpolation.c	Sun Apr 02 11:06:04 2023
-+++ libgd\src\gd_interpolation.c	Sun Apr 02 11:24:56 2023
+diff -urwN libgd/src/gd_interpolation.c libgd.o/src/gd_interpolation.c
+--- libgd/src/gd_interpolation.c	Sun Apr 02 12:24:21 2023
++++ libgd.o/src/gd_interpolation.c	Sun Apr 02 12:09:35 2023
 @@ -295,8 +295,9 @@
  }
  
