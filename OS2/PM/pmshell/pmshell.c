@@ -3,6 +3,16 @@
  *  (c) osFree project, 2012 Mar 24
  */
 
+/*
+[A]: Alexander V. Nikolaev (2:5020/1251)
+
+SET WORKPLACE_PROCESS=1
+Запускает WPS даже пpи дpугом SET RUNWORKPLACE= (указаная там оболочка тоже
+пускается)
+
+Пpовеpялось под Авpоpой. Под дpугими веpсиями веpятно тоже есть.
+*/
+
 #define  INCL_DOSMODULEMGR
 #define  INCL_DOSPROCESS
 #define  INCL_DOSSESMGR
@@ -19,12 +29,18 @@
 #define ORD_SHLSAVEENV          213
 #define ORD_MESSAGELOOPPROC     284
 
-APIRET APIENTRY (*ShlSaveEnv)(PEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler);
+typedef struct {
+  struct _EXCEPTIONREGISTRATIONRECORD * volatile prev_structure;
+   _ERR * volatile ExceptionHandler;
+   BYTE unknown[16];
+} SHLEXCEPTIONREGISTRATIONRECORD, *PSHLEXCEPTIONREGISTRATIONRECORD;
+
+APIRET APIENTRY (*ShlSaveEnv)(PSHLEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler);
 APIRET APIENTRY (*ShlStartWorkplace)(HAB hab, HMQ hmq);
 APIRET APIENTRY (*MessageLoopProc)(HAB hab);
 APIRET APIENTRY (*ShlExceptionHandler)(void);
 
-APIRET APIENTRY SaveEnv (PEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler)
+APIRET APIENTRY SaveEnv (PSHLEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler)
 {
   return 1;
 }
@@ -90,20 +106,14 @@ int getfunc (BOOL bNoWPS)
 {
   CHAR    LoadError[256];
   HMODULE hmod;
-  APIRET  rc;
-
-  ShlExceptionHandler = 0;
-
-  // Not required. Will be set in any case or not used
-//  ShlStartWorkplace   = 0;
-//  ShlSaveEnv          = 0;
-//  MessageLoopProc     = 0;
+  APIRET  rc = 0;
 
   if (bNoWPS)
   {
-    ShlSaveEnv = (void *)&SaveEnv;
-    MessageLoopProc = (void *)&MsgLoop;
     ShlStartWorkplace = (void *)&StartWorkplace;
+    ShlExceptionHandler = NULL;
+    MessageLoopProc = (void *)&MsgLoop;
+    ShlSaveEnv = (void *)&SaveEnv;
   }
   else
   {
@@ -111,18 +121,16 @@ int getfunc (BOOL bNoWPS)
     if (!(rc = DosQueryProcAddr(hmod, ORD_SHLSTARTWORKPLACE  , 0, (PFN *)&ShlStartWorkplace)))
     if (!(rc = DosQueryProcAddr(hmod, ORD_SHLEXCEPTIONHANDLER, 0, (PFN *)&ShlExceptionHandler)))
     if (!(rc = DosQueryProcAddr(hmod, ORD_SHLSAVEENV         , 0, (PFN *)&ShlSaveEnv)))
-    if (!(rc = DosQueryProcAddr(hmod, ORD_MESSAGELOOPPROC,     0, (PFN *)&MessageLoopProc)))
-      return rc;
+    if (!(rc = DosQueryProcAddr(hmod, ORD_MESSAGELOOPPROC,     0, (PFN *)&MessageLoopProc)));
   }
 
-  return 0;
+  return rc;
 }
 
 int main (int argc, char **argv)
 {
-  EXCEPTIONREGISTRATIONRECORD err;
+  SHLEXCEPTIONREGISTRATIONRECORD err;
   /* Env. variable name */
-  CHAR   pszName[] = "WORKPLACE_PROCESS";
   PSZ    pszValue;
   HAB    hab;
   HMQ    hmq;
@@ -133,7 +141,7 @@ int main (int argc, char **argv)
   BOOL   bNoWPS = FALSE;
 
   DosGetInfoBlocks(&ptib, &ppib);
-  ppib->pib_ultype = 3; // "morph" into a PM application
+  ppib->pib_ultype = PT_PM; // "morph" into a PM application
 
   if (argc > 1 && (!strcasecmp(argv[1], "/nowps") || 
       !strcasecmp(argv[1], "-nowps")))
@@ -146,12 +154,12 @@ int main (int argc, char **argv)
   hmq = WinCreateMsgQueue(hab, 100);
 
   if (ShlSaveEnv(&err, &ShlExceptionHandler) && 
-      !(rc = DosScanEnv(pszName, &pszValue)))
+      !(rc = DosScanEnv("WORKPLACE_PROCESS", &pszValue)))
     ShlStartWorkplace(hab, hmq);
 
   MessageLoopProc(hab);
 
-  DosUnsetExceptionHandler(&err);
+  DosUnsetExceptionHandler((PEXCEPTIONREGISTRATIONRECORD)&err);
   WinDestroyMsgQueue(hmq);
   WinTerminate(hab);
 
