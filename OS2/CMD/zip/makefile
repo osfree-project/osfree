@@ -11,8 +11,8 @@ DESC = ZIP file archiver
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 DIRSEP="\\"
 AS_DIRSEP="\\"
-ADD_COPT += -dOS2 -dNO_ASM -dNO_SYMLINKS -zq -Ox -s -Zp1 -d3 # -sg -ecw
-ADD_ASMOPT += -zq -3p -ml
+ADD_COPT += -dOS2 -dNO_ASM -dNO_SYMLINKS -zq -ox -zp=1 -s -mf -d3 # -sg -ecw
+ADD_ASMOPT += -zq -3p -mf
 ADD_LINKOPT = debug all # op caseexact
 STACK=0x50000
 srcfiles = $(p)zip$(e) $(p)zipfile$(e) $(p)zipup$(e) $(p)fileio$(e) $(p)util$(e) &

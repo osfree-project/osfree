@@ -11,8 +11,8 @@ DESC = UNZIP file unarchiver
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 DIRSEP="\\"
 AS_DIRSEP="\\"
-ADD_COPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -Ox -s -Zp1 -d3 # -sg -ecw
-ADD_ASMOPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -3p -ml
+ADD_COPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -ox -s -zp=1 -mf -d3 # -sg -ecw
+ADD_ASMOPT += -dOS2 -dASM_CRC -dUSE_OWN_CRCTAB -zq -3p -mf
 
 ADD_LINKOPT = debug all # op caseexact
 STACK=0x50000
