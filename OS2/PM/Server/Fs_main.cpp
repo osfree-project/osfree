@@ -12,7 +12,6 @@
 #include "FreePM.hpp"
 #include "FreePMs.hpp"
 
-
 /*#include "FreePM_win.hpp" Maybe Constants ? */
 //#include "FreePM_winConstants.hpp"
 //#include "F_pipe.hpp"
@@ -106,7 +105,7 @@ struct LS_threads
 
 struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
 
-//APIRET APIENTRY init (ULONG flag);
+APIRET APIENTRY init (ULONG flag);
 
 //
 // Main function
@@ -120,13 +119,13 @@ struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
 //   Add desktop
 //   Infinite loop
 
-extern "C" int cmain(int narg, char *arg[], char *envp[])
+int main(int narg, char *arg[], char *envp[])
 {
   int i,j,rc;
   HMODULE hDeviceLib;
 
   /* init pm comm. lib */
-  //init(0);
+  init(0);
 
   /* semaphore setup */
   rc = SetupSemaphore();
@@ -136,8 +135,9 @@ extern "C" int cmain(int narg, char *arg[], char *envp[])
           printf("%s %s already running\n",_FreePM_Application_Name, _FreePM_Application_Vers);
       exit(rc);
   }
-  //atexit(&FreePM_cleanup);
-  //SetupSignals();
+
+  atexit(&FreePM_cleanup);
+  SetupSignals();
 
   rc = QueryProcessType();
 
@@ -603,4 +603,19 @@ debug(0, 2) ("Fs_ClientWork:WARNING: Unimplemented cmd %x\n", ncmd);
            break;
 
       } //endof switch(ncmd)
+}
+
+void FreePM_cleanup(void)
+{   int rc;
+
+//   WriteParameters();
+
+//    lprgs.Write(szConfigFname);
+
+/* в последнюю очередь освобождаем семафор */
+
+    if(FREEPM_hmtx)
+    {   rc = DosReleaseMutexSem(FREEPM_hmtx);        /* Relinquish ownership */
+        rc = DosCloseMutexSem(FREEPM_hmtx);          /* Close mutex semaphore */
+    }
 }

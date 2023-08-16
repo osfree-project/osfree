@@ -32,7 +32,7 @@ SET WORKPLACE_PROCESS=1
 typedef struct {
   struct _EXCEPTIONREGISTRATIONRECORD * volatile prev_structure;
    _ERR * volatile ExceptionHandler;
-   BYTE unknown[32];
+   BYTE unknown[32]; //This is not exactly value, but enough not to kill stack data
 } SHLEXCEPTIONREGISTRATIONRECORD, *PSHLEXCEPTIONREGISTRATIONRECORD;
 
 APIRET APIENTRY (*ShlSaveEnv)(PSHLEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler);
@@ -150,8 +150,9 @@ int main (int argc, char **argv)
   if (rc = getfunc(bNoWPS))
     return rc;
 
-  hab = WinInitialize(0);
-  hmq = WinCreateMsgQueue(hab, 100);
+  if (hab = WinInitialize(0))
+    if (hmq = WinCreateMsgQueue(hab, 100))
+  {
 
   if (ShlSaveEnv(&err, &ShlExceptionHandler) && 
       !(rc = DosScanEnv("WORKPLACE_PROCESS", &pszValue)))
@@ -162,6 +163,7 @@ int main (int argc, char **argv)
   DosUnsetExceptionHandler((PEXCEPTIONREGISTRATIONRECORD)&err);
   WinDestroyMsgQueue(hmq);
   WinTerminate(hab);
+  }
 
   return 0;
 }

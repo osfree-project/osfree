@@ -1,12 +1,12 @@
 #
-# A Makefile for ansicall.dll
+# A Makefile for midimcd.dll
 # (c) osFree project
 #
 
 PROJ     = midimcd
 TRGT     = $(PROJ).dll
 DESC     = MIDI MCI DLL
-OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
+srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..\include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
 DLL     = 1

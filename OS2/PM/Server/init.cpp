@@ -51,12 +51,7 @@ void _db_print(const char *format,...);
 HMODULE   hmodBE = 0;
 
 extern "C" APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
-extern "C" int cmain(int narg, char *arg[], char *envp[]);
 
-void _srvThread(void *param)
-{
-  cmain(1, 0, 0);
-}
 
 void showSigString(int s) {
         char * str="";
@@ -71,19 +66,6 @@ void showSigString(int s) {
         printf("Signal: %d = %s\n", s, str);
 }
 
-void /*_Optlink*/  FreePM_cleanup(void)
-{   int rc;
-
-//   WriteParameters();
-
-//    lprgs.Write(szConfigFname);
-
-/* в последнюю очередь освобождаем семафор */
-    if(FREEPM_hmtx)
-    {   rc = DosReleaseMutexSem(FREEPM_hmtx);        /* Relinquish ownership */
-        rc = DosCloseMutexSem(FREEPM_hmtx);          /* Close mutex semaphore */
-    }
-}
 
 extern "C"  void   FreePM_cleanupHandler(int sig)
  {
@@ -156,8 +138,7 @@ int SetupSignals(void)
     return 0;
  }
 
-extern "C" APIRET APIENTRY init (HMODULE hmod, ULONG flag)
-//APIRET APIENTRY init (ULONG flag)
+APIRET APIENTRY init (ULONG flag)
 {
   PSZ       pszValue;
   char      LoadError[256];
@@ -168,9 +149,6 @@ extern "C" APIRET APIENTRY init (HMODULE hmod, ULONG flag)
 
   DosGetInfoBlocks(&ptib, &ppib);
   ppib->pib_ultype = 2; // VIO
-
-  // call C startup init first
-  rc = __DLLstart_(hmod, flag);
 
   if (!rc)
     return 0;
@@ -185,64 +163,41 @@ extern "C" APIRET APIENTRY init (HMODULE hmod, ULONG flag)
     // init
     rc = DosScanEnv("PM_COMM_BACKEND", &pszValue);
     if (rc) pszValue = "PMPIPE";
-    rc = DosLoadModule(LoadError, sizeof(LoadError), pszValue, &hmodBE);
 
-    if (rc)
+    if (!(rc = DosLoadModule(LoadError, sizeof(LoadError), pszValue, &hmodBE)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 1, 0, (PFN *)&InitServerConnection);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 1, 0, (PFN *)&InitServerConnection)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 2, 0, (PFN *)&CloseServerConnection);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 2, 0, (PFN *)&CloseServerConnection)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 3, 0, (PFN *)&startServerThreads);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 3, 0, (PFN *)&startServerThreads)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 4, 0, (PFN *)&F_SendCmdToServer);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 4, 0, (PFN *)&F_SendCmdToServer)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 5, 0, (PFN *)&F_SendDataToServer);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 5, 0, (PFN *)&F_SendDataToServer)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 6, 0, (PFN *)&F_RecvDataFromServer);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 6, 0, (PFN *)&F_RecvDataFromServer)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 7, 0, (PFN *)&F_SendGenCmdToServer);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 7, 0, (PFN *)&F_SendGenCmdToServer)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 8, 0, (PFN *)&F_SendGenCmdDataToServer);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 8, 0, (PFN *)&F_SendGenCmdDataToServer)))
       return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 9, 0, (PFN *)&F_RecvCmdFromClient);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 9, 0, (PFN *)&F_RecvCmdFromClient)))
      return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 10, 0, (PFN *)&F_RecvDataFromClient);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 10, 0, (PFN *)&F_RecvDataFromClient)))
      return 0;
 
-    rc = DosQueryProcAddr(hmodBE, 11, 0, (PFN *)&F_SendDataToClient);
-
-    if (rc)
+    if (!(rc = DosQueryProcAddr(hmodBE, 11, 0, (PFN *)&F_SendDataToClient)))
      return 0;
 /*
     rc = DosQueryProcAddr(hmodBE, 12, 0, (PFN *)&fatal);
@@ -266,11 +221,6 @@ extern "C" APIRET APIENTRY init (HMODULE hmod, ULONG flag)
       return 0;
  */
   }
-
-  atexit(&FreePM_cleanup);
-  SetupSignals();
-
-  _beginthread(_srvThread, NULL, 0x20000, &idd);
 
   return 1;
 }

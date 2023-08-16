@@ -6,7 +6,7 @@
 PROJ     = indeor31
 TRGT     = $(PROJ).dll
 DESC     = Indeo IOPROC Intel Indeo(TM) V3.12.702 Copyright(c) Intel Corporation 1993
-OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
+srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..\include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
 DLL     = 1

@@ -70,6 +70,9 @@ IHEADERS=$(PATH)$(SEP)wpobject.ih &
 			$(PATH)$(SEP)wpabs.ih &
 			$(PATH)$(SEP)wpabs.xih
 
+EXPORTS      = &
+		ShlStartWorkplace .211
+
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk

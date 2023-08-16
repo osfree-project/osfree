@@ -17,7 +17,7 @@ ADD_LINKOPT  = segment type DATA nonshared lib gdlib.lib
 UNI2H   = 1
 #DLL     = 1
 #DLLOPT  = initinstance terminstance
-OPTIONS = manyautodata, caseexact, start=init
+OPTIONS = manyautodata, caseexact#, start=init
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
 # Found it! To little heapsize! Was only 287 KiB while it assumed 2.6 MiB!
