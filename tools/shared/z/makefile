@@ -4,22 +4,23 @@
 # valerius, 2006/10/30
 #
 
-PROJ = z
+PROJ = libz
 TRGT = $(PROJ).lib
-srcfiles = $(p)adler32$(e) $(p)compress$(e) $(p)crc32$(e) $(p)gzio$(e) &
-           $(p)uncompr$(e) $(p)deflate$(e) $(p)trees$(e) $(p)zutil$(e) &
-           $(p)inflate$(e) $(p)infblock$(e) $(p)inftrees$(e) $(p)infcodes$(e) &
-           $(p)infutil$(e) $(p)inffast$(e)
+#ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
+TARGETS  = $(PATH)$(PROJ).lib
 
-#DEST      = ..$(SEP)build$(SEP)lib
-#DEST      = $(MYDIR)$(SEP)lib
-PLATFORM = host$(SEP)$(%HOST)$(SEP)
-#TARGETS = $(PATH)z.lib
-SRCDIR = $(PATH)
+srcfiles = $(p)adler32$(e) $(p)crc32$(e) $(p)deflate$(e) $(p)infback$(e) &
+           $(p)inffast$(e) $(p)inflate$(e) $(p)inftrees$(e) $(p)trees$(e) $(p)zutil$(e) &
+           $(p)compress$(e) $(p)uncompr$(e) $(p)gzclose$(e) $(p)gzlib$(e) $(p)gzread$(e) &
+           $(p)gzwrite$(e) 
 
 !include $(%ROOT)tools/mk/libs.mk
+!include $(MYDIR)zlib.mk
 
-DEST      = $(BLD)lib
+.c: $(PORT_BASE)$(SEP)zlib-1.3
 
-$(TARGETS): $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+.h: $(PORT_BASE)$(SEP)zlib-1.3
+
+$(PATH)$(PROJ).lib: $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+
