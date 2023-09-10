@@ -12,7 +12,7 @@ ADD_COPT = -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
 !ifneq NOLIBS 1
 ADD_LINKOPT += path $(WATCOM)$(SEP)lib286 &
   path $(WATCOM)$(SEP)lib286$(SEP)win &
-  lib clibs.lib,windows.lib,shell.lib
+  lib windows.lib #clibs.lib,windows.lib,shell.lib
 !endif
 
 #  file $(WATCOM)$(SEP)lib286$(SEP)dos$(SEP)cstart_t.obj
@@ -24,8 +24,9 @@ DEST     = os2$(SEP)mdos$(SEP)winos2
 !include $(%ROOT)/tools/mk/all.mk
 
 !ifdef DLL
+ADD_COPT = -mc -zu -zc -bd $(ADD_COPT)
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
-dllopt = dll
+dllopt = dll initinstance memory
 !else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopt =
@@ -53,14 +54,17 @@ deps = $(RESOURCE)
 
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
  @%create $^@
-# @%append $^@ SYSTEM windows $(dllopt)
- @%append $^@ FORMAT windows $(dllopt)
+ @%append $^@ SYSTEM windows $(dllopt)
+# @%append $^@ FORMAT windows $(dllopt)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 #!ifdef DEBUG
 # @%append $^@ DEBUG $(DEBUG)
 #!endif
  @%append $^@ option nocaseexact
+!ifdef DLL
+ @%append $^@ option oneautodata
+!endif
  @%append $^@ libpath $(%WATCOM)/lib286
  @%append $^@ libpath $(%WATCOM)/lib286/win
 !ifdef DLL
@@ -76,10 +80,12 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
 !ifdef HEAPSIZE
  @%append $^@ OPTION HEAP=$(HEAPSIZE)
 !endif
+!ifndef DLL
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !else
  @%append $^@ OPTION ST=8k
+!endif
 !endif
 !ifdef RESOURCE
  @%append $^@ OPTION RESOURCE=$(RESOURCE)
