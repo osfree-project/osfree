@@ -1,7 +1,9 @@
 -=== osFree, Open Source OS/2 Clone ===-
 osFree(OS/3): The reincarnation of OS/2.
 
+[![Build status](https://github.com/osfree-project/osfree/actions/workflows/build_win.yml/badge.svg)](https://github.com/osfree-project/osfree/actions?query=workflow%3Abuild_win.yml)
 
+[![Build status](https://github.com/osfree-project/osfree/actions/workflows/build_lnx.yml/badge.svg)](https://github.com/osfree-project/osfree/actions?query=workflow%3Abuild_lnx.yml)
 
 Английский:
 
