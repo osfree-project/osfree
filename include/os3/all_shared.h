@@ -27,6 +27,5 @@
 #include "all_querycurrentdisk.h"
 #include "all_queryfsname.h"
 #include "all_messages.h"
-#include "all_getopt.h"
 
 #endif /* _ALL_SHARED_H_ */

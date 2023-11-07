@@ -7,7 +7,7 @@ PROJ = all_shared
 TRGT = $(PROJ).lib
 srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname$(e) &
            $(p)all_dlist$(e) $(p)all_pathmanipulation$(e) $(p)all_performrecursiveaction$(e) &
-           $(p)all_getopt$(e) $(p)all_debug$(e)
+           $(p)all_debug$(e)
 
 UNI2H = 1
 ADD_COPT =  
