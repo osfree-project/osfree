@@ -26,14 +26,14 @@ cd fpc-3.2.2.i386-linux
 for file in $_CWD/dist/os2/*.zip; do
   unzip -o $file units/* fpmkinst/* -d /usr/lib/fpc/3.2.2/
 done
-wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
-tar xvzf regina-rexx-3.9.4.tar.gz -C $_CWD/src
+wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.5/regina-rexx-3.9.5.tar.gz
+tar xvzf regina-rexx-3.9.5.tar.gz -C $_CWD/src
 chown -R $_ME.$_ME $_CWD/osfree $_CWD/dist $_CWD/src $_CWD/bin
-cd $_CWD/src/regina-rexx-3.9.4
+cd $_CWD/src/regina-rexx-3.9.5
 ./configure --prefix=/usr/local
 make && make install
 cd ..
-rm -rf $_CWD/src/regina-rexx-3.9.4
+rm -rf $_CWD/src/regina-rexx-3.9.5
 echo /usr/local/lib >>/etc/ld.so.conf.d/local.conf
 ldconfig
 cd $_CWD
