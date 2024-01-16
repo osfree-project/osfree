@@ -1,22 +1,31 @@
-#
-# A Makefile for mkmsgf
-# (c) osFree project,
-# valerius, 2006/10/30
-#
-# $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
-#
+# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 PROJ = mkmsgf
 TRGT = $(PROJ).exe
-DESC = Make message file tool
-
-!ifndef TARGETBLD
-DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
-!include $(%ROOT)tools/mk/toolspas.mk
-!else
-DEST = os2tk45$(SEP)bin
-SRC = $(MYDIR)..$(SEP)..$(SEP)mkmsgf$(SEP)
-!include $(%ROOT)tools/mk/appsos2pas.mk
+DESC = Make Message
+srcfiles = $(p)mkmsgf$(e) $(p)getline$(e)
+!ifeq %OS OS2
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
+!endif
+!ifeq %OS WIN32
+defs = $(%WATCOM)$(SEP)h$(SEP)nt
+!endif
+!ifeq %OS DOS
+defs = $(%WATCOM)$(SEP)h$(SEP)dos
+!endif
+!ifeq %OS LINUX
+defs = $(%WATCOM)$(SEP)lh
 !endif
 
-.pas: $(SRC)
+!include $(%ROOT)tools/mk/tools.mk
+!include $(MYDIR)mkmsgf.mk
+
+ADD_COPT = -dNDEBUG -i=$(PORT_BASE)src$(SEP)H -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
+ADD_LINKOPT = lib clib3r
+STACKSIZE = 0x20000
+C = r
+
+.c: $(PORT_BASE)src
+
+.h: $(PORT_BASE)src$(SEP)H
+
