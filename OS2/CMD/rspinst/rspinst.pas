@@ -2,7 +2,8 @@ program RSPInst;
 
 uses
   crt,
-  tpcrt;
+  tpcrt,
+  handlers;
 
 Procedure InitDesktop;
 begin

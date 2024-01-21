@@ -30,3 +30,6 @@
 	path = DOS
 	url = https://github.com/osfree-project/DOS
 	branch = master
+[submodule "OS2/CMD/rspinst/tpro"]
+	path = OS2/CMD/rspinst/tpro
+	url = https://github.com/osfree-project/tpro
