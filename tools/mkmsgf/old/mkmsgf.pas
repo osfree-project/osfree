@@ -1,6 +1,6 @@
 {
 
- Make Message File Utility (MKMSGF) Clone (C) 2002-2008 by Yuri Prokushev
+ Make Message File Utility (MKMSGF) Clone (C) 2002-2008, 2023-2024 by Yuri Prokushev
 
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License (GPL) as published by
@@ -17,8 +17,8 @@
 }
 
 {
-This work based on public domain program e_msgf by Veit Kannegieser and my own
-research.
+This work based on public domain program e_msgf by Veit Kannegieser, GPL program mkmsgf by Michael K Greene
+and my own research.
 }
 
 program mkmsgf;
@@ -28,38 +28,45 @@ program mkmsgf;
 {$DEFINE xDEBUG}
 
 Uses
-  SysUtils;
+  SysUtils,
+  GetOpts,
+  Classes;
 
-const
-  LineEnding=#10#13;
-const
-  msg_name: String ='Make Message File Utility (MKMSGF)';
-  msg_version: String ='Version 0.1';
-  msg_copyright: String ='Copyright (C) 2002-2008 osFree.org';
-  msg_usage1: String ='MKMSGF <infile>[<.msf>] <outfile>[<.msg>] [<options>]'+LineEnding+
+ResourceString
+  msg_name ='Make Message File Utility (MKMSGF)';
+  msg_version ='Version 0.2';
+  msg_copyright ='Copyright (C) 2002-2008, 2023-2024 osFree.org';
+  msg_usage ='MKMSGF <infile>[<.msf>] <outfile>[<.msg>] [<options>]'+LineEnding+
             'or'+LineEnding+
             'MKMSGF @controlfile'+LineEnding+LineEnding+
             'Options are:'+LineEnding+
             '  -d, --dbcsrange     DBCS range or country'+LineEnding+
-            '  -p, --codepage      Code page'+LineEnding;
-  msg_usage2: String ='  -l, --language      Language id,sub id'+LineEnding+
+            '  -p, --codepage      Code page'+LineEnding+
+			'  -l, --language      Language id,sub id'+LineEnding+
             '  -v, --verbose       Verbose mode'+LineEnding+
+            '  -q, --quiet         Quiet mode'+LineEnding+
+			'  -i, --include       Path to include files'+LineEnding+
+			'  -a                  Produce assembler data'+LineEnding+
+			'  -c                  Produce C data'+LineEnding+
             '  -h, -H, -?, --help  Help'+LineEnding+LineEnding+
             'You can use "/" instead of "-".'+LineEnding;
-  msg_nofile: String ='MKMSGF: File %s not found';
+  msg_nofile ='MKMSGF: File %s not found';
 //  msg_vars: String ='global variables';
 //  msg_strin: String ='strIn';
 //  msg_strout: String ='strOut';
-//  msg_not_msg_file: String ='Invalid magic - not a MSG file?';
-//  msg_not_valid_version: String ='Unknown version of indexed message file.';
-  msg_incorrect_format: String =': Incorrect source message file format';
-  msg_incorrect_identifier: String =': Incorrect message identifier: ';
-  msg_incorrect_switch: String ='Unsupported switch';
-  msg_no_header: String =': Message header not found: ';
-  msg_empty_line: String =': Unexpected empty line';
+  msg_not_msg_file ='Invalid magic - not a MSG file?';
+  msg_not_valid_version ='Unknown version of indexed message file.';
+  msg_incorrect_format =': Incorrect source message file format';
+  msg_incorrect_identifier =': Incorrect message identifier: ';
+  msg_incorrect_switch ='Unsupported switch';
+  msg_no_header =': Message header not found: ';
+  msg_empty_line =': Unexpected empty line';
 
 Const
   MSGFileHeaderMagic:array [1..8] of char =(#255,'M','K','M','S','G','F',#0);
+
+Type
+  IDString=Array[1..3] of Char;
 
 Type
   TIndexTable=Array[0..0] of word;
@@ -75,47 +82,18 @@ Type
     Version             : Word;                // File version 2 - New Version 0 - Old Version
     IndexTableOffset    : Word;                // Offset of index table
     CountryInfo         : Word;                // Offset of country info block
-    NextCountryInfo     : LongWord;            //
+    NextCountryInfo     : DWord;               // Extended message file offset (Multipage block?)
     Reserved2           : Array[1..5] of byte; // Must be 0 (zero)
   end;
 
-(*
-typedef struct file_head {              // message file header
-        char      signature_h[8];       // signature mark
-        char      component_id[len_COMP_ID];// component id
-        unsigned  msg_count;            // number of messages
-        unsigned  base_mid;             // base message number
-        char      offset_type;          // double(0) or single word (1)
-        unsigned  version;
-        unsigned  header_length;
-        char      cp_type;              // SBCS code page (0) or DBCS (1)
-        int       code_page;            // code page number
-        char      reserved[8];
-        } head_t;
-*)
-
-(*
-
-; **********************************************************************
-;  Message file extended message file definition record
-;  ----------------------------------------------------
-EXTREC  STRUC                                   ;MSG FILE EXTENDED HEADER
-        REC_CP_TYPE     DB      ?               ;1 = SBCS, 2 = DBCS
-        REC_CNTY_ID     DW      ?               ;COUNTRY ID
-        REC_LANG_ID     DW      ?               ;LANGUAGE FAMILY ID
-        REC_LANG_VERID  DW      ?               ;LANGUAGE VERSION ID
-        REC_CNT_CP      DW      ?               ;CODE PAGE COUNT
-        REC_CP_ID       DW      16 dup (0)      ;CODE PAGE IDs
-        REC_FILENAME    DB      ASCIIZ_LEN dup(?),0   ;FILE NAME
-EXTREC  ENDS
-
-*)
-
+Type
   TMultipageBlock=packed record
     BlockSize         : Word;
     BlocksCount       : Word;
   end;
 
+
+Type
   {Country Info block of message file}
   TMSGFileCountryInfo = packed record
     BytesPerChar      : Byte;                  // Bytes per char (1 - SBCS, 2 - DBCS)
@@ -127,14 +105,204 @@ EXTREC  ENDS
     Filename          : Array[0..260] of Char; // Name of file
   end;
 
+Type
+  TMSGFile=class
+  private
+    FMessages: TStringList;
+    FDBCS: Boolean;
+    FLanguage: Word;
+    FSubLanguage: Word;
+    FCodePages: Array[1..16] of Word;
+    FIdentifier: Array[1..3] of Char;
+  protected
+    function GetMsg(Index: Integer): AnsiString; virtual;
+    procedure PutMsg(Index: Integer; const S: AnsiString); virtual;
+    function GetMessagesCount: Longint; virtual;
+
+  public
+    constructor Create;
+    constructor Create(Stream: TStream);
+    constructor Create(FileName: String);
+    destructor Destroy; override;
+
+    procedure Store(Stream: TStream);
+    procedure Store(FileName: String);
+
+    property Messages[Index: Integer]: AnsiString read GetMsg write PutMsg;
+    property Identifier: IDString read FIdentifier write FIdentifier;
+    property Count: Longint read GetMessagesCount;
+    property DBCS: Boolean read FDBCS write FDBCS;
+  end;
+
+  EMSGFileError = class(Exception);
+
+constructor TMSGFile.Create;
+begin
+  inherited Create;
+
+  FMessages:=TStringList.Create;
+  FMessages.Sorted:=False;
+end;
+
+constructor TMSGFile.Create(Stream: TStream);
+Var
+  Header: TMSGFileHeader;
+  CountryInfo: TMSGFileCountryInfo;
+  PIndexTable: ^TIndexTable;
+  IndexTableSize: DWord;
+  Message: AnsiString;
+  I: Word;
+  Len: Longint;
+begin
+  Self.Create;
+
+  Stream.Read(Header, SizeOf(Header));
+
+  If Header.Magic<>MSGFileHeaderMagic then raise EMSGFileError.Create(msg_not_msg_file);
+  If not (Header.Version in [0, 2]) then raise EMSGFileError.Create(msg_not_valid_version);
+
+  FIdentifier:=Header.Identifier;
+
+  If Header.Version=0 then Header.IndexTableOffset:=SizeOf(Header);
+
+  Stream.Position:=Header.IndexTableOffset;
+
+  IndexTableSize:=Header.MessagesNumber*2*(1+Byte(not Header.Offsets16bit));
+
+  GetMem(PIndexTable, IndexTableSize);
+  Stream.Read(PIndexTable^, IndexTableSize);
+
+  For I:=1 to Header.FirstMessageNumber do
+  begin
+    FMessages.BeginUpdate;
+    FMessages.Add('?'#13#10);
+    FMessages.EndUpdate
+  end;
+  For I:=1 to Header.MessagesNumber do
+  begin
+    If Header.Offsets16bit then
+    begin
+      Stream.Position:=Word(PIndexTable^[Pred(I)]);
+      If I=Header.MessagesNumber then
+        If Header.NextCountryInfo=0 then
+          Len:=Stream.Size-Word(PIndexTable^[Pred(I)])
+        else
+          Len:=Header.NextCountryInfo-Word(PIndexTable^[Pred(I)])
+      else
+        Len:=PIndexTable^[I]-PIndexTable^[Pred(I)];
+    end else begin
+      Stream.Position:=DWord(PIndexTable^[Pred(I)]);
+      If I=Header.MessagesNumber then
+        If Header.NextCountryInfo=0 then
+          Len:=Stream.Size-DWord(PIndexTable^[Pred(I)])
+        else
+          Len:=Header.NextCountryInfo-DWord(PIndexTable^[Pred(I)])
+      else
+        Len:=PIndexTable^[I]-PIndexTable^[Pred(I)];
+    end;
+
+    SetLength(Message, Len);
+    Stream.Read(Message[1], Len);
+
+    If Header.Version=0 then Message:='P'+Message;
+
+    If Message[Len]<>#10 then Message:=Message+'%0'#13#10;
+    FMessages.BeginUpdate;
+    FMessages.Add(Message);
+    FMessages.EndUpdate;
+  End;
+
+  FreeMem(PIndexTable, IndexTableSize);
+
+  If Header.Version>0 then
+  begin
+    Stream.Position:=Header.CountryInfo;
+    Stream.Read(CountryInfo, SizeOf(CountryInfo));
+
+    With CountryInfo do
+    begin
+      FDBCS:=(BytesPerChar=2);
+      FLanguage:=LanguageFamilyID;
+      FSubLanguage:=LanguageVersionID;
+      For I:=1 to CodePagesNumber do FCodePages[I]:=CodePages[I];
+    end;
+
+  end;
+
+(*
+
+        If Header.NextCountryInfo<>0 then begin
+        Seek(MsgFile, Header.NextCountryInfo);
+        BlockRead(MsgFile, MultiBlock, SizeOf(MultiBlock));
+
+
+        for j:=1 to MultiBlock.BlocksCount do
+        begin
+          BlockRead(MsgFile, Block, SizeOf(Block));
+          WriteLn(SourceFile, '; Linkedfile: ', Block.Filename);
+        end;
+      end;
+    end; *)
+
+end;
+
+constructor TMSGFile.Create(FileName: String);
+var
+  S: TStream;
+begin
+  S:=TFileStream.Create(Filename, fmOpenRead);
+  try
+    Self.Create(S);
+  finally
+    S.Free;
+  end;
+end;
+
+destructor TMSGFile.Destroy;
+begin
+  FMessages.Destroy;
+end;
+
+function TMSGFile.GetMsg(Index: Integer): AnsiString;
+begin
+  Result:=FMessages.Strings[Index];
+end;
+
+procedure TMSGFile.PutMsg(Index: Integer; const S: AnsiString);
+begin
+  FMessages.Strings[Index]:=S;
+end;
+
+Function TMSGFile.GetMessagesCount: Longint;
+Begin
+  Result:=FMessages.Count;
+End;
+
+Procedure TMSGFile.Store(Stream: TStream);
+Begin
+End;
+
+Procedure TMSGFile.Store(FileName: String);
+var
+  S: TStream;
+begin
+  S:=TFileStream.Create(Filename, fmOpenWrite);
+  try
+    Self.Create(S);
+  finally
+    S.Free;
+  end;
+End;
+
 Var
   StrIn     : String;
   StrOut    : String;
 //  StrIncDir : String;
 //  CodePages : Word; //= 866
 //  CP_type   : Boolean; // SBCS
-  CmdLine: String;
-  Quiet: Boolean;
+
+Const
+  Quiet: Boolean = False;
 
 Procedure Copyright;
 Begin
@@ -210,11 +378,10 @@ Type
 
 Procedure Usage;
 Begin
-  Write(msg_usage1);
-  WriteLn(msg_usage2);
+  WriteLn(msg_usage);
 End;
 
-Procedure ParseSwitch(var S: String);
+
 {
 -d, --dbcsrange
 -p, --codepage
@@ -226,45 +393,66 @@ Procedure ParseSwitch(var S: String);
 -a			// Undocumentet IBM switch found by Michael K Greene
 -c			// Undocumentet IBM switch found by Michael K Greene
 }
-Var
-  DOSSwitch: Boolean;
+procedure ParseCommandLine;
+const
+  options: Array[1..9] of TOption=
+  (
+  (Name: 'help'; Has_arg: No_Argument; Flag: nil; Value: 'h'),
+  (Name: 'codepage'; Has_arg: Required_Argument; Flag: nil; Value: 'c'),
+  (Name: 'dbcsrange'; Has_arg: Required_Argument; Flag: nil; Value: 'd'),
+  (Name: 'language'; Has_arg: Required_Argument; Flag: nil; Value: 'l'),
+  (Name: 'verbose'; Has_arg: No_Argument; Flag: nil; Value: 'v'),
+  (Name: 'quiet'; Has_arg: No_Argument; Flag: nil; Value: 'q'),
+  (Name: 'include'; Has_arg: Required_Argument; Flag: nil; Value: 'i'),
+  (Name: 'asm'; Has_arg: No_Argument; Flag: nil; Value: 'a'),
+  (Name: ''; Has_arg: No_Argument; Flag: nil; Value: #0)
+  );
+var  
+  C: Char;
+  optionindex: longint;
 Begin
-  If (S[1]='/') or ((S[1]='-') and (S[2]<>'-')) then DOSSwitch:=True else DOSSwitch:=False;
-  Delete(S, 1, 1);
-  If S[1]='-' then Delete(S, 1, 1);
-  If DOSSwitch then
+  If ParamCount=0 then
   begin
-    Case UpCase(S[1]) of
-      'D': begin
-      end;
-      'P': begin
-      end;
-      'L': begin
-      end;
-      'V': begin
-      end;
-      'Q': begin
-        Quiet:=True;
-      end;
-      'I': begin
-      end;
-      'A': begin
-      end;
-      'C': begin
-      end;
-      '?', 'H': begin
-        Usage;
-      end;
-    else
-      WriteLn(msg_incorrect_switch);
-    end;
+    Usage;
+    Halt(1);
   end;
-End;
+  
+  OptSpecifier:=['/','-']; // Add dos-like option specifier
+  
+  repeat
+    c:=getlongopts('?hHvVaAcCqQp:P:d:D:l:L:i:I:', @options[1], optionindex);
+    if c=#0 then c:=options[optionindex].value;
+    case UpCase(c) of
+      'L': writeln('l');
+      'P': writeln('p');
+      'D': writeln('d');
+      'V': writeln('v');
+      'Q':
+        begin
+          Quiet:=True;
+          c:=EndOfOptions;
+        end;
+      'I': writeln('i');
+      'A': writeln('a');
+      'C': writeln('c');
+      '?', 'H': 
+        begin
+          Usage;
+          c:=EndOfOptions;
+        end;
+      else
+        begin
+	      WriteLn(msg_incorrect_switch);
+          c:=EndOfOptions;
+        end;
+    end;
+  until c=EndOfOptions;
+end;
 
+{$if 0}
 Procedure ParseCommandLine(CmdLine: String);
 Var
   S: String;
-//  I: Byte;
 Begin
   {$ifdef debug}
   WriteLn(CmdLine);
@@ -308,6 +496,7 @@ Begin
     end;
   end;
 End;
+{$endif}
 
 Type
   PMsgList=^TMsgList;
@@ -526,7 +715,7 @@ writeln(Number);
   If not Quiet then WriteLn('MSG-file created');
 End;
 
-
+{$if 0}
 Procedure ParseControlFile(ControlFileName: String);
 Var
   F: Text;
@@ -551,32 +740,11 @@ Begin
   end;
   Close(F);
 End;
+{$endif}
 
-Procedure Init;
-Begin
-  Quiet:=False;
-End;
-
-Var
-  I: Longint;
 begin
-  Init;
-  For I:=1 to ParamCount do
-    If Pos(' ', ParamStr(I))>0 then
-      CmdLine:=CmdLine+' "'+ParamStr(I)+'"'
-    else
-      CmdLine:=CmdLine+' '+ParamStr(I);
-  If CmdLine='' then
-  begin
-    Usage;
-    Exit;
-  end;
-  If Copy(ParamStr(1), 1, 1)='@' then
-    ParseControlFile(ParamStr(1))
-  else begin
-    ParseCommandLine(CmdLine);
-    Copyright;
-    Compile;
-  end;
+  ParseCommandLine;
+  Copyright;
+  Compile;
 end.
 
