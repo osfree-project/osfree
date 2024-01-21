@@ -21,7 +21,6 @@
 #include <os2.h> /* system header */
 
 /* C standard library headers */
-#include <malloc.h>
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
