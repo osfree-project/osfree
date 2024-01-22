@@ -85,10 +85,19 @@ if not exist "%tmp%\os2322.zip" (
   )
 )
 
+if not exist "%tmp%\fpc-cross.zip" (
+  %wget% --no-check-certificate ftp://ftp.osfree.org/upload/fpc/fpc-cross.zip -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading Free Pascal for OS/2
+    goto exit
+  )
+)
+
 rem install fpc
 "%tmp%\fpc-3.2.2.i386-win32.exe" /verysilent
 "%tmp%\unzip" -o "%tmp%\os2322.zip" -d "%tmp%"
 "%tmp%\unzip" -o "%tmp%\baseos2.zip" units\* -dc:\fpc\3.2.2
+"%tmp%\unzip" -o "%tmp%\fpc-cross.zip" -dc:\fpc\3.2.2\bin\i386-win32
 
 rem dir "c:/Documents and settings/Downloads"
 rem dir c:\fpc /s
