@@ -30,7 +30,7 @@
 int
 getline (lineptr, n, stream)
   char **lineptr;
-  int *n;
+  unsigned int *n;
   FILE *stream;
 {
   int nchars_avail;

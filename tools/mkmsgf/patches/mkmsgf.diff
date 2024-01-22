@@ -1,0 +1,473 @@
+diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
+--- mkmsgf\src\mkmsgf.c	Mon Jan 22 10:38:18 2024
++++ newmkmsgf\src\mkmsgf.c	Mon Jan 22 10:38:35 2024
+@@ -48,17 +48,25 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
++#if !defined(_LINUX_SOURCE)
+ #include <io.h>
++#endif
+ #include <fcntl.h>
+-#include <sys\stat.h>
++#include <sys/stat.h>
+ #include <unistd.h>
+ #include <malloc.h>
+ #include "mkmsgf.h"
+ #include "mkmsgerr.h"
+ #include "version.h"
+ 
++#if __WATCOMC__ <= 1290
++int getline (char **lineptr, unsigned int *n, FILE *stream);
++#endif
++
++int parseasmincludes(MESSAGEINFO *messageinfo);
+ int setupheader(MESSAGEINFO *messageinfo);
+-int writefile(MESSAGEINFO *messageinfo);
++int writemsgfile(MESSAGEINFO *messageinfo);
++int writeasmfile(MESSAGEINFO *messageinfo);
+ int writeheader(MESSAGEINFO *messageinfo);
+ int DecodeLangOpt(char *dargs, MESSAGEINFO *messageinfo);
+ 
+@@ -89,6 +97,8 @@
+     // uint8_t os2ldr = 0;           // here but not used
+     uint8_t ibm_format_input = 0; // 1= IBM compatabile input args
+     uint8_t outfile_provided = 0; // output file in args
++    uint8_t asm_format_output = 0; // 1= output ASM
++    uint8_t c_format_output = 0; // 1= output C
+ 
+     // getopt options
+     uint8_t verbose = 0;   // verbose output
+@@ -128,7 +138,7 @@
+     // is a filename
+     if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
+     {
+-        strncpy(messageinfo.infile, argv[optind], strlen(argv[optind]));
++        strncpy(messageinfo.infile, argv[optind], sizeof(messageinfo.infile)-1);
+         optind++;
+ 
+         ++ibm_format_input; // set ibm format
+@@ -138,7 +148,7 @@
+         {
+             if ((*argv[2] != '-') && (*argv[2] != '/')) // first arg prefix - or / ?
+             {
+-                strncpy(messageinfo.outfile, argv[optind], strlen(argv[optind]));
++                strncpy(messageinfo.outfile, argv[optind], sizeof(messageinfo.outfile)-1);
+                 optind++;
+ 
+                 ++outfile_provided; // have output file
+@@ -198,13 +208,19 @@
+ 
+             // Undocumented IBM flags - here but not used
+ 
+-        case 'i': // include path, I think only for A and C
+-        case 'I':
+         case 'a': // the real mkmsgf outputs asm file
+         case 'A':
++			++asm_format_output;
++			break;
++        case 'i': // include path, I think only for A and C
++        case 'I':
++			messageinfo.include=strdup(optarg);
++			break;
+         case 'c': // the real mkmsgf outputs C file
+         case 'C':
+-            ProgError(MKMSG_GETOPT_ERROR, "MKMSGF: A, C, and I option not supported");
++			++c_format_output;
++			break;
++//            ProgError(MKMSG_GETOPT_ERROR, "MKMSGF: A, C, and I option not supported");
+             break;
+ 
+         // my added option
+@@ -233,12 +249,12 @@
+     // so we need to get input file and maybe the output file
+     if (!ibm_format_input)
+     {
+-        strncpy(messageinfo.infile, argv[optind], strlen(argv[optind]));
++        strncpy(messageinfo.infile, argv[optind], sizeof(messageinfo.infile)-1);
+         optind++;
+ 
+         if (argc != optind)
+         {
+-            strncpy(messageinfo.outfile, argv[optind], strlen(argv[optind]));
++            strncpy(messageinfo.outfile, argv[optind], sizeof(messageinfo.outfile)-1);
+             optind++;
+ 
+             ++outfile_provided; // have output file
+@@ -252,7 +268,10 @@
+ 
+     // setup and check the input / output files
+     if (access(messageinfo.infile, F_OK) != 0)
++	{
++		printf(messageinfo.infile);
+         ProgError(MKMSG_INPUT_ERROR, "MKMSGF: Input file does not exist.");
++	}
+ 
+     // splitup input file
+     _splitpath(messageinfo.infile,
+@@ -265,6 +284,9 @@
+     {
+         for (int x = 0; x < _MAX_PATH; x++)
+             messageinfo.outfile[x] = 0x00;
++		if (asm_format_output)
++			sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".asm");
++		else
+         sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".msg");
+     }
+     // check input == output file
+@@ -285,9 +307,19 @@
+     if (rc != MKMSG_NOERROR)
+         ProgError(rc, "MKMSGF: MSG Header write error");
+ 
+-    rc = writefile(&messageinfo);
++	if (asm_format_output)
++	{
++		rc = parseasmincludes(&messageinfo);
++		if (rc != MKMSG_NOERROR)
++			ProgError(rc, "MKMSGF: INC file read error");
++		rc = writeasmfile(&messageinfo);
++		if (rc != MKMSG_NOERROR)
++			ProgError(rc, "MKMSGF: ASM file write error");
++	} else {
++		rc = writemsgfile(&messageinfo);
+     if (rc != MKMSG_NOERROR)
+         ProgError(rc, "MKMSGF: MSG file write error");
++	}
+ 
+     // if you don't see this then I screwed up
+     printf("\nEnd compile\n");
+@@ -422,14 +454,220 @@
+     // TEMP stuff
+     strncpy(messageinfo->filename,
+             messageinfo->outfile,
+-            strlen(messageinfo->outfile));
++            sizeof(messageinfo->filename)-1);
+     messageinfo->country = 0;
+ 
+     return (MKMSG_NOERROR);
+ }
+ 
+ /*************************************************************************
+- * Function:  writefile( )
++ * Function:  writeasmfile( )
++ *
++ * Reads in all the MSG file info and stores in MESSAGEINFO structure
++ *
++ * 1 Open input file in read and out put file in update mode
++ * 2 Allocate read buffer
++ * 3 Set input file positions
++ * 4 *** start main loop ***
++ * 4.1 Clear read buffer
++ * 4.2 Get current read poistion and store in index
++ * 4.3 Read in message line
++ * 4.4 Check for comment - if true read next line -> 5.1
++ * 4.5 Line starts with msg ID? Yes new message else -> 5.9
++ * 4.6 Check if valid msg type - E, I, W, H, P, ? --> error if not
++ * 4.7 Increment message tracking number
++ * 4.8.1 Check for ? message if true then generate full ? message to save
++ *     time else process E, I, W, H, P msg types and set scratch pointer
++ * 4.8.2.1 Check for the mandatory space after : exit if not present
++ * 4.8.2.2 Move msg type to space and set scratch pointer
++ * 4.9 Continuation line -- set scratch pointer
++ *
++ * 5 Get message length
++ * 6 Check/fix 0x0D 0x0A ending of line
++ * 7 Check and fix for %0 lines
++ * 8 Write message line to output file
++ * ** end main loop
++ * 9 Seek to index start and write index
++ *
++ *
++ * Return:    returns error code or 0 for all good
++ *************************************************************************/
++
++int writeasmfile(MESSAGEINFO *messageinfo)
++{
++    // open input file
++    FILE *fpi = fopen(messageinfo->infile, "rb");
++    if (fpi == NULL)
++        return (MKMSG_OPEN_ERROR);
++
++    // write output file open for update
++    FILE *fpo = fopen(messageinfo->outfile, "r+");
++    if (fpo == NULL)
++        return (MKMSG_OPEN_ERROR);
++
++    // buffer to read in a message - use a 256 byte buffer which
++    // is overkill but not a big deal - I do not expect lines >256
++    // in length
++    size_t read_buff_size = 0;
++    char *read_buffer = (char *)calloc(256, sizeof(char));
++    if (read_buffer == NULL)
++        return (MKMSG_MEM_ERROR2);
++
++    // return to previous position
++    fsetpos(fpi, &messageinfo->msgstartline); // input after id line
++
++    int current_msg_len = 0;
++    int msg_num_check = messageinfo->firstmsg;
++    char *readptr = NULL;
++
++    while (TRUE)
++    {
++        // clear the read_buffer -- set all to 0x00 this will
++        // give me a clean strlen return
++        memset(read_buffer, 0x00, _msize(read_buffer));
++
++        // here is the line read in
++        getline(&read_buffer, &read_buff_size, fpi);
++        if (feof(fpi))
++            break;
++
++        // find message start - skip comments
++        // this is the main loop if not a comment line
++        if (read_buffer[0] != ';')
++        {
++            // check if ID which indicates message start
++            if (strncmp(messageinfo->identifier, read_buffer, 3) == 0)
++            {
++                // First check - is the message type valid
++                if (read_buffer[7] != 'E' && read_buffer[7] != 'H' &&
++                    read_buffer[7] != 'I' && read_buffer[7] != 'P' &&
++                    read_buffer[7] != 'W' && read_buffer[7] != '?')
++                {
++                    fclose(fpi);
++                    fclose(fpo);
++                    free(read_buffer);
++                    ProgError(1, "MKMSGF: Bad message type."); // fix error
++                }
++
++
++                // shortcut and make sure the format is correct
++                // for ? messages
++                if (read_buffer[7] == '?')
++                {
++                    memset(read_buffer, 0x00, _msize(read_buffer));
++                    //read_buffer[0] = '?';
++                    read_buffer[0] = 0x0D;
++                    read_buffer[1] = 0x0A;
++                    read_buffer[2] = 0x00;
++
++                    readptr = read_buffer;
++                }
++                else
++                {
++                    // check if followed instructions with a space after colon
++                    // I assume this was why (maybe not) -- just copy the ID
++                    // to the space position and change pointer to the new start
++                    if (read_buffer[9] != 0x20)
++                        return (MKMSG_BAD_TYPE);
++                    else
++                    {
++                        // move message type to front of message
++                        // and set buffer position
++                        //read_buffer[9] = read_buffer[7];
++                        readptr = &read_buffer[10];
++						//readptr = read_buffer;
++                    }
++                }
++            }
++            else // no ID - continues previous line
++            {
++                // this is a continuation line so just
++                // set the readptr
++                readptr = read_buffer;
++            }
++
++            current_msg_len = strlen(readptr);
++
++            // Second check - check and setup correct message ending
++            // - the message ending needs to be 0x0D 0x0A, if the text
++            // input file was done in a modern text editor the ending
++            // is probably just 0x0A so add 0x0D 0x0A 0x00
++
++            if (readptr[(current_msg_len - 1)] != 0x0A &&
++                readptr[(current_msg_len - 2)] != 0x0D)
++            {
++                readptr[(current_msg_len - 1)] = 0x0D;
++                readptr[(current_msg_len)] = 0x0A;
++                readptr[(current_msg_len + 1)] = 0x00;
++
++                // new length
++                current_msg_len = strlen(readptr);
++            }
++
++            // At this point the message is ready in reference to where
++            // readptr points and each line ends 0x0D 0x0A 0x00
++
++            // Third and final check - fix end if it is a %0 line
++            // if ends in [ % 0 0x0D 0x0A 0x00] remove all four
++            // poistions and make 0x00 - all four just as a easy
++            // way to spot problems in a hex dump
++            if (readptr[(current_msg_len - 3)] == '0' &&
++                readptr[(current_msg_len - 4)] == '%')
++            {
++                readptr[(current_msg_len - 1)] = 0x00;
++                readptr[(current_msg_len - 2)] = 0x00;
++                readptr[(current_msg_len - 3)] = 0x00;
++                readptr[(current_msg_len - 4)] = 0x00;
++
++                // new length -- up to first 0x00
++                current_msg_len = strlen(readptr);
++            }
++
++            // write out the current message
++			fprintf(fpo, "\tPUBLIC TXT_%s\r\nTXT_%s\tLABEL\tWORD\r\n\tDW\tEND_%s - TXT_%s - 2\r\n\tDB\t'%c%c%c%04d: '\r\n\tDB\t'",
++			"MSG_TEST","MSG_TEST","MSG_TEST","MSG_TEST", messageinfo->identifier[0], messageinfo->identifier[1],
++			messageinfo->identifier[2], msg_num_check);
++			int outlen=1;
++            while (*readptr)
++			{
++				if (outlen>ASM_MSG_SIZE) 
++				{
++					fprintf(fpo,"'\r\n\tDB\t'");
++					outlen=0;
++				}
++
++				if (strncmp("\r\n", readptr, 2) == 0)				
++				{
++					fprintf(fpo, "', 0DH, 0AH\r\n");
++					readptr++;
++					outlen=-1;
++				}
++				else 
++				{
++					fputc(*readptr, fpo);
++				}
++				readptr++;
++				outlen++;
++			}
++			if (outlen) fprintf(fpo,"'\r\n");
++			fprintf(fpo, "END_%s\tLABEL\tWORD\r\n\tDB\t0\n\r", "MSG_TEST");
++			msg_num_check++;
++        }
++    }
++
++
++    printf("Done\n");
++
++    // close up and get out
++    fclose(fpo);
++    fclose(fpi);
++    free(read_buffer); 
++
++    return (MKMSG_NOERROR);
++}
++
++/*************************************************************************
++ * Function:  writemsgfile( )
+  *
+  * Reads in all the MSG file info and stores in MESSAGEINFO structure
+  *
+@@ -462,7 +700,7 @@
+  * Return:    returns error code or 0 for all good
+  *************************************************************************/
+ 
+-int writefile(MESSAGEINFO *messageinfo)
++int writemsgfile(MESSAGEINFO *messageinfo)
+ {
+     // open input file
+     FILE *fpi = fopen(messageinfo->infile, "rb");
+@@ -763,7 +1001,7 @@
+ 
+     strncpy(cntryheader->filename,
+             messageinfo->filename,
+-            strlen(messageinfo->filename));
++            sizeof(cntryheader->filename)-1);
+ 
+     cntryheader->filler = 0x00;
+ 
+@@ -772,6 +1010,64 @@
+     fclose(fpo);
+     free(write_buffer);
+ 
++    return (0);
++}
++
++int parseincfile(MESSAGEINFO *messageinfo, char *s)
++{
++	// Try basemid first
++    // open input file
++    FILE *fpi = fopen("", "rb");
++    if (fpi == NULL)
++        return (MKMSG_OPEN_ERROR);
++
++	//getline(&line, &n, fpi);
++
++	fclose(fpi);
++    return (0);
++}
++
++/*************************************************************************
++ * Function:  parseasmincludes( )
++ *
++ * Reads in all the INC files info and stores in MESSAGEINFO structure
++ *
++ * 1 Search predefined include files in INCLUDE and current directory if no /I given, else use /I
++ *
++ *
++ * Return:    returns error code or 0 for all good
++ *************************************************************************/
++
++//'BASEBID.INC' 
++//'UTILMD*.INC'
++int parseasmincludes(MESSAGEINFO *messageinfo)
++{
++	char *inc = getenv("INCLUDE");
++	char *dup = NULL;
++	if (inc)
++	{
++		dup=strdup(inc);
++	} else
++	if (messageinfo->include)
++	{
++		dup=strdup(messageinfo->include);
++	}
++
++	char *s = dup;
++	char *p = NULL;
++
++	if (dup)
++	do {
++		p = strchr(s, ';');
++		if (p != NULL) {
++			p[0] = 0;
++		}
++		parseincfile(messageinfo, s);
++		s = p + 1;
++	} while (p != NULL);
++	
++	free(dup);
++	
+     return (0);
+ }
+ 
+diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
+--- mkmsgf\src\mkmsgf.h	Mon Jan 22 10:38:18 2024
++++ newmkmsgf\src\mkmsgf.h	Thu Jan 18 13:50:16 2024
+@@ -86,7 +86,7 @@
+ // extended header block
+ typedef struct _EXTHDR
+ {
+-    uint16_t hdrlen;    // length of ???
++    uint16_t hdrlen;    // length of FILECOUNTRYINFO block
+     uint16_t numblocks; // number of additional FILECOUNTRYINFO blocks
+ } EXTHDR, *PEXTHDR;
+ 
+@@ -163,6 +163,8 @@
+ 
+     char outfile[_MAX_PATH]; // output filename
+ 
++    char *include; // include paths
++
+     uint8_t verbose; // how much to see?
+     // compile/decompile info
+     uint8_t identifier[3];       // Identifier (SYS, DOS, NET, etc.)
+@@ -198,5 +200,7 @@
+ char signature[] = {0xFF, 0x4D, 0x4B, 0x4D, 0x53, 0x47, 0x46, 0x00};
+ 
+ char extfake[] = {0x2E, 0x01, 0x00, 0x00};
++
++#define ASM_MSG_SIZE 16
+ 
+ #endif
