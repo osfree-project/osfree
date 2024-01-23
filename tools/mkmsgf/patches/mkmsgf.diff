@@ -1,6 +1,6 @@
-diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
---- mkmsgf\src\mkmsgf.c	Mon Jan 22 10:38:18 2024
-+++ newmkmsgf\src\mkmsgf.c	Mon Jan 22 10:38:35 2024
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:18 2024
++++ newmkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:35 2024
 @@ -48,17 +48,25 @@
  #include <stdlib.h>
  #include <string.h>
@@ -442,9 +442,9 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
      return (0);
  }
  
-diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
---- mkmsgf\src\mkmsgf.h	Mon Jan 22 10:38:18 2024
-+++ newmkmsgf\src\mkmsgf.h	Thu Jan 18 13:50:16 2024
+diff -urwN mkmsgf/src/mkmsgf.h newmkmsgf/src/mkmsgf.h
+--- mkmsgf/src/mkmsgf.h	Mon Jan 22 10:38:18 2024
++++ newmkmsgf/src/mkmsgf.h	Thu Jan 18 13:50:16 2024
 @@ -86,7 +86,7 @@
  // extended header block
  typedef struct _EXTHDR
