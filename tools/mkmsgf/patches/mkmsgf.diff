@@ -1,4 +1,4 @@
-diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 --- mkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:18 2024
 +++ newmkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:35 2024
 @@ -48,17 +48,25 @@
