@@ -1,5 +1,0 @@
-group dosdevioctl;
-
-uses bsedos default;
-
-end.

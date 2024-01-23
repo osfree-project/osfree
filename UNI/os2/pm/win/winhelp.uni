@@ -1,5 +1,0 @@
-group winhelp;
-
-uses pmhelp default;
-
-end.

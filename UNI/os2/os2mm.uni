@@ -1,7 +1,0 @@
-group os2mm;
-
-
-uses  mcios2;
-uses  mmioos2;
-
-end;

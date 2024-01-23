@@ -1,5 +1,0 @@
-group winstddlgs;
-
-uses pmstddlg default;
-
-end.

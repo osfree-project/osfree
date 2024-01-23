@@ -1,5 +1,0 @@
-group winsei;
-
-uses pmsei default;
-
-end.

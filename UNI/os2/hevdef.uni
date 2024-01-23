@@ -1,6 +1,0 @@
-group hevdef;
-
-type  HEV=ULONG;             (* hev *)
-type  PHEV=^HEV;
-
-end.

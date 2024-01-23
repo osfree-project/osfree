@@ -1,2 +1,0 @@
-x. union implementation
-x. add asm inc generation (no just copy of manually created files)

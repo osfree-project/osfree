@@ -1,6 +1,0 @@
-group winstdcnr;
-
-uses winstddrag;
-uses winstdcontainer;
-
-end;

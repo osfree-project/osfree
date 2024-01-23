@@ -1,6 +1,0 @@
-group pmdev;
-
-uses devcommon default;
-uses dev default;
-
-end.

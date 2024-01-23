@@ -33,3 +33,6 @@
 [submodule "OS2/CMD/rspinst/tpro"]
 	path = OS2/CMD/rspinst/tpro
 	url = https://github.com/osfree-project/tpro
+[submodule "UNI"]
+	path = UNI
+	url = https://github.com/osfree-project/UNI
