@@ -3,7 +3,7 @@
 PROJ = mkmsgf
 TRGT = $(PROJ).exe
 DESC = Make Message
-srcfiles = $(p)mkmsgf$(e) $(p)getline$(e)
+srcfiles = $(p)mkmsgf$(e)
 !ifeq %OS OS2
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif

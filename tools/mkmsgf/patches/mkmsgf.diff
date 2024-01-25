@@ -1,7 +1,7 @@
-diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
---- mkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:18 2024
-+++ newmkmsgf/src/mkmsgf.c	Mon Jan 22 10:38:35 2024
-@@ -48,17 +48,25 @@
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Thu Jan 25 12:44:03 2024
++++ newmkmsgf/src/mkmsgf.c	Thu Jan 25 12:28:52 2024
+@@ -48,17 +48,124 @@
  #include <stdlib.h>
  #include <string.h>
  #include <ctype.h>
@@ -19,6 +19,105 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  
 +#if __WATCOMC__ <= 1290
 +int getline (char **lineptr, unsigned int *n, FILE *stream);
++
++/* getline.c -- Replacement for GNU C library function getline ()
++
++   Copyright (C) 1992 Free Software Foundation, Inc.
++
++   This program is free software; you can redistribute it and/or
++   modify it under the terms of the GNU General Public License as
++   published by the Free Software Foundation; either version 2 of the
++   License, or (at your option) any later version.
++
++   This program is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this program; if not, write to the Free Software
++   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
++
++
++#define MAX_CANON 64
++
++/* Read up to (and including) a newline from STREAM into *LINEPTR
++   (and NUL-terminate it). *LINEPTR is a pointer returned from malloc (or
++   NULL), pointing to *N characters of space.  It is realloc'd as
++   necessary.  Returns the number of characters read (not including the
++   null terminator), or -1 on error or EOF.  */
++
++int
++getline (lineptr, n, stream)
++  char **lineptr;
++  unsigned int *n;
++  FILE *stream;
++{
++  int nchars_avail;
++  char *read_pos;
++
++  if (!lineptr || !n || !stream)
++    return -1;
++
++  nchars_avail = *n;
++
++  if (!*lineptr)
++    {
++      if (!(*lineptr = malloc (MAX_CANON)))
++	return -1;
++
++      *n = nchars_avail = MAX_CANON;
++    }
++
++  read_pos = *lineptr;
++
++  for (;;)
++    {
++      register char c = getc (stream);
++
++      /* We always want at least one char left in buffer since we
++	 always (unless we get an error while reading the first char)
++	 NUL-terminate the line buffer. */
++
++      if (nchars_avail < 1)
++	{
++	  if (*n > MAX_CANON)
++	    {
++	      nchars_avail = *n;
++	      *n *= 2;
++	    }
++	  else
++	    {
++	      nchars_avail = MAX_CANON;
++	      *n += MAX_CANON;
++	    }
++
++	  *lineptr = realloc (*lineptr, *n);
++	  read_pos = *lineptr + (*n - nchars_avail);
++	}
++
++      /* EOF or error */
++      if (feof (stream) || ferror (stream))
++
++	/* Return partial line, if any */
++	if (read_pos == *lineptr)
++	  return -1;
++	else
++	  break;
++
++      *read_pos++ = c;
++      nchars_avail--;
++
++      /* Return line if NL */
++      if (c == '\n')
++	break;
++    }
++
++  /* Done - NUL terminate and return number of chars read */
++  *read_pos = '\0';
++  return (*n - nchars_avail);
++}
++
 +#endif
 +
 +int parseasmincludes(MESSAGEINFO *messageinfo);
@@ -29,7 +128,26 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  int writeheader(MESSAGEINFO *messageinfo);
  int DecodeLangOpt(char *dargs, MESSAGEINFO *messageinfo);
  
-@@ -89,6 +97,8 @@
+@@ -70,17 +177,7 @@
+ void ProgError(int exnum, char *dispmsg);
+ void displayinfo(MESSAGEINFO *messageinfo);
+ 
+-/*************************************************************************
+- * Main( )
+- *
+- * Entry into the program
+- *
+- * Expects a valid txt filey. Will name the output file using the input
+- * file and the MSG extention if an output filename is not provided.
+- *
+- **********************************/
+-
+-int main(int argc, char *argv[])
++int processparams(int argc, char *argv[])
+ {
+     int rc = 0; // return code
+     int ch = 0; // getopt variable
+@@ -89,6 +186,8 @@
      // uint8_t os2ldr = 0;           // here but not used
      uint8_t ibm_format_input = 0; // 1= IBM compatabile input args
      uint8_t outfile_provided = 0; // output file in args
@@ -38,7 +156,30 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  
      // getopt options
      uint8_t verbose = 0;   // verbose output
-@@ -128,7 +138,7 @@
+@@ -101,22 +200,6 @@
+     messageinfo.bytesperchar = 1;
+     messageinfo.fakeextend = 0;
+ 
+-    // these I found in the disassembled code, here for reference
+-    // but not used - just for reference
+-    // uint8_t *includepath = getenv("INCLUDE");
+-    // uint8_t *mkmsgfprog = getenv("MKMSGF_PROG");
+-    // if (mkmsgfprog != NULL)
+-    //    if (!strncmp(mkmsgfprog, "OS2LDR", 6))
+-    //        os2ldr = 1;
+-
+-    // no args - print usage and exit
+-    if (argc == 1)
+-    {
+-        prgheading(); // display program heading
+-        helpshort();
+-        exit(MKMSG_NOERROR);
+-    }
+-
+     /* *********************************************************************
+      * The following is to just keep the input options getopt and IBM mkmsgf
+      * compatable : MKMSGF infile[.ext] outfile[.ext] [/V]
+@@ -128,7 +211,7 @@
      // is a filename
      if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
      {
@@ -47,7 +188,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
          optind++;
  
          ++ibm_format_input; // set ibm format
-@@ -138,7 +148,7 @@
+@@ -138,7 +221,7 @@
          {
              if ((*argv[2] != '-') && (*argv[2] != '/')) // first arg prefix - or / ?
              {
@@ -56,7 +197,16 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
                  optind++;
  
                  ++outfile_provided; // have output file
-@@ -198,13 +208,19 @@
+@@ -150,7 +233,7 @@
+     messageinfo.codepagesnumber = 0;
+ 
+     // Get program arguments using getopt()
+-    while ((ch = getopt(argc, argv, "d:D:eEp:P:l:L:VvHhI:i:AaCcq")) != -1)
++    while ((ch = getopt(argc, argv, "d:D:eEp:P:l:L:VvHhI:i:AaCcQq")) != -1)
+     {
+         switch (ch)
+         {
+@@ -198,13 +281,19 @@
  
              // Undocumented IBM flags - here but not used
  
@@ -79,7 +229,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
              break;
  
          // my added option
-@@ -233,12 +249,12 @@
+@@ -233,12 +322,12 @@
      // so we need to get input file and maybe the output file
      if (!ibm_format_input)
      {
@@ -94,7 +244,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
              optind++;
  
              ++outfile_provided; // have output file
-@@ -252,7 +268,10 @@
+@@ -252,7 +341,10 @@
  
      // setup and check the input / output files
      if (access(messageinfo.infile, F_OK) != 0)
@@ -105,7 +255,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  
      // splitup input file
      _splitpath(messageinfo.infile,
-@@ -265,6 +284,9 @@
+@@ -265,6 +357,9 @@
      {
          for (int x = 0; x < _MAX_PATH; x++)
              messageinfo.outfile[x] = 0x00;
@@ -115,7 +265,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
          sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".msg");
      }
      // check input == output file
-@@ -285,9 +307,19 @@
+@@ -285,13 +380,91 @@
      if (rc != MKMSG_NOERROR)
          ProgError(rc, "MKMSGF: MSG Header write error");
  
@@ -132,11 +282,92 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 +		rc = writemsgfile(&messageinfo);
      if (rc != MKMSG_NOERROR)
          ProgError(rc, "MKMSGF: MSG file write error");
-+	}
++		}
  
      // if you don't see this then I screwed up
      printf("\nEnd compile\n");
-@@ -422,14 +454,220 @@
+ 
++	return(0);
++}
++
++/*************************************************************************
++ * Main( )
++ *
++ * Entry into the program
++ *
++ * Expects a valid txt filey. Will name the output file using the input
++ * file and the MSG extention if an output filename is not provided.
++ *
++ **********************************/
++
++int main(int argc, char *argv[])
++{
++    // these I found in the disassembled code, here for reference
++    // but not used - just for reference
++    // uint8_t *mkmsgfprog = getenv("MKMSGF_PROG");
++    // if (mkmsgfprog != NULL)
++    //    if (!strncmp(mkmsgfprog, "OS2LDR", 6))
++    //        os2ldr = 1;
++
++    // no args - print usage and exit
++    if (argc == 1)
++    {
++        prgheading(); // display program heading
++        helpshort();
++        exit(MKMSG_NOERROR);
++    }
++
++	// Control file
++	if ((*argv[1] == '@'))
++	{
++		char *line=NULL;
++		unsigned int line_size=sizeof(line);
++		char *fakeargv[10];	// 10 args
++		char *param;
++		int fakeargc;
++		FILE* file = fopen(argv[1]+1, "r");
++
++		while (!feof(file))
++		{
++			getline(&line, &line_size, file);
++			if (feof(file)) break;
++			printf("%s\n", line);
++			flushall();
++			enum { kMaxArgs = 64 };
++			int fakeargc = 0;
++			char *fakeargv[kMaxArgs];
++			
++			fakeargv[fakeargc++] = argv[0];
++
++			char *p2 = strtok(line, " ");
++			while (p2 && fakeargc < kMaxArgs-1)
++			{
++				fakeargv[fakeargc++] = p2;
++				p2 = strtok(0, " ");
++			}
++			fakeargv[fakeargc] = 0;
++			processparams(fakeargc, fakeargv);
++			optind=1;
++		}
++		fclose(file);
++        exit(MKMSG_NOERROR);
++	}
++
++	// single file
++	processparams(argc, argv);
+     exit(MKMSG_NOERROR);
+ }
+ 
+@@ -386,7 +559,7 @@
+         return (MKMSG_OFFID_ERR);
+     else
+     {
+-        if (_filelength(handle) <= 50000) // using 50K as pointer tripwire
++        if (_filelength(handle) <= 40000) // using 50K as pointer tripwire
+             messageinfo->offsetid = 1;
+         else
+             messageinfo->offsetid = 0;
+@@ -422,14 +595,220 @@
      // TEMP stuff
      strncpy(messageinfo->filename,
              messageinfo->outfile,
@@ -359,7 +590,16 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
   *
   * Reads in all the MSG file info and stores in MESSAGEINFO structure
   *
-@@ -462,7 +700,7 @@
+@@ -448,7 +827,7 @@
+  * 5.8.1 Check for ? message if true then generate full ? message to save
+  *     time else process E, I, W, H, P msg types and set scratch pointer
+  * 5.8.2.1 Check for the mandatory space after : exit if not present
+- * 5.8.2.2 Move msg type to space and set scratch pointer
++ * 5.8.2.2 Move msg type to space or colon and set scratch pointer
+  * 5.9 Continuation line -- set scratch pointer
+  *
+  * 6 Get message length
+@@ -462,7 +841,7 @@
   * Return:    returns error code or 0 for all good
   *************************************************************************/
  
@@ -368,7 +608,64 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  {
      // open input file
      FILE *fpi = fopen(messageinfo->infile, "rb");
-@@ -763,7 +1001,7 @@
+@@ -508,7 +887,7 @@
+     else
+         large_index = (uint32_t *)index_buffer;
+ 
+-    while (TRUE)
++    while (!feof(fpi))
+     {
+         // clear the read_buffer -- set all to 0x00 this will
+         // give me a clean strlen return
+@@ -526,7 +905,7 @@
+ 
+         // here is the line read in
+         getline(&read_buffer, &read_buff_size, fpi);
+-        if (feof(fpi))
++        if (!getline(&read_buffer, &read_buff_size, fpi) & feof(fpi))
+             break;
+ 
+         // find message start - skip comments
+@@ -569,7 +948,11 @@
+                     // I assume this was why (maybe not) -- just copy the ID
+                     // to the space position and change pointer to the new start
+                     if (read_buffer[9] != 0x20)
+-                        return (MKMSG_BAD_TYPE);
++					{
++                        read_buffer[8] = read_buffer[7];
++                        readptr = &read_buffer[8];
++//                        return (MKMSG_BAD_TYPE);
++					}
+                     else
+                     {
+                         // move message type to front of message
+@@ -593,7 +976,7 @@
+             // input file was done in a modern text editor the ending
+             // is probably just 0x0A so add 0x0D 0x0A 0x00
+ 
+-            if (readptr[(current_msg_len - 1)] != 0x0A &&
++            if (current_msg_len && readptr[(current_msg_len - 1)] != 0x0A &&
+                 readptr[(current_msg_len - 2)] != 0x0D)
+             {
+                 readptr[(current_msg_len - 1)] = 0x0D;
+@@ -625,6 +1008,7 @@
+ 
+             // write out the current message
+             fwrite(readptr, sizeof(char), current_msg_len, fpo);
++			
+         }
+     }
+ 
+@@ -679,7 +1063,7 @@
+     fclose(fpo);
+     fclose(fpi);
+     free(read_buffer);
+-    free(index_buffer);
++    free(index_buffer);  // why it traps???
+ 
+     return (MKMSG_NOERROR);
+ }
+@@ -763,7 +1147,7 @@
  
      strncpy(cntryheader->filename,
              messageinfo->filename,
@@ -377,7 +674,7 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  
      cntryheader->filler = 0x00;
  
-@@ -772,6 +1010,64 @@
+@@ -772,6 +1156,64 @@
      fclose(fpo);
      free(write_buffer);
  
@@ -443,8 +740,8 @@ diff  -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  }
  
 diff -urwN mkmsgf/src/mkmsgf.h newmkmsgf/src/mkmsgf.h
---- mkmsgf/src/mkmsgf.h	Mon Jan 22 10:38:18 2024
-+++ newmkmsgf/src/mkmsgf.h	Thu Jan 18 13:50:16 2024
+--- mkmsgf/src/mkmsgf.h	Thu Jan 25 12:44:03 2024
++++ newmkmsgf/src/mkmsgf.h	Thu Jan 25 10:58:10 2024
 @@ -86,7 +86,7 @@
  // extended header block
  typedef struct _EXTHDR

@@ -99,8 +99,8 @@ cplist = en pl ru
 
 rsf: .SYMBOLIC .PROCEDURE .ALWAYS
  @%create $(PATH)$(T)
- @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /Q /P 850 /L 1,1
- @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /Q /P 852 /L 48,1
+ @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /Q /P 850 /L 9,1
+ @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /Q /P 852 /L 21,1
  @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /Q /P 866 /L 25,1
 
 !ifeq DLL 1

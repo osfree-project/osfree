@@ -2,7 +2,7 @@
 
 PORT_NAME = os2$(SEP)zlib
 PORT_TYPE = wget
-PORT_URL  = https://www.zlib.net/zlib13.zip
+PORT_URL  = https://www.zlib.net/zlib131.zip
 PORT_REV  = 
 PORT_PATCHES  = 
 
