@@ -36,3 +36,6 @@
 [submodule "tools/UNI"]
 	path = tools/UNI
 	url = https://github.com/osfree-project/UNI
+[submodule "shared"]
+	path = shared
+	url = https://github.com/osfree-project/SUB
