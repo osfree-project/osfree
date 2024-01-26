@@ -95,7 +95,16 @@ static ULONG _blGetDescription(ULONG cbStr, PCHAR pcStr, PBLDLEVELINFO pInfo)
     if ( pInfo->cbDescription == sizeof(pInfo->acDescription) - 1 )
       return 0;
 
-    pInfo->acDescription[pInfo->cbDescription++] = *pcScan;
+	// If Package found move info to acPackage
+	if (*pcScan == ':')
+	{
+		strcpy(pInfo->acPackage, pInfo->acDescription);
+		pInfo->cbPackage=pInfo->cbDescription;
+		pInfo->cbDescription=0;
+		memset(pInfo->acDescription, '\0', sizeof(pInfo->acDescription));
+	} else {
+		pInfo->acDescription[pInfo->cbDescription++] = *pcScan;
+	}
     pcScan++;
   }
 
@@ -522,6 +531,11 @@ int main (int argc, char* argv[], char* envp[])
 		}
 	}
 	
+	if (Info.cbPackage)
+	{
+		cmd_ShowSystemMessage(8074,0L);
+		printf("%s\n", Info.acPackage);
+	}
 //If Package<>'' then Say SysGetMessage(8074)||Space(Package)
 
 	if (Info.cbDescription)

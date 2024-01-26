@@ -37,6 +37,8 @@ typedef struct _BLDLEVELINFO {
   CHAR		acFixPackVer[16];
   ULONG		cbDescription;
   CHAR		acDescription[80];
+  ULONG		cbPackage;
+  CHAR		acPackage[80];
 } BLDLEVELINFO, *PBLDLEVELINFO;
 
 
