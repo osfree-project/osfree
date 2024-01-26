@@ -1,13 +1,16 @@
-# $Id: makefile,v 1.4 2004/08/16 04:51:09 prokushev Exp $
+#
+# A Makefile for BLDLEVEL
+# (c) osFree project,
+#
 
 PROJ = bldlevel
-#TRGT = $(PROJ).cmd
+TRGT = $(PROJ).exe
 DESC = Build level display facility
-CLEAN_ADD = *.cmd
+#defines object file names in format $(p)objname$(e)
+srcfiles = $(p)bldlevel$(e)
+# defines additional options for C compiler
+ADD_COPT = -i=$(MYDIR)..$(SEP)include
+#STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
+UNI2H = 1
 
-!include $(%ROOT)tools/mk/all.mk
-
-TARGETS = $(PATH)$(PROJ).cmd
-
-$(PATH)$(PROJ).cmd: $(MYDIR)$(PROJ).rexx
- @$(CP) $< $^@ $(BLACKHOLE)
+!include $(%ROOT)tools/mk/appsos2_cmd.mk
