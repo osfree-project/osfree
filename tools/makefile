@@ -11,9 +11,9 @@
 DIRS = sed UNI yacc lex jwasm awk &
        mkmsgf mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
-       lxlite
+       lxlite target
 # rexxwrap ltools &
-#	   target
+
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)tools/mk/all.mk
