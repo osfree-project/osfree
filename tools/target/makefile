@@ -9,7 +9,7 @@
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
-DIRS = uni
+DIRS = uniapi
 #mkmsgf
 
 !include $(%ROOT)tools/mk/all.mk
