@@ -1,0 +1,2 @@
+% fixed strncpy usage
+% fixed opt count flag check mistype
