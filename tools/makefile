@@ -9,7 +9,7 @@
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
 DIRS = sed UNI yacc lex jwasm awk &
-       mkmsgf mkctxt genext2fs &
+       mkmsgf exehdr mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
        lxlite target
 # rexxwrap ltools &
