@@ -3,7 +3,7 @@
 # (c) osFree project
 #
 
-DIRS = &
+DIRS = port
 #Core &
 #Frameworks
 

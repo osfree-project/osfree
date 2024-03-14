@@ -1,0 +1,1 @@
+!include $(MYDIR)somfree.mk
