@@ -6,6 +6,7 @@ DESC = Exe Header Dump
 srcfiles = $(p)exehdr$(e) $(p)lxdisplay$(e) $(p)lxutils$(e) $(p)dumprawlx$(e)
 
 !ifndef TARGETBLD
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 SRC  = $(MYDIR)
 !else
 ADD_COPT = -bt=os2

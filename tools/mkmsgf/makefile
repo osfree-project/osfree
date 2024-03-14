@@ -7,6 +7,7 @@ srcfiles = $(p)mkmsgf$(e)
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
+DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 !else
 ADD_COPT = -bt=os2
 DEST = os2tk45$(SEP)bin
