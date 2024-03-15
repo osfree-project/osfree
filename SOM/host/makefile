@@ -9,8 +9,8 @@ WATCOM_RUNTIME = clbr19
 WATCOM_RUNTIME = clbr19
 !endif
 
-SOM_COMPILER = pdl 
-#somcpp somipc sc
+SOM_COMPILER = pdl sc
+#somcpp somipc
 # SOM Run-time kernel
 SOM_KERNEL = #somkpub somdtype somkprep som
 # Interface Repository Framework

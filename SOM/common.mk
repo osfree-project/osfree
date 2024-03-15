@@ -9,12 +9,12 @@ ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
 OPTS = -br -dWIN32_LEAN_AND_MEAN
-defs = $(%WATCOM)$(SEP)h$(SEP)nt
+defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
 OPTS = -br -dWIN32_LEAN_AND_MEAN
-defs = $(%WATCOM)$(SEP)h$(SEP)nt
+defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS DOS
