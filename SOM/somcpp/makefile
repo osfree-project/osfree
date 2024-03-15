@@ -1,4 +1,3 @@
-# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 PROJ = somcpp
 TRGT = $(PROJ).exe
@@ -17,11 +16,8 @@ ADD_COPT = -u__LINUX__ -d__OS2__
 SRC = $(MYDIR)..$(SEP)
 !endif
 
-#Notes:
-# awk lex and yacc files not added to repository
 
 ADD_COPT += -i=..$(SEP)include -sg -d2
-#STACKSIZE = 6553500
 
 !ifdef HOSTBLD
 !include $(%ROOT)tools/mk/tools.mk
