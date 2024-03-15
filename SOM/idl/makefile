@@ -72,7 +72,12 @@ TARGETS = $(PATH)somobj.idl &
 		$(PATH)somperrd.idl &
 		$(PATH)sompstad.idl &
 		$(PATH)sompstat.idl &
-		$(PATH)srkset.idl
+		$(PATH)srkset.idl &
+		$(PATH)snglicls.idl &
+		$(PATH)sombacls.idl &
+		$(PATH)somida.idl &
+		$(PATH)somproxy.idl &
+		$(PATH)somsid.idl
 
 SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somkpub$(SEP)som$(SEP)somcls.idl &
@@ -143,7 +148,12 @@ SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somp$(SEP)somperrd.idl &
 		$(PORT_BASE)somp$(SEP)sompstad.idl &
 		$(PORT_BASE)somp$(SEP)sompstat.idl &
-		$(PORT_BASE)somp$(SEP)srkset.idl
+		$(PORT_BASE)somp$(SEP)srkset.idl &
+		$(PORT_BASE)somu$(SEP)snglicls.idl &
+		$(PORT_BASE)somu$(SEP)sombacls.idl &
+		$(PORT_BASE)somu$(SEP)somida.idl &
+		$(PORT_BASE)somu$(SEP)somproxy.idl &
+		$(PORT_BASE)somu$(SEP)somsid.idl
 
 $(TARGETS): $(SOURCES)
  $(verbose)pdl -o $(PATH) $< $(BLACKHOLE)

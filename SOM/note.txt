@@ -271,7 +271,7 @@ sinkev.xh
 sm.h
 smcidl.h
 snglicls.h
-snglicls.idl
+snglicls.idl	+
 snglicls.xh
 som.h
 som.hc
@@ -280,7 +280,7 @@ som.hs
 som.xh
 somapi.h
 sombacls.h
-sombacls.idl
+sombacls.idl	+
 sombacls.xh
 sombtype.h
 somcd.h
@@ -319,7 +319,7 @@ somdtype.idl	+
 somdtype.xh
 somh.hh
 somida.h
-somida.idl
+somida.idl		+
 somida.xh
 somir.h
 somir.hh
@@ -368,7 +368,7 @@ somrmcls.xh
 soms.h
 soms.xh
 somsid.h
-somsid.idl
+somsid.idl		+
 somsid.xh
 somssock.h
 somssock.idl
@@ -493,6 +493,7 @@ somdmpfx.idl
 somdstub.idl
 somdtcdt.idl
 unotypes.idl
+somproxy.idl
 
 
 Directory	Name		Comments
