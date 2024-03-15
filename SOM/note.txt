@@ -1,3 +1,28 @@
+os2tk45\som\bin
+
+ctoi.cmd
+irdump.exe
+pdl.exe			+
+sc.exe
+scobj.exe
+somcorba.cmd
+somcpp.exe
+somdeps.exe
+somdeps1.exe
+somdeps2.exe
+somenv.cmd
+somhh.cmd
+somipc.exe
+somopc.exe
+somsetup.exe
+somstars.cmd
+somtempl.exe
+somtempl.ps
+somtempl.txt
+somxh.cmd
+spp.exe
+
+
 
 Directory	Name		Comments
 \OS2		SOMDD.EXE	DSOM daemon. It must be started prior to running a DSOM application
