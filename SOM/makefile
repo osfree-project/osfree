@@ -3,7 +3,7 @@
 # (c) osFree project
 #
 
-DIRS = 	port pdl sc somcpp &
+DIRS = 	port pdl sc somcpp idl &
 		host
 #Core &
 #Frameworks
