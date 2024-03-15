@@ -3,10 +3,10 @@ os2tk45\som\bin
 ctoi.cmd
 irdump.exe
 pdl.exe			+
-sc.exe
+sc.exe			+
 scobj.exe
 somcorba.cmd
-somcpp.exe
+somcpp.exe		+
 somdeps.exe
 somdeps1.exe
 somdeps2.exe

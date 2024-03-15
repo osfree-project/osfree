@@ -2,7 +2,7 @@
 # A Makefile for somFree project
 #
 
-SOM_COMPILER = pdl somcpp somipc sc
+SOM_COMPILER = somipc
 # SOM Run-time kernel
 SOM_KERNEL = somkpub somdtype somkprep som
 # Interface Repository Framework
