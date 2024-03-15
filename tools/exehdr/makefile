@@ -5,6 +5,8 @@ TRGT = $(PROJ).exe
 DESC = Exe Header Dump
 srcfiles = $(p)exehdr$(e) $(p)lxdisplay$(e) $(p)lxutils$(e) $(p)dumprawlx$(e)
 
+#DIRS = msg
+
 !ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 SRC  = $(MYDIR)

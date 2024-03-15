@@ -46,6 +46,7 @@ prep_git: .symbolic
 prep_svn: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
 !ifeq %HOST win32
+ $(verbose)$(MDHIER) $(PORT_BASE)
  $(verbose)git svn clone $(PORT_URL)$(PORT_REV) $(PORT_BASE)
 !else
  $(verbose)svn --non-interactive --trust-server-cert co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
