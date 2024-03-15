@@ -49,10 +49,10 @@ containr.xh
 cpp.efw
 ctm.efw
 defedidl.h
-defedidl.idl
+defedidl.idl	+
 defedidl.xh
 eda.h
-eda.idl
+eda.idl			+
 eda.xh
 eman.h
 eman.idl		+
@@ -70,19 +70,19 @@ excptdef.h
 excptdef.idl	+
 excptdef.xh
 fma.h
-fma.idl
+fma.idl			+
 fma.xh
 fmi.h
-fmi.idl
+fmi.idl			+
 fmi.xh
 fmib.h
-fmib.idl
+fmib.idl		+
 fmib.xh
 fsagm.h
-fsagm.idl
+fsagm.idl		+
 fsagm.xh
 fsgm.h
-fsgm.idl
+fsgm.idl		+
 fsgm.xh
 gen_c.efc
 gen_c.efs
@@ -112,10 +112,10 @@ intfacdf.h
 intfacdf.idl	+
 intfacdf.xh
 iogma.h
-iogma.idl
+iogma.idl		+
 iogma.xh
 iogrp.h
-iogrp.idl
+iogrp.idl		+
 iogrp.xh
 ipxsock.h
 ipxsock.idl
@@ -130,7 +130,7 @@ mcollect.h
 mcollect.idl
 mcollect.xh
 mia.h
-mia.idl
+mia.idl			+
 mia.xh
 mlink.h
 mlink.idl
@@ -148,13 +148,13 @@ nbsock.h
 nbsock.idl
 nbsock.xh
 nsma.h
-nsma.idl
+nsma.idl		+
 nsma.xh
 nvlist.h
 nvlist.idl		+
 nvlist.xh
 objset.h
-objset.idl
+objset.idl		+
 objset.xh
 om.h
 om.idl			+
@@ -169,22 +169,22 @@ paramdef.h
 paramdef.idl	+
 paramdef.xh
 pid.h
-pid.idl
+pid.idl			+
 pid.xh
 po.h
-po.idl
+po.idl			+
 po.xh
 poid.h
-poid.idl
+poid.idl		+
 poid.xh
 poida.h
-poida.idl
+poida.idl		+
 poida.xh
 principl.h
 principl.idl	+
 principl.xh
 psma.h
-psma.idl
+psma.idl		+
 psma.xh
 replicbl.h
 replicbl.idl
@@ -335,20 +335,20 @@ somobj.idl		+
 somobj.sc
 somobj.xh
 somp.h
-somp.idl
+somp.idl		+
 somp.xh
 somperr.h
-somperr.idl
+somperr.idl		+
 somperr.xh
 somperrd.h
-somperrd.idl
+somperrd.idl	+
 somperrd.xh
 somport.h
 sompstad.h
-sompstad.idl
+sompstad.idl	+
 sompstad.xh
 sompstat.h
-sompstat.idl
+sompstat.idl	+
 sompstat.xh
 somr.h
 somr.idl
@@ -393,7 +393,7 @@ somtypes.h
 somtypes.xh
 srdict.h
 srkset.h
-srkset.idl
+srkset.idl		+
 srkset.xh
 srmsgnos.h
 srutil.h

@@ -49,7 +49,30 @@ TARGETS = $(PATH)somobj.idl &
 		$(PATH)event.idl &
 		$(PATH)sinkev.idl &
 		$(PATH)timerev.idl &
-		$(PATH)workprev.idl
+		$(PATH)workprev.idl &
+		$(PATH)defedidl.idl &
+		$(PATH)eda.idl &
+		$(PATH)fma.idl &
+		$(PATH)fmi.idl &
+		$(PATH)fmib.idl &
+		$(PATH)fsagm.idl &
+		$(PATH)fsgm.idl &
+		$(PATH)iogma.idl &
+		$(PATH)iogrp.idl &
+		$(PATH)mia.idl &
+		$(PATH)nsma.idl &
+		$(PATH)objset.idl &
+		$(PATH)pid.idl &
+		$(PATH)po.idl &
+		$(PATH)poid.idl &
+		$(PATH)poida.idl &
+		$(PATH)psma.idl &
+		$(PATH)somp.idl &
+		$(PATH)somperr.idl &
+		$(PATH)somperrd.idl &
+		$(PATH)sompstad.idl &
+		$(PATH)sompstat.idl &
+		$(PATH)srkset.idl
 
 SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somkpub$(SEP)som$(SEP)somcls.idl &
@@ -97,7 +120,30 @@ SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somem$(SEP)event.idl &
 		$(PORT_BASE)somem$(SEP)sinkev.idl &
 		$(PORT_BASE)somem$(SEP)timerev.idl &
-		$(PORT_BASE)somem$(SEP)workprev.idl
+		$(PORT_BASE)somem$(SEP)workprev.idl &
+		$(PORT_BASE)somp$(SEP)defedidl.idl &
+		$(PORT_BASE)somp$(SEP)eda.idl &
+		$(PORT_BASE)somp$(SEP)fma.idl &
+		$(PORT_BASE)somp$(SEP)fmi.idl &
+		$(PORT_BASE)somp$(SEP)fmib.idl &
+		$(PORT_BASE)somp$(SEP)fsagm.idl &
+		$(PORT_BASE)somp$(SEP)fsgm.idl &
+		$(PORT_BASE)somp$(SEP)iogma.idl &
+		$(PORT_BASE)somp$(SEP)iogrp.idl &
+		$(PORT_BASE)somp$(SEP)mia.idl &
+		$(PORT_BASE)somp$(SEP)nsma.idl &
+		$(PORT_BASE)somp$(SEP)objset.idl &
+		$(PORT_BASE)somp$(SEP)pid.idl &
+		$(PORT_BASE)somp$(SEP)po.idl &
+		$(PORT_BASE)somp$(SEP)poid.idl &
+		$(PORT_BASE)somp$(SEP)poida.idl &
+		$(PORT_BASE)somp$(SEP)psma.idl &
+		$(PORT_BASE)somp$(SEP)somp.idl &
+		$(PORT_BASE)somp$(SEP)somperr.idl &
+		$(PORT_BASE)somp$(SEP)somperrd.idl &
+		$(PORT_BASE)somp$(SEP)sompstad.idl &
+		$(PORT_BASE)somp$(SEP)sompstat.idl &
+		$(PORT_BASE)somp$(SEP)srkset.idl
 
 $(TARGETS): $(SOURCES)
  $(verbose)pdl -o $(PATH) $< $(BLACKHOLE)
