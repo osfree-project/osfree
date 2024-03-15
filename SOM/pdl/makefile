@@ -1,4 +1,3 @@
-# $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 PROJ = pdl
 TRGT = $(PROJ).exe
@@ -9,7 +8,6 @@ srcfiles = $(p)pdl$(e)
 
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin
 
-SRC = $(MYDIR)..$(SEP)..$(SEP)
 !ifeq %OS OS2
 OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -40,16 +38,11 @@ ADD_LINKOPT = lib clib3r
 
 DEST = os2tk45$(SEP)som$(SEP)bin
 
-SRC = $(MYDIR)..$(SEP)
-OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
 
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(SRC)contrib$(SEP)include -bc -bm -dHAVE_CONFIG_H $(OPTS)
-#STACKSIZE = 0x20000
-#UNI2H = 1
 C = r
 
 !ifdef HOSTBLD
@@ -57,9 +50,12 @@ C = r
 !else
 !include $(%ROOT)tools/mk/appsos2.mk
 !endif
+!include $(%ROOT)SOM$(SEP)port$(SEP)somfree.mk
 
-.c: $(SRC)contrib$(SEP)pdl$(SEP)src
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -bm -dHAVE_CONFIG_H $(OPTS)
 
-.h: $(SRC)contrib$(SEP)include
+.c: $(PORT_BASE)pdl$(SEP)src
+
+#.h: $(SRC)contrib$(SEP)include
 
 #.$(O): $(PATH)

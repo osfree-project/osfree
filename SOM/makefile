@@ -3,7 +3,8 @@
 # (c) osFree project
 #
 
-DIRS = port
+DIRS = 	port pdl &
+		host
 #Core &
 #Frameworks
 
