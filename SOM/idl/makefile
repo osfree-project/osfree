@@ -77,7 +77,30 @@ TARGETS = $(PATH)somobj.idl &
 		$(PATH)sombacls.idl &
 		$(PATH)somida.idl &
 		$(PATH)somproxy.idl &
-		$(PATH)somsid.idl
+		$(PATH)somsid.idl &
+		$(PATH)scattrib.idl &
+		$(PATH)scbase.idl &
+		$(PATH)scclass.idl &
+		$(PATH)sccommon.idl &
+		$(PATH)scconst.idl &
+		$(PATH)scdata.idl &
+		$(PATH)scemit.idl &
+		$(PATH)scentry.idl &
+		$(PATH)scenum.idl &
+		$(PATH)scenumnm.idl &
+		$(PATH)scmeta.idl &
+		$(PATH)scmethod.idl &
+		$(PATH)scmodule.idl &
+		$(PATH)scparm.idl &
+		$(PATH)scpass.idl &
+		$(PATH)scseqnce.idl &
+		$(PATH)scstring.idl &
+		$(PATH)scstruct.idl &
+		$(PATH)sctdef.idl &
+		$(PATH)sctmplt.idl &
+		$(PATH)scunion.idl &
+		$(PATH)scusrtyp.idl &
+		$(PATH)somstrt.idl
 
 SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somkpub$(SEP)som$(SEP)somcls.idl &
@@ -153,7 +176,30 @@ SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somu$(SEP)sombacls.idl &
 		$(PORT_BASE)somu$(SEP)somida.idl &
 		$(PORT_BASE)somu$(SEP)somproxy.idl &
-		$(PORT_BASE)somu$(SEP)somsid.idl
+		$(PORT_BASE)somu$(SEP)somsid.idl &
+		$(PORT_BASE)some$(SEP)scattrib.idl &
+		$(PORT_BASE)some$(SEP)scbase.idl &
+		$(PORT_BASE)some$(SEP)scclass.idl &
+		$(PORT_BASE)some$(SEP)sccommon.idl &
+		$(PORT_BASE)some$(SEP)scconst.idl &
+		$(PORT_BASE)some$(SEP)scdata.idl &
+		$(PORT_BASE)some$(SEP)scemit.idl &
+		$(PORT_BASE)some$(SEP)scentry.idl &
+		$(PORT_BASE)some$(SEP)scenum.idl &
+		$(PORT_BASE)some$(SEP)scenumnm.idl &
+		$(PORT_BASE)some$(SEP)scmeta.idl &
+		$(PORT_BASE)some$(SEP)scmethod.idl &
+		$(PORT_BASE)some$(SEP)scmodule.idl &
+		$(PORT_BASE)some$(SEP)scparm.idl &
+		$(PORT_BASE)some$(SEP)scpass.idl &
+		$(PORT_BASE)some$(SEP)scseqnce.idl &
+		$(PORT_BASE)some$(SEP)scstring.idl &
+		$(PORT_BASE)some$(SEP)scstruct.idl &
+		$(PORT_BASE)some$(SEP)sctdef.idl &
+		$(PORT_BASE)some$(SEP)sctmplt.idl &
+		$(PORT_BASE)some$(SEP)scunion.idl &
+		$(PORT_BASE)some$(SEP)scusrtyp.idl &
+		$(PORT_BASE)some$(SEP)somstrt.idl
 
 $(TARGETS): $(SOURCES)
  $(verbose)pdl -o $(PATH) $< $(BLACKHOLE)

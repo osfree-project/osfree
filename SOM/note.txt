@@ -196,71 +196,71 @@ request.h
 request.idl		+
 request.xh
 scattrib.h
-scattrib.idl
+scattrib.idl	+
 scattrib.xh
 scbase.h
-scbase.idl
+scbase.idl		+
 scbase.xh
 scclass.h
-scclass.idl
+scclass.idl		+
 scclass.xh
 sccommon.h
-sccommon.idl
+sccommon.idl	+
 sccommon.xh
 scconst.h
-scconst.idl
+scconst.idl		+
 scconst.xh
 scdata.h
-scdata.idl
+scdata.idl		+
 scdata.xh
 scemit.h
-scemit.idl
+scemit.idl		+
 scemit.xh
 scentry.h
-scentry.idl
+scentry.idl		+
 scentry.xh
 scenum.h
-scenum.idl
+scenum.idl		+
 scenum.xh
 scenumnm.h
-scenumnm.idl
+scenumnm.idl	+
 scenumnm.xh
 scmeta.h
-scmeta.idl
+scmeta.idl		+
 scmeta.xh
 scmethod.h
-scmethod.idl
+scmethod.idl	+
 scmethod.xh
 scmodule.h
-scmodule.idl
+scmodule.idl	+
 scmodule.xh
 scparm.h
-scparm.idl
+scparm.idl		+
 scparm.xh
 scpass.h
-scpass.idl
+scpass.idl		+
 scpass.xh
 scseqnce.h
-scseqnce.idl
+scseqnce.idl	+
 scseqnce.xh
 scstring.h
-scstring.idl
+scstring.idl	+
 scstring.xh
 scstruct.h
-scstruct.idl
+scstruct.idl	+
 scstruct.xh
 sctdef.h
-sctdef.idl
+sctdef.idl		+
 sctdef.xh
 sctmplt.h
-sctmplt.idl
+sctmplt.idl		+
 sctmplt.xh
 sctypes.h
 scunion.h
-scunion.idl
+scunion.idl		+
 scunion.xh
 scusrtyp.h
-scusrtyp.idl
+scusrtyp.idl	+
 scusrtyp.xh
 servmgr.h
 servmgr.idl		+
@@ -374,7 +374,7 @@ somssock.h
 somssock.idl
 somssock.xh
 somstrt.h
-somstrt.idl
+somstrt.idl		+
 somstrt.xh
 somtc.h
 somtc.hh
