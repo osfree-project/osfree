@@ -5,21 +5,21 @@ irdump.exe
 pdl.exe			+
 sc.exe			+
 scobj.exe
-somcorba.cmd
+somcorba.cmd	+
 somcpp.exe		+
 somdeps.exe
 somdeps1.exe
 somdeps2.exe
-somenv.cmd
-somhh.cmd
+somenv.cmd		+
+somhh.cmd		+
 somipc.exe
 somopc.exe
 somsetup.exe
-somstars.cmd
+somstars.cmd	+
 somtempl.exe
 somtempl.ps
 somtempl.txt
-somxh.cmd
+somxh.cmd		+
 spp.exe
 
 os2tk45\som\include
@@ -371,7 +371,7 @@ somsid.h
 somsid.idl		+
 somsid.xh
 somssock.h
-somssock.idl
+somssock.idl	+
 somssock.xh
 somstrt.h
 somstrt.idl		+
@@ -413,7 +413,7 @@ tcp32.h
 tcp32.idl
 tcp32.xh
 tcpsock.h
-tcpsock.idl
+tcpsock.idl		+
 tcpsock.xh
 tdeq.h
 tdeq.idl
