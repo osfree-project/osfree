@@ -22,6 +22,46 @@ somtempl.txt
 somxh.cmd		+
 spp.exe
 
+os2tk45\som\lib
+
+emitbrs.dll
+emitc.dll
+emitcsc.dll
+emitctm.dll
+emitdef.dll
+emitgen.dll
+emith.dll
+emithc.dll
+emithh.dll
+emitidl.dll
+emitih.dll
+emitir.dll
+emitpdl.dll
+emitph.dll
+emitpsc.dll
+emitsc.dll
+emituc.dll
+emituxc.dll
+emitxc.dll
+emitxh.dll
+emitxih.dll
+emitxph.dll
+emitxtm.dll
+somc.dll
+somcd.dll
+somcd.lib
+somct.dll
+somdbg.dll
+somdbg.lib
+some.dll
+somp.dll
+sompsl.dll
+somr.dll
+somsa.dll
+somsi.dll
+somsn.dll
+somtk.lib
+
 os2tk45\som\include
 
 attribdf.h
@@ -273,19 +313,19 @@ smcidl.h
 snglicls.h
 snglicls.idl	+
 snglicls.xh
-som.h
+som.h			+
 som.hc
 som.hh
 som.hs
-som.xh
-somapi.h
+som.xh			+
+somapi.h		+
 sombacls.h
 sombacls.idl	+
 sombacls.xh
-sombtype.h
+sombtype.h		+
 somcd.h
 somcdev.h
-somcdev.xh
+somcdev.xh		+	
 somcls.api
 somcls.h
 somcls.idl		+
@@ -295,7 +335,7 @@ somcm.h
 somcm.idl		+
 somcm.sc
 somcm.xh
-somcorba.h
+somcorba.h		+
 somd.h
 somd.hh
 somd.xh
@@ -325,8 +365,8 @@ somir.h
 somir.hh
 somir.xh
 somitype.h
-somltype.h
-somnames.h
+somltype.h		+
+somnames.h		+
 somoa.h
 somoa.idl		+
 somoa.xh
@@ -389,7 +429,7 @@ somthrd.h
 somtrcls.h
 somtrcls.idl
 somtrcls.xh
-somtypes.h
+somtypes.h		+
 somtypes.xh
 srdict.h
 srkset.h
@@ -494,6 +534,7 @@ somdstub.idl
 somdtcdt.idl
 unotypes.idl
 somproxy.idl
+somplatf.h
 
 
 Directory	Name		Comments
