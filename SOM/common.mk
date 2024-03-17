@@ -45,4 +45,4 @@ C = r
 !endif
 !include $(%ROOT)SOM$(SEP)port$(SEP)somfree.mk
 
-ADD_COPT = -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -bm -dHAVE_CONFIG_H $(OPTS)
+ADD_COPT = -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -bm -dHAVE_CONFIG_H -dHAVE_CONFIG_HPP $(OPTS)

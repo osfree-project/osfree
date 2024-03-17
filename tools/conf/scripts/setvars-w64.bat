@@ -20,7 +20,7 @@ set REXX=%REGINA%\regina
 set SERVERENV=win32
 set TMP=%TEMP%
 
-set PATH=%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%OS2TK%\bin;%OS2TK%\som\bin;%OS2TK%\som\common\dll;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
+set PATH=%OS2TK%\bin;%OS2TK%\som\bin;%OS2TK%\som\common\dll;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\nt
 rem ;%WATCOM%\h\os21x
 set LIB=%WATCOM%\lib386\nt

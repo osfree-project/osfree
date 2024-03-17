@@ -102,7 +102,22 @@ TARGETS = $(PATH)somobj.idl &
 		$(PATH)scusrtyp.idl &
 		$(PATH)somstrt.idl &
 		$(PATH)somssock.idl &
-		$(PATH)tcpsock.idl
+		$(PATH)tcpsock.idl &
+		$(PATH)omgestio.idl &
+		$(PATH)somestio.idl &
+		$(PATH)biter.idl &
+		$(PATH)lname.idl &
+		$(PATH)lnamec.idl &
+		$(PATH)naming.idl &
+		$(PATH)xnaming.idl &
+		$(PATH)xnamingf.idl &
+		$(PATH)omgidobj.idl &
+		$(PATH)corba.idl &
+		$(PATH)somref.idl &
+		$(PATH)somap.idl &
+		$(PATH)somos.idl &
+		$(PATH)xmscssae.idl &
+		$(PATH)somtdm.idl
 
 SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)somkpub$(SEP)som$(SEP)somcls.idl &
@@ -203,7 +218,22 @@ SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
 		$(PORT_BASE)some$(SEP)scusrtyp.idl &
 		$(PORT_BASE)some$(SEP)somstrt.idl &
 		$(PORT_BASE)soms$(SEP)somssock.idl &
-		$(PORT_BASE)somst$(SEP)tcpsock.idl
+		$(PORT_BASE)somst$(SEP)tcpsock.idl &
+		$(PORT_BASE)somestrm$(SEP)omgestio.idl &
+		$(PORT_BASE)somestrm$(SEP)somestio.idl &
+		$(PORT_BASE)somnmf$(SEP)biter.idl &
+		$(PORT_BASE)somnmf$(SEP)lname.idl &
+		$(PORT_BASE)somnmf$(SEP)lnamec.idl &
+		$(PORT_BASE)somnmf$(SEP)naming.idl &
+		$(PORT_BASE)somnmf$(SEP)xnaming.idl &
+		$(PORT_BASE)somnmf$(SEP)xnamingf.idl &
+		$(PORT_BASE)somabs1$(SEP)omgidobj.idl &
+		$(PORT_BASE)somcorba$(SEP)corba.idl &
+		$(PORT_BASE)somref$(SEP)somref.idl &
+		$(PORT_BASE)somos$(SEP)somap.idl &
+		$(PORT_BASE)somos$(SEP)somos.idl &
+		$(PORT_BASE)somcslib$(SEP)xmscssae.idl &
+		$(PORT_BASE)somu2$(SEP)somtdm.idl
 
 $(TARGETS): $(SOURCES)
  $(verbose)pdl -o $(PATH) $< $(BLACKHOLE)

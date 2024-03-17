@@ -18,6 +18,7 @@ SRC = $(MYDIR)..$(SEP)
 
 
 ADD_COPT += -i=..$(SEP)include -sg -d2
+STACKSIZE = 6553500
 
 !ifdef HOSTBLD
 !include $(%ROOT)tools/mk/tools.mk
