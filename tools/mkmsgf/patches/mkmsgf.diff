@@ -1,6 +1,6 @@
-diff -urwN mkmsgf\src\dlist.c newmkmsgf\src\dlist.c
+diff -urwN mkmsgf\src\dlist.c newmkmsgf2\src\dlist.c
 --- mkmsgf\src\dlist.c	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\dlist.c	Mon Mar 18 12:09:45 2024
++++ newmkmsgf2\src\dlist.c	Mon Mar 18 13:58:26 2024
 @@ -0,0 +1,6186 @@
 +/*
 + *   Copyright (c) International Business Machines  Corp., 2000
@@ -6188,9 +6188,9 @@ diff -urwN mkmsgf\src\dlist.c newmkmsgf\src\dlist.c
 +}
 +
 +
-diff -urwN mkmsgf\src\dlist.h newmkmsgf\src\dlist.h
+diff -urwN mkmsgf\src\dlist.h newmkmsgf2\src\dlist.h
 --- mkmsgf\src\dlist.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\dlist.h	Mon Mar 18 10:03:32 2024
++++ newmkmsgf2\src\dlist.h	Mon Mar 18 13:58:26 2024
 @@ -0,0 +1,2127 @@
 +/*
 +*
@@ -8319,9 +8319,9 @@ diff -urwN mkmsgf\src\dlist.h newmkmsgf\src\dlist.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\globals.h newmkmsgf\src\globals.h
+diff -urwN mkmsgf\src\globals.h newmkmsgf2\src\globals.h
 --- mkmsgf\src\globals.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\globals.h	Mon Mar 18 10:11:37 2024
++++ newmkmsgf2\src\globals.h	Mon Mar 18 13:58:26 2024
 @@ -0,0 +1,94 @@
 +/*
 +*
@@ -8417,9 +8417,9 @@ diff -urwN mkmsgf\src\globals.h newmkmsgf\src\globals.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
---- mkmsgf\src\mkmsgf.c	Mon Mar 18 13:56:27 2024
-+++ newmkmsgf\src\mkmsgf.c	Mon Mar 18 13:50:41 2024
+diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
+--- mkmsgf\src\mkmsgf.c	Mon Mar 18 15:50:04 2024
++++ newmkmsgf2\src\mkmsgf.c	Mon Mar 18 15:21:54 2024
 @@ -36,9 +36,8 @@
   ***************************************************************************/
  
@@ -8551,7 +8551,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +
 +#endif
 +
-+int parseasmincludes(MESSAGEINFO *messageinfo);
++int parseincludes(MESSAGEINFO *messageinfo);
  int setupheader(MESSAGEINFO *messageinfo);
 -int writefile(MESSAGEINFO *messageinfo);
 +int writemsgfile(MESSAGEINFO *messageinfo);
@@ -8559,7 +8559,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
  int writeheader(MESSAGEINFO *messageinfo);
  int DecodeLangOpt(char *dargs, MESSAGEINFO *messageinfo);
  
-@@ -70,25 +177,17 @@
+@@ -70,19 +177,9 @@
  void ProgError(int exnum, char *dispmsg);
  void displayinfo(MESSAGEINFO *messageinfo);
  
@@ -8581,15 +8581,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
      int ch = 0; // getopt variable
  
      // input/output file names and options
-     // uint8_t os2ldr = 0;           // here but not used
-     uint8_t ibm_format_input = 0; // 1= IBM compatabile input args
-     uint8_t outfile_provided = 0; // output file in args
-+    uint8_t asm_format_output = 0; // 1= output ASM
-+    uint8_t c_format_output = 0; // 1= output C
- 
-     // getopt options
-     uint8_t verbose = 0;   // verbose output
-@@ -100,22 +199,8 @@
+@@ -100,22 +197,10 @@
      messageinfo.langversionID = 0;
      messageinfo.bytesperchar = 1;
      messageinfo.fakeextend = 0;
@@ -8611,6 +8603,8 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 -    }
 +    messageinfo.include = NULL;
 +    messageinfo.identifier[3] = 0;
++    messageinfo.asm_format_output = 0; // 1= include is ASM INC
++    messageinfo.c_format_output = 0; // 1= include is C H
  
      /* *********************************************************************
       * The following is to just keep the input options getopt and IBM mkmsgf
@@ -8641,24 +8635,29 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
      {
          switch (ch)
          {
-@@ -198,13 +283,17 @@
+@@ -196,15 +281,19 @@
+             exit(0);
+             break;
  
-             // Undocumented IBM flags - here but not used
+-            // Undocumented IBM flags - here but not used
++            // Undocumented IBM flags
  
 -        case 'i': // include path, I think only for A and C
 -        case 'I':
-         case 'a': // the real mkmsgf outputs asm file
+-        case 'a': // the real mkmsgf outputs asm file
++        case 'a': // the real mkmsgf outputs asm file and parses .INC files
          case 'A':
-+			++asm_format_output;
+-        case 'c': // the real mkmsgf outputs C file
++			++messageinfo.asm_format_output;
 +			break;
-+        case 'i': // include path, I think only for A and C
++        case 'i': // include path, only for A and C
 +        case 'I':
 +			messageinfo.include=strdup(optarg);
 +			break;
-         case 'c': // the real mkmsgf outputs C file
++        case 'c': // the real mkmsgf outputs asm file and parses .H files
          case 'C':
 -            ProgError(MKMSG_GETOPT_ERROR, "MKMSGF: A, C, and I option not supported");
-+			++c_format_output;
++			++messageinfo.c_format_output;
              break;
  
          // my added option
@@ -8692,7 +8691,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
      {
          for (int x = 0; x < _MAX_PATH; x++)
              messageinfo.outfile[x] = 0x00;
-+		if (asm_format_output)
++		if (messageinfo.asm_format_output||messageinfo.c_format_output)
 +			sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".asm");
 +		else
          sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".msg");
@@ -8703,11 +8702,11 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
  
      rc = writeheader(&messageinfo);
 +
-+	if (asm_format_output)
++	if (messageinfo.asm_format_output||messageinfo.c_format_output)
 +	{
 +		messageinfo.msgids=CreateList();
 +
-+		rc = parseasmincludes(&messageinfo);
++		rc = parseincludes(&messageinfo);
 +		if (rc != MKMSG_NOERROR)
 +		{
 +			DestroyList(&messageinfo.msgids, TRUE, &rc);
@@ -9184,7 +9183,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
  
      cntryheader->filler = 0x00;
  
-@@ -772,6 +1230,99 @@
+@@ -772,6 +1230,135 @@
      fclose(fpo);
      free(write_buffer);
  
@@ -9194,7 +9193,6 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +int parseincfile(MESSAGEINFO *messageinfo, char *s)
 +{
 +	FILE *fpi;
-+	char filename[_MAX_PATH]={0};
 +	char *line=NULL;
 +	unsigned int line_size=sizeof(line);
 +	char id[81]={0};
@@ -9202,12 +9200,8 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +	int num;
 +	unsigned long rc;
 +
-+	strcat(filename, s);
-+	strcat(filename, "\\");
-+	strcat(filename, "basemid.inc");
-+
 +    // open input file
-+    fpi = fopen(filename, "rb");
++    fpi = fopen(s, "rb");
 +    if (fpi == NULL)
 +        return (MKMSG_OPEN_ERROR);
 +
@@ -9235,10 +9229,49 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +    return (0);
 +}
 +
++int parsehfile(MESSAGEINFO *messageinfo, char *s)
++{
++	FILE *fpi;
++	char *line=NULL;
++	unsigned int line_size=sizeof(line);
++	char id[81]={0};
++	char define[10]={0};
++	int num;
++	unsigned long rc;
++
++    // open input file
++    fpi = fopen(s, "rb");
++    if (fpi == NULL)
++        return (MKMSG_OPEN_ERROR);
++
++	while (!feof(fpi))
++	{
++		getline(&line, &line_size, fpi);
++		if (feof(fpi)) break;
++		if (line_size)
++		{
++			if (3==sscanf(line, "%9s %80s %d", define, id, &num ))
++			{
++				InsertItem (messageinfo->msgids,
++							81,
++							id,
++							num,
++							NULL,
++							AppendToList,
++							FALSE,
++							&rc);
++			}
++		}
++	}
++
++	fclose(fpi);
++    return (0);
++}
++
 +/*************************************************************************
-+ * Function:  parseasmincludes( )
++ * Function:  parseincludes( )
 + *
-+ * Reads in all the INC files info and stores in MESSAGEINFO structure
++ * Reads in all the INC and H files info and stores in MESSAGEINFO structure
 + *
 + * 1 Search predefined include files in INCLUDE and current directory if no /I given, else use /I
 + *
@@ -9248,22 +9281,19 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +
 +//'BASEBID.INC' 
 +//'UTILMD*.INC'
-+int parseasmincludes(MESSAGEINFO *messageinfo)
++//'BASEBID.H' 
++//'UTILMD*.H'
++int parseincludes(MESSAGEINFO *messageinfo)
 +{
-+	char *inc = getenv("INCLUDE");
-+	char *dup = NULL;
++	char dup[1024] = {0};
++	char filename[_MAX_PATH]={0};
 +	
-+	//@todo дклаем через strcat
-+	if (inc)
++	strcat(dup, messageinfo->include);
++	if (dup) strcat(dup, ";");
++	strcat(dup, getenv("INCLUDE"));
++	if (!strlen(dup))
 +	{
-+		dup=strdup(inc);
-+	} else
-+		if (messageinfo->include)
-+		{
-+			dup=strdup(messageinfo->include);
-+		}
-+	else {
-+		dup=strdup(".");
++		strcat(dup, ".");
 +	}
 +
 +	char *s = dup;
@@ -9275,7 +9305,12 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +		if (p != NULL) {
 +			p[0] = 0;
 +		}
-+		parseincfile(messageinfo, s);
++		strcat(filename, s);
++		strcat(filename, "\\");
++		strcat(filename, "basemid.inc");
++		
++		if (messageinfo->asm_format_output)	parseincfile(messageinfo, filename);
++		if (messageinfo->c_format_output)	parsehfile(messageinfo, filename);
 +		s = p + 1;
 +	} while (p != NULL);
 +	
@@ -9284,9 +9319,9 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
      return (0);
  }
  
-diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
---- mkmsgf\src\mkmsgf.h	Mon Mar 18 13:56:27 2024
-+++ newmkmsgf\src\mkmsgf.h	Mon Mar 18 13:28:17 2024
+diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf2\src\mkmsgf.h
+--- mkmsgf\src\mkmsgf.h	Mon Mar 18 15:50:04 2024
++++ newmkmsgf2\src\mkmsgf.h	Mon Mar 18 15:19:35 2024
 @@ -39,6 +39,7 @@
  #define MKMSGF_H
  
@@ -9322,17 +9357,19 @@ diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
      {"SHL", 26, 1, "Croato-Serbian", "Yugoslavia"},
      {"SHC", 26, 2, "Serbo-Croatian", "Yugoslavia"},
      {"SKY", 27, 1, "Slovakian", "Czechoslovakia"},
-@@ -160,8 +161,8 @@
+@@ -160,8 +161,10 @@
      char indir[_MAX_DIR];
      char infname[_MAX_FNAME];
      char inext[_MAX_EXT];
 -
      char outfile[_MAX_PATH]; // output filename
 +    char *include;				// include paths
++    uint8_t asm_format_output; // 1= include is ASM INC
++    uint8_t c_format_output; // 1= include is C H
  
      uint8_t verbose; // how much to see?
      // compile/decompile info
-@@ -181,7 +182,7 @@
+@@ -181,7 +184,7 @@
      uint16_t codepagesnumber;    // Number of codepages
      uint16_t codepages[16];      // Codepages list (Max 16)
      uint8_t filename[_MAX_PATH]; // Name of file
@@ -9341,7 +9378,7 @@ diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
      uint16_t extnumblocks;       // number of additional sub FILECOUNTRYINFO blocks
      fpos_t indexoffset;          // okay dup of hdroffset
      uint16_t indexsize;          // size in bytes of index
-@@ -191,6 +192,7 @@
+@@ -191,6 +194,7 @@
      uint8_t langfamilyIDcode;    // Save array position for easy lookup
      uint8_t fakeextend;          // Append a fake extended header
      uint8_t fixlastline;         // Try and fix last line issues
@@ -9349,7 +9386,7 @@ diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
  } MESSAGEINFO;
  
  // mkmsgf header signature - a valid MSG file alway starts with
-@@ -198,5 +200,7 @@
+@@ -198,5 +202,7 @@
  char signature[] = {0xFF, 0x4D, 0x4B, 0x4D, 0x53, 0x47, 0x46, 0x00};
  
  char extfake[] = {0x2E, 0x01, 0x00, 0x00};
