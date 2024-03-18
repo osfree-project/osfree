@@ -3,7 +3,7 @@
 PROJ = mkmsgf
 TRGT = $(PROJ).exe
 DESC = Make Message
-srcfiles = $(p)mkmsgf$(e)
+srcfiles = $(p)mkmsgf$(e) $(p)dlist$(e)
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
@@ -34,12 +34,12 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 !include $(MYDIR)mkmsgf.mk
 
-ADD_COPT += -dNDEBUG -i=$(PORT_BASE)src$(SEP)H -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
+ADD_COPT += -dNDEBUG -i=$(PORT_BASE)src -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
 ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 C = r
 
 .c: $(PORT_BASE)src
 
-.h: $(PORT_BASE)src$(SEP)H
+.h: $(PORT_BASE)src
 
