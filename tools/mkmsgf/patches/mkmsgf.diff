@@ -1,6 +1,6 @@
-diff -urwN mkmsgf\src\dlist.c newmkmsgf2\src\dlist.c
+diff -urwN mkmsgf\src\dlist.c newmkmsgf3\src\dlist.c
 --- mkmsgf\src\dlist.c	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf2\src\dlist.c	Mon Mar 18 13:58:26 2024
++++ newmkmsgf3\src\dlist.c	Mon Mar 18 15:57:50 2024
 @@ -0,0 +1,6186 @@
 +/*
 + *   Copyright (c) International Business Machines  Corp., 2000
@@ -6188,9 +6188,9 @@ diff -urwN mkmsgf\src\dlist.c newmkmsgf2\src\dlist.c
 +}
 +
 +
-diff -urwN mkmsgf\src\dlist.h newmkmsgf2\src\dlist.h
+diff -urwN mkmsgf\src\dlist.h newmkmsgf3\src\dlist.h
 --- mkmsgf\src\dlist.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf2\src\dlist.h	Mon Mar 18 13:58:26 2024
++++ newmkmsgf3\src\dlist.h	Mon Mar 18 15:57:50 2024
 @@ -0,0 +1,2127 @@
 +/*
 +*
@@ -8319,9 +8319,9 @@ diff -urwN mkmsgf\src\dlist.h newmkmsgf2\src\dlist.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\globals.h newmkmsgf2\src\globals.h
+diff -urwN mkmsgf\src\globals.h newmkmsgf3\src\globals.h
 --- mkmsgf\src\globals.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf2\src\globals.h	Mon Mar 18 13:58:26 2024
++++ newmkmsgf3\src\globals.h	Mon Mar 18 15:57:50 2024
 @@ -0,0 +1,94 @@
 +/*
 +*
@@ -8417,9 +8417,9 @@ diff -urwN mkmsgf\src\globals.h newmkmsgf2\src\globals.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
---- mkmsgf\src\mkmsgf.c	Mon Mar 18 15:50:04 2024
-+++ newmkmsgf2\src\mkmsgf.c	Mon Mar 18 15:21:54 2024
+diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf3\src\mkmsgf.c
+--- mkmsgf\src\mkmsgf.c	Tue Mar 19 09:24:32 2024
++++ newmkmsgf3\src\mkmsgf.c	Tue Mar 19 09:23:10 2024
 @@ -36,9 +36,8 @@
   ***************************************************************************/
  
@@ -8559,7 +8559,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  int writeheader(MESSAGEINFO *messageinfo);
  int DecodeLangOpt(char *dargs, MESSAGEINFO *messageinfo);
  
-@@ -70,19 +177,9 @@
+@@ -70,19 +177,10 @@
  void ProgError(int exnum, char *dispmsg);
  void displayinfo(MESSAGEINFO *messageinfo);
  
@@ -8578,10 +8578,11 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  {
 -    int rc = 0; // return code
 +    unsigned long rc = 0; // return code
++    unsigned long dlrc = 0; // return code
      int ch = 0; // getopt variable
  
      // input/output file names and options
-@@ -100,22 +197,10 @@
+@@ -100,22 +198,10 @@
      messageinfo.langversionID = 0;
      messageinfo.bytesperchar = 1;
      messageinfo.fakeextend = 0;
@@ -8608,7 +8609,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  
      /* *********************************************************************
       * The following is to just keep the input options getopt and IBM mkmsgf
-@@ -128,7 +213,7 @@
+@@ -128,7 +214,7 @@
      // is a filename
      if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
      {
@@ -8617,7 +8618,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
          optind++;
  
          ++ibm_format_input; // set ibm format
-@@ -138,7 +223,7 @@
+@@ -138,7 +224,7 @@
          {
              if ((*argv[2] != '-') && (*argv[2] != '/')) // first arg prefix - or / ?
              {
@@ -8626,7 +8627,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
                  optind++;
  
                  ++outfile_provided; // have output file
-@@ -150,7 +235,7 @@
+@@ -150,7 +236,7 @@
      messageinfo.codepagesnumber = 0;
  
      // Get program arguments using getopt()
@@ -8635,7 +8636,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
      {
          switch (ch)
          {
-@@ -196,15 +281,19 @@
+@@ -196,15 +282,19 @@
              exit(0);
              break;
  
@@ -8661,7 +8662,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
              break;
  
          // my added option
-@@ -233,12 +322,12 @@
+@@ -233,12 +323,12 @@
      // so we need to get input file and maybe the output file
      if (!ibm_format_input)
      {
@@ -8676,7 +8677,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
              optind++;
  
              ++outfile_provided; // have output file
-@@ -252,7 +341,10 @@
+@@ -252,7 +342,10 @@
  
      // setup and check the input / output files
      if (access(messageinfo.infile, F_OK) != 0)
@@ -8687,7 +8688,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  
      // splitup input file
      _splitpath(messageinfo.infile,
-@@ -265,6 +357,9 @@
+@@ -265,6 +358,9 @@
      {
          for (int x = 0; x < _MAX_PATH; x++)
              messageinfo.outfile[x] = 0x00;
@@ -8697,20 +8698,20 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
          sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".msg");
      }
      // check input == output file
-@@ -282,16 +377,113 @@
+@@ -281,17 +377,121 @@
+     // display info on screen
      displayinfo(&messageinfo);
  
-     rc = writeheader(&messageinfo);
-+
 +	if (messageinfo.asm_format_output||messageinfo.c_format_output)
 +	{
 +		messageinfo.msgids=CreateList();
 +
++
 +		rc = parseincludes(&messageinfo);
 +		if (rc != MKMSG_NOERROR)
 +		{
-+			DestroyList(&messageinfo.msgids, TRUE, &rc);
-+			if (rc != DLIST_SUCCESS)
++			DestroyList(&messageinfo.msgids, TRUE, &dlrc);
++			if (dlrc != DLIST_SUCCESS)
 +			{
 +				ProgError(rc, "MKMSGF: DLIST destroy error");
 +			}
@@ -8719,19 +8720,27 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +		rc = writeasmfile(&messageinfo);
 +		if (rc != MKMSG_NOERROR)
 +		{
-+//			DestroyList(&messageinfo.msgids, TRUE, &rc);
-+//			if (rc != DLIST_SUCCESS)
-+			//{
-+//				ProgError(rc, "MKMSGF: DLIST destroy error");
-+			//}
++			DestroyList(&messageinfo.msgids, TRUE, &dlrc);
++			if (dlrc != DLIST_SUCCESS)
++			{
++				ProgError(rc, "MKMSGF: DLIST destroy error");
++			}
 +			ProgError(rc, "MKMSGF: ASM file write error");
 +		}
++		DestroyList(&messageinfo.msgids, TRUE, &dlrc);
++		if (dlrc != DLIST_SUCCESS)
++		{
++			ProgError(rc, "MKMSGF: DLIST destroy error");
++		}
 +	} else {
+     rc = writeheader(&messageinfo);
++
      if (rc != MKMSG_NOERROR)
          ProgError(rc, "MKMSGF: MSG Header write error");
  
 -    rc = writefile(&messageinfo);
 +		rc = writemsgfile(&messageinfo);
++		
      if (rc != MKMSG_NOERROR)
 +		{
          ProgError(rc, "MKMSGF: MSG file write error");
@@ -8812,7 +8821,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
      exit(MKMSG_NOERROR);
  }
  
-@@ -386,7 +578,7 @@
+@@ -386,7 +586,7 @@
          return (MKMSG_OFFID_ERR);
      else
      {
@@ -8821,7 +8830,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
              messageinfo->offsetid = 1;
          else
              messageinfo->offsetid = 0;
-@@ -422,14 +614,275 @@
+@@ -422,14 +622,280 @@
      // TEMP stuff
      strncpy(messageinfo->filename,
              messageinfo->outfile,
@@ -8904,8 +8913,8 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +    if (fpi == NULL)
 +        return (MKMSG_OPEN_ERROR);
 +
-+    // write output file open for update
-+    FILE *fpo = fopen(messageinfo->outfile, "r+");
++    // write output file open for write
++    FILE *fpo = fopen(messageinfo->outfile, "wb");
 +    if (fpo == NULL)
 +        return (MKMSG_OPEN_ERROR);
 +
@@ -9026,6 +9035,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +                current_msg_len = strlen(readptr);
 +            }
 +
++			// Write out message labels
 +			Param p;
 +			unsigned long rc;
 +			p.num=msg_num_check;
@@ -9037,6 +9047,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +				TRUE,
 +				&rc);
 +
++			// Write out message length
 +			p.type=1;
 +			p.skip=0;
 +			ForEachItem(messageinfo->msgids,
@@ -9072,6 +9083,8 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +				outlen++;
 +			}
 +			if (outlen) fprintf(fpo,"'\r\n");
++
++			// Write out message end label and NULL
 +			p.type=2;
 +			p.skip=0;
 +			ForEachItem(messageinfo->msgids,
@@ -9079,6 +9092,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +				(ADDRESS)&p,
 +				TRUE,
 +				&rc);
++
 +			msg_num_check++;
 +        }
 +    }
@@ -9099,7 +9113,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
   *
   * Reads in all the MSG file info and stores in MESSAGEINFO structure
   *
-@@ -448,7 +901,7 @@
+@@ -448,7 +914,7 @@
   * 5.8.1 Check for ? message if true then generate full ? message to save
   *     time else process E, I, W, H, P msg types and set scratch pointer
   * 5.8.2.1 Check for the mandatory space after : exit if not present
@@ -9108,7 +9122,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
   * 5.9 Continuation line -- set scratch pointer
   *
   * 6 Get message length
-@@ -462,7 +915,7 @@
+@@ -462,7 +928,7 @@
   * Return:    returns error code or 0 for all good
   *************************************************************************/
  
@@ -9117,7 +9131,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  {
      // open input file
      FILE *fpi = fopen(messageinfo->infile, "rb");
-@@ -508,7 +961,7 @@
+@@ -508,7 +974,7 @@
      else
          large_index = (uint32_t *)index_buffer;
  
@@ -9126,7 +9140,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
      {
          // clear the read_buffer -- set all to 0x00 this will
          // give me a clean strlen return
-@@ -526,7 +979,7 @@
+@@ -526,7 +992,7 @@
  
          // here is the line read in
          getline(&read_buffer, &read_buff_size, fpi);
@@ -9135,7 +9149,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
              break;
  
          // find message start - skip comments
-@@ -569,7 +1022,11 @@
+@@ -569,7 +1035,11 @@
                      // I assume this was why (maybe not) -- just copy the ID
                      // to the space position and change pointer to the new start
                      if (read_buffer[9] != 0x20)
@@ -9148,7 +9162,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
                      else
                      {
                          // move message type to front of message
-@@ -593,7 +1050,7 @@
+@@ -593,7 +1063,7 @@
              // input file was done in a modern text editor the ending
              // is probably just 0x0A so add 0x0D 0x0A 0x00
  
@@ -9157,7 +9171,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
                  readptr[(current_msg_len - 2)] != 0x0D)
              {
                  readptr[(current_msg_len - 1)] = 0x0D;
-@@ -625,6 +1082,7 @@
+@@ -625,6 +1095,7 @@
  
              // write out the current message
              fwrite(readptr, sizeof(char), current_msg_len, fpo);
@@ -9165,7 +9179,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
          }
      }
  
-@@ -679,7 +1137,7 @@
+@@ -679,7 +1150,7 @@
      fclose(fpo);
      fclose(fpi);
      free(read_buffer);
@@ -9174,7 +9188,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  
      return (MKMSG_NOERROR);
  }
-@@ -763,7 +1221,7 @@
+@@ -763,7 +1234,7 @@
  
      strncpy(cntryheader->filename,
              messageinfo->filename,
@@ -9183,7 +9197,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
  
      cntryheader->filler = 0x00;
  
-@@ -772,6 +1230,135 @@
+@@ -772,6 +1243,167 @@
      fclose(fpo);
      free(write_buffer);
  
@@ -9273,7 +9287,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 + *
 + * Reads in all the INC and H files info and stores in MESSAGEINFO structure
 + *
-+ * 1 Search predefined include files in INCLUDE and current directory if no /I given, else use /I
++ * 1 Search predefined include files in INCLUDE and current directory
 + *
 + *
 + * Return:    returns error code or 0 for all good
@@ -9287,10 +9301,12 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +{
 +	char dup[1024] = {0};
 +	char filename[_MAX_PATH]={0};
++	char *ev;
 +	
-+	strcat(dup, messageinfo->include);
-+	if (dup) strcat(dup, ";");
-+	strcat(dup, getenv("INCLUDE"));
++	if (messageinfo->include) strcat(dup, messageinfo->include);
++	ev=getenv("INCLUDE");
++	if (ev) strcat(dup, ";");
++	if (ev) strcat(dup, ev);
 +	if (!strlen(dup))
 +	{
 +		strcat(dup, ".");
@@ -9305,23 +9321,53 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
 +		if (p != NULL) {
 +			p[0] = 0;
 +		}
-+		strcat(filename, s);
-+		strcat(filename, "\\");
-+		strcat(filename, "basemid.inc");
 +		
-+		if (messageinfo->asm_format_output)	parseincfile(messageinfo, filename);
-+		if (messageinfo->c_format_output)	parsehfile(messageinfo, filename);
++		char searchfiles[2][8+3+1+1];
++		
++		if (messageinfo->asm_format_output)
++		{
++			strcpy(searchfiles[0], "BASEMID.INC");
++			strcpy(searchfiles[1], "UTILMD*.INC");
++		}
++
++		if (messageinfo->c_format_output)
++		{
++			strcpy(searchfiles[0], "BASEMID.H");
++			strcpy(searchfiles[1], "UTILMD*.H");
++		}
++
++		for (size_t i = 0; i < sizeof(searchfiles) / sizeof(searchfiles[0]); i++)
++		{
++			filename[0]=0;
++			strcat(filename, s);
++			strcat(filename, "\\");
++			strcat(filename, searchfiles[i]);
++
++			printf("test=%s\n",filename);
++			struct _finddata_t c_file;
++			int hFile;
++
++			if( (hFile = _findfirst( filename, &c_file )) == -1L )
++			{
++				do {
++					char buffer[30];
++
++					if (messageinfo->asm_format_output)	parseincfile(messageinfo, c_file.name);
++					if (messageinfo->c_format_output)	parsehfile(messageinfo, c_file.name);
++				} while( _findnext( hFile, &c_file ) == 0 );
++			_findclose( hFile );
++			}
++		}
++   
 +		s = p + 1;
 +	} while (p != NULL);
-+	
-+	free(dup);
 +	
      return (0);
  }
  
-diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf2\src\mkmsgf.h
---- mkmsgf\src\mkmsgf.h	Mon Mar 18 15:50:04 2024
-+++ newmkmsgf2\src\mkmsgf.h	Mon Mar 18 15:19:35 2024
+diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf3\src\mkmsgf.h
+--- mkmsgf\src\mkmsgf.h	Tue Mar 19 09:24:32 2024
++++ newmkmsgf3\src\mkmsgf.h	Mon Mar 18 15:57:51 2024
 @@ -39,6 +39,7 @@
  #define MKMSGF_H
  
