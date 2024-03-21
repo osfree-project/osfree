@@ -5,6 +5,6 @@
 #
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
-DIRS = mkmsgf exehdr
+DIRS = mkmsgf exehdr msgextrt
 
 !include $(%ROOT)tools/mk/all.mk
