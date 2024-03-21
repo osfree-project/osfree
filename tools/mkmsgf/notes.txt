@@ -4,5 +4,6 @@
 % fixed parsing message without space after colon
 % fixed trap on zero message length (heap corruption)
 % added getline implementation for Open Watcom 1.9 or earler
-+ added control file support
++ added control file support (no extended header yet)
 + added ASM file generation
++ added include and header files parsing (/A and /C)
