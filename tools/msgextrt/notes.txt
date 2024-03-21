@@ -1,8 +1,0 @@
-
-% fixed strncpy usage
-% fixed Q argument
-% fixed parsing message without space after colon
-% fixed trap on zero message length (heap corruption)
-% added getline implementation for Open Watcom 1.9 or earler
-+ added control file support
-+ added ASM file generation
