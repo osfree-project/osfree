@@ -1,6 +1,6 @@
-diff -urwN mkmsgf\src\dlist.c newmkmsgf6\src\dlist.c
+diff -urwN mkmsgf\src\dlist.c newmkmsgf\src\dlist.c
 --- mkmsgf\src\dlist.c	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf6\src\dlist.c	Thu Mar 21 14:01:12 2024
++++ newmkmsgf\src\dlist.c	Fri Mar 22 14:05:29 2024
 @@ -0,0 +1,6186 @@
 +/*
 + *   Copyright (c) International Business Machines  Corp., 2000
@@ -6188,9 +6188,9 @@ diff -urwN mkmsgf\src\dlist.c newmkmsgf6\src\dlist.c
 +}
 +
 +
-diff -urwN mkmsgf\src\dlist.h newmkmsgf6\src\dlist.h
+diff -urwN mkmsgf\src\dlist.h newmkmsgf\src\dlist.h
 --- mkmsgf\src\dlist.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf6\src\dlist.h	Thu Mar 21 14:01:12 2024
++++ newmkmsgf\src\dlist.h	Fri Mar 22 14:05:29 2024
 @@ -0,0 +1,2127 @@
 +/*
 +*
@@ -8319,9 +8319,9 @@ diff -urwN mkmsgf\src\dlist.h newmkmsgf6\src\dlist.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\globals.h newmkmsgf6\src\globals.h
+diff -urwN mkmsgf\src\globals.h newmkmsgf\src\globals.h
 --- mkmsgf\src\globals.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf6\src\globals.h	Thu Mar 21 14:01:12 2024
++++ newmkmsgf\src\globals.h	Fri Mar 22 14:05:29 2024
 @@ -0,0 +1,94 @@
 +/*
 +*
@@ -8417,9 +8417,9 @@ diff -urwN mkmsgf\src\globals.h newmkmsgf6\src\globals.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
---- mkmsgf\src\mkmsgf.c	Fri Mar 22 13:28:29 2024
-+++ newmkmsgf6\src\mkmsgf.c	Fri Mar 22 13:27:07 2024
+diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
+--- mkmsgf\src\mkmsgf.c	Fri Mar 22 15:20:50 2024
++++ newmkmsgf\src\mkmsgf.c	Fri Mar 22 15:18:44 2024
 @@ -36,9 +36,8 @@
   ***************************************************************************/
  
@@ -8697,7 +8697,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
          sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".msg");
      }
      // check input == output file
-@@ -281,17 +376,119 @@
+@@ -281,17 +376,120 @@
      // display info on screen
      displayinfo(&messageinfo);
  
@@ -8792,6 +8792,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
 +		{
 +			getline(&line, &line_size, file);
 +			if (feof(file)) break;
++			printf("%s\n",line);
 +			flushall();
 +			enum { kMaxArgs = 64 };
 +			int fakeargc = 0;
@@ -8818,7 +8819,21 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
      exit(MKMSG_NOERROR);
  }
  
-@@ -386,7 +583,7 @@
+@@ -350,10 +548,11 @@
+     messageinfo->numbermsg = 0;
+ 
+     // Get message start number and number of messages
+-    while (TRUE)
++    while (!feof(fpi))
+     {
+         // this should be the first message line
+-        getline(&read_buffer, &buffer_size, fpi);
++        if(!getline(&read_buffer, &buffer_size, fpi))
++			break;
+ 
+         // if end of file get out of loop
+         if (feof(fpi))
+@@ -386,7 +585,7 @@
          return (MKMSG_OFFID_ERR);
      else
      {
@@ -8827,7 +8842,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
              messageinfo->offsetid = 1;
          else
              messageinfo->offsetid = 0;
-@@ -422,14 +619,306 @@
+@@ -422,14 +621,306 @@
      // TEMP stuff
      strncpy(messageinfo->filename,
              messageinfo->outfile,
@@ -9136,7 +9151,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
   *
   * Reads in all the MSG file info and stores in MESSAGEINFO structure
   *
-@@ -448,7 +937,7 @@
+@@ -448,7 +939,7 @@
   * 5.8.1 Check for ? message if true then generate full ? message to save
   *     time else process E, I, W, H, P msg types and set scratch pointer
   * 5.8.2.1 Check for the mandatory space after : exit if not present
@@ -9145,7 +9160,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
   * 5.9 Continuation line -- set scratch pointer
   *
   * 6 Get message length
-@@ -462,7 +951,7 @@
+@@ -462,7 +953,7 @@
   * Return:    returns error code or 0 for all good
   *************************************************************************/
  
@@ -9154,7 +9169,16 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
  {
      // open input file
      FILE *fpi = fopen(messageinfo->infile, "rb");
-@@ -508,7 +997,7 @@
+@@ -477,7 +968,7 @@
+     // buffer to read in index - this reserves memory of the
+     // size calculated earlier to hold the index which is
+     // dumped to the file at end of message write
+-    char *index_buffer = (char *)calloc(messageinfo->indexsize, sizeof(char));
++    char *index_buffer = (char *)calloc(messageinfo->indexsize+1, sizeof(char)); // +1 fixes trap on free... strange...
+     if (index_buffer == NULL)
+         return (MKMSG_MEM_ERROR1);
+ 
+@@ -508,7 +999,7 @@
      else
          large_index = (uint32_t *)index_buffer;
  
@@ -9163,17 +9187,19 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
      {
          // clear the read_buffer -- set all to 0x00 this will
          // give me a clean strlen return
-@@ -525,8 +1014,7 @@
+@@ -525,9 +1016,9 @@
              large_index[msg_num_check] = (uint32_t)index_position;
  
          // here is the line read in
 -        getline(&read_buffer, &read_buff_size, fpi);
 -        if (feof(fpi))
-+        if (!getline(&read_buffer, &read_buff_size, fpi) && feof(fpi))
++        if (!getline(&read_buffer, &read_buff_size, fpi))
              break;
++		if feof(fpi) break;
  
          // find message start - skip comments
-@@ -545,7 +1033,7 @@
+         // this is the main loop if not a comment line
+@@ -545,7 +1036,7 @@
                      fclose(fpo);
                      free(read_buffer);
                      free(index_buffer);
@@ -9182,7 +9208,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
                  }
  
                  // keep track of messages processed
-@@ -569,7 +1057,11 @@
+@@ -569,7 +1060,11 @@
                      // I assume this was why (maybe not) -- just copy the ID
                      // to the space position and change pointer to the new start
                      if (read_buffer[9] != 0x20)
@@ -9195,7 +9221,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
                      else
                      {
                          // move message type to front of message
-@@ -593,7 +1085,7 @@
+@@ -593,7 +1088,7 @@
              // input file was done in a modern text editor the ending
              // is probably just 0x0A so add 0x0D 0x0A 0x00
  
@@ -9204,7 +9230,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
                  readptr[(current_msg_len - 2)] != 0x0D)
              {
                  readptr[(current_msg_len - 1)] = 0x0D;
-@@ -611,6 +1103,7 @@
+@@ -611,6 +1106,7 @@
              // if ends in [ % 0 0x0D 0x0A 0x00] remove all four
              // poistions and make 0x00 - all four just as a easy
              // way to spot problems in a hex dump
@@ -9212,7 +9238,15 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
              if (readptr[(current_msg_len - 3)] == '0' &&
                  readptr[(current_msg_len - 4)] == '%')
              {
-@@ -679,11 +1172,48 @@
+@@ -628,6 +1124,7 @@
+         }
+     }
+ 
++
+     // position to index start and write index -- I could
+     // used fwrite - just decided to write index like this:
+     fseek(fpo, messageinfo->indexoffset, SEEK_SET);
+@@ -679,11 +1176,48 @@
      fclose(fpo);
      fclose(fpi);
      free(read_buffer);
@@ -9262,7 +9296,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
  /*************************************************************************
   * Function:  writeheader( )
   *
-@@ -701,7 +1231,6 @@
+@@ -701,7 +1235,6 @@
  int writeheader(MESSAGEINFO *messageinfo)
  {
      MSGHEADER *msgheader = NULL;
@@ -9270,7 +9304,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
  
      // write output file open for append
      FILE *fpo = fopen(messageinfo->outfile, "wb");
-@@ -744,33 +1273,164 @@
+@@ -744,33 +1277,164 @@
      memset(write_buffer, 0x00, _msize(write_buffer));
      fwrite(write_buffer, sizeof(char), messageinfo->indexsize, fpo);
  
@@ -9455,9 +9489,9 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf6\src\mkmsgf.c
  
      return (0);
  }
-diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf6\src\mkmsgf.h
---- mkmsgf\src\mkmsgf.h	Fri Mar 22 13:28:29 2024
-+++ newmkmsgf6\src\mkmsgf.h	Fri Mar 22 11:38:33 2024
+diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
+--- mkmsgf\src\mkmsgf.h	Fri Mar 22 15:20:50 2024
++++ newmkmsgf\src\mkmsgf.h	Fri Mar 22 14:05:29 2024
 @@ -39,6 +39,7 @@
  #define MKMSGF_H
  
