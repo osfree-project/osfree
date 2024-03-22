@@ -32,7 +32,7 @@ defs = $(%WATCOM)$(SEP)lh
 !include $(%ROOT)tools/mk/appsos2_cmd.mk
 !endif
 
-ADD_COPT += -dNDEBUG  -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
+ADD_COPT += -dNDEBUG  -i=$(SRC) -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
 ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 C = r
