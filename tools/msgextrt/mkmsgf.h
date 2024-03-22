@@ -39,6 +39,7 @@
 #define MKMSGF_H
 
 #include <stdint.h>
+#include <dlist.h>
 
 /* Basic msg file layout:
 
@@ -79,7 +80,7 @@ typedef struct _FILECOUNTRYINFO
     uint16_t langversionID;      // Language version ID (As in CPI Reference)
     uint16_t codepagesnumber;    // Number of codepages
     uint16_t codepages[16];      // Codepages list (Max 16)
-    uint8_t filename[_MAX_PATH]; // Name of file
+    uint8_t filename[260]; // Name of file
     uint8_t filler;              // filler byte - not used
 } FILECOUNTRYINFO, *PFILECOUNTRYINFO;
 
@@ -191,6 +192,7 @@ typedef struct _MESSAGEINFO
     uint8_t langfamilyIDcode;    // Save array position for easy lookup
     uint8_t fakeextend;          // Append a fake extended header
     uint8_t fixlastline;         // Try and fix last line issues
+	DLIST msgids;				 // Message IDs constants from include files or in extract control file
 } MESSAGEINFO;
 
 // mkmsgf header signature - a valid MSG file alway starts with

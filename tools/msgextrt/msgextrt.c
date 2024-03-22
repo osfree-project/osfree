@@ -1,11 +1,10 @@
 /****************************************************************************
  *
- *  mkmsgd.c -- Make Message File Decompile (MKMSGD)
+ *  msgextrt.c -- Message File Extracter (MSGEXTRT)
  *
  *  ========================================================================
  *
- *    Version 1.0       Michael K Greene <mikeos2@mail.com>
- *                      September 2023
+ *    Version 1.0       2024 Yuri Prokushev <yuri.prokushev@gmail.com>
  *
  *  ========================================================================
  *
@@ -47,10 +46,12 @@
 #include "mkmsgf.h"
 #include "mkmsgerr.h"
 #include "version.h"
+#include "dlist.h"
 
 int readheader(MESSAGEINFO *messageinfo);
 int readmessages(MESSAGEINFO *messageinfo);
 int outputheader(MESSAGEINFO *messageinfo);
+int readcontrol(MESSAGEINFO *messageinfo);
 
 // ouput display/helper functions
 void usagelong(void);
@@ -59,6 +60,109 @@ void helpshort(void);
 void helplong(void);
 void ProgError(int exnum, char *dispmsg);
 void displayinfo(MESSAGEINFO *messageinfo);
+
+#if __WATCOMC__ <= 1290
+int getline (char **lineptr, unsigned int *n, FILE *stream);
+
+/* getline.c -- Replacement for GNU C library function getline ()
+
+   Copyright (C) 1992 Free Software Foundation, Inc.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
+
+
+#define MAX_CANON 64
+
+/* Read up to (and including) a newline from STREAM into *LINEPTR
+   (and NUL-terminate it). *LINEPTR is a pointer returned from malloc (or
+   NULL), pointing to *N characters of space.  It is realloc'd as
+   necessary.  Returns the number of characters read (not including the
+   null terminator), or -1 on error or EOF.  */
+
+int
+getline (lineptr, n, stream)
+  char **lineptr;
+  unsigned int *n;
+  FILE *stream;
+{
+  int nchars_avail;
+  char *read_pos;
+
+  if (!lineptr || !n || !stream)
+    return -1;
+
+  nchars_avail = *n;
+
+  if (!*lineptr)
+    {
+      if (!(*lineptr = malloc (MAX_CANON)))
+	return -1;
+
+      *n = nchars_avail = MAX_CANON;
+    }
+
+  read_pos = *lineptr;
+
+  for (;;)
+    {
+      register char c = getc (stream);
+
+      /* We always want at least one char left in buffer since we
+	 always (unless we get an error while reading the first char)
+	 NUL-terminate the line buffer. */
+
+      if (nchars_avail < 1)
+	{
+	  if (*n > MAX_CANON)
+	    {
+	      nchars_avail = *n;
+	      *n *= 2;
+	    }
+	  else
+	    {
+	      nchars_avail = MAX_CANON;
+	      *n += MAX_CANON;
+	    }
+
+	  *lineptr = realloc (*lineptr, *n);
+	  read_pos = *lineptr + (*n - nchars_avail);
+	}
+
+      /* EOF or error */
+      if (feof (stream) || ferror (stream))
+
+	/* Return partial line, if any */
+	if (read_pos == *lineptr)
+	  return -1;
+	else
+	  break;
+
+      *read_pos++ = c;
+      nchars_avail--;
+
+      /* Return line if NL */
+      if (c == '\n')
+	break;
+    }
+
+  /* Done - NUL terminate and return number of chars read */
+  *read_pos = '\0';
+  return (*n - nchars_avail);
+}
+
+#endif
 
 /*************************************************************************
  * Main( )
@@ -73,6 +177,7 @@ void displayinfo(MESSAGEINFO *messageinfo);
 int main(int argc, char *argv[])
 {
     int rc = 0; // return code
+    unsigned long dlrc = 0; // return code
     int ch = 0; // getopt variable
 
     MESSAGEINFO messageinfo;     // holds all the info
@@ -88,7 +193,7 @@ int main(int argc, char *argv[])
     }
 
     // Get program arguments using getopt()
-    while ((ch = getopt(argc, argv, "vVfh")) != -1)
+    while ((ch = getopt(argc, argv, "vVh")) != -1)
     {
         switch (ch)
         {
@@ -100,29 +205,23 @@ int main(int argc, char *argv[])
             messageinfo.verbose += 2;
             break;
 
-        case 'f':
-            // not ready - just shows length diff
-            messageinfo.fixlastline += 1;
-            break;
-
         case 'h':
             prgheading();
             exit(MKMSG_NOERROR);
             break;
 
         default:
-            ProgError(MKMSG_GETOPT_ERROR, "MKMSGD: Syntax error unknown option");
+            ProgError(MKMSG_GETOPT_ERROR, "MSGEXTRT: Syntax error unknown option");
             break;
         }
     }
 
     if (optind == 1 || optind == 2)
     {
-        // optind 1 should be input file
-        strncpy(messageinfo.infile, argv[optind], strlen(argv[optind]));
-
+        // optind 1 should be input script file
+        strncpy(messageinfo.infile, argv[optind], sizeof(messageinfo.infile));
         if (access(messageinfo.infile, F_OK) != 0)
-            ProgError(MKMSG_INPUT_ERROR, "MKMSGD: Input file does not exist.");
+            ProgError(MKMSG_INPUT_ERROR, "MSGEXTRT: Input file does not exist.");
 
         _splitpath(messageinfo.infile,
                    messageinfo.indrive,
@@ -134,7 +233,7 @@ int main(int argc, char *argv[])
 
         if (optind != argc)
             // provide output file
-            strncpy(messageinfo.outfile, argv[optind], strlen(argv[optind]));
+            strncpy(messageinfo.outfile, argv[optind], sizeof(messageinfo.outfile));
         else
             // need to make an output file
             sprintf(messageinfo.outfile, "%s%s", messageinfo.infname, ".txt");
@@ -148,14 +247,20 @@ int main(int argc, char *argv[])
 
     // check input == output file
     if (!strcmp(messageinfo.infile, messageinfo.outfile))
-        ProgError(MKMSG_IN_OUT_COMPARE, "MKMSGD: Input file same as output file");
+        ProgError(MKMSG_IN_OUT_COMPARE, "MSGEXTRT: Input file same as output file");
 
     // ************ done with args ************
+	
+	messageinfo.msgids=CreateList();
+	// Parse control file
+	rc = readcontrol(&messageinfo);
+    if (rc != MKMSG_NOERROR)
+        ProgError(rc, "MSGEXTRT: Control file read error");
 
     // decompile header
     rc = readheader(&messageinfo);
     if (rc != MKMSG_NOERROR)
-        ProgError(rc, "MKMSGD: MSG Header read error");
+        ProgError(rc, "MSGEXTRT: MSG Header read error");
 
     // display info on screen
     displayinfo(&messageinfo);
@@ -163,17 +268,73 @@ int main(int argc, char *argv[])
     // write out header
     rc = outputheader(&messageinfo);
     if (rc != MKMSG_NOERROR)
-        ProgError(rc, "MKMSGD: Error generating header");
+        ProgError(rc, "MSGEXTRT: Error generating header");
 
     // decompile the messages and write
     rc = readmessages(&messageinfo);
     if (rc != MKMSG_NOERROR)
-        ProgError(rc, "MKMSGD: Error read MSG messages");
+        ProgError(rc, "MSGEXTRT: Error read MSG messages");
+
+	DestroyList(&messageinfo.msgids, FALSE, &dlrc);
 
     // if you don't see this then I screwed up
     printf("\nEnd Decompile\n");
 
     return (MKMSG_NOERROR);
+}
+
+
+int readcontrol(MESSAGEINFO *messageinfo)
+{
+    FILE *fp = fopen(messageinfo->infile, "r");
+	size_t n = 0;
+	char *line = NULL;
+	char msgnum[5]={0};
+	int rc = 0;
+	unsigned long dlrc = 0;
+
+    getline(&line, &n, fp);
+    getline(&line, &n, fp);
+    if (strncmp("<", line, 1)!=0)
+	{
+		ProgError(rc, "MSGEXTRT: Error input file string in control file");
+	}
+
+	char *src, *dst;
+    for (src = dst = &line[1]; *src != '\0'; src++) {
+        *dst = *src;
+        if ((*dst != '\r') && (*dst != '\n')) dst++;
+    }
+    *dst = '\0';
+	strncpy(messageinfo->infile, &line[1], sizeof(messageinfo->infile));
+	
+	while(!feof(fp))
+	{
+		if (!getline(&line, &n, fp)) break;
+		
+		if feof(fp) break;
+
+        if (strncmp("DOS", line, 3)!=0)
+		{
+			ProgError(rc, "MSGEXTRT: Error ID in control file");
+		}
+
+        strncpy(msgnum, &line[3], 4);
+
+		InsertItem (messageinfo->msgids,
+					sizeof(msgnum),
+					msgnum,
+					atoi(msgnum),
+					NULL,
+					AppendToList,
+					FALSE,
+					&dlrc);
+
+	}
+
+    fclose(fp);
+	
+	return (MKMSG_NOERROR);
 }
 
 /*************************************************************************
@@ -378,7 +539,7 @@ int outputheader(MESSAGEINFO *messageinfo)
         return (MKMSG_MEM_ERROR4);
 
     sprintf(write_buffer, "%s\n;\n",
-            "; ********** MKMSGD Message file decompiler **********");
+            "; ********** MSGEXTRT Message file extracter **********");
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
     sprintf(write_buffer, "; Input filename           %s\n",
@@ -498,6 +659,27 @@ int outputheader(MESSAGEINFO *messageinfo)
  * Return:    returns error code or 0 for all good
  *
  *************************************************************************/
+
+typedef
+struct tagParam
+{
+	int num;
+	FILE * f;
+	char * msg;
+	MESSAGEINFO *messageinfo;
+} Param;
+
+void handleitem(ADDRESS Object, TAG ObjectTag, CARDINAL32 ObjectSize, ADDRESS ObjectHandle, ADDRESS Parameters, CARDINAL32 * Error)
+{
+	if (((Param *)Parameters)->num==ObjectTag)
+	{
+        fwrite(((Param *)Parameters)->msg, strlen(((Param *)Parameters)->msg), 1, ((Param *)Parameters)->f);
+        // print to screen if you really want it
+        if (((Param *)Parameters)->messageinfo->verbose == 2)
+            printf("%s", ((Param *)Parameters)->msg);
+	}
+
+}
 
 int readmessages(MESSAGEINFO *messageinfo)
 {
@@ -698,11 +880,25 @@ int readmessages(MESSAGEINFO *messageinfo)
         // needed (see +15 above) and I memset to fill with 0x00
         // given this, we will get the write size using strlen()
         // which returns a size up to the 0x00
+		Param p;
+		unsigned long dlrc=0;
+		p.num=current_msg;
+		p.f=fpo;
+		p.msg=write_buffer;
+		p.messageinfo=messageinfo;
+		
+				ForEachItem(messageinfo->msgids,
+					&handleitem,
+					(ADDRESS)&p,
+					TRUE,
+					&dlrc);
+#if 0		
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
         // print to screen if you really want it
         if (messageinfo->verbose == 2)
             printf("%s", write_buffer);
+#endif
     }
 
     // close up and get out
@@ -726,19 +922,19 @@ void usagelong(void)
 
 void helpshort(void)
 {
-    printf("\nMKMSGD [-v] infile.msg [outfile.[txt] ]\n\n");
+    printf("\nMSGEXTRT [-v] infile.msg [outfile.[txt] ]\n\n");
 }
 
 void helplong(void)
 {
-    printf("\nUse MKMSGD as follows:\n");
+    printf("\nUse MSGEXTRT as follows:\n");
     printf("        [-v] infile.msg [outfile.[txt] ]\n");
 }
 
 void prgheading(void)
 {
-    printf("\nOperating System/2 Make Message File Decompiler (MKMSGD)\n");
-    printf("Version %s  Michael Greene <mikeos2@gmail.com>\n", SYSLVERSION);
+    printf("\nOperating System/2 Make Message File Extractor (MSGEXTRT)\n");
+    printf("Version %s  Yuri Prokushev <yuri.prokushev@gmail.com>\n", SYSLVERSION);
     printf("Compiled with Open Watcom %d.%d  %s\n", OWMAJOR, OWMINOR, __DATE__);
 }
 

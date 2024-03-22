@@ -2,7 +2,7 @@
 PROJ = msgextrt
 TRGT = $(PROJ).exe
 DESC = Extract Messages
-srcfiles = $(p)msgextrt$(e)
+srcfiles = $(p)msgextrt$(e) $(p)dlist$(e)
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
