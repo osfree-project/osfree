@@ -21,6 +21,9 @@ jobs:
         # The type of runner that the job will run on
         runs-on: windows-latest
 
+        permissions:
+          contents: write
+
         defaults:
             run:
                 shell: cmd
@@ -41,7 +44,8 @@ jobs:
                   git submodule update --init --recursive --force --remote
 
             # Commit
-            #- name: Commit update
+            - name: Commit update
+              uses: stefanzweifel/git-auto-commit-action@v5
             #  run: |
             #      git config --global user.name 'Git bot'
             #      git config --global user.email 'bot@noreply.github.com'
