@@ -9,7 +9,7 @@ on:
     # * is a special character in YAML so you have to quote this string
     # This example triggers the workflow every day at 5:30 and 17:30 UTC
     # https://crontab.cronhub.io/
-    - cron: '*0 * * * *'
+    - cron: '0 * * * *'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
