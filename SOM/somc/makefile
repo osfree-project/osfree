@@ -3,11 +3,13 @@ PROJ = somc
 TRGT = $(PROJ).dll
 srcfiles = $(p)somc$(e) &
 	$(p)symtab$(e) &
-	emitlib$(e) &
-	modifiers$(e) &
-	smlib$(e)
+	$(p)emitlib$(e) &
+	$(p)modifiers$(e) &
+	$(p)smlib$(e)
 
 DEST = os2tk45$(SEP)som$(SEP)lib
+
+DLL=1
 
 !include $(%ROOT)SOM/common.mk
 

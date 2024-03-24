@@ -3,11 +3,11 @@ DEST = os2tk45$(SEP)som$(SEP)include
 
 !include $(%ROOT)SOM/common.mk
 
-#$(PATH)somobj.h &
-#		$(PATH)somcls.h &
-#		$(PATH)somcm.h &
 
-TARGETS = 	$(PATH)attribdf.h &
+TARGETS =	$(PATH)somobj.h &
+		$(PATH)somcls.h &
+		$(PATH)somcm.h &
+	 	$(PATH)attribdf.h &
 		$(PATH)constdef.h &
 		$(PATH)containd.h &
 		$(PATH)containr.h &
@@ -455,3 +455,13 @@ $(PATH)xmscssae.h: $(DEST)$(SEP)xmscssae.idl
 
 $(PATH)somtdm.h: $(DEST)$(SEP)somtdm.idl
  $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)somobj.h: $(DEST)$(SEP)somobj.idl
+ $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)somcls.h: $(DEST)$(SEP)somcls.idl
+ $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)somcm.h: $(DEST)$(SEP)somcm.idl
+ $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+

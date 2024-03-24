@@ -5,17 +5,17 @@ irdump.exe
 pdl.exe			+
 sc.exe			+
 scobj.exe
-somcorba.cmd	+
+somcorba.cmd		+
 somcpp.exe		+
 somdeps.exe
 somdeps1.exe
 somdeps2.exe
 somenv.cmd		+
 somhh.cmd		+
-somipc.exe
+somipc.exe		+
 somopc.exe
 somsetup.exe
-somstars.cmd	+
+somstars.cmd		+
 somtempl.exe
 somtempl.ps
 somtempl.txt
@@ -47,7 +47,7 @@ emitxh.dll
 emitxih.dll
 emitxph.dll
 emitxtm.dll
-somc.dll
+somc.dll		
 somcd.dll
 somcd.lib
 somct.dll
@@ -65,31 +65,31 @@ somtk.lib
 os2tk45\som\include
 
 attribdf.h		+
-attribdf.idl	+
+attribdf.idl		+
 attribdf.xh		+
 boa.h			+
 boa.idl			+
 boa.xh			+
 brs.efw
 clientev.h		+
-clientev.idl	+
+clientev.idl		+
 clientev.xh		+
 cntxt.h			+
 cntxt.idl		+
 cntxt.xh		+
 constdef.h		+
-constdef.idl	+
+constdef.idl		+
 constdef.xh		+
 containd.h		+
-containd.idl	+
+containd.idl		+
 containd.xh		+
 containr.h		+
-containr.idl	+
+containr.idl		+
 containr.xh		+
 cpp.efw
 ctm.efw
 defedidl.h		+
-defedidl.idl	+
+defedidl.idl		+
 defedidl.xh		+
 eda.h			+
 eda.idl			+
@@ -97,9 +97,9 @@ eda.xh			+
 eman.h			+
 eman.idl		+
 eman.xh			+
-emitlib.h
+emitlib.h		+
 emregdat.h		+
-emregdat.idl	+
+emregdat.idl		+
 emregdat.xh		+
 emtypes.h
 event.h			+
@@ -107,7 +107,7 @@ event.idl		+
 event.xh		+
 eventmsk.h
 excptdef.h		+
-excptdef.idl	+
+excptdef.idl		+
 excptdef.xh		+
 fma.h			+
 fma.idl			+
@@ -120,7 +120,7 @@ fmib.idl		+
 fmib.xh			+
 fsagm.h			+
 fsagm.idl		+
-fsagm.xh
+fsagm.xh		+
 fsgm.h			+
 fsgm.idl		+
 fsgm.xh			+
@@ -149,7 +149,7 @@ implrep.h		+
 implrep.idl		+
 implrep.xh		+
 intfacdf.h		+
-intfacdf.idl	+
+intfacdf.idl		+
 intfacdf.xh		+
 iogma.h			+
 iogma.idl		+
@@ -176,7 +176,7 @@ mlink.h
 mlink.idl
 mlink.xh
 moduledf.h		+
-moduledf.idl	+
+moduledf.idl		+
 moduledf.xh		+
 morder.h
 morder.idl
@@ -200,13 +200,13 @@ om.h			+
 om.idl			+
 om.xh			+
 operatdf.h		+
-operatdf.idl	+
+operatdf.idl		+
 operatdf.xh		+
 orb.h			+
 orb.idl			+
 orb.xh			+
 paramdef.h		+
-paramdef.idl	+
+paramdef.idl		+
 paramdef.xh		+
 pid.h			+
 pid.idl			+
@@ -221,7 +221,7 @@ poida.h			+
 poida.idl		+
 poida.xh		+
 principl.h		+
-principl.idl	+
+principl.idl		+
 principl.xh		+
 psma.h			+
 psma.idl		+
@@ -230,13 +230,13 @@ replicbl.h
 replicbl.idl
 replicbl.xh
 repostry.h		+
-repostry.idl	+
+repostry.idl		+
 repostry.xh		+
 request.h		+
 request.idl		+
 request.xh		+
 scattrib.h		+
-scattrib.idl	+
+scattrib.idl		+
 scattrib.xh		+
 scbase.h		+
 scbase.idl		+
@@ -245,7 +245,7 @@ scclass.h		+
 scclass.idl		+
 scclass.xh		+
 sccommon.h		+
-sccommon.idl	+
+sccommon.idl		+
 sccommon.xh		+
 scconst.h		+
 scconst.idl		+
@@ -263,16 +263,16 @@ scenum.h		+
 scenum.idl		+
 scenum.xh		+
 scenumnm.h		+
-scenumnm.idl	+
+scenumnm.idl		+
 scenumnm.xh		+
 scmeta.h		+
 scmeta.idl		+
 scmeta.xh		+
 scmethod.h		+
-scmethod.idl	+
+scmethod.idl		+
 scmethod.xh		+
 scmodule.h		+
-scmodule.idl	+
+scmodule.idl		+
 scmodule.xh		+
 scparm.h		+
 scparm.idl		+
@@ -281,13 +281,13 @@ scpass.h		+
 scpass.idl		+
 scpass.xh		+
 scseqnce.h		+
-scseqnce.idl	+
+scseqnce.idl		+
 scseqnce.xh		+
 scstring.h		+
-scstring.idl	+
+scstring.idl		+
 scstring.xh		+
 scstruct.h		+
-scstruct.idl	+
+scstruct.idl		+
 scstruct.xh		+
 sctdef.h		+
 sctdef.idl		+
@@ -295,12 +295,12 @@ sctdef.xh		+
 sctmplt.h		+
 sctmplt.idl		+
 sctmplt.xh		+
-sctypes.h
+sctypes.h		+
 scunion.h		+
 scunion.idl		+
 scunion.xh		+
 scusrtyp.h		+
-scusrtyp.idl	+
+scusrtyp.idl		+
 scusrtyp.xh		+
 servmgr.h		+
 servmgr.idl		+
@@ -311,7 +311,7 @@ sinkev.xh		+
 sm.h			+
 smcidl.h		+
 snglicls.h		+
-snglicls.idl	+
+snglicls.idl		+
 snglicls.xh		+
 som.h			+
 som.hc
@@ -320,27 +320,27 @@ som.hs
 som.xh			+
 somapi.h		+
 sombacls.h		+
-sombacls.idl	+
+sombacls.idl		+
 sombacls.xh		+
 sombtype.h		+
 somcd.h
 somcdev.h		+
 somcdev.xh		+
 somcls.api
-somcls.h
+somcls.h		+
 somcls.idl		+
 somcls.sc
-somcls.xh
-somcm.h
+somcls.xh		+
+somcm.h			+
 somcm.idl		+
 somcm.sc
-somcm.xh
+somcm.xh		+
 somcorba.h		+
 somd.h
 somd.hh
 somd.xh
 somdcprx.h		+
-somdcprx.idl	+
+somdcprx.idl		+
 somdcprx.xh		+
 somdebug.h
 somderr.h
@@ -352,10 +352,10 @@ somdom.h		+
 somdom.idl		+
 somdom.xh		+
 somdserv.h		+
-somdserv.idl	+
+somdserv.idl		+
 somdserv.xh		+
 somdtype.h		+
-somdtype.idl	+
+somdtype.idl		+
 somdtype.xh		+
 somh.hh
 somida.h		+
@@ -370,10 +370,10 @@ somnames.h		+
 somoa.h			+
 somoa.idl		+
 somoa.xh		+
-somobj.h
+somobj.h		+
 somobj.idl		+
 somobj.sc
-somobj.xh
+somobj.xh		+
 somp.h			+
 somp.idl		+
 somp.xh			+
@@ -381,14 +381,14 @@ somperr.h		+
 somperr.idl		+
 somperr.xh		+
 somperrd.h		+
-somperrd.idl	+
+somperrd.idl		+
 somperrd.xh		+
 somport.h
 sompstad.h		+
-sompstad.idl	+
+sompstad.idl		+
 sompstad.xh		+
 sompstat.h		+
-sompstat.idl	+
+sompstat.idl		+
 sompstat.xh		+
 somr.h
 somr.idl
@@ -411,7 +411,7 @@ somsid.h		+
 somsid.idl		+
 somsid.xh		+
 somssock.h		+
-somssock.idl	+
+somssock.idl		+
 somssock.xh		+
 somstrt.h		+
 somstrt.idl		+
@@ -520,7 +520,7 @@ typedef.h		+
 typedef.idl		+
 typedef.xh		+
 workprev.h		+
-workprev.idl	+
+workprev.idl		+
 workprev.xh		+
 
 extra:
