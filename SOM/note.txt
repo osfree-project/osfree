@@ -47,7 +47,7 @@ emitxh.dll
 emitxih.dll
 emitxph.dll
 emitxtm.dll
-somc.dll		
+somc.dll		+
 somcd.dll
 somcd.lib
 somct.dll
