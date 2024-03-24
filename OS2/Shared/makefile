@@ -2,7 +2,7 @@
 #
 # Makefile for common shared libs
 
-DIRS = msg libs
+DIRS = libs
 PROJ = all_shared
 TRGT = $(PROJ).lib
 srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname$(e) &
