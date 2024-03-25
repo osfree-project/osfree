@@ -1,6 +1,6 @@
-diff -urwN mkmsgf\src\dlist.c newmkmsgf\src\dlist.c
+diff -urwN mkmsgf\src\dlist.c newmkmsgf2\src\dlist.c
 --- mkmsgf\src\dlist.c	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\dlist.c	Fri Mar 22 14:05:29 2024
++++ newmkmsgf2\src\dlist.c	Fri Mar 22 15:23:15 2024
 @@ -0,0 +1,6186 @@
 +/*
 + *   Copyright (c) International Business Machines  Corp., 2000
@@ -6188,9 +6188,9 @@ diff -urwN mkmsgf\src\dlist.c newmkmsgf\src\dlist.c
 +}
 +
 +
-diff -urwN mkmsgf\src\dlist.h newmkmsgf\src\dlist.h
+diff -urwN mkmsgf\src\dlist.h newmkmsgf2\src\dlist.h
 --- mkmsgf\src\dlist.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\dlist.h	Fri Mar 22 14:05:29 2024
++++ newmkmsgf2\src\dlist.h	Fri Mar 22 15:23:15 2024
 @@ -0,0 +1,2127 @@
 +/*
 +*
@@ -8319,9 +8319,9 @@ diff -urwN mkmsgf\src\dlist.h newmkmsgf\src\dlist.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\globals.h newmkmsgf\src\globals.h
+diff -urwN mkmsgf\src\globals.h newmkmsgf2\src\globals.h
 --- mkmsgf\src\globals.h	Thu Jan 01 07:00:00 1970
-+++ newmkmsgf\src\globals.h	Fri Mar 22 14:05:29 2024
++++ newmkmsgf2\src\globals.h	Fri Mar 22 15:23:15 2024
 @@ -0,0 +1,94 @@
 +/*
 +*
@@ -8417,9 +8417,9 @@ diff -urwN mkmsgf\src\globals.h newmkmsgf\src\globals.h
 +
 +#endif
 +
-diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
---- mkmsgf\src\mkmsgf.c	Fri Mar 22 15:20:50 2024
-+++ newmkmsgf\src\mkmsgf.c	Fri Mar 22 15:18:44 2024
+diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf2\src\mkmsgf.c
+--- mkmsgf\src\mkmsgf.c	Mon Mar 25 10:53:48 2024
++++ newmkmsgf2\src\mkmsgf.c	Mon Mar 25 10:52:40 2024
 @@ -36,9 +36,8 @@
   ***************************************************************************/
  
@@ -9304,7 +9304,7 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
  
      // write output file open for append
      FILE *fpo = fopen(messageinfo->outfile, "wb");
-@@ -744,33 +1277,164 @@
+@@ -744,33 +1277,169 @@
      memset(write_buffer, 0x00, _msize(write_buffer));
      fwrite(write_buffer, sizeof(char), messageinfo->indexsize, fpo);
  
@@ -9342,12 +9342,14 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 -    strncpy(cntryheader->filename,
 -            messageinfo->filename,
 -            strlen(messageinfo->filename));
+ 
+-    cntryheader->filler = 0x00;
 +    // open input file
 +    fpi = fopen(s, "rb");
 +    if (fpi == NULL)
 +        return (MKMSG_OPEN_ERROR);
  
--    cntryheader->filler = 0x00;
+-    fwrite(cntryheader, sizeof(char), sizeof(FILECOUNTRYINFO), fpo);
 +	while (!feof(fpi))
 +	{
 +		getline(&line, &line_size, fpi);
@@ -9368,13 +9370,12 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +		}
 +	}
  
--    fwrite(cntryheader, sizeof(char), sizeof(FILECOUNTRYINFO), fpo);
+-    fclose(fpo);
+-    free(write_buffer);
 +	fclose(fpi);
 +    return (0);
 +}
- 
--    fclose(fpo);
--    free(write_buffer);
++
 +int parsehfile(MESSAGEINFO *messageinfo, char *s)
 +{
 +	FILE *fpi;
@@ -9477,8 +9478,12 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
 +			if((hFile = _findfirst(filename, &c_file )) != -1 )
 +			{
 +				do {
-+					if (messageinfo->asm_format_output)	parseincfile(messageinfo, c_file.name);
-+					if (messageinfo->c_format_output)	parsehfile(messageinfo, c_file.name);
++					char fullpath[_MAX_PATH]={0};
++					strcat(fullpath, s);
++					strcat(fullpath, "\\");
++					strcat(fullpath, c_file.name);
++					if (messageinfo->asm_format_output)	parseincfile(messageinfo, fullpath);
++					if (messageinfo->c_format_output)	parsehfile(messageinfo, fullpath);
 +				} while( _findnext( hFile, &c_file ) == 0 );
 +			_findclose( hFile );
 +			}
@@ -9489,9 +9494,9 @@ diff -urwN mkmsgf\src\mkmsgf.c newmkmsgf\src\mkmsgf.c
  
      return (0);
  }
-diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf\src\mkmsgf.h
---- mkmsgf\src\mkmsgf.h	Fri Mar 22 15:20:50 2024
-+++ newmkmsgf\src\mkmsgf.h	Fri Mar 22 14:05:29 2024
+diff -urwN mkmsgf\src\mkmsgf.h newmkmsgf2\src\mkmsgf.h
+--- mkmsgf\src\mkmsgf.h	Mon Mar 25 10:53:48 2024
++++ newmkmsgf2\src\mkmsgf.h	Fri Mar 22 15:23:15 2024
 @@ -39,6 +39,7 @@
  #define MKMSGF_H
  
