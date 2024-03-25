@@ -1,15 +1,6 @@
 diff -urwN 4os2-o/4os2.ipf 4os2/4os2.ipf
 --- 4os2-o/4os2.ipf	2023-01-18 02:41:34.426095034 +0300
 +++ 4os2/4os2.ipf	2023-04-01 14:28:51.795753112 +0300
-@@ -10,6 +10,8 @@
- .nameit symbol=9ver     text='3.09'
- .nameit symbol=10ver    text='3.10'
- .nameit symbol=11ver    text='3.11'
-+.nameit symbol=4OS2     text='CMD.EXE'
-+.nameit symbol=4OS2INI  text='CMD.INI'
- 
- .* Use this to reference current version
- .nameit symbol=curver   text='3.11.4'
 @@ -17,14 +19,14 @@
  
  :userdoc.
