@@ -1,6 +1,6 @@
-diff -urwN exehdr\src\exehdr.c newexehdr\src\exehdr.c
---- exehdr\src\exehdr.c	Thu Mar 14 10:14:03 2024
-+++ newexehdr\src\exehdr.c	Thu Mar 14 10:10:24 2024
+diff -urwN exehdr/src/exehdr.c newexehdr/src/exehdr.c
+--- exehdr/src/exehdr.c	Thu Mar 14 10:14:03 2024
++++ newexehdr/src/exehdr.c	Thu Mar 14 10:10:24 2024
 @@ -215,7 +215,7 @@
      if (optind == 1 || optind == 2)
      {
@@ -32,9 +32,9 @@ diff -urwN exehdr\src\exehdr.c newexehdr\src\exehdr.c
      if (hdrdisp)
          prgheading();
  
-diff -urwN exehdr\src\lxdisplay.c newexehdr\src\lxdisplay.c
---- exehdr\src\lxdisplay.c	Thu Mar 14 10:14:03 2024
-+++ newexehdr\src\lxdisplay.c	Thu Mar 14 09:43:32 2024
+diff -urwN exehdr/src/lxdisplay.c newexehdr/src/lxdisplay.c
+--- exehdr/src/lxdisplay.c	Thu Mar 14 10:14:03 2024
++++ newexehdr/src/lxdisplay.c	Thu Mar 14 09:43:32 2024
 @@ -630,7 +630,7 @@
                      printf("%s%s", spacefiller, tmpobjflag[flagcount]);
  

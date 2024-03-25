@@ -39,8 +39,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifndef  __LINUX__
 #include <io.h>
-#include <sys\stat.h>
+#endif
+#include <sys/stat.h>
 #include <unistd.h>
 #include <malloc.h>
 #include "mkmsgf.h"
@@ -82,7 +84,9 @@ int getline (char **lineptr, unsigned int *n, FILE *stream);
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
-
+#ifdef  MAX_CANON
+#undef  MAX_CANON
+#endif
 #define MAX_CANON 64
 
 /* Read up to (and including) a newline from STREAM into *LINEPTR
