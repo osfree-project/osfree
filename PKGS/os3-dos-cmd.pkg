@@ -1,18 +1,34 @@
 os3-dos-cmd -a 1 -c..\bin\os2\mdos
+append.com
+assign.com
 attrib.exe
 basic.com
 basic.exe
 basica.com
+choice.exe
+command.com
+comp.com
+debug.com
+diskcomp.exe
+edlin.com
+exit_vdm.com
+expand.exe
+fc.exe
 find.exe
+graftabl.com
 gwbasic.exe
 help.bat
+join.exe
 label.exe
 mem.exe
 more.exe
+move.exe
 os2stub.exe
+qbasic.exe
+sort.exe
 subst.exe
+xcopy
 winos2\windemo.exe
 winos2\winver.exe
 winos2\progman.exe
-xcopy.exe
 -s dos-cmd.wis
