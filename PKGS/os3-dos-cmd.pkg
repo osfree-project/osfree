@@ -28,7 +28,4 @@ qbasic.exe
 sort.exe
 subst.exe
 xcopy
-winos2\windemo.exe
-winos2\winver.exe
-winos2\progman.exe
 -s dos-cmd.wis
