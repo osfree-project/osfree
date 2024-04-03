@@ -13,8 +13,8 @@
 *   Header Files                                                               *
 *******************************************************************************/
 // Include OS/2 specific files first
-#define INCL_BASE
-#include <os2.h>
+//#define INCL_BASE
+//#include <os2.h>
 
 // stdlib files
 #include <string.h>
@@ -155,10 +155,18 @@ int ProcessFiles(const char *pszFilePattern1, const char *pszFilePattern2)
   const char *    pszPath1;
   const char *    pszPath2;
   APIRET          rc;
+  #ifdef __386__
   ULONG           cFiles = 500;
+  #else
+  USHORT           cFiles = 1;
+  #endif
   HDIR            hDir = HDIR_CREATE;
   char            achfindbuf[1024*16];
+  #ifdef __386__
   PFILEFINDBUF3   pfindbuf = (PFILEFINDBUF3)&achfindbuf[0];
+  #else
+  PFILEFINDBUF   pfindbuf = (PFILEFINDBUF)&achfindbuf[0];
+  #endif
 
 
   /*
@@ -190,7 +198,11 @@ int ProcessFiles(const char *pszFilePattern1, const char *pszFilePattern2)
                          FIL_STANDARD);
   while (rc == NO_ERROR && cFiles > 0)
   {
+	  #ifdef __386__
       PFILEFINDBUF3   pCur = pfindbuf;
+	  #else
+      PFILEFINDBUF   pCur = pfindbuf;
+      #endif
 
       /*
        * Loop thru the result.
@@ -213,15 +225,21 @@ int ProcessFiles(const char *pszFilePattern1, const char *pszFilePattern2)
           /*
            * Next file.
            */
+			#ifdef __386__
           pCur = pCur->oNextEntryOffset == 0
                   ? NULL
                   : (PFILEFINDBUF3)((char*)pCur + pCur->oNextEntryOffset);
+			#endif
       }
 
       /*
        * Next chunk.
        */
+			#ifdef __386__
       cFiles = 500;
+			#else
+      cFiles = 1;
+			#endif
       rc = DosFindNext(hDir, pfindbuf, sizeof(achfindbuf), &cFiles);
   }
 
@@ -251,7 +269,11 @@ int ProcessFiles(const char *pszFilePattern1, const char *pszFilePattern2)
 int ProcessFile(const char *pszFile1, unsigned long cbFile1, const char *pszFilePattern)
 {
     int             rc = 0;
+	#ifdef __386__
     FILESTATUS3     fst3;
+	#else
+    FILESTATUS      fst3;
+    #endif
     int             cchPattern = strlen(pszFilePattern);
     char            szFile2[CCHMAXPATH];
     char            szPattern[CCHMAXPATH];
@@ -267,7 +289,11 @@ int ProcessFile(const char *pszFile1, unsigned long cbFile1, const char *pszFile
         szPattern[cchPattern++] = '*';
     else
     {
+		#ifdef __386__
         if (!DosQueryPathInfo((PSZ)pszFilePattern, FIL_STANDARD, &fst3, sizeof(fst3)))
+		#else
+        if (!DosQPathInfo((PSZ)pszFilePattern, FIL_STANDARD, (PBYTE)&fst3, sizeof(fst3), 0))
+		#endif
         {
             if (fst3.attrFile & FILE_DIRECTORY)
             {
@@ -328,25 +354,33 @@ int ProcessFile(const char *pszFile1, unsigned long cbFile1, const char *pszFile
         /*
          * Check for existance of target.
          */
+		#ifdef __386__
         rc = DosQueryPathInfo(szFile2, FIL_STANDARD, &fst3, sizeof(fst3));
+		#else
+        rc = DosQPathInfo(szFile2, FIL_STANDARD, (PBYTE)&fst3, sizeof(fst3), 0);
+		#endif
         if (rc == NO_ERROR && !(fst3.attrFile & FILE_DIRECTORY))
         {
+			#ifdef __386__
             ULONG   ulAction = 0;
+			#else
+            USHORT  ulAction = 0;
+			#endif
             ULONG   cbFile2 = fst3.cbFile;
-            HFILE   hFile1 = NULLHANDLE;
-            HFILE   hFile2 = NULLHANDLE;
+            HFILE   hFile1 = 0;
+            HFILE   hFile2 = 0;
 
             rc = DosOpen(szFile2, &hFile2, &ulAction, 0, FILE_NORMAL,
                          OPEN_ACTION_FAIL_IF_NEW | OPEN_ACTION_OPEN_IF_EXISTS,
                          OPEN_FLAGS_SEQUENTIAL | OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE,
-                         NULL);
+                         0);
             if (!rc)
             {
                 ulAction = 0;
                 rc = DosOpen((PSZ)pszFile1, &hFile1, &ulAction, 0, FILE_NORMAL,
                              OPEN_ACTION_FAIL_IF_NEW | OPEN_ACTION_OPEN_IF_EXISTS,
                              OPEN_FLAGS_SEQUENTIAL | OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE,
-                             NULL);
+                             0);
                 if (!rc)
                 {
                     unsigned long   cMismatches = 0;
@@ -356,8 +390,13 @@ int ProcessFile(const char *pszFile1, unsigned long cbFile1, const char *pszFile
                     {
                         static char szBuffer1[0x10000];
                         static char szBuffer2[0x10000];
+						#ifdef __386__
                         ULONG       cbRead1;
                         ULONG       cbRead2;
+						#else
+                        USHORT      cbRead1;
+                        USHORT      cbRead2;
+						#endif
                         APIRET      rc1;
                         APIRET      rc2;
 
