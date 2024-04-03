@@ -31,9 +31,15 @@
 */
 int cmd_SetCurrentDisk(int disk)
 {
+	#ifdef __386___
  ULONG rc;
 
  rc=DosSetDefaultDisk(disk);
+	#else
+ USHORT rc;
+
+ rc=DosSelectDisk(disk);
+	#endif
  if (rc) 
   cmd_ShowSystemMessage(rc,0);
  return rc;

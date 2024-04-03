@@ -42,7 +42,11 @@ APIRET cmd_QueryCurrentDisk(PSZ diskName,ULONG *available)
 
   if (rc)
   {
+	#ifdef __386__
     printf(all_GetSystemErrorMessage(rc));
+	#else
+    printf("%Fs", all_GetSystemErrorMessage(rc));
+	#endif
     return rc;
   };
 
