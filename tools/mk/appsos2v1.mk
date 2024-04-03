@@ -8,14 +8,25 @@
 
 32_BITS = 0
 
-ADD_COPT    = $(ADD_COPT) -d__OS2__ -bt=os2 -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x
-ADD_LINKOPT = $(ADD_LINKOPT) OPTION REDEFSOK # lib clibs.lib,os2.lib
+ADD_COPT    = $(ADD_COPT) -d__OS2__ -bt=os2v1 -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+
+#ADD_LINKOPT = $(ADD_LINKOPT) OPTION REDEFSOK # lib clibs.lib,os2.lib
+
+!ifeq NOLIBS 1
+ADD_LINKOPT +=        # OPTION REDEFSOK
+!else
+ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared16.lib, &
+		      $(BLD)lib$(SEP)all_shared16.lib
+!endif
 
 !ifndef DEST
 DEST     = os2
 !endif
 
 !include $(%ROOT)/tools/mk/all.mk
+
+ADD_COPT    +=        -i=$(%ROOT)$(SEP)include &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3
 
 !ifdef DLL
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
@@ -27,7 +38,7 @@ dllopts += $(DLLOPT)
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopts =
 !endif
-RCOPT    = -bt=os2 -i=$(MYDIR) -i=$(PATH)
+RCOPT    = -bt=os2v1 -i=$(MYDIR) -i=$(PATH)
 
 !ifdef RESOURCE
 deps = $(RESOURCE)

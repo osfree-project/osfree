@@ -17,8 +17,6 @@
    @todo: add "-" modifier to /a switch.
 */
 
-#define INCL_DOSERRORS
-#include <os2.h> /* system header */
 
 /* C standard library headers */
 #include <string.h>
@@ -541,10 +539,18 @@ int SetMemFlags(ATTRIB *filterflags,ATTRIB *flags,char *param,int len,char actio
 */
 int ModifyFileAttribs(char *file,ATTRIB *flags)
 {
+#ifdef __386__
  FILESTATUS3 fileStatus;
+#else
+ FILESTATUS fileStatus;
+#endif
  APIRET rc;
 
- rc=DosQueryPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(FILESTATUS3));
+#ifdef __386__
+ rc=DosQueryPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(fileStatus));
+#else
+ rc=DosQPathInfo(file,FIL_STANDARD,(PBYTE)&fileStatus,sizeof(fileStatus),0);
+#endif
 
  if (rc) return rc;
 
@@ -576,8 +582,13 @@ int ModifyFileAttribs(char *file,ATTRIB *flags)
  /* Readonly */
  MODIFYATTRS(flags->bReadOnly,FILE_READONLY);
 
- rc=DosSetPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(FILESTATUS3),
+#ifdef __386__
+ rc=DosSetPathInfo(file,FIL_STANDARD,&fileStatus,sizeof(fileStatus),
       DSPI_WRTTHRU);
+#else
+ rc=DosSetPathInfo(file,FIL_STANDARD,(PBYTE)&fileStatus,sizeof(fileStatus),
+      DSPI_WRTTHRU, 0);
+#endif
  }
 
  return rc;
