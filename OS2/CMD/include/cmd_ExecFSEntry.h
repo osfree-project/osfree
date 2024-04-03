@@ -15,7 +15,7 @@
 #ifndef _CMD_EXECFSENTRY_H_
 #define _CMD_EXECFSENTRY_H_
 
-#include <osfree.h>
+//#include <os2.h>
 
 /* FS utlity dll entry points name definitions */
 #define cmd_FS_CHKDSK  "CHKDSK"

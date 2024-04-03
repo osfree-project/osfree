@@ -15,7 +15,7 @@
 #define INCL_DOSFILEMGR
 #define INCL_DOSERRORS
 //#include <osfree.h>
-#include <os2.h>
+//#include <os2.h>
 
 /* C standard library headers */
 #include <stdio.h>

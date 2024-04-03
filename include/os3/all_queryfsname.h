@@ -14,7 +14,7 @@
 #ifndef _ALL_QUERYFSNAME_H_
 #define _ALL_QUERYFSNAME_H_
 
-#include <osfree.h>
+//#include <os2.h>
 
 APIRET all_QueryFSName(PSZ pszGivenDriveName,PSZ pszFSName);
 

@@ -15,7 +15,7 @@
 #define INCL_DOSERRORS
 #define INCL_DOSMISC
 //#include <osfree.h>
-#include <os2.h>
+//#include <os2.h>
 
 /* C standard library headers */
 #include <string.h>
@@ -47,7 +47,11 @@ APIRET cmd_ShowVolumeInfo(PSZ pszDrive,BOOL fUseSemicolon)
  PSZ serial="         "; /* place for serial number */
 
  /* first check is the parameter correct */
+#ifdef __386__
  if ((strlen(pszDrive)!=2)||(pszDrive[2]==':'))
+#else
+ if ((_fstrlen(pszDrive)!=2)||(pszDrive[2]==':'))
+#endif
  {
   printf("\n");
   printf(all_GetSystemErrorMessage(ERROR_INVALID_DRIVE));
@@ -57,8 +61,13 @@ APIRET cmd_ShowVolumeInfo(PSZ pszDrive,BOOL fUseSemicolon)
  chDisk=pszDisk[0];
 
  /* ask for label and serial */
+#ifdef __386__
  rc= DosQueryFSInfo((toupper(pszDrive[0])-'A'+1),FSIL_VOLSER,
                    (PVOID)&fsiBuffer,sizeof(fsiBuffer));
+#else
+ rc= DosQFSInfo((toupper(pszDrive[0])-'A'+1),FSIL_VOLSER,
+                   (PVOID)&fsiBuffer,sizeof(fsiBuffer));
+#endif
 
  if (rc)
  {

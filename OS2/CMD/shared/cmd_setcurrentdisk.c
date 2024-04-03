@@ -15,7 +15,7 @@
 #define INCL_DOSFILEMGR
 #define INCL_DOSERRORS
 //#include <osfree.h>
-#include <os2.h>
+//#include <os2.h>
 
 #include <cmd_shared.h> /* comand line tools' shared functions and defines */
 

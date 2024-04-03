@@ -14,7 +14,7 @@
 #define INCL_DOSMODULEMGR
 #define INCL_DOSERRORS
 //#include <osfree.h>
-#include <os2.h>
+//#include <os2.h>
 #include <cmd_shared.h> /* command line tools' shared functions */
 
 /* C standard library headers */
@@ -78,12 +78,22 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   //for (i = 0; i < ulArgc; i++)
   //  printf("argv[%lu]=%s\n", i, argv[i]);
 
+#ifdef __386__
   pszUtilDllName=(PSZ)calloc(strlen(pszFSName)+1,1);
+#else
+  pszUtilDllName=(PSZ)calloc(_fstrlen(pszFSName)+1,1);
+#endif
+
   if (pszUtilDllName==NULL) return cmd_ERROR_EXIT;
 
   /* create utility-dll module name */
+#ifdef __386__
   strcpy(pszUtilDllName,"U");
   strcat(pszUtilDllName, pszFSName);
+#else
+  _fstrcpy(pszUtilDllName,"U");
+  _fstrcat(pszUtilDllName, pszFSName);
+#endif
 
   rc=DosLoadModule(LoadError,sizeof(LoadError), ////// ERROR_NOT_ENOUGH_MEMORY == 8
                    pszUtilDllName,&hUtilDllHandle);
@@ -91,18 +101,30 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   if (rc!=NO_ERROR)
   {
    printf(all_GetSystemErrorMessage(rc));
+#ifdef __386__
    free(pszUtilDllName);
+#else
+   _ffree(pszUtilDllName);
+#endif
    return cmd_ERROR_EXIT;
   };
 
   /* get requested entry procedure address */
+#ifdef __386__
   rc= DosQueryProcAddr(hUtilDllHandle,0L,
                        strupr(pszEntryName),(PFN*)&pvFSEntry);
+#else
+  rc= DosGetProcAddr(hUtilDllHandle, strupr(pszEntryName), (PFN*)&pvFSEntry);
+#endif
 
   if (rc!=NO_ERROR)
   {
    printf(all_GetSystemErrorMessage(rc));
+#ifdef __386__
    free(pszUtilDllName);
+#else
+   _ffree(pszUtilDllName);
+#endif
    return cmd_ERROR_EXIT;
   };
 
@@ -139,7 +161,11 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   rc = func16(ulArgc, newargv, newenvp);
 
   DosFreeModule(hUtilDllHandle);
+#ifdef __386__
   free(pszUtilDllName);
+#else
+  _ffree(pszUtilDllName);
+#endif
   free(ebuf);
   free(abuf);
 

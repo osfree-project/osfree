@@ -81,11 +81,19 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                         ULONG *ulFileCount, ULONG *ulRecurseDirCount)
 {
   HDIR hDir;
+#ifdef __386__
   FILEFINDBUF3 ffbFindBuf;
+#else
+  FILEFINDBUF ffbFindBuf;
+#endif
   APIRET rc;
   CHAR *pchDirElemt;
 //  ULONG ulSearchAttr=FILE_SYSTEM|FILE_READONLY|FILE_HIDDEN|FILE_ARCHIVED;
+#ifdef __386__
   ULONG ulEntries;
+#else
+  USHORT ulEntries;
+#endif
   CHAR fileMask[CCHMAXPATH]="";
 
   /* mask for searching directories, and/or files, when all_RECURSE_DIRACTION,
@@ -107,7 +115,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                     &hDir,                  /* handle */
                     MUST_HAVE_DIRECTORY|ulSearchAttr, /* return only directories */
                     &ffbFindBuf,            /* buffer */
-                    sizeof(FILEFINDBUF3),   /* size of buffer */
+                    sizeof(ffbFindBuf),   /* size of buffer */
                     &ulEntries,             /* number of entries (1) */
                     FIL_STANDARD);          /* return only standard info (no EAs) */
 
@@ -135,7 +143,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
                 //increase directory count
                 *ulDirCount+=1;
-        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(FILEFINDBUF3), &ulEntries) != ERROR_NO_MORE_FILES);
+        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(ffbFindBuf), &ulEntries) != ERROR_NO_MORE_FILES);
     }
 
     DosFindClose(hDir);
@@ -150,7 +158,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                         &hDir,                  /* handle */
                         ulSearchAttr&DONT_HAVE_DIRECTORY,                  /* no dirs, maybe readonly and/or archived files */
                             &ffbFindBuf,            /* buffer */
-                            sizeof(FILEFINDBUF3),   /* size of buffer */
+                            sizeof(ffbFindBuf),   /* size of buffer */
                             &ulEntries,             /* number of entries (1) */
                             FIL_STANDARD);          /* return only standard info (no EAs) */
 
@@ -177,7 +185,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
 
             //increase file count
             *ulFileCount+=1;
-        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(FILEFINDBUF3), &ulEntries) != ERROR_NO_MORE_FILES);
+        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(ffbFindBuf), &ulEntries) != ERROR_NO_MORE_FILES);
     };
           DosFindClose(hDir);
 
@@ -199,7 +207,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                     &hDir,                  /* handle */
                     MUST_HAVE_DIRECTORY|ulSearchAttr, /* return only directories */
                     &ffbFindBuf,            /* buffer */
-                    sizeof(FILEFINDBUF3),   /* size of buffer */
+                    sizeof(ffbFindBuf),   /* size of buffer */
                     &ulEntries,             /* number of entries (1) */
                     FIL_STANDARD);          /* return only standard info (no EAs) */
 
@@ -231,7 +239,7 @@ int _all_CollectSubdirs(char *dir,char *file, hList *phlDirsList,
                 //increase directory count
                 *ulRecurseDirCount+=1;
             }
-        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(FILEFINDBUF3), &ulEntries) != ERROR_NO_MORE_FILES);
+        } while (DosFindNext(hDir, &ffbFindBuf, sizeof(ffbFindBuf), &ulEntries) != ERROR_NO_MORE_FILES);
     }
 
     DosFindClose(hDir);

@@ -32,9 +32,16 @@
 APIRET all_QueryCurrentDisk(PSZ diskName,ULONG *available)
 {
   APIRET rc;
+#ifdef __386__
   ULONG disknum;
 
   rc=DosQueryCurrentDisk(&disknum,available);
+#else
+  USHORT disknum;
+
+  rc=DosQCurDisk(&disknum,available);
+#endif
+
   if (rc) return rc;
 
   diskName[0] = (CHAR)(disknum - 1 + 'A');

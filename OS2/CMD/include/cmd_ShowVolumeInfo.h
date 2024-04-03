@@ -13,7 +13,7 @@
 #ifndef _CMD_SHOWVOLUMEINFO_H_
 #define _CMD_SHOWVOLUMEINFO_H_
 
-#include <osfree.h>
+//#include <os2.h>
 
 APIRET cmd_ShowVolumeInfo(PSZ pszDrive,BOOL fUseSemicolon);
 

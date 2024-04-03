@@ -15,7 +15,7 @@
 #ifndef _CMD_MESSAGES_H_
 #define _CMD_MESSAGES_H_
 
-#include <osfree.h>
+//#include <os2.h>
 
 /* C standard library headers */
 #include <stdarg.h>
