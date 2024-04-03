@@ -64,7 +64,7 @@ int cmd_prntmsg(PCHAR *pTable, ULONG cTable, ULONG ulMsgID,PSZ pszFileName)
 		#ifdef __386__
         printf(all_GetSystemErrorMessage(ulrc));
 		#else
-        printf("%Fs", all_GetSystemErrorMessage(ulrc));
+        printf("%Ws", all_GetSystemErrorMessage(ulrc));
 		#endif
 	}
     else

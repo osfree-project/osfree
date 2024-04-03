@@ -100,12 +100,11 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
 
   if (rc!=NO_ERROR)
   {
-   printf("%Fs", all_GetSystemErrorMessage(rc));
 #ifdef __386__
    printf(all_GetSystemErrorMessage(rc));
    free(pszUtilDllName);
 #else
-   printf("%Fs", all_GetSystemErrorMessage(rc));
+   printf("%Ws", all_GetSystemErrorMessage(rc));
    _ffree(pszUtilDllName);
 #endif
    return cmd_ERROR_EXIT;
@@ -125,7 +124,7 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
    printf(all_GetSystemErrorMessage(rc));
    free(pszUtilDllName);
 #else
-   printf("%Fs", all_GetSystemErrorMessage(rc));
+   printf("%Ws", all_GetSystemErrorMessage(rc));
    _ffree(pszUtilDllName);
 #endif
    return cmd_ERROR_EXIT;

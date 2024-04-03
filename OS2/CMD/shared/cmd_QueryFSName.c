@@ -45,7 +45,7 @@ APIRET cmd_QueryFSName(PSZ szGivenDriveName,PSZ szFSName)
 	  #ifdef __386__
 	  printf(all_GetSystemErrorMessage(rc));
 	  #else
-	  printf("%Fs", all_GetSystemErrorMessage(rc));
+	  printf("%Ws", all_GetSystemErrorMessage(rc));
 	  #endif
   }
   return rc;

@@ -57,7 +57,7 @@ APIRET cmd_ShowVolumeInfo(PSZ pszDrive,BOOL fUseSemicolon)
 #ifdef __386__
   printf(all_GetSystemErrorMessage(ERROR_INVALID_DRIVE));
 #else
-  printf("%Fs", all_GetSystemErrorMessage(ERROR_INVALID_DRIVE));
+  printf("%Ws", all_GetSystemErrorMessage(ERROR_INVALID_DRIVE));
 #endif
   return ERROR_INVALID_DRIVE;
  };
@@ -82,7 +82,7 @@ APIRET cmd_ShowVolumeInfo(PSZ pszDrive,BOOL fUseSemicolon)
 	 #ifdef __386__
      printf(all_GetSystemErrorMessage(rc));
 	 #else
-     printf("%Fs", all_GetSystemErrorMessage(rc));
+     printf("%Ws", all_GetSystemErrorMessage(rc));
      #endif
      return rc;
    };
