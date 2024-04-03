@@ -36,6 +36,7 @@
 
 #define FSAIL_QUERYNAME 1
 
+#define MSG_BAD_PARM1                   1001
 #define MSG_BAD_PARM2                   1002
 #define MSG_BAD_SYNTAX                  1003
 
