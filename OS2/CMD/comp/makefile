@@ -11,7 +11,7 @@ DESC = Compare tool
 srcfiles = $(p)comp$(e)
 # defines additional options for C compiler
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
-STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 0
+
 
 !include $(%ROOT)tools/mk/appsos2v1.mk

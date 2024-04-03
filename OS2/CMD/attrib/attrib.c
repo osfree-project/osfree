@@ -539,11 +539,7 @@ int SetMemFlags(ATTRIB *filterflags,ATTRIB *flags,char *param,int len,char actio
 */
 int ModifyFileAttribs(char *file,ATTRIB *flags)
 {
-#ifdef __386__
- FILESTATUS3 fileStatus;
-#else
  FILESTATUS fileStatus;
-#endif
  APIRET rc;
 
 #ifdef __386__
