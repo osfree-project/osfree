@@ -9,6 +9,7 @@ DESC = Changes file attributes
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)attrib$(e)
 # defines additional options for C compiler
+STUB     = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 UNI2H = 0
 

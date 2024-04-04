@@ -71,6 +71,9 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
 !ifdef DEBUG
  @%append $^@ DEBUG $(DEBUG)
 !endif
+!ifdef STUB
+ @%append $^@ OPTION STUB=$(STUB)
+!endif
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
 
