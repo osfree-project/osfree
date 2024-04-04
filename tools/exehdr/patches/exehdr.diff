@@ -6,7 +6,7 @@ diff -urwN exehdr/src/exehdr.c newexehdr/src/exehdr.c
      {
          // optind 1 should be input file
 -        strncpy(exehdrinfo.infile, argv[optind], strlen(argv[optind]));
-+        strncpy(exehdrinfo.infile, argv[optind], sizeof(exehdrinfo.infile));
++        strncpy(exehdrinfo.infile, argv[optind], sizeof(exehdrinfo.infile)-1);
  
          if (access(exehdrinfo.infile, F_OK) != 0)
          {
@@ -15,7 +15,7 @@ diff -urwN exehdr/src/exehdr.c newexehdr/src/exehdr.c
          if (optind != argc)
              // provide output file
 -            strncpy(exehdrinfo.outfile, argv[optind], strlen(argv[optind]));
-+            strncpy(exehdrinfo.outfile, argv[optind], sizeof(exehdrinfo.outfile));
++            strncpy(exehdrinfo.outfile, argv[optind], sizeof(exehdrinfo.outfile)-1);
          else
              // need to make an output file -- !!! template - do I need output file?
              sprintf(exehdrinfo.outfile, "%s%s", exehdrinfo.infname, ".txt");
