@@ -16,6 +16,7 @@
 #include <basemid.h>
 #else
 
+#define MSG_FILE_NOT_FOUND              2
 #define MSG_BAD_PARM1                   1001
 #define MSG_BAD_PARM2                   1002
 #define MSG_BAD_SYNTAX                  1003
