@@ -7,12 +7,12 @@
 # before build command line tools build "shared" libraries
 DIRS =        shared &
               ansi   &
-              attrib &
+#              attrib &
               bldlevel &
               chkdsk &
               cls &
               cmd &
-              comp &
+#              comp &
               diskcopy &
               dskxtrct &
               eject &
