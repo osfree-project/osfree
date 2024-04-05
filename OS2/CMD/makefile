@@ -7,12 +7,10 @@
 # before build command line tools build "shared" libraries
 DIRS =        shared &
               ansi   &
-#              attrib &
               bldlevel &
               chkdsk &
               cls &
               cmd &
-#              comp &
               diskcopy &
               dskxtrct &
               eject &
@@ -54,5 +52,3 @@ DIRS =        shared &
 
 !include $(%ROOT)tools/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all
