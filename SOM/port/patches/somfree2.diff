@@ -1,0 +1,209 @@
+diff -urN somfree/somc/include/emitlib.h newsomfree/somc/include/emitlib.h
+--- somfree/somc/include/emitlib.h	Sun Apr 07 21:03:06 2024
++++ newsomfree/somc/include/emitlib.h	Sun Apr 07 17:39:27 2024
+@@ -205,16 +205,16 @@
+ /*
+  * Global variables
+  */
+-SOMEXTERN global int somtCPP;          /* C++ bindings */
+-SOMEXTERN global boolean somtclassIdlCall;/* IDL Calling convention */
+-SOMEXTERN global char *somtclassName;  /* Current Class Name */
+-SOMEXTERN global char *somtclassPrefix;/* Current Class Prefix */
+-SOMEXTERN global char *somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
+-SOMEXTERN global char *somtmajorVersion; /* Major version number for class */
+-SOMEXTERN global char *somtminorVersion; /* Minor version number for class */
+-SOMEXTERN global int somtmeta;         /* TRUE when in implicit meta mode */
+-SOMEXTERN global char *somtmp;         /* Set to SMMETA_PREFIX when somtmeta is TRUE */
+-SOMEXTERN global Entry *somtsomcls;    /* Pointer to SOMClass Entry in Symbol Table */
++SOMEXTERN global int  SOMLINK somtCPP;          /* C++ bindings */
++SOMEXTERN global boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++SOMEXTERN global char * SOMLINK somtclassName;  /* Current Class Name */
++SOMEXTERN global char * SOMLINK somtclassPrefix;/* Current Class Prefix */
++SOMEXTERN global char * SOMLINK somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
++SOMEXTERN global char * SOMLINK somtmajorVersion; /* Major version number for class */
++SOMEXTERN global char * SOMLINK somtminorVersion; /* Minor version number for class */
++SOMEXTERN global int  SOMLINK somtmeta;         /* TRUE when in implicit meta mode */
++SOMEXTERN global char * SOMLINK somtmp;         /* Set to SMMETA_PREFIX when somtmeta is TRUE */
++SOMEXTERN global Entry * SOMLINK somtsomcls;    /* Pointer to SOMClass Entry in Symbol Table */
+ 
+ 
+ /* somFree private */
+diff -urN somfree/somc/include/optlink.h newsomfree/somc/include/optlink.h
+--- somfree/somc/include/optlink.h	Sun Apr 07 21:03:06 2024
++++ newsomfree/somc/include/optlink.h	Sun Apr 07 20:36:59 2024
+@@ -45,6 +45,10 @@
+ #	if defined(__WATCOMC__) && defined (_WIN32)
+         #define OPTLINK_DECL _Optlink
+ #	else
++#	if defined(__WATCOMC__) && defined (__OS2__)
++        #define OPTLINK_DECL SOMLINK
++#	else
+         #define OPTLINK_DECL
++#	endif
+ #	endif	
+ #endif
+diff -urN somfree/somc/include/smlib.h newsomfree/somc/include/smlib.h
+--- somfree/somc/include/smlib.h	Sun Apr 07 21:03:07 2024
++++ newsomfree/somc/include/smlib.h	Sun Apr 07 18:40:14 2024
+@@ -420,33 +420,33 @@
+  * Global variables
+  */
+ 
+-SOMEXTERN global Flags somtg_f;        /* Command line flags structure */
+-SOMEXTERN global MemBuf *somtg_membuf; /* Memory buffer for string allocation */
+-SOMEXTERN global Mlist *somtglbdefs;   /* Global defs */
+-SOMEXTERN global SMEXT somtext;        /* Different idl/oidl extensions */
+-SOMEXTERN global Stab *somtstab;       /* Pointer to symbol table */
+-SOMEXTERN global BOOL somtaddstar;     /* Cached copy of global WIN32_DLLIMPORT modifier */
+-SOMEXTERN global BOOL somtrmstar;      /* Cached copy of global WIN32_DLLIMPORT modifier */
+-SOMEXTERN global char *somtg_buf;      /* Comment/pass thru buffer */
+-SOMEXTERN global char *somtg_sccsid;   /* version information string */
+-SOMEXTERN global char somtfilePath[];  /* input file full path */
+-SOMEXTERN global char somtfileStem[];  /* infput file stem */
+-SOMEXTERN global char somtoutPath[];   /* output file */
+-SOMEXTERN global char *(*somtgetAtt) (AttList *, char *, char **);
+-SOMEXTERN global Entry *somtmodule;    /* Pinter to last module encountered */
+-SOMEXTERN global Mlist *somtclassList; /* List of classes that sc emits */
+-SOMEXTERN global long somtsaved;       /* Bytes saved due to various optimisations steps */
+-SOMEXTERN global void *(*somtmalloc)(size_t nbytes); 
+-SOMEXTERN global void (*somtfree)(void *bp);        
+-SOMEXTERN global void *(*somtcalloc)(size_t nmemb, size_t size);
+-SOMEXTERN global void *(*somtrealloc)(void *bp, size_t nbytes); 
+-SOMEXTERN global void (*somtcleanup_f) (int); /* cleanup signal function to call */
+-SOMEXTERN global void (*somtinternal_f) (int);/* internal signal function to call */
+-SOMEXTERN global int somtopenEmitFileCalled; 
+-SOMEXTERN global SOMTExitBuf somtipcbuf;  /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
+-SOMEXTERN global SOMTExitBuf somtscbuf;   /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
+-SOMEXTERN global void *somtemitReturns; /* Emitter returns */
+-SOMEXTERN global void (*somtrealExit)(int status); /* real exit to call */
++SOMEXTERN global Flags  SOMLINK somtg_f;        /* Command line flags structure */
++SOMEXTERN global MemBuf * SOMLINK somtg_membuf; /* Memory buffer for string allocation */
++SOMEXTERN global Mlist * SOMLINK somtglbdefs;   /* Global defs */
++SOMEXTERN global SMEXT  SOMLINK somtext;        /* Different idl/oidl extensions */
++SOMEXTERN global Stab * SOMLINK somtstab;       /* Pointer to symbol table */
++SOMEXTERN global BOOL  SOMLINK somtaddstar;     /* Cached copy of global WIN32_DLLIMPORT modifier */
++SOMEXTERN global BOOL  SOMLINK somtrmstar;      /* Cached copy of global WIN32_DLLIMPORT modifier */
++SOMEXTERN global char * SOMLINK somtg_buf;      /* Comment/pass thru buffer */
++SOMEXTERN global char * SOMLINK somtg_sccsid;   /* version information string */
++SOMEXTERN global char  SOMLINK somtfilePath[];  /* input file full path */
++SOMEXTERN global char  SOMLINK somtfileStem[];  /* infput file stem */
++SOMEXTERN global char  SOMLINK somtoutPath[];   /* output file */
++SOMEXTERN global char *(* SOMLINK somtgetAtt) (AttList *, char *, char **);
++SOMEXTERN global Entry * SOMLINK somtmodule;    /* Pinter to last module encountered */
++SOMEXTERN global Mlist * SOMLINK somtclassList; /* List of classes that sc emits */
++SOMEXTERN global long  SOMLINK somtsaved;       /* Bytes saved due to various optimisations steps */
++SOMEXTERN global void * (* SOMLINK somtmalloc)(size_t nbytes); 
++SOMEXTERN global void  (* SOMLINK somtfree)(void *bp);        
++SOMEXTERN global void * (* SOMLINK somtcalloc)(size_t nmemb, size_t size);
++SOMEXTERN global void * (* SOMLINK somtrealloc)(void *bp, size_t nbytes); 
++SOMEXTERN global void  (* SOMLINK somtcleanup_f) (int); /* cleanup signal function to call */
++SOMEXTERN global void  (* SOMLINK somtinternal_f) (int);/* internal signal function to call */
++SOMEXTERN global int  SOMLINK somtopenEmitFileCalled; 
++SOMEXTERN global SOMTExitBuf  SOMLINK somtipcbuf;  /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
++SOMEXTERN global SOMTExitBuf  SOMLINK somtscbuf;   /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
++SOMEXTERN global void * SOMLINK somtemitReturns; /* Emitter returns */
++SOMEXTERN global void   ( * SOMLINK somtrealExit)(int status); /* real exit to call */
+ 
+ 
+ #endif
+diff -urN somfree/somc/src/emitlib.c newsomfree/somc/src/emitlib.c
+--- somfree/somc/src/emitlib.c	Sun Apr 07 21:03:07 2024
++++ newsomfree/somc/src/emitlib.c	Sun Apr 07 17:39:55 2024
+@@ -1,16 +1,16 @@
+ #define global
+ #include <emitlib.h>
+ 
+-global int somtCPP;          /* C++ bindings */
+-global boolean somtclassIdlCall;/* IDL Calling convention */
+-global char *somtclassName;  /* Current Class Name */
+-global char *somtclassPrefix;/* Current Class Prefix */
+-global char *somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
+-global char *somtmajorVersion; /* Major version number for class */
+-global char *somtminorVersion; /* Minor version number for class */
+-global int somtmeta;         /* TRUE when in implicit meta mode */
+-global char *somtmp;         /* Set to SMMETA_PREFIX when somtmeta is TRUE */
+-global Entry *somtsomcls;    /* Pointer to SOMClass Entry in Symbol Table */
++global int  SOMLINK somtCPP;          /* C++ bindings */
++global boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++global char * SOMLINK somtclassName;  /* Current Class Name */
++global char * SOMLINK somtclassPrefix;/* Current Class Prefix */
++global char * SOMLINK somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
++global char * SOMLINK somtmajorVersion; /* Major version number for class */
++global char * SOMLINK somtminorVersion; /* Minor version number for class */
++global int  SOMLINK somtmeta;         /* TRUE when in implicit meta mode */
++global char * SOMLINK somtmp;         /* Set to SMMETA_PREFIX when somtmeta is TRUE */
++global Entry * SOMLINK somtsomcls;    /* Pointer to SOMClass Entry in Symbol Table */
+ 
+ // Use IBM SOM 3.0 ABI for non SOMLINK functions (1) or IBM SOM 2.1 ABI (0)
+ SOMEXTERN int somtSOM30ABI;
+diff -urN somfree/somc/src/smlib.c newsomfree/somc/src/smlib.c
+--- somfree/somc/src/smlib.c	Sun Apr 07 21:03:07 2024
++++ newsomfree/somc/src/smlib.c	Sun Apr 07 18:36:08 2024
+@@ -224,30 +224,41 @@
+   return result;
+ }
+ 
+-global Flags somtg_f;        /* Command line flags structure */
+-global MemBuf *somtg_membuf; /* Memory buffer for string allocation */
+-global Mlist *somtglbdefs;   /* Global defs */
+-global SMEXT somtext;        /* Different idl/oidl extensions */
+-global Stab *somtstab;       /* Pointer to symbol table */
+-global BOOL somtaddstar;     /* Cached copy of global WIN32_DLLIMPORT modifier */
+-global BOOL somtrmstar;      /* Cached copy of global WIN32_DLLIMPORT modifier */
+-global char *somtg_buf;      /* Comment/pass thru buffer */
+-global char *somtg_sccsid;   /* version information string */
+-global char somtfilePath[255];  /* input file full path */
+-global char somtfileStem[255];  /* infput file stem */
+-global char somtoutPath[255];   /* output file */
+-global Entry *somtmodule;    /* Pointer to last module encountered */
+-global Mlist *somtclassList; /* List of classes that sc emits */
+-global long somtsaved;       /* Bytes saved due to various optimisations steps */
+-global void *(*somtmalloc)(size_t nbytes) = malloc; 
+-global void (*somtfree)(void *bp) = free;
+-global void *(*somtcalloc)(size_t nmemb, size_t size);
+-global void *(*somtrealloc)(void *bp, size_t nbytes); 
+-global void (*somtcleanup_f) (int); /* cleanup signal function to call */
+-global void (*somtinternal_f) (int);/* internal signal function to call */
+-global int somtopenEmitFileCalled; 
+-global SOMTExitBuf somtipcbuf;  /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
+-global SOMTExitBuf somtscbuf;   /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
+-global void *somtemitReturns; /* Emitter returns */
+-global void (*somtrealExit)(int status); /* real exit to call */
++void * SOMLINK mymalloc(size_t size)
++{
++  return malloc(size);
++}
++
++void SOMLINK myfree(void *memblock)
++{
++  free(memblock);
++}
++ 
++
++global Flags SOMLINK  somtg_f;        /* Command line flags structure */
++global MemBuf * SOMLINK somtg_membuf; /* Memory buffer for string allocation */
++global Mlist * SOMLINK somtglbdefs;   /* Global defs */
++global SMEXT  SOMLINK somtext;        /* Different idl/oidl extensions */
++global Stab * SOMLINK somtstab;       /* Pointer to symbol table */
++global BOOL  SOMLINK somtaddstar;     /* Cached copy of global WIN32_DLLIMPORT modifier */
++global BOOL  SOMLINK somtrmstar;      /* Cached copy of global WIN32_DLLIMPORT modifier */
++global char * SOMLINK somtg_buf;      /* Comment/pass thru buffer */
++global char * SOMLINK somtg_sccsid;   /* version information string */
++global char  SOMLINK somtfilePath[255];  /* input file full path */
++global char  SOMLINK somtfileStem[255];  /* infput file stem */
++global char  SOMLINK somtoutPath[255];   /* output file */
++global Entry * SOMLINK somtmodule;    /* Pointer to last module encountered */
++global Mlist * SOMLINK somtclassList; /* List of classes that sc emits */
++global long  SOMLINK somtsaved;       /* Bytes saved due to various optimisations steps */
++global void * (SOMLINK * somtmalloc)(size_t nbytes) = mymalloc; 
++global void  (SOMLINK *somtfree)(void *bp) = myfree;
++global void * (SOMLINK *somtcalloc)(size_t nmemb, size_t size);
++global void * (SOMLINK *somtrealloc)(void *bp, size_t nbytes); 
++global void  (SOMLINK *somtcleanup_f) (int); /* cleanup signal function to call */
++global void   (SOMLINK *somtinternal_f) (int);/* internal signal function to call */
++global int  SOMLINK somtopenEmitFileCalled; 
++global SOMTExitBuf  SOMLINK somtipcbuf;  /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
++global SOMTExitBuf  SOMLINK somtscbuf;   /* global WIN32_DLLIMPORT buffer for the setjmp/longjmp */
++global void * SOMLINK somtemitReturns; /* Emitter returns */
++global void   (SOMLINK *somtrealExit)(int status); /* real exit to call */
+ 

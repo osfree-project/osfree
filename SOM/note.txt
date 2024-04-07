@@ -572,3 +572,8 @@ Directory	Name		Comments
 \OS2\SYSTEM	SOMD.MSG	Messages for SOMD.DLL
 		SOME_OS2.MSG	
 		SOMK.MSG	SOM error messages file
+
+
+somc.dll exports
+
+IBM SOM 2 and IBM SOM 3 ordinals is differ. Seems all imports by name...
