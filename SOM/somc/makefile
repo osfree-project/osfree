@@ -269,5 +269,7 @@ ADD_COPT = $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include -i=$(PORT_BASE)somc$(SE
 .h: $(PORT_BASE)somc$(SEP)include
 
 $(OS2TK)som$(SEP)lib$(SEP)somtk.lib: $(PATH)somc.dll
-	$(MDHIER) $(OS2TK)som$(SEP)lib
-	$(LIB) -b $^@ +$< $(BLACKHOLE)
+	$(verbose)$(SAY) MDHIER   $(OS2TK)som$(SEP)lib $(LOG)
+	$(verbose)$(MDHIER) $(OS2TK)som$(SEP)lib
+	$(verbose)$(SAY) LIB      $^. $(LOG)
+	$(verbose)$(LIB) -b $^@ +$< $(BLACKHOLE)
