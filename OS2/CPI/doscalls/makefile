@@ -49,6 +49,7 @@ srcfiles = $(p)msg$(e) &
            $(p)dos16setverify$$(e) &
            $(p)dos16rmdir$$(e) &
            $(p)dos16selectdisk$(e) &
+           $(p)dos16truegetmessage$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
