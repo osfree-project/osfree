@@ -15,8 +15,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-//#include "kal.h"
-
 APIRET __cdecl KalLogWrite(PSZ s);
 
 typedef struct _QMRESULT{

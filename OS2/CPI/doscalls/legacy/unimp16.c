@@ -602,11 +602,6 @@ USHORT APIENTRY16   DOS16SGSWITCHME(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-
-
-
-
 USHORT APIENTRY16   DOS16CHGFILEPTR(HFILE hf, LONG distance,
                                     USHORT MoveType, ULONG * _Seg16 NewPointer)
 {
@@ -614,19 +609,7 @@ USHORT APIENTRY16   DOS16CHGFILEPTR(HFILE hf, LONG distance,
 }
 
 
-
-
-
-
-
-
 USHORT APIENTRY16   DOS16FILELOCKS(HFILE hf, LONG * _Seg16 UnLockRange, LONG * _Seg16 LockRange)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16FINDCLOSE(HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -742,15 +725,6 @@ USHORT APIENTRY16    DOS16SETFILEMODE(char * _Seg16 pszFilename, USHORT attr,
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-
-USHORT APIENTRY16    DOS16SETMAXFH(USHORT usNumHandles)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 
 
 // fix prototype !!! (internal)
