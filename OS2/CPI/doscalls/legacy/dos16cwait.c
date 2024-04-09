@@ -2,5 +2,5 @@
 
 APIRET16 APIENTRY16 DOS16CWAIT(USHORT ActionCode, USHORT WaitOption, PRESULTCODES ReturnCodes, PPID ProcessIDWord, PID ProcessID)
 {
-  return unimplemented(__FUNCTION__);
+	return DosWaitChild(ActionCode, WaitOption, ReturnCodes, ProcessIDWord, ProcessID);
 }
