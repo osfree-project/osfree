@@ -53,6 +53,7 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16putmessage$(e) &
 		   $(p)dos16entercritsec$(e) &
 		   $(p)dos16exitcritsec$(e) &
+		   $(p)dos16purgequeue$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &

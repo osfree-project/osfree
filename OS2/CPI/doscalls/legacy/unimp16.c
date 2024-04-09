@@ -293,9 +293,6 @@ APIRET APIENTRY16  DOSICREATETHREAD(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-
-
 // fix prototype !!! (internal)
 APIRET APIENTRY16   DOSIEXECPGM(void)
 {
@@ -1853,10 +1850,6 @@ USHORT APIENTRY16       DOS16READQUEUE(HQUEUE hq, ULONG * _Seg16 req,
 }
 
 
-USHORT APIENTRY16       DOS16PURGEQUEUE(HQUEUE hq)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT APIENTRY16       DOS16CLOSEQUEUE(HQUEUE hq)
