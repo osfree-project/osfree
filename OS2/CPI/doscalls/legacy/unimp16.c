@@ -1598,12 +1598,6 @@ USHORT APIENTRY16     DOS16SETDOSPROPERTY(SGID sgid, char * _Seg16 pszName,
 }
 
 
-USHORT APIENTRY16     DOS16PUTMESSAGE(HFILE hf, USHORT msglen, char * _Seg16 pMsgBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16     DOS16INSMESSAGE(char * _Seg16 * _Seg16 ivTable, USHORT ivCount,
                                       char * _Seg16 pszMsg, USHORT cbMsgLen, char * _Seg16 pData,
                                       USHORT cbDataLen, USHORT * _Seg16 cbMsgActual)
