@@ -90,10 +90,11 @@ srcfiles = $(p)msg$(e) &
            $(p)kbddebug$(e) &
            $(p)MouRoute$(e) &
            $(p)moudebug$(e) &
+		$(p)nlsmsg$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
-ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib
+ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib -I=$(PATH)
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
@@ -1299,6 +1300,28 @@ DEST    = os2$(SEP)dll
 .asm: $(ROOT)shared$(SEP)kbd
 .asm: $(ROOT)shared$(SEP)bms
 .asm: $(ROOT)shared$(SEP)bks
+.asm: $(PATH)
+
+$(PATH)nlsmsg.obj: nlsmsg.asm $(PATH)msg.inc
+
+$(PATH)msg.inc: $(PATH)$(PROJ).txt
+  mkmsgf.exe -A -I$(MYDIR)$(PS)$(%OS2TK)$(SEP)inc $[@ $^@
+
+$(PATH)$(PROJ).txt: $(PATH)$(PROJ).ext
+  msgextrt.exe $< $^@
+
+#$(PATH)$(PROJ).ext: $(PROJ)msg.asm
+#  msgprof $(PROJ).asm > $(PROJ).ext
+
+$(PATH)$(PROJ).ext: .symbolic
+ @%create $^@
+ @%append $^@ >$(PROJ).asm
+ @%append $^@ <$(%ROOT)build$(SEP)bin$(SEP)os2$(SEP)system$(SEP)oso001.msg
+ @%append $^@ DOS0317
+ @%append $^@ DOS0318
+ @%append $^@ DOS0319
+ @%append $^@ DOS0320
+ @%append $^@ DOS0321
 
 # <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
 # <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)
