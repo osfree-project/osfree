@@ -16,7 +16,6 @@ USHORT APIENTRY16     DOS16TRUEGETMESSAGE(void * _Seg16 pMsgSeg, char * _Seg16 *
   int i;
   PSZ ivTable32[10];
   
-  //@todo convert far pointers in ivTable
   for (i=0;i<ivCount;i++)
   {
 	  ivTable32[i]=malloc(strlen(ivTable[i])+1);

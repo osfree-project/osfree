@@ -1687,10 +1687,6 @@ USHORT APIENTRY16     DOS16RELEASESPINLOCK(HSPINLOCK Handle)
 }
 
 
-USHORT APIENTRY16     DOS16FREESPINLOCK(HSPINLOCK Handle)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (undoc)
@@ -1723,13 +1719,6 @@ USHORT APIENTRY16     DOS16QUERYHEADERINFO(HMODULE hmod, USHORT usIndex, void * 
 
 USHORT APIENTRY16     DOS16QUERYPROCTYPE(HMODULE hmod, USHORT ordinal,
                                          char * _Seg16 pszName, USHORT * _Seg16 pulProcType)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16     DOS16PROTECTCLOSE(HFILE hFile,
-                                        FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1845,14 +1834,6 @@ USHORT APIENTRY16       DOS16READQUEUE(HQUEUE hq, ULONG * _Seg16 req,
                                        USHORT * _Seg16 pDataLen, ULONG * _Seg16 pDataAddr,
                                        USHORT elCode, UCHAR NoWait, BYTE * _Seg16 elPriority,
                                        HSEM sem)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-
-
-USHORT APIENTRY16       DOS16CLOSEQUEUE(HQUEUE hq)
 {
   return unimplemented(__FUNCTION__);
 }

@@ -54,6 +54,9 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16entercritsec$(e) &
 		   $(p)dos16exitcritsec$(e) &
 		   $(p)dos16purgequeue$(e) &
+		   $(p)dos16closequeue$(e) &
+		   $(p)dos16protectclose$(e) &
+		   $(p)dos16freespinlock$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
