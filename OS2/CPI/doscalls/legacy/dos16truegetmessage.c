@@ -1,4 +1,6 @@
 #include "kal.h"
+#include <string.h>
+#include <stdlib.h>
 
 APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCHAR pBuf,
                                   ULONG cbBuf, ULONG msgnumber,
@@ -11,8 +13,23 @@ USHORT APIENTRY16     DOS16TRUEGETMESSAGE(void * _Seg16 pMsgSeg, char * _Seg16 *
 {
   USHORT rc;
   ULONG cbMsg=*msgLen;
+  int i;
+  PSZ ivTable32[10];
   
-  rc=DosTrueGetMessage(pMsgSeg, ivTable, ivCount, pData, cbData, msgNum, pszFileName, &cbMsg);
+  //@todo convert far pointers in ivTable
+  for (i=0;i<ivCount;i++)
+  {
+	  ivTable32[i]=malloc(strlen(ivTable[i])+1);
+	  strcpy(ivTable32[i], ivTable[i]);
+  }
+  
+  rc=DosTrueGetMessage(pMsgSeg, ivTable32, ivCount, pData, cbData, msgNum, pszFileName, &cbMsg);
   *msgLen=cbMsg;
+
+  for (i=0;i<ivCount;i++)
+  {
+	  free(ivTable32[i]);
+  }
+
   return rc;
 }
