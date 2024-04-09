@@ -891,12 +891,6 @@ USHORT APIENTRY16    DOS16GETSTDA(void)
 }
 
 
-USHORT APIENTRY16    DOS16ERROR(USHORT flag)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16    DOS16GETSEG(SEL sel)
 {
   return unimplemented(__FUNCTION__);
@@ -1114,12 +1108,6 @@ USHORT APIENTRY16     DOS16SCANENV(char * _Seg16 pszEnvVar, char * _Seg16 * _Seg
 }
 
 
-USHORT APIENTRY16     DOS16SETCP(USHORT codepage, USHORT reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 // fix prototype !!! (undoc)
 USHORT APIENTRY16     DOS16QPROCSTATUS(void)
 {
@@ -1182,12 +1170,6 @@ USHORT APIENTRY16     DOS16FSRAMSEMCLEAR(void)
 
 
 USHORT APIENTRY16     DOS16QAPPTYPE(char * _Seg16 pszFilename, USHORT * _Seg16 apptype)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16     DOS16SETPROCCP(USHORT cp, USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1438,13 +1420,6 @@ USHORT APIENTRY16      DOS16OPLOCKWAIT(void)
 
 // fix prototype !!! (internal)
 APIRET APIENTRY16      DOSICOPY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16      DOS16COPY(char * _Seg16 pszSrc, char * _Seg16 pszDst,
-                                 USHORT opMode, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
