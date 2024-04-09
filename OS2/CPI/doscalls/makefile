@@ -63,6 +63,11 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16setcp$(e) &
 		   $(p)dos16setproccp$(e) &
 		   $(p)dos16copy$(e) &
+		   $(p)dos16connectnmpipe$(e) &
+		   $(p)dos16disconnectnmpipe$(e) &
+		   $(p)dos16setnmphandstate$(e) &
+		   $(p)dos16killprocess$(e) &
+		   $(p)dos16setprty$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &

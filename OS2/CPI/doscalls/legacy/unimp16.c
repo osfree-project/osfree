@@ -215,25 +215,7 @@ USHORT APIENTRY16  DOS16QNMPIPEINFO(HPIPE Handle, USHORT InfoLevel, BYTE * _Seg1
 }
 
 
-USHORT APIENTRY16  DOS16CONNECTNMPIPE(HPIPE handle)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16  DOS16DISCONNECTNMPIPE(HPIPE handle)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16  DOS16QNMPHANDSTATE(HPIPE Handle, USHORT * _Seg16 PipeHandleState)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16  DOS16SETNMPHANDSTATE(HPIPE Handle, USHORT PipeHandleState)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -314,19 +296,6 @@ USHORT APIENTRY16   DOSGETINFOSEG(USHORT * _Seg16 pGlobalSeg,
 
 
 USHORT APIENTRY16   DOS16GETPRTY(USHORT Scope, USHORT * _Seg16 Priority, USHORT id)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16KILLPROCESS(USHORT ActionCode, PID pid)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16SETPRTY(USHORT scope, USHORT PriorityClass,
-                                 SHORT PriorityDelta, USHORT id)
 {
   return unimplemented(__FUNCTION__);
 }
