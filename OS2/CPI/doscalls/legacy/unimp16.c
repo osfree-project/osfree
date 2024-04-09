@@ -294,16 +294,6 @@ APIRET APIENTRY16  DOSICREATETHREAD(void)
 }
 
 
-USHORT APIENTRY16  DOS16ENTERCRITSEC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16  DOS16EXITCRITSEC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (internal)

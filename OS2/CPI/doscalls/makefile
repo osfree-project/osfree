@@ -51,6 +51,8 @@ srcfiles = $(p)msg$(e) &
            $(p)dos16selectdisk$(e) &
            $(p)dos16truegetmessage$(e) &
 		   $(p)dos16putmessage$(e) &
+		   $(p)dos16entercritsec$(e) &
+		   $(p)dos16exitcritsec$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
