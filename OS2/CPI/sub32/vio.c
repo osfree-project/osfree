@@ -47,18 +47,6 @@ APIRET unimplemented(char *func);
 #define FN_SETFONT         38
 #define FN_GETSTATE        39
 #define FN_SETSTATE        40
-#define FN_REGISTER        41
-#define FN_DEREGISTER      42
-#define FN_GLOBALREG       43
-#define FN_CREATECA        44
-#define FN_GETCASTATE      45
-#define FN_SETCASTATE      46
-#define FN_DESTROYCA       47
-#define FN_CHECKCHARTYPE   48
-#define FN_SAVE            65
-#define FN_RESTORE         66
-#define FN_FREE            67
-#define FN_SHELLINIT       68
 
 // Call VIO function
 APIRET APIENTRY VioCall(ULONG fn)
