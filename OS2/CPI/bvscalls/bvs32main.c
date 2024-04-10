@@ -428,3 +428,8 @@ USHORT APIENTRY BvsSetState(const PVOID pState, const HVIO Handle)
 {
   return unimplemented(__FUNCTION__);
 }
+
+USHORT APIENTRY BvsWrtTTY(const PCHAR Str, const USHORT Count, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
