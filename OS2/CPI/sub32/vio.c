@@ -1,5 +1,5 @@
-#define INCL_DOSMODULEMGR     /* Module Manager values */
-#define INCL_DOSERRORS        /* Error values */
+#define INCL_VIO
+#define INCL_PMAVIO
 #include <os2.h>
 
 APIRET unimplemented(char *func);
@@ -169,3 +169,437 @@ USHORT VioWrtNChar (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
     HVIO hvio);
 USHORT VioWrtTTY (PCCH pch, USHORT cb, HVIO hvio);
  */
+
+
+/* VioCalls */
+
+USHORT APIENTRY VioDeRegister(VOID)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioRegister(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGlobalReg(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2, const USHORT usReturn)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetAnsi(USHORT * Ansi, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetCp(const USHORT Reserved, USHORT * IdCodePage, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetCurPos(USHORT * Row, USHORT * Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetCurType(VIOCURSORINFO * CursorInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetMode(VIOMODEINFO * ModeInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioReadCellStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioReadCharStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollDown(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollDn(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollLeft(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollRight(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollUp(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetAnsi(const USHORT Ansi, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetCp(const USHORT Reserved, const USHORT IdCodePage, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetCurPos(const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetCurType(const PVIOCURSORINFO CursorInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetMode(const PVIOMODEINFO ModeInfo, const HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtCellStr(const PCHAR CellStr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtCharStr(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtCharStrAttr(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const PBYTE pAttr, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtCharStrAtt(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtNAttr(const PBYTE Attr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtNCell(const PBYTE Cell, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioWrtNChar(const PCHAR Char, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+//USHORT APIENTRY VioWrtTTY(const PCHAR Str, const USHORT Count, const HVIO Handle)
+
+
+USHORT APIENTRY VioGetState(const PVOID pState, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetState(const PVOID pState, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetConfig(const USHORT ConfigId, VIOCONFIGINFO * vioin, const HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioPopUp (PUSHORT pfWait,
+                         HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetPhysBuf (PVIOPHYSBUF pvioPhysBuf,
+                              USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioPrtSc (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollRt (USHORT usTopRow,
+                            USHORT usLeftCol,
+                            USHORT usBotRow,
+                            USHORT usRightCol,
+                            USHORT cbCol,
+                            PBYTE pCell,
+                            HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrLock (USHORT fWait,
+                           PUCHAR pfNotLocked,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrUnLock (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSavRedrawWait (USHORT usRedrawInd,
+                                 PUSHORT pNotifyType,
+                                 USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSavRedrawUndo (USHORT usOwnerInd,
+                                 USHORT usKillInd,
+                                 USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetFont (PVIOFONTINFO pviofi,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetFont (PVIOFONTINFO pviofi,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetBuf (PULONG pLVB,
+                          PUSHORT pcbLVB,
+                          HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioModeWait (USHORT usReqType,
+                            PUSHORT pNotifyType,
+                            USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioModeUndo (USHORT usOwnerInd,
+                              USHORT usKillInd,
+                              USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioShowBuf (USHORT offLVB,
+                             USHORT cb,
+                             HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioScrollLf (USHORT usTopRow,
+                            USHORT usLeftCol,
+                            USHORT usBotRow,
+                            USHORT usRightCol,
+                            USHORT cbCol,
+                            PBYTE pCell,
+                            HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioPrtScToggle (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioCheckCharType (PUSHORT pType,
+                                 USHORT usRow,
+                                 USHORT usColumn,
+                                 HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+/* AVIO */
+
+MRESULT APIENTRY WinDefAVioWindowProc(HWND hwnd,
+                                        USHORT msg,
+                                        ULONG mp1,
+                                        ULONG mp2)
+{
+  return (MRESULT)unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioAssociate(HDC hdc,
+                             HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioCreatePS(PHVPS phvps,
+                            SHORT sdepth,
+                            SHORT swidth,
+                            SHORT sFormat,
+                            SHORT sAttrs,
+                            HVPS hvpsReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioDestroyPS(HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioDeleteSetId(LONG llcid,
+                               HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetDeviceCellSize(PSHORT psHeight,
+                                     PSHORT psWidth,
+                                     HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioGetOrg(PSHORT psRow,
+                          PSHORT psColumn,
+                          HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioCreateLogFont(PFATTRS pfatattrs,
+                                 LONG llcid,
+                                 PSTR8 pName,
+                                 HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioQuerySetIds(PLONG allcids,
+                               PSTR8 pNames,
+                               PLONG alTypes,
+                               LONG lcount,
+                               HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetOrg(SHORT sRow,
+                          SHORT sColumn,
+                          HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioQueryFonts(PLONG plRemfonts,
+                              PFONTMETRICS afmMetrics,
+                              LONG lMetricsLength,
+                              PLONG plFonts,
+                              PSZ pszFacename,
+                              ULONG flOptions,
+                              HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioSetDeviceCellSize(SHORT sHeight,
+                                     SHORT sWidth,
+                                     HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioShowPS(SHORT sDepth,
+                          SHORT sWidth,
+                          SHORT soffCell,
+                          HVPS hvps)
+{
+  return unimplemented(__FUNCTION__);
+}
