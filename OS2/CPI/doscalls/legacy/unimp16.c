@@ -1253,13 +1253,6 @@ USHORT APIENTRY16     DOS16SETTRACEINFO(void)
 }
 
 
-USHORT APIENTRY16     DOS16EDITNAME(USHORT level, char * _Seg16 pszSrc,
-                                    char * _Seg16 pszEditStr, void * _Seg16 pBuf,
-                                    USHORT cbBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 // fix prototype !!! (undoc)
 USHORT APIENTRY16      DOS16LOGMODE(void)
