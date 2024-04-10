@@ -6,7 +6,6 @@
 #define INCL_PMAVIO
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
-//#define INCL_DOSMONITORS
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSDATETIME
 #define INCL_DOSEXCEPTIONS
@@ -215,10 +214,6 @@ USHORT APIENTRY16  DOS16QNMPIPEINFO(HPIPE Handle, USHORT InfoLevel, BYTE * _Seg1
 }
 
 
-USHORT APIENTRY16  DOS16QNMPHANDSTATE(HPIPE Handle, USHORT * _Seg16 PipeHandleState)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT APIENTRY16 DOS16PEEKNMPIPE(HPIPE Handle, BYTE * _Seg16 Buffer, USHORT BufferLen,
@@ -314,12 +309,6 @@ USHORT APIENTRY16   DOS16FLAGPROCESS(PID pid, USHORT ActionCode, USHORT FlagNum,
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT APIENTRY16   DOS16MAKEPIPE(HFILE * _Seg16 ReadHandle, HFILE * _Seg16 WriteHandle,
-                                  USHORT PipeSize)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (internal)

@@ -77,6 +77,8 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16beep$(e) &
 		   $(p)dos16move$(e) &
 		   $(p)dos16qcurdir$(e) &
+		   $(p)dos16qnmphstate$(e) &
+		   $(p)dos16makepipe$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &

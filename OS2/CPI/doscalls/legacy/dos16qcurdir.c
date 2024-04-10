@@ -6,6 +6,6 @@ USHORT APIENTRY16    DOS16QCURDIR(USHORT drivenum, char * _Seg16 pszPath, USHORT
 	USHORT rc;
 	
 	rc=DosQueryCurrentDir(drivenum, pszPath, &cb);
-	cbPath=cb;
+	*cbPath=cb;
 	return rc;
 }
