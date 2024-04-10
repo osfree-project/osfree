@@ -546,11 +546,6 @@ USHORT APIENTRY16   DOS16FINDNEXT(HDIR hdir, FILEFINDBUF * _Seg16 pFileFindBuf,
 }
 
 
-USHORT APIENTRY16   DOS16NEWSIZE(HFILE hf, ULONG size)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT APIENTRY16   DOS16PORTACCESS(USHORT reserved, USHORT type,
                                     USHORT firstport ,USHORT lastport)
