@@ -229,12 +229,6 @@ USHORT APIENTRY16 DOS16PEEKNMPIPE(HPIPE Handle, BYTE * _Seg16 Buffer, USHORT Buf
 }
 
 
-USHORT APIENTRY16  DOS16WAITNMPIPE(CHAR * _Seg16 FileName, ULONG TimeOut)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16  DOS16CALLNMPIPE(CHAR * _Seg16 FileName, BYTE * _Seg16 InBuffer, USHORT InBufferLen,
                                        BYTE * _Seg16 OutBuffer, USHORT OutBufferLen, 
                                        USHORT * _Seg16 BytesOut, ULONG TimeOut)
@@ -242,22 +236,14 @@ USHORT APIENTRY16  DOS16CALLNMPIPE(CHAR * _Seg16 FileName, BYTE * _Seg16 InBuffe
   return unimplemented(__FUNCTION__);
 }
 
-
 // undoc (???)
 USHORT APIENTRY16  DOS16RAWREADNMPIPE(HPIPE handle, USHORT cbBuf, BYTE * _Seg16 pBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
-
 // undoc (???)
 USHORT APIENTRY16  DOS16RAWWRITENMPIPE(HPIPE handle, USHORT cbBuf, BYTE * _Seg16 pBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16  DOS16SETNMPIPESEM(HPIPE Handle, HSEM SemHandle, USHORT KeyHandle)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -414,10 +400,6 @@ USHORT APIENTRY16   DOS16TIMERASYNC(ULONG interval, HSEM sem, HTIMER * _Seg16 ti
 }
 
 
-USHORT APIENTRY16   DOS16TIMERSTART(ULONG interval, HSEM sem, HTIMER * _Seg16 timer)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT APIENTRY16   DOS16TIMERSTOP(HTIMER timer)
@@ -515,30 +497,6 @@ USHORT APIENTRY16   DOSGETPROCADDR(HMODULE hmod, char * _Seg16 pszProcName,
 }
 
 
-USHORT APIENTRY16   DOSFREEMODULE(HMODULE hmod)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16GETMODHANDLE(char * _Seg16 pszName, HMODULE * _Seg16 phmod)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16GETMODNAME(HMODULE hmod, USHORT cbBuf, char * _Seg16 szBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16   DOS16BEEP(USHORT freq, USHORT duration)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16   DOS16CLIACCESS(void)
 {
   return unimplemented(__FUNCTION__);
@@ -598,11 +556,6 @@ USHORT APIENTRY16   DOS16FINDNEXT(HDIR hdir, FILEFINDBUF * _Seg16 pFileFindBuf,
   return unimplemented(__FUNCTION__);
 }
 
-USHORT APIENTRY16   DOS16MOVE(char * _Seg16 old, char * _Seg16 new, ULONG reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT APIENTRY16   DOS16NEWSIZE(HFILE hf, ULONG size)
 {
@@ -620,12 +573,6 @@ USHORT APIENTRY16   DOS16PORTACCESS(USHORT reserved, USHORT type,
 USHORT APIENTRY16   DOSOPEN(char * _Seg16 pszFileName, HFILE * _Seg16 phf,
                               USHORT * _Seg16 action, ULONG cbSize, USHORT attr,
                               USHORT usOpenFlags, USHORT usOpenMode, ULONG reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16    DOS16QCURDIR(USHORT drivenum, char * _Seg16 pszPath, USHORT * _Seg16 cbPath)
 {
   return unimplemented(__FUNCTION__);
 }
