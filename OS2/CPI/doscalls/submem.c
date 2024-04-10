@@ -21,6 +21,8 @@ the following restrictions:
     3. This notice may not be removed or altered from any source distribution.
 ---------------------------------------------------*/	
 
+#define INCL_DOSSPINLOCK
+
 #include "kal.h"
 
 struct FreeHeapBlock;
@@ -29,8 +31,9 @@ struct HeapHeader {
         ULONG flags;            //flags to DosSubSetMem
         ULONG size;             //in bytes
         struct FreeHeapBlock *firstFree;
+		HSPINLOCK lock;
 //        SpinMutexSemaphore lock;
-        char _filler[ 64 - sizeof(ULONG)*2 - sizeof(struct FreeHeapBlock*) /*- sizeof(SpinMutexSemaphore)*/ ];
+        char _filler[ 64 - sizeof(ULONG)*2 - sizeof(struct FreeHeapBlock*) - sizeof(HSPINLOCK /*SpinMutexSemaphore*/) ];
 };
 
 struct FreeHeapBlock {
@@ -51,6 +54,7 @@ APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
                 APIRET rc;
                 struct HeapHeader *hh=(struct HeapHeader*)pbBase;
                 if(hh->flags&DOSSUB_SERIALIZE)
+						DosAcquireSpinLock(hh->lock);
                         ;//hh->lock.Request();
                 if(cb<hh->size) {
                         rc = 310; //dossub_shrink
@@ -72,7 +76,7 @@ APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
                         hh->size = cb;
                 }
                 if(hh->flags&DOSSUB_SERIALIZE)
-                        ;//hh->lock.Release();
+                        DosReleaseSpinLock(hh->lock);//hh->lock.Release();
                 return rc;
         } else if(flag&DOSSUB_INIT) {
                 struct HeapHeader *hh=(struct HeapHeader*)pbBase;
@@ -82,8 +86,9 @@ APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
                 hh->flags = flag;
                 hh->size = cb;
                 if(flag&DOSSUB_SERIALIZE)
-                        //if(!hh->lock.Initialize())
-                          //      return 1;//(APIRET)GetLastError();
+					if (DosCreateSpinLock(&hh->lock))
+					//if(!hh->lock.Initialize())
+                                return 1;//(APIRET)GetLastError();
                 hh->firstFree = (struct FreeHeapBlock*)(hh+1);
                 hh->firstFree->next = 0;
                 hh->firstFree->size = cb - sizeof(*hh);
@@ -110,7 +115,7 @@ APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
         cb = (cb+7)&0xFFFFFFF8;
 
         if(hh->flags&DOSSUB_SERIALIZE)
-                ;//hh->lock.Request();
+                DosAcquireSpinLock(hh->lock);//hh->lock.Request();
 
         while(p) {
                 if(p->size>=cb)
@@ -141,7 +146,7 @@ APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
                 rc = 311; //dossub_nomem
 
         if(hh->flags&DOSSUB_SERIALIZE)
-                ;//hh->lock.Release();
+                DosReleaseSpinLock(hh->lock);//hh->lock.Release();
 
         return rc;
 }
@@ -163,7 +168,7 @@ APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
                 return 87; //invalid parameter FixMe
 
         if(hh->flags&DOSSUB_SERIALIZE)
-                ;//hh->lock.Request();
+                DosAcquireSpinLock(hh->lock);//hh->lock.Request();
 
 
         if((char*)pb+cb >= (char*)pbBase+hh->size) {
@@ -206,7 +211,7 @@ APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
         }
 
         if(hh->flags&DOSSUB_SERIALIZE)
-                ;//hh->lock.Release();
+                DosReleaseSpinLock(hh->lock);//hh->lock.Release();
 
         return rc;
 }
@@ -219,11 +224,6 @@ APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
         if(!pbBase)
                 return 87; //invalid parameter
         if(hh->flags&DOSSUB_SERIALIZE)
-                ;//hh->lock.Finalize();
+                DosFreeSpinLock(hh->lock);//hh->lock.Finalize();
         return 0;
 }
-
-
-
-
-
