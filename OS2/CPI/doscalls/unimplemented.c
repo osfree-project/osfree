@@ -654,36 +654,6 @@ APIRET APIENTRY DosQueryMuxWaitSem(HMUX hmux, PULONG pcSemRec, PSEMRECORD pSemRe
 }
 
 
-APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
-                              ULONG flag,
-                              ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
-                                PPVOID ppb,
-                                ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
-                               PVOID pb,
-                               ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      DosAsyncTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
 {
   return unimplemented(__FUNCTION__);

@@ -20,6 +20,7 @@ srcfiles = $(p)msg$(e) &
            $(p)file$(e) &
            $(p)dosfsctl$(e) &
            $(p)memory$(e) &
+           $(p)submem$(e) &
            $(p)xcpt$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
