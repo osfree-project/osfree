@@ -1,4 +1,29 @@
+#define INCL_VIO
+#define INCL_PMAVIO
 #include <os2.h>
+
+#include <stdio.h>
+#include <stdarg.h>
+
+APIRET APIENTRY DosLogWrite(PSZ s);
+
+void log(const char *fmt, ...)
+{
+  va_list arg_ptr;
+  char buf[1024];
+
+  va_start(arg_ptr, fmt);
+  vsprintf(buf, fmt, arg_ptr);
+  va_end(arg_ptr);
+
+  DosLogWrite(buf);
+}
+
+APIRET unimplemented(char *func)
+{
+  log("%s is not yet implemented!\n", func);
+  return 0;
+}
 
 // Function numbers for Base Video System main call
 #define FN_GETPHYSBUF      0
@@ -172,4 +197,234 @@ APIRET APIENTRY BVS32Main(ULONG fn)
 //          BVSError();
       }  
   return rc;
+}
+
+USHORT APIENTRY BvsGetPhysBuf (PVIOPHYSBUF pvioPhysBuf,
+                              USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetBuf (PULONG pLVB,
+                          PUSHORT pcbLVB,
+                          HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsShowBuf (USHORT offLVB,
+                             USHORT cb,
+                             HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetCurPos(USHORT * Row, USHORT * Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetCurType(VIOCURSORINFO * CursorInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetMode(VIOMODEINFO * ModeInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetCurPos(const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetCurType(const PVIOCURSORINFO CursorInfo, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetMode(const PVIOMODEINFO ModeInfo, const HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsReadCharStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsReadCellStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtNChar(const PCHAR Char, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtNAttr(const PBYTE Attr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtNCell(const PBYTE Cell, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtCharStr(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtCharStrAtt(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const PBYTE pAttr, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsWrtCellStr(const PCHAR CellStr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrollUp(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrollDn(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrollLf (USHORT usTopRow,
+                            USHORT usLeftCol,
+                            USHORT usBotRow,
+                            USHORT usRightCol,
+                            USHORT cbCol,
+                            PBYTE pCell,
+                            HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrollRt (USHORT usTopRow,
+                            USHORT usLeftCol,
+                            USHORT usBotRow,
+                            USHORT usRightCol,
+                            USHORT cbCol,
+                            PBYTE pCell,
+                            HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetAnsi(const USHORT Ansi, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetAnsi(USHORT * Ansi, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsPrtSc (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrLock (USHORT fWait,
+                           PUCHAR pfNotLocked,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsScrUnLock (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSavRedrawWait (USHORT usRedrawInd,
+                                 PUSHORT pNotifyType,
+                                 USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSavRedrawUndo (USHORT usOwnerInd,
+                                 USHORT usKillInd,
+                                 USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsPopUp (PUSHORT pfWait,
+                         HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsEndPopUp (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsPrtScToggle (HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsModeWait (USHORT usReqType,
+                            PUSHORT pNotifyType,
+                            USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsModeUndo (USHORT usOwnerInd,
+                              USHORT usKillInd,
+                              USHORT usReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetFont (PVIOFONTINFO pviofi,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetConfig(const USHORT ConfigId, VIOCONFIGINFO * vioin, const HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetCp(const USHORT Reserved, const USHORT IdCodePage, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetCp(const USHORT Reserved, USHORT * IdCodePage, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetFont (PVIOFONTINFO pviofi,
+                           HVIO hvio)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsGetState(const PVOID pState, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+USHORT APIENTRY BvsSetState(const PVOID pState, const HVIO Handle)
+{
+  return unimplemented(__FUNCTION__);
 }
