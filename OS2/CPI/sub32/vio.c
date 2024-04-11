@@ -270,12 +270,6 @@ APIRET APIENTRY VioCall(ULONG fn, PARGS pargs)
   return 0; //BVSMain(fn);
 }
 
-USHORT APIENTRY VioEndPopUp (HVIO hvio)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY VioInit(VOID) 
 {
  PSZ      ModuleName     = "BVSCALLS.DLL";  /* Name of module   */
@@ -395,6 +389,16 @@ USHORT APIENTRY VioRegister(const PSZ pszModName, const PSZ pszEntryName, const 
 USHORT APIENTRY VioGlobalReg(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2, const USHORT usReturn)
 {
   return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY VioEndPopUp (HVIO hvio)
+{
+	ARGS args;
+	
+	args.EndPopUp.hvio=hvio;
+	
+	return VioCall(FN_ENDPOPUP, &args);
 }
 
 
