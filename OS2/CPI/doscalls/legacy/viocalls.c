@@ -72,18 +72,20 @@ USHORT APIENTRY Vio32SetOrg(const SHORT sRow, const SHORT sColumn, const HVPS hv
 USHORT APIENTRY Vio32ShowPS(const SHORT sDepth, const SHORT sWidth, const SHORT soffCell, const HVPS hvps);
 //MRESULT APIENTRY WinDefAVioWindowProc(const HWND hwnd, const USHORT msg, const ULONG mp1, const ULONG mp2);
 
-/*
 
 USHORT APIENTRY16 VIOENDPOPUP(HVIO hvio)
 {
   return Vio32EndPopUp(hvio);
 }
 
+
 USHORT APIENTRY16 VIOGETPHYSBUF(PVIOPHYSBUF pvioPhysBuf,
                               USHORT usReserved)
 {
   return Vio32GetPhysBuf(pvioPhysBuf, usReserved);
 }
+
+/*
 
 USHORT APIENTRY16 VIOGETANSI(USHORT * Ansi, const HVIO Handle)
 {
@@ -412,6 +414,7 @@ USHORT APIENTRY16 VIOWRTTTY(const PCHAR Str, const USHORT Count, const HVIO Hand
 {
   return Vio32WrtTTY(Str, Count, Handle);
 }
+
 /*
 USHORT APIENTRY16 VIOFREE(void)
 {

@@ -184,6 +184,7 @@ IMPORTS = &
         _KalSuspendThread        KAL.KalSuspendThread, &
         _KalWaitThread           KAL.KalWaitThread, &
         _KalWrite                KAL.KalWrite, &
+											&
         WinDefAVioWindowProc     SUB32.30, &
                                             &
         Vio32EndPopUp              SUB32.101, &
@@ -1059,7 +1060,7 @@ EXPORTS = &
 #        VIOSRFUNBLOCK              .785, &
 #        VIOSRFBLOCK                .786, &
 #        VIOSCRUNLOCK               .787, &
-#        VIOWRTTTY                  .788, &
+        VIOWRTTTY                  .788, &
 #        VIOSAVE                    .789, &
 #        VIOGETMODE                 .790, &
 #        VIOSETMODE                 .791, &
