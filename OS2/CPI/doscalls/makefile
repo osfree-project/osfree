@@ -121,8 +121,6 @@ OPTIONS = manyautodata OPTION CASEEXACT
 # UNI2H = 1
 JWASM   = 1
 
-DIRS = nls
-
 IMPORTS = &
         _KalAllocMem             KAL.KalAllocMem, &
         _KalAllocSharedMem       KAL.KalAllocSharedMem, &
