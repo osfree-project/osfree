@@ -103,12 +103,13 @@ srcfiles = $(p)msg$(e) &
            $(p)monitors$(e) &
            $(p)monitors16$(e) &
            $(p)viocalls$(e) &
+           $(p)moucalls$(e) &
            $(p)BmsMain$(e) &
            $(p)BksMain$(e) &
            $(p)KbdRoute$(e) &
            $(p)kbddebug$(e) &
-           $(p)MouRoute$(e) &
-           $(p)moudebug$(e) &
+#           $(p)MouRoute$(e) &
+#           $(p)moudebug$(e) &
 		   $(p)nlsmsg$(e) &
            $(p)vars$(e)
 
@@ -264,31 +265,31 @@ IMPORTS = &
         KbdGetHWID               SUB32.224, &
         KbdSetHWID               SUB32.225, &
                                             &
-        MouGetPtrShape           SUB32.301, &
-        MouSetPtrShape           SUB32.302, &
-        MouGetNumMickeys         SUB32.303, &
-        MouGetScaleFact          SUB32.306, &
-        MouFlushQue              SUB32.307, &
-        MouGetNumButtons         SUB32.308, &
-        MouClose                 SUB32.309, &
-        MouSetScaleFact          SUB32.311, &
-        MouGetNumQueEl           SUB32.313, &
-        MouDeRegister            SUB32.314, &
-        MouGetEventMask          SUB32.315, &
-        MouSetEventMask          SUB32.316, &
-        MouOpen                  SUB32.317, &
-        MouRemovePtr             SUB32.318, &
-        MouGetPtrPos             SUB32.319, &
-        MouReadEventQue          SUB32.320, &
-        MouSetPtrPos             SUB32.321, &
-        MouGetDevStatus          SUB32.322, &
-        MouSynch                 SUB32.323, &
-        MouRegister              SUB32.324, &
-        MouSetDevStatus          SUB32.325, &
-        MouDrawPtr               SUB32.326, &
-        MouInitReal              SUB32.327, &
-        MouSetThreshold          SUB32.329, &
-        MouGetThreshold          SUB32.330, &
+        Mou32GetPtrShape           SUB32.301, &
+        Mou32SetPtrShape           SUB32.302, &
+        Mou32GetNumMickeys         SUB32.303, &
+        Mou32GetScaleFact          SUB32.306, &
+        Mou32FlushQue              SUB32.307, &
+        Mou32GetNumButtons         SUB32.308, &
+        Mou32Close                 SUB32.309, &
+        Mou32SetScaleFact          SUB32.311, &
+        Mou32GetNumQueEl           SUB32.313, &
+        Mou32DeRegister            SUB32.314, &
+        Mou32GetEventMask          SUB32.315, &
+        Mou32SetEventMask          SUB32.316, &
+        Mou32Open                  SUB32.317, &
+        Mou32RemovePtr             SUB32.318, &
+        Mou32GetPtrPos             SUB32.319, &
+        Mou32ReadEventQue          SUB32.320, &
+        Mou32SetPtrPos             SUB32.321, &
+        Mou32GetDevStatus          SUB32.322, &
+        Mou32Synch                 SUB32.323, &
+        Mou32Register              SUB32.324, &
+        Mou32SetDevStatus          SUB32.325, &
+        Mou32DrawPtr               SUB32.326, &
+        Mou32InitReal              SUB32.327, &
+        Mou32SetThreshold          SUB32.329, &
+        Mou32GetThreshold          SUB32.330, &
                                             &
         Dos32MonWrite            SUB32.401, &
         Dos32MonRead             SUB32.402, &

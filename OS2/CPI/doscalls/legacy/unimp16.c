@@ -2281,30 +2281,3 @@ APIRET APIENTRY16         DOSIPROTECTSETFILESIZEL(void)
   return unimplemented(__FUNCTION__);
 }
 
-/* MouCalls */
-
-
-USHORT APIENTRY16 MOUREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryName,
-                              const ULONG flFuns)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16 MOUDEREGISTER(VOID)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-//USHORT APIENTRY16 MOUGETTHRESHOLD(THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
-USHORT APIENTRY16 MOUGETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-//USHORT APIENTRY16 MOUSETTHRESHOLD(const THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
-USHORT APIENTRY16 MOUSETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
-{
-  return unimplemented(__FUNCTION__);
-}
