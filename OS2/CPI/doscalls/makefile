@@ -20,6 +20,7 @@ srcfiles = $(p)msg$(e) &
            $(p)file$(e) &
            $(p)dosfsctl$(e) &
            $(p)memory$(e) &
+           $(p)submem$(e) &
            $(p)xcpt$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
@@ -68,6 +69,19 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16setnmphandstate$(e) &
 		   $(p)dos16killprocess$(e) &
 		   $(p)dos16setprty$(e) &
+		   $(p)dos16waitnmpipe$(e) &
+		   $(p)dos16setnmpipesem$(e) &
+		   $(p)dos16timerstart$(e) &
+		   $(p)dos16freemodule$(e) &
+		   $(p)dos16getmodhandle$(e) &
+		   $(p)dos16getmodname$(e) &
+		   $(p)dos16beep$(e) &
+		   $(p)dos16move$(e) &
+		   $(p)dos16qcurdir$(e) &
+		   $(p)dos16qnmphstate$(e) &
+		   $(p)dos16makepipe$(e) &
+		   $(p)dos16newsize$(e) &
+		   $(p)dos16editname$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
@@ -95,7 +109,7 @@ srcfiles = $(p)msg$(e) &
            $(p)kbddebug$(e) &
            $(p)MouRoute$(e) &
            $(p)moudebug$(e) &
-		$(p)nlsmsg$(e) &
+		   $(p)nlsmsg$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od

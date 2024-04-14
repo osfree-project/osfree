@@ -16,7 +16,9 @@ DLLOPT  = initglobal
 OPTIONS = manyautodata
 IMPORTS = BVSGETPTRDRAWNAME DOSCALLS.847, &
           BVSMAIN           DOSCALLS.845, &
-          BVSREDRAWSIZE     DOSCALLS.846
+          BVSREDRAWSIZE     DOSCALLS.846, &
+          DosLogWrite       DOSCALLS.1112
+		  
 EXPORTS = BVSGETPTRDRAWNAME .1 RESIDENT, &
           BVSMAIN           .3 RESIDENT, &
           BVSREDRAWSIZE     .4 RESIDENT, &
