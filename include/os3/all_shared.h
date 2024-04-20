@@ -45,5 +45,7 @@
 #include "all_querycurrentdisk.h"
 #include "all_queryfsname.h"
 #include "all_messages.h"
+#include "all_setpathinfo.h"
+#include "all_querypathinfo.h"
 
 #endif /* _ALL_SHARED_H_ */
