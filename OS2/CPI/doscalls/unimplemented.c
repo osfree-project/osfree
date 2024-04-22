@@ -15,8 +15,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-//#include "kal.h"
-
 APIRET __cdecl KalLogWrite(PSZ s);
 
 typedef struct _QMRESULT{
@@ -651,36 +649,6 @@ APIRET APIENTRY DosDeleteMuxWaitSem(HMUX hmux, HSEM hSem)
 
 
 APIRET APIENTRY DosQueryMuxWaitSem(HMUX hmux, PULONG pcSemRec, PSEMRECORD pSemRec, PULONG pflAttr)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
-                              ULONG flag,
-                              ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
-                                PPVOID ppb,
-                                ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
-                               PVOID pb,
-                               ULONG cb)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
 {
   return unimplemented(__FUNCTION__);
 }

@@ -4,6 +4,6 @@ PORT_NAME = diskcomp
 PORT_TYPE = git
 PORT_URL  = https://github.com/FDOS/diskcomp/
 PORT_REV  = 
-PORT_PATCHES  = 
+PORT_PATCHES  = diskcomp.diff
 
 !include $(%ROOT)tools/mk/port.mk

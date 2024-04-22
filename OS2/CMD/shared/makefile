@@ -2,7 +2,7 @@
 #
 # Makefile for Watcom/LIBC interface layer
 
-DIRS = msg
+DIRS = msg libs16
 PROJ = cmd_shared
 TRGT = $(PROJ).lib
 ADD_COPT = -d2 -db -i=$(MYDIR)..$(SEP)include

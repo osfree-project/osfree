@@ -15,7 +15,7 @@
 #ifndef _ALL_QUERYCURRENTDISK_H_
 #define _ALL_QUERYCURRENTDISK_H_
 
-#include <osfree.h>
+//#include <os2.h>
 
 APIRET all_QueryCurrentDisk(PSZ pszDiskName,ULONG *available);
 

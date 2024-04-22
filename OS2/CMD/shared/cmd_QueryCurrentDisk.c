@@ -15,7 +15,7 @@
 #define INCL_DOSERRORS
 #define INCL_DOSFILEMGR
 //#include <osfree.h>         
-#include <os2.h>
+//#include <os2.h>
 
 /* C standard library headers */
 #include <stdio.h>
@@ -42,7 +42,11 @@ APIRET cmd_QueryCurrentDisk(PSZ diskName,ULONG *available)
 
   if (rc)
   {
+	#ifdef __386__
     printf(all_GetSystemErrorMessage(rc));
+	#else
+    printf("%Ws", all_GetSystemErrorMessage(rc));
+	#endif
     return rc;
   };
 

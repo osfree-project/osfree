@@ -1,82 +1,59 @@
-diff -urwN dc/drive.c diskcomp/drive.c
---- dc/drive.c	2023-03-30 11:32:37.978745397 +0300
-+++ diskcomp/drive.c	2023-01-08 21:46:45.545946848 +0300
-@@ -4,56 +4,13 @@
+diff -urN contrib/drive.c contrib2/drive.c
+--- contrib/drive.c	Tue Jan 17 10:04:36 2023
++++ contrib2/drive.c	Tue Jan 17 10:36:47 2023
+@@ -4,12 +4,55 @@
  #include <stdlib.h> /* exit */
  #include <bios.h>   /* biosdisk */
  #include <mem.h>    /* memcmp */
--#ifndef __WATCOMC__
--#include <dir.h>    /* getdisk */
--#endif
-+#include <direct.h>    /* getdisk */
++#ifndef __WATCOMC__
+ #include <dir.h>    /* getdisk */
++#endif
  #include <io.h>     /* read/write with simple "unstreamed" handles */
  
  #include "md5.h"
  #include "global.h"
  #include "drive.h"
++
++#ifdef __WATCOMC__
++/* Absent in Watcom */
++int absread(int DosDrive, int nsects, int foo, void *diskReadPacket);
++#pragma aux absread =  \
++      "push bp"           \
++      "int 0x25"          \
++      "sbb ax, ax"        \
++      "popf"              \
++      "pop bp"            \
++      parm [ax] [cx] [dx] [bx] \
++      modify [si di] \
++      value [ax];
++
++int biosdisk(int cmd, int drive, int head, int track, int sector, int nsects, void *buffer)
++{
++	struct diskinfo_t di;
++	di.drive = drive;
++	di.head = head;
++	di.track = track;
++	di.sector = sector;
++	di.nsectors = nsects;
++	di.buffer = buffer;
++	return _bios_disk(cmd, &di);
++}
++
++int getdisk(void)
++{
++	unsigned drive;
++	_dos_getdrive(&drive);
++	return drive-1;
++}
++
++struct fatinfo
++{
++    char fi_sclus;           /* Sectors per cluster */
++    char fi_fatid;           /* The FAT id byte */
++    int fi_nclus;            /* Number of clusters */
++    int fi_bysec;            /* Bytes per sector */
++};
++#endif
  
--#ifdef __WATCOMC__
--/* Absent in Watcom */
--int absread(int DosDrive, int nsects, int foo, void *diskReadPacket);
--#pragma aux absread =  \
--      "push bp"           \
--      "int 0x25"          \
--      "sbb ax, ax"        \
--      "popf"              \
--      "pop bp"            \
--      parm [ax] [cx] [dx] [bx] \
--      modify [si di] \
--      value [ax];
--
--int biosdisk(int cmd, int drive, int head, int track, int sector, int nsects, void *buffer)
--{
--	struct diskinfo_t di;
--	di.drive = drive;
--	di.head = head;
--	di.track = track;
--	di.sector = sector;
--	di.nsectors = nsects;
--	di.buffer = buffer;
--	return _bios_disk(cmd, &di);
--}
--
--int getdisk(void)
--{
--	unsigned drive;
--	_dos_getdrive(&drive);
--	return drive-1;
--}
--
--struct fatinfo
--{
--    char fi_sclus;           /* Sectors per cluster */
--    char fi_fatid;           /* The FAT id byte */
--    int fi_nclus;            /* Number of clusters */
--    int fi_bysec;            /* Bytes per sector */
--};
--#endif
--
  /*
  	needed for bios calls
- */
-@@ -136,7 +93,8 @@
- 	/* check if drive given */
- 	if (drive[0] == 0)
- 	{
--		drive[0]=getdisk()+'A';
-+		//drive[0]=getdrive()+'A';
-+		drive[0]=_getdrive() - 1 +'A';
- 		drive[1]=drive[0];
- 	}
- 
-@@ -347,8 +305,8 @@
- 	diskinfo->secpertrack = 18; /* ignored anyway... */
- 	/* ignored in DOS mode */
- 
--	if ((firstdisk==false) &&
--		(memcmp(&olddiskinfo, diskinfo, sizeof(struct fatinfo))!=0))
-+	if ((firstdisk==false) &&		     //struct fatinfo
-+		(memcmp(&olddiskinfo, diskinfo, sizeof(struct mydiskinfo))!=0))
- 	{
- 		/* if not the same format quit */
- 		PutString("Disks formats are not the same\r\n");

@@ -122,9 +122,14 @@ char * all_GetFileFromPath(char *fileMask)
 char *all_GetFullPathForFile(char *file)
 {
  char *result=(char *)calloc(1,CCHMAXPATH);    /* resulting string */
+
  APIRET rc;
 
+#ifdef __386__
  rc=DosQueryPathInfo(file,FIL_QUERYFULLNAME,result,CCHMAXPATH);
+#else
+ rc=DosQPathInfo(file,FIL_QUERYFULLNAME,result,CCHMAXPATH,0);
+#endif
  return result;
 };
 
@@ -145,13 +150,21 @@ int all_GetCurrentPath(int disk, char **ppath)
 {
  char *path=*ppath;
  char *buf=NULL;
+#ifdef __386__
  ULONG size=0;
+#else
+ USHORT size=0;
+#endif
  ULONG ulAvail;
  APIRET rc;
  PSZ pszDisk="C:";
 
  /* first ask for needed space */
+#ifdef __386__
  rc=DosQueryCurrentDir(disk,buf,&size);
+#else
+ rc=DosQCurDir(disk,buf,&size);
+#endif
  if (rc!=ERROR_BUFFER_OVERFLOW)
   return rc;
 
@@ -168,7 +181,11 @@ int all_GetCurrentPath(int disk, char **ppath)
  {
   buf=(char*)calloc(1,size+5);
   /* the trick is, we'll put disk letter in front of the dir */
+#ifdef __386__
   rc=DosQueryCurrentDir(disk,&buf[3],&size);
+#else
+  rc=DosQCurDir(disk,&buf[3],&size);
+#endif
   if (rc)
   {
    free(buf);
@@ -183,7 +200,11 @@ int all_GetCurrentPath(int disk, char **ppath)
  {
   if (path!=NULL) free(path);
   path=(char *)calloc(1,5);
+#ifdef __386__
   strcpy(path,pszDisk);
+#else
+  _fstrcpy(path,pszDisk);
+#endif
   strcat(path,"\\");
   *ppath=path;
  };

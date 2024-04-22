@@ -14,7 +14,8 @@
 #ifndef _ALL_DLIST_H_
 #define _ALL_DLIST_H_
 
-#include <osfree.h>
+//#include <os2.h>
+
 /* C standard library headers */
 #include <stdlib.h>
 

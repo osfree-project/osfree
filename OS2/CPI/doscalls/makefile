@@ -20,6 +20,7 @@ srcfiles = $(p)msg$(e) &
            $(p)file$(e) &
            $(p)dosfsctl$(e) &
            $(p)memory$(e) &
+           $(p)submem$(e) &
            $(p)xcpt$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
@@ -49,6 +50,38 @@ srcfiles = $(p)msg$(e) &
            $(p)dos16setverify$$(e) &
            $(p)dos16rmdir$$(e) &
            $(p)dos16selectdisk$(e) &
+           $(p)dos16truegetmessage$(e) &
+		   $(p)dos16putmessage$(e) &
+		   $(p)dos16entercritsec$(e) &
+		   $(p)dos16exitcritsec$(e) &
+		   $(p)dos16purgequeue$(e) &
+		   $(p)dos16closequeue$(e) &
+		   $(p)dos16protectclose$(e) &
+		   $(p)dos16freespinlock$(e) &
+		   $(p)dos16findclose$(e) &
+		   $(p)dos16setmaxfh$(e) &
+		   $(p)dos16error$(e) &
+		   $(p)dos16setcp$(e) &
+		   $(p)dos16setproccp$(e) &
+		   $(p)dos16copy$(e) &
+		   $(p)dos16connectnmpipe$(e) &
+		   $(p)dos16disconnectnmpipe$(e) &
+		   $(p)dos16setnmphandstate$(e) &
+		   $(p)dos16killprocess$(e) &
+		   $(p)dos16setprty$(e) &
+		   $(p)dos16waitnmpipe$(e) &
+		   $(p)dos16setnmpipesem$(e) &
+		   $(p)dos16timerstart$(e) &
+		   $(p)dos16freemodule$(e) &
+		   $(p)dos16getmodhandle$(e) &
+		   $(p)dos16getmodname$(e) &
+		   $(p)dos16beep$(e) &
+		   $(p)dos16move$(e) &
+		   $(p)dos16qcurdir$(e) &
+		   $(p)dos16qnmphstate$(e) &
+		   $(p)dos16makepipe$(e) &
+		   $(p)dos16newsize$(e) &
+		   $(p)dos16editname$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
@@ -76,16 +109,19 @@ srcfiles = $(p)msg$(e) &
            $(p)kbddebug$(e) &
            $(p)MouRoute$(e) &
            $(p)moudebug$(e) &
+		   $(p)nlsmsg$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
-ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib
+ADD_ASMOPT  = -I=$(%OS2TK)$(SEP)inc -I=$(MYDIR)..$(SEP)macrolib -I=$(PATH)
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata OPTION CASEEXACT
 # UNI2H = 1
 JWASM   = 1
+
+DIRS = nls
 
 IMPORTS = &
         _KalAllocMem             KAL.KalAllocMem, &
@@ -1285,6 +1321,28 @@ DEST    = os2$(SEP)dll
 .asm: $(ROOT)shared$(SEP)kbd
 .asm: $(ROOT)shared$(SEP)bms
 .asm: $(ROOT)shared$(SEP)bks
+.asm: $(PATH)
+
+$(PATH)nlsmsg.obj: nlsmsg.asm $(PATH)msg.inc
+
+$(PATH)msg.inc: $(PATH)$(PROJ).txt
+  mkmsgf.exe -A -I$(MYDIR)$(PS)$(%OS2TK)$(SEP)inc $[@ $^@
+
+$(PATH)$(PROJ).txt: $(PATH)$(PROJ).ext
+  msgextrt.exe $< $^@
+
+#$(PATH)$(PROJ).ext: $(PROJ)msg.asm
+#  msgprof $(PROJ).asm > $(PROJ).ext
+
+$(PATH)$(PROJ).ext: .symbolic
+ @%create $^@
+ @%append $^@ >$(PROJ).asm
+ @%append $^@ <$(%ROOT)build$(SEP)bin$(SEP)os2$(SEP)system$(SEP)oso001.msg
+ @%append $^@ DOS0317
+ @%append $^@ DOS0318
+ @%append $^@ DOS0319
+ @%append $^@ DOS0320
+ @%append $^@ DOS0321
 
 # <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
 # <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)

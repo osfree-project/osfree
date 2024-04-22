@@ -35,7 +35,11 @@ PSZ all_GetSystemErrorMessage(ULONG ulRc)
 {
   APIRET  rc;
   CHAR    szErrorMessage[1000];
+#ifdef __386__
   ULONG   cbErrorMessage = 0;
+#else
+  USHORT  cbErrorMessage = 0;
+#endif
 
   rc=DosGetMessage(NULL, 0,szErrorMessage, sizeof(szErrorMessage),
                   ulRc,
@@ -64,11 +68,15 @@ PSZ all_GetSystemErrorMessage(ULONG ulRc)
    @return Pointer to PSZ containing explaination or information that it
            couldn't be retrieved
 */
-PSZ all_GetSystemErrorHelp(ULONG ulRc)
+PSZ FAR all_GetSystemErrorHelp(ULONG ulRc)
 {
   APIRET  rc;
   CHAR    szErrorMessage[4000];
+#ifdef __386__
   ULONG   cbErrorMessage = 0;
+#else
+  USHORT  cbErrorMessage = 0;
+#endif
 
   rc=DosGetMessage(NULL, 0,szErrorMessage, sizeof(szErrorMessage),
                   ulRc,
@@ -183,7 +191,11 @@ void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],va_list vlArg
    };
 
   pszArgTable[i]=(PSZ)calloc(strlen(buffer)+1,1);
+#ifdef __386__
   strcpy(pszArgTable[i],buffer);
+#else
+  _fstrcpy(pszArgTable[i],buffer);
+#endif
 
   }; //END: for (i=0;i<n;i++)
 

@@ -12,6 +12,15 @@
 #ifndef _ALL_MESSAGEIDS_H_
 #define _ALL_MESSAGEIDS_H_
 
+#if __386__
 #include <basemid.h>
+#else
+
+#define MSG_FILE_NOT_FOUND              2
+#define MSG_BAD_PARM1                   1001
+#define MSG_BAD_PARM2                   1002
+#define MSG_BAD_SYNTAX                  1003
+
+#endif
 
 #endif /* _ALL_MESSAGEIDS_H_ */

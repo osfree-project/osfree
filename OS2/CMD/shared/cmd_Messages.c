@@ -14,12 +14,11 @@
 
 #define INCL_DOSERRORS
 #define INCL_DOSMISC
-//#include <osfree.h>
-#include <os2.h>
 
 /* C standard library headers */
 #include <string.h>
 #include <stdio.h>
+#include <malloc.h>
 
 #include <cmd_shared.h> /* comand line tools' shared functions and defines */
 
@@ -51,13 +50,23 @@
 int cmd_prntmsg(PCHAR *pTable, ULONG cTable, ULONG ulMsgID,PSZ pszFileName)
 {
     UCHAR   pBuf[MAX_MESSAGE] = "";
+#ifdef __386__
     ULONG   cbMsgL;
+#else
+    USHORT   cbMsgL;
+#endif
     APIRET  ulrc;
 
     ulrc = DosGetMessage(pTable, cTable, pBuf, sizeof(pBuf), ulMsgID, pszFileName, &cbMsgL);
 
     if (ulrc != NO_ERROR) 
+	{
+		#ifdef __386__
         printf(all_GetSystemErrorMessage(ulrc));
+		#else
+        printf("%Ws", all_GetSystemErrorMessage(ulrc));
+		#endif
+	}
     else
         printf("%s", pBuf);
 
@@ -151,6 +160,10 @@ void __cdecl cmd_vShowMessage(PSZ pszFileName,ULONG ulMsgID,ULONG ulParams,va_li
   cmd_prntmsg(argTable,ulParams,ulMsgID,pszFileName);
 
   for (i=0;i<ulParams;i++)
+#ifdef __386__
    free(argTable[i]);
+#else
+   _ffree(argTable[i]);
+#endif
 };
 

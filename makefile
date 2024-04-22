@@ -14,6 +14,7 @@ DIRS = tools &
        bootseq &
        DOS &
        OS2 &
+	   dual &
        SOM
 
 !include $(%ROOT)tools/mk/all.mk

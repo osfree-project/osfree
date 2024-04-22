@@ -39,3 +39,6 @@
 [submodule "shared"]
 	path = shared
 	url = https://github.com/osfree-project/SUB
+[submodule "dual"]
+	path = dual
+	url = https://github.com/osfree-project/FamilyApp

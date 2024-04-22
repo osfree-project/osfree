@@ -15,7 +15,7 @@
 #define INCL_DOSFILEMGR
 #define INCL_DOSERRORS
 //#include <osfree.h>
-#include <os2.h>
+//#include <os2.h>
 
 #include <cmd_shared.h> /* comand line tools' shared functions and defines */
 
@@ -31,9 +31,15 @@
 */
 int cmd_SetCurrentDisk(int disk)
 {
+	#ifdef __386___
  ULONG rc;
 
  rc=DosSetDefaultDisk(disk);
+	#else
+ USHORT rc;
+
+ rc=DosSelectDisk(disk);
+	#endif
  if (rc) 
   cmd_ShowSystemMessage(rc,0);
  return rc;

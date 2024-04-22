@@ -18,7 +18,7 @@
 #include <stdarg.h>
 
 PSZ all_GetSystemErrorMessage(ULONG ulRc);
-PSZ all_GetSystemErrorHelp(ULONG ulRc);
+PSZ FAR all_GetSystemErrorHelp(ULONG ulRc);
 void __cdecl all_prepareArgTable(ULONG ulParams,PSZ pszArgTable[],...);
 void __cdecl all_vprepareArgTable(ULONG ulParams,PSZ pszArgTable[],
                                   va_list args);
