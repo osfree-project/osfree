@@ -17,6 +17,7 @@ srcfiles = $(p)win1$(e)
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 WINDOWCOMPAT = 1
 ADD_COPT    = -bm -od -mf -sg -d2 -mf
+CXX = 1
 DEST        = os2$(SEP)test
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk

@@ -814,11 +814,11 @@ VOID SetFont(void)
    fontDlg.clrBack      = lClrBackground; /* Selected background color       */
    fontDlg.ulUser       = 0;              /* Blank field for application     */
    fontDlg.lReturn      = 0;              /* Return Value of the Dialog      */
-   fontDlg.lSRC;                          /* System return code.             */
+   fontDlg.lSRC			= 0;              /* System return code.             */
    fontDlg.lEmHeight    = 0;              /* Em height of the current font   */
    fontDlg.lXHeight     = 0;              /* X height of the current font    */
    fontDlg.lExternalLeading = 0;          /* External Leading of font        */
-   fontDlg.hMod;                          /* Module to load custom template  */
+   fontDlg.hMod         = 0;              /* Module to load custom template  */
                                           /* Nominal Point Size of font      */
    fontDlg.sNominalPointSize = fontMetrics.sNominalPointSize;
    fontDlg.usWeight = fontMetrics.usWeightClass; /* The boldness of the font */
@@ -827,7 +827,7 @@ VOID SetFont(void)
    fontDlg.y            = 0;              /* Y coordinate of the dialog      */
    fontDlg.usDlgId      = IDD_FONT;       /* ID of a custom dialog template  */
    fontDlg.usFamilyBufLen = sizeof(szFamily); /*Length of family name buffer */
-   fontDlg.fAttrs;                        /* Font attribute structure        */
+   fontDlg.fAttrs;              /* Font attribute structure        */
 
    /*
     *   Bring up the standard Font Dialog

@@ -14,8 +14,7 @@ ADD_COPT    = -i=$(%ROOT)include$(SEP)os3 -i=$(BLD)include -ox
 NODEFAULTLIBS = 1
 #    $(BLD)$(SEP)lib$(SEP)os2386.lib,
 #   clibext.lib,
-ADD_LINKOPT = lib os2386.lib, clib3r.lib, math387r.lib, emu387.lib #, sub32.lib
-#ADD_LINKOPT =
+ADD_LINKOPT = lib os2386.lib, clib3r.lib, math387r.lib, emu387.lib, all_shared.lib
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 # RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8

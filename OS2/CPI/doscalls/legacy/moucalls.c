@@ -26,8 +26,8 @@ USHORT APIENTRY Mou32DrawPtr(const HMOU hmou);
 USHORT APIENTRY Mou32SetDevStatus(const PUSHORT pfsDevStatus, const HMOU hmou);
 USHORT APIENTRY Mou32InitReal(const PSZ str);
 USHORT APIENTRY Mou32Synch(const USHORT pszDvrName);
-//USHORT APIENTRY Mou32GetThreshold(THRESHOLD * pthreshold, const HMOU hmou);
-//USHORT APIENTRY Mou32SetThreshold(const PTHRESHOLD pthreshold, const HMOU hmou);
+USHORT APIENTRY Mou32GetThreshold(VOID * pthreshold, const HMOU hmou);
+USHORT APIENTRY Mou32SetThreshold(const VOID * pthreshold, const HMOU hmou);
 USHORT APIENTRY Mou32Register(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFuns);
 
 // 16->32 wrappers
@@ -150,12 +150,29 @@ APIRET16 APIENTRY16 MOUSYNCH(USHORT a)
 //USHORT APIENTRY16 MOUGETTHRESHOLD(THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
 APIRET16 APIENTRY16 MOUGETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
 {
-  return unimplemented(__FUNCTION__);
+  return Mou32GetThreshold(pthreshold, hmou);
 }
-
 
 //USHORT APIENTRY16 MOUSETTHRESHOLD(const THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
 APIRET16 APIENTRY16 MOUSETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
+{
+  return Mou32SetThreshold(pthreshold, hmou);
+}
+
+// fix prototype !!! (undoc)
+APIRET16 APIENTRY16 MOUSHELLINIT(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+// fix prototype !!! (undoc)
+APIRET16 APIENTRY16 MOUGETHOTKEY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+// fix prototype !!! (undoc)
+APIRET16 APIENTRY16 MOUSETHOTKEY(void)
 {
   return unimplemented(__FUNCTION__);
 }

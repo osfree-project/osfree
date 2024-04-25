@@ -29,7 +29,6 @@ $(p)menu$(e) &
 $(p)Volume_Manager$(e)
 
 ADD_COPT = -dNDEBUG -i=$(MYDIR)contrib$(SEP)include -3s # -ecs
-#ADD_LINKOPT = lib clib3r
 #UNI2H  = 1
 C      = s
 

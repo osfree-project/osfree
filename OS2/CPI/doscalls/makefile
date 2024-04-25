@@ -1326,10 +1326,12 @@ DEST    = os2$(SEP)dll
 $(PATH)nlsmsg.obj: nlsmsg.asm $(PATH)msg.inc
 
 $(PATH)msg.inc: $(PATH)$(PROJ).txt
-  mkmsgf.exe -A -I$(MYDIR)$(PS)$(%OS2TK)$(SEP)inc $[@ $^@
+  $(verbose)$(SAY) MKMSGF   $^.
+  $(verbose)$(MC) -Q -A -I$(MYDIR)$(PS)$(%OS2TK)$(SEP)inc $[@ $^@
 
 $(PATH)$(PROJ).txt: $(PATH)$(PROJ).ext
-  msgextrt.exe $< $^@
+  $(verbose)$(SAY) MSGEXTRT $^.
+  $(verbose)$(ME) $< $^@
 
 #$(PATH)$(PROJ).ext: $(PROJ)msg.asm
 #  msgprof $(PROJ).asm > $(PROJ).ext

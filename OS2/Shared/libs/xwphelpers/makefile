@@ -66,19 +66,20 @@ $(p)xmltok$(e) &
 $(p)exeh$(e) &
 $(p)nls$(e) &
 $(p)dosh2$(e)
-#$(p)dialog$(e)
 
 
-ADD_COPT = -ecs -dNDEBUG
+
+ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)contrib$(SEP)include #-DOS2_INCLUDED
 ADD_LINKOPT = lib clib3r
 IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
        WinGetFrameTreePPs PMWIN.973
 
-#UNI2H = 1
+UNI2H = 0
 
 !include $(%ROOT)tools/mk/libsos2.mk
 
 .c: $(MYDIR)contrib$(SEP)src$(SEP)helpers
+
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
