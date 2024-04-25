@@ -1,4 +1,5 @@
 @echo off
+set debug=yes
 set root=.
 :loop
 if exist "%root%\tools\mk\all.mk" goto found

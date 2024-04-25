@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         ProgError(rc, "MSGEXTRT: MSG Header read error");
 
     // display info on screen
-    displayinfo(&messageinfo);
+    if (messageinfo.verbose) displayinfo(&messageinfo);
 
     // write out header
     rc = outputheader(&messageinfo);
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 	DestroyList(&messageinfo.msgids, FALSE, &dlrc);
 
     // if you don't see this then I screwed up
-    printf("\nEnd Decompile\n");
+    if (messageinfo.verbose) printf("\nEnd Decompile\n");
 
     return (MKMSG_NOERROR);
 }

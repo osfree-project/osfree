@@ -10,7 +10,7 @@ CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 
 !include $(%ROOT)/tools/mk/dirs.mk
 
-ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
+ADD_COPT   = -bt=os2 -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
 !ifneq C s
 # stack calling convention
@@ -21,31 +21,36 @@ C = r
 
 # generated uni2h headers
 
-ADD_COPT   += -bt=os2 -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%OS2TK)$(SEP)h &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
-
-!ifneq NOLIBS 1
-ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
-               $(%OS2TK)$(SEP)lib$(SEP)clibext$(C).lib,$(BLD)lib$(SEP)sub32.lib, &
-!ifeq CXX 1
-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
-!endif
-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3$(C).lib, &
-               $(%OS2TK)$(SEP)lib$(SEP)os2386.lib, &
-               rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
-
-!endif
+ADD_COPT   += -i=$(%ROOT)$(SEP)build$(SEP)include &
+              -i=$(%OS2TK)$(SEP)h &
+              -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !else
 
 # use Watcom headers
 
-ADD_COPT    +=         -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_COPT    += -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !endif
+
+!ifneq NOLIBS 1
+ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
+!ifeq UNI2H 1
+               $(%OS2TK)$(SEP)lib$(SEP)clibext$(C).lib, &
+               $(%OS2TK)$(SEP)lib$(SEP)os2386.lib, &
+			   $(BLD)lib$(SEP)sub32.lib, &
+!else
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)os2386.lib, &
+!endif
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3$(C).lib, &
+               rexx.lib,$(BLD)lib$(SEP)pdcurses.lib, &
+               $(BLD)lib$(SEP)all_shared.lib 
+!endif
+
+#!ifeq CXX 1
+#!endif
 
 ADD_RCOPT    =         -bt=os2 $(ADD_RCOPT)
 
@@ -74,16 +79,6 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)lvmtk &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)xwphelpers
 
-###
-!ifeq NOLIBS 1
-ADD_LINKOPT +=        # OPTION REDEFSOK
-!else
-ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared.lib, &
-		      $(BLD)lib$(SEP)all_shared.lib # op  internalrelocs  OPTION REDEFSOK
-!endif
-
-
-###
 
 .rc.res: .AUTODEPEND
  @$(SAY) RESCMP   $^.
@@ -171,9 +166,6 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
 !endif
 !ifdef OPTIONS
  @%append $^@ OPTION $(OPTIONS)
-!endif
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
 !endif
 !ifdef STUB
  @%append $^@ OPTION STUB=$(STUB)

@@ -16,6 +16,7 @@ DEST     = os2$(SEP)mdos
 
 !include $(%ROOT)/tools/mk/all.mk
 
+
 !ifeq COM 1
 comf = com
 !else ifeq RAW 1
@@ -46,14 +47,8 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
 !else
  @%append $^@ NAME $^*
 !endif
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
-!endif
  @%append $^@ libpath %WATCOM%/lib286
  @%append $^@ libpath %WATCOM%/lib286/dos
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
-!endif
 !ifneq NOLIBS 1
 !ifeq COM 1
  @%append $^@ libfile cstart_t.obj
