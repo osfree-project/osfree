@@ -22,7 +22,7 @@ WGET=`which wget`
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45
-INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
+INCLUDE=$watcom/h:$watcom/h/dos
 LIB=$watcom/lib386:$watcom/lib386/dos:$watcom/lib286:$ROOT/lib
 PATH=$OS2TK/bin:$OS2TK/som/bin:$TOOLS:$watcom/binl:$FPCPATH:$ROOT:$PATH
 WD_PATH=$watcom/binl

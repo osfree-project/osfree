@@ -3,8 +3,8 @@
 DEST = host$(SEP)$(%HOST)$(SEP)$(DEST)
 
 !ifeq %OS OS2
-OPTS =
-defs = $(%WATCOM)$(SEP)h$(SEP)os2
+OPTS = -bt=os2 -d_PLATFORM_OS2_
+defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
@@ -23,8 +23,8 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS LINUX
-OPTS =
-defs = $(%WATCOM)$(SEP)lh
+OPTS = -bt=linux -d_PLATFORM_UNIX_ -d_PLATFORM_X11_ -dUSE_THREADS -dUSE_PTHREADS
+defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
 
@@ -32,7 +32,7 @@ ADD_LINKOPT = lib clib3r
 
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 
 ADD_LINKOPT = lib clib3r
-OPTS = -bt=os2
+OPTS = -bt=os2 -d_PLATFORM_OS2_
 
 !endif
 
