@@ -1,0 +1,65 @@
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Tue Apr 23 12:57:00 2024
++++ newmkmsgf/src/mkmsgf.c	Tue Apr 23 12:43:13 2024
+@@ -181,6 +181,8 @@
+ void ProgError(int exnum, char *dispmsg);
+ void displayinfo(MESSAGEINFO *messageinfo);
+ 
++uint8_t dispquiet = 0; // quiet all display - unless error
++
+ int processparams(int argc, char *argv[])
+ {
+     unsigned long rc = 0; // return code
+@@ -194,7 +196,6 @@
+ 
+     // getopt options
+     uint8_t verbose = 0;   // verbose output
+-    uint8_t dispquiet = 0; // quiet all display - unless error
+     uint8_t proclang = 0;  // lang opt processed
+ 
+     MESSAGEINFO messageinfo; // holds all the info
+@@ -378,7 +379,7 @@
+         ProgError(rc, "MKMSGF: MSG header setup error");
+ 
+     // display info on screen
+-    displayinfo(&messageinfo);
++    if (!dispquiet) displayinfo(&messageinfo);
+ 
+ 	if (messageinfo.asm_format_output||messageinfo.c_format_output)
+ 	{
+@@ -424,7 +425,7 @@
+ 	}
+ 
+     // if you don't see this then I screwed up
+-    printf("\nEnd compile\n");
++    if (!dispquiet) printf("\nEnd compile\n");
+ 
+ 	return(0);
+ }
+@@ -470,8 +471,6 @@
+ 		{
+ 			getline(&line, &line_size, file);
+ 			if (feof(file)) break;
+-			printf("%s\n",line);
+-			flushall();
+ 			enum { kMaxArgs = 64 };
+ 			int fakeargc = 0;
+ 			char *fakeargv[kMaxArgs];
+@@ -933,7 +932,7 @@
+ 		FALSE,
+ 		&rc);
+ 
+-    printf("Done\n");
++    if (!dispquiet) printf("Done\n");
+ 
+     // close up and get out
+     fclose(fpo);
+@@ -1194,7 +1193,7 @@
+         fwrite(&extenblock, sizeof(uint32_t), 1, fpo);
+     }
+ 
+-    printf("Done\n");
++    if (!dispquiet) printf("Done\n");
+ 
+     // close up and get out
+     fclose(fpo);

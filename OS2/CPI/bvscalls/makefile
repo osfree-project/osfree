@@ -9,7 +9,7 @@ TRGT        = $(PROJ).dll
 DESC        = Base Video Subsystem API
 srcfiles = $(p)dllstart$(e) &
            $(p)bvs32main$(e)
-ADD_COPT    = -i=..\include
+ADD_COPT    = -I=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal

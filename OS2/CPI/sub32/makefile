@@ -16,7 +16,7 @@ srcfiles    = $(p)emx_revision$(e) &
               $(p)kbd$(e) &
               $(p)strnlen$(e) &
               $(p)unimplemented$(e)
-ADD_COPT    = -s
+ADD_COPT    = -s -I=$(MYDIR)..$(SEP)include
 # Can't find  ,cmd_shared.lib
 ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib clib3r
 NOLIBS  = 1

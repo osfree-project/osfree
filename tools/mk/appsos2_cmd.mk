@@ -3,4 +3,8 @@
 
 !include $(%ROOT)/tools/mk/appsos2.mk
 
+!ifneq NOLIBS 1
+ADD_LINKOPT += lib $(BLD)lib$(SEP)cmd_shared.lib 
+!endif
+
 !endif

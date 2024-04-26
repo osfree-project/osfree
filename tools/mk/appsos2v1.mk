@@ -10,13 +10,15 @@
 
 ADD_COPT    = $(ADD_COPT) -d__OS2__ -bt=os2v1 -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
-#ADD_LINKOPT = $(ADD_LINKOPT) OPTION REDEFSOK # lib clibs.lib,os2.lib
-
 !ifeq NOLIBS 1
-ADD_LINKOPT +=        # OPTION REDEFSOK
+ADD_LINKOPT +=        
 !else
 ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared16.lib, &
 		      $(BLD)lib$(SEP)all_shared16.lib
+!ifdef DEBUG
+ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
+!endif
+
 !endif
 
 !ifndef DEST
@@ -67,9 +69,6 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
 !endif
 !ifdef OPTIONS
  @%append $^@ OPTION $(OPTIONS)
-!endif
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
 !endif
 !ifdef STUB
  @%append $^@ OPTION STUB=$(STUB)

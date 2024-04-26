@@ -75,7 +75,6 @@ COPT      = $(C_DEFS) -q  &
             -i=$(PATH)  -i=$(PATH).. $(ADD_COPT)
 COPT_LAST = $(DEFINES_LAST)
 
-#            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT) -q
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
@@ -136,7 +135,7 @@ PC        = ppc386
 !ifeq %ARCH amd64
 PC        = ppcx64
 !endif
-PCOPT     = -l- -Sg2h $(ADD_PCOPT)
+PCOPT     = -v0 -l- -Sg2h $(ADD_PCOPT)
 
 DD        = dd
 
@@ -145,6 +144,7 @@ AWK       = awk
 DOX       = doxygen
 
 MC        = mkmsgf.exe
+ME        = msgextrt.exe
 
 HC        = wipfc
 
@@ -269,6 +269,13 @@ verbose=$(%VERBOSE)
 verbose=
 !else
 verbose=@
+!endif
+
+DEBUG=$(%DEBUG)
+!ifeq DEBUG yes
+DEBUG=all
+!else
+!undef DEBUG
 !endif
 
 !ifndef OBJS16
@@ -599,6 +606,10 @@ gen_deps_wrapper: .symbolic
 
 !ifndef __port_mk__
 prep: .symbolic
+!endif
+
+!ifdef DEBUG
+ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
 !endif
 
 !endif

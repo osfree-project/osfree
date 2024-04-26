@@ -18,6 +18,7 @@ DEST     = os2$(SEP)mdos
 
 !include $(%ROOT)/tools/mk/all.mk
 
+
 ADD_COPT    +=        -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3
 
@@ -46,6 +47,10 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 #$(OBJS):: $(MYDIR)makefile
 !endif
 
+!ifdef DEBUG
+ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
+!endif
+
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
@@ -54,14 +59,8 @@ $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
 !else
  @%append $^@ NAME $^*
 !endif
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
-!endif
  @%append $^@ libpath %WATCOM%/lib286
  @%append $^@ libpath %WATCOM%/lib286/dos
-!ifdef DEBUG
- @%append $^@ DEBUG $(DEBUG)
-!endif
 !ifneq NOLIBS 1
  @%append $^@ libfile fapi.lib
 !ifeq COM 1
