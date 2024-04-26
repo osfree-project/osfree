@@ -17,8 +17,13 @@ prep: .symbolic
 
 patch: .symbolic
  $(verbose)$(SAY) PATCH    $(PORT_NAME) $(LOG)
+!ifeq %HOST linux
+ $(verbose)if [ -f $(MYDIR)patches$(SEP)fixcase.cmd ]; then &
+    $(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE); fi
+!else
  $(verbose)if exist $(MYDIR)patches$(SEP)fixcase.cmd &
-     @$(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE)
+    @$(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE)
+!endif
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PATH)
  $(verbose)for %i in ($(PORT_PATCHES)) do $(verbose)unix2dos -q -f -n $(MYDIR)patches$(SEP)%i $(PATH)%i
