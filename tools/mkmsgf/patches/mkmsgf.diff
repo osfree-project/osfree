@@ -8435,7 +8435,7 @@ diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  #include <stdlib.h>
  #include <string.h>
  #include <ctype.h>
-+#ifndef __LINUX__
++#ifndef __UNIX__
  #include <io.h>
 +#else
 +#include <dirent.h>
@@ -8844,7 +8844,7 @@ diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 -        if (_filelength(handle) <= 50000) // using 50K as pointer tripwire
 +        unsigned long size;
 +
-+#ifndef __LINUX__
++#ifndef __UNIX__
 +        size = _filelength(handle);
 +#else
 +        struct stat stat;
@@ -9448,7 +9448,7 @@ diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 +	
 +	if (messageinfo->include) strcat(dup, messageinfo->include);
 +	ev=getenv("INCLUDE");
-+#ifndef __LINUX__
++#ifndef __UNIX__
 +	if (ev) strcat(dup, ";");
 +#else
 +	if (ev) strcat(dup, ":");
@@ -9464,7 +9464,7 @@ diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 +
 +	if (dup)
 +	do {
-+#ifndef __LINUX__
++#ifndef __UNIX__
 +		p = strchr(s, ';');
 +#else
 +		p = strchr(s, ':');
@@ -9477,28 +9477,28 @@ diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
 +		
 +		if (messageinfo->asm_format_output)
 +		{
-+			strcpy(searchfiles[0], "BASEMID.INC");
-+			strcpy(searchfiles[1], "UTILMD*.INC");
++			strcpy(searchfiles[0], "basemid.inc");
++			strcpy(searchfiles[1], "utilmd*.inc");
 +		}
 +
 +		if (messageinfo->c_format_output)
 +		{
-+			strcpy(searchfiles[0], "BASEMID.H");
-+			strcpy(searchfiles[1], "UTILMD*.H");
++			strcpy(searchfiles[0], "basemid.h");
++			strcpy(searchfiles[1], "utilmd*.h");
 +		}
 +
 +		for (size_t i = 0; i < sizeof(searchfiles) / sizeof(searchfiles[0]); i++)
 +		{
 +			filename[0]=0;
 +			strcat(filename, s);
-+#ifndef __LINUX__
++#ifndef __UNIX__
 +			strcat(filename, "\\");
 +#else
 +			strcat(filename, "/");
 +#endif
 +			strcat(filename, searchfiles[i]);
 +
-+#ifndef __LINUX__
++#ifndef __UNIX__
 +			struct _finddata_t c_file;
 +			int hFile;
 +
