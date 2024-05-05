@@ -1,0 +1,23 @@
+diff -urN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Sun Apr 14 12:21:30 2024
++++ newmkmsgf/src/mkmsgf.c	Sun Apr 14 12:20:40 2024
+@@ -905,13 +905,17 @@
+ 					outlen++;
+ 					if (outlen==ASM_MSG_SIZE)
+ 					{
+-						fprintf(fpo, "'\r\n\tDB\t");
+-						if (strncmp("\r\n", readptr, 2)) fprintf(fpo, "'");
++						if (*readptr) fprintf(fpo, "'\r\n\tDB\t");
++						if (strncmp("\r\n", readptr, 2)&& *readptr) fprintf(fpo, "'");
+ 						outlen=0;
+ 					}
+ 				}
+ 
+ 			}
++
++			// If no EOL, then just close string without 0dh, 0ah
++			if (strncmp("\r\n", readptr-2, 2)) fprintf(fpo,"'");
++			
+ 			fprintf(fpo,"\r\n");
+ 
+ 			//msg_num_check++;

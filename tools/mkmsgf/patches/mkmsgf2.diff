@@ -1,0 +1,11 @@
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf2/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Wed Mar 27 10:55:26 2024
++++ newmkmsgf2/src/mkmsgf.c	Tue Mar 26 13:28:45 2024
+@@ -693,6 +693,7 @@
+ 		if ((((Param *)Parameters)->type==1)&(((Param *)Parameters)->skip==0))
+ 		{
+ 		  fprintf(((Param *)Parameters)->f, "\tDW\tEND_%s - TXT_%s - 2\r\n", Object, Object);
++		  fprintf(((Param *)Parameters)->f, "\tPUBLIC _TXT_%s\r\n_TXT_%s\tLABEL\tWORD\r\n", Object, Object);
+ 		  ((Param *)Parameters)->skip=1;
+ 		}
+ 		if ((((Param *)Parameters)->type==2)&(((Param *)Parameters)->skip==0))

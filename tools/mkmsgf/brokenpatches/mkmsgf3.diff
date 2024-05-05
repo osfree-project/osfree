@@ -1,0 +1,49 @@
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Mon Apr 08 15:57:11 2024
++++ newmkmsgf/src/mkmsgf.c	Mon Apr 08 15:54:47 2024
+@@ -690,12 +690,14 @@
+ 		char line[81]={0};
+ 		if (((Param *)Parameters)->type==0)
+ 		  fprintf(((Param *)Parameters)->f, "\tPUBLIC TXT_%s\r\nTXT_%s\tLABEL\tWORD\r\n", Object, Object);
++	  
+ 		if ((((Param *)Parameters)->type==1)&(((Param *)Parameters)->skip==0))
+ 		{
+ 		  fprintf(((Param *)Parameters)->f, "\tDW\tEND_%s - TXT_%s - 2\r\n", Object, Object);
+ 		  fprintf(((Param *)Parameters)->f, "\tPUBLIC _TXT_%s\r\n_TXT_%s\tLABEL\tWORD\r\n", Object, Object);
+ 		  ((Param *)Parameters)->skip=1;
+ 		}
++		
+ 		if ((((Param *)Parameters)->type==2)&(((Param *)Parameters)->skip==0))
+ 		{
+ 		  fprintf(((Param *)Parameters)->f, "END_%s\tLABEL\tWORD\r\n\tDB\t0\n\r", Object);
+@@ -807,7 +809,7 @@
+ 				ForEachItem(messageinfo->msgids,
+ 					&handleitem,
+ 					(ADDRESS)&p,
+-					TRUE,
++					FALSE,
+ 					&rc);
+ 
+ 				// Write out message labels
+@@ -912,17 +914,19 @@
+ 			}
+ 			fprintf(fpo,"\r\n");
+ 
+-			msg_num_check++;
++			//msg_num_check++;
+         }
+     }
+ 
+ 	// Write out message end label and NULL
+ 	p.type=2;
+ 	p.skip=0;
++	//p.num=msg_num_check;
++
+ 	ForEachItem(messageinfo->msgids,
+ 		&handleitem,
+ 		(ADDRESS)&p,
+-		TRUE,
++		FALSE,
+ 		&rc);
+ 
+     printf("Done\n");
