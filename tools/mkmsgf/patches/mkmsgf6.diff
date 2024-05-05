@@ -1,0 +1,50 @@
+diff -urN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Sun May 05 21:47:29 2024
++++ newmkmsgf/src/mkmsgf.c	Sun May 05 21:46:36 2024
+@@ -216,7 +216,11 @@
+     // is the input file first? yes, make compatable with IBM program
+     // so if the first option does not start with / or - then assume it
+     // is a filename
++#ifndef __UNIX__
+     if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
++#else
++    if (*argv[1] != '-') // first arg prefix -  ?
++#endif
+     {
+         strncpy(messageinfo.infile, argv[optind], sizeof(messageinfo.infile)-1);
+         optind++;
+@@ -226,7 +230,11 @@
+         // we know IBM format so check for output file
+         if (argc > 2)
+         {
++#ifndef __UNIX__
+             if ((*argv[2] != '-') && (*argv[2] != '/')) // first arg prefix - or / ?
++#else
++            if (*argv[2] != '-') // first arg prefix - ?
++#endif
+             {
+                 strncpy(messageinfo.outfile, argv[optind], sizeof(messageinfo.outfile)-1);
+                 optind++;
+@@ -1480,8 +1488,20 @@
+                         {
+                                 while (dp = readdir(dir))
+                                 {
+-									if (messageinfo->asm_format_output)	parseincfile(messageinfo, dp->d_name);
+-									if (messageinfo->c_format_output)	parsehfile(messageinfo, dp->d_name);
++				     char fullpath[_MAX_PATH]={0};
++                                     char *p = strchr(searchfiles[i], '.');
++                                     int pos = p - searchfiles[1];
++				     fullpath[0]=0;
++				     strcat(fullpath, s);
++				     strcat(fullpath, "/");
++				     strcat(fullpath, dp->d_name);
++                                     if ( ( (i == 0) && ! strcmp(searchfiles[i], dp->d_name)) ||
++                                          ( (i == 1) && ! strncmp(searchfiles[i], dp->d_name, pos - 1) &&
++                                                        ! strcmp(".inc", dp->d_name + pos + 1)) )
++                                     {
++									if (messageinfo->asm_format_output)	parseincfile(messageinfo, fullpath);
++									if (messageinfo->c_format_output)	parsehfile(messageinfo, fullpath);
++					}
+                                 }
+                         }
+                         closedir(dir);
