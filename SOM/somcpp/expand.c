@@ -1,4 +1,4 @@
-/*-
+f/*-
  * Copyright (c) 1998, 2002-2008 Kiyoshi Matsui <kmatsui@t3.rim.or.jp>
  * All rights reserved.
  *
