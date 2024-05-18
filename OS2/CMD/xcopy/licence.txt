@@ -1,5 +1,0 @@
- * This code used to be Copyright Vitus Jensen 1996, but I
- * don't think it's worth the trouble.  Just keep my name somewhere
- * in the records if you modify the code.  And don't charge money
- * just for copying it.
- * Autor: Vitus Jensen, can be reached via fidonet 2:2474/424
