@@ -5,7 +5,6 @@
 
 !ifndef __appsw16_mk__
 !define __appsw16_mk__
-#  -i=$(ROOT)$(SEP)DOS$(SEP)WIN16$(SEP)include 
 
 ADD_COPT = -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
 
@@ -14,8 +13,6 @@ ADD_LINKOPT += path $(WATCOM)$(SEP)lib286 &
   path $(WATCOM)$(SEP)lib286$(SEP)win &
   lib windows.lib, shell.lib #clibs.lib,windows.lib,shell.lib
 !endif
-
-#  file $(WATCOM)$(SEP)lib286$(SEP)dos$(SEP)cstart_t.obj
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos$(SEP)winos2
