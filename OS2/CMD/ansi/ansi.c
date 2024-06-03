@@ -11,6 +11,8 @@
 
    @author JMA (jma@jma.se)
 
+   @todo Add MKMSGF support (no MSGBIND yet :( )
+
 */
 
 #define INCL_DOSERRORS
@@ -19,6 +21,7 @@
 #include <os2.h>                // Include file for os/2
 #include <cmd_shared.h>         // Include file for cmd tools
 #include <string.h>
+#include <utilmd01.h>
 
 //  Constant declarations
 #define HVIO            0
@@ -41,9 +44,9 @@ int main (int argc, char* argv[], char* envp[])
                  {
                  // Display message
                  if (usAnsiState == 1)
-                    cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_ON, 0);
+                    cmd_ShowSystemMessage(MSG_ANSI_EXT_SCR_KEY_ON, 0);
                  else
-                    cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
+                    cmd_ShowSystemMessage(MSG_ANSI_EXT_SCR_KEY_OFF, 0);
                  }
               else
                  {
@@ -60,7 +63,7 @@ int main (int argc, char* argv[], char* envp[])
                   ( !(strcmpi(argv[1], "-H")) ) ||
                   ( !(strcmpi(argv[1], "-?")) ) )
               {
-                    cmd_ShowSystemMessage(cmd_MSG_ANSI_HELP, 0);
+                    cmd_ShowSystemMessage(MSG_QMARK_ANSI, 0);
               } else {
 
                 // Assume there is an error
@@ -80,9 +83,9 @@ int main (int argc, char* argv[], char* envp[])
                       {
                       // Display message
                       if (usAnsiState == 1)
-                         cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_ON, 0);
+                         cmd_ShowSystemMessage(MSG_ANSI_EXT_SCR_KEY_ON, 0);
                       else
-                         cmd_ShowSystemMessage(cmd_MSG_ANSI_EXT_SCR_KEY_OFF, 0);
+                         cmd_ShowSystemMessage(MSG_ANSI_EXT_SCR_KEY_OFF, 0);
                          }
                    else
                       {
@@ -94,14 +97,14 @@ int main (int argc, char* argv[], char* envp[])
                 else
                    {
                    // Invalid parameter
-                   cmd_ShowSystemMessage(MSG_BAD_PARM1, 0);
+                   cmd_ShowSystemMessage(MSG_ANSI_INVAL_PARA, 0);
                    }
               }
               break;
 
          default:
               // Invalid parameter
-              cmd_ShowSystemMessage(MSG_BAD_PARM1, 0);
+              cmd_ShowSystemMessage(MSG_ANSI_INVAL_PARA, 0);
               break;
          }
   return (rc);

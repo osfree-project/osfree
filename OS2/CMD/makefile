@@ -40,6 +40,7 @@ DIRS =        shared &
               vol &
               zip &
               newmbr &
+              pmseek &
               print
 
 #              diskcomp

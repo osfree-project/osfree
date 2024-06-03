@@ -35,9 +35,6 @@
 #define cmd_MSG_VOLUME_LABEL_IS         1516  /*!< The volume label in drive %1 is %2.*/
 #define cmd_MSG_CURRENT_HARD_DISK_IS    1568  /*!< The current hard disk drive is: %1 */
 
-#define cmd_MSG_ANSI_EXT_SCR_KEY_ON     1705  /*!< ANSI is on */
-#define cmd_MSG_ANSI_EXT_SCR_KEY_OFF    1706  /*!< ANSI is off */
-
 /* help screens */
 #define cmd_MSG_LABEL_HELP              3037  /*!< Help screen for label */
 #define cmd_MSG_DIR_HELP                3039  /*!< Help screen for dir */
@@ -81,7 +78,6 @@
 #define cmd_MSG_TREE_HELP               3148L /*!< Help screen for tree */
 #define cmd_MSG_UNDELETE_HELP           3149L /*!< Help screen for undelete */
 #define cmd_MSG_KEYB_HELP               8080L /*!< Help screen for keyb */
-#define cmd_MSG_ANSI_HELP               8081L /*!< Help screen for ansi */
 
 #define cmd_MSG_TREE_START              1479L /*!< Directory path listing */
 #define cmd_MSG_TREE_PATH               1480L /*!< Path:           %1 */
