@@ -1,0 +1,22 @@
+diff -urN somfree/somc/src/somc.c newsomfree/somc/src/somc.c
+--- somfree/somc/src/somc.c	Tue Jun 04 18:22:02 2024
++++ newsomfree/somc/src/somc.c	Tue Jun 04 18:10:00 2024
+@@ -23,6 +23,7 @@
+ #include <emitlib.h>
+ 
+ #include <direct.h> // _getcwd
++#include <ctype.h> // tolower, toupper
+ 
+ // Use IBM SOM 3.0 ABI for non SOMLINK functions (1) or IBM SOM 2.1 ABI (0)
+ int somtSOM30ABI=0;
+diff -urN somfree/somc/src/symtab.c newsomfree/somc/src/symtab.c
+--- somfree/somc/src/symtab.c	Tue Jun 04 18:22:02 2024
++++ newsomfree/somc/src/symtab.c	Tue Jun 04 18:10:37 2024
+@@ -22,6 +22,7 @@
+ #define global
+ #include <emitlib.h>
+ 
++#include <ctype.h> // tolower
+ 
+ #ifndef SOM_SOMC_NO_BACKCOMPAT
+ // Use IBM SOM 3.0 ABI for non SOMLINK functions (1) or IBM SOM 2.1 ABI (0)
