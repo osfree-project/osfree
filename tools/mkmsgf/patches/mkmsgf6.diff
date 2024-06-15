@@ -25,26 +25,3 @@ diff -urN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
              {
                  strncpy(messageinfo.outfile, argv[optind], sizeof(messageinfo.outfile)-1);
                  optind++;
-@@ -1480,8 +1488,20 @@
-                         {
-                                 while (dp = readdir(dir))
-                                 {
--									if (messageinfo->asm_format_output)	parseincfile(messageinfo, dp->d_name);
--									if (messageinfo->c_format_output)	parsehfile(messageinfo, dp->d_name);
-+				     char fullpath[_MAX_PATH]={0};
-+                                     char *p = strchr(searchfiles[i], '.');
-+                                     int pos = p - searchfiles[1];
-+				     fullpath[0]=0;
-+				     strcat(fullpath, s);
-+				     strcat(fullpath, "/");
-+				     strcat(fullpath, dp->d_name);
-+                                     if ( ( (i == 0) && ! strcmp(searchfiles[i], dp->d_name)) ||
-+                                          ( (i == 1) && ! strncmp(searchfiles[i], dp->d_name, pos - 1) &&
-+                                                        ! strcmp(".inc", dp->d_name + pos + 1)) )
-+                                     {
-+									if (messageinfo->asm_format_output)	parseincfile(messageinfo, fullpath);
-+									if (messageinfo->c_format_output)	parsehfile(messageinfo, fullpath);
-+					}
-                                 }
-                         }
-                         closedir(dir);

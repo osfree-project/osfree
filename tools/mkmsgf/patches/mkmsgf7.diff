@@ -1,0 +1,80 @@
+--- mkmsgf/src/mkmsgf.c		2024-06-14 00:42:19.325010080 +0000
++++ newmkmsgf/src/mkmsgf.c	2024-06-14 00:50:14.623262732 +0000
+@@ -893,8 +893,13 @@
+ 
+             // write out the current message
+ 			int outlen=0;
++                    int flag = 0;
++                    if (*readptr && *readptr != '\r' && *readptr != '\n')
++                    {
++                        flag = 1;
+ 			fprintf(fpo, "\tDB\t");
+ 			if (strncmp("\r\n", readptr, 2)) fprintf(fpo, "'");
++                    }
+ 			
+             while (*readptr)
+ 			{
+@@ -907,13 +912,18 @@
+ 				}
+ 				else 
+ 				{
+-					fputc(*readptr, fpo);
++                                        if (*readptr && *readptr != '\r' && *readptr != '\n') fputc(*readptr, fpo);
+ 					readptr++;
+ 					outlen++;
++
+ 					if (outlen==ASM_MSG_SIZE)
+ 					{
+-						if (*readptr) fprintf(fpo, "'\r\n\tDB\t");
+-						if (strncmp("\r\n", readptr, 2)&& *readptr) fprintf(fpo, "'");
++                                                if (*readptr && *readptr != '\r' && *readptr != '\n')
++                                                {
++                                                    fprintf(fpo, "'");
++                                                    fprintf(fpo, "\r\n\tDB\t'");
++                                                }
++
+ 						outlen=0;
+ 					}
+ 				}
+@@ -1484,15 +1494,38 @@
+                         DIR *dir;
+                         struct dirent *dp;
+ 
+-                        if (dir = opendir(filename))
++                        if (dir = opendir(s))
+                         {
+                                 while (dp = readdir(dir))
+                                 {
+-									if (messageinfo->asm_format_output)	parseincfile(messageinfo, dp->d_name);
+-									if (messageinfo->c_format_output)	parsehfile(messageinfo, dp->d_name);
++				     char fullpath[_MAX_PATH]={0};
++                                     char *p = strchr(searchfiles[i], '.');
++                                     int pos = p - searchfiles[1];
++                                     char *str;
++                                     if (messageinfo->asm_format_output)
++                                     {
++                                         str = ".inc";
++                                         p = strstr(dp->d_name, str);
++                                     }
++                                     if (messageinfo->c_format_output)
++                                     {
++                                         str = ".h";
++                                         p = strstr(dp->d_name, str);
++                                     }
++				     fullpath[0]=0;
++				     strcat(fullpath, s);
++				     strcat(fullpath, "/");
++				     strcat(fullpath, dp->d_name);
++                                     if ( ( (i == 0) && ! strcmp(searchfiles[i], dp->d_name)) ||
++                                          ( (i == 1) && ! strncmp(searchfiles[i], dp->d_name, 6) &&
++                                                        p > dp->d_name) )
++                                     {
++						if (messageinfo->asm_format_output)	parseincfile(messageinfo, fullpath);
++						if (messageinfo->c_format_output)	parsehfile(messageinfo, fullpath);
+                                 }
+                         }
+                         closedir(dir);
++                        }                                                                                  
+ #endif
+ 		}
+    

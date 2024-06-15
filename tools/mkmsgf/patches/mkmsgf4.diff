@@ -16,7 +16,7 @@ diff -urN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
  			}
 +
 +			// If no EOL, then just close string without 0dh, 0ah
-+			if (strncmp("\r\n", readptr-2, 2)) fprintf(fpo,"'");
++			if (flag && strncmp("\r\n", readptr-2, 2)) fprintf(fpo,"'");
 +			
  			fprintf(fpo,"\r\n");
  
