@@ -23,6 +23,9 @@ wget https://downloads.sourceforge.net/project/freepascal/Linux/3.2.2/fpc-3.2.2.
 tar xf fpc-3.2.2.i386-linux.tar
 cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
+#wget ftp://ftp.osfree.org/upload/fpc/fpc-cross.zip -d $_CWD/dist/os2
+#unzip -o "$_CWD/dist/os2/fpc-cross.zip" -d /usr/lib/fpc/3.2.2/bin/i386-win32
+#unzip -o "$_CWD/dist/os2/baseos2.zip" "units/*" -d /usr/lib/fpc/3.2.2
 for file in $_CWD/dist/os2/*.zip; do
   unzip -o $file units/* fpmkinst/* -d /usr/lib/fpc/3.2.2/
 done
