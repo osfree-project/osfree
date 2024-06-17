@@ -32,8 +32,9 @@ jobs:
                   submodules: recursive
 
             # Commit
-            #- name: Commit update
-            #  run: |
+            - name: Commit update
+              run: |
+                  git submodule update --init --recursive --force --remote
             #      git config --global user.name 'Git bot'
             #      git config --global user.email 'bot@noreply.github.com'
             #      git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
