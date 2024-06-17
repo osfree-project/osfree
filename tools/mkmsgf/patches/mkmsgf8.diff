@@ -1,20 +1,20 @@
---- mkmsgf/src/mkmsgf.c		2024-06-17 10:35:54.350456193 +0000
-+++ mkmsgf-new/src/mkmsgf.c	2024-06-17 10:31:30.929552848 +0000
-@@ -893,36 +893,42 @@
+--- mkmsgf/src/mkmsgf.c	2024-06-17 11:17:48.276876744 +0000
++++ mkmsgf-new/src/mkmsgf.c	2024-06-17 11:17:05.089385083 +0000
+@@ -893,36 +893,41 @@
  
              // write out the current message
  			int outlen=0;
 -                    int flag = 0;
 -                    if (*readptr && *readptr != '\r' && *readptr != '\n')
-+            if (*readptr)
-                     {
+-                    {
 -                        flag = 1;
  			fprintf(fpo, "\tDB\t");
 -			if (strncmp("\r\n", readptr, 2)) fprintf(fpo, "'");
-+	        if ((readptr[0] != '\r' || readptr[1] != '\n') &&
-+                    readptr[0] != '\n' && readptr[0] != '\r')
-+                    fprintf(fpo, "'");
-                     }
+-                    }
++	    if ((readptr[0] != '\r' || readptr[1] != '\n') &&
++                readptr[0] != '\n' && readptr[0] != '\r' &&
++                readptr[0])
++                fprintf(fpo, "'");
  			
              while (*readptr)
  			{
@@ -46,21 +46,22 @@
 +						fprintf(fpo, "'\r\n\tDB\t");
 +
 +						if ((readptr[0] != '\r' || readptr[1] != '\n') &&
-+                                                    readptr[0] != '\n' && readptr[0] != '\r')
++                                                    readptr[0] != '\n' && readptr[0] != '\r' &&
++                                                    readptr[0])
                                                      fprintf(fpo, "'");
 -                                                    fprintf(fpo, "\r\n\tDB\t'");
 -                                                }
  
  						outlen=0;
  					}
-@@ -931,7 +937,10 @@
+@@ -931,7 +936,10 @@
  			}
  
  			// If no EOL, then just close string without 0dh, 0ah
 -			if (flag && strncmp("\r\n", readptr-2, 2)) fprintf(fpo,"'");
-+			if (*readptr &&
-+                            (readptr[-2] != '\r' || readptr[-1] != '\n') &&
-+                            readptr[-1] != '\n' && readptr[-1] != '\r')
++			if ((readptr[-2] != '\r' || readptr[-1] != '\n') &&
++                            readptr[-1] != '\n' && readptr[-1] != '\r' &&
++                            readptr[-2] && readptr[-1])
 +                            fprintf(fpo,"'");
  			
  			fprintf(fpo,"\r\n");
