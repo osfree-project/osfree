@@ -1,6 +1,6 @@
---- mkmsgf/src/mkmsgf.c	2024-06-17 11:17:48.276876744 +0000
-+++ mkmsgf-new/src/mkmsgf.c	2024-06-17 11:17:05.089385083 +0000
-@@ -893,36 +893,41 @@
+--- mkmsgf/src/mkmsgf.c	2024-06-17 11:39:57.809224572 +0000
++++ mkmsgf-new/src/mkmsgf.c	2024-06-17 11:39:01.725884951 +0000
+@@ -893,36 +893,40 @@
  
              // write out the current message
  			int outlen=0;
@@ -12,8 +12,7 @@
 -			if (strncmp("\r\n", readptr, 2)) fprintf(fpo, "'");
 -                    }
 +	    if ((readptr[0] != '\r' || readptr[1] != '\n') &&
-+                readptr[0] != '\n' && readptr[0] != '\r' &&
-+                readptr[0])
++                readptr[0] != '\n' && readptr[0] != '\r')
 +                fprintf(fpo, "'");
  			
              while (*readptr)
@@ -43,7 +42,7 @@
  					{
 -                                                if (*readptr && *readptr != '\r' && *readptr != '\n')
 -                                                {
-+						fprintf(fpo, "'\r\n\tDB\t");
++						if (*readptr) fprintf(fpo, "'\r\n\tDB\t");
 +
 +						if ((readptr[0] != '\r' || readptr[1] != '\n') &&
 +                                                    readptr[0] != '\n' && readptr[0] != '\r' &&
@@ -54,14 +53,13 @@
  
  						outlen=0;
  					}
-@@ -931,7 +936,10 @@
+@@ -931,7 +935,9 @@
  			}
  
  			// If no EOL, then just close string without 0dh, 0ah
 -			if (flag && strncmp("\r\n", readptr-2, 2)) fprintf(fpo,"'");
 +			if ((readptr[-2] != '\r' || readptr[-1] != '\n') &&
-+                            readptr[-1] != '\n' && readptr[-1] != '\r' &&
-+                            readptr[-2] && readptr[-1])
++                            readptr[-1] != '\n' && readptr[-1] != '\r')
 +                            fprintf(fpo,"'");
  			
  			fprintf(fpo,"\r\n");
