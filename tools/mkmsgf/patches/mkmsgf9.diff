@@ -1,0 +1,23 @@
+diff -urwN mkmsgf/src/mkmsgf.c newmkmsgf/src/mkmsgf.c
+--- mkmsgf/src/mkmsgf.c	Wed Jun 19 09:34:25 2024
++++ newmkmsgf/src/mkmsgf.c	Wed Jun 19 09:33:19 2024
+@@ -698,16 +698,16 @@
+ 		if (((Param *)Parameters)->type==0)
+ 		  fprintf(((Param *)Parameters)->f, "\tPUBLIC TXT_%s\r\nTXT_%s\tLABEL\tWORD\r\n", Object, Object);
+ 	  
+-		if ((((Param *)Parameters)->type==1)&(((Param *)Parameters)->skip==0))
++		if ((((Param *)Parameters)->type==1))
+ 		{
+-		  fprintf(((Param *)Parameters)->f, "\tDW\tEND_%s - TXT_%s - 2\r\n", Object, Object);
++		  if (((Param *)Parameters)->skip==0) fprintf(((Param *)Parameters)->f, "\tDW\tEND_%s - TXT_%s - 2\r\n", Object, Object);
+ 		  fprintf(((Param *)Parameters)->f, "\tPUBLIC _TXT_%s\r\n_TXT_%s\tLABEL\tWORD\r\n", Object, Object);
+ 		  ((Param *)Parameters)->skip=1;
+ 		}
+ 		
+ 		if ((((Param *)Parameters)->type==2)&(((Param *)Parameters)->skip==0))
+ 		{
+-		  fprintf(((Param *)Parameters)->f, "END_%s\tLABEL\tWORD\r\n\tDB\t0\n\r", Object);
++		  fprintf(((Param *)Parameters)->f, "END_%s\tLABEL\tWORD\r\n\tDB\t0\r\n", Object);
+ 		  ((Param *)Parameters)->skip=1;
+ 		}
+ 	}
