@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 	DestroyList(&messageinfo.msgids, FALSE, &dlrc);
 
     // if you don't see this then I screwed up
-    if (messageinfo.verbose) printf("\nEnd Decompile\n");
+    if (messageinfo.verbose) printf("\r\nEnd Decompile\r\n");
 
     return (MKMSG_NOERROR);
 }
@@ -542,88 +542,88 @@ int outputheader(MESSAGEINFO *messageinfo)
     if (write_buffer == NULL)
         return (MKMSG_MEM_ERROR4);
 
-    sprintf(write_buffer, "%s\n;\n",
+    sprintf(write_buffer, "%s\r\n;\r\n",
             "; ********** MSGEXTRT Message file extracter **********");
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-    sprintf(write_buffer, "; Input filename           %s\n",
+    sprintf(write_buffer, "; Input filename           %s\r\n",
             messageinfo->infile);
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-    sprintf(write_buffer, "; MSG File Version:        %d\n",
+    sprintf(write_buffer, "; MSG File Version:        %d\r\n",
             messageinfo->version);
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-    sprintf(write_buffer, "; Component Identifier:    %c%c%c\n",
+    sprintf(write_buffer, "; Component Identifier:    %c%c%c\r\n",
             messageinfo->identifier[0],
             messageinfo->identifier[1],
             messageinfo->identifier[2]);
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-    sprintf(write_buffer, "; Number of messages:      %d\n",
+    sprintf(write_buffer, "; Number of messages:      %d\r\n",
             messageinfo->numbermsg);
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-    sprintf(write_buffer, "; First message number:    %d\n;\n",
+    sprintf(write_buffer, "; First message number:    %d\r\n;\r\n",
             messageinfo->firstmsg);
     fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
     if (messageinfo->version == 2)
     {
-        sprintf(write_buffer, "%s\n;\n",
+        sprintf(write_buffer, "%s\r\n;\r\n",
                 "; ******************* Country Info *******************");
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-        sprintf(write_buffer, "; Bytes per character:       %d\n",
+        sprintf(write_buffer, "; Bytes per character:       %d\r\n",
                 messageinfo->bytesperchar);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-        sprintf(write_buffer, "; Country Code:              %d\n",
+        sprintf(write_buffer, "; Country Code:              %d\r\n",
                 messageinfo->country);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-        sprintf(write_buffer, "; Language family ID:        %d\n",
+        sprintf(write_buffer, "; Language family ID:        %d\r\n",
                 messageinfo->langfamilyID);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-        sprintf(write_buffer, "; Language version ID:       %d\n",
+        sprintf(write_buffer, "; Language version ID:       %d\r\n",
                 messageinfo->langversionID);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-        sprintf(write_buffer, "; Number of codepages:       %d\n",
+        sprintf(write_buffer, "; Number of codepages:       %d\r\n",
                 messageinfo->codepagesnumber);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
         memset(write_buffer, 0x00, _msize(write_buffer));
         for (int x = 0; x < messageinfo->codepagesnumber; x++)
         {
-            sprintf(write_buffer, "; Codepage %d        0x%02X (%d)\n",
+            sprintf(write_buffer, "; Codepage %d        0x%02X (%d)\r\n",
                     (x + 1), messageinfo->codepages[x], messageinfo->codepages[x]);
             fwrite(write_buffer, strlen(write_buffer), 1, fpo);
         }
 
-        sprintf(write_buffer, ";\n; File name:                 %s\n",
+        sprintf(write_buffer, ";\r\n; File name:                 %s\r\n",
                 messageinfo->filename);
         fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
         if (messageinfo->extenblock)
         {
-            sprintf(write_buffer, "%s\n;\n",
-                    ";\n; ** Has an extended header **");
+            sprintf(write_buffer, "%s\r\n;\r\n",
+                    ";\r\n; ** Has an extended header **");
             fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-            sprintf(write_buffer, "; Ext header length:        %d\n",
+            sprintf(write_buffer, "; Ext header length:        %d\r\n",
                     messageinfo->extlength);
             fwrite(write_buffer, strlen(write_buffer), 1, fpo);
 
-            sprintf(write_buffer, "; Number ext blocks:        %d\n;\n",
+            sprintf(write_buffer, "; Number ext blocks:        %d\r\n;\r\n",
                     messageinfo->extnumblocks);
             fwrite(write_buffer, strlen(write_buffer), 1, fpo);
         }
         else
         {
-            sprintf(write_buffer, "%s\n;\n",
-                    ";\n; ** No an extended header **");
+            sprintf(write_buffer, "%s\r\n;\r\n",
+                    ";\r\n; ** No an extended header **");
             fwrite(write_buffer, strlen(write_buffer), 1, fpo);
         }
     }
@@ -876,7 +876,7 @@ int readmessages(MESSAGEINFO *messageinfo)
         // if -f option try to fix last line issues
         if ((current_msg == last_message) && messageinfo->fixlastline)
         {
-            printf("Last Message  Initial %d  Current %d\n", intial_len, current_msg_len);
+            printf("Last Message  Initial %d  Current %d\r\n", intial_len, current_msg_len);
         }
 
         // write the record to the output file
@@ -926,20 +926,20 @@ void usagelong(void)
 
 void helpshort(void)
 {
-    printf("\nMSGEXTRT [-v] infile.msg [outfile.[txt] ]\n\n");
+    printf("\r\nMSGEXTRT [-v] infile.msg [outfile.[txt] ]\r\n\r\n");
 }
 
 void helplong(void)
 {
-    printf("\nUse MSGEXTRT as follows:\n");
-    printf("        [-v] infile.msg [outfile.[txt] ]\n");
+    printf("\r\nUse MSGEXTRT as follows:\r\n");
+    printf("        [-v] infile.msg [outfile.[txt] ]\r\n");
 }
 
 void prgheading(void)
 {
-    printf("\nOperating System/2 Make Message File Extractor (MSGEXTRT)\n");
-    printf("Version %s  Yuri Prokushev <yuri.prokushev@gmail.com>\n", SYSLVERSION);
-    printf("Compiled with Open Watcom %d.%d  %s\n", OWMAJOR, OWMINOR, __DATE__);
+    printf("\r\nOperating System/2 Make Message File Extractor (MSGEXTRT)\r\n");
+    printf("Version %s  Yuri Prokushev <yuri.prokushev@gmail.com>\r\n", SYSLVERSION);
+    printf("Compiled with Open Watcom %d.%d  %s\r\n", OWMAJOR, OWMINOR, __DATE__);
 }
 
 /*************************************************************************
@@ -951,52 +951,51 @@ void prgheading(void)
 
 void displayinfo(MESSAGEINFO *messageinfo)
 {
-    printf("\n*********** Header Info ***********\n\n");
+    printf("\r\n*********** Header Info ***********\r\n\r\n");
 
-    printf("Input filename         %s\n", messageinfo->infile);
-    printf("Component Identifier:  %c%c%c\n", messageinfo->identifier[0],
+    printf("Input filename         %s\r\n", messageinfo->infile);
+    printf("Component Identifier:  %c%c%c\r\n", messageinfo->identifier[0],
            messageinfo->identifier[1], messageinfo->identifier[2]);
-    printf("Number of messages:    %d\n", messageinfo->numbermsg);
-    printf("First message number:  %d\n", messageinfo->firstmsg);
-    printf("OffsetID:              %d  (Offset %s)\n", messageinfo->offsetid,
+    printf("Number of messages:    %d\r\n", messageinfo->numbermsg);
+    printf("First message number:  %d\r\n", messageinfo->firstmsg);
+    printf("OffsetID:              %d  (Offset %s)\r\n", messageinfo->offsetid,
            (messageinfo->offsetid ? "uint16_t" : "uint32_t"));
-    printf("MSG File Version:      %d\n", messageinfo->version);
-    printf("Header offset:         0x%02X (%d)\n",
+    printf("MSG File Version:      %d\r\n", messageinfo->version);
+    printf("Header offset:         0x%02X (%d)\r\n",
            messageinfo->hdroffset, messageinfo->hdroffset);
-    printf("Country Info:          0x%02X (%d)\n",
+    printf("Country Info:          0x%02X (%d)\r\n",
            messageinfo->countryinfo, messageinfo->countryinfo);
-    printf("Extended Header:       0x%02X (%lu)\n",
+    printf("Extended Header:       0x%02X (%lu)\r\n",
            messageinfo->extenblock, messageinfo->extenblock);
     printf("Reserved area:         ");
     for (int x = 0; x < 5; x++)
         printf("%02X ", messageinfo->reserved[x]);
-    printf("\n");
+    printf("\r\n");
 
     if (messageinfo->reserved[0] == 0x4D &&
         messageinfo->reserved[1] == 0x4B &&
         messageinfo->reserved[2] == 0x47)
-        printf("Built with MKMSGF clone (signature):  %s\n", messageinfo->reserved);
+        printf("Built with MKMSGF clone (signature):  %s\r\n", messageinfo->reserved);
 
     if (messageinfo->version == 2)
     {
-        printf("\n*********** Country Info  ***********\n\n");
-        printf("Bytes per character:       %d\n", messageinfo->bytesperchar);
-        printf("Country Code:              %d\n", messageinfo->country);
-        printf("Language family ID:        %d\n", messageinfo->langfamilyID);
-        printf("Language version ID:       %d\n", messageinfo->langversionID);
-        printf("Number of codepages:       %d\n", messageinfo->codepagesnumber);
+        printf("\r\n*********** Country Info  ***********\r\n\r\n");
+        printf("Bytes per character:       %d\r\n", messageinfo->bytesperchar);
+        printf("Country Code:              %d\r\n", messageinfo->country);
+        printf("Language family ID:        %d\r\n", messageinfo->langfamilyID);
+        printf("Language version ID:       %d\r\n", messageinfo->langversionID);
+        printf("Number of codepages:       %d\r\n", messageinfo->codepagesnumber);
         for (int x = 0; x < messageinfo->codepagesnumber; x++)
             printf("0x%02X (%d)  ", messageinfo->codepages[x], messageinfo->codepages[x]);
-        printf("\n");
-        printf("File name:                 %s\n\n", messageinfo->filename);
+        printf("\r\nFile name:                 %s\r\n\r\n", messageinfo->filename);
         if (messageinfo->extenblock)
         {
-            printf("** Has an extended header **\n");
-            printf("Ext header length:        %d\n", messageinfo->extlength);
-            printf("Number ext blocks:        %d\n\n", messageinfo->extnumblocks);
+            printf("** Has an extended header **\r\n");
+            printf("Ext header length:        %d\r\n", messageinfo->extlength);
+            printf("Number ext blocks:        %d\r\n\r\n", messageinfo->extnumblocks);
         }
         else
-            printf("** No an extended header **\n\n");
+            printf("** No an extended header **\r\n\r\n");
     }
     return;
 }
@@ -1015,7 +1014,7 @@ void ProgError(int exnum, char *dispmsg)
 {
     char buffer[80] = {0};
 
-    sprintf(buffer, "\n%s (%d)\n", dispmsg, exnum);
+    sprintf(buffer, "\r\n%s (%d)\r\n", dispmsg, exnum);
 
     if (exnum < 0)
     {
