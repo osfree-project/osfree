@@ -1002,12 +1002,6 @@ USHORT APIENTRY16     DOS16SEARCHPATH(USHORT control, char * _Seg16 pszPath,
 }
 
 
-USHORT APIENTRY16     DOS16SCANENV(char * _Seg16 pszEnvVar, char * _Seg16 * _Seg16 ppszResult)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 // fix prototype !!! (undoc)
 USHORT APIENTRY16     DOS16QPROCSTATUS(void)
 {

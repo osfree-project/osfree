@@ -34,17 +34,18 @@
 PSZ all_GetSystemErrorMessage(ULONG ulRc)
 {
   APIRET  rc;
-  CHAR    szErrorMessage[1000];
+  CHAR    szErrorMessage[1000]={0};
 #ifdef __386__
   ULONG   cbErrorMessage = 0;
 #else
   USHORT  cbErrorMessage = 0;
 #endif
 
-  rc=DosGetMessage(NULL, 0,szErrorMessage, sizeof(szErrorMessage),
-                  ulRc,
+  rc=DosGetMessage(NULL, 0,				// Argument table is empty
+				  szErrorMessage, sizeof(szErrorMessage), // Message buffer
+                  ulRc,					// Error number
                   "OSO001.MSG",        // default OS/2 message file
-                  &cbErrorMessage);
+                  &cbErrorMessage);		// Returned message size
 
   switch (rc)
   {
@@ -52,6 +53,11 @@ PSZ all_GetSystemErrorMessage(ULONG ulRc)
       break;
     case ERROR_FILE_NOT_FOUND :
             sprintf(szErrorMessage, "SYS%04u (Message file not found!)", ulRc);
+      break;
+	  /* Error message already prepared in szErrorMessage */
+	//case ERROR_MR_CANT_FORMAT: 
+	//case ERROR_MR_READ_ERROR:
+	case ERROR_MR_INV_IVCOUNT:
       break;
     default:
             sprintf(szErrorMessage, "SYS%04u (Error %d while retrieving message text!)", ulRc, rc);

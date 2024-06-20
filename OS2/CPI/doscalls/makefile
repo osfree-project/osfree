@@ -82,6 +82,7 @@ srcfiles = $(p)msg$(e) &
 		   $(p)dos16makepipe$(e) &
 		   $(p)dos16newsize$(e) &
 		   $(p)dos16editname$(e) &
+		   $(p)dos16scanenv$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
