@@ -7,10 +7,12 @@ rem or...
 rem Install wget
 rem choco install wget --no-progress
 set wget=..\wget-win32.exe
+rem set zipurl=http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe
+set zipurl=http://stahlworks.com/dev/unzip.exe
 
 rem Download Unzip
 if not exist "%tmp%\unzip.exe" (
-  %wget% http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe -P "%tmp%" -c
+  %wget% %zipurl% -P "%tmp%" -c
   if errorlevel 1 (
     echo Error downloading unzip.exe
     goto exit
