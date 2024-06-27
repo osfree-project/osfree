@@ -1,0 +1,352 @@
+diff -urwN regina/rexxsaa.c newregina/rexxsaa.c
+--- regina/rexxsaa.c	Thu Jun 27 10:20:24 2024
++++ newregina/rexxsaa.c	Wed Jun 26 16:25:25 2024
+@@ -1970,47 +1970,341 @@
+ /* ============================================================= */
+ /* MacroSpace Rexx API interface */
+ 
++typedef struct _macro_t
++{
++	streng * name;
++	streng * tokens;
++	struct _macro_t * next;
++	int position;
++} macro_t;
++
++void DestroyInstore( char *strptr )
++{
++#if defined(REXXFREEMEMORY)
++   RexxFreeMemory( strptr );
++#elif defined(WIN32) && (defined(USE_OREXX) || defined(USE_WINREXX) || defined(USE_QUERCUS))
++   GlobalFree( strptr );
++#elif defined(USE_OS2REXX)
++   DosFreeMem( strptr );
++#else
++   free( strptr );
++#endif
++}
++
++int IfcDropMacro(tsd_t *TSD, PSZ FuncName)
++{
++   int code=0;
++   macro_t * p, * prev;
++   streng * funcname;
++
++   /* Try to find macro in macrospace */
++   if (TSD->firstmacro)
++   {
++      funcname=Str_makeTSD(strlen(FuncName)) ;
++      memcpy(funcname->value, FuncName, strlen(FuncName));
++      funcname->len = strlen(FuncName);
++
++      prev=NULL;
++      p=(macro_t *)(TSD->firstmacro);
++      while (p)
++	  {
++         if (!Str_cmp(p->name, funcname))
++		 {
++			Free_stringTSD(p->name);
++			Free_stringTSD(p->tokens);
++			if (p->next)
++			{
++				if (prev) prev->next=p->next;
++			}
++			else
++			{
++				if (prev) prev->next=NULL;
++			}
++			FreeTSD(p);
++			if (!prev) TSD->firstmacro=NULL;
++            break;
++		 }
++		 prev=p;
++	     p=p->next;
++      }
++   }
++   return code;
++}
++
++int IfcAddMacro( tsd_t *TSD, PSZ FuncName,
++                              PSZ SourceFile,
++                              ULONG Position )
++{
++   int code=0;
++   RXSTRING instore[2];
++   RXSTRING ArgList;
++   short rexxrc=0;
++   RXSTRING retstr;
++   CHAR retbuf[RXAUTOBUFLEN];
++   macro_t * p;
++
++   if ((Position == RXMACRO_SEARCH_BEFORE) || (Position == RXMACRO_SEARCH_AFTER)) 
++   {
++      /* Tokenize macro file*/
++      instore[0].strptr = NULL;
++      instore[0].strlength = 0;
++      instore[1].strptr = NULL;
++      instore[1].strlength = 0;
++
++      MAKERXSTRING( ArgList, "//T", 3 );
++      strcpy( retbuf, "" );
++      MAKERXSTRING( retstr, retbuf, sizeof( retbuf ) );
++      code = RexxStart(1,
++                  &ArgList,
++                  SourceFile,
++                  instore,
++                  "SYSTEM",
++                  RXCOMMAND,
++                  NULL,
++                  &rexxrc,
++                  &retstr);
++	  
++	  if (code)
++	  {
++         /* Try to find macro in macrospace */
++         if (TSD->firstmacro) IfcDropMacro(TSD, FuncName);
++		 
++         /* Store macro */
++         if (!TSD->firstmacro) 
++		 {
++	        TSD->firstmacro=MallocTSD(sizeof(macro_t));
++			((macro_t *)(TSD->firstmacro))->next=NULL;
++		 }
++
++         p=(macro_t *)(TSD->firstmacro);
++
++         while (p->next) p=p->next;
++
++         p->next=MallocTSD(sizeof(macro_t));
++		 p=p->next;
++		 
++         p->name=Str_makeTSD( strlen(FuncName)) ;
++         memcpy( p->name->value, FuncName, strlen(FuncName)) ;
++         p->name->len = strlen(FuncName);
++
++         p->tokens=Str_makeTSD(instore[1].strlength) ;
++         memcpy( p->tokens->value, instore[1].strptr, instore[1].strlength) ;
++         p->tokens->len = instore[1].strlength;
++		 DestroyInstore( instore[1].strptr );
++		 
++		 p->next=NULL;
++		 p->position=Position;
++	  }
++	  
++   }
++   else 
++   {
++      code = RXMACRO_INVALID_POSITION;
++   }
++
++    return code;
++}
++
+ EXPORT_C APIRET APIENTRY RexxAddMacro( PSZ FuncName,
+                               PSZ SourceFile,
+                               ULONG Position )
+ {
+-   return 0;
++   tsd_t *TSD = getGlobalTSD();
++   int code;
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++
++   code=IfcAddMacro(TSD, FuncName, SourceFile, Position );
++
++   TSD->called_from_saa = 0;
++
++   return code;
+ }
+ 
++
+ EXPORT_C APIRET APIENTRY RexxDropMacro( PSZ FuncName)
+ {
+-   return 0;
++   tsd_t *TSD = getGlobalTSD();
++   int code;
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++
++   code=IfcDropMacro(TSD, FuncName);
++
++   TSD->called_from_saa = 0;
++
++   return code;
+ }
+ 
+ EXPORT_C APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
+                                     PSZ * FuncNames,
+                                     PSZ MacroLibFile)
+ {
+-   return 0;
++   int code=0;
++   tsd_t *TSD = getGlobalTSD();
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++   // code here
++   TSD->called_from_saa = 0;
++
++   return code;
+ }
+ 
+ EXPORT_C APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
+                                     PSZ * FuncNames,
+                                     PSZ MacroLibFile)
+ {
+-   return 0;
++   int code=0;
++   tsd_t *TSD = getGlobalTSD();
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++   // code here
++   TSD->called_from_saa = 0;
++
++   return code;
+ }
+ 
+ EXPORT_C APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
+                                 PUSHORT Position )
+ {
+-   return 0;
++   int code=RXMACRO_NOT_FOUND;
++   tsd_t *TSD = getGlobalTSD();
++   macro_t * p;
++   streng * funcname;
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++
++   /* Try to find macro in macrospace */
++   if (TSD->firstmacro)
++   {
++      funcname=Str_makeTSD(strlen(FuncName)) ;
++      memcpy(funcname->value, FuncName, strlen(FuncName));
++      funcname->len = strlen(FuncName);
++
++      p=(macro_t *)(TSD->firstmacro);
++      while (p)
++	  {
++         if (!Str_cmp(p->name, funcname))
++		 {
++			code=0;
++			*Position=p->position;
++            break;
++		 }
++	     p=p->next;
++      }
++   }
++
++   TSD->called_from_saa = 0;
++ 
++   return code;
+ }
+ 
+ EXPORT_C APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
+                                   ULONG Position )
+ {
+-   return 0;
++   int code=RXMACRO_NOT_FOUND;
++   tsd_t *TSD = getGlobalTSD();
++   macro_t * p;
++   streng * funcname;
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++
++   /* Try to find macro in macrospace */
++   if (TSD->firstmacro)
++   {
++      funcname=Str_makeTSD(strlen(FuncName)) ;
++      memcpy(funcname->value, FuncName, strlen(FuncName));
++      funcname->len = strlen(FuncName);
++
++      p=(macro_t *)(TSD->firstmacro);
++      while (p)
++	  {
++         if (!Str_cmp(p->name, funcname))
++		 {
++			code=0;
++			p->position=Position;
++            break;
++		 }
++	     p=p->next;
++      }
++   }
++
++   TSD->called_from_saa = 0;
++ 
++   return code;
+ }
+ 
+ EXPORT_C APIRET APIENTRY RexxClearMacroSpace( VOID )
+ {
+-   return 0;
++   int code=0;
++   tsd_t *TSD = getGlobalTSD();
++   macro_t * p, * prev;
++   streng * funcname;
++
++   if ( TSD == NULL )
++      TSD = GLOBAL_ENTRY_POINT();
++   StartupInterface( TSD );
++
++   TSD->called_from_saa = 1;
++
++   /* Try to find macro in macrospace */
++   if (TSD->firstmacro)
++   {
++
++      prev=NULL;
++      p=(macro_t *)(TSD->firstmacro);
++      while (p)
++	  {
++		 {
++			Free_stringTSD(p->name);
++			Free_stringTSD(p->tokens);
++			if (p->next)
++			{
++				if (prev) prev->next=p->next;
++			}
++			else
++			{
++				if (prev) prev->next=NULL;
++			}
++			if (!prev)
++			{
++				FreeTSD(TSD->firstmacro);
++				break;
++			}
++		 }
++		 prev=p;
++	     p=p->next;
++         FreeTSD(prev);
++      }
++   }
++
++   TSD->called_from_saa = 0;
++
++   return code;
+ }
+ 
+ /* ============================================================= */

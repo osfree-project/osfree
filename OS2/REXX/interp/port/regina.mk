@@ -4,6 +4,6 @@ PORT_NAME = os2$(SEP)regina
 PORT_TYPE = svn
 PORT_URL  = https://svn.code.sf.net/p/regina-rexx/code/interpreter/
 PORT_REV  = tags/3.9.5/
-PORT_PATCHES  = regina.diff
+PORT_PATCHES  = regina.diff regina2.diff
 
 !include $(%ROOT)tools/mk/port.mk
