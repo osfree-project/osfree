@@ -13,14 +13,14 @@ somdeps2.exe
 somenv.cmd		+
 somhh.cmd		+
 somipc.exe		+
-somopc.exe
+somopc.exe		+
 somsetup.exe
 somstars.cmd		+
 somtempl.exe
 somtempl.ps
 somtempl.txt
 somxh.cmd		+
-spp.exe
+spp.exe			+
 
 os2tk45\som\lib
 
@@ -60,7 +60,7 @@ somr.dll
 somsa.dll
 somsi.dll
 somsn.dll
-somtk.lib
+somtk.lib		+
 
 os2tk45\som\include
 
@@ -101,11 +101,11 @@ emitlib.h		+
 emregdat.h		+
 emregdat.idl		+
 emregdat.xh		+
-emtypes.h
+emtypes.h		+
 event.h			+
 event.idl		+
 event.xh		+
-eventmsk.h
+eventmsk.h		+
 excptdef.h		+
 excptdef.idl		+
 excptdef.xh		+
@@ -336,15 +336,15 @@ somcm.idl		+
 somcm.sc
 somcm.xh		+
 somcorba.h		+
-somd.h
+somd.h			+
 somd.hh
-somd.xh
+somd.xh			+
 somdcprx.h		+
 somdcprx.idl		+
 somdcprx.xh		+
 somdebug.h
-somderr.h
-somdext.h
+somderr.h		+
+somdext.h		+
 somdobj.h		+
 somdobj.idl		+
 somdobj.xh		+
@@ -361,9 +361,9 @@ somh.hh
 somida.h		+
 somida.idl		+
 somida.xh		+
-somir.h
+somir.h			+
 somir.hh
-somir.xh
+somir.xh		+
 somitype.h
 somltype.h		+
 somnames.h		+
@@ -405,7 +405,7 @@ somrerrd.xh
 somrmcls.h
 somrmcls.idl
 somrmcls.xh
-soms.h
+soms.h			+
 soms.xh
 somsid.h		+
 somsid.idl		+
@@ -416,16 +416,16 @@ somssock.xh		+
 somstrt.h		+
 somstrt.idl		+
 somstrt.xh		+
-somtc.h
+somtc.h			+
 somtc.hh
-somtc.xh
-somtcnst.h
+somtc.xh		+
+somtcnst.h		+
 somtcnst.hh
-somtcnst.xh
+somtcnst.xh		+
 somtdbcs.c
 somtempl.app
 somtempl.cfg
-somthrd.h
+somthrd.h		+
 somtrcls.h
 somtrcls.idl
 somtrcls.xh
@@ -550,6 +550,8 @@ somap.idl
 somos.idl
 xmscssae.idl
 somtdm.idl
+emtypes.xh
+eventmsk.xh
 
 
 Directory	Name		Comments
