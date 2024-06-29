@@ -245,7 +245,12 @@ EXPORTS = somtAncestorClass.                           11, &
      somtwarnSL.                                 231, &
      somtwidenType.                              232, &
      somtwriteaccess.                            233, &
-     somtsearchFileSL
+     somtsearchFileSL, &
+     somtloadSL, &
+     somtsmallocSL, &
+     somtaddModifierSL, &
+     somtaddEntrySL, &
+     somtcreateStabSL
 #     somvalistGetTarget.                         234, &
 #     somvalistSetTarget.                         235, &
 #     tciPrintf.                                  236, &
