@@ -20,7 +20,7 @@ ADD_COPT = $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include
 ADD_LINKOPT = lib $(OS2TK)som$(SEP)lib$(SEP)somtk
 
 $(PATH)oidll.obj: .symbolic
- @$(SAY) YACC     $^. $(LOG)
+ @$(SAY) YACC     oidl.c oidl.h $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)$(DC) $^*.c $(BLACKHOLE)
@@ -29,7 +29,7 @@ $(PATH)oidll.obj: .symbolic
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
  $(verbose)yacc.exe -y -d -o $(PATH)oidl.c $(PORT_BASE)somopc$(SEP)src$(SEP)oidl.y  $(LOG2)
- @$(SAY) LEX      $^. $(LOG)
+ @$(SAY) LEX      oidll.c $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^@ $(BLACKHOLE)
 !else
@@ -40,7 +40,7 @@ $(PATH)oidll.obj: .symbolic
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$(PATH)oidll.obj $(PATH)oidll.c $(LOG2)
 
 
-$(PATH)oidl.obj: .symbolic
+$(PATH)oidl.obj: $(PATH)oidll.obj
  @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$(PATH)oidl.obj $(PATH)oidl.c $(LOG2)
 
