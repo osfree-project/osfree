@@ -1,44 +1,48 @@
 [submodule "fat"]
-	path = filesys/fat
-	url = https://github.com/osfree-project/fat32.git
-	branch = master
+        path = filesys/fat
+        url = https://github.com/osfree-project/fat32.git
+        branch = master
 [submodule "jfs"]
-	path = filesys/jfs
-	url = https://github.com/osfree-project/openjfs.git
-	branch = master
+        path = filesys/jfs
+        url = https://github.com/osfree-project/openjfs.git
+        branch = master
 [submodule "OS2/Server"]
-	path = OS2/Server
-	url = https://github.com/osfree-project/os3.git
-	branch = master
+        path = OS2/Server
+        url = https://github.com/osfree-project/os3.git
+        branch = master
 [submodule "OS2/MM/WPS"]
-	path = OS2/MM/WPS
-	url = https://github.com/osfree-project/CWMM.git
-	branch = master
+        path = OS2/MM/WPS
+        url = https://github.com/osfree-project/CWMM.git
+        branch = master
 [submodule "bootseq"]
-	path = bootseq
-	url = https://github.com/osfree-project/FreeLdr.git
-	branch = master
+        path = bootseq
+        url = https://github.com/osfree-project/FreeLdr.git
+        branch = master
 [submodule "Win32"]
-	path = Win32
-	url = https://github.com/cl91/NeptuneOS
-	branch = master
+        path = Win32
+        url = https://github.com/cl91/NeptuneOS
+        branch = master
 [submodule "OS2/WPS/xworkplace"]
-	path = OS2/WPS/xworkplace
-	url = https://github.com/rousseaux/netlabs.xworkplace
-	branch = master
+        path = OS2/WPS/xworkplace
+        url = https://github.com/rousseaux/netlabs.xworkplace
+        branch = master
 [submodule "DOS"]
-	path = DOS
-	url = https://github.com/osfree-project/DOS
-	branch = master
+        path = DOS
+        url = https://github.com/osfree-project/DOS
+        branch = master
 [submodule "OS2/CMD/rspinst/tpro"]
-	path = OS2/CMD/rspinst/tpro
-	url = https://github.com/osfree-project/tpro
+        path = OS2/CMD/rspinst/tpro
+        url = https://github.com/osfree-project/tpro
+        branch = main
 [submodule "tools/UNI"]
-	path = tools/UNI
-	url = https://github.com/osfree-project/UNI
+        path = tools/UNI
+        url = https://github.com/osfree-project/UNI
+        branch = main
 [submodule "shared"]
-	path = shared
-	url = https://github.com/osfree-project/SUB
+        path = shared
+        url = https://github.com/osfree-project/SUB
+        branch = main
 [submodule "dual"]
-	path = dual
-	url = https://github.com/osfree-project/FamilyApp
+        path = dual
+        url = https://github.com/osfree-project/FamilyApp
+        branch = main
