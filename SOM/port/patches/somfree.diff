@@ -49805,6 +49805,7 @@ diff -urN somfree/somipc2/src/rhbsctxt.cpp newsomfree/somipc2/src/rhbsctxt.cpp
 diff -urN somfree/somipc2/src/rhbsctyp.cpp newsomfree/somipc2/src/rhbsctyp.cpp
 --- somfree/somipc2/src/rhbsctyp.cpp	Thu Jan 01 07:00:00 1970
 +++ newsomfree/somipc2/src/rhbsctyp.cpp	Sun Mar 24 11:35:36 2024
+
 @@ -0,0 +1,171 @@
 +/**************************************************************************
 + *
@@ -61015,7 +61016,7 @@ diff -urN somfree/somtklib/win32/somtklib.mak newsomfree/somtklib/win32/somtklib
  $(SOMTKLIB): $(SOMLIBS)
  	if exist $@ del $@
 diff -urN somfree/somwm35i/include/optlink.h newsomfree/somwm35i/include/optlink.h
---- somfree/somwm35i/include/optlink.h	Thu Jan 01 07:00:00 1970
+-- somfree/somwm35i/include/optlink.h	Thu Jan 01 07:00:00 1970
 +++ newsomfree/somwm35i/include/optlink.h	Sun Mar 24 11:35:36 2024
 @@ -0,0 +1,46 @@
 +/**************************************************************************
