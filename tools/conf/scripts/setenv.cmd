@@ -101,7 +101,7 @@ host = 'os2'
 tools = root || 'build\bin\host\' || host || '\bin'
 os2tk = root || 'build\bin\host\' || host || '\os2tk45'
 path  = value('PATH',, env)
-path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || os2tk || '\som\bin;' || fppath || ';' || path
+path  = os2tk || '\bin;' || os2tk || '\som\bin;' || watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
@@ -154,11 +154,11 @@ do i = 1 to words(vars)
   end; else do
       'set '||var||'='||val
   end
-  
+
   /* a bug with Regina REXX: it does not export */
   /* variables to a parent shell!!!             */
   /* call value var, val, env */
-  
+
   say var || '=' || val
 end
 

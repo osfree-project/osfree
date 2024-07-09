@@ -304,7 +304,7 @@ static short    type_utf8[ UCHARMAX + 1] = {
 
 #define SETLOCALE       2       /* #pragma setlocale (not __setlocale)  */
 
-#define NUM_ENCODING    8
+#define NUM_ENCODING    9
 #define NUM_ALIAS       6
 
 /* Names of encoding recognized.  Table for search_encoding().  */
@@ -327,6 +327,8 @@ static const char * const   encoding_name[ NUM_ENCODING][ NUM_ALIAS] = {
         , "iso2022jp",  "iso2022jp1",   "jis",  ""},
     { "",     ""
         , "utf8",   "utf",      "",     ""},
+    { "russian",     "c"
+        , "c",   "ru",      "",     ""},
 };
 
 static int      mbstart;
