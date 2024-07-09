@@ -1,0 +1,56 @@
+diff -urwN somfree/sc/src/sc.c newsomfree/sc/src/sc.c
+--- somfree/sc/src/sc.c	Tue Jul 09 14:52:24 2024
++++ newsomfree/sc/src/sc.c	Tue Jul 09 14:39:51 2024
+@@ -348,7 +348,7 @@
+                 char *p=argv[i++];
+ 
+                 if ((*p=='-')
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__OS2__)
+                         ||(*p=='/')
+ #endif
+                         )
+@@ -938,7 +938,7 @@
+                                         int somipcExitCode;
+                                         _IDL_SEQUENCE_char tmpf={0,0,NULL};
+                                         char *tmpdir = "/tmp";          // Default value for most UNIXes
+-#ifdef __OS2__
++#if defined(__OS2__) || defined(_WIN32)
+                                         struct stat   buffer;
+ #endif
+                                         tmpnam(name2);
+@@ -978,7 +978,7 @@
+ 
+                                         cppExitCode=system(somcpp._buffer);
+ 
+-#ifndef __OS2__
++#if !definded(__OS2__) && !defined(_WIN32)
+ 
+                                         if (verbose)
+                                         {
+@@ -988,9 +988,6 @@
+                                         #ifdef __LINUX__
+                                         if (somipcExitCode==127)
+                                         #endif
+-                                        #ifdef _WIN32
+-                                        if (somipcExitCode==1)
+-                                        #endif
+ #else
+ 
+                                         if (!(stat(somipc2._buffer, &buffer) == 0))
+@@ -1002,6 +999,15 @@
+                                                 }
+                                                 somipcExitCode=system(somipc._buffer);
+                                         }
++#if definded(__OS2__) || defined(_WIN32)
++										else {
++												if (verbose)
++												{
++														printf("%s\n",somipc2._buffer);
++												}
++												somipcExitCode=system(somipc2._buffer);
++										}
++#endif
+                                         if (verbose)
+                                         {
+                                                 if (somipcExitCode)

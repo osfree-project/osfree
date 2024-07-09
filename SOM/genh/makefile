@@ -457,7 +457,7 @@ $(PATH)somtdm.h: $(DEST)$(SEP)somtdm.idl
  $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
 
 $(PATH)somobj.h: $(DEST)$(SEP)somobj.idl
- $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH)
+ $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
 
 $(PATH)somcls.h: $(DEST)$(SEP)somcls.idl
  $(verbose)sc -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
