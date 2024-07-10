@@ -80,7 +80,7 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
-RC        = @wrc -q
+RC        = @$(%INTERP)wrc -q
 #RCOPT     = -bt=os2
 
 RCOPT =  $(ADD_RCOPT)
@@ -92,23 +92,23 @@ RCOPT =  $(ADD_RCOPT)
 
 !ifeq 32_BITS 1
 # Removed @ from wpp386 wcc wpp wasm wlink
-CC        = wcc386
-CPPC      = wpp386
+CC        = $(%INTERP)wcc386
+CPPC      = $(%INTERP)wpp386
 !else
-CC        = wcc
-CPPC      = wpp
+CC        = $(%INTERP)wcc
+CPPC      = $(%INTERP)wpp
 !endif
 
-CC16      = wcc
-CPPC16    = wpp
+CC16      = $(%INTERP)wcc
+CPPC16    = $(%INTERP)wpp
 
 !ifeq JWASM 1
-ASM       = jwasm.exe
+ASM       = $(%INTERP)jwasm.exe
 !else
-ASM       = wasm
+ASM       = $(%INTERP)wasm
 !endif
 
-LINKER    = wlink
+LINKER    = $(%INTERP)wlink
 # Note by valerius:
 # don't add the following option to all.mk
 # -----op internalrelocs----
@@ -120,35 +120,35 @@ LINKOPT   = op q $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib libpath $(%
 LINKOPT   = op q $(ADD_LINKOPT)
 !endif
 
-LIB       = wlib
+LIB       = $(%INTERP)wlib
 LIBOPT    = -q -n -fo
 
 # Don't add @ sign here. Will break build system
-MAKE      = wmake
+MAKE      = $(%INTERP)wmake
 MAKEOPT   = -h
 
-PC        = ppc386
+PC        = $(%INTERP)ppc386
 
 #!ifeq %OS WIN64
-#PC        = ppcx64
+#PC        = $(%INTERP)ppcx64
 #!endif
 !ifeq %ARCH amd64
-PC        = ppcx64
+PC        = $(%INTERP)ppcx64
 !endif
 PCOPT     = -v0 -l- -Sg2h $(ADD_PCOPT)
 
 DD        = dd
 
-SED       = sed
-AWK       = awk
+SED       = $(%INTERP)sed
+AWK       = $(%INTERP)awk
 DOX       = doxygen
 
-MC        = mkmsgf.exe
-ME        = msgextrt.exe
+MC        = $(%INTERP)mkmsgf.exe
+ME        = $(%INTERP)msgextrt.exe
 
-HC        = wipfc
+HC        = $(%INTERP)wipfc
 
-GENE2FS   = genext2fs
+GENE2FS   = $(%INTERP)genext2fs
 
 SYS       = sys
 
@@ -254,7 +254,7 @@ DLL_SUFFIX = .so
 # Without it, the first time value stays the same (wmake caches it).
 # $(%PWD)
 
-MAPSYM    = @mapsym.exe
+MAPSYM    = @$(%INTERP)mapsym.exe
 
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 !ifneq %LOG
@@ -356,7 +356,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)lex.exe -t $[@ >$^@ $(LOG2)
+ $(verbose)$(%INTERP)lex.exe -t $[@ >$^@ $(LOG2)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
@@ -368,7 +368,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+ $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .y.h: .autodepend
  @$(SAY) YACC     $^. $(LOG)
@@ -379,7 +379,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+ $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .c:   $(MYDIR)
 
@@ -464,23 +464,23 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .idl.ih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: $(ADD_SCOPT)
 
 .idl.xih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxih $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxih $< -o $^: $(ADD_SCOPT)
 
 .idl.xh: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)
 
 .idl.h: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT)
 
 .idl.api: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sapi $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sapi $< -o $^: $(ADD_SCOPT)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -589,7 +589,7 @@ prelibs: .symbolic
  # build pm_shared.lib
  $(verbose)cd $(ROOT)OS2$(SEP)PM$(SEP)shared && $(MAKE) $(MAKEOPT) install
 !endif
- @wtouch $(FILESDIR)libs-built-flag.flg
+ @$(%INTERP)wtouch $(FILESDIR)libs-built-flag.flg
  $(verbose)cd $(MYDIR)
 
 !ifndef WRAPPERS

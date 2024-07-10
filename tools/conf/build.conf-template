@@ -20,6 +20,8 @@ shell   = 'd:\os2\cmd.exe'
 ; rexx    = 'Classic'
 ; rexx    = 'Object'
 rexx    = 'Regina'
+arch    = 'i386'
+interp  = ''
 ; ---------------------
 ; not mandatory
 ; ---------------------

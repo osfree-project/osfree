@@ -39,14 +39,14 @@ prep_wget: .symbolic
  $(verbose)unzip -q -o $(%TMP)$(SEP)qw.zip -d $(PORT_BASE)
  $(verbose)$(DC) $(%TMP)$(SEP)qw.zip
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
- $(verbose)wtouch $(PORT_FLAG)
+ $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 
 prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
  $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive
  $(verbose)$(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
- $(verbose)wtouch $(PORT_FLAG)
+ $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 
 prep_svn: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
@@ -57,6 +57,6 @@ prep_svn: .symbolic
  $(verbose)svn --non-interactive --trust-server-cert co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
 !endif
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
- $(verbose)wtouch $(PORT_FLAG)
+ $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 
 !endif

@@ -22,5 +22,5 @@ copy: .symbolic
  @for %i in ($(list)) do @if not exist %i @$(REXX) $(ROOT)tools$(SEP)scripts$(SEP)mdhier.cmd %i
  @cd $(srcdir)
  @for %i in ($(filelist)) do @$(CP) %i $(DEST) $(BLACKHOLE)
- @wtouch $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)base-copied-flag.flg
+ @$(%INTERP)wtouch $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)base-copied-flag.flg
 

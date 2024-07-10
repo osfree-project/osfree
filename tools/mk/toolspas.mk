@@ -18,6 +18,10 @@ CLEAN_ADD = *.oo2 *.ppo *.o
 
 !include $(%ROOT)/tools/mk/all.mk
 
+!ifeq %OS LINUX
+ADD_PCOPT=-FD/usr/i686-linux-gnu/bin/ -Pi386 -Tlinux -Fu/usr/lib/fpc/3.2.2/units/i386-linux/
+!endif
+
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 !else

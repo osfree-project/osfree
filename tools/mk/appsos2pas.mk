@@ -15,7 +15,7 @@ CLEAN_ADD = *.oo2 *.ppo *.o
 DEST    = os2
 !endif
 
-ADD_PCOPT = -Tos2
+ADD_PCOPT = -Tos2 -Pi386
 
 #CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 

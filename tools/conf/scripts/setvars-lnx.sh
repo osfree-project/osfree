@@ -15,10 +15,15 @@ SHELL=`which sh`
 REXX=`which rexx`
 REXX_PATH=`which rexx`
 SERVERENV=os2
-#ARCH=`dpkg --print-architecture`
+ARCH=`uname -m`
 TMP=/tmp
 PATCH=`which patch`
 WGET=`which wget`
+INTERP=""
+
+if [ "$ARCH" != "x86_64" -a "$ARCH" != "i386" ]; then
+    INTERP="$ROOT/`which interp.sh` "
+fi
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45
@@ -32,7 +37,7 @@ WIPFC=$watcom/wipfc
 # list of all vars
 VARS="OS SHELL REXX REXX_PATH ENV HOST WATCOM \
   ROOT OS2TK TOOLS INCLUDE LIB PATH WD_PATH LANG \
-  WIPFC SERVERENV FPC ARCH _CWD LOG TMP PATCH WGET"
+  WIPFC SERVERENV FPC ARCH INTERP _CWD LOG TMP PATCH WGET"
 
 # export all vars
 export $VARS
