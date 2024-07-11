@@ -21,7 +21,11 @@ PATCH=`which patch`
 WGET=`which wget`
 INTERP=""
 
-if [ "$ARCH" != "x86_64" -a "$ARCH" != "i386" ]; then
+if [ "$ARCH" != "x86_64"   -a "$ARCH" != "x86_32" \
+     -a "$ARCH" != "i386"  -a "$ARCH" != "i486"  \
+     -a "$ARCH" != "i586"  -a "$ARCH" != "i686"  \
+     -a "$ARCH" != "i786"  -a "$ARCH" != "x86"   \
+     -a "$ARCH" != "amd64" -a "$ARCH" != "pentium4" ]; then
     INTERP="$ROOT/`which interp.sh` "
 fi
 

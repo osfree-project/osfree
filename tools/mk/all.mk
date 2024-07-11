@@ -460,7 +460,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .rexx.exe: .AUTODEPEND
  @$(SAY) WRAPXX   $^. $(LOG)
- $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
+ $(verbose)$(%INTERP)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
 
 .idl.ih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
