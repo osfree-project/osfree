@@ -29,7 +29,7 @@ pull the submodules:
 
 First, start %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, to pull the build dependencies.
 
-Start _setup.* for downloading the build tools.
+Start _setup.* as Administrator/root for downloading the build tools.
 After finishing the script work, you can start build with _wcc.{sh|cmd}.
 
 Note that _wcc.cmd autodetects OS (OS/2, win32 or win64).
@@ -61,7 +61,7 @@ FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
 
 # Система сборки osFree
 
-Сначала, запустите %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, чтобы скачать необходимые
+Сначала, запустите %root%\\conf\\scripts\\_setup.{cmd|sh|bat} с правами администратора, чтобы скачать необходимые
 зависимости для сборки.
 
 Запустите _wcc.{sh|cmd} для
