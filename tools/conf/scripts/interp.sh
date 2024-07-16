@@ -1,8 +1,12 @@
 #! /bin/sh
 #
 
-x=$1
+set -f
+cmd=` which $1`
 shift
-y=$*
 
-qemu-i386 `which $x` $y
+qemu-i386 $cmd $*
+
+rc=$?
+set +f
+exit $rc

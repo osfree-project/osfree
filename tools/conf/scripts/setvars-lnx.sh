@@ -26,8 +26,9 @@ if [ "$ARCH" != "x86_64"   -a "$ARCH" != "x86_32" \
      -a "$ARCH" != "i586"  -a "$ARCH" != "i686"  \
      -a "$ARCH" != "i786"  -a "$ARCH" != "x86"   \
      -a "$ARCH" != "amd64" -a "$ARCH" != "pentium4" ]; then
-    INTERP="$ROOT/`which interp.sh` "
+    INTERP="`pwd`/`which interp.sh` "
 fi
+
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45
@@ -39,7 +40,7 @@ WD_PATH=$watcom/binl
 WIPFC=$watcom/wipfc
 
 # list of all vars
-VARS="OS SHELL REXX REXX_PATH ENV HOST WATCOM \
+VARS="OS SHELL  REXX_PATH ENV HOST WATCOM \
   ROOT OS2TK TOOLS INCLUDE LIB PATH WD_PATH LANG \
   WIPFC SERVERENV FPC ARCH INTERP _CWD LOG TMP PATCH WGET"
 
