@@ -1,0 +1,13 @@
+diff -urwN regina/client.c newregina/client.c
+--- regina/client.c	Fri Jul 26 10:08:31 2024
++++ newregina/client.c	Fri Jul 26 10:05:44 2024
+@@ -449,7 +449,8 @@
+          &&   ArgCount
+          &&   ( *ParStrings != NULL )
+          &&   ( *ParLengths == 3 )
+-         &&   ( memcmp( "//T", *ParStrings, 3 ) == 0 ) )
++         &&   ( mem_cmpic( "//T", *ParStrings, 3 ) == 0 ) )
++//         &&   ( memcmp( "//T", *ParStrings, 3 ) == 0 ) )
+             ; /* request for tokenisation only, don't execute */
+          else
+          {
