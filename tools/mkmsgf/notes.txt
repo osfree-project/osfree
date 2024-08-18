@@ -7,3 +7,4 @@
 + added control file support (no extended header yet)
 + added ASM file generation
 + added include and header files parsing (/A and /C)
++ ported to Windows and Linux
