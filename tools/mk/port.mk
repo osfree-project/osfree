@@ -19,17 +19,17 @@ patch: .symbolic
  $(verbose)$(SAY) PATCH    $(PORT_NAME) $(LOG)
 !ifeq %HOST linux
  $(verbose)if [ -f $(MYDIR)patches$(SEP)fixcase.cmd ]; then &
-    $(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE); fi
+    $(CD) $(PORT_BASE) && $(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE); fi
 !else
  $(verbose)if exist $(MYDIR)patches$(SEP)fixcase.cmd &
-    @$(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE)
+  @$(CD) $(PORT_BASE) && $(REXX) $(MYDIR)patches$(SEP)fixcase.cmd $(PORT_BASE) $(BLACKHOLE)
 !endif
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PATH)
  $(verbose)for %i in ($(PORT_PATCHES)) do $(verbose)unix2dos -q -f -n $(MYDIR)patches$(SEP)%i $(PATH)%i
  $(verbose)for %i in ($(PORT_PATCHES)) do $(verbose)$(CD) $(PORT_BASE) && $(verbose)$(%PATCH) -s -p1 <$(PATH)%i
 !else
- $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && patch -s -p1 <$(MYDIR)patches$(SEP)%i
+ $(verbose)for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && $(%PATCH) -s -p1 <$(MYDIR)patches$(SEP)%i
 !endif
 
 prep_wget: .symbolic
