@@ -6,7 +6,7 @@
 #`which rexx` setenv.cmd ${conf} >/dev/null 2>&1
 . setvars-lnx.sh
 if [ "$LOG" != "" ]; then
-    ${INTERP}`which wmake` -h $1 $2 $3 $4 $5 $6 $7 $8 $9  2>&1 | tee $(BLD)build.txt
+    ${INTERP}wmake -h $1 $2 $3 $4 $5 $6 $7 $8 $9  2>&1 | tee $(BLD)build.txt
 else
-    ${INTERP}`which wmake` -h $1 $2 $3 $4 $5 $6 $7 $8 $9
+    ${INTERP}wmake -h $1 $2 $3 $4 $5 $6 $7 $8 $9
 fi
