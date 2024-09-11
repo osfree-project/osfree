@@ -45,13 +45,13 @@ $(mf): $(MYDIR)makefile .always
  @%append $(mf)
 !ifdef __UNIX__ 
  # generate ordinary .obj's lists
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e='.$$$$$$$$(O)' p='$$$$$$$$(PATH)' gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e='.$$(O)' p='$$(PATH)' gen_obj_defs
  # generate shifted  .obj's lists
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e='.$$$$$$$$(SO)' p='$$$$$$$$(PATH)' gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e='.$$(SO)' p='$$(PATH)' gen_obj_defs
  # generate ordinary files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E='$$$$(OUT)' gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E='$$(OUT)' gen_link_rules
  # generate shifted  files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E='$$$$(SOUT)' gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E='$$(SOUT)' gen_link_rules
 !else
  # generate ordinary .obj's lists
  @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e=.$$$$$$$$(O) p=$$$$$$$$(PATH) gen_obj_defs
@@ -70,7 +70,11 @@ $(mf): $(MYDIR)makefile .always
  @$(MAKE) $(MAKEOPT) gen_deps_wrapper
 
 gen_obj_defs: .SYMBOLIC
+!ifdef __UNIX__
+ @%append $(mf) $(basename)$(sh)_OBJS      = $(OBJS)
+!else
  @%append $(mf) $(basename)$(sh)_OBJS      = $+$(OBJS)$-
+!endif
  @%append $(mf)
 
 gen_link_rules: .SYMBOLIC
