@@ -1,8 +1,7 @@
 PROJ     = pmwp
 TRGT     = $(PROJ).dll
 DESC     = WPS
-#DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
-srcfiles = $(p)init$(e) $(p)wpobject$(e) 
+srcfiles = $(p)init$(e) $(p)wpobject$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wpkeybd$(e) $(p)wpmouse$(e)
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
 ADD_COPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
 #ADD_LINKOPT  = segment   type DATA nonshared lib $(MYDIR)som.lib
