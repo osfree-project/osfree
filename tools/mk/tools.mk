@@ -19,7 +19,7 @@ DEST    = $(PLATFORM)bin
 # system os2v2   
 # -bt=os2v2 -d__OS2__
 
-ADD_COPT = $(ADD_COPT) -i=. -i=$(%ROOT)include $(DEFINES)
+ADD_COPT += -i=. -i=$(%ROOT)include $(DEFINES)
 
 # Building tools for Linux
 # -dUNIX

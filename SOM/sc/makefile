@@ -11,3 +11,6 @@ DEST = os2tk45$(SEP)som$(SEP)bin
 #.h: $(SRC)contrib$(SEP)include
 
 #.$(O): $(PATH)
+
+qwe: .symbolic
+ @echo $(OPTS)

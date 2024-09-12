@@ -10,7 +10,7 @@ TARGETS = $(PATH)$(PROJ).cmd
 !ifeq %OS WIN64
 hostos=win32
 !else
-hostos=$(%OS)
+hostos=$(%HOST)
 !endif
 src=$(PORT_BASE)$(PROJ)$(SEP)$(hostos)$(SEP)$(PROJ).cmd
 !else
