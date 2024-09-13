@@ -3,17 +3,17 @@
 DEST = host$(SEP)$(%HOST)$(SEP)$(DEST)
 
 !ifeq %OS OS2
-OPTS = -bt=os2 -d_PLATFORM_OS2_
+OPTS = -bt=os2 -d_PLATFORM_OS2_ -br
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
-OPTS = -dWIN32_LEAN_AND_MEAN # -br
+OPTS = -dWIN32_LEAN_AND_MEAN -br
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
-OPTS = -dWIN32_LEAN_AND_MEAN # -br
+OPTS = -dWIN32_LEAN_AND_MEAN -br
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
@@ -45,5 +45,8 @@ C = r
 !endif
 !include $(%ROOT)SOM$(SEP)port$(SEP)somfree.mk
 
-ADD_COPT += -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -dHAVE_CONFIG_H -dHAVE_CONFIG_HPP $(OPTS)
-# -bm
+ADD_COPT += -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -dHAVE_CONFIG_H -dHAVE_CONFIG_HPP $(OPTS) 
+
+!ifneq %HOST linux
+ADD_COPT += -bm
+!endif
