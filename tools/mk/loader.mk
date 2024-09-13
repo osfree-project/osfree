@@ -195,14 +195,14 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .symbolic
 gen_deps_wrapper: .symbolic
  # file.rel: file.mdl file.mds
 !ifdef __UNIX__
- @for %i in ($(bbx)) do @echo $(MAKE) $(MAKEOPT) file=%i trgt="\$$(PATH)%i.rel" &
-   deps="\$$(PATH)%i.mdl \$$(PATH)%i.mds" gen_deps
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$(PATH)%i.rel' &
+   deps='$$(PATH)%i.mdl $$(PATH)%i.mds' gen_deps
  # file.fsd: file.$(OUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt="\$$(PATH)%i.mdl" &
-   deps="\$$(PATH)%i.$(OUT)" gen_deps
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$(PATH)%i.mdl' &
+   deps='$$(PATH)%i.$$(OUT)' gen_deps
  # file.fss: file.$(SOUT)
- @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt="\$$(PATH)%i.mds" &
-   deps="\$$(PATH)%i.$(SOUT)" gen_deps
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$(PATH)%i.mds' &
+   deps='$$(PATH)%i.$$(SOUT)' gen_deps
 !else
  @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
    deps="$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-" gen_deps

@@ -70,7 +70,7 @@ $(mf): $(MYDIR)makefile .always
  @$(MAKE) $(MAKEOPT) gen_deps_wrapper
 
 gen_obj_defs: .SYMBOLIC
-!ifdef __UNIX__
+!ifdef __UNIX__ 
  @%append $(mf) $(basename)$(sh)_OBJS      = $(OBJS)
 !else
  @%append $(mf) $(basename)$(sh)_OBJS      = $+$(OBJS)$-
