@@ -3,7 +3,7 @@
 DEST = host$(SEP)$(%HOST)$(SEP)$(DEST)
 
 !ifeq %OS OS2
-OPTS = -bt=os2 -d_PLATFORM_OS2_ -br
+OPTS = -bt=os2 -d_PLATFORM_OS2_
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 
 ADD_LINKOPT = lib clib3r
 !endif
