@@ -361,7 +361,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
-!ifneq %INTERP
+!ifdef %INTERP
  $(verbose)`which qemu-i386` `which lex.exe` -t $[@ >$^@ $(LOG2)
 !else
  $(verbose)lex.exe -t $[@ >$^@ $(LOG2)
@@ -377,7 +377,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
-!ifneq %INTERP
+!ifdef %INTERP
  $(verbose)`which qemu-i386` `which yacc.exe`  -y -d -o $^@ $[@ $(LOG2)
 !else
  $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
@@ -392,7 +392,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
-!ifneq %INTERP
+!ifdef %INTERP
  $(verbose)`which qemu-i386` `which yacc.exe` -y -d -o $^@ $[@ $(LOG2)
 !else
  $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
