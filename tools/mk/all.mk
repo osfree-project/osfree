@@ -80,7 +80,7 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
-RC        = @$(%INTERP)wrc -q
+RC        = $(%INTERP)wrc -q
 #RCOPT     = -bt=os2
 
 RCOPT =  $(ADD_RCOPT)
@@ -124,7 +124,12 @@ LIB       = $(%INTERP)wlib
 LIBOPT    = -q -n -fo
 
 # Don't add @ sign here. Will break build system
-MAKE      = $(%INTERP)wmake
+!ifneq %INTERP
+MAKE      = `which qemu-i386` `which wmake`
+!else
+MAKE      = wmake
+!endif
+
 MAKEOPT   = -h
 
 PC        = $(%INTERP)ppc386
@@ -356,7 +361,11 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)$(%INTERP)lex.exe -t $[@ >$^@ $(LOG2)
+!ifneq %INTERP
+ $(verbose)`which qemu-i386` `which lex.exe` -t $[@ >$^@ $(LOG2)
+!else
+ $(verbose)lex.exe -t $[@ >$^@ $(LOG2)
+!endif
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
@@ -368,7 +377,11 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+!ifneq %INTERP
+ $(verbose)`which qemu-i386` `which yacc.exe`  -y -d -o $^@ $[@ $(LOG2)
+!else
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+!endif
 
 .y.h: .autodepend
  @$(SAY) YACC     $^. $(LOG)
@@ -379,7 +392,11 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+!ifneq %INTERP
+ $(verbose)`which qemu-i386` `which yacc.exe` -y -d -o $^@ $[@ $(LOG2)
+!else
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
+!endif
 
 .c:   $(MYDIR)
 
