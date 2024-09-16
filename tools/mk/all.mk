@@ -124,7 +124,7 @@ LIB       = $(%INTERP)wlib
 LIBOPT    = -q -n -fo
 
 # Don't add @ sign here. Will break build system
-!ifneq %INTERP
+!ifdef %INTERP
 MAKE      = `which qemu-i386` `which wmake`
 !else
 MAKE      = wmake

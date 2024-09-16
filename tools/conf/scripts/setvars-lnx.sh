@@ -19,7 +19,6 @@ ARCH=`uname -m`
 TMP=/tmp
 PATCH=`which patch`
 WGET=`which wget`
-INTERP=""
 
 TOOLS=$ROOT/build/bin/host/$HOST/bin
 OS2TK=$ROOT/build/bin/host/$HOST/os2tk45
