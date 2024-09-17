@@ -1,0 +1,154 @@
+
+/*
+ * wpdataf.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPDataFile
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpdataf_idl
+#define wpdataf_idl
+
+#include "wpfsys.idl"
+#include <somcls.idl>
+
+interface M_WPDataFile;
+
+interface WPDataFile : WPFileSystem
+{
+#ifndef __NOWARP4METHODS__
+    ULONG wpAddBecomePage(in HWND hwndNotebook);
+#endif
+
+    ULONG wpAddFileTypePage(in HWND hwndNotebook);
+
+    BOOL wpPrintMetaFile(in PPRINTDEST pPrintDest);
+
+    BOOL wpPrintPifFile(in PPRINTDEST pPrintDest);
+
+    BOOL wpPrintPrinterSpecificFile(in PPRINTDEST pPrintDest);
+
+    BOOL wpPrintUnknownFile(in PPRINTDEST pPrintDest);
+
+    WPObject wpQueryAssociatedProgram(in ULONG ulView,
+                                      in PULONG pulHowMatched,
+                                      in PSZ pszMatchString,
+                                      in ULONG cbMatchString,
+                                      in PSZ pszDefaultType);
+
+    void wpSetAssociatedFileIcon();
+
+    HPOINTER wpQueryAssociatedFileIcon();
+
+#ifndef __NOWARP4METHODS__
+    BOOL wpSetContentsFromPointer(in PVOID pData);
+
+    PVOID wpQueryPointerFromContents();
+
+    BOOL wpSetContentsFromHandle(in LHANDLE handle);
+
+    LHANDLE wpQueryHandleFromContents();
+
+    BOOL wpRenderFromClipboard(in ULONG aRenderAs);
+
+#endif
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpAddFileTypePage,
+            wpPrintMetaFile,
+            wpPrintPifFile,
+            wpPrintPrinterSpecificFile,
+            wpPrintUnknownFile,
+            wpQueryAssociatedProgram,
+            wpSetAssociatedFileIcon,
+            wpQueryAssociatedFileIcon
+#ifndef __NOWARP4METHODS__
+            ,
+            wpSetContentsFromPointer,
+            wpQueryPointerFromContents,
+            wpSetContentsFromHandle,
+            wpQueryHandleFromContents,
+            wpAddBecomePage,
+            wpRenderFromClipboard
+#endif
+            ;
+
+        externalstem = wpdf;
+        local;
+        externalprefix = df_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpdataf;
+        metaclass = M_WPDataFile;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpDragOver: override;
+        wpRestoreState: override;
+        wpSetDefaultView: override;
+        wpSetRealName: override;
+        wpSetType: override;
+        wpAddSettingsPages: override;
+        wpAddObjectWindowPage: override;
+        wpOpen: override;
+        wpPrintObject: override;
+        wpModifyPopupMenu: override;
+        wpMenuItemSelected: override;
+        wpMenuItemHelpSelected: override;
+        wpQueryDefaultHelp: override;
+        wpFormatDragItem: override;
+        wpConfirmRenameFileWithExt: override;
+        wpQueryIcon: override;
+        somDefaultInit: override;
+        somDestruct: override;
+    };
+#endif
+};
+
+interface M_WPDataFile : M_WPFileSystem
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = wpdf;
+        local;
+        externalprefix = dfM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpdataf;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsQueryTitle: override;
+        wpclsQueryIconData: override;
+        wpclsQueryStyle: override;
+        wpclsQueryDefaultView: override;
+        wpclsQueryDefaultHelp: override;
+    };
+#endif
+};
+#endif
