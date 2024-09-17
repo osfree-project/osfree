@@ -1,0 +1,44 @@
+Modified somipc part to support externalprefix modifier required for WPS IDLs
+
+void RHBheader_emitter::get_function_prefix(RHBinterface *iface,char *buf,size_t buflen)
+{
+	RHBelement *el;
+	char n[256];
+	const char *p=NULL;
+
+	buf[0]=0;
+
+	strncpy(n,"functionprefix",sizeof(n));
+	el=iface->find_named_element(0,n,sizeof(n));
+
+	if (el)
+	{
+		p=el->modifier_data.get(0);
+	}
+
+	if (!p || !strlen(p))
+	{
+		strncpy(n,"externalprefix",sizeof(n));
+		el=iface->find_named_element(0,n,sizeof(n));
+		if (el)
+		{
+			p=el->modifier_data.get(0);
+		}
+	}
+
+	if (p)
+	{
+		while (*p)
+		{
+			if (*p!=double_quote)
+			{
+				if (!--buflen) break;
+
+				*buf++ = *p;
+			}
+			p++;
+		}
+
+		*buf=0;
+	}
+}
