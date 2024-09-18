@@ -1,0 +1,118 @@
+/*
+ * (C) Chris Wohlgemuth 2002-2003
+ *
+ */
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+/*
+ * If you need another license for your project/product (commercial,
+ * noncommercial, whatever) contact me at
+ *
+ * http://www.os2world.com/cdwriting
+ * http://www.geocities.com/SiliconValley/Sector/5785/
+ *
+ */
+
+//  Module Header
+//
+//  Module Name: WPIMAGEFILE
+//
+//  OS/2 Presentation Manager Workplace class definitions
+//
+//
+
+#ifndef wpimagefile_idl
+#define wpimagefile_idl
+
+#include <wpdataf.idl>
+#include <somcls.idl>
+
+//typedef LHANDLE   HPAL;        /* hpal */
+typedef HPAL *PHPAL;
+
+interface M_WPImageFile;
+
+interface WPImageFile : WPDataFile
+
+{
+    /*
+     * New instance methods
+     *
+     */
+
+    BOOL wpQueryBitmapHandle(inout HBITMAP phBitmap, inout HPAL phPalette,
+    in ULONG ulWidth, in ULONG ulHeight, in ULONG ulFlags, in LONG lBackgroundColor,
+    inout BOOL pbQuitEarly);
+    PBYTE wpQueryBitmapInfoHeader();
+    PBYTE wpQueryBitmapData(inout ULONG pulSize);
+    BOOL wpSetBitmapData(in PBYTE pBitmapData, in ULONG ulSize);
+    BOOL wpReadImageFile();
+    BOOL wpWriteImageFile();
+
+#ifdef __SOMIDL__
+  implementation {
+
+    releaseorder:     wpQueryBitmapHandle, wpQueryBitmapInfoHeader,
+    wpQueryBitmapData, wpSetBitmapData, wpReadImageFile, wpWriteImageFile;
+
+    externalstem = wpimagefile;
+    local;
+    externalprefix = wpimg_;
+    majorversion = 1;
+    minorversion = 2;
+    filestem = wpimage;
+    metaclass = M_WPImageFile;
+    callstyle = oidl;
+    dllname = "pmwp.dll";
+
+
+
+/*
+Warp4:
+wpSetContentsFromHandle
+  wpQueryHandleFromContents
+
+*/
+    wpUnInitData: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+interface M_WPImageFile : M_WPDataFile
+{
+
+#ifdef __SOMIDL__
+  implementation {
+
+    externalstem = wpimagefile;
+    local;
+    externalprefix = wpimgM_;
+    majorversion = 1;
+    minorversion = 2;
+    filestem = wpimage;
+    callstyle = oidl;
+    dllname = "pmwp.dll";
+
+    wpclsQueryInstanceType: override;
+    wpclsQueryStyle: override;
+    wpclsQueryTitle: override;
+    wpclsQueryDefaultHelp: override;
+
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* wpimagefile_idl */

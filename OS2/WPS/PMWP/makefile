@@ -1,7 +1,7 @@
 PROJ     = pmwp
 TRGT     = $(PROJ).dll
 DESC     = WPS
-srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) $(p)wptrans$(e) 
+srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) $(p)wptrans$(e) $(p)wpimage$(e) 
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
 ADD_COPT = -sg -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
 ADD_LINKOPT  = segment   type DATA nonshared lib $(%OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
@@ -26,7 +26,8 @@ IDLS2 = $(DEST_DIR)$(SEP)wpabs.idl &
 			$(DEST_DIR)$(SEP)wpdataf.idl &
 			$(DEST_DIR)$(SEP)wpdesk.idl &
 			$(DEST_DIR)$(SEP)wppgmf.idl &
-			$(DEST_DIR)$(SEP)wptrans.idl
+			$(DEST_DIR)$(SEP)wptrans.idl &
+			$(DEST_DIR)$(SEP)wpimage.idl
 
 HEADERS=$(DESTH_DIR)$(SEP)wpobject.h &
 			$(DESTH_DIR)$(SEP)wpobject.xh &
@@ -50,6 +51,8 @@ HEADERS=$(DESTH_DIR)$(SEP)wpobject.h &
 			$(DESTH_DIR)$(SEP)wptypes.xh &
 			$(DESTH_DIR)$(SEP)wptrans.h &
 			$(DESTH_DIR)$(SEP)wptrans.xh &
+			$(DESTH_DIR)$(SEP)wpimage.h &
+			$(DESTH_DIR)$(SEP)wpimage.xh &
 			$(DESTH_DIR)$(SEP)wpabs.h &
 			$(DESTH_DIR)$(SEP)wpabs.xh
 
@@ -76,6 +79,8 @@ IHEADERS=$(PATH)$(SEP)wpobject.ih &
 			$(PATH)$(SEP)wptypes.xih &
 			$(PATH)$(SEP)wptrans.ih &
 			$(PATH)$(SEP)wptrans.xih &
+			$(PATH)$(SEP)wpimage.ih &
+			$(PATH)$(SEP)wpimage.xih &
 			$(PATH)$(SEP)wpabs.ih &
 			$(PATH)$(SEP)wpabs.xih
 
@@ -319,7 +324,7 @@ EXPORTS      = &
 #		M_WPShredderNewClass 	      .351, &
 		M_WPDesktopCClassData         .355, &
 		M_WPDesktopClassData 	      .356, &
-		M_WPDesktopNewClass           .357
+		M_WPDesktopNewClass           .357, &
 #		M_WPRootFolderCClassData 	  .358, &
 #		M_WPRootFolderClassData       .359, &
 #		M_WPRootFolderNewClass 	      .360, &
@@ -436,12 +441,12 @@ EXPORTS      = &
 #		VULWPSDSOMThreadID            .488, &
 #		LWPDOpenedOnWPDServer 	      .489, &
 #		ShlStartApp                   .490, &
-#		WPImageFileCClassData 	      .491, &
-#		WPImageFileClassData          .492, &
-#		WPImageFileNewClass 	      .493, &
-#		M_WPImageFileCClassData       .494, &
-#		M_WPImageFileClassData 	      .495, &
-#		M_WPImageFileNewClass         .496, &
+		WPImageFileCClassData 	      .491, &
+		WPImageFileClassData          .492, &
+		WPImageFileNewClass 	      .493, &
+		M_WPImageFileCClassData       .494, &
+		M_WPImageFileClassData 	      .495, &
+		M_WPImageFileNewClass         .496
 #		ODWPSCClassData 	          .497, &
 #		ODWPSClassData                .498, &
 #		ODWPSNewClass 	              .499, &
@@ -479,6 +484,7 @@ SOURCES2 =	$(MYDIR)$(SEP)wpabs.idl &
 		$(MYDIR)$(SEP)wpdataf.idl &
 		$(MYDIR)$(SEP)wpdesk.idl &
 		$(MYDIR)$(SEP)wppgmf.idl &
+		$(MYDIR)$(SEP)wpimage.idl &
 		$(MYDIR)$(SEP)wptrans.idl
 
 $(HEADERS): $(IDLS) $(IDLS2)
