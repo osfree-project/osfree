@@ -30,9 +30,13 @@ SET WORKPLACE_PROCESS=1
 #define ORD_MESSAGELOOPPROC     284
 
 typedef struct {
-  struct _EXCEPTIONREGISTRATIONRECORD * volatile prev_structure;
-   _ERR * volatile ExceptionHandler;
-   BYTE unknown[32]; //This is not exactly value, but enough not to kill stack data
+   EXCEPTIONREGISTRATIONRECORD Exc;
+   ULONG rEBP;
+   ULONG rEBX;
+   ULONG rEDI;
+   ULONG rESI;
+   ULONG rESP;
+   ULONG ret;
 } SHLEXCEPTIONREGISTRATIONRECORD, *PSHLEXCEPTIONREGISTRATIONRECORD;
 
 APIRET APIENTRY (*ShlSaveEnv)(PSHLEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler);

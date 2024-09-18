@@ -326,7 +326,7 @@ sombtype.h		+
 somcd.h
 somcdev.h		+
 somcdev.xh		+
-somcls.api
+somcls.api		+
 somcls.h		+
 somcls.idl		+
 somcls.sc
