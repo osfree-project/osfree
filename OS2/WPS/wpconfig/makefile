@@ -46,7 +46,7 @@ DEST     = os2$(SEP)dll
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk
 
-#TARGETS   = $(IDLS) $(IDLS2) $(HEADERS) $(IHEADERS) $(OBJS)
+TARGETS   = $(IDLS) $(IDLS2) $(HEADERS) $(IHEADERS) $(OBJS)
 			
 SOURCES =	$(SRC_DIR)$(SEP)wpkeybd.idl &
 			$(SRC_DIR)$(SEP)wpmouse.idl &

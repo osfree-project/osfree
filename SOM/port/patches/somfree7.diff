@@ -1,0 +1,146 @@
+diff -urwN somfree-old/somcorb2/linux/somcorba somfree/somcorb2/linux/somcorba
+--- somfree-old/somcorb2/linux/somcorba	1970-01-01 03:00:00.000000000 +0300
++++ somfree/somcorb2/linux/somcorba	2024-09-12 23:44:01.489340824 +0300
+@@ -0,0 +1,37 @@
++#! /bin/sh
++#
++
++if [ "$SOMBASE" = "" ]; then
++    echo SOMBASE should be set before running somcorba.
++    exit 0
++fi
++
++if [ -f "$SOMBASE/include/somcorba.gen" ]; then
++    echo Generating CORBA C bindings in progress...
++    echo 0
++fi
++
++echo Generating the CORBA C Bindings:
++SC=$SOMBASE/bin/sc.exe
++cd $SOMBASE/include
++chmod -r som.h
++chmod -r gen_c.efw
++chmod -r gen_emit.efw
++chmod -r gen_make.efw
++chmod -r gen_mk32.efw
++cp som.hc       som.h
++cp gen_c.efc    gen_c.efw
++cp gen_emit.efc gen_emit.efw
++cp gen_make.efc gen_make.efw
++cp gen_mk32.efc gen_mk32.efw
++export SMADDSTAR=
++echo somcorba.gen  >somcorba.gen
++$SC -%% -S150000 -mnoaddstar -mnochk -sh *.idl
++
++if [ -f "somdtype.idl" ]; then
++    $SC -mnoaddstar -mnochk -sh -DEMIT_SOMDTYPES somdtype.idl
++fi
++
++if [ "$?" != "0" ]; then
++    exit
++fi
+diff -urwN somfree-old/somhh/linux/somhh somfree/somhh/linux/somhh
+--- somfree-old/somhh/linux/somhh	1970-01-01 03:00:00.000000000 +0300
++++ somfree/somhh/linux/somhh	2024-09-12 23:04:10.783640036 +0300
+@@ -0,0 +1,31 @@
++#! /bin/sh
++#
++
++if [ "$SOMBASE" = "" ]; then
++    echo SOMBASE should be set before running somhh.
++    exit 0
++fi
++
++if [ -f "$SOMBASE/include/somhh.gen" ]; then
++    echo Generating the SOM DTS C++ bindings in progress...
++    exit 0
++fi
++
++echo Generating the SOM DTS C++ Usage Bindings:
++SC=$SOMBASE/bin/sc.exe
++cd $SOMBASE/include
++export SMNOADDSTAR=
++echo somhh.gen > somxh.gen
++$SC -%% -S100000 -shh -mnoqualifytypes -musexhpass *.idl
++
++if [ "$?" != "0" ]; then
++    exit $?
++fi
++
++if [ -f "somdtype.idl" ]; then
++    $SC -shh -DEMIT_SOMDTYPES -mnoqualifytypes -musexhpass somdtype.idl
++fi
++
++if [ -f "somhh.gen" ]; then
++    rm -rf somhh.gen
++fi
+diff -urwN somfree-old/somstars/linux/somstars somfree/somstars/linux/somstars
+--- somfree-old/somstars/linux/somstars	1970-01-01 03:00:00.000000000 +0300
++++ somfree/somstars/linux/somstars	2024-09-12 23:13:41.764597626 +0300
+@@ -0,0 +1,31 @@
++#! /bin/sh
++#
++
++if [ "$SOMBASE" = "" ]; then
++    echo SOMBASE should be set before running somstars.
++    exit 0
++fi
++
++echo Generating the SOM C Bindings:
++echo (Warning, these bindings are not CORBA-compliant)
++SC=$SOMBASE/bin/sc.exe
++cd $SOMBASE/include
++chmod -r som.h
++chmod -r gen_c.efw
++chmod -r gen_emit.efw
++chmod -r gen_make.efw
++cp som.hs       som.h 
++cp gen_c.efs    gen_c.efw
++cp gen_emit_c.efs gen_emit_c.efw
++cp gen_make_c.efs gen_make_c.efw
++echo somstars.gen >somstars.gen
++export SMNOADDSTAR=
++$SC -%% -maddstar -mwinmult -mnochk -sh *.idl
++
++if [ "$?" != "0" ]; then
++    exit 0
++fi
++
++if [ -f somdtype.idl ]; then
++    $SC -maddstar -mwinmult -mnochk -sh -DEMIT_SOMDTYPES somdtype.idl
++fi
+diff -urwN somfree-old/somxh/linux/somxh somfree/somxh/linux/somxh
+--- somfree-old/somxh/linux/somxh	1970-01-01 03:00:00.000000000 +0300
++++ somfree/somxh/linux/somxh	2024-09-12 23:20:08.189362912 +0300
+@@ -0,0 +1,31 @@
++#! /bin/sh
++#
++
++if [ "$SOMBASE" = "" ]; then
++    echo SOMBASE should be set before running somxh.
++    exit 0
++fi
++
++if [ -f "$SOMBASE/include/somxh.gen" ]; then
++    echo Generating C++ bindings in progress...
++    exit 0
++fi
++
++echo Generating the SOM C++ Bindings:
++SC=$SOMBASE/bin/sc.exe
++cd $SOMBASE/include
++export SMNOADDSTAR=
++echo somxh.gen >somxh.gen
++$SC -%% -sxh -mwinmult -mnochk *.idl
++
++if [ "$?" = "0" ]; then
++    exit
++fi
++
++if [ -f "somdtype.idl" ]; then
++    $SC -mwinmult -mnochk -sxh -DEMIT_SOMDTYPES somdtype.idl
++fi
++
++if [ -f "somxh.gen" ]; then
++    rm -rf somxh.gen
++fi

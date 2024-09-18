@@ -1,0 +1,350 @@
+
+/*
+ * wpfsys.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPFileSystem
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2010 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wpfsys_idl
+#define wpfsys_idl
+#include "wpobject.idl"
+#include <somcls.idl>
+
+interface M_WPFileSystem;
+
+interface WPFileSystem : WPObject
+{
+
+//# methods originally published with Warp 3 Toolkit IDL file
+
+    BOOL wpSetRealName(in PSZ pszName);
+
+    BOOL wpSetType(in PSZ pszTypes,
+                   in PFEA2LIST pfeal);
+
+    PSZ wpQueryType();
+
+    BOOL wpSetAttr(in ULONG attrFile);
+
+    ULONG wpQueryAttr();
+
+    ULONG wpAddFile1Page(in HWND hwndNotebook);
+
+    ULONG wpAddFile2Page(in HWND hwndNotebook);
+
+    ULONG wpAddFile3Page(in HWND hwndNotebook);
+
+    ULONG wpAddFileMenuPage(in HWND hwndNotebook);
+
+    ULONG wpQueryCreation(inout FDATE fdate,
+                          inout FTIME ftime);
+
+    ULONG wpQueryLastAccess(inout FDATE fdate,
+                            inout FTIME ftime);
+
+    ULONG wpQueryLastWrite(inout FDATE fdate,
+                           inout FTIME ftime);
+
+    ULONG wpQueryFileSize();
+
+    ULONG wpQueryEASize();
+
+    ULONG wpSetDateInfo(inout FILEFINDBUF4 pstFileFindBuf);
+
+    ULONG wpSetFileSizeInfo(in ULONG cbFileSize,
+                            in ULONG cbEASize);
+
+    BOOL wpRefresh(in ULONG ulView,
+                   in PVOID pReserved);
+
+    ULONG wpQueryRefreshFlags();
+
+    BOOL wpSetRefreshFlags(in ULONG ulRefreshFlags);
+
+    BOOL wpPrintPlainTextFile(in PPRINTDEST pPrintDest);
+
+    BOOL wpSetTitleAndRenameFile(in PSZ pszNewTitle,
+                                 in ULONG fConfirmations);
+
+    ULONG wpConfirmRenameFileWithExt();
+
+    ULONG wpVerifyUpdateAccess();
+
+    BOOL wpAddUserItemsToPopupMenu(in HWND hwndMenu,
+                                   in HWND hwndCnr,
+                                   in ULONG iPosition);
+
+    BOOL wpIsDiskSwapped();
+
+    BOOL wpQueryRealName(in PSZ pszFilename,
+                         in PULONG pcb,
+                         in BOOL fQualified);
+
+    PSZ wpQueryFilename(in PSZ pszFilename,
+                        in BOOL fQualified);
+
+    WPFileSystem wpQueryDisk();
+
+    ULONG wpQueryDateInfo(inout FILEFINDBUF4 pstFileFindBuf);
+
+    ULONG wpConfirmKeepAssoc();
+
+    VOID wpQueryFileSizeL(in PLONGLONG pllFileSize);
+
+    ULONG wpSetFileSizeL(in PLONGLONG pllFileSize);
+
+//# new non-public methods hacked in for XWorkplace
+
+    BOOL wpRefreshFSInfo(in ULONG ulView,
+                         in PVOID pReserved,
+                         in ULONG ulUnknown);
+
+    PVOID wpQueryDriveData();
+
+    BOOL wpSetNewRealName(in PSZ pszNewRealName);
+
+    BOOL wpAdoptNewRealName(in BOOL fRecurse);
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpSetRealName,
+            withdrawn_wpQueryRealName,
+            wpSetType,
+            wpQueryType,
+            wpSetAttr,
+            wpQueryAttr,
+            wpQueryFilename,
+            wpAddFile1Page,
+            wpAddFile2Page,
+            wpAddFile3Page,
+            wpAddFileMenuPage,
+            wpQueryCreation,
+            wpQueryLastAccess,
+            wpQueryLastWrite,
+            wpQueryFileSize,
+            wpQueryEASize,
+            wpSetDateInfo,
+            wpSetFileSizeInfo,
+            wpRefresh,
+            wpPrintPlainTextFile,
+            wpSetRefreshFlags,
+            wpQueryRefreshFlags,
+            wpQueryDriveData,
+            wpSetTitleAndRenameFile,
+            wpConfirmRenameFileWithExt,
+            wpConfirmKeepAssoc,
+            wpAddUserMenuItem,
+            wpQueryDisk,
+            wpQueryDateInfo,
+            wpSetNewRealName,
+            wpAdoptNewRealName,
+            wpQueryRealName,
+            wpVerifyUpdateAccess,
+            wpAddUserItemsToPopupMenu,
+            wpRemoveFileAttrs,
+            wpIsDiskSwapped,
+            wpRefreshFSInfo
+#ifndef __NOWARP4METHODS__
+            ,
+            wpQueryEASupport,
+            wpFilesystemPrivate7,
+            wpFilesystemPrivate8,
+            wpFilesystemPrivate9,
+            wpQueryFileSizeL,
+            wpSetFileSizeL
+#endif
+            ;
+
+        externalstem = wpfs;
+        local;
+        externalprefix = fs_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpfsys;
+        metaclass = M_WPFileSystem;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+        passthru C_h_after =  "      /* Structure used to read + write the .CLASSINFO ea */"
+""
+"      typedef struct _INFOCLASS"
+"      {"
+"         ULONG    flags;"
+"         PSZ      pszClass;"
+"         ULONG    cbObjData;"
+"         POBJDATA pObjData;"
+"      } INFOCLASS;"
+"      typedef INFOCLASS * PINFOCLASS;"
+""
+"      /* FILEDETAILS structure used for details view */"
+""
+"    typedef struct _FILEDETAILS"
+"    {"
+"       PSZ      pszRealName;     /* Real name */"
+"       ULONG    ulSize;          /* Size of the file */"
+"       CDATE    cdateLastMod;    /* Last modification date */"
+"       CTIME    ctimeLastMod;    /* Last modification time */"
+"       CDATE    cdateLastAccess; /* Last access date */"
+"       CTIME    ctimeLastAccess; /* Last access time */"
+"       CDATE    cdateCreation;   /* Date of creation */"
+"       CTIME    ctimeCreation;   /* Time of creation */"
+"       ULONG    ulFlags;         /* File flags */"
+"       PSZ      ReadOnly;"
+"       PSZ      Hidden;"
+"       PSZ      System;"
+"       PSZ      Directory;"
+"       PSZ      Archived;"
+"       PSZ      Subject;"
+"       PSZ      Comments;"
+"       PSZ      KeyPhrases;"
+"       PSZ      History;"
+"       ULONG    ExtAttr;"
+"    } FILEDETAILS;"
+""
+"    typedef FILEDETAILS * PFILEDETAILS;"
+""
+"    #define NUM_FILEDETAILS_FIELDS    19     /* Count of fields in FILEDETAILS */"
+""
+"      /* format of the extended search criteria for this class */"
+"      typedef struct _FILESYS_SEARCH_INFO {"
+"         USHORT Exclude;"
+"         USHORT MustHave;"
+""
+"         BOOL   fIncludeLMD;"
+"         USHORT LMDyear;"
+"         USHORT LMDmonth;"
+"         USHORT LMDday;"
+"          SHORT LMDcriteria;"
+""
+"         BOOL   fIncludeLMT;"
+"         USHORT LMThours;"
+"         USHORT LMTminutes;"
+"         USHORT LMTseconds;"
+"          SHORT LMTcriteria;"
+""
+"         BOOL   fIncludeFDS;"
+"         ULONG  FDSsize;"
+"         SHORT  FDScriteria;"
+""
+"         BOOL   fIncludeFEAS;"
+"         ULONG  FEASsize;"
+"         SHORT  FEAScriteria;"
+""
+"         BOOL   fMustHaveNeedEA;"
+"         BOOL   fMustNotHaveNeedEA;"
+"         } FILESYS_SEARCH_INFO;"
+"         typedef FILESYS_SEARCH_INFO *PFILESYS_SEARCH_INFO;"
+""
+""
+"      /* Alignment macro: ensure alignment on 4byte boundary */"
+""
+"      #define ALIGN4(p) (PVOID)( ( ((ULONG)p) + 3 ) & 0xFFFFFFFC )"
+""
+"      /* return values for wpConfirmRenameFileWithExt */"
+"      #define KEEP_RENAMEFILESWITHEXT     1"
+"      #define DISCARD_RENAMEFILESWITHEXT  2"
+"      #define CANCEL_RENAMEFILESWITHEXT   3"
+""
+"";
+
+        wpUnInitData: override;
+        wpQueryHandle: override;
+        wpSaveImmediate: override;
+        wpFilterPopupMenu: override;
+        wpSetTitle: override;
+        wpViewObject: override;
+        wpSwitchTo: override;
+        wpAddSettingsPages: override;
+        wpCopyObject: override;
+        wpCreateFromTemplate: override;
+        wpMoveObject: override;
+        wpQueryIcon: override;
+        wpQueryIconData: override;
+        wpSetIconData: override;
+        wpQueryDetailsData: override;
+        wpModifyPopupMenu: override;
+        wpSaveState: override;
+        wpRestoreState: override;
+        wpMenuItemSelected: override;
+        wpOpen: override;
+        wpDraggedOverObject: override;
+        wpDroppedOnObject: override;
+        wpFormatDragItem: override;
+        wpQueryNameClashOptions: override;
+        wpAppendObject: override;
+        wpReplaceObject: override;
+        wpQueryStyle: override;
+        wpSetStyle: override;
+        wpDoesObjectMatch: override;
+        somDefaultInit: override;
+        somDestruct: override;
+     };
+#endif
+};
+
+interface M_WPFileSystem : M_WPObject
+{
+    WPObject wpclsQueryAwakeObject( in PSZ pszInputPath );
+
+    WPObject wpclsFileSysExists( in WPFolder Folder,
+                                  in PSZ pszFilename,
+                                  in ULONG attrFile );
+
+    WPObject wpclsQueryObjectFromPath(in PSZ pszFQPath);
+
+    PSZ wpclsQueryInstanceType();
+
+    PSZ wpclsQueryInstanceFilter();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpclsQueryInstanceType,
+            wpclsQueryInstanceFilter,
+            wpclsQueryObjectFromPath,
+            wpclsQueryAwakeObject,
+            wpclsFileSysExists;
+
+        externalstem = wpfs;
+        local;
+        externalprefix = fsM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wpfsys;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpclsInitData: override;
+        wpclsQueryTitle: override;
+        wpclsQueryDetailsInfo: override;
+        wpclsQuerySearchInfo: override;
+        wpclsQueryExtendedCriteria: override;
+        wpclsNew: override;
+    };
+#endif
+};
+#endif

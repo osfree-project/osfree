@@ -1,0 +1,330 @@
+diff -urwN somfree/spp/src/note.txt newsomfree/spp/src/note.txt
+--- somfree/spp/src/note.txt	Wed Sep 11 16:13:26 2024
++++ newsomfree/spp/src/note.txt	Wed Sep 11 15:33:46 2024
+@@ -4,10 +4,3 @@
+ 
+ to produce spp.c file from flex file
+ 
+-
+-
+-Seems standard SPP produces not #line pragma, but
+-
+-@ <lineno> "filename" "filename"
+-
+-Need to check how it works.
+diff -urwN somfree/spp/src/spp.l newsomfree/spp/src/spp.l
+--- somfree/spp/src/spp.l	Thu Jan 01 07:00:00 1970
++++ newsomfree/spp/src/spp.l	Wed Sep 11 16:22:12 2024
+@@ -0,0 +1,156 @@
++/**************************************************************************
++ *
++ *  Copyright 2022, Yuri Prokushev
++ *
++ *  This file is part of osFree project
++ *
++ *  This program is free software: you can redistribute it and/or modify it
++ *  under the terms of the GNU Lesser General Public License as published by the
++ *  Free Software Foundation, either version 3 of the License, or (at your
++ *  option) any later version.
++ * 
++ *  This program is distributed in the hope that it will be useful, but WITHOUT
++ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ *  more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public License
++ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
++ *
++ */
++
++/*
++
++  SOM Preprocessor SPP is a original SOM Preprocessor of OIDL files.
++  Tested on all csc/sc files found by me. Not sure it will work as
++  drop-in replacement of original SPP.
++
++  @todo Add passthrow section skip
++  @todo Add loop include control.
++*/
++
++/* the "incl" state is used for picking up the name
++ * of an include file
++ */
++%x incl
++
++%{
++#include <stdlib.h>
++#include <string.h>
++#include <direct.h>
++#include <io.h>
++
++#include <emitlib.h>
++
++#define YY_NEVER_INTERACTIVE 1
++
++#define MAX_INCLUDE_DEPTH 20
++struct {
++  YY_BUFFER_STATE state;
++  char * filename;
++  char * fullfilename;
++  int lineno;
++} include_stack[MAX_INCLUDE_DEPTH];
++int include_stack_ptr = 0;
++%}
++
++%%
++^#include	{ BEGIN(incl); }
++^"include "	{ BEGIN(incl); }
++
++[a-z]+		{ ECHO; }
++[^a-z\n]*\n?	{ ECHO; include_stack[include_stack_ptr].lineno++; }
++
++<incl>[ \t]*	{ /* eat the whitespace */ }
++<incl>[^ \t\n]+	{ /* got the include file name */
++		if (include_stack_ptr >= MAX_INCLUDE_DEPTH)
++		{
++                  fprintf(stderr, "Includes nested too deeply");
++		  exit( 1 );
++		}
++
++		include_stack[include_stack_ptr].state = YY_CURRENT_BUFFER;
++
++		include_stack_ptr++;
++
++		include_stack[include_stack_ptr].filename=strdup(yytext+1);
++		include_stack[include_stack_ptr].filename[strlen(include_stack[include_stack_ptr].filename)-1]=0x0;
++		include_stack[include_stack_ptr].fullfilename=strdup(yytext+1);
++		include_stack[include_stack_ptr].fullfilename[strlen(include_stack[include_stack_ptr].fullfilename)-1]=0x0;
++		if (yytext[0]=='<')
++		{
++		  char fullpath[260];
++		  somtsearchFileSL(include_stack[include_stack_ptr].filename, fullpath, "SMINCLUDE");
++		  free(include_stack[include_stack_ptr].fullfilename);
++		  include_stack[include_stack_ptr].fullfilename=strdup(fullpath);
++		}
++
++		yyin = fopen(include_stack[include_stack_ptr].fullfilename, "r");
++
++		if (!yyin)
++		{
++		  fprintf(stderr, "fopen %s error", include_stack[include_stack_ptr].filename);
++		  exit(1);
++		}
++
++		fprintf(yyout, "@ 1 \"%s\" \"%s\"\n", include_stack[include_stack_ptr].filename, include_stack[include_stack_ptr].fullfilename);
++		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
++
++		BEGIN(INITIAL);
++	   }
++
++<<EOF>> {
++	   if (	--include_stack_ptr < 0	)
++	       {
++	       yyterminate();
++	       }
++
++	   else
++	       {
++		yy_delete_buffer( YY_CURRENT_BUFFER );
++		yy_switch_to_buffer(include_stack[include_stack_ptr].state);
++		fprintf(yyout, "@ %d \"%s\" \"%s\"\n", include_stack[include_stack_ptr].lineno, include_stack[include_stack_ptr].filename, include_stack[include_stack_ptr].filename);
++	       }
++
++	   }
++
++%%
++
++
++int yywrap()
++{
++  return 1;
++}
++
++
++void showVersion()
++{
++  printf("SOM Preprocessor v1.0\n");
++}
++
++void showUsage()
++{
++}
++
++int main(int argc, char *argv[])
++{
++  if (argc)
++  {
++    if (!strcmp(argv[1], "-V")) showVersion();
++  }
++  else
++  {
++    showUsage();
++    return 0;
++  }
++
++  yyin=fopen(argv[1],"r");
++
++  include_stack[include_stack_ptr].filename=strdup(argv[1]);
++  include_stack[include_stack_ptr].fullfilename=strdup(argv[1]);
++  include_stack[include_stack_ptr].lineno=1;
++
++  yylex();
++
++  return 0;
++}
+diff -urwN somfree/spp/src/spp.ll newsomfree/spp/src/spp.ll
+--- somfree/spp/src/spp.ll	Wed Sep 11 16:13:26 2024
++++ newsomfree/spp/src/spp.ll	Thu Jan 01 07:00:00 1970
+@@ -1,152 +0,0 @@
+-/**************************************************************************
+- *
+- *  Copyright 2022, Yuri Prokushev
+- *
+- *  This file is part of osFree project
+- *
+- *  This program is free software: you can redistribute it and/or modify it
+- *  under the terms of the GNU Lesser General Public License as published by the
+- *  Free Software Foundation, either version 3 of the License, or (at your
+- *  option) any later version.
+- * 
+- *  This program is distributed in the hope that it will be useful, but WITHOUT
+- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- *  more details.
+- *
+- *  You should have received a copy of the GNU Lesser General Public License
+- *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+- *
+- */
+-
+-/*
+-
+-  SOM Preprocessor SPP is a original SOM Preprocessor of OIDL files.
+-  Tested on all csc/sc files found by me. Not sure it will work as
+-  drop-in replacement of original SPP.
+-
+-  @todo Add passthrow section skip
+-  @todo Add loop include control.
+-*/
+-
+-/* the "incl" state is used for picking up the name
+- * of an include file
+- */
+-%x incl
+-
+-%{
+-#include <stdlib.h>
+-#include <string.h>
+-#include <direct.h>
+-#include <io.h>
+-
+-#include <emitlib.h>
+-
+-#define YY_NEVER_INTERACTIVE 1
+-
+-#define MAX_INCLUDE_DEPTH 20
+-struct {
+-  YY_BUFFER_STATE state;
+-  char * filename;
+-  int lineno;
+-} include_stack[MAX_INCLUDE_DEPTH];
+-int include_stack_ptr = 0;
+-%}
+-
+-%%
+-^#include	{ BEGIN(incl); }
+-^"include "	{ BEGIN(incl); }
+-
+-[a-z]+		{ ECHO; }
+-[^a-z\n]*\n?	{ ECHO; include_stack[include_stack_ptr].lineno++; }
+-
+-<incl>[ \t]*	{ /* eat the whitespace */ }
+-<incl>[^ \t\n]+	{ /* got the include file name */
+-		if (include_stack_ptr >= MAX_INCLUDE_DEPTH)
+-		{
+-                  fprintf(stderr, "Includes nested too deeply");
+-		  exit( 1 );
+-		}
+-
+-		include_stack[include_stack_ptr].state = YY_CURRENT_BUFFER;
+-
+-		include_stack_ptr++;
+-
+-		include_stack[include_stack_ptr].filename=strdup(yytext+1);
+-		include_stack[include_stack_ptr].filename[strlen(include_stack[include_stack_ptr].filename)-1]=0x0;
+-		if (yytext[0]=='<')
+-		{
+-		  char fullpath[260];
+-		  somtsearchFileSL(include_stack[include_stack_ptr].filename, fullpath, "SMINCLUDE");
+-		  free(include_stack[include_stack_ptr].filename);
+-		  include_stack[include_stack_ptr].filename=strdup(fullpath);
+-		}
+-
+-		yyin = fopen(include_stack[include_stack_ptr].filename, "r");
+-
+-		if (!yyin)
+-		{
+-		  fprintf(stderr, "fopen %s error", include_stack[include_stack_ptr].filename);
+-		  exit(1);
+-		}
+-
+-		fprintf(yyout, "#line 1 \"%s\"\n", include_stack[include_stack_ptr].filename);
+-		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
+-
+-		BEGIN(INITIAL);
+-	   }
+-
+-<<EOF>> {
+-	   if (	--include_stack_ptr < 0	)
+-	       {
+-	       yyterminate();
+-	       }
+-
+-	   else
+-	       {
+-		yy_delete_buffer( YY_CURRENT_BUFFER );
+-		yy_switch_to_buffer(include_stack[include_stack_ptr].state);
+-		fprintf(yyout, "#line %d \"%s\"\n", include_stack[include_stack_ptr].lineno, include_stack[include_stack_ptr].filename);
+-	       }
+-
+-	   }
+-
+-%%
+-
+-
+-int yywrap()
+-{
+-  return 1;
+-}
+-
+-
+-void showVersion()
+-{
+-  printf("SOM Preprocessor v1.0\n");
+-}
+-
+-void showUsage()
+-{
+-}
+-
+-int main(int argc, char *argv[])
+-{
+-  if (argc)
+-  {
+-    if (!strcmp(argv[1], "-V")) showVersion();
+-  }
+-  else
+-  {
+-    showUsage();
+-    return 0;
+-  }
+-
+-  yyin=fopen(argv[1],"r");
+-
+-  include_stack[include_stack_ptr].filename=strdup(argv[1]);
+-  include_stack[include_stack_ptr].lineno=1;
+-
+-  yylex();
+-
+-  return 0;
+-}

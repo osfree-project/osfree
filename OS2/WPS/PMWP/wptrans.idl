@@ -1,0 +1,102 @@
+
+/*
+ * wptrans.idl:
+ *      beefed up SOM interface description file for the
+ *      following classes built into the WPS:
+ *
+ *      --  WPTransient
+ *
+ *      XWorkplace uses this file instead of the respective
+ *      file from whatever Toolkit you have installed to
+ *      a) make SOM aware of our class replacements and
+ *      b) allow us to override undocumented WPS methods.
+ *      See idl\wps\readme.txt for details.
+ */
+
+/*
+ *      Copyright (C) 2002-2003 Ulrich M”ller.
+ *
+ *      This file is part of the XWorkplace source package.
+ *      XWorkplace is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published
+ *      by the Free Software Foundation, in version 2 as it comes in the
+ *      "COPYING" file of the XWorkplace main distribution.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ */
+
+#ifndef wptrans_idl
+#define wptrans_idl
+#include "wpobject.idl"
+#include <somcls.idl>
+
+interface M_WPTransient;
+
+interface WPTransient : WPObject
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        externalstem = wptrn;
+        //# local;
+        externalprefix = trn_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wptrans;
+        metaclass = M_WPTransient;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        wpQueryHandle: override;
+        wpCopyObject: override;
+        somDefaultInit: override;
+        somDestruct: override;
+        wpQueryIcon: override;
+        wpSaveImmediate: override;
+
+        wpIdentify: override;
+        //# wpMakeObject: override;
+        wpDestroyObject: override;
+    };
+#endif
+};
+
+interface M_WPTransient : M_WPObject
+{
+
+    ULONG wpclsLockTransientList();
+
+    ULONG wpclsUnlockTransientList();
+
+#ifdef __SOMIDL__
+    implementation
+    {
+        releaseorder:
+            wpclsLockTransientList,
+            wpclsUnlockTransientList;
+
+        externalstem = wptrn;
+        //# local;
+        externalprefix = trnM_;
+        majorversion = 1;
+        minorversion = 2;
+        filestem = wptrans;
+        callstyle = oidl;
+        dllname = "pmwp.dll";
+
+        HMTX hmtxTransientList;
+
+        wpclsQueryTitle: override;
+        wpclsQueryStyle: override;
+
+        wpclsLockTransientList: procedure;
+        wpclsUnlockTransientList: procedure;
+        //# wpclsFindObjects: override;
+        wpclsObjectFromHandle: override;
+    };
+#endif
+};
+#endif
+
