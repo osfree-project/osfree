@@ -1,7 +1,7 @@
 PROJ     = pmwp
 TRGT     = $(PROJ).dll
 DESC     = WPS
-srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wptrans$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) 
+srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) #$(p)wptrans$(e) 
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
 ADD_COPT = -sg -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
 ADD_LINKOPT  = segment   type DATA nonshared lib $(%OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
@@ -100,33 +100,33 @@ EXPORTS      = &
 #		WPTemplatesCClassData         .28 , &
 #		WPTemplatesClassData 	      .29 , &
 #		WPTemplatesNewClass           .30 , &
-#		WPShadowCClassData 	          .31 , &
-#		WPShadowClassData             .32 , &
-#		WPShadowNewClass 	          .33 , &
+		WPShadowCClassData 	          .31 , &
+		WPShadowClassData             .32 , &
+		WPShadowNewClass 	          .33 , &
 		WPDiskCClassData              .34 , &
 		WPDiskClassData 	          .35 , &
 		WPDiskNewClass                .36 , &
 #		WPStartupCClassData 	      .37 , &
 #		WPStartupClassData            .38 , &
 #		WPStartupNewClass 	          .39 , &
-#		WPTransientCClassData         .40 , &
-#		WPTransientClassData 	      .41 , &
-#		WPTransientNewClass           .42 , &
+		WPTransientCClassData         .40 , &
+		WPTransientClassData 	      .41 , &
+		WPTransientNewClass           .42 , &
 #		WPDrivesCClassData 	          .43 , &
 #		WPDrivesClassData             .44 , &
 #		WPDrivesNewClass 	          .45 , &
 		WPProgramCClassData           .46 , &
 		WPProgramClassData 	          .47 , &
 		WPProgramNewClass             .48 , &
-#		WPProgramFileCClassData 	  .49 , &
-#		WPProgramFileClassData        .50 , &
-#		WPProgramFileNewClass 	      .51 , &
+		WPProgramFileCClassData 	  .49 , &
+		WPProgramFileClassData        .50 , &
+		WPProgramFileNewClass 	      .51 , &
 #		WPShredderCClassData          .52 , &
 #		WPShredderClassData 	      .53 , &
 #		WPShredderNewClass            .54 , &
-#		WPDesktopCClassData 	      .55 , &
-#		WPDesktopClassData            .56 , &
-#		WPDesktopNewClass 	          .57 , &
+		WPDesktopCClassData 	      .55 , &
+		WPDesktopClassData            .56 , &
+		WPDesktopNewClass 	          .57 , &
 #		WPRootFolderCClassData        .58 , &
 #		WPRootFolderClassData 	      .59 , &
 #		WPRootFolderNewClass          .60 , &
@@ -275,15 +275,15 @@ EXPORTS      = &
 #		WinMoveObject 	              .287, &
 #		WinCopyObject                 .288, &
 #		WinCreateShadow 	          .289, &
-#		M_WPFileSystemCClassData      .310, &
-#		M_WPFileSystemClassData 	  .311, &
-#		M_WPFileSystemNewClass        .312, &
-#		M_WPFolderCClassData 	      .313, &
-#		M_WPFolderClassData           .314, &
-#		M_WPFolderNewClass 	          .315, &
-#		M_WPDataFileCClassData        .316, &
-#		M_WPDataFileClassData 	      .317, &
-#		M_WPDataFileNewClass          .318, &
+		M_WPFileSystemCClassData      .310, &
+		M_WPFileSystemClassData 	  .311, &
+		M_WPFileSystemNewClass        .312, &
+		M_WPFolderCClassData 	      .313, &
+		M_WPFolderClassData           .314, &
+		M_WPFolderNewClass 	          .315, &
+		M_WPDataFileCClassData        .316, &
+		M_WPDataFileClassData 	      .317, &
+		M_WPDataFileNewClass          .318, &
 #		M_WPTemplatesCClassData 	  .319, &
 #		M_WPTemplatesClassData        .320, &
 #		M_WPTemplatesNewClass 	      .321, &
@@ -292,34 +292,34 @@ EXPORTS      = &
 		M_WPObjectNewClass            .324, &
 		M_WPAbstractCClassData 	      .325, &
 		M_WPAbstractClassData         .326, &
-		M_WPAbstractNewClass 	      .327
-#		M_WPShadowCClassData          .328, &
-#		M_WPShadowClassData 	      .329, &
-#		M_WPShadowNewClass            .330, &
+		M_WPAbstractNewClass 	      .327, &
+		M_WPShadowCClassData          .328, &
+		M_WPShadowClassData 	      .329, &
+		M_WPShadowNewClass            .330, &
 		M_WPDiskCClassData 	          .331, &
 		M_WPDiskClassData             .332, &
 		M_WPDiskNewClass 	          .333, &
 #		M_WPStartupCClassData         .334, &
 #		M_WPStartupClassData 	      .335, &
 #		M_WPStartupNewClass           .336, &
-#		M_WPTransientCClassData 	  .337, &
-#		M_WPTransientClassData        .338, &
-#		M_WPTransientNewClass 	      .339, &
+		M_WPTransientCClassData 	  .337, &
+		M_WPTransientClassData        .338, &
+		M_WPTransientNewClass 	      .339, &
 #		M_WPDrivesCClassData          .340, &
 #		M_WPDrivesClassData 	      .341, &
 #		M_WPDrivesNewClass            .342, &
 		M_WPProgramCClassData 	      .343, &
 		M_WPProgramClassData          .344, &
 		M_WPProgramNewClass 	      .345, &
-#		M_WPProgramFileCClassData     .346, &
-#		M_WPProgramFileClassData 	  .347, &
-#		M_WPProgramFileNewClass       .348, &
+		M_WPProgramFileCClassData     .346, &
+		M_WPProgramFileClassData 	  .347, &
+		M_WPProgramFileNewClass       .348, &
 #		M_WPShredderCClassData 	      .349, &
 #		M_WPShredderClassData         .350, &
 #		M_WPShredderNewClass 	      .351, &
-#		M_WPDesktopCClassData         .355, &
-#		M_WPDesktopClassData 	      .356, &
-#		M_WPDesktopNewClass           .357, &
+		M_WPDesktopCClassData         .355, &
+		M_WPDesktopClassData 	      .356, &
+		M_WPDesktopNewClass           .357
 #		M_WPRootFolderCClassData 	  .358, &
 #		M_WPRootFolderClassData       .359, &
 #		M_WPRootFolderNewClass 	      .360, &

@@ -17,13 +17,12 @@ APIRET APIENTRY ShlSaveEnv(PEXCEPTIONREGISTRATIONRECORD pERegRec, PVOID handler)
 	return 0;
 }
 
-#define xEBX offsetof(SHLEXCEPTIONREGISTRATIONRECORD, rEBX)
 
 APIRET APIENTRY ShlRestoreEnv(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
 	__asm {
-		mov ecx, pERegRec
-		mov ebx, [ecx+xEBX]
+;		mov ecx, pERegRec
+;		mov ebx, [ecx+xEBX]
 	}
 	return 0;
 }
