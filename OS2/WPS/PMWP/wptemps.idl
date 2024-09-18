@@ -1,0 +1,58 @@
+#ifndef wptemps_idl
+#define wptemps_idl
+
+#include "wpfolder.idl"
+#include <somcls.idl>
+
+interface M_WPTemplates;
+
+interface WPTemplates : WPFolder
+{
+
+#ifdef __SOMIDL__
+  implementation {
+
+    externalstem = WPTplFdr;
+    local;
+    externalprefix = tfd_;
+    majorversion = 1;
+    minorversion = 2;
+    filestem = wptemps;
+    metaclass = M_WPTemplates;
+    callstyle = oidl;
+    dllname = "pmwp.dll";               
+
+    wpPopulate: override;
+    wpSetup: override;
+    somDefaultInit: override;          
+    somDestruct: override;             
+
+  };
+#endif /* __SOMIDL__ */
+};
+
+interface M_WPTemplates : M_WPFolder
+{
+
+#ifdef __SOMIDL__
+  implementation {
+
+    externalstem = WPTplFdr;
+    local;
+    externalprefix = tfdM_;
+    majorversion = 1;
+    minorversion = 2;
+    filestem = wptemps;
+    callstyle = oidl;
+    dllname = "pmwp.dll";               
+
+    wpclsQueryTitle: override;
+    wpclsQueryIconData: override;
+    wpclsQueryIconDataN: override;
+    wpclsQueryStyle: override;
+
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* wptemps_idl */

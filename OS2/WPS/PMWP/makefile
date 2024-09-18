@@ -1,7 +1,7 @@
 PROJ     = pmwp
 TRGT     = $(PROJ).dll
 DESC     = WPS
-srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) $(p)wptrans$(e) $(p)wpimage$(e) 
+srcfiles = $(p)init$(e) $(p)shl$(e) $(p)wpobject$(e) $(p)wpfsys$(e) $(p)wpfolder$(e) $(p)wpdataf$(e) $(p)wpabs$(e) $(p)wpdisk$(e) $(p)wppgm$(e) $(p)wppgmf$(e) $(p)wpshadow$(e) $(p)wptrans$(e) $(p)wpimage$(e) $(p)wptemps$(e) 
 ADD_SCOPT = -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)idl
 ADD_COPT = -sg -I$(%OS2TK)$(SEP)som$(SEP)include -I$(%OS2TK)$(SEP)h
 ADD_LINKOPT  = segment   type DATA nonshared lib $(%OS2TK)$(SEP)som$(SEP)lib$(SEP)somtk.lib
@@ -27,6 +27,7 @@ IDLS2 = $(DEST_DIR)$(SEP)wpabs.idl &
 			$(DEST_DIR)$(SEP)wpdesk.idl &
 			$(DEST_DIR)$(SEP)wppgmf.idl &
 			$(DEST_DIR)$(SEP)wptrans.idl &
+			$(DEST_DIR)$(SEP)wptemps.idl &
 			$(DEST_DIR)$(SEP)wpimage.idl
 
 HEADERS=$(DESTH_DIR)$(SEP)wpobject.h &
@@ -51,6 +52,8 @@ HEADERS=$(DESTH_DIR)$(SEP)wpobject.h &
 			$(DESTH_DIR)$(SEP)wptypes.xh &
 			$(DESTH_DIR)$(SEP)wptrans.h &
 			$(DESTH_DIR)$(SEP)wptrans.xh &
+			$(DESTH_DIR)$(SEP)wptemps.h &
+			$(DESTH_DIR)$(SEP)wptemps.xh &
 			$(DESTH_DIR)$(SEP)wpimage.h &
 			$(DESTH_DIR)$(SEP)wpimage.xh &
 			$(DESTH_DIR)$(SEP)wpabs.h &
@@ -79,6 +82,8 @@ IHEADERS=$(PATH)$(SEP)wpobject.ih &
 			$(PATH)$(SEP)wptypes.xih &
 			$(PATH)$(SEP)wptrans.ih &
 			$(PATH)$(SEP)wptrans.xih &
+			$(PATH)$(SEP)wptemps.ih &
+			$(PATH)$(SEP)wptemps.xih &
 			$(PATH)$(SEP)wpimage.ih &
 			$(PATH)$(SEP)wpimage.xih &
 			$(PATH)$(SEP)wpabs.ih &
@@ -102,9 +107,9 @@ EXPORTS      = &
 		WPAbstractCClassData 	      .25 , &
 		WPAbstractClassData           .26 , &
 		WPAbstractNewClass 	          .27 , &
-#		WPTemplatesCClassData         .28 , &
-#		WPTemplatesClassData 	      .29 , &
-#		WPTemplatesNewClass           .30 , &
+		WPTemplatesCClassData         .28 , &
+		WPTemplatesClassData 	      .29 , &
+		WPTemplatesNewClass           .30 , &
 		WPShadowCClassData 	          .31 , &
 		WPShadowClassData             .32 , &
 		WPShadowNewClass 	          .33 , &
@@ -485,6 +490,7 @@ SOURCES2 =	$(MYDIR)$(SEP)wpabs.idl &
 		$(MYDIR)$(SEP)wpdesk.idl &
 		$(MYDIR)$(SEP)wppgmf.idl &
 		$(MYDIR)$(SEP)wpimage.idl &
+		$(MYDIR)$(SEP)wptemps.idl &
 		$(MYDIR)$(SEP)wptrans.idl
 
 $(HEADERS): $(IDLS) $(IDLS2)
