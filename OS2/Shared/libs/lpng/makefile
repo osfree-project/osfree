@@ -26,9 +26,9 @@ $(p)pngwutil$(e)
 !include $(%ROOT)tools/mk/libsos2.mk
 !include $(MYDIR)libpng.mk
 
-.c: $(PORT_BASE)$(SEP)lpng1639
+.c: $(PORT_BASE)$(SEP)lpng1644
 
-.h: $(PORT_BASE)$(SEP)lpng1639
+.h: $(PORT_BASE)$(SEP)lpng1644
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
