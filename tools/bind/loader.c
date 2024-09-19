@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include <dos.h>
+#include <malloc.h>
+
 #include <os2\newexe.h>
 
 typedef struct
@@ -20,7 +22,11 @@ typedef struct tagOFSTRUCT {
     unsigned char    reserved[4];
     char    szPathName[128];
 } OFSTRUCT;
+
 #pragma pack( pop )
+
+// Global variables
+unsigned char far * mte;		// Module table entry
 
 int main( void )
 {
@@ -63,9 +69,10 @@ int main( void )
 
 
   // Allocate memory
-  malloc(size);
+  mte=_fmalloc(size);
   
   // Copy header from stack
+  _fmemcpy(mte, &NEHeader, sizeof(NEHeader));
 
   // Move to start of segment table
   result = fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader), SEEK_SET);

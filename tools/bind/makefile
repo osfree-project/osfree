@@ -11,4 +11,4 @@ DESC = Binder
 srcfiles = $(p)loader$(e)
 # defines additional options for C compiler
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/appsdos.mk
