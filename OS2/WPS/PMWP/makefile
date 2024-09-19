@@ -294,9 +294,9 @@ EXPORTS      = &
 		M_WPDataFileCClassData        .316, &
 		M_WPDataFileClassData 	      .317, &
 		M_WPDataFileNewClass          .318, &
-#		M_WPTemplatesCClassData 	  .319, &
-#		M_WPTemplatesClassData        .320, &
-#		M_WPTemplatesNewClass 	      .321, &
+		M_WPTemplatesCClassData 	  .319, &
+		M_WPTemplatesClassData        .320, &
+		M_WPTemplatesNewClass 	      .321, &
 		M_WPObjectCClassData          .322, &
 		M_WPObjectClassData 	      .323, &
 		M_WPObjectNewClass            .324, &
