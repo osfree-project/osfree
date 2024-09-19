@@ -2,7 +2,7 @@
 
 PORT_NAME = os2$(SEP)libpng
 PORT_TYPE = wget
-PORT_URL  = https://download.sourceforge.net/libpng/lpng1639.zip
+PORT_URL  = https://download.sourceforge.net/libpng/lpng1644.zip
 PORT_REV  = 
 PORT_PATCHES  = 
 
