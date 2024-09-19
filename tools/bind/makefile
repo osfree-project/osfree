@@ -1,14 +1,14 @@
 #
-# A Makefile for MSGBIND
+# A Makefile for BIND
 # (c) osFree project,
 # author, date
 #
 
-PROJ = msgbind
+PROJ = bind
 TRGT = $(PROJ).exe
-DESC = Message binder
+DESC = Binder
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)loader$(e)
 # defines additional options for C compiler
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/appsdos.mk
