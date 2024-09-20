@@ -1,9 +1,53 @@
+/*
+ * FamilyAPI NE Loader DOS stub
+ *
+ * Copyright 1993 Robert J. Amstadt
+ * Copyright 1995 Alexandre Julliard
+ * Copyright 2024 Yuri Prokushev
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <dos.h>
 #include <malloc.h>
+
+
+#ifndef DWORD
+#define DWORD unsigned long
+#endif
+
+#ifndef WORD
+#define WORD unsigned short
+#endif
+
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+
+#ifndef HANDLE
+#define HANDLE WORD
+#endif
+
+#ifndef HGLOBAL
+#define HGLOBAL HANDLE
+#endif
+
 
 #include "newexe.h"
 
@@ -28,6 +72,37 @@ typedef struct tagOFSTRUCT {
 
 // Global variables
 struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK)
+
+
+// @todo make emulation of standard windows function via DOS ones
+// for sharing of this code with WIN16 KERNEL.EXE
+// List of emulated functions
+//   GlobalAlloc
+//   GlobalLock
+//   GlobalUnlock
+//   @todo add file functions
+
+#define GMEM_FIXED          0x0000
+#define GMEM_ZEROINIT       0x0040
+
+// Emulation of GlobalAlloc. Actually returns segment allocated by int 21h
+HGLOBAL GlobalAlloc(WORD flags, DWORD size)
+{
+	return _fmalloc(size);
+}
+
+// Produce far pointer from HGLOBAL
+char far *  GlobalLock(HGLOBAL h)
+{
+	return MK_FP(h, 0);
+}
+
+// Actually, does nothing
+BYTE GlobalUnlock(HGLOBAL h)
+{
+	return 1;
+}
+
 
 // @todo fread doesn't work with far pointers?
 int main(int argc, char *argv[])
@@ -58,12 +133,16 @@ int main(int argc, char *argv[])
   
     // Read old Executable header
     result = fread(&MZHeader, 1, sizeof(MZHeader), f);
+	
+	//@todo Check is it correct header
   
     // Seek New Executable header
     result = fseek(f, E_LFANEW(MZHeader), SEEK_SET);
   
     // Read New Executable header
     result = fread(&NEHeader, 1, sizeof(NEHeader), f);
+
+	//@todo Check is it correct header
   
     // Calculate in memory size
     size = sizeof(struct new_exe) +								/* NE Header size */
@@ -78,7 +157,7 @@ int main(int argc, char *argv[])
              sizeof(OFSTRUCT) - 128 + strlen(filename) + 1;		/* loaded file info */
   
     // Allocate memory
-    mte=_fmalloc(size);
+    mte=GlobalAlloc( GMEM_FIXED | GMEM_ZEROINIT, size );
     
     // Zero data
     _fmemset(mte, 0, size);
@@ -98,7 +177,7 @@ int main(int argc, char *argv[])
     // Point to in-memory segment table
     pData=(BYTE *)(mte+1);
     
-    // Load segment table, allocate segments, load segments, relocate segment
+    // Load segment table, allocate segments
     for (i = NE_CSEG(NEHeader); i > 0; i--)
     {
   	  // Read segment table entry
@@ -108,20 +187,29 @@ int main(int argc, char *argv[])
       minalloc = ((struct new_seg1 *)pData)->ns1_minalloc ? ((struct new_seg1 *)pData)->ns1_minalloc : 0x10000;
   	  ((struct new_seg1 *)pData)->ns1_handle=FP_SEG(_fmalloc(minalloc));
   
+  	  // Next segment table entry
+      pData += sizeof(struct new_seg1);
+    }
+
+    // Point to in-memory segment table
+    pData=(BYTE *)(mte+1);
+	
+	// Load segments, relocate segments
+    for (i = NE_CSEG(NEHeader); i > 0; i--)
+    {
   	  // Read segment into memory
       pos = ((struct new_seg1 *)pData)->ns1_sector << mte->ne_align;
       if (((struct new_seg1 *)pData)->ns1_cbseg) size = ((struct new_seg1 *)pData)->ns1_cbseg;
       else size = minalloc;
       result = fseek(f, pos, SEEK_SET);
       result = fread(MK_FP(((struct new_seg1 *)pData)->ns1_handle,0), 1, size, f);
-	  //@todo back seek here
   	
   	  // Relocate segment
-  
+
   	  // Next segment table entry
       pData += sizeof(struct new_seg1);
     }
-    
+  
     // Load Resource table (will not be implemented yet)
     
     // Load Resident names table
@@ -147,4 +235,3 @@ int main(int argc, char *argv[])
 	  return 1;
   }
 }
-

@@ -9,18 +9,6 @@
 extern "C" {
 #endif
 
-#ifndef DWORD
-#define DWORD unsigned long
-#endif
-
-#ifndef WORD
-#define WORD unsigned short
-#endif
-
-#ifndef BYTE
-#define BYTE unsigned char
-#endif
-
 #define EMAGIC      0x5A4D
 #define ENEWEXE     sizeof(struct exe_hdr)
 
