@@ -72,13 +72,16 @@ typedef struct tagOFSTRUCT {
 
 
 
-// @todo make emulation of standard windows function via DOS ones
+// Emulation of standard windows function via DOS ones
 // for sharing of this code with WIN16 KERNEL.EXE
 // List of emulated functions
 //   GlobalAlloc
 //   GlobalLock
 //   GlobalUnlock
-//   @todo add file functions
+//   _lopen
+//   _llseek
+//   _lread
+//   _lclose
 
 #define GMEM_FIXED          0x0000
 #define GMEM_ZEROINIT       0x0040
@@ -97,7 +100,7 @@ HGLOBAL GlobalAlloc(WORD flags, DWORD size)
 		mov segm, ax
 	}
 
-    // Zero data
+	// Zero data
 	if (flags & GMEM_ZEROINIT) _fmemset(MK_FP(segm, 0), 0, size);
 
 	return segm;
@@ -115,10 +118,80 @@ BYTE GlobalUnlock(HGLOBAL h)
 	return 1;
 }
 
+#define OF_READ 0x0000
+#define HFILE WORD
+#define UINT unsigned int
+#define LONG long
+#define LPVOID void far *
+#define LPCSTR const char far *
+
+HFILE _lopen(LPCSTR lpPathName, int iReadWrite)
+{
+  HFILE res;
+  __asm {
+    mov ax, iReadWrite
+    mov dx, word ptr lpPathName
+    mov ds, word ptr lpPathName+2
+    mov ah, 3dh
+    int 21h
+    jnc lopenexit
+    mov ax,-1
+lopenexit:
+    mov res, ax
+  }
+  return res;
+}
+
+UINT _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes)
+{
+  UINT res;
+  __asm {
+    mov bx, word ptr hFile
+    mov dx, word ptr lpBuffer
+    mov ds, word ptr lpBuffer+2
+    mov cx, uBytes
+    mov ah, 3fh
+    int 21h
+    jnc lreadexit
+    mov ax,-1
+lreadexit:
+    mov res, ax
+  }
+  return res;
+}
+
+HFILE _lclose(HFILE hFile)
+{
+  HFILE res;
+  __asm {
+    mov bx, hFile
+    mov ax, 3eh
+    int 21h
+    jnc lcloseexit
+    mov ax,-1
+lcloseexit:
+    mov res, ax
+  }
+  return res;
+}
+
+LONG _llseek( HFILE hFile, LONG lOffset, int nOrigin )
+{
+  LONG res;
+  __asm {
+    mov bx, word ptr hFile
+    mov dx, word ptr lOffset
+    mov cx, word ptr lOffset+2
+    mov ax, nOrigin
+    mov ah, 42h
+    int 21h
+  }
+  return res;
+}
+
 // Global variables
 struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK)
 
-// @todo fread doesn't work with far pointers?
 int main(int argc, char *argv[])
 {
   char filename[_MAX_PATH];
