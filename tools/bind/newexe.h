@@ -143,21 +143,22 @@ extern "C" {
 
 #pragma pack(push,1)
 
+
 struct exe_hdr {
-    WORD	e_magic;
-    WORD	e_cblp;
-    WORD	e_cp;
-    WORD	e_crlc;
-    WORD	e_cparhdr;
-    WORD	e_minalloc;
-    WORD	e_maxalloc;
-    WORD	e_ss;
-    WORD	e_sp;
-    WORD	e_csum;
-    WORD	e_ip;
-    WORD	e_cs;
-    WORD	e_lfarlc;
-    WORD	e_ovno;
+    WORD	e_magic;			/* 0x4d, 0x5a. This is the "magic number" of an EXE file. The first byte of the file is 0x4d and the second is 0x5a. */
+    WORD	e_cblp;				/* The number of bytes in the last block of the program that are actually used. If this value is zero, that means the entire last block is used (i.e. the effective value is 512). */
+    WORD	e_cp;				/* Number of blocks in the file that are part of the EXE file. If [02-03] is non-zero, only that much of the last block is used. */
+    WORD	e_crlc;				/* Number of relocation entries stored after the header. May be zero. */
+    WORD	e_cparhdr;			/* Number of paragraphs in the header. The program's data begins just after the header, and this field can be used to calculate the appropriate file offset. The header includes the relocation entries. Note that some OSs and/or programs may fail if the header is not a multiple of 512 bytes. */
+    WORD	e_minalloc;			/* Number of paragraphs of additional memory that the program will need. This is the equivalent of the BSS size in a Unix program. The program can't be loaded if there isn't at least this much memory available to it. */
+    WORD	e_maxalloc;			/* Maximum number of paragraphs of additional memory. Normally, the OS reserves all the remaining conventional memory for your program, but you can limit it with this field. */
+    WORD	e_ss;				/* Relative value of the stack segment. This value is added to the segment the program was loaded at, and the result is used to initialize the SS register. */
+    WORD	e_sp;				/* Initial value of the SP register. */
+    WORD	e_csum;				/* Word checksum. If set properly, the 16-bit sum of all words in the file should be zero. Usually, this isn't filled in. */
+    WORD	e_ip;				/* Initial value of the IP register. */
+    WORD	e_cs;				/* Initial value of the CS register, relative to the segment the program was loaded at. */
+    WORD	e_lfarlc;			/* Offset of the first relocation item in the file. */
+    WORD	e_ovno;				/* Overlay number. Normally zero, meaning that it's the main program. */
     WORD	e_res[ERES1WDS];
     WORD	e_oemid;
     WORD	e_oeminfo;
@@ -177,7 +178,7 @@ struct new_exe {
 		WORD  count;				/* Usage count (ne_ver/ne_rev on disk) */
 	};
     WORD  ne_enttab;				/* Entry Table file offset, relative to the beginning of
-											   the segmented EXE header */
+									   the segmented EXE header */
 	union {
 		WORD  ne_cbenttab;			/* Number of bytes in the entry table */
 		WORD  next;					/* Selector to next module */
@@ -200,11 +201,11 @@ struct new_exe {
 									   table. The first entry in the segment table is segment
 									   number 1 */
     WORD  ne_heap;					/* Initial size, in bytes, of dynamic heap added to the
-										   data segment. This value is zero if no initial local
-										   heap is allocated */
+									   data segment. This value is zero if no initial local
+									   heap is allocated */
     WORD  ne_stack;					/* Initial size, in bytes, of stack added to the data
-										   segment. This value is zero to indicate no initial
-										   stack allocation, or when SS is not equal to DS */
+									   segment. This value is zero to indicate no initial
+									   stack allocation, or when SS is not equal to DS */
     DWORD            ne_csip;		/* Segment number:offset of CS:IP */
 	DWORD            ne_sssp;		/* Segment number:offset of SS:SP.
 									   If SS equals the automatic data segment and SP equals
@@ -237,33 +238,33 @@ struct new_exe {
     WORD	ne_cmovent;				/* Number of movable entries in the Entry Table */
     WORD	ne_align;				/* Logical sector alignment shift count, log(base 2) of
 									   the segment sector size (default 9) */
-
-    WORD	ne_cres;					/* Number of resource entries */
+    WORD	ne_cres;				/* Number of resource entries */
     BYTE	ne_exetyp;				/* Executable type, used by loader.
 									   02h = WINDOWS */
     BYTE	ne_flagsothers;			/* Operating system flags */
     char	ne_res[NERESBYTES];		/* Reserved */ 
 };
 
+// On-disk segment entry
 struct new_seg {
     WORD  ns_sector;				/* Logical-sector offset (n byte) to the contents of the segment
-											   data, relative to the beginning of the file. Zero means no
-											   file data */
-    WORD  ns_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
-    WORD  ns_flags;				/* Flag word */
-    WORD  ns_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
-											   of the segment. Zero means 64K */
+									   data, relative to the beginning of the file. Zero means no
+									   file data */
+    WORD  ns_cbseg;					/* Length of the segment in the file, in bytes. Zero means 64K */
+    WORD  ns_flags;					/* Flag word */
+    WORD  ns_minalloc;				/* Minimum allocation size of the segment, in bytes. Total size
+									   of the segment. Zero means 64K */
 };
 
 // In-memory segment entry
 struct new_seg1 {
     WORD  ns1_sector;				/* Logical-sector offset (n byte) to the contents of the segment
-											   data, relative to the beginning of the file. Zero means no
-											   file data */
+									   data, relative to the beginning of the file. Zero means no
+									   file data */
     WORD  ns1_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
     WORD  ns1_flags;				/* Flag word */
-    WORD  ns1_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
-											   of the segment. Zero means 64K */
+    WORD  ns1_minalloc;				/* Minimum allocation size of the segment, in bytes. Total size
+									   of the segment. Zero means 64K */
     WORD  ns1_handle;				/* Selector or handle (selector - 1) of segment in memory */
 };
 
@@ -272,10 +273,10 @@ struct new_segdata {
         struct {
             WORD      ns_niter;
             WORD      ns_nbytes;
-            char                ns_iterdata;
+            char      ns_iterdata;
         } ns_iter;
         struct {
-            char                ns_data;
+            char      ns_data;
         } ns_noniter;
     } ns_union;
 };

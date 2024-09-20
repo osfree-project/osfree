@@ -70,8 +70,6 @@ typedef struct tagOFSTRUCT {
 
 #pragma pack( pop )
 
-// Global variables
-struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK)
 
 
 // @todo make emulation of standard windows function via DOS ones
@@ -88,7 +86,21 @@ struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK
 // Emulation of GlobalAlloc. Actually returns segment allocated by int 21h
 HGLOBAL GlobalAlloc(WORD flags, DWORD size)
 {
-	return _fmalloc(size);
+	WORD segm;
+	WORD s=(size >> 4) + 1;
+
+	__asm
+	{
+		mov ax,48h
+		mov bx, s
+		int 21h
+		mov segm, ax
+	}
+
+    // Zero data
+	if (flags & GMEM_ZEROINIT) _fmemset(MK_FP(segm, 0), 0, size);
+
+	return segm;
 }
 
 // Produce far pointer from HGLOBAL
@@ -103,6 +115,8 @@ BYTE GlobalUnlock(HGLOBAL h)
 	return 1;
 }
 
+// Global variables
+struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK)
 
 // @todo fread doesn't work with far pointers?
 int main(int argc, char *argv[])
@@ -157,10 +171,7 @@ int main(int argc, char *argv[])
              sizeof(OFSTRUCT) - 128 + strlen(filename) + 1;		/* loaded file info */
   
     // Allocate memory
-    mte=GlobalAlloc( GMEM_FIXED | GMEM_ZEROINIT, size );
-    
-    // Zero data
-    _fmemset(mte, 0, size);
+    mte=(struct new_exe far *)GlobalLock(GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, size));
     
     // Copy header from stack
     _fmemcpy(mte, &NEHeader, sizeof(NEHeader));
