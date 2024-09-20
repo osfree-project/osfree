@@ -9,6 +9,18 @@
 extern "C" {
 #endif
 
+#ifndef DWORD
+#define DWORD unsigned long
+#endif
+
+#ifndef WORD
+#define WORD unsigned short
+#endif
+
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+
 #define EMAGIC      0x5A4D
 #define ENEWEXE     sizeof(struct exe_hdr)
 
@@ -141,135 +153,137 @@ extern "C" {
 #define NSLOADED        0x0004
 #endif
 
+#pragma pack(push,1)
+
 struct exe_hdr {
-    unsigned short  e_magic;
-    unsigned short  e_cblp;
-    unsigned short  e_cp;
-    unsigned short  e_crlc;
-    unsigned short  e_cparhdr;
-    unsigned short  e_minalloc;
-    unsigned short  e_maxalloc;
-    unsigned short  e_ss;
-    unsigned short  e_sp;
-    unsigned short  e_csum;
-    unsigned short  e_ip;
-    unsigned short  e_cs;
-    unsigned short  e_lfarlc;
-    unsigned short  e_ovno;
-    unsigned short  e_res[ERES1WDS];
-    unsigned short  e_oemid;
-    unsigned short  e_oeminfo;
-    unsigned short  e_res2[ERES2WDS];
-    long            e_lfanew;
+    WORD	e_magic;
+    WORD	e_cblp;
+    WORD	e_cp;
+    WORD	e_crlc;
+    WORD	e_cparhdr;
+    WORD	e_minalloc;
+    WORD	e_maxalloc;
+    WORD	e_ss;
+    WORD	e_sp;
+    WORD	e_csum;
+    WORD	e_ip;
+    WORD	e_cs;
+    WORD	e_lfarlc;
+    WORD	e_ovno;
+    WORD	e_res[ERES1WDS];
+    WORD	e_oemid;
+    WORD	e_oeminfo;
+    WORD	e_res2[ERES2WDS];
+    DWORD	e_lfanew;
 };
 
+/* In-disk and In-memory module structure. See 'Windows Internals' p. 219 */
+
 struct new_exe {
-    unsigned short  ne_magic;				/* Signature word EMAGIC */
+    WORD  ne_magic;					/* Signature word EMAGIC */
 	union {
 		struct {
-			unsigned char   ne_ver;			/* Version number of the linker */
-			unsigned char   ne_rev;			/* Revision number of the linker */
+			BYTE   ne_ver;			/* Version number of the linker */
+			BYTE   ne_rev;			/* Revision number of the linker */
 		};
-		unsigned short count;				/* Usage count (ne_ver/ne_rev on disk) */
+		WORD  count;				/* Usage count (ne_ver/ne_rev on disk) */
 	};
-    unsigned short  ne_enttab;				/* Entry Table file offset, relative to the beginning of
+    WORD  ne_enttab;				/* Entry Table file offset, relative to the beginning of
 											   the segmented EXE header */
 	union {
-		unsigned short  ne_cbenttab;		/* Number of bytes in the entry table */
-		unsigned short  next;				/* Selector to next module */
+		WORD  ne_cbenttab;			/* Number of bytes in the entry table */
+		WORD  next;					/* Selector to next module */
 	};
 	union {
-		long            ne_crc;				/* 32-bit CRC of entire contents of file.
-											   These words are taken as 00 during the calculation */
+		DWORD            ne_crc;	/* 32-bit CRC of entire contents of file.
+									   These words are taken as 00 during the calculation */
 		struct {
-			unsigned short	dgroup_entry;	/* Near ptr to segment entry for DGROUP */
-			unsigned short	fileinfo;		/* Near ptr to file info (OFSTRUCT)*/
+			WORD	dgroup_entry;	/* Near ptr to segment entry for DGROUP */
+			WORD	fileinfo;		/* Near ptr to file info (OFSTRUCT)*/
 		};
 	};
-    unsigned short  ne_flags;				/* Flag word */
-    unsigned short  ne_autodata;			/* Segment number of automatic data segment.
-											   This value is set to zero if SINGLEDATA and
-											   MULTIPLEDATA flag bits are clear, NOAUTODATA is
-											   indicated in the flags word.
+    WORD  ne_flags;					/* Flag word */
+    WORD  ne_autodata;				/* Segment number of automatic data segment.
+									   This value is set to zero if SINGLEDATA and
+									   MULTIPLEDATA flag bits are clear, NOAUTODATA is
+									   indicated in the flags word.
 
-											   A Segment number is an index into the module's segment
-											   table. The first entry in the segment table is segment
-											   number 1 */
-    unsigned short  ne_heap;				/* Initial size, in bytes, of dynamic heap added to the
-											   data segment. This value is zero if no initial local
-											   heap is allocated */
-    unsigned short  ne_stack;				/* Initial size, in bytes, of stack added to the data
-											   segment. This value is zero to indicate no initial
-											   stack allocation, or when SS is not equal to DS */
-    long            ne_csip;				/* Segment number:offset of CS:IP */
-	long            ne_sssp;				/* Segment number:offset of SS:SP.
-											   If SS equals the automatic data segment and SP equals
-											   zero, the stack pointer is set to the top of the
-											   automatic data segment just below the additional heap
-											   area.
+									   A Segment number is an index into the module's segment
+									   table. The first entry in the segment table is segment
+									   number 1 */
+    WORD  ne_heap;					/* Initial size, in bytes, of dynamic heap added to the
+										   data segment. This value is zero if no initial local
+										   heap is allocated */
+    WORD  ne_stack;					/* Initial size, in bytes, of stack added to the data
+										   segment. This value is zero to indicate no initial
+										   stack allocation, or when SS is not equal to DS */
+    DWORD            ne_csip;		/* Segment number:offset of CS:IP */
+	DWORD            ne_sssp;		/* Segment number:offset of SS:SP.
+									   If SS equals the automatic data segment and SP equals
+									   zero, the stack pointer is set to the top of the
+									   automatic data segment just below the additional heap
+									   area.
 
-											   +--------------------------+
-											   | additional dynamic heap  |
-											   +--------------------------+ <- SP
-											   |    additional stack      |
-											   +--------------------------+
-											   | loaded auto data segment |
-											   +--------------------------+ <- DS, SS */
-    unsigned short  ne_cseg;				/* Number of entries in the Segment Table */
-    unsigned short  ne_cmod;				/* Number of entries in the Module Reference Table */
-    unsigned short  ne_cbnrestab;			/* Number of bytes in the Non-Resident Name Table */
-    unsigned short  ne_segtab;				/* Segment Table file offset, relative to the beginning
-											   of the segmented EXE header */
-    unsigned short  ne_rsrctab;				/* Resource Table file offset, relative to the beginning
-											   of the segmented EXE header */
-	unsigned short  ne_restab;				/* Resident Name Table file offset, relative to the
-											   beginning of the segmented EXE header */
-    unsigned short  ne_modtab;				/* Module Reference Table file offset, relative to the
-											   beginning of the segmented EXE header */
-    unsigned short  ne_imptab;				/* Imported Names Table file offset, relative to the
-											   beginning of the segmented EXE header */
-    long            ne_nrestab;				/* Non-Resident Name Table offset, relative to the
-											   beginning of the file */
-    unsigned short  ne_cmovent;				/* Number of movable entries in the Entry Table */
-    unsigned short  ne_align;				/* Logical sector alignment shift count, log(base 2) of
-											   the segment sector size (default 9) */
+									   +--------------------------+
+									   | additional dynamic heap  |
+									   +--------------------------+ <- SP
+									   |    additional stack      |
+									   +--------------------------+
+									   | loaded auto data segment |
+									   +--------------------------+ <- DS, SS */
+    WORD  ne_cseg;					/* Number of entries in the Segment Table */
+    WORD  ne_cmod;					/* Number of entries in the Module Reference Table */
+    WORD  ne_cbnrestab;				/* Number of bytes in the Non-Resident Name Table */
+    WORD  ne_segtab;				/* Segment Table file offset, relative to the beginning
+									   of the segmented EXE header */
+    WORD  ne_rsrctab;				/* Resource Table file offset, relative to the beginning
+									   of the segmented EXE header */
+	WORD  ne_restab;				/* Resident Name Table file offset, relative to the
+									   beginning of the segmented EXE header */
+    WORD  ne_modtab;				/* Module Reference Table file offset, relative to the
+									   beginning of the segmented EXE header */
+    WORD  ne_imptab;				/* Imported Names Table file offset, relative to the
+									   beginning of the segmented EXE header */
+    DWORD	ne_nrestab;				/* Non-Resident Name Table offset, relative to the
+									   beginning of the file */
+    WORD	ne_cmovent;				/* Number of movable entries in the Entry Table */
+    WORD	ne_align;				/* Logical sector alignment shift count, log(base 2) of
+									   the segment sector size (default 9) */
 
-    unsigned short  ne_cres;				/* Number of resource entries */
-    unsigned char   ne_exetyp;				/* Executable type, used by loader.
-											   02h = WINDOWS */
-    unsigned char   ne_flagsothers;			/* Operating system flags */
-    char            ne_res[NERESBYTES];		/* Reserved */ 
+    WORD	ne_cres;					/* Number of resource entries */
+    BYTE	ne_exetyp;				/* Executable type, used by loader.
+									   02h = WINDOWS */
+    BYTE	ne_flagsothers;			/* Operating system flags */
+    char	ne_res[NERESBYTES];		/* Reserved */ 
 };
 
 struct new_seg {
-    unsigned short  ns_sector;				/* Logical-sector offset (n byte) to the contents of the segment
+    WORD  ns_sector;				/* Logical-sector offset (n byte) to the contents of the segment
 											   data, relative to the beginning of the file. Zero means no
 											   file data */
-    unsigned short  ns_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
-    unsigned short  ns_flags;				/* Flag word */
-    unsigned short  ns_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
+    WORD  ns_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
+    WORD  ns_flags;				/* Flag word */
+    WORD  ns_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
 											   of the segment. Zero means 64K */
 };
 
 // In-memory segment entry
 struct new_seg1 {
-    unsigned short  ns1_sector;				/* Logical-sector offset (n byte) to the contents of the segment
+    WORD  ns1_sector;				/* Logical-sector offset (n byte) to the contents of the segment
 											   data, relative to the beginning of the file. Zero means no
 											   file data */
-    unsigned short  ns1_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
-    unsigned short  ns1_flags;				/* Flag word */
-    unsigned short  ns1_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
+    WORD  ns1_cbseg;				/* Length of the segment in the file, in bytes. Zero means 64K */
+    WORD  ns1_flags;				/* Flag word */
+    WORD  ns1_minalloc;			/* Minimum allocation size of the segment, in bytes. Total size
 											   of the segment. Zero means 64K */
-    unsigned short  ns1_handle;				/* Selector or handle (selector - 1) of segment in memory */
+    WORD  ns1_handle;				/* Selector or handle (selector - 1) of segment in memory */
 };
-
-#pragma pack(push,1)
 
 struct new_segdata {
     union {
         struct {
-            unsigned short      ns_niter;
-            unsigned short      ns_nbytes;
+            WORD      ns_niter;
+            WORD      ns_nbytes;
             char                ns_iterdata;
         } ns_iter;
         struct {
@@ -279,26 +293,26 @@ struct new_segdata {
 };
 
 struct new_rlcinfo {
-    unsigned short  nr_nreloc;
+    WORD  nr_nreloc;
 };
 
 struct new_rlc {
     char            nr_stype;
     char            nr_flags;
-    unsigned short  nr_soff;
+    WORD  nr_soff;
     union {
         struct {
             char            nr_segno;
             char            nr_res;
-            unsigned short  nr_entry;
+            WORD  nr_entry;
           } nr_intref;
         struct {
-            unsigned short  nr_mod;
-            unsigned short  nr_proc;
+            WORD  nr_mod;
+            WORD  nr_proc;
           } nr_import;
         struct {
-            unsigned short  nr_ostype;
-            unsigned short  nr_osres;
+            WORD  nr_ostype;
+            WORD  nr_osres;
           } nr_osfix;
       } nr_union;
 };
@@ -355,28 +369,29 @@ struct new_rlc {
 #define RNPRELOAD   0x0040
 #define RNDISCARD   0xF000
 
+#define NE_FFLAGS_LIBMODULE 0x8000
 struct rsrc_string {
     char    rs_len;
     char    rs_string[1];
 };
 
 struct rsrc_typeinfo {
-    unsigned short  rt_id;
-    unsigned short  rt_nres;
-    long            rt_proc;
+    WORD  rt_id;
+    WORD  rt_nres;
+    DWORD            rt_proc;
 };
 
 struct rsrc_nameinfo {
-    unsigned short  rn_offset;
-    unsigned short  rn_length;
-    unsigned short  rn_flags;
-    unsigned short  rn_id;
-    unsigned short  rn_handle;
-    unsigned short  rn_usage;
+    WORD  rn_offset;
+    WORD  rn_length;
+    WORD  rn_flags;
+    WORD  rn_id;
+    WORD  rn_handle;
+    WORD  rn_usage;
 };
 
 struct new_rsrc {
-    unsigned short          rs_align;
+    WORD          rs_align;
     struct rsrc_typeinfo    rs_typeinfo;
 };
 
