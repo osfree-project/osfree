@@ -359,6 +359,7 @@ struct new_rlc {
 #define RNDISCARD   0xF000
 
 #define NE_FFLAGS_LIBMODULE 0x8000
+
 struct rsrc_string {
     char    rs_len;
     char    rs_string[1];

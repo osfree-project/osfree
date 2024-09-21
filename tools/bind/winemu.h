@@ -30,6 +30,7 @@
 #define GMEM_ZEROINIT       0x0040
 
 #define OF_READ 0x0000
+#define SEEK_SET 0
 
 #pragma pack( push, 1 )
 
