@@ -20,173 +20,22 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
-#include <dos.h>
-#include <malloc.h>
-
-
-#ifndef DWORD
-#define DWORD unsigned long
-#endif
-
-#ifndef WORD
-#define WORD unsigned short
-#endif
-
-#ifndef BYTE
-#define BYTE unsigned char
-#endif
-
-#ifndef HANDLE
-#define HANDLE WORD
-#endif
-
-#ifndef HGLOBAL
-#define HGLOBAL HANDLE
-#endif
-
-
+#include "winemu.h"
 #include "newexe.h"
 
-#pragma pack( push, 1 )
+void memcpy(void far * s1, void far * s2, unsigned length)
+{	char far * p;
+	char far * q;
 
-typedef struct
-{
-    WORD first; /* ordinal */
-    WORD last;  /* ordinal */
-    WORD next;  /* bundle */
-} ET_BUNDLE;
-
-typedef struct tagOFSTRUCT {
-    BYTE    cBytes;
-    BYTE    fFixedDisk;
-    unsigned int	nErrCode;
-    BYTE    reserved[4];
-    char    szPathName[128];
-} OFSTRUCT;
-
-#pragma pack( pop )
-
-
-
-// Emulation of standard windows function via DOS ones
-// for sharing of this code with WIN16 KERNEL.EXE
-// List of emulated functions
-//   GlobalAlloc
-//   GlobalLock
-//   GlobalUnlock
-//   _lopen
-//   _llseek
-//   _lread
-//   _lclose
-
-#define GMEM_FIXED          0x0000
-#define GMEM_ZEROINIT       0x0040
-
-// Emulation of GlobalAlloc. Actually returns segment allocated by int 21h
-HGLOBAL GlobalAlloc(WORD flags, DWORD size)
-{
-	WORD segm;
-	WORD s=(size >> 4) + 1;
-
-	__asm
-	{
-		mov ax,48h
-		mov bx, s
-		int 21h
-		mov segm, ax
+	if(length) {
+		p = s1;
+		q = s2;
+		do *p++ = *q++;
+		while(--length);
 	}
-
-	// Zero data
-	if (flags & GMEM_ZEROINIT) _fmemset(MK_FP(segm, 0), 0, size);
-
-	return segm;
-}
-
-// Produce far pointer from HGLOBAL
-char far *  GlobalLock(HGLOBAL h)
-{
-	return MK_FP(h, 0);
-}
-
-// Actually, does nothing
-BYTE GlobalUnlock(HGLOBAL h)
-{
-	return 1;
-}
-
-#define OF_READ 0x0000
-#define HFILE WORD
-#define UINT unsigned int
-#define LONG long
-#define LPVOID void far *
-#define LPCSTR const char far *
-
-HFILE _lopen(LPCSTR lpPathName, int iReadWrite)
-{
-  HFILE res;
-  __asm {
-    mov ax, iReadWrite
-    mov dx, word ptr lpPathName
-    mov ds, word ptr lpPathName+2
-    mov ah, 3dh
-    int 21h
-    jnc lopenexit
-    mov ax,-1
-lopenexit:
-    mov res, ax
-  }
-  return res;
-}
-
-UINT _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes)
-{
-  UINT res;
-  __asm {
-    mov bx, word ptr hFile
-    mov dx, word ptr lpBuffer
-    mov ds, word ptr lpBuffer+2
-    mov cx, uBytes
-    mov ah, 3fh
-    int 21h
-    jnc lreadexit
-    mov ax,-1
-lreadexit:
-    mov res, ax
-  }
-  return res;
-}
-
-HFILE _lclose(HFILE hFile)
-{
-  HFILE res;
-  __asm {
-    mov bx, hFile
-    mov ax, 3eh
-    int 21h
-    jnc lcloseexit
-    mov ax,-1
-lcloseexit:
-    mov res, ax
-  }
-  return res;
-}
-
-LONG _llseek( HFILE hFile, LONG lOffset, int nOrigin )
-{
-  LONG res;
-  __asm {
-    mov bx, word ptr hFile
-    mov dx, word ptr lOffset
-    mov cx, word ptr lOffset+2
-    mov ax, nOrigin
-    mov ah, 42h
-    int 21h
-  }
-  return res;
 }
 
 // Global variables
@@ -194,8 +43,7 @@ struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK
 
 int main(int argc, char *argv[])
 {
-  char filename[_MAX_PATH];
-  FILE *f;
+  HFILE f;
   struct exe_hdr MZHeader;
   struct new_exe NEHeader;
   int result;
@@ -208,28 +56,25 @@ int main(int argc, char *argv[])
   if (_osminor > 2)
   {
   
-    // Get our filename
-    strcpy(filename, argv[0]);
-  
     // Open ourself for read
-    if( (f  = fopen( filename, "rb" )) == NULL )
+    if( (f  = _lopen(argv[0], OF_READ)) == -1 )
     {
       printf( "Error\n");
       return 1;
     }
-  
+
     // Read old Executable header
-    result = fread(&MZHeader, 1, sizeof(MZHeader), f);
+    result = _lread(f, &MZHeader, sizeof(MZHeader));
 	
-	//@todo Check is it correct header
+    //@todo Check is it correct header
   
     // Seek New Executable header
-    result = fseek(f, E_LFANEW(MZHeader), SEEK_SET);
+    result = _llseek(f, E_LFANEW(MZHeader), SEEK_SET);
   
     // Read New Executable header
-    result = fread(&NEHeader, 1, sizeof(NEHeader), f);
+    result = _lread(f, &NEHeader, sizeof(NEHeader));
 
-	//@todo Check is it correct header
+    //@todo Check is it correct header
   
     // Calculate in memory size
     size = sizeof(struct new_exe) +								/* NE Header size */
@@ -241,13 +86,13 @@ int main(int argc, char *argv[])
              NE_CBENTTAB(NEHeader) +								/* entry table length */
              sizeof(ET_BUNDLE) +									/* ??? */
              2 * (NE_CBENTTAB(NEHeader) - NE_CMOVENT(NEHeader)*6) +	/* entry table extra conversion space */
-             sizeof(OFSTRUCT) - 128 + strlen(filename) + 1;		/* loaded file info */
+             sizeof(OFSTRUCT) - 128 + lstrlen(argv[0]) + 1;		/* loaded file info */
   
     // Allocate memory
     mte=(struct new_exe far *)GlobalLock(GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, size));
     
     // Copy header from stack
-    _fmemcpy(mte, &NEHeader, sizeof(NEHeader));
+    memcpy(mte, &NEHeader, sizeof(NEHeader));
     mte->count=0;
     
     /* check programs for default minimal stack size */
@@ -256,7 +101,7 @@ int main(int argc, char *argv[])
     mte->next=0;
   
     // Move to start of segment table
-    result = fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader), SEEK_SET);
+    result = _llseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader), SEEK_SET);
   
     // Point to in-memory segment table
     pData=(BYTE *)(mte+1);
@@ -265,11 +110,11 @@ int main(int argc, char *argv[])
     for (i = NE_CSEG(NEHeader); i > 0; i--)
     {
   	  // Read segment table entry
-      result = fread(pData, 1, sizeof(struct new_seg), f);
+      result = _lread(f, pData, sizeof(struct new_seg));
   
       // Allocate segment
       minalloc = ((struct new_seg1 *)pData)->ns1_minalloc ? ((struct new_seg1 *)pData)->ns1_minalloc : 0x10000;
-  	  ((struct new_seg1 *)pData)->ns1_handle=FP_SEG(_fmalloc(minalloc));
+  	  ((struct new_seg1 *)pData)->ns1_handle=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, minalloc);
   
   	  // Next segment table entry
       pData += sizeof(struct new_seg1);
@@ -285,8 +130,8 @@ int main(int argc, char *argv[])
       pos = ((struct new_seg1 *)pData)->ns1_sector << mte->ne_align;
       if (((struct new_seg1 *)pData)->ns1_cbseg) size = ((struct new_seg1 *)pData)->ns1_cbseg;
       else size = minalloc;
-      result = fseek(f, pos, SEEK_SET);
-      result = fread(MK_FP(((struct new_seg1 *)pData)->ns1_handle,0), 1, size, f);
+      result = _llseek(f, pos, SEEK_SET);
+      result = _lread(f, GlobalLock(((struct new_seg1 *)pData)->ns1_handle), size);
   	
   	  // Relocate segment
 
@@ -306,7 +151,7 @@ int main(int argc, char *argv[])
     
     if(f)
     {
-      if (fclose(f))
+      if (_lclose(f))
       {
         printf("Error\n");
         return 1;
