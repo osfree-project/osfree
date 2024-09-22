@@ -21,7 +21,9 @@ HGLOBAL GlobalAlloc(WORD flags, DWORD size)
 	{
 		mov ax,48h
 		mov bx, s
-		int 21h
+	  }
+	  Dos3Call;
+	  __asm {
 		mov segm, ax
 	}
 

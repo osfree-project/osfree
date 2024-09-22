@@ -39,7 +39,9 @@ UINT _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes)
     mov ds, word ptr lpBuffer+2
     mov cx, uBytes
     mov ah, 3fh
-    int 21h
+  }
+  Dos3Call;
+  __asm {
     pop ds
     jnc lreadexit
     mov ax,-1
@@ -54,7 +56,9 @@ HFILE _lclose(HFILE hFile)
   __asm {
     mov bx, hFile
     mov ax, 3eh
-    int 21h
+  }
+  Dos3Call;
+  __asm {
     jnc lcloseexit
     mov ax,-1
 lcloseexit:
@@ -71,7 +75,9 @@ LONG _llseek( HFILE hFile, LONG lOffset, int nOrigin )
     mov cx, word ptr lOffset+2
     mov ax, nOrigin
     mov ah, 42h
-    int 21h
+  }
+  Dos3Call;
+  __asm {
   }
 }
 #pragma enable_message(107);
