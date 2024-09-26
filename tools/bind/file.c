@@ -55,7 +55,7 @@ HFILE _lclose(HFILE hFile)
 {
   __asm {
     mov bx, hFile
-    mov ax, 3eh
+    mov ax, 3e00h
   }
   Dos3Call;
   __asm {

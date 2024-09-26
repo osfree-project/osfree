@@ -8,21 +8,22 @@
 #include <malloc.h>
 #include <string.h>
 #include <dos.h>
+#include <stdio.h>
 
 #include "winemu.h"
 
 // Emulation of GlobalAlloc. Actually returns segment allocated by int 21h
-HGLOBAL GlobalAlloc(WORD flags, DWORD size)
+HGLOBAL WINAPI GlobalAlloc(WORD flags, DWORD size)
 {
 	WORD segm;
 	WORD s=(size >> 4) + 1;
 
 	__asm
 	{
-		mov ax,48h
-		mov bx, s
-	  }
-	  Dos3Call;
+		mov ax,4800h
+		mov bx, [s]
+	}
+	Dos3Call;
 	  __asm {
 		mov segm, ax
 	}

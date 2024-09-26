@@ -242,7 +242,10 @@ struct new_exe {
     BYTE	ne_exetyp;				/* Executable type, used by loader.
 									   02h = WINDOWS */
     BYTE	ne_flagsothers;			/* Operating system flags */
-    char	ne_res[NERESBYTES];		/* Reserved */ 
+    HANDLE  dlls_to_init;     /* 38 List of DLLs to initialize (ne_pretthunks on disk) */
+    HANDLE  nrname_handle;    /* 3a Handle to non-resident name table (ne_psegrefbytes on disk) */
+    WORD    ne_swaparea;      /* 3c Min. swap area size */
+    WORD    ne_expver;        /* 3e Expected Windows version */
 };
 
 // On-disk segment entry
