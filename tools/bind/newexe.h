@@ -87,6 +87,17 @@ extern "C" {
 #define NE_DOS4         0x3
 #define NE_DEV386       0x4
 
+/*
+00h unknown
+		01h OS/2
+		02h Windows
+		03h European MS-DOS 4.x
+		04h Windows 386
+		05h BOSS (Borland Operating System Services)
+		81h PharLap 286|DOS-Extender, OS/2
+		82h PharLap 286|DOS-Extender, Windows
+*/
+
 /* Flag word values */ 
 #define NENOTP          0x8000
 #define NENOTMPSAFE     0x4000
@@ -330,11 +341,13 @@ struct new_rlc {
 #define NRSOFF32    0x08
 
 #define NRADD       0x04
-#define NRRTYP      0x03
+#define NRRTYP      0x03	// Mask of relocation type
+
 #define NRRINT      0x00
 #define NRRORD      0x01
 #define NRRNAM      0x02
 #define NRROSF      0x03
+
 #define NRICHAIN    0x08
 
 #if (EXE386 == 0)

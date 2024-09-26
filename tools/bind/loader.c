@@ -43,7 +43,6 @@ void memcpy(void far * s1, void far * s2, unsigned length)
 // Global variables
 struct new_exe far * mte;		// Module table entry (@todo to be changed via THHOOK)
 
-
 #define TRACE(...) \
 	{ \
 		printf(__VA_ARGS__); \
@@ -210,7 +209,7 @@ void apply_relocations( struct new_exe far * pModule, struct new_rlc far *rep,
         /* If additive, there is no target chain list. Instead, add source
            and target */
         int additive = rep->nr_flags & NRADD;
-        switch (rep->nr_flags & 3)
+        switch (rep->nr_flags & NRRTYP)
         {
 #if 0
         case NRRORD:
@@ -411,149 +410,149 @@ int main(int argc, char *argv[])
     // Open ourself for read
     if( (f  = _lopen("attrib.exe"/*argv[0]*/, OF_READ)) != -1 )
     {
-  
       // Read old Executable header
-      result = _lread(f, &MZHeader, sizeof(MZHeader));
-	
-      if (E_MAGIC(MZHeader) == EMAGIC)
-      {
-        // Seek New Executable header
-        result = _llseek(f, E_LFANEW(MZHeader), SEEK_SET);
-  
-        // Read New Executable header
-        result = _lread(f, &NEHeader, sizeof(NEHeader));
-
-        if (NE_MAGIC(NEHeader) == NEMAGIC)
+      if ( (result = _lread(f, &MZHeader, sizeof(MZHeader))) != -1)
+	  {
+        if (E_MAGIC(MZHeader) == EMAGIC)
         {
-
-          /* check for OS/2 program */
-          if (NE_EXETYP(NEHeader) == NE_OS2)
+          // Seek New Executable header
+          result = _llseek(f, E_LFANEW(MZHeader), SEEK_SET);
+	    
+          // Read New Executable header
+          result = _lread(f, &NEHeader, sizeof(NEHeader));
+	    
+          if (NE_MAGIC(NEHeader) == NEMAGIC)
           {
-  
-            // Calculate in memory size
-            size = sizeof(struct new_exe) +							/* NE Header size */
-               NE_CSEG(NEHeader) * sizeof(struct new_seg1) +		/* in-memory segment table */
-               NE_RESTAB(NEHeader) - NE_RSRCTAB(NEHeader) +			/* resource table */
-               NE_MODTAB(NEHeader) - NE_RESTAB(NEHeader) +			/* resident names table */
-               NE_CMOD(NEHeader) * sizeof(WORD) +					/* module ref table */
-               NE_ENTTAB(NEHeader) - NE_IMPTAB(NEHeader) +			/* imported names table */
-               NE_CBENTTAB(NEHeader) +								/* entry table length */
-               sizeof(ET_BUNDLE) +									/* ??? */
-               2 * (NE_CBENTTAB(NEHeader) - NE_CMOVENT(NEHeader)*6) +	/* entry table extra conversion space */
-               sizeof(OFSTRUCT) - 128 + lstrlen("attrib.exe") + 1;		/* loaded file info */
-  
-            // Allocate memory
-			t=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, size);
-            mte=(struct new_exe far *)GlobalLock(t);
-
-            if (mte)
+            /* check for OS/2 program */
+            if (NE_EXETYP(NEHeader) == NE_OS2)
             {
-    
-              // Copy header from stack
-              memcpy(mte, &NEHeader, sizeof(NEHeader));
-              mte->count=0;
-    
-              /* check programs for default minimal stack size */
-              if ((!mte->ne_flags & NE_FFLAGS_LIBMODULE) && (mte->ne_stack < 0x1400))
-                mte->ne_stack = 0x1400;
-              mte->next=0;
-  
-              // Move to start of segment table
-              result = _llseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader), SEEK_SET);
-  
-              // Point to in-memory segment table
-              pData=(BYTE far *)(mte+1);
-              mte->ne_segtab = FP_OFF(pData);
-
-              // Load segment table, allocate segments
-              for (i = NE_CSEG(NEHeader); i > 0; i--)
+              // Calculate in memory size
+              size = sizeof(struct new_exe) +							/* NE Header size */
+                 NE_CSEG(NEHeader) * sizeof(struct new_seg1) +		/* in-memory segment table */
+                 NE_RESTAB(NEHeader) - NE_RSRCTAB(NEHeader) +			/* resource table */
+                 NE_MODTAB(NEHeader) - NE_RESTAB(NEHeader) +			/* resident names table */
+                 NE_CMOD(NEHeader) * sizeof(WORD) +					/* module ref table */
+                 NE_ENTTAB(NEHeader) - NE_IMPTAB(NEHeader) +			/* imported names table */
+                 NE_CBENTTAB(NEHeader) +								/* entry table length */
+                 sizeof(ET_BUNDLE) +									/* ??? */
+                 2 * (NE_CBENTTAB(NEHeader) - NE_CMOVENT(NEHeader)*6) +	/* entry table extra conversion space */
+                 sizeof(OFSTRUCT) - 128 + lstrlen("attrib.exe") + 1;		/* loaded file info */
+	    
+              // Allocate memory
+              t=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, size);
+              mte=(struct new_exe far *)GlobalLock(t);
+	    
+              if (mte)
               {
-                // Read segment table entry
-                result = _lread(f, pData, sizeof(struct new_seg));
-   
-                // Allocate segment
-                minalloc = ((struct new_seg1 far *)pData)->ns1_minalloc ? ((struct new_seg1 far *)pData)->ns1_minalloc : 0x10000;
-                  ((struct new_seg1 far *)pData)->ns1_handle=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, minalloc);
-    
-                // Next segment table entry
-                pData += sizeof(struct new_seg1);
-              }
-
-              // Point to in-memory segment table
-              pData=(BYTE far *)(mte+1);
-	
-              // Load segments, relocate segments
-              for (i = NE_CSEG(NEHeader); i > 0; i--)
-              {
-                // Read segment into memory
-                pos = ((struct new_seg1 far *)pData)->ns1_sector << mte->ne_align;
-                minalloc = ((struct new_seg1 far *)pData)->ns1_minalloc ? ((struct new_seg1 far *)pData)->ns1_minalloc : 0x10000;
-                if (((struct new_seg1 far *)pData)->ns1_cbseg) size = ((struct new_seg1 far *)pData)->ns1_cbseg;
-                else size = minalloc;
-                result = _llseek(f, pos, SEEK_SET);
-				pSeg=GlobalLock(((struct new_seg1 far *)pData)->ns1_handle);
-                result = _lread(f, pSeg, size);
-    	
-                // Relocate segment
-                if (((struct new_seg1 far *)pData)->ns1_flags & NSRELOC)
-				{
-					BYTE far * pRLC;
-					HGLOBAL hRLC;
-
-					result = _lread(f, &count, sizeof(count));
-					hRLC=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, count * sizeof(struct new_rlc));
-                    pRLC=GlobalLock(hRLC);
-
-					result = _lread(f, pRLC, count * sizeof(struct new_rlc));
-					
-					printf("Number of relocations: %d\n\r", count);
-					
-					apply_relocations(mte, (struct new_rlc far *)pRLC, count, NE_CSEG(NEHeader)-i+1);
-					// GlobalUnlock/GlobalFree
-				}
-
-                // Next segment table entry
-                pData += sizeof(struct new_seg1);
-              }
-
-              NE_DumpModule();
-
-              // Load Resource table (will not be implemented yet)
-    
-              // Load Resident names table
-    
-              // Load Module reference table
-    
-              // Load Imported names table
-    
-              // Load Entry table
-
-              if (_lclose(f)!=-1)
-			  {
-                // Execute program
-			  
-			    __asm {
-				  ;jmp NEHeader.csip
-			    } 
-                return 0;
-			  }else  {
-                printf("Error: Close file\n");
+                // Copy header from stack
+                memcpy(mte, &NEHeader, sizeof(NEHeader));
+                mte->count=0;
+	    
+                /* check programs for default minimal stack size */
+                if ((!mte->ne_flags & NE_FFLAGS_LIBMODULE) && (mte->ne_stack < 0x1400))
+                  mte->ne_stack = 0x1400;
+                mte->next=0;
+	    
+                // Move to start of segment table
+                result = _llseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader), SEEK_SET);
+	    
+                // Point to in-memory segment table
+                pData=(BYTE far *)(mte+1);
+                mte->ne_segtab = FP_OFF(pData);
+	    
+                // Load segment table, allocate segments
+                for (i = NE_CSEG(NEHeader); i > 0; i--)
+                {
+                  // Read segment table entry
+                  result = _lread(f, pData, sizeof(struct new_seg));
+	    
+                  // Allocate segment
+                  minalloc = ((struct new_seg1 far *)pData)->ns1_minalloc ? ((struct new_seg1 far *)pData)->ns1_minalloc : 0x10000;
+                    ((struct new_seg1 far *)pData)->ns1_handle=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, minalloc);
+	    
+                  // Next segment table entry
+                  pData += sizeof(struct new_seg1);
+                }
+	    
+                // Point to in-memory segment table
+                pData=(BYTE far *)(mte+1);
+	    
+                // Load segments, relocate segments
+                for (i = NE_CSEG(NEHeader); i > 0; i--)
+                {
+                  // Read segment into memory
+                  pos = ((struct new_seg1 far *)pData)->ns1_sector << mte->ne_align;
+                  minalloc = ((struct new_seg1 far *)pData)->ns1_minalloc ? ((struct new_seg1 far *)pData)->ns1_minalloc : 0x10000;
+                  if (((struct new_seg1 far *)pData)->ns1_cbseg) size = ((struct new_seg1 far *)pData)->ns1_cbseg;
+                  else size = minalloc;
+                  result = _llseek(f, pos, SEEK_SET);
+                  pSeg=GlobalLock(((struct new_seg1 far *)pData)->ns1_handle);
+                  result = _lread(f, pSeg, size);
+    	  
+                  // Relocate segment
+                  if (((struct new_seg1 far *)pData)->ns1_flags & NSRELOC)
+                  {
+		  			BYTE far * pRLC;
+		  			HGLOBAL hRLC;
+	    
+		  			result = _lread(f, &count, sizeof(count));
+		  			hRLC=GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, count * sizeof(struct new_rlc));
+                      pRLC=GlobalLock(hRLC);
+	    
+		  			result = _lread(f, pRLC, count * sizeof(struct new_rlc));
+		  			
+		  			printf("Number of relocations: %d\n\r", count);
+		  			
+		  			apply_relocations(mte, (struct new_rlc far *)pRLC, count, NE_CSEG(NEHeader)-i+1);
+		  			// GlobalUnlock/GlobalFree
+                  }
+	    
+                  // Next segment table entry
+                  pData += sizeof(struct new_seg1);
+                }
+	    
+                NE_DumpModule();
+	    
+                // Load Resource table (will not be implemented yet)
+	    
+                // Load Resident names table
+	    
+                // Load Module reference table
+	    
+                // Load Imported names table
+	    
+                // Load Entry table
+	    
+                if (_lclose(f)!=-1)
+                {
+                  // Execute program
+		  	  
+                  __asm {
+                    ;jmp NEHeader.csip
+                  } 
+                  return 0;
+                } else {
+                  printf("Error: Close file\n");
+                  return 1;
+                }
+              } else {
+                printf( "Error: Can't allocate memory\n");
                 return 1;
               }
             } else {
-              printf( "Error: Can't allocate memory\n");
+              printf( "Error: Target OS not OS/2\n");
               return 1;
             }
           } else {
-            printf( "Error: Target OS not OS/2\n");
+            printf( "Error: Bad NE header\n");
             return 1;
           }
         } else {
-          printf( "Error: Bad NE header\n");
+          printf( "Error: Bad MZ header\n");
           return 1;
         }
       } else {
-        printf( "Error: Bad MZ header\n");
+        printf( "Error: MZ Header read error\n");
         return 1;
       }
     } else {

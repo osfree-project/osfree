@@ -35,13 +35,13 @@ HGLOBAL WINAPI GlobalAlloc(WORD flags, DWORD size)
 }
 
 // Produce far pointer from HGLOBAL
-char far *  GlobalLock(HGLOBAL h)
+char far *  WINAPI GlobalLock(HGLOBAL h)
 {
 	return MK_FP(h, 0);
 }
 
 // Actually, does nothing
-BYTE GlobalUnlock(HGLOBAL h)
+BYTE WINAPI GlobalUnlock(HGLOBAL h)
 {
 	return 1;
 }

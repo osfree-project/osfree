@@ -53,11 +53,11 @@ typedef struct tagOFSTRUCT {
 
 #define Dos3Call __asm { int 21h }
 HGLOBAL WINAPI GlobalAlloc(WORD flags, DWORD size);
-char far *  GlobalLock(HGLOBAL h);
-HFILE _lopen(LPCSTR lpPathName, int iReadWrite);
-UINT _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes);
-HFILE _lclose(HFILE hFile);
-LONG _llseek( HFILE hFile, LONG lOffset, int nOrigin );
+char far *  WINAPI GlobalLock(HGLOBAL h);
+HFILE WINAPI _lopen(LPCSTR lpPathName, int iReadWrite);
+UINT WINAPI _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes);
+HFILE WINAPI _lclose(HFILE hFile);
+LONG WINAPI _llseek( HFILE hFile, LONG lOffset, int nOrigin );
 LPSTR WINAPI lstrcpy( LPSTR s, LPCSTR t );
 int WINAPI lstrlen( LPCSTR s );
 //void WINAPI         hmemcpy( void __huge *, const void __huge *, long );

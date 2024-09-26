@@ -10,7 +10,7 @@
 
 
 #pragma disable_message(107);
-HFILE _lopen(LPCSTR lpPathName, int iReadWrite)
+HFILE WINAPI _lopen(LPCSTR lpPathName, int iReadWrite)
 {
   __asm {
     push ds
@@ -30,7 +30,7 @@ lopenexit:
 #pragma enable_message(107);
 
 #pragma disable_message(107);
-UINT _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes)
+UINT WINAPI _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes)
 {
   __asm {
     push ds
@@ -51,7 +51,7 @@ lreadexit:
 #pragma enable_message(107);
 
 #pragma disable_message(107);
-HFILE _lclose(HFILE hFile)
+HFILE WINAPI _lclose(HFILE hFile)
 {
   __asm {
     mov bx, hFile
@@ -67,7 +67,7 @@ lcloseexit:
 #pragma enable_message(107);
 
 #pragma disable_message(107);
-LONG _llseek( HFILE hFile, LONG lOffset, int nOrigin )
+LONG WINAPI _llseek( HFILE hFile, LONG lOffset, int nOrigin )
 {
   __asm {
     mov bx, word ptr hFile
