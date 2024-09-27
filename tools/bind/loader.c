@@ -92,7 +92,7 @@ void NE_DumpModule(void)
     pSeg = ((struct new_seg1 FAR *)((BYTE FAR *)pModule+(pModule)->ne_segtab));
 	printf ("%Wp %Wp %d\n", pModule, pSeg, (pModule)->ne_segtab);
     for (i = 0; i < pModule->ne_cseg; i++, pSeg++)
-        TRACE( "%02x: pos=%d size=%d flags=%04x minsize=%d hSeg=%04x\n",
+        TRACE( "pSeg=%Wp %02x: pos=%d size=%d flags=%04x minsize=%d hSeg=%04x\n", pSeg,
                  i + 1, pSeg->ns1_sector, pSeg->ns1_cbseg, pSeg->ns1_flags,
                  pSeg->ns1_minalloc, pSeg->ns1_handle );
 
@@ -401,7 +401,8 @@ int main(int argc, char *argv[])
   int i;
   BYTE FAR * pData;
   BYTE FAR * pSeg;
-  WORD minalloc, pos;
+  WORD minalloc;
+  DWORD pos;
   HGLOBAL t;
 
   // We need MS-DOS version > 2.0 to get our filename
@@ -486,16 +487,16 @@ int main(int argc, char *argv[])
 					    
                         // Point to in-memory segment table
                         pData=(BYTE FAR *)(mte+1);
+                        printf("pData=%Wp\n\r", pData);
 					    
                         // Load segments, relocate segments
                         for (i = NE_CSEG(NEHeader); i > 0; i--)
                         {
                           // Read segment into memory
-                          pos = ((struct new_seg1 FAR *)pData)->ns1_sector << mte->ne_align;
-                          minalloc = ((struct new_seg1 FAR *)pData)->ns1_minalloc ? ((struct new_seg1 FAR *)pData)->ns1_minalloc : 0x10000;
-                          if (((struct new_seg1 FAR *)pData)->ns1_cbseg) size = ((struct new_seg1 FAR *)pData)->ns1_cbseg;
-                          else size = minalloc;
-						  
+                          pos = (LONG)((struct new_seg1 FAR *)pData)->ns1_sector << mte->ne_align;
+                          printf("pos=%ld\n\r", pos);
+                          size = ((struct new_seg1 FAR *)pData)->ns1_cbseg ? ((struct new_seg1 FAR *)pData)->ns1_cbseg : 0x10000;
+
                           if ( (result = _llseek(f, pos, SEEK_SET)) != HFILE_ERROR )
                           {
                             if (pSeg=GlobalLock(((struct new_seg1 FAR *)pData)->ns1_handle))
@@ -517,13 +518,14 @@ int main(int argc, char *argv[])
                                         if ( (result = _lread(f, pRLC, count * sizeof(struct new_rlc)) ) != HFILE_ERROR)
                                         {
 								  
-                                          printf("Number of relocations: %d\n\r", count);
+                                          printf("Segment %d pos %ld Number of relocations: %d\n\r", NE_CSEG(NEHeader)-i+1, pos, count);
 		      		    	
                                           apply_relocations(mte, (struct new_rlc FAR *)pRLC, count, NE_CSEG(NEHeader)-i+1);
 		      		    	              // GlobalUnlock/GlobalFree
 									
                                           // Next segment table entry
                                           pData += sizeof(struct new_seg1);
+                                          printf("pData=%Wp\n\r", pData);
 							            } else {
                                           printf( "Error: Read segment relocation entires\n");
                                           return 1;
@@ -567,7 +569,7 @@ int main(int argc, char *argv[])
 					    
                         // Load Entry table
 					    
-                        if (_lclose(f)!=-1)
+                        if (_lclose(f)!= HFILE_ERROR)
                         {
                           // Execute program
 					    
