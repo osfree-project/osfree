@@ -18,20 +18,21 @@
 #define HGLOBAL HANDLE
 #endif
 
-#define WINAPI far pascal
+#define FAR far
+#define WINAPI FAR pascal
 #define HFILE WORD
 #define UINT unsigned int
 #define LONG long
-#define LPVOID void far *
-#define LPCSTR const char far *
-#define LPSTR char far *
+#define LPVOID void FAR *
+#define LPCSTR const char FAR *
+#define LPSTR char FAR *
 
 #define GMEM_FIXED          0x0000
 #define GMEM_ZEROINIT       0x0040
 
 #define OF_READ 0x0000
 #define SEEK_SET 0
-
+#define HFILE_ERROR -1
 #pragma pack( push, 1 )
 
 typedef struct
@@ -53,7 +54,7 @@ typedef struct tagOFSTRUCT {
 
 #define Dos3Call __asm { int 21h }
 HGLOBAL WINAPI GlobalAlloc(WORD flags, DWORD size);
-char far *  WINAPI GlobalLock(HGLOBAL h);
+char FAR *  WINAPI GlobalLock(HGLOBAL h);
 HFILE WINAPI _lopen(LPCSTR lpPathName, int iReadWrite);
 UINT WINAPI _lread(HFILE  hFile, LPVOID lpBuffer, UINT uBytes);
 HFILE WINAPI _lclose(HFILE hFile);

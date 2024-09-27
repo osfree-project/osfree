@@ -35,7 +35,7 @@ HGLOBAL WINAPI GlobalAlloc(WORD flags, DWORD size)
 }
 
 // Produce far pointer from HGLOBAL
-char far *  WINAPI GlobalLock(HGLOBAL h)
+char FAR *  WINAPI GlobalLock(HGLOBAL h)
 {
 	return MK_FP(h, 0);
 }
