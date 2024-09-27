@@ -20,6 +20,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+// @todo:
+// Movable segments support (not required for current tools)
+// Import module table (emulate via OMF linking)
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -193,7 +197,7 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
     WORD offset, FAR * sp;
     //HMODULE module;
     void FAR * address = 0;
-    //HMODULE FAR *pModuleTable = (HMODULE16 *)((char *)pModule + pModule->ne_modtab);
+    struct new_exe FAR * pModuleTable = (struct new_exe FAR *)((BYTE FAR *)pModule + pModule->ne_modtab);
     struct new_seg1 FAR *pSegTable = (struct new_seg1 FAR *)((BYTE FAR *)pModule+pModule->ne_segtab);
     struct new_seg1 FAR *pSeg = pSegTable + segnum - 1;
 
@@ -211,14 +215,20 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
         int additive = rep->nr_flags & NRADD;
         switch (rep->nr_flags & NRRTYP)
         {
+		case NRRORD:
+            // Here is non-standard access to module because FamilyAPI doesn't support
+			// DLLs. BIND tool adds object/library files to the end of executable
+			// so we need to find corresponding function in such libraries.
+			break;
 #if 0
+
         case NRRORD:
-            module = pModuleTable[rep->target1-1];
-            ordinal = rep->target2;
+            module = pModuleTable[rep->nr_mod-1];
+            ordinal = rep->nr_proc;
             address = NE_GetEntryPoint( module, ordinal );
             if (!address)
             {
-                NE_MODULE *pTarget = NE_GetPtr( module );
+                struct new_exe FAR *pTarget = NE_GetPtr( module );
                 if (!pTarget)
                     WARN_(module)("Module not found: %04x, reference %d of module %*.*s\n",
                              module, rep->target1,
@@ -244,7 +254,6 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
                        NE_GetRelocAddrName( rep->nr_stype, additive ) );
             }
             break;
-
         case NE_RELTYPE_NAME:
             module = pModuleTable[rep->target1-1];
             func_name = (BYTE *)pModule + pModule->ne_imptab + rep->target2;
@@ -277,6 +286,7 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
             {
                 //address  = NE_GetEntryPoint( pModule->self, rep->target2 );
 				// @todo: get data from movable entry point (nr_entry), not direct offset
+				printf("Movable!\n");
 				address= MK_FP(FP_SEG(pModule), rep->nr_union.nr_intref.nr_entry); 
             }
             else /* Fixed segment */
@@ -285,7 +295,7 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
                 address = MK_FP(FP_SEG(address), rep->nr_union.nr_intref.nr_entry);
             }
 
-            TRACE("%d: %Wp \n",
+            TRACE("INT %d: %Wp \n",
                   i + 1, address//,
                   //NE_GetRelocAddrName( rep->nr_stype, additive ) 
 				  );
