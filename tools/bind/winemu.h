@@ -28,10 +28,6 @@
 
 #ifndef __DOS__
 #define FAR
-#define FP_SEG(__p) (void *)(__p)
-#define FP_OFF(__p) 0
-#undef MK_FP
-#define MK_FP(__s,__o) (void *)((char *)(__s)+(WORD)(__o))
 #else
 #define FAR far
 #endif
