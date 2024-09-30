@@ -11,7 +11,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "winemu.h"
+#ifndef DWORD
+#define DWORD unsigned long
+#endif
+
+#ifndef WORD
+#define WORD unsigned short
+#endif
+
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+
+#ifndef HANDLE
+#define HANDLE WORD
+#endif
+
+#ifndef HGLOBAL
+#define HGLOBAL HANDLE
+#endif
+
 #include "newexe.h"
 
 int main(int argc, char *argv[])
@@ -23,8 +42,8 @@ int main(int argc, char *argv[])
   WORD size;
   WORD count;
   int i;
-  BYTE FAR * pData;
-  BYTE FAR * pSeg;
+  BYTE * pData;
+  BYTE * pSeg;
   WORD minalloc;
   DWORD pos;
   HGLOBAL t;
