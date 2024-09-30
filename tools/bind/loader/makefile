@@ -4,13 +4,13 @@
 # author, date
 #
 
-PROJ = bind
+PROJ = loader
 TRGT = $(PROJ).exe
-DESC = Binder
+DESC = Binded Familty API loader
 #defines object file names in format $(p)objname$(e)
-srcfiles = $(p)bind$(e) $(p)ginterf$(e) $(p)file$(e) $(p)strings$(e)
+srcfiles = $(p)loader$(e) $(p)ginterf$(e) $(p)file$(e) $(p)..$(SEP)strings$(e)
 # defines additional options for C compiler
 #ADD_COPT = -I$(%OS2TK)$(SEP)h #-p
 
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/appsdos.mk

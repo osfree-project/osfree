@@ -279,7 +279,7 @@ struct new_seg1 {
     WORD  ns1_flags;				/* Flag word */
     WORD  ns1_minalloc;				/* Minimum allocation size of the segment, in bytes. Total size
 									   of the segment. Zero means 64K */
-    WORD  ns1_handle;				/* Selector or handle (selector - 1) of segment in memory */
+    HGLOBAL  ns1_handle;				/* Selector or handle (selector - 1) of segment in memory */
 };
 
 struct new_segdata {
