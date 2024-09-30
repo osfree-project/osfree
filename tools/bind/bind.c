@@ -75,6 +75,10 @@ int main(int argc, char *argv[])
                     //Allocate memory for mod table
 					WORD offset;
 					BYTE len;
+					WORD count;
+					struct new_seg seg;
+					int j;
+					struct new_rlc rlc;
 					
                     mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*));
 					
@@ -88,10 +92,33 @@ int main(int argc, char *argv[])
 					  mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
 					  fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
 					  mods[NE_CMOD(NEHeader)-i][len]=0;
-					  //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+					  printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
 					}
 					  
-					// Now read segment fixup table and build list of imported functions
+					// Now read segments fixup tables and build list of imported functions
+                    for (i = NE_CSEG(NEHeader); i > 0; i--)
+                    {
+                      // Read segment table entry
+					  fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
+                      fread(&seg, 1, sizeof(struct new_seg), f);
+					  // Read relocation table
+					  fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET);
+					  fread(&count, 1, sizeof(count), f);
+					  printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
+                      for (j = 0; j < count; j++)
+                      {
+						fread(&rlc, 1, sizeof(struct new_rlc), f);
+						if ((rlc.nr_flags & NRRTYP)==NRRORD) 
+						{
+  						printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
+						} else {
+							printf("Panic!\n");
+							//return 0;
+						}
+					  }
+                    }
+
+					
                         if (!fclose(f))
                         {
                           // Exit
