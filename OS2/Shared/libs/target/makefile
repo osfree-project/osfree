@@ -5,9 +5,7 @@
 #
 
 PLATFORM =
-DIRS = os2386
+DIRS = os2386 os2
 
 !include $(%ROOT)tools/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all

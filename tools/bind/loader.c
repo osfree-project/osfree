@@ -334,7 +334,7 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
         {
             sp =  MK_FP( FP_SEG(GlobalLock(pSeg->ns1_handle)), offset ) ;
             TRACE("    %04x:%04x\n", offset, *sp );
-            switch (rep->nr_stype & 0x7f)
+            switch (rep->nr_stype & NRSTYP)
             {
             case NRSBYT:
                 *(BYTE FAR *)sp += rep->nr_union.nr_intref.nr_entry&0xff;
@@ -366,7 +366,7 @@ void apply_relocations( struct new_exe FAR * pModule, struct new_rlc FAR *rep,
                 sp = MK_FP( FP_SEG(GlobalLock(pSeg->ns1_handle)), offset ) ;
                 next_offset = *sp;
                 TRACE("    %04x:%04x\n", offset, *sp );
-                switch (rep->nr_stype & 0x7f)
+                switch (rep->nr_stype & NRSTYP)
                 {
                 case NRSBYT:
                     *(BYTE FAR *)sp = rep->nr_union.nr_intref.nr_entry&0xff;

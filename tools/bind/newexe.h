@@ -331,7 +331,7 @@ struct new_rlc {
 #define NR_OSTYPE(x)    (x).nr_union.nr_osfix.nr_ostype
 #define NR_OSRES(x)     (x).nr_union.nr_osfix.nr_osres
 
-#define NRSTYP      0x0f
+#define NRSTYP      0x0f	// Mask of source type
 #define NRSBYT      0x00
 #define NRSSEG      0x02
 #define NRSPTR      0x03

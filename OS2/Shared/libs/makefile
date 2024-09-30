@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = libmmap os2386 GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff &
+DIRS = libmmap os2386 os2 GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff &
   libvorbis lpng PDCurses zlib xwphelpers acpitk lvmtk &
   target
 
