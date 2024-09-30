@@ -16,7 +16,7 @@
 
 int main(int argc, char *argv[])
 {
-  HFILE f;
+  FILE * f;
   struct exe_hdr MZHeader;
   struct new_exe NEHeader;
   int result;
@@ -32,19 +32,19 @@ int main(int argc, char *argv[])
   printf("osFree FamilyAPI Binder v.0.1\n");
 
     // Open ourself for read
-    if( (f  = _lopen("attrib.exe"/*argv[0]*/, OF_READ)) != (HFILE)HFILE_ERROR )
+    if(f=fopen("attrib.exe"/*argv[0]*/, "rb"))
     {
       // Read old Executable header
-      if ( (result = _lread(f, &MZHeader, sizeof(MZHeader))) == sizeof(MZHeader) )
+      if ( (result = fread(&MZHeader, 1, sizeof(MZHeader), f)) == sizeof(MZHeader) )
 	  {
         // Check MZ Header magic
         if (E_MAGIC(MZHeader) == EMAGIC)
         {
           // Seek New Executable header
-          if ( (result = _llseek(f, E_LFANEW(MZHeader), SEEK_SET)) != HFILE_ERROR )
+          if ( !fseek(f, E_LFANEW(MZHeader), SEEK_SET))
           {
             // Read New Executable header
-            if ( (result = _lread(f, &NEHeader, sizeof(NEHeader))) == sizeof(NEHeader) )
+            if ( (result = fread(&NEHeader, 1, sizeof(NEHeader), f)) == sizeof(NEHeader) )
             {
               // Check NE Header magic
               if (NE_MAGIC(NEHeader) == NEMAGIC)
@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
                 if (NE_EXETYP(NEHeader) == NE_OS2)
                 {
     			  // seek to Module table
-                  if ( (result = _llseek(f, E_LFANEW(MZHeader)+NEHeader.ne_modtab, SEEK_SET)) != HFILE_ERROR )
+                  if (!fseek(f, E_LFANEW(MZHeader)+NEHeader.ne_modtab, SEEK_SET))
                   {
 					  //Allocate memory for mod table
 					  
-                        if (_lclose(f)!= (HFILE)HFILE_ERROR)
+                        if (!fclose(f))
                         {
                           // Exit
                           return 0;
