@@ -1,5 +1,10 @@
 How bind must works:
 
 1. Parse NE and build list of all imports.
-2. Parse OS2.LIB and build map-list byname imports using data from 1
-3. Parse API.LIB and produce linking code using data from 2.
+1.1. If not found MouRegister then use simplified mouse API
+1.2. If not found VioRegister then use simplified VIO API
+1.3. If not found KbdRegister then use simplified keyboard API
+1.4. If not found DosLoadModule then don't use DLL support
+1.5. Something else can be simplified???
+2. Parse OS2.LIB and build map-list by name imports using data from 1
+3. Parse API.LIB (or other lib, depending on above flags) and produce linking code using data from 2.

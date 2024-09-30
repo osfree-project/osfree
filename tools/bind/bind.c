@@ -39,14 +39,12 @@ int main(int argc, char *argv[])
   struct exe_hdr MZHeader;
   struct new_exe NEHeader;
   int result;
-  WORD size;
-  WORD count;
   int i;
-  BYTE * pData;
-  BYTE * pSeg;
-  WORD minalloc;
-  DWORD pos;
-  HGLOBAL t;
+  int MouAPI = 0;
+  int KbdAPI = 0;
+  int VioAPI = 0;
+  int DLLAPI = 0;
+  char ** mods = NULL;
 
   printf("osFree FamilyAPI Binder v.0.1\n");
 
@@ -72,10 +70,28 @@ int main(int argc, char *argv[])
                 if (NE_EXETYP(NEHeader) == NE_OS2)
                 {
     			  // seek to Module table
-                  if (!fseek(f, E_LFANEW(MZHeader)+NEHeader.ne_modtab, SEEK_SET))
+                  if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader), SEEK_SET))
                   {
-					  //Allocate memory for mod table
+                    //Allocate memory for mod table
+					WORD offset;
+					BYTE len;
+					
+                    mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*));
+					
+					// Read mod table
+					for (i=NE_CMOD(NEHeader); i >0 ; i-- )
+					{
+                      fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET);
+					  fread(&offset, 1, sizeof(offset), f);
+					  fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET);
+					  fread(&len, 1, sizeof(len), f);
+					  mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
+					  fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
+					  mods[NE_CMOD(NEHeader)-i][len]=0;
+					  //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+					}
 					  
+					// Now read segment fixup table and build list of imported functions
                         if (!fclose(f))
                         {
                           // Exit
