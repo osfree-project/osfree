@@ -108,13 +108,17 @@ int main(int argc, char *argv[])
                       for (j = 0; j < count; j++)
                       {
 						fread(&rlc, 1, sizeof(struct new_rlc), f);
-						if ((rlc.nr_flags & NRRTYP)==NRRORD) 
+						if (((rlc.nr_flags & NRRTYP)==NRRORD) | ((rlc.nr_flags & NRRTYP)==NRRNAM))
 						{
-  						printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
-						} else {
-							printf("Panic!\n");
-							//return 0;
-						}
+							if ((rlc.nr_flags & NRRTYP)==NRRNAM)
+							{
+							  // not supported yet...
+  							  printf("Panic!\n");
+							  return 1;
+							} else {
+  						      printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
+							}
+						}		
 					  }
                     }
 
