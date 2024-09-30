@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
                       for (j = 0; j < count; j++)
                       {
 						fread(&rlc, 1, sizeof(struct new_rlc), f);
-						if (((rlc.nr_flags & NRRTYP)==NRRORD) | ((rlc.nr_flags & NRRTYP)==NRRNAM))
+						if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
 						{
 							if ((rlc.nr_flags & NRRTYP)==NRRNAM)
 							{
