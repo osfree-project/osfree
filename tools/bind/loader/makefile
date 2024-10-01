@@ -8,9 +8,9 @@ PROJ = loader
 TRGT = $(PROJ).exe
 DESC = Binded Familty API loader
 #defines object file names in format $(p)objname$(e)
-srcfiles = $(p)loader$(e) $(p)ginterf$(e) $(p)file$(e) $(p)strings$(e)
+srcfiles = $(p)loader$(e) $(p)ginterf$(e) $(p)file$(e) $(p)strings$(e) #$(p)imptable$(e)
 # defines additional options for C compiler
-#ADD_COPT = -I$(%OS2TK)$(SEP)h #-p
+#ADD_COPT = -i=$(%WATCOM)$(SEP)h$(SEP)os21x
 
 
 !include $(%ROOT)tools/mk/appsdos.mk
