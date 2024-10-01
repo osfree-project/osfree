@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef DWORD
 #define DWORD unsigned long
@@ -32,6 +33,64 @@
 #endif
 
 #include "newexe.h"
+#include "omf.h"
+
+void findfunctionname(char * module, WORD ordinal)
+{
+	FILE * f;
+	omf_record_header head;
+	int result;
+	char buf[512];
+	int i;
+	long pos;
+	char func[255];
+	char mod[255];
+	WORD ord;
+	
+	// Open os2.lib for read
+    if(f=fopen("os2.lib", "rb"))
+    {
+      for (;1;)
+	  {
+      if ( (result = fread(&head, 1, sizeof(head), f)) == sizeof(head) )
+	  {
+		  //printf ("type=%02x length=%d\n", head.type, head.length);
+          fread(&buf, 1, head.length, f);
+
+		  if (head.type==0x88) // comment
+		  {
+			  if (buf[1]==0xa0) // comment class
+			  {
+				  if (buf[2]==0x01) // impdef
+				  {
+					  if (buf[3]!=0)
+					  {
+						  memcpy(&func, &buf[5], buf[4]);	// function name
+						  func[buf[4]]=0;
+						  memcpy(&mod, &buf[5+buf[4]+1], buf[5+buf[4]]); // module name
+						  mod[buf[5+buf[4]]]=0;
+						  ord=buf[5+buf[4]+1+buf[5+buf[4]]]+0xff*buf[5+buf[4]+1+buf[5+buf[4]]+1];						// ordinal
+						  if ((!strcmp(mod, module)) && (ord==ordinal)) printf("%s %s %d\n", func, mod, ord);
+					  } else {
+						  // panic!
+					  }
+				  }
+			  }
+		  }
+
+  		  if (head.type==0xf1) break; // End of lib
+
+		  if (head.type==0x8a) // end of obj
+		  {
+			  fgetpos(f, &pos);
+//			  printf("%d %d\n", pos, 512-pos%512);
+			  fread(&buf, 1, 512-pos%512, f);
+		  }
+	  }
+	  }
+          fclose(f);
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -92,7 +151,7 @@ int main(int argc, char *argv[])
 					  mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
 					  fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
 					  mods[NE_CMOD(NEHeader)-i][len]=0;
-					  printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+					  //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
 					}
 					  
 					// Now read segments fixup tables and build list of imported functions
@@ -104,7 +163,7 @@ int main(int argc, char *argv[])
 					  // Read relocation table
 					  fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET);
 					  fread(&count, 1, sizeof(count), f);
-					  printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
+					  //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
                       for (j = 0; j < count; j++)
                       {
 						fread(&rlc, 1, sizeof(struct new_rlc), f);
@@ -116,7 +175,8 @@ int main(int argc, char *argv[])
   							  printf("Panic!\n");
 							  return 1;
 							} else {
-  						      printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
+  						      //printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
+                              findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
 							}
 						}		
 					  }
