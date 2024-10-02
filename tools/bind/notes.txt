@@ -25,6 +25,11 @@ BIND performs three major steps:
 3. BIND merges the OS/2 protected-mode and DOS real-mode executable files
    into a single file that runs in either mode.
 
+BIND searches for API.LIB and OS2.LIB in the directories specified
+by the LIB environment variable. If you have not set the LIB
+variable, or if API.LIB or OS2.LIB reside elsewhere, enter a full
+path name in the <linklibs> field.
+	 
  BIND infile [implibs] [linklibs] [options]
  
      The <infile> field is required; all others are optional. Options
@@ -38,11 +43,10 @@ BIND performs three major steps:
      <implibs>    The names of one or more import libraries. Use this
                   field if your program calls functions imported using
                   import libraries.
-                  See: ◄Linking for OS/2 and Windows► in LINK Help
- 
+                  
                   You can specify the file APILMR.OBJ, which provides a
                   64K default data segment when running in real mode.
-                  See: ◄Specifying APILMR.OBJ►
+                  
  
      <linklibs>   The names of one or more libraries and object
                   files. Use this field to supply object code needed
@@ -52,9 +56,9 @@ BIND performs three major steps:
                   BIND automatically searches for API.LIB and OS2.LIB.
                   If you want additional libraries, be sure to specify
                   the full path name.
-                  See: ◄Specifying API.LIB and OS2.LIB►
+                  
  
-     <options>    See: ◄Bind Options►
+     <options>    
 	 
      BIND options must appear last on the command line. You can specify
      options in uppercase or lowercase and use a single letter or the
@@ -63,10 +67,10 @@ BIND performs three major steps:
  
      Option         Action
  
-     /HELP          ◄Displays Help►
-     /M[AP]         ◄Generates Link Map File►
-     /N[AMES]       ◄Specifies Protected-Mode Functions►
-     /NOLOGO        ◄Suppresses Sign-On Banner►
-     /O[UTFILE]     ◄Specifies Name of Bound Program►
-     /?             ◄Displays Short Help►
+     /HELP          Displays Help
+     /M[AP]         Generates Link Map File
+     /N[AMES]       Specifies Protected-Mode Functions
+     /NOLOGO        Suppresses Sign-On Banner
+     /O[UTFILE]     Specifies Name of Bound Program
+     /?             Displays Short Help
                                     

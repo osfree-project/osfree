@@ -221,9 +221,24 @@ int main(int argc, char *argv[])
 	  							char * fname;
 	  							fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
   	  					        printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
+
 	  							// If any Mou* used, then turn on Mou API
+	  							if (!strncmp(fname, "MOU",3))
+	  							{
+	  								MouAPI=1;
+								}
+								
 	  							// If any Kbd* used, then turn on Kbd API
+	  							if (!strncmp(fname, "KBD",3))
+	  							{
+	  								KbdAPI=1;
+								}
+
 	  							// If any Vio* used, then turn on Vio API
+	  							if (!strncmp(fname, "VIO",3))
+	  							{
+	  								VioAPI=1;
+								}
 	  
 	  							// If VioRegister used, then turn full VIO API and DLL API
 	  							if (!strcmp(fname, "VIOREGISTER"))
