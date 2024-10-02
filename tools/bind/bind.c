@@ -219,8 +219,11 @@ int main(int argc, char *argv[])
 	  						  return 1;
 	  						} else {
 	  							char * fname;
+
 	  							fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
   	  					        printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
+								
+								// Collect in list
 
 	  							// If any Mou* used, then turn on Mou API
 	  							if (!strncmp(fname, "MOU",3))
@@ -272,78 +275,79 @@ int main(int argc, char *argv[])
                           {
                             // Check presense of subsystem  required files
                             // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
-						  if (DLLAPI)
-						  {
-	  					    _searchenv( "dll.lib", "LIB", full_path );
+						    if (DLLAPI)
+						    {
+	  					      _searchenv( "dll.lib", "LIB", full_path );
+                                if( full_path[0] == '\0' ) 
+						  	{
+                                  printf( "Error: Unable to find dll.lib file\n" );
+                                  return 1;
+                                }
+						    }
+						  
+						    if (VioAPI==1)
+						    {
+	  					      _searchenv( "vios.lib", "LIB", full_path );
+                                if( full_path[0] == '\0' ) 
+						  	{
+                                  printf( "Error: Unable to find vios.lib file\n" );
+                                  return 1;
+                                }
+						    }
+						  
+						    if (VioAPI==2)
+						    {
+	  					      _searchenv( "viof.lib", "LIB", full_path );
+                                if( full_path[0] == '\0' ) 
+						  	{
+                                  printf( "Error: Unable to find viof.lib file\n" );
+                                  return 1;
+                                }
+						    }
+						  
+						    if (MouAPI==1)
+						    {
+	  					      _searchenv( "mous.lib", "LIB", full_path );
                               if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find dll.lib file\n" );
-                                return 1;
-                              }
-						  }
-
-						  if (VioAPI==1)
-						  {
-	  					    _searchenv( "vios.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find vios.lib file\n" );
-                                return 1;
-                              }
-						  }
-
-						  if (VioAPI==2)
-						  {
-	  					    _searchenv( "viof.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find viof.lib file\n" );
-                                return 1;
-                              }
-						  }
-	  
-						  if (MouAPI==1)
-						  {
-	  					    _searchenv( "mous.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-							{
+                              {
                                 printf( "Error: Unable to find mous.lib file\n" );
                                 return 1;
                               }
-						  }
-
-						  if (MouAPI==2)
-						  {
-	  					    _searchenv( "mouf.lib", "LIB", full_path );
+						    }
+						  
+						    if (MouAPI==2)
+						    {
+	  					      _searchenv( "mouf.lib", "LIB", full_path );
+                                if( full_path[0] == '\0' ) 
+						  	{
+                                  printf( "Error: Unable to find mouf.lib file\n" );
+                                  return 1;
+                                }
+						    }
+						  
+						    if (KbdAPI==1)
+						    {
+	  					      _searchenv( "kbds.lib", "LIB", full_path );
                               if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find mouf.lib file\n" );
-                                return 1;
+                              {
+                                  printf( "Error: Unable to find kbds.lib file\n" );
+                                  return 1;
                               }
-						  }
-	  
-						  if (KbdAPI==1)
-						  {
-	  					    _searchenv( "kbds.lib", "LIB", full_path );
+						    }
+						  
+						    if (KbdAPI==2)
+						    {
+	  					      _searchenv( "kbdf.lib", "LIB", full_path );
                               if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find kbds.lib file\n" );
-                                return 1;
+                              {
+                                  printf( "Error: Unable to find kbdf.lib file\n" );
+                                  return 1;
                               }
-						  }
-
-						  if (KbdAPI==2)
-						  {
-	  					    _searchenv( "kbdf.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-							{
-                                printf( "Error: Unable to find kbdf.lib file\n" );
-                                return 1;
-                              }
-						  }
+						    }
 
                             // Generate import table object file
-						  
+							
+							// Generate link file
                             f=fopen("bind.lnk", "w");
                             fputs("system dos\n",f);
                             fputs("name attribstub.exe\n" , f); 
@@ -364,7 +368,14 @@ int main(int argc, char *argv[])
                             if (KbdAPI==2) fputs("lib kbdf.lib\n", f);
 
                             fclose(f);
+							
+							// Call linker
                             system("wlink.exe op q @bind.lnk");
+							
+							// Change standard DOS stub to FamilyAPI stub
+							
+							// Remove temporary files
+							
                             return 0;
                           } else {
                             printf("Error: Close file\n");
