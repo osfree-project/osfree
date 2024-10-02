@@ -35,7 +35,9 @@
 #include "newexe.h"
 #include "omf.h"
 
-void findfunctionname(char * module, WORD ordinal)
+char func[255];
+
+char * findfunctionname(char * module, WORD ordinal)
 {
 	FILE * f;
 	omf_record_header head;
@@ -43,7 +45,6 @@ void findfunctionname(char * module, WORD ordinal)
 	char buf[512];
 	int i;
 	long pos;
-	char func[255];
 	char mod[255];
 	WORD ord;
 	
@@ -70,7 +71,7 @@ void findfunctionname(char * module, WORD ordinal)
 						  memcpy(&mod, &buf[5+buf[4]+1], buf[5+buf[4]]); // module name
 						  mod[buf[5+buf[4]]]=0;
 						  ord=buf[5+buf[4]+1+buf[5+buf[4]]]+0xff*buf[5+buf[4]+1+buf[5+buf[4]]+1];						// ordinal
-						  if ((!strcmp(mod, module)) && (ord==ordinal)) printf("%s %s %d\n", func, mod, ord);
+						  if ((!strcmp(mod, module)) && (ord==ordinal)) return func;//printf("%s %s %d\n", func, mod, ord);
 					  } else {
 						  // panic!
 					  }
@@ -175,8 +176,7 @@ int main(int argc, char *argv[])
   							  printf("Panic!\n");
 							  return 1;
 							} else {
-  						      //printf("%s.%d\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc);
-                              findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
+  						      printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc));
 							}
 						}		
 					  }
