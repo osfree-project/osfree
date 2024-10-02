@@ -342,12 +342,29 @@ int main(int argc, char *argv[])
                               }
 						  }
 
-	  					  // Generate import table object file
-                            // Open lnk file
-	  					  // Write lnk file
-	  					  // Close lnk file
-	  					  // Execute wlink
-                            // Exit
+                            // Generate import table object file
+						  
+                            f=fopen("bind.lnk", "w");
+                            fputs("system dos\n",f);
+                            fputs("name attribstub.exe\n" , f); 
+                            fputs("file tmp.obj\n", f);
+                            fputs("lib os2.lib\n", f);
+                            fputs("lib api.lib\n", f);
+
+                            if (DLLAPI)
+                            {
+                              fputs("lib dll.lib\n", f);
+                            }
+
+                            if (VioAPI==1) fputs("lib vios.lib\n", f);
+                            if (VioAPI==2) fputs("lib viof.lib\n", f);
+                            if (MouAPI==1) fputs("lib mous.lib\n", f);
+                            if (MouAPI==2) fputs("lib mouf.lib\n", f);
+                            if (KbdAPI==1) fputs("lib kbds.lib\n", f);
+                            if (KbdAPI==2) fputs("lib kbdf.lib\n", f);
+
+                            fclose(f);
+                            system("wlink.exe op q @bind.lnk");
                             return 0;
                           } else {
                             printf("Error: Close file\n");

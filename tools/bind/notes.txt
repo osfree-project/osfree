@@ -2,7 +2,6 @@ questions:
 may be apis.lib for api without dll/vio and apif.lib with dll/vio?
 
 
-How bind must works:
 
 BIND performs three major steps:
  
@@ -30,47 +29,4 @@ by the LIB environment variable. If you have not set the LIB
 variable, or if API.LIB or OS2.LIB reside elsewhere, enter a full
 path name in the <linklibs> field.
 	 
- BIND infile [implibs] [linklibs] [options]
- 
-     The <infile> field is required; all others are optional. Options
-     must be entered last.
- 
-     <infile>     The name of the OS/2 program to be bound. BIND
-                  looks in the current directory unless you specify
-                  a complete path name. If you provide no extension,
-                  .EXE is assumed.
- 
-     <implibs>    The names of one or more import libraries. Use this
-                  field if your program calls functions imported using
-                  import libraries.
-                  
-                  You can specify the file APILMR.OBJ, which provides a
-                  64K default data segment when running in real mode.
-                  
- 
-     <linklibs>   The names of one or more libraries and object
-                  files. Use this field to supply object code needed
-                  to resolve dynamic-link calls. Separate file names
-                  with spaces.
- 
-                  BIND automatically searches for API.LIB and OS2.LIB.
-                  If you want additional libraries, be sure to specify
-                  the full path name.
-                  
- 
-     <options>    
-	 
-     BIND options must appear last on the command line. You can specify
-     options in uppercase or lowercase and use a single letter or the
-     full option name. For example, /M, /m, /MAP, and /map are
-     equivalent.
- 
-     Option         Action
- 
-     /HELP          Displays Help
-     /M[AP]         Generates Link Map File
-     /N[AMES]       Specifies Protected-Mode Functions
-     /NOLOGO        Suppresses Sign-On Banner
-     /O[UTFILE]     Specifies Name of Bound Program
-     /?             Displays Short Help
-                                    
+
