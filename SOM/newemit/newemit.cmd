@@ -65,7 +65,6 @@ echo interface %class% {}; > %stem%.idl
 
 echo %stem%.idl:
 %SC% -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
-exit
 del %stem%.idl
 rename _%stem%.idl %stem%.idl
 
