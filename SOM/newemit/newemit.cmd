@@ -1,9 +1,6 @@
 @echo off
 
 setlocal
-set root=c:\yuri
-set SOMBASE=%root%\osfree\build\bin\host\win32\os2tk45\som
-set path=%sombase%\bin;%sombase%\common\dll;%sombase%\lib;%path%
 if !%SOMBASE%!==!! goto error
 set SC=%SOMBASE%\bin\sc.exe
 if "%2"=="" goto usage

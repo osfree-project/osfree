@@ -1,4 +1,0 @@
-LIBRARY emitdump.dll
-HEAPSIZE 10240000
-EXPORTS
-   emitSL
