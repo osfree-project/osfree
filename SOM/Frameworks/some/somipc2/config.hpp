@@ -1,4 +1,0 @@
-#define HAVE__VSNPRINTF
-#define HAVE_VSNPRINTF
-#define HAVE_SNPRINTF
-#define HAVE_STDARG_H
