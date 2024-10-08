@@ -124,23 +124,23 @@ fsagm.xh		+
 fsgm.h			+
 fsgm.idl		+
 fsgm.xh			+
-gen_c.efc
-gen_c.efs
-gen_c.efw
-gen_cpp.efw
-gen_def.efw
-gen_emit.efc
-gen_emit.efs
-gen_emit.efw
-gen_emit.efx
-gen_idl.efw
-gen_make.efc
-gen_make.efs
-gen_make.efw
-gen_mk32.efc
-gen_mk32.efs
-gen_mk32.efw
-gen_temp.efw
+gen_c.efc				// CORBA version
+gen_c.efs				// SOM version
+gen_c.efw		+		// Current version
+gen_cpp.efw		+
+gen_def.efw		+
+gen_emit.efc			// CORBA version
+gen_emit.efs			// SOM version
+gen_emit.efw	+   	// Current version - switched by somcorba.cmd. Name changed to gen_emit_c.efw
+gen_emit.efx	+   	// Name changed to gen_emit_cpp.efw
+gen_idl.efw		+
+gen_make.efc			// CORBA version
+gen_make.efs			// SOM version
+gen_make.efw			// Current version - switched by somcorba.cmd
+gen_mk32.efc			// CORBA version
+gen_mk32.efs			// SOM version
+gen_mk32.efw			// Current version - switched by somcorba.cmd
+gen_temp.efw	+
 idl.efw
 impldef.h		+
 impldef.idl		+
@@ -406,7 +406,7 @@ somrmcls.h
 somrmcls.idl
 somrmcls.xh
 soms.h			+
-soms.xh
+soms.xh			+
 somsid.h		+
 somsid.idl		+
 somsid.xh		+
@@ -552,6 +552,7 @@ xmscssae.idl
 somtdm.idl
 emtypes.xh
 eventmsk.xh
+newemit.com
 
 
 Directory	Name		Comments

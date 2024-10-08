@@ -1,5 +1,5 @@
 
-PROJ = somcorba
+PROJ = newemit
 DEST = os2tk45$(SEP)som$(SEP)bin
 
 !include $(%ROOT)SOM/common.mk
@@ -23,9 +23,9 @@ hostos=win32
 !else
 hostos=$(%HOST)
 !endif
-src=$(PORT_BASE)somcorb2$(SEP)$(hostos)$(SEP)$(PROJ)$(ext)
+src=$(PORT_BASE)newemit$(SEP)$(hostos)$(SEP)$(PROJ)$(ext)
 !else
-src=$(PORT_BASE)somcorb2$(SEP)os2$(SEP)$(PROJ)$(ext)
+src=$(PORT_BASE)newemit$(SEP)os2$(SEP)$(PROJ)$(ext)
 !endif
 
 $(TARGETS): $(src)

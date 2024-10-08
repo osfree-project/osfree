@@ -14,6 +14,7 @@ TARGETS = $(PATH)emtypes.h &
 	$(PATH)somir.h &
 	$(PATH)somir.xh &
 	$(PATH)soms.h &
+	$(PATH)soms.xh &
 	$(PATH)somtc.h &
 	$(PATH)somtc.xh &
 	$(PATH)somtcnst.h &
@@ -31,6 +32,7 @@ SOURCES = $(PORT_BASE)somtk$(SEP)include$(SEP)emtypes.h &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)somir.h &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)somir.xh &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)soms.h &
+	$(PORT_BASE)somtk$(SEP)include$(SEP)soms.xh &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)somtc.h &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)somtc.xh &
 	$(PORT_BASE)somtk$(SEP)include$(SEP)somtcnst.h &
