@@ -6,7 +6,7 @@ diff -urN somfree/a.cmd newsomfree/a.cmd
 +set PLATFORM=
 +call make %1
 +
-diff -urN somfreeemitdef/defemit.idl newsomfree/emitdef/defemit.idl
+diff -urN somfree/emitdef/defemit.idl newsomfree/emitdef/defemit.idl
 --- somfree/emitdef/defemit.idl	Thu Jan 01 07:00:00 1970
 +++ newsomfree/emitdef/defemit.idl	Sun Mar 24 11:35:32 2024
 @@ -0,0 +1,19 @@
@@ -2953,7 +2953,7 @@ diff -urN somfree/emitsc/sctmpl.idl newsomfree/emitsc/sctmpl.idl
 +
 +#endif  /* SCTemplate_idl */
 diff -urN somfree/emitsc/src/emitsc.cpp newsomfree/emitsc/src/emitsc.cpp
---- somfreeemitsc/src/emitsc.cpp	Thu Jan 01 07:00:00 1970
+--- somfree/emitsc/src/emitsc.cpp	Thu Jan 01 07:00:00 1970
 +++ newsomfree/emitsc/src/emitsc.cpp	Sun Mar 24 11:35:33 2024
 @@ -0,0 +1,130 @@
 +/* # @(#) /44 1.9 6/7/96 16:14:31 [12/22/96 21:24:38] */
