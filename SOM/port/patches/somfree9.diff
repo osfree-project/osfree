@@ -187,7 +187,6 @@ diff -urwN somfree/spp/src/note.txt newsomfree/spp/src/note.txt
 -@ <lineno> "filename" "filename"
 -
 -Need to check how it works.
-diff -urwN somfree/spp/src/spp.c newsomfree/spp/src/spp.c
 diff -urwN somfree/spp/src/spp.l newsomfree/spp/src/spp.l
 --- somfree/spp/src/spp.l	Thu Jan 01 07:00:00 1970
 +++ newsomfree/spp/src/spp.l	Wed Sep 18 11:26:14 2024
@@ -348,5 +347,4 @@ diff -urwN somfree/spp/src/spp.l newsomfree/spp/src/spp.l
 +
 +  return 0;
 +}
-diff -urwN somfree/spp/src/spp.ll newsomfree/spp/src/spp.ll
 
