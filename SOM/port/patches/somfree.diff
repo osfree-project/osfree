@@ -4708,7 +4708,7 @@ diff -urN somfree/gastm/gvdecl.idl newsomfree/gastm/gvdecl.idl
 +
 +#endif  /* gvdecl_idl */
 diff -urN somfree/gastm/gvdef.idl newsomfree/gastm/gvdef.idl
---- somfreegastm/gvdef.idl	Thu Jan 01 07:00:00 1970
+--- somfree/gastm/gvdef.idl	Thu Jan 01 07:00:00 1970
 +++ newsomfree/gastm/gvdef.idl	Sun Mar 24 11:35:33 2024
 @@ -0,0 +1,14 @@
 +#ifndef gvdef_idl
