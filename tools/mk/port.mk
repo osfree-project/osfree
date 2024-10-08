@@ -29,7 +29,7 @@ patch: .symbolic
  $(verbose)for %i in ($(PORT_PATCHES)) do $(verbose)unix2dos -q -f -n $(MYDIR)patches$(SEP)%i $(PATH)%i
  $(verbose)for %i in ($(PORT_PATCHES)) do $(verbose)$(CD) $(PORT_BASE) && $(verbose)$(%PATCH) -s -p1 <$(PATH)%i
 !else
- for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && $(%PATCH) -s -p1 <$(MYDIR)patches$(SEP)%i
+ for %i in ($(PORT_PATCHES)) do $(CD) $(PORT_BASE) && $(%PATCH) -f -s -p1 <$(MYDIR)patches$(SEP)%i
 !endif
 
 prep_wget: .symbolic
