@@ -1,4 +1,0 @@
-:template
-LIBRARY emit<classSourceFileStem> 
-EXPORTS
-_emitSL@12

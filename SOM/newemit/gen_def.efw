@@ -1,7 +1,0 @@
-:template
-LIBRARY emit<classSourceFileStem> TERMINSTANCE
-DESCRIPTION 'SOM Emitter Framework - <classSourceFileStem> emittter'
-PROTMODE
-DATA MULTIPLE NONSHARED LOADONCALL
-EXPORTS
-   emitSL

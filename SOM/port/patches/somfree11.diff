@@ -1,0 +1,1268 @@
+diff -urwN somfree/ctoi/os2/ctoi.cmd newsomfree/ctoi/os2/ctoi.cmd
+--- somfree/ctoi/os2/ctoi.cmd	Thu Jan 01 07:00:00 1970
++++ newsomfree/ctoi/os2/ctoi.cmd	Tue Oct 08 11:46:34 2024
+@@ -0,0 +1,23 @@
++@echo off
++
++if "%SOMBASE%"=="" goto sombase
++
++if not exist %SOMBASE%\include\idl.gen goto normal
++echo Generating IDL interfaces in progress...
++goto end
++
++:normal
++echo Generating the SOM C++ Bindings:
++set SC=%SOMBASE%\bin\sc.exe
++cd %SOMBASE%\include
++echo idl.gen > idl.gen
++%SC% -%% -mtypecheck -mrmstar -mconvert %SCFLAGS% *.idl
++if not errorlevel 0 GOTO end
++if exist idl.gen del idl.gen
++goto end
++
++:sombase
++echo SOMBASE should be set before running somxh.
++goto end
++
++:end
+diff -urwN somfree/ctoi/win32/ctoi.cmd newsomfree/ctoi/win32/ctoi.cmd
+--- somfree/ctoi/win32/ctoi.cmd	Thu Jan 01 07:00:00 1970
++++ newsomfree/ctoi/win32/ctoi.cmd	Tue Oct 08 11:48:47 2024
+@@ -0,0 +1,30 @@
++@echo off
++
++if "%ProgramFiles%\somtk\bin\" == "%~dp0" set SOMBASE=%ProgramFiles%\somtk
++if "%ProgramFiles(x86)%\somtk\bin\" == "%~dp0" set SOMBASE=%ProgramFiles(x86)%\somtk
++if "%ProgramFiles(Arm)%\somtk\bin\" == "%~dp0" set SOMBASE=%ProgramFiles(Arm)%\somtk
++if "%ProgramW6432%\somtk\bin\" == "%~dp0" set SOMBASE=%ProgramW6432%\somtk
++
++if "%SOMBASE%x" == "x" if exist "%ProgramFiles%\somtk" set SOMBASE=%ProgramFiles%\somtk
++
++if "%SOMBASE%"=="" goto sombase
++
++if not exist %SOMBASE%\include\idl.gen goto normal
++echo Generating IDL interfaces in progress...
++goto end
++
++:normal
++echo Generating the SOM C++ Bindings:
++set SC=%SOMBASE%\bin\sc.exe
++cd %SOMBASE%\include
++echo idl.gen > idl.gen
++%SC% -%% -mtypecheck -mrmstar -mconvert %SCFLAGS% *.idl
++if not errorlevel 0 GOTO end
++if exist idl.gen del idl.gen
++goto end
++
++:sombase
++echo SOMBASE should be set before running somxh.
++goto end
++
++:end
+diff -urwN somfree/newemit/gen_c.efw newsomfree/newemit/gen_c.efw
+--- somfree/newemit/gen_c.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_c.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,92 @@
++:template
++#define <className>_Class_Source
++#include "<classSourceFileStem>.ih"
++
++SOM_Scope boolean  SOMLINK somtGenerateSections(<className> *somSelf)
++{
++    /* <className>Data *somThis = <className>GetData(somSelf); */
++    SOMTClassEntryC *cls = __get_somtTargetClass(somSelf);
++    SOMTTemplateOutputC *template = __get_somtTemplate(somSelf);
++    <className>MethodDebug("<className>","somtGenerateSections");
++
++    /*
++     * Setup symbols that are common to the whole file 
++     */
++    _somtFileSymbols(somSelf);
++
++    _somtEmitProlog(somSelf);
++
++    if (cls != (SOMTClassEntryC *) NULL) {
++        _somtScanBases(somSelf,
++                       "somtEmitBaseIncludesProlog",
++                       "somtEmitBaseIncludes",
++                       "somtEmitBaseIncludesEpilog");
++
++        _somtEmitMetaInclude(somSelf);
++
++        _somtEmitClass(somSelf);
++
++        _somtScanBases(somSelf,
++                       "somtEmitBaseProlog",
++                       "somtEmitBase",
++                       "somtEmitBaseEpilog");
++
++        _somtEmitMeta(somSelf);
++    }
++    _somtScanConstants(somSelf, "somtEmitConstantProlog",
++                      "somtEmitConstant", "somtEmitConstantEpilog");
++
++    _somtScanTypedefs(somSelf, "somtEmitTypedefProlog",
++                      "somtEmitTypedef", "somtEmitTypedefEpilog");
++
++    _somtScanStructs(somSelf, "somtEmitStructProlog",
++                     "somtEmitStruct", "somtEmitStructEpilog");
++
++    _somtScanUnions(somSelf, "somtEmitUnionProlog",
++                    "somtEmitUnion", "somtEmitUnionEpilog");
++
++    _somtScanEnums(somSelf, "somtEmitEnumProlog",
++                   "somtEmitEnum", "somtEmitEnumEpilog");
++
++    if (cls != (SOMTClassEntryC *) NULL) {
++        _somtScanAttributes(somSelf, "somtEmitAttributeProlog",
++                            "somtEmitAttribute", "somtEmitAttributeEpilog");
++
++        _somtScanMethods(somSelf,
++                         "somtImplemented",
++                         "somtEmitMethodsProlog",
++                         "somtEmitMethod",
++                         "somtEmitMethodsEpilog",
++                         0);
++
++        _somtEmitRelease(somSelf);
++
++        _somtScanPassthru(somSelf, 1,
++                          "somtEmitPassthruProlog",
++                          "somtEmitPassthru",
++                          "somtEmitPassthruEpilog");
++
++        _somtScanPassthru(somSelf, 0,
++                          "somtEmitPassthruProlog",
++                          "somtEmitPassthru",
++                          "somtEmitPassthruEpilog");
++
++        _somtScanData(somSelf,
++                      "somtEmitDataProlog",
++                      "somtEmitData",
++                      "somtEmitDataEpilog");
++    }
++
++    if (__get_somtTargetModule(somSelf) != (SOMTModuleEntryC *) NULL) {
++
++        _somtScanInterfaces(somSelf, "somtEmitInterfaceProlog",
++                            "somtEmitInterface", "somtEmitInterfaceEpilog");
++
++        _somtScanModules(somSelf, "somtEmitModuleProlog",
++                         "somtEmitModule", "somtEmitModuleEpilog");
++    }
++
++    _somtEmitEpilog(somSelf);
++
++    return (TRUE);
++}
+diff -urwN somfree/newemit/gen_cpp.efw newsomfree/newemit/gen_cpp.efw
+--- somfree/newemit/gen_cpp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_cpp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,92 @@
++:template
++#define <className>_Class_Source
++#include "<classSourceFileStem>.xih"
++
++SOM_Scope boolean  SOMLINK somtGenerateSections(<className> *somSelf)
++{
++    /* <className>Data *somThis = <className>GetData(somSelf); */
++    SOMTClassEntryC *cls = somSelf->_get_somtTargetClass();
++    SOMTTemplateOutputC *templte = somSelf->_get_somtTemplate();
++    <className>MethodDebug("<className>","somtGenerateSections");
++
++    /*
++     * Setup symbols that are common to the whole file 
++     */
++    somSelf->somtFileSymbols();
++
++    somSelf->somtEmitProlog();
++
++    if (cls != (SOMTClassEntryC *) NULL) {
++        somSelf->somtScanBases(
++                       "somtEmitBaseIncludesProlog",
++                       "somtEmitBaseIncludes",
++                       "somtEmitBaseIncludesEpilog");
++
++        somSelf->somtEmitMetaInclude();
++
++        somSelf->somtEmitClass();
++
++        somSelf->somtScanBases(
++                       "somtEmitBaseProlog",
++                       "somtEmitBase",
++                       "somtEmitBaseEpilog");
++
++        somSelf->somtEmitMeta();
++    }
++    somSelf->somtScanConstants("somtEmitConstantProlog",
++                      "somtEmitConstant", "somtEmitConstantEpilog");
++
++    somSelf->somtScanTypedefs("somtEmitTypedefProlog",
++                      "somtEmitTypedef", "somtEmitTypedefEpilog");
++
++    somSelf->somtScanStructs("somtEmitStructProlog",
++                     "somtEmitStruct", "somtEmitStructEpilog");
++
++    somSelf->somtScanUnions("somtEmitUnionProlog",
++                    "somtEmitUnion", "somtEmitUnionEpilog");
++
++    somSelf->somtScanEnums("somtEmitEnumProlog",
++                   "somtEmitEnum", "somtEmitEnumEpilog");
++
++    if (cls != (SOMTClassEntryC *) NULL) {
++        somSelf->somtScanAttributes("somtEmitAttributeProlog",
++                            "somtEmitAttribute", "somtEmitAttributeEpilog");
++
++        somSelf->somtScanMethods(
++                         "somtImplemented",
++                         "somtEmitMethodsProlog",
++                         "somtEmitMethod",
++                         "somtEmitMethodsEpilog",
++                         FALSE);
++
++        somSelf->somtEmitRelease();
++
++        somSelf->somtScanPassthru(TRUE,
++                          "somtEmitPassthruProlog",
++                          "somtEmitPassthru",
++                          "somtEmitPassthruEpilog");
++
++        somSelf->somtScanPassthru(FALSE,
++                          "somtEmitPassthruProlog",
++                          "somtEmitPassthru",
++                          "somtEmitPassthruEpilog");
++
++        somSelf->somtScanData(
++                      "somtEmitDataProlog",
++                      "somtEmitData",
++                      "somtEmitDataEpilog");
++    }
++
++    if (somSelf->_get_somtTargetModule() != (SOMTModuleEntryC *) NULL) {
++
++        somSelf->somtScanInterfaces("somtEmitInterfaceProlog",
++                            "somtEmitInterface", "somtEmitInterfaceEpilog");
++
++        somSelf->somtScanModules("somtEmitModuleProlog",
++                         "somtEmitModule", "somtEmitModuleEpilog");
++    }
++
++    somSelf->somtEmitEpilog();
++
++    return (TRUE);
++}
+diff -urwN somfree/newemit/gen_def.efw newsomfree/newemit/gen_def.efw
+--- somfree/newemit/gen_def.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_def.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,7 @@
++:template
++LIBRARY emit<classSourceFileStem> TERMINSTANCE
++DESCRIPTION 'SOM Emitter Framework - <classSourceFileStem> emittter'
++PROTMODE
++DATA MULTIPLE NONSHARED LOADONCALL
++EXPORTS
++   emitSL
+diff -urwN somfree/newemit/gen_emit_c.efw newsomfree/newemit/gen_emit_c.efw
+--- somfree/newemit/gen_emit_c.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_emit_c.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,69 @@
++:template
++#include \<scentry.h\>
++#include \<emitlib.h\>
++#include "<classSourceFileStem>.h"
++
++#define SYMBOLS_FILE   "<classSourceFileStem>.efw"
++
++SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
++{
++    FILE *fp;
++    FILE *deffile;
++    SOMTClassEntryC *oCls;
++    SOMTModuleEntryC *mod;
++    <className> *emitter;
++    SOMTTemplateOutputC *t;
++
++    /* if this is a class, rather than a module: */
++    if (cls->type == SOMTClassE) {
++
++        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
++        oCls = (SOMTClassEntryC *) somtGetObjectWrapper(cls);
++        emitter = <className>New();
++        __set_somtTargetFile(emitter, fp);
++        __set_somtTargetClass(emitter, oCls);
++	__set_somtEmitterName(emitter, "<classSourceFileStem>");
++        t = __get_somtTemplate(emitter);
++        __set_somtCommentStyle(t, somtCPPE);
++        if (deffile = _somtOpenSymbolsFile(emitter, SYMBOLS_FILE, "r")) {
++            _somtReadSectionDefinitions(t, deffile);
++            somtfcloseSL(deffile);
++        }
++        else {
++            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
++			     SYMBOLS_FILE);
++            exit(-1);
++        }
++        _somtGenerateSections(emitter);
++        _somFree(emitter);
++	_somFree(oCls);
++
++        return (fp);
++    }
++    else if (cls->type == SOMTModuleE) {
++
++        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
++	mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
++        emitter = <className>New();
++        __set_somtTargetFile(emitter, fp);
++        __set_somtTargetModule(emitter, mod);
++        t = __get_somtTemplate(emitter);
++        __set_somtCommentStyle(t, somtCPPE);
++        if (deffile = _somtOpenSymbolsFile(emitter, SYMBOLS_FILE, "r")) {
++            _somtReadSectionDefinitions(t, deffile);
++            somtfcloseSL(deffile);
++        }
++        else {
++            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
++			     SYMBOLS_FILE);
++            exit(-1);
++        }
++        _somtGenerateSections(emitter);
++        _somFree(emitter);
++        _somFree(mod);
++
++        return (fp);
++    }
++
++    else return ((FILE *) NULL);
++}
+diff -urwN somfree/newemit/gen_emit_cpp.efw newsomfree/newemit/gen_emit_cpp.efw
+--- somfree/newemit/gen_emit_cpp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_emit_cpp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,70 @@
++:template
++#include \<scentry.xh\>
++#include \<scmodule.xh\>
++#include \<emitlib.h\>
++#include "<classSourceFileStem>.xh"
++
++#define SYMBOLS_FILE   "<classSourceFileStem>.efw"
++
++SOMEXTERN FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
++{
++    FILE *fp;
++    FILE *deffile;
++    SOMTClassEntryC *oCls;
++    SOMTModuleEntryC *mod;
++    <className> *emitter;
++    SOMTTemplateOutputC *t;
++
++    /* if this is a class, rather than a module: */
++    if (cls->type == SOMTClassE) {
++
++        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
++        oCls = (SOMTClassEntryC *) somtGetObjectWrapper(cls);
++        emitter = new <className>();
++        emitter->_set_somtTargetFile(fp);
++        emitter->_set_somtTargetClass(oCls);
++	emitter->_set_somtEmitterName("<classSourceFileStem>");
++        t = emitter->_get_somtTemplate();
++        t->_set_somtCommentStyle(somtCPPE);
++        if (deffile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
++            t->somtReadSectionDefinitions(deffile);
++            somtfcloseSL(deffile);
++        }
++        else {
++            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
++			     SYMBOLS_FILE);
++            exit(-1);
++        }
++        emitter->somtGenerateSections();
++	delete emitter;
++	delete oCls;
++
++        return (fp);
++    }
++    else if (cls->type == SOMTModuleE) {
++
++        fp = somtopenEmitFileSL(file, "<classSourceFileStem>");
++	mod = (SOMTModuleEntryC *) somtGetObjectWrapper(cls);
++        emitter = new <className>();
++        emitter->_set_somtTargetFile(fp);
++        emitter->_set_somtTargetModule(mod);
++        t = emitter->_get_somtTemplate();
++        t->_set_somtCommentStyle(somtCPPE);
++        if (deffile = emitter->somtOpenSymbolsFile(SYMBOLS_FILE, "r")) {
++            t->somtReadSectionDefinitions(deffile);
++            somtfcloseSL(deffile);
++        }
++        else {
++            fprintf(stderr, "Cannot open Symbols file \\" %s \\".\\n", 
++			     SYMBOLS_FILE);
++            exit(-1);
++        }
++        emitter->somtGenerateSections();
++        delete emitter;
++	delete mod;
++
++        return (fp);
++    }
++
++    else return ((FILE *) NULL);
++}
+diff -urwN somfree/newemit/gen_idl.efw newsomfree/newemit/gen_idl.efw
+--- somfree/newemit/gen_idl.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_idl.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,19 @@
++:template
++#ifndef <className>_idl
++#define <className>_idl
++
++#include \<scemit.idl\>
++interface <className> : SOMTEmitC
++{
++#ifdef __SOMIDL__
++  implementation {
++    //# Class Modifiers
++    callstyle = oidl;
++  
++    //# Method Modifiers
++    somtGenerateSections: override;
++  };
++#endif /* __SOMIDL__ */
++};
++
++#endif  /* <className>_idl */
+diff -urwN somfree/newemit/gen_make_c.efw newsomfree/newemit/gen_make_c.efw
+--- somfree/newemit/gen_make_c.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_make_c.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,40 @@
++:template
++DLLDEST     = $(SOMBASE)/lib
++EFWDEST     = $(SOMBASE)/include
++INCLUDEPATH = -I$(SOMBASE)/include
++LIBDIRPATH  = -L$(SOMBASE)/lib
++
++SRCS        = emit<classSourceFileStem>.c <classSourceFileStem>.c <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.o <classSourceFileStem>.o
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.h
++
++SCFLAGS     = -D__PRIVATE__ -sh:ih -m addstar
++CC          = cc
++CFLAGS      = 
++LINKER      = ld
++LDFLAGS     = -bM:SRE -T512 -H512
++LIBLIST     = -lsomtk
++
++
++.SUFFIXES: .c .ih .idl .o
++
++.c.o:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -c $\<
++
++.idl.ih:
++	sc $(SCFLAGS) $\<
++
++$(TARGET): $(OBJS)
++	$(LINKER) -o $@ -e emitSL $(OBJS) $(LDFLAGS)\\
++	    -lc $(LIBDIRPATH) $(LIBLIST)
++
++clean:
++	rm -f *.o core *.ih $(TARGET) $(CLEANFILES)
++
++emit<classSourceFileStem>.o: emit<classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.o: <classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.ih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_make_cpp.efw newsomfree/newemit/gen_make_cpp.efw
+--- somfree/newemit/gen_make_cpp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_make_cpp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,40 @@
++:template
++DLLDEST     = $(SOMBASE)/lib
++EFWDEST     = $(SOMBASE)/include
++INCLUDEPATH = -I$(SOMBASE)/include
++LIBDIRPATH  = -L$(SOMBASE)/lib
++
++SRCS        = emit<classSourceFileStem>.C <classSourceFileStem>.C <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.o <classSourceFileStem>.o
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.xh
++
++SCFLAGS     = -D__PRIVATE__ -sxh:xih -m addstar
++CC          = xlC
++CFLAGS      = 
++LINKER      = xlC
++LDFLAGS     = -bM:SRE -T512 -H512
++LIBLIST     = -lsomtk
++
++
++.SUFFIXES: .C .xih .idl .o
++
++.C.o:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -c $\<
++
++.idl.xih:
++	sc $(SCFLAGS) $\<
++
++$(TARGET): $(OBJS)
++	$(LINKER) -o $@ -e emitSL $(OBJS) $(LDFLAGS)\\
++	    -lc $(LIBDIRPATH) $(LIBLIST)
++
++clean:
++	rm -f *.o core *.xih $(TARGET) $(CLEANFILES)
++
++emit<classSourceFileStem>.o: emit<classSourceFileStem>.C <classSourceFileStem>.xih
++
++<classSourceFileStem>.o: <classSourceFileStem>.C <classSourceFileStem>.xih
++
++<classSourceFileStem>.xih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_mk32_c.efw newsomfree/newemit/gen_mk32_c.efw
+--- somfree/newemit/gen_mk32_c.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_mk32_c.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,39 @@
++:template
++DLLDEST     = $(SOMBASE)\\lib
++EFWDEST     = $(SOMBASE)\\include
++INCLUDEPATH = -I$(SOMBASE)\\include
++LIBDIRPATH  = $(SOMBASE)\\lib
++
++SRCS        = emit<classSourceFileStem>.c <classSourceFileStem>.c <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.h
++
++SCFLAGS     = -D__PRIVATE__ -sh;ih -m addstar
++CC	    = icc
++CFLAGS	    = -I. -Q+ -W3 -D_OS2 -D__MIG_LIB__
++LINKER      = $(LINK)
++LDFLAGS     = /packd /packc /exepack /align:4 /noi /m $(LDEBUG) /nol /PM:VIO 
++LIBLIST     = $(LIBDIRPATH)\\somtk os2386 
++
++.SUFFIXES: .c .idl .ih .obj
++
++.c.obj:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
++
++.idl.ih:
++	cmd /c "sc $(SCFLAGS) $*.idl"
++
++$(TARGET): $(OBJS)
++	$(LINKER) $(LDFLAGS) $(OBJS), \\
++	$*.dll, $* /m, $(LIBLIST), $*.def
++
++clean:
++	-del *.obj *.dll *.map *.ih $(CLEANFILES)
++
++emit<classSourceFileStem>.obj: emit<classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.obj: <classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.ih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_mk32_cpp.efw newsomfree/newemit/gen_mk32_cpp.efw
+--- somfree/newemit/gen_mk32_cpp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_mk32_cpp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,39 @@
++:template
++DLLDEST     = $(SOMBASE)\\lib
++EFWDEST     = $(SOMBASE)\\include
++INCLUDEPATH = -I$(SOMBASE)\\include
++LIBDIRPATH  = $(SOMBASE)\\lib
++
++SRCS        = emit<classSourceFileStem>.cpp <classSourceFileStem>.cpp <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.xh
++
++SCFLAGS     = -D__PRIVATE__ -sxh;xih -m addstar
++CC	    = icc
++CFLAGS	    = -I. -Q+ -W3 -D_OS2 -D__MIG_LIB__
++LINKER      = $(LINK)
++LDFLAGS     = /packd /packc /exepack /align:4 /noi /m $(LDEBUG) /nol /PM:VIO 
++LIBLIST     = $(LIBDIRPATH)\\somtk os2386 
++
++.SUFFIXES: .cpp .idl .xih .obj
++
++.cpp.obj:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
++
++.idl.xih:
++	cmd /c "sc $(SCFLAGS) $*.idl"
++
++$(TARGET): $(OBJS)
++	$(LINKER) $(LDFLAGS) $(OBJS), \\
++	$*.dll, $* /m, $(LIBLIST), $*.def
++
++clean:
++	-del *.obj *.dll *.map *.xih $(CLEANFILES)
++
++emit<classSourceFileStem>.obj: emit<classSourceFileStem>.cpp <classSourceFileStem>.xih
++
++<classSourceFileStem>.obj: <classSourceFileStem>.cpp <classSourceFileStem>.xih
++
++<classSourceFileStem>.xih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_mknt_c.efw newsomfree/newemit/gen_mknt_c.efw
+--- somfree/newemit/gen_mknt_c.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_mknt_c.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,43 @@
++:template
++DLLDEST     = $(SOMBASE)\\lib
++EFWDEST     = $(SOMBASE)\\include
++INCLUDEPATH = -I$(SOMBASE)\\include
++LIBDIRPATH  = $(SOMBASE)\\lib
++
++SRCS        = emit<classSourceFileStem>.c <classSourceFileStem>.c <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.h
++
++SCFLAGS     = -D__PRIVATE__ -sh;ih -m addstar
++CC	    = icc
++CFLAGS	    = -Q+ -I. -Ti+ -W3 
++LINKER      = ilink
++LDFLAGS     = /DEBUG 
++LIBLIST     = somtk.lib 
++
++.SUFFIXES: .c .idl .ih .obj
++
++.c.obj:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
++
++.idl.ih:
++	cmd /c "sc $(SCFLAGS) $*.idl"
++
++
++
++$(TARGET): $(OBJS) $*.exp
++	$(LINKER) /DLL /OUT:$@ $(LDFLAGS) $(OBJS) $*.exp $(LIBLIST)
++
++$(TARGET:dll=exp): $(TARGET:dll=nid)
++	ilib /GI $*.nid
++
++clean:
++	-del *.obj *.dll *.map *.ih $(CLEANFILES)
++
++emit<classSourceFileStem>.obj: emit<classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.obj: <classSourceFileStem>.c <classSourceFileStem>.ih
++
++<classSourceFileStem>.ih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_mknt_cpp.efw newsomfree/newemit/gen_mknt_cpp.efw
+--- somfree/newemit/gen_mknt_cpp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_mknt_cpp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,41 @@
++:template
++DLLDEST     = $(SOMBASE)\\lib
++EFWDEST     = $(SOMBASE)\\include
++INCLUDEPATH = -I$(SOMBASE)\\include
++LIBDIRPATH  = $(SOMBASE)\\lib
++
++SRCS        = emit<classSourceFileStem>.cpp <classSourceFileStem>.cpp <classSourceFileStem>.efw <classSourceFileStem>.idl
++OBJS        = emit<classSourceFileStem>.obj <classSourceFileStem>.obj
++TARGET      = emit<classSourceFileStem>.dll
++CLEANFILES  = <classSourceFileStem>.xh
++
++SCFLAGS     = -D__PRIVATE__ -sxh;xih -m addstar
++CC	    = icc
++CFLAGS	    = -I. -Q+ -W3 
++LINKER      = ilink
++LDFLAGS     = /DEBUG
++LIBLIST     = somtk.lib
++
++.SUFFIXES: .cpp .idl .xih .obj
++
++.cpp.obj:
++	$(CC) -I. $(INCLUDEPATH) $(CFLAGS) -Ge- -c $\<
++
++.idl.xih:
++	cmd /c "sc $(SCFLAGS) $*.idl"
++
++$(TARGET): $(OBJS) $*.exp
++	$(LINKER) /DLL $(LDFLAGS) $(OBJS) $*.exp $(LIBLIST)
++
++$(TARGET:dll=exp): $(TARGET:dll=nid)
++	ilib /GI $*.nid
++
++clean:
++	-del *.obj *.dll *.map *.xih $(CLEANFILES)
++
++emit<classSourceFileStem>.obj: emit<classSourceFileStem>.cpp <classSourceFileStem>.xih
++
++<classSourceFileStem>.obj: <classSourceFileStem>.cpp <classSourceFileStem>.xih
++
++<classSourceFileStem>.xih: <classSourceFileStem>.idl
++
+diff -urwN somfree/newemit/gen_nid.efw newsomfree/newemit/gen_nid.efw
+--- somfree/newemit/gen_nid.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_nid.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,4 @@
++:template
++LIBRARY emit<classSourceFileStem> 
++EXPORTS
++_emitSL@12
+diff -urwN somfree/newemit/gen_temp.efw newsomfree/newemit/gen_temp.efw
+--- somfree/newemit/gen_temp.efw	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/gen_temp.efw	Fri Jun 14 09:02:57 2024
+@@ -0,0 +1,347 @@
++:copyrightS
++/*
++ *  This is part of osFree project
++ */
++
++:prologS
++Section: prologS
++
++  timeStamp = "<timeStamp>"
++
++:baseIncludesPrologS
++Section: baseIncludesPrologS
++
++:baseIncludesS
++Section: baseIncludesS
++
++  baseName = "<baseName>"
++  baseIDLScopedName = "<baseIDLScopedName>"
++  baseCScopedName = "<baseCScopedName>"
++  baseComment = "<-- baseComment>"
++  baseInclude = "<baseInclude>"
++  baseLineNumber = "<baseLineNumber>"
++  baseMajorVersion = "<baseMajorVersion>"
++  baseMinorVersion = "<baseMinorVersion>"
++  baseMods = "<baseMods, ...>"
++  baseReleaseOrder = "<baseReleaseOrder, ...>"
++  baseSourceFile = "<baseSourceFile>"
++  baseSourceFileStem = "<baseSourceFileStem>"
++
++:baseIncludesEpilogS
++Section: baseIncludesEpilogS
++
++:metaIncludeS
++Section: metaIncludesS
++
++  metaName = "<metaName>"
++  metaIDLScopedName = "<metaIDLScopedName>"
++  metaCScopedName = "<metaCScopedName>"
++  metaComment = "<-- metaComment>"
++  metaInclude = "<metaInclude>"
++  metaLineNumber = "<metaLineNumber>"
++  metaMajorVersion = "<metaMajorVersion>"
++  metaMinorVersion = "<metaMinorVersion>"
++  metaMods = "<metaMods, ...>"
++  metaReleaseOrder = "<metaReleaseOrder, ...>"
++  metaSourceFile = "<metaSourceFile>"
++  metaSourceFileStem = "<metaSourceFileStem>"
++
++:classS
++Section: classS
++
++  className = "<className>"
++  classIDLScopedName = "<classIDLScopedName>"
++  classCScopedName = "<classCScopedName>"
++  classComment = "<-- classComment>"
++  classInclude = "<classInclude>"
++  classLineNumber = "<classLineNumber>"
++  classMods = "<classMods, ...>"
++  classMajorVersion = "<classMajorVersion>"
++  classMinorVersion = "<classMinorVersion>"
++  classReleaseOrder = "<classReleaseOrder, ...>"
++  classSourceFile = "<classSourceFile>"
++  classSourceFileStem = "<classSourceFileStem>"
++
++:basePrologS
++Section: basePrologS
++
++:baseS
++Section: baseS
++
++  baseName = "<baseName>"
++  baseIDLScopedName = "<baseIDLScopedName>"
++  baseCScopedName = "<baseCScopedName>"
++  baseComment = "<-- baseComment>"
++  baseInclude = "<baseInclude>"
++  baseLineNumber = "<baseLineNumber>"
++  baseMajorVersion = "<baseMajorVersion>"
++  baseMinorVersion = "<baseMinorVersion>"
++  baseMods = "<baseMods, ...>"
++  baseReleaseOrder = "<baseReleaseOrder, ...>"
++  baseSourceFile = "<baseSourceFile>"
++  baseSourceFileStem = "<baseSourceFileStem>"
++
++:baseEpilogS
++Section: baseEpilogS
++
++:metaS
++Section: metaS
++
++  metaName = "<metaName>"
++  metaIDLScopedName = "<metaIDLScopedName>"
++  metaCScopedName = "<metaCScopedName>"
++  metaComment = "<-- metaComment>"
++  metaInclude = "<metaInclude>"
++  metaLineNumber = "<metaLineNumber>"
++  metaMajorVersion = "<metaMajorVersion>"
++  metaMinorVersion = "<metaMinorVersion>"
++  metaMods = "<metaMods, ...>"
++  metaReleaseOrder = "<metaReleaseOrder, ...>"
++  metaSourceFile = "<metaSourceFile>"
++  metaSourceFileStem = "<metaSourceFileStem>"
++
++:constantPrologS
++Section: constantPrologS
++
++:constantS
++Section: constantS
++
++  constantName = "<constantName>"
++  constantIDLScopedName = "<constantIDLScopedName>"
++  constantCScopedName = "<constantCScopedName>"
++  constantComment = "<-- constantComment>"
++  constantLineNumber = "<constantLineNumber>"
++  constantMods = "<constantMods, ...>"
++  constType = "<constantType>"
++  constantValueUnevaluated = "<constantValueUnevaluated>"
++  constantValueEvaluated = "<constantValueEvaluated>"
++
++:constantEpilogS
++Section: constantEpilogS
++
++:typedefPrologS
++Section: typedefPrologS
++
++:typedefS
++Section: typedefS
++
++  typedefDeclarators = "<typedefDeclarators, ...>"
++  typedefBaseType = "<typedefBaseType>"
++  typedefComment = "<-- typedefComment>"
++  typedefLineNumber = "<typedefLineNumber>"
++  typedefMods = "<typedefMods, ...>"
++
++:typedefEpilogS
++Section: typedefEpilogS
++
++:structPrologS
++Section: structPrologS
++
++:structS
++Section: structS
++
++  structName = "<structName>"
++  structIDLScopedName = "<structIDLScopedName>"
++  structCScopedName = "<structCScopedName>"
++  structComment = "<-- structComment>"
++  structLineNumber = "<structLineNumber>"
++  structMods = "<structMods, ...>"
++
++:structEpilogS
++Section: structEpilogS
++
++:unionPrologS
++Section: unionPrologS
++
++:unionS
++Section: unionS
++
++  unionName = "<unionName>"
++  unionIDLScopedName = "<unionIDLScopedName>"
++  unionCScopedName = "<unionCScopedName>"
++  unionComment = "<-- unionComment>"
++  unionLineNumber = "<unionLineNumber>"
++  unionMods = "<unionMods, ...>"
++
++:unionEpilogS
++Section: unionEpilogS
++
++:enumPrologS
++Section: enumPrologS
++
++:enumS
++Section: enumS
++
++  enumName = "<enumName>"
++  enumIDLScopedName = "<enumIDLScopedName>"
++  enumCScopedName = "<enumCScopedName>"
++  enumComment = "<-- enumComment>"
++  enumLineNumber = "<enumLineNumber>"
++  enumMods = "<enumMods, ...>"
++  enumNames = "<enumNames, ...>"
++
++:enumEpilogS
++Section: enumEpilogS
++
++:attributePrologS
++Section: attributePrologS
++
++:attributeS
++Section: attributeS
++
++  attributeDeclarators = "<attributeDeclarators, ...>"
++  attributeBaseType = "<attributeBaseType>"
++  attributeComment = "<-- attributeComment>"
++  attributeLineNumber = "<attributeLineNumber>"
++  attributeMods = "<attributeMods, ...>"
++
++:attributeEpilogS
++Section: attributeEpilogS
++
++:methodsPrologS
++Section: methodsPrologS
++
++:methodsS
++Section: methodsS
++
++  methodName = "<methodName>"
++  methodIDLScopedName = "<methodIDLScopedName>"
++  methodCScopedName = "<methodCScopedName>"
++  methodComment = "<-- methodComment>"
++  methodLineNumber = "<methodLineNumber>"
++  methodMods = "<methodMods, ...>"
++  methodType = "<methodType>"
++  methodCReturnType = "<methodCReturnType>"
++  methodContext = "<methodContext, ...>"
++  methodRaises = "<methodRaises, ...>"
++  methodClassName = "<methodClassName>"
++  methodCParamList = "(<methodCParamList, ...>)"
++  methodCParamListVA = "(<methodCParamListVA, ...>)"
++  methodIDLParamList = "(<methodIDLParamList, ...>)"
++  methodShortParamNameList = "(<methodShortParamNameList, ...>)"
++  methodFullParamNameList = "(<methodFullParamNameList, ...>)"
++
++:overrideMethodsS
++Section: overrideMethodsS
++
++  methodName = "<methodName>"
++  methodIDLScopedName = "<methodIDLScopedName>"
++  methodCScopedName = "<methodCScopedName>"
++  methodComment = "<-- methodComment>"
++  methodLineNumber = "<methodLineNumber>"
++  methodMods = "<methodMods, ...>"
++  methodType = "<methodType>"
++  methodCReturnType = "<methodCReturnType>"
++  methodContext = "<methodContext, ...>"
++  methodRaises = "<methodRaises, ...>"
++  methodClassName = "<methodClassName>"
++  methodCParamList = "(<methodCParamList, ...>)"
++  methodCParamListVA = "(<methodCParamListVA, ...>)"
++  methodIDLParamList = "(<methodIDLParamList, ...>)"
++  methodShortParamNameList = "(<methodShortParamNameList, ...>)"
++  methodFullParamNameList = "(<methodFullParamNameList, ...>)"
++
++:inheritedMethodsS
++Section: inheritedMethodsS
++
++  methodName = "<methodName>"
++  methodIDLScopedName = "<methodIDLScopedName>"
++  methodCScopedName = "<methodCScopedName>"
++  methodComment = "<-- methodComment>"
++  methodLineNumber = "<methodLineNumber>"
++  methodMods = "<methodMods, ...>"
++  methodType = "<methodType>"
++  methodCReturnType = "<methodCReturnType>"
++  methodContext = "<methodContext, ...>"
++  methodRaises = "<methodRaises, ...>"
++  methodClassName = "<methodClassName>"
++  methodCParamList = "(<methodCParamList, ...>)"
++  methodCParamListVA = "(<methodCParamListVA, ...>)"
++  methodIDLParamList = "(<methodIDLParamList, ...>)"
++  methodShortParamNameList = "(<methodShortParamNameList, ...>)"
++  methodFullParamNameList = "(<methodFullParamNameList, ...>)"
++
++:methodsEpilogS
++Section: methodsEpilogS
++
++:releaseS
++Section: releaseS
++
++  classReleaseOrder = "<classReleaseOrder, ...>"
++
++:passthruPrologS
++Section: passthruPrologS
++
++:passthruS
++Section: passthruS
++
++  passthruName = "<passthruName>"
++  passthruComment = "<-- passthruComment>"
++  passthruLineNumber = "<passthruLineNumber>"
++  passthruMods = "<passthruMods, ...>"
++  passthruLanguage = "<passthruLanguage>"
++  passthruTarget = "<passthruTarget>"
++  passthruBody = "<passthruBody>"
++
++:passthruEpilogS
++Section: passthruEpilogS
++
++:dataPrologS
++Section: dataPrologS
++
++:dataS
++Section: dataS
++
++  dataName = "<dataName>"
++  dataIDLScopedName = "<dataIDLScopedName>"
++  dataCScopedName = "<dataCScopedName>"
++  dataComment = "<-- dataComment>"
++  dataLineNumber = "<dataLineNumber>"
++  dataMods = "<dataMods, ...>"
++  dataType = "<dataType>"
++  dataArrayDimensions = "<dataArrayDimensions>"
++  dataPointers = "<dataPointers>"
++
++:dataEpilogS
++Section: dataEpilogS
++
++:interfacePrologS
++Section: interfacePrologS
++
++:interfaceS
++Section: interfaceS
++
++  className = "<className>"
++  classIDLScopedName = "<classIDLScopedName>"
++  classCScopedName = "<classCScopedName>"
++  classComment = "<-- classComment>"
++  classInclude = "<classInclude>"
++  classLineNumber = "<classLineNumber>"
++  classMods = "<classMods, ...>"
++  classMajorVersion = "<classMajorVersion>"
++  classMinorVersion = "<classMinorVersion>"
++  classReleaseOrder = "<classReleaseOrder, ...>"
++  classSourceFile = "<classSourceFile>"
++  classSourceFileStem = "<classSourceFileStem>"
++
++:interfaceEpilogS
++Section: interfaceEpilogS
++
++:modulePrologS
++Section: modulePrologS
++
++:moduleS
++Section: moduleS
++
++  moduleName = "<moduleName>"
++  moduleIDLScopedName = "<moduleIDLScopedName>"
++  moduleCScopedName = "<moduleCScopedName>"
++  moduleComment = "<-- moduleComment>"
++  moduleLineNumber = "<moduleLineNumber>"
++  moduleMods = "<moduleMods, ...>"
++
++:moduleEpilogS
++Section: moduleEpilogS
++
++:epilogS
++Section: epilogS
+diff -urwN somfree/newemit/note.txt newsomfree/newemit/note.txt
+--- somfree/newemit/note.txt	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/note.txt	Mon Oct 07 14:46:38 2024
+@@ -0,0 +1 @@
++newemit.cmd must be in sync with somtarts.cmd and somcorba.cmd
+diff -urwN somfree/newemit/os2/newemit.cmd newsomfree/newemit/os2/newemit.cmd
+--- somfree/newemit/os2/newemit.cmd	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/os2/newemit.cmd	Mon Oct 07 14:07:20 2024
+@@ -0,0 +1,98 @@
++@echo off
++
++setlocal
++if !%SOMBASE%!==!! goto error
++set SC=%SOMBASE%\bin\sc.exe
++if "%2"=="" goto usage
++
++set targetlang=c
++if  "%1"=="-C"  goto setc
++if  "%1"=="-c"  goto setc
++if  "%1"=="/C"  goto setc
++if  "%1"=="/c"  goto setc
++goto skip
++
++:setc
++set targetlang=c
++shift
++
++:skip
++
++if "%1"=="-C++" goto setCC
++if "%1"=="-c++" goto setCC
++if "%1"=="/C++" goto setCC
++if "%1"=="/c++" goto setCC
++if "%1"=="-CPP" goto setCC
++if "%1"=="-CPp" goto setCC
++if "%1"=="-Cpp" goto setCC
++if "%1"=="-cpp" goto setCC
++if "%1"=="-cpP" goto setCC
++if "%1"=="-cPP" goto setCC
++if "%1"=="-cPp" goto setCC
++if "%1"=="/CPP" goto setCC
++if "%1"=="/CPp" goto setCC
++if "%1"=="/Cpp" goto setCC
++if "%1"=="/cpp" goto setCC
++if "%1"=="/cpP" goto setCC
++if "%1"=="/cPP" goto setCC
++if "%1"=="/cPp" goto setCC
++
++goto skip3
++
++:setCC
++set targetlang=cpp
++shift
++
++:skip3
++
++if "%2"=="" goto usage
++if "%3"=="" goto skip4
++
++:usage
++echo "usage: newemit [-C | -C++] <className> <stem>"
++goto exit
++
++:error
++echo SOMBASE environment variable not set
++goto exit
++
++:skip4
++
++set class=%1
++set stem=%2
++
++echo interface %class% {}; > %stem%.idl
++
++echo %stem%.idl:
++%SC% -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
++del %stem%.idl
++rename _%stem%.idl %stem%.idl
++
++echo %stem%.%targetlang%:
++%SC% -aemitfile=%stem%.%targetlang% -adeffile=gen_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo emit%stem%.%targetlang%:
++%SC% -aemitfile=emit%stem%.%targetlang% -adeffile=gen_emit_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo Makefile:
++%SC% -aemitfile=Makefile -adeffile=gen_make_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.def
++%SC% -aemitfile=emit%stem%.def -adeffile=gen_def.efw -sgen -mnochk %stem%.idl
++
++if exist makefile.nt rename makefile.nt makefile.bak
++
++echo makefile.nt:
++%SC% -aemitfile=makefile.nt -adeffile=gen_mknt_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.nid:
++%SC% -aemitfile=emit%stem%.nid -adeffile=gen_nid.efw -sgen -mnochk %stem%.idl
++
++echo Makefile.32:
++%SC% -aemitfile=Makefile.32 -adeffile=gen_mk32_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.efw:
++if not exist %SOMBASE%\include\gen_temp.efw copy %SOMBASE%\include\gen_temp.efw %stem%.efw
++
++:exit
++endlocal
+diff -urwN somfree/newemit/win32/newemit.cmd newsomfree/newemit/win32/newemit.cmd
+--- somfree/newemit/win32/newemit.cmd	Thu Jan 01 07:00:00 1970
++++ newsomfree/newemit/win32/newemit.cmd	Mon Oct 07 14:07:20 2024
+@@ -0,0 +1,98 @@
++@echo off
++
++setlocal
++if !%SOMBASE%!==!! goto error
++set SC=%SOMBASE%\bin\sc.exe
++if "%2"=="" goto usage
++
++set targetlang=c
++if  "%1"=="-C"  goto setc
++if  "%1"=="-c"  goto setc
++if  "%1"=="/C"  goto setc
++if  "%1"=="/c"  goto setc
++goto skip
++
++:setc
++set targetlang=c
++shift
++
++:skip
++
++if "%1"=="-C++" goto setCC
++if "%1"=="-c++" goto setCC
++if "%1"=="/C++" goto setCC
++if "%1"=="/c++" goto setCC
++if "%1"=="-CPP" goto setCC
++if "%1"=="-CPp" goto setCC
++if "%1"=="-Cpp" goto setCC
++if "%1"=="-cpp" goto setCC
++if "%1"=="-cpP" goto setCC
++if "%1"=="-cPP" goto setCC
++if "%1"=="-cPp" goto setCC
++if "%1"=="/CPP" goto setCC
++if "%1"=="/CPp" goto setCC
++if "%1"=="/Cpp" goto setCC
++if "%1"=="/cpp" goto setCC
++if "%1"=="/cpP" goto setCC
++if "%1"=="/cPP" goto setCC
++if "%1"=="/cPp" goto setCC
++
++goto skip3
++
++:setCC
++set targetlang=cpp
++shift
++
++:skip3
++
++if "%2"=="" goto usage
++if "%3"=="" goto skip4
++
++:usage
++echo "usage: newemit [-C | -C++] <className> <stem>"
++goto exit
++
++:error
++echo SOMBASE environment variable not set
++goto exit
++
++:skip4
++
++set class=%1
++set stem=%2
++
++echo interface %class% {}; > %stem%.idl
++
++echo %stem%.idl:
++%SC% -aemitfile=_%stem%.idl -adeffile=gen_idl.efw -sgen -mnochk %stem%.idl
++del %stem%.idl
++rename _%stem%.idl %stem%.idl
++
++echo %stem%.%targetlang%:
++%SC% -aemitfile=%stem%.%targetlang% -adeffile=gen_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo emit%stem%.%targetlang%:
++%SC% -aemitfile=emit%stem%.%targetlang% -adeffile=gen_emit_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo Makefile:
++%SC% -aemitfile=Makefile -adeffile=gen_make_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.def
++%SC% -aemitfile=emit%stem%.def -adeffile=gen_def.efw -sgen -mnochk %stem%.idl
++
++if exist makefile.nt rename makefile.nt makefile.bak
++
++echo makefile.nt:
++%SC% -aemitfile=makefile.nt -adeffile=gen_mknt_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.nid:
++%SC% -aemitfile=emit%stem%.nid -adeffile=gen_nid.efw -sgen -mnochk %stem%.idl
++
++echo Makefile.32:
++%SC% -aemitfile=Makefile.32 -adeffile=gen_mk32_%targetlang%.efw -sgen -mnochk %stem%.idl
++
++echo %stem%.efw:
++if not exist %SOMBASE%\include\gen_temp.efw copy %SOMBASE%\include\gen_temp.efw %stem%.efw
++
++:exit
++endlocal
