@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
   _searchenv( "wlink.exe", "PATH", full_path );
   if(!full_path[0] == '\0') 
   {
+    // @todo search using WATCOM env
     // Check os2.lib
     _searchenv( "os2.lib", "LIB", full_path );
     if(full_path[0] == '\0')
@@ -174,7 +175,6 @@ int main(int argc, char *argv[])
                     // seek to Module table
                     if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader), SEEK_SET))
                     {
-                      //Allocate memory for mod table
                       WORD offset;
                       BYTE len;
                       WORD count;
@@ -182,198 +182,191 @@ int main(int argc, char *argv[])
                       int j;
                       struct new_rlc rlc;
 
-                      mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*));
-
-                      // Read mod table
-                      for (i=NE_CMOD(NEHeader); i >0 ; i-- )
+                      //Allocate memory for mod table
+                      if (mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*)))
                       {
-                        fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET);
-                        fread(&offset, 1, sizeof(offset), f);
-                        fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET);
-                        fread(&len, 1, sizeof(len), f);
-                        mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
-                        fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
-                        mods[NE_CMOD(NEHeader)-i][len]=0;
-                        //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
-                      }
-
-                      // Now read segments fixup tables and build list of imported functions
-                      for (i = NE_CSEG(NEHeader); i > 0; i--)
-                      {
-                        // Read segment table entry
-                        fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
-                        fread(&seg, 1, sizeof(struct new_seg), f);
-                        // Read relocation table
-                        fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET);
-                        fread(&count, 1, sizeof(count), f);
-                        //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
-                        for (j = 0; j < count; j++)
+                        // Read mod table
+                        for (i=NE_CMOD(NEHeader); i >0 ; i-- )
                         {
-                          fread(&rlc, 1, sizeof(struct new_rlc), f);
-                          if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
+                          fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET);
+                          fread(&offset, 1, sizeof(offset), f);
+                          fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET);
+                          fread(&len, 1, sizeof(len), f);
+                          mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
+                          fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
+                          mods[NE_CMOD(NEHeader)-i][len]=0;
+                          //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+                        }
+
+                        // Now read segments fixup tables and build list of imported functions
+                        for (i = NE_CSEG(NEHeader); i > 0; i--)
+                        {
+                          // Read segment table entry
+                          fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
+                          fread(&seg, 1, sizeof(struct new_seg), f);
+                          // Read relocation table
+                          fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET);
+                          fread(&count, 1, sizeof(count), f);
+                          //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
+                          for (j = 0; j < count; j++)
                           {
-                            if ((rlc.nr_flags & NRRTYP)==NRRNAM)
+                            fread(&rlc, 1, sizeof(struct new_rlc), f);
+                            if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
                             {
-                              // not supported yet...
-                              printf("Panic!\n");
-                              return 1;
-                            } else {
-                              char * fname;
-                        
-                              fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
-                              printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
-                              
-                              // Collect in list
-                        
-                              // If any Mou* used, then turn on Mou API
-                              if (!strncmp(fname, "MOU",3))
+                              if ((rlc.nr_flags & NRRTYP)==NRRNAM)
                               {
-                                MouAPI=1;
+                                // not supported yet...
+                                printf("Panic!\n");
+                                return 1;
+                              } else {
+                                char * fname;
+                          
+                                fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
+                                printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
+                                
+                                // Collect in list
+                          
+                                // If any Mou* used, then turn on Mou API
+                                if (!strncmp(fname, "MOU",3)) MouAPI=1;
+                                
+                                // If any Kbd* used, then turn on Kbd API
+                                if (!strncmp(fname, "KBD",3)) KbdAPI=1;
+                          
+                                // If any Vio* used, then turn on Vio API
+                                if (!strncmp(fname, "VIO",3)) VioAPI=1;
+                          
+                                // If VioRegister used, then turn full VIO API and DLL API
+                                if (!strcmp(fname, "VIOREGISTER"))
+                                {
+                                  VioAPI=2;
+                                  DLLAPI=1;
+                                }
+                                // If MouRegister used, then turn full Mou API and DLL API
+                                if (!strcmp(fname, "MOUREGISTER"))
+                                {
+                                  MouAPI=2;
+                                  DLLAPI=1;
+                                }
+                                // If KbdRegister used, then turn full Kbd API and DLL API
+                                if (!strcmp(fname, "KBDREGISTER"))
+                                {
+                                  KbdAPI=2;
+                                  DLLAPI=1;
+                                }
+                                // If DosLoadModule used, then turn on DLL API
+                                if (!strcmp(fname, "DOSLOADMODULE")) DLLAPI=1;
                               }
-                              
-                              // If any Kbd* used, then turn on Kbd API
-                              if (!strncmp(fname, "KBD",3))
-                              {
-                                KbdAPI=1;
-                              }
-                        
-                              // If any Vio* used, then turn on Vio API
-                              if (!strncmp(fname, "VIO",3))
-                              {
-                                VioAPI=1;
-                              }
-                        
-                              // If VioRegister used, then turn full VIO API and DLL API
-                              if (!strcmp(fname, "VIOREGISTER"))
-                              {
-                                VioAPI=2;
-                                DLLAPI=1;
-                              }
-                              // If MouRegister used, then turn full Mou API and DLL API
-                              if (!strcmp(fname, "MOUREGISTER"))
-                              {
-                                MouAPI=2;
-                                DLLAPI=1;
-                              }
-                              // If KbdRegister used, then turn full Kbd API and DLL API
-                              if (!strcmp(fname, "KBDREGISTER"))
-                              {
-                                KbdAPI=2;
-                                DLLAPI=1;
-                              }
-                              // If DosLoadModule used, then turn on DLL API
-                              if (!strcmp(fname, "DOSLOADMODULE"))
-                              {
-                                DLLAPI=1;
-                              }
-                            }
-                          }       
+                            }       
+                          }
                         }
-                      }
       
-                      if (!fclose(f))
-                      {
-                        // Check presense of subsystem  required files
-                        // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
-                        if (DLLAPI)
+                        if (!fclose(f))
                         {
-                          _searchenv( "dll.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          // Check presense of subsystem  required files
+                          // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
+                          if (DLLAPI)
                           {
-                            printf( "Error: Unable to find dll.lib file\n" );
-                            return 1;
+                            _searchenv( "dll.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find dll.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
+                    
+                          if (VioAPI==1)
+                          {
+                            _searchenv( "vios.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find vios.lib file\n" );
+                              return 1;
+                            }
+                          }
                       
-                        if (VioAPI==1)
-                        {
-                          _searchenv( "vios.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          if (VioAPI==2)
                           {
-                            printf( "Error: Unable to find vios.lib file\n" );
-                            return 1;
+                            _searchenv( "viof.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find viof.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
                       
-                        if (VioAPI==2)
-                        {
-                          _searchenv( "viof.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          if (MouAPI==1)
                           {
-                            printf( "Error: Unable to find viof.lib file\n" );
-                            return 1;
+                            _searchenv( "mous.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find mous.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
                       
-                        if (MouAPI==1)
-                        {
-                          _searchenv( "mous.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          if (MouAPI==2)
                           {
-                            printf( "Error: Unable to find mous.lib file\n" );
-                            return 1;
+                            _searchenv( "mouf.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find mouf.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
                       
-                        if (MouAPI==2)
-                        {
-                          _searchenv( "mouf.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          if (KbdAPI==1)
                           {
-                            printf( "Error: Unable to find mouf.lib file\n" );
-                            return 1;
+                            _searchenv( "kbds.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find kbds.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
                       
-                        if (KbdAPI==1)
-                        {
-                          _searchenv( "kbds.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
+                          if (KbdAPI==2)
                           {
-                            printf( "Error: Unable to find kbds.lib file\n" );
-                            return 1;
+                            _searchenv( "kbdf.lib", "LIB", full_path );
+                            if( full_path[0] == '\0' ) 
+                            {
+                              printf( "Error: Unable to find kbdf.lib file\n" );
+                              return 1;
+                            }
                           }
-                        }
-                      
-                        if (KbdAPI==2)
-                        {
-                          _searchenv( "kbdf.lib", "LIB", full_path );
-                          if( full_path[0] == '\0' ) 
-                          {
-                            printf( "Error: Unable to find kbdf.lib file\n" );
-                            return 1;
-                          }
-                        }
 
-                        // Generate import table object file
+                          // Generate import table object file
 						
                         
-                        // Generate link file
-                        f=fopen("bind.lnk", "w");
-                        fputs("system dos\n",f);
-                        fputs("name attribstub.exe\n" , f); 
-                        fputs("file tmp.obj\n", f);
-                        fputs("lib os2.lib\n", f);
-                        fputs("lib api.lib\n", f);
-                        if (DLLAPI) fputs("lib dll.lib\n", f);
-                        if (VioAPI==1) fputs("lib vios.lib\n", f);
-                        if (VioAPI==2) fputs("lib viof.lib\n", f);
-                        if (MouAPI==1) fputs("lib mous.lib\n", f);
-                        if (MouAPI==2) fputs("lib mouf.lib\n", f);
-                        if (KbdAPI==1) fputs("lib kbds.lib\n", f);
-                        if (KbdAPI==2) fputs("lib kbdf.lib\n", f);
-                        fclose(f);
+                          // Generate link file
+                          f=fopen("bind.lnk", "w");
+                          fputs("system dos\n",f);
+                          fputs("name attribstub.exe\n" , f); 
+                          fputs("file tmp.obj\n", f);
+                          fputs("lib os2.lib\n", f);
+                          fputs("lib api.lib\n", f);
+                          if (DLLAPI) fputs("lib dll.lib\n", f);
+                          if (VioAPI==1) fputs("lib vios.lib\n", f);
+                          if (VioAPI==2) fputs("lib viof.lib\n", f);
+                          if (MouAPI==1) fputs("lib mous.lib\n", f);
+                          if (MouAPI==2) fputs("lib mouf.lib\n", f);
+                          if (KbdAPI==1) fputs("lib kbds.lib\n", f);
+                          if (KbdAPI==2) fputs("lib kbdf.lib\n", f);
+                          fclose(f);
                         
-                        // Call linker
-                        system("wlink.exe op q @bind.lnk");
+                          // Call linker
+                          system("wlink.exe op q @bind.lnk");
                         
-                        // Change standard DOS stub to FamilyAPI stub
+                          // Change standard DOS stub to FamilyAPI stub
                         
-                        // Remove temporary files
+                          // Remove temporary files
                         
-                        return 0;
+                          return 0;
+                        } else {
+                          printf("Error: Close file\n");
+                          return 1;
+                        }
                       } else {
-                        printf("Error: Close file\n");
+                        printf( "Error: Memory allocate\n");
                         return 1;
                       }
                     } else {
