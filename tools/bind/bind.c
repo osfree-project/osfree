@@ -188,75 +188,145 @@ int main(int argc, char *argv[])
                         // Read mod table
                         for (i=NE_CMOD(NEHeader); i >0 ; i-- )
                         {
-                          fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET);
-                          fread(&offset, 1, sizeof(offset), f);
-                          fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET);
-                          fread(&len, 1, sizeof(len), f);
-                          mods[NE_CMOD(NEHeader)-i]=malloc(len+1);
-                          fread(mods[NE_CMOD(NEHeader)-i], 1, len, f);
-                          mods[NE_CMOD(NEHeader)-i][len]=0;
-                          //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+						  // Seek to module table
+                          if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET))
+						  {
+							// Read offset of module name
+                            if (fread(&offset, 1, sizeof(WORD), f)==sizeof(WORD))
+							{
+							  // Seek to module name
+                              if (!fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET))
+							  {
+							    // Read module name length
+                                if (fread(&len, 1, sizeof(BYTE), f)==sizeof(BYTE))
+								{
+							      // Allocate memory for module name
+                                  if (mods[NE_CMOD(NEHeader)-i]=malloc(len+1))
+								  {
+							        // Read module name
+                                    if (fread(mods[NE_CMOD(NEHeader)-i], 1, len, f)==len)
+									{
+							          // Convert to ASCIIZ
+                                      mods[NE_CMOD(NEHeader)-i][len]=0;
+                                      //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
+						            } else {
+                                      printf( "Error: Read name\n" );
+                                      return 1;
+                                    }
+						          } else {
+                                    printf( "Error: Allocate name memory\n" );
+                                    return 1;
+                                  }
+						        } else {
+                                  printf( "Error: Read name length\n" );
+                                  return 1;
+                                }
+						      } else {
+                                printf( "Error: Seek to name table\n" );
+                                return 1;
+                              }
+						    } else {
+                              printf( "Error: Read module name offset\n" );
+                              return 1;
+                            }
+						  } else {
+                            printf( "Error: Seek to module table\n" );
+                            return 1;
+						  }
                         }
 
                         // Now read segments fixup tables and build list of imported functions
                         for (i = NE_CSEG(NEHeader); i > 0; i--)
                         {
-                          // Read segment table entry
-                          fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
-                          fread(&seg, 1, sizeof(struct new_seg), f);
-                          // Read relocation table
-                          fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET);
-                          fread(&count, 1, sizeof(count), f);
-                          //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
-                          for (j = 0; j < count; j++)
-                          {
-                            fread(&rlc, 1, sizeof(struct new_rlc), f);
-                            if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
-                            {
-                              if ((rlc.nr_flags & NRRTYP)==NRRNAM)
-                              {
-                                // not supported yet...
-                                printf("Panic!\n");
+                          // Seek segment table entry
+                          if (!fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET))
+						  {
+                            // Read segment table entry
+                            if (fread(&seg, 1, sizeof(struct new_seg), f)==sizeof(struct new_seg))
+							{
+                              // Seek relocation table
+                              if (!fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET))
+							  {
+                                // Read relocation table size
+                                if (fread(&count, 1, sizeof(WORD), f)==sizeof(WORD))
+								{
+                                  //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
+                                  for (j = 0; j < count; j++)
+                                  {
+                                    // Read relocation table entry
+                                    if (fread(&rlc, 1, sizeof(struct new_rlc), f)==sizeof(struct new_rlc))
+									{
+                                      if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
+                                      {
+                                        if ((rlc.nr_flags & NRRTYP)==NRRNAM)
+                                        {
+                                          // not supported yet...
+                                          printf("Panic!\n");
+                                          return 1;
+                                        } else {
+                                          char * fname;
+									  
+                                          fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
+                                          printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
+                                          
+                                          // Collect in list
+									  
+                                          // If any Mou* used, then turn on Mou API
+                                          if (!strncmp(fname, "MOU",3)) MouAPI=1;
+                                          
+                                          // If any Kbd* used, then turn on Kbd API
+                                          if (!strncmp(fname, "KBD",3)) KbdAPI=1;
+									  
+                                          // If any Vio* used, then turn on Vio API
+                                          if (!strncmp(fname, "VIO",3)) VioAPI=1;
+									  
+                                          // If VioRegister used, then turn full VIO API and DLL API
+                                          if (!strncmp(fname, "VIOREGISTER",12))
+                                          {
+                                            VioAPI=2;
+                                            DLLAPI=1;
+                                          }
+                                          // If MouRegister used, then turn full Mou API and DLL API
+                                          if (!strncmp(fname, "MOUREGISTER",12))
+                                          {
+                                            MouAPI=2;
+                                            DLLAPI=1;
+                                          }
+                                          // If KbdRegister used, then turn full Kbd API and DLL API
+                                          if (!strncmp(fname, "KBDREGISTER",12))
+                                          {
+                                            KbdAPI=2;
+                                            DLLAPI=1;
+                                          }
+                                          // If DosLoadModule used, then turn on DLL API
+                                          if (!strncmp(fname, "DOSLOADMODULE",14)) DLLAPI=1;
+                                        }
+                                      }       
+                                    } else 
+						            {
+                                      printf( "Error: Read relocation table entry\n" );
+                                      return 1;
+                                    }
+                                  }
+                                } else 
+						        {
+                                  printf( "Error: Read relocation table size\n" );
+                                  return 1;
+                                }
+                              } else 
+						      {
+                                printf( "Error: Seek relocation table\n" );
                                 return 1;
-                              } else {
-                                char * fname;
-                          
-                                fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
-                                printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
-                                
-                                // Collect in list
-                          
-                                // If any Mou* used, then turn on Mou API
-                                if (!strncmp(fname, "MOU",3)) MouAPI=1;
-                                
-                                // If any Kbd* used, then turn on Kbd API
-                                if (!strncmp(fname, "KBD",3)) KbdAPI=1;
-                          
-                                // If any Vio* used, then turn on Vio API
-                                if (!strncmp(fname, "VIO",3)) VioAPI=1;
-                          
-                                // If VioRegister used, then turn full VIO API and DLL API
-                                if (!strcmp(fname, "VIOREGISTER"))
-                                {
-                                  VioAPI=2;
-                                  DLLAPI=1;
-                                }
-                                // If MouRegister used, then turn full Mou API and DLL API
-                                if (!strcmp(fname, "MOUREGISTER"))
-                                {
-                                  MouAPI=2;
-                                  DLLAPI=1;
-                                }
-                                // If KbdRegister used, then turn full Kbd API and DLL API
-                                if (!strcmp(fname, "KBDREGISTER"))
-                                {
-                                  KbdAPI=2;
-                                  DLLAPI=1;
-                                }
-                                // If DosLoadModule used, then turn on DLL API
-                                if (!strcmp(fname, "DOSLOADMODULE")) DLLAPI=1;
                               }
-                            }       
+                            } else 
+						    {
+                              printf( "Error: Read segment table entry\n" );
+                              return 1;
+                            }
+                          } else 
+						  {
+                            printf( "Error: Seek segment table entry\n" );
+                            return 1;
                           }
                         }
       
