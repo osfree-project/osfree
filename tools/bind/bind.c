@@ -37,6 +37,90 @@
 
 char func[255];
 
+int bind()
+{
+  FILE * f;
+  FILE * fin;
+  DWORD end;
+  char buffer[1024*1024];
+  size_t bytes;
+  struct exe_hdr MZHeader;
+  int rc=1;
+  
+  // Open tmp.exe for write
+  if (f=fopen("tmp.exe", "wb"))
+  {
+    // @todo check file format
+    // Open fstub.exe for read
+    if (fin=fopen("fstub.exe", "rb"))
+    {
+      // Copy fstub.exe to tmp.exe
+      while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
+        fwrite(buffer, 1, bytes, f);
+      
+      // get file end address
+      end = ftell(fin);
+      
+      // Seek to lfa_new
+      if (!fseek(f, 0x2c, SEEK_SET))
+      {
+        // Write offset
+        fwrite(&end, 1, sizeof(DWORD), f);
+        // Seek to end of tmp.exe
+        if (!fseek(f, 0, SEEK_END))
+        {
+          // Close fstub.exe
+          fclose(fin);
+          // Open exe for read
+          if (fin=fopen("attrib.exe", "rb"))
+          {
+            // Read MZ header
+            if (fread(&MZHeader, 1, sizeof(struct exe_hdr), fin)==sizeof(struct exe_hdr))
+            {
+              // Seek to NE
+              if (!fseek(fin, E_LFANEW(MZHeader), SEEK_SET))
+              {
+                // Copy from NE to eof
+                while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
+                  fwrite(buffer, 1, bytes, f);
+                // Close exe
+                fclose(fin);
+                // Close tmp
+                fclose(f);
+                // Delete exe
+                //remove("attrib.exe");
+                // Rename tmp.exe to exe
+                rename("tmp.exe", "attrib2.exe");
+                
+                // Remove temporary files
+                //remove("bind.lnk");
+                //remove("fstub.exe");
+                //remove("tmp.obj");
+	            rc=0;
+              } else {
+                printf( "Error: Seek input file\n" );
+              }
+            } else {
+              printf( "Error: Read input file\n" );
+            }
+          } else {
+            printf( "Error: Open input file\n" );
+          }
+        } else {
+          printf( "Error: Seek to EOF\n" );
+        }
+      } else {
+        printf( "Error: Seek to NE offsett\n" );
+      }
+    } else {
+      printf( "Error: Open output file\n" );
+    }
+  } else {
+    printf( "Error: Open input file\n" );
+  }
+  return rc;
+}
+
 char * findfunctionname(char * module, WORD ordinal, char * lib)
 {
   FILE * f;
@@ -118,10 +202,6 @@ int main(int argc, char *argv[])
   struct new_seg seg;
   int j;
   struct new_rlc rlc;
-  FILE * fin;
-  DWORD end;
-  char buffer[1024*1024];
-  size_t bytes;
   int rc=1; // Error exit code by default
 
   printf("osFree FamilyAPI Binder v.0.1\n\n");
@@ -411,7 +491,6 @@ int main(int argc, char *argv[])
                             // Write end part
                             // Close file
                             
-                          
                             // Generate link file
                             f=fopen("bind.lnk", "w");
                             fputs("system dos\n",f);
@@ -438,52 +517,8 @@ int main(int argc, char *argv[])
                             system("wlink.exe op q @bind.lnk");
                           
                             // Change standard DOS stub to FamilyAPI stub:
-	  
-	  					  // Open tmp.exe for write
-                            f=fopen("tmp.exe", "wb");
-	  					  // @todo check file format
-	  					  // Open fstub.exe for read
-                            fin=fopen("fstub.exe", "rb");
-	  					  // Copy fstub.exe to tmp.exe
-                            while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
-                              fwrite(buffer, 1, bytes, f);
-	  					  
-	  					  // get file end address
-                            end = ftell(fin);
-	  					  
-                            // Seek to lfa_new
-	  					  fseek(f, 0x2c, SEEK_SET);
-	  					  // Write offset
-	  					  fwrite(&end, 1, sizeof(DWORD), f);
-	  					  // Seek to end of tmp.exe
-	  					  fseek(f, 0, SEEK_END);
-	  					  // Close fstub.exe
-	  					  fclose(fin);
-	  					  // Open exe for read
-                            fin=fopen("attrib.exe", "rb");
-	  					  // Read MZ header
-	  					  fread(&MZHeader, 1, sizeof(struct exe_hdr), fin);
-	  					  // Seek to NE
-	  					  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
-	  					  // Copy from NE to eof
-                            while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
-                              fwrite(buffer, 1, bytes, f);
-	  					  // Close exe
-	  					  fclose(fin);
-	  					  // Close tmp
-	  					  fclose(f);
-	  					  // Delete exe
-	  					  //remove("attrib.exe");
-	  					  // Rename tmp.exe to exe
-	  					  rename("tmp.exe", "attrib2.exe");
-                          
-                            // Remove temporary files
-	  					  //remove("bind.lnk");
-	  					  //remove("fstub.exe");
-	  					  //remove("tmp.obj");
-	  					  
-                            rc=0;
-                            // Exit with success code
+						    rc=bind();
+                            // Exit
                           } else {
                             printf("Error: Close file\n");
                           }
