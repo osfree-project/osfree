@@ -112,6 +112,16 @@ int main(int argc, char *argv[])
   int DoscallsLIB = 0;
   char ** mods = NULL;
   char full_path[ _MAX_PATH ];
+  WORD offset;
+  BYTE len;
+  WORD count;
+  struct new_seg seg;
+  int j;
+  struct new_rlc rlc;
+  FILE * fin;
+  DWORD end;
+  char buffer[1024*1024];
+  size_t bytes;
 
   printf("osFree FamilyAPI Binder v.0.1\n\n");
 
@@ -151,8 +161,8 @@ int main(int argc, char *argv[])
     _searchenv( "api.lib", "LIB", full_path );
     if(!full_path[0] == '\0') 
     {
-      // Open ourself for read
-      if(f=fopen("attrib.exe"/*argv[0]*/, "rb"))
+      // Open exe for read
+      if(f=fopen("attrib.exe", "rb"))
       {
         // Read old Executable header
         if (fread(&MZHeader, 1, sizeof(MZHeader), f) == sizeof(MZHeader))
@@ -175,13 +185,6 @@ int main(int argc, char *argv[])
                     // seek to Module table
                     if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader), SEEK_SET))
                     {
-                      WORD offset;
-                      BYTE len;
-                      WORD count;
-                      struct new_seg seg;
-                      int j;
-                      struct new_rlc rlc;
-
                       //Allocate memory for mod table
                       if (mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*)))
                       {
@@ -438,73 +441,88 @@ int main(int argc, char *argv[])
                           system("wlink.exe op q @bind.lnk");
                         
                           // Change standard DOS stub to FamilyAPI stub:
+
 						  // Open tmp.exe for write
+                          f=fopen("tmp.exe", "wb");
+						  // @todo check file format
 						  // Open fstub.exe for read
+                          fin=fopen("fstub.exe", "rb");
 						  // Copy fstub.exe to tmp.exe
-						  // Seek lfa_new
+                          while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
+                            fwrite(buffer, 1, bytes, f);
+						  
+						  // get file end address
+                          end = ftell(fin);
+						  
+                          // Seek to lfa_new
+						  fseek(f, 0x2c, SEEK_SET);
 						  // Write offset
+						  fwrite(&end, 1, sizeof(DWORD), f);
 						  // Seek to end of tmp.exe
+						  fseek(f, 0, SEEK_END);
 						  // Close fstub.exe
+						  fclose(fin);
 						  // Open exe for read
+                          fin=fopen("attrib.exe", "rb");
+						  // Read MZ header
+						  fread(&MZHeader, 1, sizeof(struct exe_hdr), fin);
 						  // Seek to NE
+						  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
 						  // Copy from NE to eof
+                          while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
+                            fwrite(buffer, 1, bytes, f);
 						  // Close exe
+						  fclose(fin);
 						  // Close tmp
+						  fclose(f);
 						  // Delete exe
+						  //remove("attrib.exe");
 						  // Rename tmp.exe to exe
+						  rename("tmp.exe", "attrib2.exe");
                         
                           // Remove temporary files
-						  remove("bind.lnk");
-						  remove("fstub.exe");
-						  remove("tmp.obj");
-                        
-                          return 0;
+						  //remove("bind.lnk");
+						  //remove("fstub.exe");
+						  //remove("tmp.obj");
+						  
+                          return 0; // Exit with success code
                         } else {
                           printf("Error: Close file\n");
-                          return 1;
                         }
+						free(mods);
                       } else {
                         printf( "Error: Memory allocate\n");
-                        return 1;
                       }
                     } else {
                       printf( "Error: Seek module reference table\n");
-                      return 1;
                     }
                   } else {
                     printf( "Error: Target OS not OS/2\n");
-                    return 1;
                   }
                 } else {
                   printf( "Error: Bad NE header\n");
-                  return 1;
                 }
               } else {
                 printf( "Error: Read NE Header\n");
-                return 1;
               }
             } else {
               printf( "Error: Seek to NE header\n");
-              return 1;
             }
           } else {
             printf( "Error: Bad MZ header\n");
-            return 1;
           }
         } else {
-          printf( "Error: Read MZ Header result=%d %d\n", result, sizeof(MZHeader));
-          return 1;
+          printf( "Error: Read MZ Header\n");
         }
+		fclose(f);
       } else {
         printf( "Error: File open\n");
-        return 1;
       }
     } else {
       printf( "Error: Unable to find api.lib file\n" );
-      return 1;
     }
   } else {
     printf( "Error: Unable to find wlink.exe file\n" );
-    return 1;
   }
+  return 1;  // Exit with error code
 }
