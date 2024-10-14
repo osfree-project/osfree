@@ -37,7 +37,7 @@
 
 char func[255];
 
-char * findfunctionname(char * module, WORD ordinal)
+char * findfunctionname(char * module, WORD ordinal, char * lib)
 {
   FILE * f;
   omf_record_header head;
@@ -48,8 +48,8 @@ char * findfunctionname(char * module, WORD ordinal)
   char mod[255];
   WORD ord;
   
-  // Open os2.lib for read
-  if(f=fopen("os2.lib", "rb"))
+  // Open os2.lib/doscalls.lib for read
+  if(f=fopen(lib, "rb"))
   {
     for (;1;)
     {
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
                                         } else {
                                           char * fname;
 									  
-                                          fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc);
+                                          fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, DoscallsLIB?"doscalls.lib":"os2.lib");
                                           printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
                                           
                                           // Collect in list
@@ -404,15 +404,26 @@ int main(int argc, char *argv[])
                             }
                           }
 
-                          // Generate import table object file
-						
+                          // Generate import table object file:
+						  // Open file for write
+						  // Write header part
+						  // Write table struct part
+						  // Write end part
+						  // Close file
+                          
                         
                           // Generate link file
                           f=fopen("bind.lnk", "w");
                           fputs("system dos\n",f);
-                          fputs("name attribstub.exe\n" , f); 
+                          fputs("name fstub.exe\n" , f); 
                           fputs("file tmp.obj\n", f);
-                          fputs("lib os2.lib\n", f);
+						  if (DoscallsLIB)
+						  {
+                            fputs("lib doscalls.lib\n", f);
+						  } else 
+						  {
+                            fputs("lib os2.lib\n", f);
+						  }
                           fputs("lib api.lib\n", f);
                           if (DLLAPI) fputs("lib dll.lib\n", f);
                           if (VioAPI==1) fputs("lib vios.lib\n", f);
@@ -426,9 +437,26 @@ int main(int argc, char *argv[])
                           // Call linker
                           system("wlink.exe op q @bind.lnk");
                         
-                          // Change standard DOS stub to FamilyAPI stub
+                          // Change standard DOS stub to FamilyAPI stub:
+						  // Open tmp.exe for write
+						  // Open fstub.exe for read
+						  // Copy fstub.exe to tmp.exe
+						  // Seek lfa_new
+						  // Write offset
+						  // Seek to end of tmp.exe
+						  // Close fstub.exe
+						  // Open exe for read
+						  // Seek to NE
+						  // Copy from NE to eof
+						  // Close exe
+						  // Close tmp
+						  // Delete exe
+						  // Rename tmp.exe to exe
                         
                           // Remove temporary files
+						  remove("bind.lnk");
+						  remove("fstub.exe");
+						  remove("tmp.obj");
                         
                           return 0;
                         } else {
