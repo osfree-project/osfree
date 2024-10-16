@@ -36,6 +36,45 @@
 #include "omf.h"
 
 char func[255];
+typedef struct _apientry {
+	char mod[9];
+	WORD ord;
+	char func[21];
+	struct _apientry * next;
+} apientry;
+
+apientry * apiroot;
+
+int addtolist(char * mod, char * func)
+{
+	apientry * current;
+	
+	if (apiroot)
+	{
+		current=apiroot;
+		
+		// Search is exists
+		while (current)
+		{
+			// Exit if found
+			if ((!strcmp(current->mod, mod))&&(!strcmp(current->func, func))) return 0;
+			// next entry
+			if (current->next) current=current->next;
+		}
+		
+		current->next=malloc(sizeof(apientry));
+		current=current->next;
+		memset(current, 0, sizeof(apientry));
+		strcpy(current->mod, mod);
+		strcpy(current->func, func);
+	} else {
+		apiroot=malloc(sizeof(apientry));
+		memset(apiroot, 0, sizeof(apientry));
+		strcpy(apiroot->mod, mod);
+		strcpy(apiroot->func, func);
+	};
+	return 0;
+}
 
 int bind()
 {
@@ -358,9 +397,10 @@ int main(int argc, char *argv[])
                                             char * fname;
 	  								  
                                             fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, DoscallsLIB?"doscalls.lib":"os2.lib");
-                                            printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
+                                            //printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
                                             
                                             // Collect in list
+											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
 	  								  
                                             // If any Mou* used, then turn on Mou API
                                             if (!strncmp(fname, "MOU",3)) MouAPI=1;
@@ -543,7 +583,7 @@ int main(int argc, char *argv[])
 0x80, 0x9F, 0x65, 0x6D, 0x75, 0x38, 0x37, 0x9B, 0x8A, 0x02, 0x00, 0x00, 0x74								  
 							  };
 
-							BYTE buf[3];
+							BYTE buf[1024];
                             // Generate import table object file:
 							
                             // Open file for write
@@ -554,22 +594,41 @@ int main(int argc, char *argv[])
                             // Write table struct part:
 							
 							// Generate EXDEF object
+							memset(buf, 0, sizeof(buf));
 							buf[0]=0x8c;
-							buf[1]=0x14;  // Length of data-3
-							buf[2]=0x00;
-							fwrite(buf, 1, sizeof(buf), f);
+							buf[1]=1; //size of chksum
+							buf[2]=0;
+
+							{
+								apientry * current=apiroot;
+								BYTE * curbuf=&buf[3];
+
+								while (current)
+								{
+									// 1 byte len + string size bytes + 1 byte zero
+									*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1;
+									*curbuf=strlen(current->func);
+									curbuf++;
+									strcpy(curbuf,current->func);
+									curbuf=curbuf+strlen(current->func);
+									*curbuf=0; // index (always 0)
+									curbuf++;
+									current=current->next;
+								}
+                                fwrite(buf, 1, 3+(curbuf-&buf), f);
+							}
 							
 							// Generate LEDATA object
 							buf[0]=0xa0;
 							buf[1]=0x14;  // Length of data-3
 							buf[2]=0x00;
-							fwrite(buf, 1, sizeof(buf), f);
+							fwrite(buf, 1, 3, f);
 							
 							// Generate FIXUPP object
 							buf[0]=0x9c;
 							buf[1]=0x14;  // Length of data-3
 							buf[2]=0x00;
-							fwrite(buf, 1, sizeof(buf), f);
+							fwrite(buf, 1, 3, f);
 
                             // Write end part
 							fwrite(ftr, 1, sizeof(ftr), f);
