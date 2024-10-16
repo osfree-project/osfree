@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
 								while (current)
 								{
 									// 1 byte len + string size bytes + 1 byte zero
-									*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1;
+									*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
 									*curbuf=strlen(current->func);
 									curbuf++;
 									strcpy(curbuf,current->func);
@@ -619,13 +619,14 @@ int main(int argc, char *argv[])
 									curbuf++;
 									current=current->next;
 								}
-                                fwrite(buf, 1, 3+(curbuf-&buf), f);
+                                fwrite(buf, 1, (curbuf-&buf)+1, f);
 							}
 							printf("x10\n");
+							
 							// Generate LEDATA object (actual import table)
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0xa0;
-							buf[1]=0x1; // Checksum
+							buf[1]=0x4; // Checksum
 							buf[2]=0x00;
 							buf[3]=0x04; // Segment
 							buf[4]=0x00; // offset
@@ -637,10 +638,10 @@ int main(int argc, char *argv[])
 								{
 							printf("x10.1\n");
 									// copy modname
-									strcpy(&buf[*((WORD *)&buf[1])+3],current->mod);
+									strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
 							printf("x10.2\n");
 									// copy funcname
-									strcpy(&buf[*((WORD *)&buf[1])+3+21],current->func);
+									strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
 							printf("x10.3\n");
 									// 9 modname 21 funcname 4 far pointer
 									*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
@@ -651,10 +652,11 @@ int main(int argc, char *argv[])
 									current=current->next;
 							printf("x10.6\n");
 								}
-                                fwrite(buf, 1, *((WORD *)&buf[1])+3, f);
+                                fwrite(&buf, 1, *((WORD *)&buf[1])+2, f);
 							}
 							
 							printf("x11\n");
+							
 							// Generate FIXUPP object
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0x9c;
