@@ -40,6 +40,7 @@ typedef struct _apientry {
 	char mod[9];
 	WORD ord;
 	char func[21];
+	DWORD offset;  // Offset of pointer to fixup
 	struct _apientry * next;
 } apientry;
 
@@ -618,13 +619,35 @@ int main(int argc, char *argv[])
                                 fwrite(buf, 1, 3+(curbuf-&buf), f);
 							}
 							
-							// Generate LEDATA object
+							// Generate LEDATA object (actual import table)
+							memset(buf, 0, sizeof(buf));
 							buf[0]=0xa0;
-							buf[1]=0x14;  // Length of data-3
+							buf[1]=0x1; // Checksum
 							buf[2]=0x00;
-							fwrite(buf, 1, 3, f);
+							buf[3]=0x04; // Segment
+							buf[4]=0x00; // offset
+							buf[5]=0x00;
+							{
+								apientry * current=apiroot;
+								BYTE * curbuf=&buf[6];
+
+								while (current)
+								{
+									// copy modname
+									strcpy(&buf[*((WORD *)&buf[1])],current->mod);
+									// copy funcname
+									strcpy(&buf[*((WORD *)&buf[1])+21],current->func);
+									// 9 modname 21 funcname 4 far pointer
+									*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
+									// Store offset for fixup
+									current->offset=*((WORD *)&buf[1])-4;
+									current=current->next;
+								}
+                                fwrite(buf, 1, 3, f);
+							}
 							
 							// Generate FIXUPP object
+							memset(buf, 0, sizeof(buf));
 							buf[0]=0x9c;
 							buf[1]=0x14;  // Length of data-3
 							buf[2]=0x00;
