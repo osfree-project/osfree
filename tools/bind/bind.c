@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
                             fclose(f);
                           
                             // Call linker
-                            system("wlink.exe op q @bind.lnk");
+                            system("wlink.exe op q op fullh @bind.lnk");
 
                             // remove temporary files
                             remove("bind.lnk");
