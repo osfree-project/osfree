@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
 							// Generate LEDATA object (actual import table)
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0xa0;
-							buf[1]=0x4; // Checksum
+							buf[1]=0x4; // Checksum+segmet+offset
 							buf[2]=0x00;
 							buf[3]=0x04; // Segment
 							buf[4]=0x00; // offset
@@ -652,7 +652,7 @@ int main(int argc, char *argv[])
 									current=current->next;
 							printf("x10.6\n");
 								}
-                                fwrite(&buf, 1, *((WORD *)&buf[1])+2, f);
+                                fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 							
 							printf("x11\n");
