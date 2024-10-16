@@ -108,7 +108,7 @@ int bind()
       if (!fgetpos(f, &end))
 	  {
         // Seek to lfa_new
-        if (!fseek(f, 0x2c, SEEK_SET))
+        if (!fseek(f, 0x3c, SEEK_SET))
         {
           // Write offset
           fwrite(&end, 1, sizeof(DWORD), f);
