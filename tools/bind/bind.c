@@ -57,12 +57,14 @@ int addtolist(char * mod, char * func)
 		// Search is exists
 		while (current)
 		{
+			printf("x0 %s=%s, %s=%s\n", current->mod, mod, current->func, func);
 			// Exit if found
 			if ((!strcmp(current->mod, mod))&&(!strcmp(current->func, func))) return 0;
+			printf("x1 %s=%s, %s=%s\n", current->mod, mod, current->func, func);
 			// next entry
-			if (current->next) current=current->next;
+			if (current->next) current=current->next; else break;
 		}
-		
+
 		current->next=malloc(sizeof(apientry));
 		current=current->next;
 		memset(current, 0, sizeof(apientry));
@@ -402,6 +404,7 @@ int main(int argc, char *argv[])
                                             
                                             // Collect in list
 											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
+							printf("x1\n");
 	  								  
                                             // If any Mou* used, then turn on Mou API
                                             if (!strncmp(fname, "MOU",3)) MouAPI=1;
@@ -535,7 +538,7 @@ int main(int argc, char *argv[])
                                 return 1;
                               }
                             }
-							
+							printf("x2\n");
 							{
 								BYTE hdr[0xef]={
 									// THEADR
@@ -618,7 +621,7 @@ int main(int argc, char *argv[])
 								}
                                 fwrite(buf, 1, 3+(curbuf-&buf), f);
 							}
-							
+							printf("x10\n");
 							// Generate LEDATA object (actual import table)
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0xa0;
@@ -629,23 +632,29 @@ int main(int argc, char *argv[])
 							buf[5]=0x00;
 							{
 								apientry * current=apiroot;
-								BYTE * curbuf=&buf[6];
 
 								while (current)
 								{
+							printf("x10.1\n");
 									// copy modname
-									strcpy(&buf[*((WORD *)&buf[1])],current->mod);
+									strcpy(&buf[*((WORD *)&buf[1])+3],current->mod);
+							printf("x10.2\n");
 									// copy funcname
-									strcpy(&buf[*((WORD *)&buf[1])+21],current->func);
+									strcpy(&buf[*((WORD *)&buf[1])+3+21],current->func);
+							printf("x10.3\n");
 									// 9 modname 21 funcname 4 far pointer
 									*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
+							printf("x10.4\n");
 									// Store offset for fixup
 									current->offset=*((WORD *)&buf[1])-4;
+							printf("x10.5\n");
 									current=current->next;
+							printf("x10.6\n");
 								}
-                                fwrite(buf, 1, 3, f);
+                                fwrite(buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 							
+							printf("x11\n");
 							// Generate FIXUPP object
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0x9c;
@@ -658,7 +667,7 @@ int main(int argc, char *argv[])
                             // Close file
 							fclose(f);
                             }
-							
+							return 0;
                             // Generate link file
                             f=fopen("bind.lnk", "w");
                             fputs("system dos\n",f);
