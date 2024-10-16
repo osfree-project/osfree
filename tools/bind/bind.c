@@ -616,6 +616,7 @@ int main(int argc, char *argv[])
 									curbuf++;
 									current=current->next;
 								}
+							    buf[(curbuf-&buf)]=0xa4;
                                 fwrite(buf, 1, (curbuf-&buf)+1, f);
 							}
 							
@@ -642,9 +643,15 @@ int main(int argc, char *argv[])
 									current->offset=*((WORD *)&buf[1])-4-4;
 									current=current->next;
 								}
+							    buf[*((WORD *)&buf[1])+2]=0xe4;
                                 fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
-							
+							fseek(f, 0xde, SEEK_SET);
+							{
+								WORD a=*((WORD *)&buf[1])-1;
+							    fwrite(&a,1, 2,f);
+							}
+							fseek(f, 0, SEEK_END);
 							
 							// Generate FIXUPP object
 							memset(buf, 0, sizeof(buf));
@@ -665,6 +672,7 @@ int main(int argc, char *argv[])
 									*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
 									current=current->next;
 								}
+							    buf[*((WORD *)&buf[1])+2]=0x80;
                                 fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 
@@ -673,7 +681,7 @@ int main(int argc, char *argv[])
                             // Close file
 							fclose(f);
                             }
-							return 0;
+							
                             // Generate link file
                             f=fopen("bind.lnk", "w");
                             fputs("system dos\n",f);
@@ -701,6 +709,7 @@ int main(int argc, char *argv[])
 
                             // remove temporary files
                             remove("bind.lnk");
+							return 0;
                             remove("tmp.obj");
 
                             // Change standard DOS stub to FamilyAPI stub:
