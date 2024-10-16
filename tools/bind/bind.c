@@ -57,10 +57,8 @@ int addtolist(char * mod, char * func)
 		// Search is exists
 		while (current)
 		{
-			printf("x0 %s=%s, %s=%s\n", current->mod, mod, current->func, func);
 			// Exit if found
 			if ((!strcmp(current->mod, mod))&&(!strcmp(current->func, func))) return 0;
-			printf("x1 %s=%s, %s=%s\n", current->mod, mod, current->func, func);
 			// next entry
 			if (current->next) current=current->next; else break;
 		}
@@ -404,7 +402,6 @@ int main(int argc, char *argv[])
                                             
                                             // Collect in list
 											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
-							printf("x1\n");
 	  								  
                                             // If any Mou* used, then turn on Mou API
                                             if (!strncmp(fname, "MOU",3)) MouAPI=1;
@@ -538,7 +535,7 @@ int main(int argc, char *argv[])
                                 return 1;
                               }
                             }
-							printf("x2\n");
+
 							{
 								BYTE hdr[0xef]={
 									// THEADR
@@ -621,7 +618,6 @@ int main(int argc, char *argv[])
 								}
                                 fwrite(buf, 1, (curbuf-&buf)+1, f);
 							}
-							printf("x10\n");
 							
 							// Generate LEDATA object (actual import table)
 							memset(buf, 0, sizeof(buf));
@@ -636,33 +632,41 @@ int main(int argc, char *argv[])
 
 								while (current)
 								{
-							printf("x10.1\n");
 									// copy modname
 									strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
-							printf("x10.2\n");
 									// copy funcname
 									strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
-							printf("x10.3\n");
 									// 9 modname 21 funcname 4 far pointer
 									*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
-							printf("x10.4\n");
 									// Store offset for fixup
-									current->offset=*((WORD *)&buf[1])-4;
-							printf("x10.5\n");
+									current->offset=*((WORD *)&buf[1])-4-4;
 									current=current->next;
-							printf("x10.6\n");
 								}
                                 fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 							
-							printf("x11\n");
 							
 							// Generate FIXUPP object
 							memset(buf, 0, sizeof(buf));
 							buf[0]=0x9c;
-							buf[1]=0x14;  // Length of data-3
+							buf[1]=0x1;  // Checksum
 							buf[2]=0x00;
-							fwrite(buf, 1, 3, f);
+							{
+								apientry * current=apiroot;
+								int i=1;
+
+								while (current)
+								{
+									buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
+									buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
+									buf[*((WORD *)&buf[1])+2+2]=0x56;
+									buf[*((WORD *)&buf[1])+2+3]=i;
+									i++;
+									*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
+									current=current->next;
+								}
+                                fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+							}
 
                             // Write end part
 							fwrite(ftr, 1, sizeof(ftr), f);
