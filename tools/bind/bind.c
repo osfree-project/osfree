@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
 									curbuf++;
 									current=current->next;
 								}
-							    buf[(curbuf-&buf)]=0xa4;
+							    // buf[(curbuf-&buf)]=0xa4; Checksum
                                 fwrite(buf, 1, (curbuf-&buf)+1, f);
 							}
 							
@@ -643,7 +643,7 @@ int main(int argc, char *argv[])
 									current->offset=*((WORD *)&buf[1])-4-4;
 									current=current->next;
 								}
-							    buf[*((WORD *)&buf[1])+2]=0xe4;
+							    // buf[*((WORD *)&buf[1])+2]=0xe4; checksum
                                 fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 							fseek(f, 0xde, SEEK_SET);
@@ -672,7 +672,7 @@ int main(int argc, char *argv[])
 									*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
 									current=current->next;
 								}
-							    buf[*((WORD *)&buf[1])+2]=0x80;
+							    // buf[*((WORD *)&buf[1])+2]=0x80; Checksum
                                 fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
 							}
 
