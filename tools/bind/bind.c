@@ -687,13 +687,13 @@ int main(int argc, char *argv[])
                             fputs("system dos\n",f);
                             fputs("name fstub.exe\n" , f); 
                             fputs("file tmp.obj\n", f);
-                            if (DoscallsLIB)
+                            /*if (DoscallsLIB)
                             {
                                 fputs("lib doscalls.lib\n", f);
                             } else 
                             {
                                 fputs("lib os2.lib\n", f);
-                            }
+                            }*/
                             fputs("lib api.lib\n", f);
                             if (DLLAPI) fputs("lib dll.lib\n", f);
                             if (VioAPI==1) fputs("lib vios.lib\n", f);
