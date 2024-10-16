@@ -543,12 +543,34 @@ int main(int argc, char *argv[])
 0x80, 0x9F, 0x65, 0x6D, 0x75, 0x38, 0x37, 0x9B, 0x8A, 0x02, 0x00, 0x00, 0x74								  
 							  };
 
+							BYTE buf[3];
                             // Generate import table object file:
+							
                             // Open file for write
                             f=fopen("tmp.obj", "wb");
                             // Write header part
 							fwrite(hdr, 1, sizeof(hdr), f);
-                            // Write table struct part
+							
+                            // Write table struct part:
+							
+							// Generate EXDEF object
+							buf[0]=0x8c;
+							buf[1]=0x14;  // Length of data-3
+							buf[2]=0x00;
+							fwrite(buf, 1, sizeof(buf), f);
+							
+							// Generate LEDATA object
+							buf[0]=0xa0;
+							buf[1]=0x14;  // Length of data-3
+							buf[2]=0x00;
+							fwrite(buf, 1, sizeof(buf), f);
+							
+							// Generate FIXUPP object
+							buf[0]=0x9c;
+							buf[1]=0x14;  // Length of data-3
+							buf[2]=0x00;
+							fwrite(buf, 1, sizeof(buf), f);
+
                             // Write end part
 							fwrite(ftr, 1, sizeof(ftr), f);
                             // Close file
