@@ -10,7 +10,7 @@ DESC = Binder
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)bind$(e) 
 # defines additional options for C compiler
-#ADD_COPT = -I$(%OS2TK)$(SEP)h #-p
+#ADD_COPT = -sg #-I$(%OS2TK)$(SEP)h #-p
 
 
 !include $(%ROOT)tools/mk/tools.mk

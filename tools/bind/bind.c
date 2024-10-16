@@ -82,7 +82,7 @@ int bind()
   FILE * f;
   FILE * fin;
   long end;
-  char buffer[1024*1024];
+  char buffer[1024];
   size_t bytes;
   struct exe_hdr MZHeader;
   int rc=1;
@@ -102,7 +102,7 @@ int bind()
       fclose(fin);
 
       // Remove temporary file
-      remove("fstub.exe");
+      //remove("fstub.exe");
 
       // get file end address
       if (!fgetpos(f, &end))
@@ -709,7 +709,7 @@ int main(int argc, char *argv[])
 
                             // remove temporary files
                             remove("bind.lnk");
-							return 0;
+							//return 0;
                             remove("tmp.obj");
 
                             // Change standard DOS stub to FamilyAPI stub:
