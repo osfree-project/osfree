@@ -77,7 +77,7 @@ int addtolist(char * mod, char * func)
 	return 0;
 }
 
-int bind()
+int bind(char * fname)
 {
   FILE * f;
   FILE * fin;
@@ -109,7 +109,7 @@ int bind()
       //remove("fstub.exe");
 
             // Open exe for read
-            if (fin=fopen("attrib.exe", "rb"))
+            if (fin=fopen(fname, "rb"))
             {
               // Read MZ header
               if (fread(&MZHeader, 1, sizeof(struct exe_hdr), fin)==sizeof(struct exe_hdr))
@@ -173,10 +173,10 @@ int bind()
                   // Close tmp
                   fclose(f);
                   // Delete exe
-                  if (!remove("attrib.exe"))
+                  if (!remove(fname))
                   {
                     // Rename tmp.exe to exe
-                    if (!rename("tmp.exe", "attrib.exe"))
+                    if (!rename("tmp.exe", fname))
                     {
                       // Success
 	                  rc=0;
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
       if(!full_path[0] == '\0') 
       {
         // Open exe for read
-        if(f=fopen("attrib.exe", "rb"))
+        if(f=fopen(argv[1], "rb"))
         {
           // Read old Executable header
           if (fread(&MZHeader, 1, sizeof(MZHeader), f) == sizeof(MZHeader))
@@ -745,7 +745,7 @@ int main(int argc, char *argv[])
                             remove("tmp.obj");
 
                             // Change standard DOS stub to FamilyAPI stub:
-						    rc=bind();
+						    rc=bind(argv[1]);
 
                             // Exit
                           } else {

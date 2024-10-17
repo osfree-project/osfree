@@ -108,6 +108,8 @@ ASM       = $(%INTERP)jwasm.exe
 ASM       = $(%INTERP)wasm
 !endif
 
+BINDER    = $(%INTERP)bind
+
 LINKER    = $(%INTERP)wlink
 # Note by valerius:
 # don't add the following option to all.mk
