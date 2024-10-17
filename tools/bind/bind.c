@@ -81,11 +81,15 @@ int bind()
 {
   FILE * f;
   FILE * fin;
-  long end;
+  long end, pos;
+  signed long delta;
   char buffer[1024];
   size_t bytes;
   struct exe_hdr MZHeader;
+  struct new_exe NEHeader;
   int rc=1;
+  struct new_seg seg;
+  int i;
   
   // Open tmp.exe for write
   if (f=fopen("tmp.exe", "wb"))
@@ -104,19 +108,8 @@ int bind()
       // Remove temporary file
       //remove("fstub.exe");
 
-      // get file end address
-      if (!fgetpos(f, &end))
-	  {
-        // Seek to lfa_new
-        if (!fseek(f, 0x3c, SEEK_SET))
-        {
-          // Write offset
-          fwrite(&end, 1, sizeof(DWORD), f);
-          // Seek to end of tmp.exe
-          if (!fseek(f, 0, SEEK_END))
-          {
             // Open exe for read
-            if (fin=fopen("attrib.exe", "rwb"))
+            if (fin=fopen("attrib.exe", "rb"))
             {
               // Read MZ header
               if (fread(&MZHeader, 1, sizeof(struct exe_hdr), fin)==sizeof(struct exe_hdr))
@@ -124,9 +117,57 @@ int bind()
                 // Seek to NE
                 if (!fseek(fin, E_LFANEW(MZHeader), SEEK_SET))
                 {
+				  // Read NE
+                  fread(&NEHeader, 1, sizeof(NEHeader), fin);
+
+				  // Pad to ne_align
+				  fgetpos(f, &pos);
+				  memset(buffer, 0, sizeof(buffer));
+				  fwrite(buffer, 1, ((pos>>NEHeader.ne_align+1)<<NEHeader.ne_align)-pos, f);
+
+				  fgetpos(f, &end);
+		          fseek(f, 0x3c, SEEK_SET);
+                  // Write offset
+                  fwrite(&end, 1, sizeof(DWORD), f);
+                  // Seek to end of tmp.exe
+                  fseek(f, end, SEEK_SET);
+				  // Delta for segment start offset
+                  delta=(E_LFANEW(MZHeader)>>NEHeader.ne_align)-(end>>NEHeader.ne_align);
+				  //printf("%d %d %d\n", E_LFANEW(MZHeader), end, delta);
+                  // Seek to start of NE
+                  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
+
                   // Copy from NE to eof
                   while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
                     fwrite(buffer, 1, bytes, f);
+
+				  
+				  // Fix segment table for new offsets
+                  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
+                  for (i = NE_CSEG(NEHeader); i > 0; i--)
+                  {
+                    // Seek segment table entry
+                    fseek(fin, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
+                    // Read segment table entry
+                    fread(&seg, 1, sizeof(struct new_seg), fin);
+                    //printf("%d\n", seg.ns_sector);
+					if (seg.ns_sector)
+					{
+					  // Set new segment offset
+					  seg.ns_sector=seg.ns_sector-delta;
+
+                      // Seek segment table entry
+                      fseek(f, end+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
+                      // Write segment table entry
+                      fwrite(&seg, 1, sizeof(struct new_seg), f);
+					}
+				  }
+				  
+				  // Fix non-resident name table offset
+				  fseek(f, end+0x2c, SEEK_SET);
+				  delta=NEHeader.ne_nrestab-(E_LFANEW(MZHeader)-end);
+				  fwrite(&delta, 1, 4, f);
+			  
                   // Close exe
                   fclose(fin);
                   // Close tmp
@@ -135,7 +176,7 @@ int bind()
                   if (!remove("attrib.exe"))
                   {
                     // Rename tmp.exe to exe
-                    if (!rename("tmp.exe", "attrib2.exe"))
+                    if (!rename("tmp.exe", "attrib.exe"))
                     {
                       // Success
 	                  rc=0;
@@ -154,15 +195,6 @@ int bind()
             } else {
               printf( "Error: Open input file\n" );
             }
-          } else {
-            printf( "Error: Seek to EOF\n" );
-          }
-        } else {
-          printf( "Error: Seek to NE offset\n" );
-        }
-      } else {
-        printf( "Error: Get file pos\n" );
-      }
     } else {
       printf( "Error: Open output file\n" );
     }
