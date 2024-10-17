@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
         case 'M':
             if (!strncmp(_strupr(optarg), "AP", 2))
             {
-                printf("MAP\n");
+                options.map=1;
                 break;
             }
 
@@ -877,6 +877,7 @@ int main(int argc, char *argv[])
                             fputs("system dos\n",f);
                             fputs("name fstub.exe\n" , f); 
                             fputs("file tmp.obj\n", f);
+                            if (options.map) fputs("op m\n", f);
                             /*if (DoscallsLIB)
                             {
                                 fputs("lib doscalls.lib\n", f);
