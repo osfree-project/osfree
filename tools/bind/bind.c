@@ -302,8 +302,6 @@ int main(int argc, char *argv[])
   int rc=1; // Error exit code by default
   signed char ch;
 
-  printf("osFree FamilyAPI Binder v.0.1\n\n");
-
     // no args - print usage and exit
     if (argc == 1)
     {
@@ -312,7 +310,7 @@ int main(int argc, char *argv[])
     }
 
     // Get program arguments using getopt()
-    while ((ch = getopt(argc, argv, "?h:H:m:M:n:N:q:Q")) != -1)
+    while ((ch = getopt(argc, argv, "?h:H:m:M:n:N:q:Q:o:O")) != -1)
     {
         switch (ch)
         {
@@ -328,10 +326,14 @@ int main(int argc, char *argv[])
 
         case 'n':
         case 'N':
-            // handle nologo option
             if (!strncmp(_strupr(optarg), "OLOGO", 5))
             {
                 printf("NOLOGO\n");
+                break;
+            }
+            if (!strncmp(_strupr(optarg), "AMES", 4))
+            {
+                printf("NAMES\n");
                 break;
             }
 			exit(1);
@@ -339,7 +341,21 @@ int main(int argc, char *argv[])
 
         case 'q':
         case 'Q':
-            break;
+            if (!strncmp(_strupr(optarg), "UIET", 4))
+            {
+                printf("QUIET\n");
+                break;
+            }
+            exit(1);
+
+        case 'o':
+        case 'O':
+            if (!strncmp(_strupr(optarg), "UTFILE", 6))
+            {
+                printf("OUTFILE\n");
+                break;
+            }
+            exit(1);
 
         case 'h':
         case 'H':
@@ -358,6 +374,8 @@ int main(int argc, char *argv[])
             exit(1);
         }
     }
+
+  printf("osFree FamilyAPI Binder v.0.9\n\n");
   
   // Check presense of base required files
   // wlink.exe, doscalls.lib/os2.lib, api.lib
