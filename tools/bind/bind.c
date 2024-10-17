@@ -45,7 +45,15 @@ typedef struct _apientry {
 	struct _apientry * next;
 } apientry;
 
+typedef struct _opts {
+	int quiet;
+	int logo;
+	char outfile[_MAX_PATH];
+	int map;
+} opts;
+
 apientry * apiroot;
+opts options;
 
 int addtolist(char * mod, char * func)
 {
@@ -302,6 +310,11 @@ int main(int argc, char *argv[])
   int rc=1; // Error exit code by default
   signed char ch;
 
+	options.quiet=0;
+	options.logo=1;
+	options.outfile[0]=0;
+	options.map=0;
+
     // no args - print usage and exit
     if (argc == 1)
     {
@@ -328,9 +341,10 @@ int main(int argc, char *argv[])
         case 'N':
             if (!strncmp(_strupr(optarg), "OLOGO", 5))
             {
-                printf("NOLOGO\n");
+                options.logo=0;
                 break;
             }
+
             if (!strncmp(_strupr(optarg), "AMES", 4))
             {
                 printf("NAMES\n");
@@ -343,9 +357,14 @@ int main(int argc, char *argv[])
         case 'Q':
             if (!strncmp(_strupr(optarg), "UIET", 4))
             {
-                printf("QUIET\n");
+                options.quiet=1;
                 break;
             }
+            if (!strlen(optarg))
+			{
+				options.quiet=1;
+                break;
+			}
             exit(1);
 
         case 'o':
@@ -375,7 +394,7 @@ int main(int argc, char *argv[])
         }
     }
 
-  printf("osFree FamilyAPI Binder v.0.9\n\n");
+  if (options.logo&&!options.quiet) printf("osFree FamilyAPI Binder v.0.9\n\n");
   
   // Check presense of base required files
   // wlink.exe, doscalls.lib/os2.lib, api.lib
