@@ -182,10 +182,10 @@ int bind(char * fname)
                   // Close tmp
                   fclose(f);
                   // Delete exe
-                  if (!remove(fname))
+                  if (!remove(options.outfile))
                   {
                     // Rename tmp.exe to exe
-                    if (!rename("tmp.exe", fname))
+                    if (!rename("tmp.exe", options.outfile))
                     {
                       // Success
 	                  rc=0;
@@ -250,10 +250,11 @@ char * findfunctionname(char * module, WORD ordinal, char * lib)
                 if ((!strcmp(mod, module)) && (ord==ordinal)) 
                 {
                   fclose(f);
+
                   return func;//printf("%s %s %d\n", func, mod, ord);
                 }
               } else {
-                // panic!
+                printf("panic!\n");
               }
             }
           }
@@ -263,9 +264,10 @@ char * findfunctionname(char * module, WORD ordinal, char * lib)
 
         if (head.type==0x8a) // end of obj
         {
+		  //fread(&buf, 1, 16-pos%16, f);
           fgetpos(f, &pos);
-//          printf("%d %d\n", pos, 512-pos%512);
-          fread(&buf, 1, 512-pos%512, f);
+          //printf("%x %x\n", pos, 16-pos%16);
+          if ((16-pos%16)!=16) fread(&buf, 1, 16-pos%16, f);
         }
       }
     }
@@ -312,7 +314,7 @@ int main(int argc, char *argv[])
 
 	options.quiet=0;
 	options.logo=1;
-	options.outfile[0]=0;
+	strcpy(options.outfile, argv[1]);
 	options.map=0;
 
     // no args - print usage and exit
@@ -369,11 +371,14 @@ int main(int argc, char *argv[])
 
         case 'o':
         case 'O':
-            if (!strncmp(_strupr(optarg), "UTFILE", 6))
+            if (!strnicmp(optarg, "UTFILE", 6))
             {
-                printf("OUTFILE\n");
-                break;
-            }
+				strcpy(options.outfile, argv[optind]);
+            } else
+			{
+				strcpy(options.outfile, optarg);
+			}
+			printf("%s\n", options.outfile);
             exit(1);
 
         case 'h':
@@ -496,6 +501,7 @@ int main(int argc, char *argv[])
                             }
                           }
 	  
+
                           // Now read segments fixup tables and build list of imported functions
                           for (i = NE_CSEG(NEHeader); i > 0; i--)
                           {
@@ -592,6 +598,7 @@ int main(int argc, char *argv[])
                             }
                           }
         
+
                           if (!fclose(f))
                           {
                             // Check presense of subsystem  required files
