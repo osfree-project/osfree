@@ -1,10 +1,10 @@
-/*
- *  FamilyAPI Binder
- *
- *  Copyright 2024 Yuri Prokushev
+/*!
+ *  @brief FamilyAPI Binder
  *
  *  (c) osFree Project 2024, <https://www.osfree.org>
  *  for licence see licence.txt in root directory, or project website
+ *
+ *  @author Yuri Prokushev <yuri.prokushev@gmail.com>
  *
  */
 
@@ -63,6 +63,12 @@ opts options;
 void printhlp(void);
 /*! @brief Check required environment to run */
 int check_environment(void);
+/*! @brief Add imported function info to linked list */
+int addtolist(char * mod, char * func);
+/*! @brief Bind stub file to NE executable */
+int bind(char * fname);
+/*! @brief Find function name in lib by ordinal and module name */
+char * findfunctionname(char * module, WORD ordinal, char * lib);
 
 int addtolist(char * mod, char * func)
 {
@@ -124,7 +130,7 @@ int bind(char * fname)
       fclose(fin);
 
       // Remove temporary file
-      //remove("fstub.exe");
+      remove("fstub.exe");
 
             // Open exe for read
             if (fin=fopen(fname, "rb"))
