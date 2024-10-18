@@ -921,7 +921,7 @@ int main(int argc, char *argv[])
                             fputs("file tmp.obj\n", f);
                             if (options.map) 
 							{
-								fputs("op m ", f);
+								fputs("op m=", f);
 								fputs(options.mapfile, f);
 								fputs("\n", f);
 							}
