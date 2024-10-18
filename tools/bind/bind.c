@@ -348,6 +348,9 @@ int main(int argc, char *argv[])
         {
         case 'm':
         case 'M':
+		    // todo: default mapfile using input filename
+			// todo: default extenwion is a BM
+			// todo: check is it really filename or next option
             if (!strnicmp(optarg, "AP", 2))
             {
 				strcpy(options.mapfile, argv[optind]);
@@ -366,6 +369,7 @@ int main(int argc, char *argv[])
                 break;
             }
 
+			// todo: add NAMES support and /NAMES @list support
             if (!strncmp(_strupr(optarg), "AMES", 4))
             {
                 printf("NAMES\n");
@@ -440,10 +444,10 @@ int main(int argc, char *argv[])
   // wlink.exe, doscalls.lib/os2.lib, api.lib
 
   // Check wlink.exe
+  // @todo search using WATCOM env
   _searchenv( "wlink.exe", "PATH", full_path );
   if(!full_path[0] == '\0') 
   {
-    // @todo search using WATCOM env
     // Check os2.lib
     _searchenv( "os2.lib", "LIB", full_path );
     if(full_path[0] == '\0')
