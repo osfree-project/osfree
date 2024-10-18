@@ -50,6 +50,7 @@ typedef struct _opts {
 	int logo;
 	char outfile[_MAX_PATH];
 	char infile[_MAX_PATH];
+	char mapfile[_MAX_PATH];
 	int map;
 	int dosformat;
 } opts;
@@ -318,6 +319,7 @@ int main(int argc, char *argv[])
 	options.logo=1;
 	options.outfile[0]=0;;
 	options.infile[0]=0;;
+	options.mapfile[0]=0;;
 	options.map=0;
 	options.dosformat=0;
 
@@ -346,13 +348,15 @@ int main(int argc, char *argv[])
         {
         case 'm':
         case 'M':
-            if (!strncmp(_strupr(optarg), "AP", 2))
+            if (!strnicmp(optarg, "AP", 2))
             {
-                options.map=1;
-                break;
-            }
-
-            exit(1);
+				strcpy(options.mapfile, argv[optind]);
+            } else
+			{
+				strcpy(options.mapfile, optarg);
+			}
+            options.map=1;
+            break;
 
         case 'n':
         case 'N':
@@ -915,7 +919,12 @@ int main(int argc, char *argv[])
                             fputs("system dos\n",f);
                             fputs("name fstub.exe\n" , f); 
                             fputs("file tmp.obj\n", f);
-                            if (options.map) fputs("op m\n", f);
+                            if (options.map) 
+							{
+								fputs("op m ", f);
+								fputs(options.mapfile, f);
+								fputs("\n", f);
+							}
                             /*if (DoscallsLIB)
                             {
                                 fputs("lib doscalls.lib\n", f);
