@@ -53,10 +53,16 @@ typedef struct _opts {
 	char mapfile[_MAX_PATH];
 	int map;
 	int dosformat;
+	int DoscallsLIB;
 } opts;
 
 apientry * apiroot;
 opts options;
+
+/*! @brief Output usage help information */
+void printhlp(void);
+/*! @brief Check required environment to run */
+int check_environment(void);
 
 int addtolist(char * mod, char * func)
 {
@@ -279,6 +285,129 @@ char * findfunctionname(char * module, WORD ordinal, char * lib)
   return NULL;
 }
 
+/*! @brief Check required environment to run */
+int check_environment(void)
+{
+  char full_path[ _MAX_PATH ];
+
+  // Check presense of required files
+  // wlink.exe, doscalls.lib/os2.lib, api.lib etc.
+
+  // Check presense of WATCOM environment variable
+  if (!getenv("WATCOM"))
+  {
+	  printf( "Error: WATCOM environment variable not set\n" );
+	  return 1;
+  }
+
+  // Check presense of LIB environment variable
+  if (!getenv("LIB"))
+  {
+	  printf( "Error: LIB environment variable not set\n" );
+	  return 1;
+  }
+  
+  // Check presense of wlink.lnk in path
+  _searchenv( "wlink.lnk", "PATH", full_path );
+  if(full_path[0] == '\0') 
+  {
+	  printf( "Error: Unable to find wlink.lnk file\n" );
+	  return 1;
+  }
+
+  // Check wlink.exe
+  _searchenv( "wlink.exe", "PATH", full_path );
+  if(full_path[0] == '\0') 
+  {
+	  printf( "Error: Unable to find wlink.exe file\n" );
+	  return 1;
+  }
+
+  // Check os2.lib
+  _searchenv( "os2.lib", "LIB", full_path );
+  if(full_path[0] == '\0')
+  {
+    // Try doscalls.lib instead
+    _searchenv( "doscalls.lib", "LIB", full_path );
+     if(!full_path[0] == '\0') options.DoscallsLIB=1;
+  }
+
+  if (full_path[0] == '\0')
+  {
+      printf( "Error: Unable to find nor os2.lib nor doscalls.lib file\n" );
+	  return 1;
+  }
+
+  // Check api.lib
+  _searchenv( "api.lib", "LIB", full_path );
+  if(full_path[0] == '\0') 
+  {
+	  printf( "Error: Unable to find api.lib file\n" );
+	  return 1;
+  }
+
+  // Check presense of subsystem  required files
+  // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
+    _searchenv( "dll.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find dll.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "vios.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find vios.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "viof.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find viof.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "mous.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find mous.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "mouf.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find mouf.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "kbds.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find kbds.lib file\n" );
+      return 1;
+    }
+  
+    _searchenv( "kbdf.lib", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find kbdf.lib file\n" );
+      return 1;
+    }
+
+    _searchenv( "apilmr.obj", "LIB", full_path );
+    if( full_path[0] == '\0' ) 
+    {
+      printf( "Error: Unable to find apilmr.obj file\n" );
+      return 1;
+    }
+
+	return 0;
+}
+
+/*! @brief Output usage help information */
 void printhlp(void)
 {
   printf("BIND infile [implibs] [linklibs] [options]\n\n");
@@ -303,7 +432,6 @@ int main(int argc, char *argv[])
   int KbdAPI = 0;
   int VioAPI = 0;
   int DLLAPI = 0;
-  int DoscallsLIB = 0;
   char ** mods = NULL;
   char full_path[ _MAX_PATH ];
   WORD offset;
@@ -315,6 +443,7 @@ int main(int argc, char *argv[])
   int rc=1; // Error exit code by default
   signed char ch;
 
+	// Configure initial options
 	options.quiet=0;
 	options.logo=1;
 	options.outfile[0]=0;;
@@ -322,6 +451,14 @@ int main(int argc, char *argv[])
 	options.mapfile[0]=0;;
 	options.map=0;
 	options.dosformat=0;
+	options.DoscallsLIB=0;
+
+
+  if (check_environment())
+  {
+	  printf("Environment not configured");
+	  return 1;
+  };
 
     // no args - print usage and exit
     if (argc == 1)
@@ -440,29 +577,6 @@ int main(int argc, char *argv[])
         optind++;
 	}
   
-  // Check presense of base required files
-  // wlink.exe, doscalls.lib/os2.lib, api.lib
-
-  // Check wlink.exe
-  // @todo search using WATCOM env
-  _searchenv( "wlink.exe", "PATH", full_path );
-  if(!full_path[0] == '\0') 
-  {
-    // Check os2.lib
-    _searchenv( "os2.lib", "LIB", full_path );
-    if(full_path[0] == '\0')
-    {
-      // Try doscalls.lib instead
-      _searchenv( "doscalls.lib", "LIB", full_path );
-      if(!full_path[0] == '\0') DoscallsLIB=1;
-    }
-
-    if (!full_path[0] == '\0')
-	{
-      // Check api.lib
-      _searchenv( "api.lib", "LIB", full_path );
-      if(!full_path[0] == '\0') 
-      {
         // Open exe for read
         if(f=fopen(options.infile, "rb"))
         {
@@ -572,7 +686,7 @@ int main(int argc, char *argv[])
                                           } else {
                                             char * fname;
 	  								  
-                                            fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, DoscallsLIB?"doscalls.lib":"os2.lib");
+                                            fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, options.DoscallsLIB?"doscalls.lib":"os2.lib");
                                             //printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
                                             
                                             // Collect in list
@@ -640,77 +754,6 @@ int main(int argc, char *argv[])
 
                           if (!fclose(f))
                           {
-                            // Check presense of subsystem  required files
-                            // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
-                            if (DLLAPI)
-                            {
-                              _searchenv( "dll.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find dll.lib file\n" );
-                                return 1;
-                              }
-                            }
-                      
-                            if (VioAPI==1)
-                            {
-                              _searchenv( "vios.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find vios.lib file\n" );
-                                return 1;
-                              }
-                            }
-                        
-                            if (VioAPI==2)
-                            {
-                              _searchenv( "viof.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find viof.lib file\n" );
-                                return 1;
-                              }
-                            }
-                        
-                            if (MouAPI==1)
-                            {
-                              _searchenv( "mous.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find mous.lib file\n" );
-                                return 1;
-                              }
-                            }
-                        
-                            if (MouAPI==2)
-                            {
-                              _searchenv( "mouf.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find mouf.lib file\n" );
-                                return 1;
-                              }
-                            }
-                        
-                            if (KbdAPI==1)
-                            {
-                              _searchenv( "kbds.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find kbds.lib file\n" );
-                                return 1;
-                              }
-                            }
-                        
-                            if (KbdAPI==2)
-                            {
-                              _searchenv( "kbdf.lib", "LIB", full_path );
-                              if( full_path[0] == '\0' ) 
-                              {
-                                printf( "Error: Unable to find kbdf.lib file\n" );
-                                return 1;
-                              }
-                            }
 
 							{
 								BYTE hdr[0xef]={
@@ -990,14 +1033,5 @@ int main(int argc, char *argv[])
         } else {
           printf( "Error: File open\n");
         }
-      } else {
-        printf( "Error: Unable to find api.lib file\n" );
-      }
-	} else {
-      printf( "Error: Unable to find nor os2.lib nor doscalls.lib file\n" );
-    }
-  } else {
-    printf( "Error: Unable to find wlink.exe file\n" );
-  }
   return rc;  // Exit with error code
 }
