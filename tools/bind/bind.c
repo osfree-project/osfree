@@ -49,7 +49,9 @@ typedef struct _opts {
 	int quiet;
 	int logo;
 	char outfile[_MAX_PATH];
+	char infile[_MAX_PATH];
 	int map;
+	int dosformat;
 } opts;
 
 apientry * apiroot;
@@ -314,14 +316,27 @@ int main(int argc, char *argv[])
 
 	options.quiet=0;
 	options.logo=1;
-	strcpy(options.outfile, argv[1]);
+	options.outfile[0]=0;;
+	options.infile[0]=0;;
 	options.map=0;
+	options.dosformat=0;
 
     // no args - print usage and exit
     if (argc == 1)
     {
         printhlp();
         exit(1);
+    }
+
+#ifndef __UNIX__
+    if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
+#else
+    if (*argv[1] != '-') // first arg prefix -  ?
+#endif
+    {
+		optind++;
+        strncpy(options.infile, argv[optind], sizeof(options.infile)-1);
+		options.dosformat=1;
     }
 
     // Get program arguments using getopt()
@@ -378,8 +393,7 @@ int main(int argc, char *argv[])
 			{
 				strcpy(options.outfile, optarg);
 			}
-			printf("%s\n", options.outfile);
-            exit(1);
+            break;
 
         case 'h':
         case 'H':
@@ -400,6 +414,23 @@ int main(int argc, char *argv[])
     }
 
   if (options.logo&&!options.quiet) printf("osFree FamilyAPI Binder v.0.9\n\n");
+
+    // check for input file - getopt compatable cmd line
+    // we either have in/out files or it is error
+    if ((argc == optind) && !options.dosformat)
+	{
+        printf("BIND: no input file\n");
+		exit(1);
+	}
+
+    // if dosformat is false then using new format
+    // so we need to get input file and maybe the output file
+    if (!options.dosformat)
+    {
+        strncpy(options.infile, argv[optind], sizeof(options.infile)-1);
+        if (!strlen(options.outfile)) strncpy(options.outfile, argv[optind], sizeof(options.outfile)-1);
+        optind++;
+	}
   
   // Check presense of base required files
   // wlink.exe, doscalls.lib/os2.lib, api.lib
@@ -425,7 +456,7 @@ int main(int argc, char *argv[])
       if(!full_path[0] == '\0') 
       {
         // Open exe for read
-        if(f=fopen(argv[1], "rb"))
+        if(f=fopen(options.infile, "rb"))
         {
           // Read old Executable header
           if (fread(&MZHeader, 1, sizeof(MZHeader), f) == sizeof(MZHeader))
@@ -911,7 +942,7 @@ int main(int argc, char *argv[])
                             remove("tmp.obj");
 
                             // Change standard DOS stub to FamilyAPI stub:
-						    rc=bind(argv[1]);
+						    rc=bind(options.infile);
 
                             // Exit
                           } else {
