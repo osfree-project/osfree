@@ -51,6 +51,7 @@ typedef struct _opts {
 	char outfile[_MAX_PATH];
 	char infile[_MAX_PATH];
 	char mapfile[_MAX_PATH];
+	char libpath[_MAX_PATH];
 	int map;
 	int dosformat;
 	int DoscallsLIB;
@@ -69,6 +70,8 @@ int addtolist(char * mod, char * func);
 int bind(char * fname);
 /*! @brief Find function name in lib by ordinal and module name */
 char * findfunctionname(char * module, WORD ordinal, char * lib);
+/*! @brief Search library in lib paths */
+int searchlib(char * libname, char * fullpath);
 
 int addtolist(char * mod, char * func)
 {
@@ -290,6 +293,23 @@ char * findfunctionname(char * module, WORD ordinal, char * lib)
   return NULL;
 }
 
+/*! @brief Search library in lib paths */
+/* First search in current directory. If not found, then search
+ * in /LIBPATH paths. If not found, then search in LIB paths. */
+int searchlib(char * libname, char * fullpath)
+{
+  _searchenv(libname, ".", fullpath);
+  if(fullpath[0] == '\0')
+  {
+	_searchenv(libname, options.libpath, fullpath);
+	if(fullpath[0] == '\0')
+	{
+	  _searchenv(libname, "LIB", fullpath);
+	}
+  }
+  return (fullpath[0] == '\0')?0:1;
+}
+
 /*! @brief Check required environment to run */
 int check_environment(void)
 {
@@ -305,13 +325,6 @@ int check_environment(void)
 	  return 1;
   }
 
-  // Check presense of LIB environment variable
-  if (!getenv("LIB"))
-  {
-	  printf( "Error: LIB environment variable not set\n" );
-	  return 1;
-  }
-  
   // Check presense of wlink.lnk in path
   _searchenv( "wlink.lnk", "PATH", full_path );
   if(full_path[0] == '\0') 
@@ -329,12 +342,10 @@ int check_environment(void)
   }
 
   // Check os2.lib
-  _searchenv( "os2.lib", "LIB", full_path );
-  if(full_path[0] == '\0')
+  if(!searchlib( "os2.lib", full_path))
   {
     // Try doscalls.lib instead
-    _searchenv( "doscalls.lib", "LIB", full_path );
-     if(!full_path[0] == '\0') options.DoscallsLIB=1;
+    if (searchlib( "doscalls.lib", full_path)) options.DoscallsLIB=1;
   }
 
   if (full_path[0] == '\0')
@@ -344,8 +355,7 @@ int check_environment(void)
   }
 
   // Check api.lib
-  _searchenv( "api.lib", "LIB", full_path );
-  if(full_path[0] == '\0') 
+  if(!searchlib( "api.lib", full_path ))
   {
 	  printf( "Error: Unable to find api.lib file\n" );
 	  return 1;
@@ -353,57 +363,49 @@ int check_environment(void)
 
   // Check presense of subsystem  required files
   // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
-    _searchenv( "dll.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "dll.lib", full_path ))
     {
       printf( "Error: Unable to find dll.lib file\n" );
       return 1;
     }
   
-    _searchenv( "vios.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "vios.lib", full_path ))
     {
       printf( "Error: Unable to find vios.lib file\n" );
       return 1;
     }
   
-    _searchenv( "viof.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "viof.lib", full_path ))
     {
       printf( "Error: Unable to find viof.lib file\n" );
       return 1;
     }
   
-    _searchenv( "mous.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "mous.lib", full_path ))
     {
       printf( "Error: Unable to find mous.lib file\n" );
       return 1;
     }
   
-    _searchenv( "mouf.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "mouf.lib", full_path ))
     {
       printf( "Error: Unable to find mouf.lib file\n" );
       return 1;
     }
   
-    _searchenv( "kbds.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "kbds.lib", full_path ))
     {
       printf( "Error: Unable to find kbds.lib file\n" );
       return 1;
     }
   
-    _searchenv( "kbdf.lib", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "kbdf.lib", full_path ))
     {
       printf( "Error: Unable to find kbdf.lib file\n" );
       return 1;
     }
 
-    _searchenv( "apilmr.obj", "LIB", full_path );
-    if( full_path[0] == '\0' ) 
+    if (!searchlib( "apilmr.obj", full_path ))
     {
       printf( "Error: Unable to find apilmr.obj file\n" );
       return 1;
@@ -418,12 +420,13 @@ void printhlp(void)
   printf("BIND infile [implibs] [linklibs] [options]\n\n");
 
   printf("/HELP       Displays Help\n");
+  printf("/?          Displays Help\n\n");
+  printf("/L[IBPATH]  Add to library search path\n");
   printf("/M[AP]      Generates Link Map File\n");
   printf("/N[AMES]    Specifies Protected-Mode Functions\n");
   printf("/NOLOGO     Suppresses Sign-On Banner\n");
   printf("/O[UTFILE]  Specifies Name of Bound Program\n");
   printf("/Q          Quiet\n");
-  printf("/?          Displays Short Help\n\n");
 }
 
 int main(int argc, char *argv[])
@@ -454,6 +457,7 @@ int main(int argc, char *argv[])
 	options.outfile[0]=0;;
 	options.infile[0]=0;;
 	options.mapfile[0]=0;;
+	options.libpath[0]=0;;
 	options.map=0;
 	options.dosformat=0;
 	options.DoscallsLIB=0;
@@ -488,6 +492,17 @@ int main(int argc, char *argv[])
     {
         switch (ch)
         {
+        case 'l':
+        case 'L':
+            if (!strnicmp(optarg, "IBPATH", 6))
+            {
+				strcpy(options.libpath, argv[optind]);
+            } else
+			{
+				strcpy(options.libpath, optarg);
+			}
+            break;
+
         case 'm':
         case 'M':
 		    // todo: default mapfile using input filename
