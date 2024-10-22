@@ -13,7 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #ifdef __UNIX__
-#include <stat.h>
+#include <sys/stat.h>
 #else
 #include <direct.h>
 #endif
