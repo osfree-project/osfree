@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <direct.h>
 
 #ifndef DWORD
 #define DWORD unsigned long
@@ -38,23 +39,23 @@
 
 char func[255];
 typedef struct _apientry {
-	char mod[9];
-	WORD ord;
-	char func[21];
-	DWORD offset;  // Offset of pointer to fixup
-	struct _apientry * next;
+	char mod[9];				/*!< Module name */
+	WORD ord;					/*!< Function ordinal */
+	char func[21];				/*!< Function name */
+	DWORD offset;	  			/*!< Offset of pointer to fixup */
+	struct _apientry * next;	/*!< Next entry */
 } apientry;
 
 typedef struct _opts {
-	int quiet;
-	int logo;
-	char outfile[_MAX_PATH];
-	char infile[_MAX_PATH];
-	char mapfile[_MAX_PATH];
-	char libpath[_MAX_PATH];
-	int map;
-	int dosformat;
-	int DoscallsLIB;
+	int quiet;					/*!< Quiet mode */
+	int logo;					/*!< Show logo */
+	char outfile[_MAX_PATH];	/*!< Output filename */
+	char infile[_MAX_PATH];		/*!< Input filename */
+	char mapfile[_MAX_PATH];	/*!< MAP filename */
+	char libpath[_MAX_PATH];	/*!< Additional library search path */
+	int map;					/*!< Generate MAP file for DOS stub */
+	int dosformat;				/*!< Options in DOS format (not UNIX) */
+	int DoscallsLIB;			/*!< Use DOSCALLS.LIB instead of OS2.LIB */
 } opts;
 
 apientry * apiroot;
@@ -72,6 +73,37 @@ int bind(char * fname);
 char * findfunctionname(char * module, WORD ordinal, char * lib);
 /*! @brief Search library in lib paths */
 int searchlib(char * libname, char * fullpath);
+/*! @brief Concatecate path separator */
+char * addpathsep(char * buf);
+/*! @brief Create and return temporary directory */
+char * mktmpdir(char *tmpdir);
+
+
+/*! @brief Concatecate path separator */
+char * addpathsep(char * buf)
+{
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+    return strncat(buf,"\\", 1);
+#else
+    return strncat(buf,"/", 1);
+#endif
+}
+
+/*! @brief Create and return temporary directory */
+char * mktmpdir(char *tmpdir)
+{
+    char name2[_MAX_PATH];
+    tmpnam(name2);
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+    tmpdir = getenv("TMP");
+#else
+    tmpdir = "/tmp";
+#endif
+	addpathsep(tmpdir);
+    strcat(tmpdir,&name2);
+	mkdir(tmpdir);
+	return addpathsep(tmpdir);
+}
 
 int addtolist(char * mod, char * func)
 {
