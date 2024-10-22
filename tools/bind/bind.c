@@ -60,6 +60,10 @@ typedef struct _opts {
 	int map;					/*!< Generate MAP file for DOS stub */
 	int dosformat;				/*!< Options in DOS format (not UNIX) */
 	int DoscallsLIB;			/*!< Use DOSCALLS.LIB instead of OS2.LIB */
+	int MouAPI;
+	int KbdAPI;
+	int VioAPI;
+	int DLLAPI;
 } opts;
 
 apientry * apiroot;
@@ -81,6 +85,10 @@ int searchlib(char * libname, char * fullpath);
 char * addpathsep(char * buf);
 /*! @brief Create and return temporary directory */
 char * mktmpdir(char *tmpdir);
+/*! @brief Create imptable object file */
+void generate_imptable(void);
+/*! @brief Generate lnk file */
+void generate_lnk(void);
 
 
 /*! @brief Concatecate path separator */
@@ -107,6 +115,271 @@ char * mktmpdir(char *tmpdir)
     strcat(tmpdir,&name2);
 	mkdir(tmpdir);
 	return addpathsep(tmpdir);
+}
+
+/*! @brief Generate lnk file */
+void generate_lnk(void)
+{
+	FILE * f;
+                            // Generate link file
+                            f=fopen("bind.lnk", "w");
+                            fputs("system dos\n",f);
+                            fputs("name fstub.exe\n" , f); 
+                            fputs("file tmp.obj\n", f);
+                            if (options.map) 
+							{
+								fputs("op m=", f);
+								fputs(options.mapfile, f);
+								fputs("\n", f);
+							}
+                            /*if (DoscallsLIB)
+                            {
+                                fputs("lib doscalls.lib\n", f);
+                            } else 
+                            {
+                                fputs("lib os2.lib\n", f);
+                            }*/
+                            fputs("lib api.lib\n", f);
+                            if (options.DLLAPI) fputs("lib dll.lib\n", f);
+                            if (options.VioAPI==1) fputs("lib vios.lib\n", f);
+                            if (options.VioAPI==2) fputs("lib viof.lib\n", f);
+                            if (options.MouAPI==1) fputs("lib mous.lib\n", f);
+                            if (options.MouAPI==2) fputs("lib mouf.lib\n", f);
+                            if (options.KbdAPI==1) fputs("lib kbds.lib\n", f);
+                            if (options.KbdAPI==2) fputs("lib kbdf.lib\n", f);
+                            fclose(f);
+}
+
+/*! @brief Create imptable object file */
+void generate_imptable(void)
+{
+	FILE * f;
+	BYTE hdr[0xef]={
+		// THEADR
+		0x80,
+		0x27, 0x00,
+		0x25,
+		'D',':','\\','o','s','f',
+		'r','e','e','\\','d','u',
+		'a','l','\\','f','a','p',
+		'i','\\','l','o','a','d',
+		'e','r','\\','i','m','p',
+		't','a','b','l','e','.','c',
+		0xca,
+		// COMMENT
+		0x88,
+		0x03, 0x00,
+		// CodeView debug info
+		0x80,
+		0xa1,
+		0x54,
+		// COMMENT
+		0x88,
+		0x08, 0x00,
+		// Watcom options
+		0x80,
+		0x9b,
+		0x30, 0x73, 0x4F, 0x65, 0x64, 0x9A, 
+		// COMMENT
+		0x88, 
+		0x2D, 0x00, 
+		// Borland Dependency
+		0x80, 
+		0xE9,
+		0x8C, 0x4C, 0x50, 0x59, 0x25, 
+		'D', ':', '\\', 'o', 's', 'f',
+		'r', 'e', 'e', '\\', 'd', 'u',
+		'a', 'l', '\\', 'f', 'a', 'p', 
+		'i', '\\', 'l', 'o', 'a', 'd',
+		'e', 'r', '\\', 'i', 'm', 'p',
+		't', 'a', 'b', 'l', 'e', '.', 'c',
+		0xD2, 
+		// COMMENT
+		0x88, 
+		0x03, 0x00, 
+		// Borland Dependency
+		0x80, 0xE9,
+		0x0C, 
+		// LNAMES
+		0x96, 
+		0x21, 0x00, 
+		0x00, 
+		0x04, 'C', 'O', 'D', 'E', 
+		0x04, 'D', 'A', 'T', 'A', 
+		0x03, 'B', 'S', 'S', 
+		0x03, 'T', 'L', 'S', 
+		0x06, 'D', 'G', 'R', 'O', 'U', 'P', 
+		0x05, '_', 'T', 'E', 'X', 'T', 
+		0xAB, 
+		// SEGDEF
+		0x98, 
+		0x07, 0x00, 
+		0x28, 0x00, 0x00, 0x07, 0x02, 0x01, 
+		0x2F, 
+		// COMMENT
+		0x88,
+		0x05, 0x00, 
+		// Optimize far call
+		0x80, 0xFE, 0x4F, 0x01, 
+		0xA5, 
+		// LNAMES
+		0x96, 
+		0x07, 0x00, 
+		0x05, 'C', 'O', 'N', 'S', 'T', 
+		0xD7, 
+		// SEGDEF
+		0x98, 
+		0x07, 0x00, 
+		0x48, 0x00, 0x00, 0x08, 0x03, 0x01, 
+		0x0D, 
+		// LNAMES
+		0x96, 
+		0x08, 0x00, 
+		0x06, 'C', 'O', 'N', 'S', 'T', '2', 
+		0xA3, 
+		// SEGDEF
+		0x98, 
+		0x07, 0x00, 
+		0x48, 0x00, 0x00, 0x09, 0x03, 0x01, 
+		0x0C,
+		// LNAMES
+		0x96, 
+		0x07, 0x00, 
+		0x05, '_', 'D', 'A', 'T', 'A', 
+		0xE5, 
+		// SEGDEF
+		0x98, 
+		0x07, 0x00, 
+		0x48, 0x44, 0x00, 0x0A, 0x03, 0x01, 
+		0xC7, 
+		// GRPDEF
+		0x9A, 
+		0x08, 0x00, 
+		0x06, 0xFF, 0x02, 0xFF, 0x03, 0xFF, 0x04, 
+		0x52
+	};
+
+	BYTE ftr[48]={
+		// PUBDEF
+		0x90, 
+		0x10, 0x00,
+		0x01, 0x04, 
+		0x09, '_', 'i', 'm', 'p', 't', 'a', 'b', 'l', 'e', 
+		0x00, 0x00, 0x00, 
+		0xA5,
+		// COMMENT
+		0x88, 
+		0x0A, 0x00, 
+		// Default library
+		0x80, 0x9F, 'm', 'a', 't', 'h', '8', '7', 's', 
+		0xC3, 
+		// COMMENT
+		0x88, 
+		0x08, 0x00,
+		// Default library
+		0x80, 0x9F, 'e', 'm', 'u', '8', '7', 
+		0x9B, 
+		// MODEND
+		0x8A, 
+		0x02, 0x00, 
+		0x00, 0x74								  
+	};
+
+	BYTE buf[1024];
+
+	apientry * current=apiroot;
+	BYTE * curbuf=&buf[3];
+
+    // Generate import table object file:
+	
+    // Open file for write
+    f=fopen("tmp.obj", "wb");
+    // Write header part
+	fwrite(hdr, 1, sizeof(hdr), f);
+	
+    // Write table struct part:
+	
+	// Generate EXDEF object
+	memset(buf, 0, sizeof(buf));
+	buf[0]=0x8c;
+	buf[1]=1; //size of chksum
+	buf[2]=0;
+
+		while (current)
+		{
+			// 1 byte len + string size bytes + 1 byte zero
+			*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
+			*curbuf=strlen(current->func);
+			curbuf++;
+			strcpy(curbuf,current->func);
+			curbuf=curbuf+strlen(current->func);
+			*curbuf=0; // index (always 0)
+			curbuf++;
+			current=current->next;
+		}
+	    // buf[(curbuf-&buf)]=0xa4; Checksum
+        fwrite(buf, 1, (curbuf-&buf)+1, f);
+	
+	// Generate LEDATA object (actual import table)
+	memset(buf, 0, sizeof(buf));
+	buf[0]=0xa0;
+	buf[1]=0x4; // Checksum+segmet+offset
+	buf[2]=0x00;
+	buf[3]=0x04; // Segment
+	buf[4]=0x00; // offset
+	buf[5]=0x00;
+	{
+		apientry * current=apiroot;
+
+		while (current)
+		{
+			// copy modname
+			strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
+			// copy funcname
+			strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
+			// 9 modname 21 funcname 4 far pointer
+			*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
+			// Store offset for fixup
+			current->offset=*((WORD *)&buf[1])-4-4;
+			current=current->next;
+		}
+	    // buf[*((WORD *)&buf[1])+2]=0xe4; checksum
+        fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+	}
+	fseek(f, 0xde, SEEK_SET);
+	{
+		WORD a=*((WORD *)&buf[1])-1;
+	    fwrite(&a,1, 2,f);
+	}
+	fseek(f, 0, SEEK_END);
+	
+	// Generate FIXUPP object
+	memset(buf, 0, sizeof(buf));
+	buf[0]=0x9c;
+	buf[1]=0x1;  // Checksum
+	buf[2]=0x00;
+	{
+		apientry * current=apiroot;
+		int i=1;
+
+		while (current)
+		{
+			buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
+			buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
+			buf[*((WORD *)&buf[1])+2+2]=0x56;
+			buf[*((WORD *)&buf[1])+2+3]=i;
+			i++;
+			*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
+			current=current->next;
+		}
+	    // buf[*((WORD *)&buf[1])+2]=0x80; Checksum
+        fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+	}
+
+    // Write end part
+	fwrite(ftr, 1, sizeof(ftr), f);
+    // Close file
+	fclose(f);
 }
 
 int addtolist(char * mod, char * func)
@@ -153,9 +426,15 @@ int bind(char * fname)
   int rc=1;
   struct new_seg seg;
   int i;
+  char tmpdir[_MAX_PATH];
+  char tmpexe[_MAX_PATH];
   
+  strncpy(tmpdir, mktmpdir(tmpdir), sizeof(tmpdir));
+  strncat(tmpexe, tmpdir, sizeof(tmpexe));
+  strncat(tmpexe, "tmp.exe", sizeof(tmpexe));
+
   // Open tmp.exe for write
-  if (f=fopen("tmp.exe", "wb"))
+  if (f=fopen(tmpexe, "wb"))
   {
     // @todo check file format
     // Open fstub.exe for read
@@ -240,7 +519,7 @@ int bind(char * fname)
                   if (!remove(options.outfile))
                   {
                     // Rename tmp.exe to exe
-                    if (!rename("tmp.exe", options.outfile))
+                    if (!rename(tmpexe, options.outfile))
                     {
                       // Success
 	                  rc=0;
@@ -472,10 +751,6 @@ int main(int argc, char *argv[])
   struct new_exe NEHeader;
   int result;
   int i;
-  int MouAPI = 0;
-  int KbdAPI = 0;
-  int VioAPI = 0;
-  int DLLAPI = 0;
   char ** mods = NULL;
   char full_path[ _MAX_PATH ];
   WORD offset;
@@ -497,6 +772,10 @@ int main(int argc, char *argv[])
 	options.map=0;
 	options.dosformat=0;
 	options.DoscallsLIB=0;
+	options.MouAPI = 0;
+	options.KbdAPI = 0;
+	options.VioAPI = 0;
+	options.DLLAPI = 0;
 
 
   if (check_environment())
@@ -749,34 +1028,34 @@ int main(int argc, char *argv[])
 											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
 	  								  
                                             // If any Mou* used, then turn on Mou API
-                                            if (!strncmp(fname, "MOU",3)) MouAPI=1;
+                                            if (!strncmp(fname, "MOU",3)) options.MouAPI=1;
                                             
                                             // If any Kbd* used, then turn on Kbd API
-                                            if (!strncmp(fname, "KBD",3)) KbdAPI=1;
+                                            if (!strncmp(fname, "KBD",3)) options.KbdAPI=1;
 	  								  
                                             // If any Vio* used, then turn on Vio API
-                                            if (!strncmp(fname, "VIO",3)) VioAPI=1;
+                                            if (!strncmp(fname, "VIO",3)) options.VioAPI=1;
 	  								  
                                             // If VioRegister used, then turn full VIO API and DLL API
                                             if (!strncmp(fname, "VIOREGISTER",12))
                                             {
-                                              VioAPI=2;
-                                              DLLAPI=1;
+                                              options.VioAPI=2;
+                                              options.DLLAPI=1;
                                             }
                                             // If MouRegister used, then turn full Mou API and DLL API
                                             if (!strncmp(fname, "MOUREGISTER",12))
                                             {
-                                              MouAPI=2;
-                                              DLLAPI=1;
+                                              options.MouAPI=2;
+                                              options.DLLAPI=1;
                                             }
                                             // If KbdRegister used, then turn full Kbd API and DLL API
                                             if (!strncmp(fname, "KBDREGISTER",12))
                                             {
-                                              KbdAPI=2;
-                                              DLLAPI=1;
+                                              options.KbdAPI=2;
+                                              options.DLLAPI=1;
                                             }
                                             // If DosLoadModule used, then turn on DLL API
-                                            if (!strncmp(fname, "DOSLOADMODULE",14)) DLLAPI=1;
+                                            if (!strncmp(fname, "DOSLOADMODULE",14)) options.DLLAPI=1;
                                           }
                                         }       
                                       } else 
@@ -810,277 +1089,22 @@ int main(int argc, char *argv[])
 
                           if (!fclose(f))
                           {
+							  // Generate temporary imptable.obj
+							  generate_imptable();
+							  // Generate LNK file
+							  generate_lnk();
+							  // Call linker
+                              system("wlink.exe op q op fullh @bind.lnk");
 
-							{
-								BYTE hdr[0xef]={
-									// THEADR
-									0x80,
-									0x27, 0x00,
-									0x25,
-									'D',':','\\','o','s','f',
-									'r','e','e','\\','d','u',
-									'a','l','\\','f','a','p',
-									'i','\\','l','o','a','d',
-									'e','r','\\','i','m','p',
-									't','a','b','l','e','.','c',
-									0xca,
-									// COMMENT
-									0x88,
-									0x03, 0x00,
-									// CodeView debug info
-									0x80,
-									0xa1,
-									0x54,
-									// COMMENT
-									0x88,
-									0x08, 0x00,
-									// Watcom options
-									0x80,
-									0x9b,
-									0x30, 0x73, 0x4F, 0x65, 0x64, 0x9A, 
-									// COMMENT
-									0x88, 
-									0x2D, 0x00, 
-									// Borland Dependency
-									0x80, 
-									0xE9,
-									0x8C, 0x4C, 0x50, 0x59, 0x25, 
-									'D', ':', '\\', 'o', 's', 'f',
-									'r', 'e', 'e', '\\', 'd', 'u',
-									'a', 'l', '\\', 'f', 'a', 'p', 
-									'i', '\\', 'l', 'o', 'a', 'd',
-									'e', 'r', '\\', 'i', 'm', 'p',
-									't', 'a', 'b', 'l', 'e', '.', 'c',
-									0xD2, 
-									// COMMENT
-									0x88, 
-									0x03, 0x00, 
-									// Borland Dependency
-									0x80, 0xE9,
-									0x0C, 
-									// LNAMES
-									0x96, 
-									0x21, 0x00, 
-									0x00, 
-									0x04, 'C', 'O', 'D', 'E', 
-									0x04, 'D', 'A', 'T', 'A', 
-									0x03, 'B', 'S', 'S', 
-									0x03, 'T', 'L', 'S', 
-									0x06, 'D', 'G', 'R', 'O', 'U', 'P', 
-									0x05, '_', 'T', 'E', 'X', 'T', 
-									0xAB, 
-									// SEGDEF
-									0x98, 
-									0x07, 0x00, 
-									0x28, 0x00, 0x00, 0x07, 0x02, 0x01, 
-									0x2F, 
-									// COMMENT
-									0x88,
-									0x05, 0x00, 
-									// Optimize far call
-									0x80, 0xFE, 0x4F, 0x01, 
-									0xA5, 
-									// LNAMES
-									0x96, 
-									0x07, 0x00, 
-									0x05, 'C', 'O', 'N', 'S', 'T', 
-									0xD7, 
-									// SEGDEF
-									0x98, 
-									0x07, 0x00, 
-									0x48, 0x00, 0x00, 0x08, 0x03, 0x01, 
-									0x0D, 
-									// LNAMES
-									0x96, 
-									0x08, 0x00, 
-									0x06, 'C', 'O', 'N', 'S', 'T', '2', 
-									0xA3, 
-									// SEGDEF
-									0x98, 
-									0x07, 0x00, 
-									0x48, 0x00, 0x00, 0x09, 0x03, 0x01, 
-									0x0C,
-									// LNAMES
-									0x96, 
-									0x07, 0x00, 
-									0x05, '_', 'D', 'A', 'T', 'A', 
-									0xE5, 
-									// SEGDEF
-									0x98, 
-									0x07, 0x00, 
-									0x48, 0x44, 0x00, 0x0A, 0x03, 0x01, 
-									0xC7, 
-									// GRPDEF
-									0x9A, 
-									0x08, 0x00, 
-									0x06, 0xFF, 0x02, 0xFF, 0x03, 0xFF, 0x04, 
-									0x52
-							    };
+                              // remove temporary files
+                              remove("bind.lnk");
+							  //return 0;
+                              remove("tmp.obj");
 
-								BYTE ftr[48]={
-									// PUBDEF
-									0x90, 
-									0x10, 0x00,
-									0x01, 0x04, 
-									0x09, '_', 'i', 'm', 'p', 't', 'a', 'b', 'l', 'e', 
-									0x00, 0x00, 0x00, 
-									0xA5,
-									// COMMENT
-									0x88, 
-									0x0A, 0x00, 
-									// Default library
-									0x80, 0x9F, 'm', 'a', 't', 'h', '8', '7', 's', 
-									0xC3, 
-									// COMMENT
-									0x88, 
-									0x08, 0x00,
-									// Default library
-									0x80, 0x9F, 'e', 'm', 'u', '8', '7', 
-									0x9B, 
-									// MODEND
-									0x8A, 
-									0x02, 0x00, 
-									0x00, 0x74								  
-							  };
+                              // Change standard DOS stub to FamilyAPI stub:
+						      rc=bind(options.infile);
 
-							BYTE buf[1024];
-                            // Generate import table object file:
-							
-                            // Open file for write
-                            f=fopen("tmp.obj", "wb");
-                            // Write header part
-							fwrite(hdr, 1, sizeof(hdr), f);
-							
-                            // Write table struct part:
-							
-							// Generate EXDEF object
-							memset(buf, 0, sizeof(buf));
-							buf[0]=0x8c;
-							buf[1]=1; //size of chksum
-							buf[2]=0;
-
-							{
-								apientry * current=apiroot;
-								BYTE * curbuf=&buf[3];
-
-								while (current)
-								{
-									// 1 byte len + string size bytes + 1 byte zero
-									*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
-									*curbuf=strlen(current->func);
-									curbuf++;
-									strcpy(curbuf,current->func);
-									curbuf=curbuf+strlen(current->func);
-									*curbuf=0; // index (always 0)
-									curbuf++;
-									current=current->next;
-								}
-							    // buf[(curbuf-&buf)]=0xa4; Checksum
-                                fwrite(buf, 1, (curbuf-&buf)+1, f);
-							}
-							
-							// Generate LEDATA object (actual import table)
-							memset(buf, 0, sizeof(buf));
-							buf[0]=0xa0;
-							buf[1]=0x4; // Checksum+segmet+offset
-							buf[2]=0x00;
-							buf[3]=0x04; // Segment
-							buf[4]=0x00; // offset
-							buf[5]=0x00;
-							{
-								apientry * current=apiroot;
-
-								while (current)
-								{
-									// copy modname
-									strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
-									// copy funcname
-									strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
-									// 9 modname 21 funcname 4 far pointer
-									*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
-									// Store offset for fixup
-									current->offset=*((WORD *)&buf[1])-4-4;
-									current=current->next;
-								}
-							    // buf[*((WORD *)&buf[1])+2]=0xe4; checksum
-                                fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
-							}
-							fseek(f, 0xde, SEEK_SET);
-							{
-								WORD a=*((WORD *)&buf[1])-1;
-							    fwrite(&a,1, 2,f);
-							}
-							fseek(f, 0, SEEK_END);
-							
-							// Generate FIXUPP object
-							memset(buf, 0, sizeof(buf));
-							buf[0]=0x9c;
-							buf[1]=0x1;  // Checksum
-							buf[2]=0x00;
-							{
-								apientry * current=apiroot;
-								int i=1;
-
-								while (current)
-								{
-									buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
-									buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
-									buf[*((WORD *)&buf[1])+2+2]=0x56;
-									buf[*((WORD *)&buf[1])+2+3]=i;
-									i++;
-									*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
-									current=current->next;
-								}
-							    // buf[*((WORD *)&buf[1])+2]=0x80; Checksum
-                                fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
-							}
-
-                            // Write end part
-							fwrite(ftr, 1, sizeof(ftr), f);
-                            // Close file
-							fclose(f);
-                            }
-							
-                            // Generate link file
-                            f=fopen("bind.lnk", "w");
-                            fputs("system dos\n",f);
-                            fputs("name fstub.exe\n" , f); 
-                            fputs("file tmp.obj\n", f);
-                            if (options.map) 
-							{
-								fputs("op m=", f);
-								fputs(options.mapfile, f);
-								fputs("\n", f);
-							}
-                            /*if (DoscallsLIB)
-                            {
-                                fputs("lib doscalls.lib\n", f);
-                            } else 
-                            {
-                                fputs("lib os2.lib\n", f);
-                            }*/
-                            fputs("lib api.lib\n", f);
-                            if (DLLAPI) fputs("lib dll.lib\n", f);
-                            if (VioAPI==1) fputs("lib vios.lib\n", f);
-                            if (VioAPI==2) fputs("lib viof.lib\n", f);
-                            if (MouAPI==1) fputs("lib mous.lib\n", f);
-                            if (MouAPI==2) fputs("lib mouf.lib\n", f);
-                            if (KbdAPI==1) fputs("lib kbds.lib\n", f);
-                            if (KbdAPI==2) fputs("lib kbdf.lib\n", f);
-                            fclose(f);
-                          
-                            // Call linker
-                            system("wlink.exe op q op fullh @bind.lnk");
-
-                            // remove temporary files
-                            remove("bind.lnk");
-							//return 0;
-                            remove("tmp.obj");
-
-                            // Change standard DOS stub to FamilyAPI stub:
-						    rc=bind(options.infile);
-
-                            // Exit
+                              // Exit
                           } else {
                             printf("Error: Close file\n");
                           }
