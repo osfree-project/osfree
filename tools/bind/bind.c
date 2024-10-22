@@ -12,7 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef __UNIX__
+#include <stat.h>
+#else
 #include <direct.h>
+#endif
 
 #ifndef DWORD
 #define DWORD unsigned long
