@@ -116,7 +116,7 @@ char * mktmpdir(char *tmpdir)
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 	mkdir(tmpdir);
 #else
-	mkdir(tmpdir, 0777);
+	mkdir(tmpdir, S_IRWXU);
 #endif
 	return addpathsep(tmpdir);
 }
