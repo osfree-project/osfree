@@ -60,10 +60,10 @@ typedef struct _opts {
 	int map;					/*!< Generate MAP file for DOS stub */
 	int dosformat;				/*!< Options in DOS format (not UNIX) */
 	int DoscallsLIB;			/*!< Use DOSCALLS.LIB instead of OS2.LIB */
-	int MouAPI;
-	int KbdAPI;
-	int VioAPI;
-	int DLLAPI;
+	int MouAPI;					/*!< Mouse functions found */
+	int KbdAPI;					/*!< Keyboard functions found */
+	int VioAPI;					/*!< Video functions found */
+	int DLLAPI;					/*!< Library functions found */
 } opts;
 
 apientry * apiroot;
@@ -113,7 +113,11 @@ char * mktmpdir(char *tmpdir)
 #endif
 	addpathsep(tmpdir);
     strcat(tmpdir,&name2);
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
 	mkdir(tmpdir);
+#else
+	mkdir(tmpdir, 0777);
+#endif
 	return addpathsep(tmpdir);
 }
 
@@ -121,33 +125,27 @@ char * mktmpdir(char *tmpdir)
 void generate_lnk(void)
 {
 	FILE * f;
-                            // Generate link file
-                            f=fopen("bind.lnk", "w");
-                            fputs("system dos\n",f);
-                            fputs("name fstub.exe\n" , f); 
-                            fputs("file tmp.obj\n", f);
-                            if (options.map) 
-							{
-								fputs("op m=", f);
-								fputs(options.mapfile, f);
-								fputs("\n", f);
-							}
-                            /*if (DoscallsLIB)
-                            {
-                                fputs("lib doscalls.lib\n", f);
-                            } else 
-                            {
-                                fputs("lib os2.lib\n", f);
-                            }*/
-                            fputs("lib api.lib\n", f);
-                            if (options.DLLAPI) fputs("lib dll.lib\n", f);
-                            if (options.VioAPI==1) fputs("lib vios.lib\n", f);
-                            if (options.VioAPI==2) fputs("lib viof.lib\n", f);
-                            if (options.MouAPI==1) fputs("lib mous.lib\n", f);
-                            if (options.MouAPI==2) fputs("lib mouf.lib\n", f);
-                            if (options.KbdAPI==1) fputs("lib kbds.lib\n", f);
-                            if (options.KbdAPI==2) fputs("lib kbdf.lib\n", f);
-                            fclose(f);
+
+    // Generate link file
+    f=fopen("bind.lnk", "w");
+    fputs("system dos\n",f);
+    fputs("name fstub.exe\n" , f); 
+    fputs("file tmp.obj\n", f);
+    if (options.map) 
+	{
+		fputs("op m=", f);
+		fputs(options.mapfile, f);
+		fputs("\n", f);
+	}
+    fputs("lib api.lib\n", f);
+    if (options.DLLAPI) fputs("lib dll.lib\n", f);
+    if (options.VioAPI==1) fputs("lib vios.lib\n", f);
+    if (options.VioAPI==2) fputs("lib viof.lib\n", f);
+    if (options.MouAPI==1) fputs("lib mous.lib\n", f);
+    if (options.MouAPI==2) fputs("lib mouf.lib\n", f);
+    if (options.KbdAPI==1) fputs("lib kbds.lib\n", f);
+    if (options.KbdAPI==2) fputs("lib kbdf.lib\n", f);
+    fclose(f);
 }
 
 /*! @brief Create imptable object file */
@@ -166,6 +164,7 @@ void generate_imptable(void)
 		'e','r','\\','i','m','p',
 		't','a','b','l','e','.','c',
 		0xca,
+
 		// COMMENT
 		0x88,
 		0x03, 0x00,
@@ -173,6 +172,7 @@ void generate_imptable(void)
 		0x80,
 		0xa1,
 		0x54,
+
 		// COMMENT
 		0x88,
 		0x08, 0x00,
@@ -180,6 +180,7 @@ void generate_imptable(void)
 		0x80,
 		0x9b,
 		0x30, 0x73, 0x4F, 0x65, 0x64, 0x9A, 
+
 		// COMMENT
 		0x88, 
 		0x2D, 0x00, 
@@ -194,12 +195,14 @@ void generate_imptable(void)
 		'e', 'r', '\\', 'i', 'm', 'p',
 		't', 'a', 'b', 'l', 'e', '.', 'c',
 		0xD2, 
+
 		// COMMENT
 		0x88, 
 		0x03, 0x00, 
 		// Borland Dependency
 		0x80, 0xE9,
 		0x0C, 
+
 		// LNAMES
 		0x96, 
 		0x21, 0x00, 
@@ -211,47 +214,56 @@ void generate_imptable(void)
 		0x06, 'D', 'G', 'R', 'O', 'U', 'P', 
 		0x05, '_', 'T', 'E', 'X', 'T', 
 		0xAB, 
+
 		// SEGDEF
 		0x98, 
 		0x07, 0x00, 
 		0x28, 0x00, 0x00, 0x07, 0x02, 0x01, 
 		0x2F, 
+
 		// COMMENT
 		0x88,
 		0x05, 0x00, 
 		// Optimize far call
 		0x80, 0xFE, 0x4F, 0x01, 
 		0xA5, 
+
 		// LNAMES
 		0x96, 
 		0x07, 0x00, 
 		0x05, 'C', 'O', 'N', 'S', 'T', 
 		0xD7, 
+
 		// SEGDEF
 		0x98, 
 		0x07, 0x00, 
 		0x48, 0x00, 0x00, 0x08, 0x03, 0x01, 
 		0x0D, 
+
 		// LNAMES
 		0x96, 
 		0x08, 0x00, 
 		0x06, 'C', 'O', 'N', 'S', 'T', '2', 
 		0xA3, 
+
 		// SEGDEF
 		0x98, 
 		0x07, 0x00, 
 		0x48, 0x00, 0x00, 0x09, 0x03, 0x01, 
 		0x0C,
+
 		// LNAMES
 		0x96, 
 		0x07, 0x00, 
 		0x05, '_', 'D', 'A', 'T', 'A', 
 		0xE5, 
+
 		// SEGDEF
 		0x98, 
 		0x07, 0x00, 
 		0x48, 0x44, 0x00, 0x0A, 0x03, 0x01, 
 		0xC7, 
+
 		// GRPDEF
 		0x9A, 
 		0x08, 0x00, 
@@ -267,28 +279,33 @@ void generate_imptable(void)
 		0x09, '_', 'i', 'm', 'p', 't', 'a', 'b', 'l', 'e', 
 		0x00, 0x00, 0x00, 
 		0xA5,
+
 		// COMMENT
 		0x88, 
 		0x0A, 0x00, 
 		// Default library
 		0x80, 0x9F, 'm', 'a', 't', 'h', '8', '7', 's', 
 		0xC3, 
+
 		// COMMENT
 		0x88, 
 		0x08, 0x00,
 		// Default library
 		0x80, 0x9F, 'e', 'm', 'u', '8', '7', 
 		0x9B, 
+
 		// MODEND
 		0x8A, 
 		0x02, 0x00, 
-		0x00, 0x74								  
+		0x00, 
+		0x74								  
 	};
 
 	BYTE buf[1024];
 
 	apientry * current=apiroot;
 	BYTE * curbuf=&buf[3];
+	int i=1;
 
     // Generate import table object file:
 	
@@ -305,20 +322,20 @@ void generate_imptable(void)
 	buf[1]=1; //size of chksum
 	buf[2]=0;
 
-		while (current)
-		{
-			// 1 byte len + string size bytes + 1 byte zero
-			*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
-			*curbuf=strlen(current->func);
-			curbuf++;
-			strcpy(curbuf,current->func);
-			curbuf=curbuf+strlen(current->func);
-			*curbuf=0; // index (always 0)
-			curbuf++;
-			current=current->next;
-		}
-	    // buf[(curbuf-&buf)]=0xa4; Checksum
-        fwrite(buf, 1, (curbuf-&buf)+1, f);
+	while (current)
+	{
+		// 1 byte len + string size bytes + 1 byte zero
+		*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
+		*curbuf=strlen(current->func);
+		curbuf++;
+		strcpy(curbuf,current->func);
+		curbuf=curbuf+strlen(current->func);
+		*curbuf=0; // index (always 0)
+		curbuf++;
+		current=current->next;
+	}
+	// buf[(curbuf-&buf)]=0xa4; Checksum
+    fwrite(buf, 1, (curbuf-&buf)+1, f);
 	
 	// Generate LEDATA object (actual import table)
 	memset(buf, 0, sizeof(buf));
@@ -328,24 +345,25 @@ void generate_imptable(void)
 	buf[3]=0x04; // Segment
 	buf[4]=0x00; // offset
 	buf[5]=0x00;
-	{
-		apientry * current=apiroot;
+	
+	current=apiroot;
 
-		while (current)
-		{
-			// copy modname
-			strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
-			// copy funcname
-			strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
-			// 9 modname 21 funcname 4 far pointer
-			*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
-			// Store offset for fixup
-			current->offset=*((WORD *)&buf[1])-4-4;
-			current=current->next;
-		}
-	    // buf[*((WORD *)&buf[1])+2]=0xe4; checksum
-        fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+	while (current)
+	{
+		// copy modname
+		strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
+		// copy funcname
+		strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
+		// 9 modname 21 funcname 4 far pointer
+		*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
+		// Store offset for fixup
+		current->offset=*((WORD *)&buf[1])-4-4;
+		current=current->next;
 	}
+	
+	// buf[*((WORD *)&buf[1])+2]=0xe4; checksum
+    fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+
 	fseek(f, 0xde, SEEK_SET);
 	{
 		WORD a=*((WORD *)&buf[1])-1;
@@ -358,23 +376,22 @@ void generate_imptable(void)
 	buf[0]=0x9c;
 	buf[1]=0x1;  // Checksum
 	buf[2]=0x00;
-	{
-		apientry * current=apiroot;
-		int i=1;
+	
+	current=apiroot;
 
-		while (current)
-		{
-			buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
-			buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
-			buf[*((WORD *)&buf[1])+2+2]=0x56;
-			buf[*((WORD *)&buf[1])+2+3]=i;
-			i++;
-			*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
-			current=current->next;
-		}
-	    // buf[*((WORD *)&buf[1])+2]=0x80; Checksum
-        fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+	while (current)
+	{
+		buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
+		buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
+		buf[*((WORD *)&buf[1])+2+2]=0x56;
+		buf[*((WORD *)&buf[1])+2+3]=i;
+		i++;
+		*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
+		current=current->next;
 	}
+	// buf[*((WORD *)&buf[1])+2]=0x80; Checksum
+    fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+	
 
     // Write end part
 	fwrite(ftr, 1, sizeof(ftr), f);
@@ -1022,7 +1039,6 @@ int main(int argc, char *argv[])
                                             char * fname;
 	  								  
                                             fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, options.DoscallsLIB?"doscalls.lib":"os2.lib");
-                                            //printf("%s.%d %s\n", mods[rlc.nr_union.nr_import.nr_mod-1], rlc.nr_union.nr_import.nr_proc, fname);
                                             
                                             // Collect in list
 											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
