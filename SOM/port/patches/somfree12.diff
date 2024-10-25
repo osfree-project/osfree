@@ -1,0 +1,138 @@
+diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
+--- somfree/somipc/src/rhbschdr.cpp	Thu Oct 10 08:48:00 2024
++++ _somfree/somipc/src/rhbschdr.cpp	Wed Oct 09 15:07:01 2024
+@@ -6073,6 +6073,7 @@
+ {
+ 	char n[256];
+ 	RHBelement *el;
++	int na=0;
+ 
+ 	get_c_name(op,n,sizeof(n));
+ 
+@@ -6088,7 +6089,18 @@
+ 	}
+ 	else
+ 	{
++		
++		// Create CORBA 1.X mapping and CORBA 2.0+ mapping
++		if ((operation_needs_environment(iface,op)) || (operation_needs_context(iface,op)))
++		{
+ 		dump_nest(out,nest+1);
++	
++			out_printf(out,"#ifdef CORBA1MAPPING\n");
++			na=1;
++		}
++	
++		dump_nest(out,nest+1+na);
++		
+ 		out_printf(out,"#define %s(somSelf",n);
+ 
+ 		if (operation_needs_environment(iface,op))
+@@ -6117,7 +6129,7 @@
+ 
+ 		out_printf(out,") \\\n");
+ 
+-		dump_nest(out,nest+2);
++		dump_nest(out,nest+2+na);
+ 
+ /*		i=sprintf(buf,"((somTD_%s)somResolve(somSelf,",n);
+ 		out->write(buf,i);
+@@ -6129,7 +6141,86 @@
+ 		out_printf(out,"SOM_Resolve(somSelf,%s,%s)  \\\n",
+ 					n,op->id);
+ 
++		dump_nest(out,nest+3+na);
++		out_printf(out,"(somSelf");
++	
++		if (operation_needs_environment(iface,op))
++		{
++			out_printf(out,",ev");
++		}
++	
++		if (operation_needs_context(iface,op))
++		{
++			out_printf(out,",ctx");
++		}
++	
++		el=op->children();
++	
++		while (el)
++		{
++			RHBparameter *param=el->is_parameter();
++	
++			if (param)
++			{
++				out_printf(out,",%s",param->id);
++			}
++	
++			el=el->next();
++		}
++	
++		out_printf(out,")\n");
++	
++		if ((operation_needs_environment(iface,op)) || (operation_needs_context(iface,op)))
++		{
++			dump_nest(out,nest+1);
++	
++			out_printf(out,"#else /* CORBA1MAPPING */\n");
++	
++			get_c_name(op,n,sizeof(n));
++			
++			dump_nest(out,nest+2);
++		
++			out_printf(out,"#define %s(somSelf",n);
++		
++			el=op->children();
++		
++			while (el)
++			{
++				RHBparameter *param=el->is_parameter();
++		
++				if (param)
++				{
++					out_printf(out,",%s",param->id);
++				}
++		
++				el=el->next();
++			}
++		
++			if (operation_needs_context(iface,op))
++			{
++				out_printf(out,",ctx");
++			}
++
++			if (operation_needs_environment(iface,op))
++			{
++				out_printf(out,",ev");
++			}
++		
++			out_printf(out,") \\\n");
++		
+ 		dump_nest(out,nest+3);
++		
++/*			i=sprintf(buf,"((somTD_%s)somResolve(somSelf,",n);
++			out->write(buf,i);
++			get_c_name(iface,n);
++			i=sprintf(buf,"%sClassData.%s)) \\\n",
++					n,op->id);
++*/		
++			get_c_name(iface,n,sizeof(n));
++			out_printf(out,"SOM_Resolve(somSelf,%s,%s)  \\\n",
++						n,op->id);
++		
++			dump_nest(out,nest+4);
+ 		out_printf(out,"(somSelf");
+ 
+ 		if (operation_needs_environment(iface,op))
+@@ -6157,6 +6248,11 @@
+ 		}
+ 
+ 		out_printf(out,")\n");
++			
++			dump_nest(out,nest+1);
++
++			out_printf(out,"#endif /* CORBA1MAPPING */\n");
++		}
+ 	}
+ 
+ 	/* do the short name form */

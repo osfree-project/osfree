@@ -6,5 +6,7 @@ PORT_REV  = trunk
 PORT_PATCHES  = somfree.diff somfree2.diff somfree3.diff somfree4.diff &
   somfree5.diff somfree6.diff somfree7.diff somfree8.diff somfree9.diff &
   somfree10.diff somfree11.diff
+  
+# somfree12.diff  This is initial CORBA 2+ Mapping support
 
 !include $(%ROOT)tools/mk/port.mk
