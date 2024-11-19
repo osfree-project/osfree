@@ -111,6 +111,15 @@ ASM       = $(%INTERP)wasm
 BINDER    = $(%INTERP)bind
 
 LINKER    = $(%INTERP)wlink
+
+!ifeq ENV WIN32
+SC        = $(%INTERP)somc.exe
+!else ifeq ENV WIN64
+SC        = $(%INTERP)somc.exe
+!else
+SC        = $(%INTERP)sc.exe
+!endif
+
 # Note by valerius:
 # don't add the following option to all.mk
 # -----op internalrelocs----
@@ -208,10 +217,14 @@ CD        = $(REXX) cdir.cmd
 
 MDHIER    = $(REXX) mdhier.cmd
 
+!ifeq %VERBOSE yes
+BLACKHOLE =
+!else
 BLACKHOLE = 2>&1 >$(NULL)
-MKDIR     = @mkdir
+!endif
+MKDIR     = $(verbose)mkdir
 
-CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
+CLEAN_CMD    = $(verbose)echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
 EXE_SUFFIX = .exe

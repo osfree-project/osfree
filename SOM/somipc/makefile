@@ -1,8 +1,10 @@
 
 PROJ = somipc
 TRGT = $(PROJ).exe
+
+#	 $(p)rhbseh2$(e) &
+
 srcfiles = $(p)rhbsc$(e) &
-	 $(p)rhbseh2$(e) &
 	 $(p)rhbsckih$(e) &
 	 $(p)rhbidl$(e) &
 	 $(p)rhbscemt$(e) &
@@ -17,7 +19,8 @@ DEST = os2tk45$(SEP)som$(SEP)bin
 
 !include $(%ROOT)SOM/common.mk
 
-ADD_COPT = $(ADD_COPT) -i=$(PORT_BASE)somipc$(SEP)include -i=$(PORT_BASE)somirfmt$(SEP)include
+ADD_COPT = $(ADD_COPT) -i=$(PORT_BASE)somipc$(SEP)include -i=$(PORT_BASE)somirfmt$(SEP)include -i=$(PORT_BASE)include
+
 
 .cpp: $(PORT_BASE)somipc$(SEP)src
 

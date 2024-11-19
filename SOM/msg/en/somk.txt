@@ -1,0 +1,66 @@
+SOM
+SOM0001I: Warning: NULL class argument passed to SOMClass::somDescendedFrom.\n
+SOM0002I: Error:\tThe internal buffer used in somPrintf overflowed.\n
+SOM0003I: Error:\tSOMClass::somFindMethodOk failed to find a method.\n
+SOM0004I: \n
+SOM0005I: Error:\tsomDefaultMethod was called.\n\t(This probably means a defined method was\n\tinvoked before it was added to the class.)\n
+SOM0006I: Error:\tCurrent method not defined on the target object.\n
+SOM0007I: Error:\tAttempt to load, create or use an incompatible class.\n
+SOM0008I: \n
+SOM0009I: Error:\tMemory exhausted.\n
+SOM0010I: Error:\tA target object failed basic validity\n\tchecks during method resolution.\n
+SOM0011I: Error:\ta user-defined test condition failed.\n
+SOM0012I: Warning: SOMClassMgr::somFindClass failed.\n
+SOM0013I: \n
+SOM0014I: Error:\tSOM runtime initialization failed to complete.\n
+SOM0015I: Error:\tSOMClassMgr::somUnloadClassFile failed.\n
+SOM0016I: Error:\tSOMClass::somOverrideSMethod called for a\n\tmethod that was not defined in a parent class.\n
+SOM0017I: \n
+SOM0018I: Error: Subclass failed to override a method.\n
+SOM0019I: Error:\tAn argument failed a validity test.\n
+SOM0020I: \n
+SOM0021I: Error:\tWhile creating a class object the\n\tparent class could not be found.\n
+SOM0022I: \n
+SOM0023I: Error:\tAttempted to index an out-of-range buffer entry.\n
+SOM0024I: Error:\tAttempted to delete a character from an empty buffer.\n
+SOM0025I: Error:\tInternal logic error during buffer manipulation.\n
+SOM0026I: \n
+SOM0027I: \n
+SOM0028I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Fatal.\n
+SOM0029I: Cannot obtain %ld bytes in %s.\n
+SOM0030I: "%s": %d: Object was NULL.\n
+SOM0031I: "%s": %d: Object is not initialized or it has been freed.\n
+SOM0032I: "%s": %d: Class object was NULL.\n
+SOM0033I: "%s": %d: Object was not of the expected class "%s".\n
+SOM0034I: "%s": %d:\tPassed - %s.\n
+SOM0035I: "%s": %d:\tWarning, failed - %s.\n
+SOM0036I: "%s": %d:\tError, failed - %s.\n
+SOM0037I: "%s": %d:\tAssertion passed - %s.\n
+SOM0038I: "%s": %d:\tWarning: Assertion failed, code %d-%#3d-%d.\n
+SOM0039I: "%s": %d:\tError: Assertion failed, code %d-%#3d-%d.\n
+SOM0040I: \t( %s ).\n
+SOM0041I: Class <%s> could not be located.\n
+SOM0042I: Total number of registered ids: %ld.\n
+SOM0043I: %s: Method was %s.\n
+SOM0044I: {An instance of class %s at address %#8lX}\n
+SOM0045I: Warning: somFreeObj was called, change to somFree.\n
+SOM0046I: SOMClass::somDescendedFrom failed, self was:\n
+SOM0047I: Target class was:\n
+SOM0048I: Classes were (in order) from parent of <self>:\n
+SOM0049I: <%s> is not a registered class.\n
+SOM0050I: <%s> is not descended from SOMClassMgr.\n
+SOM0051I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Warning.\n
+SOM0052I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Informational.\n
+SOM0053I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Unspecified.\n
+SOM0054I: %6s -Class-- -Token-- Aff Seq ---Id--- Name\n
+SOM0055I: somDataResolve error: class <%s> is abstract with respect to <%s>\n
+SOM0056I: somDataResolve error: class <%s> is not derived from <%s>\n
+SOM0057I: Error:\tclass <%s> version mismatch\n\t(version compatible with (%d,%d) requested by caller,\n\tbut version (%d,%d) is provided by the class's implementation)\n
+SOM0058I: Method Resolution Error: \n\tmethod <%s> invoked on\n\tan object of class <%s>.\n
+SOM0059I: {The class \"%s\"}\n
+SOM0060I: {An instance of class %s at address %#8lX\n
+SOM0061I: }\n
+SOM0062I: somAddMethod error: can't add \"%s\" -- no more room in mtab for \"%s\" methods.\n
+SOM0063I: DTS C++ class error: missing no-argument constructor called on object of class %s.\n
+SOM0064I: %s: \n\tsomRenewNoInitNoZero failed on an object of class %s (metaclass %s).\n\tobject address = %X. Returning Null.\n
+SOM0065I: Warning: Continuing Execution.

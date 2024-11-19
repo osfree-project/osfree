@@ -1,7 +1,3976 @@
-diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
---- somfree/somipc/src/rhbschdr.cpp	Thu Oct 10 08:48:00 2024
-+++ _somfree/somipc/src/rhbschdr.cpp	Wed Oct 09 15:07:01 2024
-@@ -6073,6 +6073,7 @@
+diff -urwN somfree/ctoi/win32/ctoi.cmd newsomfree/ctoi/win32/ctoi.cmd
+--- somfree/ctoi/win32/ctoi.cmd	Tue Nov 19 16:34:41 2024
++++ newsomfree/ctoi/win32/ctoi.cmd	Thu Nov 14 18:06:09 2024
+@@ -15,7 +15,7 @@
+ 
+ :normal
+ echo Generating the SOM C++ Bindings:
+-set SC=%SOMBASE%\bin\sc.exe
++set SC=%SOMBASE%\bin\somc.exe
+ cd %SOMBASE%\include
+ echo idl.gen > idl.gen
+ %SC% -%% -mtypecheck -mrmstar -mconvert %SCFLAGS% *.idl
+diff -urwN somfree/include/rhbseh.h newsomfree/include/rhbseh.h
+--- somfree/include/rhbseh.h	Tue Nov 19 16:33:48 2024
++++ newsomfree/include/rhbseh.h	Wed Nov 13 22:01:36 2024
+@@ -74,6 +74,7 @@
+ #endif
+ 
+ #ifdef __OS2__
++	#include <excpt.h>
+ 	typedef jmp_buf sigjmp_buf;
+ #	define USE_NATIVE_SEH
+ #endif
+@@ -123,7 +124,7 @@
+ #endif
+ 
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__OS2__)
+ #	if !defined(BUILD_RHBSEH2)
+ #		pragma comment(lib,"rhbseh2.lib")
+ #	endif
+@@ -139,11 +140,14 @@
+ 	void (__stdcall * except_final)(struct rhbseh_guardian *);
+ };
+ extern void __stdcall rhbseh_guardian(struct rhbseh_guardian *);
++
+ #define RHBSEH_GUARDIAN_BEGIN { struct rhbseh_guardian __rhbseh_guardian; \
+ 				rhbseh_guardian(&__rhbseh_guardian); __try { \
+ 
+ #define RHBSEH_GUARDIAN_END  } __except(__rhbseh_guardian.vtbl->except_function(&__rhbseh_guardian,_exception_info())) { } \
+ 						     __rhbseh_guardian.vtbl->except_final(&__rhbseh_guardian); }
++
++
+ #endif
+ 
+ #if defined(USE_NATIVE_SEH)
+diff -urwN somfree/include/rhbsomex.h newsomfree/include/rhbsomex.h
+--- somfree/include/rhbsomex.h	Tue Nov 19 16:33:48 2024
++++ newsomfree/include/rhbsomex.h	Sat Nov 09 14:13:36 2024
+@@ -40,7 +40,11 @@
+ 
+ #if defined(_WIN32) && !defined(SOM_TYPECODE) && defined(_DEBUG)
+ #	define SOM_TYPECODE		TypeCode_any
++#ifdef CORBA1MAPPING
+ 		typedef union SOM_TYPECODE *TypeCode;
++#else
++		typedef union SOM_TYPECODE *CORBA_TypeCode;
++#endif
+ #endif
+ 
+ #ifdef SOM_Resolve
+diff -urwN somfree/newemit/os2/newemit.cmd newsomfree/newemit/os2/newemit.cmd
+--- somfree/newemit/os2/newemit.cmd	Tue Nov 19 16:34:42 2024
++++ newsomfree/newemit/os2/newemit.cmd	Thu Nov 14 18:05:17 2024
+@@ -22,6 +22,7 @@
+ if "%1"=="-c++" goto setCC
+ if "%1"=="/C++" goto setCC
+ if "%1"=="/c++" goto setCC
++
+ if "%1"=="-CPP" goto setCC
+ if "%1"=="-CPp" goto setCC
+ if "%1"=="-Cpp" goto setCC
+@@ -29,6 +30,7 @@
+ if "%1"=="-cpP" goto setCC
+ if "%1"=="-cPP" goto setCC
+ if "%1"=="-cPp" goto setCC
++
+ if "%1"=="/CPP" goto setCC
+ if "%1"=="/CPp" goto setCC
+ if "%1"=="/Cpp" goto setCC
+@@ -36,6 +38,22 @@
+ if "%1"=="/cpP" goto setCC
+ if "%1"=="/cPP" goto setCC
+ if "%1"=="/cPp" goto setCC
++
++if "%1"=="-CXX" goto setCC
++if "%1"=="-CXx" goto setCC
++if "%1"=="-Cxx" goto setCC
++if "%1"=="-cxx" goto setCC
++if "%1"=="-cxX" goto setCC
++if "%1"=="-cXX" goto setCC
++if "%1"=="-cXx" goto setCC
++
++if "%1"=="/CXX" goto setCC
++if "%1"=="/CXx" goto setCC
++if "%1"=="/Cxx" goto setCC
++if "%1"=="/cxx" goto setCC
++if "%1"=="/cxX" goto setCC
++if "%1"=="/cXX" goto setCC
++if "%1"=="/cXx" goto setCC
+ 
+ goto skip3
+ 
+diff -urwN somfree/newemit/win32/newemit.cmd newsomfree/newemit/win32/newemit.cmd
+--- somfree/newemit/win32/newemit.cmd	Tue Nov 19 16:34:42 2024
++++ newsomfree/newemit/win32/newemit.cmd	Thu Nov 14 18:05:54 2024
+@@ -2,7 +2,7 @@
+ 
+ setlocal
+ if !%SOMBASE%!==!! goto error
+-set SC=%SOMBASE%\bin\sc.exe
++set SC=%SOMBASE%\bin\somc.exe
+ if "%2"=="" goto usage
+ 
+ set targetlang=c
+@@ -22,6 +22,7 @@
+ if "%1"=="-c++" goto setCC
+ if "%1"=="/C++" goto setCC
+ if "%1"=="/c++" goto setCC
++
+ if "%1"=="-CPP" goto setCC
+ if "%1"=="-CPp" goto setCC
+ if "%1"=="-Cpp" goto setCC
+@@ -29,6 +30,7 @@
+ if "%1"=="-cpP" goto setCC
+ if "%1"=="-cPP" goto setCC
+ if "%1"=="-cPp" goto setCC
++
+ if "%1"=="/CPP" goto setCC
+ if "%1"=="/CPp" goto setCC
+ if "%1"=="/Cpp" goto setCC
+@@ -36,6 +38,22 @@
+ if "%1"=="/cpP" goto setCC
+ if "%1"=="/cPP" goto setCC
+ if "%1"=="/cPp" goto setCC
++
++if "%1"=="-CXX" goto setCC
++if "%1"=="-CXx" goto setCC
++if "%1"=="-Cxx" goto setCC
++if "%1"=="-cxx" goto setCC
++if "%1"=="-cxX" goto setCC
++if "%1"=="-cXX" goto setCC
++if "%1"=="-cXx" goto setCC
++
++if "%1"=="/CXX" goto setCC
++if "%1"=="/CXx" goto setCC
++if "%1"=="/Cxx" goto setCC
++if "%1"=="/cxx" goto setCC
++if "%1"=="/cxX" goto setCC
++if "%1"=="/cXX" goto setCC
++if "%1"=="/cXx" goto setCC
+ 
+ goto skip3
+ 
+diff -urwN somfree/note.txt newsomfree/note.txt
+--- somfree/note.txt	Tue Nov 19 16:34:29 2024
++++ newsomfree/note.txt	Tue Nov 19 09:26:12 2024
+@@ -5,8 +5,36 @@
+ 
+ None yet...
+ 
+-Fixed bugs:
+-*MethodDebugs macros doesn't produce debug code controlled by SOM_TraceLevel variable
+-SOM_Error macro doesn't exists
+-SOM_Tracle macro doesn't produce debug code controlled by SOM_TraceLevel variable
+-SOM_Test macro not defined
++Improvements:
++*) Error codes added to somcdev.h and some functions moved from somapi.h to somcdev.h (because not part of API).
++*) somPrintf uses vsprintf for output. But we have somVprintf, so we can easely reuse it instead.
++*) Improve SOMError rrrors handling according IBM docs (somFree uses simplified errors handling)
++*) somCheckArgs implemented
++*) somVprintf now checks buffer overflow
++*) somTest reworked
++*) somAssert reworked
++*) Added support of modules under OS/2
++*) Added MSG file support under OS/2
++*) Added empty somSaveMetrics, somWriteMetrics (seems they a empty in OS/2 too)
++
++Found not implemented functions:
++
++*) somId manager (string manager) not implemented. Only simple stubs:
++variables
++  som_IdTable
++  som_IdTableSize
++functions
++  SOMEXTERN unsigned long SOMLINK somUniqueKey(somId id)
++  SOMEXTERN void SOMLINK somBeginPersistentIds(void)
++  SOMEXTERN void SOMLINK somEndPersistentIds(void)
++  SOMEXTERN somId SOMLINK somCheckId (somId id)
++  SOMEXTERN int SOMLINK somRegisterId(somId id)
++  SOMEXTERN somId SOMLINK somIdFromString(char * aString)
++  SOMEXTERN unsigned long SOMLINK somTotalRegIds(void)
++  SOMEXTERN void SOMLINK somSetExpectedIds(unsigned long numIds)
++  SOMEXTERN char * SOMLINK somStringFromId (somId id)
++Also in some functions direct convertion of somId to string was found...
++
++Improvements ideas:
++*) Revise somkern.c and use SOM_TraceCore instead of direct somprintf
++*) Reuse Error codes and add checks to kernel functions
+diff -urwN somfree/rhbmtut/include/rhbmtut.h newsomfree/rhbmtut/include/rhbmtut.h
+--- somfree/rhbmtut/include/rhbmtut.h	Tue Nov 19 16:34:00 2024
++++ newsomfree/rhbmtut/include/rhbmtut.h	Mon Nov 11 16:04:01 2024
+@@ -39,6 +39,9 @@
+ #	else
+ typedef long rhbatomic_t;
+ #	endif
++#elif defined(__OS2__)
++#define  INCL_BASE
++#include <os2.h>
+ #else
+ typedef int rhbatomic_t;
+ #endif
+@@ -55,6 +58,10 @@
+ 		pthread_mutex_t mutex;
+ 	} mutex;
+ 	pthread_t RHBOPT_volatile tid;
++#elif defined(__OS2__)
++	LONG  RHBOPT_volatile count;
++	ULONG RHBOPT_volatile tid;
++	HMTX  mutex_crit,guardian_crit;
+ #else
+ 	LONG RHBOPT_volatile count;
+ 	DWORD RHBOPT_volatile tid;
+@@ -80,6 +87,19 @@
+ #	define RHBMUTEX_UNGUARD(x)		pthread_mutex_unlock(&((x)->guardian.mutex));
+ #	define RHBMUTEX_UNINIT(x)		{ pthread_mutex_destroy(&((x)->mutex.mutex)); \
+ 									pthread_mutex_destroy(&((x)->guardian.mutex)); }
++#elif defined(__OS2__)
++#	define RHBMUTEX_GETSELF			ULONG rhbmutex_self; PTIB ptib; PPIB ppib; DosGetInfoBlocks(&ptib, &ppib); rhbmutex_self = ptib->tib_ordinal;
++#	define RHBMUTEX_ISSELF(x)		(rhbmutex_self==(x)->tid)
++#	define RHBMUTEX_ACQUIRE(x)		DosRequestMutexSem(&((x)->mutex_crit), -1);
++#	define RHBMUTEX_RELEASE(x)		DosReleaseMutexSem(&((x)->mutex_crit));
++#	define RHBMUTEX_GUARD(x)		DosRequestMutexSem(&((x)->guardian_crit), -1);
++#	define RHBMUTEX_UNGUARD(x)		DosReleaseMutexSem(&((x)->guardian_crit));
++#	define RHBMUTEX_INIT(x)			{ PTIB ptib; PPIB ppib; DosGetInfoBlocks(&ptib, &ppib); \
++                                                  (x)->count=0; (x)->tid = ptib->tib_ordinal; \
++										DosCreateMutexSem(NULL, &((x)->mutex_crit), 0, 0); \
++										DosCreateMutexSem(NULL, &((x)->guardian_crit), 0, 0); }
++#	define RHBMUTEX_UNINIT(x)		{ DosCloseMutexSem(&((x)->mutex_crit)); \
++										DosCloseMutexSem(&((x)->guardian_crit)); }
+ #else
+ #	define RHBMUTEX_GETSELF			DWORD rhbmutex_self=GetCurrentThreadId();
+ #	define RHBMUTEX_ISSELF(x)		(rhbmutex_self==(x)->tid)
+@@ -149,6 +169,23 @@
+ #if defined(_WIN32) && !defined(BUILD_RHBMTUT) && !defined(USE_PTHREADS)
+ #	define	rhbatomic_inc(x)		InterlockedIncrement(x)
+ #	define	rhbatomic_dec(x)		InterlockedDecrement(x)
++#elif defined(__OS2__)
++void LockedIncrement(ULONG x);
++#pragma aux LockedIncrement = \
++".386p                      " \
++"mov  eax, [esp + 4]        " \
++"lock inc dword ptr [eax]   " \
++parm [eax] modify [];
++
++void LockedDecrement(ULONG x);
++#pragma aux LockedDecrement =  \
++".386p                       " \
++"mov  eax, [esp + 4]         " \
++"lock dec dword ptr [eax]    " \
++parm [eax] modify [];
++
++#	define	rhbatomic_inc(x)		LockedIncrement(x)
++#	define	rhbatomic_dec(x)		LockedDecrement(x)
+ #else
+ RHBMTUTAPI_(rhbatomic_t) rhbatomic_inc(rhbatomic_t *);
+ RHBMTUTAPI_(rhbatomic_t) rhbatomic_dec(rhbatomic_t *);
+@@ -163,6 +200,8 @@
+ 	RHBMTUTAPI_(int) rhbmutex_wait(struct rhbmutex_t *,
+ 	#ifdef USE_PTHREADS
+ 			unsigned long,pthread_cond_t *
++        #elif defined(__OS2__)
++                        ULONG,HEV
+ 	#else
+ 			DWORD,HANDLE
+ 	#endif								 
+diff -urwN somfree/rhbseh2/src/rhbseh2.c newsomfree/rhbseh2/src/rhbseh2.c
+--- somfree/rhbseh2/src/rhbseh2.c	Tue Nov 19 16:34:01 2024
++++ newsomfree/rhbseh2/src/rhbseh2.c	Wed Nov 13 22:16:50 2024
+@@ -26,10 +26,9 @@
+ #include <rhbseh.h>
+ 
+ #ifdef _WIN32
++
+ #	include <windows.h>
+-#endif
+ 
+-#ifdef _WIN32
+ static int __stdcall rhbseh_guardian_except(
+ 		struct rhbseh_guardian *g,
+ 		void *pv)
+@@ -68,6 +67,66 @@
+ 	rhbseh_guardian_except,
+ 	rhbseh_guardian_final
+ };
++void __stdcall rhbseh_guardian(struct rhbseh_guardian *g)
++{
++	g->except_code=0;
++	g->reraise_flag=0;
++	g->vtbl=&rhbseh_guardian_vtbl;
++}
++#elif __OS2__
++
++#define INCL_DOSEXCEPTIONS    /* DOS exception values */
++//#define INCL_ERRORS           /* DOS error values     */
++#include <os2.h>
++#include <excpt.h>
++
++static int __stdcall rhbseh_guardian_except(
++		struct rhbseh_guardian *g,
++		void *pv)
++{
++	PEXCEPTION_POINTERS pex=pv;
++	PEXCEPTIONREPORTRECORD per=pex->ExceptionRecord;
++        
++	if (!(per->fHandlerFlags & EH_NONCONTINUABLE))
++	{
++		switch (per->ExceptionNum)
++		{
++		case XCPT_SIGNAL:
++			g->except_code=pex->ExceptionRecord->ExceptionNum;
++			g->reraise_flag=1;
++			return XCPT_CONTINUE_EXECUTION;
++
++		default:
++			break;
++		}
++	}
++
++	return XCPT_CONTINUE_SEARCH;
++}
++
++static void __stdcall rhbseh_guardian_final(
++		struct rhbseh_guardian *g)
++{
++	if (g->reraise_flag)
++	{
++		EXCEPTIONREPORTRECORD  ERepRec;
++
++		ERepRec.ExceptionNum                = g->except_code;
++		ERepRec.fHandlerFlags               = 0;
++		ERepRec.NestedExceptionReportRecord = NULL;
++		ERepRec.ExceptionAddress            = NULL;
++		ERepRec.cParameters                 = 0;
++
++		g->reraise_flag=0;
++		DosRaiseException(&ERepRec);
++	}
++}
++
++static struct rhbseh_guardian_vtbl rhbseh_guardian_vtbl={
++	rhbseh_guardian_except,
++	rhbseh_guardian_final
++};
++
+ void __stdcall rhbseh_guardian(struct rhbseh_guardian *g)
+ {
+ 	g->except_code=0;
+diff -urwN somfree/sc/src/sc.c newsomfree/sc/src/sc.c
+--- somfree/sc/src/sc.c	Tue Nov 19 16:34:40 2024
++++ newsomfree/sc/src/sc.c	Mon Nov 04 22:39:47 2024
+@@ -26,13 +26,13 @@
+  */
+ 
+ /**************************************************************
+- *
++ * @todo: add support of:
+  * SMEMIT default emitters
+  * SMINCLUDE include dirs for IDL files
+  * SMKNOWNEXTS add headers to user written emitters
+  * SOMIR for IR emitter
+- * SMTMP for temporary variables (@todo)
+- * SMADDSTAR (@todo)
++ * SMTMP for temporary variables
++ * SMADDSTAR
+  */
+ 
+ #include <rhbopt.h>
+@@ -56,6 +56,7 @@
+ #include <os2.h>
+ #endif
+ 
++// Uncomment to use pipes instead of temporary files
+ //#define _USE_PIPES_
+ 
+ typedef struct 
+@@ -187,6 +188,7 @@
+ }
+ #endif
+ 
++// @todo: add support of IR loading under other platforms
+ static int load_somir(const char *app,const char *f)
+ {
+ 	int retVal=1;
+@@ -326,8 +328,6 @@
+ 	char *app=argv[0];
+ 	static _IDL_SEQUENCE_char zero={1,1,""};
+ 
+-	add_many(&defines,"__SOMIDL__");
+-
+ #ifdef _PLATFORM_WIN32_
+ 	add_many(&defines,"_PLATFORM_WIN32_");
+         add_many(&defines,"_WIN32");
+@@ -341,7 +341,14 @@
+         add_many(&defines,"_PLATFORM_X11_");
+ #endif
+ 
++	// Add SOM-specific defines
++	add_many(&defines,"__SOMIDL__");
+         add_many(&defines,"__SOMIDL_VERSION_1__");
++
++	// Add defines to support compilation of CORBA 3+ IDLs
++	// (https://www.omg.org/spec/CORBA/20030101/CORBA_IDL_FAQ.html)
++        add_many(&defines,"_PRE_3_0_COMPILER_");
++        add_many(&defines,"_NO_LOCAL_");
+ 
+ 	while (i < argc)
+ 	{
+diff -urwN somfree/som/include/somkern.h newsomfree/som/include/somkern.h
+--- somfree/som/include/somkern.h	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/include/somkern.h	Wed Nov 13 10:18:09 2024
+@@ -94,7 +94,11 @@
+ #endif 
+ 
+ #define SOMKERN_offsetof(x,y)	((SOM_LONG_PTR)((char *)&(((x *)0)->y)))
++#ifdef CORBA1MAPPING
+ #define SOMKERN_alignof(x)		(short)(SOM_LONG_PTR)(&((struct { octet _x; x _d; } *)NULL)->_d)
++#else
++#define SOMKERN_alignof(x)		(short)(SOM_LONG_PTR)(&((struct { CORBA_octet _x; x _d; } *)NULL)->_d)
++#endif
+ 
+ /* need to pack this as this is used to generate a assembler jump of the form:
+ 
+@@ -251,7 +255,11 @@
+ 	SOMKERN_data_index_t data_offset;
+ 	unsigned long jump_table_offset;
+ 	somMethodTabList list_entry;
++#ifdef CORBA1MAPPING
+ 	boolean inherit_var;            /* indicates if implementation is included */
++#else
++	CORBA_boolean inherit_var;            /* indicates if implementation is included */
++#endif
+ 	short destructor_usage;			/* used in a calculation for supporting
+ 											somDestruct() */
+ };
+@@ -267,7 +275,11 @@
+ 
+ 	/* this is at offset zero since it's commonly referenced */
+ 
++#ifdef CORBA1MAPPING
+ 	boolean multiple_inheritance;
++#else
++	CORBA_boolean multiple_inheritance;
++#endif
+ 
+ 	long major_version,minor_version;
+ 	long instancePartSize,dataAlignment;
+@@ -383,11 +395,17 @@
+ #ifdef USE_THREADS
+ 	#ifdef USE_PTHREADS
+ 		pthread_key_t tls_key;
++        #elif defined(__OS2__)
++                ULONG tls_key;
+ 	#else
+ 		DWORD tls_key;
+ 	#endif
+ #endif
++#ifdef CORBA1MAPPING
+ 	boolean dll_alive;
++#else
++	CORBA_boolean dll_alive;
++#endif
+ #ifdef RHBOPT_SHARED_DATA
+ 	struct som_thread_globals_t *apps;
+ #else
+@@ -397,7 +415,11 @@
+ 
+ typedef struct som_thread_globals_t
+ {
++#ifdef CORBA1MAPPING
+ 	Environment ev;
++#else
++	CORBA_Environment ev;
++#endif
+ #ifdef RHBOPT_SHARED_DATA
+ 	#ifdef _WIN32
+ 		unsigned long tid;
+diff -urwN somfree/som/src/somalloc.c newsomfree/som/src/somalloc.c
+--- somfree/som/src/somalloc.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somalloc.c	Mon Nov 11 16:35:20 2024
+@@ -238,7 +238,11 @@
+ 
+ SOM_Scope somToken SOMLINK SOMKERN_malloc(size_t s)
+ {
++#ifdef CORBA1MAPPING
+ 	octet *v;
++#else
++	CORBA_octet *v;
++#endif
+ 
+ /*	SOMKERN_check_mem();*/
+ 
+@@ -280,7 +284,11 @@
+ 
+ SOM_Scope somToken SOMLINK SOMKERN_calloc(size_t a,size_t b)
+ {
++#ifdef CORBA1MAPPING
+ 	octet *v;
++#else
++	CORBA_octet *v;
++#endif
+ 
+ 	RHBOPT_ASSERT(a)
+ 	RHBOPT_ASSERT(b)
+diff -urwN somfree/som/src/somapi.c newsomfree/som/src/somapi.c
+--- somfree/som/src/somapi.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somapi.c	Mon Nov 18 20:10:17 2024
+@@ -33,17 +33,24 @@
+ 
+ /* in somAddStaticMethod, if the redispatch stub is -1 then
+ 	a pointer to a struct of type somApRdInfo is passed as
+-	the applyStub, otherwise redispatchStub and applStub are
++	the applyStub, otherwise redispatchStub and applyStub are
+ 	taken as given
+ 
+ 	in somAddDynamicMethod, an actual applyStub must be given
+ 	redispatch stubs for dynamic methods are not supported
+   */
+ 
++#ifdef CORBA1MAPPING
+ boolean SOMLINK somApply(SOMObject SOMSTAR somSelf,
+                                 somToken *retVal,
+                                 somMethodDataPtr md,
+                                 va_list ap)
++#else
++CORBA_boolean SOMLINK somApply(SOMObject SOMSTAR somSelf,
++                                somToken *retVal,
++                                somMethodDataPtr md,
++                                va_list ap)
++#endif
+ {
+ 	typedef void (SOMLINK *applyStubPtr)(SOMObject SOMSTAR,
+ 					somToken,somMethodProc,va_list);
+@@ -114,10 +121,29 @@
+ 		) ? 1 : 0;
+ }
+ 
++/*
++ *  Scans argv looking for flags -somt, -somtc, -soma -somac -somw setting
++ *  SOM_TraceLevel, SOM_AssertLevel and SOM_WarnLevel as appropriate.
++ *  argv is not modified
++ */
++
+ SOMEXTERN void SOMLINK somCheckArgs(int argc, char **argv)
+ {
++	int i;
++	SOM_TraceCore("SOMProcedure", "somCheckArgs");
++
++	for(i=1; i<argc; i++)
++	{
++		if (!strcmp(argv[i], "-somw")) SOM_WarnLevel=1;
++		if (!strcmp(argv[i], "-somt")) SOM_TraceLevel=1;
++		if (!strcmp(argv[i], "-somtc")) SOM_TraceLevel=2;
++		if (!strcmp(argv[i], "-soma")) SOM_AssertLevel=1;
++		if (!strcmp(argv[i], "-sominfo")) SOM_WarnLevel=1;
++		if (!strcmp(argv[i], "-somac")) SOM_AssertLevel=2;
++	}
+ }
+ 
++#if 0
+ static void somAssertFailed(void)
+ {
+ #if defined(_WIN32) && defined(_DEBUG)
+@@ -139,6 +165,8 @@
+ 			#else
+ 				pthread_exit((void *)-1);
+ 			#endif
++                #elif defined(__OS2__)
++                                DosExit(EXIT_THREAD, -1);
+ 		#else
+ 				RaiseException(
+ 					ERROR_INTERNAL_ERROR,
+@@ -153,18 +181,112 @@
+ 	#endif
+ #endif
+ }
++#endif
+ 
+ SOMEXTERN void SOMLINK somAssert(int condition,int ecode,const char *fileName,int lineNum,const char *msg)
+ {
++#if defined(__OS2__)
++	UCHAR   szOutMsg[80]= "";                    /* Message buffer */
++	ULONG   ulMsgLen    = 0;                     /* Length of returned message */
++	APIRET  rc          = 0;                     /* Return code */
++#endif
++	SOM_TraceCore("SOMProcedure", "somAssert");
++
+ 	if (!condition)
+ 	{
+-		somPrintf("somAssert(ecode=%d,fileName=%s,lineNum=%d,msg=%s)\n",
+-				ecode,fileName,lineNum,msg);
+-		somAssertFailed();
++		if (ecode%10==SOM_Warn)
++		{
++			if (SOM_WarnLevel)
++			{
++#if defined (__OS2__)
++				/* Create error message with inserts from system message file SAMPLE.MSG */
++
++				rc = DosGetMessage(NULL,          /* Message insert pointer array */
++			                   0,                /* Number of inserts */
++			                   szOutMsg,         /* Output message */
++			                   sizeof(szOutMsg), /* Length of output message area */
++			                   38, /* Number of message requested */
++			                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++			                   &ulMsgLen);       /* Length of resulting output message */
++				somPrintf(szOutMsg, fileName, lineNum, SOM_EB/1000, ecode/10-SOM_EB, ecode%10);
++#else
++				somPrintf("SOM0038I: \"%s\": %d:\tWarning: Assertion failed, code %d-%#3d-%d.\n", fileName, lineNum, SOM_EB/1000, ecode/10-SOM_EB, ecode%10);
++#endif
++#if defined (__OS2__)
++				/* Create error message with inserts from system message file SAMPLE.MSG */
++	
++				rc = DosGetMessage(NULL,          /* Message insert pointer array */
++			                   0,                /* Number of inserts */
++			                   szOutMsg,         /* Output message */
++			                   sizeof(szOutMsg), /* Length of output message area */
++			                   40, /* Number of message requested */
++			                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++			                   &ulMsgLen);       /* Length of resulting output message */
++				somPrintf(szOutMsg, msg);
++#else
++				somPrintf("SOM0040I: \t( %s ).\n", msg);
++#endif
++			}
++		} else {
++#if defined (__OS2__)
++			/* Create error message with inserts from system message file SAMPLE.MSG */
++
++			rc = DosGetMessage(NULL,          /* Message insert pointer array */
++		                   0,                /* Number of inserts */
++		                   szOutMsg,         /* Output message */
++		                   sizeof(szOutMsg), /* Length of output message area */
++		                   39, /* Number of message requested */
++		                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++		                   &ulMsgLen);       /* Length of resulting output message */
++			somPrintf(szOutMsg, fileName, lineNum, SOM_EB/1000, ecode/10-SOM_EB, ecode%10);
++#else
++			somPrintf("SOM0039I: \"%s\": %d:\tError: Assertion failed, code %d-%#3d-%d.\n", fileName, lineNum, SOM_EB/1000, ecode/10-SOM_EB, ecode%10);
++#endif
++#if defined (__OS2__)
++			/* Create error message with inserts from system message file SAMPLE.MSG */
++
++			rc = DosGetMessage(NULL,          /* Message insert pointer array */
++		                   0,                /* Number of inserts */
++		                   szOutMsg,         /* Output message */
++		                   sizeof(szOutMsg), /* Length of output message area */
++		                   40, /* Number of message requested */
++		                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++		                   &ulMsgLen);       /* Length of resulting output message */
++			somPrintf(szOutMsg, msg);
++#else
++			somPrintf("SOM0040I: \t( %s ).\n", msg);
++#endif
++
++//SOM0011I: Error:\ta user-defined test condition failed.\n
++			SOM_Error(SOM_FatalCode(11));
++			//somAssertFailed();
++		}
++	} else {
++		if (SOM_AssertLevel)
++		{
++#if defined (__OS2__)
++			/* Create error message with inserts from system message file SAMPLE.MSG */
++
++			rc = DosGetMessage(NULL,          /* Message insert pointer array */
++		                   0,                /* Number of inserts */
++		                   szOutMsg,         /* Output message */
++		                   sizeof(szOutMsg), /* Length of output message area */
++		                   37, /* Number of message requested */
++		                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++		                   &ulMsgLen);       /* Length of resulting output message */
++			somPrintf(szOutMsg, fileName, lineNum, msg);
++#else
++			somPrintf("SOM0037I: \"%s\": %d:\tAssertion passed - %s.\n", fileName, lineNum, msg);
++#endif
++		}
+ 	}
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somExceptionId(Environment *ev)
++#else
++SOMEXTERN char * SOMLINK somExceptionId(CORBA_Environment *ev)
++#endif
+ {
+ 	if (ev)
+ 	{
+@@ -174,7 +296,11 @@
+ 	return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN void * SOMLINK somExceptionValue(Environment *ev)
++#else
++SOMEXTERN void * SOMLINK somExceptionValue(CORBA_Environment *ev)
++#endif
+ {
+ 	if (ev)
+ 	{
+@@ -184,7 +310,11 @@
+ 	return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN void SOMLINK somExceptionFree(Environment *ev)
++#else
++SOMEXTERN void SOMLINK somExceptionFree(CORBA_Environment *ev)
++#endif
+ {
+ 	if (ev)
+ 	{
+@@ -207,8 +337,13 @@
+ 	}
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN void SOMLINK somSetException(Environment *ev,
+     exception_type major,const char *exception_name, void *params)
++#else
++SOMEXTERN void SOMLINK somSetException(CORBA_Environment *ev,
++    CORBA_exception_type major,const char *exception_name, void *params)
++#endif
+ {
+ 	RHBOPT_ASSERT(ev)
+ 
+diff -urwN somfree/som/src/somcls.c newsomfree/som/src/somcls.c
+--- somfree/som/src/somcls.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somcls.c	Thu Nov 14 18:24:52 2024
+@@ -23,6 +23,9 @@
+  * $Id$
+  */
+ 
++#undef SOMClassMethodDebug
++#define SOMClassMethodDebug(c,m)  SOM_TraceCore(c,m)
++
+ SOM_Scope SOMClass_somOffsets  SOMLINK 
+ 		somcls__get_somInstanceDataOffsets(
+ 		SOMClass SOMSTAR somSelf)
+@@ -30,6 +33,7 @@
+ 	SOMClass_somOffsets ret={0,0,NULL};
+ 	unsigned int i=0;
+     SOMClassData *somThis = SOMClassGetData(somSelf);
++	SOMClassMethodDebug("SOMClass", "somcls__get_somInstanceDataOffsets");
+ 	somClassInfo info=&somThis->cimtabs->classInfo;
+  
+ 	ret._length=info->classes._length;
+@@ -366,6 +370,7 @@
+ #define kInitCtrl		1
+ #define kAssignCtrl		2
+ 
++#ifdef CORBA1MAPPING
+ static boolean SOMKERN_add_constructors(
+ 				struct dts_init_info *dts_init_info,
+ 				somClassInfo newClass,
+@@ -374,6 +379,16 @@
+ 				void *ctrl,
+ 				void *original,
+ 				long maxCtrlMask)
++#else
++static CORBA_boolean SOMKERN_add_constructors(
++				struct dts_init_info *dts_init_info,
++				somClassInfo newClass,
++				somClassInfo fromClass,
++				CORBA_octet magic,
++				void *ctrl,
++				void *original,
++				long maxCtrlMask)
++#endif
+ {
+ 	unsigned long i=fromClass->numParents,j=0;
+ 	union
+@@ -383,7 +398,11 @@
+ 	} ctrl_u,original_u;
+ 	union
+ 	{
++#ifdef CORBA1MAPPING
+ 		octet *ptr;
++#else
++		CORBA_octet *ptr;
++#endif
+ 		somInitInfo *initInfo;
+ 		somAssignInfo *assignInfo;
+ 	} info_u,search_u;
+@@ -536,7 +555,11 @@
+ 
+ 		if (pci)
+ 		{
++#ifdef CORBA1MAPPING
+ 			octet maskFlag=SOMKERN_add_constructors(dts_init_info,newClass,pci,magic,ctrl,original,maxCtrlMask);
++#else
++			CORBA_octet maskFlag=SOMKERN_add_constructors(dts_init_info,newClass,pci,magic,ctrl,original,maxCtrlMask);
++#endif
+ 			RHBOPT_ASSERT(!myMask[j]);
+ 			myMask[j++]=maskFlag;
+ 
+@@ -643,6 +666,7 @@
+ #endif
+ }
+ 
++#ifdef CORBA1MAPPING
+ static boolean SOMKERN_release_destructor(
+ 			struct dts_init_info *dts_init_info,
+ 			somClassInfo newClass,
+@@ -651,8 +675,19 @@
+ 			boolean doAdd,
+ 			long maxCtrlMask)
+ {
+-	unsigned int i=newClass->classes._length;
+ 	boolean result=0;
++#else
++static CORBA_boolean SOMKERN_release_destructor(
++			struct dts_init_info *dts_init_info,
++			somClassInfo newClass,
++			somDestructCtrl *ctrl,
++			somClassInfo parentClassInfo,
++			CORBA_boolean doAdd,
++			long maxCtrlMask)
++{
++	CORBA_boolean result=0;
++#endif
++	unsigned int i=newClass->classes._length;
+ 
+ 	while (i--)
+ 	{
+@@ -760,7 +795,11 @@
+ 			while (k--)
+ 			{
+ 				somClassInfo superParent=SOMKERN_get_nth_parent(parentClassInfo,k);
++#ifdef CORBA1MAPPING
+ 				boolean flag=0;
++#else
++				CORBA_boolean flag=0;
++#endif
+ 				
+ 				if (superParent)
+ 				{
+@@ -796,6 +835,7 @@
+ 	return result;
+ }
+ 
++#ifdef CORBA1MAPPING
+ struct override_info
+ {
+ 	somMToken *tokenPtr;
+@@ -804,12 +844,30 @@
+ 	long info_offset;
+ 	boolean legacy;
+ };
++#else
++struct override_info
++{
++	somMToken *tokenPtr;
++	CORBA_boolean (*handler)(SOMClass SOMSTAR,SOMClassData *,somMToken token,struct override_info *,somMethodPtr);
++	long parents_offset;
++	long info_offset;
++	CORBA_boolean legacy;
++};
++#endif
+ 
++#ifdef CORBA1MAPPING
+ static boolean override_generic(SOMClass SOMSTAR somSelf,
+ 							SOMClassData *somThis,
+ 							somMToken token,
+ 							struct override_info *info,
+ 							somMethodPtr method)
++#else
++static CORBA_boolean override_generic(SOMClass SOMSTAR somSelf,
++							SOMClassData *somThis,
++							somMToken token,
++							struct override_info *info,
++							somMethodPtr method)
++#endif
+ {
+ 	somParentMtabStruct *ci=&somThis->cimtabs->classInfo.parents;
+ 	somDestructCtrl *ctrl=(void *)(((char *)ci)+info->parents_offset);
+@@ -1220,10 +1278,17 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somGetMethodData(
+ 		SOMClass SOMSTAR somSelf, 
+ 		somId methodId, 
+ 		somMethodData* md)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somGetMethodData(
++		SOMClass SOMSTAR somSelf, 
++		somId methodId, 
++		somMethodData* md)
++#endif
+ {
+     SOMClassData *somThis=SOMClassGetData(somSelf);
+ 	somMToken m=SOMKERN_somMToken_by_name(&somThis->cimtabs->classInfo,methodId);
+@@ -1324,10 +1389,17 @@
+     return somThis->cimtabs->mtab.className;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somGetNthMethodData(
+ 		SOMClass SOMSTAR somSelf, 
+ 		long n, 
+ 		somMethodData* md)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somGetNthMethodData(
++		SOMClass SOMSTAR somSelf, 
++		long n, 
++		somMethodData* md)
++#endif
+ {
+     SOMClassData *somThis=SOMClassGetData(somSelf);
+ 
+@@ -1463,10 +1535,17 @@
+ }
+ 
+ #ifdef SOMClass_somSetMethodDescriptor
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somSetMethodDescriptor(
+ 	SOMClass SOMSTAR somSelf, 
+ 	somId methodId, 
+ 	somId descriptor)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somSetMethodDescriptor(
++	SOMClass SOMSTAR somSelf, 
++	somId methodId, 
++	somId descriptor)
++#endif
+ {
+     SOMClassData *somThis = SOMClassGetData(somSelf);
+ 
+@@ -1479,10 +1558,17 @@
+ }
+ #endif
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somFindMethod(
+ 	SOMClass SOMSTAR somSelf, 
+ 	somId methodId, 
+ 	somMethodPtr* m)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somFindMethod(
++	SOMClass SOMSTAR somSelf, 
++	somId methodId, 
++	somMethodPtr* m)
++#endif
+ {
+     SOMClassData *somThis = SOMClassGetData(somSelf);
+ 	somMToken token=SOMKERN_somMToken_by_name(&somThis->cimtabs->classInfo,methodId);
+@@ -1498,10 +1584,17 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somFindMethodOk(
+ 	SOMClass SOMSTAR somSelf, 
+ 	somId methodId, 
+ 	somMethodPtr* m)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somFindMethodOk(
++	SOMClass SOMSTAR somSelf, 
++	somId methodId, 
++	somMethodPtr* m)
++#endif
+ {
+     SOMClassData *somThis = SOMClassGetData(somSelf);
+ 	somMToken token=SOMKERN_somMToken_by_name(&somThis->cimtabs->classInfo,methodId);
+@@ -1569,10 +1662,17 @@
+ 	return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somCheckVersion(
+ 		SOMClass SOMSTAR somSelf, 
+ 		long majorVersion, 
+ 		long minorVersion)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somCheckVersion(
++		SOMClass SOMSTAR somSelf, 
++		long majorVersion, 
++		long minorVersion)
++#endif
+ {
+ /*    SOMClassData *somThis = SOMClassGetData(somSelf);*/
+ 
+@@ -1583,9 +1683,15 @@
+     return 1;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somDescendedFrom(
+ 		SOMClass SOMSTAR somSelf, 
+         SOMClass SOMSTAR aClassObj)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somDescendedFrom(
++		SOMClass SOMSTAR somSelf, 
++        SOMClass SOMSTAR aClassObj)
++#endif
+ {
+     SOMClassData *somThis = SOMClassGetData(somSelf);
+ 	somClassInfo info=&somThis->cimtabs->classInfo;
+@@ -1602,9 +1708,15 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcls_somSupportsMethod(
+ 		SOMClass SOMSTAR somSelf, 
+ 		somId mId)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcls_somSupportsMethod(
++		SOMClass SOMSTAR somSelf, 
++		somId mId)
++#endif
+ {
+     SOMClassData *somThis = SOMClassGetData(somSelf);
+ 	if (SOMKERN_somMToken_by_name(&somThis->cimtabs->classInfo,mId))
+@@ -1926,7 +2038,11 @@
+ {
+ 	if (explicitMeta)
+ 	{
++#ifdef CORBA1MAPPING
+ 		boolean failed=0;
++#else
++		CORBA_boolean failed=0;
++#endif
+ 
+ 		if (parents)
+ 		{
+@@ -2089,9 +2205,15 @@
+ 	SOMClass_Init_SOMObject_somDefaultInit(somSelf,ctrl);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope void SOMLINK somcls_somDestruct(SOMClass SOMSTAR somSelf,
+ 										 boolean doFree,
+ 										 somDestructCtrl *ctrl)
++#else
++SOM_Scope void SOMLINK somcls_somDestruct(SOMClass SOMSTAR somSelf,
++										 CORBA_boolean doFree,
++										 somDestructCtrl *ctrl)
++#endif
+ {
+ 	somDestructCtrl globalCtrl;
+ 	SOMClassData *somThis;
+@@ -2112,7 +2234,11 @@
+ 	SOMClass_EndDestructor;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static void SOMKERN_init_dts_info(somClassInfo newClass,octet magic,void *ctrl,long maxCtrlMask)
++#else
++static void SOMKERN_init_dts_info(somClassInfo newClass,CORBA_octet magic,void *ctrl,long maxCtrlMask)
++#endif
+ {
+ 	somDestructCtrl globalCtrl,*pinfo=ctrl;
+ 	somDestructInfo *p=pinfo->info;
+@@ -2228,7 +2354,11 @@
+ 	somMethodTabPtr tabs[sizeof(inherit_vars)<<3];
+ 	unsigned int i=0;
+ 	unsigned long m,c;
++#ifdef CORBA1MAPPING
+ 	boolean n=1;
++#else
++	CORBA_boolean n=1;
++#endif
+ 	long maxCtrlMask;
+     SOMClassData *somThis=SOMClassGetData(somSelf);
+ 	struct somParentClassInfo *parents=NULL;
+@@ -2282,10 +2412,15 @@
+ 
+ 	while (i < parentClasses->_length)
+ 	{
++#ifdef CORBA1MAPPING
+ 		SOMKERN_copy_somMethodTab(
+ 			(boolean)(inherit_vars & 1),
+ 			&somThis->cimtabs->mtab,tabs[i]);
+-
++#else
++		SOMKERN_copy_somMethodTab(
++			(CORBA_boolean)(inherit_vars & 1),
++			&somThis->cimtabs->mtab,tabs[i]);
++#endif
+ 		i++;
+ 		inherit_vars>>=1;
+ 		inherit_vars|=0x80000000;
+diff -urwN somfree/som/src/somcm.c newsomfree/som/src/somcm.c
+--- somfree/som/src/somcm.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somcm.c	Thu Nov 14 18:24:40 2024
+@@ -25,6 +25,9 @@
+ 
+ #include <somirdll.h>
+ 
++#undef SOMClassMgrMethodDebug
++#define SOMClassMgrMethodDebug(c,m)  SOM_TraceCore(c,m)
++
+ SOM_Scope SOMClass SOMSTAR SOMLINK somcm_somLoadClassFile(SOMClassMgr SOMSTAR somSelf, 
+                                                                    somId classId, 
+                                                                    long majorVersion, 
+@@ -52,7 +55,11 @@
+ 	Repository SOMSTAR rep;
+ 	char *result;
+ 	char *modifier;
++#ifdef CORBA1MAPPING
+ 	Environment *ev;
++#else
++	CORBA_Environment *ev;
++#endif
+ };
+ 
+ RHBOPT_cleanup_begin(somcm_somLocateClassFile_cleanup,pv)
+@@ -62,7 +69,11 @@
+ 	if (data->rep)
+ 	{
+ #ifdef SOMObject_release
++#ifdef CORBA1MAPPING
+ 		Environment ev;
++#else
++		CORBA_Environment ev;
++#endif
+ 		SOM_InitEnvironment(&ev);
+ 		SOMObject_release(data->rep,&ev);
+ 		SOM_UninitEnvironment(&ev);
+@@ -118,7 +129,11 @@
+ 
+ 		if (data.rep)
+ 		{
++#ifdef CORBA1MAPPING
+ 			Environment ev2;
++#else
++			CORBA_Environment ev2;
++#endif
+ 			size_t len=strlen(c)+1;
+ static		char *method="lookup_modifier";
+ 
+@@ -257,10 +272,17 @@
+ 	SOM_IgnoreWarning(somSelf);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somcm_somJoinAffinityGroup(
+ 			SOMClassMgr SOMSTAR somSelf, 
+ 			SOMClass SOMSTAR newClass, 
+ 			SOMClass SOMSTAR affClass)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somcm_somJoinAffinityGroup(
++			SOMClassMgr SOMSTAR somSelf, 
++			SOMClass SOMSTAR newClass, 
++			SOMClass SOMSTAR affClass)
++#endif
+ {
+ 	somPrintf("SOMClass::somJoinAffinityGroup not implemented\n");
+ 
+@@ -326,7 +348,11 @@
+ 			if (SOMKERN_repository)
+ 			{
+ #ifdef SOMObject_release
++#ifdef CORBA1MAPPING
+ 				Environment ev;
++#else
++				CORBA_Environment ev;
++#endif
+ 				somEndCriticalSection();
+ 				SOM_InitEnvironment(&ev);
+ 				SOMObject_release(rep,&ev);
+@@ -352,7 +378,11 @@
+ 	if (rep)
+ 	{
+ #ifdef SOMObject_duplicate
++#ifdef CORBA1MAPPING
+ 		Environment ev;
++#else
++		CORBA_Environment ev;
++#endif
+ 		SOM_InitEnvironment(&ev);
+ 		rep=SOMObject_duplicate(rep,&ev);
+ 		SOM_UninitEnvironment(&ev);
+@@ -398,7 +428,11 @@
+ 		if (somInterfaceRepository)
+ 		{
+ #ifdef SOMObject_duplicate
++#ifdef CORBA1MAPPING
+ 			Environment ev2;
++#else
++			CORBA_Environment ev2;
++#endif
+ 			SOM_InitEnvironment(&ev2);
+ 			SOMKERN_repository=SOMObject_duplicate(somInterfaceRepository,&ev2);
+ 			SOM_UninitEnvironment(&ev2);
+@@ -428,7 +462,11 @@
+ 		if (old)
+ 		{
+ #ifdef SOMObject_release
++#ifdef CORBA1MAPPING
+ 			Environment ev;
++#else
++			CORBA_Environment ev;
++#endif
+ 			SOM_InitEnvironment(&ev);
+ 			SOMObject_release(old,&ev);
+ 			SOM_UninitEnvironment(&ev);
+@@ -793,7 +831,11 @@
+ 	}
+ }
+ 
++#ifdef CORBA1MAPPING
+ static somMethodTabPtr SOMClassList_find(SOMClassMgrData *somThis,Environment *ev,char *p)
++#else
++static somMethodTabPtr SOMClassList_find(SOMClassMgrData *somThis,CORBA_Environment *ev,char *p)
++#endif
+ {
+ 	somMethodTabPtr result=NULL;
+ 
+@@ -811,7 +853,11 @@
+ 			SOMClassList_create(somThis);
+ 		}
+ 
++#ifdef CORBA1MAPPING
+ 		key._buffer=(octet *)p;
++#else
++		key._buffer=(CORBA_octet *)p;
++#endif
+ 		key._length=(long)strlen(p);
+ 		key._maximum=key._length;
+ 
+@@ -828,7 +874,11 @@
+ 	return result;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static long SOMClassList_remove(SOMClassMgrData *somThis,Environment *ev,somMethodTabPtr mtab)
++#else
++static long SOMClassList_remove(SOMClassMgrData *somThis,CORBA_Environment *ev,somMethodTabPtr mtab)
++#endif
+ {
+ 	long retVal=-1;
+ 
+@@ -846,7 +896,11 @@
+ 	return retVal;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static void SOMClassList_add(SOMClassMgrData *somThis,Environment *ev,somMethodTabPtr mtab)
++#else
++static void SOMClassList_add(SOMClassMgrData *somThis,CORBA_Environment *ev,somMethodTabPtr mtab)
++#endif
+ {
+ 	SOM_IgnoreWarning(ev);
+ 
+diff -urwN somfree/som/src/somkern.c newsomfree/som/src/somkern.c
+--- somfree/som/src/somkern.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somkern.c	Tue Nov 19 10:07:11 2024
+@@ -79,6 +79,8 @@
+ 			=RHBMUTEX_INIT_DATA
+ #		endif
+ 			;
++#       elif defined(__OS2__)
++		static struct rhbmutex_t som_global_mutex;
+ #	else
+ 		static CRITICAL_SECTION som_global_mutex;
+ #	endif
+@@ -145,9 +147,15 @@
+ static struct somMethodTabStruct * SOMKERN_resolve_mtab(struct somMethodTabStruct *mtab);
+ static void somcm_teardown(SOMClassMgr SOMSTAR);
+ static void SOMClassList_create(SOMClassMgrData *somThis);
++#ifdef CORBA1MAPPING
+ static somMethodTabPtr SOMClassList_find(SOMClassMgrData *somThis,Environment *ev,char *p);
+ static long SOMClassList_remove(SOMClassMgrData *somThis,Environment *ev,somMethodTabPtr mtab);
+ static void SOMClassList_add(SOMClassMgrData *somThis,Environment *ev,somMethodTabPtr mtab);
++#else
++static somMethodTabPtr SOMClassList_find(SOMClassMgrData *somThis,CORBA_Environment *ev,char *p);
++static long SOMClassList_remove(SOMClassMgrData *somThis,CORBA_Environment *ev,somMethodTabPtr mtab);
++static void SOMClassList_add(SOMClassMgrData *somThis,CORBA_Environment *ev,somMethodTabPtr mtab);
++#endif
+ static void SOMClassList_destroy(SOMClassMgrData *somThis);
+ static void SOMKERN_AllocateInstanceSize(struct somClassInfoMethodTab *);
+ 
+@@ -212,6 +220,8 @@
+ #	else
+ 		HANDLE h=INVALID_HANDLE_VALUE;
+ #	endif
++#elif defined(__OS2__)
++                HFILE h = NULLHANDLE;
+ #endif
+ 		if (c==7) return 0;
+ 
+@@ -229,6 +239,16 @@
+ 				return dw;
+ 			}
+ 		}
++#elif defined(__OS2__)
++		/* write to std out */
++		if (h!=NULLHANDLE)
++		{
++			ULONG dw=1;
++			if (!DosWrite(h,buf,dw,&dw))
++			{
++				return dw;
++			}
++		}
+ #else
+ 		/* write to stdout */
+ 		return write(1,buf,1);
+@@ -241,9 +261,69 @@
+ 
+ SOM_Scope void SOMLINK SOMKERN_error(int e_num,const char * file,int line)
+ {
+-	somPrintf("SOMError #%d at %s:%d\n",e_num,file,line);
++	int level=e_num%10;
++	int msgcode=0;
++#if defined(__OS2__)
++	UCHAR   szOutMsg[80]= "";                    /* Message buffer */
++	ULONG   ulMsgLen    = 0;                     /* Length of returned message */
++	APIRET  rc          = 0;                     /* Return code */
++#endif
++
++	switch(e_num%10)
++	{
++		case 0: 
++			if (SOM_WarnLevel>1) msgcode=SOM_TemplateCode(52);
++			break;
++		case 1:
++			if (SOM_WarnLevel>0) msgcode=SOM_TemplateCode(51);
++			break;
++		case 2:
++			if (SOM_WarnLevel>0) msgcode=SOM_TemplateCode(52);
++			break;
++		case 3:
++		case 4:
++		case 5:
++		case 6:
++		case 7:
++		case 8:
++			msgcode=SOM_TemplateCode(53);
++			break;
++		case 9:
++			msgcode=SOM_TemplateCode(28);
++			break;
++		default:
++			msgcode=SOM_TemplateCode(53);
++			break;
++	}
++
++	if (msgcode)
++        {
++#if defined (__OS2__)
++	/* Create error message with inserts from system message file SAMPLE.MSG */
++
++	rc = DosGetMessage(NULL,          /* Message insert pointer array */
++                   0,                /* Number of inserts */
++                   szOutMsg,         /* Output message */
++                   sizeof(szOutMsg), /* Length of output message area */
++                   SOM_MsgCode(msgcode), /* Number of message requested */
++                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++                   &ulMsgLen);       /* Length of resulting output message */
++	somPrintf(szOutMsg, file, line, SOM_EB/1000, e_num/10-SOM_EB, e_num%10);
++#else
++	somPrintf("%s: %d: SOMError - code = %d-%#3d-%d\n",file,line, e_num, SOM_EB/1000, e_num/10-SOM_EB, e_num%10);
++#endif
++	}
++//SOM0028I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Fatal.\n
++//SOM0051I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Warning.\n
++//SOM0052I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Informational.\n
++//SOM0053I: "%s": %d: SOM Error - code = %d-%#3d-%d, severity = Unspecified.\n
++
++       if (((e_num%10)!=0)&&((e_num%10)!=1)&&((e_num%10)!=2))
++       {
+ #ifdef _WIN32
+ 	RaiseException(e_num,EXCEPTION_NONCONTINUABLE,0,NULL);
++#elif defined(__OS2__)
++        DosExit(EXIT_THREAD, e_num);
+ #else
+ 	#ifdef _PLATFORM_MACINTOSH_
+ 		#ifdef USE_ASLM
+@@ -256,6 +336,7 @@
+ 	#endif
+ #endif
+ }
++}
+ 
+ #ifdef RHBOPT_SHARED_DATA
+ #else
+@@ -297,6 +378,8 @@
+ 
+ somMethodPtr SOMLINK somResolve(SOMObject SOMSTAR obj,somMToken mdata)
+ {
++	SOM_TraceCore("SOMProcedure", "somResolve");
++
+ 	RHBOPT_ASSERT(somIsObj(obj))
+ 
+ #ifdef SOM_METHOD_THUNKS
+@@ -324,6 +407,8 @@
+ 
+ SOMEXTERN somToken SOMLINK somDataResolve(SOMObject SOMSTAR obj, somDToken dataId)
+ {
++	SOM_TraceCore("SOMProcedure", "somDataResolve");
++
+ 	RHBOPT_ASSERT(dataId->cls->classObject);
+ 	RHBOPT_ASSERT(somTestCls(obj,dataId->cls->classObject,__FILE__,__LINE__));
+ 	RHBOPT_ASSERT(obj);
+@@ -349,6 +434,8 @@
+ 
+ void SOMLINK somEnvironmentEnd(void)
+ {
++	SOM_TraceCore("SOMProcedure", "somEnvironmentEnd");
++
+ #ifdef RHBOPT_SHARED_DATA
+ 	if (som_globals.apps)
+ 	{
+@@ -468,7 +555,11 @@
+ 
+ struct somBuildClass
+ {
++#ifdef CORBA1MAPPING
+ 	boolean locked,failed,was_created;
++#else
++	CORBA_boolean locked,failed,was_created;
++#endif
+ 	SOMClass SOMSTAR explicit_meta_class;
+ 	SOMClass SOMSTAR meta_class;
+ 	SOMClass SOMSTAR classObject;
+@@ -528,6 +619,8 @@
+ 				NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+ 				NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL}};
+ 
++	SOM_TraceCore("SOMProcedure", "somBuildClass");
++
+ 	SOM_IgnoreWarning(majorVersion);
+ 	SOM_IgnoreWarning(minorVersion);
+ 
+@@ -638,7 +731,11 @@
+ 								long dataAlignment=(sci->layoutVersion > 1) ?
+ 									sci->dataAlignment
+ 									:
++#if CORBA1MAPPING
+ 									(SOM_LONG_PTR)&(((struct { octet _d; octet _v; } *)0)->_v);
++#else
++									(SOM_LONG_PTR)&(((struct { CORBA_octet _d; CORBA_octet _v; } *)0)->_v);
++#endif
+ 
+ /*			somPrintf("somBuildClass(%s) - begin\n",somStringFromId((somId)sci->classId));*/
+ 
+@@ -772,7 +869,7 @@
+ 		}
+ 		#define SOM_THREAD_INIT_ONCE	pthread_once(&SOMKERN_once,SOMKERN_once_r);
+ 	#else
+-		#ifdef _WIN32
++		#if defined(_WIN32) || defined(__OS2__)
+ 			/* DllMain will have done the job */
+ 			#define SOM_THREAD_INIT_ONCE
+ 		#else
+@@ -827,6 +924,13 @@
+ 			pthread_setspecific(som_globals.tls_key,ev);
+ #endif
+ 		}
++	#elif defined(__OS2__)
++			ev=(som_thread_globals_t *)*(void **)som_globals.tls_key;
++			if (!ev && make)
++			{
++				ev=make_globals();
++				*(som_thread_globals_t **)som_globals.tls_key = ev;
++			}
+ 	#else
+ 			ev=(som_thread_globals_t *)TlsGetValue(som_globals.tls_key);
+ 			if (!ev && make)
+@@ -894,8 +998,13 @@
+ #endif
+ }
+ 
++#ifdef CORBA1MAPPING
+ Environment * SOMLINK somGetGlobalEnvironment(void)
++#else
++CORBA_Environment * SOMLINK somGetGlobalEnvironment(void)
++#endif
+ {
++	SOM_TraceCore("SOMProcedure", "somGetGlobalEnvironment");
+ som_thread_globals_t *ev=SOMKERN_get_thread_globals(1);
+ 
+ 	if (ev)
+@@ -909,6 +1018,7 @@
+ somMethodProc * SOMLINK somParentResolve(somMethodTabs parentMtabs,
+                                          somMToken mToken)
+ {
++	SOM_TraceCore("SOMProcedure", "somParentResolve");
+ /*	SOMKERN_check_mem();*/
+ 
+ 	return somParentNumResolve(parentMtabs,1,mToken);
+@@ -918,6 +1028,7 @@
+                                          int parentNum,
+                                          somMToken mToken)
+ {
++	SOM_TraceCore("SOMProcedure", "somParentNumResolve");
+ #if 1
+ 	/* new way which allows shadowed/substituted classes to change mtab */
+ 	struct somMethodTabStruct *guess=somClassInfoFromParentMtabs(parentMtabs)->parent_jump_table._buffer[parentNum-1];
+@@ -1016,7 +1127,11 @@
+ 	{
+ 		struct somMTokenData *_buffer=info->added_methods._buffer;
+ 		const char *p=somStringFromId(id);
++#ifdef CORBA1MAPPING
+ 		boolean has_colon=0;
++#else
++		CORBA_boolean has_colon=0;
++#endif
+ 		while (*p) 
+ 		{ 
+ 			if (*p++==':') 
+@@ -1086,53 +1201,6 @@
+ 	return NULL;
+ }
+ 
+-int SOMLINK somPrintf(const char * fmt, ...)
+-{
+-#if defined(RHBOPT_SHARED_DATA) || defined(USE_THREADS)
+-som_thread_globals_t *tev=SOMKERN_get_thread_globals(0);
+-somTD_SOMOutCharRoutine *local_SOMOutCharRoutine=tev ? tev->somOutCharRoutine : SOMOutCharRoutine;
+-#endif
+-	int i=0;
+-
+-	if (local_SOMOutCharRoutine)
+-	{
+-		char buf[4096];
+-		int j;
+-
+-		va_list arg;
+-
+-		somStartCriticalSection();
+-
+-		va_start(arg,fmt);
+-
+-#ifdef HAVE_VSNPRINTF
+-		i=vsnprintf(buf,sizeof(buf),fmt,arg);
+-#else
+-	#ifdef HAVE_INT_VSPRINTF
+-		i=vsprintf(buf,fmt,arg);
+-	#else
+-		vsprintf(buf,fmt,arg);
+-		i=strlen(buf);
+-	#endif
+-#endif
+-		va_end(arg);
+-
+-		j=0;
+-
+-		while (j < i)
+-		{
+-			local_SOMOutCharRoutine(buf[j]);
+-
+-			j++;
+-		}
+-
+-		local_SOMOutCharRoutine(0);
+-
+-		somEndCriticalSection();
+-	}
+-
+-	return i;
+-}
+ 
+ /*boolean  SOMLINK somva_SOMObject_somDispatch(SOMObject SOMSTAR somSelf,
+ 		somToken* retValue,
+@@ -1148,11 +1216,18 @@
+ }
+ */
+ 
++#ifdef CORBA1MAPPING
+ static void *SOMKERN_suballoc_v(_IDL_SEQUENCE_octet *seq,size_t len,short align)
++#else
++static void *SOMKERN_suballoc_v(_IDL_SEQUENCE_CORBA_octet *seq,size_t len,short align)
++#endif
+ {
+ 	long l=(long)seq->_length;
++#ifdef CORBA1MAPPING
+ 	octet *op=NULL;
+-
++#else
++	CORBA_octet *op=NULL;
++#endif
+ 	RHBOPT_ASSERT(align);
+ 	RHBOPT_ASSERT(len);
+ 
+@@ -1186,7 +1261,11 @@
+ 
+ static struct somClassInfoMethodTab * SOMKERN_allocate_somMethodTab(
+ 			const char *p,
++#ifdef CORBA1MAPPING
+ 			boolean multiply_inherited,
++#else
++			CORBA_boolean multiply_inherited,
++#endif
+ 			unsigned long immediate_parentClasses,
+ 			unsigned long total_parentClasses,
+ 			unsigned long total_static_methods,
+@@ -1199,7 +1278,11 @@
+ 			long maxCtrlMask)
+ {
+ 	int name_len=(int)strlen(p);
++#ifdef CORBA1MAPPING
+ 	_IDL_SEQUENCE_octet alloc={0,0,NULL};
++#else
++	_IDL_SEQUENCE_CORBA_octet alloc={0,0,NULL};
++#endif
+ 	somMethodTabPtr info;
+ 	struct somClassInfoMethodTab *classInfoMtab;
+ 	somClassInfo classInfo;
+@@ -1259,7 +1342,11 @@
+ 
+ 	/* these are all octets */
+ 
++#ifdef CORBA1MAPPING
+ 	_SOMKERN_suballoc(&alloc,(maxCtrlMask << 1)+maxCtrlMask+name_len+1,octet);
++#else
++	_SOMKERN_suballoc(&alloc,(maxCtrlMask << 1)+maxCtrlMask+name_len+1,CORBA_octet);
++#endif
+ 
+ 	alloc._maximum=alloc._length;
+ 	alloc._buffer=SOMMallocEx(alloc._length);
+@@ -1331,10 +1418,15 @@
+ 
+ 	/* allocate the constructor masks, these are somBooleanVectors */
+ 
++#ifdef CORBA1MAPPING
+ 	classInfo->parents.initCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,octet);
+ 	classInfo->parents.assignCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,octet);
+ 	classInfo->parents.destructCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,octet);
+-
++#else
++	classInfo->parents.initCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,CORBA_octet);
++	classInfo->parents.assignCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,CORBA_octet);
++	classInfo->parents.destructCtrl.mask=SOMKERN_suballoc(&alloc,maxCtrlMask,CORBA_octet);
++#endif
+ 	info->className=SOMKERN_suballoc(&alloc,name_len+1,char);
+ 	memcpy(info->className,p,name_len+1);
+ 
+@@ -1343,7 +1435,11 @@
+ 	classInfo->instancePartSize=dataSize;
+ 	classInfo->dataAlignment=dataAlignment;
+ 
++#ifdef CORBA1MAPPING
+ 	classInfo->keyed_data.key._buffer=(octet *)info->className;
++#else
++	classInfo->keyed_data.key._buffer=(CORBA_octet *)info->className;
++#endif
+ 	classInfo->keyed_data.key._length=(long)strlen(info->className);
+ 	classInfo->keyed_data.key._maximum=classInfo->keyed_data.key._length;
+ 	classInfo->keyed_data.data._value=info;
+@@ -1374,7 +1470,7 @@
+ 
+ 	if (i==info->classes._maximum)
+ 	{
+-		SOMError(-1,__FILE__,__LINE__);
++		SOM_Error(-1);
+ 
+ 		return NULL;
+ 	}
+@@ -1413,10 +1509,17 @@
+ 	return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static void SOMKERN_copy_somMethodTab(
+ 			boolean inherit_var,	/* whether to inherit implementation */
+ 			somMethodTabPtr info,
+ 			somMethodTabPtr from)
++#else
++static void SOMKERN_copy_somMethodTab(
++			CORBA_boolean inherit_var,	/* whether to inherit implementation */
++			somMethodTabPtr info,
++			somMethodTabPtr from)
++#endif
+ {
+ 	unsigned int i=0;
+ 	somClassInfo cinfo=somClassInfoFromMtab(info);
+@@ -1817,6 +1920,8 @@
+ 		SOMKERN_end_thread(ev);
+ 	#ifdef USE_PTHREADS
+ 		pthread_setspecific(som_globals.tls_key,NULL);
++	#elif defined(__OS2__)
++		*(void **)som_globals.tls_key = 0;
+ 	#else
+ 		TlsSetValue(som_globals.tls_key,NULL);
+ 	#endif
+@@ -1850,7 +1955,11 @@
+ 	SOM_IgnoreWarning(libraryInitRtn);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN boolean SOMLINK somAbnormalEnd (void)
++#else
++SOMEXTERN CORBA_boolean SOMLINK somAbnormalEnd (void)
++#endif
+ {
+ 	somPrintf("SOM.DLL somAbnormalEnd not implemented\n");
+ 
+@@ -1895,6 +2004,8 @@
+ 		SOMClass SOMSTAR classObj,
+         const char * fileName, int lineNumber)
+ {
++	SOM_TraceCore("SOMProcedure", "somTestCls");
++
+ 	if (obj)
+ 	{
+ 		if (classObj)
+@@ -1921,6 +2032,8 @@
+ #ifdef USE_THREADS
+ #	ifdef USE_RHBMUTEX_LOCK
+ 		RHBMUTEX_LOCK(&som_global_mutex);
++#       elif defined(__OS2__)
++                DosRequestMutexSem(&som_global_mutex, -1);
+ #	else
+ 		EnterCriticalSection(&som_global_mutex);
+ #	endif
+@@ -2009,6 +2122,8 @@
+ #ifdef USE_THREADS
+ #	ifdef USE_RHBMUTEX_LOCK
+ 		RHBMUTEX_UNLOCK(&som_global_mutex);
++#       elif defined(__OS2__)
++                DosReleaseMutexSem(&som_global_mutex);
+ #	else
+ 		LeaveCriticalSection(&som_global_mutex);
+ #	endif
+@@ -2072,6 +2187,7 @@
+ 
+ SOMEXTERN int SOMLINK somRegisterId(somId id)
+ {
++	SOM_TraceCore("SOMProcedure", "somRegisterId");
+ 	SOM_IgnoreWarning(id);
+ 
+ 	return 0;
+@@ -2079,6 +2195,7 @@
+ 
+ SOMEXTERN somId SOMLINK somIdFromString(char * aString)
+ {
++	SOM_TraceCore("SOMProcedure", "somIdFromString");
+ 	if (aString)
+ 	{
+ 		struct a
+@@ -2099,6 +2216,7 @@
+ 
+ SOMEXTERN unsigned long SOMLINK somTotalRegIds(void)
+ {
++	SOM_TraceCore("SOMProcedure", "somTotalRegIds");
+ 	return 0;
+ }
+ 
+@@ -2110,10 +2228,75 @@
+ SOMEXTERN void SOMLINK somTest(int condition, int severity,const char * fileName,
+                                int lineNum, char * msg)
+ {
++#if defined(__OS2__)
++	UCHAR   szOutMsg[80]= "";                    /* Message buffer */
++	ULONG   ulMsgLen    = 0;                     /* Length of returned message */
++	APIRET  rc          = 0;                     /* Return code */
++#endif
++
++	SOM_TraceCore("SOMProcedure", "somTest");
++
++	if (severity!=SOM_Ignore)
++	{
+ 	if (!condition)
+ 	{
+-		somPrintf("somTest(severity=%d,fileName=%s,lineNum=%d,msg=%s)\n",
+-				severity,fileName,lineNum,msg);
++			if (severity==SOM_Warn)
++			{
++				if (SOM_WarnLevel)
++				{
++#if defined (__OS2__)
++				/* Create error message with inserts from system message file SAMPLE.MSG */
++
++				rc = DosGetMessage(NULL,          /* Message insert pointer array */
++			                   0,                /* Number of inserts */
++			                   szOutMsg,         /* Output message */
++			                   sizeof(szOutMsg), /* Length of output message area */
++			                   35, /* Number of message requested */
++			                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++			                   &ulMsgLen);       /* Length of resulting output message */
++				somPrintf(szOutMsg, fileName, lineNum, msg);
++#else
++				somPrintf("SOM0035I: \"%s\": %d:\tWarning, failed - %s.\n", fileName, lineNum, msg);
++#endif
++				}
++			} else {
++#if defined (__OS2__)
++				/* Create error message with inserts from system message file SAMPLE.MSG */
++
++				rc = DosGetMessage(NULL,          /* Message insert pointer array */
++			                   0,                /* Number of inserts */
++			                   szOutMsg,         /* Output message */
++			                   sizeof(szOutMsg), /* Length of output message area */
++			                   36, /* Number of message requested */
++			                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++			                   &ulMsgLen);       /* Length of resulting output message */
++				somPrintf(szOutMsg, fileName, lineNum, msg);
++#else
++				somPrintf("SOM0036I: \"%s\": %d:\tError, failed - %s.\n", fileName, lineNum, msg);
++#endif
++				SOM_Error(SOM_FatalCode(11));
++//				somPrintf("somTest(severity=%d,fileName=%s,lineNum=%d,msg=%s)\n",
++//					severity,fileName,lineNum,msg);
++			}
++		} else {
++			if (SOM_AssertLevel||SOM_TraceLevel) 
++			{
++#if defined (__OS2__)
++				/* Create error message with inserts from system message file SAMPLE.MSG */
++
++				rc = DosGetMessage(NULL,          /* Message insert pointer array */
++			                   0,                /* Number of inserts */
++			                   szOutMsg,         /* Output message */
++			                   sizeof(szOutMsg), /* Length of output message area */
++			                   34, /* Number of message requested */
++			                   "SOMK.MSG",       /* Message file (created by MKMSGF) */
++			                   &ulMsgLen);       /* Length of resulting output message */
++				somPrintf(szOutMsg, fileName, lineNum, msg);
++#else
++				somPrintf("SOM0034I: \"%s\": %d:\tPassed - %s.\n", fileName, lineNum, msg);
++#endif
++			}
++		}
+ 	}
+ }
+ 
+@@ -2131,6 +2314,7 @@
+ 		char *p;
+ 
+ /*		SOMKERN_guard*/
++		somStartCriticalSection();
+ 
+ #ifdef HAVE_VSNPRINTF
+ 		i=vsnprintf(buf,sizeof(buf),fmt,ap);
+@@ -2142,6 +2326,8 @@
+ 		i=strlen(buf);
+ 	#endif
+ #endif
++		if (i>=sizeof(buf)) SOM_Error(SOM_FatalCode(2));
++
+ 		j=i;
+ 		p=buf;
+ 
+@@ -2153,6 +2339,7 @@
+ 
+ 		local_SOMOutCharRoutine(0);
+ 
++		somEndCriticalSection();
+ /*		SOMKERN_unguard*/
+ 
+ 		return j;
+@@ -2161,6 +2348,18 @@
+ 	return 0;
+ }
+ 
++int SOMLINK somPrintf(const char * fmt, ...)
++{
++	int i=0;
++	va_list va;
++
++	va_start(va,fmt);
++	i=somVprintf(fmt,va);
++	va_end(va);
++
++	return i;
++}
++
+ 
+ /*
+  * Outputs (via somPrintf) blanks to prefix a line at the indicated level
+@@ -2322,7 +2521,11 @@
+ 
+ extern struct somDTSInfo __somdts;
+ 
++#ifdef CORBA1MAPPING
+ static boolean somcm_is_kernel_class(somMethodTabPtr mtab)
++#else
++static CORBA_boolean somcm_is_kernel_class(somMethodTabPtr mtab)
++#endif
+ {
+ 	unsigned int i=SOM_Bootstrap_ccds_seq._length;
+ 	
+@@ -2368,6 +2571,7 @@
+ #define SOMKERN_destructCtrl(x) {x##_destructMask,__somdts.x##_destructInfo,sizeof(somDestructInfo),NULL}
+ #define SOMKERN_assignCtrl(x)	{x##_assignMask,__somdts.x##_assignInfo,sizeof(somAssignInfo),NULL}
+ 
++#ifdef CORBA1MAPPING
+ static boolean SOMObject_initMask[]={0};
+ static boolean SOMClass_initMask[]={0,0};
+ static boolean SOMClassMgr_initMask[]={0,0};
+@@ -2379,6 +2583,20 @@
+ static boolean SOMObject_assignMask[]={0};
+ static boolean SOMClass_assignMask[]={0,0};
+ static boolean SOMClassMgr_assignMask[]={0,0};
++#else
++static CORBA_boolean SOMObject_initMask[]={0};
++static CORBA_boolean SOMClass_initMask[]={0,0};
++static CORBA_boolean SOMClassMgr_initMask[]={0,0};
++
++static CORBA_boolean SOMObject_destructMask[]={0};
++static CORBA_boolean SOMClass_destructMask[]={0,0};
++static CORBA_boolean SOMClassMgr_destructMask[]={0,0};
++
++static CORBA_boolean SOMObject_assignMask[]={0};
++static CORBA_boolean SOMClass_assignMask[]={0,0};
++static CORBA_boolean SOMClassMgr_assignMask[]={0,0};
++#endif
++
+ 
+ 
+ static void SOMLINK SOMObject_somRenewNoInitNoZeroThunk(void *pv)
+@@ -2528,7 +2746,11 @@
+ 	}
+ };
+ 
++#ifdef CORBA1MAPPING
+ static boolean somcm_is_leaf(SOMClassMgrData *somThis,somMethodTabPtr mtab)
++#else
++static CORBA_boolean somcm_is_leaf(SOMClassMgrData *somThis,somMethodTabPtr mtab)
++#endif
+ {
+ 	/* see if it is a static class... */
+ 
+@@ -2670,9 +2892,15 @@
+ 	somEndCriticalSection();
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope void SOMLINK somcm_somDestruct(SOMClassMgr SOMSTAR somSelf,
+ 										 boolean doFree,
+ 										 somDestructCtrl *ctrl)
++#else
++SOM_Scope void SOMLINK somcm_somDestruct(SOMClassMgr SOMSTAR somSelf,
++										 CORBA_boolean doFree,
++										 somDestructCtrl *ctrl)
++#endif
+ {
+ 	somDestructCtrl globalCtrl;
+ 	SOMClassMgrData *somThis;
+@@ -2755,7 +2983,11 @@
+ }
+ 
+ 
++#ifdef CORBA1MAPPING
+ boolean SOMLINK somIsObj(somToken obj)
++#else
++CORBA_boolean SOMLINK somIsObj(somToken obj)
++#endif
+ {
+ 	SOMObject SOMSTAR o=(SOMObject SOMSTAR)obj;
+ 
+@@ -2818,6 +3050,8 @@
+ #ifdef USE_THREADS
+ 	#ifdef USE_PTHREADS
+ 		pthread_setspecific(som_globals.tls_key,NULL);
++	#elif defined(__OS2__)
++		*(void **)som_globals.tls_key = 0;
+ 	#else
+ 		TlsSetValue(som_globals.tls_key,NULL);
+ 	#endif
+@@ -2877,6 +3111,30 @@
+ }
+ #endif
+ 
++#ifdef __OS2__
++APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
++void SOM_dll_init(void);
++void SOM_dll_term(void);
++
++APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
++{
++  APIRET rc;
++
++  // call C startup first
++  rc = __DLLstart_(hmod, flag);
++
++  if (!rc)
++    return 0;
++
++  if (flag)
++    SOM_dll_term();
++  else
++    SOM_dll_init();
++
++  return 1;
++}
++#endif
++
+ SOMEXTERN SOMClassMgr SOMSTAR SOMLINK somEnvironmentNew(void)
+ {
+ #ifdef _DEBUG
+@@ -2922,6 +3180,12 @@
+ 			RHBMUTEX_INIT(&som_global_mutex);
+ 			RHBCDR_kds_init(&SOMClassMgrObjectData.SOMClassMgr_data.classList);
+ 		#endif
++	#elif defined(__OS2__)
++			if (! som_globals.tls_key)
++			{
++				DosAllocThreadLocalMemory(1, (void **)&som_globals.tls_key);
++				RHBMUTEX_INIT(&som_global_mutex);
++			}
+ 	#else
+ 			som_globals.tls_key=TlsAlloc();
+ 			InitializeCriticalSection(&som_global_mutex);
+@@ -2944,6 +3208,11 @@
+ 		#ifdef HAVE_PTHREAD_KEY_DELETE
+ 			pthread_key_delete(som_globals.tls_key);
+ 		#endif
++	#elif defined(__OS2__)
++			if (som_globals.tls_key)
++			{
++				DosFreeThreadLocalMemory(som_globals.tls_key);
++			}
+ 	#else
+ 			DeleteCriticalSection(&som_global_mutex);
+ 			TlsFree(som_globals.tls_key);
+diff -urwN somfree/som/src/sommutex.c newsomfree/som/src/sommutex.c
+--- somfree/som/src/sommutex.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/sommutex.c	Tue Nov 19 14:32:50 2024
+@@ -47,6 +47,12 @@
+ #else
+ 		#ifdef _PLATFORM_WIN32_
+ 			return GetCurrentThreadId();
++		#elif _PLATFORM_OS2_
++			{
++				PTIB   ptib = NULL;   
++				DosGetInfoBlocks(&ptib, NULL);
++				return ptib->tib_ptib2->tib2_ultid;
++			}
+ 		#else
+ 			return 0;
+ 		#endif
+@@ -60,6 +66,8 @@
+ 	struct rhbmutex_t *mutex=SOMMalloc(sizeof(*mutex));
+ 		RHBMUTEX_INIT(mutex);
+ 		*sem=mutex;
++        #elif defined(__OS2__)
++                DosCreateMutexSem(NULL, (HMTX *)sem, 0, 0);
+ 	#else
+ 		*sem=CreateMutex(NULL,0,NULL);
+ 	#endif
+@@ -77,6 +85,13 @@
+ 		RHBOPT_ASSERT(s)
+ 		RHBMUTEX_UNINIT(s);
+ 		SOMFree(s);
++        #elif defined(__OS2__)
++                if (DosCloseMutexSem((unsigned long)sem))
++                {
++		#ifdef _M_IX86
++			__asm int 3;
++		#endif
++                }
+ 	#else
+ 		if (!CloseHandle(sem)) 
+ 		{
+@@ -96,6 +111,8 @@
+ #ifdef USE_THREADS
+ 	#if defined(USE_PTHREADS)
+ 		RHBMUTEX_LOCK((struct rhbmutex_t *)sem)
++        #elif defined(__OS2__)
++                DosRequestMutexSem((unsigned long)sem, -1);
+ 	#else
+ 		WaitForSingleObject(sem,INFINITE);
+ 	#endif
+@@ -119,6 +136,8 @@
+ 		RHBOPT_ASSERT(s->count)
+ 
+ 		RHBMUTEX_UNLOCK(s)
++        #elif defined(__OS2__)
++                DosReleaseMutexSem((somToken)sem);
+ 	#else
+ 		ReleaseMutex(sem);
+ 	#endif
+diff -urwN somfree/som/src/somobj.c newsomfree/som/src/somobj.c
+--- somfree/som/src/somobj.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somobj.c	Thu Nov 14 18:25:09 2024
+@@ -23,6 +23,9 @@
+  * $Id$
+  */
+ 
++#undef SOMObjectMethodDebug
++#define SOMObjectMethodDebug(c,m)  SOM_TraceCore(c,m)
++
+ SOM_Scope void  SOMLINK somobj_somInit(SOMObject SOMSTAR somSelf)
+ {
+ #ifdef SOMObject_somDefaultInit
+@@ -109,13 +112,22 @@
+     return somMethodTabFromObject(somSelf)->className;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope long  SOMLINK somobj_somGetSize(SOMObject SOMSTAR somSelf)
++#else
++SOM_Scope CORBA_long  SOMLINK somobj_somGetSize(SOMObject SOMSTAR somSelf)
++#endif
+ {
+     return somMethodTabFromObject(somSelf)->instanceSize;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somobj_somIsA(SOMObject SOMSTAR somSelf, 
+                                                      SOMClass SOMSTAR aClassObj)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somIsA(SOMObject SOMSTAR somSelf, 
++                                                     SOMClass SOMSTAR aClassObj)
++#endif
+ {
+ 	somMethodTabPtr p=somMethodTabFromObject(somSelf);
+ 	somClassInfo info=somClassInfoFromMtab(p);
+@@ -132,16 +144,31 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somobj_somIsInstanceOf(
+ 		SOMObject SOMSTAR somSelf, 
+ 	    SOMClass SOMSTAR aClassObj)
+ {
+ 	return (boolean)(somMethodTabFromObject(somSelf)->classObject == aClassObj);
+ }
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somIsInstanceOf(
++		SOMObject SOMSTAR somSelf, 
++	    SOMClass SOMSTAR aClassObj)
++{
++	return (CORBA_boolean)(somMethodTabFromObject(somSelf)->classObject == aClassObj);
++}
++#endif
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somobj_somRespondsTo(
+ 		SOMObject SOMSTAR somSelf, 
+         somId mId)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somRespondsTo(
++		SOMObject SOMSTAR somSelf, 
++        somId mId)
++#endif
+ {
+ 	if (SOMClass_somGetMethodDescriptor(
+ 			somMethodTabFromObject(somSelf)->classObject,
+@@ -153,13 +180,23 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MPPING
+ SOM_Scope boolean  SOMLINK somobj_somDispatch(SOMObject SOMSTAR somSelf, 
+                                                           somToken* retValue, 
+                                                           somId methodId, 
+                                                           va_list ap)
+ {
++	boolean b;
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somDispatch(SOMObject SOMSTAR somSelf, 
++                                                          somToken* retValue, 
++                                                          somId methodId, 
++                                                          va_list ap)
++{
++	CORBA_boolean b;
++#endif
+ 	somMethodData md;
+-	boolean b=SOMClass_somGetMethodData(
++	b=SOMClass_somGetMethodData(
+ 			somMethodTabFromObject(somSelf)->classObject,methodId,&md);
+ 
+ 	if (!b) 
+@@ -198,12 +235,21 @@
+ 	return somApply(somSelf,retValue,&md,ap);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somobj_somClassDispatch(
+ 		SOMObject SOMSTAR somSelf, 
+ 		SOMClass SOMSTAR clsObj, 
+ 		somToken* retValue, 
+ 		somId methodId, 
+ 		va_list ap)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somClassDispatch(
++		SOMObject SOMSTAR somSelf, 
++		SOMClass SOMSTAR clsObj, 
++		somToken* retValue, 
++		somId methodId, 
++		va_list ap)
++#endif
+ {
+ 	somPrintf("SOMObject::somClassDispatch not implemented\n");
+ 
+@@ -215,9 +261,15 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean SOMLINK somobj_somCastObj(
+ 		SOMObject SOMSTAR somSelf, 
+         SOMClass SOMSTAR cls)
++#else
++SOM_Scope CORBA_boolean SOMLINK somobj_somCastObj(
++		SOMObject SOMSTAR somSelf, 
++        SOMClass SOMSTAR cls)
++#endif
+ {
+ 	somMethodTabPtr p=somMethodTabFromObject(somSelf);
+ 	somClassInfo info=somClassInfoFromMtab(p);
+@@ -234,8 +286,13 @@
+     return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean  SOMLINK somobj_somResetObj(
+ 	SOMObject SOMSTAR somSelf)
++#else
++SOM_Scope CORBA_boolean  SOMLINK somobj_somResetObj(
++	SOMObject SOMSTAR somSelf)
++#endif
+ {
+ 	SOM_IgnoreWarning(somSelf);
+ 
+@@ -251,8 +308,13 @@
+      return somSelf;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope void  SOMLINK somobj_somDumpSelf(SOMObject SOMSTAR somSelf, 
+                                                        long level)
++#else
++SOM_Scope void  SOMLINK somobj_somDumpSelf(SOMObject SOMSTAR somSelf, 
++                                                       CORBA_long level)
++#endif
+ {
+ 	 somPrefixLevel(level);
+ /*	 somPrintf("An instance of %s at address %p\n",
+@@ -266,9 +328,15 @@
+ 	 somPrintf("}\n");
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope void  SOMLINK somobj_somDumpSelfInt(
+ 		SOMObject SOMSTAR somSelf, 
+         long level)
++#else
++SOM_Scope void  SOMLINK somobj_somDumpSelfInt(
++		SOMObject SOMSTAR somSelf, 
++        CORBA_long level)
++#endif
+ {
+ #ifdef SOMObject_somRelease
+ 	somPrefixLevel(level);
+@@ -280,8 +348,13 @@
+ }
+ 
+ #ifdef SOMObject_somCanDelete
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean SOMLINK somobj_somCanDelete(
+ 	SOMObject SOMSTAR somSelf)
++#else
++SOM_Scope boolean SOMLINK somobj_somCanDelete(
++	SOMObject SOMSTAR somSelf)
++#endif
+ {
+ 	return 1;
+ }
+@@ -333,26 +406,39 @@
+ 
+ /* the following are migrated from SOMDObject */
+ #ifdef SOMObject_release
++#ifdef CORBA1MAPPING
+ SOM_Scope void SOMLINK somobj_release(SOMObject SOMSTAR somSelf,Environment *ev)
++#else
++SOM_Scope void SOMLINK somobj_release(SOMObject SOMSTAR somSelf,CORBA_Environment *ev)
++#endif
+ {
+ }
+ #endif
+ 
+ #ifdef SOMObject_duplicate
++#ifdef CORBA1MAPPING
+ SOM_Scope SOMObject SOMSTAR SOMLINK somobj_duplicate(SOMObject SOMSTAR somSelf,Environment *ev)
++#else
++SOM_Scope SOMObject SOMSTAR SOMLINK somobj_duplicate(SOMObject SOMSTAR somSelf,CORBA_Environment *ev)
++#endif
+ {
+ 	return somSelf;
+ }
+ #endif
+ 
+ #ifdef SOMObject_get_implementation
++#ifdef CORBA1MAPPING
+ SOM_Scope ImplementationDef SOMSTAR SOMLINK somobj_get_implementation(SOMObject SOMSTAR somSelf,Environment *ev)
++#else
++SOM_Scope ImplementationDef SOMSTAR SOMLINK somobj_get_implementation(SOMObject SOMSTAR somSelf,CORBA_Environment *ev)
++#endif
+ {
+ 	return NULL;
+ }
+ #endif
+ 
+ #ifdef SOMObject_create_request
++#ifdef CORBA1MAPPING
+ SOM_Scope ORBStatus SOMLINK somobj_create_request(
+ 	SOMObject SOMSTAR somSelf,
+ 	/* out */ Environment *ev,
+@@ -362,6 +448,17 @@
+ 	/* inout */ NamedValue *result,
+ 	/* out */ Request SOMSTAR *request,
+ 	/* in */ Flags req_flags)
++#else
++SOM_Scope ORBStatus SOMLINK somobj_create_request(
++	SOMObject SOMSTAR somSelf,
++	/* out */ CORBA_Environment *ev,
++	/* in */ Context SOMSTAR ctx,
++	/* in */ Identifier operation,
++	/* in */ NVList SOMSTAR arg_list,
++	/* inout */ NamedValue *result,
++	/* out */ Request SOMSTAR *request,
++	/* in */ Flags req_flags)
++#endif
+ {
+ 	RHBOPT_throw_StExcep(ev,NO_IMPLEMENT,NotImplemented,NO);
+ 
+@@ -370,12 +467,21 @@
+ #endif
+ 
+ #ifdef SOMObject_create_request_args
++#ifdef CORBA1MAPPING
+ SOM_Scope ORBStatus SOMLINK somobj_create_request_args(
+ 	SOMObject SOMSTAR somSelf,
+ 	/* out */ Environment *ev,
+ 	/* in */ Identifier operation,
+ 	/* out */ NVList SOMSTAR *arg_list,
+ 	/* out */ NamedValue *result)
++#else
++SOM_Scope ORBStatus SOMLINK somobj_create_request_args(
++	SOMObject SOMSTAR somSelf,
++	/* out */ CORBA_Environment *ev,
++	/* in */ Identifier operation,
++	/* out */ NVList SOMSTAR *arg_list,
++	/* out */ NamedValue *result)
++#endif
+ {
+ 	RHBOPT_throw_StExcep(ev,NO_IMPLEMENT,NotImplemented,NO);
+ 
+@@ -399,7 +505,11 @@
+ 	if (data->idLookup) SOMFree(data->idLookup);
+ 	if (data->rep)
+ 	{
++#ifdef CORBA1MAPPING
+ 		Environment ev;
++#else
++		CORBA_Environment ev;
++#endif
+ 		SOM_InitEnvironment(&ev);
+ 		SOMObject_release(data->rep,&ev);
+ 		SOM_UninitEnvironment(&ev);
+@@ -407,9 +517,15 @@
+ 
+ RHBOPT_cleanup_end
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope InterfaceDef SOMSTAR SOMLINK somobj_get_interface(
+ 	SOMObject SOMSTAR somSelf,
+ 	/* out */ Environment *ev)
++#else
++SOM_Scope InterfaceDef SOMSTAR SOMLINK somobj_get_interface(
++	SOMObject SOMSTAR somSelf,
++	/* out */ CORBA_Environment *ev)
++#endif
+ {
+ struct somobj_get_interface data={NULL,NULL,NULL};
+ InterfaceDef SOMSTAR ret=NULL;
+@@ -449,8 +565,13 @@
+ #endif
+ 
+ #ifdef SOMObject_is_proxy
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean SOMLINK somobj_is_proxy(SOMObject SOMSTAR somSelf,
+ 										  Environment *ev)
++#else
++SOM_Scope CORBA_boolean SOMLINK somobj_is_proxy(SOMObject SOMSTAR somSelf,
++										  CORBA_Environment *ev)
++#endif
+ {
+ 	return 0;
+ }
+@@ -500,9 +621,15 @@
+ 	return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOM_Scope void SOMLINK somobj_somDestruct(SOMObject SOMSTAR somSelf,
+ 										  boolean doFree,
+ 										  somDestructCtrl *ctrl)
++#else
++SOM_Scope void SOMLINK somobj_somDestruct(SOMObject SOMSTAR somSelf,
++										  CORBA_boolean doFree,
++										  somDestructCtrl *ctrl)
++#endif
+ {
+ 	somMethodTabPtr mtab=somSelf->mtab;
+ 	somClassInfo ci=somClassInfoFromMtab(mtab);
+@@ -536,7 +663,11 @@
+ 	if (i && ctrl->mask)
+ 	{
+ 		/* _BeginDestructor */
++#ifdef CORBA1MAPPING
+ 		const boolean * myMask=ctrl->mask;
++#else
++		const CORBA_boolean * myMask=ctrl->mask;
++#endif
+ 
+ 		/* _EndDestructor */
+ 
+@@ -601,7 +732,11 @@
+ 
+ struct walker_info
+ {
++#ifdef CORBA1MAPPING
+ 	octet call_style;		/* ret/arg flags */
++#else
++	CORBA_octet call_style;		/* ret/arg flags */
++#endif
+ 	size_t ctrl_offset;		/* offset to somAssignCtrl or somInitCtrl in somParentMtabStruct */
+ 	size_t info_offset;		/* offset of function in somInitInfo/somAssignInfo */
+ 	size_t legacy_offset;	/* somInit */
+@@ -910,22 +1045,40 @@
+ }
+ 
+ #ifdef SOMObject_is_nil
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean SOMLINK somobj_is_nil(SOMObject SOMSTAR somSelf,
+ 										Environment *ev)
++#else
++SOM_Scope CORBA_boolean SOMLINK somobj_is_nil(SOMObject SOMSTAR somSelf,
++										CORBA_Environment *ev)
++#endif
+ {
+ 	RHBOPT_ASSERT(somSelf ? somIsObj(somSelf) : 1);
+ 
++#ifdef CORBA1MAPPING
+ 	return (boolean)(somSelf ? 0 : 1);
++#else
++	return (CORBA_boolean)(somSelf ? 0 : 1);
++#endif
+ }
+ #endif
+ 
+ #ifdef SOMObject_is_nil_migrated
++#ifdef CORBA1MAPPING
+ SOM_Scope boolean SOMLINK somobj_is_nil_migrated(SOMObject SOMSTAR somSelf,
+ 										Environment *ev)
++#else
++SOM_Scope CORBA_boolean SOMLINK somobj_is_nil_migrated(SOMObject SOMSTAR somSelf,
++										CORBA_Environment *ev)
++#endif
+ {
+ 	RHBOPT_ASSERT(somSelf ? somIsObj(somSelf) : 1);
+ 
++#ifdef CORBA1MAPPING
+ 	return (boolean)(somSelf ? 0 : 1);
++#else
++	return (CORBA_boolean)(somSelf ? 0 : 1);
++#endif
+ }
+ #endif
+ 
+diff -urwN somfree/som/src/somobjva.c newsomfree/som/src/somobjva.c
+--- somfree/som/src/somobjva.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somobjva.c	Mon Nov 11 16:37:03 2024
+@@ -53,12 +53,21 @@
+ #undef va_SOMObject_somDispatch
+ #endif /* va_SOMObject_somDispatch */
+ 
++#ifdef CORBA1MAPPING
+ boolean OPTLINK_DECL va_SOMObject_somDispatch(SOMObject SOMSTAR somSelf,
+ 		somToken *retValue,
+ 		somId methodId,
+ 		...)
+ {
+ 	boolean __result;
++#else
++CORBA_boolean OPTLINK_DECL va_SOMObject_somDispatch(SOMObject SOMSTAR somSelf,
++		somToken *retValue,
++		somId methodId,
++		...)
++{
++	CORBA_boolean __result;
++#endif
+ 	va_list ap;
+ 
+ 	OPTLINK_3ARGS(somSelf,retValue,methodId)
+@@ -75,6 +84,7 @@
+ #undef va_SOMObject_somClassDispatch
+ #endif /* va_SOMObject_somClassDispatch */
+ 
++#ifdef CORBA1MAPPING
+ boolean OPTLINK_DECL va_SOMObject_somClassDispatch(SOMObject SOMSTAR somSelf,
+ 		SOMClass SOMSTAR clsObj,
+ 		somToken *retValue,
+@@ -82,6 +92,15 @@
+ 		...)
+ {
+ 	boolean __result;
++#else
++CORBA_boolean OPTLINK_DECL va_SOMObject_somClassDispatch(SOMObject SOMSTAR somSelf,
++		SOMClass SOMSTAR clsObj,
++		somToken *retValue,
++		somId methodId,
++		...)
++{
++	CORBA_boolean __result;
++#endif
+ 	va_list ap;
+ 
+ 	OPTLINK_3ARGS(somSelf,clsObj,retValue)
+diff -urwN somfree/som/src/somshlb.c newsomfree/som/src/somshlb.c
+--- somfree/som/src/somshlb.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/som/src/somshlb.c	Tue Nov 19 09:47:05 2024
+@@ -92,11 +92,15 @@
+ 
+ static int SOMLINK SOMKERN_deleteModule(somToken m)
+ {
++	SOM_TraceCore("SOMProcedure", __FUCNTION__);
++
+ #ifndef BUILD_STATIC
+ 	somStartCriticalSection();
+ 
+ #ifdef _PLATFORM_WIN32_
+ 	FreeLibrary(m);
++#elif _PLATFORM_OS2_
++	DosFreeModule((HMODULE)m);
+ #else
+ 	#ifdef HAVE_SYS_LDR_H
+ 		unload(m);
+@@ -127,6 +131,14 @@
+ 
+ #ifdef _PLATFORM_WIN32_
+ 	hMod=LoadLibrary(toString(fileName,tmp,sizeof(tmp)));
++#elsf _PLATFORM_OS2_
++	CHAR    LoadError[100];
++	USHORT  rc;
++
++	if (DosLoadModule(LoadError,                /* Object name buffer */
++                     sizeof(LoadError),        /* Length of object name buffer */
++                     fileName,              /* Module name string */
++                     (HMODULE)hMod)) hMod=NULL;      /* Module handle */
+ #else
+ 	#ifdef HAVE_SYS_LDR_H
+ 		hMod=(void *)load(fileName,1,NULL);
+@@ -156,6 +168,8 @@
+ {
+ 	#ifdef _PLATFORM_WIN32_
+ 		HMODULE hMod;
++	#elif _PLATFORM_OS2_
++		HMODULE hMod;
+ 	#else
+ 		#if defined(HAVE_DLFCN_H) || defined(HAVE_SYS_LDR_H)
+ 			void *hMod;
+@@ -172,7 +186,7 @@
+ 
+ struct SOMKERN_loadModule *data=pv;
+ 
+-	if (data->hMod) SOMKERN_deleteModule(data->hMod);
++	if (data->hMod) SOMKERN_deleteModule((somToken)data->hMod);
+ 
+ RHBOPT_cleanup_end
+ #endif
+@@ -188,6 +202,8 @@
+ 	RHBOPT_volatile int rc=-1;
+ 	struct SOMKERN_loadModule data={NULL};
+ 
++	SOM_TraceCore("SOMProcedure", __FUCNTION__);
++
+ 	RHBOPT_cleanup_push(SOMKERN_loadModule_cleanup,&data);
+ 
+ 	somStartCriticalSection();
+@@ -213,7 +229,7 @@
+ 			if ((i+j+2)<sizeof(buf))
+ 			{
+ 				memcpy(buf,q,i);
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__OS2__)
+ 				buf[i++]='\\';
+ #else
+ 				buf[i++]='/';
+@@ -271,6 +287,8 @@
+ 
+ #ifdef _PLATFORM_WIN32_
+ 		e=(somTP_SOMInitModule)GetProcAddress(data.hMod,toString(functionName,tmp,sizeof(tmp)));
++#elsif _PLATFORM_OS2_
++		if (DosGetProcAddress(data.hMod,functionName,e)) e=NULL;
+ #else
+ 	#ifdef HAVE_SYS_LDR_H
+ 			/* this is for AIX */
+@@ -339,6 +357,8 @@
+ 
+ 	#ifdef _PLATFORM_WIN32_
+ 				e2=(newClass)GetProcAddress(data.hMod,toString(buf,tmp,sizeof(tmp)));
++	#elif _PLATFORM_OS2_
++				if (DosGetProcAddress(data.hMod,buf,e2)) e2=NULL;
+ 	#else
+ 		#if defined(HAVE_DLFCN_H)
+ 				e2=(newClass)dlsym(data.hMod,buf);
+@@ -374,6 +394,7 @@
+ 
+ static char * SOMLINK SOMKERN_classInitFuncName(void)
+ {
++	SOM_TraceCore("SOMProcedure", __FUCNTION__);
+ #ifdef USE_DLSYM_UNDERSCORE
+ 	return "_SOMInitModule";
+ #else
+diff -urwN somfree/som/src/somunk.c newsomfree/som/src/somunk.c
+--- somfree/som/src/somunk.c	Thu Jan 01 07:00:00 1970
++++ newsomfree/som/src/somunk.c	Tue Nov 19 09:25:32 2024
+@@ -0,0 +1,30 @@
++/**************************************************************************
++ *
++ *  Copyright 2024, Yuri Prokushev
++ *
++ *  This file is part of osFree project.
++ *
++ *  This program is free software: you can redistribute it and/or modify it
++ *  under the terms of the GNU Lesser General Public License as published by the
++ *  Free Software Foundation, either version 3 of the License, or (at your
++ *  option) any later version.
++ * 
++ *  This program is distributed in the hope that it will be useful, but WITHOUT
++ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ *  more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public License
++ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
++ *
++ */
++
++#include <somkern.h>
++
++SOMEXTERN void SOMLINK somSaveMetrics(void)
++{
++}
++
++SOMEXTERN void SOMLINK somWriteMetrics(int u)
++{
++}
+diff -urwN somfree/somc/include/emitlib.h newsomfree/somc/include/emitlib.h
+--- somfree/somc/include/emitlib.h	Tue Nov 19 16:34:39 2024
++++ newsomfree/somc/include/emitlib.h	Sat Nov 09 23:44:49 2024
+@@ -96,7 +96,11 @@
+ SOMEXTERN Entry * OPTLINK_DECL somtnthArg(Entry * method, int n);
+ SOMEXTERN FILE * OPTLINK_DECL somtemitModule(char *file, Entry *cls, char *ext);
+ SOMEXTERN Mlist * OPTLINK_DECL somtallocDataList(Entry *cls);
++#ifdef CORBA1MAPPING
+ SOMEXTERN Mlist * OPTLINK_DECL somtallocMethodList(Entry *cls, boolean all);
++#else
++SOMEXTERN Mlist * OPTLINK_DECL somtallocMethodList(Entry *cls, CORBA_boolean all);
++#endif
+ SOMEXTERN char * OPTLINK_DECL somtclsfilename(Entry * cls);
+ SOMEXTERN char * OPTLINK_DECL somtclsname(Entry * cls);
+ SOMEXTERN char * OPTLINK_DECL somtfindMethodName(const char *bp, char *name);
+@@ -106,7 +110,11 @@
+ SOMEXTERN char * OPTLINK_DECL somtgetatt(Entry * ep, char *s);
+ SOMEXTERN char * OPTLINK_DECL somtgetdatt(Entry * ep, char *s);
+ SOMEXTERN enum SOMTABIStyle  OPTLINK_DECL somtgetAbistyle( Entry * ep );
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * OPTLINK_DECL somtimplicit(Entry *ep, boolean shortform, char *buf);
++#else
++SOMEXTERN char * OPTLINK_DECL somtimplicit(Entry *ep, CORBA_boolean shortform, char *buf);
++#endif
+ SOMEXTERN char * OPTLINK_DECL somtimplicitArgs(Entry *ep);
+ SOMEXTERN char * OPTLINK_DECL somtincludeOnce(Entry *cls, char *ext, char *buf);
+ SOMEXTERN char * OPTLINK_DECL somtpclsfilename(Entry *parent);
+@@ -114,10 +122,19 @@
+ SOMEXTERN char * OPTLINK_DECL somtprefixedPrototype(char *buf, Entry * method, char *sep, int varargs, char *prefix);
+ SOMEXTERN char * OPTLINK_DECL somtreplaceDataName(char *buf, Entry * data, char *replace);
+ SOMEXTERN char * OPTLINK_DECL somtrmSelf(char *str);
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * OPTLINK_DECL somtshortArgList(char *buf, Entry * method, char *sep, boolean varargs, boolean addself);
++#else
++SOMEXTERN char * OPTLINK_DECL somtshortArgList(char *buf, Entry * method, char *sep, CORBA_boolean varargs, CORBA_boolean addself);
++#endif
+ SOMEXTERN int  OPTLINK_DECL somtimplicitMeta(Entry *cls);
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  OPTLINK_DECL somtlistAttribute(FILE * fp, int n, AttList * ap, char *s, boolean value, boolean breakLine, boolean firstComma);
+ SOMEXTERN int  OPTLINK_DECL somtnewMethodsCount(Entry * cls, int meta, boolean procflg);
++#else
++SOMEXTERN int  OPTLINK_DECL somtlistAttribute(FILE * fp, int n, AttList * ap, char *s, CORBA_boolean value, CORBA_boolean breakLine, CORBA_boolean firstComma);
++SOMEXTERN int  OPTLINK_DECL somtnewMethodsCount(Entry * cls, int meta, CORBA_boolean procflg);
++#endif
+ SOMEXTERN int  OPTLINK_DECL somtprivateMethodsCount(Entry * cls, int meta);
+ SOMEXTERN void  OPTLINK_DECL somtaddHeader(char *file, FILE *fp, char *ext);
+ SOMEXTERN void  OPTLINK_DECL somtcleanFiles(int status);
+@@ -129,7 +146,11 @@
+ SOMEXTERN void  OPTLINK_DECL somtfreeMethodList(Mlist *mlist);
+ SOMEXTERN void  OPTLINK_DECL somtfullComment(FILE * fp, char *fmt,...);
+ SOMEXTERN void  OPTLINK_DECL somthandleDiskFull(FILE *fp);
++#ifdef CORBA1MAPPING
+ SOMEXTERN void  OPTLINK_DECL somtinitialiseMeta(Entry * cls, Stab * stab, boolean meta, int imp);
++#else
++SOMEXTERN void  OPTLINK_DECL somtinitialiseMeta(Entry * cls, Stab * stab, CORBA_boolean meta, int imp);
++#endif
+ SOMEXTERN void  OPTLINK_DECL somtoidlComment(FILE * fp, int min, int max, char style, char *comment);
+ SOMEXTERN void  OPTLINK_DECL somtscmsg(Entry *cls, Entry *ep, char *fmt, ...);
+ SOMEXTERN void  OPTLINK_DECL somtshortDefine(FILE *fp, Entry *ep, char *fmt, ...);
+@@ -139,12 +160,22 @@
+ SOMEXTERN void  OPTLINK_DECL somtgenAttStubs(FILE *fp, Entry *cls, char *prefix, char *classprefix);
+ SOMEXTERN void  OPTLINK_DECL somtstrictidl(FILE *fp);
+ SOMEXTERN void  OPTLINK_DECL somtcreateTypeCodes (Stab *stab);
++#ifdef CORBA1MAPPING
+ SOMEXTERN TypeCode * OPTLINK_DECL somtemitTcConstant (TypeCode t, FILE *f, char *name, TypeCode *alreadyDone);
++#else
++SOMEXTERN CORBA_TypeCode * OPTLINK_DECL somtemitTcConstant (CORBA_TypeCode t, FILE *f, char *name, CORBA_TypeCode *alreadyDone);
++#endif
+ SOMEXTERN void  OPTLINK_DECL somtemitPredefinedTcConstants (FILE *f);
+ SOMEXTERN Entry * OPTLINK_DECL somtAncestorClass(Entry *cls, char *name);
++#ifdef CORBA1MAPPING
+ SOMEXTERN short  OPTLINK_DECL somttcAlignment (TypeCode t, Environment *ev);
+ SOMEXTERN long  OPTLINK_DECL somttcSize (TypeCode t, Environment *ev);
+ SOMEXTERN TCKind  OPTLINK_DECL somttcKind (TypeCode t, Environment *ev);
++#else
++SOMEXTERN short  OPTLINK_DECL somttcAlignment (CORBA_TypeCode t, CORBA_Environment *ev);
++SOMEXTERN long  OPTLINK_DECL somttcSize (CORBA_TypeCode t, CORBA_Environment *ev);
++SOMEXTERN TCKind  OPTLINK_DECL somttcKind (CORBA_TypeCode t, CORBA_Environment *ev);
++#endif
+ SOMEXTERN sequence(string)  OPTLINK_DECL somttcSeqFromListString (string s);
+ SOMEXTERN _IDL_SEQUENCE_EntryPtr  OPTLINK_DECL somtGetReintroducedMethods(Entry *cls);
+ #endif
+@@ -152,7 +183,11 @@
+ SOMEXTERN Entry * SOMLINK somtnthArgSL(Entry * method, int n);
+ SOMEXTERN FILE * SOMLINK somtemitModuleSL(char *file, Entry *cls, char *ext);
+ SOMEXTERN Mlist * SOMLINK somtallocDataListSL(Entry *cls);
++#ifdef CORBA1MAPPING
+ SOMEXTERN Mlist * SOMLINK somtallocMethodListSL(Entry *cls, boolean all);
++#else
++SOMEXTERN Mlist * SOMLINK somtallocMethodListSL(Entry *cls, CORBA_boolean all);
++#endif
+ SOMEXTERN char * SOMLINK somtclsfilenameSL(Entry * cls);
+ SOMEXTERN char * SOMLINK somtclsnameSL(Entry * cls);
+ SOMEXTERN char * SOMLINK somtfindMethodNameSL(const char *bp, char *name);
+@@ -162,7 +197,11 @@
+ SOMEXTERN char * SOMLINK somtgetattSL(Entry * ep, char *s);
+ SOMEXTERN char * SOMLINK somtgetdattSL(Entry * ep, char *s);
+ SOMEXTERN enum SOMTABIStyle  SOMLINK somtgetAbistyleSL( Entry * ep );
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somtimplicitSL(Entry *ep, boolean shortform, char *buf);
++#else
++SOMEXTERN char * SOMLINK somtimplicitSL(Entry *ep, CORBA_boolean shortform, char *buf);
++#endif
+ SOMEXTERN char * SOMLINK somtimplicitArgsSL(Entry *ep);
+ SOMEXTERN char * SOMLINK somtincludeOnceSL(Entry *cls, char *ext, char *buf);
+ SOMEXTERN char * SOMLINK somtpclsfilenameSL(Entry *parent);
+@@ -170,10 +209,19 @@
+ SOMEXTERN char * SOMLINK somtprefixedPrototypeSL(char *buf, Entry * method, char *sep, int varargs, char *prefix);
+ SOMEXTERN char * SOMLINK somtreplaceDataNameSL(char *buf, Entry * data, char *replace);
+ SOMEXTERN char * SOMLINK somtrmSelfSL(char *str);
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somtshortArgListSL(char *buf, Entry * method, char *sep, boolean varargs, boolean addself);
++#else
++SOMEXTERN char * SOMLINK somtshortArgListSL(char *buf, Entry * method, char *sep, CORBA_boolean varargs, CORBA_boolean addself);
++#endif
+ SOMEXTERN int  SOMLINK somtimplicitMetaSL(Entry *cls);
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  SOMLINK somtlistAttributeSL(FILE * fp, int n, AttList * ap, char *s, boolean value, boolean breakLine, boolean firstComma);
+ SOMEXTERN int  SOMLINK somtnewMethodsCountSL(Entry * cls, int meta, boolean procflg);
++#else
++SOMEXTERN int  SOMLINK somtlistAttributeSL(FILE * fp, int n, AttList * ap, char *s, CORBA_boolean value, CORBA_boolean breakLine, CORBA_boolean firstComma);
++SOMEXTERN int  SOMLINK somtnewMethodsCountSL(Entry * cls, int meta, CORBA_boolean procflg);
++#endif
+ SOMEXTERN int  SOMLINK somtprivateMethodsCountSL(Entry * cls, int meta);
+ SOMEXTERN void  SOMLINK somtaddHeaderSL(char *file, FILE *fp, char *ext);
+ SOMEXTERN void  SOMLINK somtcleanFilesSL(int status);
+@@ -185,7 +233,11 @@
+ SOMEXTERN void  SOMLINK somtfreeMethodListSL(Mlist *mlist);
+ SOMEXTERN void  SOMLINK somtfullCommentSL(FILE * fp, char *fmt,...);
+ SOMEXTERN void  SOMLINK somthandleDiskFullSL(FILE *fp);
++#ifdef CORBA1MAPPING
+ SOMEXTERN void  SOMLINK somtinitialiseMetaSL(Entry * cls, Stab * stab, boolean meta, int imp);
++#else
++SOMEXTERN void  SOMLINK somtinitialiseMetaSL(Entry * cls, Stab * stab, CORBA_boolean meta, int imp);
++#endif
+ SOMEXTERN void  SOMLINK somtoidlCommentSL(FILE * fp, int min, int max, char style, char *comment);
+ SOMEXTERN void  SOMLINK somtscmsgSL(Entry *cls, Entry *ep, char *fmt, ...);
+ SOMEXTERN void  SOMLINK somtshortDefineSL(FILE *fp, Entry *ep, char *fmt, ...);
+@@ -195,12 +247,22 @@
+ SOMEXTERN void  SOMLINK somtgenAttStubsSL(FILE *fp, Entry *cls, char *prefix, char *classprefix);
+ SOMEXTERN void  SOMLINK somtstrictidlSL(FILE *fp);
+ SOMEXTERN void  SOMLINK somtcreateTypeCodesSL(Stab *stab);
++#ifdef CORBA1MAPPING
+ SOMEXTERN TypeCode * SOMLINK somtemitTcConstantSL(TypeCode t, FILE *f, char *name, TypeCode *alreadyDone);
++#else
++SOMEXTERN CORBA_TypeCode * SOMLINK somtemitTcConstantSL(CORBA_TypeCode t, FILE *f, char *name, CORBA_TypeCode *alreadyDone);
++#endif
+ SOMEXTERN void  SOMLINK somtemitPredefinedTcConstantsSL(FILE *f);
+ SOMEXTERN Entry * SOMLINK somtAncestorClassSL(Entry *cls, char *name);
++#ifdef CORBA1MAPPING
+ SOMEXTERN short  SOMLINK somttcAlignmentSL(TypeCode t, Environment *ev);
+ SOMEXTERN long  SOMLINK somttcSizeSL(TypeCode t, Environment *ev);
+ SOMEXTERN TCKind  SOMLINK somttcKindSL(TypeCode t, Environment *ev);
++#else
++SOMEXTERN short  SOMLINK somttcAlignmentSL(CORBA_TypeCode t, CORBA_Environment *ev);
++SOMEXTERN long  SOMLINK somttcSizeSL(CORBA_TypeCode t, CORBA_Environment *ev);
++SOMEXTERN TCKind  SOMLINK somttcKindSL(CORBA_TypeCode t, CORBA_Environment *ev);
++#endif
+ SOMEXTERN sequence(string)  SOMLINK somttcSeqFromListStringSL(string s);
+ SOMEXTERN _IDL_SEQUENCE_EntryPtr  SOMLINK somtGetReintroducedMethodsSL(Entry *cls);
+ 
+@@ -208,7 +270,11 @@
+  * Global variables
+  */
+ SOMEXTERN global int  SOMLINK somtCPP;          /* C++ bindings */
++#ifdef CORBA1MAPPING
+ SOMEXTERN global boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++#else
++SOMEXTERN global CORBA_boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++#endif
+ SOMEXTERN global char * SOMLINK somtclassName;  /* Current Class Name */
+ SOMEXTERN global char * SOMLINK somtclassPrefix;/* Current Class Prefix */
+ SOMEXTERN global char * SOMLINK somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
+diff -urwN somfree/somc/include/sctypes.h newsomfree/somc/include/sctypes.h
+--- somfree/somc/include/sctypes.h	Tue Nov 19 16:34:29 2024
++++ newsomfree/somc/include/sctypes.h	Sat Nov 09 20:09:14 2024
+@@ -18,7 +18,11 @@
+ SOMEXTERN void SOMLINK somtShowEntry(Entry * ep);
+ SOMEXTERN char * SOMLINK somtStrDup(char *str);
+ SOMEXTERN char * SOMLINK somtStrCat(int count,...);
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somtMakeIncludeStr(boolean local, char *stem, char *suffix);
++#else
++SOMEXTERN char * SOMLINK somtMakeIncludeStr(CORBA_boolean local, char *stem, char *suffix);
++#endif
+ SOMEXTERN char * SOMLINK somtNewSymbol(char *prefix, char *stem);
+ SOMEXTERN char * SOMLINK somtGetFileStem(char *fullName);
+ SOMEXTERN char * SOMLINK somtEntryTypeName(SOMTTypes type);
+diff -urwN somfree/somc/include/sm.h newsomfree/somc/include/sm.h
+--- somfree/somc/include/sm.h	Tue Nov 19 16:34:29 2024
++++ newsomfree/somc/include/sm.h	Sat Nov 09 19:13:24 2024
+@@ -90,12 +90,20 @@
+ 
+ #ifndef SOM_BOOLEAN
+   #define SOM_BOOLEAN
++#ifdef CORBA1MAPPING
+   typedef unsigned char boolean;
++#else
++  typedef unsigned char CORBA_boolean;
++#endif
+ #endif /* SOM_BOOLEAN */
+ 
+ #ifndef SOM_TYPECODE
+   #define SOM_TYPECODE
++#ifdef CORBA1MAPPING
+   typedef void * TypeCode;
++#else
++  typedef void * CORBA_TypeCode;
++#endif
+ #endif /* SOM_TYPECODE */
+ 
+ /*
+@@ -404,7 +412,11 @@
+     _AttList *release;                 /* Release order associated with class */
+     _SOMTPassthruEntryC *passthrus;    /* List of passthrus for this class */
+     _SOMTDataEntryC *data;             /* List of instance data declarations */
++#ifdef CORBA1MAPPING
+     TypeCode dataTc;                   /* Instance data struct TypeCode */
++#else
++    CORBA_TypeCode dataTc;             /* Instance data struct TypeCode */
++#endif
+     short methodcnt;                   /* Number of NEW methods in the class */
+     _SOMTMethodEntryC *methods;        /* Pointer to first method */
+     _Mlist *inherited;                 /* Pointer to inherited non/overridden
+@@ -622,7 +634,11 @@
+     char **sname;                      /* Scoped name */
+     char *comment;                     /* Comment associated with entry */
+     _AttList *atts;                    /* List of attributes */
++#if CORBA1MAPPING
+     TypeCode tc;                       /* TypeCode if appropriate, or NULL */
++#else
++    CORBA_TypeCode tc;                       /* TypeCode if appropriate, or NULL */
++#endif
+     long lineno;                       /* Line number in source file */
+ #ifdef SOMTEntryC
+     SOMTEntryC *objref;                /* Points to the object containing this
+diff -urwN somfree/somc/include/smlib.h newsomfree/somc/include/smlib.h
+--- somfree/somc/include/smlib.h	Tue Nov 19 16:34:37 2024
++++ newsomfree/somc/include/smlib.h	Sat Nov 09 19:27:53 2024
+@@ -64,7 +64,11 @@
+ 
+ typedef struct {
+     jmp_buf jmpbuf;
++#ifdef CORBA1MAPPING
+     boolean called;
++#else
++    CORBA_boolean called;
++#endif
+     int  status;
+ } SOMTExitBuf;
+ 
+@@ -211,7 +215,11 @@
+ SOMEXTERN int  OPTLINK_DECL somtokrename(const char*, const char *);
+ SOMEXTERN FILE * OPTLINK_DECL somtopenEmitFile(char *file, char *ext);
+ SOMEXTERN BOOL  OPTLINK_DECL somtisDbcs(int c);
++#ifdef CORBA1MAPPING
+ SOMEXTERN boolean  OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf);
++#else
++SOMEXTERN CORBA_boolean  OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf);
++#endif
+ SOMEXTERN char * OPTLINK_DECL somtaddExt(char *name, char *ext, char *buf);
+ SOMEXTERN char * OPTLINK_DECL somtarrayToPtr(Entry *ep, char *stars, char *buf);
+ SOMEXTERN char * OPTLINK_DECL somtattNormalise(char *name, char *buf);
+@@ -283,7 +291,11 @@
+ SOMEXTERN void  OPTLINK_DECL somtmrimsg(char *file, long lineno, int msgnum,...);
+ SOMEXTERN void  OPTLINK_DECL somtmriwarn(char *file, long lineno, int msgnum,...);
+ SOMEXTERN void  OPTLINK_DECL somtsetInternalMessages(char *too_long, char *cant_continue, char *segv, char *bus);
++#ifdef CORBA1MAPPING
+ SOMEXTERN boolean  OPTLINK_DECL somtisvoid(Entry *type, char *defn);
++#else
++SOMEXTERN CORBA_boolean  OPTLINK_DECL somtisvoid(Entry *type, char *defn);
++#endif
+ SOMEXTERN BOOL  OPTLINK_DECL somtreturnsStruct(Entry *ep);
+ SOMEXTERN BOOL  OPTLINK_DECL somtreturnsPtr(Entry *ep);
+ SOMEXTERN char * OPTLINK_DECL somtsimpleName(Entry *ep);
+diff -urwN somfree/somc/src/emitlib.c newsomfree/somc/src/emitlib.c
+--- somfree/somc/src/emitlib.c	Tue Nov 19 16:34:37 2024
++++ newsomfree/somc/src/emitlib.c	Sun Nov 10 00:37:11 2024
+@@ -2,7 +2,11 @@
+ #include <emitlib.h>
+ 
+ global int  SOMLINK somtCPP;          /* C++ bindings */
++#ifdef CORBA1MAPPING
+ global boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++#else
++global CORBA_boolean  SOMLINK somtclassIdlCall;/* IDL Calling convention */
++#endif
+ global char * SOMLINK somtclassName;  /* Current Class Name */
+ global char * SOMLINK somtclassPrefix;/* Current Class Prefix */
+ global char * SOMLINK somtg_somlink;  /* Set to "SOMLINK" when required - csc, psc emitters turn this off. */
+@@ -36,7 +40,11 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN Mlist * OPTLINK_DECL somtallocMethodList(Entry *cls, boolean all)
++#else
++SOMEXTERN Mlist * OPTLINK_DECL somtallocMethodList(Entry *cls, CORBA_boolean all)
++#endif
+ {
+   return NULL;
+ }
+@@ -87,7 +95,11 @@
+   return SOMTABIStyle_unknown;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * OPTLINK_DECL somtimplicit(Entry *ep, boolean shortform, char *buf)
++#else
++SOMEXTERN char * OPTLINK_DECL somtimplicit(Entry *ep, CORBA_boolean shortform, char *buf)
++#endif
+ {
+   return NULL;
+ }
+@@ -132,7 +144,11 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * OPTLINK_DECL somtshortArgList(char *buf, Entry * method, char *sep, boolean varargs, boolean addself)
++#else
++SOMEXTERN char * OPTLINK_DECL somtshortArgList(char *buf, Entry * method, char *sep, CORBA_boolean varargs, CORBA_boolean addself)
++#endif
+ {
+   return NULL;
+ }
+@@ -142,12 +158,20 @@
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  OPTLINK_DECL somtlistAttribute(FILE * fp, int n, AttList * ap, char *s, boolean value, boolean breakLine, boolean firstComma)
++#else
++SOMEXTERN int  OPTLINK_DECL somtlistAttribute(FILE * fp, int n, AttList * ap, char *s, CORBA_boolean value, CORBA_boolean breakLine, CORBA_boolean firstComma)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  OPTLINK_DECL somtnewMethodsCount(Entry * cls, int meta, boolean procflg)
++#else
++SOMEXTERN int  OPTLINK_DECL somtnewMethodsCount(Entry * cls, int meta, CORBA_boolean procflg)
++#endif
+ {
+   return 0;
+ }
+@@ -229,7 +253,11 @@
+ 
+ char *nullStr="";
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN void  OPTLINK_DECL somtinitialiseMeta(Entry * cls, Stab * stab, boolean meta, int imp)
++#else
++SOMEXTERN void  OPTLINK_DECL somtinitialiseMeta(Entry * cls, Stab * stab, CORBA_boolean meta, int imp)
++#endif
+ {
+   if (!somtsomcls)
+   {
+@@ -306,7 +334,11 @@
+ {
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN TypeCode * OPTLINK_DECL somtemitTcConstant (TypeCode t, FILE *f, char *name, TypeCode *alreadyDone)
++#else
++SOMEXTERN CORBA_TypeCode * OPTLINK_DECL somtemitTcConstant (CORBA_TypeCode t, FILE *f, char *name, CORBA_TypeCode *alreadyDone)
++#endif
+ {
+   return NULL;
+ }
+@@ -320,17 +352,29 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN short  OPTLINK_DECL somttcAlignment (TypeCode t, Environment *ev)
++#else
++SOMEXTERN short  OPTLINK_DECL somttcAlignment (CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN long  OPTLINK_DECL somttcSize (TypeCode t, Environment *ev)
++#else
++SOMEXTERN long  OPTLINK_DECL somttcSize (CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN TCKind  OPTLINK_DECL somttcKind (TypeCode t, Environment *ev)
++#else
++SOMEXTERN TCKind  OPTLINK_DECL somttcKind (CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return (TCKind)NULL;
+ }
+@@ -364,7 +408,11 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN Mlist * SOMLINK somtallocMethodListSL(Entry *cls, boolean all)
++#else
++SOMEXTERN Mlist * SOMLINK somtallocMethodListSL(Entry *cls, CORBA_boolean all)
++#endif
+ {
+   return NULL;
+ }
+@@ -431,7 +479,11 @@
+   return SOMTABIStyle_2;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somtimplicitSL(Entry *ep, boolean shortform, char *buf)
++#else
++SOMEXTERN char * SOMLINK somtimplicitSL(Entry *ep, CORBA_boolean shortform, char *buf)
++#endif
+ {
+   return NULL;
+ }
+@@ -472,7 +524,11 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN char * SOMLINK somtshortArgListSL(char *buf, Entry * method, char *sep, boolean varargs, boolean addself)
++#else
++SOMEXTERN char * SOMLINK somtshortArgListSL(char *buf, Entry * method, char *sep, CORBA_boolean varargs, CORBA_boolean addself)
++#endif
+ {
+   return NULL;
+ }
+@@ -482,12 +538,20 @@
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  SOMLINK somtlistAttributeSL(FILE * fp, int n, AttList * ap, char *s, boolean value, boolean breakLine, boolean firstComma)
++#else
++SOMEXTERN int  SOMLINK somtlistAttributeSL(FILE * fp, int n, AttList * ap, char *s, CORBA_boolean value, CORBA_boolean breakLine, CORBA_boolean firstComma)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN int  SOMLINK somtnewMethodsCountSL(Entry * cls, int meta, boolean procflg)
++#else
++SOMEXTERN int  SOMLINK somtnewMethodsCountSL(Entry * cls, int meta, CORBA_boolean procflg)
++#endif
+ {
+   return 0;
+ }
+@@ -547,7 +611,11 @@
+ {
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN void  SOMLINK somtinitialiseMetaSL(Entry * cls, Stab * stab, boolean meta, int imp)
++#else
++SOMEXTERN void  SOMLINK somtinitialiseMetaSL(Entry * cls, Stab * stab, CORBA_boolean meta, int imp)
++#endif
+ {
+ }
+ 
+@@ -684,7 +752,11 @@
+ {
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN TypeCode * SOMLINK somtemitTcConstantSL(TypeCode t, FILE *f, char *name, TypeCode *alreadyDone)
++#else
++SOMEXTERN CORBA_TypeCode * SOMLINK somtemitTcConstantSL(CORBA_TypeCode t, FILE *f, char *name, CORBA_TypeCode *alreadyDone)
++#endif
+ {
+   return NULL;
+ }
+@@ -698,17 +770,29 @@
+   return NULL;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN short  SOMLINK somttcAlignmentSL(TypeCode t, Environment *ev)
++#else
++SOMEXTERN short  SOMLINK somttcAlignmentSL(CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN long  SOMLINK somttcSizeSL(TypeCode t, Environment *ev)
++#else
++SOMEXTERN long  SOMLINK somttcSizeSL(CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return 0;
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN TCKind  SOMLINK somttcKindSL(TypeCode t, Environment *ev)
++#else
++SOMEXTERN TCKind  SOMLINK somttcKindSL(CORBA_TypeCode t, CORBA_Environment *ev)
++#endif
+ {
+   return (TCKind)NULL;
+ }
+diff -urwN somfree/somc/src/somc.c newsomfree/somc/src/somc.c
+--- somfree/somc/src/somc.c	Tue Nov 19 16:34:39 2024
++++ newsomfree/somc/src/somc.c	Sat Nov 09 21:21:27 2024
+@@ -412,7 +412,11 @@
+   return somtisDbcsSL(c);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN boolean OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf)
++#else
++SOMEXTERN CORBA_boolean OPTLINK_DECL somtremoveExt(char *name, char *ext, char *buf)
++#endif
+ {
+   if (somtSOM30ABI)
+   {
+@@ -972,7 +976,11 @@
+   somtsetInternalMessagesSL(too_long, cant_continue, segv, bus);
+ }
+ 
++#ifdef CORBA1MAPPING
+ SOMEXTERN boolean OPTLINK_DECL somtisvoid(Entry *etype, char *defn)
++#else
++SOMEXTERN CORBA_boolean OPTLINK_DECL somtisvoid(Entry *etype, char *defn)
++#endif
+ {
+   if (somtSOM30ABI)
+   {
+diff -urwN somfree/somcdr/include/rhbsomkd.h newsomfree/somcdr/include/rhbsomkd.h
+--- somfree/somcdr/include/rhbsomkd.h	Tue Nov 19 16:34:03 2024
++++ newsomfree/somcdr/include/rhbsomkd.h	Mon Nov 11 16:21:56 2024
+@@ -43,6 +43,9 @@
+ 		#else
+ 			#define RHBSOMUT_CriticalSectionInit	{{0}}
+ 		#endif
++	#elif defined(__OS2__)
++                HMTX mutex;
++		#define RHBSOMUT_CriticalSectionInit	{{0}}
+ 	#else
+ 		CRITICAL_SECTION crit_sect;
+ 		#define RHBSOMUT_CriticalSectionInit	{{0}}
+@@ -58,12 +61,21 @@
+ struct RHBSOMUT_KeyDataSetVtbl
+ {
+ 	void (*uninit)(RHBSOMUT_KeyDataSet *);
++#ifdef CORBA1MAPPING
+ 	boolean (*add)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
+ 	boolean (*remove)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
++#else
++	CORBA_boolean (*add)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
++	CORBA_boolean (*remove)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
++#endif
+ 	unsigned long (*count)(RHBSOMUT_KeyDataSet *);
+ 	RHBSOMUT_KeyData *(*find)(RHBSOMUT_KeyDataSet *,RHBSOMUT_Key *);
+ 	RHBSOMUT_KeyData *(*get)(RHBSOMUT_KeyDataSet *,unsigned long);
++#ifdef CORBA1MAPPING
+ 	boolean (*contains)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
++#else
++	CORBA_boolean (*contains)(RHBSOMUT_KeyDataSet *,RHBSOMUT_KeyData *);
++#endif
+ };
+ 
+ #define RHBCDR_kds_is_empty(kds)		 ((!((kds)->lpVtbl))||(!((kds)->dataset._length)))
+diff -urwN somfree/somcdr/include/rhbsomut.h newsomfree/somcdr/include/rhbsomut.h
+--- somfree/somcdr/include/rhbsomut.h	Tue Nov 19 16:34:03 2024
++++ newsomfree/somcdr/include/rhbsomut.h	Sat Nov 09 14:14:29 2024
+@@ -38,7 +38,11 @@
+ 
+ #ifndef SOM_TYPECODE
+ #define SOM_TYPECODE
++#ifdef CORBA1MAPPING
+ typedef struct TypeCodeData  *TypeCode;
++#else
++typedef struct TypeCodeData  *TypeCode;
++#endif
+ #endif
+ 
+ #ifdef __cplusplus
+diff -urwN somfree/somcdr/src/rhbsomkd.c newsomfree/somcdr/src/rhbsomkd.c
+--- somfree/somcdr/src/rhbsomkd.c	Tue Nov 19 16:34:03 2024
++++ newsomfree/somcdr/src/rhbsomkd.c	Wed Nov 13 10:37:07 2024
+@@ -39,6 +39,11 @@
+ 		#define RHBSOMKD_unlock(x)		pthread_mutex_unlock(&x->guardian.mutex); }
+ 		#define RHBSOMKD_lock2(x)	pthread_mutex_lock(&x->guardian.mutex); }
+ 		#define RHBSOMKD_unlock2(x)	{ pthread_mutex_unlock(&x->guardian.mutex); 
++        #elif defined(__OS2__)
++		#define RHBSOMKD_lock(x)	{ DosRequestMutexSem(x->guardian.mutex, -1);
++		#define RHBSOMKD_unlock(x)		DosReleaseMutexSem(x->guardian.mutex); }
++		#define RHBSOMKD_lock2(x)	DosRequestMutexSem(x->guardian.mutex, -1); }
++		#define RHBSOMKD_unlock2(x)	{ DosReleaseMutexSem(x->guardian.mutex); 
+ 	#else
+ 		#define RHBSOMKD_lock(x)	{ EnterCriticalSection(&x->guardian.crit_sect);
+ 		#define RHBSOMKD_unlock(x)		LeaveCriticalSection(&x->guardian.crit_sect); }
+@@ -97,16 +102,25 @@
+ #ifdef USE_THREADS
+ 	#ifdef USE_PTHREADS
+ 		pthread_mutex_destroy(&kds->guardian.mutex);
++        #elif defined(__OS2__)
++                DosCloseMutexSem(kds->guardian.mutex);
+ 	#else
+ 		DeleteCriticalSection(&kds->guardian.crit_sect);
+ 	#endif
+ #endif
+ }
+ 
++#ifdef CORBA1MAPPING
+ static boolean RHBCDR_kds_where(
+ 		RHBSOMUT_KeyDataSet *kds,
+ 		RHBSOMUT_Key *kdp,
+ 		unsigned long *posn)
++#else
++static CORBA_boolean RHBCDR_kds_where(
++		RHBSOMUT_KeyDataSet *kds,
++		RHBSOMUT_Key *kdp,
++		unsigned long *posn)
++#endif
+ {	
+ 	unsigned long n=0;
+ 
+@@ -225,12 +239,20 @@
+ 	return kds->dataset._maximum;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static boolean rhbgioporb_kds_add(
+ 		RHBSOMUT_KeyDataSet *kds,
+ 		RHBSOMUT_KeyDataPtr kdp)
+ {
+-	unsigned long l,k=0;
+ 	boolean added=0;
++#else
++static CORBA_boolean rhbgioporb_kds_add(
++		RHBSOMUT_KeyDataSet *kds,
++		RHBSOMUT_KeyDataPtr kdp)
++{
++	CORBA_boolean added=0;
++#endif
++	unsigned long l,k=0;
+ 
+ /*	RHBOPT_ASSERT(!kdp->count) */
+ 
+@@ -274,12 +296,20 @@
+ 	return added;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static boolean rhbgioporb_kds_remove(
+ 		RHBSOMUT_KeyDataSet *kds,
+ 		RHBSOMUT_KeyDataPtr kdp)
+ {
+-	unsigned long l=0;
+ 	boolean removed=0;
++#else
++static CORBA_boolean rhbgioporb_kds_remove(
++		RHBSOMUT_KeyDataSet *kds,
++		RHBSOMUT_KeyDataPtr kdp)
++{
++	CORBA_boolean removed=0;
++#endif
++	unsigned long l=0;
+ 	void *free_me=NULL;
+ 
+ 	RHBSOMKD_lock(kds)
+@@ -383,11 +413,18 @@
+ 	return ul;
+ }
+ 
++#ifdef CORBA1MAPPING
+ static boolean rhbgioporb_kds_contains(RHBSOMUT_KeyDataSet *kds,
+ 									   RHBSOMUT_KeyData *key)
+ {
+-	unsigned long index=0;
+ 	boolean result=0;
++#else
++static CORBA_boolean rhbgioporb_kds_contains(RHBSOMUT_KeyDataSet *kds,
++									   RHBSOMUT_KeyData *key)
++{
++	CORBA_boolean result=0;
++#endif
++	unsigned long index=0;
+ 
+ 	RHBSOMKD_lock(kds)
+ 
+@@ -427,6 +464,8 @@
+ #ifdef USE_THREADS
+ 	#ifdef USE_PTHREADS
+ 		pthread_mutex_init(&kds->guardian.mutex,RHBOPT_pthread_mutexattr_default);
++        #elif defined(__OS2__)
++                DosCreateMutexSem(NULL, &kds->guardian.mutex, 0, 0);
+ 	#else
+ 		InitializeCriticalSection(&kds->guardian.crit_sect);
+ 	#endif
+diff -urwN somfree/somcorb2/win32/somcorba.cmd newsomfree/somcorb2/win32/somcorba.cmd
+--- somfree/somcorb2/win32/somcorba.cmd	Tue Nov 19 16:34:30 2024
++++ newsomfree/somcorb2/win32/somcorba.cmd	Thu Nov 14 18:07:27 2024
+@@ -15,7 +15,7 @@
+ 
+ :normal
+ echo Generating the CORBA C Bindings:
+-set SC=%SOMBASE%\bin\sc.exe
++set SC=%SOMBASE%\bin\somc.exe
+ cd %SOMBASE%\include
+ attrib -R som.h
+ attrib -R gen_c.efw
+diff -urwN somfree/somipc/include/rhbsc.h newsomfree/somipc/include/rhbsc.h
+--- somfree/somipc/include/rhbsc.h	Tue Nov 19 16:34:07 2024
++++ newsomfree/somipc/include/rhbsc.h	Fri Nov 15 14:00:11 2024
+@@ -806,6 +806,10 @@
+ 	boolean cplusplus;
+ 	boolean internal;
+ 	boolean testonly;
++	boolean corba2;
++	boolean corba2types;
++
++	boolean is_basic_type(const char * n);
+ 
+ 	void preflight_macros_from_idl_filename(const char *);
+ 
+diff -urwN somfree/somipc/src/rhbschdr.cpp newsomfree/somipc/src/rhbschdr.cpp
+--- somfree/somipc/src/rhbschdr.cpp	Tue Nov 19 16:34:40 2024
++++ newsomfree/somipc/src/rhbschdr.cpp	Mon Nov 18 11:00:02 2024
+@@ -488,6 +488,8 @@
+ 		return;
+ 	}
+ 
++	out_printf(out,"/*\n * Start of bindings for IDL types\n */\n");
++
+ 	e=mod->children();
+ 
+ 	while (e)
+@@ -609,6 +611,7 @@
+ 
+ 		e=e->next();
+ 	}
++	out_printf(out,"/*\n * End of bindings for IDL types\n */\n");
+ }
+ 
+ void RHBheader_emitter::gen_typecode_macro(RHBoutput *out,RHBtype *type,int nest)
+@@ -980,11 +983,24 @@
+ 
+ 	dump_nest(out,nest);
+ 
+-	out_printf(out,"typedef ");
++	out_printf(out,"#ifdef CORBA1MAPPING \n");
+ 
++	out_printf(out,"typedef ");
+ 	use_type(out,td->alias_for,n);
++	out_printf(out,";\n");
+ 
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++
++	corba2=1;
++
++	out_printf(out,"typedef ");
++	use_type(out,td->alias_for,n);
+ 	out_printf(out,";\n");
++	corba2=0;
++
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
++
++
+ 
+ 	generate_sequence(out,td,nest);
+ }
+@@ -1098,6 +1114,64 @@
+ 
+ 	dump_nest(out,nest);
+ 
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
++	if (alias_name)
++	{
++		out_printf(out,"typedef struct %s",alias_name);
++	}
++	else
++	{
++		out_printf(out,"typedef struct %s",n);
++	}
++
++	if (s->children())
++	{
++		out_printf(out,"\n");
++
++		dump_nest(out,nest);
++		out_printf(out,"{\n");
++
++		el=s->children();
++
++		while (el)
++		{
++			RHBtype *t=el->is_type();
++
++			if (t)
++			{
++				RHBstruct_element *se=t->is_struct_element();
++
++				if (se)
++				{
++					generate_struct_element(se,out,nest+1);
++				}
++			}
++
++			el=el->next();
++		}
++
++		dump_nest(out,nest);
++		out_printf(out,"} ");
++	}
++	else
++	{
++		out_printf(out," ");
++	}
++
++	if (alias_name)
++	{
++		out_printf(out,"%s;\n",alias_name);
++	}
++	else
++	{
++		out_printf(out,"%s;\n",n);
++	}
++
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++
++	corba2=1;
++
+ 	if (alias_name)
+ 	{
+ 		out_printf(out,"typedef struct %s",alias_name);
+@@ -1150,6 +1224,10 @@
+ 		out_printf(out,"%s;\n",n);
+ 	}
+ 
++	corba2=0;
++
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
++
+ 	align_end(out,user_data,nest);
+ 
+ 	if (!instanceData)
+@@ -1433,10 +1511,27 @@
+ 	}
+ }
+ 
++boolean RHBheader_emitter::is_basic_type(const char * n)
++{
++	return (corba2types||corba2)&& (
++		!strcmp("short", n) ||
++		!strcmp("long", n) ||
++		!strcmp("float", n) ||
++		!strcmp("double", n) ||
++		!strcmp("char", n) ||
++		!strcmp("wchar", n) ||
++		!strcmp("boolean", n) ||
++		!strcmp("any", n) ||
++		!strcmp("TypeCode", n) ||
++		!strcmp("Exception", n) ||
++		!strcmp("Environment", n) ||
++		!strcmp("octet", n)
++		) ;
++}
++
+ void RHBheader_emitter::use_type(RHBoutput *out,RHBtype *typ,const char *name)
+ {	
+ 	RHBarray *ar=typ->is_array();;
+-
+ 	if (ar)
+ 	{
+ 		long val=ar->elements->numeric_value();
+@@ -1504,8 +1599,16 @@
+ 
+ 				if (qual)
+ 				{
++					char n[256];
++					if (corba2types) 
++					{
++						out_printf(out,"CORBA_%s_",qual->id);
++					} else {
+ 					out_printf(out,"%s ",qual->id);
+-					use_type(out,qual->base_type,0);
++					}
++					get_c_name(qual->base_type,n,sizeof(n));
++					out_printf(out,"%s ", n);
++					//use_type(out,qual->base_type,0);
+ 				}
+ 				else
+ 				{
+@@ -1515,6 +1618,8 @@
+ 					if (st)
+ 					{
+ 						get_c_name(st,n,sizeof(n)); /* did say 'struct %s '*/
++						// Prefix basic data types with CORBA_
++						if (is_basic_type(n)) out_printf(out,"CORBA_");
+ 						out_printf(out,"%s ",n);
+ 					}
+ 					else
+@@ -1550,6 +1655,8 @@
+ 									bomb("Istring");
+ 								}
+ 
++								// Prefix basic data types with CORBA_
++								if (is_basic_type(n)) out_printf(out,"CORBA_");
+ 								out_printf(out,"%s ",n);
+ 							}
+ 						}
+@@ -1576,7 +1683,7 @@
+ 
+ 	get_most_primitive_name(seq->sequence_of,buf,sizeof(buf));
+ 
+-	snprintf(name,len,"_IDL_SEQUENCE_%s",buf);
++	snprintf(name,len,"_IDL_SEQUENCE_%s%s",is_basic_type(buf)?"CORBA_":"",buf);
+ }
+ 
+ RHBtype * RHBheader_emitter::get_most_primitive_name(RHBtype *typ,char *name,size_t namelen)
+@@ -1680,10 +1787,43 @@
+ 
+ 		sequences.add(n);
+ 
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
++
++		dump_nest(out,nest);
++		out_printf(out,"#ifndef _IDL_SEQUENCE_%s%s_defined\n",is_basic_type(n)?"CORBA_":"", n);
++		dump_nest(out,nest+1);
++		out_printf(out,"#define _IDL_SEQUENCE_%s%s_defined\n",is_basic_type(n)?"CORBA_":"", n);
++
++		dump_nest(out,nest+1);
++
++		if (typ->is_interface() 
++				|| typ->is_pointer() 
++				|| typ->is_qualified() 
++				|| typ->is_array() 
++				|| typ->is_sequence())
++		{
++			out_printf(out,"SOM_SEQUENCE_TYPEDEF_NAME(");
++
++			use_type(out,typ,0);
++
++			out_printf(out,",sequence(%s%s));\n",is_basic_type(n)?"CORBA_":"", n);
++		}
++		else
++		{
++			out_printf(out,"SOM_SEQUENCE_TYPEDEF(%s%s);\n", is_basic_type(n)?"CORBA_":"", n);
++		}
++
++		dump_nest(out,nest);
++		
++		out_printf(out,"#endif /* _IDL_SEQUENCE_%s%s_defined */\n", is_basic_type(n)?"CORBA_":"", n);
++
++		out_printf(out,"#else /* CORBA1MAPPING */ \n");
++
++		corba2=1;
+ 		dump_nest(out,nest);
+-		out_printf(out,"#ifndef _IDL_SEQUENCE_%s_defined\n",n);
++		out_printf(out,"#ifndef _IDL_SEQUENCE_%s%s_defined\n",is_basic_type(n)?"CORBA_":"", n);
+ 		dump_nest(out,nest+1);
+-		out_printf(out,"#define _IDL_SEQUENCE_%s_defined\n",n);
++		out_printf(out,"#define _IDL_SEQUENCE_%s%s_defined\n",is_basic_type(n)?"CORBA_":"", n);
+ 
+ 		dump_nest(out,nest+1);
+ 
+@@ -1697,16 +1837,18 @@
+ 
+ 			use_type(out,typ,0);
+ 
+-			out_printf(out,",sequence(%s));\n",n);
++			out_printf(out,",sequence(%s%s));\n",is_basic_type(n)?"CORBA_":"", n);
+ 		}
+ 		else
+ 		{
+-			out_printf(out,"SOM_SEQUENCE_TYPEDEF(%s);\n",n);
++			out_printf(out,"SOM_SEQUENCE_TYPEDEF(%s%s);\n", is_basic_type(n)?"CORBA_":"", n);
+ 		}
+ 
+ 		dump_nest(out,nest);
++		corba2=0;
++		out_printf(out,"#endif /* _IDL_SEQUENCE_%s%s_defined */\n", is_basic_type(n)?"CORBA_":"", n);
++		out_printf(out,"#endif /* CORBA1MAPPING */ \n");
+ 		
+-		out_printf(out,"#endif /* _IDL_SEQUENCE_%s_defined */\n",n);
+ 	}
+ }
+ 
+@@ -2574,7 +2716,7 @@
+ 						if (operation_needs_environment(iface,op))
+ 						{
+ 							dump_nest(out,nest+2);
+-							out_printf(out,"+sizeof(Environment *)\n");
++							out_printf(out,"+sizeof(CORBA_Environment *)\n");
+ 						}
+ 
+ 						if (operation_needs_context(iface,op))
+@@ -2745,7 +2887,7 @@
+ 		if (operation_needs_environment(iface,op))
+ 		{
+ 			dump_nest(out,nest+1);
+-			out_printf(out,"+sizeof(Environment *)\n");
++			out_printf(out,"+sizeof(CORBA_Environment *)\n");
+ 		}
+ 
+ 		if (operation_needs_context(iface,op))
+@@ -3170,7 +3312,7 @@
+ 		get_c_name(iface,n,sizeof(n));
+ 		out_printf(out,"#ifndef %sMethodDebug\n",n);
+ 		dump_nest(out,nest+1);
+-		out_printf(out,"#define %sMethodDebug(x,y)\n",n);
++		out_printf(out,"#define %sMethodDebug(x,y) SOMMethodDebug(x,y)\n",n);
+ 		dump_nest(out,nest);
+ 		out_printf(out,"#endif /* %sMethodDebug */\n",n);
+ 
+@@ -3508,7 +3650,12 @@
+ 
+ 					dump_nest(out,3);
+ 					get_function_prefix(iface,n,sizeof(n));
++					
++					out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 					out_printf(out,"(somMethodPtr)%s%s,\n",n,op->id);
++					out_printf(out,"#else /* CORBA1MAPPING */\n");
++					out_printf(out,"(somMethodPtr)wrp_%s%s,\n",n,op->id);
++					out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ 					
+ 					out_printf(out,"#ifdef SOM_METHOD_STUBS\n");
+@@ -3616,7 +3763,13 @@
+ 
+ 			dump_nest(out,3);
+ 			get_function_prefix(iface,n,sizeof(n));
++	//		out_printf(out,"(somMethodPtr)%s%s\n",n,op->id);
++
++			out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 			out_printf(out,"(somMethodPtr)%s%s\n",n,op->id);
++			out_printf(out,"#else /* CORBA1MAPPING */\n");
++			out_printf(out,"(somMethodPtr)wrp_%s%s\n",n,op->id);
++			out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ 			dump_nest(out,2);
+ 			out_printf(out,"}");
+@@ -3664,7 +3817,12 @@
+ 					dump_nest(out,2);
+ 
+ 					get_function_prefix(iface,n,sizeof(n));
++//					out_printf(out,"(somMethodPtr)%s%s}\n",n,op->id);
++					out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 					out_printf(out,"(somMethodPtr)%s%s}\n",n,op->id);
++					out_printf(out,"#else /* CORBA1MAPPING */\n");
++					out_printf(out,"(somMethodPtr)wrp_%s%s}\n",n,op->id);
++					out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ 					x--;
+ 
+@@ -3727,7 +3885,11 @@
+ 			if (iface->instanceData->children())
+ 			{
+ 				get_c_name(iface,n,sizeof(n));
++				out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 				out_printf(out,"struct _somC_%s_dataAlignment { octet _o; %sData _d; };\n",n,n);
++				out_printf(out,"#else\n");
++				out_printf(out,"struct _somC_%s_dataAlignment { CORBA_octet _o; %sData _d; };\n",n,n);
++				out_printf(out,"#endif\n");
+ 			}
+ 		}
+ 	}
+@@ -4035,8 +4197,13 @@
+ 		}
+ 		else
+ 		{
++			out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 			out_printf(out,"(int)(size_t)&(((struct { octet _o; %sData _d; } *)0)->_d)\n",
+ 				n);
++			out_printf(out,"#else\n");
++			out_printf(out,"(int)(size_t)&(((struct { CORBA_octet _o; %sData _d; } *)0)->_d)\n",
++				n);
++			out_printf(out,"#endif\n");
+ 		}
+ 	}
+ 	else
+@@ -4406,7 +4573,7 @@
+ 
+ 	if (operation_needs_environment(iface,0))
+ 	{
+-		out_printf(out,"Environment *ev,");
++		out_printf(out,"CORBA_Environment *ev,");
+ 	}
+ 
+ 	{
+@@ -4499,7 +4666,7 @@
+ 
+ 	if (operation_needs_environment(iface,0))
+ 	{
+-		out_printf(out,",Environment *ev");
++		out_printf(out,",CORBA_Environment *ev");
+ 	}
+ 
+ 	out_printf(out,")\n{\n");
+@@ -5496,6 +5663,10 @@
+ 	undoublebar(out,somTP_name);
+ 
+ 	dump_nest(out,nest+1);
++
++//
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
+ 	out_printf(out,"typedef ");
+ 
+ 	RHBtype *t=op->return_type;
+@@ -5522,6 +5693,41 @@
+ 	out_printf(out,"(%s)",somTP_name);
+ 	generate_parameter_list(out,iface,op,nest+1,1,0);
+ 	out_printf(out,";\n");
++//
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++
++	corba2types=1;
++
++	out_printf(out,"typedef ");
++
++	t=op->return_type;
++
++	if (t)
++	{
++		RHBtype *slice=get_array_slice(t);
++
++		if (slice)
++		{
++			use_type(out,slice,0);
++			out->write("*",1);
++		}
++		else
++		{
++			use_type(out,t,0);
++		}
++	}
++	else
++	{
++		out_printf(out,"void ");
++	}
++
++	out_printf(out,"(%s)",somTP_name);
++	generate_parameter_list(out,iface,op,nest+1,1,0);
++	out_printf(out,";\n");
++
++	corba2types=0;
++
++	out_printf(out,"#endif\n");
+ 
+ 	dump_nest(out,nest+1);
+ 	out_printf(out,"#pragma linkage(%s,system)\n",somTP_name);
+@@ -5537,6 +5743,39 @@
+ 
+ 	dump_nest(out,nest+1);
+ 
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++//
++	out_printf(out,"typedef ");
++
++	t=op->return_type;
++	if (t)
++	{
++		RHBtype *slice=get_array_slice(t);
++
++		if (slice)
++		{
++			use_type(out,slice,0);
++			out->write("*",1);
++		}
++		else
++		{
++			use_type(out,t,0);
++		}
++	}
++	else
++	{
++		out_printf(out,"void ");
++	}
++
++	out_printf(out,"(SOMLINK * %s)",somTD_name);
++
++	generate_parameter_list(out,iface,op,nest+1,1,0);
++	out_printf(out,";\n");
++
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++
++	corba2types=1;
++
+ 	out_printf(out,"typedef ");
+ 
+ 	t=op->return_type;
+@@ -5562,8 +5801,13 @@
+ 	out_printf(out,"(SOMLINK * %s)",somTD_name);
+ 
+ 	generate_parameter_list(out,iface,op,nest+1,1,0);
++
+ 	out_printf(out,";\n");
+ 
++	corba2types=0;
++
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
++
+ 	dump_nest(out,nest);
+ 	out_printf(out,"#endif /* __IBMC__ */\n");
+ }
+@@ -5600,6 +5844,9 @@
+ 		use_type(out,iface,"somSelf");
+ 	}
+ 
++	if (!corba2)
++	{
++
+ 	if (operation_needs_environment(iface,op))
+ 	{
+ 		if (first_param)
+@@ -5612,8 +5859,13 @@
+ 			dump_nest(out,nesting+1);
+ 		}
+ 
++			if (corba2types)
++			{
++				out_printf(out,"CORBA_Environment *ev");
++			} else {
+ 		out_printf(out,"Environment *ev");
+ 	}
++		}
+ 
+ 	if (operation_needs_context(iface,op))
+ 	{
+@@ -5634,13 +5886,24 @@
+ 
+ 		if (cplusplus)
+ 		{
++				if (corba2types)
++				{
++					out_printf(out,"CORBA_Context * ctx");
++				} else {
+ 			out_printf(out,"Context * ctx");
+ 		}
++			}
+ 		else
+ 		{
++				if (corba2types)
++				{
++					out_printf(out,"CORBA_Context SOMSTAR ctx");
++				} else {
+ 			out_printf(out,"Context SOMSTAR ctx");
+ 		}
+ 	}
++		}
++	}
+ 
+ 	e=op->children();
+ 
+@@ -5683,13 +5946,59 @@
+ 			}
+ 
+ 			strcat(name,param->id);
+-
++//			printf("%s\n", name);
+ 			use_type(out,type,name);
+ 		}
+ 
+ 		e=e->next();
+ 	}
+ 
++	if (corba2)
++	{
++
++		if (operation_needs_environment(iface,op))
++		{
++			if (first_param)
++			{
++				first_param=0;
++			}
++			else
++			{
++				out_printf(out,",\n");
++				dump_nest(out,nesting+1);
++			}
++	
++			out_printf(out,"CORBA_Environment *ev");
++		}
++
++		if (operation_needs_context(iface,op))
++		{
++			if (first_param)
++			{
++				first_param=0;
++			}
++			else
++			{
++				out_printf(out,",\n");
++				dump_nest(out,nesting+1);
++			}
++
++			if (do_const_in)
++			{
++				out_printf(out,"const ");
++			}
++
++			if (cplusplus)
++			{
++				out_printf(out,"CORBA_Context * ctx");
++			}
++			else
++			{
++				out_printf(out,"CORBA_Context SOMSTAR ctx");
++			}
++		}
++	}
++
+ 	out_printf(out,")");
+ }
+ 
+@@ -6073,6 +6382,7 @@
  {
  	char n[256];
  	RHBelement *el;
@@ -9,7 +3978,7 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
  
  	get_c_name(op,n,sizeof(n));
  
-@@ -6088,7 +6089,18 @@
+@@ -6088,7 +6398,18 @@
  	}
  	else
  	{
@@ -28,7 +3997,7 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
  		out_printf(out,"#define %s(somSelf",n);
  
  		if (operation_needs_environment(iface,op))
-@@ -6117,7 +6129,7 @@
+@@ -6117,7 +6438,7 @@
  
  		out_printf(out,") \\\n");
  
@@ -37,47 +4006,34 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
  
  /*		i=sprintf(buf,"((somTD_%s)somResolve(somSelf,",n);
  		out->write(buf,i);
-@@ -6129,7 +6141,86 @@
+@@ -6129,7 +6450,7 @@
  		out_printf(out,"SOM_Resolve(somSelf,%s,%s)  \\\n",
  					n,op->id);
  
+-		dump_nest(out,nest+3);
 +		dump_nest(out,nest+3+na);
-+		out_printf(out,"(somSelf");
-+	
-+		if (operation_needs_environment(iface,op))
-+		{
-+			out_printf(out,",ev");
-+		}
-+	
-+		if (operation_needs_context(iface,op))
-+		{
-+			out_printf(out,",ctx");
-+		}
-+	
-+		el=op->children();
-+	
-+		while (el)
-+		{
-+			RHBparameter *param=el->is_parameter();
-+	
-+			if (param)
-+			{
-+				out_printf(out,",%s",param->id);
-+			}
-+	
-+			el=el->next();
-+		}
-+	
-+		out_printf(out,")\n");
-+	
+ 		out_printf(out,"(somSelf");
+ 
+ 		if (operation_needs_environment(iface,op))
+@@ -6157,25 +6478,109 @@
+ 		}
+ 
+ 		out_printf(out,")\n");
+-	}
+ 
+-	/* do the short name form */
 +		if ((operation_needs_environment(iface,op)) || (operation_needs_context(iface,op)))
 +		{
 +			dump_nest(out,nest+1);
-+	
+ 
+-	gen_shortname(out,op,"_",nest+1);
 +			out_printf(out,"#else /* CORBA1MAPPING */\n");
-+	
-+			get_c_name(op,n,sizeof(n));
-+			
+ 
+-	dump_nest(out,nest);
+ 	get_c_name(op,n,sizeof(n));
+-	out_printf(out,"#endif /* %s */\n",n);
+ 
+-	if (op_is_varg(op))
 +			dump_nest(out,nest+2);
 +		
 +			out_printf(out,"#define %s(somSelf",n);
@@ -85,11 +4041,16 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
 +			el=op->children();
 +		
 +			while (el)
-+			{
+ 	{
+-		extern_c_begin(out,nest);
 +				RHBparameter *param=el->is_parameter();
-+		
+ 
+-		if (nolegacy())
 +				if (param)
-+				{
+ 		{
+-			dump_nest(out,nest);
+-			out_printf(out,"#ifndef va_%s\n",n);
+-			dump_nest(out,nest+1);
 +					out_printf(out,",%s",param->id);
 +				}
 +		
@@ -108,7 +4069,7 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
 +		
 +			out_printf(out,") \\\n");
 +		
- 		dump_nest(out,nest+3);
++		dump_nest(out,nest+3);
 +		
 +/*			i=sprintf(buf,"((somTD_%s)somResolve(somSelf,",n);
 +			out->write(buf,i);
@@ -121,18 +4082,1188 @@ diff -urwN somfree/somipc/src/rhbschdr.cpp _somfree/somipc/src/rhbschdr.cpp
 +						n,op->id);
 +		
 +			dump_nest(out,nest+4);
- 		out_printf(out,"(somSelf");
- 
- 		if (operation_needs_environment(iface,op))
-@@ -6157,6 +6248,11 @@
- 		}
- 
- 		out_printf(out,")\n");
++		out_printf(out,"(somSelf");
++
++		if (operation_needs_environment(iface,op))
++		{
++			out_printf(out,",ev");
++		}
++
++		if (operation_needs_context(iface,op))
++		{
++			out_printf(out,",ctx");
++		}
++
++		el=op->children();
++
++		while (el)
++		{
++			RHBparameter *param=el->is_parameter();
++
++			if (param)
++			{
++				out_printf(out,",%s",param->id);
++			}
++
++			el=el->next();
++		}
++
++		out_printf(out,")\n");
 +			
 +			dump_nest(out,nest+1);
 +
 +			out_printf(out,"#endif /* CORBA1MAPPING */\n");
 +		}
++	}
++
++	/* do the short name form */
++
++	gen_shortname(out,op,"_",nest+1);
++
++	dump_nest(out,nest);
++	get_c_name(op,n,sizeof(n));
++	out_printf(out,"#endif /* %s */\n",n);
++
++	if (op_is_varg(op))
++	{
++		extern_c_begin(out,nest);
++
++		if (nolegacy())
++		{
++			dump_nest(out,nest);
++			out_printf(out,"#ifndef va_%s\n",n);
++			dump_nest(out,nest+1);
+ 			out_printf(out,"#define va_%s somva_%s\n",n,n);
+ 			dump_nest(out,nest);
+ 			out_printf(out,"#endif /* va_%s */\n",n);
+@@ -6306,6 +6711,36 @@
+ 	char n[256];
+ 
+ 	dump_nest(out,nest);
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
++	out_printf(out,"static ");
++
++	if (op->return_type)
++	{
++		RHBtype *as=get_array_slice(op->return_type);
++		if (as)
++		{
++			use_type(out,as,0);
++			out->write("* ",2);
++		}
++		else
++		{
++			use_type(out,op->return_type,0);
++		}
++	}
++	else
++	{
++		out_printf(out,"void ");
++	}
++
++	get_c_name(op,n,sizeof(n));
++
++	out_printf(out,"SOMLINK somRD_%s",n);
++	generate_parameter_list(out,iface,op,2,1,0);
++
++	out_printf(out,"\n#else /* CORBA1MAPPING */\n");
++
++	corba2types=1;
+ 	out_printf(out,"static ");
+ 
+ 	if (op->return_type)
+@@ -6329,6 +6764,8 @@
+ 	get_c_name(op,n,sizeof(n));
+ 	out_printf(out,"SOMLINK somRD_%s",n);
+ 	generate_parameter_list(out,iface,op,2,1,0);
++	corba2types=0;
++	out_printf(out,"\n#endif /* CORBA1MAPPING */\n");
+ }
+ 
+ boolean RHBheader_emitter::type_is_sequence(RHBtype *t)
+@@ -6421,6 +6858,7 @@
+ 
+ 		slice=get_array_slice(op->return_type);
+ 
++		out_printf(out,"#ifdef CORBA1MAPPING \n");
+ 		if (slice)
+ 		{
+ 			char retVal_assign[256];
+@@ -6444,6 +6882,33 @@
+ 			}
+ 		}
+ 		out_printf(out,";\n");
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		corba2types=1;
++		if (slice)
++		{
++			char retVal_assign[256];
++			snprintf(retVal_assign,sizeof(retVal_assign),"* %s=NULL",retVal_name);
++			use_type(out,slice,retVal_assign);
++		}
++		else
++		{
++			use_type(out,op->return_type,retVal_name);
++
++			if (type_is_sequence(op->return_type))
++			{
++				out_printf(out,"={0,0,NULL}");
++			}
++			else
++			{
++				if (type_is_any(op->return_type))
++				{
++					out_printf(out,"={NULL,NULL}");
++				}
++			}
++		}
++		out_printf(out,";\n");
++		corba2types=0;
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ /*		i=sprintf(buf,"#endif\n");
+ 		out->write(buf,i);*/
+@@ -6630,6 +7095,8 @@
+ 		return;
  	}
  
- 	/* do the short name form */
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
+ 	{
+ 		extern_c_proto_t extern_c_proto(this,out,nest);
+ 
+@@ -6640,6 +7107,20 @@
+ 		generate_apply_stub_proto(out,iface,op,nest);
+ 		out_printf(out,";\n");
+ 	}
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++	corba2types=1;
++	{
++		extern_c_proto_t extern_c_proto(this,out,nest);
++
++		strncpy(n,"somAP_",sizeof(n));
++		get_c_name(op,n+strlen(n),sizeof(n)-strlen(n));
++		undoublebar(out,n);
++
++		generate_apply_stub_proto(out,iface,op,nest);
++		out_printf(out,";\n");
++	}
++	corba2types=0;
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ 	dump_nest(out,nest);
+ 	out_printf(out,"#ifdef __IBMC__\n");
+@@ -6651,21 +7132,33 @@
+ 	dump_nest(out,nest);
+ 	out_printf(out,"#endif /* __IBMC__ */\n");
+ 
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 	generate_apply_stub_proto(out,iface,op,nest);
+-
+ 	out_printf(out,"\n");
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++	corba2types=1;
++	generate_apply_stub_proto(out,iface,op,nest);
++	out_printf(out,"\n");
++	corba2types=0;
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
++
+ 	dump_nest(out,nest);
+ 	out_printf(out,"{\n");
+ 
+ 	if (operation_needs_environment(iface,op))
+ 	{
+ 		dump_nest(out,nest+1);
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 		out_printf(out,"Environment *ev;\n");
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		out_printf(out,"CORBA_Environment *ev;\n");
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 	}
+ 
+ 	if (operation_needs_context(iface,op))
+ 	{
+ 		dump_nest(out,nest+1);
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 		if (cplusplus)
+ 		{
+ 			out_printf(out,"Context * ctx;\n");
+@@ -6674,6 +7167,16 @@
+ 		{
+ 			out_printf(out,"Context SOMSTAR ctx;\n");
+ 		}
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		if (cplusplus)
++		{
++			out_printf(out,"CORBA_Context * ctx;\n");
++		}
++		else
++		{
++			out_printf(out,"CORBA_Context SOMSTAR ctx;\n");
++		}
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 	}
+ 
+ 	el=op->children();
+@@ -6721,6 +7224,7 @@
+ 			}
+ 			else
+ 			{
++				out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 				use_type(out,local_type,0);
+ 
+ 				if (by_ref)
+@@ -6729,6 +7233,18 @@
+ 				}
+ 
+ 				out_printf(out,"%s;\n",param->id);
++				out_printf(out,"#else /* CORBA1MAPPING */\n");
++				corba2types=1;
++				use_type(out,local_type,0);
++
++				if (by_ref)
++				{
++					out->write("*",1);
++				}
++
++				out_printf(out,"%s;\n",param->id);
++				corba2types=0;
++				out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 			}
+ 		}
+ 
+@@ -6745,12 +7261,17 @@
+ 	if (operation_needs_environment(iface,op))
+ 	{
+ 		dump_nest(out,nest+1);
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 		out_printf(out,"ev=va_arg(_somC_ap,Environment *);\n");
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		out_printf(out,"ev=va_arg(_somC_ap,CORBA_Environment *);\n");
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 	}
+ 
+ 	if (operation_needs_context(iface,op))
+ 	{
+ 		dump_nest(out,nest+1);
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 		if (cplusplus)
+ 		{
+ 			out_printf(out,"ctx=va_arg(_somC_ap,Context *);\n");
+@@ -6759,7 +7280,20 @@
+ 		{
+ 			out_printf(out,"ctx=va_arg(_somC_ap,Context SOMSTAR);\n");
+ 		}
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		if (cplusplus)
++		{
++			out_printf(out,"ctx=va_arg(_somC_ap,CORBA_Context *);\n");
++		}
++		else
++		{
++			out_printf(out,"ctx=va_arg(_somC_ap,CORBA_Context SOMSTAR);\n");
+ 	}
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
++	}
++
++
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 
+ 	el=op->children();
+ 
+@@ -6771,6 +7305,7 @@
+ 		{
+ 			RHBtype *type=NULL;
+ 
++
+ 			dump_nest(out,nest+1);
+ 
+ 			out_printf(out,"%s=",param->id);
+@@ -6796,6 +7331,46 @@
+ 		el=el->next();
+ 	}
+ 
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++	corba2types=1;
++	el=op->children();
++
++	while (el)
++	{
++		RHBparameter *param=el->is_parameter();
++
++		if (param)
++		{
++			RHBtype *type=NULL;
++
++
++			dump_nest(out,nest+1);
++
++			out_printf(out,"%s=",param->id);
++
++			int by_ref=parameter_by_reference(param,&type);
++
++			if (get_array_slice(param->parameter_type))
++			{
++				char tdn[256];
++				snprintf(tdn,sizeof(tdn),"_somC_slice_%s_t",param->id);
++				out_printf(out,"va_arg(_somC_ap,%s *)",tdn);
++			}
++			else
++			{
++				if (!type) type=param->parameter_type;
++
++				use_va_arg(out,"_somC_ap",type,by_ref);
++			}
++
++			out_printf(out,";\n");
++		}
++
++		el=el->next();
++	}
++	corba2types=0;
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
++
+ 	out_printf(out,"\n");
+ 
+ 	if (!operation_has_return(op))
+@@ -7141,11 +7716,13 @@
+ void RHBheader_emitter::generate_operation_proto(RHBoutput *out,RHBinterface *iface,RHBoperation *op,int nest)
+ {
+ 	char n[256];
+-
++	RHBelement * el;
+ /*	extern_c_begin(out,nest);*/
+ 
+ 	/* SOM_Scope macro contains enough scoping */
+ 
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
+ 	{
+ 		extern_c_proto_t scoping(this,out,nest);
+ 
+@@ -7184,6 +7761,149 @@
+ 		out_printf(out,";\n");
+ 	}
+ 
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++
++	corba2=1;
++	{
++		extern_c_proto_t scoping(this,out,nest);
++
++		get_function_prefix(iface,n,sizeof(n));
++		strncat(n,op->id,sizeof(n)-1);
++		undoublebar(out,n);
++
++		dump_nest(out,nest);
++		out_printf(out,"SOM_Scope ");
++
++		if (op->return_type)
++		{
++			RHBtype *s=get_array_slice(op->return_type);
++			if (s)
++			{
++				use_type(out,s,0);
++				out_printf(out,"* ");
++			}
++			else
++			{
++				use_type(out,op->return_type,0);
++			}
++		}
++		else
++		{
++			out_printf(out,"void ");
++		}
++
++		out_printf(out,"SOMLINK ");
++
++		get_function_prefix(iface,n,sizeof(n));
++
++		out_printf(out,"%s%s",n,op->id);
++
++		generate_parameter_list(out,iface,op,0,1,0);
++		out_printf(out,";\n");
++
++	}
++	corba2=0;
++	corba2types=1;
++	{
++		extern_c_proto_t scoping(this,out,nest);
++
++		get_function_prefix(iface,n,sizeof(n));
++		strncat(n,op->id,sizeof(n)-1);
++		undoublebar(out,n);
++
++		dump_nest(out,nest);
++		out_printf(out,"SOM_Scope ");
++
++		if (op->return_type)
++		{
++			RHBtype *s=get_array_slice(op->return_type);
++			if (s)
++			{
++				use_type(out,s,0);
++				out_printf(out,"* ");
++			}
++			else
++			{
++				use_type(out,op->return_type,0);
++			}
++		}
++		else
++		{
++			out_printf(out,"void ");
++		}
++
++		out_printf(out,"SOMLINK ");
++
++		get_function_prefix(iface,n,sizeof(n));
++
++		out_printf(out,"wrp_%s%s",n,op->id);
++
++		generate_parameter_list(out,iface,op,0,1,0);
++		out_printf(out,"{\n");
++		if (operation_has_return(op)) out_printf(out,"return ");
++		out_printf(out,"%s%s(",n,op->id);
++
++		int first_param=0;
++
++		if (!is_operation_noself(op)) 
++		{
++			out_printf(out,"somSelf");
++			first_param=1;
++		}
++
++
++		if (operation_needs_environment(iface,op))
++		{
++			if (first_param) out_printf(out,",");
++			out_printf(out,"ev");
++			first_param=1;
++		}
++		if (operation_needs_context(iface,op))
++		{
++			if (first_param) out_printf(out,",");
++			out_printf(out,"ctx");
++			first_param=1;
++		}
++
++		el=op->children();
++
++		while (el)
++		{
++			RHBparameter *param=el->is_parameter();
++
++			if (param)
++			{
++				if (first_param) out_printf(out,",\n");
++				first_param=1;
++
++				dump_nest(out,nest+3);
++
++				if (!parameter_by_reference(param,NULL))
++				{
++					RHBtype *t=get_va_type(param->parameter_type,1);
++
++					if (t != param->parameter_type)
++					{
++						out_printf(out,"(");
++						use_type(out,t,0);
++						out_printf(out,")");
++					}
++				}
++
++				out_printf(out,"%s",param->id);
++			}
++
++			el=el->next();
++		}
++	
++
++		out_printf(out,");\n");
++		out_printf(out,"}\n");
++	}
++	corba2types=0;
++
++	out_printf(out,"#endif\n");
++
+ 	dump_nest(out,nest);
+ 	out_printf(out,"#ifdef __IBMC__\n");
+ 
+@@ -8331,6 +9051,8 @@
+ 
+ 	t=op->return_type;
+ 
++	out_printf(out,"#ifdef CORBA1MAPPING\n");
++
+ 	if (t)
+ 	{
+ 		use_type(out,t,0);
+@@ -8347,7 +9069,7 @@
+ 
+ 	if (operation_needs_environment(iface,op))
+ 	{
+-		out_printf(out,"Environment *ev,");
++		out_printf(out,"CORBA_Environment *ev,");
+ 	}
+ 
+ 	if (operation_needs_context(iface,op))
+@@ -8400,7 +9122,82 @@
+ 	}
+ 
+ 	dump_nest(out,nest+2);
+-	out_printf(out,"...)");
++	out_printf(out,"...)\n");
++
++	out_printf(out,"#else /* CORBA1MAPPING */\n");
++	corba2=1;
++	if (t)
++	{
++		use_type(out,t,0);
++	}
++	else
++	{
++		out_printf(out,"void ");
++	}
++
++	out_printf(out,"%s %s_%s_%s",linkage,prefix,n,op->id);
++
++	get_c_name(iface,n,sizeof(n));
++	out_printf(out,"(%s SOMSTAR somSelf,",n);
++
++	if (operation_needs_environment(iface,op))
++	{
++		out_printf(out,"CORBA_Environment *ev,");
++	}
++
++	if (operation_needs_context(iface,op))
++	{
++		out_printf(out,"CORBA_Context SOMSTAR ctx,");
++	}
++
++	out_printf(out,"\n");
++
++	el=op->children();
++
++	while (el->next())
++	{
++		RHBparameter *param=el->is_parameter();
++
++		if (param)
++		{
++			RHBelement *e2=NULL;
++			RHBparameter *another=NULL;
++
++			e2=param->next();
++
++			while (e2)
++			{
++				if (e2->is_parameter())
++				{
++					another=e2->is_parameter();
++				}
++
++				e2=e2->next();
++			}
++
++			if (!another) break;
++
++			penultimate=param;
++
++			dump_nest(out,nest+2);
++
++			use_type(out,param->parameter_type,0);
++
++			if (parameter_by_reference(param,NULL))
++			{
++				out_printf(out,"*");
++			}
++
++			out_printf(out,"%s,\n",param->id);
++		}
++
++		el=el->next();
++	}
++
++	dump_nest(out,nest+2);
++	out_printf(out,"...)\n");
++	corba2=0;
++	out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 
+ 	return penultimate;
+ }
+@@ -8515,8 +9312,15 @@
+ 	if (operation_has_return(op))
+ 	{
+ 		dump_nest(out,nest+2);
++		out_printf(out,"#ifdef CORBA1MAPPING\n");
++		use_type(out,op->return_type,"__result");
++		out_printf(out,";\n");
++		out_printf(out,"#else /* CORBA1MAPPING */\n");
++		corba2types=1;
+ 		use_type(out,op->return_type,"__result");
+ 		out_printf(out,";\n");
++		corba2types=0;
++		out_printf(out,"#endif /* CORBA1MAPPING */\n");
+ 	}
+ 
+ 	dump_nest(out,nest+2);
+@@ -8658,7 +9462,7 @@
+ 
+ 	if (operation_needs_environment(iface,op))
+ 	{
+-		out_printf(out,"Environment *ev,");
++		out_printf(out,"CORBA_Environment *ev,");
+ 	}
+ 
+ 	if (operation_needs_context(iface,op))
+diff -urwN somfree/somipc/src/rhbsckih.cpp newsomfree/somipc/src/rhbsckih.cpp
+--- somfree/somipc/src/rhbsckih.cpp	Tue Nov 19 16:34:08 2024
++++ newsomfree/somipc/src/rhbsckih.cpp	Wed Nov 13 11:46:07 2024
+@@ -315,7 +315,11 @@
+ 			}
+ 			else
+ 			{
++				emitter->out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 				emitter->out_printf(out,"(int)(size_t)&(((struct { octet _o; %sData _d; } *)0)->_d), /* dataAlignment */\n",n);
++				emitter->out_printf(out,"#else\n");
++				emitter->out_printf(out,"(int)(size_t)&(((struct { CORBA_octet _o; %sData _d; } *)0)->_d), /* dataAlignment */\n",n);
++				emitter->out_printf(out,"#endif\n");
+ 			}
+ 		}
+ 		else
+@@ -681,6 +685,7 @@
+ 	emitter->out_printf(out,"{SOMKERN_somClassInfo_SI,\n");
+ 	emitter->out_printf(out,"%s_MajorVersion,%s_MinorVersion,\n",n,n);
+ 
++	emitter->out_printf(out,"#ifdef CORBA1MAPPING\n");
+ 	if (iface->instanceData->children())
+ 	{
+ 		if (useAlignmentHelper())
+@@ -707,6 +712,34 @@
+ 	}
+ 
+ 	emitter->out_printf(out,"&%sSCI,\n",n);
++	emitter->out_printf(out,"#else\n");
++	if (iface->instanceData->children())
++	{
++		if (useAlignmentHelper())
++		{
++			emitter->out_printf(out,"sizeof(%sData),(int)(size_t)&(((struct %s_dataAlignment *)0)->_d),",n,n);
++		}
++		else
++		{
++			emitter->out_printf(out,"sizeof(%sData),(int)(size_t)&(((struct { CORBA_octet _o; %sData _d; } *)0)->_d),",n,n);
++		}
++	}
++	else
++	{
++		emitter->out_printf(out,"0,0,");
++	}
++
++	if (parent)
++	{
++		emitter->out_printf(out,"1,");
++	}
++	else
++	{
++		emitter->out_printf(out,"0,");
++	}
++
++	emitter->out_printf(out,"&%sSCI,\n",n);
++	emitter->out_printf(out,"#endif\n");
+ 
+ 	emitter->out_printf(out,"{ somDToken_jump (struct somMethodTabStruct *)(void *)&_%s_somMTabs,\n",n);
+ 
+diff -urwN somfree/somkpub/include/somapi.h newsomfree/somkpub/include/somapi.h
+--- somfree/somkpub/include/somapi.h	Tue Nov 19 16:34:08 2024
++++ newsomfree/somkpub/include/somapi.h	Tue Nov 12 21:04:42 2024
+@@ -30,7 +30,11 @@
+ #ifndef somapi_h
+ #define somapi_h
+ 
++#ifdef CORBA1MAPPING
+ typedef octet *somBooleanVector;
++#else
++typedef CORBA_octet *somBooleanVector;
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -414,25 +418,42 @@
+ SOMEXTERN SOM_IMPORTEXPORT_som somMethodProc * SOMLINK somResolveByName(SOMObject SOMSTAR obj,char *methodName);
+ SOMEXTERN SOM_IMPORTEXPORT_som somMethodProc * SOMLINK somParentNumResolve(somMethodTabs parentMtabs,int parentNum,somMToken mToken);
+ SOMEXTERN SOM_IMPORTEXPORT_som somToken SOMLINK somDataResolve(SOMObject SOMSTAR obj, somDToken dataId);
++#ifdef CORBA1MAPPING
+ SOMEXTERN SOM_IMPORTEXPORT_som boolean SOMLINK somApply(SOMObject SOMSTAR somSelf,somToken *retVal,somMethodDataPtr mdPtr,va_list ap);
++#else
++SOMEXTERN SOM_IMPORTEXPORT_som CORBA_boolean SOMLINK somApply(SOMObject SOMSTAR somSelf,somToken *retVal,somMethodDataPtr mdPtr,va_list ap);
++#endif
+ SOMEXTERN SOM_IMPORTEXPORT_som int SOMLINK somCompareIds(somId id1, somId id2);
+ SOMEXTERN SOM_IMPORTEXPORT_som char * SOMLINK somStringFromId (somId id);
+ SOMEXTERN SOM_IMPORTEXPORT_som somId SOMLINK somIdFromString(char *);
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somCheckArgs(int argc, char **argv);
+ SOMEXTERN SOM_IMPORTEXPORT_som SOMClass SOMSTAR SOMLINK somBuildClass(long inherit_vars,somStaticClassInfo *sci,long majorVersion,long minorVersion);
+ SOMEXTERN SOM_IMPORTEXPORT_som SOMObject SOMSTAR SOMLINK somTestCls(SOMObject SOMSTAR obj,SOMClass SOMSTAR classObj,const char * fileName,int lineNumber);
+-SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somAssert(int condition, int ecode,const char * fileName, int lineNum,const char * msg);
+-SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somTest(int condition, int severity,const char * fileName,int lineNum, char * msg);
++#ifdef CORBA1MAPPING
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somExceptionFree(Environment *ev);
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somSetException(Environment *ev,exception_type major,const char *exception_name,void *params);
+ SOMEXTERN SOM_IMPORTEXPORT_som char * SOMLINK somExceptionId(Environment *ev);
+ SOMEXTERN SOM_IMPORTEXPORT_som void * SOMLINK somExceptionValue(Environment *ev);
++#else
++SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somExceptionFree(CORBA_Environment *ev);
++SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somSetException(CORBA_Environment *ev,CORBA_exception_type major,const char *exception_name,void *params);
++SOMEXTERN SOM_IMPORTEXPORT_som char * SOMLINK somExceptionId(CORBA_Environment *ev);
++SOMEXTERN SOM_IMPORTEXPORT_som void * SOMLINK somExceptionValue(CORBA_Environment *ev);
++#endif
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somSetOutChar(somTD_SOMOutCharRoutine *outch);
+ SOMEXTERN SOM_IMPORTEXPORT_som SOMClassMgr SOMSTAR SOMLINK somMainProgram(void);
+ SOMEXTERN SOM_IMPORTEXPORT_som SOMClassMgr SOMSTAR SOMLINK somEnvironmentNew(void);
++#ifdef CORBA1MAPPING
+ SOMEXTERN SOM_IMPORTEXPORT_som Environment * SOMLINK somGetGlobalEnvironment(void);
++#else
++SOMEXTERN SOM_IMPORTEXPORT_som CORBA_Environment * SOMLINK somGetGlobalEnvironment(void);
++#endif
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somEnvironmentEnd(void);
++#ifdef CORBA1MAPPING
+ SOMEXTERN SOM_IMPORTEXPORT_som boolean SOMLINK somIsObj(somToken obj);
++#else
++SOMEXTERN SOM_IMPORTEXPORT_som CORBA_boolean SOMLINK somIsObj(somToken obj);
++#endif
+ SOMEXTERN SOM_IMPORTEXPORT_som SOMClass SOMSTAR SOMLINK somGetClassFromMToken(somMToken mToken);
+ 
+ #endif /* somapi_h */
+diff -urwN somfree/somkpub/include/somcdev.h newsomfree/somkpub/include/somcdev.h
+--- somfree/somkpub/include/somcdev.h	Tue Nov 19 16:34:08 2024
++++ newsomfree/somkpub/include/somcdev.h	Wed Nov 13 16:37:33 2024
+@@ -23,14 +23,64 @@
+  * $Id$
+  */
+ 
++/*
++ *  SOM development support for ANSI C
++ */
++
+ #ifndef somcdev_h
+ #define somcdev_h
+ 
+ #define SOM_Ok		 0
+ #define SOM_Warn	 1
+-#define SOM_Ignore	 2
+-#define SOM_Template 5
+-#define SOM_Fatal    9
++#define SOM_Ignore	 2 /* don't do anything */
++#define SOM_Template 5 /* use to identify msg templates */
++#define SOM_Fatal    9 /* terminate the program */
++
++#define SOM_EB 20000
++#define SOM_FatalCode(code) (SOM_EB + (code)*10 + SOM_Fatal)
++#define SOM_WarnCode(code) (SOM_EB + (code)*10 + SOM_Warn)
++#define SOM_IgnoreCode(code) (SOM_EB + (code)*10 + SOM_Ignore)
++#define SOM_OkCode(code) (SOM_EB + (code)*10 + SOM_Ok)
++#define SOM_TemplateCode(code) (SOM_EB + (code)*10 + SOM_Template)
++#define SOM_MsgCode(ecode) (((ecode)-SOM_EB)/10)
++
++#define SOMERROR_CCNullClass SOM_WarnCode(1)
++#define SOMERROR_SompntOverflow SOM_FatalCode(2)
++#define SOMERROR_MethodNotFound SOM_FatalCode(3)
++#define SOMERROR_StaticMethodTableOverflow SOM_FatalCode(4)
++#define SOMERROR_DefaultMethod SOM_FatalCode(5)
++#define SOMERROR_MissingMethod SOM_FatalCode(6)
++#define SOMERROR_BadVersion SOM_FatalCode(7)
++#define SOMERROR_Nullld SOM_FatalCode(8)
++#define SOMERROR_OutOfMemory SOM_FatalCode(9)
++#define SOMERROR_TestObjectFailure SOM_FatalCode(10)
++#define SOMERROR_FailedTest SOM_FatalCode(11)
++#define SOMERROR_ClassNotFound SOM_FatalCode(12)
++#define SOMERROR_OldMethod SOM_FatalCode(13)
++#define SOMERROR_CouldNotStartup SOM_FatalCode(14)
++#define SOMERROR_NotRegistered SOM_FatalCode(15)
++#define SOMERROR_BadOverride SOM_FatalCode(16)
++#define SOMERROR_NotImplementedYet SOM_FatalCode(17)
++#define SOMERROR_MustOverride SOM_FatalCode(18)
++#define SOMERROR_BadArgument SOM_FatalCode(19)
++/* 20 ??? */
++#define SOMERROR_NoParentClass SOM_FatalCode(21)
++#define SOMERROR_NoMetaClass SOM_FatalCode(22)
++
++
++
++/* Bellow external functions not part of SOM API */
++SOMEXTERN void
++#	ifdef SOMDLLEXPORT
++		SOMDLLEXPORT
++#	endif
++SOMLINK somAssert(int condition, int ecode, const char * fileName, int lineNum, const char * msg);
++
++SOMEXTERN void
++#	ifdef SOMDLLEXPORT
++		SOMDLLEXPORT
++#	endif
++SOMLINK somTest(int condition, int severity, const char * fileName, int lineNum, char * msg);
+ 
+ #define SOM_Assert(condition,ecode)    (somAssert((condition) ? 1 : 0, ecode, __FILE__, __LINE__, # condition))
+ 
+@@ -40,8 +90,11 @@
+ #	ifdef _DEBUG
+ #		define SOM_Trace(c,m) if (SOM_TraceLevel > 0) \
+ 			somPrintf("\"%s\": %d:\tIn %s:%s \n",__FILE__, __LINE__, c, m)
++#		define SOM_TraceCore(c,m) if (SOM_TraceLevel > 1) \
++			somPrintf("\"%s\": %d:\tIn %s:%s \n",__FILE__, __LINE__, c, m)
+ #	else
+ #		define SOM_Trace(c,m)
++#		define SOM_TraceCore(c,m)
+ #	endif
+ #endif
+ 
+diff -urwN somfree/somkpub/include/somcorba.h newsomfree/somkpub/include/somcorba.h
+--- somfree/somkpub/include/somcorba.h	Tue Nov 19 16:34:08 2024
++++ newsomfree/somkpub/include/somcorba.h	Sat Nov 09 14:02:52 2024
+@@ -24,7 +24,7 @@
+  */
+ 
+  /************************************************
+- * corba definitions
++ * CORBA compatibility definitions
+  */
+ 
+ #ifndef somcorba_h
+@@ -34,9 +34,19 @@
+ 
+ typedef SOMObject CORBAObject;
+ 
++#ifndef CORBA1MAPPING
++typedef SOMObject CORBA_Object;
++#endif
++
+ #ifndef SOM_BOOLEAN
+ #	define SOM_BOOLEAN
++
++#ifdef CORBA1MAPPING
+ 	typedef unsigned char boolean;
++#else
++	typedef unsigned char CORBA_boolean;
++#endif
++
+ #endif /* SOM_BOOLEAN */
+ 
+ #ifndef TRUE
+@@ -47,10 +57,15 @@
+ #	define FALSE   0
+ #endif
+ 
++#ifdef CORBA1MAPPING
+ typedef unsigned char octet;
++#else
++typedef unsigned char CORBA_octet;
++#endif
+ typedef char *string;
+ typedef char *Identifier;	/* originally in somcorba.h */
+ 
++#ifdef CORBA1MAPPING
+ typedef enum exception_type 
+ {
+ 	NO_EXCEPTION,
+@@ -58,6 +73,15 @@
+ 	SYSTEM_EXCEPTION,
+ 	exception_type_MAX=2147483647 
+ } exception_type;
++#else
++typedef enum CORBA_exception_type 
++{
++	NO_EXCEPTION,
++	USER_EXCEPTION,
++	SYSTEM_EXCEPTION,
++	CORBA_exception_type_MAX=2147483647 
++} CORBA_exception_type;
++#endif
+ 
+ /*********************************************
+  * this is at odds with SOM IDL enumeration which starts at one 
+@@ -84,6 +108,7 @@
+ 	completion_status completed;
+ } StExcep;
+ 
++#ifdef CORBA1MAPPING
+ typedef struct Environment 
+ {
+ 	exception_type _major;
+@@ -94,6 +119,37 @@
+ 	} exception;
+ 	void *_somdAnchor;
+ } Environment;
++#else
++typedef struct CORBA_Environment 
++{
++	CORBA_exception_type _major;
++	struct 
++	{
++		char *_exception_name;
++		void *_params;
++	} exception;
++	void *_somdAnchor;
++} CORBA_Environment;
++#endif
++
++#ifdef CORBA1MAPPING
++/* Pre-CORBA 1.2 */
++#define exception_id    somExceptionId
++#define exception_value somExceptionValue
++// For SOMD must be somdExceptionFree (see somd.h)
++#define exception_free  somExceptionFree
++
++#else
++
++
++/* CORBA 1.2+ */
++#define CORBA_exception_set somSetException
++#define CORBA_exception_id somExceptionId
++#define CORBA_exception_value somExcevptionValue
++// For SOMD must be somdExceptionFree (see somd.h)
++#define CORBA_exception_free somExceptionFree
++
++#endif
+ 
+ #define SOM_InitEnvironment(ev)  \
+ 		(ev)->_major=NO_EXCEPTION; \
+@@ -113,7 +169,11 @@
+ 
+ #ifndef SOM_TYPECODE
+ 	#define SOM_TYPECODE
++#ifdef CORBA1MAPPING
+ 	typedef void *TypeCode;
++#else
++	typedef void * CORBA_TypeCode;
++#endif
+ #endif /* SOM_TYPECODE */
+ 
+ #define sequence(type) _IDL_SEQUENCE_##type
+@@ -207,11 +267,32 @@
+ #define tk_self       TypeCode_tk_self
+ #define tk_foreign    TypeCode_tk_foreign
+ 
++#ifdef CORBA1MAPPING
+ typedef struct any 
+ {
+ 	TypeCode _type;
+ 	void *_value;
+ } any;
++#else
++typedef struct CORBA_any 
++{
++	CORBA_TypeCode _type;
++	void *_value;
++} CORBA_any;
++#endif
++
++/* CORBA 1.2+ */
++typedef short CORBA_short;
++typedef long CORBA_long;
++typedef long long CORBA_long_long;
++typedef unsigned short CORBA_unsigned_short;
++typedef unsigned long CORBA_unsigned_long;
++typedef unsigned long long CORBA_unsigned_long_long;
++typedef float CORBA_float;
++typedef double CORBA_double;
++typedef long double CORBA_long_double;
++typedef char CORBA_char;
++//typedef wchar CORBA_wchar;
+ 
+ #endif /* somcorba_h */
+ 
+diff -urwN somfree/somkpub/som/somobj.idl newsomfree/somkpub/som/somobj.idl
+--- somfree/somkpub/som/somobj.idl	Tue Nov 19 16:34:08 2024
++++ newsomfree/somkpub/som/somobj.idl	Mon Nov 18 10:28:56 2024
+@@ -44,6 +44,22 @@
+ 	#endif
+ #endif
+ 
++/* Enable/Disable legacy ABI support */
++
++#ifndef SOM_NO_LEGACY1
++#define SOMLEGACY1
++#endif
++
++#define SOMLEGACY2
++
++#if defined (SOMLEGACY1) || defined (SOMLEGACY2)
++#define SOMLEGACY1_OR_2
++#endif
++
++#if defined (SOMLEGACY1) && defined (SOMLEGACY2)
++#define SOMLEGACY1_AND_2
++#endif
++
+ interface SOMClass;
+ interface SOMObject;
+ 
+@@ -140,23 +156,52 @@
+ 
+ interface SOMObject
+ {
++	//# Typedefs
+ 	typedef sequence<SOMObject> SOMObjectSequence;
+ 	typedef sequence<octet> BooleanSequence;
+ 	struct somObjectOffset { SOMObject obj;	long offset; };
+ 	typedef sequence<somObjectOffset> somObjectOffsets;
++
++	//#  Initialization / Termination
++
++	/* SOM 2.1 style constructors/destructors */
++
++	void somDefaultInit(inout somInitCtrl ctrl);
++	void somDefaultCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
++	void somDefaultConstCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
++	void somDefaultVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
++	void somDefaultConstVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
++
++	SOMObject somDefaultAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
++	SOMObject somDefaultConstAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
++	SOMObject somDefaultVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
++	SOMObject somDefaultConstVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
++
++	void somDestruct(in octet doFree,inout somDestructCtrl ctrl);
++
++#ifdef SOMLEGACY1_OR_2
+ 	void somInit();
+ 	void somUninit();
++#endif
+ 	void somFree();
++
++	//# Access
+ 	SOMClass somGetClass();
+ 	string somGetClassName();
+ 	long somGetSize();
++
++	//# Testing Group
+ 	boolean somIsA(in SOMClass aClassObj);
+ 	boolean somIsInstanceOf(in SOMClass aClassObj);
+ 	boolean somRespondsTo(in somId mId);
++
++	//# Dynamic
+ 	boolean somDispatch(out somToken retValue,in somId methodId,in va_list ap);
+ 	boolean somClassDispatch(in SOMClass clsObj,out somToken retValue,in somId methodId,in va_list ap);
+ 	boolean somCastObj(in SOMClass castedCls);
+ 	boolean somResetObj();
++
++	//# Development Support
+ 	SOMObject somPrintSelf();
+ 	void somDumpSelf(in long level);
+ 	void somDumpSelfInt(in long level);
+@@ -181,27 +226,17 @@
+ 	double somDispatchD(in somId methodId,in somId descriptor,in va_list ap);
+ #endif
+ 
+-	/* SOM 2.1 style constructors/destructors */
+-
+-	void somDefaultInit(inout somInitCtrl ctrl);
+-	void somDefaultCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+-	void somDefaultConstCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+-	void somDefaultVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+-	void somDefaultConstVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+-
+-	SOMObject somDefaultAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+-	SOMObject somDefaultConstAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+-	SOMObject somDefaultVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+-	SOMObject somDefaultConstVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+-
+-	void somDestruct(in octet doFree,inout somDestructCtrl ctrl);
+-
+ #ifdef __SOMIDL__
+ 	implementation
+ 	{
+ 		releaseorder : 
++			#ifdef SOMLEGACY1_OR_2
+ 			somInit,
+ 			somUninit,
++			#else
++			somoUnused1,
++			somoUnused2,
++			#endif
+ 			somFree,
+ 			somDefaultVCopyInit,
+ 			somGetClassName,
+@@ -214,10 +249,17 @@
+ 			somDumpSelfInt,
+ 			somPrintSelf,
+ 			somDefaultConstVCopyInit,
++			#ifdef SOMLEGACY1
+ 			somDispatchV,
+ 			somDispatchL,
+ 			somDispatchA,
+ 			somDispatchD,
++			#else
++			somoUnused3,
++			somoUnused4,
++			somoUnused5,
++			somoUnused6,
++			#endif
+ 			somDispatch,
+ 			somClassDispatch,
+ 			somCastObj,
+diff -urwN somfree/somstars/win32/somstars.cmd newsomfree/somstars/win32/somstars.cmd
+--- somfree/somstars/win32/somstars.cmd	Tue Nov 19 16:34:35 2024
++++ newsomfree/somstars/win32/somstars.cmd	Thu Nov 14 18:07:06 2024
+@@ -16,7 +16,7 @@
+ :normal
+ echo Generating the SOM C Bindings:
+ echo (Warning, these bindings are not CORBA-compliant)
+-set SC=%SOMBASE%\bin\sc.exe
++set SC=%SOMBASE%\bin\somc.exe
+ cd %SOMBASE%\include
+ attrib -r som.h
+ attrib -r gen_c.efw
+diff -urwN somfree/somtc/src/rhbsomtc.c newsomfree/somtc/src/rhbsomtc.c
+--- somfree/somtc/src/rhbsomtc.c	Tue Nov 19 16:34:09 2024
++++ newsomfree/somtc/src/rhbsomtc.c	Sat Nov 09 14:15:31 2024
+@@ -31,7 +31,11 @@
+ 
+ #ifndef SOM_TYPECODE
+ #	define SOM_TYPECODE	TypeCode_somtc
++#ifdef CORBA1MAPPING
+ typedef union SOM_TYPECODE *  TypeCode;
++#else
++typedef union SOM_TYPECODE *  TypeCode;
++#endif
+ #endif
+ 
+ /* in order to stop SOMTCNST.H defining stuff we need to block it out */
+diff -urwN somfree/somtk/include/somtc.h newsomfree/somtk/include/somtc.h
+--- somfree/somtk/include/somtc.h	Tue Nov 19 16:34:10 2024
++++ newsomfree/somtk/include/somtc.h	Mon Nov 11 10:58:35 2024
+@@ -48,6 +48,7 @@
+ #define TCREGULAR_CASE  1L
+ #define TCDEFAULT_CASE  2L
+ 
++#ifdef CORBA1MAPPING
+ SOM_IMPORTEXPORT_somtc void     SOMLINK tcPrint(TypeCode t,Environment *ev);
+ SOM_IMPORTEXPORT_somtc short    SOMLINK tcAlignment (TypeCode t,Environment *ev);
+ SOM_IMPORTEXPORT_somtc TypeCode SOMLINK tcCopy(TypeCode tc,Environment *ev);
+@@ -63,6 +64,23 @@
+ SOM_IMPORTEXPORT_somtc TypeCode SOMLINK tcNew(TCKind tag, ...);
+ SOM_IMPORTEXPORT_somtc long     SOMLINK tcSetZeroOriginEnum(TypeCode t, Environment *ev, boolean value);
+ SOM_IMPORTEXPORT_somtc boolean  SOMLINK tcGetZeroOriginEnum(TypeCode t, Environment *ev);	
++#else
++SOM_IMPORTEXPORT_somtc void     SOMLINK tcPrint(CORBA_TypeCode t,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc short    SOMLINK tcAlignment (CORBA_TypeCode t,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc CORBA_TypeCode SOMLINK tcCopy(CORBA_TypeCode tc,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc CORBA_boolean  SOMLINK tcEqual(CORBA_TypeCode tc,CORBA_Environment *ev,CORBA_TypeCode t);
++SOM_IMPORTEXPORT_somtc void     SOMLINK tcFree(CORBA_TypeCode tc,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc TCKind   SOMLINK tcKind(CORBA_TypeCode tc,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc long     SOMLINK tcParmCount(CORBA_TypeCode tc,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc CORBA_any      SOMLINK tcParameter(CORBA_TypeCode tc,CORBA_Environment *ev,long index);
++SOM_IMPORTEXPORT_somtc void     SOMLINK tcSetAlignment(CORBA_TypeCode t,CORBA_Environment *ev, short a);
++SOM_IMPORTEXPORT_somtc long     SOMLINK tcSize(CORBA_TypeCode t,CORBA_Environment *ev);
++SOM_IMPORTEXPORT_somtc CORBA_TypeCode SOMLINK tcNewVL (TCKind tag, va_list ap);
++SOM_IMPORTEXPORT_somtc GENERIC_SEQUENCE * SOMLINK tcSequenceNew (CORBA_TypeCode t,unsigned long max);
++SOM_IMPORTEXPORT_somtc CORBA_TypeCode SOMLINK tcNew(TCKind tag, ...);
++SOM_IMPORTEXPORT_somtc long     SOMLINK tcSetZeroOriginEnum(CORBA_TypeCode t, CORBA_Environment *ev, CORBA_boolean value);
++SOM_IMPORTEXPORT_somtc CORBA_boolean  SOMLINK tcGetZeroOriginEnum(CORBA_TypeCode t, CORBA_Environment *ev);	
++#endif
+ SOM_IMPORTEXPORT_somtc _IDL_SEQUENCE_string SOMLINK tcSeqFromListString(const char *str);
+ 
+ #define TypeCodeNew						tcNew

@@ -1,6 +1,6 @@
 os2tk45\som\bin
 
-ctoi.cmd
+ctoi.cmd		+
 irdump.exe
 pdl.exe			+
 sc.exe			+
@@ -523,6 +523,27 @@ workprev.h		+
 workprev.idl		+
 workprev.xh		+
 
+os2tk45\som\common\dll:
+somd.dll
+som.dll			+
+somem.dll
+somir.dll
+soms.dll
+somsec.dll
+somst32.dll
+somst.dll
+somtc.dll
+somuc.dll
+somu.dll
+
+os2tk45\som\common\system:
+somd.msg
+some_os2.msg
+somk.msg		+
+somr_os2.msg
+somucos2.msg
+srgc_os2.msg
+
 extra:
 poa.idl
 rhborbst.idl
@@ -555,10 +576,12 @@ eventmsk.xh
 newemit.com
 
 
+Placement in OS/2 tree
+
 Directory	Name		Comments
 \OS2		SOMDD.EXE	DSOM daemon. It must be started prior to running a DSOM application
 		SOMDSVR.EXE	Generic DSOM server program
-\OS2\DLL	SOM.DLL		SOM Run-time Library
+\OS2\DLL	+ SOM.DLL		SOM Run-time Library
 		SOMD.DLL	Distributed SOM (DSOM)
 		SOMEM.DLL	SOM Event Manager
 		SOMIR.DLL	CORBA Interface Repository support
@@ -574,7 +597,7 @@ Directory	Name		Comments
 		SOMDIMPL.TOC	Distributed SOM implementation index
 \OS2\SYSTEM	SOMD.MSG	Messages for SOMD.DLL
 		SOME_OS2.MSG	
-		SOMK.MSG	SOM error messages file
+		+SOMK.MSG	SOM Kernel error messages file
 
 
 somc.dll exports
@@ -583,18 +606,4 @@ IBM SOM 2 and IBM SOM 3 ordinals is differ. Seems all imports by name...
 
 
 =========================
-
-About CORBA and SOM compatibility
-
-SOM development based on CORBA 1.1 specifications. But in later CORBA standards some changes
-(and incompatibilities) was introduced:
-
-1. Most of CORBA bindings now has CORBA_ prefix because all CORBA definitions now in CORBA module
- (CORBA 1.2 p.79 4.11 CORBA Module).
-2. Up to CORBA 1.2 CORBA_Environment mapped to second argument of method function. But CORBA 2.0
-changed this to last argument (CORBA 2.0 p.14-5 14.3 Mapping for Interfaces).
-3. Interface Reporitory interfaces was changed in CORBA 2.0. Description structure not contains 
-member 'name' but member 'kind' with different type. (CORBA 2.0 p.6-10 6.5.3 Contained).
-4. CORBA 2.1 introduces wide chars (CORBA 2.1 p.1-17 wchar/wstring...
-5. CORBA 3 changed idl file names. (https://www.omg.org/spec/CORBA/3.3)
 
