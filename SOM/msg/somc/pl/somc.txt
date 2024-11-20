@@ -56,10 +56,10 @@ STK0054I: Incorrect descriptor format.\n
 STK0055I: Cannot allocate %d bytes.\n
 STK0056I: Cannot allocate %ld bytes.\n
 STK0057I: %s: \"%s\", Version: %s.\n
-STK0058I: 10H9767, 10H9769 (C) IBM Corporation 1992, 1994. All Rights Reserved.\n
-STK0059I: Licensed Materials - Property of IBM.\n
-STK0060I: US Government Users Restricted Rights - Use, duplication or\n
-STK0061I: disclosure restricted by GSA ADP Schedule Contract with IBM Corp.\n
+STK0058I: This program is free software: you can redistribute it and/or modify it\n
+STK0059I: under the terms of the GNU Lesser General Public License as published by the\n
+STK0060I: Free Software Foundation, either version 3 of the License, or (at your\n
+STK0061I: option) any later version.\n
 STK0062I: Date Last Modified: %s %s\n
 STK0063I: Date Last Compiled: %s]\n\n
 STK0064I: Two source files specified: \"%s\" and \"%s\".\n

@@ -544,6 +544,9 @@ somr_os2.msg
 somucos2.msg
 srgc_os2.msg
 
+ps2tk45\som\msg:
+somc.msg		+
+
 extra:
 poa.idl
 rhborbst.idl
