@@ -1,0 +1,240 @@
+STK
+STK0001I: Function name too long.\n
+STK0002I: Comment exceeded comment buffer.  Use -C option.\n
+STK0003I: Function prototype too long.\n
+STK0004I: Syntax error.  Syntax must be ANSI C.\n
+STK0005I: No function name found in the following prototype:\n%s\n
+STK0006I: Unexpected end of file encountered.\n
+STK0007I: Syntax error, probably a missing paren in a method prototype.\n
+STK0008I: Syntax error, probably a missing angle bracket in a method prototype.\n
+STK0009I: Syntax error, probably a missing close quote in a method prototype.\n
+STK0010I: File not found; creating new %s file.\n
+STK0011I: File is read only, cannot be revised.\n
+STK0012I: File has been updated.\n
+STK0013I: Changes stored in file %s.\n
+STK0014I: Error: Insufficient memory.\n
+STK0015I: Error in SOMTStringTableC::locateIthEntry,\n\tAttempt to access a nonexistent entry by index.\n
+STK0016I: Error in SOMTTemplateOutputC::somtAddSectionDefinitions,\n\tSection start expected.\n \tHead of section buffer was: <%s>\n
+STK0017I: Error in SOMTTemplateOutputC::somtAddSectionDefinitions,\n\tEmpty section name.\n
+STK0018I: Error: Non-method entry passed to SOMTEmitC::somtEmitMethod.\n
+STK0019I: Error: Non-method entry passed to a method filter.\n
+STK0020I: Cannot open Symbols file \"%s\".\n
+STK0021I: Removing \"struct\" from \"%s\".\n
+STK0022I: Removing \"union\" from \"%s\".\n
+STK0023I: Ignoring repeated \"generateapply\" modifier for \"%s\".\n
+STK0024I: Must specify a name with the \"apply\" modifier.\n
+STK0025I: Cannot find parent of %s with method %s.\n
+STK0026I: Direct-call procedure or nonstatic method %s cannot be overridden.\n
+STK0027I: Use xph emitter for %s.xph output.\n
+STK0028I: Missing %c for #include directive.\n
+STK0029I: Cannot open file \"%s\".\n
+STK0030I: String buffer exceeded [%u], use -S option.\n
+STK0031I: String buffer exceeded [%ld], use -S option.\n
+STK0032I: Disk full.\n
+STK0033I: Cannot continue due to user errors.\n
+STK0034I: Program interrupted by user.\n
+STK0035I: \"%s\" ambiguous: introduced by \"%s\" and \"%s\".\n
+STK0036I: \"majorversion\" modifier must be between 0 and %ld.\n
+STK0037I: \"minorversion\" modifier must be between 0 and %ld.\n
+STK0038I: \"filestem\" modifier must have a value.\n
+STK0039I: \"functionprefix\" modifier must have a value.\n
+STK0040I: \"externalprefix\" modifier must have a value.\n
+STK0041I: \"externalstem\" modifier must have a value.\n
+STK0042I: Cannot use both \"private\" and \"public\" modifiers.\n
+STK0043I: \"private\" modifier should not have a value.\n
+STK0044I: \"public\" modifier should not have a value.\n
+STK0045I: Cannot use both \"before\" and \"after\" modifiers.\n
+STK0046I: \"before\" modifier should not have a value.\n
+STK0047I: \"after\" modifier should not have a value.\n
+STK0048I: \"majorversion\" modifier must have a value.\n
+STK0049I: \"minorversion\" modifier must have a value.\n
+STK0050I: Input and output files are the same.\n
+STK0051I: No \"*\" to remove from a strict IDL class reference.\n
+STK0052I: In getBaseDesc: No descriptor for type \"%s\" using '?'.\n
+STK0053I: In setBaseDesc: Already set \"%s\".\n
+STK0054I: Incorrect descriptor format.\n
+STK0055I: Cannot allocate %d bytes.\n
+STK0056I: Cannot allocate %ld bytes.\n
+STK0057I: %s: \"%s\", Version: %s.\n
+STK0058I: 10H9767, 10H9769 (C) IBM Corporation 1992, 1994. All Rights Reserved.\n
+STK0059I: Licensed Materials - Property of IBM.\n
+STK0060I: US Government Users Restricted Rights - Use, duplication or\n
+STK0061I: disclosure restricted by GSA ADP Schedule Contract with IBM Corp.\n
+STK0062I: Date Last Modified: %s %s\n
+STK0063I: Date Last Compiled: %s]\n\n
+STK0064I: Two source files specified: \"%s\" and \"%s\".\n
+STK0065I: No source file specified.\n
+STK0066I: Unknown entry type: %d.\n
+STK0067I: In %s: Could not remove \"%s\"\n
+STK0068I: Removed \"%s\".\n
+STK0069I: Must specify class name.\n
+STK0070I: In overrideMethod: Trying to override class %s.\n
+STK0071I: Ignoring duplicate identifier \"%s\".\n
+STK0072I: \"...\" not valid in data declarations.\n
+STK0073I: Parent class statement ignored for continued class statement.\n
+STK0074I: %s is already used.\n
+STK0075I: %s is already defined.\n
+STK0076I: %s is already declared.\n
+STK0077I: %s is already declared in \"%s\".\n
+STK0078I: interface \"%s\" duplicated in different modules.\n
+STK0079I: Redefinition of modifier \"%s\" for class statement ignored.\n
+STK0080I: Metaclass statement ignored for continued class statement.\n
+STK0081I: To override the private method \"%s\", use the \"private\" modifier.\n
+STK0082I: Cannot define both \"function\" and \"external\" prefixes.\n
+STK0083I: \"%s\" modifier clashes with class name \"%s\",\n\tadd an additional character to \"%s\".\n
+STK0084I: Inheritance list differs for \"%s\".\n
+STK0085I: You have not defined a parent class.\n
+STK0086I: \"%s\" has not been declared.\n
+STK0087I: \"%s\" is not a parent.\n
+STK0088I: Signatures for \"%s\" in \"%s\" and \"%s\" differ.\n
+STK0089I: Parent \"%s\" repeated.\n
+STK0090I: Override method \"%s\" not in base class.\n
+STK0091I: \"%s\", cannot override \"nooverride\" methods.\n
+STK0092I: \"%s\", cannot override \"procedure\" methods.\n
+STK0093I: No prototype for method %s\n
+STK0094I: \"%s\" has already been used as a class name.\n
+STK0095I: Scope stack is empty.\n
+STK0096I: Scope Stack overruns Heap!\n
+STK0097I: Cannot find \"%s\" emitter.\n
+STK0098I: Cannot use -u flag with .csc files.\n
+STK0099I: Status: %d.\n
+STK0100I: Unknown option %c\n
+STK0101I: Expecting argument for %s option.\n
+STK0102I: Release \"%s\" has not been declared.\n
+STK0103I: Release \"%s\" is not a method.\n
+STK0104I: \"%s\" is not in releaseorder.\n
+STK0105I: Loading  %s.\n
+STK0106I: Unloading  %s.\n
+STK0107I: Cannot load %s.\n
+STK0108I: Cannot unload %s.\n
+STK0109I: line \"%s ...\" exceeds maximum length of %d.\n
+STK0110I: token \"%s ...\" exceeds maximum length of %d.\n
+STK0111I: Unexpected DBCS character.\n
+STK0112I: Unexpected end of file.  No \"endpassthru;\" found.\n
+STK0113I: Newline in modifier string.\n
+STK0114I: Error removing temporary file \"%s\".\n
+STK0115I: Cannot run shell command:\"%s\".\n
+STK0116I: Trapped bus error.\n
+STK0117I: Trapped segmentation fault.\n
+STK0118I: Empty source file.\n
+STK0119I: %s around token \"%s\".\n
+STK0120I: Comments should appear after ';' in statements or \n\t\tafter ',' in prototypes.\n
+STK0121I: Missing \"class\" section before \"%s\" section.\n
+STK0122I: Duplicate or misplaced \"%s\" statement.\n
+STK0123I: Only one releaseorder per class is permitted.\n
+STK0124I: Cannot specify negative string size for -S. Value %d ignored.\n
+STK0125I: Cannot specify negative string size for -C. Value %d ignored.\n
+STK0126I: Structures require at least one member.\n
+STK0127I: \"%s\" is not a constant.\n
+STK0128I: Illegal use of releaseorder as modifier value.\n
+STK0129I: Class required for \"metaclass\" modifier.\n
+STK0130I: Metaclass must be different from class.\n"
+STK0131I: %lu is out of range %ld - %ld for \"%s\" operator.\n
+STK0132I: \"%s\" not a valid operand for \"%s\" operator.\n
+STK0133I: IDL does not permit nested structures or unions.\n
+STK0134I: \"%s\" undefined for \"%s\", size not known.\n
+STK0135I: Parameter \"%s\" repeated.\n
+STK0136I: Attributes cannot be explicit arrays.\n
+STK0137I: Constant expression type mismatch for \"%s\".\n
+STK0138I: Cannot apply '%c' to string \"%s\".\n
+STK0139I: \"%s\" is undefined for floating point operands.\n
+STK0140I: Duplicate case label for value \"%s\".\n
+STK0141I: Only one default statement permitted per case statement.\n
+STK0142I: implementation already declared for \"%s\".\n
+STK0143I: \"unsigned %s\", only \"short\" and \"long\" types can be unsigned.\n
+STK0144I: \"%s\", is not an exception.\n
+STK0145I: Multiple inheritance is not permitted in OIDL.\n
+STK0146I: Metaclass \"%s\" is not descended from \" SOMClass\".\n
+STK0147I: Ignoring repeated Metaclass modifier: \"%s\".\n
+STK0148I: Non-portable \"int\" will be generated in emitter files.\n
+STK0149I: \"%s\" is negative.\n"
+STK0150I: Exception expects {}.\n
+STK0151I: Mixed type expressions are illegal.\n
+STK0152I: \"%s\" undefined for string constants.\n
+STK0153I: Case expression \"%s\" must be an integral constant.\n
+STK0154I: Case expression \"%s\" must match union discriminator \"%s\".\n
+STK0155I: Case expression \"%s\" exceeds size of union discriminator \"%s\".\n
+STK0156I: Non-standard IDL use of explicit *'s.\n
+STK0157I: Non-standard IDL \"implementation\" section.\n
+STK0158I: Non-standard IDL unsigned \"%s\", should be \"short\" or \"long\".\n
+STK0159I: Running shell command:\n\t%s\n
+STK0160I: Number of errors: %d\n
+STK0161I: usage: %s [-C:D:E:I:S:VU:cd:hi:m:prsvw] f1 f2 ...\n
+STK0162I: Where:\n
+STK0163I: \t-C <n>            - size of comment buffer (default: %d)\n
+STK0164I: \t-D <DEFINE>       - same as -D option for cpp.\n
+STK0165I: \t-E <var>=<value>  - set environment variable.\n
+STK0166I: \t-I <INCLUDE>      - same as -I option for cpp.\n
+STK0167I: \t-S <n>            - size of string buffer (default: %d)\n
+STK0168I: \t-U <UNDEFINE>     - same as -U option for cpp.\n
+STK0169I: \t-V                - show version number of compiler.\n
+STK0170I: \t-c                - ignore all comments.\n
+STK0171I: \t-d <dir>          - output directory for each emitted file.\n
+STK0172I: \t-h                - this message.\n
+STK0173I: \t-i <file>         - use this file name as supplied.\n
+STK0174I: \t-m <name[=value]> - add global modifier.\n
+STK0175I: \t-p                - shorthand for -D__PRIVATE__.\n
+STK0176I: \t-r                - check releaseorder entries exist (default: FALSE).\n
+STK0177I: \t-s <string>       - replace SMEMIT variable with <string>\n
+STK0178I: \t-u                - update interface repository.\n
+STK0179I: \t-v                - verbose debugging mode (default: FALSE).\n
+STK0180I: \t-w                - don't display warnings (default: FALSE).\n\n
+STK0181I: Modifiers:\n
+STK0182I: \taddprefixes : adds `functionprefix' to method names in template file\n
+STK0183I: \t[no]addstar : [no]add `*' to C bindings for interface references.\n
+STK0184I: \t      corba : check the source for CORBA compliance.\n
+STK0185I: \t        csc : force running of OIDL compiler.\n
+STK0186I: \t emitappend : append the emitted files at the end of existing file.\n
+STK0187I: \t   noheader : don't add a header to the emitted file.\n
+STK0188I: \t      noint : don't warn about \"int\" causing portability problems.\n
+STK0189I: \t     nolock : don't lock the IR during update.\n
+STK0190I: \t       nopp : don't run the source through the pre-processor.\n
+STK0191I: \t       notc : don't use typecodes for emit information.\n
+STK0192I: \t nouseshort : don't generate short names for types.\n
+STK0193I: \t  pp=<path> : specify a local pre-processor to use.\n
+STK0194I: \t   tcconsts : generate CORBA TypeCode constants.\n
+STK0195I: \nNote: All command-line modifiers can be set in the environment\n
+STK0196I: by changing them to UPPERCASE and preappending \"SM\" to them.\n
+STK0197I: \nEnvironment Variables:\n
+STK0198I: \tSMEMIT=[h;ih;c;xh;xih;xc;def;ir;pdl]\n\t\t: emitters to run (default : h;ih).\n
+STK0199I: \tSMINCLUDE=<dir1>[%c<dir2>]+\n\t\t: where to search for .idl and .efw files.\n
+STK0200I: \tSMKNOWNEXTS=ext[;ext]+\n\t\t: add headers to user written emitters.\n
+STK0201I: \tSMTMP=<dir>\n\t\t: directory to hold intermediate files.\n
+STK0202I: \tSOMIR=<path>[;<path>]+\n\t\t: list of IRs to search.\n
+STK0203I: \n\nPragmas:\n
+STK0204I: \t#pragma somemittypes on          : turn on emission of global types.\n
+STK0205I: \t#pragma somemittypes off         : turn off emission of global types.\n
+STK0206I: \t#pragma modifier <modifier stm>; : instead of modifier statement.\n
+STK0207I: Implementation file not found for class %s.\n
+STK0208I: Attribute name \"%s\" too long.\n
+STK0209I: output line exceeds maximum length of %d.\n
+STK0210I: Only 1 declarator permitted per SOMFOREIGN typedef: \"%s\"\n
+STK0211I: Missing \"impctx\" modifier for foreign type \"%s\"\n
+STK0212I: Implementation section for interface \"%s\" requires align=%hd for correct placement of instance data\n
+STK0213I: Could not resolve type \"%s\"\n
+STK0214I: Unexpected entry %s encountered\n
+STK0215I: Could not resolve type for member \"%s\"\n
+STK0216I: %ld type-related errors\n
+STK0217I: Cannot open Interface Repository file \"%s\" (%s)\n
+STK0218I: Cannot open Interface Repository\n
+STK0219I: Ambiguous use of \">>\", separate with space (\"> >\").\n
+STK0220I: filestems \"%s\" and \"%s\" differ.\n
+STK0221I: qualifying names \"%s\" -> \"%s\".\n
+STK0222I: unqualifying names \"%s\" -> \"%s\".\n
+STK0223I: *'s are not permitted in sequence declarations.\n
+STK0224I: *'s are not permitted in string declarations.\n
+STK0225I: \"%s\" is a pointer type, unions expect an integer type.\n
+STK0226I: \"%s\" requires parameter before final \"%s\".\n
+STK0227I: Invalid or missing COM CLSID or IID: %s\n
+STK0228I: Only SOMObject's initializers may be overridden: %s\n
+STK0229I: Reintroduction of %s as %s %s::%s would hide static method %s::%s \n
+STK0230I: somtGetObjectWrapper: No wrapper for entry type %d \n
+STK0231I: somtGetObjectWrapper: Unknown entry type %d \n
+STK0232I: public, protected, or static data \"%s\" is not in releaseorder.\n
+STK0233I: Method %s is not inherited into %s, so it cannot be migrated.\n
+STK0234I: Error: bad type of entry passed to method filter
+STK0235I: Error: bad type of entry passed to method filter
+STK0236I: Error: bad type of entry passed to method filter
+STK0237I: Error: bad type of entry passed to method filter
+STK0238I: Error: bad type of entry passed to method filter
+;
