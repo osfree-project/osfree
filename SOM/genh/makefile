@@ -118,7 +118,10 @@ TARGETS =       $(PATH)somobj.h &
                 $(PATH)somos.h &
                 $(PATH)xmscssae.h &
                 $(PATH)somtdm.h &
-                $(PATH)somcls.api
+                $(PATH)somcls.api &
+                $(PATH)mlink.h &
+                $(PATH)tpll.h &
+                $(PATH)tpllitr.h
 
 
 $(PATH)attribdf.h: $(DEST)$(SEP)attribdf.idl
@@ -469,3 +472,11 @@ $(PATH)somcm.h: $(DEST)$(SEP)somcm.idl
 $(PATH)somcls.api: $(DEST)$(SEP)somcls.idl
  $(verbose)$(SC) -sapi -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
 
+$(PATH)mlink.h: $(DEST)$(SEP)mlink.idl
+ $(verbose)$(SC) -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)tpll.h: $(DEST)$(SEP)tpll.idl
+ $(verbose)$(SC) -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)tpllitr.h: $(DEST)$(SEP)tpllitr.idl
+ $(verbose)$(SC) -sh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)

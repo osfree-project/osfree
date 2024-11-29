@@ -173,7 +173,7 @@ mia.h			+
 mia.idl			+
 mia.xh			+
 mlink.h
-mlink.idl
+mlink.idl		+
 mlink.xh
 moduledf.h		+
 moduledf.idl	+
@@ -484,10 +484,10 @@ titeratr.h
 titeratr.idl
 titeratr.xh
 tpll.h
-tpll.idl
+tpll.idl		+
 tpll.xh
 tpllitr.h
-tpllitr.idl
+tpllitr.idl		+
 tpllitr.xh
 tpq.h
 tpq.idl

@@ -1,0 +1,366 @@
+diff -urwN somfree/note.txt newsomfree/note.txt
+--- somfree/note.txt	Fri Nov 29 22:56:52 2024
++++ newsomfree/note.txt	Tue Nov 26 09:06:55 2024
+@@ -6,9 +6,10 @@
+ None yet...
+ 
+ Improvements:
++a) SOM run-time:
+ *) Error codes added to somcdev.h and some functions moved from somapi.h to somcdev.h (because not part of API).
+ *) somPrintf uses vsprintf for output. But we have somVprintf, so we can easely reuse it instead.
+-*) Improve SOMError rrrors handling according IBM docs (somFree uses simplified errors handling)
++  *) Improve SOMError errors handling according IBM docs (somFree uses simplified errors handling)
+ *) somCheckArgs implemented
+ *) somVprintf now checks buffer overflow
+ *) somTest reworked
+@@ -16,6 +17,12 @@
+ *) Added support of modules under OS/2
+ *) Added MSG file support under OS/2
+ *) Added empty somSaveMetrics, somWriteMetrics (seems they a empty in OS/2 too)
++b) PDL
++  *) now supports multiple files
++  *) -s option now supported
++  *) -c option now supported
++c) SOM Compiler
++  *) Partal CORBA 2+ C Mapping support
+ 
+ Found not implemented functions:
+ 
+@@ -38,3 +45,9 @@
+ Improvements ideas:
+ *) Revise somkern.c and use SOM_TraceCore instead of direct somprintf
+ *) Reuse Error codes and add checks to kernel functions
++*) Add -D -U -/ support to PDL
++*) Add constant expressions to #if as well as defined(x) function to PDL
++*) Original PDL reuses some of C runtime and SOMC functions. Is it needed or be standalone?
++*) Add filemask support to PDL
++*) Write PDL documentation
++*) Reuse SOMC.MSG in SC
+diff -urwN somfree/pdl/src/pdl.c newsomfree/pdl/src/pdl.c
+--- somfree/pdl/src/pdl.c	Fri Nov 29 22:56:37 2024
++++ newsomfree/pdl/src/pdl.c	Tue Nov 26 09:33:44 2024
+@@ -1,8 +1,10 @@
+ /**************************************************************************
+  *
+  *  Copyright 2008, Roger Brown
++ *  Copyright 2024, Yuri Prokushev
+  *
+  *  This file is part of Roger Brown's Toolkit.
++ *  This file is part of osFree project.
+  *
+  *  This program is free software: you can redistribute it and/or modify it
+  *  under the terms of the GNU Lesser General Public License as published by the
+@@ -23,9 +25,30 @@
+  * $Id$
+  */
+ 
++/*
++ * Private iterfaces preprocessor
++ */
++
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <unistd.h>
++
++#ifdef _PLATFORM_MACINTOSH_
++#	define DIR_SEP ":"
++#else
++#	if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
++#		define DIR_SEP "\\"
++#	else
++#		define DIR_SEP "/"
++#	endif
++#endif
++
++#ifdef _WIN32
++#define SOMC "somc.exe"
++#else
++#define SOMC "sc.exe"
++#endif
+ 
+ static short _output_stack[256];
+ static short _output_stack_index;
+@@ -36,6 +59,9 @@
+ static char out_dir[1024];
+ static FILE *fp_out;
+ static char out_file[1024];
++static char smemit[1024];
++static char execmd[1024];
++
+ 
+ /*
+ static short output_stack_value(void)
+@@ -310,7 +336,7 @@
+ 	{
+ 		q--;
+ 
+-		if ((*q=='\\')||(*q=='/')||(*q==':'))
++		if (*q==DIR_SEP[0])
+ 		{
+ 			q++;
+ 			strncpy(name,q,namelen);
+@@ -321,39 +347,82 @@
+ 	strncpy(name,p,namelen);
+ }
+ 
+-int main(int argc,char **argv)
++void usagemsg(void)
+ {
+-	int i=1;
++	printf("   -c <cmd>        - command to be run on each file\n");
++	printf("   -d <dir>        - output directory\n");
++	printf("   -o <dir>        - output directory\n");
++	printf("   -f              - overwrite an existing output file\n");
++	printf("   -h              - this message\n");
++	printf("   -H              - this message\n");
++	printf("   -?              - this message\n");
++	printf("   -s <string>     - SMEMIT variable with which to invoke sc\n");
++	printf("   -/ <id>         - identifier to undefine\n");
++	printf("   -U <id>         - identifier to undefine\n");
++	printf("   -D <id>[=<val>] - identifier definition (default value is 1)\n");
++}
+ 
+-	while (i < argc)
++/*
++ * 1. Pargse args
++ * 2. Process file
++ * 3. Execute SC (if needed)
++ * 4. Execute custom program (if needed)
++ * 5. Exit
++ */
++int main(int argc,char **argv)
+ 	{
+-		char *p=argv[i++];
++	FILE *fp_in=NULL;
++	int ch;
++	int callsc = 0;
++	int forcedelete = 0;
++	char cmd[1024];
+ 
+-		if ((!strcmp(p,"-d"))||
+-			(!strcmp(p,"-o")))
+-		{
+-			if (fp_out)
++	if (argc == 1)
+ 			{
+-				if (fp_out!=stdout)
+-				{
+-					fclose(fp_out);
+-				}
+-
+-				fp_out=NULL;
++		usagemsg();
++		exit(1);
+ 			}
+ 
+-			if (!p) 
++	// Get program arguments using getopt()
++	while ((ch = getopt(argc, argv, "?hHc:o:d:fs:/:U:D:")) != -1)
+ 			{
+-				fprintf(stderr,"no outdir specified\n");
+-				return 1;
++		switch (ch)
++		{
++		case '?':
++		case 'h':
++		case 'H':
++			usagemsg();
++			break;
++		case 'c':
++			strncpy(execmd,optarg,sizeof(execmd)-1);
++			break;
++		case 'o':
++		case 'd':
++			strncpy(out_dir,optarg,sizeof(out_dir)-1);
++			break;
++		case 'f':
++			forcedelete = 1;
++			break;
++		case 's':
++			strncpy(smemit,optarg,sizeof(smemit)-1);
++			callsc = 1;
++			break;
++		case '/':
++		case 'U':
++			// add undefined (=FALSE)
++			break;
++		case 'D':
++			// add defined (=TRUE)
++			break;
++		default:
++			printf("Unknown option\n");
++			exit(1);
+ 			}
+-
+-			p=argv[i++];
+-			strncpy(out_dir,p,sizeof(out_dir)-1);
+ 		}
+-		else
++
++	while (optind < argc)
+ 		{
+-			FILE *fp_in=NULL;
++		char *p=argv[optind];
+ 
+ 			if (!strcmp(out_dir,"-"))
+ 			{
+@@ -372,17 +441,9 @@
+ 				{
+ 					char *q=out_file+strlen(out_file)-1;
+ 
+-					if ((*q=='/')||(*q=='\\')||(*q==':')) *q=0;
++					if (*q==DIR_SEP[0]) *q=0;
+ 
+-#ifdef _PLATFORM_MACINTOSH_
+-					strncat(out_file,":",sizeof(out_file)-1);
+-#else
+-	#ifdef _WIN32
+-					strncat(out_file,"\\",sizeof(out_file)-1);
+-	#else
+-					strncat(out_file,"/",sizeof(out_file)-1);
+-	#endif
+-#endif
++					strncat(out_file,DIR_SEP,sizeof(out_file)-1);
+ 				}
+ 
+ 				strncat(out_file,filestem,sizeof(out_file)-1);
+@@ -423,8 +484,30 @@
+ /*				printf("Generated public IDL file '%s'\n",out_file);*/
+ 				out_file[0]=0;
+ 			}
++
++		if (callsc)
++		{
++			if (strlen(out_dir))
++			{
++				sprintf(cmd, SOMC "%s -d%s -s%s %s", out_dir, smemit, p);
++			} else {
++				sprintf(cmd, SOMC "%s -s%s %s", smemit, p);
++			}
++			system(cmd);
++		}
++
++		if (strlen(execmd))
++		{
++			if (strstr(execmd, "%s"))
++			{
++				sprintf(cmd, execmd, p);
++				system(cmd);
++			} else {
++				system(execmd);
+ 		}
+ 	}
+ 
++		optind++;
++	}
+ 	return 0;
+ }
+diff -urwN somfree/sc/src/sc.c newsomfree/sc/src/sc.c
+--- somfree/sc/src/sc.c	Fri Nov 29 22:56:52 2024
++++ newsomfree/sc/src/sc.c	Thu Nov 28 22:37:28 2024
+@@ -27,11 +27,7 @@
+ 
+ /**************************************************************
+  * @todo: add support of:
+- * SMEMIT default emitters
+- * SMINCLUDE include dirs for IDL files
+  * SMKNOWNEXTS add headers to user written emitters
+- * SOMIR for IR emitter
+- * SMTMP for temporary variables
+  * SMADDSTAR
+  */
+ 
+@@ -565,10 +561,9 @@
+ #ifdef _WIN32
+                                 len=GetModuleFileName(NULL,buf,sizeof(buf));
+ #elif __OS2__
+-                                PTIB ptib;
+                                 PPIB ppib;
+ 
+-                                if ( !(DosGetInfoBlocks(&ptib, &ppib)) )
++                                if ( !(DosGetInfoBlocks(NULL, &ppib)) )
+                                    DosQueryModuleName(ppib->pib_hmte, sizeof(buf), buf);
+ 
+                                 len=strlen(buf);
+@@ -936,7 +931,8 @@
+ #endif
+                                         tmpnam(name2);
+ #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+-                                        tmpdir = getenv("TMP");
++                                        tmpdir = getenv("SMTMP");
++					if (!tmpdir)  tmpdir = getenv("TMP");
+ #endif
+                                         add_str(&tmpf, tmpdir);
+ #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+diff -urwN somfree/somc/include/smlib.h newsomfree/somc/include/smlib.h
+--- somfree/somc/include/smlib.h	Fri Nov 29 22:56:52 2024
++++ newsomfree/somc/include/smlib.h	Tue Nov 26 09:06:55 2024
+@@ -242,7 +242,10 @@
+ SOMEXTERN char * OPTLINK_DECL somtstringFmt(char *fmt, ...);
+ SOMEXTERN char * OPTLINK_DECL somttype(SOMTTypes type);
+ SOMEXTERN char * OPTLINK_DECL somtuniqFmt(MemBuf *membuf, char *fmt, ...);
++
++// Search argument in command line and return its name
+ SOMEXTERN int  OPTLINK_DECL somtargFlag(int *argc, char ***argv);
++
+ SOMEXTERN int  OPTLINK_DECL somtattjoin(register AttList *ap1, AttList *ap2);
+ SOMEXTERN int  OPTLINK_DECL somtdbcsLastChar(char *buf);
+ SOMEXTERN int  OPTLINK_DECL somtdbcsScan(char **buf);
+@@ -259,6 +262,7 @@
+ 
+ // Allocate memory size of nbytes and filled with zeroes if clear flag is set
+ SOMEXTERN void * OPTLINK_DECL somtsmalloc(size_t nbytes, BYTE clear);
++
+ SOMEXTERN void  OPTLINK_DECL somtaddGAtt(MemBuf **membuf, AttList **ap, char *buf);
+ SOMEXTERN void  OPTLINK_DECL somtcalcFileName(char *def, char *over, char *ext);
+ SOMEXTERN void  OPTLINK_DECL somtcleanFilesFatal(int status);
+@@ -356,7 +360,10 @@
+ SOMEXTERN char * SOMLINK somtstringFmtSL(char *fmt, ...);
+ SOMEXTERN char * SOMLINK somttypeSL(SOMTTypes type);
+ SOMEXTERN char * SOMLINK somtuniqFmtSL(MemBuf *membuf, char *fmt, ...);
++
++// Search argument in command line and return its name
+ SOMEXTERN int SOMLINK somtargFlagSL(int *argc, char ***argv);
++
+ SOMEXTERN int SOMLINK somtattjoinSL(register AttList *ap1, AttList *ap2);
+ SOMEXTERN int SOMLINK somtdbcsLastCharSL(char *buf);
+ SOMEXTERN int SOMLINK somtdbcsScanSL(char **buf);
+diff -urwN somfree/somkpub/include/somapi.h newsomfree/somkpub/include/somapi.h
+--- somfree/somkpub/include/somapi.h	Fri Nov 29 22:56:52 2024
++++ newsomfree/somkpub/include/somapi.h	Tue Nov 26 12:28:31 2024
+@@ -340,7 +340,13 @@
+ 	typedef unsigned long SOMLINK somTD_SOMReleaseMutexSem(somToken sem);
+ 	typedef unsigned long SOMLINK somTD_SOMDestroyMutexSem(somToken sem);
+ 	typedef unsigned long SOMLINK somTD_SOMGetThreadId (void);
++
++#ifdef CORBA1MAPPING
+ 	typedef void		SOMLINK somTD_SOMError(int code,const char * fileName,int lineNum);
++#else
++	typedef void		SOMLINK somTD_SOMError(CORBA_long code,const CORBA_char * fileName, CORBA_long lineNum);
++#endif
++
+ 	typedef somToken    SOMLINK somTD_SOMMalloc(size_t nbytes);
+ 	typedef somToken    SOMLINK somTD_SOMCalloc(size_t element_count,size_t element_size);
+ 	typedef somToken    SOMLINK somTD_SOMRealloc(somToken memory,size_t nbytes);
+@@ -436,7 +442,7 @@
+ SOMEXTERN SOM_IMPORTEXPORT_som void * SOMLINK somExceptionValue(Environment *ev);
+ #else
+ SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somExceptionFree(CORBA_Environment *ev);
+-SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somSetException(CORBA_Environment *ev,CORBA_exception_type major,const char *exception_name,void *params);
++SOMEXTERN SOM_IMPORTEXPORT_som void SOMLINK somSetException(CORBA_Environment *ev,CORBA_exception_type major,const CORBA_char *exception_name,void *params);
+ SOMEXTERN SOM_IMPORTEXPORT_som char * SOMLINK somExceptionId(CORBA_Environment *ev);
+ SOMEXTERN SOM_IMPORTEXPORT_som void * SOMLINK somExceptionValue(CORBA_Environment *ev);
+ #endif
+diff -urwN somfree/somkpub/include/somcdev.h newsomfree/somkpub/include/somcdev.h
+--- somfree/somkpub/include/somcdev.h	Fri Nov 29 22:56:52 2024
++++ newsomfree/somkpub/include/somcdev.h	Tue Nov 26 11:25:04 2024
+@@ -42,7 +42,7 @@
+ #define SOM_IgnoreCode(code) (SOM_EB + (code)*10 + SOM_Ignore)
+ #define SOM_OkCode(code) (SOM_EB + (code)*10 + SOM_Ok)
+ #define SOM_TemplateCode(code) (SOM_EB + (code)*10 + SOM_Template)
+-#define SOM_MsgCode(ecode) (((ecode)-SOM_EB)/10)
++#define SOM_MsgCode(code) (((code)-SOM_EB)/10)
+ 
+ #define SOMERROR_CCNullClass SOM_WarnCode(1)
+ #define SOMERROR_SompntOverflow SOM_FatalCode(2)

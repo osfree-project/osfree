@@ -117,6 +117,9 @@ TARGETS =	$(PATH)somobj.xh &
 		$(PATH)somap.xh &
 		$(PATH)somos.xh &
 		$(PATH)xmscssae.xh &
+                $(PATH)mlink.xh &
+                $(PATH)tpll.xh &
+                $(PATH)tpllitr.xh &
 		$(PATH)somtdm.xh
 
 
@@ -463,4 +466,13 @@ $(PATH)somcls.xh: $(DEST)$(SEP)somcls.idl
  $(verbose)$(SC) -sxh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
 
 $(PATH)somcm.xh: $(DEST)$(SEP)somcm.idl
+ $(verbose)$(SC) -sxh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)mlink.xh: $(DEST)$(SEP)mlink.idl
+ $(verbose)$(SC) -sxh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)tpll.xh: $(DEST)$(SEP)tpll.idl
+ $(verbose)$(SC) -sxh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)
+
+$(PATH)tpllitr.xh: $(DEST)$(SEP)tpllitr.idl
  $(verbose)$(SC) -sxh -I $(DEST) -v $< -o $(PATH) $(BLACKHOLE)

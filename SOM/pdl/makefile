@@ -55,7 +55,3 @@ C = r
 ADD_COPT = -dNDEBUG -i=$(defs) -i=$(PORT_BASE)include -bc -bm -dHAVE_CONFIG_H $(OPTS)
 
 .c: $(PORT_BASE)pdl$(SEP)src
-
-#.h: $(SRC)contrib$(SEP)include
-
-#.$(O): $(PATH)
