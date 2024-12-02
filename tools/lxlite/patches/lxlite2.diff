@@ -1,0 +1,708 @@
+diff -urwN lxlite\src\common\MiscUtil.pas newlxlite\src\common\MiscUtil.pas
+--- lxlite\src\common\MiscUtil.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\common\MiscUtil.pas	Sun Dec 01 20:21:56 2024
+@@ -9,6 +9,7 @@
+ {$asmmode intel}
+ {$Optimization STACKFRAME}
+ {$H-}
++  {$codepage CP437}
+ {$endif}
+ Unit MiscUtil;
+ 
+diff -urwN lxlite\src\common\MyCrt.pas newlxlite\src\common\MyCrt.pas
+--- lxlite\src\common\MyCrt.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\common\MyCrt.pas	Mon Dec 02 13:38:44 2024
+@@ -10,11 +10,20 @@
+ {ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß}
+ 
+ {$S-,R-,Q-,I-}
+-{$ifndef fpc}{$Cdecl-,OrgName-,AlignRec-,Use32+}{$else}{$Align 1}{$endif}
++{$ifndef fpc}
++  {$Cdecl-,OrgName-,AlignRec-,Use32+}
++{$else}
++  {$Align 1}
++  {$codepage CP437}
++{$endif}
+ 
+ unit MyCrt;
+ 
+-interface uses vpsyslow;
++interface 
++
++{$ifndef fpc}
++uses vpsyslow;
++{$endif}
+ 
+ const
+ 
+@@ -67,6 +76,14 @@
+   RedirOutput: boolean = False; {True if stdOut is redirected}
+   RedirInput: boolean = False;  {True if stdIn is redirected}
+ 
++{$ifdef fpc}
++type
++  tSysPoint=record
++    x: word;
++    y: word;
++  end;
++{$endif}
++
+ var
+   LastMode: Word;               { Current text mode }
+   WindMin: Word;                { Window upper left coordinates }
+@@ -119,7 +136,12 @@
+ 
+ procedure PlaySound(Freq,Duration: Longint);
+ 
+-implementation uses Dos, {$ifdef OS2} Os2Def, {$IFDEF FPC} DosCalls, KbdCalls, VioCalls{$ELSE} Os2Base{$ENDIF}{$endif};
++implementation
++
++uses Dos
++ {$ifdef OS2}, Os2Def, {$IFDEF FPC} DosCalls, KbdCalls, VioCalls{$ELSE} Os2Base{$ENDIF}{$endif}
++ {$ifdef WIN32}, windows{$endif}
++ ;
+ 
+ { Private variables }
+ 
+@@ -128,12 +150,350 @@
+   DelayCount: Longint;
+   PrevXcptProc: Pointer;
+ 
++{$ifdef FPC}
++{$ifdef WIN32}
++
++type
++  SmallWord=word;
++
++procedure SysTvInitCursor;
++begin
++end;
++
++procedure SysScrollUp( X1, Y1, X2, Y2, Z, Fill: Word );
++var
++  ClipRect: TSmallRect;
++  SrcRect: TSmallRect;
++  DestCoor: TCoord;
++  CharInfo: TCharInfo;
++begin
++  CharInfo.AsciiChar := Char(Lo(Fill));
++  CharInfo.Attributes := Hi(Fill);
++
++  SrcRect.Top := y1;
++  SrcRect.Left := x1;
++  SrcRect.Right := x2;
++  SrcRect.Bottom := y2;
++
++  DestCoor.X := x1;
++  DestCoor.Y := Y1 - z;
++
++  ClipRect := SrcRect;
++  cliprect.top := destcoor.y;
++
++  ScrollConsoleScreenBuffer(GetStdHandle(STD_OUTPUT_HANDLE), SrcRect, ClipRect,
++    DestCoor, CharInfo);
++end;
++
++procedure SysScrollDn( X1, Y1, X2, Y2, Z, Fill: Word );
++var
++  ClipRect: TSmallRect;
++  SrcRect: TSmallRect;
++  DestCoor: TCoord;
++  CharInfo: TCharInfo;
++begin
++  CharInfo.AsciiChar := Char(Lo(Fill));
++  CharInfo.Attributes := Hi(Fill);
++
++  SrcRect.Top := y1;
++  SrcRect.Left := x1;
++  SrcRect.Right := x2;
++  SrcRect.Bottom := y2;
++
++  DestCoor.X := x1;
++  DestCoor.Y := Y1 + z;
++
++  ClipRect := SrcRect;
++  cliprect.top := destcoor.y;
++
++  ScrollConsoleScreenBuffer(GetStdHandle(STD_OUTPUT_HANDLE), SrcRect, ClipRect,
++    DestCoor, CharInfo);
++end;
++
++procedure SysCtrlSleep(MS: Longint);
++begin
++end;
++
++
++procedure SysBeepEx(Freq,Duration: Longint);
++begin
++end;
++
++procedure SysBeep;
++begin
++end;
++
++procedure SysFlushKeyBuf;
++begin
++end;
++
++procedure SysWrtCharStrAtt(Buf: PChar; Len: word; X, Y, TextAttr: word);
++var
++    WritePos: Coord;                       { Upper-left cell to write from }
++    numWritten : DWord;
++    WinAttr : word;
++begin
++    WritePos.X := X;
++    WritePos.Y := Y;
++
++    WriteConsoleOutputCharacter(GetStdhandle(STD_OUTPUT_HANDLE),
++        Buf, Len, writePos, numWritten);
++
++	while len>0 do
++	begin
++		WriteConsoleOutputAttribute(GetStdhandle(STD_OUTPUT_HANDLE),
++        @TextAttr, 1, writePos, numWritten);
++		dec(len);
++		inc(writepos.x);
++	end;
++end;
++
++procedure SysGetCurPos(var x : Word; var y : Word);
++var
++  ConsoleInfo : TConsoleScreenBufferInfo;
++begin
++  FillChar(ConsoleInfo, SizeOf(ConsoleInfo), 0);
++  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), ConsoleInfo);
++  X := ConsoleInfo.dwCursorPosition.X;
++  Y := ConsoleInfo.dwCursorPosition.Y;
++end;
++  
++procedure SysTVSetCurPos(x,y : DWord);
++var
++  CurInfo: TCoord;
++begin
++  FillChar(Curinfo, SizeOf(Curinfo), 0);
++  CurInfo.X := X;
++  CurInfo.Y := Y;
++  SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), CurInfo);
++end;
++
++var
++   ScanCode : char;
++   SpecialKey : boolean;
++   DoingNumChars: Boolean;
++   DoingNumCode: Byte;
++
++Function RemapScanCode (ScanCode: word; CtrlKeyState: dword; keycode:word): byte;
++  { Several remappings of scancodes are necessary to comply with what
++    we get with MSDOS. Special Windows keys, as Alt-Tab, Ctrl-Esc etc.
++    are excluded }
++var
++  AltKey, CtrlKey, ShiftKey: boolean;
++const
++  {
++    Keypad key scancodes:
++
++      Ctrl Norm
++
++      $77  $47 - Home
++      $8D  $48 - Up arrow
++      $84  $49 - PgUp
++      $8E  $4A - -
++      $73  $4B - Left Arrow
++      $8F  $4C - 5
++      $74  $4D - Right arrow
++      $4E  $4E - +
++      $75  $4F - End
++      $91  $50 - Down arrow
++      $76  $51 - PgDn
++      $92  $52 - Ins
++      $93  $53 - Del
++  }
++  CtrlKeypadKeys: array[$47..$53] of byte =
++    ($77, $8D, $84, $8E, $73, $8F, $74, $4E, $75, $91, $76, $92, $93);
++
++begin
++  AltKey := ((CtrlKeyState AND
++            (RIGHT_ALT_PRESSED OR LEFT_ALT_PRESSED)) > 0);
++  CtrlKey := ((CtrlKeyState AND
++            (RIGHT_CTRL_PRESSED OR LEFT_CTRL_PRESSED)) > 0);
++  ShiftKey := ((CtrlKeyState AND SHIFT_PRESSED) > 0);
++
++  if AltKey then
++   begin
++    case ScanCode of
++    // Digits, -, =
++    $02..$0D: inc(ScanCode, $76);
++    // Function keys
++    $3B..$44: inc(Scancode, $2D);
++    $57..$58: inc(Scancode, $34);
++    // Extended cursor block keys
++    $47..$49, $4B, $4D, $4F..$53:
++              inc(Scancode, $50);
++    // Other keys
++    $1C:      Scancode := $A6;   // Enter
++    $35:      Scancode := $A4;   // / (keypad and normal!)
++    end
++   end
++  else if CtrlKey then
++    case Scancode of
++    // Tab key
++    $0F:      Scancode := $94;
++    // Function keys
++    $3B..$44: inc(Scancode, $23);
++    $57..$58: inc(Scancode, $32);
++    // Keypad keys
++    $35:      Scancode := $95;   // \
++    $37:      Scancode := $96;   // *
++    $47..$53: Scancode := CtrlKeypadKeys[Scancode];
++    //Enter on Numpad
++    $1C:
++    begin
++      Scancode := $0A;
++      SpecialKey := False;
++    end;
++    end
++  else if ShiftKey then
++    case Scancode of
++    // Function keys
++    $3B..$44: inc(Scancode, $19);
++    $57..$58: inc(Scancode, $30);
++    //Enter on Numpad
++    $1C:
++    begin
++      Scancode := $0D;
++      SpecialKey := False;
++    end;
++    end
++  else
++    case Scancode of
++      // Function keys
++      $57..$58: inc(Scancode, $2E); // F11 and F12
++      //Enter on NumPad
++      $1C:
++        begin
++          Scancode := $0D;
++          SpecialKey := False;
++        end;
++  end;
++  RemapScanCode := ScanCode;
++end;
++
++
++function SysKeyPressed : boolean;
++var
++  nevents,nread : dword;
++  buf : TINPUTRECORD;
++  AltKey: Boolean;
++  c : longint;
++begin
++  SysKeyPressed := FALSE;
++  if ScanCode <> #0 then
++    SysKeyPressed := TRUE
++  else
++   begin
++     GetNumberOfConsoleInputEvents(TextRec(input).Handle,nevents);
++     while nevents>0 do
++       begin
++          ReadConsoleInputA(TextRec(input).Handle,buf,1,nread);
++          if buf.EventType = KEY_EVENT then
++            if buf.Event.KeyEvent.bKeyDown then
++              begin
++                 { Alt key is VK_MENU }
++                 { Capslock key is VK_CAPITAL }
++
++                 AltKey := ((Buf.Event.KeyEvent.dwControlKeyState AND
++                            (RIGHT_ALT_PRESSED OR LEFT_ALT_PRESSED)) > 0);
++                 if not(Buf.Event.KeyEvent.wVirtualKeyCode in [VK_SHIFT, VK_MENU, VK_CONTROL,
++                                                      VK_CAPITAL, VK_NUMLOCK,
++                                                      VK_SCROLL]) then
++                   begin
++                      syskeypressed:=true;
++
++                      if (ord(buf.Event.KeyEvent.AsciiChar) = 0) or
++                         (buf.Event.KeyEvent.dwControlKeyState and (LEFT_ALT_PRESSED or ENHANCED_KEY) > 0) then
++                        begin
++                           SpecialKey := TRUE;
++                           ScanCode := Chr(RemapScanCode(Buf.Event.KeyEvent.wVirtualScanCode, Buf.Event.KeyEvent.dwControlKeyState,
++                                           Buf.Event.KeyEvent.wVirtualKeyCode));
++                        end
++                      else
++                        begin
++                           { Map shift-tab }
++                           if (buf.Event.KeyEvent.AsciiChar=#9) and
++                              (buf.Event.KeyEvent.dwControlKeyState and SHIFT_PRESSED > 0) then
++                            begin
++                              SpecialKey := TRUE;
++                              ScanCode := #15;
++                            end
++                           else
++                            begin
++                              SpecialKey := FALSE;
++                              ScanCode := Chr(Ord(buf.Event.KeyEvent.AsciiChar));
++                            end;
++                        end;
++
++                      if AltKey then
++                        begin
++                           case Buf.Event.KeyEvent.wVirtualScanCode of
++                             71 : c:=7;
++                             72 : c:=8;
++                             73 : c:=9;
++                             75 : c:=4;
++                             76 : c:=5;
++                             77 : c:=6;
++                             79 : c:=1;
++                             80 : c:=2;
++                             81 : c:=3;
++                             82 : c:=0;
++                           else
++                             break;
++                           end;
++                           DoingNumChars := true;
++                           DoingNumCode := Byte((DoingNumCode * 10) + c);
++                           SysKeypressed := false;
++                           Specialkey := false;
++                           ScanCode := #0;
++                        end
++                      else
++                        break;
++                   end;
++              end
++             else
++              begin
++                if (Buf.Event.KeyEvent.wVirtualKeyCode in [VK_MENU]) then
++               if DoingNumChars then
++                 if DoingNumCode > 0 then
++                   begin
++                      ScanCode := Chr(DoingNumCode);
++                      SysKeypressed := true;
++
++                      DoingNumChars := false;
++                      DoingNumCode := 0;
++                      break
++                   end; { if }
++              end;
++          { if we got a key then we can exit }
++          if syskeypressed then
++            exit;
++          GetNumberOfConsoleInputEvents(TextRec(input).Handle,nevents);
++       end;
++   end;
++end;
++
++
++function SysReadKey: char;
++begin
++  while (not SysKeyPressed) do
++    Sleep(1);
++  if SpecialKey then begin
++    sysReadKey := #0;
++    SpecialKey := FALSE;
++  end else begin
++    sysReadKey := ScanCode;
++    ScanCode := #0;
++  end;
++end;
++{$endif}
++{$endif}
++
+ { Determines if a key has been pressed on the keyboard and returns True }
+ { if a key has been pressed                                             }
+ 
+ function KeyPressed: Boolean;
+-var
+-  Key: KbdKeyInfo;
++{var
++  Key: KbdKeyInfo;}
+ begin
+   KeyPressed := SysKeyPressed;
+ end;
+@@ -142,8 +502,8 @@
+ { extended scan code.                                                   }
+ 
+ function ReadKey: Char;
+-var
+-  Key: KbdKeyInfo;
++{var
++  Key: KbdKeyInfo;}
+ begin
+   ReadKey := SysReadKey;
+ end;
+@@ -152,7 +512,11 @@
+ 
+ procedure ReadNormAttr;
+ begin
++{$ifdef win32}
++  NormAttr := $07;
++{$else}
+   NormAttr := SysReadAttributesAt(WhereX-1, WhereY-1);
++{$endif}
+   NormVideo;
+ end;
+ 
+@@ -167,8 +531,18 @@
+ { Stores current video mode in LastMode }
+ 
+ procedure GetLastMode;
++var
++  ConsoleInfo : TConsoleScreenBufferInfo;
+ begin
++{$ifndef win32}
+   LastMode := SysTvGetScrMode( @ScreenSize);
++{$else}
++  LastMode:=3;
++  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), ConsoleInfo);
++
++  ScreenSize.x:=ConsoleInfo.dwSize.X;
++  screensize.y:=ConsoleInfo.dwSize.Y;
++{$endif}
+ end;
+ 
+ { Selects a specific text mode. The valid text modes are:               }
+@@ -180,10 +554,14 @@
+ {   Font8x8 (Add-in) 43-/50-line mode                                   }
+ 
+ procedure TextMode(Mode: Integer);
++{$ifndef win32}
+ var BiosMode: Byte; Cell: SmallWord; VideoConfig: VioConfigInfo;
++{$endif}
+ begin
++{$ifndef win32}
+   TextAttr := LightGray;
+   SysTvSetScrMode( Mode );
++{$endif}	
+   GetLastMode;
+   NormVideo;
+   SetWindowPos;
+@@ -568,7 +946,7 @@
+ end;
+ 
+ { Signal Handler }
+-
++{$ifndef win32}
+ var
+   PrevCtrlBreakHandler : TCtrlBreakHandler = nil;
+ 
+@@ -582,17 +960,44 @@
+   if not Result then
+     Result := not CheckBreak;
+ end;
++{$endif}
++
++{$ifdef win32}
++procedure SetupConsoleInput(ihnd: THANDLE);
++var
++  Mode : DWORD;
++begin
++  GetConsoleMode(ihnd, Mode);
++  Mode:=Mode and not ENABLE_PROCESSED_INPUT;
++  SetConsoleMode(ihnd, Mode);
++end;
++{$endif}
+ 
+ Procedure AssignConToCrt;
+ var hType,hAttr : Longint;
+ begin
+  Move(Input, StdIn, sizeOf(StdIn));
+  Move(Output, StdOut, sizeOf(StdOut));
+-{$IFDEF nonexxx} {WIN32}
++{$IFDEF WIN32}
+  hAttr := GetFileType(GetStdHandle(STD_INPUT_HANDLE));
+- if hAttr <> FILE_TYPE_CHAR then RedirInput := True;
++ if hAttr <> FILE_TYPE_CHAR then
++ begin
++   RedirInput := True;
++   writeln('a');
++ end else begin
++  AssignCrt(Input);
++  Reset(Input);
++  TextRec(Input).Handle:= GetStdHandle(STD_INPUT_HANDLE);
++ end;
++
+  hAttr := GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+- if hAttr <> FILE_TYPE_CHAR then RedirOutput := True;
++ if hAttr <> FILE_TYPE_CHAR then RedirOutput := True
++ else begin
++  AssignCrt(Output);
++  ReWrite(Output);
++  TextRec(Output).Handle:= GetStdHandle(STD_OUTPUT_HANDLE);
++ end;
++ SetupConsoleInput(TextRec(Input).Handle);
+ {$ENDIF}
+ {$IFDEF OS2}
+  DosQueryHType(0, hType, hAttr);
+@@ -610,10 +1015,6 @@
+        end
+   else RedirOutput := True;
+ {$ENDIF}
+-{$IFDEF nonexxx}
+-  AssignCrt(Input);  Reset(Input);
+-  AssignCrt(Output); ReWrite(Output);
+-{$ENDIF}
+ end;
+ 
+ begin
+@@ -621,8 +1022,12 @@
+   GetLastMode;
+   SetWindowPos;
+   ReadNormAttr;
+-  {AssignConToCrt;}
++  AssignConToCrt;
++  writeln('11111');
++  writeln('22222');
++  {$ifndef win32}
+   PrevCtrlBreakHandler := CtrlBreakHandler;
+   CtrlBreakHandler := CrtCtrlBreakHandler;
+   SysCtrlSetCBreakHandler;
++  {$endif}
+ end.
+diff -urwN lxlite\src\common\StrOp.pas newlxlite\src\common\StrOp.pas
+--- lxlite\src\common\StrOp.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\common\StrOp.pas	Mon Dec 02 14:02:13 2024
+@@ -5,6 +5,8 @@
+ {$Align 1}
+ {$asmmode intel}
+ {$Optimization STACKFRAME}
++{$codepage cp437}
++{$H-}
+ {$endif}
+ {&define OS_MAP_CASE}
+ 
+@@ -530,6 +532,7 @@
+ end; {&FRAME-}
+ {$endif}
+ 
++{$ifndef fpc}
+ Function Strg; assembler;
+ asm             cld
+                 mov     edi,@result
+@@ -546,6 +549,12 @@
+                 adc     cl,cl
+                 rep     stosb
+ end;
++{$else}
++Function  Strg(Ch : Char; Num : Integer) : String;
++begin
++  Strg:=StringOfChar(Ch, Num);
++end;
++{$endif}
+ 
+ {&SAVES ebx,edx,esi,edi}
+ Function SetUpCase(var c : Char) : boolean; assembler;
+diff -urwN lxlite\src\common\SysLib.pas newlxlite\src\common\SysLib.pas
+--- lxlite\src\common\SysLib.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\common\SysLib.pas	Sun Dec 01 20:22:08 2024
+@@ -9,6 +9,7 @@
+ {$Align 1}
+ {$Optimization STACKFRAME}
+ {$ModeSwitch nestedprocvars}
++{$codepage CP437}
+ {$endif}
+ 
+ Unit SysLib;
+diff -urwN lxlite\src\lxlite.inc newlxlite\src\lxlite.inc
+--- lxlite\src\lxlite.inc	Mon Dec 02 14:19:57 2024
++++ newlxlite\src\lxlite.inc	Sun Dec 01 20:21:42 2024
+@@ -1,3 +1,4 @@
++{$codepage CP437}
+ (* Table for converting MODULENAME:ORDINAL into API name *)
+ (* IDs from 1 to 99 are reserved for module identifiers  *)
+ (* Module identifier format:  <MODNAME>.<START>.<LENGTH> *)
+diff -urwN lxlite\src\lxlite.pas newlxlite\src\lxlite.pas
+--- lxlite\src\lxlite.pas	Mon Dec 02 14:13:20 2024
++++ newlxlite\src\lxlite.pas	Sun Dec 01 20:27:49 2024
+@@ -10,8 +10,12 @@
+ {$asmmode intel}
+ {$Optimization STACKFRAME}
+ {$H-}
++  {$codepage CP437}
+ {$endif}
+ uses
++{$ifdef MSWINDOWS}
++ windows,
++{$ENDIF}
+  Dos,
+ {$ifdef virtualpascal}
+  vpsyslow,
+@@ -19,11 +23,7 @@
+ {$IFDEF OS2}
+  os2def, {$ifndef fpc} os2base, {$else} doscalls, drivers, {$endif} 
+ {$ENDIF}
+-{$ifdef fpc}
+- Crt,
+-{$else}
+  MyCrt,
+-{$endif}
+  exe386, os2exe, StrOp, MiscUtil,
+  SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
+ 
+@@ -878,6 +878,11 @@
+  I : longint;
+ 
+ begin
++{$IFDEF win32}
++ SetConsoleOutputCP(437);
++ SetTextCodePage(Output, 437);
++{$ENDIF}
++
+  SetColor($0F);
+ {$ifndef fpc}
+  @OldExit := ExitProc; ExitProc := @MyExitProc;
+diff -urwN lxlite\src\lxLite_Global.pas newlxlite\src\lxLite_Global.pas
+--- lxlite\src\lxLite_Global.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\lxLite_Global.pas	Sun Dec 01 17:55:12 2024
+@@ -416,7 +416,10 @@
+ procedure SetColor(Color : Byte);
+ procedure ClearToEOL;
+ 
+-Implementation uses StrOp
++Implementation
++
++uses
++ StrOp
+ {$ifdef os2}
+ {$ifdef fpc}
+   , doscalls
+@@ -424,11 +427,8 @@
+   , os2base
+ {$endif}
+ {$endif}
+-{$ifdef fpc}
+-      , Crt
+-{$else}
+       , MyCrt
+-{$endif};
++  ;
+ 
+ procedure SetColor(Color : Byte);
+ const
+diff -urwN lxlite\src\lxLite_Objects.pas newlxlite\src\lxLite_Objects.pas
+--- lxlite\src\lxLite_Objects.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite\src\lxLite_Objects.pas	Mon Dec 02 13:51:22 2024
+@@ -7,16 +7,13 @@
+ {$H-}
+ {$Align 1}
+ {$Optimization STACKFRAME}
++{$codepage cp437}
+ {$endif}
+ Unit lxLite_Objects;
+ 
+ Interface uses exe286, exe386, os2exe, MiscUtil, SysLib,
+                StrOp, Country, Collect, lxlite_Global
+-{$ifdef fpc}
+-               , Crt
+-{$else}
+                , MyCrt
+-{$endif}
+ {$ifndef fpc}
+                , vpsyslow
+ {$ifdef os2}
+@@ -155,7 +152,7 @@
+   then if not (RedirOutput or RedirInput)
+         then begin
+               S := GetResourceString(msgMore);
+-              SetColor($30); I := (80 - length(S)) div 2;
++              SetColor($30); I := (Succ(Lo(WindMax)) - length(S)) div 2;
+               Write(Strg(' ', I), S); ClearToEOL;
+               repeat
+                I := 0;
