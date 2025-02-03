@@ -1,0 +1,16 @@
+#ifndef COS_LW_LOG_SERVICE_IDL
+#define COS_LW_LOG_SERVICE_IDL
+
+#include <CosLwLogAdministrator.idl>
+#include <CosLwLogConsumer.idl>
+#include <CosLwLogProducer.idl>
+
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#endif
+
+module CosLwLog
+{
+  interface Log : LogAdministrator, LogConsumer, LogProducer {};
+};
+#endif // COS_LW_LOG_SERVICE_IDL

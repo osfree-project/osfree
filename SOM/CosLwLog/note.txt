@@ -1,0 +1,1 @@
+Lightweight Log Service, v1.1

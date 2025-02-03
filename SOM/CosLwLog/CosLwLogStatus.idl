@@ -1,0 +1,73 @@
+#ifndef MODULE_COS_LW_LOG_STATUS_IDL
+#define MODULE_COS_LW_LOG_STATUS_IDL
+
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#endif
+
+module CosLwLog {
+
+#ifndef _PRE_3_0_COMPILER_
+	typeprefix CosLwLog "omg.org";
+#endif
+
+	// The following constants are intended to identify
+	// the nature of a logging record. The constants
+	// represent the valid values for LogLevel
+	// The list of constants may be expanded
+	const unsigned short SECURITY_ALARM = 1;
+	const unsigned short FAILURE_ALARM = 2;
+	const unsigned short DEGRADED_ALARM =3;
+	const unsigned short EXCEPTION_ERROR =4;
+	const unsigned short FLOW_CONTROL_ERROR =5;
+	const unsigned short RANGE_ERROR =6;
+	const unsigned short USAGE_ERROR = 7;
+	const unsigned short ADMINISTRATIVE_EVENT = 8;
+	const unsigned short STATISTIC_REPORT = 9;
+	// Values ranging from 10 to 26 are reserved for
+	// 16 debugging levels.
+
+	typedef unsigned short LogLevel;
+	enum OperationalState {disabled, enabled};
+	enum AdministrativeState {locked, unlocked};
+	enum LogFullAction {WRAP, HALT};
+	typedef unsigned long long RecordId;
+	struct LogTime {
+		long seconds;
+		long nanoseconds;
+	};
+	struct AvailabilityStatus{
+		boolean off_duty;
+		boolean log_full;
+	};
+	struct ProducerLogRecord {
+		string producerId;
+		string producerName;
+		LogLevel level;
+		string logData;
+	};
+	struct LogRecord {
+		RecordId id;
+		LogTime time;
+		ProducerLogRecord info;
+	};
+	typedef sequence<LogRecord> LogRecordSequence;
+	typedef sequence<ProducerLogRecord> ProducerLogRecordSequence;
+	typedef sequence<LogLevel> LogLevelSequence;
+	typedef sequence<string> StringSeq;
+
+	exception InvalidParam {
+		string details;
+	};
+
+	interface LogStatus {
+		unsigned long long get_max_size();
+		unsigned long long get_current_size();
+		unsigned long long get_n_records();
+		LogFullAction get_log_full_action();
+		AvailabilityStatus get_availability_status();
+		AdministrativeState get_administrative_state();
+		OperationalState get_operational_state();
+	};
+};
+#endif // MODULE_COS_LW_LOG_STATUS_IDL

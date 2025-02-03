@@ -1,0 +1,30 @@
+#ifndef MODULE_COS_LW_LOG_CONSUMER_IDL
+#define MODULE_COS_LW_LOG_CONSUMER_IDL
+
+#include <CosLwLogStatus.idl>
+
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#endif
+
+module CosLwLog {
+	interface LogConsumer : LogStatus {
+		RecordId get_record_id_from_time (in LogTime fromTime);
+		LogRecordSequence retrieve_records(
+			inout RecordId currentId,
+			inout unsigned long howMany);
+		LogRecordSequence retrieve_records_by_level(
+			inout RecordId currentId,
+			inout unsigned long howMany,
+			in LogLevelSequence valueList);
+		LogRecordSequence retrieve_records_by_producer_id(
+			inout RecordId currentId,
+			inout unsigned long howMany,
+			in StringSeq valueList);
+		LogRecordSequence retrieve_records_by_producer_name(
+			inout RecordId currentId,
+			inout unsigned long howMany,
+			in StringSeq valueList);
+	};
+};
+#endif // MODULE_COS_LW_LOG_CONSUMER_IDL

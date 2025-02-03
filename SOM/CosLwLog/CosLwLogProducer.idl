@@ -1,0 +1,15 @@
+#ifndef MODULE_COS_LW_LOG_PRODUCER_IDL
+#define MODULE_COS_LW_LOG_PRODUCER_IDL
+#include <CosLwLogStatus.idl>
+
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#endif
+
+module CosLwLog {
+	interface LogProducer : LogStatus {
+		oneway void write_records(in ProducerLogRecordSequence records);
+		oneway void write_record(in ProducerLogRecord record);
+	};
+};
+#endif // MODULE_COS_LW_LOG_PRODUCER_IDL

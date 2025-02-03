@@ -1,0 +1,19 @@
+#ifndef MODULE_COS_LW_LOG_ADMINISTRATOR_IDL
+#define MODULE_COS_LW_LOG_ADMINISTRATOR_IDL
+
+#include <CosLwLogStatus.idl>
+
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#endif
+
+module CosLwLog {
+	interface LogAdministrator : LogStatus {
+		void set_max_size(in unsigned long long size) raises (InvalidParam);
+		void set_log_full_action(in LogFullAction action);
+		void set_administrative_state(in AdministrativeState state);
+		void clear_log();
+		void destroy ();
+	};
+};
+#endif // MODULE_COS_LW_LOG_ADMINISTRATOR_IDL

@@ -622,8 +622,8 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WINALLOCFARMEM               PMMERGE.2180,  &
           WINFREEFARMEM                PMMERGE.2181,  &
           WINREALLOCFARMEM             PMMERGE.2182,  &
-          WINGETERASEPS                PMMERGE.5184,  &
-          WINRELEASEERASEPS            PMMERGE.5320,  &
+          WinGetErasePS                PMMERGE.5184,  &
+          WinReleaseErasePS            PMMERGE.5320,  &
           DEBUG32INPUT                 PMMERGE.5005,  &
           DEBUG32OUTPUT                PMMERGE.5006,  &
           DEBUG32CURPOS                PMMERGE.5004,  &
