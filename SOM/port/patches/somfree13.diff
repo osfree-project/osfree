@@ -364,3 +364,4 @@ diff -urwN somfree/somkpub/include/somcdev.h newsomfree/somkpub/include/somcdev.
  
  #define SOMERROR_CCNullClass SOM_WarnCode(1)
  #define SOMERROR_SompntOverflow SOM_FatalCode(2)
+

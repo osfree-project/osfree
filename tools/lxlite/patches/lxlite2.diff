@@ -1,6 +1,6 @@
-diff -urwN lxlite\src\common\MiscUtil.pas newlxlite\src\common\MiscUtil.pas
---- lxlite\src\common\MiscUtil.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\common\MiscUtil.pas	Sun Dec 01 20:21:56 2024
+diff -urwN lxlite/src/common/MiscUtil.pas newlxlite/src/common/MiscUtil.pas
+--- lxlite/src/common/MiscUtil.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/common/MiscUtil.pas	Sun Dec 01 20:21:56 2024
 @@ -9,6 +9,7 @@
  {$asmmode intel}
  {$Optimization STACKFRAME}
@@ -9,9 +9,9 @@ diff -urwN lxlite\src\common\MiscUtil.pas newlxlite\src\common\MiscUtil.pas
  {$endif}
  Unit MiscUtil;
  
-diff -urwN lxlite\src\common\MyCrt.pas newlxlite\src\common\MyCrt.pas
---- lxlite\src\common\MyCrt.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\common\MyCrt.pas	Mon Dec 02 13:38:44 2024
+diff -urwN lxlite/src/common/MyCrt.pas newlxlite/src/common/MyCrt.pas
+--- lxlite/src/common/MyCrt.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/common/MyCrt.pas	Mon Dec 02 13:38:44 2024
 @@ -10,11 +10,20 @@
  {ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß}
  
@@ -556,9 +556,9 @@ diff -urwN lxlite\src\common\MyCrt.pas newlxlite\src\common\MyCrt.pas
    SysCtrlSetCBreakHandler;
 +  {$endif}
  end.
-diff -urwN lxlite\src\common\StrOp.pas newlxlite\src\common\StrOp.pas
---- lxlite\src\common\StrOp.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\common\StrOp.pas	Mon Dec 02 14:02:13 2024
+diff -urwN lxlite/src/common/StrOp.pas newlxlite/src/common/StrOp.pas
+--- lxlite/src/common/StrOp.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/common/StrOp.pas	Mon Dec 02 14:02:13 2024
 @@ -5,6 +5,8 @@
  {$Align 1}
  {$asmmode intel}
@@ -589,9 +589,9 @@ diff -urwN lxlite\src\common\StrOp.pas newlxlite\src\common\StrOp.pas
  
  {&SAVES ebx,edx,esi,edi}
  Function SetUpCase(var c : Char) : boolean; assembler;
-diff -urwN lxlite\src\common\SysLib.pas newlxlite\src\common\SysLib.pas
---- lxlite\src\common\SysLib.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\common\SysLib.pas	Sun Dec 01 20:22:08 2024
+diff -urwN lxlite/src/common/SysLib.pas newlxlite/src/common/SysLib.pas
+--- lxlite/src/common/SysLib.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/common/SysLib.pas	Sun Dec 01 20:22:08 2024
 @@ -9,6 +9,7 @@
  {$Align 1}
  {$Optimization STACKFRAME}
@@ -600,17 +600,17 @@ diff -urwN lxlite\src\common\SysLib.pas newlxlite\src\common\SysLib.pas
  {$endif}
  
  Unit SysLib;
-diff -urwN lxlite\src\lxlite.inc newlxlite\src\lxlite.inc
---- lxlite\src\lxlite.inc	Mon Dec 02 14:19:57 2024
-+++ newlxlite\src\lxlite.inc	Sun Dec 01 20:21:42 2024
+diff -urwN lxlite/src/lxlite.inc newlxlite/src/lxlite.inc
+--- lxlite/src/lxlite.inc	Mon Dec 02 14:19:57 2024
++++ newlxlite/src/lxlite.inc	Sun Dec 01 20:21:42 2024
 @@ -1,3 +1,4 @@
 +{$codepage CP437}
  (* Table for converting MODULENAME:ORDINAL into API name *)
  (* IDs from 1 to 99 are reserved for module identifiers  *)
  (* Module identifier format:  <MODNAME>.<START>.<LENGTH> *)
-diff -urwN lxlite\src\lxlite.pas newlxlite\src\lxlite.pas
---- lxlite\src\lxlite.pas	Mon Dec 02 14:13:20 2024
-+++ newlxlite\src\lxlite.pas	Sun Dec 01 20:27:49 2024
+diff -urwN lxlite/src/lxlite.pas newlxlite/src/lxlite.pas
+--- lxlite/src/lxlite.pas	Mon Dec 02 14:13:20 2024
++++ newlxlite/src/lxlite.pas	Sun Dec 01 20:27:49 2024
 @@ -10,8 +10,12 @@
  {$asmmode intel}
  {$Optimization STACKFRAME}
@@ -648,9 +648,9 @@ diff -urwN lxlite\src\lxlite.pas newlxlite\src\lxlite.pas
   SetColor($0F);
  {$ifndef fpc}
   @OldExit := ExitProc; ExitProc := @MyExitProc;
-diff -urwN lxlite\src\lxLite_Global.pas newlxlite\src\lxLite_Global.pas
---- lxlite\src\lxLite_Global.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\lxLite_Global.pas	Sun Dec 01 17:55:12 2024
+diff -urwN lxlite/src/lxLite_Global.pas newlxlite/src/lxLite_Global.pas
+--- lxlite/src/lxLite_Global.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/lxLite_Global.pas	Sun Dec 01 17:55:12 2024
 @@ -416,7 +416,10 @@
  procedure SetColor(Color : Byte);
  procedure ClearToEOL;
@@ -676,9 +676,9 @@ diff -urwN lxlite\src\lxLite_Global.pas newlxlite\src\lxLite_Global.pas
  
  procedure SetColor(Color : Byte);
  const
-diff -urwN lxlite\src\lxLite_Objects.pas newlxlite\src\lxLite_Objects.pas
---- lxlite\src\lxLite_Objects.pas	Mon Dec 02 14:13:19 2024
-+++ newlxlite\src\lxLite_Objects.pas	Mon Dec 02 13:51:22 2024
+diff -urwN lxlite/src/lxLite_Objects.pas newlxlite/src/lxLite_Objects.pas
+--- lxlite/src/lxLite_Objects.pas	Mon Dec 02 14:13:19 2024
++++ newlxlite/src/lxLite_Objects.pas	Mon Dec 02 13:51:22 2024
 @@ -7,16 +7,13 @@
  {$H-}
  {$Align 1}
