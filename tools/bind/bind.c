@@ -108,6 +108,7 @@ char * mktmpdir(char *tmpdir)
     tmpnam(name2);
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
     tmpdir = getenv("TMP");
+    if (!tmpdir) tmpdir = "C:\\TEMP";
 #else
     tmpdir = "/tmp";
 #endif
@@ -119,6 +120,15 @@ char * mktmpdir(char *tmpdir)
 	mkdir(tmpdir, S_IRWXU);
 #endif
 	return addpathsep(tmpdir);
+
+
+    // FIXED: Безопасное создание временного пути
+    strncpy(name2, tmpdir, sizeof(name2) - 1);
+    name2[sizeof(name2) - 1] = '\0';
+    addpathsep(name2);
+    strncat(name2, "bindtmpXXXXXX", sizeof(name2) - strlen(name2) - 1);
+    mkdir(name2);
+    return addpathsep(name2);
 }
 
 /*! @brief Generate lnk file */
@@ -593,16 +603,41 @@ char * findfunctionname(char * module, WORD ordinal, char * lib)
             {
               if (buf[3]!=0)
               {
+#if 0
                 memcpy(&func, &buf[5], buf[4]);   // function name
                 func[buf[4]]=0;
                 memcpy(&mod, &buf[5+buf[4]+1], buf[5+buf[4]]); // module name
                 mod[buf[5+buf[4]]]=0;
                 ord=buf[5+buf[4]+1+buf[5+buf[4]]]+0xff*buf[5+buf[4]+1+buf[5+buf[4]]+1];                       // ordinal
+#else
+                                // FIXED: Правильное чтение ординала
+                                int name_len = buf[4];
+                                int mod_offset = 5 + name_len;
+                                
+                                if (mod_offset < head.length) {
+                                    int mod_len = buf[mod_offset];
+                                    int ord_offset = mod_offset + 1 + mod_len;
+                                    
+                                    // Проверка границ
+                                    if (ord_offset + 1 < head.length) {
+                                        // Копирование имени функции
+                                        memcpy(func, &buf[5], name_len);
+                                        func[name_len] = '\0';
+                                        
+                                        // Копирование имени модуля
+                                        memcpy(mod, &buf[mod_offset + 1], mod_len);
+                                        mod[mod_len] = '\0';
+                                        
+                                        // Чтение ординала
+                                        ord = *(WORD*)(buf + ord_offset);
+#endif
                 if ((!strcmp(mod, module)) && (ord==ordinal)) 
                 {
                   fclose(f);
 
                   return func;//printf("%s %s %d\n", func, mod, ord);
+                                        }
+                                    }
                 }
               } else {
                 printf("panic!\n");
@@ -1041,7 +1076,9 @@ int main(int argc, char *argv[])
                                             fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, options.DoscallsLIB?"doscalls.lib":"os2.lib");
                                             
                                             // Collect in list
-											addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
+                                            if (fname) {
+						addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
+					}
 	  								  
                                             // If any Mou* used, then turn on Mou API
                                             if (!strncmp(fname, "MOU",3)) options.MouAPI=1;
@@ -1053,25 +1090,25 @@ int main(int argc, char *argv[])
                                             if (!strncmp(fname, "VIO",3)) options.VioAPI=1;
 	  								  
                                             // If VioRegister used, then turn full VIO API and DLL API
-                                            if (!strncmp(fname, "VIOREGISTER",12))
+                                            if (!strcmp(fname, "VIOREGISTER"))
                                             {
                                               options.VioAPI=2;
                                               options.DLLAPI=1;
                                             }
                                             // If MouRegister used, then turn full Mou API and DLL API
-                                            if (!strncmp(fname, "MOUREGISTER",12))
+                                            if (!strcmp(fname, "MOUREGISTER"))
                                             {
                                               options.MouAPI=2;
                                               options.DLLAPI=1;
                                             }
                                             // If KbdRegister used, then turn full Kbd API and DLL API
-                                            if (!strncmp(fname, "KBDREGISTER",12))
+                                            if (!strcmp(fname, "KBDREGISTER"))
                                             {
                                               options.KbdAPI=2;
                                               options.DLLAPI=1;
                                             }
                                             // If DosLoadModule used, then turn on DLL API
-                                            if (!strncmp(fname, "DOSLOADMODULE",14)) options.DLLAPI=1;
+                                            if (!strcmp(fname, "DOSLOADMODULE")) options.DLLAPI=1;
                                           }
                                         }       
                                       } else 
