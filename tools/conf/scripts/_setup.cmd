@@ -19,6 +19,20 @@ if not exist "%tmp%\unzip.exe" (
   )
 )
 
+if not exist "%tmp%/osFreeBE.zip" (
+%wget% ftp://ftp.osfree.org/upload/osFreeBE/osFreeBE.zip -P "%tmp%" -c
+  if errorlevel 1 (
+    echo Error downloading osFree build environment
+    goto exit
+  )
+)
+
+rem Install OpenWatcom
+rem "c:/Documents and settings/Downloads/open-watcom-2_0-c-win-x64.exe" -s -p -ns
+"%tmp%\unzip" -o "%tmp%/osFreeBE.zip" -d c:\osFreeBE
+
+exit
+
 rem Download Open Watcom 1.9
 rem wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"
 rem wget ftp://ftp.osfree.org/upload/ow/ow-1.9.zip -P "c:/Documents and Settings/Downloads"
