@@ -126,9 +126,15 @@ SC        = $(%INTERP)sc.exe
 # as it breaks all non-LX executables, for ex., bootsectors
 
 !ifndef NOLIBS 1
-LINKOPT   = op q $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib libpath $(%OS2TK)$(SEP)lib
+LINKOPT   = $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib libpath $(%OS2TK)$(SEP)lib
 !else
-LINKOPT   = op q $(ADD_LINKOPT)
+LINKOPT   = $(ADD_LINKOPT)
+!endif
+
+!ifeq %VERBOSE yes
+LINKOPT = $(LINKOPT) op v
+!else
+LINKOPT = $(LINKOPT) op q
 !endif
 
 LIB       = $(%INTERP)wlib

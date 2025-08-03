@@ -1,6 +1,6 @@
 PORT_NAME = tools$(SEP)jwasm
 PORT_TYPE = git
 PORT_URL  = https://github.com/Baron-von-Riedesel/JWasm
-PORT_REV  = v2.19
+PORT_REV  = v2.18
 
 !include $(%ROOT)tools/mk/port.mk
