@@ -10,7 +10,7 @@
 
 !include $(%ROOT)/tools/mk/site.mk
 
-ADD_COPT =            $(ADD_COPT) -bt=dos -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+ADD_COPT = $(ADD_COPT) -bt=dos -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os21x -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos
@@ -30,7 +30,8 @@ comf = com
 comf = 
 !endif
 
-ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared16.lib, &
+ADD_LINKOPT = $(ADD_LINKOPT) lib $(BLD)lib$(SEP)cmd_shared16.lib, &
+		      $(BLD)lib$(SEP)dos_shared.lib, &
 		      $(BLD)lib$(SEP)all_shared16.lib
 
 !ifeq DLL 1
@@ -50,6 +51,8 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !ifdef DEBUG
 ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
 !endif
+
+#LINKOPT = $(LINKOPT) $(ADD_LINKOPT)
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
  @%create $^@
