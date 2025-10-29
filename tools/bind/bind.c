@@ -126,8 +126,12 @@ char * mktmpdir(char *tmpdir)
     strncpy(name2, tmpdir, sizeof(name2) - 1);
     name2[sizeof(name2) - 1] = '\0';
     addpathsep(name2);
-    strncat(name2, "bindtmpXXXXXX", sizeof(name2) - strlen(name2) - 1);
-    mkdir(name2);
+    strncat(name2, "bindtmpX", sizeof(name2) - strlen(name2) - 1);
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+	mkdir(name2);
+#else
+	mkdir(name2, S_IRWXU);
+#endif
     return addpathsep(name2);
 }
 
