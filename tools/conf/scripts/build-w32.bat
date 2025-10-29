@@ -1,6 +1,6 @@
 @echo off
 setlocal
-call setvars-w64
+call setvars-w62
 
 where /q wmake
 if errorlevel 1 (
