@@ -29,7 +29,7 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopt =
 !endif
 
-RC       = winrc.exe
+RC       = wrc.exe
 RCOPT    = -I$(MYDIR) -I$(PATH) -I. -I$(MYDIR)..$(SEP)..$(SEP)include -I$(MYDIR)..$(SEP)include
 # RCOPT    = -I $(MYDIR);$(PATH);.;$(MYDIR)..$(SEP)..$(SEP)include;$(MYDIR)..$(SEP)include
 
