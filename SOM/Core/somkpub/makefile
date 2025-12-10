@@ -71,7 +71,7 @@ $(PRODUCTS_PDL): $(SOM_IDL)
  @$(SAY) PDL      $^. $(LOG)
  @$(MDHIER) $(SOMIDL_IDL)
  @$(MDHIER) $(SOMIDL_HEADERS)
- @pdl.exe -d $(SOMIDL_IDL) $<
+ @$(%INTERP)pdl.exe -d $(SOMIDL_IDL) $<
 
 .idl: $(SOM_DIR)
 .h: $(SOMIDL_HEADERS)

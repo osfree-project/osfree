@@ -28,14 +28,14 @@ $(PATH)oidll.obj: .symbolic
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc.exe -y -d -o $(PATH)oidl.c $(PORT_BASE)somopc$(SEP)src$(SEP)oidl.y  $(LOG2)
+ $(verbose)$(%INTERP)yacc.exe -y -d -o $(PATH)oidl.c $(PORT_BASE)somopc$(SEP)src$(SEP)oidl.y  $(LOG2)
  @$(SAY) LEX      oidll.c $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^@ $(BLACKHOLE)
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)lex.exe -t $(PORT_BASE)somopc$(SEP)src$(SEP)oidl.l >$(PATH)oidll.c $(LOG2)
+ $(verbose)$(%INTERP)lex.exe -t $(PORT_BASE)somopc$(SEP)src$(SEP)oidl.l >$(PATH)oidll.c $(LOG2)
  @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$(PATH)oidll.obj $(PATH)oidll.c $(LOG2)
 
@@ -43,5 +43,3 @@ $(PATH)oidll.obj: .symbolic
 $(PATH)oidl.obj: $(PATH)oidll.obj
  @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$(PATH)oidl.obj $(PATH)oidl.c $(LOG2)
-
-
