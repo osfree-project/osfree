@@ -2162,8 +2162,8 @@ diff -urwN 4os2-o/4os2.ipf 4os2/4os2.ipf
  Parameters are explained in detail under the
  :link reftype=hd refid=ALIAS.ALIAS:elink. command.
  :p.
--Your copy of 4OS2 includes a sample alias file called :hp1.ALIASES:ehp1.
-+Your copy of &4OS2. includes a sample alias file called :hp1.ALIASES:ehp1.
+-Your copy of 4OS2 includes a sample alias file called :hp1.4os2Alias.sample:ehp1.
++Your copy of &4OS2. includes a sample alias file called :hp1.4os2Alias.sample:ehp1.
  which contains several useful aliases and demonstrates many alias techniques.
  See the :link reftype=hd refid=ALIAS.ALIAS:elink. and :link reftype=hd
  refid=UNALIAS.UNALIAS:elink. commands for more information and examples. Also
@@ -7496,10 +7496,10 @@ diff -urwN 4os2-o/h/inifile.h 4os2/h/inifile.h
      "NextINIFile", INI_STR, 0, VNULL, &gaInifile.NextININame, DLG_NULL
      "DateFmt", INI_STR, 0, VNULL, &gaInifile.DateFmt, DLG_NULL
      "TmSmpFmt", INI_STR, 0, VNULL, &gaInifile.TmSmpFmt, DLG_NULL
--    "Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
--    "Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
-+    //"Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_DATA(IDI_Year4Digit, INI_CTL_CHECK, 0)
-+    //"Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_DATA(IDI_Day2Digit, INI_CTL_CHECK, 0)
+-    "Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_NULL
+-    "Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_NULL
++    //"Year4Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Year4Digit, DLG_NULL
++    //"Day2Digit", INI_CHOICE, 0, &V_YesNo, &gaInifile.Day2Digit, DLG_NULL
  
      // Dummy item to hold name of primary INI file, set up here so
      // INIStr will move it around as needed, but with blank name so user
