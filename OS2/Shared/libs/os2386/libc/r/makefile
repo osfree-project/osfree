@@ -39,7 +39,7 @@ ADD_COPT += -i=$(SRC)..
 
 .c.obj: .AUTODEPEND
  $(verbose)echo CC       $^. $(LOG)
- $(verbose)wcc386 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
+ $(verbose)$(CC) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 $(PATH)$(PROJ).lib: $(OBJS)
  $(verbose)$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
