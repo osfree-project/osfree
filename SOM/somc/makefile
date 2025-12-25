@@ -5,6 +5,12 @@ srcfiles = $(p)somc$(e) &
 	$(p)symtab$(e) &
 	$(p)emitlib$(e) &
 	$(p)modifiers$(e) &
+	$(p)msg$(e) &
+	$(p)mem$(e) &
+	$(p)signals$(e) &
+	$(p)fio$(e) &
+	$(p)strings$(e) &
+	$(p)dump$(e) &
 	$(p)smlib$(e)
 
 DEST = os2tk45$(SEP)som$(SEP)common$(SEP)dll
@@ -22,7 +28,7 @@ DLL=1
 #     somVaBuf_destroy.                             9, &
 #     somVaBuf_get_valist.                         10, &
 
-EXPORTS = somtAncestorClass.                           11, &
+EXPORTS = somtAncestorClass.                           11=somtAncestorClass, &
      somtCPP.                                     12, &
 #     somtDllStem.                                 13, &
      somtGetReintroducedMethods.                  14, &
@@ -47,11 +53,10 @@ EXPORTS = somtAncestorClass.                           11, &
      somtarrayToPtr.                              33, &
 #     somtattMap.                                  34, &
      somtattNormalise.                            35, &
-#     somtattalloc.                                36, &
+     somtattalloc.                                36, &
      somtattjoin.                                 37, &
      somtbasename.                                38, &
      somtcalcFileName.                            39, &
-     somtcalloc.                                  40, &
      somtclassIdlCall.                            41, &
      somtclassList.                               42, &
      somtclassName.                               43, &
@@ -89,11 +94,9 @@ EXPORTS = somtAncestorClass.                           11, &
      somtemitTypes.                               75, &
      somtepname.                                  76, &
      somteptotype.                                77, &
-     somterror.                                   78, &
-     somterrorSL.                                 79, &
      somtexit.                                    80, &
      somtext.                                     81, &
-     somtfatal.                                   82, &
+     somtfatal.                                 82, &
      somtfatalSL.                                 83, &
      somtfclose.                                  84, &
      somtfcloseSL.                                85, &
@@ -103,7 +106,6 @@ EXPORTS = somtAncestorClass.                           11, &
      somtfindBaseEp.                              89, &
      somtfindBaseEpNonPtr.                        90, &
      somtfindMethodName.                          91, &
-     somtfree.                                    92, &
      somtfreeDataList.                            93, &
      somtfreeMethodList.                          94, &
      somtfreeMlist.                               95, &
@@ -127,7 +129,7 @@ EXPORTS = somtAncestorClass.                           11, &
 #     somtgetOidlAtt.                             113, &
      somtgetType.                                114, &
      somtgetVersion.                             115, &
-#     somtgetap.                                  116, &
+     somtgetap.                                  116, &
      somtgetatt.                                 117, &
      somtgetdatt.                                118, &
      somtgetgatt.                                119, &
@@ -138,7 +140,7 @@ EXPORTS = somtAncestorClass.                           11, &
      somtimplicitArgs.                           124, &
      somtimplicitMeta.                           125, &
      somtincludeOnce.                            126, &
-#     somtinitMalloc.                             127, &
+     somtinitMalloc.                             127, &
      somtinitialiseMeta.                         128, &
      somtinternal.                               129, &
      somtinternalSL.                             130, &
@@ -152,29 +154,22 @@ EXPORTS = somtAncestorClass.                           11, &
      somtisvoid.                                 138, &
      somtkeyword.                                139, &
      somtlistAttribute.                          140, &
-#     somtload.                                   141, &
+     somtload.                                   141, &
      somtlowercase.                              142, &
      somtmajorVersion.                           143, &
-     somtmalloc.                                 144, &
-     somtmclose.                                 145, &
      somtmeta.                                   146, &
-     somtmget.                                   147, &
      somtminorVersion.                           148, &
      somtmlistend.                               149, &
      somtmodule.                                 150, &
-     somtmopen.                                  151, &
      somtmp.                                     152, &
-     somtmprintf.                                153, &
      somtmrierror.                               154, &
      somtmrifatal.                               155, &
      somtmriinternal.                            156, &
      somtmrimsg.                                 157, &
      somtmriwarn.                                158, &
-     somtmsg.                                    159, &
-     somtmsgSL.                                  160, &
      somtnewMethodsCount.                        161, &
      somtnextword.                               162, &
-#     somtnotc.                                   163, &
+     somtnotc.                                   163, &
      somtnthArg.                                 164, &
      somtobseleteHeaderFile.                     165, &
      somtoidlComment.                            166, &
@@ -210,7 +205,7 @@ EXPORTS = somtAncestorClass.                           11, &
      somtsetEmitSignals.                         196, &
      somtsetInternalMessages.                    197, &
      somtsetTypeDefn.                            198, &
-#     somtsetext.                                 199, &
+     somtsetext.                                 199, &
      somtshortArgList.                           200, &
      somtshortDefine.                            201, &
      somtshowVersion.                            202, &
@@ -241,8 +236,6 @@ EXPORTS = somtAncestorClass.                           11, &
      somtunsetEmitSignals.                       227, &
      somtunsetEmitSignalsSL.                     228, &
      somtuppercase.                              229, &
-     somtwarn.                                   230, &
-     somtwarnSL.                                 231, &
      somtwidenType.                              232, &
      somtwriteaccess.                            233, &
      somtsearchFileSL, &
@@ -250,7 +243,8 @@ EXPORTS = somtAncestorClass.                           11, &
      somtsmallocSL, &
      somtaddModifierSL, &
      somtaddEntrySL, &
-     somtcreateStabSL
+     somtcreateStabSL, &
+     somtfree
 #     somvalistGetTarget.                         234, &
 #     somvalistSetTarget.                         235, &
 #     tciPrintf.                                  236, &
@@ -267,7 +261,7 @@ OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45$(SEP)
 
 TARGETS= $(OS2TK)som$(SEP)lib$(SEP)somtk.lib
 
-ADD_COPT = $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include -i=$(PORT_BASE)somc$(SEP)include
+ADD_COPT = -6s $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include -i=$(PORT_BASE)somc$(SEP)include
 
 .c: $(PORT_BASE)somc$(SEP)src
 

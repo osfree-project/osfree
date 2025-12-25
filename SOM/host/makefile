@@ -15,7 +15,7 @@ SOM_COMPILER = &
   somkpub idl idl2 somcprep genh genxh &
 !ifneq %HOST linux
   ctoi newemit &
-  somc &
+  somwm35i somc &
   spp &
   somopc &
 !endif

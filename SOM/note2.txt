@@ -1,0 +1,52 @@
+SOMWM35I.DLL     IBM VAC 3.5 Dynamic Runtime Emulation
+                 Implemented all things required for IBM SOM 3.0 for NT Emitters execution.
+
+Found bugs:
+
+None yet...
+
+Improvements:
+a) SOM run-time:
+*) Error codes added to somcdev.h and some functions moved from somapi.h to somcdev.h (because not part of API).
+*) somPrintf uses vsprintf for output. But we have somVprintf, so we can easely reuse it instead.
+  *) Improve SOMError errors handling according IBM docs (somFree uses simplified errors handling)
+*) somCheckArgs implemented
+*) somVprintf now checks buffer overflow
+*) somTest reworked
+*) somAssert reworked
+*) Added support of modules under OS/2
+*) Added MSG file support under OS/2
+*) Added empty somSaveMetrics, somWriteMetrics (seems they a empty in OS/2 too)
+b) PDL
+  *) now supports multiple files
+  *) -s option now supported
+  *) -c option now supported
+c) SOM Compiler
+  *) Partal CORBA 2+ C Mapping support
+
+Found not implemented functions:
+
+*) somId manager (string manager) not implemented. Only simple stubs:
+variables
+  som_IdTable
+  som_IdTableSize
+functions
+  SOMEXTERN unsigned long SOMLINK somUniqueKey(somId id)
+  SOMEXTERN void SOMLINK somBeginPersistentIds(void)
+  SOMEXTERN void SOMLINK somEndPersistentIds(void)
+  SOMEXTERN somId SOMLINK somCheckId (somId id)
+  SOMEXTERN int SOMLINK somRegisterId(somId id)
+  SOMEXTERN somId SOMLINK somIdFromString(char * aString)
+  SOMEXTERN unsigned long SOMLINK somTotalRegIds(void)
+  SOMEXTERN void SOMLINK somSetExpectedIds(unsigned long numIds)
+  SOMEXTERN char * SOMLINK somStringFromId (somId id)
+Also in some functions direct convertion of somId to string was found...
+
+Improvements ideas:
+*) Revise somkern.c and use SOM_TraceCore instead of direct somprintf
+*) Reuse Error codes and add checks to kernel functions
+*) Add -D -U -/ support to PDL
+*) Add constant expressions to #if as well as defined(x) function to PDL
+*) Add filemask support to PDL
+*) Write PDL documentation
+*) Reuse SOMC.MSG in SC

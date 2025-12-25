@@ -1,11 +1,11 @@
 @echo off
 setlocal
-call setvars-w62
+call setvars-w32
 
 where /q wmake
 if errorlevel 1 (
     start /b /wait cmd /c _setup
-    call setvars-w64
+    call setvars-w32
     where /q wmake
     if errorlevel 1 (
       echo Error configuring osFree Build Environment

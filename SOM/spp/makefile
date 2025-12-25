@@ -12,9 +12,9 @@ OS2TK = $(%OS2TK)$(SEP)
 OS2TK = $(%ROOT)build$(SEP)bin$(SEP)os2tk45$(SEP)
 !endif
 
-ADD_LINKOPT = lib $(OS2TK)som$(SEP)lib$(SEP)somtk
+#ADD_LINKOPT = lib $(OS2TK)som$(SEP)lib$(SEP)somtk
 
-ADD_COPT = $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include 
+#ADD_COPT = $(ADD_COPT) -i=$(OS2TK)$(SEP)som$(SEP)include 
 
 
 $(PATH)spp.obj: .symbolic

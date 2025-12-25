@@ -576,7 +576,7 @@ xmscssae.idl
 somtdm.idl
 emtypes.xh
 eventmsk.xh
-newemit.com
+newemit.cmd
 
 
 Placement in OS/2 tree

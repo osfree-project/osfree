@@ -1,5 +1,5 @@
 
-PROJ = clbr19
+PROJ = clbs19
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)common$(SEP)dll
 
 !include $(%ROOT)tools/mk/all.mk

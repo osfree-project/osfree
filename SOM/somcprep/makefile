@@ -13,6 +13,7 @@ TARGETS = $(PATH)sm.h &
 	$(PATH)sctypes.h &
 	$(PATH)symtab.h &
 	$(PATH)optlink.h &
+	$(PATH)corbatypes.h &
 	$(PATH)emitlib.h
 
 SOURCES = $(PORT_BASE)somc$(SEP)include$(SEP)sm.h &
@@ -25,6 +26,7 @@ SOURCES = $(PORT_BASE)somc$(SEP)include$(SEP)sm.h &
 	$(PORT_BASE)somc$(SEP)include$(SEP)sctypes.h &
 	$(PORT_BASE)somc$(SEP)include$(SEP)symtab.h &
 	$(PORT_BASE)somc$(SEP)include$(SEP)optlink.h &
+	$(PORT_BASE)somc$(SEP)include$(SEP)corbatypes.h &
 	$(PORT_BASE)somc$(SEP)include$(SEP)emitlib.h
 
 $(TARGETS): $(SOURCES)

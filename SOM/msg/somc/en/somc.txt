@@ -56,10 +56,10 @@ STK0054I: Incorrect descriptor format.\n
 STK0055I: Cannot allocate %d bytes.\n
 STK0056I: Cannot allocate %ld bytes.\n
 STK0057I: %s: \"%s\", Version: %s.\n
-STK0058I: This program is free software: you can redistribute it and/or modify it\n
-STK0059I: under the terms of the GNU Lesser General Public License as published by the\n
-STK0060I: Free Software Foundation, either version 3 of the License, or (at your\n
-STK0061I: option) any later version.\n
+STK0058I: (C) 2025 osFree \n
+STK0059I: This program is free software.\n
+STK0060I: You can redistribute this program and/or modify it under the terms of the GNU Lesser General Public\n
+STK0061I: License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n
 STK0062I: Date Last Modified: %s %s\n
 STK0063I: Date Last Compiled: %s]\n\n
 STK0064I: Two source files specified: \"%s\" and \"%s\".\n

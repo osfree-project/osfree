@@ -1,5 +1,5 @@
 @echo off
-set debug=yes
+rem set debug=yes
 rem set verbose=yes
 set root=.
 :loop

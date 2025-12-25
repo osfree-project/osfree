@@ -7,9 +7,7 @@
 !define __libsw16_mk__
 
 32_BITS = 0
-ADD_COPT =            $(ADD_COPT) &
-                      -bt=windows &
-						-i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
+ADD_COPT = $(ADD_COPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
 
 !include $(%ROOT)/tools/mk/libs.mk
 

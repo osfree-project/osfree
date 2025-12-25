@@ -118,9 +118,9 @@ FILE * SOMLINK emitSL(char *file, Entry * cls, Stab * stab)
     SOMTEmitC *emitter;
     SOMTTemplateOutputC *t;
 
-    int SOM_TraceLevel = 0 ; /* Request maximum debugging information */
-    int SOM_WarnLevel = 0 ;
-    int SOM_AssertLevel = 0 ;
+    SOM_TraceLevel = 0 ; /* Request maximum debugging information */
+    SOM_WarnLevel = 0 ;
+    SOM_AssertLevel = 0 ;
 
  
     if (cls->type == SOMTClassE) {

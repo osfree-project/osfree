@@ -1,0 +1,27 @@
+todo:
+
+somtfree - uses default calling convention of library. So, for IBM SOM 3.0 NT required to be Optlink. But this is variable,
+not function. So, not clear how to correctly handle it...
+
+notes:
+
+somtsetext - управляет настройкой расширений файлов, а также внутренним флагом, осуществлять ли преобразование имен модификаторов,
+             также определяет типы коментариев, имена компиляторов и имя атрибута filestem (в oidl используется file stem).
+             По сути, настраивает somc на тот или иной формат вывода (IDL/OIDL) и парсинга.
+
+somtattMap - преобразует classdata и classmethod в class. В описании нигде не нашел, видимо где-то в старых OIDL использовалось.
+
+
+somc.dll
+
+emitlib.h and friends uses BOOL, bool and boolean types. They are differs. Also lot of int type. Replace int by long? 
+this is ok at least for AIX, OS/2 and Win32 original IBM SOM. Not sure about Apple SOM.
+
+Entry structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (Because stomttypes)
+
+Stab  structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (because BOOL)
+
+Flags  structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (because byte and dword alignment)
+
+somipc.exe: IBM SOM 3.0 uses 'free' from clib dll. IBM SOM 2.1 uses msvc static functions. So, to be compatible somc.dll need to
+support same memory management... huh...
