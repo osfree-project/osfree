@@ -236,4 +236,4 @@ SOURCES = $(PORT_BASE)somkpub$(SEP)som$(SEP)somobj.idl &
                 $(PORT_BASE)somu2$(SEP)somtdm.idl
 
 $(TARGETS): $(SOURCES)
- $(verbose)pdl.exe -o $(PATH) $< #$(BLACKHOLE)
+ $(verbose)$(%INTERP)pdl.exe -o $(PATH) $< #$(BLACKHOLE)

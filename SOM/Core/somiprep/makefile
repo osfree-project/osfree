@@ -78,17 +78,17 @@ SOMTCDAT_TC=$(SOMTC_INTDIR)$(SEP)somtcdat.tc
 
 $(SOMTCDAT_TC): $(SOM_DIR)somtc$(SEP)somtcdat.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -stc $< -o $^: -p -D __GENERATE_SOMTC__ -I$(SOMIDL_IDL)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)$(SC) -stc $< -o $^: -p -D __GENERATE_SOMTC__ -I$(SOMIDL_IDL)
 
 #$(SOMREF_H): $(SOMREF_PDL)
 
 $(SOMREF_INTDIR)$(SEP)somref.ih: $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: -p -I$(SOMIDL_IDL)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)$(SC) -sih $< -o $^: -p -I$(SOMIDL_IDL)
 
 $(SOMREF_INTDIR)$(SEP)somref.h: $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -p  -I$(SOMIDL_IDL)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)$(SC) -sh $< -o $^: -p  -I$(SOMIDL_IDL)
 
 $(SOMREF_PDL): $(SOM_DIR)somref$(SEP)somref.idl
  @$(SAY) PDL      $^. $(LOG)
@@ -96,11 +96,11 @@ $(SOMREF_PDL): $(SOM_DIR)somref$(SEP)somref.idl
 
 $(SOMIDL_HEADERS)$(SEP)somref.h: $(SOMIDL_IDL)$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: -I$(SOMIDL_IDL)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)$(SC) -sh $< -o $^: -I$(SOMIDL_IDL)
 
 $(SOMIDL_HEADERS)$(SEP)somref.xh: $(SOMIDL_IDL)$(SEP)somref.idl
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: -I$(SOMIDL_IDL)
+ $(verbose)$(BLD)bin$(SEP)host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)som$(SEP)bin$(SEP)$(SC) -sxh $< -o $^: -I$(SOMIDL_IDL)
 
 #ADD_SCOPT=-p -I$(SOM_DIR)somir -I$(SOMIDL_IDL)
 

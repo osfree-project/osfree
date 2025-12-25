@@ -12,4 +12,4 @@ SOURCES = $(PORT_BASE)somuc$(SEP)mlink.idl &
                 $(PORT_BASE)somuc$(SEP)tpllitr.idl
 
 $(TARGETS): $(SOURCES)
- $(verbose)pdl.exe -o $(PATH) $< #$(BLACKHOLE)
+ $(verbose)$(%INTERP)pdl.exe -o $(PATH) $< #$(BLACKHOLE)

@@ -24,12 +24,9 @@ $(PATH)spp.obj: .symbolic
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)lex.exe -t $(PORT_BASE)spp$(SEP)src$(SEP)spp.l >$(PATH)spp.c $(LOG2)
+ $(verbose)$(%INTERP)lex.exe -t $(PORT_BASE)spp$(SEP)src$(SEP)spp.l >$(PATH)spp.c $(LOG2)
  @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$(PATH)spp.obj $(PATH)spp.c $(LOG2)
 
 
 #.c: $(PORT_BASE)spp$(SEP)src
-
-
-

@@ -382,11 +382,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
-!ifdef %INTERP
- $(verbose)`which qemu-i386` `which lex.exe` -t $[@ >$^@ $(LOG2)
-!else
- $(verbose)lex.exe -t $[@ >$^@ $(LOG2)
-!endif
+ $(verbose)$(%INTERP)lex.exe -t $[@ >$^@ $(LOG2)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
@@ -398,11 +394,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
-!ifdef %INTERP
- $(verbose)`which qemu-i386` `which yacc.exe`  -y -d -o $^@ $[@ $(LOG2)
-!else
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
-!endif
+ $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .y.h: .autodepend
  @$(SAY) YACC     $^. $(LOG)
@@ -413,11 +405,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
-!ifdef %INTERP
- $(verbose)`which qemu-i386` `which yacc.exe` -y -d -o $^@ $[@ $(LOG2)
-!else
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
-!endif
+ $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .c:   $(MYDIR)
 
