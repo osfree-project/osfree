@@ -8,11 +8,11 @@
 
 prep: .symbolic
 !ifeq PORT_TYPE wget
- $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_wget
+ $(verbose)if not exist $(PORT_FLAG) $(verbose)$(MAKE) $(MAKEOPT) prep_wget
 !else ifeq PORT_TYPE git
- $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_git
+ $(verbose)if not exist $(PORT_FLAG) $(verbose)$(MAKE) $(MAKEOPT) prep_git
 !else ifeq PORT_TYPE svn
- $(verbose)if not exist $(PORT_FLAG) @$(MAKE) $(MAKEOPT) prep_svn
+ $(verbose)if not exist $(PORT_FLAG) $(verbose)$(MAKE) $(MAKEOPT) prep_svn
 !endif
 
 patch: .symbolic
@@ -45,7 +45,7 @@ prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
  $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive
  $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_1
- $(verbose)if not exist $(PORT_FLAG)_2 $(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
+ $(verbose)if not exist $(PORT_FLAG)_2 $(verbose)$(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
  $(verbose)if not exist $(PORT_FLAG)_2 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_2
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
  $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
