@@ -43,8 +43,10 @@ prep_wget: .symbolic
 
 prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
- $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive
- $(verbose)$(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
+ $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive
+ $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_1
+ $(verbose)if not exist $(PORT_FLAG)_2 $(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
+ $(verbose)if not exist $(PORT_FLAG)_2 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_2
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
  $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 
