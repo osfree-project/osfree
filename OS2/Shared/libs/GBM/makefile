@@ -18,9 +18,13 @@ TARGETS  = $(PATH)$(PROJ).lib
 
 
 
-.c: $(PORT_BASE)gbmos2pm_gbm_gbmplugins.src$(SEP)gbm
+#.c: $(PORT_BASE)gbmos2pm_gbm_gbmplugins.src$(SEP)gbm
 
-.h: $(PORT_BASE)gbmos2pm_gbm_gbmplugins.src$(SEP)gbm
+#.h: $(PORT_BASE)gbmos2pm_gbm_gbmplugins.src$(SEP)gbm
+
+.c: $(PORT_BASE)gbm
+
+.h: $(PORT_BASE)gbm
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
