@@ -54,8 +54,8 @@ jobs:
             #      git push || echo "No changes to commit #2"
 
             # Install prerequisites
-            - name:  Install prerequisites
-              run:   cd tools\conf\scripts\ && _setup.bat
+            #- name:  Install prerequisites
+            # run:   cd tools\conf\scripts\ && _setup.bat
 
             # Build
             - name:  Build
