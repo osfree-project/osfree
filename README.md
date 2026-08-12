@@ -1,4 +1,5 @@
--=== osFree, Open Source OS/2 Clone ===-
+## osFree, Open Source OS/2 Clone
+
 osFree(OS/3): The reincarnation of OS/2.
 
 [![Build status](https://github.com/osfree-project/osfree/actions/workflows/build_win.yml/badge.svg)](https://github.com/osfree-project/osfree/actions?query=workflow%3Abuild_win.yml)
@@ -28,9 +29,9 @@ pull the submodules:
 # osFree build system
 
 First, start %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, to pull the build dependencies.
-
-Start _setup.* as Administrator/root for downloading the build tools.
 After finishing the script work, you can start build with _wcc.{sh|cmd}.
+
+Under Windows host you can just execute _wcc.cmd from repository root. _setup.cmd will be executed automatically.
 
 Note that _wcc.cmd autodetects OS (OS/2, win32 or win64).
 
@@ -67,11 +68,13 @@ FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
 Запустите _wcc.{sh|cmd} для
 сборки.
 
+Под Windows можно просто запустить _wcc.cmd из корня репозитория. _setup.cmd запустится автоматически.
+
 Замечание. _wcc.cmd автоопределяет ОС (OS/2, win32 или win64) автоматически.
 
 В общем случае, скрипты с расширением .bat у нас обычно специфичны для windows хоста,
 .cmd для OS/2 хоста, и .sh для UNIX/Linux хоста.
 
 
-(c) osFree project, 2002-2022
+(c) osFree project, 2002-2026
 http://www.osfree.org/
