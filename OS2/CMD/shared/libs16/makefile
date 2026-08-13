@@ -6,7 +6,6 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)..$(SEP)include
 NOLIBS      = 1
 UNI2H = 0
 32_BITS = 0
-NOLIBS = 1
 
 srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_setcurrentdisk$(e) &
              $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)

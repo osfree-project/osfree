@@ -12,9 +12,9 @@ CMD    &
 UtlAPI &
 PM     &
 BDNLS  &
-WPS    &
 MM     &
 REXX   &
 tests
+#WPS    & @todo requires SOM
 
 !include $(%ROOT)tools/mk/all.mk
