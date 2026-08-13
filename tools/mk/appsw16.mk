@@ -11,7 +11,7 @@ ADD_COPT = -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
 !ifneq NOLIBS 1
 ADD_LINKOPT += path $(WATCOM)$(SEP)lib286 &
   path $(WATCOM)$(SEP)lib286$(SEP)win &
-  lib windows.lib, shell.lib #clibs.lib,windows.lib,shell.lib
+  lib windows.lib, shell.lib
 !endif
 
 !ifndef DEST
@@ -21,38 +21,17 @@ DEST     = os2$(SEP)mdos$(SEP)winos2
 !include $(%ROOT)/tools/mk/all.mk
 
 !ifdef DLL
-ADD_COPT = -mc -zu -zc -bd $(ADD_COPT)
-TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+ADD_COPT = -zu -zc -bd $(ADD_COPT)
+TARGETS  = $(PATH)$(PROJ).dll
 dllopt = dll initinstance memory
 !else
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).exe
 dllopt =
 !endif
 
-RC       = $(%INTERP)wrc
-RCOPT    = -I$(MYDIR) -I$(PATH) -I. -I$(MYDIR)..$(SEP)..$(SEP)include -I$(MYDIR)..$(SEP)include
-# RCOPT    = -I $(MYDIR);$(PATH);.;$(MYDIR)..$(SEP)..$(SEP)include;$(MYDIR)..$(SEP)include
-
-#.res: $(PATH)
-
-#.rc:  $(MYDIR)
-
-.rc.res: .AUTODEPEND
- @$(SAY) WINRES   $^. $(LOG)
- @$(RC) $(RCOPT) -o $^@ $[@ $(LOG2)
-
-!ifdef RESOURCE
-deps = $(RESOURCE)
-!endif
-
-!ifdef OBJS
-#$(OBJS):: $(MYDIR)makefile
-!endif
-
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
+$(PATH)$(PROJ).lnk: $(OBJS) 
  @%create $^@
  @%append $^@ SYSTEM windows $(dllopt)
-# @%append $^@ FORMAT windows $(dllopt)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 #!ifdef DEBUG
@@ -83,9 +62,6 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
 !else
  @%append $^@ OPTION ST=8k
 !endif
-!endif
-!ifdef RESOURCE
- @%append $^@ OPTION RESOURCE=$(RESOURCE)
 !endif
 !ifdef IMPORTS
  @%append $^@ IMPORT $(IMPORTS)

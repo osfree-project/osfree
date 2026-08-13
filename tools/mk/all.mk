@@ -14,6 +14,8 @@ all: precopy install .symbolic
 !include $(%ROOT)tools/mk/genrules.mk
 
 print_vars: .symbolic
+        @echo __MAKEFILES__     $(__MAKEFILES__) 
+        @echo PROJ     $(PROJ) 
         @echo FILESDIR $(FILESDIR)
         @echo MYDIR    $(MYDIR) 
         @echo ROOT     $(ROOT)  
@@ -34,6 +36,8 @@ print_vars: .symbolic
         @echo LIBC     $(LIBC)
         @echo SEP      $(SEP)
         @echo TARGETS  $(TARGETS)
+        @echo TARGET   $(TARGET)
+        @echo TRGT     $(TRGT)
         @echo DEST     $(DEST)
         @echo LOGx     $(%LOG)
         @echo LOG      $(LOG)
@@ -80,8 +84,9 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
+# Seems Open Watcom 1.9 works as expected
+# @todo quiet mode
 RC        = $(%INTERP)wrc -q
-#RCOPT     = -bt=os2
 
 RCOPT =  $(ADD_RCOPT)
 
@@ -538,7 +543,7 @@ targets: prep prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 !ifdef PROJ
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+#$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
 !endif
 
 !ifeq  DEST $(PATH)
@@ -588,12 +593,20 @@ install3: .symbolic
 !ifdef INSTALL
 
 $(DEST)$(SEP)install2: .symbolic
+!ifdef PROJ
+ @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
+!else
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+!endif
 
 !else
 
 $(DEST)$(SEP)$(FLG): .symbolic
+!ifdef PROJ
+ @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
+!else
  @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
+!endif
 
 !endif
 

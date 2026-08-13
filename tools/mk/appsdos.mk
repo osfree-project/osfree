@@ -41,11 +41,7 @@ TARGETS  = $(PATH)$(PROJ).$(EXT) # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-!ifdef OBJS
-#$(OBJS):: $(MYDIR)makefile
-!endif
-
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ FORMAT dos $(comf)
 !ifdef EXT
