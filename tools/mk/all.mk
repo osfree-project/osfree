@@ -152,7 +152,7 @@ MAKE      = `which qemu-i386` `which wmake`
 MAKE      = wmake
 !endif
 
-MAKEOPT   = -h
+MAKEOPT   = -h $(MAKEOPT)
 
 PC        = $(%INTERP)ppc386
 
