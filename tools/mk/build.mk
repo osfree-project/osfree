@@ -57,10 +57,9 @@ DEST=$(DESTINATION)
 
 !ifndef PROJ
 !include $(%ROOT)tools/mk/dirs.mk
-!include $(%ROOT)tools/mk/site.mk
 
-all: gen_proj_name
-install: gen_proj_name
+all install: .SYMBOLIC gen_proj_name
+prepall:     .SYMBOLIC prep
 
 MAKEOPT = -h
 
@@ -68,12 +67,16 @@ dir2=$+ $(CWD) $-
 dir3=$(dir2:$(CWD)=)
 dir4=$(dir3:$(SEP)=)
 
+prep clean: .SYMBOLIC
+ @cd ..
+ @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
+
 gen_proj_name: .SYMBOLIC
  #generate project name
  @$(REXX) mdhier.cmd $(PATH)
  @cd ..
  @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
- @cd $(dir4) && @$(MAKE) $(MAKEOPT) PROJ=$(dir4)
+ @cd $(dir4) && $(MAKE) $(MAKEOPT) PROJ=$(dir4)
 !else
 
 !include $(%ROOT)tools/mk/build2.mk
