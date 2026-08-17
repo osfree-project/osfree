@@ -1,5 +1,6 @@
 osFree toolkit planned structure (base is The OS/2 Toolkit 4.5)
 
+-- extenstions --
 Tools to add:
 	bind.exe			was included in earler toolkits
 	msgextrt.exe			included in DDK (implemented)
@@ -7,6 +8,9 @@ Tools to add:
 
 Libs to add:
 	fapi.lib			was included in earler toolkits
+	api.lib				was included in earler toolkits
+
+-- standard --
 
 bin\
 	alp.exe				? adopt JWASM?
@@ -22,7 +26,7 @@ bin\
 	kifsmon.exe
 	kiiface.exe
 	kwikinf.exe
-	link386.exe
+	link386.exe			? reuse Watcom Link
 	mapsym.exe
 	markexe.exe
 	masm2alp.exe
@@ -48,7 +52,7 @@ bin\
 	sample.scr
 	showdesc.exe
 	socktest.exe
-	syslevel.tlk		? Which level to implement?
+	syslevel.tlk			? Which level to implement?
 	trcust.exe
 	wpidl2xh.cmd
 	wsformat.exe
