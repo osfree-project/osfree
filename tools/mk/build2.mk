@@ -42,10 +42,11 @@ MAKEOPT = PROJ=$(PROJ)
 
 !ifndef TARGET_API
 !include $(%ROOT)tools/mk/dirs.mk
+
 # Добавляем разделитель в начало, чтобы отличать начало пути
 TEST_STR = *$(RELDIR)
 
-# Пытаемся удалить ";WIN16\" или ";WIN16/"
+# Пытаемся удалить "*WIN16\"
 STRIPPED = $(TEST_STR:*DOS$(SEP)=)
 
 # Если строка изменилась — значит, путь начинается с WIN16
@@ -78,8 +79,6 @@ TARGET_API=OS2
 # Use gen_*_wrapper for dependencies generation
 # ============================================================
 WRAPPERS = 1
-
-
 
 # ============================================================
 # Turn on line numbers debug info for ASM (for .AUTODEPEND support)
@@ -306,8 +305,22 @@ TRGT = $(PROJ).exe
 # DRIVER         PHYSICAL         appsw16.mk         Physical driver DLL (DLL=1)
 # DRIVER         VIRTUAL          ERROR (reserved)   Virtual driver (VxD)
 !ifeq TARGET_BITS 16
-ADD_RCOPT = $(ADD_RCOPT) -30 -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
+
+!ifeq TARGET_VERSION 300
+ADD_RCOPT = -30
+!endif
+
+!ifeq TARGET_VERSION 310
+ADD_RCOPT = -31
+LIBS=commdlg shell $(LIBS)
+!endif
+
+ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
+
 !ifeq TARGET_CLASS APPLICATION
+
+ADD_COPT = $(ADD_COPT) -sg
+
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
@@ -609,9 +622,9 @@ gen_wrc_rule: .SYMBOLIC
 
 gen_deps_wrapper: .symbolic
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
-        @$(MAKE) $(MAKEOPT) trgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map PROJ=$(PROJ) gen_register_project
-        @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) gen_wrc_rule
-        @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" PROJ=$(PROJ) gen_deps
+        @$(MAKE) $(MAKEOPT) trgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
+        @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) gen_wrc_rule
+        @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps
 
 #!ifdef LIBS
 #!if exist $(BLD)projects.map
