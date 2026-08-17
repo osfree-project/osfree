@@ -306,7 +306,7 @@ TRGT = $(PROJ).exe
 # DRIVER         PHYSICAL         appsw16.mk         Physical driver DLL (DLL=1)
 # DRIVER         VIRTUAL          ERROR (reserved)   Virtual driver (VxD)
 !ifeq TARGET_BITS 16
-ADD_RCOPT = $(ADD_RCOPT) -q -30 -bt=windows
+ADD_RCOPT = $(ADD_RCOPT) -q -30 -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
 !ifeq TARGET_CLASS APPLICATION
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
@@ -569,7 +569,7 @@ gen_register_project: .SYMBOLIC
 !include $(pmap)
 !endif
 TT=$(trgt:.=_)
-!ifndef $(TT)
+!ifndef TT
 	@$(SAY) Registering project $(trgt)...
         @%append $(BLD)projects.map $(TT)=$(deps)
 !endif

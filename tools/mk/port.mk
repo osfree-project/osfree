@@ -43,22 +43,34 @@ prep_wget: .symbolic
 
 prep_git: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
- $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive
- $(verbose)if not exist $(PORT_FLAG)_1 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_1
- $(verbose)if not exist $(PORT_FLAG)_2 $(verbose)$(CD) $(PORT_BASE) && git checkout -qq $(PORT_REV)
- $(verbose)if not exist $(PORT_FLAG)_2 $(verbose)$(%INTERP)wtouch $(PORT_FLAG)_2
+!ifndef PORT_REV
+ $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive 
  $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
  $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
+!else
+!ifeq PORT_REV
+ $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive 
+ $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
+ $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
+!else
+ $(verbose)git clone -qq $(PORT_URL) $(PORT_BASE) --recursive --branch $(PORT_REV) --single-branch
+ $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
+ $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
+!endif
+!endif
 
 prep_svn: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
 !ifeq %HOST win32
  $(verbose)$(MDHIER) $(PORT_BASE)
  $(verbose)git svn clone -qq $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+   $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
+   $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 !else
  $(verbose)svn --non-interactive --trust-server-cert co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+   $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
+   $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
 !endif
- $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
- $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
+ 
 
 !endif

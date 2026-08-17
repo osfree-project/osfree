@@ -1,0 +1,30 @@
+diff -urwN zlib-o/zlib-1.3.2/gzguts.h zlib/zlib-1.3.2/gzguts.h
+--- zlib-o/zlib-1.3.2/gzguts.h	2026-08-16 00:55:28.418398867 +0300
++++ zlib/zlib-1.3.2/gzguts.h	2026-08-16 00:53:58.430097600 +0300
+@@ -77,6 +77,12 @@
+ #  endif
+ #endif
+ 
++#if defined(__WATCOMC__)
++#  ifndef HAVE_VSNPRINTF
++#    define HAVE_VSNPRINTF
++#  endif
++#endif
++
+ #ifndef HAVE_VSNPRINTF
+ #  if !defined(NO_vsnprintf) && \
+       (defined(MSDOS) || defined(__TURBOC__) || defined(__SASC) || \
+diff -urwN zlib-o/zlib-1.3.2/zconf.h zlib/zlib-1.3.2/zconf.h
+--- zlib-o/zlib-1.3.2/zconf.h	2026-08-16 00:55:56.574491638 +0300
++++ zlib/zlib-1.3.2/zconf.h	2026-08-16 00:47:11.596605323 +0300
+@@ -232,6 +232,10 @@
+ #  define STDC
+ #endif
+ 
++#if defined(__WATCOMC__)
++#define EWOULDBLOCK EAGAIN
++#endif
++
+ #if defined(__OS400__) && !defined(STDC)    /* iSeries (formerly AS/400). */
+ #  define STDC
+ #endif
