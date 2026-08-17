@@ -62,33 +62,45 @@ TRG  =
 #
 # Preprocessor defines
 #
-C_DEFS    = -zq -q -d__WATCOM__ -d__OSFREE__
+C_DEFS    = -d__WATCOM__ -d__OSFREE__
 !ifeq JWASM 1
-ASM_DEFS  = -q -D__WATCOM__ -D__OSFREE__
+ASM_DEFS  = -D__WATCOM__ -D__OSFREE__
 !else
-ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
+ASM_DEFS  = -d__WATCOM__ -d__OSFREE__
 !endif
+RC_DEFS   =
+
+#
+# Quiet mode
+#
+C_QUIET   = -zq -q
+!ifeq JWASM 1
+ASM_QUIET = -q
+!else
+ASM_QUIET = -zq
+!endif
+RC_QUIET  = -q
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
 # a file which includes this file.
 #
 # -q for quiet removes the credit from wcc386, wpp386 and wasm 
-COPT      = $(C_DEFS) -q  &
+COPT      = $(C_QUIET) $(C_DEFS) &
             -i=$(MYDIR) -i=$(MYDIR).. &
             -i=$(PATH)  -i=$(PATH).. $(ADD_COPT)
 COPT_LAST = $(DEFINES_LAST)
 
-ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT) -q
+ASMOPT    = $(ASM_QUIET) $(ASM_DEFS) $(ADD_ASMOPT)
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
 # Seems Open Watcom 1.9 works as expected
 # @todo quiet mode
-RC        = $(%INTERP)wrc -q
+RC        = $(%INTERP)wrc
 
-RCOPT =  $(ADD_RCOPT)
+RCOPT =  $(RC_QUIET) $(RC_DEFS) $(ADD_RCOPT)
 
 #
 # Tools:
