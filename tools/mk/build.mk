@@ -57,7 +57,6 @@ DEST=$(DESTINATION)
 
 !ifndef PROJ
 !include $(%ROOT)tools/mk/dirs.mk
-!include $(%ROOT)tools/mk/site.mk
 
 all: gen_proj_name
 install: gen_proj_name

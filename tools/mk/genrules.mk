@@ -68,11 +68,7 @@ $(mf): $(MYDIR)makefile .always
  # generate compile rules for shifted files
  @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=sh_ gen_compile_rules_wrapper
  # generate dependencies
-#!ifdef PROJ
-# @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) gen_deps_wrapper
-#!else
  @$(MAKE) $(MAKEOPT) gen_deps_wrapper
-#!endif
 
 gen_obj_defs: .SYMBOLIC
 !ifdef __UNIX__ 

@@ -41,7 +41,37 @@ MAKEOPT = PROJ=$(PROJ)
 # ============================================================
 
 !ifndef TARGET_API
-TARGET_API = OS2
+!include $(%ROOT)tools/mk/dirs.mk
+# Добавляем разделитель в начало, чтобы отличать начало пути
+TEST_STR = *$(RELDIR)
+
+# Пытаемся удалить ";WIN16\" или ";WIN16/"
+STRIPPED = $(TEST_STR:*DOS$(SEP)=)
+
+# Если строка изменилась — значит, путь начинается с WIN16
+!ifneq TEST_STR $(STRIPPED)
+
+STRIPPED2 = $(TEST_STR:*WIN16$(SEP)=)
+!ifneq STRIPED $(STRIPPED2)
+TARGET_API=WIN
+!else
+TARGET_API=DOS
+!endif
+
+!endif
+
+# Пытаемся удалить ";WIN16\" или ";WIN16/"
+STRIPPED = $(TEST_STR:*OS2$(SEP)=)
+
+# Если строка изменилась — значит, путь начинается с WIN16
+!ifneq TEST_STR $(STRIPPED)
+TARGET_API=OS2
+!endif
+
+!endif
+
+!ifndef TARGET_API
+!error TARGET_API must be set
 !endif
 
 # ============================================================

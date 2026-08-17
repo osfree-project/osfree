@@ -522,9 +522,9 @@ TARGET = install
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..; fi
+ @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) -h $(TARGET) && cd ..; fi
 !else
- @for %d in ($(DIRS)) do @if exist $(MYDIR)%d $(CD) $(MYDIR)%d && $(MAKE) $(MAKEOPT) $(TARGET)
+ @for %d in ($(DIRS)) do @if exist $(MYDIR)%d $(CD) $(MYDIR)%d && $(MAKE) -h $(TARGET)
 !endif
 
 dirhier: .symbolic
@@ -593,20 +593,20 @@ install3: .symbolic
 !ifdef INSTALL
 
 $(DEST)$(SEP)install2: .symbolic
-!ifdef PROJ
- @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
-!else
+#!ifdef PROJ
+# @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
+#!else
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
-!endif
+#!endif
 
 !else
 
 $(DEST)$(SEP)$(FLG): .symbolic
-!ifdef PROJ
- @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
-!else
+#!ifdef PROJ
+# @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
+#!else
  @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
-!endif
+#!endif
 
 !endif
 
