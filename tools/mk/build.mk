@@ -9,6 +9,19 @@
 !ifndef __build_mk__
 !define __build_mk__
 
+# ============================================================
+# Pass PROJ via MAKEOPT to child MAKE
+# ============================================================
+
+!ifdef PROJ
+MAKEOPT = PROJ=$(PROJ)
+!endif
+
+!ifdef withsources
+!include $(withsources)
+MAKEOPT = $(MAKEOPT) withsources=$(withsources)
+!endif
+
 # ------------------------------------------------------------
 # DESC=DESCRIPTION alias
 # ------------------------------------------------------------
@@ -78,6 +91,7 @@ gen_proj_name: .SYMBOLIC
  @cd ..
  @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
  @cd $(dir4) && $(MAKE) $(MAKEOPT) PROJ=$(dir4)
+
 !else
 
 !include $(%ROOT)tools/mk/build2.mk
