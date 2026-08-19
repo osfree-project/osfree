@@ -60,6 +60,7 @@ DEST=$(DESTINATION)
 
 all install: .SYMBOLIC gen_proj_name
 prepall:     .SYMBOLIC prep
+depsall:     .SYMBOLIC deps
 
 MAKEOPT = -h
 
@@ -67,7 +68,7 @@ dir2=$+ $(CWD) $-
 dir3=$(dir2:$(CWD)=)
 dir4=$(dir3:$(SEP)=)
 
-prep clean: .SYMBOLIC
+deps prep clean: .SYMBOLIC
  @cd ..
  @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
 

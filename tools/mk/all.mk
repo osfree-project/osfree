@@ -247,7 +247,7 @@ BLACKHOLE = 2>&1 >$(NULL)
 !endif
 MKDIR     = $(verbose)mkdir
 
-CLEAN_CMD    = $(verbose)echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
+CLEAN_CMD    = $(verbose)for %i in ($(CLEANMASK)) do $(verbose)if exist $(PATH)%i $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
 EXE_SUFFIX = .exe
@@ -550,6 +550,7 @@ clean: .symbolic
 prepall: .symbolic
  @$(MAKE) $(MAKEOPT) prep
  @$(MAKE) $(MAKEOPT) TARGET=prepall subdirs
+
 
 targets: prep prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t

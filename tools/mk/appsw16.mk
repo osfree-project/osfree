@@ -29,7 +29,8 @@ TARGETS  = $(PATH)$(PROJ).exe
 dllopt =
 !endif
 
-$(PATH)$(PROJ).lnk: $(OBJS) 
+$(PATH)$(PROJ).lnk: $(OBJS) $(ADDLIBS)
+# echo $(OBJS) $(ADDLIBS)
  @%create $^@
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*

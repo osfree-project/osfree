@@ -41,7 +41,27 @@ MAKEOPT = PROJ=$(PROJ)
 # ============================================================
 
 !ifndef TARGET_API
-!include $(%ROOT)tools/mk/dirs.mk
+
+#!!!!!!!!!!!!! Тут проблема с DEST!!!!! Его надо определить до dirs.mk... Поэтому
+# приходится дублировать макросы
+#!include $(%ROOT)tools/mk/dirs.mk
+
+!include $(%ROOT)/tools/mk/site.mk
+
+!ifeq UNIX FALSE
+CWD         = $(%cdrive):$(%cwd)$(SEP)
+!else
+CWD         = $(%cwd)$(SEP)
+!endif
+
+ROOT        = $(%ROOT)
+BLD         = $(%ROOT)build$(SEP)
+
+RD          = $(CWD:$(%ROOT)=)
+RELDIR_PWD  = $(RD:build$(SEP)=)
+RELDIR      = $(RELDIR_PWD:host$(SEP)$(%HOST)$(SEP)=)
+
+
 
 # Добавляем разделитель в начало, чтобы отличать начало пути
 TEST_STR = *$(RELDIR)
@@ -312,7 +332,7 @@ ADD_RCOPT = -30
 
 !ifeq TARGET_VERSION 310
 ADD_RCOPT = -31
-LIBS=commdlg shell $(LIBS)
+ADD_LINKOPT=lib commdlg.lib lib shell.lib
 !endif
 
 ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
@@ -320,6 +340,8 @@ ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
 !ifeq TARGET_CLASS APPLICATION
 
 ADD_COPT = $(ADD_COPT) -sg
+!ifeq TARGET_VERSION 310
+!endif
 
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
@@ -343,6 +365,9 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 DLL = 1
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
+pth=$$(pth)
+ADDLIBS= $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
 !include $(%ROOT)tools/mk/appsw16.mk
@@ -350,7 +375,7 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 TRGT = $(PROJ).lib
 !ifdef LIBS
 pth=$$(pth)
-ADDLIBS=$(pth)$(LIBS: =.lib $(pth)).lib
+ADDLIBS=$(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 !include $(%ROOT)tools/mk/libsw16.mk
@@ -582,7 +607,7 @@ gen_register_project: .SYMBOLIC
 !include $(pmap)
 !endif
 TT=$(trgt:.=_)
-!ifndef TT
+!ifndef $(TT)
 	@$(SAY) Registering project $(trgt)...
         @%append $(BLD)projects.map $(TT)=$(deps)
 !endif
@@ -620,18 +645,39 @@ gen_wrc_rule: .SYMBOLIC
         @%append $(mf) 	$(verbose)$(RC) $(RCOPT) $(MYDIR)$(PROJ).rc $(PATH)$(PROJ).$(_std_ext) -fe=$(PATH)$(TRGT) -fo=$(PATH)$(TRGT)
 !endif
 
+gen_dep_rule: .symbolic
+!ifdef pmap
+!include $(BLD)projects.map
+!endif
+!ifdef mpth
+        @%append $(mf) !include $(BLD)$($(mpth)_lib)_deps.mk
+!endif
+
+gen_dep_lib: .symbolic
+!ifdef pmap
+!include $(BLD)projects.map
+!endif
+        @%append $(PATH)_deps.mk !include $(BLD)$($(pth)_lib)_deps.mk
+
+gen_dep_obj: .symbolic
+        @%append $(PATH)_deps.mk $(trgt): $(MYDIR)makefile .AUTODEPEND
+	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) -h && cd $(CWD)
+
 gen_deps_wrapper: .symbolic
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
         @$(MAKE) $(MAKEOPT) trgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
         @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) gen_wrc_rule
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps
+        @%create $(PATH)_deps.mk
+        @%append $(PATH)_deps.mk $(BLD)lib$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
+	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) -h && cd $(CWD)
+        @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" pth=$(pth) gen_dep_obj
 
-#!ifdef LIBS
-#!if exist $(BLD)projects.map
-#!include $(BLD)projects.map
-#	@for %l in ($(USE_LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(PATH)$(PROJ).lnk" deps="$(BLD)lib\%l.lib" gen_deps
-#!endif
-#!endif
+!ifdef LIBS
+	@for %l in ($(LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(BLD)lib\%l.lib" mpth="%l" pmap=$(BLD)projects.map gen_dep_rule
+        @for %l in ($(LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(BLD)lib\%l.lib" pth="%l" pmap=$(BLD)projects.map gen_dep_lib
+!endif
+
 #!ifdef MSGEXT
 #	@for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(PATH)$(PROJ).inc" gen_deps
 #!endif
