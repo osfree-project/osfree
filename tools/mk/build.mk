@@ -17,11 +17,6 @@
 MAKEOPT = PROJ=$(PROJ)
 !endif
 
-!ifdef withsources
-!include $(withsources)
-MAKEOPT = $(MAKEOPT) withsources=$(withsources)
-!endif
-
 # ------------------------------------------------------------
 # DESC=DESCRIPTION alias
 # ------------------------------------------------------------

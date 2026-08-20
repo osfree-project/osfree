@@ -36,7 +36,6 @@
 
 #!!!!!!!!!!!!! Тут проблема с DEST!!!!! Его надо определить до dirs.mk... Поэтому
 # приходится дублировать макросы
-#!include $(%ROOT)tools/mk/dirs.mk
 
 !include $(%ROOT)/tools/mk/site.mk
 
@@ -87,10 +86,13 @@ TARGET_API=OS2
 !error TARGET_API must be set
 !endif
 
-# ============================================================
-# Use gen_*_wrapper for dependencies generation
-# ============================================================
+# ------------------------------------------------------------
+# Use gen_*_wrapper for *.obj dependencies generation
+# (only if SOURCES exists)
+# ------------------------------------------------------------
+!ifdef SOURCES
 WRAPPERS = 1
+!endif
 
 # ============================================================
 # Turn on line numbers debug info for ASM (for .AUTODEPEND support)
@@ -637,7 +639,8 @@ gen_dep_rule: .symbolic
 !include $(BLD)projects.map
 !endif
 !ifdef mpth
-        @%append $(mf) !include $(BLD)$($(mpth)_lib)_deps.mk
+# "if exist@ can be removed later after global defs generation
+        @if exist $(BLD)$($(mpth)_lib)_deps.mk @%append $(mf) !include $(BLD)$($(mpth)_lib)_deps.mk
 !endif
 
 gen_dep_lib: .symbolic

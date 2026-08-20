@@ -94,13 +94,12 @@ COPT_LAST = $(DEFINES_LAST)
 ASMOPT    = $(ASM_QUIET) $(ASM_DEFS) $(ADD_ASMOPT)
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
+RCOPT =  $(RC_QUIET) $(RC_DEFS) $(ADD_RCOPT)
+
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
-# Seems Open Watcom 1.9 works as expected
 # @todo quiet mode
 RC        = $(%INTERP)wrc
-
-RCOPT =  $(RC_QUIET) $(RC_DEFS) $(ADD_RCOPT)
 
 #
 # Tools:

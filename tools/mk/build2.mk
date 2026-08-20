@@ -9,18 +9,19 @@
 !ifndef __build2_mk__
 !define __build2_mk__
 
+!ifdef withsources
+!include $(withsources)
+MAKEOPT = $(MAKEOPT) withsources=$(withsources)
+!endif
 
 !ifndef SOURCES
 
 !include $(%ROOT)tools/mk/dirs.mk
 
-all: .symbolic
-  @$(REXX) mdhier.cmd $(PATH)
-  @%create $(PATH)_sources.mk
-  @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
-  @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
-  @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
-  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
+all install: .SYMBOLIC gen_sources
+prepall:     .SYMBOLIC prep
+
+MAKEOPT = -h PROJ=$(PROJ)
 
 !ifdef srcfile
 _name2 = $(srcfile:$(MYDIR)=)
@@ -31,6 +32,15 @@ add_source: .SYMBOLIC
 !ifneq _name3 *
      @%append $(PATH)_sources.mk SOURCES += $(_name3)
 !endif
+
+gen_sources: .symbolic
+  @$(REXX) mdhier.cmd $(PATH)
+  @%create $(PATH)_sources.mk
+  @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
+  @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
+  @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
+  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk 
+
 
 !else
 
