@@ -15,6 +15,7 @@
 !include $(%ROOT)tools/mk/dirs.mk
 
 all: .symbolic
+  @$(REXX) mdhier.cmd $(PATH)
   @%create $(PATH)_sources.mk
   @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
   @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
