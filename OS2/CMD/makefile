@@ -40,9 +40,9 @@ DIRS =        shared &
               vol &
               zip &
               newmbr &
-              pmseek &
               print
 
+#              pmseek &   Need mirror
 #              diskcomp
 #              network
 
