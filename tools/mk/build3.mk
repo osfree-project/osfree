@@ -355,7 +355,11 @@ DLL = 1
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
 pth=$$(pth)
-ADDLIBS= $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
@@ -364,7 +368,11 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 TRGT = $(PROJ).lib
 !ifdef LIBS
 pth=$$(pth)
-ADDLIBS=$(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 !include $(%ROOT)tools/mk/libsw16.mk
@@ -596,7 +604,8 @@ gen_register_project: .SYMBOLIC
 !include $(pmap)
 !endif
 TT=$(trgt:.=_)
-!ifndef $(TT)
+TT=$($(TT))
+!ifndef TT
 	@$(SAY) Registering project $(trgt)...
         @%append $(BLD)projects.map $(TT)=$(deps)
 !endif
