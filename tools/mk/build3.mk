@@ -198,9 +198,11 @@ TARGET_SUBCLASS = DYNAMIC
 # -------------------------------------------------------------
 
 !ifdef SOURCES
+!ifneq SOURCES
 p = $$(p)
 e = $$(e)
 srcfiles = $(p)$(SOURCES: =$(e) $(p))$(e)
+!endif
 !endif
 
 # -------------------------------------------------------------

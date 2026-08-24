@@ -12,6 +12,9 @@
 !ifdef withsources
 !include $(withsources)
 MAKEOPT = $(MAKEOPT) withsources=$(withsources)
+!ifndef SOURCES
+SOURCES=
+!endif
 !endif
 
 !ifndef SOURCES
