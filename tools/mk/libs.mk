@@ -32,7 +32,7 @@ COMMANDS=$(COMMANDS) +$(OBJS16)
 
 TARGETS = $(PATH)$(PROJ).lib
 
-# makes library $(library) from object files $(OBJS)
+# makes library $(library) from object files $(OBJS) and libraries $(ADDLIBS)
 library: $(OBJS) $(ADDLIBS) $(MYDIR)makefile .symbolic
  @$(SAY) LIB      $(PROJ).lib
 !ifndef NODELETE
