@@ -321,7 +321,7 @@ ADD_RCOPT = -30
 
 !ifeq TARGET_VERSION 310
 ADD_RCOPT = -31
-ADD_LINKOPT=lib commdlg.lib lib shell.lib
+ADD_LINKOPT=lib commdlg.lib lib shell.lib lib lzexpand.lib
 !endif
 
 ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
