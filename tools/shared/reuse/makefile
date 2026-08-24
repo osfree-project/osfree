@@ -5,7 +5,6 @@ PROJ      = reuse_parser
 TRGT      = $(PROJ).lib
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
 srcfiles  = $(p)reuse_parser$(e)
-
 TARGETS  = $(PATH)$(TRGT)
 
 !include $(%ROOT)tools/mk/libs.mk

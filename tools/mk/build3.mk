@@ -315,6 +315,9 @@ TRGT = $(PROJ).exe
 # DRIVER         VIRTUAL          ERROR (reserved)   Virtual driver (VxD)
 !ifeq TARGET_BITS 16
 
+# Require add SPDX tags
+LICENSE_CHECK = 1
+
 !ifeq TARGET_VERSION 300
 ADD_RCOPT = -30
 !endif
