@@ -29,7 +29,7 @@
 !define __build3_mk__
 
 # ============================================================
-# Default TARGET_API is a OS/2 API
+# Autodetect TARGET_API depending on directory tree
 # ============================================================
 
 !ifndef TARGET_API
@@ -52,17 +52,16 @@ RD          = $(CWD:$(%ROOT)=)
 RELDIR_PWD  = $(RD:build$(SEP)=)
 RELDIR      = $(RELDIR_PWD:host$(SEP)$(%HOST)$(SEP)=)
 
-
-
-# Добавляем разделитель в начало, чтобы отличать начало пути
+# Add symbol to begining to mark start of path
 TEST_STR = *$(RELDIR)
 
-# Пытаемся удалить "*DOS\"
+# Try to delete "*DOS\"
 STRIPPED = $(TEST_STR:*DOS$(SEP)=)
 
-# Если строка изменилась — значит, путь начинается с DOS
+# String changed - so we in DOS tree
 !ifneq TEST_STR $(STRIPPED)
 
+# Now check for WIN16 subtree
 STRIPPED2 = $(TEST_STR:*WIN16$(SEP)=)
 !ifneq STRIPED $(STRIPPED2)
 TARGET_API=WIN
@@ -72,10 +71,10 @@ TARGET_API=DOS
 
 !endif
 
-# Пытаемся удалить "*OS2\"
+# Try same for OS/2. Try to delete "*OS2\"
 STRIPPED = $(TEST_STR:*OS2$(SEP)=)
 
-# Если строка изменилась — значит, путь начинается с OS2
+# String changed - so we in OS/2 tree
 !ifneq TEST_STR $(STRIPPED)
 TARGET_API=OS2
 !endif
@@ -92,6 +91,17 @@ TARGET_API=OS2
 # ------------------------------------------------------------
 !ifdef SOURCES
 WRAPPERS = 1
+!endif
+# -------------------------------------------------------------
+# Sources -> srcfiles
+# -------------------------------------------------------------
+
+!ifdef SOURCES
+!ifneq SOURCES
+p = $$(p)
+e = $$(e)
+srcfiles = $(p)$(SOURCES: =$(e) $(p))$(e)
+!endif
 !endif
 
 # ============================================================
@@ -190,18 +200,6 @@ TARGET_SUBCLASS = DYNAMIC
 !endif
 !else
 !error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
-!endif
-!endif
-
-# -------------------------------------------------------------
-# Sources -> srcfiles
-# -------------------------------------------------------------
-
-!ifdef SOURCES
-!ifneq SOURCES
-p = $$(p)
-e = $$(e)
-srcfiles = $(p)$(SOURCES: =$(e) $(p))$(e)
 !endif
 !endif
 

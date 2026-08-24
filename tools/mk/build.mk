@@ -3,94 +3,29 @@
 # Version: hierarchical class/subclass model
 #
 # ============================================================
-# STAGE 1: Aliases and autodetections
+# STAGE 1: Autodetections
 # ============================================================
 
 !ifndef __build_mk__
 !define __build_mk__
 
-# ============================================================
-# Pass PROJ via MAKEOPT to child MAKE
-# ============================================================
-
-!ifdef PROJ
-MAKEOPT = PROJ=$(PROJ)
-!endif
-
 # ------------------------------------------------------------
-# DESC=DESCRIPTION alias
+# Aliases
 # ------------------------------------------------------------
+!include $(%ROOT)tools/mk/build_aliases.mk
 
-!ifdef DESCRIPTION
-DESC=$(DESCRIPTION)
-!endif
-
-# ------------------------------------------------------------
-# PROJ=PROJECT alias
-# ------------------------------------------------------------
-
-!ifdef PROJECT
-!ifndef PROJ
-PROJ=$(PROJECT)
-!endif
-!endif
-
-# ------------------------------------------------------------
-# LIBS=LIBRARIES alias
-# ------------------------------------------------------------
-
-!ifdef LIBRARIES
-LIBS=$(LIBRARIES)
-!endif
-
-# ------------------------------------------------------------
-# DIRS=DIRECTORIES alias
-# ------------------------------------------------------------
-
-!ifdef DIRECTORIES
-DIRS=$(DIRECTORIES)
-!endif
-
-# ------------------------------------------------------------
-# DEST=DESTINATION alias
-# ------------------------------------------------------------
-
-!ifdef DESTINATION
-DEST=$(DESTINATION)
-!endif
 
 # ------------------------------------------------------------
 # Autodetect project name from directory name
 # ------------------------------------------------------------
 
-!ifndef PROJ
-!include $(%ROOT)tools/mk/dirs.mk
-
-all install: .SYMBOLIC gen_proj_name
-prepall:     .SYMBOLIC prep
-depsall:     .SYMBOLIC deps
-
-MAKEOPT = -h
-
-dir2=$+ $(CWD) $-
-dir3=$(dir2:$(CWD)=)
-dir4=$(dir3:$(SEP)=)
-
-deps prep clean: .SYMBOLIC
- @cd ..
- @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
-
-gen_proj_name: .SYMBOLIC
- #generate project name
- @$(REXX) mdhier.cmd $(PATH)
- @cd ..
- @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
- @cd $(dir4) && $(MAKE) $(MAKEOPT) PROJ=$(dir4)
-
-!else
-
+!ifdef PROJ
+#pass PROJ to child make to prevent another detection
+MAKEOPT = PROJ=$(PROJ)
 !include $(%ROOT)tools/mk/build2.mk
-
+!else
+# PROJ autodetection
+!include $(%ROOT)tools/mk/build_proj.mk
 !endif
 
 !endif  

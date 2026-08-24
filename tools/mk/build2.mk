@@ -47,7 +47,20 @@ gen_sources: .symbolic
 
 !else
 
+# If we don't have SOURCES, NOLIBS, but DIRS, then just use old all.mk
+!ifeq SOURCES
+!ifndef LIBS
+!ifdef DIRS
+NO_DISPATCHER=1
+!endif
+!endif
+!endif
+
+!ifdef NO_DISPATCHER
+!include $(%ROOT)tools/mk/all.mk
+!else
 !include $(%ROOT)tools/mk/build3.mk
+!endif
 
 !endif  
 
