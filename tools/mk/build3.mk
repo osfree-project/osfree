@@ -355,7 +355,11 @@ DLL = 1
 # LIBS -> ADD_LINKOPT
 !ifdef LIBS
 pth=$$(pth)
-ADDLIBS= $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
@@ -364,7 +368,11 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 TRGT = $(PROJ).lib
 !ifdef LIBS
 pth=$$(pth)
-ADDLIBS=$(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 !include $(%ROOT)tools/mk/libsw16.mk
@@ -590,15 +598,19 @@ targets: $(PATH)$(PROJ).$(TARGET_EXT)
 
 # Register project (called from gen_deps_wrapper)
 
-
 gen_register_project: .SYMBOLIC
 !ifdef pmap
 !include $(pmap)
 !endif
-TT=$(trgt:.=_)
+TT=1
+!ifdef trrgt
+TT=$(trrgt:.=_)
+!endif
 !ifndef $(TT)
-	@$(SAY) Registering project $(trgt)...
-        @%append $(BLD)projects.map $(TT)=$(deps)
+ @$(SAY) Registering project $(trrgt)...
+ @%append $(BLD)projects.map $(TT)=$(deps)
+!else
+ @%null
 !endif
 
 # Determine if using standard extension
@@ -655,14 +667,13 @@ gen_dep_obj: .symbolic
 
 gen_deps_wrapper: .symbolic
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
-        @$(MAKE) $(MAKEOPT) trgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
+        @$(MAKE) $(MAKEOPT) trrgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
         @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) gen_wrc_rule
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps
         @%create $(PATH)_deps.mk
         @%append $(PATH)_deps.mk $(BLD)lib$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
 	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) -h && cd $(CWD)
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" pth=$(pth) gen_dep_obj
-
 !ifdef LIBS
 	@for %l in ($(LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(BLD)lib\%l.lib" mpth="%l" pmap=$(BLD)projects.map gen_dep_rule
         @for %l in ($(LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(BLD)lib\%l.lib" pth="%l" pmap=$(BLD)projects.map gen_dep_lib
