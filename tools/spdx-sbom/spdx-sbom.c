@@ -11,6 +11,10 @@
 #include <time.h>
 #include <reuse_parser.h>
 
+/* НОВОЕ: глобальные значения по умолчанию */
+static char *default_license = NULL;
+static char *default_copyright = NULL;
+
 const char* get_file_type(const char *filename) {
     const char *ext;
     ext = strrchr(filename, '.');
@@ -56,8 +60,13 @@ void generate_spdx_json(const char *dir, ReuseConfig *config) {
     while ((entry = readdir(d)) != NULL) {
         if (entry->d_name[0] == '.') continue;
         license = find_license_for_file(config, entry->d_name);
+        /* НОВОЕ: если не нашли в REUSE.toml, используем default_license */
+        if (!license && default_license) license = default_license;
         if (!license) continue;
+
         copyright = find_copyright_for_file(config, entry->d_name);
+        /* НОВОЕ: если не нашли в REUSE.toml, используем default_copyright */
+        if (!copyright && default_copyright) copyright = default_copyright;
 
         if (!first) printf(",\n");
         first = 0;
@@ -83,10 +92,19 @@ int main(int argc, char *argv[]) {
 
     dir = ".";
     output = NULL;
+    /* НОВОЕ: обнуляем глобальные значения */
+    default_license = NULL;
+    default_copyright = NULL;
 
     for (i = 1; i < argc; i++) {
         if (strncmp(argv[i], "--output=", 9) == 0) {
             output = argv[i] + 9;
+        } else if (strncmp(argv[i], "--default-license=", 19) == 0) {
+            /* НОВОЕ: установка лицензии по умолчанию */
+            default_license = argv[i] + 19;
+        } else if (strncmp(argv[i], "--default-copyright=", 21) == 0) {
+            /* НОВОЕ: установка копирайта по умолчанию */
+            default_copyright = argv[i] + 21;
         } else {
             dir = argv[i];
         }
