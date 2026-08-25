@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __LINUX__
+#include <dirent.h>
+#else
 #include <direct.h>
+#endif
 #include <reuse_parser.h>
 
 #define MAX_LINE 4096

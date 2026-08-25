@@ -4,7 +4,7 @@
 
 PROJ = tools_shared
 TRGT = $(PROJ).lib
-DIRS = z
+DIRS = z #reuse
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 

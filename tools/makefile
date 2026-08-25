@@ -12,7 +12,7 @@ DIRS = sed UNI yacc lex jwasm awk &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
 #       lxlite
-       target emxdoc bind
+       target emxdoc bind #spdx-lint
 # rexxwrap ltools &
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
