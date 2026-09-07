@@ -1,8 +1,9 @@
 @echo off
 rem canonicalize root
-for %%i in (%root%) do set root=%%~fi\
-
-set osfreebe=C:\osFreeBE
+for %%i in (%root%) do set root=%%~fi
+if not "%root:~-1%"=="\" set "root=%root%\"
+echo root=%root%
+set osfreebe=%root%osFreeBE
 rem %ProgramFiles(x86)%
 set WATCOM=%osfreebe%\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
