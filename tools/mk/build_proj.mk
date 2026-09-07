@@ -1,3 +1,5 @@
+# tools/mk/build_proj.mk
+
 !include $(%ROOT)tools/mk/dirs.mk
 
 all install: .SYMBOLIC gen_proj_name
