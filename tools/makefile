@@ -8,7 +8,7 @@
 # 1. UniAPI must come first here because used to produce API headers
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
-DIRS = sed UNI yacc lex jwasm awk &
+DIRS = sed UNI dos2unix yacc lex jwasm awk &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
 #       lxlite

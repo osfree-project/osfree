@@ -120,5 +120,5 @@ lib\
 	vdh.lib
 msg\					Generate them...
 samples\				Will be missed? Or write something?
-som\					Reuse somFree. See notes.txt in SOM directory for content
+som\					Reuse somFree/somLite. See notes.txt in SOM directory for content
 speech\					Most probably will not be implemented

@@ -1,4 +1,5 @@
 @echo off
+echo Win64 build host
 setlocal
 call setvars-w64
 

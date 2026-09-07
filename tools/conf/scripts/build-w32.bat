@@ -1,4 +1,5 @@
 @echo off
+echo Win32 build host
 setlocal
 call setvars-w32
 

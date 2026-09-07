@@ -1,0 +1,20 @@
+--- dos2unix\dos2unix\common.c	Mon Sep 07 11:45:03 2026
++++ newdos2unix\dos2unix\common.c	Mon Sep 07 10:54:40 2026
+@@ -521,7 +521,7 @@
+ #ifdef D2U_UNIFILE
+ int glob_warg(int argc, wchar_t *wargv[], char ***argv, CFlag *ipFlag, const char *progname)
+ {
+-  int i;
++  int i,j;
+   int argc_glob = 0;
+   wchar_t *warg;
+   wchar_t *path;
+@@ -632,7 +632,7 @@
+     D2U_ANSI_FPRINTF(stderr, " %s\n", errstr);
+   }
+   // Cleanup of allocated memory in glob_failed:
+-  for (int j = 0; j < argc_glob; ++j) {
++  for (j = 0; j < argc_glob; ++j) {
+     if (argv_new[j]) free(argv_new[j]);
+   }
+   free(argv_new);
