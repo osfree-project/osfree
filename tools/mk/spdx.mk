@@ -57,7 +57,9 @@ spdx-annotate: .SYMBOLIC
     @$(SPDX_ANNOTATE) --dir=$(CWD) $(SPDX_ANNOTATE_ARGS)
 
 spdx-sbom: .SYMBOLIC
-    @$(SPDX_SBOM) --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
+    @$(SPDX_SBOM) --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
+    @$(SPDX_SBOM) --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json $(MYDIR) $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
+    @spdx-merge.exe --source=$(PATH)$(PROJ).spdx.json --binary=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json
 
 spdx-clean: .SYMBOLIC
     @if exist $(PROJ).spdx.json del $(PROJ).spdx.json

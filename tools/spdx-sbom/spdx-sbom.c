@@ -27,6 +27,7 @@ static char *doc_name = NULL;
 static char *package_version = NULL;
 static char *package_supplier = NULL;
 static char *creator = NULL;
+static char *package_purpose = NULL;   /* --purpose */
 
 /* Глобальные переменные для исключений */
 static char **exclude_list = NULL;
@@ -237,6 +238,7 @@ static char *compute_package_verification_code(FileHashEntry *entries, int count
     return verification_code;
 }
 
+/* Функция обработки файла: выводит JSON и возвращает 1, если файл включён */
 static int process_file(const char *fullpath, const char *filename,
                         ReuseConfig *config, int is_first) {
     char sidecar_path[1024];
@@ -246,6 +248,7 @@ static int process_file(const char *fullpath, const char *filename,
     char *sha1 = NULL;
     char *escaped_fname = NULL, *escaped_license = NULL, *escaped_copyright = NULL;
 
+    /* sidecar */
     get_sidecar_path(fullpath, sidecar_path, sizeof(sidecar_path));
 #ifdef __LINUX__
     if (access(sidecar_path, F_OK) == 0) {
@@ -261,7 +264,9 @@ static int process_file(const char *fullpath, const char *filename,
 
     license = find_license_for_file(config, filename);
     if (!license && sidecar_license) license = sidecar_license;
-    if (!license) {
+
+    /* Пытаемся извлечь теги из самого файла только если purpose == SOURCE или не задан */
+    if (!license && (!package_purpose || strcmp(package_purpose, "SOURCE") == 0)) {
         tag_license = file_get_spdx_license(fullpath);
         if (tag_license) license = tag_license;
     }
@@ -275,7 +280,7 @@ static int process_file(const char *fullpath, const char *filename,
 
     copyright = find_copyright_for_file(config, filename);
     if (!copyright && sidecar_copyright) copyright = sidecar_copyright;
-    if (!copyright) {
+    if (!copyright && (!package_purpose || strcmp(package_purpose, "SOURCE") == 0)) {
         tag_copyright = file_get_spdx_copyright(fullpath);
         if (tag_copyright) copyright = tag_copyright;
     }
@@ -332,6 +337,9 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
     int file_hash_count = 0, file_hash_capacity = 0;
     char *verification_code = NULL;
 
+    const char *pkg_license;
+    const char *pkg_copyright;
+
 #ifdef __LINUX__
     DIR *d;
     struct dirent *entry;
@@ -363,6 +371,15 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
         sprintf(doc_namespace, "https://osfree.org/spdxdocs/%s-%ld", safe_name, (long)now);
     }
 
+    /* Определяем лицензию и копирайт пакета: сначала из аргументов, затем из REUSE.toml [default] */
+    pkg_license = default_license;
+    if (!pkg_license && config)
+        pkg_license = config->default_license;
+
+    pkg_copyright = default_copyright;
+    if (!pkg_copyright && config)
+        pkg_copyright = config->default_copyright;
+
     /* Первый проход: сбор хэшей для verification code */
 #ifdef __LINUX__
     d = opendir(dir);
@@ -390,7 +407,7 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
                     if (tag_lic) lic = tag_lic;
                 }
             }
-            if (!lic) {
+            if (!lic && (!package_purpose || strcmp(package_purpose, "SOURCE") == 0)) {
                 tag_lic = file_get_spdx_license(fullpath);
                 if (tag_lic) lic = tag_lic;
             }
@@ -443,7 +460,7 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
                     if (tag_lic) lic = tag_lic;
                 }
             }
-            if (!lic) {
+            if (!lic && (!package_purpose || strcmp(package_purpose, "SOURCE") == 0)) {
                 tag_lic = file_get_spdx_license(fullpath);
                 if (tag_lic) lic = tag_lic;
             }
@@ -512,8 +529,8 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
     } else {
         printf("      \"supplier\": \"NOASSERTION\",\n");
     }
-    if (default_license) {
-        char *esc_lic = json_escape(default_license);
+    if (pkg_license) {
+        char *esc_lic = json_escape(pkg_license);
         printf("      \"licenseConcluded\": \"%s\",\n", esc_lic);
         printf("      \"licenseDeclared\": \"%s\",\n", esc_lic);
         free(esc_lic);
@@ -521,12 +538,19 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name) 
         printf("      \"licenseConcluded\": \"NOASSERTION\",\n");
         printf("      \"licenseDeclared\": \"NOASSERTION\",\n");
     }
-    if (default_copyright) {
-        char *esc_copy = json_escape(default_copyright);
+    if (pkg_copyright) {
+        char *esc_copy = json_escape(pkg_copyright);
         printf("      \"copyrightText\": \"%s\",\n", esc_copy);
         free(esc_copy);
     } else {
         printf("      \"copyrightText\": \"NOASSERTION\",\n");
+    }
+    if (package_purpose) {
+        char *esc_purpose = json_escape(package_purpose);
+        printf("      \"primaryPackagePurpose\": \"%s\",\n", esc_purpose);
+        free(esc_purpose);
+    } else {
+        printf("      \"primaryPackagePurpose\": \"NOASSERTION\",\n");
     }
     if (verification_code) {
         printf("      \"filesAnalyzed\": true,\n");
@@ -614,6 +638,7 @@ int main(int argc, char *argv[]) {
     package_version = NULL;
     package_supplier = NULL;
     creator = NULL;
+    package_purpose = NULL;
     exclude_list = NULL;
     exclude_count = 0;
 
@@ -632,6 +657,8 @@ int main(int argc, char *argv[]) {
             package_supplier = argv[i] + 11;
         } else if (strncmp(argv[i], "--creator=", 10) == 0) {
             creator = argv[i] + 10;
+        } else if (strncmp(argv[i], "--purpose=", 10) == 0) {
+            package_purpose = argv[i] + 10;
         } else if (strncmp(argv[i], "--exclude=", 10) == 0) {
             arg = argv[i] + 10;
             while (*arg) {
