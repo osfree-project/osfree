@@ -61,12 +61,12 @@ prep_git: .symbolic
 
 prep_svn: .symbolic
  $(verbose)$(SAY) PREP     $(PORT_NAME) $(LOG)
-!ifeq %HOST win32
- $(verbose)$(MDHIER) $(PORT_BASE)
- $(verbose)git svn clone -qq $(PORT_URL)$(PORT_REV) $(PORT_BASE)
-   $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
-   $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
-!else
+#!ifeq %HOST win32
+# $(verbose)$(MDHIER) $(PORT_BASE)
+# $(verbose)git svn clone -qq $(PORT_URL)$(PORT_REV) $(PORT_BASE)
+#   $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
+#   $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
+#!else
  $(verbose)svn --non-interactive --trust-server-cert co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
    $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
    $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
