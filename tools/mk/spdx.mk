@@ -50,6 +50,8 @@ SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --default-copyright="$(COPYRIGHT)"
 SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --exclude="$(EXCLUDE_LICENSE)"
 !endif
 
+SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
+
 spdx-lint: .SYMBOLIC
     $(verbose)$(SPDX_LINT) $(CWD) $(SPDX_LINT_ARGS)
 
@@ -57,8 +59,8 @@ spdx-annotate: .SYMBOLIC
     @$(SPDX_ANNOTATE) --dir=$(CWD) $(SPDX_ANNOTATE_ARGS)
 
 spdx-sbom: .SYMBOLIC
-    @$(SPDX_SBOM) --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
-    @$(SPDX_SBOM) --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json $(MYDIR) $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1"
+    $(SPDX_SBOM) --file="$(PATH)$(TRGT)" --objects="$(OBJS)" --libs="$(LIBS)" --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
+    $(SPDX_SBOM) --file="$(PATH)$(TRGT)" --objects="$(OBJS)" --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
     @spdx-merge.exe --source=$(PATH)$(PROJ).spdx.json --binary=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json
 
 spdx-clean: .SYMBOLIC

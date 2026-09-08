@@ -6,7 +6,6 @@
 #include <time.h>
 #include "json_parser.h"
 
-/* Чтение файла в строку */
 static char *read_file(const char *filename) {
     FILE *f;
     long size;
@@ -28,7 +27,6 @@ static char *read_file(const char *filename) {
     return buf;
 }
 
-/* Клонирование узла JSON */
 static JsonNode *clone_node(JsonNode *node) {
     JsonNode *copy;
     int i;
@@ -50,7 +48,6 @@ static JsonNode *clone_node(JsonNode *node) {
     return copy;
 }
 
-/* Создание узла-строки с ключом */
 static JsonNode *create_string_node(const char *key, const char *value) {
     JsonNode *node = (JsonNode *)calloc(1, sizeof(JsonNode));
     if (!node) return NULL;
@@ -62,7 +59,6 @@ static JsonNode *create_string_node(const char *key, const char *value) {
     return node;
 }
 
-/* Создание пустого объекта с ключом */
 static JsonNode *create_object_node(const char *key) {
     JsonNode *node = (JsonNode *)calloc(1, sizeof(JsonNode));
     if (!node) return NULL;
@@ -74,7 +70,6 @@ static JsonNode *create_object_node(const char *key) {
     return node;
 }
 
-/* Создание пустого массива с ключом */
 static JsonNode *create_array_node(const char *key) {
     JsonNode *node = (JsonNode *)calloc(1, sizeof(JsonNode));
     if (!node) return NULL;
@@ -86,7 +81,6 @@ static JsonNode *create_array_node(const char *key) {
     return node;
 }
 
-/* Добавление дочернего элемента в объект/массив */
 static void add_child(JsonNode *parent, JsonNode *child) {
     if (parent->child_count >= parent->child_capacity) {
         parent->child_capacity *= 2;
@@ -97,7 +91,6 @@ static void add_child(JsonNode *parent, JsonNode *child) {
     child->parent = parent;
 }
 
-/* Поиск и замена строкового значения у дочернего элемента с указанным ключом */
 static void replace_string_value(JsonNode *object, const char *key, const char *new_value) {
     JsonNode *child = json_find_child(object, key);
     if (child && child->type == JSON_STRING) {
@@ -106,16 +99,32 @@ static void replace_string_value(JsonNode *object, const char *key, const char *
     }
 }
 
-/* Вывод JSON с отступами */
+/* Выводит строку с экранированием кавычек, backslash и управляющих символов */
+static void print_escaped_string(const char *s) {
+    putchar('"');
+    while (*s) {
+        switch (*s) {
+            case '"':  printf("\\\""); break;
+            case '\\': printf("\\\\"); break;
+            case '\n': printf("\\n"); break;
+            case '\r': printf("\\r"); break;
+            case '\t': printf("\\t"); break;
+            default:   putchar(*s);
+        }
+        s++;
+    }
+    putchar('"');
+}
+
 static void print_json_indent(JsonNode *node, int indent) {
     int i, j;
-
     if (!node) return;
 
     for (j = 0; j < indent; j++) printf("  ");
 
     if (node->key) {
-        printf("\"%s\": ", node->key);
+        print_escaped_string(node->key);
+        printf(": ");
     }
 
     switch (node->type) {
@@ -129,7 +138,7 @@ static void print_json_indent(JsonNode *node, int indent) {
             printf("%g", node->number_value);
             break;
         case JSON_STRING:
-            printf("\"%s\"", node->string_value ? node->string_value : "");
+            print_escaped_string(node->string_value ? node->string_value : "");
             break;
         case JSON_ARRAY:
             printf("[\n");
@@ -159,7 +168,6 @@ int main(int argc, char *argv[]) {
     const char *binary_file = NULL;
     const char *output_file = NULL;
     int i;
-
     char *src_text = NULL;
     char *bin_text = NULL;
     JsonNode *src_root = NULL;
@@ -173,6 +181,10 @@ int main(int argc, char *argv[]) {
     JsonNode *merged_files = NULL;
     JsonNode *merged_relationships = NULL;
     JsonNode *node = NULL;
+    JsonNode *src_pkg_clone = NULL;
+    JsonNode *bin_pkg_clone = NULL;
+    const char *src_spdx_id = NULL;
+    const char *bin_spdx_id = NULL;
     time_t now;
     struct tm *tm;
     char date[32];
@@ -213,6 +225,11 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
+    if (src_packages->child_count < 1 || bin_packages->child_count < 1) {
+        fprintf(stderr, "Empty packages array in input files\n");
+        goto cleanup;
+    }
+
     src_files = json_find_child(src_root, "files");
     bin_files = json_find_child(bin_root, "files");
 
@@ -220,20 +237,16 @@ int main(int argc, char *argv[]) {
     tm = gmtime(&now);
     strftime(date, sizeof(date), "%Y-%m-%dT%H:%M:%SZ", tm);
 
-    /* Создаём корневой объект объединённого документа */
     merged = create_object_node(NULL);
     if (!merged) goto cleanup;
 
-    /* spdxVersion */
     node = create_string_node("spdxVersion", "SPDX-2.3");
     add_child(merged, node);
-    /* SPDXID */
     node = create_string_node("SPDXID", "SPDXRef-DOCUMENT");
     add_child(merged, node);
-    /* name */
     node = create_string_node("name", "Merged SBOM");
     add_child(merged, node);
-    /* creationInfo */
+
     {
         JsonNode *creation = create_object_node("creationInfo");
         JsonNode *created = create_string_node("created", date);
@@ -244,10 +257,9 @@ int main(int argc, char *argv[]) {
         add_child(creation, creators);
         add_child(merged, creation);
     }
-    /* dataLicense */
+
     node = create_string_node("dataLicense", "CC0-1.0");
     add_child(merged, node);
-    /* documentNamespace */
     {
         char ns[256];
         sprintf(ns, "https://osfree.org/spdxdocs/merged-%ld", (long)now);
@@ -255,27 +267,19 @@ int main(int argc, char *argv[]) {
         add_child(merged, node);
     }
 
-    /* packages */
     merged_packages = create_array_node("packages");
-    /* Клонируем исходные пакеты с префиксом SrcPkg */
-    for (i = 0; i < src_packages->child_count; i++) {
-        JsonNode *clone = clone_node(src_packages->children[i]);
-        if (clone) {
-            replace_string_value(clone, "SPDXID", "SPDXRef-SrcPkg-Package");
-            add_child(merged_packages, clone);
-        }
-    }
-    /* Клонируем бинарные пакеты с префиксом BinPkg */
-    for (i = 0; i < bin_packages->child_count; i++) {
-        JsonNode *clone = clone_node(bin_packages->children[i]);
-        if (clone) {
-            replace_string_value(clone, "SPDXID", "SPDXRef-BinPkg-Package");
-            add_child(merged_packages, clone);
-        }
-    }
+    src_pkg_clone = clone_node(src_packages->children[0]);
+    if (!src_pkg_clone) goto cleanup;
+    src_spdx_id = json_get_string(json_find_child(src_pkg_clone, "SPDXID"));
+    add_child(merged_packages, src_pkg_clone);
+
+    bin_pkg_clone = clone_node(bin_packages->children[0]);
+    if (!bin_pkg_clone) goto cleanup;
+    bin_spdx_id = json_get_string(json_find_child(bin_pkg_clone, "SPDXID"));
+    add_child(merged_packages, bin_pkg_clone);
+
     add_child(merged, merged_packages);
 
-    /* files */
     merged_files = create_array_node("files");
     if (src_files && src_files->type == JSON_ARRAY) {
         for (i = 0; i < src_files->child_count; i++) {
@@ -307,35 +311,30 @@ int main(int argc, char *argv[]) {
     }
     add_child(merged, merged_files);
 
-    /* relationships */
     merged_relationships = create_array_node("relationships");
-    /* DESCRIBES для исходного пакета */
-    {
+    if (src_spdx_id) {
         JsonNode *rel = create_object_node(NULL);
         add_child(rel, create_string_node("spdxElementId", "SPDXRef-DOCUMENT"));
-        add_child(rel, create_string_node("relatedSpdxElement", "SPDXRef-SrcPkg-Package"));
+        add_child(rel, create_string_node("relatedSpdxElement", src_spdx_id));
         add_child(rel, create_string_node("relationshipType", "DESCRIBES"));
         add_child(merged_relationships, rel);
     }
-    /* DESCRIBES для бинарного пакета */
-    {
+    if (bin_spdx_id) {
         JsonNode *rel = create_object_node(NULL);
         add_child(rel, create_string_node("spdxElementId", "SPDXRef-DOCUMENT"));
-        add_child(rel, create_string_node("relatedSpdxElement", "SPDXRef-BinPkg-Package"));
+        add_child(rel, create_string_node("relatedSpdxElement", bin_spdx_id));
         add_child(rel, create_string_node("relationshipType", "DESCRIBES"));
         add_child(merged_relationships, rel);
     }
-    /* GENERATED_FROM: бинарный пакет сгенерирован из исходного */
-    {
+    if (src_spdx_id && bin_spdx_id) {
         JsonNode *rel = create_object_node(NULL);
-        add_child(rel, create_string_node("spdxElementId", "SPDXRef-BinPkg-Package"));
-        add_child(rel, create_string_node("relatedSpdxElement", "SPDXRef-SrcPkg-Package"));
+        add_child(rel, create_string_node("spdxElementId", bin_spdx_id));
+        add_child(rel, create_string_node("relatedSpdxElement", src_spdx_id));
         add_child(rel, create_string_node("relationshipType", "GENERATED_FROM"));
         add_child(merged_relationships, rel);
     }
     add_child(merged, merged_relationships);
 
-    /* Вывод результата */
     if (output_file) {
         if (!freopen(output_file, "w", stdout)) {
             fprintf(stderr, "Cannot open output file: %s\n", output_file);
