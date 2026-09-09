@@ -70,7 +70,7 @@ prep_svn: .symbolic
  $(verbose)svn --non-interactive --trust-server-cert co $(PORT_URL)$(PORT_REV) $(PORT_BASE)
    $(verbose)if exist $(MYDIR)patches $(verbose)$(MAKE) $(MAKEOPT) patch
    $(verbose)$(%INTERP)wtouch $(PORT_FLAG)
-!endif
+#!endif
  
 
 !endif

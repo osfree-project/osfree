@@ -60,8 +60,8 @@ spdx-annotate: .SYMBOLIC
 
 spdx-sbom: .SYMBOLIC
     $(SPDX_SBOM) --file="$(PATH)$(TRGT)" --objects="$(OBJS)" --libs="$(LIBS)" --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
-    $(SPDX_SBOM) --file="$(PATH)$(TRGT)" --objects="$(OBJS)" --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
-    @spdx-merge.exe --source=$(PATH)$(PROJ).spdx.json --binary=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json
+    $(SPDX_SBOM) --file="$(PATH)$(TRGT)" --objects="$(OBJS)" --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json --source-sbom=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
+    spdx-merge.exe --input=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json
 
 spdx-clean: .SYMBOLIC
     @if exist $(PROJ).spdx.json del $(PROJ).spdx.json

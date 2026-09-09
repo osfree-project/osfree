@@ -35,8 +35,9 @@ static char **exclude_list = NULL;
 static int exclude_count = 0;
 static char **object_files = NULL;
 static int object_count = 0;
+static char *source_sbom_path = NULL; /* путь к SBOM исходников для внешней ссылки */
 
-/* Структура для хранения информации о файле */
+/* Внутренние структуры */
 typedef struct {
     char name[512];
     char sha1[41];
@@ -45,12 +46,83 @@ typedef struct {
     char file_type[32];
 } FileInfo;
 
-/* Динамический массив FileInfo */
 typedef struct {
     FileInfo *items;
     int count;
     int capacity;
 } FileList;
+
+typedef struct {
+    char spdx_id[256];
+    char name[512];
+    char version[128];
+    char supplier[256];
+    char license[256];
+    char copyright[512];
+    char purpose[128];
+    int files_analyzed;
+    char verification_code[41];
+} PackageInfo;
+
+typedef struct {
+    char element_id[256];
+    char related_element[256];
+    char relationship_type[64];
+} Relationship;
+
+typedef struct {
+    char spdx_version[16];
+    char document_id[256];
+    char document_name[512];
+    char document_namespace[512];
+    char created[32];
+    char creator[256];
+    char data_license[64];
+    PackageInfo package;
+    FileList files;
+    Relationship *relationships;
+    int relationship_count;
+    /* Поля для внешней ссылки */
+    int has_external_ref;
+    char external_doc_id[256];
+    char external_doc_uri[512];
+    char external_doc_checksum[128]; /* SHA1 в hex */
+} SpdxDocument;
+
+/* Прототипы функций */
+static void filelist_init(FileList *list);
+static void filelist_add(FileList *list, const FileInfo *info);
+static void filelist_free(FileList *list);
+static const char *get_file_name(const char *path);
+static void remove_extension(char *str);
+static void sanitize_id(const char *src, char *dst, size_t dst_size);
+static void make_package_spdx_id(const char *base_name, const char *suffix,
+                                 char *buf, size_t buf_size);
+static char *json_escape(const char *src);
+static int str_ieq(const char *a, const char *b);
+static int str_ieq_prefix(const char *str, const char *prefix, size_t n);
+static int is_license_file(const char *filename);
+static int is_ignored_dir(const char *name);
+static int is_license_sidecar(const char *name);
+static int is_excluded(const char *filename);
+const char* get_file_type(const char *filename);
+static void get_file_license_copyright(const char *fullpath, const char *filename,
+                                       ReuseConfig *config,
+                                       char *license_out, size_t license_size,
+                                       char *copyright_out, size_t copyright_size);
+static void scan_source_files(const char *dir, ReuseConfig *config, FileList *list);
+static int collect_sources_from_objects(char ***sources, int *sources_count);
+static char *compute_verification_code(FileList *list);
+static void build_document(SpdxDocument *doc, const char *dir, ReuseConfig *config,
+                           const char *name, char **source_files,
+                           int source_files_count, int use_objects);
+static void init_relationships(SpdxDocument *doc, int binary_mode, const char *file_base);
+static void output_json(const SpdxDocument *doc);
+static void output_tagvalue(const SpdxDocument *doc);
+
+/* --------------------------------------------------------------------------
+ * Реализация вспомогательных функций
+ * ------------------------------------------------------------------------ */
 
 static void filelist_init(FileList *list) {
     list->count = 0;
@@ -78,7 +150,6 @@ static void filelist_free(FileList *list) {
     free(list->items);
 }
 
-/* Вспомогательные функции */
 static const char *get_file_name(const char *path) {
     const char *slash = strrchr(path, '/');
     const char *backslash = strrchr(path, '\\');
@@ -104,8 +175,6 @@ static void sanitize_id(const char *src, char *dst, size_t dst_size) {
             dst[j++] = '-';
     }
     dst[j] = '\0';
-
-    /* Удаляем ведущие и хвостовые дефисы */
     start = 0;
     end = j;
     while (start < end && dst[start] == '-') start++;
@@ -129,7 +198,6 @@ static void make_package_spdx_id(const char *base_name, const char *suffix,
 static char *json_escape(const char *src) {
     size_t len, extra, i, j;
     char *dst;
-
     len = strlen(src);
     extra = 0;
     for (i = 0; i < len; i++) {
@@ -137,10 +205,8 @@ static char *json_escape(const char *src) {
             src[i] == '\r' || src[i] == '\t')
             extra++;
     }
-
     dst = (char*)malloc(len + extra + 1);
     if (!dst) return NULL;
-
     j = 0;
     for (i = 0; i < len; i++) {
         switch (src[i]) {
@@ -169,10 +235,8 @@ static int str_ieq(const char *a, const char *b) {
 static int str_ieq_prefix(const char *str, const char *prefix, size_t n) {
     size_t i;
     for (i = 0; i < n; i++) {
-        if (str[i] == '\0')
-            return 0;
-        if (tolower((unsigned char)str[i]) != tolower((unsigned char)prefix[i]))
-            return 0;
+        if (str[i] == '\0') return 0;
+        if (tolower((unsigned char)str[i]) != tolower((unsigned char)prefix[i])) return 0;
     }
     return 1;
 }
@@ -181,10 +245,8 @@ static int is_license_file(const char *filename) {
     static const char *exact[] = {"license","licence","copying","unlicense","copyright"};
     const char *base = get_file_name(filename);
     size_t i;
-
     for (i = 0; i < sizeof(exact)/sizeof(exact[0]); i++)
         if (str_ieq(base, exact[i])) return 1;
-
     if (str_ieq_prefix(base, "license", 7) ||
         str_ieq_prefix(base, "licence", 7) ||
         str_ieq_prefix(base, "copying", 7)) {
@@ -225,22 +287,16 @@ const char* get_file_type(const char *filename) {
     return "OTHER";
 }
 
-/* Определяет лицензию и копирайт для файла */
 static void get_file_license_copyright(const char *fullpath, const char *filename,
                                        ReuseConfig *config,
                                        char *license_out, size_t license_size,
                                        char *copyright_out, size_t copyright_size) {
-    char *tag_lic;
-    char *tag_copy;
-    char sidecar_path[1024];
+    char *tag_lic, *tag_copy, sidecar_path[1024], *side_lic, *side_copy;
     int sidecar_exists;
-    char *side_lic;
-    char *side_copy;
 
     license_out[0] = '\0';
     copyright_out[0] = '\0';
 
-    /* 1. SPDX-теги внутри файла */
     tag_lic = file_get_spdx_license(fullpath);
     tag_copy = file_get_spdx_copyright(fullpath);
     if (tag_lic) {
@@ -254,7 +310,6 @@ static void get_file_license_copyright(const char *fullpath, const char *filenam
         free(tag_copy);
     }
 
-    /* 2. .license sidecar */
     snprintf(sidecar_path, sizeof(sidecar_path), "%s.license", fullpath);
 #ifdef __LINUX__
     sidecar_exists = (access(sidecar_path, F_OK) == 0);
@@ -276,7 +331,6 @@ static void get_file_license_copyright(const char *fullpath, const char *filenam
         if (side_copy) free(side_copy);
     }
 
-    /* 3. REUSE.toml annotations (включая default) */
     if (license_out[0] == '\0') {
         const char *lic = find_license_for_file(config, filename);
         if (lic) {
@@ -292,7 +346,6 @@ static void get_file_license_copyright(const char *fullpath, const char *filenam
         }
     }
 
-    /* 4. --default-license/copyright */
     if (license_out[0] == '\0' && default_license) {
         strncpy(license_out, default_license, license_size-1);
         license_out[license_size-1] = '\0';
@@ -303,7 +356,6 @@ static void get_file_license_copyright(const char *fullpath, const char *filenam
     }
 }
 
-/* Сбор информации о файлах из каталога */
 static void scan_source_files(const char *dir, ReuseConfig *config, FileList *list) {
 #ifdef __LINUX__
     DIR *d;
@@ -346,8 +398,7 @@ static void scan_source_files(const char *dir, ReuseConfig *config, FileList *li
     long hFile;
     struct _finddata_t fdata;
     struct stat st;
-    char pattern[1024];
-    char fullpath[1024];
+    char pattern[1024], fullpath[1024];
     FileInfo info;
     char *sha1;
 
@@ -383,7 +434,6 @@ static void scan_source_files(const char *dir, ReuseConfig *config, FileList *li
 #endif
 }
 
-/* Извлекает список исходных файлов из OBJ-файлов, переданных в object_files */
 static int collect_sources_from_objects(char ***sources, int *sources_count) {
     int i, j, k;
     char **obj_sources;
@@ -403,7 +453,6 @@ static int collect_sources_from_objects(char ***sources, int *sources_count) {
             continue;
         }
         for (j = 0; j < obj_count; j++) {
-            /* Проверка на дубликаты */
             found = 0;
             for (k = 0; k < *sources_count; k++) {
                 if (strcmp((*sources)[k], obj_sources[j]) == 0) {
@@ -411,8 +460,7 @@ static int collect_sources_from_objects(char ***sources, int *sources_count) {
                     break;
                 }
             }
-            if (found)
-                continue;
+            if (found) continue;
 
             src = (char*)malloc(strlen(obj_sources[j]) + 1);
             if (!src) {
@@ -447,91 +495,6 @@ static int collect_sources_from_objects(char ***sources, int *sources_count) {
     return (*sources_count > 0) ? 0 : -1;
 }
 
-/* Вывод полей пакета */
-static void print_package_fields(const char *spdx_id, const char *name,
-                                 const char *version, const char *supplier,
-                                 const char *license, const char *copyright,
-                                 const char *purpose) {
-    char *escaped;
-
-    printf("    {\n");
-    printf("      \"SPDXID\": \"%s\",\n", spdx_id);
-    escaped = json_escape(name);
-    printf("      \"name\": \"%s\",\n", escaped ? escaped : "");
-    free(escaped);
-    printf("      \"downloadLocation\": \"NOASSERTION\",\n");
-    if (version) {
-        escaped = json_escape(version);
-        printf("      \"versionInfo\": \"%s\",\n", escaped ? escaped : "");
-        free(escaped);
-    } else
-        printf("      \"versionInfo\": \"NOASSERTION\",\n");
-    if (supplier) {
-        escaped = json_escape(supplier);
-        printf("      \"supplier\": \"%s\",\n", escaped ? escaped : "");
-        free(escaped);
-    } else
-        printf("      \"supplier\": \"NOASSERTION\",\n");
-
-    /* Лицензия обязательна, поэтому выводим без проверки */
-    escaped = json_escape(license);
-    printf("      \"licenseConcluded\": \"%s\",\n", escaped ? escaped : "");
-    printf("      \"licenseDeclared\": \"%s\",\n", escaped ? escaped : "");
-    free(escaped);
-
-    if (copyright) {
-        escaped = json_escape(copyright);
-        printf("      \"copyrightText\": \"%s\",\n", escaped ? escaped : "");
-        free(escaped);
-    } else
-        printf("      \"copyrightText\": \"NOASSERTION\",\n");
-    if (purpose) {
-        escaped = json_escape(purpose);
-        printf("      \"primaryPackagePurpose\": \"%s\",\n", escaped ? escaped : "");
-        free(escaped);
-    } else
-        printf("      \"primaryPackagePurpose\": \"NOASSERTION\",\n");
-}
-
-/* Вывод одного файла */
-static void print_file_object(const FileInfo *info, int is_first) {
-    char *escaped;
-
-    if (!is_first) printf(",\n");
-    printf("    {\n");
-    escaped = json_escape(info->name);
-    printf("      \"fileName\": \"%s\",\n", escaped ? escaped : "");
-    free(escaped);
-    escaped = json_escape(info->name);
-    printf("      \"SPDXID\": \"SPDXRef-File-%s\",\n", escaped ? escaped : "");
-    free(escaped);
-    printf("      \"fileTypes\": [\"%s\"],\n", info->file_type);
-    if (info->sha1[0])
-        printf("      \"checksums\": [{\"algorithm\": \"SHA1\", \"checksumValue\": \"%s\"}],\n", info->sha1);
-    else
-        printf("      \"checksums\": [{\"algorithm\": \"SHA1\", \"checksumValue\": \"\"}],\n");
-    escaped = json_escape(info->license);
-    printf("      \"licenseConcluded\": \"%s\",\n", escaped ? escaped : "");
-    printf("      \"licenseInfoInFiles\": [\"%s\"]", escaped ? escaped : "");
-    free(escaped);
-    if (info->copyright[0]) {
-        escaped = json_escape(info->copyright);
-        printf(",\n      \"copyrightText\": \"%s\"", escaped ? escaped : "");
-        free(escaped);
-    } else {
-        printf(",\n      \"copyrightText\": \"NOASSERTION\"");
-    }
-    printf("\n    }");
-}
-
-/* Сравнение для сортировки */
-static int compare_file_entries(const void *a, const void *b) {
-    const FileInfo *fa = (const FileInfo *)a;
-    const FileInfo *fb = (const FileInfo *)b;
-    return strcmp(fa->name, fb->name);
-}
-
-/* Вычисление verification code */
 static char *compute_verification_code(FileList *list) {
     FileInfo *entries;
     size_t total_len;
@@ -546,7 +509,17 @@ static char *compute_verification_code(FileList *list) {
     if (!entries) return NULL;
     memcpy(entries, list->items, list->count * sizeof(FileInfo));
 
-    qsort(entries, list->count, sizeof(FileInfo), compare_file_entries);
+    /* простая сортировка пузырьком */
+    for (i = 0; i < list->count - 1; i++) {
+        int j;
+        for (j = i + 1; j < list->count; j++) {
+            if (strcmp(entries[i].name, entries[j].name) > 0) {
+                FileInfo tmp = entries[i];
+                entries[i] = entries[j];
+                entries[j] = tmp;
+            }
+        }
+    }
 
     total_len = 0;
     for (i = 0; i < list->count; i++)
@@ -571,32 +544,45 @@ static char *compute_verification_code(FileList *list) {
     return code;
 }
 
-/* Основная функция. Параметр use_objects указывает, что нужно использовать только
-   source_files (полученные из OBJ) и не сканировать каталог. */
-void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name,
-                        char **source_files, int source_files_count,
-                        int use_objects) {
+static void build_document(SpdxDocument *doc, const char *dir, ReuseConfig *config,
+                           const char *name, char **source_files,
+                           int source_files_count, int use_objects) {
     time_t now = time(NULL);
     struct tm *tm = gmtime(&now);
     char date[32];
     int binary_mode;
     char file_base[256];
     char pkg_spdx_id[256];
-    char *escaped_name;
     const char *pkg_license;
     const char *pkg_copyright;
     FileList file_list;
     char *verification_code;
-    char ns[256];
-    char safe[256];
-    char *sha1;
+    char ns[256], safe[256], *sha1;
     int i;
 
+    memset(doc, 0, sizeof(SpdxDocument));
+    strcpy(doc->spdx_version, "SPDX-2.3");
+    strcpy(doc->document_id, "SPDXRef-DOCUMENT");
+    strcpy(doc->data_license, "CC0-1.0");
+
     strftime(date, sizeof(date), "%Y-%m-%dT%H:%M:%SZ", tm);
+    strcpy(doc->created, date);
+
+    if (creator) {
+        strncpy(doc->creator, creator, sizeof(doc->creator)-1);
+        doc->creator[sizeof(doc->creator)-1] = '\0';
+    } else {
+        strcpy(doc->creator, "Tool: osFree SPDX SBOM Generator");
+    }
+
+    snprintf(doc->document_name, sizeof(doc->document_name), "%s SBOM", name);
+
+    sanitize_id(name, safe, sizeof(safe));
+    sprintf(ns, "https://osfree.org/spdxdocs/%s-%ld", safe, (long)now);
+    strcpy(doc->document_namespace, ns);
 
     binary_mode = (package_purpose && strcmp(package_purpose, "SOURCE") != 0);
 
-    /* Базовое имя из --file */
     strncpy(file_base, get_file_name(binary_file), sizeof(file_base)-1);
     file_base[sizeof(file_base)-1] = '\0';
     remove_extension(file_base);
@@ -604,13 +590,9 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name,
     make_package_spdx_id(file_base, binary_mode ? NULL : "Source",
                          pkg_spdx_id, sizeof(pkg_spdx_id));
 
-    escaped_name = json_escape(name);
-    if (!escaped_name) exit(1);
-
     pkg_license = default_license;
     if (!pkg_license && config) pkg_license = config->default_license;
 
-    /* Лицензия пакета обязательна */
     if (!pkg_license || pkg_license[0] == '\0') {
         fprintf(stderr, "Error: No license specified for package '%s'. Use --default-license or REUSE.toml default.\n", name);
         exit(EXIT_FAILURE);
@@ -619,11 +601,18 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name,
     pkg_copyright = default_copyright;
     if (!pkg_copyright && config) pkg_copyright = config->default_copyright;
 
-    /* Сбор файлов */
+    strcpy(doc->package.spdx_id, pkg_spdx_id);
+    strcpy(doc->package.name, name);
+    if (package_version) strcpy(doc->package.version, package_version);
+    if (package_supplier) strcpy(doc->package.supplier, package_supplier);
+    strcpy(doc->package.license, pkg_license);
+    if (pkg_copyright) strcpy(doc->package.copyright, pkg_copyright);
+    if (package_purpose) strcpy(doc->package.purpose, package_purpose);
+
     filelist_init(&file_list);
+
     if (binary_mode) {
         FileInfo info;
-
         memset(&info, 0, sizeof(info));
         strncpy(info.name, get_file_name(binary_file), sizeof(info.name)-1);
         sha1 = sha1_file(binary_file);
@@ -632,14 +621,11 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name,
             free(sha1);
         }
         strncpy(info.file_type, "BINARY", sizeof(info.file_type)-1);
-        if (pkg_license) strncpy(info.license, pkg_license, sizeof(info.license)-1);
-        else strcpy(info.license, "NOASSERTION"); /* не выполнится */
-        if (pkg_copyright) strncpy(info.copyright, pkg_copyright, sizeof(info.copyright)-1);
-        else strcpy(info.copyright, "NOASSERTION");
+        strcpy(info.license, pkg_license);
+        if (pkg_copyright) strcpy(info.copyright, pkg_copyright);
         filelist_add(&file_list, &info);
     } else {
         if (use_objects) {
-            /* Используем только список файлов из OBJ */
             for (i = 0; i < source_files_count; i++) {
                 FileInfo info;
                 memset(&info, 0, sizeof(info));
@@ -660,93 +646,237 @@ void generate_spdx_json(const char *dir, ReuseConfig *config, const char *name,
                 filelist_add(&file_list, &info);
             }
         } else {
-            /* Обычное сканирование каталога */
             scan_source_files(dir, config, &file_list);
         }
     }
 
     verification_code = compute_verification_code(&file_list);
-
-    /* Вывод JSON */
-    printf("{\n");
-    printf("  \"spdxVersion\": \"SPDX-2.3\",\n");
-    printf("  \"SPDXID\": \"SPDXRef-DOCUMENT\",\n");
-    printf("  \"name\": \"%s SBOM\",\n", escaped_name);
-    printf("  \"creationInfo\": {\n");
-    printf("    \"created\": \"%s\",\n", date);
-    printf("    \"creators\": [");
-    if (creator) {
-        char *esc_creator = json_escape(creator);
-        printf("\"%s\"", esc_creator);
-        free(esc_creator);
-    } else {
-        printf("\"Tool: osFree SPDX SBOM Generator\"");
-    }
-    printf("]\n");
-    printf("  },\n");
-    printf("  \"dataLicense\": \"CC0-1.0\",\n");
-
-    sanitize_id(name, safe, sizeof(safe));
-    sprintf(ns, "https://osfree.org/spdxdocs/%s-%ld", safe, (long)now);
-    printf("  \"documentNamespace\": \"%s\",\n", ns);
-
-    /* Пакет */
-    printf("  \"packages\": [\n");
-    print_package_fields(pkg_spdx_id, name, package_version, package_supplier,
-                         pkg_license, pkg_copyright, package_purpose);
     if (verification_code) {
-        printf("      \"filesAnalyzed\": true,\n");
-        printf("      \"packageVerificationCode\": {\n");
-        printf("        \"packageVerificationCodeValue\": \"%s\",\n", verification_code);
-        printf("        \"packageVerificationCodeExcludedFiles\": []\n");
-        printf("      }\n");
+        doc->package.files_analyzed = 1;
+        strcpy(doc->package.verification_code, verification_code);
+        free(verification_code);
     } else {
-        printf("      \"filesAnalyzed\": false\n");
+        doc->package.files_analyzed = 0;
+        doc->package.verification_code[0] = '\0';
     }
-    printf("    }\n");
-    printf("  ],\n");
 
-    /* Файлы */
-    printf("  \"files\": [\n");
-    for (i = 0; i < file_list.count; i++) {
-        print_file_object(&file_list.items[i], i == 0);
+    doc->files = file_list;
+    doc->has_external_ref = 0;
+}
+
+static void init_relationships(SpdxDocument *doc, int binary_mode, const char *file_base) {
+    doc->relationship_count = 0;
+    doc->relationships = (Relationship*)malloc(sizeof(Relationship) * 2);
+    if (!doc->relationships) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
     }
-    printf("\n  ],\n");
 
-    /* Отношения */
-    printf("  \"relationships\": [\n");
-    printf("    {\n");
-    printf("      \"spdxElementId\": \"SPDXRef-DOCUMENT\",\n");
-    printf("      \"relatedSpdxElement\": \"%s\",\n", pkg_spdx_id);
-    printf("      \"relationshipType\": \"DESCRIBES\"\n");
-    printf("    }");
+    strcpy(doc->relationships[doc->relationship_count].element_id, doc->document_id);
+    strcpy(doc->relationships[doc->relationship_count].related_element, doc->package.spdx_id);
+    strcpy(doc->relationships[doc->relationship_count].relationship_type, "DESCRIBES");
+    doc->relationship_count++;
+
     if (binary_mode) {
         char src_id[256];
         make_package_spdx_id(file_base, "Source", src_id, sizeof(src_id));
-        printf(",\n    {\n");
-        printf("      \"spdxElementId\": \"%s\",\n", pkg_spdx_id);
-        printf("      \"relatedSpdxElement\": \"%s\",\n", src_id);
-        printf("      \"relationshipType\": \"GENERATED_FROM\"\n");
+        strcpy(doc->relationships[doc->relationship_count].element_id, doc->package.spdx_id);
+        strcpy(doc->relationships[doc->relationship_count].related_element, src_id);
+        strcpy(doc->relationships[doc->relationship_count].relationship_type, "GENERATED_FROM");
+        doc->relationship_count++;
+    }
+}
+
+static void output_json(const SpdxDocument *doc) {
+    int i;
+    char *escaped;
+    const PackageInfo *pkg = &doc->package;
+
+    printf("{\n");
+    printf("  \"spdxVersion\": \"%s\",\n", doc->spdx_version);
+    printf("  \"SPDXID\": \"%s\",\n", doc->document_id);
+    printf("  \"name\": \"%s\",\n", doc->document_name);
+    printf("  \"creationInfo\": {\n");
+    printf("    \"created\": \"%s\",\n", doc->created);
+    printf("    \"creators\": [\"%s\"]\n", doc->creator);
+    printf("  },\n");
+    printf("  \"dataLicense\": \"%s\",\n", doc->data_license);
+    printf("  \"documentNamespace\": \"%s\",\n", doc->document_namespace);
+
+    /* externalDocumentRefs */
+    if (doc->has_external_ref) {
+        printf("  \"externalDocumentRefs\": [\n");
+        printf("    {\n");
+        printf("      \"externalDocumentId\": \"%s\",\n", doc->external_doc_id);
+        escaped = json_escape(doc->external_doc_uri);
+        printf("      \"spdxDocument\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+        printf("      \"checksum\": {\n");
+        printf("        \"algorithm\": \"SHA1\",\n");
+        printf("        \"checksumValue\": \"%s\"\n", doc->external_doc_checksum);
+        printf("      }\n");
+        printf("    }\n");
+        printf("  ],\n");
+    }
+
+    printf("  \"packages\": [\n");
+    printf("    {\n");
+    printf("      \"SPDXID\": \"%s\",\n", pkg->spdx_id);
+    escaped = json_escape(pkg->name);
+    printf("      \"name\": \"%s\",\n", escaped ? escaped : "");
+    free(escaped);
+    printf("      \"downloadLocation\": \"NOASSERTION\",\n");
+    if (pkg->version[0]) {
+        escaped = json_escape(pkg->version);
+        printf("      \"versionInfo\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+    } else printf("      \"versionInfo\": \"NOASSERTION\",\n");
+    if (pkg->supplier[0]) {
+        escaped = json_escape(pkg->supplier);
+        printf("      \"supplier\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+    } else printf("      \"supplier\": \"NOASSERTION\",\n");
+    escaped = json_escape(pkg->license);
+    printf("      \"licenseConcluded\": \"%s\",\n", escaped ? escaped : "");
+    printf("      \"licenseDeclared\": \"%s\",\n", escaped ? escaped : "");
+    free(escaped);
+    if (pkg->copyright[0]) {
+        escaped = json_escape(pkg->copyright);
+        printf("      \"copyrightText\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+    } else printf("      \"copyrightText\": \"NOASSERTION\",\n");
+    if (pkg->purpose[0]) {
+        escaped = json_escape(pkg->purpose);
+        printf("      \"primaryPackagePurpose\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+    } else printf("      \"primaryPackagePurpose\": \"NOASSERTION\",\n");
+    if (pkg->files_analyzed) {
+        printf("      \"filesAnalyzed\": true,\n");
+        printf("      \"packageVerificationCode\": {\n");
+        printf("        \"packageVerificationCodeValue\": \"%s\",\n", pkg->verification_code);
+        printf("        \"packageVerificationCodeExcludedFiles\": []\n");
+        printf("      }\n");
+    } else printf("      \"filesAnalyzed\": false\n");
+    printf("    }\n");
+    printf("  ],\n");
+
+    printf("  \"files\": [\n");
+    for (i = 0; i < doc->files.count; i++) {
+        if (i > 0) printf(",\n");
+        printf("    {\n");
+        escaped = json_escape(doc->files.items[i].name);
+        printf("      \"fileName\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+        escaped = json_escape(doc->files.items[i].name);
+        printf("      \"SPDXID\": \"SPDXRef-File-%s\",\n", escaped ? escaped : "");
+        free(escaped);
+        printf("      \"fileTypes\": [\"%s\"],\n", doc->files.items[i].file_type);
+        if (doc->files.items[i].sha1[0])
+            printf("      \"checksums\": [{\"algorithm\": \"SHA1\", \"checksumValue\": \"%s\"}],\n", doc->files.items[i].sha1);
+        else
+            printf("      \"checksums\": [{\"algorithm\": \"SHA1\", \"checksumValue\": \"\"}],\n");
+        escaped = json_escape(doc->files.items[i].license);
+        printf("      \"licenseConcluded\": \"%s\",\n", escaped ? escaped : "");
+        printf("      \"licenseInfoInFiles\": [\"%s\"]", escaped ? escaped : "");
+        free(escaped);
+        if (doc->files.items[i].copyright[0]) {
+            escaped = json_escape(doc->files.items[i].copyright);
+            printf(",\n      \"copyrightText\": \"%s\"", escaped ? escaped : "");
+            free(escaped);
+        } else {
+            printf(",\n      \"copyrightText\": \"NOASSERTION\"");
+        }
+        printf("\n    }");
+    }
+    printf("\n  ],\n");
+
+    printf("  \"relationships\": [\n");
+    for (i = 0; i < doc->relationship_count; i++) {
+        if (i > 0) printf(",\n");
+        printf("    {\n");
+        escaped = json_escape(doc->relationships[i].element_id);
+        printf("      \"spdxElementId\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+        escaped = json_escape(doc->relationships[i].related_element);
+        printf("      \"relatedSpdxElement\": \"%s\",\n", escaped ? escaped : "");
+        free(escaped);
+        escaped = json_escape(doc->relationships[i].relationship_type);
+        printf("      \"relationshipType\": \"%s\"\n", escaped ? escaped : "");
+        free(escaped);
         printf("    }");
     }
     printf("\n  ]\n");
     printf("}\n");
+}
 
-    free(escaped_name);
-    if (verification_code) free(verification_code);
-    filelist_free(&file_list);
+static void output_tagvalue(const SpdxDocument *doc) {
+    int i;
+    const PackageInfo *pkg = &doc->package;
+
+    printf("SPDXVersion: %s\n", doc->spdx_version);
+    printf("DataLicense: %s\n", doc->data_license);
+    printf("SPDXID: %s\n", doc->document_id);
+    printf("DocumentName: %s\n", doc->document_name);
+    printf("DocumentNamespace: %s\n", doc->document_namespace);
+    printf("Creator: %s\n", doc->creator);
+    printf("Created: %s\n", doc->created);
+    printf("\n");
+
+    printf("##### Package: %s\n", pkg->name);
+    printf("PackageName: %s\n", pkg->name);
+    printf("SPDXID: %s\n", pkg->spdx_id);
+    printf("PackageDownloadLocation: NOASSERTION\n");
+    if (pkg->version[0]) printf("PackageVersion: %s\n", pkg->version);
+    if (pkg->supplier[0]) printf("PackageSupplier: %s\n", pkg->supplier);
+    printf("PackageLicenseConcluded: %s\n", pkg->license);
+    printf("PackageLicenseDeclared: %s\n", pkg->license);
+    if (pkg->copyright[0]) printf("PackageCopyrightText: %s\n", pkg->copyright);
+    if (pkg->purpose[0]) printf("PackagePrimaryPurpose: %s\n", pkg->purpose);
+    if (pkg->files_analyzed) {
+        printf("FilesAnalyzed: true\n");
+        printf("PackageVerificationCode: %s\n", pkg->verification_code);
+    } else {
+        printf("FilesAnalyzed: false\n");
+    }
+    printf("\n");
+
+    for (i = 0; i < doc->files.count; i++) {
+        printf("FileName: %s\n", doc->files.items[i].name);
+        printf("SPDXID: SPDXRef-File-%s\n", doc->files.items[i].name);
+        printf("FileType: %s\n", doc->files.items[i].file_type);
+        printf("FileChecksum: SHA1: %s\n", doc->files.items[i].sha1);
+        printf("LicenseConcluded: %s\n", doc->files.items[i].license);
+        printf("LicenseInfoInFile: %s\n", doc->files.items[i].license);
+        if (doc->files.items[i].copyright[0])
+            printf("FileCopyrightText: %s\n", doc->files.items[i].copyright);
+        printf("\n");
+    }
+
+    for (i = 0; i < doc->relationship_count; i++) {
+        printf("Relationship: %s %s %s\n",
+               doc->relationships[i].element_id,
+               doc->relationships[i].relationship_type,
+               doc->relationships[i].related_element);
+    }
+    printf("\n");
 }
 
 int main(int argc, char *argv[]) {
     const char *dir = ".";
     const char *output = NULL;
+    const char *format = "json";
     int i;
     ReuseConfig *config = NULL;
     char *arg;
     char toml_path_buf[1024];
     char **source_files = NULL;
     int source_files_count = 0;
+    SpdxDocument doc;
+    int use_objects_flag;
+    int binary_mode;
+    char base_name_no_ext[256];
 
+    /* Инициализация глобальных переменных */
     default_license = NULL;
     default_copyright = NULL;
     doc_name = NULL;
@@ -759,10 +889,13 @@ int main(int argc, char *argv[]) {
     exclude_count = 0;
     object_files = NULL;
     object_count = 0;
+    source_sbom_path = NULL;
 
     for (i = 1; i < argc; i++) {
         if (strncmp(argv[i], "--output=", 9) == 0)
             output = argv[i] + 9;
+        else if (strncmp(argv[i], "--format=", 9) == 0)
+            format = argv[i] + 9;
         else if (strncmp(argv[i], "--default-license=", 18) == 0)
             default_license = argv[i] + 18;
         else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
@@ -780,7 +913,6 @@ int main(int argc, char *argv[]) {
         else if (strncmp(argv[i], "--file=", 7) == 0)
             binary_file = argv[i] + 7;
         else if (strncmp(argv[i], "--objects=", 10) == 0) {
-            /* Разбиваем строку по пробелам */
             char *obj_list = (char*)malloc(strlen(argv[i] + 10) + 1);
             if (!obj_list) {
                 fprintf(stderr, "Memory allocation failed\n");
@@ -799,7 +931,9 @@ int main(int argc, char *argv[]) {
                 object_count++;
                 arg = strtok(NULL, " ");
             }
-            /* obj_list не освобождаем, т.к. object_files содержит указатели на его части */
+        }
+        else if (strncmp(argv[i], "--source-sbom=", 14) == 0) {
+            source_sbom_path = argv[i] + 14;
         }
         else if (strncmp(argv[i], "--exclude=", 10) == 0) {
             arg = argv[i] + 10;
@@ -832,15 +966,49 @@ int main(int argc, char *argv[]) {
 #endif
     config = parse_reuse_toml(toml_path_buf);
 
-    /* Если заданы объектные файлы, извлекаем исходники из них */
     if (object_count > 0) {
         if (collect_sources_from_objects(&source_files, &source_files_count) != 0) {
-            /* Возможно, не удалось извлечь ни одного файла, но это не ошибка,
-               просто будет пустой список. Сканирование каталога не выполняется. */
+            /* пусто */
         }
+        use_objects_flag = 1;
+    } else {
+        use_objects_flag = 0;
     }
 
-    /* Перенаправление stdout в файл, если указан --output */
+    build_document(&doc, dir, config, doc_name, source_files, source_files_count, use_objects_flag);
+
+    binary_mode = (package_purpose && strcmp(package_purpose, "SOURCE") != 0);
+
+    strncpy(base_name_no_ext, get_file_name(binary_file), sizeof(base_name_no_ext)-1);
+    base_name_no_ext[sizeof(base_name_no_ext)-1] = '\0';
+    remove_extension(base_name_no_ext);
+
+    init_relationships(&doc, binary_mode, base_name_no_ext);
+
+    /* Если бинарный режим и указан source-sbom, заполняем внешнюю ссылку */
+    if (binary_mode && source_sbom_path) {
+        char *checksum = sha1_file(source_sbom_path);
+        if (!checksum) {
+            fprintf(stderr, "Error: Cannot compute SHA1 for source SBOM: %s\n", source_sbom_path);
+            exit(EXIT_FAILURE);
+        }
+        strcpy(doc.external_doc_id, "DocumentRef-source");
+        strcpy(doc.external_doc_uri, get_file_name(source_sbom_path));
+        strcpy(doc.external_doc_checksum, checksum);
+        free(checksum);
+        doc.has_external_ref = 1;
+
+        /* Перезаписываем relatedSpdxElement в отношении GENERATED_FROM */
+        if (doc.relationship_count >= 2) {
+            char full_ref[600];
+            sprintf(full_ref, "%s:%s", doc.external_doc_id,
+                    doc.relationships[1].related_element);
+            strcpy(doc.relationships[1].related_element, full_ref);
+        }
+    } else {
+        doc.has_external_ref = 0;
+    }
+
     if (output) {
         if (!freopen(output, "w", stdout)) {
             fprintf(stderr, "Cannot open output file: %s\n", output);
@@ -848,19 +1016,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Генерация JSON */
-    if (object_count > 0) {
-        generate_spdx_json(dir, config, doc_name, source_files, source_files_count, 1);
-    } else {
-        generate_spdx_json(dir, config, doc_name, NULL, 0, 0);
+    if (strcmp(format, "json") == 0) output_json(&doc);
+    else if (strcmp(format, "tagvalue") == 0 || strcmp(format, "tag") == 0) output_tagvalue(&doc);
+    else {
+        fprintf(stderr, "Unsupported format: %s\n", format);
+        exit(EXIT_FAILURE);
     }
 
-    /* Освобождение памяти */
+    free(doc.files.items);
+    free(doc.relationships);
     if (source_files) {
         for (i = 0; i < source_files_count; i++) free(source_files[i]);
         free(source_files);
     }
-
     free_reuse_config(config);
     return 0;
 }
