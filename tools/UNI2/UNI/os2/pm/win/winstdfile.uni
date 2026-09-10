@@ -1,0 +1,88 @@
+group winstdfile;
+
+constant FDS_CENTER            = $00000001;
+constant FDS_CUSTOM            = $00000002;
+constant FDS_FILTERUNION       = $00000004;
+constant FDS_HELPBUTTON        = $00000008;
+constant FDS_APPLYBUTTON       = $00000010;
+constant FDS_PRELOAD_VOLINFO   = $00000020;
+constant FDS_MODELESS          = $00000040;
+constant FDS_INCLUDE_EAS       = $00000080;
+constant FDS_OPEN_DIALOG       = $00000100;
+constant FDS_SAVEAS_DIALOG     = $00000200;
+constant FDS_MULTIPLESEL       = $00000400;
+constant FDS_ENABLEFILELB      = $00000800;
+constant FDS_NATIONAL_LANGUAGE = $80000000;
+
+constant FDS_SUCCESSFUL                = 0;
+constant FDS_ERR_DEALLOCATE_MEMORY     = 1;
+constant FDS_ERR_FILTER_TRUNC          = 2;
+constant FDS_ERR_INVALID_DIALOG        = 3;
+constant FDS_ERR_INVALID_DRIVE         = 4;
+constant FDS_ERR_INVALID_FILTER        = 5;
+constant FDS_ERR_INVALID_PATHFILE      = 6;
+constant FDS_ERR_OUT_OF_MEMORY         = 7;
+constant FDS_ERR_PATH_TOO_LONG         = 8;
+constant FDS_ERR_TOO_MANY_FILE_TYPES   = 9;
+constant FDS_ERR_INVALID_VERSION       =10;
+constant FDS_ERR_INVALID_CUSTOM_HANDLE =11;
+constant FDS_ERR_DIALOG_LOAD_ERROR     =12;
+constant FDS_ERR_DRIVE_ERROR           =13;
+
+constant FDS_EFSELECTION =0;
+constant FDS_LBSELECTION =1;
+
+constant DID_FILE_DIALOG       = 256;
+constant DID_FILENAME_TXT      = 257;
+constant DID_FILENAME_ED       = 258;
+constant DID_DRIVE_TXT         = 259;
+constant DID_DRIVE_CB          = 260;
+constant DID_FILTER_TXT        = 261;
+constant DID_FILTER_CB         = 262;
+constant DID_DIRECTORY_TXT     = 263;
+constant DID_DIRECTORY_LB      = 264;
+constant DID_FILES_TXT         = 265;
+constant DID_FILES_LB          = 266;
+constant DID_HELP_PB           = 267;
+constant DID_APPLY_PB          = 268;
+constant DID_READ_ONLY         = 269;
+constant DID_DIRECTORY_SELECTED= 270;
+constant DID_OK_PB             = DID_OK;
+constant DID_CANCEL_PB         = DID_CANCEL;
+
+constant FDM_FILTER   =(WM_USER+40);
+constant FDM_VALIDATE =(WM_USER+41);
+constant FDM_ERROR    =(WM_USER+42);
+
+type APSZ=array[1] of PSZ ;
+type PAPSZ=^APSZ;
+
+type FILEDLG=structure
+       cbSize: ULONG;
+       fl: ULONG;
+       ulUser: ULONG;
+       lReturn: LONG;
+       lSRC: LONG;
+       pszTitle: PSZ;
+       pszOKButton: PSZ;
+       pfnDlgProc: PFNWP;
+       pszIType: PSZ;
+       papszITypeList: PAPSZ;
+       pszIDrive: PSZ;
+       papszIDriveList: PAPSZ;
+       hMod: HMODULE;
+       szFullFile: array[CCHMAXPATH] of CHAR;
+       papszFQFilename: PAPSZ;
+       ulFQFCount: ULONG;
+       usDlgId: USHORT;
+       x: SHORT;
+       y: SHORT;
+       sEAType: SHORT;
+end;
+type PFILEDLG=^FILEDLG;
+
+function WinDefFileDlgProc(in a: HWND; in b: ULONG; in c: MPARAM; in d: MPARAM): MRESULT;
+function WinFileDlg(in a: HWND; in b: HWND; in c: PFILEDLG): HWND;
+function WinFreeFileDlgList(in a: PAPSZ): BOOL;
+
+end.

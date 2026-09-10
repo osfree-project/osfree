@@ -1,0 +1,65 @@
+(*******************************************************************************************)
+(* This module describes interface to BIOS calls                                                     *)
+(*******************************************************************************************)
+
+group bios;
+
+
+(* This interrupts called by hardware. For now uni not used for such low lovel 
+
+INT 00h-- 	CPU: Executed after an attempt to divide by zero or when the quotient does not fit in the destination
+INT 01h 	CPU: Executed after every instruction while the trace flag is set
+INT 02h 	CPU: NMI, used e.g. by POST for memory errors
+INT 03h 	CPU: The lowest non-reserved interrupt, it is used exclusively for debugging, and the INT 03 handler is always implemented by a debugging program
+INT 04h 	CPU: Numeric Overflow. Usually caused by the INTO instruction when the overflow flag is set.
+INT 05h 	Executed when Shift-PrintScreen is pressed, as well as when the BOUND instruction detects a bound failure.
+INT 06h 	CPU: Called when the Undefined Opcode (invalid instruction) exception occurs. Usually installed by the operating system.
+INT 07h 	CPU: Called when an attempt was made to execute a floating-point instruction and no numeric coprocessor was available.
+INT 08h 	IRQ0: Implemented by the system timing component; called 18.2 times per second (once every 55 ms) by the PIC
+INT 09h 	IRQ1: Called after every key press and release (as well as during the time when a key is being held)
+INT 0Bh 	IRQ3: Called by serial ports 2 and 4 (COM2/4) when in need of attention
+INT 0Ch 	IRQ4: Called by serial ports 1 and 3 (COM1/3) when in need of attention
+INT 0Dh 	IRQ5: Called by hard disk controller (PC/XT) or 2nd parallel port LPT2 (AT) when in need of attention
+INT 0Eh 	IRQ6: Called by floppy disk controller when in need of attention
+INT 0Fh 	IRQ7: Called by 1st parallel port LPT1 (printer) when in need of attention
+*)
+
+(* Video Service functions. This is generic call. For more functions see videobios.uni *)
+procedure BiosVideo(Num: BYTE; arg1: BYTE; arg2: BYTE);
+
+(*
+INT 11h 	Installed by the BIOS; returns equipment list
+INT 12h 	Installed by the BIOS or operating system; returns Conventional Memory Size
+*)
+
+(* Low level Disk Services. This is generic call. For more functions see disk.uni *)
+INT 13h 	Low Level Disk Services; installed by the BIOS or operating system; called by software programs
+INT 14h 	Routines for communicating via the serial port. Used by software programs.
+INT 15h 	Miscellaneous (System services support routines)
+INT 16h 	Implemented by the BIOS or operating system. Provides routines to be called by software programs which communicate with the keyboard.
+INT 17h 	Print Services - used by software programs to communicate with the printer
+
+(*
+INT 18h 	Execute Cassette BASIC: True IBM computers contain BASIC in the ROM to be interpreted and executed by this routine in the event of a boot failure (called by the BIOS)
+INT 19h 	After POST this interrupt is used by BIOS to load the operating system.
+*)
+
+INT 1Ah 	Real Time Clock Services - called by software programs to communicate with the RTC
+
+(*
+INT 1Bh 	Installed by the operating system; automatically called by INT 9 when Ctrl-Break has been pressed
+INT 1Ch 	Called automatically by INT 08; available for use by software programs when a routine needs to be executed regularly
+INT 1Dh 	Not to be called; simply a pointer to the VPT (Video Parameter Table), which contains data on video modes
+INT 1Eh 	Not to be called; simply a pointer to the DPT (Diskette Parameter Table), containing a variety of information concerning the diskette drives
+INT 1Fh 	Not to be called; simply a pointer to the VGCT (Video Graphics Character Table), which contains the data for ASCII characters 80h to FFh
+INT 41h 	Address pointer: FDPT = Fixed Disk Parameter Table (1st hard drive)
+INT 46h 	Address pointer: FDPT = Fixed Disk Parameter Table (2nd hard drive)
+INT 4Ah 	Called by RTC for alarm
+INT 70h 	IRQ8: Called by RTC
+INT 74h 	IRQ12: Called by mouse
+INT 75h 	IRQ13: Called by math coprocessor
+INT 76h 	IRQ14: Called by primary IDE controller
+INT 77h 	IRQ15: Called by secondary IDE controller
+*)
+
+end.

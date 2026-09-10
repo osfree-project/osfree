@@ -1,0 +1,40 @@
+group winhprogram;
+
+   (*** common types, constants and function declarations ******************)
+
+
+   (*** maximum title length ***********************************************)
+constant MAXNAMEL = 60;
+
+
+   (*** program handle *****************************************************)
+type HPROGRAM=LHANDLE;       (* hprog *)
+type PHPROGRAM=^HPROGRAM;
+type HAPP=LHANDLE;
+
+
+   (*** ini file handle ****************************************************)
+type  HINI=LHANDLE;           (* hini *)
+type PHINI=^HINI;
+
+
+constant HINI_PROFILE       =  0;
+constant HINI_USERPROFILE   =  -1;
+constant HINI_SYSTEMPROFILE =  -2;
+constant HINI_USER=HINI_USERPROFILE;
+constant HINI_SYSTEM=HINI_SYSTEMPROFILE;
+
+
+type PRFPROFILE=structure
+        cchUserName: ULONG;
+        pszUserName: PSZ;
+        cchSysName: ULONG;
+        pszSysName: PSZ;
+   end;
+type PPRFPROFILE=^PRFPROFILE;
+
+
+type HSWITCH=LHANDLE;
+type PHSWITCH=^HSWITCH;
+
+end.

@@ -1,0 +1,30 @@
+group wincursors;
+
+constant CURSOR_SOLID      = $0000;
+constant CURSOR_HALFTONE   = $0001;
+constant CURSOR_FRAME      = $0002;
+constant CURSOR_FLASH      = $0004;
+constant CURSOR_SETPOS     = $8000;
+constant CURSOR_BIDI_FIRST = $0100;
+constant CURSOR_BIDI_LAST  = $0200;
+
+function WinCreateCursor(in a: HWND; in b: LONG; in c: LONG; in d: LONG; in e: LONG; in f: ULONG; in g: PRECTL): BOOL;
+function WinDestroyCursor(in a: HWND): BOOL;
+function WinShowCursor(in a: HWND; in b: BOOL): BOOL;
+
+
+type CURSORINFO=structure
+      hwnd: HWND;
+      x: LONG;
+      y: LONG;
+      cx: LONG;
+      cy: LONG;
+      fs: ULONG;
+      rclClip: RECTL;
+  end;
+
+type PCURSORINFO=^CURSORINFO;
+
+function WinQueryCursorInfo(in a: HWND; in b: PCURSORINFO): BOOL;
+
+end.

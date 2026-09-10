@@ -1,0 +1,20 @@
+group pmsei;
+
+constant  SEI_BREAKPOINT   = $8000;
+constant  SEI_NOBEEP       = $4000;
+constant  SEI_NOPROMPT     = $2000;
+constant  SEI_DBGRSRVD     = $1000;
+constant  SEI_DEBUGONLY    = (SEI_BREAKPOINT or SEI_NOBEEP or SEI_NOPROMPT or SEI_RESERVED);
+
+constant  SEI_STACKTRACE   = $0001;
+constant  SEI_REGISTERS    = $0002;
+constant  SEI_ARGCOUNT     = $0004;
+constant  SEI_DOSERROR     = $0008;
+constant  SEI_RESERVED     = $0FE0;
+
+
+function WinSetErrorInfo(in eid: ERRORID; in a: ULONG): ERRORID; (* Here variable arguments *)
+
+end.
+
+

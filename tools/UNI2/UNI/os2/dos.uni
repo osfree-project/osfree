@@ -1,0 +1,21 @@
+group dos;
+begin
+  include 'dosprocess.uni';
+
+  group dosfilemgr;    begin end;
+  group dosmemmgr;     begin end;
+  group dossemaphores; begin end;
+  group dosdatetime;   begin end;
+  group dosmodulemgr;  begin end;
+  group dosresources;  begin end;
+  group dosnls;        begin end;
+  group dosexceptions; begin end;
+  group dosmisc;       begin end;
+  group dosmonitors;   begin end;
+  group dosqueues;     begin end;
+  group dossesmgr;     begin end;
+  group dosdevices;    begin end;
+  group dosnmpipes;    begin end;
+  group dosprofile;    begin end;
+  group dosmvdm;       begin end;
+end;

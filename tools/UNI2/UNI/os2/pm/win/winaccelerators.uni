@@ -1,0 +1,30 @@
+group winaccelerators;
+
+type HACCEL=LHANDLE;
+
+constant AF_CHAR       = $0001;
+constant AF_VIRTUALKEY = $0002;
+constant AF_SCANCODE   = $0004;
+constant AF_SHIFT      = $0008;
+constant AF_CONTROL    = $0010;
+constant AF_ALT        = $0020;
+constant AF_LONEKEY    = $0040;
+constant AF_SYSCOMMAND = $0100;
+constant AF_HELP       = $0200;
+
+type ACCELTABLE=structure
+    cAccel: USHORT;
+    codepage: USHORT;
+    aaccel: array[1] of ACCEL;
+end;
+type PACCELTABLE=^ACCELTABLE;
+
+function WinLoadAccelTable(in a: HAB; in b: HMODULE; in c: ULONG): HACCEL;
+function WinCreateAccelTable(in a: HAB; in b: PACCELTABLE): HACCEL;
+function WinQueryAccelTable(in a: HAB; in b: HWND): HACCEL;
+function WinDestroyAccelTable(in a: HACCEL): BOOL;
+function WinTranslateAccel(in a: HAB; in b: HWND; in c: HACCEL; in d: PQMSG): BOOL;
+function WinSetAccelTable(in a: HAB; in b: HACCEL; in c: HWND): BOOL;
+function WinCopyAccelTable(in a: HACCEL; in b: PACCELTABLE; in c: ULONG): ULONG;
+
+end.

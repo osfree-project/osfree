@@ -1,0 +1,10 @@
+group winload;
+
+type HLIB=HMODULE;
+
+function WinDeleteLibrary(in a: HAB; in b: HLIB): BOOL;
+function WinDeleteProcedure(in a: HAB; in b: PFNWP): BOOL;
+function WinLoadLibrary(in a: HAB; in b: PCSZ): HLIB;
+function WinLoadProcedure(in a: HAB; in b: HLIB; in c: PCSZ): PFNWP;
+
+end.

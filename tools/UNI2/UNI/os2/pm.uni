@@ -1,0 +1,5 @@
+group pm;
+begin
+  group win; begin end;
+  group gpi; begin end;
+end;

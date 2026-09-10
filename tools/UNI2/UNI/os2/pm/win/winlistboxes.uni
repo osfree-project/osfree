@@ -1,0 +1,80 @@
+group winlistboxes;
+
+   (**** Listboxes *)
+
+   (* List box styles *)
+
+constant LS_MULTIPLESEL             = $00000001;
+
+constant LS_OWNERDRAW               = $00000002;
+
+constant LS_NOADJUSTPOS             = $00000004;
+constant LS_HORZSCROLL              = $00000008;
+
+constant LS_EXTENDEDSEL             = $00000010;
+
+
+   (* List box notification messages *)
+
+constant LN_SELECT                 = 1;
+constant LN_SETFOCUS               = 2;
+constant LN_KILLFOCUS              = 3;
+constant LN_SCROLL                 = 4;
+constant LN_ENTER                  = 5;
+
+   (* List box messages *)
+
+constant LM_QUERYITEMCOUNT          = $0160;
+constant LM_INSERTITEM              = $0161;
+constant LM_SETTOPINDEX             = $0162;
+constant LM_DELETEITEM              = $0163;
+constant LM_SELECTITEM              = $0164;
+constant LM_QUERYSELECTION          = $0165;
+constant LM_SETITEMTEXT             = $0166;
+constant LM_QUERYITEMTEXTLENGTH     = $0167;
+constant LM_QUERYITEMTEXT           = $0168;
+
+constant LM_SETITEMHANDLE           = $0169;
+constant LM_QUERYITEMHANDLE         = $016a;
+constant LM_SEARCHSTRING            = $016b;
+constant LM_SETITEMHEIGHT           = $016c;
+constant LM_QUERYTOPINDEX           = $016d;
+constant LM_DELETEALL               = $016e;
+constant LM_INSERTMULTITEMS         = $016f;
+constant LM_SETITEMWIDTH            = $0660;
+
+
+   (* List box constants *)
+
+constant LIT_CURSOR                = (-4);
+constant LIT_ERROR                 = (-3);
+constant LIT_MEMERROR              = (-2);
+constant LIT_NONE                  = (-1);
+constant LIT_FIRST                 = (-1);
+
+   (* For LM_INSERTITEM msg *)
+
+constant LIT_END                   = (-1);
+constant LIT_SORTASCENDING         = (-2);
+constant LIT_SORTDESCENDING        = (-3);
+
+   (* For LM_SEARCHSTRING msg *)
+
+constant LSS_SUBSTRING              = $0001;
+constant LSS_PREFIX                 = $0002;
+constant LSS_CASESENSITIVE          = $0004;
+
+   (*******************************************************************)
+   (* Structure for use with LM_INSERTMULTITEMS                       *)
+   (*******************************************************************)
+
+   type LBOXINFO=structure         (* lboxinfo *)
+        lItemIndex: LONG;            (* Item index *)
+        ulItemCount: ULONG;           (* Item count *)
+        reserved: ULONG;              (* Reserved - must be zero *)
+        reserved2: ULONG;             (* Reserved - must be zero *)
+     end;
+
+   type PLBOXINFO=^LBOXINFO;
+
+end.

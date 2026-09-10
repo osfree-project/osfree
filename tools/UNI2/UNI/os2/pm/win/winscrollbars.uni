@@ -1,0 +1,42 @@
+group winscrollbars;
+
+constant SBS_HORZ      = $0000;
+constant SBS_VERT      = $0001;
+constant SBS_THUMBSIZE = $0002;
+constant SBS_AUTOTRACK = $0004;
+constant SBS_AUTOSIZE  = $2000;
+
+constant SB_LINEUP        = 1;
+constant SB_LINEDOWN      = 2;
+constant SB_LINELEFT      = 1;
+constant SB_LINERIGHT     = 2;
+constant SB_PAGEUP        = 3;
+constant SB_PAGEDOWN      = 4;
+constant SB_PAGELEFT      = 3;
+constant SB_PAGERIGHT     = 4;
+constant SB_SLIDERTRACK   = 5;
+constant SB_SLIDERPOSITION= 6;
+constant SB_ENDSCROLL     = 7;
+
+constant SBM_SETSCROLLBAR  = $01a0;
+constant SBM_SETPOS        = $01a1;
+constant SBM_QUERYPOS      = $01a2;
+constant SBM_QUERYRANGE    = $01a3;
+constant SBM_SETTHUMBSIZE  = $01a6;
+
+(* #pragma pack(2) *) 
+
+type SBCDATA=structure
+    cb: USHORT;
+    sHilite: USHORT;
+    posFirst: SHORT;
+    posLast: SHORT;
+    posThumb: SHORT;
+    cVisible: SHORT;
+    cTotal: SHORT;
+end;
+type PSBCDATA=^SBCDATA;
+
+(* #pragma pack() *)
+
+end.

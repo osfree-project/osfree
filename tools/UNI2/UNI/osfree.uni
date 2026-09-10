@@ -1,0 +1,15 @@
+(****************************** Module Header ******************************
+*                                                                          *
+* Module Name: OSFREE.UNI                                                  *
+*                                                                          *
+* This is the top level module that includes all the files necessary       *
+* for writing an osFree application.                                       *
+*                                                                          *
+***************************************************************************)
+
+group osfree;
+
+uses os2 default;
+uses dos;
+
+end.

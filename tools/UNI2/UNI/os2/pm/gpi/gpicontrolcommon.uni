@@ -1,0 +1,56 @@
+group gpicontrolcommon;
+
+   (* units for GpiCreatePS and others *)
+constant PU_ARBITRARY               = $0004;
+constant PU_PELS                    = $0008;
+constant PU_LOMETRIC                = $000C;
+constant PU_HIMETRIC                = $0010;
+constant PU_LOENGLISH               = $0014;
+constant PU_HIENGLISH               = $0018;
+constant PU_TWIPS                   = $001C;
+
+   (* format for GpiCreatePS *)
+constant GPIF_DEFAULT                   = 0;
+constant GPIF_SHORT                 = $0100;
+constant GPIF_LONG                  = $0200;
+
+
+   (* PS type for GpiCreatePS *)
+constant GPIT_NORMAL                    = 0;
+constant GPIT_MICRO                 = $1000;
+constant GPIT_INK                   = $2000;
+
+
+   (* implicit associate flag for GpiCreatePS *)
+constant GPIA_NOASSOC                   = 0;
+constant GPIA_ASSOC                 = $4000;
+
+   (* PS Fill type for GpiCreatePS *)
+constant GPIM_AREAEXCL              = $8000;
+
+
+      (* return error for GpiQueryDevice *)
+   constant HDC_ERROR              =  (-1);
+
+   (* common GPICONTROL functions *)
+
+function GpiCreatePS(in hab: HAB;
+                     in hdc: HDC;
+                     in psizlSize: PSIZEL;
+                     in flOptions: ULONG): HPS;
+
+function GpiDestroyPS(in hps: HPS): BOOL;
+
+function GpiAssociate(in hps: HPS;
+                      in hdc: HDC): BOOL;
+
+function GpiRestorePS(in hps: HPS;
+                      in lPSid: LONG): BOOL;
+
+function GpiSavePS(in hps: HPS): LONG;
+
+function GpiErase(in hps: HPS): BOOL;
+
+function GpiQueryDevice(in hps: HPS): HDC;
+
+end.

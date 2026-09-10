@@ -1,0 +1,46 @@
+group winswitchlist;
+
+      type SWENTRY=structure          (* swent *)
+         hswitch: HSWITCH;
+         swctl: SWCNTRL;
+        end;
+      type PSWENTRY=^SWENTRY;
+
+      type SWBLOCK=structure          (* swblk *)
+             cswentry: ULONG;
+             aswentry: array[1] of SWENTRY;
+        end;
+      type PSWBLOCK=^SWBLOCK;
+
+      function WinChangeSwitchEntry(in hswitchSwitch: HSWITCH;
+                                             in pswctlSwitchData: PSWCNTRL): ULONG;
+
+      function WinCreateSwitchEntry(in hab: HAB; in pswctlSwitchData: PSWCNTRL): HSWITCH;
+
+      function WinQuerySessionTitle(in hab: HAB;
+                                in usSession: ULONG;
+                                            in pszTitle: PCSZ;
+                                            in usTitlelen: ULONG): ULONG;
+
+      function WinQuerySwitchEntry(in hswitchSwitch: HSWITCH;
+                                            out pswctlSwitchData: SWCNTRL): ULONG;
+
+      function WinQuerySwitchHandle(in hwnd: HWND;
+                                              in pidProcess: PID): HSWITCH;
+
+      function WinQuerySwitchList(in hab: HAB;
+                                           inout pswblkSwitchEntries: PSWBLOCK;
+                                           in usDataLength: ULONG): ULONG;
+
+      function WinQueryTaskSizePos(in hab: HAB;
+                                            in usScreenGroup: ULONG;
+                                            out pswpPositionData: SWP): ULONG;
+
+      function WinQueryTaskTitle(in usSession: ULONG;
+                                           out pszTitle: SZ;
+                                           in usTitlelen: ULONG): ULONG;
+
+      function WinSwitchToProgram(in hswitchSwHandle: HSWITCH): ULONG;
+
+
+end.

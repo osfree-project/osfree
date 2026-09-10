@@ -1,0 +1,631 @@
+# Спецификация uni2h v2.0
+
+## 1. Общие принципы
+
+**uni2h** — универсальный конвейер кодогенерации, создающий из нейтрального описания API выходные файлы для различных целевых языков и систем сборки. Режим работы задаётся параметром `--emitter`.
+
+### 1.1 Основные цели
+
+- Единое описание API, не зависящее от языка программирования или платформы.
+- Полное разделение логического описания, бинарного интерфейса и правил вывода.
+- Генератор не знает платформу или конкретные типы ОС; он оперирует только встроенными примитивами и данными из ABI.
+- Лёгкая расширяемость: добавление нового языка или системы сборки не требует изменения существующих описаний.
+
+### 1.2 Входные файлы (общие для всех генераторов)
+
+| Файл | Назначение |
+|------|------------|
+| `.uni` | Нейтральное описание API: группы, типы, структуры, константы, переменные, функции. |
+| `.abi` | Бинарный интерфейс платформы: библиотеки, ординалы, соглашения вызова, версионность, физические атрибуты структур. |
+
+Дополнительные файлы, специфичные для конкретных генераторов, описаны в соответствующих разделах.
+
+Все входные файлы используют паскалеподобный синтаксис с ключевыми словами `begin`/`end`, `record`/`end`, `case ... of`. Комментарии: однострочные `//`, многострочные `{ }` или `(* *)`.
+
+### 1.3 Командная строка
+
+uni2h --uni=<файл> --abi=<файл> --emitter=<язык> [--output=<дир>] [аргументы конкретного эмиттера]
+text
+
+
+Общие аргументы:
+
+| Аргумент | Обязательность | Описание |
+|----------|----------------|----------|
+| `--uni` | да | Путь к файлу `.uni` |
+| `--abi` | да | Путь к файлу `.abi` |
+| `--emitter` | да | Целевой генератор: `h`, `inc`, `pas`, `def`, `lnk`, `makefile` |
+| `--output` | нет | Каталог для выходных файлов (по умолчанию текущий) |
+
+Остальные аргументы специфичны для конкретных генераторов и описаны в их разделах.
+
+---
+
+## 2. Файл `.uni` – универсальное описание API
+
+### 2.1 Примитивные типы (встроены в язык `.uni`)
+
+| Тип | Описание |
+|-----|----------|
+| `int8` | знаковое 8 бит |
+| `uint8` | беззнаковое 8 бит |
+| `int16` | знаковое 16 бит |
+| `uint16` | беззнаковое 16 бит |
+| `int32` | знаковое 32 бит |
+| `uint32` | беззнаковое 32 бит |
+| `int64` | знаковое 64 бит |
+| `uint64` | беззнаковое 64 бит |
+| `float` | 32-битное плавающее |
+| `double` | 64-битное плавающее |
+| `char` | символ (8 бит) |
+| `bool` | булев тип |
+| `pointer` | бестиповый указатель |
+
+Генераторы преобразуют эти типы в соответствующие типы целевого языка по фиксированной таблице (приведена в разделе каждого генератора).
+
+### 2.2 Синтаксис (EBNF)
+
+```ebnf
+group       = "group" identifier ";"
+              "begin"
+                { declaration }
+              "end" ";"
+
+declaration = type_alias
+            | constant
+            | variable
+            | structure
+            | callback
+            | function
+            | procedure
+            | group
+
+type_alias  = "type" identifier "=" type ";"
+type        = primitive | pointer_type | named_type
+pointer_type = "^" type
+named_type   = identifier
+
+constant    = "constant" identifier "=" number ";"
+variable    = "variable" identifier ":" type ";"
+
+structure   = "structure" identifier ";"
+              { field }
+              [ "case" identifier ":" type "of"
+                  { case_branch }
+                "end" ]
+              "end" ";"
+field       = identifier ":" type ";"
+case_branch = number ":" "(" field { field } ")" ";"
+
+callback    = "type" identifier "=" function_signature ";"
+
+function    = "function" identifier "(" [parameters] ")" ":" type ";"
+procedure   = "procedure" identifier "(" [parameters] ")" ";"
+parameters  = parameter { "," parameter }
+parameter   = ("in" | "out" | "inout") identifier ":" type
+
+2.3 Описание конструкций
+Группа (group)
+
+Логический контейнер, объединяющий объявления. Группы могут быть вложенными. Имя группы служит идентификатором для группировки объявлений и может использоваться генераторами, которым необходима дополнительная структуризация.
+pascal
+
+group kbd;
+begin
+  // объявления
+end;
+
+Псевдоним типа (type)
+
+Создаёт новое имя для существующего типа. Может ссылаться на примитивный тип, указатель или другой псевдоним.
+pascal
+
+type USHORT = uint16;
+type ULONG  = uint32;
+type PSZ    = ^char;
+
+Константа (constant)
+
+Определяет неизменяемое целочисленное значение. Поддерживаются десятичные, шестнадцатеричные ($) и двоичные (%) числа.
+pascal
+
+constant MAX_PATH = 260;
+constant READ_ONLY = $0001;
+
+Глобальная переменная (variable)
+
+Объявляет переменную с внешней линковкой. Тип должен быть определён ранее.
+pascal
+
+variable _os2_version: uint32;
+
+Структура (structure)
+
+Составной тип данных с именованными полями. Может содержать вложенные записи (record) и вариантную часть (case ... of).
+
+Обычная структура:
+pascal
+
+structure KBDKEYINFO;
+  chChar: uint8;
+  chScan: uint8;
+end;
+
+Структура с битовыми полями (описываются как вложенная запись без указания раскладки — раскладка задаётся в .abi):
+pascal
+
+structure KBDINFO;
+  cb: uint16;
+  fsMask: record
+    fEcho: boolean;
+    fBinary: boolean;
+  end;
+end;
+
+Структура с объединением (через case ... of):
+pascal
+
+structure VARIANT;
+  case type: uint16 of
+    1: (intVal: int32);
+    2: (floatVal: float);
+    3: (strVal: ^char);
+  end;
+end;
+
+Callback-тип (type function)
+
+Определяет сигнатуру функции как тип. Соглашение вызова задаётся в .abi.
+pascal
+
+type WNDPROC = function(in hwnd: HWND; in msg: UINT; in wParam: WPARAM; in lParam: LPARAM): LRESULT;
+
+Функция и процедура
+
+Параметры всегда предваряются модификатором направления: in (входной), out (выходной) или inout (входной-выходной). Возвращаемый тип функции обязателен, для процедур отсутствует.
+pascal
+
+function KbdCharIn(out pkbci: ^KBDKEYINFO; in fWait: USHORT; in hkbd: HKBD): APIRET;
+procedure KbdFlushBuffer(in hkbd: HKBD);
+
+3. Файл .abi – бинарный интерфейс
+3.1 Синтаксис (EBNF)
+ebnf
+
+abi         = { container }
+
+container   = module | library | syscall | struct_attr | callback_attr
+
+module      = "module" identifier ";"
+              [ version_clause ]
+              "begin"
+                { entry }
+              "end" ";"
+
+library     = "library" identifier ";"
+              [ version_clause ]
+              "begin"
+                { entry }
+              "end" ";"
+
+syscall     = "syscall" identifier ";"
+              "begin"
+                [ number_clause ]
+                convention_clause
+                [ version_clause ]
+              "end" ";"
+
+entry       = "entry" identifier [ "=" identifier ] ";"
+              "begin"
+                [ number_clause ]
+                [ convention_clause ]
+                [ version_clause ]
+              "end" ";"
+            | alias_entry
+
+alias_entry = "entry" identifier "=" identifier ";"
+
+struct_attr = "structure" identifier ";"
+              "begin"
+                [ "pack" "=" number ";" ]
+                [ "prefix" "=" string ";" ]
+                { bitfield }
+              "end" ";"
+
+bitfield    = "bitfield" identifier ";"
+                { bit_entry }
+              "end" ";"
+bit_entry   = identifier "at" number [ "width" number ] ";"
+
+callback_attr = "type" identifier ";"
+                "begin"
+                  "convention" "=" string ";"
+                "end" ";"
+
+number_clause = "number" "=" number ";"
+convention_clause = "convention" "=" (string | interrupt_service) ";"
+                   [ "inputs" "=" "(" register_list ")" ";" ]
+                   [ "outputs" "=" "(" register_list ")" ";" ]
+interrupt_service = "interrupt" | "service"
+register_list = register { "," register }
+register      = identifier [ "=" number ]
+
+version_clause = "version" "=" version_range ";"
+version_range = version [ "-" version ]
+version       = string
+
+Поле number используется для ординалов DLL, номеров прерываний и кодов инструкций.
+3.2 Описание конструкций
+Модуль (module)
+
+Описывает динамическую библиотеку (DLL). Может иметь версию, указывающую, с какой версии ОС библиотека доступна. Экспорты перечисляются внутри блока.
+pascal
+
+module DOSCALLS;
+  version = '2.0';
+begin
+  // entry ...
+end;
+
+Статическая библиотека (library)
+
+Описывает статическую библиотеку (LIB). Версия указывается аналогично module.
+pascal
+
+library OS2386;
+begin
+  entry DosGetMessage;
+  begin
+    convention = '_System';
+  end;
+end;
+
+Системный вызов (syscall)
+
+Описывает прямой вызов прерывания (interrupt) или сервисной инструкции (service). Не привязан к DLL/LIB. Содержит номер прерывания/инструкции и списки регистров.
+pascal
+
+syscall DosOpen;
+begin
+  convention = interrupt;
+  number = $21;
+  inputs = (ah=$3D, al, ds, dx);
+  outputs = (ax, cf);
+end;
+
+Точка входа (entry)
+
+Описывает экспортируемую функцию или переменную в module/library. Может включать:
+
+    number – ординал (для DLL) или номер прерывания (для syscall).
+
+    convention – строка соглашения вызова ('_System', '_Far16 _Pascal', interrupt, service).
+
+    version – диапазон версий ОС, в которых доступен экспорт.
+
+Стандартный экспорт:
+pascal
+
+entry DosBeep;
+begin
+  convention = '_System';
+  number = 286;
+  version = '2.0';
+end;
+
+Экспорт с нестандартным именем в DLL (только если линкер не может автоматически декорировать):
+pascal
+
+entry DOS16BEEP = DosBeep;
+begin
+  convention = '_Far16 _Pascal';
+  number = 50;
+end;
+
+Алиас (дополнительное имя для того же ординала):
+pascal
+
+entry DosSetDefaultDisk = DosSelectDisk;
+
+Экспорт переменной:
+pascal
+
+entry _os2_version;
+begin
+  number = 1;
+end;
+
+Атрибуты структуры (structure)
+
+Задают физические параметры для структуры из .uni:
+
+    pack – выравнивание (число). Используется для #pragma pack в C и размещения полей в MASM.
+
+    prefix – строка, добавляемая к именам полей в MASM.
+
+    bitfield – раскладка битового поля (привязывается к полю, описанному как record).
+
+pascal
+
+structure KBDINFO;
+begin
+  pack = 4;
+  prefix = 'kbst';
+  bitfield fsMask;
+    fEcho at 0;
+    fBinary at 1;
+  end;
+end;
+
+Атрибуты callback-типа (type)
+
+Указывает соглашение вызова для типа-указателя на функцию:
+pascal
+
+type WNDPROC;
+begin
+  convention = '_System';
+end;
+
+4. Генераторы
+
+Каждый генератор использует общий аргумент --output и собственный набор параметров.
+4.1 Генератор C (--emitter=h)
+
+Обязательные аргументы:
+
+    --layout – файл .layout, определяющий правила формирования выходных заголовков.
+
+Опциональные аргументы:
+
+    --h2inc-compat – вставлять маркеры /* NOINC */ / /* INC */ вокруг C-специфичных конструкций (#pragma pack, extern "C" и т.п.).
+
+    --no-common – генерировать проверку INCL_NOCOMMON вокруг общих объявлений (находящихся непосредственно в группе, не во вложенных подгруппах).
+
+    --cpp – включать обрамление extern "C" для C++.
+
+    --ibm – включать обрамление для IBM C/C++.
+
+Формат файла .layout:
+text
+
+<группа>  <выходной_файл>  [optional|always] [noincl=<макрос>] [macro=<макрос>] [desc="описание"]
+
+    Если выходной файл не указан, группа наследует файл родительской группы, а её содержимое встраивается в родительский файл.
+
+    optional — группа не входит в каскад родительского макроса, включается только при явном макросе INCL_<имя_группы> или макросе, указанном через macro=.
+
+    always — группа включается безусловно, #include в родительском файле не оборачивается в условные директивы.
+
+    noincl=<макрос> — если указан, включение файла оборачивается в #ifndef <макрос> ... #endif.
+
+    macro=<макрос> — переопределяет имя макроса, используемое для условного включения (по умолчанию INCL_<имя_группы>).
+
+    desc="описание" — текстовое описание файла, которое будет помещено в баннер заголовка и, при необходимости, в комментарий перед #include.
+
+Каскады макросов (например, #ifdef INCL_DOS -> #define INCL_DOSPROCESS) генерируются автоматически для всех не-optional и не-always вложенных групп.
+
+Пример .layout:
+ini
+
+os2def     os2def.h   always desc="Common definitions"
+base       bse.h      noincl=INCL_NOBASEAPI desc="OS/2 Base Include File"
+pm         pm.h       noincl=INCL_NOPMAPI desc="OS/2 Presentation Manager Include File"
+osa        osa.h      optional macro=INCL_OSAAPI desc="Open Scripting Architecture (OSA) Include File"
+opendoc    od.h       optional macro=INCL_ODAPI desc="OpenDoc for OS/2 Include File"
+
+os2        os2.h      desc="This is the top level include file that includes all the files necessary for writing an OS/2 application."
+
+dos        bsedos.h
+dosprocess
+dosfilemgr
+dosmemmgr
+dossemaphores
+dosdatetime
+dosmodulemgr
+dosresources
+dosnls
+dosexceptions
+dosmisc
+dosmonitors
+dosqueues
+dossesmgr
+dosdevices
+dosnmpipes
+dosprofile
+dosmvdm
+
+sub        bsesub.h
+kbd        kbd.h
+vio        vio.h
+mou        mou.h
+
+doserrors  bseerr.h   optional
+
+win        pmwin.h
+gpi        pmgpi.h
+
+Маппинг примитивов:
+.uni	C-тип
+int8	char
+uint8	unsigned char
+int16	short
+uint16	unsigned short
+int32	long
+uint32	unsigned long
+int64	long long
+uint64	unsigned long long
+float	float
+double	double
+char	char
+bool	_Bool
+pointer	void *
+
+Логика работы:
+
+    Для каждой группы, имеющей запись в .layout, создаётся отдельный файл.
+
+    В начало файла добавляется баннер с именем модуля и описанием (если задано).
+
+    Затем охранный #ifndef, пролог (IBM/C++ обёртки, если включены), каскады макросов, #include для дочерних групп, содержимое группы, эпилог и закрывающий #endif.
+
+    Для optional групп в родительском файле вставляется #ifdef <макрос> вокруг #include.
+
+    Для always групп #include выводится безусловно.
+
+    Для групп с noincl включение оборачивается в #ifndef.
+
+    Типы: примитивы транслируются согласно таблице, псевдонимы превращаются в typedef.
+
+    Структуры: typedef struct _ИМЯ { ... } ИМЯ; с опциональным #pragma pack согласно pack из ABI. Битовые поля раскладываются согласно bitfield.
+
+    Функции: для каждой функции ищутся все entry/syscall в ABI. Если несколько версий, генерируются отдельные прототипы с #if OS2_VERSION. Строка convention вставляется в объявление. Для interrupt/service формируется #pragma aux.
+
+    Переменные: extern <тип> <имя>;
+
+    Константы: #define <имя> <значение>
+
+    Алиасы: #define <псевдоним> <оригинал>
+
+4.2 Генератор MASM (--emitter=inc)
+
+Дополнительные аргументы: такие же, как у генератора C (требуется --layout).
+
+Маппинг примитивов:
+.uni	MASM
+int8	SBYTE
+uint8	BYTE
+int16	SWORD
+uint16	WORD
+int32	SDWORD
+uint32	DWORD
+int64	SQWORD
+uint64	QWORD
+float	REAL4
+double	REAL8
+char	BYTE
+bool	BYTE
+pointer	PTR
+
+Логика работы:
+
+    Использует тот же .layout.
+
+    Генерирует .inc с ifndef __<ИМЯ>_INC__, IFDEF INCL_<группы>.
+
+    Каскады макросов – IFDEF / EQU 1.
+
+    Структуры: STRUC/ENDS, поля с префиксом из .abi.
+
+    Битовые поля: константы-маски.
+
+    Функции: EXTERN <имя>:PROTO <convention> :<возврат>.
+
+    Версионность: IF OS2_VERSION GE 200h.
+
+4.3 Генератор Pascal (--emitter=pas)
+
+Дополнительные аргументы: отсутствуют.
+
+Маппинг примитивов:
+.uni	Pascal
+int8	ShortInt
+uint8	Byte
+int16	SmallInt
+uint16	Word
+int32	LongInt
+uint32	LongWord
+int64	Int64
+uint64	UInt64
+float	Single
+double	Double
+char	AnsiChar
+bool	Boolean
+pointer	Pointer
+
+Логика работы:
+
+    .layout игнорируется.
+
+    Каждая группа верхнего уровня -> отдельный unit <имя>.pas.
+
+    Вложенные группы помещаются в interface родительского модуля.
+
+    Версии функций выводятся безусловно с комментарием.
+
+    Соглашения вызова: '_System' -> cdecl, '_Far16 _Pascal' -> pascal; interrupt/service -> обёртка assembler.
+
+    Структуры: record; при наличии pack из .abi вставляется {$PACKRECORDS N}.
+
+    Битовые поля: bitpacked record.
+
+    Переменные: var <имя>: <тип>; external;.
+
+    Алиасы: отдельные external объявления.
+
+4.4 Генератор DEF (--emitter=def)
+
+Дополнительные аргументы: отсутствуют.
+
+Логика работы:
+
+    Для каждого module из .abi создаётся <имя>.def.
+
+    Формат экспорта: <entry_name>[.<ordinal>][=<internal_name>] [PRIVATE] [RESIDENT] [iopl_bytes].
+
+    Для entry REAL = LOGICAL используется REAL.
+
+    Переменные выводятся как <entry_name>.<ordinal> (без DATA).
+
+Пример DOSCALLS.def:
+text
+
+LIBRARY DOSCALLS
+EXPORTS
+  DosBeep.286
+  KbdCharIn.204
+  _os2_version.1
+
+4.5 Генератор LNK (--emitter=lnk)
+
+Дополнительные аргументы:
+
+    --target-api (опционально) – целевая ОС.
+
+    --target-bits (опционально) – разрядность.
+
+    --sources (опционально) – список исходных модулей.
+
+Логика работы:
+
+    Для каждого module/library создаётся <имя>.lnk.
+
+    Используются стандартные директивы wlink: NAME, DLL/LIBRARY, FILE.
+
+    FILE формируются из --sources через запятую.
+
+4.6 Генератор MAKEFILE (--emitter=makefile)
+
+Дополнительные аргументы:
+
+    --target-api (опционально) – значение для TARGET_API.
+
+    --target-bits (опционально) – значение для TARGET_BITS.
+
+    --sources (опционально) – значение для SOURCES.
+
+Логика работы:
+
+    Для каждого module/library создаётся makefile_<имя>.inc.
+
+    В начало помещается PROJ = <имя>.
+
+    В конец добавляется !include $(%ROOT)tools/mk/build.mk.
+
+    TARGET_CLASS = LIBRARY выводится всегда.
+
+    Для DLL (module) выводится EXPORTS = список экспортов через запятую в формате <entry_name>[.<ordinal>]. Переменные в список не включаются. TARGET_SUBTYPE не выводится (DYNAMIC — умолчание в системе сборки).
+
+    Для статической библиотеки (library) выводится TARGET_SUBTYPE = STATIC.
+
+    EXPORTS и IMPORTS не выводятся для статических библиотек.

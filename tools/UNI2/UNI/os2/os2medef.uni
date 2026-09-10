@@ -1,0 +1,186 @@
+group os2medef;
+
+(*
+#ifndef __WORDBYTEDWORD__
+  constant __WORDBYTEDWORD__
+  #ifndef WORD
+    typedef USHORT WORD;
+  #endif
+  #ifndef DWORD
+    typedef ULONG  DWORD;
+  #endif
+#endif
+*)
+
+type    VERSION          = WORD;
+type    LPSTR            = ^char; (* char FAR * *)
+typedef FAR *LPTR;
+typedef FAR *LPRECT;
+typedef HWND HANDLE;
+typedef WORD *PW;
+typedef WORD *PAW;
+typedef WORD *PWORD;
+typedef PFN FAR *PPFN;
+typedef DWORD (APIENTRY FNMCI)(LPTR,WORD,DWORD,DWORD,WORD);
+typedef FNMCI *PFNMCI;
+
+typedef char   SZ;
+typedef ULONG  MMTIME;
+typedef MMTIME FAR *PMMTIME;
+
+typedef ULONG HMMIO;
+typedef HMMIO FAR *PHMMIO;
+
+typedef struct _SPCBKEY {
+    ULONG ulDataType;
+    ULONG ulDataSubType;
+    ULONG ulIntKey;
+} SPCBKEY, FAR *PSPCBKEY;
+
+constant  _SPCBKEY_DEFINED 1
+
+typedef struct _MMTRACKINFO {
+    ULONG ulTrackID;
+    ULONG ulMediaType;
+    ULONG ulCountry;
+    ULONG ulCodePage;
+    ULONG ulReserved1;
+    ULONG ulReserved2;
+} MMTRACKINFO, *PMMTRACKINFO;
+
+constant CF_RMID =10;
+constant CF_RIFF =11;
+constant CF_WAVE =12;
+constant CF_AVI  =13;
+
+constant RT_RMID =100;
+constant RT_RIFF =101;
+constant RT_WAVE =102;
+constant RT_AVI  =103;
+constant RT_AVS  =104;
+
+constant DRT_WAVE='Digital audio';
+constant DRT_AVI='Digital video';
+constant DRT_MIDI='MIDI';
+
+constant HZ_8000  =8000;
+constant HZ_11025 =11025;
+constant HZ_14700 =14700;
+constant HZ_18900 =18900;
+constant HZ_22050 =22050;
+constant HZ_37800 =37800;
+constant HZ_44100 =44100;
+
+constant BPS_4 = 4;
+constant BPS_8 = 8;
+constant BPS_16 = 16;
+
+constant CH_1 =1;
+constant CH_2 =2;
+constant CH_4 =4;
+
+constant DATATYPE_NULL =0;
+constant SUBTYPE_NONE  =0;
+
+constant DATATYPE_WAVEFORM =1;
+
+constant WAVE_FORMAT_1M08 = $0001;
+constant WAVE_FORMAT_1S08 = $0002;
+constant WAVE_FORMAT_1M16 = $0003;
+constant WAVE_FORMAT_1S16 = $0004;
+constant WAVE_FORMAT_2M08 = $0005;
+constant WAVE_FORMAT_2S08 = $0006;
+constant WAVE_FORMAT_2M16 = $0007;
+constant WAVE_FORMAT_2S16 = $0008;
+constant WAVE_FORMAT_4M08 = $0009;
+constant WAVE_FORMAT_4S08 = $000a;
+constant WAVE_FORMAT_4M16 = $000b;
+constant WAVE_FORMAT_4S16 = $000c;
+constant WAVE_FORMAT_8M08 = $000d;
+constant WAVE_FORMAT_8S08 = $000e;
+constant WAVE_FORMAT_8M16 = $000f;
+constant WAVE_FORMAT_8S16 = $0010;
+
+constant DATATYPE_DIGVIDEO =2;
+
+constant DIGVIDEO_PHOTOM  = $544F4850;
+constant DIGVIDEO_ULTIM   = $49544c55;
+constant DIGVIDEO_AVI     = $20495641;
+constant DIGVIDEO_MONITOR = $206E6F6D;
+constant DIGVIDEO_FLC     = $63696C66;
+constant DIGVIDEO_MPEG    = $4745504D;
+
+constant DATATYPE_MULAW = $0101;
+constant DATATYPE_RIFF_MULAW =7;
+
+constant MULAW_8B8KS  =1;
+constant MULAW_8B11KS =2;
+constant MULAW_8B22KS =3;
+constant MULAW_8B44KS =4;
+constant MULAW_8B8KM  =5;
+constant MULAW_8B11KM =6;
+constant MULAW_8B22KM =7;
+constant MULAW_8B44KM =8;
+
+constant DATATYPE_ALAW = $0102;
+constant DATATYPE_RIFF_ALAW =6;
+
+constant ALAW_8B8KS  =1;
+constant ALAW_8B11KS =2;
+constant ALAW_8B22KS =3;
+constant ALAW_8B44KS =4;
+constant ALAW_8B8KM  =5;
+constant ALAW_8B11KM =6;
+constant ALAW_8B22KM =7;
+constant ALAW_8B44KM =8;
+
+constant DATATYPE_ADPCM_AVC = $0103;
+
+constant ADPCM_AVC_VOICE  =1;
+constant ADPCM_AVC_MUSIC  =2;
+constant ADPCM_AVC_STEREO =3;
+constant ADPCM_AVC_HQ     =4;
+
+constant DATATYPE_CT_ADPCM = $0200;
+
+constant CT_ADPCM_16B8KS  =1;
+constant CT_ADPCM_16B11KS =2;
+constant CT_ADPCM_16B22KS =3;
+constant CT_ADPCM_16B44KS =4;
+constant CT_ADPCM_16B8KM  =5;
+constant CT_ADPCM_16B11KM =6;
+constant CT_ADPCM_16B22KM =7;
+constant CT_ADPCM_16B44KM =8;
+
+constant DATATYPE_MIDI    = $0201;
+constant DATATYPE_GENERIC = $0202;
+constant DATATYPE_SPV2    = $0203;
+
+constant SPV2_BPCM =1;
+constant SPV2_PCM  =2;
+constant SPV2_NONE =3;
+
+constant DATATYPE_CDXA_VIDEO    = $0204;
+constant DATATYPE_CDXA_DATA     = $0205;
+constant DATATYPE_CDXA_AUDIO    = $0206;
+constant DATATYPE_CDXA_AUDIO_HD = $0207;
+constant DATATYPE_CDXA_HEADERS  = $0208;
+
+constant CDXA_LEVELB      =0;
+constant CDXA_LEVELC      =1;
+constant CDXA_LEVELB_MONO =2;
+constant CDXA_LEVELC_MONO =3;
+
+constant DATATYPE_DIGISPEECH = $0208;
+constant DIGISPEECH_NATIVE =1;
+
+constant DATATYPE_MPEG1AUDIO = $0050;
+
+constant MPEG1_FORMAT_3M16 =1;
+constant MPEG1_FORMAT_3S16 =2;
+constant MPEG1_FORMAT_4M16 =3;
+constant MPEG1_FORMAT_4S16 =4;
+
+constant DATATYPE_UNKNOWN = $FFFFFFFF;
+
+end.

@@ -1,0 +1,176 @@
+group windialogscommon;
+
+(**** Dialog Manager *)
+
+(**** Dialog Manager COMMON subsection *)
+
+function WinGetDlgMsg(in hwndDlg: HWND;
+                                 out pqmsg: QMSG): BOOL;
+
+function WinLoadDlg(in hwndParent: HWND;
+                               in hwndOwner: HWND;
+                               in pfnDlgProc: PFNWP;
+                               in hmod: HMODULE;
+                               in idDlg: ULONG;
+                               in pCreateParams: PVOID): HWND;
+
+function WinDlgBox(in hwndParent: HWND;
+                             in hwndOwner: HWND;
+                             in pfnDlgProc: PFNWP;
+                             in hmod: HMODULE;
+                             in idDlg: ULONG;
+                             in pCreateParams: PVOID): ULONG;
+
+function WinDismissDlg(in hwndDlg: HWND;
+                                  in usResult: ULONG): BOOL;
+
+function WinQueryDlgItemShort(in hwndDlg: HWND;
+                                         in idItem: ULONG;
+                                         out pResult: SHORT;
+                                         in fSigned: BOOL): BOOL;
+
+function WinSetDlgItemShort(in hwndDlg: HWND;
+                                       in idItem: ULONG;
+                                       in usValue: USHORT;
+                                       in fSigned: BOOL): BOOL;
+
+function WinSetDlgItemText(in hwndDlg: HWND;
+                                      in idItem: ULONG;
+                                      in pszText: PCSZ): BOOL;
+
+function WinQueryDlgItemText(in hwndDlg: HWND;
+                                       in idItem: ULONG;
+                                       in cchBufferMax: LONG;
+                                       out pchBuffer: SZ): ULONG;
+
+function WinQueryDlgItemTextLength(in hwndDlg: HWND;
+                                             in idItem: ULONG): LONG;
+
+function WinDefDlgProc(in hwndDlg: HWND;
+                                  in msg: ULONG;
+                                  in mp1: MPARAM;
+                                  in mp2: MPARAM): MRESULT;
+
+   (* Special item IDs *)
+
+constant DID_OK      = 1;
+constant DID_CANCEL  = 2;
+constant DID_ERROR   = $ffff;
+
+function WinAlarm(in hwndDesktop: HWND;
+                          in rgfType: ULONG): BOOL;
+
+   (* WinAlarm Codes *)
+
+constant WA_WARNING               =  0;
+constant WA_NOTE                  =  1;
+constant WA_ERROR                 =  2;
+constant WA_CWINALARMS            = 13;     (* count of valid alarms *)
+
+
+function WinMessageBox(in hwndParent: HWND;
+                                in hwndOwner: HWND;
+                                in pszText: PCSZ;
+                                in pszCaption: PCSZ;
+                                in idWindow: ULONG;
+                                in flStyle: ULONG): ULONG;
+
+
+
+
+constant MAX_MBDTEXT              = 70;
+
+(*   #pragma pack(4) *)
+
+   type MB2D=structure
+      achText: array[MAX_MBDTEXT + 1] of CHAR; (* Text of the button. eg. "~Cancel"    *)
+      idButton: ULONG;                  (* Button ID returned when user chooses *)
+      (*  button                              *)
+      flStyle: LONG;                   (* Button style or'ed with internal     *)
+      (*  styles                              *)
+     end;
+
+   type PMB2D=^MB2D;
+
+   type MB2INFO=structure
+          cb: ULONG;                  (* Size of fixed part of structure          *)
+          hIcon: HPOINTER;               (* Icon handle                              *)
+          cButtons: ULONG;            (* Number of buttons                        *)
+          flStyle: ULONG;             (* Icon style flags (MB_ICONQUESTION, etc...)*)
+          hwndNotify: HWND;          (* Reserved                                 *)
+          mb2d: array[1] of MB2D;             (* Array of button definitions              *)
+     end;
+
+   type PMB2INFO=^MB2INFO;
+
+(*   #pragma pack() *)
+
+   (************************************************************************)
+   (* WinMessageBox2                                                       *)
+   (*                                                                      *)
+   (* Parameters: HWND   hwndParent   - handle of the parent window.       *)
+   (*             HWND   hwndOwner    - handle of the owner window.        *)
+   (*             PSZ    pszText      - message text.                      *)
+   (*             PSZ    pszCaption   - title of the message box.          *)
+   (*             ULONG  idWindow     - Message box id                     *)
+   (*             PMB2INFO pmb2info   - pointer to button/icon info        *)
+   (************************************************************************)
+   function WinMessageBox2(in hwndParent: HWND;
+        in hwndOwner: HWND;
+        in pszText: PSZ;
+        in pszCaption: PSZ;
+        in idWindow: ULONG;
+        in pmb2info: PMB2INFO): ULONG;
+
+   (* Message box types *)
+
+constant MB_OK                      = $0000;
+constant MB_OKCANCEL                = $0001;
+constant MB_RETRYCANCEL             = $0002;
+constant MB_ABORTRETRYIGNORE        = $0003;
+constant MB_YESNO                   = $0004;
+constant MB_YESNOCANCEL             = $0005;
+constant MB_CANCEL                  = $0006;
+constant MB_ENTER                   = $0007;
+constant MB_ENTERCANCEL             = $0008;
+
+constant MB_NOICON                  = $0000;
+constant MB_CUANOTIFICATION         = $0000;
+constant MB_ICONQUESTION            = $0010;
+constant MB_ICONEXCLAMATION         = $0020;
+constant MB_CUAWARNING              = $0020;
+constant MB_ICONASTERISK            = $0030;
+constant MB_ICONHAND                = $0040;
+constant MB_CUACRITICAL             = $0040;
+constant MB_QUERY                   = MB_ICONQUESTION;
+constant MB_WARNING                 = MB_CUAWARNING;
+constant MB_INFORMATION             = MB_ICONASTERISK;
+constant MB_CRITICAL                = MB_CUACRITICAL;
+constant MB_ERROR                   = MB_CRITICAL;
+constant MB_CUSTOMICON              = $0080;
+
+constant MB_DEFBUTTON1              = $0000;
+constant MB_DEFBUTTON2              = $0100;
+constant MB_DEFBUTTON3              = $0200;
+
+constant MB_APPLMODAL               = $0000;
+constant MB_SYSTEMMODAL             = $1000;
+constant MB_HELP                    = $2000;
+constant MB_MOVEABLE                = $4000;
+constant MB_NONMODAL                = $8000;
+
+
+   (* Message box return codes *)
+
+constant MBID_OK                    = 1;
+constant MBID_CANCEL                = 2;
+constant MBID_ABORT                 = 3;
+constant MBID_RETRY                 = 4;
+constant MBID_IGNORE                = 5;
+constant MBID_YES                   = 6;
+constant MBID_NO                    = 7;
+constant MBID_HELP                  = 8;
+constant MBID_ENTER                 = 9;
+constant MBID_ERROR                 = $ffff;
+
+end.

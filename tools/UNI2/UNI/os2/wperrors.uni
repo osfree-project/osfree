@@ -1,0 +1,38 @@
+group wperrors;
+
+constant WPERR_PROTECTED_CLASS            = $1700;
+constant WPERR_INVALID_CLASS              = $1701;
+constant WPERR_INVALID_SUPERCLASS         = $1702;
+constant WPERR_NO_MEMORY                  = $1703;
+constant WPERR_SEMAPHORE_ERROR            = $1704;
+constant WPERR_BUFFER_TOO_SMALL           = $1705;
+constant WPERR_CLSLOADMOD_FAILED          = $1706;
+constant WPERR_CLSPROCADDR_FAILED         = $1707;
+constant WPERR_OBJWORD_LOCATION           = $1708;
+constant WPERR_INVALID_OBJECT             = $1709;
+constant WPERR_MEMORY_CLEANUP             = $170A;
+constant WPERR_INVALID_MODULE             = $170B;
+constant WPERR_INVALID_OLDCLASS           = $170C;
+constant WPERR_INVALID_NEWCLASS           = $170D;
+constant WPERR_NOT_IMMEDIATE_CHILD        = $170E;
+constant WPERR_NOT_WORKPLACE_CLASS        = $170F;
+constant WPERR_CANT_REPLACE_METACLS       = $1710;
+constant WPERR_INI_FILE_WRITE             = $1711;
+constant WPERR_INVALID_FOLDER             = $1712;
+constant WPERR_BUFFER_OVERFLOW            = $1713;
+constant WPERR_OBJECT_NOT_FOUND           = $1714;
+constant WPERR_INVALID_HFIND              = $1715;
+constant WPERR_INVALID_COUNT              = $1716;
+constant WPERR_INVALID_BUFFER             = $1717;
+constant WPERR_ALREADY_EXISTS             = $1718;
+constant WPERR_INVALID_FLAGS              = $1719;
+constant WPERR_INVALID_OBJECTID           = $1720;
+constant WPERR_INVALID_TARGET_OBJECT      = $1721;
+constant WPERR_APM_NOT_INSTALLED          = $1722;
+constant WPERR_APM_NOT_ENABLED            = $1723;
+constant WPERR_APM_NOT_ENGAGED            = $1724;
+constant WPERR_APM_FUNCTION_NOT_SUPPORTED = $1725;
+constant WPERR_APM_INVALID_PARAMETER      = $1726;
+constant WPERR_APM_USER_CANCEL            = $1727;
+
+end.

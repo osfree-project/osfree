@@ -1,0 +1,2370 @@
+group mcios2;
+
+      (****************************************************************************)
+      (*                                                                          *)
+      (* Module Name: MCIOS2.h                                                    *)
+      (*                                                                          *)
+      (* This is the multimedia include file that has the typedefs, defines and   *)
+      (* function prototyes for Media Control Interface of MMPM/2 (tm) using      *)
+      (* the OS2 notation.                                                        *)
+      (*                                                                          *)
+      (****************************************************************************)
+      constant MCI_TRUE                       = 1;
+      constant MCI_FALSE                      = 0;
+
+      (*********************************************************************)
+      (*                                                                   *)
+      (*             MCI command message identifiers                       *)
+      (*                                                                   *)
+      (*********************************************************************)
+      constant MCI_OPEN                       = 1;
+      constant MCI_CLOSE                      = 2;
+      constant MCI_ESCAPE                     = 3;
+      constant MCI_PLAY                       = 4;
+      constant MCI_SEEK                       = 5;
+      constant MCI_STOP                       = 6;
+      constant MCI_PAUSE                      = 7;
+      constant MCI_INFO                       = 8;
+      constant MCI_GETDEVCAPS                 = 9;
+      constant MCI_STATUS                     = 10;
+      constant MCI_SPIN                       = 11;
+      constant MCI_SET                        = 12;
+      constant MCI_STEP                       = 13;
+      constant MCI_RECORD                     = 14;
+      constant MCI_SYSINFO                    = 15;
+      constant MCI_SAVE                       = 16;
+      constant MCI_CUE                        = 17;
+      constant MCI_UPDATE                     = 18;
+      constant MCI_SET_CUEPOINT               = 19;
+      constant MCI_SET_POSITION_ADVISE        = 20;
+      constant MCI_SET_SYNC_OFFSET            = 21;
+      constant MCI_LOAD                       = 22;
+      constant MCI_ACQUIREDEVICE              = 23;
+      constant MCI_RELEASEDEVICE              = 24;
+      constant MCI_MASTERAUDIO                = 25;
+      constant MCI_GETTOC                     = 26;
+      constant MCI_DEVICESETTINGS             = 27;
+      constant MCI_CONNECTOR                  = 28;
+      constant MCI_RESUME                     = 29;
+
+      constant MCI_CONNECTORINFO              = 31;
+      constant MCI_DEFAULT_CONNECTION         = 32;
+      constant MCI_CONNECTION                 = 33;
+      constant MCI_GROUP                      = 34;
+      constant MCI_NETWORK_DEFAULT_CONNECTION = 35;
+
+      (*************************************************)
+      (* MCI command message identifiers reserved for  *)
+      (*  Digital Video and Video Overlay              *)
+      (*************************************************)
+
+      constant MCI_CAPTURE                    = 40;
+      constant MCI_FREEZE                     = 41;
+      constant MCI_GETIMAGEBUFFER             = 42;
+      constant MCI_GETIMAGEPALETTE            = 43;
+      constant MCI_PUT                        = 44;
+      constant MCI_REALIZE                    = 45;
+      constant MCI_REWIND                     = 46;
+      constant MCI_RESTORE                    = 47;
+      constant MCI_SETIMAGEBUFFER             = 48;
+      constant MCI_SETIMAGEPALETTE            = 49;
+      constant MCI_UNFREEZE                   = 50;
+      constant MCI_WHERE                      = 51;
+      constant MCI_WINDOW                     = 52;
+
+      constant MCI_DELETE                     = 53;
+      constant MCI_CUT                        = 54;
+      constant MCI_PASTE                      = 55;
+      constant MCI_COPY                       = 56;
+      constant MCI_REDO                       = 57;
+      constant MCI_UNDO                       = 58;
+      constant MCI_MIXNOTIFY                  = 59;
+      constant MCI_SETTUNER                   = 60;
+      constant MCI_FILTER                     = 61;
+      constant MCI_BUFFER                     = 62;
+      constant MCI_MIXSETUP                   = 63;
+
+      constant MCI_MAX_COMMAND                = 64;
+
+      type RECT=ULONG;
+      type HDCT=ULONG;
+      (*********************************************************************)
+      (* this and all subsequent message ID's are reserved for the user    *)
+      (*********************************************************************)
+      constant MCI_USER_MESSAGES              = 2000;
+
+      (*********************************************************************)
+      (* Special Device ID for "all"                                       *)
+      (*********************************************************************)
+      constant MCI_ALL_DEVICE_ID              = $FFFF;
+
+      (*********************************************************************)
+      (* MCI implementation limits                                         *)
+      (*********************************************************************)
+      constant MAX_DEVICE_NAME                = 20;
+      constant MAX_ALIAS_NAME                 = 20;
+      constant MAX_PRODINFO                   = 40;
+      constant MAX_EXTENSION_NAME             = 4;
+      constant MAX_DEV_PARAMS                 = 128;
+      constant MAX_VERSION_NUMBER             = 6;
+      constant MAX_PDD_NAME                   = 9;
+      constant MAX_DLL_NAME                   = 260;
+      constant MAX_CLASSES                    = 10;
+      constant MAX_CONNECTORS                 = 10;
+      constant MAX_EXTENSIONS                 = 25;
+      constant MAX_TYPEBUFFER                 = 256;
+
+      (*********************************************************************)
+      (* MCI Device Type Constants                                         *)
+      (*********************************************************************)
+      constant MCI_DEVTYPE_VIDEOTAPE          = 1;
+      constant MCI_DEVTYPE_VIDEODISC          = 2;
+      constant MCI_DEVTYPE_CD_AUDIO           = 3;
+      constant MCI_DEVTYPE_DAT                = 4;
+      constant MCI_DEVTYPE_AUDIO_TAPE         = 5;
+      constant MCI_DEVTYPE_OTHER              = 6;
+      constant MCI_DEVTYPE_WAVEFORM_AUDIO     = 7;
+      constant MCI_DEVTYPE_SEQUENCER          = 8;
+      constant MCI_DEVTYPE_AUDIO_AMPMIX       = 9;
+      constant MCI_DEVTYPE_OVERLAY            = 10;
+      constant MCI_DEVTYPE_ANIMATION          = 11;
+      constant MCI_DEVTYPE_DIGITAL_VIDEO      = 12;
+      constant MCI_DEVTYPE_SPEAKER            = 13;
+      constant MCI_DEVTYPE_HEADPHONE          = 14;
+      constant MCI_DEVTYPE_MICROPHONE         = 15;
+      constant MCI_DEVTYPE_MONITOR            = 16;
+      constant MCI_DEVTYPE_CDXA               = 17;
+      constant MCI_DEVTYPE_FILTER             = 18;
+      constant MCI_DEVTYPE_TTS                = 19;
+
+      (*********************************************************************)
+      (* MCI Device Type Names                                             *)
+      (*********************************************************************)
+      constant MCI_DEVTYPE_VIDEOTAPE_NAME         = 'Videotape';
+      constant MCI_DEVTYPE_VIDEODISC_NAME         = 'Videodisc';
+      constant MCI_DEVTYPE_CD_AUDIO_NAME          = 'CDaudio';
+      constant MCI_DEVTYPE_DAT_NAME               = 'DAT';
+      constant MCI_DEVTYPE_AUDIO_TAPE_NAME        = 'Audiotape';
+      constant MCI_DEVTYPE_OTHER_NAME             = 'Other';
+      constant MCI_DEVTYPE_WAVEFORM_AUDIO_NAME    = 'Waveaudio';
+      constant MCI_DEVTYPE_SEQUENCER_NAME         = 'Sequencer';
+      constant MCI_DEVTYPE_AUDIO_AMPMIX_NAME      = 'Ampmix';
+      constant MCI_DEVTYPE_OVERLAY_NAME           = 'Overlay';
+      constant MCI_DEVTYPE_ANIMATION_NAME         = 'Animation';
+      constant MCI_DEVTYPE_DIGITAL_VIDEO_NAME     = 'Digitalvideo';
+      constant MCI_DEVTYPE_SPEAKER_NAME           = 'Speaker';
+      constant MCI_DEVTYPE_HEADPHONE_NAME         = 'Headphone';
+      constant MCI_DEVTYPE_MICROPHONE_NAME        = 'Microphone';
+      constant MCI_DEVTYPE_MONITOR_NAME           = 'Monitor';
+      constant MCI_DEVTYPE_CDXA_NAME              = 'CDXA';
+      constant MCI_DEVTYPE_FILTER_NAME            = 'Filter';
+      constant MCI_DEVTYPE_TTS_NAME               = 'Texttospeech';
+      constant MCI_MAX_SYSTEM_DEVICE_NAMES        = 19;
+
+
+      (*********************************************************************)
+      (* Getdevcaps, set, and status item base values                      *)
+      (*********************************************************************)
+
+      constant MCI_AMP_ITEM_BASE                  = $00001000;
+      constant MCI_CD_ITEM_BASE                   = $00002000;
+      constant MCI_CDXA_ITEM_BASE                 = $00003000;
+      constant MCI_VD_ITEM_BASE                   = $00004000;
+      constant MCI_SEQ_ITEM_BASE                  = $00005000;
+      constant MCI_WAVE_ITEM_BASE                 = $00006000;
+      constant MCI_VID_ITEM_BASE                  = $00007000;
+      constant MCI_DGV_ITEM_BASE                  = $00008000;
+      constant MCI_OVLY_ITEM_BASE                 = $00009000;
+
+      (*********************************************************************)
+      (* Flags for mciDriverNotify                                         *)
+      (*********************************************************************)
+      constant MCI_NOTIFY_SUCCESSFUL              = $0000;
+      constant MCI_NOTIFY_SUPERSEDED              = $0001;
+      constant MCI_NOTIFY_ABORTED                 = $0002;
+      constant MCI_NOTIFY_ERROR                   = $0003;
+
+      (*********************************************************************)
+      (* mciDriverNotify  Message Types                                    *)
+      (*********************************************************************)
+      constant MM_MCINOTIFY                       = $0500;
+      constant MM_MCIPASSDEVICE                   = $0501;
+      constant MM_MCIPOSITIONCHANGE               = $0502;
+      constant MM_MCICUEPOINT                     = $0503;
+      constant MM_MCIPLAYLISTMESSAGE              = $0504;
+      constant MM_MCIEVENT                        = $0505;
+      constant MM_MCISYNCH                        = $0506;
+
+      constant MCI_LOSING_USE                     = $00000001;
+      constant MCI_GAINING_USE                    = $00000002;
+
+      (*********************************************************************)
+      (* Common message flags                                              *)
+      (*     $000000XX are reserved for common flags                      *)
+      (*********************************************************************)
+      constant MCI_NOTIFY                         = $00000001;
+      constant MCI_WAIT                           = $00000002;
+      constant MCI_FROM                           = $00000004;
+      constant MCI_TO                             = $00000008;
+      constant MCI_DOS_QUEUE                      = $00000008;
+      constant MCI_MILLISECONDS                   = $00000010;
+      constant MCI_TRACK                          = $00000020;
+      constant MCI_OVER                           = $00000040;
+      constant MCI_TEST                           = $00000080;
+      constant MCI_TO_BUFFER                      = $00000100;
+      constant MCI_FROM_BUFFER                    = $00000200;
+      constant MCI_CONVERT_FORMAT                 = $00000400;
+
+
+      (*********************************************************************)
+      (* Time formats                                                      *)
+      (*********************************************************************)
+      constant MCI_FORMAT_MILLISECONDS            = $00000001;
+      constant MCI_FORMAT_MMTIME                  = $00000002;
+      constant MCI_FORMAT_MSF                     = $00000005;
+      constant MCI_FORMAT_TMSF                    = $00000006;
+      constant MCI_FORMAT_CHAPTERS                = $00000007;
+      constant MCI_FORMAT_FRAMES                  = $00000008;
+      constant MCI_FORMAT_HMS                     = $00000009;
+      constant MCI_FORMAT_TRACKS                  = $0000000A;
+      constant MCI_FORMAT_BYTES                   = $0000000B;
+      constant MCI_FORMAT_SAMPLES                 = $0000000C;
+      constant MCI_FORMAT_HMSF                    = $0000000D;
+      constant MCI_FORMAT_SET_SMPTE_24            = $0000000E;
+      constant MCI_FORMAT_SET_SMPTE_25            = $0000000F;
+      constant MCI_FORMAT_SET_SMPTE_30            = $00000010;
+      constant MCI_FORMAT_SET_SMPTE_30DROP        = $00000011;
+      constant MCI_FORMAT_SET_SONGPTR             = $00000012;
+      constant MCI_FORMAT_USEC                    = $00000013;
+
+      (*********************************************************************)
+      (* Speed formats                                                     *)
+      (*********************************************************************)
+      constant MCI_FORMAT_PERCENTAGE              = $00000003;
+      constant MCI_FORMAT_FPS                     = $00000004;
+
+
+      (*********************************************************************)
+      (*                                                                   *)
+      (*  Time format conversions macros                                   *)
+      (*                                                                   *)
+      (*********************************************************************)
+
+(*
+
+      constant MSECTOMM(value)      (((value) > (0xFFFFFFFF /3)) ? 0L : \
+      ((value) * 3))
+
+      constant MSECFROMMM(value)    (((value)+1) / 3)
+
+      constant REDBOOKTOMM(value)   ((((value) & $000000FF) * 60 * 3000) + \
+      (((value) & $0000FF00) / $100 * 3000) + \
+      (((value) & $00FF0000) / $10000 * 3000/75))
+
+      constant FPS24TOMM(value) ((((value) & $000000FF) * 60 * 60 * 3000) + \
+      (((value) & $0000FF00) / $100 * 60 * 3000) + \
+      (((value) & $00FF0000) / $10000 * 3000) + \
+      (((value) & $FF000000) / $1000000 * 3000/24))
+
+      constant FPS25TOMM(value) ((((value) & $000000FF) * 60 * 60 * 3000) + \
+      (((value) & $0000FF00) / $100 * 60 * 3000) + \
+      (((value) & $00FF0000) / $10000 * 3000) + \
+      (((value) & $FF000000) / $1000000 * 3000/25))
+
+      constant FPS30TOMM(value) ((((value) & $000000FF) * 60 * 60 * 3000) + \
+      (((value) & $0000FF00) / $100 * 60 * 3000) + \
+      (((value) & $00FF0000) / $10000 * 3000) + \
+      (((value) & $FF000000) / $1000000 * 3000/30))
+
+      constant HMSTOMM(value)   ((((value) & $000000FF) * 60 * 60 * 3000) + \
+      (((value) & $0000FF00) / $100 * 60 * 3000) + \
+      (((value) & $00FF0000) / $10000 * 3000))
+
+
+      (* The +20 is used for rounding purposes.  It is derived by:           *)
+      (*   1/2 * ((300 MMTIME/SEC / (75 FRAMES/SEC)) = 20 MMTIME/HALF-FRAME  *)
+      constant REDBOOKFROMMM(value) ((((value)+20) >= $100*60*3000) ? 0L : \
+      ((((value)+20) / (60*3000)) + \
+      (((value)+20) % (60*3000) / 3000 << 8) + \
+      (((value)+20) / (3000/75) % 75 << 16)))
+
+      constant FPS24FROMMM(value) ((((value)+63) >= $100*60*60*3000) ? 0L : \
+      (((((((value)+63) % 3000)/(3000/24)) << 24) & $FF000000) | \
+      ((((((value)+63) / 3000) % 60) << 16) & $00FF0000)      | \
+      (((((((value)+63) / 3000) / 60) % 60) << 8) & $0000FF00) | \
+      ((((((value)+63) / 3000) / 60) / 60)  & $000000FF)))
+
+      constant FPS25FROMMM(value) ((((value)+60) >= $100*60*60*3000) ? 0L : \
+      (((((((value)+60) % 3000)/(3000/25)) << 24) & $FF000000) | \
+      ((((((value)+60) / 3000) % 60) << 16) & $00FF0000)      | \
+      (((((((value)+60) / 3000) / 60) % 60) << 8) & $0000FF00) | \
+      ((((((value)+60) / 3000) / 60) / 60)  & $000000FF)))
+
+      constant FPS30FROMMM(value) ((((value)+50) >= $100*60*60*3000) ? 0L : \
+      (((((((value)+50) % 3000)/(3000/30)) << 24) & $FF000000) | \
+      ((((((value)+50) / 3000) % 60) << 16) & $00FF0000)      | \
+      (((((((value)+50) / 3000) / 60) % 60) << 8) & $0000FF00) | \
+      ((((((value)+50) / 3000) / 60) / 60)  & $000000FF)))
+
+      constant HMSFROMMM(value) ((((value)+50) >= $100*60*60*3000) ? 0L : \
+      (((((((value)+50) / 3000) % 60) << 16) & $00FF0000)      | \
+      (((((((value)+50) / 3000) / 60) % 60) << 8) & $0000FF00) | \
+      ((((((value)+50) / 3000) / 60) / 60)  & $000000FF)))
+
+      constant TMSF_TRACK(time)     (*(BYTE *)(&(time)))
+      constant TMSF_MINUTE(time)    (*((BYTE *)(&(time))+1))
+      constant TMSF_SECOND(time)    (*((BYTE *)(&(time))+2))
+      constant TMSF_FRAME(time)     (*((BYTE *)(&(time))+3))
+      constant MSF_MINUTE(time)     (*(BYTE *)(&(time)))
+      constant MSF_SECOND(time)     (*((BYTE *)(&(time))+1))
+      constant MSF_FRAME(time)      (*((BYTE *)(&(time))+2))
+*)
+      (*********************************************************************)
+      (*                                                                   *)
+      (*  BYTE ACCESS WITH A DWORD MACROS                                  *)
+      (*                                                                   *)
+      (*********************************************************************)
+(*
+      constant ULONG_LWLB(ul)  (*(BYTE *)((ULONG *)(&ul)))       (* Low  Word Low Byte  *)
+      constant ULONG_LWHB(ul)  (*((BYTE *)((ULONG *)(&ul))+1))   (* Low  Word High Byte *)
+      constant ULONG_HWLB(ul)  (*((BYTE *)((ULONG *)(&ul))+2))   (* High Word Low Byte  *)
+      constant ULONG_HWHB(ul)  (*((BYTE *)((ULONG *)(&ul))+3))   (* High Word High Byte *)
+      constant ULONG_LOWD(ul)  (*(USHORT *)((ULONG *)(&ul)))     (* Low  Word           *)
+      constant ULONG_HIWD(ul)  (*((USHORT *)((ULONG *)(&ul))+1)) (* High Word           *)
+*)
+
+(*      #pragma pack(1)  *)
+
+      (*********************************************************************)
+      (* parameters for default command messages with empty parameter lists*)
+      (*********************************************************************)
+      type MCI_GENERIC_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+      end;
+      type PMCI_GENERIC_PARMS=^MCI_GENERIC_PARMS;
+
+
+      (*********************************************************************)
+      (* flags for the MCI_ACQUIREDEVICE message                           *)
+      (*     $00000X00 are reserved for MCI_ACQUIREDEVICE flags           *)
+      (*********************************************************************)
+      constant MCI_EXCLUSIVE                      = $00000100;
+      constant MCI_EXCLUSIVE_INSTANCE             = $00000200;
+      constant MCI_ACQUIRE_QUEUE                  = $00000400;
+
+
+      (*********************************************************************)
+      (* flags for the MCI_CAPTURE message                                 *)
+      (*     $0000XX00 are reserved for MCI_CAPTURE flags                 *)
+      (*     MCI_CONVERT is used by MCI_GETIMAGEBUFFER, MCI_SETIMAGEBUFFER *)
+      (*                            MCI_CAPTURE, and MCI_RESTORE           *)
+      (*********************************************************************)
+      constant MCI_CAPTURE_RECT                   = $00000100;
+      constant MCI_CONVERT                        = $00001000;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_CAPTURE message                   *)
+      (*********************************************************************)
+      type MCI_CAPTURE_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+         rect: RECTL;            (* Rectangle array specifying the area to  *)
+                                 (* be captured                             *)
+      end;
+      type PMCI_CAPTURE_PARMS=^MCI_CAPTURE_PARMS;
+
+
+      (*********************************************************************)
+      (* flags for MCI_CONNECTOR and MCI_CONNECTION messages               *)
+      (*********************************************************************)
+      constant MCI_ENABLE_CONNECTOR               = $00000100;
+      constant MCI_DISABLE_CONNECTOR              = $00000200;
+      constant MCI_QUERY_CONNECTOR_STATUS         = $00000400;
+      constant MCI_CONNECTOR_TYPE                 = $00000800;
+      constant MCI_CONNECTOR_INDEX                = $00001000;
+      constant MCI_TO_CONNECTOR_INDEX             = $00002000;
+      constant MCI_TO_CONNECTOR_TYPE              = $00004000;
+      constant MCI_QUERY_CONNECTION               = $00008000;
+      constant MCI_MAKE_CONNECTION                = $00010000;
+      constant MCI_SET_CONNECTION                 = MCI_MAKE_CONNECTION;
+      constant MCI_BREAK_CONNECTION               = $00020000;
+      constant MCI_ENUMERATE_CONNECTORS           = $00040000;
+      constant MCI_QUERY_CONNECTOR_TYPE           = $00080000;
+      constant MCI_QUERY_VALID_CONNECTION         = $00100000;
+      constant MCI_CONNECTOR_ALIAS                = $00200000;
+      constant MCI_EXTERNAL_CONNECTION            = $00400000;
+
+
+      (*********************************************************************)
+      (* Connector types                                                   *)
+      (*********************************************************************)
+      constant MCI_MIDI_STREAM_CONNECTOR          = $00000001;
+      constant MCI_CD_STREAM_CONNECTOR            = $00000002;
+      constant MCI_WAVE_STREAM_CONNECTOR          = $00000003;
+      constant MCI_AMP_STREAM_CONNECTOR           = $00000004;
+      constant MCI_XA_STREAM_CONNECTOR            = $00000005;
+      constant MCI_HEADPHONES_CONNECTOR           = $00000006;
+      constant MCI_SPEAKERS_CONNECTOR             = $00000007;
+      constant MCI_MICROPHONE_CONNECTOR           = $00000008;
+      constant MCI_LINE_IN_CONNECTOR              = $00000009;
+      constant MCI_LINE_OUT_CONNECTOR             = $0000000a;
+      constant MCI_VIDEO_IN_CONNECTOR             = $0000000b;
+      constant MCI_VIDEO_OUT_CONNECTOR            = $0000000c;
+      constant MCI_PHONE_SET_CONNECTOR            = $0000000d;
+      constant MCI_PHONE_LINE_CONNECTOR           = $0000000e;
+      constant MCI_AUDIO_IN_CONNECTOR             = $0000000f;
+      constant MCI_AUDIO_OUT_CONNECTOR            = $00000010;
+      constant MCI_UNIVERSAL_CONNECTOR            = $00000011;
+      constant MCI_INTERNAL_AUDIO_CONNECTOR       = $00000012;
+      constant MCI_MIDI_IN_CONNECTOR              = $00000013;
+      constant MCI_MIDI_OUT_CONNECTOR             = $00000014;
+      constant MCI_NULL_CONNECTOR                 = $00000015;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_CONNECTION message                *)
+      (*********************************************************************)
+      type MCI_CONNECTION_PARMS=structure
+            hwndCallback: HWND;       (* PM window handle for MCI notify message *)
+            ulConnectorType: ULONG;    (* Connector type                          *)
+            ulConnectorIndex: ULONG;   (* Connector index                         *)
+            pszAlias: PSZ;           (* Connection device alias                 *)
+            usToDeviceID: USHORT;       (* Connected to device ID                  *)
+            usReserved0: USHORT;        (* Reserved field                          *)
+            ulToConnectorType: ULONG;  (* Connection to Connector type            *)
+            ulToConnectorIndex: ULONG; (* Connection to Connector index           *)
+      end;
+      type PMCI_CONNECTION_PARMS=^MCI_CONNECTION_PARMS;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_CONNECTOR message                 *)
+      (*********************************************************************)
+      type MCI_CONNECTOR_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+         ulReturn: ULONG;         (* Return information                         *)
+         ulConnectorType: ULONG;  (* If specified, ulConnectorIndex is relative *)
+         (* to the specified connector type            *)
+         ulConnectorIndex: ULONG; (* Connector number                           *)
+      end;
+      type PMCI_CONNECTOR_PARMS=^MCI_CONNECTOR_PARMS;
+
+
+      (*********************************************************************)
+      (* Flags for use with ulParam1                                       *)
+      (*********************************************************************)
+
+
+      constant MCI_MIXSETUP_INIT           = $00010000;
+      constant MCI_MIXSETUP_DEINIT         = $00020000;
+      constant MCI_MIXSETUP_QUERYMODE      = $00040000;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_BUFFER    message                 *)
+      (*********************************************************************)
+      type MCI_MIX_BUFFER=structure
+               ulStructLength: ULONG;   (* Length of the structure          *)
+               pBuffer: PVOID;          (* Pointer to a buffer              *)
+               ulBufferLength: ULONG;   (* Length of the buffer             *)
+               ulFlags: ULONG;          (* Flags                            *)
+               ulUserParm: ULONG;       (* Caller parameter                 *)
+               ulTime: ULONG;           (* OUT--Current time in MS          *)
+               ulReserved1: ULONG;      (* Unused.                          *)
+               ulReserved2: ULONG;      (* Unused.                          *)
+      end;
+
+      type PMCI_MIX_BUFFER=^MCI_MIX_BUFFER;
+
+
+      (*********************************************************************)
+      (* valid options for the ulFlags field of MCI_MIX_BUFFER             *)
+      (*********************************************************************)
+
+
+      constant MIX_BUFFER_EOS               = $00000001;
+
+
+
+      type MIXERPROC=function
+                    (in ulHandle: ULONG;
+                     in pBuffer: PMCI_MIX_BUFFER;
+                     in ulFlags: ULONG): LONG;
+
+      type PMIXERPROC=^MIXERPROC;
+      type MIXEREVENT=function
+                    ( in ulStatus: ULONG;
+                      in pBuffer: PMCI_MIX_BUFFER;
+                      in ulFlags: ULONG): LONG;
+
+      type PMIXEREVENT=^MIXEREVENT;
+
+      (*********************************************************************)
+      (* valid returns for the ulFlags param of the MIXEREVENT entry       *)
+      (*********************************************************************)
+
+
+      constant MIX_STREAM_ERROR            = $00000080;
+      constant MIX_READ_COMPLETE           = $00000001;
+      constant MIX_WRITE_COMPLETE          = $00000002;
+
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_MIXSETUP_PARMS message            *)
+      (*********************************************************************)
+      type MCI_MIXSETUP_PARMS=structure
+                 hwndCallback: HWND;     (* PM window handle for MCI notify message      *)
+                 ulBitsPerSample: ULONG;  (* IN Number of Bits per Sample                 *)
+                 ulFormatTag: ULONG;      (* IN Format Tag                                *)
+                 ulSamplesPerSec: ULONG;  (* IN Sampling Rate                             *)
+                 ulChannels: ULONG;       (* IN Number of channels                        *)
+                 ulFormatMode: ULONG;     (* IN Either MCI_RECORD or MCI_PLAY             *)
+                 ulDeviceType: ULONG;     (* IN MCI_DEVTYPE (i.e. DEVTYPE_WAVEFORM etc.)  *)
+                 ulMixHandle: ULONG;      (* OUT--mixer returns handle for write/read     *)
+                 pmixWrite: PMIXERPROC;        (* OUT-Mixer Write Routine entry point          *)
+                 pmixRead: PMIXERPROC;         (* OUT-Mixer Read Routine entry point           *)
+                 pmixEvent: PMIXEREVENT;        (* IN--Mixer Read Routine entry point           *)
+                 pExtendedInfo: PVOID;    (* Ptr to extended wave information             *)
+                 ulBufferSize: ULONG;     (* OUT--suggested buffer size for current mode  *)
+                 ulNumBuffers: ULONG;     (* OUT--suggested # of buffers for current mode *)
+      end;
+
+      type PMCI_MIXSETUP_PARMS=^MCI_MIXSETUP_PARMS;
+
+      (*********************************************************************)
+      (* Flags for use with ulParam1                                       *)
+      (*********************************************************************)
+
+
+
+      constant  MCI_BUFFER_QUERY        = $00010000;
+      constant  MCI_BUFFER_SET          = $00020000;
+      constant  MCI_ALLOCATE_MEMORY     = $00040000;
+      constant  MCI_DEALLOCATE_MEMORY   = $00080000;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_BUFFER    message                 *)
+      (*********************************************************************)
+      type MCI_BUFFER_PARMS=structure
+                hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+                ulStructLength: ULONG;   (* Length of the MCI Buffer command           *)
+                ulNumBuffers: ULONG;     (* Number of buffers MCI driver should use    *)
+                ulBufferSize: ULONG;     (* Size of buffers MCI driver should use      *)
+                ulMinToStart: ULONG;     (* Min number of buffers to create a stream.  *)
+                ulSrcStart: ULONG;       (* # of EMPTY buffers required to start Source*)
+                ulTgtStart: ULONG;       (* # of FULL buffers required to start Target *)
+
+                pBufList: PVOID;         (* Pointer to a list of buffers               *)
+
+      end;
+      type PMCI_BUFFER_PARMS=^MCI_BUFFER_PARMS;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_CONNECTORINFO message             *)
+      (*********************************************************************)
+      type MCI_CONNECTORINFO_PARMS=structure
+            hwndCallback: HWND;      (* PM window handle for MCI notify message    *)
+            ulReturn: ULONG;          (* Return information                         *)
+            ulDeviceTypeID: ULONG;    (* MCI device type                            *)
+            ulConnectorType: ULONG;   (* If specified, ulConnectorIndex is relative *)
+         (* to the specified connector type            *)
+            ulConnectorIndex: ULONG;  (* Connector number                           *)
+            ulToConnectorType: ULONG; (* Connector type to test if                  *)
+         (* MCI_QUERY_VALID_CONNECTION is specified    *)
+      end;
+      type PMCI_CONNECTORINFO_PARMS=^MCI_CONNECTORINFO_PARMS;
+
+      (*********************************************************************)
+      (* flags for the MCI_CUE message                                     *)
+      (*     $00000x00 are reserved for MCI_CUE flags                     *)
+      (*********************************************************************)
+      constant MCI_CUE_INPUT                      = $00000100;
+      constant MCI_CUE_OUTPUT                     = $00000200;
+      constant MCI_SHOW                           = $00000400;
+      constant MCI_NOSHOW                         = $00000800;
+
+      (*************************************************)
+      (* Additional flags for Wave Audio for MCI_CUE   *)
+      (*************************************************)
+      constant MCI_WAVE_INPUT                     = $00001000;
+      constant MCI_WAVE_OUTPUT                    = $00002000;
+
+
+      (*****************************************************************************)
+      (* the MCI_CONNLIST structure used in the NETWORK_DEFAULT_CONNECTION message *)
+      (*****************************************************************************)
+      type MCI_CONNLIST=structure
+      {
+          ulFromDevice: ULONG;  (* Ordinal position of device within pDevices array *)
+          ulSrcConnType: ULONG; (* Type of source connector                         *)
+          ulSrcConnNum: ULONG;  (* Source Connector Number                          *)
+          ulToDevice: ULONG;    (* Ordinal position of device within pDevices array *)
+          ulTgtConnType: ULONG; (* Type of target connector                         *)
+          ulTgtConnNum: ULONG;  (* Target Connector Number                          *)
+      end;
+      type PMCI_CONNLIST=^MCI_CONNLIST;
+
+
+      (*****************************************************************************)
+      (* parameter structure for the MCI_NETWORK_DEFAULT_CONNECTION message        *)
+      (*****************************************************************************)
+      type MCI_NETWORK_DEFAULT_CONNECTION_PARMS=structure
+                     hwndCallback: HWND;                   (* PM window handle for MCI notify message    *)
+                     szInstallName: array[MAX_DEVICE_NAME] of CHAR; (* Name of section containing default conn.   *)
+                     ulNumDevices: ULONG;                   (* Number of additional devices in connection *)
+                     ulNumPlayConnections: ULONG;           (* Number of Play connections                 *)
+                     ulNumRecordConnections: ULONG;         (* Number of Record connections               *)
+                     pDevices:^array[MAX_DEVICE_NAME] of CHAR;    (* Pointer to array of device names to open   *)
+                     pPlayConnections: PMCI_CONNLIST;               (* Pointer to array of connections to "make"  *)
+                     pRecordConnections: PMCI_CONNLIST;             (* Pointer to array of connections to "make"  *)
+      end;
+      type PMCI_NETWORK_DEFAULT_CONNECTION_PARMS=^MCI_NETWORK_DEFAULT_CONNECTION_PARMS;
+
+
+      (*******************************************************)
+      (* Additional flags for MCI_NETWORK_DEFAULT_CONNECTION *)
+      (*******************************************************)
+      constant MCI_RECORD_DEFAULTS            = $00000004;
+      constant MCI_PLAY_DEFAULTS              = $00000008;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_DEFAULT_CONNECTION message        *)
+      (*********************************************************************)
+      type MCI_DEFAULT_CONNECTION_PARMS=structure
+           hwndCallback: HWND;       (* PM window handle for MCI notify message    *)
+           pszDevice: PSZ;          (* Device name                                *)
+           ulConnectorType: ULONG;    (* If specified, ulConnectorIndex is relative *)
+         (* to the specified connector type            *)
+           ulConnectorIndex: ULONG;   (* Connector number                           *)
+           pszToDevice: PSZ;        (* Return device name to which the connection *)
+         (* exists                                     *)
+           ulToConnectorType: ULONG;  (* Connector type                             *)
+           ulToConnectorIndex: ULONG; (* Connector number                           *)
+      end;
+      type PMCI_DEFAULT_CONNECTION_PARMS=^MCI_DEFAULT_CONNECTION_PARMS;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_DEVICESETTINGS message            *)
+      (*********************************************************************)
+      type MCI_DEVICESETTINGS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message    *)
+             hwndNotebook: HWND;    (* Hwhd to notebook window                    *)
+             usDeviceType: USHORT;    (* Device type                                *)
+             pszDeviceName: PSZ;   (* Device name                                *)
+      end;
+      type PMCI_DEVICESETTINGS_PARMS=^MCI_DEVICESETTINGS_PARMS;
+
+      (**********************************************************************)
+      (* parameter structure for the MCI_CUT / COPY / DELETE / UNDO / etc...*)
+      (**********************************************************************)
+      type MCI_EDIT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             ulStructLen: ULONG;     (* Length of the Structure                     *)
+             ulFrom: ULONG;          (* Beginning Point of Range                    *)
+             ulTo: ULONG;            (* ending point of range                       *)
+             pBuff: PVOID;           (* user buffer                                 *)
+             ulBufLen: ULONG;        (* length of user buffer                       *)
+             pHeader: PVOID;         (* header which describes the buffer           *)
+      end;
+      type PMCI_EDIT_PARMS=^MCI_EDIT_PARMS;
+
+      (*********************************************************************)
+      (* flags and parameter structure for the MCI_ESCAPE message          *)
+      (*     $00000X00 are reserved for MCI_ESCAPE flags                  *)
+      (*********************************************************************)
+      constant MCI_ESCAPE_STRING                  = $00000100;
+
+      type MCI_ESCAPE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message    *)
+             pszCommand: PSZ;      (* Command to send to the device              *)
+      end;
+      type PMCI_ESCAPE_PARMS=^MCI_ESCAPE_PARMS;
+
+      (*********************************************************************)
+      (* flags for the MCI_FREEZE message                                  *)
+      (*     $0000XX00 are reserved for MCI_FREEZE flags                  *)
+      (*********************************************************************)
+      constant MCI_OVLY_FREEZE_RECT               = $00000100;
+      constant MCI_OVLY_FREEZE_RECT_OUTSIDE       = $00000200;
+
+      (*********************************************************************)
+      (* flags for the MCI_GETDEVCAPS message                              *)
+      (*     $00XXXX00 are reserved for MCI_GETDEVCAPS flags              *)
+      (*********************************************************************)
+      constant MCI_GETDEVCAPS_MESSAGE             = $00000100;
+      constant MCI_GETDEVCAPS_ITEM                = $00000200;
+      constant MCI_GETDEVCAPS_EXTENDED            = $00000400;
+
+      (*************************************************)
+      (* General MCI_GETDEVCAPS item values            *)
+      (*************************************************)
+      constant MCI_GETDEVCAPS_CAN_EJECT           = $00000001;
+      constant MCI_GETDEVCAPS_CAN_LOCKEJECT       = $00000002;
+      constant MCI_GETDEVCAPS_CAN_PLAY            = $00000003;
+      constant MCI_GETDEVCAPS_CAN_PROCESS_INTERNAL= $00000004;
+      constant MCI_GETDEVCAPS_CAN_RECORD          = $00000005;
+      constant MCI_GETDEVCAPS_CAN_RECORD_INSERT   = $00000006;
+      constant MCI_GETDEVCAPS_CAN_SAVE            = $00000007;
+      constant MCI_GETDEVCAPS_CAN_SETVOLUME       = $00000008;
+      constant MCI_GETDEVCAPS_CAN_STREAM          = $00000009;
+      constant MCI_GETDEVCAPS_DEVICE_TYPE         = $0000000A;
+      constant MCI_GETDEVCAPS_HAS_AUDIO           = $0000000B;
+      constant MCI_GETDEVCAPS_HAS_VIDEO           = $0000000C;
+      constant MCI_GETDEVCAPS_PREROLL_TIME        = $0000000D;
+      constant MCI_GETDEVCAPS_PREROLL_TYPE        = $0000000E;
+      constant MCI_GETDEVCAPS_USES_FILES          = $0000000F;
+      constant MCI_GETDEVCAPS_HAS_IMAGE           = $00000010;
+      constant MCI_GETDEVCAPS_WAVE_FORMAT         = $00000011;
+      constant MCI_GETDEVCAPS_CAN_CLOSE_DOOR      = $00000012;
+
+      (***********************************************)
+      (* return ID's for videodisc MCI_GETDEVCAPS    *)
+      (***********************************************)
+      constant MCI_VD_MEDIA_CLV                   = $00000001;
+      constant MCI_VD_MEDIA_CAV                   = $00000002;
+      constant MCI_VD_MEDIA_OTHER                 = $00000003;
+
+      (*************************************************)
+      (* MCI_GETDEVCAPS item values for video devices  *)
+      (*************************************************)
+      constant MCI_VID_GETDEVCAPS_CAN_STRETCH      = MCI_VID_ITEM_BASE;
+      constant MCI_VID_GETDEVCAPS_CAN_DISTORT      = (MCI_VID_ITEM_BASE+1);
+      constant MCI_VID_GETDEVCAPS_VIDEO_X_EXTENT   = (MCI_VID_ITEM_BASE+2);
+      constant MCI_VID_GETDEVCAPS_VIDEO_Y_EXTENT   = (MCI_VID_ITEM_BASE+3);
+      constant MCI_VID_GETDEVCAPS_IMAGE_X_EXTENT   = (MCI_VID_ITEM_BASE+4);
+      constant MCI_VID_GETDEVCAPS_IMAGE_Y_EXTENT   = (MCI_VID_ITEM_BASE+5);
+      constant MCI_VID_GETDEVCAPS_MAX_WINDOWS      = (MCI_VID_ITEM_BASE+6);
+      constant MCI_VID_GETDEVCAPS_CAN_FREEZE       = (MCI_VID_ITEM_BASE+7);
+      constant MCI_VID_GETDEVCAPS_OVERLAY_GRAPHICS = (MCI_VID_ITEM_BASE+8);
+
+      constant MCI_VID_GETDEVCAPS_CAN_REVERSE      = (MCI_VID_ITEM_BASE+9);
+      constant MCI_VID_GETDEVCAPS_FAST_RATE        = (MCI_VID_ITEM_BASE+10);
+      constant MCI_VID_GETDEVCAPS_SLOW_RATE        = (MCI_VID_ITEM_BASE+11);
+      constant MCI_VID_GETDEVCAPS_NORMAL_RATE      = (MCI_VID_ITEM_BASE+12);
+      constant MCI_VID_GETDEVCAPS_MINIMUM_RATE     = (MCI_VID_ITEM_BASE+13);
+      constant MCI_VID_GETDEVCAPS_MAXIMUM_RATE     = (MCI_VID_ITEM_BASE+14);
+
+      (*************************************************)
+      (* MCI_GETDEVCAPS flag values for Videodisc      *)
+      (*************************************************)
+      constant MCI_VD_GETDEVCAPS_CLV              = $00000400;
+      constant MCI_VD_GETDEVCAPS_CAV              = $00000800;
+
+      (*************************************************)
+      (* MCI_GETDEVCAPS item values for Videodisc      *)
+      (*************************************************)
+
+      constant MCI_VD_GETDEVCAPS_CAN_REVERSE      = MCI_VID_GETDEVCAPS_CAN_REVERSE;
+      constant MCI_VD_GETDEVCAPS_FAST_RATE        = MCI_VID_GETDEVCAPS_FAST_RATE;
+      constant MCI_VD_GETDEVCAPS_SLOW_RATE        = MCI_VID_GETDEVCAPS_SLOW_RATE;
+      constant MCI_VD_GETDEVCAPS_NORMAL_RATE      = MCI_VID_GETDEVCAPS_NORMAL_RATE;
+      constant MCI_VD_GETDEVCAPS_MINIMUM_RATE     = MCI_VID_GETDEVCAPS_MINIMUM_RATE;
+      constant MCI_VD_GETDEVCAPS_MAXIMUM_RATE     = MCI_VID_GETDEVCAPS_MAXIMUM_RATE;
+
+      (************************************************)
+      (* MCI_GETDEVCAPS item values for Digital Video *)
+      (************************************************)
+      constant MCI_DGV_GETDEVCAPS_CAN_REVERSE      =MCI_VID_GETDEVCAPS_CAN_REVERSE;
+      constant MCI_DGV_GETDEVCAPS_CAN_STRETCH      =MCI_VID_GETDEVCAPS_CAN_STRETCH;
+      constant MCI_DGV_GETDEVCAPS_CAN_DISTORT      =MCI_VID_GETDEVCAPS_CAN_DISTORT;
+      constant MCI_DGV_GETDEVCAPS_FAST_RATE        =MCI_VID_GETDEVCAPS_FAST_RATE;
+      constant MCI_DGV_GETDEVCAPS_SLOW_RATE        =MCI_VID_GETDEVCAPS_SLOW_RATE;
+      constant MCI_DGV_GETDEVCAPS_NORMAL_RATE      =MCI_VID_GETDEVCAPS_NORMAL_RATE;
+      constant MCI_DGV_GETDEVCAPS_MINIMUM_RATE     =MCI_VID_GETDEVCAPS_MINIMUM_RATE;
+      constant MCI_DGV_GETDEVCAPS_MAXIMUM_RATE     =MCI_VID_GETDEVCAPS_MAXIMUM_RATE;
+      constant MCI_DGV_GETDEVCAPS_VIDEO_X_EXTENT   =MCI_VID_GETDEVCAPS_VIDEO_X_EXTENT;
+      constant MCI_DGV_GETDEVCAPS_VIDEO_Y_EXTENT   =MCI_VID_GETDEVCAPS_VIDEO_Y_EXTENT;
+      constant MCI_DGV_GETDEVCAPS_IMAGE_X_EXTENT   =MCI_VID_GETDEVCAPS_IMAGE_X_EXTENT;
+      constant MCI_DGV_GETDEVCAPS_IMAGE_Y_EXTENT   =MCI_VID_GETDEVCAPS_IMAGE_Y_EXTENT;
+      constant MCI_DGV_GETDEVCAPS_MAX_WINDOWS      =MCI_VID_GETDEVCAPS_MAX_WINDOWS;
+      constant MCI_DGV_GETDEVCAPS_OVERLAY_GRAPHICS =MCI_VID_GETDEVCAPS_OVERLAY_GRAPHICS;
+      constant MCI_DGV_GETDEVCAPS_HAS_TUNER        =(MCI_DGV_ITEM_BASE);
+      constant MCI_DGV_GETDEVCAPS_HAS_TELETEX      =(MCI_DGV_ITEM_BASE+1);
+      constant MCI_DGV_GETDEVCAPS_HAS_AFC          =(MCI_DGV_ITEM_BASE+2);
+
+      (*************************************************)
+      (* MCI_GETDEVCAPS item values for Video Overlay  *)
+      (*************************************************)
+      constant MCI_OVLY_GETDEVCAPS_CAN_STRETCH    = MCI_VID_GETDEVCAPS_CAN_STRETCH;
+      constant MCI_OVLY_GETDEVCAPS_CAN_DISTORT    = MCI_VID_GETDEVCAPS_CAN_DISTORT;
+      constant MCI_OVLY_GETDEVCAPS_VIDEO_X_EXTENT = MCI_VID_GETDEVCAPS_VIDEO_X_EXTENT;
+      constant MCI_OVLY_GETDEVCAPS_VIDEO_Y_EXTENT = MCI_VID_GETDEVCAPS_VIDEO_Y_EXTENT;
+      constant MCI_OVLY_GETDEVCAPS_IMAGE_X_EXTENT = MCI_VID_GETDEVCAPS_IMAGE_X_EXTENT;
+      constant MCI_OVLY_GETDEVCAPS_IMAGE_Y_EXTENT = MCI_VID_GETDEVCAPS_IMAGE_Y_EXTENT;
+      constant MCI_OVLY_GETDEVCAPS_MAX_WINDOWS    = MCI_VID_GETDEVCAPS_MAX_WINDOWS;
+      constant MCI_OVLY_GETDEVCAPS_CAN_FREEZE     = MCI_VID_GETDEVCAPS_CAN_FREEZE;
+      constant MCI_OVLY_GETDEVCAPS_OVERLAY_GRAPHICS= MCI_VID_GETDEVCAPS_OVERLAY_GRAPHICS;
+
+
+      constant MCI_PREROLL_NOTIFIED               = $00000001;
+      constant MCI_PREROLL_DETERMINISTIC          = $00000002;
+      constant MCI_PREROLL_NONE                   = $00000003;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_GETDEVCAPS message                *)
+      (*********************************************************************)
+      type MCI_GETDEVCAPS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for GETDEVCAPS item to query *)
+             usMessage: USHORT;       (* Field to hold MCI message to query      *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+      end;
+      type PMCI_GETDEVCAPS_PARMS=^MCI_GETDEVCAPS_PARMS;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_WAVE_GETDEVCAPS                   *)
+      (*********************************************************************)
+      type MCI_WAVE_GETDEVCAPS_PARMS=structure
+             hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;         (* Return field                            *)
+             ulItem: ULONG;           (* Item field for GETDEVCAPS item to query *)
+             usMessage: USHORT;        (* Field to hold MCI message to query      *)
+             usReserved0: USHORT;      (* Reserved field                          *)
+             ulLength: ULONG;         (* Length of structure in ULONGS           *)
+             ulBitsPerSample: ULONG;  (* Number of Bits per Sample               *)
+             ulFormatTag: ULONG;      (* Format Tag                              *)
+             ulSamplesPerSec: ULONG;  (* Sampling Rate                           *)
+             ulChannels: ULONG;       (* Number of channels                      *)
+             ulFormatMode: ULONG;     (* Either MCI_RECORD or MCI_PLAY           *)
+      end;
+      type PMCI_WAVE_GETDEVCAPS_PARMS=^MCI_WAVE_GETDEVCAPS_PARMS;
+
+      (*********************************************************************)
+      (* potential values for the ulValue field of MCI_AMP_GETDEVCAPS  *)
+      (*********************************************************************)
+      constant  MCI_AMP_CAN_SET_MONITOR          = MCI_AMP_SET_MONITOR;
+      constant  MCI_AMP_CAN_SET_BALANCE          = MCI_AMP_SET_BALANCE;
+      constant  MCI_AMP_CAN_SET_ALC              = MCI_AMP_SET_ALC;
+      constant  MCI_AMP_CAN_SET_MONITOR          = MCI_AMP_SET_MONITOR;
+      constant  MCI_AMP_CAN_SET_CROSSOVER        = MCI_AMP_SET_CROSSOVER;
+      constant  MCI_AMP_CAN_SET_LOUDNESS         = MCI_AMP_SET_LOUDNESS;
+      constant  MCI_AMP_CAN_SET_MUTE             = MCI_AMP_SET_MUTE;
+      constant  MCI_AMP_CAN_SET_REVERB           = MCI_AMP_SET_REVERB;
+      constant  MCI_AMP_CAN_SET_STEREOENHANCE    = MCI_AMP_SET_STEREOENHANCE;
+      constant  MCI_AMP_CAN_SET_CUSTOM1          = MCI_AMP_SET_CUSTOM1;
+      constant  MCI_AMP_CAN_SET_CUSTOM2          = MCI_AMP_SET_CUSTOM2;
+      constant  MCI_AMP_CAN_SET_CUSTOM3          = MCI_AMP_SET_CUSTOM3;
+      constant  MCI_AMP_CAN_SET_LRVOLUME         = MCI_AMP_SET_LRVOLUME;
+      constant  MCI_AMP_CAN_SET_BASS             = MCI_AMP_SET_BASS;
+      constant  MCI_AMP_CAN_SET_MID              = MCI_AMP_SET_MID;
+      constant  MCI_AMP_CAN_SET_TREBLE           = MCI_AMP_SET_TREBLE;
+      constant  MCI_AMP_CAN_SET_PITCH            = MCI_AMP_SET_PITCH;
+      constant  MCI_AMP_CAN_SET_GAIN             = MCI_AMP_SET_GAIN;
+      constant  MCI_AMP_CAN_SET_CHORUS           = MCI_AMP_SET_CHORUS;
+      constant  MCI_AMP_CAN_SET_VOLUME           = MCI_AMP_SET_VOLUME;
+
+
+      (*************************************************************************)
+      (* potential values for the ulExtended field of MCI_AMP_GETDEVCAPS_PARMS *)
+      (*************************************************************************)
+      constant MCI_MIXER_LINE   = $00000001;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_AMP_GETDEVCAPS                    *)
+      (*********************************************************************)
+      type MCI_AMP_GETDEVCAPS_PARMS=structure
+            hwndCallback: ULONG;     (* PM window handle for MCI notify message *)
+            ulReturn: ULONG;         (* Return field                            *)
+            ulItem: ULONG;           (* Item field for GETDEVCAPS item to query *)
+            usMessage: USHORT;        (* Field to hold MCI message to query      *)
+            usReserved0: USHORT;      (* Reserved field                          *)
+            ulLength: ULONG;         (* Length of structure in ULONGS           *)
+            ulValue: ULONG;          (* Value to determine caps                 *)
+            ulAttribute: ULONG;      (* Flags to modified the extended parms    *)
+            ulExtended: ULONG;       (* Extended flags field                    *)
+      end;
+      type PMCI_AMP_GETDEVCAPS_PARMS=^MCI_AMP_GETDEVCAPS_PARMS;
+
+
+      (*********************************************************************)
+      (* values for the ulFlags field of MCI_MIXEVENT_PARMS                *)
+      (*********************************************************************)
+      constant MCI_MIX_ATTRIBUTE      = $00000001;
+      constant MCI_MIX_CONNECTOR      = $00000002;
+
+      (*********************************************************************)
+      (* values for the lParam field for mix_notify                        *)
+      (*********************************************************************)
+
+      constant MCI_MIXNOTIFY_ON       = $00000004;
+      constant MCI_MIXNOTIFY_OFF      = $00000008;
+
+      (*********************************************************************)
+      (* value to indicate type of MM_MCIEVENT                             *)
+      (*********************************************************************)
+
+      constant MCI_MIXEVENT           = $00000001;
+
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_MIXEVENT_PARMS                    *)
+      (*********************************************************************)
+      type MCI_MIXEVENT_PARMS=structure
+           ulLength: ULONG;        (* Length of struct                          *)
+           hwndMixer: HWND;       (* window to inform of mixer changes         *)
+           ulFlags: ULONG;         (* Either MCI_MIX_ATTRIBUTE                  *)
+         (*      or MCI_MIX_CONNECTOR                 *)
+          usDeviceID: USHORT;      (* device id to notify of the change         *)
+          ulDeviceType: ULONG;    (* Device Type which generated the change    *)
+          ulDeviceOrdinal: ULONG; (* Ordinal of device Type                    *)
+          ulAttribute: ULONG;     (* Attribute that changed(volume, bass etc.) *)
+          ulValue: ULONG;         (* new value of the attribute which changed  *)
+          ulConnectorType: ULONG; (* Connector Type                            *)
+          ulConnectorIndex: ULONG;(* Connector Index                           *)
+          ulConnStatus: ULONG;    (* Is connector enabled/disabled.            *)
+
+      end;
+
+      type PMCI_MIXEVENT_PARMS=^MCI_MIXEVENT_PARMS;
+
+
+      (*********************************************************************)
+      (* flag values for the MCI_GETIMAGEBUFFER and MCI_SETIMAGEBUFFER msg *)
+      (*     $0000XX00 are reserved for MCI_GETIMAGEBUFFER and            *)
+      (*       MCI_SETIMAGEBUFFER Flags                                    *)
+      (*     MCI_CONVERT is defined by MCI_CAPTURE message as $00001000L  *)
+      (*********************************************************************)
+      constant MCI_USE_HW_BUFFER                  = $00000400;
+      constant MCI_GET_HW_BUFFER_PTR              = $00000800;
+
+      (***************************************************)
+      (* parm structure for MCI_GETIMAGEBUFFER and       *)
+      (*                    MCI_SETIMAGEBUFFER messages  *)
+      (***************************************************)
+      type MCI_IMAGE_PARMS=structure
+             hwndCallback: HWND;       (* PM window handle for MCI notify message *)
+             ulPelFormat: ULONG;        (* Format of the image data returned       *)
+             usBitCount: USHORT;         (* Number of bitsimage data returned       *)
+             usReserved0: USHORT;        (* Reserved field                          *)
+             ulImageCompression: ULONG; (*                                         *)
+             rect: RECTL;               (* Image area to get/set                   *)
+             pPelBuffer: PVOID;         (* Pel data buffer                         *)
+             ulPelBufferHeight: ULONG;  (* Number of rows in buffer                *)
+             ulPelBufferWidth: ULONG;   (* Pels per row in buffer                  *)
+             ulBufLen: ULONG;           (* Pel data buffer length in bytes         *)
+
+      end;
+      type PMCI_IMAGE_PARMS=^MCI_IMAGE_PARMS;
+
+      (*********************************************************************)
+      (* flags for the MCI_GETIMAGEPALETTE message                         *)
+      (*     $0000XX00 are reserved for MCI_GETIMAGEPALETTE flags         *)
+      (*********************************************************************)
+      constant MCI_FIND_BEST_REGISTERED           = $00000100;
+      constant MCI_QUERY_REGISTERED_MAP           = $00000200;
+      constant MCI_QUERY_REGISTERED_MAP_SIZE      = $00000400;
+
+
+      (***************************************************)
+      (* parameter structure for MCI_GETIMAGEPALETTE and *)
+      (*    MCI_SETIMAGEPALETTE messages                 *)
+      (***************************************************)
+      type MCI_PALETTE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message   *)
+             usRegisteredMap: USHORT; (* Id of the palette from the registed color *)
+         (* map                                       *)
+             usReserved0: USHORT;     (* Reserved field                            *)
+             ulPalEntries: ULONG;    (* size of the palette returned              *)
+             pPalette: PVOID;        (* pointer to the palette                    *)
+      end;
+      type PMCI_PALETTE_PARMS=^MCI_PALETTE_PARMS;
+
+
+      (*********************************************************************)
+      (* Parameter structure for the MCI_GETTOC message                    *)
+      (*********************************************************************)
+      type MCI_TOC_REC=structure
+               TrackNum: BYTE;      (* Returned Track Number                          *)
+               ulStartAddr: ULONG;   (* Starting address of the track in MMTIME format *)
+               ulEndAddr: ULONG;     (* Ending address of the track in MMTIME format   *)
+               Control: BYTE;       (* Track Control information                      *)
+               usCountry: USHORT;     (* Country                                        *)
+               ulOwner: ULONG;       (* Owner                                          *)
+               ulSerialNum: ULONG;   (* Serial Number                                  *)
+      end;
+      type PMCI_TOC_REC=^TOCREC;
+
+      type MCI_TOC_PARMS=structure
+               hwndCallback: HWND;  (* PM window handle for MCI notify message    *)
+               pBuf: PTOCREC;          (* Pointer to array MCI_TOC_REC structures to *)
+         (* be filled in by the mci device             *)
+               ulBufSize: ULONG;     (* Size of the array                          *)
+      end;
+      type PMCI_TOC_PARMS=^MCI_TOC_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_GROUP message                              *)
+      (*     $00XXXX00 are reserved for MCI_GROUP flags                   *)
+      (*********************************************************************)
+      constant MCI_SYNCHRONIZE                    = $00000100;
+      constant MCI_NOPIECEMEAL                    = $00000200;
+      constant MCI_GROUP_MAKE                     = $00000400;
+      constant MCI_GROUP_DELETE                   = $00000800;
+      constant MCI_GROUP_ALIAS                    = $00001000;
+      constant MCI_GROUP_MASTER                   = $00002000;
+
+      type MCI_GROUP_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message.    *)
+             usGroupID: USHORT;       (* GroupID                                     *)
+             usReserved0: USHORT;     (* RESERVED                                    *)
+             ulStructLength: ULONG;  (* Length of Structure in ULONGS.              *)
+             usMasterID: USHORT;      (* ID of Master device in Synchrounous groups. *)
+             usReserved1: USHORT;     (* RESERVED                                    *)
+             pszGroupAlias: PSZ;   (* Pointer to Alias Name.                      *)
+             ulNumDevices: ULONG;    (* Number of Devices in group.                 *)
+             paulDeviceID: PULONG;    (* Array of Device ids in the group.           *)
+      end;
+      type PMCI_GROUP_PARMS=^MCI_GROUP_PARMS;
+
+
+      (*********************************************************************)
+      (* flags for the MCI_INFO message                                    *)
+      (*     $00000X00 are reserved for MCI_INFO flags                    *)
+      (*********************************************************************)
+      constant MCI_INFO_PRODUCT                   = $00000100;
+      constant MCI_INFO_FILE                      = $00000200;
+
+      (************************************************)
+      (* CD Audio                MCI_INFO             *)
+      (************************************************)
+      constant MCI_CD_INFO_ID                     = $00010000;
+      constant MCI_CD_INFO_UPC                    = $00020000;
+
+      (************************************************)
+      (* Videodisc               MCI_INFO             *)
+      (************************************************)
+      constant MCI_VD_INFO_LABEL                  = $00001000;
+
+      (************************************************)
+      (* Digital Video           MCI_INFO             *)
+      (************************************************)
+      constant MCI_DGV_INFO_VIDEO_FILE            = $00001000;
+      constant MCI_DGV_INFO_IMAGE_FILE            = $00002000;
+      constant MCI_DGV_INFO_REGION                = $00004000;
+      constant MCI_DGV_INFO_REGION_TEXT           = $00008000;
+      constant MCI_DGV_INFO_TEXT                  = $00010000;
+
+      (************************************************)
+      (* Video Overlay           MCI_INFO             *)
+      (************************************************)
+      constant MCI_OVLY_INFO_TEXT                 = $00010000;
+
+
+      type MCI_INFO_PARMS=structure
+               hwndCallback: HWND;  (* PM window handle for MCI notify message *)
+               pszReturn: PSZ;     (* Pointer to return buffer                *)
+               ulRetSize: ULONG;     (* Return buffer size                      *)
+      end;
+      type PMCI_INFO_PARMS=^MCI_INFO_PARMS;
+
+      (*********************************************************************)
+      (* parameters and flags for the MCI_LOAD message                     *)
+      (*     $00000X00 are reserved for MCI_LOAD flags                    *)
+      (*********************************************************************)
+      type MCI_LOAD_PARMS=structure
+            hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+            pszElementName: PSZ;   (* File name to loads                      *)
+      end;
+      type PMCI_LOAD_PARMS=^MCI_LOAD_PARMS;
+
+      (*********************************************************************)
+      (* parameters and flags for the MCI_MASTERAUDIO                      *)
+      (*     $000XXX00 are reserved for MCI_MASTERAUDIO  flags            *)
+      (*********************************************************************)
+      constant MCI_ON                             = $00000100;
+      constant MCI_OFF                            = $00000200;
+      constant MCI_HEADPHONES                     = $00000400;
+      constant MCI_SPEAKERS                       = $00000800;
+      constant MCI_MASTERVOL                      = $00001000;
+      constant MCI_SAVESETTING                    = $00002000;
+      constant MCI_QUERYSAVEDSETTING              = $00004000;
+      constant MCI_QUERYCURRENTSETTING            = $00008000;
+
+
+      type MCI_MASTERAUDIO_PARMS=structure
+             hwndDummyCallback: HWND; (* Notify not allowed for this message     *)
+             ulReturn: ULONG;          (* Return field for query information      *)
+             ulMasterVolume: ULONG;    (* Master volume field                     *)
+      end;
+      type PMCI_MASTERAUDIO_PARMS=^MCI_MASTERAUDIO_PARMS;
+
+      (*********************************************************************)
+      (* parameters and flags for the MCI_OPEN message                     *)
+      (*     $0000XX00 are reserved for MCI_OPEN flags                    *)
+      (*********************************************************************)
+      constant MCI_OPEN_ELEMENT                   = $00000100;
+      constant MCI_OPEN_ALIAS                     = $00000200;
+      constant MCI_OPEN_ELEMENT_ID                = $00000400;
+      constant MCI_OPEN_PLAYLIST                  = $00000800;
+      constant MCI_OPEN_TYPE_ID                   = $00001000;
+      constant MCI_OPEN_SHAREABLE                 = $00002000;
+      constant MCI_OPEN_MMIO                      = $00004000;
+      constant MCI_READONLY                       = $00008000;
+
+      (***************************************************)
+      (* parameters and flags for the MCI_OPEN message   *)
+      (* Digital Video, Video Overlay specific           *)
+      (***************************************************)
+      constant MCI_VID_OPEN_PARENT                = $01000000;
+      constant MCI_DGV_OPEN_PARENT                = MCI_VID_OPEN_PARENT;
+      constant MCI_OVLY_OPEN_PARENT               = MCI_VID_OPEN_PARENT;
+
+      type MCI_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved                                *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+      end;
+      type PMCI_OPEN_PARMS=^MCI_OPEN_PARMS;
+
+      (**********************************************************)
+      (* parameters for the AMP MCI_OPEN message                *)
+      (**********************************************************)
+      type MCI_AMP_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+             pDevDataPtr: PVOID;     (* Pointer to device data                  *)
+      end;
+      type PMCI_AMP_OPEN_PARMS=^MCI_AMP_OPEN_PARMS;
+
+      (**********************************************************)
+      (* parameters for MCI_OPEN message for video devices      *)
+      (**********************************************************)
+
+      type MCI_VID_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+             hwndParent: HWND;      (* Parent window handle                    *)
+      end;
+
+      type MCI_VID_OPEN_PARMS= MCI_DGV_OPEN_PARMS;
+      type PMCI_DGV_OPEN_PARMS=^MCI_DGV_OPEN_PARMS;
+
+      type MCI_VID_OPEN_PARMS  =  MCI_OVLY_OPEN_PARMS;
+      type PMCI_OVLY_OPEN_PARMS  =^MCI_OVLY_OPEN_PARMS;
+
+      (***************************************************)
+      (* MCI_PLAY flag values for videodisc              *)
+      (***************************************************)
+      constant MCI_VD_PLAY_REVERSE                = $00001000;
+      constant MCI_VD_PLAY_FAST                   = $00002000;
+      constant MCI_VD_PLAY_SPEED                  = $00004000;
+      constant MCI_VD_PLAY_SCAN                   = $00008000;
+      constant MCI_VD_PLAY_SLOW                   = $00010000;
+
+      (***************************************************)
+      (* MCI_PLAY flag values for digital video          *)
+      (***************************************************)
+      constant MCI_DGV_PLAY_REVERSE               = $00001000;
+      constant MCI_DGV_PLAY_FAST                  = $00002000;
+      constant MCI_DGV_PLAY_SPEED                 = $00004000;
+      constant MCI_DGV_PLAY_SCAN                  = $00008000;
+      constant MCI_DGV_PLAY_SLOW                  = $00010000;
+      constant MCI_DGV_PLAY_REPEAT                = $00020000;
+
+      type MCI_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+      end;
+      type PMCI_PLAY_PARMS=^MCI_PLAY_PARMS;
+
+      type MCI_VD_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+             ulFactor: ULONG;        (* Play at this speed factor               *)
+      end;
+      type PMCI_VD_PLAY_PARMS=^MCI_VD_PLAY_PARMS;
+
+      type MCI_DGV_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+             ulSpeed: ULONG;         (* Specifies the play rate in frames per second *)
+      end;
+      type PMCI_DGV_PLAY_PARMS=^MCI_DGV_PLAY_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_PUT  message                               *)
+      (*     $00000X00 are reserved for MCI_PUT  flags                    *)
+      (*********************************************************************)
+      constant MCI_VID_PUT_RECT                   = $00000100;
+      constant MCI_VID_PUT_DESTINATION            = $00000200;
+      constant MCI_VID_PUT_SOURCE                 = $00000400;
+      constant MCI_VID_PUT_WINDOW_MOVE            = $00000800;
+      constant MCI_VID_PUT_WINDOW_SIZE            = $00001000;
+
+      constant MCI_DGV_PUT_RECT                   = MCI_VID_PUT_RECT;
+      constant MCI_DGV_PUT_DESTINATION            = MCI_VID_PUT_DESTINATION;
+      constant MCI_DGV_PUT_SOURCE                 = MCI_VID_PUT_SOURCE;
+      constant MCI_DGV_PUT_WINDOW_MOVE            = MCI_VID_PUT_WINDOW_MOVE;
+      constant MCI_DGV_PUT_WINDOW_SIZE            = MCI_VID_PUT_WINDOW_SIZE;
+      constant MCI_DGV_MONITOR                    = $00010000;
+      constant MCI_DGV_RECORD                     = $00020000;
+
+      constant MCI_OVLY_PUT_RECT                  = MCI_VID_PUT_RECT;
+      constant MCI_OVLY_PUT_DESTINATION           = MCI_VID_PUT_DESTINATION;
+      constant MCI_OVLY_PUT_SOURCE                = MCI_VID_PUT_SOURCE;
+      constant MCI_OVLY_PUT_WINDOW_MOVE           = MCI_VID_PUT_WINDOW_MOVE;
+      constant MCI_OVLY_PUT_WINDOW_SIZE           = MCI_VID_PUT_WINDOW_SIZE;
+
+      (***************************************************)
+      (* Rectangle parameters for MCI_PUT, MCI_WHERE,    *)
+      (* MCI_FREEZE, and MCI_UNFREEZE                    *)
+      (***************************************************)
+
+      type MCI_VID_RECT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             rc: RECTL;              (* rectangle array specifying the offset   *)
+         (* and size of a rectangle                 *)
+      end;
+
+      type MCI_VID_RECT_PARMS =  MCI_DGV_RECT_PARMS;
+      type PMCI_DGV_RECT_PARMS  =^MCI_DGV_RECT_PARMS;
+
+      type MCI_VID_RECT_PARMS =  MCI_OVLY_RECT_PARMS;
+      type PMCI_OVLY_RECT_PARMS =^MCI_OVLY_RECT_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_RECORD message                             *)
+      (*     $00000X00 are reserved for MCI_RECORD flags                  *)
+      (*********************************************************************)
+      constant MCI_RECORD_INSERT                  = $00000100;
+      constant MCI_RECORD_OVERWRITE               = $00000200;
+
+      constant MCI_DGV_RECORD_RECT                = $00000400;
+
+      type MCI_RECORD_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Record from position                    *)
+             ulTo: ULONG;            (* Record to position                      *)
+      end;
+      type PMCI_RECORD_PARMS =^MCI_RECORD_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_RELEASEDEVICE message                      *)
+      (*     $XXXXXX00 are reserved for MCI_RELEASEDEVICE message         *)
+      (*********************************************************************)
+      constant MCI_RETURN_RESOURCE                = $00000100;
+
+      (*********************************************************************)
+      (* parameters for the MCI_RESTORE message                            *)
+      (*     $0000XX00 are reserved for MCI_RESTORE flags                 *)
+      (*     MCI_CONVERT is defined by MCI_CAPTURE message as $00001000L  *)
+      (*********************************************************************)
+      constant MCI_RESTORE_SRC_RECT               = $00000100;
+      constant MCI_RESTORE_DEST_RECT              = $00000200;
+
+      type MCI_RESTORE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             SrcRect: RECTL;         (* Rectangle array specifying the source       *)
+         (* area to be restored                         *)
+             DestRect: RECTL;        (* Rectangle array specifying the destination  *)
+         (* area to be restored                         *)
+      end;
+      type PMCI_RESTORE_PARMS=^MCI_RESTORE_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_SAVE  message                              *)
+      (*     $00000X00 are reserved for MCI_SAVE  flags                   *)
+      (*********************************************************************)
+      constant MCI_SAVE_FILE                      = $00000100;
+
+      (*************************************************)
+      (* Digital Video               MCI_SAVE          *)
+      (*************************************************)
+
+      constant MCI_DGV_SAVE_VIDEO_FILE            = $00001000;
+      constant MCI_DGV_SAVE_IMAGE_FILE            = $00002000;
+
+      type MCI_SAVE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             pszFileName: PSZ;     (* Filename to save data to                    *)
+      end;
+      type PMCI_SAVE_PARMS=^MCI_SAVE_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_SEEK message                               *)
+      (*     $00000X00 are reserved for MCI_SEEK flags                    *)
+      (*********************************************************************)
+      constant MCI_TO_START                       = $00000100;
+      constant MCI_TO_END                         = $00000200;
+
+      (*************************************************)
+      (* Digital Video               MCI_SEEK          *)
+      (*************************************************)
+
+      constant MCI_DGV_SEEK_TO_NEAREST_IFRAME     = $00100000;
+
+      (*************************************************)
+      (* Videodisc                   MCI_SEEK          *)
+      (*************************************************)
+      constant MCI_VD_SEEK_REVERSE                = $00001000;
+
+      type MCI_SEEK_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             ulTo: ULONG;            (* Seek to this position                       *)
+      end;
+      type PMCI_SEEK_PARMS=^MCI_SEEK_PARMS;
+
+      (*********************************************************************)
+      (* Flags for the MCI_SET message                                     *)
+      (*     $00XXXX00 are reserved for MCI_SET  flags                    *)
+      (********************************************************************)
+      constant MCI_SET_ITEM                       = $00000100;
+      constant MCI_SET_ON                         = $00000200;
+      constant MCI_SET_OFF                        = $00000400;
+      constant MCI_SET_VIDEO                      = $00000800;
+      constant MCI_SET_AUDIO                      = $00001000;
+      constant MCI_SET_DOOR_OPEN                  = $00002000;
+      constant MCI_SET_DOOR_CLOSED                = $00004000;
+      constant MCI_SET_SPEED_FORMAT               = $00008000;
+      constant MCI_SET_TIME_FORMAT                = $00010000;
+      constant MCI_SET_DOOR_LOCK                  = $00020000;
+      constant MCI_SET_DOOR_UNLOCK                = $00040000;
+      constant MCI_SET_VOLUME                     = $00080000;
+      constant MCI_SET_ITEM_FOURCC                = $00100000;
+      constant MCI_SET_REVERSE                    = $00200000;
+
+      (*******************************************************)
+      (* Values for the ulAudio field                        *)
+      (*******************************************************)
+      constant MCI_SET_AUDIO_ALL                  = $00000000;
+      constant MCI_SET_AUDIO_LEFT                 = $00000001;
+      constant MCI_SET_AUDIO_RIGHT                = $00000002;
+
+      (*******************************************************)
+      (* MCI_SET flags for amp/mixer                         *)
+      (*******************************************************)
+      constant MCI_AMP_SET_BALANCE                = $00100000;
+      constant MCI_AMP_SET_PITCH                  = $00200000;
+      constant MCI_AMP_SET_TREBLE                 = $00400000;
+      constant MCI_AMP_SET_BASS                   = $00800000;
+      constant MCI_AMP_SET_GAIN                   = $01000000;
+
+      constant MCI_AMP_SET_ALC                    = $00000004;
+      constant MCI_AMP_SET_CROSSOVER              = $00000010;
+      constant MCI_AMP_SET_LOUDNESS               = $00000020;
+      constant MCI_AMP_SET_MUTE                   = $00000040;
+      constant MCI_AMP_SET_REVERB                 = $00000080;
+      constant MCI_AMP_SET_STEREOENHANCE          = $00000100;
+      constant MCI_AMP_SET_CUSTOM1                = $00000200;
+      constant MCI_AMP_SET_CUSTOM2                = $00000400;
+      constant MCI_AMP_SET_CUSTOM3                = $00000800;
+      constant MCI_AMP_SET_LRVOLUME               = $00001000;
+      constant MCI_AMP_SET_MID                    = $00020000;
+      constant MCI_AMP_SET_CHORUS                 = $00004000;
+      constant MCI_AMP_SET_VOLUME                 = MCI_SET_VOLUME;
+
+      (*******************************************************)
+      (* General MCI_SET item values                         *)
+      (*******************************************************)
+      constant MCI_SET_MONITOR                    = $00000001;
+      constant MCI_SET_MONITOR_AUDIO              = $00000002;
+      constant MCI_SET_MONITOR_VIDEO              = $00000003;
+      constant MCI_SET_RECORD                     = $00000004;
+
+      (*******************************************************)
+      (* MCI_SET item values for amp/mixer                   *)
+      (*******************************************************)
+      constant MCI_AMP_SET_MONITOR                = MCI_SET_MONITOR_AUDIO;
+      constant MCI_AMP_SET_AUDIO                  = $00000008;
+
+
+      (*******************************************************)
+      (* MCI_SET flags for CDXA                              *)
+      (*****************************************************=*)
+      constant MCI_CDXA_SET_CHANNEL               = $01000000;
+      constant MCI_CDXA_AUDIO_DEVICE              = $10000000;
+      constant MCI_CDXA_AUDIO_BUFFER              = $02000000;
+      constant MCI_CDXA_VIDEO_BUFFER              = $04000000;
+      constant MCI_CDXA_DATA_BUFFER               = $08000000;
+
+      (*******************************************************)
+      (* MCI_SET flags for videodisc                         *)
+      (*******************************************************)
+      constant MCI_VD_SET_ON                      = MCI_SET_ON;
+      constant MCI_VD_SET_OFF                     = MCI_SET_OFF;
+      constant MCI_VD_SET_VIDEO                   = MCI_SET_VIDEO;
+      constant MCI_VD_SET_CHANNEL                 = $00100000;
+      constant MCI_VD_SET_DISPLAY                 = $00200000;
+
+      (*******************************************************)
+      (* Generic MCI_SET item values for video devices       *)
+      (*******************************************************)
+      constant MCI_VID_SET_VIDEO_COMPRESSION          = MCI_VID_ITEM_BASE;
+      constant MCI_VID_SET_IMAGE_COMPRESSION          = (MCI_VID_ITEM_BASE+1);
+      constant MCI_VID_SET_IMAGE_BITSPERPEL           = (MCI_VID_ITEM_BASE+2);
+      constant MCI_VID_SET_IMAGE_PELFORMAT            = (MCI_VID_ITEM_BASE+3);
+      constant MCI_VID_SET_BRIGHTNESS                 = (MCI_VID_ITEM_BASE+4);
+      constant MCI_VID_SET_CONTRAST                   = (MCI_VID_ITEM_BASE+5);
+      constant MCI_VID_SET_HUE                        = (MCI_VID_ITEM_BASE+6);
+      constant MCI_VID_SET_SATURATION                 = (MCI_VID_ITEM_BASE+7);
+      constant MCI_VID_SET_SHARPNESS                  = (MCI_VID_ITEM_BASE+8);
+      constant MCI_VID_SET_GREYSCALE                  = (MCI_VID_ITEM_BASE+9);
+      constant MCI_VID_SET_IMAGE_QUALITY              = (MCI_VID_ITEM_BASE+10);
+      constant MCI_VID_SET_VIDEO_QUALITY              = (MCI_VID_ITEM_BASE+11);
+      constant MCI_VID_SET_IMAGE_COMPRESSION_METHOD   = (MCI_VID_ITEM_BASE+12);
+      constant MCI_VID_SET_MINIMUM_VIDEO_REFRESH_RATE = (MCI_VID_ITEM_BASE+13);
+      constant MCI_VID_SET_IMAGE_FILE_FORMAT          = (MCI_VID_ITEM_BASE+14);
+      constant MCI_VID_SET_REF_INTERVAL               = (MCI_VID_ITEM_BASE+15);
+      constant MCI_VID_SET_MAXDATARATE                = (MCI_VID_ITEM_BASE+16);
+      constant MCI_VID_SET_VIDEO_FILE_FORMAT          = (MCI_VID_ITEM_BASE+17);
+
+      (*******************************************************)
+      (* MCI_SET item values for video overlay               *)
+      (*******************************************************)
+      constant MCI_OVLY_SET_IMAGE_COMPRESSION         = MCI_VID_SET_IMAGE_COMPRESSION;
+      constant MCI_OVLY_SET_IMAGE_BITSPERPEL          = MCI_VID_SET_IMAGE_BITSPERPEL;
+      constant MCI_OVLY_SET_IMAGE_PELFORMAT           = MCI_VID_SET_IMAGE_PELFORMAT;
+      constant MCI_OVLY_SET_BRIGHTNESS                = MCI_VID_SET_BRIGHTNESS;
+      constant MCI_OVLY_SET_CONTRAST                  = MCI_VID_SET_CONTRAST;
+      constant MCI_OVLY_SET_HUE                       = MCI_VID_SET_HUE;
+      constant MCI_OVLY_SET_SATURATION                = MCI_VID_SET_SATURATION;
+      constant MCI_OVLY_SET_SHARPNESS                 = MCI_VID_SET_SHARPNESS;
+      constant MCI_OVLY_SET_GREYSCALE                 = MCI_VID_SET_GREYSCALE;
+      constant MCI_OVLY_SET_IMAGE_QUALITY             = MCI_VID_SET_IMAGE_QUALITY;
+      constant MCI_OVLY_SET_IMAGE_COMPRESSION_METHOD  = MCI_VID_SET_IMAGE_COMPRESSION_METHOD;
+      constant MCI_OVLY_SET_MINIMUM_VIDEO_REFRESH_RATE= MCI_VID_SET_MINIMUM_VIDEO_REFRESH_RATE;
+      constant MCI_OVLY_SET_IMAGE_FILE_FORMAT         = MCI_VID_SET_IMAGE_FILE_FORMAT;
+
+      (*******************************************************)
+      (* MCI_SET item values for digital video               *)
+      (*******************************************************)
+      constant MCI_DGV_SET_VIDEO_COMPRESSION          = MCI_VID_SET_VIDEO_COMPRESSION;
+      constant MCI_DGV_SET_IMAGE_COMPRESSION          = MCI_VID_SET_IMAGE_COMPRESSION;
+      constant MCI_DGV_SET_IMAGE_BITSPERPEL           = MCI_VID_SET_IMAGE_BITSPERPEL;
+      constant MCI_DGV_SET_IMAGE_PELFORMAT            = MCI_VID_SET_IMAGE_PELFORMAT;
+      constant MCI_DGV_SET_BRIGHTNESS                 = MCI_VID_SET_BRIGHTNESS;
+      constant MCI_DGV_SET_CONTRAST                   = MCI_VID_SET_CONTRAST;
+      constant MCI_DGV_SET_HUE                        = MCI_VID_SET_HUE;
+      constant MCI_DGV_SET_SATURATION                 = MCI_VID_SET_SATURATION;
+      constant MCI_DGV_SET_SHARPNESS                  = MCI_VID_SET_SHARPNESS;
+      constant MCI_DGV_SET_GREYSCALE                  = MCI_VID_SET_GREYSCALE;
+      constant MCI_DGV_SET_IMAGE_QUALITY              = MCI_VID_SET_IMAGE_QUALITY;
+      constant MCI_DGV_SET_VIDEO_QUALITY              = MCI_VID_SET_VIDEO_QUALITY;
+      constant MCI_DGV_SET_IMAGE_COMPRESSION_METHOD   = MCI_VID_SET_IMAGE_COMPRESSION_METHOD;
+      constant MCI_DGV_SET_MONITOR                    = MCI_SET_MONITOR;
+      constant MCI_DGV_SET_MINIMUM_VIDEO_REFRESH_RATE = MCI_VID_SET_MINIMUM_VIDEO_REFRESH_RATE;
+      constant MCI_DGV_SET_IMAGE_FILE_FORMAT          = MCI_VID_SET_IMAGE_FILE_FORMAT;
+      constant MCI_DGV_SET_REF_INTERVAL               = MCI_VID_SET_REF_INTERVAL;
+      constant MCI_DGV_SET_MAXDATARATE                = MCI_VID_SET_MAXDATARATE;
+      constant MCI_DGV_SET_VIDEO_FILE_FORMAT          = MCI_VID_SET_VIDEO_FILE_FORMAT;
+
+      constant MCI_DGV_SET_AUDIO_COMPRESSION          = MCI_DGV_ITEM_BASE;
+      constant MCI_DGV_SET_AUDIO_QUALITY              = (MCI_DGV_ITEM_BASE+1);
+      constant MCI_DGV_SET_CHANNELS                   = (MCI_DGV_ITEM_BASE+2);
+      constant MCI_DGV_SET_BITSPERSAMPLE              = (MCI_DGV_ITEM_BASE+3);
+      constant MCI_DGV_SET_SAMPLESPERSEC              = (MCI_DGV_ITEM_BASE+4);
+      constant MCI_DGV_SET_FORMATTAG                  = (MCI_DGV_ITEM_BASE+5);
+      constant MCI_DGV_SET_BLOCKALIGN                 = (MCI_DGV_ITEM_BASE+6);
+      constant MCI_DGV_SET_AVGBYTESPERSEC             = (MCI_DGV_ITEM_BASE+7);
+
+      constant MCI_DGV_SET_VIDEO_COMPRESSION_SUBTYPE  = (MCI_DGV_ITEM_BASE+8);
+      constant MCI_DGV_SET_VIDEO_RECORD_RATE          = (MCI_DGV_ITEM_BASE+9);
+      constant MCI_DGV_SET_VIDEO_RECORD_FRAME_DURATION= (MCI_DGV_ITEM_BASE+10);
+      constant MCI_DGV_SET_RECORD_AUDIO               = (MCI_DGV_ITEM_BASE+11);
+      constant MCI_DGV_SET_TRANSPARENT_COLOR          = (MCI_DGV_ITEM_BASE+12);
+      constant MCI_DGV_SET_GRAPHIC_TRANSPARENT_COLOR  = (MCI_DGV_ITEM_BASE+12);
+      constant MCI_DGV_SET_AUDIOSYNC                  = (MCI_DGV_ITEM_BASE+13);
+      constant MCI_DGV_SET_VIDEO_TRANSPARENT_COLOR    = (MCI_DGV_ITEM_BASE+14);
+
+      (*******************************************************)
+      (* Video file format                                   *)
+      (*******************************************************)
+      constant MCI_VID_FILE_FORMAT_AVI       $20495641L
+
+      (*******************************************************)
+      (* Audio/video/image compression types                 *)
+      (*******************************************************)
+      constant MCI_AUD_COMP_ADPCM4         = $00000001;
+      constant MCI_AUD_COMP_PCM8           = $00000002;
+
+      constant MCI_VID_COMP_RTV_2_0        = $00000101;
+      constant MCI_VID_COMP_RTV_2_1        = $00000102;
+      constant MCI_VID_COMP_ULTI           = $49544C55;
+      constant MCI_VID_COMP_RT21           = $31325452;
+      constant MCI_VID_COMP_NONE           = $20424944;   (* This is 'DIB ' now.    *)
+
+      constant MCI_IMG_COMP_NONE           = $00000201;
+      constant MCI_IMG_COMP_PIC9_1_0       = $00000202;
+      constant MCI_IMG_COMP_PIC16_1_0      = $00000203;
+      constant MCI_IMG_COMP_JPEG9          = $00000204;
+      constant MCI_IMG_COMP_JPEG9_1_0      = MCI_IMG_COMP_JPEG9;
+      constant MCI_IMG_COMP_BMP_RLE4       = $00000205;
+      constant MCI_IMG_COMP_BMP_RLE8       = $00000206;
+      constant MCI_IMG_COMP_JPEGN          = $00000207;
+
+      (*******************************************************)
+      (* PEL Formats (video/image)                           *)
+      (*******************************************************)
+      constant MCI_VID_PALETTE             = $00000001;
+      constant MCI_VID_RGB                 = $00000002;
+      constant MCI_VID_YUV                 = $00000003;
+
+      constant MCI_IMG_PALETTE             = MCI_VID_PALETTE;
+      constant MCI_IMG_RGB                 = MCI_VID_RGB;
+      constant MCI_IMG_YUV                 = MCI_VID_YUV;
+
+
+      (*******************************************************)
+      (* Audio/video/image quality levels                    *)
+      (*******************************************************)
+      constant MCI_AUD_QUALITY_HIGH        = $00000001;
+      constant MCI_AUD_QUALITY_MED         = $00000002;
+      constant MCI_AUD_QUALITY_LOW         = $00000003;
+
+      constant MCI_VID_QUALITY_HIGH        = $00000101;
+      constant MCI_VID_QUALITY_MED         = $00000102;
+      constant MCI_VID_QUALITY_LOW         = $00000103;
+      constant MCI_VID_QUALITY_BEST        = MCI_VID_QUALITY_HIGH;
+      constant MCI_VID_QUALITY_CDROM       = MCI_VID_QUALITY_MED;
+      constant MCI_VID_QUALITY_COMPACT     = MCI_VID_QUALITY_LOW;
+      constant MCI_VID_QUALITY_BETTER      = MCI_VID_QUALITY_MED;
+      constant MCI_VID_QUALITY_GOOD        = MCI_VID_QUALITY_LOW;
+
+      constant MCI_IMG_QUALITY_HIGH        = $00000201;
+      constant MCI_IMG_QUALITY_MED         = $00000202;
+      constant MCI_IMG_QUALITY_LOW         = $00000203;
+
+      (*******************************************************)
+      (* MCI_SET flags for wave audio                        *)
+      (*******************************************************)
+      constant MCI_WAVE_SET_SAMPLESPERSEC         = $01000000;
+      constant MCI_WAVE_SET_AVGBYTESPERSEC        = $02000000;
+      constant MCI_WAVE_SET_BLOCKALIGN            = $04000000;
+      constant MCI_WAVE_SET_FORMATTAG             = $08000000;
+      constant MCI_WAVE_SET_CHANNELS              = $10000000;
+      constant MCI_WAVE_SET_BITSPERSAMPLE         = $80000000;
+
+      (*******************************************************)
+      (* Wave format tag defines                             *)
+      (*******************************************=************)
+      constant MCI_WAVE_FORMAT_PCM                = DATATYPE_WAVEFORM;
+      constant MCI_WAVE_FORMAT_ADPCM              = $0002;
+      constant MCI_WAVE_FORMAT_IBM_CVSD           = $0005;
+      constant MCI_WAVE_FORMAT_ALAW               = DATATYPE_RIFF_ALAW;
+      constant MCI_WAVE_FORMAT_MULAW              = DATATYPE_RIFF_MULAW;
+      constant MCI_WAVE_FORMAT_OKI_ADPCM          = $0010;
+      constant MCI_WAVE_FORMAT_DVI_ADPCM          = $0011;
+      constant MCI_WAVE_FORMAT_DIGISTD            = $0015;
+      constant MCI_WAVE_FORMAT_DIGIFIX            = $0016;
+      constant MCI_WAVE_FORMAT_AVC_ADPCM          = DATATYPE_ADPCM_AVC;
+      constant MCI_WAVE_FORMAT_IBM_ADPCM          = DATATYPE_ADPCM_AVC;
+      constant MCI_WAVE_FORMAT_IBM_MULAW          = DATATYPE_MULAW;
+      constant MCI_WAVE_FORMAT_IBM_ALAW           = DATATYPE_ALAW;
+      constant MCI_WAVE_FORMAT_CT_ADPCM           = DATATYPE_CT_ADPCM;
+      constant MCI_WAVE_FORMAT_MPEG1              = DATATYPE_MPEG1AUDIO;
+
+      (*******************************************************)
+      (* MCI_SET flags for sequencer                         *)
+      (******************************************************)
+      constant MCI_SEQ_SET_TEMPO                  = $00100000;
+      constant MCI_SEQ_SET_PORT                   = $00200000;
+      constant MCI_SEQ_ENABLE_PORT_MAPPER         = $00400000;
+      constant MCI_SEQ_DISABLE_PORT_MAPPER        = $00800000;
+      constant MCI_SEQ_SET_OFFSET                 = $01000000;
+      constant MCI_SEQ_SET_MASTER                 = $02000000;
+      constant MCI_SEQ_SET_SLAVE                  = $04000000;
+
+      (**********************************************)
+      (* SEQ time formats                           *)
+      (**********************************************)
+      constant MCI_SEQ_SET_SMPTE_24            = $00000100;
+      constant MCI_SEQ_SET_SMPTE_25            = $00000200;
+      constant MCI_SEQ_SET_SMPTE_30            = $00000300;
+      constant MCI_SEQ_SET_SMPTE_30DROP        = $00000400;
+      constant MCI_SEQ_SET_SONGPTR             = $00000500;
+
+      (**********************************************)
+      (* SEQ synchronization types                  *)
+      (**********************************************)
+      constant MCI_SEQ_MIDI                    = $00000001;
+      constant MCI_SEQ_SMPTE                   = $00000002;
+      constant MCI_SEQ_FILE                    = $00000003;
+      constant MCI_SEQ_NONE                    = $00000004;
+
+      (**********************************************)
+      (* SEQ PORT TYPES                             *)
+      (**********************************************)
+      constant MCI_SET_NONE                    = $10000000;
+      constant MIDI_MAPPER                     = $20000000;
+      constant MCI_MIDI_MAPPER                 = MIDI_MAPPER;
+
+      type MCI_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
+         (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
+         (*  MCI_SET_AUDIO_ALL)                            *)
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+      end;
+      type PMCI_SET_PARMS =^MCI_SET_PARMS;
+
+      type MCI_SET_PARMS  =     MCI_AMP_SET_PARMS;
+      type PMCI_AMP_SET_PARMS  =^MCI_AMP_SET_PARMS;
+
+      type MCI_SET_PARMS   =    MCI_DGV_SET_PARMS;
+      type PMCI_DGV_SET_PARMS=^MCI_DGV_SET_PARMS;
+
+      type MCI_SET_PARMS     =  MCI_OVLY_SET_PARMS;
+      type PMCI_OVLY_SET_PARMS=^MCI_OVLY_SET_PARMS;
+
+      type MCI_CDXA_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
+         (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
+         (*  MCI_SET_AUDIO_ALL)                            *)
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+             ulChannel: ULONG;       (* Channel number                                 *)
+             pPlayList: PVOID;       (* Pointer to play list                           *)
+             ulPlayListSize: ULONG;  (* Play list size                                 *)
+      end;
+      type PMCI_CDXA_SET_PARMS=^MCI_CDXA_SET_PARMS;
+
+      type MCI_VD_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
+         (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
+         (*  MCI_SET_AUDIO_ALL)                            *)
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+             ulChannel: ULONG;       (* Videodisc channel                              *)
+      end;
+      type PMCI_VD_SET_PARMS=^MCI_VD_SET_PARMS;
+
+      type MCI_WAVE_SET_PARMS=structure
+            hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+            ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+            ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+            ulAudio: ULONG;         (* Channel number for this operation              *)
+         (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
+         (*  MCI_SET_AUDIO_ALL)                            *)
+            ulLevel: ULONG;         (* Volume, trebble or bass level as % of max.     *)
+            ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+            ulItem: ULONG;          (* Item field for set item flags                  *)
+            ulValue: ULONG;         (* Value associated with item flag                *)
+            usInput: USHORT;         (* Channel for input                              *)
+            usReserved0: USHORT;     (* Reserved field                                 *)
+            usOutput: USHORT;        (* Channel for output                             *)
+            usReserved1: USHORT;     (* Reserved field                                 *)
+            usFormatTag: USHORT;     (* Format tag                                     *)
+            usReserved2: USHORT;     (* Reserved field                                 *)
+            usChannels: USHORT;      (* mono(1) or stereo(2)                           *)
+            usReserved3: USHORT;     (* Reserved field                                 *)
+            ulSamplesPerSec: ULONG; (* Samples per seconds                            *)
+            ulAvgBytesPerSec: ULONG;(* Bytes per seconds                              *)
+            usBlockAlign: USHORT;    (* Block alignment of data                        *)
+            usReserved4: USHORT;     (* Reserved field                                 *)
+            usBitsPerSample: USHORT; (* Bits per seconds                               *)
+            usReserved5: USHORT;     (* Reserved field                                 *)
+      end;
+      type PMCI_WAVE_SET_PARMS=^MCI_WAVE_SET_PARMS;
+
+      type MCI_SEQ_SET_PARMS=structure
+            hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+            ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+            ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+            ulAudio: ULONG;         (* Channel number for this operation              *)
+         (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
+         (*  MCI_SET_AUDIO_ALL)                            *)
+            ulLevel: ULONG;         (* Volume, trebble or bass level as % of max.     *)
+            ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+            ulItem: ULONG;          (* Item field for set item flags                  *)
+            ulValue: ULONG;         (* Value associated with item flag                *)
+            ulTempo: ULONG;         (* Specified the tempo                            *)
+            ulPort: ULONG;          (* Output port                                    *)
+            ulSlave: ULONG;         (* Unused field                                   *)
+            ulMaster: ULONG;        (* Unused field                                   *)
+            ulOffset: ULONG;        (* Specified the data offset                      *)
+      end;
+      type PMCI_SEQ_SET_PARMS=^MCI_SEQ_SET_PARMS;
+
+
+      (*********************************************************************)
+      (* parameters for the MCI_SET_CUEPOINT message                       *)
+      (*     $00000x00 are reserved for MCI_SET_CUEPOINT flags            *)
+      (*********************************************************************)
+      constant MCI_SET_CUEPOINT_ON                = $00000100;
+      constant MCI_SET_CUEPOINT_OFF               = $00000200;
+
+      type MCI_CUEPOINT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulCuepoint: ULONG;      (* Specifies the cuepoint location                *)
+             usUserParm: USHORT;      (* User parmameter returned on cuepoint           *)
+         (* notify message                                 *)
+             usReserved0: USHORT;     (* Reserved field                                 *)
+      end;
+      type PMCI_CUEPOINT_PARMS=^MCI_CUEPOINT_PARMS;
+
+      (*********************************************************************)
+      (* parameters for the MCI_SETIMAGEPALETTE message                    *)
+      (*     $000XXX00 are reserved for MCI_SETIMAGEPALETTE flags         *)
+      (*********************************************************************)
+      constant MCI_SET_REGISTERED                 = $00000100;
+
+      (*********************************************************************)
+      (* flags and parameter structure for the MCI_SET_POSITION_ADVISE msg *)
+      (*     $00000X00 are reserved for MCI_SET_POSITION_ADVISE flags     *)
+      (*********************************************************************)
+      constant MCI_SET_POSITION_ADVISE_ON         = $00000100;
+      constant MCI_SET_POSITION_ADVISE_OFF        = $00000200;
+
+      type MCI_POSITION_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulUnits: ULONG;         (* Specifies position change notifiication        *)
+         (* granularity                                    *)
+             usUserParm: USHORT;      (* User parameter returned on position change     *)
+         (* notification message.                          *)
+             Reserved0: USHORT;       (* Reserved field                                 *)
+             Reserved1: ULONG;       (* Reserved field                                 *)
+      end;
+      type PMCI_POSITION_PARMS=^MCI_POSITION_PARMS;
+
+      (*********************************************************************)
+      (* parameter structure for the MCI_SET_SYNC_OFFSET message           *)
+      (*********************************************************************)
+      type MCI_SYNC_OFFSET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulOffset: ULONG;        (* Specifies the device media position offset     *)
+         (* in the currently specified device units.       *)
+      end;
+      type PMCI_SYNC_OFFSET_PARMS=^MCI_SYNC_OFFSET_PARMS;
+
+      (*********************************************************************)
+      (* flags for the MCI_SPIN message                                    *)
+      (*     $00000X00 are reserved for MCI_SPIN flags                    *)
+      (*********************************************************************)
+      constant MCI_SPIN_UP                        = $00000100;
+      constant MCI_SPIN_DOWN                      = $00000200;
+
+      (*********************************************************************)
+      (* MCI_STATUS message flags                                          *)
+      (*     $000XXX00 are reserved for MCI_STATUS flags                  *)
+      (*     MCI_VOLUME and MCI_VOLUME_DELAY are $00000100 and $00000200 *)
+      (*********************************************************************)
+      constant MCI_STATUS_ITEM                    = $00000100;
+      constant MCI_STATUS_START                   = $00000200;
+      constant MCI_STATUS_CONNECTOR               = $00000400;
+
+      (*************************************************)
+      (* General MCI_STATUS item values                *)
+      (*************************************************)
+      constant MCI_STATUS_CURRENT_TRACK           = $00000001;
+      constant MCI_STATUS_LENGTH                  = $00000002;
+      constant MCI_STATUS_MODE                    = $00000003;
+      constant MCI_STATUS_NUMBER_OF_TRACKS        = $00000004;
+      constant MCI_STATUS_POSITION                = $00000005;
+      constant MCI_STATUS_POSITION_IN_TRACK       = $00000006;
+      constant MCI_STATUS_MEDIA_PRESENT           = $00000007;
+      constant MCI_STATUS_VOLUME                  = $00000008;
+      constant MCI_STATUS_READY                   = $00000009;
+      constant MCI_STATUS_TIME_FORMAT             = $0000000A;
+      constant MCI_STATUS_SPEED_FORMAT            = $0000000B;
+      constant MCI_STATUS_MONITOR                 = $0000000C;
+      constant MCI_STATUS_AUDIO                   = $0000000D;
+      constant MCI_STATUS_VIDEO                   = $0000000E;
+      constant MCI_STATUS_CLIPBOARD               = $0000000F;
+      constant MCI_STATUS_CAN_PASTE               = $00000010;
+      constant MCI_STATUS_CAN_REDO                = $00000020;
+      constant MCI_STATUS_CAN_UNDO                = $00000030;
+
+      (*************************************************)
+      (* ulValue field values for MCI_STATUS_AUDIO     *)
+      (*************************************************)
+      constant MCI_STATUS_AUDIO_ALL                  = $00000000;
+      constant MCI_STATUS_AUDIO_LEFT                 = $00000001;
+      constant MCI_STATUS_AUDIO_RIGHT                = $00000002;
+
+      (*************************************************)
+      (* MCI_STATUS item values for amp/mixer          *)
+      (*************************************************)
+      constant MCI_AMP_STATUS_PITCH               = MCI_AMP_ITEM_BASE;
+      constant MCI_AMP_STATUS_TREBLE              = (MCI_AMP_ITEM_BASE+1);
+      constant MCI_AMP_STATUS_BASS                = (MCI_AMP_ITEM_BASE+2);
+      constant MCI_AMP_STATUS_BALANCE             = (MCI_AMP_ITEM_BASE+3);
+      constant MCI_AMP_STATUS_GAIN                = (MCI_AMP_ITEM_BASE+4);
+      constant MCI_AMP_STATUS_MONITOR             = (MCI_AMP_ITEM_BASE+5);
+      constant MCI_AMP_STATUS_MID                 = (MCI_AMP_ITEM_BASE+6);
+      constant MCI_AMP_STATUS_VOLUME              = MCI_STATUS_VOLUME;
+      constant MCI_AMP_STATUS_LOUDNESS            = (MCI_AMP_ITEM_BASE+7);
+      constant MCI_AMP_STATUS_CROSSOVER           = (MCI_AMP_ITEM_BASE+8);
+      constant MCI_AMP_STATUS_REVERB              = (MCI_AMP_ITEM_BASE+9);
+      constant MCI_AMP_STATUS_ALC                 = (MCI_AMP_ITEM_BASE+10);
+      constant MCI_AMP_STATUS_CHORUS              = (MCI_AMP_ITEM_BASE+11);
+      constant MCI_AMP_STATUS_CUSTOM1             = (MCI_AMP_ITEM_BASE+12);
+      constant MCI_AMP_STATUS_CUSTOM2             = (MCI_AMP_ITEM_BASE+13);
+      constant MCI_AMP_STATUS_CUSTOM3             = (MCI_AMP_ITEM_BASE+14);
+      constant MCI_AMP_STATUS_MUTE                = (MCI_AMP_ITEM_BASE+15);
+      constant MCI_AMP_STATUS_STEREOENHANCE       = (MCI_AMP_ITEM_BASE+16);
+
+
+      (*************************************************)
+      (* MCI_STATUS item values for cd audio           *)
+      (*************************************************)
+      constant MCI_CD_STATUS_TRACK_TYPE           = MCI_CD_ITEM_BASE;
+      constant MCI_CD_STATUS_TRACK_COPYPERMITTED  = (MCI_CD_ITEM_BASE+1);
+      constant MCI_CD_STATUS_TRACK_CHANNELS       = (MCI_CD_ITEM_BASE+2);
+      constant MCI_CD_STATUS_TRACK_PREEMPHASIS    = (MCI_CD_ITEM_BASE+3);
+
+      (************************************************)
+      (* return values for CD MCI_STATUS message with *)
+      (*   MCI_CD_STATUS_TRACK_TYPE set               *)
+      (************************************************)
+      constant MCI_CD_TRACK_AUDIO                 = $00000001;
+      constant MCI_CD_TRACK_DATA                  = $00000002;
+      constant MCI_CD_TRACK_OTHER                 = $00000003;
+
+      (*************************************************)
+      (* MCI_STATUS item values for CDXA               *)
+      (*************************************************)
+      constant MCI_CDXA_STATUS_CHANNEL            = MCI_CDXA_ITEM_BASE;
+
+      (************************************************)
+      (*returned from call for MCI_CDXA_STATUS_CHANNEL*)
+      (************************************************)
+      constant MCI_CDXA_NONE                      = $00000000;
+
+
+      (*************************************************)
+      (* MCI_STATUS item values for sequencer          *)
+      (*************************************************)
+      constant MCI_SEQ_STATUS_TEMPO               = MCI_SEQ_ITEM_BASE;
+      constant MCI_SEQ_STATUS_OFFSET              = (MCI_SEQ_ITEM_BASE+1);
+      constant MCI_SEQ_STATUS_DIVTYPE             = (MCI_SEQ_ITEM_BASE+2);
+      constant MCI_SEQ_STATUS_MASTER              = (MCI_SEQ_ITEM_BASE+3);
+      constant MCI_SEQ_STATUS_PORT                = (MCI_SEQ_ITEM_BASE+4);
+      constant MCI_SEQ_STATUS_SLAVE               = (MCI_SEQ_ITEM_BASE+5);
+
+      (**********************************************)
+      (* Return value for current division type     *)
+      (**********************************************)
+      constant MCI_SEQ_DIV_PPQN                   = $00000001;
+      constant MCI_SEQ_DIV_SMPTE_24               = $00000002;
+      constant MCI_SEQ_DIV_SMPTE_25               = $00000003;
+      constant MCI_SEQ_DIV_SMPTE_30DROP           = $00000004;
+      constant MCI_SEQ_DIV_SMPTE_30               = $00000005;
+
+      (*************************************************)
+      (* MCI_STATUS items for videodisc                *)
+      (*************************************************)
+      constant MCI_VD_STATUS_SPEED                = MCI_VD_ITEM_BASE;
+      constant MCI_VD_STATUS_FORWARD              = (MCI_VD_ITEM_BASE+1);
+      constant MCI_VD_MEDIA_TYPE                  = (MCI_VD_ITEM_BASE+2);
+      constant MCI_VD_STATUS_SIDE                 = (MCI_VD_ITEM_BASE+3);
+      constant MCI_VD_STATUS_DISC_SIZE            = (MCI_VD_ITEM_BASE+4);
+
+      (***********************************************)
+      (* return values for videodisc status command  *)
+      (***********************************************)
+      constant MCI_VD_SPEED_NORMAL                = $00000000;
+      constant MCI_VD_SPEED_FAST                  = $00000001;
+      constant MCI_VD_SPEED_SLOW                  = $00000002;
+
+      (*************************************************)
+      (* MCI_STATUS items for wave audio               *)
+      (*************************************************)
+      constant MCI_WAVE_STATUS_LEVEL              = MCI_WAVE_ITEM_BASE;
+      constant MCI_WAVE_STATUS_SAMPLESPERSEC      = (MCI_WAVE_ITEM_BASE+1);
+      constant MCI_WAVE_STATUS_AVGBYTESPERSEC     = (MCI_WAVE_ITEM_BASE+2);
+      constant MCI_WAVE_STATUS_BLOCKALIGN         = (MCI_WAVE_ITEM_BASE+3);
+      constant MCI_WAVE_STATUS_FORMATTAG          = (MCI_WAVE_ITEM_BASE+4);
+      constant MCI_WAVE_STATUS_CHANNELS           = (MCI_WAVE_ITEM_BASE+5);
+      constant MCI_WAVE_STATUS_BITSPERSAMPLE      = (MCI_WAVE_ITEM_BASE+6);
+
+      (*************************************************)
+      (* Common video MCI_STATUS items                 *)
+      (*************************************************)
+      constant MCI_VID_STATUS_HWND                 =MCI_VID_ITEM_BASE;
+      constant MCI_VID_STATUS_AUDIO_COMPRESSION    =(MCI_VID_ITEM_BASE+1);
+      constant MCI_VID_STATUS_VIDEO_COMPRESSION    =(MCI_VID_ITEM_BASE+2);
+      constant MCI_VID_STATUS_IMAGE_COMPRESSION    =(MCI_VID_ITEM_BASE+3);
+      constant MCI_VID_STATUS_AUDIO_QUALITY        =(MCI_VID_ITEM_BASE+4);
+      constant MCI_VID_STATUS_VIDEO_QUALITY        =(MCI_VID_ITEM_BASE+5);
+      constant MCI_VID_STATUS_IMAGE_QUALITY        =(MCI_VID_ITEM_BASE+6);
+      constant MCI_VID_STATUS_IMAGE_BITSPERPEL     =(MCI_VID_ITEM_BASE+7);
+      constant MCI_VID_STATUS_IMAGE_PELFORMAT      =(MCI_VID_ITEM_BASE+8);
+      constant MCI_VID_STATUS_FORWARD              =(MCI_VID_ITEM_BASE+9);
+      constant MCI_VID_STATUS_NORMAL_RATE          =(MCI_VID_ITEM_BASE+10);
+      constant MCI_VID_STATUS_VIDEO_X_EXTENT       =(MCI_VID_ITEM_BASE+11);
+      constant MCI_VID_STATUS_VIDEO_Y_EXTENT       =(MCI_VID_ITEM_BASE+12);
+      constant MCI_VID_STATUS_IMAGE_X_EXTENT       =(MCI_VID_ITEM_BASE+13);
+      constant MCI_VID_STATUS_IMAGE_Y_EXTENT       =(MCI_VID_ITEM_BASE+14);
+      constant MCI_VID_STATUS_BRIGHTNESS           =(MCI_VID_ITEM_BASE+15);
+      constant MCI_VID_STATUS_CONTRAST             =(MCI_VID_ITEM_BASE+16);
+      constant MCI_VID_STATUS_HUE                  =(MCI_VID_ITEM_BASE+17);
+      constant MCI_VID_STATUS_SATURATION           =(MCI_VID_ITEM_BASE+18);
+      constant MCI_VID_STATUS_GREYSCALE            =(MCI_VID_ITEM_BASE+19);
+      constant MCI_VID_STATUS_SHARPNESS            =(MCI_VID_ITEM_BASE+20);
+      constant MCI_VID_STATUS_SPEED                =(MCI_VID_ITEM_BASE+21);
+      constant MCI_VID_STATUS_IMAGE_FILE_FORMAT    =(MCI_VID_ITEM_BASE+22);
+      constant MCI_VID_STATUS_TRANSPARENT_TYPE     =(MCI_VID_ITEM_BASE+23);
+      constant MCI_VID_STATUS_REF_INTERVAL         =(MCI_VID_ITEM_BASE+24);
+      constant MCI_VID_STATUS_MAXDATARATE          =(MCI_VID_ITEM_BASE+25);
+      constant MCI_VID_STATUS_VIDEO_FILE_FORMAT    =(MCI_VID_ITEM_BASE+26);
+
+      (*************************************************)
+      (* Status Transparent Type returns               *)
+      (* MCI_VID_PALETTE                               *)
+      (* MCI_VID_RGB                                   *)
+      (* MCI_VID_YUV                                   *)
+      (*************************************************)
+      constant MCI_VID_STATUS_TRANSPARENT_COLOR    =(MCI_VID_ITEM_BASE+24);
+
+      (*************************************************)
+      (* MCI_STATUS items for digital video            *)
+      (*************************************************)
+      constant MCI_DGV_STATUS_HWND                 =MCI_VID_STATUS_HWND;
+      constant MCI_DGV_STATUS_AUDIO_COMPRESSION    =MCI_VID_STATUS_AUDIO_COMPRESSION;
+      constant MCI_DGV_STATUS_VIDEO_COMPRESSION    =MCI_VID_STATUS_VIDEO_COMPRESSION;
+      constant MCI_DGV_STATUS_IMAGE_COMPRESSION    =MCI_VID_STATUS_IMAGE_COMPRESSION;
+      constant MCI_DGV_STATUS_AUDIO_QUALITY        =MCI_VID_STATUS_AUDIO_QUALITY;
+      constant MCI_DGV_STATUS_VIDEO_QUALITY        =MCI_VID_STATUS_VIDEO_QUALITY;
+      constant MCI_DGV_STATUS_IMAGE_QUALITY        =MCI_VID_STATUS_IMAGE_QUALITY;
+      constant MCI_DGV_STATUS_IMAGE_BITSPERPEL     =MCI_VID_STATUS_IMAGE_BITSPERPEL;
+      constant MCI_DGV_STATUS_IMAGE_PELFORMAT      =MCI_VID_STATUS_IMAGE_PELFORMAT;
+      constant MCI_DGV_STATUS_FORWARD              =MCI_VID_STATUS_FORWARD;
+      constant MCI_DGV_STATUS_NORMAL_RATE          =MCI_VID_STATUS_NORMAL_RATE;
+      constant MCI_DGV_STATUS_VIDEO_X_EXTENT       =MCI_VID_STATUS_VIDEO_X_EXTENT;
+      constant MCI_DGV_STATUS_VIDEO_Y_EXTENT       =MCI_VID_STATUS_VIDEO_Y_EXTENT;
+      constant MCI_DGV_STATUS_IMAGE_X_EXTENT       =MCI_VID_STATUS_IMAGE_X_EXTENT;
+      constant MCI_DGV_STATUS_IMAGE_Y_EXTENT       =MCI_VID_STATUS_IMAGE_Y_EXTENT;
+      constant MCI_DGV_STATUS_BRIGHTNESS           =MCI_VID_STATUS_BRIGHTNESS;
+      constant MCI_DGV_STATUS_CONTRAST             =MCI_VID_STATUS_CONTRAST;
+      constant MCI_DGV_STATUS_HUE                  =MCI_VID_STATUS_HUE;
+      constant MCI_DGV_STATUS_SATURATION           =MCI_VID_STATUS_SATURATION;
+      constant MCI_DGV_STATUS_SPEED                =MCI_VID_STATUS_SPEED;
+      constant MCI_DGV_STATUS_SHARPNESS            =MCI_VID_STATUS_SHARPNESS;
+      constant MCI_DGV_STATUS_REF_INTERVAL         =MCI_VID_STATUS_REF_INTERVAL;
+      constant MCI_DGV_STATUS_MAXDATARATE          =MCI_VID_STATUS_MAXDATARATE;
+      constant MCI_DGV_STATUS_VIDEO_FILE_FORMAT    =MCI_VID_STATUS_VIDEO_FILE_FORMAT;
+
+      constant MCI_DGV_STATUS_CHANNELS             =(MCI_DGV_ITEM_BASE+13);
+      constant MCI_DGV_STATUS_BITSPERSAMPLE        =(MCI_DGV_ITEM_BASE+14);
+      constant MCI_DGV_STATUS_SAMPLESPERSEC        =(MCI_DGV_ITEM_BASE+15);
+      constant MCI_DGV_STATUS_FORMATTAG            =(MCI_DGV_ITEM_BASE+16);
+      constant MCI_DGV_STATUS_BLOCKALIGN           =(MCI_DGV_ITEM_BASE+17);
+      constant MCI_DGV_STATUS_AVGBYTESPERSEC       =(MCI_DGV_ITEM_BASE+18);
+      constant MCI_DGV_STATUS_VIDEO_COMPRESSION_SUBTYPE   =(MCI_DGV_ITEM_BASE+19);
+      constant MCI_DGV_STATUS_VIDEO_RECORD_RATE           =(MCI_DGV_ITEM_BASE+20);
+      constant MCI_DGV_STATUS_VIDEO_RECORD_FRAME_DURATION =(MCI_DGV_ITEM_BASE+21);
+      constant MCI_DGV_STATUS_RECORD_AUDIO         =(MCI_DGV_ITEM_BASE+22);
+      constant MCI_DGV_STATUS_TRANSPARENT_COLOR    =(MCI_DGV_ITEM_BASE+23);
+      constant MCI_DGV_STATUS_GRAPHIC_TRANSPARENT_COLOR =(MCI_DGV_ITEM_BASE+23);  (* MUST BE SAME AS TRANSPARENT COLOR *)
+      constant MCI_DGV_STATUS_HWND_MONITOR         =(MCI_DGV_ITEM_BASE+24);
+      constant MCI_DGV_STATUS_DROPPED_FRAME_PCT    =(MCI_DGV_ITEM_BASE+25);
+      constant MCI_DGV_STATUS_AUDIOSYNC            =(MCI_DGV_ITEM_BASE+26);
+      constant MCI_DGV_STATUS_AUDIOSYNC_DIRECTION  =(MCI_DGV_ITEM_BASE+27);
+      constant MCI_DGV_STATUS_VIDEO_TRANSPARENT_COLOR =(MCI_DGV_ITEM_BASE+28);  (* MUST BE SAME AS TRANSPARENT COLOR *)
+      constant MCI_DGV_STATUS_TUNER_TV_CHANNEL      =(MCI_DGV_ITEM_BASE+29);
+      constant MCI_DGV_STATUS_TUNER_LOW_TV_CHANNEL  =(MCI_DGV_ITEM_BASE+30);
+      constant MCI_DGV_STATUS_TUNER_HIGH_TV_CHANNEL =(MCI_DGV_ITEM_BASE+31);
+      constant MCI_DGV_STATUS_TUNER_REGION          =(MCI_DGV_ITEM_BASE+32);
+      constant MCI_DGV_STATUS_TUNER_FINETUNE        =(MCI_DGV_ITEM_BASE+33);
+      constant MCI_DGV_STATUS_TUNER_FREQUENCY       =(MCI_DGV_ITEM_BASE+34);
+      constant MCI_DGV_STATUS_TUNER_AUDIO_CHANNEL   =(MCI_DGV_ITEM_BASE+35);
+      constant MCI_DGV_STATUS_TUNER_AFC             =(MCI_DGV_ITEM_BASE+36);
+      constant MCI_DGV_STATUS_VALID_SIGNAL          =(MCI_DGV_ITEM_BASE+37);
+
+      (*************************************************)
+      (* MCI_STATUS item values for video overlay      *)
+      (*************************************************)
+      constant MCI_OVLY_STATUS_HWND                = MCI_VID_STATUS_HWND;
+      constant MCI_OVLY_STATUS_IMAGE_COMPRESSION   = MCI_VID_STATUS_IMAGE_COMPRESSION;
+      constant MCI_OVLY_STATUS_IMAGE_BITSPERPEL    = MCI_VID_STATUS_IMAGE_BITSPERPEL;
+      constant MCI_OVLY_STATUS_IMAGE_PELFORMAT     = MCI_VID_STATUS_IMAGE_PELFORMAT;
+      constant MCI_OVLY_STATUS_IMAGE_X_EXTENT      = MCI_VID_STATUS_IMAGE_X_EXTENT;
+      constant MCI_OVLY_STATUS_IMAGE_Y_EXTENT      = MCI_VID_STATUS_IMAGE_Y_EXTENT;
+      constant MCI_OVLY_STATUS_BRIGHTNESS          = MCI_VID_STATUS_BRIGHTNESS;
+      constant MCI_OVLY_STATUS_CONTRAST            = MCI_VID_STATUS_CONTRAST;
+      constant MCI_OVLY_STATUS_HUE                 = MCI_VID_STATUS_HUE;
+      constant MCI_OVLY_STATUS_SATURATION          = MCI_VID_STATUS_SATURATION;
+      constant MCI_OVLY_STATUS_GREYSCALE           = MCI_VID_STATUS_GREYSCALE;
+      constant MCI_OVLY_STATUS_IMAGE_QUALITY       = MCI_VID_STATUS_IMAGE_QUALITY;
+      constant MCI_OVLY_STATUS_SHARPNESS           = MCI_VID_STATUS_SHARPNESS;
+      constant MCI_OVLY_STATUS_IMAGE_FILE_FORMAT   = MCI_VID_STATUS_IMAGE_FILE_FORMAT;
+      constant MCI_OVLY_STATUS_TRANSPARENT_TYPE    = MCI_VID_STATUS_TRANSPARENT_TYPE;
+      constant MCI_OVLY_STATUS_TRANSPARENT_COLOR   = MCI_VID_STATUS_TRANSPARENT_COLOR;
+
+      (*************************************************)
+      (* Status Mode return values                     *)
+      (*************************************************)
+      constant MCI_MODE_NOT_READY                 = $00000001;
+      constant MCI_MODE_PAUSE                     = $00000002;
+      constant MCI_MODE_PLAY                      = $00000003;
+      constant MCI_MODE_STOP                      = $00000004;
+      constant MCI_MODE_RECORD                    = $00000005;
+      constant MCI_MODE_SEEK                      = $00000006;
+
+      (*************************************************)
+      (* Status Direction return values                *)
+      (*************************************************)
+      constant MCI_FORWARD                        = $00000000;
+      constant MCI_REVERSE                        = $00000001;
+
+      type MCI_STATUS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for STATUS item to query     *)
+             ulValue: ULONG;         (* Status value field (this used to be)    *)
+         (*  ulTrack but was changed in Rel 1.1     *)
+         (*  to extend the status structure.        *)
+         (*  See the programming reference on when  *)
+         (*  ulValue is used and how...             *)
+      end;
+      type PMCI_STATUS_PARMS=^MCI_STATUS_PARMS;
+
+
+      type MCI_CDXA_STATUS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for STATUS item to query     *)
+             ulValue: ULONG;         (* Status value field (this used to be)    *)
+         (*  ulTrack but was changed in Rel 1.1     *)
+         (*  to extend the status structure.        *)
+         (*  See the programming reference on when  *)
+         (*  ulValue is used and how...             *)
+             ulChannel: ULONG;       (* Channel                                 *)
+      end;
+      type PMCI_CDXA_STATUS_PARMS=^MCI_CDXA_STATUS_PARMS;
+
+      (*********************************************************************)
+      (* flags and parameter structure for the MCI_STEP message            *)
+      (*     $00000X00 are reserved for MCI_STEP flags                    *)
+      (*********************************************************************)
+      constant MCI_STEP_FRAMES                    = $00000100;
+      constant MCI_STEP_REVERSE                   = $00000200;
+
+      type MCI_STEP_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulStep: ULONG;          (* amount to step in current time format   *)
+      end;
+      type PMCI_STEP_PARMS=^MCI_STEP_PARMS;
+
+      (*********************************************************************)
+      (* flags for the MCI_SYSINFO message                                 *)
+      (*     $XXXXXX00 are reserved for MCI_SYSINFO flags                 *)
+      (*********************************************************************)
+      constant MCI_SYSINFO_QUANTITY               = $00000100;
+      constant MCI_SYSINFO_OPEN                   = $00000200;
+      constant MCI_SYSINFO_NAME                   = $00000400;
+      constant MCI_SYSINFO_INSTALLNAME            = $00000800;
+      constant MCI_SYSINFO_ITEM                   = $00001000;
+      constant MCI_SYSINFO_INI_LOCK               = $00002000;
+
+      (********************************************************)
+      (* Extended SYSINFO functions                           *)
+      (********************************************************)
+      constant MCI_SYSINFO_INSTALL_DRIVER     = $00000001;
+      constant MCI_SYSINFO_QUERY_DRIVER       = $00000002;
+      constant MCI_SYSINFO_DELETE_DRIVER      = $00000004;
+      constant MCI_SYSINFO_SET_PARAMS         = $00000008;
+      constant MCI_SYSINFO_QUERY_PARAMS       = $00000010;
+      constant MCI_SYSINFO_SET_CONNECTORS     = $00000020;
+      constant MCI_SYSINFO_QUERY_CONNECTORS   = $00000040;
+      constant MCI_SYSINFO_SET_EXTENSIONS     = $00000080;
+      constant MCI_SYSINFO_QUERY_EXTENSIONS   = $00000100;
+      constant MCI_SYSINFO_SET_ALIAS          = $00000200;
+      constant MCI_SYSINFO_QUERY_NAMES        = $00000400;
+      constant MCI_SYSINFO_SET_DEFAULT        = $00000800;
+      constant MCI_SYSINFO_QUERY_DEFAULT      = $00001000;
+      constant MCI_SYSINFO_SET_TYPES          = $00002000;
+      constant MCI_SYSINFO_QUERY_TYPES        = $00004000;
+
+      (********************************************************)
+      (* Device Flags                                         *)
+      (********************************************************)
+      constant MCI_SYSINFO_DEV_CONTROLLABLE   = $00000001;
+      constant MCI_SYSINFO_DEV_NONCONTROLLABLE= $00000002;
+      constant MCI_SYSINFO_DEVICESETTINGS     = $00000004;
+
+      (*********************************************************************)
+      (* parameter structures for the MCI_SYSINFO message                  *)
+      (*********************************************************************)
+      type MCI_SYSINFO_PARMS=structure
+             hwndDummyCallback: HWND; (* NOTIFY not allowed for SYSINFO          *)
+             pszReturn: PSZ;         (* Pointer to return buffer                *)
+             ulRetSize: ULONG;         (* Return buffer size                      *)
+             ulNumber: ULONG;          (* Ordinal Number                          *)
+             usDeviceType: USHORT;      (* MCI device type number                  *)
+             usReserved0: USHORT;       (* Reserved field                          *)
+             ulItem: ULONG;            (* Used to indicate the MCI_SYSINFO        *)
+         (* extended function to perform            *)
+             pSysInfoParm: PVOID;
+      end;
+      type PMCI_SYSINFO_PARMS=^MCI_SYSINFO_PARMS;
+
+      type MCI_SYSINFO_LOGDEVICE=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usDeviceType: USHORT;                         (* Device type number             *)
+             ulDeviceFlag: ULONG;                         (* Flag indicating whether device *)
+         (*  device is controllable or not *)
+             szVersionNumber: array[MAX_VERSION_NUMBER] of CHAR;  (* INI file version number        *)
+             szProductInfo: array[MAX_PRODINFO] of CHAR;          (* Textual product description    *)
+             szMCDDriver: array[MAX_DEVICE_NAME] of CHAR;         (* MCI Driver dll name            *)
+             szVSDDriver: array[MAX_DEVICE_NAME] of CHAR;         (* VSD dll name                   *)
+             szPDDName: array[MAX_PDD_NAME] of CHAR;              (* Device PDD name                *)
+             szMCDTable: array[MAX_DEVICE_NAME] of CHAR;          (* Device type command table      *)
+             szVSDTable: array[MAX_DEVICE_NAME] of CHAR;          (* Device specific command table  *)
+             usShareType: USHORT;                          (* Device sharing mode            *)
+             szResourceName: array[MAX_DEVICE_NAME] of CHAR;      (* Resource name                  *)
+             usResourceUnits: USHORT;                      (* Total resource units available *)
+         (*  for this device               *)
+             usResourceClasses: USHORT;                    (* Number of resource classes for *)
+         (*  this device                   *)
+             ausClassArray: array[MAX_CLASSES] of USHORT;           (* Maximum number of resource     *)
+         (*  units for each class          *)
+             ausValidClassArray:array[MAX_CLASSES][MAX_CLASSES] of USHORT; (* Valid class combinations *)
+      end;
+      type PMCI_SYSINFO_LOGDEVICE=^MCI_SYSINFO_LOGDEVICE;
+
+
+      type MCI_SYSINFO_DEVPARAMS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             szDevParams: array[MAX_DEV_PARAMS] of CHAR;          (* Device specific parameters     *)
+      end;
+      type PMCI_SYSINFO_DEVPARAMS=^MCI_SYSINFO_DEVPARAMS;
+
+      type CONNECT=structure
+          usConnectType: USHORT;                         (* Connector type                 *)
+          szToInstallName: array[MAX_DEVICE_NAME] of CHAR;      (* Install name this connector    *)
+         (*  is connected to               *)
+          usToConnectIndex: USHORT;                      (* Connector index this connector *)
+         (*  is connected to               *)
+      end;
+      type PCONNECT=^CONNECT;
+
+      type MCI_SYSINFO_CONPARAMS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usNumConnectors: USHORT;                      (* Number of device connectors    *)
+             ConnectorList: array[MAX_CONNECTORS] of CONNECT;        (* Connector list array           *)
+      end;
+      type PMCI_SYSINFO_CONPARAMS=^MCI_SYSINFO_CONPARAMS;
+
+      type MCI_SYSINFO_EXTENSION=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usNumExtensions: USHORT;                      (* Number of extensions           *)
+             szExtension: array[MAX_EXTENSIONS][MAX_EXTENSION_NAME] of CHAR;
+         (* Extension name array           *)
+      end;
+      type PMCI_SYSINFO_EXTENSION=^MCI_SYSINFO_EXTENSION;
+
+      type MCI_SYSINFO_ALIAS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szAliasName: array[MAX_ALIAS_NAME] of CHAR;          (* Alias name           *)
+      end;
+      type PMCI_SYSINFO_ALIAS=^MCI_SYSINFO_ALIAS;
+
+      type MCI_SYSINFO_DEFAULTDEVICE=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             usDeviceType: USHORT;                         (* Device type number   *)
+      end;
+      type PMCI_SYSINFO_DEFAULTDEVICE=^MCI_SYSINFO_DEFAULTDEVICE;
+
+      type MCI_SYSINFO_QUERY_NAME=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szLogicalName: array[MAX_DEVICE_NAME] of CHAR;       (* Logical device name  *)
+             szAliasName: arrray[MAX_ALIAS_NAME] of CHAR;          (* Alias name           *)
+             usDeviceType: USHORT;                         (* Device type number   *)
+             usDeviceOrd: USHORT;                          (* Device type ordinal  *)
+      end;
+      type PMCI_SYSINFO_QUERY_NAME=^MCI_SYSINFO_QUERY_NAME;
+
+      type MCI_SYSINFO_TYPES=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szTypes: array[MAX_TYPEBUFFER+1] of CHAR;            (* EA types             *)
+      end;
+      type PMCI_SYSINFO_TYPES=^MCI_SYSINFO_TYPES;
+
+
+      (*********************************************************************)
+      (* flags for the MCI_UNFREEZE message                                *)
+      (*     $00000X00 are reserved for MCI_UNFREEZE flags                *)
+      (*********************************************************************)
+      constant MCI_OVLY_UNFREEZE_RECT             = $00000100;
+      constant MCI_OVLY_UNFREEZE_RECT_OUTSIDE     = $00000200;
+
+      (*********************************************************************)
+      (* flags for the MCI_WHERE message                                   *)
+      (*     $0000XX00 are reserved for MCI_WHERE flags                   *)
+      (*********************************************************************)
+      constant MCI_VID_WHERE_DESTINATION          = $00000100;
+      constant MCI_VID_WHERE_SOURCE               = $00000200;
+      constant MCI_VID_WHERE_WINDOW               = $00000400;
+
+      constant MCI_DGV_WHERE_DESTINATION          = MCI_VID_WHERE_DESTINATION;
+      constant MCI_DGV_WHERE_SOURCE               = MCI_VID_WHERE_SOURCE;
+      constant MCI_DGV_WHERE_WINDOW               = MCI_VID_WHERE_WINDOW;
+      constant MCI_DGV_WHERE_ADJUSTED             = $00000800;
+
+      constant MCI_OVLY_WHERE_DESTINATION         = MCI_VID_WHERE_DESTINATION;
+      constant MCI_OVLY_WHERE_SOURCE              = MCI_VID_WHERE_SOURCE;
+      constant MCI_OVLY_WHERE_WINDOW              = MCI_VID_WHERE_WINDOW;
+
+      (*********************************************************************)
+      (* flags and parameter structure for the MCI_WINDOW message          *)
+      (*     $0000XX00   are reserved for MCI_WINDOW flags                *)
+      (*********************************************************************)
+      constant MCI_VID_WINDOW_HWND                = $00000100;
+      constant MCI_VID_WINDOW_STATE               = $00000200;
+      constant MCI_VID_WINDOW_TEXT                = $00000400;
+      constant MCI_VID_WINDOW_DEFAULT             = $00000800;
+
+      constant MCI_DGV_WINDOW_HWND                = MCI_VID_WINDOW_HWND;
+      constant MCI_DGV_WINDOW_STATE               = MCI_VID_WINDOW_STATE;
+      constant MCI_DGV_WINDOW_TEXT                = MCI_VID_WINDOW_TEXT;
+      constant MCI_DGV_WINDOW_DEFAULT             = MCI_VID_WINDOW_DEFAULT;
+
+      constant MCI_OVLY_WINDOW_HWND               = MCI_VID_WINDOW_HWND;
+      constant MCI_OVLY_WINDOW_STATE              = MCI_VID_WINDOW_STATE;
+      constant MCI_OVLY_WINDOW_TEXT               = MCI_VID_WINDOW_TEXT;
+      constant MCI_OVLY_WINDOW_DEFAULT            = MCI_VID_WINDOW_DEFAULT;
+
+      type MCI_VID_WINDOW_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             hwndDest: HWND;        (* Handle to the client window used for    *)
+         (* the destination of the video image      *)
+             usCmdShow: USHORT;       (* Specifies how the window is displayed   *)
+             usReserved1: USHORT;     (* Reserved                                *)
+             pszText: PSZ;         (* The text to use as the window caption   *)
+             pszAlias: PSZ;        (* The window alias for the display window *)
+      end;
+
+      type MCI_VID_WINDOW_PARMS =  MCI_DGV_WINDOW_PARMS;
+      type PMCI_DGV_WINDOW_PARMS=^MCI_DGV_WINDOW_PARMS;
+
+      type MCI_VID_WINDOW_PARMS   =MCI_OVLY_WINDOW_PARMS;
+      type PMCI_OVLY_WINDOW_PARMS =^MCI_OVLY_WINDOW_PARMS;
+
+
+      (*********************************************************************)
+      (* flags and parameter structure for the MCI_TUNER  message          *)
+      (*********************************************************************)
+      constant MCI_DGV_AUDIO_CHANNEL              = $00010000;
+      constant MCI_DGV_TV_CHANNEL                 = $00020000;
+      constant MCI_DGV_FREQUENCY                  = $00040000;
+      constant MCI_DGV_FINETUNE_PLUS              = $00080000;
+      constant MCI_DGV_FINETUNE_MINUS             = $00100000;
+      constant MCI_DGV_REGION                     = $00200000;
+      constant MCI_DGV_AFC_ON                     = $00400000;
+      constant MCI_DGV_AFC_OFF                    = $00800000;
+      constant MCI_DGV_POLARIZATION               = $00800000;
+      constant MCI_DGV_QUERY                      = $01000000;
+
+      type MCI_DGV_TUNER_PARMS=structure
+            hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+            ulFrequency: ULONG;      (* Tuner Frequency                            *)
+            ulAudioChannel: ULONG;   (* Audio Channel                              *)
+            ulTVChannel: ULONG;      (* TV Channel                                 *)
+            lFineTune: LONG;        (* Fine tuning adjustments.                   *)
+            pszRegion: PSZ;        (* TV Channel Region                          *)
+            ulReserved1: ULONG;      (* Reserved 1                                 *)
+            ulReserved2: ULONG;      (* Reserved 2                                 *)
+      end;
+      type LPMCI_DGV_TUNER_PARMS=^MCI_DGV_TUNER_PARMS;
+
+(*      #pragma pack() *)
+      (*********************************************************************)
+      (*                                                                   *)
+      (*  MCI system value defines                                         *)
+      (*                                                                   *)
+      (*********************************************************************)
+      constant MSV_CLOSEDCAPTION                 = $0;
+      constant MSV_MASTERVOLUME                  = $1;
+      constant MSV_HEADPHONES                    = $2;
+      constant MSV_SPEAKERS                      = $3;
+      constant MSV_WORKPATH                      = $4;
+      constant MSV_SYSQOSVALUE                   = $5;
+      constant MSV_SYSQOSERRORFLAG               = $6;
+
+      constant MSV_MAX                           = $7;
+
+
+      (*********************************************************************)
+      (* Playlist defines                                                  *)
+      (*********************************************************************)
+      constant DATA_OPERATION                    =  0;
+      constant BRANCH_OPERATION                  =  1;
+      constant LOOP_OPERATION                    =  2;
+      constant CALL_OPERATION                    =  3;
+      constant RETURN_OPERATION                  =  4;
+      constant EXIT_OPERATION                    =  5;
+      constant NOP_OPERATION                     =  6;
+      constant MESSAGE_OPERATION                 =  7;
+      constant CUEPOINT_OPERATION                =  8;
+      constant SEMWAIT_OPERATION                 =  9;
+      constant SEMPOST_OPERATION                 = 10;
+
+      (*********************************************************************)
+      (*                                                                   *)
+      (*  MCI Function prototypes                                          *)
+      (*                                                                   *)
+      (*********************************************************************)
+
+
+      function mciSendCommand(in usDeviceID: USHORT;
+                              in usMessage: USHORT;
+                              in ulParam1: ULONG;
+                              in pParam2: PVOID;
+                              in usUserParm: USHORT): ULONG;
+
+      function mciSendString(in pszCommandBuf: PSZ;
+                             in pszReturnString: PSZ;
+                             in usReturnLength: USHORT;
+                             in hwndCallBack: HWND
+                             in usUserParm: USHORT): ULONG;
+
+      function mciGetErrorString(in ulError: ULONG;
+                                 in pszBuffer: PSZ;
+                                 in usLength: USHORT): ULONG;
+
+      function mciMakeGroup(in pusDeviceGroupID: PUSHORT;
+                            in usDeviceCount: USHORT;
+                            in pausDeviceList: PUSHORT;
+                            in ulFlags: ULONG;
+                            in ulMMTime: ULONG): ULONG;
+
+
+      function mciDeleteGroup(in usGroupID: USHORT): ULONG;
+
+
+
+      function mciSetSysValue(in iSysValue: USHORT;
+                              in pValue: PVOID): BOOL;
+
+      function mciQuerySysValue(in iSysValue: USHORT;
+                                in pValue: PVOID): BOOL;
+
+      function mciGetDeviceID(in pszName: PSZ): ULONG;
+
+
+end.
+

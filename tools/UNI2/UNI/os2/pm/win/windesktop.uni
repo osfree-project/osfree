@@ -1,0 +1,26 @@
+group windesktop;
+
+constant SDT_DESTROY         = $01;
+constant SDT_NOBKGND         = $02;
+constant SDT_TILE            = $04;
+constant SDT_SCALE           = $08;
+constant SDT_PATTERN         = $10;
+constant SDT_CENTER          = $20;
+constant SDT_RETAIN          = $40;
+constant SDT_LOADFILE        = $80;
+
+type DESKTOP=structure
+    cbSize: ULONG;
+    hbm: HBITMAP;
+    x: LONG;
+    y: LONG;
+    fl: ULONG;
+    lTileCount: LONG;
+    szFile: array[260] of CHAR;
+end;
+type PDESKTOP=^DESKTOP;
+
+function WinSetDesktopBkgnd(in a: HWND; in b: PDESKTOP): HBITMAP;
+function WinQueryDesktopBkgnd(in a: HWND; in b: PDESKTOP): BOOL;
+
+end.

@@ -1,0 +1,112 @@
+group dossemaphores;
+
+uses hevdef default;
+
+   (*
+   *     32-bit Semaphore Support
+   *)
+
+   (* Semaphore Attributes *)
+
+   constant DC_SEM_SHARED  = $01;   (* DosCreateMutex, DosCreateEvent, and     *)
+                                  (*   DosCreateMuxWait use it to indicate   *)
+                                  (*   whether the semaphore is shared or    *)
+                                  (*   private when the PSZ is null          *)
+   constant DCMW_WAIT_ANY  = $02;   (* DosCreateMuxWait option for wait on any *)
+                                  (*   event/mutex to occur                  *)
+   constant DCMW_WAIT_ALL  = $04;   (* DosCreateMuxWait option for wait on all *)
+                                  (*   events/mutexs to occur                *)
+  constant DCE_AUTORESET  = $1000;  (* DosCreateEventSem option to auto-reset  *)
+                                  (* event semaphore on post.                *)
+  constant DCE_POSTONE    = $0800;  (* DosCreateEventSem option to post only   *)
+                                  (* waiter and auto-reset the semaphore when*)
+                                  (* there are multiple waiters.             *)
+
+
+   constant SEM_INDEFINITE_WAIT    = -1;
+   constant SEM_IMMEDIATE_RETURN   =  0;
+
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
+
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
+   type      HMTX=ULONG;            (* hmtx *)
+   type  PHMTX=^HMTX;
+   type      HMUX=ULONG;            (* hmux *)
+   type  PHMUX=^HMUX;
+
+   type SEMRECORD=structure      (* psr *)
+              hsemCur: HSEM;
+              ulUser: ULONG;
+   end;
+   type PSEMRECORD=^SEMRECORD;
+
+   function  DosCreateEventSem (in  pszName: PCSZ;
+                                        out phev: HEV;
+                                        in flAttr: ULONG;
+                                        in fState: BOOL32): APIRET;
+
+   function  DosOpenEventSem (in  pszName: PCSZ;
+                                      inout phev: HEV): APIRET;
+
+   function  DosCloseEventSem (in hev: HEV ): APIRET;
+
+   function  DosResetEventSem (in hev: HEV;
+                                       out pulPostCt: ULONG): APIRET;
+
+   function  DosPostEventSem (in hev: HEV): APIRET;
+
+   function  DosWaitEventSem (in hev: HEV;
+                                      in ulTimeout: ULONG): APIRET;
+
+   function  DosQueryEventSem (in hev: HEV;
+                                       out pulPostCt: ULONG): APIRET;
+
+   function  DosCreateMutexSem (in pszName: PCSZ;
+                                        out phmtx: HMTX;
+                                        in flAttr: ULONG;
+                                        in fState: BOOL32): APIRET;
+
+   function  DosOpenMutexSem (in pszName: PCSZ;
+                                     inout phmtx: HMTX): APIRET;
+
+   function  DosCloseMutexSem (in hmtx: HMTX): APIRET;
+
+   function  DosRequestMutexSem (in hmtx: HMTX;
+                                         in ulTimeout: ULONG): APIRET;
+
+   function  DosReleaseMutexSem (in hmtx: HMTX): APIRET;
+
+   function  DosQueryMutexSem (in hmtx: HMTX;
+                                      out ppid: PID;
+                                      out ptid: TID;
+                                      out pulCount: ULONG): APIRET;
+
+   function  DosCreateMuxWaitSem (in pszName: PCSZ;
+                                          out phmux: HMUX;
+                                          in cSemRec: ULONG;
+                                          in pSemRec: PSEMRECORD;
+                                          in flAttr: ULONG): APIRET;
+
+   function  DosOpenMuxWaitSem (in pszName: PCSZ;
+                                       inout phmux: HMUX): APIRET;
+
+   function  DosCloseMuxWaitSem (in hmux: HMUX): APIRET;
+
+   function  DosWaitMuxWaitSem (in hmux: HMUX;
+                                       in ulTimeout: ULONG;
+                                       out pulUser: ULONG): APIRET;
+
+   function  DosAddMuxWaitSem (in hmux: HMUX;
+                                       in pSemRec: PSEMRECORD): APIRET;
+
+   function  DosDeleteMuxWaitSem (in hmux: HMUX;
+                                         in hSem: HSEM): APIRET;
+
+   function  DosQueryMuxWaitSem (in hmux: HMUX;
+                                         inout pcSemRec: ULONG;
+                                         out pSemRec: SEMRECORD;
+                                         out pflAttr: ULONG): APIRET;
+
+end.

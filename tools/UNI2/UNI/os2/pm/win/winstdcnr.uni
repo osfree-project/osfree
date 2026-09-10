@@ -1,0 +1,6 @@
+group winstdcnr;
+
+uses winstddrag default;
+uses winstdcontainer default;
+
+end.

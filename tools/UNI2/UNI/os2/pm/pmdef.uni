@@ -1,0 +1,60 @@
+(****************************** Module Header ******************************
+*                                                                          *
+* Module Name: PMDEF.UNI                                                   *
+*                                                                          *
+***************************************************************************)
+
+group pmdef;
+
+
+type POINTL=structure
+    x: LONG;
+    y: LONG;
+  end;
+
+type PPOINTL=^POINTL;
+type NPPOINTL=^POINTL;
+
+type POINTS=structure
+    x: SHORT;
+    y: SHORT;
+  end;
+
+type PPOINTS=^POINTS;
+
+type RECTL=structure
+    xLeft: LONG;
+    yBottom: LONG;
+    xRight: LONG;
+    yTop: LONG;
+  end;
+
+type PRECTL=^RECTL;
+type NPRECTL=^RECTL;
+
+type WRECT=RECTL;
+type PWRECT=PRECTL;
+type NPWRECT=NPRECTL;
+
+type WPOINT  =POINTL;
+type PWPOINT =PPOINTL;
+type NPWPOINT=NPPOINTL;
+
+(*** Pointer to a window procedure function ********************************)
+type FNWP=function(in hwnd: HWND; in ul: ULONG; in mp1: MPARAM; in mp2: MPARAM): MRESULT;
+type PFNWP=^FNWP;
+
+type MATRIXLF=structure
+    fxM11: FIXED;
+    fxM12: FIXED;
+    lM13: LONG;
+    fxM21: FIXED;
+    fxM22: FIXED;
+    lM23: LONG;
+    lM31: LONG;
+    lM32: LONG;
+    lM33: LONG;
+  end;
+type PMATRIXLF=^MATRIXLF;
+
+end.

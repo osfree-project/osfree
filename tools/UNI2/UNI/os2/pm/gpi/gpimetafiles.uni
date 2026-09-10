@@ -1,0 +1,69 @@
+group gpimetafiles;
+
+constant PMF_SEGBASE         = 0;
+constant PMF_LOADTYPE        = 1;
+constant PMF_RESOLVE         = 2;
+constant PMF_LCIDS           = 3;
+constant PMF_RESET           = 4;
+constant PMF_SUPPRESS        = 5;
+constant PMF_COLORTABLES     = 6;
+constant PMF_COLORREALIZABLE = 7;
+constant PMF_DEFAULTS        = 8;
+constant PMF_DELETEOBJECTS   = 9;
+constant PMF_PERPAGEINFOPTR  = 12;
+
+constant PPI_PLAYSEQ     = 0;
+constant PPI_PLAYDEFINED = 1;
+
+constant RS_DEFAULT         = 0;
+constant RS_NODISCARD       = 1;
+constant LC_DEFAULT         = 0;
+constant LC_NOLOAD          = 1;
+constant LC_LOADDISC        = 3;
+constant LT_DEFAULT         = 0;
+constant LT_NOMODIFY        = 1;
+constant LT_ORIGINALVIEW    = 4;
+constant RES_DEFAULT        = 0;
+constant RES_NORESET        = 1;
+constant RES_RESET          = 2;
+constant SUP_DEFAULT        = 0;
+constant SUP_NOSUPPRESS     = 1;
+constant SUP_SUPPRESS       = 2;
+constant CTAB_DEFAULT       = 0;
+constant CTAB_NOMODIFY      = 1;
+constant CTAB_REPLACE       = 3;
+constant CTAB_REPLACEPALETTE = 4;
+constant CREA_DEFAULT       = 0;
+constant CREA_REALIZE       = 1;
+constant CREA_NOREALIZE     = 2;
+constant CREA_DOREALIZE     = 3;
+constant DDEF_DEFAULT       = 0;
+constant DDEF_IGNORE        = 1;
+constant DDEF_LOADDISC      = 3;
+constant DOBJ_DEFAULT       = 0;
+constant DOBJ_NODELETE      = 1;
+constant DOBJ_DELETE        = 2;
+constant RSP_DEFAULT        = 0;
+constant RSP_NODISCARD      = 1;
+
+type PERPAGEINFO=structure
+    ulType: ULONG;
+    ulStart: ULONG;
+    ulEnd: ULONG;
+    ulSkip: ULONG;
+    ulPageCnt: ULONG;
+    pulDefined: PULONG;
+end;
+
+function GpiCopyMetaFile(in a: HMF): HMF;
+function GpiDeleteMetaFile(in a: HMF): BOOL;
+function GpiLoadMetaFile(in a: HAB, in b: PCSZ): HMF;
+function GpiPlayMetaFile(in a: HPS, in b: HMF, in c: LONG, in d: PLONG, in e: PLONG, in f: LONG, in g: PCSZ): LONG;
+function GpiQueryMetaFileBits(in a: HMF, in b: LONG, in c: LONG, in d: PBYTE): BOOL;
+function GpiQueryMetaFileLength(in a: HMF): LONG;
+function GpiResumePlay(in a: HPS): BOOL;
+function GpiSaveMetaFile(in a: HMF, in b: PCSZ): BOOL;
+function GpiSetMetaFileBits(in a: HMF, in b: LONG, in c: LONG, in d: PBYTE): BOOL;
+function GpiSuspendPlay(in a: HPS): BOOL;
+
+end.

@@ -1,0 +1,6 @@
+group winpalette;
+
+function WinRealizePalette(in a: HWND; in b: HPS; in c: PULONG): LONG;
+
+end.
+

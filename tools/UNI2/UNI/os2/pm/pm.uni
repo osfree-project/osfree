@@ -1,0 +1,24 @@
+(****************************** Module Header ******************************\
+*
+* OS/2 Presentation Manager top level include file.
+*
+\***************************************************************************)
+
+group pm;
+
+uses pmdef default;
+uses utlapi default;
+uses pmwin default;        (* OS/2 Window Manager definitions    *)
+uses win default;
+uses winload;
+uses pmgpi default;        (* OS/2 GPI definitions               *)
+uses pmdev default;        (* OS/2 Device Context definitions    *)
+uses pmwp;         (* OS/2 Workplace Shell               *)
+uses pmavio;       (* OS/2 AVIO definitions              *)
+uses pmspl;        (* OS/2 Spooler definitions           *)
+uses pmpic;        (* OS/2 Picture Utilities definitions *)
+uses pmord;        (* OS/2 Graphical Order Formats       *)
+uses pmfont;       (* OS/2 Font File Format definition   *)
+uses pmstddlg;     (* CUA controls and dialogs           *)
+
+end.

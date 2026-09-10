@@ -1,0 +1,15 @@
+(***************************************************************************
+*
+* OS/2 Presentation Manager Shell constants, types, messages and
+* function declarations include file.
+*
+***************************************************************************)
+
+group pmshl;
+
+uses winswitchlistcommon;
+uses winswitchlist;
+uses winprogramlist;
+uses winshelldata;
+
+end.

@@ -1,0 +1,38 @@
+group dosresourcescommon;
+
+   (*** Resource support *)
+
+   (* Predefined resource types *)
+
+constant RT_POINTER     = 1;   (* mouse pointer shape *)
+constant RT_BITMAP      = 2;   (* bitmap *)
+constant RT_MENU        = 3;   (* menu template *)
+constant RT_DIALOG      = 4;   (* dialog template *)
+constant RT_STRING      = 5;   (* string tables *)
+constant RT_FONTDIR     = 6;   (* font directory *)
+constant RT_FONT        = 7;   (* font *)
+constant RT_ACCELTABLE  = 8;   (* accelerator tables *)
+constant RT_RCDATA      = 9;   (* binary data *)
+constant RT_MESSAGE     = 10;  (* error msg     tables *)
+constant RT_DLGINCLUDE  = 11;  (* dialog include file name *)
+constant RT_VKEYTBL     = 12;  (* key to vkey tables *)
+constant RT_KEYTBL      = 13;  (* key to UGL tables *)
+constant RT_CHARTBL     = 14;  (* glyph to character tables *)
+constant RT_DISPLAYINFO = 15;  (* screen display information *)
+
+constant RT_FKASHORT    = 16;  (* function key area short form *)
+constant RT_FKALONG     = 17;  (* function key area long form *)
+
+constant RT_HELPTABLE   = 18;  (* Help table for Cary Help manager *)
+constant RT_HELPSUBTABLE= 19;  (* Help subtable for Cary Help manager *)
+
+constant RT_FDDIR       = 20;  (* DBCS uniq/font driver directory *)
+constant RT_FD          = 21;  (* DBCS uniq/font driver *)
+
+constant RT_MAX         = 22;  (* 1st unused Resource Type *)
+constant RT_RESNAMES    = 255; (* Resource ID of the resource names table *)
+
+
+constant RF_ORDINALID    = $80000000;     (* ordinal id flag in resource table *)
+
+end.

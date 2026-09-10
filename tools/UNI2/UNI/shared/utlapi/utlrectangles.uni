@@ -1,0 +1,49 @@
+group utlrectangles;
+
+function RectCopy(in prclDst: PRECTL;
+                  in prclSrc: PRECTL): BOOL;
+
+function RectSet(in prcl: PRECTL;
+                 in xLeft: LONG; 
+                 in yBottom: LONG;
+                 in xRight: LONG;
+                 in yTop: LONG): BOOL;
+
+function RectIsEmpty(in prcl: PRECTL): BOOL;
+
+function RectEqual(in prcl1: PRECTL;
+                   in prcl2: PRECTL): BOOL;
+
+function RectSetEmpty(in prcl: PRECTL): BOOL;
+
+function RectOffset(in prcl: PRECTL; 
+                    in cx: LONG;
+                    in cy: LONG): BOOL;
+
+function RectInflate(in prcl: PRECTL;
+                     in cx: LONG;
+                     in cy: LONG): BOOL;
+
+function RectPtIn(in prcl: PRECTL;
+                  in pptl: PPOINTL): BOOL;
+
+function RectIntersect(in prclDst: PRECTL;
+                       in prclSrc1: PRECTL;
+                       in prclSrc2: PRECTL): BOOL;
+
+function RectUnion(in prclDst: PRECTL; 
+                   in prclSrc1: PRECTL;
+                   in prclSrc2: PRECTL): BOOL;
+
+function RectSubtract(in prclDst: PRECTL;
+                      in prclSrc1: PRECTL;
+                      in prclSrc2: PRECTL): BOOL;
+
+(* @todo: what with it?? May be just check for correct coordinates? *)
+function RectMakeRect(in pwrc: PRECTL): BOOL;
+
+(* @todo: what with it?? May be just check for correct coordinates? *)
+function RectMakePoints(in pwpt: PPOINTL;
+                        in cwpt: ULONG): BOOL;
+
+end.

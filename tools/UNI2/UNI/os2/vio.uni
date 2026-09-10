@@ -1,0 +1,491 @@
+(* Video Input Output (Vio) functions (32-bit version) *)
+group vio;
+
+(* Vio handles *)
+type HVIO=USHORT;
+type PHVIO=^HVIO;
+
+(* VioCreatePS format constants *)
+constant FORMAT_CGA     = $0001;
+constant FORMAT_VGA     = $0001;
+constant FORMAT_4BYTE   = $0003;
+constant FORMAT_EXTEND  = $0003;
+constant FORMAT_UNICODE = $0002;
+
+(* options for VioQueryFonts *)
+constant VQF_PUBLIC     = $0001;
+constant VQF_PRIVATE    = $0002;
+constant VQF_ALL        = $0003;
+
+(* Cursor structure for VioSetCurType and VioGetCurType() *)
+type VIOCURSORINFO=structure
+       yStart: USHORT;
+       cEnd:   USHORT;
+       cx:     USHORT;
+       attr:   USHORT;
+     end;
+
+
+type PVIOCURSORINFO=^VIOCURSORINFO;
+
+(* Mode structure for VioSetMode and VioGetMode (field added for 32 bit alignment) *)
+type VIOMODEINFO=structure
+       cb: USHORT;            (*  structure length  *)
+       fbType: UCHAR;        (*  mode type  *)
+       color: UCHAR;         (*  number of colors  *)
+       col: USHORT;           (*  number of columns  *)
+       row: USHORT;           (*  number of rows  *)
+       hres: USHORT;          (*  horizontal size in pels  *)
+       vres: USHORT;          (*  vertical size in pels  *)
+       fmt_ID: UCHAR;        (*  format of attributes  *)
+       attrib: UCHAR;        (*  length of attributes  *)
+       resvd: USHORT;         (*  Reserved   (added field)  *)
+       buf_addr: ULONG;
+       buf_length: ULONG;
+       full_length: ULONG;
+       partial_length: ULONG;
+       ext_data_addr: PCH;
+    end;
+
+type PVIOMODEINFO=^VIOMODEINFO;
+
+(* VIOMODEINFO.fbType constants *)
+constant VGMT_OTHER          = 1;
+constant VGMT_COLOR          = 1;
+constant VGMT_GRAPHICS       = 2;
+constant VGMT_DISABLEBURST   = 4;
+constant VGMT_NOTBIOS        = 8;
+
+(* VIOMODEINFO.color constants *)
+constant COLORS_2           =  1;
+constant COLORS_4           =  2;
+constant COLORS_16          =  4;
+constant COLORS_256         =  8;
+constant COLORS_64K         = 16;
+constant COLORS_16M         = 24;
+
+(* Return types for VioCheckCharType *)
+constant VCC_SBCSCHAR        = 0;
+constant VCC_DBCSFULLCHAR    = 1;
+constant VCC_DBCS1STHALF     = 2;
+constant VCC_DBCS2NDHALF     = 3;
+
+(* Values for graphics mode screen synchronization *)
+constant VSRWI_SAVEANDREDRAW = 0;
+constant VSRWI_REDRAW        = 1;
+
+constant VSRWN_SAVE          = 0;
+constant VSRWN_REDRAW        = 1;
+
+constant UNDOI_GETOWNER      = 0;
+constant UNDOI_RELEASEOWNER  = 1;
+
+constant UNDOK_ERRORCODE     = 0;
+constant UNDOK_TERMINATE     = 1;
+
+constant LOCKIO_NOWAIT       = 0;
+constant LOCKIO_WAIT         = 1;
+
+constant LOCK_SUCCESS        = 0;
+constant LOCK_FAIL           = 1;
+
+(* Values for VioSetAnsi and VioGetAnsi *)
+constant ANSI_ON             = 1;
+constant ANSI_OFF            = 0;
+
+(* Values for VioPopup *)
+constant VMWR_POPUP          = 0;
+constant VMWN_POPUP          = 0;
+constant VP_NOWAIT           = 0;
+constant VP_WAIT             = 1;
+constant VP_OPAQUE           = 0;
+constant VP_TRANSPARENT      = 2;
+
+(* VIOCONFIGINFO.adapter constants *)
+constant DISPLAY_MONOCHROME =  0;
+constant DISPLAY_CGA        =  1;
+constant DISPLAY_EGA        =  2;
+constant DISPLAY_VGA        =  3;
+constant DISPLAY_8514A      =  7;
+constant DISPLAY_IAA        =  8;
+constant DISPLAY_XGA        =  9;
+constant DISPLAY_SVGA       = 10;
+constant DISPLAY_NONVGA     = 12;
+
+(* VIOCONFIGINFO.display constants *)
+constant MONITOR_MONOCHROME =  0;
+constant MONITOR_COLOR      =  1;
+constant MONITOR_ENHANCED   =  2;
+constant MONITOR_8503       =  3;
+constant MONITOR_851X_COLOR =  4;
+constant MONITOR_8514       =  9;
+constant MONITOR_FLATPANEL  = 10;
+constant MONITOR_LCD640     = 10;
+constant MONITOR_8507_8604  = 11;
+constant MONITOR_8515       = 12;
+constant MONITOR_9515       = 15;
+constant MONITOR_9517       = 17;
+constant MONITOR_9518       = 18;
+constant MONITOR_OEM        = 19;
+constant MONITOR_LCD800     = 21;
+constant MONITOR_LCD1024    = 22;
+
+
+(* Configuration structure for VioGetConfig (all fields changed to ULONG) *)
+type VIOCONFIGINFO=structure
+        cb: ULONG;              (*  Size of data       *)
+        adapter: ULONG;         (*  Adapter type       *)
+        display: ULONG;         (*  Display type       *)
+        cbMemory: ULONG;        (*  Adapter memory     *)
+        Configuration: ULONG;   (*  Which config       *)
+        Version: ULONG;         (*  Driver version     *)
+        Flags: ULONG;           (*                     *)
+        HWBufferSize: ULONG;    (*  State save size    *)
+        FullSaveSize: ULONG;    (*  Buffer save size   *)
+        PartSaveSize: ULONG;    (*  Partial save size  *)
+        VideoID: ULONG;         (*  Adapter ID         *)
+        VideoData: ULONG;       (*  Adapter user data  *)
+    end;
+
+type PVIOCONFIGINFO=^VIOCONFIGINFO;
+
+constant VIO_CONFIG_CURRENT  = 0;
+constant VIO_CONFIG_PRIMARY  = 1;
+constant VIO_CONFIG_SECONDARY= 2;
+
+(* Structures for VioSetState and VioGetState *)
+type VIOPALSTATE=structure
+        cb: USHORT;
+        type: USHORT;
+        iFirst: USHORT;
+        acolor: array[1] of USHORT;
+    end;
+type PVIOPALSTATE=^VIOPALSTATE;
+
+type VIOOVERSCAN=structure
+        cb: USHORT;
+        type: USHORT;
+        color: USHORT;
+    end;
+type PVIOOVERSCAN=^VIOOVERSCAN;
+
+type VIOINTENSITY=structure
+        cb: USHORT;
+        type: USHORT;
+        fs: USHORT;
+    end;
+type PVIOINTENSITY=^VIOINTENSITY;
+
+type VIOCOLORREG=structure
+        cb: USHORT;
+        type: USHORT;
+        firstcolorreg: USHORT;
+        numcolorregs: USHORT;
+        colorregaddr: PCH;
+    end;
+
+type PVIOCOLORREG=^VIOCOLORREG;
+
+type VIOSETULINELOC=structure
+        cb: USHORT;
+        type: USHORT;
+        scanline: USHORT;
+    end;
+
+type PVIOSETULINELOC=^VIOSETULINELOC;
+
+type VIOSETTARGET=structure
+        cb: USHORT;
+        type: USHORT;
+        defaultalgorithm: USHORT;
+    end;
+
+type PVIOSETTARGET=^VIOSETTARGET;
+
+(* first parameter registration constants   *)
+constant VR_VIOGETCURPOS            = $00000001;
+constant VR_VIOGETCURTYPE           = $00000002;
+constant VR_VIOGETMODE              = $00000004;
+constant VR_VIOGETBUF               = $00000008;
+constant VR_VIOGETPHYSBUF           = $00000010;
+constant VR_VIOSETCURPOS            = $00000020;
+constant VR_VIOSETCURTYPE           = $00000040;
+constant VR_VIOSETMODE              = $00000080;
+constant VR_VIOSHOWBUF              = $00000100;
+constant VR_VIOREADCHARSTR          = $00000200;
+constant VR_VIOREADCELLSTR          = $00000400;
+constant VR_VIOWRTNCHAR             = $00000800;
+constant VR_VIOWRTNATTR             = $00001000;
+constant VR_VIOWRTNCELL             = $00002000;
+constant VR_VIOWRTTTY               = $00004000;
+constant VR_VIOWRTCHARSTR           = $00008000;
+
+constant VR_VIOWRTCHARSTRATT        = $00010000;
+constant VR_VIOWRTCELLSTR           = $00020000;
+constant VR_VIOSCROLLUP             = $00040000;
+constant VR_VIOSCROLLDN             = $00080000;
+constant VR_VIOSCROLLLF             = $00100000;
+constant VR_VIOSCROLLRT             = $00200000;
+constant VR_VIOSETANSI              = $00400000;
+constant VR_VIOGETANSI              = $00800000;
+constant VR_VIOPRTSC                = $01000000;
+constant VR_VIOSCRLOCK              = $02000000;
+constant VR_VIOSCRUNLOCK            = $04000000;
+constant VR_VIOSAVREDRAWWAIT        = $08000000;
+constant VR_VIOSAVREDRAWUNDO        = $10000000;
+constant VR_VIOPOPUP                = $20000000;
+constant VR_VIOENDPOPUP             = $40000000;
+constant VR_VIOPRTSCTOGGLE          = $80000000;
+
+(* second parameter registration constants  *)
+constant VR_VIOMODEWAIT             = $00000001;
+constant VR_VIOMODEUNDO             = $00000002;
+constant VR_VIOGETFONT              = $00000004;
+constant VR_VIOGETCONFIG            = $00000008;
+constant VR_VIOSETCP                = $00000010;
+constant VR_VIOGETCP                = $00000020;
+constant VR_VIOSETFONT              = $00000040;
+constant VR_VIOGETSTATE             = $00000080;
+constant VR_VIOSETSTATE             = $00000100;
+
+(* structure for VioGetPhysBuf() *)
+type VIOPHYSBUF = structure
+  pBuf:    PBYTE;
+  cb:      ULONG;
+  asel:    array[1] of SEL;
+end;
+
+type PVIOPHYSBUF=^VIOPHYSBUF;
+
+(* structure for VioGet/SetFont() *)
+type VIOFONTINFO = structure
+  cb:       USHORT;
+  type:     USHORT;
+  cxCell:   USHORT;
+  cyCell:   USHORT;
+  pbData:   PVOID16;
+  cbData:   USHORT;
+end;
+
+type PVIOFONTINFO=^VIOFONTINFO;
+
+constant VGFI_GETCURFONT           = 0;
+constant VGFI_GETROMFONT           = 1;
+
+function VioDeRegister       (): USHORT;
+function VioRegister         (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG): USHORT;
+function VioGlobalReg        (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG; in usReturn: USHORT): USHORT;
+
+function VioGetAnsi          (out Ansi:   USHORT;
+                              in  Handle: HVIO): USHORT;
+function VioSetAnsi          (in Ansi:   USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioGetCp            (in  Reserved:   USHORT;
+                              out IdCodePage: USHORT;
+                              in  Handle:     HVIO): USHORT;
+
+function VioGetCurPos        (out Row:    USHORT;
+                              out Column: USHORT;
+                              in  Handle: HVIO): USHORT;
+
+function VioGetCurType       (out CursorInfo: VIOCURSORINFO;
+                              in  Handle:     HVIO): USHORT;
+
+(* Missed VioGetDeviceCellSize *)
+
+function VioGetMode          (inout ModeInfo: VIOMODEINFO;
+                              in    Handle:   HVIO): USHORT;
+
+function VioReadCellStr      (out   CellStr: CHAR;
+                              inout Count:   USHORT;
+                              in    Row:     USHORT;
+                              in    Column:  USHORT;
+                              in    Handle:  HVIO): USHORT;
+
+function VioReadCharStr      (out   CellStr: CHAR;
+                              inout Count:   USHORT;
+                              in    Row:     USHORT;
+                              in    Column:  USHORT;
+                              in    Handle:  HVIO): USHORT;
+
+function VioScrollDown       (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollDn         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollLeft       (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollLf         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollRight      (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollRt         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollUp         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Lines:    USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioSetCp            (in Reserved:   USHORT;
+                              in IdCodePage: USHORT;
+                              in Handle:     HVIO): USHORT;
+
+function VioSetCurPos        (in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioSetCurType       (in CursorInfo: PVIOCURSORINFO;
+                              in Handle:     HVIO): USHORT;
+
+function VioSetMode          (in ModeInfo: PVIOMODEINFO;
+                              in hvio:     HVIO): USHORT;
+
+function VioWrtCellStr       (in CellStr: PCHAR;
+                              in Count:   USHORT;
+                              in Row:     USHORT;
+                              in Column:  USHORT;
+                              in Handle:  HVIO): USHORT;
+
+function VioWrtCharStr       (in Str:    PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtCharStrAttr   (in Str:    PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in pAttr:  PBYTE;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtCharStrAtt    (in pch:      PCCH;
+                              in cb:       USHORT;
+                              in usRow:    USHORT;
+                              in usColumn: USHORT;
+                              in pAttr:    PBYTE;
+                              in hvio: HVIO): USHORT;
+
+function VioWrtNAttr         (in Attr:   PBYTE;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtNCell         (in Cell:   PBYTE;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtNChar         (in Char:   PCHAR;
+                              in Count:  USHORT;
+                              in Row:    USHORT;
+                              in Column: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioWrtTTY           (in Str:   PCHAR;
+                              in Count: USHORT;
+                              in Handle: HVIO): USHORT;
+
+function VioGetState         (in pState: PVOID; in Handle: HVIO): USHORT;
+
+function VioSetState         (in pState: PVOID; in Handle: HVIO): USHORT;
+
+function VioGetConfig        (in  ConfigId: USHORT;
+                              out vioin:    VIOCONFIGINFO;
+                              in  hvio:     HVIO): USHORT;
+
+function VioPopUp            (out Options:USHORT;
+                              in  VioHandle:HVIO): USHORT;
+
+function VioEndPopUp         (in  VioHandle:HVIO): USHORT;
+
+function VioGetPhysBuf       (out pvioPhysBuf:VIOPHYSBUF;
+                              in  usReserved:USHORT): USHORT;
+
+function VioPrtSc            (in  hvio:HVIO): USHORT;
+
+function VioPrtScToggle      (in  hvio:HVIO): USHORT;
+
+function VioShowBuf          (in  offLVB:USHORT;
+                              in  cb:USHORT;
+                              in  hvio:HVIO): USHORT;
+
+function VioScrLock          (in  fWait:USHORT;
+                              out pfNotLocked:UCHAR;
+                              in  hvio:HVIO): USHORT;
+
+function VioScrUnLock        (in  hvio:HVIO): USHORT;
+
+function VioSavRedrawWait    (in  usRedrawInd:USHORT;
+                              out pNotifyType:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioSavRedrawUndo    (in  usOwnerInd:USHORT;
+                              in  usKillInd:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioModeWait         (in  usReqType:USHORT;
+                              out pNotifyType:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioModeUndo         (in  usOwnerInd:USHORT;
+                              in  usKillInd:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioGetFont          (out pviofi:VIOFONTINFO;
+                              in  hvio:HVIO): USHORT;
+
+function VioSetFont          (out pviofi:VIOFONTINFO;
+                              in  hvio:HVIO): USHORT;
+
+function VioGetBuf           (out pLVB:ULONG;
+                              out pcbLVB:USHORT;
+                              in  hvio:HVIO): USHORT;
+
+function VioCheckCharType    (out pType:USHORT;
+                              in  usRow:USHORT;
+                              in  usColumn:USHORT;
+                              in  hvio:HVIO): USHORT;
+
+end.

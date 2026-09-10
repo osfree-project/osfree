@@ -1,0 +1,47 @@
+group os2me;
+
+(*
+uses os2mm;
+*)
+
+uses os2medef;
+uses meerror;
+uses machdr;
+
+(*
+#ifdef INCL_MACHDR
+  #include <mciapi.h>
+#endif
+*)
+
+uses ssm;
+uses mcios2;
+uses mmdrvos2;
+uses mmio;
+uses mmio_codec;
+
+(*
+#ifdef INCL_MMIO
+  #include <mmio.h>
+  #ifdef INCL_MMIO_CODEC
+    #include <codec.h>
+  #endif
+#else
+  #ifdef INCL_MMIOOS2
+    #include <mmioos2.h>
+    #ifdef INCL_MMIO_CODEC
+      #include <codec.h>
+    #endif
+  #endif
+#endif
+
+
+#ifdef INCL_SW
+  #define INCL_SECONDARYWINDOW
+  #define INCL_GRAPHICBUTTON
+  #define INCL_CIRCULARSLIDER
+  #include <sw.h>
+#endif
+*)
+
+end.

@@ -1,0 +1,14 @@
+(****************************** Module Header ******************************
+*                                                                          *
+* Module Name: DOS.UNI                                                     *
+*                                                                          *
+* This is the top level module that includes all the files necessary       *
+* for writing an DOS Personality application.                              *
+*                                                                          *
+***************************************************************************)
+
+group dos;
+
+uses os2vdm;
+
+end.

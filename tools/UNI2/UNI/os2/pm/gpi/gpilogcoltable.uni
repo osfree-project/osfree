@@ -1,0 +1,106 @@
+group gpilogcoltable;
+
+constant LCOL_RESET                   = $0001;
+constant LCOL_REALIZABLE              = $0002;
+constant LCOL_PURECOLOR               = $0004;
+constant LCOL_OVERRIDE_DEFAULT_COLORS = $0008;
+constant LCOL_REALIZED                = $0010;
+
+constant LCOLF_DEFAULT   =0;
+constant LCOLF_INDRGB    =1;
+constant LCOLF_CONSECRGB =2;
+constant LCOLF_RGB       =3;
+constant LCOLF_PALETTE   =4;
+
+constant LCOLOPT_REALIZED =1;
+constant LCOLOPT_INDEX    =2;
+
+constant PC_RESERVED   =1;
+constant PC_EXPLICIT   =2;
+constant PC_NOCOLLAPSE =4;
+
+constant QCD_LCT_FORMAT  =0;
+constant QCD_LCT_LOINDEX =1;
+constant QCD_LCT_HIINDEX =2;
+constant QCD_LCT_OPTIONS =3;
+
+constant QLCT_ERROR     =(-1);
+constant QLCT_RGB       =(-2);
+constant QLCT_NOTLOADED =(-1);
+
+constant PAL_ERROR =(-1);
+
+function GpiAnimatePalette(in a: HPAL;
+                                                   in b: ULONG;
+                                                   in c: ULONG;
+                                                   in d: ULONG;
+                                                   in e: PULONG): LONG;
+
+function GpiCreateLogColorTable(in a: HPS;
+                                                        in b: ULONG;
+                                                                in c: LONG;
+                                                                in d: LONG;
+                                                                in e: LONG;
+                                                                in f: PLONG): BOOL;
+
+function GpiCreatePalette(in a: HAB;
+                                                  in b: ULONG;
+                                                  in c: ULONG;
+                                                  in d: ULONG;
+                                                  in e: PULONG): HPAL;
+
+function GpiDeletePalette(in a: HPAL): BOOL;
+
+function GpiQueryColorData(in  a: HPS;
+                                                   in  b: LONG;
+                                                   out c: LONG): BOOL;
+
+function GpiQueryColorIndex(in a: HPS;
+                                                    in b: ULONG;
+                                                        in c:LONG): LONG;
+
+function GpiQueryLogColorTable(in  a: HPS;
+                                                           in  b: ULONG;
+                                                           in  c: LONG;
+                                                           in  d: LONG;
+                                                           out e: LONG): LONG;
+
+function GpiQueryNearestColor(in a: HPS;
+                                                          in b: ULONG;
+                                                          in c: LONG): LONG;
+
+function GpiQueryNearestPaletteIndex(in a: HPAL;
+                                                                         in b: ULONG): LONG;
+
+function GpiQueryPalette(in a: HPS): HPAL;
+
+function GpiQueryPaletteInfo(in  a: HPAL;
+                                                         in  b: HPS;
+                                                         in  c: ULONG;
+                                                         in  d: ULONG;
+                                                         in  e: ULONG;
+                                                         out f: ULONG): LONG;
+
+function GpiQueryRealColors(in  a: HPS;
+                                                        in  b: ULONG;
+                                                        in  c: LONG;
+                                                        in  d: LONG;
+                                                        out e: LONG): LONG;
+
+function GpiQueryRGBColor(in a: HPS;
+                                                  in b: ULONG;
+                                                  in c:LONG): LONG;
+
+function GpiSelectPalette(in a: HPS;
+                                                  in b: HPAL): HPAL;
+
+function GpiSetPaletteEntries(in a: HPAL;
+                                                      in b: ULONG;
+                                                          in c: ULONG;
+                                                          in d: ULONG;
+                                                          in e: PULONG): BOOL;
+
+function GpiResizePalette(in a: HPAL;
+                                                  in b: ULONG): ULONG;
+
+end.

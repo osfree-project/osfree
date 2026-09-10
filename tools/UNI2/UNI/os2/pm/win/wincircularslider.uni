@@ -1,0 +1,34 @@
+group wincircularslider;
+
+constant CSM_QUERYRANGE           = $053D;
+constant CSM_SETRANGE             = $053E;
+constant CSM_QUERYVALUE           = $053F;
+constant CSM_SETVALUE             = $0540;
+constant CSM_QUERYRADIUS          = $0541;
+constant CSM_SETINCREMENT         = $0542;
+constant CSM_QUERYINCREMENT       = $0543;
+constant CSM_SETBITMAPDATA        = $0544;
+constant CSN_SETFOCUS             = $0548;
+constant CSN_CHANGED              = $0549;
+constant CSN_TRACKING             = $054A;
+constant CSN_QUERYBACKGROUNDCOLOR = $054B;
+
+constant CSS_NOBUTTON          = $0001;
+constant CSS_NOTEXT            = $0002;
+constant CSS_NONUMBER          = $0004;
+constant CSS_POINTSELECT       = $0008;
+constant CSS_360               = $0010;
+constant CSS_MIDPOINT          = $0020;
+constant CSS_PROPORTIONALTICKS = $0040;
+constant CSS_NOTICKS           = $0080;
+constant CSS_CIRCULARVALUE     = $0100;
+
+type CSBITMAPDATA=structure
+    hbmLeftUp: HBITMAP;
+    hbmLeftDown: HBITMAP;
+    hbmRightUp: HBITMAP;
+    hbmRightDown: HBITMAP;
+end;
+type PCSBITMAPDATA=^CSBITMAPDATA;
+
+end.

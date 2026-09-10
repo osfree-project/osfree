@@ -1,0 +1,67 @@
+(*** Pipe and queue support *)
+group dosqueues;
+
+uses hevdef default;
+
+type  HSEM=ULONG;
+type PHSEM=^HSEM;
+
+type HQUEUE=LHANDLE;
+type PHQUEUE=^HQUEUE;
+type REQUESTDATA=structure
+          pid: PID;
+          ulData: ULONG;
+     end;
+type PREQUESTDATA=^REQUESTDATA;
+
+constant QUE_FIFO              =0;
+constant QUE_LIFO              =1;
+constant QUE_PRIORITY          =2;
+constant QUE_NOCONVERT_ADDRESS =0;
+constant QUE_CONVERT_ADDRESS   =4;
+
+
+function  DosCreatePipe(out hfRead:  HFILE;
+                        out hfWrite: HFILE;
+                        in  cb:      ULONG): APIRET;
+
+function  DosCloseQueue(in hq: HQUEUE): APIRET;
+
+function  DosCreateQueue(out hq:       HQUEUE;
+                         in  priority: ULONG;
+                         in  pszName:  PCSZ): APIRET;
+
+function  DosOpenQueue(out ppid:    PID;
+                       out phq:     HQUEUE;
+                       in  pszName: PCSZ): APIRET;
+
+function  DosPeekQueue(in    hq:       HQUEUE;
+                       out   pRequest: REQUESTDATA;
+                       out   pcbData:  ULONG;
+                       out   ppbuf:    PVOID;
+                       inout element:  ULONG;
+                       in    nowait:   BOOL32;
+                       out   priority: BYTE;
+                       in    hsem:     HEV): APIRET;
+
+function  DosPurgeQueue(in hq: HQUEUE): APIRET;
+
+function  DosQueryQueue(in  hq:         HQUEUE;
+                        out pcbEntries: ULONG): APIRET;
+
+function  DosReadQueue(in  hq:        HQUEUE;
+                       out pRequest:  REQUESTDATA;
+                       out pcbData:   ULONG;
+                       out ppbuf:     PVOID;
+                       in  element:   ULONG;
+                       in  wait:      BOOL32;
+                       out ppriority: BYTE;
+                       in  hsem:      HEV): APIRET;
+
+function  DosWriteQueue(in hq:       HQUEUE;
+                        in request:  ULONG;
+                        in cbData:   ULONG;
+                        in pbData:   PVOID;
+                        in priority: ULONG): APIRET;
+
+end.

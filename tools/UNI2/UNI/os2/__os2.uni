@@ -1,0 +1,95 @@
+// ========== os2.uni ==========
+
+group os2;
+begin
+  group os2def;
+  begin
+    type USHORT = uint16;
+    type ULONG  = uint32;
+    type APIRET = uint32;
+  end;
+
+  group base;
+  begin
+    group dos;
+    begin
+      group dosprocess;
+      begin
+        function DosBeep(in freq: uint32; in dur: uint32): APIRET;
+        procedure DosExit(in action: uint32; in result: uint32);
+      end;
+
+      group dosfilemgr;    begin end;
+      group dosmemmgr;     begin end;
+      group dossemaphores; begin end;
+      group dosdatetime;   begin end;
+      group dosmodulemgr;  begin end;
+      group dosresources;  begin end;
+      group dosnls;        begin end;
+      group dosexceptions; begin end;
+      group dosmisc;       begin end;
+      group dosmonitors;   begin end;
+      group dosqueues;     begin end;
+      group dossesmgr;     begin end;
+      group dosdevices;    begin end;
+      group dosnmpipes;    begin end;
+      group dosprofile;    begin end;
+      group dosmvdm;       begin end;
+    end;
+
+    group dosdevioctl;
+    begin
+    end;
+
+    group sub;
+    begin
+      group kbd;
+      begin
+        type USHORT = uint16;
+        type ULONG = uint32;
+        type APIRET = uint32;
+        type HKBD = USHORT;
+
+        structure KBDKEYINFO;
+          chChar: uint8;
+          chScan: uint8;
+          fbStatus: uint8;
+          bNlsShift: uint8;
+          fsState: uint16;
+          time: uint32;
+        end;
+
+        function KbdCharIn(out pkbci: ^KBDKEYINFO; in fWait: USHORT; in hkbd: HKBD): APIRET;
+        procedure KbdFlushBuffer(in hkbd: HKBD);
+      end;
+
+      group vio; begin end;
+      group mou; begin end;
+    end;
+
+    group bseerr;
+    begin
+      group errors;
+      begin
+        group doserrors;
+        begin
+          include 'errors_h.uni';   // константы первой части
+          include 'errors2_h.uni';  // константы второй части
+        end;
+      end;
+    end;
+
+    group ordinals;
+    begin
+    end;
+  end;
+
+  group pm;
+  begin
+    group win; begin end;
+    group gpi; begin end;
+  end;
+
+  group osa;      begin end;
+  group opendoc;  begin end;
+end;

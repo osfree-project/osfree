@@ -1,0 +1,85 @@
+group winstdvalset;
+
+constant VS_BITMAP       = $0001;
+constant VS_ICON         = $0002;
+constant VS_TEXT         = $0004;
+constant VS_RGB          = $0008;
+constant VS_COLORINDEX   = $0010;
+constant VS_BORDER       = $0020;
+constant VS_ITEMBORDER   = $0040;
+constant VS_SCALEBITMAPS = $0080;
+constant VS_RIGHTTOLEFT  = $0100;
+constant VS_OWNERDRAW    = $0200;
+
+constant VIA_BITMAP     = $0001;
+constant VIA_ICON       = $0002;
+constant VIA_TEXT       = $0004;
+constant VIA_RGB        = $0008;
+constant VIA_COLORINDEX = $0010;
+constant VIA_OWNERDRAW  = $0020;
+constant VIA_DISABLED   = $0040;
+constant VIA_DRAGGABLE  = $0080;
+constant VIA_DROPONABLE = $0100;
+
+constant VMA_ITEMSIZE    = $0001;
+constant VMA_ITEMSPACING = $0002;
+
+constant VDA_ITEM           = $0001;
+constant VDA_ITEMBACKGROUND = $0002;
+constant VDA_SURROUNDING    = $0003;
+constant VDA_BACKGROUND     = $0004;
+
+constant VSERR_INVALID_PARAMETERS = (-1);
+
+constant VM_QUERYITEM         = $0375;
+constant VM_QUERYITEMATTR     = $0376;
+constant VM_QUERYMETRICS      = $0377;
+constant VM_QUERYSELECTEDITEM = $0378;
+constant VM_SELECTITEM        = $0379;
+constant VM_SETITEM           = $037a;
+constant VM_SETITEMATTR       = $037b;
+constant VM_SETMETRICS        = $037c;
+
+constant VN_SELECT     =120;
+constant VN_ENTER      =121;
+constant VN_DRAGLEAVE  =122;
+constant VN_DRAGOVER   =123;
+constant VN_DROP       =124;
+constant VN_DROPHELP   =125;
+constant VN_INITDRAG   =126;
+constant VN_SETFOCUS   =127;
+constant VN_KILLFOCUS  =128;
+constant VN_HELP       =129;
+
+type VSCDATA=structure
+    cbSize: ULONG;
+    usRowCount: USHORT;
+    usColumnCount: USHORT;
+end;
+type PVSCDATA=^VSCDATA;
+
+type VSDRAGINIT=structure
+    hwnd: HWND;
+    x: LONG;
+    y: LONG;
+    cx: LONG;
+    cy: LONG;
+    usRow: USHORT;
+    usColumn: USHORT;
+end;
+type PVSDRAGINIT=^VSDRAGINIT;
+
+type VSDRAGINFO=structure
+    pDragInfo: PDRAGINFO;
+    usRow: USHORT;
+    usColumn: USHORT;
+end;
+type PVSDRAGINFO=^VSDRAGINFO;
+
+type VSTEXT=structure
+    pszItemText: PSZ;
+    ulBufLen: ULONG;
+end;
+type PVSTEXT=^VSTEXT;
+
+end.

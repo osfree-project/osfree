@@ -1,0 +1,74 @@
+(****************************** Module Header ******************************\
+*
+* Module Name: pmavio.uni
+*
+* OS/2 Presentation Manager AVIO constants, types and function declarations
+*
+\****************************************************************************)
+
+group pmavio;
+
+type HVPS=USHORT;
+type PHVPS=^HVPS;
+
+function VioAssociate(in hdc:HDC;
+                      in hvps:HVPS):USHORT;
+
+function VioCreateLogFont(in pfatattrs:PFATTRS;
+                          in llcid:LONG;
+                          in pName:PSTR8;
+                          in hvps:HVPS):USHORT;
+
+function VioCreatePS(out phvps:HVPS;
+                     in  sdepth:SHORT;
+                     in  swidth:SHORT;
+                     in  sFormat:SHORT;
+                     in  sAttrs:SHORT;
+                     in  hvpsReserved:HVPS):USHORT;
+
+function VioDeleteSetId(in llcid:LONG;
+                        in hvps:HVPS):USHORT;
+
+function VioDestroyPS(in hvps:HVPS):USHORT;
+
+function VioGetDeviceCellSize(out psHeight:SHORT;
+                              out psWidth:SHORT;
+                              in  hvps:HVPS):USHORT;
+
+function VioGetOrg(out psRow:SHORT;
+                   out psColumn:SHORT;
+                   in  hvps:HVPS):USHORT;
+
+function VioQueryFonts(out plRemfonts:LONG;
+                       out afmMetrics:FONTMETRICS;
+                       in  lMetricsLength:LONG;
+                       out plFonts:LONG;
+                       in  pszFacename:PSZ;
+                       in  flOptions:ULONG;
+                       in  hvps:HVPS):USHORT;
+
+function VioQuerySetIds(out allcids:LONG;
+                        out pNames:STR8;
+                        out alTypes:LONG;
+                        in  lcount:LONG;
+                        in  hvps:HVPS):USHORT;
+
+function VioSetDeviceCellSize(in sHeight:SHORT;
+                              in sWidth:SHORT;
+                              in hvps:HVPS):USHORT;
+
+function VioSetOrg(in sRow:SHORT;
+                   in sColumn:SHORT;
+                   in hvps:HVPS):USHORT;
+
+function VioShowPS(in sDepth:SHORT;
+                   in sWidth:SHORT;
+                   in soffCell:SHORT;
+                   in hvps:HVPS):USHORT;
+
+function WinDefAVioWindowProc(in hwnd:HWND;
+                              in msg:USHORT;
+                              in mp1:ULONG;
+                              in mp2:ULONG):MRESULT;
+end.
+

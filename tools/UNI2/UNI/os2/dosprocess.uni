@@ -1,0 +1,314 @@
+  group dosprocess;
+  begin
+    // General services
+    function DosBeep(in freq: ULONG; in dur: ULONG): APIRET;
+    // Process and Thread support
+    procedure DosExit(in action: ULONG; in result: ULONG);
+
+    // DosExit codes
+    constant EXIT_THREAD = 0;
+    constant EXIT_PROCESS = 1;
+
+    // Basic types
+    type TID = ULONG;          // Thread ID
+    type PID = ULONG;          // Process ID
+    // PTID, PPID, PTIB, PPIB will be defined in os2def
+
+    // RESULTCODES - Result codes structure (resc)
+    structure RESULTCODES;
+      codeTerminate: ULONG;
+      codeResult: ULONG;
+    end;
+    type PRESULTCODES = ^RESULTCODES;
+
+    // MPAFFINITY - Affinity mask (afnty)
+    structure MPAFFINITY;
+      mask: array[0..1] of ULONG;   // CPUs 0..31, CPUs 32..63
+    end;
+    type PMPAFFINITY = ^MPAFFINITY;
+
+    // THREADCREATE - Thread creation parameters (F150593)
+    structure THREADCREATE;
+      cbSize: ULONG;
+      pTid: PTID;
+      pfnStart: PFNTHREAD;
+      lParam: ULONG;
+      lFlag: ULONG;
+      pStack: PBYTE;
+      cbStack: ULONG;
+    end;
+    type PTHREADCREATE = ^THREADCREATE;
+
+    function DosCreateThread(in ptid: PTID; in pfn: PFNTHREAD; in param: ULONG;
+                             in flag: ULONG; in cbStack: ULONG): APIRET;
+    function DosCreateThread2(in ptc: PTHREADCREATE): APIRET;
+    function DosResumeThread(in tid: TID): APIRET;
+    function DosSuspendThread(in tid: TID): APIRET;
+    function DosGetInfoBlocks(out pptib: PTIB; out pppib: PPIB): APIRET;
+    function DosKillThread(in tid: TID): APIRET;
+    function DosAllocThreadLocalMemory(in cb: ULONG; out p: PULONG): APIRET;
+    function DosFreeThreadLocalMemory(in p: PULONG): APIRET;
+
+    // Process Type codes (Process Information Block (PIB) pib_ultype field)
+    constant PT_FULLSCREEN = 0; // Full screen application
+    constant PT_REALMODE = 1;   // Real mode process
+    constant PT_WINDOWABLEVIO = 2; // VIO windowable application
+    constant PT_PM = 3;         // Presentation Manager application
+    constant PT_DETACHED = 4;   // Detached application
+
+    // Process Status Flags (PIB pib_flstatus field)
+    constant PS_EXITLIST = 1;   // Thread is in exitlist routine
+
+    // Action code values
+    constant DCWA_PROCESS = 0;
+    constant DCWA_PROCESSTREE = 1;
+
+    // Wait option values
+    constant DCWW_WAIT = 0;
+    constant DCWW_NOWAIT = 1;
+
+    // Thread Flags for DosCreateThread options 59468
+    constant CREATE_READY = 0;      // defect 65437
+    constant CREATE_SUSPENDED = 1;
+    constant STACK_SPARSE = 0;
+    constant STACK_COMMITTED = 2;
+
+    function DosWaitChild(in action: ULONG; in option: ULONG; in pres: PRESULTCODES;
+                          out ppid: PPID; in pid: PID): APIRET;
+    function DosWaitThread(in ptid: PTID; in option: ULONG): APIRET;
+    function DosSleep(in msec: ULONG): APIRET;
+
+    // Thread affinity
+    function DosQueryThreadAffinity(in scope: ULONG; out pAffinity: PMPAFFINITY): APIRET;
+    constant AFNTY_THREAD = 0;
+    constant AFNTY_SYSTEM = 1;
+    function DosSetThreadAffinity(in pAffinity: PMPAFFINITY): APIRET;
+
+    // ===== Debug support =====
+    (* User's Debug Buffer structure
+       A pointer to a uDB is the sole parameter to DosDebug. It
+       contains all the information required for each DosDebug command.
+    *)
+    structure uDB_t;
+      Pid: ULONG;            // Debuggee Process id
+      Tid: ULONG;            // Debuggee Thread id
+      Cmd: LONG;             // Command or Notification
+      Value: LONG;           // Generic Data Value
+      Addr: ULONG;           // Debuggee Address
+      Buffer: ULONG;         // Debugger Buffer Address
+      Len: ULONG;            // Length of Range
+      Index: ULONG;          // Generic Identifier Index
+      MTE: ULONG;            // Module Table Entry Handle
+      EAX: ULONG;            // Register Set
+      ECX: ULONG;
+      EDX: ULONG;
+      EBX: ULONG;
+      ESP: ULONG;
+      EBP: ULONG;
+      ESI: ULONG;
+      EDI: ULONG;
+      EFlags: ULONG;
+      EIP: ULONG;
+      CSLim: ULONG;
+      CSBase: ULONG;
+      CSAcc: UCHAR;
+      CSAtr: UCHAR;
+      CS: USHORT;
+      DSLim: ULONG;
+      DSBase: ULONG;
+      DSAcc: UCHAR;
+      DSAtr: UCHAR;
+      DS: USHORT;
+      ESLim: ULONG;
+      ESBase: ULONG;
+      ESAcc: UCHAR;
+      ESAtr: UCHAR;
+      ES: USHORT;
+      FSLim: ULONG;
+      FSBase: ULONG;
+      FSAcc: UCHAR;
+      FSAtr: UCHAR;
+      FS: USHORT;
+      GSLim: ULONG;
+      GSBase: ULONG;
+      GSAcc: UCHAR;
+      GSAtr: UCHAR;
+      GS: USHORT;
+      SSLim: ULONG;
+      SSBase: ULONG;
+      SSAcc: UCHAR;
+      SSAtr: UCHAR;
+      SS: USHORT;
+    end;
+    type PuDB_t = ^uDB_t;
+
+    (* DosDebug Command Numbers
+       These numbers are placed in the Cmd field of the uDB on entry to DosDebug.
+    *)
+    constant DBG_C_Null = 0;          // Null
+    constant DBG_C_ReadMem = 1;       // Read Word
+    constant DBG_C_ReadMem_I = 1;     // Read Word
+    constant DBG_C_ReadMem_D = 2;     // Read Word (same as 1)
+    constant DBG_C_ReadReg = 3;       // Read Register Set
+    constant DBG_C_WriteMem = 4;      // Write Word
+    constant DBG_C_WriteMem_I = 4;    // Write Word
+    constant DBG_C_WriteMem_D = 5;    // Write Word (same as 4)
+    constant DBG_C_WriteReg = 6;      // Write Register Set
+    constant DBG_C_Go = 7;            // Go
+    constant DBG_C_Term = 8;          // Terminate
+    constant DBG_C_SStep = 9;         // Single Step
+    constant DBG_C_Stop = 10;         // Stop
+    constant DBG_C_Freeze = 11;       // Freeze Thread
+    constant DBG_C_Resume = 12;       // Resume Thread
+    constant DBG_C_NumToAddr = 13;    // Object Number to Address
+    constant DBG_C_ReadCoRegs = 14;   // Read Coprocessor Registers
+    constant DBG_C_WriteCoRegs = 15;  // Write Coprocessor Registers
+    // 16 is reserved
+    constant DBG_C_ThrdStat = 17;     // Get Thread Status
+    constant DBG_C_MapROAlias = 18;   // Map read-only alias
+    constant DBG_C_MapRWAlias = 19;   // Map read-write alias
+    constant DBG_C_UnMapAlias = 20;   // Unmap Alias
+    constant DBG_C_Connect = 21;      // Connect to Debuggee
+    constant DBG_C_ReadMemBuf = 22;   // Read Memory Buffer
+    constant DBG_C_WriteMemBuf = 23;  // Write Memory Buffer
+    constant DBG_C_SetWatch = 24;     // Set Watchpoint
+    constant DBG_C_ClearWatch = 25;   // Clear Watchpoint
+    constant DBG_C_RangeStep = 26;    // Range Step
+    constant DBG_C_Continue = 27;     // Continue after an Exception
+    constant DBG_C_AddrToObject = 28; // Address to Object
+    constant DBG_C_XchgOpcode = 29;   // Exchange opcode and go
+    constant DBG_C_LinToSel = 30;     // 32 to 16 conversion A001
+    constant DBG_C_SelToLin = 31;     // 16 to 32 conversion A001
+    constant DBG_C_RegisterSemList = 32; // Internal use only
+    constant DBG_C_Attach = 33;       // Attach to Debuggee
+    constant DBG_C_Detach = 34;       // Detach from debuggee
+    constant DBG_C_RegDebug = 35;     // Register Debugger
+    constant DBG_C_QueryDebug = 36;   // Query Currently Reg Debugger
+
+    // JIT Registration values
+    constant JIT_REG_INHERIT = 0x00010000;
+    constant JIT_REG_NOINHERIT = 0x00020000;
+    constant JIT_REG_DETACH = 0x00030000;
+    constant JIT_REG_FG = 0x00040000;
+
+    // Debug query flags
+    constant DBGQ_JIT_GLOBAL = 0x10000000;
+    constant DBGQ_JIT_PERPROC = 0x20000000;
+
+    (* DosDebug Notification Numbers
+       These numbers are placed in the Cmd field of the uDB upon exit from DosDebug.
+    *)
+    constant DBG_N_Success = 0;       // Command completed successfully
+    constant DBG_N_Error = -1;        // Error detected during command
+    constant DBG_N_ProcTerm = -6;     // Process exiting - ExitList done
+    constant DBG_N_Exception = -7;    // Exception detected
+    constant DBG_N_ModuleLoad = -8;   // Module loaded
+    constant DBG_N_CoError = -9;      // Coprocessor not in use error
+    constant DBG_N_ThreadTerm = -10;  // Thread exiting - Exitlist soon
+    constant DBG_N_AsyncStop = -11;   // Async Stop detected
+    constant DBG_N_NewProc = -12;     // New Process started
+    constant DBG_N_AliasFree = -13;   // Alias needs to be freed
+    constant DBG_N_Watchpoint = -14;  // Watchpoint hit
+    constant DBG_N_ThreadCreate = -15;// New thread created
+    constant DBG_N_ModuleFree = -16;  // Module freed
+    constant DBG_N_RangeStep = -17;   // Range Step completed
+
+    // Thread Status Buffer structure
+    structure TStat_t;
+      DbgState: UCHAR;       // Thread's Debugging State
+      TState: UCHAR;         // Thread's Scheduler State
+      TPriority: USHORT;     // Thread's Scheduler Priority
+    end;
+    type PTStat_t = ^TStat_t;
+
+    // DbgState values
+    constant DBG_D_Thawed = 0;
+    constant DBG_D_Frozen = 1;
+
+    // TState values
+    constant DBG_T_Runnable = 0;
+    constant DBG_T_Suspended = 1;
+    constant DBG_T_Blocked = 2;
+    constant DBG_T_CritSec = 3;
+
+    // Coprocessor Type Parameters
+    constant DBG_CO_387 = 1;
+
+    // Coprocessor Buffer Lengths
+    constant DBG_LEN_387 = 108;
+
+    // Debugging Level Parameter
+    constant DBG_L_386 = 1;
+
+    // Watchpoint Scope Parameters
+    constant DBG_W_Global = 0x00000001;
+    constant DBG_W_Local = 0x00000002;
+
+    // Watchpoint Type Parameters
+    constant DBG_W_Execute = 0x00010000;
+    constant DBG_W_Write = 0x00020000;
+    constant DBG_W_ReadWrite = 0x00030000;
+
+    // Object flags
+    constant DBG_O_OBJMTE = 0x10000000;
+
+    // Exception chances
+    constant DBG_X_PRE_FIRST_CHANCE = 0x00000000;
+    constant DBG_X_FIRST_CHANCE = 0x00000001;
+    constant DBG_X_LAST_CHANCE = 0x00000002;
+    constant DBG_X_STACK_INVALID = 0x00000003;
+
+    function DosDebug(in pdbgbuf: PuDB_t): APIRET;
+
+    // codeTerminate values (also passed to ExitList routines)
+    constant TC_EXIT = 0;
+    constant TC_HARDERROR = 1;
+    constant TC_TRAP = 2;
+    constant TC_KILLPROCESS = 3;
+    constant TC_EXCEPTION = 4;
+
+    function DosEnterCritSec: APIRET;
+    function DosExitCritSec: APIRET;
+    function DosExitList(in ordercode: ULONG; in pfn: PFNEXITLIST): APIRET;
+
+    // DosExitList functions
+    constant EXLST_ADD = 1;
+    constant EXLST_REMOVE = 2;
+    constant EXLST_EXIT = 3;
+
+    function DosExecPgm(in pObjname: PCHAR; in cbObjname: LONG; in execFlag: ULONG;
+                       in pArg: PSZ; in pEnv: PSZ; in pRes: PRESULTCODES;
+                       in pName: PSZ): APIRET;
+
+    // DosExecPgm functions
+    constant EXEC_SYNC = 0;
+    constant EXEC_ASYNC = 1;
+    constant EXEC_ASYNCRESULT = 2;
+    constant EXEC_TRACE = 3;
+    constant EXEC_BACKGROUND = 4;
+    constant EXEC_LOAD = 5;
+    constant EXEC_ASYNCRESULTDB = 6;
+
+    function DosSetPriority(in scope: ULONG; in ulClass: ULONG; in delta: LONG;
+                            in PorTid: ULONG): APIRET;
+
+    // Priority scopes
+    constant PRTYS_PROCESS = 0;
+    constant PRTYS_PROCESSTREE = 1;
+    constant PRTYS_THREAD = 2;
+
+    // Priority classes
+    constant PRTYC_NOCHANGE = 0;
+    constant PRTYC_IDLETIME = 1;
+    constant PRTYC_REGULAR = 2;
+    constant PRTYC_TIMECRITICAL = 3;
+    constant PRTYC_FOREGROUNDSERVER = 4;
+
+    // Priority deltas
+    constant PRTYD_MINIMUM = -31;
+    constant PRTYD_MAXIMUM = 31;
+
+    function DosKillProcess(in action: ULONG; in pid: PID): APIRET;
+    constant DKP_PROCESSTREE = 0;
+    constant DKP_PROCESS = 1;
+  end;

@@ -1,0 +1,208 @@
+group winmessagemgrcommon;
+
+   (* QMSG structure *)
+   type QMSG=structure    (* qmsg *)
+      hwnd: HWND;
+      msg: ULONG;
+      mp1: MPARAM;
+      mp2: MPARAM;
+      time: ULONG;
+      ptl: POINTL;
+      reserved: ULONG;
+   end;
+   type PQMSG=^QMSG;
+
+   (*** Standard Window Messages *******************************************)
+   constant WM_NULL                    = $0000;
+   constant WM_CREATE                  = $0001;
+   constant WM_DESTROY                 = $0002;
+
+   constant WM_ENABLE                  = $0004;
+   constant WM_SHOW                    = $0005;
+   constant WM_MOVE                    = $0006;
+   constant WM_SIZE                    = $0007;
+   constant WM_ADJUSTWINDOWPOS         = $0008;
+
+   constant WM_CALCVALIDRECTS          = $0009;
+
+   constant WM_SETWINDOWPARAMS         = $000a;
+   constant WM_QUERYWINDOWPARAMS       = $000b;
+   constant WM_HITTEST                 = $000c;
+   constant WM_ACTIVATE                = $000d;
+   constant WM_SETFOCUS                = $000f;
+   constant WM_SETSELECTION            = $0010;
+
+   (* language support Winproc *)
+   constant WM_PPAINT                  = $0011;
+   constant WM_PSETFOCUS               = $0012;
+   constant WM_PSYSCOLORCHANGE         = $0013;
+   constant WM_PSIZE                   = $0014;
+   constant WM_PACTIVATE               = $0015;
+   constant WM_PCONTROL                = $0016;
+
+   constant WM_COMMAND                 = $0020;
+   constant WM_SYSCOMMAND              = $0021;
+   constant WM_HELP                    = $0022;
+   constant WM_PAINT                   = $0023;
+
+      constant WM_TIMER                = $0024;
+      constant WM_SEM1                 = $0025;
+      constant WM_SEM2                 = $0026;
+      constant WM_SEM3                 = $0027;
+      constant WM_SEM4                 = $0028;
+
+   constant WM_CLOSE                   = $0029;
+   constant WM_QUIT                    = $002a;
+   constant WM_SYSCOLORCHANGE          = $002b;
+   constant WM_SYSVALUECHANGED         = $002d;
+   constant WM_APPTERMINATENOTIFY      = $002e;
+   constant WM_PRESPARAMCHANGED        = $002f;
+
+   (* Control notification messages *)
+   constant WM_CONTROL                 = $0030;
+   constant WM_VSCROLL                 = $0031;
+   constant WM_HSCROLL                 = $0032;
+   constant WM_INITMENU                = $0033;
+   constant WM_MENUSELECT              = $0034;
+   constant WM_MENUEND                 = $0035;
+   constant WM_DRAWITEM                = $0036;
+   constant WM_MEASUREITEM             = $0037;
+   constant WM_CONTROLPOINTER          = $0038;
+   constant WM_QUERYDLGCODE            = $003a;
+   constant WM_INITDLG                 = $003b;
+   constant WM_SUBSTITUTESTRING        = $003c;
+   constant WM_MATCHMNEMONIC           = $003d;
+   constant WM_SAVEAPPLICATION         = $003e;
+
+   constant WM_SEMANTICEVENT           = $0490;
+
+
+   (*************************************************************************
+   * Reserve a range of messages for help manager.  This range includes
+   * public messages, defined below, and private ones, which need to be
+   * reserved here to prevent clashing with application messages
+   *************************************************************************)
+
+   constant WM_HELPBASE                = $0F00; (* Start of msgs for help manager   *)
+   constant WM_HELPTOP                 = $0FFF; (* End of msgs for help manager     *)
+
+   constant WM_USER                    = $1000;
+
+   (*** WM_COMMAND msg source codes ****************************************)
+   constant CMDSRC_PUSHBUTTON     = 1;
+   constant CMDSRC_MENU           = 2;
+   constant CMDSRC_ACCELERATOR    = 3;
+   constant CMDSRC_FONTDLG        = 4;
+   constant CMDSRC_FILEDLG        = 5;
+   constant CMDSRC_PRINTDLG       = 6;
+   constant CMDSRC_COLORDLG       = 7;
+   constant CMDSRC_OTHER          = 0;
+
+   (*
+   * The following structure and macro are used to access the
+   * WM_COMMAND, WM_HELP, and WM_SYSCOMMAND message parameters:
+   *)
+   type COMMANDMSG=structure    (* commandmsg *)
+        cmd: USHORT;              (* mp1 *)
+        unused: USHORT;
+        source: USHORT;           (* mp2 *)
+        fMouse: USHORT;
+   end;
+   type CMDMSG=COMMANDMSG;
+   type PCMDMSG=^CMDMSG;
+
+(*
+   #define COMMANDMSG(pmsg) \
+   ((PCMDMSG)((PBYTE)pmsg + sizeof(MPARAM) ))
+*)
+
+   (*** The following structure is used by the WinQueryQueueInfo() routine *)
+   type MQINFO=structure    (* mqi *)
+         cb: ULONG;
+         pid: PID;
+         tid: TID;
+         cmsgs: ULONG;
+         pReserved: PVOID;
+   end;
+   type PMQINFO=^MQINFO;
+
+   function WinSendMsg(in hwnd: HWND;
+                               in msg: ULONG;
+                               in mp1: MPARAM;
+                               in mp2: MPARAM): MRESULT;
+
+        function WinCreateMsgQueue(in hab: HAB;
+                                       in cmsg: LONG): HMQ;
+
+       function WinDestroyMsgQueue(in hmq: HMQ): BOOL;
+
+       function WinQueryQueueInfo(in hmq: HMQ;
+                                      out pmqi: MQINFO;
+                                      in cbCopy: ULONG): BOOL;
+
+          function WinCancelShutdown(in hmq: HMQ;
+                                         in fCancelAlways: BOOL): BOOL;
+
+       function WinGetMsg(in hab: HAB;
+                              out pqmsg: QMSG;
+                              in hwndFilter: HWND;
+                              in msgFilterFirst: ULONG;
+                              in msgFilterLast: ULONG): BOOL;
+
+       function WinPeekMsg(in hab: HAB;
+                               out pqmsg: QMSG;
+                               in hwndFilter: HWND;
+                               in msgFilterFirst: ULONG;
+                               in msgFilterLast: ULONG;
+                               in fl: ULONG): BOOL;
+
+    function WinDispatchMsg(in hab: HAB;
+                                    out pqmsg: QMSG): MRESULT;
+
+       function WinPostMsg(in hwnd: HWND;
+                               in msg: ULONG;
+                               in mp1: MPARAM;
+                               in mp2: MPARAM): BOOL;
+
+       function WinRegisterUserMsg(in hab: HAB;
+                                       in msgid: ULONG;
+                                       in datatype1: LONG;
+                                       in dir1: LONG;
+                                       in datatype2: LONG;
+                                       in dir2: LONG;
+                                       in datatyper: LONG): BOOL;
+
+       function WinRegisterUserDatatype(in hab: HAB;
+                                            in datatype: LONG;
+                                            in count: LONG;
+                                            in types: PLONG): BOOL;
+
+       function WinSetMsgMode(in hab: HAB;
+                                    in classname: PCSZ;
+                                   in control: LONG): BOOL;
+
+       function WinSetSynchroMode(in hab: HAB;
+                                       in mode: LONG): BOOL;
+
+   (*** WinPeekMsg() constants *********************************************)
+   constant PM_REMOVE                  = $0001;
+   constant PM_NOREMOVE                = $0000;
+
+   (*** WinRegisterUserDatatype datatypes defined in separate file *********)
+uses pmtypes;
+
+   (*** WinRegisterUserMsg direction codes *********************************)
+   constant RUM_IN                     = 1;
+   constant RUM_OUT                    = 2;
+   constant RUM_INOUT                  = 3;
+
+   (*** WinSetMsgMode constants *******************************************)
+   constant SMD_DELAYED                = $0001;
+   constant SMD_IMMEDIATE              = $0002;
+
+   (*** WinSetSynchroMode constants ***************************************)
+   constant SSM_SYNCHRONOUS            = $0001;
+   constant SSM_ASYNCHRONOUS           = $0002;
+   constant SSM_MIXED                  = $0003;
+
+end.

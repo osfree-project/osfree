@@ -1,0 +1,327 @@
+group dosdebug;
+
+(*
+#ifndef DBG_INCL_DOSDEBUG
+
+#define DBG_INCL_DOSDEBUG
+*)
+
+(***            User's Debug Buffer structure
+ *
+ *      A pointer to a uDB is the sole parameter to DosDebug.  It
+ *      contains all the information required for each DosDebug
+ *      command.
+ *
+ *)
+
+type uDB=structure                      (* uDB *)
+        Pid: ULONG;            (* Debuggee Process id          *)
+        Tid: ULONG;            (* Debuggee Thread id           *)
+        Cmd: LONG;            (* Command or Notification      *)
+        Value: LONG;          (* Generic Data Value           *)
+        Addr: ULONG;           (* Debuggee Address             *)
+        Buffer: ULONG;         (* Debugger Buffer Address      *)
+        Len: ULONG;            (* Length of Range              *)
+        Index: ULONG;          (* Generic Identifier Index     *)
+        MTE: ULONG;            (* Module Table Entry Handle    *)
+        EAX: ULONG;            (* Register Set                 *)
+        ECX: ULONG;
+        EDX: ULONG;
+        EBX: ULONG;
+        ESP: ULONG;
+        EBP: ULONG;
+        ESI: ULONG;
+        EDI: ULONG;
+        EFlags: ULONG;
+        EIP: ULONG;
+        CSLim: ULONG;
+        CSBase: ULONG;
+        CSAcc: UCHAR;
+        CSAtr: UCHAR;
+        CS: USHORT;
+        DSLim: ULONG;
+        DSBase: ULONG;
+        DSAcc: UCHAR;
+        DSAtr: UCHAR;
+        DS: USHORT;
+        ESLim: ULONG;
+        ESBase: ULONG;
+        ESAcc: UCHAR;
+        ESAtr: UCHAR;
+        ES: USHORT;
+        FSLim: ULONG;
+        FSBase: ULONG;
+        FSAcc: UCHAR;
+        FSAtr: UCHAR;
+        FS: USHORT;
+        GSLim: ULONG;
+        GSBase: ULONG;
+        GSAcc: UCHAR;
+        GSAtr: UCHAR;
+        GS: USHORT;
+        SSLim: ULONG;
+        SSBase: ULONG;
+        SSAcc: UCHAR;
+        SSAtr: UCHAR;
+        SS: USHORT;
+  end;
+
+type uDB_t=uDB;
+
+(***            DosDebug Command Numbers
+ *
+ *      These numbers are placed in the Cmd field of the uDB on
+ *      entry to DosDebug.
+ *
+ *      These numbers identify which command DosDebug is requested
+ *      to perform.
+ *
+ *)
+
+constant DBG_C_Null             = 0;       (* Null                         *)
+constant DBG_C_ReadMem          = 1;       (* Read Word                    *)
+constant DBG_C_ReadMem_I        = 1;       (* Read Word                    *)
+constant DBG_C_ReadMem_D        = 2;       (* Read Word (same as 1)        *)
+constant DBG_C_ReadReg          = 3;       (* Read Register Set            *)
+constant DBG_C_WriteMem         = 4;       (* Write Word                   *)
+constant DBG_C_WriteMem_I       = 4;       (* Write Word                   *)
+constant DBG_C_WriteMem_D       = 5;       (* Write Word (same as 4)       *)
+constant DBG_C_WriteReg         = 6;       (* Write Register Set           *)
+constant DBG_C_Go               = 7;       (* Go                           *)
+constant DBG_C_Term             = 8;       (* Terminate                    *)
+constant DBG_C_SStep            = 9;       (* Single Step                  *)
+constant DBG_C_Stop             = 10;      (* Stop                         *)
+constant DBG_C_Freeze           = 11;      (* Freeze Thread                *)
+constant DBG_C_Resume           = 12;      (* Resume Thread                *)
+constant DBG_C_NumToAddr        = 13;      (* Object Number to Address     *)
+constant DBG_C_ReadCoRegs       = 14;      (* Read Coprocessor Registers   *)
+constant DBG_C_WriteCoRegs      = 15;      (* Write Coprocessor Registers  *)
+                                       (* 16 is reserved               *)
+constant DBG_C_ThrdStat         = 17;      (* Get Thread Status            *)
+constant DBG_C_MapROAlias       = 18;      (* Map read-only alias          *)
+constant DBG_C_MapRWAlias       = 19;      (* Map read-write alias         *)
+constant DBG_C_UnMapAlias       = 20;      (* Unmap Alias                  *)
+constant DBG_C_Connect          = 21;      (* Connect to Debuggee          *)
+constant DBG_C_ReadMemBuf       = 22;      (* Read Memory Buffer           *)
+constant DBG_C_WriteMemBuf      = 23;      (* Write Memory Buffer          *)
+constant DBG_C_SetWatch         = 24;      (* Set Watchpoint               *)
+constant DBG_C_ClearWatch       = 25;      (* Clear Watchpoint             *)
+constant DBG_C_RangeStep        = 26;      (* Range Step                   *)
+constant DBG_C_Continue         = 27;      (* Continue after an Exception  *)
+constant DBG_C_AddrToObject     = 28;      (* Address to Object            *)
+constant DBG_C_XchgOpcode       = 29;      (* Exchange opcode and go       *)
+constant DBG_C_LinToSel         = 30;      (* 32 to 16 conversion      A001*)
+constant DBG_C_SelToLin         = 31;      (* 16 to 32 conversion      A001*)
+constant DBG_C_RegisterSemList  = 32;      (* Internal use only            *)
+constant DBG_C_Attach           = 33;      (* Attach to Debuggee           *)
+constant DBG_C_Detach           = 34;      (* Detach from debuggee         *)
+constant DBG_C_RegDebug         = 35;      (* Register Debugger            *)
+constant DBG_C_QueryDebug       = 36;      (* Query Currently Reg Debugger *)
+
+
+(***    DBG_C_RegDebug - Register JIT Debug Information
+ *
+ *      These are the possible values which can be passed into
+ *      the register routine for the per-process JIT debugger
+ *      registration.
+ *
+ *      These values are passing through kDB_t->Value field.
+ *)
+
+constant JIT_REG_INHERIT        = $00010000;
+constant JIT_REG_NOINHERIT      = $00020000;
+constant JIT_REG_DETACH         = $00030000;
+constant JIT_REG_FG             = $00040000;
+
+(***    DBG_C_QueryDebug - Query JIT Debug Information
+ *
+ *      These are the possible values which can be passed into
+ *      the query routine for the JIT debugger. These
+ *      bits identify query operation to perform.
+ *
+ *      These values are passing through kDB_t->Offset field.
+ *)
+constant DBGQ_JIT_GLOBAL        = $10000000;
+constant DBGQ_JIT_PERPROC       = $20000000;
+
+
+(***            DosDebug Notification Numbers
+ *
+ *      These numbers are placed in the Cmd field of the uDB upon
+ *      exit from DosDebug.
+ *
+ *      These numbers identify which DosDebug Event just occured,
+ *      or whether a particular command succeeded or failed.
+ *
+ *)
+
+constant DBG_N_Success           =0;      (* Command completed successfully  *)
+constant DBG_N_Error             =-1;     (* Error detected during command   *)
+constant DBG_N_ProcTerm          =-6;     (* Process exiting - ExitList done *)
+constant DBG_N_Exception         =-7;     (* Exception detected              *)
+constant DBG_N_ModuleLoad        =-8;     (* Module loaded                   *)
+constant DBG_N_CoError           =-9;     (* Coprocessor not in use error    *)
+constant DBG_N_ThreadTerm        =-10;    (* Thread exiting - Exitlist soon  *)
+constant DBG_N_AsyncStop         =-11;    (* Async Stop detected             *)
+constant DBG_N_NewProc           =-12;    (* New Process started             *)
+constant DBG_N_AliasFree         =-13;    (* Alias needs to be freed         *)
+constant DBG_N_Watchpoint        =-14;    (* Watchpoint hit                  *)
+constant DBG_N_ThreadCreate      =-15;    (* New thread created              *)
+constant DBG_N_ModuleFree        =-16;    (* Module freed                    *)
+constant DBG_N_RangeStep         =-17;    (* Range Step completed            *)
+
+(***          - Thread Status Buffer structure
+ *
+ *      A pointer to a TStat structure is required for the
+ *      DBG_C_ThrdStat command.
+ *
+ *      The TStat structure returns information about a thread.
+ *
+ *      DbgState in the Thread Status buffer contains info about the
+ *      current state of debugging, and will have one of the following
+ *      values upon return :
+ *
+ *      DBG_D_Thawed, DBG_D_Frozen
+ *
+ *      TState in the Thread Status buffer contains info about the
+ *      scheduling state of the thread, and will have one of the
+ *      following values upon return.
+ *
+ *      DBG_T_Runnable, DBG_T_Suspended, DBG_T_Blocked, DBG_T_CritSec
+ *
+ *      TPriority in the Thread Status buffer contains the thread's
+ *      base scheduling priority.  This priority will be expressed as
+ *      scheduling class and delta values upon return.
+ *
+ *)
+
+type TStat=structure            (* TS *)
+        DbgState: UCHAR;        (* Thread's Debugging State     *)
+        TState: UCHAR;          (* Thread's Scheduler State     *)
+        TPriority: USHORT;      (* Thread's Scheduler Priority  *)
+     end;
+
+type TStat_t=TStat;
+
+(***            DbgState values
+ *
+ *      These are the possible values which can be returned
+ *      in the DbgState field of the TStat structure. These
+ *      bits identify debugging information.
+ *
+ *)
+
+constant DBG_D_Thawed    =0;
+constant DBG_D_Frozen    =1;
+
+(***            TState values
+ *
+ *      These are the possible values which can be returned in
+ *      the TState field of the TStat structure.  These values
+ *      identify scheduler state information.
+ *
+ *)
+
+constant DBG_T_Runnable  =0;
+constant DBG_T_Suspended =1;
+constant DBG_T_Blocked   =2;
+constant DBG_T_CritSec   =3;
+
+(***             Coprocessor Type Parameters
+ *
+ *      These are the possible values identifying the coprocessor
+ *      types supported by DosDebug used when accessing the
+ *      coprocessor register set.
+ *
+ *)
+
+constant DBG_CO_387      =1;
+
+(***EK+ DBG_LEN - Coprocessor Buffer Lengths
+ *
+ *      These are the possible values identifying the length of
+ *      the coprocessor buffer when accessing the coprocessor
+ *      register set.
+ *
+ *)
+
+constant DBG_LEN_387     =108;
+
+(***            Debugging Level Parameter
+ *
+ *      This is the only possible value for the DBG_C_Connect command,
+ *      and identifies that debugging on the 386 envoronment is desired.
+ *
+ *)
+
+constant DBG_L_386       =1;
+
+(***            Watchpoint Scope and Type Parameters
+ *
+ *      These are the possible Watchpoint Scope values, as used by
+ *      the DBG_C_SetWatch command.     The DBG_C_SetWatch command
+ *      expects a  combination (using either an ADD or an OR) of
+ *      the Scope and Type parameters to be passed as a single value.
+ *
+ *)
+
+(*      Watchpoint Scope Parameters     *)
+
+constant DBG_W_Global   = $00000001;
+constant DBG_W_Local    = $00000002;
+
+(*      Watchpoint Type Parameters      *)
+
+constant DBG_W_Execute   =$00010000;
+constant DBG_W_Write     =$00020000;
+constant DBG_W_ReadWrite =$00030000;
+
+(***            Object flags
+ *
+ *      This flag indicates whether the MTE field contains the object's
+ *      MTE after a DBG_C_AddrToObject call.
+ *
+ *)
+
+constant DBG_O_OBJMTE    =$10000000;
+
+(***            Exception chances
+ *
+ *      The three scenarios under which a debug exception is reported
+ *      are pre-1st, 1st, and last chance. The value field of the
+ *      user debug buffer will indicate which chance a given call is
+ *      for. Additional parameter values will be:
+ *
+ *         For pre-1st chance (XCPT_BREAKPOINT):
+ *              Addr   = Linear address of breakpoint
+ *              Buffer = XCPT_BREAKPOINT
+ *
+ *         For pre-1st change (XCPT_SINGLE_STEP):
+ *              Addr   = Linear address of instruction after Single Step
+ *              Buffer = XCPT_SINGLE_STEP
+ *
+ *         For 1st chance (all exceptions):
+ *              Addr   = Linear address of exception
+ *              Buffer = Pointer to Exception Report Record in
+ *                       Debuggee's context
+ *              Len    = Pointer to Exception Context Record in
+ *                       Debuggee's context
+ *
+ *         For Last chance (all exceptions):
+ *              Addr   = Linear address of exception
+ *              Buffer = Pointer to Exception Report Record in
+ *                       Debuggee's context
+ *              Len    = Pointer to Exception Context Record in
+ *                       Debuggee's context
+ *
+ *         For Invalid stack notification (all exceptions)
+ *              Addr   = Linear address of exception
+ *              Buffer = Exception number
+ *)
+
+constant DBG_X_PRE_FIRST_CHANCE = $00000000;
+constant DBG_X_FIRST_CHANCE     = $00000001;
+constant DBG_X_LAST_CHANCE      = $00000002;
+constant DBG_X_STACK_INVALID    = $00000003;
+
+end.

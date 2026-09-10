@@ -1,0 +1,5 @@
+group doserrors;
+
+uses bseerr default;
+
+end.

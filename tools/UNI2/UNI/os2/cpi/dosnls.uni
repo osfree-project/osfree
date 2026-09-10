@@ -1,0 +1,63 @@
+group dosnls;
+
+   type COUNTRYCODE=structure   (* ctryc *)
+             country: ULONG;
+             codepage: ULONG;
+   end;
+   type PCOUNTRYCODE=^COUNTRYCODE;
+
+   type COUNTRYINFO=structure   (* ctryi *)
+             country: ULONG;
+             codepage: ULONG;
+             fsDateFmt: ULONG;
+             szCurrency: array[5] of CHAR;
+             szThousandsSeparator: array[2] of CHAR;
+             szDecimal: array[2] of CHAR;
+             szDateSeparator: array[2] of CHAR;
+             szTimeSeparator: array[2] of CHAR;
+             fsCurrencyFmt: UCHAR;
+             cDecimalPlace: UCHAR;
+             fsTimeFmt: UCHAR;
+             abReserved1: array[2] of USHORT;
+             szDataSeparator: array[2] of CHAR;
+             abReserved2: array[5] of USHORT;
+   end;
+   type PCOUNTRYINFO=^COUNTRYINFO;
+
+(*
+   #define DosGetCtryInfo  DosQueryCtryInfo
+   #define DosGetDBCSEv    DosQueryDBCSEnv
+   #define DosCaseMap      DosMapCase
+   #define DosGetCollate   DosQueryCollate
+   #define DosSetProcCp    DosSetProcessCp
+*)
+
+function DosQueryCtryInfo(in  cb: ULONG;
+                                                  in  pcc: PCOUNTRYCODE;
+                                                  out pci: COUNTRYINFO;
+                                                  out pcbActual: ULONG): APIRET;
+
+function DosQueryDBCSEnv(in  cb: ULONG;
+                                                 in  pcc: PCOUNTRYCODE;
+                                                 out pBuf: CHAR): APIRET;
+
+function DosMapCase(in    cb: ULONG;
+                                        in    pcc: PCOUNTRYCODE;
+                                        inout pch: CHAR): APIRET;
+
+function DosQueryCollate(in  cb: ULONG;
+                                                 in  pcc: PCOUNTRYCODE;
+                                                 out pch: CHAR;
+                                                 out pcch: ULONG): APIRET;
+
+function DosQueryCp(in  cb: ULONG;
+                                        out arCP: ULONG;
+                                        out pcCP: ULONG): APIRET;
+
+function DosGetCp(in  cb: ULONG;
+                                  out arCP: ULONG;
+                                  out pcCP: ULONG): APIRET;
+
+function DosSetProcessCp(in cp: ULONG): APIRET;
+
+end.

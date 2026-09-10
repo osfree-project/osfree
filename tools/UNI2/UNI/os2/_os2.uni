@@ -1,0 +1,16 @@
+(****************************** Module Header ******************************
+*                                                                          *
+* Module Name: OS2.UNI                                                     *
+*                                                                          *
+* This is the top level module that includes all the files necessary       *
+* for writing an OS/2 Personality application.                             *
+*                                                                          *
+***************************************************************************)
+
+group os2;
+
+uses os2def default;
+uses bse default;
+uses pm default;
+
+end.

@@ -1,0 +1,51 @@
+group bsetib;
+
+(*
+ *      Thread Information Block (TIB)
+ *)
+
+type tib2_s=structure
+       tib2_ultid: ULONG;             (* Thread I.D. *)
+       tib2_ulpri: ULONG;             (* Thread priority *)
+       tib2_version: ULONG;           (* Version number for this structure *)
+       tib2_usMCCount: USHORT;         (* Must Complete count *)
+       tib2_fMCForceFlag: USHORT;      (* Must Complete force flag *)
+  end;
+
+type TIB2=tib2_s;
+type PTIB2=^TIB2;
+
+type tib_s=structure                           (* TIB Thread Information Block *)
+        tib_pexchain: PVOID;           (* Head of exception handler chain *)
+        tib_pstack: PVOID;             (* Pointer to base of stack *)
+        tib_pstacklimit: PVOID;        (* Pointer to end of stack *)
+        tib_ptib2: PTIB2;              (* Pointer to system specific TIB *)
+        tib_version: ULONG;            (* Version number for this TIB structure *)
+        tib_ordinal: ULONG;            (* Thread ordinal number        *)
+  end;
+
+type tib_t=tib_s;
+type TIB=tib_s;
+type PTIB=^TIB;
+
+
+(*
+ *      Process Information Block (PIB)
+ *)
+
+type pib_s=structure                     (* PIB Process Information Block *)
+          pib_ulpid: ULONG;              (* Process I.D. *)
+          pib_ulppid: ULONG;             (* Parent process I.D. *)
+          pib_hmte: ULONG;               (* Program (.EXE) module handle *)
+          pib_pchcmd: PCHAR;             (* Command line pointer *)
+          pib_pchenv: PCHAR;             (* Environment pointer *)
+          pib_flstatus: ULONG;           (* Process' status bits *)
+          pib_ultype: ULONG;             (* Process' type code *)
+       end;
+
+
+type pib_t=pib_s;
+type PIB=pib_s;
+type PPIB=^PIB;
+
+end.

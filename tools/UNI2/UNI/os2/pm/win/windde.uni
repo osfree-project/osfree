@@ -1,0 +1,69 @@
+group windde;
+
+constant DDE_FACK         = $0001;
+constant DDE_FBUSY        = $0002;
+constant DDE_FNODATA      = $0004;
+constant DDE_FACKREQ      = $0008;
+constant DDE_FRESPONSE    = $0010;
+constant DDE_NOTPROCESSED = $0020;
+constant DDE_FRESERVED    = $00C0;
+constant DDE_FAPPSTATUS   = $FF00;
+
+constant DDEPM_RETRY  = 1;
+constant DDEPM_NOFREE = 2;
+
+constant DDEFMT_TEXT  = 1;
+
+constant DDECTXT_CASESENSITIVE = 1;
+
+(*
+constant DDES_PSZITEMNAME(pddes)  (((PSZ)pddes) + ((PDDESTRUCT)pddes)->offszItemName)
+constant DDES_PABDATA(pddes)      (((PBYTE)pddes) + ((PDDESTRUCT)pddes)->offabData)
+constant DDEI_PCONVCONTEXT(pddei) ((PCONVCONTEXT)((PBYTE)pddei + pddei->offConvContext))
+*)
+
+constant WM_DDE_FIRST       = $00A0;
+constant WM_DDE_INITIATE    = $00A0;
+constant WM_DDE_REQUEST     = $00A1;
+constant WM_DDE_ACK         = $00A2;
+constant WM_DDE_DATA        = $00A3;
+constant WM_DDE_ADVISE      = $00A4;
+constant WM_DDE_UNADVISE    = $00A5;
+constant WM_DDE_POKE        = $00A6;
+constant WM_DDE_EXECUTE     = $00A7;
+constant WM_DDE_TERMINATE   = $00A8;
+constant WM_DDE_INITIATEACK = $00A9;
+constant WM_DDE_LAST        = $00AF;
+
+type DDESTRUCT=structure
+    cbData: ULONG;
+    fsStatus: USHORT;
+    usFormat: USHORT;
+    offszItemName: USHORT;
+    offabData: USHORT;
+end;
+type PDDESTRUCT=^DDESTRUCT;
+
+type CONVCONTEXT=structure
+      cb: ULONG;
+      fsContext: ULONG;
+      idCountry: ULONG;
+      usCodepage: ULONG;
+      usLangID: ULONG;
+      usSubLangID: ULONG;
+end;
+type PCONVCONTEXT=^CONVCONTEXT;
+
+type DDEINIT=structure
+    cb: ULONG;
+    pszAppName: PSZ;
+    pszTopic: PSZ;
+    offConvContext: ULONG;
+end;
+type PDDEINIT=^DDEINIT;
+
+function WinDdeInitiate(in a: HWND; in b: PCSZ; in c: PCSZ; in d: PCONVCONTEXT): BOOL;
+function WinDdePostMsg(in a: HWND; in b: HWND; in c: ULONG; in d: PDDESTRUCT; in e: ULONG): BOOL;
+function WinDdeRespond(in a: HWND; in b: HWND; in c: PCSZ; in d: PCSZ; in e: PCONVCONTEXT): MRESULT;
+
+end.

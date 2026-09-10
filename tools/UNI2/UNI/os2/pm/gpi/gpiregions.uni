@@ -1,0 +1,65 @@
+group gpiregions;
+
+constant CRGN_OR   = 1;
+constant CRGN_COPY = 2;
+constant CRGN_XOR  = 4;
+constant CRGN_AND  = 6;
+constant CRGN_DIFF = 7;
+
+constant EQRGN_ERROR    = 0;
+constant EQRGN_NOTEQUAL = 1;
+constant EQRGN_EQUAL    = 2;
+
+(* constant HRGN_ERROR ((HRGN)-1) *)
+
+constant PRGN_ERROR   = 0;
+constant PRGN_OUTSIDE = 1;
+constant PRGN_INSIDE  = 2;
+
+constant RECTDIR_LFRT_TOPBOT = 1;
+constant RECTDIR_RTLF_TOPBOT = 2;
+constant RECTDIR_LFRT_BOTTOP = 3;
+constant RECTDIR_RTLF_BOTTOP = 4;
+
+constant RGN_ERROR   = 0;
+constant RGN_NULL    = 1;
+constant RGN_RECT    = 2;
+constant RGN_COMPLEX = 3;
+
+constant RRGN_ERROR   = 0;
+constant RRGN_OUTSIDE = 1;
+constant RRGN_PARTIAL = 2;
+constant RRGN_INSIDE  = 3;
+
+type RGNRECT=structure
+     ircStart: ULONG;
+     crc: ULONG;
+     crcReturned: ULONG;
+     ulDirection: ULONG;
+end;
+
+type PRGNRECT=^RGNRECT;
+
+function GpiCombineRegion(in hps: HPS, in hrgnDest: HRGN, in hrgnSr1: HRGN, in hrgnSr2: HRGN, in lMode: LONG): LONG;
+function GpiCreateEllipticRegion(in hps: HPS, in prclRect: PRECTL): HRGN;
+function GpiCreateRegion(in hps: HPS, in lCount: LONG, in arclRectangles: PRECTL): HRGN;
+function GpiCreateRoundRectRegion(in hps: HPS, in pptlPt: PPOINTL, in lHround: LONG, in lVRound: LONG): HRGN;
+function GpiDestroyRegion(in hps: HPS, in hrgn: HRGN): BOOL;
+function GpiEqualRegion(in hps: HPS, in hrgnSrc1: HRGN, in hrgnSrc2: HRGN): LONG;
+function GpiExcludeClipRectangle(in hps: HPS, in prclRectangle: PRECTL): LONG;
+function GpiIntersectClipRectangle(in hps: HPS, in prclRectangle: PRECTL): LONG;
+function GpiFrameRegion(in hps: HPS, in hrgn: HRGN, in thickness: PSIZEL): LONG;
+function GpiOffsetClipRegion(in hps: HPS, in pptlPoint: PPOINTL): LONG;
+function GpiOffsetRegion(in hps: HPS, in Hrgn: HRGN, in pptlOffset: PPOINTL): BOOL;
+function GpiPaintRegion(in hps: HPS, in hrgn: HRGN): LONG;
+function GpiPtInRegion(in hps: HPS, in hrgn: HRGN, in pptlPoint: PPOINTL): LONG;
+function GpiQueryClipBox(in hps: HPS, in prclBound: PRECTL): LONG;
+function GpiQueryClipRegion(in hps: HPS): HRGN;
+function GpiQueryRegionBox(in hps: HPS, in hrgn: HRGN, in prclBound: PRECTL): LONG;
+function GpiQueryRegionRects(in hps: HPS, in hrgn: HRGN, in prclBound: PRECTL,
+                   in prgnrcControl: PRGNRECT, in prclRect: PRECTL): BOOL;
+function GpiRectInRegion(in hps: HPS, in hrgn: HRGN, in prclRect: PRECTL): LONG;
+function GpiSetClipRegion(in hps: HPS, in hrgn: HRGN, in phrgnOld: PHRGN): LONG;
+function GpiSetRegion(in hps: HPS, in hrgn: HRGN, in lcount: LONG, in arclRectangles: PRECTL): BOOL;
+
+end.

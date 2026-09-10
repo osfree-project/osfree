@@ -1,0 +1,590 @@
+group gpiprimitives;
+
+uses  gpiprimitives2 default;
+
+   (* mode for GpiSetAttrMode *)
+constant AM_ERROR                     = (-1);
+constant AM_PRESERVE                  =   0;
+constant AM_NOPRESERVE                =   1;
+
+   (* foreground mixes *)
+constant FM_ERROR                     = (-1);
+constant FM_DEFAULT                   =   0;
+constant FM_OR                        =   1;
+constant FM_OVERPAINT                 =   2;
+constant FM_LEAVEALONE                =   5;
+
+constant FM_XOR                       =   4;
+constant FM_AND                       =   6;
+constant FM_SUBTRACT                  =   7;
+constant FM_MASKSRCNOT                =   8;
+constant FM_ZERO                      =   9;
+constant FM_NOTMERGESRC               =  10;
+constant FM_NOTXORSRC                 =  11;
+constant FM_INVERT                    =  12;
+constant FM_MERGESRCNOT               =  13;
+constant FM_NOTCOPYSRC                =  14;
+constant FM_MERGENOTSRC               =  15;
+constant FM_NOTMASKSRC                =  16;
+constant FM_ONE                       =  17;
+
+
+   (* background mixes *)
+constant BM_ERROR                     = (-1);
+constant BM_DEFAULT                   =   0;
+constant BM_OR                        =   1;
+constant BM_OVERPAINT                 =   2;
+constant BM_LEAVEALONE                =   5;
+
+constant BM_XOR                       =   4;
+constant BM_AND                       =   6;
+constant BM_SUBTRACT                  =   7;
+constant BM_MASKSRCNOT                =   8;
+constant BM_ZERO                      =   9;
+constant BM_NOTMERGESRC               =  10;
+constant BM_NOTXORSRC                 =  11;
+constant BM_INVERT                    =  12;
+constant BM_MERGESRCNOT               =  13;
+constant BM_NOTCOPYSRC                =  14;
+constant BM_MERGENOTSRC               =  15;
+constant BM_NOTMASKSRC                =  16;
+constant BM_ONE                       =  17;
+constant BM_SRCTRANSPARENT            =  18;
+constant BM_DESTTRANSPARENT           =  19;
+
+
+
+   (* basic line type styles *)
+constant LINETYPE_ERROR               = (-1);
+constant LINETYPE_DEFAULT             =   0;
+constant LINETYPE_DOT                 =   1;
+constant LINETYPE_SHORTDASH           =   2;
+constant LINETYPE_DASHDOT             =   3;
+constant LINETYPE_DOUBLEDOT           =   4;
+constant LINETYPE_LONGDASH            =   5;
+constant LINETYPE_DASHDOUBLEDOT       =   6;
+constant LINETYPE_SOLID               =   7;
+constant LINETYPE_INVISIBLE           =   8;
+constant LINETYPE_ALTERNATE           =   9;
+
+   (* cosmetic line widths *)
+constant LINEWIDTH_ERROR              = (-1);
+constant LINEWIDTH_DEFAULT            =   0;
+constant LINEWIDTH_NORMAL       = $00010000;   (* MAKEFIXED(1,0) *)
+constant LINEWIDTH_THICK        = $00020000;   (* MAKEFIXED(2,0) *)
+
+   (* actual line widths *)
+constant LINEWIDTHGEOM_ERROR          = (-1);
+
+   (* line end styles *)
+constant LINEEND_ERROR                = (-1);
+constant LINEEND_DEFAULT              =   0;
+constant LINEEND_FLAT                 =   1;
+constant LINEEND_SQUARE               =   2;
+constant LINEEND_ROUND                =   3;
+
+   (* line join styles *)
+constant LINEJOIN_ERROR               = (-1);
+constant LINEJOIN_DEFAULT             =   0;
+constant LINEJOIN_BEVEL               =   1;
+constant LINEJOIN_ROUND               =   2;
+constant LINEJOIN_MITRE               =   3;
+
+   (* character directions *)
+constant CHDIRN_ERROR                 = (-1);
+constant CHDIRN_DEFAULT               =   0;
+constant CHDIRN_LEFTRIGHT             =   1;
+constant CHDIRN_TOPBOTTOM             =   2;
+constant CHDIRN_RIGHTLEFT             =   3;
+constant CHDIRN_BOTTOMTOP             =   4;
+
+   (* character text alignments *)
+constant TA_NORMAL_HORIZ     = $0001;
+constant TA_LEFT             = $0002;
+constant TA_CENTER           = $0003;
+constant TA_RIGHT            = $0004;
+constant TA_STANDARD_HORIZ   = $0005;
+constant TA_NORMAL_VERT      = $0100;
+constant TA_TOP              = $0200;
+constant TA_HALF             = $0300;
+constant TA_BASE             = $0400;
+constant TA_BOTTOM           = $0500;
+constant TA_STANDARD_VERT    = $0600;
+
+   (* character modes *)
+constant CM_ERROR                     = (-1);
+constant CM_DEFAULT                   =   0;
+constant CM_MODE1                     =   1;
+constant CM_MODE2                     =   2;
+constant CM_MODE3                     =   3;
+
+   (* basic marker symbols *)
+constant MARKSYM_ERROR                = (-1);
+constant MARKSYM_DEFAULT              =   0;
+constant MARKSYM_CROSS                =   1;
+constant MARKSYM_PLUS                 =   2;
+constant MARKSYM_DIAMOND              =   3;
+constant MARKSYM_SQUARE               =   4;
+constant MARKSYM_SIXPOINTSTAR         =   5;
+constant MARKSYM_EIGHTPOINTSTAR       =   6;
+constant MARKSYM_SOLIDDIAMOND         =   7;
+constant MARKSYM_SOLIDSQUARE          =   8;
+constant MARKSYM_DOT                  =   9;
+constant MARKSYM_SMALLCIRCLE          =  10;
+constant MARKSYM_BLANK                =  64;
+
+   (* formatting options for GpiCharStringPosAt *)
+constant CHS_OPAQUE                 = $0001;
+constant CHS_VECTOR                 = $0002;
+constant CHS_LEAVEPOS               = $0008;
+constant CHS_CLIP                   = $0010;
+constant CHS_UNDERSCORE             = $0200;
+constant CHS_STRIKEOUT              = $0400;
+
+   (* bundle codes for GpiSetAttributes and GpiQueryAttributes *)
+constant PRIM_LINE                    =   1;
+constant PRIM_CHAR                    =   2;
+constant PRIM_MARKER                  =   3;
+constant PRIM_AREA                    =   4;
+constant PRIM_IMAGE                   =   5;
+
+   (* line bundle mask bits *)
+constant LBB_COLOR                  = $0001;
+constant LBB_BACK_COLOR             = $0002;
+constant LBB_MIX_MODE               = $0004;
+constant LBB_BACK_MIX_MODE          = $0008;
+constant LBB_WIDTH                  = $0010;
+constant LBB_GEOM_WIDTH             = $0020;
+constant LBB_TYPE                   = $0040;
+constant LBB_END                    = $0080;
+constant LBB_JOIN                   = $0100;
+
+   (* character bundle mask bits *)
+constant CBB_COLOR                  = $0001;
+constant CBB_BACK_COLOR             = $0002;
+constant CBB_MIX_MODE               = $0004;
+constant CBB_BACK_MIX_MODE          = $0008;
+constant CBB_SET                    = $0010;
+constant CBB_MODE                   = $0020;
+constant CBB_BOX                    = $0040;
+constant CBB_ANGLE                  = $0080;
+constant CBB_SHEAR                  = $0100;
+constant CBB_DIRECTION              = $0200;
+constant CBB_TEXT_ALIGN             = $0400;
+constant CBB_EXTRA                  = $0800;
+constant CBB_BREAK_EXTRA            = $1000;
+
+   (* marker bundle mask bits *)
+constant MBB_COLOR                  = $0001;
+constant MBB_BACK_COLOR             = $0002;
+constant MBB_MIX_MODE               = $0004;
+constant MBB_BACK_MIX_MODE          = $0008;
+constant MBB_SET                    = $0010;
+constant MBB_SYMBOL                 = $0020;
+constant MBB_BOX                    = $0040;
+
+   (* pattern bundle mask bits *)
+constant ABB_COLOR                  = $0001;
+constant ABB_BACK_COLOR             = $0002;
+constant ABB_MIX_MODE               = $0004;
+constant ABB_BACK_MIX_MODE          = $0008;
+constant ABB_SET                    = $0010;
+constant ABB_SYMBOL                 = $0020;
+constant ABB_REF_POINT              = $0040;
+
+
+  (* image bundle mask bits *)
+constant IBB_COLOR                  = $0001;
+constant IBB_BACK_COLOR             = $0002;
+constant IBB_MIX_MODE               = $0004;
+constant IBB_BACK_MIX_MODE          = $0008;
+
+   (* structure for GpiSetArcParams and GpiQueryArcParams *)
+   type ARCPARAMS=structure       (* arcp *)
+       lP: LONG;
+       lQ: LONG;
+       lR: LONG;
+       lS: LONG;
+     end;
+   type PARCPARAMS=^ARCPARAMS;
+
+   (* variation of SIZE used for FIXEDs *)
+   type SIZEF=structure          (* sizfx *)
+       cx: FIXED;
+       cy: FIXED;
+     end;
+   type PSIZEF=^SIZEF;
+
+   (* structure for gradient parameters e.g. for GpiSetCharAngle *)
+   type GRADIENTL=structure        (* gradl *)
+       x: LONG;
+       y: LONG;
+     end;
+   type PGRADIENTL=^GRADIENTL;
+
+   (* line bundle for GpiSetAttributes and GpiQueryAttributes *)
+   type LINEBUNDLE=structure       (* lbnd *)
+          lColor: LONG;
+          lBackColor: LONG;
+          usMixMode: USHORT;
+          usBackMixMode: USHORT;
+          fxWidth: FIXED;
+          lGeomWidth: LONG;
+          usType: USHORT;
+          usEnd: USHORT;
+          usJoin: USHORT;
+          usReserved: USHORT;
+     end;
+   type PLINEBUNDLE=^LINEBUNDLE;
+
+   (* character bundle for GpiSetAttributes and GpiQueryAttributes *)
+   type CHARBUNDLE=structure       (* cbnd *)
+            lColor: LONG;
+            lBackColor: LONG;
+            usMixMode: USHORT;
+            usBackMixMode: USHORT;
+            usSet: USHORT;
+            usPrecision: USHORT;
+            sizfxCell: SIZEF;
+            ptlAngle: POINTL;
+            ptlShear: POINTL;
+            usDirection: USHORT;
+            usTextAlign: USHORT;
+            fxExtra: FIXED;
+            fxBreakExtra: FIXED;
+     end;
+   type PCHARBUNDLE=^CHARBUNDLE;
+
+   (* marker bundle for GpiSetAttributes and GpiQueryAttributes *)
+   type MARKERBUNDLE=structure     (* mbnd *)
+         lColor: LONG;
+         lBackColor: LONG;
+         usMixMode: USHORT;
+         usBackMixMode: USHORT;
+         usSet: USHORT;
+         usSymbol: USHORT;
+         sizfxCell: SIZEF;
+     end;
+   type PMARKERBUNDLE=^MARKERBUNDLE;
+
+   (* pattern bundle for GpiSetAttributes and GpiQueryAttributes *)
+   type AREABUNDLE=structure    (* pbnd *)
+         lColor: LONG;
+         lBackColor: LONG;
+         usMixMode: USHORT;
+         usBackMixMode: USHORT;
+         usSet: USHORT;
+         usSymbol: USHORT;
+         ptlRefPoint: POINTL;
+     end;
+   type PAREABUNDLE=^AREABUNDLE;
+
+   (* image bundle for GpiSetAttributes and GpiQueryAttributes *)
+   type IMAGEBUNDLE=structure      (* ibmd *)
+         lColor: LONG;
+         lBackColor: LONG;
+         usMixMode: USHORT;
+         usBackMixMode: USHORT;
+     end;
+   type PIMAGEBUNDLE=^IMAGEBUNDLE;
+
+   (* pointer to any bundle used by GpiSet/QueryAttrs *)
+   type PBUNDLE=PVOID;
+
+   (* array indices for GpiQueryTextBox *)
+constant TXTBOX_TOPLEFT               =   0;
+constant TXTBOX_BOTTOMLEFT            =   1;
+constant TXTBOX_TOPRIGHT              =   2;
+constant TXTBOX_BOTTOMRIGHT           =   3;
+constant TXTBOX_CONCAT                =   4;
+   (* array count for GpiQueryTextBox *)
+constant TXTBOX_COUNT                 =   5;
+
+   (* return codes for GpiPtVisible *)
+constant PVIS_ERROR                   =   0;
+constant PVIS_INVISIBLE               =   1;
+constant PVIS_VISIBLE                 =   2;
+
+   (* return codes for GpiRectVisible *)
+constant RVIS_ERROR                   =   0;
+constant RVIS_INVISIBLE               =   1;
+constant RVIS_PARTIAL                 =   2;
+constant RVIS_VISIBLE                 =   3;
+
+
+
+      (*** attribute mode functions *)
+function GpiSetAttrMode(in hps: HPS;
+                                    in lMode: LONG ): BOOL;
+
+function GpiQueryAttrMode(in hps: HPS): LONG;
+      (*** bundle primitive functions *)
+function GpiSetAttrs(in hps: HPS;
+                                 in lPrimType: LONG;
+                                 in flAttrMask: ULONG;
+                                 in flDefMask: ULONG;
+                                 in ppbunAttrs: PBUNDLE): BOOL;
+
+
+function GpiQueryAttrs(in hps: HPS;
+                                      in lPrimType: LONG;
+                                      in flAttrMask: ULONG,
+                                      in ppbunAttrs: PBUNDLE): LONG;
+
+
+
+      (*** global primitive functions *)
+function GpiSetBackColor(in hps: HPS;
+                                     in lColor: LONG): BOOL;
+
+function GpiQueryBackColor(in hps: HPS): LONG;
+
+function GpiSetMix(in hps: HPS;
+                               in lMixMode: LONG): BOOL;
+
+function GpiQueryMix(in hps: HPS): LONG;
+
+function GpiSetBackMix(in hps: HPS;
+                                   in lMixMode: LONG): BOOL;
+
+function GpiQueryBackMix(in hps: HPS): LONG;
+
+      (*** line primitive functions *)
+function GpiSetLineType(in hps: HPS;
+                                    in lLineType: LONG): BOOL;
+
+function GpiQueryLineType(in hps: HPS): LONG;
+
+function GpiSetLineWidth(in hps: HPS;
+                                     in fxLineWidth: FIXED): BOOL;
+
+function GpiQueryLineWidth(in hps: HPS): FIXED;
+
+function GpiSetLineWidthGeom(in hps: HPS;
+                                         in lLineWidth: LONG): BOOL;
+
+function GpiQueryLineWidthGeom(in hps: HPS): LONG;
+
+function GpiSetLineEnd(in hps: HPS;
+                                   in lLineEnd: LONG): BOOL;
+
+function GpiQueryLineEnd(in hps: HPS): LONG;
+
+function GpiSetLineJoin(in hps: HPS;
+                                    in lLineJoin: LONG): BOOL;
+
+function GpiQueryLineJoin(in hps: HPS): LONG;
+
+function GpiSetCurrentPosition(in hps: HPS;
+                                           in pptlPoint: PPOINTL): BOOL;
+
+function GpiQueryCurrentPosition(in hps: HPS;
+                                             out pptlPoint: POINTL): BOOL;
+
+      (*** arc primitive functions *)
+function GpiSetArcParams(in hps: HPS;
+                                     in parcpArcParams: PARCPARAMS): BOOL;
+
+function GpiQueryArcParams(in  hps: HPS;
+                           out parcpArcParams: ARCPARAMS): BOOL;
+
+function GpiPointArc(in hps: HPS;
+                     in pptl2: PPOINTL): LONG;
+
+function GpiFullArc(in hps: HPS;
+                    in lControl: LONG;
+                    in fxMultiplier: FIXED): LONG;
+
+function GpiPartialArc(in hps: HPS;
+                       in pptlCenter: PPOINTL;
+                       in fxMultiplier: FIXED;
+                       in fxStartAngle: FIXED;
+                       in fxSweepAngle: FIXED): LONG;
+
+function GpiOval(in hps: HPS;
+                 in aptlPoints: PPOINTL;
+                 in fxStartAngle: FIXED;
+                 in fxSweepAngle: FIXED;
+                 in ulOptions: ULONG): LONG;
+
+function GpiPolyFillet(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
+
+function GpiPolySpline(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
+
+function GpiPolyFilletSharp(in hps: HPS;
+                            in lCount: LONG;
+                            in aptlPoints: PPOINTL;
+                            in afxPoints: PFIXED): LONG;
+
+      (*** area primitive functions *)
+function GpiSetPatternSet(in hps: HPS;
+                          in lSet: LONG): BOOL;
+
+function GpiQueryPatternSet(in hps: HPS): LONG;
+
+function GpiSetPatternRefPoint(in hps: HPS;
+                               in pptlRefPoint: PPOINTL): BOOL;
+
+function GpiQueryPatternRefPoint(in  hps: HPS;
+                                 out pptlRefPoint: POINTL): BOOL;
+
+      (*** character primitive functions *)
+function GpiQueryCharStringPos(in  hps: HPS;
+                               in  flOptions: ULONG;
+                               in  lCount: LONG;
+                               in  pchString: PCH;
+                               in  alXincrements: PLONG;
+                               out aptlPositions: POINTL): BOOL;
+
+function GpiQueryCharStringPosAt(in hps: HPS;
+                                 in pptlStart: PPOINTL;
+                                 in flOptions: ULONG;
+                                 in lCount: LONG;
+                                 in pchString: PCH;
+                                 in alXincrements: PLONG;
+                                 in aptlPositions: PPOINTL): BOOL;
+
+function GpiQueryTabbedTextExtent(in hps: HPS;
+                                  in lCount: LONG;
+                                  in pchString: PCH;
+                                  in lTabCount: LONG;
+                                  in puTabStops: PULONG): LONG;
+
+function GpiQueryTextBox(in hps: HPS;
+                         in lCount1: LONG;
+                         in pchString: PCH;
+                         in lCount2: LONG;
+                         in aptlPoints: PPOINTL): BOOL;
+
+function GpiQueryDefCharBox(in hps: HPS;
+                            in psizlSize: PSIZEL): BOOL;
+
+function GpiSetCharSet(in hps: HPS;
+                       in llcid: LONG): BOOL;
+
+function GpiQueryCharSet(in hps: HPS): LONG;
+
+function GpiSetCharBox(in hps: HPS;
+                       in psizfxBox: PSIZEF): BOOL;
+
+function GpiQueryCharBox(in  hps: HPS;
+                         out psizfxSize: SIZEF): BOOL;
+
+function GpiSetCharAngle(in hps: HPS;
+                         in pgradlAngle: PGRADIENTL): BOOL;
+
+function GpiQueryCharAngle(in  hps: HPS;
+                           out pgradlAngle: GRADIENTL): BOOL;
+
+function GpiSetCharShear(in hps: HPS;
+                         in pptlAngle: PPOINTL): BOOL;
+
+function GpiQueryCharShear(in  hps: HPS;
+                           out pptlShear: POINTL): BOOL;
+
+function GpiSetCharDirection(in hps: HPS;
+                             in lDirection: LONG): BOOL;
+
+function GpiQueryCharDirection(in hps: HPS): LONG;
+
+function GpiSetCharMode(in hps: HPS;
+                        in lMode: LONG): BOOL;
+
+function GpiQueryCharMode(in hps: HPS): LONG;
+
+function GpiSetTextAlignment(in hps: HPS;
+                             in lHoriz: LONG;
+                             in lVert: LONG): BOOL;
+
+function GpiQueryTextAlignment(in  hps: HPS;
+                               out plHoriz: LONG;
+                               out plVert: LONG): BOOL;
+
+function GpiCharStringPos(in hps: HPS;
+                          in prclRect: PRECTL;
+                          in flOptions: ULONG;
+                          in lCount: LONG;
+                          in pchString: PCH;
+                          in alAdx: PLONG): LONG;
+
+function GpiTabbedCharStringAt(in hps: HPS;
+                               in pPtStart: PPOINTL;
+                               in prclRect: PRECTL;
+                               in flOptions: ULONG;
+                               in lCount: LONG;
+                               in pchString: PCH;
+                               in lTabCount: LONG;
+                               in puTabStops: PULONG;
+                               in lTabOrigin: LONG): LONG;
+
+function GpiCharStringPosAt(in hps: HPS;
+                            in pptlStart: PPOINTL;
+                            in prclRect: PRECTL;
+                            in flOptions: ULONG;
+                            in lCount: LONG;
+                            in pchString: PCH;
+                            in alAdx: PLONG): LONG;
+
+function GpiSetCharExtra(in hps: HPS;
+                         in Extra: FIXED): BOOL;
+
+function GpiSetCharBreakExtra(in hps: HPS;
+                              in BreakExtra: FIXED): BOOL;
+
+function GpiQueryCharExtra(in  hps: HPS;
+                           out Extra: FIXED): BOOL;
+
+function GpiQueryCharBreakExtra(in  hps: HPS;
+                                out BreakExtra: FIXED): BOOL;
+
+      (*** marker primitive functions  *)
+function GpiMarker(in hps: HPS;
+                   in pptlPoint: PPOINTL): LONG;
+
+function GpiPolyMarker(in hps: HPS;
+                       in lCount: LONG;
+                       in aptlPoints: PPOINTL): LONG;
+
+function GpiSetMarker(in hps: HPS;
+                      in lSymbol: LONG): BOOL;
+
+function GpiSetMarkerBox(in hps: HPS;
+                         in psizfxSize: PSIZEF): BOOL;
+
+function GpiSetMarkerSet(in hps: HPS;
+                         in lSet: LONG): BOOL;
+
+function GpiQueryMarker(in hps: HPS): LONG;
+
+function GpiQueryMarkerBox(in  hps: HPS;
+                           out psizfxSize: SIZEF): BOOL;
+
+function GpiQueryMarkerSet(in hps: HPS): LONG;
+
+      (*** image primitive functions *)
+function GpiImage(in hps: HPS;
+                  in lFormat: LONG;
+                  in psizlImageSize: PSIZEL;
+                  in lLength: LONG;
+                  in pbData: PBYTE): LONG;
+
+      (*** miscellaneous primitive functions *)
+function GpiPop(in hps: HPS;
+                in lCount: LONG): BOOL;
+
+function GpiPtVisible(in hps: HPS;
+                      in pptlPoint: PPOINTL): LONG;
+
+function GpiRectVisible(in hps: HPS;
+                        in prclRectangle: PRECTL): LONG;
+
+function GpiComment(in hps: HPS;
+                    in lLength: LONG;
+                    in pbData: PBYTE): BOOL;
+
+
+end.

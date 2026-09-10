@@ -1,0 +1,130 @@
+group winstdfont;
+
+constant CLRC_FOREGROUND =1;
+constant CLRC_BACKGROUND =2;
+
+constant FNTF_NOVIEWSCREENFONTS   =1;
+constant FNTF_NOVIEWPRINTERFONTS  =2;
+constant FNTF_SCREENFONTSELECTED  =4;
+constant FNTF_PRINTERFONTSELECTED =8;
+
+constant FNTS_CENTER             = $00000001;
+constant FNTS_CUSTOM             = $00000002;
+constant FNTS_OWNERDRAWPREVIEW   = $00000004;
+constant FNTS_HELPBUTTON         = $00000008;
+constant FNTS_APPLYBUTTON        = $00000010;
+constant FNTS_RESETBUTTON        = $00000020;
+constant FNTS_MODELESS           = $00000040;
+constant FNTS_INITFROMFATTRS     = $00000080;
+constant FNTS_BITMAPONLY         = $00000100;
+constant FNTS_VECTORONLY         = $00000200;
+constant FNTS_FIXEDWIDTHONLY     = $00000400;
+constant FNTS_PROPORTIONALONLY   = $00000800;
+constant FNTS_NOSYNTHESIZEDFONTS = $00001000;
+constant FNTS_NATIONAL_LANGUAGE  = $80000000;
+
+constant FNTS_SUCCESSFUL             =0;
+constant FNTS_ERR_INVALID_DIALOG     =3;
+constant FNTS_ERR_ALLOC_SHARED_MEM   =4;
+constant FNTS_ERR_INVALID_PARM       =5;
+constant FNTS_ERR_OUT_OF_MEMORY      =7;
+constant FNTS_ERR_INVALID_VERSION   =10;
+constant FNTS_ERR_DIALOG_LOAD_ERROR =12;
+
+constant FNTI_BITMAPFONT       = $0001;
+constant FNTI_VECTORFONT       = $0002;
+constant FNTI_FIXEDWIDTHFONT   = $0004;
+constant FNTI_PROPORTIONALFONT = $0008;
+constant FNTI_SYNTHESIZED      = $0010;
+constant FNTI_DEFAULTLIST      = $0020;
+constant FNTI_FAMILYNAME       = $0100;
+constant FNTI_STYLENAME        = $0200;
+constant FNTI_POINTSIZE        = $0400;
+
+constant DID_FONT_DIALOG      = 300;
+constant DID_NAME             = 301;
+constant DID_STYLE            = 302;
+constant DID_DISPLAY_FILTER   = 303;
+constant DID_PRINTER_FILTER   = 304;
+constant DID_SIZE             = 305;
+constant DID_SAMPLE           = 306;
+constant DID_OUTLINE          = 307;
+constant DID_UNDERSCORE       = 308;
+constant DID_STRIKEOUT        = 309;
+constant DID_HELP_BUTTON      = 310;
+constant DID_APPLY_BUTTON     = 311;
+constant DID_RESET_BUTTON     = 312;
+constant DID_OK_BUTTON        = DID_OK;
+constant DID_CANCEL_BUTTON    = DID_CANCEL;
+constant DID_NAME_PREFIX      = 313;
+constant DID_STYLE_PREFIX     = 314;
+constant DID_SIZE_PREFIX      = 315;
+constant DID_SAMPLE_GROUPBOX  = 316;
+constant DID_EMPHASIS_GROUPBOX= 317;
+constant DID_FONT_ISO_SUPPORT = 318;
+constant DID_FONT_ISO_UNTESTED= 319;
+
+constant FNTM_FACENAMECHANGED  =(WM_USER+50);
+constant FNTM_POINTSIZECHANGED =(WM_USER+51);
+constant FNTM_STYLECHANGED     =(WM_USER+52);
+constant FNTM_COLORCHANGED     =(WM_USER+53);
+constant FNTM_UPDATEPREVIEW    =(WM_USER+54);
+constant FNTM_FILTERLIST       =(WM_USER+55);
+
+type FONTDLG=structure
+       cbSize: ULONG;
+       hpsScreen: HPS;
+       hpsPrinter: HPS;
+       pszTitle: PSZ;
+       pszPreview: PSZ;
+       pszPtSizeList: PSZ;
+       pfnDlgProc: PFNWP;
+       pszFamilyname: PSZ;
+       fxPointSize: FIXED;
+       fl: ULONG;
+       flFlags: ULONG;
+       flType: ULONG;
+       flTypeMask: ULONG;
+       flStyle: ULONG;
+       flStyleMask: ULONG;
+       clrFore: LONG;
+       clrBack: LONG;
+       ulUser: ULONG;
+       lReturn: LONG;
+       lSRC: LONG;
+       lEmHeight: LONG;
+       lXHeight: LONG;
+       lExternalLeading: LONG;
+       hMod: HMODULE;
+       fAttrs: FATTRS;
+       sNominalPointSize: SHORT;
+       usWeight: USHORT;
+       usWidth: USHORT;
+       x: SHORT;
+       y: SHORT;
+       usDlgId: USHORT;
+       usFamilyBufLen: USHORT;
+       usReserved: USHORT;
+end;
+type PFONTDLG=^FONTDLG;
+
+type STYLECHANGE=structure
+    usWeight: USHORT;
+    usWeightOld: USHORT;
+    usWidth: USHORT;
+    usWidthOld: USHORT;
+    flType: ULONG;
+    flTypeOld: ULONG;
+    flTypeMask: ULONG;
+    flTypeMaskOld: ULONG;
+    flStyle: ULONG;
+    flStyleOld: ULONG;
+    flStyleMask: ULONG;
+    flStyleMaskOld: ULONG;
+end;
+type PSTYLECHANGE=^STYLECHANGE;
+
+function WinDefFontDlgProc(in a: HWND; in b: ULONG; in c: MPARAM; in d: MPARAM): MRESULT;
+function WinFontDlg(in a: HWND; in b: HWND; in c: PFONTDLG): HWND;
+
+end.

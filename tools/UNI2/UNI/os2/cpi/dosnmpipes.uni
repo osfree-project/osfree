@@ -1,0 +1,189 @@
+(****************************************************************************************)
+(* Module: DOSNMPIPES                                                                                                                                   *)
+(*                                                                                                                                                                              *)
+(* Named Pipes Support                                                                                                                                  *)
+(*                                                                                                                                                                              *)
+(****************************************************************************************)
+
+group dosnmpipes;
+
+   (*** Data structures used with named pipes ***)
+
+      type  HSEM=ULONG;
+      type PHSEM=^HSEM;
+   type  HPIPE=LHANDLE;
+   type  PHPIPE=^HPIPE;
+
+   type AVAILDATA=structure              (* AVAILDATA *)
+            cbpipe: USHORT;            (* bytes left in the pipe *)
+            cbmessage: USHORT;         (* bytes left in the current message *)
+   end;
+   type PAVAILDATA=^AVAILDATA;
+
+   type PIPEINFO=structure               (* nmpinf *)
+       cbOut: USHORT;                  (* length of outgoing I/O buffer *)
+       cbIn: USHORT;                   (* length of incoming I/O buffer *)
+       cbMaxInst: BYTE;              (* maximum number of instances   *)
+       cbCurInst: BYTE;              (* current number of instances   *)
+       cbName: BYTE;                 (* length of pipe name           *)
+       szName: array[1] of CHAR;              (* start of name                 *)
+   end;
+   type PPIPEINFO=^PIPEINFO;
+
+   type PIPESEMSTATE=structure    (* nmpsmst *)
+         fStatus: BYTE;         (* type of record, 0 = EOI, 1 = read ok, *)
+                              (* 2 = write ok, 3 = pipe closed         *)
+         fFlag: BYTE;           (* additional info, 01 = waiting thread  *)
+         usKey: USHORT;           (* user's key value                      *)
+         usAvail: USHORT;         (* available data/space if status = 1/2  *)
+   end;
+   type PPIPESEMSTATE=^PIPESEMSTATE;
+
+   constant NP_INDEFINITE_WAIT     = -1;
+   constant NP_DEFAULT_WAIT        = 0;
+
+   (* DosPeekNmPipe() pipe states *)
+
+   constant NP_STATE_DISCONNECTED  = $0001;
+   constant NP_STATE_LISTENING     = $0002;
+   constant NP_STATE_CONNECTED     = $0003;
+   constant NP_STATE_CLOSING       = $0004;
+
+   (* DosCreateNPipe open modes *)
+
+   constant NP_ACCESS_INBOUND      = $0000;
+   constant NP_ACCESS_OUTBOUND     = $0001;
+   constant NP_ACCESS_DUPLEX       = $0002;
+   constant NP_INHERIT             = $0000;
+   constant NP_NOINHERIT           = $0080;
+   constant NP_WRITEBEHIND         = $0000;
+   constant NP_NOWRITEBEHIND       = $4000;
+
+   (* DosCreateNPipe and DosQueryNPHState state *)
+
+   constant NP_READMODE_BYTE      =  $0000;
+   constant NP_READMODE_MESSAGE   =  $0100;
+   constant NP_TYPE_BYTE          =  $0000;
+   constant NP_TYPE_MESSAGE       =  $0400;
+   constant NP_END_CLIENT         =  $0000;
+   constant NP_END_SERVER         =  $4000;
+   constant NP_WAIT               =  $0000;
+   constant NP_NOWAIT             =  $8000;
+   constant NP_UNLIMITED_INSTANCES=  $00FF;
+
+
+   function  DosCallNPipe(in  pszName: PCSZ;
+                          in  pInbuf: PVOID;
+                          in  cbIn: ULONG;
+                          in  pOutbuf: PVOID;  (* untyped return *)
+                          in  cbOut: ULONG;
+                          out pcbActual: ULONG;
+                          in  msec: ULONG): APIRET;
+
+   function  DosConnectNPipe(in hpipe: HPIPE): APIRET;
+
+   function  DosDisConnectNPipe(in hpipe: HPIPE): APIRET;
+
+   function  DosCreateNPipe(in  pszName: PCSZ;
+                            out pHpipe: HPIPE;
+                            in  openmode: ULONG;
+                            in  pipemode: ULONG;
+                            in  cbInbuf: ULONG;
+                            in  cbOutbuf: ULONG;
+                            in  msec: ULONG): APIRET;
+
+   function  DosPeekNPipe(in  hpipe: HPIPE;
+                          in  pBuf: PVOID; (* untyped variable *)
+                          in  cbBuf: ULONG;
+                          out pcbActual: ULONG;
+                          out pAvail: AVAILDATA;
+                          out pState: ULONG): APIRET;
+
+   function  DosQueryNPHState(in  hpipe: HPIPE;
+                              out pState: ULONG): APIRET;
+
+   function  DosQueryNPipeInfo(in hpipe: HPIPE;
+                               in infolevel: ULONG;
+                               in pBuf: PVOID;  (* untyped variable *)
+                               in cbBuf: ULONG): APIRET;
+
+   function  DosQueryNPipeSemState(in  hsem: HSEM;
+                                   out pnpss: PIPESEMSTATE;
+                                   in  cbBuf: ULONG): APIRET;
+
+  function  DosRawReadNPipe(in  hPipe: HPIPE;
+                            in  pBuffer: PVOID;
+                            in  cbRead: ULONG;
+                            out pcbActual: ULONG): APIRET;
+
+  function  DosRawWriteNPipe(in  hPipe: HPIPE;
+                             in  pBuffer: PVOID;
+                             in  cbWrite: ULONG;
+                             out pcbActual: ULONG): APIRET;
+
+   function  DosSetNPHState(in hpipe: HPIPE;
+                            in state: ULONG): APIRET;
+
+   function  DosSetNPipeSem(in hpipe: HPIPE;
+                            in hsem: HSEM;
+                            in key: ULONG): APIRET;
+
+   function  DosTransactNPipe(in  hpipe: HPIPE;
+                              in  pOutbuf: PVOID; (* untyped var *)
+                              in  cbOut: ULONG;
+                              in  pInbuf: PVOID;
+                              in  cbIn: ULONG;
+                              out pcbRead: ULONG): APIRET;
+
+   function  DosWaitNPipe(in pszName: PCSZ;
+                          in msec: ULONG): APIRET;
+
+   (* values in fStatus *)
+   constant NPSS_EOI             =      0;     (* End Of Information    *)
+   constant NPSS_RDATA           =      1;     (* read data available   *)
+   constant NPSS_WSPACE          =      2;     (* write space available *)
+   constant NPSS_CLOSE           =      3;     (* pipe in CLOSING state *)
+
+   (* values in npss_flag *)
+   constant NPSS_WAIT           =       $01;  (* waiting thread on end of pipe *)
+
+
+   (* defined bits in pipe mode *)
+   constant NP_NBLK               =     $8000; (* non-blocking read/write *)
+   constant NP_SERVER             =     $4000; (* set if server end       *)
+   constant NP_WMESG              =     $0400; (* write messages          *)
+   constant NP_RMESG              =     $0100; (* read as messages        *)
+   constant NP_ICOUNT             =     $00FF; (* instance count field    *)
+
+
+   (*Named pipes may be in one of several states depending on the actions
+   * that have been taken on it by the server end and client end.  The
+   * following state/action table summarizes the valid state transitions:
+   *
+   * Current state           Action                  Next state
+   *
+   *  <none>             server DosMakeNmPipe        DISCONNECTED
+   *  DISCONNECTED       server connect              LISTENING
+   *  LISTENING          client open                 CONNECTED
+   *  CONNECTED          server disconn              DISCONNECTED
+   *  CONNECTED          client close                CLOSING
+   *  CLOSING            server disconn              DISCONNECTED
+   *  CONNECTED          server close                CLOSING
+   *  <any other>        server close                <pipe deallocated>
+   *
+   * If a server disconnects his end of the pipe, the client end will enter a
+   * special state in which any future operations (except close) on the file
+   * descriptor associated with the pipe will return an error.
+   *)
+
+   (*
+   *      Values for named pipe state
+   *)
+
+   constant NP_DISCONNECTED      = 1;         (* after pipe creation or Disconnect *)
+   constant NP_LISTENING         = 2;         (* after DosNmPipeConnect            *)
+   constant NP_CONNECTED         = 3;         (* after Client open                 *)
+   constant NP_CLOSING           = 4;         (* after Client or Server close      *)
+
+
+end.

@@ -1,0 +1,68 @@
+group dosmemmgr;
+
+(*** Memory management *)
+
+function DosAliasMem(in  pb: PVOID;
+                     in  cb: ULONG;
+                     out ppbAlias: PVOID;
+                     in  fl: ULONG): APIRET;
+
+function DosQueryMemState(in  pb: PVOID;
+                          out cb: ULONG;
+                          out pFlag: ULONG): APIRET;
+
+function  DosAllocMem(out ppb: PVOID;
+                      in  cb: ULONG;
+                      in  flag: ULONG): APIRET;
+
+function  DosFreeMem(in pb: PVOID): APIRET;
+
+function  DosSetMem(in pb: PVOID;
+                    in cb: ULONG;
+                    in flag: ULONG): APIRET;
+
+function  DosGiveSharedMem(in pb: PVOID;
+                           in pid: PID;
+                           in flag: ULONG): APIRET;
+
+function  DosGetSharedMem(in pb: PVOID;
+                          in flag: ULONG): APIRET;
+
+function  DosGetNamedSharedMem(out ppb: PVOID;
+                               in  pszName: PCSZ;
+                               in  flag: ULONG): APIRET;
+
+function  DosAllocSharedMem(out ppb: PVOID;
+                            in  pszName: PCSZ;
+                            in  cb: ULONG;
+                            in  flag: ULONG): APIRET;
+
+function  DosQueryMem(in  pb: PVOID;
+                      out pcb: ULONG;
+                      out pFlag: ULONG): APIRET;
+
+(*    #define DosSubAlloc     DosSubAllocMem *)
+(*    #define DOSSUBALLOC     DosSubAllocMem *)
+   function  DosSubAllocMem(in  pbBase: PVOID;
+                            out ppb: PVOID;
+                            in  cb: ULONG): APIRET;
+
+(*   #define DosSubFree      DosSubFreeMem *)
+(*   #define DOSSUBFREE      DosSubFreeMem *)
+   function  DosSubFreeMem(in pbBase: PVOID;
+                           in pb: PVOID;
+                           in cb: ULONG): APIRET;
+
+(*   #define DosSubSet       DosSubSetMem *)
+(*   #define DOSSUBSET       DosSubSetMem *)
+   function  DosSubSetMem(in pbBase: PVOID;
+                          in flag: ULONG;
+                          in cb: ULONG): APIRET;
+
+(*   #define DosSubUnset     DosSubUnsetMem *)
+(*   #define DOSSUBUNSET     DosSubUnsetMem *)
+   function  DosSubUnsetMem(in pbBase: PVOID): APIRET;
+
+uses bsememf default;
+
+end.

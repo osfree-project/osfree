@@ -1,0 +1,186 @@
+group kbd;
+
+type HKBD=USHORT;
+type PHKBD=^HKBD;
+
+function KbdRegister(in pszModName: PSZ;
+                                    in pszEntryPt: PSZ;
+                                    in FunMask: ULONG): USHORT;
+
+constant KR_KBDCHARIN               = $00000001;
+constant KR_KBDPEEK                 = $00000002;
+constant KR_KBDFLUSHBUFFER          = $00000004;
+constant KR_KBDGETSTATUS            = $00000008;
+constant KR_KBDSETSTATUS            = $00000010;
+constant KR_KBDSTRINGIN             = $00000020;
+constant KR_KBDOPEN                 = $00000040;
+constant KR_KBDCLOSE                = $00000080;
+constant KR_KBDGETFOCUS             = $00000100;
+constant KR_KBDFREEFOCUS            = $00000200;
+constant KR_KBDGETCP                = $00000400;
+constant KR_KBDSETCP                = $00000800;
+constant KR_KBDXLATE                = $00001000;
+constant KR_KBDSETCUSTXT            = $00002000;
+
+constant IO_WAIT                   = 0;
+constant IO_NOWAIT                 = 1;
+
+function KbdDeRegister(): USHORT;
+
+   (* KBDKEYINFO structure, for KbdCharIn and KbdPeek *)
+
+
+type  KBDKEYINFO=structure     (* kbci *)
+          chChar: UCHAR;
+          chScan: UCHAR;
+          fbStatus: UCHAR;
+          bNlsShift: UCHAR;
+          fsState: USHORT;
+          time: ULONG;
+   end;
+
+type PKBDKEYINFO=^KBDKEYINFO;
+
+
+function KbdCharIn(out pkbci: KBDKEYINFO;
+                                  in fWait: USHORT;
+                                  in hkbd: HKBD): USHORT;
+
+function KbdPeek (out pkbci: KBDKEYINFO;
+                                 in hkbd: HKBD): USHORT;
+
+   (* structure for KbdStringIn() *)
+
+type STRINGINBUF=structure     (* kbsi *)
+      cb:    USHORT;
+      cchIn: USHORT;
+   end;
+type PSTRINGINBUF=^STRINGINBUF;
+
+function KbdStringIn(out pch: CHAR;
+                                     inout pchIn: STRINGINBUF;
+                                     in fsWait: USHORT;
+                                     in hkbd: HKBD): USHORT;
+
+function KbdFlushBuffer (in hkbd: HKBD): USHORT;
+
+   (* KBDINFO.fsMask *)
+
+constant KEYBOARD_ECHO_ON                = $0001;
+constant KEYBOARD_ECHO_OFF               = $0002;
+constant KEYBOARD_BINARY_MODE            = $0004;
+constant KEYBOARD_ASCII_MODE             = $0008;
+constant KEYBOARD_MODIFY_STATE           = $0010;
+constant KEYBOARD_MODIFY_INTERIM         = $0020;
+constant KEYBOARD_MODIFY_TURNAROUND      = $0040;
+constant KEYBOARD_2B_TURNAROUND          = $0080;
+constant KEYBOARD_SHIFT_REPORT           = $0100;
+
+(*   #ifndef INCL_DOSDEVIOCTL *) (* following constants defined in bsedev.h *)
+
+      (* KBDINFO.fsState/KBDKEYINFO.fsState/KBDTRANS.fsState *)
+   constant KBDSTF_RIGHTSHIFT               = $0001;
+   constant KBDSTF_LEFTSHIFT                = $0002;
+   constant KBDSTF_CONTROL                  = $0004;
+   constant KBDSTF_ALT                      = $0008;
+   constant KBDSTF_SCROLLLOCK_ON            = $0010;
+   constant KBDSTF_NUMLOCK_ON               = $0020;
+   constant KBDSTF_CAPSLOCK_ON              = $0040;
+   constant KBDSTF_INSERT_ON                = $0080;
+   constant KBDSTF_LEFTCONTROL              = $0100;
+   constant KBDSTF_LEFTALT                  = $0200;
+   constant KBDSTF_RIGHTCONTROL             = $0400;
+   constant KBDSTF_RIGHTALT                 = $0800;
+   constant KBDSTF_SCROLLLOCK               = $1000;
+   constant KBDSTF_NUMLOCK                  = $2000;
+   constant KBDSTF_CAPSLOCK                 = $4000;
+   constant KBDSTF_SYSREQ                   = $8000;
+(*   #endif *) (* INCL_DOSDEVIOCTL *)
+
+   (* KBDINFO structure, for KbdSet/GetStatus *)
+type KBDINFO=structure         (* kbst *)
+      cb: USHORT;
+      fsMask: USHORT;
+      chTurnAround: USHORT;
+      fsInterim: USHORT;
+      fsState: USHORT;
+  end;
+type PKBDINFO=^KBDINFO;
+
+
+function KbdSetStatus (in pkbdinfo: PKBDINFO;
+                                      in hkbd: HKBD): USHORT;
+
+function KbdGetStatus (out pkbdinfo: KBDINFO;
+                                      in hdbd: HKBD): USHORT;
+
+function KbdSetCp (in usReserved: USHORT;
+                                in   pidCP: USHORT;
+                                 in  hdbd: HKBD): USHORT;
+
+function KbdGetCp (in ulReserved: ULONG;
+                                  out  pidCP: USHORT;
+                                  in hkbd: HKBD): USHORT;
+
+function KbdOpen (out hkbd: PHKBD): USHORT;
+
+function KbdClose (in hkbd: HKBD): USHORT;
+
+function KbdGetFocus (in fWait: USHORT;
+                                     in hkbd: HKBD): USHORT;
+
+function KbdFreeFocus (in hkbd: HKBD): USHORT;
+
+function KbdSynch (in fsWait: USHORT): USHORT;
+
+function KbdSetFgnd(): USHORT;
+
+   (* structure for KbdGetHWID() *)
+type KBDHWID=structure         (* kbhw *)
+       cb: USHORT;
+       idKbd: USHORT;
+       usReserved1: USHORT;
+       usReserved2: USHORT;
+   end;
+type PKBDHWID=^KBDHWID;
+
+function KbdGetHWID (out kbdhwid: PKBDHWID;
+                                    in hkbd: HKBD): USHORT;
+
+function KbdSetHWID (in pkbdhwid: PKBDHWID;
+                                    in hkbd: HKBD): USHORT;
+
+
+   (* KBDTRANS.fbStatus *)
+
+constant KBDTRF_SHIFT_KEY_IN             = $01;
+constant KBDTRF_CONVERSION_REQUEST       = $20;
+constant KBDTRF_FINAL_CHAR_IN            = $40;
+constant KBDTRF_INTERIM_CHAR_IN          = $80;
+
+   (* structure for KbdXlate() *)
+
+type  KBDTRANS=structure        (* kbxl *)
+            chChar: UCHAR;
+            chScan: UCHAR;
+            fbStatus: UCHAR;
+            bNlsShift: UCHAR;
+            fsState: USHORT;
+            time: ULONG;
+            fsDD: USHORT;
+            fsXlate: USHORT;
+            fsShift: USHORT;
+            sZero: USHORT;
+   end;
+type PKBDTRANS=^KBDTRANS;
+
+
+function KbdXlate (in pkbdtrans: PKBDTRANS;
+                                  in hkbd: HKBD): USHORT;
+
+function KbdSetCustXt (in usCodePage: PUSHORT;
+                                      in hkbd: HKBD): USHORT;
+
+
+
+end.

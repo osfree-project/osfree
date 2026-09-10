@@ -1,0 +1,17 @@
+group winrectangles;
+
+function WinCopyRect(in hab: HAB; in prclDst: PRECTL; in prclSrc: PRECTL): BOOL;
+function WinEqualRect(in hab: HAB; in prcl1: PRECTL; in prcl2: PRECTL): BOOL;
+function WinInflateRect(in hab: HAB; in prcl: PRECTL; in cx: LONG; in cy: LONG): BOOL;
+function WinIntersectRect(in hab: HAB; in pcrlDst: PRECTL; in pcrlSrc1: PRECTL; in pcrlSrc2: PRECTL): BOOL;
+function WinIsRectEmpty(in hab: HAB; in prclprc: PRECTL): BOOL;
+function WinMakePoints(in hab: HAB; in pwpt: PPOINTL; in cwpt: ULONG): BOOL;
+function WinMakeRect(in hab: HAB; in pwrc: PRECTL): BOOL;
+function WinOffsetRect(in hab: HAB; in prcl: PRECTL; in cx: LONG; in cy: LONG): BOOL;
+function WinPtInRect(in hab: HAB; in prcl: PRECTL; in pptl: PPOINTL): BOOL;
+function WinUnionRect(in hab: HAB; in prclDst: PRECTL; in prclSrc1: PRECTL; in prclSrc2: PRECTL): BOOL;
+function WinSetRect(in hab: HAB; in prcl: PRECTL; in xLeft: LONG; in yBottom: LONG; in xRight: LONG; in yTop: LONG): BOOL;
+function WinSetRectEmpty(in hab: HAB; in prcl: PRECTL): BOOL;
+function WinSubtractRect(in hab: HAB; in prclDst: PRECTL; in prclSrc1: PRECTL; in prclSrc2: PRECTL): BOOL;
+
+end.

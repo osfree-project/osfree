@@ -1,0 +1,23 @@
+group gpisegediting;
+
+constant SEGEM_ERROR   = 0L;
+constant SEGEM_INSERT  = 1L;
+constant SEGEM_REPLACE = 2L;
+
+function GpiBeginElement(in a: HPS, in b: LONG, in c: PSZ): BOOL;
+function GpiDeleteElement(in a: HPS): BOOL;
+function GpiDeleteElementRange(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiDeleteElementsBetweenLabels(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiEndElement(in a: HPS): BOOL;
+function GpiElement(in a: HPS, in b: LONG, in c: PSZ, in d: LONG, in e: PBYTE): LONG;
+function GpiLabel(in a: HPS, in b: LONG): BOOL;
+function GpiOffsetElementPointer(in a: HPS, in b: LONG): BOOL;
+function GpiQueryEditMode(in a: HPS): LONG;
+function GpiQueryElement(in a: HPS, in b: LONG, in c: LONG, in d: PBYTE): LONG;
+function GpiQueryElementPointer(in a: HPS): LONG;
+function GpiQueryElementType(in a: HPS, in b: PLONG, in c: LONG, in d: PSZ): LONG;
+function GpiSetEditMode(in a: HPS, in b: LONG): BOOL;
+function GpiSetElementPointer(in a: HPS, in b: LONG): BOOL;
+function GpiSetElementPointerAtLabel(in a: HPS, in b: LONG): BOOL;
+
+end.

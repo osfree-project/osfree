@@ -1,0 +1,281 @@
+group uconv;
+
+(*
+ * Function:
+ *     Declare structures and prototypes for Unicode Conversion functions.
+ *
+ *)
+
+uses unidef;
+
+type UconvObject=pointer;          (* uconv Type pointer            *)
+
+type UniChar=USHORT;
+
+   (*
+    * Substitution options
+    *)
+   constant UCONV_OPTION_SUBSTITUTE_FROM_UNICODE = 1;
+   constant UCONV_OPTION_SUBSTITUTE_TO_UNICODE   = 2;
+   constant UCONV_OPTION_SUBSTITUTE_BOTH         = 3;
+
+   (*
+    * Conversion options
+    *)
+   constant CVTTYPE_PATH    = $00000004;   (* Treat string as a path   *)
+   constant CVTTYPE_CDRA    = $00000002;   (* Use CDRA control mapping *)
+   constant CVTTYPE_CTRL7F  = $00000001;   (* Treat 0x7F as a control  *)
+
+   (*
+    * Conversion mask.  This is a bit mask.  If the bit is on, the
+    * corresponding character 0x00-0x1f is treated as a control.
+    * Otherwise it is treated as a glyph.
+    *)
+   constant DSPMASK_DATA   = $ffffffff;
+   constant DSPMASK_DISPLAY= $00000000;
+   constant DSPMASK_TAB    = $00000200;
+   constant DSPMASK_LF     = $00000400;
+   constant DSPMASK_CR     = $00002000;
+   constant DSPMASK_CRLF   = $00002400;
+
+   (*
+    * Encoding schemes.  This is the primary item used to check if a
+    * a codepage is valid for a particular purpose.  A length check
+    * may also be made in some cases.
+    *)
+   type uconv_esid=WORD;
+                        (* Process Display  VIO    GPI   *)
+   constant    ESID_sbcs_data        = $2100;   (*    x      x      x       x    *)
+   constant    ESID_sbcs_pc          = $3100;   (*    x      x      x       x    *)
+   constant    ESID_sbcs_ebcdic      = $1100;   (*           x      x       x    *)
+   constant    ESID_sbcs_iso         = $4100;   (*    x      x      x       x    *)
+   constant    ESID_sbcs_windows     = $4105;   (*    x      x      x       x    *)
+   constant    ESID_sbcs_alt         = $F100;   (*           x      x       x    *)
+   constant    ESID_dbcs_data        = $2200;   (*           x              x    *)
+   constant    ESID_dbcs_pc          = $3200;   (*    x      x      x       x    *)
+   constant    ESID_dbcs_ebcdic      = $1200;   (*                          x    *)
+   constant    ESID_mbcs_data        = $2300;   (*           x      x       x    *)
+   constant    ESID_mbcs_pc          = $3300;   (*           x              x    *)
+   constant    ESID_mbcs_ebcdic      = $1301;   (*                               *)
+   constant    ESID_ucs_2            = $7200;   (*                               *)
+   constant    ESID_ugl              = $72FF;   (*                               *)
+   constant    ESID_utf_8            = $7807;   (*           x      x       x    *)
+   constant    ESID_upf_8            = $78FF;    (*    x      x      x       x    *)
+
+       constant     ENDIAN_SYSTEM  = $0000;
+       constant     ENDIAN_BIG     = $feff;
+       constant     ENDIAN_LITTLE  = $fffe;
+
+       type conv_endian_t=structure
+           source: USHORT;   (* Used by FromUcs                   *)
+           target: USHORT;   (* Used by ToUcs                     *)
+       end;
+
+   type uconv_attribute_t=structure
+        version: ULONG;       (* Q/S Version (must be zero)        *)
+        mb_min_len: char;    (* Q   Minimum char size             *)
+        mb_max_len: char;    (* Q   Maximum char size             *)
+        usc_min_len: char;   (* Q   UCS min size                  *)
+        usc_max_len: char;   (* Q   UCS max size                  *)
+        esid: USHORT;          (* Q   Encoding scheme ID            *)
+        options: char;       (* Q/S Substitution options          *)
+        state: char;         (* Q/S State for stateful convert    *)
+        endian: conv_endian_t;        (* Q/S Source and target endian      *)
+        displaymask: ULONG;   (* Q/S Display/data mask             *)
+        converttype: ULONG;   (* Q/S Conversion type               *)
+        subchar_len: USHORT;   (* Q/S MBCS sub len      0=table     *)
+        subuni_len: USHORT;    (* Q/S Unicode sub len   0=table     *)
+        subchar: Array [16] of char;   (* Q/S MBCS sub characters           *)
+        subuni: Array [8] of UniChar;     (* Q/S Unicode sub characters        *)
+   end;
+
+   (*
+    * User defined character range
+    *)
+   type udcrange_t=structure                (* User Defined character range      *)
+          first: USHORT;     (* First codepoint                   *)
+          last: USHORT;      (* Last codepoint                    *)
+   end;
+
+type uconv_error_t=int;
+
+   (*
+    * UniCreateUconvObject: Create Unicode Conversion Object
+    *
+    * return code:
+    *    0             - Conversion Object sucessfully initialized
+    *    UCONV_EMFILE  - Maximum file descriptors are opened
+    *    UCONV_ENFILE  - Too many files currently open in the system
+    *    UCONV_ENOMEM  - Insuffcient memory
+    *    UCONV_EINVAL  - The conversion specified by code_set or the
+    *                    modifier supplied is not recognized by the
+    *                    implementation.
+    *
+    *)
+function UniCreateUconvObject(
+             in code_set: PUniChar,   (* I  - Unicode name of uconv table *)
+             out uobj: UconvObject  ):   int;    (* O  - Uconv object handle         *)
+
+type char256=array[256] of char;
+type udcrange32=Array[32] of udcrange_t;
+   (*
+    * UniQueryUconvObject: Query Unicode Coversion Object
+    *
+    * return code:
+    *    0             - Operation successful
+    *    UCONV_EBADF   - The conversion object specified is not
+    *                    recognized by the implementation.
+    *)
+function UniQueryUconvObject(
+                      in uobj: UconvObject; (* I  - Uconv object handle         *)
+                      out attr: uconv_attribute_t; (* O  - Uconv attributes            *)
+                      in size: size_t; (* I  - Size of attribute structure *)
+                      in first: char256; (* O  - First byte of multibyte     *)
+                      in other: char256; (* O  - Other byte of multibyte     *)
+                      in udcrange: udcrange32): int; (* O  - User defined char range     *)
+
+   (*
+    * UniSetUconvObject:  Set Unicode Conversion Object
+    *
+    * return code:
+    *    0             - Operation successful
+    *    UCONV_EBADF   - The conversion object specified is not
+    *                    recognized by the implementation.
+    *    UCONV_BADATTR - attribute supplied contains invalid attribute
+    *                    for the conversion object
+    *)
+function UniSetUconvObject(
+                      in uobj: UconvObject; (* I  - Uconv object handle         *)
+                      in attr: ^uconv_attribute_t): int; (* I  - Uconv attributes            *)
+
+   (*
+    * UniUconvToUcs:  Convert string to unicode
+    *
+    * return code:
+    *    0             - Operation successful
+    *    UCONV_EBADF   - The conversion object specified is not
+    *                    recognized by the implementation.
+    *    UCONV_E2BIG   - Input conversion stopped due to lack of space
+    *                    in the output buffer
+    *    UCONV_EINVAL  - Input conversion stopped due to incomplete
+    *                    character or shift sequence at the end of the
+    *                    input buffer.
+    *    UCONV_EILSEQ  - Input conversion stopped due to an input byte
+    *                    that does not belong to the input code set.
+    *)
+function UniUconvToUcs(
+              in uobj: UconvObject;         (* I  - Uconv object handle         *)
+              inout inbuf: PVOID;        (* IO - Input buffer                *)
+              inout inbytes: size_t;      (* IO - Input buffer size (bytes)   *)
+              inout outbuf: PUniChar;       (* IO - Output buffer size          *)
+              inout outchars: size_t;     (* IO - Output size (chars)         *)
+              inout subst: size_t  ): int;     (* IO - Substitution count          *)
+
+   (*
+    * UniUconvFromUcs:  Convert string from unicode
+    *    0             - Operation successful
+    *    UCONV_EBADF   - The conversion object specified is not
+    *                    recognized by the implementation.
+    *    UCONV_E2BIG   - Input conversion stopped due to lack of space
+    *                    in the output buffer
+    *    UCONV_EINVAL  - Input conversion stopped due to incomplete
+    *                    character or shift sequence at the end of the
+    *                    input buffer.
+    *    UCONV_EILSEQ  - Input conversion stopped due to an input byte
+    *                    that does not belong to the input code set.
+    *)
+function UniUconvFromUcs(
+              in uobj: UconvObject;         (* I  - Uconv object handle         *)
+              inout inbuf: PUniChar;        (* IO - Input buffer                *)
+              inout inchars: size_t;      (* IO - Input buffer size (bytes)   *)
+              inout outbuf: PVOID;       (* IO - Output buffer size          *)
+              inout outbytes: size_t;     (* IO - Output size (chars)         *)
+              inout subst: size_t   ): int;    (* IO - Substitution count          *)
+
+   (*
+    * UniFreeUconvObject: Close Unicode Conversion Object
+    *    0             - Operation successful
+    *    UCONV_EBADF   - The conversion object specified is not
+    *                    recognized by the implementation.
+    *)
+function UniFreeUconvObject(
+                in uobj: UconvObject   ): int;   (* I  - Uconv object handle         *)
+
+   (*
+    * UniMapCpToUcsCp: Convert a codepage number to unicode name
+    *
+    * Returns:
+    *     0             Goodf there is an error, the contents
+    *     UCONV_E2BIG   The buffer is not large enough
+    *
+    * Notes:
+    *     Output is undefined if there is an error.
+    *
+    *     Output buffer must be large enough to hold terminating null.
+    *)
+function UniMapCpToUcsCp(
+             in ulCodePage: ULONG; (* I  - Codepage to convert         *)
+             out ucsCodePage: UniChar;    (* O  - Output buffer               *)
+             in n: size_t ): int;            (* I  - UniChars in output buffer   *)
+
+   (*
+    * UniStrFromUcs: Convert a null-terminated string from Unicode.
+    *
+    * Returns:
+    *     0               Good
+    *     UCONV_EBADF     Invalid Handle
+    *     UCONV_EILSEQ    Unmappable char substitution off
+    *     UCONV_E2BIG     Max characters converted
+    *
+    * Note:
+    *     Output buffer must be large enough to hold terminating null
+    *
+    *)
+function UniStrFromUcs(
+              in co: UconvObject;        (* I  - Conversion object           *)
+              out target: char;    (* O  - Buffer for converted string *)
+              in source: PUniChar;    (* I  - String to convert           *)
+              in len: int): int;      (* I  - Bytes in target buffer      *)
+
+   (*
+    * UniStrToUcs: Convert a null-terminated string to Unicode.
+    *
+    * Returns:
+    *     0               Good
+    *     UCONV_EBADF     Invalid Handle
+    *     UCONV_EILSEQ    Unmappable char substitution off
+    *     UCONV_E2BIG     Max characters converted
+    *
+    * Note:
+    *     Output buffer must be large enough to hold terminating null
+    *)
+function UniStrToUcs(
+               in co: UconvObject;          (* I  - Conversion object           *)
+               out target: UniChar;      (* O  - Buffer for converted string *)
+               in source: PCHAR;      (* I  - Character string to convert *)
+               in len: int): int;        (* I  - UniChars in target buffer   *)
+
+ (*
+  * for compatibility with old return codes for ULS
+  *)
+  constant UCONV_EOTHER          = ULS_OTHER;
+  constant UCONV_EILSEQ          = ULS_ILLEGALSEQUENCE;
+  constant UCONV_EINVAL          = ULS_INVALID;
+  constant UCONV_E2BIG           = ULS_BUFFERFULL;
+  constant UCONV_ENOMEM          = ULS_NOMEMORY;
+  constant UCONV_EBADF           = ULS_BADOBJECT;
+  constant UCONV_BADATTR         = ULS_BADATTR;
+  constant UCONV_EMFILE          = ULS_MAXFILESPERPROC;
+  constant UCONV_ENFILE          = ULS_MAXFILES;
+  constant UCONV_NOTIMPLEMENTED  = ULS_NOTIMPLEMENTED;
+
+(*
+  constant IBM_437       =  (UniChar * )L"IBM-437"
+  constant IBM_819       =  (UniChar * )L"IBM-819"
+  constant IBM_850       =  (UniChar * )L"IBM-850"
+  constant UTF_8         =  (UniChar * )L"IBM-1208"
+  constant UCS_2         =  (UniChar * )L"IBM-1200"
+  constant ISO8859_1     =  (UniChar * )L"IBM-819"
+*)
+
+end.

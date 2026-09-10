@@ -1,0 +1,35 @@
+group wintrackrect;
+
+constant TF_LEFT              =$0001;
+constant TF_TOP               =$0002;
+constant TF_RIGHT             =$0004;
+constant TF_BOTTOM            =$0008;
+constant TF_MOVE              =$000F;
+constant TF_SETPOINTERPOS     =$0010;
+constant TF_GRID              =$0020;
+constant TF_STANDARD          =$0040;
+constant TF_ALLINBOUNDARY     =$0080;
+constant TF_VALIDATETRACKRECT =$0100;
+constant TF_PARTINBOUNDARY    =$0200;
+
+type TRACKINFO=structure
+       cxBorder: LONG;
+       cyBorder: LONG;
+       cxGrid: LONG;
+       cyGrid: LONG;
+       cxKeyboard: LONG;
+       cyKeyboard: LONG;
+      rclTrack: RECTL;
+      rclBoundary: RECTL;
+      ptlMinTrackSize: POINTL;
+      ptlMaxTrackSize: POINTL;
+      fs: ULONG;
+end;
+type PTRACKINFO=^TRACKINFO;
+
+function WinShowTrackRect(in a: HWND; in b: BOOL): BOOL;
+function WinTrackRect(in a: HWND; in b: HPS; in c: PTRACKINFO): BOOL;
+
+end.
+
+

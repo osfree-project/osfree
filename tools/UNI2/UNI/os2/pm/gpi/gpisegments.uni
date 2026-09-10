@@ -1,0 +1,42 @@
+group gpisegments;
+
+constant DFORM_NOCONV   = 0;
+constant DFORM_S370SHORT= 1;
+constant DFORM_PCSHORT  = 2;
+constant DFORM_PCLONG   = 4;
+
+constant ATTR_ERROR          = (-1);
+constant ATTR_DETECTABLE     = 1;
+constant ATTR_VISIBLE        = 2;
+constant ATTR_CHAINED        = 6;
+constant ATTR_DYNAMIC        = 8;
+constant ATTR_FASTCHAIN      = 9;
+constant ATTR_PROP_DETECTABLE= 10;
+constant ATTR_PROP_VISIBLE   = 11;
+
+constant ATTR_OFF = 0;
+constant ATTR_ON  = 1;
+
+constant LOWER_PRI  = (-1);
+constant HIGHER_PRI  = 1;
+
+function GpiCloseSegment(in a: HPS): BOOL;
+function GpiDeleteSegment(in a: HPS, in b: LONG): BOOL;
+function GpiDeleteSegments(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiDrawChain(in a: HPS): BOOL;
+function GpiDrawDynamics(in a: HPS): BOOL;
+function GpiDrawFrom(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiDrawSegment(in a: HPS, in b: LONG): BOOL;
+function GpiGetData(in a: HPS, in b: LONG, in c: PLONG, in d: LONG, in e: LONG, in f: PBYTE): LONG;
+function GpiOpenSegment(in a: HPS, in b: LONG): BOOL;
+function GpiPutData(in a: HPS, in b: LONG, in c: PLONG, in d: PBYTE): LONG;
+function GpiQueryInitialSegmentAttrs(in a: HPS, in b: LONG): LONG;
+function GpiQuerySegmentAttrs(in a: HPS, in b: LONG, in c: LONG): LONG;
+function GpiQuerySegmentNames(in a: HPS, in b: LONG, in c: LONG, in d: LONG, in e: PLONG): LONG;
+function GpiQuerySegmentPriority(in a: HPS, in b: LONG, in c: LONG): LONG;
+function GpiRemoveDynamics(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiSetInitialSegmentAttrs(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiSetSegmentAttrs(in a: HPS, in b: LONG, in c: LONG, in d: LONG): BOOL;
+function GpiSetSegmentPriority(in a: HPS, in b: LONG, in c: LONG, in d: LONG): BOOL;
+
+end.

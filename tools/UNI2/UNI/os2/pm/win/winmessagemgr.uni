@@ -1,0 +1,116 @@
+group winmessagemgr;
+
+(*** WM_CALCVALIDRECTS return flags *************************************)
+constant CVR_ALIGNLEFT               = $0001;
+constant CVR_ALIGNBOTTOM             = $0002;
+constant CVR_ALIGNRIGHT              = $0004;
+constant CVR_ALIGNTOP                = $0008;
+constant CVR_REDRAW                  = $0010;
+
+(*** WM_HITTEST return codes ********************************************)
+constant HT_NORMAL                  = 0;
+constant HT_TRANSPARENT             = (-1);
+constant HT_DISCARD                 = (-2);
+constant HT_ERROR                   = (-3);
+
+   (*** WM_SET/QUERYWINDOWPARAMS structures and flags **********************)
+   type WNDPARAMS=structure    (* wprm *)
+         fsStatus: ULONG;
+         cchText: ULONG;
+         pszText: PSZ;
+         cbPresParams: ULONG;
+         pPresParams: PVOID;
+         cbCtlData: ULONG;
+         pCtlData: PVOID;
+     end;
+   type PWNDPARAMS=^WNDPARAMS;
+
+constant WPM_TEXT                   = $0001;
+constant WPM_CTLDATA                = $0002;
+constant WPM_PRESPARAMS             = $0004;
+constant WPM_CCHTEXT                = $0008;
+constant WPM_CBCTLDATA              = $0010;
+constant WPM_CBPRESPARAMS           = $0020;
+
+function WinInSendMsg(in hab: HAB): BOOL;
+
+function WinBroadcastMsg(in hwnd: HWND;
+                                     in msg: ULONG;
+                                     in mp1: MPARAM;
+                                     in mp2: MPARAM;
+                                     in rgf: ULONG): BOOL;
+
+   (*** WinBroadcastMsg codes **********************************************)
+constant BMSG_POST                  = $0000;
+constant BMSG_SEND                  = $0001;
+constant BMSG_POSTQUEUE             = $0002;
+constant BMSG_DESCENDANTS           = $0004;
+constant BMSG_FRAMEONLY             = $0008;
+
+function WinWaitMsg(in hab: HAB;
+                              in msgFirst: ULONG;
+                              in msgLast: ULONG): BOOL;
+
+function WinQueryQueueStatus(in hwndDesktop: HWND): ULONG;
+
+      (*** WinQueryQueueStatus() constants *********************************)
+   constant QS_KEY                     = $0001;
+   constant QS_MOUSEBUTTON             = $0002;
+   constant QS_MOUSEMOVE               = $0004;
+   constant QS_MOUSE                   = $0006;   (* QS_MOUSEMOVE|QS_MOUSEBUTTON *)
+   constant QS_TIMER                   = $0008;
+   constant QS_PAINT                   = $0010;
+   constant QS_POSTMSG                 = $0020;
+   constant QS_SEM1                    = $0040;
+   constant QS_SEM2                    = $0080;
+   constant QS_SEM3                    = $0100;
+   constant QS_SEM4                    = $0200;
+   constant QS_SENDMSG                 = $0400;
+   constant QS_MSGINPUT                = $0800;
+
+function WinQueryMsgPos(in hab: HAB;
+                                    out pptl: POINTL): BOOL;
+
+function WinQueryMsgTime(in hab: HAB): ULONG;
+
+uses hevdef;
+
+type HMTX=ULONG;   (* hmtx *)
+type HMUX=ULONG;   (* hmux *)
+
+function WinWaitEventSem(in hev: HEV;
+                                      in ulTimeout: ULONG): APIRET;
+
+function WinRequestMutexSem(in hmtx: HMTX;
+                                         in ulTimeout: ULONG): APIRET;
+
+function WinWaitMuxWaitSem(in hmux: HMUX;
+                                         in ulTimeout: ULONG;
+                                         in pulUser: PULONG): APIRET;
+
+
+
+function WinPostQueueMsg(in hmq: HMQ;
+                                   in msg: ULONG;
+                                   in mp1: MPARAM;
+                                   in mp2: MPARAM): BOOL;
+
+   (*** WinSetMsgInterest()/WinSetClassMsgInterest() constants *************)
+constant SMIM_ALL                   = $0EFF;
+constant SMI_NOINTEREST             = $0001;
+constant SMI_INTEREST               = $0002;
+constant SMI_RESET                  = $0004;
+constant SMI_AUTODISPATCH           = $0008;
+
+function WinSetMsgInterest(in hwnd: HWND;
+                                    in msg_class: ULONG;
+                                    in control: LONG): BOOL;
+
+function WinSetClassMsgInterest(in hab: HAB;
+                                           in pszClassName: PCSZ;
+                                           in msg_class: ULONG;
+                                           in control: LONG): BOOL;
+
+uses winmessagemgrcommon default;
+
+end.

@@ -1,0 +1,25 @@
+group sub;
+begin
+  group kbd;
+  begin
+    type USHORT = uint16;
+    type ULONG = uint32;
+    type APIRET = uint32;
+    type HKBD = USHORT;
+
+    structure KBDKEYINFO;
+      chChar: uint8;
+      chScan: uint8;
+      fbStatus: uint8;
+      bNlsShift: uint8;
+      fsState: uint16;
+      time: uint32;
+    end;
+
+    function KbdCharIn(out pkbci: ^KBDKEYINFO; in fWait: USHORT; in hkbd: HKBD): APIRET;
+    procedure KbdFlushBuffer(in hkbd: HKBD);
+  end;
+
+  group vio; begin end;
+  group mou; begin end;
+end;

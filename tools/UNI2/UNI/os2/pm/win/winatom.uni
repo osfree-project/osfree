@@ -1,0 +1,18 @@
+group winatom;
+
+(* #define MAKEINTATOM(a)  ((PCH)MAKEULONG(a,0xffff)) *)
+
+type ATOM=ULONG;
+type HATOMTBL=LHANDLE;
+
+function WinAddAtom(in a: HATOMTBL; in b: PCSZ): ATOM;
+function WinCreateAtomTable(in a: ULONG; in b: ULONG): HATOMTBL;
+function WinDeleteAtom(in a: HATOMTBL; in b: ATOM): ATOM;
+function WinDestroyAtomTable(in a: HATOMTBL): HATOMTBL;
+function WinFindAtom(in a: HATOMTBL; in b: PCSZ): ATOM;
+function WinQueryAtomLength(in a: HATOMTBL; in b: ATOM): ULONG;
+function WinQueryAtomName(in a: HATOMTBL; in b: ATOM; in c: PCSZ; in d: ULONG): ULONG;
+function WinQueryAtomUsage(in a: HATOMTBL; in b: ATOM): ULONG;
+function WinQuerySystemAtomTable(): HATOMTBL;
+
+end.

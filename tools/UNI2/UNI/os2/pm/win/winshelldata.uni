@@ -1,0 +1,52 @@
+group winshelldata;
+
+(*** INI files access functions ****************************************)
+
+function PrfQueryProfileInt(in hini: HINI;
+                                         in pszApp: PCSZ;
+                                         in pszKey: PCSZ;
+                                         in sDefault: LONG): LONG;
+
+function PrfQueryProfileString(in hini: HINI;
+                                            in pszApp: PCSZ;
+                                            in pszKey: PCSZ;
+                                            in pszDefault: PCSZ;
+                                            in pBuffer: PVOID; (* Untyped variable *)
+                                            in cchBufferMax: ULONG): ULONG;
+
+function PrfWriteProfileString(in hini: HINI;
+                                            in pszApp: PCSZ;
+                                            in pszKey: PCSZ;
+                                            in pszData: PCSZ): BOOL;
+
+function PrfQueryProfileSize(in hini: HINI;
+                                          in pszApp: PCSZ;
+                                          in pszKey: PCSZ;
+                                          out pulReqLen: ULONG): BOOL;
+
+function PrfQueryProfileData(in hini: HINI;
+                                          in pszApp: PSZ;
+                                          in pszKey: PSZ;
+                                          in pBuffer: PVOID; (* Untyped variable *)
+                                          out pulBuffLen: ULONG): BOOL;
+
+function PrfWriteProfileData(in hini: HINI;
+                                          in pszApp: PSZ;
+                                          in pszKey: PSZ;
+                                          in pData: PVOID; (* Untyped variable *)
+                                          in cchDataLen: ULONG): BOOL;
+
+function PrfOpenProfile(in hab: HAB;
+                                     in pszFileName: PSZ): HINI;
+
+function PrfCloseProfile(in hini: HINI): BOOL;
+
+function PrfReset(in hab: HAB; in pPrfProfile: PPRFPROFILE): BOOL;
+
+function PrfQueryProfile(in hab: HAB;
+                                      out pPrfProfile: PRFPROFILE): BOOL;
+
+(*** public message, broadcast on WinReset ***************************)
+constant PL_ALTERED=$x008E;  (* WM_SHELLFIRST + 0E *)
+
+end.

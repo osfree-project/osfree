@@ -1,0 +1,12 @@
+group dosmonitors;
+
+type HMONITOR=SHANDLE;
+type PHMONITOR=^HMONITOR;
+
+function DosMonClose(in hmon: HMONITOR): USHORT;
+function DosMonOpen(in a: PSZ; out hmon: HMONITOR): USHORT;
+function DosMonRead(in a: PBYTE; in b: USHORT; in c: PBYTE; in d: PUSHORT): USHORT;
+function DosMonReg(in hmon: HMONITOR; in b: PBYTE; in c: PBYTE; in d: USHORT; in e: USHORT): USHORT;
+function DosMonWrite(in a: PBYTE; in b: PBYTE; in c: USHORT): USHORT;
+
+end.

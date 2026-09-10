@@ -1,0 +1,13 @@
+group dosprocesscommon;
+
+(* General services *)
+function DosBeep(in freq: ULONG; in dur: ULONG): APIRET;
+
+(* Process and Thread support *)
+procedure DosExit(in action: ULONG; in result: ULONG);
+
+(* DosExit codes *)
+constant EXIT_THREAD      =  0;
+constant EXIT_PROCESS     =  1;
+
+end.

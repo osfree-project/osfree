@@ -1,0 +1,31 @@
+group ulserrno;
+
+constant ULS_API_ERROR_BASE = $00020400;
+
+constant ULS_SUCCESS           =  $00000000;
+constant ULS_OTHER             =  ULS_API_ERROR_BASE+1;
+constant ULS_ILLEGALSEQUENCE   =  ULS_API_ERROR_BASE+2;
+constant ULS_MAXFILESPERPROC   =  ULS_API_ERROR_BASE+3;
+constant ULS_MAXFILES          =  ULS_API_ERROR_BASE+4;
+constant ULS_NOOP              =  ULS_API_ERROR_BASE+5;
+constant ULS_TOOMANYKBD        =  ULS_API_ERROR_BASE+6;
+constant ULS_KBDNOTFOUND       =  ULS_API_ERROR_BASE+7;
+constant ULS_BADHANDLE         =  ULS_API_ERROR_BASE+8;
+constant ULS_NODEAD            =  ULS_API_ERROR_BASE+9;
+constant ULS_NOSCAN            =  ULS_API_ERROR_BASE+10;
+constant ULS_INVALIDSCAN       =  ULS_API_ERROR_BASE+11;
+constant ULS_NOTIMPLEMENTED    =  ULS_API_ERROR_BASE+12;
+constant ULS_NOMEMORY          =  ULS_API_ERROR_BASE+13;
+constant ULS_INVALID           =  ULS_API_ERROR_BASE+14;
+constant ULS_BADOBJECT         =  ULS_API_ERROR_BASE+15;
+constant ULS_NOTOKEN           =  ULS_API_ERROR_BASE+16;
+constant ULS_NOMATCH           =  ULS_API_ERROR_BASE+17;
+constant ULS_BUFFERFULL        =  ULS_API_ERROR_BASE+18;
+constant ULS_RANGE             =  ULS_API_ERROR_BASE+19;
+constant ULS_UNSUPPORTED       =  ULS_API_ERROR_BASE+20;
+constant ULS_BADATTR           =  ULS_API_ERROR_BASE+21;
+constant ULS_VERSION           =  ULS_API_ERROR_BASE+22;
+
+type uls_error_t=ULONG;
+
+end.

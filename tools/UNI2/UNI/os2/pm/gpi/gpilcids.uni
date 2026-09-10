@@ -1,0 +1,194 @@
+group gpilcids;
+
+   (* return codes from GpiCreateLogFont *)
+constant FONT_DEFAULT                  =  1;
+constant FONT_MATCH                    =  2;
+
+   (* lcid type for GpiQuerySetIds *)
+constant LCIDT_FONT                    =  6;
+
+constant LCIDT_BITMAP                  =  7;
+
+   (* constant used to delete all lcids by GpiDeleteSetId *)
+constant LCID_ALL                     = (-1);
+
+   (* kerning data returned by GpiQueryKerningPairs *)
+   type KERNINGPAIRS=structure     (* krnpr *)
+       sFirstChar: SHORT;
+       sSecondChar: SHORT;
+       lKerningAmount: LONG;
+     end;
+   type PKERNINGPAIRS=^KERNINGPAIRS;
+
+constant RC_ATMAVAIL      = 1;
+constant RC_ATMENABLED    = 1;
+constant RC_TTAVAIL       = 2;
+constant RC_TTENABLED     = 2;
+
+   type RASTERIZERCAPS=structure    (* ffdescs2 *)
+        cb: ULONG;
+        ulAvailFlags: ULONG;
+        ulEnabledFlags: ULONG;
+     end;
+   type PRASTERIZERCAPS=^RASTERIZERCAPS;
+
+function GpiQueryRasterizerCaps(out prcaps: RASTERIZERCAPS): BOOL;
+
+   (* data required by GpiQueryFaceString *)
+   type FACENAMEDESC=structure     (* fnd *)
+       usSize: USHORT;
+       usWeightClass: USHORT;
+       usWidthClass: USHORT;
+       usReserved: USHORT;
+       flOptions: ULONG;
+     end;
+   type PFACENAMEDESC=^FACENAMEDESC;
+
+   (* FACENAMEDESC 'WeightClass' options for GpiQueryFaceString *)
+constant FWEIGHT_DONT_CARE     = 0;
+constant FWEIGHT_ULTRA_LIGHT   = 1;
+constant FWEIGHT_EXTRA_LIGHT   = 2;
+constant FWEIGHT_LIGHT         = 3;
+constant FWEIGHT_SEMI_LIGHT    = 4;
+constant FWEIGHT_NORMAL        = 5;
+constant FWEIGHT_SEMI_BOLD     = 6;
+constant FWEIGHT_BOLD          = 7;
+constant FWEIGHT_EXTRA_BOLD    = 8;
+constant FWEIGHT_ULTRA_BOLD    = 9;
+
+   (* FACENAMEDESC 'WidthClass' options for GpiQueryFaceString *)
+constant FWIDTH_DONT_CARE      = 0;
+constant FWIDTH_ULTRA_CONDENSED= 1;
+constant FWIDTH_EXTRA_CONDENSED= 2;
+constant FWIDTH_CONDENSED      = 3;
+constant FWIDTH_SEMI_CONDENSED = 4;
+constant FWIDTH_NORMAL         = 5;
+constant FWIDTH_SEMI_EXPANDED  = 6;
+constant FWIDTH_EXPANDED       = 7;
+constant FWIDTH_EXTRA_EXPANDED = 8;
+constant FWIDTH_ULTRA_EXPANDED = 9;
+
+   (* FACENAMEDESC 'options' for GpiQueryFaceString *)
+constant FTYPE_ITALIC            = $0001;
+constant FTYPE_ITALIC_DONT_CARE  = $0002;
+constant FTYPE_OBLIQUE           = $0004;
+constant FTYPE_OBLIQUE_DONT_CARE = $0008;
+constant FTYPE_ROUNDED           = $0010;
+constant FTYPE_ROUNDED_DONT_CARE = $0020;
+
+   (* actions for GpiQueryFontAction *)
+constant QFA_PUBLIC     = 1;
+constant QFA_PRIVATE    = 2;
+constant QFA_ERROR      = GPI_ALTERROR;
+
+   (* options for GpiQueryFonts *)
+constant QF_PUBLIC                  = $0001;
+constant QF_PRIVATE                 = $0002;
+constant QF_NO_GENERIC              = $0004;
+constant QF_NO_DEVICE               = $0008;
+
+   (* options for GpiSetFontMatchFlags *)
+constant FONT_IGNORE_FONTRES            = 1;
+constant FONT_MATCH_NEAREST             = 2;
+
+
+      (* font file descriptions for GpiQueryFontFileDescriptions *)
+      type  FFDESCS=array[2] of array [FACESIZE] of CHAR; (* ffdescs *)
+      type  PFFDESCS=^FFDESCS;
+      type FFDESCS2=structure    (* ffdescs2 *)
+           cbLength: ULONG;
+           cbFacenameOffset: ULONG;
+           abFamilyName: array[1] of BYTE;
+        end;
+      type PFFDESCS2=^FFDESCS2;
+
+
+      (*** physical and logical font functions *)
+
+function GpiCreateLogFont(in hps: HPS;
+                          in pName: PSTR8;
+                          in lLcid: LONG;
+                          in pfatAttrs: PFATTRS): LONG;
+
+function GpiDeleteSetId(in hps: HPS;
+                        in lLcid: LONG): BOOL;
+
+function GpiLoadFonts(in hab: HAB;
+                      in pszFilename: PCSZ): BOOL;
+
+function GpiUnloadFonts(in hab: HAB;
+                        in pszFilename: PCSZ): BOOL;
+
+function GpiQueryFonts(in hps: HPS;
+                       in flOptions: ULONG;
+                       in pszFacename: PCSZ;
+                       in plReqFonts: PLONG;
+                       in lMetricsLength: LONG;
+                       in afmMetrics: PFONTMETRICS): LONG;
+
+function GpiQueryFontMetrics(in hps: HPS;
+                             in lMetricsLength: LONG;
+                             in pfmMetrics: PFONTMETRICS): BOOL;
+
+function GpiQueryKerningPairs(in hps: HPS;
+                              in lCount: LONG;
+                              in akrnprData: PKERNINGPAIRS): LONG;
+
+function GpiQueryWidthTable(in hps: HPS;
+                            in lFirstChar: LONG;
+                            in lCount: LONG;
+                            in alData: PLONG): BOOL;
+
+function GpiQueryNumberSetIds(in hps: HPS): LONG;
+
+function GpiQuerySetIds(in hps: HPS;
+                        in lCount: LONG;
+                        in alTypes: PLONG;
+                        in aNames: PSTR8;
+                        in allcids: PLONG): BOOL;
+
+function GpiQueryFaceString(in PS: HPS;
+                            in FamilyName: PCSZ;
+                            in attrs: PFACENAMEDESC;
+                            in length: LONG;
+                            in CompoundFaceName: PCSZ): ULONG;
+
+function GpiQueryLogicalFont(in PS: HPS;
+                             in lcid: LONG;
+                             in name: PSTR8;
+                             in attrs: PFATTRS;
+                             in length: LONG): BOOL;
+
+function GpiQueryFontAction(in anchor: HAB;
+                            in options: ULONG): ULONG;
+
+function GpiLoadPublicFonts(in hab: HAB;
+                            in str: PCSZ ): BOOL;
+
+function GpiUnloadPublicFonts(in hab: HAB;
+                              in str: PCSZ ): BOOL;
+
+
+function GpiSetCp(in hps: HPS;
+                  in ulCodePage: ULONG): BOOL;
+
+function GpiQueryCp(in hps: HPS): ULONG;
+
+function GpiQueryFullFontFileDescs(in hab: HAB;
+                                   in pszFilename: PCSZ;
+                                   in plCount: PLONG;
+                                   in pNames: PVOID;
+                                   in plNamesBuffLength: PLONG): LONG;
+
+function GpiSetFontMappingFlags(in hps: HPS;
+                                in flags: ULONG): ULONG;
+
+function GpiQueryFontMappingFlags(in hps: HPS): ULONG ;
+
+function GpiQueryFontFileDescriptions(in hab: HAB;
+                                      in pszFilename: PCSZ;
+                                      in plCount: PLONG;
+                                      in affdescsNames: PFFDESCS): LONG;
+
+
+end.

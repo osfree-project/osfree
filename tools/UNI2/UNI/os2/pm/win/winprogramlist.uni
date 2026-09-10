@@ -1,0 +1,188 @@
+group winprogramlist;
+
+uses winhprogram default;
+
+      (*** maximum path length *********************************************)
+      constant MAXPATHL= 128;
+
+      (*** root group handle ***********************************************)
+      constant SGH_ROOT    =  -1;
+
+      type HPROGARRAY=structure
+          ahprog: array[1] of HPROGRAM;
+        end;
+      type PHPROGARRAY=^HPROGARRAY;
+
+
+   type PROGCATEGORY=ULONG;       (* progc *)
+
+   type PPROGCATEGORY=^PROGCATEGORY;
+
+   (*** values acceptable for PROGCATEGORY for PM groups *******************)
+   constant PROG_DEFAULT              =0;
+   constant PROG_FULLSCREEN           =1;
+   constant PROG_WINDOWABLEVIO        =2;
+   constant PROG_PM                   =3;
+   constant PROG_GROUP                =5;
+   constant PROG_REAL                 =4;
+   constant PROG_VDM                  =4;
+   constant PROG_WINDOWEDVDM          =7;
+   constant PROG_DLL                  =6;
+   constant PROG_PDD                  =8;
+   constant PROG_VDD                  =9;
+   constant PROG_WINDOW_REAL          =10;
+   constant PROG_WINDOW_PROT          =11;
+   constant PROG_30_STD               =11;
+   constant PROG_WINDOW_AUTO          =12;
+   constant PROG_SEAMLESSVDM          =13;
+   constant PROG_30_STDSEAMLESSVDM    =13;
+   constant PROG_SEAMLESSCOMMON       =14;
+   constant PROG_30_STDSEAMLESSCOMMON =14;
+   constant PROG_31_STDSEAMLESSVDM    =15;
+   constant PROG_31_STDSEAMLESSCOMMON =16;
+   constant PROG_31_ENHSEAMLESSVDM    =17;
+   constant PROG_31_ENHSEAMLESSCOMMON =18;
+   constant PROG_31_ENH               =19;
+   constant PROG_31_STD               =20;
+   constant PROG_DOS_GAME             =21;
+   constant PROG_WIN_GAME             =22;
+   constant PROG_DOS_MODE             =23;
+   constant PROG_RESERVED             =255;
+
+      type PROGTYPE=structure
+         progc: PROGCATEGORY;
+         fbVisible: ULONG;
+        end;
+      type PPROGTYPE=^PROGTYPE;
+
+
+      (*** visibility flag for PROGTYPE structure **************************)
+      constant SHE_VISIBLE         = $00;
+      constant SHE_INVISIBLE       = $01;
+      constant SHE_RESERVED        = $FF;
+
+      (*** Protected group flag for PROGTYPE structure *********************)
+      constant SHE_UNPROTECTED     = $00;
+      constant SHE_PROTECTED       = $02;
+
+
+
+      (*** Structures associated with 'Prf' calls **************************)
+      type PROGDETAILS=structure    (* progde *)
+         Length: ULONG;         (* set this to sizeof(PROGDETAILS)  *)
+         progt: PROGTYPE;
+         pszTitle: PSZ;       (* any of the pointers can be NULL  *)
+         pszExecutable: PSZ;
+         pszParameters: PSZ;
+         pszStartupDir: PSZ;
+         pszIcon: PSZ;
+         pszEnvironment: PSZ; (* this is terminated by  /0/0      *)
+         swpInitial: SWP;     (* this replaces XYWINSIZE          *)
+      end;
+      type  PPROGDETAILS=^PROGDETAILS;
+
+      type PROGTITLE=structure             (* progti *)
+         hprog: HPROGRAM;
+         progt: PROGTYPE;
+         pszTitle: PSZ;
+        end;
+      type PPROGTITLE=^PROGTITLE;
+
+      (*** Program List API Function Definitions ***************************)
+
+
+      (*** Program List API available 'Prf' calls **************************)
+
+      function PrfQueryProgramTitles(in hini: HINI;
+                                           in hprogGroup: HPROGRAM;
+                                           out pTitles: PROGTITLE;
+                                           in cchBufferMax: ULONG;
+                                           out pulCount: ULONG): ULONG;
+
+      (*********************************************************************)
+      (*  NOTE: string information is concatanated after the array of      *)
+      (*        PROGTITLE structures so you need to allocate storage       *)
+      (*        greater than sizeof(PROGTITLE)*cPrograms to query programs *)
+      (*        in a group.                                                *)
+      (*                                                                   *)
+      (*  PrfQueryProgramTitles recommended usage to obtain titles of all  *)
+      (*  programs in a group (Hgroup=SGH_ROOT is for all groups):         *)
+      (*                                                                   *)
+      (*  BufLen = PrfQueryProgramTitles(Hini, Hgroup,                     *)
+      (*                                  (PPROGTITLE)NULL, 0, &Count);    *)
+      (*                                                                   *)
+      (*  Alocate buffer of  Buflen                                        *)
+      (*                                                                   *)
+      (*  Len = PrfQueryProgramTitles(Hini, Hgroup, (PPROGTITLE)pBuffer,   *)
+      (*                               BufLen, pCount);                    *)
+      (*                                                                   *)
+      (*********************************************************************)
+
+      function PrfAddProgram(in hini: HINI;
+                                      in pDetails: PPROGDETAILS;
+                                      in hprogGroup: HPROGRAM): HPROGRAM;
+
+      function PrfChangeProgram(in hini: HINI;
+                                         in hprog: HPROGRAM;
+                                         in pDetails: PPROGDETAILS): BOOL;
+
+      function PrfQueryDefinition(in hini: HINI;
+                                           in hprog: HPROGRAM;
+                                           out pDetails: PROGDETAILS;
+                                           in cchBufferMax: ULONG): ULONG;
+
+      (*********************************************************************)
+      (*  NOTE: string information is concatanated after the PROGDETAILS   *)
+      (*        field structure so you need to allocate storage greater    *)
+      (*        than sizeof(PROGDETAILS) to query programs                 *)
+      (*                                                                   *)
+      (*  PrfQueryDefinition recomended usage:                             *)
+      (*                                                                   *)
+      (*  bufferlen = PrfQueryDefinition(Hini,Hprog,(PPROGDETAILS)NULL,0)  *)
+      (*                                                                   *)
+      (*  Alocate buffer of bufferlen bytes                                *)
+      (*  set Length field (0 will be supported)                           *)
+      (*                                                                   *)
+      (*  (PPROGDETAILS)pBuffer->Length=sizeof(PPROGDETAILS)               *)
+      (*                                                                   *)
+      (*  len = PrfQueryDefinition(Hini, Hprog, (PPROGDETAILS)pBuffer,     *)
+      (*      bufferlen)                                                   *)
+      (*********************************************************************)
+
+      function PrfRemoveProgram(in hini: HINI;
+                                         in hprog: HPROGRAM): BOOL;
+
+      function PrfQueryProgramHandle(in hini: HINI;
+                                              in pszExe: PSZ;
+                                              out phprogArray: HPROGARRAY;
+                                              in cchBufferMax: ULONG;
+                                              out pulCount: ULONG): ULONG;
+
+      function PrfCreateGroup(in hini: HINI;
+                                       in pszTitle: PSZ;
+                                       in chVisibility: UCHAR): HPROGRAM;
+
+      function PrfDestroyGroup(in hini: HINI;
+                                        in hprogGroup: HPROGRAM): BOOL;
+
+      function PrfQueryProgramCategory(in hini: HINI; in pszExe: PSZ): PROGCATEGORY;
+
+      function WinStartApp(in hwndNotify: HWND;
+                                in pDetails: PPROGDETAILS;
+                                in pszParams: PSZ;
+                                in Reserved: PVOID;
+                                in fbOptions: ULONG): HAPP;
+
+      (*** bit values for Options parameter ********************************)
+      constant SAF_VALIDFLAGS  = $001F;
+
+      constant SAF_INSTALLEDCMDLINE  = $0001;     (* use installed parameters *)
+      constant SAF_STARTCHILDAPP     = $0002;     (* related application      *)
+      constant SAF_MAXIMIZED         = $0004;     (* Start App maximized *)
+      constant SAF_MINIMIZED         = $0008;     (* Start App minimized, if !SAF_MAXIMIZED *)
+      constant SAF_BACKGROUND        = $0010;     (* Start app in the background *)
+
+
+      function WinTerminateApp(in happ: HAPP): BOOL;
+
+end.

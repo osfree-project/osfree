@@ -1,0 +1,134 @@
+group dosmisc;
+
+   (* definitions for DosSearchPath control word *)
+   constant DSP_IMPLIEDCUR          =1; (* current dir will be searched first *)
+   constant DSP_PATHREF             =2; (* from env.variable *)
+   constant DSP_IGNORENETERR        =4; (* ignore net errs & continue search *)
+
+   (* indices for DosQuerySysInfo *)
+   constant QSV_MAX_PATH_LENGTH       = 1;
+   constant Q_MAX_PATH_LENGTH         = QSV_MAX_PATH_LENGTH;
+   constant QSV_MAX_TEXT_SESSIONS     = 2;
+   constant QSV_MAX_PM_SESSIONS       = 3;
+   constant QSV_MAX_VDM_SESSIONS      = 4;
+   constant QSV_BOOT_DRIVE            = 5; (* 1=A, 2=B, etc.                     *)
+   constant QSV_DYN_PRI_VARIATION     = 6; (* 0=Absolute, 1=Dynamic              *)
+   constant QSV_MAX_WAIT              = 7; (* seconds                            *)
+   constant QSV_MIN_SLICE             = 8; (* milli seconds                      *)
+   constant QSV_MAX_SLICE             = 9; (* milli seconds                      *)
+   constant QSV_PAGE_SIZE             =10;
+   constant QSV_VERSION_MAJOR         =11;
+   constant QSV_VERSION_MINOR         =12;
+   constant QSV_VERSION_REVISION      =13; (* Revision letter                    *)
+   constant QSV_MS_COUNT              =14; (* Free running millisecond counter   *)
+   constant QSV_TIME_LOW              =15; (* Low dword of time in seconds       *)
+   constant QSV_TIME_HIGH             =16; (* High dword of time in seconds      *)
+   constant QSV_TOTPHYSMEM            =17; (* Physical memory on system          *)
+   constant QSV_TOTRESMEM             =18; (* Resident memory on system          *)
+   constant QSV_TOTAVAILMEM           =19; (* Available memory for all processes *)
+   constant QSV_MAXPRMEM              =20; (* Avail private mem for calling proc *)
+   constant QSV_MAXSHMEM              =21; (* Avail shared mem for calling proc  *)
+   constant QSV_TIMER_INTERVAL        =22; (* Timer interval in tenths of ms     *)
+   constant QSV_MAX_COMP_LENGTH       =23; (* max len of one component in a name *)
+   constant QSV_FOREGROUND_FS_SESSION =24; (* Session ID of current fgnd FS session*)
+   constant QSV_FOREGROUND_PROCESS    =25; (* Process ID of current fgnd process *)
+   constant QSV_NUMPROCESSORS         =26;
+   constant QSV_MAXHPRMEM             =27;
+   constant QSV_MAXHSHMEM             =28;
+   constant QSV_MAXPROCESSES          =29;
+   constant QSV_VIRTUALADDRESSLIMIT   =30;
+   constant QSV_INT10ENABLED          =31;
+   constant QSV_MAX                   =QSV_INT10ENABLED;
+
+   (* definitions for DosError - combine with | *)
+   constant FERR_DISABLEHARDERR     =$00000000;     (* disable hard error popups *)
+   constant FERR_ENABLEHARDERR      =$00000001;     (* enable hard error popups *)
+   constant FERR_ENABLEEXCEPTION    =$00000000;     (* enable exception popups *)
+   constant FERR_DISABLEEXCEPTION   =$00000002;     (* disable exception popups *)
+
+   (* definitions for DosDumpProcess *)
+   constant DDP_DISABLEPROCDUMP     =$00000000;     (* disable process dumps *)
+   constant DDP_ENABLEPROCDUMP      =$00000001;     (* enable process dumps *)
+   constant DDP_PERFORMPROCDUMP     =$00000002;     (* perform process dump *)
+
+   (* definitions for DosSuppressPopUps *)
+   constant SPU_DISABLESUPPRESSION  =$00000000;     (* disable popup suppression *)
+   constant SPU_ENABLESUPPRESSION   =$00000001;     (* enable popup suppression *)
+   constant SPU_NOLOGCHANGE         =$00000002;     (* do not reset the log drive *)
+
+   (* definitions for DosQueryRASInfo Index *)
+   constant SIS_MMIOADDR            =0;
+   constant SIS_MEC_TABLE           =1;
+   constant SIS_SYS_LOG             =2;
+   constant SIS_PERF_MEC_TABLE      =3;
+
+   (* definitions for DosQueryExtLIBPATH and DosSetExtLIBPATH flags parameter *)
+   constant BEGIN_LIBPATH  = 1;
+   constant END_LIBPATH    = 2;
+   constant LIBPATHSTRICT  = 3;
+
+(*
+   #define DosInsMessage   DosInsertMessage
+   #define DosQSysInfo     DosQuerySysInfo
+*)
+
+function DosError(in errorno: ULONG): APIRET;
+
+function DosGetMessage(in pTable: ^PCHAR;
+                       in cTable: ULONG;
+                       out pBuf: CHAR;
+                       in cbBuf: ULONG;
+                       in msgnumber: ULONG;
+                       in pszFile: PSZ;
+                       out pcbMsg: ULONG): APIRET;
+
+function DosErrClass(in code: ULONG;
+                     out pClass: ULONG;
+                     out pAction: ULONG;
+                     out pLocus: ULONG): APIRET;
+
+function DosInsertMessage(in pTable: ^PCHAR;
+                          in cTable: ULONG;
+                          in pszMsg: PSZ;
+                          in cbMsg: ULONG;
+                          out pBuf: CHAR;
+                          in cbBuf: ULONG;
+                          out pcbMsg: ULONG): APIRET;
+
+function DosPutMessage(in hfile: HFILE;
+                       in cbMsg: ULONG;
+                       in pBuf: PCHAR): APIRET;
+
+function DosQuerySysInfo(in iStart: ULONG;
+                         in iLast: ULONG;
+                         in pBuf: PVOID; (* untyped variable returned, sigh! *)
+                         in cbBuf: ULONG): APIRET;
+
+function DosScanEnv(in pszName: PSZ,
+                    out ppszValue: PSZ): APIRET;
+
+function DosSearchPath(in flag: ULONG;
+                       in pszPathOrName: PSZ;
+                       in pszFilename: PSZ;
+                       out pBuf: BYTE;
+                       in cbBuf: ULONG): APIRET;
+
+function DosQueryMessageCP(out pb: CHAR;
+                           in cb: ULONG;
+                           in pszFilename: PSZ,
+                           out cbBuf: ULONG): APIRET;
+
+function DosQueryRASInfo(in Index: ULONG;
+                         out Addr: PVOID): APIRET;
+
+function DosSetExtLIBPATH(in pszExtLIBPATH: PSZ;
+                          in flags: ULONG): APIRET;
+
+function DosQueryExtLIBPATH(in pszExtLIBPATH: PSZ;
+                            in flags: ULONG): APIRET;
+
+function DosVerifyPidTid(in Pid: PID;
+                         in Tid: TID): APIRET;
+
+
+end.

@@ -1,0 +1,62 @@
+group gpibitmapscommon;
+
+(* raster operations defined for GpiBitBlt *)
+constant ROP_SRCCOPY                = $00CC;
+constant ROP_SRCPAINT               = $00EE;
+constant ROP_SRCAND                 = $0088;
+constant ROP_SRCINVERT              = $0066;
+constant ROP_SRCERASE               = $0044;
+constant ROP_NOTSRCCOPY             = $0033;
+constant ROP_NOTSRCERASE            = $0011;
+constant ROP_MERGECOPY              = $00C0;
+constant ROP_MERGEPAINT             = $00BB;
+constant ROP_PATCOPY                = $00F0;
+constant ROP_PATPAINT               = $00FB;
+constant ROP_PATINVERT              = $005A;
+constant ROP_DSTINVERT              = $0055;
+constant ROP_ZERO                   = $0000;
+constant ROP_ONE                    = $00FF;
+
+   (* Blt options for GpiBitBlt *)
+constant BBO_OR                         = 0;
+constant BBO_AND                        = 1;
+constant BBO_IGNORE                     = 2;
+constant BBO_PAL_COLORS                 = 4;
+constant BBO_NO_COLOR_INFO              = 8;
+
+   (* Fill options for GpiFloodFill *)
+constant FF_BOUNDARY                    = 0;
+constant FF_SURFACE                     = 1;
+
+   (* error return for GpiSetBitmap *)
+constant HBM_ERROR           = (-1);
+
+      (*** bitmap and pel functions *)
+
+function GpiBitBlt(in hpsTarget: HPS;
+                   in hpsSource: HPS;
+                   in lCount: LONG;
+                   in aptlPoints: PPOINTL;
+                   in lRop: LONG;
+                   in flOptions: ULONG): LONG;
+
+function GpiDeleteBitmap(in hbm: HBITMAP): BOOL;
+
+function GpiLoadBitmap(in hps: HPS;
+                       in Resource: HMODULE;
+                       in idBitmap: ULONG;
+                       in lWidth: LONG;
+                       in lHeight: LONG): HBITMAP;
+
+function GpiSetBitmap(in hps: HPS;
+                      in hbm: HBITMAP): HBITMAP;
+
+function GpiWCBitBlt(in hpsTarget: HPS;
+                     in hbmSource: HBITMAP;
+                     in lCount: LONG;
+                     in aptlPoints: PPOINTL;
+                     in lRop: LONG;
+                     in flOptions: ULONG): LONG;
+
+
+end.

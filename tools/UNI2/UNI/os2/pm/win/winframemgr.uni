@@ -1,0 +1,120 @@
+group winframemgr;
+
+uses pmbase default;
+
+function WinFlashWindow(in hwndFrame: HWND;
+                                 in fFlash: BOOL): BOOL;
+
+   (* Frame window related messages *)
+
+constant WM_FLASHWINDOW             = $0040;
+constant WM_FORMATFRAME             = $0041;
+constant WM_UPDATEFRAME             = $0042;
+constant WM_FOCUSCHANGE             = $0043;
+
+constant WM_SETBORDERSIZE           = $0044;
+constant WM_TRACKFRAME              = $0045;
+constant WM_MINMAXFRAME             = $0046;
+constant WM_SETICON                 = $0047;
+constant WM_QUERYICON               = $0048;
+constant WM_SETACCELTABLE           = $0049;
+constant WM_QUERYACCELTABLE         = $004a;
+constant WM_TRANSLATEACCEL          = $004b;
+constant WM_QUERYTRACKINFO          = $004c;
+constant WM_QUERYBORDERSIZE         = $004d;
+constant WM_NEXTMENU                = $004e;
+constant WM_ERASEBACKGROUND         = $004f;
+constant WM_QUERYFRAMEINFO          = $0050;
+constant WM_QUERYFOCUSCHAIN         = $0051;
+constant WM_OWNERPOSCHANGE          = $0052;
+constant WM_CALCFRAMERECT           = $0053;
+   (* Note = $0054 is reserved *)
+constant WM_WINDOWPOSCHANGED        = $0055;
+constant WM_ADJUSTFRAMEPOS          = $0056;
+constant WM_QUERYFRAMECTLCOUNT      = $0059;
+      (* Note = $005A is reserved *)
+   constant WM_QUERYHELPINFO        = $005B;
+   constant WM_SETHELPINFO          = $005C;
+   constant WM_ERROR                = $005D;
+   constant WM_REALIZEPALETTE       = $005E;
+
+
+      (* WM_QUERYFRAMEINFO constants *)
+
+   constant FI_FRAME                = $00000001;
+   constant FI_OWNERHIDE            = $00000002;
+   constant FI_ACTIVATEOK           = $00000004;
+   constant FI_NOMOVEWITHOWNER      = $00000008;
+
+
+function WinCreateFrameControls(in hwndFrame: HWND;
+                                         in pfcdata: PFRAMECDATA;
+                                         in pszTitle: PCSZ): BOOL;
+
+function WinCalcFrameRect(in hwndFrame: HWND;
+                                   in prcl: PRECTL;
+                                   in fClient: BOOL): BOOL;
+
+function WinGetMinPosition(in hwnd: HWND;
+                                    out pswp: SWP;
+                                    out pptl: POINTL): BOOL;
+
+function WinGetMaxPosition(in hwnd: HWND; out pswp: SWP): BOOL;
+
+   type HSAVEWP=LHANDLE;      (* hsvwp *)
+
+function WinSaveWindowPos(in hsvwp: HSAVEWP;
+                                  in pswp: PSWP;
+                                  in cswp: ULONG): BOOL;
+
+   (* Frame control IDs    *)
+
+constant FID_SYSMENU                = $8002;
+constant FID_TITLEBAR               = $8003;
+constant FID_MINMAX                 = $8004;
+constant FID_MENU                   = $8005;
+constant FID_VERTSCROLL             = $8006;
+constant FID_HORZSCROLL             = $8007;
+constant FID_CLIENT                 = $8008;
+   (* Note = $8009 is reserved *)
+
+constant FID_DBE_APPSTAT            = $8010;
+constant FID_DBE_KBDSTAT            = $8011;
+constant FID_DBE_PECIC              = $8012;
+constant FID_DBE_KKPOPUP            = $8013;
+
+   (* Standard WM_SYSCOMMAND command values *)
+
+constant SC_SIZE                    = $8000;
+constant SC_MOVE                    = $8001;
+constant SC_MINIMIZE                = $8002;
+constant SC_MAXIMIZE                = $8003;
+constant SC_CLOSE                   = $8004;
+constant SC_NEXT                    = $8005;
+constant SC_APPMENU                 = $8006;
+constant SC_SYSMENU                 = $8007;
+constant SC_RESTORE                 = $8008;
+constant SC_NEXTFRAME               = $8009;
+constant SC_NEXTWINDOW              = $8010;
+   constant SC_TASKMANAGER             = $8011;
+   constant SC_HELPKEYS                = $8012;
+   constant SC_HELPINDEX               = $8013;
+   constant SC_HELPEXTENDED            = $8014;
+   constant SC_SWITCHPANELIDS          = $8015;
+   constant SC_DBE_FIRST               = $8018;
+   constant SC_DBE_LAST                = $801F;
+
+   constant SC_BEGINDRAG               = $8020;
+   constant SC_ENDDRAG                 = $8021;
+   constant SC_SELECT                  = $8022;
+   constant SC_OPEN                    = $8023;
+   constant SC_CONTEXTMENU             = $8024;
+   constant SC_CONTEXTHELP             = $8025;
+   constant SC_TEXTEDIT                = $8026;
+   constant SC_BEGINSELECT             = $8027;
+   constant SC_ENDSELECT               = $8028;
+   constant SC_WINDOW                  = $8029;
+   constant SC_HIDE                    = $802a;
+
+
+end.

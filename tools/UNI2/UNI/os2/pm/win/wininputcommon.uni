@@ -1,0 +1,23 @@
+group wininputcommon;
+
+constant FC_NOSETFOCUS            = $0001;
+constant FC_NOBRINGTOTOP          = FC_NOSETFOCUS;
+constant FC_NOLOSEFOCUS           = $0002;
+constant FC_NOBRINGTOPFIRSTWINDOW = FC_NOLOSEFOCUS;
+constant FC_NOSETACTIVE           = $0004;
+constant FC_NOLOSEACTIVE          = $0008;
+constant FC_NOSETSELECTION        = $0010;
+constant FC_NOLOSESELECTION       = $0020;
+
+constant QFC_NEXTINCHAIN  = 1;
+constant QFC_ACTIVE       = 2;
+constant QFC_FRAME        = 3;
+constant QFC_SELECTACTIVE = 4;
+constant QFC_PARTOFCHAIN  = 5;
+
+function WinFocusChange(in hwnd1: HWND; in hwnd2: HWND: in ul: ULONG): BOOL;
+function WinLockupSystem(in hab: HAB): BOOL;
+function WinSetFocus(in hwnd1: HWND; in hwnd2: HWND): BOOL;
+function WinUnlockSystem(in hab: HAB: in psz: PSZ): BOOL;
+
+end.

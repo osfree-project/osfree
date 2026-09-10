@@ -1,0 +1,214 @@
+group winstddrag;
+
+constant PMERR_NOT_DRAGGING     = $1f00;
+constant PMERR_ALREADY_DRAGGING = $1f01;
+
+constant MSGF_DRAG = $0010;
+
+constant DM_DROP             = $032f;
+constant DM_DRAGOVER         = $032e;
+constant DM_DRAGLEAVE        = $032d;
+constant DM_DROPHELP         = $032c;
+constant DM_ENDCONVERSATION  = $032b;
+constant DM_PRINT            = $032a;
+constant DM_RENDER           = $0329;
+constant DM_RENDERCOMPLETE   = $0328;
+constant DM_RENDERPREPARE    = $0327;
+constant DM_DRAGFILECOMPLETE = $0326;
+constant DM_EMPHASIZETARGET  = $0325;
+constant DM_DRAGERROR        = $0324;
+constant DM_FILERENDERED     = $0323;
+constant DM_RENDERFILE       = $0322;
+constant DM_DRAGOVERNOTIFY   = $0321;
+constant DM_PRINTOBJECT      = $0320;
+constant DM_DISCARDOBJECT    = $031f;
+constant DM_DROPNOTIFY       = $031e;
+
+constant DRT_ASM     = 'Assembler Code';
+constant DRT_BASIC   = 'BASIC Code';
+constant DRT_BINDATA = 'Binary Data';
+constant DRT_BITMAP  = 'Bitmap';
+constant DRT_C       = 'C Code';
+constant DRT_COBOL   = 'COBOL Code';
+constant DRT_DLL     = 'Dynamic Link Library';
+constant DRT_DOSCMD  = 'DOS Command File';
+constant DRT_EXE     = 'Executable';
+constant DRT_FORTRAN = 'FORTRAN Code';
+constant DRT_ICON    = 'Icon';
+constant DRT_LIB     = 'Library';
+constant DRT_METAFILE= 'Metafile';
+constant DRT_OS2CMD  = 'OS/2 Command File';
+constant DRT_PASCAL  = 'Pascal Code';
+constant DRT_RESOURCE= 'Resource File';
+constant DRT_TEXT    = 'Plain Text';
+constant DRT_UNKNOWN = 'Unknown';
+
+constant DOR_NODROP    = $0000;
+constant DOR_DROP      = $0001;
+constant DOR_NODROPOP  = $0002;
+constant DOR_NEVERDROP = $0003;
+
+constant DO_COPYABLE                = $0001;
+constant DO_MOVEABLE                = $0002;
+constant DO_LINKABLE                = $0004;
+constant DO_CREATEABLE              = $0008;
+constant DO_CREATEPROGRAMOBJECTABLE = $0010;
+
+constant DC_OPEN            = $0001;
+constant DC_REF             = $0002;
+constant DC_GROUP           = $0004;
+constant DC_CONTAINER       = $0008;
+constant DC_PREPARE         = $0010;
+constant DC_REMOVEABLEMEDIA = $0020;
+
+constant DO_DEFAULT             = $BFFE;
+constant DO_UNKNOWN             = $BFFF;
+constant DO_COPY                = $0010;
+constant DO_MOVE                = $0020;
+constant DO_LINK                = $0018;
+constant DO_CREATE              = $0040;
+constant DO_CREATEPROGRAMOBJECT = $0080;
+
+constant DGS_DRAGINPROGRESS     = $0001;
+constant DGS_LAZYDRAGINPROGRESS = $0002;
+
+constant DMFL_TARGETSUCCESSFUL = $0001;
+constant DMFL_TARGETFAIL       = $0002;
+constant DMFL_NATIVERENDER     = $0004;
+constant DMFL_RENDERRETRY      = $0008;
+constant DMFL_RENDEROK         = $0010;
+constant DMFL_RENDERFAIL       = $0020;
+
+constant DRG_ICON        = $00000001;
+constant DRG_BITMAP      = $00000002;
+constant DRG_POLYGON     = $00000004;
+constant DRG_STRETCH     = $00000008;
+constant DRG_TRANSPARENT = $00000010;
+constant DRG_CLOSED      = $00000020;
+constant DRG_MINIBITMAP  = $00000040;
+
+constant DME_IGNOREABORT    =1;
+constant DME_IGNORECONTINUE =2;
+constant DME_REPLACE        =3;
+constant DME_RETRY          =4;
+
+constant DF_MOVE       = $0001;
+constant DF_SOURCE     = $0002;
+constant DF_SUCCESSFUL = $0004;
+
+constant DRR_SOURCE =1;
+constant DRR_TARGET =2;
+constant DRR_ABORT  =3;
+
+constant DFF_MOVE   =1;
+constant DFF_COPY   =2;
+constant DFF_DELETE =3;
+
+constant WM_DRAGFIRST = $0310;
+constant WM_DRAGLAST  = $032f;
+
+type HSTR=LHANDLE;
+
+type DRAGITEM=structure
+       hwndItem: HWND;
+      ulItemID: ULONG;
+       hstrType: HSTR;
+       hstrRMF: HSTR;
+       hstrContainerName: HSTR;
+       hstrSourceName: HSTR;
+       hstrTargetName: HSTR;
+       cxOffset: SHORT;
+       cyOffset: SHORT;
+       fsControl: USHORT;
+       fsSupportedOps: USHORT;
+end;
+type PDRAGITEM=^DRAGITEM;
+
+type DRAGINFO=structure
+    cbDraginfo: ULONG;
+    cbDragitem: USHORT;
+    usOperation: USHORT;
+    hwndSource: HWND;
+    xDrop: SHORT;
+    yDrop: SHORT;
+    cditem: USHORT;
+    usReserved: USHORT;
+end;
+type PDRAGINFO=^DRAGINFO;
+
+type DRAGIMAGE=structure
+    cb: USHORT;
+    cptl: USHORT;
+    hImage: LHANDLE;
+    sizlStretch: SIZEL;
+    fl: ULONG;
+    cxOffset: SHORT;
+    cyOffset: SHORT;
+end;
+type PDRAGIMAGE=^DRAGIMAGE;
+
+type DRAGTRANSFER=structure
+         cb: ULONG;
+         hwndClient: HWND;
+         pditem: PDRAGITEM;
+         hstrSelectedRMF: HSTR;
+         hstrRenderToName: HSTR;
+         ulTargetInfo: ULONG;
+         usOperation: USHORT;
+         fsReply: USHORT;
+end;
+type PDRAGTRANSFER=^DRAGTRANSFER;
+
+type RENDERFILE=structure
+       hwndDragFiles: HWND;
+       hstrSource: HSTR;
+       hstrTarget: HSTR;
+       fMove: USHORT;
+       usRsvd: USHORT;
+end;
+type PRENDERFILE=^RENDERFILE;
+
+function DrgAcceptDroppedFiles(in a: HWND; in b: PCSZ; in c: PCSZ; in d: ULONG; in e: ULONG): BOOL;
+function DrgAccessDraginfo(in a: PDRAGINFO): BOOL;
+function DrgAllocDraginfo(in a: ULONG): PDRAGINFO;
+function DrgAllocDragtransfer(in a: ULONG): PDRAGTRANSFER;
+function DrgAddStrHandle(in a: PCSZ): HSTR;
+function DrgCancelLazyDrag(): BOOL;
+function DrgDeleteDraginfoStrHandles(in a: PDRAGINFO): BOOL;
+function DrgDeleteStrHandle(in a: HSTR): BOOL;
+function DrgDrag(in a: HWND; in b: PDRAGINFO; in c: PDRAGIMAGE; in d: ULONG; in e: LONG; in f: PVOID): HWND;
+function DrgDragFiles(in a: HWND; in b: ^PCSZ; in c: ^PCSZ; in d: ^PCSZ; in e: ULONG; in f: HPOINTER; in h: ULONG; in i: BOOL; in j: ULONG): BOOL;
+function DrgFreeDraginfo(in a: PDRAGINFO): BOOL;
+function DrgFreeDragtransfer(in a: PDRAGTRANSFER): BOOL;
+function DrgGetPS(in a: HWND): HPS;
+function DrgLazyDrag(in a: HWND; in b: PDRAGINFO; in c: PDRAGIMAGE; in d: ULONG; in e: PVOID): BOOL;
+function DrgLazyDrop(in a: HWND; in b: ULONG; in c: PPOINTL): BOOL;
+function DrgPostTransferMsg(in a: HWND; in b: ULONG; in c: PDRAGTRANSFER; in d: ULONG; in e: ULONG; in f: BOOL): BOOL;
+function DrgPushDraginfo(in a: PDRAGINFO; in b: HWND): BOOL;
+function DrgQueryDraginfoPtr(in a: PDRAGINFO): PDRAGINFO;
+function DrgQueryDraginfoPtrFromHwnd(in a: HWND): PDRAGINFO;
+function DrgQueryDraginfoPtrFromDragitem(in a: PDRAGITEM): PDRAGINFO;
+function DrgQueryDragitem(in a: PDRAGINFO; in b: ULONG; in c: PDRAGITEM; in d: ULONG): BOOL;
+function DrgQueryDragitemCount(in a: PDRAGINFO): ULONG;
+function DrgQueryDragitemPtr(in a: PDRAGINFO; in b: ULONG): PDRAGITEM;
+function DrgQueryDragStatus(): ULONG;
+function DrgQueryFormat(in a: PDRAGITEM; in b: PCSZ; in c: ULONG; in d: PCSZ; in e: ULONG): ULONG;
+function DrgQueryNativeRMF(in a: PDRAGITEM; in b: ULONG; in c: PCHAR): BOOL;
+function DrgQueryNativeRMFLen(in a: PDRAGITEM): ULONG;
+function DrgQueryStrName(in a: HSTR; in b: ULONG; in c: PCSZ): ULONG;
+function DrgQueryStrNameLen(in a: HSTR): ULONG;
+function DrgQueryTrueType(in a: PDRAGITEM; in b: ULONG; in c: PCSZ): BOOL;
+function DrgQueryTrueTypeLen(in a: PDRAGITEM): ULONG;
+function DrgReallocDraginfo(in a: PDRAGINFO; in b: ULONG): PDRAGINFO;
+function DrgReleasePS(in a: HPS): BOOL;
+function DrgSendTransferMsg(in a: HWND; in b: ULONG; in c: MPARAM; in d: MPARAM): MRESULT;
+function DrgSetDragitem(in a: PDRAGINFO; in b: PDRAGITEM; in c: ULONG; in d: ULONG): BOOL;
+function DrgSetDragImage(in a: PDRAGINFO; in b: PDRAGIMAGE; in c: ULONG; in d: PVOID): BOOL;
+function DrgSetDragPointer(in a: PDRAGINFO; in b: HPOINTER): BOOL;
+function DrgVerifyTypeSet(in a: PDRAGITEM; in b: PCSZ; in c: ULONG; in d: PCSZ): BOOL;
+function DrgVerifyNativeRMF(in a: PDRAGITEM; in b: PCSZ): BOOL;
+function DrgVerifyRMF(in a: PDRAGITEM; in b: PCSZ; in c: PCSZ): BOOL;
+function DrgVerifyTrueType(in a: PDRAGITEM; in b: PCSZ): BOOL;
+function DrgVerifyType(in a: PDRAGITEM; in b: PCSZ): BOOL;
+
+end.

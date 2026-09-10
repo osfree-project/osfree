@@ -1,0 +1,166 @@
+group winmle;
+
+constant MLS_WORDWRAP     = $00000001;
+constant MLS_BORDER       = $00000002;
+constant MLS_VSCROLL      = $00000004;
+constant MLS_HSCROLL      = $00000008;
+constant MLS_READONLY     = $00000010;
+constant MLS_IGNORETAB    = $00000020;
+constant MLS_DISABLEUNDO  = $00000040;
+constant MLS_LIMITVSCROLL = $00000080;
+
+constant MLM_SETTEXTLIMIT          = $01b0;
+constant MLM_QUERYTEXTLIMIT        = $01b1;
+constant MLM_SETFORMATRECT         = $01b2;
+constant MLM_QUERYFORMATRECT       = $01b3;
+constant MLM_SETWRAP               = $01b4;
+constant MLM_QUERYWRAP             = $01b5;
+constant MLM_SETTABSTOP            = $01b6;
+constant MLM_QUERYTABSTOP          = $01b7;
+constant MLM_SETREADONLY           = $01b8;
+constant MLM_QUERYREADONLY         = $01b9;
+constant MLM_QUERYCHANGED          = $01ba;
+constant MLM_SETCHANGED            = $01bb;
+constant MLM_QUERYLINECOUNT        = $01bc;
+constant MLM_CHARFROMLINE          = $01bd;
+constant MLM_LINEFROMCHAR          = $01be;
+constant MLM_QUERYLINELENGTH       = $01bf;
+constant MLM_QUERYTEXTLENGTH       = $01c0;
+constant MLM_FORMAT                = $01c1;
+constant MLM_SETIMPORTEXPORT       = $01c2;
+constant MLM_IMPORT                = $01c3;
+constant MLM_EXPORT                = $01c4;
+constant MLM_DELETE                = $01c6;
+constant MLM_QUERYFORMATLINELENGTH = $01c7;
+constant MLM_QUERYFORMATTEXTLENGTH = $01c8;
+constant MLM_INSERT                = $01c9;
+constant MLM_SETSEL                = $01ca;
+constant MLM_QUERYSEL              = $01cb;
+constant MLM_QUERYSELTEXT          = $01cc;
+constant MLM_QUERYUNDO             = $01cd;
+constant MLM_UNDO                  = $01ce;
+constant MLM_RESETUNDO             = $01cf;
+constant MLM_QUERYFONT             = $01d0;
+constant MLM_SETFONT               = $01d1;
+constant MLM_SETTEXTCOLOR          = $01d2;
+constant MLM_QUERYTEXTCOLOR        = $01d3;
+constant MLM_SETBACKCOLOR          = $01d4;
+constant MLM_QUERYBACKCOLOR        = $01d5;
+constant MLM_QUERYFIRSTCHAR        = $01d6;
+constant MLM_SETFIRSTCHAR          = $01d7;
+constant MLM_CUT                   = $01d8;
+constant MLM_COPY                  = $01d9;
+constant MLM_PASTE                 = $01da;
+constant MLM_CLEAR                 = $01db;
+constant MLM_ENABLEREFRESH         = $01dc;
+constant MLM_DISABLEREFRESH        = $01dd;
+constant MLM_SEARCH                = $01de;
+constant MLM_QUERYIMPORTEXPORT     = $01df;
+constant MLN_OVERFLOW              = $0001;
+constant MLN_PIXHORZOVERFLOW       = $0002;
+constant MLN_PIXVERTOVERFLOW       = $0003;
+constant MLN_TEXTOVERFLOW          = $0004;
+constant MLN_VSCROLL               = $0005;
+constant MLN_HSCROLL               = $0006;
+constant MLN_CHANGE                = $0007;
+constant MLN_SETFOCUS              = $0008;
+constant MLN_KILLFOCUS             = $0009;
+constant MLN_MARGIN                = $000a;
+constant MLN_SEARCHPAUSE           = $000b;
+constant MLN_MEMERROR              = $000c;
+constant MLN_UNDOOVERFLOW          = $000d;
+constant MLN_CLPBDFAIL             = $000f;
+
+constant MLFFMTRECT_LIMITHORZ    = $1;
+constant MLFFMTRECT_LIMITVERT    = $2;
+constant MLFFMTRECT_MATCHWINDOW  = $4;
+constant MLFFMTRECT_FORMATRECT   = $7;
+
+constant MLFIE_CFTEXT            = $0;
+constant MLFIE_NOTRANS           = $1;
+constant MLFIE_WINFMT            = $2;
+constant MLFIE_RTF               = $3;
+
+constant MLE_INDEX               = $0;
+constant MLE_RGB                 = $1;
+
+constant MLFQS_MINMAXSEL =0;
+constant MLFQS_MINSEL    =1;
+constant MLFQS_MAXSEL    =2;
+constant MLFQS_ANCHORSEL =3;
+constant MLFQS_CURSORSEL =4;
+
+constant MLFEFR_RESIZE    = $01;
+constant MLFEFR_TABSTOP   = $02;
+constant MLFEFR_FONT      = $04;
+constant MLFEFR_TEXT      = $08;
+constant MLFEFR_WORDWRAP  = $10;
+constant MLFETL_TEXTBYTES = $20;
+
+constant MLFMARGIN_LEFT   = $1;
+constant MLFMARGIN_BOTTOM = $2;
+constant MLFMARGIN_RIGHT  = $3;
+constant MLFMARGIN_TOP    = $4;
+
+constant MLFCLPBD_TOOMUCHTEXT    = $1;
+constant MLFCLPBD_ERROR          = $2;
+
+constant MLFSEARCH_CASESENSITIVE = $1;
+constant MLFSEARCH_SELECTMATCH   = $2;
+constant MLFSEARCH_CHANGEALL     = $4;
+
+type IPT=LONG;
+type PIPT=PLONG;
+type PIX=LONG;
+type LINE=ULONG;
+
+type FORMATRECT=structure
+     cxFormat: LONG;
+     cyFormat: LONG;
+end;
+type PMLEFORMATRECT=^FORMATRECT;
+
+type MLECTLDATA=structure
+    cbCtlData: USHORT;
+    afIEFormat: USHORT;
+    cchText: ULONG;
+    iptAnchor: IPT;
+    iptCursor: IPT;
+    cxFormat: LONG;
+    cyFormat: LONG;
+    afFormatFlags: ULONG;
+    pHWXCtlData: PVOID;
+end;
+type PMLECTLDATA=^MLECTLDATA;
+
+type MLEOVERFLOW=structure
+     afErrInd: ULONG;
+      nBytesOver: LONG;
+      pixHorzOver: LONG;
+      pixVertOver: LONG;
+end;
+type POVERFLOW=^MLEOVERFLOW;
+
+type MLEMARGSTRUCT=structure
+    afMargins: USHORT;
+    usMouMsg: USHORT;
+    iptNear: IPT;
+end;
+
+type PMARGSTRUCT=^MLEMARGSTRUCT;
+
+type SEARCH=structure
+     cb: USHORT;
+     pchFind: PCHAR;
+     pchReplace: PCHAR;
+     cchFind: SHORT;
+     cchReplace: SHORT;
+     iptStart: IPT;
+     iptStop: IPT;
+     cchFound: USHORT;
+end;
+type MLE_SEARCHDATA=SEARCH;
+type PMLE_SEARCHDATA=^MLE_SEARCHDATA;
+
+end.
+

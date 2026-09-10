@@ -1,0 +1,28 @@
+group errcmpat;
+
+(*
+ * for compatibility with old return codes for ULS
+ *)
+
+constant UNI_SUCCESS                 =        ULS_SUCCESS;
+constant NO_ERROR                    =        0;
+constant UNI_UNSUPPORTED             =        ULS_UNSUPPORTED;
+constant UNI_NOMEMORY                =        ULS_NOMEMORY;
+constant UNI_INVALID                 =        ULS_INVALID;
+constant UNI_BADOBJ                  =        ULS_BADOBJECT;
+constant UNI_NOTOKEN                 =        ULS_NOTOKEN;
+constant UNI_NOMATCH                 =        ULS_NOMATCH;
+constant UNI_BUFFER_FULL             =        ULS_BUFFERFULL;
+constant UNI_RANGE                   =        ULS_RANGE;
+constant ERR_NOOP                    =        ULS_NOOP;
+constant ERR_TOO_MANY_KBD            =        ULS_TOOMANYKBD;
+constant ERR_KBD_NOT_FOUND           =        ULS_KBDNOTFOUND;
+constant ERR_KBD_INVALID             =        ULS_INVALID;
+constant ERR_BAD_HANDLE              =        ULS_BADHANDLE;
+constant ERR_NO_DEAD                 =        ULS_NODEAD;
+constant ERR_NO_SCAN                 =        ULS_NOSCAN;
+constant ERR_INVALID_SCAN            =        ULS_INVALIDSCAN;
+constant ERR_NOT_IMPLEMENTED         =        ULS_NOTIMPLEMENTED;
+constant ERR_NO_MEMORY               =        ULS_NOMEMORY;
+
+end.

@@ -1,0 +1,6 @@
+group winframectls;
+
+constant TBM_SETHILITE   = $01e3;
+constant TBM_QUERYHILITE = $01e4;
+
+end.

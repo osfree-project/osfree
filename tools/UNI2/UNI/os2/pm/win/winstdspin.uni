@@ -1,0 +1,48 @@
+group winstdspin;
+
+constant SPBS_ALLCHARACTERS = $00000000;
+constant SPBS_NUMERICONLY   = $00000001;
+constant SPBS_READONLY      = $00000002;
+constant SPBS_MASTER        = $00000010;
+constant SPBS_SERVANT       = $00000000;
+constant SPBS_JUSTDEFAULT   = $00000000;
+constant SPBS_JUSTLEFT      = $00000008;
+constant SPBS_JUSTRIGHT     = $00000004;
+constant SPBS_JUSTCENTER    = $0000000C;
+constant SPBS_NOBORDER      = $00000020;
+constant SPBS_FASTSPIN      = $00000100;
+constant SPBS_PADWITHZEROS  = $00000080;
+
+constant SPBN_UPARROW   = $20A;
+constant SPBN_DOWNARROW = $20B;
+constant SPBN_ENDSPIN   = $20C;
+constant SPBN_CHANGE    = $20D;
+constant SPBN_SETFOCUS  = $20E;
+constant SPBN_KILLFOCUS = $20F;
+
+constant SPBM_OVERRIDESETLIMITS = $200;
+constant SPBM_QUERYLIMITS       = $201;
+constant SPBM_SETTEXTLIMIT      = $202;
+constant SPBM_SPINUP            = $203;
+constant SPBM_SPINDOWN          = $204;
+constant SPBM_QUERYVALUE        = $205;
+constant SPBM_SETARRAY          = $206;
+constant SPBM_SETLIMITS         = $207;
+constant SPBM_SETCURRENTVALUE   = $208;
+constant SPBM_SETMASTER         = $209;
+
+constant SPBQ_UPDATEIFVALID= 0;
+constant SPBQ_ALWAYSUPDATE = 1;
+constant SPBQ_DONOTUPDATE  = 3;
+
+type SPBCDATA=structure
+      cbSize: ULONG;
+      ulTextLimit: ULONG;
+      lLowerLimit: LONG;
+      lUpperLimit: LONG;
+      idMasterSpb: ULONG;
+      pHWXCtlData: PVOID;
+end;
+type PSPBCDATA=^SPBCDATA;
+
+end.

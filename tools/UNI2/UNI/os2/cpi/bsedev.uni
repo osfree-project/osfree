@@ -1,0 +1,772 @@
+(**************************************************************************
+*                                                                         *
+* OS/2 Structures and constants for use with DosDevIOCtl                  *
+*                                                                         *
+**************************************************************************)
+
+group bsedev;
+
+(* Input and Output Control Categories *)
+
+constant IOCTL_ASYNC                       = $0001;
+constant IOCTL_SCR_AND_PTRDRAW             = $0003;
+constant IOCTL_KEYBOARD                    = $0004;
+constant IOCTL_PRINTER                     = $0005;
+constant IOCTL_LIGHTPEN                    = $0006;
+constant IOCTL_POINTINGDEVICE              = $0007;
+constant IOCTL_DISK                        = $0008;
+constant IOCTL_PHYSICALDISK                = $0009;
+constant IOCTL_MONITOR                     = $000A;
+constant IOCTL_GENERAL                     = $000B;
+constant IOCTL_POWER                       = $000C;
+constant IOCTL_OEMHLP                      = $0080;
+constant IOCTL_TESTCFG_SYS                 = $0080;
+constant IOCTL_CDROMDISK                   = $0080;
+constant IOCTL_CDROMAUDIO                  = $0081;
+constant IOCTL_TOUCH_DEVDEP                = $0081;
+constant IOCTL_TOUCH_DEVINDEP              = $0081;
+
+(* Serial-Device Control *)
+
+constant ASYNC_SETBAUDRATE                 = $0041;
+constant ASYNC_SETLINECTRL                 = $0042;
+constant ASYNC_EXTSETBAUDRATE              = $0043;
+constant ASYNC_TRANSMITIMM                 = $0044;
+constant ASYNC_SETBREAKOFF                 = $0045;
+constant ASYNC_SETMODEMCTRL                = $0046;
+constant ASYNC_SETBREAKON                  = $004B;
+constant ASYNC_STOPTRANSMIT                = $0047;
+constant ASYNC_STARTTRANSMIT               = $0048;
+constant ASYNC_SETDCBINFO                  = $0053;
+constant ASYNC_SETENHANCEDMODEPARMS        = $0054;
+constant ASYNC_GETBAUDRATE                 = $0061;
+constant ASYNC_GETLINECTRL                 = $0062;
+constant ASYNC_EXTGETBAUDRATE              = $0063;
+constant ASYNC_GETCOMMSTATUS               = $0064;
+constant ASYNC_GETLINESTATUS               = $0065;
+constant ASYNC_GETMODEMOUTPUT              = $0066;
+constant ASYNC_GETMODEMINPUT               = $0067;
+constant ASYNC_GETINQUECOUNT               = $0068;
+constant ASYNC_GETOUTQUECOUNT              = $0069;
+constant ASYNC_GETCOMMERROR                = $006D;
+constant ASYNC_GETCOMMEVENT                = $0072;
+constant ASYNC_GETDCBINFO                  = $0073;
+constant ASYNC_GETENHANCEDMODEPARMS        = $0074;
+
+(* Screen/Pointer-Draw Control *)
+
+constant SCR_ALLOCLDT                      = $0070;
+constant SCR_DEALLOCLDT                    = $0071;
+constant PTR_GETPTRDRAWADDRESS             = $0072;
+constant VID_INITCALLVECTOR                = $0073;
+constant SCR_ABIOSPASSTHRU                 = $0074;
+constant SCR_ALLOCLDTOFF                   = $0075;
+constant SCR_ALLOCLDTBGVAL                 = $0076;
+constant SCR_ALLOCVIDEOBUFFER              = $007E;
+constant SCR_GETROMFONTADDR                = $007F;
+
+(* Keyboard Control *)
+
+constant KBD_SETTRANSTABLE                 = $0050;
+constant KBD_SETINPUTMODE                  = $0051;
+constant KBD_SETINTERIMFLAG                = $0052;
+constant KBD_SETSHIFTSTATE                 = $0053;
+constant KBD_SETTYPAMATICRATE              = $0054;
+constant KBD_SETFGNDSCREENGRP              = $0055;
+constant KBD_SETSESMGRHOTKEY               = $0056;
+constant KBD_SETFOCUS                      = $0057;
+constant KBD_SETKCB                        = $0058;
+constant KBD_SETREADNOTIFICATION           = $0059;
+constant KBD_ALTERKBDLED                   = $005A;
+constant KBD_SETNLS                        = $005C;
+constant KBD_CREATE                        = $005D;
+constant KBD_DESTROY                       = $005E;
+constant KBD_GETINPUTMODE                  = $0071;
+constant KBD_GETINTERIMFLAG                = $0072;
+constant KBD_GETSHIFTSTATE                 = $0073;
+constant KBD_READCHAR                      = $0074;
+constant KBD_PEEKCHAR                      = $0075;
+constant KBD_GETSESMGRHOTKEY               = $0076;
+constant KBD_GETKEYBDTYPE                  = $0077;
+constant KBD_GETCODEPAGEID                 = $0078;
+constant KBD_XLATESCAN                     = $0079;
+constant KBD_QUERYKBDHARDWAREID            = $007A;
+constant KBD_QUERYKBDCODEPAGESUPPORT       = $007B;
+
+(* Printer Control *)
+
+constant PRT_QUERYJOBHANDLE                = $0021;
+constant PRT_SETFRAMECTL                   = $0042;
+constant PRT_SETINFINITERETRY              = $0044;
+constant PRT_INITPRINTER                   = $0046;
+constant PRT_ACTIVATEFONT                  = $0048;
+constant PRT_SETPRINTJOBTITLE              = $004D;
+constant PRT_SETIRQTIMEOUT                 = $004E;
+constant PRT_SETCOMMMODE                   = $0052;
+constant PRT_SETDATAXFERMODE               = $0053;
+constant PRT_GETFRAMECTL                   = $0062;
+constant PRT_GETINFINITERETRY              = $0064;
+constant PRT_GETPRINTERSTATUS              = $0066;
+constant PRT_QUERYACTIVEFONT               = $0069;
+constant PRT_VERIFYFONT                    = $006A;
+constant PRT_QUERYIRQTIMEOUT               = $006E;
+constant PRT_QUERYCOMMMODE                 = $0072;
+constant PRT_QUERYDATAXFERMODE             = $0073;
+constant PRT_QUERDEVICEID                  = $0074;
+
+(* Pointing-Device (Mouse) Control *)
+
+constant MOU_ALLOWPTRDRAW                  = $0050;
+constant MOU_UPDATEDISPLAYMODE             = $0051;
+constant MOU_SCREENSWITCH                  = $0052;
+constant MOU_SETSCALEFACTORS               = $0053;
+constant MOU_SETEVENTMASK                  = $0054;
+constant MOU_SETHOTKEYBUTTON               = $0055;
+constant MOU_REASSIGNTHRESHOLDVALUES       = $0055;
+constant MOU_SETPTRSHAPE                   = $0056;
+constant MOU_DRAWPTR                       = $0057;
+constant MOU_UNMARKCOLLISIONAREA           = $0057;
+constant MOU_REMOVEPTR                     = $0058;
+constant MOU_MARKCOLLISIONAREA             = $0058;
+constant MOU_SETPTRPOS                     = $0059;
+constant MOU_SETPROTDRAWADDRESS            = $005A;
+constant MOU_SETREALDRAWADDRESS            = $005B;
+constant MOU_SETMOUSTATUS                  = $005C;
+constant MOU_DISPLAYMODECHANGE             = $005D;
+constant MOU_GETBUTTONCOUNT                = $0060;
+constant MOU_GETMICKEYCOUNT                = $0061;
+constant MOU_GETMOUSTATUS                  = $0062;
+constant MOU_READEVENTQUE                  = $0063;
+constant MOU_GETQUESTATUS                  = $0064;
+constant MOU_GETEVENTMASK                  = $0065;
+constant MOU_GETSCALEFACTORS               = $0066;
+constant MOU_GETPTRPOS                     = $0067;
+constant MOU_GETPTRSHAPE                   = $0068;
+constant MOU_GETHOTKEYBUTTON               = $0069;
+constant MOU_QUERYTHRESHOLDVALUES          = $0069;
+constant MOU_VER                           = $006A;
+constant MOU_QUERYPOINTERID                = $006B;
+
+(* Disk/Diskette Control *)
+
+constant DSK_LOCKDRIVE                     = $0000;
+constant DSK_UNLOCKDRIVE                   = $0001;
+constant DSK_REDETERMINEMEDIA              = $0002;
+constant DSK_SETLOGICALMAP                 = $0003;
+constant DSK_BEGINFORMAT                   = $0004;
+constant DSK_BLOCKREMOVABLE                = $0020;
+constant DSK_GETLOGICALMAP                 = $0021;
+constant DSK_UNLOCKEJECTMEDIA              = $0040;
+constant DSK_SETDEVICEPARAMS               = $0043;
+constant DSK_WRITETRACK                    = $0044;
+constant DSK_FORMATVERIFY                  = $0045;
+constant DSK_DISKETTECONTROL               = $005D;
+constant DSK_QUERYMEDIASENSE               = $0060;
+constant DSK_GETDEVICEPARAMS               = $0063;
+constant DSK_READTRACK                     = $0064;
+constant DSK_VERIFYTRACK                   = $0065;
+constant DSK_GETLOCKSTATUS                 = $0066;
+
+(* Physical-Disk Control *)
+
+constant PDSK_LOCKPHYSDRIVE                = $0000;
+constant PDSK_UNLOCKPHYSDRIVE              = $0001;
+constant PDSK_WRITEPHYSTRACK               = $0044;
+constant PDSK_GETPHYSDEVICEPARAMS          = $0063;
+constant PDSK_READPHYSTRACK                = $0064;
+constant PDSK_VERIFYPHYSTRACK              = $0065;
+
+(* Character-Monitor Control *)
+constant MON_REGISTERMONITOR               = $0040;
+
+(* General Device Control *)
+
+constant DEV_FLUSHINPUT                    = $0001;
+constant DEV_FLUSHOUTPUT                   = $0002;
+constant DEV_SYSTEMNOTIFYPDD               = $0041;
+constant DEV_QUERYMONSUPPORT               = $0060;
+
+(* Advanced Power Management *)
+
+constant POWER_SENDPOWEREVENT              = $0040;
+constant POWER_SETPOWEREVENTRES            = $0041;
+constant POWER_GETPOWERSTATUS              = $0060;
+constant POWER_GETPOWEREVENT               = $0061;
+constant POWER_GETPOWERINFO                = $0062;
+
+(* OEMHlp *)
+
+constant OEMHLP_GETOEMADAPTIONINFO         = $0000;
+constant OEMHLP_GETMACHINEINFO             = $0001;
+constant OEMHLP_GETDISPLAYCOMBCODE         = $0002;
+constant OEMHLP_GETVIDEOFONTS              = $0003;
+constant OEMHLP_READEISACONFIGINFO         = $0004;
+constant OEMHLP_GETROMBIOSINFO             = $0005;
+constant OEMHLP_GETMISCVIDEOINFO           = $0006;
+constant OEMHLP_GETVIDEOADAPTER            = $0007;
+constant OEMHLP_GETSVGAINFO                = $0008;
+constant OEMHLP_GETMEMINFO                 = $0009;
+constant OEMHLP_GETDMQSINFO                = $000A;
+constant OEMHLP_PCI                        = $000B;
+constant OEMHLP_QUERYDISKINFO              = $000E;
+
+ (* Test System Config *)
+
+constant TESTCFG_SYS_GETBIOSADAPTER        = $0040;
+constant TESTCFG_SYS_ISSUEINIOINSTR        = $0041;
+constant TESTCFG_SYS_ISSUEOUTIOINSTR       = $0042;
+constant TESTCFG_SYS_GETBUSARCH            = $0060;
+constant TESTCFG_SYS_GETALLPOSIDS          = $0061;
+constant TESTCFG_SYS_GETALLEISAIDS         = $0062;
+
+(* CDROM Drive and Disk *)
+
+constant CDROMDISK_RESETDRIVE              = $0040;
+constant CDROMDISK_EJECTDISK               = $0044;
+constant CDROMDISK_LOCKUNLOCKDOOR          = $0046;
+constant CDROMDISK_SEEK                    = $0050;
+constant CDROMDISK_DEVICESTATUS            = $0060;
+constant CDROMDISK_GETDRIVER               = $0061;
+constant CDROMDISK_GETSECTORSIZE           = $0063;
+constant CDROMDISK_GETHEADLOC              = $0070;
+constant CDROMDISK_READLONG                = $0072;
+constant CDROMDISK_GETVOLUMESIZE           = $0078;
+constant CDROMDISK_GETUPC                  = $0079;
+
+(* CDROM Audio *)
+
+constant CDROMAUDIO_SETCHANNELCTRL         = $0040;
+constant CDROMAUDIO_PLAYAUDIO              = $0050;
+constant CDROMAUDIO_STOPAUDIO              = $0051;
+constant CDROMAUDIO_RESUMEAUDIO            = $0052;
+constant CDROMAUDIO_GETCHANNEL             = $0060;
+constant CDROMAUDIO_GETAUDIODISK           = $0061;
+constant CDROMAUDIO_GETAUDIOTRACK          = $0062;
+constant CDROMAUDIO_GETSUBCHANNELQ         = $0063;
+constant CDROMAUDIO_GETAUDIOSTATUS         = $0065;
+
+(* Touch device-dependent IOCtls *)
+
+constant TOUCH_DEVDEP_SETCALIBconstant        = $0052;
+constant TOUCH_DEVDEP_READDATA             = $0053;
+constant TOUCH_DEVDEP_SETDATAMODE          = $0054;
+constant TOUCH_DEVDEP_SETCLICKLOCK         = $0055;
+constant TOUCH_DEVDEP_SETTOUCHTHRESHOLD    = $0056;
+constant TOUCH_DEVDEP_SETEMULXY            = $0057;
+constant TOUCH_DEVDEP_SETDATAREPORTRATE    = $0058;
+constant TOUCH_DEVDEP_SETLOWPASSFILTER     = $0059;
+constant TOUCH_DEVDEP_WRITEMEMLOC          = $005A;
+constant TOUCH_DEVDEP_GETCALIBconstant        = $0060;
+constant TOUCH_DEVDEP_GETDATAMODE          = $0061;
+constant TOUCH_DEVDEP_GETCLICKLOCK         = $0062;
+constant TOUCH_DEVDEP_GETTOUCHTHRESHOLD    = $0063;
+constant TOUCH_DEVDEP_GETEMULXY            = $0064;
+constant TOUCH_DEVDEP_GETDATAREPORTRATE    = $0065;
+constant TOUCH_DEVDEP_GETLOWPASSFILTER     = $0066;
+constant TOUCH_DEVDEP_READMEMLOC           = $0067;
+
+(* Touch device-INdependent IOCtls *)
+
+constant TOUCH_DEVINDEP_SETCOORDSYS        = $0050;
+constant TOUCH_DEVINDEP_SETSELECTMECH      = $0052;
+constant TOUCH_DEVINDEP_SETEVENTMASK       = $0053;
+constant TOUCH_DEVINDEP_SETQUEUESIZE       = $0054;
+constant TOUCH_DEVINDEP_SETEMULSTATE       = $0055;
+constant TOUCH_DEVINDEP_GETCOORDSYS        = $0060;
+constant TOUCH_DEVINDEP_GETSELECTMECH      = $0062;
+constant TOUCH_DEVINDEP_GETEVENTMASK       = $0063;
+constant TOUCH_DEVINDEP_GETQUEUESIZE       = $0064;
+constant TOUCH_DEVINDEP_GETEMULSTATE       = $0065;
+constant TOUCH_DEVINDEP_GETREADEVENTQUEUE  = $0066;
+
+(* ASYNC_GETCOMMERROR, ASYNC_SETBREAKOFF, ASYNC_SETBREAKON,
+ * ASYNC_SETMODEMCTRL
+ *)
+
+constant RX_QUE_OVERRUN                    = $0001;
+constant RX_HARDWARE_OVERRUN               = $0002;
+constant PARITY_ERROR                      = $0004;
+constant FRAMING_ERROR                     = $0008;
+
+(* ASYNC_GETCOMMEVENT *)
+constant CHAR_RECEIVED                     = $0001;
+constant LAST_CHAR_SENT                    = $0004;
+constant CTS_CHANGED                       = $0008;
+constant DSR_CHANGED                       = $0010;
+constant DCD_CHANGED                       = $0020;
+constant BREAK_DETECTED                    = $0040;
+constant ERROR_OCCURRED                    = $0080;
+constant RI_DETECTED                       = $0100;
+
+(* ASYNC_GETCOMMSTATUS *)
+constant TX_WAITING_FOR_CTS                = $0001;
+constant TX_WAITING_FOR_DSR                = $0002;
+constant TX_WAITING_FOR_DCD                = $0004;
+constant TX_WAITING_FOR_XON                = $0008;
+constant TX_WAITING_TO_SEND_XON            = $0010;
+constant TX_WAITING_WHILE_BREAK_ON         = $0020;
+constant TX_WAITING_TO_SEND_IMM            = $0040;
+constant RX_WAITING_FOR_DSR                = $0080;
+
+(* ASYNC_GETLINESTATUS *)
+constant WRITE_REQUEST_QUEUED              = $0001;
+constant DATA_IN_TX_QUE                    = $0002;
+constant HARDWARE_TRANSMITTING             = $0004;
+constant CHAR_READY_TO_SEND_IMM            = $0008;
+constant WAITING_TO_SEND_XON               = $0010;
+constant WAITING_TO_SEND_XOFF              = $0020;
+
+(* ASYNC_GETMODEMINPUT *)
+constant CTS_ON                            = $10;
+constant DSR_ON                            = $20;
+constant RI_ON                             = $40;
+constant DCD_ON                            = $80;
+
+(* DSK_SETDEVICEPARAMS *)
+constant BUILD_BPB_FROM_MEDIUM             = $00;
+constant REPLACE_BPB_FOR_DEVICE            = $01;
+constant REPLACE_BPB_FOR_MEDIUM            = $02;
+
+(* DSK_GETDEVICEPARAMS *)
+constant GET_BPB_FROM_DEVICE               = $00;
+constant GET_BPB_FROM_MEDIUM               = $01;
+
+(* KBD_GETINPUTMODE, KBD_PEEKCHAR, KBD_SETINPUTMODE*)
+constant ASCII_MODE                        = $00;
+constant BINARY_MODE                       = $80;
+
+(* KBD_GETINTERIMFLAG *)
+constant CONVERSION_REQUEST                = $20;
+constant INTERIM_CHAR                      = $80;
+
+(* KBD_GETSESMGRHOTKEY *)
+constant HOTKEY_MAX_COUNT                  = $0000;
+constant HOTKEY_CURRENT_COUNT              = $0001;
+
+(* KBD_PEEKCHAR *)
+constant KBD_DATA_RECEIVED                 = $0001;
+constant KBD_DATA_BINARY                   = $8000;
+
+(* KBD_READCHAR *)
+constant KBD_READ_WAIT                     = $0000;
+constant KBD_READ_NOWAIT                   = $8000;
+
+(* KBD_SETINPUTMODE *)
+constant SHIFT_REPORT_MODE                 = $01;
+
+(* #ifndef INCL_MOU *)
+
+   constant MOUSE_MOTION                   = $0001;
+   constant MOUSE_MOTION_WITH_BN1_DOWN     = $0002;
+   constant MOUSE_BN1_DOWN                 = $0004;
+   constant MOUSE_MOTION_WITH_BN2_DOWN     = $0008;
+   constant MOUSE_BN2_DOWN                 = $0010;
+   constant MOUSE_MOTION_WITH_BN3_DOWN     = $0020;
+   constant MOUSE_BN3_DOWN                 = $0040;
+
+   constant MHK_BUTTON1                    = $0001;
+   constant MHK_BUTTON2                    = $0002;
+   constant MHK_BUTTON3                    = $0004;
+
+   constant MOU_NOWAIT                     = $0000;
+   constant MOU_WAIT                       = $0001;
+
+(* #endif  #ifndef INCL_MOU *)
+
+(* MOU_GETHOTKEYBUTTON, MOU_SETHOTKEYBUTTON *)
+constant MHK_NO_HOTKEY                     = $0000;
+
+(* MOU_GETMOUSTATUS *)
+constant MOUSE_QUEUEBUSY                   = $0001;
+constant MOUSE_BLOCKREAD                   = $0002;
+constant MOUSE_FLUSH                       = $0004;
+constant MOUSE_UNSUPPORTED_MODE            = $0008;
+constant MOUSE_DISABLED                    = $0100;
+constant MOUSE_MICKEYS                     = $0200;
+
+(* PRT_GETPRINTERSTATUS *)
+constant PRINTER_TIMEOUT                   = $0001;
+constant PRINTER_IO_ERROR                  = $0008;
+constant PRINTER_SELECTED                  = $0010;
+constant PRINTER_OUT_OF_PAPER              = $0020;
+constant PRINTER_ACKNOWLEDGED              = $0040;
+constant PRINTER_NOT_BUSY                  = $0080;
+
+(* fbCtlHndShake *)
+constant MODE_DTR_CONTROL                  = $01;
+constant MODE_DTR_HANDSHAKE                = $02;
+constant MODE_CTS_HANDSHAKE                = $08;
+constant MODE_DSR_HANDSHAKE                = $10;
+constant MODE_DCD_HANDSHAKE                = $20;
+constant MODE_DSR_SENSITIVITY              = $40;
+
+(* fbFlowReplace *)
+constant MODE_AUTO_TRANSMIT                = $01;
+constant MODE_AUTO_RECEIVE                 = $02;
+constant MODE_ERROR_CHAR                   = $04;
+constant MODE_NULL_STRIPPING               = $08;
+constant MODE_BREAK_CHAR                   = $10;
+constant MODE_RTS_CONTROL                  = $40;
+constant MODE_RTS_HANDSHAKE                = $80;
+constant MODE_TRANSMIT_TOGGLE              = $C0;
+
+(* fbTimeout *)
+constant MODE_NO_WRITE_TIMEOUT             = $01;
+constant MODE_READ_TIMEOUT                 = $02;
+constant MODE_WAIT_READ_TIMEOUT            = $04;
+constant MODE_NOWAIT_READ_TIMEOUT          = $06;
+
+type DCBINFO=structure         (* dcbinf *)
+         usWriteTimeout: USHORT;
+         usReadTimeout: USHORT;
+         fbCtlHndShake: BYTE;
+         fbFlowReplace: BYTE;
+         fbTimeout: BYTE;
+         bErrorReplacementChar: BYTE;
+         bBreakReplacementChar: BYTE;
+         bXONChar: BYTE;
+         bXOFFChar: BYTE;
+       end;
+type PDCBINFO=^DCBINFO;
+
+type TRACKTABLE=structure
+      usSectorNumber: USHORT;
+      usSectorSize: USHORT;
+  end;
+
+type TRACKLAYOUT=structure     (* trckl *)
+           bCommand: BYTE;
+           usHead: USHORT;
+           usCylinder: USHORT;
+           usFirstSector: USHORT;
+           cSectors: USHORT;
+           TrackTable: array[1] of TRACKTABLE;
+        end;
+type PTRACKLAYOUT=^TRACKLAYOUT;
+
+constant DEVTYPE_48TPI                     = $0000;
+constant DEVTYPE_96TPI                     = $0001;
+constant DEVTYPE_35                        = $0002;
+constant DEVTYPE_8SD                       = $0003;
+constant DEVTYPE_8DD                       = $0004;
+constant DEVTYPE_FIXED                     = $0005;
+constant DEVTYPE_TAPE                      = $0006;
+constant DEVTYPE_UNKNOWN                   = $0007;
+
+type BIOSPARAMETERBLOCK=structure      (* bspblk *)
+         usBytesPerSector: USHORT;
+         bSectorsPerCluster: BYTE;
+         usReservedSectors: USHORT;
+         cFATs: BYTE;
+         cRootEntries: USHORT;
+         cSectors: USHORT;
+         bMedia: BYTE;
+         usSectorsPerFAT: USHORT;
+         usSectorsPerTrack: USHORT;
+         cHeads: USHORT;
+         cHiddenSectors: ULONG;
+         cLargeSectors: ULONG;
+         abReserved: array[6] of BYTE;
+         cCylinders: USHORT;
+         bDeviceType: BYTE;
+         fsDeviceAttr: USHORT;
+      end;
+type PBIOSPARAMETERBLOCK=^BIOSPARAMETERBLOCK;
+
+type SCREENGROUP=structure     (* scrgrp *)
+         idScreenGrp: USHORT;
+         fTerminate: USHORT;
+    end;
+type  PSCREENGROUP=^SCREENGROUP;
+
+type FRAME=structure           (* frm *)
+         bCharsPerLine: BYTE;
+         bLinesPerInch: BYTE;
+      end;
+type PFRAME=^FRAME;
+
+type KBDTYPE=structure         (* kbdtyp *)
+         usType: USHORT;
+         reserved1: USHORT;
+         reserved2: USHORT;
+     end;
+type PKBDTYPE=^KBDTYPE;
+
+type LINECONTROL=structure     (* lnctl *)
+         bDataBits: BYTE;
+         bParity: BYTE;
+         bStopBits: BYTE;
+         fTransBreak: BYTE;
+     end;
+type PLINECONTROL=^LINECONTROL;
+
+(* MODEMSTATUS.fbModemOn, ASYNC_GETMODEMOUTPUT *)
+constant DTR_ON                            = $01;
+constant RTS_ON                            = $02;
+
+(* MODEMSTATUS.fbModemOff *)
+constant DTR_OFF                           = $FE;
+constant RTS_OFF                           = $FD;
+
+type MODEMSTATUS=structure     (* mdmst *)
+         fbModemOn: BYTE;
+         fbModemOff: BYTE;
+      end;
+type PMODEMSTATUS=^MODEMSTATUS;
+
+type FORMATTABLE=structure
+                bCylinder: BYTE;
+                bHead: BYTE;
+                idSector: BYTE;
+                bBytesSector: BYTE;
+            end;
+
+
+type TRACKFORMAT=structure     (* trckfmt *)
+         bCommand: BYTE;
+         usHead: USHORT;
+         usCylinder: USHORT;
+         usReserved: USHORT;
+         cSectors: USHORT;
+         FormatTable: array[1] of FORMATTABLE;
+      end;
+
+type PTRACKFORMAT=^TRACKFORMAT;
+
+type RXQUEUE=structure         (* rxq *)
+         cch: USHORT;
+         cb: USHORT;
+     end;
+type PRXQUEUE=^RXQUEUE;
+
+type DEVICEPARAMETERBLOCK=structure    (* dvpblck *)
+         reserved1: USHORT;
+         cCylinders: USHORT;
+         cHeads: USHORT;
+         cSectorsPerTrack: USHORT;
+         reserved2: USHORT;
+         reserved3: USHORT;
+         reserved4: USHORT;
+         reserved5: USHORT;
+      end;
+
+type PDEVICEPARAMETERBLOCK=^DEVICEPARAMETERBLOCK;
+
+(* The following must be packed on 2 bytes boundary *)
+
+type PTRDRAWFUNCTION=structure         (* ptrdfnc *)
+         usReturnCode: USHORT;
+         pfnDraw: PFN;
+         pchDataSeg: PCH;
+    end;
+
+type PPTRDRAWFUNCTION=^PTRDRAWFUNCTION;
+
+
+type PTRDRAWADDRESS=structure          (* ptrdaddr *)
+         reserved: USHORT;
+         ptrdfnc: PTRDRAWFUNCTION;
+     end;
+
+type PPTRDRAWADDRESS=^PTRDRAWADDRESS;
+
+type SHIFTSTATE=structure      (* shftst *)
+         fsState: USHORT;
+         fNLS: BYTE;
+        end;
+
+type PSHIFTSTATE=^SHIFTSTATE;
+
+
+
+(* HOTKEY.fsHotKey/SHIFTSTATE.fsState *)
+constant RIGHTSHIFT                        = $0001;
+constant LEFTSHIFT                         = $0002;
+constant CONTROL                           = $0004;
+constant ALT                               = $0008;
+constant SCROLLLOCK_ON                     = $0010;
+constant NUMLOCK_ON                        = $0020;
+constant CAPSLOCK_ON                       = $0040;
+constant INSERT_ON                         = $0080;
+constant LEFTCONTROL                       = $0100;
+constant LEFTALT                           = $0200;
+constant RIGHTCONTROL                      = $0400;
+constant RIGHTALT                          = $0800;
+constant SCROLLLOCK                        = $1000;
+constant NUMLOCK                           = $2000;
+constant CAPSLOCK                          = $4000;
+constant SYSREQ                            = $8000;
+
+type HOTKEY=structure         (* htky *)
+         fsHotKey: USHORT;
+         uchScancodeMake: UCHAR;
+         uchScancodeBreak: UCHAR;
+         idHotKey: USHORT;
+      end;
+
+type PHOTKEY=^HOTKEY;
+
+type MONITORPOSITION=structure         (* mnpos *)
+         fPosition: USHORT;
+         index: USHORT;
+         pbInBuf: ULONG;
+         offOutBuf: USHORT;
+    end;
+
+type PMONITORPOSITION=^MONITORPOSITION;
+
+type RATEDELAY=structure       (* rtdly *)
+         usDelay: USHORT;
+         usRate: USHORT;
+     end;
+type PRATEDELAY=^RATEDELAY;
+
+type CODEPAGEINFO=structure    (* cpi *)
+         pbTransTable: PBYTE;
+         idCodePage: USHORT;
+         idTable: USHORT;
+    end;
+type PCODEPAGEINFO=^CODEPAGEINFO;
+
+type CPID=structure    (* cpid *)
+         idCodePage: USHORT;
+         Reserved: USHORT;
+      end;
+type PCPID=^CPID;
+
+type LDTADDRINFO=structure     (* ldtaddr *)
+         pulPhysAddr: PULONG;
+         cb: USHORT;
+     end;
+
+type PLDTADDRINFO=^LDTADDRINFO;
+
+type PTRDRAWDATA=structure     (* ptrdd *)
+         cb: USHORT;
+         usConfig: USHORT;
+         usFlag: USHORT;
+    end;
+
+
+type PPTRDRAWDATA=^PTRDRAWDATA;
+
+
+(*
+ * SCREENDD IOCTL definitions
+ *)
+constant SCREENDD_GETCURRENTBANK        = $00;    (* Get current bank *)
+constant SCREENDD_SETCURRENTBANK        = $01;    (* Set current bank *)
+constant SCREENDD_SVGA_ID               = $08;    (* Get SVGA info IOCTL *)
+constant SCREENDD_SVGA_OEM              = $09;    (* Get OEM info IOCTL *)
+constant SCREENDD_UPDATEMEMORY          = $0A;    (* Update Memory    IOCTl   *)
+constant SCREENDD_GETLINEARACCESS       = $0B;    (* GetLinearAccess  IOCTl   *)
+constant SCREENDD_GETGLOBALACCESS       = $0C;    (* GetGlobalAccess  IOCTl   *)
+constant SCREENDD_FREEGLOBALACCESS      = $0D;    (* FreeGlobalAccess IOCTl   *)
+constant SCREENDD_REGISTER_RING0_CALLER = $0E;    (* Register VVID as Ring0 PMI caller *)
+constant SCREENDD_WAIT_ON_RING0_CALLER  = $0F;    (* Wait for RING0 caller to register *)
+(* this IOCTL is used internally between videopmi & screendd: *)
+constant SCREENDD_SVGA_APM              = $10;    (* Wait 4 APM *)
+constant SCREENDD_GET_CS_ALIAS          = $11;
+(*
+** APM constants
+*)
+constant APM_RESUME             = 1;
+constant APM_SUSPEND            = 2;
+constant APM_DISABLED           = 4;
+
+constant SCREENDD_CATEGORY             =  $80;
+constant SCREENDD_NAME                 =  'SCREEN$';
+
+constant GETLINEAR_FLAG_MAPPHYSICAL     = $00000010;
+constant GETLINEAR_FLAG_MAPPROCESS      = $00000020;
+constant GETLINEAR_FLAG_MAPSHARED       = $00000400;
+constant GETLINEAR_FLAG_MAPVERIFY       = $40000000;
+constant GETLINEAR_FLAG_MAPATTACH       = $80000000;
+
+constant EGA_BIT        = 4;                (* EGA *)
+constant VGA_BIT        = 8;                (* VGA *)
+constant EGAVGA_BIT     = (EGA_BIT+VGA_BIT);(* EGA/VGA *)
+
+                                       (* SCREENDD_GETLINEARACCESS *)
+type GETLINIOCTLDATA=structure  (* *)
+           PacketLength: ULONG;
+           PhysicalAddress: ULONG;
+           ApertureSize: ULONG;
+           LinearAddress: PBYTE;
+           LinearFlags: ULONG;
+  end;
+type PGETLINIOCTLDATA=^GETLINIOCTLDATA;
+
+                                (*  SCREENDD_SETCURRENTBANK/GETCURRENTBANK *)
+type BANKINFO=structure      (* *)
+          ulBankLength: ULONG;
+          usBank: USHORT;
+          usVideoModeType: USHORT;
+          usReadWriteMode: USHORT;
+  end;
+
+constant READ_BANK   = 0;
+constant WRITE_BANK  = 1;
+constant MODE_TEXT   = 0;
+constant MODE_PLANAR = 1;
+constant MODE_LINEAR = 2;
+
+                                 (* SCREENDD_GETGLOBALACCESS *)
+type GLOBALIOCTLDATA=structure    (* *)
+           ProcessAddress: ULONG;
+           AddressLength: ULONG;
+           GlobalAddress: ULONG;
+  end;
+                                           (* data packet for SCREENDD_SVGA_ID *)
+        (* Rather than cause build troubles using PCI.H, *)
+        (* the new fields must be cast during use *)
+type OEMSVGAINFO=structure  (* *)
+         AdapterType: USHORT;
+         ChipType: USHORT;
+         Memory: ULONG;
+               (* PCI_CFG_BASE_ADDR_COUNT = 6 *)
+         aulPCIRangeSize: array[6] of ULONG;
+               (* PCI_CFG_SPACE_SIZE = $0100 = 256 *)
+         abPCIConfiguration: array[256] of BYTE;
+  end;
+                                           (* data packet for SCREENDD_SVGA_OEM *)
+(* OEM data packet format must contain total length in bytes as its first word. *)
+(* The rest of it can be in manufacturer/adapter specific format. *)
+
+type OEMINFO=structure     (* *)
+          OEMLength: ULONG;
+          Manufacturer: USHORT;
+          ManufacturerData: ULONG;
+          ManufacturerModel: USHORT;
+  end;
+                                          (* paramter packet for GETGLOBALACCESS *)
+type GETGLOBALPACKET=structure   (* *)
+           GlobalPktLength: ULONG;
+           GlobalPktData: array[1] of GLOBALIOCTLDATA;
+  end;
+
+type OEMHLPDISKINFO=structure  (* *)
+    ODI_Reserved: USHORT;         (* Reserved                           *)
+    ODI_Flags: USHORT;            (* Information flags                  *)
+    ODI_Cylinders: ULONG;        (* Number of Phys Cylinders           *)
+    ODI_Heads: ULONG;            (* Number of Phys Heads               *)
+    ODI_SectorsPerTrack: ULONG;  (* Number of Phys sectors per track   *)
+    ODI_PhysSectors_low: ULONG;  (* Number of Phys Sectors (low dword) *)
+    ODI_PhysSectors_high: ULONG; (* Number of Phys Sectors (high dword)*)
+    ODI_SectorSize: USHORT;       (* Number of bytes in a sector        *)
+    ODI_Reserved2: ULONG;        (* Reserved                           *)
+    ODI_IOPort: USHORT;           (* I/O port base address              *)
+    ODI_ControlPort: USHORT;      (* Control port address               *)
+    ODI_HeadRegisterUN: UCHAR;   (* Head Register upper nibble         *)
+    ODI_Reserved3: UCHAR;        (* Reserved                           *)
+    ODI_IRQ: UCHAR;              (* IRQ information                    *)
+    ODI_RWMult_BlkCnt: UCHAR;    (* Block count, ATA R/W Mult commands *)
+    ODI_DMAInfo: UCHAR;          (* DMA information                    *)
+    ODI_PIOInfo: UCHAR;          (* PIO information                    *)
+    ODI_HWFlags: USHORT;          (* hardware specific option flags     *)
+    ODI_Reserved4: USHORT;        (* Reserved                           *)
+    ODI_Revision: UCHAR;         (* Revision level of DPT Extension    *)
+    ODI_Reserved5: UCHAR;        (* Reserved                           *)
+  end;
+
+end.

@@ -1,0 +1,11 @@
+group bseerr;
+begin
+  group errors;
+  begin
+    group doserrors;
+    begin
+      include 'errors_h.uni';
+      include 'errors2_h.uni';
+    end;
+  end;
+end;

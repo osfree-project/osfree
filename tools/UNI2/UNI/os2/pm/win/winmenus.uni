@@ -1,0 +1,127 @@
+group winmenus;
+
+constant MIT_END            = (-1);
+constant MIT_NONE           = (-1);
+constant MIT_MEMERROR       = (-1);
+constant MIT_ERROR          = (-1);
+constant MIT_FIRST          = (-2);
+constant MIT_LAST           = (-3);
+constant MID_ERROR          = (-1);
+constant MID_NONE           = MIT_NONE;
+
+constant MIS_TEXT            = $0001;
+constant MIS_BITMAP          = $0002;
+constant MIS_SEPARATOR       = $0004;
+constant MIS_OWNERDRAW       = $0008;
+constant MIS_SUBMENU         = $0010;
+constant MIS_MULTMENU        = $0020;
+constant MIS_SYSCOMMAND      = $0040;
+constant MIS_HELP            = $0080;
+constant MIS_STATIC          = $0100;
+constant MIS_BUTTONSEPARATOR = $0200;
+constant MIS_BREAK           = $0400;
+constant MIS_BREAKSEPARATOR  = $0800;
+constant MIS_GROUP           = $1000;
+constant MIS_SINGLE          = $2000;
+
+constant MIA_NODISMISS = $0020;
+constant MIA_FRAMED    = $1000;
+constant MIA_CHECKED   = $2000;
+constant MIA_DISABLED  = $4000;
+constant MIA_HILITED   = $8000;
+
+constant MS_ACTIONBAR           = $0001;
+constant MS_TITLEBUTTON         = $0002;
+constant MS_VERTICALFLIP        = $0004;
+constant MS_CONDITIONALCASCADE  = $0040;
+
+constant PU_POSITIONONITEM   = $0001;
+constant PU_HCONSTRAIN       = $0002;
+constant PU_VCONSTRAIN       = $0004;
+constant PU_NONE             = $0000;
+constant PU_MOUSEBUTTON1DOWN = $0008;
+constant PU_MOUSEBUTTON2DOWN = $0010;
+constant PU_MOUSEBUTTON3DOWN = $0018;
+constant PU_SELECTITEM       = $0020;
+constant PU_MOUSEBUTTON1     = $0040;
+constant PU_MOUSEBUTTON2     = $0080;
+constant PU_MOUSEBUTTON3     = $0100;
+constant PU_KEYBOARD         = $0200;
+
+constant MM_INSERTITEM          = $0180;
+constant MM_DELETEITEM          = $0181;
+constant MM_QUERYITEM           = $0182;
+constant MM_SETITEM             = $0183;
+constant MM_QUERYITEMCOUNT      = $0184;
+constant MM_STARTMENUMODE       = $0185;
+constant MM_ENDMENUMODE         = $0186;
+constant MM_REMOVEITEM          = $0188;
+constant MM_SELECTITEM          = $0189;
+constant MM_QUERYSELITEMID      = $018a;
+constant MM_QUERYITEMTEXT       = $018b;
+constant MM_QUERYITEMTEXTLENGTH = $018c;
+constant MM_SETITEMHANDLE       = $018d;
+constant MM_SETITEMTEXT         = $018e;
+constant MM_ITEMPOSITIONFROMID  = $018f;
+constant MM_ITEMIDFROMPOSITION  = $0190;
+constant MM_QUERYITEMATTR       = $0191;
+constant MM_SETITEMATTR         = $0192;
+constant MM_ISITEMVALID         = $0193;
+constant MM_QUERYITEMRECT       = $0194;
+constant MM_QUERYDEFAULTITEMID  = $0431;
+constant MM_SETDEFAULTITEMID    = $0432;
+
+(*
+
+constant WinCheckMenuItem(hwndMenu, id, fcheck) \
+    ((BOOL)WinSendMsg(hwndMenu, MM_SETITEMATTR, MPFROM2SHORT(id, TRUE), \
+    MPFROM2SHORT(MIA_CHECKED, (USHORT)(fcheck) ? MIA_CHECKED : 0)))
+constant WinIsMenuItemChecked(hwndMenu, id) \
+    ((BOOL)WinSendMsg(hwndMenu, MM_QUERYITEMATTR, \
+    MPFROM2SHORT(id, TRUE), MPFROMLONG(MIA_CHECKED)))
+constant WinEnableMenuItem(hwndMenu, id, fEnable) \
+    ((BOOL)WinSendMsg(hwndMenu, MM_SETITEMATTR, MPFROM2SHORT(id, TRUE), \
+    MPFROM2SHORT(MIA_DISABLED, (USHORT)(fEnable) ? 0 : MIA_DISABLED)))
+constant WinIsMenuItemEnabled(hwndMenu, id)  \
+    (!(BOOL)WinSendMsg(hwndMenu, MM_QUERYITEMATTR, \
+    MPFROM2SHORT(id, TRUE), MPFROMLONG(MIA_DISABLED)))
+constant WinSetMenuItemText(hwndMenu, id, psz) \
+    ((BOOL)WinSendMsg(hwndMenu, MM_SETITEMTEXT, MPFROMLONG(id), MPFROMP(psz)))
+constant WinIsMenuItemValid(hwndMenu, id) \
+    ((BOOL)WinSendMsg(hwndMenu, MM_ISITEMVALID, MPFROM2SHORT(id, TRUE), MPFROMLONG(FALSE)))
+
+	*)
+	
+type OWNERITEM=structure
+    hwnd: HWND;
+    hps: HPS;
+    fsState: ULONG;
+    fsAttribute: ULONG;
+    fsStateOld: ULONG;
+    fsAttributeOld: ULONG;
+    rclItem: RECTL;
+    idItem: LONG;
+    hItem: ULONG;
+end;
+type POWNERITEM=^OWNERITEM;
+
+(* #pragma pack(2) *)
+
+type MENUITEM=structure
+      iPosition: SHORT;
+     afStyle: USHORT;
+     afAttribute: USHORT;
+     id: USHORT;
+     hwndSubMenu: HWND;
+     hItem: ULONG;
+end;
+type PMENUITEM=^MENUITEM;
+
+(* #pragma pack() *)
+
+function WinCreateMenu(in a: HWND; in b: PVOID): HWND;
+function WinLoadMenu(in a: HWND; in b: HMODULE; in c: ULONG): HWND;
+function WinPopupMenu(in a: HWND; in b: HWND; in c: HWND; in d: LONG; in e: LONG; in f: LONG; in g: ULONG): BOOL;
+
+end;
+

@@ -1,0 +1,100 @@
+group winframemgrcommon;
+
+   (*** Frame Manager Common subsection *)
+
+(*   #pragma pack(2)  force structure alignment packing *)
+
+   (* Binary resources may be bound into application executables or *)
+   (* passed as a parameter when creating a window or dialog        *)
+   (* Currently they must be the same for both 16-bit and 32-bit    *)
+   (* so we pack the structures.                                    *)
+   type FRAMECDATA=structure   (* fcdata *)
+        cb: USHORT;
+        flCreateFlags: ULONG;
+        hmodResources: USHORT;
+        idResources: USHORT;
+     end;
+   type PFRAMECDATA=^FRAMECDATA;
+
+(*   #pragma pack()   restore packing to default *)
+
+   (* Frame window styles *)
+   (* All unused FCF_xxx bits are reserved *)
+constant FCF_TITLEBAR               = $00000001;
+constant FCF_SYSMENU                = $00000002;
+constant FCF_MENU                   = $00000004;
+constant FCF_SIZEBORDER             = $00000008;
+constant FCF_MINBUTTON              = $00000010;
+constant FCF_MAXBUTTON              = $00000020;
+constant FCF_MINMAX                 = $00000030; (* minmax means BOTH buttons *)
+constant FCF_VERTSCROLL             = $00000040;
+constant FCF_HORZSCROLL             = $00000080;
+constant FCF_DLGBORDER              = $00000100;
+constant FCF_BORDER                 = $00000200;
+constant FCF_SHELLPOSITION          = $00000400;
+constant FCF_TASKLIST               = $00000800;
+constant FCF_NOBYTEALIGN            = $00001000;
+constant FCF_NOMOVEWITHOWNER        = $00002000;
+constant FCF_ICON                   = $00004000;
+constant FCF_ACCELTABLE             = $00008000;
+constant FCF_SYSMODAL               = $00010000;
+constant FCF_SCREENALIGN            = $00020000;
+constant FCF_MOUSEALIGN             = $00040000;
+constant FCF_HIDEBUTTON             = $01000000;
+constant FCF_HIDEMAX                = $01000020; (* hidemax means BOTH buttons *)
+constant FCF_CLOSEBUTTON            = $04000000; (* use when no other min/max  *)
+   (*   button is present        *)
+   constant FCF_DBE_APPSTAT         = $80000000;
+constant FCF_AUTOICON               = $40000000;
+
+   (* FCF_TITLEBAR | FCF_SYSMENU | FCF_MENU | FCF_SIZEBORDER | FCF_MINMAX |
+   FCF_ICON | FCF_ACCELTABLE | FCF_SHELLPOSITION | FCF_TASKLIST *)
+constant FCF_STANDARD            = $0000CC3F;
+
+
+constant FS_ICON                    = $00000001;
+constant FS_ACCELTABLE              = $00000002;
+
+   constant FS_SHELLPOSITION        = $00000004;
+
+constant FS_TASKLIST                = $00000008;
+constant FS_NOBYTEALIGN             = $00000010;
+constant FS_NOMOVEWITHOWNER         = $00000020;
+constant FS_SYSMODAL                = $00000040;
+constant FS_DLGBORDER               = $00000080;
+constant FS_BORDER                  = $00000100;
+constant FS_SCREENALIGN             = $00000200;
+constant FS_MOUSEALIGN              = $00000400;
+constant FS_SIZEBORDER              = $00000800;
+constant FS_AUTOICON                = $00001000;
+   constant FS_DBE_APPSTAT          = $00008000;
+
+   (* FS_ICON | FS_ACCELTABLE | FS_SHELLPOSITION | FS_TASKLIST *)
+constant FS_STANDARD                = $0000000F;
+
+
+   (* Frame Window Flags accessed via WinSet/QueryWindowUShort(QWS_FLAGS) *)
+
+   constant FF_FLASHWINDOW             = $0001;
+   constant FF_ACTIVE                  = $0002;
+   constant FF_FLASHHILITE             = $0004;
+   constant FF_OWNERHIDDEN             = $0008;
+   constant FF_DLGDISMISSED            = $0010;
+   constant FF_OWNERDISABLED           = $0020;
+   constant FF_SELECTED                = $0040;
+   constant FF_NOACTIVATESWP           = $0080;
+   constant FF_DIALOGBOX               = $0100;
+
+
+function WinCreateStdWindow(in hwndParent: HWND;
+                                     in flStyle: ULONG;
+                                     in pflCreateFlags: PULONG;
+                                     in pszClientClass: PCSZ;
+                                     in pszTitle: PCSZ;
+                                     in styleClient: ULONG,
+                                     in hmod: HMODULE;
+                                     in idResources: ULONG;
+                                     in phwndClient: PHWND): HWND;
+
+
+end.

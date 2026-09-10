@@ -1,0 +1,27 @@
+Правила формирования UNI из файлов H на C/C++
+
+------------------------------------------------------
+
+Конструкция типа
+
+#ifdef INCL_BASE
+    #define INCL_DOS
+    #define INCL_SUB
+    #define INCL_DOSERRORS
+#endif
+
+переводится в
+
+uses base;
+
+и создается файл base.uni с содержимым
+
+group base;
+
+uses dos default;
+uses sub default;
+uses doserrors default;
+
+end.
+
+--------------------------------------------------------

@@ -1,0 +1,124 @@
+(******************************************************************************
+*                                                                             *
+* Module Name: BSEMEMF.UNI                                                    *
+*                                                                             *
+* OS/2 Pesronality Base Memory Flags include file                             *
+*                                                                             *
+*                                                                             *
+*******************************************************************************)
+
+group bsememf;
+
+ (* Access protection                                                          *)
+
+constant PAG_READ          = $00000001;      (* read access                      *)
+constant PAG_WRITE         = $00000002;      (* write access                     *)
+constant PAG_EXECUTE       = $00000004;      (* execute access                   *)
+constant PAG_GUARD         = $00000008;      (* guard protection                 *)
+constant PAG_DEFAULT       = $00000400;      (* default (initial) access         *)
+
+ (* Commit                                                                     *)
+
+constant PAG_COMMIT        = $00000010;      (* commit storage                   *)
+constant PAG_DECOMMIT      = $00000020;      (* decommit storage                 *)
+
+
+ (* Allocation attributes                                                      *)
+
+constant OBJ_TILE          = $00000040;      (* tile object                      *)
+constant OBJ_PROTECTED     = $00000080;      (* protect object
+                                            NOTE: This flag is NOT available at
+                                            the api level *)
+constant OBJ_GETTABLE      = $00000100;      (* gettable by other processes      *)
+constant OBJ_GIVEABLE      = $00000200;      (* giveable to other processes      *)
+constant OBJ_ANY           = $00000400;      (* allocate memory anywhere         *)
+
+
+
+constant fPERM             = PAG_EXECUTE or PAG_READ or PAG_WRITE;
+
+constant fSHARE            = OBJ_GETTABLE or OBJ_GIVEABLE;
+
+
+
+ (* DosAllocMem flags                                                          *)
+
+constant fALLOC            = OBJ_TILE or PAG_COMMIT or fPERM;
+
+
+
+ (* DosAllocSharedMem flags                                                    *)
+
+constant fALLOCSHR         = OBJ_TILE or PAG_COMMIT or fSHARE or fPERM;
+
+
+
+ (* DosGetNamedSharedMem flags                                                 *)
+
+constant fGETNMSHR         = fPERM;
+
+
+
+ (* DosGetSharedMem flags                                                      *)
+
+constant fGETSHR           = fPERM;
+
+
+
+ (* DosGiveSharedMem flags                                                     *)
+
+constant fGIVESHR          = fPERM;
+
+
+
+ (* DosSetMem flags                                                            *)
+
+constant fSET              = PAG_COMMIT or PAG_DECOMMIT or PAG_DEFAULT or fPERM;
+
+
+
+ (* Dos32SubSet flags                                                          *)
+
+constant DOSSUB_INIT       = $01;           (* initialize memory object for     *)
+                                           (* suballocation                    *)
+
+constant DOSSUB_GROW       = $02;           (* increase size of memory pool     *)
+                                           (* for suballocation                *)
+
+constant DOSSUB_SPARSE_OBJ = $04;           (* indicator for DosSub to          *)
+                                           (* manage the commitment of         *)
+                                           (* pages spanned by the memory      *)
+                                           (* pool                             *)
+
+constant DOSSUB_SERIALIZE  = $08;           (* indicates that access to the     *)
+                                           (* memory pool is to be             *)
+                                           (* serialized by DosSub             *)
+
+
+
+ (* Allocation type (returned from DosQueryMem)                                *)
+
+constant PAG_SHARED        = $00002000;     (* shared object                    *)
+constant PAG_FREE          = $00004000;     (* pages are free                   *)
+constant PAG_BASE          = $00010000;     (* first page in object             *)
+
+ (* for DosAllocMem and DosAliasMem *)
+constant OBJ_SELMAPALL     = $00000800;      (* First sel map all of object *)
+
+ (* for DosAliasMem *)
+ (* In addition to OBJ_TILE (defined in bsememf.h) and OBJ_SELMAPALL *)
+constant SEL_CODE          = $00000001;      (* Selector is code *)
+constant SEL_USE32         = $00000002;      (* Selector is USE32 *)
+
+ (* Page state (returned from DosQueryMemState) *)
+constant PAG_NPOUT         = $00000000;      (* page is not present, not in core *)
+constant PAG_PRESENT       = $00000001;      (* page is present *)
+constant PAG_NPIN          = $00000002;      (* page is not present, in core *)
+constant PAG_PRESMASK      = $00000003;      (* present state mask *)
+constant PAG_INVALID       = $00000000;      (* page is invalid *)
+constant PAG_RESIDENT      = $00000010;      (* page is resident *)
+constant PAG_SWAPPABLE     = $00000020;      (* page is swappable *)
+constant PAG_DISCARDABLE   = $00000030;      (* page is discardable *)
+constant PAG_TYPEMASK      = $00000030;      (* type mask *)
+
+end;

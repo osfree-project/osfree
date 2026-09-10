@@ -1,0 +1,246 @@
+group wininput;
+
+function WinSetCapture(in hwndDesktop: HWND;
+                                  in hwnd: HWND): BOOL;
+
+function WinQueryCapture(in hwndDesktop: HWND): HWND;
+
+function WinCheckInput(in hab: HAB): BOOL;
+
+(*** Mouse input messages ***********************************************)
+constant  WM_MOUSEFIRST           = $0070;
+constant  WM_MOUSELAST            = $0079;
+constant  WM_BUTTONCLICKFIRST     = $0071;
+constant  WM_BUTTONCLICKLAST      = $0079;
+constant  WM_MOUSEMOVE               = $0070;
+
+constant  WM_BUTTON1DOWN             = $0071;
+
+constant  WM_BUTTON1UP               = $0072;
+constant  WM_BUTTON1DBLCLK           = $0073;
+constant  WM_BUTTON2DOWN             = $0074;
+constant  WM_BUTTON2UP               = $0075;
+constant  WM_BUTTON2DBLCLK           = $0076;
+constant  WM_BUTTON3DOWN          = $0077;
+constant  WM_BUTTON3UP            = $0078;
+constant  WM_BUTTON3DBLCLK        = $0079;
+
+constant  WM_MOUSEMAP             = $007D;
+
+constant  WM_EXTMOUSEFIRST        = $0410;
+constant  WM_EXTMOUSELAST         = $0419;
+
+constant  WM_CHORD                = $0410;
+constant  WM_BUTTON1MOTIONSTART   = $0411;
+constant  WM_BUTTON1MOTIONEND     = $0412;
+constant  WM_BUTTON1CLICK         = $0413;
+constant  WM_BUTTON2MOTIONSTART   = $0414;
+constant  WM_BUTTON2MOTIONEND     = $0415;
+constant  WM_BUTTON2CLICK         = $0416;
+constant  WM_BUTTON3MOTIONSTART   = $0417;
+constant  WM_BUTTON3MOTIONEND     = $0418;
+constant  WM_BUTTON3CLICK         = $0419;
+
+   (* Messages = $041A - = $041F are reserved *)
+
+constant  WM_MOUSETRANSLATEFIRST  = $0420;
+constant  WM_MOUSETRANSLATELAST   = $0428;
+
+constant  WM_BEGINDRAG            = $0420;
+constant  WM_ENDDRAG              = $0421;
+constant  WM_SINGLESELECT         = $0422;
+constant  WM_OPEN                 = $0423;
+constant  WM_CONTEXTMENU          = $0424;
+constant  WM_CONTEXTHELP          = $0425;
+constant  WM_TEXTEDIT             = $0426;
+constant  WM_BEGINSELECT          = $0427;
+constant  WM_ENDSELECT            = $0428;
+constant  WM_PICKUP               = $0429;
+
+constant  WM_PENFIRST             = $04C0;
+constant  WM_PENLAST              = $04FF;
+constant  WM_MMPMFIRST            = $0500;
+constant  WM_MMPMLAST             = $05FF;
+constant  WM_STDDLGFIRST          = $0600;
+constant  WM_STDDLGLAST           = $065F;
+
+   (* Messages = $0BD0 - = $0BFF are reserved *)
+   (* for bidirectional language support.   *)
+
+constant   WM_BIDI_FIRST           = $0BD0;
+constant   WM_BIDI_LAST            = $0BFF;
+
+
+function WinQueryFocus(in hwndDesktop: HWND): HWND;
+
+
+   (*** Key/Character input messages ***************************************)
+constant  WM_CHAR                    = $007a;
+constant  WM_VIOCHAR                 = $007b;
+
+   (* WM_CHAR fs field bits *)
+constant  KC_NONE                    = $0000;     (* Reserved *)
+constant  KC_CHAR                    = $0001;
+constant  KC_VIRTUALKEY              = $0002;
+constant  KC_SCANCODE                = $0004;
+
+constant  KC_SHIFT                   = $0008;
+constant  KC_CTRL                    = $0010;
+constant  KC_ALT                     = $0020;
+constant  KC_KEYUP                   = $0040;
+constant  KC_PREVDOWN                = $0080;
+constant  KC_LONEKEY                 = $0100;
+constant  KC_DEADKEY                 = $0200;
+constant  KC_COMPOSITE               = $0400;
+constant  KC_INVALIDCOMP             = $0800;
+
+   constant  KC_TOGGLE               = $1000;
+   constant  KC_INVALIDCHAR          = $2000;
+   constant  KC_DBCSRSRVD1           = $4000;
+   constant  KC_DBCSRSRVD2           = $8000;
+
+(*   #pragma pack(1) force structure alignment packing *)
+
+   (*
+   * The following structure and macro are used to access the
+   * WM_MOUSEMOVE, and WM_BUTTON message parameters
+   *)
+   type MOUSEMSG=structure    (* mousemsg *)
+         x: SHORT;             (* mp1      *)
+         y: SHORT;
+         codeHitTest: USHORT;   (* mp2      *)
+         fsInp: USHORT;         (* input flags *)
+     end;
+   type MSEMSG=MOUSEMSG;
+   type PMSEMSG=^MSEMSG;
+
+
+   type CHARMSG=structure    (* charmsg *)
+        fs: USHORT;           (* mp1     *)
+        cRepeat: UCHAR;
+        scancode: UCHAR;
+        chr: USHORT;          (* mp2     *)
+        vkey: USHORT;
+     end;
+   type CHRMSG=CHARMSG;
+   type PCHRMSG=^CHRMSG;
+
+
+(*   #pragma pack()   restore packing to default *)
+
+constant  INP_NONE                   = $0000;
+constant  INP_KBD                    = $0001;
+constant  INP_MULT                   = $0002;
+constant  INP_RES2                   = $0004;
+constant  INP_SHIFT                  = $0008;
+constant  INP_CTRL                   = $0010;
+constant  INP_ALT                    = $0020;
+constant  INP_RES3                   = $0040;
+constant  INP_RES4                   = $0080;
+constant  INP_IGNORE                 = $FFFF;
+
+   (*** Virtual key values *************************************************)
+constant  VK_BUTTON1                 = $01;
+constant  VK_BUTTON2                 = $02;
+constant  VK_BUTTON3                 = $03;
+constant  VK_BREAK                   = $04;
+constant  VK_BACKSPACE               = $05;
+constant  VK_TAB                     = $06;
+constant  VK_BACKTAB                 = $07;
+constant  VK_NEWLINE                 = $08;
+constant  VK_SHIFT                   = $09;
+constant  VK_CTRL                    = $0A;
+constant  VK_ALT                     = $0B;
+constant  VK_ALTGRAF                 = $0C;
+constant  VK_PAUSE                   = $0D;
+constant  VK_CAPSLOCK                = $0E;
+constant  VK_ESC                     = $0F;
+constant  VK_SPACE                   = $10;
+constant  VK_PAGEUP                  = $11;
+constant  VK_PAGEDOWN                = $12;
+constant  VK_END                     = $13;
+constant  VK_HOME                    = $14;
+constant  VK_LEFT                    = $15;
+constant  VK_UP                      = $16;
+constant  VK_RIGHT                   = $17;
+constant  VK_DOWN                    = $18;
+constant  VK_PRINTSCRN               = $19;
+constant  VK_INSERT                  = $1A;
+constant  VK_DELETE                  = $1B;
+constant  VK_SCRLLOCK                = $1C;
+constant  VK_NUMLOCK                 = $1D;
+constant  VK_ENTER                   = $1E;
+constant  VK_SYSRQ                   = $1F;
+constant  VK_F1                      = $20;
+constant  VK_F2                      = $21;
+constant  VK_F3                      = $22;
+constant  VK_F4                      = $23;
+constant  VK_F5                      = $24;
+constant  VK_F6                      = $25;
+constant  VK_F7                      = $26;
+constant  VK_F8                      = $27;
+constant  VK_F9                      = $28;
+constant  VK_F10                     = $29;
+constant  VK_F11                     = $2A;
+constant  VK_F12                     = $2B;
+constant  VK_F13                     = $2C;
+constant  VK_F14                     = $2D;
+constant  VK_F15                     = $2E;
+constant  VK_F16                     = $2F;
+constant  VK_F17                     = $30;
+constant  VK_F18                     = $31;
+constant  VK_F19                     = $32;
+constant  VK_F20                     = $33;
+constant  VK_F21                     = $34;
+constant  VK_F22                     = $35;
+constant  VK_F23                     = $36;
+constant  VK_F24                     = $37;
+constant  VK_ENDDRAG                 = $38;
+constant  VK_CLEAR                   = $39;
+constant  VK_EREOF                   = $3A;
+constant  VK_PA1                     = $3B;
+constant  VK_ATTN                    = $3C;
+constant  VK_CRSEL                   = $3D;
+constant  VK_EXSEL                   = $3E;
+constant  VK_COPY                    = $3F;
+constant  VK_BLK1                    = $40;
+constant  VK_BLK2                    = $41;
+
+
+constant  VK_MENU                  =  VK_F10;
+
+constant  VK_DBCSFIRST            = $0080;
+constant  VK_DBCSLAST             = $00ff;
+
+   (* VK_ vluaes = $E0 - = $FF are reserved   *)
+   (* for bidirectional language support.   *)
+
+constant  VK_BIDI_FIRST           = $E0;
+constant  VK_BIDI_LAST            = $FF;
+
+
+constant  VK_USERFIRST               = $0100;
+constant  VK_USERLAST                = $01ff;
+
+
+function WinGetKeyState(in hwndDesktop: HWND;
+                                   in vkey: LONG): LONG;
+function WinGetPhysKeyState(in hwndDesktop: HWND;
+                                        in sc: LONG): LONG;
+function WinEnablePhysInput(in hwndDesktop: HWND;
+                                       in  fEnable: BOOL): BOOL;
+function WinIsPhysInputEnabled(in hwndDesktop: HWND): BOOL;
+
+function WinSetKeyboardStateTable(in hwndDesktop: HWND;
+                                               in pKeyStateTable: PBYTE;
+                                               in fSet: BOOL): BOOL;
+
+
+   (* Journal Notification messages  *)
+constant  WM_JOURNALNOTIFY           = $007c;
+
+   (*** Define the valid commands (lParm1) for journal notify message *)
+constant  JRN_QUEUESTATUS            = $00000001;
+constant  JRN_PHYSKEYSTATE           = $00000002;
+
+end.

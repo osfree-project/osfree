@@ -1,0 +1,219 @@
+group gpibitmaps;
+
+constant CBM_INIT = 4;
+
+constant BCA_UNCOMP         =0;
+constant BCA_HUFFMAN1D      =3;
+constant BCA_RLE4           =2;
+constant BCA_RLE8           =1;
+constant BCA_RLE24          =4;
+constant BRU_METRIC         =0;
+constant BRA_BOTTOMUP       =0;
+constant BRH_NOTHALFTONED   =0;
+constant BRH_ERRORDIFFUSION =1;
+constant BRH_PANDA         = 2;
+constant BRH_SUPERCIRCLE =   3;
+constant BCE_PALETTE    =  (-1);
+constant BCE_RGB          =  0;
+
+constant BFT_ICON         = $4349;
+constant BFT_BMAP         = $4d42;
+constant BFT_POINTER      = $5450;
+constant BFT_COLORICON    = $4943;
+constant BFT_COLORPOINTER = $5043;
+constant BFT_BITMAPARRAY  = $4142;
+
+constant BMB_ERROR = (-1);
+
+(* #pragma pack(1) *)
+
+type RGB=structure
+    bBlue: BYTE;
+    bGreen: BYTE;
+    bRed: BYTE;
+  end;
+
+type RGB2=structure
+     bBlue: BYTE;
+     bGreen: BYTE;
+     bRed: BYTE;
+     fcOptions: BYTE;
+  end;
+
+type PRGB2=^RGB2;
+
+type BITMAPINFO=structure
+    cbFix: ULONG;
+    cx: USHORT;
+    cy: USHORT;
+    cPlanes: USHORT;
+    cBitCount: USHORT;
+    argbColor: array[1] of RGB;
+  end;
+
+type PBITMAPINFO=^BITMAPINFO;
+
+type BITMAPINFO2=structure
+      cbFix: ULONG;
+      cx: ULONG;
+      cy: ULONG;
+     cPlanes: USHORT;
+     cBitCount: USHORT;
+      ulCompression: ULONG;
+      cbImage: ULONG;
+      cxResolution: ULONG;
+      cyResolution: ULONG;
+      cclrUsed: ULONG;
+      cclrImportant: ULONG;
+     usUnits: USHORT;
+     usReserved: USHORT;
+     usRecording: USHORT;
+     usRendering: USHORT;
+      cSize1: ULONG;
+      cSize2: ULONG;
+      ulColorEncoding: ULONG;
+      ulIdentifier: ULONG;
+       argbColor: array[1] of RGB2;
+  end;
+
+type PBITMAPINFO2=^BITMAPINFO2;
+
+type BITMAPINFOHEADER=structure
+      cbFix: ULONG;
+     cx: USHORT;
+     cy: USHORT;
+     cPlanes: USHORT;
+     cBitCount: USHORT;
+  end;
+
+type PBITMAPINFOHEADER=^BITMAPINFOHEADER;
+
+type BITMAPINFOHEADER2=structure
+      cbFix: ULONG;
+      cx: ULONG;
+      cy: ULONG;
+     cPlanes: USHORT;
+     cBitCount: USHORT;
+      ulCompression: ULONG;
+      cbImage: ULONG;
+      cxResolution: ULONG;
+      cyResolution: ULONG;
+      cclrUsed: ULONG;
+      cclrImportant: ULONG;
+     usUnits: USHORT;
+     usReserved: USHORT;
+     usRecording: USHORT;
+     usRendering: USHORT;
+      cSize1: ULONG;
+      cSize2: ULONG;
+      ulColorEncoding: ULONG;
+      ulIdentifier: ULONG;
+end;
+
+type PBITMAPINFOHEADER2=^BITMAPINFOHEADER2;
+
+type BITMAPFILEHEADER=structure
+     usType: USHORT;
+      cbSize: ULONG;
+      xHotspot: SHORT;
+      yHotspot: SHORT;
+      offBits: ULONG;
+     bmp: BITMAPINFOHEADER;
+end;
+
+type PBITMAPFILEHEADER=^BITMAPFILEHEADER;
+
+type BITMAPARRAYFILEHEADER=structure
+     usType: USHORT;
+      cbSize: ULONG;
+      offNext: ULONG;
+     cxDisplay: USHORT;
+     cyDisplay: USHORT;
+     bfh: BITMAPFILEHEADER;
+end;
+
+type PBITMAPARRAYFILEHEADER=^BITMAPARRAYFILEHEADER;
+
+type BITMAPFILEHEADER2=structure
+     usType: USHORT;
+     cbSize: ULONG;
+      xHotspot: SHORT;
+      yHotspot: SHORT;
+      offBits: ULONG;
+     bmp2: BITMAPINFOHEADER2;
+end;
+
+type PBITMAPFILEHEADER2=^BITMAPFILEHEADER2;
+
+type BITMAPARRAYFILEHEADER2=structure
+     usType: USHORT;
+      cbSize: ULONG;
+      offNext: ULONG;
+     cxDisplay: USHORT;
+     cyDisplay: USHORT;
+     bfh2: BITMAPFILEHEADER2;
+ end;
+
+type PBITMAPARRAYFILEHEADER2=^BITMAPARRAYFILEHEADER2;
+
+(* #pragma pack() *)
+
+function GpiCreateBitmap(in a: HPS;
+                         in b: PBITMAPINFOHEADER2;
+                                                 in c: ULONG;
+                                                 in d: PBYTE;
+                                                 in r: PBITMAPINFO2): HBITMAP;
+
+function GpiFloodFill(in a: HPS;
+                      in b: LONG;
+                                          in c: LONG): LONG;
+
+function GpiQueryBitmapBits(in a: HPS;
+                            in b: LONG;
+                                                        in c: LONG;
+                                                        in d: PBYTE;
+                                                        in e: PBITMAPINFO2): LONG;
+
+function GpiQueryBitmapDimension(in  a: HBITMAP;
+                                 out b: SIZEL): BOOL;
+
+function GpiQueryBitmapHandle(in a: HPS;
+                              in b: LONG): HBITMAP;
+
+function GpiQueryBitmapInfoHeader(in  a: HBITMAP;
+                                  out b: BITMAPINFOHEADER2): BOOL;
+
+function GpiQueryBitmapParameters(in  a: HBITMAP;
+                                  out b: BITMAPINFOHEADER): BOOL;
+
+function GpiQueryDeviceBitmapFormats(in a: HPS;
+                                     in b: LONG;
+                                     in c: PLONG): BOOL;
+
+function GpiQueryPel(in  a: HPS;
+                     out b: POINTL): LONG;
+
+function GpiSetBitmapBits(in a: HPS;
+                          in b: LONG;
+                                                  in c: LONG;
+                                                  in d: PBYTE;
+                                                  in e:PBITMAPINFO2): LONG;
+
+function GpiSetBitmapDimension(in a: HBITMAP;
+                               in b: PSIZEL): BOOL;
+
+function GpiSetBitmapId(in a: HPS;
+                        in b: HBITMAP;
+                                                in c: LONG): BOOL;
+
+function GpiSetPel(in a: HPS;
+                   in b: PPOINTL): LONG;
+function GpiDrawBits(in a: HPS;
+                     in b: PVOID;
+                                         in c: PBITMAPINFO2;
+                                         in d: LONG;
+                                         in e: PPOINTL;
+                                         in f: LONG;
+                                         in g: ULONG): LONG;
+
+end.

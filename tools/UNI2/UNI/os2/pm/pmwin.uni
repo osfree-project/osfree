@@ -1,0 +1,28 @@
+group pmwin;
+
+uses pmbase default;
+uses pmshl;
+uses winwindowmgr;
+uses winwindowmgrcommon default;
+uses winmessagemgr default ;
+uses winmessagemgrcommon default;
+uses winclipboard;
+uses winclipboarddde default;
+uses winframemgrcommon default;
+uses winframemgr default;
+uses winsys;
+uses wininput;
+uses wininputcommon default;
+uses winerrors;
+uses winhooks;
+uses windialogscommon default;
+uses windialogs default;
+uses winentryfields;
+uses pmstddlg;
+uses winentryfields;
+uses winbuttons;
+uses winlistboxes;
+uses wincountry;
+uses wintimer;
+
+end.

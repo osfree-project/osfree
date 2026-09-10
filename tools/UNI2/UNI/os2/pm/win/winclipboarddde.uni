@@ -1,0 +1,77 @@
+group winclipboarddde;
+
+(* Clipboard messages *)
+
+constant WM_RENDERFMT              = $0060;
+constant WM_RENDERALLFMTS          = $0061;
+constant WM_DESTROYCLIPBOARD       = $0062;
+constant WM_PAINTCLIPBOARD         = $0063;
+constant WM_SIZECLIPBOARD          = $0064;
+constant WM_HSCROLLCLIPBOARD       = $0065;
+constant WM_VSCROLLCLIPBOARD       = $0066;
+constant WM_DRAWCLIPBOARD          = $0067;
+
+(*
+* Standard Clipboard formats
+*)
+constant CF_TEXT                   = 1;
+constant CF_BITMAP                 = 2;
+constant CF_DSPTEXT                = 3;
+constant CF_DSPBITMAP              = 4;
+constant CF_METAFILE               = 5;
+constant CF_DSPMETAFILE            = 6;
+constant CF_PALETTE                = 9;
+constant CF_MMPMFIRST              =10;
+constant CF_MMPMLAST               =19;
+(*
+* standard DDE and clipboard format stings
+*)
+constant SZFMT_TEXT                =   '#1';
+constant SZFMT_BITMAP              =   '#2';
+constant SZFMT_DSPTEXT             =   '#3';
+constant SZFMT_DSPBITMAP           =   '#4';
+constant SZFMT_METAFILE            =   '#5';
+constant SZFMT_DSPMETAFILE         =   '#6';
+constant SZFMT_PALETTE             =   '#9';
+constant SZFMT_SYLK                =   'Sylk';
+constant SZFMT_DIF                 =   'Dif';
+constant SZFMT_TIFF                =   'Tiff';
+constant SZFMT_OEMTEXT             =   'OemText';
+constant SZFMT_DIB                 =   'Dib';
+constant SZFMT_OWNERDISPLAY        =   'OwnerDisplay';
+constant SZFMT_LINK                =   'Link';
+constant SZFMT_METAFILEPICT        =   'MetaFilePict';
+constant SZFMT_DSPMETAFILEPICT     =   'DspMetaFilePict';
+constant SZFMT_CPTEXT              =   'Codepage Text';
+constant SZDDEFMT_RTF              =   'Rich Text Format';
+constant SZDDEFMT_PTRPICT          =   'Printer_Picture';
+
+
+(* Metafiles are the same no matter whether they are used in     *)
+(* 16-bit or 32-bit applications. While not strictly necessary   *)
+(* because of inherent alignment we force packing on a 2 byte    *)
+(* boundary to avoid any confusion.                              *)
+type MFP=structure    (* mfp *)
+    sizeBounds: POINTL;  (* metafile notional grid size      *)
+    sizeMM: POINTL;      (* metafile size high metric units  *)
+     cbLength: ULONG;    (* length of metafile data          *)
+    mapMode: USHORT;     (* a PM metaflie map mode           *)
+    reserved: USHORT;
+      abData: array[1] of BYTE;   (* metafile Data                    *)
+  end;
+type PMFP=^MFP;
+
+(* CPTEXT DDE data are the same no matter whether they are used  *)
+(* in 16-bit or 32-bit applications. While not strictly necessary*)
+(* because of inherent alignment we force packing on a 2 byte    *)
+(* boundary to avoid any confusion.                              *)
+type CPTEXT=structure    (* cptxt *)
+    idCountry: USHORT;
+    usCodepage: USHORT;
+    usLangID: USHORT;
+    usSubLangID: USHORT;
+    abText: array[1] of BYTE;   (* text string starts here          *)
+  end;
+type PCPTEXT=^CPTEXT;
+
+end.

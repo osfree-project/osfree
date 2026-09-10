@@ -1,0 +1,8 @@
+group base;
+begin
+  include 'dos.uni';
+  include 'dosdevioctl.uni';
+  include 'sub.uni';
+  include 'bseerr.uni';
+  include 'ordinals.uni';
+end;

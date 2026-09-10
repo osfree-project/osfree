@@ -1,0 +1,456 @@
+group winsys;
+
+(*** System values *)
+
+function WinQuerySysValue(in hwndDesktop: HWND;
+                                  in iSysValue: LONG): LONG;
+function WinSetSysValue(in hwndDesktop: HWND;
+                                 in iSysValue: LONG;
+                                 in lValue: LONG): BOOL;
+
+constant SV_SWAPBUTTON             = 0;
+constant SV_DBLCLKTIME             = 1;
+constant SV_CXDBLCLK               = 2;
+constant SV_CYDBLCLK               = 3;
+constant SV_CXSIZEBORDER           = 4;
+constant SV_CYSIZEBORDER           = 5;
+constant SV_ALARM                  = 6;
+
+constant SV_RESERVEDFIRST1         = 7;
+constant SV_RESERVEDLAST1          = 8;
+
+constant SV_CURSORRATE             = 9;
+constant SV_FIRSTSCROLLRATE        = 10;
+constant SV_SCROLLRATE             = 11;
+constant SV_NUMBEREDLISTS          = 12;
+constant SV_WARNINGFREQ            = 13;
+constant SV_NOTEFREQ               = 14;
+constant SV_ERRORFREQ              = 15;
+constant SV_WARNINGDURATION        = 16;
+constant SV_NOTEDURATION           = 17;
+constant SV_ERRORDURATION          = 18;
+
+constant SV_RESERVEDFIRST          = 19;
+constant SV_RESERVEDLAST           = 19;
+
+constant SV_CXSCREEN               = 20;
+constant SV_CYSCREEN               = 21;
+constant SV_CXVSCROLL              = 22;
+constant SV_CYHSCROLL              = 23;
+constant SV_CYVSCROLLARROW         = 24;
+constant SV_CXHSCROLLARROW         = 25;
+constant SV_CXBORDER               = 26;
+constant SV_CYBORDER               = 27;
+constant SV_CXDLGFRAME             = 28;
+constant SV_CYDLGFRAME             = 29;
+constant SV_CYTITLEBAR             = 30;
+constant SV_CYVSLIDER              = 31;
+constant SV_CXHSLIDER              = 32;
+constant SV_CXMINMAXBUTTON         = 33;
+constant SV_CYMINMAXBUTTON         = 34;
+constant SV_CYMENU                 = 35;
+constant SV_CXFULLSCREEN           = 36;
+constant SV_CYFULLSCREEN           = 37;
+constant SV_CXICON                 = 38;
+constant SV_CYICON                 = 39;
+constant SV_CXPOINTER              = 40;
+constant SV_CYPOINTER              = 41;
+
+constant SV_DEBUG                  = 42;
+constant SV_CMOUSEBUTTONS          = 43;
+constant SV_CPOINTERBUTTONS        = 43;
+constant SV_POINTERLEVEL           = 44;
+constant SV_CURSORLEVEL            = 45;
+constant SV_TRACKRECTLEVEL         = 46;
+
+constant SV_CTIMERS                = 47;
+
+constant SV_MOUSEPRESENT           = 48;
+
+constant SV_CXBYTEALIGN            = 49;
+constant SV_CXALIGN                = 49;
+constant SV_CYBYTEALIGN            = 50;
+constant SV_CYALIGN                = 50;
+
+   (* The following value enables any greater value to be set by WinSetSysValue. *)
+   (* This is to enable the setting of SV_EXTRAKEYBEEP by applications.          *)
+
+constant SV_NOTRESERVED            = 56;
+constant SV_EXTRAKEYBEEP           = 57;
+
+   (* The following system value controls whether PM controls the keyboard      *)
+   (* lights for light key keystrokes (else applications will)                  *)
+constant SV_SETLIGHTS              = 58;
+constant SV_INSERTMODE             = 59;
+
+
+constant SV_MENUROLLDOWNDELAY      = 64;
+constant SV_MENUROLLUPDELAY        = 65;
+constant SV_ALTMNEMONIC            = 66;
+constant SV_TASKLISTMOUSEACCESS    = 67;
+
+constant SV_CXICONTEXTWIDTH        = 68;
+constant SV_CICONTEXTLINES         = 69;
+
+constant SV_CHORDTIME              = 70;
+constant SV_CXCHORD                = 71;
+constant SV_CYCHORD                = 72;
+constant SV_CXMOTIONSTART          = 73;
+constant SV_CYMOTIONSTART          = 74;
+
+constant SV_BEGINDRAG              = 75;
+constant SV_ENDDRAG                = 76;
+constant SV_SINGLESELECT           = 77;
+constant SV_OPEN                   = 78;
+constant SV_CONTEXTMENU            = 79;
+constant SV_CONTEXTHELP            = 80;
+constant SV_TEXTEDIT               = 81;
+constant SV_BEGINSELECT            = 82;
+constant SV_ENDSELECT              = 83;
+
+constant SV_BEGINDRAGKB            = 84;
+constant SV_ENDDRAGKB              = 85;
+constant SV_SELECTKB               = 86;
+constant SV_OPENKB                 = 87;
+constant SV_CONTEXTMENUKB          = 88;
+constant SV_CONTEXTHELPKB          = 89;
+constant SV_TEXTEDITKB             = 90;
+constant SV_BEGINSELECTKB          = 91;
+constant SV_ENDSELECTKB            = 92;
+
+constant SV_ANIMATION              = 93;
+constant SV_ANIMATIONSPEED         = 94;
+
+constant SV_MONOICONS              = 95;
+
+constant SV_KBDALTERED             = 96;
+
+constant SV_PRINTSCREEN            = 97;
+
+constant SV_LOCKSTARTINPUT         = 98;
+
+constant SV_CSYSVALUES             = 108;
+
+   (*
+   * Presentation parameter structures.
+   *)
+   type PARAM=structure    (* param *)
+          id: ULONG;
+          cb: ULONG;
+          ab: array[1] of BYTE;
+     end;
+   type NPPARAM =^PARAM;
+   type PPARAM =^PARAM;
+
+   type PRESPARAMS=structure    (* pres *)
+         cb: ULONG;
+         aparam: array[1] of PARAM;
+     end;
+   type NPPRESPARAMS=^PRESPARAMS;
+   type PPRESPARAMS=^PRESPARAMS;
+
+   (*
+   * Presentation parameter APIs
+   *)
+function WinSetPresParam(in hwnd: HWND;
+                                   in id: ULONG;
+                                   in cbParam: ULONG;
+                                   in pbParam: PVOID): BOOL;
+
+function WinQueryPresParam(in hwnd: HWND;
+                                    in id1: ULONG;
+                                    in id2: ULONG;
+                                    inout pulId: PULONG;
+                                    in cbBuf: ULONG;
+                                    in pbBuf: PVOID; (* Untyped variable *)
+                                    in fs: ULONG): ULONG;
+
+function WinRemovePresParam(in hwnd: HWND;
+                                     in id: ULONG): BOOL;
+
+   (*
+   * Presentation parameter types.
+   *)
+
+constant PP_FOREGROUNDCOLOR                     = 1;
+constant PP_FOREGROUNDCOLORINDEX                = 2;
+constant PP_BACKGROUNDCOLOR                     = 3;
+constant PP_BACKGROUNDCOLORINDEX                = 4;
+constant PP_HILITEFOREGROUNDCOLOR               = 5;
+constant PP_HILITEFOREGROUNDCOLORINDEX          = 6;
+constant PP_HILITEBACKGROUNDCOLOR               = 7;
+constant PP_HILITEBACKGROUNDCOLORINDEX          = 8;
+constant PP_DISABLEDFOREGROUNDCOLOR             = 9;
+constant PP_DISABLEDFOREGROUNDCOLORINDEX        = 10;
+constant PP_DISABLEDBACKGROUNDCOLOR             = 11;
+constant PP_DISABLEDBACKGROUNDCOLORINDEX        = 12;
+constant PP_BORDERCOLOR                         = 13;
+constant PP_BORDERCOLORINDEX                    = 14;
+constant PP_FONTNAMESIZE                        = 15;
+constant PP_FONTHANDLE                          = 16;
+constant PP_RESERVED                            = 17;
+constant PP_ACTIVECOLOR                         = 18;
+constant PP_ACTIVECOLORINDEX                    = 19;
+constant PP_INACTIVECOLOR                       = 20;
+constant PP_INACTIVECOLORINDEX                  = 21;
+constant PP_ACTIVETEXTFGNDCOLOR                 = 22;
+constant PP_ACTIVETEXTFGNDCOLORINDEX            = 23;
+constant PP_ACTIVETEXTBGNDCOLOR                 = 24;
+constant PP_ACTIVETEXTBGNDCOLORINDEX            = 25;
+constant PP_INACTIVETEXTFGNDCOLOR               = 26;
+constant PP_INACTIVETEXTFGNDCOLORINDEX          = 27;
+constant PP_INACTIVETEXTBGNDCOLOR               = 28;
+constant PP_INACTIVETEXTBGNDCOLORINDEX          = 29;
+constant PP_SHADOW                              = 30;
+constant PP_MENUFOREGROUNDCOLOR                 = 31;
+constant PP_MENUFOREGROUNDCOLORINDEX            = 32;
+constant PP_MENUBACKGROUNDCOLOR                 = 33;
+constant PP_MENUBACKGROUNDCOLORINDEX            = 34;
+constant PP_MENUHILITEFGNDCOLOR                 = 35;
+constant PP_MENUHILITEFGNDCOLORINDEX            = 36;
+constant PP_MENUHILITEBGNDCOLOR                 = 37;
+constant PP_MENUHILITEBGNDCOLORINDEX            = 38;
+constant PP_MENUDISABLEDFGNDCOLOR               = 39;
+constant PP_MENUDISABLEDFGNDCOLORINDEX          = 40;
+constant PP_MENUDISABLEDBGNDCOLOR               = 41;
+constant PP_MENUDISABLEDBGNDCOLORINDEX          = 42;
+constant PP_SHADOWTEXTCOLOR                     = 43;
+constant PP_SHADOWTEXTCOLORINDEX                = 44;
+constant PP_SHADOWHILITEFGNDCOLOR               = 45;
+constant PP_SHADOWHILITEFGNDCOLORINDEX          = 46;
+constant PP_SHADOWHILITEBGNDCOLOR               = 47;
+constant PP_SHADOWHILITEBGNDCOLORINDEX          = 48;
+constant PP_ICONTEXTBACKGROUNDCOLOR             = 49;
+constant PP_ICONTEXTBACKGROUNDCOLORINDEX        = 50;
+constant PP_BORDERLIGHTCOLOR                    = 51;
+constant PP_BORDERDARKCOLOR                     = 52;
+constant PP_BORDER2COLOR                        = 53;
+constant PP_BORDER2LIGHTCOLOR                   = 54;
+constant PP_BORDER2DARKCOLOR                    = 55;
+constant PP_BORDERDEFAULTCOLOR                  = 56;
+constant PP_FIELDBACKGROUNDCOLOR                = 57;
+constant PP_BUTTONBACKGROUNDCOLOR               = 58;
+constant PP_BUTTONBORDERLIGHTCOLOR              = 59;
+constant PP_BUTTONBORDERDARKCOLOR               = 60;
+constant PP_ARROWCOLOR                          = 61;
+constant PP_ARROWBORDERLIGHTCOLOR               = 62;
+constant PP_ARROWBORDERDARKCOLOR                = 63;
+constant PP_ARROWDISABLEDCOLOR                  = 64;
+constant PP_CHECKLIGHTCOLOR                     = 65;
+constant PP_CHECKMIDDLECOLOR                    = 66;
+constant PP_CHECKDARKCOLOR                      = 67;
+constant PP_PAGEFOREGROUNDCOLOR                 = 68;
+constant PP_PAGEBACKGROUNDCOLOR                 = 69;
+constant PP_MAJORTABFOREGROUNDCOLOR             = 70;
+constant PP_MAJORTABBACKGROUNDCOLOR             = 71;
+constant PP_MINORTABFOREGROUNDCOLOR             = 72;
+constant PP_MINORTABBACKGROUNDCOLOR             = 73;
+
+   (* PP_ values = $100 - = $012F are reserved*)
+   (* for bidirectional language support.   *)
+
+constant PP_BIDI_FIRST                           = $0100;
+constant PP_BIDI_LAST                            = $012F;
+
+constant PP_USER                                 = $8000;
+
+   (*
+   * Flags for WinQueryPresParams()
+   *)
+constant QPF_NOINHERIT            = $0001; (* Don't inherit                      *)
+constant QPF_ID1COLORINDEX        = $0002; (* Convert id1 color index into RGB   *)
+constant QPF_ID2COLORINDEX        = $0004; (* Convert id2 color index into RGB   *)
+constant QPF_PURERGBCOLOR         = $0008; (* Return pure RGB colors             *)
+constant QPF_VALIDFLAGS           = $000F; (* Valid WinQueryPresParams() flags.  *)
+
+   (*** System color functions *)
+
+function WinQuerySysColor(in hwndDesktop: HWND;
+                                   in clr: LONG;
+                                   in lReserved: LONG): LONG;
+function WinSetSysColors(in hwndDesktop: HWND;
+                                 in flOptions: ULONG;
+                                 in flFormat: ULONG;
+                                 in clrFirst: LONG;
+                                 in cclr: ULONG;
+                                 in pclr: PLONG): BOOL;
+
+constant SYSCLR_SHADOWHILITEBGND        = (-50);
+constant SYSCLR_SHADOWHILITEFGND        = (-49);
+constant SYSCLR_SHADOWTEXT              = (-48);
+constant SYSCLR_ENTRYFIELD              = (-47);
+constant SYSCLR_MENUDISABLEDTEXT        = (-46);
+constant SYSCLR_MENUHILITE              = (-45);
+constant SYSCLR_MENUHILITEBGND          = (-44);
+constant SYSCLR_PAGEBACKGROUND          = (-43);
+constant SYSCLR_FIELDBACKGROUND         = (-42);
+constant SYSCLR_BUTTONLIGHT             = (-41);
+constant SYSCLR_BUTTONMIDDLE            = (-40);
+constant SYSCLR_BUTTONDARK              = (-39);
+constant SYSCLR_BUTTONDEFAULT           = (-38);
+constant SYSCLR_TITLEBOTTOM             = (-37);
+constant SYSCLR_SHADOW                  = (-36);
+constant SYSCLR_ICONTEXT                = (-35);
+constant SYSCLR_DIALOGBACKGROUND        = (-34);
+constant SYSCLR_HILITEFOREGROUND        = (-33);
+constant SYSCLR_HILITEBACKGROUND        = (-32);
+constant SYSCLR_INACTIVETITLETEXTBGND   = (-31);
+constant SYSCLR_ACTIVETITLETEXTBGND     = (-30);
+constant SYSCLR_INACTIVETITLETEXT       = (-29);
+constant SYSCLR_ACTIVETITLETEXT         = (-28);
+constant SYSCLR_OUTPUTTEXT              = (-27);
+constant SYSCLR_WINDOWSTATICTEXT        = (-26);
+constant SYSCLR_SCROLLBAR               = (-25);
+constant SYSCLR_BACKGROUND              = (-24);
+constant SYSCLR_ACTIVETITLE             = (-23);
+constant SYSCLR_INACTIVETITLE           = (-22);
+constant SYSCLR_MENU                    = (-21);
+constant SYSCLR_WINDOW                  = (-20);
+constant SYSCLR_WINDOWFRAME             = (-19);
+constant SYSCLR_MENUTEXT                = (-18);
+constant SYSCLR_WINDOWTEXT              = (-17);
+constant SYSCLR_TITLETEXT               = (-16);
+constant SYSCLR_ACTIVEBORDER            = (-15);
+constant SYSCLR_INACTIVEBORDER          = (-14);
+constant SYSCLR_APPWORKSPACE            = (-13);
+constant SYSCLR_HELPBACKGROUND          = (-12);
+constant SYSCLR_HELPTEXT                = (-11);
+constant SYSCLR_HELPHILITE              = (-10);
+
+constant SYSCLR_CSYSCOLORS              = 41;
+
+   (*
+   *  Control color type constants
+   *)
+
+constant CCT_STATIC                     = 1;
+constant CCT_STATICTEXT                 = 2;
+constant CCT_GROUPBOX                   = 3;
+constant CCT_PUSHBUTTON                 = 4;
+constant CCT_CHECKBOX                   = 5;
+constant CCT_RADIOBUTTON                = 6;
+constant CCT_ENTRYFIELD                 = 7;
+constant CCT_LISTBOX                    = 8;
+constant CCT_COMBOBOX                   = 9;
+constant CCT_SCROLLBAR                  = 10;
+constant CCT_FRAME                      = 11;
+constant CCT_MENU                       = 12;
+constant CCT_TITLEBAR                   = 13;
+constant CCT_SPINBUTTON                 = 14;
+constant CCT_SLIDER                     = 15;
+constant CCT_CIRCULARSLIDER             = 16;
+constant CCT_VALUESET                   = 17;
+constant CCT_MLE                        = 18;
+constant CCT_CONTAINER                  = 19;
+constant CCT_NOTEBOOK                   = 20;
+
+constant CCT_MAXTYPE                    = 20;
+
+   (*
+   *  Control color index constants
+   *)
+
+constant CCI_FOREGROUND                 = 1;
+constant CCI_FOREGROUNDREADONLY         = 2;
+constant CCI_BACKGROUND                 = 3;
+constant CCI_BACKGROUNDDIALOG           = 4;
+constant CCI_DISABLEDFOREGROUND         = 5;
+constant CCI_DISABLEDFOREGROUNDREADONLY = 6;
+constant CCI_DISABLEDBACKGROUND         = 7;
+constant CCI_DISABLEDBACKGROUNDDIALOG   = 8;
+constant CCI_HIGHLIGHTFOREGROUND        = 9;
+constant CCI_HIGHLIGHTBACKGROUND        = 10;
+constant CCI_HIGHLIGHTBACKGROUNDDIALOG  = 11;
+constant CCI_INACTIVEFOREGROUND         = 12;
+constant CCI_INACTIVEFOREGROUNDDIALOG   = 13;
+constant CCI_INACTIVEBACKGROUND         = 14;
+constant CCI_INACTIVEBACKGROUNDTEXT     = 15;
+constant CCI_ACTIVEFOREGROUND           = 16;
+constant CCI_ACTIVEFOREGROUNDDIALOG     = 17;
+constant CCI_ACTIVEBACKGROUND           = 18;
+constant CCI_ACTIVEBACKGROUNDTEXT       = 19;
+constant CCI_PAGEBACKGROUND             = 20;
+constant CCI_PAGEFOREGROUND             = 21;
+constant CCI_FIELDBACKGROUND            = 22;
+constant CCI_BORDER                     = 23;
+constant CCI_BORDERLIGHT                = 24;
+constant CCI_BORDERDARK                 = 25;
+constant CCI_BORDER2                    = 26;
+constant CCI_BORDER2LIGHT               = 27;
+constant CCI_BORDER2DARK                = 28;
+constant CCI_BORDERDEFAULT              = 29;
+constant CCI_BUTTONBACKGROUND           = 30;
+constant CCI_BUTTONFOREGROUND           = 31;
+constant CCI_BUTTONBORDERLIGHT          = 32;
+constant CCI_BUTTONBORDERDARK           = 33;
+constant CCI_ARROW                      = 34;
+constant CCI_DISABLEDARROW              = 35;
+constant CCI_ARROWBORDERLIGHT           = 36;
+constant CCI_ARROWBORDERDARK            = 37;
+constant CCI_CHECKLIGHT                 = 38;
+constant CCI_CHECKMIDDLE                = 39;
+constant CCI_CHECKDARK                  = 40;
+constant CCI_ICONFOREGROUND             = 41;
+constant CCI_ICONBACKGROUND             = 42;
+constant CCI_ICONBACKGROUNDDESKTOP      = 43;
+constant CCI_ICONHILITEFOREGROUND       = 44;
+constant CCI_ICONHILITEBACKGROUND       = 45;
+constant CCI_MAJORTABFOREGROUND         = 46;
+constant CCI_MAJORTABBACKGROUND         = 47;
+constant CCI_MINORTABFOREGROUND         = 48;
+constant CCI_MINORTABBACKGROUND         = 49;
+
+constant CCI_MAXINDEX                   = 49;
+
+   (*
+   *  Control color flags
+   *)
+
+constant CCF_GLOBAL                      = $0000;
+constant CCF_APPLICATION                 = $0001;
+constant CCF_COUNTCOLORS                 = $0010;
+constant CCF_ALLCOLORS                   = $0020;
+
+   (*
+   *  Control color values
+   *)
+
+constant CCV_NOTFOUND                 =  (-125);
+constant CCV_IGNORE                   =  (-126);
+constant CCV_DEFAULT                  =  (-127 );
+
+   (*
+   *  Control color structure
+   *)
+
+   type CTLCOLOR=structure    (* ctlclr *)
+      clrIndex: LONG;
+      clrValue: LONG;
+     end;
+
+   type PCTLCOLOR=^CTLCOLOR;
+
+   (*
+   *  Control color functions
+   *)
+
+function WinQueryControlColors(in hwnd: HWND;
+                                        in clrType: LONG;
+                                        in flCtlColor: ULONG;
+                                        in cCtlColor: ULONG;
+                                        out pCtlColor: CTLCOLOR): LONG;
+
+function WinSetControlColors(in hwnd: HWND;
+                                     in clrType: LONG;
+                                     in flCtlColor: ULONG;
+                                     in cCtlColor: ULONG;
+                                     in pCtlColor: PCTLCOLOR): LONG;
+
+   (*
+   * Control color messages
+   *)
+
+constant WM_CTLCOLORCHANGE          = $0129;
+constant WM_QUERYCTLTYPE            = $0130;
+
+end.

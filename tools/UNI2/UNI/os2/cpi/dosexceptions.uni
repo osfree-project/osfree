@@ -1,0 +1,15 @@
+group dosexceptions;
+
+
+(*** Signal support *)
+
+   (* DosSetSigExceptionFocus codes *)
+
+   constant SIG_UNSETFOCUS = 0;
+   constant SIG_SETFOCUS   = 1;
+
+   uses bsexcpt default;
+   uses dosexcptfunc default;
+
+
+end.

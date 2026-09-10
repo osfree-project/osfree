@@ -1,0 +1,28 @@
+group gpipaths;
+
+constant FPATH_ALTERNATE = 0;
+constant FPATH_WINDING   = 2;
+constant FPATH_INCL      = 0;
+constant FPATH_EXCL      = 8;
+
+constant MPATH_STROKE = 6;
+
+constant SCP_ALTERNATE = 0;
+constant SCP_WINDING   = 2;
+constant SCP_AND       = 4;
+constant SCP_RESET     = 0;
+constant SCP_INCL      = 0;
+constant SCP_EXCL      = 8;
+
+function GpiBeginPath(in a: HPS, in b: LONG): BOOL;
+function GpiCloseFigure(in a: HPS): BOOL;
+function GpiEndPath(in a: HPS): BOOL;
+function GpiFillPath(in a: HPS, in b: LONG, in c: LONG): LONG;
+function GpiModifyPath(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiOutlinePath(in a: HPS, in b: LONG, in c: LONG): LONG;
+function GpiPathToRegion(in a: HPS, in b: LONG, in c: LONG): HRGN;
+function GpiSetClipPath(in a: HPS, in b: LONG, in c: LONG): BOOL;
+function GpiStrokePath(in a: HPS, in b: LONG, in c: ULONG): LONG;
+
+
+end.

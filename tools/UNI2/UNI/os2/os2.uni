@@ -1,0 +1,8 @@
+group os2;
+begin
+  include 'os2def.uni';
+  include 'base.uni';
+  include 'pm.uni';
+  include 'osa.uni';
+  include 'opendoc.uni';
+end;

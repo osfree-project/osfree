@@ -1,0 +1,45 @@
+group bsedos;
+
+
+(************************************************************************
+* CCHMAXPATH is the maximum fully qualified path name length including  *
+* the drive letter, colon, backslashes and terminating NULL.            *
+*************************************************************************)
+constant CCHMAXPATH=260;
+
+(************************************************************************
+* CCHMAXPATHCOMP is the maximum individual path component name length   *
+* including a terminating NULL.                                         *
+*************************************************************************)
+constant CCHMAXPATHCOMP=256;
+
+uses dos;
+
+uses dosdatetime default;
+uses dosdevices default;
+uses dosexceptions default;
+uses dosfilemgr default;
+uses dosmemmgr default;
+uses dosmisc default;
+uses dosmodulemgr default;
+uses dosmonitors;
+uses dosmvdm;
+uses dosnls;
+uses dosnmpipes default;
+uses dosprocess default;
+uses dosprofile;
+uses dosqueues default;
+uses dosresources default;
+uses dossemaphores default;
+uses dossesmgr default;
+uses dosmemmgrcommon;
+uses dosprocesscommon;
+uses dosfilemgrcommon default;
+uses dossemaphorescommon;
+uses dosresourcescommon default;
+uses dossesmgrfilemgr; (* Need to move to both areas *)
+uses dosspinlock;
+uses bdcalls;
+
+
+end.

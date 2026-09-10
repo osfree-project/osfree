@@ -1,0 +1,69 @@
+group winstdslider;
+
+constant SLS_HORIZONTAL      = $00000000;
+constant SLS_VERTICAL        = $00000001;
+constant SLS_CENTER          = $00000000;
+constant SLS_BOTTOM          = $00000002;
+constant SLS_TOP             = $00000004;
+constant SLS_LEFT            = $00000002;
+constant SLS_RIGHT           = $00000004;
+constant SLS_SNAPTOINCREMENT = $00000008;
+constant SLS_BUTTONSBOTTOM   = $00000010;
+constant SLS_BUTTONSTOP      = $00000020;
+constant SLS_BUTTONSLEFT     = $00000010;
+constant SLS_BUTTONSRIGHT    = $00000020;
+constant SLS_OWNERDRAW       = $00000040;
+constant SLS_READONLY        = $00000080;
+constant SLS_RIBBONSTRIP     = $00000100;
+constant SLS_HOMEBOTTOM      = $00000000;
+constant SLS_HOMETOP         = $00000200;
+constant SLS_HOMELEFT        = $00000000;
+constant SLS_HOMERIGHT       = $00000200;
+constant SLS_PRIMARYSCALE1   = $00000000;
+constant SLS_PRIMARYSCALE2   = $00000400;
+
+constant SMA_SCALE1              = $0001;
+constant SMA_SCALE2              = $0002;
+constant SMA_SHAFTDIMENSIONS     = $0000;
+constant SMA_SHAFTPOSITION       = $0001;
+constant SMA_SLIDERARMDIMENSIONS = $0002;
+constant SMA_SLIDERARMPOSITION   = $0003;
+constant SMA_RANGEVALUE          = $0000;
+constant SMA_INCREMENTVALUE      = $0001;
+constant SMA_SETALLTICKS         = $FFFF;
+
+constant SDA_RIBBONSTRIP = $0001;
+constant SDA_SLIDERSHAFT = $0002;
+constant SDA_BACKGROUND  = $0003;
+constant SDA_SLIDERARM   = $0004;
+
+constant PMERR_UPDATE_IN_PROGRESS  = $1f06;
+constant SLDERR_INVALID_PARAMETERS = (-1);
+
+constant SLM_ADDDETENT       = $0369;
+constant SLM_QUERYDETENTPOS  = $036a;
+constant SLM_QUERYSCALETEXT  = $036b;
+constant SLM_QUERYSLIDERINFO = $036c;
+constant SLM_QUERYTICKPOS    = $036d;
+constant SLM_QUERYTICKSIZE   = $036e;
+constant SLM_REMOVEDETENT    = $036f;
+constant SLM_SETSCALETEXT    = $0370;
+constant SLM_SETSLIDERINFO   = $0371;
+constant SLM_SETTICKSIZE     = $0372;
+
+constant SLN_CHANGE      = 1;
+constant SLN_SLIDERTRACK = 2;
+constant SLN_SETFOCUS    = 3;
+constant SLN_KILLFOCUS   = 4;
+
+type SLDCDATA=structure
+      cbSize: ULONG;
+      usScale1Increments: USHORT;
+      usScale1Spacing: USHORT;
+      usScale2Increments: USHORT;
+      usScale2Spacing: USHORT;
+end;
+
+type PSLDCDATA=^SLDCDATA;
+
+end.

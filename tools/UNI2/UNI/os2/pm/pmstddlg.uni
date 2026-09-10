@@ -1,0 +1,13 @@
+group pmstddlg;
+
+uses winstdbook default;
+uses wincircularslider default;
+uses winstdcnr default;
+uses winstddrag default;
+uses winstdfile default;
+uses winstdfont default;
+uses winstdslider default;
+uses winstdspin default;
+uses winstdvalset default;
+
+end.

@@ -1,0 +1,58 @@
+group wincountry;
+
+function WinQueryCp(in hmq: HMQ): ULONG;
+
+function WinSetCp(in hmq: HMQ;
+                                 in idCodePage: ULONG): BOOL;
+
+function WinQueryCpList(in hab: HAB;
+                                     in ccpMax: ULONG;
+                                     out prgcp: ULONG): ULONG;
+
+function WinCpTranslateString(in hab: HAB;
+                                            in cpSrc: ULONG;
+                                            in pszSrc: PCSZ;
+                                            in cpDst: ULONG;
+                                            in cchDestMax: ULONG;
+                                            out pchDest: SZ): BOOL;
+
+function WinCpTranslateChar(in hab: HAB;
+                                          in cpSrc: ULONG;
+                                          in chSrc: UCHAR;
+                                          in cpDst: ULONG): UCHAR;
+
+function WinUpper(in hab: HAB;
+                                in idcp: ULONG;
+                                in idcc: ULONG;
+                                in psz: PCSZ): ULONG;
+
+
+function WinUpperChar(in hab: HAB;
+                                    in idcp: ULONG;
+                                    in idcc: ULONG;
+                                    in c: ULONG): ULONG;
+
+function WinNextChar(in hab: HAB;
+                                   in idcp: ULONG;
+                                   in idcc: ULONG;
+                                   in psz: PCSZ): PCSZ;
+
+function WinPrevChar(in hab: HAB;
+                                   in idcp: ULONG;
+                                   in idcc: ULONG;
+                                   in pszStart: PCSZ;
+                                   in psz: PCSZ): PCSZ;
+
+function WinCompareStrings(in hab: HAB;
+                                         in idcp: ULONG;
+                                         in idcc: ULONG;
+                                         in psz1: PCSZ;
+                                         in psz2: PCSZ;
+                                         in reserved: ULONG): ULONG;
+
+constant WCS_ERROR                 = 0;
+constant WCS_EQ                    = 1;
+constant WCS_LT                    = 2;
+constant WCS_GT                    = 3;
+
+end.

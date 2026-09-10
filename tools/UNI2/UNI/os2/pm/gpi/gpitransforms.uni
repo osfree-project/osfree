@@ -1,0 +1,34 @@
+group gpitransforms;
+
+constant CVTC_WORLD        = 1;
+constant CVTC_MODEL        = 2;
+constant CVTC_DEFAULTPAGE  = 3;
+constant CVTC_PAGE         = 4;
+constant CVTC_DEVICE       = 5;
+
+constant TRANSFORM_REPLACE = 0;
+constant TRANSFORM_ADD     = 1;
+constant TRANSFORM_PREEMPT = 2;
+
+function GpiCallSegmentMatrix(in hps: HPS, in a: LONG, in b: LONG, in c: PMATRIXLF, in d:LONG): LONG;
+function GpiConvert(in hps: HPS, in a: LONG, in b: LONG, in c: LONG, in d: PPOINTL): BOOL;
+function GpiConvertWithMatrix(in hps: HPS, in a: LONG, in b: PPOINTL, in c: LONG, in d: PMATRIXLF): BOOL;
+function GpiQueryDefaultViewMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF): BOOL;
+function GpiQueryGraphicsField(in hps: HPS, in a: PRECTL): BOOL;
+function GpiQueryModelTransformMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF): BOOL;
+function GpiQueryPageViewport(in hps: HPS, in a: PRECTL): BOOL;
+function GpiQuerySegmentTransformMatrix(in hps: HPS, in a: LONG, in b: LONG, in c: PMATRIXLF): BOOL;
+function GpiQueryViewingTransformMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF): BOOL;
+function GpiQueryViewingLimits(in hps: HPS, in a: PRECTL): BOOL;
+function GpiRotate(in hps: HPS, in a: PMATRIXLF, in b: LONG, in c: FIXED, in d: PPOINTL): BOOL;
+function GpiScale(in hps: HPS, in a: PMATRIXLF, in b: LONG, in c: PFIXED, in d: PPOINTL): BOOL;
+function GpiSetDefaultViewMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF, in c: LONG): BOOL;
+function GpiSetGraphicsField(in hps: HPS, in a: PRECTL): BOOL;
+function GpiSetModelTransformMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF, in c: LONG): BOOL;
+function GpiSetPageViewport(in hps: HPS, in a: PRECTL): BOOL;
+function GpiSetSegmentTransformMatrix(in hps: HPS, in a: LONG, in b: LONG, in c: PMATRIXLF, in d: LONG): BOOL;
+function GpiSetViewingTransformMatrix(in hps: HPS, in a: LONG, in b: PMATRIXLF, in c: LONG): BOOL;
+function GpiSetViewingLimits(in hps: HPS, in a: PRECTL): BOOL;
+function GpiTranslate(in hps: HPS, in a: PMATRIXLF, in b: LONG, in c: PPOINTL): BOOL;
+
+end.

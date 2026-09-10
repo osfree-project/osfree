@@ -1,0 +1,14 @@
+group picerrors;
+
+constant PMERR_INV_TYPE         = $5001;
+constant PMERR_INV_CONV         = $5002;
+constant PMERR_INV_SEGLEN       = $5003;
+constant PMERR_DUP_SEGNAME      = $5004;
+constant PMERR_INV_XFORM        = $5005;
+constant PMERR_INV_VIEWLIM      = $5006;
+constant PMERR_INV_3DCOORD      = $5007;
+constant PMERR_SMB_OVFLOW       = $5008;
+constant PMERR_SEG_OVFLOW       = $5009;
+constant PMERR_PIC_DUP_FILENAME = $5010;
+
+end.

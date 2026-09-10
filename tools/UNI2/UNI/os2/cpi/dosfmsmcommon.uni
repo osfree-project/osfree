@@ -1,0 +1,19 @@
+group dosfmsmcommon;
+
+constant FAPPTYP_NOTSPEC         = $0000;
+constant FAPPTYP_NOTWINDOWCOMPAT = $0001;
+constant FAPPTYP_WINDOWCOMPAT    = $0002;
+constant FAPPTYP_WINDOWAPI       = $0003;
+constant FAPPTYP_BOUND           = $0008;
+constant FAPPTYP_DLL             = $0010;
+constant FAPPTYP_DOS             = $0020;
+constant FAPPTYP_PHYSDRV         = $0040;
+constant FAPPTYP_VIRTDRV         = $0080;
+constant FAPPTYP_PROTDLL         = $0100;
+constant FAPPTYP_WINDOWSREAL     = $0200;
+constant FAPPTYP_WINDOWSPROT     = $0400;
+constant FAPPTYP_WINDOWSPROT31   = $1000;
+constant FAPPTYP_32BIT           = $4000;
+constant FAPPTYP_EXETYPE         = $0003;
+
+end.

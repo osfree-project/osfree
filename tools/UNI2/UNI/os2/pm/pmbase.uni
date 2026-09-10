@@ -1,0 +1,328 @@
+group pmbase;
+
+constant HWND_DESKTOP            = 1;
+constant HWND_OBJECT             = 2;
+
+constant HWND_TOP                = 3;
+constant HWND_BOTTOM             = 4;
+
+constant HWND_THREADCAPTURE      = 5;
+
+(*** Standard Window Classes ***********************************************)
+
+constant WC_FRAME             = $ffff0001;
+constant WC_COMBOBOX          = $ffff0002;
+constant WC_BUTTON            = $ffff0003;
+constant WC_MENU              = $ffff0004;
+constant WC_STATIC            = $ffff0005;
+constant WC_ENTRYFIELD        = $ffff0006;
+constant WC_LISTBOX           = $ffff0007;
+constant WC_SCROLLBAR         = $ffff0008;
+constant WC_TITLEBAR          = $ffff0009;
+constant WC_MLE               = $ffff000A;
+(* 000B to 000F reserved *)
+constant WC_APPSTAT           = $ffff0010;
+constant WC_KBDSTAT           = $ffff0011;
+constant WC_PECIC             = $ffff0012;
+constant WC_DBE_KKPOPUP       = $ffff0013;
+(* 0014 to 001F reserved *)
+constant WC_SPINBUTTON        = $ffff0020;
+(* 0021 to 0024 reserved *)
+constant WC_CONTAINER         = $ffff0025;
+constant WC_SLIDER            = $ffff0026;
+constant WC_VALUESET          = $ffff0027;
+constant WC_NOTEBOOK          = $ffff0028;
+(* 0029 to 002C used by PEN *)
+constant WC_PENFIRST          = $ffff0029;
+constant WC_PENLAST           = $ffff002C;
+(* 002D to 0030 reserved *)
+(* 0030 to 003F reserved *)
+constant WC_MMPMFIRST         = $ffff0040;
+constant WC_CIRCULARSLIDER    = $ffff0041;
+constant WC_MMPMLAST          = $ffff004f;
+(* 0050 to 005f reserved *)
+constant WC_PRISTDDLGFIRST    = $ffff0050;
+constant WC_PRISTDDLGLAST     = $ffff0057;
+constant WC_PUBSTDDLGFIRST    = $ffff0058;
+constant WC_PUBSTDDLGLAST     = $ffff005f;
+(* 0060 to 006f reserved *)
+
+(*** Standard Window Styles ************************************************)
+
+constant WS_VISIBLE                 = $80000000;
+constant WS_DISABLED                = $40000000;
+constant WS_CLIPCHILDREN            = $20000000;
+constant WS_CLIPSIBLINGS            = $10000000;
+constant WS_PARENTCLIP              = $08000000;
+constant WS_SAVEBITS                = $04000000;
+constant WS_SYNCPAINT               = $02000000;
+constant WS_MINIMIZED               = $01000000;
+constant WS_MAXIMIZED               = $00800000;
+constant WS_ANIMATE                 = $00400000;
+
+(*** Dialog manager styles *************************************************)
+
+constant WS_GROUP                   = $00010000;
+constant WS_TABSTOP                 = $00020000;
+constant WS_MULTISELECT             = $00040000;
+
+(*** Class styles *********************************************************)
+
+constant CS_MOVENOTIFY              = $00000001;
+constant CS_SIZEREDRAW              = $00000004;
+constant CS_HITTEST                 = $00000008;
+constant CS_PUBLIC                  = $00000010;
+constant CS_FRAME                   = $00000020;
+constant CS_CLIPCHILDREN            = $20000000;
+constant CS_CLIPSIBLINGS            = $10000000;
+constant CS_PARENTCLIP              = $08000000;
+constant CS_SAVEBITS                = $04000000;
+constant CS_SYNCPAINT               = $02000000;
+
+function WinCreateWindow(in hwndParent: HWND;
+                                   in pszClass: PCSZ;
+                                   in pszName: PCSZ;
+                                   in flStyle: ULONG;
+                                   in x: LONG;
+                                   in y: LONG;
+                                   in cx: LONG;
+                                   in cy: LONG;
+                                   in hwndOwner: HWND;
+                                   in hwndInsertBehind: HWND;
+                                   in id: ULONG;
+                                   in pCtlData: PVOID;
+                                   in pPresParams: PVOID): HWND;
+
+function WinEnableWindow(in hwnd: HWND;
+                                 in fEnable: BOOL): BOOL;
+
+function WinIsWindowEnabled(in hwnd: HWND): BOOL;
+
+function WinEnableWindowUpdate(in hwnd: HWND;
+                                        in fEnable: BOOL): BOOL;
+
+function WinIsWindowVisible(in hwnd: HWND): BOOL;
+
+function WinQueryWindowText(in hwnd: HWND;
+                                     in cchBufferMax: LONG;
+                                     out pchBuffer: CHAR): LONG;
+
+function WinSetWindowText(in hwnd: HWND;
+                                  in pszText: PCSZ): BOOL;
+
+function WinQueryWindowTextLength(in hwnd: HWND): LONG;
+
+function WinWindowFromID(in hwndParent: HWND;
+                                 in id: ULONG): HWND;
+
+function WinIsWindow(in hab: HAB;
+                             in hwnd: HWND): BOOL;
+
+function WinQueryWindow(in hwnd: HWND;
+                                in cmd: LONG): HWND;
+
+function WinMultWindowFromIDs(in hwndParent: HWND;
+                                       out prghwnd: HWND;
+                                       in idFirst: ULONG;
+                                       in idLast: ULONG): LONG;
+
+(*** WinQueryWindow() codes ************************************************)
+
+constant QW_NEXT        = 0;
+constant QW_PREV        = 1;
+constant QW_TOP         = 2;
+constant QW_BOTTOM      = 3;
+constant QW_OWNER       = 4;
+constant QW_PARENT      = 5;
+constant QW_NEXTTOP     = 6;
+constant QW_PREVTOP     = 7;
+constant QW_FRAMEOWNER  = 8;
+
+function WinSetParent(in hwnd: HWND;
+                             in hwndNewParent: HWND;
+                             in fRedraw: BOOL): BOOL;
+
+function WinIsChild(in hwnd: HWND;
+                           in hwndParent: HWND): BOOL;
+
+function WinSetOwner(in hwnd: HWND;
+                            in hwndNewOwner: HWND): BOOL;
+
+function WinQueryWindowProcess(in hwnd: HWND;
+                                      out ppid: PID;
+                                      out ptid: TID): BOOL;
+
+function WinQueryObjectWindow(in hwndDesktop: HWND): HWND;
+
+function WinQueryDesktopWindow(in hab: HAB;
+                                      in hdc: HDC): HWND;
+
+(*** Window positioning functions *)
+
+(* WinSetMultWindowPos() structure *)
+
+type SWP=structure
+      fl: ULONG;
+      cy: LONG;
+      cx: LONG;
+      y: LONG;
+      x: LONG;
+      hwndInsertBehind: HWND;
+      hwnd: HWND;
+      ulReserved1: ULONG;
+      ulReserved2: ULONG;
+  end;
+type PSWP=^SWP;
+
+function WinSetWindowPos(in hwnd: HWND;
+                                 in hwndInsertBehind: HWND;
+                                 in x: LONG;
+                                 in y: LONG;
+                                 in cx: LONG;
+                                 in cy: LONG;
+                                 in fl: ULONG): BOOL;
+
+function WinSetMultWindowPos(in hab: HAB;
+                                    in pswp: PSWP;
+                                    in cswp: ULONG): BOOL;
+
+function WinQueryWindowPos(in hwnd: HWND;
+                                  out pswp: SWP): BOOL;
+
+(* Values returned from WM_ADJUSTWINDOWPOS and passed to WM_WINDOWPOSCHANGED *)
+
+constant AWP_MINIMIZED              = $00010000;
+constant AWP_MAXIMIZED              = $00020000;
+constant AWP_RESTORED               = $00040000;
+constant AWP_ACTIVATE               = $00080000;
+constant AWP_DEACTIVATE             = $00100000;
+
+(* WinSetWindowPos() flags *)
+
+constant SWP_SIZE                   = $0001;
+constant SWP_MOVE                   = $0002;
+constant SWP_ZORDER                 = $0004;
+constant SWP_SHOW                   = $0008;
+constant SWP_HIDE                   = $0010;
+constant SWP_NOREDRAW               = $0020;
+constant SWP_NOADJUST               = $0040;
+constant SWP_ACTIVATE               = $0080;
+constant SWP_DEACTIVATE             = $0100;
+constant SWP_EXTSTATECHANGE         = $0200;
+constant SWP_MINIMIZE               = $0400;
+constant SWP_MAXIMIZE               = $0800;
+constant SWP_RESTORE                = $1000;
+constant SWP_FOCUSACTIVATE          = $2000;
+constant SWP_FOCUSDEACTIVATE        = $4000;
+constant SWP_NOAUTOCLOSE            = $8000;    (* Valid in PROGDETAILS struct only *)
+
+(* Window painting *)
+
+function WinUpdateWindow(in hwnd: HWND): BOOL;
+
+function WinInvalidateRect(in hwnd: HWND;
+                                 in pwrc: PRECTL;
+                                 in fIncludeChildren: BOOL): BOOL;
+
+function WinInvalidateRegion(in hwnd: HWND;
+                                   in hrgn: HRGN;
+                                   in fIncludeChildren: BOOL): BOOL;
+
+
+(* Drawing helpers *)
+
+function WinInvertRect(in hps: HPS;
+                              in prcl: PRECTL): BOOL;
+
+function WinDrawBitmap(in hpsDst: HPS;
+                             in hbm: HBITMAP;
+                             in pwrcSrc: PRECTL;
+                             in pptlDst: PPOINTL;
+                             in clrFore: LONG;
+                             in clrBack: LONG;
+                             in fl: ULONG): BOOL;
+
+(* WinDrawBitmap() flags *)
+
+constant DBM_NORMAL                 = $0000;
+constant DBM_INVERT                 = $0001;
+constant DBM_HALFTONE               = $0002;
+constant DBM_STRETCH                = $0004;
+constant DBM_IMAGEATTRS             = $0008;
+constant DBM_XOR                    = $0010;
+
+
+
+function WinDrawText(in hps: HPS;
+                             in cchText: LONG;
+                             in lpchText: PCH;
+                             in prcl: PRECTL;
+                             in clrFore: LONG;
+                             in clrBack: LONG;
+                             in flCmd: ULONG): LONG;
+
+
+(*
+* WinDrawText()/WinDrawTabbedText() codes:
+* From DT_LEFT to DT_EXTERNALLEADING, the codes are designed to be OR'ed with
+* SS_TEXT to create variations of the basic text static item.
+*)
+constant DT_LEFT                    = $00000000;
+constant DT_QUERYEXTENT             = $00000002;
+constant DT_UNDERSCORE              = $00000010;
+constant DT_STRIKEOUT               = $00000020;
+constant DT_TEXTATTRS               = $00000040;
+constant DT_EXTERNALLEADING         = $00000080;
+constant DT_CENTER                  = $00000100;
+constant DT_RIGHT                   = $00000200;
+constant DT_TOP                     = $00000000;
+constant DT_VCENTER                 = $00000400;
+constant DT_BOTTOM                  = $00000800;
+constant DT_HALFTONE                = $00001000;
+constant DT_MNEMONIC                = $00002000;
+constant DT_WORDBREAK               = $00004000;
+constant DT_ERASERECT               = $00008000;
+
+
+
+function WinDrawBorder(in hps: HPS;
+                            in prcl: PRECTL;
+                            in cx: LONG;
+                            in cy: LONG;
+                            in clrFore: LONG;
+                            in clrBack: LONG;
+                            in flCmd: ULONG): BOOL;
+
+
+(* WinDrawBorder() flags *)
+
+constant DB_PATCOPY                 = $0000;
+constant DB_PATINVERT               = $0001;
+constant DB_DESTINVERT              = $0002;
+constant DB_AREAMIXMODE             = $0003;
+
+constant DB_ROP                     = $0007;
+constant DB_INTERIOR                = $0008;
+constant DB_AREAATTRS               = $0010;
+constant DB_STANDARD                = $0100;
+constant DB_DLGBORDER               = $0200;
+
+
+
+(** Resource loading functions *)
+
+function WinLoadString(in hab: HAB;
+                               in hmod: HMODULE;
+                               in id: ULONG;
+                               in cchMax: LONG;
+                               out  pchBuffer: SZ): LONG;
+
+function  WinLoadMessage(in hab: HAB;
+                                   in hmod: HMODULE;
+                                   in id: ULONG;
+                                   in cchMax: LONG;
+                                   out pchBuffer: SZ): LONG;
+
+
+
+end.

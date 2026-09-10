@@ -1,0 +1,84 @@
+group winbuttons;
+
+   (**** Button Controls Subsection *)
+
+   (* Button control styles *)
+
+constant BS_PUSHBUTTON             = 0;
+constant BS_CHECKBOX               = 1;
+constant BS_AUTOCHECKBOX           = 2;
+constant BS_RADIOBUTTON            = 3;
+constant BS_AUTORADIOBUTTON        = 4;
+constant BS_3STATE                 = 5;
+constant BS_AUTO3STATE             = 6;
+
+   constant BS_USERBUTTON             = 7;
+constant BS_NOTEBOOKBUTTON         = 8;
+constant BS_PRIMARYSTYLES       = $000f;
+
+constant BS_TEXT                 = $0010;
+constant BS_MINIICON             = $0020;
+constant BS_BITMAP           = $0040;
+constant BS_ICON             = $0080;
+constant BS_HELP                    = $0100;
+constant BS_SYSCOMMAND              = $0200;
+constant BS_DEFAULT                 = $0400;
+constant BS_NOPOINTERFOCUS          = $0800;
+constant BS_NOBORDER                = $1000;
+constant BS_NOCURSORSELECT          = $2000;
+constant BS_AUTOSIZE             = $4000;
+
+
+
+(*      #pragma pack(2)  force structure alignment packing *)
+
+      (* Binary resources may be bound into application executables or *)
+      (* passed as a parameter when creating a window or dialog        *)
+      (* Currently they must be the same for both 16-bit and 32-bit    *)
+      (* so we pack the structures.                                    *)
+      type BTNCDATA=structure    (* btncd *)
+           cb: USHORT;
+           fsCheckState: USHORT;
+           fsHiliteState: USHORT;
+           hImage: LHANDLE;
+        end;
+      type PBTNCDATA=^BTNCDATA;
+
+(*      #pragma pack()   restore packing to default *)
+
+
+   (*** User button structure (passed in WM_CONTROL msg) *******************)
+
+      type USERBUTTON=structure    (* ubtn *)
+             hwnd: HWND;
+             hps: HPS;
+             fsState: ULONG;
+             fsStateOld: ULONG;
+        end;
+      type PUSERBUTTON=^USERBUTTON;
+
+   (* Button control messages *)
+
+constant BM_CLICK                   = $0120;
+constant BM_QUERYCHECKINDEX         = $0121;
+constant BM_QUERYHILITE             = $0122;
+constant BM_SETHILITE               = $0123;
+constant BM_QUERYCHECK              = $0124;
+constant BM_SETCHECK                = $0125;
+constant BM_SETDEFAULT              = $0126;
+constant BM_AUTOSIZE                = $0128;
+
+   (* Button notification codes *)
+
+constant BN_CLICKED                = 1;
+constant BN_DBLCLICKED             = 2;
+constant BN_PAINT                  = 3;
+
+   (* BN_PAINT button draw state codes (must be in high byte) *)
+
+   constant BDS_HILITED                = $0100;
+   constant BDS_DISABLED               = $0200;
+   constant BDS_DEFAULT                = $0400;
+
+
+end.

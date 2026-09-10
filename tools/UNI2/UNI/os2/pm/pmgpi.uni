@@ -1,0 +1,39 @@
+group pmgpi;
+
+(* General GPI return values *)
+constant GPI_ERROR                  =     0;
+constant GPI_OK                     =     1;
+constant GPI_ALTERROR               =   (-1);
+
+(* fixed point number - implicit binary point between 1st and 2nd hex digits *)
+type  FIXED88=USHORT;  (* fx88 *)
+
+(* fixed point signed number - implicit binary point between bits 14 and 13. *)
+(*                             Bit 15 is the sign bit.                       *)
+(*                             Thus 1.0 is represented by 16384 (0x4000)     *)
+(*                             and -1.0 is represented by -16384 (0xc000)    *)
+type FIXED114=USHORT; (* fx114 *)
+
+
+
+(* return code on GpiQueryLogColorTable,GpiQueryRealColors and GpiQueryPel *)
+constant CLR_NOINDEX              =    (-254);
+
+uses gpiprimitives default;
+uses gpilcids default;
+uses gpidefaults default;
+uses gpicontrol default;
+uses gpicontrolcommon default;
+uses gpicorrelation default;
+uses gpibitmapscommon default;
+uses gpibitmaps default;
+uses gpilogcoltable default;
+uses gpimetafiles default;
+uses gpipolygons default;
+uses gpipaths default;
+uses gpiregions default;
+uses gpisegediting default;
+uses gpisegments default;
+uses gpitransforms default;
+
+end.

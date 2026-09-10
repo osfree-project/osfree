@@ -1,0 +1,158 @@
+layout;
+begin
+  group os2def : os2def.h
+    guard
+    included=OS2DEF_INCLUDED
+    desc="Common definitions";
+
+  group base : bse.h
+    macro=INCL_NOBASEAPI invert
+    cascade=INCL_BASE
+    guard
+    included
+    desc="OS/2 Base";
+
+  group pm : pm.h
+    macro=INCL_NOPMAPI invert
+    cascade=INCL_PM
+    included=PM_INCLUDED
+    desc="OS/2 Presentation Manager";
+
+  group osa : osa.h
+    macro=INCL_OSAAPI
+    desc="Open Scripting Architecture Include File";
+
+  group opendoc : od.h
+    macro=INCL_ODAPI
+    desc="OpenDoc Include File";
+
+  group os2 : os2.h
+    guard=__OS2_H__
+    included=OS2_INCLUDED
+    desc="This is the top level include file that includes all the files necessary for writing an OS/2 application.";
+
+  group dos : bsedos.h
+    cascade=INCL_DOS
+    guard
+    included
+    desc="Base definitions";
+
+  group dosprocess
+    cascade=INCL_DOSPROCESS
+    desc="Process and thread support";
+
+  group dosfilemgr
+    cascade=INCL_DOSFILEMGR
+    desc="File Management";
+
+  group dosmemmgr
+    cascade=INCL_DOSMEMMGR
+    desc="Memory Management";
+
+  group dossemaphores
+    cascade=INCL_DOSSEMAPHORES
+    desc="Semaphore support";
+
+  group dosdatetime
+    cascade=INCL_DOSDATETIME
+    desc="Date/Time and Timer support";
+
+  group dosmodulemgr
+    cascade=INCL_DOSMODULEMGR
+    desc="Module manager";
+
+  group dosresources
+    cascade=INCL_DOSRESOURCES
+    desc="Resource support";
+
+  group dosnls
+    cascade=INCL_DOSNLS
+    desc="National Language Support";
+
+  group dosexceptions
+    cascade=INCL_DOSEXCEPTIONS
+    desc="Exception Management Support";
+
+  group dosmisc
+    cascade=INCL_DOSMISC
+    desc="Miscellaneous";
+
+  group dosmonitors
+    cascade=INCL_DOSMONITORS
+    desc="Monitors";
+
+  group dosqueues
+    cascade=INCL_DOSQUEUES
+    desc="Queues";
+
+  group dossesmgr
+    cascade=INCL_DOSSESMGR
+    desc="Session Manager Support";
+
+  group dosdevices
+    cascade=INCL_DOSDEVICES
+    desc="Device specific, ring 2 support";
+
+  group dosnmpipes
+    cascade=INCL_DOSNMPIPES
+    desc="Named Pipes Support";
+
+  group dosprofile
+    cascade=INCL_DOSPROFILE
+    desc="DosProfile API";
+
+  group dosmvdm
+    cascade=INCL_DOSMVDM
+    desc="MVDM support";
+
+  group sub : bsesub.h
+    cascade=INCL_SUB
+    guard
+    desc="VIO/KBD/MOU definitions";
+
+  group kbd
+    cascade=INCL_KBD
+    desc="KBD";
+
+  group vio
+    cascade=INCL_VIO
+    desc="VIO";
+
+  group mou
+    cascade=INCL_MOU
+    desc="MOU";
+
+  group bseerr : bseerr.h
+    cascade=INCL_DOSERRORS
+    desc="Base error code definitions";
+
+  group errors
+    cascade=INCL_ERRORS
+    desc="Set from error.h";
+
+  group doserrors
+    cascade=INCL_DOSERRORS
+    desc="OS/2 Errors";
+
+  group error_h
+    cascade=INCL_ERROR_H
+    desc="Legacy error codes (error.h)";
+
+  group error2_h
+    cascade=INCL_ERROR2_H
+    desc="Legacy error codes (error2.h)";
+
+  group dosdevioctl : bsedev.h
+    macro=INCL_DOSDEVIOCTL
+    desc="Structures and constants for DosDevIOCtl";
+
+  group ordinals : bseord.h
+    macro=INCL_ORDINALS
+    desc="Ordinals";
+
+  group win : pmwin.h
+    desc="OS/2 Window Manager definitions";
+
+  group gpi : pmgpi.h
+    desc="OS/2 GPI definitions";
+end.

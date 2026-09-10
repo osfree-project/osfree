@@ -1,0 +1,457 @@
+group winstdcontainer;
+
+constant CFA_IGNORE       = $80000000;
+constant CRA_IGNORE       = $00008000;
+constant CRA_SOURCE       = $00004000;
+constant CRA_DISABLED     = $00001000;
+constant CRA_OWNERFREE    = $00010000;
+constant CRA_OWNERDRAW    = $00020000;
+constant CV_EXACTLENGTH   = $10000000;
+constant CCS_MINIICONS    = $00000800;
+constant CCS_NOCONTROLPTR = $00001000;
+constant CMA_FILTER       = $1000;
+
+constant CCS_EXTENDSEL      = $00000001;
+constant CCS_MULTIPLESEL    = $00000002;
+constant CCS_SINGLESEL      = $00000004;
+constant CCS_AUTOPOSITION   = $00000008;
+constant CCS_VERIFYPOINTERS = $00000010;
+constant CCS_READONLY       = $00000020;
+constant CCS_MINIRECORDCORE = $00000040;
+constant CCS_MINIICONS      = $00000800;
+constant CCS_NOCONTROLPTR   = $00001000;
+
+constant CV_TEXT        = $00000001;
+constant CV_NAME        = $00000002;
+constant CV_ICON        = $00000004;
+constant CV_DETAIL      = $00000008;
+constant CV_FLOW        = $00000010;
+constant CV_MINI        = $00000020;
+constant CV_TREE        = $00000040;
+constant CV_GRID        = $00000080;
+constant CV_EXACTLENGTH = $10000000;
+
+constant CA_CONTAINERTITLE       = $00000200;
+constant CA_TITLESEPARATOR       = $00000400;
+constant CA_TITLELEFT            = $00000800;
+constant CA_TITLERIGHT           = $00001000;
+constant CA_TITLECENTER          = $00002000;
+constant CA_OWNERDRAW            = $00004000;
+constant CA_DETAILSVIEWTITLES    = $00008000;
+constant CA_ORDEREDTARGETEMPH    = $00010000;
+constant CA_DRAWBITMAP           = $00020000;
+constant CA_DRAWICON             = $00040000;
+constant CA_TITLEREADONLY        = $00080000;
+constant CA_OWNERPAINTBACKGROUND = $00100000;
+constant CA_MIXEDTARGETEMPH      = $00200000;
+constant CA_TREELINE             = $00400000;
+
+constant CID_LEFTCOLTITLEWND  = $7FF0;
+constant CID_RIGHTCOLTITLEWND = $7FF1;
+constant CID_BLANKBOX         = $7FF2;
+constant CID_HSCROLL          = $7FF3;
+constant CID_RIGHTHSCROLL     = $7FF4;
+constant CID_CNRTITLEWND      = $7FF5;
+constant CID_LEFTDVWND        = $7FF7;
+constant CID_RIGHTDVWND       = $7FF8;
+constant CID_VSCROLL          = $7FF9;
+constant CID_MLE              = $7FFA;
+
+constant CFA_LEFT            = $00000001;
+constant CFA_RIGHT           = $00000002;
+constant CFA_CENTER          = $00000004;
+constant CFA_TOP             = $00000008;
+constant CFA_VCENTER         = $00000010;
+constant CFA_BOTTOM          = $00000020;
+constant CFA_INVISIBLE       = $00000040;
+constant CFA_BITMAPORICON    = $00000100;
+constant CFA_SEPARATOR       = $00000200;
+constant CFA_HORZSEPARATOR   = $00000400;
+constant CFA_STRING          = $00000800;
+constant CFA_OWNER           = $00001000;
+constant CFA_DATE            = $00002000;
+constant CFA_TIME            = $00004000;
+constant CFA_FIREADONLY      = $00008000;
+constant CFA_FITITLEREADONLY = $00010000;
+constant CFA_ULONG           = $00020000;
+constant CFA_RANGE           = $00040000;
+constant CFA_NEWCOMP         = $00080000;
+constant CFA_OBJECT          = $00100000;
+constant CFA_LIST            = $00200000;
+constant CFA_CLASS           = $00400000;
+constant CFA_IGNORE          = $80000000;
+
+constant CRA_SELECTED        = $00000001;
+constant CRA_TARGET          = $00000002;
+constant CRA_CURSORED        = $00000004;
+constant CRA_INUSE           = $00000008;
+constant CRA_FILTERED        = $00000010;
+constant CRA_DROPONABLE      = $00000020;
+constant CRA_RECORDREADONLY  = $00000040;
+constant CRA_EXPANDED        = $00000080;
+constant CRA_COLLAPSED       = $00000100;
+constant CRA_PICKED          = $00000200;
+constant CRA_LOCKED          = $00000400;
+constant CRA_DISABLED        = $00001000;
+constant CRA_SOURCE          = $00004000;
+constant CRA_IGNORE          = $00008000;
+constant CRA_OWNERFREE       = $00010000;
+constant CRA_OWNERDRAW       = $00020000;
+
+constant CMA_TOP              = $0001;
+constant CMA_BOTTOM           = $0002;
+constant CMA_LEFT             = $0004;
+constant CMA_RIGHT            = $0008;
+constant CMA_PERIMETER        = $0010;
+constant CMA_USER             = $0020;
+constant CMA_FIRST            = $0010;
+constant CMA_LAST             = $0020;
+constant CMA_END              = $0040;
+constant CMA_PREV             = $0080;
+constant CMA_NEXT             = $0100;
+constant CMA_HORIZONTAL       = $0200;
+constant CMA_VERTICAL         = $0400;
+constant CMA_ICON             = $0800;
+constant CMA_TEXT             = $1000;
+constant CMA_PARTIAL          = $2000;
+constant CMA_COMPLETE         = $4000;
+constant CMA_PARENT           = $0001;
+constant CMA_FIRSTCHILD       = $0002;
+constant CMA_LASTCHILD        = $0004;
+constant CMA_CNRTITLE         = $0001;
+constant CMA_DELTA            = $0002;
+constant CMA_FLWINDOWATTR     = $0004;
+constant CMA_LINESPACING      = $0008;
+constant CMA_PFIELDINFOLAST   = $0010;
+constant CMA_PSORTRECORD      = $0020;
+constant CMA_PTLORIGIN        = $0040;
+constant CMA_SLBITMAPORICON   = $0080;
+constant CMA_XVERTSPLITBAR    = $0100;
+constant CMA_PFIELDINFOOBJECT = $0200;
+constant CMA_ITEMORDER        = $0001;
+constant CMA_WINDOW           = $0002;
+constant CMA_WORKSPACE        = $0004;
+constant CMA_ZORDER           = $0008;
+constant CMA_DELTATOP         = $0001;
+constant CMA_DELTABOT         = $0002;
+constant CMA_DELTAHOME        = $0004;
+constant CMA_DELTAEND         = $0008;
+constant CMA_NOREPOSITION     = $0001;
+constant CMA_REPOSITION       = $0002;
+constant CMA_TEXTCHANGED      = $0004;
+constant CMA_ERASE            = $0008;
+constant CMA_NOTEXTCHANGED    = $0010;
+constant CMA_FILTER           = $1000;
+constant CMA_FREE             = $0001;
+constant CMA_INVALIDATE       = $0002;
+constant CMA_ARRANGESTANDARD  = $0000;
+constant CMA_ARRANGEGRID      = $0001;
+constant CMA_ARRANGESELECTED  = $0002;
+constant CMA_AVAIL            = $0001;
+constant CMA_UNAVAIL          = $0002;
+
+constant CMA_TREEICON           = $0400;
+constant CMA_TREEBITMAP         = $0800;
+constant CMA_CXTREEINDENT       = $1000;
+constant CMA_CXTREELINE         = $2000;
+constant CMA_SLTREEBITMAPORICON = $4000;
+
+constant CM_ALLOCDETAILFIELDINFO      = $0330;
+constant CM_ALLOCRECORD               = $0331;
+constant CM_ARRANGE                   = $0332;
+constant CM_ERASERECORD               = $0333;
+constant CM_FILTER                    = $0334;
+constant CM_FREEDETAILFIELDINFO       = $0335;
+constant CM_FREERECORD                = $0336;
+constant CM_HORZSCROLLSPLITWINDOW     = $0337;
+constant CM_INSERTDETAILFIELDINFO     = $0338;
+constant CM_INSERTRECORD              = $0339;
+constant CM_INVALIDATEDETAILFIELDINFO = $033a;
+constant CM_INVALIDATERECORD          = $033b;
+constant CM_PAINTBACKGROUND           = $033c;
+constant CM_QUERYCNRINFO              = $033d;
+constant CM_QUERYDETAILFIELDINFO      = $033e;
+constant CM_QUERYDRAGIMAGE            = $033f;
+constant CM_QUERYRECORD               = $0340;
+constant CM_QUERYRECORDEMPHASIS       = $0341;
+constant CM_QUERYRECORDFROMRECT       = $0342;
+constant CM_QUERYRECORDRECT           = $0343;
+constant CM_QUERYVIEWPORTRECT         = $0344;
+constant CM_REMOVEDETAILFIELDINFO     = $0345;
+constant CM_REMOVERECORD              = $0346;
+constant CM_SCROLLWINDOW              = $0347;
+constant CM_SEARCHSTRING              = $0348;
+constant CM_SETCNRINFO                = $0349;
+constant CM_SETRECORDEMPHASIS         = $034a;
+constant CM_SORTRECORD                = $034b;
+constant CM_OPENEDIT                  = $034c;
+constant CM_CLOSEEDIT                 = $034d;
+constant CM_COLLAPSETREE              = $034e;
+constant CM_EXPANDTREE                = $034f;
+constant CM_QUERYRECORDINFO           = $0350;
+constant CM_INSERTRECORDARRAY         = $0351;
+constant CM_MOVETREE                  = $0352;
+constant CM_SETTEXTVISIBILITY         = $0353;
+constant CM_SETGRIDINFO               = $0354;
+constant CM_QUERYGRIDINFO             = $0355;
+constant CM_SNAPTOGRID                = $0356;
+
+constant CN_DRAGAFTER   = 101;
+constant CN_DRAGLEAVE   = 102;
+constant CN_DRAGOVER    = 103;
+constant CN_DROP        = 104;
+constant CN_DROPHELP    = 105;
+constant CN_ENTER       = 106;
+constant CN_INITDRAG    = 107;
+constant CN_EMPHASIS    = 108;
+constant CN_KILLFOCUS   = 109;
+constant CN_SCROLL      = 110;
+constant CN_QUERYDELTA  = 111;
+constant CN_SETFOCUS    = 112;
+constant CN_REALLOCPSZ  = 113;
+constant CN_BEGINEDIT   = 114;
+constant CN_ENDEDIT     = 115;
+constant CN_COLLAPSETREE= 116;
+constant CN_EXPANDTREE  = 117;
+constant CN_HELP        = 118;
+constant CN_CONTEXTMENU = 119;
+constant CN_VERIFYEDIT  = 134;
+constant CN_PICKUP      = 135;
+constant CN_DROPNOTIFY  = 136;
+constant CN_GRIDRESIZED = 137;
+
+constant PMERR_NOFILTERED_ITEMS          = $1f02;
+constant PMERR_COMPARISON_FAILED         = $1f03;
+constant PMERR_RECORD_CURRENTLY_INSERTED = $1f04;
+constant PMERR_FI_CURRENTLY_INSERTED     = $1f05;
+
+type TREEITEMDESC=structure
+      hbmExpanded: HBITMAP;
+      hbmCollapsed: HBITMAP;
+      hptrExpanded: HPOINTER;
+      hptrCollapsed: HPOINTER;
+end;
+type PTREEITEMDESC=^TREEITEMDESC;
+
+type FIELDINFO=structure
+      cb: ULONG;
+      flData: ULONG;
+      flTitle: ULONG;
+      pTitleData: PVOID;
+      offStruct: ULONG;
+      pUserData: PVOID;
+      pNextFieldInfo: PVOID; (* struct _FIELDINFO *)
+      cxWidth: ULONG;
+end;
+type PFIELDINFO=^FIELDINFO;
+
+type RECORDCORE=structure
+        cb: ULONG;
+        flRecordAttr: ULONG;
+        ptlIcon: POINTL;
+        preccNextRecord: PVOID; (* struct _RECORDCORE * *)
+        pszIcon: PSZ;
+        hptrIcon: HPOINTER;
+        hptrMiniIcon: HPOINTER;
+        hbmBitmap: HBITMAP;
+        hbmMiniBitmap: HBITMAP;
+        pTreeItemDesc: PTREEITEMDESC;
+        pszText: PSZ;
+        pszName: PSZ;
+        pszTree: PSZ;
+end;
+type PRECORDCORE=^RECORDCORE;
+
+type MINIRECORDCORE=structure
+        cb: ULONG;
+        flRecordAttr: ULONG;
+        ptlIcon: POINTL;
+        preccNextRecord: PVOID; (* struct _MINIRECORDCORE *)
+        pszIcon: PSZ;
+        hptrIcon: HPOINTER;
+end;
+type PMINIRECORDCORE=^MINIRECORDCORE;
+
+type TREEMOVE=structure
+    preccMove: PRECORDCORE;
+    preccNewParent: PRECORDCORE;
+    pRecordOrder: PRECORDCORE;
+    flMoveSiblings: BOOL;
+end;
+type PTREEMOVE=^TREEMOVE;
+
+type CNRINFO=structure
+          cb: ULONG;
+          pSortRecord: PVOID;
+          pFieldInfoLast: PFIELDINFO;
+          pFieldInfoObject: PFIELDINFO;
+          pszCnrTitle: PSZ;
+          flWindowAttr: ULONG;
+          ptlOrigin: POINTL;
+          cDelta: ULONG;
+          cRecords: ULONG;
+          slBitmapOrIcon: SIZEL;
+          slTreeBitmapOrIcon: SIZEL;
+          hbmExpanded: HBITMAP;
+          hbmCollapsed: HBITMAP;
+          hptrExpanded: HPOINTER;
+          hptrCollapsed: HPOINTER;
+          cyLineSpacing: LONG;
+          cxTreeIndent: LONG;
+          cxTreeLine: LONG;
+          cFields: ULONG;
+          xVertSplitbar: LONG;
+end;
+type PCNRINFO=^CNRINFO;
+
+type GRIDSQUARE=structure
+     ulNumber: ULONG;
+     ulState: ULONG;
+     rctlSquare: RECTL;
+end;
+type PGRIDSQUARE=^GRIDSQUARE;
+
+type GRIDINFO=structure
+     cb: ULONG;
+     cxGrid: SHORT;
+     cyGrid: SHORT;
+     sGridRows: SHORT;
+     sGridCols: SHORT;
+     cGridSquares: LONG;
+     pGrid: PGRIDSQUARE;
+end;
+type PGRIDINFO=^GRIDINFO;
+
+type CDATE=structure
+      day: UCHAR;
+      month: UCHAR;
+      year: USHORT;
+end;
+type PCDATE=^CDATE;
+
+type CTIME=structure
+    hours: UCHAR;
+    minutes: UCHAR;
+    seconds: UCHAR;
+    ucReserved: UCHAR;
+end;
+type PCTIME=^CTIME;
+
+type CNRDRAGINIT=structure
+     hwndCnr: HWND;
+     pRecord: PRECORDCORE;
+     x: LONG;
+     y: LONG;
+     cx: LONG;
+     cy: LONG;
+end;
+type PCNRDRAGINIT=^CNRDRAGINIT;
+
+type FIELDINFOINSERT=structure
+    cb: ULONG;
+    pFieldInfoOrder: PFIELDINFO;
+    fInvalidateFieldInfo: ULONG;
+    cFieldInfoInsert: ULONG;
+end;
+type PFIELDINFOINSERT=^FIELDINFOINSERT;
+
+type RECORDINSERT=structure
+           cb: ULONG;
+           pRecordOrder: PRECORDCORE;
+           pRecordParent: PRECORDCORE;
+           fInvalidateRecord: ULONG;
+           zOrder: ULONG;
+           cRecordsInsert: ULONG;
+end;
+type PRECORDINSERT=^RECORDINSERT;
+
+type QUERYRECFROMRECT=structure
+     cb: ULONG;
+     rect: RECTL;
+     fsSearch: ULONG;
+end;
+type PQUERYRECFROMRECT=^QUERYRECFROMRECT;
+
+type QUERYRECORDRECT=structure
+           cb: ULONG;
+     pRecord: PRECORDCORE;
+           fRightSplitWindow: ULONG;
+           fsExtent: ULONG;
+end;
+type PQUERYRECORDRECT=^QUERYRECORDRECT;
+
+type SEARCHSTRING=structure
+     cb: ULONG;
+     pszSearch: PSZ;
+     fsPrefix: ULONG;
+     fsCaseSensitive: ULONG;
+     usView: ULONG;
+end;
+type PSEARCHSTRING=^SEARCHSTRING;
+
+type CNRDRAGINFO=structure
+       pDragInfo: PDRAGINFO;
+     pRecord: PRECORDCORE;
+end;
+type PCNRDRAGINFO=^CNRDRAGINFO;
+
+type CNRLAZYDRAGINFO=structure
+       pDragInfo: PDRAGINFO;
+       pRecord: PRECORDCORE;
+       hwndTarget: HWND;
+end;
+type PCNRLAZYDRAGINFO=^CNRLAZYDRAGINFO;
+
+type NOTIFYRECORDEMPHASIS=structure
+            hwndCnr: HWND;
+     pRecord: PRECORDCORE;
+           fEmphasisMask: ULONG;
+end;
+type PNOTIFYRECORDEMPHASIS=^NOTIFYRECORDEMPHASIS;
+
+type NOTIFYRECORDENTER=structure
+            hwndCnr: HWND;
+           fKey: ULONG;
+     pRecord: PRECORDCORE;
+end;
+type PNOTIFYRECORDENTER=^NOTIFYRECORDENTER;
+
+type NOTIFYDELTA=structure
+      hwndCnr: HWND;
+     fDelta: ULONG;
+end;
+type PNOTIFYDELTA=^NOTIFYDELTA;
+
+type NOTIFYSCROLL=structure
+      hwndCnr: HWND;
+      lScrollInc: LONG;
+      fScroll: ULONG;
+end;
+type PNOTIFYSCROLL=^NOTIFYSCROLL;
+
+type CNREDITDATA=structure
+           cb: ULONG;
+            hwndCnr: HWND;
+     pRecord: PRECORDCORE;
+      pFieldInfo: PFIELDINFO;
+             ppszText: ^PSZ;
+           cbText: ULONG;
+           id: ULONG;
+end;
+type PCNREDITDATA=^CNREDITDATA;
+
+type OWNERBACKGROUND=structure
+      hwnd: HWND;
+       hps: HPS;
+     rclBackground: RECTL;
+      idWindow: LONG;
+end;
+type POWNERBACKGROUND=^OWNERBACKGROUND;
+
+type CNRDRAWITEMINFO=structure
+     pRecord: PRECORDCORE;
+      pFieldInfo: PFIELDINFO;
+end;
+type PCNRDRAWITEMINFO=^CNRDRAWITEMINFO;
+
+end.

@@ -1,0 +1,23 @@
+group winstatics;
+
+
+constant SS_TEXT          = $0001;
+constant SS_GROUPBOX      = $0002;
+constant SS_ICON          = $0003;
+constant SS_BITMAP        = $0004;
+constant SS_FGNDRECT      = $0005;
+constant SS_HALFTONERECT  = $0006;
+constant SS_BKGNDRECT     = $0007;
+constant SS_FGNDFRAME     = $0008;
+constant SS_HALFTONEFRAME = $0009;
+constant SS_BKGNDFRAME    = $000A;
+constant SS_SYSICON       = $000B;
+constant SS_AUTOSIZE      = $0040;
+
+constant SM_SETHANDLE     = $0100;
+constant SM_QUERYHANDLE   = $0101;
+
+constant WM_MSGBOXINIT    = $010E;
+constant WM_MSGBOXDISMISS = $010F;
+
+end.

@@ -1,0 +1,5 @@
+group wintypes;
+
+uses pmtypes default;
+
+end.

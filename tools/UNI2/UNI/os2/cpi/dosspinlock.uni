@@ -1,0 +1,37 @@
+   /* Processor state (used by DosGetProcessorStatus and DosSetProcessorStatus) */
+   #define PROC_OFFLINE    0x00000000      /* processor is offline */
+   #define PROC_ONLINE     0x00000001      /* processor is online */
+
+   APIRET APIENTRY DosGetProcessorStatus(ULONG procid,
+                                         PULONG status);
+
+   APIRET APIENTRY DosSetProcessorStatus(ULONG procid,
+                                         ULONG status);
+
+   typedef ULONG HSPINLOCK;
+   typedef HSPINLOCK FAR *PHSPINLOCK;
+
+   APIRET APIENTRY DosCreateSpinLock(PHSPINLOCK pHandle);
+
+   VOID   APIENTRY DosAcquireSpinLock(HSPINLOCK hSpinLock);
+
+   VOID   APIENTRY DosReleaseSpinLock(HSPINLOCK hSpinLock);
+
+   APIRET APIENTRY DosFreeSpinLock(HSPINLOCK Handle);
+
+   APIRET APIENTRY DosPerfSysCall(ULONG ulCommand,
+                                  ULONG ulParm1,
+                                  ULONG ulParm2,
+                                  ULONG ulParm3);
+
+   APIRET APIENTRY DosGetProcessorStatus(ULONG ProcNum,
+                                         PULONG pStatus);
+
+   APIRET APIENTRY DosSetProcessorStatus(ULONG ProcNum,
+                                         ULONG pStatus);
+
+#ifdef __cplusplus
+   APIRET APIENTRY DosTestPSD(PCSZ  pszPSDFileName);
+#else
+   APIRET APIENTRY DosTestPSD(PSZ pszPSDFileName);
+#endif

@@ -1,0 +1,28 @@
+group gpipolygons;
+
+constant POLYGON_NOBOUNDARY = 0;
+constant POLYGON_BOUNDARY   = 1;
+constant POLYGON_ALTERNATE  = 0;
+constant POLYGON_WINDING    = 2;
+constant POLYGON_INCL       = 0;
+constant POLYGON_EXCL       = 8;
+constant POLYGON_FILL       = 0;
+constant POLYGON_NOFILL     = 16;
+
+type POLYGON=structure
+    ulPoints: ULONG;
+    aPointl: PPOINTL;
+end;
+
+type PPOLYGON=^POLYGON;
+
+type POLYSET=structure
+    ulPolys: ULONG;
+    aPolygon: POLYGON;  (* array *)
+end;
+
+type PPOLYSET=^POLYSET;
+
+function GpiPolygons(in hps: HPS, in ulCount: ULONG, in paplgn: PPOLYGON, in flOpts: ULONG, in flMdl: ULONG): LONG;
+
+end.

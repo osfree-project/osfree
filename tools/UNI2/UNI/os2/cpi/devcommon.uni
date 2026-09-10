@@ -1,0 +1,162 @@
+group devcommon;
+
+constant CAPS_FAMILY                  = 0;
+constant CAPS_IO_CAPS                 = 1;
+constant CAPS_TECHNOLOGY              = 2;
+constant CAPS_DRIVER_VERSION          = 3;
+constant CAPS_WIDTH                   = 4;
+constant CAPS_HEIGHT                  = 5;
+constant CAPS_WIDTH_IN_CHARS          = 6;
+constant CAPS_HEIGHT_IN_CHARS         = 7;
+constant CAPS_HORIZONTAL_RESOLUTION   = 8;
+constant CAPS_VERTICAL_RESOLUTION     = 9;
+constant CAPS_CHAR_WIDTH             = 10;
+constant CAPS_CHAR_HEIGHT            = 11;
+constant CAPS_SMALL_CHAR_WIDTH       = 12;
+constant CAPS_SMALL_CHAR_HEIGHT      = 13;
+constant CAPS_COLORS                 = 14;
+constant CAPS_COLOR_PLANES           = 15;
+constant CAPS_COLOR_BITCOUNT         = 16;
+constant CAPS_COLOR_TABLE_SUPPORT    = 17;
+constant CAPS_MOUSE_BUTTONS          = 18;
+constant CAPS_FOREGROUND_MIX_SUPPORT = 19;
+constant CAPS_BACKGROUND_MIX_SUPPORT = 20;
+constant CAPS_DEVICE_WINDOWING       = 31;
+constant CAPS_ADDITIONAL_GRAPHICS    = 32;
+constant CAPS_VIO_LOADABLE_FONTS     = 21;
+constant CAPS_WINDOW_BYTE_ALIGNMENT  = 22;
+constant CAPS_BITMAP_FORMATS         = 23;
+constant CAPS_RASTER_CAPS            = 24;
+constant CAPS_MARKER_HEIGHT          = 25;
+constant CAPS_MARKER_WIDTH           = 26;
+constant CAPS_DEVICE_FONTS           = 27;
+constant CAPS_GRAPHICS_SUBSET        = 28;
+constant CAPS_GRAPHICS_VERSION       = 29;
+constant CAPS_GRAPHICS_VECTOR_SUBSET = 30;
+constant CAPS_PHYS_COLORS            = 33;
+constant CAPS_COLOR_INDEX            = 34;
+constant CAPS_GRAPHICS_CHAR_WIDTH    = 35;
+constant CAPS_GRAPHICS_CHAR_HEIGHT   = 36;
+constant CAPS_HORIZONTAL_FONT_RES    = 37;
+constant CAPS_VERTICAL_FONT_RES      = 38;
+constant CAPS_DEVICE_FONT_SIM        = 39;
+constant CAPS_LINEWIDTH_THICK        = 40;
+constant CAPS_DEVICE_POLYSET_POINTS  = 41;
+
+constant CAPS_IO_DUMMY             = 1;
+constant CAPS_IO_SUPPORTS_OP       = 2;
+constant CAPS_IO_SUPPORTS_IP       = 3;
+constant CAPS_IO_SUPPORTS_IO       = 4;
+
+constant CAPS_TECH_UNKNOWN         = 0;
+constant CAPS_TECH_VECTOR_PLOTTER  = 1;
+constant CAPS_TECH_RASTER_DISPLAY  = 2;
+constant CAPS_TECH_RASTER_PRINTER  = 3;
+constant CAPS_TECH_RASTER_CAMERA   = 4;
+constant CAPS_TECH_POSTSCRIPT      = 5;
+
+constant CAPS_COLTABL_RGB_8        = 1;
+constant CAPS_COLTABL_RGB_8_PLUS   = 2;
+constant CAPS_COLTABL_TRUE_MIX     = 4;
+constant CAPS_COLTABL_REALIZE      = 8;
+
+constant CAPS_FM_OR              = $0001;
+constant CAPS_FM_OVERPAINT       = $0002;
+constant CAPS_FM_XOR             = $0008;
+constant CAPS_FM_LEAVEALONE      = $0010;
+constant CAPS_FM_AND             = $0020;
+constant CAPS_FM_GENERAL_BOOLEAN = $0040;
+
+constant CAPS_BM_OR              = $0001;
+constant CAPS_BM_OVERPAINT       = $0002;
+constant CAPS_BM_XOR             = $0008;
+constant CAPS_BM_LEAVEALONE      = $0010;
+constant CAPS_BM_AND             = $0020;
+constant CAPS_BM_GENERAL_BOOLEAN = $0040;
+constant CAPS_BM_SRCTRANSPARENT  = $0080;
+constant CAPS_BM_DESTTRANSPARENT = $0100;
+
+constant CAPS_DEV_WINDOWING_SUPPORT  = 1;
+
+constant CAPS_DEV_FONT_SIM_BOLD      = 1;
+constant CAPS_DEV_FONT_SIM_ITALIC    = 2;
+constant CAPS_DEV_FONT_SIM_UNDERSCORE= 4;
+constant CAPS_DEV_FONT_SIM_STRIKEOUT = 8;
+
+constant CAPS_VDD_DDB_TRANSFER          = $00000001;
+constant CAPS_GRAPHICS_KERNING_SUPPORT  = $00000002;
+constant CAPS_FONT_OUTLINE_DEFAULT      = $00000004;
+constant CAPS_FONT_IMAGE_DEFAULT        = $00000008;
+constant CAPS_SCALED_DEFAULT_MARKERS    = $00000040;
+constant CAPS_COLOR_CURSOR_SUPPORT      = $00000080;
+constant CAPS_PALETTE_MANAGER           = $00000100;
+constant CAPS_COSMETIC_WIDELINE_SUPPORT = $00000200;
+constant CAPS_DIRECT_FILL               = $00000400;
+constant CAPS_REBUILD_FILLS             = $00000800;
+constant CAPS_CLIP_FILLS                = $00001000;
+constant CAPS_ENHANCED_FONTMETRICS      = $00002000;
+constant CAPS_TRANSFORM_SUPPORT         = $00004000;
+constant CAPS_EXTERNAL_16_BITCOUNT      = $00008000;
+constant CAPS_EXTERNAL_32_BITCOUNT      = $00010000;
+
+constant CAPS_BYTE_ALIGN_REQUIRED    = 0;
+constant CAPS_BYTE_ALIGN_RECOMMENDED = 1;
+constant CAPS_BYTE_ALIGN_NOT_REQUIRED =2;
+
+constant CAPS_RASTER_BITBLT         = 1;
+constant CAPS_RASTER_BANDING       =  2;
+constant CAPS_RASTER_BITBLT_SCALING = 4;
+constant CAPS_RASTER_SET_PEL       = 16;
+constant CAPS_RASTER_FONTS         = 32;
+constant CAPS_RASTER_FLOOD_FILL    = 64;
+
+constant DEV_ERROR                = 0;
+constant DEV_OK                   = 1;
+constant DEV_BAD_PARAMETERS       = 2;
+constant DEV_WARNING              = 3;
+constant DEV_PROP_BUF_TOO_SMALL   = 4;
+constant DEV_ITEM_BUF_TOO_SMALL   = 5;
+constant DEV_INV_INP_JOBPROPERTIES = 6;
+
+constant OD_SCREEN          = 0;
+constant OD_QUEUED          = 2;
+constant OD_DIRECT          = 5;
+constant OD_INFO            = 6;
+constant OD_METAFILE        = 7;
+constant OD_MEMORY          = 8;
+constant OD_METAFILE_NOQUERY = 9;
+
+(* constant DQHC_ERROR                   = (-1); *)
+
+constant HCAPS_CURRENT                 =  1;
+constant HCAPS_SELECTABLE              =  2;
+
+type DRIVDATA=structure
+    cb: LONG;
+    lVersion: LONG;
+    szDeviceName: array[32] of CHAR;
+    abGeneralData: array[1] of CHAR;
+  end;
+
+type  PDRIVDATA=^DRIVDATA;
+
+type DEVOPENSTRUC=structure
+           pszLogAddress: PSZ;
+           pszDriverName: PSZ;
+     pdriv: PDRIVDATA;
+           pszDataType: PSZ;
+           pszComment: PSZ;
+           pszQueueProcName: PSZ;
+           pszQueueProcParams: PSZ;
+           pszSpoolerParams: PSZ;
+           pszNetworkParams: PSZ;
+end;
+
+type PDEVOPENSTRUC=^DEVOPENSTRUC;
+
+function DevCloseDC(in a: HDC): HMF;
+function DevOpenDC(in a: HAB; in b: LONG; in c: PCSZ; in d: LONG; in e: PDEVOPENDATA; in f: HDC): HDC;
+function DevPostDeviceModes(in a: HAB; inout b: DRIVDATA; in c: PCSZ; in d:PCSZ; in e:PCSZ; in f:ULONG): LONG;
+function DevQueryCaps(in a:HDC; in b:LONG; in c:LONG; out d: LONG): BOOL;
+
+end;

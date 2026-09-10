@@ -1,0 +1,10523 @@
+
+// ===== Структуры =====
+structure KBDKEYINFO;              pack = 2;  prefix = 'kbci'; end;
+structure STRINGINBUF;             pack = 4;  prefix = 'kbsi'; end;
+structure KBDINFO;                 pack = 4;  prefix = 'kbst'; end;
+structure KBDHWID;                 pack = 4;  prefix = 'kbhw'; end;
+structure KBDTRANS;                pack = 2;  prefix = 'kbxl'; end;
+structure PTRLOC;                  pack = 4;  prefix = 'moupl'; end;
+structure PTRSHAPE;                pack = 4;  prefix = 'moups'; end;
+structure MOUEVENTINFO;            pack = 2;  prefix = 'mouev'; end;
+structure MOUQUEINFO;              pack = 4;  prefix = 'mouqi'; end;
+structure SCALEFACT;               pack = 4;  prefix = 'mousc'; end;
+structure NOPTRRECT;               pack = 4;  prefix = 'mourt'; end;
+structure THRESHOLD;               pack = 4;  prefix = 'threshold'; end;
+structure VIOCURSORINFO;           pack = 4;  prefix = 'vioci'; end;
+structure VIOMODEINFO;             pack = 1;  prefix = 'viomi'; end;
+structure VIOPHYSBUF;              pack = 4;  prefix = 'viopb'; end;
+structure VIOCONFIGINFO;           pack = 2;  prefix = 'vioin'; end;
+structure VIOFONTINFO;             pack = 4;  prefix = 'viofi'; end;
+structure VIOPALSTATE;             pack = 4;  prefix = 'viopal'; end;
+structure VIOOVERSCAN;             pack = 4;  prefix = 'vioos'; end;
+structure VIOINTENSITY;            pack = 4;  prefix = 'vioint'; end;
+structure VIOCOLORREG;             pack = 4;  prefix = 'viocreg'; end;
+structure VIOSETULINELOC;          pack = 4;  prefix = 'viouline'; end;
+structure VIOSETTARGET;            pack = 4;  prefix = 'viosett'; end;
+structure QWORD;       prefix = 'qword';   end;
+structure POINTL;      prefix = 'ptl';     end;
+structure POINTS;      prefix = 'pts';     end;
+structure RECTL;       prefix = 'rcl';     end;
+structure MATRIXLF;    prefix = 'matlf';   end;
+structure DRIVDATA;    prefix = 'driv';    end;
+structure DEVOPENSTRUC; prefix = 'dop';    end;
+structure PRINTDEST;   prefix = 'prntdst'; end;
+structure FATTRS;      prefix = 'fat';     end;
+structure PANOSE;      prefix = 'panose';  end;
+structure FONTMETRICS; prefix = 'fm';      end;
+structure ICONINFO;    prefix = 'icninf';  end;
+structure ACCEL;       pack = 2; prefix = 'acc';   end;
+structure DCBINFO;                 pack = 4;  prefix = 'dcbinf'; end;
+structure TRACKLAYOUT;             pack = 1;  prefix = 'trckl'; end;
+structure TRACKTABLE;              pack = 1;  prefix = 'trckl'; end;
+structure BIOSPARAMETERBLOCK;      pack = 1;  prefix = 'bspblk'; end;
+structure SCREENGROUP;             pack = 4;  prefix = 'scrgrp'; end;
+structure FRAME;                   pack = 4;  prefix = 'frm'; end;
+structure KBDTYPE;                 pack = 4;  prefix = 'kbdtyp'; end;
+structure LINECONTROL;             pack = 4;  prefix = 'lnctl'; end;
+structure MODEMSTATUS;             pack = 4;  prefix = 'mdmst'; end;
+structure TRACKFORMAT;             pack = 1;  prefix = 'trckfmt'; end;
+structure RXQUEUE;                 pack = 4;  prefix = 'rxq'; end;
+structure DEVICEPARAMETERBLOCK;    pack = 4;  prefix = 'dvpblck'; end;
+structure PTRDRAWFUNCTION;         pack = 2;  prefix = 'ptrdfrac'; end;
+structure PTRDRAWADDRESS;          pack = 4;  prefix = 'ptrdaddr'; end;
+structure SHIFTSTATE;              pack = 4;  prefix = 'shftst'; end;
+structure HOTKEY;                  pack = 4;  prefix = 'htky'; end;
+structure MONITORPOSITION;         pack = 4;  prefix = 'mnpos'; end;
+structure RATEDELAY;               pack = 4;  prefix = 'rtdly'; end;
+structure CODEPAGEINFO;            pack = 4;  prefix = 'cpi'; end;
+structure CPID;                    pack = 4;  prefix = 'cpid'; end;
+structure LDTADDRINFO;             pack = 4;  prefix = 'ldtaddr'; end;
+structure PTRDRAWDATA;             pack = 4;  prefix = 'ptrdd'; end;
+structure GETLINIOCTLDATA;         pack = 4;  prefix = 'getlindat'; end;
+structure BANKINFO;                pack = 4;  prefix = 'binfo'; end;
+structure GLOBALIOCTLDATA;         pack = 4;  prefix = 'giodata'; end;
+structure OEMSVGAINFO;             pack = 4;  prefix = 'oemsvga'; end;
+structure OEMINFO;                 pack = 4;  prefix = 'oeminfo'; end;
+structure GETGLOBALPACKET;         pack = 4;  prefix = 'getgpkt'; end;
+structure OEMHLPDISKINFO;          pack = 1;  prefix = 'oemhlpdisk'; end;
+structure SIZEL;                   pack = 4;  prefix = 'sizl'; end;
+structure FPREG;                   pack = 1;  prefix = 'fpreg'; end;
+structure CONTEXT;                 pack = 4;  prefix = 'context'; end;
+structure EXCEPTIONREPORTRECORD;   pack = 4;  prefix = 'exceptionreportrecord'; end;
+structure EXCEPTIONREGISTRATIONRECORD; pack = 4; prefix = 'exceptionregistrationrecord'; end;
+structure tib2_s;                  pack = 4;  prefix = 'tib2_s'; end;
+structure tib_s;                   pack = 4;  prefix = 'tib_s'; end;
+structure pib_s;                   pack = 4;  prefix = 'pib_s'; end;
+structure THREADCREATE;            pack = 4;  prefix = 'threadcreate'; end;
+structure RESULTCODES;             pack = 4;  prefix = 'resc'; end;
+structure MPAFFINITY;              pack = 4;  prefix = 'afnty'; end;
+structure UDB;                     pack = 4;  prefix = 'uDB'; end;
+structure uDB;                     pack = 4;  prefix = 'uDB'; end;
+structure TStat;                   pack = 4;  prefix = 'TS'; end;
+structure EASIZEBUF;               pack = 4;  prefix = 'easizebuf'; end;
+structure ROUTENAMEBUF;            pack = 4;  prefix = 'routenamebuf'; end;
+structure FSDTHREAD;               pack = 4;  prefix = 'fsdthread'; end;
+structure FSDDAEMON;               pack = 4;  prefix = 'fsddaemon'; end;
+structure FSQBUFFER;               pack = 4;  prefix = 'fsqbuf'; end;
+structure FSQBUFFER2;              pack = 4;  prefix = 'fsqbuf2'; end;
+structure SPOOLATTACH;             pack = 4;  prefix = 'spool'; end;
+structure FTIME;                   pack = 4;  prefix = 'ftime'; end;
+structure FDATE;                   pack = 4;  prefix = 'fdate'; end;
+structure VOLUMELABEL;             pack = 4;  prefix = 'vol'; end;
+structure FSINFO;                  pack = 4;  prefix = 'fsinf'; end;
+structure FILELOCK;                pack = 4;  prefix = 'flock'; end;
+structure FILELOCKL;               pack = 4;  prefix = 'flockl'; end;
+structure FILEFINDBUF;             pack = 4;  prefix = 'findbuf'; end;
+structure FILEFINDBUF2;            pack = 2;  prefix = 'findbuf2'; end;
+structure FILEFINDBUF3;            pack = 2;  prefix = 'findbuf3'; end;
+structure FILEFINDBUF4;            pack = 2;  prefix = 'findbuf4'; end;
+structure FILEFINDBUF3L;           pack = 2;  prefix = 'findbuf3l'; end;
+structure FILEFINDBUF4L;           pack = 2;  prefix = 'findbuf4l'; end;
+structure GEA;                     pack = 2;  prefix = 'gea'; end;
+structure GEALIST;                 pack = 2;  prefix = 'geal'; end;
+structure FEA;                     pack = 2;  prefix = 'fea'; end;
+structure FEALIST;                 pack = 2;  prefix = 'feal'; end;
+structure EAOP;                    pack = 2;  prefix = 'eaop'; end;
+structure FEA2;                    pack = 1;  prefix = 'fea2'; end;
+structure FEA2LIST;                pack = 1;  prefix = 'fea2l'; end;
+structure GEA2;                    pack = 1;  prefix = 'gea2'; end;
+structure GEA2LIST;                pack = 1;  prefix = 'gea2l'; end;
+structure EAOP2;                   pack = 1;  prefix = 'eaop2'; end;
+structure LISTIO_CB;               pack = 4;  prefix = 'LIO'; end;
+structure LISTIO_CBL;              pack = 4;  prefix = 'LIOL'; end;
+structure FILESTATUS;              pack = 4;  prefix = 'fsts'; end;
+structure FILESTATUS2;             pack = 4;  prefix = 'fsts2'; end;
+structure FILESTATUS3;             pack = 4;  prefix = 'fsts3'; end;
+structure FILESTATUS4;             pack = 4;  prefix = 'fsts4'; end;
+structure FILESTATUS3L;            pack = 4;  prefix = 'fsts3L'; end;
+structure FILESTATUS4L;            pack = 4;  prefix = 'fsts4L'; end;
+structure FSALLOCATE;              pack = 4;  prefix = 'fsalloc'; end;
+structure DENA1;                   pack = 1;  prefix = '_dena1'; end;
+structure PSEMRECORD;              pack = 4;  prefix = 'psr'; end;
+structure DATETIME;                pack = 4;  prefix = 'date'; end;
+structure QMRESULT;                pack = 4;  prefix = 'qmres'; end;
+structure COUNTRYCODE;             pack = 4;  prefix = 'ctryc'; end;
+structure COUNTRYINFO;             pack = 4;  prefix = 'ctryi'; end;
+structure REQUESTDATA;             pack = 4;  prefix = 'reqqdata'; end;
+structure STARTDATA;               pack = 4;  prefix = 'stdata'; end;
+structure STATUSDATA;              pack = 4;  prefix = 'stsdata'; end;
+structure AVAILDATA;               pack = 4;  prefix = 'AVAILDATA'; end;
+structure PIPEINFO;                pack = 4;  prefix = 'nmpinf'; end;
+structure PIPESEMSTATE;            pack = 4;  prefix = 'nmpsmst'; end;
+structure QSGREC;                  pack = 4;  prefix = 'qsGrec'; end;
+structure QSTREC;                  pack = 4;  prefix = 'qsTrec'; end;
+structure QSPREC;                  pack = 4;  prefix = 'qsPrec'; end;
+structure QSS16REC;                pack = 4;  prefix = 'qsS16rec'; end;
+structure QSS16HEADREC;            pack = 4;  prefix = 'qsS16Hrec'; end;
+structure QSMREC;                  pack = 4;  prefix = 'qsMrec'; end;
+structure QSOPENQ;                 pack = 4;  prefix = 'qsopenq'; end;
+structure QSEVENT;                 pack = 4;  prefix = 'qsevent'; end;
+structure QSMUTEX;                 pack = 4;  prefix = 'qsmutex'; end;
+structure QSMUX;                   pack = 4;  prefix = 'qsmux'; end;
+structure QSS32REC;                pack = 4;  prefix = 'qsS32rec'; end;
+structure QSLOBJREC;               pack = 4;  prefix = 'qsLOrec'; end;
+structure QSLREC;                  pack = 4;  prefix = 'qsLrec'; end;
+structure QSEXLREC;                pack = 4;  prefix = 'qsELrec'; end;
+structure QSSFT;                   pack = 4;  prefix = 'qsSft'; end;
+structure QSFREC;                  pack = 4;  prefix = 'qsFrec'; end;
+structure QSPTRREC;                pack = 4;  prefix = 'qsPRec'; end;
+structure QSHUN;                   pack = 4;  prefix = 'qsshun'; end;
+structure SEMRECORD;               pack = 4;  prefix = 'psr'; end;
+structure QVERSDATA;               pack = 4;  prefix = 'qver'; end;
+structure SWP;                     pack = 4;  prefix = 'swp'; end;
+structure CREATESTRUCT;            pack = 4;  prefix = 'crst'; end;
+structure CLASSINFO;               pack = 4;  prefix = 'clsi'; end;
+structure QMSG;                    pack = 4;  prefix = 'qmsg'; end;
+structure COMMANDMSG;              pack = 4;  prefix = 'commandmsg'; end;
+structure MQINFO;                  pack = 4;  prefix = 'mqi'; end;
+structure WNDPARAMS;               pack = 4;  prefix = 'wprm'; end;
+structure MOUSEMSG;                pack = 1;  prefix = 'mousemsg'; end;
+structure CHARMSG;                 pack = 1;  prefix = 'charmsg'; end;
+structure MB2D;                    pack = 4;  prefix = 'MB2D'; end;
+structure MB2INFO;                 pack = 4;  prefix = 'MB2INFO'; end;
+structure DLGTITEM;                pack = 2;  prefix = 'dlgti'; end;
+structure DLGTEMPLATE;             pack = 2;  prefix = 'dlgt'; end;
+structure BTNCDATA;                pack = 2;  prefix = 'btncd'; end;
+structure USERBUTTON;              pack = 4;  prefix = 'ubtn'; end;
+structure COMBOCDATA;              pack = 2;  prefix = 'combocdata'; end;
+structure ENTRYFDATA;              pack = 2;  prefix = 'efd'; end;
+structure LBOXINFO;                pack = 4;  prefix = 'lboxinfo'; end;
+structure mti;                     pack = 4;  prefix = 'mti'; end;
+structure mt;                      pack = 4;  prefix = 'mt'; end;
+structure OWNERITEM;               pack = 4;  prefix = 'oi'; end;
+structure MENUITEM;                pack = 2;  prefix = 'mi'; end;
+structure SBCDATA;                 pack = 2;  prefix = 'sbcd'; end;
+structure FRAMECDATA;              pack = 2;  prefix = 'fcdata'; end;
+structure PARAM;                   pack = 4;  prefix = 'param'; end;
+structure PRESPARAMS;              pack = 4;  prefix = 'pres'; end;
+structure CTLCOLOR;                pack = 4;  prefix = 'ctlclr'; end;
+structure ACCELTABLE;              pack = 2;  prefix = 'acct'; end;
+structure TRACKINFO;               pack = 4;  prefix = 'ti'; end;
+structure MFP;                     pack = 2;  prefix = 'mfp'; end;
+structure CPTEXT;                  pack = 2;  prefix = 'cptxt'; end;
+structure CURSORINFO;              pack = 4;  prefix = 'csri'; end;
+structure POINTERINFO;             pack = 4;  prefix = 'ptri'; end;
+structure SMHSTRUCT;               pack = 4;  prefix = 'smhs'; end;
+structure ERRINFO;                 pack = 4;  prefix = 'erri'; end;
+structure CONVCONTEXT;             pack = 4;  prefix = 'cctxt'; end;
+structure DDEINIT;                 pack = 4;  prefix = 'ddei'; end;
+structure DDESTRUCT;               pack = 4;  prefix = 'dde'; end;
+structure DESKTOP;                 pack = 4;  prefix = 'dsk'; end;
+structure VIOSIZECOUNT;            pack = 4;  prefix = 'vios'; end;
+structure VIOFONTCELLSIZE;         pack = 4;  prefix = 'viof'; end;
+structure SFACTORS;                pack = 4;  prefix = 'sfactors'; end;
+structure BANDRECT;                pack = 4;  prefix = 'bandrect'; end;
+structure ESCMODE;                 pack = 4;  prefix = 'em'; end;
+structure COMPBITBLT;              pack = 4;  prefix = 'cbb'; end;
+structure COMP_BITMAPTYPES;        pack = 4;  prefix = 'cbmt'; end;
+structure QUERY_RASTER;            pack = 4;  prefix = 'qr'; end;
+structure QUERY_ONE_RASTER;        pack = 4;  prefix = 'qor'; end;
+structure SETABORTPROC;            pack = 4;  prefix = 'sap'; end;
+structure PDL;                     pack = 4;  prefix = 'pdl'; end;
+structure IQUERYPDL;               pack = 4;  prefix = 'iqpdl'; end;
+structure OQUERYPDL;               pack = 4;  prefix = 'oqpdl'; end;
+structure ESCMACRO;                pack = 4;  prefix = 'devmac'; end;
+structure HCINFO;                  pack = 4;  prefix = 'hci'; end;
+structure PRFPROFILE;              pack = 4;  prefix = 'prfpro'; end;
+structure HPROGARRAY;              pack = 4;  prefix = 'hpga'; end;
+structure PROGTYPE;                pack = 4;  prefix = 'progt'; end;
+structure PROGDETAILS;             pack = 4;  prefix = 'progde'; end;
+structure PROGTITLE;               pack = 4;  prefix = 'progti'; end;
+structure SWCNTRL;                 pack = 4;  prefix = 'swctl'; end;
+structure SWENTRY;                 pack = 4;  prefix = 'swent'; end;
+structure SWBLOCK;                 pack = 4;  prefix = 'swblk'; end;
+structure OBJECTIMAGE;             pack = 4;  prefix = 'oimg'; end;
+structure OBJCLASS;                pack = 4;  prefix = 'ocls'; end;
+structure PAGEINFO;                pack = 4;  prefix = 'pginf'; end;
+structure ICONPOS;                 pack = 4;  prefix = 'icp'; end;
+structure FILEDLG;                 pack = 4;  prefix = 'fildlg'; end;
+structure FONTDLG;                 pack = 4;  prefix = 'fntdlg'; end;
+structure STYLECHANGE;             pack = 4;  prefix = 'stylc'; end;
+structure SPBCDATA;                pack = 4;  prefix = 'spbcd'; end;
+structure DRAGITEM;                pack = 4;  prefix = 'ditem'; end;
+structure DRAGINFO;                pack = 4;  prefix = 'dinfo'; end;
+structure DRAGIMAGE;               pack = 4;  prefix = 'dimg'; end;
+structure DRAGTRANSFER;            pack = 4;  prefix = 'dxfer'; end;
+structure RENDERFILE;              pack = 4;  prefix = 'rndf'; end;
+structure TREEITEMDESC;            pack = 4;  prefix = 'treend'; end;
+structure FIELDINFO;               pack = 4;  prefix = 'fldinfo'; end;
+structure RECORDCORE;              pack = 4;  prefix = 'recc'; end;
+structure MINIRECORDCORE;          pack = 4;  prefix = 'minirec'; end;
+structure TREEMOVE;                pack = 4;  prefix = 'treemv'; end;
+structure CNRINFO;                 pack = 4;  prefix = 'ccinfo'; end;
+structure GRIDSQUARE;              pack = 4;  prefix = 'gridsquare'; end;
+structure GRIDINFO;                pack = 4;  prefix = 'gridinfo'; end;
+structure CDATE;                   pack = 4;  prefix = 'cdate'; end;
+structure CTIME;                   pack = 4;  prefix = 'ctime'; end;
+structure CNRDRAGINIT;             pack = 4;  prefix = 'cdrginit'; end;
+structure FIELDINFOINSERT;         pack = 4;  prefix = 'fiins'; end;
+structure RECORDINSERT;            pack = 4;  prefix = 'recins'; end;
+structure QUERYRECFROMRECT;        pack = 4;  prefix = 'qrecfrct'; end;
+structure QUERYRECORDRECT;         pack = 4;  prefix = 'qrecrct'; end;
+structure SEARCHSTRING;            pack = 4;  prefix = 'srchstr'; end;
+structure CNRDRAGINFO;             pack = 4;  prefix = 'cdrginfo'; end;
+structure CNRLAZYDRAGINFO;         pack = 4;  prefix = 'clzdrginfo'; end;
+structure NOTIFYRECORDEMPHASIS;    pack = 4;  prefix = 'nrecemph'; end;
+structure NOTIFYRECORDENTER;       pack = 4;  prefix = 'notrecen'; end;
+structure NOTIFYDELTA;             pack = 4;  prefix = 'notdlt'; end;
+structure NOTIFYSCROLL;            pack = 4;  prefix = 'notscr'; end;
+structure CNREDITDATA;             pack = 4;  prefix = 'cnredat'; end;
+structure OWNERBACKGROUND;         pack = 4;  prefix = 'ownbckg'; end;
+structure CNRDRAWITEMINFO;         pack = 4;  prefix = 'cnrdrwii'; end;
+structure SLDCDATA;                pack = 4;  prefix = 'sldcd'; end;
+structure CSBITMAPDATA;            pack = 4;  prefix = 'csbitmap'; end;
+structure VSCDATA;                 pack = 4;  prefix = 'vscd'; end;
+structure VSDRAGINIT;              pack = 4;  prefix = 'vsdinit'; end;
+structure VSDRAGINFO;              pack = 4;  prefix = 'vsdinfo'; end;
+structure VSTEXT;                  pack = 4;  prefix = 'vstext'; end;
+structure BOOKPAGEINFO;            pack = 4;  prefix = 'bkpginfo'; end;
+structure BOOKTEXT;                pack = 4;  prefix = 'booktxt'; end;
+structure NOTEBOOKBUTTON;          pack = 4;  prefix = 'nbbutton'; end;
+structure DELETENOTIFY;            pack = 4;  prefix = 'delntfy'; end;
+structure PAGESELECTNOTIFY;        pack = 4;  prefix = 'pgsntfy'; end;
+structure RXSTRING;                pack = 4;  prefix = 'rxstr'; end;
+structure RXSYSEXIT;               pack = 4;  prefix = 'syse'; end;
+structure SHVBLOCK;                pack = 4;  prefix = 'shvb'; end;
+structure RXFNC_FLAGS;             pack = 1;  prefix = 'fl'; end;
+structure RXFNCCAL_PARM;           pack = 1;  prefix = 'fnc'; end;
+structure RXCMD_FLAGS;             pack = 1;  prefix = 'fl'; end;
+structure RXCMDHST_PARM;           pack = 1;  prefix = 'rx'; end;
+structure RXMSQPLL_PARM;           pack = 4;  prefix = 'pll'; end;
+structure RXMSQ_FLAGS;             pack = 1;  prefix = 'fl'; end;
+structure RXMSQPSH_PARM;           pack = 1;  prefix = 'psh'; end;
+structure RXMSQSIZ_PARM;           pack = 4;  prefix = 'siz'; end;
+structure RXMSQNAM_PARM;           pack = 4;  prefix = 'nam'; end;
+structure RXSIOSAY_PARM;           pack = 4;  prefix = 'say'; end;
+structure RXSIOTRC_PARM;           pack = 4;  prefix = 'trcparm'; end;
+structure RXSIOTRD_PARM;           pack = 4;  prefix = 'trd'; end;
+structure RXSIODTR_PARM;           pack = 4;  prefix = 'dtr'; end;
+structure RXHLT_FLAGS;             pack = 4;  prefix = 'fl'; end;
+structure RXHLTTST_PARM;           pack = 4;  prefix = 'tst'; end;
+structure RXTRC_FLAGS;             pack = 4;  prefix = 'fl'; end;
+structure RXTRCTST_PARM;           pack = 4;  prefix = 'tst'; end;
+structure HELPTABLE;               pack = 2;  prefix = 'ht'; end;
+structure HELPINIT;                pack = 4;  prefix = 'hinit'; end;
+structure ACVP;                    pack = 4;  prefix = 'acvp'; end;
+structure ARCPARAMS;               pack = 4;  prefix = 'arcp'; end;
+structure SIZEF;                   pack = 4;  prefix = 'sizfx'; end;
+structure GRADIENTL;               pack = 4;  prefix = 'gradl'; end;
+structure LINEBUNDLE;              pack = 4;  prefix = 'lbnd'; end;
+structure CHARBUNDLE;              pack = 4;  prefix = 'cbnd'; end;
+structure MARKERBUNDLE;            pack = 4;  prefix = 'mbnd'; end;
+structure AREABUNDLE;              pack = 4;  prefix = 'pbnd'; end;
+structure IMAGEBUNDLE;             pack = 4;  prefix = 'ibmd'; end;
+structure KERNINGPAIRS;            pack = 4;  prefix = 'krnpr'; end;
+structure RASTERIZERCAPS;          pack = 4;  prefix = 'ffdescs2'; end;
+structure FACENAMEDESC;            pack = 4;  prefix = 'fnd'; end;
+structure FFDESCS2;                pack = 4;  prefix = 'ffdescs2'; end;
+structure RGNRECT;                 pack = 4;  prefix = 'rgnrc'; end;
+structure PERPAGEINFO;             pack = 4;  prefix = 'ppinf'; end;
+structure POLYGON;                 pack = 4;  prefix = 'plygn'; end;
+structure POLYSET;                 pack = 4;  prefix = 'plyst'; end;
+structure BITMAPINFOHEADER;        pack = 1;  prefix = 'bmp'; end;
+structure RGB;                     pack = 1;  prefix = 'rgb'; end;
+structure BITMAPINFO;              pack = 1;  prefix = 'bmi'; end;
+structure BITMAPINFOHEADER2;       pack = 1;  prefix = 'bmp2'; end;
+structure RGB2;                    pack = 1;  prefix = 'rgb2'; end;
+structure BITMAPINFO2;             pack = 1;  prefix = 'bmi2'; end;
+structure BITMAPFILEHEADER;        pack = 1;  prefix = 'bfh'; end;
+structure BITMAPARRAYFILEHEADER;   pack = 1;  prefix = 'bafh'; end;
+structure BITMAPFILEHEADER2;       pack = 1;  prefix = 'bfh2'; end;
+structure BITMAPARRAYFILEHEADER2;  pack = 1;  prefix = 'bafh2'; end;
+structure UNILCONV;                pack = 4;  prefix = 'UniLconv'; end;
+structure UNICTYPE;                pack = 4;  prefix = 'UNICTYPE'; end;
+structure conv_endian_t;           pack = 4;  prefix = 'conv_endian_t'; end;
+structure uconv_attribute_t;       pack = 4;  prefix = 'uconv_attribute_t'; end;
+structure udcrange_t;              pack = 4;  prefix = 'udcrange_t'; end;
+structure tm;                      pack = 4;  prefix = 'tm'; end;
+structure FORMATTABLE;             pack = 1;  prefix = 'fmtt'; end;
+structure CPUUTIL;                 pack = 4;  prefix = 'cpuutil'; end;
+structure FORMATRECT;              pack = 4;  prefix = 'MLEFRD'; end;
+structure MLECTLDATA;              pack = 4;  prefix = 'MLECTL'; end;
+structure MLEOVERFLOW;             pack = 4;  prefix = 'overflow'; end;
+structure MLEMARGSTRUCT;           pack = 4;  prefix = 'margin'; end;
+structure SEARCH;                  pack = 4;  prefix = 'search'; end;
+
+
+type _PFN;                 convention = '_System'; end;
+type _NPFN;                convention = '_System'; end;
+type _ERR;                 convention = '_System'; end;
+type FNTHREAD;             convention = '_System'; end;
+type FNWP;                 convention = '_System'; end;
+type FNEXITLIST;           convention = '_System'; end;
+type RexxSubcomHandler;    convention = '_System'; end;
+type RexxFunctionHandler;  convention = '_System'; end;
+type RexxExitHandler;      convention = '_System'; end;
+type MIXERPROC;            convention = '_System'; end;
+type MIXEREVENT;           convention = '_System'; end;
+type MMIOPROC;             convention = '_System'; end;
+
+library OS2386;
+begin
+  entry DosGetMessage;
+  begin
+    convention = '_System';
+  end;
+
+  entry DosQueryMessageCP;
+  begin
+    convention = '_System';
+  end;
+end;
+
+module BDCALLS;
+begin
+  entry NLS16CONVERTBIDINUMERICS;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry NLS16CONVERTBIDISTRING;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry NLS16INTSETBIDIATT;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry NLS16INTQUERYBIDIATT;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry NLS16SETBIDIATT;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry NLS16QUERYBIDIATT;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry NLS16INVERSESTRING;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry NLS16SETBIDIPRINT;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry NLS16EDITSHAPE;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry NLS16SHAPEBIDISTRING;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry NL16POPUP;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+end;
+
+module DIVE;
+begin
+  entry DiveQueryCaps;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry DiveOpen;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry DiveClose;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry DiveSetupBlitter;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry DiveBlitImage;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry DiveAcquireFrameBuffer;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry DiveSwitchBank;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry DiveDeacquireFrameBuffer;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry DiveSetDestinationPalette;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry DiveSetSourcePalette;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry DiveCalcFrameBufferAddress;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry DiveAllocImageBuffer;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry DiveFreeImageBuffer;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry DiveBeginImageBufferAccess;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry DiveEndImageBufferAccess;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry DiveFullScreenInit;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+
+  entry DiveFullScreenTerm;
+  begin
+    convention = '_System';
+    number = 17;
+  end;
+
+  entry DiveSetTransparentBlitMode;
+  begin
+    convention = '_System';
+    number = 18;
+  end;
+
+  entry DiveBlitImageLines;
+  begin
+    convention = '_System';
+    number = 19;
+  end;
+end;
+
+module DOSCALLS;
+  version = '2.0';
+begin
+  // 16-битные экспорты (реальные имена + convention = '_Far16 _Pascal')
+  entry DOS16CWAIT = DosWaitChild;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16ENTERCRITSEC = DosEnterCritSec;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DOS16EXIT = DosExit;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 5;
+  end;
+
+  entry DOS16EXITCRITSEC = DosExitCritSec;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 6;
+  end;
+
+  entry DOS16EXITLIST = DosExitList;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 7;
+  end;
+
+  entry DOS16GETINFOSEG = DosGetInfoBlocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 8;
+  end;
+
+  entry DOS16GETPRTY = DosSetPriority;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 9;
+  end;
+
+  entry DOS16KILLPROCESS = DosKillProcess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 10;
+  end;
+
+  entry DOS16SETPRTY = DosSetPriority;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 11;
+  end;
+
+  entry DOSPTRACE;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 12;
+  end;
+
+  entry DOS16HOLDSIGNAL = DosHoldSignal;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 13;
+  end;
+
+  entry DOS16SETSIGHANDLER = DosSetSigHandler;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 14;
+  end;
+
+  entry DOS16FLAGPROCESS = DosFlagProcess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 15;
+  end;
+
+  entry DOS16MAKEPIPE = DosCreatePipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 16;
+  end;
+
+  entry DOS16SEMSETWAIT = DosSemSetWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 20;
+  end;
+
+  entry DOS16MUXSEMWAIT = DosMuxSemWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 22;
+  end;
+
+  entry DOS16CLOSESEM = DosCloseSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 23;
+  end;
+
+  entry DOS16CREATESEM = DosCreateSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 24;
+  end;
+
+  entry DOS16OPENSEM = DosOpenSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 25;
+  end;
+
+  entry DOS16RESUMETHREAD = DosResumeThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 26;
+  end;
+
+  entry DOS16SUSPENDTHREAD = DosSuspendThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 27;
+  end;
+
+  entry DOS16SETDATETIME = DosSetDateTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 28;
+  end;
+
+  entry DOS16TIMERASYNC = DosAsyncTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 29;
+  end;
+
+  entry DOS16TIMERSTART = DosStartTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 30;
+  end;
+
+  entry DOS16TIMERSTOP = DosStopTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 31;
+  end;
+
+  entry DOS16SLEEP = DosSleep;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 32;
+  end;
+
+  entry DOS16GETDATETIME = DosGetDateTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 33;
+  end;
+
+  entry DOS16ALLOCSEG = DosAllocSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 34;
+  end;
+
+  entry DOS16ALLOCSHRSEG = DosAllocShrSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 35;
+  end;
+
+  entry DOS16GETSHRSEG = DosGetShrSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 36;
+  end;
+
+  entry DOS16GIVESEG = DosGiveSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 37;
+  end;
+
+  entry DOS16REALLOCSEG = DosReallocSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 38;
+  end;
+
+  entry DOS16FREESEG = DosFreeSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 39;
+  end;
+
+  entry DOS16ALLOCHUGE = DosAllocHuge;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 40;
+  end;
+
+  entry DOS16GETHUGESHIFT = DosGetHugeShift;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 41;
+  end;
+
+  entry DOS16REALLOCHUGE = DosReallocHuge;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 42;
+  end;
+
+  entry DOS16CREATECSALIAS = DosCreateCSAlias;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 43;
+  end;
+
+  entry DOS16LOADMODULE = DosLoadModule;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 44;
+  end;
+
+  entry DOS16GETPROCADDR = DosQueryProcAddr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 45;
+  end;
+
+  entry DOS16FREEMODULE = DosFreeModule;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 46;
+  end;
+
+  entry DOS16GETMODHANDLE = DosQueryModuleHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 47;
+  end;
+
+  entry DOS16GETMODNAME = DosQueryModuleName;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 48;
+  end;
+
+  entry DOS16GETMACHINEMODE = DosGetMachineMode;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 49;
+  end;
+
+  entry DOS16BEEP = DosBeep;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 50;
+  end;
+
+  entry DOS16CLIACCESS = DosCliAccess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 51;
+  end;
+
+  entry DOS16DEVCONFIG = DosDevConfig;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 52;
+  end;
+
+  entry DOS16DEVIOCTL = DosDevIOCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 53;
+  end;
+
+  entry DOS16BUFRESET = DosResetBuffer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 56;
+  end;
+
+  entry DOS16CHDIR = DosSetCurrentDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 57;
+  end;
+
+  entry DOS16CHGFILEPTR = DosSetFilePtr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 58;
+  end;
+
+  entry DOS16CLOSE = DosClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 59;
+  end;
+
+  entry DOS16DELETE = DosDelete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 60;
+  end;
+
+  entry DOS16DUPHANDLE = DosDupHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 61;
+  end;
+
+  entry DOS16FILELOCKS = DosSetFileLocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 62;
+  end;
+
+  entry DOS16FINDCLOSE = DosFindClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 63;
+  end;
+
+  entry DOS16FINDFIRST = DosFindFirst;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 64;
+  end;
+
+  entry DOS16FINDNEXT = DosFindNext;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 65;
+  end;
+
+  entry DOS16MKDIR = DosCreateDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 66;
+  end;
+
+  entry DOS16MOVE = DosMove;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 67;
+  end;
+
+  entry DOS16NEWSIZE = DosSetFileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 68;
+  end;
+
+  entry DOS16PORTACCESS = DosPortAccess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 69;
+  end;
+
+  entry DOS16OPEN = DosOpen;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 70;
+  end;
+
+  entry DOS16QCURDIR = DosQueryCurrentDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 71;
+  end;
+
+  entry DOS16QCURDISK = DosQueryCurrentDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 72;
+  end;
+
+  entry DOS16QFHANDSTATE = DosQueryFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 73;
+  end;
+
+  entry DOS16QFILEINFO = DosQueryFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 74;
+  end;
+
+  entry DOS16QFILEMODE = DosQueryFileMode;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 75;
+  end;
+
+  entry DOS16QFSINFO = DosQueryFSInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 76;
+  end;
+
+  entry DOS16QHANDTYPE = DosQueryHType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 77;
+  end;
+
+  entry DOS16QVERIFY = DosQueryVerify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 78;
+  end;
+
+  entry DOS16RMDIR = DosDeleteDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 80;
+  end;
+
+  entry DOS16SELECTDISK = DosSetDefaultDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 81;
+  end;
+
+  entry DOS16SETFHANDSTATE = DosSetFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 82;
+  end;
+
+  entry DOS16SETFILEINFO = DosSetFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 83;
+  end;
+
+  entry DOS16SETFILEMODE = DosSetFileMode;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 84;
+  end;
+
+  entry DOS16SETMAXFH = DosSetMaxFH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 85;
+  end;
+
+  entry DOS16SETVERIFY = DosSetVerify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 86;
+  end;
+
+  entry DOS16SYSTEMSERVICE = DosSystemService;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 88;
+  end;
+
+  entry DOS16SETVEC = DosSetVec;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 89;
+  end;
+
+  entry DOS16SYSTRACE = DosSysTrace;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 90;
+  end;
+
+  entry DOS16GETENV = DosGetEnv;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 91;
+  end;
+
+  entry DOS16GETVERSION = DosGetVersion;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 92;
+  end;
+
+  entry DOS16GETPID = DosGetPID;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 94;
+  end;
+
+  entry DOS16OPEN2 = DosOpen2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 95;
+  end;
+
+  entry DOS16LIBINIT = DosLibInit;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 96;
+  end;
+
+  entry DOS16SETFSINFO = DosSetFSInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 97;
+  end;
+
+  entry DOS16QPATHINFO = DosQueryPathInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 98;
+  end;
+
+  entry DOS16DEVIOCTL2 = DosDevIOCtl2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 99;
+  end;
+
+  entry DOS16SETPATHINFO = DosSetPathInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 104;
+  end;
+
+  entry DOSISETRELMAXFH = DosSetRelMaxFH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 108;
+  end;
+
+  entry DOSIDEVIOCTL = DosIDevIOCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 109;
+  end;
+
+  entry DosForceDelete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 110;
+  end;
+
+  entry DosKillThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 111;
+  end;
+
+  entry DosQueryRASInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 112;
+  end;
+
+  entry DosDumpProcess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 113;
+  end;
+
+  entry DosSuppressPopUps;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 114;
+  end;
+
+  entry DOS16ERROR = DosError;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 120;
+  end;
+
+  entry DOS16GETSEG = DosGetSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 121;
+  end;
+
+  entry DOS16LOCKSEG = DosLockSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 122;
+  end;
+
+  entry DOS16UNLOCKSEG = DosUnlockSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 123;
+  end;
+
+  entry DOS16SIZESEG = DosSizeSeg;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 126;
+  end;
+
+  entry DOS16MEMAVAIL = DosMemAvail;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 127;
+  end;
+
+  entry DOS16PHYSICALDISK = DosPhysicalDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 129;
+  end;
+
+  entry DOS16GETCP = DosGetCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 130;
+  end;
+
+  entry DOS16SENDSIGNAL = DosSendSignal;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 134;
+  end;
+
+  entry DOS16HUGESHIFT = DosHugeShift;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 135;
+  end;
+
+  entry DOS16HUGEINCR = DosHugeIncr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 136;
+  end;
+
+  entry DOS16READ = DosRead;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 137;
+  end;
+
+  entry DOS16WRITE = DosWrite;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 138;
+  end;
+
+  entry DOS16ERRCLASS = DosErrClass;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 139;
+  end;
+
+  entry DOS16SEMREQUEST = DosSemRequest;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 140;
+  end;
+
+  entry DOS16SEMCLEAR = DosSemClear;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 141;
+  end;
+
+  entry DOS16SEMWAIT = DosSemWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 142;
+  end;
+
+  entry DOS16SEMSET = DosSemSet;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 143;
+  end;
+
+  entry DOS16EXECPGM = DosExecPgm;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 144;
+  end;
+
+  entry DOS16CREATETHREAD = DosCreateThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 145;
+  end;
+
+  entry DOS16SUBSET = DosSubSetMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 146;
+  end;
+
+  entry DOS16SUBALLOC = DosSubAllocMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 147;
+  end;
+
+  entry DOS16SUBFREE = DosSubFreeMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 148;
+  end;
+
+  entry DOS16READASYNC = DosReadAsync;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 149;
+  end;
+
+  entry DOS16WRITEASYNC = DosWriteAsync;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 150;
+  end;
+
+  entry DOS16SEARCHPATH = DosSearchPath;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 151;
+  end;
+
+  entry DOS16SCANENV = DosScanEnv;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 152;
+  end;
+
+  entry DOS16SETCP = DosSetCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 153;
+  end;
+
+  entry DOS16GETRESOURCE = DosGetResource;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 155;
+  end;
+
+  entry DOS16GETPPID = DosGetPPID;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 156;
+  end;
+
+  entry DOS16CALLBACK = DosCallback;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 157;
+  end;
+
+  entry DOS16R2STACKREALLOC = DosR2StackRealloc;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 160;
+  end;
+
+  entry DOS16FSRAMSEMREQUEST = DosFSRamSemRequest;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 161;
+  end;
+
+  entry DOS16FSRAMSEMCLEAR = DosFSRamSemClear;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 162;
+  end;
+
+  entry DOS16QAPPTYPE = DosQueryAppType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 163;
+  end;
+
+  entry DOS16SETPROCCP = DosSetProcessCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 164;
+  end;
+
+  entry DOS16DYNAMICTRACE = DosDynamicTrace;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 165;
+  end;
+
+  entry DOS16QSYSINFO = DosQuerySysInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 166;
+  end;
+
+  entry DOS16FSATTACH = DosFSAttach;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 181;
+  end;
+
+  entry DOS16QFSATTACH = DosQueryFSAttach;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 182;
+  end;
+
+  entry DOS16FSCTL = DosFSCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 183;
+  end;
+
+  entry DOS16FINDFIRST2 = DosFindFirst2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 184;
+  end;
+
+  entry DOS16MKDIR2 = DosCreateDir2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 185;
+  end;
+
+  entry DOS16FILEIO = DosFileIO;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 186;
+  end;
+
+  entry DOS16FINDNOTIFYCLOSE = DosFindNotifyClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 187;
+  end;
+
+  entry DOS16FINDNOTIFYFIRST = DosFindNotifyFirst;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 188;
+  end;
+
+  entry DOS16FINDNOTIFYNEXT = DosFindNotifyNext;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 189;
+  end;
+
+  entry DOS16EDITNAME = DosEditName;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 191;
+  end;
+
+  entry DOS16COPY = DosCopy;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 201;
+  end;
+
+  entry DOS16FORCEDELETE = DosForceDelete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 203;
+  end;
+
+  entry DOS16ENUMATTRIBUTE = DosEnumAttribute;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 204;
+  end;
+
+  entry DOS16SHUTDOWN = DosShutdown;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 206;
+  end;
+
+  entry DOS16GETRESOURCE2 = DosGetResource2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 207;
+  end;
+
+  entry DOS16FREERESOURCE = DosFreeResource;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 208;
+  end;
+
+  entry DosSetMaxFH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 209;
+  end;
+
+  entry DosSetVerify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 210;
+  end;
+
+  entry DosErrClass;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 211;
+  end;
+
+  entry DosError;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 212;
+  end;
+
+  entry DOS16MAXPATHLEN = DosMaxPathLen;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 214;
+  end;
+
+  entry DOS16PAGESIZE = DosPageSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 215;
+  end;
+
+  entry DOS16LOCALINFO = DosLocalInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 216;
+  end;
+
+  entry DOS16GLOBALINFO = DosGlobalInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 217;
+  end;
+
+  entry DosSetFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 218;
+  end;
+
+  entry DosSetPathInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 219;
+  end;
+
+  entry DosSetDefaultDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 220;
+  end;
+
+  entry DosSelectDisk = DosSetDefaultDisk;
+
+  entry DosSetFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 221;
+  end;
+
+  entry DosSetFHandState = DosSetFHState;
+
+  entry DosSetFSInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 222;
+  end;
+
+  entry DosQueryPathInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 223;
+  end;
+
+  entry DosQueryHType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 224;
+  end;
+
+  entry DosQueryVerify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 225;
+  end;
+
+  entry DosDeleteDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 226;
+  end;
+
+  entry DosScanEnv;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 227;
+  end;
+
+  entry DosSearchPath;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 228;
+  end;
+
+  entry DosSleep;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 229;
+  end;
+
+  entry DosGetDateTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 230;
+  end;
+
+  entry DosDevConfig;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 231;
+  end;
+
+  entry DosEnterCritSec;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 232;
+  end;
+
+  entry DosExitCritSec;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 233;
+  end;
+
+  entry DosExit;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 234;
+  end;
+
+  entry DosKillProcess;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 235;
+  end;
+
+  entry DosSetPriority;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 236;
+  end;
+
+  entry DosResumeThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 237;
+  end;
+
+  entry DosSuspendThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 238;
+  end;
+
+  entry DosCreatePipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 239;
+  end;
+
+  entry DosCallNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 240;
+  end;
+
+  entry DosConnectNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 241;
+  end;
+
+  entry DosDisConnectNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 242;
+  end;
+
+  entry DosCreateNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 243;
+  end;
+
+  entry DosPeekNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 244;
+  end;
+
+  entry DosQueryNPHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 245;
+  end;
+
+  entry DosRawReadNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 246;
+  end;
+
+  entry DosRawWriteNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 247;
+  end;
+
+  entry DosQueryNPipeInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 248;
+  end;
+
+  entry DosQueryNPipeSemState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 249;
+  end;
+
+  entry DosSetNPHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 250;
+  end;
+
+  entry DosSetNPipeSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 251;
+  end;
+
+  entry DosTransactNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 252;
+  end;
+
+  entry DosWaitNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 253;
+  end;
+
+  entry DosResetBuffer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 254;
+  end;
+
+  entry DosBufReset = DosResetBuffer;
+
+  entry DosSetCurrentDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 255;
+  end;
+
+  entry DosSetFilePtr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 256;
+  end;
+
+  entry DosClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 257;
+  end;
+
+  entry DosCopy;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 258;
+  end;
+
+  entry DosDelete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 259;
+  end;
+
+  entry DosDupHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 260;
+  end;
+
+  entry DosEditName;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 261;
+  end;
+
+  entry DosFindClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 263;
+  end;
+
+  entry DosFindFirst;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 264;
+  end;
+
+  entry DosFindNext;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 265;
+  end;
+
+  entry DOS16OPENVDD = DosOpenVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 266;
+  end;
+
+  entry DOS16REQUESTVDD = DosRequestVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 267;
+  end;
+
+  entry DOS16CLOSEVDD = DosCloseVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 268;
+  end;
+
+  entry DosFSAttach;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 269;
+  end;
+
+  entry DosCreateDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 270;
+  end;
+
+  entry DosMove;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 271;
+  end;
+
+  entry DosSetFileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 272;
+  end;
+
+  entry DosOpen;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 273;
+  end;
+
+  entry DosQueryCurrentDir;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 274;
+  end;
+
+  entry DosQueryCurrentDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 275;
+  end;
+
+  entry DosQueryFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 276;
+  end;
+
+  entry DosQueryFSAttach;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 277;
+  end;
+
+  entry DosQueryFSInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 278;
+  end;
+
+  entry DosQueryFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 279;
+  end;
+
+  entry DosWaitChild;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 280;
+  end;
+
+  entry DosRead;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 281;
+  end;
+
+  entry DosWrite;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 282;
+  end;
+
+  entry DosExecPgm;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 283;
+  end;
+
+  entry DosDevIOCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 284;
+  end;
+
+  entry DosFSCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 285;
+  end;
+
+  entry DosBeep;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 286;
+  end;
+
+  entry DosPhysicalDisk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 287;
+  end;
+
+  entry DosSetCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 288;
+  end;
+
+  entry DosSetProcessCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 289;
+  end;
+
+  entry DosStopTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 290;
+  end;
+
+  entry DosTimerStop = DosStopTimer;
+
+  entry DosQueryCp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 291;
+  end;
+
+  entry DosGetCp = DosQueryCp;
+
+  entry DosSetDateTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 292;
+  end;
+
+  entry DosExitList;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 296;
+  end;
+
+  entry DosAliasMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 298;
+  end;
+
+  entry DosAllocMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 299;
+  end;
+
+  entry DosAllocSharedMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 300;
+  end;
+
+  entry DosGetNamedSharedMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 301;
+  end;
+
+  entry DosGetSharedMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 302;
+  end;
+
+  entry DosGiveSharedMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 303;
+  end;
+
+  entry DosFreeMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 304;
+  end;
+
+  entry DosSetMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 305;
+  end;
+
+  entry DosQueryMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 306;
+  end;
+
+  entry DosQueryMemState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 307;
+  end;
+
+  entry DosOpenVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 308;
+  end;
+
+  entry DosRequestVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 309;
+  end;
+
+  entry DosCloseVDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 310;
+  end;
+
+  entry DosCreateThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 311;
+  end;
+
+  entry DosGetInfoBlocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 312;
+  end;
+
+  entry DosDynamicTrace;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 316;
+  end;
+
+  entry DosDebug;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 317;
+  end;
+
+  entry DosLoadModule;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 318;
+  end;
+
+  entry DosQueryModuleHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 319;
+  end;
+
+  entry DosQueryModuleName;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 320;
+  end;
+
+  entry DosQueryProcAddr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 321;
+  end;
+
+  entry DosFreeModule;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 322;
+  end;
+
+  entry DosQueryAppType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 323;
+  end;
+
+  entry DosCreateEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 324;
+  end;
+
+  entry DosOpenEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 325;
+  end;
+
+  entry DosCloseEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 326;
+  end;
+
+  entry DosResetEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 327;
+  end;
+
+  entry DosPostEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 328;
+  end;
+
+  entry DosWaitEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 329;
+  end;
+
+  entry DosQueryEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 330;
+  end;
+
+  entry DosCreateMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 331;
+  end;
+
+  entry DosOpenMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 332;
+  end;
+
+  entry DosCloseMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 333;
+  end;
+
+  entry DosRequestMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 334;
+  end;
+
+  entry DosReleaseMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 335;
+  end;
+
+  entry DosQueryMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 336;
+  end;
+
+  entry DosCreateMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 337;
+  end;
+
+  entry DosOpenMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 338;
+  end;
+
+  entry DosCloseMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 339;
+  end;
+
+  entry DosWaitMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 340;
+  end;
+
+  entry DosAddMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 341;
+  end;
+
+  entry DosDeleteMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 342;
+  end;
+
+  entry DosQueryMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 343;
+  end;
+
+  entry DosSubSetMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 344;
+  end;
+
+  entry DosSubAllocMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 345;
+  end;
+
+  entry DosSubFreeMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 346;
+  end;
+
+  entry DosSubUnsetMem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 347;
+  end;
+
+  entry DosQuerySysInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 348;
+  end;
+
+  entry DosWaitThread;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 349;
+  end;
+
+  entry DosAsyncTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 350;
+  end;
+
+  entry DosTimerAsync = DosAsyncTimer;
+
+  entry DosStartTimer;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 351;
+  end;
+
+  entry DosTimerStart = DosStartTimer;
+
+  entry DosGetResource;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 352;
+  end;
+
+  entry DosGetResource2 = DosGetResource;
+
+  entry DosFreeResource;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 353;
+  end;
+
+  entry DosSetExceptionHandler;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 354;
+  end;
+
+  entry DosUnsetExceptionHandler;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 355;
+  end;
+
+  entry DosRaiseException;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 356;
+  end;
+
+  entry DosUnwindException;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 357;
+  end;
+
+  entry DosQueryModFromEIP;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 360;
+  end;
+
+  entry DosTmrQueryFreq;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 362;
+  end;
+
+  entry DosTmrQueryTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 363;
+  end;
+
+  entry DosAliasPerfCtrs;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 364;
+  end;
+
+  entry DosConfigurePerf;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 365;
+  end;
+
+  entry DosDeconPerf;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 366;
+  end;
+
+  entry DosRegisterPerfCtrs;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 367;
+  end;
+
+  entry DosQuerySysState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 368;
+  end;
+
+  entry DosQueryABIOSSupport;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 371;
+  end;
+
+  entry DosEnumAttribute;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 372;
+  end;
+
+  entry DosQueryDOSProperty;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 373;
+  end;
+
+  entry DosSetDOSProperty;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 374;
+  end;
+
+  entry DOS16QUERYDOSPROPERTY = DosQueryDOSProperty;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 375;
+  end;
+
+  entry DOS16SETDOSPROPERTY = DosSetDOSProperty;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 376;
+  end;
+
+  entry DosProfile;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 377;
+  end;
+
+  entry DosSetSignalExceptionFocus;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 378;
+  end;
+
+  entry DosSetSignalExceptionFoc = DosSetSignalExceptionFocus;
+
+  entry DosSendSignalException;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 379;
+  end;
+
+  entry DosEnterMustComplete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 380;
+  end;
+
+  entry DosExitMustComplete;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 381;
+  end;
+
+  entry DosSetRelMaxFH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 382;
+  end;
+
+  entry DosShutdown;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 415;
+  end;
+
+  entry DosReplaceModule;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 417;
+  end;
+
+  entry DosAcknowledgeSignalException;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 418;
+  end;
+
+  entry DosAcknowledgeSignalExc = DosAcknowledgeSignalException;
+
+  entry DosTIB;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 419;
+  end;
+
+  entry DOS16TMRQUERYFREQ = DosTmrQueryFreq;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 420;
+  end;
+
+  entry DOS16TMRQUERYTIME = DosTmrQueryTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 421;
+  end;
+
+  entry DOS16REGISTERPERFCTRS = DosRegisterPerfCtrs;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 422;
+  end;
+
+  entry DOS16FLATTOSEL = DosFlatToSel;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 423;
+  end;
+
+  entry DOS16SELTOFLAT = DosSelToFlat;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 424;
+  end;
+
+  entry DosFlatToSel;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 425;
+  end;
+
+  entry DosSelToFlat;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 426;
+  end;
+
+  entry DosSetFileLocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 428;
+  end;
+
+  entry DosCancelLockRequest;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 429;
+  end;
+
+  entry DOS16OPENCHANGENOTIFY = DosOpenChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 437;
+  end;
+
+  entry DOS16RESETCHANGENOTIFY = DosResetChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 438;
+  end;
+
+  entry DOS16CLOSECHANGENOTIFY = DosCloseChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 439;
+  end;
+
+  entry DosOpenChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 440;
+  end;
+
+  entry DosResetChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 441;
+  end;
+
+  entry DosCloseChangeNotify;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 442;
+  end;
+
+  entry DosForceSystemDump;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 444;
+  end;
+
+  entry DosAllocThreadLocalMemory;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 454;
+  end;
+
+  entry DosFreeThreadLocalMemory;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 455;
+  end;
+
+  entry DosVerifyPidTid;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 460;
+  end;
+
+  entry DosQueryThreadAffinity;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 563;
+  end;
+
+  entry DosSetThreadAffinity;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 564;
+  end;
+
+  entry DosQueryResourceSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 572;
+  end;
+
+  entry DOS16QUERYRESOURCESIZE = DosQueryResourceSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 573;
+  end;
+
+  entry DOS16PMSEMWAIT = DosPMSemWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 574;
+  end;
+
+  entry DOS16PMMUXSEMWAIT = DosPMMuxSemWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 575;
+  end;
+
+  entry DosInitializePorthole;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 580;
+  end;
+
+  entry DosQueryHeaderInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 582;
+  end;
+
+  entry DOS16INITIALIZEPORTHOLE = DosInitializePorthole;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 583;
+  end;
+
+  entry DOS16QUERYHEADERINFO = DosQueryHeaderInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 584;
+  end;
+
+  entry DosQueryProcType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 586;
+  end;
+
+  entry DOS16QUERYPROCTYPE = DosQueryProcType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 587;
+  end;
+
+  entry DosPMPostEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 590;
+  end;
+
+  entry DosPMWaitEventSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 591;
+  end;
+
+  entry DosPMRequestMutexSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 593;
+  end;
+
+  entry DosPMWaitMuxWaitSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 595;
+  end;
+
+  entry DosPM16SemChk;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 596;
+  end;
+
+  entry DosProtectSetFilePtr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 621;
+  end;
+
+  entry DOS16PROTECTCLOSE = DosProtectClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 622;
+  end;
+
+  entry DOS16PROTECTFILEIO = DosProtectFileIO;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 623;
+  end;
+
+  entry DOS16PROTECTFILELOCKS = DosProtectSetFileLocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 624;
+  end;
+
+  entry DOS16PROTECTNEWSIZE = DosProtectSetFileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 627;
+  end;
+
+  entry DOS16PROTECTOPEN = DosProtectOpen;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 628;
+  end;
+
+  entry DOS16PROTECTQFHANDSTATE = DosProtectQueryFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 629;
+  end;
+
+  entry DOS16PROTECTSETFHANDSTATE = DosProtectSetFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 630;
+  end;
+
+  entry DOS16PROTECTQFILEINFO = DosProtectQueryFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 631;
+  end;
+
+  entry DOS16PROTECTSETFILEINFO = DosProtectSetFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 632;
+  end;
+
+  entry DOS16PROTECTCHGFILEPTR = DosProtectSetFilePtr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 634;
+  end;
+
+  entry DOS16PROTECTENUMATTRIBUTE = DosProtectEnumAttribute;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 635;
+  end;
+
+  entry DosProtectEnumAttribute;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 636;
+  end;
+
+  entry DosProtectOpen;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 637;
+  end;
+
+  entry DosProtectClose;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 638;
+  end;
+
+  entry DosProtectSetFileLocks;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 639;
+  end;
+
+  entry DosProtectSetFileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 640;
+  end;
+
+  entry DosProtectRead;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 641;
+  end;
+
+  entry DosProtectWrite;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 642;
+  end;
+
+  entry DosProtectSetFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 643;
+  end;
+
+  entry DosProtectSetFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 644;
+  end;
+
+  entry DosProtectQueryFHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 645;
+  end;
+
+  entry DosProtectQueryFileInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 646;
+  end;
+
+  entry DosSetExtLIBPATH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 873;
+  end;
+
+  entry DosQueryExtLIBPATH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 874;
+  end;
+
+  entry DosPM16SemRst;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 875;
+  end;
+
+  entry DosSysCtl;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 876;
+  end;
+
+  entry DosQueryThreadContext;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 877;
+  end;
+
+  entry DosSGQueryTopmost;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 878;
+  end;
+
+  entry DosPerfSysCall;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 976;
+  end;
+
+  entry DosOpenL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 981;
+  end;
+
+  entry DosProtectOpenL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 982;
+  end;
+
+  entry DosProtectSetFileLocksL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 983;
+  end;
+
+  entry DosProtectSetFilePtrL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 984;
+  end;
+
+  entry DosProtectSetFileSizeL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 985;
+  end;
+
+  entry DosSetFileLocksL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 986;
+  end;
+
+  entry DosCancelLockRequestL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 987;
+  end;
+
+  entry DosSetFilePtrL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 988;
+  end;
+
+  entry DosSetFileSizeL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 989;
+  end;
+
+  entry DosListIOL;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 990;
+  end;
+
+  entry DOS16FSRAMSEMREQUEST2 = DosFSRamSemRequest2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 991;
+  end;
+
+  entry DOS16FSRAMSEMCLEAR2 = DosFSRamSemClear2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 992;
+  end;
+
+  entry DosSystemService;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 995;
+  end;
+
+  entry DosListIO;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 996;
+  end;
+
+  entry DosCreateThread2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 997;
+  end;
+
+  entry DOS16SETEXTLIBPATH = DosSetExtLIBPATH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 998;
+  end;
+
+  entry DOS16QUERYEXTLIBPATH = DosQueryExtLIBPATH;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 999;
+  end;
+end;
+
+module FTPAPI;
+begin
+  entry ftpappend;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry ftpcd;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry ftpdelete;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry ftpdir;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry ftpget;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry ftplogoff;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry ftpls;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry ftpmkd;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry ftpping;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry ftpproxy;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry ftpput;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry ftpputunique;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry ftppwd;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry ftpquote;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry ftprename;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry ftprmd;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+
+  entry ftpsite;
+  begin
+    convention = '_System';
+    number = 17;
+  end;
+
+  entry ftpsys;
+  begin
+    convention = '_System';
+    number = 18;
+  end;
+
+  entry ping;
+  begin
+    convention = '_System';
+    number = 19;
+  end;
+
+  entry ftperrno;
+  begin
+    convention = '_System';
+    number = 20;
+  end;
+
+  entry ftp_errno;
+  begin
+    convention = '_System';
+    number = 21;
+  end;
+
+  entry ftpxlate;
+  begin
+    convention = '_System';
+    number = 22;
+  end;
+
+  entry ftpver;
+  begin
+    convention = '_System';
+    number = 23;
+  end;
+
+  entry ftptrcon;
+  begin
+    convention = '_System';
+    number = 24;
+  end;
+
+  entry ftptrcoff;
+  begin
+    convention = '_System';
+    number = 25;
+  end;
+
+  entry ftpxferwnd;
+  begin
+    convention = '_System';
+    number = 26;
+  end;
+
+  entry ftpsetconvertmode;
+  begin
+    convention = '_System';
+    number = 27;
+  end;
+
+  entry ftpsetencodemode;
+  begin
+    convention = '_System';
+    number = 28;
+  end;
+
+  entry ftpsetdecodemode;
+  begin
+    convention = '_System';
+    number = 29;
+  end;
+
+  entry keep_file_date;
+  begin
+    convention = '_System';
+    number = 30;
+  end;
+
+  entry ftprestart;
+  begin
+    convention = '_System';
+    number = 31;
+  end;
+
+  entry ftpremsize;
+  begin
+    convention = '_System';
+    number = 32;
+  end;
+
+  entry ftpquotereply;
+  begin
+    convention = '_System';
+    number = 33;
+  end;
+
+  entry ftpsetactivemode;
+  begin
+    convention = '_System';
+    number = 34;
+  end;
+end;
+
+module GLUT;
+begin
+  entry glutStrokeMonoRoman;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry glutSolidDodecahedron;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry glutChangeToMenuEntry;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry glutPassiveMotionFunc;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry glutBitmapTimesRoman10;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry glutBitmapTimesRoman24;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry glutInitWindowPosition;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry glutMainLoop;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry glutWireCube;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry glutGetMenu;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry glutIdleFunc;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry glutSetMenu;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry glutExtensionSupported;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry glutGetColor;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry glutWireCone;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry glutSetColor;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+
+  entry glutLoopProc;
+  begin
+    convention = '_System';
+    number = 17;
+  end;
+
+  entry glutDeviceGet;
+  begin
+    convention = '_System';
+    number = 18;
+  end;
+
+  entry glutSolidCone;
+  begin
+    convention = '_System';
+    number = 19;
+  end;
+
+  entry glutGetWindow;
+  begin
+    convention = '_System';
+    number = 20;
+  end;
+
+  entry glutSolidCube;
+  begin
+    convention = '_System';
+    number = 21;
+  end;
+
+  entry glutSetWindow;
+  begin
+    convention = '_System';
+    number = 22;
+  end;
+
+  entry glutPopWindow;
+  begin
+    convention = '_System';
+    number = 23;
+  end;
+
+  entry currentWindow;
+  begin
+    convention = '_System';
+    number = 24;
+  end;
+
+  entry glutTimerFunc;
+  begin
+    convention = '_System';
+    number = 25;
+  end;
+
+  entry glutMouseFunc;
+  begin
+    convention = '_System';
+    number = 26;
+  end;
+
+  entry glutWireTorus;
+  begin
+    convention = '_System';
+    number = 27;
+  end;
+
+  entry glutBitmap8By13;
+  begin
+    convention = '_System';
+    number = 28;
+  end;
+
+  entry glutBitmap9By15;
+  begin
+    convention = '_System';
+    number = 29;
+  end;
+
+  entry glutAddSubMenu;
+  begin
+    convention = '_System';
+    number = 30;
+  end;
+
+  entry glutCreateMenu;
+  begin
+    convention = '_System';
+    number = 31;
+  end;
+
+  entry glutHideWindow;
+  begin
+    convention = '_System';
+    number = 32;
+  end;
+
+  entry glutWireTeapot;
+  begin
+    convention = '_System';
+    number = 33;
+  end;
+
+  entry glutDetachMenu;
+  begin
+    convention = '_System';
+    number = 34;
+  end;
+
+  entry glutMotionFunc;
+  begin
+    convention = '_System';
+    number = 35;
+  end;
+
+  entry glutWireSphere;
+  begin
+    convention = '_System';
+    number = 36;
+  end;
+
+  entry glutAttachMenu;
+  begin
+    convention = '_System';
+    number = 37;
+  end;
+
+  entry glutShowWindow;
+  begin
+    convention = '_System';
+    number = 38;
+  end;
+
+  entry glutWindowList;
+  begin
+    convention = '_System';
+    number = 39;
+  end;
+
+  entry glutSolidTorus;
+  begin
+    convention = '_System';
+    number = 40;
+  end;
+
+  entry glutPushWindow;
+  begin
+    convention = '_System';
+    number = 41;
+  end;
+
+  entry glutSpecialFunc;
+  begin
+    convention = '_System';
+    number = 42;
+  end;
+
+  entry glutReshapeFunc;
+  begin
+    convention = '_System';
+    number = 43;
+  end;
+
+  entry glutSwapBuffers;
+  begin
+    convention = '_System';
+    number = 44;
+  end;
+
+  entry glutSolidSphere;
+  begin
+    convention = '_System';
+    number = 45;
+  end;
+
+  entry glutDisplayFunc;
+  begin
+    convention = '_System';
+    number = 46;
+  end;
+
+  entry glutSolidTeapot;
+  begin
+    convention = '_System';
+    number = 47;
+  end;
+
+  entry glutCopyColormap;
+  begin
+    convention = '_System';
+    number = 48;
+  end;
+
+  entry glutStrokeRoman;
+  begin
+    convention = '_System';
+    number = 49;
+  end;
+
+  entry glutCreateWindow;
+  begin
+    convention = '_System';
+    number = 50;
+  end;
+
+  entry glutAddMenuEntry;
+  begin
+    convention = '_System';
+    number = 51;
+  end;
+
+  entry glutSetIconTitle;
+  begin
+    convention = '_System';
+    number = 52;
+  end;
+
+  entry glutKeyboardFunc;
+  begin
+    convention = '_System';
+    number = 53;
+  end;
+
+  entry glutDestroyMenu;
+  begin
+    convention = '_System';
+    number = 54;
+  end;
+
+  entry glutReshapeWindow;
+  begin
+    convention = '_System';
+    number = 55;
+  end;
+
+  entry glutMenuStateFunc;
+  begin
+    convention = '_System';
+    number = 56;
+  end;
+
+  entry glutIconifyWindow;
+  begin
+    convention = '_System';
+    number = 57;
+  end;
+
+  entry glutPostRedisplay;
+  begin
+    convention = '_System';
+    number = 58;
+  end;
+
+  entry glutDestroyWindow;
+  begin
+    convention = '_System';
+    number = 59;
+  end;
+
+  entry glutWireOctahedron;
+  begin
+    convention = '_System';
+    number = 60;
+  end;
+
+  entry glutRemoveMenuItem;
+  begin
+    convention = '_System';
+    number = 61;
+  end;
+
+  entry glutSetWindowTitle;
+  begin
+    convention = '_System';
+    number = 62;
+  end;
+
+  entry glutVisibilityFunc;
+  begin
+    convention = '_System';
+    number = 63;
+  end;
+
+  entry glutInitWindowSize;
+  begin
+    convention = '_System';
+    number = 64;
+  end;
+
+  entry glutGet;
+  begin
+    convention = '_System';
+    number = 65;
+  end;
+
+  entry glutPositionWindow;
+  begin
+    convention = '_System';
+    number = 66;
+  end;
+
+  entry glutInit;
+  begin
+    convention = '_System';
+    number = 67;
+  end;
+
+  entry glutBitmapCharacter;
+  begin
+    convention = '_System';
+    number = 68;
+  end;
+
+  entry glutSolidOctahedron;
+  begin
+    convention = '_System';
+    number = 69;
+  end;
+
+  entry glutStrokeCharacter;
+  begin
+    convention = '_System';
+    number = 70;
+  end;
+
+  entry glutChangeToSubMenu;
+  begin
+    convention = '_System';
+    number = 71;
+  end;
+
+  entry glutWireIcosahedron;
+  begin
+    convention = '_System';
+    number = 72;
+  end;
+
+  entry glutInitDisplayMode;
+  begin
+    convention = '_System';
+    number = 73;
+  end;
+
+  entry glutSolidIcosahedron;
+  begin
+    convention = '_System';
+    number = 74;
+  end;
+
+  entry glutWireDodecahedron;
+  begin
+    convention = '_System';
+    number = 75;
+  end;
+
+  entry glutWireTetrahedron;
+  begin
+    convention = '_System';
+    number = 76;
+  end;
+
+  entry glutSolidTetrahedron;
+  begin
+    convention = '_System';
+    number = 77;
+  end;
+
+  entry glutCreateSubWindow;
+  begin
+    convention = '_System';
+    number = 78;
+  end;
+end;
+
+module HELPMGR;
+begin
+  entry WinCreateHelpInstance;
+  begin
+    convention = '_System';
+    number = 51;
+  end;
+
+  entry WinDestroyHelpInstance;
+  begin
+    convention = '_System';
+    number = 52;
+  end;
+
+  entry WinQueryHelpInstance;
+  begin
+    convention = '_System';
+    number = 53;
+  end;
+
+  entry WinAssociateHelpInstance;
+  begin
+    convention = '_System';
+    number = 54;
+  end;
+
+  entry WinLoadHelpTable;
+  begin
+    convention = '_System';
+    number = 55;
+  end;
+
+  entry WinCreateHelpTable;
+  begin
+    convention = '_System';
+    number = 56;
+  end;
+
+  entry DdfInitialize;
+  begin
+    convention = '_System';
+    number = 74;
+  end;
+
+  entry DdfPara;
+  begin
+    convention = '_System';
+    number = 75;
+  end;
+
+  entry DdfSetFormat;
+  begin
+    convention = '_System';
+    number = 76;
+  end;
+
+  entry DdfSetTextAlign;
+  begin
+    convention = '_System';
+    number = 77;
+  end;
+
+  entry DdfSetColor;
+  begin
+    convention = '_System';
+    number = 78;
+  end;
+
+  entry DdfInform;
+  begin
+    convention = '_System';
+    number = 79;
+  end;
+
+  entry DdfSetFontStyle;
+  begin
+    convention = '_System';
+    number = 80;
+  end;
+
+  entry DdfHyperText;
+  begin
+    convention = '_System';
+    number = 81;
+  end;
+
+  entry DdfBeginList;
+  begin
+    convention = '_System';
+    number = 82;
+  end;
+
+  entry DdfListItem;
+  begin
+    convention = '_System';
+    number = 83;
+  end;
+
+  entry DdfEndList;
+  begin
+    convention = '_System';
+    number = 84;
+  end;
+
+  entry DdfText;
+  begin
+    convention = '_System';
+    number = 85;
+  end;
+
+  entry DdfMetafile;
+  begin
+    convention = '_System';
+    number = 86;
+  end;
+
+  entry DdfSetFont;
+  begin
+    convention = '_System';
+    number = 87;
+  end;
+
+  entry DdfBitmap;
+  begin
+    convention = '_System';
+    number = 88;
+  end;
+end;
+
+module LIBUNI;
+begin
+  entry UniQueryXdigit;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry UniQuerySpace;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry UniQueryPrint;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry UniQueryGraph;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry UniQueryCntrl;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry UniQueryAlpha;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry UniFreeAttrObject;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry UniQueryCharAttr;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry UniQueryUpper;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry UniQueryPunct;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry UniQueryLower;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry UniQueryDigit;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry UniQueryBlank;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry UniQueryAlnum;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry UniScanForAttr;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry UniCreateAttrObject;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+
+  entry UniCreateTransformObject;
+  begin
+    convention = '_System';
+    number = 17;
+  end;
+
+  entry UniFreeTransformObject;
+  begin
+    convention = '_System';
+    number = 18;
+  end;
+
+  entry UniQueryLocaleObject;
+  begin
+    convention = '_System';
+    number = 19;
+  end;
+
+  entry UniCreateLocaleObject;
+  begin
+    convention = '_System';
+    number = 20;
+  end;
+
+  entry UniFreeLocaleObject;
+  begin
+    convention = '_System';
+    number = 21;
+  end;
+
+  entry UniFreeMem;
+  begin
+    convention = '_System';
+    number = 22;
+  end;
+
+  entry UniFreeLocaleInfo;
+  begin
+    convention = '_System';
+    number = 28;
+  end;
+
+  entry UniQueryLocaleInfo;
+  begin
+    convention = '_System';
+    number = 29;
+  end;
+
+  entry UniQueryLocaleItem;
+  begin
+    convention = '_System';
+    number = 30;
+  end;
+
+  entry UniStrcat;
+  begin
+    convention = '_System';
+    number = 31;
+  end;
+
+  entry UniStrchr;
+  begin
+    convention = '_System';
+    number = 32;
+  end;
+
+  entry UniStrcmp;
+  begin
+    convention = '_System';
+    number = 33;
+  end;
+
+  entry UniStrcmpi;
+  begin
+    convention = '_System';
+    number = 34;
+  end;
+
+  entry UniStrcoll;
+  begin
+    convention = '_System';
+    number = 35;
+  end;
+
+  entry UniStrcpy;
+  begin
+    convention = '_System';
+    number = 36;
+  end;
+
+  entry UniStrcspn;
+  begin
+    convention = '_System';
+    number = 37;
+  end;
+
+  entry UniStrfmon;
+  begin
+    convention = '_System';
+    number = 38;
+  end;
+
+  entry UniStrftime;
+  begin
+    convention = '_System';
+    number = 39;
+  end;
+
+  entry UniStrlen;
+  begin
+    convention = '_System';
+    number = 40;
+  end;
+
+  entry UniStrncat;
+  begin
+    convention = '_System';
+    number = 41;
+  end;
+
+  entry UniStrncmp;
+  begin
+    convention = '_System';
+    number = 42;
+  end;
+
+  entry UniStrncmpi;
+  begin
+    convention = '_System';
+    number = 43;
+  end;
+
+  entry UniStrncpy;
+  begin
+    convention = '_System';
+    number = 44;
+  end;
+
+  entry UniStrpbrk;
+  begin
+    convention = '_System';
+    number = 45;
+  end;
+
+  entry UniStrptime;
+  begin
+    convention = '_System';
+    number = 46;
+  end;
+
+  entry UniStrrchr;
+  begin
+    convention = '_System';
+    number = 47;
+  end;
+
+  entry UniStrspn;
+  begin
+    convention = '_System';
+    number = 48;
+  end;
+
+  entry UniStrstr;
+  begin
+    convention = '_System';
+    number = 49;
+  end;
+
+  entry UniStrtod;
+  begin
+    convention = '_System';
+    number = 50;
+  end;
+
+  entry UniStrtol;
+  begin
+    convention = '_System';
+    number = 51;
+  end;
+
+  entry UniStrtoul;
+  begin
+    convention = '_System';
+    number = 52;
+  end;
+
+  entry UniStrxfrm;
+  begin
+    convention = '_System';
+    number = 53;
+  end;
+
+  entry UniLocaleStrToToken;
+  begin
+    convention = '_System';
+    number = 54;
+  end;
+
+  entry UniLocaleTokenToStr;
+  begin
+    convention = '_System';
+    number = 55;
+  end;
+
+  entry UniTransformStr;
+  begin
+    convention = '_System';
+    number = 56;
+  end;
+
+  entry UniTransLower;
+  begin
+    convention = '_System';
+    number = 57;
+  end;
+
+  entry UniTransUpper;
+  begin
+    convention = '_System';
+    number = 58;
+  end;
+
+  entry UniTolower;
+  begin
+    convention = '_System';
+    number = 59;
+  end;
+
+  entry UniToupper;
+  begin
+    convention = '_System';
+    number = 60;
+  end;
+
+  entry UniStrupr;
+  begin
+    convention = '_System';
+    number = 61;
+  end;
+
+  entry UniStrlwr;
+  begin
+    convention = '_System';
+    number = 62;
+  end;
+
+  entry UniStrtok;
+  begin
+    convention = '_System';
+    number = 63;
+  end;
+
+  entry UniMapCtryToLocale;
+  begin
+    convention = '_System';
+    number = 67;
+  end;
+
+  entry UniMakeKey;
+  begin
+    convention = '_System';
+    number = 70;
+  end;
+
+  entry UniQueryChar;
+  begin
+    convention = '_System';
+    number = 71;
+  end;
+
+  entry UniGetOverride;
+  begin
+    convention = '_System';
+    number = 72;
+  end;
+
+  entry UniGetColval;
+  begin
+    convention = '_System';
+    number = 73;
+  end;
+
+  entry UniQueryAttr;
+  begin
+    convention = '_System';
+    number = 74;
+  end;
+
+  entry UniQueryStringType;
+  begin
+    convention = '_System';
+    number = 75;
+  end;
+
+  entry UniQueryCharType;
+  begin
+    convention = '_System';
+    number = 76;
+  end;
+
+  entry UniQueryNumericValue;
+  begin
+    convention = '_System';
+    number = 77;
+  end;
+
+  entry UniQueryCharTypeTable;
+  begin
+    convention = '_System';
+    number = 78;
+  end;
+
+  entry UniProcessUconv;
+  begin
+    convention = '_System';
+    number = 80;
+  end;
+
+  entry Locale;
+  begin
+    convention = '_System';
+    number = 151;
+  end;
+
+  entry UniMakeUserLocale;
+  begin
+    convention = '_System';
+    number = 152;
+  end;
+
+  entry UniSetUserLocaleItem;
+  begin
+    convention = '_System';
+    number = 153;
+  end;
+
+  entry UniDeleteUserLocale;
+  begin
+    convention = '_System';
+    number = 154;
+  end;
+
+  entry UniCompleteUserLocale;
+  begin
+    convention = '_System';
+    number = 155;
+  end;
+
+  entry UniQueryLocaleValue;
+  begin
+    convention = '_System';
+    number = 156;
+  end;
+
+  entry UniQueryLocaleList;
+  begin
+    convention = '_System';
+    number = 157;
+  end;
+
+  entry UniQueryLanguageName;
+  begin
+    convention = '_System';
+    number = 158;
+  end;
+
+  entry UniQueryCountryName;
+  begin
+    convention = '_System';
+    number = 159;
+  end;
+end;
+
+module MSG;
+begin
+  entry DOS16PUTMESSAGE = DosPutMessage;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 1;
+  end;
+
+  entry DOSTRUEGETMESSAGE = DosTrueGetMessage;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16INSMESSAGE = DosInsertMessage;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DosInsertMessage;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry DosPutMessage;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry DOS32TRUEGETMESSAGE = DosTrueGetMessage;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry DOSIQUERYMESSAGECP = DosQueryMessageCP;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry DOS32IQUERYMESSAGECP = DosQueryMessageCP;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry DOSCLOSEMESSAGEFILE = DosCloseMessageFile;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+end;
+
+module NAMPIPES;
+begin
+  entry DOS16MAKENMPIPE = DosCreateNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 1;
+  end;
+
+  entry DOS16QNMPIPEINFO = DosQueryNPipeInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16CONNECTNMPIPE = DosConnectNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DOS16DISCONNECTNMPIPE = DosDisConnectNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 4;
+  end;
+
+  entry DOS16QNMPHANDSTATE = DosQueryNPHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 5;
+  end;
+
+  entry DOS16SETNMPHANDSTATE = DosSetNPHState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 6;
+  end;
+
+  entry DOS16PEEKNMPIPE = DosPeekNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 7;
+  end;
+
+  entry DOS16WAITNMPIPE = DosWaitNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 8;
+  end;
+
+  entry DOS16TRANSACTNMPIPE = DosTransactNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 9;
+  end;
+
+  entry DOS16CALLNMPIPE = DosCallNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 10;
+  end;
+
+  entry DOS16RAWREADNMPIPE = DosRawReadNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 11;
+  end;
+
+  entry DOS16RAWWRITENMPIPE = DosRawWriteNPipe;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 12;
+  end;
+
+  entry DOS16SETNMPIPESEM = DosSetNPipeSem;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 13;
+  end;
+
+  entry DOS16QNMPIPESEMSTATE = DosQueryNPipeSemState;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 14;
+  end;
+end;
+
+module NLS;
+begin
+  entry DOS16CASEMAP = DosMapCase;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 1;
+  end;
+
+  entry DOS16GETCOLLATE = DosQueryCollate;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16GETCTRYINFO = DosQueryCtryInfo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DOS16GETDBCSEV = DosQueryDBCSEnv;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 4;
+  end;
+
+  entry DosQueryCtryInfo;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry DosQueryDBCSEnv;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry DosMapCase;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry DosQueryCollate;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+end;
+
+module PMCTLS;
+begin
+  entry WinFontDlg;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry WinDefFontDlgProc;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry WinFileDlg;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry WinDefFileDlgProc;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry WinFreeFileDlgList;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry WinRegisterCircularSlider;
+  begin
+    convention = '_System';
+    number = 24;
+  end;
+end;
+
+module PMDRAG;
+begin
+  entry DrgAccessDraginfo;
+  begin
+    convention = '_System';
+    number = 32;
+  end;
+
+  entry DrgAddStrHandle;
+  begin
+    convention = '_System';
+    number = 33;
+  end;
+
+  entry DrgAllocDraginfo;
+  begin
+    convention = '_System';
+    number = 34;
+  end;
+
+  entry DrgAllocDragtransfer;
+  begin
+    convention = '_System';
+    number = 35;
+  end;
+
+  entry DrgDeleteDraginfoStrHandles;
+  begin
+    convention = '_System';
+    number = 36;
+  end;
+
+  entry DrgDeleteStrHandle;
+  begin
+    convention = '_System';
+    number = 37;
+  end;
+
+  entry DrgDrag;
+  begin
+    convention = '_System';
+    number = 38;
+  end;
+
+  entry DrgFreeDraginfo;
+  begin
+    convention = '_System';
+    number = 39;
+  end;
+
+  entry DrgFreeDragtransfer;
+  begin
+    convention = '_System';
+    number = 40;
+  end;
+
+  entry DrgGetPS;
+  begin
+    convention = '_System';
+    number = 41;
+  end;
+
+  entry DrgPostTransferMsg;
+  begin
+    convention = '_System';
+    number = 42;
+  end;
+
+  entry DrgPushDraginfo;
+  begin
+    convention = '_System';
+    number = 43;
+  end;
+
+  entry DrgQueryDragitem;
+  begin
+    convention = '_System';
+    number = 44;
+  end;
+
+  entry DrgQueryDragitemCount;
+  begin
+    convention = '_System';
+    number = 45;
+  end;
+
+  entry DrgQueryDragitemPtr;
+  begin
+    convention = '_System';
+    number = 46;
+  end;
+
+  entry DrgQueryNativeRMF;
+  begin
+    convention = '_System';
+    number = 47;
+  end;
+
+  entry DrgQueryNativeRMFLen;
+  begin
+    convention = '_System';
+    number = 48;
+  end;
+
+  entry DrgQueryStrName;
+  begin
+    convention = '_System';
+    number = 49;
+  end;
+
+  entry DrgQueryStrNameLen;
+  begin
+    convention = '_System';
+    number = 50;
+  end;
+
+  entry DrgQueryTrueType;
+  begin
+    convention = '_System';
+    number = 51;
+  end;
+
+  entry DrgQueryTrueTypeLen;
+  begin
+    convention = '_System';
+    number = 52;
+  end;
+
+  entry DrgReleasePS;
+  begin
+    convention = '_System';
+    number = 53;
+  end;
+
+  entry DrgSendTransferMsg;
+  begin
+    convention = '_System';
+    number = 54;
+  end;
+
+  entry DrgSetDragPointer;
+  begin
+    convention = '_System';
+    number = 55;
+  end;
+
+  entry DrgSetDragImage;
+  begin
+    convention = '_System';
+    number = 56;
+  end;
+
+  entry DrgSetDragitem;
+  begin
+    convention = '_System';
+    number = 57;
+  end;
+
+  entry DrgVerifyNativeRMF;
+  begin
+    convention = '_System';
+    number = 58;
+  end;
+
+  entry DrgVerifyRMF;
+  begin
+    convention = '_System';
+    number = 59;
+  end;
+
+  entry DrgVerifyTrueType;
+  begin
+    convention = '_System';
+    number = 60;
+  end;
+
+  entry DrgVerifyType;
+  begin
+    convention = '_System';
+    number = 61;
+  end;
+
+  entry DrgVerifyTypeSet;
+  begin
+    convention = '_System';
+    number = 62;
+  end;
+
+  entry DrgDragFiles;
+  begin
+    convention = '_System';
+    number = 65;
+  end;
+
+  entry DrgAcceptDroppedFiles;
+  begin
+    convention = '_System';
+    number = 66;
+  end;
+
+  entry DrgLazyDrag;
+  begin
+    convention = '_System';
+    number = 67;
+  end;
+
+  entry DrgCancelLazyDrag;
+  begin
+    convention = '_System';
+    number = 68;
+  end;
+
+  entry DrgLazyDrop;
+  begin
+    convention = '_System';
+    number = 69;
+  end;
+
+  entry DrgQueryDraginfoPtr;
+  begin
+    convention = '_System';
+    number = 70;
+  end;
+
+  entry DrgQueryDraginfoPtrFromHwnd;
+  begin
+    convention = '_System';
+    number = 71;
+  end;
+
+  entry DrgQueryDraginfoPtrFromDragitem;
+  begin
+    convention = '_System';
+    number = 72;
+  end;
+
+  entry DrgQueryDragStatus;
+  begin
+    convention = '_System';
+    number = 73;
+  end;
+
+  entry DrgReallocDraginfo;
+  begin
+    convention = '_System';
+    number = 74;
+  end;
+
+  entry DrgQueryFormat;
+  begin
+    convention = '_System';
+    number = 75;
+  end;
+end;
+
+module PMGPI;
+begin
+  entry GpiAssociate;
+  begin
+    convention = '_System';
+    number = 351;
+  end;
+
+  entry GpiBeginArea;
+  begin
+    convention = '_System';
+    number = 352;
+  end;
+
+  entry GpiBeginElement;
+  begin
+    convention = '_System';
+    number = 353;
+  end;
+
+  entry GpiBeginPath;
+  begin
+    convention = '_System';
+    number = 354;
+  end;
+
+  entry GpiBitBlt;
+  begin
+    convention = '_System';
+    number = 355;
+  end;
+
+  entry GpiBox;
+  begin
+    convention = '_System';
+    number = 356;
+  end;
+
+  entry GpiCallSegmentMatrix;
+  begin
+    convention = '_System';
+    number = 357;
+  end;
+
+  entry GpiCharString;
+  begin
+    convention = '_System';
+    number = 358;
+  end;
+
+  entry GpiCharStringAt;
+  begin
+    convention = '_System';
+    number = 359;
+  end;
+
+  entry GpiCloseFigure;
+  begin
+    convention = '_System';
+    number = 360;
+  end;
+
+  entry GpiCloseSegment;
+  begin
+    convention = '_System';
+    number = 361;
+  end;
+
+  entry GpiCombineRegion;
+  begin
+    convention = '_System';
+    number = 362;
+  end;
+
+  entry GpiComment;
+  begin
+    convention = '_System';
+    number = 363;
+  end;
+
+  entry GpiConvert;
+  begin
+    convention = '_System';
+    number = 364;
+  end;
+
+  entry GpiCopyMetaFile;
+  begin
+    convention = '_System';
+    number = 365;
+  end;
+
+  entry GpiCorrelateChain;
+  begin
+    convention = '_System';
+    number = 366;
+  end;
+
+  entry GpiCorrelateFrom;
+  begin
+    convention = '_System';
+    number = 367;
+  end;
+
+  entry GpiCreateLogFont;
+  begin
+    convention = '_System';
+    number = 368;
+  end;
+
+  entry GpiCreatePS;
+  begin
+    convention = '_System';
+    number = 369;
+  end;
+
+  entry GpiCreateRegion;
+  begin
+    convention = '_System';
+    number = 370;
+  end;
+
+  entry GpiDeleteBitmap;
+  begin
+    convention = '_System';
+    number = 371;
+  end;
+
+  entry GpiDeleteElement;
+  begin
+    convention = '_System';
+    number = 372;
+  end;
+
+  entry GpiDeleteElementRange;
+  begin
+    convention = '_System';
+    number = 373;
+  end;
+
+  entry GpiDeleteElementsBetweenLabels;
+  begin
+    convention = '_System';
+    number = 374;
+  end;
+
+  entry GpiDeleteMetaFile;
+  begin
+    convention = '_System';
+    number = 375;
+  end;
+
+  entry GpiDeleteSegment;
+  begin
+    convention = '_System';
+    number = 376;
+  end;
+
+  entry GpiDeleteSegments;
+  begin
+    convention = '_System';
+    number = 377;
+  end;
+
+  entry GpiDeleteSetId;
+  begin
+    convention = '_System';
+    number = 378;
+  end;
+
+  entry GpiDestroyPS;
+  begin
+    convention = '_System';
+    number = 379;
+  end;
+
+  entry GpiDrawChain;
+  begin
+    convention = '_System';
+    number = 380;
+  end;
+
+  entry GpiDrawDynamics;
+  begin
+    convention = '_System';
+    number = 381;
+  end;
+
+  entry GpiDrawFrom;
+  begin
+    convention = '_System';
+    number = 382;
+  end;
+
+  entry GpiDrawSegment;
+  begin
+    convention = '_System';
+    number = 383;
+  end;
+
+  entry GpiElement;
+  begin
+    convention = '_System';
+    number = 384;
+  end;
+
+  entry GpiEndArea;
+  begin
+    convention = '_System';
+    number = 385;
+  end;
+
+  entry GpiEndElement;
+  begin
+    convention = '_System';
+    number = 386;
+  end;
+
+  entry GpiEndPath;
+  begin
+    convention = '_System';
+    number = 387;
+  end;
+
+  entry GpiEqualRegion;
+  begin
+    convention = '_System';
+    number = 388;
+  end;
+
+  entry GpiErase;
+  begin
+    convention = '_System';
+    number = 389;
+  end;
+
+  entry GpiErrorSegmentData;
+  begin
+    convention = '_System';
+    number = 390;
+  end;
+
+  entry GpiExcludeClipRectangle;
+  begin
+    convention = '_System';
+    number = 391;
+  end;
+
+  entry GpiFillPath;
+  begin
+    convention = '_System';
+    number = 392;
+  end;
+
+  entry GpiFullArc;
+  begin
+    convention = '_System';
+    number = 393;
+  end;
+
+  entry GpiGetData;
+  begin
+    convention = '_System';
+    number = 394;
+  end;
+
+  entry GpiImage;
+  begin
+    convention = '_System';
+    number = 395;
+  end;
+
+  entry GpiIntersectClipRectangle;
+  begin
+    convention = '_System';
+    number = 396;
+  end;
+
+  entry GpiLabel;
+  begin
+    convention = '_System';
+    number = 397;
+  end;
+
+  entry GpiLine;
+  begin
+    convention = '_System';
+    number = 398;
+  end;
+
+  entry GpiLoadBitmap;
+  begin
+    convention = '_System';
+    number = 399;
+  end;
+
+  entry GpiLoadFonts;
+  begin
+    convention = '_System';
+    number = 400;
+  end;
+
+  entry GpiLoadMetaFile;
+  begin
+    convention = '_System';
+    number = 401;
+  end;
+
+  entry GpiMarker;
+  begin
+    convention = '_System';
+    number = 402;
+  end;
+
+  entry GpiModifyPath;
+  begin
+    convention = '_System';
+    number = 403;
+  end;
+
+  entry GpiMove;
+  begin
+    convention = '_System';
+    number = 404;
+  end;
+
+  entry GpiOffsetClipRegion;
+  begin
+    convention = '_System';
+    number = 405;
+  end;
+
+  entry GpiOffsetElementPointer;
+  begin
+    convention = '_System';
+    number = 406;
+  end;
+
+  entry GpiOffsetRegion;
+  begin
+    convention = '_System';
+    number = 407;
+  end;
+
+  entry GpiOpenSegment;
+  begin
+    convention = '_System';
+    number = 408;
+  end;
+
+  entry GpiPaintRegion;
+  begin
+    convention = '_System';
+    number = 409;
+  end;
+
+  entry GpiPlayMetaFile;
+  begin
+    convention = '_System';
+    number = 411;
+  end;
+
+  entry GpiPointArc;
+  begin
+    convention = '_System';
+    number = 412;
+  end;
+
+  entry GpiPolyFillet;
+  begin
+    convention = '_System';
+    number = 413;
+  end;
+
+  entry GpiPolyFilletSharp;
+  begin
+    convention = '_System';
+    number = 414;
+  end;
+
+  entry GpiPolyLine;
+  begin
+    convention = '_System';
+    number = 415;
+  end;
+
+  entry GpiPolyMarker;
+  begin
+    convention = '_System';
+    number = 416;
+  end;
+
+  entry GpiPolySpline;
+  begin
+    convention = '_System';
+    number = 417;
+  end;
+
+  entry GpiPop;
+  begin
+    convention = '_System';
+    number = 418;
+  end;
+
+  entry GpiPtInRegion;
+  begin
+    convention = '_System';
+    number = 419;
+  end;
+
+  entry GpiPtVisible;
+  begin
+    convention = '_System';
+    number = 420;
+  end;
+
+  entry GpiPutData;
+  begin
+    convention = '_System';
+    number = 421;
+  end;
+
+  entry GpiQueryArcParams;
+  begin
+    convention = '_System';
+    number = 422;
+  end;
+
+  entry GpiQueryAttrMode;
+  begin
+    convention = '_System';
+    number = 423;
+  end;
+
+  entry GpiQueryBackColor;
+  begin
+    convention = '_System';
+    number = 424;
+  end;
+
+  entry GpiQueryBackMix;
+  begin
+    convention = '_System';
+    number = 425;
+  end;
+
+  entry GpiQueryBitmapDimension;
+  begin
+    convention = '_System';
+    number = 426;
+  end;
+
+  entry GpiQueryBitmapHandle;
+  begin
+    convention = '_System';
+    number = 427;
+  end;
+
+  entry GpiQueryBoundaryData;
+  begin
+    convention = '_System';
+    number = 428;
+  end;
+
+  entry GpiQueryCharAngle;
+  begin
+    convention = '_System';
+    number = 429;
+  end;
+
+  entry GpiQueryCharBox;
+  begin
+    convention = '_System';
+    number = 430;
+  end;
+
+  entry GpiQueryCharDirection;
+  begin
+    convention = '_System';
+    number = 431;
+  end;
+
+  entry GpiQueryCharMode;
+  begin
+    convention = '_System';
+    number = 432;
+  end;
+
+  entry GpiQueryCharSet;
+  begin
+    convention = '_System';
+    number = 433;
+  end;
+
+  entry GpiQueryCharShear;
+  begin
+    convention = '_System';
+    number = 434;
+  end;
+
+  entry GpiQueryClipBox;
+  begin
+    convention = '_System';
+    number = 435;
+  end;
+
+  entry GpiQueryClipRegion;
+  begin
+    convention = '_System';
+    number = 436;
+  end;
+
+  entry GpiQueryColor;
+  begin
+    convention = '_System';
+    number = 437;
+  end;
+
+  entry GpiQueryColorData;
+  begin
+    convention = '_System';
+    number = 438;
+  end;
+
+  entry GpiQueryColorIndex;
+  begin
+    convention = '_System';
+    number = 439;
+  end;
+
+  entry GpiQueryCp;
+  begin
+    convention = '_System';
+    number = 440;
+  end;
+
+  entry GpiQueryCurrentPosition;
+  begin
+    convention = '_System';
+    number = 441;
+  end;
+
+  entry GpiQueryDefCharBox;
+  begin
+    convention = '_System';
+    number = 442;
+  end;
+
+  entry GpiQueryDefaultViewMatrix;
+  begin
+    convention = '_System';
+    number = 443;
+  end;
+
+  entry GpiQueryDevice;
+  begin
+    convention = '_System';
+    number = 444;
+  end;
+
+  entry GpiQueryDeviceBitmapFormats;
+  begin
+    convention = '_System';
+    number = 445;
+  end;
+
+  entry GpiQueryDrawControl;
+  begin
+    convention = '_System';
+    number = 446;
+  end;
+
+  entry GpiQueryDrawingMode;
+  begin
+    convention = '_System';
+    number = 447;
+  end;
+
+  entry GpiQueryEditMode;
+  begin
+    convention = '_System';
+    number = 448;
+  end;
+
+  entry GpiQueryElement;
+  begin
+    convention = '_System';
+    number = 449;
+  end;
+
+  entry GpiQueryElementPointer;
+  begin
+    convention = '_System';
+    number = 450;
+  end;
+
+  entry GpiQueryElementType;
+  begin
+    convention = '_System';
+    number = 451;
+  end;
+
+  entry GpiQueryFontFileDescriptions;
+  begin
+    convention = '_System';
+    number = 452;
+  end;
+
+  entry GpiQueryFontMetrics;
+  begin
+    convention = '_System';
+    number = 453;
+  end;
+
+  entry GpiQueryGraphicsField;
+  begin
+    convention = '_System';
+    number = 454;
+  end;
+
+  entry GpiQueryInitialSegmentAttrs;
+  begin
+    convention = '_System';
+    number = 455;
+  end;
+
+  entry GpiQueryKerningPairs;
+  begin
+    convention = '_System';
+    number = 456;
+  end;
+
+  entry GpiQueryLineEnd;
+  begin
+    convention = '_System';
+    number = 457;
+  end;
+
+  entry GpiQueryLineJoin;
+  begin
+    convention = '_System';
+    number = 458;
+  end;
+
+  entry GpiQueryLineType;
+  begin
+    convention = '_System';
+    number = 459;
+  end;
+
+  entry GpiQueryLineWidth;
+  begin
+    convention = '_System';
+    number = 460;
+  end;
+
+  entry GpiQueryLineWidthGeom;
+  begin
+    convention = '_System';
+    number = 461;
+  end;
+
+  entry GpiQueryMarker;
+  begin
+    convention = '_System';
+    number = 462;
+  end;
+
+  entry GpiQueryMarkerBox;
+  begin
+    convention = '_System';
+    number = 463;
+  end;
+
+  entry GpiQueryMarkerSet;
+  begin
+    convention = '_System';
+    number = 464;
+  end;
+
+  entry GpiQueryMetaFileBits;
+  begin
+    convention = '_System';
+    number = 465;
+  end;
+
+  entry GpiQueryMetaFileLength;
+  begin
+    convention = '_System';
+    number = 466;
+  end;
+
+  entry GpiQueryMix;
+  begin
+    convention = '_System';
+    number = 467;
+  end;
+
+  entry GpiQueryModelTransformMatrix;
+  begin
+    convention = '_System';
+    number = 468;
+  end;
+
+  entry GpiQueryNearestColor;
+  begin
+    convention = '_System';
+    number = 469;
+  end;
+
+  entry GpiQueryNumberSetIds;
+  begin
+    convention = '_System';
+    number = 470;
+  end;
+
+  entry GpiQueryPS;
+  begin
+    convention = '_System';
+    number = 471;
+  end;
+
+  entry GpiQueryPageViewport;
+  begin
+    convention = '_System';
+    number = 472;
+  end;
+
+  entry GpiQueryPattern;
+  begin
+    convention = '_System';
+    number = 473;
+  end;
+
+  entry GpiQueryPatternRefPoint;
+  begin
+    convention = '_System';
+    number = 474;
+  end;
+
+  entry GpiQueryPatternSet;
+  begin
+    convention = '_System';
+    number = 475;
+  end;
+
+  entry GpiQueryPel;
+  begin
+    convention = '_System';
+    number = 476;
+  end;
+
+  entry GpiQueryPickAperturePosition;
+  begin
+    convention = '_System';
+    number = 477;
+  end;
+
+  entry GpiQueryPickApertureSize;
+  begin
+    convention = '_System';
+    number = 478;
+  end;
+
+  entry GpiQueryRGBColor;
+  begin
+    convention = '_System';
+    number = 479;
+  end;
+
+  entry GpiQueryRealColors;
+  begin
+    convention = '_System';
+    number = 480;
+  end;
+
+  entry GpiQueryRegionBox;
+  begin
+    convention = '_System';
+    number = 481;
+  end;
+
+  entry GpiQuerySegmentAttrs;
+  begin
+    convention = '_System';
+    number = 482;
+  end;
+
+  entry GpiQuerySegmentNames;
+  begin
+    convention = '_System';
+    number = 483;
+  end;
+
+  entry GpiQuerySegmentPriority;
+  begin
+    convention = '_System';
+    number = 484;
+  end;
+
+  entry GpiQuerySegmentTransformMatrix;
+  begin
+    convention = '_System';
+    number = 485;
+  end;
+
+  entry GpiQuerySetIds;
+  begin
+    convention = '_System';
+    number = 486;
+  end;
+
+  entry GpiQueryStopDraw;
+  begin
+    convention = '_System';
+    number = 487;
+  end;
+
+  entry GpiQueryTag;
+  begin
+    convention = '_System';
+    number = 488;
+  end;
+
+  entry GpiQueryTextBox;
+  begin
+    convention = '_System';
+    number = 489;
+  end;
+
+  entry GpiQueryViewingLimits;
+  begin
+    convention = '_System';
+    number = 490;
+  end;
+
+  entry GpiQueryViewingTransformMatrix;
+  begin
+    convention = '_System';
+    number = 491;
+  end;
+
+  entry GpiQueryWidthTable;
+  begin
+    convention = '_System';
+    number = 492;
+  end;
+
+  entry GpiRectInRegion;
+  begin
+    convention = '_System';
+    number = 494;
+  end;
+
+  entry GpiRectVisible;
+  begin
+    convention = '_System';
+    number = 495;
+  end;
+
+  entry GpiRemoveDynamics;
+  begin
+    convention = '_System';
+    number = 496;
+  end;
+
+  entry GpiResetBoundaryData;
+  begin
+    convention = '_System';
+    number = 497;
+  end;
+
+  entry GpiResetPS;
+  begin
+    convention = '_System';
+    number = 498;
+  end;
+
+  entry GpiRestorePS;
+  begin
+    convention = '_System';
+    number = 499;
+  end;
+
+  entry GpiSaveMetaFile;
+  begin
+    convention = '_System';
+    number = 500;
+  end;
+
+  entry GpiSavePS;
+  begin
+    convention = '_System';
+    number = 501;
+  end;
+
+  entry GpiSetArcParams;
+  begin
+    convention = '_System';
+    number = 502;
+  end;
+
+  entry GpiSetAttrMode;
+  begin
+    convention = '_System';
+    number = 503;
+  end;
+
+  entry GpiSetBackColor;
+  begin
+    convention = '_System';
+    number = 504;
+  end;
+
+  entry GpiSetBackMix;
+  begin
+    convention = '_System';
+    number = 505;
+  end;
+
+  entry GpiSetBitmap;
+  begin
+    convention = '_System';
+    number = 506;
+  end;
+
+  entry GpiSetBitmapDimension;
+  begin
+    convention = '_System';
+    number = 507;
+  end;
+
+  entry GpiSetBitmapId;
+  begin
+    convention = '_System';
+    number = 508;
+  end;
+
+  entry GpiSetCharAngle;
+  begin
+    convention = '_System';
+    number = 509;
+  end;
+
+  entry GpiSetCharBox;
+  begin
+    convention = '_System';
+    number = 510;
+  end;
+
+  entry GpiSetCharDirection;
+  begin
+    convention = '_System';
+    number = 511;
+  end;
+
+  entry GpiSetCharMode;
+  begin
+    convention = '_System';
+    number = 512;
+  end;
+
+  entry GpiSetCharSet;
+  begin
+    convention = '_System';
+    number = 513;
+  end;
+
+  entry GpiSetCharShear;
+  begin
+    convention = '_System';
+    number = 514;
+  end;
+
+  entry GpiSetClipPath;
+  begin
+    convention = '_System';
+    number = 515;
+  end;
+
+  entry GpiSetClipRegion;
+  begin
+    convention = '_System';
+    number = 516;
+  end;
+
+  entry GpiSetColor;
+  begin
+    convention = '_System';
+    number = 517;
+  end;
+
+  entry GpiSetCp;
+  begin
+    convention = '_System';
+    number = 518;
+  end;
+
+  entry GpiSetCurrentPosition;
+  begin
+    convention = '_System';
+    number = 519;
+  end;
+
+  entry GpiSetDefaultViewMatrix;
+  begin
+    convention = '_System';
+    number = 520;
+  end;
+
+  entry GpiSetDrawControl;
+  begin
+    convention = '_System';
+    number = 521;
+  end;
+
+  entry GpiSetDrawingMode;
+  begin
+    convention = '_System';
+    number = 522;
+  end;
+
+  entry GpiSetEditMode;
+  begin
+    convention = '_System';
+    number = 523;
+  end;
+
+  entry GpiSetElementPointer;
+  begin
+    convention = '_System';
+    number = 524;
+  end;
+
+  entry GpiSetElementPointerAtLabel;
+  begin
+    convention = '_System';
+    number = 525;
+  end;
+
+  entry GpiSetGraphicsField;
+  begin
+    convention = '_System';
+    number = 526;
+  end;
+
+  entry GpiSetInitialSegmentAttrs;
+  begin
+    convention = '_System';
+    number = 527;
+  end;
+
+  entry GpiSetLineEnd;
+  begin
+    convention = '_System';
+    number = 528;
+  end;
+
+  entry GpiSetLineJoin;
+  begin
+    convention = '_System';
+    number = 529;
+  end;
+
+  entry GpiSetLineType;
+  begin
+    convention = '_System';
+    number = 530;
+  end;
+
+  entry GpiSetLineWidth;
+  begin
+    convention = '_System';
+    number = 531;
+  end;
+
+  entry GpiSetLineWidthGeom;
+  begin
+    convention = '_System';
+    number = 532;
+  end;
+
+  entry GpiSetMarker;
+  begin
+    convention = '_System';
+    number = 533;
+  end;
+
+  entry GpiSetMarkerBox;
+  begin
+    convention = '_System';
+    number = 534;
+  end;
+
+  entry GpiSetMarkerSet;
+  begin
+    convention = '_System';
+    number = 535;
+  end;
+
+  entry GpiSetMetaFileBits;
+  begin
+    convention = '_System';
+    number = 536;
+  end;
+
+  entry GpiSetMix;
+  begin
+    convention = '_System';
+    number = 537;
+  end;
+
+  entry GpiSetModelTransformMatrix;
+  begin
+    convention = '_System';
+    number = 538;
+  end;
+
+  entry GpiSetPS;
+  begin
+    convention = '_System';
+    number = 539;
+  end;
+
+  entry GpiSetPageViewport;
+  begin
+    convention = '_System';
+    number = 540;
+  end;
+
+  entry GpiSetPattern;
+  begin
+    convention = '_System';
+    number = 541;
+  end;
+
+  entry GpiSetPatternRefPoint;
+  begin
+    convention = '_System';
+    number = 542;
+  end;
+
+  entry GpiSetPatternSet;
+  begin
+    convention = '_System';
+    number = 543;
+  end;
+
+  entry GpiSetPel;
+  begin
+    convention = '_System';
+    number = 544;
+  end;
+
+  entry GpiSetPickAperturePosition;
+  begin
+    convention = '_System';
+    number = 545;
+  end;
+
+  entry GpiSetRegion;
+  begin
+    convention = '_System';
+    number = 546;
+  end;
+
+  entry GpiSetSegmentAttrs;
+  begin
+    convention = '_System';
+    number = 547;
+  end;
+
+  entry GpiSetSegmentPriority;
+  begin
+    convention = '_System';
+    number = 548;
+  end;
+
+  entry GpiSetSegmentTransformMatrix;
+  begin
+    convention = '_System';
+    number = 549;
+  end;
+
+  entry GpiSetStopDraw;
+  begin
+    convention = '_System';
+    number = 550;
+  end;
+
+  entry GpiSetTag;
+  begin
+    convention = '_System';
+    number = 551;
+  end;
+
+  entry GpiSetViewingLimits;
+  begin
+    convention = '_System';
+    number = 552;
+  end;
+
+  entry GpiSetViewingTransformMatrix;
+  begin
+    convention = '_System';
+    number = 553;
+  end;
+
+  entry GpiStrokePath;
+  begin
+    convention = '_System';
+    number = 554;
+  end;
+
+  entry GpiUnloadFonts;
+  begin
+    convention = '_System';
+    number = 555;
+  end;
+
+  entry GpiWCBitBlt;
+  begin
+    convention = '_System';
+    number = 557;
+  end;
+
+  entry GpiPolyLineDisjoint;
+  begin
+    convention = '_System';
+    number = 558;
+  end;
+
+  entry GpiPathToRegion;
+  begin
+    convention = '_System';
+    number = 559;
+  end;
+
+  entry GpiFloodFill;
+  begin
+    convention = '_System';
+    number = 560;
+  end;
+
+  entry GpiSuspendPlay;
+  begin
+    convention = '_System';
+    number = 561;
+  end;
+
+  entry GpiResumePlay;
+  begin
+    convention = '_System';
+    number = 562;
+  end;
+
+  entry GpiOutlinePath;
+  begin
+    convention = '_System';
+    number = 563;
+  end;
+
+  entry GpiTranslate;
+  begin
+    convention = '_System';
+    number = 564;
+  end;
+
+  entry GpiScale;
+  begin
+    convention = '_System';
+    number = 565;
+  end;
+
+  entry GpiRotate;
+  begin
+    convention = '_System';
+    number = 566;
+  end;
+
+  entry GpiQueryDefArcParams;
+  begin
+    convention = '_System';
+    number = 567;
+  end;
+
+  entry GpiQueryDefTag;
+  begin
+    convention = '_System';
+    number = 568;
+  end;
+
+  entry GpiQueryDefViewingLimits;
+  begin
+    convention = '_System';
+    number = 569;
+  end;
+
+  entry GpiSetDefArcParams;
+  begin
+    convention = '_System';
+    number = 570;
+  end;
+
+  entry GpiSetDefTag;
+  begin
+    convention = '_System';
+    number = 571;
+  end;
+
+  entry GpiSetDefViewingLimits;
+  begin
+    convention = '_System';
+    number = 572;
+  end;
+
+  entry GpiQueryBitmapParameters;
+  begin
+    convention = '_System';
+    number = 573;
+  end;
+
+  entry GpiQueryLogicalFont;
+  begin
+    convention = '_System';
+    number = 574;
+  end;
+
+  entry GpiQueryFaceString;
+  begin
+    convention = '_System';
+    number = 575;
+  end;
+
+  entry GpiQueryFontAction;
+  begin
+    convention = '_System';
+    number = 576;
+  end;
+
+  entry GpiDeletePalette;
+  begin
+    convention = '_System';
+    number = 577;
+  end;
+
+  entry GpiSelectPalette;
+  begin
+    convention = '_System';
+    number = 578;
+  end;
+
+  entry GpiQueryPalette;
+  begin
+    convention = '_System';
+    number = 579;
+  end;
+
+  entry GpiCharStringPos;
+  begin
+    convention = '_System';
+    number = 580;
+  end;
+
+  entry GpiCharStringPosAt;
+  begin
+    convention = '_System';
+    number = 581;
+  end;
+
+  entry GpiCorrelateSegment;
+  begin
+    convention = '_System';
+    number = 582;
+  end;
+
+  entry GpiQueryAttrs;
+  begin
+    convention = '_System';
+    number = 583;
+  end;
+
+  entry GpiQueryCharStringPos;
+  begin
+    convention = '_System';
+    number = 584;
+  end;
+
+  entry GpiQueryCharStringPosAt;
+  begin
+    convention = '_System';
+    number = 585;
+  end;
+
+  entry GpiQueryFonts;
+  begin
+    convention = '_System';
+    number = 586;
+  end;
+
+  entry GpiQueryRegionRects;
+  begin
+    convention = '_System';
+    number = 587;
+  end;
+
+  entry GpiSetAttrs;
+  begin
+    convention = '_System';
+    number = 588;
+  end;
+
+  entry GpiSetPickApertureSize;
+  begin
+    convention = '_System';
+    number = 589;
+  end;
+
+  entry GpiQueryDefAttrs;
+  begin
+    convention = '_System';
+    number = 590;
+  end;
+
+  entry GpiSetDefAttrs;
+  begin
+    convention = '_System';
+    number = 591;
+  end;
+
+  entry GpiCreateLogColorTable;
+  begin
+    convention = '_System';
+    number = 592;
+  end;
+
+  entry GpiQueryLogColorTable;
+  begin
+    convention = '_System';
+    number = 593;
+  end;
+
+  entry GpiCreatePalette;
+  begin
+    convention = '_System';
+    number = 594;
+  end;
+
+  entry GpiAnimatePalette;
+  begin
+    convention = '_System';
+    number = 595;
+  end;
+
+  entry GpiSetPaletteEntries;
+  begin
+    convention = '_System';
+    number = 596;
+  end;
+
+  entry GpiQueryPaletteInfo;
+  begin
+    convention = '_System';
+    number = 597;
+  end;
+
+  entry GpiCreateBitmap;
+  begin
+    convention = '_System';
+    number = 598;
+  end;
+
+  entry GpiQueryBitmapBits;
+  begin
+    convention = '_System';
+    number = 599;
+  end;
+
+  entry GpiQueryBitmapInfoHeader;
+  begin
+    convention = '_System';
+    number = 601;
+  end;
+
+  entry GpiSetBitmapBits;
+  begin
+    convention = '_System';
+    number = 602;
+  end;
+
+  entry GpiDrawBits;
+  begin
+    convention = '_System';
+    number = 603;
+  end;
+
+  entry DevCloseDC;
+  begin
+    convention = '_System';
+    number = 604;
+  end;
+
+  entry DevEscape;
+  begin
+    convention = '_System';
+    number = 605;
+  end;
+
+  entry DevQueryCaps;
+  begin
+    convention = '_System';
+    number = 606;
+  end;
+
+  entry DevQueryDeviceNames;
+  begin
+    convention = '_System';
+    number = 607;
+  end;
+
+  entry DevQueryHardcopyCaps;
+  begin
+    convention = '_System';
+    number = 608;
+  end;
+
+  entry DevPostDeviceModes;
+  begin
+    convention = '_System';
+    number = 609;
+  end;
+
+  entry DevOpenDC;
+  begin
+    convention = '_System';
+    number = 610;
+  end;
+
+  entry GpiDestroyRegion;
+  begin
+    convention = '_System';
+    number = 611;
+  end;
+
+  entry GpiPartialArc;
+  begin
+    convention = '_System';
+    number = 612;
+  end;
+
+  entry GpiQueryCharExtra;
+  begin
+    convention = '_System';
+    number = 613;
+  end;
+
+  entry GpiSetCharExtra;
+  begin
+    convention = '_System';
+    number = 614;
+  end;
+
+  entry GpiQueryCharBreakExtra;
+  begin
+    convention = '_System';
+    number = 615;
+  end;
+
+  entry GpiSetCharBreakExtra;
+  begin
+    convention = '_System';
+    number = 616;
+  end;
+
+  entry GpiFrameRegion;
+  begin
+    convention = '_System';
+    number = 617;
+  end;
+
+  entry GpiConvertWithMatrix;
+  begin
+    convention = '_System';
+    number = 618;
+  end;
+
+  entry GpiLoadPublicFonts;
+  begin
+    convention = '_System';
+    number = 622;
+  end;
+
+  entry GpiUnloadPublicFonts;
+  begin
+    convention = '_System';
+    number = 623;
+  end;
+
+  entry DevStdOpen;
+  begin
+    convention = '_System';
+    number = 625;
+  end;
+
+  entry GpiQueryTextAlignment;
+  begin
+    convention = '_System';
+    number = 648;
+  end;
+
+  entry GpiSetTextAlignment;
+  begin
+    convention = '_System';
+    number = 649;
+  end;
+
+  entry GpiPolygons;
+  begin
+    convention = '_System';
+    number = 650;
+  end;
+
+  entry GpiQueryFullFontFileDescs;
+  begin
+    convention = '_System';
+    number = 657;
+  end;
+
+  entry GpiQueryTabbedTextExtent;
+  begin
+    convention = '_System';
+    number = 658;
+  end;
+
+  entry GpiTabbedCharStringAt;
+  begin
+    convention = '_System';
+    number = 659;
+  end;
+
+  entry GpiQueryRasterizerCaps;
+  begin
+    convention = '_System';
+    number = 660;
+  end;
+
+  entry GpiCreateRoundRectRegion;
+  begin
+    convention = '_System';
+    number = 661;
+  end;
+
+  entry GpiCreateEllipticRegion;
+  begin
+    convention = '_System';
+    number = 662;
+  end;
+
+  entry GpiCreatePolygonRegion;
+  begin
+    convention = '_System';
+    number = 663;
+  end;
+
+  entry GpiResizePalette;
+  begin
+    convention = '_System';
+    number = 666;
+  end;
+
+  entry GpiQueryNearestPaletteIndex;
+  begin
+    convention = '_System';
+    number = 667;
+  end;
+
+  entry GpiSetFontMappingFlags;
+  begin
+    convention = '_System';
+    number = 668;
+  end;
+
+  entry GpiQueryFontMappingFlags;
+  begin
+    convention = '_System';
+    number = 669;
+  end;
+
+  entry GpiBeginInkPath;
+  begin
+    convention = '_System';
+    number = 670;
+  end;
+
+  entry GpiEndInkPath;
+  begin
+    convention = '_System';
+    number = 671;
+  end;
+
+  entry GpiStrokeInkPath;
+  begin
+    convention = '_System';
+    number = 672;
+  end;
+
+  entry GpiAbortPath;
+  begin
+    convention = '_System';
+    number = 722;
+  end;
+
+  entry GpiQueryMitreLimit;
+  begin
+    convention = '_System';
+    number = 724;
+  end;
+
+  entry GpiQueryPath;
+  begin
+    convention = '_System';
+    number = 725;
+  end;
+
+  entry GpiSetMitreLimit;
+  begin
+    convention = '_System';
+    number = 727;
+  end;
+
+  entry DevPostEscape;
+  begin
+    convention = '_System';
+    number = 729;
+  end;
+
+  entry GpiOval;
+  begin
+    convention = '_System';
+    number = 730;
+  end;
+end;
+
+module PMSHAPI;
+begin
+  entry WIN16QUERYPROFILEINT = PrfQueryProfileInt;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry WIN16QUERYPROFILESTRING = PrfQueryProfileString;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry WIN16WRITEPROFILESTRING = PrfWriteProfileString;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 4;
+  end;
+
+  entry WIN16QUERYPROFILESIZE = PrfQueryProfileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 5;
+  end;
+
+  entry WIN16QUERYPROFILEDATA = PrfQueryProfileData;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 6;
+  end;
+
+  entry WIN16WRITEPROFILEDATA = PrfWriteProfileData;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 7;
+  end;
+
+  entry WIN16INITSESSIONMGR = WinInitSessionMgr;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 8;
+  end;
+
+  entry WIN16SETFGNDWINDOW = WinSetFgndWindow;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 9;
+  end;
+
+  entry WIN16ADDPROGRAM = PrfAddProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 12;
+  end;
+
+  entry WIN16REMOVEPROGRAM = PrfRemoveProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 13;
+  end;
+
+  entry WIN16CHANGEPROGRAM = PrfChangeProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 14;
+  end;
+
+  entry WIN16QUERYDEFINITION = PrfQueryDefinition;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 15;
+  end;
+
+  entry WIN16QUERYPROGRAMTITLES = PrfQueryProgramTitles;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 16;
+  end;
+
+  entry WIN16CREATEGROUP = PrfCreateGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 17;
+  end;
+
+  entry WIN16ADDTOGROUP = PrfAddToGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 19;
+  end;
+
+  entry WIN16QUERYPROGRAMUSE = PrfQueryProgramUse;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 20;
+  end;
+
+  entry WIN16REMOVEFROMGROUP = PrfRemoveFromGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 21;
+  end;
+
+  entry WIN16DESTROYGROUP = PrfDestroyGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 23;
+  end;
+
+  entry WIN16QUERYFILEEXTOPTS = WinQueryFileExtOpts;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 24;
+  end;
+
+  entry WIN16SETFILEEXTOPTS = WinSetFileExtOpts;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 25;
+  end;
+
+  entry WIN16QUERYPROGRAMTYPE = PrfQueryProgramType;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 26;
+  end;
+
+  entry PRF16QUERYPROFILEINT = PrfQueryProfileInt;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 32;
+  end;
+
+  entry PRF16QUERYPROFILESTRING = PrfQueryProfileString;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 33;
+  end;
+
+  entry PRF16WRITEPROFILESTRING = PrfWriteProfileString;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 34;
+  end;
+
+  entry PRF16QUERYPROFILESIZE = PrfQueryProfileSize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 35;
+  end;
+
+  entry PRF16QUERYPROFILEDATA = PrfQueryProfileData;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 36;
+  end;
+
+  entry PRF16WRITEPROFILEDATA = PrfWriteProfileData;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 37;
+  end;
+
+  entry PRF16OPENPROFILE = PrfOpenProfile;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 38;
+  end;
+
+  entry PRF16CLOSEPROFILE = PrfCloseProfile;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 39;
+  end;
+
+  entry PRF16RESET = PrfReset;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 42;
+  end;
+
+  entry PRF16QUERYPROFILE = PrfQueryProfile;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 43;
+  end;
+
+  entry WIN16INSTSTARTAPP = WinInstStartApp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 44;
+  end;
+
+  entry WIN16TERMINATEAPP = WinTerminateApp;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 45;
+  end;
+
+  entry WIN16CREATESWITCHENTRY = WinCreateSwitchEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 46;
+  end;
+
+  entry WIN16QUERYSESSIONTITLE = WinQuerySessionTitle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 47;
+  end;
+
+  entry WIN16ADDSWITCHENTRY = WinAddSwitchEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 48;
+  end;
+
+  entry WIN16CHANGESWITCHENTRY = WinChangeSwitchEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 49;
+  end;
+
+  entry PRF16ADDPROGRAM = PrfAddProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 50;
+  end;
+
+  entry PRF16REMOVEPROGRAM = PrfRemoveProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 51;
+  end;
+
+  entry PRF16CHANGEPROGRAM = PrfChangeProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 52;
+  end;
+
+  entry PRF16QUERYDEFINITION = PrfQueryDefinition;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 53;
+  end;
+
+  entry PRF16QUERYPROGRAMTITLES = PrfQueryProgramTitles;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 54;
+  end;
+
+  entry PRF16CREATEGROUP = PrfCreateGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 55;
+  end;
+
+  entry WIN16QUERYSWITCHENTRY = WinQuerySwitchEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 56;
+  end;
+
+  entry WIN16QUERYSWITCHHANDLE = WinQuerySwitchHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 57;
+  end;
+
+  entry PRF16QUERYPROGRAMHANDLE = PrfQueryProgramHandle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 58;
+  end;
+
+  entry PRF16QUERYPROGRAMCATEGORY = PrfQueryProgramCategory;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 59;
+  end;
+
+  entry PRF16DESTROYGROUP = PrfDestroyGroup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 60;
+  end;
+
+  entry WIN16QUERYTASKTITLE = WinQueryTaskTitle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 65;
+  end;
+
+  entry WIN16QUERYTASKSIZEPOS = WinQueryTaskSizePos;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 66;
+  end;
+
+  entry WIN16QUERYSWITCHLIST = WinQuerySwitchList;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 67;
+  end;
+
+  entry WIN16REMOVESWITCHENTRY = WinRemoveSwitchEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 68;
+  end;
+
+  entry WIN16SWITCHTOPROGRAM = WinSwitchToProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 69;
+  end;
+
+  entry WIN16SWITCHPROGRAMREGISTER = WinSwitchProgramRegister;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 70;
+  end;
+
+  entry WIN16ENDPROGRAM = WinEndProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 73;
+  end;
+
+  entry WIN16STOPPROGRAM = WinStopProgram;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 74;
+  end;
+
+  entry WIN16ENDWINDOWSESSION = WinEndWindowSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 75;
+  end;
+
+  entry WIN16SWITCHTOTASKMANAGER = WinSwitchToTaskManager;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 78;
+  end;
+
+  entry WIN16SWITCHTOPROGRAM2 = WinSwitchToProgram2;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 80;
+  end;
+
+  entry WIN16PROCESSHOTKEY = WinProcessHotKey;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 81;
+  end;
+
+  entry WIN16INITSESSION = WinInitSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 82;
+  end;
+
+  entry WIN16ENDSESSION = WinEndSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 83;
+  end;
+
+  entry WIN16INITSWENTRY = WinInitSwEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 84;
+  end;
+
+  entry WIN16SETSWENTRY = WinSetSwEntry;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 85;
+  end;
+
+  entry WIN16QUERYEXTIDFOCUS = WinQueryExtIdFocus;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 86;
+  end;
+
+  entry WIN16SETEXTIDFOCUS = WinSetExtIdFocus;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 87;
+  end;
+
+  entry WIN16NOSHUTDOWN = WinNoShutdown;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 91;
+  end;
+
+  entry WIN16SETTITLE = WinSetTitle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 93;
+  end;
+
+  entry WIN16SETTITLEANDICON = WinSetTitleAndIcon;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 97;
+  end;
+
+  entry WIN16SETTITLEANDHWNDICON = WinSetTitleAndHwndIcon;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 99;
+  end;
+
+  entry PrfQueryProfileSize;
+  begin
+    convention = '_System';
+    number = 101;
+  end;
+
+  entry PrfOpenProfile;
+  begin
+    convention = '_System';
+    number = 102;
+  end;
+
+  entry PrfCloseProfile;
+  begin
+    convention = '_System';
+    number = 103;
+  end;
+
+  entry PrfRemoveProgram;
+  begin
+    convention = '_System';
+    number = 104;
+  end;
+
+  entry PrfCreateGroup;
+  begin
+    convention = '_System';
+    number = 105;
+  end;
+
+  entry PrfDestroyGroup;
+  begin
+    convention = '_System';
+    number = 106;
+  end;
+
+  entry PrfQueryProfile;
+  begin
+    convention = '_System';
+    number = 107;
+  end;
+
+  entry PrfReset;
+  begin
+    convention = '_System';
+    number = 108;
+  end;
+
+  entry PrfAddProgram;
+  begin
+    convention = '_System';
+    number = 109;
+  end;
+
+  entry PrfChangeProgram;
+  begin
+    convention = '_System';
+    number = 110;
+  end;
+
+  entry PrfQueryDefinition;
+  begin
+    convention = '_System';
+    number = 111;
+  end;
+
+  entry PrfQueryProgramHandle;
+  begin
+    convention = '_System';
+    number = 112;
+  end;
+
+  entry PrfQueryProgramTitles;
+  begin
+    convention = '_System';
+    number = 113;
+  end;
+
+  entry PrfQueryProfileInt;
+  begin
+    convention = '_System';
+    number = 114;
+  end;
+
+  entry PrfQueryProfileString;
+  begin
+    convention = '_System';
+    number = 115;
+  end;
+
+  entry PrfWriteProfileString;
+  begin
+    convention = '_System';
+    number = 116;
+  end;
+
+  entry PrfQueryProfileData;
+  begin
+    convention = '_System';
+    number = 117;
+  end;
+
+  entry PrfWriteProfileData;
+  begin
+    convention = '_System';
+    number = 118;
+  end;
+
+  entry WinStartApp;
+  begin
+    convention = '_System';
+    number = 119;
+  end;
+
+  entry WinAddSwitchEntry;
+  begin
+    convention = '_System';
+    number = 120;
+  end;
+
+  entry WinCreateSwitchEntry;
+  begin
+    convention = '_System';
+    number = 121;
+  end;
+
+  entry WinQuerySessionTitle;
+  begin
+    convention = '_System';
+    number = 122;
+  end;
+
+  entry WinChangeSwitchEntry;
+  begin
+    convention = '_System';
+    number = 123;
+  end;
+
+  entry WinQuerySwitchEntry;
+  begin
+    convention = '_System';
+    number = 124;
+  end;
+
+  entry WinQuerySwitchHandle;
+  begin
+    convention = '_System';
+    number = 125;
+  end;
+
+  entry WinQuerySwitchList;
+  begin
+    convention = '_System';
+    number = 126;
+  end;
+
+  entry WinQueryTaskSizePos;
+  begin
+    convention = '_System';
+    number = 127;
+  end;
+
+  entry WinQueryTaskTitle;
+  begin
+    convention = '_System';
+    number = 128;
+  end;
+
+  entry WinRemoveSwitchEntry;
+  begin
+    convention = '_System';
+    number = 129;
+  end;
+
+  entry WinTerminateApp;
+  begin
+    convention = '_System';
+    number = 130;
+  end;
+
+  entry WinSwitchToProgram;
+  begin
+    convention = '_System';
+    number = 131;
+  end;
+
+  entry PrfQueryProgramCategory;
+  begin
+    convention = '_System';
+    number = 132;
+  end;
+
+  entry WinSwitchProgramRegister;
+  begin
+    convention = '_System';
+    number = 156;
+  end;
+end;
+
+module PMSPL;
+begin
+  entry SplQmOpen;
+  begin
+    convention = '_System';
+    number = 301;
+  end;
+
+  entry SplQmStartDoc;
+  begin
+    convention = '_System';
+    number = 302;
+  end;
+
+  entry SplQmEndDoc;
+  begin
+    convention = '_System';
+    number = 303;
+  end;
+
+  entry SplQmWrite;
+  begin
+    convention = '_System';
+    number = 304;
+  end;
+
+  entry SplQmAbort;
+  begin
+    convention = '_System';
+    number = 305;
+  end;
+
+  entry SplQmClose;
+  begin
+    convention = '_System';
+    number = 306;
+  end;
+
+  entry SplMessageBox;
+  begin
+    convention = '_System';
+    number = 307;
+  end;
+
+  entry SplQmAbortDoc;
+  begin
+    convention = '_System';
+    number = 308;
+  end;
+
+  entry SplInit;
+  begin
+    convention = '_System';
+    number = 320;
+  end;
+
+  entry SplStdOpen;
+  begin
+    convention = '_System';
+    number = 350;
+  end;
+
+  entry SplStdClose;
+  begin
+    convention = '_System';
+    number = 351;
+  end;
+
+  entry SplStdStart;
+  begin
+    convention = '_System';
+    number = 352;
+  end;
+
+  entry SplStdStop;
+  begin
+    convention = '_System';
+    number = 353;
+  end;
+
+  entry SplStdDelete;
+  begin
+    convention = '_System';
+    number = 354;
+  end;
+
+  entry SplStdGetBits;
+  begin
+    convention = '_System';
+    number = 355;
+  end;
+
+  entry SplStdQueryLength;
+  begin
+    convention = '_System';
+    number = 356;
+  end;
+
+  entry PrtOpen;
+  begin
+    convention = '_System';
+    number = 370;
+  end;
+
+  entry PrtWrite;
+  begin
+    convention = '_System';
+    number = 371;
+  end;
+
+  entry PrtDevIOCtl;
+  begin
+    convention = '_System';
+    number = 372;
+  end;
+
+  entry PrtClose;
+  begin
+    convention = '_System';
+    number = 373;
+  end;
+
+  entry PrtAbort;
+  begin
+    convention = '_System';
+    number = 375;
+  end;
+
+  entry SplControlDevice;
+  begin
+    convention = '_System';
+    number = 380;
+  end;
+
+  entry SplQueryDevice;
+  begin
+    convention = '_System';
+    number = 381;
+  end;
+
+  entry SplEnumDevice;
+  begin
+    convention = '_System';
+    number = 382;
+  end;
+
+  entry SplReleaseJob;
+  begin
+    convention = '_System';
+    number = 384;
+  end;
+
+  entry SplHoldJob;
+  begin
+    convention = '_System';
+    number = 385;
+  end;
+
+  entry SplDeleteJob;
+  begin
+    convention = '_System';
+    number = 386;
+  end;
+
+  entry SplQueryJob;
+  begin
+    convention = '_System';
+    number = 390;
+  end;
+
+  entry SplSetJob;
+  begin
+    convention = '_System';
+    number = 391;
+  end;
+
+  entry SplEnumJob;
+  begin
+    convention = '_System';
+    number = 392;
+  end;
+
+  entry SplCreateQueue;
+  begin
+    convention = '_System';
+    number = 393;
+  end;
+
+  entry SplHoldQueue;
+  begin
+    convention = '_System';
+    number = 394;
+  end;
+
+  entry SplReleaseQueue;
+  begin
+    convention = '_System';
+    number = 395;
+  end;
+
+  entry SplDeleteQueue;
+  begin
+    convention = '_System';
+    number = 396;
+  end;
+
+  entry SplQueryQueue;
+  begin
+    convention = '_System';
+    number = 397;
+  end;
+
+  entry SplSetQueue;
+  begin
+    convention = '_System';
+    number = 398;
+  end;
+
+  entry SplEnumQueue;
+  begin
+    convention = '_System';
+    number = 399;
+  end;
+
+  entry SplCreateDevice;
+  begin
+    convention = '_System';
+    number = 401;
+  end;
+
+  entry SplSetDevice;
+  begin
+    convention = '_System';
+    number = 402;
+  end;
+
+  entry SplDeleteDevice;
+  begin
+    convention = '_System';
+    number = 403;
+  end;
+
+  entry SplPurgeQueue;
+  begin
+    convention = '_System';
+    number = 404;
+  end;
+
+  entry SplQueryJobId;
+  begin
+    convention = '_System';
+    number = 405;
+  end;
+
+  entry SplEnumDriver;
+  begin
+    convention = '_System';
+    number = 406;
+  end;
+
+  entry SplEnumQueueProcessor;
+  begin
+    convention = '_System';
+    number = 407;
+  end;
+
+  entry SplEnumPort;
+  begin
+    convention = '_System';
+    number = 408;
+  end;
+
+  entry SplEnumPrinter;
+  begin
+    convention = '_System';
+    number = 441;
+  end;
+
+  entry SplCopyJob;
+  begin
+    convention = '_System';
+    number = 442;
+  end;
+
+  entry SplQmSetup;
+  begin
+    convention = '_System';
+    number = 443;
+  end;
+end;
+
+module PMVIOP;
+begin
+  entry WIN16DEFAVIOWINDOWPROC = WinDefAVioWindowProc;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 30;
+  end;
+
+  entry SeamlessRegisterObject;
+  begin
+    convention = '_System';
+    number = 50;
+  end;
+
+  entry SeamlessActivateWindow;
+  begin
+    convention = '_System';
+    number = 51;
+  end;
+
+  entry SeamlessRegisterAssocObj;
+  begin
+    convention = '_System';
+    number = 55;
+  end;
+end;
+module PMWIN;
+begin
+  entry WinCreateCursor;
+  begin
+    convention = '_System';
+    number = 98;
+  end;
+
+  entry KbdPacket;
+  begin
+    convention = '_System';
+    number = 174;
+  end;
+
+  entry WinAddAtom;
+  begin
+    convention = '_System';
+    number = 235;
+  end;
+
+  entry WinSetDesktopBkgnd;
+  begin
+    convention = '_System';
+    number = 318;
+  end;
+
+  entry WinAddAtom;
+  begin
+    convention = '_System';
+    number = 700;
+  end;
+
+  entry WinAlarm;
+  begin
+    convention = '_System';
+    number = 701;
+  end;
+
+  entry WinBeginEnumWindows;
+  begin
+    convention = '_System';
+    number = 702;
+  end;
+
+  entry WinBeginPaint;
+  begin
+    convention = '_System';
+    number = 703;
+  end;
+
+  entry WinCalcFrameRect;
+  begin
+    convention = '_System';
+    number = 704;
+  end;
+
+  entry WinCancelShutdown;
+  begin
+    convention = '_System';
+    number = 705;
+  end;
+
+  entry WinCloseClipbrd;
+  begin
+    convention = '_System';
+    number = 707;
+  end;
+
+  entry WinCompareStrings;
+  begin
+    convention = '_System';
+    number = 708;
+  end;
+
+  entry WinCopyAccelTable;
+  begin
+    convention = '_System';
+    number = 709;
+  end;
+
+  entry WinCopyRect;
+  begin
+    convention = '_System';
+    number = 710;
+  end;
+
+  entry WinCpTranslateChar;
+  begin
+    convention = '_System';
+    number = 711;
+  end;
+
+  entry WinCpTranslateString;
+  begin
+    convention = '_System';
+    number = 712;
+  end;
+
+  entry WinCreateAccelTable;
+  begin
+    convention = '_System';
+    number = 713;
+  end;
+
+  entry WinCreateAtomTable;
+  begin
+    convention = '_System';
+    number = 714;
+  end;
+
+  entry WinCreateCursor;
+  begin
+    convention = '_System';
+    number = 715;
+  end;
+
+  entry WinCreateMsgQueue;
+  begin
+    convention = '_System';
+    number = 716;
+  end;
+
+  entry WinCreatePointer;
+  begin
+    convention = '_System';
+    number = 717;
+  end;
+
+  entry WinDdeInitiate;
+  begin
+    convention = '_System';
+    number = 718;
+  end;
+
+  entry WinDdePostMsg;
+  begin
+    convention = '_System';
+    number = 719;
+  end;
+
+  entry WinDdeRespond;
+  begin
+    convention = '_System';
+    number = 720;
+  end;
+
+  entry WinDeleteAtom;
+  begin
+    convention = '_System';
+    number = 721;
+  end;
+
+  entry WinDeleteLibrary;
+  begin
+    convention = '_System';
+    number = 722;
+  end;
+
+  entry WinDestroyAccelTable;
+  begin
+    convention = '_System';
+    number = 723;
+  end;
+
+  entry WinDestroyAtomTable;
+  begin
+    convention = '_System';
+    number = 724;
+  end;
+
+  entry WinDestroyCursor;
+  begin
+    convention = '_System';
+    number = 725;
+  end;
+
+  entry WinDestroyMsgQueue;
+  begin
+    convention = '_System';
+    number = 726;
+  end;
+
+  entry WinDestroyPointer;
+  begin
+    convention = '_System';
+    number = 727;
+  end;
+
+  entry WinDestroyWindow;
+  begin
+    convention = '_System';
+    number = 728;
+  end;
+
+  entry WinDismissDlg;
+  begin
+    convention = '_System';
+    number = 729;
+  end;
+
+  entry WinDrawBitmap;
+  begin
+    convention = '_System';
+    number = 730;
+  end;
+
+  entry WinDrawBorder;
+  begin
+    convention = '_System';
+    number = 731;
+  end;
+
+  entry WinDrawPointer;
+  begin
+    convention = '_System';
+    number = 732;
+  end;
+
+  entry WinEmptyClipbrd;
+  begin
+    convention = '_System';
+    number = 733;
+  end;
+
+  entry WinEnablePhysInput;
+  begin
+    convention = '_System';
+    number = 734;
+  end;
+
+  entry WinEnableWindow;
+  begin
+    convention = '_System';
+    number = 735;
+  end;
+
+  entry WinEnableWindowUpdate;
+  begin
+    convention = '_System';
+    number = 736;
+  end;
+
+  entry WinEndEnumWindows;
+  begin
+    convention = '_System';
+    number = 737;
+  end;
+
+  entry WinEndPaint;
+  begin
+    convention = '_System';
+    number = 738;
+  end;
+
+  entry WinEnumClipbrdFmts;
+  begin
+    convention = '_System';
+    number = 739;
+  end;
+
+  entry WinEnumDlgItem;
+  begin
+    convention = '_System';
+    number = 740;
+  end;
+
+  entry WinEqualRect;
+  begin
+    convention = '_System';
+    number = 741;
+  end;
+
+  entry WinExcludeUpdateRegion;
+  begin
+    convention = '_System';
+    number = 742;
+  end;
+
+  entry WinFillRect;
+  begin
+    convention = '_System';
+    number = 743;
+  end;
+
+  entry WinFindAtom;
+  begin
+    convention = '_System';
+    number = 744;
+  end;
+
+  entry WinFlashWindow;
+  begin
+    convention = '_System';
+    number = 745;
+  end;
+
+  entry WinFocusChange;
+  begin
+    convention = '_System';
+    number = 746;
+  end;
+
+  entry WinFreeErrorInfo;
+  begin
+    convention = '_System';
+    number = 748;
+  end;
+
+  entry WinGetClipPS;
+  begin
+    convention = '_System';
+    number = 749;
+  end;
+
+  entry WinGetCurrentTime;
+  begin
+    convention = '_System';
+    number = 750;
+  end;
+
+  entry WinGetErrorInfo;
+  begin
+    convention = '_System';
+    number = 751;
+  end;
+
+  entry WinGetKeyState;
+  begin
+    convention = '_System';
+    number = 752;
+  end;
+
+  entry WinGetLastError;
+  begin
+    convention = '_System';
+    number = 753;
+  end;
+
+  entry WinGetMaxPosition;
+  begin
+    convention = '_System';
+    number = 754;
+  end;
+
+  entry WinGetMinPosition;
+  begin
+    convention = '_System';
+    number = 755;
+  end;
+
+  entry WinGetNextWindow;
+  begin
+    convention = '_System';
+    number = 756;
+  end;
+
+  entry WinGetPS;
+  begin
+    convention = '_System';
+    number = 757;
+  end;
+
+  entry WinGetPhysKeyState;
+  begin
+    convention = '_System';
+    number = 758;
+  end;
+
+  entry WinGetScreenPS;
+  begin
+    convention = '_System';
+    number = 759;
+  end;
+
+  entry WinGetSysBitmap;
+  begin
+    convention = '_System';
+    number = 760;
+  end;
+
+  entry WinInSendMsg;
+  begin
+    convention = '_System';
+    number = 761;
+  end;
+
+  entry WinInflateRect;
+  begin
+    convention = '_System';
+    number = 762;
+  end;
+
+  entry WinInitialize;
+  begin
+    convention = '_System';
+    number = 763;
+  end;
+
+  entry WinIntersectRect;
+  begin
+    convention = '_System';
+    number = 764;
+  end;
+
+  entry WinInvalidateRect;
+  begin
+    convention = '_System';
+    number = 765;
+  end;
+
+  entry WinInvalidateRegion;
+  begin
+    convention = '_System';
+    number = 766;
+  end;
+
+  entry WinInvertRect;
+  begin
+    convention = '_System';
+    number = 767;
+  end;
+
+  entry WinIsChild;
+  begin
+    convention = '_System';
+    number = 768;
+  end;
+
+  entry WinIsPhysInputEnabled;
+  begin
+    convention = '_System';
+    number = 769;
+  end;
+
+  entry WinIsRectEmpty;
+  begin
+    convention = '_System';
+    number = 770;
+  end;
+
+  entry WinIsThreadActive;
+  begin
+    convention = '_System';
+    number = 771;
+  end;
+
+  entry WinIsWindow;
+  begin
+    convention = '_System';
+    number = 772;
+  end;
+
+  entry WinIsWindowEnabled;
+  begin
+    convention = '_System';
+    number = 773;
+  end;
+
+  entry WinIsWindowShowing;
+  begin
+    convention = '_System';
+    number = 774;
+  end;
+
+  entry WinIsWindowVisible;
+  begin
+    convention = '_System';
+    number = 775;
+  end;
+
+  entry WinLoadAccelTable;
+  begin
+    convention = '_System';
+    number = 776;
+  end;
+
+  entry WinLoadLibrary;
+  begin
+    convention = '_System';
+    number = 777;
+  end;
+
+  entry WinLoadMenu;
+  begin
+    convention = '_System';
+    number = 778;
+  end;
+
+  entry WinLoadMessage;
+  begin
+    convention = '_System';
+    number = 779;
+  end;
+
+  entry WinLoadPointer;
+  begin
+    convention = '_System';
+    number = 780;
+  end;
+
+  entry WinLoadString;
+  begin
+    convention = '_System';
+    number = 781;
+  end;
+
+  entry WinLockVisRegions;
+  begin
+    convention = '_System';
+    number = 782;
+  end;
+
+  entry WinLockWindowUpdate;
+  begin
+    convention = '_System';
+    number = 784;
+  end;
+
+  entry WinMakePoints;
+  begin
+    convention = '_System';
+    number = 785;
+  end;
+
+  entry WinMakeRect;
+  begin
+    convention = '_System';
+    number = 786;
+  end;
+
+  entry WinMapDlgPoints;
+  begin
+    convention = '_System';
+    number = 787;
+  end;
+
+  entry WinMapWindowPoints;
+  begin
+    convention = '_System';
+    number = 788;
+  end;
+
+  entry WinMessageBox;
+  begin
+    convention = '_System';
+    number = 789;
+  end;
+
+  entry WinMsgSemWait;
+  begin
+    convention = '_System';
+    number = 790;
+  end;
+
+  entry WinNextChar;
+  begin
+    convention = '_System';
+    number = 791;
+  end;
+
+  entry WinOffsetRect;
+  begin
+    convention = '_System';
+    number = 792;
+  end;
+
+  entry WinOpenClipbrd;
+  begin
+    convention = '_System';
+    number = 793;
+  end;
+
+  entry WinOpenWindowDC;
+  begin
+    convention = '_System';
+    number = 794;
+  end;
+
+  entry WinPrevChar;
+  begin
+    convention = '_System';
+    number = 795;
+  end;
+
+  entry WinProcessDlg;
+  begin
+    convention = '_System';
+    number = 796;
+  end;
+
+  entry WinPtInRect;
+  begin
+    convention = '_System';
+    number = 797;
+  end;
+
+  entry WinQueryAccelTable;
+  begin
+    convention = '_System';
+    number = 798;
+  end;
+
+  entry WinQueryActiveWindow;
+  begin
+    convention = '_System';
+    number = 799;
+  end;
+
+  entry WinQueryAnchorBlock;
+  begin
+    convention = '_System';
+    number = 800;
+  end;
+
+  entry WinQueryAtomLength;
+  begin
+    convention = '_System';
+    number = 801;
+  end;
+
+  entry WinQueryAtomName;
+  begin
+    convention = '_System';
+    number = 802;
+  end;
+
+  entry WinQueryAtomUsage;
+  begin
+    convention = '_System';
+    number = 803;
+  end;
+
+  entry WinQueryCapture;
+  begin
+    convention = '_System';
+    number = 804;
+  end;
+
+  entry WinQueryClassName;
+  begin
+    convention = '_System';
+    number = 805;
+  end;
+
+  entry WinQueryClipbrdData;
+  begin
+    convention = '_System';
+    number = 806;
+  end;
+
+  entry WinQueryClipbrdFmtInfo;
+  begin
+    convention = '_System';
+    number = 807;
+  end;
+
+  entry WinQueryClipbrdOwner;
+  begin
+    convention = '_System';
+    number = 808;
+  end;
+
+  entry WinQueryClipbrdViewer;
+  begin
+    convention = '_System';
+    number = 809;
+  end;
+
+  entry WinQueryCp;
+  begin
+    convention = '_System';
+    number = 810;
+  end;
+
+  entry WinQueryCpList;
+  begin
+    convention = '_System';
+    number = 811;
+  end;
+
+  entry WinQueryCursorInfo;
+  begin
+    convention = '_System';
+    number = 812;
+  end;
+
+  entry WinQueryDesktopWindow;
+  begin
+    convention = '_System';
+    number = 813;
+  end;
+
+  entry WinQueryDlgItemShort;
+  begin
+    convention = '_System';
+    number = 814;
+  end;
+
+  entry WinQueryDlgItemText;
+  begin
+    convention = '_System';
+    number = 815;
+  end;
+
+  entry WinQueryDlgItemTextLength;
+  begin
+    convention = '_System';
+    number = 816;
+  end;
+
+  entry WinQueryFocus;
+  begin
+    convention = '_System';
+    number = 817;
+  end;
+
+  entry WinQueryMsgPos;
+  begin
+    convention = '_System';
+    number = 818;
+  end;
+
+  entry WinQueryMsgTime;
+  begin
+    convention = '_System';
+    number = 819;
+  end;
+
+  entry WinQueryObjectWindow;
+  begin
+    convention = '_System';
+    number = 820;
+  end;
+
+  entry WinQueryPointer;
+  begin
+    convention = '_System';
+    number = 821;
+  end;
+
+  entry WinQueryPointerInfo;
+  begin
+    convention = '_System';
+    number = 822;
+  end;
+
+  entry WinQueryPointerPos;
+  begin
+    convention = '_System';
+    number = 823;
+  end;
+
+  entry WinQueryQueueInfo;
+  begin
+    convention = '_System';
+    number = 824;
+  end;
+
+  entry WinQueryQueueStatus;
+  begin
+    convention = '_System';
+    number = 825;
+  end;
+
+  entry WinQuerySysColor;
+  begin
+    convention = '_System';
+    number = 826;
+  end;
+
+  entry WinQuerySysModalWindow;
+  begin
+    convention = '_System';
+    number = 827;
+  end;
+
+  entry WinQuerySysPointer;
+  begin
+    convention = '_System';
+    number = 828;
+  end;
+
+  entry WinQuerySysValue;
+  begin
+    convention = '_System';
+    number = 829;
+  end;
+
+  entry WinQuerySystemAtomTable;
+  begin
+    convention = '_System';
+    number = 830;
+  end;
+
+  entry WinQueryUpdateRect;
+  begin
+    convention = '_System';
+    number = 831;
+  end;
+
+  entry WinQueryUpdateRegion;
+  begin
+    convention = '_System';
+    number = 832;
+  end;
+
+  entry WinQueryVersion;
+  begin
+    convention = '_System';
+    number = 833;
+  end;
+
+  entry WinQueryWindow;
+  begin
+    convention = '_System';
+    number = 834;
+  end;
+
+  entry WinQueryWindowDC;
+  begin
+    convention = '_System';
+    number = 835;
+  end;
+
+  entry WinQueryWindowPos;
+  begin
+    convention = '_System';
+    number = 837;
+  end;
+
+  entry WinQueryWindowProcess;
+  begin
+    convention = '_System';
+    number = 838;
+  end;
+
+  entry WinQueryWindowPtr;
+  begin
+    convention = '_System';
+    number = 839;
+  end;
+
+  entry WinQueryWindowRect;
+  begin
+    convention = '_System';
+    number = 840;
+  end;
+
+  entry WinQueryWindowText;
+  begin
+    convention = '_System';
+    number = 841;
+  end;
+
+  entry WinQueryWindowTextLength;
+  begin
+    convention = '_System';
+    number = 842;
+  end;
+
+  entry WinQueryWindowULong;
+  begin
+    convention = '_System';
+    number = 843;
+  end;
+
+  entry WinQueryWindowUShort;
+  begin
+    convention = '_System';
+    number = 844;
+  end;
+
+  entry WinRegisterUserDatatype;
+  begin
+    convention = '_System';
+    number = 845;
+  end;
+
+  entry WinRegisterUserMsg;
+  begin
+    convention = '_System';
+    number = 846;
+  end;
+
+  entry WinReleasePS;
+  begin
+    convention = '_System';
+    number = 848;
+  end;
+
+  entry WinScrollWindow;
+  begin
+    convention = '_System';
+    number = 849;
+  end;
+
+  entry WinSetAccelTable;
+  begin
+    convention = '_System';
+    number = 850;
+  end;
+
+  entry WinSetActiveWindow;
+  begin
+    convention = '_System';
+    number = 851;
+  end;
+
+  entry WinSetCapture;
+  begin
+    convention = '_System';
+    number = 852;
+  end;
+
+  entry WinSetClassMsgInterest;
+  begin
+    convention = '_System';
+    number = 853;
+  end;
+
+  entry WinSetClipbrdData;
+  begin
+    convention = '_System';
+    number = 854;
+  end;
+
+  entry WinSetClipbrdOwner;
+  begin
+    convention = '_System';
+    number = 855;
+  end;
+
+  entry WinSetClipbrdViewer;
+  begin
+    convention = '_System';
+    number = 856;
+  end;
+
+  entry WinSetCp;
+  begin
+    convention = '_System';
+    number = 857;
+  end;
+
+  entry WinSetDlgItemShort;
+  begin
+    convention = '_System';
+    number = 858;
+  end;
+
+  entry WinSetDlgItemText;
+  begin
+    convention = '_System';
+    number = 859;
+  end;
+
+  entry WinSetFocus;
+  begin
+    convention = '_System';
+    number = 860;
+  end;
+
+  entry WinSetMsgInterest;
+  begin
+    convention = '_System';
+    number = 861;
+  end;
+
+  entry WinSetMsgMode;
+  begin
+    convention = '_System';
+    number = 862;
+  end;
+
+  entry WinSetMultWindowPos;
+  begin
+    convention = '_System';
+    number = 863;
+  end;
+
+  entry WinSetOwner;
+  begin
+    convention = '_System';
+    number = 864;
+  end;
+
+  entry WinSetParent;
+  begin
+    convention = '_System';
+    number = 865;
+  end;
+
+  entry WinSetPointer;
+  begin
+    convention = '_System';
+    number = 866;
+  end;
+
+  entry WinSetPointerPos;
+  begin
+    convention = '_System';
+    number = 867;
+  end;
+
+  entry WinSetRect;
+  begin
+    convention = '_System';
+    number = 868;
+  end;
+
+  entry WinSetRectEmpty;
+  begin
+    convention = '_System';
+    number = 869;
+  end;
+
+  entry WinSetSynchroMode;
+  begin
+    convention = '_System';
+    number = 870;
+  end;
+
+  entry WinSetSysColors;
+  begin
+    convention = '_System';
+    number = 871;
+  end;
+
+  entry WinSetSysModalWindow;
+  begin
+    convention = '_System';
+    number = 872;
+  end;
+
+  entry WinSetSysValue;
+  begin
+    convention = '_System';
+    number = 873;
+  end;
+
+  entry WinSetWindowBits;
+  begin
+    convention = '_System';
+    number = 874;
+  end;
+
+  entry WinSetWindowPos;
+  begin
+    convention = '_System';
+    number = 875;
+  end;
+
+  entry WinSetWindowPtr;
+  begin
+    convention = '_System';
+    number = 876;
+  end;
+
+  entry WinSetWindowText;
+  begin
+    convention = '_System';
+    number = 877;
+  end;
+
+  entry WinSetWindowULong;
+  begin
+    convention = '_System';
+    number = 878;
+  end;
+
+  entry WinSetWindowUShort;
+  begin
+    convention = '_System';
+    number = 879;
+  end;
+
+  entry WinShowCursor;
+  begin
+    convention = '_System';
+    number = 880;
+  end;
+
+  entry WinShowPointer;
+  begin
+    convention = '_System';
+    number = 881;
+  end;
+
+  entry WinShowTrackRect;
+  begin
+    convention = '_System';
+    number = 882;
+  end;
+
+  entry WinShowWindow;
+  begin
+    convention = '_System';
+    number = 883;
+  end;
+
+  entry WinStartTimer;
+  begin
+    convention = '_System';
+    number = 884;
+  end;
+
+  entry WinStopTimer;
+  begin
+    convention = '_System';
+    number = 885;
+  end;
+
+  entry WinSubstituteStrings;
+  begin
+    convention = '_System';
+    number = 886;
+  end;
+
+  entry WinSubtractRect;
+  begin
+    convention = '_System';
+    number = 887;
+  end;
+
+  entry WinTerminate;
+  begin
+    convention = '_System';
+    number = 888;
+  end;
+
+  entry WinTrackRect;
+  begin
+    convention = '_System';
+    number = 890;
+  end;
+
+  entry WinUnionRect;
+  begin
+    convention = '_System';
+    number = 891;
+  end;
+
+  entry WinUpdateWindow;
+  begin
+    convention = '_System';
+    number = 892;
+  end;
+
+  entry WinUpper;
+  begin
+    convention = '_System';
+    number = 893;
+  end;
+
+  entry WinUpperChar;
+  begin
+    convention = '_System';
+    number = 894;
+  end;
+
+  entry WinValidateRect;
+  begin
+    convention = '_System';
+    number = 895;
+  end;
+
+  entry WinValidateRegion;
+  begin
+    convention = '_System';
+    number = 896;
+  end;
+
+  entry WinWaitMsg;
+  begin
+    convention = '_System';
+    number = 897;
+  end;
+
+  entry WinWindowFromDC;
+  begin
+    convention = '_System';
+    number = 898;
+  end;
+
+  entry WinWindowFromID;
+  begin
+    convention = '_System';
+    number = 899;
+  end;
+
+  entry WinWindowFromPoint;
+  begin
+    convention = '_System';
+    number = 900;
+  end;
+
+  entry WinBroadcastMsg;
+  begin
+    convention = '_System';
+    number = 901;
+  end;
+
+  entry WinPostQueueMsg;
+  begin
+    convention = '_System';
+    number = 902;
+  end;
+
+  entry WinSendDlgItemMsg;
+  begin
+    convention = '_System';
+    number = 903;
+  end;
+
+  entry WinTranslateAccel;
+  begin
+    convention = '_System';
+    number = 904;
+  end;
+
+  entry WinCallMsgFilter;
+  begin
+    convention = '_System';
+    number = 905;
+  end;
+
+  entry WinCreateFrameControls;
+  begin
+    convention = '_System';
+    number = 906;
+  end;
+
+  entry WinCreateMenu;
+  begin
+    convention = '_System';
+    number = 907;
+  end;
+
+  entry WinCreateStdWindow;
+  begin
+    convention = '_System';
+    number = 908;
+  end;
+
+  entry WinCreateWindow;
+  begin
+    convention = '_System';
+    number = 909;
+  end;
+
+  entry WinDefDlgProc;
+  begin
+    convention = '_System';
+    number = 910;
+  end;
+
+  entry WinDefWindowProc;
+  begin
+    convention = '_System';
+    number = 911;
+  end;
+
+  entry WinDispatchMsg;
+  begin
+    convention = '_System';
+    number = 912;
+  end;
+
+  entry WinDrawText;
+  begin
+    convention = '_System';
+    number = 913;
+  end;
+
+  entry WinGetDlgMsg;
+  begin
+    convention = '_System';
+    number = 914;
+  end;
+
+  entry WinGetMsg;
+  begin
+    convention = '_System';
+    number = 915;
+  end;
+
+  entry WinMsgMuxSemWait;
+  begin
+    convention = '_System';
+    number = 916;
+  end;
+
+  entry WinMultWindowFromIDs;
+  begin
+    convention = '_System';
+    number = 917;
+  end;
+
+  entry WinPeekMsg;
+  begin
+    convention = '_System';
+    number = 918;
+  end;
+
+  entry WinPostMsg;
+  begin
+    convention = '_System';
+    number = 919;
+  end;
+
+  entry WinSendMsg;
+  begin
+    convention = '_System';
+    number = 920;
+  end;
+
+  entry WinSetKeyboardStateTable;
+  begin
+    convention = '_System';
+    number = 921;
+  end;
+
+  entry WinCreateDlg;
+  begin
+    convention = '_System';
+    number = 922;
+  end;
+
+  entry WinDlgBox;
+  begin
+    convention = '_System';
+    number = 923;
+  end;
+
+  entry WinLoadDlg;
+  begin
+    convention = '_System';
+    number = 924;
+  end;
+
+  entry WinQueryClassInfo;
+  begin
+    convention = '_System';
+    number = 925;
+  end;
+
+  entry WinRegisterClass;
+  begin
+    convention = '_System';
+    number = 926;
+  end;
+
+  entry WinReleaseHook;
+  begin
+    convention = '_System';
+    number = 927;
+  end;
+
+  entry WinSetHook;
+  begin
+    convention = '_System';
+    number = 928;
+  end;
+
+  entry WinSubclassWindow;
+  begin
+    convention = '_System';
+    number = 929;
+  end;
+
+  entry WinSetClassThunkProc;
+  begin
+    convention = '_System';
+    number = 930;
+  end;
+
+  entry WinQueryClassThunkProc;
+  begin
+    convention = '_System';
+    number = 931;
+  end;
+
+  entry WinSetWindowThunkProc;
+  begin
+    convention = '_System';
+    number = 932;
+  end;
+
+  entry WinQueryWindowThunkProc;
+  begin
+    convention = '_System';
+    number = 933;
+  end;
+
+  entry WinQueryWindowModel;
+  begin
+    convention = '_System';
+    number = 934;
+  end;
+
+  entry WinSetDesktopBkgnd;
+  begin
+    convention = '_System';
+    number = 935;
+  end;
+
+  entry WinQueryDesktopBkgnd;
+  begin
+    convention = '_System';
+    number = 936;
+  end;
+
+  entry WinPopupMenu;
+  begin
+    convention = '_System';
+    number = 937;
+  end;
+
+  entry WinSetPresParam;
+  begin
+    convention = '_System';
+    number = 938;
+  end;
+
+  entry WinQueryPresParam;
+  begin
+    convention = '_System';
+    number = 939;
+  end;
+
+  entry WinRemovePresParam;
+  begin
+    convention = '_System';
+    number = 940;
+  end;
+
+  entry WinRealizePalette;
+  begin
+    convention = '_System';
+    number = 941;
+  end;
+
+  entry WinCreatePointerIndirect;
+  begin
+    convention = '_System';
+    number = 942;
+  end;
+
+  entry WinSaveWindowPos;
+  begin
+    convention = '_System';
+    number = 943;
+  end;
+
+  entry WinGetErasePS;
+  begin
+    convention = '_System';
+    number = 952;
+  end;
+
+  entry WinReleaseErasePS;
+  begin
+    convention = '_System';
+    number = 953;
+  end;
+
+  entry WinStretchPointer;
+  begin
+    convention = '_System';
+    number = 968;
+  end;
+
+  entry WinSetPointerOwner;
+  begin
+    convention = '_System';
+    number = 971;
+  end;
+
+  entry WinSetErrorInfo;
+  begin
+    convention = '_System';
+    number = 977;
+  end;
+
+  entry WinWaitEventSem;
+  begin
+    convention = '_System';
+    number = 978;
+  end;
+
+  entry WinRequestMutexSem;
+  begin
+    convention = '_System';
+    number = 979;
+  end;
+
+  entry WinWaitMuxWaitSem;
+  begin
+    convention = '_System';
+    number = 980;
+  end;
+
+  entry WinLoadProcedure;
+  begin
+    convention = '_System';
+    number = 986;
+  end;
+
+  entry WinDeleteProcedure;
+  begin
+    convention = '_System';
+    number = 987;
+  end;
+
+  entry WinLockPointerUpdate;
+  begin
+    convention = '_System';
+    number = 997;
+  end;
+
+  entry WinCheckInput;
+  begin
+    convention = '_System';
+    number = 998;
+  end;
+
+  entry WinQueryVisibleRegion;
+  begin
+    convention = '_System';
+    number = 1000;
+  end;
+
+  entry WinSetVisibleRegionNotify;
+  begin
+    convention = '_System';
+    number = 1001;
+  end;
+
+  entry WinSetSysPointerData;
+  begin
+    convention = '_System';
+    number = 1002;
+  end;
+
+  entry WinQuerySysPointerData;
+  begin
+    convention = '_System';
+    number = 1003;
+  end;
+
+  entry WinMessageBox2;
+  begin
+    convention = '_System';
+    number = 1015;
+  end;
+
+  entry WinSetClipRegion;
+  begin
+    convention = '_System';
+    number = 1043;
+  end;
+
+  entry WinQueryClipRegion;
+  begin
+    convention = '_System';
+    number = 1044;
+  end;
+end;
+
+module PMWP;
+begin
+  entry WinDeregisterObjectClass;
+  begin
+    convention = '_System';
+    number = 201;
+  end;
+
+  entry WinReplaceObjectClass;
+  begin
+    convention = '_System';
+    number = 219;
+  end;
+
+  entry WinEnumObjectClasses;
+  begin
+    convention = '_System';
+    number = 205;
+  end;
+
+  entry WinCreateObject;
+  begin
+    convention = '_System';
+    number = 281;
+  end;
+
+  entry WinSetObjectData;
+  begin
+    convention = '_System';
+    number = 250;
+  end;
+
+  entry WinDestroyObject;
+  begin
+    convention = '_System';
+    number = 251;
+  end;
+
+  entry WinQueryObject;
+  begin
+    convention = '_System';
+    number = 252;
+  end;
+
+  entry WinSaveObject;
+  begin
+    convention = '_System';
+    number = 285;
+  end;
+
+  entry WinOpenObject;
+  begin
+    convention = '_System';
+    number = 286;
+  end;
+
+  entry WinMoveObject;
+  begin
+    convention = '_System';
+    number = 287;
+  end;
+
+  entry WinCopyObject;
+  begin
+    convention = '_System';
+    number = 288;
+  end;
+
+  entry WinCreateShadow;
+  begin
+    convention = '_System';
+    number = 289;
+  end;
+
+  entry WinQueryActiveDesktopPathname;
+  begin
+    convention = '_System';
+    number = 262;
+  end;
+
+  entry WinQueryObjectPath;
+  begin
+    convention = '_System';
+    number = 263;
+  end;
+
+  entry WinRestartWPDServer;
+  begin
+    convention = '_System';
+    number = 463;
+  end;
+
+  entry WinRestartSOMDD;
+  begin
+    convention = '_System';
+    number = 464;
+  end;
+
+  entry WinIsWPDServerReady;
+  begin
+    convention = '_System';
+    number = 465;
+  end;
+
+  entry WinIsSOMDDReady;
+  begin
+    convention = '_System';
+    number = 480;
+  end;
+
+  entry WinSetFileIcon;
+  begin
+    convention = '_System';
+    number = 210;
+  end;
+
+  entry WinSetFileIconN;
+  begin
+    convention = '_System';
+    number = 0;
+  end;
+
+  entry WinFreeFileIcon;
+  begin
+    convention = '_System';
+    number = 216;
+  end;
+
+  entry WinLoadFileIcon;
+  begin
+    convention = '_System';
+    number = 209;
+  end;
+
+  entry WinLoadFileIconN;
+  begin
+    convention = '_System';
+    number = 0;
+  end;
+
+  entry WinStoreWindowPos;
+  begin
+    convention = '_System';
+    number = 207;
+  end;
+
+  entry WinRestoreWindowPos;
+  begin
+    convention = '_System';
+    number = 208;
+  end;
+
+  entry WinShutdownSystem;
+  begin
+    convention = '_System';
+    number = 149;
+  end;
+end;
+
+module QUECALLS;
+begin
+  entry DOS16READQUEUE = DosReadQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 1;
+  end;
+
+  entry DOS16PURGEQUEUE = DosPurgeQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16CLOSEQUEUE = DosCloseQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DOS16QUERYQUEUE = DosQueryQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 4;
+  end;
+
+  entry DOS16PEEKQUEUE = DosPeekQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 5;
+  end;
+
+  entry DOS16WRITEQUEUE = DosWriteQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 6;
+  end;
+
+  entry DOS16OPENQUEUE = DosOpenQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 7;
+  end;
+
+  entry DOS16CREATEQUEUE = DosCreateQueue;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 8;
+  end;
+
+  entry DosReadQueue;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry DosPurgeQueue;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry DosCloseQueue;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry DosQueryQueue;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry DosPeekQueue;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry DosWriteQueue;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry DosOpenQueue;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry DosCreateQueue;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+end;
+
+module REXX;
+begin
+  entry RexxStart;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry RexxVariablePool;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry RexxSetHalt;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry RexxSetTrace;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry RexxResetTrace;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+end;
+
+module REXXAPI;
+begin
+  entry RexxCreateQueue;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry RexxDeleteQueue;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry RexxAddQueue;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry RexxPullQueue;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry RexxQueryQueue;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry RexxRegisterSubcomDll;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry RexxRegisterSubcomExe;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry RexxQuerySubcom;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry RexxDeregisterSubcom;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry RexxLoadSubcom;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry RexxRegisterExitDll;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry RexxRegisterExitExe;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry RexxDeregisterExit;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry RexxQueryExit;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+
+  entry RexxCallExit;
+  begin
+    convention = '_System';
+    number = 15;
+  end;
+
+  entry RexxCallSubcom;
+  begin
+    convention = '_System';
+    number = 16;
+  end;
+
+  entry RexxRegisterFunctionDll;
+  begin
+    convention = '_System';
+    number = 17;
+  end;
+
+  entry RexxRegisterFunctionExe;
+  begin
+    convention = '_System';
+    number = 18;
+  end;
+
+  entry RexxDeregisterFunction;
+  begin
+    convention = '_System';
+    number = 19;
+  end;
+
+  entry RexxQueryFunction;
+  begin
+    convention = '_System';
+    number = 20;
+  end;
+
+  entry RexxCallFunction;
+  begin
+    convention = '_System';
+    number = 21;
+  end;
+
+  entry RexxAddMacro;
+  begin
+    convention = '_System';
+    number = 22;
+  end;
+
+  entry RexxDropMacro;
+  begin
+    convention = '_System';
+    number = 23;
+  end;
+
+  entry RexxClearMacroSpace;
+  begin
+    convention = '_System';
+    number = 24;
+  end;
+
+  entry RexxLoadMacroSpace;
+  begin
+    convention = '_System';
+    number = 25;
+  end;
+
+  entry RexxQueryMacro;
+  begin
+    convention = '_System';
+    number = 26;
+  end;
+
+  entry RexxReorderMacro;
+  begin
+    convention = '_System';
+    number = 27;
+  end;
+
+  entry RexxSaveMacroSpace;
+  begin
+    convention = '_System';
+    number = 28;
+  end;
+
+  entry RexxExecuteMacroFunction;
+  begin
+    convention = '_System';
+    number = 29;
+  end;
+end;
+
+module SESMGR;
+begin
+  entry DOS16SMSGDOPOPUP = DosSMSgDoPopup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 1;
+  end;
+
+  entry DOS16SMSWITCH = DosSMSwitch;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 2;
+  end;
+
+  entry DOS16SMSERVEAPPREQ = DosSMServeAppReq;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 3;
+  end;
+
+  entry DOS16GETTIMES = DosGetTimes;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 4;
+  end;
+
+  entry DOS16SMSETTITLE = DosSMSetTitle;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 5;
+  end;
+
+  entry DOS16SCRUNLOCK = DosScrUnlock;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 6;
+  end;
+
+  entry DOS16SMDOAPPREQ = DosSMDoAppReq;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 7;
+  end;
+
+  entry DOS16STOPSESSION = DosStopSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 8;
+  end;
+
+  entry DOS16SELECTSESSION = DosSelectSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 9;
+  end;
+
+  entry DOS16SCRLOCK = DosScrLock;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 10;
+  end;
+
+  entry DOS16SAVREDRAWWAIT = DosSavRedrawWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 11;
+  end;
+
+  entry DOS16SAVREDRAWUNDO = DosSavRedrawUndo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 12;
+  end;
+
+  entry DOS16SMSGENDPOPUP = DosSMSgEndPopup;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 13;
+  end;
+
+  entry DOS16SETSESSION = DosSetSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 14;
+  end;
+
+  entry DOS16SETMNLOCKTIME = DosSetMNLockTime;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 15;
+  end;
+
+  entry DOS16MODEUNDO = DosModeUndo;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 16;
+  end;
+
+  entry DOS16STARTSESSION = DosStartSession;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 17;
+  end;
+
+  entry DOS16SMGETSTATUS = DosSMGetStatus;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 18;
+  end;
+
+  entry DOS16MODEWAIT = DosModeWait;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 19;
+  end;
+
+  entry DOS16SMTERMINATE = DosSMTerminate;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 20;
+  end;
+
+  entry DOS16SMGETAPPREQ = DosSMGetAppReq;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 21;
+  end;
+
+  entry DOS16SMREALPRTSC = DosSMRealPrtSc;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 22;
+  end;
+
+  entry DOS16SMINITIALIZE = DosSMInitialize;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 23;
+  end;
+
+  entry DOS16SMSTART = DosSMStart;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 24;
+  end;
+
+  entry DOS16SMPARENTSWITCH = DosSMParentSwitch;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 25;
+  end;
+
+  entry DOS16SMPAUSE = DosSMPause;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 26;
+  end;
+
+  entry DOS16SMHDEINIT = DosSMHDeInit;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 27;
+  end;
+
+  entry DOS16SMPMPRESENT = DosSMPMPresent;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 28;
+  end;
+
+  entry DOS16SMREGISTERDD = DosSMRegisterDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 29;
+  end;
+
+  entry DOS16SMSYSINIT = DosSMSysInit;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 30;
+  end;
+
+  entry DOS16SMNOTIFYDD = DosSMNotifyDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 31;
+  end;
+
+  entry DOS16SMNOTIFYDD = DosSMNotifyDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 32;
+  end;
+
+  entry DOS16SMOPENDD = DosSMOpenDD;
+  begin
+    convention = '_Far16 _Pascal';
+    number = 33;
+  end;
+
+  entry DosStartSession;
+  begin
+    convention = '_System';
+    number = 37;
+  end;
+
+  entry DosSelectSession;
+  begin
+    convention = '_System';
+    number = 38;
+  end;
+
+  entry DosSetSession;
+  begin
+    convention = '_System';
+    number = 39;
+  end;
+
+  entry DosStopSession;
+  begin
+    convention = '_System';
+    number = 40;
+  end;
+end;
+
+module UCONV;
+begin
+  entry UniCreateUconvObject;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry UniUconvToUcs;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry UniUconvFromUcs;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry UniFreeUconvObject;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry UniQueryUconvObject;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry UniSetUconvObject;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry UniQueryUconvCp;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry UniMapCpToUcsCp;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry UniStrFromUcs;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry UniStrToUcs;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry _UniMalloc;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+
+  entry _UniFree;
+  begin
+    convention = '_System';
+    number = 14;
+  end;
+end;
+
+module UDSK;
+begin
+  entry DskSecRead;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry DskSecWrite;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry DskBootSecRead;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry DskBootSecWrite;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry DskMbrRead;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry DskMbrWrite;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+end;
+
+module UTLAPI;
+begin
+  entry RectCopy;
+  begin
+    convention = '_System';
+    number = 1;
+  end;
+
+  entry RectSet;
+  begin
+    convention = '_System';
+    number = 2;
+  end;
+
+  entry RectIsEmpty;
+  begin
+    convention = '_System';
+    number = 3;
+  end;
+
+  entry RectEqual;
+  begin
+    convention = '_System';
+    number = 4;
+  end;
+
+  entry RectSetEmpty;
+  begin
+    convention = '_System';
+    number = 5;
+  end;
+
+  entry RectOffset;
+  begin
+    convention = '_System';
+    number = 6;
+  end;
+
+  entry RectInflate;
+  begin
+    convention = '_System';
+    number = 7;
+  end;
+
+  entry RectPtIn;
+  begin
+    convention = '_System';
+    number = 8;
+  end;
+
+  entry RectIntersect;
+  begin
+    convention = '_System';
+    number = 9;
+  end;
+
+  entry RectUnion;
+  begin
+    convention = '_System';
+    number = 10;
+  end;
+
+  entry RectSubtract;
+  begin
+    convention = '_System';
+    number = 11;
+  end;
+
+  entry RectMakeRect;
+  begin
+    convention = '_System';
+    number = 12;
+  end;
+
+  entry RectMakePoints;
+  begin
+    convention = '_System';
+    number = 13;
+  end;
+end;
+
+module EMXWRAP;
+begin
+  entry WinDefAVioWindowProc;
+  begin
+    convention = '_System';
+    number = 30;
+  end;
+
+  entry VioEndPopUp;
+  begin
+    convention = '_System';
+    number = 101;
+  end;
+
+  entry VioGetPhysBuf;
+  begin
+    convention = '_System';
+    number = 102;
+  end;
+
+  entry VioGetAnsi;
+  begin
+    convention = '_System';
+    number = 103;
+  end;
+
+  entry VioSetAnsi;
+  begin
+    convention = '_System';
+    number = 105;
+  end;
+
+  entry VioDeRegister;
+  begin
+    convention = '_System';
+    number = 106;
+  end;
+
+  entry VioScrollUp;
+  begin
+    convention = '_System';
+    number = 107;
+  end;
+
+  entry VioPrtSc;
+  begin
+    convention = '_System';
+    number = 108;
+  end;
+
+  entry VioGetCurPos;
+  begin
+    convention = '_System';
+    number = 109;
+  end;
+
+  entry VioWrtCellStr;
+  begin
+    convention = '_System';
+    number = 110;
+  end;
+
+  entry VioPopUp;
+  begin
+    convention = '_System';
+    number = 111;
+  end;
+
+  entry VioScrollRt;
+  begin
+    convention = '_System';
+    number = 112;
+  end;
+
+  entry VioScrollRight = VioScrollRt;
+
+  entry VioWrtCharStr;
+  begin
+    convention = '_System';
+    number = 113;
+  end;
+
+  entry VioSetCurPos;
+  begin
+    convention = '_System';
+    number = 115;
+  end;
+
+  entry VioScrUnLock;
+  begin
+    convention = '_System';
+    number = 118;
+  end;
+
+  entry VioWrtTTY;
+  begin
+    convention = '_System';
+    number = 119;
+  end;
+
+  entry VioGetMode;
+  begin
+    convention = '_System';
+    number = 121;
+  end;
+
+  entry VioSetMode;
+  begin
+    convention = '_System';
+    number = 122;
+  end;
+
+  entry VioScrLock;
+  begin
+    convention = '_System';
+    number = 123;
+  end;
+
+  entry VioReadCellStr;
+  begin
+    convention = '_System';
+    number = 124;
+  end;
+
+  entry VioSavRedrawWait;
+  begin
+    convention = '_System';
+    number = 125;
+  end;
+
+  entry VioWrtNAttr;
+  begin
+    convention = '_System';
+    number = 126;
+  end;
+
+  entry VioGetCurType;
+  begin
+    convention = '_System';
+    number = 127;
+  end;
+
+  entry VioSavRedrawUndo;
+  begin
+    convention = '_System';
+    number = 128;
+  end;
+
+  entry VioGetFont;
+  begin
+    convention = '_System';
+    number = 129;
+  end;
+
+  entry VioReadCharStr;
+  begin
+    convention = '_System';
+    number = 130;
+  end;
+
+  entry VioGetBuf;
+  begin
+    convention = '_System';
+    number = 131;
+  end;
+
+  entry VioSetCurType;
+  begin
+    convention = '_System';
+    number = 132;
+  end;
+
+  entry VioSetFont;
+  begin
+    convention = '_System';
+    number = 133;
+  end;
+
+  entry VioModeUndo;
+  begin
+    convention = '_System';
+    number = 135;
+  end;
+
+  entry VioModeWait;
+  begin
+    convention = '_System';
+    number = 137;
+  end;
+
+  entry VioGetCp;
+  begin
+    convention = '_System';
+    number = 140;
+  end;
+
+  entry VioSetCp;
+  begin
+    convention = '_System';
+    number = 142;
+  end;
+
+  entry VioShowBuf;
+  begin
+    convention = '_System';
+    number = 143;
+  end;
+
+  entry VioScrollLf;
+  begin
+    convention = '_System';
+    number = 144;
+  end;
+
+  entry VioScrollLeft = VioScrollLf;
+
+  entry VioRegister;
+  begin
+    convention = '_System';
+    number = 145;
+  end;
+
+  entry VioGetConfig;
+  begin
+    convention = '_System';
+    number = 146;
+  end;
+
+  entry VioScrollDn;
+  begin
+    convention = '_System';
+    number = 147;
+  end;
+
+  entry VioScrollDown = VioScrollDn;
+
+  entry VioWrtCharStrAtt;
+  begin
+    convention = '_System';
+    number = 148;
+  end;
+
+  entry VioWrtCharStrAttr = VioWrtCharStrAtt;
+
+  entry VioGetState;
+  begin
+    convention = '_System';
+    number = 149;
+  end;
+
+  entry VioPrtScToggle;
+  begin
+    convention = '_System';
+    number = 150;
+  end;
+
+  entry VioSetState;
+  begin
+    convention = '_System';
+    number = 151;
+  end;
+
+  entry VioWrtNCell;
+  begin
+    convention = '_System';
+    number = 152;
+  end;
+
+  entry VioWrtNChar;
+  begin
+    convention = '_System';
+    number = 153;
+  end;
+
+  entry VioAssociate;
+  begin
+    convention = '_System';
+    number = 155;
+  end;
+
+  entry VioCreatePS;
+  begin
+    convention = '_System';
+    number = 156;
+  end;
+
+  entry VioDeleteSetId;
+  begin
+    convention = '_System';
+    number = 157;
+  end;
+
+  entry VioGetDeviceCellSize;
+  begin
+    convention = '_System';
+    number = 158;
+  end;
+
+  entry VioGetOrg;
+  begin
+    convention = '_System';
+    number = 159;
+  end;
+
+  entry VioCreateLogFont;
+  begin
+    convention = '_System';
+    number = 160;
+  end;
+
+  entry VioDestroyPS;
+  begin
+    convention = '_System';
+    number = 161;
+  end;
+
+  entry VioQuerySetIds;
+  begin
+    convention = '_System';
+    number = 162;
+  end;
+
+  entry VioSetOrg;
+  begin
+    convention = '_System';
+    number = 163;
+  end;
+
+  entry VioQueryFonts;
+  begin
+    convention = '_System';
+    number = 164;
+  end;
+
+  entry VioSetDeviceCellSize;
+  begin
+    convention = '_System';
+    number = 165;
+  end;
+
+  entry VioShowPS;
+  begin
+    convention = '_System';
+    number = 166;
+  end;
+
+  entry VioGlobalReg;
+  begin
+    convention = '_System';
+    number = 170;
+  end;
+
+  entry VioCheckCharType;
+  begin
+    convention = '_System';
+    number = 175;
+  end;
+
+  entry KbdSetCustXt;
+  begin
+    convention = '_System';
+    number = 201;
+  end;
+
+  entry KbdGetCp;
+  begin
+    convention = '_System';
+    number = 203;
+  end;
+
+  entry KbdCharIn;
+  begin
+    convention = '_System';
+    number = 204;
+  end;
+
+  entry KbdSetCp;
+  begin
+    convention = '_System';
+    number = 205;
+  end;
+
+  entry KbdSynch;
+  begin
+    convention = '_System';
+    number = 207;
+  end;
+
+  entry KbdRegister;
+  begin
+    convention = '_System';
+    number = 208;
+  end;
+
+  entry KbdStringIn;
+  begin
+    convention = '_System';
+    number = 209;
+  end;
+
+  entry KbdGetStatus;
+  begin
+    convention = '_System';
+    number = 210;
+  end;
+
+  entry KbdSetStatus;
+  begin
+    convention = '_System';
+    number = 211;
+  end;
+
+  entry KbdGetFocus;
+  begin
+    convention = '_System';
+    number = 212;
+  end;
+
+  entry KbdFlushBuffer;
+  begin
+    convention = '_System';
+    number = 213;
+  end;
+
+  entry KbdXlate;
+  begin
+    convention = '_System';
+    number = 214;
+  end;
+
+  entry KbdClose;
+  begin
+    convention = '_System';
+    number = 217;
+  end;
+
+  entry KbdFreeFocus;
+  begin
+    convention = '_System';
+    number = 218;
+  end;
+
+  entry KbdDeRegister;
+  begin
+    convention = '_System';
+    number = 220;
+  end;
+
+  entry KbdSetFgnd;
+  begin
+    convention = '_System';
+    number = 221;
+  end;
+
+  entry KbdPeek;
+  begin
+    convention = '_System';
+    number = 222;
+  end;
+
+  entry KbdOpen;
+  begin
+    convention = '_System';
+    number = 223;
+  end;
+
+  entry KbdGetHWID;
+  begin
+    convention = '_System';
+    number = 224;
+  end;
+
+  entry KbdSetHWID;
+  begin
+    convention = '_System';
+    number = 225;
+  end;
+
+  entry MouGetPtrShape;
+  begin
+    convention = '_System';
+    number = 301;
+  end;
+
+  entry MouSetPtrShape;
+  begin
+    convention = '_System';
+    number = 302;
+  end;
+
+  entry MouGetNumMickeys;
+  begin
+    convention = '_System';
+    number = 303;
+  end;
+
+  entry MouGetScaleFact;
+  begin
+    convention = '_System';
+    number = 306;
+  end;
+
+  entry MouFlushQue;
+  begin
+    convention = '_System';
+    number = 307;
+  end;
+
+  entry MouGetNumButtons;
+  begin
+    convention = '_System';
+    number = 308;
+  end;
+
+  entry MouClose;
+  begin
+    convention = '_System';
+    number = 309;
+  end;
+
+  entry MouSetScaleFact;
+  begin
+    convention = '_System';
+    number = 311;
+  end;
+
+  entry MouGetNumQueEl;
+  begin
+    convention = '_System';
+    number = 313;
+  end;
+
+  entry MouDeRegister;
+  begin
+    convention = '_System';
+    number = 314;
+  end;
+
+  entry MouGetEventMask;
+  begin
+    convention = '_System';
+    number = 315;
+  end;
+
+  entry MouSetEventMask;
+  begin
+    convention = '_System';
+    number = 316;
+  end;
+
+  entry MouOpen;
+  begin
+    convention = '_System';
+    number = 317;
+  end;
+
+  entry MouRemovePtr;
+  begin
+    convention = '_System';
+    number = 318;
+  end;
+
+  entry MouGetPtrPos;
+  begin
+    convention = '_System';
+    number = 319;
+  end;
+
+  entry MouReadEventQue;
+  begin
+    convention = '_System';
+    number = 320;
+  end;
+
+  entry MouSetPtrPos;
+  begin
+    convention = '_System';
+    number = 321;
+  end;
+
+  entry MouGetDevStatus;
+  begin
+    convention = '_System';
+    number = 322;
+  end;
+
+  entry MouSynch;
+  begin
+    convention = '_System';
+    number = 323;
+  end;
+
+  entry MouRegister;
+  begin
+    convention = '_System';
+    number = 324;
+  end;
+
+  entry MouSetDevStatus;
+  begin
+    convention = '_System';
+    number = 325;
+  end;
+
+  entry MouDrawPtr;
+  begin
+    convention = '_System';
+    number = 326;
+  end;
+
+  entry MouInitReal;
+  begin
+    convention = '_System';
+    number = 327;
+  end;
+
+  entry MouSetThreshold;
+  begin
+    convention = '_System';
+    number = 329;
+  end;
+
+  entry MouGetThreshold;
+  begin
+    convention = '_System';
+    number = 330;
+  end;
+
+  entry DosMonWrite;
+  begin
+    convention = '_System';
+    number = 401;
+  end;
+
+  entry DosMonRead;
+  begin
+    convention = '_System';
+    number = 402;
+  end;
+
+  entry DosMonClose;
+  begin
+    convention = '_System';
+    number = 403;
+  end;
+
+  entry DosMonOpen;
+  begin
+    convention = '_System';
+    number = 404;
+  end;
+
+  entry DosMonReg;
+  begin
+    convention = '_System';
+    number = 405;
+  end;
+end;
+
+module PMMERGE;
+begin
+  entry WinQueryControlColors;
+  begin
+    convention = '_System';
+    number = 5470;
+  end;
+
+  entry WinSetControlColors;
+  begin
+    convention = '_System';
+    number = 5471;
+  end;
+end;

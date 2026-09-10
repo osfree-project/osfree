@@ -1,0 +1,46 @@
+group gpicontrol;
+
+constant DCTL_ERASE     = 1;
+constant DCTL_DISPLAY   = 2;
+constant DCTL_BOUNDARY  = 3;
+constant DCTL_DYNAMIC   = 4;
+constant DCTL_CORRELATE = 5;
+constant DCTL_ERROR     = (-1);
+constant DCTL_OFF       = 0;
+constant DCTL_ON        = 1;
+
+constant SDW_ERROR = (-1);
+constant SDW_OFF   =  0;
+constant SDW_ON    =  1;
+
+constant GRES_ATTRS    = $0001;
+constant GRES_SEGMENTS = $0002;
+constant GRES_ALL      = $0004;
+
+constant PS_UNITS     = $00FC;
+constant PS_FORMAT    = $0F00;
+constant PS_TYPE      = $1000;
+constant PS_MODE      = $2000;
+constant PS_ASSOCIATE = $4000;
+constant PS_NORESET   = $8000;
+
+constant GPIE_SEGMENT  =   0;
+constant GPIE_ELEMENT  =   1;
+constant GPIE_DATA     =   2;
+
+constant DM_ERROR         = 0;
+constant DM_DRAW          = 1;
+constant DM_RETAIN        = 2;
+constant DM_DRAWANDRETAIN = 3;
+
+function GpiQueryDrawControl(in a: HPS, in b: LONG): LONG;
+function GpiQueryDrawingMode(in a: HPS): LONG;
+function GpiQueryPS(in a: HPS, in b: PSIZEL): ULONG;
+function GpiQueryStopDraw(in a: HPS): LONG;
+function GpiResetPS(in a: HPS, in b: ULONG): BOOL;
+function GpiSetDrawControl(in a: HPS, in b: LONG, in c:LONG): BOOL;
+function GpiSetDrawingMode(in a: HPS, in b: LONG): BOOL;
+function GpiSetPS(in a: HPS, in b: PSIZEL, in c: ULONG): BOOL;
+function GpiSetStopDraw(in a: HPS, in b: LONG): BOOL;
+
+end.

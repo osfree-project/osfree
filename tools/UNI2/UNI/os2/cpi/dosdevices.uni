@@ -1,0 +1,39 @@
+group dosdevices;
+
+constant DEVINFO_PRINTER =0;
+constant DEVINFO_RS232 =1;
+constant DEVINFO_FLOPPY= 2;
+constant DEVINFO_COPROCESSOR= 3;
+constant DEVINFO_SUBMODEL= 4;
+constant DEVINFO_MODEL =5;
+constant DEVINFO_ADAPTER= 6;
+
+(*************************************************************************************)
+(* Original function uses VOID as storage, but according to docs only BYTE returned. *)
+(* So exact type are used.                                                           *)
+(*************************************************************************************)
+function  DosDevConfig(out pdevinfo: BYTE;
+                       in  item:     ULONG): APIRET;
+
+
+function DosDevIOCtl(in    hDevice:      HFILE;
+                     in    category:     ULONG;
+                     in    xfunction:    ULONG;
+                     in    pParams:      PVOID;
+                     in    cbParmLenMax: ULONG;
+                     inout pcbParmLen:   ULONG;
+                     in    pData:        PVOID;
+                     in    cbDataLenMax: ULONG;
+                     inout pcbDataLen:   ULONG): APIRET;
+
+function DosPhysicalDisk(in xfunction: ULONG;
+                         in pBuf:      PVOID;
+                         in cbBuf:     ULONG;
+                         in pParams:   PVOID;
+                         in cbParams:  ULONG): APIRET;
+
+constant INFO_COUNT_PARTITIONABLE_DISKS =1;
+constant INFO_GETIOCTLHANDLE =2;
+constant INFO_FREEIOCTLHANDLE =3;
+
+end.

@@ -1,0 +1,9 @@
+group winthunkapi;
+
+function WinSetClassThunkProc(in a: PCSZ; in b: PFN): BOOL;
+function WinQueryClassThunkProc(in a: PCSZ): PFN;
+function WinSetWindowThunkProc(in a: HWND; in b: PFN): BOOL;
+function WinQueryWindowThunkProc(in a: HWND): PFN;
+function WinQueryWindowModel(in a: HWND): LONG;
+
+end.

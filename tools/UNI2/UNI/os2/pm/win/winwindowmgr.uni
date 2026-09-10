@@ -1,0 +1,176 @@
+group winwindowmgr;
+
+   (* WM_CREATE structure *)
+
+   type CREATESTRUCT=structure    (* crst *)
+         pPresParams: PVOID;
+         pCtlData: PVOID;
+         id: ULONG;
+         hwndInsertBehind: HWND;
+         hwndOwner: HWND;
+         cy: LONG;
+         cx: LONG;
+         y: LONG;
+         x: LONG;
+         flStyle: ULONG;
+         pszText: PSZ;
+         pszClass: PSZ;
+         hwndParent: HWND;
+     end;
+   type PCREATESTRUCT=^CREATESTRUCT;
+
+   (* WinQueryClassInfo() structure *)
+
+   type CLASSINFO=structure    (* clsi *)
+         flClassStyle: ULONG;
+         pfnWindowProc: PFNWP;
+         cbWindowData: ULONG;
+    end;
+   type PCLASSINFO=^CLASSINFO;
+
+function WinSubclassWindow(in hwnd: HWND;
+                                        in pfnwp: PFNWP): PFNWP;
+
+function WinQueryClassName(in hwnd: HWND;
+                                      in cchMax: LONG;
+                                      out pch: CHAR): LONG;
+
+function WinQueryClassInfo(in hab: HAB;
+                                     in pszClassName: PCSZ;
+                                     out pClassInfo: CLASSINFO): BOOL;
+
+function WinQueryActiveWindow(in hwndDesktop: HWND): HWND;
+
+function WinIsThreadActive(in hab: HAB): BOOL;
+
+function WinQuerySysModalWindow(in hwndDesktop: HWND): HWND;
+
+
+function WinSetSysModalWindow(in hwndDesktop: HWND;
+                                        in hwnd: HWND): BOOL;
+
+
+function WinQueryWindowUShort(in hwnd: HWND;
+                                           in index: LONG): USHORT;
+
+function WinSetWindowUShort(in hwnd: HWND;
+                                         in index: LONG;
+                                         in us: USHORT): BOOL;
+
+function WinQueryWindowULong(in hwnd: HWND;
+                                           in index: LONG): ULONG;
+
+function WinSetWindowULong(in hwnd: HWND;
+                                         in index: LONG;
+                                         in ul: ULONG): BOOL;
+
+function WinQueryWindowPtr(in hwnd: HWND;
+                                        in index: LONG): PVOID;
+
+function WinSetWindowPtr(in hwnd: HWND;
+                                       in index: LONG;
+                                       in p: PVOID): BOOL;
+
+function WinSetWindowBits(in hwnd: HWND;
+                                        in index: LONG;
+                                        in flData: ULONG;
+                                        in flMask: ULONG): BOOL;
+
+      (*** Standard WinQueryWindowUShort/ULong() indices *******************)
+   constant QWS_USER                 =  0;
+   constant QWS_ID                   =  (-1);
+   constant QWS_MIN                  =  (-1);
+
+   constant QWL_USER                  = 0;
+   constant QWL_STYLE                 = (-2);
+   constant QWP_PFNWP                 = (-3);
+   constant QWL_HMQ                   = (-4);
+   constant QWL_RESERVED              = (-5);
+
+   constant QWL_PENDATA               = (-7);
+
+   constant QWL_BD_ATTR               = (-9);
+   constant QWL_BD_STAT               = (-10);
+   constant QWL_KBDLAYER              = (-11);
+
+   constant QWL_MIN                   = (-11);
+
+      (*** WC_FRAME WinQueryWindowUShort/ULong() indices *******************)
+   constant QWL_HHEAP                  = $0004;
+   constant QWL_HWNDFOCUSSAVE          = $0018;
+   constant QWL_DEFBUTTON              = $0040;
+   constant QWL_PSSCBLK                = $0048;
+   constant QWL_PFEPBLK                = $004c;
+   constant QWL_PSTATBLK               = $0050;
+
+   constant QWS_FLAGS                  = $0008;
+   constant QWS_RESULT                 = $000a;
+   constant QWS_XRESTORE               = $000c;
+   constant QWS_YRESTORE               = $000e;
+   constant QWS_CXRESTORE              = $0010;
+   constant QWS_CYRESTORE              = $0012;
+   constant QWS_XMINIMIZE              = $0014;
+   constant QWS_YMINIMIZE              = $0016;
+
+
+      (*** Window enumeration **********************************************)
+type HENUM=LHANDLE;  (* henum *)
+
+function WinBeginEnumWindows(in hwnd: HWND): HENUM;
+function WinGetNextWindow(in henum: HENUM): HWND;
+function WinEndEnumWindows(in henum: HENUM): BOOL;
+
+
+function WinWindowFromPoint(in hwnd: HWND;
+                                     in pptl: PPOINTL;
+                                     in fChildren: BOOL): HWND;
+
+function WinMapWindowPoints(in hwndFrom: HWND;
+                                      in hwndTo: HWND;
+                                      in prgptl: PPOINTL;
+                                      in cwpt: LONG): BOOL;
+
+
+   (* More window painting functions *)
+
+function WinValidateRect(in hwnd: HWND;
+                                   in prcl: PRECTL;
+                                   in fIncludeChildren: BOOL): BOOL;
+
+function WinValidateRegion(in hwnd: HWND;
+                                     in hrgn: HRGN;
+                                     in fIncludeChildren: BOOL): BOOL;
+
+function WinWindowFromDC(in hdc: HDC): HWND;
+
+function WinQueryWindowDC(in hwnd: HWND): HDC;
+
+function WinGetScreenPS(in hwndDesktop: HWND): HPS;
+
+function WinLockWindowUpdate(in hwndDesktop: HWND;
+                                          in hwndLockUpdate: HWND): BOOL;
+
+function WinLockVisRegions(in hwndDesktop: HWND;
+                                       in fLock: BOOL): BOOL;
+
+function WinQueryUpdateRect(in hwnd: HWND;
+                                      out prcl: RECTL): BOOL;
+
+function WinQueryUpdateRegion(in hwnd: HWND;
+                                       in hrgn: HRGN): LONG;
+
+function WinExcludeUpdateRegion(in hps: HPS;
+                                         in hwnd: HWND): LONG;
+
+   (* WinQueryClipRegion return codes *)
+constant QCRGN_ERROR                = 0;
+constant QCRGN_OK                   = 1;
+constant QCRGN_NO_CLIP_REGION       = 2;
+
+function WinQueryClipRegion(in hwnd: HWND;
+                                     in hrgnClip: HRGN): LONG;
+
+function WinSetClipRegion(in hwnd: HWND;
+                                   in hrgnClip: HRGN): BOOL;
+
+end.

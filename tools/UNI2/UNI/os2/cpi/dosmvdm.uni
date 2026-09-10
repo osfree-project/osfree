@@ -1,0 +1,30 @@
+group dosmvdm;
+
+(* Virtual DOS Machine API support *)
+
+   type HVDD=LHANDLE;     (* hvdd *)
+   type PHVDD=^HVDD;      (* phvdd *)
+
+   function DosOpenVDD(in pszVDD: PSZ;
+                       out phvdd: HVDD): APIRET;
+
+   function DosRequestVDD(in hvdd: HVDD;
+                          in sgid: SGID;
+                          in cmd: ULONG;
+                          in cbInput: ULONG;
+                          in pInput: PVOID;
+                          in cbOutput: ULONG;
+                          in pOutput: PVOID): APIRET;  (* untyped var returned *)
+
+   function DosCloseVDD(in hvdd: HVDD): APIRET;
+
+   function DosQueryDOSProperty(in sgid: SGID;
+                                in pszName: PSZ;
+                                in cb: ULONG;
+                                out pch: CHAR): APIRET;
+
+   function DosSetDOSProperty(in sgid: SGID;
+                              in pszName: PSZ;
+                              in cb: ULONG;
+                              in pch: PSZ): APIRET;
+end;

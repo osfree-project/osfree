@@ -1,0 +1,163 @@
+group pmhelp;
+
+constant HM_RESOURCEID = 0;
+constant HM_PANELNAME  = 1;
+
+constant HMPANELTYPE_NUMBER = 0;
+constant HMPANELTYPE_NAME   = 1;
+
+constant CMIC_HIDE_PANEL_ID   = 0;
+constant CMIC_SHOW_PANEL_ID   = 1;
+constant CMIC_TOGGLE_PANEL_ID = 2;
+
+constant HM_MSG_BASE = $0220;
+
+constant HM_DISMISS_WINDOW            = HM_MSG_BASE+$0001;
+constant HM_DISPLAY_HELP              = HM_MSG_BASE+$0002;
+constant HM_EXT_HELP                  = HM_MSG_BASE+$0003;
+constant HM_GENERAL_HELP              = HM_EXT_HELP;
+constant HM_SET_ACTIVE_WINDOW         = HM_MSG_BASE+$0004;
+constant HM_LOAD_HELP_TABLE           = HM_MSG_BASE+$0005;
+constant HM_CREATE_HELP_TABLE         = HM_MSG_BASE+$0006;
+constant HM_SET_HELP_WINDOW_TITLE     = HM_MSG_BASE+$0007;
+constant HM_SET_SHOW_PANEL_ID         = HM_MSG_BASE+$0008;
+constant HM_REPLACE_HELP_FOR_HELP     = HM_MSG_BASE+$0009;
+constant HM_REPLACE_USING_HELP        = HM_REPLACE_HELP_FOR_HELP;
+constant HM_HELP_INDEX                = HM_MSG_BASE+$000a;
+constant HM_HELP_CONTENTS             = HM_MSG_BASE+$000b;
+constant HM_KEYS_HELP                 = HM_MSG_BASE+$000c;
+constant HM_SET_HELP_LIBRARY_NAME     = HM_MSG_BASE+$000d;
+
+constant HM_SET_OBJCOM_WINDOW          = HM_MSG_BASE+$0018;
+constant HM_UPDATE_OBJCOM_WINDOW_CHAIN = HM_MSG_BASE+$0019;
+constant HM_QUERY_DDF_DATA             = HM_MSG_BASE+$001a;
+constant HM_INVALIDATE_DDF_DATA        = HM_MSG_BASE+$001b;
+constant HM_QUERY                      = HM_MSG_BASE+$001c;
+constant HM_SET_COVERPAGE_SIZE         = HM_MSG_BASE+$001d;
+
+constant OPEN_COVERPAGE       = 1;
+constant OPEN_PAGE            = 2;
+constant SWAP_PAGE            = 3;
+constant OPEN_TOC             = 4;
+constant OPEN_INDEX           = 5;
+constant OPEN_HISTORY         = 6;
+constant OPEN_SEARCH_HIT_LIST = 7;
+constant OPEN_LIBRARY         = 8;
+constant HELP_REQUESTED       = 9;
+
+constant HM_ERROR                  =HM_MSG_BASE+$000e;
+constant HM_HELPSUBITEM_NOT_FOUND  =HM_MSG_BASE+$000f;
+constant HM_QUERY_KEYS_HELP        =HM_MSG_BASE+$0010;
+constant HM_TUTORIAL               =HM_MSG_BASE+$0011;
+constant HM_EXT_HELP_UNDEFINED     =HM_MSG_BASE+$0012;
+constant HM_GENERAL_HELP_UNDEFINED =HM_EXT_HELP_UNDEFINED;
+constant HM_ACTIONBAR_COMMAND      =HM_MSG_BASE+$0013;
+constant HM_INFORM                 =HM_MSG_BASE+$0014;
+constant HM_NOTIFY                 =HM_MSG_BASE+$0022;
+constant HM_SET_USERDATA           =HM_MSG_BASE+$0023;
+constant HM_CONTROL                =HM_MSG_BASE+$0024;
+
+constant HMQW_COVERPAGE     = 1;
+constant HMQW_INDEX         = 2;
+constant HMQW_TOC           = 3;
+constant HMQW_SEARCH        = 4;
+constant HMQW_VIEWPAGES     = 5;
+constant HMQW_LIBRARY       = 6;
+constant HMQW_VIEWPORT      = 7;
+constant HMQW_OBJCOM_WINDOW = 8;
+constant HMQW_INSTANCE      = 9;
+constant HMQW_ACTIVEVIEWPORT= 10;
+constant CONTROL_SELECTED   = 11;
+
+constant HMQW_GROUP_VIEWPORT =$00f1;
+constant HMQW_RES_VIEWPORT   =$00f2;
+constant USERDATA            =$00f3;
+
+constant HMQVP_NUMBER =1;
+constant HMQVP_NAME   =2;
+constant HMQVP_GROUP  =3;
+
+constant CTRL_PREVIOUS_ID  =1;
+constant CTRL_SEARCH_ID    =2;
+constant CTRL_PRINT_ID     =3;
+constant CTRL_INDEX_ID     =4;
+constant CTRL_CONTENTS_ID  =5;
+constant CTRL_BACK_ID      =6;
+constant CTRL_FORWARD_ID   =7;
+constant CTRL_TUTORIAL_ID  =256;
+constant CTRL_USER_ID_BASE =257;
+
+constant HMERR_NO_FRAME_WND_IN_CHAIN     =$00001001;
+constant HMERR_INVALID_ASSOC_APP_WND     =$00001002;
+constant HMERR_INVALID_ASSOC_HELP_INST   =$00001003;
+constant HMERR_INVALID_DESTROY_HELP_INST =$00001004;
+constant HMERR_NO_HELP_INST_IN_CHAIN     =$00001005;
+constant HMERR_INVALID_HELP_INSTANCE_HDL =$00001006;
+constant HMERR_INVALID_QUERY_APP_WND     =$00001007;
+constant HMERR_HELP_INST_CALLED_INVALID  =$00001008;
+constant HMERR_HELPTABLE_UNDEFINE        =$00001009;
+constant HMERR_HELP_INSTANCE_UNDEFINE    =$0000100a;
+constant HMERR_HELPITEM_NOT_FOUND        =$0000100b;
+constant HMERR_INVALID_HELPSUBITEM_SIZE  =$0000100c;
+constant HMERR_HELPSUBITEM_NOT_FOUND     =$0000100d;
+constant HMERR_INDEX_NOT_FOUND           =$00002001;
+constant HMERR_CONTENT_NOT_FOUND         =$00002002;
+constant HMERR_OPEN_LIB_FILE             =$00002003;
+constant HMERR_READ_LIB_FILE             =$00002004;
+constant HMERR_CLOSE_LIB_FILE            =$00002005;
+constant HMERR_INVALID_LIB_FILE          =$00002006;
+constant HMERR_NO_MEMORY                 =$00002007;
+constant HMERR_ALLOCATE_SEGMENT          =$00002008;
+constant HMERR_FREE_MEMORY               =$00002009;
+constant HMERR_PANEL_NOT_FOUND           =$00002010;
+constant HMERR_DATABASE_NOT_OPEN         =$00002011;
+constant HMERR_LOAD_DLL                  =$00002013;
+
+type HELPSUBTABLE=USHORT;
+type PHELPSUBTABLE=^HELPSUBTABLE;
+
+(* #pragma pack(2) *)
+
+type HELPTABLE=structure
+    idAppWindow: USHORT;
+    phstHelpSubTable: PVOID; (* PHELPSUBTABLE; *)
+    idExtPanel: USHORT;
+end;
+type PHELPTABLE=^HELPTABLE;
+
+type HELPINIT=structure
+          cb: ULONG;
+          ulReturnCode: ULONG;
+          pszTutorialName: PSZ;
+          phtHelpTable: PHELPTABLE;
+          hmodHelpTableModule: HMODULE;
+          hmodAccelActionBarModule: HMODULE;
+          idAccelTable: ULONG;
+          idActionBar: ULONG;
+          pszHelpWindowTitle: PSZ;
+          fShowPanelId: ULONG;
+          pszHelpLibraryName: PSZ;
+end;
+type PHELPINIT=^HELPINIT;
+
+(* #pragma pack() *)
+
+type ACVP=structure
+     cb: ULONG;
+       hAB: HAB;
+       hmq: HMQ;
+     ObjectID: ULONG;
+      hWndParent: HWND;
+      hWndOwner: HWND;
+      hWndACVP: HWND;
+end;
+type PACVP=^ACVP;
+
+function WinAssociateHelpInstance(in a: HWND; in b: HWND): BOOL;
+function WinCreateHelpInstance(in a: HAB; in b: PHELPINIT): HWND;
+function WinCreateHelpTable(in a: HWND; in b: PHELPTABLE): BOOL;
+function WinDestroyHelpInstance(in a: HWND):  BOOL;
+function WinLoadHelpTable(in a: HWND; in b: ULONG; in c: HMODULE):  BOOL;
+function WinQueryHelpInstance(in a: HWND):  HWND;
+
+end.
