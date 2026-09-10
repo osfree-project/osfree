@@ -59,8 +59,11 @@ static void print_bad_token(const char *start) {
     fwrite(start, 1, (size_t)(p - start), stderr);
 }
 
+/* ѕровер€ет выражение; токены попадают в used_ids только если выражение
+ * валидно и лицензи€ не вз€та из CLI-fallback. */
 static void check_license_expression(const char *fullpath, const char *license,
-                                     int source, SpdxStrList *used_ids) {
+                                     int license_from_default,
+                                     SpdxStrList *used_ids) {
     const char *bad = NULL;
     int rc = spdx_expression_validate(license, &bad);
 
@@ -90,7 +93,7 @@ static void check_license_expression(const char *fullpath, const char *license,
         spdx_strlist_init(&ids);
         spdx_expression_collect_ids(license, &ids);
         for (m = 0; m < ids.count; m++) {
-            if (source != LICENSE_SRC_DEFAULT) {
+            if (!license_from_default && rc == SPDX_EXPR_OK) {
                 spdx_strlist_add_unique(used_ids, ids.items[m]);
             }
             if (spdx_license_is_deprecated(ids.items[m]) ||
@@ -147,14 +150,23 @@ static void process_file(const char *fullpath, ReuseConfig *config,
         return;
     }
 
-    if (lic.source == LICENSE_SRC_DEFAULT) {
+    if (lic.license_from_default) {
         fprintf(stderr,
-                "WARNING: %s: license or copyright taken from "
-                "--default-license/--default-copyright.\n"
+                "WARNING: %s: license is taken from --default-license.\n"
                 "         REUSE does not allow a global CLI fallback.\n"
                 "         For REUSE compliance, add one of:\n"
-                "           - SPDX-License-Identifier / SPDX-FileCopyrightText "
-                "tag in the file;\n"
+                "           - 'SPDX-License-Identifier: <id>' tag in the file;\n"
+                "           - <file>.license sidecar;\n"
+                "           - [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
+        warning_count++;
+    }
+    if (lic.copyright_from_default) {
+        fprintf(stderr,
+                "WARNING: %s: copyright is taken from --default-copyright.\n"
+                "         REUSE does not allow a global CLI fallback.\n"
+                "         For REUSE compliance, add one of:\n"
+                "           - 'SPDX-FileCopyrightText: <holder>' tag in the file;\n"
                 "           - <file>.license sidecar;\n"
                 "           - [[annotations]] entry in REUSE.toml.\n",
                 fullpath);
@@ -189,8 +201,8 @@ static void process_file(const char *fullpath, ReuseConfig *config,
     }
 
     if (lic.license[0] != '\0') {
-        check_license_expression(fullpath, lic.license, lic.source,
-                                 used_licenses);
+        check_license_expression(fullpath, lic.license,
+                                 lic.license_from_default, used_licenses);
     }
 }
 

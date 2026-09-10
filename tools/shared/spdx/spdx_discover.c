@@ -109,20 +109,47 @@ static int should_skip_dir(const char *name, const SpdxWalkOptions *opts) {
     return 0;
 }
 
+/* Нормализует dir: убирает хвостовой разделитель (кроме случая "C:\"). */
+static void normalize_dir(const char *src, char *dst, size_t dst_size) {
+    size_t len = strlen(src);
+#ifdef _WIN32
+    /* Не трогаем "C:" и "C:\" */
+    if (len >= 2 && src[1] == ':' && (len == 2 ||
+        (len == 3 && (src[2] == '\\' || src[2] == '/')))) {
+        strncpy(dst, src, dst_size - 1);
+        dst[dst_size - 1] = '\0';
+        return;
+    }
+#endif
+    while (len > 0 && (src[len-1] == '/' || src[len-1] == '\\'))
+        len--;
+    if (len >= dst_size) len = dst_size - 1;
+    memcpy(dst, src, len);
+    dst[len] = '\0';
+}
+
+/* Склеивает dir и name с правильным разделителем платформы. */
 static void join_path(char *dst, size_t dst_size,
                       const char *dir, const char *name) {
+#ifdef __LINUX__
     snprintf(dst, dst_size, "%s/%s", dir, name);
+#else
+    snprintf(dst, dst_size, "%s\\%s", dir, name);
+#endif
 }
 
 #ifdef __LINUX__
 
-static int walk_inner(const char *dir, const SpdxWalkOptions *opts,
+static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
                       SpdxStrList *out) {
-    DIR *d = opendir(dir);
+    char dir[1024];
+    DIR *d;
     struct dirent *entry;
     struct stat st;
     char full[1024];
 
+    normalize_dir(dir_in, dir, sizeof(dir));
+    d = opendir(dir);
     if (!d) {
         fprintf(stderr, "Error: cannot open directory %s\n", dir);
         return -1;
@@ -152,15 +179,17 @@ static int walk_inner(const char *dir, const SpdxWalkOptions *opts,
 
 #else
 
-static int walk_inner(const char *dir, const SpdxWalkOptions *opts,
+static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
                       SpdxStrList *out) {
+    char dir[1024];
     long hFile;
     struct _finddata_t fd;
     struct stat st;
-    char pattern[1024];
+    char pattern[1100];
     char full[1024];
 
-    snprintf(pattern, sizeof(pattern), "%s/*", dir);
+    normalize_dir(dir_in, dir, sizeof(dir));
+    snprintf(pattern, sizeof(pattern), "%s\\*", dir);
     hFile = _findfirst(pattern, &fd);
     if (hFile == -1L) {
         fprintf(stderr, "Error: cannot open directory %s\n", dir);
