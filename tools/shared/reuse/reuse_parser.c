@@ -1,4 +1,10 @@
-/* reuse_parser.c - реализация парсера REUSE.toml (C89, исправлено) */
+/* reuse_parser.c - реализация парсера REUSE.toml (C89)
+ *
+ * Приведён к спецификации REUSE 3.2:
+ *   - нет секции [default] (значения по умолчанию задаются аннотацией
+ *     с паттерном "**");
+ *   - matches_pattern корректно обрабатывает * и **.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,27 +44,95 @@ static int starts_with(const char *str, const char *prefix) {
 }
 
 static void add_path(Annotation *ann, const char *value) {
-    ann->paths = (char**)realloc(ann->paths, (ann->path_count + 1) * sizeof(char*));
+    ann->paths = (char**)realloc(ann->paths,
+                                 (ann->path_count + 1) * sizeof(char*));
     ann->paths[ann->path_count++] = strdup(value);
 }
 
-static void join_path(char *dest, size_t dest_size, const char *dir, const char *name) {
+static void join_path(char *dest, size_t dest_size,
+                      const char *dir, const char *name) {
     size_t len = strlen(dir);
     if (len == 0) {
         snprintf(dest, dest_size, "%s", name);
-    } else if (dir[len-1] == '/' || dir[len-1] == '\\') {
-        snprintf(dest, dest_size, "%s%c%s", dir, PATH_SEPARATOR, name);
     } else {
         snprintf(dest, dest_size, "%s%c%s", dir, PATH_SEPARATOR, name);
     }
 }
+
+/* ------------------------------------------------------------------ */
+/* Соответствие паттернов                                              */
+/* ------------------------------------------------------------------ */
+
+/* '*' соответствует нулю и более символам, кроме '/' */
+static int match_component(const char *pat, const char *str) {
+    if (*pat == '\0') return *str == '\0';
+    if (*pat == '*') {
+        while (1) {
+            if (match_component(pat + 1, str)) return 1;
+            if (*str == '\0' || *str == '/') return 0;
+            str++;
+        }
+    }
+    if (*str == '\0' || *str == '/') return 0;
+    if (*pat != *str) return 0;
+    return match_component(pat + 1, str + 1);
+}
+
+/* Полное сопоставление с поддержкой ** */
+static int match_path(const char *pat, const char *path) {
+    const char *pat_slash;
+    const char *path_slash;
+
+    if (pat[0] == '*' && pat[1] == '*' &&
+        (pat[2] == '\0' || pat[2] == '/')) {
+        const char *rest = (pat[2] == '/') ? pat + 3 : pat + 2;
+        if (match_path(rest, path)) return 1;
+        while ((path_slash = strchr(path, '/')) != NULL) {
+            path = path_slash + 1;
+            if (match_path(rest, path)) return 1;
+        }
+        return 0;
+    }
+
+    pat_slash  = strchr(pat, '/');
+    path_slash = strchr(path, '/');
+
+    if (!pat_slash) {
+        if (path_slash) return 0;
+        return match_component(pat, path);
+    }
+    if (!path_slash) return 0;
+
+    {
+        size_t plen = (size_t)(pat_slash - pat);
+        size_t flen = (size_t)(path_slash - path);
+        char pat_seg[256];
+        char path_seg[256];
+
+        if (plen >= sizeof(pat_seg) || flen >= sizeof(path_seg)) return 0;
+        memcpy(pat_seg, pat, plen);
+        pat_seg[plen] = '\0';
+        memcpy(path_seg, path, flen);
+        path_seg[flen] = '\0';
+
+        if (!match_component(pat_seg, path_seg)) return 0;
+        return match_path(pat_slash + 1, path_slash + 1);
+    }
+}
+
+int matches_pattern(const char *pattern, const char *filename) {
+    return match_path(pattern, filename);
+}
+
+/* ------------------------------------------------------------------ */
+/* Разбор REUSE.toml                                                   */
+/* ------------------------------------------------------------------ */
 
 ReuseConfig* parse_reuse_toml(const char *filename) {
     FILE *f;
     ReuseConfig *config;
     char line[1024];
     char *s, *p, *val, *start;
-    int in_default = 0;
     int in_path_array = 0;
     Annotation *current_ann = NULL;
 
@@ -70,7 +144,6 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
     config->annotation_count = 0;
     config->source_dir = strdup(filename);
 
-    /* Определяем каталог, содержащий REUSE.toml */
     p = strrchr(config->source_dir, '/');
 #ifdef _WIN32
     {
@@ -84,105 +157,81 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
         s = trim(line);
         if (*s == '\0' || *s == '#') continue;
 
-        if (strcmp(s, "[default]") == 0) {
-            in_default = 1;
-            current_ann = NULL;
-            in_path_array = 0;
-            continue;
-        }
-
         if (strcmp(s, "[[annotations]]") == 0) {
-            in_default = 0;
             current_ann = &config->annotations[config->annotation_count];
             memset(current_ann, 0, sizeof(Annotation));
             current_ann->precedence = strdup("override");
-            current_ann->paths = NULL;
-            current_ann->path_count = 0;
             config->annotation_count++;
             in_path_array = 0;
             continue;
         }
 
-        if (in_default) {
-            if (starts_with(s, "SPDX-License-Identifier = ")) {
-                val = s + strlen("SPDX-License-Identifier = ");
-                val = trim(val);
-                config->default_license = strdup(strip_quotes(val));
-            } else if (starts_with(s, "SPDX-FileCopyrightText = ")) {
-                val = s + strlen("SPDX-FileCopyrightText = ");
-                val = trim(val);
-                config->default_copyright = strdup(strip_quotes(val));
+        if (current_ann == NULL) continue;
+
+        if (in_path_array) {
+            p = s;
+            while (*p) {
+                while (isspace((unsigned char)*p)) p++;
+                if (*p == ']') {
+                    in_path_array = 0;
+                    p++;
+                    break;
+                }
+                if (*p == '"' || *p == '\'') {
+                    start = ++p;
+                    while (*p && *p != '"' && *p != '\'') p++;
+                    if (*p) {
+                        *p = '\0';
+                        add_path(current_ann, start);
+                        p++;
+                    }
+                }
+                if (*p == ',') p++;
             }
             continue;
         }
 
-        if (current_ann != NULL) {
-            if (in_path_array) {
-                /* Продолжаем разбор многострочного массива путей */
-                p = s;
-                while (*p) {
-                    while (isspace((unsigned char)*p)) p++;
-                    if (*p == ']') {
+        if (starts_with(s, "path = ")) {
+            val = s + 7;
+            val = trim(val);
+            if (*val == '[') {
+                in_path_array = 1;
+                val++;
+                while (*val) {
+                    while (isspace((unsigned char)*val)) val++;
+                    if (*val == ']') {
                         in_path_array = 0;
-                        p++;
+                        val++;
                         break;
                     }
-                    if (*p == '"' || *p == '\'') {
-                        start = ++p;
-                        while (*p && *p != '"' && *p != '\'') p++;
-                        if (*p) {
-                            *p = '\0';
+                    if (*val == '"' || *val == '\'') {
+                        start = ++val;
+                        while (*val && *val != '"' && *val != '\'') val++;
+                        if (*val) {
+                            *val = '\0';
                             add_path(current_ann, start);
-                            p++;
-                        }
-                    }
-                    if (*p == ',') p++;
-                }
-                continue;
-            }
-
-            if (starts_with(s, "path = ")) {
-                val = s + 7;
-                val = trim(val);
-                if (*val == '[') {
-                    in_path_array = 1;
-                    val++;
-                    while (*val) {
-                        while (isspace((unsigned char)*val)) val++;
-                        if (*val == ']') {
-                            in_path_array = 0;
                             val++;
-                            break;
                         }
-                        if (*val == '"' || *val == '\'') {
-                            start = ++val;
-                            while (*val && *val != '"' && *val != '\'') val++;
-                            if (*val) {
-                                *val = '\0';
-                                add_path(current_ann, start);
-                                val++;
-                            }
-                        }
-                        if (*val == ',') val++;
                     }
-                } else {
-                    val = strip_quotes(val);
-                    add_path(current_ann, val);
+                    if (*val == ',') val++;
                 }
-            } else if (starts_with(s, "SPDX-License-Identifier = ")) {
-                val = s + strlen("SPDX-License-Identifier = ");
-                val = trim(val);
-                current_ann->license = strdup(strip_quotes(val));
-            } else if (starts_with(s, "SPDX-FileCopyrightText = ")) {
-                val = s + strlen("SPDX-FileCopyrightText = ");
-                val = trim(val);
-                current_ann->copyright = strdup(strip_quotes(val));
-            } else if (starts_with(s, "precedence = ")) {
-                val = s + strlen("precedence = ");
-                val = trim(val);
-                free(current_ann->precedence);
-                current_ann->precedence = strdup(strip_quotes(val));
+            } else {
+                val = strip_quotes(val);
+                add_path(current_ann, val);
             }
+        } else if (starts_with(s, "SPDX-License-Identifier = ")) {
+            val = s + strlen("SPDX-License-Identifier = ");
+            val = trim(val);
+            current_ann->license = strdup(strip_quotes(val));
+        } else if (starts_with(s, "SPDX-FileCopyrightText = ")) {
+            val = s + strlen("SPDX-FileCopyrightText = ");
+            val = trim(val);
+            current_ann->copyright = strdup(strip_quotes(val));
+        } else if (starts_with(s, "precedence = ")) {
+            val = s + strlen("precedence = ");
+            val = trim(val);
+            free(current_ann->precedence);
+            current_ann->precedence = strdup(strip_quotes(val));
         }
     }
 
@@ -193,8 +242,6 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
 void free_reuse_config(ReuseConfig *config) {
     int i, j;
     if (!config) return;
-    free(config->default_license);
-    free(config->default_copyright);
     free(config->source_dir);
     for (i = 0; i < config->annotation_count; i++) {
         for (j = 0; j < config->annotations[i].path_count; j++)
@@ -216,9 +263,8 @@ char* find_reuse_toml_upwards(const char *start_dir) {
 
     d = strdup(start_dir);
     len = strlen(d);
-    if (len > 0 && (d[len-1] == '/' || d[len-1] == '\\')) {
-        d[len-1] = '\0';
-    }
+    if (len > 0 && (d[len - 1] == '/' || d[len - 1] == '\\'))
+        d[len - 1] = '\0';
 
     while (1) {
         join_path(path, sizeof(path), d, "REUSE.toml");
@@ -244,94 +290,53 @@ char* find_reuse_toml_upwards(const char *start_dir) {
     return NULL;
 }
 
-int matches_pattern(const char *pattern, const char *filename) {
-    size_t plen, flen, prefix_len, suffix_len;
-    char *star;
+/* ------------------------------------------------------------------ */
+/* Поиск лицензии/копирайта для файла                                  */
+/* ------------------------------------------------------------------ */
 
-    plen = strlen(pattern);
-    flen = strlen(filename);
-
-    star = strchr(pattern, '*');
-    if (star) {
-        prefix_len = star - pattern;
-        if (strncmp(pattern, filename, prefix_len) == 0) {
-            if (*(star + 1)) {
-                suffix_len = strlen(star + 1);
-                if (flen >= suffix_len)
-                    return strcmp(filename + flen - suffix_len, star + 1) == 0;
-                return 0;
-            }
-            return 1;
+static int pick_best(Annotation **matches, int count) {
+    int best = 0, i;
+    if (count <= 1) return 0;
+    for (i = 1; i < count; i++) {
+        if (matches[i]->precedence &&
+            strcmp(matches[i]->precedence, "closest") == 0) {
+            best = i;
+            break;
         }
-        return 0;
+        if (matches[i]->path_count > 0 && matches[best]->path_count > 0 &&
+            strlen(matches[i]->paths[0]) > strlen(matches[best]->paths[0]))
+            best = i;
     }
-    return strcmp(pattern, filename) == 0;
+    return best;
+}
+
+static int collect_matches(ReuseConfig *config, const char *filename,
+                           Annotation **matches, int max_matches) {
+    int i, j;
+    int count = 0;
+    if (!config) return 0;
+    for (i = 0; i < config->annotation_count; i++) {
+        for (j = 0; j < config->annotations[i].path_count; j++) {
+            if (matches_pattern(config->annotations[i].paths[j], filename)) {
+                if (count < max_matches)
+                    matches[count++] = &config->annotations[i];
+                break;
+            }
+        }
+    }
+    return count;
 }
 
 const char* find_license_for_file(ReuseConfig *config, const char *filename) {
     Annotation *matches[100];
-    int match_count, i, j, best;
-
-    if (!config) return NULL;
-
-    match_count = 0;
-    for (i = 0; i < config->annotation_count; i++) {
-        for (j = 0; j < config->annotations[i].path_count; j++) {
-            if (matches_pattern(config->annotations[i].paths[j], filename)) {
-                matches[match_count++] = &config->annotations[i];
-                break;
-            }
-        }
-    }
-
-    if (match_count == 0)
-        return config->default_license;
-
-    if (match_count > 1) {
-        best = 0;
-        for (i = 1; i < match_count; i++) {
-            if (strcmp(matches[i]->precedence, "closest") == 0) {
-                best = i;
-                break;
-            }
-            if (strlen(matches[i]->paths[0]) > strlen(matches[best]->paths[0]))
-                best = i;
-        }
-        return matches[best]->license;
-    }
-    return matches[0]->license;
+    int count = collect_matches(config, filename, matches, 100);
+    if (count == 0) return NULL;
+    return matches[pick_best(matches, count)]->license;
 }
 
 const char* find_copyright_for_file(ReuseConfig *config, const char *filename) {
     Annotation *matches[100];
-    int match_count, i, j, best;
-
-    if (!config) return NULL;
-
-    match_count = 0;
-    for (i = 0; i < config->annotation_count; i++) {
-        for (j = 0; j < config->annotations[i].path_count; j++) {
-            if (matches_pattern(config->annotations[i].paths[j], filename)) {
-                matches[match_count++] = &config->annotations[i];
-                break;
-            }
-        }
-    }
-
-    if (match_count == 0)
-        return config->default_copyright;
-
-    if (match_count > 1) {
-        best = 0;
-        for (i = 1; i < match_count; i++) {
-            if (strcmp(matches[i]->precedence, "closest") == 0) {
-                best = i;
-                break;
-            }
-            if (strlen(matches[i]->paths[0]) > strlen(matches[best]->paths[0]))
-                best = i;
-        }
-        return matches[best]->copyright;
-    }
-    return matches[0]->copyright;
+    int count = collect_matches(config, filename, matches, 100);
+    if (count == 0) return NULL;
+    return matches[pick_best(matches, count)]->copyright;
 }

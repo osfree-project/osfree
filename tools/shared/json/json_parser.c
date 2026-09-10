@@ -1,4 +1,5 @@
-/* json_parser.c - реализация минимального JSON-парсера для C89 (OpenWatcom) */
+/* json_parser.c - минимальный JSON-парсер для C89 (OpenWatcom) */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,7 +63,7 @@ static char *parse_string(const char **p) {
                     len += 1; (*p)++;
                     break;
                 case 'u':
-                    /* Пропускаем 4 шестнадцатеричные цифры */
+                    /* пропускаем 4 шестнадцатеричных цифры */
                     len += 1; (*p)++;
                     for (i = 0; i < 4; i++) {
                         if (!isxdigit((unsigned char)**p)) return NULL;
@@ -97,7 +98,7 @@ static char *parse_string(const char **p) {
                 case '\\': *q++ = '\\'; s++; break;
                 case '/': *q++ = '/'; s++; break;
                 case 'u':
-                    /* Упрощённо: пропускаем \uXXXX */
+                    /* упрощение: записываем как '?' */
                     *q++ = '?';
                     s += 5;
                     break;

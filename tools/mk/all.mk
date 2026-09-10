@@ -8,7 +8,7 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: spdx-lint spdx-sbom precopy install .symbolic
+all: spdx-lint precopy install spdx-sbom .symbolic
 
 !include $(%ROOT)tools/mk/dirs.mk
 !include $(%ROOT)tools/mk/genrules.mk

@@ -1,5 +1,4 @@
 /* reuse_parser.h - публичный заголовок для парсера REUSE.toml */
-
 #ifndef REUSE_PARSER_H
 #define REUSE_PARSER_H
 
@@ -13,12 +12,10 @@ typedef struct {
     int path_count;
     char *license;
     char *copyright;
-    char *precedence;
+    char *precedence;   /* "override" | "closest" */
 } Annotation;
 
 typedef struct {
-    char *default_license;
-    char *default_copyright;
     Annotation *annotations;
     int annotation_count;
     char *source_dir;
@@ -27,8 +24,14 @@ typedef struct {
 ReuseConfig* parse_reuse_toml(const char *filename);
 void free_reuse_config(ReuseConfig *config);
 char* find_reuse_toml_upwards(const char *start_dir);
+
+/* Возвращает лицензию/копирайт для указанного файла по аннотациям.
+ * Специального fallback на [default] нет - если ничего не найдено,
+ * возвращается NULL. */
 const char* find_license_for_file(ReuseConfig *config, const char *filename);
 const char* find_copyright_for_file(ReuseConfig *config, const char *filename);
+
+/* Сопоставление с поддержкой * и ** по спецификации REUSE. */
 int matches_pattern(const char *pattern, const char *filename);
 
-#endif
+#endif /* REUSE_PARSER_H */

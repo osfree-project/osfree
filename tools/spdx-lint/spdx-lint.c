@@ -1,319 +1,450 @@
-/* spdx-lint.c - проверка соответствия REUSE (C89, OpenWatcom) */
+/* spdx-lint.c - проверка проекта на соответствие REUSE / SPDX (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stddef.h>
 #include <ctype.h>
+#include <stddef.h>
 
 #ifdef __LINUX__
-#include <dirent.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #else
-#include <direct.h>
-#include <sys/stat.h>
 #include <io.h>
 #endif
 
 #include <reuse_parser.h>
-#include "spdx_tag.h"
+#include "spdx_db.h"
+#include "spdx_discover.h"
+#include "spdx_utils.h"
+#include "spdx_lic.h"
 
-#define MAX_LINE 4096
+static int error_count = 0;
+static int warning_count = 0;
 
-/* Глобальные переменные */
-static char *default_license = NULL;
-static char *default_copyright = NULL;
+static const char *default_license = NULL;
+static const char *default_copyright = NULL;
+
 static char **exclude_list = NULL;
 static int exclude_count = 0;
 
-/* Проверка исключений */
-static int is_excluded(const char *filename) {
+static int total_files = 0;
+static int files_with_license = 0;
+static int files_with_copyright = 0;
+static int read_errors = 0;
+
+static int has_extension(const char *name) {
+    const char *dot = strrchr(name, '.');
+    if (!dot) return 0;
+    return dot != name;
+}
+
+static int is_valid_spdx_name(const char *name) {
+    if (spdx_license_is_valid(name)) return 1;
+    if (spdx_exception_is_valid(name)) return 1;
+    return 0;
+}
+
+static int is_excluded(const char *path) {
     int i;
-    const char *base;
-    const char *slash = strrchr(filename, '/');
-    const char *backslash = strrchr(filename, '\\');
-    if (backslash && (!slash || backslash > slash))
-        base = backslash + 1;
-    else if (slash)
-        base = slash + 1;
-    else
-        base = filename;
-
-    for (i = 0; i < exclude_count; i++) {
+    const char *base = spdx_get_file_name(path);
+    for (i = 0; i < exclude_count; i++)
         if (strcmp(exclude_list[i], base) == 0) return 1;
-    }
     return 0;
 }
 
-/* Регистронезависимое сравнение строк */
-static int str_ieq(const char *a, const char *b) {
-    while (*a && *b) {
-        if (tolower((unsigned char)*a) != tolower((unsigned char)*b))
-            return 0;
-        a++;
-        b++;
-    }
-    return (*a == '\0' && *b == '\0');
+static void print_bad_token(const char *start) {
+    const char *p = start;
+    if (!p) { fprintf(stderr, "(null)"); return; }
+    while (*p && !isspace((unsigned char)*p) && *p != '(' && *p != ')') p++;
+    fwrite(start, 1, (size_t)(p - start), stderr);
 }
 
-/* Регистронезависимое сравнение префикса */
-static int str_ieq_prefix(const char *str, const char *prefix, size_t n) {
-    size_t i;
-    for (i = 0; i < n; i++) {
-        if (str[i] == '\0')
-            return 0;
-        if (tolower((unsigned char)str[i]) != tolower((unsigned char)prefix[i]))
-            return 0;
-    }
-    return 1;
-}
+static void check_license_expression(const char *fullpath, const char *license,
+                                     int source, SpdxStrList *used_ids) {
+    const char *bad = NULL;
+    int rc = spdx_expression_validate(license, &bad);
 
-/* Проверка: файл лицензии (LICENSE, COPYING и т.п.) */
-static int is_license_file(const char *filename) {
-    static const char *exact[] = {
-        "license", "licence", "copying", "unlicense", "copyright"
-    };
-    const char *base;
-    const char *slash = strrchr(filename, '/');
-    const char *backslash = strrchr(filename, '\\');
-    size_t i;
-
-    if (backslash && (!slash || backslash > slash))
-        base = backslash + 1;
-    else if (slash)
-        base = slash + 1;
-    else
-        base = filename;
-
-    for (i = 0; i < sizeof(exact) / sizeof(exact[0]); i++) {
-        if (str_ieq(base, exact[i])) return 1;
+    if (rc == SPDX_EXPR_SYNTAX_ERROR) {
+        fprintf(stderr,
+                "ERROR: %s: invalid SPDX license expression: '%s'\n"
+                "       See https://spdx.github.io/spdx-spec/v2.3/"
+                "SPDX-license-expressions/ for the grammar.\n",
+                fullpath, license);
+        error_count++;
+    } else if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
+        fprintf(stderr, "ERROR: %s: unknown SPDX identifier: '", fullpath);
+        print_bad_token(bad);
+        fprintf(stderr,
+                "'\n"
+                "       Not present in SPDX License List. Fix one of:\n"
+                "         - correct the identifier;\n"
+                "         - if it is a custom license, prefix it with "
+                "'LicenseRef-' and add the text to LICENSES/;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml.\n");
+        error_count++;
     }
 
-    if (str_ieq_prefix(base, "license", 7) ||
-        str_ieq_prefix(base, "licence", 7) ||
-        str_ieq_prefix(base, "copying", 7)) {
-        if (base[7] == '\0' || base[7] == '.' || base[7] == '-' || base[7] == '_')
-            return 1;
+    {
+        SpdxStrList ids;
+        int m;
+        spdx_strlist_init(&ids);
+        spdx_expression_collect_ids(license, &ids);
+        for (m = 0; m < ids.count; m++) {
+            if (source != LICENSE_SRC_DEFAULT) {
+                spdx_strlist_add_unique(used_ids, ids.items[m]);
+            }
+            if (spdx_license_is_deprecated(ids.items[m]) ||
+                spdx_exception_is_deprecated(ids.items[m])) {
+                fprintf(stderr,
+                        "WARNING: %s: deprecated SPDX identifier '%s'.\n"
+                        "         The SPDX License List marks this identifier "
+                        "deprecated.\n"
+                        "         Replace it with the current identifier "
+                        "(usually a '-only' or '-or-later' variant).\n"
+                        "         Check https://spdx.org/licenses/ for the "
+                        "recommended replacement.\n",
+                        fullpath, ids.items[m]);
+                warning_count++;
+            }
+        }
+        spdx_strlist_free(&ids);
     }
-    return 0;
 }
 
-/* Проверка: игнорируемый каталог */
-static int is_ignored_dir(const char *name) {
-    return strcmp(name, "LICENSES") == 0 || strcmp(name, ".reuse") == 0;
+static void process_file(const char *fullpath, ReuseConfig *config,
+                         SpdxStrList *used_licenses) {
+    FileLicenseInfo lic;
+    const char *name = spdx_get_file_name(fullpath);
+    FILE *f;
+
+    total_files++;
+
+    f = fopen(fullpath, "rb");
+    if (!f) {
+        fprintf(stderr,
+                "ERROR: cannot read file: %s\n"
+                "       Fix file permissions or remove it from the project.\n",
+                fullpath);
+        error_count++;
+        read_errors++;
+        return;
+    }
+    fclose(f);
+
+    if (spdx_resolve_license(fullpath, name, config,
+                             default_license, default_copyright, &lic) != 0) {
+        fprintf(stderr,
+                "ERROR: %s has no license information.\n"
+                "       REUSE requires each file to carry license and "
+                "copyright information.\n"
+                "       Fix one of:\n"
+                "         - add 'SPDX-License-Identifier' and "
+                "'SPDX-FileCopyrightText' tags in the file header;\n"
+                "         - or create a sidecar '<file>.license' next to it;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
+        error_count++;
+        return;
+    }
+
+    if (lic.source == LICENSE_SRC_DEFAULT) {
+        fprintf(stderr,
+                "WARNING: %s: license or copyright taken from "
+                "--default-license/--default-copyright.\n"
+                "         REUSE does not allow a global CLI fallback.\n"
+                "         For REUSE compliance, add one of:\n"
+                "           - SPDX-License-Identifier / SPDX-FileCopyrightText "
+                "tag in the file;\n"
+                "           - <file>.license sidecar;\n"
+                "           - [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
+        warning_count++;
+    }
+
+    if (lic.license[0] != '\0') {
+        files_with_license++;
+    } else {
+        fprintf(stderr,
+                "ERROR: %s has no license information.\n"
+                "       Fix one of:\n"
+                "         - add 'SPDX-License-Identifier: <id>' in the file "
+                "header;\n"
+                "         - or create '<file>.license' with the same tag;\n"
+                "         - or add [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
+        error_count++;
+    }
+    if (lic.copyright[0] != '\0') {
+        files_with_copyright++;
+    } else {
+        fprintf(stderr,
+                "ERROR: %s has no copyright information.\n"
+                "       Fix one of:\n"
+                "         - add 'SPDX-FileCopyrightText: <holder>' in the "
+                "file header;\n"
+                "         - or create '<file>.license' with the same tag;\n"
+                "         - or add [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
+        error_count++;
+    }
+
+    if (lic.license[0] != '\0') {
+        check_license_expression(fullpath, lic.license, lic.source,
+                                 used_licenses);
+    }
 }
 
-/* Проверка: sidecar-файл .license */
-static int is_license_sidecar(const char *name) {
-    size_t len = strlen(name);
-    return len > 8 && strcmp(name + len - 8, ".license") == 0;
-}
+static void check_licenses_dir(const char *project_dir,
+                               SpdxStrList *used_licenses) {
+    char lic_path[1024];
+    SpdxWalkOptions opts;
+    SpdxStrList paths;
+    SpdxStrList files_in_lic;
+    int i;
+    int dir_exists;
 
-/* Проверка: файл REUSE.toml (не требует тегов) */
-static int is_reuse_config_file(const char *name) {
-    return strcmp(name, "REUSE.toml") == 0;
-}
+#ifdef __LINUX__
+    snprintf(lic_path, sizeof(lic_path), "%s/LICENSES", project_dir);
+    dir_exists = (access(lic_path, F_OK) == 0);
+#else
+    snprintf(lic_path, sizeof(lic_path), "%s\\LICENSES", project_dir);
+    dir_exists = (_access(lic_path, 0) == 0);
+#endif
 
-/* Формирование пути к sidecar */
-static void get_sidecar_path(const char *main_path, char *buf, size_t bufsize) {
-    snprintf(buf, bufsize, "%s.license", main_path);
+    spdx_strlist_init(&files_in_lic);
+
+    if (dir_exists) {
+        memset(&opts, 0, sizeof(opts));
+        opts.recursive             = 0;
+        opts.skip_hidden           = 1;
+        opts.skip_vcs_dirs         = 0;
+        opts.skip_licenses_dir     = 0;
+        opts.skip_reuse_dir        = 0;
+        opts.skip_license_sidecars = 0;
+        opts.skip_reuse_toml       = 0;
+        opts.skip_license_files    = 0;
+
+        spdx_strlist_init(&paths);
+        if (spdx_walk_tree(lic_path, &opts, &paths) == 0 && paths.count > 0) {
+            for (i = 0; i < paths.count; i++) {
+                const char *fname = spdx_get_file_name(paths.items[i]);
+                spdx_strlist_add(&files_in_lic, fname);
+            }
+        }
+        spdx_strlist_free(&paths);
+    }
+
+    for (i = 0; i < files_in_lic.count; i++) {
+        const char *fname = files_in_lic.items[i];
+        char base[256];
+        char *dot;
+        strncpy(base, fname, sizeof(base) - 1);
+        base[sizeof(base) - 1] = '\0';
+        dot = strrchr(base, '.');
+        if (dot) *dot = '\0';
+
+        if (!is_valid_spdx_name(base)) {
+            fprintf(stderr,
+                    "ERROR: Bad license file name: %s\n"
+                    "       The name must be a valid SPDX License List "
+                    "identifier or start with 'LicenseRef-'.\n"
+                    "       Fix one of:\n"
+                    "         - rename the file to a valid SPDX identifier "
+                    "(e.g. 'MIT.txt');\n"
+                    "         - or use 'LicenseRef-<name>.txt' for a custom "
+                    "license.\n"
+                    "       See https://spdx.org/licenses/ for the full list.\n",
+                    fname);
+            error_count++;
+        } else {
+            if (!has_extension(fname)) {
+                fprintf(stderr,
+                        "WARNING: License file without extension: %s\n"
+                        "         REUSE convention is to use '.txt'.\n"
+                        "         Rename to '%s.txt' to follow the convention "
+                        "and avoid ambiguity.\n",
+                        fname, fname);
+                warning_count++;
+            }
+            if (spdx_license_is_deprecated(base) ||
+                spdx_exception_is_deprecated(base)) {
+                fprintf(stderr,
+                        "WARNING: Deprecated license file: %s\n"
+                        "         SPDX License List marks '%s' as "
+                        "deprecated.\n"
+                        "         Rename the file to the current identifier "
+                        "and update all references in source files.\n"
+                        "         Check https://spdx.org/licenses/ for the "
+                        "recommended replacement.\n",
+                        fname, base);
+                warning_count++;
+            }
+        }
+    }
+
+    for (i = 0; i < files_in_lic.count; i++) {
+        char base[256];
+        char *dot;
+        strncpy(base, files_in_lic.items[i], sizeof(base) - 1);
+        base[sizeof(base) - 1] = '\0';
+        dot = strrchr(base, '.');
+        if (dot) *dot = '\0';
+
+        if (!spdx_strlist_contains(used_licenses, base)) {
+            fprintf(stderr,
+                    "WARNING: Unused license file: %s\n"
+                    "         No file in the project declares this license.\n"
+                    "         Fix one of:\n"
+                    "           - remove the file if it is no longer needed;\n"
+                    "           - or add 'SPDX-License-Identifier: %s' to the "
+                    "files it applies to;\n"
+                    "           - or add a [[annotations]] entry in "
+                    "REUSE.toml referencing this license.\n",
+                    files_in_lic.items[i], base);
+            warning_count++;
+        }
+    }
+
+    for (i = 0; i < used_licenses->count; i++) {
+        const char *lic = used_licenses->items[i];
+        if (!spdx_strlist_contains(&files_in_lic, lic)) {
+            char with_txt[512];
+            snprintf(with_txt, sizeof(with_txt), "%s.txt", lic);
+            if (!spdx_strlist_contains(&files_in_lic, with_txt)) {
+                fprintf(stderr,
+                        "ERROR: Missing license file for %s.\n"
+                        "       Files declare this license but LICENSES/ "
+                        "does not contain it.\n"
+                        "       Fix one of:\n"
+                        "         - create LICENSES/%s.txt with the license "
+                        "text;\n"
+                        "         - or add the text via a [[annotations]] "
+                        "entry in REUSE.toml.\n",
+                        lic, lic);
+                error_count++;
+            }
+        }
+    }
+
+    spdx_strlist_free(&files_in_lic);
 }
 
 int main(int argc, char *argv[]) {
     const char *dir = ".";
-    int strict = 0;
-    int errors = 0;
+    const char *licenses_json = NULL;
+    const char *exceptions_json = NULL;
+    const char *details_dir = NULL;
+    const char *exceptions_dir = NULL;
+    const char *cache_file = NULL;
     int i;
-    char *toml_path;
-    ReuseConfig *config;
-    char fullpath[1024];
-    char sidecar_path[1024];
-    const char *license;
-    const char *copyright;
-    char *tag_license = NULL;
-    char *tag_copyright = NULL;
-    char *sidecar_license = NULL;
-    char *sidecar_copyright = NULL;
-    char *arg;
-    char dir_buf[1024];
+    ReuseConfig *config = NULL;
+    char toml_path[1024];
+    SpdxStrList used_licenses;
+    SpdxStrList paths;
+    int db_errs;
+    SpdxWalkOptions walk_opts;
 
-#ifdef __LINUX__
-    DIR *d;
-    struct dirent *entry;
-    struct stat st;
-#else
-    long hFile;
-    struct _finddata_t fdata;
-    struct stat st;
-#endif
-
-    default_license = NULL;
-    default_copyright = NULL;
-    exclude_list = NULL;
-    exclude_count = 0;
-
-    /* Разбор аргументов */
     for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--strict") == 0) {
-            strict = 1;
-        } else if (strncmp(argv[i], "--default-license=", 18) == 0) {
+        if (strncmp(argv[i], "--licenses-json=", 16) == 0)
+            licenses_json = argv[i] + 16;
+        else if (strncmp(argv[i], "--exceptions-json=", 18) == 0)
+            exceptions_json = argv[i] + 18;
+        else if (strncmp(argv[i], "--details-dir=", 14) == 0)
+            details_dir = argv[i] + 14;
+        else if (strncmp(argv[i], "--exceptions-dir=", 17) == 0)
+            exceptions_dir = argv[i] + 17;
+        else if (strncmp(argv[i], "--cache=", 8) == 0)
+            cache_file = argv[i] + 8;
+        else if (strncmp(argv[i], "--default-license=", 18) == 0)
             default_license = argv[i] + 18;
-        } else if (strncmp(argv[i], "--default-copyright=", 20) == 0) {
+        else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
             default_copyright = argv[i] + 20;
-        } else if (strncmp(argv[i], "--exclude=", 10) == 0) {
-            arg = argv[i] + 10;
+        else if (strncmp(argv[i], "--exclude=", 10) == 0) {
+            char *arg = argv[i] + 10;
             while (*arg) {
                 while (*arg && *arg == ' ') arg++;
                 if (!*arg) break;
-                exclude_list = (char**)realloc(exclude_list, (exclude_count + 1) * sizeof(char*));
+                exclude_list = (char**)realloc(exclude_list,
+                                               (exclude_count + 1) * sizeof(char*));
+                if (!exclude_list) {
+                    fprintf(stderr, "Memory allocation failed\n");
+                    return 1;
+                }
                 exclude_list[exclude_count++] = arg;
                 while (*arg && *arg != ' ') arg++;
                 if (*arg) { *arg = '\0'; arg++; }
             }
-        } else {
+        }
+        else if (argv[i][0] != '-')
             dir = argv[i];
+        else {
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            return 1;
         }
     }
 
-    /* Нормализация пути: убрать завершающий слеш/обратный слеш */
-    strncpy(dir_buf, dir, sizeof(dir_buf) - 1);
-    dir_buf[sizeof(dir_buf) - 1] = '\0';
-    {
-        size_t dirlen = strlen(dir_buf);
-        if (dirlen > 0 && (dir_buf[dirlen-1] == '\\' || dir_buf[dirlen-1] == '/')) {
-            dir_buf[dirlen-1] = '\0';
-        }
-    }
-    dir = dir_buf;
-
-    toml_path = find_reuse_toml_upwards(dir);
-    config = NULL;
-    if (toml_path) config = parse_reuse_toml(toml_path);
+    db_errs = spdx_db_init(licenses_json, exceptions_json,
+                           details_dir, exceptions_dir, cache_file);
+    if (db_errs & SPDX_DB_ERR_LICENSES)
+        fprintf(stderr, "Warning: SPDX license database unavailable\n");
+    if (db_errs & SPDX_DB_ERR_EXCEPTIONS)
+        fprintf(stderr, "Warning: SPDX exceptions database unavailable\n");
+    if (db_errs & SPDX_DB_ERR_CACHE)
+        fprintf(stderr, "Warning: cache could not be written\n");
 
 #ifdef __LINUX__
-    d = opendir(dir);
-    if (!d) {
-        fprintf(stderr, "Cannot open directory: %s\n", dir);
-        return 1;
-    }
-
-    while ((entry = readdir(d)) != NULL) {
-        if (entry->d_name[0] == '.') continue;
-
-        if (entry->d_type == DT_DIR && is_ignored_dir(entry->d_name)) continue;
-        if (is_license_sidecar(entry->d_name)) continue;
-        if (is_reuse_config_file(entry->d_name)) continue;   /* <-- добавлено */
-
-        snprintf(fullpath, sizeof(fullpath), "%s/%s", dir, entry->d_name);
-        if (stat(fullpath, &st) == 0 && S_ISDIR(st.st_mode)) continue;
-
-        if (is_license_file(entry->d_name)) continue;
-        if (is_excluded(entry->d_name)) continue;
-
-        get_sidecar_path(fullpath, sidecar_path, sizeof(sidecar_path));
-        sidecar_license = NULL;
-        sidecar_copyright = NULL;
-        if (access(sidecar_path, F_OK) == 0) {
-            sidecar_license = file_get_spdx_license(sidecar_path);
-            sidecar_copyright = file_get_spdx_copyright(sidecar_path);
-        }
-
-        license = find_license_for_file(config, entry->d_name);
-        if (!license && sidecar_license) license = sidecar_license;
-        if (!license) {
-            tag_license = file_get_spdx_license(fullpath);
-            if (tag_license) license = tag_license;
-        }
-        if (!license && default_license) license = default_license;
-
-        copyright = find_copyright_for_file(config, entry->d_name);
-        if (!copyright && sidecar_copyright) copyright = sidecar_copyright;
-        if (!copyright) {
-            tag_copyright = file_get_spdx_copyright(fullpath);
-            if (tag_copyright) copyright = tag_copyright;
-        }
-        if (!copyright && default_copyright) copyright = default_copyright;
-
-        if (!license) {
-            fprintf(stderr, "ERROR: %s has no SPDX-License-Identifier\n", fullpath);
-            errors++;
-        }
-        if (!copyright) {
-            fprintf(stderr, "ERROR: %s has no SPDX-FileCopyrightText\n", fullpath);
-            errors++;
-        }
-
-        free(tag_license);
-        free(tag_copyright);
-        free(sidecar_license);
-        free(sidecar_copyright);
-    }
-    closedir(d);
+    snprintf(toml_path, sizeof(toml_path), "%s/REUSE.toml", dir);
 #else
-    /* Windows: используем _findfirst/_findnext */
-    snprintf(fullpath, sizeof(fullpath), "%s/*", dir);
-    hFile = _findfirst(fullpath, &fdata);
-    if (hFile == -1L) {
-        fprintf(stderr, "Cannot open directory: %s\n", dir);
+    snprintf(toml_path, sizeof(toml_path), "%s\\REUSE.toml", dir);
+#endif
+    config = parse_reuse_toml(toml_path);
+
+    spdx_strlist_init(&used_licenses);
+
+    spdx_walk_options_default(&walk_opts);
+    spdx_strlist_init(&paths);
+    if (spdx_walk_tree(dir, &walk_opts, &paths) != 0) {
+        fprintf(stderr, "Cannot walk tree: %s\n", dir);
+        spdx_strlist_free(&paths);
+        spdx_strlist_free(&used_licenses);
+        free_reuse_config(config);
+        spdx_db_free();
+        free(exclude_list);
         return 1;
     }
+    for (i = 0; i < paths.count; i++) {
+        if (is_excluded(paths.items[i])) continue;
+        process_file(paths.items[i], config, &used_licenses);
+    }
+    spdx_strlist_free(&paths);
 
-    do {
-        if (fdata.name[0] == '.') continue;
+    check_licenses_dir(dir, &used_licenses);
 
-        snprintf(fullpath, sizeof(fullpath), "%s\\%s", dir, fdata.name);
-        if (stat(fullpath, &st) == 0 && (st.st_mode & _S_IFDIR)) {
-            if (is_ignored_dir(fdata.name)) continue;
-            continue;
-        }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "SPDX Lint summary for %s:\n", dir);
+    fprintf(stderr, "  Total files:                %d\n", total_files);
+    fprintf(stderr, "  Files with license info:    %d / %d\n",
+            files_with_license, total_files);
+    fprintf(stderr, "  Files with copyright info:  %d / %d\n",
+            files_with_copyright, total_files);
+    fprintf(stderr, "  Read errors:                %d\n", read_errors);
+    fprintf(stderr, "  Used licenses:              ");
+    if (used_licenses.count == 0) {
+        fprintf(stderr, "(none)\n");
+    } else {
+        int k;
+        for (k = 0; k < used_licenses.count; k++)
+            fprintf(stderr, "%s%s", k > 0 ? ", " : "", used_licenses.items[k]);
+        fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "SPDX Lint complete. Errors: %d, Warnings: %d\n",
+            error_count, warning_count);
 
-        if (is_license_sidecar(fdata.name)) continue;
-        if (is_reuse_config_file(fdata.name)) continue;   /* <-- добавлено */
-        if (is_license_file(fdata.name)) continue;
-        if (is_excluded(fdata.name)) continue;
-
-        get_sidecar_path(fullpath, sidecar_path, sizeof(sidecar_path));
-        sidecar_license = NULL;
-        sidecar_copyright = NULL;
-        if (_access(sidecar_path, 0) == 0) {
-            sidecar_license = file_get_spdx_license(sidecar_path);
-            sidecar_copyright = file_get_spdx_copyright(sidecar_path);
-        }
-
-        license = find_license_for_file(config, fdata.name);
-        if (!license && sidecar_license) license = sidecar_license;
-        if (!license) {
-            tag_license = file_get_spdx_license(fullpath);
-            if (tag_license) license = tag_license;
-        }
-        if (!license && default_license) license = default_license;
-
-        copyright = find_copyright_for_file(config, fdata.name);
-        if (!copyright && sidecar_copyright) copyright = sidecar_copyright;
-        if (!copyright) {
-            tag_copyright = file_get_spdx_copyright(fullpath);
-            if (tag_copyright) copyright = tag_copyright;
-        }
-        if (!copyright && default_copyright) copyright = default_copyright;
-
-        if (!license) {
-            fprintf(stderr, "ERROR: %s has no SPDX-License-Identifier\n", fullpath);
-            errors++;
-        }
-        if (!copyright) {
-            fprintf(stderr, "ERROR: %s has no SPDX-FileCopyrightText\n", fullpath);
-            errors++;
-        }
-
-        free(tag_license);
-        free(tag_copyright);
-        free(sidecar_license);
-        free(sidecar_copyright);
-    } while (_findnext(hFile, &fdata) == 0);
-    _findclose(hFile);
-#endif
-
+    spdx_strlist_free(&used_licenses);
     free_reuse_config(config);
-    return errors ? 1 : 0;
+    spdx_db_free();
+    free(exclude_list);
+
+    return (error_count > 0) ? 1 : 0;
 }

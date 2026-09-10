@@ -1,10 +1,10 @@
 # $Id: makefile,v 1.3 2004/08/21 14:49:03 prokushev Exp $
 #
 
-PROJ      = spdx
+PROJ      = res
 TRGT      = $(PROJ).lib
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
-srcfiles  = $(p)spdx_tag$(e) $(p)spdx_db$(e) $(p)spdx_discover$(e) $(p)spdx_utils$(e) $(p)spdx_lic$(e)
+srcfiles  = $(p)res_parser$(e)
 TARGETS  = $(PATH)$(TRGT)
 
 !include $(%ROOT)tools/mk/libs.mk

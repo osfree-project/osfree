@@ -126,24 +126,31 @@ int omf_extract_sources(const char *obj_path, char ***sources, int *count) {
     *count = 0;
 
     fp = fopen(obj_path, "rb");
-    if (!fp) return -1;
+    if (!fp) {
+        fprintf(stderr, "omf: cannot open %s\n", obj_path);
+        return -1;
+    }
 
     fseek(fp, 0, SEEK_END);
     file_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     if (file_size <= 0) {
+        fprintf(stderr, "omf: file_size <= 0 in %s\n", obj_path);
         fclose(fp);
         return -1;
     }
 
     buf = (unsigned char*)malloc(file_size);
     if (!buf) {
+        fprintf(stderr, "omf: malloc failed for %s\n", obj_path);
         fclose(fp);
         return -1;
     }
     read_size = fread(buf, 1, file_size, fp);
     fclose(fp);
     if (read_size != (size_t)file_size) {
+        fprintf(stderr, "omf: short read in %s (%u of %ld)\n",
+                obj_path, (unsigned)read_size, file_size);
         free(buf);
         return -1;
     }

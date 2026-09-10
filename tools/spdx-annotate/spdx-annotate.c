@@ -14,7 +14,6 @@
 
 typedef enum { STYLE_C, STYLE_HASH } CommentStyle;
 
-/* НОВОЕ: глобальные значения по умолчанию и список исключений */
 static char *default_license = NULL;
 static char *default_copyright = NULL;
 static char **exclude_list = NULL;
@@ -30,7 +29,6 @@ CommentStyle detect_style(const char *filename) {
     return STYLE_HASH;
 }
 
-/* НОВОЕ: функция проверки исключения по базовому имени */
 int is_excluded(const char *filename) {
     int i;
     const char *base;
@@ -95,14 +93,13 @@ int main(int argc, char *argv[]) {
     const char *ext;
     const char *license, *copyright;
     char fullpath[1024];
-    char *arg; /* НОВОЕ */
+    char *arg;
 
     dir = ".";
     dry_run = 0;
     force = 0;
     license_override = NULL;
     copyright_override = NULL;
-    /* НОВОЕ: обнуляем глобальные переменные */
     default_license = NULL;
     default_copyright = NULL;
     exclude_list = NULL;
@@ -118,13 +115,10 @@ int main(int argc, char *argv[]) {
         } else if (strncmp(argv[i], "--copyright=", 13) == 0) {
             copyright_override = argv[i] + 13;
         } else if (strncmp(argv[i], "--default-license=", 19) == 0) {
-            /* НОВОЕ: установка лицензии по умолчанию */
             default_license = argv[i] + 19;
         } else if (strncmp(argv[i], "--default-copyright=", 21) == 0) {
-            /* НОВОЕ: установка копирайта по умолчанию */
             default_copyright = argv[i] + 21;
         } else if (strncmp(argv[i], "--exclude=", 10) == 0) {
-            /* НОВОЕ: разбор списка исключаемых файлов (через пробел) */
             arg = argv[i] + 10;
             while (*arg) {
                 while (*arg && *arg == ' ') arg++;
@@ -157,17 +151,14 @@ int main(int argc, char *argv[]) {
             strcmp(ext, ".h") && strcmp(ext, ".cmd") && strcmp(ext, ".sh"))
             continue;
 
-        /* НОВОЕ: проверка исключения */
         if (is_excluded(entry->d_name)) continue;
 
         license = license_override ? license_override :
                   find_license_for_file(config, entry->d_name);
-        /* НОВОЕ: если не найдено, используем default_license */
         if (!license && default_license) license = default_license;
 
         copyright = copyright_override ? copyright_override :
                     find_copyright_for_file(config, entry->d_name);
-        /* НОВОЕ: если не найдено, используем default_copyright */
         if (!copyright && default_copyright) copyright = default_copyright;
 
         if (!license && !copyright) continue;
