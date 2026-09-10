@@ -38,10 +38,6 @@
         path = tools/UNI
         url = https://github.com/osfree-project/UNI
         branch = main
-[submodule "tools/UNI2"]
-        path = tools/UNI2
-        url = https://github.com/osfree-project/UNI
-        branch = main
 [submodule "shared"]
         path = shared
         url = https://github.com/osfree-project/SUB
