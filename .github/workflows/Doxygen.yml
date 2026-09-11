@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: mattnotmitt/doxygen-action@v1.9.2
+      - uses: mattnotmitt/doxygen-action@v1.9.5
         with:
           working-directory: './OS2/CMD'
           doxyfile-path: './Doxyfile'
