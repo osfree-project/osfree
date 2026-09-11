@@ -3,7 +3,7 @@ rem canonicalize root
 for %%i in (%root%) do set root=%%~fi
 if not "%root:~-1%"=="\" set "root=%root%\"
 set osfreebe=%root%osFreeBE
-set mingit=%root%tools\conf\mingit
+set mingit=%root%tools\conf\mingit\cmd
 rem %ProgramFiles(x86)%
 set WATCOM=%osfreebe%\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
