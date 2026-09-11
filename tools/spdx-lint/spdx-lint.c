@@ -387,10 +387,14 @@ static void check_licenses_dir(const char *project_dir,
                 "ERROR: Missing license file for %s.\n"
                 "       Files declare this license but\n"
                 "       %s does not exist.\n"
+                "       REUSE requires the full license text in LICENSES/\n"
+                "       at the project root (REUSE Specification 3.3).\n"
                 "       Fix one of:\n"
                 "         - create %s with the license text;\n"
-                "         - or add the text via a [[annotations]] entry "
-                "in REUSE.toml.\n",
+                "         - or, if this is a custom license not on the SPDX\n"
+                "           License List, change the identifier in the source\n"
+                "           files to 'LicenseRef-<name>' and create\n"
+                "           LICENSES/LicenseRef-<name>.txt with the license text.\n",
                 lic, expected, expected);
         print_license_url(lic);
         error_count++;
