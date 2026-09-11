@@ -38,7 +38,7 @@ SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --name="osFree $(DESC)"
 SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1" --file="$(PATH)$(TRGT)" --objects="$(OBJS)"
 
 spdx-lint: .SYMBOLIC
-    $(verbose)$(SPDX_LINT) $(CWD) $(SPDX_LINT_ARGS)
+    $(verbose)$(SPDX_LINT) $(CWD) $(SPDX_LINT_ARGS) --licenses-json=$(ROOT)licenses\licenses.json --exceptions-json=$(ROOT)licenses\exceptions.json --cache=$(BLD)spdx_db.cache
 
 spdx-annotate: .SYMBOLIC
     @$(SPDX_ANNOTATE) --dir=$(CWD) $(SPDX_ANNOTATE_ARGS)

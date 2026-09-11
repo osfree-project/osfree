@@ -741,11 +741,18 @@ int spdx_db_init(const char *licenses_json,
     g_details_dir = details_dir ? dup_str(details_dir) : NULL;
     g_exceptions_dir = exceptions_dir ? dup_str(exceptions_dir) : NULL;
 
-    if (compute_sha1_raw(licenses_json, sha1_lic) != 0) {
+    if (!licenses_json) {
+        errs |= SPDX_DB_ERR_LICENSES;
+        memset(sha1_lic, 0, 20);
+    } else if (compute_sha1_raw(licenses_json, sha1_lic) != 0) {
         errs |= SPDX_DB_ERR_LICENSES;
         memset(sha1_lic, 0, 20);
     }
-    if (compute_sha1_raw(exceptions_json, sha1_exc) != 0) {
+
+    if (!exceptions_json) {
+        errs |= SPDX_DB_ERR_EXCEPTIONS;
+        memset(sha1_exc, 0, 20);
+    } else if (compute_sha1_raw(exceptions_json, sha1_exc) != 0) {
         errs |= SPDX_DB_ERR_EXCEPTIONS;
         memset(sha1_exc, 0, 20);
     }

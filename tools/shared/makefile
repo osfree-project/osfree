@@ -4,7 +4,7 @@
 
 PROJ = tools_shared
 TRGT = $(PROJ).lib
-DIRS = z reuse spdx sha1 sha256 json omf res
+DIRS = z reuse spdx sha1 sha256 json omf res git
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 

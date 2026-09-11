@@ -4,6 +4,7 @@ for %%i in (%root%) do set root=%%~fi
 if not "%root:~-1%"=="\" set "root=%root%\"
 echo root=%root%
 set osfreebe=%root%osFreeBE
+set mingit=%root%tools\conf\mingit\cmd
 rem %ProgramFiles(x86)%
 set WATCOM=%osfreebe%\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
@@ -24,7 +25,7 @@ set SERVERENV=win32
 set TMP=%TEMP%
 set ARCH=x86_64
 
-set PATH=%OS2TK%\bin;%OS2TK%\som\bin;%OS2TK%\som\common\dll;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
+set PATH=%mingit%;%OS2TK%\bin;%OS2TK%\som\bin;%OS2TK%\som\common\dll;%WATCOM%\binnt;%WATCOM%\binw;%TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\nt;
 rem %WATCOM%\h\os21x;
 set LIB=%osfreebe%\watcom\lib386\nt

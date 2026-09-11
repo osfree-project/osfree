@@ -92,9 +92,9 @@ static int process_one_file(const char *fullpath,
     if (sbom_fill_file_basic(fullpath, display_name, &info) != 0)
         return -1;
 
-    if (spdx_resolve_license(fullpath, display_name, config,
-                             default_license, default_copyright,
-                             &lic) != 0) {
+    if (spdx_resolve_license_single(config, fullpath, display_name,
+                                    default_license, default_copyright,
+                                    &lic) != 0) {
         fprintf(stderr, "Error: no license found for file: %s\n", fullpath);
         return -1;
     }

@@ -3,6 +3,7 @@ echo Win64 build host
 setlocal
 call setvars-w64
 
+
 where /q wmake
 if errorlevel 1 (
     start /b /wait cmd /c _setup

@@ -3,6 +3,7 @@
 #define SPDX_DISCOVER_H
 
 #include "spdx_utils.h"
+#include "git_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +18,11 @@ typedef struct {
     int skip_license_sidecars;
     int skip_reuse_toml;
     int skip_license_files;
+
+    /* Git-фильтрация */
+    int use_gitignore;                 /* 1 — применять правила */
+    const char *repo_root;             /* корень репозитория для вычисления rel */
+    const GitIgnoreList *gitignore_rules;
 } SpdxWalkOptions;
 
 void spdx_walk_options_default(SpdxWalkOptions *opts);

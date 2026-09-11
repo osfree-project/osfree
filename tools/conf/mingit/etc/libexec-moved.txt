@@ -1,0 +1,8 @@
+mingw32/libexec/git-core/git-http-fetch.exe
+mingw32/libexec/git-core/git-http-push.exe
+mingw32/libexec/git-core/git-remote-http.exe
+mingw32/libexec/git-core/git-remote-https.exe
+mingw32/libexec/git-core/git-sh-i18n--envsubst.exe
+mingw32/libexec/git-core/git.exe
+mingw32/libexec/git-core/headless-git.exe
+mingw32/libexec/git-core/scalar.exe
