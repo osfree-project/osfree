@@ -196,6 +196,7 @@ static JsonNode *create_object_node(const char *key) {
     n->key = key ? strdup(key) : NULL;
     n->child_capacity = 4;
     n->children = (JsonNode**)malloc(n->child_capacity * sizeof(JsonNode*));
+    if (!n->children) { free(n->key); free(n); return NULL; }
     return n;
 }
 
@@ -206,14 +207,22 @@ static JsonNode *create_array_node(const char *key) {
     n->key = key ? strdup(key) : NULL;
     n->child_capacity = 4;
     n->children = (JsonNode**)malloc(n->child_capacity * sizeof(JsonNode*));
+    if (!n->children) { free(n->key); free(n); return NULL; }
     return n;
 }
 
 static void add_child(JsonNode *parent, JsonNode *child) {
+    if (!parent || !child) return;
     if (parent->child_count >= parent->child_capacity) {
-        parent->child_capacity *= 2;
-        parent->children = (JsonNode**)realloc(parent->children,
-            parent->child_capacity * sizeof(JsonNode*));
+        int new_cap = parent->child_capacity ? parent->child_capacity * 2 : 4;
+        JsonNode **new_children = (JsonNode**)realloc(parent->children,
+            (size_t)new_cap * sizeof(JsonNode*));
+        if (!new_children) {
+            fprintf(stderr, "OOM\n");
+            exit(EXIT_FAILURE);
+        }
+        parent->children = new_children;
+        parent->child_capacity = new_cap;
     }
     parent->children[parent->child_count++] = child;
     child->parent = parent;
@@ -223,6 +232,7 @@ static JsonNode *clone_node(JsonNode *node) {
     JsonNode *copy;
     int i;
 
+    if (!node) return NULL;
     copy = (JsonNode*)calloc(1, sizeof(JsonNode));
     if (!copy) return NULL;
     copy->type = node->type;
@@ -233,6 +243,7 @@ static JsonNode *clone_node(JsonNode *node) {
     copy->child_count = node->child_count;
     copy->child_capacity = (node->child_count > 0) ? node->child_count : 1;
     copy->children = (JsonNode**)malloc(copy->child_capacity * sizeof(JsonNode*));
+    if (!copy->children) { free(copy->key); free(copy->string_value); free(copy); return NULL; }
     for (i = 0; i < node->child_count; i++) {
         copy->children[i] = clone_node(node->children[i]);
         if (copy->children[i]) copy->children[i]->parent = copy;
@@ -805,6 +816,7 @@ int main(int argc, char *argv[]) {
     db_errs = spdx_db_init(spdx_db_root, cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "Error: SPDX license database unavailable\n");
+        spdx_db_free();
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
@@ -835,7 +847,10 @@ int main(int argc, char *argv[]) {
 
     merged_root = create_object_node(NULL);
     if (!merged_root) {
-        fprintf(stderr, "OOM\n"); spdx_db_free(); return 1;
+        fprintf(stderr, "OOM\n");
+        json_free(root);
+        spdx_db_free();
+        return 1;
     }
 
     now = time(NULL);
@@ -864,6 +879,9 @@ int main(int argc, char *argv[]) {
     if (output_file) {
         if (!freopen(output_file, "w", stdout)) {
             fprintf(stderr, "Cannot open output: %s\n", output_file);
+            json_free(root);
+            json_free(merged_root);
+            spdx_db_free();
             return 1;
         }
     }

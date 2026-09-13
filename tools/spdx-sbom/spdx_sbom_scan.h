@@ -7,7 +7,7 @@
 #include <reuse_parser.h>
 
 int sbom_collect_files(const SpdxStrList *paths,
-                       ReuseConfig *config,
+                       ReuseConfig **configs, int config_count,
                        const char *default_license,
                        const char *default_copyright,
                        FileList *out);

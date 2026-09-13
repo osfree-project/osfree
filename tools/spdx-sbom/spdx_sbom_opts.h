@@ -22,9 +22,6 @@ typedef struct {
     const char *package_purpose;
     const char *binary_file;
 
-    char **exclude_list;
-    int    exclude_count;
-
     char **object_files;
     int    object_count;
 
@@ -32,6 +29,8 @@ typedef struct {
     int    res_count;
 
     const char *source_sbom_path;
+
+    int no_gitignore;
 
     /* База SPDX: корень с licenses.json, exceptions.json,
      * details/<id>.json, exceptions/<id>.json */

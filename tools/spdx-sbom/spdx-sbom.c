@@ -8,6 +8,7 @@
 #include "sha1_utils.h"
 #include "spdx_db.h"
 #include "spdx_utils.h"
+#include "git_utils.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -26,12 +27,17 @@ static int is_binary_mode(const SbomOptions *opts) {
 }
 
 static int resolve_package_license(const SbomOptions *opts,
-                                   ReuseConfig *config,
+                                   ReuseConfig **configs, int config_count,
                                    const char **out_license) {
     const char *lic = opts->default_license;
+    int i;
 
     if (!lic) {
-        lic = find_license_for_file(config, "**");
+        for (i = config_count - 1; i >= 0; i--) {
+            lic = find_license_for_file(configs[i], "**");
+            if (lic && lic[0]) break;
+            lic = NULL;
+        }
     }
     if (!lic || !lic[0]) {
         fprintf(stderr,
@@ -63,10 +69,18 @@ static int resolve_package_license(const SbomOptions *opts,
 }
 
 static int resolve_binary_license(const SbomOptions *opts,
-                                  ReuseConfig *config,
+                                  ReuseConfig **configs, int config_count,
                                   const char **out_license) {
     const char *lic = opts->default_license;
-    if (!lic && config) lic = find_license_for_file(config, "**");
+    int i;
+
+    if (!lic) {
+        for (i = config_count - 1; i >= 0; i--) {
+            lic = find_license_for_file(configs[i], "**");
+            if (lic && lic[0]) break;
+            lic = NULL;
+        }
+    }
     if (!lic || !lic[0]) {
         fprintf(stderr, "Error: no license for binary package\n");
         return -1;
@@ -97,43 +111,62 @@ static int build_binary_file_list(const SbomOptions *opts,
 
 int main(int argc, char *argv[]) {
     SbomOptions opts;
-    ReuseConfig *config = NULL;
+    ReuseConfig **configs = NULL;
+    int config_count = 0;
+    SpdxStrList toml_paths;
     SpdxDocument doc;
     SpdxStrList paths;
     SpdxWalkOptions walk_opts;
+    GitIgnoreList gitignore_rules;
+    int has_gitignore = 0;
+    char *repo_root = NULL;
     int db_errs;
     int binary_mode;
     const char *pkg_license = NULL;
-    char toml_path[1024];
     char base_no_ext[256];
 
-    if (sbom_parse_args(argc, argv, &opts) != 0)
+    git_ignore_list_init(&gitignore_rules);
+
+    if (sbom_parse_args(argc, argv, &opts) != 0) {
+        git_ignore_list_free(&gitignore_rules);
         return 1;
+    }
 
     db_errs = spdx_db_init(opts.spdx_db_root, opts.cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "Error: SPDX license database unavailable\n");
         sbom_options_free(&opts);
+        git_ignore_list_free(&gitignore_rules);
+        spdx_db_free();
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
         fprintf(stderr, "Error: SPDX exceptions database unavailable\n");
         sbom_options_free(&opts);
+        git_ignore_list_free(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
 
-#ifdef __LINUX__
-    snprintf(toml_path, sizeof(toml_path), "%s/REUSE.toml", opts.dir);
-#else
-    snprintf(toml_path, sizeof(toml_path), "%s\\REUSE.toml", opts.dir);
-#endif
-    config = parse_reuse_toml(toml_path);
+    repo_root = git_find_repo_root(opts.dir);
+
+    reuse_find_all_tomls(repo_root, opts.dir, &toml_paths);
+    configs = reuse_parse_all(&toml_paths, &config_count);
+    spdx_strlist_free(&toml_paths);
+
+    if (!opts.no_gitignore) {
+        if (git_collect_gitignores(repo_root, opts.dir, &gitignore_rules) == 0 &&
+            gitignore_rules.count > 0) {
+            has_gitignore = 1;
+        }
+    }
 
     binary_mode = is_binary_mode(&opts);
 
-    if (resolve_package_license(&opts, config, &pkg_license) != 0) {
-        free_reuse_config(config);
+    if (resolve_package_license(&opts, configs, config_count, &pkg_license) != 0) {
+        reuse_free_all(configs, config_count);
+        git_ignore_list_free(&gitignore_rules);
+        free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
         return 1;
@@ -153,22 +186,33 @@ int main(int argc, char *argv[]) {
     filelist_init(&doc.files);
 
     if (binary_mode) {
-        if (resolve_binary_license(&opts, config, &pkg_license) != 0) {
+        if (resolve_binary_license(&opts, configs, config_count,
+                                   &pkg_license) != 0) {
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
         }
         if (build_binary_file_list(&opts, pkg_license, &doc.files) != 0) {
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
         }
     } else {
         spdx_walk_options_default(&walk_opts);
+        /* walk_opts.recursive = 1 по умолчанию */
+        if (has_gitignore) {
+            walk_opts.use_gitignore   = 1;
+            walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
+            walk_opts.gitignore_rules = &gitignore_rules;
+        }
         spdx_strlist_init(&paths);
 
         if (spdx_discover(opts.dir,
@@ -177,19 +221,23 @@ int main(int argc, char *argv[]) {
                           &walk_opts, &paths) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
         }
 
-        if (sbom_collect_files(&paths, config,
+        if (sbom_collect_files(&paths, configs, config_count,
                                opts.default_license,
                                opts.default_copyright,
                                &doc.files) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
@@ -202,7 +250,9 @@ int main(int argc, char *argv[]) {
                                      opts.extracted_sources,
                                      opts.extracted_count) != 0) {
         sbom_doc_free(&doc);
-        free_reuse_config(config);
+        reuse_free_all(configs, config_count);
+        git_ignore_list_free(&gitignore_rules);
+        free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
         return 1;
@@ -220,18 +270,22 @@ int main(int argc, char *argv[]) {
     if (binary_mode && opts.source_sbom_path) {
         char src_pkg_id[256];
         char *checksum;
-        sbom_make_package_id(base_no_ext, "Source", src_pkg_id, sizeof(src_pkg_id));
+        sbom_make_package_id(base_no_ext, "Source",
+                             src_pkg_id, sizeof(src_pkg_id));
         checksum = sha1_file(opts.source_sbom_path);
         if (!checksum) {
             fprintf(stderr, "Error: cannot compute SHA1 for %s\n",
                     opts.source_sbom_path);
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
         }
-        sbom_doc_set_external(&doc, opts.source_sbom_path, src_pkg_id, checksum);
+        sbom_doc_set_external(&doc, opts.source_sbom_path,
+                              src_pkg_id, checksum);
         free(checksum);
     }
 
@@ -239,7 +293,9 @@ int main(int argc, char *argv[]) {
         if (!freopen(opts.output, "w", stdout)) {
             fprintf(stderr, "Cannot open output file: %s\n", opts.output);
             sbom_doc_free(&doc);
-            free_reuse_config(config);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
@@ -248,14 +304,18 @@ int main(int argc, char *argv[]) {
 
     if (sbom_output(&doc, opts.format) != 0) {
         sbom_doc_free(&doc);
-        free_reuse_config(config);
+        reuse_free_all(configs, config_count);
+        git_ignore_list_free(&gitignore_rules);
+        free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
         return 1;
     }
 
     sbom_doc_free(&doc);
-    free_reuse_config(config);
+    reuse_free_all(configs, config_count);
+    git_ignore_list_free(&gitignore_rules);
+    free(repo_root);
     spdx_db_free();
     sbom_options_free(&opts);
     return 0;

@@ -5,65 +5,55 @@
 #include <string.h>
 #include "spdx_sbom_opts.h"
 
-static void parse_space_list(const char *arg, char ***list, int *count) {
-    while (*arg) {
-        while (*arg && *arg == ' ') arg++;
-        if (!*arg) break;
-        *list = (char**)realloc(*list, (*count + 1) * sizeof(char*));
-        if (!*list) {
-            fprintf(stderr, "Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-        (*list)[*count] = (char*)arg;
-        (*count)++;
-        while (*arg && *arg != ' ') arg++;
-        if (*arg) {
-            *(char*)arg = '\0';
-            arg++;
-        }
+static char *dup_range(const char *start, size_t len) {
+    char *p = (char*)malloc(len + 1);
+    if (!p) return NULL;
+    memcpy(p, start, len);
+    p[len] = '\0';
+    return p;
+}
+
+static void add_list_item(char ***list, int *count, const char *str, size_t len) {
+    char *copy;
+    char **new_list;
+
+    if (len == 0) return;
+    copy = dup_range(str, len);
+    if (!copy) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    new_list = (char**)realloc(*list,
+        (size_t)(*count + 1) * sizeof(char*));
+    if (!new_list) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(copy);
+        exit(EXIT_FAILURE);
+    }
+    *list = new_list;
+    (*list)[*count] = copy;
+    (*count)++;
+}
+
+/* Разбирает строку, разделённую пробелами, копируя каждый токен. */
+static void parse_list(const char *arg, char ***list, int *count) {
+    const char *p = arg;
+    while (*p) {
+        const char *start;
+        while (*p == ' ' || *p == '\t') p++;
+        if (!*p) break;
+        start = p;
+        while (*p && *p != ' ' && *p != '\t') p++;
+        add_list_item(list, count, start, (size_t)(p - start));
     }
 }
 
 static void parse_object_list(const char *arg, SbomOptions *opts) {
-    char *copy = (char*)malloc(strlen(arg) + 1);
-    char *tok;
-    if (!copy) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(copy, arg);
-    tok = strtok(copy, " ");
-    while (tok) {
-        opts->object_files = (char**)realloc(opts->object_files,
-            (size_t)(opts->object_count + 1) * sizeof(char*));
-        if (!opts->object_files) {
-            fprintf(stderr, "Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-        opts->object_files[opts->object_count++] = tok;
-        tok = strtok(NULL, " ");
-    }
+    parse_list(arg, &opts->object_files, &opts->object_count);
 }
 
 static void parse_res_list(const char *arg, SbomOptions *opts) {
-    char *copy = (char*)malloc(strlen(arg) + 1);
-    char *tok;
-    if (!copy) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(copy, arg);
-    tok = strtok(copy, " ");
-    while (tok) {
-        opts->res_files = (char**)realloc(opts->res_files,
-            (size_t)(opts->res_count + 1) * sizeof(char*));
-        if (!opts->res_files) {
-            fprintf(stderr, "Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-        opts->res_files[opts->res_count++] = tok;
-        tok = strtok(NULL, " ");
-    }
+    parse_list(arg, &opts->res_files, &opts->res_count);
 }
 
 static void add_extracted(SbomOptions *opts, const char *arg) {
@@ -133,14 +123,14 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
             parse_res_list(a + 6, opts);
         else if (strncmp(a, "--source-sbom=", 14) == 0)
             opts->source_sbom_path = a + 14;
-        else if (strncmp(a, "--exclude=", 10) == 0)
-            parse_space_list(a + 10, &opts->exclude_list, &opts->exclude_count);
         else if (strncmp(a, "--spdx-db=", 10) == 0)
             opts->spdx_db_root = a + 10;
         else if (strncmp(a, "--cache=", 8) == 0)
             opts->cache_file = a + 8;
         else if (strncmp(a, "--extracted-license=", 20) == 0)
             add_extracted(opts, a + 20);
+        else if (strcmp(a, "--no-gitignore") == 0)
+            opts->no_gitignore = 1;
         else if (a[0] != '-')
             opts->dir = a;
         else {
@@ -171,12 +161,18 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
 }
 
 void sbom_options_free(SbomOptions *opts) {
-    free(opts->exclude_list);
-    free(opts->object_files);
-    free(opts->res_files);
+    int i;
+    if (opts->object_files) {
+        for (i = 0; i < opts->object_count; i++)
+            free(opts->object_files[i]);
+        free(opts->object_files);
+    }
+    if (opts->res_files) {
+        for (i = 0; i < opts->res_count; i++)
+            free(opts->res_files[i]);
+        free(opts->res_files);
+    }
     free(opts->extracted_sources);
-    opts->exclude_list = NULL;
-    opts->exclude_count = 0;
     opts->object_files = NULL;
     opts->object_count = 0;
     opts->res_files = NULL;

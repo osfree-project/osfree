@@ -82,7 +82,7 @@ static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
 
 static int process_one_file(const char *fullpath,
                             const char *display_name,
-                            ReuseConfig *config,
+                            ReuseConfig **configs, int config_count,
                             const char *default_license,
                             const char *default_copyright,
                             FileList *out) {
@@ -92,9 +92,10 @@ static int process_one_file(const char *fullpath,
     if (sbom_fill_file_basic(fullpath, display_name, &info) != 0)
         return -1;
 
-    if (spdx_resolve_license_single(config, fullpath, display_name,
-                                    default_license, default_copyright,
-                                    &lic) != 0) {
+    if (spdx_resolve_license(configs, config_count,
+                             fullpath, display_name,
+                             default_license, default_copyright,
+                             &lic) != 0) {
         fprintf(stderr, "Error: no license found for file: %s\n", fullpath);
         return -1;
     }
@@ -110,7 +111,7 @@ static int process_one_file(const char *fullpath,
 }
 
 int sbom_collect_files(const SpdxStrList *paths,
-                       ReuseConfig *config,
+                       ReuseConfig **configs, int config_count,
                        const char *default_license,
                        const char *default_copyright,
                        FileList *out) {
@@ -118,8 +119,10 @@ int sbom_collect_files(const SpdxStrList *paths,
     for (i = 0; i < paths->count; i++) {
         const char *full = paths->items[i];
         const char *name = spdx_get_file_name(full);
-        if (process_one_file(full, name, config,
-                             default_license, default_copyright, out) != 0)
+        if (process_one_file(full, name,
+                             configs, config_count,
+                             default_license, default_copyright,
+                             out) != 0)
             return -1;
     }
     return 0;

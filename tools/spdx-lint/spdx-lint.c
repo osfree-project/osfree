@@ -25,9 +25,6 @@ static int warning_count = 0;
 static const char *default_license = NULL;
 static const char *default_copyright = NULL;
 
-static char **exclude_list = NULL;
-static int exclude_count = 0;
-
 static int total_files = 0;
 static int files_with_license = 0;
 static int files_with_copyright = 0;
@@ -42,14 +39,6 @@ static int has_extension(const char *name) {
 static int is_valid_spdx_name(const char *name) {
     if (spdx_license_is_valid(name)) return 1;
     if (spdx_exception_is_valid(name)) return 1;
-    return 0;
-}
-
-static int is_excluded(const char *path) {
-    int i;
-    const char *base = spdx_get_file_name(path);
-    for (i = 0; i < exclude_count; i++)
-        if (strcmp(exclude_list[i], base) == 0) return 1;
     return 0;
 }
 
@@ -118,6 +107,12 @@ static void process_file(const char *fullpath,
     FileLicenseInfo lic;
     const char *name = spdx_get_file_name(fullpath);
     FILE *f;
+    const char *wcc_cmd;
+#ifdef __LINUX__
+    wcc_cmd = "_wcc.sh";
+#else
+    wcc_cmd = "_wcc.cmd";
+#endif
 
     total_files++;
 
@@ -144,8 +139,9 @@ static void process_file(const char *fullpath,
                 "         - add 'SPDX-License-Identifier' and "
                 "'SPDX-FileCopyrightText' tags in the file header;\n"
                 "         - or create a sidecar '<file>.license' next to it;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
+                "         - or add a [[annotations]] entry in REUSE.toml;\n"
+                "         - or run '%s annotate --write' to write them.\n",
+                fullpath, wcc_cmd);
         error_count++;
         return;
     }
@@ -154,22 +150,18 @@ static void process_file(const char *fullpath,
         fprintf(stderr,
                 "WARNING: %s: license is taken from --default-license.\n"
                 "         REUSE does not allow a global CLI fallback.\n"
-                "         For REUSE compliance, add one of:\n"
-                "           - 'SPDX-License-Identifier: <id>' tag in the file;\n"
-                "           - <file>.license sidecar;\n"
-                "           - [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
+                "         Run '%s annotate --write' to write the license\n"
+                "         into the file, or add a sidecar/REUSE.toml entry.\n",
+                fullpath, wcc_cmd);
         warning_count++;
     }
     if (lic.copyright_from_default) {
         fprintf(stderr,
                 "WARNING: %s: copyright is taken from --default-copyright.\n"
                 "         REUSE does not allow a global CLI fallback.\n"
-                "         For REUSE compliance, add one of:\n"
-                "           - 'SPDX-FileCopyrightText: <holder>' tag in the file;\n"
-                "           - <file>.license sidecar;\n"
-                "           - [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
+                "         Run '%s annotate --write' to write the copyright\n"
+                "         into the file, or add a sidecar/REUSE.toml entry.\n",
+                fullpath, wcc_cmd);
         warning_count++;
     }
 
@@ -182,8 +174,9 @@ static void process_file(const char *fullpath,
                 "         - add 'SPDX-License-Identifier: <id>' in the file "
                 "header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
-                "         - or add [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
+                "         - or add [[annotations]] entry in REUSE.toml;\n"
+                "         - or run '%s annotate --write'.\n",
+                fullpath, wcc_cmd);
         error_count++;
     }
     if (lic.copyright[0] != '\0') {
@@ -195,8 +188,9 @@ static void process_file(const char *fullpath,
                 "         - add 'SPDX-FileCopyrightText: <holder>' in the "
                 "file header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
-                "         - or add [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
+                "         - or add [[annotations]] entry in REUSE.toml;\n"
+                "         - or run '%s annotate --write'.\n",
+                fullpath, wcc_cmd);
         error_count++;
     }
 
@@ -205,6 +199,29 @@ static void process_file(const char *fullpath,
     }
 }
 
+/* Отделяет SPDX-id от расширения.
+ * Сначала пробует имя как есть (важно для id с точками, например
+ * GPL-3.0-or-later), затем отрезает последнее расширение. */
+static void strip_license_ext(const char *fname, char *base, size_t base_size) {
+    char *dot;
+    size_t len;
+
+    if (is_valid_spdx_name(fname)) {
+        strncpy(base, fname, base_size - 1);
+        base[base_size - 1] = '\0';
+        return;
+    }
+    strncpy(base, fname, base_size - 1);
+    base[base_size - 1] = '\0';
+    dot = strrchr(base, '.');
+    if (dot) *dot = '\0';
+
+    len = strlen(base);
+    if (len == 0) {
+        strncpy(base, fname, base_size - 1);
+        base[base_size - 1] = '\0';
+    }
+}
 
 static void check_licenses_dir(const char *project_dir,
                                SpdxStrList *used_licenses) {
@@ -215,6 +232,12 @@ static void check_licenses_dir(const char *project_dir,
     SpdxStrList files_in_lic;
     int i;
     int dir_exists;
+    const char *wcc_cmd;
+#ifdef __LINUX__
+    wcc_cmd = "_wcc.sh";
+#else
+    wcc_cmd = "_wcc.cmd";
+#endif
 
 #ifdef __LINUX__
     snprintf(lic_path, sizeof(lic_path), "%s/LICENSES", project_dir);
@@ -257,20 +280,20 @@ static void check_licenses_dir(const char *project_dir,
                 "ERROR: %s is missing.\n"
                 "       REUSE requires every license text to be placed in\n"
                 "       %s (REUSE Specification 3.3).\n"
-                "       Create the directory and add a text file for each\n"
-                "       license declared by any file in the project.\n",
-                lic_path, example_path);
+                "       Fix one of:\n"
+                "         - create the directory and add a text file for each\n"
+                "           license declared by any file in the project;\n"
+                "         - or run '%s annotate --write' to create it "
+                "automatically.\n",
+                lic_path, example_path, wcc_cmd);
         error_count++;
     }
 
     for (i = 0; i < files_in_lic.count; i++) {
         const char *fname = files_in_lic.items[i];
         char base[256];
-        char *dot;
-        strncpy(base, fname, sizeof(base) - 1);
-        base[sizeof(base) - 1] = '\0';
-        dot = strrchr(base, '.');
-        if (dot) *dot = '\0';
+
+        strip_license_ext(fname, base, sizeof(base));
 
         if (!is_valid_spdx_name(base)) {
             fprintf(stderr,
@@ -313,11 +336,8 @@ static void check_licenses_dir(const char *project_dir,
 
     for (i = 0; i < files_in_lic.count; i++) {
         char base[256];
-        char *dot;
-        strncpy(base, files_in_lic.items[i], sizeof(base) - 1);
-        base[sizeof(base) - 1] = '\0';
-        dot = strrchr(base, '.');
-        if (dot) *dot = '\0';
+
+        strip_license_ext(files_in_lic.items[i], base, sizeof(base));
 
         if (!spdx_strlist_contains(used_licenses, base)) {
             fprintf(stderr,
@@ -378,9 +398,9 @@ static void check_licenses_dir(const char *project_dir,
                     "       at the project root (REUSE Specification 3.3).\n"
                     "       Fix one of:\n"
                     "         - create %s with the license text;\n"
-                    "         - or run '_wcc.cmd annotate --write' to create "
-                    "it automatically.\n",
-                    lic, expected, expected);
+                    "         - or run '%s annotate --write' to create it "
+                    "automatically.\n",
+                    lic, expected, expected, wcc_cmd);
             error_count++;
             continue;
         }
@@ -429,8 +449,8 @@ static void check_licenses_dir(const char *project_dir,
                         "the SPDX License List.\n"
                         "       File: %s\n"
                         "       To update it, run "
-                        "'_wcc.cmd annotate --write --force'.\n",
-                        lic, full_path);
+                        "'%s annotate --write --force'.\n",
+                        lic, full_path, wcc_cmd);
                 error_count++;
             }
         }
@@ -469,22 +489,6 @@ int main(int argc, char *argv[]) {
             default_copyright = argv[i] + 20;
         else if (strcmp(argv[i], "--no-gitignore") == 0)
             no_gitignore = 1;
-        else if (strncmp(argv[i], "--exclude=", 10) == 0) {
-            char *arg = argv[i] + 10;
-            while (*arg) {
-                while (*arg && *arg == ' ') arg++;
-                if (!*arg) break;
-                exclude_list = (char**)realloc(exclude_list,
-                                               (exclude_count + 1) * sizeof(char*));
-                if (!exclude_list) {
-                    fprintf(stderr, "Memory allocation failed\n");
-                    return 1;
-                }
-                exclude_list[exclude_count++] = arg;
-                while (*arg && *arg != ' ') arg++;
-                if (*arg) { *arg = '\0'; arg++; }
-            }
-        }
         else if (argv[i][0] != '-')
             dir = argv[i];
         else {
@@ -499,7 +503,6 @@ int main(int argc, char *argv[]) {
                 "       --spdx-db=<path> is required.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
-        free(exclude_list);
         return 1;
     }
 
@@ -510,7 +513,6 @@ int main(int argc, char *argv[]) {
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
-        free(exclude_list);
         spdx_db_free();
         return 1;
     }
@@ -520,7 +522,6 @@ int main(int argc, char *argv[]) {
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
-        free(exclude_list);
         spdx_db_free();
         return 1;
     }
@@ -562,11 +563,9 @@ int main(int argc, char *argv[]) {
         git_ignore_list_free(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
-        free(exclude_list);
         return 1;
     }
     for (i = 0; i < paths.count; i++) {
-        if (is_excluded(paths.items[i])) continue;
         process_file(paths.items[i], configs, config_count, &used_licenses);
     }
     spdx_strlist_free(&paths);
@@ -599,7 +598,6 @@ int main(int argc, char *argv[]) {
     git_ignore_list_free(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
-    free(exclude_list);
 
     return (error_count > 0) ? 1 : 0;
 }

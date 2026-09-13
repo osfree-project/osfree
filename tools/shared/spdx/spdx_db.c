@@ -870,7 +870,7 @@ int spdx_license_load_detail(const char *id) {
     SpdxLicenseEntry *e;
     idx = lic_lower_bound(id);
     if (idx >= g_licenses.count ||
-        strcmp(g_licenses.items[idx].id, id) != 0) return -1;
+        id_cmp_ci(g_licenses.items[idx].id, id) != 0) return -1;
     e = &g_licenses.items[idx];
     if (e->detail_loaded) return 0;
 
@@ -895,7 +895,7 @@ int spdx_exception_load_detail(const char *id) {
     SpdxExceptionEntry *e;
     idx = exc_lower_bound(id);
     if (idx >= g_exceptions.count ||
-        strcmp(g_exceptions.items[idx].id, id) != 0) return -1;
+        id_cmp_ci(g_exceptions.items[idx].id, id) != 0) return -1;
     e = &g_exceptions.items[idx];
     if (e->detail_loaded) return 0;
 
