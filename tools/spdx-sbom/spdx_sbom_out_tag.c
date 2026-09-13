@@ -76,7 +76,7 @@ int sbom_output_tagvalue(const SpdxDocument *doc) {
     if (pkg->copyright[0])
         print_text_field("PackageCopyrightText", pkg->copyright);
     if (pkg->purpose[0])
-        printf("PackagePrimaryPurpose: %s\n", pkg->purpose);
+      printf("PrimaryPackagePurpose: %s\n", pkg->purpose);
     if (pkg->files_analyzed) {
         printf("FilesAnalyzed: true\n");
         printf("PackageVerificationCode: %s\n", pkg->verification_code);
