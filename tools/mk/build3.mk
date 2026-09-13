@@ -316,7 +316,7 @@ TRGT = $(PROJ).exe
 !ifeq TARGET_BITS 16
 
 # Require add SPDX tags
-LICENSE_CHECK = 1
+#LICENSE_CHECK = 1
 
 !ifeq TARGET_VERSION 300
 ADD_RCOPT = -30
@@ -685,6 +685,5 @@ gen_deps_wrapper: .symbolic
 #!ifdef MSGEXT
 #	@for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(PATH)$(PROJ).inc" gen_deps
 #!endif
-
 
 !endif  

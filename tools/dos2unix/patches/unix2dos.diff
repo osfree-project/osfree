@@ -1,5 +1,5 @@
---- dos2unix\dos2unix\common.c	Mon Sep 07 11:45:03 2026
-+++ newdos2unix\dos2unix\common.c	Mon Sep 07 10:54:40 2026
+--- dos2unix/dos2unix/common.c	Mon Sep 07 11:45:03 2026
++++ newdos2unix/dos2unix/common.c	Mon Sep 07 10:54:40 2026
 @@ -521,7 +521,7 @@
  #ifdef D2U_UNIFILE
  int glob_warg(int argc, wchar_t *wargv[], char ***argv, CFlag *ipFlag, const char *progname)
@@ -18,3 +18,83 @@
      if (argv_new[j]) free(argv_new[j]);
    }
    free(argv_new);
+diff -urwN dos2unix/dos2unix/common.c dos2unix-new/dos2unix/common.c
+--- dos2unix/dos2unix/common.c	2026-09-13 11:23:23.326169541 +0300
++++ dos2unix-new/dos2unix/common.c	2026-09-13 11:20:03.113524609 +0300
+@@ -35,8 +35,10 @@
+ #endif
+ 
+ #if defined(D2U_UNICODE) && !defined(__MSDOS__) && !defined(_WIN32) && !defined(__OS2__)  /* Unix, Cygwin */
++# ifndef __WATCOMC__
+ # include <langinfo.h>
+ #endif
++#endif
+ 
+ #if defined(__GLIBC__)
+ /* on glibc, canonicalize_file_name() broken prior to 2.4 (06-Mar-2006) */
+@@ -1472,10 +1474,12 @@
+ #endif
+ 
+ #if !defined(__MSDOS__) && !defined(_WIN32) && !defined(__OS2__)  /* Unix, Cygwin */
++#ifndef __WATCOMC__
+   if (strcmp(nl_langinfo(CODESET), "GB18030") == 0)
+     ipFlag->locale_target = TARGET_GB18030;
+ #endif
+ #endif
++#endif
+ 
+   if ((ipFlag->add_bom) || ((ipFlag->keep_bom) && (ipFlag->bomtype > 0)))
+     if (write_bom(TempF, ipFlag, progname) == NULL) return -1;
+@@ -1988,8 +1992,10 @@
+ #ifdef D2U_UNICODE
+   if ((pFlag->bomtype == FILE_UTF16LE)||(pFlag->bomtype == FILE_UTF16BE)) {
+ #if !defined(__MSDOS__) && !defined(_WIN32) && !defined(__OS2__)  /* Unix, Cygwin */
++#ifndef __WATCOMC__ 
+     d2u_strncpy(outformat,nl_langinfo(CODESET),lout);
+ #endif
++#endif
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__) /* Windows, not Cygwin */
+     if (pFlag->locale_target == TARGET_GB18030)
+diff -urwN dos2unix/dos2unix/common.h dos2unix-new/dos2unix/common.h
+--- dos2unix/dos2unix/common.h	2026-09-13 11:23:23.266169347 +0300
++++ dos2unix-new/dos2unix/common.h	2026-09-13 11:04:32.558631168 +0300
+@@ -86,7 +86,7 @@
+ #endif
+ #include <sys/stat.h>
+ #include <errno.h>
+-#if defined(D2U_UNICODE) || defined(_WIN32)
++#if defined(D2U_UNICODE) || defined(_WIN32) || defined(__WATCOMC__)
+ #include <wchar.h>
+ #endif
+ 
+diff -urwN dos2unix/dos2unix/dos2unix.c dos2unix-new/dos2unix/dos2unix.c
+--- dos2unix/dos2unix/dos2unix.c	2026-09-13 11:23:23.266169347 +0300
++++ dos2unix-new/dos2unix/dos2unix.c	2026-09-13 11:09:58.103612256 +0300
+@@ -70,9 +70,11 @@
+ #endif
+ #ifdef D2U_UNICODE
+ #if !defined(__MSDOS__) && !defined(_WIN32) && !defined(__OS2__)  /* Unix, Cygwin */
++# ifndef __WATCOMC__
+ # include <langinfo.h>
+ #endif
+ #endif
++#endif
+ 
+ void PrintLicense(void)
+ {
+diff -urwN dos2unix/dos2unix/unix2dos.c dos2unix-new/dos2unix/unix2dos.c
+--- dos2unix/dos2unix/unix2dos.c	2026-09-13 11:23:23.290169424 +0300
++++ dos2unix-new/dos2unix/unix2dos.c	2026-09-13 11:10:18.843676332 +0300
+@@ -60,9 +60,11 @@
+ #endif
+ #ifdef D2U_UNICODE
+ #if !defined(__MSDOS__) && !defined(_WIN32) && !defined(__OS2__)  /* Unix, Cygwin */
++# ifndef __WATCOMC__
+ # include <langinfo.h>
+ #endif
+ #endif
++#endif
+ 
+ void PrintLicense(void)
+ {

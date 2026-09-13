@@ -21,14 +21,30 @@ SOURCES=
 
 !include $(%ROOT)tools/mk/dirs.mk
 
+MAKEOPT = -h PROJ=$(PROJ)
+
 all install: .SYMBOLIC gen_sources
 prepall:     .SYMBOLIC prep
+depsall:     .SYMBOLIC deps
 
-deps prep clean annotate: .symbolic
- @$(MAKE) -h $(MAKEOPT) gen_sources_files
- @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk $^@
+clean annotate: .symbolic
+ @$(MAKE) $(MAKEOPT) gen_sources_files
+ @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk $^@
 
-MAKEOPT = -h PROJ=$(PROJ)
+prep: .symbolic
+ @$(MAKE) $(MAKEOPT) gen_sources_files
+ @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk TARGET=prepall subdirs
+
+deps: .symbolic
+ @$(MAKE) $(MAKEOPT) gen_sources_files
+ @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk TARGET=depsall subdirs
+
+subdirs: .symbolic
+!ifeq UNIX TRUE
+ @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then @cd $(MYDIR)%d && @$(MAKE) -h $(MAKEOPT) $(TARGET) && cd ..; fi
+!else
+ @for %d in ($(DIRS)) do @if exist $(MYDIR)%d @$(CD) $(MYDIR)%d && @$(MAKE) -h $(MAKEOPT) $(TARGET)
+!endif
 
 !ifdef srcfile
 _name2 = $(srcfile:$(MYDIR)=)
@@ -47,7 +63,7 @@ gen_sources_files: .symbolic
  @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
  @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
 
-gen_sources: gen_sources_files
+gen_sources: .symbolic gen_sources_files
  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
 
 
