@@ -56,10 +56,10 @@ int sbom_output_tagvalue(const SpdxDocument *doc) {
         printf("LicenseID: %s\n", e->license_id);
         print_text_field("ExtractedText",
                          e->extracted_text ? e->extracted_text : "");
-        printf("LicenseName: %s\n",
-               (e->name && e->name[0]) ? e->name : "NOASSERTION");
-        printf("LicenseComment: %s\n",
-               (e->comment && e->comment[0]) ? e->comment : "NOASSERTION");
+        print_text_field("LicenseName",
+                         (e->name && e->name[0]) ? e->name : "NOASSERTION");
+        print_text_field("LicenseComment",
+                         (e->comment && e->comment[0]) ? e->comment : "NOASSERTION");
         printf("\n");
     }
 
