@@ -1,17 +1,18 @@
-/* git_utils.c - работа с репозиторием Git без вызова внешних утилит (C89)
+/* git_utils.c - работа с репозиторием Git для фильтрации файлов (C89)
  *
- * Поддерживает синтаксис .gitignore:
+ * Поддерживаемые конструкции .gitignore:
  *   '*'  - любые символы кроме '/'
  *   '**' - любые символы включая '/'
  *   '?'  - один символ кроме '/'
- *   '/' в начале правила - привязка к каталогу правила
- *   '/' в конце правила  - только каталоги
- *   '!' в начале правила  - отрицание
+ *   '/' в начале шаблона - привязка к текущей папке
+ *   '/' в конце шаблона  - только директория
+ *   '/' в середине шаблона - привязка к текущей папке (anchored)
+ *   '!' в начале шаблона  - отрицание
  *   '#' в начале строки   - комментарий
- *   '\#' и '\!'           - экранированные # и !
+ *   '\#' и '\!'           - экранирование # и !
  *
- * Порядок правил: сверху вниз, последнее совпавшее побеждает (last-match-wins).
- * Регистр: на Linux — чувствительный, на Windows — нет.
+ * Порядок правил: сверху вниз, последнее совпадение (last-match-wins).
+ * Регистр: на Linux - чувствителен, на Windows - нет.
  */
 
 #include <stdio.h>
@@ -30,7 +31,7 @@
 #include "git_utils.h"
 
 /* ------------------------------------------------------------------ */
-/* Служебное                                                           */
+/* Утилиты                                                             */
 /* ------------------------------------------------------------------ */
 
 static char *dup_str(const char *s) {
@@ -94,7 +95,7 @@ char *git_find_repo_root(const char *start_dir) {
 #ifdef _WIN32
         if (slash == current + 2 && current[1] == ':') break;
 #endif
-        if (slash == current) break;   /* уже в корне ФС */
+        if (slash == current) break;
 
         *slash = '\0';
     }
@@ -150,7 +151,7 @@ static GitIgnoreRule *git_ignore_list_add(GitIgnoreList *list) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Разбор одной строки .gitignore                                      */
+/* Разбор строки .gitignore                                            */
 /* ------------------------------------------------------------------ */
 
 static void trim_inplace(char *s) {
@@ -181,7 +182,7 @@ static void parse_rule(const char *line, const char *base_rel,
 
     p = buf;
 
-    /* Экранированные \# и \! */
+    /* экранирование \# и \! */
     if (p[0] == '\\' && (p[1] == '#' || p[1] == '!')) {
         p++;
     } else if (p[0] == '#') {
@@ -205,11 +206,18 @@ static void parse_rule(const char *line, const char *base_rel,
         p[len-1] = '\0';
     }
 
-    /* Хвостовые пробелы, экранированные backslash+space, не поддерживаются:
-       trim уже убрал их. Это допустимое ограничение. */
+    /* Per gitignore(5): если слэш есть в середине шаблона (не только
+     * ведущий или хвостовой), шаблон привязан к каталогу .gitignore.
+     * Исключение: ведущая пара "звёздочка-звёздочка-слэш" означает
+     * "в любой директории" и не анкорит шаблон. */
+    if (!r->anchored && strchr(p, '/') != NULL) {
+        if (strncmp(p, "**/", 3) != 0) {
+            r->anchored = 1;
+        }
+    }
 
     if (p[0] == '\0') {
-        /* Правило пустое после обработки — откатываем */
+        /* правило из одного '/' бессмысленно */
         free(r->pattern);
         free(r->base_rel);
         out->count--;
@@ -241,10 +249,9 @@ static int read_gitignore_file(const char *dir, const char *base_rel,
 }
 
 /* ------------------------------------------------------------------ */
-/* Сбор из иерархии                                                    */
+/* Пути                                                                */
 /* ------------------------------------------------------------------ */
 
-/* Строит относительный путь от from до to (через '/'). */
 static char *rel_path_from(const char *from, const char *to) {
     size_t flen = strlen(from);
     size_t tlen = strlen(to);
@@ -316,7 +323,7 @@ int git_collect_gitignores(const char *repo_root,
 }
 
 /* ------------------------------------------------------------------ */
-/* Матчинг                                                             */
+/* Сравнение                                                           */
 /* ------------------------------------------------------------------ */
 
 static int to_lower(int c) {
@@ -327,25 +334,26 @@ static int to_lower(int c) {
 #endif
 }
 
-/* Матч внутри одного компонента: '*' и '?' не пересекают '/' (его в строке нет). */
+/* Сравнивает один компонент пути: '*' и '?' НЕ пересекают '/'. */
 static int match_component(const char *pat, const char *str) {
     if (*pat == '\0') return *str == '\0';
     if (*pat == '*') {
         while (1) {
             if (match_component(pat + 1, str)) return 1;
-            if (*str == '\0') return 0;
+            if (*str == '\0' || *str == '/') return 0;
             str++;
         }
     }
     if (*pat == '?') {
-        if (*str == '\0') return 0;
+        if (*str == '\0' || *str == '/') return 0;
         return match_component(pat + 1, str + 1);
     }
     if (to_lower(*pat) != to_lower(*str)) return 0;
     return match_component(pat + 1, str + 1);
 }
 
-/* Матч пути с поддержкой '/', '**' и одиночных '*'. */
+/* Полное совпадение шаблона с путём; одиночная '*' не пересекает
+ * слэш, двойная звёздочка пересекает. */
 static int match_path(const char *pat, const char *path) {
     if (pat[0] == '*' && pat[1] == '*') {
         if (pat[2] == '\0') return 1;
@@ -376,7 +384,8 @@ static int match_path(const char *pat, const char *path) {
     return match_path(pat + 1, path + 1);
 }
 
-/* Матчит pattern в любом каталоге пути. */
+/* Пробует шаблон на каждом уровне пути. Используется для
+ * неанкорированных шаблонов без слэша в середине. */
 static int match_any_level(const char *pat, const char *path) {
     if (match_path(pat, path)) return 1;
     while (*path) {
@@ -390,8 +399,8 @@ static int match_any_level(const char *pat, const char *path) {
     return 0;
 }
 
-/* Матчит, содержит ли путь компонент-каталог с именем, подходящим под pat.
- * include_last: если 0, последний компонент (имя файла) не проверяется. */
+/* Проверяет, есть ли в пути директория, имя которой (как компонент)
+ * совпадает с pat. include_last: если 0, последний компонент не проверяется. */
 static int path_has_matching_dir(const char *pat, const char *path,
                                  int include_last) {
     while (*path) {
@@ -410,6 +419,10 @@ static int path_has_matching_dir(const char *pat, const char *path,
     return 0;
 }
 
+/* ------------------------------------------------------------------ */
+/* Применение правил                                                   */
+/* ------------------------------------------------------------------ */
+
 int git_is_ignored(const GitIgnoreList *rules,
                    const char *rel_path,
                    int is_dir) {
@@ -424,7 +437,8 @@ int git_is_ignored(const GitIgnoreList *rules,
         const char *sub = rel_path;
         int matched = 0;
 
-        /* Обрезаем префикс, если правило лежит в подкаталоге */
+        /* Отсеиваем правила из других каталогов. sub - путь
+         * относительно каталога .gitignore этого правила. */
         if (r->base_rel && r->base_rel[0]) {
             size_t blen = strlen(r->base_rel);
             if (strncmp(rel_path, r->base_rel, blen) != 0) continue;
@@ -433,21 +447,25 @@ int git_is_ignored(const GitIgnoreList *rules,
         }
 
         if (r->dir_only) {
-            if (is_dir) {
-                matched = r->anchored
-                    ? match_path(r->pattern, sub)
-                    : path_has_matching_dir(r->pattern, sub, 1);
+            const char *pat = r->pattern;
+
+            if (r->anchored) {
+                size_t plen = strlen(pat);
+                if (is_dir && strcmp(sub, pat) == 0) {
+                    matched = 1;
+                } else if (strncmp(sub, pat, plen) == 0 &&
+                           sub[plen] == '/') {
+                    /* файл или директория внутри совпавшей директории */
+                    matched = 1;
+                }
             } else {
-                matched = r->anchored
-                    ? path_has_matching_dir(r->pattern, sub, 0)
-                    : path_has_matching_dir(r->pattern, sub, 0);
+                /* "**<slash>foo" - любая директория foo на любой глубине */
+                if (strncmp(pat, "**/", 3) == 0) pat += 3;
+                matched = path_has_matching_dir(pat, sub, is_dir);
             }
         } else {
             if (r->anchored) {
                 matched = match_path(r->pattern, sub);
-            } else if (strchr(r->pattern, '/') != NULL) {
-                matched = match_path(r->pattern, sub) ||
-                          match_any_level(r->pattern, sub);
             } else {
                 matched = match_any_level(r->pattern, sub);
             }
