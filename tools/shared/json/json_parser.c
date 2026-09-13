@@ -15,29 +15,32 @@ static void skip_whitespace(const char **p) {
 
 static JsonNode *parse_value(const char **p, int depth);
 
+/* Дети аллоцируются лениво — при первом node_add_child.
+ * Для скаляров (STRING, NUMBER, BOOLEAN, NULL) массив children не создаётся. */
 static JsonNode *node_new(JsonType type) {
     JsonNode *node = (JsonNode *)calloc(1, sizeof(JsonNode));
-    if (node) {
-        node->type = type;
-        node->child_capacity = INITIAL_CHILD_CAPACITY;
-        node->children = (JsonNode **)malloc(node->child_capacity * sizeof(JsonNode *));
-        if (!node->children) {
-            free(node);
-            return NULL;
-        }
-        node->child_count = 0;
-    }
+    if (!node) return NULL;
+    node->type = type;
+    node->child_capacity = 0;
+    node->children = NULL;
+    node->child_count = 0;
     return node;
 }
 
-static void node_add_child(JsonNode *parent, JsonNode *child) {
+static int node_add_child(JsonNode *parent, JsonNode *child) {
     if (parent->child_count >= parent->child_capacity) {
-        parent->child_capacity *= 2;
-        parent->children = (JsonNode **)realloc(parent->children,
-                                                parent->child_capacity * sizeof(JsonNode *));
+        int new_cap = parent->child_capacity
+                      ? parent->child_capacity * 2
+                      : INITIAL_CHILD_CAPACITY;
+        JsonNode **new_children = (JsonNode **)realloc(parent->children,
+            (size_t)new_cap * sizeof(JsonNode *));
+        if (!new_children) return -1;
+        parent->children = new_children;
+        parent->child_capacity = new_cap;
     }
     parent->children[parent->child_count++] = child;
     child->parent = parent;
+    return 0;
 }
 
 /* --- UTF-8 encoding of \uXXXX codepoints (RFC 8259 §7) --- */
@@ -87,6 +90,51 @@ static int hex4(const char *p, unsigned long *out) {
     *out = v;
     return 1;
 }
+
+/* --- Валидация UTF-8 (RFC 3629): overlong и суррогаты отвергаются --- */
+
+static int validate_utf8(const char *s) {
+    const unsigned char *p = (const unsigned char *)s;
+
+    while (*p) {
+        unsigned char c = *p++;
+        if (c < 0x80) continue;
+
+        if ((c & 0xE0) == 0xC0) {
+            unsigned long cp;
+            if ((*p & 0xC0) != 0x80) return 0;
+            cp = ((unsigned long)(c & 0x1F) << 6) | (unsigned long)(*p & 0x3F);
+            if (cp < 0x80) return 0;
+            p++;
+        } else if ((c & 0xF0) == 0xE0) {
+            unsigned long cp;
+            if ((p[0] & 0xC0) != 0x80) return 0;
+            if ((p[1] & 0xC0) != 0x80) return 0;
+            cp = ((unsigned long)(c & 0x0F) << 12) |
+                 ((unsigned long)(p[0] & 0x3F) << 6) |
+                 (unsigned long)(p[1] & 0x3F);
+            if (cp < 0x800) return 0;
+            if (cp >= 0xD800 && cp <= 0xDFFF) return 0;
+            p += 2;
+        } else if ((c & 0xF8) == 0xF0) {
+            unsigned long cp;
+            if ((p[0] & 0xC0) != 0x80) return 0;
+            if ((p[1] & 0xC0) != 0x80) return 0;
+            if ((p[2] & 0xC0) != 0x80) return 0;
+            cp = ((unsigned long)(c & 0x07) << 18) |
+                 ((unsigned long)(p[0] & 0x3F) << 12) |
+                 ((unsigned long)(p[1] & 0x3F) << 6) |
+                 (unsigned long)(p[2] & 0x3F);
+            if (cp < 0x10000 || cp > 0x10FFFF) return 0;
+            p += 3;
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* --- Разбор строки --- */
 
 static char *parse_string(const char **p) {
     const char *start;
@@ -183,27 +231,80 @@ static char *parse_string(const char **p) {
     return result;
 }
 
+/* --- Разбор числа (RFC 8259 §6, строгая грамматика) --- */
 
-/* Разбор числа */
+/* Умножение на 10^exp. Для чисел в JSON-документах SPDX этого достаточно. */
+static double pow10_int(int exp) {
+    double r = 1.0;
+    int i;
+    if (exp >= 0) {
+        for (i = 0; i < exp; i++) r *= 10.0;
+    } else {
+        for (i = 0; i > exp; i--) r *= 0.1;
+    }
+    return r;
+}
+
 static JsonNode *parse_number(const char **p) {
-    const char *start = *p;
-    char *end;
-    double val;
+    const char *s = *p;
+    const char *start = s;
+    double sign = 1.0;
+    double val = 0.0;
     JsonNode *node;
 
-    if (**p == '-') (*p)++;
-    while (**p && (isdigit((unsigned char)**p) || **p == '.' || **p == 'e' || **p == 'E' ||
-           **p == '+' || **p == '-')) (*p)++;
-    if (*p == start) return NULL;
-    val = strtod(start, &end);
-    if (end != *p) return NULL;
+    if (*s == '-') { sign = -1.0; s++; }
 
+    /* int: "0" | [1-9] *digit */
+    if (*s == '0') {
+        s++;
+        if (isdigit((unsigned char)*s)) return NULL;
+    } else if (*s >= '1' && *s <= '9') {
+        while (isdigit((unsigned char)*s)) {
+            val = val * 10.0 + (double)(*s - '0');
+            s++;
+        }
+    } else {
+        return NULL;
+    }
+
+    /* frac: "." 1*digit */
+    if (*s == '.') {
+        double scale = 0.1;
+        s++;
+        if (!isdigit((unsigned char)*s)) return NULL;
+        while (isdigit((unsigned char)*s)) {
+            val += (double)(*s - '0') * scale;
+            scale *= 0.1;
+            s++;
+        }
+    }
+
+    /* exp: ("e"|"E") ["+"|"-"] 1*digit */
+    if (*s == 'e' || *s == 'E') {
+        int exp_sign = 1;
+        int exp_val = 0;
+        s++;
+        if (*s == '+') s++;
+        else if (*s == '-') { exp_sign = -1; s++; }
+        if (!isdigit((unsigned char)*s)) return NULL;
+        while (isdigit((unsigned char)*s)) {
+            if (exp_val < 100000)
+                exp_val = exp_val * 10 + (*s - '0');
+            s++;
+        }
+        val *= pow10_int(exp_sign * exp_val);
+    }
+
+    if (s == start) return NULL;
+
+    *p = s;
     node = node_new(JSON_NUMBER);
-    if (node) node->number_value = val;
+    if (node) node->number_value = sign * val;
     return node;
 }
 
-/* Разбор массива */
+/* --- Разбор массива --- */
+
 static JsonNode *parse_array(const char **p, int depth) {
     JsonNode *array;
     JsonNode *child;
@@ -229,7 +330,11 @@ static JsonNode *parse_array(const char **p, int depth) {
             json_free(array);
             return NULL;
         }
-        node_add_child(array, child);
+        if (node_add_child(array, child) != 0) {
+            json_free(child);
+            json_free(array);
+            return NULL;
+        }
         skip_whitespace(p);
         if (**p == ',') {
             (*p)++;
@@ -245,7 +350,8 @@ static JsonNode *parse_array(const char **p, int depth) {
     return array;
 }
 
-/* Разбор объекта */
+/* --- Разбор объекта --- */
+
 static JsonNode *parse_object(const char **p, int depth) {
     JsonNode *object;
     char *key;
@@ -290,7 +396,11 @@ static JsonNode *parse_object(const char **p, int depth) {
             return NULL;
         }
         value->key = key;
-        node_add_child(object, value);
+        if (node_add_child(object, value) != 0) {
+            json_free(value);
+            json_free(object);
+            return NULL;
+        }
 
         skip_whitespace(p);
         if (**p == ',') {
@@ -307,7 +417,8 @@ static JsonNode *parse_object(const char **p, int depth) {
     return object;
 }
 
-/* Разбор значения */
+/* --- Разбор значения --- */
+
 static JsonNode *parse_value(const char **p, int depth) {
     JsonNode *node;
 
@@ -354,9 +465,24 @@ static JsonNode *parse_value(const char **p, int depth) {
     }
 }
 
+/* --- Публичный API --- */
+
 JsonNode *json_parse(const char *text) {
     const char *p = text;
-    JsonNode *root = parse_value(&p, 0);
+    JsonNode *root;
+
+    if (!text) return NULL;
+
+    /* Skip UTF-8 BOM (RFC 8259 §8.1: implementations MAY ignore) */
+    if ((unsigned char)p[0] == 0xEF &&
+        (unsigned char)p[1] == 0xBB &&
+        (unsigned char)p[2] == 0xBF) {
+        p += 3;
+    }
+
+    if (!validate_utf8(p)) return NULL;
+
+    root = parse_value(&p, 0);
     if (root) {
         skip_whitespace(&p);
         if (*p != '\0') {
@@ -377,6 +503,24 @@ JsonNode *json_find_child(JsonNode *object, const char *key) {
     return NULL;
 }
 
+/* Разбирает один сегмент пути — или ключ объекта, или индекс массива. */
+static JsonNode *path_step(JsonNode *current, const char *token) {
+    if (!current) return NULL;
+    if (current->type == JSON_OBJECT) {
+        return json_find_child(current, token);
+    }
+    if (current->type == JSON_ARRAY) {
+        char *endp;
+        long index;
+        if (!*token) return NULL;
+        index = strtol(token, &endp, 10);
+        if (*endp != '\0' || endp == token) return NULL;
+        if (index < 0 || index >= current->child_count) return NULL;
+        return current->children[index];
+    }
+    return NULL;
+}
+
 JsonNode *json_find_path(JsonNode *root, const char *path) {
     char *copy;
     char *p;
@@ -391,15 +535,7 @@ JsonNode *json_find_path(JsonNode *root, const char *path) {
     while (*p && current) {
         if (*p == '/') {
             *p = '\0';
-            if (current->type == JSON_OBJECT) {
-                current = json_find_child(current, token);
-            } else if (current->type == JSON_ARRAY) {
-                int index = atoi(token);
-                if (index < 0 || index >= current->child_count) current = NULL;
-                else current = current->children[index];
-            } else {
-                current = NULL;
-            }
+            current = path_step(current, token);
             p++;
             token = p;
         } else {
@@ -407,16 +543,7 @@ JsonNode *json_find_path(JsonNode *root, const char *path) {
         }
     }
     if (current && *token) {
-        /* последний сегмент */
-        if (current->type == JSON_OBJECT) {
-            current = json_find_child(current, token);
-        } else if (current->type == JSON_ARRAY) {
-            int index = atoi(token);
-            if (index < 0 || index >= current->child_count) current = NULL;
-            else current = current->children[index];
-        } else {
-            current = NULL;
-        }
+        current = path_step(current, token);
     }
 
     free(copy);
@@ -439,5 +566,3 @@ void json_free(JsonNode *node) {
     free(node->string_value);
     free(node);
 }
-
-
