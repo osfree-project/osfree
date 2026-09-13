@@ -30,6 +30,14 @@ const char *spdx_get_file_name(const char *path);
  * и скобок). Добавляет в out, устраняя дубликаты. */
 void spdx_expression_collect_ids(const char *expr, SpdxStrList *out);
 
+/* Нормализация текста лицензии для сравнения:
+ *   - удалить BOM в начале;
+ *   - CRLF и одиночные CR -> LF;
+ *   - удалить пробелы и табы в конце каждой строки;
+ *   - удалить пустые строки в конце.
+ * Возвращает malloc-строку (caller free) или NULL при OOM. */
+char *spdx_normalize_text(const char *src);
+
 #ifdef __cplusplus
 }
 #endif

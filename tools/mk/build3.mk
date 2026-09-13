@@ -1,4 +1,4 @@
-# tools/mk/build.mk
+# tools/mk/build3.mk
 # Universal target profile dispatcher for osFree build system
 # Version: hierarchical class/subclass model
 #

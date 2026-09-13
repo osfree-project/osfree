@@ -24,6 +24,10 @@ SOURCES=
 all install: .SYMBOLIC gen_sources
 prepall:     .SYMBOLIC prep
 
+deps prep clean annotate: .symbolic
+ @$(MAKE) -h $(MAKEOPT) gen_sources_files
+ @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk $^@
+
 MAKEOPT = -h PROJ=$(PROJ)
 
 !ifdef srcfile
@@ -36,13 +40,15 @@ add_source: .SYMBOLIC
      @%append $(PATH)_sources.mk SOURCES += $(_name3)
 !endif
 
-gen_sources: .symbolic
-  @$(REXX) mdhier.cmd $(PATH)
-  @%create $(PATH)_sources.mk
-  @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
-  @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
-  @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
-  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk 
+gen_sources_files: .symbolic
+ @$(REXX) mdhier.cmd $(PATH)
+ @%create $(PATH)_sources.mk
+ @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
+ @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
+ @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
+
+gen_sources: gen_sources_files
+ @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
 
 
 !else

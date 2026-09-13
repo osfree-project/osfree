@@ -33,14 +33,12 @@ typedef struct {
 
     const char *source_sbom_path;
 
-    /* ѕути к базе SPDX */
-    const char *licenses_json;
-    const char *exceptions_json;
-    const char *details_dir;
-    const char *exceptions_dir;
+    /* Ѕаза SPDX: корень с licenses.json, exceptions.json,
+     * details/<id>.json, exceptions/<id>.json */
+    const char *spdx_db_root;
     const char *cache_file;
 
-    /* явно заданные тексты LicenseRef-* */
+    /* »сточники текстов LicenseRef-* */
     ExtractedLicenseSource *extracted_sources;
     int extracted_count;
 } SbomOptions;

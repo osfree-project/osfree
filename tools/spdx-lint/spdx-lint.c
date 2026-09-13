@@ -205,24 +205,6 @@ static void process_file(const char *fullpath,
     }
 }
 
-/* Печатает URL для скачивания текста лицензии или исключения. */
-static void print_license_url(const char *id) {
-    if (strncmp(id, "LicenseRef-", 11) == 0) return;
-
-    if (spdx_license_lookup(id) != NULL) {
-        fprintf(stderr,
-                "       Download license text from:\n"
-                "         https://raw.githubusercontent.com/spdx/"
-                "license-list-data/main/text/%s.txt\n",
-                id);
-    } else if (spdx_exception_lookup(id) != NULL) {
-        fprintf(stderr,
-                "       Download license text from:\n"
-                "         https://raw.githubusercontent.com/spdx/"
-                "license-list-data/main/text/exceptions/%s.txt\n",
-                id);
-    }
-}
 
 static void check_licenses_dir(const char *project_dir,
                                SpdxStrList *used_licenses) {
@@ -358,46 +340,100 @@ static void check_licenses_dir(const char *project_dir,
         const char *lic = used_licenses->items[i];
         char with_txt[512];
         char expected[1100];
+        char full_path[1200];
+        const char *actual_fname = NULL;
+        int is_ref;
         int found;
+
+        is_ref = (strncmp(lic, "LicenseRef-", 11) == 0) ||
+                 (strncmp(lic, "DocumentRef-", 12) == 0);
 
         snprintf(with_txt, sizeof(with_txt), "%s.txt", lic);
         found = spdx_strlist_contains(&files_in_lic, lic) ||
                 spdx_strlist_contains(&files_in_lic, with_txt);
-        if (found) continue;
 
-#ifdef __LINUX__
-        snprintf(expected, sizeof(expected), "%s/%s.txt", lic_path, lic);
-#else
-        snprintf(expected, sizeof(expected), "%s\\%s.txt", lic_path, lic);
-#endif
-
-        if (!spdx_license_lookup(lic) && !spdx_exception_lookup(lic) &&
-            strncmp(lic, "LicenseRef-", 11) != 0) {
+        if (!is_ref &&
+            !spdx_license_lookup(lic) &&
+            !spdx_exception_lookup(lic)) {
             fprintf(stderr,
                     "ERROR: '%s' is not a known SPDX identifier.\n"
-                    "       SPDX License Identifiers are case-sensitive.\n"
-                    "       Check spelling and case against the SPDX "
-                    "License List:\n"
-                    "         https://spdx.org/licenses/\n",
+                    "       Check spelling against the SPDX License List.\n",
                     lic);
             error_count++;
+            continue;
         }
 
-        fprintf(stderr,
-                "ERROR: Missing license file for %s.\n"
-                "       Files declare this license but\n"
-                "       %s does not exist.\n"
-                "       REUSE requires the full license text in LICENSES/\n"
-                "       at the project root (REUSE Specification 3.3).\n"
-                "       Fix one of:\n"
-                "         - create %s with the license text;\n"
-                "         - or, if this is a custom license not on the SPDX\n"
-                "           License List, change the identifier in the source\n"
-                "           files to 'LicenseRef-<name>' and create\n"
-                "           LICENSES/LicenseRef-<name>.txt with the license text.\n",
-                lic, expected, expected);
-        print_license_url(lic);
-        error_count++;
+        if (!found) {
+#ifdef __LINUX__
+            snprintf(expected, sizeof(expected), "%s/%s.txt", lic_path, lic);
+#else
+            snprintf(expected, sizeof(expected), "%s\\%s.txt", lic_path, lic);
+#endif
+            fprintf(stderr,
+                    "ERROR: Missing license file for %s.\n"
+                    "       Files declare this license but\n"
+                    "       %s does not exist.\n"
+                    "       REUSE requires the full license text in "
+                    "LICENSES/\n"
+                    "       at the project root (REUSE Specification 3.3).\n"
+                    "       Fix one of:\n"
+                    "         - create %s with the license text;\n"
+                    "         - or run '_wcc.cmd annotate --write' to create "
+                    "it automatically.\n",
+                    lic, expected, expected);
+            error_count++;
+            continue;
+        }
+
+        if (is_ref) continue;
+
+        {
+            const char *db_text;
+            char *file_text = NULL;
+            char *norm_file = NULL;
+            char *norm_db = NULL;
+            int equal = 0;
+
+            db_text = spdx_license_get_text(lic);
+            if (!db_text) db_text = spdx_exception_get_text(lic);
+            if (!db_text) continue;
+
+            if (spdx_strlist_contains(&files_in_lic, with_txt))
+                actual_fname = with_txt;
+            else
+                actual_fname = lic;
+
+#ifdef __LINUX__
+            snprintf(full_path, sizeof(full_path),
+                     "%s/%s", lic_path, actual_fname);
+#else
+            snprintf(full_path, sizeof(full_path),
+                     "%s\\%s", lic_path, actual_fname);
+#endif
+
+            file_text = spdx_read_file_all(full_path, NULL);
+            if (file_text) {
+                norm_file = spdx_normalize_text(file_text);
+                norm_db = spdx_normalize_text(db_text);
+                if (norm_file && norm_db &&
+                    strcmp(norm_file, norm_db) == 0)
+                    equal = 1;
+                free(norm_file);
+                free(norm_db);
+                free(file_text);
+            }
+
+            if (!equal) {
+                fprintf(stderr,
+                        "ERROR: License text for %s does not match "
+                        "the SPDX License List.\n"
+                        "       File: %s\n"
+                        "       To update it, run "
+                        "'_wcc.cmd annotate --write --force'.\n",
+                        lic, full_path);
+                error_count++;
+            }
+        }
     }
 
     spdx_strlist_free(&files_in_lic);
@@ -405,10 +441,7 @@ static void check_licenses_dir(const char *project_dir,
 
 int main(int argc, char *argv[]) {
     const char *dir = ".";
-    const char *licenses_json = NULL;
-    const char *exceptions_json = NULL;
-    const char *details_dir = NULL;
-    const char *exceptions_dir = NULL;
+    const char *spdx_db_root = NULL;
     const char *cache_file = NULL;
     int no_gitignore = 0;
     int i;
@@ -426,14 +459,8 @@ int main(int argc, char *argv[]) {
     git_ignore_list_init(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
-        if (strncmp(argv[i], "--licenses-json=", 16) == 0)
-            licenses_json = argv[i] + 16;
-        else if (strncmp(argv[i], "--exceptions-json=", 18) == 0)
-            exceptions_json = argv[i] + 18;
-        else if (strncmp(argv[i], "--details-dir=", 14) == 0)
-            details_dir = argv[i] + 14;
-        else if (strncmp(argv[i], "--exceptions-dir=", 17) == 0)
-            exceptions_dir = argv[i] + 17;
+        if (strncmp(argv[i], "--spdx-db=", 10) == 0)
+            spdx_db_root = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
             cache_file = argv[i] + 8;
         else if (strncmp(argv[i], "--default-license=", 18) == 0)
@@ -466,19 +493,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!licenses_json || !exceptions_json) {
+    if (!spdx_db_root) {
         fprintf(stderr,
                 "ERROR: SPDX database is not configured.\n"
-                "       --licenses-json=<path> and --exceptions-json=<path> "
-                "are required.\n"
+                "       --spdx-db=<path> is required.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
         free(exclude_list);
         return 1;
     }
 
-    db_errs = spdx_db_init(licenses_json, exceptions_json,
-                           details_dir, exceptions_dir, cache_file);
+    db_errs = spdx_db_init(spdx_db_root, cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "ERROR: SPDX license database is unavailable "
                         "(licenses.json not loaded).\n"

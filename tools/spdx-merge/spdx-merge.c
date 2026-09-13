@@ -766,10 +766,7 @@ static void print_json_indent(JsonNode *node, int indent) {
 int main(int argc, char *argv[]) {
     const char *input_file = NULL;
     const char *output_file = NULL;
-    const char *licenses_json = NULL;
-    const char *exceptions_json = NULL;
-    const char *details_dir = NULL;
-    const char *exceptions_dir = NULL;
+    const char *spdx_db_root = NULL;
     const char *cache_file = NULL;
     int i;
     char *root_text;
@@ -786,34 +783,26 @@ int main(int argc, char *argv[]) {
             input_file = argv[i] + 8;
         else if (strncmp(argv[i], "--output=", 9) == 0)
             output_file = argv[i] + 9;
-        else if (strncmp(argv[i], "--licenses-json=", 16) == 0)
-            licenses_json = argv[i] + 16;
-        else if (strncmp(argv[i], "--exceptions-json=", 18) == 0)
-            exceptions_json = argv[i] + 18;
-        else if (strncmp(argv[i], "--details-dir=", 14) == 0)
-            details_dir = argv[i] + 14;
-        else if (strncmp(argv[i], "--exceptions-dir=", 17) == 0)
-            exceptions_dir = argv[i] + 17;
+        else if (strncmp(argv[i], "--spdx-db=", 10) == 0)
+            spdx_db_root = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
             cache_file = argv[i] + 8;
     }
+
     if (!input_file) {
         fprintf(stderr,
                 "Usage: spdx-merge --input=<root.spdx.json> "
                 "[--output=merged.spdx.json]\n"
-                "       --licenses-json=<path> --exceptions-json=<path> "
-                "--cache=<path>\n"
-                "       [--details-dir=<path>] [--exceptions-dir=<path>]\n");
+                "       --spdx-db=<path> [--cache=<path>]\n");
         return 1;
     }
-    if (!licenses_json || !exceptions_json || !cache_file) {
+    if (!spdx_db_root) {
         fprintf(stderr,
-                "Error: --licenses-json, --exceptions-json, --cache required\n");
+                "Error: --spdx-db=<path> is required\n");
         return 1;
     }
 
-    db_errs = spdx_db_init(licenses_json, exceptions_json,
-                           details_dir, exceptions_dir, cache_file);
+    db_errs = spdx_db_init(spdx_db_root, cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "Error: SPDX license database unavailable\n");
         return 1;

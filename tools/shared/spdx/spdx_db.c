@@ -10,7 +10,7 @@
 #include "spdx_utils.h"
 
 #define CACHE_MAGIC   "SPDXDB06"
-#define CACHE_VERSION 6
+#define CACHE_VERSION 7
 
 /* ------------------------------------------------------------------ */
 /* Структуры                                                           */
@@ -38,6 +38,26 @@ static char  *g_exceptions_dir = NULL;
 /* ------------------------------------------------------------------ */
 /* Утилиты                                                             */
 /* ------------------------------------------------------------------ */
+
+
+/* SPDX 2.3 Annex D.2: license и exception идентификаторы
+ * сопоставляются регистронезависимо. Используем ASCII-lowercase,
+ * а не tolower(), чтобы результат не зависел от локали. */
+static int ascii_lower(int c) {
+    if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
+    return c;
+}
+
+static int id_cmp_ci(const char *a, const char *b) {
+    while (*a && *b) {
+        int ca = ascii_lower((unsigned char)*a);
+        int cb = ascii_lower((unsigned char)*b);
+        if (ca != cb) return ca - cb;
+        a++;
+        b++;
+    }
+    return (int)(unsigned char)*a - (int)(unsigned char)*b;
+}
 
 static char *dup_str(const char *s) {
     size_t n;
@@ -141,28 +161,29 @@ static void exception_list_free(ExceptionList *l) {
 /* ------------------------------------------------------------------ */
 
 static int cmp_lic(const void *a, const void *b) {
-    return strcmp(((const SpdxLicenseEntry*)a)->id,
-                  ((const SpdxLicenseEntry*)b)->id);
+    return id_cmp_ci(((const SpdxLicenseEntry*)a)->id,
+                     ((const SpdxLicenseEntry*)b)->id);
 }
 static int cmp_exc(const void *a, const void *b) {
-    return strcmp(((const SpdxExceptionEntry*)a)->id,
-                  ((const SpdxExceptionEntry*)b)->id);
+    return id_cmp_ci(((const SpdxExceptionEntry*)a)->id,
+                     ((const SpdxExceptionEntry*)b)->id);
 }
 
 static int lic_lower_bound(const char *id) {
     int lo = 0, hi = g_licenses.count;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (strcmp(g_licenses.items[mid].id, id) < 0) lo = mid + 1;
+        if (id_cmp_ci(g_licenses.items[mid].id, id) < 0) lo = mid + 1;
         else hi = mid;
     }
     return lo;
 }
+
 static int exc_lower_bound(const char *id) {
     int lo = 0, hi = g_exceptions.count;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (strcmp(g_exceptions.items[mid].id, id) < 0) lo = mid + 1;
+        if (id_cmp_ci(g_exceptions.items[mid].id, id) < 0) lo = mid + 1;
         else hi = mid;
     }
     return lo;
@@ -727,32 +748,36 @@ static int read_exception_detail_from_dir(SpdxExceptionEntry *e) {
 /* Публичный API                                                       */
 /* ------------------------------------------------------------------ */
 
-int spdx_db_init(const char *licenses_json,
-                 const char *exceptions_json,
-                 const char *details_dir,
-                 const char *exceptions_dir,
-                 const char *cache_file) {
+int spdx_db_init(const char *spdx_db_root, const char *cache_file) {
     unsigned char sha1_lic[20], sha1_exc[20];
     int errs = 0;
     int cache_ok = 0;
+    char lic_path[2048];
+    char exc_path[2048];
+    char det_path[2048];
+    char exc_det_path[2048];
 
     license_list_init(&g_licenses);
     exception_list_init(&g_exceptions);
-    g_details_dir = details_dir ? dup_str(details_dir) : NULL;
-    g_exceptions_dir = exceptions_dir ? dup_str(exceptions_dir) : NULL;
 
-    if (!licenses_json) {
-        errs |= SPDX_DB_ERR_LICENSES;
-        memset(sha1_lic, 0, 20);
-    } else if (compute_sha1_raw(licenses_json, sha1_lic) != 0) {
+    if (!spdx_db_root || !spdx_db_root[0]) {
+        return SPDX_DB_ERR_LICENSES | SPDX_DB_ERR_EXCEPTIONS;
+    }
+
+    snprintf(lic_path, sizeof(lic_path), "%s/licenses.json", spdx_db_root);
+    snprintf(exc_path, sizeof(exc_path), "%s/exceptions.json", spdx_db_root);
+    snprintf(det_path, sizeof(det_path), "%s/details", spdx_db_root);
+    snprintf(exc_det_path, sizeof(exc_det_path),
+             "%s/exceptions", spdx_db_root);
+
+    g_details_dir = dup_str(det_path);
+    g_exceptions_dir = dup_str(exc_det_path);
+
+    if (compute_sha1_raw(lic_path, sha1_lic) != 0) {
         errs |= SPDX_DB_ERR_LICENSES;
         memset(sha1_lic, 0, 20);
     }
-
-    if (!exceptions_json) {
-        errs |= SPDX_DB_ERR_EXCEPTIONS;
-        memset(sha1_exc, 0, 20);
-    } else if (compute_sha1_raw(exceptions_json, sha1_exc) != 0) {
+    if (compute_sha1_raw(exc_path, sha1_exc) != 0) {
         errs |= SPDX_DB_ERR_EXCEPTIONS;
         memset(sha1_exc, 0, 20);
     }
@@ -763,14 +788,10 @@ int spdx_db_init(const char *licenses_json,
     }
 
     if (!cache_ok) {
-        if (licenses_json) {
-            if (load_licenses_index(licenses_json) != 0)
-                errs |= SPDX_DB_ERR_LICENSES;
-        }
-        if (exceptions_json) {
-            if (load_exceptions_index(exceptions_json) != 0)
-                errs |= SPDX_DB_ERR_EXCEPTIONS;
-        }
+        if (load_licenses_index(lic_path) != 0)
+            errs |= SPDX_DB_ERR_LICENSES;
+        if (load_exceptions_index(exc_path) != 0)
+            errs |= SPDX_DB_ERR_EXCEPTIONS;
         qsort(g_licenses.items, (size_t)g_licenses.count,
               sizeof(SpdxLicenseEntry), cmp_lic);
         qsort(g_exceptions.items, (size_t)g_exceptions.count,
@@ -779,7 +800,8 @@ int spdx_db_init(const char *licenses_json,
         if (cache_file) {
             if (build_cache(cache_file, sha1_lic, sha1_exc) != 0) {
                 errs |= SPDX_DB_ERR_CACHE;
-                fprintf(stderr, "Warning: cannot write cache: %s\n", cache_file);
+                fprintf(stderr, "Warning: cannot write cache: %s\n",
+                        cache_file);
             }
         }
     }
@@ -800,7 +822,7 @@ const SpdxLicenseEntry *spdx_license_lookup(const char *id) {
     if (!id || g_licenses.count == 0) return NULL;
     idx = lic_lower_bound(id);
     if (idx < g_licenses.count &&
-        strcmp(g_licenses.items[idx].id, id) == 0)
+        id_cmp_ci(g_licenses.items[idx].id, id) == 0)
         return &g_licenses.items[idx];
     return NULL;
 }
@@ -810,9 +832,37 @@ const SpdxExceptionEntry *spdx_exception_lookup(const char *id) {
     if (!id || g_exceptions.count == 0) return NULL;
     idx = exc_lower_bound(id);
     if (idx < g_exceptions.count &&
-        strcmp(g_exceptions.items[idx].id, id) == 0)
+        id_cmp_ci(g_exceptions.items[idx].id, id) == 0)
         return &g_exceptions.items[idx];
     return NULL;
+}
+
+const char *spdx_license_get_text(const char *id) {
+    int idx;
+    SpdxLicenseEntry *e;
+    if (!id || !id[0]) return NULL;
+    idx = lic_lower_bound(id);
+    if (idx >= g_licenses.count) return NULL;
+    if (id_cmp_ci(g_licenses.items[idx].id, id) != 0) return NULL;
+    e = &g_licenses.items[idx];
+    if (!e->detail_loaded) {
+        if (spdx_license_load_detail(e->id) != 0) return NULL;
+    }
+    return e->text;
+}
+
+const char *spdx_exception_get_text(const char *id) {
+    int idx;
+    SpdxExceptionEntry *e;
+    if (!id || !id[0]) return NULL;
+    idx = exc_lower_bound(id);
+    if (idx >= g_exceptions.count) return NULL;
+    if (id_cmp_ci(g_exceptions.items[idx].id, id) != 0) return NULL;
+    e = &g_exceptions.items[idx];
+    if (!e->detail_loaded) {
+        if (spdx_exception_load_detail(e->id) != 0) return NULL;
+    }
+    return e->text;
 }
 
 int spdx_license_load_detail(const char *id) {

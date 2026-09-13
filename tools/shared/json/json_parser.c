@@ -40,19 +40,67 @@ static void node_add_child(JsonNode *parent, JsonNode *child) {
     child->parent = parent;
 }
 
-/* Разбор строки JSON */
+/* --- UTF-8 encoding of \uXXXX codepoints (RFC 8259 §7) --- */
+
+static int utf8_encoded_len(unsigned long cp) {
+    if (cp < 0x80) return 1;
+    if (cp < 0x800) return 2;
+    if (cp < 0x10000) return 3;
+    return 4;
+}
+
+static int utf8_encode(unsigned long cp, char *out) {
+    if (cp < 0x80) {
+        out[0] = (char)cp;
+        return 1;
+    }
+    if (cp < 0x800) {
+        out[0] = (char)(0xC0 | (cp >> 6));
+        out[1] = (char)(0x80 | (cp & 0x3F));
+        return 2;
+    }
+    if (cp < 0x10000) {
+        out[0] = (char)(0xE0 | (cp >> 12));
+        out[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
+        out[2] = (char)(0x80 | (cp & 0x3F));
+        return 3;
+    }
+    out[0] = (char)(0xF0 | (cp >> 18));
+    out[1] = (char)(0x80 | ((cp >> 12) & 0x3F));
+    out[2] = (char)(0x80 | ((cp >> 6) & 0x3F));
+    out[3] = (char)(0x80 | (cp & 0x3F));
+    return 4;
+}
+
+static int hex4(const char *p, unsigned long *out) {
+    int i;
+    unsigned long v = 0;
+    for (i = 0; i < 4; i++) {
+        char c = p[i];
+        int d;
+        if (c >= '0' && c <= '9') d = c - '0';
+        else if (c >= 'a' && c <= 'f') d = c - 'a' + 10;
+        else if (c >= 'A' && c <= 'F') d = c - 'A' + 10;
+        else return 0;
+        v = (v << 4) | (unsigned long)d;
+    }
+    *out = v;
+    return 1;
+}
+
 static char *parse_string(const char **p) {
     const char *start;
+    const char *end;
     char *result;
-    size_t len;
     char *q;
     const char *s;
-    int i;
+    size_t len;
 
     if (**p != '"') return NULL;
     (*p)++;
     start = *p;
     len = 0;
+
     while (**p && **p != '"') {
         if (**p == '\\') {
             (*p)++;
@@ -60,16 +108,27 @@ static char *parse_string(const char **p) {
             switch (**p) {
                 case 'n': case 't': case 'r': case 'b': case 'f':
                 case '"': case '\\': case '/':
-                    len += 1; (*p)++;
+                    len += 1;
+                    (*p)++;
                     break;
-                case 'u':
-                    /* пропускаем 4 шестнадцатеричных цифры */
-                    len += 1; (*p)++;
-                    for (i = 0; i < 4; i++) {
-                        if (!isxdigit((unsigned char)**p)) return NULL;
-                        (*p)++;
+                case 'u': {
+                    unsigned long cp;
+                    (*p)++;
+                    if (!hex4(*p, &cp)) return NULL;
+                    (*p) += 4;
+                    if (cp >= 0xD800 && cp <= 0xDBFF) {
+                        unsigned long lo;
+                        if ((*p)[0] != '\\' || (*p)[1] != 'u') return NULL;
+                        if (!hex4(*p + 2, &lo)) return NULL;
+                        if (lo < 0xDC00 || lo > 0xDFFF) return NULL;
+                        cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                        (*p) += 6;
+                    } else if (cp >= 0xDC00 && cp <= 0xDFFF) {
+                        return NULL;
                     }
+                    len += (size_t)utf8_encoded_len(cp);
                     break;
+                }
                 default:
                     return NULL;
             }
@@ -80,12 +139,14 @@ static char *parse_string(const char **p) {
     }
     if (**p != '"') return NULL;
     (*p)++;
+    end = *p - 1;
 
     result = (char *)malloc(len + 1);
     if (!result) return NULL;
+
     q = result;
     s = start;
-    while (s < *p - 1) {
+    while (s < end) {
         if (*s == '\\') {
             s++;
             switch (*s) {
@@ -97,11 +158,19 @@ static char *parse_string(const char **p) {
                 case '"': *q++ = '"'; s++; break;
                 case '\\': *q++ = '\\'; s++; break;
                 case '/': *q++ = '/'; s++; break;
-                case 'u':
-                    /* упрощение: записываем как '?' */
-                    *q++ = '?';
-                    s += 5;
+                case 'u': {
+                    unsigned long cp, lo;
+                    s++;
+                    hex4(s, &cp);
+                    s += 4;
+                    if (cp >= 0xD800 && cp <= 0xDBFF) {
+                        hex4(s + 2, &lo);
+                        cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                        s += 6;
+                    }
+                    q += utf8_encode(cp, q);
                     break;
+                }
                 default:
                     free(result);
                     return NULL;
@@ -113,6 +182,7 @@ static char *parse_string(const char **p) {
     *q = '\0';
     return result;
 }
+
 
 /* Разбор числа */
 static JsonNode *parse_number(const char **p) {
@@ -369,3 +439,5 @@ void json_free(JsonNode *node) {
     free(node->string_value);
     free(node);
 }
+
+

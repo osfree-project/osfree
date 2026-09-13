@@ -1,3 +1,4 @@
+# tools/mk/dirs.mk
 #
 # set paths
 #

@@ -53,19 +53,17 @@ typedef struct {
     char *text_html;
 } SpdxExceptionEntry;
 
-/* Инициализация.
- *   licenses_json   - путь к licenses.json (индекс). NULL - пропустить.
- *   exceptions_json - путь к exceptions.json. NULL - пропустить.
- *   details_dir     - каталог с <ID>.json (детали лицензий). NULL - без деталей.
- *   exceptions_dir  - каталог с <ID>.json (детали исключений). NULL - без деталей.
- *   cache_file      - путь к кеш-файлу. NULL - без кеша.
+/* Инициализация базы SPDX.
+ *   spdx_db_root - корень базы; внутри ожидаются:
+ *                    licenses.json
+ *                    exceptions.json
+ *                    details/<id>.json
+ *                    exceptions/<id>.json
+ *   cache_file   - путь к файлу кеша. NULL - без кеша.
  *
  * Возвращает 0 при полном успехе либо битовую маску SPDX_DB_ERR_*.
  */
-int spdx_db_init(const char *licenses_json,
-                 const char *exceptions_json,
-                 const char *details_dir,
-                 const char *exceptions_dir,
+int spdx_db_init(const char *spdx_db_root,
                  const char *cache_file);
 
 void spdx_db_free(void);
@@ -76,6 +74,13 @@ const SpdxExceptionEntry *spdx_exception_lookup(const char *id);
 /* Ленивая загрузка деталей. 0 - успех, -1 - ошибка. */
 int spdx_license_load_detail(const char *id);
 int spdx_exception_load_detail(const char *id);
+/* Возвращает текст лицензии (поле licenseText) из базы.
+ * NULL, если id не найден или деталь не загружена. */
+const char *spdx_license_get_text(const char *id);
+
+/* То же для исключений. */
+const char *spdx_exception_get_text(const char *id);
+
 
 int spdx_license_is_valid(const char *id);
 int spdx_exception_is_valid(const char *id);

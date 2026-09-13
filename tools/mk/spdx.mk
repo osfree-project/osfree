@@ -1,68 +1,93 @@
 # tools/mk/spdx.mk - правила интеграции SPDX/REUSE в систему сборки osFree
 
-SPDX_LINT   = spdx-lint.exe
+SPDX_LINT     = spdx-lint.exe
 SPDX_ANNOTATE = spdx-annotate.exe
-SPDX_SBOM   = spdx-sbom.exe
+SPDX_SBOM     = spdx-sbom.exe
+SPDX_MERGE    = spdx-merge.exe
 
-
-!ifdef LICENSE_CHECK
+SPDX_DB       = $(ROOT)licenses
 
 !ifndef COPYRIGHT
 COPYRIGHT = Copyright (C) 2025 osFree Project
 !endif
 
+# ------------------------------------------------------------
+# ќбщие аргументы Ч определены всегда, независимо от LICENSE_CHECK.
+# »х используют и ручные инструменты (annotate, spdx-clean),
+# и автоматические (spdx-lint, spdx-sbom).
+# ------------------------------------------------------------
 
-# Common arguments for all tools
-SPDX_ARGS =
+SPDX_ARGS = --spdx-db="$(SPDX_DB)"
+
+!ifdef BLD
+SPDX_ARGS = $(SPDX_ARGS) --cache="$(BLD)spdx_db.cache"
+!endif
+
 !ifdef LICENSE
 SPDX_ARGS = $(SPDX_ARGS) --default-license="$(LICENSE)"
 !endif
-!ifdef COPYRIGHT
-SPDX_ARGS = $(SPDX_ARGS) --default-copyright="$(COPYRIGHT)"
-!endif
-!ifdef EXCLUDE_LICENSE
-EXCLUDE_LICENSE = $(EXCLUDE_LICENSE) makefile _wcc.cmd _wcc.sh
-SPDX_ARGS = $(SPDX_ARGS)  --exclude="$(EXCLUDE_LICENSE)"
-!endif
 
-# —борка аргументов дл€ утилит на основе переменных компонента
+SPDX_ARGS = $(SPDX_ARGS) --default-copyright="$(COPYRIGHT)"
+
+# ------------------------------------------------------------
+# јргументы дл€ отдельных утилит
+# ------------------------------------------------------------
+
 SPDX_LINT_ARGS = $(SPDX_ARGS)
 
-SPDX_ANNOTATE_ARGS = $(SPDX_ARGS)
+# annotate: license/copyright задаютс€ как override, не как default
+SPDX_ANNOTATE_ARGS = --spdx-db="$(SPDX_DB)"
+!ifdef BLD
+SPDX_ANNOTATE_ARGS = $(SPDX_ANNOTATE_ARGS) --cache="$(BLD)spdx_db.cache"
+!endif
+!ifdef LICENSE
+SPDX_ANNOTATE_ARGS = $(SPDX_ANNOTATE_ARGS) --license="$(LICENSE)"
+!endif
+SPDX_ANNOTATE_ARGS = $(SPDX_ANNOTATE_ARGS) --copyright="$(COPYRIGHT)"
 
 SPDX_SBOM_ARGS = $(SPDX_ARGS)
 !ifdef DESC
 SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --name="osFree $(DESC)"
 !endif
+SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) &
+    --creator="Organization: osFree Project" &
+    --supplier="Organization: osFree Project" &
+    --version="0.1" &
+    --file="$(PATH)$(TRGT)" &
+    --objects="$(OBJS)"
 
-SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) --creator="Organization: osFree Project"   --supplier="Organization: osFree Project" --version="0.1" --file="$(PATH)$(TRGT)" --objects="$(OBJS)"
+# ------------------------------------------------------------
+# –учные инструменты Ч доступны всегда
+# ------------------------------------------------------------
 
-spdx-lint: .SYMBOLIC
-    $(verbose)$(SPDX_LINT) $(CWD) $(SPDX_LINT_ARGS) --licenses-json=$(ROOT)licenses\licenses.json --exceptions-json=$(ROOT)licenses\exceptions.json --cache=$(BLD)spdx_db.cache
-
-spdx-annotate: .SYMBOLIC
-    @$(SPDX_ANNOTATE) --dir=$(CWD) $(SPDX_ANNOTATE_ARGS)
-
-spdx-sbom: .SYMBOLIC
-    $(SPDX_SBOM) --purpose="SOURCE" --objects="$(OBJS)" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
-    $(SPDX_SBOM) --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json --source-sbom=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
-    spdx-merge.exe --input=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json
+annotate: .SYMBOLIC
+    @$(SPDX_ANNOTATE) $(CWD) $(SPDX_ANNOTATE_ARGS)
 
 spdx-clean: .SYMBOLIC
-    @if exist $(PROJ).spdx.json del $(PROJ).spdx.json
+    @if exist $(PATH)$(PROJ).spdx.json        del $(PATH)$(PROJ).spdx.json
+    @if exist $(PATH)$(PROJ)-bin.spdx.json    del $(PATH)$(PROJ)-bin.spdx.json
+    @if exist $(PATH)$(PROJ)-merged.spdx.json del $(PATH)$(PROJ)-merged.spdx.json
+
+# ------------------------------------------------------------
+# јвтоматическа€ проверка Ч только при LICENSE_CHECK
+# ------------------------------------------------------------
+
+!ifdef LICENSE_CHECK
+
+spdx-lint: .SYMBOLIC
+    $(verbose)$(SPDX_LINT) $(CWD) $(SPDX_LINT_ARGS)
+
+spdx-sbom: .SYMBOLIC
+    $(verbose)$(SPDX_SBOM) --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
+    $(verbose)$(SPDX_SBOM) --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json --source-sbom=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
+    $(verbose)$(SPDX_MERGE) --input=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json --spdx-db="$(SPDX_DB)"
 
 !else
 
 spdx-lint: .SYMBOLIC
     @%null
 
-spdx-annotate: .SYMBOLIC
-    @%null
-
 spdx-sbom: .SYMBOLIC
-    @%null
-
-spdx-clean: .SYMBOLIC
     @%null
 
 !endif

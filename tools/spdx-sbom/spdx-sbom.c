@@ -110,9 +110,7 @@ int main(int argc, char *argv[]) {
     if (sbom_parse_args(argc, argv, &opts) != 0)
         return 1;
 
-    db_errs = spdx_db_init(opts.licenses_json, opts.exceptions_json,
-                           opts.details_dir, opts.exceptions_dir,
-                           opts.cache_file);
+    db_errs = spdx_db_init(opts.spdx_db_root, opts.cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "Error: SPDX license database unavailable\n");
         sbom_options_free(&opts);

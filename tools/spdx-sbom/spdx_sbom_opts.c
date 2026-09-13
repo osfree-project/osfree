@@ -135,14 +135,8 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
             opts->source_sbom_path = a + 14;
         else if (strncmp(a, "--exclude=", 10) == 0)
             parse_space_list(a + 10, &opts->exclude_list, &opts->exclude_count);
-        else if (strncmp(a, "--licenses-json=", 16) == 0)
-            opts->licenses_json = a + 16;
-        else if (strncmp(a, "--exceptions-json=", 18) == 0)
-            opts->exceptions_json = a + 18;
-        else if (strncmp(a, "--details-dir=", 14) == 0)
-            opts->details_dir = a + 14;
-        else if (strncmp(a, "--exceptions-dir=", 17) == 0)
-            opts->exceptions_dir = a + 17;
+        else if (strncmp(a, "--spdx-db=", 10) == 0)
+            opts->spdx_db_root = a + 10;
         else if (strncmp(a, "--cache=", 8) == 0)
             opts->cache_file = a + 8;
         else if (strncmp(a, "--extracted-license=", 20) == 0)
@@ -163,16 +157,8 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
         fprintf(stderr, "Error: --name=<package name> is required\n");
         return -1;
     }
-    if (!opts->licenses_json) {
-        fprintf(stderr, "Error: --licenses-json=<path> is required\n");
-        return -1;
-    }
-    if (!opts->exceptions_json) {
-        fprintf(stderr, "Error: --exceptions-json=<path> is required\n");
-        return -1;
-    }
-    if (!opts->cache_file) {
-        fprintf(stderr, "Error: --cache=<path> is required\n");
+    if (!opts->spdx_db_root) {
+        fprintf(stderr, "Error: --spdx-db=<path> is required\n");
         return -1;
     }
     if (strcmp(opts->format, "json") != 0 &&

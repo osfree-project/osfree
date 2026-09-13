@@ -108,3 +108,60 @@ void spdx_expression_collect_ids(const char *expr, SpdxStrList *out) {
     }
     free(copy);
 }
+
+char *spdx_normalize_text(const char *src) {
+    size_t n, i, j;
+    char *buf;
+    size_t out_len;
+    char *p, *w;
+
+    if (!src) return NULL;
+    n = strlen(src);
+    buf = (char*)malloc(n + 1);
+    if (!buf) return NULL;
+
+    i = 0;
+    if (n >= 3 && (unsigned char)src[0] == 0xEF &&
+                  (unsigned char)src[1] == 0xBB &&
+                  (unsigned char)src[2] == 0xBF) {
+        i = 3;
+    }
+
+    j = 0;
+    while (i < n) {
+        if (src[i] == '\r') {
+            buf[j++] = '\n';
+            if (i + 1 < n && src[i+1] == '\n') i++;
+            i++;
+        } else {
+            buf[j++] = src[i++];
+        }
+    }
+    buf[j] = '\0';
+
+    p = buf;
+    w = buf;
+    while (*p) {
+        char *line_start = p;
+        char *line_end;
+        while (*p && *p != '\n') p++;
+        line_end = p;
+        while (line_end > line_start &&
+               (line_end[-1] == ' ' || line_end[-1] == '\t')) {
+            line_end--;
+        }
+        memmove(w, line_start, (size_t)(line_end - line_start));
+        w += (line_end - line_start);
+        if (*p == '\n') {
+            *w++ = '\n';
+            p++;
+        }
+    }
+    *w = '\0';
+    out_len = (size_t)(w - buf);
+
+    while (out_len > 0 && buf[out_len-1] == '\n') out_len--;
+    buf[out_len] = '\0';
+
+    return buf;
+}
