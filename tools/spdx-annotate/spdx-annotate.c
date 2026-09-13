@@ -20,7 +20,7 @@
 #define BINARY_PROBE 8192
 
 typedef enum {
-    STYLE_C,        /* /* ... *\/ */
+    STYLE_C,        /* C-стиль */
     STYLE_HASH,     /* # ... */
     STYLE_REM,      /* @echo off + rem ... */
     STYLE_SIDECAR,  /* <file>.license */
@@ -110,26 +110,25 @@ static void add_style_override(const char *arg) {
     size_t len;
 
     if (!eq) {
-        fprintf(stdout,
-                "ERROR: invalid --comment-style: %s "
-                "(expected <ext>=<style>)\n", arg);
+        printf("ERROR: invalid --comment-style: %s "
+               "(expected <ext>=<style>)\n", arg);
         exit(EXIT_FAILURE);
     }
     len = (size_t)(eq - arg);
     ext = (char*)malloc(len + 1);
-    if (!ext) { fprintf(stdout, "ERROR: OOM\n"); exit(EXIT_FAILURE); }
+    if (!ext) { printf("ERROR: OOM\n"); exit(EXIT_FAILURE); }
     memcpy(ext, arg, len);
     ext[len] = '\0';
     name = eq + 1;
     style = parse_style_name(name);
     if (style == STYLE_UNKNOWN) {
-        fprintf(stdout, "ERROR: unknown comment style: %s\n", name);
+        printf("ERROR: unknown comment style: %s\n", name);
         free(ext);
         exit(EXIT_FAILURE);
     }
     style_overrides = (StyleOverride*)realloc(style_overrides,
         (size_t)(style_overrides_count + 1) * sizeof(StyleOverride));
-    if (!style_overrides) { fprintf(stdout, "ERROR: OOM\n"); exit(EXIT_FAILURE); }
+    if (!style_overrides) { printf("ERROR: OOM\n"); exit(EXIT_FAILURE); }
     style_overrides[style_overrides_count].ext = ext;
     style_overrides[style_overrides_count].style = style;
     style_overrides_count++;
@@ -195,10 +194,10 @@ static CommentStyle detect_style(const char *filename) {
 
 static const char *style_name(CommentStyle s) {
     switch (s) {
-    case STYLE_C:       return "C comment (/* ... */)";
-    case STYLE_HASH:    return "hash comment (# ...)";
-    case STYLE_REM:     return "REM comment (@echo off + rem ...)";
-    case STYLE_SIDECAR: return "sidecar (<file>.license)";
+    case STYLE_C:       return "C comment";
+    case STYLE_HASH:    return "hash comment";
+    case STYLE_REM:     return "REM comment";
+    case STYLE_SIDECAR: return "sidecar";
     default:            return "unknown";
     }
 }
@@ -282,6 +281,10 @@ static void print_block(const char *text, const char *indent) {
 /* ѕроверка уже существующих тегов                                     */
 /* ------------------------------------------------------------------ */
 
+/* ѕровер€ет, есть ли в файле SPDX-License-Identifier вне блоков
+ * REUSE-IgnoreStart / REUSE-IgnoreEnd. ”читывает случай, когда оба
+ * маркера оказались на одной строке Ч обрабатывает их в пор€дке
+ * по€влени€. */
 static int file_has_spdx_license_tag(const char *filename) {
     FILE *f;
     char line[MAX_LINE];
@@ -289,14 +292,29 @@ static int file_has_spdx_license_tag(const char *filename) {
     f = fopen(filename, "r");
     if (!f) return 0;
     while (fgets(line, sizeof(line), f)) {
-        if (ignore) {
-            if (strstr(line, "REUSE-IgnoreEnd")) ignore = 0;
-            continue;
-        }
-        if (strstr(line, "REUSE-IgnoreStart")) { ignore = 1; continue; }
-        if (strstr(line, "SPDX-License-Identifier")) {
-            fclose(f);
-            return 1;
+        const char *p = line;
+        while (*p) {
+            const char *ms = strstr(p, "REUSE-IgnoreStart");
+            const char *me = strstr(p, "REUSE-IgnoreEnd");
+            const char *tag = strstr(p, "SPDX-License-Identifier");
+            const char *first = NULL;
+            int kind = 0;
+
+            if (ms && (!first || ms < first)) { first = ms; kind = 1; }
+            if (me && (!first || me < first)) { first = me; kind = 2; }
+            if (tag && (!first || tag < first)) { first = tag; kind = 3; }
+            if (!first) break;
+
+            if (kind == 1) {
+                ignore = 1;
+                p = ms + 18;
+            } else if (kind == 2) {
+                ignore = 0;
+                p = me + 16;
+            } else {
+                if (!ignore) { fclose(f); return 1; }
+                p = tag + 23;
+            }
         }
     }
     fclose(f);
@@ -598,8 +616,9 @@ int main(int argc, char *argv[]) {
     const char *copyright_override = NULL;
     const char *spdx_db_root = NULL;
     const char *cache_file = NULL;
-    char *toml_path;
-    ReuseConfig *config = NULL;
+    ReuseConfig **configs = NULL;
+    int config_count = 0;
+    SpdxStrList toml_paths;
     int db_errs;
     SpdxStrList used_licenses;
     SpdxStrList paths;
@@ -658,8 +677,9 @@ int main(int argc, char *argv[]) {
 
     repo_root = git_find_repo_root(dir);
 
-    toml_path = find_reuse_toml_upwards(dir);
-    if (toml_path) config = parse_reuse_toml(toml_path);
+    reuse_find_all_tomls(repo_root, dir, &toml_paths);
+    configs = reuse_parse_all(&toml_paths, &config_count);
+    spdx_strlist_free(&toml_paths);
 
     if (!no_gitignore) {
         if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
@@ -688,7 +708,7 @@ int main(int argc, char *argv[]) {
         printf("ERROR: cannot walk tree: %s\n", dir);
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
-        free_reuse_config(config);
+        reuse_free_all(configs, config_count);
         git_ignore_list_free(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
@@ -699,16 +719,21 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < paths.count; i++) {
         const char *fullpath = paths.items[i];
-        const char *name = spdx_get_file_name(fullpath);
         const char *license;
         const char *copyright;
+        char *reuse_license = NULL;
+        char *reuse_copyright = NULL;
+        int precedence = 0;
+        int has_reuse = 0;
         int rc;
 
-        license = find_license_for_file(config, name);
-        if (!license) license = license_override;
+        reuse_resolve_for_file(configs, config_count, fullpath,
+                               NULL, NULL,
+                               &reuse_license, &reuse_copyright,
+                               &precedence, &has_reuse);
 
-        copyright = find_copyright_for_file(config, name);
-        if (!copyright) copyright = copyright_override;
+        license = reuse_license ? reuse_license : license_override;
+        copyright = reuse_copyright ? reuse_copyright : copyright_override;
 
         if (!license || !copyright) {
             char mf_path[1100];
@@ -730,18 +755,21 @@ int main(int argc, char *argv[]) {
                    (!license && !copyright) ? " and " : "",
                    !copyright ? "copyright" : "");
             printf("       Where to define:\n");
-            printf("         - REUSE.toml in %s or above\n", dir);
+            printf("         - REUSE.toml anywhere from repo root to %s\n",
+                   dir);
             printf("         - LICENSE and COPYRIGHT variables in %s\n",
                    mf_path);
             printf("         - --license=... --copyright=... on the command line\n");
             printf("       Example:\n");
             printf("         LICENSE = BSD-3-Clause\n");
             printf("         COPYRIGHT = Copyright (C) 2025 osFree Project\n");
+            free(reuse_license);
+            free(reuse_copyright);
             total_errors++;
             continue;
         }
 
-        if (license) {
+        {
             SpdxStrList ids;
             int k;
             spdx_strlist_init(&ids);
@@ -759,6 +787,9 @@ int main(int argc, char *argv[]) {
 
         rc = annotate_one(fullpath, license, copyright, force, dry_run);
         if (rc != 0) total_errors++;
+
+        free(reuse_license);
+        free(reuse_copyright);
     }
 
     spdx_strlist_free(&paths);
@@ -770,7 +801,7 @@ int main(int argc, char *argv[]) {
                                     &used_licenses, force, dry_run);
 
     spdx_strlist_free(&used_licenses);
-    free_reuse_config(config);
+    reuse_free_all(configs, config_count);
     git_ignore_list_free(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
