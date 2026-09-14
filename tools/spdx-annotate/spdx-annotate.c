@@ -70,7 +70,6 @@ static int write_file(const char *path, const char *text) {
     return 0;
 }
 
-
 /* ------------------------------------------------------------------ */
 /* Определение бинарности                                              */
 /* ------------------------------------------------------------------ */
@@ -801,25 +800,39 @@ int main(int argc, char *argv[]) {
                      ? "" : "\\");
 #endif
 
-            printf("ERROR: %s: annotate requires both license and copyright.\n",
-                   fullpath);
-            printf("       Missing: %s%s%s\n",
-                   !license ? "license" : "",
-                   (!license && !copyright) ? " and " : "",
-                   !copyright ? "copyright" : "");
-            printf("       Fix one of:\n");
-            printf("         - REUSE.toml anywhere from repo root to %s\n",
-                   dir);
-            printf("         - LICENSE and COPYRIGHT variables in %s\n",
-                   mf_path);
-            printf("         - --license=... --copyright=... on the command line\n");
-            printf("       Example:\n");
-            printf("         LICENSE = BSD-3-Clause\n");
-            printf("         COPYRIGHT = Copyright (C) 2025 osFree Project\n");
+            if (!license) {
+                printf("ERROR: %s: no license information available.\n"
+                       "       Annotate needs to know which license to "
+                       "write.\n"
+                       "       Fix one of:\n"
+                       "         - add a [[annotations]] entry in "
+                       "REUSE.toml;\n"
+                       "         - or pass --license=<id> on the command "
+                       "line;\n"
+                       "         - or set LICENSE in %s (e.g. "
+                       "LICENSE = MIT).\n",
+                       fullpath, mf_path);
+                total_errors++;
+            }
+
+            if (!copyright) {
+                printf("ERROR: %s: no copyright information available.\n"
+                       "       Annotate needs to know which copyright to "
+                       "write.\n"
+                       "       Fix one of:\n"
+                       "         - add a [[annotations]] entry in "
+                       "REUSE.toml;\n"
+                       "         - or pass --copyright=<text> on the "
+                       "command line;\n"
+                       "         - or set COPYRIGHT in %s (e.g. "
+                       "COPYRIGHT = Copyright (C) 2025 <holder>).\n",
+                       fullpath, mf_path);
+                total_errors++;
+            }
+
             free(normalized);
             free(reuse_license);
             free(reuse_copyright);
-            total_errors++;
             continue;
         }
 
