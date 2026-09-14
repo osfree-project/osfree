@@ -30,6 +30,12 @@ typedef struct {
     char purpose[128];
     int files_analyzed;
     char verification_code[41];
+
+    /* PackageLicenseInfoFromFiles: уникальные лицензии, собранные из
+     * license-полей всех файлов пакета. Динамический массив строк. */
+    char **license_info_from_files;
+    int    license_info_count;
+    int    license_info_capacity;
 } PackageInfo;
 
 typedef struct {

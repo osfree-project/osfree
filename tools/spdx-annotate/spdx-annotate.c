@@ -15,6 +15,7 @@
 #include "spdx_utils.h"
 #include "spdx_discover.h"
 #include "git_utils.h"
+#include "spdx_tag.h"
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192
@@ -277,49 +278,6 @@ static void print_block(const char *text, const char *indent) {
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* ѕроверка уже существующих тегов                                     */
-/* ------------------------------------------------------------------ */
-
-/* ѕровер€ет, есть ли в файле SPDX-License-Identifier вне блоков
- * REUSE-IgnoreStart / REUSE-IgnoreEnd. ”читывает случай, когда оба
- * маркера оказались на одной строке Ч обрабатывает их в пор€дке
- * по€влени€. */
-static int file_has_spdx_license_tag(const char *filename) {
-    FILE *f;
-    char line[MAX_LINE];
-    int ignore = 0;
-    f = fopen(filename, "r");
-    if (!f) return 0;
-    while (fgets(line, sizeof(line), f)) {
-        const char *p = line;
-        while (*p) {
-            const char *ms = strstr(p, "REUSE-IgnoreStart");
-            const char *me = strstr(p, "REUSE-IgnoreEnd");
-            const char *tag = strstr(p, "SPDX-License-Identifier");
-            const char *first = NULL;
-            int kind = 0;
-
-            if (ms && (!first || ms < first)) { first = ms; kind = 1; }
-            if (me && (!first || me < first)) { first = me; kind = 2; }
-            if (tag && (!first || tag < first)) { first = tag; kind = 3; }
-            if (!first) break;
-
-            if (kind == 1) {
-                ignore = 1;
-                p = ms + 18;
-            } else if (kind == 2) {
-                ignore = 0;
-                p = me + 16;
-            } else {
-                if (!ignore) { fclose(f); return 1; }
-                p = tag + 23;
-            }
-        }
-    }
-    fclose(f);
-    return 0;
-}
 
 /* ------------------------------------------------------------------ */
 /* ќсновна€ операци€ аннотации                                         */
@@ -428,7 +386,7 @@ static int annotate_one(const char *filename,
         return 0;
     }
 
-    has = file_has_spdx_license_tag(filename);
+    has = file_has_spdx_tag(filename);
 
     if (has && !force) {
         printf("Skipped (has tags):   %s\n", filename);

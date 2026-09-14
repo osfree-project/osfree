@@ -5,6 +5,7 @@
 #include <string.h>
 #include "spdx_lic.h"
 #include "spdx_tag.h"
+#include "spdx_utils.h"
 
 #ifdef __LINUX__
 #include <unistd.h>
@@ -22,24 +23,147 @@ static void copy_safe(char *dst, size_t dst_size, const char *src) {
     dst[dst_size - 1] = '\0';
 }
 
-/* Убирает хвостовые артефакты комментария и whitespace.
- * Удаляются: закрывающий блочный комментарий, строчный комментарий,
- * пробелы, табуляции, CR, LF. */
+static char *dup_str(const char *s) {
+    size_t n;
+    char *p;
+    if (!s) return NULL;
+    n = strlen(s);
+    p = (char*)malloc(n + 1);
+    if (p) memcpy(p, s, n + 1);
+    return p;
+}
+
+/* Убирает хвостовые пробелы и маркеры закрытия комментариев.
+ *
+ * Маркеры закрытия блочных и строчных комментариев удаляются с конца
+ * строки только если перед ними стоит пробел или таб (или они в самом
+ * начале строки). Это защищает значения, у которых маркер приклеен
+ * к содержательной части (например, URL, оканчивающийся на две косые
+ * черты). */
 static void strip_trailing_comments(char *s) {
     size_t len = strlen(s);
     while (len > 0) {
-        if (len >= 2 && s[len-2] == '*' && s[len-1] == '/') {
-            len -= 2;
-        } else if (len >= 2 && s[len-2] == '/' && s[len-1] == '/') {
-            len -= 2;
-        } else if (s[len-1] == ' ' || s[len-1] == '\t' ||
-                   s[len-1] == '\n' || s[len-1] == '\r') {
+        if (s[len-1] == ' ' || s[len-1] == '\t' ||
+            s[len-1] == '\n' || s[len-1] == '\r') {
             len -= 1;
-        } else {
-            break;
+            continue;
         }
+        if (len >= 2 && s[len-2] == '*' && s[len-1] == '/') {
+            if (len == 2 || s[len-3] == ' ' || s[len-3] == '\t') {
+                len -= 2;
+                while (len > 0 && (s[len-1] == ' ' || s[len-1] == '\t'))
+                    len--;
+                continue;
+            }
+        }
+        if (len >= 2 && s[len-2] == '/' && s[len-1] == '/') {
+            if (len == 2 || s[len-3] == ' ' || s[len-3] == '\t') {
+                len -= 2;
+                while (len > 0 && (s[len-1] == ' ' || s[len-1] == '\t'))
+                    len--;
+                continue;
+            }
+        }
+        break;
     }
     s[len] = '\0';
+}
+
+/* Проверяет, встречается ли token в expr как отдельное слово
+ * (ограниченный пробелом, табом, скобкой или концом строки). */
+static int contains_token(const char *expr, const char *token) {
+    size_t tl;
+    const char *p;
+    int before_ok;
+    int after_ok;
+
+    tl = strlen(token);
+    p = expr;
+    while ((p = strstr(p, token)) != NULL) {
+        before_ok = (p == expr) ||
+                    (p[-1] == ' ' || p[-1] == '\t' || p[-1] == '(');
+        after_ok = (p[tl] == '\0' || p[tl] == ' ' ||
+                    p[tl] == '\t' || p[tl] == ')');
+        if (before_ok && after_ok) return 1;
+        p += tl;
+    }
+    return 0;
+}
+
+/* Простая AND-цепочка: только идентификаторы, разделённые AND, без OR,
+ * WITHOUT, WITH и без скобок. Для таких выражений безопасно применять
+ * spdx_expression_collect_ids для дедупликации. */
+static int is_simple_and_chain(const char *expr) {
+    if (contains_token(expr, "OR")) return 0;
+    if (contains_token(expr, "WITH")) return 0;
+    if (strchr(expr, '(') || strchr(expr, ')')) return 0;
+    return 1;
+}
+
+/* Склеивает два SPDX-выражения через AND с удалением дубликатов.
+ *
+ * Если оба выражения — простые AND-цепочки (без OR/WITH/скобок),
+ * применяется нормализация через spdx_expression_collect_ids.
+ * В остальных случаях — резервный вариант "(a) AND (b)" без
+ * изменений. */
+static char *merge_and_expressions(const char *a, const char *b) {
+    if (!a && !b) return NULL;
+    if (!a) return dup_str(b);
+    if (!b) return dup_str(a);
+    if (strcmp(a, b) == 0) return dup_str(a);
+
+    if (is_simple_and_chain(a) && is_simple_and_chain(b)) {
+        SpdxStrList ids;
+        int i;
+        size_t total;
+        char *out;
+        size_t pos;
+
+        spdx_strlist_init(&ids);
+        spdx_expression_collect_ids(a, &ids);
+        spdx_expression_collect_ids(b, &ids);
+
+        if (ids.count == 0) {
+            spdx_strlist_free(&ids);
+            return NULL;
+        }
+
+        total = 0;
+        for (i = 0; i < ids.count; i++) {
+            if (i > 0) total += 5;            /* " AND " */
+            total += strlen(ids.items[i]);
+        }
+        out = (char*)malloc(total + 1);
+        if (!out) {
+            spdx_strlist_free(&ids);
+            return NULL;
+        }
+        pos = 0;
+        for (i = 0; i < ids.count; i++) {
+            if (i > 0) {
+                memcpy(out + pos, " AND ", 5);
+                pos += 5;
+            }
+            {
+                size_t l = strlen(ids.items[i]);
+                memcpy(out + pos, ids.items[i], l);
+                pos += l;
+            }
+        }
+        out[pos] = '\0';
+        spdx_strlist_free(&ids);
+        return out;
+    }
+
+    {
+        size_t al = strlen(a);
+        size_t bl = strlen(b);
+        size_t need = al + bl + 12;
+        char *r = (char*)malloc(need);
+        if (!r) return NULL;
+        snprintf(r, need, "(%s) AND (%s)", a, b);
+        return r;
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -100,7 +224,6 @@ static int read_tags(const char *fullpath,
 
 int spdx_resolve_license(ReuseConfig **configs, int config_count,
                          const char *fullpath,
-                         const char *filename,
                          const char *default_license,
                          const char *default_copyright,
                          FileLicenseInfo *out) {
@@ -135,7 +258,6 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
 
     /* 3. Собираем итог в зависимости от precedence */
     if (reuse_precedence == REUSE_PRECEDENCE_OVERRIDE) {
-        /* Только REUSE.toml */
         if (reuse_license) {
             copy_safe(out->license, sizeof(out->license), reuse_license);
             out->source = LICENSE_SRC_REUSE;
@@ -145,17 +267,17 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
             if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
         }
     } else if (reuse_precedence == REUSE_PRECEDENCE_AGGREGATE) {
-        /* REUSE.toml + in-file через AND */
         char *in_lic = side_license ? side_license : tag_license;
         char *in_cop = side_copyright ? side_copyright : tag_copyright;
 
         if (in_lic && reuse_license) {
-            size_t alen = strlen(in_lic);
-            size_t blen = strlen(reuse_license);
-            char *agg = (char*)malloc(alen + blen + 8);
+            char *agg = merge_and_expressions(in_lic, reuse_license);
             if (agg) {
-                snprintf(agg, alen + blen + 8, "(%s) AND (%s)",
-                         in_lic, reuse_license);
+                if (strlen(agg) >= sizeof(out->license)) {
+                    fprintf(stderr,
+                            "Warning: %s: aggregated license expression "
+                            "truncated\n", fullpath);
+                }
                 copy_safe(out->license, sizeof(out->license), agg);
                 free(agg);
                 out->source = LICENSE_SRC_REUSE;
@@ -169,12 +291,22 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
         }
 
         if (in_cop && reuse_copyright) {
-            size_t alen = strlen(in_cop);
-            size_t blen = strlen(reuse_copyright);
-            if (alen + blen + 2 < sizeof(out->copyright)) {
-                sprintf(out->copyright, "%s\n%s", in_cop, reuse_copyright);
-                if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
+            if (strcmp(in_cop, reuse_copyright) == 0) {
+                copy_safe(out->copyright, sizeof(out->copyright), in_cop);
+            } else {
+                size_t alen = strlen(in_cop);
+                size_t blen = strlen(reuse_copyright);
+                if (alen + blen + 2 < sizeof(out->copyright)) {
+                    sprintf(out->copyright, "%s\n%s",
+                            in_cop, reuse_copyright);
+                } else {
+                    fprintf(stderr,
+                            "Warning: %s: aggregated copyright truncated\n",
+                            fullpath);
+                    copy_safe(out->copyright, sizeof(out->copyright), in_cop);
+                }
             }
+            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
         } else if (in_cop) {
             copy_safe(out->copyright, sizeof(out->copyright), in_cop);
             if (out->source == LICENSE_SRC_NONE)
@@ -241,16 +373,15 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
 
 int spdx_resolve_license_single(ReuseConfig *config,
                                 const char *fullpath,
-                                const char *filename,
                                 const char *default_license,
                                 const char *default_copyright,
                                 FileLicenseInfo *out) {
     ReuseConfig *arr[1];
     if (config) {
         arr[0] = config;
-        return spdx_resolve_license(arr, 1, fullpath, filename,
+        return spdx_resolve_license(arr, 1, fullpath,
                                     default_license, default_copyright, out);
     }
-    return spdx_resolve_license(NULL, 0, fullpath, filename,
+    return spdx_resolve_license(NULL, 0, fullpath,
                                 default_license, default_copyright, out);
 }

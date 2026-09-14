@@ -4,49 +4,96 @@
 #include <string.h>
 #include "spdx_tag.h"
 
-#define MAX_LINE 4096
+/* Увеличен с 4096, чтобы длинные copyright-выражения не обрезались. */
+#define MAX_LINE 16384
 
-/* Проверяет, находится ли строка между REUSE-IgnoreStart и REUSE-IgnoreEnd */
-static int is_ignore_start(const char *line) {
-    return strstr(line, "REUSE-IgnoreStart") != NULL;
+/* Пропускает UTF-8 BOM в начале буфера. */
+static const char *skip_bom(const char *p) {
+    if ((unsigned char)p[0] == 0xEF &&
+        (unsigned char)p[1] == 0xBB &&
+        (unsigned char)p[2] == 0xBF) {
+        return p + 3;
+    }
+    return p;
 }
 
-static int is_ignore_end(const char *line) {
-    return strstr(line, "REUSE-IgnoreEnd") != NULL;
-}
-
-/* Пропускает пробелы и табуляции */
-static const char *skip_whitespace(const char *p) {
+/* Пропускает отступ и маркер комментария. Возвращает указатель
+ * на первое содержательное содержимое строки. */
+static const char *skip_comment_prefix(const char *p) {
+    while (*p == ' ' || *p == '\t') p++;
+    if (p[0] == '/' && p[1] == '/') { p += 2; }
+    else if (p[0] == '/' && p[1] == '*') { p += 2; }
+    else if (p[0] == '#') { p++; }
+    else if (p[0] == ';') { p++; }
+    else if (p[0] == '%') { p++; }
+    else if (p[0] == '-' && p[1] == '-') { p += 2; }
+    else if (p[0] == '*') { p++; }   /* продолжение блочного комментария */
     while (*p == ' ' || *p == '\t') p++;
     return p;
 }
 
-/* Удаляет хвостовые пробелы и переводы строк */
-static void trim_trailing(char *str) {
-    size_t len = strlen(str);
-    while (len > 0 && (str[len-1] == '\n' || str[len-1] == '\r' ||
-                       str[len-1] == ' ' || str[len-1] == '\t')) {
-        str[--len] = '\0';
+/* Проверяет, начинается ли содержательная часть строки с
+ * REUSE-IgnoreStart или REUSE-IgnoreEnd. После маркера должен идти
+ * пробел, таб, перевод строки или конец. Возвращает 1, 2 или 0. */
+static int line_ignore_marker(const char *line) {
+    const char *p = skip_comment_prefix(line);
+    if (strncmp(p, "REUSE-IgnoreStart", 17) == 0) {
+        char c = p[17];
+        if (c == '\0' || c == ' ' || c == '\t' ||
+            c == '\n' || c == '\r')
+            return 1;
     }
+    if (strncmp(p, "REUSE-IgnoreEnd", 15) == 0) {
+        char c = p[15];
+        if (c == '\0' || c == ' ' || c == '\t' ||
+            c == '\n' || c == '\r')
+            return 2;
+    }
+    return 0;
+}
+
+/* Удаляет хвостовые пробелы, переводы строк и маркеры закрытия
+ * блочных и строчных комментариев. */
+static void strip_trailing_markers(char *str) {
+    size_t len = strlen(str);
+    while (len > 0) {
+        if (len >= 2 && str[len-2] == '*' && str[len-1] == '/') {
+            len -= 2;
+        } else if (len >= 2 && str[len-2] == '/' && str[len-1] == '/') {
+            len -= 2;
+        } else if (str[len-1] == ' ' || str[len-1] == '\t' ||
+                   str[len-1] == '\n' || str[len-1] == '\r') {
+            len -= 1;
+        } else {
+            break;
+        }
+    }
+    str[len] = '\0';
 }
 
 int file_has_spdx_tag(const char *filename) {
     FILE *f;
     char line[MAX_LINE];
     int ignore = 0;
+    int first_line = 1;
 
     f = fopen(filename, "r");
     if (!f) return 0;
     while (fgets(line, sizeof(line), f)) {
-        if (ignore) {
-            if (is_ignore_end(line)) ignore = 0;
-            continue;
+        char *work = line;
+        int marker;
+
+        if (first_line) {
+            work = (char *)skip_bom(line);
+            first_line = 0;
         }
-        if (is_ignore_start(line)) {
-            ignore = 1;
-            continue;
-        }
-        if (strstr(line, "SPDX-License-Identifier:")) {
+
+        marker = line_ignore_marker(work);
+        if (marker == 1) { ignore = 1; continue; }
+        if (marker == 2) { ignore = 0; continue; }
+        if (ignore) continue;
+
+        if (strstr(work, "SPDX-License-Identifier:")) {
             fclose(f);
             return 1;
         }
@@ -65,23 +112,29 @@ char *file_get_spdx_license(const char *filename) {
     char *start;
     size_t len;
     int ignore = 0;
+    int first_line = 1;
 
     f = fopen(filename, "r");
     if (!f) return NULL;
 
     while (fgets(line, sizeof(line), f)) {
-        if (ignore) {
-            if (is_ignore_end(line)) ignore = 0;
-            continue;
+        char *work = line;
+        int marker;
+
+        if (first_line) {
+            work = (char *)skip_bom(line);
+            first_line = 0;
         }
-        if (is_ignore_start(line)) {
-            ignore = 1;
-            continue;
-        }
-        pos = strstr(line, needle);
+
+        marker = line_ignore_marker(work);
+        if (marker == 1) { ignore = 1; continue; }
+        if (marker == 2) { ignore = 0; continue; }
+        if (ignore) continue;
+
+        pos = strstr(work, needle);
         if (pos) {
-            start = (char *)skip_whitespace(pos + needle_len);
-            trim_trailing(start);
+            start = (char *)skip_comment_prefix(pos + needle_len);
+            strip_trailing_markers(start);
             len = strlen(start);
             if (len > 0) {
                 result = (char *)malloc(len + 1);
@@ -106,53 +159,53 @@ char *file_get_spdx_copyright(const char *filename) {
     char *result = NULL;
     size_t result_len = 0;
     int ignore = 0;
+    int first_line = 1;
 
     f = fopen(filename, "r");
     if (!f) return NULL;
 
     while (fgets(line, sizeof(line), f)) {
-        char *p = line;
+        char *p;
         char *start;
         size_t len;
+        int marker;
 
-        if (ignore) {
-            if (is_ignore_end(line)) ignore = 0;
-            continue;
+        if (first_line) {
+            p = (char *)skip_bom(line);
+            first_line = 0;
+        } else {
+            p = line;
         }
-        if (is_ignore_start(line)) {
-            ignore = 1;
-            continue;
-        }
 
-        /* Пропускаем ведущие пробелы и распространённые символы комментариев */
-        while (*p == ' ' || *p == '\t' || *p == '#') p++;
-        if (*p == '/' && p[1] == '/') p += 2;
-        else if (*p == '*') p++;
-        else if (*p == ';') p++;
-        else if (*p == '%') p++;
-        else if (p[0] == '-' && p[1] == '-') p += 2;
-        while (*p == ' ' || *p == '\t') p++;
+        marker = line_ignore_marker(p);
+        if (marker == 1) { ignore = 1; continue; }
+        if (marker == 2) { ignore = 0; continue; }
+        if (ignore) continue;
 
-        /* Проверяем три разрешённых способа указания копирайта */
+        /* Пропускаем отступ и маркер комментария */
+        p = (char *)skip_comment_prefix(p);
+
+        /* Три разрешённых способа указания копирайта */
         if (strncmp(p, "SPDX-FileCopyrightText:", 23) == 0) {
             p += 23;
-            p = (char *)skip_whitespace(p);
+            while (*p == ' ' || *p == '\t') p++;
             start = p;
         } else if (strncmp(p, "Copyright", 9) == 0 &&
                    (p[9] == ' ' || p[9] == '\t')) {
             p += 9;
-            p = (char *)skip_whitespace(p);
+            while (*p == ' ' || *p == '\t') p++;
             start = p;
-        } else if ((unsigned char)*p == 0xC2 && (unsigned char)*(p+1) == 0xA9) {
-            /* Символ © в UTF-8 */
+        } else if ((unsigned char)*p == 0xC2 &&
+                   (unsigned char)*(p+1) == 0xA9) {
+            /* © в UTF-8 */
             p += 2;
-            p = (char *)skip_whitespace(p);
+            while (*p == ' ' || *p == '\t') p++;
             start = p;
         } else {
             continue;
         }
 
-        trim_trailing(start);
+        strip_trailing_markers(start);
         len = strlen(start);
         if (len > 0) {
             char *new_result;

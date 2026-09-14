@@ -12,6 +12,7 @@ static void print_str(const char *s) {
 }
 
 static void print_package(const PackageInfo *pkg) {
+    int i;
     printf("    {\n");
     printf("      \"SPDXID\": \"%s\",\n", pkg->spdx_id);
     printf("      \"name\": \""); print_str(pkg->name); printf("\",\n");
@@ -24,6 +25,16 @@ static void print_package(const PackageInfo *pkg) {
     } else printf("      \"supplier\": \"NOASSERTION\",\n");
     printf("      \"licenseConcluded\": \""); print_str(pkg->license); printf("\",\n");
     printf("      \"licenseDeclared\": \""); print_str(pkg->license); printf("\",\n");
+    if (pkg->files_analyzed && pkg->license_info_count > 0) {
+        printf("      \"licenseInfoFromFiles\": [\n");
+        for (i = 0; i < pkg->license_info_count; i++) {
+            printf("        \"");
+            print_str(pkg->license_info_from_files[i]);
+            printf("\"%s\n",
+                   (i + 1 < pkg->license_info_count) ? "," : "");
+        }
+        printf("      ],\n");
+    }
     if (pkg->copyright[0]) {
         printf("      \"copyrightText\": \""); print_str(pkg->copyright); printf("\",\n");
     } else printf("      \"copyrightText\": \"NOASSERTION\",\n");

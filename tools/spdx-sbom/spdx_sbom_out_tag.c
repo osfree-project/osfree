@@ -73,10 +73,16 @@ int sbom_output_tagvalue(const SpdxDocument *doc) {
         printf("PackageSupplier: %s\n", pkg->supplier);
     printf("PackageLicenseConcluded: %s\n", pkg->license);
     printf("PackageLicenseDeclared: %s\n", pkg->license);
+    if (pkg->files_analyzed) {
+        for (i = 0; i < pkg->license_info_count; i++) {
+            printf("PackageLicenseInfoFromFiles: %s\n",
+                   pkg->license_info_from_files[i]);
+        }
+    }
     if (pkg->copyright[0])
         print_text_field("PackageCopyrightText", pkg->copyright);
     if (pkg->purpose[0])
-      printf("PrimaryPackagePurpose: %s\n", pkg->purpose);
+        printf("PrimaryPackagePurpose: %s\n", pkg->purpose);
     if (pkg->files_analyzed) {
         printf("FilesAnalyzed: true\n");
         printf("PackageVerificationCode: %s\n", pkg->verification_code);

@@ -127,6 +127,25 @@ static int is_spdx_document(const char *name) {
 /* Git-фильтрация                                                      */
 /* ------------------------------------------------------------------ */
 
+/* Сравнение символов пути: регистрозависимо на Linux, регистронезависимо
+ * на Windows. */
+static int path_char_eq(int a, int b) {
+#ifdef _WIN32
+    return tolower((unsigned char)a) == tolower((unsigned char)b);
+#else
+    return (unsigned char)a == (unsigned char)b;
+#endif
+}
+
+static int path_prefix_eq(const char *s, const char *prefix, size_t n) {
+    size_t i;
+    for (i = 0; i < n; i++) {
+        if (!s[i]) return 0;
+        if (!path_char_eq(s[i], prefix[i])) return 0;
+    }
+    return 1;
+}
+
 /* Нормализует путь к виду с '/'. Возвращает malloc-строку. */
 static char *to_slash(const char *path) {
     size_t i;
@@ -154,7 +173,7 @@ static char *rel_path(const char *root, const char *full) {
     }
     rlen = strlen(rroot);
     flen = strlen(rfull);
-    if (flen < rlen || strncmp(rroot, rfull, rlen) != 0) {
+    if (flen < rlen || !path_prefix_eq(rfull, rroot, rlen)) {
         free(rroot);
         free(rfull);
         return NULL;
@@ -269,7 +288,6 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
         join_path(full, sizeof(full), dir, entry->d_name);
         if (stat(full, &st) != 0) continue;
 
-        /* Симлинки игнорируем */
         if (S_ISLNK(st.st_mode)) continue;
 
         if (S_ISDIR(st.st_mode)) {
@@ -281,7 +299,7 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
                 return -1;
             }
         } else if (S_ISREG(st.st_mode)) {
-            if (st.st_size == 0) continue;   /* пустые игнорируем */
+            if (st.st_size == 0) continue;
             if (should_skip_file(entry->d_name, opts)) continue;
             if (should_skip_by_gitignore(opts, full, 0)) continue;
             spdx_strlist_add_unique(out, full);

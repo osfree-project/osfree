@@ -69,60 +69,6 @@ char *sbom_json_escape(const char *src) {
     return dst;
 }
 
-int sbom_str_ieq(const char *a, const char *b) {
-    while (*a && *b) {
-        if (tolower((unsigned char)*a) != tolower((unsigned char)*b))
-            return 0;
-        a++;
-        b++;
-    }
-    return (*a == '\0' && *b == '\0');
-}
-
-int sbom_str_ieq_prefix(const char *str, const char *prefix, size_t n) {
-    size_t i;
-    for (i = 0; i < n; i++) {
-        if (str[i] == '\0') return 0;
-        if (tolower((unsigned char)str[i]) != tolower((unsigned char)prefix[i]))
-            return 0;
-    }
-    return 1;
-}
-
-int sbom_is_license_file(const char *filename) {
-    static const char *exact[] = {
-        "license", "licence", "copying", "unlicense", "copyright"
-    };
-    const char *base = spdx_get_file_name(filename);
-    size_t i;
-    for (i = 0; i < sizeof(exact)/sizeof(exact[0]); i++)
-        if (sbom_str_ieq(base, exact[i])) return 1;
-    if (sbom_str_ieq_prefix(base, "license", 7) ||
-        sbom_str_ieq_prefix(base, "licence", 7) ||
-        sbom_str_ieq_prefix(base, "copying", 7)) {
-        if (base[7] == '\0' || base[7] == '.' || base[7] == '-' || base[7] == '_')
-            return 1;
-    }
-    return 0;
-}
-
-int sbom_is_ignored_dir(const char *name) {
-    return strcmp(name, "LICENSES") == 0 || strcmp(name, ".reuse") == 0;
-}
-
-int sbom_is_license_sidecar(const char *name) {
-    size_t len = strlen(name);
-    return len > 8 && strcmp(name + len - 8, ".license") == 0;
-}
-
-int sbom_is_excluded(const char *filename, char **list, int count) {
-    int i;
-    const char *base = spdx_get_file_name(filename);
-    for (i = 0; i < count; i++)
-        if (strcmp(list[i], base) == 0) return 1;
-    return 0;
-}
-
 const char *sbom_get_file_type(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (!ext) return "OTHER";

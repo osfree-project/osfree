@@ -105,7 +105,6 @@ static void process_file(const char *fullpath,
                          ReuseConfig **configs, int config_count,
                          SpdxStrList *used_licenses) {
     FileLicenseInfo lic;
-    const char *name = spdx_get_file_name(fullpath);
     FILE *f;
     const char *wcc_cmd;
 #ifdef __LINUX__
@@ -128,7 +127,7 @@ static void process_file(const char *fullpath,
     }
     fclose(f);
 
-    if (spdx_resolve_license(configs, config_count, fullpath, name,
+    if (spdx_resolve_license(configs, config_count, fullpath,
                              default_license, default_copyright,
                              &lic) != 0) {
         fprintf(stderr,
