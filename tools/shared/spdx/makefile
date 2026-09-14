@@ -3,7 +3,12 @@
 
 PROJ      = spdx
 TRGT      = $(PROJ).lib
-ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
+!ifeq %OS LINUX
+defs = -d__LINUX__ -i=$(%WATCOM)$(SEP)lh
+!else
+defs = 
+!endif
+ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include $(defs)
 srcfiles  = $(p)spdx_tag$(e) $(p)spdx_db$(e) $(p)spdx_discover$(e) $(p)spdx_utils$(e) $(p)spdx_lic$(e)
 TARGETS  = $(PATH)$(TRGT)
 
