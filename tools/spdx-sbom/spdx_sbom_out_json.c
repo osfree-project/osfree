@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include "spdx_sbom_out.h"
 #include "spdx_sbom_utils.h"
+#include "json_parser.h"
 
 static void print_str(const char *s) {
-    char *esc = sbom_json_escape(s ? s : "");
+    char *esc = json_escape_string(s ? s : "");
     printf("%s", esc ? esc : "");
     free(esc);
 }

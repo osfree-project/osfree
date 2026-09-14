@@ -24,36 +24,6 @@ typedef struct {
     int count;
 } RenameMap;
 
-/* ---------- Ёкранирование строк дл€ JSON ---------- */
-
-static char *json_escape_string(const char *src) {
-    size_t len, extra, i, j;
-    char *dst;
-
-    if (!src) src = "";
-    len = strlen(src);
-    extra = 0;
-    for (i = 0; i < len; i++) {
-        if (src[i] == '"' || src[i] == '\\' || src[i] == '\n' ||
-            src[i] == '\r' || src[i] == '\t')
-            extra++;
-    }
-    dst = (char*)malloc(len + extra + 1);
-    if (!dst) return NULL;
-    j = 0;
-    for (i = 0; i < len; i++) {
-        switch (src[i]) {
-            case '"':  dst[j++] = '\\'; dst[j++] = '"'; break;
-            case '\\': dst[j++] = '\\'; dst[j++] = '\\'; break;
-            case '\n': dst[j++] = '\\'; dst[j++] = 'n'; break;
-            case '\r': dst[j++] = '\\'; dst[j++] = 'r'; break;
-            case '\t': dst[j++] = '\\'; dst[j++] = 't'; break;
-            default:   dst[j++] = src[i]; break;
-        }
-    }
-    dst[j] = '\0';
-    return dst;
-}
 
 static void print_json_string(const char *s) {
     char *esc = json_escape_string(s ? s : "");

@@ -42,33 +42,6 @@ void sbom_make_package_id(const char *base_name, const char *suffix,
         snprintf(buf, buf_size, "SPDXRef-Package-%s", sanitized);
 }
 
-char *sbom_json_escape(const char *src) {
-    size_t len, extra, i, j;
-    char *dst;
-    len = strlen(src);
-    extra = 0;
-    for (i = 0; i < len; i++) {
-        if (src[i] == '"' || src[i] == '\\' || src[i] == '\n' ||
-            src[i] == '\r' || src[i] == '\t')
-            extra++;
-    }
-    dst = (char*)malloc(len + extra + 1);
-    if (!dst) return NULL;
-    j = 0;
-    for (i = 0; i < len; i++) {
-        switch (src[i]) {
-            case '"':  dst[j++] = '\\'; dst[j++] = '"'; break;
-            case '\\': dst[j++] = '\\'; dst[j++] = '\\'; break;
-            case '\n': dst[j++] = '\\'; dst[j++] = 'n'; break;
-            case '\r': dst[j++] = '\\'; dst[j++] = 'r'; break;
-            case '\t': dst[j++] = '\\'; dst[j++] = 't'; break;
-            default:   dst[j++] = src[i]; break;
-        }
-    }
-    dst[j] = '\0';
-    return dst;
-}
-
 const char *sbom_get_file_type(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (!ext) return "OTHER";

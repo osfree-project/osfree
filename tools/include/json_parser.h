@@ -41,4 +41,8 @@ const char *json_get_string(JsonNode *node);
 /* ќсвобождает дерево, включа€ само содержимое JSON. */
 void json_free(JsonNode *node);
 
+/* Ёкранирует строку дл€ вставки в JSON-значение (внутри двойных
+ * кавычек). ¬озвращает malloc-строку (caller free) или NULL при OOM. */
+char *json_escape_string(const char *src);
+
 #endif /* JSON_PARSER_H */

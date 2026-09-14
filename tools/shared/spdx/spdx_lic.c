@@ -6,6 +6,7 @@
 #include "spdx_lic.h"
 #include "spdx_tag.h"
 #include "spdx_utils.h"
+#include "spdx_db.h"
 
 #ifdef __LINUX__
 #include <unistd.h>
@@ -347,6 +348,16 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
     if (side_copyright) free(side_copyright);
     if (tag_license) free(tag_license);
     if (tag_copyright) free(tag_copyright);
+
+    /* Нормализация SPDX-выражения к каноническому регистру.
+     * Применяется ко всем источникам, включая CLI-фолбэк. */
+    if (out->license[0] != '\0') {
+        char *normalized = spdx_normalize_license_expression(out->license);
+        if (normalized) {
+            copy_safe(out->license, sizeof(out->license), normalized);
+            free(normalized);
+        }
+    }
 
     strip_trailing_comments(out->license);
     strip_trailing_comments(out->copyright);

@@ -9,7 +9,6 @@ void sbom_remove_extension(char *str);
 void sbom_sanitize_id(const char *src, char *dst, size_t dst_size);
 void sbom_make_package_id(const char *base_name, const char *suffix,
                           char *buf, size_t buf_size);
-char *sbom_json_escape(const char *src);
 const char *sbom_get_file_type(const char *filename);
 
 void filelist_init(FileList *list);

@@ -38,6 +38,10 @@ void spdx_expression_collect_ids(const char *expr, SpdxStrList *out);
  * ¬озвращает malloc-строку (caller free) или NULL при OOM. */
 char *spdx_normalize_text(const char *src);
 
+/* Ёкранирует строку дл€ вставки в JSON-значение.
+ * ¬озвращает malloc-строку (caller free) или NULL при OOM. */
+char *spdx_json_escape(const char *src);
+
 #ifdef __cplusplus
 }
 #endif

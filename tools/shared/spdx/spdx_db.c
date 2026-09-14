@@ -1075,3 +1075,86 @@ int spdx_expression_validate(const char *expr, const char **bad_token) {
     if (*pp.p != '\0') return SPDX_EXPR_SYNTAX_ERROR;
     return SPDX_EXPR_OK;
 }
+
+/* ------------------------------------------------------------------ */
+/* Ќормализаци€ SPDX-выражений                                         */
+/* ------------------------------------------------------------------ */
+
+/* ¬озвращает каноническую форму выражени€ SPDX: каждый идентификатор
+ * из SPDX License List / SPDX Exceptions замен€етс€ на канонический
+ * регистр (например, 'BSD-3-clause' -> 'BSD-3-Clause').
+ *
+ * ќператоры AND/OR/WITH, скобки и пробелы сохран€ютс€ как есть.
+ * LicenseRef-* и DocumentRef-* остаютс€ без изменений. */
+char *spdx_normalize_license_expression(const char *expr) {
+    size_t cap = 128;
+    size_t len = 0;
+    char *out;
+    const char *p;
+
+    if (!expr) return NULL;
+
+    out = (char*)malloc(cap);
+    if (!out) return NULL;
+    out[0] = '\0';
+
+    p = expr;
+    while (*p) {
+        const char *start;
+        size_t tok_len;
+        char tok[256];
+        const char *canonical;
+
+        if (*p == ' ' || *p == '\t' || *p == '(' || *p == ')') {
+            if (len + 1 >= cap) {
+                size_t ncap = cap * 2;
+                char *no = (char*)realloc(out, ncap);
+                if (!no) { free(out); return NULL; }
+                out = no; cap = ncap;
+            }
+            out[len++] = *p++;
+            out[len] = '\0';
+            continue;
+        }
+
+        start = p;
+        while (*p && !isspace((unsigned char)*p) &&
+               *p != '(' && *p != ')')
+            p++;
+        tok_len = (size_t)(p - start);
+        if (tok_len >= sizeof(tok)) tok_len = sizeof(tok) - 1;
+        memcpy(tok, start, tok_len);
+        tok[tok_len] = '\0';
+
+        if (strcmp(tok, "AND") == 0 ||
+            strcmp(tok, "OR") == 0 ||
+            strcmp(tok, "WITH") == 0) {
+            canonical = tok;
+        } else if (strncmp(tok, "LicenseRef-", 11) == 0 ||
+                   strncmp(tok, "DocumentRef-", 12) == 0) {
+            canonical = tok;
+        } else {
+            const SpdxLicenseEntry *e = spdx_license_lookup(tok);
+            const SpdxExceptionEntry *ex = NULL;
+            if (!e) ex = spdx_exception_lookup(tok);
+            if (e) canonical = e->id;
+            else if (ex) canonical = ex->id;
+            else canonical = tok;
+        }
+
+        {
+            size_t clen = strlen(canonical);
+            if (len + clen + 1 > cap) {
+                size_t ncap = cap * 2 + clen;
+                char *no = (char*)realloc(out, ncap);
+                if (!no) { free(out); return NULL; }
+                out = no; cap = ncap;
+            }
+            memcpy(out + len, canonical, clen);
+            len += clen;
+            out[len] = '\0';
+        }
+    }
+
+    return out;
+}
