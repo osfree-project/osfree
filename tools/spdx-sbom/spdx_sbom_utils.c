@@ -112,3 +112,34 @@ void filelist_free(FileList *list) {
     list->count = 0;
     list->capacity = 0;
 }
+
+void snippetlist_init(SnippetList *list) {
+    list->items = NULL;
+    list->count = 0;
+    list->capacity = 0;
+}
+
+SnippetInfo *snippetlist_add(SnippetList *list) {
+    SnippetInfo *s;
+    if (list->count >= list->capacity) {
+        int new_cap = list->capacity ? list->capacity * 2 : 4;
+        SnippetInfo *ni = (SnippetInfo*)realloc(list->items,
+            (size_t)new_cap * sizeof(SnippetInfo));
+        if (!ni) {
+            fprintf(stderr, "Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+        list->items = ni;
+        list->capacity = new_cap;
+    }
+    s = &list->items[list->count++];
+    memset(s, 0, sizeof(*s));
+    return s;
+}
+
+void snippetlist_free(SnippetList *list) {
+    free(list->items);
+    list->items = NULL;
+    list->count = 0;
+    list->capacity = 0;
+}

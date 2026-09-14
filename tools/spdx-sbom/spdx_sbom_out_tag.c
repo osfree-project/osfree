@@ -4,15 +4,8 @@
 #include <string.h>
 #include "spdx_sbom_out.h"
 
-/* ¬ыводит поле в формате <Tag>: <value>.
- *
- * SPDX 2.3, раздел про tag-value:
- *   "When a field value contains a line break, it must be wrapped in
- *    <text></text> tags."
- *
- * ѕоэтому если значение содержит '\n' или '\r' Ч оборачиваем в <text>
- * и обрезаем хвостовые переводы строк, чтобы </text> шЄл сразу после
- * последней содержательной строки. */
+/* ¬ыводит поле в формате <Tag>: <value>. ћногострочные значени€
+ * оборачиваютс€ в <text>...</text> (SPDX 2.3). */
 static void print_text_field(const char *tag, const char *value) {
     const char *end;
     size_t len;
@@ -101,6 +94,18 @@ int sbom_output_tagvalue(const SpdxDocument *doc) {
         if (doc->files.items[i].copyright[0])
             print_text_field("FileCopyrightText",
                              doc->files.items[i].copyright);
+        printf("\n");
+    }
+
+    for (i = 0; i < doc->snippets.count; i++) {
+        const SnippetInfo *s = &doc->snippets.items[i];
+        printf("SnippetSPDXID: %s\n", s->spdx_id);
+        printf("SnippetFromFileSPDXID: %s\n", s->from_file_id);
+        printf("SnippetLineRange: %d:%d\n", s->line_start, s->line_end);
+        printf("SnippetLicenseConcluded: %s\n", s->license);
+        printf("LicenseInfoInSnippet: %s\n", s->license);
+        if (s->copyright[0])
+            print_text_field("SnippetCopyrightText", s->copyright);
         printf("\n");
     }
 

@@ -13,10 +13,12 @@
 #endif
 
 #include <reuse_parser.h>
+#include "dep5_parser.h"
 #include "spdx_db.h"
 #include "spdx_discover.h"
 #include "spdx_utils.h"
 #include "spdx_lic.h"
+#include "spdx_tag.h"
 #include "git_utils.h"
 
 static int error_count = 0;
@@ -29,6 +31,9 @@ static int total_files = 0;
 static int files_with_license = 0;
 static int files_with_copyright = 0;
 static int read_errors = 0;
+
+static int total_snippets = 0;
+static int snippets_with_license = 0;
 
 static int has_extension(const char *name) {
     const char *dot = strrchr(name, '.');
@@ -99,6 +104,60 @@ static void check_license_expression(const char *fullpath, const char *license,
         }
         spdx_strlist_free(&ids);
     }
+}
+
+/* Обрабатывает сниппеты одного файла:
+ *   - сниппет без лицензии - ошибка (согласовано);
+ *   - лицензия сниппета проверяется как обычное SPDX-выражение;
+ *   - идентификаторы попадают в used_licenses. */
+static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
+    TagSnippetList snippets;
+    int i;
+
+    if (file_get_snippets(fullpath, &snippets) != 0) {
+        /* Парсер уже напечатал сообщение */
+        error_count++;
+        return;
+    }
+
+    for (i = 0; i < snippets.count; i++) {
+        TagSnippet *s = &snippets.items[i];
+
+        total_snippets++;
+
+        if (!s->license || s->license[0] == '\0') {
+            fprintf(stderr,
+                    "ERROR: %s:%d-%d: snippet has no "
+                    "SPDX-License-Identifier.\n"
+                    "       Add 'SPDX-License-Identifier: <id>' inside the\n"
+                    "       SPDX-SnippetBegin/SPDX-SnippetEnd block.\n",
+                    fullpath, s->line_start, s->line_end);
+            error_count++;
+            continue;
+        }
+
+        snippets_with_license++;
+
+        {
+            /* Формируем метку с диапазоном строк для диагностики. */
+            char label[1200];
+            snprintf(label, sizeof(label), "%s:%d-%d",
+                     fullpath, s->line_start, s->line_end);
+            check_license_expression(label, s->license, used_licenses);
+        }
+
+        if (!s->copyright || s->copyright[0] == '\0') {
+            fprintf(stderr,
+                    "WARNING: %s:%d-%d: snippet has no "
+                    "SPDX-SnippetCopyrightText.\n"
+                    "         REUSE recommends adding a copyright notice\n"
+                    "         inside the snippet.\n",
+                    fullpath, s->line_start, s->line_end);
+            warning_count++;
+        }
+    }
+
+    tag_snippets_free(&snippets);
 }
 
 static void process_file(const char *fullpath,
@@ -196,6 +255,9 @@ static void process_file(const char *fullpath,
     if (lic.license[0] != '\0') {
         check_license_expression(fullpath, lic.license, used_licenses);
     }
+
+    /* Сниппеты */
+    process_snippets(fullpath, used_licenses);
 }
 
 /* Отделяет SPDX-id от расширения.
@@ -535,6 +597,22 @@ int main(int argc, char *argv[]) {
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
 
+    /* DEP5: подгружаем .reuse/dep5, если есть. Получает depth = -1,
+     * поэтому проигрывает любому REUSE.toml. */
+    if (repo_root) {
+        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
+        if (dep5) {
+            ReuseConfig **na = (ReuseConfig**)realloc(configs,
+                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
+            if (na) {
+                configs = na;
+                configs[config_count++] = dep5;
+            } else {
+                free_reuse_config(dep5);
+            }
+        }
+    }
+
     /* --- Git-фильтрация --- */
     if (!no_gitignore) {
         if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
@@ -578,6 +656,11 @@ int main(int argc, char *argv[]) {
             files_with_license, total_files);
     fprintf(stderr, "  Files with copyright info:  %d / %d\n",
             files_with_copyright, total_files);
+    if (total_snippets > 0 || snippets_with_license > 0) {
+        fprintf(stderr, "  Snippets:                   %d\n", total_snippets);
+        fprintf(stderr, "  Snippets with license:      %d / %d\n",
+                snippets_with_license, total_snippets);
+    }
     fprintf(stderr, "  Read errors:                %d\n", read_errors);
     fprintf(stderr, "  Used licenses:              ");
     if (used_licenses.count == 0) {

@@ -16,4 +16,8 @@ void filelist_init(FileList *list);
 void filelist_add(FileList *list, const FileInfo *info);
 void filelist_free(FileList *list);
 
+void snippetlist_init(SnippetList *list);
+SnippetInfo *snippetlist_add(SnippetList *list);
+void snippetlist_free(SnippetList *list);
+
 #endif /* SPDX_SBOM_UTILS_H */

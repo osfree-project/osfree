@@ -1,4 +1,4 @@
-/* spdx_sbom_scan.c - сбор списка файлов для SBOM (C89) */
+/* spdx_sbom_scan.c - сбор списка файлов и сниппетов для SBOM (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +8,7 @@
 #include "spdx_lic.h"
 #include "spdx_utils.h"
 #include "spdx_db.h"
+#include "spdx_tag.h"
 #include "sha1_utils.h"
 
 int sbom_fill_file_basic(const char *fullpath,
@@ -80,12 +81,71 @@ static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
     return 0;
 }
 
+/* Собирает сниппеты одного файла в общий список SBOM.
+ * Для каждого сниппета проверяет наличие лицензии (ошибка при
+ * отсутствии) и заполняет поля SnippetInfo. */
+static int collect_file_snippets(const char *fullpath,
+                                 const char *display_name,
+                                 SnippetList *snippets) {
+    TagSnippetList raw;
+    int i;
+    int rc = 0;
+
+    if (file_get_snippets(fullpath, &raw) != 0) {
+        return -1;
+    }
+
+    for (i = 0; i < raw.count; i++) {
+        TagSnippet *rs = &raw.items[i];
+        SnippetInfo *s;
+
+        if (!rs->license || rs->license[0] == '\0') {
+            fprintf(stderr,
+                    "Error: %s:%d-%d: snippet has no "
+                    "SPDX-License-Identifier\n",
+                    fullpath, rs->line_start, rs->line_end);
+            rc = -1;
+            continue;
+        }
+
+        {
+            const char *bad = NULL;
+            int vrc = spdx_expression_validate(rs->license, &bad);
+            if (vrc != SPDX_EXPR_OK) {
+                fprintf(stderr,
+                        "Error: %s:%d-%d: invalid SPDX expression '%s'\n",
+                        fullpath, rs->line_start, rs->line_end, rs->license);
+                rc = -1;
+                continue;
+            }
+        }
+
+        s = snippetlist_add(snippets);
+        snprintf(s->spdx_id, sizeof(s->spdx_id),
+                 "SPDXRef-Snippet-%d", snippets->count);
+        snprintf(s->from_file_id, sizeof(s->from_file_id),
+                 "SPDXRef-File-%s", display_name);
+        strncpy(s->from_file_name, display_name,
+                sizeof(s->from_file_name) - 1);
+        s->line_start = rs->line_start;
+        s->line_end   = rs->line_end;
+        strncpy(s->license, rs->license, sizeof(s->license) - 1);
+        if (rs->copyright)
+            strncpy(s->copyright, rs->copyright,
+                    sizeof(s->copyright) - 1);
+    }
+
+    tag_snippets_free(&raw);
+    return rc;
+}
+
 static int process_one_file(const char *fullpath,
                             const char *display_name,
                             ReuseConfig **configs, int config_count,
                             const char *default_license,
                             const char *default_copyright,
-                            FileList *out) {
+                            FileList *out,
+                            SnippetList *snippets) {
     FileInfo info;
     FileLicenseInfo lic;
 
@@ -107,6 +167,11 @@ static int process_one_file(const char *fullpath,
     strncpy(info.copyright, lic.copyright, sizeof(info.copyright) - 1);
 
     filelist_add(out, &info);
+
+    if (snippets) {
+        if (collect_file_snippets(fullpath, display_name, snippets) != 0)
+            return -1;
+    }
     return 0;
 }
 
@@ -114,7 +179,8 @@ int sbom_collect_files(const SpdxStrList *paths,
                        ReuseConfig **configs, int config_count,
                        const char *default_license,
                        const char *default_copyright,
-                       FileList *out) {
+                       FileList *out,
+                       SnippetList *snippets) {
     int i;
     for (i = 0; i < paths->count; i++) {
         const char *full = paths->items[i];
@@ -122,7 +188,7 @@ int sbom_collect_files(const SpdxStrList *paths,
         if (process_one_file(full, name,
                              configs, config_count,
                              default_license, default_copyright,
-                             out) != 0)
+                             out, snippets) != 0)
             return -1;
     }
     return 0;

@@ -21,6 +21,22 @@ typedef struct {
 } FileList;
 
 typedef struct {
+    char spdx_id[128];          /* SPDXRef-Snippet-<n> */
+    char from_file_id[512];     /* SPDXRef-File-<name> */
+    char from_file_name[512];   /* базовое имя файла-источника */
+    int  line_start;
+    int  line_end;
+    char license[256];
+    char copyright[512];
+} SnippetInfo;
+
+typedef struct {
+    SnippetInfo *items;
+    int count;
+    int capacity;
+} SnippetList;
+
+typedef struct {
     char spdx_id[256];
     char name[512];
     char version[128];
@@ -31,8 +47,6 @@ typedef struct {
     int files_analyzed;
     char verification_code[41];
 
-    /* PackageLicenseInfoFromFiles: уникальные лицензии, собранные из
-     * license-полей всех файлов пакета. Динамический массив строк. */
     char **license_info_from_files;
     int    license_info_count;
     int    license_info_capacity;
@@ -73,6 +87,7 @@ typedef struct {
 
     PackageInfo package;
     FileList files;
+    SnippetList snippets;
     Relationship *relationships;
     int relationship_count;
 

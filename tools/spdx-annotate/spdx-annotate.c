@@ -16,6 +16,7 @@
 #include "spdx_discover.h"
 #include "git_utils.h"
 #include "spdx_tag.h"
+#include "dep5_parser.h"
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192
@@ -277,7 +278,6 @@ static void print_block(const char *text, const char *indent) {
         if (*p == '\n') p++;
     }
 }
-
 
 /* ------------------------------------------------------------------ */
 /* Основная операция аннотации                                         */
@@ -639,6 +639,22 @@ int main(int argc, char *argv[]) {
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
 
+    /* DEP5: подгружаем .reuse/dep5, если есть. Получает depth = -1,
+     * поэтому проигрывает любому REUSE.toml. */
+    if (repo_root) {
+        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
+        if (dep5) {
+            ReuseConfig **na = (ReuseConfig**)realloc(configs,
+                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
+            if (na) {
+                configs = na;
+                configs[config_count++] = dep5;
+            } else {
+                free_reuse_config(dep5);
+            }
+        }
+    }
+
     if (!no_gitignore) {
         if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
             gitignore_rules.count > 0) {
@@ -673,7 +689,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    printf("=== Tags ===\n");
+    /* Режим печатается один раз в самом начале, до первого Would/Added. */
+    if (dry_run) {
+        printf("Mode: dry-run (use --write to apply changes)\n");
+    } else {
+        printf("Mode: write\n");
+    }
+
+    printf("\n=== Tags ===\n");
 
     for (i = 0; i < paths.count; i++) {
         const char *fullpath = paths.items[i];
@@ -753,8 +776,6 @@ int main(int argc, char *argv[]) {
     spdx_strlist_free(&paths);
 
     printf("\n=== LICENSES/ ===\n");
-    if (dry_run) printf("(dry-run, use --write to apply)\n");
-    else         printf("(writing)\n");
     total_errors += ensure_licenses(repo_root ? repo_root : dir,
                                     &used_licenses, force, dry_run);
 

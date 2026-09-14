@@ -77,6 +77,35 @@ static void print_file(const FileInfo *fi, int first) {
     printf("\n    }");
 }
 
+static void print_snippet(const SnippetInfo *s, int first) {
+    if (!first) printf(",\n");
+    printf("    {\n");
+    printf("      \"SPDXID\": \"%s\",\n", s->spdx_id);
+    printf("      \"snippetFromFile\": \"%s\",\n", s->from_file_id);
+    printf("      \"ranges\": [\n");
+    printf("        {\n");
+    printf("          \"startPointer\": {\"reference\": \"%s\", \"offset\": %d},\n",
+           s->from_file_id, s->line_start);
+    printf("          \"endPointer\": {\"reference\": \"%s\", \"offset\": %d}\n",
+           s->from_file_id, s->line_end);
+    printf("        }\n");
+    printf("      ],\n");
+    printf("      \"licenseConcluded\": \"");
+    print_str(s->license);
+    printf("\",\n");
+    printf("      \"licenseInfoInSnippets\": [\"");
+    print_str(s->license);
+    printf("\"]");
+    if (s->copyright[0]) {
+        printf(",\n      \"copyrightText\": \"");
+        print_str(s->copyright);
+        printf("\"\n");
+    } else {
+        printf(",\n      \"copyrightText\": \"NOASSERTION\"\n");
+    }
+    printf("    }");
+}
+
 static void print_relationship(const Relationship *r) {
     printf("    {\n");
     printf("      \"spdxElementId\": \"%s\",\n", r->element_id);
@@ -145,6 +174,13 @@ int sbom_output_json(const SpdxDocument *doc) {
     for (i = 0; i < doc->files.count; i++)
         print_file(&doc->files.items[i], i == 0);
     printf("\n  ],\n");
+
+    if (doc->snippets.count > 0) {
+        printf("  \"snippets\": [\n");
+        for (i = 0; i < doc->snippets.count; i++)
+            print_snippet(&doc->snippets.items[i], i == 0);
+        printf("\n  ],\n");
+    }
 
     printf("  \"relationships\": [\n");
     for (i = 0; i < doc->relationship_count; i++) {

@@ -36,6 +36,7 @@ void sbom_doc_init(SpdxDocument *doc,
 
     memset(doc, 0, sizeof(*doc));
     extracted_init(&doc->extracted_licenses);
+    snippetlist_init(&doc->snippets);
 
     now = time(NULL);
     tm = gmtime(&now);
@@ -188,7 +189,8 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
 /* Заполняет relationships:
  *   - DESCRIBES: документ -> пакет;
  *   - GENERATED_FROM: пакет -> Source-пакет (только binary mode);
- *   - CONTAINS: пакет -> файл, для каждого файла. */
+ *   - CONTAINS: пакет -> файл, для каждого файла;
+ *   - CONTAINS: файл -> сниппет, для каждого сниппета. */
 void sbom_doc_build_relationships(SpdxDocument *doc,
                                   const char *base_name_no_ext,
                                   int binary_mode) {
@@ -199,6 +201,7 @@ void sbom_doc_build_relationships(SpdxDocument *doc,
     rel_count = 1;                    /* DESCRIBES */
     if (binary_mode) rel_count++;     /* GENERATED_FROM */
     rel_count += doc->files.count;    /* CONTAINS x N */
+    rel_count += doc->snippets.count; /* CONTAINS file -> snippet */
 
     doc->relationships = (Relationship*)malloc(
         sizeof(Relationship) * (size_t)rel_count);
@@ -236,7 +239,7 @@ void sbom_doc_build_relationships(SpdxDocument *doc,
                   "GENERATED_FROM");
     }
 
-    /* 2..N: CONTAINS package -> file */
+    /* CONTAINS package -> file */
     for (i = 0; i < doc->files.count; i++) {
         char file_id[512];
         idx = doc->relationship_count++;
@@ -248,6 +251,20 @@ void sbom_doc_build_relationships(SpdxDocument *doc,
         copy_safe(doc->relationships[idx].related_element,
                   sizeof(doc->relationships[idx].related_element),
                   file_id);
+        copy_safe(doc->relationships[idx].relationship_type,
+                  sizeof(doc->relationships[idx].relationship_type),
+                  "CONTAINS");
+    }
+
+    /* CONTAINS file -> snippet */
+    for (i = 0; i < doc->snippets.count; i++) {
+        idx = doc->relationship_count++;
+        copy_safe(doc->relationships[idx].element_id,
+                  sizeof(doc->relationships[idx].element_id),
+                  doc->snippets.items[i].from_file_id);
+        copy_safe(doc->relationships[idx].related_element,
+                  sizeof(doc->relationships[idx].related_element),
+                  doc->snippets.items[i].spdx_id);
         copy_safe(doc->relationships[idx].relationship_type,
                   sizeof(doc->relationships[idx].relationship_type),
                   "CONTAINS");
@@ -283,6 +300,7 @@ void sbom_doc_set_external(SpdxDocument *doc,
 void sbom_doc_free(SpdxDocument *doc) {
     int i;
     filelist_free(&doc->files);
+    snippetlist_free(&doc->snippets);
     extracted_free(&doc->extracted_licenses);
     for (i = 0; i < doc->package.license_info_count; i++) {
         free(doc->package.license_info_from_files[i]);

@@ -154,6 +154,21 @@ int main(int argc, char *argv[]) {
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
 
+    /* DEP5: подгружаем .reuse/dep5, если есть. depth = -1. */
+    if (repo_root) {
+        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
+        if (dep5) {
+            ReuseConfig **na = (ReuseConfig**)realloc(configs,
+                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
+            if (na) {
+                configs = na;
+                configs[config_count++] = dep5;
+            } else {
+                free_reuse_config(dep5);
+            }
+        }
+    }
+
     if (!opts.no_gitignore) {
         if (git_collect_gitignores(repo_root, opts.dir, &gitignore_rules) == 0 &&
             gitignore_rules.count > 0) {
@@ -163,7 +178,8 @@ int main(int argc, char *argv[]) {
 
     binary_mode = is_binary_mode(&opts);
 
-    if (resolve_package_license(&opts, configs, config_count, &pkg_license) != 0) {
+    if (resolve_package_license(&opts, configs, config_count,
+                                &pkg_license) != 0) {
         reuse_free_all(configs, config_count);
         git_ignore_list_free(&gitignore_rules);
         free(repo_root);
@@ -184,6 +200,7 @@ int main(int argc, char *argv[]) {
                   binary_mode);
 
     filelist_init(&doc.files);
+    snippetlist_init(&doc.snippets);
 
     if (binary_mode) {
         if (resolve_binary_license(&opts, configs, config_count,
@@ -207,7 +224,6 @@ int main(int argc, char *argv[]) {
         }
     } else {
         spdx_walk_options_default(&walk_opts);
-        /* walk_opts.recursive = 1 по умолчанию */
         if (has_gitignore) {
             walk_opts.use_gitignore   = 1;
             walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
@@ -232,7 +248,8 @@ int main(int argc, char *argv[]) {
         if (sbom_collect_files(&paths, configs, config_count,
                                opts.default_license,
                                opts.default_copyright,
-                               &doc.files) != 0) {
+                               &doc.files,
+                               &doc.snippets) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
