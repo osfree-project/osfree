@@ -85,7 +85,7 @@ static void license_list_init(LicenseList *l) {
     l->capacity = 16;
     l->items = (SpdxLicenseEntry*)calloc((size_t)l->capacity,
                                          sizeof(SpdxLicenseEntry));
-    if (!l->items) { fprintf(stderr, "OOM\n"); exit(1); }
+    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
 }
 
 static SpdxLicenseEntry *license_list_add(LicenseList *l) {
@@ -94,7 +94,7 @@ static SpdxLicenseEntry *license_list_add(LicenseList *l) {
         l->capacity *= 2;
         l->items = (SpdxLicenseEntry*)realloc(l->items,
             (size_t)l->capacity * sizeof(SpdxLicenseEntry));
-        if (!l->items) { fprintf(stderr, "OOM\n"); exit(1); }
+        if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     }
     e = &l->items[l->count++];
     memset(e, 0, sizeof(*e));
@@ -123,7 +123,7 @@ static void exception_list_init(ExceptionList *l) {
     l->capacity = 16;
     l->items = (SpdxExceptionEntry*)calloc((size_t)l->capacity,
                                            sizeof(SpdxExceptionEntry));
-    if (!l->items) { fprintf(stderr, "OOM\n"); exit(1); }
+    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
 }
 
 static SpdxExceptionEntry *exception_list_add(ExceptionList *l) {
@@ -132,7 +132,7 @@ static SpdxExceptionEntry *exception_list_add(ExceptionList *l) {
         l->capacity *= 2;
         l->items = (SpdxExceptionEntry*)realloc(l->items,
             (size_t)l->capacity * sizeof(SpdxExceptionEntry));
-        if (!l->items) { fprintf(stderr, "OOM\n"); exit(1); }
+    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     }
     e = &l->items[l->count++];
     memset(e, 0, sizeof(*e));
@@ -800,7 +800,9 @@ int spdx_db_init(const char *spdx_db_root, const char *cache_file) {
         if (cache_file) {
             if (build_cache(cache_file, sha1_lic, sha1_exc) != 0) {
                 errs |= SPDX_DB_ERR_CACHE;
-                fprintf(stderr, "Warning: cannot write cache: %s\n",
+                fprintf(stderr,
+                        "WARNING: cannot write cache: %s\n"
+                        "         Next run will re-parse JSON indexes.\n",
                         cache_file);
             }
         }

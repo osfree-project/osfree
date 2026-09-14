@@ -88,7 +88,7 @@ void filelist_init(FileList *list) {
     list->capacity = 16;
     list->items = (FileInfo*)malloc(list->capacity * sizeof(FileInfo));
     if (!list->items) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -99,7 +99,7 @@ void filelist_add(FileList *list, const FileInfo *info) {
         list->items = (FileInfo*)realloc(list->items,
                                          list->capacity * sizeof(FileInfo));
         if (!list->items) {
-            fprintf(stderr, "Memory allocation failed\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -126,7 +126,7 @@ SnippetInfo *snippetlist_add(SnippetList *list) {
         SnippetInfo *ni = (SnippetInfo*)realloc(list->items,
             (size_t)new_cap * sizeof(SnippetInfo));
         if (!ni) {
-            fprintf(stderr, "Memory allocation failed\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         list->items = ni;

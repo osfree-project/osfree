@@ -127,7 +127,10 @@ int omf_extract_sources(const char *obj_path, char ***sources, int *count) {
 
     fp = fopen(obj_path, "rb");
     if (!fp) {
-        fprintf(stderr, "omf: cannot open %s\n", obj_path);
+        fprintf(stderr,
+                "ERROR: cannot open OMF object file: %s\n"
+                "       Check that the file exists and is readable.\n",
+                obj_path);
         return -1;
     }
 
@@ -135,21 +138,25 @@ int omf_extract_sources(const char *obj_path, char ***sources, int *count) {
     file_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     if (file_size <= 0) {
-        fprintf(stderr, "omf: file_size <= 0 in %s\n", obj_path);
+        fprintf(stderr,
+                "ERROR: empty OMF object file: %s\n", obj_path);
         fclose(fp);
         return -1;
     }
 
     buf = (unsigned char*)malloc(file_size);
     if (!buf) {
-        fprintf(stderr, "omf: malloc failed for %s\n", obj_path);
+        fprintf(stderr, "ERROR: out of memory\n");
         fclose(fp);
         return -1;
     }
     read_size = fread(buf, 1, file_size, fp);
     fclose(fp);
     if (read_size != (size_t)file_size) {
-        fprintf(stderr, "omf: short read in %s (%u of %ld)\n",
+        fprintf(stderr,
+                "ERROR: cannot read OMF object file: %s\n"
+                "       Read %u bytes of %ld. Check disk or file "
+                "integrity.\n",
                 obj_path, (unsigned)read_size, file_size);
         free(buf);
         return -1;

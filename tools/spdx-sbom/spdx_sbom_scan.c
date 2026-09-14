@@ -21,7 +21,10 @@ int sbom_fill_file_basic(const char *fullpath,
 
     sha1 = sha1_file(fullpath);
     if (!sha1) {
-        fprintf(stderr, "Error: cannot compute SHA1 for %s\n", fullpath);
+        fprintf(stderr,
+                "ERROR: cannot compute SHA1 for %s\n"
+                "       Check that the file exists and is readable.\n",
+                fullpath);
         return -1;
     }
     strncpy(out->sha1, sha1, sizeof(out->sha1) - 1);
@@ -37,24 +40,40 @@ static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
     int rc;
 
     if (lic->license[0] == '\0') {
-        fprintf(stderr, "Error: no license for file: %s\n", fullpath);
+        fprintf(stderr,
+                "ERROR: no license information for file: %s\n"
+                "       Fix one of:\n"
+                "         - add 'SPDX-License-Identifier: <id>' tag in the "
+                "file;\n"
+                "         - or create '<file>.license' sidecar;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
         return -1;
     }
 
     rc = spdx_expression_validate(lic->license, &bad);
     if (rc == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
-                "Error: invalid SPDX license expression in %s: '%s'\n",
+                "ERROR: %s: invalid SPDX license expression: '%s'\n"
+                "       Fix the expression according to the SPDX grammar:\n"
+                "         https://spdx.github.io/spdx-spec/v2.3/"
+                "SPDX-license-expressions/\n",
                 fullpath, lic->license);
         return -1;
     }
     if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
         const char *p = bad;
         while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-        fprintf(stderr, "Error: unknown SPDX identifier in %s: '",
-                fullpath);
+        fprintf(stderr,
+                "ERROR: %s: unknown SPDX identifier: '", fullpath);
         fwrite(bad, 1, (size_t)(p - bad), stderr);
-        fprintf(stderr, "'\n");
+        fprintf(stderr,
+                "'\n"
+                "       Not present in SPDX License List. Fix one of:\n"
+                "         - correct the identifier;\n"
+                "         - or use a 'LicenseRef-' identifier for a custom "
+                "license.\n"
+                "       See https://spdx.org/licenses/ for the full list.\n");
         return -1;
     }
 
@@ -71,7 +90,14 @@ static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
                 if (spdx_license_is_deprecated(p) ||
                     spdx_exception_is_deprecated(p)) {
                     fprintf(stderr,
-                            "Warning: %s: deprecated SPDX identifier '%s'\n",
+                            "WARNING: %s: deprecated SPDX identifier '%s'.\n"
+                            "         The SPDX License List marks this "
+                            "identifier deprecated.\n"
+                            "         Replace it with the current identifier\n"
+                            "         (usually a '-only' or '-or-later' "
+                            "variant).\n"
+                            "         See https://spdx.org/licenses/ for the "
+                            "recommended replacement.\n",
                             fullpath, p);
                 }
             }
@@ -101,8 +127,13 @@ static int collect_file_snippets(const char *fullpath,
 
         if (!rs->license || rs->license[0] == '\0') {
             fprintf(stderr,
-                    "Error: %s:%d-%d: snippet has no "
-                    "SPDX-License-Identifier\n",
+                    "ERROR: %s:%d-%d: snippet has no "
+                    "SPDX-License-Identifier.\n"
+                    "       Fix one of:\n"
+                    "         - add 'SPDX-License-Identifier: <id>' inside "
+                    "the snippet block;\n"
+                    "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
+                    "if the code is not a snippet.\n",
                     fullpath, rs->line_start, rs->line_end);
             rc = -1;
             continue;
@@ -112,9 +143,18 @@ static int collect_file_snippets(const char *fullpath,
             const char *bad = NULL;
             int vrc = spdx_expression_validate(rs->license, &bad);
             if (vrc != SPDX_EXPR_OK) {
+                const char *p = bad;
                 fprintf(stderr,
-                        "Error: %s:%d-%d: invalid SPDX expression '%s'\n",
-                        fullpath, rs->line_start, rs->line_end, rs->license);
+                        "ERROR: %s:%d-%d: invalid SPDX license expression: '",
+                        fullpath, rs->line_start, rs->line_end);
+                if (bad) {
+                    while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
+                    fwrite(bad, 1, (size_t)(p - bad), stderr);
+                }
+                fprintf(stderr,
+                        "'\n"
+                        "       See https://spdx.github.io/spdx-spec/v2.3/"
+                        "SPDX-license-expressions/\n");
                 rc = -1;
                 continue;
             }
@@ -156,7 +196,14 @@ static int process_one_file(const char *fullpath,
                              fullpath,
                              default_license, default_copyright,
                              &lic) != 0) {
-        fprintf(stderr, "Error: no license found for file: %s\n", fullpath);
+        fprintf(stderr,
+                "ERROR: no license information for file: %s\n"
+                "       Fix one of:\n"
+                "         - add 'SPDX-License-Identifier: <id>' tag in the "
+                "file;\n"
+                "         - or create '<file>.license' sidecar;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml.\n",
+                fullpath);
         return -1;
     }
 

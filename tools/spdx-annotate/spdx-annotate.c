@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #ifdef __LINUX__
 #include <unistd.h>
@@ -70,6 +71,88 @@ static int write_file(const char *path, const char *text) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Нормализация SPDX-выражения                                         */
+/* ------------------------------------------------------------------ */
+
+/* Возвращает каноническую форму выражения SPDX: каждый идентификатор
+ * из SPDX License List / SPDX Exceptions заменяется на канонический
+ * регистр (например, 'BSD-3-clause' -> 'BSD-3-Clause').
+ * Операторы AND/OR/WITH, скобки и пробелы сохраняются как есть.
+ * LicenseRef-* и DocumentRef-* остаются без изменений. */
+static char *normalize_license_expression(const char *expr) {
+    size_t cap = 128;
+    size_t len = 0;
+    char *out;
+    const char *p;
+
+    if (!expr) return NULL;
+
+    out = (char*)malloc(cap);
+    if (!out) return NULL;
+    out[0] = '\0';
+
+    p = expr;
+    while (*p) {
+        const char *start;
+        size_t tok_len;
+        char tok[256];
+        const char *canonical;
+
+        if (*p == ' ' || *p == '\t' || *p == '(' || *p == ')') {
+            if (len + 1 >= cap) {
+                size_t ncap = cap * 2;
+                char *no = (char*)realloc(out, ncap);
+                if (!no) { free(out); return NULL; }
+                out = no; cap = ncap;
+            }
+            out[len++] = *p++;
+            out[len] = '\0';
+            continue;
+        }
+
+        start = p;
+        while (*p && !isspace((unsigned char)*p) &&
+               *p != '(' && *p != ')')
+            p++;
+        tok_len = (size_t)(p - start);
+        if (tok_len >= sizeof(tok)) tok_len = sizeof(tok) - 1;
+        memcpy(tok, start, tok_len);
+        tok[tok_len] = '\0';
+
+        if (strcmp(tok, "AND") == 0 ||
+            strcmp(tok, "OR") == 0 ||
+            strcmp(tok, "WITH") == 0) {
+            canonical = tok;
+        } else if (strncmp(tok, "LicenseRef-", 11) == 0 ||
+                   strncmp(tok, "DocumentRef-", 12) == 0) {
+            canonical = tok;
+        } else {
+            const SpdxLicenseEntry *e = spdx_license_lookup(tok);
+            const SpdxExceptionEntry *ex = NULL;
+            if (!e) ex = spdx_exception_lookup(tok);
+            if (e) canonical = e->id;
+            else if (ex) canonical = ex->id;
+            else canonical = tok;
+        }
+
+        {
+            size_t clen = strlen(canonical);
+            if (len + clen + 1 > cap) {
+                size_t ncap = cap * 2 + clen;
+                char *no = (char*)realloc(out, ncap);
+                if (!no) { free(out); return NULL; }
+                out = no; cap = ncap;
+            }
+            memcpy(out + len, canonical, clen);
+            len += clen;
+            out[len] = '\0';
+        }
+    }
+
+    return out;
+}
+
+/* ------------------------------------------------------------------ */
 /* Определение бинарности                                              */
 /* ------------------------------------------------------------------ */
 
@@ -112,25 +195,29 @@ static void add_style_override(const char *arg) {
     size_t len;
 
     if (!eq) {
-        printf("ERROR: invalid --comment-style: %s "
-               "(expected <ext>=<style>)\n", arg);
+        printf("ERROR: invalid --comment-style: %s\n"
+               "       Expected format: --comment-style=<ext-or-name>=<style>\n"
+               "       Example: --comment-style=.rb=hash\n",
+               arg);
         exit(EXIT_FAILURE);
     }
     len = (size_t)(eq - arg);
     ext = (char*)malloc(len + 1);
-    if (!ext) { printf("ERROR: OOM\n"); exit(EXIT_FAILURE); }
+    if (!ext) { printf("ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     memcpy(ext, arg, len);
     ext[len] = '\0';
     name = eq + 1;
     style = parse_style_name(name);
     if (style == STYLE_UNKNOWN) {
-        printf("ERROR: unknown comment style: %s\n", name);
+        printf("ERROR: unknown comment style: %s\n"
+               "       Supported: slash (or c), hash, rem (or cmd), "
+               "binary (or sidecar)\n", name);
         free(ext);
         exit(EXIT_FAILURE);
     }
     style_overrides = (StyleOverride*)realloc(style_overrides,
         (size_t)(style_overrides_count + 1) * sizeof(StyleOverride));
-    if (!style_overrides) { printf("ERROR: OOM\n"); exit(EXIT_FAILURE); }
+    if (!style_overrides) { printf("ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     style_overrides[style_overrides_count].ext = ext;
     style_overrides[style_overrides_count].style = style;
     style_overrides_count++;
@@ -302,8 +389,10 @@ static int annotate_one(const char *filename,
 
     if (declared == STYLE_UNKNOWN) {
         printf("ERROR: %s: unknown file type.\n"
-               "       Specify explicitly: "
-               "--comment-style=<ext-or-name>=<slash|hash|rem|binary>\n",
+               "       Fix one of:\n"
+               "         - specify the comment style explicitly:\n"
+               "           --comment-style=<ext-or-name>=<slash|hash|rem|binary>\n"
+               "         - or remove the file from the project.\n",
                filename);
         return -1;
     }
@@ -312,23 +401,27 @@ static int annotate_one(const char *filename,
 
     if (declared == STYLE_SIDECAR && !is_bin) {
         printf("ERROR: %s: declared as binary but content is text.\n"
-               "       Specify explicitly: "
-               "--comment-style=<ext-or-name>=<slash|hash|rem>\n",
+               "       Fix one of:\n"
+               "         - specify the comment style explicitly:\n"
+               "           --comment-style=<ext-or-name>=<slash|hash|rem>\n"
+               "         - or fix the file if its content is wrong.\n",
                filename);
         return -1;
     }
 
     if (declared != STYLE_SIDECAR && is_bin) {
         printf("ERROR: %s: declared as text but content is binary.\n"
-               "       Specify explicitly: "
-               "--comment-style=<ext-or-name>=binary\n",
+               "       Fix one of:\n"
+               "         - specify the comment style explicitly:\n"
+               "           --comment-style=<ext-or-name>=binary\n"
+               "         - or fix the file if its content is wrong.\n",
                filename);
         return -1;
     }
 
     style = declared;
     block = build_insertion(style, license, copyright);
-    if (!block) { printf("ERROR: OOM\n"); return -1; }
+    if (!block) { printf("ERROR: out of memory\n"); return -1; }
 
     if (style == STYLE_SIDECAR) {
         int exists;
@@ -357,6 +450,7 @@ static int annotate_one(const char *filename,
 
         if (exists && !force) {
             printf("Outdated (sidecar):   %s\n", sidecar);
+            printf("    reason:           sidecar content differs\n");
             printf("    action:           use --force to overwrite\n");
             free(block);
             return 0;
@@ -375,7 +469,8 @@ static int annotate_one(const char *filename,
         }
 
         if (write_file(sidecar, block) != 0) {
-            printf("ERROR: cannot write: %s\n", sidecar);
+            printf("ERROR: cannot write file: %s\n"
+                   "       Check directory permissions.\n", sidecar);
             free(block);
             return -1;
         }
@@ -408,7 +503,8 @@ static int annotate_one(const char *filename,
     snprintf(tempname, sizeof(tempname), "%s.tmp", filename);
     out = fopen(tempname, "w");
     if (!out) {
-        printf("ERROR: cannot open: %s\n", tempname);
+        printf("ERROR: cannot open file for writing: %s\n"
+               "       Check directory permissions.\n", tempname);
         free(block);
         return -1;
     }
@@ -424,7 +520,8 @@ static int annotate_one(const char *filename,
 
     remove(filename);
     if (rename(tempname, filename) != 0) {
-        printf("ERROR: cannot rename: %s -> %s\n", tempname, filename);
+        printf("ERROR: cannot rename %s to %s\n"
+               "       Check file permissions.\n", tempname, filename);
         free(block);
         return -1;
     }
@@ -474,7 +571,9 @@ static int ensure_licenses(const char *repo_root,
             printf("Would create dir:     %s\n", lic_path);
         } else {
             if (make_dir(lic_path) != 0) {
-                printf("ERROR: cannot create directory: %s\n", lic_path);
+                printf("ERROR: cannot create directory: %s\n"
+                       "       Check parent directory permissions.\n",
+                       lic_path);
                 return 1;
             }
             printf("Created dir:          %s\n", lic_path);
@@ -503,7 +602,10 @@ static int ensure_licenses(const char *repo_root,
         db_text = spdx_license_get_text(lic);
         if (!db_text) db_text = spdx_exception_get_text(lic);
         if (!db_text) {
-            printf("ERROR: no text for %s in SPDX database.\n", lic);
+            printf("ERROR: no text for %s in SPDX database.\n"
+                   "       Expected at <spdx-db>/details/%s.json\n"
+                   "       Check that the SPDX database is complete.\n",
+                   lic, lic);
             errors++;
             continue;
         }
@@ -536,7 +638,8 @@ static int ensure_licenses(const char *repo_root,
                 printf("    source:           SPDX database\n");
             } else {
                 if (write_file(path, db_text) != 0) {
-                    printf("ERROR: cannot write: %s\n", path);
+                    printf("ERROR: cannot write file: %s\n"
+                           "       Check directory permissions.\n", path);
                     errors++;
                 } else {
                     printf("Updated:              %s\n", path);
@@ -548,7 +651,8 @@ static int ensure_licenses(const char *repo_root,
                 printf("    source:           SPDX database\n");
             } else {
                 if (write_file(path, db_text) != 0) {
-                    printf("ERROR: cannot write: %s\n", path);
+                    printf("ERROR: cannot write file: %s\n"
+                           "       Check directory permissions.\n", path);
                     errors++;
                 } else {
                     printf("Created:              %s\n", path);
@@ -589,6 +693,32 @@ int main(int argc, char *argv[]) {
     git_ignore_list_init(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            printf("Usage: spdx-annotate [options] [<directory>]\n"
+                   "  --write                    Apply changes (default is "
+                   "dry-run)\n"
+                   "  --dry-run                  Show what would be done, "
+                   "do not write (default)\n"
+                   "  --force                    Overwrite existing tags / "
+                   "outdated sidecar / outdated license texts\n"
+                   "  --license=<id>             Override license for all "
+                   "files\n"
+                   "  --copyright=<text>         Override copyright for all "
+                   "files\n"
+                   "  --spdx-db=<path>           SPDX database root "
+                   "(required)\n"
+                   "  --cache=<path>             SPDX database cache file\n"
+                   "  --comment-style=<ext>=<style>\n"
+                   "                             Set comment style for a "
+                   "given extension\n"
+                   "                             or base name. Styles: "
+                   "slash, hash, rem, binary\n"
+                   "  --no-gitignore             Do not apply .gitignore "
+                   "rules\n"
+                   "  --help, -h                 Show this help\n");
+            git_ignore_list_free(&gitignore_rules);
+            return 0;
+        }
         if (strcmp(argv[i], "--write") == 0) {
             dry_run = 0;
         } else if (strcmp(argv[i], "--dry-run") == 0) {
@@ -610,26 +740,44 @@ int main(int argc, char *argv[]) {
         } else if (argv[i][0] != '-') {
             dir = argv[i];
         } else {
-            printf("ERROR: unknown option: %s\n", argv[i]);
+            printf("ERROR: unknown option: %s\n"
+                   "       Run 'spdx-annotate --help' for usage.\n",
+                   argv[i]);
             git_ignore_list_free(&gitignore_rules);
             return 1;
         }
     }
 
     if (!spdx_db_root) {
-        printf("ERROR: SPDX database is not configured. "
-               "Use --spdx-db=<path>.\n");
+        printf("ERROR: SPDX database is not configured.\n"
+               "       --spdx-db=<path> is required.\n"
+               "       Run 'spdx-annotate --help' for usage.\n");
         git_ignore_list_free(&gitignore_rules);
         return 1;
     }
 
     db_errs = spdx_db_init(spdx_db_root, cache_file);
-    if (db_errs & (SPDX_DB_ERR_LICENSES | SPDX_DB_ERR_EXCEPTIONS)) {
-        printf("ERROR: SPDX database is unavailable.\n");
+    if (db_errs & SPDX_DB_ERR_LICENSES) {
+        printf("ERROR: SPDX license database is unavailable "
+               "(licenses.json not loaded).\n"
+               "       Expected at <spdx-db>/licenses.json.\n"
+               "       Cannot validate SPDX identifiers. Aborting.\n");
         spdx_db_free();
         git_ignore_list_free(&gitignore_rules);
         return 1;
     }
+    if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
+        printf("ERROR: SPDX exceptions database is unavailable "
+               "(exceptions.json not loaded).\n"
+               "       Expected at <spdx-db>/exceptions.json.\n"
+               "       Cannot validate SPDX identifiers. Aborting.\n");
+        spdx_db_free();
+        git_ignore_list_free(&gitignore_rules);
+        return 1;
+    }
+    if (db_errs & SPDX_DB_ERR_CACHE)
+        printf("WARNING: cache could not be written.\n"
+               "         Next run will re-parse JSON indexes.\n");
 
     spdx_strlist_init(&used_licenses);
 
@@ -639,8 +787,6 @@ int main(int argc, char *argv[]) {
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
 
-    /* DEP5: подгружаем .reuse/dep5, если есть. Получает depth = -1,
-     * поэтому проигрывает любому REUSE.toml. */
     if (repo_root) {
         ReuseConfig *dep5 = reuse_load_dep5(repo_root);
         if (dep5) {
@@ -679,7 +825,9 @@ int main(int argc, char *argv[]) {
 
     spdx_strlist_init(&paths);
     if (spdx_walk_tree(dir, &walk_opts, &paths) != 0) {
-        printf("ERROR: cannot walk tree: %s\n", dir);
+        printf("ERROR: cannot walk tree: %s\n"
+               "       Check that the directory exists and is readable.\n",
+               dir);
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
         reuse_free_all(configs, config_count);
@@ -689,7 +837,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* Режим печатается один раз в самом начале, до первого Would/Added. */
     if (dry_run) {
         printf("Mode: dry-run (use --write to apply changes)\n");
     } else {
@@ -704,6 +851,7 @@ int main(int argc, char *argv[]) {
         const char *copyright;
         char *reuse_license = NULL;
         char *reuse_copyright = NULL;
+        char *normalized = NULL;
         int precedence = 0;
         int has_reuse = 0;
         int rc;
@@ -715,6 +863,11 @@ int main(int argc, char *argv[]) {
 
         license = reuse_license ? reuse_license : license_override;
         copyright = reuse_copyright ? reuse_copyright : copyright_override;
+
+        if (license) {
+            normalized = normalize_license_expression(license);
+            if (normalized) license = normalized;
+        }
 
         if (!license || !copyright) {
             char mf_path[1100];
@@ -729,13 +882,13 @@ int main(int argc, char *argv[]) {
                      ? "" : "\\");
 #endif
 
-            printf("ERROR: %s: annotate requires both license AND copyright.\n",
+            printf("ERROR: %s: annotate requires both license and copyright.\n",
                    fullpath);
             printf("       Missing: %s%s%s\n",
                    !license ? "license" : "",
                    (!license && !copyright) ? " and " : "",
                    !copyright ? "copyright" : "");
-            printf("       Where to define:\n");
+            printf("       Fix one of:\n");
             printf("         - REUSE.toml anywhere from repo root to %s\n",
                    dir);
             printf("         - LICENSE and COPYRIGHT variables in %s\n",
@@ -744,6 +897,7 @@ int main(int argc, char *argv[]) {
             printf("       Example:\n");
             printf("         LICENSE = BSD-3-Clause\n");
             printf("         COPYRIGHT = Copyright (C) 2025 osFree Project\n");
+            free(normalized);
             free(reuse_license);
             free(reuse_copyright);
             total_errors++;
@@ -769,6 +923,7 @@ int main(int argc, char *argv[]) {
         rc = annotate_one(fullpath, license, copyright, force, dry_run);
         if (rc != 0) total_errors++;
 
+        free(normalized);
         free(reuse_license);
         free(reuse_copyright);
     }

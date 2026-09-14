@@ -32,10 +32,12 @@ typedef struct {
 
     int no_gitignore;
 
-    /* База SPDX: корень с licenses.json, exceptions.json,
-     * details/<id>.json, exceptions/<id>.json */
+    /* SPDX-база: корень с licenses.json, exceptions.json,
+     * details/, exceptions/ */
     const char *spdx_db_root;
     const char *cache_file;
+    const char *details_dir;
+    const char *exceptions_dir;
 
     /* Источники текстов LicenseRef-* */
     ExtractedLicenseSource *extracted_sources;

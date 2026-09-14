@@ -95,7 +95,7 @@ static int path_prefix_eq(const char *s, const char *prefix, size_t n) {
 static void add_path(Annotation *ann, const char *value) {
     char **na = (char**)realloc(ann->paths,
         (size_t)(ann->path_count + 1) * sizeof(char*));
-    if (!na) { fprintf(stderr, "OOM\n"); exit(EXIT_FAILURE); }
+    if (!na) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     ann->paths = na;
     ann->paths[ann->path_count++] = dup_str(value);
 }
@@ -353,8 +353,9 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             val = strip_quotes(val);
             if (strcmp(val, "1") != 0) {
                 fprintf(stderr,
-                        "Warning: %s: unsupported version '%s' "
-                        "(expected 1)\n", filename, val);
+                        "WARNING: %s: unsupported version '%s'\n"
+                        "         Expected version '1'.\n",
+                        filename, val);
             } else {
                 seen_version = 1;
             }
@@ -365,7 +366,8 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             int consumed = 0;
             if (!is_known_annotation_key(s, &consumed) && !warned_unknown) {
                 fprintf(stderr,
-                        "Warning: %s: unknown key outside [[annotations]]: %s\n",
+                        "WARNING: %s: unknown key outside [[annotations]]: "
+                        "%s\n",
                         filename, s);
                 warned_unknown = 1;
             }
@@ -458,8 +460,9 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
                 current_ann->precedence = REUSE_PRECEDENCE_OVERRIDE;
             else {
                 fprintf(stderr,
-                        "Warning: %s: unknown precedence '%s' "
-                        "(expected closest, aggregate or override)\n",
+                        "WARNING: %s: unknown precedence '%s'\n"
+                        "         Expected 'closest', 'aggregate' or "
+                        "'override'. Using 'closest'.\n",
                         filename, val);
                 current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
             }
@@ -467,7 +470,7 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             int consumed = 0;
             if (!is_known_annotation_key(s, &consumed)) {
                 fprintf(stderr,
-                        "Warning: %s: unknown key in [[annotations]]: %s\n",
+                        "WARNING: %s: unknown key in [[annotations]]: %s\n",
                         filename, s);
             }
         }
@@ -477,7 +480,10 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
 
     if (!seen_version) {
         fprintf(stderr,
-                "Warning: %s: missing 'version = 1' at the top\n", filename);
+                "WARNING: %s: missing 'version = 1' at the top.\n"
+                "         REUSE 3.3 requires this line in every "
+                "REUSE.toml.\n",
+                filename);
     }
 
     return config;
@@ -615,8 +621,10 @@ int reuse_find_all_tomls(const char *repo_root,
                 size_t clen = strlen(current);
                 if (clen + 1 + seglen + 1 > sizeof(current)) {
                     fprintf(stderr,
-                            "Warning: path too long, skipping REUSE.toml "
-                            "below %s\n", current);
+                            "WARNING: path too long, skipping REUSE.toml "
+                            "below %s\n"
+                            "         Increase the buffer size or shorten "
+                            "the path.\n", current);
                     break;
                 }
                 current[clen] = '/';

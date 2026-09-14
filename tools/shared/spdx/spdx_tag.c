@@ -123,7 +123,7 @@ static TagSnippet *tag_snippets_add(TagSnippetList *list) {
         TagSnippet *ni = (TagSnippet*)realloc(list->items,
             (size_t)new_cap * sizeof(TagSnippet));
         if (!ni) {
-            fprintf(stderr, "Memory allocation failed\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         list->items = ni;
@@ -350,7 +350,11 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
         if (line_starts_with_tag(work, "SPDX-SnippetBegin")) {
             if (in_snippet) {
                 fprintf(stderr,
-                        "Error: %s:%d: nested SPDX-SnippetBegin\n",
+                        "ERROR: %s:%d: nested SPDX-SnippetBegin.\n"
+                        "       Fix one of:\n"
+                        "         - remove the duplicate SPDX-SnippetBegin;\n"
+                        "         - or add a matching SPDX-SnippetEnd "
+                        "before the nested one.\n",
                         filename, lineno);
                 free(snippet_license);
                 free(snippet_copyright);
@@ -370,8 +374,13 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
             TagSnippet *s;
             if (!in_snippet) {
                 fprintf(stderr,
-                        "Error: %s:%d: SPDX-SnippetEnd without matching "
-                        "SPDX-SnippetBegin\n", filename, lineno);
+                        "ERROR: %s:%d: SPDX-SnippetEnd without matching "
+                        "SPDX-SnippetBegin.\n"
+                        "       Fix one of:\n"
+                        "         - remove this SPDX-SnippetEnd;\n"
+                        "         - or add SPDX-SnippetBegin before the "
+                        "snippet.\n",
+                        filename, lineno);
                 tag_snippets_free(out);
                 fclose(f);
                 return -1;
@@ -390,7 +399,6 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
 
         if (!in_snippet) continue;
 
-        /* Внутри сниппета: SPDX-SnippetCopyrightText и SPDX-License-Identifier */
         {
             const char *val;
 
@@ -428,7 +436,11 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
 
     if (in_snippet) {
         fprintf(stderr,
-                "Error: %s: unclosed SPDX-SnippetBegin at line %d\n",
+                "ERROR: %s: unclosed SPDX-SnippetBegin at line %d.\n"
+                "       Fix one of:\n"
+                "         - add SPDX-SnippetEnd after the snippet;\n"
+                "         - or remove SPDX-SnippetBegin if the code is not "
+                "a snippet.\n",
                 filename, snippet_start_line);
         free(snippet_license);
         free(snippet_copyright);

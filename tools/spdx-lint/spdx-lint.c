@@ -13,12 +13,12 @@
 #endif
 
 #include <reuse_parser.h>
-#include "dep5_parser.h"
 #include "spdx_db.h"
 #include "spdx_discover.h"
 #include "spdx_utils.h"
 #include "spdx_lic.h"
 #include "spdx_tag.h"
+#include "dep5_parser.h"
 #include "git_utils.h"
 
 static int error_count = 0;
@@ -62,8 +62,9 @@ static void check_license_expression(const char *fullpath, const char *license,
     if (rc == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
                 "ERROR: %s: invalid SPDX license expression: '%s'\n"
-                "       See https://spdx.github.io/spdx-spec/v2.3/"
-                "SPDX-license-expressions/ for the grammar.\n",
+                "       Fix the expression according to the SPDX grammar:\n"
+                "         https://spdx.github.io/spdx-spec/v2.3/"
+                "SPDX-license-expressions/\n",
                 fullpath, license);
         error_count++;
     } else if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
@@ -75,7 +76,8 @@ static void check_license_expression(const char *fullpath, const char *license,
                 "         - correct the identifier;\n"
                 "         - if it is a custom license, prefix it with "
                 "'LicenseRef-' and add the text to LICENSES/;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml.\n");
+                "         - or add a [[annotations]] entry in REUSE.toml.\n"
+                "       See https://spdx.org/licenses/ for the full list.\n");
         error_count++;
     }
 
@@ -96,7 +98,7 @@ static void check_license_expression(const char *fullpath, const char *license,
                         "deprecated.\n"
                         "         Replace it with the current identifier "
                         "(usually a '-only' or '-or-later' variant).\n"
-                        "         Check https://spdx.org/licenses/ for the "
+                        "         See https://spdx.org/licenses/ for the "
                         "recommended replacement.\n",
                         fullpath, ids.items[m]);
                 warning_count++;
@@ -107,7 +109,7 @@ static void check_license_expression(const char *fullpath, const char *license,
 }
 
 /* Обрабатывает сниппеты одного файла:
- *   - сниппет без лицензии - ошибка (согласовано);
+ *   - сниппет без лицензии - ошибка (REUSE 3.3 требует MUST);
  *   - лицензия сниппета проверяется как обычное SPDX-выражение;
  *   - идентификаторы попадают в used_licenses. */
 static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
@@ -129,8 +131,11 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
             fprintf(stderr,
                     "ERROR: %s:%d-%d: snippet has no "
                     "SPDX-License-Identifier.\n"
-                    "       Add 'SPDX-License-Identifier: <id>' inside the\n"
-                    "       SPDX-SnippetBegin/SPDX-SnippetEnd block.\n",
+                    "       Fix one of:\n"
+                    "         - add 'SPDX-License-Identifier: <id>' inside "
+                    "the snippet block;\n"
+                    "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
+                    "if the code is not a snippet.\n",
                     fullpath, s->line_start, s->line_end);
             error_count++;
             continue;
@@ -139,7 +144,6 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
         snippets_with_license++;
 
         {
-            /* Формируем метку с диапазоном строк для диагностики. */
             char label[1200];
             snprintf(label, sizeof(label), "%s:%d-%d",
                      fullpath, s->line_start, s->line_end);
@@ -190,15 +194,16 @@ static void process_file(const char *fullpath,
                              default_license, default_copyright,
                              &lic) != 0) {
         fprintf(stderr,
-                "ERROR: %s has no license information.\n"
-                "       REUSE requires each file to carry license and "
-                "copyright information.\n"
+                "ERROR: %s has no licensing information at all.\n"
+                "       REUSE requires each file to carry both license and\n"
+                "       copyright information.\n"
                 "       Fix one of:\n"
                 "         - add 'SPDX-License-Identifier' and "
                 "'SPDX-FileCopyrightText' tags in the file header;\n"
                 "         - or create a sidecar '<file>.license' next to it;\n"
                 "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate --write' to write them.\n",
+                "         - or run '%s annotate --write' to write them.\n"
+                "       See https://reuse.software/spec/ for details.\n",
                 fullpath, wcc_cmd);
         error_count++;
         return;
@@ -227,12 +232,14 @@ static void process_file(const char *fullpath,
         files_with_license++;
     } else {
         fprintf(stderr,
-                "ERROR: %s has no license information.\n"
+                "ERROR: %s has copyright information but no license "
+                "information.\n"
+                "       REUSE requires both.\n"
                 "       Fix one of:\n"
                 "         - add 'SPDX-License-Identifier: <id>' in the file "
                 "header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
-                "         - or add [[annotations]] entry in REUSE.toml;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml;\n"
                 "         - or run '%s annotate --write'.\n",
                 fullpath, wcc_cmd);
         error_count++;
@@ -241,12 +248,14 @@ static void process_file(const char *fullpath,
         files_with_copyright++;
     } else {
         fprintf(stderr,
-                "ERROR: %s has no copyright information.\n"
+                "ERROR: %s has license information but no copyright "
+                "information.\n"
+                "       REUSE requires both.\n"
                 "       Fix one of:\n"
                 "         - add 'SPDX-FileCopyrightText: <holder>' in the "
                 "file header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
-                "         - or add [[annotations]] entry in REUSE.toml;\n"
+                "         - or add a [[annotations]] entry in REUSE.toml;\n"
                 "         - or run '%s annotate --write'.\n",
                 fullpath, wcc_cmd);
         error_count++;
@@ -256,7 +265,6 @@ static void process_file(const char *fullpath,
         check_license_expression(fullpath, lic.license, used_licenses);
     }
 
-    /* Сниппеты */
     process_snippets(fullpath, used_licenses);
 }
 
@@ -345,7 +353,8 @@ static void check_licenses_dir(const char *project_dir,
                 "         - create the directory and add a text file for each\n"
                 "           license declared by any file in the project;\n"
                 "         - or run '%s annotate --write' to create it "
-                "automatically.\n",
+                "automatically.\n"
+                "       See https://reuse.software/spec/ for details.\n",
                 lic_path, example_path, wcc_cmd);
         error_count++;
     }
@@ -358,36 +367,38 @@ static void check_licenses_dir(const char *project_dir,
 
         if (!is_valid_spdx_name(base)) {
             fprintf(stderr,
-                    "ERROR: Bad license file name: %s\n"
-                    "       The name must be a valid SPDX License List "
-                    "identifier or start with 'LicenseRef-'.\n"
+                    "ERROR: bad license file name: %s\n"
+                    "       The name must be a valid SPDX License List\n"
+                    "       identifier or start with 'LicenseRef-'.\n"
                     "       Fix one of:\n"
-                    "         - rename the file to a valid SPDX identifier "
-                    "(e.g. 'MIT.txt');\n"
-                    "         - or use 'LicenseRef-<name>.txt' for a custom "
-                    "license.\n"
-                    "       See https://spdx.org/licenses/ for the full list.\n",
+                    "         - rename the file to a valid SPDX identifier\n"
+                    "           (e.g. 'MIT.txt');\n"
+                    "         - or use 'LicenseRef-<name>.txt' for a custom\n"
+                    "           license.\n"
+                    "       See https://spdx.org/licenses/ for the full "
+                    "list.\n",
                     fname);
             error_count++;
         } else {
             if (!has_extension(fname)) {
                 fprintf(stderr,
-                        "WARNING: License file without extension: %s\n"
+                        "WARNING: license file without extension: %s\n"
                         "         REUSE convention is to use '.txt'.\n"
-                        "         Rename to '%s.txt' to follow the convention "
-                        "and avoid ambiguity.\n",
+                        "         Rename to '%s.txt' to follow the "
+                        "convention and avoid ambiguity.\n",
                         fname, fname);
                 warning_count++;
             }
             if (spdx_license_is_deprecated(base) ||
                 spdx_exception_is_deprecated(base)) {
                 fprintf(stderr,
-                        "WARNING: Deprecated license file: %s\n"
+                        "WARNING: deprecated license file: %s\n"
                         "         SPDX License List marks '%s' as "
                         "deprecated.\n"
                         "         Rename the file to the current identifier "
-                        "and update all references in source files.\n"
-                        "         Check https://spdx.org/licenses/ for the "
+                        "and update\n"
+                        "         all references in source files.\n"
+                        "         See https://spdx.org/licenses/ for the "
                         "recommended replacement.\n",
                         fname, base);
                 warning_count++;
@@ -402,7 +413,7 @@ static void check_licenses_dir(const char *project_dir,
 
         if (!spdx_strlist_contains(used_licenses, base)) {
             fprintf(stderr,
-                    "ERROR: Unused license file: %s\n"
+                    "ERROR: unused license file: %s\n"
                     "       REUSE Specification 3.3 forbids License Files\n"
                     "       for licenses under which none of the files in\n"
                     "       the project are licensed.\n"
@@ -438,7 +449,9 @@ static void check_licenses_dir(const char *project_dir,
             !spdx_exception_lookup(lic)) {
             fprintf(stderr,
                     "ERROR: '%s' is not a known SPDX identifier.\n"
-                    "       Check spelling against the SPDX License List.\n",
+                    "       Check spelling and case against the SPDX "
+                    "License List:\n"
+                    "         https://spdx.org/licenses/\n",
                     lic);
             error_count++;
             continue;
@@ -451,7 +464,7 @@ static void check_licenses_dir(const char *project_dir,
             snprintf(expected, sizeof(expected), "%s\\%s.txt", lic_path, lic);
 #endif
             fprintf(stderr,
-                    "ERROR: Missing license file for %s.\n"
+                    "ERROR: missing license file for %s.\n"
                     "       Files declare this license but\n"
                     "       %s does not exist.\n"
                     "       REUSE requires the full license text in "
@@ -506,7 +519,7 @@ static void check_licenses_dir(const char *project_dir,
 
             if (!equal) {
                 fprintf(stderr,
-                        "ERROR: License text for %s does not match "
+                        "ERROR: license text for %s does not match "
                         "the SPDX License List.\n"
                         "       File: %s\n"
                         "       To update it, run "
@@ -540,6 +553,22 @@ int main(int argc, char *argv[]) {
     git_ignore_list_init(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            printf("Usage: spdx-lint [options] [<directory>]\n"
+                   "  --spdx-db=<path>           SPDX database root "
+                   "(licenses.json,\n"
+                   "                             exceptions.json, details/, "
+                   "exceptions/)\n"
+                   "  --cache=<path>             SPDX database cache file\n"
+                   "  --default-license=<id>     Fallback license "
+                   "identifier\n"
+                   "  --default-copyright=<text> Fallback copyright text\n"
+                   "  --no-gitignore             Do not apply .gitignore "
+                   "rules\n"
+                   "  --help, -h                 Show this help\n");
+            git_ignore_list_free(&gitignore_rules);
+            return 0;
+        }
         if (strncmp(argv[i], "--spdx-db=", 10) == 0)
             spdx_db_root = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
@@ -553,7 +582,10 @@ int main(int argc, char *argv[]) {
         else if (argv[i][0] != '-')
             dir = argv[i];
         else {
-            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            fprintf(stderr,
+                    "ERROR: unknown option: %s\n"
+                    "       Run 'spdx-lint --help' for usage.\n",
+                    argv[i]);
             return 1;
         }
     }
@@ -562,7 +594,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr,
                 "ERROR: SPDX database is not configured.\n"
                 "       --spdx-db=<path> is required.\n"
-                "       Cannot validate SPDX identifiers. Aborting.\n");
+                "       Cannot validate SPDX identifiers. Aborting.\n"
+                "       Run 'spdx-lint --help' for usage.\n");
         git_ignore_list_free(&gitignore_rules);
         return 1;
     }
@@ -571,6 +604,7 @@ int main(int argc, char *argv[]) {
     if (db_errs & SPDX_DB_ERR_LICENSES) {
         fprintf(stderr, "ERROR: SPDX license database is unavailable "
                         "(licenses.json not loaded).\n"
+                        "       Expected at <spdx-db>/licenses.json.\n"
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
@@ -580,6 +614,7 @@ int main(int argc, char *argv[]) {
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
         fprintf(stderr, "ERROR: SPDX exceptions database is unavailable "
                         "(exceptions.json not loaded).\n"
+                        "       Expected at <spdx-db>/exceptions.json.\n"
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
         git_ignore_list_free(&gitignore_rules);
@@ -590,15 +625,12 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "WARNING: cache could not be written.\n"
                         "         Next run will re-parse JSON indexes.\n");
 
-    /* --- Иерархия REUSE.toml --- */
     repo_root = git_find_repo_root(dir);
 
     reuse_find_all_tomls(repo_root, dir, &toml_paths);
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
 
-    /* DEP5: подгружаем .reuse/dep5, если есть. Получает depth = -1,
-     * поэтому проигрывает любому REUSE.toml. */
     if (repo_root) {
         ReuseConfig *dep5 = reuse_load_dep5(repo_root);
         if (dep5) {
@@ -613,7 +645,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* --- Git-фильтрация --- */
     if (!no_gitignore) {
         if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
             gitignore_rules.count > 0) {
@@ -633,7 +664,10 @@ int main(int argc, char *argv[]) {
 
     spdx_strlist_init(&paths);
     if (spdx_walk_tree(dir, &walk_opts, &paths) != 0) {
-        fprintf(stderr, "Cannot walk tree: %s\n", dir);
+        fprintf(stderr,
+                "ERROR: cannot walk tree: %s\n"
+                "       Check that the directory exists and is readable.\n",
+                dir);
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
         reuse_free_all(configs, config_count);
@@ -647,6 +681,7 @@ int main(int argc, char *argv[]) {
     }
     spdx_strlist_free(&paths);
 
+    fprintf(stderr, "\n=== LICENSES/ ===\n");
     check_licenses_dir(repo_root ? repo_root : dir, &used_licenses);
 
     fprintf(stderr, "\n");
@@ -656,7 +691,7 @@ int main(int argc, char *argv[]) {
             files_with_license, total_files);
     fprintf(stderr, "  Files with copyright info:  %d / %d\n",
             files_with_copyright, total_files);
-    if (total_snippets > 0 || snippets_with_license > 0) {
+    if (total_snippets > 0) {
         fprintf(stderr, "  Snippets:                   %d\n", total_snippets);
         fprintf(stderr, "  Snippets with license:      %d / %d\n",
                 snippets_with_license, total_snippets);
@@ -671,9 +706,8 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "%s%s", k > 0 ? ", " : "", used_licenses.items[k]);
         fprintf(stderr, "\n");
     }
-    fprintf(stderr, "\n");
-    fprintf(stderr, "SPDX Lint complete. Errors: %d, Warnings: %d\n",
-            error_count, warning_count);
+    fprintf(stderr, "  Errors:                     %d\n", error_count);
+    fprintf(stderr, "  Warnings:                   %d\n", warning_count);
 
     spdx_strlist_free(&used_licenses);
     reuse_free_all(configs, config_count);

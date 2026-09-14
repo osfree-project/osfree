@@ -278,7 +278,10 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
     normalize_dir(dir_in, dir, sizeof(dir));
     d = opendir(dir);
     if (!d) {
-        fprintf(stderr, "Error: cannot open directory %s\n", dir);
+        fprintf(stderr,
+                "ERROR: cannot open directory: %s\n"
+                "       Check that the directory exists and is readable.\n",
+                dir);
         return -1;
     }
     while ((entry = readdir(d)) != NULL) {
@@ -324,7 +327,10 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
     snprintf(pattern, sizeof(pattern), "%s\\*", dir);
     hFile = _findfirst(pattern, &fd);
     if (hFile == -1L) {
-        fprintf(stderr, "Error: cannot open directory %s\n", dir);
+        fprintf(stderr,
+                "ERROR: cannot open directory: %s\n"
+                "       Check that the directory exists and is readable.\n",
+                dir);
         return -1;
     }
     do {
@@ -374,7 +380,10 @@ int spdx_discover_from_artifacts(char **object_files, int object_count,
         char **sources = NULL;
         int    count = 0;
         if (omf_extract_sources(object_files[i], &sources, &count) != 0) {
-            fprintf(stderr, "Warning: cannot extract sources from %s\n",
+            fprintf(stderr,
+                    "WARNING: cannot extract sources from %s\n"
+                    "         The file is not a valid OMF object or has "
+                    "no source references.\n",
                     object_files[i]);
             continue;
         }
@@ -389,7 +398,10 @@ int spdx_discover_from_artifacts(char **object_files, int object_count,
         char **sources = NULL;
         int    count = 0;
         if (res_extract_sources(res_files[i], &sources, &count) != 0) {
-            fprintf(stderr, "Warning: cannot extract sources from %s\n",
+            fprintf(stderr,
+                    "WARNING: cannot extract sources from %s\n"
+                    "         The file is not a valid resource file or has "
+                    "no source references.\n",
                     res_files[i]);
             continue;
         }
@@ -417,7 +429,9 @@ int spdx_discover(const char *project_dir,
                                               res_files, res_count, out);
         if (rc != 0) {
             fprintf(stderr,
-                    "Error: no sources extracted from build artifacts\n");
+                    "ERROR: no sources extracted from build artifacts\n"
+                    "       Check that the object and resource files are "
+                    "valid.\n");
             return -1;
         }
         return 0;

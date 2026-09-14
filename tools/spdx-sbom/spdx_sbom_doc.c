@@ -108,7 +108,7 @@ static void add_unique_license(PackageInfo *pkg, const char *lic) {
         char **na = (char**)realloc(pkg->license_info_from_files,
                                     (size_t)new_cap * sizeof(char*));
         if (!na) {
-            fprintf(stderr, "Memory allocation failed\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         pkg->license_info_from_files = na;
@@ -117,7 +117,7 @@ static void add_unique_license(PackageInfo *pkg, const char *lic) {
     pkg->license_info_from_files[pkg->license_info_count] =
         (char*)malloc(strlen(lic) + 1);
     if (!pkg->license_info_from_files[pkg->license_info_count]) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     strcpy(pkg->license_info_from_files[pkg->license_info_count], lic);
@@ -158,7 +158,7 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
      * отсортированных по имени. */
     sorted = (FileInfo*)malloc((size_t)doc->files.count * sizeof(FileInfo));
     if (!sorted) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     memcpy(sorted, doc->files.items,
@@ -171,7 +171,7 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
 
     concat = (char*)malloc(total_len + 1);
     if (!concat) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     concat[0] = '\0';
@@ -206,7 +206,7 @@ void sbom_doc_build_relationships(SpdxDocument *doc,
     doc->relationships = (Relationship*)malloc(
         sizeof(Relationship) * (size_t)rel_count);
     if (!doc->relationships) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     doc->relationship_count = 0;
