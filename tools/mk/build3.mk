@@ -239,6 +239,9 @@ TRGT = $(PROJ).$(TARGET_EXT)
 TRGT = $(PROJ).dll
 !else
 TRGT = $(PROJ).exe
+!ifeq COM 1
+TRGT = $(PROJ).com
+!endif
 !endif
 
 !else ifeq TARGET_CLASS LIBRARY
@@ -283,7 +286,11 @@ TRGT = $(PROJ).$(TARGET_EXT)
 !include $(%ROOT)tools/mk/appsdos.mk
 !else ifeq TARGET_CLASS LIBRARY
 !ifeq TARGET_SUBCLASS STATIC
-!error LIBRARY STATIC is reserved and not yet implemented for DOS
+TARGETS  = $(PATH)$(PROJ).lib
+!include $(%ROOT)tools/mk/libsdos.mk
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
 !else ifeq TARGET_SUBCLASS DYNAMIC
 !error LIBRARY DYNAMIC is not supported on DOS
 !else
@@ -315,7 +322,7 @@ TRGT = $(PROJ).$(TARGET_EXT)
 !ifeq TARGET_SUBCLASS DYNAMIC
 !error LIBRARY DYNAMIC is reserved and not yet implemented for DPMI
 !else ifeq TARGET_SUBCLASS STATIC
-!error LIBRARY STATIC is reserved and not yet implemented for DPMI
+!include $(%ROOT)tools/mk/libsdos.mk
 !else
 !error Unknown TARGET_SUBCLASS for DPMI LIBRARY: $(TARGET_SUBCLASS)
 !endif
@@ -343,6 +350,7 @@ TARGETS  = $(PATH)$(PROJ).lib
 !include $(%ROOT)tools/mk/libs.mk
 $(TARGETS): $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
 !endif
 !else ifeq TARGET_CLASS DRIVER
 !error DRIVER class is not supported on HOST
@@ -698,7 +706,7 @@ gen_register_project: .SYMBOLIC
 TT=1
 !ifdef trrgt
 TT=$(trrgt:.=_)
-TT=$(TT:-=_)
+#TT=$(TT:-=_)
 !endif
 !ifndef $(TT)
  @$(SAY) Registering project $(trrgt)...
