@@ -74,13 +74,13 @@ const SpdxExceptionEntry *spdx_exception_lookup(const char *id);
 /* Ленивая загрузка деталей. 0 - успех, -1 - ошибка. */
 int spdx_license_load_detail(const char *id);
 int spdx_exception_load_detail(const char *id);
+
 /* Возвращает текст лицензии (поле licenseText) из базы.
  * NULL, если id не найден или деталь не загружена. */
 const char *spdx_license_get_text(const char *id);
 
 /* То же для исключений. */
 const char *spdx_exception_get_text(const char *id);
-
 
 int spdx_license_is_valid(const char *id);
 int spdx_exception_is_valid(const char *id);
@@ -94,6 +94,17 @@ int spdx_license_is_fsf_libre(const char *id);
  * на начало проблемного токена внутри строки expr. Длина токена
  * определяется до ближайшего пробела, '(' или ')'. */
 int spdx_expression_validate(const char *expr, const char **bad_token);
+
+/* Приводит SPDX-выражение к каноническому виду: каждый идентификатор
+ * из SPDX License List / SPDX Exceptions заменяется на канонический
+ * регистр (например, 'BSD-3-clause' -> 'BSD-3-Clause').
+ *
+ * Операторы AND/OR/WITH, скобки и пробелы сохраняются как есть.
+ * LicenseRef-* и DocumentRef-* остаются без изменений.
+ *
+ * Возвращает malloc-строку (caller free) или NULL при OOM. Для
+ * пустой/нулевой строки возвращает пустую строку. */
+char *spdx_normalize_license_expression(const char *expr);
 
 #ifdef __cplusplus
 }

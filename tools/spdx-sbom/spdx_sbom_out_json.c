@@ -4,14 +4,16 @@
 #include <stdlib.h>
 #include "spdx_sbom_out.h"
 #include "spdx_sbom_utils.h"
+#include "json_parser.h"
 
 static void print_str(const char *s) {
-    char *esc = sbom_json_escape(s ? s : "");
+    char *esc = json_escape_string(s ? s : "");
     printf("%s", esc ? esc : "");
     free(esc);
 }
 
 static void print_package(const PackageInfo *pkg) {
+    int i;
     printf("    {\n");
     printf("      \"SPDXID\": \"%s\",\n", pkg->spdx_id);
     printf("      \"name\": \""); print_str(pkg->name); printf("\",\n");
@@ -24,6 +26,16 @@ static void print_package(const PackageInfo *pkg) {
     } else printf("      \"supplier\": \"NOASSERTION\",\n");
     printf("      \"licenseConcluded\": \""); print_str(pkg->license); printf("\",\n");
     printf("      \"licenseDeclared\": \""); print_str(pkg->license); printf("\",\n");
+    if (pkg->files_analyzed && pkg->license_info_count > 0) {
+        printf("      \"licenseInfoFromFiles\": [\n");
+        for (i = 0; i < pkg->license_info_count; i++) {
+            printf("        \"");
+            print_str(pkg->license_info_from_files[i]);
+            printf("\"%s\n",
+                   (i + 1 < pkg->license_info_count) ? "," : "");
+        }
+        printf("      ],\n");
+    }
     if (pkg->copyright[0]) {
         printf("      \"copyrightText\": \""); print_str(pkg->copyright); printf("\",\n");
     } else printf("      \"copyrightText\": \"NOASSERTION\",\n");
@@ -64,6 +76,35 @@ static void print_file(const FileInfo *fi, int first) {
         printf(",\n      \"copyrightText\": \"NOASSERTION\"");
     }
     printf("\n    }");
+}
+
+static void print_snippet(const SnippetInfo *s, int first) {
+    if (!first) printf(",\n");
+    printf("    {\n");
+    printf("      \"SPDXID\": \"%s\",\n", s->spdx_id);
+    printf("      \"snippetFromFile\": \"%s\",\n", s->from_file_id);
+    printf("      \"ranges\": [\n");
+    printf("        {\n");
+    printf("          \"startPointer\": {\"reference\": \"%s\", \"offset\": %d},\n",
+           s->from_file_id, s->line_start);
+    printf("          \"endPointer\": {\"reference\": \"%s\", \"offset\": %d}\n",
+           s->from_file_id, s->line_end);
+    printf("        }\n");
+    printf("      ],\n");
+    printf("      \"licenseConcluded\": \"");
+    print_str(s->license);
+    printf("\",\n");
+    printf("      \"licenseInfoInSnippets\": [\"");
+    print_str(s->license);
+    printf("\"]");
+    if (s->copyright[0]) {
+        printf(",\n      \"copyrightText\": \"");
+        print_str(s->copyright);
+        printf("\"\n");
+    } else {
+        printf(",\n      \"copyrightText\": \"NOASSERTION\"\n");
+    }
+    printf("    }");
 }
 
 static void print_relationship(const Relationship *r) {
@@ -134,6 +175,13 @@ int sbom_output_json(const SpdxDocument *doc) {
     for (i = 0; i < doc->files.count; i++)
         print_file(&doc->files.items[i], i == 0);
     printf("\n  ],\n");
+
+    if (doc->snippets.count > 0) {
+        printf("  \"snippets\": [\n");
+        for (i = 0; i < doc->snippets.count; i++)
+            print_snippet(&doc->snippets.items[i], i == 0);
+        printf("\n  ],\n");
+    }
 
     printf("  \"relationships\": [\n");
     for (i = 0; i < doc->relationship_count; i++) {

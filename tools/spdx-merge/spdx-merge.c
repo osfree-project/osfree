@@ -24,36 +24,6 @@ typedef struct {
     int count;
 } RenameMap;
 
-/* ---------- Ёкранирование строк дл€ JSON ---------- */
-
-static char *json_escape_string(const char *src) {
-    size_t len, extra, i, j;
-    char *dst;
-
-    if (!src) src = "";
-    len = strlen(src);
-    extra = 0;
-    for (i = 0; i < len; i++) {
-        if (src[i] == '"' || src[i] == '\\' || src[i] == '\n' ||
-            src[i] == '\r' || src[i] == '\t')
-            extra++;
-    }
-    dst = (char*)malloc(len + extra + 1);
-    if (!dst) return NULL;
-    j = 0;
-    for (i = 0; i < len; i++) {
-        switch (src[i]) {
-            case '"':  dst[j++] = '\\'; dst[j++] = '"'; break;
-            case '\\': dst[j++] = '\\'; dst[j++] = '\\'; break;
-            case '\n': dst[j++] = '\\'; dst[j++] = 'n'; break;
-            case '\r': dst[j++] = '\\'; dst[j++] = 'r'; break;
-            case '\t': dst[j++] = '\\'; dst[j++] = 't'; break;
-            default:   dst[j++] = src[i]; break;
-        }
-    }
-    dst[j] = '\0';
-    return dst;
-}
 
 static void print_json_string(const char *s) {
     char *esc = json_escape_string(s ? s : "");
@@ -140,7 +110,11 @@ static int is_processed(ProcessedList *l, const char *path) {
 
 static void add_processed(ProcessedList *l, const char *path) {
     if (l->count >= MAX_DOCS) {
-        fprintf(stderr, "Too many documents\n"); exit(EXIT_FAILURE);
+        fprintf(stderr,
+                "ERROR: too many documents to merge (limit: %d).\n"
+                "       Reduce the number of externalDocumentRefs.\n",
+                MAX_DOCS);
+        exit(EXIT_FAILURE);
     }
     l->paths[l->count] = strdup(path);
     l->count++;
@@ -218,7 +192,7 @@ static void add_child(JsonNode *parent, JsonNode *child) {
         JsonNode **new_children = (JsonNode**)realloc(parent->children,
             (size_t)new_cap * sizeof(JsonNode*));
         if (!new_children) {
-            fprintf(stderr, "OOM\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         parent->children = new_children;
@@ -243,7 +217,12 @@ static JsonNode *clone_node(JsonNode *node) {
     copy->child_count = node->child_count;
     copy->child_capacity = (node->child_count > 0) ? node->child_count : 1;
     copy->children = (JsonNode**)malloc(copy->child_capacity * sizeof(JsonNode*));
-    if (!copy->children) { free(copy->key); free(copy->string_value); free(copy); return NULL; }
+    if (!copy->children) {
+        free(copy->key);
+        free(copy->string_value);
+        free(copy);
+        return NULL;
+    }
     for (i = 0; i < node->child_count; i++) {
         copy->children[i] = clone_node(node->children[i]);
         if (copy->children[i]) copy->children[i]->parent = copy;
@@ -303,29 +282,44 @@ static void verify_checksum(const char *filepath, JsonNode *checksum_node) {
     char *actual = NULL;
 
     if (!algo_node || !value_node) {
-        fprintf(stderr, "Invalid checksum in externalDocumentRef\n");
+        fprintf(stderr,
+                "ERROR: invalid checksum in externalDocumentRef.\n"
+                "       Both 'algorithm' and 'checksumValue' fields are "
+                "required.\n");
         exit(EXIT_FAILURE);
     }
     algo = json_get_string(algo_node);
     expected = json_get_string(value_node);
     if (!algo || !expected) {
-        fprintf(stderr, "Invalid checksum values\n"); exit(EXIT_FAILURE);
+        fprintf(stderr,
+                "ERROR: invalid checksum values in externalDocumentRef.\n"
+                "       'algorithm' and 'checksumValue' must be strings.\n");
+        exit(EXIT_FAILURE);
     }
     if (strcmp(algo, "SHA1") == 0)
         actual = sha1_file(filepath);
     else if (strcmp(algo, "SHA256") == 0)
         actual = sha256_file(filepath);
     else {
-        fprintf(stderr, "Unsupported checksum algorithm: %s\n", algo);
+        fprintf(stderr,
+                "ERROR: unsupported checksum algorithm: %s\n"
+                "       Supported: SHA1, SHA256.\n", algo);
         exit(EXIT_FAILURE);
     }
     if (!actual) {
-        fprintf(stderr, "Cannot compute %s for %s\n", algo, filepath);
+        fprintf(stderr,
+                "ERROR: cannot compute %s for %s\n"
+                "       Check that the file exists and is readable.\n",
+                algo, filepath);
         exit(EXIT_FAILURE);
     }
     if (strcmp(actual, expected) != 0) {
         fprintf(stderr,
-                "Checksum mismatch for %s: expected %s, got %s\n",
+                "ERROR: checksum mismatch for %s\n"
+                "       Expected: %s\n"
+                "       Actual:   %s\n"
+                "       The external document has changed since the "
+                "reference was recorded.\n",
                 filepath, expected, actual);
         free(actual);
         exit(EXIT_FAILURE);
@@ -351,6 +345,14 @@ static void collect_local_spdxids(JsonNode *root, SpdxStrList *known) {
         }
     }
     arr = json_find_child(root, "files");
+    if (arr && arr->type == JSON_ARRAY) {
+        for (i = 0; i < arr->child_count; i++) {
+            JsonNode *id = json_find_child(arr->children[i], "SPDXID");
+            const char *s = id ? json_get_string(id) : NULL;
+            if (s) spdx_strlist_add_unique(known, s);
+        }
+    }
+    arr = json_find_child(root, "snippets");
     if (arr && arr->type == JSON_ARRAY) {
         for (i = 0; i < arr->child_count; i++) {
             JsonNode *id = json_find_child(arr->children[i], "SPDXID");
@@ -387,8 +389,9 @@ static void validate_relationships(JsonNode *root, const char *filepath,
 
         if (!sa || !sb) {
             fprintf(stderr,
-                    "Error: %s: relationship #%d missing spdxElementId/"
-                    "relatedSpdxElement\n", filepath, i);
+                    "ERROR: %s: relationship #%d missing "
+                    "'spdxElementId' or 'relatedSpdxElement'.\n",
+                    filepath, i);
             exit(EXIT_FAILURE);
         }
         if (strncmp(sa, "DocumentRef-", 12) == 0) {
@@ -396,8 +399,8 @@ static void validate_relationships(JsonNode *root, const char *filepath,
             const char *colon = strchr(sa, ':');
             if (!colon) {
                 fprintf(stderr,
-                        "Error: %s: malformed DocumentRef in spdxElementId: %s\n",
-                        filepath, sa);
+                        "ERROR: %s: malformed DocumentRef in "
+                        "spdxElementId: %s\n", filepath, sa);
                 exit(EXIT_FAILURE);
             }
             {
@@ -408,14 +411,15 @@ static void validate_relationships(JsonNode *root, const char *filepath,
             }
             if (!spdx_strlist_contains(external_ids, docref)) {
                 fprintf(stderr,
-                        "Error: %s: unresolved externalDocumentRef '%s'\n",
+                        "ERROR: %s: relationship references unresolved "
+                        "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
         } else if (!spdx_strlist_contains(known, sa)) {
             fprintf(stderr,
-                    "Error: %s: relationship references unknown SPDXID '%s'\n",
-                    filepath, sa);
+                    "ERROR: %s: relationship references unknown "
+                    "SPDXID '%s'.\n", filepath, sa);
             exit(EXIT_FAILURE);
         }
 
@@ -424,7 +428,7 @@ static void validate_relationships(JsonNode *root, const char *filepath,
             const char *colon = strchr(sb, ':');
             if (!colon) {
                 fprintf(stderr,
-                        "Error: %s: malformed DocumentRef in "
+                        "ERROR: %s: malformed DocumentRef in "
                         "relatedSpdxElement: %s\n", filepath, sb);
                 exit(EXIT_FAILURE);
             }
@@ -436,14 +440,15 @@ static void validate_relationships(JsonNode *root, const char *filepath,
             }
             if (!spdx_strlist_contains(external_ids, docref)) {
                 fprintf(stderr,
-                        "Error: %s: unresolved externalDocumentRef '%s'\n",
+                        "ERROR: %s: relationship references unresolved "
+                        "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
         } else if (!spdx_strlist_contains(known, sb)) {
             fprintf(stderr,
-                    "Error: %s: relationship references unknown SPDXID '%s'\n",
-                    filepath, sb);
+                    "ERROR: %s: relationship references unknown "
+                    "SPDXID '%s'.\n", filepath, sb);
             exit(EXIT_FAILURE);
         }
     }
@@ -458,17 +463,22 @@ static void validate_license_field(const char *filepath, const char *field,
     rc = spdx_expression_validate(value, &bad);
     if (rc == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
-                "Error: %s: invalid SPDX expression in %s: '%s'\n",
+                "ERROR: %s: invalid SPDX expression in %s: '%s'\n"
+                "       See https://spdx.github.io/spdx-spec/v2.3/"
+                "SPDX-license-expressions/ for the grammar.\n",
                 filepath, field, value);
         exit(EXIT_FAILURE);
     }
     if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
         const char *p = bad;
         while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-        fprintf(stderr, "Error: %s: unknown SPDX identifier in %s: '",
+        fprintf(stderr,
+                "ERROR: %s: unknown SPDX identifier in %s: '",
                 filepath, field);
         fwrite(bad, 1, (size_t)(p - bad), stderr);
-        fprintf(stderr, "'\n");
+        fprintf(stderr,
+                "'\n"
+                "       See https://spdx.org/licenses/ for the full list.\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -524,14 +534,16 @@ static void validate_document(JsonNode *root, const char *filepath) {
 static void process_document(const char *filepath, JsonNode *root,
                              JsonNode *merged_root, ProcessedList *processed,
                              RenameMap *rename_map) {
-    JsonNode *ext_refs, *packages, *files, *relationships;
-    JsonNode *merged_packages, *merged_files, *merged_relationships;
+    JsonNode *ext_refs, *packages, *files, *snippets, *relationships;
+    JsonNode *merged_packages, *merged_files, *merged_snippets;
+    JsonNode *merged_relationships;
     char *abs_path;
     int i, j;
 
     abs_path = normalize_path(filepath);
     if (!abs_path) {
-        fprintf(stderr, "Cannot normalize path: %s\n", filepath);
+        fprintf(stderr,
+                "ERROR: cannot normalize path: %s\n", filepath);
         exit(EXIT_FAILURE);
     }
     if (is_processed(processed, abs_path)) { free(abs_path); return; }
@@ -552,17 +564,25 @@ static void process_document(const char *filepath, JsonNode *root,
             JsonNode *ext_root;
 
             if (!id_node || !doc_node) {
-                fprintf(stderr, "Invalid externalDocumentRef in %s\n", filepath);
+                fprintf(stderr,
+                        "ERROR: invalid externalDocumentRef in %s\n"
+                        "       Both 'externalDocumentId' and "
+                        "'spdxDocument' are required.\n", filepath);
                 exit(EXIT_FAILURE);
             }
             doc_uri = json_get_string(doc_node);
             if (!doc_uri) {
-                fprintf(stderr, "spdxDocument must be a string\n");
+                fprintf(stderr,
+                        "ERROR: %s: 'spdxDocument' must be a string.\n",
+                        filepath);
                 exit(EXIT_FAILURE);
             }
             if (strncmp(doc_uri, "http://", 7) == 0 ||
                 strncmp(doc_uri, "https://", 8) == 0) {
-                fprintf(stderr, "Remote URIs unsupported: %s\n", doc_uri);
+                fprintf(stderr,
+                        "ERROR: %s: remote URIs are not supported: %s\n"
+                        "       Use a local file path instead.\n",
+                        filepath, doc_uri);
                 exit(EXIT_FAILURE);
             }
 
@@ -575,27 +595,38 @@ static void process_document(const char *filepath, JsonNode *root,
                 free(dir);
             }
             if (!full_doc_path) {
-                fprintf(stderr, "Cannot resolve: %s\n", doc_uri);
+                fprintf(stderr,
+                        "ERROR: %s: cannot resolve path: %s\n",
+                        filepath, doc_uri);
                 exit(EXIT_FAILURE);
             }
 
             if (checksum_node && checksum_node->type == JSON_OBJECT)
                 verify_checksum(full_doc_path, checksum_node);
             else {
-                fprintf(stderr, "Missing checksum for %s\n", doc_uri);
+                fprintf(stderr,
+                        "ERROR: %s: missing checksum for external "
+                        "document: %s\n"
+                        "       Each externalDocumentRef must include a "
+                        "checksum.\n", filepath, doc_uri);
                 exit(EXIT_FAILURE);
             }
 
             doc_text = spdx_read_file_all(full_doc_path, NULL);
             if (!doc_text) {
-                fprintf(stderr, "Cannot read: %s\n", full_doc_path);
+                fprintf(stderr,
+                        "ERROR: cannot read external document: %s\n"
+                        "       Check that the file exists and is "
+                        "readable.\n", full_doc_path);
                 free(full_doc_path);
                 exit(EXIT_FAILURE);
             }
             ext_root = json_parse(doc_text);
             free(doc_text);
             if (!ext_root) {
-                fprintf(stderr, "Invalid JSON: %s\n", full_doc_path);
+                fprintf(stderr,
+                        "ERROR: invalid JSON in external document: %s\n",
+                        full_doc_path);
                 free(full_doc_path);
                 exit(EXIT_FAILURE);
             }
@@ -619,12 +650,14 @@ static void process_document(const char *filepath, JsonNode *root,
             JsonNode *id_node = json_find_child(pkg, "SPDXID");
             const char *old_id;
             if (!id_node) {
-                fprintf(stderr, "Package without SPDXID in %s\n", filepath);
+                fprintf(stderr,
+                        "ERROR: %s: package without SPDXID.\n", filepath);
                 exit(EXIT_FAILURE);
             }
             old_id = json_get_string(id_node);
             if (!old_id) {
-                fprintf(stderr, "Invalid SPDXID in package\n");
+                fprintf(stderr,
+                        "ERROR: %s: invalid package SPDXID.\n", filepath);
                 exit(EXIT_FAILURE);
             }
             if (get_renamed(rename_map, old_id) == NULL) {
@@ -668,12 +701,14 @@ static void process_document(const char *filepath, JsonNode *root,
             JsonNode *id_node = json_find_child(file, "SPDXID");
             const char *old_id;
             if (!id_node) {
-                fprintf(stderr, "File without SPDXID in %s\n", filepath);
+                fprintf(stderr,
+                        "ERROR: %s: file without SPDXID.\n", filepath);
                 exit(EXIT_FAILURE);
             }
             old_id = json_get_string(id_node);
             if (!old_id) {
-                fprintf(stderr, "Invalid SPDXID in file\n");
+                fprintf(stderr,
+                        "ERROR: %s: invalid file SPDXID.\n", filepath);
                 exit(EXIT_FAILURE);
             }
             if (get_renamed(rename_map, old_id) == NULL) {
@@ -701,6 +736,57 @@ static void process_document(const char *filepath, JsonNode *root,
                 const char *new_id = get_renamed(rename_map, old_id);
                 replace_string_value(clone, "SPDXID", new_id);
                 add_child(merged_files, clone);
+            }
+        }
+    }
+
+    snippets = json_find_child(root, "snippets");
+    merged_snippets = json_find_child(merged_root, "snippets");
+    if (snippets && snippets->type == JSON_ARRAY && snippets->child_count > 0) {
+        if (!merged_snippets) {
+            merged_snippets = create_array_node("snippets");
+            add_child(merged_root, merged_snippets);
+        }
+        for (i = 0; i < snippets->child_count; i++) {
+            JsonNode *sn = snippets->children[i];
+            JsonNode *id_node = json_find_child(sn, "SPDXID");
+            const char *old_id;
+            if (!id_node) {
+                fprintf(stderr,
+                        "ERROR: %s: snippet without SPDXID.\n", filepath);
+                exit(EXIT_FAILURE);
+            }
+            old_id = json_get_string(id_node);
+            if (!old_id) {
+                fprintf(stderr,
+                        "ERROR: %s: invalid snippet SPDXID.\n", filepath);
+                exit(EXIT_FAILURE);
+            }
+            if (get_renamed(rename_map, old_id) == NULL) {
+                int exists = 0;
+                for (j = 0; j < merged_snippets->child_count; j++) {
+                    JsonNode *ex = json_find_child(merged_snippets->children[j],
+                                                   "SPDXID");
+                    const char *exs = ex ? json_get_string(ex) : NULL;
+                    if (exs && strcmp(exs, old_id) == 0) {
+                        exists = 1; break;
+                    }
+                }
+                if (exists) {
+                    char *new_id = make_unique_id(old_id, i);
+                    JsonNode *clone = clone_node(sn);
+                    add_rename(rename_map, old_id, new_id);
+                    replace_string_value(clone, "SPDXID", new_id);
+                    add_child(merged_snippets, clone);
+                    free(new_id);
+                } else {
+                    add_child(merged_snippets, clone_node(sn));
+                }
+            } else {
+                JsonNode *clone = clone_node(sn);
+                const char *new_id = get_renamed(rename_map, old_id);
+                replace_string_value(clone, "SPDXID", new_id);
+                add_child(merged_snippets, clone);
             }
         }
     }
@@ -774,6 +860,31 @@ static void print_json_indent(JsonNode *node, int indent) {
 
 /* ---------- CLI ---------- */
 
+static void print_help(void) {
+    printf("Usage: spdx-merge --input=<file> [--output=<file>] [options]\n"
+           "\n"
+           "Required:\n"
+           "  --input=<file>             Root SPDX JSON document to merge\n"
+           "  --spdx-db=<path>           SPDX database root "
+           "(licenses.json,\n"
+           "                             exceptions.json, details/, "
+           "exceptions/)\n"
+           "\n"
+           "Optional:\n"
+           "  --output=<file>            Write merged document to file "
+           "(default: stdout)\n"
+           "  --cache=<path>             SPDX database cache file\n"
+           "  --details-dir=<path>       SPDX details directory "
+           "(if not under spdx-db)\n"
+           "  --exceptions-dir=<path>    SPDX exceptions directory "
+           "(if not under spdx-db)\n"
+           "  --help, -h                 Show this help\n"
+           "\n"
+           "The merge walks externalDocumentRefs recursively, verifies "
+           "each\n"
+           "checksum, and resolves SPDXID collisions by renaming.\n");
+}
+
 int main(int argc, char *argv[]) {
     const char *input_file = NULL;
     const char *output_file = NULL;
@@ -790,7 +901,11 @@ int main(int argc, char *argv[]) {
     int db_errs;
 
     for (i = 1; i < argc; i++) {
-        if (strncmp(argv[i], "--input=", 8) == 0)
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            print_help();
+            return 0;
+        }
+        else if (strncmp(argv[i], "--input=", 8) == 0)
             input_file = argv[i] + 8;
         else if (strncmp(argv[i], "--output=", 9) == 0)
             output_file = argv[i] + 9;
@@ -798,43 +913,67 @@ int main(int argc, char *argv[]) {
             spdx_db_root = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
             cache_file = argv[i] + 8;
+        else {
+            fprintf(stderr,
+                    "ERROR: unknown option: %s\n"
+                    "       Run 'spdx-merge --help' for usage.\n",
+                    argv[i]);
+            return 1;
+        }
     }
 
     if (!input_file) {
         fprintf(stderr,
-                "Usage: spdx-merge --input=<root.spdx.json> "
-                "[--output=merged.spdx.json]\n"
-                "       --spdx-db=<path> [--cache=<path>]\n");
+                "ERROR: --input=<file> is required.\n"
+                "       Run 'spdx-merge --help' for usage.\n");
         return 1;
     }
     if (!spdx_db_root) {
         fprintf(stderr,
-                "Error: --spdx-db=<path> is required\n");
+                "ERROR: --spdx-db=<path> is required.\n"
+                "       Run 'spdx-merge --help' for usage.\n");
         return 1;
     }
 
     db_errs = spdx_db_init(spdx_db_root, cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
-        fprintf(stderr, "Error: SPDX license database unavailable\n");
+        fprintf(stderr,
+                "ERROR: SPDX license database is unavailable "
+                "(licenses.json not loaded).\n"
+                "       Expected at <spdx-db>/licenses.json.\n"
+                "       Cannot validate SPDX identifiers. Aborting.\n");
         spdx_db_free();
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
-        fprintf(stderr, "Error: SPDX exceptions database unavailable\n");
+        fprintf(stderr,
+                "ERROR: SPDX exceptions database is unavailable "
+                "(exceptions.json not loaded).\n"
+                "       Expected at <spdx-db>/exceptions.json.\n"
+                "       Cannot validate SPDX identifiers. Aborting.\n");
         spdx_db_free();
         return 1;
     }
+    if (db_errs & SPDX_DB_ERR_CACHE)
+        fprintf(stderr,
+                "WARNING: cache could not be written.\n"
+                "         Next run will re-parse JSON indexes.\n");
 
     root_text = spdx_read_file_all(input_file, NULL);
     if (!root_text) {
-        fprintf(stderr, "Cannot read input: %s\n", input_file);
+        fprintf(stderr,
+                "ERROR: cannot read input file: %s\n"
+                "       Check that the file exists and is readable.\n",
+                input_file);
         spdx_db_free();
         return 1;
     }
     root = json_parse(root_text);
     free(root_text);
     if (!root) {
-        fprintf(stderr, "Invalid JSON input\n");
+        fprintf(stderr,
+                "ERROR: invalid JSON in input file: %s\n",
+                input_file);
         spdx_db_free();
         return 1;
     }
@@ -847,7 +986,7 @@ int main(int argc, char *argv[]) {
 
     merged_root = create_object_node(NULL);
     if (!merged_root) {
-        fprintf(stderr, "OOM\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         json_free(root);
         spdx_db_free();
         return 1;
@@ -878,7 +1017,10 @@ int main(int argc, char *argv[]) {
 
     if (output_file) {
         if (!freopen(output_file, "w", stdout)) {
-            fprintf(stderr, "Cannot open output: %s\n", output_file);
+            fprintf(stderr,
+                    "ERROR: cannot open output file: %s\n"
+                    "       Check directory permissions.\n",
+                    output_file);
             json_free(root);
             json_free(merged_root);
             spdx_db_free();

@@ -38,9 +38,10 @@ static char *trim(char *str) {
 static char *strip_quotes(char *str) {
     char *end;
     if (str[0] == '"' || str[0] == '\'') {
+        char q = str[0];
         str++;
         end = str + strlen(str) - 1;
-        if (*end == '"' || *end == '\'') *end = '\0';
+        if (*end == q) *end = '\0';
     }
     return str;
 }
@@ -49,9 +50,53 @@ static int starts_with(const char *str, const char *prefix) {
     return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
+/* Удаляет inline-комментарий (# вне кавычек). Учитывает экранирование
+ * внутри кавычек: \" и \'. */
+static void strip_inline_comment(char *line) {
+    char *p = line;
+    int in_dq = 0;
+    int in_sq = 0;
+    while (*p) {
+        char c = *p;
+        if (in_dq) {
+            if (c == '\\' && p[1] != '\0') { p += 2; continue; }
+            if (c == '"') in_dq = 0;
+        } else if (in_sq) {
+            if (c == '\\' && p[1] != '\0') { p += 2; continue; }
+            if (c == '\'') in_sq = 0;
+        } else {
+            if (c == '"') in_dq = 1;
+            else if (c == '\'') in_sq = 1;
+            else if (c == '#') { *p = '\0'; return; }
+        }
+        p++;
+    }
+}
+
+/* Сравнение символов пути: регистрозависимо на Linux, регистронезависимо
+ * на Windows. */
+static int path_char_eq(int a, int b) {
+#ifdef _WIN32
+    return tolower((unsigned char)a) == tolower((unsigned char)b);
+#else
+    return (unsigned char)a == (unsigned char)b;
+#endif
+}
+
+static int path_prefix_eq(const char *s, const char *prefix, size_t n) {
+    size_t i;
+    for (i = 0; i < n; i++) {
+        if (!s[i]) return 0;
+        if (!path_char_eq(s[i], prefix[i])) return 0;
+    }
+    return 1;
+}
+
 static void add_path(Annotation *ann, const char *value) {
-    ann->paths = (char**)realloc(ann->paths,
-                                 (ann->path_count + 1) * sizeof(char*));
+    char **na = (char**)realloc(ann->paths,
+        (size_t)(ann->path_count + 1) * sizeof(char*));
+    if (!na) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+    ann->paths = na;
     ann->paths[ann->path_count++] = dup_str(value);
 }
 
@@ -77,15 +122,17 @@ static int match_path(const char *pat, const char *path) {
     const char *pat_slash;
     const char *path_slash;
 
-    if (pat[0] == '*' && pat[1] == '*' &&
-        (pat[2] == '\0' || pat[2] == '/')) {
-        const char *rest = (pat[2] == '/') ? pat + 3 : pat + 2;
-        if (match_path(rest, path)) return 1;
-        while ((path_slash = strchr(path, '/')) != NULL) {
-            path = path_slash + 1;
+    if (pat[0] == '*' && pat[1] == '*') {
+        if (pat[2] == '\0') return 1;
+        if (pat[2] == '/') {
+            const char *rest = pat + 3;
             if (match_path(rest, path)) return 1;
+            while ((path_slash = strchr(path, '/')) != NULL) {
+                path = path_slash + 1;
+                if (match_path(rest, path)) return 1;
+            }
+            return 0;
         }
-        return 0;
     }
 
     pat_slash  = strchr(pat, '/');
@@ -118,14 +165,17 @@ int matches_pattern(const char *pattern, const char *filename) {
     return match_path(pattern, filename);
 }
 
-/* Приводит файл к виду, относительному к каталогу REUSE.toml. */
+/* Возвращает путь filename относительно cfg->source_dir.
+ * Проверяет, что совпадение префикса — на границе сегмента. */
 static const char *rel_to_config(const ReuseConfig *cfg, const char *filename) {
     const char *base = cfg->source_dir;
     size_t blen;
     if (!base || !base[0]) return filename;
     blen = strlen(base);
-    if (strncmp(filename, base, blen) == 0) {
+    if (path_prefix_eq(filename, base, blen)) {
         const char *rest = filename + blen;
+        if (*rest == '\0') return rest;
+        if (*rest != '/' && *rest != '\\') return filename;
         while (*rest == '/' || *rest == '\\') rest++;
         return rest;
     }
@@ -133,10 +183,69 @@ static const char *rel_to_config(const ReuseConfig *cfg, const char *filename) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Разбор TOML-массива строк: ["a", "b", "c"]                          */
+/* ------------------------------------------------------------------ */
+
+static char *parse_toml_string_array(const char *val, const char *sep) {
+    size_t cap = 64;
+    size_t len = 0;
+    size_t sep_len = strlen(sep);
+    char *out;
+    const char *p;
+
+    if (!val || *val != '[') return NULL;
+    out = (char*)malloc(cap);
+    if (!out) return NULL;
+    out[0] = '\0';
+
+    p = val + 1;
+    while (*p) {
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ']') break;
+        if (*p == '\0') { free(out); return NULL; }
+        if (*p == '"' || *p == '\'') {
+            char quote = *p++;
+            const char *start = p;
+            size_t seg_len;
+            while (*p && *p != quote) p++;
+            if (*p != quote) { free(out); return NULL; }
+            seg_len = (size_t)(p - start);
+            p++;
+
+            if (len > 0) {
+                if (len + sep_len + 1 > cap) {
+                    size_t ncap = cap * 2 + sep_len + seg_len;
+                    char *no = (char*)realloc(out, ncap);
+                    if (!no) { free(out); return NULL; }
+                    out = no; cap = ncap;
+                }
+                memcpy(out + len, sep, sep_len);
+                len += sep_len;
+            }
+            if (len + seg_len + 1 > cap) {
+                size_t ncap = cap * 2 + seg_len;
+                char *no = (char*)realloc(out, ncap);
+                if (!no) { free(out); return NULL; }
+                out = no; cap = ncap;
+            }
+            memcpy(out + len, start, seg_len);
+            len += seg_len;
+            out[len] = '\0';
+        } else {
+            free(out);
+            return NULL;
+        }
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ',') { p++; continue; }
+        if (*p == ']') break;
+    }
+    return out;
+}
+
+/* ------------------------------------------------------------------ */
 /* Разбор REUSE.toml                                                   */
 /* ------------------------------------------------------------------ */
 
-/* Список известных ключей верхнего уровня (в аннотации) */
 static int is_known_annotation_key(const char *s, int *consumed) {
     static const char *known[] = {
         "path",
@@ -176,14 +285,29 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
     int order_counter = 0;
     int seen_version = 0;
     int warned_unknown = 0;
+    int annotation_capacity = 16;
 
     f = fopen(filename, "r");
     if (!f) return NULL;
 
     config = (ReuseConfig*)calloc(1, sizeof(ReuseConfig));
-    config->annotations = (Annotation*)malloc(100 * sizeof(Annotation));
+    if (!config) { fclose(f); return NULL; }
+
+    config->annotations = (Annotation*)malloc(
+        (size_t)annotation_capacity * sizeof(Annotation));
+    if (!config->annotations) {
+        free(config);
+        fclose(f);
+        return NULL;
+    }
     config->annotation_count = 0;
     config->source_dir = dup_str(filename);
+    if (!config->source_dir) {
+        free(config->annotations);
+        free(config);
+        fclose(f);
+        return NULL;
+    }
 
     p = strrchr(config->source_dir, '/');
 #ifdef _WIN32
@@ -195,10 +319,24 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
     if (p) *p = '\0';
 
     while (fgets(line, sizeof(line), f)) {
+        /* Сначала отсекаем inline-комментарий, потом trim */
+        strip_inline_comment(line);
         s = trim(line);
-        if (*s == '\0' || *s == '#') continue;
+        if (*s == '\0') continue;
 
         if (strcmp(s, "[[annotations]]") == 0) {
+            if (config->annotation_count >= annotation_capacity) {
+                Annotation *na;
+                annotation_capacity *= 2;
+                na = (Annotation*)realloc(config->annotations,
+                    (size_t)annotation_capacity * sizeof(Annotation));
+                if (!na) {
+                    free_reuse_config(config);
+                    fclose(f);
+                    return NULL;
+                }
+                config->annotations = na;
+            }
             current_ann = &config->annotations[config->annotation_count];
             memset(current_ann, 0, sizeof(Annotation));
             current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
@@ -208,7 +346,6 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             continue;
         }
 
-        /* version = 1 */
         if (starts_with(s, "version") && strchr(s, '=')) {
             val = strchr(s, '=');
             val++;
@@ -216,8 +353,9 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             val = strip_quotes(val);
             if (strcmp(val, "1") != 0) {
                 fprintf(stderr,
-                        "Warning: %s: unsupported version '%s' "
-                        "(expected 1)\n", filename, val);
+                        "WARNING: %s: unsupported version '%s'\n"
+                        "         Expected version '1'.\n",
+                        filename, val);
             } else {
                 seen_version = 1;
             }
@@ -225,11 +363,11 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
         }
 
         if (current_ann == NULL) {
-            /* Верхнеуровневый ключ вне [[annotations]] — предупреждаем */
             int consumed = 0;
             if (!is_known_annotation_key(s, &consumed) && !warned_unknown) {
                 fprintf(stderr,
-                        "Warning: %s: unknown key outside [[annotations]]: %s\n",
+                        "WARNING: %s: unknown key outside [[annotations]]: "
+                        "%s\n",
                         filename, s);
                 warned_unknown = 1;
             }
@@ -246,9 +384,10 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
                     break;
                 }
                 if (*p == '"' || *p == '\'') {
+                    char quote = *p;
                     start = ++p;
-                    while (*p && *p != '"' && *p != '\'') p++;
-                    if (*p) {
+                    while (*p && *p != quote) p++;
+                    if (*p == quote) {
                         *p = '\0';
                         add_path(current_ann, start);
                         p++;
@@ -274,9 +413,10 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
                         break;
                     }
                     if (*val == '"' || *val == '\'') {
+                        char quote = *val;
                         start = ++val;
-                        while (*val && *val != '"' && *val != '\'') val++;
-                        if (*val) {
+                        while (*val && *val != quote) val++;
+                        if (*val == quote) {
                             *val = '\0';
                             add_path(current_ann, start);
                             val++;
@@ -292,12 +432,22 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             char *eq = strchr(s, '=');
             val = trim(eq + 1);
             if (current_ann->license) free(current_ann->license);
-            current_ann->license = dup_str(strip_quotes(val));
+            if (*val == '[') {
+                current_ann->license = parse_toml_string_array(val, " AND ");
+            } else {
+                val = strip_quotes(val);
+                current_ann->license = dup_str(val);
+            }
         } else if (starts_with(s, "SPDX-FileCopyrightText") && strchr(s, '=')) {
             char *eq = strchr(s, '=');
             val = trim(eq + 1);
             if (current_ann->copyright) free(current_ann->copyright);
-            current_ann->copyright = dup_str(strip_quotes(val));
+            if (*val == '[') {
+                current_ann->copyright = parse_toml_string_array(val, "\n");
+            } else {
+                val = strip_quotes(val);
+                current_ann->copyright = dup_str(val);
+            }
         } else if (starts_with(s, "precedence") && strchr(s, '=')) {
             char *eq = strchr(s, '=');
             val = trim(eq + 1);
@@ -310,8 +460,9 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
                 current_ann->precedence = REUSE_PRECEDENCE_OVERRIDE;
             else {
                 fprintf(stderr,
-                        "Warning: %s: unknown precedence '%s' "
-                        "(expected closest, aggregate or override)\n",
+                        "WARNING: %s: unknown precedence '%s'\n"
+                        "         Expected 'closest', 'aggregate' or "
+                        "'override'. Using 'closest'.\n",
                         filename, val);
                 current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
             }
@@ -319,7 +470,7 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
             int consumed = 0;
             if (!is_known_annotation_key(s, &consumed)) {
                 fprintf(stderr,
-                        "Warning: %s: unknown key in [[annotations]]: %s\n",
+                        "WARNING: %s: unknown key in [[annotations]]: %s\n",
                         filename, s);
             }
         }
@@ -329,7 +480,10 @@ ReuseConfig* parse_reuse_toml(const char *filename) {
 
     if (!seen_version) {
         fprintf(stderr,
-                "Warning: %s: missing 'version = 1' at the top\n", filename);
+                "WARNING: %s: missing 'version = 1' at the top.\n"
+                "         REUSE 3.3 requires this line in every "
+                "REUSE.toml.\n",
+                filename);
     }
 
     return config;
@@ -351,7 +505,7 @@ void free_reuse_config(ReuseConfig *config) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Поиск одного REUSE.toml вверх (совместимость)                       */
+/* Поиск одного REUSE.toml вверх                                       */
 /* ------------------------------------------------------------------ */
 
 static void join_path_str(char *dest, size_t dest_size,
@@ -405,15 +559,14 @@ char* find_reuse_toml_upwards(const char *start_dir) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Сбор всех REUSE.toml                                                */
+/* Сбор всех REUSE.toml от корня до target_dir                         */
 /* ------------------------------------------------------------------ */
 
-/* Строит относительный путь от from до to (пусто, если совпадают). */
 static char *rel_from(const char *from, const char *to) {
     size_t flen = strlen(from);
     size_t tlen = strlen(to);
     if (flen > tlen) return NULL;
-    if (strncmp(from, to, flen) != 0) return NULL;
+    if (!path_prefix_eq(to, from, flen)) return NULL;
     if (flen == tlen) return dup_str("");
     if (to[flen] != '/' && to[flen] != '\\') return NULL;
     return dup_str(to + flen + 1);
@@ -422,50 +575,71 @@ static char *rel_from(const char *from, const char *to) {
 int reuse_find_all_tomls(const char *repo_root,
                          const char *target_dir,
                          SpdxStrList *out_paths) {
-    char path[1024];
+    char path[2048];
     FILE *f;
+    char *rel;
+    char current[2048];
 
     spdx_strlist_init(out_paths);
 
-    /* Базовый REUSE.toml в target_dir */
-    join_path_str(path, sizeof(path), target_dir, "REUSE.toml");
+    if (!repo_root) {
+        join_path_str(path, sizeof(path), target_dir, "REUSE.toml");
+        f = fopen(path, "r");
+        if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
+        return 0;
+    }
+
+    rel = rel_from(repo_root, target_dir);
+    if (!rel) {
+        join_path_str(path, sizeof(path), target_dir, "REUSE.toml");
+        f = fopen(path, "r");
+        if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
+        return 0;
+    }
+
+    /* Корневой REUSE.toml */
+    join_path_str(path, sizeof(path), repo_root, "REUSE.toml");
     f = fopen(path, "r");
     if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
 
-    if (!repo_root) return 0;
+    if (rel[0] == '\0') {
+        free(rel);
+        return 0;
+    }
+
+    strncpy(current, repo_root, sizeof(current) - 1);
+    current[sizeof(current) - 1] = '\0';
 
     {
-        char *rel = rel_from(repo_root, target_dir);
-        if (!rel) return 0;
-
-        if (rel[0] != '\0') {
-            char current[1024];
-            size_t ri = 0, rlen = strlen(rel);
-
-            strncpy(current, repo_root, sizeof(current) - 1);
-            current[sizeof(current) - 1] = '\0';
-
-            while (ri < rlen) {
-                size_t start = ri;
-                size_t seglen;
-                while (ri < rlen && rel[ri] != '/' && rel[ri] != '\\') ri++;
-                seglen = ri - start;
-                if (seglen > 0) {
-                    size_t clen = strlen(current);
-                    if (clen + 1 + seglen + 1 > sizeof(current)) break;
-                    current[clen] = '/';
-                    memcpy(current + clen + 1, rel + start, seglen);
-                    current[clen + 1 + seglen] = '\0';
-
-                    join_path_str(path, sizeof(path), current, "REUSE.toml");
-                    f = fopen(path, "r");
-                    if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
+        size_t ri = 0, rlen = strlen(rel);
+        while (ri < rlen) {
+            size_t start = ri;
+            size_t seglen;
+            while (ri < rlen && rel[ri] != '/' && rel[ri] != '\\') ri++;
+            seglen = ri - start;
+            if (seglen > 0) {
+                size_t clen = strlen(current);
+                if (clen + 1 + seglen + 1 > sizeof(current)) {
+                    fprintf(stderr,
+                            "WARNING: path too long, skipping REUSE.toml "
+                            "below %s\n"
+                            "         Increase the buffer size or shorten "
+                            "the path.\n", current);
+                    break;
                 }
-                if (ri < rlen) ri++;
+                current[clen] = '/';
+                memcpy(current + clen + 1, rel + start, seglen);
+                current[clen + 1 + seglen] = '\0';
+
+                join_path_str(path, sizeof(path), current, "REUSE.toml");
+                f = fopen(path, "r");
+                if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
             }
+            if (ri < rlen) ri++;
         }
-        free(rel);
     }
+
+    free(rel);
     return 0;
 }
 
@@ -500,7 +674,6 @@ void reuse_free_all(ReuseConfig **configs, int count) {
 /* Резолвер с иерархией                                                */
 /* ------------------------------------------------------------------ */
 
-/* Возвращает "вес" аннотации: (precedence, depth, order_in_file). */
 static int ann_better(const Annotation *a, int a_depth,
                       const Annotation *b, int b_depth) {
     if (a->precedence != b->precedence)
@@ -528,9 +701,7 @@ static const Annotation *ann_find_match(ReuseConfig *cfg,
     return best;
 }
 
-/* Склеивает уникальные идентификаторы из двух выражений через AND.
- * Разделители AND/OR/WITH сохраняются как есть, но чтобы не потерять
- * структуру — оборачиваем каждую часть в скобки. */
+/* Склеивает уникальные идентификаторы из двух выражений через AND. */
 static char *aggregate_licenses(const char *a, const char *b) {
     char *r;
     size_t alen, blen;
@@ -544,6 +715,19 @@ static char *aggregate_licenses(const char *a, const char *b) {
     return r;
 }
 
+static char *aggregate_copyrights(const char *a, const char *b) {
+    char *r;
+    size_t alen, blen;
+    if (!a) return b ? dup_str(b) : NULL;
+    if (!b) return dup_str(a);
+    alen = strlen(a);
+    blen = strlen(b);
+    r = (char*)malloc(alen + blen + 2);
+    if (!r) return NULL;
+    sprintf(r, "%s\n%s", a, b);
+    return r;
+}
+
 int reuse_resolve_for_file(ReuseConfig **configs, int count,
                            const char *filename,
                            const char *in_license,
@@ -552,8 +736,12 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
                            char **out_copyright,
                            int *out_precedence,
                            int *out_has_reuse) {
-    const Annotation *best = NULL;
-    int best_depth = -1;
+    const Annotation *best_override = NULL;
+    const Annotation *best_aggregate = NULL;
+    const Annotation *best_closest = NULL;
+    int best_override_depth = -1;
+    int best_aggregate_depth = -1;
+    int best_closest_depth = -1;
     int i;
 
     *out_license = NULL;
@@ -561,53 +749,88 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
     *out_precedence = 0;
     *out_has_reuse = 0;
 
+    /* Ищем лучшие аннотации в каждой из трёх групп независимо. */
     for (i = 0; i < count; i++) {
         const Annotation *a = ann_find_match(configs[i], filename);
         if (!a) continue;
-        if (!best || ann_better(a, configs[i]->depth, best, best_depth)) {
-            best = a;
-            best_depth = configs[i]->depth;
-        }
-    }
-
-    if (!best) {
-        if (in_license) *out_license = dup_str(in_license);
-        if (in_copyright) *out_copyright = dup_str(in_copyright);
-        return 0;
-    }
-
-    *out_has_reuse = 1;
-    *out_precedence = best->precedence;
-
-    if (best->precedence == REUSE_PRECEDENCE_OVERRIDE) {
-        if (best->license) *out_license = dup_str(best->license);
-        if (best->copyright) *out_copyright = dup_str(best->copyright);
-        return 0;
-    }
-
-    if (best->precedence == REUSE_PRECEDENCE_AGGREGATE) {
-        *out_license = aggregate_licenses(in_license, best->license);
-        if (in_copyright && best->copyright) {
-            size_t alen = strlen(in_copyright);
-            size_t blen = strlen(best->copyright);
-            *out_copyright = (char*)malloc(alen + blen + 2);
-            if (*out_copyright) {
-                sprintf(*out_copyright, "%s\n%s", in_copyright, best->copyright);
+        if (a->precedence == REUSE_PRECEDENCE_OVERRIDE) {
+            if (!best_override ||
+                ann_better(a, configs[i]->depth,
+                           best_override, best_override_depth)) {
+                best_override = a;
+                best_override_depth = configs[i]->depth;
             }
-        } else if (in_copyright) {
-            *out_copyright = dup_str(in_copyright);
-        } else if (best->copyright) {
-            *out_copyright = dup_str(best->copyright);
+        } else if (a->precedence == REUSE_PRECEDENCE_AGGREGATE) {
+            if (!best_aggregate ||
+                ann_better(a, configs[i]->depth,
+                           best_aggregate, best_aggregate_depth)) {
+                best_aggregate = a;
+                best_aggregate_depth = configs[i]->depth;
+            }
+        } else {
+            if (!best_closest ||
+                ann_better(a, configs[i]->depth,
+                           best_closest, best_closest_depth)) {
+                best_closest = a;
+                best_closest_depth = configs[i]->depth;
+            }
         }
+    }
+
+    /* 1. override — выигрывает у всего. */
+    if (best_override) {
+        *out_has_reuse = 1;
+        *out_precedence = REUSE_PRECEDENCE_OVERRIDE;
+        if (best_override->license) *out_license = dup_str(best_override->license);
+        if (best_override->copyright) *out_copyright = dup_str(best_override->copyright);
         return 0;
     }
 
-    /* closest */
-    if (in_license) *out_license = dup_str(in_license);
-    else if (best->license) *out_license = dup_str(best->license);
+    /* 2. Собираем базу по closest-логике: in-file выигрывает у best_closest. */
+    {
+        const char *base_lic = NULL;
+        const char *base_cop = NULL;
+        int base_has_reuse = 0;
 
-    if (in_copyright) *out_copyright = dup_str(in_copyright);
-    else if (best->copyright) *out_copyright = dup_str(best->copyright);
+        if (best_closest) {
+            base_has_reuse = 1;
+            if (best_closest->license) base_lic = best_closest->license;
+            if (best_closest->copyright) base_cop = best_closest->copyright;
+        }
+        if (in_license) base_lic = in_license;
+        if (in_copyright) base_cop = in_copyright;
+
+        /* 2a. Без aggregate — возвращаем closest-результат. */
+        if (!best_aggregate) {
+            if (base_lic || base_cop) {
+                *out_has_reuse = base_has_reuse;
+                *out_precedence = REUSE_PRECEDENCE_CLOSEST;
+                if (base_lic) *out_license = dup_str(base_lic);
+                if (base_cop) *out_copyright = dup_str(base_cop);
+            }
+            return 0;
+        }
+
+        /* 2b. С aggregate — добавляем его значения поверх closest-результата. */
+        *out_has_reuse = 1;
+        *out_precedence = REUSE_PRECEDENCE_AGGREGATE;
+
+        if (base_lic && best_aggregate->license) {
+            *out_license = aggregate_licenses(base_lic, best_aggregate->license);
+        } else if (base_lic) {
+            *out_license = dup_str(base_lic);
+        } else if (best_aggregate->license) {
+            *out_license = dup_str(best_aggregate->license);
+        }
+
+        if (base_cop && best_aggregate->copyright) {
+            *out_copyright = aggregate_copyrights(base_cop, best_aggregate->copyright);
+        } else if (base_cop) {
+            *out_copyright = dup_str(base_cop);
+        } else if (best_aggregate->copyright) {
+            *out_copyright = dup_str(best_aggregate->copyright);
+        }
+    }
 
     return 0;
 }

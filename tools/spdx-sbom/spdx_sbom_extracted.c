@@ -23,7 +23,7 @@ void extracted_init(ExtractedLicenseList *list) {
     list->items = (ExtractedLicenseInfo*)calloc((size_t)list->capacity,
                                                 sizeof(ExtractedLicenseInfo));
     if (!list->items) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -62,7 +62,7 @@ ExtractedLicenseInfo *extracted_add(ExtractedLicenseList *list,
         list->items = (ExtractedLicenseInfo*)realloc(list->items,
             (size_t)list->capacity * sizeof(ExtractedLicenseInfo));
         if (!list->items) {
-            fprintf(stderr, "Memory allocation failed\n");
+            fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         memset(&list->items[list->count], 0,
@@ -162,9 +162,11 @@ int extracted_collect_from_files(ExtractedLicenseList *list,
 
         if (!text) {
             fprintf(stderr,
-                    "Error: no text found for %s\n"
-                    "       expected at LICENSES/%s.txt or via "
-                    "--extracted-license=%s:<path>\n",
+                    "ERROR: no text found for %s\n"
+                    "       Fix one of:\n"
+                    "         - create <project-root>/LICENSES/%s.txt with "
+                    "the license text;\n"
+                    "         - or pass --extracted-license=%s:<path>.\n",
                     e->license_id, e->license_id, e->license_id);
             return -1;
         }

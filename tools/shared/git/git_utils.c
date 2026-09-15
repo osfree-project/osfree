@@ -141,7 +141,7 @@ static GitIgnoreRule *git_ignore_list_add(GitIgnoreList *list) {
         int new_cap = (list->capacity == 0) ? 16 : list->capacity * 2;
         GitIgnoreRule *ni = (GitIgnoreRule*)realloc(list->items,
                               (size_t)new_cap * sizeof(GitIgnoreRule));
-        if (!ni) { fprintf(stderr, "OOM\n"); exit(EXIT_FAILURE); }
+        if (!ni) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
         list->items = ni;
         list->capacity = new_cap;
     }

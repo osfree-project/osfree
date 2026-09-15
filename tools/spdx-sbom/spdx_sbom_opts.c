@@ -20,13 +20,13 @@ static void add_list_item(char ***list, int *count, const char *str, size_t len)
     if (len == 0) return;
     copy = dup_range(str, len);
     if (!copy) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     new_list = (char**)realloc(*list,
         (size_t)(*count + 1) * sizeof(char*));
     if (!new_list) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         free(copy);
         exit(EXIT_FAILURE);
     }
@@ -63,13 +63,18 @@ static void add_extracted(SbomOptions *opts, const char *arg) {
 
     if (!colon) {
         fprintf(stderr,
-                "Error: --extracted-license requires <id>:<path>, got: %s\n",
-                arg);
+                "ERROR: invalid --extracted-license value: %s\n"
+                "       Expected format: --extracted-license=<id>:<path>\n"
+                "       Example: --extracted-license=LicenseRef-Custom:"
+                "custom.txt\n", arg);
         exit(EXIT_FAILURE);
     }
     id_len = (size_t)(colon - arg);
     if (id_len == 0 || id_len >= sizeof(src->id)) {
-        fprintf(stderr, "Error: bad LicenseRef id in %s\n", arg);
+        fprintf(stderr,
+                "ERROR: bad LicenseRef id in --extracted-license: %s\n"
+                "       The id must be non-empty and shorter than %d "
+                "characters.\n", arg, (int)sizeof(src->id));
         exit(EXIT_FAILURE);
     }
 
@@ -77,7 +82,7 @@ static void add_extracted(SbomOptions *opts, const char *arg) {
         opts->extracted_sources,
         (size_t)(opts->extracted_count + 1) * sizeof(ExtractedLicenseSource));
     if (!opts->extracted_sources) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "ERROR: out of memory\n");
         exit(EXIT_FAILURE);
     }
     src = &opts->extracted_sources[opts->extracted_count];
@@ -86,6 +91,44 @@ static void add_extracted(SbomOptions *opts, const char *arg) {
     strncpy(src->path, colon + 1, sizeof(src->path) - 1);
     src->path[sizeof(src->path) - 1] = '\0';
     opts->extracted_count++;
+}
+
+static void print_help(void) {
+    printf("Usage: spdx-sbom [options] [<directory>]\n"
+           "\n"
+           "Required:\n"
+           "  --name=<name>              Package name\n"
+           "  --file=<binary file>       Binary artifact to describe\n"
+           "  --spdx-db=<path>           SPDX database root "
+           "(licenses.json,\n"
+           "                             exceptions.json, details/, "
+           "exceptions/)\n"
+           "\n"
+           "Optional:\n"
+           "  --version=<ver>            Package version\n"
+           "  --supplier=<name>          Package supplier\n"
+           "  --creator=<name>           SBOM creator\n"
+           "  --purpose=<purpose>        Package purpose "
+           "(SOURCE, BINARY, LIBRARY, ...)\n"
+           "  --output=<file>            Write SBOM to file "
+           "(default: stdout)\n"
+           "  --format=json|tagvalue     Output format (default: json)\n"
+           "  --default-license=<id>     Fallback license identifier\n"
+           "  --default-copyright=<text> Fallback copyright text\n"
+           "  --source-sbom=<file>       Source SBOM for binary mode "
+           "(with --purpose != SOURCE)\n"
+           "  --objects=<list>           Object files (space-separated)\n"
+           "  --res=<list>               Resource files (space-separated)\n"
+           "  --extracted-license=<id>:<path>\n"
+           "                             Provide text for a "
+           "LicenseRef-* license\n"
+           "  --cache=<path>             SPDX database cache file\n"
+           "  --details-dir=<path>       SPDX details directory "
+           "(if not under spdx-db)\n"
+           "  --exceptions-dir=<path>    SPDX exceptions directory "
+           "(if not under spdx-db)\n"
+           "  --no-gitignore             Do not apply .gitignore rules\n"
+           "  --help, -h                 Show this help\n");
 }
 
 int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
@@ -97,7 +140,11 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
 
     for (i = 1; i < argc; i++) {
         const char *a = argv[i];
-        if (strncmp(a, "--output=", 9) == 0)
+        if (strcmp(a, "--help") == 0 || strcmp(a, "-h") == 0) {
+            print_help();
+            exit(EXIT_SUCCESS);
+        }
+        else if (strncmp(a, "--output=", 9) == 0)
             opts->output = a + 9;
         else if (strncmp(a, "--format=", 9) == 0)
             opts->format = a + 9;
@@ -127,6 +174,10 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
             opts->spdx_db_root = a + 10;
         else if (strncmp(a, "--cache=", 8) == 0)
             opts->cache_file = a + 8;
+        else if (strncmp(a, "--details-dir=", 14) == 0)
+            opts->details_dir = a + 14;
+        else if (strncmp(a, "--exceptions-dir=", 17) == 0)
+            opts->exceptions_dir = a + 17;
         else if (strncmp(a, "--extracted-license=", 20) == 0)
             add_extracted(opts, a + 20);
         else if (strcmp(a, "--no-gitignore") == 0)
@@ -134,27 +185,39 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
         else if (a[0] != '-')
             opts->dir = a;
         else {
-            fprintf(stderr, "Unknown option: %s\n", a);
+            fprintf(stderr,
+                    "ERROR: unknown option: %s\n"
+                    "       Run 'spdx-sbom --help' for usage.\n", a);
             return -1;
         }
     }
 
     if (!opts->binary_file) {
-        fprintf(stderr, "Error: --file=<binary file> is required\n");
+        fprintf(stderr,
+                "ERROR: --file=<binary file> is required.\n"
+                "       Run 'spdx-sbom --help' for usage.\n");
         return -1;
     }
     if (!opts->doc_name) {
-        fprintf(stderr, "Error: --name=<package name> is required\n");
+        fprintf(stderr,
+                "ERROR: --name=<package name> is required.\n"
+                "       Run 'spdx-sbom --help' for usage.\n");
         return -1;
     }
     if (!opts->spdx_db_root) {
-        fprintf(stderr, "Error: --spdx-db=<path> is required\n");
+        fprintf(stderr,
+                "ERROR: --spdx-db=<path> is required.\n"
+                "       Run 'spdx-sbom --help' for usage.\n");
         return -1;
     }
     if (strcmp(opts->format, "json") != 0 &&
         strcmp(opts->format, "tagvalue") != 0 &&
         strcmp(opts->format, "tag") != 0) {
-        fprintf(stderr, "Unsupported format: %s\n", opts->format);
+        fprintf(stderr,
+                "ERROR: unsupported output format: %s\n"
+                "       Supported: json, tagvalue (or tag).\n"
+                "       Run 'spdx-sbom --help' for usage.\n",
+                opts->format);
         return -1;
     }
     return 0;

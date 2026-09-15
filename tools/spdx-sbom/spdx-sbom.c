@@ -9,6 +9,7 @@
 #include "spdx_db.h"
 #include "spdx_utils.h"
 #include "git_utils.h"
+#include "dep5_parser.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -41,8 +42,11 @@ static int resolve_package_license(const SbomOptions *opts,
     }
     if (!lic || !lic[0]) {
         fprintf(stderr,
-                "Error: no license for package. Use --default-license or "
-                "REUSE.toml annotation with path=\"**\".\n");
+                "ERROR: no license for package.\n"
+                "       Fix one of:\n"
+                "         - pass --default-license=<id>;\n"
+                "         - or add a [[annotations]] entry with "
+                "path = \"**\" to REUSE.toml.\n");
         return -1;
     }
     {
@@ -50,17 +54,29 @@ static int resolve_package_license(const SbomOptions *opts,
         int rc = spdx_expression_validate(lic, &bad);
         if (rc == SPDX_EXPR_SYNTAX_ERROR) {
             fprintf(stderr,
-                    "Error: invalid SPDX license expression for package: '%s'\n",
+                    "ERROR: invalid SPDX license expression for package: "
+                    "'%s'\n"
+                    "       Fix the expression according to the SPDX "
+                    "grammar:\n"
+                    "         https://spdx.github.io/spdx-spec/v2.3/"
+                    "SPDX-license-expressions/\n",
                     lic);
             return -1;
         }
         if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
             const char *p = bad;
             while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-            fprintf(stderr, "Error: unknown SPDX identifier in package "
-                    "license: '");
+            fprintf(stderr,
+                    "ERROR: unknown SPDX identifier in package license: '");
             fwrite(bad, 1, (size_t)(p - bad), stderr);
-            fprintf(stderr, "'\n");
+            fprintf(stderr,
+                    "'\n"
+                    "       Not present in SPDX License List. Fix one of:\n"
+                    "         - correct the identifier;\n"
+                    "         - or use a 'LicenseRef-' identifier for a "
+                    "custom license.\n"
+                    "       See https://spdx.org/licenses/ for the full "
+                    "list.\n");
             return -1;
         }
     }
@@ -82,7 +98,12 @@ static int resolve_binary_license(const SbomOptions *opts,
         }
     }
     if (!lic || !lic[0]) {
-        fprintf(stderr, "Error: no license for binary package\n");
+        fprintf(stderr,
+                "ERROR: no license for binary package.\n"
+                "       Fix one of:\n"
+                "         - pass --default-license=<id>;\n"
+                "         - or add a [[annotations]] entry with "
+                "path = \"**\" to REUSE.toml.\n");
         return -1;
     }
     *out_license = lic;
@@ -134,25 +155,51 @@ int main(int argc, char *argv[]) {
 
     db_errs = spdx_db_init(opts.spdx_db_root, opts.cache_file);
     if (db_errs & SPDX_DB_ERR_LICENSES) {
-        fprintf(stderr, "Error: SPDX license database unavailable\n");
+        fprintf(stderr,
+                "ERROR: SPDX license database is unavailable "
+                "(licenses.json not loaded).\n"
+                "       Expected at <spdx-db>/licenses.json.\n"
+                "       Cannot validate SPDX identifiers. Aborting.\n");
         sbom_options_free(&opts);
         git_ignore_list_free(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
-        fprintf(stderr, "Error: SPDX exceptions database unavailable\n");
+        fprintf(stderr,
+                "ERROR: SPDX exceptions database is unavailable "
+                "(exceptions.json not loaded).\n"
+                "       Expected at <spdx-db>/exceptions.json.\n"
+                "       Cannot validate SPDX identifiers. Aborting.\n");
         sbom_options_free(&opts);
         git_ignore_list_free(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
+    if (db_errs & SPDX_DB_ERR_CACHE)
+        fprintf(stderr,
+                "WARNING: cache could not be written.\n"
+                "         Next run will re-parse JSON indexes.\n");
 
     repo_root = git_find_repo_root(opts.dir);
 
     reuse_find_all_tomls(repo_root, opts.dir, &toml_paths);
     configs = reuse_parse_all(&toml_paths, &config_count);
     spdx_strlist_free(&toml_paths);
+
+    if (repo_root) {
+        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
+        if (dep5) {
+            ReuseConfig **na = (ReuseConfig**)realloc(configs,
+                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
+            if (na) {
+                configs = na;
+                configs[config_count++] = dep5;
+            } else {
+                free_reuse_config(dep5);
+            }
+        }
+    }
 
     if (!opts.no_gitignore) {
         if (git_collect_gitignores(repo_root, opts.dir, &gitignore_rules) == 0 &&
@@ -163,7 +210,8 @@ int main(int argc, char *argv[]) {
 
     binary_mode = is_binary_mode(&opts);
 
-    if (resolve_package_license(&opts, configs, config_count, &pkg_license) != 0) {
+    if (resolve_package_license(&opts, configs, config_count,
+                                &pkg_license) != 0) {
         reuse_free_all(configs, config_count);
         git_ignore_list_free(&gitignore_rules);
         free(repo_root);
@@ -184,6 +232,7 @@ int main(int argc, char *argv[]) {
                   binary_mode);
 
     filelist_init(&doc.files);
+    snippetlist_init(&doc.snippets);
 
     if (binary_mode) {
         if (resolve_binary_license(&opts, configs, config_count,
@@ -207,7 +256,6 @@ int main(int argc, char *argv[]) {
         }
     } else {
         spdx_walk_options_default(&walk_opts);
-        /* walk_opts.recursive = 1 по умолчанию */
         if (has_gitignore) {
             walk_opts.use_gitignore   = 1;
             walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
@@ -232,7 +280,8 @@ int main(int argc, char *argv[]) {
         if (sbom_collect_files(&paths, configs, config_count,
                                opts.default_license,
                                opts.default_copyright,
-                               &doc.files) != 0) {
+                               &doc.files,
+                               &doc.snippets) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
@@ -274,7 +323,9 @@ int main(int argc, char *argv[]) {
                              src_pkg_id, sizeof(src_pkg_id));
         checksum = sha1_file(opts.source_sbom_path);
         if (!checksum) {
-            fprintf(stderr, "Error: cannot compute SHA1 for %s\n",
+            fprintf(stderr,
+                    "ERROR: cannot compute SHA1 for source SBOM: %s\n"
+                    "       Check that the file exists and is readable.\n",
                     opts.source_sbom_path);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
@@ -291,7 +342,10 @@ int main(int argc, char *argv[]) {
 
     if (opts.output) {
         if (!freopen(opts.output, "w", stdout)) {
-            fprintf(stderr, "Cannot open output file: %s\n", opts.output);
+            fprintf(stderr,
+                    "ERROR: cannot open output file: %s\n"
+                    "       Check directory permissions.\n",
+                    opts.output);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
             git_ignore_list_free(&gitignore_rules);

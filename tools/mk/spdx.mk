@@ -56,6 +56,11 @@ SPDX_SBOM_ARGS = $(SPDX_SBOM_ARGS) &
     --file="$(PATH)$(TRGT)" &
     --objects="$(OBJS)"
 
+SPDX_MERGE_ARGS = --spdx-db="$(SPDX_DB)"
+!ifdef BLD
+SPDX_MERGE_ARGS = $(SPDX_MERGE_ARGS) --cache="$(BLD)spdx_db.cache"
+!endif
+
 # ------------------------------------------------------------
 # –учные инструменты Ч доступны всегда
 # ------------------------------------------------------------
@@ -80,7 +85,7 @@ spdx-lint: .SYMBOLIC
 spdx-sbom: .SYMBOLIC
     $(verbose)$(SPDX_SBOM) --purpose="SOURCE" --output=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
     $(verbose)$(SPDX_SBOM) --purpose="$(TARGET_CLASS)" --output=$(PATH)$(PROJ)-bin.spdx.json --source-sbom=$(PATH)$(PROJ).spdx.json $(MYDIR) $(SPDX_SBOM_ARGS)
-    $(verbose)$(SPDX_MERGE) --input=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json --spdx-db="$(SPDX_DB)"
+    $(verbose)$(SPDX_MERGE) --input=$(PATH)$(PROJ)-bin.spdx.json --output=$(PATH)$(PROJ)-merged.spdx.json $(SPDX_MERGE_ARGS)
 
 !else
 

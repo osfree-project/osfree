@@ -178,7 +178,10 @@ int res_extract_sources(const char *res_path, char ***sources, int *count) {
 
     fp = fopen(res_path, "rb");
     if (!fp) {
-        fprintf(stderr, "res: cannot open %s\n", res_path);
+        fprintf(stderr,
+                "ERROR: cannot open resource file: %s\n"
+                "       Check that the file exists and is readable.\n",
+                res_path);
         return -1;
     }
 
