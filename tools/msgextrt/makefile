@@ -24,12 +24,9 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-!ifndef TARGETBLD
-TARGET_API = HOST
-!else
+!ifdef TARGETBLD
 TARGET_API = OS2
 !endif
-TARGET_BITS = 32
 
 !include $(%ROOT)tools/mk/build.mk
 

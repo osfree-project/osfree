@@ -9,9 +9,6 @@ defs =
 
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include $(defs)
 
-TARGET_API = HOST
-TARGET_BITS = 32
 TARGET_CLASS = LIBRARY
-TARGET_SUBCLASS = STATIC
 
 !include $(%ROOT)tools/mk/build.mk

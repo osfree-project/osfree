@@ -20,7 +20,5 @@ defs = -dLINUX
 !endif
 DEFINES  = -hw -d3 -d__WATCOM__ $(defs)
 ADD_COPT      = $(DEFINES) -i=.
-TARGET_API = HOST
-TARGET_BITS = 32
 
 !include $(%ROOT)tools/mk/build.mk

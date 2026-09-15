@@ -8,14 +8,12 @@ SOURCES = exehdr lxdisplay lxutils dumprawlx
 !ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 SRC  = $(MYDIR)
-TARGET_API = HOST
 !else
 ADD_COPT = -bt=os2
 DEST = os2tk45$(SEP)bin
 SRC  = $(MYDIR)..$(SEP)..$(SEP)exehdr$(SEP)
 TARGET_API = OS2
 !endif
-TARGET_BITS = 32
 
 !ifeq %OS OS2
 defs = $(%WATCOM)$(SEP)h$(SEP)os2

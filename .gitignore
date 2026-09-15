@@ -1,10 +1,10 @@
 *~
 .git
-osFreeBE
-bin
-dist
-build
-contrib
+/osFreeBE
+/bin
+/dist
+/build
+/contrib
 build*.txt
 commit.txt
 gitlog.txt

@@ -2,14 +2,12 @@
 
 DIRS=dos2unix
 
+PROJECT = unix2dos
 DESCRIPTION = unix2dos
 SOURCES = unix2dos querycp common &
 !ifeq %OS WIN32
    wildargv
 !endif
-
-TARGET_API = HOST
-TARGET_BITS = 32
 
 UCS = 1
 DOS2UNIX_VERSION = 7.5.7
@@ -17,7 +15,7 @@ DOS2UNIX_VERSION_SHORT = 757
 DOS2UNIX_DATE = 2026-08-27
 DOS2UNIX_AUTHOR = 'Erwin Waterlander'
 
-ADD_COPT = $(DEFINES) -w4 -e25 -zq -od -d2 -5r -mf
+ADD_COPT = -w4 -e25 -zq -od -d2 -5r -mf
 
 !ifeq %OS OS2
 defs = -i=$(%WATCOM)$(SEP)h$(SEP)os2
@@ -36,7 +34,7 @@ ADD_COPT = $(ADD_COPT) -bt=dos
 defs = -i=$(%WATCOM)$(SEP)lh
 ADD_COPT = $(ADD_COPT) -bt=linux
 !endif
-DEFINES = -dVER_REVISION=\"$(DOS2UNIX_VERSION)\" -dVER_DATE=\"$(DOS2UNIX_DATE)\" -dVER_AUTHOR=\"$(DOS2UNIX_AUTHOR)\" $(defs)
+DEFINES = -dVER_REVISION="$(DOS2UNIX_VERSION)" -dVER_DATE="$(DOS2UNIX_DATE)" -dVER_AUTHOR="$(DOS2UNIX_AUTHOR)" $(defs)
 !ifeq UCS 1
 ADD_COPT += -dD2U_UNICODE
 !endif
@@ -45,7 +43,7 @@ ADD_COPT += -dD2U_UNICODE
 !include $(MYDIR)dos2unix.mk
 
 
-WATCOMSRC = $(%WATCOM)$(SEP)src$(sEP)startup
+WATCOMSRC = $(%WATCOM)$(SEP)src$(SEP)startup
 
 !ifeq UNIFILE 1
 ADD_COPT += -dD2U_UNIFILE -d_O_U16TEXT=0x20000
@@ -58,6 +56,6 @@ C = r
 .c: $(PORT_BASE)dos2unix
 .c: $(WATCOMSRC)
 
-.h: $(PORT_BASE)dos2unic
+.h: $(PORT_BASE)dos2unix
 
 .$(O): $(PATH)

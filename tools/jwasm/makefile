@@ -1,7 +1,6 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
 DESCRIPTION = Enhanced OW assembler
-#DIRS = port
 SOURCES = apiemu assemble assume atofloat backptch &
   bin branch cmdline codegen coff condasm     &
   context cpumodel data dbgcv directiv elf    &
@@ -12,9 +11,6 @@ SOURCES = apiemu assemble assume atofloat backptch &
   option parser posndir preproc proc queue    &
   reswords safeseh segment simsegm string     &
   symbols tbyte tokenize types main
-
-TARGET_API = HOST
-TARGET_BITS = 32
 
 !ifeq %OS OS2
 defs = $(%WATCOM)$(SEP)h$(SEP)os2

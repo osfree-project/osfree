@@ -7,7 +7,7 @@ SOURCES  = b main parse proctab tran lib run lex &
 ADD_COPT = -i=..$(SEP)include 
 STACKSIZE = 65536
 
-TARGET_API = HOST
-TARGET_BITS = 32
+#TARGET_API = HOST
+#TARGET_BITS = 32
 
 !include $(%ROOT)tools/mk/build.mk

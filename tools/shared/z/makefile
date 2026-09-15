@@ -13,9 +13,6 @@ SOURCES  = adler32 crc32 deflate infback &
            gzwrite 
 
 TARGET_CLASS = LIBRARY
-TARGET_SUBCLASS = STATIC
-TARGET_API = HOST
-TARGET_BITS = 32
 
 !include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)zlib.mk

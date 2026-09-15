@@ -79,6 +79,15 @@ STRIPPED = $(TEST_STR:*OS2$(SEP)=)
 TARGET_API=OS2
 !endif
 
+# Try same for tools. Try to delete "*tools\"
+STRIPPED = $(TEST_STR:*tools$(SEP)=)
+
+# String changed - so we in toolstree
+!ifneq TEST_STR $(STRIPPED)
+TARGET_API=HOST
+!endif
+
+
 !endif
 
 !ifndef TARGET_API
@@ -134,11 +143,11 @@ TARGET_BITS = 16
 !else ifeq TARGET_API OS2
 TARGET_BITS = 32
 !else ifeq TARGET_API HOST
-!ifdef %HOST_BITS
-TARGET_BITS = $(%HOST_BITS)
-!else
-!error TARGET_BITS must be set for HOST (16, 32, 64) or define HOST_BITS
-!endif
+#!ifdef %HOST_BITS
+#TARGET_BITS = $(%HOST_BITS)
+#!else
+#!error TARGET_BITS must be set for HOST (16, 32, 64) or define HOST_BITS
+#!endif
 !else ifeq TARGET_API BARE
 !error BARE target is reserved and not yet implemented
 !else ifeq TARGET_API BIOS
@@ -156,6 +165,7 @@ TARGET_BITS = $(%HOST_BITS)
 # 16             0           0
 # 32             1           0
 # 64             0           1
+!ifdef TARGET_BITS
 !ifeq TARGET_BITS 16
 32_BITS = 0
 64_BITS = 0
@@ -168,6 +178,7 @@ TARGET_BITS = $(%HOST_BITS)
 !else
 !error Unsupported TARGET_BITS: $(TARGET_BITS) (expected 16, 32 or 64)
 !endif
+!endif
 
 # ============================================================
 # Default TARGET_CLASS and TARGET_SUBCLASS
@@ -175,7 +186,7 @@ TARGET_BITS = $(%HOST_BITS)
 # TARGET_CLASS    Default TARGET_SUBCLASS
 # -------------   ----------------------
 # APPLICATION     CONSOLE (WIN: GUI)
-# LIBRARY         DYNAMIC (DOS: STATIC)
+# LIBRARY         DYNAMIC (DOS, HOST: STATIC)
 # DRIVER          (required except DOS: no subtype needed)
 !ifndef TARGET_CLASS
 TARGET_CLASS = APPLICATION
@@ -190,6 +201,8 @@ TARGET_SUBCLASS = CONSOLE
 !endif
 !else ifeq TARGET_CLASS LIBRARY
 !ifeq TARGET_API DOS
+TARGET_SUBCLASS = STATIC
+!else ifeq TARGET_API HOST
 TARGET_SUBCLASS = STATIC
 !else
 TARGET_SUBCLASS = DYNAMIC
@@ -328,12 +341,15 @@ DLL = 1
 !else ifeq TARGET_SUBCLASS STATIC
 TARGETS  = $(PATH)$(PROJ).lib
 !include $(%ROOT)tools/mk/libs.mk
+$(TARGETS): $(OBJS)
+ @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 !endif
 !else ifeq TARGET_CLASS DRIVER
 !error DRIVER class is not supported on HOST
 !else
 !error Unknown TARGET_CLASS for HOST: $(TARGET_CLASS)
 !endif
+
 
 # --- WIN ---
 !else ifeq TARGET_API WIN

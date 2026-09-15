@@ -12,8 +12,8 @@ DIRS = sed UNI dos2unix &
        yacc lex jwasm awk &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
-#       lxlite
-       target emxdoc bind spdx-lint spdx-sbom spdx-annotate spdx-merge
+       target emxdoc bind spdx-lint spdx-sbom spdx-annotate spdx-merge 
+#       lxlite &
 # rexxwrap ltools &
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
