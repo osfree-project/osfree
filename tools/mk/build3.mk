@@ -353,10 +353,31 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 DLL = 1
 !include $(%ROOT)tools/mk/tools.mk
 !else ifeq TARGET_SUBCLASS STATIC
-TARGETS  = $(PATH)$(PROJ).lib
+#TARGETS  = $(PATH)$(PROJ).lib
+#!include $(%ROOT)tools/mk/libs.mk
+#$(TARGETS): $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
+
+##############################
+TRGT = $(PROJ).lib
+
+!ifdef LIBS
+pth=$$(pth)
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
+pth=$(%ROOT)build$(SEP)lib$(SEP)
+!endif
+
 !include $(%ROOT)tools/mk/libs.mk
 $(TARGETS): $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
+
+##############################
 
 !endif
 !else ifeq TARGET_CLASS DRIVER
