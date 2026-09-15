@@ -13,12 +13,15 @@ DEFINES      = -d$(OS) -dSANITY_CHECKS -d_FILE_OFFSET_BITS=64 -d__WATCOM__ &
 
 INCLUDES = ldir.h proto.h ext2.h UNIXdisk.h DOSdisk.h makefile
 PROJ = ldir
-DESC = Generate/convert HDD images
+DESCRIPTION = Generate/convert HDD images
 
-srcfiles = $(p)main$(e)  $(p)readdisk$(e) $(p)dir$(e)  $(p)super$(e) &
-           $(p)inode$(e) $(p)group$(e)    $(p)util$(e) $(p)rfs$(e)
+SOURCES  = main readdisk dir super &
+           inode group util rfs
 
-!include $(%ROOT)tools/mk/tools.mk
+TARGET_API = HOST
+TARGET_BITS = 32
+
+!include $(%ROOT)tools/mk/build.mk
 
 TARGETS = inst
 
@@ -29,4 +32,3 @@ inst: $(PATH)ldir.exe
  $(CP) $(PATH)ldir.exe $(DEST)
 
 readdisk.o: UNIXdisk.h DOSdisk.h
-

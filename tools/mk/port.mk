@@ -4,7 +4,9 @@
 !ifndef __port_mk__
 !define __port_mk__
 
+!ifndef __build_mk__
 !include $(%ROOT)/tools/mk/all.mk
+!endif
 
 prep: .symbolic
 !ifeq PORT_TYPE wget

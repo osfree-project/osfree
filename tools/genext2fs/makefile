@@ -5,9 +5,7 @@
 #
 
 32_BITS  = 1
-PROJ = genext2fs
-TRGT = $(PROJ).exe
-DESC = Generate ext2fs filesystem image
+DESCRIPTION = Generate ext2fs filesystem image
 !ifeq %OS OS/2
 defs = -d__OS2__
 !endif
@@ -22,7 +20,7 @@ defs = -dLINUX
 !endif
 DEFINES  = -hw -d3 -d__WATCOM__ $(defs)
 ADD_COPT      = $(DEFINES) -i=.
+TARGET_API = HOST
+TARGET_BITS = 32
 
-srcfiles = $(p)getline$(e) $(p)strtof$(e) $(p)genext2fs$(e)
-
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk

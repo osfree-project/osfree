@@ -220,10 +220,30 @@ DLL = 1
 TRGT = $(PROJ).$(TARGET_EXT)
 !else
 
+!ifeq TARGET_CLASS APPLICATION
+
 !ifdef DLL
 TRGT = $(PROJ).dll
 !else
 TRGT = $(PROJ).exe
+!endif
+
+!else ifeq TARGET_CLASS LIBRARY
+
+!ifeq TARGET_SUBCLASS STATIC
+TRGT = $(PROJ).lib
+!else
+TRGT = $(PROJ).dll
+!endif
+
+!else ifeq TARGET_CLASS DRIVER
+
+TRGT = $(PROJ).$(TARGET_EXT)
+
+!else
+
+!error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
+
 !endif
 
 !endif
@@ -294,7 +314,26 @@ TRGT = $(PROJ).exe
 
 # --- HOST ---
 !else ifeq TARGET_API HOST
+
+!ifeq TARGET_CLASS APPLICATION
+!ifeq TARGET_LANG pascal
+!include $(%ROOT)tools/mk/toolspas.mk
+!else
 !include $(%ROOT)tools/mk/tools.mk
+!endif
+!else ifeq TARGET_CLASS LIBRARY
+!ifeq TARGET_SUBCLASS DYNAMIC
+DLL = 1
+!include $(%ROOT)tools/mk/tools.mk
+!else ifeq TARGET_SUBCLASS STATIC
+TARGETS  = $(PATH)$(PROJ).lib
+!include $(%ROOT)tools/mk/libs.mk
+!endif
+!else ifeq TARGET_CLASS DRIVER
+!error DRIVER class is not supported on HOST
+!else
+!error Unknown TARGET_CLASS for HOST: $(TARGET_CLASS)
+!endif
 
 # --- WIN ---
 !else ifeq TARGET_API WIN
@@ -352,10 +391,13 @@ ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit Windows APPLICATION: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS LIBRARY
+
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
 # LIBS -> ADD_LINKOPT
+
 !ifdef LIBS
 pth=$$(pth)
 !ifndef ADDLIBS
@@ -366,9 +408,12 @@ ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
+
 !include $(%ROOT)tools/mk/appsw16.mk
+
 !else ifeq TARGET_SUBCLASS STATIC
 TRGT = $(PROJ).lib
+
 !ifdef LIBS
 pth=$$(pth)
 !ifndef ADDLIBS
@@ -378,13 +423,17 @@ ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
 !endif
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
+
 !include $(%ROOT)tools/mk/libsw16.mk
 $(TARGETS): $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit Windows LIBRARY: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS DRIVER
+
 !ifeq TARGET_SUBCLASS PHYSICAL
 DLL = 1
 !include $(%ROOT)tools/mk/appsw16.mk
@@ -393,6 +442,7 @@ DLL = 1
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit Windows DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL(reserved).
 !endif
+
 !else
 !error Unknown TARGET_CLASS for 16-bit Windows: $(TARGET_CLASS)
 !endif
@@ -413,6 +463,7 @@ DLL = 1
 # DRIVER         any              ERROR (reserved)
 
 !ifeq TARGET_CLASS APPLICATION
+
 !ifeq TARGET_SUBCLASS GUI
 WIN_GUI = 1
 !include $(%ROOT)tools/mk/appsw16.mk
@@ -428,7 +479,9 @@ WIN_CONSOLE = 1
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit Windows APPLICATION: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS LIBRARY
+
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
 !include $(%ROOT)tools/mk/appsw16.mk
@@ -437,10 +490,15 @@ DLL = 1
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit Windows LIBRARY: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS DRIVER
+
 !error DRIVER class is reserved and not yet implemented for 32-bit Windows
+
 !else
+
 !error Unknown TARGET_CLASS for 32-bit Windows: $(TARGET_CLASS)
+
 !endif
 
 !else
@@ -467,6 +525,7 @@ DLL = 1
 !ifeq TARGET_BITS 16
 
 !ifeq TARGET_CLASS APPLICATION
+
 !ifeq TARGET_SUBCLASS CONSOLE
 !include $(%ROOT)tools/mk/appsos2v1.mk
 !else ifeq TARGET_SUBCLASS GUI
@@ -481,7 +540,9 @@ PM = 1
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS LIBRARY
+
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
 !include $(%ROOT)tools/mk/appsos2v1.mk
@@ -490,7 +551,9 @@ DLL = 1
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS DRIVER
+
 !ifeq TARGET_SUBCLASS PHYSICAL
 PHYSDEVICE = 1
 !include $(%ROOT)tools/mk/appsos2v1.mk
@@ -500,8 +563,11 @@ VIRTDEVICE = 1
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
 !endif
+
 !else
+
 !error Unknown TARGET_CLASS for 16-bit OS/2: $(TARGET_CLASS)
+
 !endif
 
 !else ifeq TARGET_BITS 32
@@ -521,6 +587,7 @@ VIRTDEVICE = 1
 # DRIVER         VIRTUAL          appsos2.mk         Virtual device driver (VIRTDEVICE=1)
 
 !ifeq TARGET_CLASS APPLICATION
+
 !ifeq TARGET_SUBCLASS CONSOLE
 !include $(%ROOT)tools/mk/appsos2.mk
 !else ifeq TARGET_SUBCLASS GUI
@@ -535,7 +602,9 @@ PM = 1
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS LIBRARY
+
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
 !include $(%ROOT)tools/mk/appsos2.mk
@@ -544,7 +613,9 @@ DLL = 1
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
 !endif
+
 !else ifeq TARGET_CLASS DRIVER
+
 !ifeq TARGET_SUBCLASS PHYSICAL
 PHYSDEVICE = 1
 !include $(%ROOT)tools/mk/appsos2.mk
@@ -554,8 +625,11 @@ VIRTDEVICE = 1
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
 !endif
+
 !else
+
 !error Unknown TARGET_CLASS for 32-bit OS/2: $(TARGET_CLASS)
+
 !endif
 
 !else
@@ -575,9 +649,9 @@ VIRTDEVICE = 1
 TARGETS += $(PATH)$(PROJ).$(TARGET_EXT)
 !endif
 
-
 !ifdef TARGET_EXT
 _std_ext = exe
+
 !ifdef DLL
 _std_ext = dll
 !endif
@@ -608,6 +682,7 @@ gen_register_project: .SYMBOLIC
 TT=1
 !ifdef trrgt
 TT=$(trrgt:.=_)
+TT=$(TT:-=_)
 !endif
 !ifndef $(TT)
  @$(SAY) Registering project $(trrgt)...

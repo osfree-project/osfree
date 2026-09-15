@@ -1,16 +1,16 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-PROJ = lex
-TRGT = $(PROJ).exe
-DESC = Lexical analyzer
-srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc$(e) &
-           $(p)nfa$(e) $(p)parse$(e) $(p)scan$(e) $(p)skel$(e) $(p)sym$(e) $(p)tblcmp$(e) $(p)yylex$(e)
+DESCRIPTION = Lexical analyzer
+SOURCES  = ccl dfa ecs gen main misc &
+           nfa parse scan skel sym tblcmp yylex
 
 ADD_COPT = -i=$(PATH) -i=$(MYDIR) -pil
 STACKSIZE = 65536
 
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk
 
 #$(PATH)scan.obj:  $(PATH)scan.c
 

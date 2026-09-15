@@ -1,9 +1,7 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-PROJ = mkmsgf
-TRGT = $(PROJ).exe
-DESC = Make Message
-srcfiles = $(p)mkmsgf$(e) $(p)dlist$(e)
+DESCRIPTION = Make Message
+SOURCES = mkmsgf dlist
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
@@ -28,10 +26,13 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 
 !ifndef TARGETBLD
-!include $(%ROOT)tools/mk/tools.mk
+TARGET_API = HOST
 !else
-!include $(%ROOT)tools/mk/appsos2_cmd.mk
+TARGET_API = OS2
 !endif
+TARGET_BITS = 32
+
+!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)mkmsgf.mk
 
 ADD_COPT += -dNDEBUG -i=$(PORT_BASE)src -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99

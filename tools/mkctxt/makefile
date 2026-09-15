@@ -1,10 +1,9 @@
 
-PROJ = mkctxt
-TRGT = $(PROJ).exe
-DESC = AWK language interpreter
-srcfiles = $(p)mkctxt$(e)
+DESCRIPTION = AWK language interpreter
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT = -i=..$(SEP)include
 #TARGETS = $(PATH)$(PROJ).exe

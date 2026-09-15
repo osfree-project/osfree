@@ -4,9 +4,7 @@
 # valerius, 2006/10/30
 #
 
-PROJ = renmodul
-TRGT = $(PROJ).exe
-DESC = Rename module
+DESCRIPTION = Rename module
 
 # For Watcom C/C++ 10.6 and higher
 # Use wmake DEBUG=1 to get debug info
@@ -35,13 +33,15 @@ MODE_COPT=-os
 
 !endif
 
-srcfiles = $(p)renmodul$(e) $(p)main$(e)
+SOURCES = renmodul main
+TARGET_API = HOST
+TARGET_BITS = 32
 
 #OBJS1 = renmodul.$(O) main.$(O)
 #OBJS2 = renmodul.$(O) dllmain.$(O)
 #OBJS  = renmodul.$(O) main.$(O) dllmain.$(O)
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk
 
 #TARGETS = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).dll
 ADD_COPT = -bt=os2 -s -wx -zq $(MODE_COPT)

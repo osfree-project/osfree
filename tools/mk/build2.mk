@@ -24,16 +24,15 @@ SOURCES=
 MAKEOPT = -h PROJ=$(PROJ)
 
 all install: .SYMBOLIC gen_sources
-prepall:     .SYMBOLIC prep
 depsall:     .SYMBOLIC deps
+
+prepall: .symbolic
+ @$(MAKE) $(MAKEOPT) gen_sources_files
+ @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk TARGET=prepall subdirs
 
 clean annotate: .symbolic
  @$(MAKE) $(MAKEOPT) gen_sources_files
  @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk $^@
-
-prep: .symbolic
- @$(MAKE) $(MAKEOPT) gen_sources_files
- @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk TARGET=prepall subdirs
 
 deps: .symbolic
  @$(MAKE) $(MAKEOPT) gen_sources_files
@@ -59,9 +58,11 @@ add_source: .SYMBOLIC
 gen_sources_files: .symbolic
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
+!ifneq TARGET_LANG pascal
  @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
  @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
  @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
+!endif
 
 gen_sources: .symbolic gen_sources_files
  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk

@@ -4,14 +4,14 @@
 # valerius, 2006/10/30
 #
 
-PROJ = qemu-img
-TRGT = $(PROJ).exe
-DESC = Generate/convert HDD images
-srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-qcow$(e) $(p)aes$(e) &
-           $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
-           $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e) # $(p)block-cow$(e)
+DESCRIPTION = Generate/convert HDD images
+SOURCES  = qemu-img block block-qcow aes &
+           block-vmdk block-cloop block-dmg block-bochs &
+           block-vpc block-vvfat porting # block-cow
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!ifeq %OS OS/2
+!ifeq %OS OS2
 defs = -d__OS2__
 !endif
 !ifeq %OS WIN32
@@ -27,4 +27,4 @@ defs = -dLINUX
 ADD_COPT += $(defs) -dQEMU_TOOL -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib z.lib
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk

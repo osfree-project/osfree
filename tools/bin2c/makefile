@@ -4,11 +4,8 @@
 # author, date
 #
 
-PROJ = bin2c
-TRGT = $(PROJ).exe
-DESC = bin to c converter
-srcfiles = $(p)bin2c$(e)
+DESCRIPTION = bin to c converter
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/tools.mk
-
-
+!include $(%ROOT)tools/mk/build.mk

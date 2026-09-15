@@ -18,4 +18,4 @@ DIRS = sed UNI dos2unix &
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
-!include $(%ROOT)tools/mk/all.mk
+!include $(%ROOT)tools/mk/build.mk

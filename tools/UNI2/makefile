@@ -11,4 +11,4 @@
 DIRS = uni2h UNI target
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
-!include $(%ROOT)tools/mk/all.mk
+!include $(%ROOT)tools/mk/build.mk

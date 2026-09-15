@@ -1,15 +1,17 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-DIRS=dos2unix
-
-DESCRIPTION = unix2dos
-SOURCES = unix2dos querycp common &
+DESCRIPTION = dos2unix
+SOURCES = dos2unix querycp common &
 !ifeq %OS WIN32
    wildargv
 !endif
 
 TARGET_API = HOST
 TARGET_BITS = 32
+
+!ifeq %OS WIN32
+   wildargv
+!endif
 
 UCS = 1
 DOS2UNIX_VERSION = 7.5.7
@@ -42,7 +44,7 @@ ADD_COPT += -dD2U_UNICODE
 !endif
 
 !include $(%ROOT)tools/mk/build.mk
-!include $(MYDIR)dos2unix.mk
+!include $(MYDIR)..$(SEP)dos2unix.mk
 
 
 WATCOMSRC = $(%WATCOM)$(SEP)src$(sEP)startup

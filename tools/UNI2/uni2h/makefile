@@ -3,9 +3,10 @@
 # (c) osFree project,
 #
 
-PROJ = uni2h
-TRGT = $(PROJ).exe
-DESC = Unified Interfaces to C/C++ header files converter
+DESCRIPTION = Unified Interfaces to C/C++ header files converter
+TARGET_CLASS = APPLICATION
+TARGET_LANG = pascal
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/toolspas.mk
-
+!include $(%ROOT)tools/mk/build.mk

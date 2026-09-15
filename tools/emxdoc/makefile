@@ -4,11 +4,10 @@
 # author, date
 #
 
-PROJ = emxdoc
-TRGT = $(PROJ).exe
-DESC = docs converter
-srcfiles = $(p)emxdoc$(e) $(p)input$(e) $(p)cond$(e) $(p)html$(e) $(p)ipf$(e) $(p)latex$(e) $(p)text$(e) $(p)xref$(e) $(p)lb$(e)
+DESCRIPTION = docs converter
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/tools.mk
+!include $(%ROOT)tools/mk/build.mk
 
 

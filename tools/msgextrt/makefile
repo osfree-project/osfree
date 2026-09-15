@@ -1,8 +1,6 @@
 
-PROJ = msgextrt
-TRGT = $(PROJ).exe
-DESC = Extract Messages
-srcfiles = $(p)msgextrt$(e) $(p)dlist$(e)
+DESCSRIPTION = Extract Messages
+SOURCES = msgextrt dlist
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
@@ -27,13 +25,15 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 
 !ifndef TARGETBLD
-!include $(%ROOT)tools/mk/tools.mk
+TARGET_API = HOST
 !else
-!include $(%ROOT)tools/mk/appsos2_cmd.mk
+TARGET_API = OS2
 !endif
+TARGET_BITS = 32
+
+!include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT += -dNDEBUG  -i=$(SRC) -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
 ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 C = r
-

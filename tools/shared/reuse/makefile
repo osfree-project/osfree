@@ -2,12 +2,10 @@
 #
 
 PROJ      = reuse_parser
-TRGT      = $(PROJ).lib
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
-srcfiles  = $(p)reuse_parser$(e)
-TARGETS  = $(PATH)$(TRGT)
+TARGET_CLASS = LIBRARY
+TARGET_SUBCLASS = STATIC
+TARGET_API = HOST
+TARGET_BITS = 32
 
-!include $(%ROOT)tools/mk/libs.mk
-
-$(TARGETS): $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+!include $(%ROOT)tools/mk/build.mk
