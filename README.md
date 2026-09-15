@@ -22,9 +22,13 @@ pull the submodules:
 
 > git clone https://github.com/osfree-project/osfree.git
 
-> git submodule update --init --recursive
+> git submodule update --init --recursive --remote
 
-> git submodule update --remote --recursive
+Update from repositories:
+
+> git pull
+
+> git submodule update --init --recursive --remote
 
 # osFree build system
 
@@ -56,9 +60,13 @@ FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
 
 > git clone https://github.com/osfree-project/osfree.git
 
-> git submodule update --init --recursive
+> git submodule update --init --recursive --remote
 
-> git submodule update --remote --recursive
+Обновление кода из репозиториев:
+
+> git pull
+
+> git submodule update --init --recursive --remote
 
 # Система сборки osFree
 

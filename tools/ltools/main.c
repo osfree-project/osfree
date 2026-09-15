@@ -292,8 +292,8 @@
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
-#include "porting.h"
-#include <sys/stat.h>
+//#include "porting.h"
+//#include <sys/stat.h>
      /*#include <sys/types.h>
        #include <sys/stat.h>
        #include <fcntl.h>*/
