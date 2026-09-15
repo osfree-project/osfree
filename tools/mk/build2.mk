@@ -30,7 +30,7 @@ prepall: .symbolic
  @$(MAKE) $(MAKEOPT) gen_sources_files
  @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk TARGET=prepall subdirs
 
-clean annotate: .symbolic
+clean annotate annotate-write: .symbolic
  @$(MAKE) $(MAKEOPT) gen_sources_files
  @$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk $^@
 
