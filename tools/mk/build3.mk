@@ -695,14 +695,14 @@ gen_register_project: .SYMBOLIC
 !ifdef pmap
 !include $(pmap)
 !endif
-TT=1
+TT2=1
 !ifdef trrgt
 TT=$(trrgt:.=_)
-TT=$(TT:-=_)
+TT2=$(TT:-=_)
 !endif
-!ifndef $(TT)
+!ifndef $(TT2)
  @$(SAY) Registering project $(trrgt)...
- @%append $(BLD)projects.map $(TT)=$(deps)
+ @%append $(BLD)projects.map $(TT2)=$(deps)
 !else
  @%null
 !endif
