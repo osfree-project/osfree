@@ -68,6 +68,9 @@ SPDX_MERGE_ARGS = $(SPDX_MERGE_ARGS) --cache="$(BLD)spdx_db.cache"
 annotate: .SYMBOLIC
     @$(SPDX_ANNOTATE) $(CWD) $(SPDX_ANNOTATE_ARGS)
 
+annotate-write: .SYMBOLIC
+    @$(SPDX_ANNOTATE) $(CWD) $(SPDX_ANNOTATE_ARGS) --write
+
 spdx-clean: .SYMBOLIC
     @if exist $(PATH)$(PROJ).spdx.json        del $(PATH)$(PROJ).spdx.json
     @if exist $(PATH)$(PROJ)-bin.spdx.json    del $(PATH)$(PROJ)-bin.spdx.json

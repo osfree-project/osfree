@@ -45,19 +45,15 @@ CLEAN_ADD = *.c *.h
 
 !ifndef TARGETS
 !ifeq DLL 1
-TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).dll
 !else
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).exe
 !endif
 !endif
 
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 
-!ifdef OBJS
-#$(OBJS):: $(MYDIR)makefile
-!endif
-
-$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile .always
+$(PATH)$(PROJ).lnk: $(OBJS) $(ADDLIBS) $(MYDIR)makefile .always
  @%create $^@
 !ifeq DLL 1
  @%append $^@ NAME $^*.dll

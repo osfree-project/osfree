@@ -25,7 +25,7 @@
 typedef enum {
     STYLE_C,        /* C-стиль */
     STYLE_HASH,     /* # ... */
-    STYLE_REM,      /* @echo off + rem ... */
+    STYLE_REM,      /* rem / @rem ... */
     STYLE_SIDECAR,  /* <file>.license */
     STYLE_UNKNOWN
 } CommentStyle;
@@ -213,9 +213,19 @@ static const char *style_name(CommentStyle s) {
 /* Формирование текста вставки                                         */
 /* ------------------------------------------------------------------ */
 
+/* Формирует блок SPDX-тегов для вставки.
+ *
+ * echo_off_present имеет смысл только для STYLE_REM:
+ *   1  -> в файле уже есть @echo off, эхо уже выключено, пишем 'rem';
+ *   0  -> @echo off нет, пишем '@rem', чтобы строки не выводились
+ *         в консоль.
+ *
+ * Сам @echo off блок больше не содержит — он либо уже есть в файле,
+ * либо не нужен. */
 static char *build_insertion(CommentStyle style,
                              const char *license,
-                             const char *copyright) {
+                             const char *copyright,
+                             int echo_off_present) {
     size_t cap = 256;
     size_t len = 0;
     char *buf;
@@ -238,16 +248,17 @@ static char *build_insertion(CommentStyle style,
                     " * SPDX-License-Identifier: %s\n", license);
         len += (size_t)sprintf(buf + len, " */\n\n");
         break;
-    case STYLE_REM:
-        len += (size_t)sprintf(buf + len, "@echo off\n");
+    case STYLE_REM: {
+        const char *pfx = echo_off_present ? "rem " : "@rem ";
         if (copyright)
             len += (size_t)sprintf(buf + len,
-                    "rem SPDX-FileCopyrightText: %s\n", copyright);
+                    "%sSPDX-FileCopyrightText: %s\n", pfx, copyright);
         if (license)
             len += (size_t)sprintf(buf + len,
-                    "rem SPDX-License-Identifier: %s\n", license);
+                    "%sSPDX-License-Identifier: %s\n", pfx, license);
         len += (size_t)sprintf(buf + len, "\n");
         break;
+    }
     case STYLE_SIDECAR:
         if (copyright)
             len += (size_t)sprintf(buf + len,
@@ -284,6 +295,42 @@ static void print_block(const char *text, const char *indent) {
     }
 }
 
+/* Проверяет, начинается ли буфер с shebang: '#!' в самом начале
+ * (пробелы перед '#' допускаются для некоторых интерпретаторов? — нет,
+ * shebang строго в столбце 0). */
+static int first_line_is_shebang(const char *line) {
+    return line[0] == '#' && line[1] == '!';
+}
+
+/* Проверяет, является ли строка командой '@echo off' (без учёта
+ * регистра, с ведущими пробелами, с необязательным '@'). */
+static int first_line_is_echo_off(const char *line) {
+    const char *p = line;
+
+    while (*p == ' ' || *p == '\t') p++;
+    if (*p == '@') p++;
+    while (*p == ' ' || *p == '\t') p++;
+
+    if (tolower((unsigned char)p[0]) != 'e' ||
+        tolower((unsigned char)p[1]) != 'c' ||
+        tolower((unsigned char)p[2]) != 'h' ||
+        tolower((unsigned char)p[3]) != 'o' ||
+        p[4] != ' ' ||
+        tolower((unsigned char)p[5]) != 'o' ||
+        tolower((unsigned char)p[6]) != 'f' ||
+        tolower((unsigned char)p[7]) != 'f')
+        return 0;
+
+    /* После "off" допустим '\0', пробел, таб, \r, \n */
+    {
+        char c = p[8];
+        if (c == '\0' || c == ' ' || c == '\t' ||
+            c == '\r' || c == '\n')
+            return 1;
+    }
+    return 0;
+}
+
 /* ------------------------------------------------------------------ */
 /* Основная операция аннотации                                         */
 /* ------------------------------------------------------------------ */
@@ -300,7 +347,10 @@ static int annotate_one(const char *filename,
     char sidecar[1200];
     FILE *f, *out;
     char line[MAX_LINE];
+    char first_line[MAX_LINE];
     int has;
+    int has_shebang = 0;
+    int has_echo_off = 0;
     char tempname[1024];
 
     declared = detect_style(filename);
@@ -338,12 +388,13 @@ static int annotate_one(const char *filename,
     }
 
     style = declared;
-    block = build_insertion(style, license, copyright);
-    if (!block) { printf("ERROR: out of memory\n"); return -1; }
 
     if (style == STYLE_SIDECAR) {
         int exists;
         int equal = 0;
+
+        block = build_insertion(style, license, copyright, 0);
+        if (!block) { printf("ERROR: out of memory\n"); return -1; }
 
         snprintf(sidecar, sizeof(sidecar), "%s.license", filename);
         exists = file_exists(sidecar);
@@ -403,16 +454,39 @@ static int annotate_one(const char *filename,
 
     if (has && !force) {
         printf("Skipped (has tags):   %s\n", filename);
-        free(block);
         return 0;
     }
+
+    /* Прочитать первую строку файла для определения позиции вставки. */
+    first_line[0] = '\0';
+    f = fopen(filename, "r");
+    if (f) {
+        if (fgets(first_line, sizeof(first_line), f)) {
+            /* первая строка прочитана */
+        }
+        fclose(f);
+    }
+
+    if (style == STYLE_HASH) {
+        if (first_line_is_shebang(first_line)) has_shebang = 1;
+    } else if (style == STYLE_REM) {
+        if (first_line_is_echo_off(first_line)) has_echo_off = 1;
+    }
+
+    block = build_insertion(style, license, copyright, has_echo_off);
+    if (!block) { printf("ERROR: out of memory\n"); return -1; }
 
     if (dry_run) {
         printf("%s %s\n",
                has ? "Would update tags:   " : "Would add tags:      ",
                filename);
         printf("    comment style:    %s\n", style_name(style));
-        printf("    insertion at top of file:\n");
+        if (has_shebang)
+            printf("    insertion:        after shebang (line 1)\n");
+        else if (has_echo_off)
+            printf("    insertion:        after @echo off (line 1)\n");
+        else
+            printf("    insertion:        at top of file\n");
         print_block(block, "        ");
         free(block);
         return 0;
@@ -427,12 +501,31 @@ static int annotate_one(const char *filename,
         return -1;
     }
 
-    fputs(block, out);
+    if (has_shebang || has_echo_off) {
+        /* Сохраняем первую строку, потом блок, потом остаток файла. */
+        fputs(first_line, out);
+        if (first_line[0] != '\0' &&
+            first_line[strlen(first_line) - 1] != '\n') {
+            fputc('\n', out);
+        }
+        fputs(block, out);
 
-    f = fopen(filename, "r");
-    if (f) {
-        while (fgets(line, sizeof(line), f)) fputs(line, out);
-        fclose(f);
+        f = fopen(filename, "r");
+        if (f) {
+            char skip[MAX_LINE];
+            /* пропускаем первую строку, которую уже записали */
+            if (fgets(skip, sizeof(skip), f)) {
+                while (fgets(line, sizeof(line), f)) fputs(line, out);
+            }
+            fclose(f);
+        }
+    } else {
+        fputs(block, out);
+        f = fopen(filename, "r");
+        if (f) {
+            while (fgets(line, sizeof(line), f)) fputs(line, out);
+            fclose(f);
+        }
     }
     fclose(out);
 
@@ -756,7 +849,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (dry_run) {
-        printf("Mode: dry-run (use --write to apply changes)\n");
+        printf("Mode: dry-run (use _wcc annotation-write to apply changes)\n");
     } else {
         printf("Mode: write\n");
     }

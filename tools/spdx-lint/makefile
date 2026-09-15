@@ -1,6 +1,6 @@
 DESCRIPTION = SDPX lincense scanner
 
 ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT = lib reuse_parser.lib, spdx.lib, json.lib, spdx.lib, sha1.lib, omf.lib, res.lib, git.lib, dep5.lib
+LIBS = reuse_parser spdx json sha1 omf res git dep5
 
 !include $(%ROOT)tools/mk/build.mk

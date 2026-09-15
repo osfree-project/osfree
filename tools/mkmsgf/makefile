@@ -10,6 +10,7 @@ DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 ADD_COPT = -bt=os2
 DEST = os2tk45$(SEP)bin
 SRC  = $(MYDIR)..$(SEP)..$(SEP)mkmsgf$(SEP)
+TARGET_API=OS2
 !endif
 
 !ifeq %OS OS2
