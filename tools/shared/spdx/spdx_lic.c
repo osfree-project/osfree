@@ -24,6 +24,24 @@ static void copy_safe(char *dst, size_t dst_size, const char *src) {
     dst[dst_size - 1] = '\0';
 }
 
+/* Копирует с предупреждением при усечении. */
+static void copy_safe_warn(const char *fullpath, const char *field_name,
+                           char *dst, size_t dst_size, const char *src) {
+    size_t slen;
+    if (!src) { dst[0] = '\0'; return; }
+    slen = strlen(src);
+    if (slen >= dst_size) {
+        fprintf(stderr,
+                "WARNING: %s: %s truncated (%u bytes, buffer %u).\n"
+                "         Consider shortening the annotation.\n",
+                fullpath, field_name,
+                (unsigned)slen, (unsigned)dst_size);
+        copy_safe(dst, dst_size, src);
+        return;
+    }
+    memcpy(dst, src, slen + 1);
+}
+
 static char *dup_str(const char *s) {
     size_t n;
     char *p;
@@ -64,96 +82,8 @@ static void strip_trailing_comments(char *s) {
     s[len] = '\0';
 }
 
-/* Проверяет, встречается ли token в expr как отдельное слово. */
-static int contains_token(const char *expr, const char *token) {
-    size_t tl;
-    const char *p;
-    int before_ok;
-    int after_ok;
-
-    tl = strlen(token);
-    p = expr;
-    while ((p = strstr(p, token)) != NULL) {
-        before_ok = (p == expr) ||
-                    (p[-1] == ' ' || p[-1] == '\t' || p[-1] == '(');
-        after_ok = (p[tl] == '\0' || p[tl] == ' ' ||
-                    p[tl] == '\t' || p[tl] == ')');
-        if (before_ok && after_ok) return 1;
-        p += tl;
-    }
-    return 0;
-}
-
-static int is_simple_and_chain(const char *expr) {
-    if (contains_token(expr, "OR")) return 0;
-    if (contains_token(expr, "WITH")) return 0;
-    if (strchr(expr, '(') || strchr(expr, ')')) return 0;
-    return 1;
-}
-
-/* Склеивает два SPDX-выражения через AND с удалением дубликатов. */
-static char *merge_and_expressions(const char *a, const char *b) {
-    if (!a && !b) return NULL;
-    if (!a) return dup_str(b);
-    if (!b) return dup_str(a);
-    if (strcmp(a, b) == 0) return dup_str(a);
-
-    if (is_simple_and_chain(a) && is_simple_and_chain(b)) {
-        SpdxStrList ids;
-        int i;
-        size_t total;
-        char *out;
-        size_t pos;
-
-        spdx_strlist_init(&ids);
-        spdx_expression_collect_ids(a, &ids);
-        spdx_expression_collect_ids(b, &ids);
-
-        if (ids.count == 0) {
-            spdx_strlist_free(&ids);
-            return NULL;
-        }
-
-        total = 0;
-        for (i = 0; i < ids.count; i++) {
-            if (i > 0) total += 5;
-            total += strlen(ids.items[i]);
-        }
-        out = (char*)malloc(total + 1);
-        if (!out) {
-            spdx_strlist_free(&ids);
-            return NULL;
-        }
-        pos = 0;
-        for (i = 0; i < ids.count; i++) {
-            if (i > 0) {
-                memcpy(out + pos, " AND ", 5);
-                pos += 5;
-            }
-            {
-                size_t l = strlen(ids.items[i]);
-                memcpy(out + pos, ids.items[i], l);
-                pos += l;
-            }
-        }
-        out[pos] = '\0';
-        spdx_strlist_free(&ids);
-        return out;
-    }
-
-    {
-        size_t al = strlen(a);
-        size_t bl = strlen(b);
-        size_t need = al + bl + 12;
-        char *r = (char*)malloc(need);
-        if (!r) return NULL;
-        snprintf(r, need, "(%s) AND (%s)", a, b);
-        return r;
-    }
-}
-
 /* ------------------------------------------------------------------ */
-/* Источники                                                           */
+/* In-file источники                                                   */
 /* ------------------------------------------------------------------ */
 
 static int read_sidecar(const char *fullpath,
@@ -211,146 +141,118 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
                          const char *default_license,
                          const char *default_copyright,
                          FileLicenseInfo *out) {
-    char *reuse_license = NULL;
-    char *reuse_copyright = NULL;
     char *side_license = NULL;
     char *side_copyright = NULL;
     char *tag_license = NULL;
     char *tag_copyright = NULL;
-    int reuse_precedence = 0;
-    int has_reuse = 0;
+    const char *in_license = NULL;
+    const char *in_copyright = NULL;
+    ReuseResolved resolved;
 
+    /* Инициализация результата. */
     out->license[0] = '\0';
     out->copyright[0] = '\0';
+    out->contributors[0] = '\0';
+    out->package_name[0] = '\0';
+    out->package_supplier[0] = '\0';
+    out->package_download_location[0] = '\0';
+    out->package_comment[0] = '\0';
+    out->has_package_info = 0;
     out->source = LICENSE_SRC_NONE;
     out->license_from_default = 0;
     out->copyright_from_default = 0;
 
-    if (configs && config_count > 0) {
-        reuse_resolve_for_file(configs, config_count, fullpath,
-                               NULL, NULL,
-                               &reuse_license, &reuse_copyright,
-                               &reuse_precedence, &has_reuse);
+    /* 1. Читаем in-file источники. Они нужны reuse_resolve_for_file
+     *    для aggregate-логики. Даже если matched override — чтение
+     *    безопасно: override игнорирует in-file источники. */
+    read_sidecar(fullpath, &side_license, &side_copyright);
+    read_tags(fullpath, &tag_license, &tag_copyright);
+
+    /* Приоритет in-file источников: sidecar > tags
+     * (sidecar физически ближе к файлу). */
+    if (side_license) in_license = side_license;
+    else if (tag_license) in_license = tag_license;
+    if (side_copyright) in_copyright = side_copyright;
+    else if (tag_copyright) in_copyright = tag_copyright;
+
+    /* 2. Резолвим REUSE.toml + in-file источники.
+     *    Логика precedence (override > aggregate > closest) и
+     *    агрегация — внутри reuse_resolve_for_file (см. reuse_parser.c). */
+    memset(&resolved, 0, sizeof(resolved));
+    reuse_resolve_for_file(configs, config_count, fullpath,
+                           in_license, in_copyright, &resolved);
+
+    /* 3. Копируем поля из resolved в FileLicenseInfo. */
+    if (resolved.license) {
+        copy_safe_warn(fullpath, "SPDX-License-Identifier",
+                       out->license, sizeof(out->license),
+                       resolved.license);
+    }
+    if (resolved.copyright) {
+        copy_safe_warn(fullpath, "SPDX-FileCopyrightText",
+                       out->copyright, sizeof(out->copyright),
+                       resolved.copyright);
+    }
+    if (resolved.contributors) {
+        copy_safe_warn(fullpath, "SPDX-FileContributor",
+                       out->contributors, sizeof(out->contributors),
+                       resolved.contributors);
+    }
+    if (resolved.package_name) {
+        copy_safe_warn(fullpath, "SPDX-PackageName",
+                       out->package_name, sizeof(out->package_name),
+                       resolved.package_name);
+    }
+    if (resolved.package_supplier) {
+        copy_safe_warn(fullpath, "SPDX-PackageSupplier",
+                       out->package_supplier, sizeof(out->package_supplier),
+                       resolved.package_supplier);
+    }
+    if (resolved.package_download_location) {
+        copy_safe_warn(fullpath, "SPDX-PackageDownloadLocation",
+                       out->package_download_location,
+                       sizeof(out->package_download_location),
+                       resolved.package_download_location);
+    }
+    if (resolved.package_comment) {
+        copy_safe_warn(fullpath, "SPDX-PackageComment",
+                       out->package_comment, sizeof(out->package_comment),
+                       resolved.package_comment);
     }
 
-    if (reuse_precedence != REUSE_PRECEDENCE_OVERRIDE) {
-        read_sidecar(fullpath, &side_license, &side_copyright);
-        read_tags(fullpath, &tag_license, &tag_copyright);
+    if (out->package_name[0] || out->package_supplier[0] ||
+        out->package_download_location[0] || out->package_comment[0]) {
+        out->has_package_info = 1;
     }
 
-    if (reuse_precedence == REUSE_PRECEDENCE_OVERRIDE) {
-        if (reuse_license) {
-            copy_safe(out->license, sizeof(out->license), reuse_license);
-            out->source = LICENSE_SRC_REUSE;
-        }
-        if (reuse_copyright) {
-            copy_safe(out->copyright, sizeof(out->copyright), reuse_copyright);
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
-        }
-    } else if (reuse_precedence == REUSE_PRECEDENCE_AGGREGATE) {
-        char *in_lic = side_license ? side_license : tag_license;
-        char *in_cop = side_copyright ? side_copyright : tag_copyright;
-
-        if (in_lic && reuse_license) {
-            char *agg = merge_and_expressions(in_lic, reuse_license);
-            if (agg) {
-                if (strlen(agg) >= sizeof(out->license)) {
-                    fprintf(stderr,
-                            "WARNING: %s: aggregated license expression "
-                            "truncated.\n"
-                            "         The combined expression exceeds %d "
-                            "characters.\n"
-                            "         Consider simplifying the REUSE.toml "
-                            "annotation.\n",
-                            fullpath, (int)sizeof(out->license));
-                }
-                copy_safe(out->license, sizeof(out->license), agg);
-                free(agg);
-                out->source = LICENSE_SRC_REUSE;
-            }
-        } else if (in_lic) {
-            copy_safe(out->license, sizeof(out->license), in_lic);
-            out->source = side_license ? LICENSE_SRC_SIDECAR : LICENSE_SRC_TAG;
-        } else if (reuse_license) {
-            copy_safe(out->license, sizeof(out->license), reuse_license);
-            out->source = LICENSE_SRC_REUSE;
-        }
-
-        if (in_cop && reuse_copyright) {
-            if (strcmp(in_cop, reuse_copyright) == 0) {
-                copy_safe(out->copyright, sizeof(out->copyright), in_cop);
-            } else {
-                size_t alen = strlen(in_cop);
-                size_t blen = strlen(reuse_copyright);
-                if (alen + blen + 2 < sizeof(out->copyright)) {
-                    sprintf(out->copyright, "%s\n%s",
-                            in_cop, reuse_copyright);
-                } else {
-                    fprintf(stderr,
-                            "WARNING: %s: aggregated copyright truncated.\n"
-                            "         The combined text exceeds %d "
-                            "characters.\n"
-                            "         Consider simplifying the REUSE.toml "
-                            "annotation.\n",
-                            fullpath, (int)sizeof(out->copyright));
-                    copy_safe(out->copyright, sizeof(out->copyright), in_cop);
-                }
-            }
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
-        } else if (in_cop) {
-            copy_safe(out->copyright, sizeof(out->copyright), in_cop);
-            if (out->source == LICENSE_SRC_NONE)
-                out->source = side_copyright ? LICENSE_SRC_SIDECAR : LICENSE_SRC_TAG;
-        } else if (reuse_copyright) {
-            copy_safe(out->copyright, sizeof(out->copyright), reuse_copyright);
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
-        }
-    } else {
-        if (side_license) {
-            copy_safe(out->license, sizeof(out->license), side_license);
-            out->source = LICENSE_SRC_SIDECAR;
-        } else if (tag_license) {
-            copy_safe(out->license, sizeof(out->license), tag_license);
-            out->source = LICENSE_SRC_TAG;
-        } else if (reuse_license) {
-            copy_safe(out->license, sizeof(out->license), reuse_license);
-            out->source = LICENSE_SRC_REUSE;
-        }
-
-        if (side_copyright) {
-            copy_safe(out->copyright, sizeof(out->copyright), side_copyright);
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_SIDECAR;
-        } else if (tag_copyright) {
-            copy_safe(out->copyright, sizeof(out->copyright), tag_copyright);
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_TAG;
-        } else if (reuse_copyright) {
-            copy_safe(out->copyright, sizeof(out->copyright), reuse_copyright);
-            if (out->source == LICENSE_SRC_NONE) out->source = LICENSE_SRC_REUSE;
-        }
+    /* 4. Определяем source.
+     *    REUSE.toml (если хоть одна аннотация совпала) — REUSE.
+     *    Иначе in-file источники: sidecar > tags. */
+    if (resolved.has_reuse) {
+        out->source = LICENSE_SRC_REUSE;
+    } else if (side_license || side_copyright) {
+        out->source = LICENSE_SRC_SIDECAR;
+    } else if (tag_license || tag_copyright) {
+        out->source = LICENSE_SRC_TAG;
     }
 
-    if (out->license[0] == '\0' && default_license && default_license[0]) {
+    /* 5. Fallback на --default-*. */
+    if (out->license[0] == '\0' &&
+        default_license && default_license[0]) {
         copy_safe(out->license, sizeof(out->license), default_license);
         out->license_from_default = 1;
         if (out->source == LICENSE_SRC_NONE)
             out->source = LICENSE_SRC_DEFAULT;
     }
-    if (out->copyright[0] == '\0' && default_copyright && default_copyright[0]) {
+    if (out->copyright[0] == '\0' &&
+        default_copyright && default_copyright[0]) {
         copy_safe(out->copyright, sizeof(out->copyright), default_copyright);
         out->copyright_from_default = 1;
         if (out->source == LICENSE_SRC_NONE)
             out->source = LICENSE_SRC_DEFAULT;
     }
 
-    if (reuse_license) free(reuse_license);
-    if (reuse_copyright) free(reuse_copyright);
-    if (side_license) free(side_license);
-    if (side_copyright) free(side_copyright);
-    if (tag_license) free(tag_license);
-    if (tag_copyright) free(tag_copyright);
-
-    /* Нормализация SPDX-выражения к каноническому регистру.
-     * Применяется ко всем источникам, включая CLI-фолбэк. */
+    /* 6. Нормализация SPDX-выражения (канонический регистр). */
     if (out->license[0] != '\0') {
         char *normalized = spdx_normalize_license_expression(out->license);
         if (normalized) {
@@ -359,8 +261,16 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
         }
     }
 
+    /* Защитная очистка от хвостовых маркеров (sidecar с комментарием). */
     strip_trailing_comments(out->license);
     strip_trailing_comments(out->copyright);
+
+    /* 7. Освобождение временных. */
+    reuse_resolved_free(&resolved);
+    if (side_license) free(side_license);
+    if (side_copyright) free(side_copyright);
+    if (tag_license) free(tag_license);
+    if (tag_copyright) free(tag_copyright);
 
     if (out->license[0] == '\0' && out->copyright[0] == '\0')
         return -1;

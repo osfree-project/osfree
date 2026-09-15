@@ -13,6 +13,7 @@ DIRS = sed UNI dos2unix &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        shared qemu-img hlldump mapsym renmodul &
        target emxdoc bind spdx-lint spdx-sbom spdx-annotate spdx-merge 
+
 #       lxlite &
 # rexxwrap ltools &
 

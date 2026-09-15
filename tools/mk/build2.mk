@@ -21,7 +21,7 @@ SOURCES=
 
 !include $(%ROOT)tools/mk/dirs.mk
 
-MAKEOPT = -h PROJ=$(PROJ)
+MAKEOPT = -h PROJ=$(PROJ) 
 
 all install: .SYMBOLIC gen_sources
 depsall:     .SYMBOLIC deps

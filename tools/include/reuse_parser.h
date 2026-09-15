@@ -22,6 +22,17 @@ typedef struct {
     int path_count;
     char *license;
     char *copyright;
+
+    /* SPDX-FileContributor: массив строк (кажда€ Ч отдельный contributor). */
+    char **contributors;
+    int contributor_count;
+
+    /* SPDX-Package*: скал€ры. */
+    char *package_name;
+    char *package_supplier;
+    char *package_download_location;
+    char *package_comment;
+
     int precedence;    /* REUSE_PRECEDENCE_* */
     int order_in_file; /* пор€дковый номер [[annotations]] в файле */
 } Annotation;
@@ -33,6 +44,22 @@ typedef struct {
     int depth;         /* 0 - корень, больше - глубже */
     int version;       /* должен быть 1 */
 } ReuseConfig;
+
+/* –езультат разрешени€ аннотации дл€ конкретного файла.
+ * ¬се строковые пол€ Ч malloc, освобождаютс€ через reuse_resolved_free. */
+typedef struct {
+    char *license;
+    char *copyright;
+    char *contributors;               /* '\n'-separated, дедуплицировано */
+    char *package_name;
+    char *package_supplier;
+    char *package_download_location;
+    char *package_comment;
+    int precedence;                   /* REUSE_PRECEDENCE_* или 0 */
+    int has_reuse;                    /* 1, если хоть одна аннотаци€ совпала */
+} ReuseResolved;
+
+void reuse_resolved_free(ReuseResolved *r);
 
 /* --- –абота с одним REUSE.toml (совместимость со старым API) --- */
 
@@ -52,36 +79,38 @@ int reuse_find_all_tomls(const char *repo_root,
 
 /* ѕарсит все REUSE.toml из списка paths. √лубина проставл€етс€ по пор€дку.
  * ¬озвращает массив конфигов (malloc), *out_count Ч количество.
+ * *out_error_count Ч сколько файлов не удалось распарсить (ERROR уже
+ * напечатан в stderr самим parse_reuse_toml).
  * ќтсутствующие файлы просто пропускаютс€. */
-ReuseConfig **reuse_parse_all(const SpdxStrList *paths, int *out_count);
+ReuseConfig **reuse_parse_all(const SpdxStrList *paths,
+                              int *out_count,
+                              int *out_error_count);
 
 void reuse_free_all(ReuseConfig **configs, int count);
 
-/* –азрешает license/copyright дл€ файла с учЄтом иерархии и precedence.
+/* –азрешает license/copyright/contributors/package_* дл€ файла с учЄтом
+ * иерархии и precedence.
  *
- * in_license / in_copyright Ч информаци€ из sidecar или тегов файла (может быть NULL).
- *
- * ¬озвращает:
- *   *out_license, *out_copyright Ч malloc-строки или NULL (caller free).
- *   *out_precedence Ч REUSE_PRECEDENCE_* выигравшей аннотации (0, если ни одна не совпала).
- *   *out_has_reuse Ч 1, если хоть одна аннотаци€ совпала.
+ * in_license / in_copyright Ч информаци€ из sidecar или тегов файла
+ * (может быть NULL). ƒл€ contributors и package_* in-file источников нет.
  *
  * ѕриоритет: override > aggregate > closest.
  * ѕри равном precedence выигрывает более глубока€ аннотаци€.
- * ѕри равной глубине Ч последн€€ в файле. */
+ * ѕри равной глубине Ч последн€€ в файле.
+ *
+ * out инициализируетс€ внутри (memset 0). ¬се строковые пол€ Ч
+ * malloc; освобождаютс€ через reuse_resolved_free.
+ *
+ * ¬озвращает 0 всегда (кроме out == NULL). */
 int reuse_resolve_for_file(ReuseConfig **configs, int count,
                            const char *filename,
                            const char *in_license,
                            const char *in_copyright,
-                           char **out_license,
-                           char **out_copyright,
-                           int *out_precedence,
-                           int *out_has_reuse);
+                           ReuseResolved *out);
 
 /* --- —овместимость со старым API --- */
 
 const char* find_license_for_file(ReuseConfig *config, const char *filename);
-const char* find_copyright_for_file(ReuseConfig *config, const char *filename);
 
 /* —опоставление с поддержкой * и ** по спецификации REUSE. */
 int matches_pattern(const char *pattern, const char *filename);

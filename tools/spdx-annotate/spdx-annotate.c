@@ -23,10 +23,10 @@
 #define BINARY_PROBE 8192
 
 typedef enum {
-    STYLE_C,        /* C-стиль */
-    STYLE_HASH,     /* # ... */
-    STYLE_REM,      /* rem / @rem ... */
-    STYLE_SIDECAR,  /* <file>.license */
+    STYLE_C,
+    STYLE_HASH,
+    STYLE_REM,
+    STYLE_SIDECAR,
     STYLE_UNKNOWN
 } CommentStyle;
 
@@ -220,8 +220,9 @@ static const char *style_name(CommentStyle s) {
  *   0  -> @echo off нет, пишем '@rem', чтобы строки не выводились
  *         в консоль.
  *
- * Сам @echo off блок больше не содержит — он либо уже есть в файле,
- * либо не нужен. */
+ * Многострочный copyright разбивается по '\n', каждая строка получает
+ * префикс " * " (для STYLE_C) или "# " / "rem " (для остальных), чтобы
+ * комментарий оставался валидным. */
 static char *build_insertion(CommentStyle style,
                              const char *license,
                              const char *copyright,
@@ -229,9 +230,10 @@ static char *build_insertion(CommentStyle style,
     size_t cap = 256;
     size_t len = 0;
     char *buf;
+    const char *p;
 
-    if (license)   cap += strlen(license) * 2;
-    if (copyright) cap += strlen(copyright) * 2;
+    if (license)   cap += strlen(license) * 4;
+    if (copyright) cap += strlen(copyright) * 4;
 
     buf = (char*)malloc(cap);
     if (!buf) return NULL;
@@ -240,41 +242,123 @@ static char *build_insertion(CommentStyle style,
     switch (style) {
     case STYLE_C:
         len += (size_t)sprintf(buf + len, "/*\n");
-        if (copyright)
-            len += (size_t)sprintf(buf + len,
-                    " * SPDX-FileCopyrightText: %s\n", copyright);
-        if (license)
-            len += (size_t)sprintf(buf + len,
-                    " * SPDX-License-Identifier: %s\n", license);
+        if (copyright) {
+            p = copyright;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, " * SPDX-FileCopyrightText: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
+        if (license) {
+            p = license;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, " * SPDX-License-Identifier: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
         len += (size_t)sprintf(buf + len, " */\n\n");
         break;
     case STYLE_REM: {
         const char *pfx = echo_off_present ? "rem " : "@rem ";
-        if (copyright)
-            len += (size_t)sprintf(buf + len,
-                    "%sSPDX-FileCopyrightText: %s\n", pfx, copyright);
-        if (license)
-            len += (size_t)sprintf(buf + len,
-                    "%sSPDX-License-Identifier: %s\n", pfx, license);
+        if (copyright) {
+            p = copyright;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "%sSPDX-FileCopyrightText: ",
+                                       pfx);
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
+        if (license) {
+            p = license;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "%sSPDX-License-Identifier: ",
+                                       pfx);
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
         len += (size_t)sprintf(buf + len, "\n");
         break;
     }
     case STYLE_SIDECAR:
-        if (copyright)
-            len += (size_t)sprintf(buf + len,
-                    "SPDX-FileCopyrightText: %s\n", copyright);
-        if (license)
-            len += (size_t)sprintf(buf + len,
-                    "SPDX-License-Identifier: %s\n", license);
+        if (copyright) {
+            p = copyright;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "SPDX-FileCopyrightText: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
+        if (license) {
+            p = license;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "SPDX-License-Identifier: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
         break;
     case STYLE_HASH:
     default:
-        if (copyright)
-            len += (size_t)sprintf(buf + len,
-                    "# SPDX-FileCopyrightText: %s\n", copyright);
-        if (license)
-            len += (size_t)sprintf(buf + len,
-                    "# SPDX-License-Identifier: %s\n", license);
+        if (copyright) {
+            p = copyright;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "# SPDX-FileCopyrightText: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
+        if (license) {
+            p = license;
+            while (*p) {
+                const char *eol = strchr(p, '\n');
+                size_t line_len = eol ? (size_t)(eol - p) : strlen(p);
+                len += (size_t)sprintf(buf + len, "# SPDX-License-Identifier: ");
+                memcpy(buf + len, p, line_len);
+                len += line_len;
+                buf[len++] = '\n';
+                if (!eol) break;
+                p = eol + 1;
+            }
+        }
         len += (size_t)sprintf(buf + len, "\n");
         break;
     }
@@ -295,15 +379,10 @@ static void print_block(const char *text, const char *indent) {
     }
 }
 
-/* Проверяет, начинается ли буфер с shebang: '#!' в самом начале
- * (пробелы перед '#' допускаются для некоторых интерпретаторов? — нет,
- * shebang строго в столбце 0). */
 static int first_line_is_shebang(const char *line) {
     return line[0] == '#' && line[1] == '!';
 }
 
-/* Проверяет, является ли строка командой '@echo off' (без учёта
- * регистра, с ведущими пробелами, с необязательным '@'). */
 static int first_line_is_echo_off(const char *line) {
     const char *p = line;
 
@@ -321,7 +400,6 @@ static int first_line_is_echo_off(const char *line) {
         tolower((unsigned char)p[7]) != 'f')
         return 0;
 
-    /* После "off" допустим '\0', пробел, таб, \r, \n */
     {
         char c = p[8];
         if (c == '\0' || c == ' ' || c == '\t' ||
@@ -457,7 +535,6 @@ static int annotate_one(const char *filename,
         return 0;
     }
 
-    /* Прочитать первую строку файла для определения позиции вставки. */
     first_line[0] = '\0';
     f = fopen(filename, "r");
     if (f) {
@@ -502,7 +579,6 @@ static int annotate_one(const char *filename,
     }
 
     if (has_shebang || has_echo_off) {
-        /* Сохраняем первую строку, потом блок, потом остаток файла. */
         fputs(first_line, out);
         if (first_line[0] != '\0' &&
             first_line[strlen(first_line) - 1] != '\n') {
@@ -513,7 +589,6 @@ static int annotate_one(const char *filename,
         f = fopen(filename, "r");
         if (f) {
             char skip[MAX_LINE];
-            /* пропускаем первую строку, которую уже записали */
             if (fgets(skip, sizeof(skip), f)) {
                 while (fgets(line, sizeof(line), f)) fputs(line, out);
             }
@@ -794,9 +869,15 @@ int main(int argc, char *argv[]) {
 
     repo_root = git_find_repo_root(dir);
 
-    reuse_find_all_tomls(repo_root, dir, &toml_paths);
-    configs = reuse_parse_all(&toml_paths, &config_count);
-    spdx_strlist_free(&toml_paths);
+    {
+        int reuse_errors = 0;
+        reuse_find_all_tomls(repo_root, dir, &toml_paths);
+        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
+        spdx_strlist_free(&toml_paths);
+        if (reuse_errors > 0) {
+            total_errors += reuse_errors;
+        }
+    }
 
     if (repo_root) {
         ReuseConfig *dep5 = reuse_load_dep5(repo_root);
@@ -849,7 +930,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (dry_run) {
-        printf("Mode: dry-run (use _wcc annotation-write to apply changes)\n");
+        printf("Mode: dry-run (use _wcc.[cmd|sh] annotate-write to apply "
+               "changes)\n");
     } else {
         printf("Mode: write\n");
     }
@@ -863,14 +945,19 @@ int main(int argc, char *argv[]) {
         char *reuse_license = NULL;
         char *reuse_copyright = NULL;
         char *normalized = NULL;
-        int precedence = 0;
-        int has_reuse = 0;
         int rc;
 
-        reuse_resolve_for_file(configs, config_count, fullpath,
-                               NULL, NULL,
-                               &reuse_license, &reuse_copyright,
-                               &precedence, &has_reuse);
+        {
+            ReuseResolved resolved;
+            memset(&resolved, 0, sizeof(resolved));
+            reuse_resolve_for_file(configs, config_count, fullpath,
+                                   NULL, NULL, &resolved);
+            reuse_license = resolved.license;
+            reuse_copyright = resolved.copyright;
+            resolved.license = NULL;
+            resolved.copyright = NULL;
+            reuse_resolved_free(&resolved);
+        }
 
         license = reuse_license ? reuse_license : license_override;
         copyright = reuse_copyright ? reuse_copyright : copyright_override;

@@ -106,6 +106,34 @@ static int resolve_binary_license(const SbomOptions *opts,
                 "path = \"**\" to REUSE.toml.\n");
         return -1;
     }
+    {
+        const char *bad = NULL;
+        int rc = spdx_expression_validate(lic, &bad);
+        if (rc == SPDX_EXPR_SYNTAX_ERROR) {
+            fprintf(stderr,
+                    "ERROR: invalid SPDX license expression for binary "
+                    "package: '%s'\n"
+                    "       Fix the expression according to the SPDX "
+                    "grammar:\n"
+                    "         https://spdx.github.io/spdx-spec/v2.3/"
+                    "SPDX-license-expressions/\n",
+                    lic);
+            return -1;
+        }
+        if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
+            const char *p = bad;
+            while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
+            fprintf(stderr,
+                    "ERROR: unknown SPDX identifier in binary package "
+                    "license: '");
+            fwrite(bad, 1, (size_t)(p - bad), stderr);
+            fprintf(stderr,
+                    "'\n"
+                    "       See https://spdx.org/licenses/ for the full "
+                    "list.\n");
+            return -1;
+        }
+    }
     *out_license = lic;
     return 0;
 }
@@ -183,9 +211,24 @@ int main(int argc, char *argv[]) {
 
     repo_root = git_find_repo_root(opts.dir);
 
-    reuse_find_all_tomls(repo_root, opts.dir, &toml_paths);
-    configs = reuse_parse_all(&toml_paths, &config_count);
-    spdx_strlist_free(&toml_paths);
+    {
+        int reuse_errors = 0;
+        reuse_find_all_tomls(repo_root, opts.dir, &toml_paths);
+        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
+        spdx_strlist_free(&toml_paths);
+        if (reuse_errors > 0) {
+            fprintf(stderr,
+                    "ERROR: %d REUSE.toml file(s) could not be parsed.\n"
+                    "       SBOM cannot be generated reliably.\n",
+                    reuse_errors);
+            reuse_free_all(configs, config_count);
+            git_ignore_list_free(&gitignore_rules);
+            free(repo_root);
+            spdx_db_free();
+            sbom_options_free(&opts);
+            return 1;
+        }
+    }
 
     if (repo_root) {
         ReuseConfig *dep5 = reuse_load_dep5(repo_root);
@@ -210,6 +253,9 @@ int main(int argc, char *argv[]) {
 
     binary_mode = is_binary_mode(&opts);
 
+    /* Разрешаем лицензию ДО sbom_doc_init, чтобы значение было
+     * зафиксировано в пакете. В binary-режиме — та же логика, что и
+     * для source: REUSE.toml (path="**") > --default-license. */
     if (resolve_package_license(&opts, configs, config_count,
                                 &pkg_license) != 0) {
         reuse_free_all(configs, config_count);
@@ -235,16 +281,6 @@ int main(int argc, char *argv[]) {
     snippetlist_init(&doc.snippets);
 
     if (binary_mode) {
-        if (resolve_binary_license(&opts, configs, config_count,
-                                   &pkg_license) != 0) {
-            sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
-        }
         if (build_binary_file_list(&opts, pkg_license, &doc.files) != 0) {
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
