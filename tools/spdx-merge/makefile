@@ -1,6 +1,6 @@
 DESCRIPTION = SDPX merger
 
 ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT = lib reuse_parser.lib, spdx.lib, json.lib, sha1.lib, sha256.lib
+LIBS = reuse_parser spdx json sha1 sha256
 
 !include $(%ROOT)tools/mk/build.mk

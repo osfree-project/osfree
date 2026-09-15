@@ -131,7 +131,7 @@ ADD_ASMOPT=$(ADD_ASMOPT) -d1
 # DPMI           16             16, 32
 # WIN            16             16, 32, 64(reserved)
 # OS2            32             16, 32
-# HOST           (from env)    16, 32, 64
+# HOST           not defined
 # BARE / BIOS    ERROR (reserved)
 !ifndef TARGET_BITS
 !ifeq TARGET_API DOS
@@ -143,11 +143,6 @@ TARGET_BITS = 16
 !else ifeq TARGET_API OS2
 TARGET_BITS = 32
 !else ifeq TARGET_API HOST
-#!ifdef %HOST_BITS
-#TARGET_BITS = $(%HOST_BITS)
-#!else
-#!error TARGET_BITS must be set for HOST (16, 32, 64) or define HOST_BITS
-#!endif
 !else ifeq TARGET_API BARE
 !error BARE target is reserved and not yet implemented
 !else ifeq TARGET_API BIOS
@@ -332,6 +327,18 @@ TRGT = $(PROJ).$(TARGET_EXT)
 !ifeq TARGET_LANG pascal
 !include $(%ROOT)tools/mk/toolspas.mk
 !else
+
+!ifdef LIBS
+pth=$$(pth)
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
+pth=$(%ROOT)build$(SEP)lib$(SEP)
+ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!endif
+
 !include $(%ROOT)tools/mk/tools.mk
 !endif
 !else ifeq TARGET_CLASS LIBRARY
