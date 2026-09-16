@@ -62,8 +62,9 @@ struct _TOMLVALUE {
 
 /** @brief Open document. */
 struct _TOMLDOC {
-    PTOMLTABLE  pRoot;
-    PTOMLFIND   pFirstFind;
+    PTOMLTABLE  pRoot;      /* Root table                        */
+    PTOMLVALUE  pRootNode;  /* Synthetic value wrapping pRoot    */
+    PTOMLFIND   pFirstFind; /* Head of active Find cursors list  */
 };
 
 /** @brief Enumeration cursor. */
@@ -86,12 +87,17 @@ struct _TOMLFIND {
 
 /**
  * @brief Parse TOML text and build the tree.
+ * @param[in]  pszText    NUL-terminated UTF-8 TOML text.
+ * @param[out] ppRoot     Receiver for the root table.
+ * @param[out] ppszError  Optional static error description.
+ * @return APIRET
  */
 APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                          PCSZ *ppszError);
 
 /**
  * @brief Release a tree built by TomlInternalParse.
+ * @param[in] pRoot  Root table. May be NULL.
  */
 void TomlInternalFreeTree(PTOMLTABLE pRoot);
 
