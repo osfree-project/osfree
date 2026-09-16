@@ -18,6 +18,12 @@ extern "C" {
  * releases them in TomlClose. The consumer supplies buffers only for
  * the data being returned.
  *
+ * Two access styles are provided:
+ *   - Point queries: TomlQueryType / TomlQueryString / ... operate on a
+ *     dotted path from the document root.
+ *   - DOM traversal: TomlQueryNode / TomlNode* walk the tree node by
+ *     node. Nodes are handles valid until TomlClose.
+ *
  * Written for Open Watcom 1.9 in C89 style. 64-bit integers use the
  * __int64 extension. No -za99 mode is required.
  */
@@ -135,6 +141,16 @@ typedef HANDLE HTOMLDOC;
  */
 typedef HANDLE HTOMLFIND;
 
+/**
+ * @typedef HTOMLNODE
+ * @brief TOML node handle (DOM-style access).
+ *
+ * A node handle refers to a value inside the document tree. It is
+ * valid for the lifetime of the owning document. Node handles do not
+ * need to be closed explicitly; TomlClose releases all of them.
+ */
+typedef HANDLE HTOMLNODE;
+
 /* ==================================================================
  * Document lifecycle
  * ================================================================== */
@@ -142,9 +158,13 @@ typedef HANDLE HTOMLFIND;
 /**
  * @brief Open a TOML document from a file.
  *
- * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[out] phToml   Handle receiver. Not NULL. Set to NULLHANDLE on
- *                      error.
+ * Reads the file, parses TOML v1.0.0, allocates all internal buffers
+ * and returns a document handle. The module owns the internal
+ * structures and releases them in TomlClose.
+ *
+ * @param[in]  pszPath  Path to the file. Must not be NULL.
+ * @param[out] phToml   Handle receiver. Must not be NULL. Set to
+ *                      NULLHANDLE on error.
  *
  * @return APIRET
  * @retval TOML_NO_ERROR             Success.
@@ -156,7 +176,8 @@ typedef HANDLE HTOMLFIND;
  * @retval TOML_ERROR_DUPLICATE_KEY  Duplicate key.
  * @retval TOML_ERROR_OUT_OF_MEMORY  Memory allocation failure.
  *
- * @note Release the handle with TomlClose.
+ * @note Ownership of the handle transfers to the caller. It must be
+ *       released with TomlClose.
  * @see TomlClose
  */
 APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml);
@@ -164,15 +185,20 @@ APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml);
 /**
  * @brief Close a document.
  *
- * Releases all internal buffers, including any active Find cursors.
+ * Releases all internal buffers, including any active Find cursors and
+ * node handles associated with the document. After return the handle
+ * is invalid.
  *
- * @param[in] hToml  Document handle. NULLHANDLE is a no-op.
+ * @param[in] hToml  Document handle. NULLHANDLE is accepted and treated
+ *                   as a no-op.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success. Also for NULLHANDLE.
+ * @retval TOML_NO_ERROR             Success. Also returned for
+ *                                   NULLHANDLE.
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  *
- * @warning Do not call TomlClose twice with the same handle.
+ * @warning Calling TomlClose twice with the same handle is undefined.
+ *          The caller should set the handle to NULLHANDLE after close.
  * @see TomlOpen
  */
 APIRET TomlClose(HTOMLDOC hToml);
@@ -199,19 +225,33 @@ APIRET TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType);
 /**
  * @brief Query a string value by dotted path.
  *
+ * Copies the string into the caller-supplied buffer and appends NUL.
+ * If the buffer is too small, returns TOML_ERROR_BUFFER_OVERFLOW and
+ * writes the required size (including NUL) to *pulSize.
+ *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only:
+ * the required size (including NUL) is returned in *pulSize without
+ * touching any buffer.
+ *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
  * @param[in]  pszPath    Path. Not NULL, not empty.
- * @param[out] pszBuffer  Output buffer. Not NULL.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
- * @param[out] pulSize    Optional. May be NULL.
+ * @param[out] pulSize    Optional. May be NULL. On success — string
+ *                        length without NUL. On BUFFER_OVERFLOW —
+ *                        required size including NUL.
  *
  * @return APIRET
  * @retval TOML_NO_ERROR              Success.
  * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
  * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND       Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH   Value is neither STRING nor DATETIME.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Value is neither STRING nor
+ *                                    DATETIME.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ *
+ * @note The buffer is owned by the caller. The string inside the
+ *       document is not modified.
  */
 APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
                        PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
@@ -229,6 +269,7 @@ APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not INTEGER.
+ *                                   *pllValue = 0.
  */
 APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue);
 
@@ -245,6 +286,10 @@ APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue);
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not FLOAT.
+ *                                   *pdblValue = 0.0.
+ *
+ * @note The value may be inf / -inf / nan as per TOML v1.0.0. The
+ *       caller is responsible for checking finiteness.
  */
 APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue);
 
@@ -261,6 +306,7 @@ APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue);
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not BOOLEAN.
+ *                                   *pfValue = FALSE_.
  */
 APIRET TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath, PBOOL pfValue);
 
@@ -302,10 +348,12 @@ APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
 /**
  * @brief Query a string element of an array by index.
  *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
+ *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
  * @param[in]  pszPath    Path. Not NULL, not empty.
  * @param[in]  ulIndex    Element index.
- * @param[out] pszBuffer  Output buffer. Not NULL.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
@@ -314,7 +362,8 @@ APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
  * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND       Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH   Element is neither STRING nor DATETIME.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Element is neither STRING nor
+ *                                    DATETIME.
  * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
@@ -379,6 +428,206 @@ APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
                              PBOOL pfValue);
 
 /* ==================================================================
+ * DOM-style traversal
+ * ================================================================== */
+
+/**
+ * @brief Obtain a node handle for a value by dotted path.
+ *
+ * A node handle refers to a value inside the document tree. Use "" to
+ * obtain the root node. Handles remain valid until TomlClose and do
+ * not need to be released individually.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path "a.b.c". Not NULL. "" for root.
+ * @param[out] phNode   Node receiver. Not NULL. Set to NULLHANDLE on
+ *                      error.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ *
+ * @see TomlQueryRootNode, TomlNodeGetType
+ */
+APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode);
+
+/**
+ * @brief Obtain a node handle for the root table.
+ *
+ * @param[in]  hToml   Handle. Not NULLHANDLE.
+ * @param[out] phNode  Node receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ *
+ * @see TomlQueryNode
+ */
+APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode);
+
+/**
+ * @brief Query the type of a node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ */
+APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType);
+
+/**
+ * @brief Query a string value of a node.
+ *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only
+ * and returns the required size (including NUL) in *pulSize.
+ *
+ * @param[in]  hNode      Node handle. Not NULLHANDLE.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Node is neither STRING nor DATETIME.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
+                         PULONG pulSize);
+
+/**
+ * @brief Query an integer value of a node.
+ *
+ * @param[in]  hNode     Node handle. Not NULLHANDLE.
+ * @param[out] pllValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not INTEGER.
+ */
+APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue);
+
+/**
+ * @brief Query a floating-point value of a node.
+ *
+ * @param[in]  hNode      Node handle. Not NULLHANDLE.
+ * @param[out] pdblValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not FLOAT.
+ */
+APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue);
+
+/**
+ * @brief Query a boolean value of a node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not BOOLEAN.
+ */
+APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue);
+
+/**
+ * @brief Query the number of elements in an array node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
+ */
+APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount);
+
+/**
+ * @brief Query an array element by index.
+ *
+ * @param[in]  hNode    Node handle (array). Not NULLHANDLE.
+ * @param[in]  ulIndex  Element index.
+ * @param[out] phChild  Receiver of the element's node handle. Not NULL.
+ *                      Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
+                               HTOMLNODE *phChild);
+
+/**
+ * @brief Query the number of entries in a table node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
+ */
+APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount);
+
+/**
+ * @brief Query a table entry by key.
+ *
+ * @param[in]  hNode    Node handle (table). Not NULLHANDLE.
+ * @param[in]  pszKey   Key. Not NULL.
+ * @param[out] phChild  Receiver of the value's node handle. Not NULL.
+ *                      Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
+ * @retval TOML_ERROR_NOT_FOUND      Key not found.
+ */
+APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
+                                  HTOMLNODE *phChild);
+
+/**
+ * @brief Query a table entry by index.
+ *
+ * The order of entries corresponds to the order of definition in the
+ * source TOML file.
+ *
+ * @param[in]  hNode         Node handle (table). Not NULLHANDLE.
+ * @param[in]  ulIndex       Entry index.
+ * @param[out] pszKeyBuffer  Key output buffer. Not NULL.
+ * @param[in]  ulKeyBufSize  Size of pszKeyBuffer in bytes.
+ * @param[out] pulKeyUsed    Optional. May be NULL. On success — key
+ *                           length without NUL. On BUFFER_OVERFLOW —
+ *                           required size including NUL.
+ * @param[out] phChild       Receiver of the value's node handle. Not
+ *                           NULL. Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Node is not TABLE.
+ * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Key buffer too small.
+ */
+APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
+                                    PSZ pszKeyBuffer, ULONG ulKeyBufSize,
+                                    PULONG pulKeyUsed,
+                                    HTOMLNODE *phChild);
+
+/* ==================================================================
  * Directory enumeration
  * ================================================================== */
 
@@ -391,21 +640,25 @@ APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  *
  * @par Pattern syntax
  * '*' matches any sequence of characters, '?' matches any single
- * character.
+ * character. The pattern "*" matches all entries.
  *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path to the table. Not NULL. "" for root.
+ * @param[in]  pszPath    Path to the table. Not NULL. Use "" for root.
  * @param[in]  pszPattern Pattern. Not NULL.
- * @param[out] phFind     Cursor receiver. Not NULL.
- * @param[out] pulType    Optional. May be NULL.
+ * @param[out] phFind     Cursor receiver. Not NULL. Set to NULLHANDLE
+ *                        on error or when there are no matching entries.
+ * @param[out] pulType    Optional. May be NULL. On success receives
+ *                        the TOML_TYPE_* of the current entry.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_NO_ERROR              Success. Cursor positioned on the
+ *                                    first entry.
  * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
  * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND       Path not found.
  * @retval TOML_ERROR_TYPE_MISMATCH   Path does not refer to a table.
- * @retval TOML_ERROR_NO_MORE_ENTRIES No matching entries.
+ * @retval TOML_ERROR_NO_MORE_ENTRIES No entry matches the pattern.
+ *                                    *phFind = NULLHANDLE.
  *
  * @see TomlFindNext, TomlFindClose
  */
@@ -415,8 +668,9 @@ APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,
 /**
  * @brief Advance the cursor to the next matching entry.
  *
- * @param[in]  hFind    Cursor. Not NULLHANDLE.
- * @param[out] pulType  Optional. May be NULL.
+ * @param[in]  hFind    Cursor from TomlFindFirst. Not NULLHANDLE.
+ * @param[out] pulType  Optional. May be NULL. On success receives the
+ *                      TOML_TYPE_* of the new current entry.
  *
  * @return APIRET
  * @retval TOML_NO_ERROR              Success.
@@ -429,6 +683,10 @@ APIRET TomlFindNext(HTOMLFIND hFind, PULONG pulType);
 
 /**
  * @brief Retrieve the key of the current entry.
+ *
+ * Copies the key into the caller-supplied buffer and appends NUL. If
+ * the buffer is too small, returns TOML_ERROR_BUFFER_OVERFLOW and
+ * writes the required size (including NUL) to *pulSize.
  *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
  * @param[out] pszBuffer  Output buffer. Not NULL.
@@ -456,7 +714,8 @@ APIRET TomlFindKey(HTOMLFIND hFind,
  * @retval TOML_NO_ERROR              Success.
  * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
  * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_TYPE_MISMATCH   Current entry is neither STRING nor DATETIME.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Current entry is neither STRING
+ *                                    nor DATETIME.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET TomlFindString(HTOMLFIND hFind,
@@ -507,12 +766,16 @@ APIRET TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue);
 /**
  * @brief Close an enumeration cursor.
  *
- * @param[in] hFind  Cursor. NULLHANDLE is a no-op.
+ * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
+ *                   no-op.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success. Also for NULLHANDLE.
+ * @retval TOML_NO_ERROR             Success. Also returned for
+ *                                   NULLHANDLE.
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  *
+ * @note If TomlFindClose is not called, TomlClose releases all
+ *       remaining cursors.
  * @see TomlFindFirst
  */
 APIRET TomlFindClose(HTOMLFIND hFind);

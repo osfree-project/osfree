@@ -541,7 +541,7 @@ subdirs: .symbolic
 !endif
 
 dirhier: .symbolic
-!ifneq RELDIR ""
+!ifneq RELDIR 
  $(verbose)$(SAY) CD       $(RELDIR) $(LOG)
 !endif
  $(verbose)$(MDHIER) $(PATH)

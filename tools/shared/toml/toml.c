@@ -1546,6 +1546,14 @@ APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
     if (!doc) { table_free(root); return TOML_ERROR_OUT_OF_MEMORY; }
     doc->pRoot = root;
     doc->pFirstFind = NULL;
+    doc->pRootNode = (PTOMLVALUE)calloc(1, sizeof(TOMLVALUE));
+    if (!doc->pRootNode) {
+        table_free(root);
+        free(doc);
+        return TOML_ERROR_OUT_OF_MEMORY;
+    }
+    doc->pRootNode->ulType = TOML_TYPE_TABLE;
+    doc->pRootNode->u.pTable = root;
     *phToml = (HTOMLDOC)doc;
     return TOML_NO_ERROR;
 }
@@ -1564,6 +1572,9 @@ APIRET TomlClose(HTOMLDOC hToml) {
             f = nxt;
         }
     }
+    /* Free only the wrapper value; the table itself is released below
+     * by table_free(doc->pRoot). */
+    free(doc->pRootNode);
     table_free(doc->pRoot);
     free(doc);
     return TOML_NO_ERROR;
@@ -1632,12 +1643,31 @@ APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
                        PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
-    if (!doc || !pszPath || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
+    PCSZ s;
+    size_t n;
+
+    if (!doc || !pszPath) return TOML_ERROR_INVALID_PARAM;
     pv = find_path(doc->pRoot, pszPath);
     if (!pv) return TOML_ERROR_NOT_FOUND;
     if (pv->ulType != TOML_TYPE_STRING && pv->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
-    return copy_string_out(pv->u.pszString, pszBuffer, ulBufSize, pulSize);
+
+    s = pv->u.pszString;
+    n = s ? strlen(s) : 0;
+
+    if (pszBuffer == NULL && ulBufSize == 0) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_NO_ERROR;
+    }
+    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
+    if (ulBufSize < n + 1) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuffer, s ? s : "", n);
+    pszBuffer[n] = '\0';
+    if (pulSize) *pulSize = (ULONG)n;
+    return TOML_NO_ERROR;
 }
 
 APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue) {
@@ -1710,7 +1740,10 @@ APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
                             PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv, item;
-    if (!doc || !pszPath || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
+    PCSZ s;
+    size_t n;
+
+    if (!doc || !pszPath) return TOML_ERROR_INVALID_PARAM;
     pv = find_path(doc->pRoot, pszPath);
     if (!pv) return TOML_ERROR_NOT_FOUND;
     if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
@@ -1719,7 +1752,22 @@ APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     if (item->ulType != TOML_TYPE_STRING &&
         item->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
-    return copy_string_out(item->u.pszString, pszBuffer, ulBufSize, pulSize);
+
+    s = item->u.pszString;
+    n = s ? strlen(s) : 0;
+    if (pszBuffer == NULL && ulBufSize == 0) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_NO_ERROR;
+    }
+    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
+    if (ulBufSize < n + 1) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuffer, s ? s : "", n);
+    pszBuffer[n] = '\0';
+    if (pulSize) *pulSize = (ULONG)n;
+    return TOML_NO_ERROR;
 }
 
 APIRET TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
@@ -1764,6 +1812,316 @@ APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     item = pv->u.pArray->paItems[ulIndex];
     if (item->ulType != TOML_TYPE_BOOLEAN) return TOML_ERROR_TYPE_MISMATCH;
     *pfValue = item->u.fBoolean;
+    return TOML_NO_ERROR;
+}
+
+/* ==================================================================
+ * DOM-style traversal
+ * ================================================================== */
+
+static PTOMLVALUE as_node(HTOMLNODE h) { return (PTOMLVALUE)h; }
+
+/**
+ * @brief Obtain a node handle for a value by dotted path.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path "a.b.c". Not NULL. "" for root.
+ * @param[out] phNode   Node receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ */
+APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode) {
+    PTOMLDOC doc = as_doc(hToml);
+    PTOMLVALUE pv;
+    if (!doc || !pszPath || !phNode) return TOML_ERROR_INVALID_PARAM;
+    *phNode = NULLHANDLE;
+    if (!*pszPath) {
+        pv = doc->pRootNode;
+    } else {
+        pv = find_path(doc->pRoot, pszPath);
+    }
+    if (!pv) return TOML_ERROR_NOT_FOUND;
+    *phNode = (HTOMLNODE)pv;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Obtain a node handle for the root table.
+ *
+ * @param[in]  hToml   Handle. Not NULLHANDLE.
+ * @param[out] phNode  Node receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ */
+APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
+    PTOMLDOC doc = as_doc(hToml);
+    if (!doc || !phNode) return TOML_ERROR_INVALID_PARAM;
+    *phNode = (HTOMLNODE)doc->pRootNode;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query the type of a node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ */
+APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pulType) return TOML_ERROR_INVALID_PARAM;
+    *pulType = pv->ulType;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query a string value of a node.
+ *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only
+ * and returns the required size (including NUL) in *pulSize.
+ *
+ * @param[in]  hNode      Node handle. Not NULLHANDLE.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Node is neither STRING nor DATETIME.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
+                         PULONG pulSize) {
+    PTOMLVALUE pv = as_node(hNode);
+    PCSZ s;
+    size_t n;
+    if (!pv) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_STRING && pv->ulType != TOML_TYPE_DATETIME)
+        return TOML_ERROR_TYPE_MISMATCH;
+    s = pv->u.pszString;
+    n = s ? strlen(s) : 0;
+    if (pszBuffer == NULL && ulBufSize == 0) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_NO_ERROR;
+    }
+    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
+    if (ulBufSize < n + 1) {
+        if (pulSize) *pulSize = (ULONG)(n + 1);
+        return TOML_ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuffer, s ? s : "", n);
+    pszBuffer[n] = '\0';
+    if (pulSize) *pulSize = (ULONG)n;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query an integer value of a node.
+ *
+ * @param[in]  hNode     Node handle. Not NULLHANDLE.
+ * @param[out] pllValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not INTEGER.
+ */
+APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pllValue) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_INTEGER) {
+        *pllValue = 0;
+        return TOML_ERROR_TYPE_MISMATCH;
+    }
+    *pllValue = pv->u.llInteger;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query a floating-point value of a node.
+ *
+ * @param[in]  hNode      Node handle. Not NULLHANDLE.
+ * @param[out] pdblValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not FLOAT.
+ */
+APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pdblValue) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_FLOAT) {
+        *pdblValue = 0.0;
+        return TOML_ERROR_TYPE_MISMATCH;
+    }
+    *pdblValue = pv->u.dblFloat;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query a boolean value of a node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not BOOLEAN.
+ */
+APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pfValue) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_BOOLEAN) {
+        *pfValue = FALSE_;
+        return TOML_ERROR_TYPE_MISMATCH;
+    }
+    *pfValue = pv->u.fBoolean;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query the number of elements in an array node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
+ */
+APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    *pulCount = pv->u.pArray->ulCount;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query an array element by index.
+ *
+ * @param[in]  hNode    Node handle (array). Not NULLHANDLE.
+ * @param[in]  ulIndex  Element index.
+ * @param[out] phChild  Receiver of the element's node handle. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
+                               HTOMLNODE *phChild) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !phChild) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pv->u.pArray->ulCount) {
+        *phChild = NULLHANDLE;
+        return TOML_ERROR_INDEX_RANGE;
+    }
+    *phChild = (HTOMLNODE)pv->u.pArray->paItems[ulIndex];
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query the number of entries in a table node.
+ *
+ * @param[in]  hNode    Node handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
+ */
+APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
+    PTOMLVALUE pv = as_node(hNode);
+    if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
+    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    *pulCount = pv->u.pTable->ulCount;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query a table entry by key.
+ *
+ * @param[in]  hNode    Node handle (table). Not NULLHANDLE.
+ * @param[in]  pszKey   Key. Not NULL.
+ * @param[out] phChild  Receiver of the value's node handle. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
+ * @retval TOML_ERROR_NOT_FOUND      Key not found.
+ */
+APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
+                                  HTOMLNODE *phChild) {
+    PTOMLVALUE pv = as_node(hNode);
+    PTOMLENTRY pe;
+    if (!pv || !pszKey || !phChild) return TOML_ERROR_INVALID_PARAM;
+    *phChild = NULLHANDLE;
+    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    pe = table_find(pv->u.pTable, pszKey);
+    if (!pe) return TOML_ERROR_NOT_FOUND;
+    *phChild = (HTOMLNODE)pe->pValue;
+    return TOML_NO_ERROR;
+}
+
+/**
+ * @brief Query a table entry by index.
+ *
+ * @param[in]  hNode         Node handle (table). Not NULLHANDLE.
+ * @param[in]  ulIndex       Entry index.
+ * @param[out] pszKeyBuffer  Key output buffer. Not NULL.
+ * @param[in]  ulKeyBufSize  Size of pszKeyBuffer in bytes.
+ * @param[out] pulKeyUsed    Optional. May be NULL.
+ * @param[out] phChild       Receiver of the value's node handle. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Node is not TABLE.
+ * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Key buffer too small.
+ */
+APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
+                                    PSZ pszKeyBuffer, ULONG ulKeyBufSize,
+                                    PULONG pulKeyUsed,
+                                    HTOMLNODE *phChild) {
+    PTOMLVALUE pv = as_node(hNode);
+    PTOMLENTRY pe;
+    size_t klen;
+    if (!pv || !pszKeyBuffer || !phChild) return TOML_ERROR_INVALID_PARAM;
+    *phChild = NULLHANDLE;
+    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pv->u.pTable->ulCount) {
+        return TOML_ERROR_INDEX_RANGE;
+    }
+    pe = &pv->u.pTable->paEntries[ulIndex];
+    klen = strlen(pe->pszKey);
+    if (ulKeyBufSize < klen + 1) {
+        if (pulKeyUsed) *pulKeyUsed = (ULONG)(klen + 1);
+        return TOML_ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszKeyBuffer, pe->pszKey, klen);
+    pszKeyBuffer[klen] = '\0';
+    if (pulKeyUsed) *pulKeyUsed = (ULONG)klen;
+    *phChild = (HTOMLNODE)pe->pValue;
     return TOML_NO_ERROR;
 }
 
