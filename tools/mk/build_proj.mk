@@ -12,12 +12,12 @@ dir2=$+ $(CWD) $-
 dir3=$(dir2:$(CWD)=)
 dir4=$(dir3:$(SEP)=)
 
-depsall prepall clean annotate annotate-write: .SYMBOLIC
+depsall prepall subdirs clean annotate annotate-write: .SYMBOLIC
  @cd ..
  @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
 
+#generate project name
 gen_proj_name: .SYMBOLIC
- #generate project name
  @$(REXX) mdhier.cmd $(PATH)
  #change dir to set correct value of dir4. Magic!
  @cd ..

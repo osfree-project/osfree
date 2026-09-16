@@ -202,7 +202,7 @@ static void process_file(const char *fullpath,
                 "'SPDX-FileCopyrightText' tags in the file header;\n"
                 "         - or create a sidecar '<file>.license' next to it;\n"
                 "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate --write' to write them.\n"
+                "         - or run '%s annotate' to write them.\n"
                 "       See https://reuse.software/spec/ for details.\n",
                 fullpath, wcc_cmd);
         error_count++;
@@ -213,7 +213,7 @@ static void process_file(const char *fullpath,
         fprintf(stderr,
                 "WARNING: %s: license is taken from --default-license.\n"
                 "         REUSE does not allow a global CLI fallback.\n"
-                "         Run '%s annotate --write' to write the license\n"
+                "         Run '%s annotate' to write the license\n"
                 "         into the file, or add a sidecar/REUSE.toml entry.\n",
                 fullpath, wcc_cmd);
         warning_count++;
@@ -222,7 +222,7 @@ static void process_file(const char *fullpath,
         fprintf(stderr,
                 "WARNING: %s: copyright is taken from --default-copyright.\n"
                 "         REUSE does not allow a global CLI fallback.\n"
-                "         Run '%s annotate --write' to write the copyright\n"
+                "         Run '%s annotate' to write the copyright\n"
                 "         into the file, or add a sidecar/REUSE.toml entry.\n",
                 fullpath, wcc_cmd);
         warning_count++;
@@ -240,7 +240,7 @@ static void process_file(const char *fullpath,
                 "header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
                 "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate --write'.\n",
+                "         - or run '%s annotate'.\n",
                 fullpath, wcc_cmd);
         error_count++;
     }
@@ -256,7 +256,7 @@ static void process_file(const char *fullpath,
                 "file header;\n"
                 "         - or create '<file>.license' with the same tag;\n"
                 "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate --write'.\n",
+                "         - or run '%s annotate'.\n",
                 fullpath, wcc_cmd);
         error_count++;
     }
@@ -268,9 +268,7 @@ static void process_file(const char *fullpath,
     process_snippets(fullpath, used_licenses);
 }
 
-/* Отделяет SPDX-id от расширения.
- * Сначала пробует имя как есть (важно для id с точками, например
- * GPL-3.0-or-later), затем отрезает последнее расширение. */
+/* Отделяет SPDX-id от расширения. */
 static void strip_license_ext(const char *fname, char *base, size_t base_size) {
     char *dot;
     size_t len;
@@ -352,7 +350,7 @@ static void check_licenses_dir(const char *project_dir,
                 "       Fix one of:\n"
                 "         - create the directory and add a text file for each\n"
                 "           license declared by any file in the project;\n"
-                "         - or run '%s annotate --write' to create it "
+                "         - or run '%s annotate-write' to create it "
                 "automatically.\n"
                 "       See https://reuse.software/spec/ for details.\n",
                 lic_path, example_path, wcc_cmd);
@@ -472,7 +470,7 @@ static void check_licenses_dir(const char *project_dir,
                     "       at the project root (REUSE Specification 3.3).\n"
                     "       Fix one of:\n"
                     "         - create %s with the license text;\n"
-                    "         - or run '%s annotate --write' to create it "
+                    "         - or run '%s annotate-write' to create it "
                     "automatically.\n",
                     lic, expected, expected, wcc_cmd);
             error_count++;
@@ -523,7 +521,7 @@ static void check_licenses_dir(const char *project_dir,
                         "the SPDX License List.\n"
                         "       File: %s\n"
                         "       To update it, run "
-                        "'%s annotate --write --force'.\n",
+                        "'%s annotate-write --force'.\n",
                         lic, full_path, wcc_cmd);
                 error_count++;
             }
@@ -627,9 +625,15 @@ int main(int argc, char *argv[]) {
 
     repo_root = git_find_repo_root(dir);
 
-    reuse_find_all_tomls(repo_root, dir, &toml_paths);
-    configs = reuse_parse_all(&toml_paths, &config_count);
-    spdx_strlist_free(&toml_paths);
+    {
+        int reuse_errors = 0;
+        reuse_find_all_tomls(repo_root, dir, &toml_paths);
+        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
+        spdx_strlist_free(&toml_paths);
+        if (reuse_errors > 0) {
+            error_count += reuse_errors;
+        }
+    }
 
     if (repo_root) {
         ReuseConfig *dep5 = reuse_load_dep5(repo_root);

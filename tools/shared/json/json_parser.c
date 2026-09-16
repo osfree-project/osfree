@@ -567,29 +567,65 @@ void json_free(JsonNode *node) {
     free(node);
 }
 
+/* Ёкранирует строку дл€ вставки в JSON-значение (внутри двойных
+ * кавычек) согласно RFC 8259 І7:
+ *   - quotation mark ("), reverse solidus (\) Ч MUST escape;
+ *   - control characters U+0000..U+001F Ч MUST escape;
+ *   - короткие формы \b, \f, \n, \r, \t Ч дл€ U+0008, U+000C, U+000A,
+ *     U+000D, U+0009 соответственно;
+ *   - остальные управл€ющие (U+0000..U+0007, U+000B, U+000E..U+001F) Ч
+ *     через \u00XX.
+ * ¬озвращает malloc-строку (caller free) или NULL при OOM. */
 char *json_escape_string(const char *src) {
-    size_t len, extra, i, j;
+    static const char hex[] = "0123456789ABCDEF";
+    size_t len, i, j, size;
     char *dst;
 
     if (!src) src = "";
     len = strlen(src);
-    extra = 0;
+
+    /* “очный расчЄт размера результата. */
+    size = 0;
     for (i = 0; i < len; i++) {
-        if (src[i] == '"' || src[i] == '\\' || src[i] == '\n' ||
-            src[i] == '\r' || src[i] == '\t')
-            extra++;
+        unsigned char c = (unsigned char)src[i];
+        if (c == '"' || c == '\\') {
+            size += 2;
+        } else if (c == '\b' || c == '\f' || c == '\n' ||
+                   c == '\r' || c == '\t') {
+            size += 2;
+        } else if (c < 0x20) {
+            size += 6;              /* \u00XX */
+        } else {
+            size += 1;
+        }
     }
-    dst = (char*)malloc(len + extra + 1);
+
+    dst = (char*)malloc(size + 1);
     if (!dst) return NULL;
+
     j = 0;
     for (i = 0; i < len; i++) {
-        switch (src[i]) {
-            case '"':  dst[j++] = '\\'; dst[j++] = '"'; break;
+        unsigned char c = (unsigned char)src[i];
+        switch (c) {
+            case '"':  dst[j++] = '\\'; dst[j++] = '"';  break;
             case '\\': dst[j++] = '\\'; dst[j++] = '\\'; break;
-            case '\n': dst[j++] = '\\'; dst[j++] = 'n'; break;
-            case '\r': dst[j++] = '\\'; dst[j++] = 'r'; break;
-            case '\t': dst[j++] = '\\'; dst[j++] = 't'; break;
-            default:   dst[j++] = src[i]; break;
+            case '\b': dst[j++] = '\\'; dst[j++] = 'b';  break;
+            case '\f': dst[j++] = '\\'; dst[j++] = 'f';  break;
+            case '\n': dst[j++] = '\\'; dst[j++] = 'n';  break;
+            case '\r': dst[j++] = '\\'; dst[j++] = 'r';  break;
+            case '\t': dst[j++] = '\\'; dst[j++] = 't';  break;
+            default:
+                if (c < 0x20) {
+                    dst[j++] = '\\';
+                    dst[j++] = 'u';
+                    dst[j++] = '0';
+                    dst[j++] = '0';
+                    dst[j++] = hex[(c >> 4) & 0x0F];
+                    dst[j++] = hex[c & 0x0F];
+                } else {
+                    dst[j++] = (char)c;
+                }
+                break;
         }
     }
     dst[j] = '\0';

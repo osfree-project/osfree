@@ -1,3 +1,4 @@
+# tools/mk/all.mk
 #
 # OS/3 (osFree) project
 # common make macros.
@@ -8,7 +9,7 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: spdx-lint precopy install spdx-sbom .symbolic
+all: precopy spdx-lint install spdx-sbom .symbolic
 
 !include $(%ROOT)tools/mk/dirs.mk
 !include $(%ROOT)tools/mk/genrules.mk
@@ -164,7 +165,7 @@ MAKE      = `which qemu-i386` `which wmake`
 MAKE      = wmake
 !endif
 
-MAKEOPT   = -h $(MAKEOPT)
+MAKEOPT   = $(__MAKEOPTS__) $(MAKEOPT)
 
 PC        = $(%INTERP)ppc386
 
@@ -243,7 +244,7 @@ MDHIER    = $(REXX) mdhier.cmd
 !ifeq %VERBOSE yes
 BLACKHOLE =
 !else
-BLACKHOLE = 2>&1 >$(NULL)
+BLACKHOLE = >$(NULL) 2>&1
 !endif
 MKDIR     = $(verbose)mkdir
 
@@ -272,7 +273,7 @@ GENFDD    = genfdd
 FINDFILE  = findfile
 
 NULL      = /dev/null
-BLACKHOLE = 2>&1 >$(NULL)
+BLACKHOLE = >$(NULL) 2>&1
 MKDIR     = mkdir
 
 CD        = cd
@@ -534,13 +535,15 @@ TARGET = install
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) -h $(TARGET) && cd ..; fi
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) -h $(TARGET) && cd ..; fi
 !else
- @for %d in ($(DIRS)) do @if exist $(MYDIR)%d $(CD) $(MYDIR)%d && $(MAKE) -h $(TARGET)
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d$(SEP). $(CD) $(MYDIR)%d && $(MAKE) -h $(TARGET)
 !endif
 
 dirhier: .symbolic
+!ifneq RELDIR ""
  $(verbose)$(SAY) CD       $(RELDIR) $(LOG)
+!endif
  $(verbose)$(MDHIER) $(PATH)
 
 clean: .symbolic

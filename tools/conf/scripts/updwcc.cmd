@@ -10,21 +10,40 @@
 
 parse arg fn sep
 
-verbose = ''
 if sep = ''  then sep = '\'
-if sep = '\' then verbose = '@'
 if sep = '\' then sep2 = sep || sep; else sep2 = sep
 root = value('ROOT',, 'ENVIRONMENT')
 if root = '' then root = './'
 fn1  = translate(fn, '/', '\')
 fn2 = substr(fn1, length(root))
-l   = levels(fn2)
-p   = lastpos('.', fn)
-ext = substr(fn, p + 1)
+l    = levels(fn2)
+p    = lastpos('.', fn)
+ext  = substr(fn, p + 1)
 
-verbose'sed -e "s,\@RT\@,'l'," 'root'tools/conf/scripts/_wcc.'ext'-template >'fn
+template = root'tools/conf/scripts/_wcc.'ext'-template'
 
-exit
+/* Создать (или усечь) выходной файл — как это делал redirect > в оригинале */
+'@type nul > "'fn'"'
+
+/* Подстановка @RT@ -> l построчно, без внешних утилит */
+if stream(template, 'c', 'QUERY EXISTS') <> '' then do
+    do while lines(template) > 0
+        line = linein(template)
+        out  = ''
+        do while pos('@RT@', line) > 0
+            p2   = pos('@RT@', line)
+            out  = out || substr(line, 1, p2 - 1) || l
+            line = substr(line, p2 + 4)
+        end
+        out = out || line
+        call lineout fn, out
+    end
+    call lineout template
+    call lineout fn
+end
+
+exit 0
+
 /* ----------------------------------- */
 levels: procedure expose sep2
 parse arg fn

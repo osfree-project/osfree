@@ -19,13 +19,13 @@
 # Autodetect project name from directory name
 # ------------------------------------------------------------
 
-!ifdef PROJ
-#pass PROJ to child make to prevent another detection
-MAKEOPT = PROJ=$(PROJ)
-!include $(%ROOT)tools/mk/build2.mk
-!else
+!ifndef PROJ
 # PROJ autodetection
 !include $(%ROOT)tools/mk/build_proj.mk
+!else
+#pass PROJ to child make to prevent another detection
+MAKEOPT = $(__MAKEOPTS__) PROJ=$(PROJ)
+!include $(%ROOT)tools/mk/build2.mk
 !endif
 
 !endif  

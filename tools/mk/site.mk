@@ -1,6 +1,6 @@
+# tools/mk/site.mk
 #
-# Site-dependent
-# variables.
+# Site-dependent variables.
 #
 
 !ifndef __site_mk__
