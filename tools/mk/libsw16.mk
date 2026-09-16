@@ -1,3 +1,4 @@
+# tools/mk/libsw16.mk
 #
 # make macros
 # for building DOS static libs

@@ -1,3 +1,5 @@
+# tools/mk/appsos2_fpm.mk
+
 !ifndef __apps_os2_fpm__
 !define __apps_os2_fpm__
 

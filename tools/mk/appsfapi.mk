@@ -1,10 +1,11 @@
+# tools/mk/appsfapi.mk
 #
 #
 #
 #
 
-!ifndef __appsdos_mk__
-!define __appsdos_mk__
+!ifndef __appsfapi_mk__
+!define __appsfapi_mk__
 
 32_BITS = 0
 

@@ -30,5 +30,5 @@ $(p)pngwutil$(e)
 
 .h: $(PORT_BASE)$(SEP)lpng1644
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

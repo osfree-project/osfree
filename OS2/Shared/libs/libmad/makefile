@@ -15,8 +15,8 @@ srcfiles = &
 
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 
-qwe: .symbolic
- @echo $(ADD_COPT)
+#qwe: .symbolic
+# @echo $(ADD_COPT)

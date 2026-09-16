@@ -1,10 +1,11 @@
+# tools/mk/libsos2v1.mk
 #
 # make macros
 # for building OS/2 static libs
 #
 
-!ifndef __libsos2_mk__
-!define __libsos2_mk__
+!ifndef __libsos2v1_mk__
+!define __libsos2v1_mk__
 
 CLEAN_ADD = *.c *.h
 

@@ -81,5 +81,5 @@ UNI2H = 0
 .c: $(MYDIR)contrib$(SEP)src$(SEP)helpers
 
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

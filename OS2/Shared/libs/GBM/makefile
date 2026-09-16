@@ -26,5 +26,5 @@ TARGETS  = $(PATH)$(PROJ).lib
 
 .h: $(PORT_BASE)gbm
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

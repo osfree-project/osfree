@@ -24,5 +24,5 @@ srcfiles = $(p)jaricom$(e) $(p)jcapimin$(e) $(p)jcapistd$(e) $(p)jcarith$(e) $(p
 
 .h: $(PORT_BASE)jpeg-9e
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

@@ -1,3 +1,4 @@
+# tools/mk/libsdos.mk
 #
 # make macros
 # for building OS/2 static libs

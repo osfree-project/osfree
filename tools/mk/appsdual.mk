@@ -1,10 +1,11 @@
+# tools/mk/appsdual.mk
 #
 # make macros for
 # os2 16bit apps
 #
 
-!ifndef __appsos2v1_mk__
-!define __appsos2v1_mk__
+!ifndef __appsdual_mk__
+!define __appsdual_mk__
 
 32_BITS = 0
 

@@ -18,5 +18,5 @@ srcfiles = $(p)bio$(e) $(p)cio$(e) $(p)dwt$(e) $(p)event$(e) $(p)image$(e) &
 
 TARGETS  = $(PATH)$(PROJ).lib
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

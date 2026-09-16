@@ -1,3 +1,4 @@
+# tools/mk/libs.mk
 #
 # make macros for building
 # static libraries
@@ -33,15 +34,33 @@ COMMANDS=$(COMMANDS) +$(OBJS16)
 TARGETS = $(PATH)$(PROJ).lib
 
 # makes library $(library) from object files $(OBJS) and libraries $(ADDLIBS)
-library: $(OBJS) $(ADDLIBS) $(MYDIR)makefile .SYMBOLIC
- @$(SAY) LIB      $(PROJ).lib
+#library: $(OBJS) $(ADDLIBS) $(MYDIR)makefile .SYMBOLIC
+# @$(SAY) LIB      $(PROJ).lib
+#!ifndef NODELETE
+#!ifeq UNIX TRUE
+# $(verbose)$(DC) $(library)
+#!else
+# $(verbose)@if exist $(library) $(DC) $(library) $(BLACKHOLE)
+#!endif
+#!endif
+# $(verbose)$(LIB) $(LIBOPT) $(library) $(COMMANDS) $(LOG2)
+
+!ifndef DISABLE_LIB
+
+$(TARGETS): $(OBJS) $(OBJS16) $(ADDLIBS) $(LIB_DEPS) $(MYDIR)makefile
+	$(verbose)$(SAY) LIB      $(PROJ).lib
 !ifndef NODELETE
 !ifeq UNIX TRUE
- $(verbose)$(DC) $(library)
+	$(verbose)$(DC) $(TARGETS)
 !else
- $(verbose)@if exist $(library) $(DC) $(library) $(BLACKHOLE)
+	$(verbose)if exist $(TARGETS) $(DC) $(TARGETS) $(BLACKHOLE)
 !endif
 !endif
- $(verbose)$(LIB) $(LIBOPT) $(library) $(COMMANDS) $(LOG2)
+	$(verbose)$(LIB) $(LIBOPT) $(TARGETS) $(COMMANDS) $(LOG2)
+
+!endif
+
+#library: $(TARGETS) .SYMBOLIC
+#	@%null
 
 !endif

@@ -18,11 +18,11 @@ srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_setcurrentdis
 
 !include $(%ROOT)tools/mk/libsos2.mk
 
-TARGETS = $(PATH)$(PROJ).lib subdirs
+TARGETS = $(PATH)$(PROJ).lib #subdirs
 #TARGET = all
 
-$(PATH)$(PROJ).lib: $(OBJS) $(OBJS16)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS) $(OBJS16)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 
 #$(PATH)cmd_fsentry16.o16: $(MYDIR)cmd_fsentry16.c16
 # $(SAY) Compiling $[.

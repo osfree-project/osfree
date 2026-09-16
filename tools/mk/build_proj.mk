@@ -6,7 +6,7 @@ all install: .SYMBOLIC gen_proj_name
 prepall:     .SYMBOLIC prep
 depsall:     .SYMBOLIC deps
 
-MAKEOPT = -h
+MAKEOPT = $(__MAKEOPTS__)
 
 dir2=$+ $(CWD) $-
 dir3=$(dir2:$(CWD)=)

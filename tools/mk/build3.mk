@@ -283,8 +283,8 @@ TRGT = $(PROJ).$(TARGET_EXT)
 !ifeq TARGET_SUBCLASS STATIC
 TARGETS  = $(PATH)$(PROJ).lib
 !include $(%ROOT)tools/mk/libsdos.mk
-$(TARGETS): $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+#$(TARGETS): $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 
 !else ifeq TARGET_SUBCLASS DYNAMIC
 !error LIBRARY DYNAMIC is not supported on DOS
@@ -373,8 +373,8 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 
 !include $(%ROOT)tools/mk/libs.mk
-$(TARGETS): $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+#$(TARGETS): $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 
 
 ##############################
@@ -477,8 +477,8 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 
 !include $(%ROOT)tools/mk/libsw16.mk
-$(TARGETS): $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+#$(TARGETS): $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit Windows LIBRARY: $(TARGET_SUBCLASS)
@@ -752,11 +752,23 @@ _gen_std = 1
 _gen_std = 0
 !endif
 
+# .rc attachment (via _postbuild_res_target) applies only to targets that
+# can carry resources — exe/dll. Static libraries never do, and adding
+# _res to TARGETS leaks into `library=$(TARGETS)` and breaks wlib.
+_res_applies = 1
+!ifeq TARGET_CLASS LIBRARY
+!ifeq TARGET_SUBCLASS STATIC
+_res_applies = 0
+!endif
+!endif
+
 # For standard extension, insert a dummy target BEFORE the real one
 !ifeq _gen_std 1
+!ifeq _res_applies 1
 _postbuild_res_target = $(PATH)$(PROJ)_res
 TARGETS += $(_postbuild_res_target)
 $(_postbuild_res_target): .SYMBOLIC
+!endif
 !endif
 
 # ============================================================

@@ -41,5 +41,5 @@ ADD_COPT += -i=$(SRC)..
  $(verbose)echo CC       $^. $(LOG)
  $(verbose)$(CC) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
-$(PATH)$(PROJ).lib: $(OBJS)
- $(verbose)$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# $(verbose)$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

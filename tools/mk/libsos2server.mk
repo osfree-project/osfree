@@ -1,4 +1,4 @@
-#
+# tools/mk/libsos2server.mk
 #
 #
 #

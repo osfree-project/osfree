@@ -7,6 +7,8 @@
 PROJ      = libmmap
 TRGT      = $(PROJ).lib
 
+DISABLE_LIB = 1
+
 !include $(%ROOT)tools/mk/libs.mk
 
 TARGETS   = $(PATH)$(TRGT)

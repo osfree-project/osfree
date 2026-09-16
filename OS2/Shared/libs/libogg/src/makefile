@@ -14,5 +14,5 @@ srcfiles = $(p)framing$(e) $(p)bitwise$(e)
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 #TARGET = all
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

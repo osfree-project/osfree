@@ -1,3 +1,4 @@
+# tools/mk/appsos2_cmd.mk
 !ifndef __apps_os2_cmd__
 !define __apps_os2_cmd__
 

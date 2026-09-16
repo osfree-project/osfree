@@ -21,6 +21,6 @@ srcfiles = $(p)adler32$(e) $(p)crc32$(e) $(p)deflate$(e) $(p)infback$(e) &
 
 .h: $(PORT_BASE)$(SEP)zlib-1.3.2
 
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+#$(PATH)$(PROJ).lib: $(OBJS)
+# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
 

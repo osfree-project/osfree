@@ -19,6 +19,7 @@ DEST = os2tk45$(SEP)lib
 SRC  = $(MYDIR)..$(SEP)..$(SEP)os2$(SEP)
 !endif
 
+DISABLE_LIB = 1
 
 !include $(%ROOT)tools/mk/libsos2v1.mk
 

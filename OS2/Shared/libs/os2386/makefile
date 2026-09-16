@@ -20,6 +20,7 @@ SRC  = $(MYDIR)..$(SEP)..$(SEP)os2386$(SEP)
 !endif
 
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
+DISABLE_LIB =1
 
 !include $(%ROOT)tools/mk/libsos2.mk
 

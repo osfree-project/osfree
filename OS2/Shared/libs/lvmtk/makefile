@@ -6,11 +6,10 @@
 
 PROJ      = lvm
 TRGT      = $(PROJ).lib
-
+DISABLE_LIB = 1
 !include $(%ROOT)tools/mk/libs.mk
 
 TARGETS   = $(PATH)$(TRGT)
-#DEST = none
 
 $(PATH)$(TRGT): $(MYDIR)lib$(SEP)$(TRGT)
  @$(CP) $< $^@ $(BLACKHOLE)

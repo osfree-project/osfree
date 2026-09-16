@@ -587,8 +587,26 @@ install: targets $(DEST)$(SEP)$(FLG) .symbolic
 
 $(PATH)subdirs: .symbolic
 
+# The .symbolic attribute on $(PATH)$(FLG) is needed for targets that
+# must always be rebuilt. For static libraries it breaks the mtime-based
+# semantics of libs.mk, so we disable it there. For everything else
+# (exe / dll / drv) we keep it as before.
+#
+# Note: the LIBRARY+STATIC combination is only produced by the new
+# dispatcher (build.mk). Legacy projects (MOVE, FORMAT, ogg,
+# etc.) do not set TARGET_CLASS/TARGET_SUBCLASS, so for them
+# _apply_symbolic stays 1 and behaviour is unchanged.
+_apply_symbolic = 1
+!ifeq TARGET_CLASS LIBRARY
+!ifeq TARGET_SUBCLASS STATIC
+_apply_symbolic = 0
+!endif
+!endif
+
 !ifneq TRGT ""
+!ifeq _apply_symbolic 1
 $(PATH)$(FLG): .symbolic
+!endif
 !endif
 
 !ifndef TRGT
