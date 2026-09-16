@@ -588,26 +588,62 @@ static char *parse_multiline_literal_string(PARSE *ps) {
  * Date/time validation (TOML v1.0.0 grammar)
  * ================================================================== */
 
+/* Parse two decimal digits into an integer value. */
+static int parse_2digit(const char *s) {
+    return (s[0] - '0') * 10 + (s[1] - '0');
+}
+
+/* Days in a month, taking leap years into account. month is 1-based. */
+static int days_in_month(int year, int month) {
+    static const int dim[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (month < 1 || month > 12) return 0;
+    if (month == 2) {
+        int leap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+        return leap ? 29 : 28;
+    }
+    return dim[month];
+}
+
+/* Validate the full date/time token against the TOML v1.0.0 grammar
+ * (RFC 3339 subset): year 0000-9999, month 01-12, day according to
+ * month and leap year, hour 00-23, minute 00-59, second 00-60 (leap
+ * second allowed), fractional seconds one or more digits, offset hour
+ * 00-23 and minute 00-59. */
 static int validate_datetime(const char *s, size_t len) {
     size_t pos = 0;
     int have_date = 0, have_time = 0;
+    int year = 0, month = 0, day = 0;
 
+    /* date-fullyear "-" date-month "-" date-mday (RFC 3339) */
     if (len >= 10 &&
         is_digit_c(s[0]) && is_digit_c(s[1]) &&
         is_digit_c(s[2]) && is_digit_c(s[3]) && s[4] == '-' &&
         is_digit_c(s[5]) && is_digit_c(s[6]) && s[7] == '-' &&
         is_digit_c(s[8]) && is_digit_c(s[9])) {
+        year = (s[0]-'0')*1000 + (s[1]-'0')*100 +
+               (s[2]-'0')*10 + (s[3]-'0');
+        month = parse_2digit(s + 5);
+        day = parse_2digit(s + 8);
+        if (month < 1 || month > 12) return 0;
+        if (day < 1 || day > days_in_month(year, month)) return 0;
         have_date = 1;
         pos = 10;
     }
+
+    /* time-hour ":" time-minute ":" time-second [ time-secfrac ] */
     if (len - pos >= 8 &&
         is_digit_c(s[pos+0]) && is_digit_c(s[pos+1]) && s[pos+2] == ':' &&
         is_digit_c(s[pos+3]) && is_digit_c(s[pos+4]) && s[pos+5] == ':' &&
         is_digit_c(s[pos+6]) && is_digit_c(s[pos+7])) {
+        int hour, minute, second;
         if (have_date) {
             if (s[pos] != 'T' && s[pos] != 't' && s[pos] != ' ') return 0;
             pos++;
         }
+        hour   = parse_2digit(s + pos);
+        minute = parse_2digit(s + pos + 3);
+        second = parse_2digit(s + pos + 6);
+        if (hour > 23 || minute > 59 || second > 60) return 0;
         have_time = 1;
         pos += 8;
         if (pos < len && s[pos] == '.') {
@@ -624,6 +660,11 @@ static int validate_datetime(const char *s, size_t len) {
                     s[pos+3] != ':' ||
                     !is_digit_c(s[pos+4]) || !is_digit_c(s[pos+5]))
                     return 0;
+                {
+                    int oh = parse_2digit(s + pos + 1);
+                    int om = parse_2digit(s + pos + 4);
+                    if (oh > 23 || om > 59) return 0;
+                }
                 pos += 6;
             }
         }
@@ -631,6 +672,8 @@ static int validate_datetime(const char *s, size_t len) {
     return pos == len && (have_date || have_time);
 }
 
+/* Quick syntactic check: does the token look like a date (YYYY-) or a
+ * time (HH:)? Used to decide whether to enter the datetime parser. */
 static int looks_like_datetime(const char *p, const char *end) {
     if (p + 5 <= end &&
         is_digit_c(p[0]) && is_digit_c(p[1]) &&
@@ -673,11 +716,14 @@ static int parse_integer_token(const char *start, const char *end,
         p++;
     }
 
+    /* Radix prefixes are strictly lowercase (ABNF %x30.78, %x30.6F,
+     * %x30.62). Only one prefix form is recognized; uppercase 0X/0O/0B
+     * is a syntax error. */
     if (p + 1 < end && *p == '0') {
         char n = p[1];
-        if (n == 'x' || n == 'X') { base = 16; is_radix = 1; p += 2; }
-        else if (n == 'o' || n == 'O') { base = 8; is_radix = 1; p += 2; }
-        else if (n == 'b' || n == 'B') { base = 2; is_radix = 1; p += 2; }
+        if (n == 'x')      { base = 16; is_radix = 1; p += 2; }
+        else if (n == 'o') { base = 8;  is_radix = 1; p += 2; }
+        else if (n == 'b') { base = 2;  is_radix = 1; p += 2; }
     }
     if (is_radix && had_sign) return 0;
 
@@ -881,14 +927,12 @@ static int parse_number_or_datetime(PARSE *ps, PTOMLVALUE *ppv) {
         return 0;
     }
 
-    /* Radix integer (0x, 0o, 0b) */
+    /* Radix integer (0x, 0o, 0b) — prefixes are strictly lowercase. */
     {
         const char *p = start;
         if (*p == '+' || *p == '-') p++;
         if (p + 1 < ps->end && *p == '0' &&
-            (p[1] == 'x' || p[1] == 'X' ||
-             p[1] == 'o' || p[1] == 'O' ||
-             p[1] == 'b' || p[1] == 'B')) {
+            (p[1] == 'x' || p[1] == 'o' || p[1] == 'b')) {
             const char *q = start;
             LONGLONG ll;
             PTOMLVALUE pv;
