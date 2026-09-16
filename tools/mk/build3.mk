@@ -497,10 +497,10 @@ DLL = 1
 
 !ifeq TARGET_SUBCLASS GUI
 WIN_GUI = 1
-!include $(%ROOT)tools/mk/appsw16.mk
+!include $(%ROOT)tools/mk/appsw32.mk
 !else ifeq TARGET_SUBCLASS CONSOLE
 WIN_CONSOLE = 1
-!include $(%ROOT)tools/mk/appsw16.mk
+!include $(%ROOT)tools/mk/appsw32.mk
 !else ifeq TARGET_SUBCLASS FAMILY
 !error FAMILY for Win32 is reserved and not yet implemented
 !else ifeq TARGET_SUBCLASS DUAL

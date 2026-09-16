@@ -92,11 +92,15 @@ cplist = en pl ru
  @$(SAY) MKMSGF   $^. $(LOG)
  $(verbose)$(MC) @$< -q $(LOG2)
 
+!ifndef srcdir
+srcdir = $(MYDIR)
+!endif
+
 rsf: .SYMBOLIC .PROCEDURE .ALWAYS
  @%create $(PATH)$(T)
- @%append $(PATH)$(T) $(MYDIR)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /Q /P 850 /L 9,1
- @%append $(PATH)$(T) $(MYDIR)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /Q /P 852 /L 21,1
- @%append $(PATH)$(T) $(MYDIR)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /Q /P 866 /L 25,1
+ @%append $(PATH)$(T) $(srcdir)en$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.msg) /Q /P 850 /L 9,1
+ @%append $(PATH)$(T) $(srcdir)pl$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.pl)  /Q /P 852 /L 21,1
+ @%append $(PATH)$(T) $(srcdir)ru$(SEP)$(T:.rsf=.txt) $(PATH)$(T:.rsf=.ru)  /Q /P 866 /L 25,1
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym

@@ -2,9 +2,9 @@
 #
 #
 
-PROJ    = exh
+PROJ    = exhh
 TRGT    = $(PROJ).msg
-MSGDIR = msg$(SEP)exh$(SEP)
+MSGDIR = msg$(SEP)exhh$(SEP)
 
 !ifdef TARGETBLD
 DEST = os2tk45$(SEP)msg
@@ -17,11 +17,11 @@ DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)msg
 
 TARGETS = $(PATH)$(TRGT)
 
-$(PATH)exh.msg:
+$(PATH)exhh.msg:
 
-$(PATH)exh.pl:
+$(PATH)exhh.pl:
 
-$(PATH)exh.ru:
+$(PATH)exhh.ru:
 
-$(PATH)exh.rsf: .always
+$(PATH)exhh.rsf: .always
  @$(MAKE) $(MAKEOPT) srcdir=$(PORT_BASE)$(MSGDIR) T=$^. rsf

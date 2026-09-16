@@ -3,7 +3,7 @@
 DESCRIPTION = Exe Header Dump
 SOURCES = exehdr lxdisplay lxutils dumprawlx
 
-#DIRS = msg
+DIRS = msg msgh
 
 !ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin

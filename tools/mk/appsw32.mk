@@ -6,7 +6,7 @@
 !define __appsw32_mk__
 
 32_BITS = 1
-PLATFORM = nt
+#PLATFORM = nt
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 ADD_COPT =            -d__WIN32__ -d__WINNT__ $(ADD_COPT) &
                       -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=. -i=.. -i=win32 &

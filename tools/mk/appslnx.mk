@@ -6,7 +6,7 @@
 !define __appslnx_mk__
 
 32_BITS = 1
-PLATFORM = linux
+#PLATFORM = linux
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 EXE_SUFFIX=l
 ADD_COPT =            -d__LINUX__ $(ADD_COPT) &
