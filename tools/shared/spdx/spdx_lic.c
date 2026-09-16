@@ -177,7 +177,7 @@ int spdx_resolve_license(ReuseConfig **configs, int config_count,
 
     /* 2. –езолвим REUSE.toml + in-file источники.
      *    Ћогика precedence (override > aggregate > closest) и
-     *    агрегаци€ Ч внутри reuse_resolve_for_file (см. reuse_parser.c). */
+     *    агрегаци€ Ч внутри reuse_resolve_for_file (см. reuse.c). */
     memset(&resolved, 0, sizeof(resolved));
     reuse_resolve_for_file(configs, config_count, fullpath,
                            in_license, in_copyright, &resolved);

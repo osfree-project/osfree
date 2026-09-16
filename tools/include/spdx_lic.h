@@ -2,7 +2,7 @@
 #ifndef SPDX_LIC_H
 #define SPDX_LIC_H
 
-#include <reuse_parser.h>
+#include <reuse.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -11,7 +11,7 @@
 #include <direct.h>
 #include <io.h>
 #endif
-#include <reuse_parser.h>
+#include <reuse.h>
 #include "spdx_db.h"
 #include "spdx_utils.h"
 #include "spdx_discover.h"

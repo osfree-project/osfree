@@ -2,7 +2,7 @@
 #ifndef DEP5_PARSER_H
 #define DEP5_PARSER_H
 
-#include "reuse_parser.h"
+#include "reuse.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <reuse_parser.h>
+#include <reuse.h>
 #include "sha1_utils.h"
 #include "spdx_db.h"
 #include "spdx_utils.h"

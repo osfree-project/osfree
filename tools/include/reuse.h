@@ -1,6 +1,6 @@
-/* reuse_parser.h - парсер REUSE.toml с поддержкой иерархии (C89) */
-#ifndef REUSE_PARSER_H
-#define REUSE_PARSER_H
+/* reuse.h - REUSE.toml parser with hierarchy support (C89) */
+#ifndef REUSE_H
+#define REUSE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,10 +12,17 @@
 extern "C" {
 #endif
 
-/* Режимы приоритета аннотации */
+/* ------------------------------------------------------------------ */
+/* Режимы приоритета аннотации                                         */
+/* ------------------------------------------------------------------ */
+
 #define REUSE_PRECEDENCE_CLOSEST   1
 #define REUSE_PRECEDENCE_AGGREGATE 2
 #define REUSE_PRECEDENCE_OVERRIDE  3
+
+/* ------------------------------------------------------------------ */
+/* Структуры                                                           */
+/* ------------------------------------------------------------------ */
 
 typedef struct {
     char **paths;
@@ -61,13 +68,17 @@ typedef struct {
 
 void reuse_resolved_free(ReuseResolved *r);
 
-/* --- Работа с одним REUSE.toml (совместимость со старым API) --- */
+/* ------------------------------------------------------------------ */
+/* Работа с одним REUSE.toml (совместимость со старым API)             */
+/* ------------------------------------------------------------------ */
 
 ReuseConfig* parse_reuse_toml(const char *filename);
 void free_reuse_config(ReuseConfig *config);
 char* find_reuse_toml_upwards(const char *start_dir);
 
-/* --- Работа с иерархией REUSE.toml --- */
+/* ------------------------------------------------------------------ */
+/* Работа с иерархией REUSE.toml                                       */
+/* ------------------------------------------------------------------ */
 
 /* Находит все REUSE.toml от repo_root до target_dir включительно.
  * Порядок: сначала корневой, потом вложенные.
@@ -108,7 +119,9 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
                            const char *in_copyright,
                            ReuseResolved *out);
 
-/* --- Совместимость со старым API --- */
+/* ------------------------------------------------------------------ */
+/* Совместимость со старым API                                         */
+/* ------------------------------------------------------------------ */
 
 const char* find_license_for_file(ReuseConfig *config, const char *filename);
 
@@ -119,4 +132,4 @@ int matches_pattern(const char *pattern, const char *filename);
 }
 #endif
 
-#endif /* REUSE_PARSER_H */
+#endif /* REUSE_H */

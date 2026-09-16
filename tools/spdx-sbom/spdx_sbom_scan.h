@@ -4,7 +4,7 @@
 
 #include "spdx_sbom_types.h"
 #include "spdx_utils.h"
-#include <reuse_parser.h>
+#include <reuse.h>
 
 int sbom_collect_files(const SpdxStrList *paths,
                        ReuseConfig **configs, int config_count,

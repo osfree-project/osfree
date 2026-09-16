@@ -1,4 +1,4 @@
-/* reuse_parser.c - парсер REUSE.toml с поддержкой иерархии (C89) */
+/* reuse.c - парсер REUSE.toml с поддержкой иерархии (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,12 @@
 #include <io.h>
 #endif
 
-#include "reuse_parser.h"
+#include "reuse.h"
+#include "toml.h"
+
+/* ------------------------------------------------------------------ */
+/* Утилиты                                                             */
+/* ------------------------------------------------------------------ */
 
 static char *dup_str(const char *s) {
     size_t n;
@@ -23,43 +28,6 @@ static char *dup_str(const char *s) {
     p = (char*)malloc(n + 1);
     if (p) memcpy(p, s, n + 1);
     return p;
-}
-
-static char *trim(char *str) {
-    char *end;
-    while (isspace((unsigned char)*str)) str++;
-    if (*str == 0) return str;
-    end = str + strlen(str) - 1;
-    while (end > str && isspace((unsigned char)*end)) end--;
-    end[1] = '\0';
-    return str;
-}
-
-static int starts_with(const char *str, const char *prefix) {
-    return strncmp(str, prefix, strlen(prefix)) == 0;
-}
-
-/* Удаляет inline-комментарий (# вне кавычек). Учитывает экранирование
- * внутри кавычек: \" и \'. */
-static void strip_inline_comment(char *line) {
-    char *p = line;
-    int in_dq = 0;
-    int in_sq = 0;
-    while (*p) {
-        char c = *p;
-        if (in_dq) {
-            if (c == '\\' && p[1] != '\0') { p += 2; continue; }
-            if (c == '"') in_dq = 0;
-        } else if (in_sq) {
-            if (c == '\\' && p[1] != '\0') { p += 2; continue; }
-            if (c == '\'') in_sq = 0;
-        } else {
-            if (c == '"') in_dq = 1;
-            else if (c == '\'') in_sq = 1;
-            else if (c == '#') { *p = '\0'; return; }
-        }
-        p++;
-    }
 }
 
 /* Сравнение символов пути: регистрозависимо на Linux, регистронезависимо
@@ -154,7 +122,8 @@ int matches_pattern(const char *pattern, const char *filename) {
     return match_path(pattern, filename);
 }
 
-/* Возвращает путь filename относительно cfg->source_dir. */
+/* Возвращает путь filename относительно cfg->source_dir.
+ * Проверяет, что совпадение префикса — на границе сегмента. */
 static const char *rel_to_config(const ReuseConfig *cfg, const char *filename) {
     const char *base = cfg->source_dir;
     size_t blen;
@@ -171,678 +140,328 @@ static const char *rel_to_config(const ReuseConfig *cfg, const char *filename) {
 }
 
 /* ------------------------------------------------------------------ */
-/* TOML-строки: escape-последовательности                              */
+/* Разбор REUSE.toml (через библиотеку TOML v1.0.0)                    */
 /*                                                                     */
-/* TOML v1.0.0, раздел «String»:                                       */
-/*   basic string   — двойные кавычки, поддерживают \b \t \n \f \r     */
-/*                    \" \\ \uXXXX \UXXXXXXXX                          */
-/*   literal string — одинарные кавычки, escape не раскрываются        */
+/* Весь лексический и синтаксический разбор TOML выполняется в         */
+/* toml.c. Здесь — только извлечение ключей REUSE-семантики из         */
+/* дерева, построенного TomlOpen:                                      */
+/*   - version = 1                    (REUSE 3.3 §4.1.1, обязателен)   */
+/*   - [[annotations]]                (массив таблиц)                  */
+/*   - path = <str> | [<str>, ...]    (обязателен в каждой аннотации)  */
+/*   - SPDX-License-Identifier        (строка или массив)              */
+/*   - SPDX-FileCopyrightText         (строка или массив)              */
+/*   - SPDX-FileContributor           (строка или массив)              */
+/*   - SPDX-PackageName               (строка)                         */
+/*   - SPDX-PackageSupplier           (строка)                         */
+/*   - SPDX-PackageDownloadLocation   (строка)                         */
+/*   - SPDX-PackageComment            (строка)                         */
+/*   - precedence = "closest"|"aggregate"|"override"                   */
 /* ------------------------------------------------------------------ */
 
-static int toml_hex_digit(int c) {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-    return -1;
+/* Возвращает malloc-строку со значением строкового узла или NULL
+ * при ошибке. */
+static char *node_to_str(HTOMLNODE hNode) {
+    ULONG ulSize = 0;
+    char *buf;
+    APIRET rc;
+
+    rc = TomlNodeGetString(hNode, NULL, 0, &ulSize);
+    if (rc != TOML_NO_ERROR || ulSize == 0) return NULL;
+    buf = (char*)malloc(ulSize);
+    if (!buf) return NULL;
+    rc = TomlNodeGetString(hNode, buf, ulSize, NULL);
+    if (rc != TOML_NO_ERROR) { free(buf); return NULL; }
+    return buf;
 }
 
-static int toml_hex_n(const char *p, int n, unsigned long *out) {
-    int i;
-    unsigned long v = 0;
-    for (i = 0; i < n; i++) {
-        int d = toml_hex_digit((unsigned char)p[i]);
-        if (d < 0) return 0;
-        v = (v << 4) | (unsigned long)d;
-    }
-    *out = v;
-    return 1;
+/* Читает скалярный строковый ключ из таблицы. Возвращает NULL, если
+ * ключ отсутствует или имеет неверный тип. */
+static char *read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
+    HTOMLNODE hChild = NULLHANDLE;
+    if (TomlNodeGetTableEntryByKey(hTable, pszKey, &hChild) != TOML_NO_ERROR)
+        return NULL;
+    return node_to_str(hChild);
 }
 
-static int toml_utf8_encode(unsigned long cp, char out[4]) {
-    if (cp < 0x80) {
-        out[0] = (char)cp;
-        return 1;
+/* Читает ключ, значение которого — строка или массив строк. Если это
+ * массив, элементы соединяются через pszSep. Возвращает malloc-строку
+ * или NULL. */
+static char *read_string_or_join(HTOMLNODE hTable, PCSZ pszKey,
+                                 PCSZ pszSep) {
+    HTOMLNODE hChild = NULLHANDLE;
+    ULONG ulType = 0, ulCount = 0, i;
+    char *result = NULL;
+    size_t sep_len = strlen(pszSep);
+
+    if (TomlNodeGetTableEntryByKey(hTable, pszKey, &hChild) != TOML_NO_ERROR)
+        return NULL;
+    if (TomlNodeGetType(hChild, &ulType) != TOML_NO_ERROR)
+        return NULL;
+
+    if (ulType == TOML_TYPE_STRING) {
+        return node_to_str(hChild);
     }
-    if (cp < 0x800) {
-        out[0] = (char)(0xC0 | (cp >> 6));
-        out[1] = (char)(0x80 | (cp & 0x3F));
-        return 2;
+    if (ulType != TOML_TYPE_ARRAY) return NULL;
+
+    TomlNodeGetArrayCount(hChild, &ulCount);
+    for (i = 0; i < ulCount; i++) {
+        HTOMLNODE hElem = NULLHANDLE;
+        char *part;
+        size_t rlen, plen;
+        char *nresult;
+
+        if (TomlNodeGetArrayElement(hChild, i, &hElem) != TOML_NO_ERROR) {
+            free(result);
+            return NULL;
+        }
+        part = node_to_str(hElem);
+        if (!part) { free(result); return NULL; }
+
+        rlen = result ? strlen(result) : 0;
+        plen = strlen(part);
+        nresult = (char*)realloc(result,
+            rlen + (rlen ? sep_len : 0) + plen + 1);
+        if (!nresult) { free(part); free(result); return NULL; }
+        result = nresult;
+        if (rlen) {
+            memcpy(result + rlen, pszSep, sep_len);
+            rlen += sep_len;
+        }
+        memcpy(result + rlen, part, plen);
+        result[rlen + plen] = '\0';
+        free(part);
     }
-    if (cp < 0x10000) {
-        if (cp >= 0xD800 && cp <= 0xDFFF) return 0;
-        out[0] = (char)(0xE0 | (cp >> 12));
-        out[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[2] = (char)(0x80 | (cp & 0x3F));
-        return 3;
+    return result;
+}
+
+/* Читает ключ "path": строка или массив строк. Каждый элемент
+ * добавляется в ann->paths. */
+static int read_paths_into(HTOMLNODE hTable, Annotation *ann) {
+    HTOMLNODE hChild = NULLHANDLE;
+    ULONG ulType = 0, ulCount = 0, i;
+
+    if (TomlNodeGetTableEntryByKey(hTable, "path", &hChild) != TOML_NO_ERROR)
+        return 0;   /* нет path — аннотация не будет создана */
+    if (TomlNodeGetType(hChild, &ulType) != TOML_NO_ERROR) return -1;
+
+    if (ulType == TOML_TYPE_STRING) {
+        char *s = node_to_str(hChild);
+        if (!s) return -1;
+        add_path(ann, s);
+        free(s);
+        return 0;
     }
-    if (cp <= 0x10FFFF) {
-        out[0] = (char)(0xF0 | (cp >> 18));
-        out[1] = (char)(0x80 | ((cp >> 12) & 0x3F));
-        out[2] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[3] = (char)(0x80 | (cp & 0x3F));
-        return 4;
+    if (ulType != TOML_TYPE_ARRAY) return -1;
+
+    TomlNodeGetArrayCount(hChild, &ulCount);
+    for (i = 0; i < ulCount; i++) {
+        HTOMLNODE hElem = NULLHANDLE;
+        char *s;
+        if (TomlNodeGetArrayElement(hChild, i, &hElem) != TOML_NO_ERROR)
+            return -1;
+        s = node_to_str(hElem);
+        if (!s) return -1;
+        add_path(ann, s);
+        free(s);
     }
     return 0;
 }
 
-static int toml_buf_append(char **buf, size_t *cap, size_t *len,
-                           const char *data, size_t n) {
-    if (*len + n + 1 > *cap) {
-        size_t ncap = *cap * 2 + n + 16;
-        char *nb = (char*)realloc(*buf, ncap);
-        if (!nb) return -1;
-        *buf = nb;
-        *cap = ncap;
-    }
-    memcpy(*buf + *len, data, n);
-    *len += n;
-    (*buf)[*len] = '\0';
-    return 0;
-}
+/* Читает ключ "SPDX-FileContributor" как список отдельных
+ * участников. */
+static int read_contributors_into(HTOMLNODE hTable, Annotation *ann) {
+    HTOMLNODE hChild = NULLHANDLE;
+    ULONG ulType = 0, ulCount = 0, i;
 
-static char *parse_toml_basic_string(const char *p, const char **end) {
-    size_t cap = 64;
-    size_t len = 0;
-    char *out = (char*)malloc(cap);
-    if (!out) return NULL;
-    out[0] = '\0';
+    if (TomlNodeGetTableEntryByKey(hTable, "SPDX-FileContributor",
+                                   &hChild) != TOML_NO_ERROR)
+        return 0;
+    if (TomlNodeGetType(hChild, &ulType) != TOML_NO_ERROR) return -1;
 
-    while (*p && *p != '"') {
-        char c;
-        if (*p == '\\') {
-            p++;
-            if (!*p) goto fail;
-            switch (*p) {
-                case 'b':  c = '\b'; p++; break;
-                case 't':  c = '\t'; p++; break;
-                case 'n':  c = '\n'; p++; break;
-                case 'f':  c = '\f'; p++; break;
-                case 'r':  c = '\r'; p++; break;
-                case '"':  c = '"';  p++; break;
-                case '\\': c = '\\'; p++; break;
-                case 'u':
-                case 'U': {
-                    unsigned long cp;
-                    char ubuf[4];
-                    int nb;
-                    int nhex = (*p == 'u') ? 4 : 8;
-                    p++;
-                    if (!toml_hex_n(p, nhex, &cp)) goto fail;
-                    p += nhex;
-                    nb = toml_utf8_encode(cp, ubuf);
-                    if (nb == 0) goto fail;
-                    if (toml_buf_append(&out, &cap, &len, ubuf,
-                                        (size_t)nb) != 0) goto fail;
-                    continue;
-                }
-                default:
-                    goto fail;
-            }
-        } else {
-            c = *p++;
-        }
-        if (toml_buf_append(&out, &cap, &len, &c, 1) != 0) goto fail;
-    }
-    if (*p != '"') goto fail;
-    p++;
-    if (end) *end = p;
-    return out;
-fail:
-    free(out);
-    return NULL;
-}
-
-static char *parse_toml_literal_string(const char *p, const char **end) {
-    const char *close = strchr(p, '\'');
-    size_t n;
-    char *out;
-    if (!close) return NULL;
-    n = (size_t)(close - p);
-    out = (char*)malloc(n + 1);
-    if (!out) return NULL;
-    memcpy(out, p, n);
-    out[n] = '\0';
-    if (end) *end = close + 1;
-    return out;
-}
-
-static char *parse_toml_string_value(const char *val) {
-    const char *end;
-    while (*val == ' ' || *val == '\t') val++;
-    if (*val == '"')
-        return parse_toml_basic_string(val + 1, &end);
-    if (*val == '\'')
-        return parse_toml_literal_string(val + 1, &end);
-    return NULL;
-}
-
-/* ------------------------------------------------------------------ */
-/* Разбор TOML-массивов                                                */
-/* ------------------------------------------------------------------ */
-
-static char *parse_toml_string_array(const char *val, const char *sep) {
-    size_t cap = 64;
-    size_t len = 0;
-    size_t sep_len = strlen(sep);
-    char *out;
-    const char *p;
-
-    if (!val || *val != '[') return NULL;
-    out = (char*)malloc(cap);
-    if (!out) return NULL;
-    out[0] = '\0';
-
-    p = val + 1;
-    while (*p) {
-        char quote;
-        const char *end;
-        char *content;
-
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == ']') break;
-        if (*p == '\0') { free(out); return NULL; }
-
-        quote = *p;
-        if (quote != '"' && quote != '\'') {
-            free(out);
-            return NULL;
-        }
-        p++;
-        content = (quote == '"')
-                  ? parse_toml_basic_string(p, &end)
-                  : parse_toml_literal_string(p, &end);
-        if (!content) { free(out); return NULL; }
-        p = end;
-
-        if (len > 0) {
-            if (toml_buf_append(&out, &cap, &len, sep, sep_len) != 0) {
-                free(content);
-                free(out);
-                return NULL;
-            }
-        }
-        if (toml_buf_append(&out, &cap, &len, content,
-                            strlen(content)) != 0) {
-            free(content);
-            free(out);
-            return NULL;
-        }
-        free(content);
-
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == ',') { p++; continue; }
-        if (*p == ']') break;
-    }
-    return out;
-}
-
-static int parse_toml_string_array_into(const char *val,
-                                        char ***list, int *count) {
-    const char *p;
-    if (!val || *val != '[') return -1;
-    p = val + 1;
-    while (*p) {
-        char quote;
-        const char *end;
-        char *content;
+    if (ulType == TOML_TYPE_STRING) {
+        char *s = node_to_str(hChild);
         char **na;
+        if (!s) return -1;
+        na = (char**)realloc(ann->contributors,
+                             (size_t)(ann->contributor_count + 1) *
+                             sizeof(char*));
+        if (!na) { free(s); return -1; }
+        ann->contributors = na;
+        ann->contributors[ann->contributor_count++] = s;
+        return 0;
+    }
+    if (ulType != TOML_TYPE_ARRAY) return -1;
 
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == ']') break;
-        if (*p == '\0') return -1;
-
-        quote = *p;
-        if (quote != '"' && quote != '\'') return -1;
-        p++;
-        content = (quote == '"')
-                  ? parse_toml_basic_string(p, &end)
-                  : parse_toml_literal_string(p, &end);
-        if (!content) return -1;
-        p = end;
-
-        na = (char**)realloc(*list, (size_t)(*count + 1) * sizeof(char*));
-        if (!na) { free(content); return -1; }
-        *list = na;
-        (*list)[*count] = content;
-        (*count)++;
-
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == ',') { p++; continue; }
-        if (*p == ']') break;
+    TomlNodeGetArrayCount(hChild, &ulCount);
+    for (i = 0; i < ulCount; i++) {
+        HTOMLNODE hElem = NULLHANDLE;
+        char *s;
+        char **na;
+        if (TomlNodeGetArrayElement(hChild, i, &hElem) != TOML_NO_ERROR)
+            return -1;
+        s = node_to_str(hElem);
+        if (!s) return -1;
+        na = (char**)realloc(ann->contributors,
+                             (size_t)(ann->contributor_count + 1) *
+                             sizeof(char*));
+        if (!na) { free(s); return -1; }
+        ann->contributors = na;
+        ann->contributors[ann->contributor_count++] = s;
     }
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* Разбор REUSE.toml                                                   */
-/* ------------------------------------------------------------------ */
-
-static int is_known_annotation_key(const char *s, int *consumed) {
-    static const char *known[] = {
-        "path",
-        "SPDX-License-Identifier",
-        "SPDX-FileCopyrightText",
-        "precedence",
-        "SPDX-FileContributor",
-        "SPDX-PackageName",
-        "SPDX-PackageSupplier",
-        "SPDX-PackageDownloadLocation",
-        "SPDX-PackageComment",
-        NULL
-    };
-    int i;
-    for (i = 0; known[i]; i++) {
-        size_t len = strlen(known[i]);
-        if (strncmp(s, known[i], len) == 0) {
-            const char *p = s + len;
-            while (*p == ' ' || *p == '\t') p++;
-            if (*p == '=') {
-                *consumed = 1;
-                return 1;
-            }
-        }
-    }
-    *consumed = 0;
+/* Читает ключ "precedence". Неизвестные значения игнорируются. */
+static int read_precedence(HTOMLNODE hTable, Annotation *ann) {
+    char *s = read_scalar_string(hTable, "precedence");
+    if (!s) return 0;
+    if (strcmp(s, "closest") == 0)
+        ann->precedence = REUSE_PRECEDENCE_CLOSEST;
+    else if (strcmp(s, "aggregate") == 0)
+        ann->precedence = REUSE_PRECEDENCE_AGGREGATE;
+    else if (strcmp(s, "override") == 0)
+        ann->precedence = REUSE_PRECEDENCE_OVERRIDE;
+    free(s);
     return 0;
 }
 
-static int set_scalar_field(const char *filename, char **field,
-                            const char *val, const char *key_name) {
-    char *content = parse_toml_string_value(val);
-    if (!content) {
-        fprintf(stderr,
-                "ERROR: %s: invalid %s value in [[annotations]].\n"
-                "       Expected a quoted string.\n",
-                filename, key_name);
+/* Разбирает одну аннотацию из таблицы [[annotations]]. */
+static int parse_one_annotation(HTOMLNODE hItem, Annotation *ann,
+                                PCSZ pszFilename) {
+    memset(ann, 0, sizeof(*ann));
+    ann->precedence = REUSE_PRECEDENCE_CLOSEST;
+
+    if (read_paths_into(hItem, ann) != 0) {
+        fprintf(stderr, "ERROR: %s: invalid 'path' in [[annotations]].\n",
+                pszFilename);
         return -1;
     }
-    if (*field) free(*field);
-    *field = content;
+    if (ann->path_count == 0) {
+        fprintf(stderr,
+                "ERROR: %s: [[annotations]] without 'path' key.\n"
+                "       REUSE 3.3 §4.1.2 requires 'path'.\n",
+                pszFilename);
+        return -1;
+    }
+
+    ann->license = read_string_or_join(hItem, "SPDX-License-Identifier",
+                                        " AND ");
+    ann->copyright = read_string_or_join(hItem, "SPDX-FileCopyrightText",
+                                          "\n");
+    if (read_contributors_into(hItem, ann) != 0) return -1;
+    read_precedence(hItem, ann);
+
+    ann->package_name = read_scalar_string(hItem, "SPDX-PackageName");
+    ann->package_supplier = read_scalar_string(hItem, "SPDX-PackageSupplier");
+    ann->package_download_location =
+        read_scalar_string(hItem, "SPDX-PackageDownloadLocation");
+    ann->package_comment = read_scalar_string(hItem, "SPDX-PackageComment");
+
     return 0;
 }
 
+/* Разбирает REUSE.toml, используя библиотеку TOML v1.0.0.
+ * Возвращает ReuseConfig* или NULL при ошибке. Все ERROR-сообщения
+ * печатаются в stderr. */
 ReuseConfig* parse_reuse_toml(const char *filename) {
-    FILE *f;
-    ReuseConfig *config;
-    char line[1024];
-    char *s, *p, *val;
-    int in_path_array = 0;
-    Annotation *current_ann = NULL;
-    int order_counter = 0;
-    int seen_version = 0;
-    int warned_unknown = 0;
-    int annotation_capacity = 16;
+    HTOMLDOC hDoc = NULLHANDLE;
+    HTOMLNODE hVer = NULLHANDLE;
+    HTOMLNODE hAnn = NULLHANDLE;
+    ReuseConfig *config = NULL;
+    APIRET rc;
+    ULONG ulType = 0, ulCount = 0, i;
+    LONGLONG llVersion = 0;
 
-    f = fopen(filename, "r");
-    if (!f) return NULL;
-
-    config = (ReuseConfig*)calloc(1, sizeof(ReuseConfig));
-    if (!config) { fclose(f); return NULL; }
-
-    config->annotations = (Annotation*)malloc(
-        (size_t)annotation_capacity * sizeof(Annotation));
-    if (!config->annotations) {
-        free(config);
-        fclose(f);
-        return NULL;
-    }
-    config->annotation_count = 0;
-    config->source_dir = dup_str(filename);
-    if (!config->source_dir) {
-        free(config->annotations);
-        free(config);
-        fclose(f);
+    rc = TomlOpen(filename, &hDoc);
+    if (rc != TOML_NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: %s: cannot parse TOML.\n"
+                "       Fix the syntax according to TOML v1.0.0:\n"
+                "         https://toml.io/en/v1.0.0\n",
+                filename);
         return NULL;
     }
 
-    p = strrchr(config->source_dir, '/');
-#ifdef _WIN32
-    {
-        char *backslash = strrchr(config->source_dir, '\\');
-        if (backslash && (!p || backslash > p)) p = backslash;
-    }
-#endif
-    if (p) *p = '\0';
-
-    while (fgets(line, sizeof(line), f)) {
-        strip_inline_comment(line);
-        s = trim(line);
-        if (*s == '\0') continue;
-
-        if (strcmp(s, "[[annotations]]") == 0) {
-            if (config->annotation_count >= annotation_capacity) {
-                Annotation *na;
-                annotation_capacity *= 2;
-                na = (Annotation*)realloc(config->annotations,
-                    (size_t)annotation_capacity * sizeof(Annotation));
-                if (!na) {
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                config->annotations = na;
-            }
-            current_ann = &config->annotations[config->annotation_count];
-            memset(current_ann, 0, sizeof(Annotation));
-            current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
-            current_ann->order_in_file = order_counter++;
-            config->annotation_count++;
-            in_path_array = 0;
-            continue;
-        }
-
-        if (starts_with(s, "version") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-
-            if (*val == '"' || *val == '\'') {
-                fprintf(stderr,
-                        "ERROR: %s: 'version' must be an integer, "
-                        "not a string.\n"
-                        "       TOML v1.0.0 §Integer; REUSE 3.3 §4.1.1 "
-                        "requires 'version = 1'.\n"
-                        "       Fix: remove the quotes.\n",
-                        filename);
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-
-            if (strcmp(val, "1") != 0) {
-                fprintf(stderr,
-                        "ERROR: %s: unsupported version '%s'.\n"
-                        "       REUSE 3.3 §4.1.1 defines version 1 only.\n"
-                        "       Fix: change to 'version = 1'.\n",
-                        filename, val);
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-            seen_version = 1;
-            continue;
-        }
-
-        if (current_ann == NULL) {
-            int consumed = 0;
-            if (!is_known_annotation_key(s, &consumed) && !warned_unknown) {
-                fprintf(stderr,
-                        "WARNING: %s: unknown key outside [[annotations]]: "
-                        "%s\n",
-                        filename, s);
-                warned_unknown = 1;
-            }
-            continue;
-        }
-
-        if (in_path_array) {
-            const char *q = s;
-            int closed = 0;
-            while (*q) {
-                char quote;
-                const char *end;
-                char *content;
-
-                while (*q == ' ' || *q == '\t') q++;
-                if (*q == '\0') break;
-                if (*q == ']') { closed = 1; break; }
-                if (*q == ',') { q++; continue; }
-
-                quote = *q;
-                if (quote != '"' && quote != '\'') break;
-                q++;
-                content = (quote == '"')
-                          ? parse_toml_basic_string(q, &end)
-                          : parse_toml_literal_string(q, &end);
-                if (!content) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid path string in "
-                            "[[annotations]].\n"
-                            "       Fix the string literal syntax "
-                            "(TOML v1.0.0).\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                add_path(current_ann, content);
-                free(content);
-                q = end;
-            }
-            in_path_array = !closed;
-            continue;
-        }
-
-        if (starts_with(s, "path = ") || starts_with(s, "path=")) {
-            char *eq = strchr(s, '=');
-            val = eq + 1;
-            val = trim(val);
-            if (*val == '[') {
-                const char *q = val + 1;
-                int closed = 0;
-                while (*q) {
-                    char quote;
-                    const char *end;
-                    char *content;
-
-                    while (*q == ' ' || *q == '\t') q++;
-                    if (*q == '\0') break;
-                    if (*q == ']') { closed = 1; break; }
-                    if (*q == ',') { q++; continue; }
-
-                    quote = *q;
-                    if (quote != '"' && quote != '\'') break;
-                    q++;
-                    content = (quote == '"')
-                              ? parse_toml_basic_string(q, &end)
-                              : parse_toml_literal_string(q, &end);
-                    if (!content) {
-                        fprintf(stderr,
-                                "ERROR: %s: invalid path string in "
-                                "[[annotations]].\n"
-                                "       Fix the string literal syntax "
-                                "(TOML v1.0.0).\n",
-                                filename);
-                        free_reuse_config(config);
-                        fclose(f);
-                        return NULL;
-                    }
-                    add_path(current_ann, content);
-                    free(content);
-                    q = end;
-                }
-                in_path_array = !closed;
-            } else {
-                char *content = parse_toml_string_value(val);
-                if (!content) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid path value in "
-                            "[[annotations]].\n"
-                            "       Expected a quoted string.\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                add_path(current_ann, content);
-                free(content);
-            }
-        } else if (starts_with(s, "SPDX-License-Identifier") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (current_ann->license) free(current_ann->license);
-            if (*val == '[') {
-                current_ann->license = parse_toml_string_array(val, " AND ");
-            } else {
-                char *content = parse_toml_string_value(val);
-                if (!content) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid SPDX-License-Identifier "
-                            "value in [[annotations]].\n"
-                            "       Expected a quoted string.\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                current_ann->license = content;
-            }
-        } else if (starts_with(s, "SPDX-FileCopyrightText") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (current_ann->copyright) free(current_ann->copyright);
-            if (*val == '[') {
-                current_ann->copyright = parse_toml_string_array(val, "\n");
-            } else {
-                char *content = parse_toml_string_value(val);
-                if (!content) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid SPDX-FileCopyrightText "
-                            "value in [[annotations]].\n"
-                            "       Expected a quoted string.\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                current_ann->copyright = content;
-            }
-        } else if (starts_with(s, "SPDX-FileContributor") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (*val == '[') {
-                if (parse_toml_string_array_into(val,
-                        &current_ann->contributors,
-                        &current_ann->contributor_count) != 0) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid SPDX-FileContributor "
-                            "value in [[annotations]].\n"
-                            "       Expected an array of quoted strings.\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-            } else {
-                char *content = parse_toml_string_value(val);
-                if (!content) {
-                    fprintf(stderr,
-                            "ERROR: %s: invalid SPDX-FileContributor "
-                            "value in [[annotations]].\n"
-                            "       Expected a quoted string.\n",
-                            filename);
-                    free_reuse_config(config);
-                    fclose(f);
-                    return NULL;
-                }
-                {
-                    char **na = (char**)realloc(current_ann->contributors,
-                        (size_t)(current_ann->contributor_count + 1) *
-                        sizeof(char*));
-                    if (!na) {
-                        free(content);
-                        fprintf(stderr, "ERROR: out of memory\n");
-                        free_reuse_config(config);
-                        fclose(f);
-                        return NULL;
-                    }
-                    current_ann->contributors = na;
-                    current_ann->contributors[
-                        current_ann->contributor_count++] = content;
-                }
-            }
-        } else if (starts_with(s, "SPDX-PackageName") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (set_scalar_field(filename, &current_ann->package_name,
-                                 val, "SPDX-PackageName") != 0) {
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-        } else if (starts_with(s, "SPDX-PackageSupplier") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (set_scalar_field(filename, &current_ann->package_supplier,
-                                 val, "SPDX-PackageSupplier") != 0) {
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-        } else if (starts_with(s, "SPDX-PackageDownloadLocation") &&
-                   strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (set_scalar_field(filename,
-                                 &current_ann->package_download_location,
-                                 val, "SPDX-PackageDownloadLocation") != 0) {
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-        } else if (starts_with(s, "SPDX-PackageComment") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            val = trim(eq + 1);
-            if (set_scalar_field(filename, &current_ann->package_comment,
-                                 val, "SPDX-PackageComment") != 0) {
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-        } else if (starts_with(s, "precedence") && strchr(s, '=')) {
-            char *eq = strchr(s, '=');
-            char *content;
-            val = trim(eq + 1);
-            content = parse_toml_string_value(val);
-            if (!content) {
-                fprintf(stderr,
-                        "ERROR: %s: invalid precedence value in "
-                        "[[annotations]].\n"
-                        "       Expected one of: \"closest\", "
-                        "\"aggregate\", \"override\".\n",
-                        filename);
-                free_reuse_config(config);
-                fclose(f);
-                return NULL;
-            }
-            if (strcmp(content, "closest") == 0)
-                current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
-            else if (strcmp(content, "aggregate") == 0)
-                current_ann->precedence = REUSE_PRECEDENCE_AGGREGATE;
-            else if (strcmp(content, "override") == 0)
-                current_ann->precedence = REUSE_PRECEDENCE_OVERRIDE;
-            else {
-                fprintf(stderr,
-                        "WARNING: %s: unknown precedence '%s'.\n"
-                        "         Expected 'closest', 'aggregate' or "
-                        "'override'. Using 'closest'.\n",
-                        filename, content);
-                current_ann->precedence = REUSE_PRECEDENCE_CLOSEST;
-            }
-            free(content);
-        } else {
-            int consumed = 0;
-            if (!is_known_annotation_key(s, &consumed)) {
-                fprintf(stderr,
-                        "WARNING: %s: unknown key in [[annotations]]: %s\n",
-                        filename, s);
-            }
-        }
-    }
-
-    fclose(f);
-
-    if (!seen_version) {
+    /* version = 1 (REUSE 3.3 §4.1.1, MUST). */
+    rc = TomlQueryNode(hDoc, "version", &hVer);
+    if (rc != TOML_NO_ERROR) {
         fprintf(stderr,
                 "ERROR: %s: missing 'version = 1' at the top.\n"
                 "       REUSE 3.3 §4.1.1 requires this line in every "
                 "REUSE.toml.\n"
-                "       Fix: add 'version = 1' as the first non-comment "
-                "line.\n",
+                "       Fix: add 'version = 1' as the first line.\n",
                 filename);
-        free_reuse_config(config);
+        TomlClose(hDoc);
+        return NULL;
+    }
+    if (TomlNodeGetType(hVer, &ulType) != TOML_NO_ERROR ||
+        ulType != TOML_TYPE_INTEGER) {
+        fprintf(stderr,
+                "ERROR: %s: 'version' must be an integer, not a string.\n"
+                "       TOML v1.0.0 §Integer; REUSE 3.3 §4.1.1 requires "
+                "'version = 1'.\n"
+                "       Fix: remove the quotes.\n",
+                filename);
+        TomlClose(hDoc);
+        return NULL;
+    }
+    TomlNodeGetInteger(hVer, &llVersion);
+    if (llVersion != 1) {
+        fprintf(stderr,
+                "ERROR: %s: unsupported version %ld.\n"
+                "       REUSE 3.3 §4.1.1 defines version 1 only.\n",
+                filename, (long)llVersion);
+        TomlClose(hDoc);
         return NULL;
     }
 
+    config = (ReuseConfig*)calloc(1, sizeof(ReuseConfig));
+    if (!config) { TomlClose(hDoc); return NULL; }
+
+    /* source_dir = filename без последнего компонента пути. */
+    config->source_dir = dup_str(filename);
+    if (config->source_dir) {
+        char *slash = strrchr(config->source_dir, '/');
+        char *backslash = strrchr(config->source_dir, '\\');
+        if (backslash && (!slash || backslash > slash)) slash = backslash;
+        if (slash) *slash = '\0';
+    }
+    config->version = 1;
+
+    /* Разбор [[annotations]]. */
+    rc = TomlQueryNode(hDoc, "annotations", &hAnn);
+    if (rc == TOML_NO_ERROR) {
+        TomlNodeGetArrayCount(hAnn, &ulCount);
+        if (ulCount > 0) {
+            config->annotations =
+                (Annotation*)calloc(ulCount, sizeof(Annotation));
+            if (!config->annotations) {
+                free_reuse_config(config);
+                TomlClose(hDoc);
+                return NULL;
+            }
+            for (i = 0; i < ulCount; i++) {
+                HTOMLNODE hItem = NULLHANDLE;
+                Annotation *ann;
+                rc = TomlNodeGetArrayElement(hAnn, i, &hItem);
+                if (rc != TOML_NO_ERROR) {
+                    free_reuse_config(config);
+                    TomlClose(hDoc);
+                    return NULL;
+                }
+                ann = &config->annotations[config->annotation_count];
+                if (parse_one_annotation(hItem, ann, filename) != 0) {
+                    free_reuse_config(config);
+                    TomlClose(hDoc);
+                    return NULL;
+                }
+                ann->order_in_file = (int)config->annotation_count;
+                config->annotation_count++;
+            }
+        }
+    }
+
+    TomlClose(hDoc);
     return config;
 }
 
@@ -962,6 +581,7 @@ int reuse_find_all_tomls(const char *repo_root,
         return 0;
     }
 
+    /* Корневой REUSE.toml */
     join_path_str(path, sizeof(path), repo_root, "REUSE.toml");
     f = fopen(path, "r");
     if (f) { fclose(f); spdx_strlist_add(out_paths, path); }
@@ -1341,8 +961,6 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
         out->has_reuse = 1;
         out->precedence = REUSE_PRECEDENCE_AGGREGATE;
 
-        /* license / copyright: aggregate применяется (Licensing
-         * Information; REUSE 3.3 строки 21-23). */
         if (base_lic && best_aggregate->license)
             out->license = aggregate_licenses(base_lic,
                                               best_aggregate->license);
@@ -1359,9 +977,6 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
         else if (best_aggregate->copyright)
             out->copyright = dup_str(best_aggregate->copyright);
 
-        /* contributors: НЕ Licensing Information (REUSE 3.3 строки
-         * 177-182). Проектное решение — агрегация с дедупликацией,
-         * чтобы не терять людей. */
         {
             char *base_contrib = NULL;
             char *agg_contrib = NULL;
@@ -1373,7 +988,6 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
                 agg_contrib = join_contributors(
                     best_aggregate->contributors,
                     best_aggregate->contributor_count);
-
             if (base_contrib && agg_contrib) {
                 out->contributors = join_lines_dedup(base_contrib,
                                                      agg_contrib);
@@ -1386,10 +1000,6 @@ int reuse_resolve_for_file(ReuseConfig **configs, int count,
             }
         }
 
-        /* package_*: НЕ Licensing Information (REUSE 3.3 строки
-         * 177-182). Проектное решение — closest > aggregate: более
-         * специфичная аннотация выигрывает у менее специфичной,
-         * независимо от precedence. */
         if (best_closest && best_closest->package_name)
             out->package_name = dup_str(best_closest->package_name);
         else if (best_aggregate->package_name)
