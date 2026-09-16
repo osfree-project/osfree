@@ -1,3 +1,4 @@
+# makefile
 #
 # A main Makefile for osFree project
 # (c) osFree project.

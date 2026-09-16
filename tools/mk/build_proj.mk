@@ -12,7 +12,7 @@ dir2=$+ $(CWD) $-
 dir3=$(dir2:$(CWD)=)
 dir4=$(dir3:$(SEP)=)
 
-depsall prepall clean annotate annotate-write: .SYMBOLIC
+depsall prepall subdirs clean annotate annotate-write: .SYMBOLIC
  @cd ..
  @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
 

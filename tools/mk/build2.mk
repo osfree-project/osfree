@@ -21,7 +21,21 @@ SOURCES=
 
 !include $(%ROOT)tools/mk/dirs.mk
 
-MAKEOPT = -h PROJ=$(PROJ) 
+MAKEOPT = $(__MAKEOPT__) PROJ=$(PROJ) 
+
+!ifeq UNIX TRUE
+CD = cd
+!else
+CD = cd /d
+!endif
+
+TARGET = install
+
+!ifeq %VERBOSE yes
+verbose =
+!else
+verbose = @
+!endif
 
 all install: .SYMBOLIC gen_sources
 depsall:     .SYMBOLIC deps
@@ -40,9 +54,9 @@ deps: .symbolic
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- @for %d in ($(DIRS)) do @if [ -d $(MYDIR)%d ]; then @cd $(MYDIR)%d && @$(MAKE) -h $(MAKEOPT) $(TARGET) && cd ..; fi
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then $(verbose)cd $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) && cd ..; fi
 !else
- @for %d in ($(DIRS)) do @if exist $(MYDIR)%d @$(CD) $(MYDIR)%d && @$(MAKE) -h $(MAKEOPT) $(TARGET)
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d $(verbose)$(CD) $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET)
 !endif
 
 !ifdef srcfile
