@@ -25,6 +25,8 @@ call cpy 'exhh.txt',   'exhh' || SEP || 'en'
 call cpy 'exhh.txt',   'exhh' || SEP || 'pl'
 call cpy 'exhh.txt',   'exhh' || SEP || 'ru'
 
+call delete 'exh.txt'
+call delete 'exhh.txt'
 
 exit 0
 /* ------------------------------------------ */
@@ -74,6 +76,24 @@ ret = stream(src, 'c', 'query exists')
 
 if ret \= '' then do
     CP' 'src' 'dst
+end
+
+return
+/* ------------------------------------------ */
+delete: procedure
+trg = arg(1)
+
+parse source os .
+
+if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
+   os = 'WINNT' | os = 'WIN32' | os = 'WIN64'
+then RM = 'del'
+else RM = 'rm -rf'
+
+ret = stream(trg, 'c', 'query exists')
+
+if ret \= '' then do
+    RM' 'trg
 end
 
 return
