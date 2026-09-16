@@ -62,8 +62,16 @@ extern int isWin;
 int isBiosExtensionInstalled=0;
 
 /*########################################################################## */
-#if defined(_Windows) && !defined(__WIN32__)
+#if defined(__MSDOS__) || (defined(_Windows) && !defined(__WIN32__))
+#ifdef _Windows
 #include <windows.h>
+#else
+typedef int             BOOL;
+typedef unsigned short  WORD;
+typedef unsigned long   DWORD;
+#define LOWORD( l )             ((WORD)(DWORD)(l))
+#define HIWORD( l )             ((WORD)((((DWORD)(l)) >> 16) & 0xFFFF))
+#endif
 
 typedef struct
 {
@@ -79,23 +87,25 @@ RMODE_CALL;
 #pragma argsused
 BOOL dpmi_rmode_intr(WORD intno, WORD flags, WORD copywords, RMODE_CALL far * rmode_call)
 {
-     _asm push di
-     _asm push bx
-     _asm push cx
-     _asm mov ax, 0300 h					/* simulate real mode interrupt */
-     _asm mov bx, intno						/* interrupt number, flags */
-     _asm mov cx, copywords					/* words to copy from pmode to rmode stack */
-     _asm les di, rmode_call					/* ES:DI = address of rmode call struct */
-     _asm int 31 h						/* call DPMI */
-     _asm jc error
-     _asm mov ax, 1						/* return TRUE */
-     _asm jmp short done
+     _asm {
+       push di
+       push bx
+       push cx
+       mov ax, 0300h						/* simulate real mode interrupt */
+       mov bx, intno						/* interrupt number, flags */
+       mov cx, copywords					/* words to copy from pmode to rmode stack */
+       les di, rmode_call					/* ES:DI = address of rmode call struct */
+       int 31h						/* call DPMI */
+       jc error
+       mov ax, 1						/* return TRUE */
+       jmp short done
      error:
-     _asm mov ax, 0						/* return FALSE */
+       mov ax, 0						/* return FALSE */
      done:
-     _asm pop cx
-     _asm pop bx
-     _asm pop di
+       pop cx
+       pop bx
+       pop di
+     };
 }
 
 int real_int86x(int intno, union REGS *inregs, union REGS *outregs, struct SREGS *sregs)
@@ -163,7 +173,11 @@ int biosdisk(int cmd, int drive, int head, int cyl, int sector, int nsects, char
 	regs.h.al = nsects;
 	regs.h.ah = 0x02;
 	real_int86x(0x13, &regs, &regs, &sregs);		/*Bios Disk Read Interrupt */
+#ifdef __WATCOMC__
+	if (regs.x.cflag)
+#else
 	if (regs.x.flags)
+#endif
 	{
 	    GlobalDosFree(pmSelektor);				/*free DOS-Memory */
 	    return -1;						/*Fehler */
@@ -179,7 +193,11 @@ int biosdisk(int cmd, int drive, int head, int cyl, int sector, int nsects, char
 	regs.h.ah = 0x08;
 	regs.h.dl = drive;
 	real_int86x(0x13, &regs, &regs, &sregs);		/*Bios Disk Read Interrupt */
+#ifdef __WATCOMC__
+	if (regs.x.cflag)
+#else
 	if (regs.x.flags)
+#endif
 	{
 	    return -1;						/*Fehler */
 	}
@@ -1128,7 +1146,7 @@ int dos_long_creat(char *filename)
 	fd = intdosx(&regs, &regs, &sregs);
     }
 
-/*
+#if 0
     if (_osmajor > 6)
     {
 	regs.x.ax = 0x1600;					/* is Windows 95/98 running? */
@@ -1150,7 +1168,7 @@ int dos_long_creat(char *filename)
     sregs.es = 0;
 
     fd = intdosx(&regs, &regs, &sregs);
-*/
+#endif
 
     /* if carry flag is set, there was an error */
     if (regs.x.cflag)

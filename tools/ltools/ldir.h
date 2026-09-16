@@ -76,7 +76,7 @@
 
 //Definitions stolen from linux/hdreg.h
 #ifdef UNIX
-/*
+
 struct hd_geometry {
       unsigned char heads;
       unsigned char sectors;
@@ -85,5 +85,5 @@ struct hd_geometry {
 };
 
 #define HDIO_GETGEO		0x0301				// get device geometry
-*/
+
 #endif

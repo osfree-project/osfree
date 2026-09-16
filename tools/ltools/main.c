@@ -251,7 +251,7 @@
 #include <math.h>
 #ifndef __OS2__
   #ifndef __NT__
-    #ifdef _MSC_VER 
+    #if defined(_MSC_VER) || defined(__WATCOMC__)
       #include <io.h>
     #else
       #include <dir.h>
@@ -264,6 +264,8 @@
 #include <io.h>
 #include "porting.h"
 #endif
+#else
+#include "porting.h"
 #endif
 
 #include "ext2.h"

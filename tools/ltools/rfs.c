@@ -11,9 +11,9 @@
 
 #define RFSTOOL_EXTENDED					//Using our own RFSTOOL version
 
-#ifdef __WATCOM__
-#include "porting.h"
-#endif
+//#ifdef __WATCOM__
+//#include "porting.h"
+//#endif
 
 
 #include <stdio.h>
@@ -50,7 +50,7 @@ extern int isWin;
 extern char Fmode[32], Uid[32], Gid[32];
 
 
-#ifndef UNIX
+#if !defined(UNIX) //|| defined(__WATCOMC__)
 #define popen 	_popen
 #define pclose 	_pclose
 #endif
@@ -66,8 +66,8 @@ extern char Fmode[32], Uid[32], Gid[32];
 #define rfsERROR_FIRST_LINE_NOT_FOUND	-5
 
 
-#if !defined(UNIX)
-#ifdef __BORLANDC__
+#if !defined(UNIX) || defined(__WATCOMC__)
+#if defined( __BORLANDC__) || defined(__WATCOMC__)
 FILE *popen(const char *command, const char *mode)
 {   strcat((char*) command, ">li");
     system(command);

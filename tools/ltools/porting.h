@@ -1,10 +1,8 @@
+#define _POSIX_SOURCE
+
 #include <stdio.h>
-
-//#define _POSIX_SOURCE
-
-#ifdef __WATCOMC__
-#include <io.h>
-#endif
+#include <time.h>
+#include <unistd.h>
 
 #define popen _popen
 #define pclose _pclose

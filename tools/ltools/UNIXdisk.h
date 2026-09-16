@@ -109,14 +109,15 @@ extern void FREE(void *block);
 #else 
 //LINUX
    #ifdef __WATCOMC__
-    #define __WATCOM_INT64__
-    #include <io.h> /* _lseeki64 */
+    //#define _POSIX_SOURCE
+    //#include <stdio.h>
     #include <sys/ioctl.h>
     #include <unistd.h>
-    #include <sys/types.h>
+    //#include <sys/types.h>
     #include "porting.h"
-   #endif
+   #else
     #include <linux/hdreg.h>
+   #endif
 #endif 
 
 //This is the routine which does the direct harddisk access
