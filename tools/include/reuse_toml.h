@@ -10,9 +10,9 @@
  * Parses a single REUSE.toml file according to REUSE Specification 3.3:
  *   - https://reuse.software/spec-3.3/
  *
- * The parser owns its internal buffers, allocates them in
- * ReuseTomlOpen and releases them in ReuseTomlClose. The consumer
- * supplies buffers only for the data being returned.
+ * The parser owns its internal buffers, allocates them in ReuseOpen and
+ * releases them in ReuseClose. The consumer supplies buffers only for
+ * the data being returned.
  *
  * Written for Open Watcom 1.9 in C89 style. No -za99 mode is required.
  */
@@ -31,24 +31,34 @@ extern "C" {
 #define REUSE_NO_ERROR                 0
 /** @def REUSE_ERROR_INVALID_PARAM @brief Invalid parameter. */
 #define REUSE_ERROR_INVALID_PARAM      1
-/** @def REUSE_ERROR_OPEN_FAILED @brief Cannot open or parse the file. */
+/** @def REUSE_ERROR_OPEN_FAILED @brief Cannot open the file. */
 #define REUSE_ERROR_OPEN_FAILED        2
-/** @def REUSE_ERROR_VERSION_MISSING @brief version key missing or invalid. */
-#define REUSE_ERROR_VERSION_MISSING    3
-/** @def REUSE_ERROR_VERSION_UNSUP @brief version != 1. */
-#define REUSE_ERROR_VERSION_UNSUP      4
-/** @def REUSE_ERROR_ANNOTATION_NO_PATH @brief [[annotations]] without path. */
-#define REUSE_ERROR_ANNOTATION_NO_PATH 5
+/** @def REUSE_ERROR_READ_FAILED @brief Read error. */
+#define REUSE_ERROR_READ_FAILED        3
+/** @def REUSE_ERROR_SYNTAX @brief Syntax of the file is invalid. */
+#define REUSE_ERROR_SYNTAX             4
+/** @def REUSE_ERROR_VERSION_MISSING @brief "version" key absent. */
+#define REUSE_ERROR_VERSION_MISSING    5
+/** @def REUSE_ERROR_VERSION_NOT_INT @brief "version" is not an integer. */
+#define REUSE_ERROR_VERSION_NOT_INT    6
+/** @def REUSE_ERROR_VERSION_UNSUP @brief "version" value is not 1. */
+#define REUSE_ERROR_VERSION_UNSUP      7
+/** @def REUSE_ERROR_ANNOT_NO_PATH @brief [[annotations]] lacks "path". */
+#define REUSE_ERROR_ANNOT_NO_PATH      8
+/** @def REUSE_ERROR_ANNOT_BAD_PATH @brief "path" has an unsupported type. */
+#define REUSE_ERROR_ANNOT_BAD_PATH     9
+/** @def REUSE_ERROR_ANNOT_BAD_FIELD @brief A field has an unsupported type. */
+#define REUSE_ERROR_ANNOT_BAD_FIELD   10
 /** @def REUSE_ERROR_BUFFER_OVERFLOW @brief Caller-supplied buffer too small. */
-#define REUSE_ERROR_BUFFER_OVERFLOW    6
+#define REUSE_ERROR_BUFFER_OVERFLOW   11
 /** @def REUSE_ERROR_OUT_OF_MEMORY @brief Memory allocation failure. */
-#define REUSE_ERROR_OUT_OF_MEMORY      7
+#define REUSE_ERROR_OUT_OF_MEMORY     12
 /** @def REUSE_ERROR_INVALID_HANDLE @brief Invalid handle. */
-#define REUSE_ERROR_INVALID_HANDLE     8
+#define REUSE_ERROR_INVALID_HANDLE    13
 /** @def REUSE_ERROR_NOT_FOUND @brief Field or index not found. */
-#define REUSE_ERROR_NOT_FOUND          9
+#define REUSE_ERROR_NOT_FOUND         14
 /** @def REUSE_ERROR_INDEX_RANGE @brief Index out of range. */
-#define REUSE_ERROR_INDEX_RANGE       10
+#define REUSE_ERROR_INDEX_RANGE       15
 
 /* ==================================================================
  * Precedence (REUSE 3.3 §4.1.2)
@@ -66,13 +76,13 @@ extern "C" {
  * ================================================================== */
 
 /**
- * @typedef HREUSETOML
+ * @typedef HREUSEDOC
  * @brief Handle to an opened REUSE.toml document.
  *
- * Issued by ReuseTomlOpen, released by ReuseTomlClose. All internal
- * buffers are owned by the document and released on close.
+ * Issued by ReuseOpen, released by ReuseClose. All internal buffers
+ * are owned by the document and released on close.
  */
-typedef HANDLE HREUSETOML;
+typedef HANDLE HREUSEDOC;
 
 /**
  * @typedef HREUSEANN
@@ -90,46 +100,51 @@ typedef HANDLE HREUSEANN;
 /**
  * @brief Open and parse a REUSE.toml file.
  *
- * Reads the file via the TOML parser, verifies the mandatory
- * "version = 1" key (REUSE 3.3 §4.1.1), and extracts all
- * [[annotations]] sections.
+ * Reads the file, verifies the mandatory "version = 1" key
+ * (REUSE 3.3 §4.1.1), and extracts all [[annotations]] sections.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[out] phToml   Handle receiver. Not NULL. Set to NULLHANDLE on
+ * @param[out] phDoc    Handle receiver. Not NULL. Set to NULLHANDLE on
  *                      error.
  *
  * @return APIRET
  * @retval REUSE_NO_ERROR                 Success.
- * @retval REUSE_ERROR_INVALID_PARAM      pszPath or phToml is NULL.
- * @retval REUSE_ERROR_OPEN_FAILED        File cannot be opened, or its
- *                                        TOML syntax is invalid.
- * @retval REUSE_ERROR_VERSION_MISSING    "version" key missing or not
- *                                        an integer.
+ * @retval REUSE_ERROR_INVALID_PARAM      pszPath or phDoc is NULL.
+ * @retval REUSE_ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval REUSE_ERROR_READ_FAILED        Read error.
+ * @retval REUSE_ERROR_SYNTAX             File content is syntactically
+ *                                        invalid.
+ * @retval REUSE_ERROR_VERSION_MISSING    "version" key absent.
+ * @retval REUSE_ERROR_VERSION_NOT_INT    "version" is not an integer.
  * @retval REUSE_ERROR_VERSION_UNSUP      "version" value is not 1.
- * @retval REUSE_ERROR_ANNOTATION_NO_PATH An [[annotations]] entry
- *                                        lacks "path".
+ * @retval REUSE_ERROR_ANNOT_NO_PATH      An [[annotations]] entry
+ *                                        lacks the "path" key.
+ * @retval REUSE_ERROR_ANNOT_BAD_PATH     "path" is neither a string nor
+ *                                        an array of strings.
+ * @retval REUSE_ERROR_ANNOT_BAD_FIELD    A field in an [[annotations]]
+ *                                        entry has an unsupported type.
  * @retval REUSE_ERROR_OUT_OF_MEMORY      Memory allocation failure.
  *
- * @note Release the handle with ReuseTomlClose.
- * @see ReuseTomlClose
+ * @note Release the handle with ReuseClose.
+ * @see ReuseClose
  */
-APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml);
+APIRET ReuseOpen(PCSZ pszPath, HREUSEDOC *phDoc);
 
 /**
  * @brief Close a document and release all associated memory.
  *
  * All HREUSEANN handles obtained from this document become invalid.
  *
- * @param[in] hToml  Handle. NULLHANDLE is a no-op.
+ * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
  * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  *
- * @warning Do not call ReuseTomlClose twice with the same handle.
- * @see ReuseTomlOpen
+ * @warning Do not call ReuseClose twice with the same handle.
+ * @see ReuseOpen
  */
-APIRET ReuseTomlClose(HREUSETOML hToml);
+APIRET ReuseClose(HREUSEDOC hDoc);
 
 /* ==================================================================
  * Document-level accessors
@@ -138,7 +153,7 @@ APIRET ReuseTomlClose(HREUSETOML hToml);
 /**
  * @brief Query the parsed "version" value (always 1 on success).
  *
- * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  hDoc      Handle. Not NULLHANDLE.
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
@@ -146,7 +161,7 @@ APIRET ReuseTomlClose(HREUSETOML hToml);
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
+APIRET ReuseGetVersion(HREUSEDOC hDoc, PLONGLONG pllValue);
 
 /**
  * @brief Query the directory containing the REUSE.toml file.
@@ -154,7 +169,10 @@ APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
  * The value is the file path with the last path component removed. If
  * the path has no separators, the result is an empty string.
  *
- * @param[in]  hToml   Handle. Not NULLHANDLE.
+ * If pszBuf is NULL and ulSize is 0, performs a size query only and
+ * returns the required size (including NUL) in *pulUsed.
+ *
+ * @param[in]  hDoc    Handle. Not NULLHANDLE.
  * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize  Size of pszBuf in bytes.
  * @param[out] pulUsed Optional. May be NULL.
@@ -165,13 +183,13 @@ APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
  * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseTomlGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
-                             ULONG ulSize, PULONG pulUsed);
+APIRET ReuseGetSourceDir(HREUSEDOC hDoc, PSZ pszBuf,
+                         ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Query the number of [[annotations]] entries.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  hDoc     Handle. Not NULLHANDLE.
  * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
@@ -179,7 +197,7 @@ APIRET ReuseTomlGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
+APIRET ReuseGetAnnotationCount(HREUSEDOC hDoc, PULONG pulCount);
 
 /* ==================================================================
  * Annotation access
@@ -188,12 +206,12 @@ APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
 /**
  * @brief Obtain a borrowed handle to one [[annotations]] entry.
  *
- * The handle is valid until ReuseTomlClose. It does not need to be
+ * The handle is valid until ReuseClose. It does not need to be
  * released separately.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  ulIndex  Zero-based annotation index.
- * @param[out] phAnn    Receiver. Not NULL.
+ * @param[in]  hDoc    Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based annotation index.
+ * @param[out] phAnn   Receiver. Not NULL.
  *
  * @return APIRET
  * @retval REUSE_NO_ERROR             Success.
@@ -201,8 +219,8 @@ APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET ReuseTomlGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
-                              HREUSEANN *phAnn);
+APIRET ReuseGetAnnotation(HREUSEDOC hDoc, ULONG ulIndex,
+                          HREUSEANN *phAnn);
 
 /* ==================================================================
  * Path list
@@ -223,6 +241,8 @@ APIRET ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
 
 /**
  * @brief Retrieve one path pattern by index.
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
  *
  * @param[in]  hAnn    Handle. Not NULLHANDLE.
  * @param[in]  ulIndex Zero-based index.
@@ -250,6 +270,8 @@ APIRET ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
  * If the key's value in the file was an array, elements are joined
  * with " AND ".
  *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
  * @param[in]  hAnn    Handle. Not NULLHANDLE.
  * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize  Size of pszBuf in bytes.
@@ -270,24 +292,102 @@ APIRET ReuseAnnGetLicense(HREUSEANN hAnn,
  *
  * If the key's value in the file was an array, elements are joined
  * with '\n'.
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_NOT_FOUND       Field absent.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET ReuseAnnGetCopyright(HREUSEANN hAnn,
                             PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
-/** @brief Retrieve SPDX-PackageName (scalar string). */
+/**
+ * @brief Retrieve SPDX-PackageName (scalar string).
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_NOT_FOUND       Field absent.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
 APIRET ReuseAnnGetPackageName(HREUSEANN hAnn,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
-/** @brief Retrieve SPDX-PackageSupplier (scalar string). */
+/**
+ * @brief Retrieve SPDX-PackageSupplier (scalar string).
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_NOT_FOUND       Field absent.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
 APIRET ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
-/** @brief Retrieve SPDX-PackageDownloadLocation (scalar string). */
+/**
+ * @brief Retrieve SPDX-PackageDownloadLocation (scalar string).
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_NOT_FOUND       Field absent.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
 APIRET ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
                                           PSZ pszBuf, ULONG ulSize,
                                           PULONG pulUsed);
 
-/** @brief Retrieve SPDX-PackageComment (scalar string). */
+/**
+ * @brief Retrieve SPDX-PackageComment (scalar string).
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_NOT_FOUND       Field absent.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
 APIRET ReuseAnnGetPackageComment(HREUSEANN hAnn,
                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
@@ -297,6 +397,14 @@ APIRET ReuseAnnGetPackageComment(HREUSEANN hAnn,
 
 /**
  * @brief Number of entries in SPDX-FileContributor.
+ *
+ * @param[in]  hAnn     Handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR             Success.
+ * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
 APIRET ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
 
@@ -305,6 +413,21 @@ APIRET ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
  *
  * If the value in the file was a scalar string, it becomes a single
  * contributor with index 0.
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
+ *
+ * @param[in]  hAnn    Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize  Size of pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR              Success.
+ * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
+ * @retval REUSE_ERROR_INDEX_RANGE     Index out of range.
+ * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
@@ -331,6 +454,14 @@ APIRET ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
 /**
  * @brief Retrieve the zero-based position of the annotation in the
  *        file (order of appearance).
+ *
+ * @param[in]  hAnn     Handle. Not NULLHANDLE.
+ * @param[out] pulOrder Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval REUSE_NO_ERROR             Success.
+ * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
 APIRET ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder);
 

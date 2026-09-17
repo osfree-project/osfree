@@ -10,8 +10,8 @@
  * @brief Private interface of the REUSE.toml parser.
  */
 
-typedef struct _REUSEANN  REUSEANN,  *PREUSEANN;
-typedef struct _REUSETOML REUSETOML, *PREUSETOML;
+typedef struct _REUSEANN REUSEANN, *PREUSEANN;
+typedef struct _REUSEDOC REUSEDOC, *PREUSEDOC;
 
 /** @brief One parsed [[annotations]] entry. */
 struct _REUSEANN {
@@ -30,7 +30,7 @@ struct _REUSEANN {
 };
 
 /** @brief Parsed REUSE.toml document. */
-struct _REUSETOML {
+struct _REUSEDOC {
     char      *pszSourceDir;
     LONGLONG   llVersion;
     REUSEANN  *paAnnotations;

@@ -51,6 +51,11 @@ static char *node_to_str(HTOMLNODE hNode) {
 
 /* ==================================================================
  * Field reading
+ *
+ * Return conventions for read_* helpers:
+ *    0  — success (value stored, possibly NULL if the key is absent)
+ *   -1  — key present but has an unsupported type
+ *   -2  — out of memory
  * ================================================================== */
 
 static char *read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
@@ -121,32 +126,45 @@ static int add_path(REUSEANN *ann, const char *value) {
     return 0;
 }
 
+/* Read "path": string or array of strings. Each element becomes one
+ * entry in ann->paPaths.
+ *
+ * Returns:
+ *    0  — ok
+ *   -1  — key absent (REUSE_ERROR_ANNOT_NO_PATH)
+ *   -2  — key present but wrong type (REUSE_ERROR_ANNOT_BAD_PATH)
+ *   -3  — out of memory
+ */
 static int read_paths_into(HTOMLNODE hTable, REUSEANN *ann) {
     HTOMLNODE hChild = NULLHANDLE;
     ULONG ulType = 0, ulCount = 0, i;
 
     if (TomlNodeGetTableEntryByKey(hTable, "path", &hChild) != TOML_NO_ERROR)
         return -1;
-    if (TomlNodeGetType(hChild, &ulType) != TOML_NO_ERROR) return -1;
+    if (TomlNodeGetType(hChild, &ulType) != TOML_NO_ERROR)
+        return -2;
 
     if (ulType == TOML_TYPE_STRING) {
         char *s = node_to_str(hChild);
-        if (!s) return -1;
-        if (add_path(ann, s) != 0) { free(s); return -1; }
+        if (!s) return -3;
+        if (add_path(ann, s) != 0) { free(s); return -3; }
         free(s);
         return 0;
     }
-    if (ulType != TOML_TYPE_ARRAY) return -1;
+    if (ulType != TOML_TYPE_ARRAY) return -2;
 
     TomlNodeGetArrayCount(hChild, &ulCount);
     for (i = 0; i < ulCount; i++) {
         HTOMLNODE hElem = NULLHANDLE;
         char *s;
         if (TomlNodeGetArrayElement(hChild, i, &hElem) != TOML_NO_ERROR)
-            return -1;
+            return -2;
+        if (TomlNodeGetType(hElem, &ulType) != TOML_NO_ERROR)
+            return -2;
+        if (ulType != TOML_TYPE_STRING) return -2;
         s = node_to_str(hElem);
-        if (!s) return -1;
-        if (add_path(ann, s) != 0) { free(s); return -1; }
+        if (!s) return -3;
+        if (add_path(ann, s) != 0) { free(s); return -3; }
         free(s);
     }
     return 0;
@@ -164,11 +182,11 @@ static int read_contributors_into(HTOMLNODE hTable, REUSEANN *ann) {
     if (ulType == TOML_TYPE_STRING) {
         char *s = node_to_str(hChild);
         char **na;
-        if (!s) return -1;
+        if (!s) return -2;
         na = (char**)realloc(ann->paContributors,
                              (size_t)(ann->ulContributorCount + 1) *
                              sizeof(char*));
-        if (!na) { free(s); return -1; }
+        if (!na) { free(s); return -2; }
         ann->paContributors = na;
         ann->paContributors[ann->ulContributorCount++] = s;
         return 0;
@@ -183,20 +201,20 @@ static int read_contributors_into(HTOMLNODE hTable, REUSEANN *ann) {
         if (TomlNodeGetArrayElement(hChild, i, &hElem) != TOML_NO_ERROR)
             return -1;
         s = node_to_str(hElem);
-        if (!s) return -1;
+        if (!s) return -2;
         na = (char**)realloc(ann->paContributors,
                              (size_t)(ann->ulContributorCount + 1) *
                              sizeof(char*));
-        if (!na) { free(s); return -1; }
+        if (!na) { free(s); return -2; }
         ann->paContributors = na;
         ann->paContributors[ann->ulContributorCount++] = s;
     }
     return 0;
 }
 
-static void read_precedence(HTOMLNODE hTable, REUSEANN *ann) {
+static int read_precedence(HTOMLNODE hTable, REUSEANN *ann) {
     char *s = read_scalar_string(hTable, "precedence");
-    if (!s) return;
+    if (!s) return 0;
     if (strcmp(s, "closest") == 0)
         ann->ulPrecedence = REUSE_PRECEDENCE_CLOSEST;
     else if (strcmp(s, "aggregate") == 0)
@@ -204,20 +222,32 @@ static void read_precedence(HTOMLNODE hTable, REUSEANN *ann) {
     else if (strcmp(s, "override") == 0)
         ann->ulPrecedence = REUSE_PRECEDENCE_OVERRIDE;
     free(s);
+    return 0;
 }
 
-static int parse_one_annotation(HTOMLNODE hItem, REUSEANN *ann) {
+/* Parse one [[annotations]] entry. Returns 0 on success, APIRET-coded
+ * error otherwise. */
+static APIRET parse_one_annotation(HTOMLNODE hItem, REUSEANN *ann) {
+    APIRET rc;
+
     memset(ann, 0, sizeof(*ann));
     ann->ulPrecedence = REUSE_PRECEDENCE_CLOSEST;
 
-    if (read_paths_into(hItem, ann) != 0) return -1;
-    if (ann->ulPathCount == 0) return -1;
+    rc = read_paths_into(hItem, ann);
+    if (rc == -1) return REUSE_ERROR_ANNOT_NO_PATH;
+    if (rc == -2) return REUSE_ERROR_ANNOT_BAD_PATH;
+    if (rc == -3) return REUSE_ERROR_OUT_OF_MEMORY;
+    if (ann->ulPathCount == 0) return REUSE_ERROR_ANNOT_NO_PATH;
 
     ann->pszLicense   = read_string_or_join(hItem,
                           "SPDX-License-Identifier", " AND ");
     ann->pszCopyright = read_string_or_join(hItem,
                           "SPDX-FileCopyrightText", "\n");
-    if (read_contributors_into(hItem, ann) != 0) return -1;
+
+    rc = read_contributors_into(hItem, ann);
+    if (rc == -1) return REUSE_ERROR_ANNOT_BAD_FIELD;
+    if (rc == -2) return REUSE_ERROR_OUT_OF_MEMORY;
+
     read_precedence(hItem, ann);
 
     ann->pszPackageName = read_scalar_string(hItem, "SPDX-PackageName");
@@ -228,7 +258,7 @@ static int parse_one_annotation(HTOMLNODE hItem, REUSEANN *ann) {
     ann->pszPackageComment =
         read_scalar_string(hItem, "SPDX-PackageComment");
 
-    return 0;
+    return REUSE_NO_ERROR;
 }
 
 /* ==================================================================
@@ -253,14 +283,14 @@ static void ann_free(REUSEANN *ann) {
     memset(ann, 0, sizeof(*ann));
 }
 
-static void toml_free(PREUSETOML pt) {
+static void doc_free(PREUSEDOC pd) {
     ULONG i;
-    if (!pt) return;
-    for (i = 0; i < pt->ulAnnotationCount; i++)
-        ann_free(&pt->paAnnotations[i]);
-    free(pt->paAnnotations);
-    free(pt->pszSourceDir);
-    free(pt);
+    if (!pd) return;
+    for (i = 0; i < pd->ulAnnotationCount; i++)
+        ann_free(&pd->paAnnotations[i]);
+    free(pd->paAnnotations);
+    free(pd->pszSourceDir);
+    free(pd);
 }
 
 /* ==================================================================
@@ -291,27 +321,36 @@ static APIRET copy_field_out(const char *pszValue,
  * Handle helpers
  * ================================================================== */
 
-static PREUSETOML as_toml(HREUSETOML h) { return (PREUSETOML)h; }
-static PREUSEANN  as_ann(HREUSEANN h)    { return (PREUSEANN)h; }
+static PREUSEDOC as_doc(HREUSEDOC h) { return (PREUSEDOC)h; }
+static PREUSEANN  as_ann(HREUSEANN h) { return (PREUSEANN)h; }
 
 /* ==================================================================
  * Public API
  * ================================================================== */
 
-APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml) {
+APIRET ReuseOpen(PCSZ pszPath, HREUSEDOC *phDoc) {
     HTOMLDOC hDoc = NULLHANDLE;
     HTOMLNODE hVer = NULLHANDLE;
     HTOMLNODE hAnn = NULLHANDLE;
-    PREUSETOML pt = NULL;
+    PREUSEDOC pd = NULL;
     APIRET rc;
     ULONG ulType = 0, ulCount = 0, i;
     LONGLONG llVersion = 0;
 
-    if (!pszPath || !phToml) return REUSE_ERROR_INVALID_PARAM;
-    *phToml = NULLHANDLE;
+    if (!pszPath || !phDoc) return REUSE_ERROR_INVALID_PARAM;
+    *phDoc = NULLHANDLE;
 
     rc = TomlOpen(pszPath, &hDoc);
-    if (rc != TOML_NO_ERROR) return REUSE_ERROR_OPEN_FAILED;
+    if (rc == TOML_ERROR_INVALID_PARAM)
+        return REUSE_ERROR_INVALID_PARAM;
+    if (rc == TOML_ERROR_OPEN_FAILED)
+        return REUSE_ERROR_OPEN_FAILED;
+    if (rc == TOML_ERROR_READ_FAILED)
+        return REUSE_ERROR_READ_FAILED;
+    if (rc == TOML_ERROR_OUT_OF_MEMORY)
+        return REUSE_ERROR_OUT_OF_MEMORY;
+    if (rc != TOML_NO_ERROR)
+        return REUSE_ERROR_SYNTAX;
 
     /* version (REUSE 3.3 §4.1.1) */
     rc = TomlQueryNode(hDoc, "version", &hVer);
@@ -319,10 +358,13 @@ APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml) {
         TomlClose(hDoc);
         return REUSE_ERROR_VERSION_MISSING;
     }
-    if (TomlNodeGetType(hVer, &ulType) != TOML_NO_ERROR ||
-        ulType != TOML_TYPE_INTEGER) {
+    if (TomlNodeGetType(hVer, &ulType) != TOML_NO_ERROR) {
         TomlClose(hDoc);
         return REUSE_ERROR_VERSION_MISSING;
+    }
+    if (ulType != TOML_TYPE_INTEGER) {
+        TomlClose(hDoc);
+        return REUSE_ERROR_VERSION_NOT_INT;
     }
     TomlNodeGetInteger(hVer, &llVersion);
     if (llVersion != 1) {
@@ -330,15 +372,15 @@ APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml) {
         return REUSE_ERROR_VERSION_UNSUP;
     }
 
-    pt = (PREUSETOML)calloc(1, sizeof(REUSETOML));
-    if (!pt) { TomlClose(hDoc); return REUSE_ERROR_OUT_OF_MEMORY; }
-    pt->llVersion = llVersion;
+    pd = (PREUSEDOC)calloc(1, sizeof(REUSEDOC));
+    if (!pd) { TomlClose(hDoc); return REUSE_ERROR_OUT_OF_MEMORY; }
+    pd->llVersion = llVersion;
 
     /* source_dir: filename without the last path component. */
-    pt->pszSourceDir = dup_str(pszPath);
-    if (pt->pszSourceDir) {
-        char *slash = strrchr(pt->pszSourceDir, '/');
-        char *backslash = strrchr(pt->pszSourceDir, '\\');
+    pd->pszSourceDir = dup_str(pszPath);
+    if (pd->pszSourceDir) {
+        char *slash = strrchr(pd->pszSourceDir, '/');
+        char *backslash = strrchr(pd->pszSourceDir, '\\');
         if (backslash && (!slash || backslash > slash)) slash = backslash;
         if (slash) *slash = '\0';
     }
@@ -350,77 +392,79 @@ APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml) {
             ulType == TOML_TYPE_ARRAY) {
             TomlNodeGetArrayCount(hAnn, &ulCount);
             if (ulCount > 0) {
-                pt->paAnnotations =
+                pd->paAnnotations =
                     (REUSEANN*)calloc(ulCount, sizeof(REUSEANN));
-                if (!pt->paAnnotations) {
-                    toml_free(pt);
+                if (!pd->paAnnotations) {
+                    doc_free(pd);
                     TomlClose(hDoc);
                     return REUSE_ERROR_OUT_OF_MEMORY;
                 }
-                pt->ulAnnotationCapacity = ulCount;
+                pd->ulAnnotationCapacity = ulCount;
                 for (i = 0; i < ulCount; i++) {
                     HTOMLNODE hItem = NULLHANDLE;
-                    REUSEANN *ann = &pt->paAnnotations[pt->ulAnnotationCount];
+                    REUSEANN *ann = &pd->paAnnotations[pd->ulAnnotationCount];
+                    APIRET arc;
                     rc = TomlNodeGetArrayElement(hAnn, i, &hItem);
                     if (rc != TOML_NO_ERROR) {
-                        toml_free(pt);
+                        doc_free(pd);
                         TomlClose(hDoc);
-                        return REUSE_ERROR_OPEN_FAILED;
+                        return REUSE_ERROR_SYNTAX;
                     }
-                    if (parse_one_annotation(hItem, ann) != 0) {
-                        toml_free(pt);
+                    arc = parse_one_annotation(hItem, ann);
+                    if (arc != REUSE_NO_ERROR) {
+                        doc_free(pd);
                         TomlClose(hDoc);
-                        return REUSE_ERROR_ANNOTATION_NO_PATH;
+                        return arc;
                     }
-                    ann->ulOrderInFile = pt->ulAnnotationCount;
-                    pt->ulAnnotationCount++;
+                    ann->ulOrderInFile = pd->ulAnnotationCount;
+                    pd->ulAnnotationCount++;
                 }
             }
         }
     }
 
     TomlClose(hDoc);
-    *phToml = (HREUSETOML)pt;
+    *phDoc = (HREUSEDOC)pd;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseTomlClose(HREUSETOML hToml) {
-    PREUSETOML pt;
-    if (hToml == NULLHANDLE) return REUSE_NO_ERROR;
-    pt = as_toml(hToml);
-    if (!pt) return REUSE_ERROR_INVALID_HANDLE;
-    toml_free(pt);
+APIRET ReuseClose(HREUSEDOC hDoc) {
+    PREUSEDOC pd;
+    if (hDoc == NULLHANDLE) return REUSE_NO_ERROR;
+    pd = as_doc(hDoc);
+    if (!pd) return REUSE_ERROR_INVALID_HANDLE;
+    doc_free(pd);
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue) {
-    PREUSETOML pt = as_toml(hToml);
-    if (!pt || !pllValue) return REUSE_ERROR_INVALID_PARAM;
-    *pllValue = pt->llVersion;
+APIRET ReuseGetVersion(HREUSEDOC hDoc, PLONGLONG pllValue) {
+    PREUSEDOC pd = as_doc(hDoc);
+    if (!pd || !pllValue) return REUSE_ERROR_INVALID_PARAM;
+    *pllValue = pd->llVersion;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseTomlGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
-                             ULONG ulSize, PULONG pulUsed) {
-    PREUSETOML pt = as_toml(hToml);
-    if (!pt) return REUSE_ERROR_INVALID_PARAM;
-    return copy_field_out(pt->pszSourceDir, pszBuf, ulSize, pulUsed);
+APIRET ReuseGetSourceDir(HREUSEDOC hDoc, PSZ pszBuf,
+                         ULONG ulSize, PULONG pulUsed) {
+    PREUSEDOC pd = as_doc(hDoc);
+    if (!pd) return REUSE_ERROR_INVALID_PARAM;
+    return copy_field_out(pd->pszSourceDir, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount) {
-    PREUSETOML pt = as_toml(hToml);
-    if (!pt || !pulCount) return REUSE_ERROR_INVALID_PARAM;
-    *pulCount = pt->ulAnnotationCount;
+APIRET ReuseGetAnnotationCount(HREUSEDOC hDoc, PULONG pulCount) {
+    PREUSEDOC pd = as_doc(hDoc);
+    if (!pd || !pulCount) return REUSE_ERROR_INVALID_PARAM;
+    *pulCount = pd->ulAnnotationCount;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseTomlGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
-                              HREUSEANN *phAnn) {
-    PREUSETOML pt = as_toml(hToml);
-    if (!pt || !phAnn) return REUSE_ERROR_INVALID_PARAM;
+APIRET ReuseGetAnnotation(HREUSEDOC hDoc, ULONG ulIndex,
+                          HREUSEANN *phAnn) {
+    PREUSEDOC pd = as_doc(hDoc);
+    if (!pd || !phAnn) return REUSE_ERROR_INVALID_PARAM;
     *phAnn = NULLHANDLE;
-    if (ulIndex >= pt->ulAnnotationCount) return REUSE_ERROR_INDEX_RANGE;
-    *phAnn = (HREUSEANN)&pt->paAnnotations[ulIndex];
+    if (ulIndex >= pd->ulAnnotationCount) return REUSE_ERROR_INDEX_RANGE;
+    *phAnn = (HREUSEANN)&pd->paAnnotations[ulIndex];
     return REUSE_NO_ERROR;
 }
 
