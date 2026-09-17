@@ -1,4 +1,4 @@
-/* spdx-annotate.c - аннотирование исходников SPDX-тегами (C89) */
+/* reuse-annotate.c - аннотирование исходников SPDX-тегами (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +17,6 @@
 #include "spdx_discover.h"
 #include "git_utils.h"
 #include "spdx_tag.h"
-#include "dep5.h"
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192
@@ -37,10 +36,6 @@ typedef struct {
 
 static StyleOverride *style_overrides = NULL;
 static int style_overrides_count = 0;
-
-/* ------------------------------------------------------------------ */
-/* Утилиты                                                             */
-/* ------------------------------------------------------------------ */
 
 static int file_exists(const char *path) {
 #ifdef __LINUX__
@@ -70,10 +65,6 @@ static int write_file(const char *path, const char *text) {
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* Определение бинарности                                              */
-/* ------------------------------------------------------------------ */
-
 static int is_binary_file(const char *path) {
     FILE *f = fopen(path, "rb");
     unsigned char buf[BINARY_PROBE];
@@ -88,10 +79,6 @@ static int is_binary_file(const char *path) {
             return 1;
     return 0;
 }
-
-/* ------------------------------------------------------------------ */
-/* Определение стиля                                                   */
-/* ------------------------------------------------------------------ */
 
 static CommentStyle parse_style_name(const char *name) {
     if (strcmp(name, "c") == 0 || strcmp(name, "slash") == 0)
@@ -209,20 +196,6 @@ static const char *style_name(CommentStyle s) {
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* Формирование текста вставки                                         */
-/* ------------------------------------------------------------------ */
-
-/* Формирует блок SPDX-тегов для вставки.
- *
- * echo_off_present имеет смысл только для STYLE_REM:
- *   1  -> в файле уже есть @echo off, эхо уже выключено, пишем 'rem';
- *   0  -> @echo off нет, пишем '@rem', чтобы строки не выводились
- *         в консоль.
- *
- * Многострочный copyright разбивается по '\n', каждая строка получает
- * префикс " * " (для STYLE_C) или "# " / "rem " (для остальных), чтобы
- * комментарий оставался валидным. */
 static char *build_insertion(CommentStyle style,
                              const char *license,
                              const char *copyright,
@@ -409,10 +382,6 @@ static int first_line_is_echo_off(const char *line) {
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* Основная операция аннотации                                         */
-/* ------------------------------------------------------------------ */
-
 static int annotate_one(const char *filename,
                         const char *license,
                         const char *copyright,
@@ -539,7 +508,6 @@ static int annotate_one(const char *filename,
     f = fopen(filename, "r");
     if (f) {
         if (fgets(first_line, sizeof(first_line), f)) {
-            /* первая строка прочитана */
         }
         fclose(f);
     }
@@ -617,10 +585,6 @@ static int annotate_one(const char *filename,
     free(block);
     return 0;
 }
-
-/* ------------------------------------------------------------------ */
-/* LICENSES/                                                           */
-/* ------------------------------------------------------------------ */
 
 static void build_licenses_path(char *dst, size_t dst_size,
                                 const char *repo_root) {
@@ -750,10 +714,6 @@ static int ensure_licenses(const char *repo_root,
     return errors;
 }
 
-/* ------------------------------------------------------------------ */
-/* main                                                                */
-/* ------------------------------------------------------------------ */
-
 int main(int argc, char *argv[]) {
     const char *dir = ".";
     int dry_run = 1;
@@ -775,12 +735,18 @@ int main(int argc, char *argv[]) {
     GitIgnoreList gitignore_rules;
     int has_gitignore = 0;
     int total_errors = 0;
+    const char *wcc_cmd;
+#ifdef __LINUX__
+    wcc_cmd = "_wcc.sh";
+#else
+    wcc_cmd = "_wcc.cmd";
+#endif
 
     git_ignore_list_init(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            printf("Usage: spdx-annotate [options] [<directory>]\n"
+            printf("Usage: reuse-annotate [options] [<directory>]\n"
                    "  --write                    Apply changes (default is "
                    "dry-run)\n"
                    "  --dry-run                  Show what would be done, "
@@ -827,7 +793,7 @@ int main(int argc, char *argv[]) {
             dir = argv[i];
         } else {
             printf("ERROR: unknown option: %s\n"
-                   "       Run 'spdx-annotate --help' for usage.\n",
+                   "       Run 'reuse-annotate --help' for usage.\n",
                    argv[i]);
             git_ignore_list_free(&gitignore_rules);
             return 1;
@@ -837,7 +803,7 @@ int main(int argc, char *argv[]) {
     if (!spdx_db_root) {
         printf("ERROR: SPDX database is not configured.\n"
                "       --spdx-db=<path> is required.\n"
-               "       Run 'spdx-annotate --help' for usage.\n");
+               "       Run 'reuse-annotate --help' for usage.\n");
         git_ignore_list_free(&gitignore_rules);
         return 1;
     }
@@ -930,8 +896,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (dry_run) {
-        printf("Mode: dry-run (use _wcc.[cmd|sh] annotate-write to apply "
-               "changes)\n");
+        printf("Mode: dry-run (use %s annotate-write to apply changes)\n",
+               wcc_cmd);
     } else {
         printf("Mode: write\n");
     }

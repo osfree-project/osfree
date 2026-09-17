@@ -1,7 +1,7 @@
 # tools/mk/spdx.mk - правила интеграции SPDX/REUSE в систему сборки osFree
 
-SPDX_LINT     = spdx-lint.exe
-SPDX_ANNOTATE = spdx-annotate.exe
+SPDX_LINT     = reuse-lint.exe
+SPDX_ANNOTATE = reuse-annotate.exe
 SPDX_SBOM     = spdx-sbom.exe
 SPDX_MERGE    = spdx-merge.exe
 

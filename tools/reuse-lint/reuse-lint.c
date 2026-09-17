@@ -1,4 +1,4 @@
-/* spdx-lint.c - проверка проекта на соответствие REUSE / SPDX (C89, OpenWatcom) */
+/* reuse-lint.c - проверка проекта на соответствие REUSE / SPDX (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,6 @@
 #include "spdx_utils.h"
 #include "spdx_lic.h"
 #include "spdx_tag.h"
-#include "dep5.h"
 #include "git_utils.h"
 
 static int error_count = 0;
@@ -108,16 +107,11 @@ static void check_license_expression(const char *fullpath, const char *license,
     }
 }
 
-/* Обрабатывает сниппеты одного файла:
- *   - сниппет без лицензии - ошибка (REUSE 3.3 требует MUST);
- *   - лицензия сниппета проверяется как обычное SPDX-выражение;
- *   - идентификаторы попадают в used_licenses. */
 static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
     TagSnippetList snippets;
     int i;
 
     if (file_get_snippets(fullpath, &snippets) != 0) {
-        /* Парсер уже напечатал сообщение */
         error_count++;
         return;
     }
@@ -268,7 +262,6 @@ static void process_file(const char *fullpath,
     process_snippets(fullpath, used_licenses);
 }
 
-/* Отделяет SPDX-id от расширения. */
 static void strip_license_ext(const char *fname, char *base, size_t base_size) {
     char *dot;
     size_t len;
@@ -350,7 +343,7 @@ static void check_licenses_dir(const char *project_dir,
                 "       Fix one of:\n"
                 "         - create the directory and add a text file for each\n"
                 "           license declared by any file in the project;\n"
-                "         - or run '%s annotate-write' to create it "
+                "         - or run '%s annotate' to create it "
                 "automatically.\n"
                 "       See https://reuse.software/spec/ for details.\n",
                 lic_path, example_path, wcc_cmd);
@@ -470,7 +463,7 @@ static void check_licenses_dir(const char *project_dir,
                     "       at the project root (REUSE Specification 3.3).\n"
                     "       Fix one of:\n"
                     "         - create %s with the license text;\n"
-                    "         - or run '%s annotate-write' to create it "
+                    "         - or run '%s annotate' to create it "
                     "automatically.\n",
                     lic, expected, expected, wcc_cmd);
             error_count++;
@@ -521,7 +514,7 @@ static void check_licenses_dir(const char *project_dir,
                         "the SPDX License List.\n"
                         "       File: %s\n"
                         "       To update it, run "
-                        "'%s annotate-write --force'.\n",
+                        "'%s annotate'.\n",
                         lic, full_path, wcc_cmd);
                 error_count++;
             }
@@ -552,7 +545,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            printf("Usage: spdx-lint [options] [<directory>]\n"
+            printf("Usage: reuse-lint [options] [<directory>]\n"
                    "  --spdx-db=<path>           SPDX database root "
                    "(licenses.json,\n"
                    "                             exceptions.json, details/, "
@@ -582,7 +575,7 @@ int main(int argc, char *argv[]) {
         else {
             fprintf(stderr,
                     "ERROR: unknown option: %s\n"
-                    "       Run 'spdx-lint --help' for usage.\n",
+                    "       Run 'reuse-lint --help' for usage.\n",
                     argv[i]);
             return 1;
         }
@@ -593,7 +586,7 @@ int main(int argc, char *argv[]) {
                 "ERROR: SPDX database is not configured.\n"
                 "       --spdx-db=<path> is required.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n"
-                "       Run 'spdx-lint --help' for usage.\n");
+                "       Run 'reuse-lint --help' for usage.\n");
         git_ignore_list_free(&gitignore_rules);
         return 1;
     }
@@ -689,7 +682,7 @@ int main(int argc, char *argv[]) {
     check_licenses_dir(repo_root ? repo_root : dir, &used_licenses);
 
     fprintf(stderr, "\n");
-    fprintf(stderr, "SPDX Lint summary for %s:\n", dir);
+    fprintf(stderr, "REUSE Lint summary for %s:\n", dir);
     fprintf(stderr, "  Total files:                %d\n", total_files);
     fprintf(stderr, "  Files with license info:    %d / %d\n",
             files_with_license, total_files);

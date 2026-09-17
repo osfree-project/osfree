@@ -13,7 +13,7 @@ DIRS = shared sed UNI dos2unix &
        yacc lex jwasm awk &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        qemu-img hlldump mapsym renmodul &
-       target emxdoc bind spdx-lint spdx-sbom spdx-annotate spdx-merge 
+       target emxdoc bind reuse-lint spdx-sbom reuse-annotate spdx-merge 
 
 #       lxlite &
 # rexxwrap ltools &

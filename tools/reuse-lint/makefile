@@ -1,4 +1,4 @@
-DESCRIPTION = SDPX lincense scanner
+DESCRIPTION = REUSE lincenses scanner
 
 ADD_COPT = -i=..$(SEP)include
 LIBS = tools_shared

@@ -1,4 +1,4 @@
-DESCRIPTION = Add SPDX tags and lincenses
+DESCRIPTION = Add SPDX tags and REUSE lincenses
 
 ADD_COPT = -i=..$(SEP)include
 LIBS = tools_shared
