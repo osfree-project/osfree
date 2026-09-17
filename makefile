@@ -5,13 +5,12 @@
 # valerius, 2006/10/30
 #
 
-# TOOLS target comes first because all of them required for build process.
+# TOOLS must not be included here because it build by default
 # DOS target comes before OS2 target because many DOS executables will be joined with
 # some of OS/2 executables as dos stubs.
 # SOM target comes before OS2 target because used to build WPS classes
 
-DIRS = tools &
-       msg &
+DIRS = msg &
        bootseq &
        DOS &
        OS2 &
