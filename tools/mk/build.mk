@@ -9,23 +9,63 @@
 !ifndef __build_mk__
 !define __build_mk__
 
+!message $(%CWD)
+
 # ------------------------------------------------------------
 # Aliases
 # ------------------------------------------------------------
 !include $(%ROOT)tools/mk/build_aliases.mk
 
+#-------------------------------------------------------------
+# Undefine empty macros passed via command line
+#-------------------------------------------------------------
+
+!ifdef PLATFORM
+#!message build.mk: PLATFORM is [$(PLATFORM)], undefining
+!ifeq PLATFORM
+#!message Undefining PLATFORM
+!undef PLATFORM
+!endif
+!ifndef PLATFORM
+#!message build.mk: PLATFORM not defined now
+!else
+#!message build.mk: PLATFORM still defined
+!endif
+!endif
+
+!ifdef PROJ
+#!message build.mk: PROJ is [$(PROJ)]
+!ifeq PROJ
+#!message Undefining PROJ
+!undef PROJ
+!endif
+!ifndef PROJ
+#!message build.mk: PROJ not defined now
+!else
+#!message build.mk: PROJ still defined
+!endif
+!endif
+
+MAKEOPT = $(__MAKEOPTS__)
+
+!ifdef PROJ
+MAKEOPT += PROJ=$(PROJ)
+!endif
+
+!ifdef PLATFORM
+MAKEOPT += PLATFORM=$(PLATFORM)
+!endif
 
 # ------------------------------------------------------------
 # Autodetect project name from directory name
 # ------------------------------------------------------------
 
-!ifndef PROJ
-# PROJ autodetection
 !include $(%ROOT)tools/mk/build_proj.mk
-!else
-#pass PROJ to child make to prevent another detection
-MAKEOPT = $(__MAKEOPTS__) PROJ=$(PROJ)
+
+# ------------------------------------------------------------
+# Goto Stage 2 
+# ------------------------------------------------------------
+
 !include $(%ROOT)tools/mk/build2.mk
-!endif
 
 !endif  

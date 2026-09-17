@@ -9,9 +9,11 @@
 !ifndef __build2_mk__
 !define __build2_mk__
 
+!ifdef PROJ
+
 !ifdef withsources
 !include $(withsources)
-MAKEOPT = $(MAKEOPT) PROJ=$(PROJ) PLATFORM=$(PLATFORM) withsources=$(withsources)
+MAKEOPT += withsources=$(withsources)
 !ifndef SOURCES
 SOURCES=
 !endif
@@ -20,8 +22,6 @@ SOURCES=
 !ifndef SOURCES
 
 !include $(%ROOT)tools/mk/dirs.mk
-
-MAKEOPT = $(__MAKEOPTS__) PROJ=$(PROJ) PLATFORM=$(PLATFORM)
 
 !ifeq UNIX TRUE
 CD = cd
@@ -100,6 +100,8 @@ NO_DISPATCHER=1
 !include $(%ROOT)tools/mk/all.mk
 !else
 !include $(%ROOT)tools/mk/build3.mk
+!endif
+
 !endif
 
 !endif
