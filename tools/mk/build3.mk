@@ -38,13 +38,15 @@ TEST_STR = *$(RELDIR)
 
 # Try to delete "*DOS\"
 STRIPPED = $(TEST_STR:*DOS$(SEP)=)
-
+#!message $(STRIPPED)
 # String changed - so we in DOS tree
 !ifneq TEST_STR $(STRIPPED)
 
 # Now check for WIN16 subtree
-STRIPPED2 = $(TEST_STR:*WIN16$(SEP)=)
-!ifneq STRIPED $(STRIPPED2)
+STRIPPED2 = $(STRIPPED:*WIN16$(SEP)=)
+#!message $(STRIPPED2)
+!ifneq STRIPPED $(STRIPPED2)
+#!message huh
 TARGET_API=WIN
 !else
 TARGET_API=DOS
@@ -200,7 +202,7 @@ gen_wrc_rule: .SYMBOLIC
 !endif
 
 gen_dep_rule: .symbolic
-        @echo GDR_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
+#        @echo GDR_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
 !ifdef pmap
 !include $(BLD)projects.map
 !endif
@@ -220,14 +222,14 @@ gen_dep_obj: .symbolic
 	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) $(__MAKEOPTS__) && cd $(CWD)
 
 gen_deps_wrapper: .symbolic
-        @echo GDW_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
+#        @echo GDW_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
         # register project
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
         @$(MAKE) $(MAKEOPT) trrgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
         # add to generated makefile RES compile rule
         @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) gen_wrc_rule
         # add to generated makefile OBJS dependencies
-        @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps && $(SAY) gen_deps=%o
+        @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps #&& $(SAY) gen_deps=%o
         # generate _deps.mk to be included by other projects for full dependencies
         @if exist $(PATH)_deps.mk %quit
         @%create $(PATH)_deps.mk
