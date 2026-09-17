@@ -18,7 +18,7 @@
 #include "spdx_utils.h"
 #include "spdx_lic.h"
 #include "spdx_tag.h"
-#include "dep5_parser.h"
+#include "dep5.h"
 #include "git_utils.h"
 
 static int error_count = 0;

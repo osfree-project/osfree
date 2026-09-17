@@ -9,7 +9,7 @@
 #include "spdx_db.h"
 #include "spdx_utils.h"
 #include "git_utils.h"
-#include "dep5_parser.h"
+#include "dep5.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"

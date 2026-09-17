@@ -17,7 +17,7 @@
 #include "spdx_discover.h"
 #include "git_utils.h"
 #include "spdx_tag.h"
-#include "dep5_parser.h"
+#include "dep5.h"
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192

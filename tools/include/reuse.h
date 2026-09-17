@@ -88,6 +88,12 @@ int reuse_find_all_tomls(const char *repo_root,
                          const char *target_dir,
                          SpdxStrList *out_paths);
 
+/* Загружает .reuse/dep5 (DEP5) из <repo_root>/.reuse/dep5 через
+ * библиотеку dep5. Возвращает ReuseConfig* или NULL, если файла нет
+ * или он невалиден. depth = -1 (ниже любого REUSE.toml).
+ * Освобождается через free_reuse_config. */
+ReuseConfig *reuse_load_dep5(const char *repo_root);
+
 /* Парсит все REUSE.toml из списка paths. Глубина проставляется по порядку.
  * Возвращает массив конфигов (malloc), *out_count — количество.
  * *out_error_count — сколько файлов не удалось распарсить (ERROR уже
