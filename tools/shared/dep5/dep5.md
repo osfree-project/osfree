@@ -1,0 +1,593 @@
+# Machine-readable debian/copyright file
+
+**Version 1.0**
+**Debian Policy 4.7.4.1, 2026-03-31**
+
+Copying and distribution of this file, with or without modification, are permitted in any medium without royalty provided this notice is preserved.
+
+## Abstract
+
+Establishes a standard, machine-readable format for debian/copyright files within Debian packages to facilitate automated checking and reporting of licenses for packages and sets of packages. This specification was originally drafted as DEP-5.
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Rationale](#2-rationale)
+3. [Acknowledgements](#3-acknowledgements)
+4. [File syntax](#4-file-syntax)
+   - 4.1. [Single-line values](#41-single-line-values)
+   - 4.2. [Whitespace-separated lists](#42-whitespace-separated-lists)
+   - 4.3. [Line-based lists](#43-line-based-lists)
+   - 4.4. [Formatted text](#44-formatted-text)
+5. [Stanzas](#5-stanzas)
+   - 5.1. [Header stanza (once)](#51-header-stanza-once)
+     - 5.1.1. [Example header stanza](#511-example-header-stanza)
+   - 5.2. [Files stanza (repeatable)](#52-files-stanza-repeatable)
+     - 5.2.1. [Example files stanzas](#521-example-files-stanzas)
+   - 5.3. [Stand-alone License Stanza (optional, repeatable)](#53-stand-alone-license-stanza-optional-repeatable)
+6. [Fields](#6-fields)
+   - 6.1. [Format](#61-format)
+   - 6.2. [Upstream-Name](#62-upstream-name)
+   - 6.3. [Upstream-Contact](#63-upstream-contact)
+   - 6.4. [Source](#64-source)
+   - 6.5. [Disclaimer](#65-disclaimer)
+   - 6.6. [Comment](#66-comment)
+   - 6.7. [License](#67-license)
+   - 6.8. [Copyright](#68-copyright)
+   - 6.9. [Files](#69-files)
+7. [License specification](#7-license-specification)
+   - 7.1. [Short name](#71-short-name)
+     - 7.1.1. [Public domain](#711-public-domain)
+   - 7.2. [Syntax](#72-syntax)
+   - 7.3. [SPDX](#73-spdx)
+8. [Examples](#8-examples)
+
+## 1. Introduction
+
+This document describes a standard, machine-interpretable format for the debian/copyright file. This file is one of the most important files in Debian packaging, but, prior to this specification, no standard format was defined for it and its contents varied tremendously across packages. This made it difficult to automatically extract licensing information.
+
+Use of this specification is optional.
+
+Nothing in this proposal supersedes or modifies any of the requirements specified in Debian Policy regarding the appropriate detail or granularity to use when documenting copyright and license status in debian/copyright.
+
+## 2. Rationale
+
+The diversity of free software licenses means that Debian needs to care not only about the freeness of a given work, but also its license's compatibility with the other parts of Debian it uses.
+
+The arrival of the GPL version 3, its incompatibility with version 2, and our inability to spot the software where the incompatibility might be problematic is one prominent occurrence of this limitation.
+
+There are earlier precedents, also. One is the GPL/OpenSSL incompatibility. Apart from grepping debian/copyright, which is prone to numerous false positives (packaging under the GPL but software under another license) or negatives (GPL software but with an "OpenSSL special exception" dual licensing form), there is no reliable way to know which software in Debian might be problematic.
+
+And there is more to come. There are issues with shipping GPLv2-only software with a CDDL operating system such as Nexenta. The GPL version 3 solves this issue, but not all GPL software can switch to it and we have no way to know how much of Debian should be stripped from such a system.
+
+Even where licenses are DFSG-free and mutually compatible, users may wish for a way to identify software under certain licenses (if, for example, they have special reasons to avoid certain licenses).
+
+## 3. Acknowledgements
+
+Many people have worked on this specification over the years. The following alphabetical list is incomplete; please suggest missing people: Russ Allbery, Ben Finney, Sam Hocevar, Steve Langasek, Charles Plessy, Noah Slater, Jonas Smedegaard, Lars Wirzenius.
+
+## 4. File syntax
+
+The debian/copyright file must be machine-interpretable, yet human-readable, while communicating all mandated upstream information, copyright notices and licensing details.
+
+The syntax of the file is the same as for other Debian control files, as specified in the Debian Policy Manual. See its section 5.1 for details. Extra fields can be added to any stanza. No prefixing is necessary or desired, but please avoid names similar to standard ones so that mistakes are easier to catch. Future versions of the debian/copyright specification will attempt to avoid conflicting specifications for widely used extra fields.
+
+The file consists of two or more stanzas. At minimum, the file must include one header stanza and one Files stanza.
+
+There are four types of fields. The definition for each field in this document indicates which type of value it takes.
+
+### 4.1. Single-line values
+
+The entire value of a single-line field must be on a single line. For example, the `Format` field has a single-line value specifying the version of the machine-readable format that is used.
+
+### 4.2. Whitespace-separated lists
+
+Field values defined as whitespace-separated lists may be on one line or many. Values in the list are separated by one or more whitespace characters (space, tab, or newline). For example, the `Files` field contains a whitespace-separated list of filename patterns.
+
+### 4.3. Line-based lists
+
+Line-based lists have one value per line. For example, the `Upstream-Contact` field contains a line-based list of contact addresses.
+
+### 4.4. Formatted text
+
+Formatted text fields use the same rules as the long description in a package's `Description` field in Debian control files.
+
+In some but not all cases, the first line may have special meaning as a synopsis, similar to how the `Description` field uses the first line for the short description. See Debian Policy's section 5.6.13, "Description", for details. For example, `Disclaimer` is a formatted text field that has no special first line, and `License` is a formatted text field where the first line indicates the short name or names of the licenses.
+
+## 5. Stanzas
+
+There are three kinds of stanzas. The first stanza in the file is called the header stanza. Every other stanza is either a Files stanza or a stand-alone License stanza. This is similar to source and binary package stanzas in debian/control files.
+
+### 5.1. Header stanza (once)
+
+The following fields may be present in a header stanza.
+
+- `Format`: **required**.
+- `Upstream-Name`: optional.
+- `Upstream-Contact`: optional.
+- `Source`: optional.
+- `Disclaimer`: optional.
+- `Comment`: optional.
+- `License`: optional.
+- `Copyright`: optional.
+
+The `Copyright` and `License` fields in the header stanza may complement but do not replace the fields in the Files stanzas. If present, they summarise the copyright notices or redistribution terms for the package as a whole.
+
+For example, when a work has a grant of license under both a permissive and a copyleft license, `License` can be used to clarify the license terms for the combination. `Copyright` and `License` together can also be used to document a compilation copyright and license.
+
+It is valid to use `License` in the header stanza without an accompanying `Copyright` field, but `Copyright` alone is not sufficient.
+
+#### 5.1.1. Example header stanza
+
+```
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://www.example.com/software/project
+Upstream-Name: SOFTware
+Upstream-Contact: John Doe <john.doe@example.com>
+```
+
+### 5.2. Files stanza (repeatable)
+
+The declaration of copyright and license for files may consist of one or more stanzas. In the simplest case, a single stanza with `Files: *` can be used to state the license and copyright for the whole package. Only the license and copyright information required by the Debian archive is required to be listed here.
+
+The following fields may be present in a Files stanza.
+
+- `Files`: **required**.
+- `Copyright`: **required**.
+- `License`: **required**.
+- `Comment`: optional.
+
+#### 5.2.1. Example files stanzas
+
+```
+Files:
+ *
+Copyright: 1975-2010 Ulla Upstream
+License: GPL-2+
+
+Files:
+ debian/*
+Copyright: 2010 Daniela Debianizer
+License: GPL-2+
+
+Files:
+ debian/patches/fancy-feature
+Copyright: 2010 Daniela Debianizer
+License: GPL-3+
+
+Files:
+ */*.1
+Copyright: 2010 Manuela Manpager
+License: GPL-2+
+```
+
+In this example, copyright in all files is held by the upstream, and that copyright holder grants license under the GPL, version 2 or later. There are three exceptions. All the Debian packaging files have copyright held by the packager, and further one specific file providing a new feature has a different grant of license. Finally, there are some manual pages added to the package, with copyright held by a third person.
+
+Since the license of the manual pages is the same as most other files in the package, the final stanza above could instead be combined with the first stanza, listing both copyright statements in one `Copyright` field. Whether to combine stanzas with the same grant of license is left to the discretion of the author of the debian/copyright file.
+
+### 5.3. Stand-alone License Stanza (optional, repeatable)
+
+Stand-alone License stanzas can be used to provide the full license text for a given license once, instead of repeating it in each Files stanza that refers to it.
+
+The synopsis (on the first line) of the `License` field must be a single license short name or a short name followed by a license exception.
+
+The following fields may be present in a stand-alone License stanza.
+
+- `License`: **required**.
+- `Comment`: optional.
+
+**Example 1. tri-licensed files**
+
+```
+Files: src/js/editline/*
+Copyright: 1993, John Doe
+           1993, Joe Average
+License: MPL-1.1 or GPL-2 or LGPL-2.1
+
+License: MPL-1.1
+ [LICENSE TEXT]
+
+License: GPL-2
+ [LICENSE TEXT]
+
+License: LGPL-2.1
+ [LICENSE TEXT]
+```
+
+**Example 2. recurrent license**
+
+```
+Files:
+ src/js/editline/*
+Copyright: 1993, John Doe
+           1993, Joe Average
+License: MPL-1.1
+
+Files:
+ src/js/fdlibm/*
+Copyright: 1993, J-Random Corporation
+License: MPL-1.1
+
+License: MPL-1.1
+ [LICENSE TEXT]
+```
+
+## 6. Fields
+
+The following fields are defined for use in debian/copyright.
+
+### 6.1. Format
+
+**Single-line**: URI of the format specification. The field that should be used for the current version of this document is:
+
+```
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+```
+
+The original version of this specification used the non-https version of this URL as its URI, namely:
+
+```
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+```
+
+Both versions are valid and refer to the same specification, and parsers should interpret both as referencing the same format. The https URI is preferred.
+
+### 6.2. Upstream-Name
+
+**Single-line**: the name upstream uses for the software
+
+### 6.3. Upstream-Contact
+
+**Line-based list**: the preferred address(es) to reach the upstream project. May be free-form text, but by convention will usually be written as a list of RFC5322 addresses or URIs.
+
+### 6.4. Source
+
+**Formatted text, no synopsis**: an explanation of where the upstream source came from. Typically this would be a URL, but it might be a free-form explanation. The Debian Policy section 12.5 requires this information unless there are no upstream sources, which is mainly the case for native Debian packages. If the upstream source has been modified to remove non-free parts, that should be explained in this field.
+
+### 6.5. Disclaimer
+
+**Formatted text, no synopsis**: this field is used for non-free or contrib packages to state that they are not part of Debian and to explain why (see Debian Policy section 12.5).
+
+### 6.6. Comment
+
+**Formatted text, no synopsis**: this field can provide additional information. For example, it might quote an e-mail from upstream justifying why the license is acceptable to the main archive, or an explanation of how this version of the package has been forked from a version known to be DFSG-free, even though the current upstream version is not.
+
+### 6.7. License
+
+**Formatted text, with synopsis.**
+
+In the header stanza, this field gives the license information for the package as a whole, which may be different or simplified from a combination of all the per-file license information. In a Files stanza, this field gives the licensing terms for the files listed in the `Files` field for this stanza. In a stand-alone License stanza, it gives the licensing terms for those stanzas which reference it.
+
+**First line (synopsis)**: an abbreviated name for the license, or expression giving alternatives (see the [Short name](#71-short-name) section for a list of standard abbreviations). If there are licenses present in the package without a standard short name, an arbitrary short name may be assigned for these licenses. These arbitrary names are only guaranteed to be unique within a single copyright file.
+
+If there are no remaining lines, then all of the short names or short names followed by license exceptions in the synopsis must be described in stand-alone License stanzas. Otherwise, this field should either include the full text of the license(s) or include a pointer to the license file under `/usr/share/common-licenses`. This field should include all text needed in order to fulfill both Debian Policy's requirement for including a copy of the software's distribution license (12.5), and any license requirements to include warranty disclaimers or other notices with the binary package.
+
+### 6.8. Copyright
+
+**Formatted text, no synopsis**: one or more free-form copyright statements. Any formatting is permitted; see the examples below for some ideas for how to structure the field to make it easier to read. In the header stanza, this field gives the copyright information for the package as a whole, which may be different or simplified from a combination of all the per-file copyright information. In the Files stanzas, it gives the copyright information that applies to the files matched by the `Files` pattern. If a work has no copyright holder (i.e., it is in the public domain), that information should be recorded here.
+
+The `Copyright` field collects all relevant copyright notices for the files of this stanza. Not all copyright notices may apply to every individual file, and years of publication for one copyright holder may be gathered together. For example, if file A has:
+
+```
+Copyright 2008 John Smith
+Copyright 2009 Angela Watts
+```
+
+and file B has:
+
+```
+Copyright 2010 Angela Watts
+```
+
+a single stanza may still be used for both files. The `Copyright` field for that stanza would contain:
+
+```
+Copyright 2008 John Smith
+Copyright 2009, 2010 Angela Watts
+```
+
+The `Copyright` field may contain the original copyright statement copied exactly (including the word "Copyright"), or it may shorten the text or merge it with other copyright statements as described above, as long as it does not sacrifice information. Examples in this specification use both forms.
+
+### 6.9. Files
+
+**Whitespace-separated list**: list of patterns indicating files covered by the license and copyright specified in this stanza.
+
+Filename patterns in the `Files` field are specified using a simplified shell glob syntax. Patterns are separated by whitespace.
+
+Only the wildcards `*` and `?` apply; the former matches any number of characters (including none), the latter a single character. Both match slashes (`/`) and leading dots, unlike shell globs. The pattern `*.in` therefore matches any file whose name ends in `.in` anywhere in the source tree, not just at the top level.
+
+Patterns match pathnames that start at the root of the source tree. Thus, "`Makefile.in`" matches only the file at the root of the tree, but "`*/Makefile.in`" matches at any depth.
+
+The backslash (`\`) is used to remove the magic from the next character; see table below.
+
+| Escape sequence | Matches |
+|---|---|
+| `\*` | star (asterisk) |
+| `\?` | question mark |
+| `\\` | backslash |
+
+Any other character following a backslash is an error.
+
+This is the same pattern syntax as `fnmatch(3)` without the `FNM_PATHNAME` flag, or the argument to the `-path` test of the GNU find command, except that `[]` wildcards are not recognized.
+
+Multiple `Files` stanzas are allowed. The last stanza that matches a particular file applies to it. More general stanzas should therefore be given first, followed by more specific overrides.
+
+Exclusions are only supported by adding `Files` stanzas to override the previous match.
+
+This syntax does not distinguish file names from directory names; a trailing slash in a pattern will never match any actual path. A whole directory tree may be selected with a pattern like "`foo/*`".
+
+The space character, used to separate patterns, cannot be escaped with a backslash. A path like "`foo bar`" may be selected with a pattern like "`foo?bar`".
+
+## 7. License specification
+
+### 7.1. Short name
+
+Much of the value of a machine-parseable copyright file lies in being able to correlate the licenses of multiple pieces of software. To that end, this spec defines standard short names for a number of commonly used licenses, which can be used in the synopsis (first line) of a `License` field.
+
+These short names have the specified meanings across all uses of this file format, and must not be used to refer to any other licenses. Parsers may thus rely on these short names referring to the same licenses wherever they occur, without needing to parse or compare the full license text.
+
+From time to time, licenses may be added to or removed from the list of standard short names. Such changes in the list of short names will always be accompanied by changes to the version of this standard and to the recommended `Format` value. Implementers who are parsing copyright files should take care not to assume anything about the meaning of license short names for unknown `Format` versions.
+
+Use of a standard short name does not override the Debian Policy requirement to include the full license text in debian/copyright, nor any requirements in the license of the work regarding reproduction of legal notices. This information must still be included in the `License` field, either in a stand-alone License stanza or in the relevant files stanza.
+
+For licenses that have multiple versions in use, the short name is formed from the general short name of the license family, followed by a dash and the version number. If the version number is omitted, the lowest version number is implied. When the license grant permits using the terms of any later version of that license, add a plus sign to the end of the short name. For example, the short name `GPL` refers to the GPL version 1 and is equivalent to `GPL-1`, although the latter is clearer and therefore preferred. If the package may be distributed under the GPL version 1 or any later version, use a short name of `GPL-1+`.
+
+For SPDX compatibility, versions with trailing dot-zeroes are considered to be equivalent to versions without (e.g., "2.0.0" is considered equal to "2.0" and "2").
+
+Currently, the full text of the licenses is only available in the SPDX Open Source License Registry.
+
+| Keyword | Meaning |
+|---|---|
+| `public-domain` | No license required for any purpose; the work is not subject to copyright in any jurisdiction. |
+| `Apache` | Apache license 1.0, 2.0. |
+| `Artistic` | Artistic license 1.0, 2.0. |
+| `BSD-2-clause` | Berkeley software distribution license, 2-clause version. |
+| `BSD-3-clause` | Berkeley software distribution license, 3-clause version. |
+| `BSD-4-clause` | Berkeley software distribution license, 4-clause version. |
+| `ISC` | Internet Software Consortium, sometimes also known as the OpenBSD License. |
+| `CC-BY` | Creative Commons Attribution license 1.0, 2.0, 2.5, 3.0. |
+| `CC-BY-SA` | Creative Commons Attribution Share Alike license 1.0, 2.0, 2.5, 3.0. |
+| `CC-BY-ND` | Creative Commons Attribution No Derivatives license 1.0, 2.0, 2.5, 3.0. |
+| `CC-BY-NC` | Creative Commons Attribution Non-Commercial license 1.0, 2.0, 2.5, 3.0. |
+| `CC-BY-NC-SA` | Creative Commons Attribution Non-Commercial Share Alike license 1.0, 2.0, 2.5, 3.0. |
+| `CC-BY-NC-ND` | Creative Commons Attribution Non-Commercial No Derivatives license 1.0, 2.0, 2.5, 3.0. |
+| `CC0` | Creative Commons Zero 1.0 Universal. Omit "Universal" from the license version when forming the short name. |
+| `CDDL` | Common Development and Distribution License 1.0. |
+| `CPL` | Common Public License. |
+| `EFL` | The Eiffel Forum License 1.0, 2.0. |
+| `Expat` | The Expat license. |
+| `GPL` | GNU General Public License 1.0, 2.0, 3.0. |
+| `LGPL` | GNU Lesser General Public License 2.1, 3.0, or GNU Library General Public License 2.0. |
+| `GFDL` | GNU Free Documentation License 1.0, 1.1, 1.2, or 1.3. Use `GFDL-NIV` instead if there are no Front-Cover or Back-Cover Texts or Invariant Sections. |
+| `GFDL-NIV` | GNU Free Documentation License, with no Front-Cover or Back-Cover Texts or Invariant Sections. Use the same version numbers as GFDL. |
+| `LPPL` | LaTeX Project Public License 1.0, 1.1, 1.2, 1.3c. |
+| `MPL` | Mozilla Public License 1.1. |
+| `Perl` | Perl license (use "GPL-1+ or Artistic-1" instead). |
+| `Python` | Python license 2.0. |
+| `QPL` | Q Public License 1.0. |
+| `W3C` | W3C Software License For more information, consult the W3C Intellectual Rights FAQ. |
+| `Zlib` | zlib/libpng license. |
+| `Zope` | Zope Public License 1.0, 1.1, 2.0, 2.1. |
+
+There are many versions of the MIT license. Please use `Expat` instead, when it matches.
+
+An exception or clarification to a license is signalled in plain text, by appending with keywords exception to the short name. This document provides a list of keywords that must be used when referring to the most frequent exceptions. When exceptions other than these are in effect that modify a common license by granting additional permissions, you may use an arbitrary keyword not taken from the below list of keywords. When a license differs from a common license because of added restrictions rather than because of added permissions, a distinct short name should be used instead of with keywords exception.
+
+Only one exception may be specified for each license within a given license specification. If more than one exception applies to a single license, an arbitrary short name indicating that combination of multiple exceptions must be used instead.
+
+The GPL Font exception refers to the text added to the license notice of each file as specified at How does the GPL apply to fonts. The precise text corresponding to this exception is:
+
+```
+As a special exception, if you create a document which uses this font,
+and embed this font or unaltered portions of this font into the
+document, this font does not by itself cause the resulting document to
+be covered by the GNU General Public License. This exception does not
+however invalidate any other reasons why the document might be covered
+by the GNU General Public License. If you modify this font, you may
+extend this exception to your version of the font, but you are not
+obligated to do so. If you do not wish to do so, delete this exception
+statement from your version.
+```
+
+The GPL OpenSSL exception gives permission to link GPL-licensed code with the OpenSSL library, which contains GPL-incompatible clauses. For more information, see The OpenSSL License and The GPL by Mark McLoughlin and the message middleman software license conflicts with OpenSSL by Mark McLoughlin on the debian-legal mailing list. The text corresponding to this exception is:
+
+```
+In addition, as a special exception, the copyright holders give
+permission to link the code of portions of this program with the
+OpenSSL library under certain conditions as described in each
+individual source file, and distribute linked combinations including
+the two.
+
+You must obey the GNU General Public License in all respects for all
+of the code used other than OpenSSL. If you modify file(s) with this
+exception, you may extend this exception to your version of the
+file(s), but you are not obligated to do so. If you do not wish to do
+so, delete this exception statement from your version. If you delete
+this exception statement from all source files in the program, then
+also delete it here.
+```
+
+#### 7.1.1. Public domain
+
+The `License` short name `public-domain` does not refer to a set of license terms. There are some works which are not subject to copyright in any jurisdiction and therefore no license is required for any purpose covered by copyright law. This short name is an explicit declaration that the associated files are "in the public domain".
+
+Widespread misunderstanding about copyright in general, and the public domain in particular, results in the common assertion that a work is in the public domain when this is partly or wholly untrue for that work. The Wikipedia article on public domain is a useful reference for this subject.
+
+When the `License` field in a stanza has the short name `public-domain`, the remaining lines of the field must explain exactly what exemption the corresponding files for that stanza have from default copyright restrictions.
+
+### 7.2. Syntax
+
+License names are case-insensitive, and may not contain spaces.
+
+In case of multi-licensing, the license short names are separated by `or` when the user can chose between different licenses, and by `and` when use of the work must simultaneously comply with the terms of multiple licenses.
+
+For instance, this is a simple, "GPL version 2 or later" field:
+
+```
+License: GPL-2+
+```
+
+This is a dual-licensed GPL/Artistic work such as Perl:
+
+```
+License: GPL-1+ or Artistic
+```
+
+This is for a file that has both GPL and classic BSD code in it:
+
+```
+License: GPL-2+ and BSD-3-clause
+```
+
+For the most complex cases, a comma is used to disambiguate the priority of `or`s and `and`s. The conjunction "and" has priority over "or" unless preceded by a comma. For instance:
+
+- `A or B and C` means `A or (B and C)`.
+- `A or B, and C` means `(A or B) and C`.
+
+This is for a file that has Perl code and classic BSD code in it:
+
+```
+License: GPL-2+ or Artistic-2.0, and BSD-3-clause
+```
+
+A `GPL-2+` work with the OpenSSL exception is in effect a dual-licensed work that can be redistributed either under the `GPL-2+`, or under the `GPL-2+` with the OpenSSL exception. It is thus expressed as `GPL-2+ with OpenSSL exception`. A possible `License` field for such a license is:
+
+```
+License: GPL-2+ with OpenSSL exception
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ In addition, as a special exception, the author of this program gives
+ permission to link the code of its release with the OpenSSL project's
+ "OpenSSL" library (or with modified versions of it that use the same
+ license as the "OpenSSL" library), and distribute the linked executables.
+ You must obey the GNU General Public License in all respects for all of
+ the code used other than "OpenSSL".  If you modify this file, you may
+ extend this exception to your version of the file, but you are not
+ obligated to do so.  If you do not wish to do so, delete this exception
+ statement from your version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, see <https://www.gnu.org/licenses/>.
+Comment:
+ On Debian systems, the full text of the GNU General Public License
+ version 2 can be found in the file '/usr/share/common-licenses/GPL-2'.
+```
+
+### 7.3. SPDX
+
+SPDX is an attempt to standardize a format for communicating the components, licenses and copyrights associated with a software package. It and the machine-readable debian/copyright format attempt to be somewhat compatible. However, the two formats have different aims, and so the formats are different. The DEP5 wiki page will be used to track the differences.
+
+## 8. Examples
+
+**Example 3. Simple**
+
+A possible debian/copyright file for an program "X Solitaire" distributed in the Debian source package xsol (this is not a complete or correct copyright file for the actual xsol package):
+
+```
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: ftp://ftp.example.com/pub/games
+Upstream-Name: X Solitaire
+
+Files:
+ *
+Copyright: 1998 John Doe <jdoe@example.com>
+   1998 Jane Smith <jsmith@example.net>
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, see <https://www.gnu.org/licenses/>.
+Comment:
+ On Debian systems, the full text of the GNU General Public License
+ version 2 can be found in the file '/usr/share/common-licenses/GPL-2'.
+```
+
+**Example 4. Complex**
+
+A possible debian/copyright file for the program "Planet Venus", distributed in the Debian source package planet-venus (this is not a complete or correct copyright file for the actual planet-venus package):
+
+```
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://www.example.com/code/venus
+Upstream-Name: Planet Venus
+Upstream-Contact: John Doe <jdoe@example.com>
+
+Files:
+ *
+Copyright: 2008, John Doe <jdoe@example.com>
+           2007, Jane Smith <jsmith@example.org>
+           2007, Joe Average <joe@example.org>
+           2007, J. Random User <jr@users.example.com>
+License: PSF-2
+
+Files:
+ debian/*
+Copyright: 2008, Dan Developer <dan@debian.example.com>
+License: permissive
+ Copying and distribution of this package, with or without modification,
+ are permitted in any medium without royalty provided the copyright notice
+ and this notice are preserved.
+
+Files:
+ debian/patches/theme-diveintomark.patch
+Copyright: 2008, Joe Hacker <hack@example.org>
+License: GPL-2+
+
+Files:
+ planet/vendor/compat_logging/*
+Copyright: 2002, Mark Smith <msmith@example.org>
+License: MIT
+ [LICENSE TEXT]
+
+Files:
+ planet/vendor/httplib2/*
+Copyright: 2006, John Brown <brown@example.org>
+License: MIT2
+ Unspecified MIT style license.
+
+Files:
+ planet/vendor/feedparser.py
+Copyright: 2007, Mike Smith <mike@example.org>
+License: PSF-2
+
+Files:
+ planet/vendor/htmltmpl.py
+Copyright: 2004, Thomas Brown <coder@example.org>
+License: GPL-2+
+
+License: PSF-2
+ [LICENSE TEXT]
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, see <https://www.gnu.org/licenses/>.
+Comment:
+ On Debian systems, the full text of the GNU General Public License
+ version 2 can be found in the file '/usr/share/common-licenses/GPL-2'.
+```

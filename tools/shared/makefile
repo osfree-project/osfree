@@ -2,7 +2,7 @@
 
 32_BITS  = 1
 
-DIRS = toml reuse spdx sha1 sha256 json omf res git dep5 z
+DIRS = toml dep5 reuse spdx sha1 sha256 json omf res git z
 
 PROJ = tools_shared
 TARGET_CLASS = LIBRARY

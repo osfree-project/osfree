@@ -3,5 +3,5 @@
 
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
 TARGET_CLASS = LIBRARY
-
+LIBS = dep5 toml
 !include $(%ROOT)tools/mk/build.mk

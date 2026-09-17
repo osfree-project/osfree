@@ -15,6 +15,7 @@
 
 #include "reuse.h"
 #include "toml.h"
+#include "dep5.h"
 
 /* ------------------------------------------------------------------ */
 /* ”тилиты                                                             */
@@ -486,6 +487,131 @@ void free_reuse_config(ReuseConfig *config) {
     }
     free(config->annotations);
     free(config);
+}
+
+/* ------------------------------------------------------------------ */
+/* –азбор .reuse/dep5 через библиотеку DEP5 v1.0.0                     */
+/*                                                                     */
+/* DEP5-файл разбираетс€ dep5.c. «десь только конвертаци€ Files-       */
+/* параграфов в Annotation:                                            */
+/*   - paths[]     Ч patterns из пол€ "Files" (со сн€тыми escape);     */
+/*   - license     Ч synopsis пол€ "License" (short name, как есть);   */
+/*   - copyright   Ч поле "Copyright" (многострочное, '\n');           */
+/*   - precedence  Ч REUSE_PRECEDENCE_CLOSEST;                         */
+/*   - order_in_file Ч пор€дковый номер параграфа.                     */
+/*                                                                     */
+/* Stand-alone License-параграфы игнорируютс€: DEP5 І5.3 определ€ет    */
+/* их как опциональные и предназначенные дл€ хранени€ полного текста   */
+/* лицензии. ¬ REUSE-контексте тексты хран€тс€ в LICENSES/ (REUSE 3.3  */
+/* І4.2.2), поэтому их разбор не требуетс€.                            */
+/*                                                                     */
+/* DEP5 short names передаютс€ в Annotation.license без конвертации    */
+/* в SPDX: библиотека универсальна, приведение к SPDX Ч задача         */
+/* потребител€.                                                        */
+/* ------------------------------------------------------------------ */
+
+ReuseConfig *reuse_load_dep5(const char *repo_root) {
+    char path[1024];
+    HDEP5DOC hDoc = NULLHANDLE;
+    HDEP5FIND hFind = NULLHANDLE;
+    ReuseConfig *config = NULL;
+    APIRET rc;
+    ULONG ulFilesCount = 0;
+    ULONG i;
+
+    if (!repo_root || !repo_root[0]) return NULL;
+
+#ifdef __LINUX__
+    snprintf(path, sizeof(path), "%s/.reuse/dep5", repo_root);
+#else
+    snprintf(path, sizeof(path), "%s\\.reuse\\dep5", repo_root);
+#endif
+
+    rc = Dep5Open(path, &hDoc);
+    if (rc != DEP5_NO_ERROR) return NULL;
+
+    rc = Dep5FilesFindFirst(hDoc, &hFind, &ulFilesCount);
+    if (rc != DEP5_NO_ERROR) {
+        Dep5Close(hDoc);
+        return NULL;
+    }
+
+    config = (ReuseConfig*)calloc(1, sizeof(ReuseConfig));
+    if (!config) goto fail;
+
+    config->source_dir = dup_str(repo_root);
+    if (!config->source_dir) goto fail;
+    config->depth = -1;
+    config->version = 1;
+
+    config->annotations = (Annotation*)calloc(ulFilesCount,
+                                              sizeof(Annotation));
+    if (!config->annotations) goto fail;
+
+    for (i = 0; i < ulFilesCount; i++) {
+        Annotation *ann = &config->annotations[i];
+        ULONG ulPatCount = 0;
+        ULONG j;
+        ULONG ulSize;
+        char *buf;
+
+        memset(ann, 0, sizeof(*ann));
+        ann->precedence = REUSE_PRECEDENCE_CLOSEST;
+        ann->order_in_file = (int)i;
+
+        /* Patterns */
+        if (Dep5FilesGetPatternCount(hFind, &ulPatCount) == DEP5_NO_ERROR) {
+            for (j = 0; j < ulPatCount; j++) {
+                if (Dep5FilesGetPattern(hFind, j, NULL, 0, &ulSize)
+                    != DEP5_NO_ERROR)
+                    continue;
+                buf = (char*)malloc(ulSize);
+                if (!buf) goto fail;
+                if (Dep5FilesGetPattern(hFind, j, buf, ulSize, NULL)
+                    == DEP5_NO_ERROR)
+                    add_path(ann, buf);
+                free(buf);
+            }
+        }
+
+        /* License (synopsis only) */
+        if (Dep5FilesGetField(hFind, "License", NULL, 0, &ulSize)
+            == DEP5_NO_ERROR) {
+            buf = (char*)malloc(ulSize);
+            if (!buf) goto fail;
+            if (Dep5FilesGetField(hFind, "License", buf, ulSize, NULL)
+                == DEP5_NO_ERROR)
+                ann->license = dup_str(buf);
+            free(buf);
+        }
+
+        /* Copyright */
+        if (Dep5FilesGetField(hFind, "Copyright", NULL, 0, &ulSize)
+            == DEP5_NO_ERROR) {
+            buf = (char*)malloc(ulSize);
+            if (!buf) goto fail;
+            if (Dep5FilesGetField(hFind, "Copyright", buf, ulSize, NULL)
+                == DEP5_NO_ERROR)
+                ann->copyright = dup_str(buf);
+            free(buf);
+        }
+
+        if (i + 1 < ulFilesCount) {
+            if (Dep5FilesFindNext(hFind) != DEP5_NO_ERROR) goto fail;
+        }
+    }
+
+    config->annotation_count = (int)ulFilesCount;
+
+    Dep5FilesFindClose(hFind);
+    Dep5Close(hDoc);
+    return config;
+
+fail:
+    if (hFind) Dep5FilesFindClose(hFind);
+    if (hDoc) Dep5Close(hDoc);
+    free_reuse_config(config);
+    return NULL;
 }
 
 /* ------------------------------------------------------------------ */
