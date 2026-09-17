@@ -11,7 +11,7 @@
 
 !ifdef withsources
 !include $(withsources)
-MAKEOPT = $(MAKEOPT) withsources=$(withsources)
+MAKEOPT = $(MAKEOPT) PROJ=$(PROJ) PLATFORM=$(PLATFORM) withsources=$(withsources)
 !ifndef SOURCES
 SOURCES=
 !endif
@@ -21,7 +21,7 @@ SOURCES=
 
 !include $(%ROOT)tools/mk/dirs.mk
 
-MAKEOPT = $(__MAKEOPT__) PROJ=$(PROJ) 
+MAKEOPT = $(__MAKEOPTS__) PROJ=$(PROJ) PLATFORM=$(PLATFORM)
 
 !ifeq UNIX TRUE
 CD = cd
@@ -54,9 +54,9 @@ deps: .symbolic
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then $(verbose)cd $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) && cd ..; fi
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then $(verbose)cd $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM) && cd ..; fi
 !else
- $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d $(verbose)$(CD) $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET)
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d $(verbose)$(CD) $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
 !endif
 
 !ifdef srcfile
@@ -70,6 +70,7 @@ add_source: .SYMBOLIC
 !endif
 
 gen_sources_files: .symbolic
+ @echo GS_CMD: $(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
 !ifneq TARGET_LANG pascal
@@ -83,6 +84,8 @@ gen_sources: .symbolic gen_sources_files
 
 
 !else
+
+MAKEOPT += PLATFORM=$(PLATFORM)
 
 # If we don't have SOURCES, NOLIBS, but DIRS, then just use old all.mk
 !ifeq SOURCES
@@ -99,6 +102,6 @@ NO_DISPATCHER=1
 !include $(%ROOT)tools/mk/build3.mk
 !endif
 
-!endif  
+!endif
 
-!endif  
+!endif

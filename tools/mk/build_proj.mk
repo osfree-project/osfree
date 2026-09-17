@@ -14,7 +14,7 @@ dir4=$(dir3:$(SEP)=)
 
 depsall prepall subdirs clean annotate annotate-write: .SYMBOLIC
  @cd ..
- @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4)
+ @cd $(dir4) && $(MAKE) $(MAKEOPT) $^@ PROJ=$(dir4) PLATFORM=$(PLATFORM)
 
 #generate project name
 gen_proj_name: .SYMBOLIC
@@ -24,4 +24,4 @@ gen_proj_name: .SYMBOLIC
  #Save project name for future usage (will not start project detection from build dir)
  @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
  #Don't split line to be correct dir4. Magic!
- @cd $(dir4) && $(MAKE) $(MAKEOPT) PROJ=$(dir4)
+ @cd $(dir4) && $(MAKE) $(MAKEOPT) PROJ=$(dir4) PLATFORM=$(PLATFORM)

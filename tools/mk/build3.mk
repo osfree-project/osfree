@@ -200,25 +200,27 @@ gen_wrc_rule: .SYMBOLIC
 !endif
 
 gen_dep_rule: .symbolic
+        @echo GDR_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
 !ifdef pmap
 !include $(BLD)projects.map
 !endif
 !ifdef mpth
 # "if exist@ can be removed later after global defs generation
-        @if exist $(BLD)$($(mpth)_lib)_deps.mk @%append $(mf) !include $(BLD)$($(mpth)_lib)_deps.mk
+        @if exist $(BLD)$(PLATFORM)$($(mpth)_lib)_deps.mk @%append $(mf) !include $(BLD)$(PLATFORM)$($(mpth)_lib)_deps.mk
 !endif
 
 gen_dep_lib: .symbolic
 !ifdef pmap
 !include $(BLD)projects.map
 !endif
-        @%append $(PATH)_deps.mk !include $(BLD)$($(pth)_lib)_deps.mk
+        @%append $(PATH)_deps.mk !include $(BLD)$(PLATFORM)$($(pth)_lib)_deps.mk
 
 gen_dep_obj: .symbolic
         @%append $(PATH)_deps.mk $(trgt): $(MYDIR)makefile .AUTODEPEND
-	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) -h && cd $(CWD)
+	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) $(__MAKEOPTS__) && cd $(CWD)
 
 gen_deps_wrapper: .symbolic
+        @echo GDW_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
         # register project
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
         @$(MAKE) $(MAKEOPT) trrgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
@@ -228,8 +230,10 @@ gen_deps_wrapper: .symbolic
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps
         # generate _deps.mk to be included by other projects for full dependencies
         @%create $(PATH)_deps.mk
+        @%append $(PATH)_deps.mk !ifndef __$(PROJ)_deps_mk__
+        @%append $(PATH)_deps.mk !define __$(PROJ)_deps_mk__
         @%append $(PATH)_deps.mk $(BLD)lib$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
-	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) -h && cd $(CWD)
+	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) $(__MAKEOPTS__) && cd $(CWD)
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" pth=$(pth) gen_dep_obj
 !ifdef LIBS
         #add LIBS _deps.mk to generated makefile
@@ -237,6 +241,7 @@ gen_deps_wrapper: .symbolic
         #add LIBS rules to _deps.mk
         @for %l in ($(LIBS)) do @$(MAKE) $(MAKEOPT) trgt="$(BLD)lib\%l.lib" pth="%l" pmap=$(BLD)projects.map gen_dep_lib
 !endif
+        @%append $(PATH)_deps.mk !endif
 
 #!ifdef MSGEXT
 #	@for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(PATH)$(PROJ).inc" gen_deps

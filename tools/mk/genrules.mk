@@ -36,6 +36,7 @@ $(wcc):
 !endif
 
 $(mf): $(MYDIR)makefile .always
+ @echo MF_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)] MF=[$(mf)]
  @%create $(mf)
  @%append $(mf) $#
  @%append $(mf) $# This is auto-generated file,

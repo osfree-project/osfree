@@ -24,4 +24,4 @@ $(PATH)exhh.pl:
 $(PATH)exhh.ru:
 
 $(PATH)exhh.rsf: .always
- @$(MAKE) $(MAKEOPT) srcdir=$(PORT_BASE)$(MSGDIR) T=$^. rsf
+ @$(MAKE) $(MAKEOPT) srcdir=$(PORT_BASE)$(MSGDIR) PLATFORM=$(PLATFORM) T=$^. rsf

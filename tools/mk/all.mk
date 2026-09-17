@@ -535,9 +535,9 @@ TARGET = install
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) -h $(TARGET) && cd ..; fi
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM) && cd ..; fi
 !else
- $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d$(SEP). $(CD) $(MYDIR)%d && $(MAKE) -h $(TARGET)
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d$(SEP). $(CD) $(MYDIR)%d && $(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
 !endif
 
 dirhier: .symbolic
@@ -555,8 +555,8 @@ prepall: .symbolic
  @$(MAKE) $(MAKEOPT) TARGET=prepall subdirs
 
 
-targets: prep prereq subdirs .symbolic
- @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
+targets: prep subdirs prereq .symbolic
+ @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) PLATFORM=$(PLATFORM) %t
 
 !ifdef PROJ
 #$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
@@ -619,7 +619,7 @@ install3: .symbolic
 !ifneq file subdirs
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST) $(LOG2)
- $(verbose) $(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+ $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 !endif
 !endif
 !endif
@@ -630,7 +630,7 @@ $(DEST)$(SEP)install2: .symbolic
 #!ifdef PROJ
 # @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
 #!else
- @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+ @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3 PLATFORM=$(PLATFORM)
 #!endif
 
 !else
@@ -639,13 +639,13 @@ $(DEST)$(SEP)$(FLG): .symbolic
 #!ifdef PROJ
 # @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
 #!else
- @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3
+ @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3 PLATFORM=$(PLATFORM)
 #!endif
 
 !endif
 
 precopy: .symbolic
- @$(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile tools
+ $(verbose)$(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile tools
 
 # prebuild libs
 prelibs: .symbolic

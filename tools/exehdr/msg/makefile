@@ -1,4 +1,4 @@
-#
+# tools/exehdr/msg/makefile
 #
 #
 
@@ -24,4 +24,5 @@ $(PATH)exh.pl:
 $(PATH)exh.ru:
 
 $(PATH)exh.rsf: .always
- @$(MAKE) $(MAKEOPT) srcdir=$(PORT_BASE)$(MSGDIR) T=$^. rsf
+ @echo RSF_RECIPE PLATFORM=[$(PLATFORM)] PATH=[$(PATH)] TARGET=[$@]
+ @$(MAKE) $(MAKEOPT) srcdir=$(PORT_BASE)$(MSGDIR) PLATFORM=$(PLATFORM) T=$^. rsf
