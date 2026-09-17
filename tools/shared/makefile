@@ -1,3 +1,5 @@
+# tools/shared/makefile
+#
 # Makefile for common shared libs
 
 32_BITS  = 1
