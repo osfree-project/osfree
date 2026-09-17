@@ -1,4 +1,4 @@
-#
+# tools/mk/tools.mk
 # make macros
 # for building tools
 #
@@ -7,6 +7,24 @@
 !define __tools_mk__
 
 32_BITS  = 1
+
+#-------------------------------------------------------------
+# Undefine empty macros passed via command line
+#-------------------------------------------------------------
+
+!ifdef PLATFORM
+#!message build.mk: PLATFORM is [$(PLATFORM)], undefining
+!ifeq PLATFORM
+#!message Undefining PLATFORM
+!undef PLATFORM
+!endif
+!ifndef PLATFORM
+#!message build.mk: PLATFORM not defined now
+!else
+#!message build.mk: PLATFORM still defined
+!endif
+!endif
+
 
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
