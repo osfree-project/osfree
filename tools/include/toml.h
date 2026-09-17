@@ -2,10 +2,6 @@
 #ifndef TOML_H
 #define TOML_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @file toml.h
  * @brief Public interface of the TOML v1.0.0 parser.
@@ -28,50 +24,11 @@ extern "C" {
  * __int64 extension. No -za99 mode is required.
  */
 
-/* ==================================================================
- * Base types
- * ================================================================== */
+#include "common_types.h"
 
-#ifndef OS2_INCLUDED
-
-typedef unsigned char       UCHAR;
-typedef unsigned short      USHORT;
-typedef unsigned long       ULONG;
-typedef signed   long       LONG;
-typedef signed   __int64    LONGLONG;
-typedef int                 BOOL;
-typedef char                CHAR;
-typedef char               *PSZ;
-typedef const char         *PCSZ;
-typedef void               *PVOID;
-typedef const void         *PCVOID;
-typedef ULONG               APIRET;
-
-/**
- * @typedef HANDLE
- * @brief Opaque handle value.
- */
-typedef PVOID               HANDLE;
-
-typedef UCHAR              *PUCHAR;
-typedef USHORT             *PUSHORT;
-typedef ULONG              *PULONG;
-typedef LONG               *PLONG;
-typedef LONGLONG           *PLONGLONG;
-typedef BOOL               *PBOOL;
-typedef PSZ                *PPSZ;
-typedef HANDLE             *PHANDLE;
-
-#define TRUE_        1
-#define FALSE_       0
-
-/**
- * @def NULLHANDLE
- * @brief The null handle value.
- */
-#define NULLHANDLE   0
-
-#endif /* OS2_INCLUDED */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ==================================================================
  * Error codes
@@ -660,6 +617,8 @@ APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
  * @retval TOML_ERROR_NO_MORE_ENTRIES No entry matches the pattern.
  *                                    *phFind = NULLHANDLE.
  *
+ * @note The cursor owns internal buffers allocated from the document.
+ *       Always release it via TomlFindClose.
  * @see TomlFindNext, TomlFindClose
  */
 APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,

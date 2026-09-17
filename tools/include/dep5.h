@@ -3,10 +3,6 @@
 #ifndef DEP5_H
 #define DEP5_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @file dep5.h
  * @brief Public interface of the DEP5 parser.
@@ -24,54 +20,14 @@ extern "C" {
  * releases them in Dep5Close. The consumer supplies buffers only for
  * the data being returned.
  *
- * Written for Open Watcom 1.9 in C89 style. 64-bit integers use the
- * __int64 extension. No -za99 mode is required.
+ * Written for Open Watcom 1.9 in C89 style. No -za99 mode is required.
  */
 
-/* ==================================================================
- * Base types
- * ================================================================== */
+#include "common_types.h"
 
-#ifndef OS2_INCLUDED
-
-typedef unsigned char       UCHAR;
-typedef unsigned short      USHORT;
-typedef unsigned long       ULONG;
-typedef signed   long       LONG;
-typedef signed   __int64    LONGLONG;
-typedef int                 BOOL;
-typedef char                CHAR;
-typedef char               *PSZ;
-typedef const char         *PCSZ;
-typedef void               *PVOID;
-typedef const void         *PCVOID;
-typedef ULONG               APIRET;
-
-/**
- * @typedef HANDLE
- * @brief Opaque handle value.
- */
-typedef PVOID               HANDLE;
-
-typedef UCHAR              *PUCHAR;
-typedef USHORT             *PUSHORT;
-typedef ULONG              *PULONG;
-typedef LONG               *PLONG;
-typedef LONGLONG           *PLONGLONG;
-typedef BOOL               *PBOOL;
-typedef PSZ                *PPSZ;
-typedef HANDLE             *PHANDLE;
-
-#define TRUE_        1
-#define FALSE_       0
-
-/**
- * @def NULLHANDLE
- * @brief The null handle value.
- */
-#define NULLHANDLE   0
-
-#endif /* OS2_INCLUDED */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ==================================================================
  * Error codes
