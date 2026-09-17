@@ -10,6 +10,8 @@
 !define __build_mk__
 
 !message $(%CWD)
+!message $(SOURCES)
+!message $(__MAKEFILES__)
 
 # ------------------------------------------------------------
 # Aliases

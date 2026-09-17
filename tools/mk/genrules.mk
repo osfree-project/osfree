@@ -44,6 +44,7 @@ $(mf): $(MYDIR)makefile .always
  @%append $(mf) $#
  @%append $(mf)
  @if exist $(PATH)_proj.mk @%append $(mf) !include $(PATH)_proj.mk
+ @if exist $(PATH)_sources.mk @%append $(mf) !include $(PATH)_sources.mk
  @%append $(mf) !include $$(%ROOT)$(RELDIR:\=/)makefile
  @%append $(mf)
 !ifdef __UNIX__ 
