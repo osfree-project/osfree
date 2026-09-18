@@ -755,14 +755,18 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
         FILE *f = fopen(sidecar, "rb");
         if (f) {
             fclose(f);
-            side_lic = file_get_spdx_license(sidecar);
-            side_cop = file_get_spdx_copyright(sidecar);
+            if (SpdxFileGetLicense(sidecar, &side_lic) != SPDX_TAG_NO_ERROR)
+                side_lic = NULL;
+            if (SpdxFileGetCopyright(sidecar, &side_cop) != SPDX_TAG_NO_ERROR)
+                side_cop = NULL;
         }
     }
 
     /* 2. Read tags inside the file */
-    tag_lic = file_get_spdx_license(pszPath);
-    tag_cop = file_get_spdx_copyright(pszPath);
+    if (SpdxFileGetLicense(pszPath, &tag_lic) != SPDX_TAG_NO_ERROR)
+        tag_lic = NULL;
+    if (SpdxFileGetCopyright(pszPath, &tag_cop) != SPDX_TAG_NO_ERROR)
+        tag_cop = NULL;
 
     /* 3. Sidecar takes precedence over in-file tags */
     in_lic = side_lic ? side_lic : tag_lic;

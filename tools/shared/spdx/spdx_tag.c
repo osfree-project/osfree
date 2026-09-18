@@ -1,13 +1,13 @@
-/* spdx_tag.c - разбор SPDX-тегов и сниппетов из файлов (C89) */
+/* spdx_tag.c - SPDX tags and snippet parser (C89) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "spdx_tag.h"
 
-/* Увеличен с 4096, чтобы длинные copyright-выражения не обрезались. */
+/* Raised from 4096 to avoid truncating long copyright expressions. */
 #define MAX_LINE 16384
 
-/* Пропускает UTF-8 BOM в начале буфера. */
+/* Skip a UTF-8 BOM at the start of the buffer. */
 static const char *skip_bom(const char *p) {
     if ((unsigned char)p[0] == 0xEF &&
         (unsigned char)p[1] == 0xBB &&
@@ -17,7 +17,7 @@ static const char *skip_bom(const char *p) {
     return p;
 }
 
-/* Пропускает отступ и маркер комментария. */
+/* Skip leading whitespace and a comment marker. */
 static const char *skip_comment_prefix(const char *p) {
     while (*p == ' ' || *p == '\t') p++;
     if (p[0] == '/' && p[1] == '/') { p += 2; }
@@ -31,8 +31,8 @@ static const char *skip_comment_prefix(const char *p) {
     return p;
 }
 
-/* Проверяет, начинается ли содержательная часть строки с
- * REUSE-IgnoreStart или REUSE-IgnoreEnd. Возвращает 1, 2 или 0. */
+/* Check whether the meaningful part of a line starts with
+ * REUSE-IgnoreStart or REUSE-IgnoreEnd. Returns 1, 2, or 0. */
 static int line_ignore_marker(const char *line) {
     const char *p = skip_comment_prefix(line);
     if (strncmp(p, "REUSE-IgnoreStart", 17) == 0) {
@@ -50,9 +50,9 @@ static int line_ignore_marker(const char *line) {
     return 0;
 }
 
-/* Проверяет, начинается ли содержательная часть строки с указанного
- * тега (tag может оканчиваться двоеточием). После тега должен идти
- * пробел, таб, ':', перевод строки или конец. */
+/* Check whether the meaningful part of a line starts with the given
+ * tag (tag may end with a colon). After the tag there must be a
+ * space, a tab, a colon, a newline, or end of string. */
 static int line_starts_with_tag(const char *line, const char *tag) {
     size_t tlen = strlen(tag);
     const char *p = skip_comment_prefix(line);
@@ -64,8 +64,9 @@ static int line_starts_with_tag(const char *line, const char *tag) {
     return 0;
 }
 
-/* Возвращает указатель на значение после тега (пропустив двоеточие
- * и пробелы). Если тег не найден или без двоеточия - NULL. */
+/* Return a pointer to the value after the tag (skipping the colon and
+ * surrounding whitespace). If the tag is not found or lacks a colon,
+ * returns NULL. */
 static const char *tag_value(const char *line, const char *tag_with_colon) {
     size_t tlen = strlen(tag_with_colon);
     const char *p = skip_comment_prefix(line);
@@ -75,8 +76,7 @@ static const char *tag_value(const char *line, const char *tag_with_colon) {
     return p;
 }
 
-/* Удаляет хвостовые пробелы, переводы строк и маркеры закрытия
- * блочных и строчных комментариев. */
+/* Strip trailing whitespace, newlines and comment-closing markers. */
 static void strip_trailing_markers(char *str) {
     size_t len = strlen(str);
     while (len > 0) {
@@ -95,57 +95,58 @@ static void strip_trailing_markers(char *str) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Список сниппетов                                                    */
+/* Snippet list                                                        */
 /* ------------------------------------------------------------------ */
 
-void tag_snippets_init(TagSnippetList *list) {
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
+void APIENTRY SpdxSnippetListInit(SPDXSNIPPETLIST *pList) {
+    pList->paItems = NULL;
+    pList->nCount = 0;
+    pList->nCapacity = 0;
 }
 
-void tag_snippets_free(TagSnippetList *list) {
+void APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList) {
     int i;
-    for (i = 0; i < list->count; i++) {
-        free(list->items[i].license);
-        free(list->items[i].copyright);
+    if (!pList) return;
+    for (i = 0; i < pList->nCount; i++) {
+        free(pList->paItems[i].pszLicense);
+        free(pList->paItems[i].pszCopyright);
     }
-    free(list->items);
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
+    free(pList->paItems);
+    pList->paItems = NULL;
+    pList->nCount = 0;
+    pList->nCapacity = 0;
 }
 
-static TagSnippet *tag_snippets_add(TagSnippetList *list) {
-    TagSnippet *s;
-    if (list->count >= list->capacity) {
-        int new_cap = list->capacity ? list->capacity * 2 : 4;
-        TagSnippet *ni = (TagSnippet*)realloc(list->items,
-            (size_t)new_cap * sizeof(TagSnippet));
-        if (!ni) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
-        }
-        list->items = ni;
-        list->capacity = new_cap;
+static PSPDXSNIPPET spdx_snippet_list_add(SPDXSNIPPETLIST *pList) {
+    PSPDXSNIPPET pItem;
+    if (pList->nCount >= pList->nCapacity) {
+        int nNewCap = pList->nCapacity ? pList->nCapacity * 2 : 4;
+        PSPDXSNIPPET paNew = (PSPDXSNIPPET)realloc(pList->paItems,
+            (size_t)nNewCap * sizeof(SPDXSNIPPET));
+        if (!paNew) return NULL;
+        pList->paItems = paNew;
+        pList->nCapacity = nNewCap;
     }
-    s = &list->items[list->count++];
-    memset(s, 0, sizeof(*s));
-    return s;
+    pItem = &pList->paItems[pList->nCount++];
+    memset(pItem, 0, sizeof(*pItem));
+    return pItem;
 }
 
 /* ------------------------------------------------------------------ */
-/* Публичные функции                                                   */
+/* Public functions                                                    */
 /* ------------------------------------------------------------------ */
 
-int file_has_spdx_tag(const char *filename) {
+APIRET APIENTRY SpdxFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
     FILE *f;
     char line[MAX_LINE];
     int ignore = 0;
     int first_line = 1;
 
-    f = fopen(filename, "r");
-    if (!f) return 0;
+    if (!pszFilename || !pfHasTag) return SPDX_TAG_ERROR_INVALID_PARAM;
+    *pfHasTag = FALSE_;
+
+    f = fopen(pszFilename, "r");
+    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
     while (fgets(line, sizeof(line), f)) {
         char *work = line;
         int marker;
@@ -162,14 +163,15 @@ int file_has_spdx_tag(const char *filename) {
 
         if (strstr(work, "SPDX-License-Identifier:")) {
             fclose(f);
-            return 1;
+            *pfHasTag = TRUE_;
+            return SPDX_TAG_NO_ERROR;
         }
     }
     fclose(f);
-    return 0;
+    return SPDX_TAG_NO_ERROR;
 }
 
-char *file_get_spdx_license(const char *filename) {
+APIRET APIENTRY SpdxFileGetLicense(PCSZ pszFilename, PSZ *ppszLicense) {
     FILE *f;
     char line[MAX_LINE];
     const char *needle = "SPDX-License-Identifier:";
@@ -181,8 +183,11 @@ char *file_get_spdx_license(const char *filename) {
     int ignore = 0;
     int first_line = 1;
 
-    f = fopen(filename, "r");
-    if (!f) return NULL;
+    if (!pszFilename || !ppszLicense) return SPDX_TAG_ERROR_INVALID_PARAM;
+    *ppszLicense = NULL;
+
+    f = fopen(pszFilename, "r");
+    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
 
     while (fgets(line, sizeof(line), f)) {
         char *work = line;
@@ -207,20 +212,21 @@ char *file_get_spdx_license(const char *filename) {
                 result = (char *)malloc(len + 1);
                 if (!result) {
                     fclose(f);
-                    return NULL;
+                    return SPDX_TAG_ERROR_OUT_OF_MEMORY;
                 }
                 memcpy(result, start, len);
                 result[len] = '\0';
                 fclose(f);
-                return result;
+                *ppszLicense = result;
+                return SPDX_TAG_NO_ERROR;
             }
         }
     }
     fclose(f);
-    return NULL;
+    return SPDX_TAG_ERROR_NOT_FOUND;
 }
 
-char *file_get_spdx_copyright(const char *filename) {
+APIRET APIENTRY SpdxFileGetCopyright(PCSZ pszFilename, PSZ *ppszCopyright) {
     FILE *f;
     char line[MAX_LINE];
     char *result = NULL;
@@ -228,8 +234,11 @@ char *file_get_spdx_copyright(const char *filename) {
     int ignore = 0;
     int first_line = 1;
 
-    f = fopen(filename, "r");
-    if (!f) return NULL;
+    if (!pszFilename || !ppszCopyright) return SPDX_TAG_ERROR_INVALID_PARAM;
+    *ppszCopyright = NULL;
+
+    f = fopen(pszFilename, "r");
+    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
 
     while (fgets(line, sizeof(line), f)) {
         char *p;
@@ -278,7 +287,7 @@ char *file_get_spdx_copyright(const char *filename) {
             if (!new_result) {
                 free(result);
                 fclose(f);
-                return NULL;
+                return SPDX_TAG_ERROR_OUT_OF_MEMORY;
             }
             result = new_result;
             if (result_len > 0) {
@@ -290,10 +299,13 @@ char *file_get_spdx_copyright(const char *filename) {
         }
     }
     fclose(f);
-    return result;
+
+    if (!result) return SPDX_TAG_ERROR_NOT_FOUND;
+    *ppszCopyright = result;
+    return SPDX_TAG_NO_ERROR;
 }
 
-/* Дописать строку к накопителю через '\n'. */
+/* Append a line to an accumulator with a '\n' separator. */
 static char *append_line(char *acc, size_t *acc_len, const char *line) {
     size_t llen = strlen(line);
     char *na;
@@ -314,7 +326,8 @@ static char *append_line(char *acc, size_t *acc_len, const char *line) {
     return na;
 }
 
-int file_get_snippets(const char *filename, TagSnippetList *out) {
+APIRET APIENTRY SpdxFileGetSnippets(PCSZ pszFilename,
+                                    SPDXSNIPPETLIST *pOut) {
     FILE *f;
     char line[MAX_LINE];
     int lineno = 0;
@@ -326,10 +339,12 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
     size_t snippet_copyright_len = 0;
     int ignore = 0;
 
-    tag_snippets_init(out);
+    if (!pszFilename || !pOut) return SPDX_TAG_ERROR_INVALID_PARAM;
 
-    f = fopen(filename, "r");
-    if (!f) return -1;
+    SpdxSnippetListInit(pOut);
+
+    f = fopen(pszFilename, "r");
+    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
 
     while (fgets(line, sizeof(line), f)) {
         char *work = line;
@@ -355,12 +370,12 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
                         "         - remove the duplicate SPDX-SnippetBegin;\n"
                         "         - or add a matching SPDX-SnippetEnd "
                         "before the nested one.\n",
-                        filename, lineno);
+                        pszFilename, lineno);
                 free(snippet_license);
                 free(snippet_copyright);
-                tag_snippets_free(out);
+                SpdxSnippetListFree(pOut);
                 fclose(f);
-                return -1;
+                return SPDX_TAG_ERROR_SYNTAX;
             }
             in_snippet = 1;
             snippet_start_line = lineno;
@@ -371,7 +386,7 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
         }
 
         if (line_starts_with_tag(work, "SPDX-SnippetEnd")) {
-            TagSnippet *s;
+            PSPDXSNIPPET pS;
             if (!in_snippet) {
                 fprintf(stderr,
                         "ERROR: %s:%d: SPDX-SnippetEnd without matching "
@@ -380,16 +395,23 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
                         "         - remove this SPDX-SnippetEnd;\n"
                         "         - or add SPDX-SnippetBegin before the "
                         "snippet.\n",
-                        filename, lineno);
-                tag_snippets_free(out);
+                        pszFilename, lineno);
+                SpdxSnippetListFree(pOut);
                 fclose(f);
-                return -1;
+                return SPDX_TAG_ERROR_SYNTAX;
             }
-            s = tag_snippets_add(out);
-            s->line_start = snippet_start_line;
-            s->line_end   = lineno;
-            s->license    = snippet_license;
-            s->copyright  = snippet_copyright;
+            pS = spdx_snippet_list_add(pOut);
+            if (!pS) {
+                free(snippet_license);
+                free(snippet_copyright);
+                SpdxSnippetListFree(pOut);
+                fclose(f);
+                return SPDX_TAG_ERROR_OUT_OF_MEMORY;
+            }
+            pS->nLineStart  = snippet_start_line;
+            pS->nLineEnd    = lineno;
+            pS->pszLicense  = snippet_license;
+            pS->pszCopyright = snippet_copyright;
             snippet_license = NULL;
             snippet_copyright = NULL;
             snippet_copyright_len = 0;
@@ -441,12 +463,12 @@ int file_get_snippets(const char *filename, TagSnippetList *out) {
                 "         - add SPDX-SnippetEnd after the snippet;\n"
                 "         - or remove SPDX-SnippetBegin if the code is not "
                 "a snippet.\n",
-                filename, snippet_start_line);
+                pszFilename, snippet_start_line);
         free(snippet_license);
         free(snippet_copyright);
-        tag_snippets_free(out);
-        return -1;
+        SpdxSnippetListFree(pOut);
+        return SPDX_TAG_ERROR_SYNTAX;
     }
 
-    return 0;
+    return SPDX_TAG_NO_ERROR;
 }

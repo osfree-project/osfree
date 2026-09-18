@@ -1,4 +1,4 @@
-/* spdx_discover.c - единый модуль определения списка файлов (C89) */
+/* spdx_discover.c - unified file-list discovery module (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "spdx_discover.h"
 #include "spdx_utils.h"
-#include "git_utils.h"
+#include "git.h"
 #include "omf_parser.h"
 #include "res_parser.h"
 
@@ -20,7 +20,7 @@
 #endif
 
 /* ------------------------------------------------------------------ */
-/* Опции                                                               */
+/* Options                                                             */
 /* ------------------------------------------------------------------ */
 
 void spdx_walk_options_default(SpdxWalkOptions *opts) {
@@ -39,7 +39,7 @@ void spdx_walk_options_default(SpdxWalkOptions *opts) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Служебные проверки имён                                             */
+/* Name checks                                                         */
 /* ------------------------------------------------------------------ */
 
 static int is_vcs_dir(const char *name) {
@@ -106,7 +106,7 @@ static int is_hidden(const char *name) {
     return name[0] == '.';
 }
 
-/* SPDX-документы: *.spdx, *.spdx.json, *.spdx.yaml, *.spdx.yml,
+/* SPDX documents: *.spdx, *.spdx.json, *.spdx.yaml, *.spdx.yml,
  * *.spdx.rdf, *.spdx.xml */
 static int is_spdx_document(const char *name) {
     size_t len = strlen(name);
@@ -124,11 +124,11 @@ static int is_spdx_document(const char *name) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Git-фильтрация                                                      */
+/* Git filtering                                                       */
 /* ------------------------------------------------------------------ */
 
-/* Сравнение символов пути: регистрозависимо на Linux, регистронезависимо
- * на Windows. */
+/* Path character comparison: case-sensitive on Linux, case-insensitive
+ * on Windows. */
 static int path_char_eq(int a, int b) {
 #ifdef _WIN32
     return tolower((unsigned char)a) == tolower((unsigned char)b);
@@ -146,7 +146,7 @@ static int path_prefix_eq(const char *s, const char *prefix, size_t n) {
     return 1;
 }
 
-/* Нормализует путь к виду с '/'. Возвращает malloc-строку. */
+/* Normalize a path to use '/'. Returns a malloc'd string. */
 static char *to_slash(const char *path) {
     size_t i;
     size_t n = strlen(path);
@@ -158,8 +158,8 @@ static char *to_slash(const char *path) {
     return r;
 }
 
-/* Возвращает относительный путь от root до full (с '/'),
- * либо NULL, если full не под root. Caller free. */
+/* Return the path of `full` relative to `root` (with '/'), or NULL if
+ * `full` is not under `root`. Caller frees. */
 static char *rel_path(const char *root, const char *full) {
     size_t rlen, flen;
     char *rroot, *rfull, *result;
@@ -197,21 +197,24 @@ static char *rel_path(const char *root, const char *full) {
 static int should_skip_by_gitignore(const SpdxWalkOptions *opts,
                                     const char *fullpath, int is_dir) {
     char *rel;
-    int ignored;
+    BOOL ignored = FALSE_;
 
     if (!opts->use_gitignore) return 0;
-    if (!opts->gitignore_rules || opts->gitignore_rules->count == 0) return 0;
+    if (!opts->gitignore_rules || opts->gitignore_rules->ulCount == 0) return 0;
     if (!opts->repo_root) return 0;
 
     rel = rel_path(opts->repo_root, fullpath);
     if (!rel) return 0;
-    ignored = git_is_ignored(opts->gitignore_rules, rel, is_dir);
+    if (GitIsIgnored(opts->gitignore_rules, rel, is_dir ? TRUE_ : FALSE_,
+                     &ignored) != GIT_NO_ERROR) {
+        ignored = FALSE_;
+    }
     free(rel);
-    return ignored;
+    return ignored ? 1 : 0;
 }
 
 /* ------------------------------------------------------------------ */
-/* Прочие фильтры                                                      */
+/* Other filters                                                       */
 /* ------------------------------------------------------------------ */
 
 static int should_skip_file(const char *name, const SpdxWalkOptions *opts) {
@@ -232,7 +235,7 @@ static int should_skip_dir(const char *name, const SpdxWalkOptions *opts) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Нормализация пути и склейка                                         */
+/* Path normalization and joining                                      */
 /* ------------------------------------------------------------------ */
 
 static void normalize_dir(const char *src, char *dst, size_t dst_size) {
@@ -262,7 +265,7 @@ static void join_path(char *dst, size_t dst_size,
 }
 
 /* ------------------------------------------------------------------ */
-/* Обход дерева                                                        */
+/* Tree walk                                                           */
 /* ------------------------------------------------------------------ */
 
 #ifdef __LINUX__
@@ -367,7 +370,7 @@ int spdx_walk_tree(const char *dir, const SpdxWalkOptions *opts,
 }
 
 /* ------------------------------------------------------------------ */
-/* Артефакты сборки                                                    */
+/* Build artifacts                                                     */
 /* ------------------------------------------------------------------ */
 
 int spdx_discover_from_artifacts(char **object_files, int object_count,
@@ -416,7 +419,7 @@ int spdx_discover_from_artifacts(char **object_files, int object_count,
 }
 
 /* ------------------------------------------------------------------ */
-/* Оркестратор                                                         */
+/* Orchestrator                                                        */
 /* ------------------------------------------------------------------ */
 
 int spdx_discover(const char *project_dir,
