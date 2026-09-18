@@ -17,6 +17,7 @@
 #include "spdx_discover.h"
 #include "git.h"
 #include "spdx_tag.h"
+#include "reuse_lic.h"
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192
@@ -497,7 +498,11 @@ static int annotate_one(const char *filename,
         return 0;
     }
 
-    has = file_has_spdx_tag(filename);
+    {
+        BOOL bHasTag = FALSE_;
+        SpdxFileHasTag(filename, &bHasTag);
+        has = bHasTag ? 1 : 0;
+    }
 
     if (has && !force) {
         printf("Skipped (has tags):   %s\n", filename);
@@ -724,9 +729,7 @@ int main(int argc, char *argv[]) {
     const char *copyright_override = NULL;
     const char *spdx_db_root = NULL;
     const char *cache_file = NULL;
-    ReuseConfig **configs = NULL;
-    int config_count = 0;
-    SpdxStrList toml_paths;
+    HREUSETREE hTree = NULLHANDLE;
     int db_errs;
     SpdxStrList used_licenses;
     SpdxStrList paths;
@@ -838,26 +841,21 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        int reuse_errors = 0;
-        reuse_find_all_tomls(repo_root, dir, &toml_paths);
-        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
-        spdx_strlist_free(&toml_paths);
-        if (reuse_errors > 0) {
-            total_errors += reuse_errors;
+        APIRET rc = ReuseTreeOpen(dir, &hTree);
+        if (rc != REUSE_NO_ERROR) {
+            printf("ERROR: cannot open REUSE project at %s\n"
+                   "       The directory is missing or unreadable.\n",
+                   dir);
+            spdx_strlist_free(&used_licenses);
+            GitIgnoreListFree(&gitignore_rules);
+            free(repo_root);
+            spdx_db_free();
+            return 1;
         }
-    }
-
-    if (repo_root) {
-        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
-        if (dep5) {
-            ReuseConfig **na = (ReuseConfig**)realloc(configs,
-                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
-            if (na) {
-                configs = na;
-                configs[config_count++] = dep5;
-            } else {
-                free_reuse_config(dep5);
-            }
+        {
+            ULONG ulErrs = 0;
+            if (ReuseTreeGetErrorCount(hTree, &ulErrs) == REUSE_NO_ERROR)
+                total_errors += (int)ulErrs;
         }
     }
 
@@ -890,7 +888,7 @@ int main(int argc, char *argv[]) {
                dir);
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
-        reuse_free_all(configs, config_count);
+        ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
@@ -916,15 +914,23 @@ int main(int argc, char *argv[]) {
         int rc;
 
         {
-            ReuseResolved resolved;
+            REUSELICENSEINFO resolved;
             memset(&resolved, 0, sizeof(resolved));
-            reuse_resolve_for_file(configs, config_count, fullpath,
-                                   NULL, NULL, &resolved);
-            reuse_license = resolved.license;
-            reuse_copyright = resolved.copyright;
-            resolved.license = NULL;
-            resolved.copyright = NULL;
-            reuse_resolved_free(&resolved);
+            if (ReuseResolveLicense(hTree, fullpath, NULL, NULL, &resolved)
+                    == REUSE_NO_ERROR) {
+                if (resolved.license[0]) {
+                    size_t n = strlen(resolved.license);
+                    reuse_license = (char*)malloc(n + 1);
+                    if (reuse_license) memcpy(reuse_license,
+                                              resolved.license, n + 1);
+                }
+                if (resolved.copyright[0]) {
+                    size_t n = strlen(resolved.copyright);
+                    reuse_copyright = (char*)malloc(n + 1);
+                    if (reuse_copyright) memcpy(reuse_copyright,
+                                                resolved.copyright, n + 1);
+                }
+            }
         }
 
         license = reuse_license ? reuse_license : license_override;
@@ -1015,7 +1021,7 @@ int main(int argc, char *argv[]) {
                                     &used_licenses, force, dry_run);
 
     spdx_strlist_free(&used_licenses);
-    reuse_free_all(configs, config_count);
+    ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
