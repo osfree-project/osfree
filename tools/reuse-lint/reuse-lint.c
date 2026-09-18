@@ -1,4 +1,4 @@
-/* reuse-lint.c - проверка проекта на соответствие REUSE / SPDX (C89, OpenWatcom) */
+/* reuse-lint.c - REUSE / SPDX compliance checker (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,7 @@
 #include "spdx_utils.h"
 #include "spdx_lic.h"
 #include "spdx_tag.h"
-#include "git_utils.h"
+#include "git.h"
 
 static int error_count = 0;
 static int warning_count = 0;
@@ -538,10 +538,10 @@ int main(int argc, char *argv[]) {
     int db_errs;
     SpdxWalkOptions walk_opts;
     char *repo_root = NULL;
-    GitIgnoreList gitignore_rules;
+    GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
 
-    git_ignore_list_init(&gitignore_rules);
+    GitIgnoreListInit(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -557,7 +557,7 @@ int main(int argc, char *argv[]) {
                    "  --no-gitignore             Do not apply .gitignore "
                    "rules\n"
                    "  --help, -h                 Show this help\n");
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             return 0;
         }
         if (strncmp(argv[i], "--spdx-db=", 10) == 0)
@@ -587,7 +587,7 @@ int main(int argc, char *argv[]) {
                 "       --spdx-db=<path> is required.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n"
                 "       Run 'reuse-lint --help' for usage.\n");
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
 
@@ -598,7 +598,7 @@ int main(int argc, char *argv[]) {
                         "       Expected at <spdx-db>/licenses.json.\n"
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
@@ -608,7 +608,7 @@ int main(int argc, char *argv[]) {
                         "       Expected at <spdx-db>/exceptions.json.\n"
                         "       Cannot validate SPDX identifiers. "
                         "Aborting.\n");
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
@@ -616,7 +616,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "WARNING: cache could not be written.\n"
                         "         Next run will re-parse JSON indexes.\n");
 
-    repo_root = git_find_repo_root(dir);
+    if (GitFindRepoRoot(dir, &repo_root) != GIT_NO_ERROR) {
+        repo_root = NULL;
+    }
 
     {
         int reuse_errors = 0;
@@ -643,8 +645,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (!no_gitignore) {
-        if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
-            gitignore_rules.count > 0) {
+        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == GIT_NO_ERROR &&
+            gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
     }
@@ -668,7 +670,7 @@ int main(int argc, char *argv[]) {
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
         reuse_free_all(configs, config_count);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         return 1;
@@ -708,7 +710,7 @@ int main(int argc, char *argv[]) {
 
     spdx_strlist_free(&used_licenses);
     reuse_free_all(configs, config_count);
-    git_ignore_list_free(&gitignore_rules);
+    GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
 

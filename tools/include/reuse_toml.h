@@ -10,8 +10,8 @@
  * Parses a single REUSE.toml file according to REUSE Specification 3.3:
  *   - https://reuse.software/spec-3.3/
  *
- * The parser owns its internal buffers, allocates them in ReuseTomlOpen
- * and releases them in ReuseTomlClose. The consumer supplies buffers
+ * The parser owns its internal buffers, allocates them in ReuseOpen
+ * and releases them in ReuseClose. The consumer supplies buffers
  * only for the data being returned.
  */
 
@@ -31,7 +31,7 @@ extern "C" {
  * @typedef HREUSETOML
  * @brief Handle to an opened REUSE.toml document.
  *
- * Issued by ReuseTomlOpen, released by ReuseTomlClose. All internal
+ * Issued by ReuseOpen, released by ReuseClose. All internal
  * buffers are owned by the document and released on close.
  */
 typedef HANDLE HREUSETOML;
@@ -77,10 +77,10 @@ typedef HANDLE HREUSEANN;
  *                                        entry has an unsupported type.
  * @retval REUSE_ERROR_OUT_OF_MEMORY      Memory allocation failure.
  *
- * @note Release the handle with ReuseTomlClose.
- * @see ReuseTomlClose
+ * @note Release the handle with ReuseClose.
+ * @see ReuseClose
  */
-APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml);
+APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml);
 
 /**
  * @brief Close a document and release all associated memory.
@@ -93,10 +93,10 @@ APIRET ReuseTomlOpen(PCSZ pszPath, HREUSETOML *phToml);
  * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  *
- * @warning Do not call ReuseTomlClose twice with the same handle.
- * @see ReuseTomlOpen
+ * @warning Do not call ReuseClose twice with the same handle.
+ * @see ReuseOpen
  */
-APIRET ReuseTomlClose(HREUSETOML hToml);
+APIRET APIENTRY ReuseClose(HREUSETOML hToml);
 
 /* ==================================================================
  * Document-level accessors
@@ -113,7 +113,7 @@ APIRET ReuseTomlClose(HREUSETOML hToml);
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
+APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
 
 /**
  * @brief Query the directory containing the REUSE.toml file.
@@ -135,8 +135,8 @@ APIRET ReuseTomlGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
  * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseTomlGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
-                             ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Query the number of [[annotations]] entries.
@@ -149,7 +149,7 @@ APIRET ReuseTomlGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
+APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
 
 /* ==================================================================
  * Annotation access
@@ -158,7 +158,7 @@ APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
 /**
  * @brief Obtain a borrowed handle to one [[annotations]] entry.
  *
- * The handle is valid until ReuseTomlClose. It does not need to be
+ * The handle is valid until ReuseClose. It does not need to be
  * released separately.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
@@ -171,8 +171,8 @@ APIRET ReuseTomlGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET ReuseTomlGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
-                              HREUSEANN *phAnn);
+APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
+                                   HREUSEANN *phAnn);
 
 /* ==================================================================
  * Path list
@@ -189,7 +189,7 @@ APIRET ReuseTomlGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
+APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
 
 /**
  * @brief Retrieve one path pattern by index.
@@ -209,8 +209,8 @@ APIRET ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
  * @retval REUSE_ERROR_INDEX_RANGE     Index out of range.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
-                       PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
+                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
 /* ==================================================================
  * Scalar fields
@@ -236,8 +236,8 @@ APIRET ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetLicense(HREUSEANN hAnn,
-                          PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
+                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Retrieve the SPDX-FileCopyrightText field.
@@ -259,8 +259,8 @@ APIRET ReuseAnnGetLicense(HREUSEANN hAnn,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetCopyright(HREUSEANN hAnn,
-                            PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
+                                     PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Retrieve SPDX-PackageName (scalar string).
@@ -279,8 +279,9 @@ APIRET ReuseAnnGetCopyright(HREUSEANN hAnn,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetPackageName(HREUSEANN hAnn,
-                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
+                                       PSZ pszBuf, ULONG ulSize,
+                                       PULONG pulUsed);
 
 /**
  * @brief Retrieve SPDX-PackageSupplier (scalar string).
@@ -299,8 +300,9 @@ APIRET ReuseAnnGetPackageName(HREUSEANN hAnn,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
-                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
+                                           PSZ pszBuf, ULONG ulSize,
+                                           PULONG pulUsed);
 
 /**
  * @brief Retrieve SPDX-PackageDownloadLocation (scalar string).
@@ -319,9 +321,9 @@ APIRET ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
-                                          PSZ pszBuf, ULONG ulSize,
-                                          PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
+                                                   PSZ pszBuf, ULONG ulSize,
+                                                   PULONG pulUsed);
 
 /**
  * @brief Retrieve SPDX-PackageComment (scalar string).
@@ -340,8 +342,9 @@ APIRET ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
  * @retval REUSE_ERROR_NOT_FOUND       Field absent.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetPackageComment(HREUSEANN hAnn,
-                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetPackageComment(HREUSEANN hAnn,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed);
 
 /* ==================================================================
  * Contributors (SPDX-FileContributor)
@@ -358,7 +361,7 @@ APIRET ReuseAnnGetPackageComment(HREUSEANN hAnn,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
+APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
 
 /**
  * @brief Retrieve one contributor by index.
@@ -381,8 +384,9 @@ APIRET ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
  * @retval REUSE_ERROR_INDEX_RANGE     Index out of range.
  * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
-                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
+                                       PSZ pszBuf, ULONG ulSize,
+                                       PULONG pulUsed);
 
 /* ==================================================================
  * Metadata
@@ -401,7 +405,7 @@ APIRET ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
+APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
 
 /**
  * @brief Retrieve the zero-based position of the annotation in the
@@ -415,7 +419,7 @@ APIRET ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder);
+APIRET APIENTRY ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder);
 
 #ifdef __cplusplus
 }

@@ -53,9 +53,9 @@ static char *node_to_str(HTOMLNODE hNode) {
  * Field reading
  *
  * Return conventions for read_* helpers:
- *    0  — success (value stored, possibly NULL if the key is absent)
- *   -1  — key present but has an unsupported type
- *   -2  — out of memory
+ *    0  - success (value stored, possibly NULL if the key is absent)
+ *   -1  - key present but has an unsupported type
+ *   -2  - out of memory
  * ================================================================== */
 
 static char *read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
@@ -130,10 +130,10 @@ static int add_path(REUSEANN *ann, const char *value) {
  * entry in ann->paPaths.
  *
  * Returns:
- *    0  — ok
- *   -1  — key absent (REUSE_ERROR_ANNOT_NO_PATH)
- *   -2  — key present but wrong type (REUSE_ERROR_ANNOT_BAD_PATH)
- *   -3  — out of memory
+ *    0  - ok
+ *   -1  - key absent (REUSE_ERROR_ANNOT_NO_PATH)
+ *   -2  - key present but wrong type (REUSE_ERROR_ANNOT_BAD_PATH)
+ *   -3  - out of memory
  */
 static int read_paths_into(HTOMLNODE hTable, REUSEANN *ann) {
     HTOMLNODE hChild = NULLHANDLE;
@@ -283,7 +283,7 @@ static void ann_free(REUSEANN *ann) {
     memset(ann, 0, sizeof(*ann));
 }
 
-static void doc_free(PREUSEDOC pd) {
+static void doc_free(PREUSETOMLDOC pd) {
     ULONG i;
     if (!pd) return;
     for (i = 0; i < pd->ulAnnotationCount; i++)
@@ -321,24 +321,24 @@ static APIRET copy_field_out(const char *pszValue,
  * Handle helpers
  * ================================================================== */
 
-static PREUSEDOC as_doc(HREUSEDOC h) { return (PREUSEDOC)h; }
-static PREUSEANN  as_ann(HREUSEANN h) { return (PREUSEANN)h; }
+static PREUSETOMLDOC as_doc(HREUSETOML h) { return (PREUSETOMLDOC)h; }
+static PREUSEANN     as_ann(HREUSEANN h)   { return (PREUSEANN)h; }
 
 /* ==================================================================
  * Public API
  * ================================================================== */
 
-APIRET ReuseOpen(PCSZ pszPath, HREUSEDOC *phDoc) {
+APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml) {
     HTOMLDOC hDoc = NULLHANDLE;
     HTOMLNODE hVer = NULLHANDLE;
     HTOMLNODE hAnn = NULLHANDLE;
-    PREUSEDOC pd = NULL;
+    PREUSETOMLDOC pd = NULL;
     APIRET rc;
     ULONG ulType = 0, ulCount = 0, i;
     LONGLONG llVersion = 0;
 
-    if (!pszPath || !phDoc) return REUSE_ERROR_INVALID_PARAM;
-    *phDoc = NULLHANDLE;
+    if (!pszPath || !phToml) return REUSE_ERROR_INVALID_PARAM;
+    *phToml = NULLHANDLE;
 
     rc = TomlOpen(pszPath, &hDoc);
     if (rc == TOML_ERROR_INVALID_PARAM)
@@ -372,7 +372,7 @@ APIRET ReuseOpen(PCSZ pszPath, HREUSEDOC *phDoc) {
         return REUSE_ERROR_VERSION_UNSUP;
     }
 
-    pd = (PREUSEDOC)calloc(1, sizeof(REUSEDOC));
+    pd = (PREUSETOMLDOC)calloc(1, sizeof(REUSETOMLDOC));
     if (!pd) { TomlClose(hDoc); return REUSE_ERROR_OUT_OF_MEMORY; }
     pd->llVersion = llVersion;
 
@@ -424,43 +424,43 @@ APIRET ReuseOpen(PCSZ pszPath, HREUSEDOC *phDoc) {
     }
 
     TomlClose(hDoc);
-    *phDoc = (HREUSEDOC)pd;
+    *phToml = (HREUSETOML)pd;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseClose(HREUSEDOC hDoc) {
-    PREUSEDOC pd;
-    if (hDoc == NULLHANDLE) return REUSE_NO_ERROR;
-    pd = as_doc(hDoc);
+APIRET APIENTRY ReuseClose(HREUSETOML hToml) {
+    PREUSETOMLDOC pd;
+    if (hToml == NULLHANDLE) return REUSE_NO_ERROR;
+    pd = as_doc(hToml);
     if (!pd) return REUSE_ERROR_INVALID_HANDLE;
     doc_free(pd);
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseGetVersion(HREUSEDOC hDoc, PLONGLONG pllValue) {
-    PREUSEDOC pd = as_doc(hDoc);
+APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue) {
+    PREUSETOMLDOC pd = as_doc(hToml);
     if (!pd || !pllValue) return REUSE_ERROR_INVALID_PARAM;
     *pllValue = pd->llVersion;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseGetSourceDir(HREUSEDOC hDoc, PSZ pszBuf,
-                         ULONG ulSize, PULONG pulUsed) {
-    PREUSEDOC pd = as_doc(hDoc);
+APIRET APIENTRY ReuseGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed) {
+    PREUSETOMLDOC pd = as_doc(hToml);
     if (!pd) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pd->pszSourceDir, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseGetAnnotationCount(HREUSEDOC hDoc, PULONG pulCount) {
-    PREUSEDOC pd = as_doc(hDoc);
+APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount) {
+    PREUSETOMLDOC pd = as_doc(hToml);
     if (!pd || !pulCount) return REUSE_ERROR_INVALID_PARAM;
     *pulCount = pd->ulAnnotationCount;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseGetAnnotation(HREUSEDOC hDoc, ULONG ulIndex,
-                          HREUSEANN *phAnn) {
-    PREUSEDOC pd = as_doc(hDoc);
+APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
+                                   HREUSEANN *phAnn) {
+    PREUSETOMLDOC pd = as_doc(hToml);
     if (!pd || !phAnn) return REUSE_ERROR_INVALID_PARAM;
     *phAnn = NULLHANDLE;
     if (ulIndex >= pd->ulAnnotationCount) return REUSE_ERROR_INDEX_RANGE;
@@ -468,74 +468,78 @@ APIRET ReuseGetAnnotation(HREUSEDOC hDoc, ULONG ulIndex,
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount) {
+APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa || !pulCount) return REUSE_ERROR_INVALID_PARAM;
     *pulCount = pa->ulPathCount;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
-                       PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
+                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     if (ulIndex >= pa->ulPathCount) return REUSE_ERROR_INDEX_RANGE;
     return copy_field_out(pa->paPaths[ulIndex], pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetLicense(HREUSEANN hAnn,
-                          PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
+                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszLicense, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetCopyright(HREUSEANN hAnn,
-                            PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
+                                     PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszCopyright, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetPackageName(HREUSEANN hAnn,
-                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
+                                       PSZ pszBuf, ULONG ulSize,
+                                       PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszPackageName, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
-                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
+                                           PSZ pszBuf, ULONG ulSize,
+                                           PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszPackageSupplier, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
-                                          PSZ pszBuf, ULONG ulSize,
-                                          PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
+                                                   PSZ pszBuf, ULONG ulSize,
+                                                   PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszPackageDownloadLocation,
                           pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetPackageComment(HREUSEANN hAnn,
-                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetPackageComment(HREUSEANN hAnn,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     return copy_field_out(pa->pszPackageComment, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount) {
+APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa || !pulCount) return REUSE_ERROR_INVALID_PARAM;
     *pulCount = pa->ulContributorCount;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
-                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
+                                       PSZ pszBuf, ULONG ulSize,
+                                       PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return REUSE_ERROR_INVALID_PARAM;
     if (ulIndex >= pa->ulContributorCount) return REUSE_ERROR_INDEX_RANGE;
@@ -543,14 +547,14 @@ APIRET ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
                           pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence) {
+APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa || !pulPrecedence) return REUSE_ERROR_INVALID_PARAM;
     *pulPrecedence = pa->ulPrecedence;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder) {
+APIRET APIENTRY ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa || !pulOrder) return REUSE_ERROR_INVALID_PARAM;
     *pulOrder = pa->ulOrderInFile;

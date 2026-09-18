@@ -18,7 +18,7 @@
 #include "reuse_internal.h"
 #include "reuse_toml.h"
 #include "dep5.h"
-#include "git_utils.h"
+#include "git.h"
 #include "spdx_tag.h"
 
 /**
@@ -152,7 +152,7 @@ static int matches_pattern(const char *pattern, const char *filename) {
  * Error recording
  * ================================================================== */
 
-static int err_add(PREUSEDOC pd, ULONG ulCode, ULONG ulSeverity,
+static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
                    PCSZ pszFile, ULONG ulLine, PCSZ pszDetail) {
     REUSEERR *pe;
     if (pd->ulErrorCount >= pd->ulErrorCapacity) {
@@ -177,7 +177,7 @@ static int err_add(PREUSEDOC pd, ULONG ulCode, ULONG ulSeverity,
  * Config list
  * ================================================================== */
 
-static int cfg_add(PREUSEDOC pd, int nKind, PCSZ pszSourceDir, int nDepth,
+static int cfg_add(PREUSETREE pd, int nKind, PCSZ pszSourceDir, int nDepth,
                    HREUSETOML hToml, HDEP5DOC hDep5) {
     REUSECFG *pc;
     if (pd->ulCount >= pd->ulCapacity) {
@@ -201,12 +201,12 @@ static int cfg_add(PREUSEDOC pd, int nKind, PCSZ pszSourceDir, int nDepth,
 static void cfg_free(REUSECFG *pc) {
     if (!pc) return;
     safe_free((void**)&pc->pszSourceDir);
-    if (pc->hToml != NULLHANDLE) ReuseTomlClose(pc->hToml);
+    if (pc->hToml != NULLHANDLE) ReuseClose(pc->hToml);
     if (pc->hDep5 != NULLHANDLE) Dep5Close(pc->hDep5);
     memset(pc, 0, sizeof(*pc));
 }
 
-static void doc_free(PREUSEDOC pd) {
+static void doc_free(PREUSETREE pd) {
     ULONG i;
     if (!pd) return;
     for (i = 0; i < pd->ulCount; i++) cfg_free(&pd->paCfgs[i]);
@@ -243,14 +243,14 @@ static void join_path(char *dst, size_t dst_size,
  * continues with other files). Returns -1 only on fatal errors
  * (out of memory).
  */
-static int try_add_toml(PREUSEDOC pd, PCSZ pszPath,
+static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
                         PCSZ pszSourceDir, int nDepth) {
     HREUSETOML hToml = NULLHANDLE;
-    APIRET rc = ReuseTomlOpen(pszPath, &hToml);
+    APIRET rc = ReuseOpen(pszPath, &hToml);
     if (rc == REUSE_NO_ERROR) {
         if (cfg_add(pd, REUSECFG_KIND_TOML, pszSourceDir, nDepth,
                     hToml, NULLHANDLE) != 0) {
-            ReuseTomlClose(hToml);
+            ReuseClose(hToml);
             return -1;
         }
         return 0;
@@ -279,7 +279,7 @@ static int try_add_toml(PREUSEDOC pd, PCSZ pszPath,
 /**
  * @brief Discover REUSE.toml files from the repo root down to target.
  */
-static int discover_tomls(PREUSEDOC pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
+static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
     char path[2048];
     char current[2048];
     FILE *f;
@@ -341,7 +341,7 @@ static int discover_tomls(PREUSEDOC pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
 /**
  * @brief Discover .reuse/dep5 at the repository root.
  */
-static int discover_dep5(PREUSEDOC pd, PCSZ pszRepoRoot) {
+static int discover_dep5(PREUSETREE pd, PCSZ pszRepoRoot) {
     char path[1024];
     FILE *f;
     HDEP5DOC hDep5 = NULLHANDLE;
@@ -496,7 +496,7 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
     ULONG ulCount = 0, i;
     int nFound = 0;
 
-    if (ReuseTomlGetAnnotationCount(hToml, &ulCount) != REUSE_NO_ERROR)
+    if (ReuseGetAnnotationCount(hToml, &ulCount) != REUSE_NO_ERROR)
         return -1;
 
     for (i = 0; i < ulCount; i++) {
@@ -504,7 +504,7 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
         ULONG ulPatCount = 0, j;
         int match = 0;
 
-        if (ReuseTomlGetAnnotation(hToml, i, &hAnn) != REUSE_NO_ERROR)
+        if (ReuseGetAnnotation(hToml, i, &hAnn) != REUSE_NO_ERROR)
             continue;
         if (ReuseAnnGetPathCount(hAnn, &ulPatCount) != REUSE_NO_ERROR)
             continue;
@@ -727,10 +727,10 @@ static char *join_lines_append(const char *a, const char *b) {
 /**
  * @brief Resolve licensing information for one file.
  *
- * Fills a freshly allocated REUSEFILE. Returns NULL on OOM.
+ * Fills a freshly allocated REUSETREEFILE. Returns NULL on OOM.
  */
-static PREUSEFILE resolve_file(PREUSEDOC pd, PCSZ pszPath) {
-    PREUSEFILE pf;
+static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
+    PREUSETREEFILE pf;
     char sidecar[1200];
     char *tag_lic = NULL;
     char *tag_cop = NULL;
@@ -746,7 +746,7 @@ static PREUSEFILE resolve_file(PREUSEDOC pd, PCSZ pszPath) {
     memset(&best_aggregate, 0, sizeof(best_aggregate));
     memset(&best_closest, 0, sizeof(best_closest));
 
-    pf = (PREUSEFILE)calloc(1, sizeof(REUSEFILE));
+    pf = (PREUSETREEFILE)calloc(1, sizeof(REUSETREEFILE));
     if (!pf) return NULL;
 
     /* 1. Read sidecar (REUSE 3.3 §4.1.3): <file>.license */
@@ -928,32 +928,34 @@ static PREUSEFILE resolve_file(PREUSEDOC pd, PCSZ pszPath) {
  * Handle helpers
  * ================================================================== */
 
-PREUSEDOC ReuseInternalGetDoc(HREUSEDOC hDoc) {
-    return (PREUSEDOC)hDoc;
+PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
+    return (PREUSETREE)hDoc;
 }
 
-PREUSEFILE ReuseInternalGetFile(HREUSEFILE hFile) {
-    return (PREUSEFILE)hFile;
+PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
+    return (PREUSETREEFILE)hFile;
 }
 
 /* ==================================================================
  * Public API
  * ================================================================== */
 
-APIRET ReuseOpen(PCSZ pszDir, HREUSEDOC *phDoc) {
-    PREUSEDOC pd;
-    char *repo_root;
+APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
+    PREUSETREE pd;
+    char *repo_root = NULL;
 
     if (!pszDir || !phDoc) return REUSE_ERROR_INVALID_PARAM;
     *phDoc = NULLHANDLE;
 
-    pd = (PREUSEDOC)calloc(1, sizeof(REUSEDOC));
+    pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
     if (!pd) return REUSE_ERROR_OUT_OF_MEMORY;
 
     pd->pszProjectDir = dup_str(pszDir);
     if (!pd->pszProjectDir) { doc_free(pd); return REUSE_ERROR_OUT_OF_MEMORY; }
 
-    repo_root = git_find_repo_root(pszDir);
+    if (GitFindRepoRoot(pszDir, &repo_root) != GIT_NO_ERROR) {
+        repo_root = NULL;
+    }
     pd->pszRepoRoot = repo_root; /* may be NULL */
 
     if (discover_tomls(pd, repo_root, pszDir) != 0) {
@@ -965,37 +967,39 @@ APIRET ReuseOpen(PCSZ pszDir, HREUSEDOC *phDoc) {
         return REUSE_ERROR_OUT_OF_MEMORY;
     }
 
-    *phDoc = (HREUSEDOC)pd;
+    *phDoc = (HREUSETREE)pd;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseClose(HREUSEDOC hDoc) {
-    PREUSEDOC pd = ReuseInternalGetDoc(hDoc);
+APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
+    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
     if (hDoc == NULLHANDLE) return REUSE_NO_ERROR;
     if (!pd) return REUSE_ERROR_INVALID_HANDLE;
     doc_free(pd);
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseGetErrorCount(HREUSEDOC hDoc, PULONG pulCount) {
-    PREUSEDOC pd = ReuseInternalGetDoc(hDoc);
+APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
+    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
     if (!pd || !pulCount) return REUSE_ERROR_INVALID_PARAM;
     *pulCount = pd->ulErrorCount;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseGetError(HREUSEDOC hDoc, ULONG ulIndex, PREUSEERR pErr) {
-    PREUSEDOC pd = ReuseInternalGetDoc(hDoc);
+APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
+                                  PREUSEERR pErr) {
+    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
     if (!pd || !pErr) return REUSE_ERROR_INVALID_PARAM;
     if (ulIndex >= pd->ulErrorCount) return REUSE_ERROR_INDEX_RANGE;
     *pErr = pd->paErrors[ulIndex];
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseResolveFile(HREUSEDOC hDoc, PCSZ pszPath,
-                        HREUSEFILE *phFile, PREUSEERR pErr) {
-    PREUSEDOC pd = ReuseInternalGetDoc(hDoc);
-    PREUSEFILE pf;
+APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
+                                     HREUSETREEFILE *phFile,
+                                     PREUSEERR pErr) {
+    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
+    PREUSETREEFILE pf;
 
     if (!pd || !pszPath || !phFile) return REUSE_ERROR_INVALID_PARAM;
     *phFile = NULLHANDLE;
@@ -1003,13 +1007,13 @@ APIRET ReuseResolveFile(HREUSEDOC hDoc, PCSZ pszPath,
     pf = resolve_file(pd, pszPath);
     if (!pf) return REUSE_ERROR_OUT_OF_MEMORY;
 
-    *phFile = (HREUSEFILE)pf;
+    *phFile = (HREUSETREEFILE)pf;
     (void)pErr; /* file-specific diagnostics: reserved for future use */
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseFileClose(HREUSEFILE hFile) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (hFile == NULLHANDLE) return REUSE_NO_ERROR;
     if (!pf) return REUSE_ERROR_INVALID_HANDLE;
     safe_free((void**)&pf->pszLicense);
@@ -1047,65 +1051,74 @@ static APIRET copy_out(const char *pszVal,
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseFileGetLicense(HREUSEFILE hFile,
-                           PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
+                                        PSZ pszBuf, ULONG ulSize,
+                                        PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszLicense, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetCopyright(HREUSEFILE hFile,
-                             PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszCopyright, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetContributors(HREUSEFILE hFile,
-                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
+                                             PSZ pszBuf, ULONG ulSize,
+                                             PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszContributors, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetPackageName(HREUSEFILE hFile,
-                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
+                                            PSZ pszBuf, ULONG ulSize,
+                                            PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszPackageName, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetPackageSupplier(HREUSEFILE hFile,
-                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
+                                                PSZ pszBuf, ULONG ulSize,
+                                                PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszPackageSupplier, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetPackageDownloadLocation(HREUSEFILE hFile,
-                                           PSZ pszBuf, ULONG ulSize,
-                                           PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(HREUSETREEFILE hFile,
+                                                        PSZ pszBuf,
+                                                        ULONG ulSize,
+                                                        PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszPackageDownloadLocation, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetPackageComment(HREUSEFILE hFile,
-                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
+                                               PSZ pszBuf, ULONG ulSize,
+                                               PULONG pulUsed) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf) return REUSE_ERROR_INVALID_PARAM;
     return copy_out(pf->pszPackageComment, pszBuf, ulSize, pulUsed);
 }
 
-APIRET ReuseFileGetPrecedence(HREUSEFILE hFile, PULONG pulPrecedence) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
+                                           PULONG pulPrecedence) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf || !pulPrecedence) return REUSE_ERROR_INVALID_PARAM;
     *pulPrecedence = pf->ulPrecedence;
     return REUSE_NO_ERROR;
 }
 
-APIRET ReuseFileGetHasReuse(HREUSEFILE hFile, PBOOL pfHasReuse) {
-    PREUSEFILE pf = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
+                                         PBOOL pfHasReuse) {
+    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
     if (!pf || !pfHasReuse) return REUSE_ERROR_INVALID_PARAM;
     *pfHasReuse = pf->bHasReuse;
     return REUSE_NO_ERROR;

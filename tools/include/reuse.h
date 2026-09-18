@@ -21,9 +21,8 @@
  *   - Aggregate license expressions and copyright notices as required
  *     by the winning precedence.
  *
- * REUSE.toml parsing itself lives in reuse_toml.h; DEP5 parsing lives
- * in dep5.h. This module combines their results and is the only one a
- * consumer normally needs.
+ * REUSE.toml parsing itself lives in reuse_toml.h (prefix Reuse*);
+ * DEP5 parsing lives in dep5.h. This module combines their results.
  */
 
 #include "os2types.h"
@@ -39,16 +38,16 @@ extern "C" {
  * ================================================================== */
 
 /**
- * @typedef HREUSEDOC
+ * @typedef HREUSETREE
  * @brief Handle to an opened REUSE project.
  */
-typedef HANDLE HREUSEDOC;
+typedef HANDLE HREUSETREE;
 
 /**
- * @typedef HREUSEFILE
+ * @typedef HREUSETREEFILE
  * @brief Handle to a per-file resolution result.
  */
-typedef HANDLE HREUSEFILE;
+typedef HANDLE HREUSETREEFILE;
 
 /* ==================================================================
  * Project lifecycle
@@ -76,14 +75,14 @@ typedef HANDLE HREUSEFILE;
  * @retval REUSE_ERROR_OPEN_FAILED   Directory cannot be opened.
  * @retval REUSE_ERROR_OUT_OF_MEMORY Memory allocation failure.
  *
- * @see ReuseGetError, ReuseClose
+ * @see ReuseTreeGetError, ReuseTreeClose
  */
-APIRET ReuseOpen(PCSZ pszDir, HREUSEDOC *phDoc);
+APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc);
 
 /**
  * @brief Close a project and release all associated memory.
  *
- * All HREUSEFILE handles and REUSEERR records obtained from this
+ * All HREUSETREEFILE handles and REUSEERR records obtained from this
  * project become invalid.
  *
  * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
@@ -92,9 +91,9 @@ APIRET ReuseOpen(PCSZ pszDir, HREUSEDOC *phDoc);
  * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  *
- * @warning Do not call ReuseClose twice with the same handle.
+ * @warning Do not call ReuseTreeClose twice with the same handle.
  */
-APIRET ReuseClose(HREUSEDOC hDoc);
+APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc);
 
 /* ==================================================================
  * Diagnostics
@@ -104,7 +103,7 @@ APIRET ReuseClose(HREUSEDOC hDoc);
  * @brief Number of REUSEERR records stored in the project.
  *
  * Errors, warnings and informational records are counted together.
- * Use ReuseGetError to inspect severity.
+ * Use ReuseTreeGetError to inspect severity.
  *
  * @param[in]  hDoc     Handle. Not NULLHANDLE.
  * @param[out] pulCount Receiver. Not NULL.
@@ -114,16 +113,16 @@ APIRET ReuseClose(HREUSEDOC hDoc);
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseGetErrorCount(HREUSEDOC hDoc, PULONG pulCount);
+APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount);
 
 /**
  * @brief Retrieve one diagnostic record by index.
  *
  * The returned REUSEERR is a snapshot; string fields point to data
- * owned by the project handle and remain valid until ReuseClose.
+ * owned by the project handle and remain valid until ReuseTreeClose.
  *
  * @param[in]  hDoc    Handle. Not NULLHANDLE.
- * @param[in]  ulIndex Zero-based index, < ReuseGetErrorCount.
+ * @param[in]  ulIndex Zero-based index, < ReuseTreeGetErrorCount.
  * @param[out] pErr    Receiver. Not NULL.
  *
  * @return APIRET
@@ -132,7 +131,8 @@ APIRET ReuseGetErrorCount(HREUSEDOC hDoc, PULONG pulCount);
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET ReuseGetError(HREUSEDOC hDoc, ULONG ulIndex, PREUSEERR pErr);
+APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
+                                  PREUSEERR pErr);
 
 /* ==================================================================
  * Per-file resolution
@@ -150,7 +150,7 @@ APIRET ReuseGetError(HREUSEDOC hDoc, ULONG ulIndex, PREUSEERR pErr);
  *   4. Aggregate results as prescribed by the winning precedence.
  *
  * A successful resolution does not imply the file had any licensing
- * information. Use ReuseFileGetHasReuse to distinguish "no sources
+ * information. Use ReuseTreeFileGetHasReuse to distinguish "no sources
  * matched" from "sources matched but were empty".
  *
  * @param[in]  hDoc    Handle. Not NULLHANDLE.
@@ -170,8 +170,9 @@ APIRET ReuseGetError(HREUSEDOC hDoc, ULONG ulIndex, PREUSEERR pErr);
  * @retval REUSE_ERROR_SYNTAX         Sidecar contains a syntax error.
  * @retval REUSE_ERROR_OUT_OF_MEMORY  Memory allocation failure.
  */
-APIRET ReuseResolveFile(HREUSEDOC hDoc, PCSZ pszPath,
-                        HREUSEFILE *phFile, PREUSEERR pErr);
+APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
+                                     HREUSETREEFILE *phFile,
+                                     PREUSEERR pErr);
 
 /**
  * @brief Release a resolution handle.
@@ -182,7 +183,7 @@ APIRET ReuseResolveFile(HREUSEDOC hDoc, PCSZ pszPath,
  * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseFileClose(HREUSEFILE hFile);
+APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile);
 
 /* ==================================================================
  * Resolution field accessors
@@ -202,8 +203,9 @@ APIRET ReuseFileClose(HREUSEFILE hFile);
  * @return REUSE_ERROR_NOT_FOUND if the winning sources define no
  *         license.
  */
-APIRET ReuseFileGetLicense(HREUSEFILE hFile,
-                           PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
+                                        PSZ pszBuf, ULONG ulSize,
+                                        PULONG pulUsed);
 
 /**
  * @brief Retrieve the resolved copyright text.
@@ -213,8 +215,9 @@ APIRET ReuseFileGetLicense(HREUSEFILE hFile,
  * @return REUSE_ERROR_NOT_FOUND if the winning sources define no
  *         copyright.
  */
-APIRET ReuseFileGetCopyright(HREUSEFILE hFile,
-                             PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed);
 
 /**
  * @brief Retrieve the resolved SPDX-FileContributor list.
@@ -223,25 +226,30 @@ APIRET ReuseFileGetCopyright(HREUSEFILE hFile,
  *
  * @return REUSE_ERROR_NOT_FOUND if no contributor was defined.
  */
-APIRET ReuseFileGetContributors(HREUSEFILE hFile,
-                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
+                                             PSZ pszBuf, ULONG ulSize,
+                                             PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageName. */
-APIRET ReuseFileGetPackageName(HREUSEFILE hFile,
-                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
+                                            PSZ pszBuf, ULONG ulSize,
+                                            PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageSupplier. */
-APIRET ReuseFileGetPackageSupplier(HREUSEFILE hFile,
-                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
+                                                PSZ pszBuf, ULONG ulSize,
+                                                PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageDownloadLocation. */
-APIRET ReuseFileGetPackageDownloadLocation(HREUSEFILE hFile,
-                                           PSZ pszBuf, ULONG ulSize,
-                                           PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(HREUSETREEFILE hFile,
+                                                        PSZ pszBuf,
+                                                        ULONG ulSize,
+                                                        PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageComment. */
-APIRET ReuseFileGetPackageComment(HREUSEFILE hFile,
-                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
+                                               PSZ pszBuf, ULONG ulSize,
+                                               PULONG pulUsed);
 
 /* ==================================================================
  * Resolution metadata
@@ -259,7 +267,8 @@ APIRET ReuseFileGetPackageComment(HREUSEFILE hFile,
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseFileGetPrecedence(HREUSEFILE hFile, PULONG pulPrecedence);
+APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
+                                           PULONG pulPrecedence);
 
 /**
  * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched the file.
@@ -273,7 +282,8 @@ APIRET ReuseFileGetPrecedence(HREUSEFILE hFile, PULONG pulPrecedence);
  * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
  */
-APIRET ReuseFileGetHasReuse(HREUSEFILE hFile, PBOOL pfHasReuse);
+APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
+                                         PBOOL pfHasReuse);
 
 #ifdef __cplusplus
 }

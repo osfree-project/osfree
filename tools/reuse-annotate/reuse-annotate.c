@@ -1,4 +1,4 @@
-/* reuse-annotate.c - аннотирование исходников SPDX-тегами (C89) */
+/* reuse-annotate.c - SPDX tag annotation tool (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +15,7 @@
 #include "spdx_db.h"
 #include "spdx_utils.h"
 #include "spdx_discover.h"
-#include "git_utils.h"
+#include "git.h"
 #include "spdx_tag.h"
 
 #define MAX_LINE 4096
@@ -732,7 +732,7 @@ int main(int argc, char *argv[]) {
     SpdxStrList paths;
     SpdxWalkOptions walk_opts;
     char *repo_root = NULL;
-    GitIgnoreList gitignore_rules;
+    GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
     int total_errors = 0;
     const char *wcc_cmd;
@@ -742,7 +742,7 @@ int main(int argc, char *argv[]) {
     wcc_cmd = "_wcc.cmd";
 #endif
 
-    git_ignore_list_init(&gitignore_rules);
+    GitIgnoreListInit(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -768,7 +768,7 @@ int main(int argc, char *argv[]) {
                    "  --no-gitignore             Do not apply .gitignore "
                    "rules\n"
                    "  --help, -h                 Show this help\n");
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             return 0;
         }
         if (strcmp(argv[i], "--write") == 0) {
@@ -795,7 +795,7 @@ int main(int argc, char *argv[]) {
             printf("ERROR: unknown option: %s\n"
                    "       Run 'reuse-annotate --help' for usage.\n",
                    argv[i]);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             return 1;
         }
     }
@@ -804,7 +804,7 @@ int main(int argc, char *argv[]) {
         printf("ERROR: SPDX database is not configured.\n"
                "       --spdx-db=<path> is required.\n"
                "       Run 'reuse-annotate --help' for usage.\n");
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
 
@@ -815,7 +815,7 @@ int main(int argc, char *argv[]) {
                "       Expected at <spdx-db>/licenses.json.\n"
                "       Cannot validate SPDX identifiers. Aborting.\n");
         spdx_db_free();
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
@@ -824,7 +824,7 @@ int main(int argc, char *argv[]) {
                "       Expected at <spdx-db>/exceptions.json.\n"
                "       Cannot validate SPDX identifiers. Aborting.\n");
         spdx_db_free();
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
     if (db_errs & SPDX_DB_ERR_CACHE)
@@ -833,7 +833,9 @@ int main(int argc, char *argv[]) {
 
     spdx_strlist_init(&used_licenses);
 
-    repo_root = git_find_repo_root(dir);
+    if (GitFindRepoRoot(dir, &repo_root) != GIT_NO_ERROR) {
+        repo_root = NULL;
+    }
 
     {
         int reuse_errors = 0;
@@ -860,8 +862,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (!no_gitignore) {
-        if (git_collect_gitignores(repo_root, dir, &gitignore_rules) == 0 &&
-            gitignore_rules.count > 0) {
+        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == GIT_NO_ERROR &&
+            gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
     }
@@ -889,7 +891,7 @@ int main(int argc, char *argv[]) {
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
         reuse_free_all(configs, config_count);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         return 1;
@@ -1014,7 +1016,7 @@ int main(int argc, char *argv[]) {
 
     spdx_strlist_free(&used_licenses);
     reuse_free_all(configs, config_count);
-    git_ignore_list_free(&gitignore_rules);
+    GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
     {

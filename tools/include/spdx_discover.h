@@ -1,9 +1,9 @@
-/* spdx_discover.h - единый модуль определения списка файлов (C89) */
+/* spdx_discover.h - unified file-list discovery module (C89) */
 #ifndef SPDX_DISCOVER_H
 #define SPDX_DISCOVER_H
 
 #include "spdx_utils.h"
-#include "git_utils.h"
+#include "git.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,10 +19,10 @@ typedef struct {
     int skip_reuse_toml;
     int skip_license_files;
 
-    /* Git-фильтрация */
-    int use_gitignore;                 /* 1 — применять правила */
-    const char *repo_root;             /* корень репозитория для вычисления rel */
-    const GitIgnoreList *gitignore_rules;
+    /* Git filtering */
+    int use_gitignore;                 /* 1 - apply rules */
+    const char *repo_root;             /* repository root for relative paths */
+    const GITIGNORELIST *gitignore_rules;
 } SpdxWalkOptions;
 
 void spdx_walk_options_default(SpdxWalkOptions *opts);

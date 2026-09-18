@@ -1,4 +1,4 @@
-/* reuse-sbom.c - генератор SBOM (C89, OpenWatcom) */
+/* reuse-sbom.c - SBOM generator (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +8,7 @@
 #include "sha1_utils.h"
 #include "spdx_db.h"
 #include "spdx_utils.h"
-#include "git_utils.h"
+#include "git.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -157,8 +157,8 @@ static int build_binary_file_list(const SbomOptions *opts,
  * emits it in the requested format.
  *
  * The output format is selected with --format:
- *   spdx-json  Ч SPDX 2.3 JSON
- *   spdx-tag   Ч SPDX 2.3 tag-value
+ *   spdx-json  - SPDX 2.3 JSON
+ *   spdx-tag   - SPDX 2.3 tag-value
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
     SpdxDocument doc;
     SpdxStrList paths;
     SpdxWalkOptions walk_opts;
-    GitIgnoreList gitignore_rules;
+    GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
     char *repo_root = NULL;
     int db_errs;
@@ -181,10 +181,10 @@ int main(int argc, char *argv[]) {
     const char *pkg_license = NULL;
     char base_no_ext[256];
 
-    git_ignore_list_init(&gitignore_rules);
+    GitIgnoreListInit(&gitignore_rules);
 
     if (sbom_parse_args(argc, argv, &opts) != 0) {
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
                 "       Expected at <spdx-db>/licenses.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
         sbom_options_free(&opts);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
                 "       Expected at <spdx-db>/exceptions.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
         sbom_options_free(&opts);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         spdx_db_free();
         return 1;
     }
@@ -216,7 +216,9 @@ int main(int argc, char *argv[]) {
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    repo_root = git_find_repo_root(opts.dir);
+    if (GitFindRepoRoot(opts.dir, &repo_root) != GIT_NO_ERROR) {
+        repo_root = NULL;
+    }
 
     {
         int reuse_errors = 0;
@@ -229,7 +231,7 @@ int main(int argc, char *argv[]) {
                     "       SBOM cannot be generated reliably.\n",
                     reuse_errors);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -252,8 +254,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (!opts.no_gitignore) {
-        if (git_collect_gitignores(repo_root, opts.dir, &gitignore_rules) == 0 &&
-            gitignore_rules.count > 0) {
+        if (GitCollectGitignores(repo_root, opts.dir, &gitignore_rules) == GIT_NO_ERROR &&
+            gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
     }
@@ -267,7 +269,7 @@ int main(int argc, char *argv[]) {
     if (resolve_package_license(&opts, configs, config_count,
                                 &pkg_license) != 0) {
         reuse_free_all(configs, config_count);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
@@ -292,7 +294,7 @@ int main(int argc, char *argv[]) {
         if (build_binary_file_list(&opts, pkg_license, &doc.files) != 0) {
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -314,7 +316,7 @@ int main(int argc, char *argv[]) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -329,7 +331,7 @@ int main(int argc, char *argv[]) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -344,7 +346,7 @@ int main(int argc, char *argv[]) {
                                      opts.extracted_count) != 0) {
         sbom_doc_free(&doc);
         reuse_free_all(configs, config_count);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
@@ -373,7 +375,7 @@ int main(int argc, char *argv[]) {
                     opts.source_sbom_path);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -392,7 +394,7 @@ int main(int argc, char *argv[]) {
                     opts.output);
             sbom_doc_free(&doc);
             reuse_free_all(configs, config_count);
-            git_ignore_list_free(&gitignore_rules);
+            GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
@@ -403,7 +405,7 @@ int main(int argc, char *argv[]) {
     if (sbom_output(&doc, opts.format) != 0) {
         sbom_doc_free(&doc);
         reuse_free_all(configs, config_count);
-        git_ignore_list_free(&gitignore_rules);
+        GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
@@ -412,7 +414,7 @@ int main(int argc, char *argv[]) {
 
     sbom_doc_free(&doc);
     reuse_free_all(configs, config_count);
-    git_ignore_list_free(&gitignore_rules);
+    GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
     sbom_options_free(&opts);

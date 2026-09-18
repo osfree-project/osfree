@@ -12,9 +12,9 @@
  * @brief Private interface of the REUSE project resolver.
  */
 
-typedef struct _REUSECFG  REUSECFG,  *PREUSECFG;
-typedef struct _REUSEDOC  REUSEDOC,  *PREUSEDOC;
-typedef struct _REUSEFILE REUSEFILE, *PREUSEFILE;
+typedef struct _REUSECFG       REUSECFG,       *PREUSECFG;
+typedef struct _REUSETREE      REUSETREE,      *PREUSETREE;
+typedef struct _REUSETREEFILE  REUSETREEFILE,  *PREUSETREEFILE;
 
 /* ------------------------------------------------------------------
  * One discovered source: a REUSE.toml file or the .reuse/dep5 file.
@@ -50,7 +50,7 @@ struct _REUSECFG {
  * the paErrors array; the corresponding sources are skipped.
  * ------------------------------------------------------------------ */
 
-struct _REUSEDOC {
+struct _REUSETREE {
     REUSECFG   *paCfgs;
     ULONG       ulCount;
     ULONG       ulCapacity;
@@ -59,7 +59,7 @@ struct _REUSEDOC {
     ULONG       ulErrorCount;
     ULONG       ulErrorCapacity;
 
-    char       *pszProjectDir;  /* argument passed to ReuseOpen       */
+    char       *pszProjectDir;  /* argument passed to ReuseTreeOpen   */
     char       *pszRepoRoot;    /* git repository root, or NULL       */
 };
 
@@ -67,15 +67,15 @@ struct _REUSEDOC {
  * One resolution result.
  *
  * All string fields are owned by this structure and released by
- * ReuseFileClose. They are NULL when the corresponding field was not
- * resolved.
+ * ReuseTreeFileClose. They are NULL when the corresponding field was
+ * not resolved.
  *
  * ulPrecedence is 0 when nothing matched; otherwise it is one of
  * REUSE_PRECEDENCE_*. bHasReuse is TRUE_ when at least one source
  * matched the file (even if only sidecar or tag data was found).
  * ------------------------------------------------------------------ */
 
-struct _REUSEFILE {
+struct _REUSETREEFILE {
     char       *pszLicense;
     char       *pszCopyright;
     char       *pszContributors;    /* '\n'-separated                */
@@ -98,7 +98,7 @@ struct _REUSEFILE {
  *
  * @return Internal pointer, or NULL if the handle is NULLHANDLE.
  */
-PREUSEDOC ReuseInternalGetDoc(HREUSEDOC hDoc);
+PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc);
 
 /**
  * @brief Translate a public file handle into the internal pointer.
@@ -107,6 +107,6 @@ PREUSEDOC ReuseInternalGetDoc(HREUSEDOC hDoc);
  *
  * @return Internal pointer, or NULL if the handle is NULLHANDLE.
  */
-PREUSEFILE ReuseInternalGetFile(HREUSEFILE hFile);
+PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile);
 
 #endif /* REUSE_INTERNAL_H */
