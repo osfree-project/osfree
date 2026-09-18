@@ -43,6 +43,7 @@ typedef char               *PSZ;
 typedef const char         *PCSZ;
 typedef void               *PVOID;
 typedef const void         *PCVOID;
+typedef PVOID              *PPVOID;
 typedef ULONG               APIRET;
 
 /**
