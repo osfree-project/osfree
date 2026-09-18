@@ -4,6 +4,7 @@
 #define TOML_INTERNAL_H
 
 #include "toml.h"
+#include "ccl.h"
 
 /**
  * @file toml_internal.h
@@ -39,12 +40,14 @@ struct _TOMLENTRY {
  *  - TOML_TABLE_ARRAY_ELEM: element of [[array of tables]].
  *  - TOML_TABLE_EXPLICIT: defined by a [table] or [[table]] header.
  *  - TOML_TABLE_FROM_DOTTED: created by a dotted key.
+ *
+ * @todo Заменить @c hEntries на map (ассоциативный массив) для O(1)
+ *       поиска по ключу. Сейчас используется HVECTOR с линейным
+ *       поиском.
  */
 struct _TOMLTABLE {
-    TOMLENTRY  *paEntries;
-    ULONG       ulCount;
-    ULONG       ulCapacity;
-    ULONG       flFlags;
+    HVECTOR  hEntries;   /**< Элементы типа TOMLENTRY. */
+    ULONG    flFlags;    /**< Флаги TOML_TABLE_*. */
 };
 
 /** @brief Tagged value. */

@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "spdx_db.h"
 #include "json_parser.h"
-#include "sha1_utils.h"
+#include "sha1.h"
 #include "spdx_utils.h"
 
 #define CACHE_MAGIC   "SPDXDB06"

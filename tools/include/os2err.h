@@ -17,7 +17,7 @@
  *
  * Only the codes actually used by the tools are declared. New codes
  * must be added with their exact numeric value taken from the OS/2
- * reference.
+ * Toolkit reference.
  */
 
 #ifdef __cplusplus
@@ -29,19 +29,42 @@ extern "C" {
 /** @brief Operation completed successfully. Value: 0. */
 #define NO_ERROR                    0
 
+/** @brief The system cannot find the file specified. Value: 2. */
+#define ERROR_FILE_NOT_FOUND        2
+
+/** @brief The system cannot find the path specified. Value: 3. */
+#define ERROR_PATH_NOT_FOUND        3
+
+/** @brief Access is denied. Value: 5. */
+#define ERROR_ACCESS_DENIED         5
+
 /** @brief The handle is not valid. Value: 6. */
 #define ERROR_INVALID_HANDLE        6
 
 /** @brief Not enough memory to process the request. Value: 8. */
 #define ERROR_NOT_ENOUGH_MEMORY     8
 
+/** @brief The data is invalid. Value: 13. */
+#define ERROR_INVALID_DATA          13
+
+/** @brief The system cannot read from the specified device.
+ *  Value: 30. */
+#define ERROR_READ_FAULT            30
+
 /** @brief One or more parameters are not valid. Value: 87. */
 #define ERROR_INVALID_PARAMETER     87
+
+/** @brief Open or create failed. Value: 110. */
+#define ERROR_OPEN_FAILED           110
+
+/** @brief The buffer is too small to hold the returned data.
+ *  Value: 111. */
+#define ERROR_BUFFER_OVERFLOW       111
 
 /** @brief No data is available (container is empty). Value: 232. */
 #define ERROR_NO_DATA               232
 
-/** @brief No more items (cursor out of range). Value: 259. */
+/** @brief There are no more items. Value: 259. */
 #define ERROR_NO_MORE_ITEMS         259
 
 #endif /* INCL_DOSERRORS */

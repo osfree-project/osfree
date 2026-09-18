@@ -41,10 +41,6 @@ static char *dup_n(const char *s, size_t n) {
     return r;
 }
 
-static char *dup_str(const char *s) {
-    return dup_n(s, strlen(s));
-}
-
 static void set_error(PARSE *ps, const char *msg) {
     if (ps->pszError == NULL) ps->pszError = msg;
 }
@@ -194,7 +190,14 @@ static PTOMLVALUE value_new(ULONG t) {
 }
 
 static PTOMLTABLE table_new(void) {
-    return (PTOMLTABLE)calloc(1, sizeof(TOMLTABLE));
+    PTOMLTABLE pt;
+    pt = (PTOMLTABLE)calloc(1, sizeof(TOMLTABLE));
+    if (!pt) return NULL;
+    if (VectorCreate((ULONG)sizeof(TOMLENTRY), &pt->hEntries) != NO_ERROR) {
+        free(pt);
+        return NULL;
+    }
+    return pt;
 }
 
 static PTOMLARRAY array_new(void) {
@@ -214,13 +217,22 @@ static void array_free(PTOMLARRAY pa) {
 }
 
 static void table_free(PTOMLTABLE pt) {
+    ULONG ulCount = 0;
     ULONG i;
     if (!pt) return;
-    for (i = 0; i < pt->ulCount; i++) {
-        free(pt->paEntries[i].pszKey);
-        value_free(pt->paEntries[i].pValue);
+    if (pt->hEntries != NULLHANDLE) {
+        if (VectorGetCount(pt->hEntries, &ulCount) == NO_ERROR) {
+            for (i = 0; i < ulCount; i++) {
+                PVOID pElem = NULL;
+                if (VectorGetPtr(pt->hEntries, i, &pElem) == NO_ERROR) {
+                    PTOMLENTRY pe = (PTOMLENTRY)pElem;
+                    free(pe->pszKey);
+                    value_free(pe->pValue);
+                }
+            }
+        }
+        VectorDestroy(pt->hEntries);
     }
-    free(pt->paEntries);
     free(pt);
 }
 
@@ -240,19 +252,6 @@ void TomlInternalFreeTree(PTOMLTABLE pRoot) {
     table_free(pRoot);
 }
 
-static int table_grow(PTOMLTABLE pt) {
-    ULONG ncap;
-    TOMLENTRY *na;
-    if (pt->ulCount < pt->ulCapacity) return 0;
-    ncap = pt->ulCapacity ? pt->ulCapacity * 2 : 8;
-    na = (TOMLENTRY*)realloc(pt->paEntries,
-                             (size_t)ncap * sizeof(TOMLENTRY));
-    if (!na) return -1;
-    pt->paEntries = na;
-    pt->ulCapacity = ncap;
-    return 0;
-}
-
 static int array_grow(PTOMLARRAY pa) {
     ULONG ncap;
     PTOMLVALUE *na;
@@ -267,20 +266,25 @@ static int array_grow(PTOMLARRAY pa) {
 }
 
 static PTOMLENTRY table_find(PTOMLTABLE pt, PCSZ pszKey) {
+    ULONG ulCount = 0;
     ULONG i;
-    if (!pt) return NULL;
-    for (i = 0; i < pt->ulCount; i++) {
-        if (strcmp(pt->paEntries[i].pszKey, pszKey) == 0)
-            return &pt->paEntries[i];
+    if (!pt || pt->hEntries == NULLHANDLE) return NULL;
+    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return NULL;
+    for (i = 0; i < ulCount; i++) {
+        PVOID pElem = NULL;
+        if (VectorGetPtr(pt->hEntries, i, &pElem) == NO_ERROR) {
+            PTOMLENTRY pe = (PTOMLENTRY)pElem;
+            if (strcmp(pe->pszKey, pszKey) == 0) return pe;
+        }
     }
     return NULL;
 }
 
 static int table_add(PTOMLTABLE pt, PSZ pszKey, PTOMLVALUE pValue) {
-    if (table_grow(pt) != 0) return -1;
-    pt->paEntries[pt->ulCount].pszKey = pszKey;
-    pt->paEntries[pt->ulCount].pValue = pValue;
-    pt->ulCount++;
+    TOMLENTRY entry;
+    entry.pszKey = pszKey;
+    entry.pValue = pValue;
+    if (VectorAdd(pt->hEntries, &entry) != NO_ERROR) return -1;
     return 0;
 }
 
@@ -1093,7 +1097,7 @@ static int inline_assign(PTOMLTABLE pt, char **aKeys, ULONG nKeys,
             sub->flFlags |= TOML_TABLE_INLINE;
             subv = value_table(sub);
             if (!subv) { table_free(sub); return -1; }
-            if (table_add(cur, dup_str(aKeys[i]), subv) != 0) {
+            if (table_add(cur, strdup(aKeys[i]), subv) != 0) {
                 value_free(subv); return -1;
             }
             cur = sub;
@@ -1107,7 +1111,7 @@ static int inline_assign(PTOMLTABLE pt, char **aKeys, ULONG nKeys,
     }
     if (nKeys == 0) return -1;
     if (table_find(cur, aKeys[nKeys - 1])) return -1;
-    if (table_add(cur, dup_str(aKeys[nKeys - 1]), pValue) != 0) return -1;
+    if (table_add(cur, strdup(aKeys[nKeys - 1]), pValue) != 0) return -1;
     return 0;
 }
 
@@ -1305,7 +1309,7 @@ static PTOMLTABLE descend(PTOMLTABLE pRoot, char **aKeys, ULONG ulCount,
             sub->flFlags |= fl;
             subv = value_table(sub);
             if (!subv) { table_free(sub); return NULL; }
-            if (table_add(cur, dup_str(aKeys[i]), subv) != 0) {
+            if (table_add(cur, strdup(aKeys[i]), subv) != 0) {
                 value_free(subv); return NULL;
             }
             cur = sub;
@@ -1456,7 +1460,7 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                         rc = TOML_ERROR_OUT_OF_MEMORY;
                         goto done;
                     }
-                    if (table_add(parent, dup_str(aKeys[nKeys - 1]),
+                    if (table_add(parent, strdup(aKeys[nKeys - 1]),
                                   av) != 0) {
                         value_free(av);
                         rc = TOML_ERROR_OUT_OF_MEMORY;
@@ -1517,7 +1521,7 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                 rc = TOML_ERROR_DUPLICATE_KEY;
                 goto done;
             }
-            if (table_add(target, dup_str(aKeys[nKeys - 1]), val) != 0) {
+            if (table_add(target, strdup(aKeys[nKeys - 1]), val) != 0) {
                 rc = TOML_ERROR_OUT_OF_MEMORY;
                 goto done;
             }
@@ -1675,7 +1679,7 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
     PTOMLVALUE cur = NULL;
 
     if (!pRoot || !pszPath || !*pszPath) return NULL;
-    copy = dup_str(pszPath);
+    copy = strdup(pszPath);
     if (!copy) return NULL;
 
     t = pRoot;
@@ -2320,9 +2324,12 @@ APIRET APIENTRY TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
  */
 APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
     PTOMLVALUE pv = as_node(hNode);
+    ULONG ulCount = 0;
     if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    *pulCount = pv->u.pTable->ulCount;
+    if (VectorGetCount(pv->u.pTable->hEntries, &ulCount) != NO_ERROR)
+        return TOML_ERROR_INVALID_HANDLE;
+    *pulCount = ulCount;
     return TOML_NO_ERROR;
 }
 
@@ -2377,13 +2384,21 @@ APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
     PTOMLVALUE pv = as_node(hNode);
     PTOMLENTRY pe;
     size_t klen;
+    ULONG ulCount = 0;
+    PVOID pElem = NULL;
+
     if (!pv || !pszKeyBuffer || !phChild) return TOML_ERROR_INVALID_PARAM;
     *phChild = NULLHANDLE;
     if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pTable->ulCount) {
+    if (VectorGetCount(pv->u.pTable->hEntries, &ulCount) != NO_ERROR)
+        return TOML_ERROR_INVALID_HANDLE;
+    if (ulIndex >= ulCount) {
         return TOML_ERROR_INDEX_RANGE;
     }
-    pe = &pv->u.pTable->paEntries[ulIndex];
+    if (VectorGetPtr(pv->u.pTable->hEntries, ulIndex, &pElem) != NO_ERROR)
+        return TOML_ERROR_INDEX_RANGE;
+    pe = (PTOMLENTRY)pElem;
+
     klen = strlen(pe->pszKey);
     if (ulKeyBufSize < klen + 1) {
         if (pulKeyUsed) *pulKeyUsed = (ULONG)(klen + 1);
@@ -2427,11 +2442,17 @@ static int find_next_match(PTOMLTABLE pt, ULONG ulStart,
                            ULONG *pulNext,
                            PCSZ *ppszKey, PTOMLVALUE *ppValue) {
     ULONG i;
-    for (i = ulStart; i < pt->ulCount; i++) {
-        if (glob_match(pszPattern, pt->paEntries[i].pszKey)) {
+    ULONG ulCount = 0;
+    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return -1;
+    for (i = ulStart; i < ulCount; i++) {
+        PVOID pElem = NULL;
+        PTOMLENTRY pe;
+        if (VectorGetPtr(pt->hEntries, i, &pElem) != NO_ERROR) return -1;
+        pe = (PTOMLENTRY)pElem;
+        if (glob_match(pszPattern, pe->pszKey)) {
             *pulNext = i + 1;
-            *ppszKey = pt->paEntries[i].pszKey;
-            *ppValue = pt->paEntries[i].pValue;
+            *ppszKey = pe->pszKey;
+            *ppValue = pe->pValue;
             return 0;
         }
     }
@@ -2486,7 +2507,7 @@ APIRET APIENTRY TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath,
     f->pDoc = doc;
     f->pTable = t;
     f->ulCurrent = next;
-    f->pszPattern = dup_str(pszPattern);
+    f->pszPattern = strdup(pszPattern);
     if (!f->pszPattern) { free(f); return TOML_ERROR_OUT_OF_MEMORY; }
     f->pNext = doc->pFirstFind;
     f->pszCurrentKey = pszKey;
