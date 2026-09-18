@@ -16,7 +16,7 @@
 #include "spdx_db.h"
 #include "spdx_discover.h"
 #include "spdx_utils.h"
-#include "spdx_lic.h"
+#include "reuse_lic.h"
 #include "spdx_tag.h"
 #include "git.h"
 
@@ -108,20 +108,20 @@ static void check_license_expression(const char *fullpath, const char *license,
 }
 
 static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
-    TagSnippetList snippets;
+    SPDXSNIPPETLIST snippets;
     int i;
 
-    if (file_get_snippets(fullpath, &snippets) != 0) {
+    if (SpdxFileGetSnippets(fullpath, &snippets) != SPDX_TAG_NO_ERROR) {
         error_count++;
         return;
     }
 
-    for (i = 0; i < snippets.count; i++) {
-        TagSnippet *s = &snippets.items[i];
+    for (i = 0; i < snippets.nCount; i++) {
+        SPDXSNIPPET *s = &snippets.paItems[i];
 
         total_snippets++;
 
-        if (!s->license || s->license[0] == '\0') {
+        if (!s->pszLicense || s->pszLicense[0] == '\0') {
             fprintf(stderr,
                     "ERROR: %s:%d-%d: snippet has no "
                     "SPDX-License-Identifier.\n"
@@ -130,7 +130,7 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
                     "the snippet block;\n"
                     "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
                     "if the code is not a snippet.\n",
-                    fullpath, s->line_start, s->line_end);
+                    fullpath, s->nLineStart, s->nLineEnd);
             error_count++;
             continue;
         }
@@ -140,28 +140,28 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
         {
             char label[1200];
             snprintf(label, sizeof(label), "%s:%d-%d",
-                     fullpath, s->line_start, s->line_end);
-            check_license_expression(label, s->license, used_licenses);
+                     fullpath, s->nLineStart, s->nLineEnd);
+            check_license_expression(label, s->pszLicense, used_licenses);
         }
 
-        if (!s->copyright || s->copyright[0] == '\0') {
+        if (!s->pszCopyright || s->pszCopyright[0] == '\0') {
             fprintf(stderr,
                     "WARNING: %s:%d-%d: snippet has no "
                     "SPDX-SnippetCopyrightText.\n"
                     "         REUSE recommends adding a copyright notice\n"
                     "         inside the snippet.\n",
-                    fullpath, s->line_start, s->line_end);
+                    fullpath, s->nLineStart, s->nLineEnd);
             warning_count++;
         }
     }
 
-    tag_snippets_free(&snippets);
+    SpdxSnippetListFree(&snippets);
 }
 
 static void process_file(const char *fullpath,
-                         ReuseConfig **configs, int config_count,
+                         HREUSETREE hTree,
                          SpdxStrList *used_licenses) {
-    FileLicenseInfo lic;
+    REUSELICENSEINFO lic;
     FILE *f;
     const char *wcc_cmd;
 #ifdef __LINUX__
@@ -184,9 +184,9 @@ static void process_file(const char *fullpath,
     }
     fclose(f);
 
-    if (spdx_resolve_license(configs, config_count, fullpath,
-                             default_license, default_copyright,
-                             &lic) != 0) {
+    if (ReuseResolveLicense(hTree, fullpath,
+                            default_license, default_copyright,
+                            &lic) != REUSE_NO_ERROR) {
         fprintf(stderr,
                 "ERROR: %s has no licensing information at all.\n"
                 "       REUSE requires each file to carry both license and\n"
@@ -530,9 +530,7 @@ int main(int argc, char *argv[]) {
     const char *cache_file = NULL;
     int no_gitignore = 0;
     int i;
-    ReuseConfig **configs = NULL;
-    int config_count = 0;
-    SpdxStrList toml_paths;
+    HREUSETREE hTree = NULLHANDLE;
     SpdxStrList used_licenses;
     SpdxStrList paths;
     int db_errs;
@@ -621,26 +619,21 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        int reuse_errors = 0;
-        reuse_find_all_tomls(repo_root, dir, &toml_paths);
-        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
-        spdx_strlist_free(&toml_paths);
-        if (reuse_errors > 0) {
-            error_count += reuse_errors;
+        APIRET rc = ReuseTreeOpen(dir, &hTree);
+        if (rc != REUSE_NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot open REUSE project at %s\n"
+                    "       The directory is missing or unreadable.\n",
+                    dir);
+            GitIgnoreListFree(&gitignore_rules);
+            free(repo_root);
+            spdx_db_free();
+            return 1;
         }
-    }
-
-    if (repo_root) {
-        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
-        if (dep5) {
-            ReuseConfig **na = (ReuseConfig**)realloc(configs,
-                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
-            if (na) {
-                configs = na;
-                configs[config_count++] = dep5;
-            } else {
-                free_reuse_config(dep5);
-            }
+        {
+            ULONG ulErrs = 0;
+            if (ReuseTreeGetErrorCount(hTree, &ulErrs) == REUSE_NO_ERROR)
+                error_count += (int)ulErrs;
         }
     }
 
@@ -669,14 +662,14 @@ int main(int argc, char *argv[]) {
                 dir);
         spdx_strlist_free(&paths);
         spdx_strlist_free(&used_licenses);
-        reuse_free_all(configs, config_count);
+        ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         return 1;
     }
     for (i = 0; i < paths.count; i++) {
-        process_file(paths.items[i], configs, config_count, &used_licenses);
+        process_file(paths.items[i], hTree, &used_licenses);
     }
     spdx_strlist_free(&paths);
 
@@ -709,7 +702,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "  Warnings:                   %d\n", warning_count);
 
     spdx_strlist_free(&used_licenses);
-    reuse_free_all(configs, config_count);
+    ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();
