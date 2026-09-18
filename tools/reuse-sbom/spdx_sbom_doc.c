@@ -1,4 +1,4 @@
-/* spdx_sbom_doc.c - построение SpdxDocument (C89) */
+/* spdx_sbom_doc.c - SpdxDocument construction (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,7 +91,7 @@ static int cmp_fileinfo(const void *a, const void *b) {
     return strcmp(((const FileInfo*)a)->name, ((const FileInfo*)b)->name);
 }
 
-/* Добавляет лицензию в PackageLicenseInfoFromFiles, если её ещё нет. */
+/* Appends a license to PackageLicenseInfoFromFiles if not already present. */
 static void add_unique_license(PackageInfo *pkg, const char *lic) {
     int i;
 
@@ -124,9 +124,9 @@ static void add_unique_license(PackageInfo *pkg, const char *lic) {
     pkg->license_info_count++;
 }
 
-/* Вычисляет PackageVerificationCode и собирает PackageLicenseInfoFromFiles.
- * Обе величины производны от списка файлов пакета, поэтому считаются
- * в одной функции. */
+/* Computes PackageVerificationCode and collects
+ * PackageLicenseInfoFromFiles. Both values are derived from the
+ * package's file list, so they are computed in one function. */
 void sbom_doc_compute_verification(SpdxDocument *doc) {
     FileInfo *sorted;
     size_t total_len;
@@ -140,9 +140,9 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
         return;
     }
 
-    /* PackageLicenseInfoFromFiles: разбиваем выражение на отдельные
-     * идентификаторы. Файловые лицензии уже прошли валидацию в
-     * sbom_collect_files, так что регистр и синтаксис корректны. */
+    /* PackageLicenseInfoFromFiles: split the expression into individual
+     * identifiers. File licenses have already been validated in
+     * sbom_collect_files, so case and syntax are correct. */
     for (i = 0; i < doc->files.count; i++) {
         SpdxStrList ids;
         int k;
@@ -154,8 +154,8 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
         spdx_strlist_free(&ids);
     }
 
-    /* PackageVerificationCode: SHA1 от конкатенации SHA1 файлов,
-     * отсортированных по имени. */
+    /* PackageVerificationCode: SHA1 of the concatenation of file SHA1s,
+     * sorted by name. */
     sorted = (FileInfo*)malloc((size_t)doc->files.count * sizeof(FileInfo));
     if (!sorted) {
         fprintf(stderr, "ERROR: out of memory\n");
@@ -186,11 +186,11 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
     doc->package.files_analyzed = 1;
 }
 
-/* Заполняет relationships:
- *   - DESCRIBES: документ -> пакет;
- *   - GENERATED_FROM: пакет -> Source-пакет (только binary mode);
- *   - CONTAINS: пакет -> файл, для каждого файла;
- *   - CONTAINS: файл -> сниппет, для каждого сниппета. */
+/* Fills relationships:
+ *   - DESCRIBES: document -> package;
+ *   - GENERATED_FROM: package -> Source package (binary mode only);
+ *   - CONTAINS: package -> file, for each file;
+ *   - CONTAINS: file -> snippet, for each snippet. */
 void sbom_doc_build_relationships(SpdxDocument *doc,
                                   const char *base_name_no_ext,
                                   int binary_mode) {

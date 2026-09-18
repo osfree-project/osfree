@@ -1,4 +1,4 @@
-/* spdx_sbom_out.c - диспетчер вывода SBOM (C89) */
+/* spdx_sbom_out.c - SBOM output dispatcher (C89) */
 
 #include <stdio.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-/* spdx_sbom_utils.h - вспомогательные функции SPDX SBOM */
+/* spdx_sbom_utils.h - SPDX SBOM helper functions */
 #ifndef SPDX_SBOM_UTILS_H
 #define SPDX_SBOM_UTILS_H
 

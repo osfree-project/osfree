@@ -1,4 +1,4 @@
-/* spdx_sbom_utils.c - вспомогательные функции SPDX SBOM (C89) */
+/* spdx_sbom_utils.c - SPDX SBOM helper functions (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>

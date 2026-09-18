@@ -1,4 +1,4 @@
-/* spdx_sbom_types.h - общие структуры SPDX SBOM (C89) */
+/* spdx_sbom_types.h - common SPDX SBOM structures (C89) */
 #ifndef SPDX_SBOM_TYPES_H
 #define SPDX_SBOM_TYPES_H
 
@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
     char spdx_id[128];          /* SPDXRef-Snippet-<n> */
     char from_file_id[512];     /* SPDXRef-File-<name> */
-    char from_file_name[512];   /* базовое имя файла-источника */
+    char from_file_name[512];   /* base name of the source file */
     int  line_start;
     int  line_end;
     char license[256];

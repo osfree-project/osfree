@@ -1,4 +1,4 @@
-/* spdx_sbom_extracted.c - работа с LicenseRef-* (C89) */
+/* spdx_sbom_extracted.c - LicenseRef-* handling (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +76,8 @@ ExtractedLicenseInfo *extracted_add(ExtractedLicenseList *list,
     return e;
 }
 
-/* »щет текст в <project_dir>/LICENSES/<id>.txt или без расширени€. */
+/* Look for text in <project_dir>/LICENSES/<id>.txt or without
+ * extension. */
 static char *find_text_in_licenses_dir(const char *project_dir,
                                        const char *id) {
     char path[2048];
@@ -101,7 +102,7 @@ static char *find_text_in_licenses_dir(const char *project_dir,
     return NULL;
 }
 
-/* »щет текст в extra (CLI). */
+/* Look for text in extra (CLI). */
 static char *find_text_in_extra(const ExtractedLicenseSource *extra,
                                 int extra_count, const char *id) {
     int i;
@@ -111,7 +112,8 @@ static char *find_text_in_extra(const ExtractedLicenseSource *extra,
     return NULL;
 }
 
-/* –азбор SPDX-выражени€ на токены: LicenseRef-* добавл€ютс€ в list. */
+/* Tokenize an SPDX expression: LicenseRef-* tokens are added to
+ * the list. */
 static void scan_licenseref_tokens(const char *expr,
                                    ExtractedLicenseList *list) {
     const char *p = expr;
