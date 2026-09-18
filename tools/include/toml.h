@@ -137,7 +137,7 @@ typedef HANDLE HTOMLNODE;
  *       released with TomlClose.
  * @see TomlClose
  */
-APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml);
+APIRET APIENTRY TomlOpen(PCSZ pszPath, HTOMLDOC *phToml);
 
 /**
  * @brief Close a document.
@@ -158,7 +158,7 @@ APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml);
  *          The caller should set the handle to NULLHANDLE after close.
  * @see TomlOpen
  */
-APIRET TomlClose(HTOMLDOC hToml);
+APIRET APIENTRY TomlClose(HTOMLDOC hToml);
 
 /* ==================================================================
  * Point queries
@@ -177,7 +177,7 @@ APIRET TomlClose(HTOMLDOC hToml);
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  */
-APIRET TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType);
+APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType);
 
 /**
  * @brief Query a string value by dotted path.
@@ -210,8 +210,9 @@ APIRET TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType);
  * @note The buffer is owned by the caller. The string inside the
  *       document is not modified.
  */
-APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
-                       PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
+                                PSZ pszBuffer, ULONG ulBufSize,
+                                PULONG pulSize);
 
 /**
  * @brief Query an integer value by dotted path.
@@ -228,7 +229,8 @@ APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not INTEGER.
  *                                   *pllValue = 0.
  */
-APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue);
+APIRET APIENTRY TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath,
+                                 PLONGLONG pllValue);
 
 /**
  * @brief Query a floating-point value by dotted path.
@@ -248,7 +250,8 @@ APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue);
  * @note The value may be inf / -inf / nan as per TOML v1.0.0. The
  *       caller is responsible for checking finiteness.
  */
-APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue);
+APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
+                               double *pdblValue);
 
 /**
  * @brief Query a boolean value by dotted path.
@@ -265,7 +268,8 @@ APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue);
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not BOOLEAN.
  *                                   *pfValue = FALSE_.
  */
-APIRET TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath, PBOOL pfValue);
+APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
+                                 PBOOL pfValue);
 
 /**
  * @brief Query the number of elements in an array by dotted path.
@@ -281,7 +285,8 @@ APIRET TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath, PBOOL pfValue);
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  * @retval TOML_ERROR_TYPE_MISMATCH  Value is not ARRAY.
  */
-APIRET TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath, PULONG pulCount);
+APIRET APIENTRY TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath,
+                                    PULONG pulCount);
 
 /**
  * @brief Query the type of one array element by index.
@@ -299,8 +304,8 @@ APIRET TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath, PULONG pulCount);
  * @retval TOML_ERROR_TYPE_MISMATCH  Path does not refer to an array.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                          PULONG pulType);
+APIRET APIENTRY TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath,
+                                   ULONG ulIndex, PULONG pulType);
 
 /**
  * @brief Query a string element of an array by index.
@@ -324,8 +329,9 @@ APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                            PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath,
+                                     ULONG ulIndex, PSZ pszBuffer,
+                                     ULONG ulBufSize, PULONG pulSize);
 
 /**
  * @brief Query an integer element of an array by index.
@@ -343,8 +349,8 @@ APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  * @retval TOML_ERROR_TYPE_MISMATCH  Element is not INTEGER.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                             PLONGLONG pllValue);
+APIRET APIENTRY TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath,
+                                      ULONG ulIndex, PLONGLONG pllValue);
 
 /**
  * @brief Query a floating-point element of an array by index.
@@ -362,8 +368,8 @@ APIRET TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  * @retval TOML_ERROR_TYPE_MISMATCH  Element is not FLOAT.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                           double *pdblValue);
+APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
+                                    ULONG ulIndex, double *pdblValue);
 
 /**
  * @brief Query a boolean element of an array by index.
@@ -381,8 +387,8 @@ APIRET TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  * @retval TOML_ERROR_TYPE_MISMATCH  Element is not BOOLEAN.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                             PBOOL pfValue);
+APIRET APIENTRY TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath,
+                                      ULONG ulIndex, PBOOL pfValue);
 
 /* ==================================================================
  * DOM-style traversal
@@ -408,7 +414,8 @@ APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
  *
  * @see TomlQueryRootNode, TomlNodeGetType
  */
-APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode);
+APIRET APIENTRY TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath,
+                              HTOMLNODE *phNode);
 
 /**
  * @brief Obtain a node handle for the root table.
@@ -423,7 +430,7 @@ APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode);
  *
  * @see TomlQueryNode
  */
-APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode);
+APIRET APIENTRY TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode);
 
 /**
  * @brief Query the type of a node.
@@ -435,7 +442,7 @@ APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode);
  * @retval TOML_NO_ERROR             Success.
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  */
-APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType);
+APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType);
 
 /**
  * @brief Query a string value of a node.
@@ -454,8 +461,8 @@ APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType);
  * @retval TOML_ERROR_TYPE_MISMATCH   Node is neither STRING nor DATETIME.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
-                         PULONG pulSize);
+APIRET APIENTRY TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer,
+                                  ULONG ulBufSize, PULONG pulSize);
 
 /**
  * @brief Query an integer value of a node.
@@ -468,7 +475,7 @@ APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not INTEGER.
  */
-APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue);
+APIRET APIENTRY TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue);
 
 /**
  * @brief Query a floating-point value of a node.
@@ -481,7 +488,7 @@ APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue);
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not FLOAT.
  */
-APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue);
+APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue);
 
 /**
  * @brief Query a boolean value of a node.
@@ -494,7 +501,7 @@ APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue);
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not BOOLEAN.
  */
-APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue);
+APIRET APIENTRY TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue);
 
 /**
  * @brief Query the number of elements in an array node.
@@ -507,7 +514,7 @@ APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue);
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
  */
-APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount);
+APIRET APIENTRY TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount);
 
 /**
  * @brief Query an array element by index.
@@ -523,8 +530,8 @@ APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount);
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
-                               HTOMLNODE *phChild);
+APIRET APIENTRY TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
+                                        HTOMLNODE *phChild);
 
 /**
  * @brief Query the number of entries in a table node.
@@ -537,7 +544,7 @@ APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
  */
-APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount);
+APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount);
 
 /**
  * @brief Query a table entry by key.
@@ -553,8 +560,8 @@ APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount);
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
  * @retval TOML_ERROR_NOT_FOUND      Key not found.
  */
-APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
-                                  HTOMLNODE *phChild);
+APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
+                                           HTOMLNODE *phChild);
 
 /**
  * @brief Query a table entry by index.
@@ -579,10 +586,11 @@ APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
  * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Key buffer too small.
  */
-APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
-                                    PSZ pszKeyBuffer, ULONG ulKeyBufSize,
-                                    PULONG pulKeyUsed,
-                                    HTOMLNODE *phChild);
+APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
+                                             PSZ pszKeyBuffer,
+                                             ULONG ulKeyBufSize,
+                                             PULONG pulKeyUsed,
+                                             HTOMLNODE *phChild);
 
 /* ==================================================================
  * Directory enumeration
@@ -621,8 +629,9 @@ APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
  *       Always release it via TomlFindClose.
  * @see TomlFindNext, TomlFindClose
  */
-APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,
-                     HTOMLFIND *phFind, PULONG pulType);
+APIRET APIENTRY TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath,
+                              PCSZ pszPattern, HTOMLFIND *phFind,
+                              PULONG pulType);
 
 /**
  * @brief Advance the cursor to the next matching entry.
@@ -638,7 +647,7 @@ APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,
  *
  * @see TomlFindFirst, TomlFindClose
  */
-APIRET TomlFindNext(HTOMLFIND hFind, PULONG pulType);
+APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType);
 
 /**
  * @brief Retrieve the key of the current entry.
@@ -658,8 +667,8 @@ APIRET TomlFindNext(HTOMLFIND hFind, PULONG pulType);
  * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET TomlFindKey(HTOMLFIND hFind,
-                   PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
+                            PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
 
 /**
  * @brief Retrieve the string value of the current entry.
@@ -677,8 +686,9 @@ APIRET TomlFindKey(HTOMLFIND hFind,
  *                                    nor DATETIME.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET TomlFindString(HTOMLFIND hFind,
-                      PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY TomlFindString(HTOMLFIND hFind,
+                               PSZ pszBuffer, ULONG ulBufSize,
+                               PULONG pulSize);
 
 /**
  * @brief Retrieve the integer value of the current entry.
@@ -692,7 +702,7 @@ APIRET TomlFindString(HTOMLFIND hFind,
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not INTEGER.
  */
-APIRET TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue);
+APIRET APIENTRY TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue);
 
 /**
  * @brief Retrieve the floating-point value of the current entry.
@@ -706,7 +716,7 @@ APIRET TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue);
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not FLOAT.
  */
-APIRET TomlFindFloat(HTOMLFIND hFind, double *pdblValue);
+APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue);
 
 /**
  * @brief Retrieve the boolean value of the current entry.
@@ -720,7 +730,7 @@ APIRET TomlFindFloat(HTOMLFIND hFind, double *pdblValue);
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not BOOLEAN.
  */
-APIRET TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue);
+APIRET APIENTRY TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue);
 
 /**
  * @brief Close an enumeration cursor.
@@ -737,7 +747,7 @@ APIRET TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue);
  *       remaining cursors.
  * @see TomlFindFirst
  */
-APIRET TomlFindClose(HTOMLFIND hFind);
+APIRET APIENTRY TomlFindClose(HTOMLFIND hFind);
 
 #ifdef __cplusplus
 }

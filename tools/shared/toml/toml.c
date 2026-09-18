@@ -1571,7 +1571,31 @@ static int read_file_all(PCSZ pszPath, char **ppszText) {
     return 0;
 }
 
-APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
+/**
+ * @brief Open a TOML document from a file.
+ *
+ * Reads the file, parses TOML v1.0.0, allocates all internal buffers
+ * and returns a document handle.
+ *
+ * @param[in]  pszPath  Path to the file. Must not be NULL.
+ * @param[out] phToml   Handle receiver. Must not be NULL. Set to
+ *                      NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  pszPath or phToml is NULL.
+ * @retval TOML_ERROR_OPEN_FAILED    File cannot be opened.
+ * @retval TOML_ERROR_READ_FAILED    Read error.
+ * @retval TOML_ERROR_INVALID_UTF8   File content is not valid UTF-8.
+ * @retval TOML_ERROR_INVALID_SYNTAX TOML syntax error.
+ * @retval TOML_ERROR_DUPLICATE_KEY  Duplicate key.
+ * @retval TOML_ERROR_OUT_OF_MEMORY  Memory allocation failure.
+ *
+ * @note Ownership of the handle transfers to the caller. It must be
+ *       released with TomlClose.
+ * @see TomlClose
+ */
+APIRET APIENTRY TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
     char *text = NULL;
     PTOMLTABLE root = NULL;
     PTOMLDOC doc;
@@ -1602,7 +1626,24 @@ APIRET TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlClose(HTOMLDOC hToml) {
+/**
+ * @brief Close a document.
+ *
+ * Releases all internal buffers, including any active Find cursors and
+ * node handles associated with the document.
+ *
+ * @param[in] hToml  Document handle. NULLHANDLE is accepted and treated
+ *                   as a no-op.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success. Also returned for
+ *                                   NULLHANDLE.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ *
+ * @warning Calling TomlClose twice with the same handle is undefined.
+ * @see TomlOpen
+ */
+APIRET APIENTRY TomlClose(HTOMLDOC hToml) {
     PTOMLDOC doc;
     if (hToml == NULLHANDLE) return TOML_NO_ERROR;
     doc = as_doc(hToml);
@@ -1660,7 +1701,20 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
  * Query API
  * ================================================================== */
 
-APIRET TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType) {
+/**
+ * @brief Query the type of a value by dotted path.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path "a.b.c". Not NULL, not empty.
+ * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL or path empty.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ */
+APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pulType) return TOML_ERROR_INVALID_PARAM;
@@ -1683,8 +1737,29 @@ static APIRET copy_string_out(PCSZ src, PSZ dst, ULONG ulSize,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
-                       PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
+/**
+ * @brief Query a string value by dotted path.
+ *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
+ *
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND       Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Value is neither STRING nor
+ *                                    DATETIME.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET APIENTRY TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
+                                PSZ pszBuffer, ULONG ulBufSize,
+                                PULONG pulSize) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     PCSZ s;
@@ -1714,7 +1789,23 @@ APIRET TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue) {
+/**
+ * @brief Query an integer value by dotted path.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path. Not NULL, not empty.
+ * @param[out] pllValue Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Value is not INTEGER.
+ *                                   *pllValue = 0.
+ */
+APIRET APIENTRY TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath,
+                                 PLONGLONG pllValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pllValue) return TOML_ERROR_INVALID_PARAM;
@@ -1728,7 +1819,23 @@ APIRET TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath, PLONGLONG pllValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue) {
+/**
+ * @brief Query a floating-point value by dotted path.
+ *
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[out] pdblValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Value is not FLOAT.
+ *                                   *pdblValue = 0.0.
+ */
+APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
+                               double *pdblValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pdblValue) return TOML_ERROR_INVALID_PARAM;
@@ -1742,7 +1849,23 @@ APIRET TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath, double *pdblValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath, PBOOL pfValue) {
+/**
+ * @brief Query a boolean value by dotted path.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path. Not NULL, not empty.
+ * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Value is not BOOLEAN.
+ *                                   *pfValue = FALSE_.
+ */
+APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
+                                 PBOOL pfValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pfValue) return TOML_ERROR_INVALID_PARAM;
@@ -1756,7 +1879,22 @@ APIRET TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath, PBOOL pfValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath, PULONG pulCount) {
+/**
+ * @brief Query the number of elements in an array by dotted path.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path. Not NULL, not empty.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Value is not ARRAY.
+ */
+APIRET APIENTRY TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath,
+                                    PULONG pulCount) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pulCount) return TOML_ERROR_INVALID_PARAM;
@@ -1767,8 +1905,24 @@ APIRET TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath, PULONG pulCount) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                          PULONG pulType) {
+/**
+ * @brief Query the type of one array element by index.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path. Not NULL, not empty.
+ * @param[in]  ulIndex  Element index.
+ * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Path does not refer to an array.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET APIENTRY TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath,
+                                   ULONG ulIndex, PULONG pulType) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !pulType) return TOML_ERROR_INVALID_PARAM;
@@ -1780,8 +1934,31 @@ APIRET TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                            PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
+/**
+ * @brief Query a string element of an array by index.
+ *
+ * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
+ *
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[in]  ulIndex    Element index.
+ * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND       Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Element is neither STRING nor
+ *                                    DATETIME.
+ * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET APIENTRY TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath,
+                                     ULONG ulIndex, PSZ pszBuffer,
+                                     ULONG ulBufSize, PULONG pulSize) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv, item;
     PCSZ s;
@@ -1814,8 +1991,24 @@ APIRET TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                             PLONGLONG pllValue) {
+/**
+ * @brief Query an integer element of an array by index.
+ *
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL, not empty.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pllValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Element is not INTEGER.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET APIENTRY TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath,
+                                      ULONG ulIndex, PLONGLONG pllValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv, item;
     if (!doc || !pszPath || !pllValue) return TOML_ERROR_INVALID_PARAM;
@@ -1829,8 +2022,24 @@ APIRET TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                           double *pdblValue) {
+/**
+ * @brief Query a floating-point element of an array by index.
+ *
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[in]  ulIndex    Element index.
+ * @param[out] pdblValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Element is not FLOAT.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
+                                    ULONG ulIndex, double *pdblValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv, item;
     if (!doc || !pszPath || !pdblValue) return TOML_ERROR_INVALID_PARAM;
@@ -1844,8 +2053,24 @@ APIRET TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath, ULONG ulIndex,
-                             PBOOL pfValue) {
+/**
+ * @brief Query a boolean element of an array by index.
+ *
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path. Not NULL, not empty.
+ * @param[in]  ulIndex  Element index.
+ * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND      Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Element is not BOOLEAN.
+ * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
+ */
+APIRET APIENTRY TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath,
+                                      ULONG ulIndex, PBOOL pfValue) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv, item;
     if (!doc || !pszPath || !pfValue) return TOML_ERROR_INVALID_PARAM;
@@ -1878,7 +2103,8 @@ static PTOMLVALUE as_node(HTOMLNODE h) { return (PTOMLVALUE)h; }
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  * @retval TOML_ERROR_NOT_FOUND      Path not found.
  */
-APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode) {
+APIRET APIENTRY TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath,
+                              HTOMLNODE *phNode) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     if (!doc || !pszPath || !phNode) return TOML_ERROR_INVALID_PARAM;
@@ -1904,7 +2130,7 @@ APIRET TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath, HTOMLNODE *phNode) {
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  */
-APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
+APIRET APIENTRY TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
     PTOMLDOC doc = as_doc(hToml);
     if (!doc || !phNode) return TOML_ERROR_INVALID_PARAM;
     *phNode = (HTOMLNODE)doc->pRootNode;
@@ -1921,7 +2147,7 @@ APIRET TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
  * @retval TOML_NO_ERROR             Success.
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  */
-APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
+APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pulType) return TOML_ERROR_INVALID_PARAM;
     *pulType = pv->ulType;
@@ -1945,8 +2171,8 @@ APIRET TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
  * @retval TOML_ERROR_TYPE_MISMATCH   Node is neither STRING nor DATETIME.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
-                         PULONG pulSize) {
+APIRET APIENTRY TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer,
+                                  ULONG ulBufSize, PULONG pulSize) {
     PTOMLVALUE pv = as_node(hNode);
     PCSZ s;
     size_t n;
@@ -1981,7 +2207,7 @@ APIRET TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer, ULONG ulBufSize,
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not INTEGER.
  */
-APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
+APIRET APIENTRY TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pllValue) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_INTEGER) {
@@ -2003,7 +2229,7 @@ APIRET TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not FLOAT.
  */
-APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
+APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pdblValue) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_FLOAT) {
@@ -2025,7 +2251,7 @@ APIRET TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not BOOLEAN.
  */
-APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
+APIRET APIENTRY TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pfValue) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_BOOLEAN) {
@@ -2047,7 +2273,7 @@ APIRET TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
  */
-APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
+APIRET APIENTRY TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
@@ -2068,8 +2294,8 @@ APIRET TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
  * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
-APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
-                               HTOMLNODE *phChild) {
+APIRET APIENTRY TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
+                                        HTOMLNODE *phChild) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !phChild) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
@@ -2092,7 +2318,7 @@ APIRET TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
  * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
  */
-APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
+APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
     PTOMLVALUE pv = as_node(hNode);
     if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
     if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
@@ -2113,8 +2339,8 @@ APIRET TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
  * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
  * @retval TOML_ERROR_NOT_FOUND      Key not found.
  */
-APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
-                                  HTOMLNODE *phChild) {
+APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
+                                           HTOMLNODE *phChild) {
     PTOMLVALUE pv = as_node(hNode);
     PTOMLENTRY pe;
     if (!pv || !pszKey || !phChild) return TOML_ERROR_INVALID_PARAM;
@@ -2143,10 +2369,11 @@ APIRET TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
  * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
  * @retval TOML_ERROR_BUFFER_OVERFLOW Key buffer too small.
  */
-APIRET TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
-                                    PSZ pszKeyBuffer, ULONG ulKeyBufSize,
-                                    PULONG pulKeyUsed,
-                                    HTOMLNODE *phChild) {
+APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
+                                             PSZ pszKeyBuffer,
+                                             ULONG ulKeyBufSize,
+                                             PULONG pulKeyUsed,
+                                             HTOMLNODE *phChild) {
     PTOMLVALUE pv = as_node(hNode);
     PTOMLENTRY pe;
     size_t klen;
@@ -2211,8 +2438,27 @@ static int find_next_match(PTOMLTABLE pt, ULONG ulStart,
     return -1;
 }
 
-APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,
-                     HTOMLFIND *phFind, PULONG pulType) {
+/**
+ * @brief Start enumerating entries in a table.
+ *
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path to the table. Not NULL. Use "" for root.
+ * @param[in]  pszPattern Pattern. Not NULL.
+ * @param[out] phFind     Cursor receiver. Not NULL.
+ * @param[out] pulType    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_NOT_FOUND       Path not found.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Path does not refer to a table.
+ * @retval TOML_ERROR_NO_MORE_ENTRIES No entry matches the pattern.
+ * @retval TOML_ERROR_OUT_OF_MEMORY   Memory allocation failure.
+ */
+APIRET APIENTRY TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath,
+                              PCSZ pszPattern, HTOMLFIND *phFind,
+                              PULONG pulType) {
     PTOMLDOC doc = as_doc(hToml);
     PTOMLVALUE pv;
     PTOMLTABLE t;
@@ -2252,7 +2498,18 @@ APIRET TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath, PCSZ pszPattern,
     return TOML_NO_ERROR;
 }
 
-APIRET TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
+/**
+ * @brief Advance the cursor to the next matching entry.
+ *
+ * @param[in]  hFind    Cursor from TomlFindFirst. Not NULLHANDLE.
+ * @param[out] pulType  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_NO_MORE_ENTRIES No more matching entries.
+ */
+APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
     PTOMLFIND f = as_find(hFind);
     PCSZ pszKey = NULL;
     PTOMLVALUE pVal = NULL;
@@ -2268,16 +2525,48 @@ APIRET TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlFindKey(HTOMLFIND hFind,
-                   PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
+/**
+ * @brief Retrieve the key of the current entry.
+ *
+ * @param[in]  hFind      Cursor. Not NULLHANDLE.
+ * @param[out] pszBuffer  Output buffer. Not NULL.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
+                            PSZ pszBuffer, ULONG ulBufSize,
+                            PULONG pulSize) {
     PTOMLFIND f = as_find(hFind);
     if (!f || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
     if (!f->pszCurrentKey) return TOML_ERROR_NOT_FOUND;
     return copy_string_out(f->pszCurrentKey, pszBuffer, ulBufSize, pulSize);
 }
 
-APIRET TomlFindString(HTOMLFIND hFind,
-                      PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize) {
+/**
+ * @brief Retrieve the string value of the current entry.
+ *
+ * @param[in]  hFind      Cursor. Not NULLHANDLE.
+ * @param[out] pszBuffer  Output buffer. Not NULL.
+ * @param[in]  ulBufSize  Size of pszBuffer in bytes.
+ * @param[out] pulSize    Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR              Success.
+ * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
+ * @retval TOML_ERROR_TYPE_MISMATCH   Current entry is neither STRING
+ *                                    nor DATETIME.
+ * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
+ */
+APIRET APIENTRY TomlFindString(HTOMLFIND hFind,
+                               PSZ pszBuffer, ULONG ulBufSize,
+                               PULONG pulSize) {
     PTOMLFIND f = as_find(hFind);
     if (!f || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
     if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
@@ -2288,7 +2577,19 @@ APIRET TomlFindString(HTOMLFIND hFind,
                            pszBuffer, ulBufSize, pulSize);
 }
 
-APIRET TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue) {
+/**
+ * @brief Retrieve the integer value of the current entry.
+ *
+ * @param[in]  hFind     Cursor. Not NULLHANDLE.
+ * @param[out] pllValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not INTEGER.
+ */
+APIRET APIENTRY TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue) {
     PTOMLFIND f = as_find(hFind);
     if (!f || !pllValue) return TOML_ERROR_INVALID_PARAM;
     if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
@@ -2298,7 +2599,19 @@ APIRET TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
+/**
+ * @brief Retrieve the floating-point value of the current entry.
+ *
+ * @param[in]  hFind      Cursor. Not NULLHANDLE.
+ * @param[out] pdblValue  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not FLOAT.
+ */
+APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
     PTOMLFIND f = as_find(hFind);
     if (!f || !pdblValue) return TOML_ERROR_INVALID_PARAM;
     if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
@@ -2308,7 +2621,19 @@ APIRET TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue) {
+/**
+ * @brief Retrieve the boolean value of the current entry.
+ *
+ * @param[in]  hFind    Cursor. Not NULLHANDLE.
+ * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success.
+ * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not BOOLEAN.
+ */
+APIRET APIENTRY TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue) {
     PTOMLFIND f = as_find(hFind);
     if (!f || !pfValue) return TOML_ERROR_INVALID_PARAM;
     if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
@@ -2318,7 +2643,18 @@ APIRET TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue) {
     return TOML_NO_ERROR;
 }
 
-APIRET TomlFindClose(HTOMLFIND hFind) {
+/**
+ * @brief Close an enumeration cursor.
+ *
+ * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
+ *                   no-op.
+ *
+ * @return APIRET
+ * @retval TOML_NO_ERROR             Success. Also returned for
+ *                                   NULLHANDLE.
+ * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
+ */
+APIRET APIENTRY TomlFindClose(HTOMLFIND hFind) {
     PTOMLFIND f = as_find(hFind);
     PTOMLFIND *pp;
     if (!f) return TOML_NO_ERROR;
