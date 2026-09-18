@@ -12,23 +12,7 @@
 #include "spdx_tag.h"
 #include "sha1.h"
 
-/* Fetch a copy of the string at position ulIndex in an HSTRSET.
- * Returns malloc'd NUL-terminated string, or NULL on failure. */
-static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
-    ULONG ulSize = 0;
-    char *p;
-    if (hSet == NULLHANDLE) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    p = (char*)malloc(ulSize);
-    if (!p) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
-        free(p);
-        return NULL;
-    }
-    return p;
-}
+#define PATH_BUF 1024
 
 int sbom_fill_file_basic(const char *fullpath,
                          const char *display_name,
@@ -245,24 +229,28 @@ int sbom_collect_files(HSTRSET hPaths,
                        const char *default_copyright,
                        FileList *out,
                        SnippetList *snippets) {
-    ULONG ulCount = 0;
-    ULONG k;
+    HSTRSETENUM hEnum = NULLHANDLE;
+    int rc = 0;
 
     if (hPaths == NULLHANDLE) return -1;
+    if (StrSetEnumFirst(hPaths, &hEnum) != NO_ERROR) return 0;
 
-    if (StrSetGetCount(hPaths, &ulCount) != NO_ERROR) return -1;
-    for (k = 0; k < ulCount; k++) {
-        char *full = strset_dup(hPaths, k);
+    do {
+        char full[PATH_BUF];
         const char *name;
-        int rc;
 
-        if (!full) continue;
+        if (StrSetEnumGet(hEnum, full, sizeof(full), NULL) != NO_ERROR)
+            continue;
+
         name = SpdxGetFileName(full);
-        rc = process_one_file(full, name, hTree,
-                              default_license, default_copyright,
-                              out, snippets);
-        free(full);
-        if (rc != 0) return -1;
-    }
-    return 0;
+        if (process_one_file(full, name, hTree,
+                             default_license, default_copyright,
+                             out, snippets) != 0) {
+            rc = -1;
+            break;
+        }
+    } while (StrSetEnumNext(hEnum) == NO_ERROR);
+    StrSetEnumClose(hEnum);
+
+    return rc;
 }

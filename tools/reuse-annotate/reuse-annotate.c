@@ -22,6 +22,7 @@
 
 #define MAX_LINE 4096
 #define BINARY_PROBE 8192
+#define PATH_BUF 1024
 
 typedef enum {
     STYLE_C,
@@ -65,24 +66,6 @@ static int write_file(const char *path, const char *text) {
     if (text && fputs(text, f) == EOF) { fclose(f); return -1; }
     fclose(f);
     return 0;
-}
-
-/* Fetch a copy of the string at position ulIndex in an HSTRSET.
- * Returns malloc'd NUL-terminated string, or NULL on failure. */
-static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
-    ULONG ulSize = 0;
-    char *p;
-    if (hSet == NULLHANDLE) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    p = (char*)malloc(ulSize);
-    if (!p) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
-        free(p);
-        return NULL;
-    }
-    return p;
 }
 
 static int is_binary_file(const char *path) {
@@ -635,10 +618,10 @@ static int ensure_licenses(const char *repo_root,
                            int dry_run) {
     char lic_path[1024];
     char path[1200];
-    ULONG i;
-    ULONG ulLicCount = 0;
     int errors = 0;
     int created_dir = 0;
+    ULONG ulLicCount = 0;
+    HSTRSETENUM hEnum = NULLHANDLE;
 
     build_licenses_path(lic_path, sizeof(lic_path), repo_root);
 
@@ -665,18 +648,21 @@ static int ensure_licenses(const char *repo_root,
         return 0;
     }
 
-    for (i = 0; i < ulLicCount; i++) {
-        char *lic = strset_dup(hUsedLicenses, i);
+    if (StrSetEnumFirst(hUsedLicenses, &hEnum) != NO_ERROR) {
+        return 0;
+    }
+    do {
+        char lic[512];
         const char *db_text;
         int exists;
 
-        if (!lic) continue;
+        if (StrSetEnumGet(hEnum, lic, sizeof(lic), NULL) != NO_ERROR)
+            continue;
 
         if (strncmp(lic, "LicenseRef-", 11) == 0 ||
             strncmp(lic, "DocumentRef-", 12) == 0) {
             printf("Manual (custom):      %s\n", lic);
             printf("    reason:           not in SPDX database\n");
-            free(lic);
             continue;
         }
 
@@ -688,7 +674,6 @@ static int ensure_licenses(const char *repo_root,
                    "       Check that the SPDX database is complete.\n",
                    lic, lic);
             errors++;
-            free(lic);
             continue;
         }
 
@@ -708,14 +693,12 @@ static int ensure_licenses(const char *repo_root,
             }
             if (equal) {
                 printf("Up to date:           %s\n", path);
-                free(lic);
                 continue;
             }
             if (!force) {
                 printf("Outdated:             %s\n", path);
                 printf("    reason:           text differs from SPDX database\n");
                 printf("    action:           use --force to overwrite\n");
-                free(lic);
                 continue;
             }
             if (dry_run) {
@@ -744,8 +727,8 @@ static int ensure_licenses(const char *repo_root,
                 }
             }
         }
-        free(lic);
-    }
+    } while (StrSetEnumNext(hEnum) == NO_ERROR);
+    StrSetEnumClose(hEnum);
 
     return errors;
 }
@@ -950,128 +933,131 @@ int main(int argc, char *argv[]) {
     printf("\n=== Tags ===\n");
 
     {
-        ULONG ulPathCount = 0;
-        ULONG ulIdx;
-        if (StrSetGetCount(hPaths, &ulPathCount) != NO_ERROR)
-            ulPathCount = 0;
-        for (ulIdx = 0; ulIdx < ulPathCount; ulIdx++) {
-            char *fullpath = strset_dup(hPaths, ulIdx);
-            const char *license;
-            const char *copyright;
-            char *reuse_license = NULL;
-            char *reuse_copyright = NULL;
-            char *normalized = NULL;
-            int rc;
+        HSTRSETENUM hEnum = NULLHANDLE;
+        if (StrSetEnumFirst(hPaths, &hEnum) == NO_ERROR) {
+            do {
+                char fullpath[PATH_BUF];
+                const char *license;
+                const char *copyright;
+                char *reuse_license = NULL;
+                char *reuse_copyright = NULL;
+                char *normalized = NULL;
+                int rc;
 
-            if (!fullpath) continue;
+                if (StrSetEnumGet(hEnum, fullpath, sizeof(fullpath), NULL)
+                        != NO_ERROR)
+                    continue;
 
-            {
-                REUSELICENSEINFO resolved;
-                memset(&resolved, 0, sizeof(resolved));
-                if (ReuseResolveLicense(hTree, fullpath, NULL, NULL, &resolved)
-                        == REUSE_NO_ERROR) {
-                    if (resolved.license[0]) {
-                        size_t n = strlen(resolved.license);
-                        reuse_license = (char*)malloc(n + 1);
-                        if (reuse_license) memcpy(reuse_license,
-                                                  resolved.license, n + 1);
-                    }
-                    if (resolved.copyright[0]) {
-                        size_t n = strlen(resolved.copyright);
-                        reuse_copyright = (char*)malloc(n + 1);
-                        if (reuse_copyright) memcpy(reuse_copyright,
-                                                    resolved.copyright, n + 1);
+                {
+                    REUSELICENSEINFO resolved;
+                    memset(&resolved, 0, sizeof(resolved));
+                    if (ReuseResolveLicense(hTree, fullpath, NULL, NULL, &resolved)
+                            == REUSE_NO_ERROR) {
+                        if (resolved.license[0]) {
+                            size_t n = strlen(resolved.license);
+                            reuse_license = (char*)malloc(n + 1);
+                            if (reuse_license) memcpy(reuse_license,
+                                                      resolved.license, n + 1);
+                        }
+                        if (resolved.copyright[0]) {
+                            size_t n = strlen(resolved.copyright);
+                            reuse_copyright = (char*)malloc(n + 1);
+                            if (reuse_copyright) memcpy(reuse_copyright,
+                                                        resolved.copyright, n + 1);
+                        }
                     }
                 }
-            }
 
-            license = reuse_license ? reuse_license : license_override;
-            copyright = reuse_copyright ? reuse_copyright : copyright_override;
+                license = reuse_license ? reuse_license : license_override;
+                copyright = reuse_copyright ? reuse_copyright : copyright_override;
 
-            if (license) {
-                normalized = spdx_normalize_license_expression(license);
-                if (normalized) license = normalized;
-            }
+                if (license) {
+                    normalized = spdx_normalize_license_expression(license);
+                    if (normalized) license = normalized;
+                }
 
-            if (!license || !copyright) {
-                char mf_path[1100];
-                size_t dlen = strlen(dir);
+                if (!license || !copyright) {
+                    char mf_path[1100];
+                    size_t dlen = strlen(dir);
 
 #ifdef __LINUX__
-                snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
-                         (dlen > 0 && dir[dlen-1] == '/') ? "" : "/");
+                    snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
+                             (dlen > 0 && dir[dlen-1] == '/') ? "" : "/");
 #else
-                snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
-                         (dlen > 0 && (dir[dlen-1] == '\\' || dir[dlen-1] == '/'))
-                         ? "" : "\\");
+                    snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
+                             (dlen > 0 && (dir[dlen-1] == '\\' || dir[dlen-1] == '/'))
+                             ? "" : "\\");
 #endif
 
-                if (!license) {
-                    printf("ERROR: %s: no license information available.\n"
-                           "       Annotate needs to know which license to "
-                           "write.\n"
-                           "       Fix one of:\n"
-                           "         - add a [[annotations]] entry in "
-                           "REUSE.toml;\n"
-                           "         - or pass --license=<id> on the command "
-                           "line;\n"
-                           "         - or set LICENSE in %s (e.g. "
-                           "LICENSE = MIT).\n",
-                           fullpath, mf_path);
-                    total_errors++;
+                    if (!license) {
+                        printf("ERROR: %s: no license information available.\n"
+                               "       Annotate needs to know which license to "
+                               "write.\n"
+                               "       Fix one of:\n"
+                               "         - add a [[annotations]] entry in "
+                               "REUSE.toml;\n"
+                               "         - or pass --license=<id> on the command "
+                               "line;\n"
+                               "         - or set LICENSE in %s (e.g. "
+                               "LICENSE = MIT).\n",
+                               fullpath, mf_path);
+                        total_errors++;
+                    }
+
+                    if (!copyright) {
+                        printf("ERROR: %s: no copyright information available.\n"
+                               "       Annotate needs to know which copyright to "
+                               "write.\n"
+                               "       Fix one of:\n"
+                               "         - add a [[annotations]] entry in "
+                               "REUSE.toml;\n"
+                               "         - or pass --copyright=<text> on the "
+                               "command line;\n"
+                               "         - or set COPYRIGHT in %s (e.g. "
+                               "COPYRIGHT = Copyright (C) 2025 <holder>).\n",
+                               fullpath, mf_path);
+                        total_errors++;
+                    }
+
+                    free(normalized);
+                    free(reuse_license);
+                    free(reuse_copyright);
+                    continue;
                 }
 
-                if (!copyright) {
-                    printf("ERROR: %s: no copyright information available.\n"
-                           "       Annotate needs to know which copyright to "
-                           "write.\n"
-                           "       Fix one of:\n"
-                           "         - add a [[annotations]] entry in "
-                           "REUSE.toml;\n"
-                           "         - or pass --copyright=<text> on the "
-                           "command line;\n"
-                           "         - or set COPYRIGHT in %s (e.g. "
-                           "COPYRIGHT = Copyright (C) 2025 <holder>).\n",
-                           fullpath, mf_path);
-                    total_errors++;
+                {
+                    HSTRSET hIds = NULLHANDLE;
+                    HSTRSETENUM hIdEnum = NULLHANDLE;
+                    if (StrSetCreate(&hIds) == NO_ERROR) {
+                        SpdxExpressionCollectIds(license, hIds);
+                        if (StrSetEnumFirst(hIds, &hIdEnum) == NO_ERROR) {
+                            do {
+                                char id[256];
+                                const SpdxLicenseEntry *e;
+                                const SpdxExceptionEntry *ex = NULL;
+                                if (StrSetEnumGet(hIdEnum, id, sizeof(id),
+                                                  NULL) != NO_ERROR)
+                                    continue;
+                                e = spdx_license_lookup(id);
+                                if (!e) ex = spdx_exception_lookup(id);
+                                if (e) StrSetAdd(hUsedLicenses, e->id);
+                                else if (ex) StrSetAdd(hUsedLicenses, ex->id);
+                                else StrSetAdd(hUsedLicenses, id);
+                            } while (StrSetEnumNext(hIdEnum) == NO_ERROR);
+                            StrSetEnumClose(hIdEnum);
+                        }
+                        StrSetDestroy(hIds);
+                    }
                 }
+
+                rc = annotate_one(fullpath, license, copyright, force, dry_run);
+                if (rc != 0) total_errors++;
 
                 free(normalized);
                 free(reuse_license);
                 free(reuse_copyright);
-                free(fullpath);
-                continue;
-            }
-
-            {
-                HSTRSET hIds = NULLHANDLE;
-                ULONG ulIdCount = 0, k;
-                if (StrSetCreate(&hIds) == NO_ERROR) {
-                    SpdxExpressionCollectIds(license, hIds);
-                    StrSetGetCount(hIds, &ulIdCount);
-                    for (k = 0; k < ulIdCount; k++) {
-                        char *id = strset_dup(hIds, k);
-                        const SpdxLicenseEntry *e;
-                        const SpdxExceptionEntry *ex = NULL;
-                        if (!id) continue;
-                        e = spdx_license_lookup(id);
-                        if (!e) ex = spdx_exception_lookup(id);
-                        if (e) StrSetAdd(hUsedLicenses, e->id);
-                        else if (ex) StrSetAdd(hUsedLicenses, ex->id);
-                        else StrSetAdd(hUsedLicenses, id);
-                        free(id);
-                    }
-                    StrSetDestroy(hIds);
-                }
-            }
-
-            rc = annotate_one(fullpath, license, copyright, force, dry_run);
-            if (rc != 0) total_errors++;
-
-            free(normalized);
-            free(reuse_license);
-            free(reuse_copyright);
-            free(fullpath);
+            } while (StrSetEnumNext(hEnum) == NO_ERROR);
+            StrSetEnumClose(hEnum);
         }
     }
 

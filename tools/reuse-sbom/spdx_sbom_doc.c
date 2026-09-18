@@ -17,24 +17,6 @@ static void copy_safe(char *dst, size_t dst_size, const char *src) {
     dst[dst_size - 1] = '\0';
 }
 
-/* Fetch a copy of the string at position ulIndex in an HSTRSET.
- * Returns malloc'd NUL-terminated string, or NULL on failure. */
-static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
-    ULONG ulSize = 0;
-    char *p;
-    if (hSet == NULLHANDLE) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    p = (char*)malloc(ulSize);
-    if (!p) return NULL;
-    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
-        free(p);
-        return NULL;
-    }
-    return p;
-}
-
 void sbom_doc_init(SpdxDocument *doc,
                    const char *name,
                    const char *version,
@@ -164,20 +146,21 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
      * sbom_collect_files, so case and syntax are correct. */
     for (i = 0; i < doc->files.count; i++) {
         HSTRSET hIds = NULLHANDLE;
-        ULONG ulIdCount = 0;
-        ULONG k;
+        HSTRSETENUM hEnum = NULLHANDLE;
 
         if (StrSetCreate(&hIds) != NO_ERROR) {
             fprintf(stderr, "ERROR: out of memory\n");
             exit(EXIT_FAILURE);
         }
         SpdxExpressionCollectIds(doc->files.items[i].license, hIds);
-        StrSetGetCount(hIds, &ulIdCount);
-        for (k = 0; k < ulIdCount; k++) {
-            char *id = strset_dup(hIds, k);
-            if (!id) continue;
-            add_unique_license(&doc->package, id);
-            free(id);
+        if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
+            do {
+                char id[256];
+                if (StrSetEnumGet(hEnum, id, sizeof(id), NULL) != NO_ERROR)
+                    continue;
+                add_unique_license(&doc->package, id);
+            } while (StrSetEnumNext(hEnum) == NO_ERROR);
+            StrSetEnumClose(hEnum);
         }
         StrSetDestroy(hIds);
     }

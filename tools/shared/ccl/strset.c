@@ -15,20 +15,37 @@
 #include "vector.h"
 
 /* ==================================================================
- * Internal control block
+ * Internal control blocks
  * ================================================================== */
 
 /** @brief Magic value identifying a valid string-set handle. */
-#define CCL_STRSET_MAGIC 0x53535453UL  /* "SSTS" */
+#define CCL_STRSET_MAGIC       0x53535453UL  /* "SSTS" */
+/** @brief Magic value identifying a valid enumeration cursor. */
+#define CCL_STRSETENUM_MAGIC   0x53454E55UL  /* "SENU" */
+
+typedef struct _STRSETCTL   STRSETCTL;
+typedef struct _STRSETENUM  STRSETENUM;
 
 /**
  * @struct _STRSETCTL
  * @brief Control block of an open string set.
  */
-typedef struct _STRSETCTL {
-    unsigned long ulMagic;   /**< CCL_STRSET_MAGIC.          */
-    HVECTOR       hVector;   /**< Underlying vector (char*). */
-} STRSETCTL;
+struct _STRSETCTL {
+    unsigned long ulMagic;      /**< CCL_STRSET_MAGIC.                 */
+    HVECTOR       hVector;      /**< Underlying vector (char*).        */
+    STRSETENUM   *pFirstEnum;   /**< Head of open cursors, or NULL.    */
+};
+
+/**
+ * @struct _STRSETENUM
+ * @brief Control block of an open enumeration cursor.
+ */
+struct _STRSETENUM {
+    unsigned long ulMagic;      /**< CCL_STRSETENUM_MAGIC.             */
+    STRSETCTL    *pSet;         /**< Owning set.                       */
+    ULONG         ulIndex;      /**< Current position.                 */
+    STRSETENUM   *pNext;        /**< Next cursor of the owning set.    */
+};
 
 /* ==================================================================
  * Internal helpers
@@ -40,6 +57,14 @@ static STRSETCTL *get_ctl(HSTRSET hSet) {
     pCtl = (STRSETCTL *)hSet;
     if (pCtl->ulMagic != CCL_STRSET_MAGIC) return NULL;
     return pCtl;
+}
+
+static STRSETENUM *get_enum(HSTRSETENUM hEnum) {
+    STRSETENUM *pEnum;
+    if (hEnum == NULLHANDLE) return NULL;
+    pEnum = (STRSETENUM *)hEnum;
+    if (pEnum->ulMagic != CCL_STRSETENUM_MAGIC) return NULL;
+    return pEnum;
 }
 
 /**
@@ -84,6 +109,38 @@ static BOOL find_string(STRSETCTL *pCtl, PCSZ pszStr, PULONG pulIndex) {
     return FALSE_;
 }
 
+/**
+ * @brief Common implementation of StrSetGetItem and StrSetEnumGet.
+ *
+ * Copies the string stored at ulIndex into the caller's buffer,
+ * following the size-query convention.
+ */
+static APIRET copy_index_string(STRSETCTL *pCtl, ULONG ulIndex,
+                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+    PCSZ pStored = NULL;
+    APIRET rc;
+    size_t n;
+
+    rc = get_stored_ptr(pCtl, ulIndex, &pStored);
+    if (rc != NO_ERROR) return rc;
+    if (!pStored) return ERROR_NO_MORE_ITEMS;
+
+    n = strlen(pStored);
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+        return NO_ERROR;
+    }
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < n + 1) {
+        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+        return ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuf, pStored, n);
+    pszBuf[n] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)n;
+    return NO_ERROR;
+}
+
 /* ==================================================================
  * Lifecycle
  * ================================================================== */
@@ -104,6 +161,7 @@ APIRET APIENTRY StrSetCreate(PHSTRSET phSet) {
         return rc;
     }
     pCtl->ulMagic = CCL_STRSET_MAGIC;
+    pCtl->pFirstEnum = NULL;
     *phSet = (HSTRSET)pCtl;
     return NO_ERROR;
 }
@@ -116,6 +174,19 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
     if (hSet == NULLHANDLE) return NO_ERROR;
     pCtl = get_ctl(hSet);
     if (!pCtl) return ERROR_INVALID_HANDLE;
+
+    /* Release every open cursor of this set first. */
+    {
+        STRSETENUM *pEnum = pCtl->pFirstEnum;
+        while (pEnum) {
+            STRSETENUM *pNext = pEnum->pNext;
+            pEnum->ulMagic = 0;
+            pEnum->pSet = NULL;
+            free(pEnum);
+            pEnum = pNext;
+        }
+        pCtl->pFirstEnum = NULL;
+    }
 
     if (VectorGetCount(pCtl->hVector, &ulCount) == NO_ERROR) {
         for (i = 0; i < ulCount; i++) {
@@ -183,29 +254,87 @@ APIRET APIENTRY StrSetGetCount(HSTRSET hSet, PULONG pulCount) {
 APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     STRSETCTL *pCtl;
-    PCSZ pStored = NULL;
-    APIRET rc;
-    size_t n;
 
     pCtl = get_ctl(hSet);
     if (!pCtl) return ERROR_INVALID_HANDLE;
 
-    rc = get_stored_ptr(pCtl, ulIndex, &pStored);
-    if (rc != NO_ERROR) return rc;
-    if (!pStored) return ERROR_NO_MORE_ITEMS;
+    return copy_index_string(pCtl, ulIndex, pszBuf, ulSize, pulUsed);
+}
 
-    n = strlen(pStored);
-    if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
-        return NO_ERROR;
+/* ==================================================================
+ * Enumeration
+ * ================================================================== */
+
+APIRET APIENTRY StrSetEnumFirst(HSTRSET hSet, HSTRSETENUM *phEnum) {
+    STRSETCTL *pCtl;
+    STRSETENUM *pEnum;
+    ULONG ulCount = 0;
+
+    if (!phEnum) return ERROR_INVALID_PARAMETER;
+    *phEnum = NULLHANDLE;
+
+    pCtl = get_ctl(hSet);
+    if (!pCtl) return ERROR_INVALID_HANDLE;
+
+    if (VectorGetCount(pCtl->hVector, &ulCount) != NO_ERROR)
+        return ERROR_INVALID_HANDLE;
+    if (ulCount == 0) return ERROR_NO_MORE_ITEMS;
+
+    pEnum = (STRSETENUM *)calloc(1, sizeof(STRSETENUM));
+    if (!pEnum) return ERROR_NOT_ENOUGH_MEMORY;
+
+    pEnum->ulMagic = CCL_STRSETENUM_MAGIC;
+    pEnum->pSet = pCtl;
+    pEnum->ulIndex = 0;
+    pEnum->pNext = pCtl->pFirstEnum;
+    pCtl->pFirstEnum = pEnum;
+
+    *phEnum = (HSTRSETENUM)pEnum;
+    return NO_ERROR;
+}
+
+APIRET APIENTRY StrSetEnumNext(HSTRSETENUM hEnum) {
+    STRSETENUM *pEnum = get_enum(hEnum);
+    ULONG ulCount = 0;
+
+    if (!pEnum) return ERROR_INVALID_HANDLE;
+    if (!pEnum->pSet) return ERROR_INVALID_HANDLE;
+
+    if (VectorGetCount(pEnum->pSet->hVector, &ulCount) != NO_ERROR)
+        return ERROR_INVALID_HANDLE;
+
+    if (pEnum->ulIndex + 1 >= ulCount) {
+        return ERROR_NO_MORE_ITEMS;
     }
-    if (!pszBuf) return ERROR_INVALID_PARAMETER;
-    if (ulSize < n + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
-        return ERROR_BUFFER_OVERFLOW;
+    pEnum->ulIndex++;
+    return NO_ERROR;
+}
+
+APIRET APIENTRY StrSetEnumGet(HSTRSETENUM hEnum,
+                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+    STRSETENUM *pEnum = get_enum(hEnum);
+
+    if (!pEnum) return ERROR_INVALID_HANDLE;
+    if (!pEnum->pSet) return ERROR_INVALID_HANDLE;
+
+    return copy_index_string(pEnum->pSet, pEnum->ulIndex,
+                             pszBuf, ulSize, pulUsed);
+}
+
+APIRET APIENTRY StrSetEnumClose(HSTRSETENUM hEnum) {
+    STRSETENUM *pEnum = get_enum(hEnum);
+
+    if (!pEnum) return NO_ERROR;
+
+    if (pEnum->pSet && pEnum->pSet->pFirstEnum) {
+        STRSETENUM **pp = &pEnum->pSet->pFirstEnum;
+        while (*pp) {
+            if (*pp == pEnum) { *pp = pEnum->pNext; break; }
+            pp = &(*pp)->pNext;
+        }
     }
-    memcpy(pszBuf, pStored, n);
-    pszBuf[n] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)n;
+    pEnum->ulMagic = 0;
+    pEnum->pSet = NULL;
+    free(pEnum);
     return NO_ERROR;
 }

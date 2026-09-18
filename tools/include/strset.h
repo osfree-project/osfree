@@ -22,6 +22,14 @@
  * Strings are kept in the order they were first added. Access by
  * position is O(1).
  *
+ * @par Iteration
+ * To walk the set without copying, open an enumeration cursor with
+ * StrSetEnumFirst and advance it with StrSetEnumNext. Each step
+ * retrieves the current string into a caller-supplied buffer via
+ * StrSetEnumGet, using the standard size-query convention. Cursors
+ * are released by StrSetEnumClose, or automatically by
+ * StrSetDestroy.
+ *
  * @par Thread safety
  * The module is single threaded. Callers must provide locking if a
  * set is shared between threads.
@@ -43,6 +51,15 @@ typedef HANDLE HSTRSET;
  */
 typedef HSTRSET *PHSTRSET;
 
+/**
+ * @typedef HSTRSETENUM
+ * @brief Handle to an enumeration cursor over a string set.
+ *
+ * Issued by StrSetEnumFirst, released by StrSetEnumClose or by
+ * StrSetDestroy of the owning set.
+ */
+typedef HANDLE HSTRSETENUM;
+
 /* ==================================================================
  * Lifecycle
  * ================================================================== */
@@ -62,6 +79,7 @@ APIRET APIENTRY StrSetCreate(PHSTRSET phSet);
 /**
  * @brief Destroy a string set and release every stored copy.
  *
+ * Any enumeration cursors opened on the set are also released.
  * Passing NULLHANDLE is a no-op.
  *
  * @param[in] hSet  Handle. May be NULLHANDLE.
@@ -146,6 +164,84 @@ APIRET APIENTRY StrSetGetCount(HSTRSET hSet, PULONG pulCount);
  */
 APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+
+/* ==================================================================
+ * Enumeration
+ * ================================================================== */
+
+/**
+ * @brief Open an enumeration cursor on a set.
+ *
+ * On success, the cursor is positioned on the first string of the
+ * set. The cursor must be released by StrSetEnumClose (or by
+ * StrSetDestroy of the owning set).
+ *
+ * @param[in]  hSet    Handle. Not NULLHANDLE.
+ * @param[out] phEnum  Cursor receiver. Not NULL. Set to NULLHANDLE
+ *                     on error.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hSet or phEnum is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      The set is empty. No cursor
+ *                                  created.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
+APIRET APIENTRY StrSetEnumFirst(HSTRSET hSet, HSTRSETENUM *phEnum);
+
+/**
+ * @brief Advance an enumeration cursor to the next string.
+ *
+ * If the cursor is already on the last string, the cursor is not
+ * moved and ERROR_NO_MORE_ITEMS is returned.
+ *
+ * @param[in] hEnum  Cursor. Not NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      Cursor is on the last string.
+ */
+APIRET APIENTRY StrSetEnumNext(HSTRSETENUM hEnum);
+
+/**
+ * @brief Retrieve the string at the cursor.
+ *
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed is written.
+ *   - ulSize large enough: value copied and NUL-terminated; *pulUsed
+ *     is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
+ *
+ * @param[in]  hEnum    Cursor. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hEnum or pszBuf (without
+ *                                  size-query) is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
+APIRET APIENTRY StrSetEnumGet(HSTRSETENUM hEnum,
+                              PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+
+/**
+ * @brief Close an enumeration cursor.
+ *
+ * Passing NULLHANDLE is a no-op.
+ *
+ * @param[in] hEnum  Cursor. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   Handle is not recognized.
+ */
+APIRET APIENTRY StrSetEnumClose(HSTRSETENUM hEnum);
 
 #ifdef __cplusplus
 }

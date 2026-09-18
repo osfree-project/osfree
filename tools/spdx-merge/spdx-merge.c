@@ -14,32 +14,11 @@
 
 #define MAX_DOCS 100
 
-typedef struct {
-    char **paths;
-    int count;
-} ProcessedList;
-
-typedef struct {
-    char **old_ids;
-    char **new_ids;
-    int count;
-} RenameMap;
-
 
 static void print_json_string(const char *s) {
     char *esc = json_escape_string(s ? s : "");
     printf("\"%s\"", esc ? esc : "");
     free(esc);
-}
-
-/* ---------- HSTRSET helpers ---------- */
-
-/* Wrapper around StrSetContains for the common "just check" case. */
-static int strset_has(HSTRSET hSet, const char *str) {
-    BOOL found = FALSE_;
-    if (hSet == NULLHANDLE) return 0;
-    if (StrSetContains(hSet, str, &found) != NO_ERROR) return 0;
-    return found ? 1 : 0;
 }
 
 /* ---------- Пути ---------- */
@@ -111,6 +90,17 @@ static char *join_path(const char *dir, const char *rel) {
 }
 
 /* ---------- Processed / Rename ---------- */
+
+typedef struct {
+    char **paths;
+    int count;
+} ProcessedList;
+
+typedef struct {
+    char **old_ids;
+    char **new_ids;
+    int count;
+} RenameMap;
 
 static int is_processed(ProcessedList *l, const char *path) {
     int i;
@@ -385,6 +375,14 @@ static void collect_external_ids(JsonNode *root, HSTRSET hExternalIds) {
     }
 }
 
+/* Check whether a string is present in a set. */
+static int set_has(HSTRSET hSet, const char *str) {
+    BOOL found = FALSE_;
+    if (hSet == NULLHANDLE) return 0;
+    if (StrSetContains(hSet, str, &found) != NO_ERROR) return 0;
+    return found ? 1 : 0;
+}
+
 static void validate_relationships(JsonNode *root, const char *filepath,
                                    HSTRSET hKnown, HSTRSET hExternalIds) {
     JsonNode *arr = json_find_child(root, "relationships");
@@ -421,14 +419,14 @@ static void validate_relationships(JsonNode *root, const char *filepath,
                 memcpy(docref, sa, n);
                 docref[n] = '\0';
             }
-            if (!strset_has(hExternalIds, docref)) {
+            if (!set_has(hExternalIds, docref)) {
                 fprintf(stderr,
                         "ERROR: %s: relationship references unresolved "
                         "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
-        } else if (!strset_has(hKnown, sa)) {
+        } else if (!set_has(hKnown, sa)) {
             fprintf(stderr,
                     "ERROR: %s: relationship references unknown "
                     "SPDXID '%s'.\n", filepath, sa);
@@ -450,14 +448,14 @@ static void validate_relationships(JsonNode *root, const char *filepath,
                 memcpy(docref, sb, n);
                 docref[n] = '\0';
             }
-            if (!strset_has(hExternalIds, docref)) {
+            if (!set_has(hExternalIds, docref)) {
                 fprintf(stderr,
                         "ERROR: %s: relationship references unresolved "
                         "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
-        } else if (!strset_has(hKnown, sb)) {
+        } else if (!set_has(hKnown, sb)) {
             fprintf(stderr,
                     "ERROR: %s: relationship references unknown "
                     "SPDXID '%s'.\n", filepath, sb);
