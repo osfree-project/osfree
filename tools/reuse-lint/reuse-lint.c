@@ -13,9 +13,10 @@
 #endif
 
 #include <reuse.h>
+#include "ccl.h"
+#include "spdx.h"
 #include "spdx_db.h"
 #include "spdx_discover.h"
-#include "spdx_utils.h"
 #include "reuse_lic.h"
 #include "spdx_tag.h"
 #include "git.h"
@@ -33,6 +34,24 @@ static int read_errors = 0;
 
 static int total_snippets = 0;
 static int snippets_with_license = 0;
+
+/* Fetch a copy of the string at position ulIndex in an HSTRSET.
+ * Returns malloc'd NUL-terminated string, or NULL on failure. */
+static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
+    ULONG ulSize = 0;
+    char *p;
+    if (hSet == NULLHANDLE) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    p = (char*)malloc(ulSize);
+    if (!p) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
+        free(p);
+        return NULL;
+    }
+    return p;
+}
 
 static int has_extension(const char *name) {
     const char *dot = strrchr(name, '.');
@@ -54,7 +73,7 @@ static void print_bad_token(const char *start) {
 }
 
 static void check_license_expression(const char *fullpath, const char *license,
-                                     SpdxStrList *used_ids) {
+                                     HSTRSET hUsedIds) {
     const char *bad = NULL;
     int rc = spdx_expression_validate(license, &bad);
 
@@ -80,34 +99,39 @@ static void check_license_expression(const char *fullpath, const char *license,
         error_count++;
     }
 
-    {
-        SpdxStrList ids;
-        int m;
-        spdx_strlist_init(&ids);
-        spdx_expression_collect_ids(license, &ids);
-        for (m = 0; m < ids.count; m++) {
-            if (rc == SPDX_EXPR_OK) {
-                spdx_strlist_add_unique(used_ids, ids.items[m]);
+    if (hUsedIds != NULLHANDLE) {
+        HSTRSET hIds = NULLHANDLE;
+        if (StrSetCreate(&hIds) == NO_ERROR) {
+            ULONG ulCount = 0, m;
+            SpdxExpressionCollectIds(license, hIds);
+            StrSetGetCount(hIds, &ulCount);
+            for (m = 0; m < ulCount; m++) {
+                char *id = strset_dup(hIds, m);
+                if (!id) continue;
+                if (rc == SPDX_EXPR_OK) {
+                    StrSetAdd(hUsedIds, id);
+                }
+                if (spdx_license_is_deprecated(id) ||
+                    spdx_exception_is_deprecated(id)) {
+                    fprintf(stderr,
+                            "WARNING: %s: deprecated SPDX identifier '%s'.\n"
+                            "         The SPDX License List marks this "
+                            "identifier deprecated.\n"
+                            "         Replace it with the current identifier "
+                            "(usually a '-only' or '-or-later' variant).\n"
+                            "         See https://spdx.org/licenses/ for the "
+                            "recommended replacement.\n",
+                            fullpath, id);
+                    warning_count++;
+                }
+                free(id);
             }
-            if (spdx_license_is_deprecated(ids.items[m]) ||
-                spdx_exception_is_deprecated(ids.items[m])) {
-                fprintf(stderr,
-                        "WARNING: %s: deprecated SPDX identifier '%s'.\n"
-                        "         The SPDX License List marks this identifier "
-                        "deprecated.\n"
-                        "         Replace it with the current identifier "
-                        "(usually a '-only' or '-or-later' variant).\n"
-                        "         See https://spdx.org/licenses/ for the "
-                        "recommended replacement.\n",
-                        fullpath, ids.items[m]);
-                warning_count++;
-            }
+            StrSetDestroy(hIds);
         }
-        spdx_strlist_free(&ids);
     }
 }
 
-static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
+static void process_snippets(const char *fullpath, HSTRSET hUsedLicenses) {
     SPDXSNIPPETLIST snippets;
     int i;
 
@@ -141,7 +165,7 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
             char label[1200];
             snprintf(label, sizeof(label), "%s:%d-%d",
                      fullpath, s->nLineStart, s->nLineEnd);
-            check_license_expression(label, s->pszLicense, used_licenses);
+            check_license_expression(label, s->pszLicense, hUsedLicenses);
         }
 
         if (!s->pszCopyright || s->pszCopyright[0] == '\0') {
@@ -160,7 +184,7 @@ static void process_snippets(const char *fullpath, SpdxStrList *used_licenses) {
 
 static void process_file(const char *fullpath,
                          HREUSETREE hTree,
-                         SpdxStrList *used_licenses) {
+                         HSTRSET hUsedLicenses) {
     REUSELICENSEINFO lic;
     FILE *f;
     const char *wcc_cmd;
@@ -256,10 +280,10 @@ static void process_file(const char *fullpath,
     }
 
     if (lic.license[0] != '\0') {
-        check_license_expression(fullpath, lic.license, used_licenses);
+        check_license_expression(fullpath, lic.license, hUsedLicenses);
     }
 
-    process_snippets(fullpath, used_licenses);
+    process_snippets(fullpath, hUsedLicenses);
 }
 
 static void strip_license_ext(const char *fname, char *base, size_t base_size) {
@@ -284,13 +308,15 @@ static void strip_license_ext(const char *fname, char *base, size_t base_size) {
 }
 
 static void check_licenses_dir(const char *project_dir,
-                               SpdxStrList *used_licenses) {
+                               HSTRSET hUsedLicenses) {
     char lic_path[1024];
     char example_path[1100];
     SpdxWalkOptions opts;
-    SpdxStrList paths;
-    SpdxStrList files_in_lic;
-    int i;
+    HSTRSET hPaths = NULLHANDLE;
+    HSTRSET hFilesInLic = NULLHANDLE;
+    ULONG ulPathsCount = 0;
+    ULONG ulUsedCount = 0;
+    ULONG i;
     int dir_exists;
     const char *wcc_cmd;
 #ifdef __LINUX__
@@ -307,7 +333,10 @@ static void check_licenses_dir(const char *project_dir,
     dir_exists = (_access(lic_path, 0) == 0);
 #endif
 
-    spdx_strlist_init(&files_in_lic);
+    if (StrSetCreate(&hFilesInLic) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        return;
+    }
 
     if (dir_exists) {
         memset(&opts, 0, sizeof(opts));
@@ -320,14 +349,18 @@ static void check_licenses_dir(const char *project_dir,
         opts.skip_reuse_toml       = 0;
         opts.skip_license_files    = 0;
 
-        spdx_strlist_init(&paths);
-        if (spdx_walk_tree(lic_path, &opts, &paths) == 0 && paths.count > 0) {
-            for (i = 0; i < paths.count; i++) {
-                const char *fname = spdx_get_file_name(paths.items[i]);
-                spdx_strlist_add(&files_in_lic, fname);
+        if (StrSetCreate(&hPaths) == NO_ERROR) {
+            if (spdx_walk_tree(lic_path, &opts, hPaths) == 0) {
+                StrSetGetCount(hPaths, &ulPathsCount);
+                for (i = 0; i < ulPathsCount; i++) {
+                    char *full = strset_dup(hPaths, i);
+                    if (!full) continue;
+                    StrSetAdd(hFilesInLic, SpdxGetFileName(full));
+                    free(full);
+                }
             }
+            StrSetDestroy(hPaths);
         }
-        spdx_strlist_free(&paths);
     } else {
 #ifdef __LINUX__
         snprintf(example_path, sizeof(example_path),
@@ -350,90 +383,117 @@ static void check_licenses_dir(const char *project_dir,
         error_count++;
     }
 
-    for (i = 0; i < files_in_lic.count; i++) {
-        const char *fname = files_in_lic.items[i];
-        char base[256];
+    {
+        ULONG ulFileCount = 0;
+        StrSetGetCount(hFilesInLic, &ulFileCount);
+        for (i = 0; i < ulFileCount; i++) {
+            char *fname = strset_dup(hFilesInLic, i);
+            char base[256];
 
-        strip_license_ext(fname, base, sizeof(base));
+            if (!fname) continue;
 
-        if (!is_valid_spdx_name(base)) {
-            fprintf(stderr,
-                    "ERROR: bad license file name: %s\n"
-                    "       The name must be a valid SPDX License List\n"
-                    "       identifier or start with 'LicenseRef-'.\n"
-                    "       Fix one of:\n"
-                    "         - rename the file to a valid SPDX identifier\n"
-                    "           (e.g. 'MIT.txt');\n"
-                    "         - or use 'LicenseRef-<name>.txt' for a custom\n"
-                    "           license.\n"
-                    "       See https://spdx.org/licenses/ for the full "
-                    "list.\n",
-                    fname);
-            error_count++;
-        } else {
-            if (!has_extension(fname)) {
+            strip_license_ext(fname, base, sizeof(base));
+
+            if (!is_valid_spdx_name(base)) {
                 fprintf(stderr,
-                        "WARNING: license file without extension: %s\n"
-                        "         REUSE convention is to use '.txt'.\n"
-                        "         Rename to '%s.txt' to follow the "
-                        "convention and avoid ambiguity.\n",
-                        fname, fname);
-                warning_count++;
+                        "ERROR: bad license file name: %s\n"
+                        "       The name must be a valid SPDX License List\n"
+                        "       identifier or start with 'LicenseRef-'.\n"
+                        "       Fix one of:\n"
+                        "         - rename the file to a valid SPDX identifier\n"
+                        "           (e.g. 'MIT.txt');\n"
+                        "         - or use 'LicenseRef-<name>.txt' for a custom\n"
+                        "           license.\n"
+                        "       See https://spdx.org/licenses/ for the full "
+                        "list.\n",
+                        fname);
+                error_count++;
+            } else {
+                if (!has_extension(fname)) {
+                    fprintf(stderr,
+                            "WARNING: license file without extension: %s\n"
+                            "         REUSE convention is to use '.txt'.\n"
+                            "         Rename to '%s.txt' to follow the "
+                            "convention and avoid ambiguity.\n",
+                            fname, fname);
+                    warning_count++;
+                }
+                if (spdx_license_is_deprecated(base) ||
+                    spdx_exception_is_deprecated(base)) {
+                    fprintf(stderr,
+                            "WARNING: deprecated license file: %s\n"
+                            "         SPDX License List marks '%s' as "
+                            "deprecated.\n"
+                            "         Rename the file to the current identifier "
+                            "and update\n"
+                            "         all references in source files.\n"
+                            "         See https://spdx.org/licenses/ for the "
+                            "recommended replacement.\n",
+                            fname, base);
+                    warning_count++;
+                }
             }
-            if (spdx_license_is_deprecated(base) ||
-                spdx_exception_is_deprecated(base)) {
+            free(fname);
+        }
+    }
+
+    {
+        ULONG ulFileCount = 0;
+        StrSetGetCount(hFilesInLic, &ulFileCount);
+        for (i = 0; i < ulFileCount; i++) {
+            char *fname = strset_dup(hFilesInLic, i);
+            char base[256];
+            BOOL found = FALSE_;
+
+            if (!fname) continue;
+
+            strip_license_ext(fname, base, sizeof(base));
+
+            StrSetContains(hUsedLicenses, base, &found);
+            if (!found) {
                 fprintf(stderr,
-                        "WARNING: deprecated license file: %s\n"
-                        "         SPDX License List marks '%s' as "
-                        "deprecated.\n"
-                        "         Rename the file to the current identifier "
-                        "and update\n"
-                        "         all references in source files.\n"
-                        "         See https://spdx.org/licenses/ for the "
-                        "recommended replacement.\n",
+                        "ERROR: unused license file: %s\n"
+                        "       REUSE Specification 3.3 forbids License Files\n"
+                        "       for licenses under which none of the files in\n"
+                        "       the project are licensed.\n"
+                        "       Fix one of:\n"
+                        "         - remove the file if it is no longer needed;\n"
+                        "         - or add 'SPDX-License-Identifier: %s' to the "
+                        "files it applies to;\n"
+                        "         - or add a [[annotations]] entry in "
+                        "REUSE.toml referencing this license.\n",
                         fname, base);
-                warning_count++;
+                error_count++;
             }
+            free(fname);
         }
     }
 
-    for (i = 0; i < files_in_lic.count; i++) {
-        char base[256];
-
-        strip_license_ext(files_in_lic.items[i], base, sizeof(base));
-
-        if (!spdx_strlist_contains(used_licenses, base)) {
-            fprintf(stderr,
-                    "ERROR: unused license file: %s\n"
-                    "       REUSE Specification 3.3 forbids License Files\n"
-                    "       for licenses under which none of the files in\n"
-                    "       the project are licensed.\n"
-                    "       Fix one of:\n"
-                    "         - remove the file if it is no longer needed;\n"
-                    "         - or add 'SPDX-License-Identifier: %s' to the "
-                    "files it applies to;\n"
-                    "         - or add a [[annotations]] entry in "
-                    "REUSE.toml referencing this license.\n",
-                    files_in_lic.items[i], base);
-            error_count++;
-        }
-    }
-
-    for (i = 0; i < used_licenses->count; i++) {
-        const char *lic = used_licenses->items[i];
+    StrSetGetCount(hUsedLicenses, &ulUsedCount);
+    for (i = 0; i < ulUsedCount; i++) {
+        char *lic = strset_dup(hUsedLicenses, i);
         char with_txt[512];
         char expected[1100];
         char full_path[1200];
         const char *actual_fname = NULL;
         int is_ref;
-        int found;
+        int found = 0;
+        BOOL tmp_found = FALSE_;
+
+        if (!lic) continue;
 
         is_ref = (strncmp(lic, "LicenseRef-", 11) == 0) ||
                  (strncmp(lic, "DocumentRef-", 12) == 0);
 
         snprintf(with_txt, sizeof(with_txt), "%s.txt", lic);
-        found = spdx_strlist_contains(&files_in_lic, lic) ||
-                spdx_strlist_contains(&files_in_lic, with_txt);
+        if (StrSetContains(hFilesInLic, lic, &tmp_found) != NO_ERROR)
+            tmp_found = FALSE_;
+        found = tmp_found ? 1 : 0;
+        if (!found) {
+            if (StrSetContains(hFilesInLic, with_txt, &tmp_found) != NO_ERROR)
+                tmp_found = FALSE_;
+            found = tmp_found ? 1 : 0;
+        }
 
         if (!is_ref &&
             !spdx_license_lookup(lic) &&
@@ -445,6 +505,7 @@ static void check_licenses_dir(const char *project_dir,
                     "         https://spdx.org/licenses/\n",
                     lic);
             error_count++;
+            free(lic);
             continue;
         }
 
@@ -467,10 +528,11 @@ static void check_licenses_dir(const char *project_dir,
                     "automatically.\n",
                     lic, expected, expected, wcc_cmd);
             error_count++;
+            free(lic);
             continue;
         }
 
-        if (is_ref) continue;
+        if (is_ref) { free(lic); continue; }
 
         {
             const char *db_text;
@@ -481,9 +543,10 @@ static void check_licenses_dir(const char *project_dir,
 
             db_text = spdx_license_get_text(lic);
             if (!db_text) db_text = spdx_exception_get_text(lic);
-            if (!db_text) continue;
+            if (!db_text) { free(lic); continue; }
 
-            if (spdx_strlist_contains(&files_in_lic, with_txt))
+            if (StrSetContains(hFilesInLic, with_txt, &tmp_found) == NO_ERROR
+                && tmp_found)
                 actual_fname = with_txt;
             else
                 actual_fname = lic;
@@ -496,10 +559,10 @@ static void check_licenses_dir(const char *project_dir,
                      "%s\\%s", lic_path, actual_fname);
 #endif
 
-            file_text = spdx_read_file_all(full_path, NULL);
-            if (file_text) {
-                norm_file = spdx_normalize_text(file_text);
-                norm_db = spdx_normalize_text(db_text);
+            if (SpdxReadFileAll(full_path, &file_text, NULL) == NO_ERROR &&
+                file_text) {
+                SpdxNormalizeText(file_text, &norm_file);
+                SpdxNormalizeText(db_text, &norm_db);
                 if (norm_file && norm_db &&
                     strcmp(norm_file, norm_db) == 0)
                     equal = 1;
@@ -519,9 +582,10 @@ static void check_licenses_dir(const char *project_dir,
                 error_count++;
             }
         }
+        free(lic);
     }
 
-    spdx_strlist_free(&files_in_lic);
+    StrSetDestroy(hFilesInLic);
 }
 
 int main(int argc, char *argv[]) {
@@ -531,8 +595,8 @@ int main(int argc, char *argv[]) {
     int no_gitignore = 0;
     int i;
     HREUSETREE hTree = NULLHANDLE;
-    SpdxStrList used_licenses;
-    SpdxStrList paths;
+    HSTRSET hUsedLicenses = NULLHANDLE;
+    HSTRSET hPaths = NULLHANDLE;
     int db_errs;
     SpdxWalkOptions walk_opts;
     char *repo_root = NULL;
@@ -644,7 +708,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    spdx_strlist_init(&used_licenses);
+    if (StrSetCreate(&hUsedLicenses) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        ReuseTreeClose(hTree);
+        GitIgnoreListFree(&gitignore_rules);
+        free(repo_root);
+        spdx_db_free();
+        return 1;
+    }
 
     spdx_walk_options_default(&walk_opts);
     walk_opts.recursive = 0;
@@ -654,27 +725,44 @@ int main(int argc, char *argv[]) {
         walk_opts.gitignore_rules = &gitignore_rules;
     }
 
-    spdx_strlist_init(&paths);
-    if (spdx_walk_tree(dir, &walk_opts, &paths) != 0) {
-        fprintf(stderr,
-                "ERROR: cannot walk tree: %s\n"
-                "       Check that the directory exists and is readable.\n",
-                dir);
-        spdx_strlist_free(&paths);
-        spdx_strlist_free(&used_licenses);
+    if (StrSetCreate(&hPaths) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        StrSetDestroy(hUsedLicenses);
         ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         return 1;
     }
-    for (i = 0; i < paths.count; i++) {
-        process_file(paths.items[i], hTree, &used_licenses);
+
+    if (spdx_walk_tree(dir, &walk_opts, hPaths) != 0) {
+        fprintf(stderr,
+                "ERROR: cannot walk tree: %s\n"
+                "       Check that the directory exists and is readable.\n",
+                dir);
+        StrSetDestroy(hPaths);
+        StrSetDestroy(hUsedLicenses);
+        ReuseTreeClose(hTree);
+        GitIgnoreListFree(&gitignore_rules);
+        free(repo_root);
+        spdx_db_free();
+        return 1;
     }
-    spdx_strlist_free(&paths);
+    {
+        ULONG ulPathsCount = 0;
+        ULONG k;
+        StrSetGetCount(hPaths, &ulPathsCount);
+        for (k = 0; k < ulPathsCount; k++) {
+            char *full = strset_dup(hPaths, k);
+            if (!full) continue;
+            process_file(full, hTree, hUsedLicenses);
+            free(full);
+        }
+    }
+    StrSetDestroy(hPaths);
 
     fprintf(stderr, "\n=== LICENSES/ ===\n");
-    check_licenses_dir(repo_root ? repo_root : dir, &used_licenses);
+    check_licenses_dir(repo_root ? repo_root : dir, hUsedLicenses);
 
     fprintf(stderr, "\n");
     fprintf(stderr, "REUSE Lint summary for %s:\n", dir);
@@ -690,18 +778,27 @@ int main(int argc, char *argv[]) {
     }
     fprintf(stderr, "  Read errors:                %d\n", read_errors);
     fprintf(stderr, "  Used licenses:              ");
-    if (used_licenses.count == 0) {
-        fprintf(stderr, "(none)\n");
-    } else {
-        int k;
-        for (k = 0; k < used_licenses.count; k++)
-            fprintf(stderr, "%s%s", k > 0 ? ", " : "", used_licenses.items[k]);
-        fprintf(stderr, "\n");
+    {
+        ULONG ulUsedCount = 0;
+        if (StrSetGetCount(hUsedLicenses, &ulUsedCount) != NO_ERROR)
+            ulUsedCount = 0;
+        if (ulUsedCount == 0) {
+            fprintf(stderr, "(none)\n");
+        } else {
+            ULONG k;
+            for (k = 0; k < ulUsedCount; k++) {
+                char *lic = strset_dup(hUsedLicenses, k);
+                if (!lic) continue;
+                fprintf(stderr, "%s%s", k > 0 ? ", " : "", lic);
+                free(lic);
+            }
+            fprintf(stderr, "\n");
+        }
     }
     fprintf(stderr, "  Errors:                     %d\n", error_count);
     fprintf(stderr, "  Warnings:                   %d\n", warning_count);
 
-    spdx_strlist_free(&used_licenses);
+    StrSetDestroy(hUsedLicenses);
     ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
