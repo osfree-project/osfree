@@ -104,7 +104,7 @@ typedef HANDLE HDEP5FIND;
  *       released with Dep5Close.
  * @see Dep5Close
  */
-APIRET Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc);
+APIRET APIENTRY Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc);
 
 /**
  * @brief Close a document.
@@ -125,7 +125,7 @@ APIRET Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc);
  *          The caller should set the handle to NULLHANDLE after close.
  * @see Dep5Open
  */
-APIRET Dep5Close(HDEP5DOC hDoc);
+APIRET APIENTRY Dep5Close(HDEP5DOC hDoc);
 
 /* ==================================================================
  * Header stanza
@@ -163,8 +163,9 @@ APIRET Dep5Close(HDEP5DOC hDoc);
  * @retval DEP5_ERROR_NOT_FOUND       Field not present in the header.
  * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET Dep5HeaderGetField(HDEP5DOC hDoc, PCSZ pszField,
-                          PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY Dep5HeaderGetField(HDEP5DOC hDoc, PCSZ pszField,
+                                   PSZ pszBuffer, ULONG ulBufSize,
+                                   PULONG pulSize);
 
 /* ==================================================================
  * Files stanzas
@@ -194,8 +195,8 @@ APIRET Dep5HeaderGetField(HDEP5DOC hDoc, PCSZ pszField,
  *       the caller forgot).
  * @see Dep5FilesFindNext, Dep5FilesFindClose
  */
-APIRET Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
-                          PULONG pulCount);
+APIRET APIENTRY Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
+                                   PULONG pulCount);
 
 /**
  * @brief Advance the cursor to the next Files stanza.
@@ -209,7 +210,7 @@ APIRET Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
  *
  * @see Dep5FilesFindFirst, Dep5FilesFindClose
  */
-APIRET Dep5FilesFindNext(HDEP5FIND hFind);
+APIRET APIENTRY Dep5FilesFindNext(HDEP5FIND hFind);
 
 /**
  * @brief Close a Files enumeration cursor.
@@ -226,7 +227,7 @@ APIRET Dep5FilesFindNext(HDEP5FIND hFind);
  *       remaining cursors.
  * @see Dep5FilesFindFirst
  */
-APIRET Dep5FilesFindClose(HDEP5FIND hFind);
+APIRET APIENTRY Dep5FilesFindClose(HDEP5FIND hFind);
 
 /**
  * @brief Retrieve a field value from the current Files stanza.
@@ -262,8 +263,9 @@ APIRET Dep5FilesFindClose(HDEP5FIND hFind);
  * @retval DEP5_ERROR_NOT_FOUND       Field not present in this stanza.
  * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
-                         PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
+                                  PSZ pszBuffer, ULONG ulBufSize,
+                                  PULONG pulSize);
 
 /**
  * @brief Number of patterns in the Files field of the current stanza.
@@ -280,7 +282,7 @@ APIRET Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
  * @retval DEP5_ERROR_INVALID_PARAM  hFind or pulCount is NULL.
  * @retval DEP5_ERROR_INVALID_HANDLE Handle is not recognized.
  */
-APIRET Dep5FilesGetPatternCount(HDEP5FIND hFind, PULONG pulCount);
+APIRET APIENTRY Dep5FilesGetPatternCount(HDEP5FIND hFind, PULONG pulCount);
 
 /**
  * @brief Retrieve one pattern from the Files field by index.
@@ -298,8 +300,9 @@ APIRET Dep5FilesGetPatternCount(HDEP5FIND hFind, PULONG pulCount);
  * @retval DEP5_ERROR_INDEX_RANGE     Index out of range.
  * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
-                           PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
+                                    PSZ pszBuffer, ULONG ulBufSize,
+                                    PULONG pulSize);
 
 /* ==================================================================
  * Stand-alone License stanzas
@@ -326,8 +329,8 @@ APIRET Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
  *       the caller forgot).
  * @see Dep5LicenseFindNext, Dep5LicenseFindClose
  */
-APIRET Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
-                            PULONG pulCount);
+APIRET APIENTRY Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
+                                     PULONG pulCount);
 
 /**
  * @brief Advance the cursor to the next License stanza.
@@ -341,7 +344,7 @@ APIRET Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
  *
  * @see Dep5LicenseFindFirst, Dep5LicenseFindClose
  */
-APIRET Dep5LicenseFindNext(HDEP5FIND hFind);
+APIRET APIENTRY Dep5LicenseFindNext(HDEP5FIND hFind);
 
 /**
  * @brief Close a License enumeration cursor.
@@ -356,7 +359,7 @@ APIRET Dep5LicenseFindNext(HDEP5FIND hFind);
  *
  * @see Dep5LicenseFindFirst
  */
-APIRET Dep5LicenseFindClose(HDEP5FIND hFind);
+APIRET APIENTRY Dep5LicenseFindClose(HDEP5FIND hFind);
 
 /**
  * @brief Retrieve the short name from the current License stanza.
@@ -380,8 +383,9 @@ APIRET Dep5LicenseFindClose(HDEP5FIND hFind);
  * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
  * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET Dep5LicenseGetShortName(HDEP5FIND hFind,
-                               PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY Dep5LicenseGetShortName(HDEP5FIND hFind,
+                                        PSZ pszBuffer, ULONG ulBufSize,
+                                        PULONG pulSize);
 
 /**
  * @brief Retrieve the license text from the current License stanza.
@@ -406,8 +410,9 @@ APIRET Dep5LicenseGetShortName(HDEP5FIND hFind,
  * @retval DEP5_ERROR_NOT_FOUND       Stanza has no license text.
  * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
-APIRET Dep5LicenseGetText(HDEP5FIND hFind,
-                          PSZ pszBuffer, ULONG ulBufSize, PULONG pulSize);
+APIRET APIENTRY Dep5LicenseGetText(HDEP5FIND hFind,
+                                   PSZ pszBuffer, ULONG ulBufSize,
+                                   PULONG pulSize);
 
 #ifdef __cplusplus
 }
