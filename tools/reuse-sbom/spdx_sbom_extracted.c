@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "spdx_sbom_extracted.h"
-#include "spdx_utils.h"
+#include "spdx.h"
 
 static char *dup_str(const char *s) {
     size_t n;
@@ -15,6 +15,13 @@ static char *dup_str(const char *s) {
     p = (char*)malloc(n + 1);
     if (p) memcpy(p, s, n + 1);
     return p;
+}
+
+/* Read a whole file into a malloc'd buffer. Returns NULL on failure. */
+static char *read_file_all(const char *path) {
+    char *text = NULL;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return NULL;
+    return text;
 }
 
 void extracted_init(ExtractedLicenseList *list) {
@@ -84,19 +91,19 @@ static char *find_text_in_licenses_dir(const char *project_dir,
     char *text;
 
     snprintf(path, sizeof(path), "%s/LICENSES/%s.txt", project_dir, id);
-    text = spdx_read_file_all(path, NULL);
+    text = read_file_all(path);
     if (text) return text;
 
     snprintf(path, sizeof(path), "%s\\LICENSES\\%s.txt", project_dir, id);
-    text = spdx_read_file_all(path, NULL);
+    text = read_file_all(path);
     if (text) return text;
 
     snprintf(path, sizeof(path), "%s/LICENSES/%s", project_dir, id);
-    text = spdx_read_file_all(path, NULL);
+    text = read_file_all(path);
     if (text) return text;
 
     snprintf(path, sizeof(path), "%s\\LICENSES\\%s", project_dir, id);
-    text = spdx_read_file_all(path, NULL);
+    text = read_file_all(path);
     if (text) return text;
 
     return NULL;
@@ -108,7 +115,7 @@ static char *find_text_in_extra(const ExtractedLicenseSource *extra,
     int i;
     for (i = 0; i < extra_count; i++)
         if (strcmp(extra[i].id, id) == 0)
-            return spdx_read_file_all(extra[i].path, NULL);
+            return read_file_all(extra[i].path);
     return NULL;
 }
 

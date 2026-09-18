@@ -12,7 +12,7 @@
  *
  * A vector stores elements by value. The size of one element is set
  * at creation and never changes. Elements are copied into the
- * vector on insert and read through a pointer to the stored slot.
+ * vector on insert and read into a caller-supplied buffer on query.
  *
  * @par Order and indexing
  * Elements keep the order in which they were added. Access by
@@ -44,16 +44,6 @@ typedef HANDLE HVECTOR;
  * @brief Pointer to a vector handle.
  */
 typedef HVECTOR *PHVECTOR;
-
-/**
- * @typedef VECTORCOMPAREFN
- * @brief Comparison callback.
- *
- * Follows the usual ordering contract: negative if the first element
- * is less than the second, zero if equal, positive if greater. Same
- * contract as the standard qsort comparator.
- */
-typedef int (APIENTRY *VECTORCOMPAREFN)(PCVOID pElem1, PCVOID pElem2);
 
 /* ==================================================================
  * Lifecycle
@@ -109,24 +99,6 @@ APIRET APIENTRY VectorDestroy(HVECTOR hVector);
  */
 APIRET APIENTRY VectorAdd(HVECTOR hVector, PCVOID pElem);
 
-/**
- * @brief Append an uninitialized slot and return a pointer to it.
- *
- * The element count is increased by one. The caller fills the slot.
- * Useful when an element is more convenient to fill in place than to
- * construct on the caller's stack.
- *
- * @param[in]  hVector    Handle. Not NULLHANDLE.
- * @param[out] ppNewElem  Receiver. Not NULL. Points to the new slot.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hVector or ppNewElem is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
- */
-APIRET APIENTRY VectorGrow(HVECTOR hVector, PPVOID ppNewElem);
-
 /* ==================================================================
  * Access
  * ================================================================== */
@@ -145,43 +117,32 @@ APIRET APIENTRY VectorGrow(HVECTOR hVector, PPVOID ppNewElem);
 APIRET APIENTRY VectorGetCount(HVECTOR hVector, PULONG pulCount);
 
 /**
- * @brief Return a pointer to an element inside the vector.
+ * @brief Copy one element into a caller-supplied buffer.
  *
- * The pointer refers to the vector's own storage. It stays valid
- * until the next call that adds to or grows the vector. The caller
- * must not free it.
+ * Size-query convention:
+ *   - pBuf == NULL, ulSize == 0: only *pulUsed (element size) is
+ *     written, no buffer touched.
+ *   - ulSize large enough: element is copied; *pulUsed is the
+ *     element size.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size.
  *
  * @param[in]  hVector  Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based index.
- * @param[out] ppElem   Receiver. Not NULL.
+ * @param[out] pBuf     Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_PARAMETER  hVector or pBuf (without
+ *                                  size-query) is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_NO_MORE_ITEMS      Index out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY VectorGetPtr(HVECTOR hVector, ULONG ulIndex, PPVOID ppElem);
-
-/* ==================================================================
- * Sorting
- * ================================================================== */
-
-/**
- * @brief Sort the vector in place.
- *
- * The comparator receives pointers to two stored elements. The sort
- * is stable.
- *
- * @param[in] hVector  Handle. Not NULLHANDLE.
- * @param[in] pfnCmp   Comparator. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hVector or pfnCmp is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
- */
-APIRET APIENTRY VectorSort(HVECTOR hVector, VECTORCOMPAREFN pfnCmp);
+APIRET APIENTRY VectorGetItem(HVECTOR hVector, ULONG ulIndex,
+                              PVOID pBuf, ULONG ulSize, PULONG pulUsed);
 
 #ifdef __cplusplus
 }

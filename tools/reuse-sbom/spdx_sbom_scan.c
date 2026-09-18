@@ -6,21 +6,39 @@
 #include "spdx_sbom_scan.h"
 #include "spdx_sbom_utils.h"
 #include "reuse_lic.h"
-#include "spdx_utils.h"
+#include "ccl.h"
+#include "spdx.h"
 #include "spdx_db.h"
 #include "spdx_tag.h"
-#include "sha1_utils.h"
+#include "sha1.h"
+
+/* Fetch a copy of the string at position ulIndex in an HSTRSET.
+ * Returns malloc'd NUL-terminated string, or NULL on failure. */
+static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
+    ULONG ulSize = 0;
+    char *p;
+    if (hSet == NULLHANDLE) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    p = (char*)malloc(ulSize);
+    if (!p) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
+        free(p);
+        return NULL;
+    }
+    return p;
+}
 
 int sbom_fill_file_basic(const char *fullpath,
                          const char *display_name,
                          FileInfo *out) {
-    char *sha1;
+    char *sha1 = NULL;
 
     memset(out, 0, sizeof(*out));
     strncpy(out->name, display_name, sizeof(out->name) - 1);
 
-    sha1 = sha1_file(fullpath);
-    if (!sha1) {
+    if (Sha1File(fullpath, &sha1) != SHA1_NO_ERROR || !sha1) {
         fprintf(stderr,
                 "ERROR: cannot compute SHA1 for %s\n"
                 "       Check that the file exists and is readable.\n",
@@ -221,20 +239,30 @@ static int process_one_file(const char *fullpath,
     return 0;
 }
 
-int sbom_collect_files(const SpdxStrList *paths,
+int sbom_collect_files(HSTRSET hPaths,
                        HREUSETREE hTree,
                        const char *default_license,
                        const char *default_copyright,
                        FileList *out,
                        SnippetList *snippets) {
-    int i;
-    for (i = 0; i < paths->count; i++) {
-        const char *full = paths->items[i];
-        const char *name = spdx_get_file_name(full);
-        if (process_one_file(full, name, hTree,
-                             default_license, default_copyright,
-                             out, snippets) != 0)
-            return -1;
+    ULONG ulCount = 0;
+    ULONG k;
+
+    if (hPaths == NULLHANDLE) return -1;
+
+    if (StrSetGetCount(hPaths, &ulCount) != NO_ERROR) return -1;
+    for (k = 0; k < ulCount; k++) {
+        char *full = strset_dup(hPaths, k);
+        const char *name;
+        int rc;
+
+        if (!full) continue;
+        name = SpdxGetFileName(full);
+        rc = process_one_file(full, name, hTree,
+                              default_license, default_copyright,
+                              out, snippets);
+        free(full);
+        if (rc != 0) return -1;
     }
     return 0;
 }

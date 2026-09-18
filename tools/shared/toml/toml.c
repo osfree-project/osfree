@@ -223,11 +223,11 @@ static void table_free(PTOMLTABLE pt) {
     if (pt->hEntries != NULLHANDLE) {
         if (VectorGetCount(pt->hEntries, &ulCount) == NO_ERROR) {
             for (i = 0; i < ulCount; i++) {
-                PVOID pElem = NULL;
-                if (VectorGetPtr(pt->hEntries, i, &pElem) == NO_ERROR) {
-                    PTOMLENTRY pe = (PTOMLENTRY)pElem;
-                    free(pe->pszKey);
-                    value_free(pe->pValue);
+                TOMLENTRY entry;
+                if (VectorGetItem(pt->hEntries, i, &entry,
+                                  (ULONG)sizeof(entry), NULL) == NO_ERROR) {
+                    free(entry.pszKey);
+                    value_free(entry.pValue);
                 }
             }
         }
@@ -265,19 +265,39 @@ static int array_grow(PTOMLARRAY pa) {
     return 0;
 }
 
-static PTOMLENTRY table_find(PTOMLTABLE pt, PCSZ pszKey) {
+/* Find a table entry by key. The entry is copied into *pEntry if
+ * pEntry is not NULL. Returns 1 on success, 0 if not found. */
+static int table_find_copy(PTOMLTABLE pt, PCSZ pszKey,
+                           PTOMLENTRY pEntry) {
     ULONG ulCount = 0;
     ULONG i;
-    if (!pt || pt->hEntries == NULLHANDLE) return NULL;
-    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return NULL;
+    if (!pt || pt->hEntries == NULLHANDLE) return 0;
+    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return 0;
     for (i = 0; i < ulCount; i++) {
-        PVOID pElem = NULL;
-        if (VectorGetPtr(pt->hEntries, i, &pElem) == NO_ERROR) {
-            PTOMLENTRY pe = (PTOMLENTRY)pElem;
-            if (strcmp(pe->pszKey, pszKey) == 0) return pe;
+        TOMLENTRY entry;
+        if (VectorGetItem(pt->hEntries, i, &entry,
+                          (ULONG)sizeof(entry), NULL) == NO_ERROR) {
+            if (strcmp(entry.pszKey, pszKey) == 0) {
+                if (pEntry) *pEntry = entry;
+                return 1;
+            }
         }
     }
+    return 0;
+}
+
+/* Return pointer to entry's value if found, or NULL. Caller gets
+ * a copy of the value pointer; the value itself is owned by the
+ * table. */
+static PTOMLVALUE table_find_value(PTOMLTABLE pt, PCSZ pszKey) {
+    TOMLENTRY entry;
+    if (table_find_copy(pt, pszKey, &entry)) return entry.pValue;
     return NULL;
+}
+
+/* Return 1 if the key exists, 0 otherwise. */
+static int table_has_key(PTOMLTABLE pt, PCSZ pszKey) {
+    return table_find_copy(pt, pszKey, NULL);
 }
 
 static int table_add(PTOMLTABLE pt, PSZ pszKey, PTOMLVALUE pValue) {
@@ -1089,28 +1109,28 @@ static int inline_assign(PTOMLTABLE pt, char **aKeys, ULONG nKeys,
     PTOMLTABLE cur = pt;
     ULONG i;
     for (i = 0; i + 1 < nKeys; i++) {
-        PTOMLENTRY pe = table_find(cur, aKeys[i]);
-        if (!pe) {
+        PTOMLVALUE subv = table_find_value(cur, aKeys[i]);
+        if (!subv) {
             PTOMLTABLE sub = table_new();
-            PTOMLVALUE subv;
+            PTOMLVALUE newsubv;
             if (!sub) return -1;
             sub->flFlags |= TOML_TABLE_INLINE;
-            subv = value_table(sub);
-            if (!subv) { table_free(sub); return -1; }
-            if (table_add(cur, strdup(aKeys[i]), subv) != 0) {
-                value_free(subv); return -1;
+            newsubv = value_table(sub);
+            if (!newsubv) { table_free(sub); return -1; }
+            if (table_add(cur, strdup(aKeys[i]), newsubv) != 0) {
+                value_free(newsubv); return -1;
             }
             cur = sub;
-        } else if (pe->pValue->ulType == TOML_TYPE_TABLE) {
-            if (!(pe->pValue->u.pTable->flFlags & TOML_TABLE_INLINE))
+        } else if (subv->ulType == TOML_TYPE_TABLE) {
+            if (!(subv->u.pTable->flFlags & TOML_TABLE_INLINE))
                 return -1;
-            cur = pe->pValue->u.pTable;
+            cur = subv->u.pTable;
         } else {
             return -1;
         }
     }
     if (nKeys == 0) return -1;
-    if (table_find(cur, aKeys[nKeys - 1])) return -1;
+    if (table_has_key(cur, aKeys[nKeys - 1])) return -1;
     if (table_add(cur, strdup(aKeys[nKeys - 1]), pValue) != 0) return -1;
     return 0;
 }
@@ -1275,13 +1295,13 @@ static PTOMLTABLE descend(PTOMLTABLE pRoot, char **aKeys, ULONG ulCount,
     PTOMLTABLE cur = pRoot;
     ULONG i;
     for (i = 0; i < ulCount; i++) {
-        PTOMLENTRY pe = table_find(cur, aKeys[i]);
+        PTOMLVALUE existing = table_find_value(cur, aKeys[i]);
         int is_last = (i + 1 == ulCount);
         ULONG want_flags = is_last ? final_flags : intermediate_flags;
 
-        if (pe) {
-            if (pe->pValue->ulType == TOML_TYPE_TABLE) {
-                PTOMLTABLE sub = pe->pValue->u.pTable;
+        if (existing) {
+            if (existing->ulType == TOML_TYPE_TABLE) {
+                PTOMLTABLE sub = existing->u.pTable;
                 if (sub->flFlags & TOML_TABLE_INLINE) return NULL;
                 if (is_last && (want_flags & TOML_TABLE_EXPLICIT)) {
                     if (sub->flFlags & TOML_TABLE_EXPLICIT) return NULL;
@@ -1289,8 +1309,8 @@ static PTOMLTABLE descend(PTOMLTABLE pRoot, char **aKeys, ULONG ulCount,
                     sub->flFlags |= TOML_TABLE_EXPLICIT;
                 }
                 cur = sub;
-            } else if (pe->pValue->ulType == TOML_TYPE_ARRAY) {
-                PTOMLARRAY arr = pe->pValue->u.pArray;
+            } else if (existing->ulType == TOML_TYPE_ARRAY) {
+                PTOMLARRAY arr = existing->u.pArray;
                 PTOMLVALUE last;
                 if (!(arr->flFlags & TOML_ARRAY_OF_TABLES)) return NULL;
                 if (arr->ulCount == 0) return NULL;
@@ -1395,7 +1415,7 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
 
             if (is_array) {
                 PTOMLTABLE parent;
-                PTOMLENTRY pe;
+                PTOMLVALUE existing;
                 PTOMLTABLE new_tbl;
 
                 parent = descend(root, aKeys, nKeys - 1, 0, 0);
@@ -1403,7 +1423,7 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                     rc = TOML_ERROR_INVALID_SYNTAX;
                     goto done;
                 }
-                pe = table_find(parent, aKeys[nKeys - 1]);
+                existing = table_find_value(parent, aKeys[nKeys - 1]);
                 new_tbl = table_new();
                 if (!new_tbl) {
                     rc = TOML_ERROR_OUT_OF_MEMORY;
@@ -1411,17 +1431,17 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                 }
                 new_tbl->flFlags |= TOML_TABLE_ARRAY_ELEM;
 
-                if (pe) {
+                if (existing) {
                     PTOMLARRAY arr;
                     PTOMLVALUE arrv;
-                    if (pe->pValue->ulType != TOML_TYPE_ARRAY ||
-                        !(pe->pValue->u.pArray->flFlags &
+                    if (existing->ulType != TOML_TYPE_ARRAY ||
+                        !(existing->u.pArray->flFlags &
                           TOML_ARRAY_OF_TABLES)) {
                         table_free(new_tbl);
                         rc = TOML_ERROR_INVALID_SYNTAX;
                         goto done;
                     }
-                    arr = pe->pValue->u.pArray;
+                    arr = existing->u.pArray;
                     arrv = value_table(new_tbl);
                     if (!arrv) {
                         table_free(new_tbl);
@@ -1517,7 +1537,7 @@ APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                     goto done;
                 }
             }
-            if (table_find(target, aKeys[nKeys - 1])) {
+            if (table_has_key(target, aKeys[nKeys - 1])) {
                 rc = TOML_ERROR_DUPLICATE_KEY;
                 goto done;
             }
@@ -1685,13 +1705,13 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
     t = pRoot;
     p = copy;
     while (*p) {
-        PTOMLENTRY pe;
+        PTOMLVALUE next;
         tok = p;
         while (*p && *p != '.') p++;
         if (*p == '.') { *p = '\0'; p++; }
-        pe = table_find(t, tok);
-        if (!pe) { free(copy); return NULL; }
-        cur = pe->pValue;
+        next = table_find_value(t, tok);
+        if (!next) { free(copy); return NULL; }
+        cur = next;
         if (*p) {
             if (cur->ulType != TOML_TYPE_TABLE) { free(copy); return NULL; }
             t = cur->u.pTable;
@@ -2349,13 +2369,13 @@ APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
 APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
                                            HTOMLNODE *phChild) {
     PTOMLVALUE pv = as_node(hNode);
-    PTOMLENTRY pe;
+    TOMLENTRY entry;
     if (!pv || !pszKey || !phChild) return TOML_ERROR_INVALID_PARAM;
     *phChild = NULLHANDLE;
     if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    pe = table_find(pv->u.pTable, pszKey);
-    if (!pe) return TOML_ERROR_NOT_FOUND;
-    *phChild = (HTOMLNODE)pe->pValue;
+    if (!table_find_copy(pv->u.pTable, pszKey, &entry))
+        return TOML_ERROR_NOT_FOUND;
+    *phChild = (HTOMLNODE)entry.pValue;
     return TOML_NO_ERROR;
 }
 
@@ -2382,10 +2402,9 @@ APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
                                              PULONG pulKeyUsed,
                                              HTOMLNODE *phChild) {
     PTOMLVALUE pv = as_node(hNode);
-    PTOMLENTRY pe;
+    TOMLENTRY entry;
     size_t klen;
     ULONG ulCount = 0;
-    PVOID pElem = NULL;
 
     if (!pv || !pszKeyBuffer || !phChild) return TOML_ERROR_INVALID_PARAM;
     *phChild = NULLHANDLE;
@@ -2395,19 +2414,19 @@ APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
     if (ulIndex >= ulCount) {
         return TOML_ERROR_INDEX_RANGE;
     }
-    if (VectorGetPtr(pv->u.pTable->hEntries, ulIndex, &pElem) != NO_ERROR)
+    if (VectorGetItem(pv->u.pTable->hEntries, ulIndex, &entry,
+                      (ULONG)sizeof(entry), NULL) != NO_ERROR)
         return TOML_ERROR_INDEX_RANGE;
-    pe = (PTOMLENTRY)pElem;
 
-    klen = strlen(pe->pszKey);
+    klen = strlen(entry.pszKey);
     if (ulKeyBufSize < klen + 1) {
         if (pulKeyUsed) *pulKeyUsed = (ULONG)(klen + 1);
         return TOML_ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszKeyBuffer, pe->pszKey, klen);
+    memcpy(pszKeyBuffer, entry.pszKey, klen);
     pszKeyBuffer[klen] = '\0';
     if (pulKeyUsed) *pulKeyUsed = (ULONG)klen;
-    *phChild = (HTOMLNODE)pe->pValue;
+    *phChild = (HTOMLNODE)entry.pValue;
     return TOML_NO_ERROR;
 }
 
@@ -2445,14 +2464,13 @@ static int find_next_match(PTOMLTABLE pt, ULONG ulStart,
     ULONG ulCount = 0;
     if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return -1;
     for (i = ulStart; i < ulCount; i++) {
-        PVOID pElem = NULL;
-        PTOMLENTRY pe;
-        if (VectorGetPtr(pt->hEntries, i, &pElem) != NO_ERROR) return -1;
-        pe = (PTOMLENTRY)pElem;
-        if (glob_match(pszPattern, pe->pszKey)) {
+        TOMLENTRY entry;
+        if (VectorGetItem(pt->hEntries, i, &entry,
+                          (ULONG)sizeof(entry), NULL) != NO_ERROR) return -1;
+        if (glob_match(pszPattern, entry.pszKey)) {
             *pulNext = i + 1;
-            *ppszKey = pe->pszKey;
-            *ppValue = pe->pValue;
+            *ppszKey = entry.pszKey;
+            *ppValue = entry.pValue;
             return 0;
         }
     }

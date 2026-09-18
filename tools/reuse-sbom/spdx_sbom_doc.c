@@ -7,13 +7,32 @@
 #include "spdx_sbom_doc.h"
 #include "spdx_sbom_utils.h"
 #include "spdx_sbom_extracted.h"
-#include "spdx_utils.h"
-#include "sha1_utils.h"
+#include "ccl.h"
+#include "spdx.h"
+#include "sha1.h"
 
 static void copy_safe(char *dst, size_t dst_size, const char *src) {
     if (!src) { dst[0] = '\0'; return; }
     strncpy(dst, src, dst_size - 1);
     dst[dst_size - 1] = '\0';
+}
+
+/* Fetch a copy of the string at position ulIndex in an HSTRSET.
+ * Returns malloc'd NUL-terminated string, or NULL on failure. */
+static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
+    ULONG ulSize = 0;
+    char *p;
+    if (hSet == NULLHANDLE) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    p = (char*)malloc(ulSize);
+    if (!p) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
+        free(p);
+        return NULL;
+    }
+    return p;
 }
 
 void sbom_doc_init(SpdxDocument *doc,
@@ -64,7 +83,7 @@ void sbom_doc_init(SpdxDocument *doc,
     file_base[0] = '\0';
     if (binary_file) {
         copy_safe(file_base, sizeof(file_base),
-                  spdx_get_file_name(binary_file));
+                  SpdxGetFileName(binary_file));
         sbom_remove_extension(file_base);
     }
     if (file_base[0] == '\0')
@@ -144,14 +163,23 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
      * identifiers. File licenses have already been validated in
      * sbom_collect_files, so case and syntax are correct. */
     for (i = 0; i < doc->files.count; i++) {
-        SpdxStrList ids;
-        int k;
-        spdx_strlist_init(&ids);
-        spdx_expression_collect_ids(doc->files.items[i].license, &ids);
-        for (k = 0; k < ids.count; k++) {
-            add_unique_license(&doc->package, ids.items[k]);
+        HSTRSET hIds = NULLHANDLE;
+        ULONG ulIdCount = 0;
+        ULONG k;
+
+        if (StrSetCreate(&hIds) != NO_ERROR) {
+            fprintf(stderr, "ERROR: out of memory\n");
+            exit(EXIT_FAILURE);
         }
-        spdx_strlist_free(&ids);
+        SpdxExpressionCollectIds(doc->files.items[i].license, hIds);
+        StrSetGetCount(hIds, &ulIdCount);
+        for (k = 0; k < ulIdCount; k++) {
+            char *id = strset_dup(hIds, k);
+            if (!id) continue;
+            add_unique_license(&doc->package, id);
+            free(id);
+        }
+        StrSetDestroy(hIds);
     }
 
     /* PackageVerificationCode: SHA1 of the concatenation of file SHA1s,
@@ -178,7 +206,7 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
     for (i = 0; i < doc->files.count; i++)
         strcat(concat, sorted[i].sha1);
 
-    sha1_string(concat, combined);
+    Sha1String(concat, combined);
     free(concat);
     free(sorted);
 
@@ -280,7 +308,7 @@ void sbom_doc_set_external(SpdxDocument *doc,
     copy_safe(doc->external_doc_id, sizeof(doc->external_doc_id),
               "DocumentRef-source");
     copy_safe(doc->external_doc_uri, sizeof(doc->external_doc_uri),
-              spdx_get_file_name(source_sbom_path));
+              SpdxGetFileName(source_sbom_path));
     if (checksum_sha1)
         copy_safe(doc->external_doc_checksum,
                   sizeof(doc->external_doc_checksum), checksum_sha1);

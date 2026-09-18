@@ -3,5 +3,6 @@
 
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
 TARGET_CLASS = LIBRARY
+LIBS = ccl
 
 !include $(%ROOT)tools/mk/build.mk

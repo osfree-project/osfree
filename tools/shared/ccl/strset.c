@@ -43,6 +43,23 @@ static STRSETCTL *get_ctl(HSTRSET hSet) {
 }
 
 /**
+ * @brief Copy the stored pointer at ulIndex into *ppszStr.
+ *
+ * Returns NO_ERROR on success. On any failure *ppszStr is set to
+ * NULL.
+ */
+static APIRET get_stored_ptr(STRSETCTL *pCtl, ULONG ulIndex, PCSZ *ppszStr) {
+    PCSZ pStored = NULL;
+    APIRET rc;
+    *ppszStr = NULL;
+    rc = VectorGetItem(pCtl->hVector, ulIndex, &pStored,
+                       (ULONG)sizeof(pStored), NULL);
+    if (rc != NO_ERROR) return rc;
+    *ppszStr = pStored;
+    return NO_ERROR;
+}
+
+/**
  * @brief Linear search for a string equal to pszStr.
  *
  * Returns TRUE_ if found and stores the position in *pulIndex.
@@ -56,10 +73,10 @@ static BOOL find_string(STRSETCTL *pCtl, PCSZ pszStr, PULONG pulIndex) {
         return FALSE_;
 
     for (i = 0; i < ulCount; i++) {
-        PVOID pElem = NULL;
-        if (VectorGetPtr(pCtl->hVector, i, &pElem) != NO_ERROR)
+        PCSZ pStored = NULL;
+        if (get_stored_ptr(pCtl, i, &pStored) != NO_ERROR)
             return FALSE_;
-        if (pElem && strcmp((PCSZ)pElem, pszStr) == 0) {
+        if (pStored && strcmp(pStored, pszStr) == 0) {
             if (pulIndex) *pulIndex = i;
             return TRUE_;
         }
@@ -102,9 +119,9 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
 
     if (VectorGetCount(pCtl->hVector, &ulCount) == NO_ERROR) {
         for (i = 0; i < ulCount; i++) {
-            PVOID pElem = NULL;
-            if (VectorGetPtr(pCtl->hVector, i, &pElem) == NO_ERROR)
-                free(pElem);
+            PCSZ pStored = NULL;
+            if (get_stored_ptr(pCtl, i, &pStored) == NO_ERROR)
+                free((void *)pStored);
         }
     }
     VectorDestroy(pCtl->hVector);
@@ -166,18 +183,18 @@ APIRET APIENTRY StrSetGetCount(HSTRSET hSet, PULONG pulCount) {
 APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     STRSETCTL *pCtl;
-    PVOID pElem = NULL;
+    PCSZ pStored = NULL;
     APIRET rc;
     size_t n;
 
     pCtl = get_ctl(hSet);
     if (!pCtl) return ERROR_INVALID_HANDLE;
 
-    rc = VectorGetPtr(pCtl->hVector, ulIndex, &pElem);
+    rc = get_stored_ptr(pCtl, ulIndex, &pStored);
     if (rc != NO_ERROR) return rc;
-    if (!pElem) return ERROR_NO_MORE_ITEMS;
+    if (!pStored) return ERROR_NO_MORE_ITEMS;
 
-    n = strlen((PCSZ)pElem);
+    n = strlen(pStored);
     if (pszBuf == NULL && ulSize == 0) {
         if (pulUsed) *pulUsed = (ULONG)(n + 1);
         return NO_ERROR;
@@ -187,7 +204,7 @@ APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
         if (pulUsed) *pulUsed = (ULONG)(n + 1);
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, pElem, n);
+    memcpy(pszBuf, pStored, n);
     pszBuf[n] = '\0';
     if (pulUsed) *pulUsed = (ULONG)n;
     return NO_ERROR;

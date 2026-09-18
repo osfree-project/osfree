@@ -231,7 +231,7 @@ gen_deps_wrapper: .symbolic
         # add to generated makefile OBJS dependencies
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(MYDIR)makefile .AUTODEPEND" gen_deps #&& $(SAY) gen_deps=%o
         # generate _deps.mk to be included by other projects for full dependencies
-        @if exist $(PATH)_deps.mk %quit
+        @if exist $(PATH)_deps.mk @%quit
         @%create $(PATH)_deps.mk
         @%append $(PATH)_deps.mk !ifndef __$(PROJ)_deps_mk__
         @%append $(PATH)_deps.mk !define __$(PROJ)_deps_mk__

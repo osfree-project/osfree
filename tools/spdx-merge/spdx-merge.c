@@ -6,10 +6,11 @@
 #include <time.h>
 #include <ctype.h>
 #include "json_parser.h"
-#include "sha1_utils.h"
+#include "sha1.h"
 #include "sha256_utils.h"
 #include "spdx_db.h"
-#include "spdx_utils.h"
+#include "spdx.h"
+#include "ccl.h"
 
 #define MAX_DOCS 100
 
@@ -29,6 +30,16 @@ static void print_json_string(const char *s) {
     char *esc = json_escape_string(s ? s : "");
     printf("\"%s\"", esc ? esc : "");
     free(esc);
+}
+
+/* ---------- HSTRSET helpers ---------- */
+
+/* Wrapper around StrSetContains for the common "just check" case. */
+static int strset_has(HSTRSET hSet, const char *str) {
+    BOOL found = FALSE_;
+    if (hSet == NULLHANDLE) return 0;
+    if (StrSetContains(hSet, str, &found) != NO_ERROR) return 0;
+    return found ? 1 : 0;
 }
 
 /* ---------- Пути ---------- */
@@ -296,8 +307,10 @@ static void verify_checksum(const char *filepath, JsonNode *checksum_node) {
                 "       'algorithm' and 'checksumValue' must be strings.\n");
         exit(EXIT_FAILURE);
     }
-    if (strcmp(algo, "SHA1") == 0)
-        actual = sha1_file(filepath);
+    if (strcmp(algo, "SHA1") == 0) {
+        if (Sha1File(filepath, &actual) != SHA1_NO_ERROR)
+            actual = NULL;
+    }
     else if (strcmp(algo, "SHA256") == 0)
         actual = sha256_file(filepath);
     else {
@@ -329,19 +342,18 @@ static void verify_checksum(const char *filepath, JsonNode *checksum_node) {
 
 /* ---------- Валидация SPDX документа ---------- */
 
-static void collect_local_spdxids(JsonNode *root, SpdxStrList *known) {
+static void collect_local_spdxids(JsonNode *root, HSTRSET hKnown) {
     JsonNode *arr;
     int i;
 
-    if (!spdx_strlist_contains(known, "SPDXRef-DOCUMENT"))
-        spdx_strlist_add(known, "SPDXRef-DOCUMENT");
+    StrSetAdd(hKnown, "SPDXRef-DOCUMENT");
 
     arr = json_find_child(root, "packages");
     if (arr && arr->type == JSON_ARRAY) {
         for (i = 0; i < arr->child_count; i++) {
             JsonNode *id = json_find_child(arr->children[i], "SPDXID");
             const char *s = id ? json_get_string(id) : NULL;
-            if (s) spdx_strlist_add_unique(known, s);
+            if (s) StrSetAdd(hKnown, s);
         }
     }
     arr = json_find_child(root, "files");
@@ -349,7 +361,7 @@ static void collect_local_spdxids(JsonNode *root, SpdxStrList *known) {
         for (i = 0; i < arr->child_count; i++) {
             JsonNode *id = json_find_child(arr->children[i], "SPDXID");
             const char *s = id ? json_get_string(id) : NULL;
-            if (s) spdx_strlist_add_unique(known, s);
+            if (s) StrSetAdd(hKnown, s);
         }
     }
     arr = json_find_child(root, "snippets");
@@ -357,24 +369,24 @@ static void collect_local_spdxids(JsonNode *root, SpdxStrList *known) {
         for (i = 0; i < arr->child_count; i++) {
             JsonNode *id = json_find_child(arr->children[i], "SPDXID");
             const char *s = id ? json_get_string(id) : NULL;
-            if (s) spdx_strlist_add_unique(known, s);
+            if (s) StrSetAdd(hKnown, s);
         }
     }
 }
 
-static void collect_external_ids(JsonNode *root, SpdxStrList *external_ids) {
+static void collect_external_ids(JsonNode *root, HSTRSET hExternalIds) {
     JsonNode *arr = json_find_child(root, "externalDocumentRefs");
     int i;
     if (!arr || arr->type != JSON_ARRAY) return;
     for (i = 0; i < arr->child_count; i++) {
         JsonNode *id = json_find_child(arr->children[i], "externalDocumentId");
         const char *s = id ? json_get_string(id) : NULL;
-        if (s) spdx_strlist_add(external_ids, s);
+        if (s) StrSetAdd(hExternalIds, s);
     }
 }
 
 static void validate_relationships(JsonNode *root, const char *filepath,
-                                   SpdxStrList *known, SpdxStrList *external_ids) {
+                                   HSTRSET hKnown, HSTRSET hExternalIds) {
     JsonNode *arr = json_find_child(root, "relationships");
     int i;
 
@@ -409,14 +421,14 @@ static void validate_relationships(JsonNode *root, const char *filepath,
                 memcpy(docref, sa, n);
                 docref[n] = '\0';
             }
-            if (!spdx_strlist_contains(external_ids, docref)) {
+            if (!strset_has(hExternalIds, docref)) {
                 fprintf(stderr,
                         "ERROR: %s: relationship references unresolved "
                         "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
-        } else if (!spdx_strlist_contains(known, sa)) {
+        } else if (!strset_has(hKnown, sa)) {
             fprintf(stderr,
                     "ERROR: %s: relationship references unknown "
                     "SPDXID '%s'.\n", filepath, sa);
@@ -438,14 +450,14 @@ static void validate_relationships(JsonNode *root, const char *filepath,
                 memcpy(docref, sb, n);
                 docref[n] = '\0';
             }
-            if (!spdx_strlist_contains(external_ids, docref)) {
+            if (!strset_has(hExternalIds, docref)) {
                 fprintf(stderr,
                         "ERROR: %s: relationship references unresolved "
                         "externalDocumentRef '%s'.\n",
                         filepath, docref);
                 exit(EXIT_FAILURE);
             }
-        } else if (!spdx_strlist_contains(known, sb)) {
+        } else if (!strset_has(hKnown, sb)) {
             fprintf(stderr,
                     "ERROR: %s: relationship references unknown "
                     "SPDXID '%s'.\n", filepath, sb);
@@ -484,15 +496,23 @@ static void validate_license_field(const char *filepath, const char *field,
 }
 
 static void validate_document(JsonNode *root, const char *filepath) {
-    SpdxStrList known, external_ids;
+    HSTRSET hKnown = NULLHANDLE;
+    HSTRSET hExternalIds = NULLHANDLE;
     JsonNode *arr;
     int i;
 
-    spdx_strlist_init(&known);
-    spdx_strlist_init(&external_ids);
+    if (StrSetCreate(&hKnown) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        exit(EXIT_FAILURE);
+    }
+    if (StrSetCreate(&hExternalIds) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        StrSetDestroy(hKnown);
+        exit(EXIT_FAILURE);
+    }
 
-    collect_local_spdxids(root, &known);
-    collect_external_ids(root, &external_ids);
+    collect_local_spdxids(root, hKnown);
+    collect_external_ids(root, hExternalIds);
 
     arr = json_find_child(root, "packages");
     if (arr && arr->type == JSON_ARRAY) {
@@ -523,10 +543,10 @@ static void validate_document(JsonNode *root, const char *filepath) {
         }
     }
 
-    validate_relationships(root, filepath, &known, &external_ids);
+    validate_relationships(root, filepath, hKnown, hExternalIds);
 
-    spdx_strlist_free(&known);
-    spdx_strlist_free(&external_ids);
+    StrSetDestroy(hKnown);
+    StrSetDestroy(hExternalIds);
 }
 
 /* ---------- Основная рекурсивная обработка ---------- */
@@ -560,7 +580,7 @@ static void process_document(const char *filepath, JsonNode *root,
             JsonNode *checksum_node = json_find_child(ref, "checksum");
             const char *doc_uri;
             char *full_doc_path;
-            char *doc_text;
+            char *doc_text = NULL;
             JsonNode *ext_root;
 
             if (!id_node || !doc_node) {
@@ -612,8 +632,8 @@ static void process_document(const char *filepath, JsonNode *root,
                 exit(EXIT_FAILURE);
             }
 
-            doc_text = spdx_read_file_all(full_doc_path, NULL);
-            if (!doc_text) {
+            if (SpdxReadFileAll(full_doc_path, &doc_text, NULL) != NO_ERROR
+                || !doc_text) {
                 fprintf(stderr,
                         "ERROR: cannot read external document: %s\n"
                         "       Check that the file exists and is "
@@ -891,7 +911,7 @@ int main(int argc, char *argv[]) {
     const char *spdx_db_root = NULL;
     const char *cache_file = NULL;
     int i;
-    char *root_text;
+    char *root_text = NULL;
     JsonNode *root, *merged_root;
     ProcessedList processed;
     RenameMap rename_map;
@@ -959,8 +979,8 @@ int main(int argc, char *argv[]) {
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    root_text = spdx_read_file_all(input_file, NULL);
-    if (!root_text) {
+    if (SpdxReadFileAll(input_file, &root_text, NULL) != NO_ERROR ||
+        !root_text) {
         fprintf(stderr,
                 "ERROR: cannot read input file: %s\n"
                 "       Check that the file exists and is readable.\n",

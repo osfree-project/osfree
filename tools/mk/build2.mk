@@ -70,7 +70,7 @@ add_source: .SYMBOLIC
 !endif
 
 gen_sources_files: .symbolic
- @echo GS_CMD: $(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
+# @echo GS_CMD: $(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
 !ifneq TARGET_LANG pascal

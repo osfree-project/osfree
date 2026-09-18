@@ -131,24 +131,6 @@ APIRET APIENTRY VectorAdd(HVECTOR hVector, PCVOID pElem) {
     return NO_ERROR;
 }
 
-APIRET APIENTRY VectorGrow(HVECTOR hVector, PPVOID ppNewElem) {
-    VECTORCTL *pCtl;
-    APIRET rc;
-
-    if (!ppNewElem) return ERROR_INVALID_PARAMETER;
-    *ppNewElem = NULL;
-    pCtl = get_ctl(hVector);
-    if (!pCtl) return ERROR_INVALID_HANDLE;
-
-    rc = vector_reserve(pCtl, pCtl->ulCount + 1);
-    if (rc != NO_ERROR) return rc;
-
-    *ppNewElem = element_at(pCtl, pCtl->ulCount);
-    memset(*ppNewElem, 0, (size_t)pCtl->ulElemSize);
-    pCtl->ulCount++;
-    return NO_ERROR;
-}
-
 /* ==================================================================
  * Access
  * ================================================================== */
@@ -164,108 +146,30 @@ APIRET APIENTRY VectorGetCount(HVECTOR hVector, PULONG pulCount) {
     return NO_ERROR;
 }
 
-APIRET APIENTRY VectorGetPtr(HVECTOR hVector, ULONG ulIndex, PPVOID ppElem) {
+APIRET APIENTRY VectorGetItem(HVECTOR hVector, ULONG ulIndex,
+                              PVOID pBuf, ULONG ulSize, PULONG pulUsed) {
     VECTORCTL *pCtl;
+    size_t elem_size;
 
-    if (!ppElem) return ERROR_INVALID_PARAMETER;
-    *ppElem = NULL;
     pCtl = get_ctl(hVector);
     if (!pCtl) return ERROR_INVALID_HANDLE;
 
+    elem_size = (size_t)pCtl->ulElemSize;
+
+    if (pBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)elem_size;
+        return NO_ERROR;
+    }
+    if (!pBuf) return ERROR_INVALID_PARAMETER;
     if ((unsigned long)ulIndex >= pCtl->ulCount)
         return ERROR_NO_MORE_ITEMS;
 
-    *ppElem = element_at(pCtl, (unsigned long)ulIndex);
-    return NO_ERROR;
-}
-
-/* ==================================================================
- * Sorting
- * ================================================================== */
-
-/*
- * Stable bottom-up merge sort over an array of fixed-size elements.
- * The comparator receives pointers to two stored elements. A
- * temporary buffer of the same size as the data is used for merging.
- *
- * A private implementation is used instead of qsort because qsort
- * has no user context in C89 and using a file-scope global for the
- * comparator would break thread safety.
- */
-
-static void merge_runs(unsigned char *pbBase,
-                       unsigned char *pbTmp,
-                       unsigned long ulElemSize,
-                       unsigned long ulLo,
-                       unsigned long ulMid,
-                       unsigned long ulHi,
-                       VECTORCOMPAREFN pfnCmp)
-{
-    unsigned long i = ulLo;
-    unsigned long j = ulMid;
-    unsigned long k = ulLo;
-
-    while (i < ulMid && j < ulHi) {
-        PCVOID pa = pbBase + (size_t)i * (size_t)ulElemSize;
-        PCVOID pb = pbBase + (size_t)j * (size_t)ulElemSize;
-        if (pfnCmp(pa, pb) <= 0) {
-            memcpy(pbTmp + (size_t)k * (size_t)ulElemSize,
-                   pa, (size_t)ulElemSize);
-            i++;
-        } else {
-            memcpy(pbTmp + (size_t)k * (size_t)ulElemSize,
-                   pb, (size_t)ulElemSize);
-            j++;
-        }
-        k++;
-    }
-    while (i < ulMid) {
-        memcpy(pbTmp + (size_t)k * (size_t)ulElemSize,
-               pbBase + (size_t)i * (size_t)ulElemSize,
-               (size_t)ulElemSize);
-        i++; k++;
-    }
-    while (j < ulHi) {
-        memcpy(pbTmp + (size_t)k * (size_t)ulElemSize,
-               pbBase + (size_t)j * (size_t)ulElemSize,
-               (size_t)ulElemSize);
-        j++; k++;
-    }
-}
-
-APIRET APIENTRY VectorSort(HVECTOR hVector, VECTORCOMPAREFN pfnCmp) {
-    VECTORCTL *pCtl;
-    unsigned char *pbTmp;
-    unsigned long ulWidth;
-
-    if (!pfnCmp) return ERROR_INVALID_PARAMETER;
-    pCtl = get_ctl(hVector);
-    if (!pCtl) return ERROR_INVALID_HANDLE;
-
-    if (pCtl->ulCount < 2) return NO_ERROR;
-
-    pbTmp = (unsigned char *)malloc((size_t)pCtl->ulCount *
-                                    (size_t)pCtl->ulElemSize);
-    if (!pbTmp) return ERROR_NOT_ENOUGH_MEMORY;
-
-    for (ulWidth = 1; ulWidth < pCtl->ulCount; ulWidth *= 2) {
-        unsigned long ulLo;
-        for (ulLo = 0; ulLo < pCtl->ulCount; ulLo += 2 * ulWidth) {
-            unsigned long ulMid = ulLo + ulWidth;
-            unsigned long ulHi  = ulLo + 2 * ulWidth;
-            if (ulMid > pCtl->ulCount) ulMid = pCtl->ulCount;
-            if (ulHi  > pCtl->ulCount) ulHi  = pCtl->ulCount;
-
-            merge_runs(pCtl->pbData, pbTmp,
-                       pCtl->ulElemSize,
-                       ulLo, ulMid, ulHi, pfnCmp);
-            /* Copy the merged run back. */
-            memcpy(pCtl->pbData + (size_t)ulLo * (size_t)pCtl->ulElemSize,
-                   pbTmp + (size_t)ulLo * (size_t)pCtl->ulElemSize,
-                   (size_t)(ulHi - ulLo) * (size_t)pCtl->ulElemSize);
-        }
+    if ((size_t)ulSize < elem_size) {
+        if (pulUsed) *pulUsed = (ULONG)elem_size;
+        return ERROR_BUFFER_OVERFLOW;
     }
 
-    free(pbTmp);
+    memcpy(pBuf, element_at(pCtl, (unsigned long)ulIndex), elem_size);
+    if (pulUsed) *pulUsed = (ULONG)elem_size;
     return NO_ERROR;
 }
