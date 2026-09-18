@@ -1,4 +1,4 @@
-/* spdx-sbom.c - генератор SPDX SBOM (C89, OpenWatcom) */
+/* reuse-sbom.c - генератор SBOM (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,6 @@
 #include "spdx_db.h"
 #include "spdx_utils.h"
 #include "git_utils.h"
-#include "dep5.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -22,11 +21,43 @@
 
 #include "spdx_discover.h"
 
+/**
+ * @brief Check whether the SBOM describes a binary artifact.
+ *
+ * Binary mode is enabled when a package purpose other than SOURCE is
+ * requested. SOURCE means we are generating the SBOM for the source
+ * tree; any other value (BINARY, LIBRARY, ...) selects the binary
+ * mode, where the SBOM is built from a single binary file rather than
+ * from the tree.
+ *
+ * @param[in] opts  Parsed command-line options. Not NULL.
+ *
+ * @return 1 if binary mode, 0 if source mode.
+ */
 static int is_binary_mode(const SbomOptions *opts) {
     return opts->package_purpose &&
            strcmp(opts->package_purpose, "SOURCE") != 0;
 }
 
+/**
+ * @brief Resolve the license for the package as a whole.
+ *
+ * Order of resolution:
+ *   1. --default-license on the command line.
+ *   2. The first [[annotations]] entry with path "**" found in any
+ *      REUSE.toml, scanned from the deepest (closest to the target
+ *      directory) to the root.
+ *
+ * The resolved expression is validated against the SPDX grammar.
+ *
+ * @param[in]  opts         Parsed options. Not NULL.
+ * @param[in]  configs      REUSE.toml configs. May be NULL.
+ * @param[in]  config_count Number of entries in configs.
+ * @param[out] out_license  Receiver for the resolved license. Not NULL.
+ *                          Set to the internal string (do not free).
+ *
+ * @return 0 on success, -1 on error (message already printed).
+ */
 static int resolve_package_license(const SbomOptions *opts,
                                    ReuseConfig **configs, int config_count,
                                    const char **out_license) {
@@ -84,60 +115,20 @@ static int resolve_package_license(const SbomOptions *opts,
     return 0;
 }
 
-static int resolve_binary_license(const SbomOptions *opts,
-                                  ReuseConfig **configs, int config_count,
-                                  const char **out_license) {
-    const char *lic = opts->default_license;
-    int i;
-
-    if (!lic) {
-        for (i = config_count - 1; i >= 0; i--) {
-            lic = find_license_for_file(configs[i], "**");
-            if (lic && lic[0]) break;
-            lic = NULL;
-        }
-    }
-    if (!lic || !lic[0]) {
-        fprintf(stderr,
-                "ERROR: no license for binary package.\n"
-                "       Fix one of:\n"
-                "         - pass --default-license=<id>;\n"
-                "         - or add a [[annotations]] entry with "
-                "path = \"**\" to REUSE.toml.\n");
-        return -1;
-    }
-    {
-        const char *bad = NULL;
-        int rc = spdx_expression_validate(lic, &bad);
-        if (rc == SPDX_EXPR_SYNTAX_ERROR) {
-            fprintf(stderr,
-                    "ERROR: invalid SPDX license expression for binary "
-                    "package: '%s'\n"
-                    "       Fix the expression according to the SPDX "
-                    "grammar:\n"
-                    "         https://spdx.github.io/spdx-spec/v2.3/"
-                    "SPDX-license-expressions/\n",
-                    lic);
-            return -1;
-        }
-        if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
-            const char *p = bad;
-            while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-            fprintf(stderr,
-                    "ERROR: unknown SPDX identifier in binary package "
-                    "license: '");
-            fwrite(bad, 1, (size_t)(p - bad), stderr);
-            fprintf(stderr,
-                    "'\n"
-                    "       See https://spdx.org/licenses/ for the full "
-                    "list.\n");
-            return -1;
-        }
-    }
-    *out_license = lic;
-    return 0;
-}
-
+/**
+ * @brief Build the FileList for the binary artifact.
+ *
+ * Creates one FileInfo from the binary file path: computes SHA1,
+ * assigns file type BINARY, and copies the given license and
+ * copyright.
+ *
+ * @param[in]  opts     Parsed options. Not NULL. opts->binary_file
+ *                      must be set.
+ * @param[in]  license  License string. Not NULL.
+ * @param[out] out      FileList receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int build_binary_file_list(const SbomOptions *opts,
                                   const char *license,
                                   FileList *out) {
@@ -158,6 +149,22 @@ static int build_binary_file_list(const SbomOptions *opts,
     return 0;
 }
 
+/**
+ * @brief Entry point of the SBOM generator.
+ *
+ * Collects licensing information from the project tree (or from a
+ * single binary artifact), builds an in-memory SBOM document, and
+ * emits it in the requested format.
+ *
+ * The output format is selected with --format:
+ *   spdx-json  Ч SPDX 2.3 JSON
+ *   spdx-tag   Ч SPDX 2.3 tag-value
+ *
+ * @param[in] argc  Argument count.
+ * @param[in] argv  Argument vector.
+ *
+ * @return 0 on success, 1 on error.
+ */
 int main(int argc, char *argv[]) {
     SbomOptions opts;
     ReuseConfig **configs = NULL;
@@ -253,9 +260,10 @@ int main(int argc, char *argv[]) {
 
     binary_mode = is_binary_mode(&opts);
 
-    /* –азрешаем лицензию ƒќ sbom_doc_init, чтобы значение было
-     * зафиксировано в пакете. ¬ binary-режиме Ч та же логика, что и
-     * дл€ source: REUSE.toml (path="**") > --default-license. */
+    /* Resolve the package license BEFORE sbom_doc_init so the value is
+     * fixed inside the package structure. In binary mode the same
+     * resolution path is used: REUSE.toml (path="**") >
+     * --default-license. */
     if (resolve_package_license(&opts, configs, config_count,
                                 &pkg_license) != 0) {
         reuse_free_all(configs, config_count);

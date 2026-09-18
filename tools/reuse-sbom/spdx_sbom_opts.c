@@ -1,10 +1,18 @@
-/* spdx_sbom_opts.c - разбор аргументов командной строки spdx-sbom (C89) */
+/* spdx_sbom_opts.c - разбор аргументов командной строки генератора SBOM (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "spdx_sbom_opts.h"
 
+/**
+ * @brief Duplicate a substring [start, start+len) into a new buffer.
+ *
+ * @param[in] start  Pointer to the first character. Not NULL.
+ * @param[in] len    Number of characters to copy.
+ *
+ * @return malloc'd NUL-terminated string, or NULL on OOM.
+ */
 static char *dup_range(const char *start, size_t len) {
     char *p = (char*)malloc(len + 1);
     if (!p) return NULL;
@@ -13,6 +21,17 @@ static char *dup_range(const char *start, size_t len) {
     return p;
 }
 
+/**
+ * @brief Append a copy of a string to a NULL-terminated list.
+ *
+ * The list is grown by one element. On OOM, an error is printed and
+ * the process exits with EXIT_FAILURE.
+ *
+ * @param[in,out] list  Pointer to the list pointer. Not NULL.
+ * @param[in,out] count Pointer to the element count. Not NULL.
+ * @param[in]     str   Source string. Not NULL.
+ * @param[in]     len   Number of characters to copy.
+ */
 static void add_list_item(char ***list, int *count, const char *str, size_t len) {
     char *copy;
     char **new_list;
@@ -35,7 +54,15 @@ static void add_list_item(char ***list, int *count, const char *str, size_t len)
     (*count)++;
 }
 
-/* Разбирает строку, разделённую пробелами, копируя каждый токен. */
+/**
+ * @brief Split a whitespace-separated string into a list of tokens.
+ *
+ * Tokens are separated by spaces or tabs. Quoting is not supported.
+ *
+ * @param[in]     arg   Source string. Not NULL.
+ * @param[in,out] list  Receiver list. Not NULL.
+ * @param[in,out] count Receiver count. Not NULL.
+ */
 static void parse_list(const char *arg, char ***list, int *count) {
     const char *p = arg;
     while (*p) {
@@ -48,14 +75,35 @@ static void parse_list(const char *arg, char ***list, int *count) {
     }
 }
 
+/**
+ * @brief Parse the --objects= option.
+ *
+ * @param[in]     arg   Option value. Not NULL.
+ * @param[in,out] opts  Options structure. Not NULL.
+ */
 static void parse_object_list(const char *arg, SbomOptions *opts) {
     parse_list(arg, &opts->object_files, &opts->object_count);
 }
 
+/**
+ * @brief Parse the --res= option.
+ *
+ * @param[in]     arg   Option value. Not NULL.
+ * @param[in,out] opts  Options structure. Not NULL.
+ */
 static void parse_res_list(const char *arg, SbomOptions *opts) {
     parse_list(arg, &opts->res_files, &opts->res_count);
 }
 
+/**
+ * @brief Parse the --extracted-license=<id>:<path> option.
+ *
+ * Appends one ExtractedLicenseSource entry. The id must be non-empty
+ * and fit into ExtractedLicenseSource.id.
+ *
+ * @param[in,out] opts  Options structure. Not NULL.
+ * @param[in]     arg   Option value, in the form "<id>:<path>".
+ */
 static void add_extracted(SbomOptions *opts, const char *arg) {
     const char *colon = strchr(arg, ':');
     size_t id_len;
@@ -93,8 +141,15 @@ static void add_extracted(SbomOptions *opts, const char *arg) {
     opts->extracted_count++;
 }
 
+/**
+ * @brief Print command-line usage.
+ *
+ * Lists all supported options with a short description. Invoked by
+ * --help / -h. The process exits with EXIT_SUCCESS afterwards (see
+ * sbom_parse_args).
+ */
 static void print_help(void) {
-    printf("Usage: spdx-sbom [options] [<directory>]\n"
+    printf("Usage: reuse-sbom [options] [<directory>]\n"
            "\n"
            "Required:\n"
            "  --name=<name>              Package name\n"
@@ -112,7 +167,10 @@ static void print_help(void) {
            "(SOURCE, BINARY, LIBRARY, ...)\n"
            "  --output=<file>            Write SBOM to file "
            "(default: stdout)\n"
-           "  --format=json|tagvalue     Output format (default: json)\n"
+           "  --format=<fmt>             Output format:\n"
+           "                               spdx-json  - SPDX 2.3 JSON "
+           "(default)\n"
+           "                               spdx-tag   - SPDX 2.3 tag-value\n"
            "  --default-license=<id>     Fallback license identifier\n"
            "  --default-copyright=<text> Fallback copyright text\n"
            "  --source-sbom=<file>       Source SBOM for binary mode "
@@ -123,20 +181,31 @@ static void print_help(void) {
            "                             Provide text for a "
            "LicenseRef-* license\n"
            "  --cache=<path>             SPDX database cache file\n"
-           "  --details-dir=<path>       SPDX details directory "
-           "(if not under spdx-db)\n"
-           "  --exceptions-dir=<path>    SPDX exceptions directory "
-           "(if not under spdx-db)\n"
            "  --no-gitignore             Do not apply .gitignore rules\n"
            "  --help, -h                 Show this help\n");
 }
 
+/**
+ * @brief Parse the SBOM generator command line.
+ *
+ * Recognized options are listed by print_help. --help / -h print
+ * usage and exit with EXIT_SUCCESS. Unknown options and missing
+ * required values print an error and return -1.
+ *
+ * @param[in]  argc  Argument count.
+ * @param[in]  argv  Argument vector.
+ * @param[out] opts  Receiver. Not NULL. Must be zero-initialized by
+ *                   the caller before the call; sbom_parse_args does
+ *                   a memset itself.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
     int i;
 
     memset(opts, 0, sizeof(*opts));
     opts->dir = ".";
-    opts->format = "json";
+    opts->format = "spdx-json";
 
     for (i = 1; i < argc; i++) {
         const char *a = argv[i];
@@ -174,10 +243,6 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
             opts->spdx_db_root = a + 10;
         else if (strncmp(a, "--cache=", 8) == 0)
             opts->cache_file = a + 8;
-        else if (strncmp(a, "--details-dir=", 14) == 0)
-            opts->details_dir = a + 14;
-        else if (strncmp(a, "--exceptions-dir=", 17) == 0)
-            opts->exceptions_dir = a + 17;
         else if (strncmp(a, "--extracted-license=", 20) == 0)
             add_extracted(opts, a + 20);
         else if (strcmp(a, "--no-gitignore") == 0)
@@ -187,7 +252,7 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
         else {
             fprintf(stderr,
                     "ERROR: unknown option: %s\n"
-                    "       Run 'spdx-sbom --help' for usage.\n", a);
+                    "       Run 'reuse-sbom --help' for usage.\n", a);
             return -1;
         }
     }
@@ -195,34 +260,41 @@ int sbom_parse_args(int argc, char *argv[], SbomOptions *opts) {
     if (!opts->binary_file) {
         fprintf(stderr,
                 "ERROR: --file=<binary file> is required.\n"
-                "       Run 'spdx-sbom --help' for usage.\n");
+                "       Run 'reuse-sbom --help' for usage.\n");
         return -1;
     }
     if (!opts->doc_name) {
         fprintf(stderr,
                 "ERROR: --name=<package name> is required.\n"
-                "       Run 'spdx-sbom --help' for usage.\n");
+                "       Run 'reuse-sbom --help' for usage.\n");
         return -1;
     }
     if (!opts->spdx_db_root) {
         fprintf(stderr,
                 "ERROR: --spdx-db=<path> is required.\n"
-                "       Run 'spdx-sbom --help' for usage.\n");
+                "       Run 'reuse-sbom --help' for usage.\n");
         return -1;
     }
-    if (strcmp(opts->format, "json") != 0 &&
-        strcmp(opts->format, "tagvalue") != 0 &&
-        strcmp(opts->format, "tag") != 0) {
+    if (strcmp(opts->format, "spdx-json") != 0 &&
+        strcmp(opts->format, "spdx-tag") != 0) {
         fprintf(stderr,
                 "ERROR: unsupported output format: %s\n"
-                "       Supported: json, tagvalue (or tag).\n"
-                "       Run 'spdx-sbom --help' for usage.\n",
+                "       Supported: spdx-json, spdx-tag.\n"
+                "       Run 'reuse-sbom --help' for usage.\n",
                 opts->format);
         return -1;
     }
     return 0;
 }
 
+/**
+ * @brief Release memory allocated by sbom_parse_args.
+ *
+ * Frees object_files, res_files and extracted_sources, and resets the
+ * corresponding fields to NULL / 0. Safe to call on a zeroed structure.
+ *
+ * @param[in,out] opts  Parsed options. Not NULL.
+ */
 void sbom_options_free(SbomOptions *opts) {
     int i;
     if (opts->object_files) {
@@ -244,6 +316,15 @@ void sbom_options_free(SbomOptions *opts) {
     opts->extracted_count = 0;
 }
 
+/**
+ * @brief Look up a LicenseRef text source by identifier.
+ *
+ * @param[in] opts  Parsed options. Not NULL.
+ * @param[in] id    LicenseRef identifier. Not NULL.
+ *
+ * @return Path to the text file, or NULL if no source was registered
+ *         with that identifier.
+ */
 const char *sbom_options_find_extracted(const SbomOptions *opts,
                                         const char *id) {
     int i;
