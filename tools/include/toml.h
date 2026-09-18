@@ -24,7 +24,7 @@
  * __int64 extension. No -za99 mode is required.
  */
 
-#include "common_types.h"
+#include "os2types.h"
 
 #ifdef __cplusplus
 extern "C" {
