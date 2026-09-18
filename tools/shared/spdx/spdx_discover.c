@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "spdx_discover.h"
-#include "spdx_utils.h"
+#include "ccl.h"
 #include "git.h"
 #include "omf_parser.h"
 #include "res_parser.h"
@@ -271,7 +271,7 @@ static void join_path(char *dst, size_t dst_size,
 #ifdef __LINUX__
 
 static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
-                      SpdxStrList *out) {
+                      HSTRSET hOut) {
     char dir[1024];
     DIR *d;
     struct dirent *entry;
@@ -300,7 +300,7 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
             if (!opts->recursive) continue;
             if (should_skip_dir(entry->d_name, opts)) continue;
             if (should_skip_by_gitignore(opts, full, 1)) continue;
-            if (walk_inner(full, opts, out) != 0) {
+            if (walk_inner(full, opts, hOut) != 0) {
                 closedir(d);
                 return -1;
             }
@@ -308,7 +308,10 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
             if (st.st_size == 0) continue;
             if (should_skip_file(entry->d_name, opts)) continue;
             if (should_skip_by_gitignore(opts, full, 0)) continue;
-            spdx_strlist_add_unique(out, full);
+            if (StrSetAdd(hOut, full) != NO_ERROR) {
+                closedir(d);
+                return -1;
+            }
         }
     }
     closedir(d);
@@ -318,7 +321,7 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
 #else
 
 static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
-                      SpdxStrList *out) {
+                      HSTRSET hOut) {
     char dir[1024];
     long hFile;
     struct _finddata_t fd;
@@ -347,7 +350,7 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
             if (!opts->recursive) continue;
             if (should_skip_dir(fd.name, opts)) continue;
             if (should_skip_by_gitignore(opts, full, 1)) continue;
-            if (walk_inner(full, opts, out) != 0) {
+            if (walk_inner(full, opts, hOut) != 0) {
                 _findclose(hFile);
                 return -1;
             }
@@ -355,7 +358,10 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
             if (st.st_size == 0) continue;
             if (should_skip_file(fd.name, opts)) continue;
             if (should_skip_by_gitignore(opts, full, 0)) continue;
-            spdx_strlist_add_unique(out, full);
+            if (StrSetAdd(hOut, full) != NO_ERROR) {
+                _findclose(hFile);
+                return -1;
+            }
         }
     } while (_findnext(hFile, &fd) == 0);
     _findclose(hFile);
@@ -365,8 +371,9 @@ static int walk_inner(const char *dir_in, const SpdxWalkOptions *opts,
 #endif
 
 int spdx_walk_tree(const char *dir, const SpdxWalkOptions *opts,
-                   SpdxStrList *out) {
-    return walk_inner(dir, opts, out);
+                   HSTRSET hOut) {
+    if (hOut == NULLHANDLE) return -1;
+    return walk_inner(dir, opts, hOut);
 }
 
 /* ------------------------------------------------------------------ */
@@ -375,9 +382,11 @@ int spdx_walk_tree(const char *dir, const SpdxWalkOptions *opts,
 
 int spdx_discover_from_artifacts(char **object_files, int object_count,
                                  char **res_files, int res_count,
-                                 SpdxStrList *out) {
+                                 HSTRSET hOut) {
     int i, j;
     int any = 0;
+
+    if (hOut == NULLHANDLE) return -1;
 
     for (i = 0; i < object_count; i++) {
         char **sources = NULL;
@@ -390,8 +399,13 @@ int spdx_discover_from_artifacts(char **object_files, int object_count,
                     object_files[i]);
             continue;
         }
-        for (j = 0; j < count; j++)
-            spdx_strlist_add_unique(out, sources[j]);
+        for (j = 0; j < count; j++) {
+            if (StrSetAdd(hOut, sources[j]) != NO_ERROR) {
+                for (j = 0; j < count; j++) free(sources[j]);
+                free(sources);
+                return -1;
+            }
+        }
         for (j = 0; j < count; j++) free(sources[j]);
         free(sources);
         any = 1;
@@ -408,8 +422,13 @@ int spdx_discover_from_artifacts(char **object_files, int object_count,
                     res_files[i]);
             continue;
         }
-        for (j = 0; j < count; j++)
-            spdx_strlist_add_unique(out, sources[j]);
+        for (j = 0; j < count; j++) {
+            if (StrSetAdd(hOut, sources[j]) != NO_ERROR) {
+                for (j = 0; j < count; j++) free(sources[j]);
+                free(sources);
+                return -1;
+            }
+        }
         for (j = 0; j < count; j++) free(sources[j]);
         free(sources);
         any = 1;
@@ -426,10 +445,12 @@ int spdx_discover(const char *project_dir,
                   char **object_files, int object_count,
                   char **res_files, int res_count,
                   const SpdxWalkOptions *walk_opts,
-                  SpdxStrList *out) {
+                  HSTRSET hOut) {
+    if (hOut == NULLHANDLE) return -1;
+
     if (object_count > 0 || res_count > 0) {
         int rc = spdx_discover_from_artifacts(object_files, object_count,
-                                              res_files, res_count, out);
+                                              res_files, res_count, hOut);
         if (rc != 0) {
             fprintf(stderr,
                     "ERROR: no sources extracted from build artifacts\n"
@@ -439,5 +460,5 @@ int spdx_discover(const char *project_dir,
         }
         return 0;
     }
-    return spdx_walk_tree(project_dir, walk_opts, out);
+    return spdx_walk_tree(project_dir, walk_opts, hOut);
 }

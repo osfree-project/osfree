@@ -12,8 +12,9 @@
 #include <io.h>
 #endif
 #include <reuse.h>
+#include "ccl.h"
+#include "spdx.h"
 #include "spdx_db.h"
-#include "spdx_utils.h"
 #include "spdx_discover.h"
 #include "git.h"
 #include "spdx_tag.h"
@@ -64,6 +65,24 @@ static int write_file(const char *path, const char *text) {
     if (text && fputs(text, f) == EOF) { fclose(f); return -1; }
     fclose(f);
     return 0;
+}
+
+/* Fetch a copy of the string at position ulIndex in an HSTRSET.
+ * Returns malloc'd NUL-terminated string, or NULL on failure. */
+static char *strset_dup(HSTRSET hSet, ULONG ulIndex) {
+    ULONG ulSize = 0;
+    char *p;
+    if (hSet == NULLHANDLE) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    p = (char*)malloc(ulSize);
+    if (!p) return NULL;
+    if (StrSetGetItem(hSet, ulIndex, p, ulSize, NULL) != NO_ERROR) {
+        free(p);
+        return NULL;
+    }
+    return p;
 }
 
 static int is_binary_file(const char *path) {
@@ -130,7 +149,7 @@ static void add_style_override(const char *arg) {
 }
 
 static CommentStyle detect_style(const char *filename) {
-    const char *base = spdx_get_file_name(filename);
+    const char *base = SpdxGetFileName(filename);
     const char *ext = strrchr(base, '.');
     static const char *c_ext[] = {
         ".c", ".cpp", ".h", ".hpp", ".cc", ".cxx",
@@ -448,11 +467,12 @@ static int annotate_one(const char *filename,
         exists = file_exists(sidecar);
 
         if (exists) {
-            char *existing = spdx_read_file_all(sidecar, NULL);
+            char *existing = NULL;
             char *n1 = NULL, *n2 = NULL;
-            if (existing) {
-                n1 = spdx_normalize_text(existing);
-                n2 = spdx_normalize_text(block);
+            if (SpdxReadFileAll(sidecar, &existing, NULL) == NO_ERROR &&
+                existing) {
+                SpdxNormalizeText(existing, &n1);
+                SpdxNormalizeText(block, &n2);
                 if (n1 && n2 && strcmp(n1, n2) == 0) equal = 1;
                 free(n1); free(n2);
                 free(existing);
@@ -610,12 +630,13 @@ static void build_license_file_path(char *dst, size_t dst_size,
 }
 
 static int ensure_licenses(const char *repo_root,
-                           SpdxStrList *used_licenses,
+                           HSTRSET hUsedLicenses,
                            int force,
                            int dry_run) {
     char lic_path[1024];
     char path[1200];
-    int i;
+    ULONG i;
+    ULONG ulLicCount = 0;
     int errors = 0;
     int created_dir = 0;
 
@@ -636,21 +657,26 @@ static int ensure_licenses(const char *repo_root,
         created_dir = 1;
     }
 
-    if (used_licenses->count == 0) {
+    if (hUsedLicenses == NULLHANDLE ||
+        StrSetGetCount(hUsedLicenses, &ulLicCount) != NO_ERROR ||
+        ulLicCount == 0) {
         if (created_dir && dry_run)
             printf("    (directory would be created empty)\n");
         return 0;
     }
 
-    for (i = 0; i < used_licenses->count; i++) {
-        const char *lic = used_licenses->items[i];
+    for (i = 0; i < ulLicCount; i++) {
+        char *lic = strset_dup(hUsedLicenses, i);
         const char *db_text;
         int exists;
+
+        if (!lic) continue;
 
         if (strncmp(lic, "LicenseRef-", 11) == 0 ||
             strncmp(lic, "DocumentRef-", 12) == 0) {
             printf("Manual (custom):      %s\n", lic);
             printf("    reason:           not in SPDX database\n");
+            free(lic);
             continue;
         }
 
@@ -662,6 +688,7 @@ static int ensure_licenses(const char *repo_root,
                    "       Check that the SPDX database is complete.\n",
                    lic, lic);
             errors++;
+            free(lic);
             continue;
         }
 
@@ -669,23 +696,26 @@ static int ensure_licenses(const char *repo_root,
         exists = file_exists(path);
 
         if (exists) {
-            char *file_text = spdx_read_file_all(path, NULL);
+            char *file_text = NULL;
             char *nf = NULL, *nd = NULL;
             int equal = 0;
-            if (file_text) {
-                nf = spdx_normalize_text(file_text);
-                nd = spdx_normalize_text(db_text);
+            if (SpdxReadFileAll(path, &file_text, NULL) == NO_ERROR &&
+                file_text) {
+                SpdxNormalizeText(file_text, &nf);
+                SpdxNormalizeText(db_text, &nd);
                 if (nf && nd && strcmp(nf, nd) == 0) equal = 1;
                 free(nf); free(nd); free(file_text);
             }
             if (equal) {
                 printf("Up to date:           %s\n", path);
+                free(lic);
                 continue;
             }
             if (!force) {
                 printf("Outdated:             %s\n", path);
                 printf("    reason:           text differs from SPDX database\n");
                 printf("    action:           use --force to overwrite\n");
+                free(lic);
                 continue;
             }
             if (dry_run) {
@@ -714,6 +744,7 @@ static int ensure_licenses(const char *repo_root,
                 }
             }
         }
+        free(lic);
     }
 
     return errors;
@@ -731,8 +762,8 @@ int main(int argc, char *argv[]) {
     const char *cache_file = NULL;
     HREUSETREE hTree = NULLHANDLE;
     int db_errs;
-    SpdxStrList used_licenses;
-    SpdxStrList paths;
+    HSTRSET hUsedLicenses = NULLHANDLE;
+    HSTRSET hPaths = NULLHANDLE;
     SpdxWalkOptions walk_opts;
     char *repo_root = NULL;
     GITIGNORELIST gitignore_rules;
@@ -834,7 +865,12 @@ int main(int argc, char *argv[]) {
         printf("WARNING: cache could not be written.\n"
                "         Next run will re-parse JSON indexes.\n");
 
-    spdx_strlist_init(&used_licenses);
+    if (StrSetCreate(&hUsedLicenses) != NO_ERROR) {
+        printf("ERROR: out of memory\n");
+        spdx_db_free();
+        GitIgnoreListFree(&gitignore_rules);
+        return 1;
+    }
 
     if (GitFindRepoRoot(dir, &repo_root) != GIT_NO_ERROR) {
         repo_root = NULL;
@@ -846,7 +882,7 @@ int main(int argc, char *argv[]) {
             printf("ERROR: cannot open REUSE project at %s\n"
                    "       The directory is missing or unreadable.\n",
                    dir);
-            spdx_strlist_free(&used_licenses);
+            StrSetDestroy(hUsedLicenses);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -881,13 +917,22 @@ int main(int argc, char *argv[]) {
         walk_opts.gitignore_rules = &gitignore_rules;
     }
 
-    spdx_strlist_init(&paths);
-    if (spdx_walk_tree(dir, &walk_opts, &paths) != 0) {
+    if (StrSetCreate(&hPaths) != NO_ERROR) {
+        printf("ERROR: out of memory\n");
+        StrSetDestroy(hUsedLicenses);
+        ReuseTreeClose(hTree);
+        GitIgnoreListFree(&gitignore_rules);
+        free(repo_root);
+        spdx_db_free();
+        return 1;
+    }
+
+    if (spdx_walk_tree(dir, &walk_opts, hPaths) != 0) {
         printf("ERROR: cannot walk tree: %s\n"
                "       Check that the directory exists and is readable.\n",
                dir);
-        spdx_strlist_free(&paths);
-        spdx_strlist_free(&used_licenses);
+        StrSetDestroy(hPaths);
+        StrSetDestroy(hUsedLicenses);
         ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
@@ -904,123 +949,139 @@ int main(int argc, char *argv[]) {
 
     printf("\n=== Tags ===\n");
 
-    for (i = 0; i < paths.count; i++) {
-        const char *fullpath = paths.items[i];
-        const char *license;
-        const char *copyright;
-        char *reuse_license = NULL;
-        char *reuse_copyright = NULL;
-        char *normalized = NULL;
-        int rc;
+    {
+        ULONG ulPathCount = 0;
+        ULONG ulIdx;
+        if (StrSetGetCount(hPaths, &ulPathCount) != NO_ERROR)
+            ulPathCount = 0;
+        for (ulIdx = 0; ulIdx < ulPathCount; ulIdx++) {
+            char *fullpath = strset_dup(hPaths, ulIdx);
+            const char *license;
+            const char *copyright;
+            char *reuse_license = NULL;
+            char *reuse_copyright = NULL;
+            char *normalized = NULL;
+            int rc;
 
-        {
-            REUSELICENSEINFO resolved;
-            memset(&resolved, 0, sizeof(resolved));
-            if (ReuseResolveLicense(hTree, fullpath, NULL, NULL, &resolved)
-                    == REUSE_NO_ERROR) {
-                if (resolved.license[0]) {
-                    size_t n = strlen(resolved.license);
-                    reuse_license = (char*)malloc(n + 1);
-                    if (reuse_license) memcpy(reuse_license,
-                                              resolved.license, n + 1);
-                }
-                if (resolved.copyright[0]) {
-                    size_t n = strlen(resolved.copyright);
-                    reuse_copyright = (char*)malloc(n + 1);
-                    if (reuse_copyright) memcpy(reuse_copyright,
-                                                resolved.copyright, n + 1);
+            if (!fullpath) continue;
+
+            {
+                REUSELICENSEINFO resolved;
+                memset(&resolved, 0, sizeof(resolved));
+                if (ReuseResolveLicense(hTree, fullpath, NULL, NULL, &resolved)
+                        == REUSE_NO_ERROR) {
+                    if (resolved.license[0]) {
+                        size_t n = strlen(resolved.license);
+                        reuse_license = (char*)malloc(n + 1);
+                        if (reuse_license) memcpy(reuse_license,
+                                                  resolved.license, n + 1);
+                    }
+                    if (resolved.copyright[0]) {
+                        size_t n = strlen(resolved.copyright);
+                        reuse_copyright = (char*)malloc(n + 1);
+                        if (reuse_copyright) memcpy(reuse_copyright,
+                                                    resolved.copyright, n + 1);
+                    }
                 }
             }
-        }
 
-        license = reuse_license ? reuse_license : license_override;
-        copyright = reuse_copyright ? reuse_copyright : copyright_override;
+            license = reuse_license ? reuse_license : license_override;
+            copyright = reuse_copyright ? reuse_copyright : copyright_override;
 
-        if (license) {
-            normalized = spdx_normalize_license_expression(license);
-            if (normalized) license = normalized;
-        }
+            if (license) {
+                normalized = spdx_normalize_license_expression(license);
+                if (normalized) license = normalized;
+            }
 
-        if (!license || !copyright) {
-            char mf_path[1100];
-            size_t dlen = strlen(dir);
+            if (!license || !copyright) {
+                char mf_path[1100];
+                size_t dlen = strlen(dir);
 
 #ifdef __LINUX__
-            snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
-                     (dlen > 0 && dir[dlen-1] == '/') ? "" : "/");
+                snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
+                         (dlen > 0 && dir[dlen-1] == '/') ? "" : "/");
 #else
-            snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
-                     (dlen > 0 && (dir[dlen-1] == '\\' || dir[dlen-1] == '/'))
-                     ? "" : "\\");
+                snprintf(mf_path, sizeof(mf_path), "%s%smakefile", dir,
+                         (dlen > 0 && (dir[dlen-1] == '\\' || dir[dlen-1] == '/'))
+                         ? "" : "\\");
 #endif
 
-            if (!license) {
-                printf("ERROR: %s: no license information available.\n"
-                       "       Annotate needs to know which license to "
-                       "write.\n"
-                       "       Fix one of:\n"
-                       "         - add a [[annotations]] entry in "
-                       "REUSE.toml;\n"
-                       "         - or pass --license=<id> on the command "
-                       "line;\n"
-                       "         - or set LICENSE in %s (e.g. "
-                       "LICENSE = MIT).\n",
-                       fullpath, mf_path);
-                total_errors++;
+                if (!license) {
+                    printf("ERROR: %s: no license information available.\n"
+                           "       Annotate needs to know which license to "
+                           "write.\n"
+                           "       Fix one of:\n"
+                           "         - add a [[annotations]] entry in "
+                           "REUSE.toml;\n"
+                           "         - or pass --license=<id> on the command "
+                           "line;\n"
+                           "         - or set LICENSE in %s (e.g. "
+                           "LICENSE = MIT).\n",
+                           fullpath, mf_path);
+                    total_errors++;
+                }
+
+                if (!copyright) {
+                    printf("ERROR: %s: no copyright information available.\n"
+                           "       Annotate needs to know which copyright to "
+                           "write.\n"
+                           "       Fix one of:\n"
+                           "         - add a [[annotations]] entry in "
+                           "REUSE.toml;\n"
+                           "         - or pass --copyright=<text> on the "
+                           "command line;\n"
+                           "         - or set COPYRIGHT in %s (e.g. "
+                           "COPYRIGHT = Copyright (C) 2025 <holder>).\n",
+                           fullpath, mf_path);
+                    total_errors++;
+                }
+
+                free(normalized);
+                free(reuse_license);
+                free(reuse_copyright);
+                free(fullpath);
+                continue;
             }
 
-            if (!copyright) {
-                printf("ERROR: %s: no copyright information available.\n"
-                       "       Annotate needs to know which copyright to "
-                       "write.\n"
-                       "       Fix one of:\n"
-                       "         - add a [[annotations]] entry in "
-                       "REUSE.toml;\n"
-                       "         - or pass --copyright=<text> on the "
-                       "command line;\n"
-                       "         - or set COPYRIGHT in %s (e.g. "
-                       "COPYRIGHT = Copyright (C) 2025 <holder>).\n",
-                       fullpath, mf_path);
-                total_errors++;
+            {
+                HSTRSET hIds = NULLHANDLE;
+                ULONG ulIdCount = 0, k;
+                if (StrSetCreate(&hIds) == NO_ERROR) {
+                    SpdxExpressionCollectIds(license, hIds);
+                    StrSetGetCount(hIds, &ulIdCount);
+                    for (k = 0; k < ulIdCount; k++) {
+                        char *id = strset_dup(hIds, k);
+                        const SpdxLicenseEntry *e;
+                        const SpdxExceptionEntry *ex = NULL;
+                        if (!id) continue;
+                        e = spdx_license_lookup(id);
+                        if (!e) ex = spdx_exception_lookup(id);
+                        if (e) StrSetAdd(hUsedLicenses, e->id);
+                        else if (ex) StrSetAdd(hUsedLicenses, ex->id);
+                        else StrSetAdd(hUsedLicenses, id);
+                        free(id);
+                    }
+                    StrSetDestroy(hIds);
+                }
             }
+
+            rc = annotate_one(fullpath, license, copyright, force, dry_run);
+            if (rc != 0) total_errors++;
 
             free(normalized);
             free(reuse_license);
             free(reuse_copyright);
-            continue;
+            free(fullpath);
         }
-
-        {
-            SpdxStrList ids;
-            int k;
-            spdx_strlist_init(&ids);
-            spdx_expression_collect_ids(license, &ids);
-            for (k = 0; k < ids.count; k++) {
-                const SpdxLicenseEntry *e = spdx_license_lookup(ids.items[k]);
-                const SpdxExceptionEntry *ex = NULL;
-                if (!e) ex = spdx_exception_lookup(ids.items[k]);
-                if (e) spdx_strlist_add_unique(&used_licenses, e->id);
-                else if (ex) spdx_strlist_add_unique(&used_licenses, ex->id);
-                else spdx_strlist_add_unique(&used_licenses, ids.items[k]);
-            }
-            spdx_strlist_free(&ids);
-        }
-
-        rc = annotate_one(fullpath, license, copyright, force, dry_run);
-        if (rc != 0) total_errors++;
-
-        free(normalized);
-        free(reuse_license);
-        free(reuse_copyright);
     }
 
-    spdx_strlist_free(&paths);
+    StrSetDestroy(hPaths);
 
     printf("\n=== LICENSES/ ===\n");
     total_errors += ensure_licenses(repo_root ? repo_root : dir,
-                                    &used_licenses, force, dry_run);
+                                    hUsedLicenses, force, dry_run);
 
-    spdx_strlist_free(&used_licenses);
+    StrSetDestroy(hUsedLicenses);
     ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(repo_root);

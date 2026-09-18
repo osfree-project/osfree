@@ -2,7 +2,7 @@
 #ifndef SPDX_DISCOVER_H
 #define SPDX_DISCOVER_H
 
-#include "spdx_utils.h"
+#include "ccl.h"
 #include "git.h"
 
 #ifdef __cplusplus
@@ -28,17 +28,17 @@ typedef struct {
 void spdx_walk_options_default(SpdxWalkOptions *opts);
 
 int spdx_walk_tree(const char *dir, const SpdxWalkOptions *opts,
-                   SpdxStrList *out);
+                   HSTRSET hOut);
 
 int spdx_discover_from_artifacts(char **object_files, int object_count,
                                  char **res_files, int res_count,
-                                 SpdxStrList *out);
+                                 HSTRSET hOut);
 
 int spdx_discover(const char *project_dir,
                   char **object_files, int object_count,
                   char **res_files, int res_count,
                   const SpdxWalkOptions *walk_opts,
-                  SpdxStrList *out);
+                  HSTRSET hOut);
 
 #ifdef __cplusplus
 }
