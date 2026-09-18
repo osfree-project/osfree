@@ -5,9 +5,10 @@
 #include <string.h>
 
 #include <reuse.h>
-#include "sha1_utils.h"
+#include "sha1.h"
+#include "ccl.h"
+#include "spdx.h"
 #include "spdx_db.h"
-#include "spdx_utils.h"
 #include "git.h"
 
 #include "spdx_sbom_types.h"
@@ -155,7 +156,7 @@ static int build_binary_file_list(const SbomOptions *opts,
     FileInfo info;
 
     if (sbom_fill_file_basic(opts->binary_file,
-                             spdx_get_file_name(opts->binary_file),
+                             SpdxGetFileName(opts->binary_file),
                              &info) != 0)
         return -1;
 
@@ -189,7 +190,7 @@ int main(int argc, char *argv[]) {
     SbomOptions opts;
     HREUSETREE hTree = NULLHANDLE;
     SpdxDocument doc;
-    SpdxStrList paths;
+    HSTRSET hPaths = NULLHANDLE;
     SpdxWalkOptions walk_opts;
     GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
@@ -325,13 +326,22 @@ int main(int argc, char *argv[]) {
             walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
             walk_opts.gitignore_rules = &gitignore_rules;
         }
-        spdx_strlist_init(&paths);
+        if (StrSetCreate(&hPaths) != NO_ERROR) {
+            sbom_doc_free(&doc);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
+            GitIgnoreListFree(&gitignore_rules);
+            free(repo_root);
+            spdx_db_free();
+            sbom_options_free(&opts);
+            return 1;
+        }
 
         if (spdx_discover(opts.dir,
                           opts.object_files, opts.object_count,
                           opts.res_files, opts.res_count,
-                          &walk_opts, &paths) != 0) {
-            spdx_strlist_free(&paths);
+                          &walk_opts, hPaths) != 0) {
+            StrSetDestroy(hPaths);
             sbom_doc_free(&doc);
             if (pkg_license_is_heap) free((void*)pkg_license);
             ReuseTreeClose(hTree);
@@ -342,12 +352,12 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        if (sbom_collect_files(&paths, hTree,
+        if (sbom_collect_files(hPaths, hTree,
                                opts.default_license,
                                opts.default_copyright,
                                &doc.files,
                                &doc.snippets) != 0) {
-            spdx_strlist_free(&paths);
+            StrSetDestroy(hPaths);
             sbom_doc_free(&doc);
             if (pkg_license_is_heap) free((void*)pkg_license);
             ReuseTreeClose(hTree);
@@ -357,7 +367,7 @@ int main(int argc, char *argv[]) {
             sbom_options_free(&opts);
             return 1;
         }
-        spdx_strlist_free(&paths);
+        StrSetDestroy(hPaths);
     }
 
     if (extracted_collect_from_files(&doc.extracted_licenses,
@@ -376,7 +386,7 @@ int main(int argc, char *argv[]) {
 
     sbom_doc_compute_verification(&doc);
 
-    strncpy(base_no_ext, spdx_get_file_name(opts.binary_file),
+    strncpy(base_no_ext, SpdxGetFileName(opts.binary_file),
             sizeof(base_no_ext) - 1);
     base_no_ext[sizeof(base_no_ext) - 1] = '\0';
     sbom_remove_extension(base_no_ext);
@@ -385,11 +395,10 @@ int main(int argc, char *argv[]) {
 
     if (binary_mode && opts.source_sbom_path) {
         char src_pkg_id[256];
-        char *checksum;
+        char *checksum = NULL;
         sbom_make_package_id(base_no_ext, "Source",
                              src_pkg_id, sizeof(src_pkg_id));
-        checksum = sha1_file(opts.source_sbom_path);
-        if (!checksum) {
+        if (Sha1File(opts.source_sbom_path, &checksum) != SHA1_NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot compute SHA1 for source SBOM: %s\n"
                     "       Check that the file exists and is readable.\n",
