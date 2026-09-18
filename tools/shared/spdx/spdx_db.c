@@ -7,7 +7,7 @@
 #include "spdx_db.h"
 #include "json_parser.h"
 #include "sha1.h"
-#include "spdx_utils.h"
+#include "spdx.h"
 
 #define CACHE_MAGIC   "SPDXDB06"
 #define CACHE_VERSION 7
@@ -209,10 +209,10 @@ static char **parse_string_array(JsonNode *arr) {
 }
 
 static int load_licenses_index(const char *path) {
-    char *text = spdx_read_file_all(path, NULL);
+    char *text = NULL;
     JsonNode *root, *arr;
     int i;
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
@@ -245,10 +245,10 @@ static int load_licenses_index(const char *path) {
 }
 
 static int load_exceptions_index(const char *path) {
-    char *text = spdx_read_file_all(path, NULL);
+    char *text = NULL;
     JsonNode *root, *arr;
     int i;
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
@@ -384,13 +384,11 @@ static int write_license_detail_from_json(FILE *f, const char *id,
                                           unsigned long *out_offset,
                                           unsigned long *out_size) {
     char path[2048];
-    char *text;
+    char *text = NULL;
     JsonNode *root, *n;
-    long sz;
 
     snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, id);
-    text = spdx_read_file_all(path, &sz);
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
@@ -417,13 +415,11 @@ static int write_exception_detail_from_json(FILE *f, const char *id,
                                             unsigned long *out_offset,
                                             unsigned long *out_size) {
     char path[2048];
-    char *text;
+    char *text = NULL;
     JsonNode *root, *n;
-    long sz;
 
     snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, id);
-    text = spdx_read_file_all(path, &sz);
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
@@ -447,12 +443,11 @@ static int write_exception_detail_from_json(FILE *f, const char *id,
 }
 
 static int compute_sha1_raw(const char *path, unsigned char out[20]) {
-    char *hex;
+    char *hex = NULL;
     int i;
     memset(out, 0, 20);
     if (!path) return 0;
-    hex = sha1_file(path);
-    if (!hex) return -1;
+    if (Sha1File(path, &hex) != SHA1_NO_ERROR) return -1;
     for (i = 0; i < 20; i++) {
         char b[3];
         b[0] = hex[i*2]; b[1] = hex[i*2+1]; b[2] = '\0';
@@ -706,11 +701,10 @@ static int read_detail_from_cache(unsigned long offset, unsigned long size,
 
 static int read_license_detail_from_dir(SpdxLicenseEntry *e) {
     char path[2048];
-    char *text;
+    char *text = NULL;
     JsonNode *root, *n;
     snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, e->id);
-    text = spdx_read_file_all(path, NULL);
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
@@ -726,11 +720,10 @@ static int read_license_detail_from_dir(SpdxLicenseEntry *e) {
 
 static int read_exception_detail_from_dir(SpdxExceptionEntry *e) {
     char path[2048];
-    char *text;
+    char *text = NULL;
     JsonNode *root, *n;
     snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, e->id);
-    text = spdx_read_file_all(path, NULL);
-    if (!text) return -1;
+    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
     root = json_parse(text);
     free(text);
     if (!root) return -1;
