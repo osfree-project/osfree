@@ -1,4 +1,4 @@
-/* spdx_sbom_scan.h - сбор списка файлов и сниппетов для SBOM (C89) */
+/* spdx_sbom_scan.h - file and snippet collection for SBOM (C89) */
 #ifndef SPDX_SBOM_SCAN_H
 #define SPDX_SBOM_SCAN_H
 
@@ -7,7 +7,7 @@
 #include <reuse.h>
 
 int sbom_collect_files(const SpdxStrList *paths,
-                       ReuseConfig **configs, int config_count,
+                       HREUSETREE hTree,
                        const char *default_license,
                        const char *default_copyright,
                        FileList *out,

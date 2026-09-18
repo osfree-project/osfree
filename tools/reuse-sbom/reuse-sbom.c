@@ -14,7 +14,7 @@
 #include "spdx_sbom_utils.h"
 #include "spdx_sbom_opts.h"
 #include "spdx_sbom_scan.h"
-#include "spdx_lic.h"
+#include "reuse_lic.h"
 #include "spdx_sbom_doc.h"
 #include "spdx_sbom_extracted.h"
 #include "spdx_sbom_out.h"
@@ -50,25 +50,42 @@ static int is_binary_mode(const SbomOptions *opts) {
  *
  * The resolved expression is validated against the SPDX grammar.
  *
+ * On success, @p *out_license receives a malloc'd string owned by the
+ * caller. If the value came from --default-license, the pointer is
+ * @p opts->default_license (do not free). The caller compares the two
+ * to decide whether to free.
+ *
  * @param[in]  opts         Parsed options. Not NULL.
- * @param[in]  configs      REUSE.toml configs. May be NULL.
- * @param[in]  config_count Number of entries in configs.
- * @param[out] out_license  Receiver for the resolved license. Not NULL.
- *                          Set to the internal string (do not free).
+ * @param[in]  hTree        Project handle. May be NULLHANDLE.
+ * @param[out] out_license  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error (message already printed).
  */
 static int resolve_package_license(const SbomOptions *opts,
-                                   ReuseConfig **configs, int config_count,
+                                   HREUSETREE hTree,
                                    const char **out_license) {
     const char *lic = opts->default_license;
-    int i;
+    char *heap_lic = NULL;
 
-    if (!lic) {
-        for (i = config_count - 1; i >= 0; i--) {
-            lic = find_license_for_file(configs[i], "**");
-            if (lic && lic[0]) break;
-            lic = NULL;
+    if (!lic && hTree != NULLHANDLE) {
+        HREUSETREEFILE hFile = NULLHANDLE;
+        APIRET rc = ReuseTreeResolveFile(hTree, "**", &hFile, NULL);
+        if (rc == REUSE_NO_ERROR && hFile != NULLHANDLE) {
+            ULONG ulSize = 0;
+            if (ReuseTreeFileGetLicense(hFile, NULL, 0, &ulSize) == REUSE_NO_ERROR
+                && ulSize > 0) {
+                char *buf = (char*)malloc(ulSize);
+                if (buf &&
+                    ReuseTreeFileGetLicense(hFile, buf, ulSize, NULL)
+                        == REUSE_NO_ERROR &&
+                    buf[0] != '\0') {
+                    heap_lic = buf;
+                    lic = heap_lic;
+                } else {
+                    free(buf);
+                }
+            }
+            ReuseTreeFileClose(hFile);
         }
     }
     if (!lic || !lic[0]) {
@@ -78,6 +95,7 @@ static int resolve_package_license(const SbomOptions *opts,
                 "         - pass --default-license=<id>;\n"
                 "         - or add a [[annotations]] entry with "
                 "path = \"**\" to REUSE.toml.\n");
+        free(heap_lic);
         return -1;
     }
     {
@@ -92,6 +110,7 @@ static int resolve_package_license(const SbomOptions *opts,
                     "         https://spdx.github.io/spdx-spec/v2.3/"
                     "SPDX-license-expressions/\n",
                     lic);
+            free(heap_lic);
             return -1;
         }
         if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
@@ -108,6 +127,7 @@ static int resolve_package_license(const SbomOptions *opts,
                     "custom license.\n"
                     "       See https://spdx.org/licenses/ for the full "
                     "list.\n");
+            free(heap_lic);
             return -1;
         }
     }
@@ -167,9 +187,7 @@ static int build_binary_file_list(const SbomOptions *opts,
  */
 int main(int argc, char *argv[]) {
     SbomOptions opts;
-    ReuseConfig **configs = NULL;
-    int config_count = 0;
-    SpdxStrList toml_paths;
+    HREUSETREE hTree = NULLHANDLE;
     SpdxDocument doc;
     SpdxStrList paths;
     SpdxWalkOptions walk_opts;
@@ -179,6 +197,7 @@ int main(int argc, char *argv[]) {
     int db_errs;
     int binary_mode;
     const char *pkg_license = NULL;
+    int pkg_license_is_heap = 0;
     char base_no_ext[256];
 
     GitIgnoreListInit(&gitignore_rules);
@@ -221,34 +240,32 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        int reuse_errors = 0;
-        reuse_find_all_tomls(repo_root, opts.dir, &toml_paths);
-        configs = reuse_parse_all(&toml_paths, &config_count, &reuse_errors);
-        spdx_strlist_free(&toml_paths);
-        if (reuse_errors > 0) {
+        APIRET rc = ReuseTreeOpen(opts.dir, &hTree);
+        if (rc != REUSE_NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: %d REUSE.toml file(s) could not be parsed.\n"
-                    "       SBOM cannot be generated reliably.\n",
-                    reuse_errors);
-            reuse_free_all(configs, config_count);
+                    "ERROR: cannot open REUSE project at %s\n"
+                    "       The directory is missing or unreadable.\n",
+                    opts.dir);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
             sbom_options_free(&opts);
             return 1;
         }
-    }
-
-    if (repo_root) {
-        ReuseConfig *dep5 = reuse_load_dep5(repo_root);
-        if (dep5) {
-            ReuseConfig **na = (ReuseConfig**)realloc(configs,
-                (size_t)(config_count + 1) * sizeof(ReuseConfig*));
-            if (na) {
-                configs = na;
-                configs[config_count++] = dep5;
-            } else {
-                free_reuse_config(dep5);
+        {
+            ULONG ulErrs = 0;
+            if (ReuseTreeGetErrorCount(hTree, &ulErrs) == REUSE_NO_ERROR &&
+                ulErrs > 0) {
+                fprintf(stderr,
+                        "ERROR: %u REUSE.toml file(s) could not be parsed.\n"
+                        "       SBOM cannot be generated reliably.\n",
+                        (unsigned)ulErrs);
+                ReuseTreeClose(hTree);
+                GitIgnoreListFree(&gitignore_rules);
+                free(repo_root);
+                spdx_db_free();
+                sbom_options_free(&opts);
+                return 1;
             }
         }
     }
@@ -266,15 +283,15 @@ int main(int argc, char *argv[]) {
      * fixed inside the package structure. In binary mode the same
      * resolution path is used: REUSE.toml (path="**") >
      * --default-license. */
-    if (resolve_package_license(&opts, configs, config_count,
-                                &pkg_license) != 0) {
-        reuse_free_all(configs, config_count);
+    if (resolve_package_license(&opts, hTree, &pkg_license) != 0) {
+        ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
         sbom_options_free(&opts);
         return 1;
     }
+    if (pkg_license != opts.default_license) pkg_license_is_heap = 1;
 
     sbom_doc_init(&doc,
                   opts.doc_name,
@@ -293,7 +310,8 @@ int main(int argc, char *argv[]) {
     if (binary_mode) {
         if (build_binary_file_list(&opts, pkg_license, &doc.files) != 0) {
             sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -315,7 +333,8 @@ int main(int argc, char *argv[]) {
                           &walk_opts, &paths) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -323,14 +342,15 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        if (sbom_collect_files(&paths, configs, config_count,
+        if (sbom_collect_files(&paths, hTree,
                                opts.default_license,
                                opts.default_copyright,
                                &doc.files,
                                &doc.snippets) != 0) {
             spdx_strlist_free(&paths);
             sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -345,7 +365,8 @@ int main(int argc, char *argv[]) {
                                      opts.extracted_sources,
                                      opts.extracted_count) != 0) {
         sbom_doc_free(&doc);
-        reuse_free_all(configs, config_count);
+        if (pkg_license_is_heap) free((void*)pkg_license);
+        ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
@@ -374,7 +395,8 @@ int main(int argc, char *argv[]) {
                     "       Check that the file exists and is readable.\n",
                     opts.source_sbom_path);
             sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -393,7 +415,8 @@ int main(int argc, char *argv[]) {
                     "       Check directory permissions.\n",
                     opts.output);
             sbom_doc_free(&doc);
-            reuse_free_all(configs, config_count);
+            if (pkg_license_is_heap) free((void*)pkg_license);
+            ReuseTreeClose(hTree);
             GitIgnoreListFree(&gitignore_rules);
             free(repo_root);
             spdx_db_free();
@@ -404,7 +427,8 @@ int main(int argc, char *argv[]) {
 
     if (sbom_output(&doc, opts.format) != 0) {
         sbom_doc_free(&doc);
-        reuse_free_all(configs, config_count);
+        if (pkg_license_is_heap) free((void*)pkg_license);
+        ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(repo_root);
         spdx_db_free();
@@ -413,7 +437,8 @@ int main(int argc, char *argv[]) {
     }
 
     sbom_doc_free(&doc);
-    reuse_free_all(configs, config_count);
+    if (pkg_license_is_heap) free((void*)pkg_license);
+    ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(repo_root);
     spdx_db_free();

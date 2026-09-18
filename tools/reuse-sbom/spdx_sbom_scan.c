@@ -1,11 +1,11 @@
-/* spdx_sbom_scan.c - сбор списка файлов и сниппетов для SBOM (C89) */
+/* spdx_sbom_scan.c - file and snippet collection for SBOM (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "spdx_sbom_scan.h"
 #include "spdx_sbom_utils.h"
-#include "spdx_lic.h"
+#include "reuse_lic.h"
 #include "spdx_utils.h"
 #include "spdx_db.h"
 #include "spdx_tag.h"
@@ -35,7 +35,7 @@ int sbom_fill_file_basic(const char *fullpath,
     return 0;
 }
 
-static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
+static int validate_license(const char *fullpath, REUSELICENSEINFO *lic) {
     const char *bad = NULL;
     int rc;
 
@@ -107,25 +107,25 @@ static int validate_license(const char *fullpath, FileLicenseInfo *lic) {
     return 0;
 }
 
-/* Собирает сниппеты одного файла в общий список SBOM.
- * Для каждого сниппета проверяет наличие лицензии (ошибка при
- * отсутствии) и заполняет поля SnippetInfo. */
+/* Collect all snippets of one file into the shared SBOM list.
+ * For each snippet, verify that a license is present (error if not)
+ * and fill the SnippetInfo fields. */
 static int collect_file_snippets(const char *fullpath,
                                  const char *display_name,
                                  SnippetList *snippets) {
-    TagSnippetList raw;
+    SPDXSNIPPETLIST raw;
     int i;
     int rc = 0;
 
-    if (file_get_snippets(fullpath, &raw) != 0) {
+    if (SpdxFileGetSnippets(fullpath, &raw) != SPDX_TAG_NO_ERROR) {
         return -1;
     }
 
-    for (i = 0; i < raw.count; i++) {
-        TagSnippet *rs = &raw.items[i];
+    for (i = 0; i < raw.nCount; i++) {
+        SPDXSNIPPET *rs = &raw.paItems[i];
         SnippetInfo *s;
 
-        if (!rs->license || rs->license[0] == '\0') {
+        if (!rs->pszLicense || rs->pszLicense[0] == '\0') {
             fprintf(stderr,
                     "ERROR: %s:%d-%d: snippet has no "
                     "SPDX-License-Identifier.\n"
@@ -134,19 +134,19 @@ static int collect_file_snippets(const char *fullpath,
                     "the snippet block;\n"
                     "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
                     "if the code is not a snippet.\n",
-                    fullpath, rs->line_start, rs->line_end);
+                    fullpath, rs->nLineStart, rs->nLineEnd);
             rc = -1;
             continue;
         }
 
         {
             const char *bad = NULL;
-            int vrc = spdx_expression_validate(rs->license, &bad);
+            int vrc = spdx_expression_validate(rs->pszLicense, &bad);
             if (vrc != SPDX_EXPR_OK) {
                 const char *p = bad;
                 fprintf(stderr,
                         "ERROR: %s:%d-%d: invalid SPDX license expression: '",
-                        fullpath, rs->line_start, rs->line_end);
+                        fullpath, rs->nLineStart, rs->nLineEnd);
                 if (bad) {
                     while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
                     fwrite(bad, 1, (size_t)(p - bad), stderr);
@@ -167,35 +167,34 @@ static int collect_file_snippets(const char *fullpath,
                  "SPDXRef-File-%s", display_name);
         strncpy(s->from_file_name, display_name,
                 sizeof(s->from_file_name) - 1);
-        s->line_start = rs->line_start;
-        s->line_end   = rs->line_end;
-        strncpy(s->license, rs->license, sizeof(s->license) - 1);
-        if (rs->copyright)
-            strncpy(s->copyright, rs->copyright,
+        s->line_start = rs->nLineStart;
+        s->line_end   = rs->nLineEnd;
+        strncpy(s->license, rs->pszLicense, sizeof(s->license) - 1);
+        if (rs->pszCopyright)
+            strncpy(s->copyright, rs->pszCopyright,
                     sizeof(s->copyright) - 1);
     }
 
-    tag_snippets_free(&raw);
+    SpdxSnippetListFree(&raw);
     return rc;
 }
 
 static int process_one_file(const char *fullpath,
                             const char *display_name,
-                            ReuseConfig **configs, int config_count,
+                            HREUSETREE hTree,
                             const char *default_license,
                             const char *default_copyright,
                             FileList *out,
                             SnippetList *snippets) {
     FileInfo info;
-    FileLicenseInfo lic;
+    REUSELICENSEINFO lic;
 
     if (sbom_fill_file_basic(fullpath, display_name, &info) != 0)
         return -1;
 
-    if (spdx_resolve_license(configs, config_count,
-                             fullpath,
-                             default_license, default_copyright,
-                             &lic) != 0) {
+    if (ReuseResolveLicense(hTree, fullpath,
+                            default_license, default_copyright,
+                            &lic) != REUSE_NO_ERROR) {
         fprintf(stderr,
                 "ERROR: no license information for file: %s\n"
                 "       Fix one of:\n"
@@ -223,7 +222,7 @@ static int process_one_file(const char *fullpath,
 }
 
 int sbom_collect_files(const SpdxStrList *paths,
-                       ReuseConfig **configs, int config_count,
+                       HREUSETREE hTree,
                        const char *default_license,
                        const char *default_copyright,
                        FileList *out,
@@ -232,8 +231,7 @@ int sbom_collect_files(const SpdxStrList *paths,
     for (i = 0; i < paths->count; i++) {
         const char *full = paths->items[i];
         const char *name = spdx_get_file_name(full);
-        if (process_one_file(full, name,
-                             configs, config_count,
+        if (process_one_file(full, name, hTree,
                              default_license, default_copyright,
                              out, snippets) != 0)
             return -1;
