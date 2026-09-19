@@ -41,33 +41,33 @@ typedef struct _JSONDOC  JSONDOC,  *PJSONDOC;
  * @brief One JSON value inside a document.
  *
  * A node may be detached (not attached to any parent) or attached to
- * an object or array. In an object, @c key holds the field name; in
- * an array it is NULL.
+ * an object or array. In an object, @c pszKey holds the field name;
+ * in an array it is NULL.
  */
 struct _JSONNODE {
-    JsonType          type;          /**< Value type.                  */
-    char             *key;           /**< Field name, or NULL.         */
-    char             *string_value;  /**< String value, or NULL.       */
-    double            number_value;  /**< Numeric value.               */
-    BOOL              bool_value;    /**< Boolean value.               */
+    JSONTYPE   type;           /**< Value type.                  */
+    PSZ        pszKey;         /**< Field name, or NULL.         */
+    PSZ        pszStringValue; /**< String value, or NULL.       */
+    double     dblNumberValue; /**< Numeric value.               */
+    BOOL       fBoolValue;     /**< Boolean value.               */
 
-    PJSONNODE        *children;      /**< Children, or NULL.           */
-    ULONG             child_count;   /**< Used children.               */
-    ULONG             child_capacity;/**< Allocated child slots.       */
+    PJSONNODE *pChildren;      /**< Children, or NULL.           */
+    ULONG      ulChildCount;   /**< Used children.               */
+    ULONG      ulChildCapacity;/**< Allocated child slots.       */
 };
 
 /**
  * @struct _JSONDOC
  * @brief One open JSON document.
  *
- * All nodes created for this document are stored in @c all_nodes so
+ * All nodes created for this document are stored in @c pAllNodes so
  * that JsonClose can release them.
  */
 struct _JSONDOC {
-    PJSONNODE  root;                 /**< Root node, or NULL.          */
-    PJSONNODE *all_nodes;            /**< All nodes in the document.   */
-    ULONG      node_count;           /**< Used node slots.             */
-    ULONG      node_capacity;        /**< Allocated node slots.        */
+    PJSONNODE  pRoot;          /**< Root node, or NULL.          */
+    PJSONNODE *pAllNodes;      /**< All nodes in the document.   */
+    ULONG      ulNodeCount;    /**< Used node slots.             */
+    ULONG      ulNodeCapacity; /**< Allocated node slots.        */
 };
 
 /* ==================================================================
@@ -77,120 +77,121 @@ struct _JSONDOC {
 /**
  * @brief Duplicate a NUL-terminated string.
  *
- * @param[in] s  Source string, or NULL.
+ * @param[in] pszSrc  Source string, or NULL.
  *
  * @return malloc'd copy, or NULL on OOM.
  */
-static char *dup_str(const char *s) {
-    size_t n;
-    char *p;
-    if (!s) return NULL;
-    n = strlen(s);
-    p = (char*)malloc(n + 1);
-    if (p) memcpy(p, s, n + 1);
-    return p;
+static PSZ dup_str(PCSZ pszSrc) {
+    size_t cbLen;
+    PSZ pszCopy;
+    if (!pszSrc) return NULL;
+    cbLen = strlen(pszSrc);
+    pszCopy = (PSZ)malloc(cbLen + 1);
+    if (pszCopy) memcpy(pszCopy, pszSrc, cbLen + 1);
+    return pszCopy;
 }
 
 /**
  * @brief Duplicate a byte range with a terminating NUL.
  *
- * @param[in] s  Source bytes. Not NULL.
- * @param[in] n  Number of bytes.
+ * @param[in] pszSrc  Source bytes. Not NULL.
+ * @param[in] cbLen   Number of bytes.
  *
  * @return malloc'd string, or NULL on OOM.
  */
-static char *dup_n(const char *s, size_t n) {
-    char *p = (char*)malloc(n + 1);
-    if (!p) return NULL;
-    memcpy(p, s, n);
-    p[n] = '\0';
-    return p;
+static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
+    PSZ pszCopy = (PSZ)malloc(cbLen + 1);
+    if (!pszCopy) return NULL;
+    memcpy(pszCopy, pszSrc, cbLen);
+    pszCopy[cbLen] = '\0';
+    return pszCopy;
 }
 
 /**
  * @brief Register a node in its document.
  *
- * @param[in,out] pd  Document. Not NULL.
- * @param[in]     pn  Node. Not NULL.
+ * @param[in,out] pDoc   Document. Not NULL.
+ * @param[in]     pNode  Node. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
  */
-static int doc_track_node(PJSONDOC pd, PJSONNODE pn) {
-    if (pd->node_count >= pd->node_capacity) {
-        ULONG ncap = pd->node_capacity ? pd->node_capacity * 2
-                                       : JSON_NODE_INIT;
-        PJSONNODE *na = (PJSONNODE*)realloc(pd->all_nodes,
-                                            (size_t)ncap * sizeof(PJSONNODE));
-        if (!na) return -1;
-        pd->all_nodes = na;
-        pd->node_capacity = ncap;
+static int doc_track_node(PJSONDOC pDoc, PJSONNODE pNode) {
+    if (pDoc->ulNodeCount >= pDoc->ulNodeCapacity) {
+        ULONG ulNewCap = pDoc->ulNodeCapacity ? pDoc->ulNodeCapacity * 2
+                                              : JSON_NODE_INIT;
+        PJSONNODE *paNew = (PJSONNODE*)realloc(pDoc->pAllNodes,
+                                (size_t)ulNewCap * sizeof(PJSONNODE));
+        if (!paNew) return -1;
+        pDoc->pAllNodes = paNew;
+        pDoc->ulNodeCapacity = ulNewCap;
     }
-    pd->all_nodes[pd->node_count++] = pn;
+    pDoc->pAllNodes[pDoc->ulNodeCount++] = pNode;
     return 0;
 }
 
 /**
  * @brief Create and register a new node with a given type.
  *
- * @param[in] pd  Document. Not NULL.
- * @param[in] t   Value type.
+ * @param[in] pDoc   Document. Not NULL.
+ * @param[in] type   Value type.
  *
  * @return New node, or NULL on OOM.
  */
-static PJSONNODE node_new(PJSONDOC pd, JsonType t) {
-    PJSONNODE pn = (PJSONNODE)calloc(1, sizeof(JSONNODE));
-    if (!pn) return NULL;
-    pn->type = t;
-    pn->child_capacity = 0;
-    pn->children = NULL;
-    pn->child_count = 0;
-    if (doc_track_node(pd, pn) != 0) {
-        free(pn);
+static PJSONNODE node_new(PJSONDOC pDoc, JSONTYPE type) {
+    PJSONNODE pNode = (PJSONNODE)calloc(1, sizeof(JSONNODE));
+    if (!pNode) return NULL;
+    pNode->type = type;
+    pNode->ulChildCapacity = 0;
+    pNode->pChildren = NULL;
+    pNode->ulChildCount = 0;
+    if (doc_track_node(pDoc, pNode) != 0) {
+        free(pNode);
         return NULL;
     }
-    return pn;
+    return pNode;
 }
 
 /**
  * @brief Append a child node to a parent.
  *
- * @param[in,out] parent  Parent node. Not NULL.
- * @param[in]     child   Child node. Not NULL.
+ * @param[in,out] pParent  Parent node. Not NULL.
+ * @param[in]     pChild   Child node. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
  */
-static int node_add_child(PJSONNODE parent, PJSONNODE child) {
-    if (parent->child_count >= parent->child_capacity) {
-        ULONG ncap = parent->child_capacity ? parent->child_capacity * 2
-                                             : JSON_CHILD_INIT;
-        PJSONNODE *na = (PJSONNODE*)realloc(parent->children,
-                                            (size_t)ncap * sizeof(PJSONNODE));
-        if (!na) return -1;
-        parent->children = na;
-        parent->child_capacity = ncap;
+static int node_add_child(PJSONNODE pParent, PJSONNODE pChild) {
+    if (pParent->ulChildCount >= pParent->ulChildCapacity) {
+        ULONG ulNewCap = pParent->ulChildCapacity
+                         ? pParent->ulChildCapacity * 2
+                         : JSON_CHILD_INIT;
+        PJSONNODE *paNew = (PJSONNODE*)realloc(pParent->pChildren,
+                                (size_t)ulNewCap * sizeof(PJSONNODE));
+        if (!paNew) return -1;
+        pParent->pChildren = paNew;
+        pParent->ulChildCapacity = ulNewCap;
     }
-    parent->children[parent->child_count++] = child;
+    pParent->pChildren[pParent->ulChildCount++] = pChild;
     return 0;
 }
 
 /**
  * @brief Release a document and every node in it.
  *
- * @param[in] pd  Document. May be NULL.
+ * @param[in] pDoc  Document. May be NULL.
  */
-static void doc_free(PJSONDOC pd) {
-    ULONG i;
-    if (!pd) return;
-    for (i = 0; i < pd->node_count; i++) {
-        PJSONNODE pn = pd->all_nodes[i];
-        if (!pn) continue;
-        free(pn->key);
-        free(pn->string_value);
-        free(pn->children);
-        free(pn);
+static void doc_free(PJSONDOC pDoc) {
+    ULONG ulIdx;
+    if (!pDoc) return;
+    for (ulIdx = 0; ulIdx < pDoc->ulNodeCount; ulIdx++) {
+        PJSONNODE pNode = pDoc->pAllNodes[ulIdx];
+        if (!pNode) continue;
+        free(pNode->pszKey);
+        free(pNode->pszStringValue);
+        free(pNode->pChildren);
+        free(pNode);
     }
-    free(pd->all_nodes);
-    free(pd);
+    free(pDoc->pAllNodes);
+    free(pDoc);
 }
 
 /* ==================================================================
@@ -201,18 +202,20 @@ static void doc_free(PJSONDOC pd) {
  * @struct _PARSE
  * @brief Parser cursor.
  */
-typedef struct {
-    const char *p;      /**< Current position in the input text.  */
-    PJSONDOC    pd;     /**< Owning document.                     */
+typedef struct _PARSE {
+    PCSZ      pszPos;  /**< Current position in the input text.  */
+    PJSONDOC  pDoc;    /**< Owning document.                     */
 } PARSE;
 
 /**
  * @brief Skip whitespace in the input.
  *
- * @param[in,out] ps  Parser. Not NULL.
+ * @param[in,out] pParser  Parser. Not NULL.
  */
-static void skip_whitespace(PARSE *ps) {
-    while (*ps->p && isspace((unsigned char)*ps->p)) ps->p++;
+static void skip_whitespace(PARSE *pParser) {
+    while (*pParser->pszPos &&
+           isspace((unsigned char)*pParser->pszPos))
+        pParser->pszPos++;
 }
 
 /**
@@ -221,404 +224,409 @@ static void skip_whitespace(PARSE *ps) {
  * Rejects overlong encodings, surrogates and codepoints above
  * U+10FFFF.
  *
- * @param[in] s  String. Not NULL.
+ * @param[in] pszStr  String. Not NULL.
  *
- * @return 1 if valid, 0 otherwise.
+ * @return TRUE_ if valid, FALSE_ otherwise.
  */
-static int validate_utf8(const char *s) {
-    const unsigned char *p = (const unsigned char*)s;
-    while (*p) {
-        unsigned char c = *p++;
-        if (c < 0x80) continue;
-        if ((c & 0xE0) == 0xC0) {
-            unsigned long cp;
-            if ((*p & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x1F) << 6) |
-                 (unsigned long)(*p & 0x3F);
-            if (cp < 0x80) return 0;
-            p++;
-        } else if ((c & 0xF0) == 0xE0) {
-            unsigned long cp;
-            if ((p[0] & 0xC0) != 0x80) return 0;
-            if ((p[1] & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x0F) << 12) |
-                 ((unsigned long)(p[0] & 0x3F) << 6) |
-                 (unsigned long)(p[1] & 0x3F);
-            if (cp < 0x800) return 0;
-            if (cp >= 0xD800 && cp <= 0xDFFF) return 0;
-            p += 2;
-        } else if ((c & 0xF8) == 0xF0) {
-            unsigned long cp;
-            if ((p[0] & 0xC0) != 0x80) return 0;
-            if ((p[1] & 0xC0) != 0x80) return 0;
-            if ((p[2] & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x07) << 18) |
-                 ((unsigned long)(p[0] & 0x3F) << 12) |
-                 ((unsigned long)(p[1] & 0x3F) << 6) |
-                 (unsigned long)(p[2] & 0x3F);
-            if (cp < 0x10000 || cp > 0x10FFFF) return 0;
-            p += 3;
+static BOOL validate_utf8(PCSZ pszStr) {
+    const UCHAR *puchPos = (const UCHAR*)pszStr;
+    while (*puchPos) {
+        UCHAR uch = *puchPos++;
+        if (uch < 0x80) continue;
+        if ((uch & 0xE0) == 0xC0) {
+            ULONG ulCp;
+            if ((*puchPos & 0xC0) != 0x80) return FALSE_;
+            ulCp = ((ULONG)(uch & 0x1F) << 6) |
+                   (ULONG)(*puchPos & 0x3F);
+            if (ulCp < 0x80) return FALSE_;
+            puchPos++;
+        } else if ((uch & 0xF0) == 0xE0) {
+            ULONG ulCp;
+            if ((puchPos[0] & 0xC0) != 0x80) return FALSE_;
+            if ((puchPos[1] & 0xC0) != 0x80) return FALSE_;
+            ulCp = ((ULONG)(uch & 0x0F) << 12) |
+                   ((ULONG)(puchPos[0] & 0x3F) << 6) |
+                   (ULONG)(puchPos[1] & 0x3F);
+            if (ulCp < 0x800) return FALSE_;
+            if (ulCp >= 0xD800 && ulCp <= 0xDFFF) return FALSE_;
+            puchPos += 2;
+        } else if ((uch & 0xF8) == 0xF0) {
+            ULONG ulCp;
+            if ((puchPos[0] & 0xC0) != 0x80) return FALSE_;
+            if ((puchPos[1] & 0xC0) != 0x80) return FALSE_;
+            if ((puchPos[2] & 0xC0) != 0x80) return FALSE_;
+            ulCp = ((ULONG)(uch & 0x07) << 18) |
+                   ((ULONG)(puchPos[0] & 0x3F) << 12) |
+                   ((ULONG)(puchPos[1] & 0x3F) << 6) |
+                   (ULONG)(puchPos[2] & 0x3F);
+            if (ulCp < 0x10000 || ulCp > 0x10FFFF) return FALSE_;
+            puchPos += 3;
         } else {
-            return 0;
+            return FALSE_;
         }
     }
-    return 1;
+    return TRUE_;
 }
 
 /**
  * @brief Encode a Unicode scalar value as UTF-8.
  *
- * @param[in]  cp   Codepoint. Must be <= U+10FFFF and not a
- *                  surrogate.
- * @param[out] out  Output buffer. Must have room for up to 4 bytes.
+ * @param[in]  ulCp   Codepoint. Must be <= U+10FFFF and not a
+ *                    surrogate.
+ * @param[out] pszOut Output buffer. Must have room for up to 4 bytes.
  *
  * @return Number of bytes written (1..4).
  */
-static int utf8_encode(unsigned long cp, char *out) {
-    if (cp < 0x80) {
-        out[0] = (char)cp;
+static int utf8_encode(ULONG ulCp, PSZ pszOut) {
+    if (ulCp < 0x80) {
+        pszOut[0] = (CHAR)ulCp;
         return 1;
     }
-    if (cp < 0x800) {
-        out[0] = (char)(0xC0 | (cp >> 6));
-        out[1] = (char)(0x80 | (cp & 0x3F));
+    if (ulCp < 0x800) {
+        pszOut[0] = (CHAR)(0xC0 | (ulCp >> 6));
+        pszOut[1] = (CHAR)(0x80 | (ulCp & 0x3F));
         return 2;
     }
-    if (cp < 0x10000) {
-        out[0] = (char)(0xE0 | (cp >> 12));
-        out[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[2] = (char)(0x80 | (cp & 0x3F));
+    if (ulCp < 0x10000) {
+        pszOut[0] = (CHAR)(0xE0 | (ulCp >> 12));
+        pszOut[1] = (CHAR)(0x80 | ((ulCp >> 6) & 0x3F));
+        pszOut[2] = (CHAR)(0x80 | (ulCp & 0x3F));
         return 3;
     }
-    out[0] = (char)(0xF0 | (cp >> 18));
-    out[1] = (char)(0x80 | ((cp >> 12) & 0x3F));
-    out[2] = (char)(0x80 | ((cp >> 6) & 0x3F));
-    out[3] = (char)(0x80 | (cp & 0x3F));
+    pszOut[0] = (CHAR)(0xF0 | (ulCp >> 18));
+    pszOut[1] = (CHAR)(0x80 | ((ulCp >> 12) & 0x3F));
+    pszOut[2] = (CHAR)(0x80 | ((ulCp >> 6) & 0x3F));
+    pszOut[3] = (CHAR)(0x80 | (ulCp & 0x3F));
     return 4;
 }
 
 /**
- * @brief Number of bytes utf8_encode will write for @p cp.
+ * @brief Number of bytes utf8_encode will write for @p ulCp.
  *
- * @param[in] cp  Codepoint.
+ * @param[in] ulCp  Codepoint.
  *
  * @return 1, 2, 3 or 4.
  */
-static int utf8_encoded_len(unsigned long cp) {
-    if (cp < 0x80) return 1;
-    if (cp < 0x800) return 2;
-    if (cp < 0x10000) return 3;
+static int utf8_encoded_len(ULONG ulCp) {
+    if (ulCp < 0x80) return 1;
+    if (ulCp < 0x800) return 2;
+    if (ulCp < 0x10000) return 3;
     return 4;
 }
 
 /**
  * @brief Read 4 hex digits.
  *
- * @param[in]  p    Pointer to 4 hex characters. Not NULL.
- * @param[out] out  Receiver.
+ * @param[in]  pszPos  Pointer to 4 hex characters. Not NULL.
+ * @param[out] pulOut  Receiver. Not NULL.
  *
- * @return 1 on success, 0 on malformed input.
+ * @return TRUE_ on success, FALSE_ on malformed input.
  */
-static int hex4(const char *p, unsigned long *out) {
+static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
     int i;
-    unsigned long v = 0;
+    ULONG ulVal = 0;
     for (i = 0; i < 4; i++) {
-        char c = p[i];
+        CHAR ch = pszPos[i];
         int d;
-        if (c >= '0' && c <= '9') d = c - '0';
-        else if (c >= 'a' && c <= 'f') d = c - 'a' + 10;
-        else if (c >= 'A' && c <= 'F') d = c - 'A' + 10;
-        else return 0;
-        v = (v << 4) | (unsigned long)d;
+        if (ch >= '0' && ch <= '9') d = ch - '0';
+        else if (ch >= 'a' && ch <= 'f') d = ch - 'a' + 10;
+        else if (ch >= 'A' && ch <= 'F') d = ch - 'A' + 10;
+        else return FALSE_;
+        ulVal = (ulVal << 4) | (ULONG)d;
     }
-    *out = v;
-    return 1;
+    *pulOut = ulVal;
+    return TRUE_;
 }
 
 /**
  * @brief Parse a JSON string.
  *
- * @param[in,out] p  Cursor pointing at the opening '"'. On success,
- *                   advanced past the closing '"'.
+ * @param[in,out] ppszPos  Cursor pointing at the opening '"'. On
+ *                         success, advanced past the closing '"'.
+ *                         Not NULL.
  *
  * @return malloc'd NUL-terminated string, or NULL on error.
  */
-static char *parse_string(const char **p) {
-    const char *start;
-    const char *end;
-    char *result;
-    char *q;
-    const char *s;
-    size_t len;
+static PSZ parse_string(PCSZ *ppszPos) {
+    PCSZ pszStart;
+    PCSZ pszEnd;
+    PSZ pszResult;
+    PSZ pszQ;
+    PCSZ pszS;
+    size_t cbLen;
 
-    if (**p != '"') return NULL;
-    (*p)++;
-    start = *p;
-    len = 0;
+    if (**ppszPos != '"') return NULL;
+    (*ppszPos)++;
+    pszStart = *ppszPos;
+    cbLen = 0;
 
-    while (**p && **p != '"') {
-        if (**p == '\\') {
-            (*p)++;
-            if (**p == '\0') return NULL;
-            switch (**p) {
+    while (**ppszPos && **ppszPos != '"') {
+        if (**ppszPos == '\\') {
+            (*ppszPos)++;
+            if (**ppszPos == '\0') return NULL;
+            switch (**ppszPos) {
                 case 'n': case 't': case 'r': case 'b': case 'f':
                 case '"': case '\\': case '/':
-                    len += 1;
-                    (*p)++;
+                    cbLen += 1;
+                    (*ppszPos)++;
                     break;
                 case 'u': {
-                    unsigned long cp;
-                    (*p)++;
-                    if (!hex4(*p, &cp)) return NULL;
-                    (*p) += 4;
-                    if (cp >= 0xD800 && cp <= 0xDBFF) {
-                        unsigned long lo;
-                        if ((*p)[0] != '\\' || (*p)[1] != 'u') return NULL;
-                        if (!hex4(*p + 2, &lo)) return NULL;
-                        if (lo < 0xDC00 || lo > 0xDFFF) return NULL;
-                        cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
-                        (*p) += 6;
-                    } else if (cp >= 0xDC00 && cp <= 0xDFFF) {
+                    ULONG ulCp;
+                    (*ppszPos)++;
+                    if (!hex4(*ppszPos, &ulCp)) return NULL;
+                    (*ppszPos) += 4;
+                    if (ulCp >= 0xD800 && ulCp <= 0xDBFF) {
+                        ULONG ulLo;
+                        if ((*ppszPos)[0] != '\\' ||
+                            (*ppszPos)[1] != 'u') return NULL;
+                        if (!hex4(*ppszPos + 2, &ulLo)) return NULL;
+                        if (ulLo < 0xDC00 || ulLo > 0xDFFF) return NULL;
+                        ulCp = 0x10000 + ((ulCp - 0xD800) << 10) +
+                               (ulLo - 0xDC00);
+                        (*ppszPos) += 6;
+                    } else if (ulCp >= 0xDC00 && ulCp <= 0xDFFF) {
                         return NULL;
                     }
-                    len += (size_t)utf8_encoded_len(cp);
+                    cbLen += (size_t)utf8_encoded_len(ulCp);
                     break;
                 }
                 default:
                     return NULL;
             }
         } else {
-            len++;
-            (*p)++;
+            cbLen++;
+            (*ppszPos)++;
         }
     }
-    if (**p != '"') return NULL;
-    (*p)++;
-    end = *p - 1;
+    if (**ppszPos != '"') return NULL;
+    (*ppszPos)++;
+    pszEnd = *ppszPos - 1;
 
-    result = (char*)malloc(len + 1);
-    if (!result) return NULL;
+    pszResult = (PSZ)malloc(cbLen + 1);
+    if (!pszResult) return NULL;
 
-    q = result;
-    s = start;
-    while (s < end) {
-        if (*s == '\\') {
-            s++;
-            switch (*s) {
-                case 'n': *q++ = '\n'; s++; break;
-                case 't': *q++ = '\t'; s++; break;
-                case 'r': *q++ = '\r'; s++; break;
-                case 'b': *q++ = '\b'; s++; break;
-                case 'f': *q++ = '\f'; s++; break;
-                case '"': *q++ = '"'; s++; break;
-                case '\\': *q++ = '\\'; s++; break;
-                case '/': *q++ = '/'; s++; break;
+    pszQ = pszResult;
+    pszS = pszStart;
+    while (pszS < pszEnd) {
+        if (*pszS == '\\') {
+            pszS++;
+            switch (*pszS) {
+                case 'n': *pszQ++ = '\n'; pszS++; break;
+                case 't': *pszQ++ = '\t'; pszS++; break;
+                case 'r': *pszQ++ = '\r'; pszS++; break;
+                case 'b': *pszQ++ = '\b'; pszS++; break;
+                case 'f': *pszQ++ = '\f'; pszS++; break;
+                case '"': *pszQ++ = '"'; pszS++; break;
+                case '\\': *pszQ++ = '\\'; pszS++; break;
+                case '/': *pszQ++ = '/'; pszS++; break;
                 case 'u': {
-                    unsigned long cp, lo;
-                    s++;
-                    hex4(s, &cp);
-                    s += 4;
-                    if (cp >= 0xD800 && cp <= 0xDBFF) {
-                        hex4(s + 2, &lo);
-                        cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
-                        s += 6;
+                    ULONG ulCp, ulLo;
+                    pszS++;
+                    hex4(pszS, &ulCp);
+                    pszS += 4;
+                    if (ulCp >= 0xD800 && ulCp <= 0xDBFF) {
+                        hex4(pszS + 2, &ulLo);
+                        ulCp = 0x10000 + ((ulCp - 0xD800) << 10) +
+                               (ulLo - 0xDC00);
+                        pszS += 6;
                     }
-                    q += utf8_encode(cp, q);
+                    pszQ += utf8_encode(ulCp, pszQ);
                     break;
                 }
                 default:
-                    free(result);
+                    free(pszResult);
                     return NULL;
             }
         } else {
-            *q++ = *s++;
+            *pszQ++ = *pszS++;
         }
     }
-    *q = '\0';
-    return result;
+    *pszQ = '\0';
+    return pszResult;
 }
 
 /**
- * @brief Return 10 raised to integer power @p exp.
+ * @brief Return 10 raised to integer power @p nExp.
  *
- * @param[in] exp  Exponent.
+ * @param[in] nExp  Exponent.
  *
- * @return 10 ** @p exp.
+ * @return 10 ** @p nExp.
  */
-static double pow10_int(int exp) {
-    double r = 1.0;
+static double pow10_int(int nExp) {
+    double dResult = 1.0;
     int i;
-    if (exp >= 0) {
-        for (i = 0; i < exp; i++) r *= 10.0;
+    if (nExp >= 0) {
+        for (i = 0; i < nExp; i++) dResult *= 10.0;
     } else {
-        for (i = 0; i > exp; i--) r *= 0.1;
+        for (i = 0; i > nExp; i--) dResult *= 0.1;
     }
-    return r;
+    return dResult;
 }
 
 /**
  * @brief Parse a JSON number (RFC 8259 §6).
  *
- * @param[in,out] p    Cursor. On success, advanced past the number.
- * @param[out]    out  Receiver.
+ * @param[in,out] ppszPos  Cursor. On success, advanced past the
+ *                         number. Not NULL.
+ * @param[out]    pdOut    Receiver. Not NULL.
  *
- * @return 1 on success, 0 on malformed input.
+ * @return TRUE_ on success, FALSE_ on malformed input.
  */
-static int parse_number(const char **p, double *out) {
-    const char *s = *p;
-    const char *start = s;
-    double sign = 1.0;
-    double val = 0.0;
+static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
+    PCSZ pszPos = *ppszPos;
+    PCSZ pszStart = pszPos;
+    double dblSign = 1.0;
+    double dblVal = 0.0;
 
-    if (*s == '-') { sign = -1.0; s++; }
+    if (*pszPos == '-') { dblSign = -1.0; pszPos++; }
 
-    if (*s == '0') {
-        s++;
-        if (isdigit((unsigned char)*s)) return 0;
-    } else if (*s >= '1' && *s <= '9') {
-        while (isdigit((unsigned char)*s)) {
-            val = val * 10.0 + (double)(*s - '0');
-            s++;
+    if (*pszPos == '0') {
+        pszPos++;
+        if (isdigit((unsigned char)*pszPos)) return FALSE_;
+    } else if (*pszPos >= '1' && *pszPos <= '9') {
+        while (isdigit((unsigned char)*pszPos)) {
+            dblVal = dblVal * 10.0 + (double)(*pszPos - '0');
+            pszPos++;
         }
     } else {
-        return 0;
+        return FALSE_;
     }
 
-    if (*s == '.') {
-        double scale = 0.1;
-        s++;
-        if (!isdigit((unsigned char)*s)) return 0;
-        while (isdigit((unsigned char)*s)) {
-            val += (double)(*s - '0') * scale;
-            scale *= 0.1;
-            s++;
+    if (*pszPos == '.') {
+        double dblScale = 0.1;
+        pszPos++;
+        if (!isdigit((unsigned char)*pszPos)) return FALSE_;
+        while (isdigit((unsigned char)*pszPos)) {
+            dblVal += (double)(*pszPos - '0') * dblScale;
+            dblScale *= 0.1;
+            pszPos++;
         }
     }
 
-    if (*s == 'e' || *s == 'E') {
-        int exp_sign = 1;
-        int exp_val = 0;
-        s++;
-        if (*s == '+') s++;
-        else if (*s == '-') { exp_sign = -1; s++; }
-        if (!isdigit((unsigned char)*s)) return 0;
-        while (isdigit((unsigned char)*s)) {
-            if (exp_val < 100000)
-                exp_val = exp_val * 10 + (*s - '0');
-            s++;
+    if (*pszPos == 'e' || *pszPos == 'E') {
+        int nExpSign = 1;
+        int nExpVal = 0;
+        pszPos++;
+        if (*pszPos == '+') pszPos++;
+        else if (*pszPos == '-') { nExpSign = -1; pszPos++; }
+        if (!isdigit((unsigned char)*pszPos)) return FALSE_;
+        while (isdigit((unsigned char)*pszPos)) {
+            if (nExpVal < 100000)
+                nExpVal = nExpVal * 10 + (*pszPos - '0');
+            pszPos++;
         }
-        val *= pow10_int(exp_sign * exp_val);
+        dblVal *= pow10_int(nExpSign * nExpVal);
     }
 
-    if (s == start) return 0;
-    *p = s;
-    *out = sign * val;
-    return 1;
+    if (pszPos == pszStart) return FALSE_;
+    *ppszPos = pszPos;
+    *pdOut = dblSign * dblVal;
+    return TRUE_;
 }
 
-static int parse_value(PARSE *ps, int depth, PJSONNODE *out);
+static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut);
 
 /**
  * @brief Parse a JSON array.
  *
- * @param[in,out] ps     Parser. Not NULL.
- * @param[in]     depth  Current nesting depth.
- * @param[out]    out    Receiver. Not NULL.
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[in]     nDepth   Current nesting depth.
+ * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
  */
-static int parse_array(PARSE *ps, int depth, PJSONNODE *out) {
-    PJSONNODE arr;
+static int parse_array(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
+    PJSONNODE pArr;
 
-    arr = node_new(ps->pd, JSON_ARRAY);
-    if (!arr) return -1;
+    pArr = node_new(pParser->pDoc, JSON_ARRAY);
+    if (!pArr) return -1;
 
-    if (*ps->p != '[') return -1;
-    ps->p++;
-    skip_whitespace(ps);
-    if (*ps->p == ']') {
-        ps->p++;
-        *out = arr;
+    if (*pParser->pszPos != '[') return -1;
+    pParser->pszPos++;
+    skip_whitespace(pParser);
+    if (*pParser->pszPos == ']') {
+        pParser->pszPos++;
+        *ppOut = pArr;
         return 0;
     }
 
     for (;;) {
-        PJSONNODE child = NULL;
-        skip_whitespace(ps);
-        if (parse_value(ps, depth, &child) != 0) return -1;
-        if (node_add_child(arr, child) != 0) return -1;
-        skip_whitespace(ps);
-        if (*ps->p == ',') {
-            ps->p++;
+        PJSONNODE pChild = NULL;
+        skip_whitespace(pParser);
+        if (parse_value(pParser, nDepth, &pChild) != 0) return -1;
+        if (node_add_child(pArr, pChild) != 0) return -1;
+        skip_whitespace(pParser);
+        if (*pParser->pszPos == ',') {
+            pParser->pszPos++;
             continue;
-        } else if (*ps->p == ']') {
-            ps->p++;
+        } else if (*pParser->pszPos == ']') {
+            pParser->pszPos++;
             break;
         } else {
             return -1;
         }
     }
-    *out = arr;
+    *ppOut = pArr;
     return 0;
 }
 
 /**
  * @brief Parse a JSON object.
  *
- * @param[in,out] ps     Parser. Not NULL.
- * @param[in]     depth  Current nesting depth.
- * @param[out]    out    Receiver. Not NULL.
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[in]     nDepth   Current nesting depth.
+ * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
  */
-static int parse_object(PARSE *ps, int depth, PJSONNODE *out) {
-    PJSONNODE obj;
+static int parse_object(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
+    PJSONNODE pObj;
 
-    obj = node_new(ps->pd, JSON_OBJECT);
-    if (!obj) return -1;
+    pObj = node_new(pParser->pDoc, JSON_OBJECT);
+    if (!pObj) return -1;
 
-    if (*ps->p != '{') return -1;
-    ps->p++;
-    skip_whitespace(ps);
-    if (*ps->p == '}') {
-        ps->p++;
-        *out = obj;
+    if (*pParser->pszPos != '{') return -1;
+    pParser->pszPos++;
+    skip_whitespace(pParser);
+    if (*pParser->pszPos == '}') {
+        pParser->pszPos++;
+        *ppOut = pObj;
         return 0;
     }
 
     for (;;) {
-        char *key;
-        PJSONNODE value = NULL;
+        PSZ pszKey;
+        PJSONNODE pValue = NULL;
 
-        skip_whitespace(ps);
-        if (*ps->p != '"') return -1;
-        key = parse_string(&ps->p);
-        if (!key) return -1;
-        skip_whitespace(ps);
-        if (*ps->p != ':') {
-            free(key);
+        skip_whitespace(pParser);
+        if (*pParser->pszPos != '"') return -1;
+        pszKey = parse_string(&pParser->pszPos);
+        if (!pszKey) return -1;
+        skip_whitespace(pParser);
+        if (*pParser->pszPos != ':') {
+            free(pszKey);
             return -1;
         }
-        ps->p++;
-        if (parse_value(ps, depth, &value) != 0) {
-            free(key);
+        pParser->pszPos++;
+        if (parse_value(pParser, nDepth, &pValue) != 0) {
+            free(pszKey);
             return -1;
         }
-        value->key = key;
-        if (node_add_child(obj, value) != 0) return -1;
+        pValue->pszKey = pszKey;
+        if (node_add_child(pObj, pValue) != 0) return -1;
 
-        skip_whitespace(ps);
-        if (*ps->p == ',') {
-            ps->p++;
+        skip_whitespace(pParser);
+        if (*pParser->pszPos == ',') {
+            pParser->pszPos++;
             continue;
-        } else if (*ps->p == '}') {
-            ps->p++;
+        } else if (*pParser->pszPos == '}') {
+            pParser->pszPos++;
             break;
         } else {
             return -1;
         }
     }
-    *out = obj;
+    *ppOut = pObj;
     return 0;
 }
 
@@ -628,67 +636,68 @@ static int parse_object(PARSE *ps, int depth, PJSONNODE *out) {
  * Dispatches on the current character and recurses into the parser
  * for objects and arrays.
  *
- * @param[in,out] ps     Parser. Not NULL.
- * @param[in]     depth  Current nesting depth.
- * @param[out]    out    Receiver. Not NULL.
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[in]     nDepth   Current nesting depth.
+ * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
  */
-static int parse_value(PARSE *ps, int depth, PJSONNODE *out) {
-    PJSONNODE node;
+static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
+    PJSONNODE pNode;
 
-    if (depth > JSON_MAX_DEPTH) return -1;
-    skip_whitespace(ps);
+    if (nDepth > JSON_MAX_DEPTH) return -1;
+    skip_whitespace(pParser);
 
-    switch (*ps->p) {
-        case '{': return parse_object(ps, depth + 1, out);
-        case '[': return parse_array(ps, depth + 1, out);
+    switch (*pParser->pszPos) {
+        case '{': return parse_object(pParser, nDepth + 1, ppOut);
+        case '[': return parse_array(pParser, nDepth + 1, ppOut);
         case '"': {
-            char *str = parse_string(&ps->p);
-            if (!str) return -1;
-            node = node_new(ps->pd, JSON_STRING);
-            if (!node) { free(str); return -1; }
-            node->string_value = str;
-            *out = node;
+            PSZ pszStr = parse_string(&pParser->pszPos);
+            if (!pszStr) return -1;
+            pNode = node_new(pParser->pDoc, JSON_STRING);
+            if (!pNode) { free(pszStr); return -1; }
+            pNode->pszStringValue = pszStr;
+            *ppOut = pNode;
             return 0;
         }
         case 't':
-            if (strncmp(ps->p, "true", 4) == 0) {
-                ps->p += 4;
-                node = node_new(ps->pd, JSON_BOOLEAN);
-                if (!node) return -1;
-                node->bool_value = TRUE_;
-                *out = node;
+            if (strncmp(pParser->pszPos, "true", 4) == 0) {
+                pParser->pszPos += 4;
+                pNode = node_new(pParser->pDoc, JSON_BOOLEAN);
+                if (!pNode) return -1;
+                pNode->fBoolValue = TRUE_;
+                *ppOut = pNode;
                 return 0;
             }
             return -1;
         case 'f':
-            if (strncmp(ps->p, "false", 5) == 0) {
-                ps->p += 5;
-                node = node_new(ps->pd, JSON_BOOLEAN);
-                if (!node) return -1;
-                node->bool_value = FALSE_;
-                *out = node;
+            if (strncmp(pParser->pszPos, "false", 5) == 0) {
+                pParser->pszPos += 5;
+                pNode = node_new(pParser->pDoc, JSON_BOOLEAN);
+                if (!pNode) return -1;
+                pNode->fBoolValue = FALSE_;
+                *ppOut = pNode;
                 return 0;
             }
             return -1;
         case 'n':
-            if (strncmp(ps->p, "null", 4) == 0) {
-                ps->p += 4;
-                node = node_new(ps->pd, JSON_NULL);
-                if (!node) return -1;
-                *out = node;
+            if (strncmp(pParser->pszPos, "null", 4) == 0) {
+                pParser->pszPos += 4;
+                pNode = node_new(pParser->pDoc, JSON_NULL);
+                if (!pNode) return -1;
+                *ppOut = pNode;
                 return 0;
             }
             return -1;
         default:
-            if (*ps->p == '-' || isdigit((unsigned char)*ps->p)) {
-                double d;
-                if (!parse_number(&ps->p, &d)) return -1;
-                node = node_new(ps->pd, JSON_NUMBER);
-                if (!node) return -1;
-                node->number_value = d;
-                *out = node;
+            if (*pParser->pszPos == '-' ||
+                isdigit((unsigned char)*pParser->pszPos)) {
+                double dblVal;
+                if (!parse_number(&pParser->pszPos, &dblVal)) return -1;
+                pNode = node_new(pParser->pDoc, JSON_NUMBER);
+                if (!pNode) return -1;
+                pNode->dblNumberValue = dblVal;
+                *ppOut = pNode;
                 return 0;
             }
             return -1;
@@ -717,42 +726,42 @@ static int parse_value(PARSE *ps, int depth, PJSONNODE *out) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonParse(PCSZ pszText, HJSONDOC *phDoc) {
-    const char *p = pszText;
-    PARSE ps;
-    PJSONDOC pd;
-    PJSONNODE root = NULL;
+    PCSZ pszPos = pszText;
+    PARSE parser;
+    PJSONDOC pDoc;
+    PJSONNODE pRoot = NULL;
 
     if (!pszText || !phDoc) return ERROR_INVALID_PARAMETER;
     *phDoc = NULLHANDLE;
 
     /* Skip UTF-8 BOM (RFC 8259 §8.1: implementations MAY ignore) */
-    if ((unsigned char)p[0] == 0xEF &&
-        (unsigned char)p[1] == 0xBB &&
-        (unsigned char)p[2] == 0xBF) {
-        p += 3;
+    if ((UCHAR)pszPos[0] == 0xEF &&
+        (UCHAR)pszPos[1] == 0xBB &&
+        (UCHAR)pszPos[2] == 0xBF) {
+        pszPos += 3;
     }
 
-    if (!validate_utf8(p)) return ERROR_INVALID_DATA;
+    if (!validate_utf8(pszPos)) return ERROR_INVALID_DATA;
 
-    pd = (PJSONDOC)calloc(1, sizeof(JSONDOC));
-    if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
+    pDoc = (PJSONDOC)calloc(1, sizeof(JSONDOC));
+    if (!pDoc) return ERROR_NOT_ENOUGH_MEMORY;
 
-    ps.p = p;
-    ps.pd = pd;
+    parser.pszPos = pszPos;
+    parser.pDoc = pDoc;
 
-    if (parse_value(&ps, 0, &root) != 0) {
-        doc_free(pd);
+    if (parse_value(&parser, 0, &pRoot) != 0) {
+        doc_free(pDoc);
         return ERROR_INVALID_DATA;
     }
 
-    skip_whitespace(&ps);
-    if (*ps.p != '\0') {
-        doc_free(pd);
+    skip_whitespace(&parser);
+    if (*parser.pszPos != '\0') {
+        doc_free(pDoc);
         return ERROR_INVALID_DATA;
     }
 
-    pd->root = root;
-    *phDoc = (HJSONDOC)pd;
+    pDoc->pRoot = pRoot;
+    *phDoc = (HJSONDOC)pDoc;
     return NO_ERROR;
 }
 
@@ -792,15 +801,15 @@ APIRET APIENTRY JsonClose(HJSONDOC hDoc) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonNewDoc(HJSONDOC *phDoc) {
-    PJSONDOC pd;
+    PJSONDOC pDoc;
 
     if (!phDoc) return ERROR_INVALID_PARAMETER;
     *phDoc = NULLHANDLE;
 
-    pd = (PJSONDOC)calloc(1, sizeof(JSONDOC));
-    if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
+    pDoc = (PJSONDOC)calloc(1, sizeof(JSONDOC));
+    if (!pDoc) return ERROR_NOT_ENOUGH_MEMORY;
 
-    *phDoc = (HJSONDOC)pd;
+    *phDoc = (HJSONDOC)pDoc;
     return NO_ERROR;
 }
 
@@ -816,11 +825,11 @@ APIRET APIENTRY JsonNewDoc(HJSONDOC *phDoc) {
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  */
 APIRET APIENTRY JsonSetRoot(HJSONDOC hDoc, HJSONNODE hNode) {
-    PJSONDOC pd;
+    PJSONDOC pDoc;
     if (hDoc == NULLHANDLE || hNode == NULLHANDLE)
         return ERROR_INVALID_PARAMETER;
-    pd = (PJSONDOC)hDoc;
-    pd->root = (PJSONNODE)hNode;
+    pDoc = (PJSONDOC)hDoc;
+    pDoc->pRoot = (PJSONNODE)hNode;
     return NO_ERROR;
 }
 
@@ -838,12 +847,12 @@ APIRET APIENTRY JsonSetRoot(HJSONDOC hDoc, HJSONNODE hNode) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonNewObject(HJSONDOC hDoc, HJSONNODE *phNode) {
-    PJSONNODE pn;
+    PJSONNODE pNode;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pn = node_new((PJSONDOC)hDoc, JSON_OBJECT);
-    if (!pn) return ERROR_NOT_ENOUGH_MEMORY;
-    *phNode = (HJSONNODE)pn;
+    pNode = node_new((PJSONDOC)hDoc, JSON_OBJECT);
+    if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -861,12 +870,12 @@ APIRET APIENTRY JsonNewObject(HJSONDOC hDoc, HJSONNODE *phNode) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonNewArray(HJSONDOC hDoc, HJSONNODE *phNode) {
-    PJSONNODE pn;
+    PJSONNODE pNode;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pn = node_new((PJSONDOC)hDoc, JSON_ARRAY);
-    if (!pn) return ERROR_NOT_ENOUGH_MEMORY;
-    *phNode = (HJSONNODE)pn;
+    pNode = node_new((PJSONDOC)hDoc, JSON_ARRAY);
+    if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -888,17 +897,17 @@ APIRET APIENTRY JsonNewArray(HJSONDOC hDoc, HJSONNODE *phNode) {
  */
 APIRET APIENTRY JsonNewString(HJSONDOC hDoc, PCSZ pszValue,
                               HJSONNODE *phNode) {
-    PJSONNODE pn;
-    char *copy;
+    PJSONNODE pNode;
+    PSZ pszCopy;
     if (hDoc == NULLHANDLE || !pszValue || !phNode)
         return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    copy = dup_str(pszValue);
-    if (!copy) return ERROR_NOT_ENOUGH_MEMORY;
-    pn = node_new((PJSONDOC)hDoc, JSON_STRING);
-    if (!pn) { free(copy); return ERROR_NOT_ENOUGH_MEMORY; }
-    pn->string_value = copy;
-    *phNode = (HJSONNODE)pn;
+    pszCopy = dup_str(pszValue);
+    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
+    pNode = node_new((PJSONDOC)hDoc, JSON_STRING);
+    if (!pNode) { free(pszCopy); return ERROR_NOT_ENOUGH_MEMORY; }
+    pNode->pszStringValue = pszCopy;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -918,13 +927,13 @@ APIRET APIENTRY JsonNewString(HJSONDOC hDoc, PCSZ pszValue,
  */
 APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
                               HJSONNODE *phNode) {
-    PJSONNODE pn;
+    PJSONNODE pNode;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pn = node_new((PJSONDOC)hDoc, JSON_NUMBER);
-    if (!pn) return ERROR_NOT_ENOUGH_MEMORY;
-    pn->number_value = dValue;
-    *phNode = (HJSONNODE)pn;
+    pNode = node_new((PJSONDOC)hDoc, JSON_NUMBER);
+    if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
+    pNode->dblNumberValue = dValue;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -944,13 +953,13 @@ APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
  */
 APIRET APIENTRY JsonNewBoolean(HJSONDOC hDoc, BOOL fValue,
                                HJSONNODE *phNode) {
-    PJSONNODE pn;
+    PJSONNODE pNode;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pn = node_new((PJSONDOC)hDoc, JSON_BOOLEAN);
-    if (!pn) return ERROR_NOT_ENOUGH_MEMORY;
-    pn->bool_value = fValue ? TRUE_ : FALSE_;
-    *phNode = (HJSONNODE)pn;
+    pNode = node_new((PJSONDOC)hDoc, JSON_BOOLEAN);
+    if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
+    pNode->fBoolValue = fValue ? TRUE_ : FALSE_;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -968,12 +977,12 @@ APIRET APIENTRY JsonNewBoolean(HJSONDOC hDoc, BOOL fValue,
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonNewNull(HJSONDOC hDoc, HJSONNODE *phNode) {
-    PJSONNODE pn;
+    PJSONNODE pNode;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pn = node_new((PJSONDOC)hDoc, JSON_NULL);
-    if (!pn) return ERROR_NOT_ENOUGH_MEMORY;
-    *phNode = (HJSONNODE)pn;
+    pNode = node_new((PJSONDOC)hDoc, JSON_NULL);
+    if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
+    *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
 
@@ -998,19 +1007,19 @@ APIRET APIENTRY JsonObjectSet(HJSONNODE hObj, PCSZ pszKey,
                               HJSONNODE hValue) {
     PJSONNODE pObj;
     PJSONNODE pVal;
-    char *copy;
+    PSZ pszCopy;
 
     if (hObj == NULLHANDLE || !pszKey || hValue == NULLHANDLE)
         return ERROR_INVALID_PARAMETER;
     pObj = (PJSONNODE)hObj;
     pVal = (PJSONNODE)hValue;
     if (pObj->type != JSON_OBJECT) return ERROR_INVALID_DATA;
-    copy = dup_str(pszKey);
-    if (!copy) return ERROR_NOT_ENOUGH_MEMORY;
-    pVal->key = copy;
+    pszCopy = dup_str(pszKey);
+    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
+    pVal->pszKey = pszCopy;
     if (node_add_child(pObj, pVal) != 0) {
-        free(copy);
-        pVal->key = NULL;
+        free(pszCopy);
+        pVal->pszKey = NULL;
         return ERROR_NOT_ENOUGH_MEMORY;
     }
     return NO_ERROR;
@@ -1059,11 +1068,11 @@ APIRET APIENTRY JsonArrayAppend(HJSONNODE hArr, HJSONNODE hValue) {
  * @retval ERROR_FILE_NOT_FOUND     Document has no root.
  */
 APIRET APIENTRY JsonRoot(HJSONDOC hDoc, HJSONNODE *phNode) {
-    PJSONDOC pd;
+    PJSONDOC pDoc;
     if (hDoc == NULLHANDLE || !phNode) return ERROR_INVALID_PARAMETER;
-    pd = (PJSONDOC)hDoc;
-    if (!pd->root) return ERROR_FILE_NOT_FOUND;
-    *phNode = (HJSONNODE)pd->root;
+    pDoc = (PJSONDOC)hDoc;
+    if (!pDoc->pRoot) return ERROR_FILE_NOT_FOUND;
+    *phNode = (HJSONNODE)pDoc->pRoot;
     return NO_ERROR;
 }
 
@@ -1071,7 +1080,7 @@ APIRET APIENTRY JsonRoot(HJSONDOC hDoc, HJSONNODE *phNode) {
  * @brief Query the type of a node.
  *
  * @param[in]  hNode    Node handle. Not NULLHANDLE.
- * @param[out] pulType  Receiver of a JsonType value. Not NULL.
+ * @param[out] pulType  Receiver of a JSONTYPE value. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -1079,9 +1088,9 @@ APIRET APIENTRY JsonRoot(HJSONDOC hDoc, HJSONNODE *phNode) {
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  */
 APIRET APIENTRY JsonNodeGetType(HJSONNODE hNode, PULONG pulType) {
-    PJSONNODE pn = (PJSONNODE)hNode;
+    PJSONNODE pNode = (PJSONNODE)hNode;
     if (hNode == NULLHANDLE || !pulType) return ERROR_INVALID_PARAMETER;
-    *pulType = (ULONG)pn->type;
+    *pulType = (ULONG)pNode->type;
     return NO_ERROR;
 }
 
@@ -1102,18 +1111,18 @@ APIRET APIENTRY JsonNodeGetType(HJSONNODE hNode, PULONG pulType) {
  */
 APIRET APIENTRY JsonNodeGetChild(HJSONNODE hNode, PCSZ pszKey,
                                  HJSONNODE *phChild) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    ULONG i;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    ULONG ulIdx;
 
     if (hNode == NULLHANDLE || !pszKey || !phChild)
         return ERROR_INVALID_PARAMETER;
     *phChild = NULLHANDLE;
-    if (pn->type != JSON_OBJECT) return ERROR_INVALID_DATA;
+    if (pNode->type != JSON_OBJECT) return ERROR_INVALID_DATA;
 
-    for (i = 0; i < pn->child_count; i++) {
-        if (pn->children[i]->key &&
-            strcmp(pn->children[i]->key, pszKey) == 0) {
-            *phChild = (HJSONNODE)pn->children[i];
+    for (ulIdx = 0; ulIdx < pNode->ulChildCount; ulIdx++) {
+        if (pNode->pChildren[ulIdx]->pszKey &&
+            strcmp(pNode->pChildren[ulIdx]->pszKey, pszKey) == 0) {
+            *phChild = (HJSONNODE)pNode->pChildren[ulIdx];
             return NO_ERROR;
         }
     }
@@ -1121,8 +1130,8 @@ APIRET APIENTRY JsonNodeGetChild(HJSONNODE hNode, PCSZ pszKey,
 }
 
 /**
- * @brief Number of elements in an array node or entries in an
- *        object node.
+ * @brief Query the number of elements in an array node or entries in
+ *        an object node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
@@ -1134,11 +1143,11 @@ APIRET APIENTRY JsonNodeGetChild(HJSONNODE hNode, PCSZ pszKey,
  * @retval ERROR_INVALID_DATA       Node is neither array nor object.
  */
 APIRET APIENTRY JsonNodeGetCount(HJSONNODE hNode, PULONG pulCount) {
-    PJSONNODE pn = (PJSONNODE)hNode;
+    PJSONNODE pNode = (PJSONNODE)hNode;
     if (hNode == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
-    if (pn->type != JSON_ARRAY && pn->type != JSON_OBJECT)
+    if (pNode->type != JSON_ARRAY && pNode->type != JSON_OBJECT)
         return ERROR_INVALID_DATA;
-    *pulCount = pn->child_count;
+    *pulCount = pNode->ulChildCount;
     return NO_ERROR;
 }
 
@@ -1158,12 +1167,12 @@ APIRET APIENTRY JsonNodeGetCount(HJSONNODE hNode, PULONG pulCount) {
  */
 APIRET APIENTRY JsonNodeGetElement(HJSONNODE hNode, ULONG ulIndex,
                                    HJSONNODE *phChild) {
-    PJSONNODE pn = (PJSONNODE)hNode;
+    PJSONNODE pNode = (PJSONNODE)hNode;
     if (hNode == NULLHANDLE || !phChild) return ERROR_INVALID_PARAMETER;
     *phChild = NULLHANDLE;
-    if (pn->type != JSON_ARRAY) return ERROR_INVALID_DATA;
-    if (ulIndex >= pn->child_count) return ERROR_NO_MORE_ITEMS;
-    *phChild = (HJSONNODE)pn->children[ulIndex];
+    if (pNode->type != JSON_ARRAY) return ERROR_INVALID_DATA;
+    if (ulIndex >= pNode->ulChildCount) return ERROR_NO_MORE_ITEMS;
+    *phChild = (HJSONNODE)pNode->pChildren[ulIndex];
     return NO_ERROR;
 }
 
@@ -1188,28 +1197,28 @@ APIRET APIENTRY JsonNodeGetElement(HJSONNODE hNode, ULONG ulIndex,
 APIRET APIENTRY JsonNodeGetEntry(HJSONNODE hNode, ULONG ulIndex,
                                  PSZ pszKeyBuf, ULONG ulKeySize,
                                  PULONG pulKeyUsed, HJSONNODE *phChild) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    const char *key;
-    size_t klen;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    PCSZ pszKey;
+    size_t cbKeyLen;
 
     if (hNode == NULLHANDLE || !pszKeyBuf || !phChild)
         return ERROR_INVALID_PARAMETER;
     *phChild = NULLHANDLE;
-    if (pn->type != JSON_OBJECT) return ERROR_INVALID_DATA;
-    if (ulIndex >= pn->child_count) return ERROR_NO_MORE_ITEMS;
+    if (pNode->type != JSON_OBJECT) return ERROR_INVALID_DATA;
+    if (ulIndex >= pNode->ulChildCount) return ERROR_NO_MORE_ITEMS;
 
-    key = pn->children[ulIndex]->key;
-    if (!key) key = "";
-    klen = strlen(key);
+    pszKey = pNode->pChildren[ulIndex]->pszKey;
+    if (!pszKey) pszKey = "";
+    cbKeyLen = strlen(pszKey);
 
-    if (ulKeySize < klen + 1) {
-        if (pulKeyUsed) *pulKeyUsed = (ULONG)(klen + 1);
+    if (ulKeySize < cbKeyLen + 1) {
+        if (pulKeyUsed) *pulKeyUsed = (ULONG)cbKeyLen + 1;
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszKeyBuf, key, klen);
-    pszKeyBuf[klen] = '\0';
-    if (pulKeyUsed) *pulKeyUsed = (ULONG)klen;
-    *phChild = (HJSONNODE)pn->children[ulIndex];
+    memcpy(pszKeyBuf, pszKey, cbKeyLen);
+    pszKeyBuf[cbKeyLen] = '\0';
+    if (pulKeyUsed) *pulKeyUsed = (ULONG)cbKeyLen;
+    *phChild = (HJSONNODE)pNode->pChildren[ulIndex];
     return NO_ERROR;
 }
 
@@ -1237,28 +1246,28 @@ APIRET APIENTRY JsonNodeGetEntry(HJSONNODE hNode, ULONG ulIndex,
  */
 APIRET APIENTRY JsonNodeGetString(HJSONNODE hNode,
                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    const char *s;
-    size_t n;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    PCSZ pszStr;
+    size_t cbLen;
 
     if (hNode == NULLHANDLE) return ERROR_INVALID_PARAMETER;
-    if (pn->type != JSON_STRING) return ERROR_INVALID_DATA;
+    if (pNode->type != JSON_STRING) return ERROR_INVALID_DATA;
 
-    s = pn->string_value ? pn->string_value : "";
-    n = strlen(s);
+    pszStr = pNode->pszStringValue ? pNode->pszStringValue : "";
+    cbLen = strlen(pszStr);
 
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
         return NO_ERROR;
     }
     if (!pszBuf) return ERROR_INVALID_PARAMETER;
-    if (ulSize < n + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+    if (ulSize < cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, s, n);
-    pszBuf[n] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)n;
+    memcpy(pszBuf, pszStr, cbLen);
+    pszBuf[cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
     return NO_ERROR;
 }
 
@@ -1275,18 +1284,18 @@ APIRET APIENTRY JsonNodeGetString(HJSONNODE hNode,
  * @retval ERROR_INVALID_DATA       Node is not a boolean.
  */
 APIRET APIENTRY JsonNodeGetBoolean(HJSONNODE hNode, PBOOL pfValue) {
-    PJSONNODE pn = (PJSONNODE)hNode;
+    PJSONNODE pNode = (PJSONNODE)hNode;
     if (hNode == NULLHANDLE || !pfValue) return ERROR_INVALID_PARAMETER;
-    if (pn->type != JSON_BOOLEAN) return ERROR_INVALID_DATA;
-    *pfValue = pn->bool_value;
+    if (pNode->type != JSON_BOOLEAN) return ERROR_INVALID_DATA;
+    *pfValue = pNode->fBoolValue;
     return NO_ERROR;
 }
 
 /**
  * @brief Read a number value of a node.
  *
- * @param[in]  hNode     Node handle (number). Not NULLHANDLE.
- * @param[out] pdValue   Receiver. Not NULL.
+ * @param[in]  hNode    Node handle (number). Not NULLHANDLE.
+ * @param[out] pdValue  Receiver. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -1295,10 +1304,10 @@ APIRET APIENTRY JsonNodeGetBoolean(HJSONNODE hNode, PBOOL pfValue) {
  * @retval ERROR_INVALID_DATA       Node is not a number.
  */
 APIRET APIENTRY JsonNodeGetNumber(HJSONNODE hNode, double *pdValue) {
-    PJSONNODE pn = (PJSONNODE)hNode;
+    PJSONNODE pNode = (PJSONNODE)hNode;
     if (hNode == NULLHANDLE || !pdValue) return ERROR_INVALID_PARAMETER;
-    if (pn->type != JSON_NUMBER) return ERROR_INVALID_DATA;
-    *pdValue = pn->number_value;
+    if (pNode->type != JSON_NUMBER) return ERROR_INVALID_DATA;
+    *pdValue = pNode->dblNumberValue;
     return NO_ERROR;
 }
 
@@ -1328,27 +1337,27 @@ APIRET APIENTRY JsonNodeGetNumber(HJSONNODE hNode, double *pdValue) {
  */
 APIRET APIENTRY JsonNodeGetKey(HJSONNODE hNode,
                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    const char *key;
-    size_t n;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    PCSZ pszKey;
+    size_t cbLen;
 
     if (hNode == NULLHANDLE) return ERROR_INVALID_PARAMETER;
 
-    key = pn->key ? pn->key : "";
-    n = strlen(key);
+    pszKey = pNode->pszKey ? pNode->pszKey : "";
+    cbLen = strlen(pszKey);
 
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
         return NO_ERROR;
     }
     if (!pszBuf) return ERROR_INVALID_PARAMETER;
-    if (ulSize < n + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
+    if (ulSize < cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, key, n);
-    pszBuf[n] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)n;
+    memcpy(pszBuf, pszKey, cbLen);
+    pszBuf[cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
     return NO_ERROR;
 }
 
@@ -1370,17 +1379,17 @@ APIRET APIENTRY JsonNodeGetKey(HJSONNODE hNode,
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    char *copy;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    PSZ pszCopy;
 
     if (hNode == NULLHANDLE || !pszVal) return ERROR_INVALID_PARAMETER;
-    if (pn->type != JSON_STRING) return ERROR_INVALID_DATA;
+    if (pNode->type != JSON_STRING) return ERROR_INVALID_DATA;
 
-    copy = dup_str(pszVal);
-    if (!copy) return ERROR_NOT_ENOUGH_MEMORY;
+    pszCopy = dup_str(pszVal);
+    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
 
-    free(pn->string_value);
-    pn->string_value = copy;
+    free(pNode->pszStringValue);
+    pNode->pszStringValue = pszCopy;
     return NO_ERROR;
 }
 
@@ -1407,16 +1416,16 @@ APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
 APIRET APIENTRY JsonNodeSetString(HJSONDOC hDoc, HJSONNODE hObj,
                                   PCSZ pszKey, PCSZ pszVal) {
     PJSONNODE pObj = (PJSONNODE)hObj;
-    ULONG i;
+    ULONG ulIdx;
 
     if (hDoc == NULLHANDLE || hObj == NULLHANDLE ||
         !pszKey || !pszVal)
         return ERROR_INVALID_PARAMETER;
     if (pObj->type != JSON_OBJECT) return ERROR_INVALID_DATA;
 
-    for (i = 0; i < pObj->child_count; i++) {
-        PJSONNODE pChild = pObj->children[i];
-        if (pChild->key && strcmp(pChild->key, pszKey) == 0) {
+    for (ulIdx = 0; ulIdx < pObj->ulChildCount; ulIdx++) {
+        PJSONNODE pChild = pObj->pChildren[ulIdx];
+        if (pChild->pszKey && strcmp(pChild->pszKey, pszKey) == 0) {
             if (pChild->type != JSON_STRING) return ERROR_INVALID_DATA;
             return JsonNodeSetValueString((HJSONNODE)pChild, pszVal);
         }
@@ -1449,39 +1458,39 @@ APIRET APIENTRY JsonNodeSetString(HJSONDOC hDoc, HJSONNODE hObj,
  */
 APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
                               HJSONNODE *phDst) {
-    PJSONDOC  pdDst = (PJSONDOC)hDst;
-    PJSONNODE pSrc  = (PJSONNODE)hSrc;
-    PJSONNODE pDst;
-    ULONG i;
+    PJSONDOC  pDocDst = (PJSONDOC)hDst;
+    PJSONNODE pNodeSrc  = (PJSONNODE)hSrc;
+    PJSONNODE pNodeDst;
+    ULONG ulIdx;
 
     if (hDst == NULLHANDLE || hSrc == NULLHANDLE || !phDst)
         return ERROR_INVALID_PARAMETER;
     *phDst = NULLHANDLE;
 
-    pDst = node_new(pdDst, pSrc->type);
-    if (!pDst) return ERROR_NOT_ENOUGH_MEMORY;
+    pNodeDst = node_new(pDocDst, pNodeSrc->type);
+    if (!pNodeDst) return ERROR_NOT_ENOUGH_MEMORY;
 
-    if (pSrc->key) {
-        pDst->key = dup_str(pSrc->key);
-        if (!pDst->key) return ERROR_NOT_ENOUGH_MEMORY;
+    if (pNodeSrc->pszKey) {
+        pNodeDst->pszKey = dup_str(pNodeSrc->pszKey);
+        if (!pNodeDst->pszKey) return ERROR_NOT_ENOUGH_MEMORY;
     }
-    if (pSrc->string_value) {
-        pDst->string_value = dup_str(pSrc->string_value);
-        if (!pDst->string_value) return ERROR_NOT_ENOUGH_MEMORY;
+    if (pNodeSrc->pszStringValue) {
+        pNodeDst->pszStringValue = dup_str(pNodeSrc->pszStringValue);
+        if (!pNodeDst->pszStringValue) return ERROR_NOT_ENOUGH_MEMORY;
     }
-    pDst->number_value = pSrc->number_value;
-    pDst->bool_value = pSrc->bool_value;
+    pNodeDst->dblNumberValue = pNodeSrc->dblNumberValue;
+    pNodeDst->fBoolValue = pNodeSrc->fBoolValue;
 
-    for (i = 0; i < pSrc->child_count; i++) {
+    for (ulIdx = 0; ulIdx < pNodeSrc->ulChildCount; ulIdx++) {
         HJSONNODE hChildClone = NULLHANDLE;
-        APIRET rc = JsonCloneNode(hDst, (HJSONNODE)pSrc->children[i],
+        APIRET rc = JsonCloneNode(hDst, (HJSONNODE)pNodeSrc->pChildren[ulIdx],
                                   &hChildClone);
         if (rc != NO_ERROR) return rc;
-        if (node_add_child(pDst, (PJSONNODE)hChildClone) != 0)
+        if (node_add_child(pNodeDst, (PJSONNODE)hChildClone) != 0)
             return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    *phDst = (HJSONNODE)pDst;
+    *phDst = (HJSONNODE)pNodeDst;
     return NO_ERROR;
 }
 
@@ -1493,194 +1502,199 @@ APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
  * @struct _SBUF
  * @brief Growable string buffer used during serialization.
  */
-typedef struct {
-    char  *buf;   /**< Backing storage, or NULL.       */
-    size_t cap;   /**< Allocated bytes.                */
-    size_t len;   /**< Used bytes, excluding NUL.      */
-    int    oom;   /**< Non-zero once an OOM occurred.  */
+typedef struct _SBUF {
+    PSZ    pszBuf;  /**< Backing storage, or NULL.       */
+    size_t cbCap;   /**< Allocated bytes.                */
+    size_t cbLen;   /**< Used bytes, excluding NUL.      */
+    int    nOom;    /**< Non-zero once an OOM occurred.  */
 } SBUF;
 
 /**
  * @brief Initialize a string buffer.
  *
- * @param[out] sb  Buffer. Not NULL.
+ * @param[out] pBuf  Buffer. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
  */
-static int sbuf_init(SBUF *sb) {
-    sb->cap = 64;
-    sb->len = 0;
-    sb->oom = 0;
-    sb->buf = (char*)malloc(sb->cap);
-    if (!sb->buf) { sb->oom = 1; return -1; }
-    sb->buf[0] = '\0';
+static int sbuf_init(SBUF *pBuf) {
+    pBuf->cbCap = 64;
+    pBuf->cbLen = 0;
+    pBuf->nOom = 0;
+    pBuf->pszBuf = (PSZ)malloc(pBuf->cbCap);
+    if (!pBuf->pszBuf) { pBuf->nOom = 1; return -1; }
+    pBuf->pszBuf[0] = '\0';
     return 0;
 }
 
 /**
  * @brief Release a string buffer.
  *
- * @param[in,out] sb  Buffer. Not NULL.
+ * @param[in,out] pBuf  Buffer. Not NULL.
  */
-static void sbuf_free(SBUF *sb) {
-    free(sb->buf);
-    sb->buf = NULL;
-    sb->cap = 0;
-    sb->len = 0;
+static void sbuf_free(SBUF *pBuf) {
+    free(pBuf->pszBuf);
+    pBuf->pszBuf = NULL;
+    pBuf->cbCap = 0;
+    pBuf->cbLen = 0;
 }
 
 /**
  * @brief Append bytes to a string buffer.
  *
- * @param[in,out] sb    Buffer. Not NULL.
- * @param[in]     data  Bytes to append. Not NULL.
- * @param[in]     n     Number of bytes.
+ * @param[in,out] pBuf   Buffer. Not NULL.
+ * @param[in]     pszData  Bytes to append. Not NULL.
+ * @param[in]     cbLen    Number of bytes.
  */
-static void sbuf_put(SBUF *sb, const char *data, size_t n) {
-    if (sb->oom) return;
-    if (sb->len + n + 1 > sb->cap) {
-        size_t ncap = sb->cap * 2 + n + 64;
-        char *nb = (char*)realloc(sb->buf, ncap);
-        if (!nb) { sb->oom = 1; return; }
-        sb->buf = nb;
-        sb->cap = ncap;
+static void sbuf_put(SBUF *pBuf, PCSZ pszData, size_t cbLen) {
+    if (pBuf->nOom) return;
+    if (pBuf->cbLen + cbLen + 1 > pBuf->cbCap) {
+        size_t cbNewCap = pBuf->cbCap * 2 + cbLen + 64;
+        PSZ pszNew = (PSZ)realloc(pBuf->pszBuf, cbNewCap);
+        if (!pszNew) { pBuf->nOom = 1; return; }
+        pBuf->pszBuf = pszNew;
+        pBuf->cbCap = cbNewCap;
     }
-    memcpy(sb->buf + sb->len, data, n);
-    sb->len += n;
-    sb->buf[sb->len] = '\0';
+    memcpy(pBuf->pszBuf + pBuf->cbLen, pszData, cbLen);
+    pBuf->cbLen += cbLen;
+    pBuf->pszBuf[pBuf->cbLen] = '\0';
 }
 
 /**
  * @brief Append one character to a string buffer.
  *
- * @param[in,out] sb  Buffer. Not NULL.
- * @param[in]     c   Character.
+ * @param[in,out] pBuf  Buffer. Not NULL.
+ * @param[in]     ch    Character.
  */
-static void sbuf_putc(SBUF *sb, char c) {
-    sbuf_put(sb, &c, 1);
+static void sbuf_putc(SBUF *pBuf, CHAR ch) {
+    sbuf_put(pBuf, &ch, 1);
 }
 
 /**
  * @brief Append a NUL-terminated string to a string buffer.
  *
- * @param[in,out] sb  Buffer. Not NULL.
- * @param[in]     s   String. Not NULL.
+ * @param[in,out] pBuf    Buffer. Not NULL.
+ * @param[in]     pszStr  String. Not NULL.
  */
-static void sbuf_puts(SBUF *sb, const char *s) {
-    sbuf_put(sb, s, strlen(s));
+static void sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
+    sbuf_put(pBuf, pszStr, strlen(pszStr));
 }
 
 /**
  * @brief Append a JSON-quoted and escaped string.
  *
- * @param[in,out] sb  Buffer. Not NULL.
- * @param[in]     s   String value. May be NULL (treated as "").
+ * @param[in,out] pBuf    Buffer. Not NULL.
+ * @param[in]     pszStr  String value. May be NULL (treated as "").
  */
-static void sbuf_put_escaped(SBUF *sb, const char *s) {
-    static const char hex[] = "0123456789ABCDEF";
-    if (!s) s = "";
-    sbuf_putc(sb, '"');
-    while (*s) {
-        unsigned char c = (unsigned char)*s++;
-        switch (c) {
-            case '"':  sbuf_puts(sb, "\\\""); break;
-            case '\\': sbuf_puts(sb, "\\\\"); break;
-            case '\b': sbuf_puts(sb, "\\b"); break;
-            case '\f': sbuf_puts(sb, "\\f"); break;
-            case '\n': sbuf_puts(sb, "\\n"); break;
-            case '\r': sbuf_puts(sb, "\\r"); break;
-            case '\t': sbuf_puts(sb, "\\t"); break;
+static void sbuf_put_escaped(SBUF *pBuf, PCSZ pszStr) {
+    static PCSZ pszHex = "0123456789ABCDEF";
+    if (!pszStr) pszStr = "";
+    sbuf_putc(pBuf, '"');
+    while (*pszStr) {
+        UCHAR uch = (UCHAR)*pszStr++;
+        switch (uch) {
+            case '"':  sbuf_puts(pBuf, "\\\""); break;
+            case '\\': sbuf_puts(pBuf, "\\\\"); break;
+            case '\b': sbuf_puts(pBuf, "\\b"); break;
+            case '\f': sbuf_puts(pBuf, "\\f"); break;
+            case '\n': sbuf_puts(pBuf, "\\n"); break;
+            case '\r': sbuf_puts(pBuf, "\\r"); break;
+            case '\t': sbuf_puts(pBuf, "\\t"); break;
             default:
-                if (c < 0x20) {
-                    char tmp[7];
-                    tmp[0] = '\\';
-                    tmp[1] = 'u';
-                    tmp[2] = '0';
-                    tmp[3] = '0';
-                    tmp[4] = hex[(c >> 4) & 0x0F];
-                    tmp[5] = hex[c & 0x0F];
-                    tmp[6] = '\0';
-                    sbuf_puts(sb, tmp);
+                if (uch < 0x20) {
+                    CHAR achTmp[7];
+                    achTmp[0] = '\\';
+                    achTmp[1] = 'u';
+                    achTmp[2] = '0';
+                    achTmp[3] = '0';
+                    achTmp[4] = pszHex[(uch >> 4) & 0x0F];
+                    achTmp[5] = pszHex[uch & 0x0F];
+                    achTmp[6] = '\0';
+                    sbuf_puts(pBuf, achTmp);
                 } else {
-                    sbuf_putc(sb, (char)c);
+                    sbuf_putc(pBuf, (CHAR)uch);
                 }
                 break;
         }
     }
-    sbuf_putc(sb, '"');
+    sbuf_putc(pBuf, '"');
 }
 
 /**
  * @brief Append a JSON number to a string buffer.
  *
- * @param[in,out] sb  Buffer. Not NULL.
- * @param[in]     d   Numeric value.
+ * @param[in,out] pBuf    Buffer. Not NULL.
+ * @param[in]     dblVal  Numeric value.
  */
-static void sbuf_put_number(SBUF *sb, double d) {
-    char tmp[64];
-    sprintf(tmp, "%g", d);
-    sbuf_puts(sb, tmp);
+static void sbuf_put_number(SBUF *pBuf, double dblVal) {
+    CHAR achTmp[64];
+    sprintf(achTmp, "%g", dblVal);
+    sbuf_puts(pBuf, achTmp);
 }
 
 /**
  * @brief Append a newline and indentation to a string buffer.
  *
- * @param[in,out] sb      Buffer. Not NULL.
- * @param[in]     indent  Nesting depth.
+ * @param[in,out] pBuf    Buffer. Not NULL.
+ * @param[in]     nIndent Nesting depth.
  */
-static void sbuf_indent(SBUF *sb, int indent) {
+static void sbuf_indent(SBUF *pBuf, int nIndent) {
     int i;
-    sbuf_putc(sb, '\n');
-    for (i = 0; i < indent * 2; i++) sbuf_putc(sb, ' ');
+    sbuf_putc(pBuf, '\n');
+    for (i = 0; i < nIndent * 2; i++) sbuf_putc(pBuf, ' ');
 }
 
 /**
  * @brief Serialize a node into a string buffer.
  *
- * @param[in,out] sb       Buffer. Not NULL.
- * @param[in]     pn       Node. Not NULL.
- * @param[in]     fIndent  Non-zero for pretty-printed output.
- * @param[in]     depth    Current nesting depth.
+ * @param[in,out] pBuf       Buffer. Not NULL.
+ * @param[in]     pNode      Node. Not NULL.
+ * @param[in]     fIndent    Non-zero for pretty-printed output.
+ * @param[in]     nDepth     Current nesting depth.
  */
-static void sbuf_write_node(SBUF *sb, PJSONNODE pn, int fIndent, int depth) {
-    ULONG i;
-    if (sb->oom) return;
+static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
+                            int fIndent, int nDepth) {
+    ULONG ulIdx;
+    if (pBuf->nOom) return;
 
-    switch (pn->type) {
+    switch (pNode->type) {
         case JSON_NULL:
-            sbuf_puts(sb, "null");
+            sbuf_puts(pBuf, "null");
             break;
         case JSON_BOOLEAN:
-            sbuf_puts(sb, pn->bool_value ? "true" : "false");
+            sbuf_puts(pBuf, pNode->fBoolValue ? "true" : "false");
             break;
         case JSON_NUMBER:
-            sbuf_put_number(sb, pn->number_value);
+            sbuf_put_number(pBuf, pNode->dblNumberValue);
             break;
         case JSON_STRING:
-            sbuf_put_escaped(sb, pn->string_value);
+            sbuf_put_escaped(pBuf, pNode->pszStringValue);
             break;
         case JSON_ARRAY:
-            sbuf_putc(sb, '[');
-            for (i = 0; i < pn->child_count; i++) {
-                if (i > 0) sbuf_putc(sb, ',');
-                if (fIndent) sbuf_indent(sb, depth + 1);
-                sbuf_write_node(sb, pn->children[i], fIndent, depth + 1);
+            sbuf_putc(pBuf, '[');
+            for (ulIdx = 0; ulIdx < pNode->ulChildCount; ulIdx++) {
+                if (ulIdx > 0) sbuf_putc(pBuf, ',');
+                if (fIndent) sbuf_indent(pBuf, nDepth + 1);
+                sbuf_write_node(pBuf, pNode->pChildren[ulIdx],
+                                fIndent, nDepth + 1);
             }
-            if (fIndent && pn->child_count > 0) sbuf_indent(sb, depth);
-            sbuf_putc(sb, ']');
+            if (fIndent && pNode->ulChildCount > 0)
+                sbuf_indent(pBuf, nDepth);
+            sbuf_putc(pBuf, ']');
             break;
         case JSON_OBJECT:
-            sbuf_putc(sb, '{');
-            for (i = 0; i < pn->child_count; i++) {
-                if (i > 0) sbuf_putc(sb, ',');
-                if (fIndent) sbuf_indent(sb, depth + 1);
-                sbuf_put_escaped(sb, pn->children[i]->key);
-                sbuf_putc(sb, ':');
-                if (fIndent) sbuf_putc(sb, ' ');
-                sbuf_write_node(sb, pn->children[i], fIndent, depth + 1);
+            sbuf_putc(pBuf, '{');
+            for (ulIdx = 0; ulIdx < pNode->ulChildCount; ulIdx++) {
+                if (ulIdx > 0) sbuf_putc(pBuf, ',');
+                if (fIndent) sbuf_indent(pBuf, nDepth + 1);
+                sbuf_put_escaped(pBuf, pNode->pChildren[ulIdx]->pszKey);
+                sbuf_putc(pBuf, ':');
+                if (fIndent) sbuf_putc(pBuf, ' ');
+                sbuf_write_node(pBuf, pNode->pChildren[ulIdx],
+                                fIndent, nDepth + 1);
             }
-            if (fIndent && pn->child_count > 0) sbuf_indent(sb, depth);
-            sbuf_putc(sb, '}');
+            if (fIndent && pNode->ulChildCount > 0)
+                sbuf_indent(pBuf, nDepth);
+            sbuf_putc(pBuf, '}');
             break;
     }
 }
@@ -1695,8 +1709,7 @@ static void sbuf_write_node(SBUF *sb, PJSONNODE pn, int fIndent, int depth) {
  *     required size including NUL.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[in]  fIndent   TRUE_ for pretty-printed output with two-space
- *                       indentation; FALSE_ for compact output.
+ * @param[in]  fIndent   TRUE_ for pretty-printed output.
  * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize    Size of pszBuf.
  * @param[out] pulUsed   Optional. May be NULL.
@@ -1710,36 +1723,36 @@ static void sbuf_write_node(SBUF *sb, PJSONNODE pn, int fIndent, int depth) {
  */
 APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
                            PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    SBUF sb;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    SBUF buf;
 
     if (hNode == NULLHANDLE) return ERROR_INVALID_PARAMETER;
     if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
     if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
-    if (sbuf_init(&sb) != 0) return ERROR_NOT_ENOUGH_MEMORY;
+    if (sbuf_init(&buf) != 0) return ERROR_NOT_ENOUGH_MEMORY;
 
-    sbuf_write_node(&sb, pn, fIndent ? 1 : 0, 0);
-    if (sb.oom) {
-        sbuf_free(&sb);
+    sbuf_write_node(&buf, pNode, fIndent ? 1 : 0, 0);
+    if (buf.nOom) {
+        sbuf_free(&buf);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(sb.len + 1);
-        sbuf_free(&sb);
+        if (pulUsed) *pulUsed = (ULONG)buf.cbLen + 1;
+        sbuf_free(&buf);
         return NO_ERROR;
     }
-    if (ulSize < sb.len + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(sb.len + 1);
-        sbuf_free(&sb);
+    if (ulSize < buf.cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)buf.cbLen + 1;
+        sbuf_free(&buf);
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, sb.buf, sb.len);
-    pszBuf[sb.len] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)sb.len;
+    memcpy(pszBuf, buf.pszBuf, buf.cbLen);
+    pszBuf[buf.cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)buf.cbLen;
 
-    sbuf_free(&sb);
+    sbuf_free(&buf);
     return NO_ERROR;
 }
 
@@ -1749,8 +1762,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * When @p pszPath is NULL, the output is written to stdout.
  *
  * @param[in] hNode    Node handle. Not NULLHANDLE.
- * @param[in] fIndent  TRUE_ for pretty-printed output; FALSE_ for
- *                     compact output.
+ * @param[in] fIndent  TRUE_ for pretty-printed output.
  * @param[in] pszPath  Output file path, or NULL for stdout.
  *
  * @return APIRET
@@ -1762,34 +1774,34 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  */
 APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
                               PCSZ pszPath) {
-    PJSONNODE pn = (PJSONNODE)hNode;
-    SBUF sb;
-    FILE *f;
+    PJSONNODE pNode = (PJSONNODE)hNode;
+    SBUF buf;
+    FILE *fp;
 
     if (hNode == NULLHANDLE) return ERROR_INVALID_PARAMETER;
 
-    if (sbuf_init(&sb) != 0) return ERROR_NOT_ENOUGH_MEMORY;
-    sbuf_write_node(&sb, pn, fIndent ? 1 : 0, 0);
-    if (sb.oom) {
-        sbuf_free(&sb);
+    if (sbuf_init(&buf) != 0) return ERROR_NOT_ENOUGH_MEMORY;
+    sbuf_write_node(&buf, pNode, fIndent ? 1 : 0, 0);
+    if (buf.nOom) {
+        sbuf_free(&buf);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     if (pszPath) {
-        f = fopen(pszPath, "wb");
-        if (!f) { sbuf_free(&sb); return ERROR_OPEN_FAILED; }
+        fp = fopen(pszPath, "wb");
+        if (!fp) { sbuf_free(&buf); return ERROR_OPEN_FAILED; }
     } else {
-        f = stdout;
+        fp = stdout;
     }
 
-    if (fwrite(sb.buf, 1, sb.len, f) != sb.len) {
-        if (f != stdout) fclose(f);
-        sbuf_free(&sb);
+    if (fwrite(buf.pszBuf, 1, buf.cbLen, fp) != buf.cbLen) {
+        if (fp != stdout) fclose(fp);
+        sbuf_free(&buf);
         return ERROR_READ_FAULT;
     }
-    if (f != stdout) fclose(f);
+    if (fp != stdout) fclose(fp);
 
-    sbuf_free(&sb);
+    sbuf_free(&buf);
     return NO_ERROR;
 }
 
@@ -1817,66 +1829,66 @@ APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
  */
 APIRET APIENTRY JsonEscapeString(PCSZ pszSrc,
                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    SBUF sb;
+    SBUF buf;
 
     if (!pszSrc) return ERROR_INVALID_PARAMETER;
     if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
     if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
-    if (sbuf_init(&sb) != 0) return ERROR_NOT_ENOUGH_MEMORY;
+    if (sbuf_init(&buf) != 0) return ERROR_NOT_ENOUGH_MEMORY;
 
     /* Escape without surrounding quotes. */
     {
-        static const char hex[] = "0123456789ABCDEF";
-        const char *s = pszSrc;
-        while (*s) {
-            unsigned char c = (unsigned char)*s++;
-            switch (c) {
-                case '"':  sbuf_puts(&sb, "\\\""); break;
-                case '\\': sbuf_puts(&sb, "\\\\"); break;
-                case '\b': sbuf_puts(&sb, "\\b"); break;
-                case '\f': sbuf_puts(&sb, "\\f"); break;
-                case '\n': sbuf_puts(&sb, "\\n"); break;
-                case '\r': sbuf_puts(&sb, "\\r"); break;
-                case '\t': sbuf_puts(&sb, "\\t"); break;
+        static PCSZ pszHex = "0123456789ABCDEF";
+        PCSZ pszPos = pszSrc;
+        while (*pszPos) {
+            UCHAR uch = (UCHAR)*pszPos++;
+            switch (uch) {
+                case '"':  sbuf_puts(&buf, "\\\""); break;
+                case '\\': sbuf_puts(&buf, "\\\\"); break;
+                case '\b': sbuf_puts(&buf, "\\b"); break;
+                case '\f': sbuf_puts(&buf, "\\f"); break;
+                case '\n': sbuf_puts(&buf, "\\n"); break;
+                case '\r': sbuf_puts(&buf, "\\r"); break;
+                case '\t': sbuf_puts(&buf, "\\t"); break;
                 default:
-                    if (c < 0x20) {
-                        char tmp[7];
-                        tmp[0] = '\\';
-                        tmp[1] = 'u';
-                        tmp[2] = '0';
-                        tmp[3] = '0';
-                        tmp[4] = hex[(c >> 4) & 0x0F];
-                        tmp[5] = hex[c & 0x0F];
-                        tmp[6] = '\0';
-                        sbuf_puts(&sb, tmp);
+                    if (uch < 0x20) {
+                        CHAR achTmp[7];
+                        achTmp[0] = '\\';
+                        achTmp[1] = 'u';
+                        achTmp[2] = '0';
+                        achTmp[3] = '0';
+                        achTmp[4] = pszHex[(uch >> 4) & 0x0F];
+                        achTmp[5] = pszHex[uch & 0x0F];
+                        achTmp[6] = '\0';
+                        sbuf_puts(&buf, achTmp);
                     } else {
-                        sbuf_putc(&sb, (char)c);
+                        sbuf_putc(&buf, (CHAR)uch);
                     }
                     break;
             }
         }
     }
 
-    if (sb.oom) {
-        sbuf_free(&sb);
+    if (buf.nOom) {
+        sbuf_free(&buf);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(sb.len + 1);
-        sbuf_free(&sb);
+        if (pulUsed) *pulUsed = (ULONG)buf.cbLen + 1;
+        sbuf_free(&buf);
         return NO_ERROR;
     }
-    if (ulSize < sb.len + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(sb.len + 1);
-        sbuf_free(&sb);
+    if (ulSize < buf.cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)buf.cbLen + 1;
+        sbuf_free(&buf);
         return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, sb.buf, sb.len);
-    pszBuf[sb.len] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)sb.len;
+    memcpy(pszBuf, buf.pszBuf, buf.cbLen);
+    pszBuf[buf.cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)buf.cbLen;
 
-    sbuf_free(&sb);
+    sbuf_free(&buf);
     return NO_ERROR;
 }

@@ -1,4 +1,4 @@
-/* dep5.c - Debian Copyright Format 1.0 (DEP5) parser, OS/2 API style
+/* dep5.c - Debian Copyright Format 1.0 (DEP5) parser
  * (C89 + Watcom extensions) */
 
 #include <stdio.h>
@@ -20,39 +20,61 @@
  * Small helpers
  * ================================================================== */
 
-static char *dup_n(const char *s, size_t n) {
-    char *r;
-    r = (char*)malloc(n + 1);
-    if (!r) return NULL;
-    memcpy(r, s, n);
-    r[n] = '\0';
-    return r;
+/**
+ * @brief Duplicate a byte range with a terminating NUL.
+ *
+ * @param[in] pszSrc  Source bytes. Not NULL.
+ * @param[in] cbLen   Number of bytes.
+ *
+ * @return malloc'd string, or NULL on OOM.
+ */
+static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
+    PSZ pszOut;
+    pszOut = (PSZ)malloc(cbLen + 1);
+    if (!pszOut) return NULL;
+    memcpy(pszOut, pszSrc, cbLen);
+    pszOut[cbLen] = '\0';
+    return pszOut;
 }
 
-static char *dup_str(const char *s) {
-    return dup_n(s, strlen(s));
+/**
+ * @brief Duplicate a NUL-terminated string.
+ *
+ * @param[in] pszSrc  Source string. Not NULL.
+ *
+ * @return malloc'd copy, or NULL on OOM.
+ */
+static PSZ dup_str(PCSZ pszSrc) {
+    return dup_n(pszSrc, strlen(pszSrc));
 }
 
-/* Read the whole file into a malloc buffer. */
-static int read_file_all(PCSZ pszPath, char **ppszText) {
-    FILE *f;
-    long sz;
-    char *buf;
+/**
+ * @brief Read the whole file into a malloc buffer.
+ *
+ * @param[in]  pszPath   Path to the file. Not NULL.
+ * @param[out] ppszText  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
+    FILE *fp;
+    long lSize;
+    PSZ pszBuf;
     if (!pszPath || !ppszText) return -1;
-    f = fopen(pszPath, "rb");
-    if (!f) return -1;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return -1; }
-    sz = ftell(f);
-    if (sz < 0) { fclose(f); return -1; }
-    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return -1; }
-    buf = (char*)malloc((size_t)sz + 1);
-    if (!buf) { fclose(f); return -1; }
-    if (sz > 0 && fread(buf, 1, (size_t)sz, f) != (size_t)sz) {
-        free(buf); fclose(f); return -1;
+    fp = fopen(pszPath, "rb");
+    if (!fp) return -1;
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return -1; }
+    lSize = ftell(fp);
+    if (lSize < 0) { fclose(fp); return -1; }
+    if (fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return -1; }
+    pszBuf = (PSZ)malloc((size_t)lSize + 1);
+    if (!pszBuf) { fclose(fp); return -1; }
+    if (lSize > 0 && fread(pszBuf, 1, (size_t)lSize, fp) != (size_t)lSize) {
+        free(pszBuf); fclose(fp); return -1;
     }
-    buf[sz] = '\0';
-    fclose(f);
-    *ppszText = buf;
+    pszBuf[lSize] = '\0';
+    fclose(fp);
+    *ppszText = pszBuf;
     return 0;
 }
 
@@ -60,48 +82,52 @@ static int read_file_all(PCSZ pszPath, char **ppszText) {
  * String buffer accumulator
  * ================================================================== */
 
-typedef struct {
-    char  *pbuf;
-    size_t cap;
-    size_t len;
+/**
+ * @struct _SBUF
+ * @brief Growable string buffer.
+ */
+typedef struct _SBUF {
+    PSZ    pszBuf;  /**< Backing storage, or NULL. */
+    size_t cbCap;   /**< Allocated bytes.          */
+    size_t cbLen;   /**< Used bytes, excluding NUL.*/
 } SBUF;
 
-static int sbuf_init(SBUF *sb) {
-    sb->cap = 64;
-    sb->len = 0;
-    sb->pbuf = (char*)malloc(sb->cap);
-    if (!sb->pbuf) return -1;
-    sb->pbuf[0] = '\0';
+static int sbuf_init(SBUF *pBuf) {
+    pBuf->cbCap = 64;
+    pBuf->cbLen = 0;
+    pBuf->pszBuf = (PSZ)malloc(pBuf->cbCap);
+    if (!pBuf->pszBuf) return -1;
+    pBuf->pszBuf[0] = '\0';
     return 0;
 }
 
-static void sbuf_free(SBUF *sb) {
-    free(sb->pbuf);
-    sb->pbuf = NULL;
-    sb->cap = 0;
-    sb->len = 0;
+static void sbuf_free(SBUF *pBuf) {
+    free(pBuf->pszBuf);
+    pBuf->pszBuf = NULL;
+    pBuf->cbCap = 0;
+    pBuf->cbLen = 0;
 }
 
-static int sbuf_put(SBUF *sb, const char *data, size_t n) {
-    if (sb->len + n + 1 > sb->cap) {
-        size_t ncap = sb->cap * 2 + n + 64;
-        char *nb = (char*)realloc(sb->pbuf, ncap);
-        if (!nb) return -1;
-        sb->pbuf = nb;
-        sb->cap = ncap;
+static int sbuf_put(SBUF *pBuf, PCSZ pszData, size_t cbLen) {
+    if (pBuf->cbLen + cbLen + 1 > pBuf->cbCap) {
+        size_t cbNewCap = pBuf->cbCap * 2 + cbLen + 64;
+        PSZ pszNew = (PSZ)realloc(pBuf->pszBuf, cbNewCap);
+        if (!pszNew) return -1;
+        pBuf->pszBuf = pszNew;
+        pBuf->cbCap = cbNewCap;
     }
-    memcpy(sb->pbuf + sb->len, data, n);
-    sb->len += n;
-    sb->pbuf[sb->len] = '\0';
+    memcpy(pBuf->pszBuf + pBuf->cbLen, pszData, cbLen);
+    pBuf->cbLen += cbLen;
+    pBuf->pszBuf[pBuf->cbLen] = '\0';
     return 0;
 }
 
-static int sbuf_putc(SBUF *sb, char c) {
-    return sbuf_put(sb, &c, 1);
+static int sbuf_putc(SBUF *pBuf, CHAR ch) {
+    return sbuf_put(pBuf, &ch, 1);
 }
 
-static int sbuf_puts(SBUF *sb, const char *s) {
-    return sbuf_put(sb, s, strlen(s));
+static int sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
+    return sbuf_put(pBuf, pszStr, strlen(pszStr));
 }
 
 /* ==================================================================
@@ -113,44 +139,47 @@ static int sbuf_puts(SBUF *sb, const char *s) {
  *   - Trailing whitespace on any line is removed.
  * ================================================================== */
 
-static int normalize_field_value(SBUF *sb) {
-    char *src = sb->pbuf;
-    size_t src_len = sb->len;
+static int normalize_field_value(SBUF *pBuf) {
+    PSZ pszSrc = pBuf->pszBuf;
+    size_t cbSrcLen = pBuf->cbLen;
     SBUF out;
     size_t i = 0;
 
-    if (src_len == 0) return 0;
+    if (cbSrcLen == 0) return 0;
     if (sbuf_init(&out) != 0) return -1;
 
-    while (i < src_len) {
-        size_t line_end = i;
-        size_t line_trimmed;
-        while (line_end < src_len && src[line_end] != '\n') line_end++;
-        line_trimmed = line_end;
-        while (line_trimmed > i &&
-               (src[line_trimmed-1] == ' ' || src[line_trimmed-1] == '\t'))
-            line_trimmed--;
-        if (line_end - i == 1 && src[i] == '.') {
+    while (i < cbSrcLen) {
+        size_t cbLineEnd = i;
+        size_t cbLineTrimmed;
+        while (cbLineEnd < cbSrcLen && pszSrc[cbLineEnd] != '\n')
+            cbLineEnd++;
+        cbLineTrimmed = cbLineEnd;
+        while (cbLineTrimmed > i &&
+               (pszSrc[cbLineTrimmed-1] == ' ' ||
+                pszSrc[cbLineTrimmed-1] == '\t'))
+            cbLineTrimmed--;
+        if (cbLineEnd - i == 1 && pszSrc[i] == '.') {
             /* Single dot -> blank line: skip content. */
         } else {
-            if (line_trimmed > i) {
-                if (sbuf_put(&out, src + i, line_trimmed - i) != 0) {
+            if (cbLineTrimmed > i) {
+                if (sbuf_put(&out, pszSrc + i,
+                             cbLineTrimmed - i) != 0) {
                     sbuf_free(&out); return -1;
                 }
             }
         }
-        if (line_end < src_len) {
+        if (cbLineEnd < cbSrcLen) {
             if (sbuf_putc(&out, '\n') != 0) {
                 sbuf_free(&out); return -1;
             }
         }
-        i = line_end + 1;
+        i = cbLineEnd + 1;
     }
 
-    sbuf_free(sb);
-    sb->pbuf = out.pbuf;
-    sb->cap = out.cap;
-    sb->len = out.len;
+    sbuf_free(pBuf);
+    pBuf->pszBuf = out.pszBuf;
+    pBuf->cbCap = out.cbCap;
+    pBuf->cbLen = out.cbLen;
     return 0;
 }
 
@@ -158,79 +187,80 @@ static int normalize_field_value(SBUF *sb) {
  * Stanza builder
  * ================================================================== */
 
-static int stanza_grow(PDEP5STANZA ps) {
-    ULONG ncap;
-    DEP5FIELD *na;
-    if (ps->ulCount < ps->ulCapacity) return 0;
-    ncap = ps->ulCapacity ? ps->ulCapacity * 2 : 8;
-    na = (DEP5FIELD*)realloc(ps->paFields,
-                             (size_t)ncap * sizeof(DEP5FIELD));
-    if (!na) return -1;
-    ps->paFields = na;
-    ps->ulCapacity = ncap;
+static int stanza_grow(PDEP5STANZA pStanza) {
+    ULONG ulNewCap;
+    PDEP5FIELD paNew;
+    if (pStanza->ulCount < pStanza->ulCapacity) return 0;
+    ulNewCap = pStanza->ulCapacity ? pStanza->ulCapacity * 2 : 8;
+    paNew = (PDEP5FIELD)realloc(pStanza->paFields,
+                                (size_t)ulNewCap * sizeof(DEP5FIELD));
+    if (!paNew) return -1;
+    pStanza->paFields = paNew;
+    pStanza->ulCapacity = ulNewCap;
     return 0;
 }
 
-static PDEP5FIELD stanza_add_field(PDEP5STANZA ps) {
-    PDEP5FIELD pf;
-    if (stanza_grow(ps) != 0) return NULL;
-    pf = &ps->paFields[ps->ulCount++];
-    memset(pf, 0, sizeof(*pf));
-    return pf;
+static PDEP5FIELD stanza_add_field(PDEP5STANZA pStanza) {
+    PDEP5FIELD pField;
+    if (stanza_grow(pStanza) != 0) return NULL;
+    pField = &pStanza->paFields[pStanza->ulCount++];
+    memset(pField, 0, sizeof(*pField));
+    return pField;
 }
 
-static PDEP5FIELD stanza_find_field(PDEP5STANZA ps, PCSZ pszName) {
-    ULONG i;
-    if (!ps) return NULL;
-    for (i = 0; i < ps->ulCount; i++) {
-        if (strcasecmp(ps->paFields[i].pszName, pszName) == 0)
-            return &ps->paFields[i];
+static PDEP5FIELD stanza_find_field(PDEP5STANZA pStanza, PCSZ pszName) {
+    ULONG ulIdx;
+    if (!pStanza) return NULL;
+    for (ulIdx = 0; ulIdx < pStanza->ulCount; ulIdx++) {
+        if (strcasecmp(pStanza->paFields[ulIdx].pszName, pszName) == 0)
+            return &pStanza->paFields[ulIdx];
     }
     return NULL;
 }
 
-static void stanza_free(PDEP5STANZA ps) {
-    ULONG i;
-    if (!ps) return;
-    for (i = 0; i < ps->ulCount; i++) {
-        free(ps->paFields[i].pszName);
-        free(ps->paFields[i].pszValue);
+static void stanza_free(PDEP5STANZA pStanza) {
+    ULONG ulIdx;
+    if (!pStanza) return;
+    for (ulIdx = 0; ulIdx < pStanza->ulCount; ulIdx++) {
+        free(pStanza->paFields[ulIdx].pszName);
+        free(pStanza->paFields[ulIdx].pszValue);
     }
-    free(ps->paFields);
-    memset(ps, 0, sizeof(*ps));
+    free(pStanza->paFields);
+    memset(pStanza, 0, sizeof(*pStanza));
 }
 
 /* ==================================================================
  * Document builder
  * ================================================================== */
 
-static int doc_grow(PDEP5DOC pd) {
-    ULONG ncap;
-    DEP5STANZA *na;
-    if (pd->ulCount < pd->ulCapacity) return 0;
-    ncap = pd->ulCapacity ? pd->ulCapacity * 2 : 8;
-    na = (DEP5STANZA*)realloc(pd->paStanzas,
-                              (size_t)ncap * sizeof(DEP5STANZA));
-    if (!na) return -1;
-    pd->paStanzas = na;
-    pd->ulCapacity = ncap;
+static int doc_grow(PDEP5DOC pDoc) {
+    ULONG ulNewCap;
+    PDEP5STANZA paNew;
+    if (pDoc->ulCount < pDoc->ulCapacity) return 0;
+    ulNewCap = pDoc->ulCapacity ? pDoc->ulCapacity * 2 : 8;
+    paNew = (PDEP5STANZA)realloc(pDoc->paStanzas,
+                                 (size_t)ulNewCap * sizeof(DEP5STANZA));
+    if (!paNew) return -1;
+    pDoc->paStanzas = paNew;
+    pDoc->ulCapacity = ulNewCap;
     return 0;
 }
 
-static PDEP5STANZA doc_add_stanza(PDEP5DOC pd) {
-    PDEP5STANZA ps;
-    if (doc_grow(pd) != 0) return NULL;
-    ps = &pd->paStanzas[pd->ulCount++];
-    memset(ps, 0, sizeof(*ps));
-    return ps;
+static PDEP5STANZA doc_add_stanza(PDEP5DOC pDoc) {
+    PDEP5STANZA pStanza;
+    if (doc_grow(pDoc) != 0) return NULL;
+    pStanza = &pDoc->paStanzas[pDoc->ulCount++];
+    memset(pStanza, 0, sizeof(*pStanza));
+    return pStanza;
 }
 
-static void doc_free(PDEP5DOC pd) {
-    ULONG i;
-    if (!pd) return;
-    for (i = 0; i < pd->ulCount; i++) stanza_free(&pd->paStanzas[i]);
-    free(pd->paStanzas);
-    free(pd);
+static void doc_free(PDEP5DOC pDoc) {
+    ULONG ulIdx;
+    if (!pDoc) return;
+    for (ulIdx = 0; ulIdx < pDoc->ulCount; ulIdx++)
+        stanza_free(&pDoc->paStanzas[ulIdx]);
+    free(pDoc->paStanzas);
+    free(pDoc);
 }
 
 /* ==================================================================
@@ -241,19 +271,19 @@ static void doc_free(PDEP5DOC pd) {
  * ================================================================== */
 
 static int format_is_valid(PCSZ pszValue) {
-    static const char *prefixes[] = {
+    static PCSZ apszPrefixes[] = {
         "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0",
         "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0",
         NULL
     };
     int i;
     if (!pszValue) return 0;
-    for (i = 0; prefixes[i]; i++) {
-        size_t plen = strlen(prefixes[i]);
-        if (strncmp(pszValue, prefixes[i], plen) == 0) {
-            char c = pszValue[plen];
-            if (c == '\0' || c == '/' || c == ' ' || c == '\t' ||
-                c == '\n' || c == '\r')
+    for (i = 0; apszPrefixes[i]; i++) {
+        size_t cbPrefixLen = strlen(apszPrefixes[i]);
+        if (strncmp(pszValue, apszPrefixes[i], cbPrefixLen) == 0) {
+            CHAR ch = pszValue[cbPrefixLen];
+            if (ch == '\0' || ch == '/' || ch == ' ' || ch == '\t' ||
+                ch == '\n' || ch == '\r')
                 return 1;
         }
     }
@@ -268,81 +298,81 @@ static int format_is_valid(PCSZ pszValue) {
  * character cannot be escaped.
  * ================================================================== */
 
-static int unescape_pattern(PCSZ pszToken, size_t nToken,
-                            char **ppszOut) {
-    SBUF sb;
+static int unescape_pattern(PCSZ pszToken, size_t cbToken,
+                            PSZ *ppszOut) {
+    SBUF buf;
     size_t i;
-    if (sbuf_init(&sb) != 0) return -1;
-    for (i = 0; i < nToken; i++) {
-        char c = pszToken[i];
-        if (c == '\\') {
-            if (i + 1 >= nToken) goto fail;
+    if (sbuf_init(&buf) != 0) return -1;
+    for (i = 0; i < cbToken; i++) {
+        CHAR ch = pszToken[i];
+        if (ch == '\\') {
+            if (i + 1 >= cbToken) goto fail;
             i++;
             switch (pszToken[i]) {
-                case '*':  c = '*';  break;
-                case '?':  c = '?';  break;
-                case '\\': c = '\\'; break;
+                case '*':  ch = '*';  break;
+                case '?':  ch = '?';  break;
+                case '\\': ch = '\\'; break;
                 default: goto fail;
             }
         }
-        if (sbuf_putc(&sb, c) != 0) goto fail;
+        if (sbuf_putc(&buf, ch) != 0) goto fail;
     }
-    *ppszOut = sb.pbuf;
+    *ppszOut = buf.pszBuf;
     return 0;
 fail:
-    sbuf_free(&sb);
+    sbuf_free(&buf);
     return -1;
 }
 
-static int parse_files_patterns(PCSZ pszValue, char ***ppaOut,
-                                ULONG *pulCount) {
-    char **paPatterns = NULL;
-    ULONG n = 0, cap = 4;
-    const char *p = pszValue;
+static int parse_files_patterns(PCSZ pszValue, PSZ **ppapszOut,
+                                PULONG pulCount) {
+    PSZ *papszPatterns = NULL;
+    ULONG ulCount = 0, ulCap = 4;
+    PCSZ pszPos = pszValue;
 
-    paPatterns = (char**)malloc(cap * sizeof(char*));
-    if (!paPatterns) return -1;
+    papszPatterns = (PSZ*)malloc(ulCap * sizeof(PSZ));
+    if (!papszPatterns) return -1;
 
-    while (*p) {
-        const char *start;
-        size_t tok_len;
-        char *unescaped;
+    while (*pszPos) {
+        PCSZ pszStart;
+        size_t cbTokLen;
+        PSZ pszUnescaped;
 
-        while (*p && (*p == ' ' || *p == '\t' ||
-                      *p == '\n' || *p == '\r'))
-            p++;
-        if (!*p) break;
-        start = p;
-        while (*p && *p != ' ' && *p != '\t' &&
-               *p != '\n' && *p != '\r')
-            p++;
-        tok_len = (size_t)(p - start);
+        while (*pszPos && (*pszPos == ' ' || *pszPos == '\t' ||
+                           *pszPos == '\n' || *pszPos == '\r'))
+            pszPos++;
+        if (!*pszPos) break;
+        pszStart = pszPos;
+        while (*pszPos && *pszPos != ' ' && *pszPos != '\t' &&
+               *pszPos != '\n' && *pszPos != '\r')
+            pszPos++;
+        cbTokLen = (size_t)(pszPos - pszStart);
 
-        if (unescape_pattern(start, tok_len, &unescaped) != 0) {
-            ULONG k;
-            for (k = 0; k < n; k++) free(paPatterns[k]);
-            free(paPatterns);
+        if (unescape_pattern(pszStart, cbTokLen, &pszUnescaped) != 0) {
+            ULONG ulK;
+            for (ulK = 0; ulK < ulCount; ulK++) free(papszPatterns[ulK]);
+            free(papszPatterns);
             return -1;
         }
-        if (n >= cap) {
-            char **na;
-            cap *= 2;
-            na = (char**)realloc(paPatterns, cap * sizeof(char*));
-            if (!na) { free(unescaped); goto fail; }
-            paPatterns = na;
+        if (ulCount >= ulCap) {
+            PSZ *papszNew;
+            ulCap *= 2;
+            papszNew = (PSZ*)realloc(papszPatterns, ulCap * sizeof(PSZ));
+            if (!papszNew) { free(pszUnescaped); goto fail; }
+            papszPatterns = papszNew;
         }
-        paPatterns[n++] = unescaped;
+        papszPatterns[ulCount++] = pszUnescaped;
     }
 
-    *ppaOut = paPatterns;
-    *pulCount = n;
+    *ppapszOut = papszPatterns;
+    *pulCount = ulCount;
     return 0;
 
 fail:
     {
-        ULONG k;
-        for (k = 0; k < n; k++) free(paPatterns[k]);
-        free(paPatterns);
+        ULONG ulK;
+        for (ulK = 0; ulK < ulCount; ulK++) free(papszPatterns[ulK]);
+        free(papszPatterns);
     }
     return -1;
 }
@@ -357,31 +387,32 @@ fail:
 
 static int split_license(PSZ pszValue, PSZ *ppszShortName,
                          PSZ *ppszBody) {
-    const char *p = pszValue;
-    const char *eol;
+    PCSZ pszPos = pszValue;
+    PCSZ pszEol;
 
     *ppszShortName = NULL;
     *ppszBody = NULL;
 
-    if (!p) return -1;
-    eol = strchr(p, '\n');
-    if (!eol) {
-        *ppszShortName = dup_str(p);
+    if (!pszPos) return -1;
+    pszEol = strchr(pszPos, '\n');
+    if (!pszEol) {
+        *ppszShortName = dup_str(pszPos);
         return (*ppszShortName) ? 0 : -1;
     }
 
     {
-        size_t slen = (size_t)(eol - p);
-        while (slen > 0 && (p[slen-1] == ' ' || p[slen-1] == '\t'))
-            slen--;
-        *ppszShortName = dup_n(p, slen);
+        size_t cbShortLen = (size_t)(pszEol - pszPos);
+        while (cbShortLen > 0 && (pszPos[cbShortLen-1] == ' ' ||
+                                  pszPos[cbShortLen-1] == '\t'))
+            cbShortLen--;
+        *ppszShortName = dup_n(pszPos, cbShortLen);
         if (!*ppszShortName) return -1;
     }
-    if (eol[1] == '\0') {
+    if (pszEol[1] == '\0') {
         /* No body. */
         return 0;
     }
-    *ppszBody = dup_str(eol + 1);
+    *ppszBody = dup_str(pszEol + 1);
     if (!*ppszBody) {
         free(*ppszShortName);
         *ppszShortName = NULL;
@@ -396,23 +427,24 @@ static int split_license(PSZ pszValue, PSZ *ppszShortName,
 
 /* Return 1 if the License field's synopsis (first line) matches
  * pszName case-insensitively. */
-static int license_shortname_is(PDEP5FIELD pf, const char *pszName) {
-    const char *value;
-    const char *eol;
-    size_t syn_len;
-    size_t name_len;
+static int license_shortname_is(PDEP5FIELD pField, PCSZ pszName) {
+    PCSZ pszValue;
+    PCSZ pszEol;
+    size_t cbSynLen;
+    size_t cbNameLen;
     size_t i;
-    if (!pf || !pf->pszValue) return 0;
-    value = pf->pszValue;
-    eol = strchr(value, '\n');
-    syn_len = eol ? (size_t)(eol - value) : strlen(value);
-    while (syn_len > 0 && (value[syn_len-1] == ' ' || value[syn_len-1] == '\t'))
-        syn_len--;
-    name_len = strlen(pszName);
-    if (name_len != syn_len) return 0;
-    for (i = 0; i < syn_len; i++) {
-        if (tolower((unsigned char)value[i]) !=
-            tolower((unsigned char)pszName[i]))
+    if (!pField || !pField->pszValue) return 0;
+    pszValue = pField->pszValue;
+    pszEol = strchr(pszValue, '\n');
+    cbSynLen = pszEol ? (size_t)(pszEol - pszValue) : strlen(pszValue);
+    while (cbSynLen > 0 && (pszValue[cbSynLen-1] == ' ' ||
+                            pszValue[cbSynLen-1] == '\t'))
+        cbSynLen--;
+    cbNameLen = strlen(pszName);
+    if (cbNameLen != cbSynLen) return 0;
+    for (i = 0; i < cbSynLen; i++) {
+        if (tolower((UCHAR)pszValue[i]) !=
+            tolower((UCHAR)pszName[i]))
             return 0;
     }
     return 1;
@@ -420,54 +452,54 @@ static int license_shortname_is(PDEP5FIELD pf, const char *pszName) {
 
 /* Return 1 if the License field has a body (any content after the
  * first newline). */
-static int license_has_body(PDEP5FIELD pf) {
-    const char *eol;
-    if (!pf || !pf->pszValue) return 0;
-    eol = strchr(pf->pszValue, '\n');
-    if (!eol) return 0;
-    return eol[1] != '\0';
+static int license_has_body(PDEP5FIELD pField) {
+    PCSZ pszEol;
+    if (!pField || !pField->pszValue) return 0;
+    pszEol = strchr(pField->pszValue, '\n');
+    if (!pszEol) return 0;
+    return pszEol[1] != '\0';
 }
 
 /* ==================================================================
  * Stanza classification and validation
  * ================================================================== */
 
-static ULONG classify_stanza(PDEP5STANZA ps, int is_first)
+static ULONG classify_stanza(PDEP5STANZA pStanza, int fIsFirst)
 {
-    if (is_first) return DEP5_STANZA_HEADER;
-    if (stanza_find_field(ps, "Files")) return DEP5_STANZA_FILES;
-    if (stanza_find_field(ps, "License")) return DEP5_STANZA_LICENSE;
+    if (fIsFirst) return DEP5_STANZA_HEADER;
+    if (stanza_find_field(pStanza, "Files")) return DEP5_STANZA_FILES;
+    if (stanza_find_field(pStanza, "License")) return DEP5_STANZA_LICENSE;
     return 0;
 }
 
-static int validate_header(PDEP5STANZA ps) {
-    PDEP5FIELD pf = stanza_find_field(ps, "Format");
-    if (!pf || !pf->pszValue || !pf->pszValue[0]) return -1;
-    if (!format_is_valid(pf->pszValue)) return -1;
+static int validate_header(PDEP5STANZA pStanza) {
+    PDEP5FIELD pField = stanza_find_field(pStanza, "Format");
+    if (!pField || !pField->pszValue || !pField->pszValue[0]) return -1;
+    if (!format_is_valid(pField->pszValue)) return -1;
     return 0;
 }
 
-static int validate_files(PDEP5STANZA ps) {
-    PDEP5FIELD pf;
-    pf = stanza_find_field(ps, "Files");
-    if (!pf || !pf->pszValue || !pf->pszValue[0]) return -1;
-    pf = stanza_find_field(ps, "Copyright");
-    if (!pf || !pf->pszValue || !pf->pszValue[0]) return -1;
-    pf = stanza_find_field(ps, "License");
-    if (!pf || !pf->pszValue || !pf->pszValue[0]) return -1;
+static int validate_files(PDEP5STANZA pStanza) {
+    PDEP5FIELD pField;
+    pField = stanza_find_field(pStanza, "Files");
+    if (!pField || !pField->pszValue || !pField->pszValue[0]) return -1;
+    pField = stanza_find_field(pStanza, "Copyright");
+    if (!pField || !pField->pszValue || !pField->pszValue[0]) return -1;
+    pField = stanza_find_field(pStanza, "License");
+    if (!pField || !pField->pszValue || !pField->pszValue[0]) return -1;
     /* DEP5 §7.1.1: public-domain requires body. */
-    if (license_shortname_is(pf, "public-domain") &&
-        !license_has_body(pf))
+    if (license_shortname_is(pField, "public-domain") &&
+        !license_has_body(pField))
         return -1;
     return 0;
 }
 
-static int validate_license(PDEP5STANZA ps) {
-    PDEP5FIELD pf = stanza_find_field(ps, "License");
-    if (!pf || !pf->pszValue || !pf->pszValue[0]) return -1;
+static int validate_license(PDEP5STANZA pStanza) {
+    PDEP5FIELD pField = stanza_find_field(pStanza, "License");
+    if (!pField || !pField->pszValue || !pField->pszValue[0]) return -1;
     /* DEP5 §7.1.1: public-domain requires body. */
-    if (license_shortname_is(pf, "public-domain") &&
-        !license_has_body(pf))
+    if (license_shortname_is(pField, "public-domain") &&
+        !license_has_body(pField))
         return -1;
     return 0;
 }
@@ -484,249 +516,263 @@ static int validate_license(PDEP5STANZA ps) {
  * continuation line is stripped; the rest is content.
  * ================================================================== */
 
-static int parse_document(PCSZ pszText, PDEP5DOC *ppDoc, PCSZ *ppszError) {
-    PDEP5DOC pd;
-    PDEP5STANZA current = NULL;
-    PDEP5FIELD current_field = NULL;
+static APIRET parse_document(PCSZ pszText, PDEP5DOC *ppDoc,
+                             PCSZ *ppszError) {
+    PDEP5DOC pDoc;
+    PDEP5STANZA pCurrent = NULL;
+    PDEP5FIELD pCurrentField = NULL;
     SBUF value_buf;
-    int have_field = 0;
-    const char *p = pszText;
-    int rc = DEP5_NO_ERROR;
+    int fHaveField = 0;
+    PCSZ pszPos = pszText;
+    APIRET rc = NO_ERROR;
 
-    pd = (PDEP5DOC)calloc(1, sizeof(DEP5DOC));
-    if (!pd) return DEP5_ERROR_OUT_OF_MEMORY;
-    pd->ulHeaderIndex = DEP5_NO_HEADER;
+    pDoc = (PDEP5DOC)calloc(1, sizeof(DEP5DOC));
+    if (!pDoc) return ERROR_NOT_ENOUGH_MEMORY;
+    pDoc->ulHeaderIndex = DEP5_NO_HEADER;
 
     if (sbuf_init(&value_buf) != 0) {
-        free(pd);
-        return DEP5_ERROR_OUT_OF_MEMORY;
+        free(pDoc);
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     /* Skip UTF-8 BOM. */
-    if ((unsigned char)p[0] == 0xEF &&
-        (unsigned char)p[1] == 0xBB &&
-        (unsigned char)p[2] == 0xBF) p += 3;
+    if ((UCHAR)pszPos[0] == 0xEF &&
+        (UCHAR)pszPos[1] == 0xBB &&
+        (UCHAR)pszPos[2] == 0xBF) pszPos += 3;
 
     for (;;) {
-        const char *line_start = p;
-        const char *line_end;
-        size_t line_len;
-        int blank, comment, continuation;
+        PCSZ pszLineStart = pszPos;
+        PCSZ pszLineEnd;
+        size_t cbLineLen;
+        int fBlank, fComment, fContinuation;
 
         /* Find end of the current line. */
-        while (*p && *p != '\n') p++;
-        line_end = p;
-        line_len = (size_t)(line_end - line_start);
+        while (*pszPos && *pszPos != '\n') pszPos++;
+        pszLineEnd = pszPos;
+        cbLineLen = (size_t)(pszLineEnd - pszLineStart);
 
         /* Strip trailing CR (CRLF handling). */
-        if (line_len > 0 && line_start[line_len-1] == '\r')
-            line_len--;
+        if (cbLineLen > 0 && pszLineStart[cbLineLen-1] == '\r')
+            cbLineLen--;
 
         /* Classify the line. */
-        blank = 1;
+        fBlank = 1;
         {
             size_t i;
-            for (i = 0; i < line_len; i++) {
-                if (line_start[i] != ' ' && line_start[i] != '\t') {
-                    blank = 0;
+            for (i = 0; i < cbLineLen; i++) {
+                if (pszLineStart[i] != ' ' && pszLineStart[i] != '\t') {
+                    fBlank = 0;
                     break;
                 }
             }
         }
-        comment = (!blank && line_start[0] == '#');
-        continuation = (!blank && !comment &&
-                        (line_start[0] == ' ' || line_start[0] == '\t'));
+        fComment = (!fBlank && pszLineStart[0] == '#');
+        fContinuation = (!fBlank && !fComment &&
+                         (pszLineStart[0] == ' ' ||
+                          pszLineStart[0] == '\t'));
 
-        if (blank) {
+        if (fBlank) {
             /* End of current field and stanza. */
-            if (have_field) {
-                if (current_field && current) {
+            if (fHaveField) {
+                if (pCurrentField && pCurrent) {
                     if (normalize_field_value(&value_buf) != 0) {
-                        rc = DEP5_ERROR_OUT_OF_MEMORY;
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto fail;
                     }
-                    current_field->pszValue = dup_str(value_buf.pbuf);
-                    if (!current_field->pszValue) {
-                        rc = DEP5_ERROR_OUT_OF_MEMORY;
+                    pCurrentField->pszValue = dup_str(value_buf.pszBuf);
+                    if (!pCurrentField->pszValue) {
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto fail;
                     }
                 }
-                have_field = 0;
-                current_field = NULL;
-                value_buf.len = 0;
-                if (value_buf.pbuf) value_buf.pbuf[0] = '\0';
+                fHaveField = 0;
+                pCurrentField = NULL;
+                value_buf.cbLen = 0;
+                if (value_buf.pszBuf) value_buf.pszBuf[0] = '\0';
             }
-            if (current) {
-                current = NULL;
+            if (pCurrent) {
+                pCurrent = NULL;
             }
-        } else if (comment) {
+        } else if (fComment) {
             /* Ignore. */
-        } else if (continuation && current_field) {
+        } else if (fContinuation && pCurrentField) {
             /* Continuation: strip exactly one leading space. */
-            const char *content = line_start;
-            size_t content_len = line_len;
-            if (content_len > 0 && (content[0] == ' ' || content[0] == '\t')) {
-                content++;
-                content_len--;
+            PCSZ pszContent = pszLineStart;
+            size_t cbContentLen = cbLineLen;
+            if (cbContentLen > 0 && (pszContent[0] == ' ' ||
+                                     pszContent[0] == '\t')) {
+                pszContent++;
+                cbContentLen--;
             }
-            if (value_buf.len > 0) {
+            if (value_buf.cbLen > 0) {
                 if (sbuf_putc(&value_buf, '\n') != 0) {
-                    rc = DEP5_ERROR_OUT_OF_MEMORY;
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto fail;
                 }
             }
-            if (content_len > 0) {
-                if (sbuf_put(&value_buf, content, content_len) != 0) {
-                    rc = DEP5_ERROR_OUT_OF_MEMORY;
+            if (cbContentLen > 0) {
+                if (sbuf_put(&value_buf, pszContent,
+                             cbContentLen) != 0) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto fail;
                 }
             }
-        } else if (continuation && !current_field) {
+        } else if (fContinuation && !pCurrentField) {
             /* Continuation without a preceding field: syntax error. */
             rc = DEP5_ERROR_INVALID_SYNTAX;
             if (ppszError) *ppszError = "continuation line without a field";
             goto fail;
         } else {
             /* Start of a new field. */
-            const char *colon = NULL;
+            PCSZ pszColon = NULL;
             size_t i;
-            PDEP5FIELD pf;
+            PDEP5FIELD pField;
 
-            for (i = 0; i < line_len; i++) {
-                if (line_start[i] == ':') { colon = line_start + i; break; }
+            for (i = 0; i < cbLineLen; i++) {
+                if (pszLineStart[i] == ':') {
+                    pszColon = pszLineStart + i;
+                    break;
+                }
             }
-            if (!colon) {
+            if (!pszColon) {
                 rc = DEP5_ERROR_INVALID_SYNTAX;
                 if (ppszError) *ppszError = "field line without colon";
                 goto fail;
             }
 
             /* Close previous field. */
-            if (have_field && current_field && current) {
+            if (fHaveField && pCurrentField && pCurrent) {
                 if (normalize_field_value(&value_buf) != 0) {
-                    rc = DEP5_ERROR_OUT_OF_MEMORY;
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto fail;
                 }
-                current_field->pszValue = dup_str(value_buf.pbuf);
-                if (!current_field->pszValue) {
-                    rc = DEP5_ERROR_OUT_OF_MEMORY;
+                pCurrentField->pszValue = dup_str(value_buf.pszBuf);
+                if (!pCurrentField->pszValue) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto fail;
                 }
             }
-            value_buf.len = 0;
-            if (value_buf.pbuf) value_buf.pbuf[0] = '\0';
+            value_buf.cbLen = 0;
+            if (value_buf.pszBuf) value_buf.pszBuf[0] = '\0';
 
             /* Start a new stanza if needed. */
-            if (!current) {
-                current = doc_add_stanza(pd);
-                if (!current) {
-                    rc = DEP5_ERROR_OUT_OF_MEMORY;
+            if (!pCurrent) {
+                pCurrent = doc_add_stanza(pDoc);
+                if (!pCurrent) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto fail;
                 }
             }
 
             /* Extract and validate the field name. */
             {
-                size_t name_len = (size_t)(colon - line_start);
-                ULONG k;
-                int dup = 0;
-                while (name_len > 0 &&
-                       (line_start[name_len-1] == ' ' ||
-                        line_start[name_len-1] == '\t'))
-                    name_len--;
-                if (name_len == 0) {
+                size_t cbNameLen = (size_t)(pszColon - pszLineStart);
+                ULONG ulK;
+                int fDup = 0;
+                while (cbNameLen > 0 &&
+                       (pszLineStart[cbNameLen-1] == ' ' ||
+                        pszLineStart[cbNameLen-1] == '\t'))
+                    cbNameLen--;
+                if (cbNameLen == 0) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError) *ppszError = "empty field name";
                     goto fail;
                 }
                 /* Duplicate check (case-insensitive). */
-                for (k = 0; k < current->ulCount; k++) {
-                    if (strlen(current->paFields[k].pszName) == name_len &&
-                        strncasecmp(current->paFields[k].pszName,
-                                    line_start, name_len) == 0) {
-                        dup = 1; break;
+                for (ulK = 0; ulK < pCurrent->ulCount; ulK++) {
+                    if (strlen(pCurrent->paFields[ulK].pszName) == cbNameLen &&
+                        strncasecmp(pCurrent->paFields[ulK].pszName,
+                                    pszLineStart, cbNameLen) == 0) {
+                        fDup = 1; break;
                     }
                 }
-                if (dup) {
+                if (fDup) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError)
                         *ppszError = "duplicate field name in stanza";
                     goto fail;
                 }
-                pf = stanza_add_field(current);
-                if (!pf) { rc = DEP5_ERROR_OUT_OF_MEMORY; goto fail; }
-                pf->pszName = dup_n(line_start, name_len);
-                if (!pf->pszName) { rc = DEP5_ERROR_OUT_OF_MEMORY; goto fail; }
+                pField = stanza_add_field(pCurrent);
+                if (!pField) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
+                    goto fail;
+                }
+                pField->pszName = dup_n(pszLineStart, cbNameLen);
+                if (!pField->pszName) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
+                    goto fail;
+                }
             }
 
             /* Value: everything after colon, with leading whitespace
              * of the first line stripped. */
             {
-                const char *val_start = colon + 1;
-                size_t val_len;
-                while (*val_start == ' ' || *val_start == '\t') val_start++;
-                val_len = (size_t)((line_start + line_len) - val_start);
-                if (val_len > 0) {
-                    if (sbuf_put(&value_buf, val_start, val_len) != 0) {
-                        rc = DEP5_ERROR_OUT_OF_MEMORY;
+                PCSZ pszValStart = pszColon + 1;
+                size_t cbValLen;
+                while (*pszValStart == ' ' || *pszValStart == '\t')
+                    pszValStart++;
+                cbValLen = (size_t)((pszLineStart + cbLineLen) - pszValStart);
+                if (cbValLen > 0) {
+                    if (sbuf_put(&value_buf, pszValStart, cbValLen) != 0) {
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto fail;
                     }
                 }
             }
 
-            current_field = pf;
-            have_field = 1;
+            pCurrentField = pField;
+            fHaveField = 1;
         }
 
-        if (*p != '\n') break;
-        p++;
+        if (*pszPos != '\n') break;
+        pszPos++;
     }
 
     /* Close trailing field. */
-    if (have_field && current_field && current) {
+    if (fHaveField && pCurrentField && pCurrent) {
         if (normalize_field_value(&value_buf) != 0) {
-            rc = DEP5_ERROR_OUT_OF_MEMORY;
+            rc = ERROR_NOT_ENOUGH_MEMORY;
             goto fail;
         }
-        current_field->pszValue = dup_str(value_buf.pbuf);
-        if (!current_field->pszValue) {
-            rc = DEP5_ERROR_OUT_OF_MEMORY;
+        pCurrentField->pszValue = dup_str(value_buf.pszBuf);
+        if (!pCurrentField->pszValue) {
+            rc = ERROR_NOT_ENOUGH_MEMORY;
             goto fail;
         }
     }
 
     /* Classify and validate stanzas. */
     {
-        ULONG i;
-        if (pd->ulCount == 0) {
+        ULONG ulIdx;
+        if (pDoc->ulCount == 0) {
             rc = DEP5_ERROR_INVALID_SYNTAX;
             if (ppszError) *ppszError = "file has no stanzas";
             goto fail;
         }
-        for (i = 0; i < pd->ulCount; i++) {
-            PDEP5STANZA ps = &pd->paStanzas[i];
-            ULONG kind = classify_stanza(ps, i == 0);
-            if (kind == 0) {
+        for (ulIdx = 0; ulIdx < pDoc->ulCount; ulIdx++) {
+            PDEP5STANZA pStanza = &pDoc->paStanzas[ulIdx];
+            ULONG ulKind = classify_stanza(pStanza, ulIdx == 0);
+            if (ulKind == 0) {
                 rc = DEP5_ERROR_INVALID_SYNTAX;
                 if (ppszError) *ppszError = "unrecognized stanza";
                 goto fail;
             }
-            ps->ulKind = kind;
-            if (kind == DEP5_STANZA_HEADER) {
-                if (pd->ulHeaderIndex != DEP5_NO_HEADER) {
+            pStanza->ulKind = ulKind;
+            if (ulKind == DEP5_STANZA_HEADER) {
+                if (pDoc->ulHeaderIndex != DEP5_NO_HEADER) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError) *ppszError = "multiple header stanzas";
                     goto fail;
                 }
-                if (validate_header(ps) != 0) {
+                if (validate_header(pStanza) != 0) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError)
                         *ppszError = "invalid header (Format missing or bad)";
                     goto fail;
                 }
-                pd->ulHeaderIndex = i;
-            } else if (kind == DEP5_STANZA_FILES) {
-                if (validate_files(ps) != 0) {
+                pDoc->ulHeaderIndex = ulIdx;
+            } else if (ulKind == DEP5_STANZA_FILES) {
+                if (validate_files(pStanza) != 0) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError)
                         *ppszError = "Files stanza missing "
@@ -734,24 +780,24 @@ static int parse_document(PCSZ pszText, PDEP5DOC *ppDoc, PCSZ *ppszError) {
                                      "or public-domain without body";
                     goto fail;
                 }
-                pd->ulFilesCount++;
-            } else if (kind == DEP5_STANZA_LICENSE) {
-                if (validate_license(ps) != 0) {
+                pDoc->ulFilesCount++;
+            } else if (ulKind == DEP5_STANZA_LICENSE) {
+                if (validate_license(pStanza) != 0) {
                     rc = DEP5_ERROR_INVALID_SYNTAX;
                     if (ppszError)
                         *ppszError = "License stanza missing License "
                                      "or public-domain without body";
                     goto fail;
                 }
-                pd->ulLicenseCount++;
+                pDoc->ulLicenseCount++;
             }
         }
-        if (pd->ulHeaderIndex == DEP5_NO_HEADER) {
+        if (pDoc->ulHeaderIndex == DEP5_NO_HEADER) {
             rc = DEP5_ERROR_INVALID_SYNTAX;
             if (ppszError) *ppszError = "missing header stanza";
             goto fail;
         }
-        if (pd->ulFilesCount == 0) {
+        if (pDoc->ulFilesCount == 0) {
             rc = DEP5_ERROR_INVALID_SYNTAX;
             if (ppszError) *ppszError = "no Files stanzas";
             goto fail;
@@ -759,12 +805,12 @@ static int parse_document(PCSZ pszText, PDEP5DOC *ppDoc, PCSZ *ppszError) {
     }
 
     sbuf_free(&value_buf);
-    *ppDoc = pd;
-    return DEP5_NO_ERROR;
+    *ppDoc = pDoc;
+    return NO_ERROR;
 
 fail:
     sbuf_free(&value_buf);
-    doc_free(pd);
+    doc_free(pDoc);
     return rc;
 }
 
@@ -775,18 +821,19 @@ fail:
 PDEP5DOC Dep5InternalGetDoc(HDEP5DOC hDoc) { return (PDEP5DOC)hDoc; }
 PDEP5FIND Dep5InternalGetFind(HDEP5FIND hFind) { return (PDEP5FIND)hFind; }
 
-static ULONG doc_find_first_index(PDEP5DOC pd, ULONG ulKind) {
-    ULONG i;
-    for (i = 0; i < pd->ulCount; i++) {
-        if (pd->paStanzas[i].ulKind == ulKind) return i;
+static ULONG doc_find_first_index(PDEP5DOC pDoc, ULONG ulKind) {
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < pDoc->ulCount; ulIdx++) {
+        if (pDoc->paStanzas[ulIdx].ulKind == ulKind) return ulIdx;
     }
     return DEP5_NO_HEADER;
 }
 
-static ULONG doc_find_next_index(PDEP5DOC pd, ULONG ulKind, ULONG ulFrom) {
-    ULONG i;
-    for (i = ulFrom + 1; i < pd->ulCount; i++) {
-        if (pd->paStanzas[i].ulKind == ulKind) return i;
+static ULONG doc_find_next_index(PDEP5DOC pDoc, ULONG ulKind,
+                                 ULONG ulFrom) {
+    ULONG ulIdx;
+    for (ulIdx = ulFrom + 1; ulIdx < pDoc->ulCount; ulIdx++) {
+        if (pDoc->paStanzas[ulIdx].ulKind == ulKind) return ulIdx;
     }
     return DEP5_NO_HEADER;
 }
@@ -798,174 +845,124 @@ static ULONG doc_find_next_index(PDEP5DOC pd, ULONG ulKind, ULONG ulFrom) {
 /**
  * @brief Open and parse a debian/copyright file.
  *
- * Reads the file, splits it into stanzas, classifies each stanza, and
- * returns a document handle. All internal buffers are owned by the
- * module and released by Dep5Close.
- *
  * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[out] phDoc    Handle receiver. Not NULL. Set to NULLHANDLE on
- *                      error.
+ * @param[out] phDoc    Handle receiver. Not NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR             Success.
- * @retval DEP5_ERROR_INVALID_PARAM  pszPath or phDoc is NULL.
- * @retval DEP5_ERROR_OPEN_FAILED    File cannot be opened.
- * @retval DEP5_ERROR_READ_FAILED    Read error.
- * @retval DEP5_ERROR_INVALID_SYNTAX Stanza structure is invalid
- *                                   (missing header, missing required
- *                                   fields, unknown stanza kind).
- * @retval DEP5_ERROR_OUT_OF_MEMORY  Memory allocation failure.
- *
- * @note Ownership of the handle transfers to the caller. It must be
- *       released with Dep5Close.
- * @see Dep5Close
  */
 APIRET APIENTRY Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc) {
-    char *text = NULL;
-    PDEP5DOC pd = NULL;
+    PSZ pszText = NULL;
+    PDEP5DOC pDoc = NULL;
     PCSZ pszError = NULL;
     APIRET rc;
 
-    if (!pszPath || !phDoc) return DEP5_ERROR_INVALID_PARAM;
+    if (!pszPath || !phDoc) return ERROR_INVALID_PARAMETER;
     *phDoc = NULLHANDLE;
 
-    if (read_file_all(pszPath, &text) != 0)
-        return DEP5_ERROR_OPEN_FAILED;
+    if (read_file_all(pszPath, &pszText) != 0)
+        return ERROR_OPEN_FAILED;
 
-    rc = parse_document(text, &pd, &pszError);
-    free(text);
-    if (rc != DEP5_NO_ERROR) return rc;
+    rc = parse_document(pszText, &pDoc, &pszError);
+    free(pszText);
+    if (rc != NO_ERROR) return rc;
 
-    *phDoc = (HDEP5DOC)pd;
-    return DEP5_NO_ERROR;
+    *phDoc = (HDEP5DOC)pDoc;
+    return NO_ERROR;
 }
 
 /**
  * @brief Close a document.
  *
- * Releases all internal buffers, including any active Files and
- * License cursors created from this document. After return the handle
- * is invalid.
- *
- * @param[in] hDoc  Document handle. NULLHANDLE is accepted and treated
- *                  as a no-op.
+ * @param[in] hDoc  Document handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR             Success. Also returned for
- *                                   NULLHANDLE.
- * @retval DEP5_ERROR_INVALID_HANDLE Handle is not recognized.
- *
- * @warning Calling Dep5Close twice with the same handle is undefined.
- *          The caller should set the handle to NULLHANDLE after close.
- * @see Dep5Open
  */
 APIRET APIENTRY Dep5Close(HDEP5DOC hDoc) {
-    PDEP5DOC pd;
-    if (hDoc == NULLHANDLE) return DEP5_NO_ERROR;
-    pd = Dep5InternalGetDoc(hDoc);
-    if (!pd) return DEP5_ERROR_INVALID_HANDLE;
-    doc_free(pd);
-    return DEP5_NO_ERROR;
+    PDEP5DOC pDoc;
+    if (hDoc == NULLHANDLE) return NO_ERROR;
+    pDoc = Dep5InternalGetDoc(hDoc);
+    if (!pDoc) return ERROR_INVALID_HANDLE;
+    doc_free(pDoc);
+    return NO_ERROR;
 }
-
-/* ------------------------------------------------------------------
- * Header field access
- * ------------------------------------------------------------------ */
 
 /**
  * @brief Retrieve a field value from the header stanza.
  *
- * Supported fields (case-insensitive):
- *   "Format", "Upstream-Name", "Upstream-Contact", "Source",
- *   "Disclaimer", "Comment", "License", "Copyright".
- * Extra fields present in the source are also accessible by their
- * exact name.
- *
- * If the field is multi-line, its lines are joined with '\n'.
- * Whitespace-separated-list and line-based-list fields are returned
- * verbatim (list splitting is the caller's responsibility).
- *
- * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
- *
  * @param[in]  hDoc       Handle. Not NULLHANDLE.
- * @param[in]  pszField   Field name. Not NULL, not empty.
+ * @param[in]  pszField   Field name. Not NULL.
  * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   Any parameter is NULL or field
- *                                    name empty.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NOT_FOUND       Field not present in the header.
- * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY Dep5HeaderGetField(HDEP5DOC hDoc, PCSZ pszField,
                                    PSZ pszBuffer, ULONG ulBufSize,
                                    PULONG pulSize) {
-    PDEP5DOC pd = Dep5InternalGetDoc(hDoc);
-    PDEP5STANZA ps;
-    PDEP5FIELD pf;
-    size_t n;
+    PDEP5DOC pDoc = Dep5InternalGetDoc(hDoc);
+    PDEP5STANZA pStanza;
+    PDEP5FIELD pField;
+    size_t cbLen;
 
-    if (!pd || !pszField || !pszField[0]) return DEP5_ERROR_INVALID_PARAM;
-    if (pd->ulHeaderIndex == DEP5_NO_HEADER) return DEP5_ERROR_NOT_FOUND;
-    ps = &pd->paStanzas[pd->ulHeaderIndex];
-    pf = stanza_find_field(ps, pszField);
-    if (!pf || !pf->pszValue) return DEP5_ERROR_NOT_FOUND;
+    if (!pDoc || !pszField || !pszField[0]) return ERROR_INVALID_PARAMETER;
+    if (pDoc->ulHeaderIndex == DEP5_NO_HEADER) return ERROR_FILE_NOT_FOUND;
+    pStanza = &pDoc->paStanzas[pDoc->ulHeaderIndex];
+    pField = stanza_find_field(pStanza, pszField);
+    if (!pField || !pField->pszValue) return ERROR_FILE_NOT_FOUND;
 
-    n = strlen(pf->pszValue);
+    cbLen = strlen(pField->pszValue);
     if (pszBuffer == NULL && ulBufSize == 0) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_NO_ERROR;
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, pf->pszValue, n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return DEP5_NO_ERROR;
+    memcpy(pszBuffer, pField->pszValue, cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /* ------------------------------------------------------------------
  * Files stanza enumeration
  * ------------------------------------------------------------------ */
 
-static void find_free_cache(PDEP5FIND pf) {
-    ULONG i;
-    if (!pf) return;
-    for (i = 0; i < pf->ulPatternCount; i++) free(pf->paPatterns[i]);
-    free(pf->paPatterns);      pf->paPatterns = NULL;
-    pf->ulPatternCount = 0;
-    free(pf->pszShortName);    pf->pszShortName = NULL;
-    free(pf->pszLicenseText);  pf->pszLicenseText = NULL;
+static void find_free_cache(PDEP5FIND pFind) {
+    ULONG ulIdx;
+    if (!pFind) return;
+    for (ulIdx = 0; ulIdx < pFind->ulPatternCount; ulIdx++)
+        free(pFind->paPatterns[ulIdx]);
+    free(pFind->paPatterns);      pFind->paPatterns = NULL;
+    pFind->ulPatternCount = 0;
+    free(pFind->pszShortName);    pFind->pszShortName = NULL;
+    free(pFind->pszLicenseText);  pFind->pszLicenseText = NULL;
 }
 
-void Dep5InternalFindFreeCache(PDEP5FIND pf) { find_free_cache(pf); }
+void Dep5InternalFindFreeCache(PDEP5FIND pFind) { find_free_cache(pFind); }
 
-static int find_load_cache(PDEP5FIND pf) {
-    PDEP5STANZA ps = &pf->pDoc->paStanzas[pf->ulCurrent];
-    PDEP5FIELD pf_files, pf_license;
+static int find_load_cache(PDEP5FIND pFind) {
+    PDEP5STANZA pStanza = &pFind->pDoc->paStanzas[pFind->ulCurrent];
+    PDEP5FIELD pFieldFiles, pFieldLicense;
 
-    find_free_cache(pf);
+    find_free_cache(pFind);
 
-    if (pf->ulKind == DEP5_STANZA_FILES) {
-        pf_files = stanza_find_field(ps, "Files");
-        if (!pf_files || !pf_files->pszValue) return -1;
-        if (parse_files_patterns(pf_files->pszValue, &pf->paPatterns,
-                                 &pf->ulPatternCount) != 0)
+    if (pFind->ulKind == DEP5_STANZA_FILES) {
+        pFieldFiles = stanza_find_field(pStanza, "Files");
+        if (!pFieldFiles || !pFieldFiles->pszValue) return -1;
+        if (parse_files_patterns(pFieldFiles->pszValue, &pFind->paPatterns,
+                                 &pFind->ulPatternCount) != 0)
             return -1;
     }
 
-    pf_license = stanza_find_field(ps, "License");
-    if (pf_license && pf_license->pszValue) {
-        if (split_license(pf_license->pszValue,
-                          &pf->pszShortName,
-                          &pf->pszLicenseText) != 0)
+    pFieldLicense = stanza_find_field(pStanza, "License");
+    if (pFieldLicense && pFieldLicense->pszValue) {
+        if (split_license(pFieldLicense->pszValue,
+                          &pFind->pszShortName,
+                          &pFind->pszLicenseText) != 0)
             return -1;
     }
     return 0;
@@ -974,49 +971,40 @@ static int find_load_cache(PDEP5FIND pf) {
 /**
  * @brief Start enumerating Files stanzas.
  *
- * Creates a cursor and positions it on the first Files stanza. The
- * total number of Files stanzas is returned in *pulCount.
- *
- * @param[in]  hDoc     Handle. Not NULLHANDLE.
- * @param[out] phFind   Cursor receiver. Not NULL. Set to NULLHANDLE on
- *                      error or if the document has no Files stanzas.
- * @param[out] pulCount Optional. May be NULL.
+ * @param[in]  hDoc      Handle. Not NULLHANDLE.
+ * @param[out] phFind    Cursor receiver. Not NULL.
+ * @param[out] pulCount  Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   hDoc or phFind is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NO_MORE_ENTRIES Document has no Files stanzas.
- * @retval DEP5_ERROR_OUT_OF_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
                                    PULONG pulCount) {
-    PDEP5DOC pd = Dep5InternalGetDoc(hDoc);
-    PDEP5FIND pf;
-    ULONG idx;
+    PDEP5DOC pDoc = Dep5InternalGetDoc(hDoc);
+    PDEP5FIND pFind;
+    ULONG ulIdx;
 
-    if (!pd || !phFind) return DEP5_ERROR_INVALID_PARAM;
+    if (!pDoc || !phFind) return ERROR_INVALID_PARAMETER;
     *phFind = NULLHANDLE;
 
-    idx = doc_find_first_index(pd, DEP5_STANZA_FILES);
-    if (idx == DEP5_NO_HEADER) return DEP5_ERROR_NO_MORE_ENTRIES;
+    ulIdx = doc_find_first_index(pDoc, DEP5_STANZA_FILES);
+    if (ulIdx == DEP5_NO_HEADER) return ERROR_NO_MORE_ITEMS;
 
-    pf = (PDEP5FIND)calloc(1, sizeof(DEP5FIND));
-    if (!pf) return DEP5_ERROR_OUT_OF_MEMORY;
-    pf->pDoc = pd;
-    pf->ulKind = DEP5_STANZA_FILES;
-    pf->ulCurrent = idx;
-    pf->ulSeen = 1;
+    pFind = (PDEP5FIND)calloc(1, sizeof(DEP5FIND));
+    if (!pFind) return ERROR_NOT_ENOUGH_MEMORY;
+    pFind->pDoc = pDoc;
+    pFind->ulKind = DEP5_STANZA_FILES;
+    pFind->ulCurrent = ulIdx;
+    pFind->ulSeen = 1;
 
-    if (find_load_cache(pf) != 0) {
-        find_free_cache(pf);
-        free(pf);
-        return DEP5_ERROR_OUT_OF_MEMORY;
+    if (find_load_cache(pFind) != 0) {
+        find_free_cache(pFind);
+        free(pFind);
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    if (pulCount) *pulCount = pd->ulFilesCount;
-    *phFind = (HDEP5FIND)pf;
-    return DEP5_NO_ERROR;
+    if (pulCount) *pulCount = pDoc->ulFilesCount;
+    *phFind = (HDEP5FIND)pFind;
+    return NO_ERROR;
 }
 
 /**
@@ -1025,183 +1013,147 @@ APIRET APIENTRY Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
  * @param[in] hFind  Cursor from Dep5FilesFindFirst. Not NULLHANDLE.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NO_MORE_ENTRIES No more Files stanzas.
- * @retval DEP5_ERROR_OUT_OF_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY Dep5FilesFindNext(HDEP5FIND hFind) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    ULONG idx;
-    if (!pf) return DEP5_ERROR_INVALID_HANDLE;
-    if (pf->ulKind != DEP5_STANZA_FILES) return DEP5_ERROR_INVALID_HANDLE;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    ULONG ulIdx;
+    if (!pFind) return ERROR_INVALID_HANDLE;
+    if (pFind->ulKind != DEP5_STANZA_FILES) return ERROR_INVALID_HANDLE;
 
-    idx = doc_find_next_index(pf->pDoc, DEP5_STANZA_FILES, pf->ulCurrent);
-    if (idx == DEP5_NO_HEADER) return DEP5_ERROR_NO_MORE_ENTRIES;
-    pf->ulCurrent = idx;
-    pf->ulSeen++;
-    if (find_load_cache(pf) != 0)
-        return DEP5_ERROR_OUT_OF_MEMORY;
-    return DEP5_NO_ERROR;
+    ulIdx = doc_find_next_index(pFind->pDoc, DEP5_STANZA_FILES,
+                                pFind->ulCurrent);
+    if (ulIdx == DEP5_NO_HEADER) return ERROR_NO_MORE_ITEMS;
+    pFind->ulCurrent = ulIdx;
+    pFind->ulSeen++;
+    if (find_load_cache(pFind) != 0)
+        return ERROR_NOT_ENOUGH_MEMORY;
+    return NO_ERROR;
 }
 
 /**
  * @brief Close a Files enumeration cursor.
  *
- * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
- *                   no-op.
+ * @param[in] hFind  Cursor. NULLHANDLE is accepted as a no-op.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR             Success. Also returned for
- *                                   NULLHANDLE.
- * @retval DEP5_ERROR_INVALID_HANDLE Handle is not recognized.
  */
 APIRET APIENTRY Dep5FilesFindClose(HDEP5FIND hFind) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    if (!pf) return DEP5_NO_ERROR;
-    if (pf->ulKind != DEP5_STANZA_FILES) return DEP5_ERROR_INVALID_HANDLE;
-    find_free_cache(pf);
-    free(pf);
-    return DEP5_NO_ERROR;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    if (!pFind) return NO_ERROR;
+    if (pFind->ulKind != DEP5_STANZA_FILES) return ERROR_INVALID_HANDLE;
+    find_free_cache(pFind);
+    free(pFind);
+    return NO_ERROR;
 }
-
-/* ------------------------------------------------------------------
- * Files stanza field access
- * ------------------------------------------------------------------ */
 
 /**
  * @brief Retrieve a field value from the current Files stanza.
  *
- * Supported fields (case-insensitive):
- *   "Files", "Copyright", "License", "Comment".
- * Extra fields present in the source are also accessible by their
- * exact name.
- *
- * If the field is multi-line, its lines are joined with '\n'.
- *
- * For the "License" field, only the synopsis (first line) is
- * returned. To fetch the full license text, look it up through the
- * stand-alone License stanzas.
- *
- * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
- *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
- * @param[in]  pszField   Field name. Not NULL, not empty.
+ * @param[in]  pszField   Field name. Not NULL.
  * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NOT_FOUND       Field not present in this stanza.
- * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
                                   PSZ pszBuffer, ULONG ulBufSize,
                                   PULONG pulSize) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    PDEP5STANZA ps;
-    PDEP5FIELD f;
-    size_t n;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    PDEP5STANZA pStanza;
+    PDEP5FIELD pField;
+    size_t cbLen;
 
-    if (!pf || !pszField || !pszField[0]) return DEP5_ERROR_INVALID_PARAM;
-    if (pf->ulKind != DEP5_STANZA_FILES) return DEP5_ERROR_INVALID_HANDLE;
-    ps = &pf->pDoc->paStanzas[pf->ulCurrent];
+    if (!pFind || !pszField || !pszField[0]) return ERROR_INVALID_PARAMETER;
+    if (pFind->ulKind != DEP5_STANZA_FILES) return ERROR_INVALID_HANDLE;
+    pStanza = &pFind->pDoc->paStanzas[pFind->ulCurrent];
 
     /* Special case: License — synopsis only. */
     if (strcasecmp(pszField, "License") == 0) {
-        if (!pf->pszShortName) return DEP5_ERROR_NOT_FOUND;
-        n = strlen(pf->pszShortName);
+        if (!pFind->pszShortName) return ERROR_FILE_NOT_FOUND;
+        cbLen = strlen(pFind->pszShortName);
         if (pszBuffer == NULL && ulBufSize == 0) {
-            if (pulSize) *pulSize = (ULONG)(n + 1);
-            return DEP5_NO_ERROR;
+            if (pulSize) *pulSize = (ULONG)cbLen + 1;
+            return NO_ERROR;
         }
-        if (!pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-        if (ulBufSize < n + 1) {
-            if (pulSize) *pulSize = (ULONG)(n + 1);
-            return DEP5_ERROR_BUFFER_OVERFLOW;
+        if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+        if (ulBufSize < cbLen + 1) {
+            if (pulSize) *pulSize = (ULONG)cbLen + 1;
+            return ERROR_BUFFER_OVERFLOW;
         }
-        memcpy(pszBuffer, pf->pszShortName, n);
-        pszBuffer[n] = '\0';
-        if (pulSize) *pulSize = (ULONG)n;
-        return DEP5_NO_ERROR;
+        memcpy(pszBuffer, pFind->pszShortName, cbLen);
+        pszBuffer[cbLen] = '\0';
+        if (pulSize) *pulSize = (ULONG)cbLen;
+        return NO_ERROR;
     }
 
-    f = stanza_find_field(ps, pszField);
-    if (!f || !f->pszValue) return DEP5_ERROR_NOT_FOUND;
-    n = strlen(f->pszValue);
+    pField = stanza_find_field(pStanza, pszField);
+    if (!pField || !pField->pszValue) return ERROR_FILE_NOT_FOUND;
+    cbLen = strlen(pField->pszValue);
     if (pszBuffer == NULL && ulBufSize == 0) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_NO_ERROR;
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, f->pszValue, n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return DEP5_NO_ERROR;
+    memcpy(pszBuffer, pField->pszValue, cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Number of patterns in the Files field of the current stanza.
  *
- * @param[in]  hFind    Cursor. Not NULLHANDLE.
- * @param[out] pulCount Receiver. Not NULL.
+ * @param[in]  hFind     Cursor. Not NULLHANDLE.
+ * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR             Success.
- * @retval DEP5_ERROR_INVALID_PARAM  hFind or pulCount is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE Handle is not recognized.
  */
-APIRET APIENTRY Dep5FilesGetPatternCount(HDEP5FIND hFind, PULONG pulCount) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    if (!pf || !pulCount) return DEP5_ERROR_INVALID_PARAM;
-    if (pf->ulKind != DEP5_STANZA_FILES) return DEP5_ERROR_INVALID_HANDLE;
-    *pulCount = pf->ulPatternCount;
-    return DEP5_NO_ERROR;
+APIRET APIENTRY Dep5FilesGetPatternCount(HDEP5FIND hFind,
+                                         PULONG pulCount) {
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    if (!pFind || !pulCount) return ERROR_INVALID_PARAMETER;
+    if (pFind->ulKind != DEP5_STANZA_FILES) return ERROR_INVALID_HANDLE;
+    *pulCount = pFind->ulPatternCount;
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve one pattern from the Files field by index.
  *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
- * @param[in]  ulIndex    Pattern index. Range [0, count).
+ * @param[in]  ulIndex    Pattern index.
  * @param[out] pszBuffer  Output buffer. Not NULL.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_INDEX_RANGE     Index out of range.
- * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
                                     PSZ pszBuffer, ULONG ulBufSize,
                                     PULONG pulSize) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    const char *pszPattern;
-    size_t n;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    PCSZ pszPattern;
+    size_t cbLen;
 
-    if (!pf || !pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-    if (pf->ulKind != DEP5_STANZA_FILES) return DEP5_ERROR_INVALID_HANDLE;
-    if (ulIndex >= pf->ulPatternCount) return DEP5_ERROR_NOT_FOUND;
-    pszPattern = pf->paPatterns[ulIndex];
-    n = strlen(pszPattern);
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_ERROR_BUFFER_OVERFLOW;
+    if (!pFind || !pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (pFind->ulKind != DEP5_STANZA_FILES) return ERROR_INVALID_HANDLE;
+    if (ulIndex >= pFind->ulPatternCount) return ERROR_FILE_NOT_FOUND;
+    pszPattern = pFind->paPatterns[ulIndex];
+    cbLen = strlen(pszPattern);
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, pszPattern, n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return DEP5_NO_ERROR;
+    memcpy(pszBuffer, pszPattern, cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /* ------------------------------------------------------------------
@@ -1211,47 +1163,40 @@ APIRET APIENTRY Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
 /**
  * @brief Start enumerating stand-alone License stanzas.
  *
- * @param[in]  hDoc     Handle. Not NULLHANDLE.
- * @param[out] phFind   Cursor receiver. Not NULL. Set to NULLHANDLE on
- *                      error or if the document has no License
- *                      stanzas.
- * @param[out] pulCount Optional. May be NULL.
+ * @param[in]  hDoc      Handle. Not NULLHANDLE.
+ * @param[out] phFind    Cursor receiver. Not NULL.
+ * @param[out] pulCount  Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   hDoc or phFind is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NO_MORE_ENTRIES Document has no License stanzas.
- * @retval DEP5_ERROR_OUT_OF_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
                                      PULONG pulCount) {
-    PDEP5DOC pd = Dep5InternalGetDoc(hDoc);
-    PDEP5FIND pf;
-    ULONG idx;
+    PDEP5DOC pDoc = Dep5InternalGetDoc(hDoc);
+    PDEP5FIND pFind;
+    ULONG ulIdx;
 
-    if (!pd || !phFind) return DEP5_ERROR_INVALID_PARAM;
+    if (!pDoc || !phFind) return ERROR_INVALID_PARAMETER;
     *phFind = NULLHANDLE;
 
-    idx = doc_find_first_index(pd, DEP5_STANZA_LICENSE);
-    if (idx == DEP5_NO_HEADER) return DEP5_ERROR_NO_MORE_ENTRIES;
+    ulIdx = doc_find_first_index(pDoc, DEP5_STANZA_LICENSE);
+    if (ulIdx == DEP5_NO_HEADER) return ERROR_NO_MORE_ITEMS;
 
-    pf = (PDEP5FIND)calloc(1, sizeof(DEP5FIND));
-    if (!pf) return DEP5_ERROR_OUT_OF_MEMORY;
-    pf->pDoc = pd;
-    pf->ulKind = DEP5_STANZA_LICENSE;
-    pf->ulCurrent = idx;
-    pf->ulSeen = 1;
+    pFind = (PDEP5FIND)calloc(1, sizeof(DEP5FIND));
+    if (!pFind) return ERROR_NOT_ENOUGH_MEMORY;
+    pFind->pDoc = pDoc;
+    pFind->ulKind = DEP5_STANZA_LICENSE;
+    pFind->ulCurrent = ulIdx;
+    pFind->ulSeen = 1;
 
-    if (find_load_cache(pf) != 0) {
-        find_free_cache(pf);
-        free(pf);
-        return DEP5_ERROR_OUT_OF_MEMORY;
+    if (find_load_cache(pFind) != 0) {
+        find_free_cache(pFind);
+        free(pFind);
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    if (pulCount) *pulCount = pd->ulLicenseCount;
-    *phFind = (HDEP5FIND)pf;
-    return DEP5_NO_ERROR;
+    if (pulCount) *pulCount = pDoc->ulLicenseCount;
+    *phFind = (HDEP5FIND)pFind;
+    return NO_ERROR;
 }
 
 /**
@@ -1260,120 +1205,94 @@ APIRET APIENTRY Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
  * @param[in] hFind  Cursor from Dep5LicenseFindFirst. Not NULLHANDLE.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NO_MORE_ENTRIES No more License stanzas.
- * @retval DEP5_ERROR_OUT_OF_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY Dep5LicenseFindNext(HDEP5FIND hFind) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    ULONG idx;
-    if (!pf) return DEP5_ERROR_INVALID_HANDLE;
-    if (pf->ulKind != DEP5_STANZA_LICENSE) return DEP5_ERROR_INVALID_HANDLE;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    ULONG ulIdx;
+    if (!pFind) return ERROR_INVALID_HANDLE;
+    if (pFind->ulKind != DEP5_STANZA_LICENSE) return ERROR_INVALID_HANDLE;
 
-    idx = doc_find_next_index(pf->pDoc, DEP5_STANZA_LICENSE, pf->ulCurrent);
-    if (idx == DEP5_NO_HEADER) return DEP5_ERROR_NO_MORE_ENTRIES;
-    pf->ulCurrent = idx;
-    pf->ulSeen++;
-    if (find_load_cache(pf) != 0)
-        return DEP5_ERROR_OUT_OF_MEMORY;
-    return DEP5_NO_ERROR;
+    ulIdx = doc_find_next_index(pFind->pDoc, DEP5_STANZA_LICENSE,
+                                pFind->ulCurrent);
+    if (ulIdx == DEP5_NO_HEADER) return ERROR_NO_MORE_ITEMS;
+    pFind->ulCurrent = ulIdx;
+    pFind->ulSeen++;
+    if (find_load_cache(pFind) != 0)
+        return ERROR_NOT_ENOUGH_MEMORY;
+    return NO_ERROR;
 }
 
 /**
  * @brief Close a License enumeration cursor.
  *
- * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
- *                   no-op.
+ * @param[in] hFind  Cursor. NULLHANDLE is accepted as a no-op.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR             Success. Also returned for
- *                                   NULLHANDLE.
- * @retval DEP5_ERROR_INVALID_HANDLE Handle is not recognized.
  */
 APIRET APIENTRY Dep5LicenseFindClose(HDEP5FIND hFind) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    if (!pf) return DEP5_NO_ERROR;
-    if (pf->ulKind != DEP5_STANZA_LICENSE) return DEP5_ERROR_INVALID_HANDLE;
-    find_free_cache(pf);
-    free(pf);
-    return DEP5_NO_ERROR;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    if (!pFind) return NO_ERROR;
+    if (pFind->ulKind != DEP5_STANZA_LICENSE) return ERROR_INVALID_HANDLE;
+    find_free_cache(pFind);
+    free(pFind);
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve the short name from the current License stanza.
  *
- * The short name is the first line of the License field, up to the
- * first whitespace.
- *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
  * @param[out] pszBuffer  Output buffer. Not NULL.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY Dep5LicenseGetShortName(HDEP5FIND hFind,
                                         PSZ pszBuffer, ULONG ulBufSize,
                                         PULONG pulSize) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    size_t n;
-    if (!pf || !pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-    if (pf->ulKind != DEP5_STANZA_LICENSE) return DEP5_ERROR_INVALID_HANDLE;
-    if (!pf->pszShortName) return DEP5_ERROR_NOT_FOUND;
-    n = strlen(pf->pszShortName);
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_ERROR_BUFFER_OVERFLOW;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    size_t cbLen;
+    if (!pFind || !pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (pFind->ulKind != DEP5_STANZA_LICENSE) return ERROR_INVALID_HANDLE;
+    if (!pFind->pszShortName) return ERROR_FILE_NOT_FOUND;
+    cbLen = strlen(pFind->pszShortName);
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, pf->pszShortName, n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return DEP5_NO_ERROR;
+    memcpy(pszBuffer, pFind->pszShortName, cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve the license text from the current License stanza.
  *
- * The license text is the body of the License field (all lines after
- * the first), with leading whitespace of one level removed, lines
- * joined by '\n'.
- *
- * If the stanza has no body (only the synopsis), DEP5_ERROR_NOT_FOUND
- * is returned.
- *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
  * @param[out] pszBuffer  Output buffer. Not NULL.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval DEP5_NO_ERROR              Success.
- * @retval DEP5_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval DEP5_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval DEP5_ERROR_NOT_FOUND       Stanza has no license text.
- * @retval DEP5_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY Dep5LicenseGetText(HDEP5FIND hFind,
                                    PSZ pszBuffer, ULONG ulBufSize,
                                    PULONG pulSize) {
-    PDEP5FIND pf = Dep5InternalGetFind(hFind);
-    size_t n;
-    if (!pf || !pszBuffer) return DEP5_ERROR_INVALID_PARAM;
-    if (pf->ulKind != DEP5_STANZA_LICENSE) return DEP5_ERROR_INVALID_HANDLE;
-    if (!pf->pszLicenseText || !pf->pszLicenseText[0])
-        return DEP5_ERROR_NOT_FOUND;
-    n = strlen(pf->pszLicenseText);
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return DEP5_ERROR_BUFFER_OVERFLOW;
+    PDEP5FIND pFind = Dep5InternalGetFind(hFind);
+    size_t cbLen;
+    if (!pFind || !pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (pFind->ulKind != DEP5_STANZA_LICENSE) return ERROR_INVALID_HANDLE;
+    if (!pFind->pszLicenseText || !pFind->pszLicenseText[0])
+        return ERROR_FILE_NOT_FOUND;
+    cbLen = strlen(pFind->pszLicenseText);
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, pf->pszLicenseText, n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return DEP5_NO_ERROR;
+    memcpy(pszBuffer, pFind->pszLicenseText, cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }

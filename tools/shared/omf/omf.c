@@ -32,7 +32,6 @@
  *
  * See the file header for the list of recognized record types and
  * vendor-specific COMENT classes, and for the references.
- *
  */
 
 /** @brief Maximum length of a single extracted name. */
@@ -41,36 +40,37 @@
 /**
  * @brief Read a 2-byte little-endian unsigned integer.
  *
- * @param[in] p  Pointer to two bytes. Not NULL.
+ * @param[in] puchPos  Pointer to two bytes. Not NULL.
  *
  * @return Value in [0, 65535].
  */
-static unsigned int read_u16(const unsigned char *p) {
-    return (unsigned int)p[0] | ((unsigned int)p[1] << 8);
+static unsigned int read_u16(const UCHAR *puchPos) {
+    return (unsigned int)puchPos[0] |
+           ((unsigned int)puchPos[1] << 8);
 }
 
 /**
- * @brief Append a name of length @p len to the destination set.
+ * @brief Append a name of length @p cbLen to the destination set.
  *
  * The name is copied into a temporary NUL-terminated buffer before
  * being handed to StrSetAdd.
  *
- * @param[in] hOut  Destination set. Not NULLHANDLE.
- * @param[in] str   Source bytes. Not NULL.
- * @param[in] len   Number of bytes.
+ * @param[in] hOut      Destination set. Not NULLHANDLE.
+ * @param[in] puchStr   Source bytes. Not NULL.
+ * @param[in] cbLen     Number of bytes.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success (including len == 0).
- * @retval ERROR_INVALID_PARAMETER  len exceeds the internal buffer.
+ * @retval NO_ERROR                 Success (including cbLen == 0).
+ * @retval ERROR_INVALID_PARAMETER  cbLen exceeds the internal buffer.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET add_name(HSTRSET hOut, const unsigned char *str, size_t len) {
-    char buf[OMF_NAME_MAX];
-    if (!str || len == 0) return NO_ERROR;
-    if (len >= sizeof(buf)) return ERROR_INVALID_PARAMETER;
-    memcpy(buf, str, len);
-    buf[len] = '\0';
-    return StrSetAdd(hOut, buf);
+static APIRET add_name(HSTRSET hOut, const UCHAR *puchStr, size_t cbLen) {
+    CHAR achBuf[OMF_NAME_MAX];
+    if (!puchStr || cbLen == 0) return NO_ERROR;
+    if (cbLen >= sizeof(achBuf)) return ERROR_INVALID_PARAMETER;
+    memcpy(achBuf, puchStr, cbLen);
+    achBuf[cbLen] = '\0';
+    return StrSetAdd(hOut, achBuf);
 }
 
 /**
@@ -78,23 +78,23 @@ static APIRET add_name(HSTRSET hOut, const unsigned char *str, size_t len) {
  *
  * Layout: [name_len:1][name:name_len].
  *
- * @param[in] data  Record payload. Not NULL.
- * @param[in] len   Payload length.
- * @param[in] hOut  Destination set. Not NULLHANDLE.
+ * @param[in] puchData  Record payload. Not NULL.
+ * @param[in] cbLen     Payload length.
+ * @param[in] hOut      Destination set. Not NULLHANDLE.
  *
  * @return APIRET
  */
-static APIRET process_theadr(const unsigned char *data, size_t len,
+static APIRET process_theadr(const UCHAR *puchData, size_t cbLen,
                              HSTRSET hOut) {
-    size_t pos = 0;
-    size_t name_len;
+    size_t cbPos = 0;
+    size_t cbNameLen;
 
-    if (len < 1) return NO_ERROR;
-    name_len = data[pos];
-    pos++;
-    if (pos + name_len > len) return NO_ERROR;
-    if (name_len > 0) {
-        return add_name(hOut, &data[pos], name_len);
+    if (cbLen < 1) return NO_ERROR;
+    cbNameLen = puchData[cbPos];
+    cbPos++;
+    if (cbPos + cbNameLen > cbLen) return NO_ERROR;
+    if (cbNameLen > 0) {
+        return add_name(hOut, &puchData[cbPos], cbNameLen);
     }
     return NO_ERROR;
 }
@@ -106,66 +106,65 @@ static APIRET process_theadr(const unsigned char *data, size_t len,
  * layout depends on the comment class; see the file header for the
  * list of recognized classes.
  *
- * @param[in] data  Record payload. Not NULL.
- * @param[in] len   Payload length.
- * @param[in] hOut  Destination set. Not NULLHANDLE.
+ * @param[in] puchData  Record payload. Not NULL.
+ * @param[in] cbLen     Payload length.
+ * @param[in] hOut      Destination set. Not NULLHANDLE.
  *
  * @return APIRET
  */
-static APIRET process_coment(const unsigned char *data, size_t len,
+static APIRET process_coment(const UCHAR *puchData, size_t cbLen,
                              HSTRSET hOut) {
-    unsigned char comment_type;
-    unsigned char comment_class;
-    size_t pos;
-    size_t payload_len;
+    UCHAR uchCommentType;
+    UCHAR uchCommentClass;
+    size_t cbPos;
+    size_t cbPayloadLen;
 
-    if (len < 2) return NO_ERROR;
+    if (cbLen < 2) return NO_ERROR;
 
-    /* First byte is the comment type, second byte is the class. */
-    comment_type = data[0];
-    comment_class = data[1];
-    pos = 2;
-    payload_len = len - 2;
+    uchCommentType = puchData[0];
+    uchCommentClass = puchData[1];
+    cbPos = 2;
+    cbPayloadLen = cbLen - 2;
 
-    (void)comment_type;
+    (void)uchCommentType;
 
-    switch (comment_class) {
+    switch (uchCommentClass) {
         case 0xE9:    /* Borland auto-dependency */
         case 0xFB: {  /* OpenWatcom dependency */
             APIRET rc;
-            if (payload_len < 4) return NO_ERROR;
-            pos += 4;   /* Skip the 4-byte timestamp. */
+            if (cbPayloadLen < 4) return NO_ERROR;
+            cbPos += 4;   /* Skip the 4-byte timestamp. */
 
-            while (pos + 1 <= len) {
-                size_t str_len = data[pos];
-                pos++;
-                if (str_len == 0) continue;
-                if (pos + str_len > len) break;
-                rc = add_name(hOut, &data[pos], str_len);
+            while (cbPos + 1 <= cbLen) {
+                size_t cbStrLen = puchData[cbPos];
+                cbPos++;
+                if (cbStrLen == 0) continue;
+                if (cbPos + cbStrLen > cbLen) break;
+                rc = add_name(hOut, &puchData[cbPos], cbStrLen);
                 if (rc != NO_ERROR) return rc;
-                pos += str_len;
+                cbPos += cbStrLen;
             }
             break;
         }
         case 0x88: {  /* Dependency file: timestamp + [len][name] */
-            if (payload_len < 5) return NO_ERROR;
-            pos += 4; /* Skip timestamp. */
-            if (pos < len) {
-                size_t name_len = data[pos];
-                pos++;
-                if (pos + name_len <= len && name_len > 0) {
-                    return add_name(hOut, &data[pos], name_len);
+            if (cbPayloadLen < 5) return NO_ERROR;
+            cbPos += 4; /* Skip timestamp. */
+            if (cbPos < cbLen) {
+                size_t cbNameLen = puchData[cbPos];
+                cbPos++;
+                if (cbPos + cbNameLen <= cbLen && cbNameLen > 0) {
+                    return add_name(hOut, &puchData[cbPos], cbNameLen);
                 }
             }
             break;
         }
         case 0xE8: {  /* Borland source file: [len][name] */
-            if (payload_len < 1) return NO_ERROR;
-            if (pos < len) {
-                size_t name_len = data[pos];
-                pos++;
-                if (pos + name_len <= len && name_len > 0) {
-                    return add_name(hOut, &data[pos], name_len);
+            if (cbPayloadLen < 1) return NO_ERROR;
+            if (cbPos < cbLen) {
+                size_t cbNameLen = puchData[cbPos];
+                cbPos++;
+                if (cbPos + cbNameLen <= cbLen && cbNameLen > 0) {
+                    return add_name(hOut, &puchData[cbPos], cbNameLen);
                 }
             }
             break;
@@ -192,10 +191,10 @@ static APIRET process_coment(const unsigned char *data, size_t len,
  */
 APIRET APIENTRY OmfExtractSources(PCSZ pszPath, HSTRSET hOut) {
     FILE *fp;
-    unsigned char *buf;
-    long file_size;
-    size_t read_size;
-    size_t pos = 0;
+    UCHAR *puchBuf;
+    long lFileSize;
+    size_t cbReadSize;
+    size_t cbPos = 0;
     ULONG ulBefore = 0;
     ULONG ulAfter = 0;
     APIRET rc;
@@ -207,56 +206,60 @@ APIRET APIENTRY OmfExtractSources(PCSZ pszPath, HSTRSET hOut) {
     fp = fopen(pszPath, "rb");
     if (!fp) return ERROR_OPEN_FAILED;
 
-    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return ERROR_READ_FAULT; }
-    file_size = ftell(fp);
-    if (file_size <= 0) { fclose(fp); return ERROR_READ_FAULT; }
-    if (fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp); return ERROR_READ_FAULT;
+    }
+    lFileSize = ftell(fp);
+    if (lFileSize <= 0) { fclose(fp); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        fclose(fp); return ERROR_READ_FAULT;
+    }
 
-    buf = (unsigned char*)malloc((size_t)file_size);
-    if (!buf) {
+    puchBuf = (UCHAR*)malloc((size_t)lFileSize);
+    if (!puchBuf) {
         fclose(fp);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
-    read_size = fread(buf, 1, (size_t)file_size, fp);
+    cbReadSize = fread(puchBuf, 1, (size_t)lFileSize, fp);
     fclose(fp);
-    if (read_size != (size_t)file_size) {
-        free(buf);
+    if (cbReadSize != (size_t)lFileSize) {
+        free(puchBuf);
         return ERROR_READ_FAULT;
     }
 
     /* Sequential parse of OMF records without forced alignment. */
-    while (pos + 3 <= (size_t)file_size) {
-        unsigned char record_type = buf[pos];
-        size_t record_len;
-        size_t data_start;
-        size_t data_len;
+    while (cbPos + 3 <= (size_t)lFileSize) {
+        UCHAR uchRecordType = puchBuf[cbPos];
+        size_t cbRecordLen;
+        size_t cbDataStart;
+        size_t cbDataLen;
 
-        pos++;
-        record_len = read_u16(&buf[pos]);
-        pos += 2;
+        cbPos++;
+        cbRecordLen = read_u16(&puchBuf[cbPos]);
+        cbPos += 2;
 
-        if (pos + record_len > (size_t)file_size) {
+        if (cbPos + cbRecordLen > (size_t)lFileSize) {
             break;
         }
-        data_start = pos;
-        data_len = record_len;
-        pos += record_len;
+        cbDataStart = cbPos;
+        cbDataLen = cbRecordLen;
+        cbPos += cbRecordLen;
 
-        switch (record_type) {
+        switch (uchRecordType) {
             case 0x80: /* THEADR */
-                rc = process_theadr(&buf[data_start], data_len, hOut);
-                if (rc != NO_ERROR) { free(buf); return rc; }
+                rc = process_theadr(&puchBuf[cbDataStart], cbDataLen, hOut);
+                if (rc != NO_ERROR) { free(puchBuf); return rc; }
                 break;
             case 0x88: /* COMENT */
-                rc = process_coment(&buf[data_start], data_len, hOut);
-                if (rc != NO_ERROR) { free(buf); return rc; }
+                rc = process_coment(&puchBuf[cbDataStart], cbDataLen, hOut);
+                if (rc != NO_ERROR) { free(puchBuf); return rc; }
                 break;
             default:
                 break;
         }
     }
 
-    free(buf);
+    free(puchBuf);
 
     StrSetGetCount(hOut, &ulAfter);
     if (ulAfter == ulBefore) return ERROR_FILE_NOT_FOUND;

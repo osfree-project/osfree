@@ -23,21 +23,83 @@
 #include "reuse_discover.h"
 
 /**
+ * @file reuse-sbom.c
+ * @brief Command line entry point of the SBOM generator.
+ *
+ * Collects licensing information from the project tree (or from a
+ * single binary artifact), builds an in-memory SBOM document, and
+ * emits it in the requested format.
+ *
+ * Conforms to:
+ *   - SPDX 2.3.
+ *     https://spdx.github.io/spdx-spec/v2.3/
+ *   - OS/2 Control Program Interface (naming, types, conventions).
+ */
+
+/* ==================================================================
+ * Help text
+ * ================================================================== */
+
+/**
+ * @brief Print command line usage to stdout.
+ */
+static void print_help(void) {
+    printf("Usage: reuse-sbom [options] [<directory>]\n"
+           "\n"
+           "Required:\n"
+           "  --name=<name>              Package name\n"
+           "  --file=<binary file>       Binary artifact to describe\n"
+           "  --spdx-db=<path>           SPDX database root "
+           "(licenses.json,\n"
+           "                             exceptions.json, details/, "
+           "exceptions/)\n"
+           "\n"
+           "Optional:\n"
+           "  --version=<ver>            Package version\n"
+           "  --supplier=<name>          Package supplier\n"
+           "  --creator=<name>           SBOM creator\n"
+           "  --purpose=<purpose>        Package purpose "
+           "(SOURCE, BINARY, LIBRARY, ...)\n"
+           "  --output=<file>            Write SBOM to file "
+           "(default: stdout)\n"
+           "  --format=<fmt>             Output format:\n"
+           "                               spdx-json  - SPDX 2.3 JSON "
+           "(default)\n"
+           "                               spdx-tag   - SPDX 2.3 tag-value\n"
+           "  --default-license=<id>     Fallback license identifier\n"
+           "  --default-copyright=<text> Fallback copyright text\n"
+           "  --source-sbom=<file>       Source SBOM for binary mode "
+           "(with --purpose != SOURCE)\n"
+           "  --objects=<list>           Object files (space-separated)\n"
+           "  --res=<list>               Resource files (space-separated)\n"
+           "  --extracted-license=<id>:<path>\n"
+           "                             Provide text for a "
+           "LicenseRef-* license\n"
+           "  --cache=<path>             SPDX database cache file\n"
+           "  --no-gitignore             Do not apply .gitignore rules\n"
+           "  --help, -h                 Show this help\n");
+}
+
+/* ==================================================================
+ * Helpers
+ * ================================================================== */
+
+/**
  * @brief Check whether the SBOM describes a binary artifact.
  *
- * Binary mode is enabled when a package purpose other than SOURCE is
- * requested. SOURCE means we are generating the SBOM for the source
- * tree; any other value (BINARY, LIBRARY, ...) selects the binary
- * mode, where the SBOM is built from a single binary file rather than
- * from the tree.
+ * Binary mode is enabled when a package purpose other than SOURCE
+ * is requested. SOURCE means the SBOM is generated for the source
+ * tree; any other value selects binary mode, where the SBOM is
+ * built from a single binary file.
  *
- * @param[in] opts  Parsed command-line options. Not NULL.
+ * @param[in] pOpts  Parsed options. Not NULL.
  *
- * @return 1 if binary mode, 0 if source mode.
+ * @return TRUE_ for binary mode, FALSE_ otherwise.
  */
-static int is_binary_mode(const SbomOptions *opts) {
-    return opts->package_purpose &&
-           strcmp(opts->package_purpose, "SOURCE") != 0;
+static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
+    return (pOpts->pszPackagePurpose &&
+            strcmp(pOpts->pszPackagePurpose, "SOURCE") != 0)
+               ? TRUE_ : FALSE_;
 }
 
 /**
@@ -51,135 +113,78 @@ static int is_binary_mode(const SbomOptions *opts) {
  *
  * The resolved expression is validated against the SPDX grammar.
  *
- * On success, @p *out_license receives a malloc'd string owned by the
- * caller. If the value came from --default-license, the pointer is
- * @p opts->default_license (do not free). The caller compares the two
- * to decide whether to free.
+ * @param[in]  pOpts       Parsed options. Not NULL.
+ * @param[in]  hTree       Project handle. May be NULLHANDLE.
+ * @param[out] ppszLicense Receiver. Not NULL. On success receives a
+ *                         malloc'd string owned by the caller, or
+ *                         @c pOpts->pszDefaultLicense itself (not to
+ *                         be freed). On failure set to NULL.
+ * @param[out] pfIsHeap    Receiver: TRUE_ if the returned pointer was
+ *                         allocated and must be freed. Not NULL.
  *
- * @param[in]  opts         Parsed options. Not NULL.
- * @param[in]  hTree        Project handle. May be NULLHANDLE.
- * @param[out] out_license  Receiver. Not NULL.
- *
- * @return 0 on success, -1 on error (message already printed).
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  A parameter is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     No license available.
+ * @retval ERROR_INVALID_DATA       The license expression is invalid.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static int resolve_package_license(const SbomOptions *opts,
-                                   HREUSETREE hTree,
-                                   const char **out_license) {
-    const char *lic = opts->default_license;
-    char *heap_lic = NULL;
+static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
+                                      HREUSETREE hTree,
+                                      PSZ *ppszLicense,
+                                      PBOOL pfIsHeap) {
+    PCSZ pszLic = pOpts->pszDefaultLicense;
+    PSZ pszHeap = NULL;
+    APIRET rc;
+    PCSZ pszBad = NULL;
 
-    if (!lic && hTree != NULLHANDLE) {
+    *ppszLicense = NULL;
+    *pfIsHeap = FALSE_;
+
+    if (!pszLic && hTree != NULLHANDLE) {
         HREUSETREEFILE hFile = NULLHANDLE;
-        APIRET rc = ReuseTreeResolveFile(hTree, "**", &hFile, NULL);
-        if (rc == REUSE_NO_ERROR && hFile != NULLHANDLE) {
+        rc = ReuseTreeResolveFile(hTree, "**", &hFile, NULL);
+        if (rc == NO_ERROR && hFile != NULLHANDLE) {
             ULONG ulSize = 0;
-            if (ReuseTreeFileGetLicense(hFile, NULL, 0, &ulSize) == REUSE_NO_ERROR
-                && ulSize > 0) {
-                char *buf = (char*)malloc(ulSize);
-                if (buf &&
-                    ReuseTreeFileGetLicense(hFile, buf, ulSize, NULL)
-                        == REUSE_NO_ERROR &&
-                    buf[0] != '\0') {
-                    heap_lic = buf;
-                    lic = heap_lic;
-                } else {
-                    free(buf);
+            rc = ReuseTreeFileGetLicense(hFile, NULL, 0, &ulSize);
+            if (rc == NO_ERROR && ulSize > 0) {
+                PSZ pszBuf = (PSZ)malloc(ulSize);
+                if (pszBuf) {
+                    rc = ReuseTreeFileGetLicense(hFile, pszBuf, ulSize,
+                                                 NULL);
+                    if (rc == NO_ERROR && pszBuf[0] != '\0') {
+                        pszHeap = pszBuf;
+                        pszLic = pszHeap;
+                    } else {
+                        free(pszBuf);
+                    }
                 }
             }
             ReuseTreeFileClose(hFile);
         }
     }
-    if (!lic || !lic[0]) {
-        fprintf(stderr,
-                "ERROR: no license for package.\n"
-                "       Fix one of:\n"
-                "         - pass --default-license=<id>;\n"
-                "         - or add a [[annotations]] entry with "
-                "path = \"**\" to REUSE.toml.\n");
-        free(heap_lic);
-        return -1;
+    if (!pszLic || !pszLic[0]) {
+        free(pszHeap);
+        return ERROR_FILE_NOT_FOUND;
     }
-    {
-        const char *bad = NULL;
-        int rc = spdx_expression_validate(lic, &bad);
-        if (rc == SPDX_EXPR_SYNTAX_ERROR) {
-            fprintf(stderr,
-                    "ERROR: invalid SPDX license expression for package: "
-                    "'%s'\n"
-                    "       Fix the expression according to the SPDX "
-                    "grammar:\n"
-                    "         https://spdx.github.io/spdx-spec/v2.3/"
-                    "SPDX-license-expressions/\n",
-                    lic);
-            free(heap_lic);
-            return -1;
-        }
-        if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
-            const char *p = bad;
-            while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-            fprintf(stderr,
-                    "ERROR: unknown SPDX identifier in package license: '");
-            fwrite(bad, 1, (size_t)(p - bad), stderr);
-            fprintf(stderr,
-                    "'\n"
-                    "       Not present in SPDX License List. Fix one of:\n"
-                    "         - correct the identifier;\n"
-                    "         - or use a 'LicenseRef-' identifier for a "
-                    "custom license.\n"
-                    "       See https://spdx.org/licenses/ for the full "
-                    "list.\n");
-            free(heap_lic);
-            return -1;
-        }
+
+    rc = SpdxQueryExpression(pszLic, &pszBad);
+    if (rc != NO_ERROR) {
+        free(pszHeap);
+        return ERROR_INVALID_DATA;
     }
-    *out_license = lic;
-    return 0;
+
+    *ppszLicense = (PSZ)pszLic;
+    *pfIsHeap = (pszLic == pszHeap) ? TRUE_ : FALSE_;
+    return NO_ERROR;
 }
 
-/**
- * @brief Build the FileList for the binary artifact.
- *
- * Creates one FileInfo from the binary file path: computes SHA1,
- * assigns file type BINARY, and copies the given license and
- * copyright.
- *
- * @param[in]  opts     Parsed options. Not NULL. opts->binary_file
- *                      must be set.
- * @param[in]  license  License string. Not NULL.
- * @param[out] out      FileList receiver. Not NULL.
- *
- * @return 0 on success, -1 on error.
- */
-static int build_binary_file_list(const SbomOptions *opts,
-                                  const char *license,
-                                  FileList *out) {
-    FileInfo info;
-
-    if (sbom_fill_file_basic(opts->binary_file,
-                             SpdxGetFileName(opts->binary_file),
-                             &info) != 0)
-        return -1;
-
-    strncpy(info.file_type, "BINARY", sizeof(info.file_type) - 1);
-    strncpy(info.license, license, sizeof(info.license) - 1);
-    if (opts->default_copyright) {
-        strncpy(info.copyright, opts->default_copyright,
-                sizeof(info.copyright) - 1);
-    }
-    filelist_add(out, &info);
-    return 0;
-}
+/* ==================================================================
+ * Entry point
+ * ================================================================== */
 
 /**
  * @brief Entry point of the SBOM generator.
- *
- * Collects licensing information from the project tree (or from a
- * single binary artifact), builds an in-memory SBOM document, and
- * emits it in the requested format.
- *
- * The output format is selected with --format:
- *   spdx-json  - SPDX 2.3 JSON
- *   spdx-tag   - SPDX 2.3 tag-value
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
@@ -187,290 +192,305 @@ static int build_binary_file_list(const SbomOptions *opts,
  * @return 0 on success, 1 on error.
  */
 int main(int argc, char *argv[]) {
-    SbomOptions opts;
+    SBOMOPTIONS opts;
+    SPDXDOCUMENT doc;
     HREUSETREE hTree = NULLHANDLE;
-    SpdxDocument doc;
     HSTRSET hPaths = NULLHANDLE;
     REUSEDISCOVEROPTIONS walk_opts;
     GITIGNORELIST gitignore_rules;
-    int has_gitignore = 0;
-    char *repo_root = NULL;
-    int db_errs;
-    int binary_mode;
-    const char *pkg_license = NULL;
-    int pkg_license_is_heap = 0;
-    char base_no_ext[256];
+    BOOL fHasGitignore = FALSE_;
+    PSZ pszRepoRoot = NULL;
+    PSZ pszPkgLicense = NULL;
+    BOOL fPkgLicenseIsHeap = FALSE_;
+    BOOL fBinaryMode;
+    CHAR achBaseNoExt[256];
+    APIRET rc;
+    APIRET rcDb;
+    int nExit = 1;
 
     GitIgnoreListInit(&gitignore_rules);
 
-    if (sbom_parse_args(argc, argv, &opts) != 0) {
-        GitIgnoreListFree(&gitignore_rules);
+    rc = SbomParseCommandLine(argc, argv, &opts);
+    if (rc != NO_ERROR) {
+        if (opts.fHelpRequested) {
+            print_help();
+            SbomFreeOptions(&opts);
+            return 0;
+        }
+        if (opts.pszBadOption)
+            fprintf(stderr,
+                    "ERROR: bad option: %s\n"
+                    "       Run 'reuse-sbom --help' for usage.\n",
+                    opts.pszBadOption);
+        else
+            fprintf(stderr,
+                    "ERROR: invalid command line.\n"
+                    "       Run 'reuse-sbom --help' for usage.\n");
+        SbomFreeOptions(&opts);
         return 1;
     }
 
-    db_errs = spdx_db_init(opts.spdx_db_root, opts.cache_file);
-    if (db_errs & SPDX_DB_ERR_LICENSES) {
+    rcDb = SpdxOpenDatabase(opts.pszSpdxDbRoot, opts.pszCacheFile);
+    if (rcDb & SPDXDB_ERROR_LICENSES) {
         fprintf(stderr,
                 "ERROR: SPDX license database is unavailable "
                 "(licenses.json not loaded).\n"
                 "       Expected at <spdx-db>/licenses.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
-        sbom_options_free(&opts);
-        GitIgnoreListFree(&gitignore_rules);
-        spdx_db_free();
+        SbomFreeOptions(&opts);
+        SpdxCloseDatabase();
         return 1;
     }
-    if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
+    if (rcDb & SPDXDB_ERROR_EXCEPTIONS) {
         fprintf(stderr,
                 "ERROR: SPDX exceptions database is unavailable "
                 "(exceptions.json not loaded).\n"
                 "       Expected at <spdx-db>/exceptions.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
-        sbom_options_free(&opts);
-        GitIgnoreListFree(&gitignore_rules);
-        spdx_db_free();
+        SbomFreeOptions(&opts);
+        SpdxCloseDatabase();
         return 1;
     }
-    if (db_errs & SPDX_DB_ERR_CACHE)
+    if (rcDb & SPDXDB_ERROR_CACHE)
         fprintf(stderr,
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    /* Two-phase GitFindRepoRoot call: first query the size, then
-     * allocate and query the value. If there is no repository, the
-     * target directory is used as the base for .gitignore lookups. */
+    /* Two-phase GitFindRepoRoot: first query the size, then value.
+     * If there is no repository, the target directory is used as the
+     * base for .gitignore lookups. */
     {
         ULONG ulSize = 0;
-        if (GitFindRepoRoot(opts.dir, NULL, 0, &ulSize) == NO_ERROR &&
+        if (GitFindRepoRoot(opts.pszDir, NULL, 0, &ulSize) == NO_ERROR &&
             ulSize > 0) {
-            repo_root = (char*)malloc(ulSize);
-            if (repo_root) {
-                if (GitFindRepoRoot(opts.dir, repo_root, ulSize, NULL)
-                        != NO_ERROR) {
-                    free(repo_root);
-                    repo_root = NULL;
+            pszRepoRoot = (PSZ)malloc(ulSize);
+            if (pszRepoRoot) {
+                if (GitFindRepoRoot(opts.pszDir, pszRepoRoot, ulSize,
+                                    NULL) != NO_ERROR) {
+                    free(pszRepoRoot);
+                    pszRepoRoot = NULL;
                 }
             }
         }
     }
 
+    rc = ReuseTreeOpen(opts.pszDir, &hTree);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: cannot open REUSE project at %s\n"
+                "       The directory is missing or unreadable.\n",
+                opts.pszDir);
+        goto cleanup;
+    }
     {
-        APIRET rc = ReuseTreeOpen(opts.dir, &hTree);
-        if (rc != REUSE_NO_ERROR) {
+        ULONG ulErrs = 0;
+        if (ReuseTreeGetErrorCount(hTree, &ulErrs) == NO_ERROR &&
+            ulErrs > 0) {
             fprintf(stderr,
-                    "ERROR: cannot open REUSE project at %s\n"
-                    "       The directory is missing or unreadable.\n",
-                    opts.dir);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
-        }
-        {
-            ULONG ulErrs = 0;
-            if (ReuseTreeGetErrorCount(hTree, &ulErrs) == REUSE_NO_ERROR &&
-                ulErrs > 0) {
-                fprintf(stderr,
-                        "ERROR: %u REUSE.toml file(s) could not be parsed.\n"
-                        "       SBOM cannot be generated reliably.\n",
-                        (unsigned)ulErrs);
-                ReuseTreeClose(hTree);
-                GitIgnoreListFree(&gitignore_rules);
-                free(repo_root);
-                spdx_db_free();
-                sbom_options_free(&opts);
-                return 1;
-            }
+                    "ERROR: %u REUSE.toml file(s) could not be parsed.\n"
+                    "       SBOM cannot be generated reliably.\n",
+                    (unsigned)ulErrs);
+            goto cleanup;
         }
     }
 
-    if (!opts.no_gitignore) {
-        if (GitCollectGitignores(repo_root, opts.dir, &gitignore_rules) == NO_ERROR &&
+    if (!opts.fNoGitignore) {
+        if (GitCollectGitignores(pszRepoRoot, opts.pszDir,
+                                 &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
-            has_gitignore = 1;
+            fHasGitignore = TRUE_;
         }
     }
 
-    binary_mode = is_binary_mode(&opts);
+    fBinaryMode = is_binary_mode(&opts);
 
-    /* Resolve the package license BEFORE sbom_doc_init so the value is
-     * fixed inside the package structure. In binary mode the same
-     * resolution path is used: REUSE.toml (path="**") >
+    /* Resolve the package license BEFORE SbomCreateDocument so the
+     * value is fixed inside the package structure. In binary mode
+     * the same resolution path is used: REUSE.toml (path="**") >
      * --default-license. */
-    if (resolve_package_license(&opts, hTree, &pkg_license) != 0) {
-        ReuseTreeClose(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(repo_root);
-        spdx_db_free();
-        sbom_options_free(&opts);
-        return 1;
+    rc = resolve_package_license(&opts, hTree, &pszPkgLicense,
+                                 &fPkgLicenseIsHeap);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: no license for package.\n"
+                "       Fix one of:\n"
+                "         - pass --default-license=<id>;\n"
+                "         - or add a [[annotations]] entry with "
+                "path = \"**\" to REUSE.toml.\n");
+        goto cleanup;
     }
-    if (pkg_license != opts.default_license) pkg_license_is_heap = 1;
 
-    sbom_doc_init(&doc,
-                  opts.doc_name,
-                  opts.package_version,
-                  opts.package_supplier,
-                  opts.creator,
-                  pkg_license,
-                  opts.default_copyright,
-                  opts.package_purpose,
-                  opts.binary_file,
-                  binary_mode);
+    rc = SbomCreateDocument(&doc,
+                            opts.pszDocName,
+                            opts.pszPackageVersion,
+                            opts.pszPackageSupplier,
+                            opts.pszCreator,
+                            pszPkgLicense,
+                            opts.pszDefaultCopyright,
+                            opts.pszPackagePurpose,
+                            opts.pszBinaryFile,
+                            fBinaryMode);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: cannot create SBOM document (%lu).\n",
+                (unsigned long)rc);
+        goto cleanup;
+    }
 
-    filelist_init(&doc.files);
-    snippetlist_init(&doc.snippets);
-
-    if (binary_mode) {
-        if (build_binary_file_list(&opts, pkg_license, &doc.files) != 0) {
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+    if (fBinaryMode) {
+        SPDXFILEINFO info;
+        memset(&info, 0, sizeof(info));
+        rc = SbomFillFileBasic(opts.pszBinaryFile,
+                               SpdxGetFileName(opts.pszBinaryFile),
+                               &info);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot read binary artifact: %s\n",
+                    opts.pszBinaryFile);
+            goto cleanup;
+        }
+        strncpy(info.achFileType, "BINARY",
+                sizeof(info.achFileType) - 1);
+        strncpy(info.achLicense, pszPkgLicense,
+                sizeof(info.achLicense) - 1);
+        if (opts.pszDefaultCopyright) {
+            strncpy(info.achCopyright, opts.pszDefaultCopyright,
+                    sizeof(info.achCopyright) - 1);
+        }
+        rc = SbomAddFile(doc.hFiles, &info);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot append binary file entry.\n");
+            goto cleanup;
         }
     } else {
-        ReuseDiscoverOptionsDefault(&walk_opts);
-        if (has_gitignore) {
-            walk_opts.use_gitignore   = 1;
-            walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
-            walk_opts.gitignore_rules = &gitignore_rules;
+        ReuseSetDiscoverOptionsDefault(&walk_opts);
+        if (fHasGitignore) {
+            walk_opts.fUseGitignore   = TRUE_;
+            walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot
+                                                    : opts.pszDir;
+            walk_opts.pGitignoreRules = &gitignore_rules;
         }
-        if (StrSetCreate(&hPaths) != NO_ERROR) {
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+        rc = StrSetCreate(&hPaths);
+        if (rc != NO_ERROR) {
+            fprintf(stderr, "ERROR: out of memory\n");
+            goto cleanup;
         }
-
-        if (ReuseDiscover(opts.dir,
-                          opts.object_files, (ULONG)opts.object_count,
-                          opts.res_files, (ULONG)opts.res_count,
-                          &walk_opts, hPaths) != NO_ERROR) {
-            StrSetDestroy(hPaths);
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+        rc = ReuseDiscover(opts.pszDir,
+                           opts.papszObjectFiles, opts.ulObjectCount,
+                           opts.papszResFiles, opts.ulResCount,
+                           &walk_opts, hPaths);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot walk tree: %s\n"
+                    "       Check that the directory exists and is "
+                    "readable.\n",
+                    opts.pszDir);
+            goto cleanup;
         }
-
-        if (sbom_collect_files(hPaths, hTree,
-                               opts.default_license,
-                               opts.default_copyright,
-                               &doc.files,
-                               &doc.snippets) != 0) {
-            StrSetDestroy(hPaths);
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+        rc = SbomCollectFiles(hPaths, hTree,
+                              opts.pszDefaultLicense,
+                              opts.pszDefaultCopyright,
+                              doc.hFiles,
+                              doc.hSnippets);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: failed to collect files for the SBOM "
+                    "(%lu).\n",
+                    (unsigned long)rc);
+            goto cleanup;
         }
         StrSetDestroy(hPaths);
+        hPaths = NULLHANDLE;
     }
 
-    if (extracted_collect_from_files(&doc.extracted_licenses,
-                                     &doc.files, opts.dir,
-                                     opts.extracted_sources,
-                                     opts.extracted_count) != 0) {
-        sbom_doc_free(&doc);
-        if (pkg_license_is_heap) free((void*)pkg_license);
-        ReuseTreeClose(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(repo_root);
-        spdx_db_free();
-        sbom_options_free(&opts);
-        return 1;
+    rc = SbomCollectExtractedLicenses(doc.hExtractedLicenses,
+                                      doc.hFiles,
+                                      opts.pszDir,
+                                      opts.paExtractedSources,
+                                      opts.ulExtractedCount);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: missing text for a LicenseRef-* license.\n"
+                "       Fix one of:\n"
+                "         - create <project-root>/LICENSES/<id>.txt "
+                "with the license text;\n"
+                "         - or pass --extracted-license=<id>:<path>.\n");
+        goto cleanup;
     }
 
-    sbom_doc_compute_verification(&doc);
+    rc = SbomComputeVerification(&doc);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: cannot compute PackageVerificationCode "
+                "(%lu).\n",
+                (unsigned long)rc);
+        goto cleanup;
+    }
 
-    strncpy(base_no_ext, SpdxGetFileName(opts.binary_file),
-            sizeof(base_no_ext) - 1);
-    base_no_ext[sizeof(base_no_ext) - 1] = '\0';
-    sbom_remove_extension(base_no_ext);
+    strncpy(achBaseNoExt, SpdxGetFileName(opts.pszBinaryFile),
+            sizeof(achBaseNoExt) - 1);
+    achBaseNoExt[sizeof(achBaseNoExt) - 1] = '\0';
+    SbomRemoveExtension(achBaseNoExt);
 
-    sbom_doc_build_relationships(&doc, base_no_ext, binary_mode);
-
-    if (binary_mode && opts.source_sbom_path) {
-        char src_pkg_id[256];
-        char sha1_hex[41];
-        sbom_make_package_id(base_no_ext, "Source",
-                             src_pkg_id, sizeof(src_pkg_id));
-
-        /**
-         * @todo (SPDX 2.3 §6.6) externalDocumentRef.checksum allows
-         *       any algorithm from Annex I. Extend to accept a
-         *       user-selected algorithm, not just SHA-1.
-         */
-        if (Sha1File(opts.source_sbom_path, sha1_hex, sizeof(sha1_hex),
-                     NULL) != NO_ERROR) {
+    if (fBinaryMode && opts.pszSourceSbomPath) {
+        CHAR achSha1Hex[41];
+        rc = Sha1File(opts.pszSourceSbomPath, achSha1Hex,
+                      sizeof(achSha1Hex), NULL);
+        if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot compute SHA1 for source SBOM: %s\n"
-                    "       Check that the file exists and is readable.\n",
-                    opts.source_sbom_path);
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+                    "       Check that the file exists and is "
+                    "readable.\n",
+                    opts.pszSourceSbomPath);
+            goto cleanup;
         }
-        sbom_doc_set_external(&doc, opts.source_sbom_path,
-                              src_pkg_id, sha1_hex);
+        rc = SbomSetDocumentExternalReference(&doc,
+                                              opts.pszSourceSbomPath,
+                                              achSha1Hex);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot set external document reference.\n");
+            goto cleanup;
+        }
     }
 
-    if (opts.output) {
-        if (!freopen(opts.output, "w", stdout)) {
+    rc = SbomBuildRelationships(&doc, achBaseNoExt, fBinaryMode);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: cannot build SPDX relationships (%lu).\n",
+                (unsigned long)rc);
+        goto cleanup;
+    }
+
+    if (opts.pszOutput) {
+        if (!freopen(opts.pszOutput, "w", stdout)) {
             fprintf(stderr,
                     "ERROR: cannot open output file: %s\n"
                     "       Check directory permissions.\n",
-                    opts.output);
-            sbom_doc_free(&doc);
-            if (pkg_license_is_heap) free((void*)pkg_license);
-            ReuseTreeClose(hTree);
-            GitIgnoreListFree(&gitignore_rules);
-            free(repo_root);
-            spdx_db_free();
-            sbom_options_free(&opts);
-            return 1;
+                    opts.pszOutput);
+            goto cleanup;
         }
     }
 
-    if (sbom_output(&doc, opts.format) != 0) {
-        sbom_doc_free(&doc);
-        if (pkg_license_is_heap) free((void*)pkg_license);
-        ReuseTreeClose(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(repo_root);
-        spdx_db_free();
-        sbom_options_free(&opts);
-        return 1;
+    rc = SbomOutput(&doc, opts.pszFormat);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: cannot emit SBOM (%lu).\n",
+                (unsigned long)rc);
+        goto cleanup;
     }
 
-    sbom_doc_free(&doc);
-    if (pkg_license_is_heap) free((void*)pkg_license);
-    ReuseTreeClose(hTree);
+    nExit = 0;
+
+cleanup:
+    SbomFreeDocument(&doc);
+    if (hPaths != NULLHANDLE) StrSetDestroy(hPaths);
+    if (fPkgLicenseIsHeap) free(pszPkgLicense);
+    if (hTree != NULLHANDLE) ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);
-    free(repo_root);
-    spdx_db_free();
-    sbom_options_free(&opts);
-    return 0;
+    free(pszRepoRoot);
+    SpdxCloseDatabase();
+    SbomFreeOptions(&opts);
+    return nExit;
 }

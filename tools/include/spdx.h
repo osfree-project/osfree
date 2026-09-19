@@ -7,16 +7,17 @@
 #include "os2err.h"
 #include "strset.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file spdx.h
  * @brief Shared SPDX utility functions.
  *
- * @par Contents
- * The module provides:
- *   - file helpers used by the REUSE resolver and the SBOM generator;
- *   - text normalization for license-text comparison;
- *   - a helper that extracts SPDX identifiers from a license
- *     expression.
+ * File helpers used by the REUSE resolver and the SBOM generator,
+ * text normalization for license-text comparison, and a helper
+ * that extracts SPDX identifiers from a license expression.
  *
  * @par History
  * The module formerly held a string-list container as well. That
@@ -28,33 +29,36 @@
  * function is used from multiple threads.
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* ==================================================================
  * File helpers
  * ================================================================== */
 
 /**
- * @brief Read an entire file into a malloc'd buffer.
+ * @brief Read an entire file into a caller-supplied buffer.
  *
- * On success, @p *ppszText receives a NUL-terminated buffer owned by
- * the caller and @p *pcbSize receives the number of bytes read (not
- * counting the trailing NUL). On failure, @p *ppszText is NULL.
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *     NUL) is written, no buffer touched.
+ *   - ulSize large enough: file content copied and NUL-terminated;
+ *     *pulUsed is the number of bytes read, not counting the NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
  *
- * @param[in]  pszPath   Path to the file. Not NULL.
- * @param[out] ppszText  Receiver. Not NULL. Set to NULL on error.
- * @param[out] pcbSize   Optional. May be NULL.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszPath or ppszText is NULL.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is
+ *                                  NULL without size-query.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
-APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ *ppszText, PLONG pcbSize);
+APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
+                                ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Return a pointer to the base name inside a path.
@@ -100,23 +104,32 @@ APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut);
 /**
  * @brief Normalize text for comparison.
  *
- *   - remove a leading UTF-8 BOM;
- *   - convert CRLF and lone CR to LF;
- *   - remove trailing spaces and tabs on each line;
- *   - remove trailing empty lines.
+ * Removes a leading UTF-8 BOM, converts CRLF and lone CR to LF,
+ * removes trailing spaces and tabs on each line, and removes
+ * trailing empty lines.
  *
- * On success, @p *ppszOut receives a malloc'd string owned by the
- * caller. On failure, @p *ppszOut is NULL.
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *     NUL) is written.
+ *   - ulSize large enough: normalized text copied and
+ *     NUL-terminated; *pulUsed is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
  *
- * @param[in]  pszSrc    Input text. Not NULL.
- * @param[out] ppszOut   Receiver. Not NULL. Set to NULL on error.
+ * @param[in]  pszSrc   Input text. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszSrc or ppszOut is NULL.
+ * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY SpdxNormalizeText(PCSZ pszSrc, PSZ *ppszOut);
+APIRET APIENTRY SpdxNormalizeText(PCSZ pszSrc, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed);
 
 #ifdef __cplusplus
 }

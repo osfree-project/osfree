@@ -3,6 +3,8 @@
 #ifndef REUSE_INTERNAL_H
 #define REUSE_INTERNAL_H
 
+#include "os2types.h"
+#include "os2err.h"
 #include "reuse.h"
 #include "reuse_toml.h"
 #include "dep5.h"
@@ -30,16 +32,22 @@ typedef struct _REUSETREEFILE  REUSETREEFILE,  *PREUSETREEFILE;
  *     value lower than any TOML entry.
  * ------------------------------------------------------------------ */
 
+/** @def REUSECFG_KIND_TOML @brief Config entry holds a REUSE.toml. */
 #define REUSECFG_KIND_TOML  1
+/** @def REUSECFG_KIND_DEP5 @brief Config entry holds a .reuse/dep5. */
 #define REUSECFG_KIND_DEP5  2
 
+/**
+ * @struct _REUSECFG
+ * @brief One configuration source.
+ */
 struct _REUSECFG {
-    int         nKind;          /* REUSECFG_KIND_*                    */
-    char       *pszSourceDir;   /* scope for pattern matching         */
-    int         nDepth;         /* smaller = closer to the root       */
+    int         nKind;         /**< REUSECFG_KIND_*.              */
+    PSZ         pszSourceDir;  /**< Scope for pattern matching.   */
+    int         nDepth;        /**< Smaller = closer to the root. */
 
-    HREUSETOML  hToml;          /* valid if nKind == TOML             */
-    HDEP5DOC    hDep5;          /* valid if nKind == DEP5             */
+    HREUSETOML  hToml;         /**< Valid if nKind == TOML.       */
+    HDEP5DOC    hDep5;         /**< Valid if nKind == DEP5.       */
 };
 
 /* ------------------------------------------------------------------
@@ -50,17 +58,21 @@ struct _REUSECFG {
  * the paErrors array; the corresponding sources are skipped.
  * ------------------------------------------------------------------ */
 
+/**
+ * @struct _REUSETREE
+ * @brief Open project handle.
+ */
 struct _REUSETREE {
-    REUSECFG   *paCfgs;
-    ULONG       ulCount;
-    ULONG       ulCapacity;
+    REUSECFG   *paCfgs;            /**< Configuration sources.    */
+    ULONG       ulCount;           /**< Number of used entries.   */
+    ULONG       ulCapacity;        /**< Allocated capacity.       */
 
-    REUSEERR   *paErrors;
-    ULONG       ulErrorCount;
-    ULONG       ulErrorCapacity;
+    REUSEERR   *paErrors;          /**< Recorded diagnostics.     */
+    ULONG       ulErrorCount;      /**< Number of used entries.   */
+    ULONG       ulErrorCapacity;   /**< Allocated capacity.       */
 
-    char       *pszProjectDir;  /* argument passed to ReuseTreeOpen   */
-    char       *pszRepoRoot;    /* git repository root, or NULL       */
+    PSZ         pszProjectDir;     /**< Argument to ReuseTreeOpen.*/
+    PSZ         pszRepoRoot;       /**< Git repo root, or NULL.   */
 };
 
 /* ------------------------------------------------------------------
@@ -75,16 +87,20 @@ struct _REUSETREE {
  * matched the file (even if only sidecar or tag data was found).
  * ------------------------------------------------------------------ */
 
+/**
+ * @struct _REUSETREEFILE
+ * @brief Per-file resolution result.
+ */
 struct _REUSETREEFILE {
-    char       *pszLicense;
-    char       *pszCopyright;
-    char       *pszContributors;    /* '\n'-separated                */
-    char       *pszPackageName;
-    char       *pszPackageSupplier;
-    char       *pszPackageDownloadLocation;
-    char       *pszPackageComment;
-    ULONG       ulPrecedence;
-    BOOL        bHasReuse;
+    PSZ         pszLicense;                /**< SPDX license expr.   */
+    PSZ         pszCopyright;              /**< Copyright text.      */
+    PSZ         pszContributors;           /**< '\n'-separated.      */
+    PSZ         pszPackageName;            /**< SPDX-PackageName.    */
+    PSZ         pszPackageSupplier;        /**< SPDX-PackageSupplier.*/
+    PSZ         pszPackageDownloadLocation;/**< Download location.   */
+    PSZ         pszPackageComment;         /**< Package comment.     */
+    ULONG       ulPrecedence;              /**< REUSE_PRECEDENCE_*.  */
+    BOOL        bHasReuse;                 /**< Any source matched.  */
 };
 
 /* ------------------------------------------------------------------

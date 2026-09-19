@@ -44,15 +44,18 @@ extern "C" {
  * Value types
  * ================================================================== */
 
-/** @brief JSON value type tag. */
-typedef enum {
+/**
+ * @enum _JSONTYPE
+ * @brief JSON value type tag.
+ */
+typedef enum _JSONTYPE {
     JSON_NULL,      /**< Null value.     */
     JSON_BOOLEAN,   /**< Boolean value.  */
     JSON_NUMBER,    /**< Number value.   */
     JSON_STRING,    /**< String value.   */
     JSON_ARRAY,     /**< Array value.    */
     JSON_OBJECT     /**< Object value.   */
-} JsonType;
+} JSONTYPE;
 
 /**
  * @typedef HJSONDOC
@@ -89,7 +92,7 @@ typedef HANDLE HJSONNODE;
  * @retval ERROR_INVALID_PARAMETER  pszText or phDoc is NULL.
  * @retval ERROR_INVALID_DATA       Malformed JSON, invalid UTF-8,
  *                                  or trailing bytes after the value.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY JsonParse(PCSZ pszText, HJSONDOC *phDoc);
 
@@ -294,7 +297,7 @@ APIRET APIENTRY JsonRoot(HJSONDOC hDoc, HJSONNODE *phNode);
  * @brief Query the type of a node.
  *
  * @param[in]  hNode    Node handle. Not NULLHANDLE.
- * @param[out] pulType  Receiver of a JsonType value. Not NULL.
+ * @param[out] pulType  Receiver of a JSONTYPE value. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -322,8 +325,8 @@ APIRET APIENTRY JsonNodeGetChild(HJSONNODE hNode, PCSZ pszKey,
                                  HJSONNODE *phChild);
 
 /**
- * @brief Number of elements in an array node or entries in an
- *        object node.
+ * @brief Query the number of elements in an array node or entries in
+ *        an object node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
@@ -543,6 +546,7 @@ APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
  *                                  without size-query.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
                            PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
@@ -563,6 +567,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_OPEN_FAILED        Cannot open output file.
  * @retval ERROR_READ_FAULT         Write error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
                               PCSZ pszPath);

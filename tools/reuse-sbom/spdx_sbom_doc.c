@@ -11,344 +11,489 @@
 #include "spdx.h"
 #include "sha1.h"
 
-static void copy_safe(char *dst, size_t dst_size, const char *src) {
-    if (!src) { dst[0] = '\0'; return; }
-    strncpy(dst, src, dst_size - 1);
-    dst[dst_size - 1] = '\0';
-}
+/**
+ * @file spdx_sbom_doc.c
+ * @brief Implementation of the SBOM document construction.
+ */
 
-void sbom_doc_init(SpdxDocument *doc,
-                   const char *name,
-                   const char *version,
-                   const char *supplier,
-                   const char *creator,
-                   const char *license,
-                   const char *copyright,
-                   const char *purpose,
-                   const char *binary_file,
-                   int   binary_mode) {
-    time_t now;
-    struct tm *tm;
-    char date[32];
-    char safe[256];
-    char ns[512];
-    char file_base[256];
-    char pkg_id[256];
+/* ------------------------------------------------------------------ */
+/* Small helpers                                                       */
+/* ------------------------------------------------------------------ */
 
-    memset(doc, 0, sizeof(*doc));
-    extracted_init(&doc->extracted_licenses);
-    snippetlist_init(&doc->snippets);
-
-    now = time(NULL);
-    tm = gmtime(&now);
-    strftime(date, sizeof(date), "%Y-%m-%dT%H:%M:%SZ", tm);
-
-    copy_safe(doc->spdx_version, sizeof(doc->spdx_version), "SPDX-2.3");
-    copy_safe(doc->document_id, sizeof(doc->document_id), "SPDXRef-DOCUMENT");
-    copy_safe(doc->created, sizeof(doc->created), date);
-
-    if (creator && creator[0])
-        copy_safe(doc->creator, sizeof(doc->creator), creator);
-    else
-        copy_safe(doc->creator, sizeof(doc->creator),
-                  "Tool: osFree SPDX SBOM Generator");
-
-    if (name)
-        snprintf(doc->document_name, sizeof(doc->document_name), "%s SBOM", name);
-
-    sbom_sanitize_id(name ? name : "document", safe, sizeof(safe));
-    snprintf(ns, sizeof(ns), "https://osfree.org/spdxdocs/%s-%ld",
-             safe, (long)now);
-    copy_safe(doc->document_namespace, sizeof(doc->document_namespace), ns);
-    copy_safe(doc->data_license, sizeof(doc->data_license), "CC0-1.0");
-
-    file_base[0] = '\0';
-    if (binary_file) {
-        copy_safe(file_base, sizeof(file_base),
-                  SpdxGetFileName(binary_file));
-        sbom_remove_extension(file_base);
-    }
-    if (file_base[0] == '\0')
-        copy_safe(file_base, sizeof(file_base), "package");
-
-    sbom_make_package_id(file_base, binary_mode ? NULL : "Source",
-                         pkg_id, sizeof(pkg_id));
-
-    copy_safe(doc->package.spdx_id, sizeof(doc->package.spdx_id), pkg_id);
-    copy_safe(doc->package.name, sizeof(doc->package.name), name);
-    if (version) copy_safe(doc->package.version, sizeof(doc->package.version), version);
-    if (supplier) copy_safe(doc->package.supplier, sizeof(doc->package.supplier), supplier);
-    copy_safe(doc->package.license, sizeof(doc->package.license), license);
-    if (copyright) copy_safe(doc->package.copyright, sizeof(doc->package.copyright), copyright);
-    if (purpose) copy_safe(doc->package.purpose, sizeof(doc->package.purpose), purpose);
-    doc->package.files_analyzed = 0;
-    doc->package.verification_code[0] = '\0';
-    doc->package.license_info_from_files = NULL;
-    doc->package.license_info_count = 0;
-    doc->package.license_info_capacity = 0;
-}
-
-static int cmp_fileinfo(const void *a, const void *b) {
-    return strcmp(((const FileInfo*)a)->name, ((const FileInfo*)b)->name);
-}
-
-/* Appends a license to PackageLicenseInfoFromFiles if not already present. */
-static void add_unique_license(PackageInfo *pkg, const char *lic) {
-    int i;
-
-    if (!lic || !lic[0]) return;
-
-    for (i = 0; i < pkg->license_info_count; i++) {
-        if (strcmp(pkg->license_info_from_files[i], lic) == 0) return;
-    }
-
-    if (pkg->license_info_count >= pkg->license_info_capacity) {
-        int new_cap = pkg->license_info_capacity
-                      ? pkg->license_info_capacity * 2
-                      : 8;
-        char **na = (char**)realloc(pkg->license_info_from_files,
-                                    (size_t)new_cap * sizeof(char*));
-        if (!na) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
-        }
-        pkg->license_info_from_files = na;
-        pkg->license_info_capacity = new_cap;
-    }
-    pkg->license_info_from_files[pkg->license_info_count] =
-        (char*)malloc(strlen(lic) + 1);
-    if (!pkg->license_info_from_files[pkg->license_info_count]) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(pkg->license_info_from_files[pkg->license_info_count], lic);
-    pkg->license_info_count++;
+/**
+ * @brief Copy a NUL-terminated string into a fixed buffer.
+ *
+ * If @p pszSrc is NULL, the destination is set to an empty string.
+ * If the source does not fit, it is truncated.
+ *
+ * @param[out] pszDst     Destination buffer. Not NULL.
+ * @param[in]  ulDstSize  Size of pszDst in bytes. Must be > 0.
+ * @param[in]  pszSrc     Source string, or NULL.
+ */
+static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
+    if (!pszSrc) { pszDst[0] = '\0'; return; }
+    strncpy(pszDst, pszSrc, ulDstSize - 1);
+    pszDst[ulDstSize - 1] = '\0';
 }
 
 /**
- * @brief Compute PackageVerificationCode and collect
- *        PackageLicenseInfoFromFiles.
+ * @brief qsort comparator for file entries, by name.
  *
- * PackageVerificationCode is defined by SPDX 2.3 §7.9: it is the
- * SHA-1 hash of the concatenation of the SHA-1 hashes of every file
- * in the package, sorted by file name. SHA-1 is mandatory here and
- * cannot be replaced with another algorithm.
+ * @param[in] pA  First entry.
+ * @param[in] pB  Second entry.
  *
- * @todo (SPDX 2.3 Annex I) Support additional checksum algorithms
- *       (SHA-224, SHA-256, SHA-384, SHA-512, MD2, MD4, MD5, MD6,
- *       SHA3-256/384/512, BLAKE2b-256/384/512, BLAKE3, ADLER32) when
- *       they appear in imported SBOMs. The per-file storage should
- *       become SpdxChecksumList rather than the single sha1 field.
+ * @return Negative, zero or positive per strcmp.
  */
-void sbom_doc_compute_verification(SpdxDocument *doc) {
-    FileInfo *sorted;
-    size_t total_len;
-    char *concat;
-    char combined[41];
-    int i;
+static int cmp_fileinfo(const void *pA, const void *pB) {
+    return strcmp(((const SPDXFILEINFO*)pA)->achName,
+                  ((const SPDXFILEINFO*)pB)->achName);
+}
 
-    if (doc->files.count == 0) {
-        doc->package.files_analyzed = 0;
-        doc->package.verification_code[0] = '\0';
-        return;
+/* ------------------------------------------------------------------ */
+/* Document lifecycle                                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty SBOM document.
+ *
+ * @param[out] pDoc           Receiver. Not NULL.
+ * @param[in]  pszName        Document name. Not NULL.
+ * @param[in]  pszVersion     Package version, or NULL.
+ * @param[in]  pszSupplier    Package supplier, or NULL.
+ * @param[in]  pszCreator     Creator string, or NULL.
+ * @param[in]  pszLicense     Package license expression, or NULL.
+ * @param[in]  pszCopyright   Package copyright, or NULL.
+ * @param[in]  pszPurpose     Primary package purpose, or NULL.
+ * @param[in]  pszBinaryFile  Binary artifact path, or NULL.
+ * @param[in]  fBinaryMode    TRUE_ for a binary artifact.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc or pszName is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateDocument(
+    SPDXDOCUMENT *pDoc,
+    PCSZ pszName,
+    PCSZ pszVersion,
+    PCSZ pszSupplier,
+    PCSZ pszCreator,
+    PCSZ pszLicense,
+    PCSZ pszCopyright,
+    PCSZ pszPurpose,
+    PCSZ pszBinaryFile,
+    BOOL fBinaryMode)
+{
+    time_t tNow;
+    struct tm *ptm;
+    CHAR achDate[32];
+    CHAR achSafe[256];
+    CHAR achNamespace[512];
+    CHAR achFileBase[256];
+    CHAR achPkgId[256];
+    APIRET rc;
+
+    if (!pDoc || !pszName) return ERROR_INVALID_PARAMETER;
+
+    memset(pDoc, 0, sizeof(*pDoc));
+
+    rc = SbomCreateFileList(&pDoc->hFiles);
+    if (rc != NO_ERROR) return rc;
+
+    rc = SbomCreateSnippetList(&pDoc->hSnippets);
+    if (rc != NO_ERROR) {
+        SbomFreeFileList(pDoc->hFiles);
+        return rc;
     }
 
-    /* PackageLicenseInfoFromFiles: split the expression into individual
-     * identifiers. File licenses have already been validated in
-     * sbom_collect_files, so case and syntax are correct. */
-    for (i = 0; i < doc->files.count; i++) {
+    rc = SbomCreateRelationshipList(&pDoc->hRelationships);
+    if (rc != NO_ERROR) {
+        SbomFreeFileList(pDoc->hFiles);
+        SbomFreeSnippetList(pDoc->hSnippets);
+        return rc;
+    }
+
+    rc = SbomCreateExtractedList(&pDoc->hExtractedLicenses);
+    if (rc != NO_ERROR) {
+        SbomFreeFileList(pDoc->hFiles);
+        SbomFreeSnippetList(pDoc->hSnippets);
+        SbomFreeRelationshipList(pDoc->hRelationships);
+        return rc;
+    }
+
+    rc = StrSetCreate(&pDoc->package.hLicenseInfoFromFiles);
+    if (rc != NO_ERROR) {
+        SbomFreeFileList(pDoc->hFiles);
+        SbomFreeSnippetList(pDoc->hSnippets);
+        SbomFreeRelationshipList(pDoc->hRelationships);
+        SbomFreeExtractedList(pDoc->hExtractedLicenses);
+        return rc;
+    }
+
+    tNow = time(NULL);
+    ptm = gmtime(&tNow);
+    if (ptm)
+        strftime(achDate, sizeof(achDate), "%Y-%m-%dT%H:%M:%SZ", ptm);
+    else
+        achDate[0] = '\0';
+
+    copy_field(pDoc->achSpdxVersion, sizeof(pDoc->achSpdxVersion),
+               "SPDX-2.3");
+    copy_field(pDoc->achDocumentId, sizeof(pDoc->achDocumentId),
+               "SPDXRef-DOCUMENT");
+    copy_field(pDoc->achCreated, sizeof(pDoc->achCreated), achDate);
+
+    if (pszCreator && pszCreator[0])
+        copy_field(pDoc->achCreator, sizeof(pDoc->achCreator),
+                   pszCreator);
+    else
+        copy_field(pDoc->achCreator, sizeof(pDoc->achCreator),
+                   "Tool: osFree SPDX SBOM Generator");
+
+    snprintf(pDoc->achDocumentName, sizeof(pDoc->achDocumentName),
+             "%s SBOM", pszName);
+
+    rc = SbomSanitizeId(pszName, achSafe, sizeof(achSafe));
+    if (rc != NO_ERROR) achSafe[0] = '\0';
+    snprintf(achNamespace, sizeof(achNamespace),
+             "https://osfree.org/spdxdocs/%s-%ld",
+             achSafe, (long)tNow);
+    copy_field(pDoc->achDocumentNamespace,
+               sizeof(pDoc->achDocumentNamespace), achNamespace);
+
+    copy_field(pDoc->achDataLicense, sizeof(pDoc->achDataLicense),
+               "CC0-1.0");
+
+    achFileBase[0] = '\0';
+    if (pszBinaryFile) {
+        copy_field(achFileBase, sizeof(achFileBase),
+                   SpdxGetFileName(pszBinaryFile));
+        SbomRemoveExtension(achFileBase);
+    }
+    if (achFileBase[0] == '\0')
+        copy_field(achFileBase, sizeof(achFileBase), "package");
+
+    rc = SbomMakePackageId(achFileBase,
+                           fBinaryMode ? NULL : "Source",
+                           achPkgId, sizeof(achPkgId));
+    if (rc != NO_ERROR) achPkgId[0] = '\0';
+
+    copy_field(pDoc->package.achSpdxId,
+               sizeof(pDoc->package.achSpdxId), achPkgId);
+    copy_field(pDoc->package.achName,
+               sizeof(pDoc->package.achName), pszName);
+    if (pszVersion)
+        copy_field(pDoc->package.achVersion,
+                   sizeof(pDoc->package.achVersion), pszVersion);
+    if (pszSupplier)
+        copy_field(pDoc->package.achSupplier,
+                   sizeof(pDoc->package.achSupplier), pszSupplier);
+    if (pszLicense)
+        copy_field(pDoc->package.achLicense,
+                   sizeof(pDoc->package.achLicense), pszLicense);
+    if (pszCopyright)
+        copy_field(pDoc->package.achCopyright,
+                   sizeof(pDoc->package.achCopyright), pszCopyright);
+    if (pszPurpose)
+        copy_field(pDoc->package.achPurpose,
+                   sizeof(pDoc->package.achPurpose), pszPurpose);
+
+    pDoc->package.fFilesAnalyzed = FALSE_;
+    pDoc->package.achVerificationCode[0] = '\0';
+    pDoc->fHasExternalRef = FALSE_;
+
+    return NO_ERROR;
+}
+
+/**
+ * @brief Release all resources owned by a document.
+ *
+ * @param[in,out] pDoc  Document. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc is NULL.
+ */
+APIRET APIENTRY SbomFreeDocument(SPDXDOCUMENT *pDoc) {
+    if (!pDoc) return ERROR_INVALID_PARAMETER;
+
+    if (pDoc->hFiles != NULLHANDLE) SbomFreeFileList(pDoc->hFiles);
+    if (pDoc->hSnippets != NULLHANDLE) SbomFreeSnippetList(pDoc->hSnippets);
+    if (pDoc->hRelationships != NULLHANDLE)
+        SbomFreeRelationshipList(pDoc->hRelationships);
+    if (pDoc->hExtractedLicenses != NULLHANDLE)
+        SbomFreeExtractedList(pDoc->hExtractedLicenses);
+    if (pDoc->package.hLicenseInfoFromFiles != NULLHANDLE)
+        StrSetDestroy(pDoc->package.hLicenseInfoFromFiles);
+
+    pDoc->hFiles = NULLHANDLE;
+    pDoc->hSnippets = NULLHANDLE;
+    pDoc->hRelationships = NULLHANDLE;
+    pDoc->hExtractedLicenses = NULLHANDLE;
+    pDoc->package.hLicenseInfoFromFiles = NULLHANDLE;
+    return NO_ERROR;
+}
+
+/* ------------------------------------------------------------------ */
+/* External document reference                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Set the external document reference to a source SBOM.
+ *
+ * @param[in,out] pDoc               Document. Not NULL.
+ * @param[in]     pszSourceSbomPath  Path to the source SBOM, or NULL.
+ * @param[in]     pszChecksumSha1    SHA-1 hex digest, or NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc is NULL.
+ */
+APIRET APIENTRY SbomSetDocumentExternalReference(
+    SPDXDOCUMENT *pDoc,
+    PCSZ pszSourceSbomPath,
+    PCSZ pszChecksumSha1)
+{
+    if (!pDoc) return ERROR_INVALID_PARAMETER;
+    if (!pszSourceSbomPath || !pszSourceSbomPath[0]) return NO_ERROR;
+
+    copy_field(pDoc->achExternalDocId, sizeof(pDoc->achExternalDocId),
+               "DocumentRef-source");
+    copy_field(pDoc->achExternalDocUri, sizeof(pDoc->achExternalDocUri),
+               SpdxGetFileName(pszSourceSbomPath));
+    if (pszChecksumSha1)
+        copy_field(pDoc->achExternalDocChecksum,
+                   sizeof(pDoc->achExternalDocChecksum),
+                   pszChecksumSha1);
+
+    pDoc->fHasExternalRef = TRUE_;
+    return NO_ERROR;
+}
+
+/* ------------------------------------------------------------------ */
+/* Package verification                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Compute PackageVerificationCode and license identifiers.
+ *
+ * @param[in,out] pDoc  Document. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc is NULL.
+ * @retval ERROR_INVALID_HANDLE     An internal container is not
+ *                                  recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_READ_FAULT         SHA-1 computation failed.
+ */
+APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
+    ULONG ulFiles = 0, ulIdx;
+    SPDXFILEINFO *paSorted;
+    size_t cbTotal;
+    PSZ pszConcat;
+    CHAR achCombined[41];
+    APIRET rc;
+
+    if (!pDoc) return ERROR_INVALID_PARAMETER;
+
+    rc = VectorGetCount(pDoc->hFiles, &ulFiles);
+    if (rc != NO_ERROR) return rc;
+
+    if (ulFiles == 0) {
+        pDoc->package.fFilesAnalyzed = FALSE_;
+        pDoc->package.achVerificationCode[0] = '\0';
+        return NO_ERROR;
+    }
+
+    /* 1. Fill PackageLicenseInfoFromFiles. */
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++) {
+        SPDXFILEINFO info;
         HSTRSET hIds = NULLHANDLE;
         HSTRSETENUM hEnum = NULLHANDLE;
 
-        if (StrSetCreate(&hIds) != NO_ERROR) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
+        if (VectorGetItem(pDoc->hFiles, ulIdx, &info,
+                          (ULONG)sizeof(info), NULL) != NO_ERROR)
+            continue;
+
+        rc = StrSetCreate(&hIds);
+        if (rc != NO_ERROR) return rc;
+
+        rc = SpdxExpressionCollectIds(info.achLicense, hIds);
+        if (rc != NO_ERROR) {
+            StrSetDestroy(hIds);
+            return rc;
         }
-        SpdxExpressionCollectIds(doc->files.items[i].license, hIds);
+
         if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
             do {
-                char id[256];
-                if (StrSetEnumGet(hEnum, id, sizeof(id), NULL) != NO_ERROR)
+                CHAR achId[256];
+                if (StrSetEnumGet(hEnum, achId, sizeof(achId), NULL)
+                        != NO_ERROR)
                     continue;
-                add_unique_license(&doc->package, id);
+                rc = StrSetAdd(pDoc->package.hLicenseInfoFromFiles, achId);
+                if (rc != NO_ERROR) {
+                    StrSetEnumClose(hEnum);
+                    StrSetDestroy(hIds);
+                    return rc;
+                }
             } while (StrSetEnumNext(hEnum) == NO_ERROR);
             StrSetEnumClose(hEnum);
         }
         StrSetDestroy(hIds);
     }
 
-    /* PackageVerificationCode: SHA1 of the concatenation of file SHA1s,
-     * sorted by name. */
-    sorted = (FileInfo*)malloc((size_t)doc->files.count * sizeof(FileInfo));
-    if (!sorted) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
+    /* 2. Compute PackageVerificationCode: SHA-1 of the sorted
+     *    concatenation of file SHA-1 hex digests. */
+    paSorted = (SPDXFILEINFO*)malloc(
+        (size_t)ulFiles * sizeof(SPDXFILEINFO));
+    if (!paSorted) return ERROR_NOT_ENOUGH_MEMORY;
+
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++) {
+        if (VectorGetItem(pDoc->hFiles, ulIdx, &paSorted[ulIdx],
+                          (ULONG)sizeof(SPDXFILEINFO), NULL)
+                != NO_ERROR)
+            memset(&paSorted[ulIdx], 0, sizeof(SPDXFILEINFO));
     }
-    memcpy(sorted, doc->files.items,
-           (size_t)doc->files.count * sizeof(FileInfo));
-    qsort(sorted, (size_t)doc->files.count, sizeof(FileInfo), cmp_fileinfo);
+    qsort(paSorted, (size_t)ulFiles, sizeof(SPDXFILEINFO), cmp_fileinfo);
 
-    total_len = 0;
-    for (i = 0; i < doc->files.count; i++)
-        total_len += strlen(sorted[i].sha1);
+    cbTotal = 0;
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++)
+        cbTotal += strlen(paSorted[ulIdx].achSha1);
 
-    concat = (char*)malloc(total_len + 1);
-    if (!concat) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
+    pszConcat = (PSZ)malloc(cbTotal + 1);
+    if (!pszConcat) {
+        free(paSorted);
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
-    concat[0] = '\0';
-    for (i = 0; i < doc->files.count; i++)
-        strcat(concat, sorted[i].sha1);
+    pszConcat[0] = '\0';
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++)
+        strcat(pszConcat, paSorted[ulIdx].achSha1);
 
-    if (Sha1String(concat, combined, sizeof(combined), NULL) != NO_ERROR) {
-        free(concat);
-        free(sorted);
-        fprintf(stderr,
-                "ERROR: cannot compute SHA1 for PackageVerificationCode\n");
-        exit(EXIT_FAILURE);
-    }
-    free(concat);
-    free(sorted);
+    rc = Sha1String(pszConcat, achCombined, sizeof(achCombined), NULL);
+    free(pszConcat);
+    free(paSorted);
 
-    memcpy(doc->package.verification_code, combined, 41);
-    doc->package.files_analyzed = 1;
+    if (rc != NO_ERROR) return rc;
+
+    memcpy(pDoc->package.achVerificationCode, achCombined, 41);
+    pDoc->package.fFilesAnalyzed = TRUE_;
+    return NO_ERROR;
 }
 
-/* Fills relationships:
- *   - DESCRIBES: document -> package;
- *   - GENERATED_FROM: package -> Source package (binary mode only);
- *   - CONTAINS: package -> file, for each file;
- *   - CONTAINS: file -> snippet, for each snippet. */
-void sbom_doc_build_relationships(SpdxDocument *doc,
-                                  const char *base_name_no_ext,
-                                  int binary_mode) {
-    int rel_count;
-    int idx;
-    int i;
-
-    rel_count = 1;                    /* DESCRIBES */
-    if (binary_mode) rel_count++;     /* GENERATED_FROM */
-    rel_count += doc->files.count;    /* CONTAINS x N */
-    rel_count += doc->snippets.count; /* CONTAINS file -> snippet */
-
-    doc->relationships = (Relationship*)malloc(
-        sizeof(Relationship) * (size_t)rel_count);
-    if (!doc->relationships) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
-    }
-    doc->relationship_count = 0;
-
-    /* 0: DESCRIBES */
-    idx = doc->relationship_count++;
-    copy_safe(doc->relationships[idx].element_id,
-              sizeof(doc->relationships[idx].element_id), doc->document_id);
-    copy_safe(doc->relationships[idx].related_element,
-              sizeof(doc->relationships[idx].related_element),
-              doc->package.spdx_id);
-    copy_safe(doc->relationships[idx].relationship_type,
-              sizeof(doc->relationships[idx].relationship_type),
-              "DESCRIBES");
-
-    /* 1: GENERATED_FROM (binary mode) */
-    if (binary_mode) {
-        char src_id[256];
-        sbom_make_package_id(base_name_no_ext, "Source",
-                             src_id, sizeof(src_id));
-        idx = doc->relationship_count++;
-        copy_safe(doc->relationships[idx].element_id,
-                  sizeof(doc->relationships[idx].element_id),
-                  doc->package.spdx_id);
-        copy_safe(doc->relationships[idx].related_element,
-                  sizeof(doc->relationships[idx].related_element),
-                  src_id);
-        copy_safe(doc->relationships[idx].relationship_type,
-                  sizeof(doc->relationships[idx].relationship_type),
-                  "GENERATED_FROM");
-    }
-
-    /* CONTAINS package -> file */
-    for (i = 0; i < doc->files.count; i++) {
-        char file_id[512];
-        idx = doc->relationship_count++;
-        snprintf(file_id, sizeof(file_id), "SPDXRef-File-%s",
-                 doc->files.items[i].name);
-        copy_safe(doc->relationships[idx].element_id,
-                  sizeof(doc->relationships[idx].element_id),
-                  doc->package.spdx_id);
-        copy_safe(doc->relationships[idx].related_element,
-                  sizeof(doc->relationships[idx].related_element),
-                  file_id);
-        copy_safe(doc->relationships[idx].relationship_type,
-                  sizeof(doc->relationships[idx].relationship_type),
-                  "CONTAINS");
-    }
-
-    /* CONTAINS file -> snippet */
-    for (i = 0; i < doc->snippets.count; i++) {
-        idx = doc->relationship_count++;
-        copy_safe(doc->relationships[idx].element_id,
-                  sizeof(doc->relationships[idx].element_id),
-                  doc->snippets.items[i].from_file_id);
-        copy_safe(doc->relationships[idx].related_element,
-                  sizeof(doc->relationships[idx].related_element),
-                  doc->snippets.items[i].spdx_id);
-        copy_safe(doc->relationships[idx].relationship_type,
-                  sizeof(doc->relationships[idx].relationship_type),
-                  "CONTAINS");
-    }
-}
+/* ------------------------------------------------------------------ */
+/* Relationships                                                       */
+/* ------------------------------------------------------------------ */
 
 /**
- * @brief Set an external reference to the source SBOM.
+ * @brief Build the relationships list.
  *
- * The checksum algorithm is currently fixed to SHA-1 by the caller.
+ * @param[in,out] pDoc              Document. Not NULL.
+ * @param[in]     pszBaseNameNoExt  Base name without extension.
+ * @param[in]     fBinaryMode       TRUE_ for a binary artifact.
  *
- * @todo (SPDX 2.3 §6.6) externalDocumentRef.checksum allows any
- *       algorithm from the Annex I list. Extend the signature or
- *       accept SpdxChecksum { algorithm, value } instead of the
- *       single checksum_sha1 string.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc is NULL, or pszBaseNameNoExt
+ *                                  is NULL in binary mode.
+ * @retval ERROR_INVALID_HANDLE     An internal container is not
+ *                                  recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-void sbom_doc_set_external(SpdxDocument *doc,
-                           const char *source_sbom_path,
-                           const char *source_package_id,
-                           const char *checksum_sha1) {
-    if (!source_sbom_path || !source_sbom_path[0]) return;
+APIRET APIENTRY SbomBuildRelationships(
+    SPDXDOCUMENT *pDoc,
+    PCSZ pszBaseNameNoExt,
+    BOOL fBinaryMode)
+{
+    ULONG ulFiles = 0, ulSnippets = 0;
+    ULONG ulIdx;
+    SPDXRELATIONSHIP rel;
+    APIRET rc;
 
-    copy_safe(doc->external_doc_id, sizeof(doc->external_doc_id),
-              "DocumentRef-source");
-    copy_safe(doc->external_doc_uri, sizeof(doc->external_doc_uri),
-              SpdxGetFileName(source_sbom_path));
-    if (checksum_sha1)
-        copy_safe(doc->external_doc_checksum,
-                  sizeof(doc->external_doc_checksum), checksum_sha1);
+    if (!pDoc) return ERROR_INVALID_PARAMETER;
+    if (fBinaryMode && !pszBaseNameNoExt) return ERROR_INVALID_PARAMETER;
 
-    doc->has_external_ref = 1;
+    /* 1. DESCRIBES: document -> package. */
+    memset(&rel, 0, sizeof(rel));
+    copy_field(rel.achElementId, sizeof(rel.achElementId),
+               pDoc->achDocumentId);
+    copy_field(rel.achRelatedElement, sizeof(rel.achRelatedElement),
+               pDoc->package.achSpdxId);
+    copy_field(rel.achRelationshipType, sizeof(rel.achRelationshipType),
+               "DESCRIBES");
+    rc = SbomAddRelationship(pDoc->hRelationships, &rel);
+    if (rc != NO_ERROR) return rc;
 
-    if (doc->relationship_count >= 2 &&
-        strcmp(doc->relationships[1].relationship_type, "GENERATED_FROM") == 0) {
-        char full[512];
-        snprintf(full, sizeof(full), "%s:%s",
-                 doc->external_doc_id, source_package_id);
-        copy_safe(doc->relationships[1].related_element,
-                  sizeof(doc->relationships[1].related_element), full);
+    /* 2. GENERATED_FROM (binary mode only). */
+    if (fBinaryMode) {
+        CHAR achSrcId[256];
+
+        rc = SbomMakePackageId(pszBaseNameNoExt, "Source",
+                               achSrcId, sizeof(achSrcId));
+        if (rc != NO_ERROR) return rc;
+
+        memset(&rel, 0, sizeof(rel));
+        copy_field(rel.achElementId, sizeof(rel.achElementId),
+                   pDoc->package.achSpdxId);
+        if (pDoc->fHasExternalRef)
+            snprintf(rel.achRelatedElement,
+                     sizeof(rel.achRelatedElement),
+                     "%s:%s", pDoc->achExternalDocId, achSrcId);
+        else
+            copy_field(rel.achRelatedElement,
+                       sizeof(rel.achRelatedElement), achSrcId);
+        copy_field(rel.achRelationshipType,
+                   sizeof(rel.achRelationshipType), "GENERATED_FROM");
+        rc = SbomAddRelationship(pDoc->hRelationships, &rel);
+        if (rc != NO_ERROR) return rc;
     }
-}
 
-void sbom_doc_free(SpdxDocument *doc) {
-    int i;
-    filelist_free(&doc->files);
-    snippetlist_free(&doc->snippets);
-    extracted_free(&doc->extracted_licenses);
-    for (i = 0; i < doc->package.license_info_count; i++) {
-        free(doc->package.license_info_from_files[i]);
+    /* 3. CONTAINS: package -> file. */
+    rc = VectorGetCount(pDoc->hFiles, &ulFiles);
+    if (rc != NO_ERROR) return rc;
+
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++) {
+        SPDXFILEINFO info;
+        CHAR achFileId[512];
+
+        if (VectorGetItem(pDoc->hFiles, ulIdx, &info,
+                          (ULONG)sizeof(info), NULL) != NO_ERROR)
+            continue;
+
+        snprintf(achFileId, sizeof(achFileId),
+                 "SPDXRef-File-%s", info.achName);
+
+        memset(&rel, 0, sizeof(rel));
+        copy_field(rel.achElementId, sizeof(rel.achElementId),
+                   pDoc->package.achSpdxId);
+        copy_field(rel.achRelatedElement,
+                   sizeof(rel.achRelatedElement), achFileId);
+        copy_field(rel.achRelationshipType,
+                   sizeof(rel.achRelationshipType), "CONTAINS");
+        rc = SbomAddRelationship(pDoc->hRelationships, &rel);
+        if (rc != NO_ERROR) return rc;
     }
-    free(doc->package.license_info_from_files);
-    doc->package.license_info_from_files = NULL;
-    doc->package.license_info_count = 0;
-    doc->package.license_info_capacity = 0;
-    free(doc->relationships);
-    doc->relationships = NULL;
-    doc->relationship_count = 0;
+
+    /* 4. CONTAINS: file -> snippet. */
+    rc = VectorGetCount(pDoc->hSnippets, &ulSnippets);
+    if (rc != NO_ERROR) return rc;
+
+    for (ulIdx = 0; ulIdx < ulSnippets; ulIdx++) {
+        SPDXSNIPPETINFO info;
+        if (VectorGetItem(pDoc->hSnippets, ulIdx, &info,
+                          (ULONG)sizeof(info), NULL) != NO_ERROR)
+            continue;
+
+        memset(&rel, 0, sizeof(rel));
+        copy_field(rel.achElementId, sizeof(rel.achElementId),
+                   info.achFromFileId);
+        copy_field(rel.achRelatedElement, sizeof(rel.achRelatedElement),
+                   info.achSpdxId);
+        copy_field(rel.achRelationshipType,
+                   sizeof(rel.achRelationshipType), "CONTAINS");
+        rc = SbomAddRelationship(pDoc->hRelationships, &rel);
+        if (rc != NO_ERROR) return rc;
+    }
+
+    return NO_ERROR;
 }

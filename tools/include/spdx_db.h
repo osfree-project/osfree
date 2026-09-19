@@ -1,110 +1,306 @@
-/* spdx_db.h - библиотека SPDX license list (C89, OpenWatcom)
+/* spdx_db.h - SPDX License List database (C89, OpenWatcom)
  *
- * Дисковый кеш хранит и индекс, и детали (полный текст, шаблон, HTML).
- * Индекс читается при spdx_db_init (быстро, ~сотни КБ).
- * Детали читаются по требованию через fseek (не парсятся заново).
+ * The on-disk cache stores both the index and the details (full
+ * text, template, HTML). The index is read by SpdxOpenDatabase
+ * (fast, several hundred KB). Details are read on demand via fseek
+ * (they are not parsed again).
  */
 #ifndef SPDX_DB_H
 #define SPDX_DB_H
+
+#include "os2types.h"
+#include "os2err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SPDX_DB_FLAG_OSI        0x01
-#define SPDX_DB_FLAG_FSF_LIBRE  0x02
-#define SPDX_DB_FLAG_DEPRECATED 0x04
-
-#define SPDX_DB_ERR_LICENSES    0x01
-#define SPDX_DB_ERR_EXCEPTIONS  0x02
-#define SPDX_DB_ERR_CACHE       0x04
-
-#define SPDX_EXPR_OK             0
-#define SPDX_EXPR_SYNTAX_ERROR   1
-#define SPDX_EXPR_UNKNOWN_TOKEN  2
-
-typedef struct {
-    char *id;
-    unsigned char flags;
-    char *name;
-    char **see_also;             /* NULL-терминированный */
-
-    unsigned long detail_offset; /* 0 - деталей нет */
-    unsigned long detail_size;
-
-    int  detail_loaded;
-    char *text;
-    char *template;
-    char *text_html;
-} SpdxLicenseEntry;
-
-typedef struct {
-    char *id;
-    unsigned char flags;
-    char *name;
-    char **see_also;
-
-    unsigned long detail_offset;
-    unsigned long detail_size;
-
-    int  detail_loaded;
-    char *text;
-    char *template;
-    char *text_html;
-} SpdxExceptionEntry;
-
-/* Инициализация базы SPDX.
- *   spdx_db_root - корень базы; внутри ожидаются:
- *                    licenses.json
- *                    exceptions.json
- *                    details/<id>.json
- *                    exceptions/<id>.json
- *   cache_file   - путь к файлу кеша. NULL - без кеша.
+/**
+ * @file spdx_db.h
+ * @brief SPDX License List database.
  *
- * Возвращает 0 при полном успехе либо битовую маску SPDX_DB_ERR_*.
+ * Conforms to:
+ *   - SPDX License List.
+ *     https://spdx.org/licenses/
+ *   - SPDX 2.3, Annex D.2 (case-insensitive identifier comparison).
+ *   - SPDX 2.3, Annex D (license expression grammar).
  */
-int spdx_db_init(const char *spdx_db_root,
-                 const char *cache_file);
 
-void spdx_db_free(void);
+/* ==================================================================
+ * Return codes
+ * ================================================================== */
 
-const SpdxLicenseEntry   *spdx_license_lookup(const char *id);
-const SpdxExceptionEntry *spdx_exception_lookup(const char *id);
+/** @def SPDXDB_ERROR_LICENSES @brief licenses.json failed to load.
+ *  User range 0xFF01. */
+#define SPDXDB_ERROR_LICENSES    0xFF01
+/** @def SPDXDB_ERROR_EXCEPTIONS @brief exceptions.json failed to load.
+ *  User range 0xFF02. */
+#define SPDXDB_ERROR_EXCEPTIONS  0xFF02
+/** @def SPDXDB_ERROR_CACHE @brief Cache file could not be written.
+ *  User range 0xFF03. */
+#define SPDXDB_ERROR_CACHE       0xFF03
 
-/* Ленивая загрузка деталей. 0 - успех, -1 - ошибка. */
-int spdx_license_load_detail(const char *id);
-int spdx_exception_load_detail(const char *id);
+/** @def SPDX_EXPR_SYNTAX_ERROR @brief Expression grammar violation.
+ *  User range 0xFF04. */
+#define SPDX_EXPR_SYNTAX_ERROR   0xFF04
+/** @def SPDX_EXPR_UNKNOWN_TOKEN @brief Unknown SPDX identifier.
+ *  User range 0xFF05. */
+#define SPDX_EXPR_UNKNOWN_TOKEN  0xFF05
 
-/* Возвращает текст лицензии (поле licenseText) из базы.
- * NULL, если id не найден или деталь не загружена. */
-const char *spdx_license_get_text(const char *id);
+/* ==================================================================
+ * Lifecycle
+ * ================================================================== */
 
-/* То же для исключений. */
-const char *spdx_exception_get_text(const char *id);
-
-int spdx_license_is_valid(const char *id);
-int spdx_exception_is_valid(const char *id);
-int spdx_license_is_deprecated(const char *id);
-int spdx_exception_is_deprecated(const char *id);
-int spdx_license_is_osi_approved(const char *id);
-int spdx_license_is_fsf_libre(const char *id);
-
-/* Возвращает SPDX_EXPR_*.
- * При UNKNOWN_TOKEN, если bad_token != NULL, туда пишется указатель
- * на начало проблемного токена внутри строки expr. Длина токена
- * определяется до ближайшего пробела, '(' или ')'. */
-int spdx_expression_validate(const char *expr, const char **bad_token);
-
-/* Приводит SPDX-выражение к каноническому виду: каждый идентификатор
- * из SPDX License List / SPDX Exceptions заменяется на канонический
- * регистр (например, 'BSD-3-clause' -> 'BSD-3-Clause').
+/**
+ * @brief Open the SPDX database.
  *
- * Операторы AND/OR/WITH, скобки и пробелы сохраняются как есть.
- * LicenseRef-* и DocumentRef-* остаются без изменений.
+ * @param[in] pszDbRoot    Database root. Inside it the following are
+ *                         expected:
+ *                           licenses.json
+ *                           exceptions.json
+ *                           details/<id>.json
+ *                           exceptions/<id>.json
+ *                         Not NULL.
+ * @param[in] pszCacheFile Path to the cache file, or NULL for no
+ *                         cache.
  *
- * Возвращает malloc-строку (caller free) или NULL при OOM. Для
- * пустой/нулевой строки возвращает пустую строку. */
-char *spdx_normalize_license_expression(const char *expr);
+ * @return APIRET
+ * @retval NO_ERROR                 Full success.
+ * @retval ERROR_INVALID_PARAMETER  pszDbRoot is NULL or empty.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval SPDXDB_ERROR_LICENSES    licenses.json failed to load.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  exceptions.json failed to load.
+ * @retval SPDXDB_ERROR_CACHE       Cache could not be written.
+ */
+APIRET APIENTRY SpdxOpenDatabase(PCSZ pszDbRoot, PCSZ pszCacheFile);
+
+/**
+ * @brief Close the SPDX database.
+ *
+ * Releases every resource owned by the module, including
+ * lazy-loaded details and the open cache file.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Always.
+ */
+APIRET APIENTRY SpdxCloseDatabase(void);
+
+/* ==================================================================
+ * Identifier queries
+ * ================================================================== */
+
+/**
+ * @brief Query the canonical form of an SPDX identifier.
+ *
+ * If @p pszId is a known license or exception, the canonical case
+ * form is copied into @p pszBuf.
+ *
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *     NUL) is written.
+ *   - ulSize large enough: value copied and NUL-terminated;
+ *     *pulUsed is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     Identifier is not a known license
+ *                                  or exception.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
+                                     ULONG ulSize, PULONG pulUsed);
+
+/* ==================================================================
+ * Predicates
+ * ================================================================== */
+
+/**
+ * @brief Query whether an identifier is a known SPDX license.
+ *
+ * LicenseRef-* and DocumentRef-<id>:LicenseRef-* are accepted as
+ * valid even though they are not in the SPDX License List.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfValid  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid);
+
+/**
+ * @brief Query whether an identifier is a known SPDX exception.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfValid  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ */
+APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid);
+
+/**
+ * @brief Query whether a license identifier is deprecated.
+ *
+ * @param[in]  pszId         Identifier. Not NULL.
+ * @param[out] pfDeprecated  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseDeprecated(PCSZ pszId,
+                                           PBOOL pfDeprecated);
+
+/**
+ * @brief Query whether an exception identifier is deprecated.
+ *
+ * @param[in]  pszId         Identifier. Not NULL.
+ * @param[out] pfDeprecated  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
+ */
+APIRET APIENTRY SpdxQueryExceptionDeprecated(PCSZ pszId,
+                                             PBOOL pfDeprecated);
+
+/**
+ * @brief Query whether a license is OSI-approved.
+ *
+ * @param[in]  pszId       Identifier. Not NULL.
+ * @param[out] pfApproved  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfApproved is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseOsiApproved(PCSZ pszId,
+                                            PBOOL pfApproved);
+
+/**
+ * @brief Query whether a license is FSF-libre.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfLibre  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfLibre is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseFsfLibre(PCSZ pszId, PBOOL pfLibre);
+
+/* ==================================================================
+ * Text queries
+ * ================================================================== */
+
+/**
+ * @brief Query the license text of a known license.
+ *
+ * The detail is lazy-loaded.
+ *
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *     NUL) is written.
+ *   - ulSize large enough: value copied and NUL-terminated;
+ *     *pulUsed is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     No text available.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryLicenseText(PCSZ pszId, PSZ pszBuf,
+                                     ULONG ulSize, PULONG pulUsed);
+
+/**
+ * @brief Query the exception text of a known exception.
+ *
+ * The detail is lazy-loaded.
+ *
+ * Size-query convention as for SpdxQueryLicenseText.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     No text available.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryExceptionText(PCSZ pszId, PSZ pszBuf,
+                                       ULONG ulSize, PULONG pulUsed);
+
+/* ==================================================================
+ * Expression helpers
+ * ================================================================== */
+
+/**
+ * @brief Query the validity of an SPDX license expression.
+ *
+ * On SPDX_EXPR_UNKNOWN_TOKEN, if @p ppszBadToken is not NULL, a
+ * pointer to the start of the offending token inside @p pszExpr is
+ * written there. The token length is determined up to the nearest
+ * space, '(' or ')'.
+ *
+ * @param[in]  pszExpr       Expression. Not NULL.
+ * @param[out] ppszBadToken  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Expression is valid.
+ * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
+ * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
+ */
+APIRET APIENTRY SpdxQueryExpression(PCSZ pszExpr, PCSZ *ppszBadToken);
+
+/**
+ * @brief Query the canonical form of an SPDX license expression.
+ *
+ * Every identifier from the SPDX License List or the SPDX Exception
+ * List is replaced with its canonical case (for example,
+ * 'BSD-3-clause' becomes 'BSD-3-Clause'). AND / OR / WITH operators,
+ * parentheses and whitespace are preserved as-is. LicenseRef-* and
+ * DocumentRef-* identifiers are left unchanged.
+ *
+ * Size-query convention as for SpdxQueryLicenseText.
+ *
+ * @param[in]  pszExpr  Expression. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryExpressionCanonical(PCSZ pszExpr, PSZ pszBuf,
+                                             ULONG ulSize, PULONG pulUsed);
 
 #ifdef __cplusplus
 }

@@ -3,6 +3,13 @@
 #ifndef GIT_H
 #define GIT_H
 
+#include "os2types.h"
+#include "os2err.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file git.h
  * @brief Public interface of the Git helper module.
@@ -29,17 +36,9 @@
  * Case sensitivity follows the host platform: case-sensitive on
  * Linux, case-insensitive on Windows.
  *
- * References:
- *   - gitignore(5).
- *     https://git-scm.com/docs/gitignore
+ * Conforms to:
+ *   - gitignore(5). https://git-scm.com/docs/gitignore
  */
-
-#include "os2types.h"
-#include "os2err.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* ==================================================================
  * Types
@@ -50,19 +49,20 @@ extern "C" {
  * @brief One rule from a .gitignore file.
  *
  * The stored pattern has already been stripped of a leading '!'
- * (captured in @c fNegate), a leading '/' (captured in @c fAnchored)
- * and a trailing '/' (captured in @c fDirOnly). The pattern never
- * carries the directory prefix that appears in the source file.
+ * (captured in @c fNegate), a leading '/' (captured in
+ * @c fAnchored) and a trailing '/' (captured in @c fDirOnly). The
+ * pattern never carries the directory prefix that appears in the
+ * source file.
  */
 typedef struct _GITIGNORERULE {
-    char *pszPattern;   /**< Pattern without '!', leading '/',
-                             and trailing '/'. */
-    char *pszBaseRel;   /**< Directory containing the rule, relative
-                             to the repository root. "" for the root. */
-    int   fNegate;      /**< 1 if the rule starts with '!'. */
-    int   fAnchored;    /**< 1 if the rule starts with '/' or contains
-                             a '/' in the middle. */
-    int   fDirOnly;     /**< 1 if the rule ends with '/'. */
+    PSZ  pszPattern;   /**< Pattern without '!', leading '/',
+                            and trailing '/'. */
+    PSZ  pszBaseRel;   /**< Directory containing the rule, relative
+                            to the repository root. "" for root. */
+    BOOL fNegate;      /**< TRUE_ if the rule starts with '!'. */
+    BOOL fAnchored;    /**< TRUE_ if the rule starts with '/' or
+                            contains a '/' in the middle. */
+    BOOL fDirOnly;     /**< TRUE_ if the rule ends with '/'. */
 } GITIGNORERULE, *PGITIGNORERULE;
 
 /**
@@ -70,9 +70,9 @@ typedef struct _GITIGNORERULE {
  * @brief A list of .gitignore rules collected from a directory tree.
  */
 typedef struct _GITIGNORELIST {
-    PGITIGNORERULE paItems;    /**< Array of rules. */
-    ULONG          ulCount;    /**< Number of used entries. */
-    ULONG          ulCapacity; /**< Allocated capacity. */
+    PGITIGNORERULE paItems;    /**< Array of rules.          */
+    ULONG          ulCount;    /**< Number of used entries.  */
+    ULONG          ulCapacity; /**< Allocated capacity.      */
 } GITIGNORELIST, *PGITIGNORELIST;
 
 /* ==================================================================
@@ -90,7 +90,7 @@ typedef struct _GITIGNORELIST {
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pList is NULL.
  */
-APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList);
+APIRET APIENTRY GitIgnoreListInit(PGITIGNORELIST pList);
 
 /**
  * @brief Release all memory owned by a rule list.
@@ -102,9 +102,9 @@ APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList);
  * @param[in] pList  List. May be NULL.
  *
  * @return APIRET
- * @retval NO_ERROR Success. Also returned for NULL.
+ * @retval NO_ERROR  Success. Also for NULL.
  */
-APIRET APIENTRY GitIgnoreListFree(GITIGNORELIST *pList);
+APIRET APIENTRY GitIgnoreListFree(PGITIGNORELIST pList);
 
 /* ==================================================================
  * Repository discovery
@@ -142,7 +142,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
 /**
- * @brief Check whether a directory is inside a Git repository.
+ * @brief Query whether a directory is inside a Git repository.
  *
  * @param[in]  pszDir     Directory. Not NULL.
  * @param[out] pfIsRepo   Receiver TRUE_ / FALSE_. Not NULL.
@@ -151,7 +151,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszDir or pfIsRepo is NULL.
  */
-APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
+APIRET APIENTRY GitQueryIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
 
 /* ==================================================================
  * .gitignore collection
@@ -168,9 +168,9 @@ APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
  * If @p pszRepoRoot is NULL, only @p pszTargetDir / .gitignore is
  * read.
  *
- * @param[in]  pszRepoRoot  Repository root, or NULL.
- * @param[in]  pszTargetDir Target directory. Not NULL.
- * @param[out] pOut         Receiver. Not NULL.
+ * @param[in]  pszRepoRoot   Repository root, or NULL.
+ * @param[in]  pszTargetDir  Target directory. Not NULL.
+ * @param[out] pOut          Receiver. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success (even if no .gitignore
@@ -179,14 +179,14 @@ APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
-                                     GITIGNORELIST *pOut);
+                                     PGITIGNORELIST pOut);
 
 /* ==================================================================
  * Rule application
  * ================================================================== */
 
 /**
- * @brief Check whether a path is ignored by the collected rules.
+ * @brief Query whether a path is ignored by the collected rules.
  *
  * @p pszRelPath is a path relative to the repository root (or to
  * the directory passed to @ref GitCollectGitignores when
@@ -206,8 +206,9 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
-APIRET APIENTRY GitIsIgnored(const GITIGNORELIST *pRules, PCSZ pszRelPath,
-                             BOOL fIsDir, PBOOL pfIgnored);
+APIRET APIENTRY GitQueryIsIgnored(const GITIGNORELIST *pRules,
+                                  PCSZ pszRelPath,
+                                  BOOL fIsDir, PBOOL pfIgnored);
 
 #ifdef __cplusplus
 }

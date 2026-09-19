@@ -1,4 +1,4 @@
-/* toml.c - TOML v1.0.0 parser, OS/2 API style (C89 + Watcom extensions) */
+/* toml.c - TOML v1.0.0 parser (C89 + Watcom extensions) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,80 +22,146 @@
  * Parser state
  * ================================================================== */
 
-typedef struct {
-    const char *p;
-    const char *end;
-    PCSZ        pszError;
+/**
+ * @struct _PARSE
+ * @brief Parser cursor.
+ */
+typedef struct _PARSE {
+    PCSZ pszPos;    /**< Current position.          */
+    PCSZ pszEnd;    /**< End of input.              */
+    PCSZ pszError;  /**< Static error description.  */
 } PARSE;
 
 /* ==================================================================
  * Small helpers
  * ================================================================== */
 
-static char *dup_n(const char *s, size_t n) {
-    char *r;
-    r = (char*)malloc(n + 1);
-    if (!r) return NULL;
-    memcpy(r, s, n);
-    r[n] = '\0';
-    return r;
+/**
+ * @brief Duplicate a byte range with a terminating NUL.
+ *
+ * @param[in] pszSrc  Source bytes. Not NULL.
+ * @param[in] cbLen   Number of bytes.
+ *
+ * @return malloc'd string, or NULL on OOM.
+ */
+static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
+    PSZ pszOut;
+    pszOut = (PSZ)malloc(cbLen + 1);
+    if (!pszOut) return NULL;
+    memcpy(pszOut, pszSrc, cbLen);
+    pszOut[cbLen] = '\0';
+    return pszOut;
 }
 
-static void set_error(PARSE *ps, const char *msg) {
-    if (ps->pszError == NULL) ps->pszError = msg;
+/**
+ * @brief Record a static error description.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[in]     pszMsg   Message. Not NULL.
+ */
+static void set_error(PARSE *pParser, PCSZ pszMsg) {
+    if (pParser->pszError == NULL) pParser->pszError = pszMsg;
 }
 
-static void skip_ws(PARSE *ps) {
-    while (ps->p < ps->end && (*ps->p == ' ' || *ps->p == '\t')) ps->p++;
+/**
+ * @brief Skip spaces and tabs.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ */
+static void skip_ws(PARSE *pParser) {
+    while (pParser->pszPos < pParser->pszEnd &&
+           (*pParser->pszPos == ' ' || *pParser->pszPos == '\t'))
+        pParser->pszPos++;
 }
 
+/**
+ * @brief Query whether a character is an ASCII digit.
+ *
+ * @param[in] c  Character.
+ *
+ * @return 1 if digit, 0 otherwise.
+ */
 static int is_digit_c(int c) {
     return c >= '0' && c <= '9';
 }
 
+/**
+ * @brief Query whether a character may appear in a bare key.
+ *
+ * @param[in] c  Character.
+ *
+ * @return 1 if allowed, 0 otherwise.
+ */
 static int is_bare_key_char(int c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
            (c >= '0' && c <= '9') || c == '_' || c == '-';
 }
 
-/* Comment: '#' followed by chars up to newline. Control characters
- * other than tab are not permitted. */
-static int skip_comment(PARSE *ps) {
-    if (ps->p >= ps->end || *ps->p != '#') return 0;
-    ps->p++;
-    while (ps->p < ps->end) {
-        unsigned char c = (unsigned char)*ps->p;
-        if (c == '\n' || c == '\r') return 0;
-        if (c < 0x20 && c != '\t') return -1;
-        if (c == 0x7F) return -1;
-        ps->p++;
+/**
+ * @brief Skip a comment starting at '#'.
+ *
+ * Comment body may contain any character except control characters
+ * below 0x20 (other than tab) and 0x7F.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int skip_comment(PARSE *pParser) {
+    if (pParser->pszPos >= pParser->pszEnd ||
+        *pParser->pszPos != '#') return 0;
+    pParser->pszPos++;
+    while (pParser->pszPos < pParser->pszEnd) {
+        UCHAR uch = (UCHAR)*pParser->pszPos;
+        if (uch == '\n' || uch == '\r') return 0;
+        if (uch < 0x20 && uch != '\t') return -1;
+        if (uch == 0x7F) return -1;
+        pParser->pszPos++;
     }
     return 0;
 }
 
-/* Consume one newline: '\n' or '\r\n'. Lone '\r' is an error. */
-static int consume_newline(PARSE *ps) {
-    if (ps->p < ps->end && *ps->p == '\r') {
-        if (ps->p + 1 >= ps->end || ps->p[1] != '\n') return -1;
-        ps->p += 2;
+/**
+ * @brief Consume one newline: '\n' or '\r\n'.
+ *
+ * A lone '\r' is an error.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int consume_newline(PARSE *pParser) {
+    if (pParser->pszPos < pParser->pszEnd && *pParser->pszPos == '\r') {
+        if (pParser->pszPos + 1 >= pParser->pszEnd ||
+            pParser->pszPos[1] != '\n') return -1;
+        pParser->pszPos += 2;
         return 0;
     }
-    if (ps->p < ps->end && *ps->p == '\n') {
-        ps->p++;
+    if (pParser->pszPos < pParser->pszEnd && *pParser->pszPos == '\n') {
+        pParser->pszPos++;
         return 0;
     }
     return -1;
 }
 
-static int skip_ws_nl_comments(PARSE *ps) {
+/**
+ * @brief Skip whitespace, newlines and comments.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int skip_ws_nl_comments(PARSE *pParser) {
     for (;;) {
-        skip_ws(ps);
-        if (ps->p < ps->end && *ps->p == '#') {
-            if (skip_comment(ps) != 0) return -1;
+        skip_ws(pParser);
+        if (pParser->pszPos < pParser->pszEnd &&
+            *pParser->pszPos == '#') {
+            if (skip_comment(pParser) != 0) return -1;
             continue;
         }
-        if (ps->p < ps->end && (*ps->p == '\n' || *ps->p == '\r')) {
-            if (consume_newline(ps) != 0) return -1;
+        if (pParser->pszPos < pParser->pszEnd &&
+            (*pParser->pszPos == '\n' || *pParser->pszPos == '\r')) {
+            if (consume_newline(pParser) != 0) return -1;
             continue;
         }
         break;
@@ -103,26 +169,47 @@ static int skip_ws_nl_comments(PARSE *ps) {
     return 0;
 }
 
-static int skip_to_eol(PARSE *ps) {
-    skip_ws(ps);
-    if (ps->p < ps->end && *ps->p == '#') {
-        if (skip_comment(ps) != 0) return -1;
+/**
+ * @brief Skip whitespace and an optional comment, then require a
+ *        newline or end of input.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int skip_to_eol(PARSE *pParser) {
+    skip_ws(pParser);
+    if (pParser->pszPos < pParser->pszEnd &&
+        *pParser->pszPos == '#') {
+        if (skip_comment(pParser) != 0) return -1;
     }
-    if (ps->p >= ps->end) return 0;
-    return consume_newline(ps);
+    if (pParser->pszPos >= pParser->pszEnd) return 0;
+    return consume_newline(pParser);
 }
 
 /* ==================================================================
  * IEEE 754 helpers
  * ================================================================== */
 
-static double toml_inf(int negative) {
-    return negative ? -HUGE_VAL : HUGE_VAL;
+/**
+ * @brief Return positive or negative infinity.
+ *
+ * @param[in] fNegative  TRUE_ for -inf, FALSE_ for +inf.
+ *
+ * @return The corresponding double value.
+ */
+static double toml_inf(int fNegative) {
+    return fNegative ? -HUGE_VAL : HUGE_VAL;
 }
 
+/**
+ * @brief Return a NaN value.
+ *
+ * @return A quiet NaN.
+ */
 static double toml_nan(void) {
     union {
-        unsigned char b[sizeof(double)];
+        UCHAR b[sizeof(double)];
         double d;
     } u;
     size_t i;
@@ -139,38 +226,45 @@ static double toml_nan(void) {
  * UTF-8 validation (RFC 3629)
  * ================================================================== */
 
-static int valid_utf8(const char *s) {
-    const unsigned char *p;
-    p = (const unsigned char*)s;
-    while (*p) {
-        unsigned char c = *p++;
-        unsigned long cp;
-        if (c < 0x80) continue;
-        if ((c & 0xE0) == 0xC0) {
-            if ((*p & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x1F) << 6) |
-                 (unsigned long)(*p & 0x3F);
-            if (cp < 0x80) return 0;
-            p++;
-        } else if ((c & 0xF0) == 0xE0) {
-            if ((p[0] & 0xC0) != 0x80) return 0;
-            if ((p[1] & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x0F) << 12) |
-                 ((unsigned long)(p[0] & 0x3F) << 6) |
-                 (unsigned long)(p[1] & 0x3F);
-            if (cp < 0x800) return 0;
-            if (cp >= 0xD800 && cp <= 0xDFFF) return 0;
-            p += 2;
-        } else if ((c & 0xF8) == 0xF0) {
-            if ((p[0] & 0xC0) != 0x80) return 0;
-            if ((p[1] & 0xC0) != 0x80) return 0;
-            if ((p[2] & 0xC0) != 0x80) return 0;
-            cp = ((unsigned long)(c & 0x07) << 18) |
-                 ((unsigned long)(p[0] & 0x3F) << 12) |
-                 ((unsigned long)(p[1] & 0x3F) << 6) |
-                 (unsigned long)(p[2] & 0x3F);
-            if (cp < 0x10000 || cp > 0x10FFFF) return 0;
-            p += 3;
+/**
+ * @brief Validate a NUL-terminated UTF-8 string.
+ *
+ * @param[in] pszStr  String. Not NULL.
+ *
+ * @return 1 if valid, 0 otherwise.
+ */
+static int valid_utf8(PCSZ pszStr) {
+    const UCHAR *puchPos;
+    puchPos = (const UCHAR*)pszStr;
+    while (*puchPos) {
+        UCHAR uch = *puchPos++;
+        ULONG ulCp;
+        if (uch < 0x80) continue;
+        if ((uch & 0xE0) == 0xC0) {
+            if ((*puchPos & 0xC0) != 0x80) return 0;
+            ulCp = ((ULONG)(uch & 0x1F) << 6) |
+                   (ULONG)(*puchPos & 0x3F);
+            if (ulCp < 0x80) return 0;
+            puchPos++;
+        } else if ((uch & 0xF0) == 0xE0) {
+            if ((puchPos[0] & 0xC0) != 0x80) return 0;
+            if ((puchPos[1] & 0xC0) != 0x80) return 0;
+            ulCp = ((ULONG)(uch & 0x0F) << 12) |
+                   ((ULONG)(puchPos[0] & 0x3F) << 6) |
+                   (ULONG)(puchPos[1] & 0x3F);
+            if (ulCp < 0x800) return 0;
+            if (ulCp >= 0xD800 && ulCp <= 0xDFFF) return 0;
+            puchPos += 2;
+        } else if ((uch & 0xF8) == 0xF0) {
+            if ((puchPos[0] & 0xC0) != 0x80) return 0;
+            if ((puchPos[1] & 0xC0) != 0x80) return 0;
+            if ((puchPos[2] & 0xC0) != 0x80) return 0;
+            ulCp = ((ULONG)(uch & 0x07) << 18) |
+                   ((ULONG)(puchPos[0] & 0x3F) << 12) |
+                   ((ULONG)(puchPos[1] & 0x3F) << 6) |
+                   (ULONG)(puchPos[2] & 0x3F);
+            if (ulCp < 0x10000 || ulCp > 0x10FFFF) return 0;
+            puchPos += 3;
         } else {
             return 0;
         }
@@ -182,100 +276,155 @@ static int valid_utf8(const char *s) {
  * Tree primitives
  * ================================================================== */
 
-static PTOMLVALUE value_new(ULONG t) {
-    PTOMLVALUE pv;
-    pv = (PTOMLVALUE)calloc(1, sizeof(TOMLVALUE));
-    if (pv) pv->ulType = t;
-    return pv;
+/**
+ * @brief Create a new value node of the given type.
+ *
+ * @param[in] ulType  One of TOML_TYPE_*.
+ *
+ * @return New value, or NULL on OOM.
+ */
+static PTOMLVALUE value_new(ULONG ulType) {
+    PTOMLVALUE pValue;
+    pValue = (PTOMLVALUE)calloc(1, sizeof(TOMLVALUE));
+    if (pValue) pValue->ulType = ulType;
+    return pValue;
 }
 
+/**
+ * @brief Create a new empty table.
+ *
+ * @return New table, or NULL on OOM.
+ */
 static PTOMLTABLE table_new(void) {
-    PTOMLTABLE pt;
-    pt = (PTOMLTABLE)calloc(1, sizeof(TOMLTABLE));
-    if (!pt) return NULL;
-    if (VectorCreate((ULONG)sizeof(TOMLENTRY), &pt->hEntries) != NO_ERROR) {
-        free(pt);
+    PTOMLTABLE pTable;
+    pTable = (PTOMLTABLE)calloc(1, sizeof(TOMLTABLE));
+    if (!pTable) return NULL;
+    if (VectorCreate((ULONG)sizeof(TOMLENTRY), &pTable->hEntries)
+            != NO_ERROR) {
+        free(pTable);
         return NULL;
     }
-    return pt;
+    return pTable;
 }
 
+/**
+ * @brief Create a new empty array.
+ *
+ * @return New array, or NULL on OOM.
+ */
 static PTOMLARRAY array_new(void) {
     return (PTOMLARRAY)calloc(1, sizeof(TOMLARRAY));
 }
 
-static void value_free(PTOMLVALUE pv);
-static void table_free(PTOMLTABLE pt);
-static void array_free(PTOMLARRAY pa);
+static void value_free(PTOMLVALUE pValue);
+static void table_free(PTOMLTABLE pTable);
+static void array_free(PTOMLARRAY pArray);
 
-static void array_free(PTOMLARRAY pa) {
-    ULONG i;
-    if (!pa) return;
-    for (i = 0; i < pa->ulCount; i++) value_free(pa->paItems[i]);
-    free(pa->paItems);
-    free(pa);
+/**
+ * @brief Release an array and all its items.
+ *
+ * @param[in] pArray  Array. May be NULL.
+ */
+static void array_free(PTOMLARRAY pArray) {
+    ULONG ulIdx;
+    if (!pArray) return;
+    for (ulIdx = 0; ulIdx < pArray->ulCount; ulIdx++)
+        value_free(pArray->paItems[ulIdx]);
+    free(pArray->paItems);
+    free(pArray);
 }
 
-static void table_free(PTOMLTABLE pt) {
+/**
+ * @brief Release a table and all its entries.
+ *
+ * @param[in] pTable  Table. May be NULL.
+ */
+static void table_free(PTOMLTABLE pTable) {
     ULONG ulCount = 0;
-    ULONG i;
-    if (!pt) return;
-    if (pt->hEntries != NULLHANDLE) {
-        if (VectorGetCount(pt->hEntries, &ulCount) == NO_ERROR) {
-            for (i = 0; i < ulCount; i++) {
+    ULONG ulIdx;
+    if (!pTable) return;
+    if (pTable->hEntries != NULLHANDLE) {
+        if (VectorGetCount(pTable->hEntries, &ulCount) == NO_ERROR) {
+            for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
                 TOMLENTRY entry;
-                if (VectorGetItem(pt->hEntries, i, &entry,
-                                  (ULONG)sizeof(entry), NULL) == NO_ERROR) {
+                if (VectorGetItem(pTable->hEntries, ulIdx, &entry,
+                                  (ULONG)sizeof(entry), NULL)
+                        == NO_ERROR) {
                     free(entry.pszKey);
                     value_free(entry.pValue);
                 }
             }
         }
-        VectorDestroy(pt->hEntries);
+        VectorDestroy(pTable->hEntries);
     }
-    free(pt);
+    free(pTable);
 }
 
-static void value_free(PTOMLVALUE pv) {
-    if (!pv) return;
-    switch (pv->ulType) {
+/**
+ * @brief Release a value and its owned resources.
+ *
+ * @param[in] pValue  Value. May be NULL.
+ */
+static void value_free(PTOMLVALUE pValue) {
+    if (!pValue) return;
+    switch (pValue->ulType) {
         case TOML_TYPE_STRING:
-        case TOML_TYPE_DATETIME: free(pv->u.pszString); break;
-        case TOML_TYPE_ARRAY:    array_free(pv->u.pArray); break;
-        case TOML_TYPE_TABLE:    table_free(pv->u.pTable); break;
+        case TOML_TYPE_DATETIME: free(pValue->u.pszString); break;
+        case TOML_TYPE_ARRAY:    array_free(pValue->u.pArray); break;
+        case TOML_TYPE_TABLE:    table_free(pValue->u.pTable); break;
         default: break;
     }
-    free(pv);
+    free(pValue);
 }
 
+/**
+ * @brief Release a tree built by TomlInternalParse.
+ *
+ * @param[in] pRoot  Root table. May be NULL.
+ */
 void TomlInternalFreeTree(PTOMLTABLE pRoot) {
     table_free(pRoot);
 }
 
-static int array_grow(PTOMLARRAY pa) {
-    ULONG ncap;
-    PTOMLVALUE *na;
-    if (pa->ulCount < pa->ulCapacity) return 0;
-    ncap = pa->ulCapacity ? pa->ulCapacity * 2 : 8;
-    na = (PTOMLVALUE*)realloc(pa->paItems,
-                              (size_t)ncap * sizeof(PTOMLVALUE));
-    if (!na) return -1;
-    pa->paItems = na;
-    pa->ulCapacity = ncap;
+/**
+ * @brief Grow an array's backing storage if needed.
+ *
+ * @param[in,out] pArray  Array. Not NULL.
+ *
+ * @return 0 on success, -1 on OOM.
+ */
+static int array_grow(PTOMLARRAY pArray) {
+    ULONG ulNewCap;
+    PTOMLVALUE *paNew;
+    if (pArray->ulCount < pArray->ulCapacity) return 0;
+    ulNewCap = pArray->ulCapacity ? pArray->ulCapacity * 2 : 8;
+    paNew = (PTOMLVALUE*)realloc(pArray->paItems,
+                                 (size_t)ulNewCap * sizeof(PTOMLVALUE));
+    if (!paNew) return -1;
+    pArray->paItems = paNew;
+    pArray->ulCapacity = ulNewCap;
     return 0;
 }
 
-/* Find a table entry by key. The entry is copied into *pEntry if
- * pEntry is not NULL. Returns 1 on success, 0 if not found. */
-static int table_find_copy(PTOMLTABLE pt, PCSZ pszKey,
+/**
+ * @brief Find a table entry by key.
+ *
+ * @param[in]  pTable  Table. Not NULL.
+ * @param[in]  pszKey  Key. Not NULL.
+ * @param[out] pEntry  Optional. May be NULL. Receives a copy of the
+ *                     entry on success.
+ *
+ * @return 1 if found, 0 otherwise.
+ */
+static int table_find_copy(PTOMLTABLE pTable, PCSZ pszKey,
                            PTOMLENTRY pEntry) {
     ULONG ulCount = 0;
-    ULONG i;
-    if (!pt || pt->hEntries == NULLHANDLE) return 0;
-    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return 0;
-    for (i = 0; i < ulCount; i++) {
+    ULONG ulIdx;
+    if (!pTable || pTable->hEntries == NULLHANDLE) return 0;
+    if (VectorGetCount(pTable->hEntries, &ulCount) != NO_ERROR) return 0;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         TOMLENTRY entry;
-        if (VectorGetItem(pt->hEntries, i, &entry,
+        if (VectorGetItem(pTable->hEntries, ulIdx, &entry,
                           (ULONG)sizeof(entry), NULL) == NO_ERROR) {
             if (strcmp(entry.pszKey, pszKey) == 0) {
                 if (pEntry) *pEntry = entry;
@@ -286,52 +435,102 @@ static int table_find_copy(PTOMLTABLE pt, PCSZ pszKey,
     return 0;
 }
 
-/* Return pointer to entry's value if found, or NULL. Caller gets
- * a copy of the value pointer; the value itself is owned by the
- * table. */
-static PTOMLVALUE table_find_value(PTOMLTABLE pt, PCSZ pszKey) {
+/**
+ * @brief Find a value in a table by key.
+ *
+ * @param[in] pTable  Table. Not NULL.
+ * @param[in] pszKey  Key. Not NULL.
+ *
+ * @return Pointer to the value, or NULL if not found.
+ */
+static PTOMLVALUE table_find_value(PTOMLTABLE pTable, PCSZ pszKey) {
     TOMLENTRY entry;
-    if (table_find_copy(pt, pszKey, &entry)) return entry.pValue;
+    if (table_find_copy(pTable, pszKey, &entry)) return entry.pValue;
     return NULL;
 }
 
-/* Return 1 if the key exists, 0 otherwise. */
-static int table_has_key(PTOMLTABLE pt, PCSZ pszKey) {
-    return table_find_copy(pt, pszKey, NULL);
+/**
+ * @brief Query whether a table contains a key.
+ *
+ * @param[in] pTable  Table. Not NULL.
+ * @param[in] pszKey  Key. Not NULL.
+ *
+ * @return 1 if present, 0 otherwise.
+ */
+static int table_has_key(PTOMLTABLE pTable, PCSZ pszKey) {
+    return table_find_copy(pTable, pszKey, NULL);
 }
 
-static int table_add(PTOMLTABLE pt, PSZ pszKey, PTOMLVALUE pValue) {
+/**
+ * @brief Append a key/value pair to a table.
+ *
+ * @param[in] pTable  Table. Not NULL.
+ * @param[in] pszKey  Key. Ownership transfers to the table.
+ * @param[in] pValue  Value. Ownership transfers to the table.
+ *
+ * @return 0 on success, -1 on OOM.
+ */
+static int table_add(PTOMLTABLE pTable, PSZ pszKey, PTOMLVALUE pValue) {
     TOMLENTRY entry;
     entry.pszKey = pszKey;
     entry.pValue = pValue;
-    if (VectorAdd(pt->hEntries, &entry) != NO_ERROR) return -1;
+    if (VectorAdd(pTable->hEntries, &entry) != NO_ERROR) return -1;
     return 0;
 }
 
-static int array_add(PTOMLARRAY pa, PTOMLVALUE pv) {
-    if (array_grow(pa) != 0) return -1;
-    pa->paItems[pa->ulCount++] = pv;
+/**
+ * @brief Append a value to an array.
+ *
+ * @param[in] pArray  Array. Not NULL.
+ * @param[in] pValue  Value. Ownership transfers to the array.
+ *
+ * @return 0 on success, -1 on OOM.
+ */
+static int array_add(PTOMLARRAY pArray, PTOMLVALUE pValue) {
+    if (array_grow(pArray) != 0) return -1;
+    pArray->paItems[pArray->ulCount++] = pValue;
     return 0;
 }
 
-static PTOMLVALUE value_table(PTOMLTABLE pt) {
-    PTOMLVALUE pv = value_new(TOML_TYPE_TABLE);
-    if (!pv) return NULL;
-    pv->u.pTable = pt;
-    return pv;
+/**
+ * @brief Wrap a table in a value node.
+ *
+ * @param[in] pTable  Table. Not NULL.
+ *
+ * @return New value, or NULL on OOM.
+ */
+static PTOMLVALUE value_table(PTOMLTABLE pTable) {
+    PTOMLVALUE pValue = value_new(TOML_TYPE_TABLE);
+    if (!pValue) return NULL;
+    pValue->u.pTable = pTable;
+    return pValue;
 }
 
-static PTOMLVALUE value_array(PTOMLARRAY pa) {
-    PTOMLVALUE pv = value_new(TOML_TYPE_ARRAY);
-    if (!pv) return NULL;
-    pv->u.pArray = pa;
-    return pv;
+/**
+ * @brief Wrap an array in a value node.
+ *
+ * @param[in] pArray  Array. Not NULL.
+ *
+ * @return New value, or NULL on OOM.
+ */
+static PTOMLVALUE value_array(PTOMLARRAY pArray) {
+    PTOMLVALUE pValue = value_new(TOML_TYPE_ARRAY);
+    if (!pValue) return NULL;
+    pValue->u.pArray = pArray;
+    return pValue;
 }
 
 /* ==================================================================
  * String parsing
  * ================================================================== */
 
+/**
+ * @brief Return the value of a single hex digit.
+ *
+ * @param[in] c  Character.
+ *
+ * @return Value in [0, 15], or -1 if not a hex digit.
+ */
 static int hex_digit(int c) {
     if (c >= '0' && c <= '9') return c - '0';
     if (c >= 'a' && c <= 'f') return c - 'a' + 10;
@@ -339,371 +538,488 @@ static int hex_digit(int c) {
     return -1;
 }
 
-/* Emit UTF-8 for a Unicode scalar value. */
-static int utf8_emit(unsigned long cp, char *out) {
-    if (cp < 0x80) { out[0] = (char)cp; return 1; }
-    if (cp < 0x800) {
-        out[0] = (char)(0xC0 | (cp >> 6));
-        out[1] = (char)(0x80 | (cp & 0x3F));
+/**
+ * @brief Encode a Unicode scalar value as UTF-8.
+ *
+ * @param[in]  ulCp    Codepoint.
+ * @param[out] pszOut  Output buffer. Must have room for up to 4 bytes.
+ *
+ * @return Number of bytes written (1..4), or 0 on invalid input.
+ */
+static int utf8_emit(ULONG ulCp, PSZ pszOut) {
+    if (ulCp < 0x80) { pszOut[0] = (CHAR)ulCp; return 1; }
+    if (ulCp < 0x800) {
+        pszOut[0] = (CHAR)(0xC0 | (ulCp >> 6));
+        pszOut[1] = (CHAR)(0x80 | (ulCp & 0x3F));
         return 2;
     }
-    if (cp < 0x10000) {
-        if (cp >= 0xD800 && cp <= 0xDFFF) return 0;
-        out[0] = (char)(0xE0 | (cp >> 12));
-        out[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[2] = (char)(0x80 | (cp & 0x3F));
+    if (ulCp < 0x10000) {
+        if (ulCp >= 0xD800 && ulCp <= 0xDFFF) return 0;
+        pszOut[0] = (CHAR)(0xE0 | (ulCp >> 12));
+        pszOut[1] = (CHAR)(0x80 | ((ulCp >> 6) & 0x3F));
+        pszOut[2] = (CHAR)(0x80 | (ulCp & 0x3F));
         return 3;
     }
-    if (cp <= 0x10FFFF) {
-        out[0] = (char)(0xF0 | (cp >> 18));
-        out[1] = (char)(0x80 | ((cp >> 12) & 0x3F));
-        out[2] = (char)(0x80 | ((cp >> 6) & 0x3F));
-        out[3] = (char)(0x80 | (cp & 0x3F));
+    if (ulCp <= 0x10FFFF) {
+        pszOut[0] = (CHAR)(0xF0 | (ulCp >> 18));
+        pszOut[1] = (CHAR)(0x80 | ((ulCp >> 12) & 0x3F));
+        pszOut[2] = (CHAR)(0x80 | ((ulCp >> 6) & 0x3F));
+        pszOut[3] = (CHAR)(0x80 | (ulCp & 0x3F));
         return 4;
     }
     return 0;
 }
 
-static int sbuf_put(char **pbuf, size_t *pcap, size_t *plen,
-                    const char *data, size_t n) {
-    if (*plen + n + 1 > *pcap) {
-        size_t ncap = *pcap * 2 + n + 64;
-        char *nb = (char*)realloc(*pbuf, ncap);
-        if (!nb) return -1;
-        *pbuf = nb;
-        *pcap = ncap;
+/**
+ * @brief Append bytes to a growable buffer.
+ *
+ * @param[in,out] ppszBuf  Pointer to the buffer pointer. Not NULL.
+ * @param[in,out] pcbCap   Pointer to the capacity. Not NULL.
+ * @param[in,out] pcbLen   Pointer to the used length. Not NULL.
+ * @param[in]     pszData  Bytes to append. Not NULL.
+ * @param[in]     cbLen    Number of bytes.
+ *
+ * @return 0 on success, -1 on OOM.
+ */
+static int sbuf_put(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
+                    PCSZ pszData, size_t cbLen) {
+    if (*pcbLen + cbLen + 1 > *pcbCap) {
+        size_t cbNewCap = *pcbCap * 2 + cbLen + 64;
+        PSZ pszNew = (PSZ)realloc(*ppszBuf, cbNewCap);
+        if (!pszNew) return -1;
+        *ppszBuf = pszNew;
+        *pcbCap = cbNewCap;
     }
-    memcpy(*pbuf + *plen, data, n);
-    *plen += n;
-    (*pbuf)[*plen] = '\0';
+    memcpy(*ppszBuf + *pcbLen, pszData, cbLen);
+    *pcbLen += cbLen;
+    (*ppszBuf)[*pcbLen] = '\0';
     return 0;
 }
 
-static int sbuf_putc(char **pbuf, size_t *pcap, size_t *plen, char c) {
-    return sbuf_put(pbuf, pcap, plen, &c, 1);
+/**
+ * @brief Append one byte to a growable buffer.
+ *
+ * @param[in,out] ppszBuf  Pointer to the buffer pointer. Not NULL.
+ * @param[in,out] pcbCap   Pointer to the capacity. Not NULL.
+ * @param[in,out] pcbLen   Pointer to the used length. Not NULL.
+ * @param[in]     ch       Byte.
+ *
+ * @return 0 on success, -1 on OOM.
+ */
+static int sbuf_putc(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
+                     CHAR ch) {
+    return sbuf_put(ppszBuf, pcbCap, pcbLen, &ch, 1);
 }
 
-static int parse_hex_escape(PARSE *ps, char *ubuf, int *pnb) {
-    int nhex = (*ps->p == 'u') ? 4 : 8;
-    unsigned long cp = 0;
+/**
+ * @brief Parse a \uXXXX or \UXXXXXXXX escape.
+ *
+ * @param[in,out] pParser   Parser at the 'u' or 'U'. Not NULL.
+ * @param[out]    pszUbuf   Output buffer. Must have room for 4 bytes.
+ * @param[out]    pnBytes   Number of bytes written.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_hex_escape(PARSE *pParser, PSZ pszUbuf, int *pnBytes) {
+    int nHex = (*pParser->pszPos == 'u') ? 4 : 8;
+    ULONG ulCp = 0;
     int i;
-    ps->p++;
-    for (i = 0; i < nhex; i++) {
+    pParser->pszPos++;
+    for (i = 0; i < nHex; i++) {
         int d;
-        if (ps->p >= ps->end) return -1;
-        d = hex_digit((unsigned char)*ps->p);
+        if (pParser->pszPos >= pParser->pszEnd) return -1;
+        d = hex_digit((UCHAR)*pParser->pszPos);
         if (d < 0) return -1;
-        cp = (cp << 4) | (unsigned long)d;
-        ps->p++;
+        ulCp = (ulCp << 4) | (ULONG)d;
+        pParser->pszPos++;
     }
-    *pnb = utf8_emit(cp, ubuf);
-    return (*pnb == 0) ? -1 : 0;
+    *pnBytes = utf8_emit(ulCp, pszUbuf);
+    return (*pnBytes == 0) ? -1 : 0;
 }
 
-/* Basic string: "..." */
-static char *parse_basic_string(PARSE *ps) {
-    size_t cap = 64, len = 0;
-    char *buf = (char*)malloc(cap);
-    if (!buf) return NULL;
-    buf[0] = '\0';
-    ps->p++;
+/**
+ * @brief Parse a basic string: "..." .
+ *
+ * @param[in,out] pParser  Parser at the opening '"'. Not NULL.
+ *
+ * @return malloc'd string, or NULL on error.
+ */
+static PSZ parse_basic_string(PARSE *pParser) {
+    size_t cbCap = 64, cbLen = 0;
+    PSZ pszBuf = (PSZ)malloc(cbCap);
+    if (!pszBuf) return NULL;
+    pszBuf[0] = '\0';
+    pParser->pszPos++;
 
-    while (ps->p < ps->end && *ps->p != '"') {
-        char c = *ps->p;
-        if (c == '\\') {
-            ps->p++;
-            if (ps->p >= ps->end) goto fail;
-            switch (*ps->p) {
-                case 'b': c = '\b'; ps->p++; break;
-                case 't': c = '\t'; ps->p++; break;
-                case 'n': c = '\n'; ps->p++; break;
-                case 'f': c = '\f'; ps->p++; break;
-                case 'r': c = '\r'; ps->p++; break;
-                case '"': c = '"';  ps->p++; break;
-                case '\\': c = '\\'; ps->p++; break;
+    while (pParser->pszPos < pParser->pszEnd &&
+           *pParser->pszPos != '"') {
+        CHAR ch = *pParser->pszPos;
+        if (ch == '\\') {
+            pParser->pszPos++;
+            if (pParser->pszPos >= pParser->pszEnd) goto fail;
+            switch (*pParser->pszPos) {
+                case 'b': ch = '\b'; pParser->pszPos++; break;
+                case 't': ch = '\t'; pParser->pszPos++; break;
+                case 'n': ch = '\n'; pParser->pszPos++; break;
+                case 'f': ch = '\f'; pParser->pszPos++; break;
+                case 'r': ch = '\r'; pParser->pszPos++; break;
+                case '"': ch = '"';  pParser->pszPos++; break;
+                case '\\': ch = '\\'; pParser->pszPos++; break;
                 case 'u': case 'U': {
-                    char ubuf[4]; int nb;
-                    if (parse_hex_escape(ps, ubuf, &nb) != 0) goto fail;
-                    if (sbuf_put(&buf, &cap, &len, ubuf, (size_t)nb) != 0)
+                    CHAR achUbuf[4]; int nBytes;
+                    if (parse_hex_escape(pParser, achUbuf,
+                                         &nBytes) != 0) goto fail;
+                    if (sbuf_put(&pszBuf, &cbCap, &cbLen, achUbuf,
+                                 (size_t)nBytes) != 0)
                         goto fail;
                     continue;
                 }
                 default: goto fail;
             }
-        } else if ((unsigned char)c < 0x20 && c != '\t') {
+        } else if ((UCHAR)ch < 0x20 && ch != '\t') {
             goto fail;
-        } else if ((unsigned char)c == 0x7F) {
+        } else if ((UCHAR)ch == 0x7F) {
             goto fail;
         } else {
-            ps->p++;
+            pParser->pszPos++;
         }
-        if (sbuf_putc(&buf, &cap, &len, c) != 0) goto fail;
+        if (sbuf_putc(&pszBuf, &cbCap, &cbLen, ch) != 0) goto fail;
     }
-    if (ps->p >= ps->end || *ps->p != '"') goto fail;
-    ps->p++;
-    return buf;
+    if (pParser->pszPos >= pParser->pszEnd ||
+        *pParser->pszPos != '"') goto fail;
+    pParser->pszPos++;
+    return pszBuf;
 fail:
-    free(buf);
+    free(pszBuf);
     return NULL;
 }
 
-/* Multi-line basic string: """...""" */
-static char *parse_multiline_basic_string(PARSE *ps) {
-    size_t cap = 64, len = 0;
-    char *buf = (char*)malloc(cap);
-    int done = 0;
-    if (!buf) return NULL;
-    buf[0] = '\0';
-    ps->p += 3;
-    /* Trim leading newline */
-    if (ps->p < ps->end && *ps->p == '\r' &&
-        ps->p + 1 < ps->end && ps->p[1] == '\n') {
-        ps->p += 2;
-    } else if (ps->p < ps->end && *ps->p == '\n') {
-        ps->p++;
+/**
+ * @brief Parse a multi-line basic string: """...""" .
+ *
+ * @param[in,out] pParser  Parser at the opening '"""'. Not NULL.
+ *
+ * @return malloc'd string, or NULL on error.
+ */
+static PSZ parse_multiline_basic_string(PARSE *pParser) {
+    size_t cbCap = 64, cbLen = 0;
+    PSZ pszBuf = (PSZ)malloc(cbCap);
+    int fDone = 0;
+    if (!pszBuf) return NULL;
+    pszBuf[0] = '\0';
+    pParser->pszPos += 3;
+    if (pParser->pszPos < pParser->pszEnd &&
+        *pParser->pszPos == '\r' &&
+        pParser->pszPos + 1 < pParser->pszEnd &&
+        pParser->pszPos[1] == '\n') {
+        pParser->pszPos += 2;
+    } else if (pParser->pszPos < pParser->pszEnd &&
+               *pParser->pszPos == '\n') {
+        pParser->pszPos++;
     }
 
-    while (!done && ps->p < ps->end) {
-        char c = *ps->p;
+    while (!fDone && pParser->pszPos < pParser->pszEnd) {
+        CHAR ch = *pParser->pszPos;
 
-        if (c == '"') {
-            const char *run_start = ps->p;
+        if (ch == '"') {
+            PCSZ pszRunStart = pParser->pszPos;
             int n = 0;
             int k;
-            while (ps->p < ps->end && *ps->p == '"') { n++; ps->p++; }
+            while (pParser->pszPos < pParser->pszEnd &&
+                   *pParser->pszPos == '"') { n++; pParser->pszPos++; }
             if (n >= 3 && n <= 5) {
                 for (k = 0; k < n - 3; k++) {
-                    if (sbuf_putc(&buf, &cap, &len, '"') != 0) goto fail;
+                    if (sbuf_putc(&pszBuf, &cbCap, &cbLen, '"') != 0)
+                        goto fail;
                 }
-                done = 1;
+                fDone = 1;
                 continue;
             }
             if (n > 5) {
-                (void)run_start;
+                (void)pszRunStart;
                 goto fail;
             }
             for (k = 0; k < n; k++) {
-                if (sbuf_putc(&buf, &cap, &len, '"') != 0) goto fail;
+                if (sbuf_putc(&pszBuf, &cbCap, &cbLen, '"') != 0)
+                    goto fail;
             }
             continue;
         }
 
-        if (c == '\\') {
-            /* Check for line continuation: \ [ws] newline */
-            const char *q = ps->p + 1;
-            while (q < ps->end && (*q == ' ' || *q == '\t')) q++;
-            if (q < ps->end && (*q == '\n' || *q == '\r')) {
-                ps->p = q;
-                if (consume_newline(ps) != 0) goto fail;
-                while (ps->p < ps->end) {
-                    char w = *ps->p;
-                    if (w == ' ' || w == '\t') { ps->p++; continue; }
-                    if (w == '\r' || w == '\n') {
-                        if (consume_newline(ps) != 0) goto fail;
+        if (ch == '\\') {
+            PCSZ pszQ = pParser->pszPos + 1;
+            while (pszQ < pParser->pszEnd && (*pszQ == ' ' ||
+                                              *pszQ == '\t')) pszQ++;
+            if (pszQ < pParser->pszEnd &&
+                (*pszQ == '\n' || *pszQ == '\r')) {
+                pParser->pszPos = pszQ;
+                if (consume_newline(pParser) != 0) goto fail;
+                while (pParser->pszPos < pParser->pszEnd) {
+                    CHAR chW = *pParser->pszPos;
+                    if (chW == ' ' || chW == '\t') {
+                        pParser->pszPos++; continue;
+                    }
+                    if (chW == '\r' || chW == '\n') {
+                        if (consume_newline(pParser) != 0) goto fail;
                         continue;
                     }
                     break;
                 }
                 continue;
             }
-            /* Regular escape */
-            ps->p++;
-            if (ps->p >= ps->end) goto fail;
-            switch (*ps->p) {
-                case 'b': c = '\b'; ps->p++; break;
-                case 't': c = '\t'; ps->p++; break;
-                case 'n': c = '\n'; ps->p++; break;
-                case 'f': c = '\f'; ps->p++; break;
-                case 'r': c = '\r'; ps->p++; break;
-                case '"': c = '"';  ps->p++; break;
-                case '\\': c = '\\'; ps->p++; break;
+            pParser->pszPos++;
+            if (pParser->pszPos >= pParser->pszEnd) goto fail;
+            switch (*pParser->pszPos) {
+                case 'b': ch = '\b'; pParser->pszPos++; break;
+                case 't': ch = '\t'; pParser->pszPos++; break;
+                case 'n': ch = '\n'; pParser->pszPos++; break;
+                case 'f': ch = '\f'; pParser->pszPos++; break;
+                case 'r': ch = '\r'; pParser->pszPos++; break;
+                case '"': ch = '"';  pParser->pszPos++; break;
+                case '\\': ch = '\\'; pParser->pszPos++; break;
                 case 'u': case 'U': {
-                    char ubuf[4]; int nb;
-                    if (parse_hex_escape(ps, ubuf, &nb) != 0) goto fail;
-                    if (sbuf_put(&buf, &cap, &len, ubuf, (size_t)nb) != 0)
+                    CHAR achUbuf[4]; int nBytes;
+                    if (parse_hex_escape(pParser, achUbuf,
+                                         &nBytes) != 0) goto fail;
+                    if (sbuf_put(&pszBuf, &cbCap, &cbLen, achUbuf,
+                                 (size_t)nBytes) != 0)
                         goto fail;
                     continue;
                 }
                 default: goto fail;
             }
-        } else if ((unsigned char)c < 0x20 &&
-                   c != '\t' && c != '\n' && c != '\r') {
+        } else if ((UCHAR)ch < 0x20 &&
+                   ch != '\t' && ch != '\n' && ch != '\r') {
             goto fail;
-        } else if ((unsigned char)c == 0x7F) {
+        } else if ((UCHAR)ch == 0x7F) {
             goto fail;
         } else {
-            ps->p++;
+            pParser->pszPos++;
         }
-        if (sbuf_putc(&buf, &cap, &len, c) != 0) goto fail;
+        if (sbuf_putc(&pszBuf, &cbCap, &cbLen, ch) != 0) goto fail;
     }
-    if (!done) goto fail;
-    return buf;
+    if (!fDone) goto fail;
+    return pszBuf;
 fail:
-    free(buf);
+    free(pszBuf);
     return NULL;
 }
 
-/* Literal string: '...' */
-static char *parse_literal_string(PARSE *ps) {
-    const char *start;
-    ps->p++;
-    start = ps->p;
-    while (ps->p < ps->end && *ps->p != '\'' && *ps->p != '\n' &&
-           *ps->p != '\r') {
-        unsigned char c = (unsigned char)*ps->p;
-        if (c < 0x20 && c != '\t') return NULL;
-        if (c == 0x7F) return NULL;
-        ps->p++;
+/**
+ * @brief Parse a literal string: '...' .
+ *
+ * @param[in,out] pParser  Parser at the opening '\''. Not NULL.
+ *
+ * @return malloc'd string, or NULL on error.
+ */
+static PSZ parse_literal_string(PARSE *pParser) {
+    PCSZ pszStart;
+    pParser->pszPos++;
+    pszStart = pParser->pszPos;
+    while (pParser->pszPos < pParser->pszEnd &&
+           *pParser->pszPos != '\'' &&
+           *pParser->pszPos != '\n' &&
+           *pParser->pszPos != '\r') {
+        UCHAR uch = (UCHAR)*pParser->pszPos;
+        if (uch < 0x20 && uch != '\t') return NULL;
+        if (uch == 0x7F) return NULL;
+        pParser->pszPos++;
     }
-    if (ps->p >= ps->end || *ps->p != '\'') return NULL;
+    if (pParser->pszPos >= pParser->pszEnd ||
+        *pParser->pszPos != '\'') return NULL;
     {
-        char *r = dup_n(start, (size_t)(ps->p - start));
-        ps->p++;
-        return r;
+        PSZ pszResult = dup_n(pszStart,
+                              (size_t)(pParser->pszPos - pszStart));
+        pParser->pszPos++;
+        return pszResult;
     }
 }
 
-/* Multi-line literal string: '''...''' */
-static char *parse_multiline_literal_string(PARSE *ps) {
-    const char *start;
-    const char *content_end = NULL;
-    ps->p += 3;
-    if (ps->p < ps->end && *ps->p == '\r' &&
-        ps->p + 1 < ps->end && ps->p[1] == '\n') {
-        ps->p += 2;
-    } else if (ps->p < ps->end && *ps->p == '\n') {
-        ps->p++;
+/**
+ * @brief Parse a multi-line literal string: '''...''' .
+ *
+ * @param[in,out] pParser  Parser at the opening "'''". Not NULL.
+ *
+ * @return malloc'd string, or NULL on error.
+ */
+static PSZ parse_multiline_literal_string(PARSE *pParser) {
+    PCSZ pszStart;
+    PCSZ pszContentEnd = NULL;
+    pParser->pszPos += 3;
+    if (pParser->pszPos < pParser->pszEnd &&
+        *pParser->pszPos == '\r' &&
+        pParser->pszPos + 1 < pParser->pszEnd &&
+        pParser->pszPos[1] == '\n') {
+        pParser->pszPos += 2;
+    } else if (pParser->pszPos < pParser->pszEnd &&
+               *pParser->pszPos == '\n') {
+        pParser->pszPos++;
     }
-    start = ps->p;
+    pszStart = pParser->pszPos;
 
-    while (ps->p < ps->end) {
-        unsigned char c = (unsigned char)*ps->p;
-        if (c == '\'') {
-            const char *run_start = ps->p;
+    while (pParser->pszPos < pParser->pszEnd) {
+        UCHAR uch = (UCHAR)*pParser->pszPos;
+        if (uch == '\'') {
+            PCSZ pszRunStart = pParser->pszPos;
             int n = 0;
-            while (ps->p < ps->end && *ps->p == '\'') { n++; ps->p++; }
+            while (pParser->pszPos < pParser->pszEnd &&
+                   *pParser->pszPos == '\'') { n++; pParser->pszPos++; }
             if (n >= 3 && n <= 5) {
-                content_end = run_start + (n - 3);
+                pszContentEnd = pszRunStart + (n - 3);
                 break;
             }
             if (n > 5) return NULL;
-            /* n < 3: all content, continue */
             continue;
         }
-        if (c < 0x20 && c != '\t' && c != '\n' && c != '\r') return NULL;
-        if (c == 0x7F) return NULL;
-        ps->p++;
+        if (uch < 0x20 && uch != '\t' && uch != '\n' && uch != '\r')
+            return NULL;
+        if (uch == 0x7F) return NULL;
+        pParser->pszPos++;
     }
-    if (!content_end) return NULL;
-    /* Validate the range for control chars */
+    if (!pszContentEnd) return NULL;
     {
-        const char *q;
-        for (q = start; q < content_end; q++) {
-            unsigned char cc = (unsigned char)*q;
-            if (cc < 0x20 && cc != '\t' && cc != '\n' && cc != '\r')
+        PCSZ pszQ;
+        for (pszQ = pszStart; pszQ < pszContentEnd; pszQ++) {
+            UCHAR uchCc = (UCHAR)*pszQ;
+            if (uchCc < 0x20 && uchCc != '\t' &&
+                uchCc != '\n' && uchCc != '\r')
                 return NULL;
-            if (cc == 0x7F) return NULL;
+            if (uchCc == 0x7F) return NULL;
         }
     }
-    return dup_n(start, (size_t)(content_end - start));
+    return dup_n(pszStart, (size_t)(pszContentEnd - pszStart));
 }
 
 /* ==================================================================
  * Date/time validation (TOML v1.0.0 grammar)
  * ================================================================== */
 
-/* Parse two decimal digits into an integer value. */
-static int parse_2digit(const char *s) {
-    return (s[0] - '0') * 10 + (s[1] - '0');
+/**
+ * @brief Parse two decimal digits into an integer value.
+ *
+ * @param[in] pszPos  Pointer to two digits. Not NULL.
+ *
+ * @return Value in [0, 99].
+ */
+static int parse_2digit(PCSZ pszPos) {
+    return (pszPos[0] - '0') * 10 + (pszPos[1] - '0');
 }
 
-/* Days in a month, taking leap years into account. month is 1-based. */
-static int days_in_month(int year, int month) {
-    static const int dim[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    if (month < 1 || month > 12) return 0;
-    if (month == 2) {
-        int leap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-        return leap ? 29 : 28;
+/**
+ * @brief Days in a month, taking leap years into account.
+ *
+ * @param[in] nYear   Full year.
+ * @param[in] nMonth  Month, 1-based.
+ *
+ * @return Number of days in the month, or 0 on invalid month.
+ */
+static int days_in_month(int nYear, int nMonth) {
+    static const int anDim[] = {
+        0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+    if (nMonth < 1 || nMonth > 12) return 0;
+    if (nMonth == 2) {
+        int fLeap = (nYear % 4 == 0 &&
+                     (nYear % 100 != 0 || nYear % 400 == 0));
+        return fLeap ? 29 : 28;
     }
-    return dim[month];
+    return anDim[nMonth];
 }
 
-/* Validate the full date/time token against the TOML v1.0.0 grammar
- * (RFC 3339 subset): year 0000-9999, month 01-12, day according to
- * month and leap year, hour 00-23, minute 00-59, second 00-60 (leap
- * second allowed), fractional seconds one or more digits, offset hour
- * 00-23 and minute 00-59. */
-static int validate_datetime(const char *s, size_t len) {
-    size_t pos = 0;
-    int have_date = 0, have_time = 0;
-    int year = 0, month = 0, day = 0;
+/**
+ * @brief Validate a date/time token against the TOML v1.0.0 grammar
+ *        (RFC 3339 subset).
+ *
+ * @param[in] pszStr  Token. Not NULL.
+ * @param[in] cbLen   Token length.
+ *
+ * @return 1 if valid, 0 otherwise.
+ */
+static int validate_datetime(PCSZ pszStr, size_t cbLen) {
+    size_t cbPos = 0;
+    int fHaveDate = 0, fHaveTime = 0;
+    int nYear = 0, nMonth = 0, nDay = 0;
 
-    /* date-fullyear "-" date-month "-" date-mday (RFC 3339) */
-    if (len >= 10 &&
-        is_digit_c(s[0]) && is_digit_c(s[1]) &&
-        is_digit_c(s[2]) && is_digit_c(s[3]) && s[4] == '-' &&
-        is_digit_c(s[5]) && is_digit_c(s[6]) && s[7] == '-' &&
-        is_digit_c(s[8]) && is_digit_c(s[9])) {
-        year = (s[0]-'0')*1000 + (s[1]-'0')*100 +
-               (s[2]-'0')*10 + (s[3]-'0');
-        month = parse_2digit(s + 5);
-        day = parse_2digit(s + 8);
-        if (month < 1 || month > 12) return 0;
-        if (day < 1 || day > days_in_month(year, month)) return 0;
-        have_date = 1;
-        pos = 10;
+    if (cbLen >= 10 &&
+        is_digit_c(pszStr[0]) && is_digit_c(pszStr[1]) &&
+        is_digit_c(pszStr[2]) && is_digit_c(pszStr[3]) &&
+        pszStr[4] == '-' &&
+        is_digit_c(pszStr[5]) && is_digit_c(pszStr[6]) &&
+        pszStr[7] == '-' &&
+        is_digit_c(pszStr[8]) && is_digit_c(pszStr[9])) {
+        nYear = (pszStr[0]-'0')*1000 + (pszStr[1]-'0')*100 +
+                (pszStr[2]-'0')*10 + (pszStr[3]-'0');
+        nMonth = parse_2digit(pszStr + 5);
+        nDay = parse_2digit(pszStr + 8);
+        if (nMonth < 1 || nMonth > 12) return 0;
+        if (nDay < 1 || nDay > days_in_month(nYear, nMonth)) return 0;
+        fHaveDate = 1;
+        cbPos = 10;
     }
 
-    /* time-hour ":" time-minute ":" time-second [ time-secfrac ] */
-    if (len - pos >= 8 &&
-        is_digit_c(s[pos+0]) && is_digit_c(s[pos+1]) && s[pos+2] == ':' &&
-        is_digit_c(s[pos+3]) && is_digit_c(s[pos+4]) && s[pos+5] == ':' &&
-        is_digit_c(s[pos+6]) && is_digit_c(s[pos+7])) {
-        int hour, minute, second;
-        if (have_date) {
-            if (s[pos] != 'T' && s[pos] != 't' && s[pos] != ' ') return 0;
-            pos++;
+    if (cbLen - cbPos >= 8 &&
+        is_digit_c(pszStr[cbPos+0]) && is_digit_c(pszStr[cbPos+1]) &&
+        pszStr[cbPos+2] == ':' &&
+        is_digit_c(pszStr[cbPos+3]) && is_digit_c(pszStr[cbPos+4]) &&
+        pszStr[cbPos+5] == ':' &&
+        is_digit_c(pszStr[cbPos+6]) && is_digit_c(pszStr[cbPos+7])) {
+        int nHour, nMinute, nSecond;
+        if (fHaveDate) {
+            if (pszStr[cbPos] != 'T' && pszStr[cbPos] != 't' &&
+                pszStr[cbPos] != ' ') return 0;
+            cbPos++;
         }
-        hour   = parse_2digit(s + pos);
-        minute = parse_2digit(s + pos + 3);
-        second = parse_2digit(s + pos + 6);
-        if (hour > 23 || minute > 59 || second > 60) return 0;
-        have_time = 1;
-        pos += 8;
-        if (pos < len && s[pos] == '.') {
-            pos++;
-            if (pos >= len || !is_digit_c(s[pos])) return 0;
-            while (pos < len && is_digit_c(s[pos])) pos++;
+        nHour   = parse_2digit(pszStr + cbPos);
+        nMinute = parse_2digit(pszStr + cbPos + 3);
+        nSecond = parse_2digit(pszStr + cbPos + 6);
+        if (nHour > 23 || nMinute > 59 || nSecond > 60) return 0;
+        fHaveTime = 1;
+        cbPos += 8;
+        if (cbPos < cbLen && pszStr[cbPos] == '.') {
+            cbPos++;
+            if (cbPos >= cbLen || !is_digit_c(pszStr[cbPos])) return 0;
+            while (cbPos < cbLen && is_digit_c(pszStr[cbPos])) cbPos++;
         }
-        if (pos < len) {
-            if (s[pos] == 'Z' || s[pos] == 'z') {
-                pos++;
-            } else if (s[pos] == '+' || s[pos] == '-') {
-                if (len - pos < 6) return 0;
-                if (!is_digit_c(s[pos+1]) || !is_digit_c(s[pos+2]) ||
-                    s[pos+3] != ':' ||
-                    !is_digit_c(s[pos+4]) || !is_digit_c(s[pos+5]))
+        if (cbPos < cbLen) {
+            if (pszStr[cbPos] == 'Z' || pszStr[cbPos] == 'z') {
+                cbPos++;
+            } else if (pszStr[cbPos] == '+' || pszStr[cbPos] == '-') {
+                if (cbLen - cbPos < 6) return 0;
+                if (!is_digit_c(pszStr[cbPos+1]) ||
+                    !is_digit_c(pszStr[cbPos+2]) ||
+                    pszStr[cbPos+3] != ':' ||
+                    !is_digit_c(pszStr[cbPos+4]) ||
+                    !is_digit_c(pszStr[cbPos+5]))
                     return 0;
                 {
-                    int oh = parse_2digit(s + pos + 1);
-                    int om = parse_2digit(s + pos + 4);
-                    if (oh > 23 || om > 59) return 0;
+                    int nOh = parse_2digit(pszStr + cbPos + 1);
+                    int nOm = parse_2digit(pszStr + cbPos + 4);
+                    if (nOh > 23 || nOm > 59) return 0;
                 }
-                pos += 6;
+                cbPos += 6;
             }
         }
     }
-    return pos == len && (have_date || have_time);
+    return cbPos == cbLen && (fHaveDate || fHaveTime);
 }
 
-/* Quick syntactic check: does the token look like a date (YYYY-) or a
- * time (HH:)? Used to decide whether to enter the datetime parser. */
-static int looks_like_datetime(const char *p, const char *end) {
-    if (p + 5 <= end &&
-        is_digit_c(p[0]) && is_digit_c(p[1]) &&
-        is_digit_c(p[2]) && is_digit_c(p[3]) && p[4] == '-') return 1;
-    if (p + 3 <= end &&
-        is_digit_c(p[0]) && is_digit_c(p[1]) && p[2] == ':') return 1;
+/**
+ * @brief Quick syntactic check: does the token look like a date or a
+ *        time?
+ *
+ * @param[in] pszPos  Start of the token. Not NULL.
+ * @param[in] pszEnd  End of the input. Not NULL.
+ *
+ * @return 1 if it looks like a date or time, 0 otherwise.
+ */
+static int looks_like_datetime(PCSZ pszPos, PCSZ pszEnd) {
+    if (pszPos + 5 <= pszEnd &&
+        is_digit_c(pszPos[0]) && is_digit_c(pszPos[1]) &&
+        is_digit_c(pszPos[2]) && is_digit_c(pszPos[3]) &&
+        pszPos[4] == '-') return 1;
+    if (pszPos + 3 <= pszEnd &&
+        is_digit_c(pszPos[0]) && is_digit_c(pszPos[1]) &&
+        pszPos[2] == ':') return 1;
     return 0;
 }
 
@@ -711,327 +1027,382 @@ static int looks_like_datetime(const char *p, const char *end) {
  * Number parsing
  * ================================================================== */
 
-static int digit_value(int c, int base) {
+/**
+ * @brief Return the value of a digit in the given base.
+ *
+ * @param[in] c      Character.
+ * @param[in] nBase  Base (2, 8, 10 or 16).
+ *
+ * @return Value, or -1 if not a valid digit in that base.
+ */
+static int digit_value(int c, int nBase) {
     if (c >= '0' && c <= '9') {
         int d = c - '0';
-        if (d < base) return d;
+        if (d < nBase) return d;
         return -1;
     }
-    if (base == 16 && c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (base == 16 && c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (nBase == 16 && c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (nBase == 16 && c >= 'A' && c <= 'F') return c - 'A' + 10;
     return -1;
 }
 
-static int parse_integer_token(const char *start, const char *end,
-                               LONGLONG *out) {
-    int base = 10;
-    unsigned __int64 v = 0;
-    int sign = 1;
-    int had_sign = 0;
-    const char *p = start;
-    int any = 0;
-    int prev_was_digit = 0;
-    unsigned __int64 limit;
-    int is_radix = 0;
+/**
+ * @brief Parse an integer token.
+ *
+ * @param[in]  pszStart  Start of the token. Not NULL.
+ * @param[in]  pszEnd    End of the token. Not NULL.
+ * @param[out] pllOut    Receiver. Not NULL.
+ *
+ * @return 1 on success, 0 on syntax error.
+ */
+static int parse_integer_token(PCSZ pszStart, PCSZ pszEnd,
+                               PLONGLONG pllOut) {
+    int nBase = 10;
+    unsigned __int64 ullVal = 0;
+    int nSign = 1;
+    int fHadSign = 0;
+    PCSZ pszPos = pszStart;
+    int fAny = 0;
+    int fPrevWasDigit = 0;
+    unsigned __int64 ullLimit;
+    int fIsRadix = 0;
 
-    if (p < end && (*p == '+' || *p == '-')) {
-        if (*p == '-') sign = -1;
-        had_sign = 1;
-        p++;
+    if (pszPos < pszEnd && (*pszPos == '+' || *pszPos == '-')) {
+        if (*pszPos == '-') nSign = -1;
+        fHadSign = 1;
+        pszPos++;
     }
 
-    /* Radix prefixes are strictly lowercase (ABNF %x30.78, %x30.6F,
-     * %x30.62). Only one prefix form is recognized; uppercase 0X/0O/0B
-     * is a syntax error. */
-    if (p + 1 < end && *p == '0') {
-        char n = p[1];
-        if (n == 'x')      { base = 16; is_radix = 1; p += 2; }
-        else if (n == 'o') { base = 8;  is_radix = 1; p += 2; }
-        else if (n == 'b') { base = 2;  is_radix = 1; p += 2; }
+    if (pszPos + 1 < pszEnd && *pszPos == '0') {
+        CHAR ch = pszPos[1];
+        if (ch == 'x')      { nBase = 16; fIsRadix = 1; pszPos += 2; }
+        else if (ch == 'o') { nBase = 8;  fIsRadix = 1; pszPos += 2; }
+        else if (ch == 'b') { nBase = 2;  fIsRadix = 1; pszPos += 2; }
     }
-    if (is_radix && had_sign) return 0;
+    if (fIsRadix && fHadSign) return 0;
 
-    /* Leading zero check for decimal integers */
-    if (!is_radix) {
-        const char *q = p;
-        int first = -1;
-        int count = 0;
-        while (q < end) {
-            if (*q == '_') { q++; continue; }
-            if (*q >= '0' && *q <= '9') {
-                if (first < 0) first = *q - '0';
-                count++;
+    if (!fIsRadix) {
+        PCSZ pszQ = pszPos;
+        int nFirst = -1;
+        int nCount = 0;
+        while (pszQ < pszEnd) {
+            if (*pszQ == '_') { pszQ++; continue; }
+            if (*pszQ >= '0' && *pszQ <= '9') {
+                if (nFirst < 0) nFirst = *pszQ - '0';
+                nCount++;
             }
-            q++;
+            pszQ++;
         }
-        if (first == 0 && count > 1) return 0;
+        if (nFirst == 0 && nCount > 1) return 0;
     }
 
-    if (sign < 0) {
-        limit = ((unsigned __int64)1) << 63;
+    if (nSign < 0) {
+        ullLimit = ((unsigned __int64)1) << 63;
     } else {
-        limit = (((unsigned __int64)1) << 63) - 1;
+        ullLimit = (((unsigned __int64)1) << 63) - 1;
     }
 
-    while (p < end) {
+    while (pszPos < pszEnd) {
         int d;
-        if (*p == '_') {
-            if (!prev_was_digit) return 0;
-            if (p + 1 >= end) return 0;
-            if (digit_value((unsigned char)p[1], base) < 0) return 0;
-            prev_was_digit = 0;
-            p++;
+        if (*pszPos == '_') {
+            if (!fPrevWasDigit) return 0;
+            if (pszPos + 1 >= pszEnd) return 0;
+            if (digit_value((UCHAR)pszPos[1], nBase) < 0) return 0;
+            fPrevWasDigit = 0;
+            pszPos++;
             continue;
         }
-        d = digit_value((unsigned char)*p, base);
+        d = digit_value((UCHAR)*pszPos, nBase);
         if (d < 0) return 0;
-        if (v > (limit - (unsigned __int64)d) / (unsigned __int64)base)
+        if (ullVal > (ullLimit - (unsigned __int64)d) /
+                     (unsigned __int64)nBase)
             return 0;
-        v = v * base + (unsigned __int64)d;
-        any = 1;
-        prev_was_digit = 1;
-        p++;
+        ullVal = ullVal * nBase + (unsigned __int64)d;
+        fAny = 1;
+        fPrevWasDigit = 1;
+        pszPos++;
     }
-    if (!any) return 0;
-    if (!prev_was_digit) return 0;
+    if (!fAny) return 0;
+    if (!fPrevWasDigit) return 0;
 
-    if (sign < 0) {
-        *out = (LONGLONG)(0 - v);
+    if (nSign < 0) {
+        *pllOut = (LONGLONG)(0 - ullVal);
     } else {
-        *out = (LONGLONG)v;
+        *pllOut = (LONGLONG)ullVal;
     }
     return 1;
 }
 
-static int is_number_token_start(const char *p, const char *end) {
-    if (p >= end) return 0;
-    if (*p == '+' || *p == '-') return 1;
-    if (is_digit_c(*p)) return 1;
-    if (p + 3 <= end) {
-        if (strncmp(p, "inf", 3) == 0) return 1;
-        if (strncmp(p, "nan", 3) == 0) return 1;
+/**
+ * @brief Query whether the cursor starts a number token.
+ *
+ * @param[in] pszPos  Start. Not NULL.
+ * @param[in] pszEnd  End of the input. Not NULL.
+ *
+ * @return 1 if so, 0 otherwise.
+ */
+static int is_number_token_start(PCSZ pszPos, PCSZ pszEnd) {
+    if (pszPos >= pszEnd) return 0;
+    if (*pszPos == '+' || *pszPos == '-') return 1;
+    if (is_digit_c(*pszPos)) return 1;
+    if (pszPos + 3 <= pszEnd) {
+        if (strncmp(pszPos, "inf", 3) == 0) return 1;
+        if (strncmp(pszPos, "nan", 3) == 0) return 1;
     }
     return 0;
 }
 
-/* Validate a float token (underscores already stripped). */
-static int validate_float_clean(const char *s) {
-    size_t i = 0, n = strlen(s);
-    int saw_dot = 0, saw_exp = 0;
+/**
+ * @brief Validate a float token (underscores already stripped).
+ *
+ * @param[in] pszStr  Token. Not NULL.
+ *
+ * @return 1 if valid, 0 otherwise.
+ */
+static int validate_float_clean(PCSZ pszStr) {
+    size_t i = 0, cbLen = strlen(pszStr);
+    int fSawDot = 0, fSawExp = 0;
 
-    if (i < n && (s[i] == '+' || s[i] == '-')) i++;
-    if (i >= n) return 0;
+    if (i < cbLen && (pszStr[i] == '+' || pszStr[i] == '-')) i++;
+    if (i >= cbLen) return 0;
 
-    if (s[i] == '0') {
+    if (pszStr[i] == '0') {
         i++;
-        if (i < n && s[i] >= '0' && s[i] <= '9') return 0;
-    } else if (s[i] >= '1' && s[i] <= '9') {
+        if (i < cbLen && pszStr[i] >= '0' && pszStr[i] <= '9') return 0;
+    } else if (pszStr[i] >= '1' && pszStr[i] <= '9') {
         i++;
-        while (i < n && s[i] >= '0' && s[i] <= '9') i++;
+        while (i < cbLen && pszStr[i] >= '0' && pszStr[i] <= '9') i++;
     } else {
         return 0;
     }
 
-    if (i < n && s[i] == '.') {
+    if (i < cbLen && pszStr[i] == '.') {
         i++;
-        if (i >= n || !(s[i] >= '0' && s[i] <= '9')) return 0;
+        if (i >= cbLen || !(pszStr[i] >= '0' && pszStr[i] <= '9')) return 0;
         i++;
-        while (i < n && s[i] >= '0' && s[i] <= '9') i++;
-        saw_dot = 1;
+        while (i < cbLen && pszStr[i] >= '0' && pszStr[i] <= '9') i++;
+        fSawDot = 1;
     }
 
-    if (i < n && (s[i] == 'e' || s[i] == 'E')) {
+    if (i < cbLen && (pszStr[i] == 'e' || pszStr[i] == 'E')) {
         i++;
-        if (i < n && (s[i] == '+' || s[i] == '-')) i++;
-        if (i >= n || !(s[i] >= '0' && s[i] <= '9')) return 0;
+        if (i < cbLen && (pszStr[i] == '+' || pszStr[i] == '-')) i++;
+        if (i >= cbLen || !(pszStr[i] >= '0' && pszStr[i] <= '9')) return 0;
         i++;
-        while (i < n && s[i] >= '0' && s[i] <= '9') i++;
-        saw_exp = 1;
+        while (i < cbLen && pszStr[i] >= '0' && pszStr[i] <= '9') i++;
+        fSawExp = 1;
     }
 
-    if (i != n) return 0;
-    if (!saw_dot && !saw_exp) return 0;
+    if (i != cbLen) return 0;
+    if (!fSawDot && !fSawExp) return 0;
     return 1;
 }
 
-static int parse_number_or_datetime(PARSE *ps, PTOMLVALUE *ppv) {
-    const char *start = ps->p;
-    int negative = 0;
+/**
+ * @brief Parse a number or date/time token.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_number_or_datetime(PARSE *pParser, PTOMLVALUE *ppValue) {
+    PCSZ pszStart = pParser->pszPos;
+    int fNegative = 0;
 
-    /* Special float values: inf, nan (lowercase only) */
     {
-        const char *p = start;
-        if (p < ps->end && (*p == '+' || *p == '-')) {
-            negative = (*p == '-');
-            p++;
+        PCSZ pszPos = pszStart;
+        if (pszPos < pParser->pszEnd && (*pszPos == '+' || *pszPos == '-')) {
+            fNegative = (*pszPos == '-');
+            pszPos++;
         }
-        if (p + 3 <= ps->end) {
-            if (strncmp(p, "inf", 3) == 0 &&
-                (p + 3 == ps->end || !is_bare_key_char(p[3]))) {
-                PTOMLVALUE pv = value_new(TOML_TYPE_FLOAT);
-                if (!pv) return -1;
-                pv->u.dblFloat = toml_inf(negative);
-                ps->p = p + 3;
-                *ppv = pv;
+        if (pszPos + 3 <= pParser->pszEnd) {
+            if (strncmp(pszPos, "inf", 3) == 0 &&
+                (pszPos + 3 == pParser->pszEnd ||
+                 !is_bare_key_char(pszPos[3]))) {
+                PTOMLVALUE pValue = value_new(TOML_TYPE_FLOAT);
+                if (!pValue) return -1;
+                pValue->u.dblFloat = toml_inf(fNegative);
+                pParser->pszPos = pszPos + 3;
+                *ppValue = pValue;
                 return 0;
             }
-            if (strncmp(p, "nan", 3) == 0 &&
-                (p + 3 == ps->end || !is_bare_key_char(p[3]))) {
-                PTOMLVALUE pv = value_new(TOML_TYPE_FLOAT);
-                if (!pv) return -1;
-                pv->u.dblFloat = toml_nan();
-                ps->p = p + 3;
-                *ppv = pv;
+            if (strncmp(pszPos, "nan", 3) == 0 &&
+                (pszPos + 3 == pParser->pszEnd ||
+                 !is_bare_key_char(pszPos[3]))) {
+                PTOMLVALUE pValue = value_new(TOML_TYPE_FLOAT);
+                if (!pValue) return -1;
+                pValue->u.dblFloat = toml_nan();
+                pParser->pszPos = pszPos + 3;
+                *ppValue = pValue;
                 return 0;
             }
         }
     }
 
-    /* Date/time */
-    if (looks_like_datetime(ps->p, ps->end)) {
-        const char *tok_start = ps->p;
-        char *tok;
-        PTOMLVALUE pv;
-        size_t tok_len;
+    if (looks_like_datetime(pParser->pszPos, pParser->pszEnd)) {
+        PCSZ pszTokStart = pParser->pszPos;
+        PSZ pszTok;
+        PTOMLVALUE pValue;
+        size_t cbTokLen;
 
-        if (ps->p + 10 <= ps->end &&
-            is_digit_c(ps->p[0]) && is_digit_c(ps->p[1]) &&
-            is_digit_c(ps->p[2]) && is_digit_c(ps->p[3]) &&
-            ps->p[4] == '-') {
-            ps->p += 10;
-            /* Optional time part */
-            if (ps->p < ps->end &&
-                (*ps->p == 'T' || *ps->p == 't' || *ps->p == ' ')) {
-                const char *sep = ps->p;
-                ps->p++;
-                if (ps->p + 8 <= ps->end &&
-                    is_digit_c(ps->p[0]) && is_digit_c(ps->p[1]) &&
-                    ps->p[2] == ':' &&
-                    is_digit_c(ps->p[3]) && is_digit_c(ps->p[4]) &&
-                    ps->p[5] == ':' &&
-                    is_digit_c(ps->p[6]) && is_digit_c(ps->p[7])) {
-                    ps->p += 8;
-                    if (ps->p < ps->end && *ps->p == '.') {
-                        ps->p++;
-                        while (ps->p < ps->end && is_digit_c(*ps->p))
-                            ps->p++;
+        if (pParser->pszPos + 10 <= pParser->pszEnd &&
+            is_digit_c(pParser->pszPos[0]) &&
+            is_digit_c(pParser->pszPos[1]) &&
+            is_digit_c(pParser->pszPos[2]) &&
+            is_digit_c(pParser->pszPos[3]) &&
+            pParser->pszPos[4] == '-') {
+            pParser->pszPos += 10;
+            if (pParser->pszPos < pParser->pszEnd &&
+                (*pParser->pszPos == 'T' ||
+                 *pParser->pszPos == 't' ||
+                 *pParser->pszPos == ' ')) {
+                PCSZ pszSep = pParser->pszPos;
+                pParser->pszPos++;
+                if (pParser->pszPos + 8 <= pParser->pszEnd &&
+                    is_digit_c(pParser->pszPos[0]) &&
+                    is_digit_c(pParser->pszPos[1]) &&
+                    pParser->pszPos[2] == ':' &&
+                    is_digit_c(pParser->pszPos[3]) &&
+                    is_digit_c(pParser->pszPos[4]) &&
+                    pParser->pszPos[5] == ':' &&
+                    is_digit_c(pParser->pszPos[6]) &&
+                    is_digit_c(pParser->pszPos[7])) {
+                    pParser->pszPos += 8;
+                    if (pParser->pszPos < pParser->pszEnd &&
+                        *pParser->pszPos == '.') {
+                        pParser->pszPos++;
+                        while (pParser->pszPos < pParser->pszEnd &&
+                               is_digit_c(*pParser->pszPos))
+                            pParser->pszPos++;
                     }
-                    if (ps->p < ps->end &&
-                        (*ps->p == 'Z' || *ps->p == 'z')) {
-                        ps->p++;
-                    } else if (ps->p < ps->end &&
-                               (*ps->p == '+' || *ps->p == '-')) {
-                        if (ps->p + 6 <= ps->end &&
-                            is_digit_c(ps->p[1]) && is_digit_c(ps->p[2]) &&
-                            ps->p[3] == ':' &&
-                            is_digit_c(ps->p[4]) && is_digit_c(ps->p[5])) {
-                            ps->p += 6;
+                    if (pParser->pszPos < pParser->pszEnd &&
+                        (*pParser->pszPos == 'Z' ||
+                         *pParser->pszPos == 'z')) {
+                        pParser->pszPos++;
+                    } else if (pParser->pszPos < pParser->pszEnd &&
+                               (*pParser->pszPos == '+' ||
+                                *pParser->pszPos == '-')) {
+                        if (pParser->pszPos + 6 <= pParser->pszEnd &&
+                            is_digit_c(pParser->pszPos[1]) &&
+                            is_digit_c(pParser->pszPos[2]) &&
+                            pParser->pszPos[3] == ':' &&
+                            is_digit_c(pParser->pszPos[4]) &&
+                            is_digit_c(pParser->pszPos[5])) {
+                            pParser->pszPos += 6;
                         }
                     }
                 } else {
-                    ps->p = sep;
+                    pParser->pszPos = pszSep;
                 }
             }
         } else {
-            /* Local time HH:MM:SS */
-            ps->p += 8;
-            if (ps->p < ps->end && *ps->p == '.') {
-                ps->p++;
-                while (ps->p < ps->end && is_digit_c(*ps->p)) ps->p++;
+            pParser->pszPos += 8;
+            if (pParser->pszPos < pParser->pszEnd &&
+                *pParser->pszPos == '.') {
+                pParser->pszPos++;
+                while (pParser->pszPos < pParser->pszEnd &&
+                       is_digit_c(*pParser->pszPos))
+                    pParser->pszPos++;
             }
         }
-        tok_len = (size_t)(ps->p - tok_start);
-        tok = dup_n(tok_start, tok_len);
-        if (!tok) return -1;
-        if (!validate_datetime(tok, tok_len)) { free(tok); return -1; }
-        pv = value_new(TOML_TYPE_DATETIME);
-        if (!pv) { free(tok); return -1; }
-        pv->u.pszString = tok;
-        *ppv = pv;
+        cbTokLen = (size_t)(pParser->pszPos - pszTokStart);
+        pszTok = dup_n(pszTokStart, cbTokLen);
+        if (!pszTok) return -1;
+        if (!validate_datetime(pszTok, cbTokLen)) {
+            free(pszTok);
+            return -1;
+        }
+        pValue = value_new(TOML_TYPE_DATETIME);
+        if (!pValue) { free(pszTok); return -1; }
+        pValue->u.pszString = pszTok;
+        *ppValue = pValue;
         return 0;
     }
 
-    /* Radix integer (0x, 0o, 0b) — prefixes are strictly lowercase. */
     {
-        const char *p = start;
-        if (*p == '+' || *p == '-') p++;
-        if (p + 1 < ps->end && *p == '0' &&
-            (p[1] == 'x' || p[1] == 'o' || p[1] == 'b')) {
-            const char *q = start;
-            LONGLONG ll;
-            PTOMLVALUE pv;
-            while (q < ps->end) {
-                char c = *q;
-                if (c == ' ' || c == '\t' || c == '\n' || c == '\r' ||
-                    c == ',' || c == ']' || c == '}' || c == '#') break;
-                q++;
+        PCSZ pszPos = pszStart;
+        if (*pszPos == '+' || *pszPos == '-') pszPos++;
+        if (pszPos + 1 < pParser->pszEnd && *pszPos == '0' &&
+            (pszPos[1] == 'x' || pszPos[1] == 'o' || pszPos[1] == 'b')) {
+            PCSZ pszQ = pszStart;
+            LONGLONG llVal;
+            PTOMLVALUE pValue;
+            while (pszQ < pParser->pszEnd) {
+                CHAR ch = *pszQ;
+                if (ch == ' ' || ch == '\t' || ch == '\n' ||
+                    ch == '\r' || ch == ',' || ch == ']' ||
+                    ch == '}' || ch == '#')
+                    break;
+                pszQ++;
             }
-            ps->p = q;
-            if (!parse_integer_token(start, q, &ll)) return -1;
-            pv = value_new(TOML_TYPE_INTEGER);
-            if (!pv) return -1;
-            pv->u.llInteger = ll;
-            *ppv = pv;
+            pParser->pszPos = pszQ;
+            if (!parse_integer_token(pszStart, pszQ, &llVal)) return -1;
+            pValue = value_new(TOML_TYPE_INTEGER);
+            if (!pValue) return -1;
+            pValue->u.llInteger = llVal;
+            *ppValue = pValue;
             return 0;
         }
     }
 
-    /* Decimal number (integer or float) */
     {
-        const char *q = start;
-        int dot_or_exp = 0;
-        size_t tok_len;
-        char *clean;
-        size_t clen, i;
-        PTOMLVALUE pv;
+        PCSZ pszQ = pszStart;
+        int fDotOrExp = 0;
+        size_t cbTokLen;
+        PSZ pszClean;
+        size_t cbCleanLen, i;
+        PTOMLVALUE pValue;
 
-        while (q < ps->end) {
-            char c = *q;
-            if (c == ' ' || c == '\t' || c == '\n' || c == '\r' ||
-                c == ',' || c == ']' || c == '}' || c == '#') break;
-            if (c == '.' || c == 'e' || c == 'E') dot_or_exp = 1;
-            q++;
+        while (pszQ < pParser->pszEnd) {
+            CHAR ch = *pszQ;
+            if (ch == ' ' || ch == '\t' || ch == '\n' ||
+                ch == '\r' || ch == ',' || ch == ']' ||
+                ch == '}' || ch == '#')
+                break;
+            if (ch == '.' || ch == 'e' || ch == 'E') fDotOrExp = 1;
+            pszQ++;
         }
-        tok_len = (size_t)(q - start);
-        ps->p = q;
+        cbTokLen = (size_t)(pszQ - pszStart);
+        pParser->pszPos = pszQ;
 
-        if (dot_or_exp) {
-            clean = (char*)malloc(tok_len + 1);
-            if (!clean) return -1;
-            clen = 0;
-            for (i = 0; i < tok_len; i++) {
-                if (start[i] == '_') {
-                    if (i == 0 || i == tok_len - 1 ||
-                        !is_digit_c((unsigned char)start[i-1]) ||
-                        !is_digit_c((unsigned char)start[i+1])) {
-                        free(clean);
+        if (fDotOrExp) {
+            pszClean = (PSZ)malloc(cbTokLen + 1);
+            if (!pszClean) return -1;
+            cbCleanLen = 0;
+            for (i = 0; i < cbTokLen; i++) {
+                if (pszStart[i] == '_') {
+                    if (i == 0 || i == cbTokLen - 1 ||
+                        !is_digit_c((UCHAR)pszStart[i-1]) ||
+                        !is_digit_c((UCHAR)pszStart[i+1])) {
+                        free(pszClean);
                         return -1;
                     }
                     continue;
                 }
-                clean[clen++] = start[i];
+                pszClean[cbCleanLen++] = pszStart[i];
             }
-            clean[clen] = '\0';
-            if (!validate_float_clean(clean)) {
-                free(clean);
+            pszClean[cbCleanLen] = '\0';
+            if (!validate_float_clean(pszClean)) {
+                free(pszClean);
                 return -1;
             }
             {
-                double d = strtod(clean, NULL);
-                free(clean);
-                pv = value_new(TOML_TYPE_FLOAT);
-                if (!pv) return -1;
-                pv->u.dblFloat = d;
-                *ppv = pv;
+                double dblVal = strtod(pszClean, NULL);
+                free(pszClean);
+                pValue = value_new(TOML_TYPE_FLOAT);
+                if (!pValue) return -1;
+                pValue->u.dblFloat = dblVal;
+                *ppValue = pValue;
                 return 0;
             }
         } else {
-            LONGLONG ll;
-            if (!parse_integer_token(start, q, &ll)) return -1;
-            pv = value_new(TOML_TYPE_INTEGER);
-            if (!pv) return -1;
-            pv->u.llInteger = ll;
-            *ppv = pv;
+            LONGLONG llVal;
+            if (!parse_integer_token(pszStart, pszQ, &llVal)) return -1;
+            pValue = value_new(TOML_TYPE_INTEGER);
+            if (!pValue) return -1;
+            pValue->u.llInteger = llVal;
+            *ppValue = pValue;
             return 0;
         }
     }
@@ -1041,23 +1412,35 @@ static int parse_number_or_datetime(PARSE *ps, PTOMLVALUE *ppv) {
  * Boolean
  * ================================================================== */
 
-static int parse_boolean(PARSE *ps, PTOMLVALUE *ppv) {
-    if (ps->p + 4 <= ps->end && strncmp(ps->p, "true", 4) == 0 &&
-        (ps->p + 4 == ps->end || !is_bare_key_char(ps->p[4]))) {
-        PTOMLVALUE pv = value_new(TOML_TYPE_BOOLEAN);
-        if (!pv) return -1;
-        pv->u.fBoolean = TRUE_;
-        ps->p += 4;
-        *ppv = pv;
+/**
+ * @brief Parse a boolean token (true / false).
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_boolean(PARSE *pParser, PTOMLVALUE *ppValue) {
+    if (pParser->pszPos + 4 <= pParser->pszEnd &&
+        strncmp(pParser->pszPos, "true", 4) == 0 &&
+        (pParser->pszPos + 4 == pParser->pszEnd ||
+         !is_bare_key_char(pParser->pszPos[4]))) {
+        PTOMLVALUE pValue = value_new(TOML_TYPE_BOOLEAN);
+        if (!pValue) return -1;
+        pValue->u.fBoolean = TRUE_;
+        pParser->pszPos += 4;
+        *ppValue = pValue;
         return 0;
     }
-    if (ps->p + 5 <= ps->end && strncmp(ps->p, "false", 5) == 0 &&
-        (ps->p + 5 == ps->end || !is_bare_key_char(ps->p[5]))) {
-        PTOMLVALUE pv = value_new(TOML_TYPE_BOOLEAN);
-        if (!pv) return -1;
-        pv->u.fBoolean = FALSE_;
-        ps->p += 5;
-        *ppv = pv;
+    if (pParser->pszPos + 5 <= pParser->pszEnd &&
+        strncmp(pParser->pszPos, "false", 5) == 0 &&
+        (pParser->pszPos + 5 == pParser->pszEnd ||
+         !is_bare_key_char(pParser->pszPos[5]))) {
+        PTOMLVALUE pValue = value_new(TOML_TYPE_BOOLEAN);
+        if (!pValue) return -1;
+        pValue->u.fBoolean = FALSE_;
+        pParser->pszPos += 5;
+        *ppValue = pValue;
         return 0;
     }
     return -1;
@@ -1067,162 +1450,226 @@ static int parse_boolean(PARSE *ps, PTOMLVALUE *ppv) {
  * Arrays and inline tables
  * ================================================================== */
 
-static int parse_value(PARSE *ps, PTOMLVALUE *ppv);
-static int parse_key_path(PARSE *ps, char ***ppaKeys, ULONG *pulCount);
+static int parse_value(PARSE *pParser, PTOMLVALUE *ppValue);
+static int parse_key_path(PARSE *pParser, PSZ **ppapszKeys,
+                          PULONG pulCount);
 
-static void free_key_path(char **aKeys, ULONG n) {
-    ULONG i;
-    if (!aKeys) return;
-    for (i = 0; i < n; i++) free(aKeys[i]);
-    free(aKeys);
+/**
+ * @brief Release a parsed key path.
+ *
+ * @param[in] papszKeys  Array of keys. May be NULL.
+ * @param[in] ulCount    Number of entries.
+ */
+static void free_key_path(PSZ *papszKeys, ULONG ulCount) {
+    ULONG ulIdx;
+    if (!papszKeys) return;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) free(papszKeys[ulIdx]);
+    free(papszKeys);
 }
 
-static int parse_array(PARSE *ps, PTOMLVALUE *ppv) {
-    PTOMLARRAY pa = array_new();
-    PTOMLVALUE pv;
-    if (!pa) return -1;
-    ps->p++;
+/**
+ * @brief Parse a TOML array.
+ *
+ * @param[in,out] pParser  Parser at the opening '['. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_array(PARSE *pParser, PTOMLVALUE *ppValue) {
+    PTOMLARRAY pArray = array_new();
+    PTOMLVALUE pValue;
+    if (!pArray) return -1;
+    pParser->pszPos++;
 
     for (;;) {
-        PTOMLVALUE item = NULL;
-        if (skip_ws_nl_comments(ps) != 0) { array_free(pa); return -1; }
-        if (ps->p >= ps->end) { array_free(pa); return -1; }
-        if (*ps->p == ']') { ps->p++; break; }
-        if (parse_value(ps, &item) != 0) { array_free(pa); return -1; }
-        if (array_add(pa, item) != 0) {
-            value_free(item); array_free(pa); return -1;
+        PTOMLVALUE pItem = NULL;
+        if (skip_ws_nl_comments(pParser) != 0) {
+            array_free(pArray); return -1;
         }
-        if (skip_ws_nl_comments(ps) != 0) { array_free(pa); return -1; }
-        if (ps->p >= ps->end) { array_free(pa); return -1; }
-        if (*ps->p == ',') { ps->p++; continue; }
-        if (*ps->p == ']') { ps->p++; break; }
-        array_free(pa); return -1;
+        if (pParser->pszPos >= pParser->pszEnd) {
+            array_free(pArray); return -1;
+        }
+        if (*pParser->pszPos == ']') { pParser->pszPos++; break; }
+        if (parse_value(pParser, &pItem) != 0) {
+            array_free(pArray); return -1;
+        }
+        if (array_add(pArray, pItem) != 0) {
+            value_free(pItem); array_free(pArray); return -1;
+        }
+        if (skip_ws_nl_comments(pParser) != 0) {
+            array_free(pArray); return -1;
+        }
+        if (pParser->pszPos >= pParser->pszEnd) {
+            array_free(pArray); return -1;
+        }
+        if (*pParser->pszPos == ',') { pParser->pszPos++; continue; }
+        if (*pParser->pszPos == ']') { pParser->pszPos++; break; }
+        array_free(pArray); return -1;
     }
-    pv = value_array(pa);
-    if (!pv) { array_free(pa); return -1; }
-    *ppv = pv;
+    pValue = value_array(pArray);
+    if (!pValue) { array_free(pArray); return -1; }
+    *ppValue = pValue;
     return 0;
 }
 
-static int inline_assign(PTOMLTABLE pt, char **aKeys, ULONG nKeys,
-                         PTOMLVALUE pValue) {
-    PTOMLTABLE cur = pt;
-    ULONG i;
-    for (i = 0; i + 1 < nKeys; i++) {
-        PTOMLVALUE subv = table_find_value(cur, aKeys[i]);
-        if (!subv) {
-            PTOMLTABLE sub = table_new();
-            PTOMLVALUE newsubv;
-            if (!sub) return -1;
-            sub->flFlags |= TOML_TABLE_INLINE;
-            newsubv = value_table(sub);
-            if (!newsubv) { table_free(sub); return -1; }
-            if (table_add(cur, strdup(aKeys[i]), newsubv) != 0) {
-                value_free(newsubv); return -1;
+/**
+ * @brief Assign a value to a dotted key path inside an inline table.
+ *
+ * @param[in] pTable    Table. Not NULL.
+ * @param[in] papszKeys Key path. Not NULL.
+ * @param[in] ulNKeys   Number of keys.
+ * @param[in] pValue    Value. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int inline_assign(PTOMLTABLE pTable, PSZ *papszKeys,
+                         ULONG ulNKeys, PTOMLVALUE pValue) {
+    PTOMLTABLE pCur = pTable;
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx + 1 < ulNKeys; ulIdx++) {
+        PTOMLVALUE pSubValue = table_find_value(pCur, papszKeys[ulIdx]);
+        if (!pSubValue) {
+            PTOMLTABLE pSub = table_new();
+            PTOMLVALUE pNewSubValue;
+            if (!pSub) return -1;
+            pSub->flFlags |= TOML_TABLE_INLINE;
+            pNewSubValue = value_table(pSub);
+            if (!pNewSubValue) { table_free(pSub); return -1; }
+            if (table_add(pCur, strdup(papszKeys[ulIdx]),
+                          pNewSubValue) != 0) {
+                value_free(pNewSubValue); return -1;
             }
-            cur = sub;
-        } else if (subv->ulType == TOML_TYPE_TABLE) {
-            if (!(subv->u.pTable->flFlags & TOML_TABLE_INLINE))
+            pCur = pSub;
+        } else if (pSubValue->ulType == TOML_TYPE_TABLE) {
+            if (!(pSubValue->u.pTable->flFlags & TOML_TABLE_INLINE))
                 return -1;
-            cur = subv->u.pTable;
+            pCur = pSubValue->u.pTable;
         } else {
             return -1;
         }
     }
-    if (nKeys == 0) return -1;
-    if (table_has_key(cur, aKeys[nKeys - 1])) return -1;
-    if (table_add(cur, strdup(aKeys[nKeys - 1]), pValue) != 0) return -1;
+    if (ulNKeys == 0) return -1;
+    if (table_has_key(pCur, papszKeys[ulNKeys - 1])) return -1;
+    if (table_add(pCur, strdup(papszKeys[ulNKeys - 1]),
+                  pValue) != 0) return -1;
     return 0;
 }
 
-static int parse_inline_table(PARSE *ps, PTOMLVALUE *ppv) {
-    PTOMLTABLE pt = table_new();
-    PTOMLVALUE pvt;
-    if (!pt) return -1;
-    pt->flFlags |= TOML_TABLE_INLINE;
-    ps->p++;
+/**
+ * @brief Parse an inline table.
+ *
+ * @param[in,out] pParser  Parser at the opening '{'. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_inline_table(PARSE *pParser, PTOMLVALUE *ppValue) {
+    PTOMLTABLE pTable = table_new();
+    PTOMLVALUE pValueTable;
+    if (!pTable) return -1;
+    pTable->flFlags |= TOML_TABLE_INLINE;
+    pParser->pszPos++;
 
-    skip_ws(ps);
-    if (ps->p < ps->end && *ps->p == '}') {
-        ps->p++;
-        pvt = value_table(pt);
-        if (!pvt) { table_free(pt); return -1; }
-        *ppv = pvt;
+    skip_ws(pParser);
+    if (pParser->pszPos < pParser->pszEnd &&
+        *pParser->pszPos == '}') {
+        pParser->pszPos++;
+        pValueTable = value_table(pTable);
+        if (!pValueTable) { table_free(pTable); return -1; }
+        *ppValue = pValueTable;
         return 0;
     }
     for (;;) {
-        char **aKeys = NULL;
-        ULONG nKeys = 0;
-        PTOMLVALUE val = NULL;
-        int ok;
+        PSZ *papszKeys = NULL;
+        ULONG ulNKeys = 0;
+        PTOMLVALUE pValue = NULL;
+        int nOk;
 
-        skip_ws(ps);
-        if (parse_key_path(ps, &aKeys, &nKeys) != 0) {
-            table_free(pt); return -1;
+        skip_ws(pParser);
+        if (parse_key_path(pParser, &papszKeys, &ulNKeys) != 0) {
+            table_free(pTable); return -1;
         }
-        skip_ws(ps);
-        if (ps->p >= ps->end || *ps->p != '=') {
-            free_key_path(aKeys, nKeys); table_free(pt); return -1;
+        skip_ws(pParser);
+        if (pParser->pszPos >= pParser->pszEnd ||
+            *pParser->pszPos != '=') {
+            free_key_path(papszKeys, ulNKeys);
+            table_free(pTable); return -1;
         }
-        ps->p++;
-        skip_ws(ps);
-        if (parse_value(ps, &val) != 0) {
-            free_key_path(aKeys, nKeys); table_free(pt); return -1;
+        pParser->pszPos++;
+        skip_ws(pParser);
+        if (parse_value(pParser, &pValue) != 0) {
+            free_key_path(papszKeys, ulNKeys);
+            table_free(pTable); return -1;
         }
-        ok = inline_assign(pt, aKeys, nKeys, val);
-        free_key_path(aKeys, nKeys);
-        if (ok != 0) {
-            value_free(val); table_free(pt); return -1;
+        nOk = inline_assign(pTable, papszKeys, ulNKeys, pValue);
+        free_key_path(papszKeys, ulNKeys);
+        if (nOk != 0) {
+            value_free(pValue); table_free(pTable); return -1;
         }
-        skip_ws(ps);
-        if (ps->p >= ps->end) { table_free(pt); return -1; }
-        if (*ps->p == ',') { ps->p++; continue; }
-        if (*ps->p == '}') { ps->p++; break; }
-        table_free(pt); return -1;
+        skip_ws(pParser);
+        if (pParser->pszPos >= pParser->pszEnd) {
+            table_free(pTable); return -1;
+        }
+        if (*pParser->pszPos == ',') { pParser->pszPos++; continue; }
+        if (*pParser->pszPos == '}') { pParser->pszPos++; break; }
+        table_free(pTable); return -1;
     }
-    pvt = value_table(pt);
-    if (!pvt) { table_free(pt); return -1; }
-    *ppv = pvt;
+    pValueTable = value_table(pTable);
+    if (!pValueTable) { table_free(pTable); return -1; }
+    *ppValue = pValueTable;
     return 0;
 }
 
-static int parse_value(PARSE *ps, PTOMLVALUE *ppv) {
-    skip_ws(ps);
-    if (ps->p >= ps->end) return -1;
+/**
+ * @brief Parse one TOML value.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_value(PARSE *pParser, PTOMLVALUE *ppValue) {
+    skip_ws(pParser);
+    if (pParser->pszPos >= pParser->pszEnd) return -1;
 
-    if (*ps->p == '"') {
-        char *s;
-        PTOMLVALUE pv;
-        if (ps->p + 2 < ps->end && ps->p[1] == '"' && ps->p[2] == '"')
-            s = parse_multiline_basic_string(ps);
+    if (*pParser->pszPos == '"') {
+        PSZ pszStr;
+        PTOMLVALUE pValue;
+        if (pParser->pszPos + 2 < pParser->pszEnd &&
+            pParser->pszPos[1] == '"' &&
+            pParser->pszPos[2] == '"')
+            pszStr = parse_multiline_basic_string(pParser);
         else
-            s = parse_basic_string(ps);
-        if (!s) return -1;
-        pv = value_new(TOML_TYPE_STRING);
-        if (!pv) { free(s); return -1; }
-        pv->u.pszString = s;
-        *ppv = pv;
+            pszStr = parse_basic_string(pParser);
+        if (!pszStr) return -1;
+        pValue = value_new(TOML_TYPE_STRING);
+        if (!pValue) { free(pszStr); return -1; }
+        pValue->u.pszString = pszStr;
+        *ppValue = pValue;
         return 0;
     }
-    if (*ps->p == '\'') {
-        char *s;
-        PTOMLVALUE pv;
-        if (ps->p + 2 < ps->end && ps->p[1] == '\'' && ps->p[2] == '\'')
-            s = parse_multiline_literal_string(ps);
+    if (*pParser->pszPos == '\'') {
+        PSZ pszStr;
+        PTOMLVALUE pValue;
+        if (pParser->pszPos + 2 < pParser->pszEnd &&
+            pParser->pszPos[1] == '\'' &&
+            pParser->pszPos[2] == '\'')
+            pszStr = parse_multiline_literal_string(pParser);
         else
-            s = parse_literal_string(ps);
-        if (!s) return -1;
-        pv = value_new(TOML_TYPE_STRING);
-        if (!pv) { free(s); return -1; }
-        pv->u.pszString = s;
-        *ppv = pv;
+            pszStr = parse_literal_string(pParser);
+        if (!pszStr) return -1;
+        pValue = value_new(TOML_TYPE_STRING);
+        if (!pValue) { free(pszStr); return -1; }
+        pValue->u.pszString = pszStr;
+        *ppValue = pValue;
         return 0;
     }
-    if (*ps->p == '[') return parse_array(ps, ppv);
-    if (*ps->p == '{') return parse_inline_table(ps, ppv);
-    if (*ps->p == 't' || *ps->p == 'f') return parse_boolean(ps, ppv);
-    if (is_number_token_start(ps->p, ps->end))
-        return parse_number_or_datetime(ps, ppv);
+    if (*pParser->pszPos == '[') return parse_array(pParser, ppValue);
+    if (*pParser->pszPos == '{') return parse_inline_table(pParser, ppValue);
+    if (*pParser->pszPos == 't' || *pParser->pszPos == 'f')
+        return parse_boolean(pParser, ppValue);
+    if (is_number_token_start(pParser->pszPos, pParser->pszEnd))
+        return parse_number_or_datetime(pParser, ppValue);
     return -1;
 }
 
@@ -1230,338 +1677,387 @@ static int parse_value(PARSE *ps, PTOMLVALUE *ppv) {
  * Keys
  * ================================================================== */
 
-static char *parse_key_part(PARSE *ps) {
-    skip_ws(ps);
-    if (ps->p >= ps->end) return NULL;
-    if (*ps->p == '"') return parse_basic_string(ps);
-    if (*ps->p == '\'') return parse_literal_string(ps);
+/**
+ * @brief Parse one key part (bare, basic or literal string).
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return malloc'd key, or NULL on error.
+ */
+static PSZ parse_key_part(PARSE *pParser) {
+    skip_ws(pParser);
+    if (pParser->pszPos >= pParser->pszEnd) return NULL;
+    if (*pParser->pszPos == '"') return parse_basic_string(pParser);
+    if (*pParser->pszPos == '\'') return parse_literal_string(pParser);
     {
-        const char *start = ps->p;
-        while (ps->p < ps->end && is_bare_key_char((unsigned char)*ps->p))
-            ps->p++;
-        if (ps->p == start) return NULL;
-        return dup_n(start, (size_t)(ps->p - start));
+        PCSZ pszStart = pParser->pszPos;
+        while (pParser->pszPos < pParser->pszEnd &&
+               is_bare_key_char((UCHAR)*pParser->pszPos))
+            pParser->pszPos++;
+        if (pParser->pszPos == pszStart) return NULL;
+        return dup_n(pszStart, (size_t)(pParser->pszPos - pszStart));
     }
 }
 
-static int parse_key_path(PARSE *ps, char ***ppaKeys, ULONG *pulCount) {
-    char **aKeys;
-    ULONG n = 0, cap = 4;
+/**
+ * @brief Parse a dotted key path.
+ *
+ * @param[in,out] pParser     Parser. Not NULL.
+ * @param[out]    ppapszKeys  Receiver for the key array. Not NULL.
+ * @param[out]    pulCount    Receiver for the count. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int parse_key_path(PARSE *pParser, PSZ **ppapszKeys,
+                          PULONG pulCount) {
+    PSZ *papszKeys;
+    ULONG ulN = 0, ulCap = 4;
 
-    aKeys = (char**)malloc(cap * sizeof(char*));
-    if (!aKeys) return -1;
+    papszKeys = (PSZ*)malloc(ulCap * sizeof(PSZ));
+    if (!papszKeys) return -1;
 
     for (;;) {
-        char *part = parse_key_part(ps);
-        if (!part) goto fail;
-        if (n >= cap) {
-            char **na;
-            cap *= 2;
-            na = (char**)realloc(aKeys, cap * sizeof(char*));
-            if (!na) { free(part); goto fail; }
-            aKeys = na;
+        PSZ pszPart = parse_key_part(pParser);
+        if (!pszPart) goto fail;
+        if (ulN >= ulCap) {
+            PSZ *papszNew;
+            ulCap *= 2;
+            papszNew = (PSZ*)realloc(papszKeys, ulCap * sizeof(PSZ));
+            if (!papszNew) { free(pszPart); goto fail; }
+            papszKeys = papszNew;
         }
-        aKeys[n++] = part;
-        skip_ws(ps);
-        if (ps->p < ps->end && *ps->p == '.') { ps->p++; continue; }
+        papszKeys[ulN++] = pszPart;
+        skip_ws(pParser);
+        if (pParser->pszPos < pParser->pszEnd &&
+            *pParser->pszPos == '.') { pParser->pszPos++; continue; }
         break;
     }
-    *ppaKeys = aKeys;
-    *pulCount = n;
+    *ppapszKeys = papszKeys;
+    *pulCount = ulN;
     return 0;
 fail:
     {
-        ULONG i;
-        for (i = 0; i < n; i++) free(aKeys[i]);
-        free(aKeys);
+        ULONG ulIdx;
+        for (ulIdx = 0; ulIdx < ulN; ulIdx++) free(papszKeys[ulIdx]);
+        free(papszKeys);
     }
     return -1;
 }
 
 /* ==================================================================
  * Table navigation
- *
- * intermediate_flags: flags applied to newly created intermediate
- *                     tables.
- * final_flags:        flags applied to a newly created final table.
- *
- * Existing final tables are checked for redefinition when
- * final_flags & TOML_TABLE_EXPLICIT.
  * ================================================================== */
 
-static PTOMLTABLE descend(PTOMLTABLE pRoot, char **aKeys, ULONG ulCount,
-                          ULONG intermediate_flags,
-                          ULONG final_flags) {
-    PTOMLTABLE cur = pRoot;
-    ULONG i;
-    for (i = 0; i < ulCount; i++) {
-        PTOMLVALUE existing = table_find_value(cur, aKeys[i]);
-        int is_last = (i + 1 == ulCount);
-        ULONG want_flags = is_last ? final_flags : intermediate_flags;
+/**
+ * @brief Descend into a table by a key path, creating tables as
+ *        needed.
+ *
+ * @param[in] pRoot                Root table. Not NULL.
+ * @param[in] papszKeys            Key path. Not NULL.
+ * @param[in] ulCount              Number of keys.
+ * @param[in] ulIntermediateFlags  Flags for intermediate tables.
+ * @param[in] ulFinalFlags         Flags for the final table.
+ *
+ * @return Final table, or NULL on error.
+ */
+static PTOMLTABLE descend(PTOMLTABLE pRoot, PSZ *papszKeys,
+                          ULONG ulCount, ULONG ulIntermediateFlags,
+                          ULONG ulFinalFlags) {
+    PTOMLTABLE pCur = pRoot;
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        PTOMLVALUE pExisting = table_find_value(pCur, papszKeys[ulIdx]);
+        int fIsLast = (ulIdx + 1 == ulCount);
+        ULONG ulWantFlags = fIsLast ? ulFinalFlags : ulIntermediateFlags;
 
-        if (existing) {
-            if (existing->ulType == TOML_TYPE_TABLE) {
-                PTOMLTABLE sub = existing->u.pTable;
-                if (sub->flFlags & TOML_TABLE_INLINE) return NULL;
-                if (is_last && (want_flags & TOML_TABLE_EXPLICIT)) {
-                    if (sub->flFlags & TOML_TABLE_EXPLICIT) return NULL;
-                    if (sub->flFlags & TOML_TABLE_FROM_DOTTED) return NULL;
-                    sub->flFlags |= TOML_TABLE_EXPLICIT;
+        if (pExisting) {
+            if (pExisting->ulType == TOML_TYPE_TABLE) {
+                PTOMLTABLE pSub = pExisting->u.pTable;
+                if (pSub->flFlags & TOML_TABLE_INLINE) return NULL;
+                if (fIsLast && (ulWantFlags & TOML_TABLE_EXPLICIT)) {
+                    if (pSub->flFlags & TOML_TABLE_EXPLICIT) return NULL;
+                    if (pSub->flFlags & TOML_TABLE_FROM_DOTTED) return NULL;
+                    pSub->flFlags |= TOML_TABLE_EXPLICIT;
                 }
-                cur = sub;
-            } else if (existing->ulType == TOML_TYPE_ARRAY) {
-                PTOMLARRAY arr = existing->u.pArray;
-                PTOMLVALUE last;
-                if (!(arr->flFlags & TOML_ARRAY_OF_TABLES)) return NULL;
-                if (arr->ulCount == 0) return NULL;
-                last = arr->paItems[arr->ulCount - 1];
-                if (last->ulType != TOML_TYPE_TABLE) return NULL;
-                cur = last->u.pTable;
+                pCur = pSub;
+            } else if (pExisting->ulType == TOML_TYPE_ARRAY) {
+                PTOMLARRAY pArray = pExisting->u.pArray;
+                PTOMLVALUE pLast;
+                if (!(pArray->flFlags & TOML_ARRAY_OF_TABLES)) return NULL;
+                if (pArray->ulCount == 0) return NULL;
+                pLast = pArray->paItems[pArray->ulCount - 1];
+                if (pLast->ulType != TOML_TYPE_TABLE) return NULL;
+                pCur = pLast->u.pTable;
             } else {
                 return NULL;
             }
         } else {
-            PTOMLTABLE sub = table_new();
-            PTOMLVALUE subv;
-            ULONG fl;
-            if (!sub) return NULL;
-            fl = want_flags & ~TOML_TABLE_ARRAY_ELEM;
-            sub->flFlags |= fl;
-            subv = value_table(sub);
-            if (!subv) { table_free(sub); return NULL; }
-            if (table_add(cur, strdup(aKeys[i]), subv) != 0) {
-                value_free(subv); return NULL;
+            PTOMLTABLE pSub = table_new();
+            PTOMLVALUE pSubValue;
+            ULONG ulFlags;
+            if (!pSub) return NULL;
+            ulFlags = ulWantFlags & ~TOML_TABLE_ARRAY_ELEM;
+            pSub->flFlags |= ulFlags;
+            pSubValue = value_table(pSub);
+            if (!pSubValue) { table_free(pSub); return NULL; }
+            if (table_add(pCur, strdup(papszKeys[ulIdx]),
+                          pSubValue) != 0) {
+                value_free(pSubValue); return NULL;
             }
-            cur = sub;
+            pCur = pSub;
         }
     }
-    return cur;
+    return pCur;
 }
 
 /* ==================================================================
  * Main parse
  * ================================================================== */
 
+/**
+ * @brief Parse TOML text and build the tree.
+ *
+ * @param[in]  pszText    NUL-terminated UTF-8 TOML text. Not NULL.
+ * @param[out] ppRoot     Receiver for the root table. Not NULL.
+ * @param[out] ppszError  Optional. May be NULL. Receives a static
+ *                        error description on failure.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_INVALID_PARAMETER      pszText or ppRoot is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Memory allocation failure.
+ * @retval TOML_ERROR_INVALID_UTF8      File content is not valid
+ *                                      UTF-8.
+ * @retval TOML_ERROR_INVALID_SYNTAX    TOML syntax error.
+ * @retval TOML_ERROR_DUPLICATE_KEY     Duplicate key.
+ */
 APIRET TomlInternalParse(PCSZ pszText, PTOMLTABLE *ppRoot,
                          PCSZ *ppszError) {
-    PARSE ps;
-    PTOMLTABLE root;
-    PTOMLTABLE current;
-    const char *p;
-    char **aKeys = NULL;
-    ULONG nKeys = 0;
-    PTOMLVALUE val = NULL;
-    APIRET rc = TOML_NO_ERROR;
+    PARSE parser;
+    PTOMLTABLE pRoot;
+    PTOMLTABLE pCurrent;
+    PCSZ pszPos;
+    PSZ *papszKeys = NULL;
+    ULONG ulNKeys = 0;
+    PTOMLVALUE pValue = NULL;
+    APIRET rc = NO_ERROR;
 
-    if (!pszText || !ppRoot) return TOML_ERROR_INVALID_PARAM;
+    if (!pszText || !ppRoot) return ERROR_INVALID_PARAMETER;
 
-    p = pszText;
-    if ((unsigned char)p[0] == 0xEF &&
-        (unsigned char)p[1] == 0xBB &&
-        (unsigned char)p[2] == 0xBF) p += 3;
+    pszPos = pszText;
+    if ((UCHAR)pszPos[0] == 0xEF &&
+        (UCHAR)pszPos[1] == 0xBB &&
+        (UCHAR)pszPos[2] == 0xBF) pszPos += 3;
 
-    if (!valid_utf8(p)) {
+    if (!valid_utf8(pszPos)) {
         if (ppszError) *ppszError = "Invalid UTF-8 input";
         return TOML_ERROR_INVALID_UTF8;
     }
 
-    root = table_new();
-    if (!root) {
+    pRoot = table_new();
+    if (!pRoot) {
         if (ppszError) *ppszError = "Out of memory";
-        return TOML_ERROR_OUT_OF_MEMORY;
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    ps.p = p;
-    ps.end = p + strlen(p);
-    ps.pszError = NULL;
-    current = root;
+    parser.pszPos = pszPos;
+    parser.pszEnd = pszPos + strlen(pszPos);
+    parser.pszError = NULL;
+    pCurrent = pRoot;
 
-    while (ps.p < ps.end) {
-        if (skip_ws_nl_comments(&ps) != 0) {
+    while (parser.pszPos < parser.pszEnd) {
+        if (skip_ws_nl_comments(&parser) != 0) {
             rc = TOML_ERROR_INVALID_SYNTAX;
             goto done;
         }
-        if (ps.p >= ps.end) break;
+        if (parser.pszPos >= parser.pszEnd) break;
 
-        if (*ps.p == '[') {
-            int is_array = 0;
-            ps.p++;
-            if (ps.p < ps.end && *ps.p == '[') { is_array = 1; ps.p++; }
-            if (parse_key_path(&ps, &aKeys, &nKeys) != 0) {
+        if (*parser.pszPos == '[') {
+            int fArray = 0;
+            parser.pszPos++;
+            if (parser.pszPos < parser.pszEnd &&
+                *parser.pszPos == '[') { fArray = 1; parser.pszPos++; }
+            if (parse_key_path(&parser, &papszKeys, &ulNKeys) != 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            skip_ws(&ps);
-            if (ps.p >= ps.end || *ps.p != ']') {
+            skip_ws(&parser);
+            if (parser.pszPos >= parser.pszEnd ||
+                *parser.pszPos != ']') {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            ps.p++;
-            if (is_array) {
-                if (ps.p >= ps.end || *ps.p != ']') {
+            parser.pszPos++;
+            if (fArray) {
+                if (parser.pszPos >= parser.pszEnd ||
+                    *parser.pszPos != ']') {
                     rc = TOML_ERROR_INVALID_SYNTAX;
                     goto done;
                 }
-                ps.p++;
+                parser.pszPos++;
             }
-            if (skip_to_eol(&ps) != 0) {
+            if (skip_to_eol(&parser) != 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            if (nKeys == 0) {
+            if (ulNKeys == 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
 
-            if (is_array) {
-                PTOMLTABLE parent;
-                PTOMLVALUE existing;
-                PTOMLTABLE new_tbl;
+            if (fArray) {
+                PTOMLTABLE pParent;
+                PTOMLVALUE pExisting;
+                PTOMLTABLE pNewTable;
 
-                parent = descend(root, aKeys, nKeys - 1, 0, 0);
-                if (!parent) {
+                pParent = descend(pRoot, papszKeys, ulNKeys - 1, 0, 0);
+                if (!pParent) {
                     rc = TOML_ERROR_INVALID_SYNTAX;
                     goto done;
                 }
-                existing = table_find_value(parent, aKeys[nKeys - 1]);
-                new_tbl = table_new();
-                if (!new_tbl) {
-                    rc = TOML_ERROR_OUT_OF_MEMORY;
+                pExisting = table_find_value(pParent,
+                                             papszKeys[ulNKeys - 1]);
+                pNewTable = table_new();
+                if (!pNewTable) {
+                    rc = ERROR_NOT_ENOUGH_MEMORY;
                     goto done;
                 }
-                new_tbl->flFlags |= TOML_TABLE_ARRAY_ELEM;
+                pNewTable->flFlags |= TOML_TABLE_ARRAY_ELEM;
 
-                if (existing) {
-                    PTOMLARRAY arr;
-                    PTOMLVALUE arrv;
-                    if (existing->ulType != TOML_TYPE_ARRAY ||
-                        !(existing->u.pArray->flFlags &
+                if (pExisting) {
+                    PTOMLARRAY pArray;
+                    PTOMLVALUE pArrValue;
+                    if (pExisting->ulType != TOML_TYPE_ARRAY ||
+                        !(pExisting->u.pArray->flFlags &
                           TOML_ARRAY_OF_TABLES)) {
-                        table_free(new_tbl);
+                        table_free(pNewTable);
                         rc = TOML_ERROR_INVALID_SYNTAX;
                         goto done;
                     }
-                    arr = existing->u.pArray;
-                    arrv = value_table(new_tbl);
-                    if (!arrv) {
-                        table_free(new_tbl);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    pArray = pExisting->u.pArray;
+                    pArrValue = value_table(pNewTable);
+                    if (!pArrValue) {
+                        table_free(pNewTable);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
-                    if (array_add(arr, arrv) != 0) {
-                        value_free(arrv);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    if (array_add(pArray, pArrValue) != 0) {
+                        value_free(pArrValue);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
                 } else {
-                    PTOMLARRAY arr = array_new();
-                    PTOMLVALUE arrv, av;
-                    if (!arr) {
-                        table_free(new_tbl);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    PTOMLARRAY pArray = array_new();
+                    PTOMLVALUE pArrValue, pAv;
+                    if (!pArray) {
+                        table_free(pNewTable);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
-                    arr->flFlags |= TOML_ARRAY_OF_TABLES;
-                    arrv = value_table(new_tbl);
-                    if (!arrv) {
-                        array_free(arr);
-                        table_free(new_tbl);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    pArray->flFlags |= TOML_ARRAY_OF_TABLES;
+                    pArrValue = value_table(pNewTable);
+                    if (!pArrValue) {
+                        array_free(pArray);
+                        table_free(pNewTable);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
-                    if (array_add(arr, arrv) != 0) {
-                        array_free(arr);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    if (array_add(pArray, pArrValue) != 0) {
+                        array_free(pArray);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
-                    av = value_array(arr);
-                    if (!av) {
-                        array_free(arr);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    pAv = value_array(pArray);
+                    if (!pAv) {
+                        array_free(pArray);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
-                    if (table_add(parent, strdup(aKeys[nKeys - 1]),
-                                  av) != 0) {
-                        value_free(av);
-                        rc = TOML_ERROR_OUT_OF_MEMORY;
+                    if (table_add(pParent,
+                                  strdup(papszKeys[ulNKeys - 1]),
+                                  pAv) != 0) {
+                        value_free(pAv);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
                         goto done;
                     }
                 }
-                current = new_tbl;
+                pCurrent = pNewTable;
             } else {
-                PTOMLTABLE t = descend(root, aKeys, nKeys,
-                                       0, TOML_TABLE_EXPLICIT);
-                if (!t) {
+                PTOMLTABLE pTable = descend(pRoot, papszKeys, ulNKeys,
+                                            0, TOML_TABLE_EXPLICIT);
+                if (!pTable) {
                     rc = TOML_ERROR_INVALID_SYNTAX;
                     goto done;
                 }
-                current = t;
+                pCurrent = pTable;
             }
-            free_key_path(aKeys, nKeys);
-            aKeys = NULL;
-            nKeys = 0;
+            free_key_path(papszKeys, ulNKeys);
+            papszKeys = NULL;
+            ulNKeys = 0;
         } else {
-            PTOMLTABLE target;
+            PTOMLTABLE pTarget;
 
-            if (parse_key_path(&ps, &aKeys, &nKeys) != 0) {
+            if (parse_key_path(&parser, &papszKeys, &ulNKeys) != 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            skip_ws(&ps);
-            if (ps.p >= ps.end || *ps.p != '=') {
+            skip_ws(&parser);
+            if (parser.pszPos >= parser.pszEnd ||
+                *parser.pszPos != '=') {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            ps.p++;
-            if (parse_value(&ps, &val) != 0) {
+            parser.pszPos++;
+            if (parse_value(&parser, &pValue) != 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            if (skip_to_eol(&ps) != 0) {
+            if (skip_to_eol(&parser) != 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
-            if (nKeys == 0) {
+            if (ulNKeys == 0) {
                 rc = TOML_ERROR_INVALID_SYNTAX;
                 goto done;
             }
 
-            if (nKeys == 1) {
-                target = current;
+            if (ulNKeys == 1) {
+                pTarget = pCurrent;
             } else {
-                target = descend(current, aKeys, nKeys - 1,
-                                 TOML_TABLE_FROM_DOTTED,
-                                 TOML_TABLE_FROM_DOTTED);
-                if (!target) {
+                pTarget = descend(pCurrent, papszKeys, ulNKeys - 1,
+                                  TOML_TABLE_FROM_DOTTED,
+                                  TOML_TABLE_FROM_DOTTED);
+                if (!pTarget) {
                     rc = TOML_ERROR_INVALID_SYNTAX;
                     goto done;
                 }
             }
-            if (table_has_key(target, aKeys[nKeys - 1])) {
+            if (table_has_key(pTarget, papszKeys[ulNKeys - 1])) {
                 rc = TOML_ERROR_DUPLICATE_KEY;
                 goto done;
             }
-            if (table_add(target, strdup(aKeys[nKeys - 1]), val) != 0) {
-                rc = TOML_ERROR_OUT_OF_MEMORY;
+            if (table_add(pTarget, strdup(papszKeys[ulNKeys - 1]),
+                          pValue) != 0) {
+                rc = ERROR_NOT_ENOUGH_MEMORY;
                 goto done;
             }
-            val = NULL;
-            free_key_path(aKeys, nKeys);
-            aKeys = NULL;
-            nKeys = 0;
+            pValue = NULL;
+            free_key_path(papszKeys, ulNKeys);
+            papszKeys = NULL;
+            ulNKeys = 0;
         }
     }
 
-    *ppRoot = root;
-    root = NULL;
-    rc = TOML_NO_ERROR;
+    *ppRoot = pRoot;
+    pRoot = NULL;
+    rc = NO_ERROR;
 
 done:
-    free_key_path(aKeys, nKeys);
-    value_free(val);
-    if (root) table_free(root);
-    if (rc != TOML_NO_ERROR && ppszError) {
-        *ppszError = ps.pszError ? ps.pszError : "TOML syntax error";
+    free_key_path(papszKeys, ulNKeys);
+    value_free(pValue);
+    if (pRoot) table_free(pRoot);
+    if (rc != NO_ERROR && ppszError) {
+        *ppszError = parser.pszError ? parser.pszError : "TOML syntax error";
     }
     return rc;
 }
@@ -1570,155 +2066,171 @@ done:
  * Handles and file helpers
  * ================================================================== */
 
+/**
+ * @brief Translate a public document handle into the internal pointer.
+ *
+ * @param[in] h  Handle. May be NULLHANDLE.
+ *
+ * @return Internal pointer, or NULL if h is NULLHANDLE.
+ */
 static PTOMLDOC as_doc(HTOMLDOC h) { return (PTOMLDOC)h; }
+
+/**
+ * @brief Translate a public find handle into the internal pointer.
+ *
+ * @param[in] h  Handle. May be NULLHANDLE.
+ *
+ * @return Internal pointer, or NULL if h is NULLHANDLE.
+ */
 static PTOMLFIND as_find(HTOMLFIND h) { return (PTOMLFIND)h; }
 
-static int read_file_all(PCSZ pszPath, char **ppszText) {
-    FILE *f;
-    long sz;
-    char *buf;
+/**
+ * @brief Read the whole file into a malloc buffer.
+ *
+ * @param[in]  pszPath   Path to the file. Not NULL.
+ * @param[out] ppszText  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
+    FILE *fp;
+    long lSize;
+    PSZ pszBuf;
     if (!pszPath || !ppszText) return -1;
-    f = fopen(pszPath, "rb");
-    if (!f) return -1;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return -1; }
-    sz = ftell(f);
-    if (sz < 0) { fclose(f); return -1; }
-    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return -1; }
-    buf = (char*)malloc((size_t)sz + 1);
-    if (!buf) { fclose(f); return -1; }
-    if (sz > 0 && fread(buf, 1, (size_t)sz, f) != (size_t)sz) {
-        free(buf); fclose(f); return -1;
+    fp = fopen(pszPath, "rb");
+    if (!fp) return -1;
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return -1; }
+    lSize = ftell(fp);
+    if (lSize < 0) { fclose(fp); return -1; }
+    if (fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return -1; }
+    pszBuf = (PSZ)malloc((size_t)lSize + 1);
+    if (!pszBuf) { fclose(fp); return -1; }
+    if (lSize > 0 && fread(pszBuf, 1, (size_t)lSize, fp) != (size_t)lSize) {
+        free(pszBuf); fclose(fp); return -1;
     }
-    buf[sz] = '\0';
-    fclose(f);
-    *ppszText = buf;
+    pszBuf[lSize] = '\0';
+    fclose(fp);
+    *ppszText = pszBuf;
     return 0;
 }
 
 /**
  * @brief Open a TOML document from a file.
  *
- * Reads the file, parses TOML v1.0.0, allocates all internal buffers
- * and returns a document handle.
- *
- * @param[in]  pszPath  Path to the file. Must not be NULL.
- * @param[out] phToml   Handle receiver. Must not be NULL. Set to
- *                      NULLHANDLE on error.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] phToml   Handle receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  pszPath or phToml is NULL.
- * @retval TOML_ERROR_OPEN_FAILED    File cannot be opened.
- * @retval TOML_ERROR_READ_FAILED    Read error.
- * @retval TOML_ERROR_INVALID_UTF8   File content is not valid UTF-8.
- * @retval TOML_ERROR_INVALID_SYNTAX TOML syntax error.
- * @retval TOML_ERROR_DUPLICATE_KEY  Duplicate key.
- * @retval TOML_ERROR_OUT_OF_MEMORY  Memory allocation failure.
- *
- * @note Ownership of the handle transfers to the caller. It must be
- *       released with TomlClose.
- * @see TomlClose
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_INVALID_PARAMETER      pszPath or phToml is NULL.
+ * @retval ERROR_OPEN_FAILED            File cannot be opened.
+ * @retval ERROR_READ_FAULT             Read error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Memory allocation failure.
+ * @retval TOML_ERROR_INVALID_UTF8      File content is not valid
+ *                                      UTF-8.
+ * @retval TOML_ERROR_INVALID_SYNTAX    TOML syntax error.
+ * @retval TOML_ERROR_DUPLICATE_KEY     Duplicate key.
  */
 APIRET APIENTRY TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
-    char *text = NULL;
-    PTOMLTABLE root = NULL;
-    PTOMLDOC doc;
-    PCSZ err = NULL;
+    PSZ pszText = NULL;
+    PTOMLTABLE pRoot = NULL;
+    PTOMLDOC pDoc;
+    PCSZ pszErr = NULL;
     APIRET rc;
 
-    if (!pszPath || !phToml) return TOML_ERROR_INVALID_PARAM;
+    if (!pszPath || !phToml) return ERROR_INVALID_PARAMETER;
     *phToml = NULLHANDLE;
 
-    if (read_file_all(pszPath, &text) != 0) return TOML_ERROR_OPEN_FAILED;
-    rc = TomlInternalParse(text, &root, &err);
-    free(text);
-    if (rc != TOML_NO_ERROR) return rc;
+    if (read_file_all(pszPath, &pszText) != 0) return ERROR_OPEN_FAILED;
+    rc = TomlInternalParse(pszText, &pRoot, &pszErr);
+    free(pszText);
+    if (rc != NO_ERROR) return rc;
 
-    doc = (PTOMLDOC)calloc(1, sizeof(TOMLDOC));
-    if (!doc) { table_free(root); return TOML_ERROR_OUT_OF_MEMORY; }
-    doc->pRoot = root;
-    doc->pFirstFind = NULL;
-    doc->pRootNode = (PTOMLVALUE)calloc(1, sizeof(TOMLVALUE));
-    if (!doc->pRootNode) {
-        table_free(root);
-        free(doc);
-        return TOML_ERROR_OUT_OF_MEMORY;
+    pDoc = (PTOMLDOC)calloc(1, sizeof(TOMLDOC));
+    if (!pDoc) { table_free(pRoot); return ERROR_NOT_ENOUGH_MEMORY; }
+    pDoc->pRoot = pRoot;
+    pDoc->pFirstFind = NULL;
+    pDoc->pRootNode = (PTOMLVALUE)calloc(1, sizeof(TOMLVALUE));
+    if (!pDoc->pRootNode) {
+        table_free(pRoot);
+        free(pDoc);
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
-    doc->pRootNode->ulType = TOML_TYPE_TABLE;
-    doc->pRootNode->u.pTable = root;
-    *phToml = (HTOMLDOC)doc;
-    return TOML_NO_ERROR;
+    pDoc->pRootNode->ulType = TOML_TYPE_TABLE;
+    pDoc->pRootNode->u.pTable = pRoot;
+    *phToml = (HTOMLDOC)pDoc;
+    return NO_ERROR;
 }
 
 /**
  * @brief Close a document.
  *
- * Releases all internal buffers, including any active Find cursors and
- * node handles associated with the document.
- *
- * @param[in] hToml  Document handle. NULLHANDLE is accepted and treated
- *                   as a no-op.
+ * @param[in] hToml  Document handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success. Also returned for
- *                                   NULLHANDLE.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- *
- * @warning Calling TomlClose twice with the same handle is undefined.
- * @see TomlOpen
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  */
 APIRET APIENTRY TomlClose(HTOMLDOC hToml) {
-    PTOMLDOC doc;
-    if (hToml == NULLHANDLE) return TOML_NO_ERROR;
-    doc = as_doc(hToml);
-    if (!doc) return TOML_ERROR_INVALID_HANDLE;
+    PTOMLDOC pDoc;
+    if (hToml == NULLHANDLE) return NO_ERROR;
+    pDoc = as_doc(hToml);
+    if (!pDoc) return ERROR_INVALID_HANDLE;
     {
-        PTOMLFIND f = doc->pFirstFind;
-        while (f) {
-            PTOMLFIND nxt = f->pNext;
-            free(f->pszPattern);
-            free(f);
-            f = nxt;
+        PTOMLFIND pFind = pDoc->pFirstFind;
+        while (pFind) {
+            PTOMLFIND pNext = pFind->pNext;
+            free(pFind->pszPattern);
+            free(pFind);
+            pFind = pNext;
         }
     }
-    /* Free only the wrapper value; the table itself is released below
-     * by table_free(doc->pRoot). */
-    free(doc->pRootNode);
-    table_free(doc->pRoot);
-    free(doc);
-    return TOML_NO_ERROR;
+    free(pDoc->pRootNode);
+    table_free(pDoc->pRoot);
+    free(pDoc);
+    return NO_ERROR;
 }
 
 /* ==================================================================
  * Path navigation
  * ================================================================== */
 
+/**
+ * @brief Find a value by dotted path.
+ *
+ * @param[in] pRoot    Root table. Not NULL.
+ * @param[in] pszPath  Path. Not NULL.
+ *
+ * @return Pointer to the value, or NULL if not found.
+ */
 static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
-    char *copy, *tok, *p;
-    PTOMLTABLE t;
-    PTOMLVALUE cur = NULL;
+    PSZ pszCopy, pszTok, pszPos;
+    PTOMLTABLE pTable;
+    PTOMLVALUE pCur = NULL;
 
     if (!pRoot || !pszPath || !*pszPath) return NULL;
-    copy = strdup(pszPath);
-    if (!copy) return NULL;
+    pszCopy = strdup(pszPath);
+    if (!pszCopy) return NULL;
 
-    t = pRoot;
-    p = copy;
-    while (*p) {
-        PTOMLVALUE next;
-        tok = p;
-        while (*p && *p != '.') p++;
-        if (*p == '.') { *p = '\0'; p++; }
-        next = table_find_value(t, tok);
-        if (!next) { free(copy); return NULL; }
-        cur = next;
-        if (*p) {
-            if (cur->ulType != TOML_TYPE_TABLE) { free(copy); return NULL; }
-            t = cur->u.pTable;
+    pTable = pRoot;
+    pszPos = pszCopy;
+    while (*pszPos) {
+        PTOMLVALUE pNext;
+        pszTok = pszPos;
+        while (*pszPos && *pszPos != '.') pszPos++;
+        if (*pszPos == '.') { *pszPos = '\0'; pszPos++; }
+        pNext = table_find_value(pTable, pszTok);
+        if (!pNext) { free(pszCopy); return NULL; }
+        pCur = pNext;
+        if (*pszPos) {
+            if (pCur->ulType != TOML_TYPE_TABLE) {
+                free(pszCopy); return NULL;
+            }
+            pTable = pCur->u.pTable;
         }
     }
-    free(copy);
-    return cur;
+    free(pszCopy);
+    return pCur;
 }
 
 /* ==================================================================
@@ -1729,436 +2241,379 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
  * @brief Query the type of a value by dotted path.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path "a.b.c". Not NULL, not empty.
+ * @param[in]  pszPath  Path. Not NULL.
  * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL or path empty.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
  */
-APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath, PULONG pulType) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pulType) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    *pulType = pv->ulType;
-    return TOML_NO_ERROR;
+APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath,
+                              PULONG pulType) {
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pulType) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    *pulType = pValue->ulType;
+    return NO_ERROR;
 }
 
-static APIRET copy_string_out(PCSZ src, PSZ dst, ULONG ulSize,
+/**
+ * @brief Copy a string into a caller-supplied buffer following the
+ *        size-query convention.
+ *
+ * @param[in]  pszSrc   Source string, or NULL.
+ * @param[out] pszDst   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszDst.
+ * @param[out] pulSize  Optional. May be NULL.
+ *
+ * @return APIRET
+ */
+static APIRET copy_string_out(PCSZ pszSrc, PSZ pszDst, ULONG ulSize,
                               PULONG pulSize) {
-    size_t n = src ? strlen(src) : 0;
-    if (pulSize) *pulSize = (ULONG)n;
-    if (ulSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_ERROR_BUFFER_OVERFLOW;
+    size_t cbLen = pszSrc ? strlen(pszSrc) : 0;
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    if (ulSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(dst, src ? src : "", n);
-    dst[n] = '\0';
-    return TOML_NO_ERROR;
+    memcpy(pszDst, pszSrc ? pszSrc : "", cbLen);
+    pszDst[cbLen] = '\0';
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a string value by dotted path.
  *
- * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
- *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[in]  pszPath    Path. Not NULL.
  * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND       Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH   Value is neither STRING nor
- *                                    DATETIME.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
                                 PSZ pszBuffer, ULONG ulBufSize,
                                 PULONG pulSize) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    PCSZ s;
-    size_t n;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    PCSZ pszStr;
+    size_t cbLen;
 
-    if (!doc || !pszPath) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_STRING && pv->ulType != TOML_TYPE_DATETIME)
+    if (!pDoc || !pszPath) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_STRING &&
+        pValue->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
 
-    s = pv->u.pszString;
-    n = s ? strlen(s) : 0;
+    pszStr = pValue->u.pszString;
+    cbLen = pszStr ? strlen(pszStr) : 0;
 
     if (pszBuffer == NULL && ulBufSize == 0) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_NO_ERROR;
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, s ? s : "", n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return TOML_NO_ERROR;
+    memcpy(pszBuffer, pszStr ? pszStr : "", cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query an integer value by dotted path.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path. Not NULL, not empty.
- * @param[out] pllValue Receiver. Not NULL.
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Value is not INTEGER.
- *                                   *pllValue = 0.
  */
 APIRET APIENTRY TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath,
                                  PLONGLONG pllValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pllValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_INTEGER) {
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pllValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_INTEGER) {
         *pllValue = 0;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pllValue = pv->u.llInteger;
-    return TOML_NO_ERROR;
+    *pllValue = pValue->u.llInteger;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a floating-point value by dotted path.
  *
- * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path. Not NULL, not empty.
- * @param[out] pdblValue  Receiver. Not NULL.
+ * @param[in]  hToml       Handle. Not NULLHANDLE.
+ * @param[in]  pszPath     Path. Not NULL.
+ * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Value is not FLOAT.
- *                                   *pdblValue = 0.0.
  */
 APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
                                double *pdblValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pdblValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_FLOAT) {
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pdblValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_FLOAT) {
         *pdblValue = 0.0;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pdblValue = pv->u.dblFloat;
-    return TOML_NO_ERROR;
+    *pdblValue = pValue->u.dblFloat;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a boolean value by dotted path.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path. Not NULL, not empty.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Value is not BOOLEAN.
- *                                   *pfValue = FALSE_.
  */
 APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
                                  PBOOL pfValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pfValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_BOOLEAN) {
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pfValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_BOOLEAN) {
         *pfValue = FALSE_;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pfValue = pv->u.fBoolean;
-    return TOML_NO_ERROR;
+    *pfValue = pValue->u.fBoolean;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query the number of elements in an array by dotted path.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path. Not NULL, not empty.
- * @param[out] pulCount Receiver. Not NULL.
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Value is not ARRAY.
  */
 APIRET APIENTRY TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath,
                                     PULONG pulCount) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pulCount) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    *pulCount = pv->u.pArray->ulCount;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pulCount) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    *pulCount = pValue->u.pArray->ulCount;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query the type of one array element by index.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path. Not NULL, not empty.
- * @param[in]  ulIndex  Element index.
- * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pulType   Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Path does not refer to an array.
- * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
 APIRET APIENTRY TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath,
                                    ULONG ulIndex, PULONG pulType) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !pulType) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) return TOML_ERROR_INDEX_RANGE;
-    *pulType = pv->u.pArray->paItems[ulIndex]->ulType;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !pulType) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) return ERROR_NO_MORE_ITEMS;
+    *pulType = pValue->u.pArray->paItems[ulIndex]->ulType;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a string element of an array by index.
  *
- * If pszBuffer is NULL and ulBufSize is 0, performs a size query only.
- *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path. Not NULL, not empty.
+ * @param[in]  pszPath    Path. Not NULL.
  * @param[in]  ulIndex    Element index.
  * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
  * @param[in]  ulBufSize  Size of pszBuffer in bytes.
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND       Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH   Element is neither STRING nor
- *                                    DATETIME.
- * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath,
                                      ULONG ulIndex, PSZ pszBuffer,
                                      ULONG ulBufSize, PULONG pulSize) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv, item;
-    PCSZ s;
-    size_t n;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue, pItem;
+    PCSZ pszStr;
+    size_t cbLen;
 
-    if (!doc || !pszPath) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) return TOML_ERROR_INDEX_RANGE;
-    item = pv->u.pArray->paItems[ulIndex];
-    if (item->ulType != TOML_TYPE_STRING &&
-        item->ulType != TOML_TYPE_DATETIME)
+    if (!pDoc || !pszPath) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) return ERROR_NO_MORE_ITEMS;
+    pItem = pValue->u.pArray->paItems[ulIndex];
+    if (pItem->ulType != TOML_TYPE_STRING &&
+        pItem->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
 
-    s = item->u.pszString;
-    n = s ? strlen(s) : 0;
+    pszStr = pItem->u.pszString;
+    cbLen = pszStr ? strlen(pszStr) : 0;
     if (pszBuffer == NULL && ulBufSize == 0) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_NO_ERROR;
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, s ? s : "", n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return TOML_NO_ERROR;
+    memcpy(pszBuffer, pszStr ? pszStr : "", cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query an integer element of an array by index.
  *
- * @param[in]  hToml     Handle. Not NULLHANDLE.
- * @param[in]  pszPath   Path. Not NULL, not empty.
- * @param[in]  ulIndex   Element index.
- * @param[out] pllValue  Receiver. Not NULL.
+ * @param[in]  hToml      Handle. Not NULLHANDLE.
+ * @param[in]  pszPath    Path. Not NULL.
+ * @param[in]  ulIndex    Element index.
+ * @param[out] pllValue   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Element is not INTEGER.
- * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
 APIRET APIENTRY TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath,
                                       ULONG ulIndex, PLONGLONG pllValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv, item;
-    if (!doc || !pszPath || !pllValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) return TOML_ERROR_INDEX_RANGE;
-    item = pv->u.pArray->paItems[ulIndex];
-    if (item->ulType != TOML_TYPE_INTEGER) return TOML_ERROR_TYPE_MISMATCH;
-    *pllValue = item->u.llInteger;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue, pItem;
+    if (!pDoc || !pszPath || !pllValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) return ERROR_NO_MORE_ITEMS;
+    pItem = pValue->u.pArray->paItems[ulIndex];
+    if (pItem->ulType != TOML_TYPE_INTEGER) return TOML_ERROR_TYPE_MISMATCH;
+    *pllValue = pItem->u.llInteger;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a floating-point element of an array by index.
  *
- * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path. Not NULL, not empty.
- * @param[in]  ulIndex    Element index.
- * @param[out] pdblValue  Receiver. Not NULL.
+ * @param[in]  hToml       Handle. Not NULLHANDLE.
+ * @param[in]  pszPath     Path. Not NULL.
+ * @param[in]  ulIndex     Element index.
+ * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Element is not FLOAT.
- * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
 APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
                                     ULONG ulIndex, double *pdblValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv, item;
-    if (!doc || !pszPath || !pdblValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) return TOML_ERROR_INDEX_RANGE;
-    item = pv->u.pArray->paItems[ulIndex];
-    if (item->ulType != TOML_TYPE_FLOAT) return TOML_ERROR_TYPE_MISMATCH;
-    *pdblValue = item->u.dblFloat;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue, pItem;
+    if (!pDoc || !pszPath || !pdblValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) return ERROR_NO_MORE_ITEMS;
+    pItem = pValue->u.pArray->paItems[ulIndex];
+    if (pItem->ulType != TOML_TYPE_FLOAT) return TOML_ERROR_TYPE_MISMATCH;
+    *pdblValue = pItem->u.dblFloat;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a boolean element of an array by index.
  *
- * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path. Not NULL, not empty.
- * @param[in]  ulIndex  Element index.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  hToml     Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH  Element is not BOOLEAN.
- * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
 APIRET APIENTRY TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath,
                                       ULONG ulIndex, PBOOL pfValue) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv, item;
-    if (!doc || !pszPath || !pfValue) return TOML_ERROR_INVALID_PARAM;
-    pv = find_path(doc->pRoot, pszPath);
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) return TOML_ERROR_INDEX_RANGE;
-    item = pv->u.pArray->paItems[ulIndex];
-    if (item->ulType != TOML_TYPE_BOOLEAN) return TOML_ERROR_TYPE_MISMATCH;
-    *pfValue = item->u.fBoolean;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue, pItem;
+    if (!pDoc || !pszPath || !pfValue) return ERROR_INVALID_PARAMETER;
+    pValue = find_path(pDoc->pRoot, pszPath);
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) return ERROR_NO_MORE_ITEMS;
+    pItem = pValue->u.pArray->paItems[ulIndex];
+    if (pItem->ulType != TOML_TYPE_BOOLEAN) return TOML_ERROR_TYPE_MISMATCH;
+    *pfValue = pItem->u.fBoolean;
+    return NO_ERROR;
 }
 
 /* ==================================================================
  * DOM-style traversal
  * ================================================================== */
 
+/**
+ * @brief Translate a public node handle into the internal pointer.
+ *
+ * @param[in] h  Handle. May be NULLHANDLE.
+ *
+ * @return Internal pointer, or NULL if h is NULLHANDLE.
+ */
 static PTOMLVALUE as_node(HTOMLNODE h) { return (PTOMLVALUE)h; }
 
 /**
  * @brief Obtain a node handle for a value by dotted path.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path "a.b.c". Not NULL. "" for root.
- * @param[out] phNode   Node receiver. Not NULL.
+ * @param[in]  pszPath  Path. Not NULL.
+ * @param[out] phNode   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND      Path not found.
  */
 APIRET APIENTRY TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath,
                               HTOMLNODE *phNode) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    if (!doc || !pszPath || !phNode) return TOML_ERROR_INVALID_PARAM;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    if (!pDoc || !pszPath || !phNode) return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
     if (!*pszPath) {
-        pv = doc->pRootNode;
+        pValue = pDoc->pRootNode;
     } else {
-        pv = find_path(doc->pRoot, pszPath);
+        pValue = find_path(pDoc->pRoot, pszPath);
     }
-    if (!pv) return TOML_ERROR_NOT_FOUND;
-    *phNode = (HTOMLNODE)pv;
-    return TOML_NO_ERROR;
+    if (!pValue) return ERROR_FILE_NOT_FOUND;
+    *phNode = (HTOMLNODE)pValue;
+    return NO_ERROR;
 }
 
 /**
  * @brief Obtain a node handle for the root table.
  *
- * @param[in]  hToml   Handle. Not NULLHANDLE.
- * @param[out] phNode  Node receiver. Not NULL.
+ * @param[in]  hToml    Handle. Not NULLHANDLE.
+ * @param[out] phNode   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  */
 APIRET APIENTRY TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
-    PTOMLDOC doc = as_doc(hToml);
-    if (!doc || !phNode) return TOML_ERROR_INVALID_PARAM;
-    *phNode = (HTOMLNODE)doc->pRootNode;
-    return TOML_NO_ERROR;
+    PTOMLDOC pDoc = as_doc(hToml);
+    if (!pDoc || !phNode) return ERROR_INVALID_PARAMETER;
+    *phNode = (HTOMLNODE)pDoc->pRootNode;
+    return NO_ERROR;
 }
 
 /**
@@ -2168,21 +2623,16 @@ APIRET APIENTRY TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
  * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
  */
 APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !pulType) return TOML_ERROR_INVALID_PARAM;
-    *pulType = pv->ulType;
-    return TOML_NO_ERROR;
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !pulType) return ERROR_INVALID_PARAMETER;
+    *pulType = pValue->ulType;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a string value of a node.
- *
- * If pszBuffer is NULL and ulBufSize is 0, performs a size query only
- * and returns the required size (including NUL) in *pulSize.
  *
  * @param[in]  hNode      Node handle. Not NULLHANDLE.
  * @param[out] pszBuffer  Output buffer. Not NULL unless size-query.
@@ -2190,34 +2640,31 @@ APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH   Node is neither STRING nor DATETIME.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer,
                                   ULONG ulBufSize, PULONG pulSize) {
-    PTOMLVALUE pv = as_node(hNode);
-    PCSZ s;
-    size_t n;
-    if (!pv) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_STRING && pv->ulType != TOML_TYPE_DATETIME)
+    PTOMLVALUE pValue = as_node(hNode);
+    PCSZ pszStr;
+    size_t cbLen;
+    if (!pValue) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_STRING &&
+        pValue->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
-    s = pv->u.pszString;
-    n = s ? strlen(s) : 0;
+    pszStr = pValue->u.pszString;
+    cbLen = pszStr ? strlen(pszStr) : 0;
     if (pszBuffer == NULL && ulBufSize == 0) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_NO_ERROR;
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuffer) return TOML_ERROR_INVALID_PARAM;
-    if (ulBufSize < n + 1) {
-        if (pulSize) *pulSize = (ULONG)(n + 1);
-        return TOML_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (ulBufSize < cbLen + 1) {
+        if (pulSize) *pulSize = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuffer, s ? s : "", n);
-    pszBuffer[n] = '\0';
-    if (pulSize) *pulSize = (ULONG)n;
-    return TOML_NO_ERROR;
+    memcpy(pszBuffer, pszStr ? pszStr : "", cbLen);
+    pszBuffer[cbLen] = '\0';
+    if (pulSize) *pulSize = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
@@ -2227,248 +2674,239 @@ APIRET APIENTRY TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer,
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not INTEGER.
  */
 APIRET APIENTRY TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !pllValue) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_INTEGER) {
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !pllValue) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_INTEGER) {
         *pllValue = 0;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pllValue = pv->u.llInteger;
-    return TOML_NO_ERROR;
+    *pllValue = pValue->u.llInteger;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a floating-point value of a node.
  *
- * @param[in]  hNode      Node handle. Not NULLHANDLE.
- * @param[out] pdblValue  Receiver. Not NULL.
+ * @param[in]  hNode       Node handle. Not NULLHANDLE.
+ * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not FLOAT.
  */
 APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !pdblValue) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_FLOAT) {
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !pdblValue) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_FLOAT) {
         *pdblValue = 0.0;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pdblValue = pv->u.dblFloat;
-    return TOML_NO_ERROR;
+    *pdblValue = pValue->u.dblFloat;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a boolean value of a node.
  *
- * @param[in]  hNode    Node handle. Not NULLHANDLE.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  hNode     Node handle. Not NULLHANDLE.
+ * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not BOOLEAN.
  */
 APIRET APIENTRY TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !pfValue) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_BOOLEAN) {
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !pfValue) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_BOOLEAN) {
         *pfValue = FALSE_;
         return TOML_ERROR_TYPE_MISMATCH;
     }
-    *pfValue = pv->u.fBoolean;
-    return TOML_NO_ERROR;
+    *pfValue = pValue->u.fBoolean;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query the number of elements in an array node.
  *
- * @param[in]  hNode    Node handle. Not NULLHANDLE.
- * @param[out] pulCount Receiver. Not NULL.
+ * @param[in]  hNode     Node handle. Not NULLHANDLE.
+ * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
  */
 APIRET APIENTRY TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    *pulCount = pv->u.pArray->ulCount;
-    return TOML_NO_ERROR;
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !pulCount) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    *pulCount = pValue->u.pArray->ulCount;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query an array element by index.
  *
- * @param[in]  hNode    Node handle (array). Not NULLHANDLE.
- * @param[in]  ulIndex  Element index.
- * @param[out] phChild  Receiver of the element's node handle. Not NULL.
+ * @param[in]  hNode     Node handle (array). Not NULLHANDLE.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] phChild   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not ARRAY.
- * @retval TOML_ERROR_INDEX_RANGE    Index out of range.
  */
 APIRET APIENTRY TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
                                         HTOMLNODE *phChild) {
-    PTOMLVALUE pv = as_node(hNode);
-    if (!pv || !phChild) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
-    if (ulIndex >= pv->u.pArray->ulCount) {
+    PTOMLVALUE pValue = as_node(hNode);
+    if (!pValue || !phChild) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_ARRAY) return TOML_ERROR_TYPE_MISMATCH;
+    if (ulIndex >= pValue->u.pArray->ulCount) {
         *phChild = NULLHANDLE;
-        return TOML_ERROR_INDEX_RANGE;
+        return ERROR_NO_MORE_ITEMS;
     }
-    *phChild = (HTOMLNODE)pv->u.pArray->paItems[ulIndex];
-    return TOML_NO_ERROR;
+    *phChild = (HTOMLNODE)pValue->u.pArray->paItems[ulIndex];
+    return NO_ERROR;
 }
 
 /**
  * @brief Query the number of entries in a table node.
  *
- * @param[in]  hNode    Node handle. Not NULLHANDLE.
- * @param[out] pulCount Receiver. Not NULL.
+ * @param[in]  hNode     Node handle. Not NULLHANDLE.
+ * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
  */
 APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
-    PTOMLVALUE pv = as_node(hNode);
+    PTOMLVALUE pValue = as_node(hNode);
     ULONG ulCount = 0;
-    if (!pv || !pulCount) return TOML_ERROR_INVALID_PARAM;
-    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    if (VectorGetCount(pv->u.pTable->hEntries, &ulCount) != NO_ERROR)
-        return TOML_ERROR_INVALID_HANDLE;
+    if (!pValue || !pulCount) return ERROR_INVALID_PARAMETER;
+    if (pValue->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    if (VectorGetCount(pValue->u.pTable->hEntries, &ulCount) != NO_ERROR)
+        return ERROR_INVALID_HANDLE;
     *pulCount = ulCount;
-    return TOML_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a table entry by key.
  *
- * @param[in]  hNode    Node handle (table). Not NULLHANDLE.
- * @param[in]  pszKey   Key. Not NULL.
- * @param[out] phChild  Receiver of the value's node handle. Not NULL.
+ * @param[in]  hNode     Node handle (table). Not NULLHANDLE.
+ * @param[in]  pszKey    Key. Not NULL.
+ * @param[out] phChild   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH  Node is not TABLE.
- * @retval TOML_ERROR_NOT_FOUND      Key not found.
  */
 APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
                                            HTOMLNODE *phChild) {
-    PTOMLVALUE pv = as_node(hNode);
+    PTOMLVALUE pValue = as_node(hNode);
     TOMLENTRY entry;
-    if (!pv || !pszKey || !phChild) return TOML_ERROR_INVALID_PARAM;
+    if (!pValue || !pszKey || !phChild) return ERROR_INVALID_PARAMETER;
     *phChild = NULLHANDLE;
-    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    if (!table_find_copy(pv->u.pTable, pszKey, &entry))
-        return TOML_ERROR_NOT_FOUND;
+    if (pValue->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    if (!table_find_copy(pValue->u.pTable, pszKey, &entry))
+        return ERROR_FILE_NOT_FOUND;
     *phChild = (HTOMLNODE)entry.pValue;
-    return TOML_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
  * @brief Query a table entry by index.
  *
- * @param[in]  hNode         Node handle (table). Not NULLHANDLE.
- * @param[in]  ulIndex       Entry index.
- * @param[out] pszKeyBuffer  Key output buffer. Not NULL.
- * @param[in]  ulKeyBufSize  Size of pszKeyBuffer in bytes.
- * @param[out] pulKeyUsed    Optional. May be NULL.
- * @param[out] phChild       Receiver of the value's node handle. Not NULL.
+ * @param[in]  hNode          Node handle (table). Not NULLHANDLE.
+ * @param[in]  ulIndex        Entry index.
+ * @param[out] pszKeyBuffer   Key output buffer. Not NULL.
+ * @param[in]  ulKeyBufSize   Size of pszKeyBuffer in bytes.
+ * @param[out] pulKeyUsed     Optional. May be NULL.
+ * @param[out] phChild        Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_TYPE_MISMATCH   Node is not TABLE.
- * @retval TOML_ERROR_INDEX_RANGE     Index out of range.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Key buffer too small.
  */
-APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode, ULONG ulIndex,
+APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode,
+                                             ULONG ulIndex,
                                              PSZ pszKeyBuffer,
                                              ULONG ulKeyBufSize,
                                              PULONG pulKeyUsed,
                                              HTOMLNODE *phChild) {
-    PTOMLVALUE pv = as_node(hNode);
+    PTOMLVALUE pValue = as_node(hNode);
     TOMLENTRY entry;
-    size_t klen;
+    size_t cbKeyLen;
     ULONG ulCount = 0;
 
-    if (!pv || !pszKeyBuffer || !phChild) return TOML_ERROR_INVALID_PARAM;
+    if (!pValue || !pszKeyBuffer || !phChild) return ERROR_INVALID_PARAMETER;
     *phChild = NULLHANDLE;
-    if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-    if (VectorGetCount(pv->u.pTable->hEntries, &ulCount) != NO_ERROR)
-        return TOML_ERROR_INVALID_HANDLE;
-    if (ulIndex >= ulCount) {
-        return TOML_ERROR_INDEX_RANGE;
-    }
-    if (VectorGetItem(pv->u.pTable->hEntries, ulIndex, &entry,
+    if (pValue->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
+    if (VectorGetCount(pValue->u.pTable->hEntries, &ulCount) != NO_ERROR)
+        return ERROR_INVALID_HANDLE;
+    if (ulIndex >= ulCount) return ERROR_NO_MORE_ITEMS;
+    if (VectorGetItem(pValue->u.pTable->hEntries, ulIndex, &entry,
                       (ULONG)sizeof(entry), NULL) != NO_ERROR)
-        return TOML_ERROR_INDEX_RANGE;
+        return ERROR_NO_MORE_ITEMS;
 
-    klen = strlen(entry.pszKey);
-    if (ulKeyBufSize < klen + 1) {
-        if (pulKeyUsed) *pulKeyUsed = (ULONG)(klen + 1);
-        return TOML_ERROR_BUFFER_OVERFLOW;
+    cbKeyLen = strlen(entry.pszKey);
+    if (ulKeyBufSize < cbKeyLen + 1) {
+        if (pulKeyUsed) *pulKeyUsed = (ULONG)cbKeyLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszKeyBuffer, entry.pszKey, klen);
-    pszKeyBuffer[klen] = '\0';
-    if (pulKeyUsed) *pulKeyUsed = (ULONG)klen;
+    memcpy(pszKeyBuffer, entry.pszKey, cbKeyLen);
+    pszKeyBuffer[cbKeyLen] = '\0';
+    if (pulKeyUsed) *pulKeyUsed = (ULONG)cbKeyLen;
     *phChild = (HTOMLNODE)entry.pValue;
-    return TOML_NO_ERROR;
+    return NO_ERROR;
 }
 
 /* ==================================================================
  * Find API
  * ================================================================== */
 
-static int glob_match(PCSZ pat, PCSZ txt) {
-    while (*pat) {
-        if (*pat == '*') {
-            pat++;
-            if (!*pat) return 1;
-            while (*txt) {
-                if (glob_match(pat, txt)) return 1;
-                txt++;
+/**
+ * @brief Wildcard matcher for Find patterns.
+ *
+ * @param[in] pszPat  Pattern. Not NULL.
+ * @param[in] pszTxt  Text. Not NULL.
+ *
+ * @return 1 on match, 0 otherwise.
+ */
+static int glob_match(PCSZ pszPat, PCSZ pszTxt) {
+    while (*pszPat) {
+        if (*pszPat == '*') {
+            pszPat++;
+            if (!*pszPat) return 1;
+            while (*pszTxt) {
+                if (glob_match(pszPat, pszTxt)) return 1;
+                pszTxt++;
             }
-            return glob_match(pat, txt);
+            return glob_match(pszPat, pszTxt);
         }
-        if (*pat == '?') {
-            if (!*txt) return 0;
-            pat++; txt++;
+        if (*pszPat == '?') {
+            if (!*pszTxt) return 0;
+            pszPat++; pszTxt++;
             continue;
         }
-        if (*pat != *txt) return 0;
-        pat++; txt++;
+        if (*pszPat != *pszTxt) return 0;
+        pszPat++; pszTxt++;
     }
-    return *txt == '\0';
+    return *pszTxt == '\0';
 }
 
-static int find_next_match(PTOMLTABLE pt, ULONG ulStart,
-                           PCSZ pszPattern,
-                           ULONG *pulNext,
+/**
+ * @brief Find the next entry in a table matching a pattern.
+ *
+ * @param[in]  pTable      Table. Not NULL.
+ * @param[in]  ulStart     First index to try.
+ * @param[in]  pszPattern  Pattern. Not NULL.
+ * @param[out] pulNext     Next index. Not NULL.
+ * @param[out] ppszKey     Receiver for the key. Not NULL.
+ * @param[out] ppValue     Receiver for the value. Not NULL.
+ *
+ * @return 0 on success, -1 if no match.
+ */
+static int find_next_match(PTOMLTABLE pTable, ULONG ulStart,
+                           PCSZ pszPattern, PULONG pulNext,
                            PCSZ *ppszKey, PTOMLVALUE *ppValue) {
-    ULONG i;
+    ULONG ulIdx;
     ULONG ulCount = 0;
-    if (VectorGetCount(pt->hEntries, &ulCount) != NO_ERROR) return -1;
-    for (i = ulStart; i < ulCount; i++) {
+    if (VectorGetCount(pTable->hEntries, &ulCount) != NO_ERROR) return -1;
+    for (ulIdx = ulStart; ulIdx < ulCount; ulIdx++) {
         TOMLENTRY entry;
-        if (VectorGetItem(pt->hEntries, i, &entry,
-                          (ULONG)sizeof(entry), NULL) != NO_ERROR) return -1;
+        if (VectorGetItem(pTable->hEntries, ulIdx, &entry,
+                          (ULONG)sizeof(entry), NULL) != NO_ERROR)
+            return -1;
         if (glob_match(pszPattern, entry.pszKey)) {
-            *pulNext = i + 1;
+            *pulNext = ulIdx + 1;
             *ppszKey = entry.pszKey;
             *ppValue = entry.pValue;
             return 0;
@@ -2480,88 +2918,80 @@ static int find_next_match(PTOMLTABLE pt, ULONG ulStart,
 /**
  * @brief Start enumerating entries in a table.
  *
- * @param[in]  hToml      Handle. Not NULLHANDLE.
- * @param[in]  pszPath    Path to the table. Not NULL. Use "" for root.
- * @param[in]  pszPattern Pattern. Not NULL.
- * @param[out] phFind     Cursor receiver. Not NULL.
- * @param[out] pulType    Optional. May be NULL.
+ * @param[in]  hToml       Handle. Not NULLHANDLE.
+ * @param[in]  pszPath     Path to the table. Not NULL.
+ * @param[in]  pszPattern  Pattern. Not NULL.
+ * @param[out] phFind      Cursor receiver. Not NULL.
+ * @param[out] pulType     Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_NOT_FOUND       Path not found.
- * @retval TOML_ERROR_TYPE_MISMATCH   Path does not refer to a table.
- * @retval TOML_ERROR_NO_MORE_ENTRIES No entry matches the pattern.
- * @retval TOML_ERROR_OUT_OF_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath,
                               PCSZ pszPattern, HTOMLFIND *phFind,
                               PULONG pulType) {
-    PTOMLDOC doc = as_doc(hToml);
-    PTOMLVALUE pv;
-    PTOMLTABLE t;
-    PTOMLFIND f;
+    PTOMLDOC pDoc = as_doc(hToml);
+    PTOMLVALUE pValue;
+    PTOMLTABLE pTable;
+    PTOMLFIND pFind;
     PCSZ pszKey = NULL;
     PTOMLVALUE pVal = NULL;
-    ULONG next = 0;
+    ULONG ulNext = 0;
 
-    if (!doc || !pszPattern || !phFind) return TOML_ERROR_INVALID_PARAM;
+    if (!pDoc || !pszPattern || !phFind) return ERROR_INVALID_PARAMETER;
     *phFind = NULLHANDLE;
 
     if (pszPath && *pszPath) {
-        pv = find_path(doc->pRoot, pszPath);
-        if (!pv) return TOML_ERROR_NOT_FOUND;
-        if (pv->ulType != TOML_TYPE_TABLE) return TOML_ERROR_TYPE_MISMATCH;
-        t = pv->u.pTable;
+        pValue = find_path(pDoc->pRoot, pszPath);
+        if (!pValue) return ERROR_FILE_NOT_FOUND;
+        if (pValue->ulType != TOML_TYPE_TABLE)
+            return TOML_ERROR_TYPE_MISMATCH;
+        pTable = pValue->u.pTable;
     } else {
-        t = doc->pRoot;
+        pTable = pDoc->pRoot;
     }
-    if (find_next_match(t, 0, pszPattern, &next, &pszKey, &pVal) != 0)
-        return TOML_ERROR_NO_MORE_ENTRIES;
+    if (find_next_match(pTable, 0, pszPattern, &ulNext,
+                        &pszKey, &pVal) != 0)
+        return ERROR_NO_MORE_ITEMS;
 
-    f = (PTOMLFIND)calloc(1, sizeof(TOMLFIND));
-    if (!f) return TOML_ERROR_OUT_OF_MEMORY;
-    f->pDoc = doc;
-    f->pTable = t;
-    f->ulCurrent = next;
-    f->pszPattern = strdup(pszPattern);
-    if (!f->pszPattern) { free(f); return TOML_ERROR_OUT_OF_MEMORY; }
-    f->pNext = doc->pFirstFind;
-    f->pszCurrentKey = pszKey;
-    f->pCurrentValue = pVal;
-    doc->pFirstFind = f;
+    pFind = (PTOMLFIND)calloc(1, sizeof(TOMLFIND));
+    if (!pFind) return ERROR_NOT_ENOUGH_MEMORY;
+    pFind->pDoc = pDoc;
+    pFind->pTable = pTable;
+    pFind->ulCurrent = ulNext;
+    pFind->pszPattern = strdup(pszPattern);
+    if (!pFind->pszPattern) { free(pFind); return ERROR_NOT_ENOUGH_MEMORY; }
+    pFind->pNext = pDoc->pFirstFind;
+    pFind->pszCurrentKey = pszKey;
+    pFind->pCurrentValue = pVal;
+    pDoc->pFirstFind = pFind;
 
-    *phFind = (HTOMLFIND)f;
+    *phFind = (HTOMLFIND)pFind;
     if (pulType) *pulType = pVal->ulType;
-    return TOML_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
  * @brief Advance the cursor to the next matching entry.
  *
- * @param[in]  hFind    Cursor from TomlFindFirst. Not NULLHANDLE.
+ * @param[in]  hFind    Cursor. Not NULLHANDLE.
  * @param[out] pulType  Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_NO_MORE_ENTRIES No more matching entries.
  */
 APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
-    PTOMLFIND f = as_find(hFind);
+    PTOMLFIND pFind = as_find(hFind);
     PCSZ pszKey = NULL;
     PTOMLVALUE pVal = NULL;
-    ULONG next = 0;
-    if (!f) return TOML_ERROR_INVALID_HANDLE;
-    if (find_next_match(f->pTable, f->ulCurrent, f->pszPattern,
-                        &next, &pszKey, &pVal) != 0)
-        return TOML_ERROR_NO_MORE_ENTRIES;
-    f->ulCurrent = next;
-    f->pszCurrentKey = pszKey;
-    f->pCurrentValue = pVal;
+    ULONG ulNext = 0;
+    if (!pFind) return ERROR_INVALID_HANDLE;
+    if (find_next_match(pFind->pTable, pFind->ulCurrent, pFind->pszPattern,
+                        &ulNext, &pszKey, &pVal) != 0)
+        return ERROR_NO_MORE_ITEMS;
+    pFind->ulCurrent = ulNext;
+    pFind->pszCurrentKey = pszKey;
+    pFind->pCurrentValue = pVal;
     if (pulType) *pulType = pVal->ulType;
-    return TOML_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
@@ -2573,18 +3003,15 @@ APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
                             PSZ pszBuffer, ULONG ulBufSize,
                             PULONG pulSize) {
-    PTOMLFIND f = as_find(hFind);
-    if (!f || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
-    if (!f->pszCurrentKey) return TOML_ERROR_NOT_FOUND;
-    return copy_string_out(f->pszCurrentKey, pszBuffer, ulBufSize, pulSize);
+    PTOMLFIND pFind = as_find(hFind);
+    if (!pFind || !pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (!pFind->pszCurrentKey) return ERROR_FILE_NOT_FOUND;
+    return copy_string_out(pFind->pszCurrentKey, pszBuffer, ulBufSize,
+                           pulSize);
 }
 
 /**
@@ -2596,23 +3023,17 @@ APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR              Success.
- * @retval TOML_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE  Handle is not recognized.
- * @retval TOML_ERROR_TYPE_MISMATCH   Current entry is neither STRING
- *                                    nor DATETIME.
- * @retval TOML_ERROR_BUFFER_OVERFLOW Buffer too small.
  */
 APIRET APIENTRY TomlFindString(HTOMLFIND hFind,
                                PSZ pszBuffer, ULONG ulBufSize,
                                PULONG pulSize) {
-    PTOMLFIND f = as_find(hFind);
-    if (!f || !pszBuffer) return TOML_ERROR_INVALID_PARAM;
-    if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
-    if (f->pCurrentValue->ulType != TOML_TYPE_STRING &&
-        f->pCurrentValue->ulType != TOML_TYPE_DATETIME)
+    PTOMLFIND pFind = as_find(hFind);
+    if (!pFind || !pszBuffer) return ERROR_INVALID_PARAMETER;
+    if (!pFind->pCurrentValue) return ERROR_FILE_NOT_FOUND;
+    if (pFind->pCurrentValue->ulType != TOML_TYPE_STRING &&
+        pFind->pCurrentValue->ulType != TOML_TYPE_DATETIME)
         return TOML_ERROR_TYPE_MISMATCH;
-    return copy_string_out(f->pCurrentValue->u.pszString,
+    return copy_string_out(pFind->pCurrentValue->u.pszString,
                            pszBuffer, ulBufSize, pulSize);
 }
 
@@ -2623,86 +3044,70 @@ APIRET APIENTRY TomlFindString(HTOMLFIND hFind,
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not INTEGER.
  */
 APIRET APIENTRY TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue) {
-    PTOMLFIND f = as_find(hFind);
-    if (!f || !pllValue) return TOML_ERROR_INVALID_PARAM;
-    if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
-    if (f->pCurrentValue->ulType != TOML_TYPE_INTEGER)
+    PTOMLFIND pFind = as_find(hFind);
+    if (!pFind || !pllValue) return ERROR_INVALID_PARAMETER;
+    if (!pFind->pCurrentValue) return ERROR_FILE_NOT_FOUND;
+    if (pFind->pCurrentValue->ulType != TOML_TYPE_INTEGER)
         return TOML_ERROR_TYPE_MISMATCH;
-    *pllValue = f->pCurrentValue->u.llInteger;
-    return TOML_NO_ERROR;
+    *pllValue = pFind->pCurrentValue->u.llInteger;
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve the floating-point value of the current entry.
  *
- * @param[in]  hFind      Cursor. Not NULLHANDLE.
- * @param[out] pdblValue  Receiver. Not NULL.
+ * @param[in]  hFind       Cursor. Not NULLHANDLE.
+ * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not FLOAT.
  */
 APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
-    PTOMLFIND f = as_find(hFind);
-    if (!f || !pdblValue) return TOML_ERROR_INVALID_PARAM;
-    if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
-    if (f->pCurrentValue->ulType != TOML_TYPE_FLOAT)
+    PTOMLFIND pFind = as_find(hFind);
+    if (!pFind || !pdblValue) return ERROR_INVALID_PARAMETER;
+    if (!pFind->pCurrentValue) return ERROR_FILE_NOT_FOUND;
+    if (pFind->pCurrentValue->ulType != TOML_TYPE_FLOAT)
         return TOML_ERROR_TYPE_MISMATCH;
-    *pdblValue = f->pCurrentValue->u.dblFloat;
-    return TOML_NO_ERROR;
+    *pdblValue = pFind->pCurrentValue->u.dblFloat;
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve the boolean value of the current entry.
  *
- * @param[in]  hFind    Cursor. Not NULLHANDLE.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  hFind     Cursor. Not NULLHANDLE.
+ * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success.
- * @retval TOML_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
- * @retval TOML_ERROR_TYPE_MISMATCH  Current entry is not BOOLEAN.
  */
 APIRET APIENTRY TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue) {
-    PTOMLFIND f = as_find(hFind);
-    if (!f || !pfValue) return TOML_ERROR_INVALID_PARAM;
-    if (!f->pCurrentValue) return TOML_ERROR_NOT_FOUND;
-    if (f->pCurrentValue->ulType != TOML_TYPE_BOOLEAN)
+    PTOMLFIND pFind = as_find(hFind);
+    if (!pFind || !pfValue) return ERROR_INVALID_PARAMETER;
+    if (!pFind->pCurrentValue) return ERROR_FILE_NOT_FOUND;
+    if (pFind->pCurrentValue->ulType != TOML_TYPE_BOOLEAN)
         return TOML_ERROR_TYPE_MISMATCH;
-    *pfValue = f->pCurrentValue->u.fBoolean;
-    return TOML_NO_ERROR;
+    *pfValue = pFind->pCurrentValue->u.fBoolean;
+    return NO_ERROR;
 }
 
 /**
  * @brief Close an enumeration cursor.
  *
- * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
- *                   no-op.
+ * @param[in] hFind  Cursor. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval TOML_NO_ERROR             Success. Also returned for
- *                                   NULLHANDLE.
- * @retval TOML_ERROR_INVALID_HANDLE Handle is not recognized.
  */
 APIRET APIENTRY TomlFindClose(HTOMLFIND hFind) {
-    PTOMLFIND f = as_find(hFind);
+    PTOMLFIND pFind = as_find(hFind);
     PTOMLFIND *pp;
-    if (!f) return TOML_NO_ERROR;
-    pp = &f->pDoc->pFirstFind;
+    if (!pFind) return NO_ERROR;
+    pp = &pFind->pDoc->pFirstFind;
     while (*pp) {
-        if (*pp == f) { *pp = f->pNext; break; }
+        if (*pp == pFind) { *pp = pFind->pNext; break; }
         pp = &(*pp)->pNext;
     }
-    free(f->pszPattern);
-    free(f);
-    return TOML_NO_ERROR;
+    free(pFind->pszPattern);
+    free(pFind);
+    return NO_ERROR;
 }

@@ -42,28 +42,28 @@
 /**
  * @brief Duplicate a byte range into a fresh NUL-terminated string.
  *
- * @param[in] s  Source bytes. Not NULL.
- * @param[in] n  Number of bytes to copy.
+ * @param[in] pszSrc  Source bytes. Not NULL.
+ * @param[in] cbLen   Number of bytes to copy.
  *
  * @return malloc'd string, or NULL on allocation failure.
  */
-static char *dup_n(const char *s, size_t n) {
-    char *r = (char*)malloc(n + 1);
-    if (!r) return NULL;
-    memcpy(r, s, n);
-    r[n] = '\0';
-    return r;
+static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
+    PSZ pszOut = (PSZ)malloc(cbLen + 1);
+    if (!pszOut) return NULL;
+    memcpy(pszOut, pszSrc, cbLen);
+    pszOut[cbLen] = '\0';
+    return pszOut;
 }
 
 /**
  * @brief Duplicate a NUL-terminated string.
  *
- * @param[in] s  Source string. Not NULL.
+ * @param[in] pszSrc  Source string. Not NULL.
  *
  * @return malloc'd copy, or NULL on allocation failure.
  */
-static char *dup_str(const char *s) {
-    return dup_n(s, strlen(s));
+static PSZ dup_str(PCSZ pszSrc) {
+    return dup_n(pszSrc, strlen(pszSrc));
 }
 
 /**
@@ -77,6 +77,58 @@ static void safe_free(void **pp) {
     if (pp && *pp) { free(*pp); *pp = NULL; }
 }
 
+/**
+ * @brief Query and allocate the SPDX-License-Identifier value.
+ *
+ * Uses the size-query convention of SpdxQueryFileLicense: first a
+ * size query, then a fetch into a malloc'd buffer. Returns NULL if
+ * the tag is absent or on any error.
+ *
+ * @param[in] pszPath  Path to the file. Not NULL.
+ *
+ * @return malloc'd value, or NULL on error or if the tag is absent.
+ */
+static PSZ query_file_license(PCSZ pszPath) {
+    ULONG ulSize = 0;
+    PSZ pszOut;
+    if (SpdxQueryFileLicense(pszPath, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    pszOut = (PSZ)malloc(ulSize);
+    if (!pszOut) return NULL;
+    if (SpdxQueryFileLicense(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
+        free(pszOut);
+        return NULL;
+    }
+    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
+    return pszOut;
+}
+
+/**
+ * @brief Query and allocate the SPDX-FileCopyrightText value.
+ *
+ * Counterpart of query_file_license for the copyright tag.
+ *
+ * @param[in] pszPath  Path to the file. Not NULL.
+ *
+ * @return malloc'd value, or NULL on error or if the tag is absent.
+ */
+static PSZ query_file_copyright(PCSZ pszPath) {
+    ULONG ulSize = 0;
+    PSZ pszOut;
+    if (SpdxQueryFileCopyright(pszPath, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    pszOut = (PSZ)malloc(ulSize);
+    if (!pszOut) return NULL;
+    if (SpdxQueryFileCopyright(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
+        free(pszOut);
+        return NULL;
+    }
+    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
+    return pszOut;
+}
+
 /* ==================================================================
  * Path handling
  * ================================================================== */
@@ -86,61 +138,62 @@ static void safe_free(void **pp) {
  *
  * Case-insensitive on Windows, case-sensitive elsewhere.
  *
- * @param[in] a  First character.
- * @param[in] b  Second character.
+ * @param[in] nA  First character.
+ * @param[in] nB  Second character.
  *
  * @return 1 if the characters are equal under the platform rules,
  *         0 otherwise.
  */
-static int path_char_eq(int a, int b) {
+static int path_char_eq(int nA, int nB) {
 #ifdef _WIN32
-    return tolower((unsigned char)a) == tolower((unsigned char)b);
+    return tolower((unsigned char)nA) == tolower((unsigned char)nB);
 #else
-    return (unsigned char)a == (unsigned char)b;
+    return (unsigned char)nA == (unsigned char)nB;
 #endif
 }
 
 /**
  * @brief Compare a string against a prefix under path_char_eq rules.
  *
- * @param[in] s       String to test. Not NULL.
- * @param[in] prefix  Prefix. Not NULL.
- * @param[in] n       Prefix length.
+ * @param[in] pszStr     String to test. Not NULL.
+ * @param[in] pszPrefix  Prefix. Not NULL.
+ * @param[in] cbLen      Prefix length.
  *
- * @return 1 if @p s starts with @p prefix, 0 otherwise.
+ * @return 1 if @p pszStr starts with @p pszPrefix, 0 otherwise.
  */
-static int path_prefix_eq(const char *s, const char *prefix, size_t n) {
+static int path_prefix_eq(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     size_t i;
-    for (i = 0; i < n; i++) {
-        if (!s[i]) return 0;
-        if (!path_char_eq(s[i], prefix[i])) return 0;
+    for (i = 0; i < cbLen; i++) {
+        if (!pszStr[i]) return 0;
+        if (!path_char_eq(pszStr[i], pszPrefix[i])) return 0;
     }
     return 1;
 }
 
 /**
- * @brief Return the path of @p filename relative to @p base.
+ * @brief Return the path of @p pszFilename relative to @p pszBase.
  *
- * If @p filename does not start with @p base followed by a separator
- * or the end of string, @p filename is returned unchanged.
+ * If @p pszFilename does not start with @p pszBase followed by a
+ * separator or the end of string, @p pszFilename is returned
+ * unchanged.
  *
- * @param[in] base      Base directory. May be NULL or empty.
- * @param[in] filename  Full path. Not NULL.
+ * @param[in] pszBase      Base directory. May be NULL or empty.
+ * @param[in] pszFilename  Full path. Not NULL.
  *
- * @return Pointer to the relative part, or @p filename unchanged.
+ * @return Pointer to the relative part, or @p pszFilename unchanged.
  */
-static const char *rel_to_dir(const char *base, const char *filename) {
-    size_t blen;
-    if (!base || !base[0]) return filename;
-    blen = strlen(base);
-    if (path_prefix_eq(filename, base, blen)) {
-        const char *rest = filename + blen;
-        if (*rest == '\0') return rest;
-        if (*rest != '/' && *rest != '\\') return filename;
-        while (*rest == '/' || *rest == '\\') rest++;
-        return rest;
+static PCSZ rel_to_dir(PCSZ pszBase, PCSZ pszFilename) {
+    size_t cbBaseLen;
+    if (!pszBase || !pszBase[0]) return pszFilename;
+    cbBaseLen = strlen(pszBase);
+    if (path_prefix_eq(pszFilename, pszBase, cbBaseLen)) {
+        PCSZ pszRest = pszFilename + cbBaseLen;
+        if (*pszRest == '\0') return pszRest;
+        if (*pszRest != '/' && *pszRest != '\\') return pszFilename;
+        while (*pszRest == '/' || *pszRest == '\\') pszRest++;
+        return pszRest;
     }
-    return filename;
+    return pszFilename;
 }
 
 /* ==================================================================
@@ -153,23 +206,23 @@ static const char *rel_to_dir(const char *base, const char *filename) {
  * '*' matches any sequence of characters that does not cross '/'.
  * The pattern and the string must both be free of '/'.
  *
- * @param[in] pat  Pattern component. Not NULL.
- * @param[in] str  String component. Not NULL.
+ * @param[in] pszPat  Pattern component. Not NULL.
+ * @param[in] pszStr  String component. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int match_component(const char *pat, const char *str) {
-    if (*pat == '\0') return *str == '\0';
-    if (*pat == '*') {
+static int match_component(PCSZ pszPat, PCSZ pszStr) {
+    if (*pszPat == '\0') return *pszStr == '\0';
+    if (*pszPat == '*') {
         while (1) {
-            if (match_component(pat + 1, str)) return 1;
-            if (*str == '\0' || *str == '/') return 0;
-            str++;
+            if (match_component(pszPat + 1, pszStr)) return 1;
+            if (*pszStr == '\0' || *pszStr == '/') return 0;
+            pszStr++;
         }
     }
-    if (*str == '\0' || *str == '/') return 0;
-    if (*pat != *str) return 0;
-    return match_component(pat + 1, str + 1);
+    if (*pszStr == '\0' || *pszStr == '/') return 0;
+    if (*pszPat != *pszStr) return 0;
+    return match_component(pszPat + 1, pszStr + 1);
 }
 
 /**
@@ -179,57 +232,60 @@ static int match_component(const char *pat, const char *str) {
  * the '**' wildcard at a component boundary: '**' alone matches any
  * suffix, and '**<slash>' matches any prefix of path components.
  *
- * @param[in] pat   Pattern. Not NULL.
- * @param[in] path  Path. Not NULL.
+ * @param[in] pszPat   Pattern. Not NULL.
+ * @param[in] pszPath  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int match_path(const char *pat, const char *path) {
-    const char *pat_slash;
-    const char *path_slash;
+static int match_path(PCSZ pszPat, PCSZ pszPath) {
+    PCSZ pszPatSlash;
+    PCSZ pszPathSlash;
 
-    if (pat[0] == '*' && pat[1] == '*') {
-        if (pat[2] == '\0') return 1;
-        if (pat[2] == '/') {
-            const char *rest = pat + 3;
-            if (match_path(rest, path)) return 1;
-            while ((path_slash = strchr(path, '/')) != NULL) {
-                path = path_slash + 1;
-                if (match_path(rest, path)) return 1;
+    if (pszPat[0] == '*' && pszPat[1] == '*') {
+        if (pszPat[2] == '\0') return 1;
+        if (pszPat[2] == '/') {
+            PCSZ pszRest = pszPat + 3;
+            if (match_path(pszRest, pszPath)) return 1;
+            while ((pszPathSlash = strchr(pszPath, '/')) != NULL) {
+                pszPath = pszPathSlash + 1;
+                if (match_path(pszRest, pszPath)) return 1;
             }
             return 0;
         }
     }
-    pat_slash  = strchr(pat, '/');
-    path_slash = strchr(path, '/');
-    if (!pat_slash) {
-        if (path_slash) return 0;
-        return match_component(pat, path);
+    pszPatSlash  = strchr(pszPat, '/');
+    pszPathSlash = strchr(pszPath, '/');
+    if (!pszPatSlash) {
+        if (pszPathSlash) return 0;
+        return match_component(pszPat, pszPath);
     }
-    if (!path_slash) return 0;
+    if (!pszPathSlash) return 0;
     {
-        size_t plen = (size_t)(pat_slash - pat);
-        size_t flen = (size_t)(path_slash - path);
-        char pat_seg[256];
-        char path_seg[256];
-        if (plen >= sizeof(pat_seg) || flen >= sizeof(path_seg)) return 0;
-        memcpy(pat_seg, pat, plen); pat_seg[plen] = '\0';
-        memcpy(path_seg, path, flen); path_seg[flen] = '\0';
-        if (!match_component(pat_seg, path_seg)) return 0;
-        return match_path(pat_slash + 1, path_slash + 1);
+        size_t cbPatLen = (size_t)(pszPatSlash - pszPat);
+        size_t cbFileLen = (size_t)(pszPathSlash - pszPath);
+        CHAR achPatSeg[256];
+        CHAR achPathSeg[256];
+        if (cbPatLen >= sizeof(achPatSeg) ||
+            cbFileLen >= sizeof(achPathSeg)) return 0;
+        memcpy(achPatSeg, pszPat, cbPatLen);
+        achPatSeg[cbPatLen] = '\0';
+        memcpy(achPathSeg, pszPath, cbFileLen);
+        achPathSeg[cbFileLen] = '\0';
+        if (!match_component(achPatSeg, achPathSeg)) return 0;
+        return match_path(pszPatSlash + 1, pszPathSlash + 1);
     }
 }
 
 /**
  * @brief Convenience wrapper around match_path.
  *
- * @param[in] pattern   Pattern. Not NULL.
- * @param[in] filename  Path. Not NULL.
+ * @param[in] pszPattern   Pattern. Not NULL.
+ * @param[in] pszFilename  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int matches_pattern(const char *pattern, const char *filename) {
-    return match_path(pattern, filename);
+static int matches_pattern(PCSZ pszPattern, PCSZ pszFilename) {
+    return match_path(pszPattern, pszFilename);
 }
 
 /* ==================================================================
@@ -239,33 +295,35 @@ static int matches_pattern(const char *pattern, const char *filename) {
 /**
  * @brief Append one REUSEERR record to a project handle.
  *
- * @param[in,out] pd           Project handle. Not NULL.
- * @param[in]     ulCode       REUSE_ERROR_* code.
- * @param[in]     ulSeverity   One of REUSE_SEV_*.
- * @param[in]     pszFile      Offending file, or NULL.
- * @param[in]     ulLine       Source line, 0 if not applicable.
- * @param[in]     pszDetail    Short human-readable detail, or NULL.
+ * @param[in,out] pd          Project handle. Not NULL.
+ * @param[in]     ulCode      One of REUSE_ERROR_* or ERROR_*.
+ * @param[in]     ulSeverity  One of REUSE_SEV_*.
+ * @param[in]     pszFile     Offending file, or NULL.
+ * @param[in]     ulLine      Source line, 0 if not applicable.
+ * @param[in]     pszDetail   Short human-readable detail, or NULL.
  *
  * @return 0 on success, -1 on allocation failure.
  */
 static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
                    PCSZ pszFile, ULONG ulLine, PCSZ pszDetail) {
-    REUSEERR *pe;
+    REUSEERR *pErr;
     if (pd->ulErrorCount >= pd->ulErrorCapacity) {
-        ULONG ncap = pd->ulErrorCapacity ? pd->ulErrorCapacity * 2 : 8;
-        REUSEERR *na = (REUSEERR*)realloc(pd->paErrors,
-                                          (size_t)ncap * sizeof(REUSEERR));
-        if (!na) return -1;
-        pd->paErrors = na;
-        pd->ulErrorCapacity = ncap;
+        ULONG ulNewCap = pd->ulErrorCapacity ? pd->ulErrorCapacity * 2 : 8;
+        REUSEERR *paNew = (REUSEERR*)realloc(pd->paErrors,
+                                (size_t)ulNewCap * sizeof(REUSEERR));
+        if (!paNew) return -1;
+        pd->paErrors = paNew;
+        pd->ulErrorCapacity = ulNewCap;
     }
-    pe = &pd->paErrors[pd->ulErrorCount++];
-    memset(pe, 0, sizeof(*pe));
-    pe->ulCode = ulCode;
-    pe->ulSeverity = ulSeverity;
-    pe->ulLine = ulLine;
-    if (pszFile)   strncpy(pe->achFile, pszFile, sizeof(pe->achFile) - 1);
-    if (pszDetail) strncpy(pe->achDetail, pszDetail, sizeof(pe->achDetail) - 1);
+    pErr = &pd->paErrors[pd->ulErrorCount++];
+    memset(pErr, 0, sizeof(*pErr));
+    pErr->ulCode = ulCode;
+    pErr->ulSeverity = ulSeverity;
+    pErr->ulLine = ulLine;
+    if (pszFile)
+        strncpy(pErr->achFile, pszFile, sizeof(pErr->achFile) - 1);
+    if (pszDetail)
+        strncpy(pErr->achDetail, pszDetail, sizeof(pErr->achDetail) - 1);
     return 0;
 }
 
@@ -287,36 +345,36 @@ static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
  */
 static int cfg_add(PREUSETREE pd, int nKind, PCSZ pszSourceDir, int nDepth,
                    HREUSETOML hToml, HDEP5DOC hDep5) {
-    REUSECFG *pc;
+    REUSECFG *pCfg;
     if (pd->ulCount >= pd->ulCapacity) {
-        ULONG ncap = pd->ulCapacity ? pd->ulCapacity * 2 : 8;
-        REUSECFG *na = (REUSECFG*)realloc(pd->paCfgs,
-                                          (size_t)ncap * sizeof(REUSECFG));
-        if (!na) return -1;
-        pd->paCfgs = na;
-        pd->ulCapacity = ncap;
+        ULONG ulNewCap = pd->ulCapacity ? pd->ulCapacity * 2 : 8;
+        REUSECFG *paNew = (REUSECFG*)realloc(pd->paCfgs,
+                                (size_t)ulNewCap * sizeof(REUSECFG));
+        if (!paNew) return -1;
+        pd->paCfgs = paNew;
+        pd->ulCapacity = ulNewCap;
     }
-    pc = &pd->paCfgs[pd->ulCount++];
-    memset(pc, 0, sizeof(*pc));
-    pc->nKind = nKind;
-    pc->pszSourceDir = dup_str(pszSourceDir);
-    pc->nDepth = nDepth;
-    pc->hToml = hToml;
-    pc->hDep5 = hDep5;
-    return pc->pszSourceDir ? 0 : -1;
+    pCfg = &pd->paCfgs[pd->ulCount++];
+    memset(pCfg, 0, sizeof(*pCfg));
+    pCfg->nKind = nKind;
+    pCfg->pszSourceDir = dup_str(pszSourceDir);
+    pCfg->nDepth = nDepth;
+    pCfg->hToml = hToml;
+    pCfg->hDep5 = hDep5;
+    return pCfg->pszSourceDir ? 0 : -1;
 }
 
 /**
  * @brief Release one config entry.
  *
- * @param[in,out] pc  Config entry. Not NULL.
+ * @param[in,out] pCfg  Config entry. Not NULL.
  */
-static void cfg_free(REUSECFG *pc) {
-    if (!pc) return;
-    safe_free((void**)&pc->pszSourceDir);
-    if (pc->hToml != NULLHANDLE) ReuseClose(pc->hToml);
-    if (pc->hDep5 != NULLHANDLE) Dep5Close(pc->hDep5);
-    memset(pc, 0, sizeof(*pc));
+static void cfg_free(REUSECFG *pCfg) {
+    if (!pCfg) return;
+    safe_free((void**)&pCfg->pszSourceDir);
+    if (pCfg->hToml != NULLHANDLE) ReuseClose(pCfg->hToml);
+    if (pCfg->hDep5 != NULLHANDLE) Dep5Close(pCfg->hDep5);
+    memset(pCfg, 0, sizeof(*pCfg));
 }
 
 /**
@@ -325,9 +383,10 @@ static void cfg_free(REUSECFG *pc) {
  * @param[in] pd  Project handle. May be NULL.
  */
 static void doc_free(PREUSETREE pd) {
-    ULONG i;
+    ULONG ulIdx;
     if (!pd) return;
-    for (i = 0; i < pd->ulCount; i++) cfg_free(&pd->paCfgs[i]);
+    for (ulIdx = 0; ulIdx < pd->ulCount; ulIdx++)
+        cfg_free(&pd->paCfgs[ulIdx]);
     free(pd->paCfgs);
     free(pd->paErrors);
     free(pd->pszProjectDir);
@@ -342,20 +401,20 @@ static void doc_free(PREUSETREE pd) {
 /**
  * @brief Join a directory and a name with the platform separator.
  *
- * @param[out] dst       Destination buffer. Not NULL.
- * @param[in]  dst_size  Size of @p dst.
- * @param[in]  dir       Directory. Not NULL.
- * @param[in]  name      Entry name. Not NULL.
+ * @param[out] pszDst      Destination buffer. Not NULL.
+ * @param[in]  ulDstSize   Size of @p pszDst.
+ * @param[in]  pszDir      Directory. Not NULL.
+ * @param[in]  pszName     Entry name. Not NULL.
  */
-static void join_path(char *dst, size_t dst_size,
-                      const char *dir, const char *name) {
-    size_t len = strlen(dir);
+static void join_path(PSZ pszDst, size_t ulDstSize,
+                      PCSZ pszDir, PCSZ pszName) {
+    size_t cbLen = strlen(pszDir);
 #ifdef __LINUX__
-    if (len == 0) snprintf(dst, dst_size, "%s", name);
-    else snprintf(dst, dst_size, "%s/%s", dir, name);
+    if (cbLen == 0) snprintf(pszDst, ulDstSize, "%s", pszName);
+    else snprintf(pszDst, ulDstSize, "%s/%s", pszDir, pszName);
 #else
-    if (len == 0) snprintf(dst, dst_size, "%s", name);
-    else snprintf(dst, dst_size, "%s\\%s", dir, name);
+    if (cbLen == 0) snprintf(pszDst, ulDstSize, "%s", pszName);
+    else snprintf(pszDst, ulDstSize, "%s\\%s", pszDir, pszName);
 #endif
 }
 
@@ -377,7 +436,8 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
                         PCSZ pszSourceDir, int nDepth) {
     HREUSETOML hToml = NULLHANDLE;
     APIRET rc = ReuseOpen(pszPath, &hToml);
-    if (rc == REUSE_NO_ERROR) {
+
+    if (rc == NO_ERROR) {
         if (cfg_add(pd, REUSECFG_KIND_TOML, pszSourceDir, nDepth,
                     hToml, NULLHANDLE) != 0) {
             ReuseClose(hToml);
@@ -385,23 +445,35 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
         }
         return 0;
     }
-    /* Record and skip */
+
     {
-        ULONG sev = REUSE_SEV_ERROR;
-        const char *detail = "REUSE.toml parse failure";
+        ULONG ulSev = REUSE_SEV_ERROR;
+        PCSZ pszDetail = "REUSE.toml parse failure";
+
         switch (rc) {
-            case REUSE_ERROR_VERSION_MISSING:  detail = "'version = 1' missing"; break;
-            case REUSE_ERROR_VERSION_NOT_INT:  detail = "'version' is not an integer"; break;
-            case REUSE_ERROR_VERSION_UNSUP:    detail = "unsupported 'version' value"; break;
-            case REUSE_ERROR_ANNOT_NO_PATH:    detail = "[[annotations]] without 'path'"; break;
-            case REUSE_ERROR_ANNOT_BAD_PATH:   detail = "'path' has wrong type"; break;
-            case REUSE_ERROR_ANNOT_BAD_FIELD:  detail = "field has wrong type"; break;
-            case REUSE_ERROR_SYNTAX:           detail = "syntax error"; break;
-            case REUSE_ERROR_OPEN_FAILED:      detail = "cannot open"; break;
-            case REUSE_ERROR_READ_FAILED:      detail = "read error"; break;
-            case REUSE_ERROR_OUT_OF_MEMORY:    detail = "out of memory"; break;
+            case REUSE_ERROR_VERSION_MISSING:
+                pszDetail = "'version = 1' missing"; break;
+            case REUSE_ERROR_VERSION_NOT_INT:
+                pszDetail = "'version' is not an integer"; break;
+            case REUSE_ERROR_VERSION_UNSUP:
+                pszDetail = "unsupported 'version' value"; break;
+            case REUSE_ERROR_ANNOT_NO_PATH:
+                pszDetail = "[[annotations]] without 'path'"; break;
+            case REUSE_ERROR_ANNOT_BAD_PATH:
+                pszDetail = "'path' has wrong type"; break;
+            case REUSE_ERROR_ANNOT_BAD_FIELD:
+                pszDetail = "field has wrong type"; break;
+            case REUSE_ERROR_SYNTAX:
+                pszDetail = "syntax error"; break;
+            case ERROR_OPEN_FAILED:
+                pszDetail = "cannot open"; break;
+            case ERROR_READ_FAULT:
+                pszDetail = "read error"; break;
+            case ERROR_NOT_ENOUGH_MEMORY:
+                pszDetail = "out of memory"; break;
         }
-        err_add(pd, rc, sev, pszPath, 0, detail);
+
+        err_add(pd, rc, ulSev, pszPath, 0, pszDetail);
     }
     return 0;
 }
@@ -419,59 +491,58 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
  * @return 0 on success, -1 on fatal error.
  */
 static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
-    char path[2048];
-    char current[2048];
-    FILE *f;
-    const char *rel;
-    int depth = 0;
+    CHAR achPath[2048];
+    CHAR achCurrent[2048];
+    FILE *fp;
+    PCSZ pszRel;
+    int nDepth = 0;
 
     if (!pszRepoRoot) {
-        /* No repo: only the target directory */
-        join_path(path, sizeof(path), pszTarget, "REUSE.toml");
-        f = fopen(path, "r");
-        if (f) { fclose(f); try_add_toml(pd, path, pszTarget, 0); }
+        join_path(achPath, sizeof(achPath), pszTarget, "REUSE.toml");
+        fp = fopen(achPath, "r");
+        if (fp) { fclose(fp); try_add_toml(pd, achPath, pszTarget, 0); }
         return 0;
     }
 
-    /* Root-level REUSE.toml */
-    join_path(path, sizeof(path), pszRepoRoot, "REUSE.toml");
-    f = fopen(path, "r");
-    if (f) {
-        fclose(f);
-        try_add_toml(pd, path, pszRepoRoot, depth);
+    join_path(achPath, sizeof(achPath), pszRepoRoot, "REUSE.toml");
+    fp = fopen(achPath, "r");
+    if (fp) {
+        fclose(fp);
+        try_add_toml(pd, achPath, pszRepoRoot, nDepth);
     }
-    depth++;
+    nDepth++;
 
-    /* Walk down to the target directory */
-    rel = rel_to_dir(pszRepoRoot, pszTarget);
-    if (!rel || !rel[0] || rel == pszTarget) return 0;
+    pszRel = rel_to_dir(pszRepoRoot, pszTarget);
+    if (!pszRel || !pszRel[0] || pszRel == pszTarget) return 0;
 
-    strncpy(current, pszRepoRoot, sizeof(current) - 1);
-    current[sizeof(current) - 1] = '\0';
+    strncpy(achCurrent, pszRepoRoot, sizeof(achCurrent) - 1);
+    achCurrent[sizeof(achCurrent) - 1] = '\0';
 
     {
-        size_t ri = 0, rlen = strlen(rel);
-        while (ri < rlen) {
-            size_t start = ri;
-            size_t seglen;
-            while (ri < rlen && rel[ri] != '/' && rel[ri] != '\\') ri++;
-            seglen = ri - start;
-            if (seglen > 0) {
-                size_t clen = strlen(current);
-                if (clen + 1 + seglen + 1 > sizeof(current)) break;
-                current[clen] = '/';
-                memcpy(current + clen + 1, rel + start, seglen);
-                current[clen + 1 + seglen] = '\0';
+        size_t cbRi = 0, cbRLen = strlen(pszRel);
+        while (cbRi < cbRLen) {
+            size_t cbStart = cbRi;
+            size_t cbSegLen;
+            while (cbRi < cbRLen && pszRel[cbRi] != '/' &&
+                   pszRel[cbRi] != '\\')
+                cbRi++;
+            cbSegLen = cbRi - cbStart;
+            if (cbSegLen > 0) {
+                size_t cbCurLen = strlen(achCurrent);
+                if (cbCurLen + 1 + cbSegLen + 1 > sizeof(achCurrent)) break;
+                achCurrent[cbCurLen] = '/';
+                memcpy(achCurrent + cbCurLen + 1, pszRel + cbStart, cbSegLen);
+                achCurrent[cbCurLen + 1 + cbSegLen] = '\0';
 
-                join_path(path, sizeof(path), current, "REUSE.toml");
-                f = fopen(path, "r");
-                if (f) {
-                    fclose(f);
-                    try_add_toml(pd, path, current, depth);
+                join_path(achPath, sizeof(achPath), achCurrent, "REUSE.toml");
+                fp = fopen(achPath, "r");
+                if (fp) {
+                    fclose(fp);
+                    try_add_toml(pd, achPath, achCurrent, nDepth);
                 }
-                depth++;
+                nDepth++;
             }
-            if (ri < rlen) ri++;
+            if (cbRi < cbRLen) cbRi++;
         }
     }
     return 0;
@@ -486,23 +557,23 @@ static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
  * @return 0 on success, -1 on fatal error.
  */
 static int discover_dep5(PREUSETREE pd, PCSZ pszRepoRoot) {
-    char path[1024];
-    FILE *f;
+    CHAR achPath[1024];
+    FILE *fp;
     HDEP5DOC hDep5 = NULLHANDLE;
     APIRET rc;
 
     if (!pszRepoRoot || !pszRepoRoot[0]) return 0;
 #ifdef __LINUX__
-    snprintf(path, sizeof(path), "%s/.reuse/dep5", pszRepoRoot);
+    snprintf(achPath, sizeof(achPath), "%s/.reuse/dep5", pszRepoRoot);
 #else
-    snprintf(path, sizeof(path), "%s\\.reuse\\dep5", pszRepoRoot);
+    snprintf(achPath, sizeof(achPath), "%s\\.reuse\\dep5", pszRepoRoot);
 #endif
-    f = fopen(path, "r");
-    if (!f) return 0;
-    fclose(f);
+    fp = fopen(achPath, "r");
+    if (!fp) return 0;
+    fclose(fp);
 
-    rc = Dep5Open(path, &hDep5);
-    if (rc == DEP5_NO_ERROR) {
+    rc = Dep5Open(achPath, &hDep5);
+    if (rc == NO_ERROR) {
         if (cfg_add(pd, REUSECFG_KIND_DEP5, pszRepoRoot, -1,
                     NULLHANDLE, hDep5) != 0) {
             Dep5Close(hDep5);
@@ -511,14 +582,17 @@ static int discover_dep5(PREUSETREE pd, PCSZ pszRepoRoot) {
         return 0;
     }
     {
-        const char *detail = "DEP5 parse failure";
+        PCSZ pszDetail = "DEP5 parse failure";
+
         switch (rc) {
-            case DEP5_ERROR_INVALID_SYNTAX: detail = "syntax error"; break;
-            case DEP5_ERROR_OPEN_FAILED:    detail = "cannot open"; break;
-            case DEP5_ERROR_READ_FAILED:    detail = "read error"; break;
-            case DEP5_ERROR_OUT_OF_MEMORY:  detail = "out of memory"; break;
+            case DEP5_ERROR_INVALID_SYNTAX: pszDetail = "syntax error"; break;
+            case ERROR_OPEN_FAILED:         pszDetail = "cannot open"; break;
+            case ERROR_READ_FAULT:          pszDetail = "read error"; break;
+            case ERROR_NOT_ENOUGH_MEMORY:   pszDetail = "out of memory"; break;
         }
-        err_add(pd, REUSE_ERROR_SYNTAX, REUSE_SEV_ERROR, path, 0, detail);
+
+        err_add(pd, REUSE_ERROR_SYNTAX, REUSE_SEV_ERROR, achPath, 0,
+                pszDetail);
     }
     return 0;
 }
@@ -540,49 +614,49 @@ typedef struct _MATCH {
     int   nDepth;                       /**< Depth from repository root.   */
     int   nOrderInFile;                 /**< Order of appearance.          */
 
-    char *pszLicense;                   /**< SPDX license expression.      */
-    char *pszCopyright;                 /**< Copyright notices.            */
-    char *pszContributors;              /**< '\n'-separated contributors.  */
-    char *pszPackageName;               /**< SPDX-PackageName.             */
-    char *pszPackageSupplier;           /**< SPDX-PackageSupplier.         */
-    char *pszPackageDownloadLocation;   /**< SPDX-PackageDownloadLocation. */
-    char *pszPackageComment;            /**< SPDX-PackageComment.          */
+    PSZ   pszLicense;                   /**< SPDX license expression.      */
+    PSZ   pszCopyright;                 /**< Copyright notices.            */
+    PSZ   pszContributors;              /**< '\n'-separated contributors.  */
+    PSZ   pszPackageName;               /**< SPDX-PackageName.             */
+    PSZ   pszPackageSupplier;           /**< SPDX-PackageSupplier.         */
+    PSZ   pszPackageDownloadLocation;   /**< SPDX-PackageDownloadLocation. */
+    PSZ   pszPackageComment;            /**< SPDX-PackageComment.          */
 } MATCH;
 
 /**
  * @brief Release all owned strings of a MATCH and clear its fields.
  *
- * @param[in,out] pm  Match. Not NULL.
+ * @param[in,out] pMatch  Match. Not NULL.
  */
-static void match_clear(MATCH *pm) {
-    safe_free((void**)&pm->pszLicense);
-    safe_free((void**)&pm->pszCopyright);
-    safe_free((void**)&pm->pszContributors);
-    safe_free((void**)&pm->pszPackageName);
-    safe_free((void**)&pm->pszPackageSupplier);
-    safe_free((void**)&pm->pszPackageDownloadLocation);
-    safe_free((void**)&pm->pszPackageComment);
-    pm->nPrecedence = 0;
-    pm->nDepth = 0;
-    pm->nOrderInFile = 0;
+static void match_clear(MATCH *pMatch) {
+    safe_free((void**)&pMatch->pszLicense);
+    safe_free((void**)&pMatch->pszCopyright);
+    safe_free((void**)&pMatch->pszContributors);
+    safe_free((void**)&pMatch->pszPackageName);
+    safe_free((void**)&pMatch->pszPackageSupplier);
+    safe_free((void**)&pMatch->pszPackageDownloadLocation);
+    safe_free((void**)&pMatch->pszPackageComment);
+    pMatch->nPrecedence = 0;
+    pMatch->nDepth = 0;
+    pMatch->nOrderInFile = 0;
 }
 
 /**
- * @brief Decide whether @p a outranks @p b.
+ * @brief Decide whether @p pA outranks @p pB.
  *
  * Order of comparison: precedence, then depth, then order in file.
  *
- * @param[in] a  Candidate. Not NULL.
- * @param[in] b  Current best. Not NULL.
+ * @param[in] pA  Candidate. Not NULL.
+ * @param[in] pB  Current best. Not NULL.
  *
- * @return 1 if @p a is better than @p b, 0 otherwise.
+ * @return 1 if @p pA is better than @p pB, 0 otherwise.
  */
-static int match_better(const MATCH *a, const MATCH *b) {
-    if (a->nPrecedence != b->nPrecedence)
-        return a->nPrecedence > b->nPrecedence;
-    if (a->nDepth != b->nDepth)
-        return a->nDepth > b->nDepth;
-    return a->nOrderInFile > b->nOrderInFile;
+static int match_better(const MATCH *pA, const MATCH *pB) {
+    if (pA->nPrecedence != pB->nPrecedence)
+        return pA->nPrecedence > pB->nPrecedence;
+    if (pA->nDepth != pB->nDepth)
+        return pA->nDepth > pB->nDepth;
+    return pA->nOrderInFile > pB->nOrderInFile;
 }
 
 /* ==================================================================
@@ -597,18 +671,19 @@ static int match_better(const MATCH *a, const MATCH *b) {
  *
  * @return malloc'd value, or NULL if absent or on failure.
  */
-static char *ann_get_str(HREUSEANN hAnn, ULONG (*fn)(HREUSEANN, PSZ, ULONG, PULONG)) {
+static PSZ ann_get_str(HREUSEANN hAnn,
+                       ULONG (*fn)(HREUSEANN, PSZ, ULONG, PULONG)) {
     ULONG ulSize = 0;
-    char *buf;
-    if (fn(hAnn, NULL, 0, &ulSize) != REUSE_NO_ERROR) return NULL;
+    PSZ pszBuf;
+    if (fn(hAnn, NULL, 0, &ulSize) != NO_ERROR) return NULL;
     if (ulSize == 0) return NULL;
-    buf = (char*)malloc(ulSize);
-    if (!buf) return NULL;
-    if (fn(hAnn, buf, ulSize, NULL) != REUSE_NO_ERROR) {
-        free(buf);
+    pszBuf = (PSZ)malloc(ulSize);
+    if (!pszBuf) return NULL;
+    if (fn(hAnn, pszBuf, ulSize, NULL) != NO_ERROR) {
+        free(pszBuf);
         return NULL;
     }
-    return buf;
+    return pszBuf;
 }
 
 /**
@@ -617,52 +692,55 @@ static char *ann_get_str(HREUSEANN hAnn, ULONG (*fn)(HREUSEANN, PSZ, ULONG, PULO
  * @param[in]  hAnn    Annotation handle. Not NULLHANDLE.
  * @param[in]  nDepth  Depth from repository root.
  * @param[in]  nOrder  Order of the annotation inside the file.
- * @param[out] pm      Receiver. Not NULL.
+ * @param[out] pMatch  Receiver. Not NULL.
  *
  * @return 0 on success.
  */
-static int match_from_toml(HREUSEANN hAnn, int nDepth, int nOrder, MATCH *pm) {
+static int match_from_toml(HREUSEANN hAnn, int nDepth, int nOrder,
+                           MATCH *pMatch) {
     ULONG ulPrec = REUSE_PRECEDENCE_CLOSEST;
     ReuseAnnGetPrecedence(hAnn, &ulPrec);
-    pm->nPrecedence = (int)ulPrec;
-    pm->nDepth = nDepth;
-    pm->nOrderInFile = nOrder;
+    pMatch->nPrecedence = (int)ulPrec;
+    pMatch->nDepth = nDepth;
+    pMatch->nOrderInFile = nOrder;
 
-    pm->pszLicense    = ann_get_str(hAnn, ReuseAnnGetLicense);
-    pm->pszCopyright  = ann_get_str(hAnn, ReuseAnnGetCopyright);
-    pm->pszPackageName = ann_get_str(hAnn, ReuseAnnGetPackageName);
-    pm->pszPackageSupplier = ann_get_str(hAnn, ReuseAnnGetPackageSupplier);
-    pm->pszPackageDownloadLocation = ann_get_str(hAnn,
-        ReuseAnnGetPackageDownloadLocation);
-    pm->pszPackageComment = ann_get_str(hAnn, ReuseAnnGetPackageComment);
+    pMatch->pszLicense    = ann_get_str(hAnn, ReuseAnnGetLicense);
+    pMatch->pszCopyright  = ann_get_str(hAnn, ReuseAnnGetCopyright);
+    pMatch->pszPackageName = ann_get_str(hAnn, ReuseAnnGetPackageName);
+    pMatch->pszPackageSupplier =
+        ann_get_str(hAnn, ReuseAnnGetPackageSupplier);
+    pMatch->pszPackageDownloadLocation =
+        ann_get_str(hAnn, ReuseAnnGetPackageDownloadLocation);
+    pMatch->pszPackageComment =
+        ann_get_str(hAnn, ReuseAnnGetPackageComment);
 
-    /* Contributors: join '\n' */
     {
-        ULONG ulCount = 0, i;
-        if (ReuseAnnGetContributorCount(hAnn, &ulCount) == REUSE_NO_ERROR &&
+        ULONG ulCount = 0, ulIdx;
+        if (ReuseAnnGetContributorCount(hAnn, &ulCount) == NO_ERROR &&
             ulCount > 0) {
-            size_t total = 0, pos = 0;
-            char *joined;
-            for (i = 0; i < ulCount; i++) {
-                ULONG sz = 0;
-                ReuseAnnGetContributor(hAnn, i, NULL, 0, &sz);
-                total += sz;
-                if (i > 0) total += 1;
+            size_t cbTotal = 0, cbPos = 0;
+            PSZ pszJoined;
+            for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+                ULONG ulSize = 0;
+                ReuseAnnGetContributor(hAnn, ulIdx, NULL, 0, &ulSize);
+                cbTotal += ulSize;
+                if (ulIdx > 0) cbTotal += 1;
             }
-            joined = (char*)malloc(total + 1);
-            if (joined) {
-                for (i = 0; i < ulCount; i++) {
-                    ULONG sz = 0;
-                    ReuseAnnGetContributor(hAnn, i, NULL, 0, &sz);
-                    if (i > 0) joined[pos++] = '\n';
-                    if (sz > 1) {
-                        ReuseAnnGetContributor(hAnn, i,
-                                               joined + pos, sz, NULL);
-                        pos += sz - 1;
+            pszJoined = (PSZ)malloc(cbTotal + 1);
+            if (pszJoined) {
+                for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+                    ULONG ulSize = 0;
+                    ReuseAnnGetContributor(hAnn, ulIdx, NULL, 0, &ulSize);
+                    if (ulIdx > 0) pszJoined[cbPos++] = '\n';
+                    if (ulSize > 1) {
+                        ReuseAnnGetContributor(hAnn, ulIdx,
+                                               pszJoined + cbPos,
+                                               ulSize, NULL);
+                        cbPos += ulSize - 1;
                     }
                 }
-                joined[pos] = '\0';
-                pm->pszContributors = joined;
+                pszJoined[cbPos] = '\0';
+                pMatch->pszContributors = pszJoined;
             }
         }
     }
@@ -675,51 +753,51 @@ static int match_from_toml(HREUSEANN hAnn, int nDepth, int nOrder, MATCH *pm) {
  * @param[in]  hToml    Document handle. Not NULLHANDLE.
  * @param[in]  nDepth   Depth from repository root.
  * @param[in]  pszRel   Path relative to the source directory.
- * @param[out] pm       Receiver. Not NULL.
+ * @param[out] pMatch   Receiver. Not NULL.
  *
  * @return 0 if at least one annotation matched, -1 otherwise.
  */
 static int toml_find_best(HREUSETOML hToml, int nDepth,
-                          PCSZ pszRel, MATCH *pm) {
-    ULONG ulCount = 0, i;
-    int nFound = 0;
+                          PCSZ pszRel, MATCH *pMatch) {
+    ULONG ulCount = 0, ulIdx;
+    int fFound = 0;
 
-    if (ReuseGetAnnotationCount(hToml, &ulCount) != REUSE_NO_ERROR)
+    if (ReuseGetAnnotationCount(hToml, &ulCount) != NO_ERROR)
         return -1;
 
-    for (i = 0; i < ulCount; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HREUSEANN hAnn = NULLHANDLE;
-        ULONG ulPatCount = 0, j;
-        int match = 0;
+        ULONG ulPatCount = 0, ulJ;
+        int fMatch = 0;
 
-        if (ReuseGetAnnotation(hToml, i, &hAnn) != REUSE_NO_ERROR)
+        if (ReuseGetAnnotation(hToml, ulIdx, &hAnn) != NO_ERROR)
             continue;
-        if (ReuseAnnGetPathCount(hAnn, &ulPatCount) != REUSE_NO_ERROR)
+        if (ReuseAnnGetPathCount(hAnn, &ulPatCount) != NO_ERROR)
             continue;
 
-        for (j = 0; j < ulPatCount; j++) {
-            char pat[1024];
-            ULONG used = 0;
-            if (ReuseAnnGetPath(hAnn, j, pat, sizeof(pat), &used)
-                != REUSE_NO_ERROR)
+        for (ulJ = 0; ulJ < ulPatCount; ulJ++) {
+            CHAR achPat[1024];
+            ULONG ulUsed = 0;
+            if (ReuseAnnGetPath(hAnn, ulJ, achPat, sizeof(achPat), &ulUsed)
+                != NO_ERROR)
                 continue;
-            if (matches_pattern(pat, pszRel)) { match = 1; break; }
+            if (matches_pattern(achPat, pszRel)) { fMatch = 1; break; }
         }
 
-        if (match) {
+        if (fMatch) {
             MATCH cand;
             memset(&cand, 0, sizeof(cand));
-            match_from_toml(hAnn, nDepth, (int)i, &cand);
-            if (!nFound || match_better(&cand, pm)) {
-                match_clear(pm);
-                *pm = cand;
+            match_from_toml(hAnn, nDepth, (int)ulIdx, &cand);
+            if (!fFound || match_better(&cand, pMatch)) {
+                match_clear(pMatch);
+                *pMatch = cand;
             } else {
                 match_clear(&cand);
             }
-            nFound = 1;
+            fFound = 1;
         }
     }
-    return nFound ? 0 : -1;
+    return fFound ? 0 : -1;
 }
 
 /* ==================================================================
@@ -734,21 +812,20 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
  *
  * @return malloc'd value, or NULL if absent or on failure.
  */
-static char *dep5_get_field(HDEP5FIND hFind, PCSZ pszField) {
+static PSZ dep5_get_field(HDEP5FIND hFind, PCSZ pszField) {
     ULONG ulSize = 0;
-    char *buf;
-    if (Dep5FilesGetField(hFind, pszField, NULL, 0, &ulSize)
-        != DEP5_NO_ERROR)
+    PSZ pszBuf;
+    if (Dep5FilesGetField(hFind, pszField, NULL, 0, &ulSize) != NO_ERROR)
         return NULL;
     if (ulSize == 0) return NULL;
-    buf = (char*)malloc(ulSize);
-    if (!buf) return NULL;
-    if (Dep5FilesGetField(hFind, pszField, buf, ulSize, NULL)
-        != DEP5_NO_ERROR) {
-        free(buf);
+    pszBuf = (PSZ)malloc(ulSize);
+    if (!pszBuf) return NULL;
+    if (Dep5FilesGetField(hFind, pszField, pszBuf, ulSize, NULL)
+        != NO_ERROR) {
+        free(pszBuf);
         return NULL;
     }
-    return buf;
+    return pszBuf;
 }
 
 /**
@@ -757,18 +834,18 @@ static char *dep5_get_field(HDEP5FIND hFind, PCSZ pszField) {
  * @param[in]  hFind   Cursor. Not NULLHANDLE.
  * @param[in]  nDepth  Depth from repository root.
  * @param[in]  nOrder  Order of the stanza inside the file.
- * @param[out] pm      Receiver. Not NULL.
+ * @param[out] pMatch  Receiver. Not NULL.
  *
  * @return 0 on success.
  */
 static int match_from_dep5(HDEP5FIND hFind, int nDepth, int nOrder,
-                           MATCH *pm) {
-    pm->nPrecedence = REUSE_PRECEDENCE_CLOSEST;
-    pm->nDepth = nDepth;
-    pm->nOrderInFile = nOrder;
+                           MATCH *pMatch) {
+    pMatch->nPrecedence = REUSE_PRECEDENCE_CLOSEST;
+    pMatch->nDepth = nDepth;
+    pMatch->nOrderInFile = nOrder;
 
-    pm->pszLicense   = dep5_get_field(hFind, "License");
-    pm->pszCopyright = dep5_get_field(hFind, "Copyright");
+    pMatch->pszLicense   = dep5_get_field(hFind, "License");
+    pMatch->pszCopyright = dep5_get_field(hFind, "Copyright");
     return 0;
 }
 
@@ -780,47 +857,47 @@ static int match_from_dep5(HDEP5FIND hFind, int nDepth, int nOrder,
  * @param[in]  hDep5   Document handle. Not NULLHANDLE.
  * @param[in]  nDepth  Depth from repository root.
  * @param[in]  pszRel  Path relative to the source directory.
- * @param[out] pm      Receiver. Not NULL.
+ * @param[out] pMatch  Receiver. Not NULL.
  *
  * @return 0 if at least one stanza matched, -1 otherwise.
  */
 static int dep5_find_best(HDEP5DOC hDep5, int nDepth,
-                          PCSZ pszRel, MATCH *pm) {
+                          PCSZ pszRel, MATCH *pMatch) {
     HDEP5FIND hFind = NULLHANDLE;
     ULONG ulTotal = 0;
     APIRET rc;
-    int nFound = 0;
+    int fFound = 0;
     int nCur = 0;
 
     rc = Dep5FilesFindFirst(hDep5, &hFind, &ulTotal);
-    if (rc != DEP5_NO_ERROR) return -1;
+    if (rc != NO_ERROR) return -1;
 
     do {
-        ULONG ulPatCount = 0, j;
-        int match = 0;
+        ULONG ulPatCount = 0, ulJ;
+        int fMatch = 0;
 
-        if (Dep5FilesGetPatternCount(hFind, &ulPatCount) != DEP5_NO_ERROR)
+        if (Dep5FilesGetPatternCount(hFind, &ulPatCount) != NO_ERROR)
             continue;
 
-        for (j = 0; j < ulPatCount; j++) {
-            char pat[1024];
-            ULONG used = 0;
-            if (Dep5FilesGetPattern(hFind, j, pat, sizeof(pat), &used)
-                != DEP5_NO_ERROR)
+        for (ulJ = 0; ulJ < ulPatCount; ulJ++) {
+            CHAR achPat[1024];
+            ULONG ulUsed = 0;
+            if (Dep5FilesGetPattern(hFind, ulJ, achPat, sizeof(achPat),
+                                    &ulUsed) != NO_ERROR)
                 continue;
-            if (matches_pattern(pat, pszRel)) { match = 1; break; }
+            if (matches_pattern(achPat, pszRel)) { fMatch = 1; break; }
         }
 
-        if (match) {
-            match_clear(pm);
-            match_from_dep5(hFind, nDepth, nCur, pm);
-            nFound = 1;
+        if (fMatch) {
+            match_clear(pMatch);
+            match_from_dep5(hFind, nDepth, nCur, pMatch);
+            fFound = 1;
         }
         nCur++;
-    } while (Dep5FilesFindNext(hFind) == DEP5_NO_ERROR);
+    } while (Dep5FilesFindNext(hFind) == NO_ERROR);
 
     Dep5FilesFindClose(hFind);
-    return nFound ? 0 : -1;
+    return fFound ? 0 : -1;
 }
 
 /* ==================================================================
@@ -830,18 +907,18 @@ static int dep5_find_best(HDEP5DOC hDep5, int nDepth,
 /**
  * @brief Find the best match for a file inside one config entry.
  *
- * @param[in]  pc      Config entry. Not NULL.
- * @param[in]  pszPath Path to the file. Not NULL.
- * @param[out] pm      Receiver. Not NULL.
+ * @param[in]  pCfg     Config entry. Not NULL.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pMatch   Receiver. Not NULL.
  *
  * @return 0 if a match was found, -1 otherwise.
  */
-static int cfg_find_best(REUSECFG *pc, PCSZ pszPath, MATCH *pm) {
-    const char *rel = rel_to_dir(pc->pszSourceDir, pszPath);
-    if (pc->nKind == REUSECFG_KIND_TOML)
-        return toml_find_best(pc->hToml, pc->nDepth, rel, pm);
-    if (pc->nKind == REUSECFG_KIND_DEP5)
-        return dep5_find_best(pc->hDep5, pc->nDepth, rel, pm);
+static int cfg_find_best(REUSECFG *pCfg, PCSZ pszPath, MATCH *pMatch) {
+    PCSZ pszRel = rel_to_dir(pCfg->pszSourceDir, pszPath);
+    if (pCfg->nKind == REUSECFG_KIND_TOML)
+        return toml_find_best(pCfg->hToml, pCfg->nDepth, pszRel, pMatch);
+    if (pCfg->nKind == REUSECFG_KIND_DEP5)
+        return dep5_find_best(pCfg->hDep5, pCfg->nDepth, pszRel, pMatch);
     return -1;
 }
 
@@ -852,134 +929,115 @@ static int cfg_find_best(REUSECFG *pc, PCSZ pszPath, MATCH *pm) {
 /**
  * @brief Combine two SPDX license expressions with AND.
  *
- * @param[in] a  First expression, or NULL.
- * @param[in] b  Second expression, or NULL.
+ * @param[in] pszA  First expression, or NULL.
+ * @param[in] pszB  Second expression, or NULL.
  *
  * @return malloc'd combination, or NULL on allocation failure.
  */
-static char *aggregate_licenses(const char *a, const char *b) {
-    size_t alen, blen;
-    char *r;
-    if (!a) return b ? dup_str(b) : NULL;
-    if (!b) return dup_str(a);
-    alen = strlen(a);
-    blen = strlen(b);
-    r = (char*)malloc(alen + blen + 8);
-    if (!r) return NULL;
-    sprintf(r, "(%s) AND (%s)", a, b);
-    return r;
+static PSZ aggregate_licenses(PCSZ pszA, PCSZ pszB) {
+    size_t cbALen, cbBLen;
+    PSZ pszResult;
+    if (!pszA) return pszB ? dup_str(pszB) : NULL;
+    if (!pszB) return dup_str(pszA);
+    cbALen = strlen(pszA);
+    cbBLen = strlen(pszB);
+    pszResult = (PSZ)malloc(cbALen + cbBLen + 8);
+    if (!pszResult) return NULL;
+    sprintf(pszResult, "(%s) AND (%s)", pszA, pszB);
+    return pszResult;
 }
 
 /**
  * @brief Concatenate two copyright texts with '\n'.
  *
- * @param[in] a  First text, or NULL.
- * @param[in] b  Second text, or NULL.
+ * @param[in] pszA  First text, or NULL.
+ * @param[in] pszB  Second text, or NULL.
  *
  * @return malloc'd combination, or NULL on allocation failure.
  */
-static char *aggregate_copyrights(const char *a, const char *b) {
-    size_t alen, blen;
-    char *r;
-    if (!a) return b ? dup_str(b) : NULL;
-    if (!b) return dup_str(a);
-    alen = strlen(a);
-    blen = strlen(b);
-    r = (char*)malloc(alen + blen + 2);
-    if (!r) return NULL;
-    sprintf(r, "%s\n%s", a, b);
-    return r;
+static PSZ aggregate_copyrights(PCSZ pszA, PCSZ pszB) {
+    size_t cbALen, cbBLen;
+    PSZ pszResult;
+    if (!pszA) return pszB ? dup_str(pszB) : NULL;
+    if (!pszB) return dup_str(pszA);
+    cbALen = strlen(pszA);
+    cbBLen = strlen(pszB);
+    pszResult = (PSZ)malloc(cbALen + cbBLen + 2);
+    if (!pszResult) return NULL;
+    sprintf(pszResult, "%s\n%s", pszA, pszB);
+    return pszResult;
 }
 
 /**
  * @brief Check whether a '\n'-separated text contains a given line.
  *
- * @param[in] hay     Text. Not NULL.
- * @param[in] needle  Line to look for. Not NULL.
- * @param[in] nlen    Length of @p needle.
+ * @param[in] pszHay     Text. Not NULL.
+ * @param[in] pszNeedle  Line to look for. Not NULL.
+ * @param[in] cbLen      Length of @p pszNeedle.
  *
  * @return 1 if found, 0 otherwise.
  */
-static int contains_line(const char *hay, const char *needle, size_t nlen) {
-    const char *p = hay;
-    while (*p) {
-        const char *eol = strchr(p, '\n');
-        size_t len = eol ? (size_t)(eol - p) : strlen(p);
-        if (len == nlen && memcmp(p, needle, nlen) == 0) return 1;
-        if (!eol) break;
-        p = eol + 1;
+static int contains_line(PCSZ pszHay, PCSZ pszNeedle, size_t cbLen) {
+    PCSZ pszPos = pszHay;
+    while (*pszPos) {
+        PCSZ pszEol = strchr(pszPos, '\n');
+        size_t cbLineLen = pszEol ? (size_t)(pszEol - pszPos)
+                                  : strlen(pszPos);
+        if (cbLineLen == cbLen && memcmp(pszPos, pszNeedle, cbLen) == 0)
+            return 1;
+        if (!pszEol) break;
+        pszPos = pszEol + 1;
     }
     return 0;
 }
 
 /**
- * @brief Append lines of @p b to @p a, dropping duplicate lines.
+ * @brief Append lines of @p pszB to @p pszA, dropping duplicate lines.
  *
- * @param[in] a  First text, or NULL.
- * @param[in] b  Second text, or NULL.
+ * @param[in] pszA  First text, or NULL.
+ * @param[in] pszB  Second text, or NULL.
  *
  * @return malloc'd combination, or NULL on allocation failure.
  */
-static char *join_lines_dedup(const char *a, const char *b) {
-    size_t alen, blen, out_len, cap;
-    char *out;
-    const char *p;
+static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
+    size_t cbALen, cbBLen, cbOutLen, cbCap;
+    PSZ pszOut;
+    PCSZ pszPos;
 
-    if (!a && !b) return NULL;
-    if (!a) return dup_str(b);
-    if (!b) return dup_str(a);
+    if (!pszA && !pszB) return NULL;
+    if (!pszA) return dup_str(pszB);
+    if (!pszB) return dup_str(pszA);
 
-    alen = strlen(a);
-    blen = strlen(b);
-    cap = alen + blen + 2;
-    out = (char*)malloc(cap);
-    if (!out) return NULL;
-    memcpy(out, a, alen);
-    out[alen] = '\0';
-    out_len = alen;
+    cbALen = strlen(pszA);
+    cbBLen = strlen(pszB);
+    cbCap = cbALen + cbBLen + 2;
+    pszOut = (PSZ)malloc(cbCap);
+    if (!pszOut) return NULL;
+    memcpy(pszOut, pszA, cbALen);
+    pszOut[cbALen] = '\0';
+    cbOutLen = cbALen;
 
-    p = b;
-    while (*p) {
-        const char *eol = strchr(p, '\n');
-        size_t len = eol ? (size_t)(eol - p) : strlen(p);
-        if (!contains_line(out, p, len)) {
-            if (out_len + 1 + len + 1 > cap) {
-                char *no;
-                cap = out_len + 1 + len + 2;
-                no = (char*)realloc(out, cap);
-                if (!no) { free(out); return NULL; }
-                out = no;
+    pszPos = pszB;
+    while (*pszPos) {
+        PCSZ pszEol = strchr(pszPos, '\n');
+        size_t cbLen = pszEol ? (size_t)(pszEol - pszPos) : strlen(pszPos);
+        if (!contains_line(pszOut, pszPos, cbLen)) {
+            if (cbOutLen + 1 + cbLen + 1 > cbCap) {
+                PSZ pszNew;
+                cbCap = cbOutLen + 1 + cbLen + 2;
+                pszNew = (PSZ)realloc(pszOut, cbCap);
+                if (!pszNew) { free(pszOut); return NULL; }
+                pszOut = pszNew;
             }
-            out[out_len++] = '\n';
-            memcpy(out + out_len, p, len);
-            out_len += len;
-            out[out_len] = '\0';
+            pszOut[cbOutLen++] = '\n';
+            memcpy(pszOut + cbOutLen, pszPos, cbLen);
+            cbOutLen += cbLen;
+            pszOut[cbOutLen] = '\0';
         }
-        if (!eol) break;
-        p = eol + 1;
+        if (!pszEol) break;
+        pszPos = pszEol + 1;
     }
-    return out;
-}
-
-/**
- * @brief Concatenate two '\n'-separated texts without deduplication.
- *
- * @param[in] a  First text, or NULL.
- * @param[in] b  Second text, or NULL.
- *
- * @return malloc'd combination, or NULL on allocation failure.
- */
-static char *join_lines_append(const char *a, const char *b) {
-    size_t alen, blen;
-    char *r;
-    if (!a) return b ? dup_str(b) : NULL;
-    if (!b) return dup_str(a);
-    alen = strlen(a);
-    blen = strlen(b);
-    r = (char*)malloc(alen + blen + 2);
-    if (!r) return NULL;
-    sprintf(r, "%s\n%s", a, b);
-    return r;
+    return pszOut;
 }
 
 /* ==================================================================
@@ -1003,82 +1061,78 @@ static char *join_lines_append(const char *a, const char *b) {
  * @return Freshly allocated file handle, or NULL on OOM.
  */
 static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
-    PREUSETREEFILE pf;
-    char sidecar[1200];
-    char *tag_lic = NULL;
-    char *tag_cop = NULL;
-    char *side_lic = NULL;
-    char *side_cop = NULL;
-    const char *in_lic = NULL;
-    const char *in_cop = NULL;
-    MATCH best_override, best_aggregate, best_closest;
-    int have_override = 0, have_aggregate = 0, have_closest = 0;
-    ULONG i;
+    PREUSETREEFILE pFile;
+    CHAR achSidecar[1200];
+    PSZ pszTagLicense = NULL;
+    PSZ pszTagCopyright = NULL;
+    PSZ pszSideLicense = NULL;
+    PSZ pszSideCopyright = NULL;
+    PCSZ pszInLicense = NULL;
+    PCSZ pszInCopyright = NULL;
+    MATCH bestOverride, bestAggregate, bestClosest;
+    int fHaveOverride = 0, fHaveAggregate = 0, fHaveClosest = 0;
+    ULONG ulIdx;
 
-    memset(&best_override, 0, sizeof(best_override));
-    memset(&best_aggregate, 0, sizeof(best_aggregate));
-    memset(&best_closest, 0, sizeof(best_closest));
+    memset(&bestOverride, 0, sizeof(bestOverride));
+    memset(&bestAggregate, 0, sizeof(bestAggregate));
+    memset(&bestClosest, 0, sizeof(bestClosest));
 
-    pf = (PREUSETREEFILE)calloc(1, sizeof(REUSETREEFILE));
-    if (!pf) return NULL;
+    pFile = (PREUSETREEFILE)calloc(1, sizeof(REUSETREEFILE));
+    if (!pFile) return NULL;
 
     /* 1. Read sidecar (REUSE 3.3 §4.1.3): <file>.license */
-    snprintf(sidecar, sizeof(sidecar), "%s.license", pszPath);
+    snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszPath);
     {
-        FILE *f = fopen(sidecar, "rb");
-        if (f) {
-            fclose(f);
-            if (SpdxFileGetLicense(sidecar, &side_lic) != SPDX_TAG_NO_ERROR)
-                side_lic = NULL;
-            if (SpdxFileGetCopyright(sidecar, &side_cop) != SPDX_TAG_NO_ERROR)
-                side_cop = NULL;
+        FILE *fp = fopen(achSidecar, "rb");
+        if (fp) {
+            fclose(fp);
+            pszSideLicense = query_file_license(achSidecar);
+            pszSideCopyright = query_file_copyright(achSidecar);
         }
     }
 
     /* 2. Read tags inside the file */
-    if (SpdxFileGetLicense(pszPath, &tag_lic) != SPDX_TAG_NO_ERROR)
-        tag_lic = NULL;
-    if (SpdxFileGetCopyright(pszPath, &tag_cop) != SPDX_TAG_NO_ERROR)
-        tag_cop = NULL;
+    pszTagLicense = query_file_license(pszPath);
+    pszTagCopyright = query_file_copyright(pszPath);
 
     /* 3. Sidecar takes precedence over in-file tags */
-    in_lic = side_lic ? side_lic : tag_lic;
-    in_cop = side_cop ? side_cop : tag_cop;
+    pszInLicense = pszSideLicense ? pszSideLicense : pszTagLicense;
+    pszInCopyright = pszSideCopyright ? pszSideCopyright : pszTagCopyright;
 
-    if (in_lic || in_cop) pf->bHasReuse = TRUE_;
+    if (pszInLicense || pszInCopyright) pFile->bHasReuse = TRUE_;
 
     /* 4. For each config, find the best matching annotation, then
      *    classify it by precedence into override/aggregate/closest. */
-    for (i = 0; i < pd->ulCount; i++) {
+    for (ulIdx = 0; ulIdx < pd->ulCount; ulIdx++) {
         MATCH m;
         memset(&m, 0, sizeof(m));
-        if (cfg_find_best(&pd->paCfgs[i], pszPath, &m) != 0) continue;
-        pf->bHasReuse = TRUE_;
+        if (cfg_find_best(&pd->paCfgs[ulIdx], pszPath, &m) != 0) continue;
+        pFile->bHasReuse = TRUE_;
 
         switch (m.nPrecedence) {
             case REUSE_PRECEDENCE_OVERRIDE:
-                if (!have_override || match_better(&m, &best_override)) {
-                    match_clear(&best_override);
-                    best_override = m;
-                    have_override = 1;
+                if (!fHaveOverride || match_better(&m, &bestOverride)) {
+                    match_clear(&bestOverride);
+                    bestOverride = m;
+                    fHaveOverride = 1;
                 } else {
                     match_clear(&m);
                 }
                 break;
             case REUSE_PRECEDENCE_AGGREGATE:
-                if (!have_aggregate || match_better(&m, &best_aggregate)) {
-                    match_clear(&best_aggregate);
-                    best_aggregate = m;
-                    have_aggregate = 1;
+                if (!fHaveAggregate || match_better(&m, &bestAggregate)) {
+                    match_clear(&bestAggregate);
+                    bestAggregate = m;
+                    fHaveAggregate = 1;
                 } else {
                     match_clear(&m);
                 }
                 break;
             default:
-                if (!have_closest || match_better(&m, &best_closest)) {
-                    match_clear(&best_closest);
-                    best_closest = m;
-                    have_closest = 1;
+                if (!fHaveClosest || match_better(&m, &bestClosest)) {
+                    match_clear(&bestClosest);
+                    bestClosest = m;
+                    fHaveClosest = 1;
                 } else {
                     match_clear(&m);
                 }
@@ -1087,128 +1141,150 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
     }
 
     /* 5. Compose the result. */
-    if (have_override) {
-        pf->ulPrecedence = REUSE_PRECEDENCE_OVERRIDE;
-        if (best_override.pszLicense)
-            pf->pszLicense = dup_str(best_override.pszLicense);
-        if (best_override.pszCopyright)
-            pf->pszCopyright = dup_str(best_override.pszCopyright);
-        if (best_override.pszContributors)
-            pf->pszContributors = dup_str(best_override.pszContributors);
-        if (best_override.pszPackageName)
-            pf->pszPackageName = dup_str(best_override.pszPackageName);
-        if (best_override.pszPackageSupplier)
-            pf->pszPackageSupplier = dup_str(best_override.pszPackageSupplier);
-        if (best_override.pszPackageDownloadLocation)
-            pf->pszPackageDownloadLocation =
-                dup_str(best_override.pszPackageDownloadLocation);
-        if (best_override.pszPackageComment)
-            pf->pszPackageComment = dup_str(best_override.pszPackageComment);
+    if (fHaveOverride) {
+        pFile->ulPrecedence = REUSE_PRECEDENCE_OVERRIDE;
+        if (bestOverride.pszLicense)
+            pFile->pszLicense = dup_str(bestOverride.pszLicense);
+        if (bestOverride.pszCopyright)
+            pFile->pszCopyright = dup_str(bestOverride.pszCopyright);
+        if (bestOverride.pszContributors)
+            pFile->pszContributors = dup_str(bestOverride.pszContributors);
+        if (bestOverride.pszPackageName)
+            pFile->pszPackageName = dup_str(bestOverride.pszPackageName);
+        if (bestOverride.pszPackageSupplier)
+            pFile->pszPackageSupplier =
+                dup_str(bestOverride.pszPackageSupplier);
+        if (bestOverride.pszPackageDownloadLocation)
+            pFile->pszPackageDownloadLocation =
+                dup_str(bestOverride.pszPackageDownloadLocation);
+        if (bestOverride.pszPackageComment)
+            pFile->pszPackageComment =
+                dup_str(bestOverride.pszPackageComment);
     } else {
-        const char *base_lic = have_closest ? best_closest.pszLicense : NULL;
-        const char *base_cop = have_closest ? best_closest.pszCopyright : NULL;
-        if (in_lic) base_lic = in_lic;
-        if (in_cop) base_cop = in_cop;
+        PCSZ pszBaseLicense = fHaveClosest ? bestClosest.pszLicense : NULL;
+        PCSZ pszBaseCopyright = fHaveClosest ? bestClosest.pszCopyright
+                                             : NULL;
+        if (pszInLicense) pszBaseLicense = pszInLicense;
+        if (pszInCopyright) pszBaseCopyright = pszInCopyright;
 
-        if (!have_aggregate) {
-            pf->ulPrecedence = (base_lic || base_cop || have_closest)
+        if (!fHaveAggregate) {
+            pFile->ulPrecedence = (pszBaseLicense || pszBaseCopyright ||
+                                   fHaveClosest)
                 ? REUSE_PRECEDENCE_CLOSEST : 0;
-            if (base_lic) pf->pszLicense = dup_str(base_lic);
-            if (base_cop) pf->pszCopyright = dup_str(base_cop);
-            if (have_closest) {
-                if (best_closest.pszContributors)
-                    pf->pszContributors =
-                        dup_str(best_closest.pszContributors);
-                if (best_closest.pszPackageName)
-                    pf->pszPackageName = dup_str(best_closest.pszPackageName);
-                if (best_closest.pszPackageSupplier)
-                    pf->pszPackageSupplier =
-                        dup_str(best_closest.pszPackageSupplier);
-                if (best_closest.pszPackageDownloadLocation)
-                    pf->pszPackageDownloadLocation =
-                        dup_str(best_closest.pszPackageDownloadLocation);
-                if (best_closest.pszPackageComment)
-                    pf->pszPackageComment =
-                        dup_str(best_closest.pszPackageComment);
+            if (pszBaseLicense) pFile->pszLicense = dup_str(pszBaseLicense);
+            if (pszBaseCopyright)
+                pFile->pszCopyright = dup_str(pszBaseCopyright);
+            if (fHaveClosest) {
+                if (bestClosest.pszContributors)
+                    pFile->pszContributors =
+                        dup_str(bestClosest.pszContributors);
+                if (bestClosest.pszPackageName)
+                    pFile->pszPackageName =
+                        dup_str(bestClosest.pszPackageName);
+                if (bestClosest.pszPackageSupplier)
+                    pFile->pszPackageSupplier =
+                        dup_str(bestClosest.pszPackageSupplier);
+                if (bestClosest.pszPackageDownloadLocation)
+                    pFile->pszPackageDownloadLocation =
+                        dup_str(bestClosest.pszPackageDownloadLocation);
+                if (bestClosest.pszPackageComment)
+                    pFile->pszPackageComment =
+                        dup_str(bestClosest.pszPackageComment);
             }
         } else {
-            pf->ulPrecedence = REUSE_PRECEDENCE_AGGREGATE;
+            pFile->ulPrecedence = REUSE_PRECEDENCE_AGGREGATE;
 
-            if (base_lic && best_aggregate.pszLicense)
-                pf->pszLicense = aggregate_licenses(base_lic,
-                                                    best_aggregate.pszLicense);
-            else if (base_lic)
-                pf->pszLicense = dup_str(base_lic);
-            else if (best_aggregate.pszLicense)
-                pf->pszLicense = dup_str(best_aggregate.pszLicense);
+            if (pszBaseLicense && bestAggregate.pszLicense)
+                pFile->pszLicense = aggregate_licenses(
+                    pszBaseLicense, bestAggregate.pszLicense);
+            else if (pszBaseLicense)
+                pFile->pszLicense = dup_str(pszBaseLicense);
+            else if (bestAggregate.pszLicense)
+                pFile->pszLicense = dup_str(bestAggregate.pszLicense);
 
-            if (base_cop && best_aggregate.pszCopyright)
-                pf->pszCopyright = aggregate_copyrights(base_cop,
-                                                        best_aggregate.pszCopyright);
-            else if (base_cop)
-                pf->pszCopyright = dup_str(base_cop);
-            else if (best_aggregate.pszCopyright)
-                pf->pszCopyright = dup_str(best_aggregate.pszCopyright);
+            if (pszBaseCopyright && bestAggregate.pszCopyright)
+                pFile->pszCopyright = aggregate_copyrights(
+                    pszBaseCopyright, bestAggregate.pszCopyright);
+            else if (pszBaseCopyright)
+                pFile->pszCopyright = dup_str(pszBaseCopyright);
+            else if (bestAggregate.pszCopyright)
+                pFile->pszCopyright = dup_str(bestAggregate.pszCopyright);
 
-            /* Contributors: aggregate with deduplication */
             {
-                const char *a = have_closest
-                    ? best_closest.pszContributors : NULL;
-                const char *b = best_aggregate.pszContributors;
-                if (a && b) pf->pszContributors = join_lines_dedup(a, b);
-                else if (a) pf->pszContributors = dup_str(a);
-                else if (b) pf->pszContributors = dup_str(b);
+                PCSZ pszA = fHaveClosest
+                    ? bestClosest.pszContributors : NULL;
+                PCSZ pszB = bestAggregate.pszContributors;
+                if (pszA && pszB) pFile->pszContributors =
+                    join_lines_dedup(pszA, pszB);
+                else if (pszA) pFile->pszContributors = dup_str(pszA);
+                else if (pszB) pFile->pszContributors = dup_str(pszB);
             }
 
-            /* Package*: closest > aggregate (project decision) */
-            if (have_closest && best_closest.pszPackageName)
-                pf->pszPackageName = dup_str(best_closest.pszPackageName);
-            else if (best_aggregate.pszPackageName)
-                pf->pszPackageName = dup_str(best_aggregate.pszPackageName);
+            if (fHaveClosest && bestClosest.pszPackageName)
+                pFile->pszPackageName =
+                    dup_str(bestClosest.pszPackageName);
+            else if (bestAggregate.pszPackageName)
+                pFile->pszPackageName =
+                    dup_str(bestAggregate.pszPackageName);
 
-            if (have_closest && best_closest.pszPackageSupplier)
-                pf->pszPackageSupplier =
-                    dup_str(best_closest.pszPackageSupplier);
-            else if (best_aggregate.pszPackageSupplier)
-                pf->pszPackageSupplier =
-                    dup_str(best_aggregate.pszPackageSupplier);
+            if (fHaveClosest && bestClosest.pszPackageSupplier)
+                pFile->pszPackageSupplier =
+                    dup_str(bestClosest.pszPackageSupplier);
+            else if (bestAggregate.pszPackageSupplier)
+                pFile->pszPackageSupplier =
+                    dup_str(bestAggregate.pszPackageSupplier);
 
-            if (have_closest && best_closest.pszPackageDownloadLocation)
-                pf->pszPackageDownloadLocation =
-                    dup_str(best_closest.pszPackageDownloadLocation);
-            else if (best_aggregate.pszPackageDownloadLocation)
-                pf->pszPackageDownloadLocation =
-                    dup_str(best_aggregate.pszPackageDownloadLocation);
+            if (fHaveClosest &&
+                bestClosest.pszPackageDownloadLocation)
+                pFile->pszPackageDownloadLocation =
+                    dup_str(bestClosest.pszPackageDownloadLocation);
+            else if (bestAggregate.pszPackageDownloadLocation)
+                pFile->pszPackageDownloadLocation =
+                    dup_str(bestAggregate.pszPackageDownloadLocation);
 
-            if (have_closest && best_closest.pszPackageComment)
-                pf->pszPackageComment =
-                    dup_str(best_closest.pszPackageComment);
-            else if (best_aggregate.pszPackageComment)
-                pf->pszPackageComment =
-                    dup_str(best_aggregate.pszPackageComment);
+            if (fHaveClosest && bestClosest.pszPackageComment)
+                pFile->pszPackageComment =
+                    dup_str(bestClosest.pszPackageComment);
+            else if (bestAggregate.pszPackageComment)
+                pFile->pszPackageComment =
+                    dup_str(bestAggregate.pszPackageComment);
         }
     }
 
-    match_clear(&best_override);
-    match_clear(&best_aggregate);
-    match_clear(&best_closest);
+    match_clear(&bestOverride);
+    match_clear(&bestAggregate);
+    match_clear(&bestClosest);
 
-    free(tag_lic);
-    free(tag_cop);
-    free(side_lic);
-    free(side_cop);
+    free(pszTagLicense);
+    free(pszTagCopyright);
+    free(pszSideLicense);
+    free(pszSideCopyright);
 
-    return pf;
+    return pFile;
 }
 
 /* ==================================================================
  * Handle helpers
  * ================================================================== */
 
+/**
+ * @brief Translate a public project handle into the internal pointer.
+ *
+ * @param[in] hDoc  Handle. May be NULLHANDLE.
+ *
+ * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ */
 PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
     return (PREUSETREE)hDoc;
 }
 
+/**
+ * @brief Translate a public file handle into the internal pointer.
+ *
+ * @param[in] hFile  Handle. May be NULLHANDLE.
+ *
+ * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ */
 PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
     return (PREUSETREEFILE)hFile;
 }
@@ -1224,22 +1300,25 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * @param[out] phDoc   Handle receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  pszDir or phDoc is NULL.
- * @retval REUSE_ERROR_OUT_OF_MEMORY  Allocation failure.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszDir or phDoc is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
     PREUSETREE pd;
-    char *repo_root = NULL;
+    PSZ pszRepoRoot = NULL;
 
-    if (!pszDir || !phDoc) return REUSE_ERROR_INVALID_PARAM;
+    if (!pszDir || !phDoc) return ERROR_INVALID_PARAMETER;
     *phDoc = NULLHANDLE;
 
     pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
-    if (!pd) return REUSE_ERROR_OUT_OF_MEMORY;
+    if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
 
     pd->pszProjectDir = dup_str(pszDir);
-    if (!pd->pszProjectDir) { doc_free(pd); return REUSE_ERROR_OUT_OF_MEMORY; }
+    if (!pd->pszProjectDir) {
+        doc_free(pd);
+        return ERROR_NOT_ENOUGH_MEMORY;
+    }
 
     /* Two-phase GitFindRepoRoot call: first query the size, then
      * allocate and query the value. */
@@ -1247,29 +1326,29 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
         ULONG ulSize = 0;
         if (GitFindRepoRoot(pszDir, NULL, 0, &ulSize) == NO_ERROR &&
             ulSize > 0) {
-            repo_root = (char*)malloc(ulSize);
-            if (repo_root) {
-                if (GitFindRepoRoot(pszDir, repo_root, ulSize, NULL)
+            pszRepoRoot = (PSZ)malloc(ulSize);
+            if (pszRepoRoot) {
+                if (GitFindRepoRoot(pszDir, pszRepoRoot, ulSize, NULL)
                         != NO_ERROR) {
-                    free(repo_root);
-                    repo_root = NULL;
+                    free(pszRepoRoot);
+                    pszRepoRoot = NULL;
                 }
             }
         }
     }
-    pd->pszRepoRoot = repo_root; /* may be NULL */
+    pd->pszRepoRoot = pszRepoRoot; /* may be NULL */
 
-    if (discover_tomls(pd, repo_root, pszDir) != 0) {
+    if (discover_tomls(pd, pszRepoRoot, pszDir) != 0) {
         doc_free(pd);
-        return REUSE_ERROR_OUT_OF_MEMORY;
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
-    if (discover_dep5(pd, repo_root) != 0) {
+    if (discover_dep5(pd, pszRepoRoot) != 0) {
         doc_free(pd);
-        return REUSE_ERROR_OUT_OF_MEMORY;
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     *phDoc = (HREUSETREE)pd;
-    return REUSE_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
@@ -1278,15 +1357,15 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
  * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
-    if (hDoc == NULLHANDLE) return REUSE_NO_ERROR;
-    if (!pd) return REUSE_ERROR_INVALID_HANDLE;
+    if (hDoc == NULLHANDLE) return NO_ERROR;
+    if (!pd) return ERROR_INVALID_HANDLE;
     doc_free(pd);
-    return REUSE_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
@@ -1296,14 +1375,14 @@ APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
 APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
-    if (!pd || !pulCount) return REUSE_ERROR_INVALID_PARAM;
+    if (!pd || !pulCount) return ERROR_INVALID_PARAMETER;
     *pulCount = pd->ulErrorCount;
-    return REUSE_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
@@ -1314,17 +1393,17 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
  * @param[out] pErr     Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
 APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
                                   PREUSEERR pErr) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
-    if (!pd || !pErr) return REUSE_ERROR_INVALID_PARAM;
-    if (ulIndex >= pd->ulErrorCount) return REUSE_ERROR_INDEX_RANGE;
+    if (!pd || !pErr) return ERROR_INVALID_PARAMETER;
+    if (ulIndex >= pd->ulErrorCount) return ERROR_NO_MORE_ITEMS;
     *pErr = pd->paErrors[ulIndex];
-    return REUSE_NO_ERROR;
+    return NO_ERROR;
 }
 
 /**
@@ -1336,25 +1415,25 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
  * @param[out] pErr     Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  hDoc, pszPath or phFile is NULL.
- * @retval REUSE_ERROR_OUT_OF_MEMORY  Allocation failure.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hDoc, pszPath or phFile is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
                                      HREUSETREEFILE *phFile,
                                      PREUSEERR pErr) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
-    PREUSETREEFILE pf;
+    PREUSETREEFILE pFile;
 
-    if (!pd || !pszPath || !phFile) return REUSE_ERROR_INVALID_PARAM;
+    if (!pd || !pszPath || !phFile) return ERROR_INVALID_PARAMETER;
     *phFile = NULLHANDLE;
 
-    pf = resolve_file(pd, pszPath);
-    if (!pf) return REUSE_ERROR_OUT_OF_MEMORY;
+    pFile = resolve_file(pd, pszPath);
+    if (!pFile) return ERROR_NOT_ENOUGH_MEMORY;
 
-    *phFile = (HREUSETREEFILE)pf;
-    (void)pErr; /* file-specific diagnostics: reserved for future use */
-    return REUSE_NO_ERROR;
+    *phFile = (HREUSETREEFILE)pFile;
+    (void)pErr;
+    return NO_ERROR;
 }
 
 /**
@@ -1363,22 +1442,22 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
  * @param[in] hFile  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (hFile == NULLHANDLE) return REUSE_NO_ERROR;
-    if (!pf) return REUSE_ERROR_INVALID_HANDLE;
-    safe_free((void**)&pf->pszLicense);
-    safe_free((void**)&pf->pszCopyright);
-    safe_free((void**)&pf->pszContributors);
-    safe_free((void**)&pf->pszPackageName);
-    safe_free((void**)&pf->pszPackageSupplier);
-    safe_free((void**)&pf->pszPackageDownloadLocation);
-    safe_free((void**)&pf->pszPackageComment);
-    free(pf);
-    return REUSE_NO_ERROR;
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (hFile == NULLHANDLE) return NO_ERROR;
+    if (!pFile) return ERROR_INVALID_HANDLE;
+    safe_free((void**)&pFile->pszLicense);
+    safe_free((void**)&pFile->pszCopyright);
+    safe_free((void**)&pFile->pszContributors);
+    safe_free((void**)&pFile->pszPackageName);
+    safe_free((void**)&pFile->pszPackageSupplier);
+    safe_free((void**)&pFile->pszPackageDownloadLocation);
+    safe_free((void**)&pFile->pszPackageComment);
+    free(pFile);
+    return NO_ERROR;
 }
 
 /* ==================================================================
@@ -1391,8 +1470,8 @@ APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
  * Size-query convention:
  *   - pszBuf == NULL, ulSize == 0: only *pulUsed is written.
  *   - ulSize large enough: value copied and NUL-terminated.
- *   - ulSize too small: REUSE_ERROR_BUFFER_OVERFLOW; *pulUsed is
- *     the required size including NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
  *
  * @param[in]  pszVal   Value, or NULL.
  * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
@@ -1400,107 +1479,171 @@ APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     pszVal is NULL.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-static APIRET copy_out(const char *pszVal,
-                       PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    size_t n;
-    if (!pszVal) return REUSE_ERROR_NOT_FOUND;
-    n = strlen(pszVal);
+static APIRET copy_out(PCSZ pszVal, PSZ pszBuf, ULONG ulSize,
+                       PULONG pulUsed) {
+    size_t cbLen;
+    if (!pszVal) return ERROR_FILE_NOT_FOUND;
+    cbLen = strlen(pszVal);
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
-        return REUSE_NO_ERROR;
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return NO_ERROR;
     }
-    if (!pszBuf) return REUSE_ERROR_INVALID_PARAM;
-    if (ulSize < n + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(n + 1);
-        return REUSE_ERROR_BUFFER_OVERFLOW;
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
     }
-    memcpy(pszBuf, pszVal, n);
-    pszBuf[n] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)n;
-    return REUSE_NO_ERROR;
+    memcpy(pszBuf, pszVal, cbLen);
+    pszBuf[cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Retrieve the resolved SPDX license expression.
+ *
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     The winning sources define no
+ *                                  license.
  */
 APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
                                         PSZ pszBuf, ULONG ulSize,
                                         PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszLicense, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszLicense, pszBuf, ulSize, pulUsed);
 }
 
 /**
  * @brief Retrieve the resolved copyright text.
  *
- * Multiple notices are joined with '\n'.
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     The winning sources define no
+ *                                  copyright.
  */
 APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
                                           PSZ pszBuf, ULONG ulSize,
                                           PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszCopyright, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszCopyright, pszBuf, ulSize, pulUsed);
 }
 
 /**
  * @brief Retrieve the resolved SPDX-FileContributor list.
  *
- * Multiple contributors are joined with '\n'.
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     No contributor was defined.
  */
 APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
                                              PSZ pszBuf, ULONG ulSize,
                                              PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszContributors, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszContributors, pszBuf, ulSize, pulUsed);
 }
 
 /**
  * @brief Retrieve SPDX-PackageName.
+ *
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
                                             PSZ pszBuf, ULONG ulSize,
                                             PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszPackageName, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszPackageName, pszBuf, ulSize, pulUsed);
 }
 
 /**
  * @brief Retrieve SPDX-PackageSupplier.
+ *
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
                                                 PSZ pszBuf, ULONG ulSize,
                                                 PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszPackageSupplier, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszPackageSupplier, pszBuf, ulSize, pulUsed);
 }
 
 /**
  * @brief Retrieve SPDX-PackageDownloadLocation.
+ *
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
  */
-APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(HREUSETREEFILE hFile,
-                                                        PSZ pszBuf,
-                                                        ULONG ulSize,
-                                                        PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszPackageDownloadLocation, pszBuf, ulSize, pulUsed);
+APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(
+    HREUSETREEFILE hFile, PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszPackageDownloadLocation, pszBuf, ulSize,
+                    pulUsed);
 }
 
 /**
  * @brief Retrieve SPDX-PackageComment.
+ *
+ * @param[in]  hFile     Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
                                                PSZ pszBuf, ULONG ulSize,
                                                PULONG pulUsed) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf) return REUSE_ERROR_INVALID_PARAM;
-    return copy_out(pf->pszPackageComment, pszBuf, ulSize, pulUsed);
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile) return ERROR_INVALID_PARAMETER;
+    return copy_out(pFile->pszPackageComment, pszBuf, ulSize, pulUsed);
 }
 
 /**
@@ -1511,31 +1654,31 @@ APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
  *                            Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hFile or pulPrecedence is NULL.
  */
 APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
                                            PULONG pulPrecedence) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf || !pulPrecedence) return REUSE_ERROR_INVALID_PARAM;
-    *pulPrecedence = pf->ulPrecedence;
-    return REUSE_NO_ERROR;
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile || !pulPrecedence) return ERROR_INVALID_PARAMETER;
+    *pulPrecedence = pFile->ulPrecedence;
+    return NO_ERROR;
 }
 
 /**
- * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched.
+ * @brief Query whether any REUSE.toml, DEP5, sidecar or tag matched.
  *
  * @param[in]  hFile       Handle. Not NULLHANDLE.
  * @param[out] pfHasReuse  Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hFile or pfHasReuse is NULL.
  */
 APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
                                          PBOOL pfHasReuse) {
-    PREUSETREEFILE pf = ReuseInternalGetFile(hFile);
-    if (!pf || !pfHasReuse) return REUSE_ERROR_INVALID_PARAM;
-    *pfHasReuse = pf->bHasReuse;
-    return REUSE_NO_ERROR;
+    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    if (!pFile || !pfHasReuse) return ERROR_INVALID_PARAMETER;
+    *pfHasReuse = pFile->bHasReuse;
+    return NO_ERROR;
 }

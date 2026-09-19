@@ -10,8 +10,8 @@
  * @brief Implementation of SHA-256.
  *
  * Conforms to:
- *   - FIPS PUB 180-2
- *   - RFC 6234
+ *   - FIPS PUB 180-2.
+ *   - RFC 6234.
  */
 
 /* ==================================================================
@@ -31,17 +31,17 @@
  * @struct _SHA256CTX
  * @brief Working state of the SHA-256 algorithm.
  *
- * The message length is tracked as two 32-bit counters: count_lo
- * (low 32 bits of byte count) and count_hi (high 32 bits of byte
+ * The message length is tracked as two 32-bit counters: ulCountLo
+ * (low 32 bits of byte count) and ulCountHi (high 32 bits of byte
  * count). This matches the 64-bit length field required by
  * FIPS 180-2.
  */
 typedef struct _SHA256CTX {
-    unsigned int  state[8];                     /**< h0..h7.                */
-    unsigned int  count_lo;                     /**< Byte count, low 32.    */
-    unsigned int  count_hi;                     /**< Byte count, high 32.   */
-    unsigned char buffer[SHA256_BLOCK_SIZE];    /**< Partial block buffer.  */
-    unsigned int  buflen;                       /**< Bytes used in buffer.  */
+    ULONG aulState[8];                       /**< h0..h7.               */
+    ULONG ulCountLo;                         /**< Byte count, low 32.   */
+    ULONG ulCountHi;                         /**< Byte count, high 32.  */
+    UCHAR auchBuffer[SHA256_BLOCK_SIZE];     /**< Partial block buffer. */
+    ULONG ulBufLen;                          /**< Bytes used in buffer. */
 } SHA256CTX;
 
 /**
@@ -50,7 +50,7 @@ typedef struct _SHA256CTX {
  * First 32 bits of the fractional parts of the cube roots of the
  * first 64 prime numbers.
  */
-static const unsigned int K[64] = {
+static const ULONG aulK[64] = {
     0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u,
     0x3956c25bu, 0x59f111f1u, 0x923f82a4u, 0xab1c5ed5u,
     0xd807aa98u, 0x12835b01u, 0x243185beu, 0x550c7dc3u,
@@ -76,76 +76,104 @@ static const unsigned int K[64] = {
 /**
  * @brief 32-bit right rotation.
  *
- * @param[in] x  Value.
- * @param[in] n  Rotation amount (0..31).
+ * @param[in] ulVal  Value.
+ * @param[in] nBits  Rotation amount (0..31).
  *
  * @return Rotated value.
  */
-static unsigned int rotr(unsigned int x, unsigned int n) {
-    if (n == 0) return x;
-    return (x >> n) | (x << (32 - n));
+static ULONG rotr(ULONG ulVal, ULONG nBits) {
+    if (nBits == 0) return ulVal;
+    return (ulVal >> nBits) | (ulVal << (32 - nBits));
 }
 
 /**
  * @brief 32-bit logical right shift.
  *
- * @param[in] x  Value.
- * @param[in] n  Shift amount (0..31).
+ * @param[in] ulVal  Value.
+ * @param[in] nBits  Shift amount (0..31).
  *
  * @return Shifted value.
  */
-static unsigned int shr(unsigned int x, unsigned int n) {
-    return x >> n;
+static ULONG shr(ULONG ulVal, ULONG nBits) {
+    return ulVal >> nBits;
 }
 
 /**
  * @brief Choose function Ch(x, y, z) = (x & y) ^ (~x & z).
+ *
+ * @param[in] ulX  First operand.
+ * @param[in] ulY  Second operand.
+ * @param[in] ulZ  Third operand.
+ *
+ * @return Ch(x, y, z).
  */
-static unsigned int ch(unsigned int x, unsigned int y, unsigned int z) {
-    return (x & y) ^ (~x & z);
+static ULONG ch(ULONG ulX, ULONG ulY, ULONG ulZ) {
+    return (ulX & ulY) ^ (~ulX & ulZ);
 }
 
 /**
  * @brief Majority function Maj(x, y, z) = (x&y) ^ (x&z) ^ (y&z).
+ *
+ * @param[in] ulX  First operand.
+ * @param[in] ulY  Second operand.
+ * @param[in] ulZ  Third operand.
+ *
+ * @return Maj(x, y, z).
  */
-static unsigned int maj(unsigned int x, unsigned int y, unsigned int z) {
-    return (x & y) ^ (x & z) ^ (y & z);
+static ULONG maj(ULONG ulX, ULONG ulY, ULONG ulZ) {
+    return (ulX & ulY) ^ (ulX & ulZ) ^ (ulY & ulZ);
 }
 
 /**
  * @brief Upper-case sigma-0 used in the compression function.
  *
  * sigma_0(x) = ROTR^2(x) ^ ROTR^13(x) ^ ROTR^22(x).
+ *
+ * @param[in] ulX  Value.
+ *
+ * @return sigma_0(x).
  */
-static unsigned int sigma0(unsigned int x) {
-    return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
+static ULONG sigma0(ULONG ulX) {
+    return rotr(ulX, 2) ^ rotr(ulX, 13) ^ rotr(ulX, 22);
 }
 
 /**
  * @brief Upper-case sigma-1 used in the compression function.
  *
  * sigma_1(x) = ROTR^6(x) ^ ROTR^11(x) ^ ROTR^25(x).
+ *
+ * @param[in] ulX  Value.
+ *
+ * @return sigma_1(x).
  */
-static unsigned int sigma1(unsigned int x) {
-    return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
+static ULONG sigma1(ULONG ulX) {
+    return rotr(ulX, 6) ^ rotr(ulX, 11) ^ rotr(ulX, 25);
 }
 
 /**
  * @brief Lower-case sigma-0 used in message schedule expansion.
  *
  * sigma_0(x) = ROTR^7(x) ^ ROTR^18(x) ^ SHR^3(x).
+ *
+ * @param[in] ulX  Value.
+ *
+ * @return sigma_0(x).
  */
-static unsigned int sigma0_small(unsigned int x) {
-    return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3);
+static ULONG sigma0_small(ULONG ulX) {
+    return rotr(ulX, 7) ^ rotr(ulX, 18) ^ shr(ulX, 3);
 }
 
 /**
  * @brief Lower-case sigma-1 used in message schedule expansion.
  *
  * sigma_1(x) = ROTR^17(x) ^ ROTR^19(x) ^ SHR^10(x).
+ *
+ * @param[in] ulX  Value.
+ *
+ * @return sigma_1(x).
  */
-static unsigned int sigma1_small(unsigned int x) {
-    return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10);
+static ULONG sigma1_small(ULONG ulX) {
+    return rotr(ulX, 17) ^ rotr(ulX, 19) ^ shr(ulX, 10);
 }
 
 /* ==================================================================
@@ -155,71 +183,72 @@ static unsigned int sigma1_small(unsigned int x) {
 /**
  * @brief Compression function: process one 64-byte block.
  *
- * Applies the SHA-256 compression function to @p data and updates
- * the eight working variables in @p ctx.
+ * Applies the SHA-256 compression function to @p puchData and
+ * updates the eight working variables in @p pCtx.
  *
- * @param[in,out] ctx   Current state. Not NULL.
- * @param[in]     data  64-byte block. Not NULL.
+ * @param[in,out] pCtx      Current state. Not NULL.
+ * @param[in]     puchData  64-byte block. Not NULL.
  */
-static void sha256_transform(SHA256CTX *ctx,
-                             const unsigned char data[SHA256_BLOCK_SIZE]) {
-    unsigned int a, b, c, d, e, f, g, h;
-    unsigned int w[64];
-    int i;
+static void sha256_transform(SHA256CTX *pCtx,
+                             const UCHAR puchData[SHA256_BLOCK_SIZE]) {
+    ULONG ulA, ulB, ulC, ulD, ulE, ulF, ulG, ulH;
+    ULONG aulW[64];
+    int nIdx;
 
     /* Prepare the message schedule. */
-    for (i = 0; i < 16; i++) {
-        w[i] = ((unsigned int)data[i*4]     << 24) |
-               ((unsigned int)data[i*4 + 1] << 16) |
-               ((unsigned int)data[i*4 + 2] << 8)  |
-               ((unsigned int)data[i*4 + 3]);
+    for (nIdx = 0; nIdx < 16; nIdx++) {
+        aulW[nIdx] = ((ULONG)puchData[nIdx*4]     << 24) |
+                     ((ULONG)puchData[nIdx*4 + 1] << 16) |
+                     ((ULONG)puchData[nIdx*4 + 2] << 8)  |
+                     ((ULONG)puchData[nIdx*4 + 3]);
     }
-    for (i = 16; i < 64; i++) {
-        w[i] = sigma1_small(w[i-2]) + w[i-7] +
-               sigma0_small(w[i-15]) + w[i-16];
-    }
-
-    a = ctx->state[0]; b = ctx->state[1];
-    c = ctx->state[2]; d = ctx->state[3];
-    e = ctx->state[4]; f = ctx->state[5];
-    g = ctx->state[6]; h = ctx->state[7];
-
-    for (i = 0; i < 64; i++) {
-        unsigned int t1 = h + sigma1(e) + ch(e, f, g) + K[i] + w[i];
-        unsigned int t2 = sigma0(a) + maj(a, b, c);
-        h = g;
-        g = f;
-        f = e;
-        e = d + t1;
-        d = c;
-        c = b;
-        b = a;
-        a = t1 + t2;
+    for (nIdx = 16; nIdx < 64; nIdx++) {
+        aulW[nIdx] = sigma1_small(aulW[nIdx-2]) + aulW[nIdx-7] +
+                     sigma0_small(aulW[nIdx-15]) + aulW[nIdx-16];
     }
 
-    ctx->state[0] += a; ctx->state[1] += b;
-    ctx->state[2] += c; ctx->state[3] += d;
-    ctx->state[4] += e; ctx->state[5] += f;
-    ctx->state[6] += g; ctx->state[7] += h;
+    ulA = pCtx->aulState[0]; ulB = pCtx->aulState[1];
+    ulC = pCtx->aulState[2]; ulD = pCtx->aulState[3];
+    ulE = pCtx->aulState[4]; ulF = pCtx->aulState[5];
+    ulG = pCtx->aulState[6]; ulH = pCtx->aulState[7];
+
+    for (nIdx = 0; nIdx < 64; nIdx++) {
+        ULONG ulT1 = ulH + sigma1(ulE) + ch(ulE, ulF, ulG) +
+                     aulK[nIdx] + aulW[nIdx];
+        ULONG ulT2 = sigma0(ulA) + maj(ulA, ulB, ulC);
+        ulH = ulG;
+        ulG = ulF;
+        ulF = ulE;
+        ulE = ulD + ulT1;
+        ulD = ulC;
+        ulC = ulB;
+        ulB = ulA;
+        ulA = ulT1 + ulT2;
+    }
+
+    pCtx->aulState[0] += ulA; pCtx->aulState[1] += ulB;
+    pCtx->aulState[2] += ulC; pCtx->aulState[3] += ulD;
+    pCtx->aulState[4] += ulE; pCtx->aulState[5] += ulF;
+    pCtx->aulState[6] += ulG; pCtx->aulState[7] += ulH;
 }
 
 /**
  * @brief Initialize the working state with FIPS 180-2 initial values.
  *
- * @param[out] ctx  Context to initialize. Not NULL.
+ * @param[out] pCtx  Context to initialize. Not NULL.
  */
-static void sha256_init(SHA256CTX *ctx) {
-    ctx->state[0] = 0x6a09e667u;
-    ctx->state[1] = 0xbb67ae85u;
-    ctx->state[2] = 0x3c6ef372u;
-    ctx->state[3] = 0xa54ff53au;
-    ctx->state[4] = 0x510e527fu;
-    ctx->state[5] = 0x9b05688cu;
-    ctx->state[6] = 0x1f83d9abu;
-    ctx->state[7] = 0x5be0cd19u;
-    ctx->count_lo = 0;
-    ctx->count_hi = 0;
-    ctx->buflen = 0;
+static void sha256_init(SHA256CTX *pCtx) {
+    pCtx->aulState[0] = 0x6a09e667u;
+    pCtx->aulState[1] = 0xbb67ae85u;
+    pCtx->aulState[2] = 0x3c6ef372u;
+    pCtx->aulState[3] = 0xa54ff53au;
+    pCtx->aulState[4] = 0x510e527fu;
+    pCtx->aulState[5] = 0x9b05688cu;
+    pCtx->aulState[6] = 0x1f83d9abu;
+    pCtx->aulState[7] = 0x5be0cd19u;
+    pCtx->ulCountLo = 0;
+    pCtx->ulCountHi = 0;
+    pCtx->ulBufLen = 0;
 }
 
 /**
@@ -228,46 +257,46 @@ static void sha256_init(SHA256CTX *ctx) {
  * Buffers partial blocks; full blocks are passed to the compression
  * function immediately.
  *
- * @param[in,out] ctx   Context. Not NULL.
- * @param[in]     data  Input data. Not NULL.
- * @param[in]     len   Number of bytes to absorb.
+ * @param[in,out] pCtx     Context. Not NULL.
+ * @param[in]     puchData Input data. Not NULL.
+ * @param[in]     cbLen    Number of bytes to absorb.
  */
-static void sha256_update(SHA256CTX *ctx,
-                          const unsigned char *data, size_t len) {
+static void sha256_update(SHA256CTX *pCtx,
+                          const UCHAR *puchData, size_t cbLen) {
     /* Update the byte counter. len < 2^29 in practice, so the shift
-     * into count_hi is safe. */
+     * into ulCountHi is safe. */
     {
-        unsigned int prev = ctx->count_lo;
-        ctx->count_lo += (unsigned int)len;
-        if (ctx->count_lo < prev) ctx->count_hi++;
+        ULONG ulPrev = pCtx->ulCountLo;
+        pCtx->ulCountLo += (ULONG)cbLen;
+        if (pCtx->ulCountLo < ulPrev) pCtx->ulCountHi++;
     }
 
     /* Top up the partial block first. */
-    if (ctx->buflen > 0) {
-        unsigned int need = SHA256_BLOCK_SIZE - ctx->buflen;
-        if (len < need) {
-            memcpy(ctx->buffer + ctx->buflen, data, len);
-            ctx->buflen += (unsigned int)len;
+    if (pCtx->ulBufLen > 0) {
+        ULONG ulNeed = SHA256_BLOCK_SIZE - pCtx->ulBufLen;
+        if (cbLen < ulNeed) {
+            memcpy(pCtx->auchBuffer + pCtx->ulBufLen, puchData, cbLen);
+            pCtx->ulBufLen += (ULONG)cbLen;
             return;
         }
-        memcpy(ctx->buffer + ctx->buflen, data, need);
-        sha256_transform(ctx, ctx->buffer);
-        data += need;
-        len  -= need;
-        ctx->buflen = 0;
+        memcpy(pCtx->auchBuffer + pCtx->ulBufLen, puchData, ulNeed);
+        sha256_transform(pCtx, pCtx->auchBuffer);
+        puchData += ulNeed;
+        cbLen  -= ulNeed;
+        pCtx->ulBufLen = 0;
     }
 
     /* Full blocks. */
-    while (len >= SHA256_BLOCK_SIZE) {
-        sha256_transform(ctx, data);
-        data += SHA256_BLOCK_SIZE;
-        len  -= SHA256_BLOCK_SIZE;
+    while (cbLen >= SHA256_BLOCK_SIZE) {
+        sha256_transform(pCtx, puchData);
+        puchData += SHA256_BLOCK_SIZE;
+        cbLen  -= SHA256_BLOCK_SIZE;
     }
 
     /* Remaining tail. */
-    if (len > 0) {
-        memcpy(ctx->buffer, data, len);
-        ctx->buflen = (unsigned int)len;
+    if (cbLen > 0) {
+        memcpy(pCtx->auchBuffer, puchData, cbLen);
+        pCtx->ulBufLen = (ULONG)cbLen;
     }
 }
 
@@ -278,51 +307,49 @@ static void sha256_update(SHA256CTX *ctx,
  * byte, zero bytes, and the 64-bit message length in bits as an
  * 8-byte big-endian value.
  *
- * @param[in,out] ctx     Context. Not NULL.
- * @param[out]    digest  32-byte output. Not NULL.
+ * @param[in,out] pCtx        Context. Not NULL.
+ * @param[out]    puchDigest  32-byte output. Not NULL.
  */
-static void sha256_final(SHA256CTX *ctx,
-                         unsigned char digest[SHA256_DIGEST_SIZE]) {
-    unsigned int bits_lo;
-    unsigned int bits_hi;
-    unsigned char pad[SHA256_BLOCK_SIZE * 2];
-    unsigned char len_bytes[8];
-    size_t pad_len;
-    int i;
+static void sha256_final(SHA256CTX *pCtx,
+                         UCHAR puchDigest[SHA256_DIGEST_SIZE]) {
+    ULONG ulBitsLo;
+    ULONG ulBitsHi;
+    UCHAR auchPad[SHA256_BLOCK_SIZE * 2];
+    UCHAR auchLenBytes[8];
+    size_t cbPadLen;
+    int nIdx;
 
     /* Message length in bits: (count_hi << 32 | count_lo) * 8. */
-    bits_lo = (ctx->count_lo << 3);
-    bits_hi = (ctx->count_hi << 3) | (ctx->count_lo >> 29);
+    ulBitsLo = (pCtx->ulCountLo << 3);
+    ulBitsHi = (pCtx->ulCountHi << 3) | (pCtx->ulCountLo >> 29);
 
     /* Padding: 0x80, then zeros, then 8 bytes of length. The length
      * field ends at offset 56 modulo 64. */
-    pad_len = (ctx->buflen < 56)
-              ? (56 - ctx->buflen)
-              : (120 - ctx->buflen);
+    cbPadLen = (pCtx->ulBufLen < 56)
+               ? (56 - pCtx->ulBufLen)
+               : (120 - pCtx->ulBufLen);
 
-    memset(pad, 0, pad_len);
-    pad[0] = 0x80;
+    memset(auchPad, 0, cbPadLen);
+    auchPad[0] = 0x80;
 
-    len_bytes[0] = (unsigned char)(bits_hi >> 24);
-    len_bytes[1] = (unsigned char)(bits_hi >> 16);
-    len_bytes[2] = (unsigned char)(bits_hi >> 8);
-    len_bytes[3] = (unsigned char)(bits_hi);
-    len_bytes[4] = (unsigned char)(bits_lo >> 24);
-    len_bytes[5] = (unsigned char)(bits_lo >> 16);
-    len_bytes[6] = (unsigned char)(bits_lo >> 8);
-    len_bytes[7] = (unsigned char)(bits_lo);
+    auchLenBytes[0] = (UCHAR)(ulBitsHi >> 24);
+    auchLenBytes[1] = (UCHAR)(ulBitsHi >> 16);
+    auchLenBytes[2] = (UCHAR)(ulBitsHi >> 8);
+    auchLenBytes[3] = (UCHAR)(ulBitsHi);
+    auchLenBytes[4] = (UCHAR)(ulBitsLo >> 24);
+    auchLenBytes[5] = (UCHAR)(ulBitsLo >> 16);
+    auchLenBytes[6] = (UCHAR)(ulBitsLo >> 8);
+    auchLenBytes[7] = (UCHAR)(ulBitsLo);
 
-    /* Feed padding and length through the update function so that
-     * full blocks are compressed as they fill up. */
-    sha256_update(ctx, pad, pad_len);
-    sha256_update(ctx, len_bytes, 8);
+    sha256_update(pCtx, auchPad, cbPadLen);
+    sha256_update(pCtx, auchLenBytes, 8);
 
     /* Produce the digest in big-endian order. */
-    for (i = 0; i < 8; i++) {
-        digest[i*4]     = (unsigned char)(ctx->state[i] >> 24);
-        digest[i*4 + 1] = (unsigned char)(ctx->state[i] >> 16);
-        digest[i*4 + 2] = (unsigned char)(ctx->state[i] >> 8);
-        digest[i*4 + 3] = (unsigned char)(ctx->state[i]);
+    for (nIdx = 0; nIdx < 8; nIdx++) {
+        puchDigest[nIdx*4]     = (UCHAR)(pCtx->aulState[nIdx] >> 24);
+        puchDigest[nIdx*4 + 1] = (UCHAR)(pCtx->aulState[nIdx] >> 16);
+        puchDigest[nIdx*4 + 2] = (UCHAR)(pCtx->aulState[nIdx] >> 8);
+        puchDigest[nIdx*4 + 3] = (UCHAR)(pCtx->aulState[nIdx]);
     }
 }
 
@@ -330,15 +357,31 @@ static void sha256_final(SHA256CTX *ctx,
  * Public API
  * ================================================================== */
 
+/**
+ * @brief Compute SHA-256 of a file.
+ *
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
 APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
                            PULONG pulUsed) {
     FILE *fp;
     SHA256CTX ctx;
-    unsigned char buf[4096];
-    size_t nread;
-    unsigned char digest[SHA256_DIGEST_SIZE];
-    char hex[SHA256_HEX_SIZE];
-    int i;
+    UCHAR auchBuf[4096];
+    size_t cbRead;
+    UCHAR auchDigest[SHA256_DIGEST_SIZE];
+    CHAR achHex[SHA256_HEX_SIZE];
+    int nIdx;
 
     if (!pszPath) return ERROR_INVALID_PARAMETER;
 
@@ -356,8 +399,8 @@ APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
     if (!fp) return ERROR_OPEN_FAILED;
 
     sha256_init(&ctx);
-    while ((nread = fread(buf, 1, sizeof(buf), fp)) > 0) {
-        sha256_update(&ctx, buf, nread);
+    while ((cbRead = fread(auchBuf, 1, sizeof(auchBuf), fp)) > 0) {
+        sha256_update(&ctx, auchBuf, cbRead);
     }
     if (ferror(fp)) {
         fclose(fp);
@@ -365,24 +408,38 @@ APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
     }
     fclose(fp);
 
-    sha256_final(&ctx, digest);
+    sha256_final(&ctx, auchDigest);
 
-    for (i = 0; i < SHA256_DIGEST_SIZE; i++) {
-        sprintf(hex + i*2, "%02x", digest[i]);
+    for (nIdx = 0; nIdx < SHA256_DIGEST_SIZE; nIdx++) {
+        sprintf(achHex + nIdx*2, "%02x", auchDigest[nIdx]);
     }
-    hex[SHA256_DIGEST_SIZE * 2] = '\0';
+    achHex[SHA256_DIGEST_SIZE * 2] = '\0';
 
-    memcpy(pszBuf, hex, SHA256_HEX_SIZE);
+    memcpy(pszBuf, achHex, SHA256_HEX_SIZE);
     if (pulUsed) *pulUsed = (ULONG)(SHA256_HEX_SIZE - 1);
     return NO_ERROR;
 }
 
+/**
+ * @brief Compute SHA-256 of a NUL-terminated string.
+ *
+ * @param[in]  pszStr   Input string. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
 APIRET APIENTRY Sha256String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
                              PULONG pulUsed) {
     SHA256CTX ctx;
-    unsigned char digest[SHA256_DIGEST_SIZE];
-    char hex[SHA256_HEX_SIZE];
-    int i;
+    UCHAR auchDigest[SHA256_DIGEST_SIZE];
+    CHAR achHex[SHA256_HEX_SIZE];
+    int nIdx;
 
     if (!pszStr) return ERROR_INVALID_PARAMETER;
 
@@ -397,15 +454,15 @@ APIRET APIENTRY Sha256String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
     }
 
     sha256_init(&ctx);
-    sha256_update(&ctx, (const unsigned char*)pszStr, strlen(pszStr));
-    sha256_final(&ctx, digest);
+    sha256_update(&ctx, (const UCHAR*)pszStr, strlen(pszStr));
+    sha256_final(&ctx, auchDigest);
 
-    for (i = 0; i < SHA256_DIGEST_SIZE; i++) {
-        sprintf(hex + i*2, "%02x", digest[i]);
+    for (nIdx = 0; nIdx < SHA256_DIGEST_SIZE; nIdx++) {
+        sprintf(achHex + nIdx*2, "%02x", auchDigest[nIdx]);
     }
-    hex[SHA256_DIGEST_SIZE * 2] = '\0';
+    achHex[SHA256_DIGEST_SIZE * 2] = '\0';
 
-    memcpy(pszBuf, hex, SHA256_HEX_SIZE);
+    memcpy(pszBuf, achHex, SHA256_HEX_SIZE);
     if (pulUsed) *pulUsed = (ULONG)(SHA256_HEX_SIZE - 1);
     return NO_ERROR;
 }

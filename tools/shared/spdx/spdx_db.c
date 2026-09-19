@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "spdx_db.h"
+#include "spdx_db_private.h"
 #include "json.h"
 #include "sha1.h"
 #include "spdx.h"
@@ -36,24 +36,32 @@
 /* Internal structures                                                 */
 /* ------------------------------------------------------------------ */
 
-typedef struct {
-    SpdxLicenseEntry *items;
-    int count;
-    int capacity;
-} LicenseList;
+/**
+ * @struct _LICENSELLIST
+ * @brief Growable array of SPDXLICENSEENTRY records.
+ */
+typedef struct _LICENSELLIST {
+    SPDXLICENSEENTRY *pItems;   /**< Backing array.        */
+    int               count;    /**< Used entries.         */
+    int               capacity; /**< Allocated entries.    */
+} LICENSELLIST;
 
-typedef struct {
-    SpdxExceptionEntry *items;
-    int count;
-    int capacity;
-} ExceptionList;
+/**
+ * @struct _EXCEPTIONLIST
+ * @brief Growable array of SPDXEXCEPTIONENTRY records.
+ */
+typedef struct _EXCEPTIONLIST {
+    SPDXEXCEPTIONENTRY *pItems; /**< Backing array.        */
+    int                 count;  /**< Used entries.         */
+    int                 capacity;/**< Allocated entries.   */
+} EXCEPTIONLIST;
 
-static LicenseList   g_licenses;
-static ExceptionList g_exceptions;
+static LICENSELLIST   g_Licenses;       /**< Loaded license index.    */
+static EXCEPTIONLIST  g_Exceptions;     /**< Loaded exception index.  */
 
-static FILE  *g_cache_fp = NULL;
-static char  *g_details_dir = NULL;
-static char  *g_exceptions_dir = NULL;
+static FILE  *g_pCacheFp = NULL;        /**< Open cache file, or NULL.*/
+static PSZ    g_pszDetailsDir = NULL;   /**< <db>/details.            */
+static PSZ    g_pszExceptionsDir = NULL;/**< <db>/exceptions.         */
 
 /* ------------------------------------------------------------------ */
 /* Utilities                                                           */
@@ -78,50 +86,69 @@ static int ascii_lower(int c) {
 /**
  * @brief Case-insensitive comparison of two ASCII strings.
  *
- * @param[in] a  First string. Not NULL.
- * @param[in] b  Second string. Not NULL.
+ * @param[in] pszA  First string. Not NULL.
+ * @param[in] pszB  Second string. Not NULL.
  *
  * @return Negative, zero or positive, following the usual ordering
  *         contract.
  */
-static int id_cmp_ci(const char *a, const char *b) {
-    while (*a && *b) {
-        int ca = ascii_lower((unsigned char)*a);
-        int cb = ascii_lower((unsigned char)*b);
+static int id_cmp_ci(PCSZ pszA, PCSZ pszB) {
+    while (*pszA && *pszB) {
+        int ca = ascii_lower((unsigned char)*pszA);
+        int cb = ascii_lower((unsigned char)*pszB);
         if (ca != cb) return ca - cb;
-        a++;
-        b++;
+        pszA++;
+        pszB++;
     }
-    return (int)(unsigned char)*a - (int)(unsigned char)*b;
+    return (int)(unsigned char)*pszA - (int)(unsigned char)*pszB;
 }
 
 /**
- * @brief Duplicate a NUL-terminated string.
+ * @brief Copy a NUL-terminated string into a caller-supplied buffer
+ *        following the size-query convention.
  *
- * @param[in] s  Source string, or NULL.
+ * @param[in]  pszSrc   Source string. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
- * @return malloc'd copy, or NULL on OOM or if @p s is NULL.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
-static char *dup_str(const char *s) {
-    size_t n;
-    char *p;
-    if (!s) return NULL;
-    n = strlen(s);
-    p = (char*)malloc(n + 1);
-    if (p) memcpy(p, s, n + 1);
-    return p;
+static APIRET copy_out(PCSZ pszSrc, PSZ pszBuf,
+                       ULONG ulSize, PULONG pulUsed) {
+    size_t cbLen;
+
+    if (!pszSrc) return ERROR_INVALID_PARAMETER;
+    cbLen = strlen(pszSrc);
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return NO_ERROR;
+    }
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < (ULONG)cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuf, pszSrc, cbLen + 1);
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
+    return NO_ERROR;
 }
 
 /**
  * @brief Free a NULL-terminated array of strings.
  *
- * @param[in] list  Array, or NULL.
+ * @param[in] papszList  Array, or NULL.
  */
-static void free_strlist(char **list) {
+static void free_strlist(PSZ *papszList) {
     int i;
-    if (!list) return;
-    for (i = 0; list[i]; i++) free(list[i]);
-    free(list);
+    if (!papszList) return;
+    for (i = 0; papszList[i]; i++) free(papszList[i]);
+    free(papszList);
 }
 
 /* ------------------------------------------------------------------ */
@@ -131,119 +158,136 @@ static void free_strlist(char **list) {
 /**
  * @brief Initialize an empty license list.
  *
- * On OOM the process is terminated.
+ * @param[out] pList  List. Not NULL.
  *
- * @param[out] l  List. Not NULL.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static void license_list_init(LicenseList *l) {
-    l->count = 0;
-    l->capacity = 16;
-    l->items = (SpdxLicenseEntry*)calloc((size_t)l->capacity,
-                                         sizeof(SpdxLicenseEntry));
-    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+static APIRET license_list_init(LICENSELLIST *pList) {
+    pList->count = 0;
+    pList->capacity = 16;
+    pList->pItems = (SPDXLICENSEENTRY*)calloc((size_t)pList->capacity,
+                                              sizeof(SPDXLICENSEENTRY));
+    if (!pList->pItems) return ERROR_NOT_ENOUGH_MEMORY;
+    return NO_ERROR;
 }
 
 /**
  * @brief Append a new entry to a license list, growing it if needed.
  *
- * On OOM the process is terminated.
+ * @param[in,out] pList    List. Not NULL.
+ * @param[out]    ppEntry  Receiver. Not NULL. Set to NULL on error.
  *
- * @param[in,out] l  List. Not NULL.
- *
- * @return Pointer to the new entry, zero-filled.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static SpdxLicenseEntry *license_list_add(LicenseList *l) {
-    SpdxLicenseEntry *e;
-    if (l->count >= l->capacity) {
-        l->capacity *= 2;
-        l->items = (SpdxLicenseEntry*)realloc(l->items,
-            (size_t)l->capacity * sizeof(SpdxLicenseEntry));
-        if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+static APIRET license_list_add(LICENSELLIST *pList,
+                               PSPDXLICENSEENTRY *ppEntry) {
+    PSPDXLICENSEENTRY pNew;
+    *ppEntry = NULL;
+    if (pList->count >= pList->capacity) {
+        ULONG ulNewCapacity = (ULONG)pList->capacity * 2;
+        pNew = (SPDXLICENSEENTRY*)realloc(pList->pItems,
+            (size_t)ulNewCapacity * sizeof(SPDXLICENSEENTRY));
+        if (!pNew) return ERROR_NOT_ENOUGH_MEMORY;
+        pList->pItems = pNew;
+        pList->capacity = (int)ulNewCapacity;
     }
-    e = &l->items[l->count++];
-    memset(e, 0, sizeof(*e));
-    return e;
+    *ppEntry = &pList->pItems[pList->count++];
+    memset(*ppEntry, 0, sizeof(**ppEntry));
+    return NO_ERROR;
 }
 
 /**
  * @brief Release all memory owned by a license list.
  *
- * @param[in,out] l  List. Not NULL.
+ * @param[in,out] pList  List. Not NULL.
  */
-static void license_list_free(LicenseList *l) {
+static void license_list_free(LICENSELLIST *pList) {
     int i;
-    for (i = 0; i < l->count; i++) {
-        SpdxLicenseEntry *e = &l->items[i];
-        free(e->id);
-        free(e->name);
-        free_strlist(e->see_also);
-        free(e->text);
-        free(e->template);
-        free(e->text_html);
+    for (i = 0; i < pList->count; i++) {
+        PSPDXLICENSEENTRY pEntry = &pList->pItems[i];
+        free(pEntry->pszId);
+        free(pEntry->pszName);
+        free_strlist(pEntry->papszSeeAlso);
+        free(pEntry->pszText);
+        free(pEntry->pszTemplate);
+        free(pEntry->pszTextHtml);
     }
-    free(l->items);
-    l->items = NULL;
-    l->count = 0;
-    l->capacity = 0;
+    free(pList->pItems);
+    pList->pItems = NULL;
+    pList->count = 0;
+    pList->capacity = 0;
 }
 
 /**
  * @brief Initialize an empty exception list.
  *
- * On OOM the process is terminated.
+ * @param[out] pList  List. Not NULL.
  *
- * @param[out] l  List. Not NULL.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static void exception_list_init(ExceptionList *l) {
-    l->count = 0;
-    l->capacity = 16;
-    l->items = (SpdxExceptionEntry*)calloc((size_t)l->capacity,
-                                           sizeof(SpdxExceptionEntry));
-    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+static APIRET exception_list_init(EXCEPTIONLIST *pList) {
+    pList->count = 0;
+    pList->capacity = 16;
+    pList->pItems = (SPDXEXCEPTIONENTRY*)calloc((size_t)pList->capacity,
+                                                sizeof(SPDXEXCEPTIONENTRY));
+    if (!pList->pItems) return ERROR_NOT_ENOUGH_MEMORY;
+    return NO_ERROR;
 }
 
 /**
- * @brief Append a new entry to an exception list, growing it if needed.
+ * @brief Append a new entry to an exception list, growing it if
+ *        needed.
  *
- * On OOM the process is terminated.
+ * @param[in,out] pList    List. Not NULL.
+ * @param[out]    ppEntry  Receiver. Not NULL. Set to NULL on error.
  *
- * @param[in,out] l  List. Not NULL.
- *
- * @return Pointer to the new entry, zero-filled.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static SpdxExceptionEntry *exception_list_add(ExceptionList *l) {
-    SpdxExceptionEntry *e;
-    if (l->count >= l->capacity) {
-        l->capacity *= 2;
-        l->items = (SpdxExceptionEntry*)realloc(l->items,
-            (size_t)l->capacity * sizeof(SpdxExceptionEntry));
-        if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+static APIRET exception_list_add(EXCEPTIONLIST *pList,
+                                 PSPDXEXCEPTIONENTRY *ppEntry) {
+    PSPDXEXCEPTIONENTRY pNew;
+    *ppEntry = NULL;
+    if (pList->count >= pList->capacity) {
+        ULONG ulNewCapacity = (ULONG)pList->capacity * 2;
+        pNew = (SPDXEXCEPTIONENTRY*)realloc(pList->pItems,
+            (size_t)ulNewCapacity * sizeof(SPDXEXCEPTIONENTRY));
+        if (!pNew) return ERROR_NOT_ENOUGH_MEMORY;
+        pList->pItems = pNew;
+        pList->capacity = (int)ulNewCapacity;
     }
-    e = &l->items[l->count++];
-    memset(e, 0, sizeof(*e));
-    return e;
+    *ppEntry = &pList->pItems[pList->count++];
+    memset(*ppEntry, 0, sizeof(**ppEntry));
+    return NO_ERROR;
 }
 
 /**
  * @brief Release all memory owned by an exception list.
  *
- * @param[in,out] l  List. Not NULL.
+ * @param[in,out] pList  List. Not NULL.
  */
-static void exception_list_free(ExceptionList *l) {
+static void exception_list_free(EXCEPTIONLIST *pList) {
     int i;
-    for (i = 0; i < l->count; i++) {
-        SpdxExceptionEntry *e = &l->items[i];
-        free(e->id);
-        free(e->name);
-        free_strlist(e->see_also);
-        free(e->text);
-        free(e->template);
-        free(e->text_html);
+    for (i = 0; i < pList->count; i++) {
+        PSPDXEXCEPTIONENTRY pEntry = &pList->pItems[i];
+        free(pEntry->pszId);
+        free(pEntry->pszName);
+        free_strlist(pEntry->papszSeeAlso);
+        free(pEntry->pszText);
+        free(pEntry->pszTemplate);
+        free(pEntry->pszTextHtml);
     }
-    free(l->items);
-    l->items = NULL;
-    l->count = 0;
-    l->capacity = 0;
+    free(pList->pItems);
+    pList->pItems = NULL;
+    pList->count = 0;
+    pList->capacity = 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -251,34 +295,46 @@ static void exception_list_free(ExceptionList *l) {
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief qsort comparator for license entries.
+ * @brief qsort comparator for license entries (case-insensitive).
+ *
+ * @param[in] pA  First entry.
+ * @param[in] pB  Second entry.
+ *
+ * @return Negative, zero or positive.
  */
-static int cmp_lic(const void *a, const void *b) {
-    return id_cmp_ci(((const SpdxLicenseEntry*)a)->id,
-                     ((const SpdxLicenseEntry*)b)->id);
+static int cmp_lic(const void *pA, const void *pB) {
+    return id_cmp_ci(((const SPDXLICENSEENTRY*)pA)->pszId,
+                     ((const SPDXLICENSEENTRY*)pB)->pszId);
 }
 
 /**
- * @brief qsort comparator for exception entries.
+ * @brief qsort comparator for exception entries (case-insensitive).
+ *
+ * @param[in] pA  First entry.
+ * @param[in] pB  Second entry.
+ *
+ * @return Negative, zero or positive.
  */
-static int cmp_exc(const void *a, const void *b) {
-    return id_cmp_ci(((const SpdxExceptionEntry*)a)->id,
-                     ((const SpdxExceptionEntry*)b)->id);
+static int cmp_exc(const void *pA, const void *pB) {
+    return id_cmp_ci(((const SPDXEXCEPTIONENTRY*)pA)->pszId,
+                     ((const SPDXEXCEPTIONENTRY*)pB)->pszId);
 }
 
 /**
  * @brief Binary search lower bound in the license list.
  *
- * @param[in] id  Identifier. Not NULL.
+ * @param[in] pszId  Identifier. Not NULL.
  *
- * @return Index of the first entry not less than @p id.
+ * @return Index of the first entry not less than @p pszId.
  */
-static int lic_lower_bound(const char *id) {
-    int lo = 0, hi = g_licenses.count;
+static int lic_lower_bound(PCSZ pszId) {
+    int lo = 0, hi = g_Licenses.count;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (id_cmp_ci(g_licenses.items[mid].id, id) < 0) lo = mid + 1;
-        else hi = mid;
+        if (id_cmp_ci(g_Licenses.pItems[mid].pszId, pszId) < 0)
+            lo = mid + 1;
+        else
+            hi = mid;
     }
     return lo;
 }
@@ -286,18 +342,58 @@ static int lic_lower_bound(const char *id) {
 /**
  * @brief Binary search lower bound in the exception list.
  *
- * @param[in] id  Identifier. Not NULL.
+ * @param[in] pszId  Identifier. Not NULL.
  *
- * @return Index of the first entry not less than @p id.
+ * @return Index of the first entry not less than @p pszId.
  */
-static int exc_lower_bound(const char *id) {
-    int lo = 0, hi = g_exceptions.count;
+static int exc_lower_bound(PCSZ pszId) {
+    int lo = 0, hi = g_Exceptions.count;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (id_cmp_ci(g_exceptions.items[mid].id, id) < 0) lo = mid + 1;
-        else hi = mid;
+        if (id_cmp_ci(g_Exceptions.pItems[mid].pszId, pszId) < 0)
+            lo = mid + 1;
+        else
+            hi = mid;
     }
     return lo;
+}
+
+/* ------------------------------------------------------------------ */
+/* Internal lookups                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Find a license entry by identifier.
+ *
+ * @param[in] pszId  Identifier. Not NULL.
+ *
+ * @return Pointer to the entry, or NULL if not found.
+ */
+static PSPDXLICENSEENTRY license_lookup(PCSZ pszId) {
+    int idx;
+    if (!pszId || g_Licenses.count == 0) return NULL;
+    idx = lic_lower_bound(pszId);
+    if (idx < g_Licenses.count &&
+        id_cmp_ci(g_Licenses.pItems[idx].pszId, pszId) == 0)
+        return &g_Licenses.pItems[idx];
+    return NULL;
+}
+
+/**
+ * @brief Find an exception entry by identifier.
+ *
+ * @param[in] pszId  Identifier. Not NULL.
+ *
+ * @return Pointer to the entry, or NULL if not found.
+ */
+static PSPDXEXCEPTIONENTRY exception_lookup(PCSZ pszId) {
+    int idx;
+    if (!pszId || g_Exceptions.count == 0) return NULL;
+    idx = exc_lower_bound(pszId);
+    if (idx < g_Exceptions.count &&
+        id_cmp_ci(g_Exceptions.pItems[idx].pszId, pszId) == 0)
+        return &g_Exceptions.pItems[idx];
+    return NULL;
 }
 
 /* ------------------------------------------------------------------ */
@@ -312,19 +408,19 @@ static int exc_lower_bound(const char *id) {
  * @return malloc'd string, or NULL if the node is absent, not a
  *         string, or on OOM.
  */
-static char *json_dup_string(HJSONNODE hNode) {
+static PSZ json_dup_string(HJSONNODE hNode) {
     ULONG ulSize = 0;
-    char *buf;
+    PSZ pszBuf;
     if (hNode == NULLHANDLE) return NULL;
     if (JsonNodeGetString(hNode, NULL, 0, &ulSize) != NO_ERROR) return NULL;
     if (ulSize == 0) return NULL;
-    buf = (char*)malloc(ulSize);
-    if (!buf) return NULL;
-    if (JsonNodeGetString(hNode, buf, ulSize, NULL) != NO_ERROR) {
-        free(buf);
+    pszBuf = (PSZ)malloc(ulSize);
+    if (!pszBuf) return NULL;
+    if (JsonNodeGetString(hNode, pszBuf, ulSize, NULL) != NO_ERROR) {
+        free(pszBuf);
         return NULL;
     }
-    return buf;
+    return pszBuf;
 }
 
 /**
@@ -355,24 +451,24 @@ static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
  * @return malloc'd array, or NULL if @p hArr is absent or not an
  *         array.
  */
-static char **parse_string_array(HJSONNODE hArr) {
+static PSZ *parse_string_array(HJSONNODE hArr) {
     ULONG ulCount, ulType, i;
-    char **out;
+    PSZ *papszOut;
     if (hArr == NULLHANDLE) return NULL;
     if (JsonNodeGetType(hArr, &ulType) != NO_ERROR) return NULL;
     if (ulType != (ULONG)JSON_ARRAY) return NULL;
     if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) return NULL;
-    out = (char**)malloc((size_t)(ulCount + 1) * sizeof(char*));
-    if (!out) return NULL;
+    papszOut = (PSZ*)malloc((size_t)(ulCount + 1) * sizeof(PSZ));
+    if (!papszOut) return NULL;
     for (i = 0; i < ulCount; i++) {
         HJSONNODE hElem = NULLHANDLE;
-        out[i] = NULL;
+        papszOut[i] = NULL;
         if (JsonNodeGetElement(hArr, i, &hElem) == NO_ERROR) {
-            out[i] = json_dup_string(hElem);
+            papszOut[i] = json_dup_string(hElem);
         }
     }
-    out[ulCount] = NULL;
-    return out;
+    papszOut[ulCount] = NULL;
+    return papszOut;
 }
 
 /* ------------------------------------------------------------------ */
@@ -382,129 +478,194 @@ static char **parse_string_array(HJSONNODE hArr) {
 /**
  * @brief Load the licenses index from licenses.json.
  *
- * @param[in] path  Path to licenses.json. Not NULL.
+ * @param[in] pszPath  Path to licenses.json. Not NULL.
  *
- * @return 0 on success, -1 on error.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_INVALID_DATA       Malformed JSON or wrong structure.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static int load_licenses_index(const char *path) {
-    char *text = NULL;
+static APIRET load_licenses_index(PCSZ pszPath) {
+    CHAR achBuf[65536];
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
     ULONG ulCount = 0;
-    ULONG i;
+    ULONG ulIdx;
+    ULONG ulNeeded = 0;
+    APIRET rc;
 
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
+    rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
+    if (rc != NO_ERROR) return rc;
 
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    if (ulNeeded <= sizeof(achBuf)) {
+        rc = SpdxReadFileAll(pszPath, achBuf, sizeof(achBuf), NULL);
+        if (rc != NO_ERROR) return rc;
+    } else {
+        PSZ pszHeap;
+        rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
+        if (rc != NO_ERROR) return rc;
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
+        rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
+        if (rc != NO_ERROR) { free(pszHeap); return rc; }
 
-    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return ERROR_INVALID_DATA;
+        }
+        free(pszHeap);
+        goto parse;
+    }
+
+    if (JsonParse(achBuf, &hDoc) != NO_ERROR) return ERROR_INVALID_DATA;
+
+parse:
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) {
+        JsonClose(hDoc);
+        return ERROR_INVALID_DATA;
+    }
     if (JsonNodeGetChild(hRoot, "licenses", &hArr) != NO_ERROR) {
         JsonClose(hDoc);
-        return -1;
+        return ERROR_INVALID_DATA;
     }
     if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) {
         JsonClose(hDoc);
-        return -1;
+        return ERROR_INVALID_DATA;
     }
 
-    for (i = 0; i < ulCount; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hItem = NULLHANDLE;
         HJSONNODE hChild = NULLHANDLE;
-        SpdxLicenseEntry *e;
-        char *id;
+        PSPDXLICENSEENTRY pEntry;
+        PSZ pszId;
 
-        if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
+        if (JsonNodeGetElement(hArr, ulIdx, &hItem) != NO_ERROR) continue;
         if (JsonNodeGetChild(hItem, "licenseId", &hChild) != NO_ERROR)
             continue;
-        id = json_dup_string(hChild);
-        if (!id) continue;
+        pszId = json_dup_string(hChild);
+        if (!pszId) continue;
 
-        e = license_list_add(&g_licenses);
-        e->id = id;
+        rc = license_list_add(&g_Licenses, &pEntry);
+        if (rc != NO_ERROR) { free(pszId); JsonClose(hDoc); return rc; }
+        pEntry->pszId = pszId;
 
         if (JsonNodeGetChild(hItem, "name", &hChild) == NO_ERROR)
-            e->name = json_dup_string(hChild);
+            pEntry->pszName = json_dup_string(hChild);
 
         {
             BOOL fVal = FALSE_;
             if (json_get_bool(hItem, "isOsiApproved", &fVal) && fVal)
-                e->flags |= SPDX_DB_FLAG_OSI;
+                pEntry->uchFlags |= SPDXDB_FLAG_OSI;
             if (json_get_bool(hItem, "isFsfLibre", &fVal) && fVal)
-                e->flags |= SPDX_DB_FLAG_FSF_LIBRE;
+                pEntry->uchFlags |= SPDXDB_FLAG_FSF_LIBRE;
             if (json_get_bool(hItem, "isDeprecatedLicenseId", &fVal) && fVal)
-                e->flags |= SPDX_DB_FLAG_DEPRECATED;
+                pEntry->uchFlags |= SPDXDB_FLAG_DEPRECATED;
         }
 
         if (JsonNodeGetChild(hItem, "seeAlso", &hChild) == NO_ERROR)
-            e->see_also = parse_string_array(hChild);
+            pEntry->papszSeeAlso = parse_string_array(hChild);
     }
 
     JsonClose(hDoc);
-    return 0;
+    return NO_ERROR;
 }
 
 /**
  * @brief Load the exceptions index from exceptions.json.
  *
- * @param[in] path  Path to exceptions.json. Not NULL.
+ * @param[in] pszPath  Path to exceptions.json. Not NULL.
  *
- * @return 0 on success, -1 on error.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_INVALID_DATA       Malformed JSON or wrong structure.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static int load_exceptions_index(const char *path) {
-    char *text = NULL;
+static APIRET load_exceptions_index(PCSZ pszPath) {
+    CHAR achBuf[65536];
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
     ULONG ulCount = 0;
-    ULONG i;
+    ULONG ulIdx;
+    ULONG ulNeeded = 0;
+    APIRET rc;
 
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
+    rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
+    if (rc != NO_ERROR) return rc;
 
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    if (ulNeeded <= sizeof(achBuf)) {
+        rc = SpdxReadFileAll(pszPath, achBuf, sizeof(achBuf), NULL);
+        if (rc != NO_ERROR) return rc;
+    } else {
+        PSZ pszHeap;
+        rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
+        if (rc != NO_ERROR) return rc;
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
+        rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
+        if (rc != NO_ERROR) { free(pszHeap); return rc; }
 
-    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return ERROR_INVALID_DATA;
+        }
+        free(pszHeap);
+        goto parse;
+    }
+
+    if (JsonParse(achBuf, &hDoc) != NO_ERROR) return ERROR_INVALID_DATA;
+
+parse:
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) {
+        JsonClose(hDoc);
+        return ERROR_INVALID_DATA;
+    }
     if (JsonNodeGetChild(hRoot, "exceptions", &hArr) != NO_ERROR) {
         JsonClose(hDoc);
-        return -1;
+        return ERROR_INVALID_DATA;
     }
     if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) {
         JsonClose(hDoc);
-        return -1;
+        return ERROR_INVALID_DATA;
     }
 
-    for (i = 0; i < ulCount; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hItem = NULLHANDLE;
         HJSONNODE hChild = NULLHANDLE;
-        SpdxExceptionEntry *e;
-        char *id;
+        PSPDXEXCEPTIONENTRY pEntry;
+        PSZ pszId;
 
-        if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
-        if (JsonNodeGetChild(hItem, "licenseExceptionId", &hChild) != NO_ERROR)
+        if (JsonNodeGetElement(hArr, ulIdx, &hItem) != NO_ERROR) continue;
+        if (JsonNodeGetChild(hItem, "licenseExceptionId", &hChild)
+                != NO_ERROR)
             continue;
-        id = json_dup_string(hChild);
-        if (!id) continue;
+        pszId = json_dup_string(hChild);
+        if (!pszId) continue;
 
-        e = exception_list_add(&g_exceptions);
-        e->id = id;
+        rc = exception_list_add(&g_Exceptions, &pEntry);
+        if (rc != NO_ERROR) { free(pszId); JsonClose(hDoc); return rc; }
+        pEntry->pszId = pszId;
 
         if (JsonNodeGetChild(hItem, "name", &hChild) == NO_ERROR)
-            e->name = json_dup_string(hChild);
+            pEntry->pszName = json_dup_string(hChild);
 
         {
             BOOL fVal = FALSE_;
             if (json_get_bool(hItem, "isDeprecatedLicenseId", &fVal) && fVal)
-                e->flags |= SPDX_DB_FLAG_DEPRECATED;
+                pEntry->uchFlags |= SPDXDB_FLAG_DEPRECATED;
         }
 
         if (JsonNodeGetChild(hItem, "seeAlso", &hChild) == NO_ERROR)
-            e->see_also = parse_string_array(hChild);
+            pEntry->papszSeeAlso = parse_string_array(hChild);
     }
 
     JsonClose(hDoc);
-    return 0;
+    return NO_ERROR;
 }
 
 /* ------------------------------------------------------------------ */
@@ -513,70 +674,99 @@ static int load_exceptions_index(const char *path) {
 
 /**
  * @brief Write a 32-bit value in little-endian order.
+ *
+ * @param[in] f        File. Not NULL.
+ * @param[in] ulValue  Value to write.
+ *
+ * @return 0 on success, -1 on write error.
  */
-static int write_u32(FILE *f, unsigned long v) {
+static int write_u32(FILE *f, ULONG ulValue) {
     unsigned char b[4];
-    b[0] = (unsigned char)(v & 0xFF);
-    b[1] = (unsigned char)((v >> 8) & 0xFF);
-    b[2] = (unsigned char)((v >> 16) & 0xFF);
-    b[3] = (unsigned char)((v >> 24) & 0xFF);
+    b[0] = (unsigned char)(ulValue & 0xFF);
+    b[1] = (unsigned char)((ulValue >> 8) & 0xFF);
+    b[2] = (unsigned char)((ulValue >> 16) & 0xFF);
+    b[3] = (unsigned char)((ulValue >> 24) & 0xFF);
     return fwrite(b, 1, 4, f) == 4 ? 0 : -1;
 }
 
 /**
  * @brief Read a 32-bit little-endian value.
+ *
+ * @param[in]  f        File. Not NULL.
+ * @param[out] pulOut   Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on read error.
  */
-static int read_u32(FILE *f, unsigned long *out) {
+static int read_u32(FILE *f, PULONG pulOut) {
     unsigned char b[4];
     if (fread(b, 1, 4, f) != 4) return -1;
-    *out = (unsigned long)b[0] |
-           ((unsigned long)b[1] << 8) |
-           ((unsigned long)b[2] << 16) |
-           ((unsigned long)b[3] << 24);
+    *pulOut = (ULONG)b[0] |
+              ((ULONG)b[1] << 8) |
+              ((ULONG)b[2] << 16) |
+              ((ULONG)b[3] << 24);
     return 0;
 }
 
 /**
  * @brief Write one byte.
+ *
+ * @param[in] f         File. Not NULL.
+ * @param[in] uchValue  Byte to write.
+ *
+ * @return 0 on success, -1 on write error.
  */
-static int write_u8v(FILE *f, unsigned char v) {
-    return fwrite(&v, 1, 1, f) == 1 ? 0 : -1;
+static int write_u8v(FILE *f, UCHAR uchValue) {
+    return fwrite(&uchValue, 1, 1, f) == 1 ? 0 : -1;
 }
 
 /**
  * @brief Read one byte.
+ *
+ * @param[in]  f          File. Not NULL.
+ * @param[out] puchValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on read error.
  */
-static int read_u8v(FILE *f, unsigned char *v) {
-    return fread(v, 1, 1, f) == 1 ? 0 : -1;
+static int read_u8v(FILE *f, PUCHAR puchValue) {
+    return fread(puchValue, 1, 1, f) == 1 ? 0 : -1;
 }
 
 /**
  * @brief Write a length-prefixed string.
+ *
+ * @param[in] f       File. Not NULL.
+ * @param[in] pszStr  String, or NULL (treated as "").
+ *
+ * @return 0 on success, -1 on write error.
  */
-static int write_str32(FILE *f, const char *s) {
-    size_t n = s ? strlen(s) : 0;
-    if (write_u32(f, (unsigned long)n) != 0) return -1;
-    if (n > 0 && fwrite(s, 1, n, f) != n) return -1;
+static int write_str32(FILE *f, PCSZ pszStr) {
+    size_t n = pszStr ? strlen(pszStr) : 0;
+    if (write_u32(f, (ULONG)n) != 0) return -1;
+    if (n > 0 && fwrite(pszStr, 1, n, f) != n) return -1;
     return 0;
 }
 
 /**
  * @brief Read a length-prefixed string.
  *
- * @param[in]  f    File. Not NULL.
- * @param[out] out  Receiver. Not NULL.
+ * @param[in]  f         File. Not NULL.
+ * @param[out] ppszOut   Receiver. Not NULL. Set to NULL on error.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 on read error.
  */
-static int read_str32(FILE *f, char **out) {
-    unsigned long n;
-    char *s;
-    if (read_u32(f, &n) != 0) return -1;
-    s = (char*)malloc(n + 1);
-    if (!s) return -1;
-    if (n > 0 && fread(s, 1, n, f) != n) { free(s); return -1; }
-    s[n] = '\0';
-    *out = s;
+static int read_str32(FILE *f, PSZ *ppszOut) {
+    ULONG ulLen;
+    PSZ pszStr;
+    *ppszOut = NULL;
+    if (read_u32(f, &ulLen) != 0) return -1;
+    pszStr = (PSZ)malloc(ulLen + 1);
+    if (!pszStr) return -1;
+    if (ulLen > 0 && fread(pszStr, 1, ulLen, f) != ulLen) {
+        free(pszStr);
+        return -1;
+    }
+    pszStr[ulLen] = '\0';
+    *ppszOut = pszStr;
     return 0;
 }
 
@@ -588,112 +778,150 @@ static int read_str32(FILE *f, char **out) {
  * @brief Write a detail block (text + template + html) to the cache.
  *
  * @param[in]  f           File. Not NULL.
- * @param[in]  text        License text, or NULL.
- * @param[in]  tmpl        Standard template, or NULL.
- * @param[in]  html        HTML text, or NULL.
- * @param[out] out_offset  Offset of the block. Not NULL.
- * @param[out] out_size    Size of the block. Not NULL.
+ * @param[in]  pszText     License text, or NULL.
+ * @param[in]  pszTmpl     Standard template, or NULL.
+ * @param[in]  pszHtml     HTML text, or NULL.
+ * @param[out] pulOffset   Offset of the block. Not NULL.
+ * @param[out] pulSize     Size of the block. Not NULL.
  *
  * @return 0 on success, -1 on write error.
  */
-static int write_detail_block(FILE *f, const char *text,
-                              const char *tmpl, const char *html,
-                              unsigned long *out_offset,
-                              unsigned long *out_size) {
-    long start;
+static int write_detail_block(FILE *f, PCSZ pszText,
+                              PCSZ pszTmpl, PCSZ pszHtml,
+                              PULONG pulOffset, PULONG pulSize) {
+    long lStart, lEnd;
     fflush(f);
-    start = ftell(f);
-    if (start < 0) return -1;
-    if (write_str32(f, text ? text : "") != 0) return -1;
-    if (write_str32(f, tmpl ? tmpl : "") != 0) return -1;
-    if (write_str32(f, html ? html : "") != 0) return -1;
+    lStart = ftell(f);
+    if (lStart < 0) return -1;
+    if (write_str32(f, pszText ? pszText : "") != 0) return -1;
+    if (write_str32(f, pszTmpl ? pszTmpl : "") != 0) return -1;
+    if (write_str32(f, pszHtml ? pszHtml : "") != 0) return -1;
     fflush(f);
-    {
-        long end = ftell(f);
-        if (end < 0) return -1;
-        *out_offset = (unsigned long)start;
-        *out_size = (unsigned long)(end - start);
-    }
+    lEnd = ftell(f);
+    if (lEnd < 0) return -1;
+    *pulOffset = (ULONG)lStart;
+    *pulSize = (ULONG)(lEnd - lStart);
     return 0;
 }
 
 /**
  * @brief Write one license index record to the cache.
+ *
+ * @param[in] f       File. Not NULL.
+ * @param[in] pEntry  Entry. Not NULL.
+ *
+ * @return 0 on success, -1 on write error.
  */
-static int write_index_record(FILE *f, const SpdxLicenseEntry *e) {
+static int write_index_record(FILE *f, const SPDXLICENSEENTRY *pEntry) {
     int i;
-    if (write_str32(f, e->id) != 0) return -1;
-    if (write_u8v(f, e->flags) != 0) return -1;
-    if (write_str32(f, e->name ? e->name : "") != 0) return -1;
+    if (write_str32(f, pEntry->pszId) != 0) return -1;
+    if (write_u8v(f, pEntry->uchFlags) != 0) return -1;
+    if (write_str32(f, pEntry->pszName ? pEntry->pszName : "") != 0)
+        return -1;
     {
-        unsigned long cnt = 0;
-        if (e->see_also) for (i = 0; e->see_also[i]; i++) cnt++;
-        if (write_u32(f, cnt) != 0) return -1;
-        for (i = 0; e->see_also && e->see_also[i]; i++)
-            if (write_str32(f, e->see_also[i]) != 0) return -1;
+        ULONG ulCount = 0;
+        if (pEntry->papszSeeAlso)
+            for (i = 0; pEntry->papszSeeAlso[i]; i++) ulCount++;
+        if (write_u32(f, ulCount) != 0) return -1;
+        for (i = 0; pEntry->papszSeeAlso && pEntry->papszSeeAlso[i]; i++)
+            if (write_str32(f, pEntry->papszSeeAlso[i]) != 0) return -1;
     }
-    if (write_u32(f, e->detail_offset) != 0) return -1;
-    if (write_u32(f, e->detail_size) != 0) return -1;
+    if (write_u32(f, pEntry->ulDetailOffset) != 0) return -1;
+    if (write_u32(f, pEntry->ulDetailSize) != 0) return -1;
     return 0;
 }
 
 /**
  * @brief Write one exception index record to the cache.
+ *
+ * @param[in] f       File. Not NULL.
+ * @param[in] pEntry  Entry. Not NULL.
+ *
+ * @return 0 on success, -1 on write error.
  */
-static int write_index_record_exc(FILE *f, const SpdxExceptionEntry *e) {
+static int write_index_record_exc(FILE *f, const SPDXEXCEPTIONENTRY *pEntry) {
     int i;
-    if (write_str32(f, e->id) != 0) return -1;
-    if (write_u8v(f, e->flags) != 0) return -1;
-    if (write_str32(f, e->name ? e->name : "") != 0) return -1;
+    if (write_str32(f, pEntry->pszId) != 0) return -1;
+    if (write_u8v(f, pEntry->uchFlags) != 0) return -1;
+    if (write_str32(f, pEntry->pszName ? pEntry->pszName : "") != 0)
+        return -1;
     {
-        unsigned long cnt = 0;
-        if (e->see_also) for (i = 0; e->see_also[i]; i++) cnt++;
-        if (write_u32(f, cnt) != 0) return -1;
-        for (i = 0; e->see_also && e->see_also[i]; i++)
-            if (write_str32(f, e->see_also[i]) != 0) return -1;
+        ULONG ulCount = 0;
+        if (pEntry->papszSeeAlso)
+            for (i = 0; pEntry->papszSeeAlso[i]; i++) ulCount++;
+        if (write_u32(f, ulCount) != 0) return -1;
+        for (i = 0; pEntry->papszSeeAlso && pEntry->papszSeeAlso[i]; i++)
+            if (write_str32(f, pEntry->papszSeeAlso[i]) != 0) return -1;
     }
-    if (write_u32(f, e->detail_offset) != 0) return -1;
-    if (write_u32(f, e->detail_size) != 0) return -1;
+    if (write_u32(f, pEntry->ulDetailOffset) != 0) return -1;
+    if (write_u32(f, pEntry->ulDetailSize) != 0) return -1;
     return 0;
 }
 
 /**
  * @brief Read a license detail from details/<id>.json and write it
  *        to the cache.
+ *
+ * @param[in]  f           File. Not NULL.
+ * @param[in]  pszId       License identifier. Not NULL.
+ * @param[out] pulOffset   Offset of the block. Not NULL.
+ * @param[out] pulSize     Size of the block. Not NULL.
+ *
+ * @return 0 on success, -1 on any error.
  */
-static int write_license_detail_from_json(FILE *f, const char *id,
-                                          unsigned long *out_offset,
-                                          unsigned long *out_size) {
-    char path[2048];
-    char *text = NULL;
+static int write_license_detail_from_json(FILE *f, PCSZ pszId,
+                                          PULONG pulOffset,
+                                          PULONG pulSize) {
+    CHAR achPath[2048];
+    CHAR achBuf[65536];
+    ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hChild = NULLHANDLE;
-    char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
+    PSZ pszTextVal = NULL, pszTmplVal = NULL, pszHtmlVal = NULL;
+    PSZ pszHeap = NULL;
     int rc = -1;
+    APIRET arc;
 
-    snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, id);
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    snprintf(achPath, sizeof(achPath), "%s/%s.json",
+             g_pszDetailsDir, pszId);
+    arc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
+    if (arc != NO_ERROR) return -1;
+
+    if (ulNeeded <= sizeof(achBuf)) {
+        arc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
+        if (arc != NO_ERROR) return -1;
+        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
+    } else {
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return -1;
+        arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+        if (arc != NO_ERROR) { free(pszHeap); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return -1;
+        }
+        free(pszHeap);
+    }
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
     if (JsonNodeGetChild(hRoot, "licenseText", &hChild) == NO_ERROR)
-        s_text = json_dup_string(hChild);
-    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild) == NO_ERROR)
-        s_tmpl = json_dup_string(hChild);
+        pszTextVal = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild)
+            == NO_ERROR)
+        pszTmplVal = json_dup_string(hChild);
     if (JsonNodeGetChild(hRoot, "licenseTextHtml", &hChild) == NO_ERROR)
-        s_html = json_dup_string(hChild);
+        pszHtmlVal = json_dup_string(hChild);
 
-    if (write_detail_block(f, s_text, s_tmpl, s_html,
-                           out_offset, out_size) == 0) {
+    if (write_detail_block(f, pszTextVal, pszTmplVal, pszHtmlVal,
+                           pulOffset, pulSize) == 0) {
         rc = 0;
     }
 
-    free(s_text);
-    free(s_tmpl);
-    free(s_html);
+    free(pszTextVal);
+    free(pszTmplVal);
+    free(pszHtmlVal);
     JsonClose(hDoc);
     return rc;
 }
@@ -701,40 +929,67 @@ static int write_license_detail_from_json(FILE *f, const char *id,
 /**
  * @brief Read an exception detail from exceptions/<id>.json and
  *        write it to the cache.
+ *
+ * @param[in]  f           File. Not NULL.
+ * @param[in]  pszId       Exception identifier. Not NULL.
+ * @param[out] pulOffset   Offset of the block. Not NULL.
+ * @param[out] pulSize     Size of the block. Not NULL.
+ *
+ * @return 0 on success, -1 on any error.
  */
-static int write_exception_detail_from_json(FILE *f, const char *id,
-                                            unsigned long *out_offset,
-                                            unsigned long *out_size) {
-    char path[2048];
-    char *text = NULL;
+static int write_exception_detail_from_json(FILE *f, PCSZ pszId,
+                                            PULONG pulOffset,
+                                            PULONG pulSize) {
+    CHAR achPath[2048];
+    CHAR achBuf[65536];
+    ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hChild = NULLHANDLE;
-    char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
+    PSZ pszTextVal = NULL, pszTmplVal = NULL, pszHtmlVal = NULL;
+    PSZ pszHeap = NULL;
     int rc = -1;
+    APIRET arc;
 
-    snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, id);
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    snprintf(achPath, sizeof(achPath), "%s/%s.json",
+             g_pszExceptionsDir, pszId);
+    arc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
+    if (arc != NO_ERROR) return -1;
+
+    if (ulNeeded <= sizeof(achBuf)) {
+        arc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
+        if (arc != NO_ERROR) return -1;
+        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
+    } else {
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return -1;
+        arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+        if (arc != NO_ERROR) { free(pszHeap); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return -1;
+        }
+        free(pszHeap);
+    }
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
     if (JsonNodeGetChild(hRoot, "licenseExceptionText", &hChild) == NO_ERROR)
-        s_text = json_dup_string(hChild);
-    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild) == NO_ERROR)
-        s_tmpl = json_dup_string(hChild);
+        pszTextVal = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild)
+            == NO_ERROR)
+        pszTmplVal = json_dup_string(hChild);
     if (JsonNodeGetChild(hRoot, "exceptionTextHtml", &hChild) == NO_ERROR)
-        s_html = json_dup_string(hChild);
+        pszHtmlVal = json_dup_string(hChild);
 
-    if (write_detail_block(f, s_text, s_tmpl, s_html,
-                           out_offset, out_size) == 0) {
+    if (write_detail_block(f, pszTextVal, pszTmplVal, pszHtmlVal,
+                           pulOffset, pulSize) == 0) {
         rc = 0;
     }
 
-    free(s_text);
-    free(s_tmpl);
-    free(s_html);
+    free(pszTextVal);
+    free(pszTmplVal);
+    free(pszHtmlVal);
     JsonClose(hDoc);
     return rc;
 }
@@ -742,21 +997,22 @@ static int write_exception_detail_from_json(FILE *f, const char *id,
 /**
  * @brief Compute a raw 20-byte SHA-1 of a file.
  *
- * @param[in]  path  Path to the file. Not NULL.
- * @param[out] out   20-byte digest.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] puchOut  20-byte digest.
  *
  * @return 0 on success, -1 on error.
  */
-static int compute_sha1_raw(const char *path, unsigned char out[20]) {
-    char hex[41];
+static int compute_sha1_raw(PCSZ pszPath, UCHAR puchOut[20]) {
+    CHAR achHex[41];
     int i;
-    memset(out, 0, 20);
-    if (!path) return 0;
-    if (Sha1File(path, hex, sizeof(hex), NULL) != NO_ERROR) return -1;
+    memset(puchOut, 0, 20);
+    if (!pszPath) return 0;
+    if (Sha1File(pszPath, achHex, sizeof(achHex), NULL) != NO_ERROR)
+        return -1;
     for (i = 0; i < 20; i++) {
-        char b[3];
-        b[0] = hex[i*2]; b[1] = hex[i*2+1]; b[2] = '\0';
-        out[i] = (unsigned char)strtol(b, NULL, 16);
+        CHAR b[3];
+        b[0] = achHex[i*2]; b[1] = achHex[i*2+1]; b[2] = '\0';
+        puchOut[i] = (UCHAR)strtol(b, NULL, 16);
     }
     return 0;
 }
@@ -764,83 +1020,83 @@ static int compute_sha1_raw(const char *path, unsigned char out[20]) {
 /**
  * @brief Build the binary cache file.
  *
- * @param[in] cache_path   Cache file path. Not NULL.
- * @param[in] sha1_lic     SHA-1 of licenses.json.
- * @param[in] sha1_exc     SHA-1 of exceptions.json.
+ * @param[in] pszCachePath  Cache file path. Not NULL.
+ * @param[in] puchSha1Lic   SHA-1 of licenses.json.
+ * @param[in] puchSha1Exc   SHA-1 of exceptions.json.
  *
  * @return 0 on success, -1 on error.
  */
-static int build_cache(const char *cache_path,
-                       const unsigned char sha1_lic[20],
-                       const unsigned char sha1_exc[20]) {
+static int build_cache(PCSZ pszCachePath,
+                       const UCHAR puchSha1Lic[20],
+                       const UCHAR puchSha1Exc[20]) {
     FILE *f;
-    unsigned long off_lic_idx = 0, off_exc_idx = 0;
-    long here;
+    ULONG ulOffLicIdx = 0, ulOffExcIdx = 0;
+    long lHere;
     int i;
 
-    f = fopen(cache_path, "wb");
+    f = fopen(pszCachePath, "wb");
     if (!f) return -1;
 
-    {
-        fwrite(CACHE_MAGIC, 1, 8, f);
-        write_u32(f, CACHE_VERSION);
-        fwrite(sha1_lic, 1, 20, f);
-        fwrite(sha1_exc, 1, 20, f);
-        write_u32(f, (unsigned long)g_licenses.count);
-        write_u32(f, (unsigned long)g_exceptions.count);
-        write_u32(f, 0);
-        write_u32(f, 0);
-        write_u32(f, 0);
-        write_u32(f, 0);
-    }
+    fwrite(CACHE_MAGIC, 1, 8, f);
+    write_u32(f, CACHE_VERSION);
+    fwrite(puchSha1Lic, 1, 20, f);
+    fwrite(puchSha1Exc, 1, 20, f);
+    write_u32(f, (ULONG)g_Licenses.count);
+    write_u32(f, (ULONG)g_Exceptions.count);
+    write_u32(f, 0);
+    write_u32(f, 0);
+    write_u32(f, 0);
+    write_u32(f, 0);
 
     fflush(f);
-    off_lic_idx = (unsigned long)ftell(f);
-    for (i = 0; i < g_licenses.count; i++) {
-        SpdxLicenseEntry *e = &g_licenses.items[i];
-        if (g_details_dir) {
-            unsigned long doff = 0, dsz = 0;
-            if (write_license_detail_from_json(f, e->id, &doff, &dsz) == 0) {
-                e->detail_offset = doff;
-                e->detail_size = dsz;
+    ulOffLicIdx = (ULONG)ftell(f);
+    for (i = 0; i < g_Licenses.count; i++) {
+        PSPDXLICENSEENTRY pEntry = &g_Licenses.pItems[i];
+        if (g_pszDetailsDir) {
+            ULONG ulOff = 0, ulSz = 0;
+            if (write_license_detail_from_json(f, pEntry->pszId,
+                                               &ulOff, &ulSz) == 0) {
+                pEntry->ulDetailOffset = ulOff;
+                pEntry->ulDetailSize = ulSz;
             }
         }
-        if (write_index_record(f, e) != 0) {
+        if (write_index_record(f, pEntry) != 0) {
             fclose(f);
             return -1;
         }
     }
 
     fflush(f);
-    off_exc_idx = (unsigned long)ftell(f);
-    for (i = 0; i < g_exceptions.count; i++) {
-        SpdxExceptionEntry *e = &g_exceptions.items[i];
-        if (g_exceptions_dir) {
-            unsigned long doff = 0, dsz = 0;
-            if (write_exception_detail_from_json(f, e->id, &doff, &dsz) == 0) {
-                e->detail_offset = doff;
-                e->detail_size = dsz;
+    ulOffExcIdx = (ULONG)ftell(f);
+    for (i = 0; i < g_Exceptions.count; i++) {
+        PSPDXEXCEPTIONENTRY pEntry = &g_Exceptions.pItems[i];
+        if (g_pszExceptionsDir) {
+            ULONG ulOff = 0, ulSz = 0;
+            if (write_exception_detail_from_json(f, pEntry->pszId,
+                                                 &ulOff, &ulSz) == 0) {
+                pEntry->ulDetailOffset = ulOff;
+                pEntry->ulDetailSize = ulSz;
             }
         }
-        if (write_index_record_exc(f, e) != 0) {
+        if (write_index_record_exc(f, pEntry) != 0) {
             fclose(f);
             return -1;
         }
     }
 
-    here = ftell(f);
+    lHere = ftell(f);
     fseek(f, 0, SEEK_SET);
     fwrite(CACHE_MAGIC, 1, 8, f);
     write_u32(f, CACHE_VERSION);
-    fwrite(sha1_lic, 1, 20, f);
-    fwrite(sha1_exc, 1, 20, f);
-    write_u32(f, (unsigned long)g_licenses.count);
-    write_u32(f, (unsigned long)g_exceptions.count);
-    write_u32(f, off_lic_idx);
-    write_u32(f, off_exc_idx);
+    fwrite(puchSha1Lic, 1, 20, f);
+    fwrite(puchSha1Exc, 1, 20, f);
+    write_u32(f, (ULONG)g_Licenses.count);
+    write_u32(f, (ULONG)g_Exceptions.count);
+    write_u32(f, ulOffLicIdx);
+    write_u32(f, ulOffExcIdx);
     write_u32(f, 0);
     write_u32(f, 0);
-    fseek(f, here, SEEK_SET);
+    fseek(f, lHere, SEEK_SET);
 
     fclose(f);
     return 0;
@@ -852,53 +1108,65 @@ static int build_cache(const char *cache_path,
 
 /**
  * @brief Read one license index record from the cache.
+ *
+ * @param[in]  f       File. Not NULL.
+ * @param[out] pEntry  Entry receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on read error.
  */
-static int read_license_index_record(FILE *f, SpdxLicenseEntry *e) {
-    unsigned long cnt, i;
-    if (read_str32(f, &e->id) != 0) return -1;
-    if (read_u8v(f, &e->flags) != 0) return -1;
-    if (read_str32(f, &e->name) != 0) return -1;
-    if (read_u32(f, &cnt) != 0) return -1;
-    if (cnt > 0) {
-        e->see_also = (char**)malloc((size_t)(cnt + 1) * sizeof(char*));
-        if (!e->see_also) return -1;
-        for (i = 0; i < cnt; i++) {
-            if (read_str32(f, &e->see_also[i]) != 0) {
-                e->see_also[i] = NULL;
+static int read_license_index_record(FILE *f, PSPDXLICENSEENTRY pEntry) {
+    ULONG ulCount, i;
+    if (read_str32(f, &pEntry->pszId) != 0) return -1;
+    if (read_u8v(f, &pEntry->uchFlags) != 0) return -1;
+    if (read_str32(f, &pEntry->pszName) != 0) return -1;
+    if (read_u32(f, &ulCount) != 0) return -1;
+    if (ulCount > 0) {
+        pEntry->papszSeeAlso =
+            (PSZ*)malloc((size_t)(ulCount + 1) * sizeof(PSZ));
+        if (!pEntry->papszSeeAlso) return -1;
+        for (i = 0; i < ulCount; i++) {
+            if (read_str32(f, &pEntry->papszSeeAlso[i]) != 0) {
+                pEntry->papszSeeAlso[i] = NULL;
                 return -1;
             }
         }
-        e->see_also[cnt] = NULL;
+        pEntry->papszSeeAlso[ulCount] = NULL;
     }
-    if (read_u32(f, &e->detail_offset) != 0) return -1;
-    if (read_u32(f, &e->detail_size) != 0) return -1;
-    e->detail_loaded = 0;
+    if (read_u32(f, &pEntry->ulDetailOffset) != 0) return -1;
+    if (read_u32(f, &pEntry->ulDetailSize) != 0) return -1;
+    pEntry->fDetailLoaded = FALSE_;
     return 0;
 }
 
 /**
  * @brief Read one exception index record from the cache.
+ *
+ * @param[in]  f       File. Not NULL.
+ * @param[out] pEntry  Entry receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on read error.
  */
-static int read_exception_index_record(FILE *f, SpdxExceptionEntry *e) {
-    unsigned long cnt, i;
-    if (read_str32(f, &e->id) != 0) return -1;
-    if (read_u8v(f, &e->flags) != 0) return -1;
-    if (read_str32(f, &e->name) != 0) return -1;
-    if (read_u32(f, &cnt) != 0) return -1;
-    if (cnt > 0) {
-        e->see_also = (char**)malloc((size_t)(cnt + 1) * sizeof(char*));
-        if (!e->see_also) return -1;
-        for (i = 0; i < cnt; i++) {
-            if (read_str32(f, &e->see_also[i]) != 0) {
-                e->see_also[i] = NULL;
+static int read_exception_index_record(FILE *f, PSPDXEXCEPTIONENTRY pEntry) {
+    ULONG ulCount, i;
+    if (read_str32(f, &pEntry->pszId) != 0) return -1;
+    if (read_u8v(f, &pEntry->uchFlags) != 0) return -1;
+    if (read_str32(f, &pEntry->pszName) != 0) return -1;
+    if (read_u32(f, &ulCount) != 0) return -1;
+    if (ulCount > 0) {
+        pEntry->papszSeeAlso =
+            (PSZ*)malloc((size_t)(ulCount + 1) * sizeof(PSZ));
+        if (!pEntry->papszSeeAlso) return -1;
+        for (i = 0; i < ulCount; i++) {
+            if (read_str32(f, &pEntry->papszSeeAlso[i]) != 0) {
+                pEntry->papszSeeAlso[i] = NULL;
                 return -1;
             }
         }
-        e->see_also[cnt] = NULL;
+        pEntry->papszSeeAlso[ulCount] = NULL;
     }
-    if (read_u32(f, &e->detail_offset) != 0) return -1;
-    if (read_u32(f, &e->detail_size) != 0) return -1;
-    e->detail_loaded = 0;
+    if (read_u32(f, &pEntry->ulDetailOffset) != 0) return -1;
+    if (read_u32(f, &pEntry->ulDetailSize) != 0) return -1;
+    pEntry->fDetailLoaded = FALSE_;
     return 0;
 }
 
@@ -906,52 +1174,67 @@ static int read_exception_index_record(FILE *f, SpdxExceptionEntry *e) {
  * @brief Load the binary cache file if its content matches the
  *        expected source hashes.
  *
- * @param[in] path         Cache file path. Not NULL.
- * @param[in] expect_lic   Expected SHA-1 of licenses.json.
- * @param[in] expect_exc   Expected SHA-1 of exceptions.json.
+ * @param[in] pszPath        Cache file path. Not NULL.
+ * @param[in] puchExpectLic  Expected SHA-1 of licenses.json.
+ * @param[in] puchExpectExc  Expected SHA-1 of exceptions.json.
  *
  * @return 0 on success, -1 on error or mismatch.
  */
-static int load_cache(const char *path,
-                      const unsigned char expect_lic[20],
-                      const unsigned char expect_exc[20]) {
+static int load_cache(PCSZ pszPath,
+                      const UCHAR puchExpectLic[20],
+                      const UCHAR puchExpectExc[20]) {
     FILE *f;
-    char magic[9];
-    unsigned long version, cnt_lic, cnt_exc, off_lic, off_exc;
-    unsigned long dummy;
-    unsigned char sha1_lic[20], sha1_exc[20];
-    unsigned long i;
+    CHAR achMagic[9];
+    ULONG ulVersion, ulCntLic, ulCntExc, ulOffLic, ulOffExc, ulDummy;
+    UCHAR puchSha1Lic[20], puchSha1Exc[20];
+    ULONG i;
 
-    f = fopen(path, "rb");
+    f = fopen(pszPath, "rb");
     if (!f) return -1;
-    if (fread(magic, 1, 8, f) != 8 ||
-        memcmp(magic, CACHE_MAGIC, 8) != 0) { fclose(f); return -1; }
-    if (read_u32(f, &version) != 0 || version != CACHE_VERSION) {
+    if (fread(achMagic, 1, 8, f) != 8 ||
+        memcmp(achMagic, CACHE_MAGIC, 8) != 0) { fclose(f); return -1; }
+    if (read_u32(f, &ulVersion) != 0 || ulVersion != CACHE_VERSION) {
         fclose(f); return -1;
     }
-    if (fread(sha1_lic, 1, 20, f) != 20 ||
-        fread(sha1_exc, 1, 20, f) != 20) { fclose(f); return -1; }
-    if (memcmp(sha1_lic, expect_lic, 20) != 0 ||
-        memcmp(sha1_exc, expect_exc, 20) != 0) { fclose(f); return -1; }
-    if (read_u32(f, &cnt_lic) != 0 ||
-        read_u32(f, &cnt_exc) != 0 ||
-        read_u32(f, &off_lic) != 0 ||
-        read_u32(f, &off_exc) != 0 ||
-        read_u32(f, &dummy) != 0 ||
-        read_u32(f, &dummy) != 0) { fclose(f); return -1; }
-
-    if (fseek(f, (long)off_lic, SEEK_SET) != 0) { fclose(f); return -1; }
-    for (i = 0; i < cnt_lic; i++) {
-        SpdxLicenseEntry *e = license_list_add(&g_licenses);
-        if (read_license_index_record(f, e) != 0) { fclose(f); return -1; }
+    if (fread(puchSha1Lic, 1, 20, f) != 20 ||
+        fread(puchSha1Exc, 1, 20, f) != 20) { fclose(f); return -1; }
+    if (memcmp(puchSha1Lic, puchExpectLic, 20) != 0 ||
+        memcmp(puchSha1Exc, puchExpectExc, 20) != 0) {
+        fclose(f); return -1;
     }
-    if (fseek(f, (long)off_exc, SEEK_SET) != 0) { fclose(f); return -1; }
-    for (i = 0; i < cnt_exc; i++) {
-        SpdxExceptionEntry *e = exception_list_add(&g_exceptions);
-        if (read_exception_index_record(f, e) != 0) { fclose(f); return -1; }
+    if (read_u32(f, &ulCntLic) != 0 ||
+        read_u32(f, &ulCntExc) != 0 ||
+        read_u32(f, &ulOffLic) != 0 ||
+        read_u32(f, &ulOffExc) != 0 ||
+        read_u32(f, &ulDummy) != 0 ||
+        read_u32(f, &ulDummy) != 0) { fclose(f); return -1; }
+
+    if (fseek(f, (long)ulOffLic, SEEK_SET) != 0) { fclose(f); return -1; }
+    for (i = 0; i < ulCntLic; i++) {
+        PSPDXLICENSEENTRY pEntry;
+        if (license_list_add(&g_Licenses, &pEntry) != NO_ERROR) {
+            fclose(f);
+            return -1;
+        }
+        if (read_license_index_record(f, pEntry) != 0) {
+            fclose(f);
+            return -1;
+        }
+    }
+    if (fseek(f, (long)ulOffExc, SEEK_SET) != 0) { fclose(f); return -1; }
+    for (i = 0; i < ulCntExc; i++) {
+        PSPDXEXCEPTIONENTRY pEntry;
+        if (exception_list_add(&g_Exceptions, &pEntry) != NO_ERROR) {
+            fclose(f);
+            return -1;
+        }
+        if (read_exception_index_record(f, pEntry) != 0) {
+            fclose(f);
+            return -1;
+        }
     }
 
-    g_cache_fp = f;
+    g_pCacheFp = f;
     return 0;
 }
 
@@ -961,99 +1244,143 @@ static int load_cache(const char *path,
 
 /**
  * @brief Read a detail block from the cache.
+ *
+ * @param[in]  ulOffset   Block offset.
+ * @param[in]  ulSize     Block size.
+ * @param[out] ppszText   Receiver for the text. Not NULL.
+ * @param[out] ppszTmpl   Receiver for the template. Not NULL.
+ * @param[out] ppszHtml   Receiver for the HTML. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
  */
-static int read_detail_from_cache(unsigned long offset, unsigned long size,
-                                  char **out_text, char **out_tmpl,
-                                  char **out_html) {
-    char *buf;
-    long got;
-    unsigned long pos = 0;
-    unsigned long len;
+static int read_detail_from_cache(ULONG ulOffset, ULONG ulSize,
+                                  PSZ *ppszText, PSZ *ppszTmpl,
+                                  PSZ *ppszHtml) {
+    PSZ pszBuf;
+    long lGot;
+    ULONG ulPos = 0;
+    ULONG ulLen;
 
-    if (!g_cache_fp || offset == 0 || size == 0) return -1;
-    buf = (char*)malloc(size);
-    if (!buf) return -1;
-    if (fseek(g_cache_fp, (long)offset, SEEK_SET) != 0) { free(buf); return -1; }
-    got = (long)fread(buf, 1, size, g_cache_fp);
-    if (got != (long)size) { free(buf); return -1; }
+    *ppszText = NULL;
+    *ppszTmpl = NULL;
+    *ppszHtml = NULL;
 
-    if (pos + 4 > size) { free(buf); return -1; }
-    len = (unsigned long)buf[pos]        |
-          ((unsigned long)buf[pos+1] << 8) |
-          ((unsigned long)buf[pos+2] << 16)|
-          ((unsigned long)buf[pos+3] << 24);
-    pos += 4;
-    if (pos + len > size) { free(buf); return -1; }
-    *out_text = (char*)malloc(len + 1);
-    if (!*out_text) { free(buf); return -1; }
-    memcpy(*out_text, buf + pos, len);
-    (*out_text)[len] = '\0';
-    pos += len;
-
-    if (pos + 4 > size) { free(*out_text); *out_text = NULL; free(buf); return -1; }
-    len = (unsigned long)buf[pos]        |
-          ((unsigned long)buf[pos+1] << 8) |
-          ((unsigned long)buf[pos+2] << 16)|
-          ((unsigned long)buf[pos+3] << 24);
-    pos += 4;
-    if (pos + len > size) { free(*out_text); *out_text = NULL; free(buf); return -1; }
-    *out_tmpl = (char*)malloc(len + 1);
-    if (!*out_tmpl) { free(*out_text); *out_text = NULL; free(buf); return -1; }
-    memcpy(*out_tmpl, buf + pos, len);
-    (*out_tmpl)[len] = '\0';
-    pos += len;
-
-    if (pos + 4 > size) {
-        free(*out_text); *out_text = NULL;
-        free(*out_tmpl); *out_tmpl = NULL;
-        free(buf); return -1;
+    if (!g_pCacheFp || ulOffset == 0 || ulSize == 0) return -1;
+    pszBuf = (PSZ)malloc(ulSize);
+    if (!pszBuf) return -1;
+    if (fseek(g_pCacheFp, (long)ulOffset, SEEK_SET) != 0) {
+        free(pszBuf); return -1;
     }
-    len = (unsigned long)buf[pos]        |
-          ((unsigned long)buf[pos+1] << 8) |
-          ((unsigned long)buf[pos+2] << 16)|
-          ((unsigned long)buf[pos+3] << 24);
-    pos += 4;
-    if (pos + len > size) {
-        free(*out_text); *out_text = NULL;
-        free(*out_tmpl); *out_tmpl = NULL;
-        free(buf); return -1;
-    }
-    *out_html = (char*)malloc(len + 1);
-    if (!*out_html) {
-        free(*out_text); *out_text = NULL;
-        free(*out_tmpl); *out_tmpl = NULL;
-        free(buf); return -1;
-    }
-    memcpy(*out_html, buf + pos, len);
-    (*out_html)[len] = '\0';
+    lGot = (long)fread(pszBuf, 1, ulSize, g_pCacheFp);
+    if (lGot != (long)ulSize) { free(pszBuf); return -1; }
 
-    free(buf);
+    if (ulPos + 4 > ulSize) { free(pszBuf); return -1; }
+    ulLen = (ULONG)pszBuf[ulPos]        |
+            ((ULONG)pszBuf[ulPos+1] << 8) |
+            ((ULONG)pszBuf[ulPos+2] << 16)|
+            ((ULONG)pszBuf[ulPos+3] << 24);
+    ulPos += 4;
+    if (ulPos + ulLen > ulSize) { free(pszBuf); return -1; }
+    *ppszText = (PSZ)malloc(ulLen + 1);
+    if (!*ppszText) { free(pszBuf); return -1; }
+    memcpy(*ppszText, pszBuf + ulPos, ulLen);
+    (*ppszText)[ulLen] = '\0';
+    ulPos += ulLen;
+
+    if (ulPos + 4 > ulSize) {
+        free(*ppszText); *ppszText = NULL; free(pszBuf); return -1;
+    }
+    ulLen = (ULONG)pszBuf[ulPos]        |
+            ((ULONG)pszBuf[ulPos+1] << 8) |
+            ((ULONG)pszBuf[ulPos+2] << 16)|
+            ((ULONG)pszBuf[ulPos+3] << 24);
+    ulPos += 4;
+    if (ulPos + ulLen > ulSize) {
+        free(*ppszText); *ppszText = NULL; free(pszBuf); return -1;
+    }
+    *ppszTmpl = (PSZ)malloc(ulLen + 1);
+    if (!*ppszTmpl) {
+        free(*ppszText); *ppszText = NULL; free(pszBuf); return -1;
+    }
+    memcpy(*ppszTmpl, pszBuf + ulPos, ulLen);
+    (*ppszTmpl)[ulLen] = '\0';
+    ulPos += ulLen;
+
+    if (ulPos + 4 > ulSize) {
+        free(*ppszText); *ppszText = NULL;
+        free(*ppszTmpl); *ppszTmpl = NULL;
+        free(pszBuf); return -1;
+    }
+    ulLen = (ULONG)pszBuf[ulPos]        |
+            ((ULONG)pszBuf[ulPos+1] << 8) |
+            ((ULONG)pszBuf[ulPos+2] << 16)|
+            ((ULONG)pszBuf[ulPos+3] << 24);
+    ulPos += 4;
+    if (ulPos + ulLen > ulSize) {
+        free(*ppszText); *ppszText = NULL;
+        free(*ppszTmpl); *ppszTmpl = NULL;
+        free(pszBuf); return -1;
+    }
+    *ppszHtml = (PSZ)malloc(ulLen + 1);
+    if (!*ppszHtml) {
+        free(*ppszText); *ppszText = NULL;
+        free(*ppszTmpl); *ppszTmpl = NULL;
+        free(pszBuf); return -1;
+    }
+    memcpy(*ppszHtml, pszBuf + ulPos, ulLen);
+    (*ppszHtml)[ulLen] = '\0';
+
+    free(pszBuf);
     return 0;
 }
 
 /**
  * @brief Read a license detail from details/<id>.json.
+ *
+ * @param[in,out] pEntry  License entry. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
  */
-static int read_license_detail_from_dir(SpdxLicenseEntry *e) {
-    char path[2048];
-    char *text = NULL;
+static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
+    CHAR achPath[2048];
+    CHAR achBuf[65536];
+    ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hChild = NULLHANDLE;
+    PSZ pszHeap = NULL;
+    APIRET rc;
 
-    snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, e->id);
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    snprintf(achPath, sizeof(achPath), "%s/%s.json",
+             g_pszDetailsDir, pEntry->pszId);
+    rc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
+    if (rc != NO_ERROR) return -1;
+
+    if (ulNeeded <= sizeof(achBuf)) {
+        rc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
+        if (rc != NO_ERROR) return -1;
+        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
+    } else {
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return -1;
+        rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+        if (rc != NO_ERROR) { free(pszHeap); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return -1;
+        }
+        free(pszHeap);
+    }
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
     if (JsonNodeGetChild(hRoot, "licenseText", &hChild) == NO_ERROR)
-        e->text = json_dup_string(hChild);
-    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild) == NO_ERROR)
-        e->template = json_dup_string(hChild);
+        pEntry->pszText = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild)
+            == NO_ERROR)
+        pEntry->pszTemplate = json_dup_string(hChild);
     if (JsonNodeGetChild(hRoot, "licenseTextHtml", &hChild) == NO_ERROR)
-        e->text_html = json_dup_string(hChild);
+        pEntry->pszTextHtml = json_dup_string(hChild);
 
     JsonClose(hDoc);
     return 0;
@@ -1061,226 +1388,87 @@ static int read_license_detail_from_dir(SpdxLicenseEntry *e) {
 
 /**
  * @brief Read an exception detail from exceptions/<id>.json.
+ *
+ * @param[in,out] pEntry  Exception entry. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
  */
-static int read_exception_detail_from_dir(SpdxExceptionEntry *e) {
-    char path[2048];
-    char *text = NULL;
+static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
+    CHAR achPath[2048];
+    CHAR achBuf[65536];
+    ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hChild = NULLHANDLE;
+    PSZ pszHeap = NULL;
+    APIRET rc;
 
-    snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, e->id);
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
-    free(text);
+    snprintf(achPath, sizeof(achPath), "%s/%s.json",
+             g_pszExceptionsDir, pEntry->pszId);
+    rc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
+    if (rc != NO_ERROR) return -1;
+
+    if (ulNeeded <= sizeof(achBuf)) {
+        rc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
+        if (rc != NO_ERROR) return -1;
+        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
+    } else {
+        pszHeap = (PSZ)malloc(ulNeeded);
+        if (!pszHeap) return -1;
+        rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+        if (rc != NO_ERROR) { free(pszHeap); return -1; }
+        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
+            free(pszHeap);
+            return -1;
+        }
+        free(pszHeap);
+    }
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
     if (JsonNodeGetChild(hRoot, "licenseExceptionText", &hChild) == NO_ERROR)
-        e->text = json_dup_string(hChild);
-    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild) == NO_ERROR)
-        e->template = json_dup_string(hChild);
+        pEntry->pszText = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild)
+            == NO_ERROR)
+        pEntry->pszTemplate = json_dup_string(hChild);
     if (JsonNodeGetChild(hRoot, "exceptionTextHtml", &hChild) == NO_ERROR)
-        e->text_html = json_dup_string(hChild);
+        pEntry->pszTextHtml = json_dup_string(hChild);
 
     JsonClose(hDoc);
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* Public API                                                          */
-/* ------------------------------------------------------------------ */
-
-/**
- * @brief Initialize the SPDX license database.
- *
- * Reads the licenses and exceptions indexes, either from a binary
- * cache (if the source hashes match) or directly from the JSON
- * files. Details are loaded lazily.
- *
- * @param[in] spdx_db_root  Database root directory. Not NULL.
- * @param[in] cache_file    Cache file path, or NULL for no caching.
- *
- * @return Bitmask of SPDX_DB_ERR_* flags. Zero on full success.
- */
-int spdx_db_init(const char *spdx_db_root, const char *cache_file) {
-    unsigned char sha1_lic[20], sha1_exc[20];
-    int errs = 0;
-    int cache_ok = 0;
-    char lic_path[2048];
-    char exc_path[2048];
-    char det_path[2048];
-    char exc_det_path[2048];
-
-    license_list_init(&g_licenses);
-    exception_list_init(&g_exceptions);
-
-    if (!spdx_db_root || !spdx_db_root[0]) {
-        return SPDX_DB_ERR_LICENSES | SPDX_DB_ERR_EXCEPTIONS;
-    }
-
-    snprintf(lic_path, sizeof(lic_path), "%s/licenses.json", spdx_db_root);
-    snprintf(exc_path, sizeof(exc_path), "%s/exceptions.json", spdx_db_root);
-    snprintf(det_path, sizeof(det_path), "%s/details", spdx_db_root);
-    snprintf(exc_det_path, sizeof(exc_det_path),
-             "%s/exceptions", spdx_db_root);
-
-    g_details_dir = dup_str(det_path);
-    g_exceptions_dir = dup_str(exc_det_path);
-
-    if (compute_sha1_raw(lic_path, sha1_lic) != 0) {
-        errs |= SPDX_DB_ERR_LICENSES;
-        memset(sha1_lic, 0, 20);
-    }
-    if (compute_sha1_raw(exc_path, sha1_exc) != 0) {
-        errs |= SPDX_DB_ERR_EXCEPTIONS;
-        memset(sha1_exc, 0, 20);
-    }
-
-    if (cache_file) {
-        if (load_cache(cache_file, sha1_lic, sha1_exc) == 0)
-            cache_ok = 1;
-    }
-
-    if (!cache_ok) {
-        if (load_licenses_index(lic_path) != 0)
-            errs |= SPDX_DB_ERR_LICENSES;
-        if (load_exceptions_index(exc_path) != 0)
-            errs |= SPDX_DB_ERR_EXCEPTIONS;
-        qsort(g_licenses.items, (size_t)g_licenses.count,
-              sizeof(SpdxLicenseEntry), cmp_lic);
-        qsort(g_exceptions.items, (size_t)g_exceptions.count,
-              sizeof(SpdxExceptionEntry), cmp_exc);
-
-        if (cache_file) {
-            if (build_cache(cache_file, sha1_lic, sha1_exc) != 0) {
-                errs |= SPDX_DB_ERR_CACHE;
-                fprintf(stderr,
-                        "WARNING: cannot write cache: %s\n"
-                        "         Next run will re-parse JSON indexes.\n",
-                        cache_file);
-            }
-        }
-    }
-
-    return errs;
-}
-
-/**
- * @brief Release all memory owned by the database.
- */
-void spdx_db_free(void) {
-    license_list_free(&g_licenses);
-    exception_list_free(&g_exceptions);
-    if (g_cache_fp) { fclose(g_cache_fp); g_cache_fp = NULL; }
-    free(g_details_dir); g_details_dir = NULL;
-    free(g_exceptions_dir); g_exceptions_dir = NULL;
-}
-
-/**
- * @brief Look up a license entry by identifier.
- *
- * @param[in] id  Identifier. Not NULL.
- *
- * @return Pointer to the entry, or NULL if not found.
- */
-const SpdxLicenseEntry *spdx_license_lookup(const char *id) {
-    int idx;
-    if (!id || g_licenses.count == 0) return NULL;
-    idx = lic_lower_bound(id);
-    if (idx < g_licenses.count &&
-        id_cmp_ci(g_licenses.items[idx].id, id) == 0)
-        return &g_licenses.items[idx];
-    return NULL;
-}
-
-/**
- * @brief Look up an exception entry by identifier.
- *
- * @param[in] id  Identifier. Not NULL.
- *
- * @return Pointer to the entry, or NULL if not found.
- */
-const SpdxExceptionEntry *spdx_exception_lookup(const char *id) {
-    int idx;
-    if (!id || g_exceptions.count == 0) return NULL;
-    idx = exc_lower_bound(id);
-    if (idx < g_exceptions.count &&
-        id_cmp_ci(g_exceptions.items[idx].id, id) == 0)
-        return &g_exceptions.items[idx];
-    return NULL;
-}
-
-/**
- * @brief Get the canonical license text.
- *
- * Loads the detail on demand.
- *
- * @param[in] id  Identifier. Not NULL.
- *
- * @return NUL-terminated text, or NULL if unavailable.
- */
-const char *spdx_license_get_text(const char *id) {
-    int idx;
-    SpdxLicenseEntry *e;
-    if (!id || !id[0]) return NULL;
-    idx = lic_lower_bound(id);
-    if (idx >= g_licenses.count) return NULL;
-    if (id_cmp_ci(g_licenses.items[idx].id, id) != 0) return NULL;
-    e = &g_licenses.items[idx];
-    if (!e->detail_loaded) {
-        if (spdx_license_load_detail(e->id) != 0) return NULL;
-    }
-    return e->text;
-}
-
-/**
- * @brief Get the canonical exception text.
- *
- * @param[in] id  Identifier. Not NULL.
- *
- * @return NUL-terminated text, or NULL if unavailable.
- */
-const char *spdx_exception_get_text(const char *id) {
-    int idx;
-    SpdxExceptionEntry *e;
-    if (!id || !id[0]) return NULL;
-    idx = exc_lower_bound(id);
-    if (idx >= g_exceptions.count) return NULL;
-    if (id_cmp_ci(g_exceptions.items[idx].id, id) != 0) return NULL;
-    e = &g_exceptions.items[idx];
-    if (!e->detail_loaded) {
-        if (spdx_exception_load_detail(e->id) != 0) return NULL;
-    }
-    return e->text;
-}
-
 /**
  * @brief Load a license detail on demand.
  *
- * @param[in] id  Identifier. Not NULL.
+ * Tries the open cache first, then details/<id>.json.
+ *
+ * @param[in] pszId  Identifier. Not NULL.
  *
  * @return 0 on success, -1 on error.
  */
-int spdx_license_load_detail(const char *id) {
+static int license_load_detail(PCSZ pszId) {
     int idx;
-    SpdxLicenseEntry *e;
-    idx = lic_lower_bound(id);
-    if (idx >= g_licenses.count ||
-        id_cmp_ci(g_licenses.items[idx].id, id) != 0) return -1;
-    e = &g_licenses.items[idx];
-    if (e->detail_loaded) return 0;
+    PSPDXLICENSEENTRY pEntry;
+    idx = lic_lower_bound(pszId);
+    if (idx >= g_Licenses.count ||
+        id_cmp_ci(g_Licenses.pItems[idx].pszId, pszId) != 0) return -1;
+    pEntry = &g_Licenses.pItems[idx];
+    if (pEntry->fDetailLoaded) return 0;
 
-    if (g_cache_fp && e->detail_offset && e->detail_size) {
-        if (read_detail_from_cache(e->detail_offset, e->detail_size,
-                                   &e->text, &e->template, &e->text_html) == 0) {
-            e->detail_loaded = 1;
+    if (g_pCacheFp && pEntry->ulDetailOffset && pEntry->ulDetailSize) {
+        if (read_detail_from_cache(pEntry->ulDetailOffset,
+                                   pEntry->ulDetailSize,
+                                   &pEntry->pszText,
+                                   &pEntry->pszTemplate,
+                                   &pEntry->pszTextHtml) == 0) {
+            pEntry->fDetailLoaded = TRUE_;
             return 0;
         }
     }
-    if (g_details_dir) {
-        if (read_license_detail_from_dir(e) == 0) {
-            e->detail_loaded = 1;
+    if (g_pszDetailsDir) {
+        if (read_license_detail_from_dir(pEntry) == 0) {
+            pEntry->fDetailLoaded = TRUE_;
             return 0;
         }
     }
@@ -1290,113 +1478,390 @@ int spdx_license_load_detail(const char *id) {
 /**
  * @brief Load an exception detail on demand.
  *
- * @param[in] id  Identifier. Not NULL.
+ * Tries the open cache first, then exceptions/<id>.json.
+ *
+ * @param[in] pszId  Identifier. Not NULL.
  *
  * @return 0 on success, -1 on error.
  */
-int spdx_exception_load_detail(const char *id) {
+static int exception_load_detail(PCSZ pszId) {
     int idx;
-    SpdxExceptionEntry *e;
-    idx = exc_lower_bound(id);
-    if (idx >= g_exceptions.count ||
-        id_cmp_ci(g_exceptions.items[idx].id, id) != 0) return -1;
-    e = &g_exceptions.items[idx];
-    if (e->detail_loaded) return 0;
+    PSPDXEXCEPTIONENTRY pEntry;
+    idx = exc_lower_bound(pszId);
+    if (idx >= g_Exceptions.count ||
+        id_cmp_ci(g_Exceptions.pItems[idx].pszId, pszId) != 0) return -1;
+    pEntry = &g_Exceptions.pItems[idx];
+    if (pEntry->fDetailLoaded) return 0;
 
-    if (g_cache_fp && e->detail_offset && e->detail_size) {
-        if (read_detail_from_cache(e->detail_offset, e->detail_size,
-                                   &e->text, &e->template, &e->text_html) == 0) {
-            e->detail_loaded = 1;
+    if (g_pCacheFp && pEntry->ulDetailOffset && pEntry->ulDetailSize) {
+        if (read_detail_from_cache(pEntry->ulDetailOffset,
+                                   pEntry->ulDetailSize,
+                                   &pEntry->pszText,
+                                   &pEntry->pszTemplate,
+                                   &pEntry->pszTextHtml) == 0) {
+            pEntry->fDetailLoaded = TRUE_;
             return 0;
         }
     }
-    if (g_exceptions_dir) {
-        if (read_exception_detail_from_dir(e) == 0) {
-            e->detail_loaded = 1;
+    if (g_pszExceptionsDir) {
+        if (read_exception_detail_from_dir(pEntry) == 0) {
+            pEntry->fDetailLoaded = TRUE_;
             return 0;
         }
     }
     return -1;
 }
 
+/* ------------------------------------------------------------------ */
+/* Public API                                                          */
+/* ------------------------------------------------------------------ */
+
 /**
- * @brief Check whether an identifier is a valid SPDX license.
+ * @brief Open the SPDX database.
  *
- * @param[in] id  Identifier. Not NULL.
+ * Reads the licenses and exceptions indexes, either from a binary
+ * cache (if the source hashes match) or directly from the JSON
+ * files. Details are loaded lazily by the text query functions.
  *
- * @return 1 if valid, 0 otherwise.
+ * @param[in] pszDbRoot    Database root. Inside it the following are
+ *                         expected:
+ *                           licenses.json
+ *                           exceptions.json
+ *                           details/<id>.json
+ *                           exceptions/<id>.json
+ *                         Not NULL.
+ * @param[in] pszCacheFile Path to the cache file, or NULL for no
+ *                         cache.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Full success.
+ * @retval ERROR_INVALID_PARAMETER  pszDbRoot is NULL or empty.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval SPDXDB_ERROR_LICENSES    licenses.json failed to load.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  exceptions.json failed to load.
+ * @retval SPDXDB_ERROR_CACHE       Cache could not be written.
  */
-int spdx_license_is_valid(const char *id) {
-    if (!id || id[0] == '\0') return 0;
-    if (strncmp(id, "LicenseRef-", 11) == 0) return 1;
-    if (strncmp(id, "DocumentRef-", 12) == 0) {
-        const char *colon = strchr(id, ':');
-        if (colon && strncmp(colon + 1, "LicenseRef-", 11) == 0) return 1;
-        return 0;
+APIRET APIENTRY SpdxOpenDatabase(PCSZ pszDbRoot, PCSZ pszCacheFile) {
+    UCHAR puchSha1Lic[20], puchSha1Exc[20];
+    APIRET rc = NO_ERROR;
+    APIRET rcInit;
+    int cache_ok = 0;
+    CHAR achLicPath[2048];
+    CHAR achExcPath[2048];
+    CHAR achDetPath[2048];
+    CHAR achExcDetPath[2048];
+
+    if (!pszDbRoot || !pszDbRoot[0]) return ERROR_INVALID_PARAMETER;
+
+    rcInit = license_list_init(&g_Licenses);
+    if (rcInit != NO_ERROR) return rcInit;
+    rcInit = exception_list_init(&g_Exceptions);
+    if (rcInit != NO_ERROR) {
+        license_list_free(&g_Licenses);
+        return rcInit;
     }
-    if (g_licenses.count == 0) return 1;
-    return spdx_license_lookup(id) != NULL;
+
+    snprintf(achLicPath, sizeof(achLicPath), "%s/licenses.json", pszDbRoot);
+    snprintf(achExcPath, sizeof(achExcPath), "%s/exceptions.json", pszDbRoot);
+    snprintf(achDetPath, sizeof(achDetPath), "%s/details", pszDbRoot);
+    snprintf(achExcDetPath, sizeof(achExcDetPath),
+             "%s/exceptions", pszDbRoot);
+
+    g_pszDetailsDir = strdup(achDetPath);
+    g_pszExceptionsDir = strdup(achExcDetPath);
+
+    if (compute_sha1_raw(achLicPath, puchSha1Lic) != 0) {
+        rc |= SPDXDB_ERROR_LICENSES;
+        memset(puchSha1Lic, 0, 20);
+    }
+    if (compute_sha1_raw(achExcPath, puchSha1Exc) != 0) {
+        rc |= SPDXDB_ERROR_EXCEPTIONS;
+        memset(puchSha1Exc, 0, 20);
+    }
+
+    if (pszCacheFile) {
+        if (load_cache(pszCacheFile, puchSha1Lic, puchSha1Exc) == 0)
+            cache_ok = 1;
+    }
+
+    if (!cache_ok) {
+        if (load_licenses_index(achLicPath) != NO_ERROR)
+            rc |= SPDXDB_ERROR_LICENSES;
+        if (load_exceptions_index(achExcPath) != NO_ERROR)
+            rc |= SPDXDB_ERROR_EXCEPTIONS;
+        qsort(g_Licenses.pItems, (size_t)g_Licenses.count,
+              sizeof(SPDXLICENSEENTRY), cmp_lic);
+        qsort(g_Exceptions.pItems, (size_t)g_Exceptions.count,
+              sizeof(SPDXEXCEPTIONENTRY), cmp_exc);
+
+        if (pszCacheFile) {
+            if (build_cache(pszCacheFile, puchSha1Lic, puchSha1Exc) != 0)
+                rc |= SPDXDB_ERROR_CACHE;
+        }
+    }
+
+    return rc;
 }
 
 /**
- * @brief Check whether an identifier is a valid SPDX exception.
+ * @brief Close the SPDX database.
  *
- * @param[in] id  Identifier. Not NULL.
+ * Releases every resource owned by the module, including
+ * lazy-loaded details and the open cache file.
  *
- * @return 1 if valid, 0 otherwise.
+ * @return APIRET
+ * @retval NO_ERROR  Always.
  */
-int spdx_exception_is_valid(const char *id) {
-    if (!id || id[0] == '\0') return 0;
-    if (g_exceptions.count == 0) return 1;
-    return spdx_exception_lookup(id) != NULL;
+APIRET APIENTRY SpdxCloseDatabase(void) {
+    license_list_free(&g_Licenses);
+    exception_list_free(&g_Exceptions);
+    if (g_pCacheFp) { fclose(g_pCacheFp); g_pCacheFp = NULL; }
+    free(g_pszDetailsDir); g_pszDetailsDir = NULL;
+    free(g_pszExceptionsDir); g_pszExceptionsDir = NULL;
+    return NO_ERROR;
 }
 
 /**
- * @brief Check whether a license identifier is deprecated.
+ * @brief Query the canonical form of an SPDX identifier.
  *
- * @param[in] id  Identifier. Not NULL.
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
- * @return 1 if deprecated, 0 otherwise.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     Identifier is not a known license
+ *                                  or exception.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
-int spdx_license_is_deprecated(const char *id) {
-    const SpdxLicenseEntry *e = spdx_license_lookup(id);
-    return e && (e->flags & SPDX_DB_FLAG_DEPRECATED) ? 1 : 0;
+APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
+                                     ULONG ulSize, PULONG pulUsed) {
+    PSPDXLICENSEENTRY pLic;
+    PSPDXEXCEPTIONENTRY pExc;
+
+    if (!pszId) return ERROR_INVALID_PARAMETER;
+
+    pLic = license_lookup(pszId);
+    if (pLic)
+        return copy_out(pLic->pszId, pszBuf, ulSize, pulUsed);
+    pExc = exception_lookup(pszId);
+    if (pExc)
+        return copy_out(pExc->pszId, pszBuf, ulSize, pulUsed);
+    return ERROR_FILE_NOT_FOUND;
 }
 
 /**
- * @brief Check whether an exception identifier is deprecated.
+ * @brief Query whether an identifier is a known SPDX license.
  *
- * @param[in] id  Identifier. Not NULL.
+ * LicenseRef-* and DocumentRef-<id>:LicenseRef-* are accepted as
+ * valid even though they are not in the SPDX License List.
  *
- * @return 1 if deprecated, 0 otherwise.
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfValid  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
  */
-int spdx_exception_is_deprecated(const char *id) {
-    const SpdxExceptionEntry *e = spdx_exception_lookup(id);
-    return e && (e->flags & SPDX_DB_FLAG_DEPRECATED) ? 1 : 0;
+APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
+    if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
+    *pfValid = FALSE_;
+    if (pszId[0] == '\0') return NO_ERROR;
+    if (strncmp(pszId, "LicenseRef-", 11) == 0) {
+        *pfValid = TRUE_;
+        return NO_ERROR;
+    }
+    if (strncmp(pszId, "DocumentRef-", 12) == 0) {
+        PCSZ pszColon = strchr(pszId, ':');
+        if (pszColon && strncmp(pszColon + 1, "LicenseRef-", 11) == 0)
+            *pfValid = TRUE_;
+        return NO_ERROR;
+    }
+    if (g_Licenses.count == 0) {
+        *pfValid = TRUE_;
+        return NO_ERROR;
+    }
+    *pfValid = license_lookup(pszId) ? TRUE_ : FALSE_;
+    return NO_ERROR;
 }
 
 /**
- * @brief Check whether a license is OSI-approved.
+ * @brief Query whether an identifier is a known SPDX exception.
  *
- * @param[in] id  Identifier. Not NULL.
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfValid  Receiver. Not NULL.
  *
- * @return 1 if OSI-approved, 0 otherwise.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
  */
-int spdx_license_is_osi_approved(const char *id) {
-    const SpdxLicenseEntry *e = spdx_license_lookup(id);
-    return e && (e->flags & SPDX_DB_FLAG_OSI) ? 1 : 0;
+APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid) {
+    if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
+    *pfValid = FALSE_;
+    if (pszId[0] == '\0') return NO_ERROR;
+    if (g_Exceptions.count == 0) {
+        *pfValid = TRUE_;
+        return NO_ERROR;
+    }
+    *pfValid = exception_lookup(pszId) ? TRUE_ : FALSE_;
+    return NO_ERROR;
 }
 
 /**
- * @brief Check whether a license is FSF-libre.
+ * @brief Query whether a license identifier is deprecated.
  *
- * @param[in] id  Identifier. Not NULL.
+ * @param[in]  pszId         Identifier. Not NULL.
+ * @param[out] pfDeprecated  Receiver. Not NULL.
  *
- * @return 1 if FSF-libre, 0 otherwise.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
  */
-int spdx_license_is_fsf_libre(const char *id) {
-    const SpdxLicenseEntry *e = spdx_license_lookup(id);
-    return e && (e->flags & SPDX_DB_FLAG_FSF_LIBRE) ? 1 : 0;
+APIRET APIENTRY SpdxQueryLicenseDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
+    PSPDXLICENSEENTRY pLic;
+    if (!pszId || !pfDeprecated) return ERROR_INVALID_PARAMETER;
+    *pfDeprecated = FALSE_;
+    pLic = license_lookup(pszId);
+    if (pLic && (pLic->uchFlags & SPDXDB_FLAG_DEPRECATED))
+        *pfDeprecated = TRUE_;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Query whether an exception identifier is deprecated.
+ *
+ * @param[in]  pszId         Identifier. Not NULL.
+ * @param[out] pfDeprecated  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
+ */
+APIRET APIENTRY SpdxQueryExceptionDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
+    PSPDXEXCEPTIONENTRY pExc;
+    if (!pszId || !pfDeprecated) return ERROR_INVALID_PARAMETER;
+    *pfDeprecated = FALSE_;
+    pExc = exception_lookup(pszId);
+    if (pExc && (pExc->uchFlags & SPDXDB_FLAG_DEPRECATED))
+        *pfDeprecated = TRUE_;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Query whether a license is OSI-approved.
+ *
+ * @param[in]  pszId       Identifier. Not NULL.
+ * @param[out] pfApproved  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfApproved is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseOsiApproved(PCSZ pszId, PBOOL pfApproved) {
+    PSPDXLICENSEENTRY pLic;
+    if (!pszId || !pfApproved) return ERROR_INVALID_PARAMETER;
+    *pfApproved = FALSE_;
+    pLic = license_lookup(pszId);
+    if (pLic && (pLic->uchFlags & SPDXDB_FLAG_OSI))
+        *pfApproved = TRUE_;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Query whether a license is FSF-libre.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pfLibre  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId or pfLibre is NULL.
+ */
+APIRET APIENTRY SpdxQueryLicenseFsfLibre(PCSZ pszId, PBOOL pfLibre) {
+    PSPDXLICENSEENTRY pLic;
+    if (!pszId || !pfLibre) return ERROR_INVALID_PARAMETER;
+    *pfLibre = FALSE_;
+    pLic = license_lookup(pszId);
+    if (pLic && (pLic->uchFlags & SPDXDB_FLAG_FSF_LIBRE))
+        *pfLibre = TRUE_;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Query the license text of a known license.
+ *
+ * The detail is lazy-loaded.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     No text available.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryLicenseText(PCSZ pszId, PSZ pszBuf,
+                                     ULONG ulSize, PULONG pulUsed) {
+    int idx;
+    PSPDXLICENSEENTRY pEntry;
+
+    if (!pszId || !pszId[0]) return ERROR_INVALID_PARAMETER;
+
+    idx = lic_lower_bound(pszId);
+    if (idx >= g_Licenses.count ||
+        id_cmp_ci(g_Licenses.pItems[idx].pszId, pszId) != 0)
+        return ERROR_FILE_NOT_FOUND;
+    pEntry = &g_Licenses.pItems[idx];
+    if (!pEntry->fDetailLoaded) {
+        if (license_load_detail(pEntry->pszId) != 0)
+            return ERROR_FILE_NOT_FOUND;
+    }
+    if (!pEntry->pszText) return ERROR_FILE_NOT_FOUND;
+    return copy_out(pEntry->pszText, pszBuf, ulSize, pulUsed);
+}
+
+/**
+ * @brief Query the exception text of a known exception.
+ *
+ * The detail is lazy-loaded.
+ *
+ * @param[in]  pszId    Identifier. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_FILE_NOT_FOUND     No text available.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryExceptionText(PCSZ pszId, PSZ pszBuf,
+                                       ULONG ulSize, PULONG pulUsed) {
+    int idx;
+    PSPDXEXCEPTIONENTRY pEntry;
+
+    if (!pszId || !pszId[0]) return ERROR_INVALID_PARAMETER;
+
+    idx = exc_lower_bound(pszId);
+    if (idx >= g_Exceptions.count ||
+        id_cmp_ci(g_Exceptions.pItems[idx].pszId, pszId) != 0)
+        return ERROR_FILE_NOT_FOUND;
+    pEntry = &g_Exceptions.pItems[idx];
+    if (!pEntry->fDetailLoaded) {
+        if (exception_load_detail(pEntry->pszId) != 0)
+            return ERROR_FILE_NOT_FOUND;
+    }
+    if (!pEntry->pszText) return ERROR_FILE_NOT_FOUND;
+    return copy_out(pEntry->pszText, pszBuf, ulSize, pulUsed);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1407,116 +1872,144 @@ int spdx_license_is_fsf_libre(const char *id) {
  * @struct _EXPRPARSER
  * @brief Recursive descent parser state for SPDX expressions.
  */
-typedef struct {
-    const char *p;                 /**< Current position.              */
-    const char *bad_token_start;   /**< Start of the offending token.  */
-    int         err;               /**< SPDX_EXPR_* error code.        */
+typedef struct _EXPRPARSER {
+    PCSZ   pszPos;           /**< Current position.              */
+    PCSZ   pszBadTokenStart; /**< Start of offending token.      */
+    APIRET ulErr;            /**< One of the SPDX_EXPR_* codes.  */
 } EXPRPARSER;
 
 /**
- * @brief Skip whitespace.
+ * @brief Skip whitespace in the parser input.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
  */
-static void skip_ws(EXPRPARSER *pp) {
-    while (*pp->p && isspace((unsigned char)*pp->p)) pp->p++;
+static void skip_ws(EXPRPARSER *pParser) {
+    while (*pParser->pszPos && isspace((unsigned char)*pParser->pszPos))
+        pParser->pszPos++;
 }
 
 /**
- * @brief Check whether a keyword appears at @p p.
+ * @brief Check whether a keyword appears at @p pszPos.
+ *
+ * @param[in] pszPos  Position. Not NULL.
+ * @param[in] pszKw   Keyword. Not NULL.
+ * @param[in] kwlen   Keyword length.
+ *
+ * @return 1 on match, 0 otherwise.
  */
-static int is_kw_at(const char *p, const char *kw, int kwlen) {
-    if (strncmp(p, kw, kwlen) != 0) return 0;
-    if (p[kwlen] == '\0') return 1;
-    if (isspace((unsigned char)p[kwlen])) return 1;
-    if (p[kwlen] == '(' || p[kwlen] == ')') return 1;
+static int is_kw_at(PCSZ pszPos, PCSZ pszKw, int kwlen) {
+    if (strncmp(pszPos, pszKw, kwlen) != 0) return 0;
+    if (pszPos[kwlen] == '\0') return 1;
+    if (isspace((unsigned char)pszPos[kwlen])) return 1;
+    if (pszPos[kwlen] == '(' || pszPos[kwlen] == ')') return 1;
     return 0;
 }
 
-static int parse_expression(EXPRPARSER *pp);
+static int parse_expression(EXPRPARSER *pParser);
 
 /**
- * @brief Parse one term.
+ * @brief Parse one term (identifier [WITH exception] or parenthesized
+ *        group).
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 1 on success, 0 on error (error code in parser).
  */
-static int parse_term(EXPRPARSER *pp) {
-    skip_ws(pp);
-    if (*pp->p == '(') {
-        pp->p++;
-        if (!parse_expression(pp)) return 0;
-        skip_ws(pp);
-        if (*pp->p != ')') {
-            if (pp->err == SPDX_EXPR_OK) pp->err = SPDX_EXPR_SYNTAX_ERROR;
+static int parse_term(EXPRPARSER *pParser) {
+    skip_ws(pParser);
+    if (*pParser->pszPos == '(') {
+        pParser->pszPos++;
+        if (!parse_expression(pParser)) return 0;
+        skip_ws(pParser);
+        if (*pParser->pszPos != ')') {
+            if (pParser->ulErr == NO_ERROR)
+                pParser->ulErr = SPDX_EXPR_SYNTAX_ERROR;
             return 0;
         }
-        pp->p++;
+        pParser->pszPos++;
         return 1;
     }
     {
-        const char *id_start = pp->p;
+        PCSZ pszIdStart = pParser->pszPos;
         int id_len;
-        char id_buf[256];
-        const char *save;
-        while (*pp->p && !isspace((unsigned char)*pp->p) &&
-               *pp->p != '(' && *pp->p != ')') pp->p++;
-        id_len = (int)(pp->p - id_start);
+        CHAR achId[256];
+        PCSZ pszSave;
+        BOOL fValid = FALSE_;
+        while (*pParser->pszPos && !isspace((unsigned char)*pParser->pszPos) &&
+               *pParser->pszPos != '(' && *pParser->pszPos != ')')
+            pParser->pszPos++;
+        id_len = (int)(pParser->pszPos - pszIdStart);
         if (id_len == 0) {
-            if (pp->err == SPDX_EXPR_OK) pp->err = SPDX_EXPR_SYNTAX_ERROR;
+            if (pParser->ulErr == NO_ERROR)
+                pParser->ulErr = SPDX_EXPR_SYNTAX_ERROR;
             return 0;
         }
-        if (id_len >= (int)sizeof(id_buf)) id_len = (int)sizeof(id_buf) - 1;
-        memcpy(id_buf, id_start, (size_t)id_len);
-        id_buf[id_len] = '\0';
-        if (!spdx_license_is_valid(id_buf)) {
-            pp->err = SPDX_EXPR_UNKNOWN_TOKEN;
-            pp->bad_token_start = id_start;
+        if (id_len >= (int)sizeof(achId)) id_len = (int)sizeof(achId) - 1;
+        memcpy(achId, pszIdStart, (size_t)id_len);
+        achId[id_len] = '\0';
+        SpdxQueryLicenseValid(achId, &fValid);
+        if (!fValid) {
+            pParser->ulErr = SPDX_EXPR_UNKNOWN_TOKEN;
+            pParser->pszBadTokenStart = pszIdStart;
             return 0;
         }
-        save = pp->p;
-        skip_ws(pp);
-        if (is_kw_at(pp->p, "WITH", 4)) {
-            const char *e_start;
+        pszSave = pParser->pszPos;
+        skip_ws(pParser);
+        if (is_kw_at(pParser->pszPos, "WITH", 4)) {
+            PCSZ pszExcStart;
             int e_len;
-            char e_buf[256];
-            pp->p += 4;
-            skip_ws(pp);
-            e_start = pp->p;
-            while (*pp->p && !isspace((unsigned char)*pp->p) &&
-                   *pp->p != '(' && *pp->p != ')') pp->p++;
-            e_len = (int)(pp->p - e_start);
+            CHAR achExc[256];
+            BOOL fExcValid = FALSE_;
+            pParser->pszPos += 4;
+            skip_ws(pParser);
+            pszExcStart = pParser->pszPos;
+            while (*pParser->pszPos &&
+                   !isspace((unsigned char)*pParser->pszPos) &&
+                   *pParser->pszPos != '(' && *pParser->pszPos != ')')
+                pParser->pszPos++;
+            e_len = (int)(pParser->pszPos - pszExcStart);
             if (e_len == 0) {
-                if (pp->err == SPDX_EXPR_OK) pp->err = SPDX_EXPR_SYNTAX_ERROR;
+                if (pParser->ulErr == NO_ERROR)
+                    pParser->ulErr = SPDX_EXPR_SYNTAX_ERROR;
                 return 0;
             }
-            if (e_len >= (int)sizeof(e_buf)) e_len = (int)sizeof(e_buf) - 1;
-            memcpy(e_buf, e_start, (size_t)e_len);
-            e_buf[e_len] = '\0';
-            if (!spdx_exception_is_valid(e_buf)) {
-                pp->err = SPDX_EXPR_UNKNOWN_TOKEN;
-                pp->bad_token_start = e_start;
+            if (e_len >= (int)sizeof(achExc)) e_len = (int)sizeof(achExc) - 1;
+            memcpy(achExc, pszExcStart, (size_t)e_len);
+            achExc[e_len] = '\0';
+            SpdxQueryExceptionValid(achExc, &fExcValid);
+            if (!fExcValid) {
+                pParser->ulErr = SPDX_EXPR_UNKNOWN_TOKEN;
+                pParser->pszBadTokenStart = pszExcStart;
                 return 0;
             }
         } else {
-            pp->p = save;
+            pParser->pszPos = pszSave;
         }
     }
     return 1;
 }
 
 /**
- * @brief Parse a full expression (terms joined by AND/OR).
+ * @brief Parse a full expression (terms joined by AND / OR).
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 1 on success, 0 on error.
  */
-static int parse_expression(EXPRPARSER *pp) {
-    if (!parse_term(pp)) return 0;
+static int parse_expression(EXPRPARSER *pParser) {
+    if (!parse_term(pParser)) return 0;
     while (1) {
-        const char *save;
-        skip_ws(pp);
-        save = pp->p;
-        if (is_kw_at(pp->p, "AND", 3)) {
-            pp->p += 3;
-            if (!parse_term(pp)) return 0;
-        } else if (is_kw_at(pp->p, "OR", 2)) {
-            pp->p += 2;
-            if (!parse_term(pp)) return 0;
+        PCSZ pszSave;
+        skip_ws(pParser);
+        pszSave = pParser->pszPos;
+        if (is_kw_at(pParser->pszPos, "AND", 3)) {
+            pParser->pszPos += 3;
+            if (!parse_term(pParser)) return 0;
+        } else if (is_kw_at(pParser->pszPos, "OR", 2)) {
+            pParser->pszPos += 2;
+            if (!parse_term(pParser)) return 0;
         } else {
-            pp->p = save;
+            pParser->pszPos = pszSave;
             break;
         }
     }
@@ -1524,39 +2017,37 @@ static int parse_expression(EXPRPARSER *pp) {
 }
 
 /**
- * @brief Validate an SPDX license expression.
+ * @brief Query the validity of an SPDX license expression.
  *
- * @param[in]  expr       Expression. Not NULL.
- * @param[out] bad_token  Optional. On SPDX_EXPR_UNKNOWN_TOKEN, receives
- *                        a pointer to the offending token inside
- *                        @p expr. May be NULL.
+ * @param[in]  pszExpr       Expression. Not NULL.
+ * @param[out] ppszBadToken  Optional. May be NULL.
  *
- * @return SPDX_EXPR_OK, SPDX_EXPR_SYNTAX_ERROR or
- *         SPDX_EXPR_UNKNOWN_TOKEN.
+ * @return APIRET
+ * @retval NO_ERROR                 Expression is valid.
+ * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
+ * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
  */
-int spdx_expression_validate(const char *expr, const char **bad_token) {
-    EXPRPARSER pp;
-    if (bad_token) *bad_token = NULL;
-    if (!expr) return SPDX_EXPR_SYNTAX_ERROR;
-    pp.p = expr;
-    pp.bad_token_start = NULL;
-    pp.err = SPDX_EXPR_OK;
-    if (!parse_expression(&pp)) {
-        if (pp.err == SPDX_EXPR_OK) pp.err = SPDX_EXPR_SYNTAX_ERROR;
-        if (bad_token && pp.bad_token_start) *bad_token = pp.bad_token_start;
-        return pp.err;
+APIRET APIENTRY SpdxQueryExpression(PCSZ pszExpr, PCSZ *ppszBadToken) {
+    EXPRPARSER parser;
+    if (ppszBadToken) *ppszBadToken = NULL;
+    if (!pszExpr) return SPDX_EXPR_SYNTAX_ERROR;
+    parser.pszPos = pszExpr;
+    parser.pszBadTokenStart = NULL;
+    parser.ulErr = NO_ERROR;
+    if (!parse_expression(&parser)) {
+        if (parser.ulErr == NO_ERROR) parser.ulErr = SPDX_EXPR_SYNTAX_ERROR;
+        if (ppszBadToken && parser.pszBadTokenStart)
+            *ppszBadToken = parser.pszBadTokenStart;
+        return parser.ulErr;
     }
-    skip_ws(&pp);
-    if (*pp.p != '\0') return SPDX_EXPR_SYNTAX_ERROR;
-    return SPDX_EXPR_OK;
+    skip_ws(&parser);
+    if (*parser.pszPos != '\0') return SPDX_EXPR_SYNTAX_ERROR;
+    return NO_ERROR;
 }
 
-/* ------------------------------------------------------------------ */
-/* SPDX expression normalization                                       */
-/* ------------------------------------------------------------------ */
-
 /**
- * @brief Normalize an SPDX license expression to canonical case.
+ * @brief Build the canonical form of an SPDX expression in a heap
+ *        buffer.
  *
  * Every identifier from the SPDX License List or the SPDX Exceptions
  * list is replaced with its canonical case (for example,
@@ -1564,79 +2055,114 @@ int spdx_expression_validate(const char *expr, const char **bad_token) {
  * whitespace are preserved as-is. LicenseRef-* and DocumentRef-*
  * identifiers are left unchanged.
  *
- * @param[in] expr  Expression, or NULL.
+ * @param[in]  pszExpr   Expression. Not NULL.
+ * @param[out] ppszOut   Receiver. Not NULL.
  *
- * @return malloc'd normalized string, or NULL on OOM or NULL input.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-char *spdx_normalize_license_expression(const char *expr) {
+static APIRET canonical_to_heap(PCSZ pszExpr, PSZ *ppszOut) {
     size_t cap = 128;
     size_t len = 0;
-    char *out;
-    const char *p;
+    PSZ pszOut;
+    PCSZ pszPos;
 
-    if (!expr) return NULL;
+    *ppszOut = NULL;
 
-    out = (char*)malloc(cap);
-    if (!out) return NULL;
-    out[0] = '\0';
+    pszOut = (PSZ)malloc(cap);
+    if (!pszOut) return ERROR_NOT_ENOUGH_MEMORY;
+    pszOut[0] = '\0';
 
-    p = expr;
-    while (*p) {
-        const char *start;
+    pszPos = pszExpr;
+    while (*pszPos) {
+        PCSZ pszStart;
         size_t tok_len;
-        char tok[256];
-        const char *canonical;
+        CHAR achTok[256];
+        PCSZ pszCanonical;
 
-        if (*p == ' ' || *p == '\t' || *p == '(' || *p == ')') {
+        if (*pszPos == ' ' || *pszPos == '\t' ||
+            *pszPos == '(' || *pszPos == ')') {
             if (len + 1 >= cap) {
                 size_t ncap = cap * 2;
-                char *no = (char*)realloc(out, ncap);
-                if (!no) { free(out); return NULL; }
-                out = no; cap = ncap;
+                PSZ pszNew = (PSZ)realloc(pszOut, ncap);
+                if (!pszNew) { free(pszOut); return ERROR_NOT_ENOUGH_MEMORY; }
+                pszOut = pszNew; cap = ncap;
             }
-            out[len++] = *p++;
-            out[len] = '\0';
+            pszOut[len++] = *pszPos++;
+            pszOut[len] = '\0';
             continue;
         }
 
-        start = p;
-        while (*p && !isspace((unsigned char)*p) &&
-               *p != '(' && *p != ')')
-            p++;
-        tok_len = (size_t)(p - start);
-        if (tok_len >= sizeof(tok)) tok_len = sizeof(tok) - 1;
-        memcpy(tok, start, tok_len);
-        tok[tok_len] = '\0';
+        pszStart = pszPos;
+        while (*pszPos && !isspace((unsigned char)*pszPos) &&
+               *pszPos != '(' && *pszPos != ')')
+            pszPos++;
+        tok_len = (size_t)(pszPos - pszStart);
+        if (tok_len >= sizeof(achTok)) tok_len = sizeof(achTok) - 1;
+        memcpy(achTok, pszStart, tok_len);
+        achTok[tok_len] = '\0';
 
-        if (strcmp(tok, "AND") == 0 ||
-            strcmp(tok, "OR") == 0 ||
-            strcmp(tok, "WITH") == 0) {
-            canonical = tok;
-        } else if (strncmp(tok, "LicenseRef-", 11) == 0 ||
-                   strncmp(tok, "DocumentRef-", 12) == 0) {
-            canonical = tok;
+        if (strcmp(achTok, "AND") == 0 ||
+            strcmp(achTok, "OR") == 0 ||
+            strcmp(achTok, "WITH") == 0) {
+            pszCanonical = achTok;
+        } else if (strncmp(achTok, "LicenseRef-", 11) == 0 ||
+                   strncmp(achTok, "DocumentRef-", 12) == 0) {
+            pszCanonical = achTok;
         } else {
-            const SpdxLicenseEntry *e = spdx_license_lookup(tok);
-            const SpdxExceptionEntry *ex = NULL;
-            if (!e) ex = spdx_exception_lookup(tok);
-            if (e) canonical = e->id;
-            else if (ex) canonical = ex->id;
-            else canonical = tok;
+            PSPDXLICENSEENTRY pLic = license_lookup(achTok);
+            PSPDXEXCEPTIONENTRY pExc = NULL;
+            if (!pLic) pExc = exception_lookup(achTok);
+            if (pLic) pszCanonical = pLic->pszId;
+            else if (pExc) pszCanonical = pExc->pszId;
+            else pszCanonical = achTok;
         }
 
         {
-            size_t clen = strlen(canonical);
+            size_t clen = strlen(pszCanonical);
             if (len + clen + 1 > cap) {
                 size_t ncap = cap * 2 + clen;
-                char *no = (char*)realloc(out, ncap);
-                if (!no) { free(out); return NULL; }
-                out = no; cap = ncap;
+                PSZ pszNew = (PSZ)realloc(pszOut, ncap);
+                if (!pszNew) { free(pszOut); return ERROR_NOT_ENOUGH_MEMORY; }
+                pszOut = pszNew; cap = ncap;
             }
-            memcpy(out + len, canonical, clen);
+            memcpy(pszOut + len, pszCanonical, clen);
             len += clen;
-            out[len] = '\0';
+            pszOut[len] = '\0';
         }
     }
 
-    return out;
+    *ppszOut = pszOut;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Query the canonical form of an SPDX license expression.
+ *
+ * @param[in]  pszExpr  Expression. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SpdxQueryExpressionCanonical(PCSZ pszExpr, PSZ pszBuf,
+                                             ULONG ulSize, PULONG pulUsed) {
+    PSZ pszHeap = NULL;
+    APIRET rc;
+
+    if (!pszExpr) return ERROR_INVALID_PARAMETER;
+
+    rc = canonical_to_heap(pszExpr, &pszHeap);
+    if (rc != NO_ERROR) return rc;
+
+    rc = copy_out(pszHeap, pszBuf, ulSize, pulUsed);
+    free(pszHeap);
+    return rc;
 }

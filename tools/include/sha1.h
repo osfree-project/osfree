@@ -14,13 +14,13 @@ extern "C" {
  * @brief SHA-1 hashing.
  *
  * Conforms to:
- *   - FIPS PUB 180-1, "Secure Hash Standard"
+ *   - FIPS PUB 180-1, "Secure Hash Standard".
  *     https://csrc.nist.gov/publications/detail/fips/180/1/archive
- *   - RFC 3174, "US Secure Hash Algorithm 1 (SHA1)"
+ *   - RFC 3174, "US Secure Hash Algorithm 1 (SHA1)".
  *     https://datatracker.ietf.org/doc/html/rfc3174
  *
- * The module provides one-shot hashing of a file or of a NUL-terminated
- * string. Streaming is not exposed.
+ * The module provides one-shot hashing of a file or of a
+ * NUL-terminated string. Streaming is not exposed.
  *
  * @par Buffer size
  * A SHA-1 digest in hex representation is 40 characters. The output
@@ -52,7 +52,7 @@ extern "C" {
  *                                  without size-query.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
- * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
                          PULONG pulUsed);
@@ -71,7 +71,7 @@ APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
  *                                  without size-query.
- * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
                            PULONG pulUsed);

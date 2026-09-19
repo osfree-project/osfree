@@ -33,7 +33,6 @@ extern "C" {
  *
  * The dependency resource itself is Open Watcom specific and is not
  * documented by Microsoft.
- *
  */
 
 /**

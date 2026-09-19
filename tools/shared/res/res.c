@@ -51,14 +51,13 @@
  *
  * See the file header for the resource format description and
  * references.
- *
  */
 
 /** @brief Resource type carrying the dependency list. */
 #define DEP_LIST_TYPE 0x0079
 
 /** @brief Resource name carrying the dependency list. */
-static const char DEP_LIST_NAME[] = "EBWF_XFMMTUPPE";
+static const CHAR achDepListName[] = "EBWF_XFMMTUPPE";
 
 /** @brief Maximum length of a single extracted name. */
 #define RES_NAME_MAX 512
@@ -70,26 +69,27 @@ static const char DEP_LIST_NAME[] = "EBWF_XFMMTUPPE";
 /**
  * @brief Read a 2-byte little-endian unsigned integer.
  *
- * @param[in] p  Pointer to two bytes. Not NULL.
+ * @param[in] puchPos  Pointer to two bytes. Not NULL.
  *
  * @return Value in [0, 65535].
  */
-static unsigned int read_u16le(const unsigned char *p) {
-    return (unsigned int)p[0] | ((unsigned int)p[1] << 8);
+static unsigned int read_u16le(const UCHAR *puchPos) {
+    return (unsigned int)puchPos[0] |
+           ((unsigned int)puchPos[1] << 8);
 }
 
 /**
  * @brief Read a 4-byte little-endian unsigned integer.
  *
- * @param[in] p  Pointer to four bytes. Not NULL.
+ * @param[in] puchPos  Pointer to four bytes. Not NULL.
  *
  * @return Value in [0, 2^32 - 1].
  */
-static unsigned long read_u32le(const unsigned char *p) {
-    return (unsigned long)p[0] |
-           ((unsigned long)p[1] << 8) |
-           ((unsigned long)p[2] << 16) |
-           ((unsigned long)p[3] << 24);
+static ULONG read_u32le(const UCHAR *puchPos) {
+    return (ULONG)puchPos[0] |
+           ((ULONG)puchPos[1] << 8) |
+           ((ULONG)puchPos[2] << 16) |
+           ((ULONG)puchPos[3] << 24);
 }
 
 /* ------------------------------------------------------------------ */
@@ -103,75 +103,81 @@ static unsigned long read_u32le(const unsigned char *p) {
  * length-prefixed string. Strings are usually UTF-16 but may be
  * ASCII; the function detects this heuristically.
  *
- * @param[in]  buf           Whole file buffer. Not NULL.
- * @param[in]  buf_size      Size of @p buf.
- * @param[in]  pos           Start offset of the field.
- * @param[out] is_ordinal    Receiver: 1 if the field is an ordinal.
- *                           May be NULL.
- * @param[out] ordinal_value Receiver: ordinal value. May be NULL.
- * @param[in]  expect_name   If not NULL, the string is compared
- *                           case-sensitively to this value.
- * @param[out] matched       Receiver: 1 if the string equals
- *                           @p expect_name. May be NULL.
+ * @param[in]  puchBuf        Whole file buffer. Not NULL.
+ * @param[in]  cbBufSize      Size of @p puchBuf.
+ * @param[in]  cbPos          Start offset of the field.
+ * @param[out] pfIsOrdinal    Receiver: TRUE_ if the field is an
+ *                            ordinal. May be NULL.
+ * @param[out] pulOrdinal     Receiver: ordinal value. May be NULL.
+ * @param[in]  pszExpectName  If not NULL, the string is compared
+ *                            case-sensitively to this value.
+ * @param[out] pfMatched      Receiver: TRUE_ if the string equals
+ *                            @p pszExpectName. May be NULL.
  *
  * @return Offset just past the field, or 0 on parse error.
  */
-static size_t read_res_header_field(const unsigned char *buf, size_t buf_size,
-                                    size_t pos,
-                                    int *is_ordinal,
-                                    unsigned int *ordinal_value,
-                                    const char *expect_name,
-                                    int *matched) {
-    unsigned int first;
-    unsigned int wlen;
-    size_t i;
-    char name_buf[256];
-    int is_utf16;
+static size_t read_res_header_field(const UCHAR *puchBuf,
+                                    size_t cbBufSize,
+                                    size_t cbPos,
+                                    PBOOL pfIsOrdinal,
+                                    PULONG pulOrdinal,
+                                    PCSZ pszExpectName,
+                                    PBOOL pfMatched) {
+    unsigned int unFirst;
+    unsigned int unWLen;
+    size_t cbIdx;
+    CHAR achNameBuf[256];
+    BOOL fIsUtf16;
 
-    if (matched) *matched = 0;
-    if (is_ordinal) *is_ordinal = 0;
-    if (ordinal_value) *ordinal_value = 0;
+    if (pfMatched) *pfMatched = FALSE_;
+    if (pfIsOrdinal) *pfIsOrdinal = FALSE_;
+    if (pulOrdinal) *pulOrdinal = 0;
 
-    if (pos + 2 > buf_size) return 0;
-    first = read_u16le(buf + pos);
+    if (cbPos + 2 > cbBufSize) return 0;
+    unFirst = read_u16le(puchBuf + cbPos);
 
-    if (first == 0xFFFF) {
-        if (pos + 4 > buf_size) return 0;
-        if (is_ordinal) *is_ordinal = 1;
-        if (ordinal_value) *ordinal_value = read_u16le(buf + pos + 2);
-        return pos + 4;
+    if (unFirst == 0xFFFF) {
+        if (cbPos + 4 > cbBufSize) return 0;
+        if (pfIsOrdinal) *pfIsOrdinal = TRUE_;
+        if (pulOrdinal) *pulOrdinal = read_u16le(puchBuf + cbPos + 2);
+        return cbPos + 4;
     }
 
-    wlen = first;
-    pos += 2;
-    if (wlen == 0) return pos;
+    unWLen = unFirst;
+    cbPos += 2;
+    if (unWLen == 0) return cbPos;
 
-    if (pos + (size_t)wlen * 2 > buf_size) return 0;
+    if (cbPos + (size_t)unWLen * 2 > cbBufSize) return 0;
 
-    is_utf16 = 1;
-    for (i = 0; i < wlen; i++) {
-        if (buf[pos + i * 2 + 1] != 0) { is_utf16 = 0; break; }
+    fIsUtf16 = TRUE_;
+    for (cbIdx = 0; cbIdx < unWLen; cbIdx++) {
+        if (puchBuf[cbPos + cbIdx * 2 + 1] != 0) {
+            fIsUtf16 = FALSE_;
+            break;
+        }
     }
 
-    if (wlen < sizeof(name_buf)) {
-        if (is_utf16) {
-            for (i = 0; i < wlen; i++)
-                name_buf[i] = (char)buf[pos + i * 2];
-            name_buf[wlen] = '\0';
-            if (expect_name && matched) {
-                if (strcmp(name_buf, expect_name) == 0) *matched = 1;
+    if (unWLen < sizeof(achNameBuf)) {
+        if (fIsUtf16) {
+            for (cbIdx = 0; cbIdx < unWLen; cbIdx++)
+                achNameBuf[cbIdx] = (CHAR)puchBuf[cbPos + cbIdx * 2];
+            achNameBuf[unWLen] = '\0';
+            if (pszExpectName && pfMatched) {
+                if (strcmp(achNameBuf, pszExpectName) == 0)
+                    *pfMatched = TRUE_;
             }
         } else {
-            if (pos + wlen > buf_size) return 0;
-            memcpy(name_buf, buf + pos, wlen);
-            name_buf[wlen] = '\0';
-            if (expect_name && matched) {
-                if (strcmp(name_buf, expect_name) == 0) *matched = 1;
+            if (cbPos + unWLen > cbBufSize) return 0;
+            memcpy(achNameBuf, puchBuf + cbPos, unWLen);
+            achNameBuf[unWLen] = '\0';
+            if (pszExpectName && pfMatched) {
+                if (strcmp(achNameBuf, pszExpectName) == 0)
+                    *pfMatched = TRUE_;
             }
         }
     }
 
-    return pos + (size_t)wlen * 2;
+    return cbPos + (size_t)unWLen * 2;
 }
 
 /* ------------------------------------------------------------------ */
@@ -181,40 +187,40 @@ static size_t read_res_header_field(const unsigned char *buf, size_t buf_size,
 /**
  * @brief Parse the DepInfo records of the dependency resource.
  *
- * @param[in] data       Payload bytes. Not NULL.
- * @param[in] data_size  Payload length.
- * @param[in] hOut       Destination set. Not NULLHANDLE.
+ * @param[in] puchData     Payload bytes. Not NULL.
+ * @param[in] cbDataSize   Payload length.
+ * @param[in] hOut         Destination set. Not NULLHANDLE.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET parse_depinfo(const unsigned char *data, size_t data_size,
+static APIRET parse_depinfo(const UCHAR *puchData, size_t cbDataSize,
                             HSTRSET hOut) {
-    size_t pos = 0;
-    char buf[RES_NAME_MAX];
+    size_t cbPos = 0;
+    CHAR achBuf[RES_NAME_MAX];
 
-    while (pos + 6 <= data_size) {
-        unsigned long time = read_u32le(data + pos);
-        unsigned int  len  = read_u16le(data + pos + 4);
-        pos += 6;
+    while (cbPos + 6 <= cbDataSize) {
+        ULONG ulTime = read_u32le(puchData + cbPos);
+        unsigned int unLen = read_u16le(puchData + cbPos + 4);
+        cbPos += 6;
 
-        if (time == 0 && len == 0) {
+        if (ulTime == 0 && unLen == 0) {
             return NO_ERROR;
         }
-        if (len == 0) break;
-        if (pos + len > data_size) break;
+        if (unLen == 0) break;
+        if (cbPos + unLen > cbDataSize) break;
 
-        if (len > 1) {
-            size_t name_len = len - 1;
+        if (unLen > 1) {
+            size_t cbNameLen = unLen - 1;
             APIRET rc;
-            if (name_len >= sizeof(buf)) name_len = sizeof(buf) - 1;
-            memcpy(buf, data + pos, name_len);
-            buf[name_len] = '\0';
-            rc = StrSetAdd(hOut, buf);
+            if (cbNameLen >= sizeof(achBuf)) cbNameLen = sizeof(achBuf) - 1;
+            memcpy(achBuf, puchData + cbPos, cbNameLen);
+            achBuf[cbNameLen] = '\0';
+            rc = StrSetAdd(hOut, achBuf);
             if (rc != NO_ERROR) return rc;
         }
-        pos += len;
+        cbPos += unLen;
     }
     return NO_ERROR;
 }
@@ -223,13 +229,28 @@ static APIRET parse_depinfo(const unsigned char *data, size_t data_size,
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Extract source file names from a .res file.
+ *
+ * @param[in] pszPath  Path to the .res file. Not NULL.
+ * @param[in] hOut     Destination string set. Not NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or hOut is
+ *                                  NULLHANDLE.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_FILE_NOT_FOUND     Dependency resource not found.
+ */
 APIRET APIENTRY ResExtractSources(PCSZ pszPath, HSTRSET hOut) {
     FILE *fp;
-    unsigned char *buf;
-    long file_size;
-    size_t read_size;
-    size_t pos = 0;
-    int found = 0;
+    UCHAR *puchBuf;
+    long lFileSize;
+    size_t cbReadSize;
+    size_t cbPos = 0;
+    BOOL fFound = FALSE_;
     APIRET rc = NO_ERROR;
 
     if (!pszPath || hOut == NULLHANDLE) return ERROR_INVALID_PARAMETER;
@@ -237,76 +258,83 @@ APIRET APIENTRY ResExtractSources(PCSZ pszPath, HSTRSET hOut) {
     fp = fopen(pszPath, "rb");
     if (!fp) return ERROR_OPEN_FAILED;
 
-    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return ERROR_READ_FAULT; }
-    file_size = ftell(fp);
-    if (file_size <= 0) { fclose(fp); return ERROR_READ_FAULT; }
-    if (fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp); return ERROR_READ_FAULT;
+    }
+    lFileSize = ftell(fp);
+    if (lFileSize <= 0) { fclose(fp); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        fclose(fp); return ERROR_READ_FAULT;
+    }
 
-    buf = (unsigned char*)malloc((size_t)file_size);
-    if (!buf) {
+    puchBuf = (UCHAR*)malloc((size_t)lFileSize);
+    if (!puchBuf) {
         fclose(fp);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
-    read_size = fread(buf, 1, (size_t)file_size, fp);
+    cbReadSize = fread(puchBuf, 1, (size_t)lFileSize, fp);
     fclose(fp);
-    if (read_size != (size_t)file_size) {
-        free(buf);
+    if (cbReadSize != (size_t)lFileSize) {
+        free(puchBuf);
         return ERROR_READ_FAULT;
     }
 
-    while (pos + 8 <= (size_t)file_size) {
-        unsigned long data_size;
-        unsigned long header_size;
-        size_t header_start;
-        size_t header_end;
-        int is_ordinal;
-        unsigned int ordinal_value;
-        int matched;
-        size_t type_end;
-        size_t name_end;
-        size_t data_start;
-        size_t next_pos;
+    while (cbPos + 8 <= (size_t)lFileSize) {
+        ULONG ulDataSize;
+        ULONG ulHeaderSize;
+        size_t cbHeaderStart;
+        size_t cbHeaderEnd;
+        BOOL fIsOrdinal;
+        ULONG ulOrdinal;
+        BOOL fMatched;
+        size_t cbTypeEnd;
+        size_t cbNameEnd;
+        size_t cbDataStart;
+        size_t cbNextPos;
 
-        data_size   = read_u32le(buf + pos);
-        header_size = read_u32le(buf + pos + 4);
-        header_start = pos + 8;
-        header_end = header_start + (size_t)header_size;
+        ulDataSize   = read_u32le(puchBuf + cbPos);
+        ulHeaderSize = read_u32le(puchBuf + cbPos + 4);
+        cbHeaderStart = cbPos + 8;
+        cbHeaderEnd = cbHeaderStart + (size_t)ulHeaderSize;
 
-        if (header_end > (size_t)file_size) break;
+        if (cbHeaderEnd > (size_t)lFileSize) break;
 
         /* Type field. */
-        type_end = read_res_header_field(buf, (size_t)file_size, header_start,
-                                         &is_ordinal, &ordinal_value,
-                                         NULL, NULL);
-        if (type_end == 0) break;
-        while ((type_end % 4) != 0) type_end++;
+        cbTypeEnd = read_res_header_field(puchBuf, (size_t)lFileSize,
+                                          cbHeaderStart,
+                                          &fIsOrdinal, &ulOrdinal,
+                                          NULL, NULL);
+        if (cbTypeEnd == 0) break;
+        while ((cbTypeEnd % 4) != 0) cbTypeEnd++;
 
         /* Name field. */
-        name_end = read_res_header_field(buf, (size_t)file_size, type_end,
-                                         &is_ordinal, NULL,
-                                         DEP_LIST_NAME, &matched);
-        if (name_end == 0) break;
-        while ((name_end % 4) != 0) name_end++;
+        cbNameEnd = read_res_header_field(puchBuf, (size_t)lFileSize,
+                                          cbTypeEnd,
+                                          &fIsOrdinal, NULL,
+                                          achDepListName, &fMatched);
+        if (cbNameEnd == 0) break;
+        while ((cbNameEnd % 4) != 0) cbNameEnd++;
 
-        data_start = header_end;
-        while ((data_start % 4) != 0) data_start++;
+        cbDataStart = cbHeaderEnd;
+        while ((cbDataStart % 4) != 0) cbDataStart++;
 
-        if (data_start + data_size > (size_t)file_size) break;
+        if (cbDataStart + ulDataSize > (size_t)lFileSize) break;
 
-        if (ordinal_value == DEP_LIST_TYPE && matched) {
-            rc = parse_depinfo(buf + data_start, (size_t)data_size, hOut);
-            if (rc != NO_ERROR) { free(buf); return rc; }
-            found = 1;
+        if (ulOrdinal == DEP_LIST_TYPE && fMatched) {
+            rc = parse_depinfo(puchBuf + cbDataStart,
+                               (size_t)ulDataSize, hOut);
+            if (rc != NO_ERROR) { free(puchBuf); return rc; }
+            fFound = TRUE_;
         }
 
-        next_pos = data_start + (size_t)data_size;
-        while ((next_pos % 4) != 0) next_pos++;
-        if (next_pos <= pos) break;
-        pos = next_pos;
+        cbNextPos = cbDataStart + (size_t)ulDataSize;
+        while ((cbNextPos % 4) != 0) cbNextPos++;
+        if (cbNextPos <= cbPos) break;
+        cbPos = cbNextPos;
     }
 
-    free(buf);
+    free(puchBuf);
 
-    if (!found) return ERROR_FILE_NOT_FOUND;
+    if (!fFound) return ERROR_FILE_NOT_FOUND;
     return NO_ERROR;
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "spdx_sbom_out.h"
 #include "spdx_sbom_utils.h"
+#include "ccl.h"
 #include "json.h"
 
 /**
@@ -16,9 +17,9 @@
  *   - RFC 8259, "The JavaScript Object Notation (JSON) Data
  *     Interchange Format".
  *
- * The document is built as a JSON tree with the json module and then
- * serialized to stdout with JsonWriteFile. No manual quoting or
- * escaping is performed here.
+ * The document is built as a JSON tree with the json module and
+ * then serialized to stdout with JsonWriteFile. No manual quoting
+ * or escaping is performed here.
  */
 
 /* ------------------------------------------------------------------ */
@@ -28,12 +29,14 @@
 /**
  * @brief Add a string field to an object.
  *
- * @param[in] hDoc   Document handle. Not NULLHANDLE.
- * @param[in] hObj   Object handle. Not NULLHANDLE.
- * @param[in] pszKey Field name. Not NULL.
- * @param[in] pszVal Field value. Not NULL.
+ * @param[in] hDoc    Document handle. Not NULLHANDLE.
+ * @param[in] hObj    Object handle. Not NULLHANDLE.
+ * @param[in] pszKey  Field name. Not NULL.
+ * @param[in] pszVal  Field value. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_set_string(HJSONDOC hDoc, HJSONNODE hObj,
                               PCSZ pszKey, PCSZ pszVal) {
@@ -46,12 +49,14 @@ static APIRET json_set_string(HJSONDOC hDoc, HJSONNODE hObj,
 /**
  * @brief Add a boolean field to an object.
  *
- * @param[in] hDoc   Document handle. Not NULLHANDLE.
- * @param[in] hObj   Object handle. Not NULLHANDLE.
- * @param[in] pszKey Field name. Not NULL.
- * @param[in] fVal   Boolean value.
+ * @param[in] hDoc    Document handle. Not NULLHANDLE.
+ * @param[in] hObj    Object handle. Not NULLHANDLE.
+ * @param[in] pszKey  Field name. Not NULL.
+ * @param[in] fVal    Boolean value.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_set_bool(HJSONDOC hDoc, HJSONNODE hObj,
                             PCSZ pszKey, BOOL fVal) {
@@ -64,12 +69,14 @@ static APIRET json_set_bool(HJSONDOC hDoc, HJSONNODE hObj,
 /**
  * @brief Add a numeric field to an object.
  *
- * @param[in] hDoc   Document handle. Not NULLHANDLE.
- * @param[in] hObj   Object handle. Not NULLHANDLE.
- * @param[in] pszKey Field name. Not NULL.
- * @param[in] dVal   Numeric value.
+ * @param[in] hDoc    Document handle. Not NULLHANDLE.
+ * @param[in] hObj    Object handle. Not NULLHANDLE.
+ * @param[in] pszKey  Field name. Not NULL.
+ * @param[in] dVal    Numeric value.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_set_number(HJSONDOC hDoc, HJSONNODE hObj,
                               PCSZ pszKey, double dVal) {
@@ -82,12 +89,14 @@ static APIRET json_set_number(HJSONDOC hDoc, HJSONNODE hObj,
 /**
  * @brief Add a nested object field and return its handle.
  *
- * @param[in]  hDoc    Document handle. Not NULLHANDLE.
- * @param[in]  hObj    Parent object. Not NULLHANDLE.
- * @param[in]  pszKey  Field name. Not NULL.
- * @param[out] phChild Receiver for the new object handle. Not NULL.
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[in]  hObj     Parent object. Not NULLHANDLE.
+ * @param[in]  pszKey   Field name. Not NULL.
+ * @param[out] phChild  Receiver for the new object handle. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_set_object(HJSONDOC hDoc, HJSONNODE hObj,
                               PCSZ pszKey, HJSONNODE *phChild) {
@@ -103,12 +112,14 @@ static APIRET json_set_object(HJSONDOC hDoc, HJSONNODE hObj,
 /**
  * @brief Add a nested array field and return its handle.
  *
- * @param[in]  hDoc    Document handle. Not NULLHANDLE.
- * @param[in]  hObj    Parent object. Not NULLHANDLE.
- * @param[in]  pszKey  Field name. Not NULL.
- * @param[out] phChild Receiver for the new array handle. Not NULL.
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[in]  hObj     Parent object. Not NULLHANDLE.
+ * @param[in]  pszKey   Field name. Not NULL.
+ * @param[out] phChild  Receiver for the new array handle. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_set_array(HJSONDOC hDoc, HJSONNODE hObj,
                              PCSZ pszKey, HJSONNODE *phChild) {
@@ -124,11 +135,13 @@ static APIRET json_set_array(HJSONDOC hDoc, HJSONNODE hObj,
 /**
  * @brief Append a string to an array.
  *
- * @param[in] hDoc   Document handle. Not NULLHANDLE.
- * @param[in] hArr   Array handle. Not NULLHANDLE.
- * @param[in] pszVal String value. Not NULL.
+ * @param[in] hDoc    Document handle. Not NULLHANDLE.
+ * @param[in] hArr    Array handle. Not NULLHANDLE.
+ * @param[in] pszVal  String value. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET json_append_string(HJSONDOC hDoc, HJSONNODE hArr,
                                  PCSZ pszVal) {
@@ -151,6 +164,8 @@ static APIRET json_append_string(HJSONDOC hDoc, HJSONNODE hArr,
  * @param[out] phOut    Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET build_creation_info(HJSONDOC hDoc, PCSZ pszDate,
                                   PCSZ pszName, HJSONNODE *phOut) {
@@ -178,8 +193,10 @@ static APIRET build_creation_info(HJSONDOC hDoc, PCSZ pszDate,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET build_external_ref(HJSONDOC hDoc, const SpdxDocument *pDoc,
+static APIRET build_external_ref(HJSONDOC hDoc, const SPDXDOCUMENT *pDoc,
                                  HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     HJSONNODE hChk = NULLHANDLE;
@@ -188,17 +205,17 @@ static APIRET build_external_ref(HJSONDOC hDoc, const SpdxDocument *pDoc,
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "externalDocumentId",
-                         pDoc->external_doc_id);
+                         pDoc->achExternalDocId);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "spdxDocument",
-                         pDoc->external_doc_uri);
+                         pDoc->achExternalDocUri);
     if (rc != NO_ERROR) return rc;
     rc = json_set_object(hDoc, hObj, "checksum", &hChk);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hChk, "algorithm", "SHA1");
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hChk, "checksumValue",
-                         pDoc->external_doc_checksum);
+                         pDoc->achExternalDocChecksum);
     if (rc != NO_ERROR) return rc;
     *phOut = hObj;
     return NO_ERROR;
@@ -212,9 +229,11 @@ static APIRET build_external_ref(HJSONDOC hDoc, const SpdxDocument *pDoc,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET build_extracted_license(HJSONDOC hDoc,
-                                      const ExtractedLicenseInfo *pE,
+                                      const SPDXEXTRACTEDLICENSEINFO *pE,
                                       HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     APIRET rc;
@@ -222,18 +241,18 @@ static APIRET build_extracted_license(HJSONDOC hDoc,
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "licenseId",
-                         pE->license_id ? pE->license_id : "");
+                         pE->pszLicenseId ? pE->pszLicenseId : "");
     if (rc != NO_ERROR) return rc;
-    if (pE->name && pE->name[0]) {
-        rc = json_set_string(hDoc, hObj, "name", pE->name);
+    if (pE->pszName && pE->pszName[0]) {
+        rc = json_set_string(hDoc, hObj, "name", pE->pszName);
         if (rc != NO_ERROR) return rc;
     }
-    if (pE->comment && pE->comment[0]) {
-        rc = json_set_string(hDoc, hObj, "comment", pE->comment);
+    if (pE->pszComment && pE->pszComment[0]) {
+        rc = json_set_string(hDoc, hObj, "comment", pE->pszComment);
         if (rc != NO_ERROR) return rc;
     }
     rc = json_set_string(hDoc, hObj, "extractedText",
-                         pE->extracted_text ? pE->extracted_text : "");
+                         pE->pszExtractedText ? pE->pszExtractedText : "");
     if (rc != NO_ERROR) return rc;
     *phOut = hObj;
     return NO_ERROR;
@@ -247,61 +266,82 @@ static APIRET build_extracted_license(HJSONDOC hDoc,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET build_package(HJSONDOC hDoc, const PackageInfo *pPkg,
+static APIRET build_package(HJSONDOC hDoc, const SPDXPACKAGEINFO *pPkg,
                             HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
     HJSONNODE hChk = NULLHANDLE;
     HJSONNODE hEmpty = NULLHANDLE;
+    HSTRSETENUM hEnum = NULLHANDLE;
     APIRET rc;
-    int i;
 
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
 
-    rc = json_set_string(hDoc, hObj, "SPDXID", pPkg->spdx_id);
+    rc = json_set_string(hDoc, hObj, "SPDXID", pPkg->achSpdxId);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "name", pPkg->name);
+    rc = json_set_string(hDoc, hObj, "name", pPkg->achName);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "downloadLocation", "NOASSERTION");
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "versionInfo",
-                         pPkg->version[0] ? pPkg->version : "NOASSERTION");
+                         pPkg->achVersion[0] ? pPkg->achVersion
+                                             : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "supplier",
-                         pPkg->supplier[0] ? pPkg->supplier : "NOASSERTION");
+                         pPkg->achSupplier[0] ? pPkg->achSupplier
+                                              : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "licenseConcluded", pPkg->license);
+    rc = json_set_string(hDoc, hObj, "licenseConcluded", pPkg->achLicense);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "licenseDeclared", pPkg->license);
+    rc = json_set_string(hDoc, hObj, "licenseDeclared", pPkg->achLicense);
     if (rc != NO_ERROR) return rc;
 
-    if (pPkg->files_analyzed && pPkg->license_info_count > 0) {
-        rc = json_set_array(hDoc, hObj, "licenseInfoFromFiles", &hArr);
-        if (rc != NO_ERROR) return rc;
-        for (i = 0; i < pPkg->license_info_count; i++) {
-            rc = json_append_string(hDoc, hArr,
-                                    pPkg->license_info_from_files[i]);
+    if (pPkg->fFilesAnalyzed &&
+        pPkg->hLicenseInfoFromFiles != NULLHANDLE) {
+        ULONG ulLicCount = 0;
+        StrSetGetCount(pPkg->hLicenseInfoFromFiles, &ulLicCount);
+        if (ulLicCount > 0) {
+            rc = json_set_array(hDoc, hObj, "licenseInfoFromFiles", &hArr);
             if (rc != NO_ERROR) return rc;
+            if (StrSetEnumFirst(pPkg->hLicenseInfoFromFiles, &hEnum)
+                    == NO_ERROR) {
+                do {
+                    CHAR achLic[256];
+                    if (StrSetEnumGet(hEnum, achLic, sizeof(achLic), NULL)
+                            != NO_ERROR)
+                        continue;
+                    rc = json_append_string(hDoc, hArr, achLic);
+                    if (rc != NO_ERROR) {
+                        StrSetEnumClose(hEnum);
+                        return rc;
+                    }
+                } while (StrSetEnumNext(hEnum) == NO_ERROR);
+                StrSetEnumClose(hEnum);
+            }
         }
     }
 
     rc = json_set_string(hDoc, hObj, "copyrightText",
-                         pPkg->copyright[0] ? pPkg->copyright : "NOASSERTION");
+                         pPkg->achCopyright[0] ? pPkg->achCopyright
+                                               : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "primaryPackagePurpose",
-                         pPkg->purpose[0] ? pPkg->purpose : "NOASSERTION");
+                         pPkg->achPurpose[0] ? pPkg->achPurpose
+                                             : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
 
-    if (pPkg->files_analyzed) {
+    if (pPkg->fFilesAnalyzed) {
         rc = json_set_bool(hDoc, hObj, "filesAnalyzed", TRUE_);
         if (rc != NO_ERROR) return rc;
         rc = json_set_object(hDoc, hObj, "packageVerificationCode", &hChk);
         if (rc != NO_ERROR) return rc;
         rc = json_set_string(hDoc, hChk,
                              "packageVerificationCodeValue",
-                             pPkg->verification_code);
+                             pPkg->achVerificationCode);
         if (rc != NO_ERROR) return rc;
         rc = json_set_array(hDoc, hChk,
                             "packageVerificationCodeExcludedFiles",
@@ -324,28 +364,30 @@ static APIRET build_package(HJSONDOC hDoc, const PackageInfo *pPkg,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET build_file(HJSONDOC hDoc, const FileInfo *pFi,
+static APIRET build_file(HJSONDOC hDoc, const SPDXFILEINFO *pFi,
                          HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
     HJSONNODE hChk = NULLHANDLE;
-    char spdx_id[512];
+    CHAR achSpdxId[512];
     APIRET rc;
 
-    snprintf(spdx_id, sizeof(spdx_id), "SPDXRef-File-%s", pFi->name);
+    snprintf(achSpdxId, sizeof(achSpdxId), "SPDXRef-File-%s", pFi->achName);
 
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
 
-    rc = json_set_string(hDoc, hObj, "fileName", pFi->name);
+    rc = json_set_string(hDoc, hObj, "fileName", pFi->achName);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "SPDXID", spdx_id);
+    rc = json_set_string(hDoc, hObj, "SPDXID", achSpdxId);
     if (rc != NO_ERROR) return rc;
 
     rc = json_set_array(hDoc, hObj, "fileTypes", &hArr);
     if (rc != NO_ERROR) return rc;
-    rc = json_append_string(hDoc, hArr, pFi->file_type);
+    rc = json_append_string(hDoc, hArr, pFi->achFileType);
     if (rc != NO_ERROR) return rc;
 
     rc = json_set_array(hDoc, hObj, "checksums", &hArr);
@@ -355,19 +397,20 @@ static APIRET build_file(HJSONDOC hDoc, const FileInfo *pFi,
     rc = json_set_string(hDoc, hChk, "algorithm", "SHA1");
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hChk, "checksumValue",
-                         pFi->sha1[0] ? pFi->sha1 : "");
+                         pFi->achSha1[0] ? pFi->achSha1 : "");
     if (rc != NO_ERROR) return rc;
     rc = JsonArrayAppend(hArr, hChk);
     if (rc != NO_ERROR) return rc;
 
-    rc = json_set_string(hDoc, hObj, "licenseConcluded", pFi->license);
+    rc = json_set_string(hDoc, hObj, "licenseConcluded", pFi->achLicense);
     if (rc != NO_ERROR) return rc;
     rc = json_set_array(hDoc, hObj, "licenseInfoInFiles", &hArr);
     if (rc != NO_ERROR) return rc;
-    rc = json_append_string(hDoc, hArr, pFi->license);
+    rc = json_append_string(hDoc, hArr, pFi->achLicense);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "copyrightText",
-                         pFi->copyright[0] ? pFi->copyright : "NOASSERTION");
+                         pFi->achCopyright[0] ? pFi->achCopyright
+                                              : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
 
     *phOut = hObj;
@@ -382,8 +425,10 @@ static APIRET build_file(HJSONDOC hDoc, const FileInfo *pFi,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET build_snippet(HJSONDOC hDoc, const SnippetInfo *pS,
+static APIRET build_snippet(HJSONDOC hDoc, const SPDXSNIPPETINFO *pS,
                             HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
@@ -394,9 +439,9 @@ static APIRET build_snippet(HJSONDOC hDoc, const SnippetInfo *pS,
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
 
-    rc = json_set_string(hDoc, hObj, "SPDXID", pS->spdx_id);
+    rc = json_set_string(hDoc, hObj, "SPDXID", pS->achSpdxId);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "snippetFromFile", pS->from_file_id);
+    rc = json_set_string(hDoc, hObj, "snippetFromFile", pS->achFromFileId);
     if (rc != NO_ERROR) return rc;
 
     rc = json_set_array(hDoc, hObj, "ranges", &hArr);
@@ -406,29 +451,30 @@ static APIRET build_snippet(HJSONDOC hDoc, const SnippetInfo *pS,
 
     rc = json_set_object(hDoc, hRng, "startPointer", &hPtr);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hPtr, "reference", pS->from_file_id);
+    rc = json_set_string(hDoc, hPtr, "reference", pS->achFromFileId);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_number(hDoc, hPtr, "offset", (double)pS->line_start);
+    rc = json_set_number(hDoc, hPtr, "offset", (double)pS->ulLineStart);
     if (rc != NO_ERROR) return rc;
 
     rc = json_set_object(hDoc, hRng, "endPointer", &hPtr);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hPtr, "reference", pS->from_file_id);
+    rc = json_set_string(hDoc, hPtr, "reference", pS->achFromFileId);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_number(hDoc, hPtr, "offset", (double)pS->line_end);
+    rc = json_set_number(hDoc, hPtr, "offset", (double)pS->ulLineEnd);
     if (rc != NO_ERROR) return rc;
 
     rc = JsonArrayAppend(hArr, hRng);
     if (rc != NO_ERROR) return rc;
 
-    rc = json_set_string(hDoc, hObj, "licenseConcluded", pS->license);
+    rc = json_set_string(hDoc, hObj, "licenseConcluded", pS->achLicense);
     if (rc != NO_ERROR) return rc;
     rc = json_set_array(hDoc, hObj, "licenseInfoInSnippets", &hArr);
     if (rc != NO_ERROR) return rc;
-    rc = json_append_string(hDoc, hArr, pS->license);
+    rc = json_append_string(hDoc, hArr, pS->achLicense);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "copyrightText",
-                         pS->copyright[0] ? pS->copyright : "NOASSERTION");
+                         pS->achCopyright[0] ? pS->achCopyright
+                                             : "NOASSERTION");
     if (rc != NO_ERROR) return rc;
 
     *phOut = hObj;
@@ -443,21 +489,24 @@ static APIRET build_snippet(HJSONDOC hDoc, const SnippetInfo *pS,
  * @param[out] phOut Receiver. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET build_relationship(HJSONDOC hDoc, const Relationship *pR,
+static APIRET build_relationship(HJSONDOC hDoc,
+                                 const SPDXRELATIONSHIP *pR,
                                  HJSONNODE *phOut) {
     HJSONNODE hObj = NULLHANDLE;
     APIRET rc;
 
     rc = JsonNewObject(hDoc, &hObj);
     if (rc != NO_ERROR) return rc;
-    rc = json_set_string(hDoc, hObj, "spdxElementId", pR->element_id);
+    rc = json_set_string(hDoc, hObj, "spdxElementId", pR->achElementId);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "relatedSpdxElement",
-                         pR->related_element);
+                         pR->achRelatedElement);
     if (rc != NO_ERROR) return rc;
     rc = json_set_string(hDoc, hObj, "relationshipType",
-                         pR->relationship_type);
+                         pR->achRelationshipType);
     if (rc != NO_ERROR) return rc;
     *phOut = hObj;
     return NO_ERROR;
@@ -468,92 +517,114 @@ static APIRET build_relationship(HJSONDOC hDoc, const Relationship *pR,
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Serialize an SpdxDocument as SPDX 2.3 JSON to stdout.
+ * @brief Serialize a document as SPDX 2.3 JSON to stdout.
  *
- * The whole document is built as a JSON tree and then written out
- * with JsonWriteFile. All string escaping and number formatting is
- * handled by the json module.
+ * @param[in] pDoc  Document to serialize. Not NULL.
  *
- * @param[in] doc  Document to serialize. Not NULL.
- *
- * @return 0 on success, -1 on error.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pDoc is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_READ_FAULT         Write error.
  */
-int sbom_output_json(const SpdxDocument *doc) {
+APIRET APIENTRY SbomOutputJson(const SPDXDOCUMENT *pDoc) {
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
     HJSONNODE hChild = NULLHANDLE;
+    ULONG ulCount = 0, ulIdx;
     APIRET rc;
-    int i;
+
+    if (!pDoc) return ERROR_INVALID_PARAMETER;
 
     rc = JsonNewDoc(&hDoc);
-    if (rc != NO_ERROR) return -1;
+    if (rc != NO_ERROR) return rc;
 
     rc = JsonNewObject(hDoc, &hRoot);
     if (rc != NO_ERROR) goto fail;
 
-    rc = json_set_string(hDoc, hRoot, "spdxVersion", doc->spdx_version);
+    rc = json_set_string(hDoc, hRoot, "spdxVersion",
+                         pDoc->achSpdxVersion);
     if (rc != NO_ERROR) goto fail;
-    rc = json_set_string(hDoc, hRoot, "SPDXID", doc->document_id);
+    rc = json_set_string(hDoc, hRoot, "SPDXID", pDoc->achDocumentId);
     if (rc != NO_ERROR) goto fail;
-    rc = json_set_string(hDoc, hRoot, "name", doc->document_name);
+    rc = json_set_string(hDoc, hRoot, "name", pDoc->achDocumentName);
     if (rc != NO_ERROR) goto fail;
 
-    rc = build_creation_info(hDoc, doc->created, doc->creator, &hChild);
+    rc = build_creation_info(hDoc, pDoc->achCreated, pDoc->achCreator,
+                             &hChild);
     if (rc != NO_ERROR) goto fail;
     rc = JsonObjectSet(hRoot, "creationInfo", hChild);
     if (rc != NO_ERROR) goto fail;
 
-    rc = json_set_string(hDoc, hRoot, "dataLicense", doc->data_license);
+    rc = json_set_string(hDoc, hRoot, "dataLicense", pDoc->achDataLicense);
     if (rc != NO_ERROR) goto fail;
     rc = json_set_string(hDoc, hRoot, "documentNamespace",
-                         doc->document_namespace);
+                         pDoc->achDocumentNamespace);
     if (rc != NO_ERROR) goto fail;
 
-    if (doc->has_external_ref) {
+    if (pDoc->fHasExternalRef) {
         rc = json_set_array(hDoc, hRoot, "externalDocumentRefs", &hArr);
         if (rc != NO_ERROR) goto fail;
-        rc = build_external_ref(hDoc, doc, &hChild);
+        rc = build_external_ref(hDoc, pDoc, &hChild);
         if (rc != NO_ERROR) goto fail;
         rc = JsonArrayAppend(hArr, hChild);
         if (rc != NO_ERROR) goto fail;
     }
 
-    if (doc->extracted_licenses.count > 0) {
-        rc = json_set_array(hDoc, hRoot,
-                            "hasExtractedLicensingInfos", &hArr);
+    if (pDoc->hExtractedLicenses != NULLHANDLE) {
+        rc = VectorGetCount(pDoc->hExtractedLicenses, &ulCount);
         if (rc != NO_ERROR) goto fail;
-        for (i = 0; i < doc->extracted_licenses.count; i++) {
-            rc = build_extracted_license(hDoc,
-                                         &doc->extracted_licenses.items[i],
-                                         &hChild);
+        if (ulCount > 0) {
+            rc = json_set_array(hDoc, hRoot,
+                                "hasExtractedLicensingInfos", &hArr);
             if (rc != NO_ERROR) goto fail;
-            rc = JsonArrayAppend(hArr, hChild);
-            if (rc != NO_ERROR) goto fail;
+            for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+                SPDXEXTRACTEDLICENSEINFO info;
+                if (VectorGetItem(pDoc->hExtractedLicenses, ulIdx, &info,
+                                  (ULONG)sizeof(info), NULL) != NO_ERROR)
+                    continue;
+                rc = build_extracted_license(hDoc, &info, &hChild);
+                if (rc != NO_ERROR) goto fail;
+                rc = JsonArrayAppend(hArr, hChild);
+                if (rc != NO_ERROR) goto fail;
+            }
         }
     }
 
     rc = json_set_array(hDoc, hRoot, "packages", &hArr);
     if (rc != NO_ERROR) goto fail;
-    rc = build_package(hDoc, &doc->package, &hChild);
+    rc = build_package(hDoc, &pDoc->package, &hChild);
     if (rc != NO_ERROR) goto fail;
     rc = JsonArrayAppend(hArr, hChild);
     if (rc != NO_ERROR) goto fail;
 
     rc = json_set_array(hDoc, hRoot, "files", &hArr);
     if (rc != NO_ERROR) goto fail;
-    for (i = 0; i < doc->files.count; i++) {
-        rc = build_file(hDoc, &doc->files.items[i], &hChild);
+    rc = VectorGetCount(pDoc->hFiles, &ulCount);
+    if (rc != NO_ERROR) goto fail;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        SPDXFILEINFO info;
+        if (VectorGetItem(pDoc->hFiles, ulIdx, &info,
+                          (ULONG)sizeof(info), NULL) != NO_ERROR)
+            continue;
+        rc = build_file(hDoc, &info, &hChild);
         if (rc != NO_ERROR) goto fail;
         rc = JsonArrayAppend(hArr, hChild);
         if (rc != NO_ERROR) goto fail;
     }
 
-    if (doc->snippets.count > 0) {
+    rc = VectorGetCount(pDoc->hSnippets, &ulCount);
+    if (rc != NO_ERROR) goto fail;
+    if (ulCount > 0) {
         rc = json_set_array(hDoc, hRoot, "snippets", &hArr);
         if (rc != NO_ERROR) goto fail;
-        for (i = 0; i < doc->snippets.count; i++) {
-            rc = build_snippet(hDoc, &doc->snippets.items[i], &hChild);
+        for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+            SPDXSNIPPETINFO info;
+            if (VectorGetItem(pDoc->hSnippets, ulIdx, &info,
+                              (ULONG)sizeof(info), NULL) != NO_ERROR)
+                continue;
+            rc = build_snippet(hDoc, &info, &hChild);
             if (rc != NO_ERROR) goto fail;
             rc = JsonArrayAppend(hArr, hChild);
             if (rc != NO_ERROR) goto fail;
@@ -562,8 +633,14 @@ int sbom_output_json(const SpdxDocument *doc) {
 
     rc = json_set_array(hDoc, hRoot, "relationships", &hArr);
     if (rc != NO_ERROR) goto fail;
-    for (i = 0; i < doc->relationship_count; i++) {
-        rc = build_relationship(hDoc, &doc->relationships[i], &hChild);
+    rc = VectorGetCount(pDoc->hRelationships, &ulCount);
+    if (rc != NO_ERROR) goto fail;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        SPDXRELATIONSHIP rel;
+        if (VectorGetItem(pDoc->hRelationships, ulIdx, &rel,
+                          (ULONG)sizeof(rel), NULL) != NO_ERROR)
+            continue;
+        rc = build_relationship(hDoc, &rel, &hChild);
         if (rc != NO_ERROR) goto fail;
         rc = JsonArrayAppend(hArr, hChild);
         if (rc != NO_ERROR) goto fail;
@@ -573,12 +650,10 @@ int sbom_output_json(const SpdxDocument *doc) {
     if (rc != NO_ERROR) goto fail;
 
     rc = JsonWriteFile(hRoot, TRUE_, NULL);
-    if (rc != NO_ERROR) goto fail;
-
     JsonClose(hDoc);
-    return 0;
+    return rc;
 
 fail:
     JsonClose(hDoc);
-    return -1;
+    return rc;
 }

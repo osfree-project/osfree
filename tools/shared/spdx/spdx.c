@@ -18,48 +18,71 @@
  * File helpers
  * ================================================================== */
 
-APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ *ppszText, PLONG pcbSize) {
-    FILE *f;
-    long sz;
-    char *buf;
-    size_t rd;
+/**
+ * @brief Read an entire file into a caller-supplied buffer.
+ *
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ */
+APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
+                                ULONG ulSize, PULONG pulUsed) {
+    FILE *fp;
+    long lSize;
+    size_t cbRead;
 
-    if (!pszPath || !ppszText) return ERROR_INVALID_PARAMETER;
-    *ppszText = NULL;
-    if (pcbSize) *pcbSize = 0;
+    if (!pszPath) return ERROR_INVALID_PARAMETER;
 
-    f = fopen(pszPath, "rb");
-    if (!f) return ERROR_OPEN_FAILED;
+    fp = fopen(pszPath, "rb");
+    if (!fp) return ERROR_OPEN_FAILED;
 
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return ERROR_READ_FAULT; }
-    sz = ftell(f);
-    if (sz < 0) { fclose(f); return ERROR_READ_FAULT; }
-    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return ERROR_READ_FAULT; }
+    lSize = ftell(fp);
+    if (lSize < 0) { fclose(fp); return ERROR_READ_FAULT; }
 
-    buf = (char*)malloc((size_t)sz + 1);
-    if (!buf) { fclose(f); return ERROR_NOT_ENOUGH_MEMORY; }
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)lSize + 1;
+        fclose(fp);
+        return NO_ERROR;
+    }
+    if (!pszBuf) { fclose(fp); return ERROR_INVALID_PARAMETER; }
+    if (ulSize < (ULONG)lSize + 1) {
+        if (pulUsed) *pulUsed = (ULONG)lSize + 1;
+        fclose(fp);
+        return ERROR_BUFFER_OVERFLOW;
+    }
 
-    rd = fread(buf, 1, (size_t)sz, f);
-    fclose(f);
-    if (rd != (size_t)sz) { free(buf); return ERROR_READ_FAULT; }
+    if (fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return ERROR_READ_FAULT; }
+    cbRead = fread(pszBuf, 1, (size_t)lSize, fp);
+    fclose(fp);
+    if (cbRead != (size_t)lSize) return ERROR_READ_FAULT;
 
-    buf[sz] = '\0';
-    if (pcbSize) *pcbSize = (LONG)sz;
-    *ppszText = buf;
+    pszBuf[lSize] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)lSize;
     return NO_ERROR;
 }
 
+/**
+ * @brief Return a pointer to the base name inside a path.
+ *
+ * @param[in] pszPath  Path. Not NULL.
+ *
+ * @return Base name, or NULL if pszPath is NULL.
+ */
 PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
-    PCSZ pSlash;
-    PCSZ pBackslash;
+    PCSZ pszSlash;
+    PCSZ pszBackslash;
 
     if (!pszPath) return NULL;
-    pSlash = strrchr(pszPath, '/');
-    pBackslash = strrchr(pszPath, '\\');
-    if (pBackslash && (!pSlash || pBackslash > pSlash))
-        return pBackslash + 1;
-    if (pSlash)
-        return pSlash + 1;
+    pszSlash = strrchr(pszPath, '/');
+    pszBackslash = strrchr(pszPath, '\\');
+    if (pszBackslash && (!pszSlash || pszBackslash > pszSlash))
+        return pszBackslash + 1;
+    if (pszSlash)
+        return pszSlash + 1;
     return pszPath;
 }
 
@@ -67,33 +90,41 @@ PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
  * SPDX expression helpers
  * ================================================================== */
 
+/**
+ * @brief Collect the SPDX identifiers from a license expression.
+ *
+ * @param[in] pszExpr  Expression. Not NULL.
+ * @param[in] hOut     Destination set. Not NULLHANDLE.
+ *
+ * @return APIRET
+ */
 APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut) {
-    const char *delims = " \t()";
-    char *copy;
-    char *tok;
+    PCSZ pszDelims = " \t()";
+    PSZ pszCopy;
+    PSZ pszTok;
     APIRET rc;
 
     if (!pszExpr) return ERROR_INVALID_PARAMETER;
     if (hOut == NULLHANDLE) return ERROR_INVALID_HANDLE;
 
-    copy = strdup(pszExpr);
-    if (!copy) return ERROR_NOT_ENOUGH_MEMORY;
+    pszCopy = strdup(pszExpr);
+    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
 
-    tok = strtok(copy, delims);
-    while (tok) {
-        if (strcmp(tok, "AND") != 0 &&
-            strcmp(tok, "OR")  != 0 &&
-            strcmp(tok, "WITH") != 0 &&
-            tok[0] != '\0') {
-            rc = StrSetAdd(hOut, tok);
+    pszTok = strtok(pszCopy, pszDelims);
+    while (pszTok) {
+        if (strcmp(pszTok, "AND") != 0 &&
+            strcmp(pszTok, "OR")  != 0 &&
+            strcmp(pszTok, "WITH") != 0 &&
+            pszTok[0] != '\0') {
+            rc = StrSetAdd(hOut, pszTok);
             if (rc != NO_ERROR) {
-                free(copy);
+                free(pszCopy);
                 return rc;
             }
         }
-        tok = strtok(NULL, delims);
+        pszTok = strtok(NULL, pszDelims);
     }
-    free(copy);
+    free(pszCopy);
     return NO_ERROR;
 }
 
@@ -101,63 +132,123 @@ APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut) {
  * Text helpers
  * ================================================================== */
 
-APIRET APIENTRY SpdxNormalizeText(PCSZ pszSrc, PSZ *ppszOut) {
-    size_t n, i, j;
-    size_t out_len;
-    char *buf;
-    char *p, *w;
+/**
+ * @brief Internal buffer size for the normalization pass.
+ *
+ * The function processes the input twice: first to compute the
+ * normalized length, then to fill the caller's buffer. The first
+ * pass uses a growable scratch buffer; the caller's buffer must be
+ * large enough for the normalized result.
+ */
 
-    if (!pszSrc || !ppszOut) return ERROR_INVALID_PARAMETER;
+/**
+ * @brief Normalize text into a private scratch buffer.
+ *
+ * @param[in]  pszSrc   Input text. Not NULL.
+ * @param[out] ppszOut  Receiver for the malloc'd normalized text.
+ *                      Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET normalize_to_heap(PCSZ pszSrc, PSZ *ppszOut) {
+    size_t cbIn, cbOut, i, j;
+    PSZ pszBuf;
+    PSZ pszPos, pszWrite;
+
     *ppszOut = NULL;
 
-    n = strlen(pszSrc);
-    buf = (char*)malloc(n + 1);
-    if (!buf) return ERROR_NOT_ENOUGH_MEMORY;
+    cbIn = strlen(pszSrc);
+    pszBuf = (PSZ)malloc(cbIn + 1);
+    if (!pszBuf) return ERROR_NOT_ENOUGH_MEMORY;
 
     i = 0;
-    if (n >= 3 && (unsigned char)pszSrc[0] == 0xEF &&
-                  (unsigned char)pszSrc[1] == 0xBB &&
-                  (unsigned char)pszSrc[2] == 0xBF) {
+    if (cbIn >= 3 && (UCHAR)pszSrc[0] == 0xEF &&
+                     (UCHAR)pszSrc[1] == 0xBB &&
+                     (UCHAR)pszSrc[2] == 0xBF) {
         i = 3;
     }
 
-    /* Normalize newlines: CRLF and lone CR become LF. */
     j = 0;
-    while (i < n) {
+    while (i < cbIn) {
         if (pszSrc[i] == '\r') {
-            buf[j++] = '\n';
-            if (i + 1 < n && pszSrc[i+1] == '\n') i++;
+            pszBuf[j++] = '\n';
+            if (i + 1 < cbIn && pszSrc[i+1] == '\n') i++;
             i++;
         } else {
-            buf[j++] = pszSrc[i++];
+            pszBuf[j++] = pszSrc[i++];
         }
     }
-    buf[j] = '\0';
+    pszBuf[j] = '\0';
 
-    /* Strip trailing whitespace per line; drop trailing empty lines. */
-    p = buf;
-    w = buf;
-    while (*p) {
-        char *line_start = p;
-        char *line_end;
-        while (*p && *p != '\n') p++;
-        line_end = p;
-        while (line_end > line_start &&
-               (line_end[-1] == ' ' || line_end[-1] == '\t')) {
-            line_end--;
+    pszPos = pszBuf;
+    pszWrite = pszBuf;
+    while (*pszPos) {
+        PSZ pszLineStart = pszPos;
+        PSZ pszLineEnd;
+        while (*pszPos && *pszPos != '\n') pszPos++;
+        pszLineEnd = pszPos;
+        while (pszLineEnd > pszLineStart &&
+               (pszLineEnd[-1] == ' ' || pszLineEnd[-1] == '\t')) {
+            pszLineEnd--;
         }
-        memmove(w, line_start, (size_t)(line_end - line_start));
-        w += (line_end - line_start);
-        if (*p == '\n') {
-            *w++ = '\n';
-            p++;
+        memmove(pszWrite, pszLineStart, (size_t)(pszLineEnd - pszLineStart));
+        pszWrite += (pszLineEnd - pszLineStart);
+        if (*pszPos == '\n') {
+            *pszWrite++ = '\n';
+            pszPos++;
         }
     }
-    *w = '\0';
-    out_len = (size_t)(w - buf);
-    while (out_len > 0 && buf[out_len-1] == '\n') out_len--;
-    buf[out_len] = '\0';
+    *pszWrite = '\0';
+    cbOut = (size_t)(pszWrite - pszBuf);
+    while (cbOut > 0 && pszBuf[cbOut-1] == '\n') cbOut--;
+    pszBuf[cbOut] = '\0';
 
-    *ppszOut = buf;
+    *ppszOut = pszBuf;
+    return NO_ERROR;
+}
+
+/**
+ * @brief Normalize text for comparison.
+ *
+ * @param[in]  pszSrc   Input text. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ */
+APIRET APIENTRY SpdxNormalizeText(PCSZ pszSrc, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed) {
+    PSZ pszNormalized = NULL;
+    size_t cbLen;
+    APIRET rc;
+
+    if (!pszSrc) return ERROR_INVALID_PARAMETER;
+
+    rc = normalize_to_heap(pszSrc, &pszNormalized);
+    if (rc != NO_ERROR) return rc;
+
+    cbLen = strlen(pszNormalized);
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        free(pszNormalized);
+        return NO_ERROR;
+    }
+    if (!pszBuf) {
+        free(pszNormalized);
+        return ERROR_INVALID_PARAMETER;
+    }
+    if (ulSize < (ULONG)cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        free(pszNormalized);
+        return ERROR_BUFFER_OVERFLOW;
+    }
+
+    memcpy(pszBuf, pszNormalized, cbLen + 1);
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
+    free(pszNormalized);
     return NO_ERROR;
 }

@@ -4,471 +4,618 @@
 #include <string.h>
 #include "spdx_tag.h"
 
+/**
+ * @file spdx_tag.c
+ * @brief Implementation of the SPDX tags and snippet parser.
+ */
+
 /* Raised from 4096 to avoid truncating long copyright expressions. */
 #define MAX_LINE 16384
 
-/* Skip a UTF-8 BOM at the start of the buffer. */
-static const char *skip_bom(const char *p) {
-    if ((unsigned char)p[0] == 0xEF &&
-        (unsigned char)p[1] == 0xBB &&
-        (unsigned char)p[2] == 0xBF) {
-        return p + 3;
+/**
+ * @brief Skip a UTF-8 BOM at the start of the buffer.
+ *
+ * @param[in] pszPos  Buffer. Not NULL.
+ *
+ * @return Pointer past the BOM, or @p pszPos if absent.
+ */
+static PCSZ skip_bom(PCSZ pszPos) {
+    if ((UCHAR)pszPos[0] == 0xEF &&
+        (UCHAR)pszPos[1] == 0xBB &&
+        (UCHAR)pszPos[2] == 0xBF) {
+        return pszPos + 3;
     }
-    return p;
+    return pszPos;
 }
 
-/* Skip leading whitespace and a comment marker. */
-static const char *skip_comment_prefix(const char *p) {
-    while (*p == ' ' || *p == '\t') p++;
-    if (p[0] == '/' && p[1] == '/') { p += 2; }
-    else if (p[0] == '/' && p[1] == '*') { p += 2; }
-    else if (p[0] == '#') { p++; }
-    else if (p[0] == ';') { p++; }
-    else if (p[0] == '%') { p++; }
-    else if (p[0] == '-' && p[1] == '-') { p += 2; }
-    else if (p[0] == '*') { p++; }
-    while (*p == ' ' || *p == '\t') p++;
-    return p;
+/**
+ * @brief Skip leading whitespace and a comment marker.
+ *
+ * @param[in] pszPos  Start of line. Not NULL.
+ *
+ * @return Pointer past the comment prefix.
+ */
+static PCSZ skip_comment_prefix(PCSZ pszPos) {
+    while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+    if (pszPos[0] == '/' && pszPos[1] == '/') { pszPos += 2; }
+    else if (pszPos[0] == '/' && pszPos[1] == '*') { pszPos += 2; }
+    else if (pszPos[0] == '#') { pszPos++; }
+    else if (pszPos[0] == ';') { pszPos++; }
+    else if (pszPos[0] == '%') { pszPos++; }
+    else if (pszPos[0] == '-' && pszPos[1] == '-') { pszPos += 2; }
+    else if (pszPos[0] == '*') { pszPos++; }
+    while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+    return pszPos;
 }
 
-/* Check whether the meaningful part of a line starts with
- * REUSE-IgnoreStart or REUSE-IgnoreEnd. Returns 1, 2, or 0. */
-static int line_ignore_marker(const char *line) {
-    const char *p = skip_comment_prefix(line);
-    if (strncmp(p, "REUSE-IgnoreStart", 17) == 0) {
-        char c = p[17];
-        if (c == '\0' || c == ' ' || c == '\t' ||
-            c == '\n' || c == '\r')
+/**
+ * @brief Check whether the meaningful part of a line starts with
+ *        REUSE-IgnoreStart or REUSE-IgnoreEnd.
+ *
+ * @param[in] pszLine  Line. Not NULL.
+ *
+ * @return 1 for Start, 2 for End, 0 otherwise.
+ */
+static int line_ignore_marker(PCSZ pszLine) {
+    PCSZ pszPos = skip_comment_prefix(pszLine);
+    if (strncmp(pszPos, "REUSE-IgnoreStart", 17) == 0) {
+        CHAR ch = pszPos[17];
+        if (ch == '\0' || ch == ' ' || ch == '\t' ||
+            ch == '\n' || ch == '\r')
             return 1;
     }
-    if (strncmp(p, "REUSE-IgnoreEnd", 15) == 0) {
-        char c = p[15];
-        if (c == '\0' || c == ' ' || c == '\t' ||
-            c == '\n' || c == '\r')
+    if (strncmp(pszPos, "REUSE-IgnoreEnd", 15) == 0) {
+        CHAR ch = pszPos[15];
+        if (ch == '\0' || ch == ' ' || ch == '\t' ||
+            ch == '\n' || ch == '\r')
             return 2;
     }
     return 0;
 }
 
-/* Check whether the meaningful part of a line starts with the given
- * tag (tag may end with a colon). After the tag there must be a
- * space, a tab, a colon, a newline, or end of string. */
-static int line_starts_with_tag(const char *line, const char *tag) {
-    size_t tlen = strlen(tag);
-    const char *p = skip_comment_prefix(line);
-    if (strncmp(p, tag, tlen) != 0) return 0;
-    if (p[tlen] == ':' && tag[tlen - 1] != ':') return 1;
-    if (p[tlen] == '\0' || p[tlen] == ' ' || p[tlen] == '\t' ||
-        p[tlen] == '\n' || p[tlen] == '\r')
+/**
+ * @brief Check whether the meaningful part of a line starts with the
+ *        given tag.
+ *
+ * @param[in] pszLine  Line. Not NULL.
+ * @param[in] pszTag   Tag. Not NULL.
+ *
+ * @return 1 on match, 0 otherwise.
+ */
+static int line_starts_with_tag(PCSZ pszLine, PCSZ pszTag) {
+    size_t tlen = strlen(pszTag);
+    PCSZ pszPos = skip_comment_prefix(pszLine);
+    if (strncmp(pszPos, pszTag, tlen) != 0) return 0;
+    if (pszPos[tlen] == ':' && pszTag[tlen - 1] != ':') return 1;
+    if (pszPos[tlen] == '\0' || pszPos[tlen] == ' ' ||
+        pszPos[tlen] == '\t' || pszPos[tlen] == '\n' ||
+        pszPos[tlen] == '\r')
         return 1;
     return 0;
 }
 
-/* Return a pointer to the value after the tag (skipping the colon and
- * surrounding whitespace). If the tag is not found or lacks a colon,
- * returns NULL. */
-static const char *tag_value(const char *line, const char *tag_with_colon) {
-    size_t tlen = strlen(tag_with_colon);
-    const char *p = skip_comment_prefix(line);
-    if (strncmp(p, tag_with_colon, tlen) != 0) return NULL;
-    p += tlen;
-    while (*p == ' ' || *p == '\t') p++;
-    return p;
+/**
+ * @brief Return a pointer to the value after the tag.
+ *
+ * @param[in] pszLine         Line. Not NULL.
+ * @param[in] pszTagWithColon  Tag with trailing ':'. Not NULL.
+ *
+ * @return Pointer to the value, or NULL if the tag is not found.
+ */
+static PCSZ tag_value(PCSZ pszLine, PCSZ pszTagWithColon) {
+    size_t tlen = strlen(pszTagWithColon);
+    PCSZ pszPos = skip_comment_prefix(pszLine);
+    if (strncmp(pszPos, pszTagWithColon, tlen) != 0) return NULL;
+    pszPos += tlen;
+    while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+    return pszPos;
 }
 
-/* Strip trailing whitespace, newlines and comment-closing markers. */
-static void strip_trailing_markers(char *str) {
-    size_t len = strlen(str);
-    while (len > 0) {
-        if (len >= 2 && str[len-2] == '*' && str[len-1] == '/') {
-            len -= 2;
-        } else if (len >= 2 && str[len-2] == '/' && str[len-1] == '/') {
-            len -= 2;
-        } else if (str[len-1] == ' ' || str[len-1] == '\t' ||
-                   str[len-1] == '\n' || str[len-1] == '\r') {
-            len -= 1;
+/**
+ * @brief Strip trailing whitespace, newlines and comment-closing
+ *        markers.
+ *
+ * @param[in,out] pszStr  String to modify. Not NULL.
+ */
+static void strip_trailing_markers(PSZ pszStr) {
+    size_t cbLen = strlen(pszStr);
+    while (cbLen > 0) {
+        if (cbLen >= 2 && pszStr[cbLen-2] == '*' && pszStr[cbLen-1] == '/') {
+            cbLen -= 2;
+        } else if (cbLen >= 2 && pszStr[cbLen-2] == '/' &&
+                   pszStr[cbLen-1] == '/') {
+            cbLen -= 2;
+        } else if (pszStr[cbLen-1] == ' ' || pszStr[cbLen-1] == '\t' ||
+                   pszStr[cbLen-1] == '\n' || pszStr[cbLen-1] == '\r') {
+            cbLen -= 1;
         } else {
             break;
         }
     }
-    str[len] = '\0';
+    pszStr[cbLen] = '\0';
 }
 
 /* ------------------------------------------------------------------ */
 /* Snippet list                                                        */
 /* ------------------------------------------------------------------ */
 
-void APIENTRY SpdxSnippetListInit(SPDXSNIPPETLIST *pList) {
-    pList->paItems = NULL;
-    pList->nCount = 0;
-    pList->nCapacity = 0;
+/**
+ * @brief Initialize a snippet list.
+ *
+ * @param[in] pList  List. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pList is NULL.
+ */
+APIRET APIENTRY SpdxSnippetListInit(SPDXSNIPPETLIST *pList) {
+    if (!pList) return ERROR_INVALID_PARAMETER;
+    pList->pItems = NULL;
+    pList->ulCount = 0;
+    pList->ulCapacity = 0;
+    return NO_ERROR;
 }
 
-void APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList) {
-    int i;
-    if (!pList) return;
-    for (i = 0; i < pList->nCount; i++) {
-        free(pList->paItems[i].pszLicense);
-        free(pList->paItems[i].pszCopyright);
+/**
+ * @brief Release all memory owned by a snippet list.
+ *
+ * @param[in] pList  List. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULL.
+ */
+APIRET APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList) {
+    ULONG ulIdx;
+    if (!pList) return NO_ERROR;
+    for (ulIdx = 0; ulIdx < pList->ulCount; ulIdx++) {
+        free(pList->pItems[ulIdx].pszLicense);
+        free(pList->pItems[ulIdx].pszCopyright);
     }
-    free(pList->paItems);
-    pList->paItems = NULL;
-    pList->nCount = 0;
-    pList->nCapacity = 0;
+    free(pList->pItems);
+    pList->pItems = NULL;
+    pList->ulCount = 0;
+    pList->ulCapacity = 0;
+    return NO_ERROR;
 }
 
-static PSPDXSNIPPET spdx_snippet_list_add(SPDXSNIPPETLIST *pList) {
-    PSPDXSNIPPET pItem;
-    if (pList->nCount >= pList->nCapacity) {
-        int nNewCap = pList->nCapacity ? pList->nCapacity * 2 : 4;
-        PSPDXSNIPPET paNew = (PSPDXSNIPPET)realloc(pList->paItems,
-            (size_t)nNewCap * sizeof(SPDXSNIPPET));
-        if (!paNew) return NULL;
-        pList->paItems = paNew;
-        pList->nCapacity = nNewCap;
+/**
+ * @brief Append a zero-filled entry to a snippet list.
+ *
+ * @param[in,out] pList    List. Not NULL.
+ * @param[out]    ppEntry  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pList or ppEntry is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET snippetlist_add(SPDXSNIPPETLIST *pList,
+                              PSPDXSNIPPET *ppEntry) {
+    PSPDXSNIPPET pNew;
+    *ppEntry = NULL;
+    if (pList->ulCount >= pList->ulCapacity) {
+        ULONG ulNewCap = pList->ulCapacity ? pList->ulCapacity * 2 : 4;
+        pNew = (PSPDXSNIPPET)realloc(pList->pItems,
+            (size_t)ulNewCap * sizeof(SPDXSNIPPET));
+        if (!pNew) return ERROR_NOT_ENOUGH_MEMORY;
+        pList->pItems = pNew;
+        pList->ulCapacity = ulNewCap;
     }
-    pItem = &pList->paItems[pList->nCount++];
-    memset(pItem, 0, sizeof(*pItem));
-    return pItem;
+    *ppEntry = &pList->pItems[pList->ulCount++];
+    memset(*ppEntry, 0, sizeof(**ppEntry));
+    return NO_ERROR;
 }
 
 /* ------------------------------------------------------------------ */
 /* Public functions                                                    */
 /* ------------------------------------------------------------------ */
 
-APIRET APIENTRY SpdxFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
-    FILE *f;
-    char line[MAX_LINE];
-    int ignore = 0;
-    int first_line = 1;
+/**
+ * @brief Query whether a file contains an SPDX-License-Identifier
+ *        tag.
+ *
+ * @param[in]  pszFilename  Path to the file. Not NULL.
+ * @param[out] pfHasTag     Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename or pfHasTag is NULL.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ */
+APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
+    FILE *fp;
+    CHAR achLine[MAX_LINE];
+    BOOL fIgnore = FALSE_;
+    BOOL fFirstLine = TRUE_;
 
-    if (!pszFilename || !pfHasTag) return SPDX_TAG_ERROR_INVALID_PARAM;
+    if (!pszFilename || !pfHasTag) return ERROR_INVALID_PARAMETER;
     *pfHasTag = FALSE_;
 
-    f = fopen(pszFilename, "r");
-    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
-    while (fgets(line, sizeof(line), f)) {
-        char *work = line;
-        int marker;
+    fp = fopen(pszFilename, "r");
+    if (!fp) return ERROR_OPEN_FAILED;
+    while (fgets(achLine, sizeof(achLine), fp)) {
+        PSZ pszWork = achLine;
+        int nMarker;
 
-        if (first_line) {
-            work = (char *)skip_bom(line);
-            first_line = 0;
+        if (fFirstLine) {
+            pszWork = (PSZ)skip_bom(achLine);
+            fFirstLine = FALSE_;
         }
 
-        marker = line_ignore_marker(work);
-        if (marker == 1) { ignore = 1; continue; }
-        if (marker == 2) { ignore = 0; continue; }
-        if (ignore) continue;
+        nMarker = line_ignore_marker(pszWork);
+        if (nMarker == 1) { fIgnore = TRUE_; continue; }
+        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (fIgnore) continue;
 
-        if (strstr(work, "SPDX-License-Identifier:")) {
-            fclose(f);
+        if (strstr(pszWork, "SPDX-License-Identifier:")) {
+            fclose(fp);
             *pfHasTag = TRUE_;
-            return SPDX_TAG_NO_ERROR;
+            return NO_ERROR;
         }
     }
-    fclose(f);
-    return SPDX_TAG_NO_ERROR;
+    fclose(fp);
+    return NO_ERROR;
 }
 
-APIRET APIENTRY SpdxFileGetLicense(PCSZ pszFilename, PSZ *ppszLicense) {
-    FILE *f;
-    char line[MAX_LINE];
-    const char *needle = "SPDX-License-Identifier:";
-    const size_t needle_len = strlen(needle);
-    char *pos;
-    char *result;
-    char *start;
-    size_t len;
-    int ignore = 0;
-    int first_line = 1;
+/**
+ * @brief Query the value of the SPDX-License-Identifier tag.
+ *
+ * @param[in]  pszFilename  Path to the file. Not NULL.
+ * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize       Size of pszBuf in bytes.
+ * @param[out] pulUsed      Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_FILE_NOT_FOUND     Tag not present.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
+                                     ULONG ulSize, PULONG pulUsed) {
+    FILE *fp;
+    CHAR achLine[MAX_LINE];
+    PCSZ pszNeedle = "SPDX-License-Identifier:";
+    size_t cbNeedle = strlen(pszNeedle);
+    PSZ pszPos;
+    PSZ pszStart;
+    size_t cbLen;
+    BOOL fIgnore = FALSE_;
+    BOOL fFirstLine = TRUE_;
+    ULONG ulFound = 0;
 
-    if (!pszFilename || !ppszLicense) return SPDX_TAG_ERROR_INVALID_PARAM;
-    *ppszLicense = NULL;
+    if (!pszFilename) return ERROR_INVALID_PARAMETER;
+    if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
+    if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
-    f = fopen(pszFilename, "r");
-    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
+    fp = fopen(pszFilename, "r");
+    if (!fp) return ERROR_OPEN_FAILED;
 
-    while (fgets(line, sizeof(line), f)) {
-        char *work = line;
-        int marker;
+    while (fgets(achLine, sizeof(achLine), fp)) {
+        PSZ pszWork = achLine;
+        int nMarker;
 
-        if (first_line) {
-            work = (char *)skip_bom(line);
-            first_line = 0;
+        if (fFirstLine) {
+            pszWork = (PSZ)skip_bom(achLine);
+            fFirstLine = FALSE_;
         }
 
-        marker = line_ignore_marker(work);
-        if (marker == 1) { ignore = 1; continue; }
-        if (marker == 2) { ignore = 0; continue; }
-        if (ignore) continue;
+        nMarker = line_ignore_marker(pszWork);
+        if (nMarker == 1) { fIgnore = TRUE_; continue; }
+        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (fIgnore) continue;
 
-        pos = strstr(work, needle);
-        if (pos) {
-            start = (char *)skip_comment_prefix(pos + needle_len);
-            strip_trailing_markers(start);
-            len = strlen(start);
-            if (len > 0) {
-                result = (char *)malloc(len + 1);
-                if (!result) {
-                    fclose(f);
-                    return SPDX_TAG_ERROR_OUT_OF_MEMORY;
+        pszPos = strstr(pszWork, pszNeedle);
+        if (pszPos) {
+            pszStart = (PSZ)skip_comment_prefix(pszPos + cbNeedle);
+            strip_trailing_markers(pszStart);
+            cbLen = strlen(pszStart);
+            if (cbLen > 0) {
+                if (pszBuf == NULL && ulSize == 0) {
+                    if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+                    fclose(fp);
+                    return NO_ERROR;
                 }
-                memcpy(result, start, len);
-                result[len] = '\0';
-                fclose(f);
-                *ppszLicense = result;
-                return SPDX_TAG_NO_ERROR;
+                if (ulSize < (ULONG)cbLen + 1) {
+                    if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+                    fclose(fp);
+                    return ERROR_BUFFER_OVERFLOW;
+                }
+                memcpy(pszBuf, pszStart, cbLen);
+                pszBuf[cbLen] = '\0';
+                if (pulUsed) *pulUsed = (ULONG)cbLen;
+                fclose(fp);
+                return NO_ERROR;
             }
         }
+        ulFound = ulFound;
     }
-    fclose(f);
-    return SPDX_TAG_ERROR_NOT_FOUND;
+    fclose(fp);
+    return ERROR_FILE_NOT_FOUND;
 }
 
-APIRET APIENTRY SpdxFileGetCopyright(PCSZ pszFilename, PSZ *ppszCopyright) {
-    FILE *f;
-    char line[MAX_LINE];
-    char *result = NULL;
-    size_t result_len = 0;
-    int ignore = 0;
-    int first_line = 1;
+/**
+ * @brief Query the concatenated SPDX-FileCopyrightText values.
+ *
+ * @param[in]  pszFilename  Path to the file. Not NULL.
+ * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize       Size of pszBuf in bytes.
+ * @param[out] pulUsed      Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_FILE_NOT_FOUND     No copyright tag present.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
+                                       ULONG ulSize, PULONG pulUsed) {
+    FILE *fp;
+    CHAR achLine[MAX_LINE];
+    PSZ pszResult = NULL;
+    size_t cbResultLen = 0;
+    BOOL fIgnore = FALSE_;
+    BOOL fFirstLine = TRUE_;
+    APIRET rc;
 
-    if (!pszFilename || !ppszCopyright) return SPDX_TAG_ERROR_INVALID_PARAM;
-    *ppszCopyright = NULL;
+    if (!pszFilename) return ERROR_INVALID_PARAMETER;
+    if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
+    if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
-    f = fopen(pszFilename, "r");
-    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
+    fp = fopen(pszFilename, "r");
+    if (!fp) return ERROR_OPEN_FAILED;
 
-    while (fgets(line, sizeof(line), f)) {
-        char *p;
-        char *start;
-        size_t len;
-        int marker;
+    while (fgets(achLine, sizeof(achLine), fp)) {
+        PSZ pszPos;
+        PSZ pszStart;
+        size_t cbLen;
+        int nMarker;
 
-        if (first_line) {
-            p = (char *)skip_bom(line);
-            first_line = 0;
+        if (fFirstLine) {
+            pszPos = (PSZ)skip_bom(achLine);
+            fFirstLine = FALSE_;
         } else {
-            p = line;
+            pszPos = achLine;
         }
 
-        marker = line_ignore_marker(p);
-        if (marker == 1) { ignore = 1; continue; }
-        if (marker == 2) { ignore = 0; continue; }
-        if (ignore) continue;
+        nMarker = line_ignore_marker(pszPos);
+        if (nMarker == 1) { fIgnore = TRUE_; continue; }
+        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (fIgnore) continue;
 
-        p = (char *)skip_comment_prefix(p);
+        pszPos = (PSZ)skip_comment_prefix(pszPos);
 
-        if (strncmp(p, "SPDX-FileCopyrightText:", 23) == 0) {
-            p += 23;
-            while (*p == ' ' || *p == '\t') p++;
-            start = p;
-        } else if (strncmp(p, "Copyright", 9) == 0 &&
-                   (p[9] == ' ' || p[9] == '\t')) {
-            p += 9;
-            while (*p == ' ' || *p == '\t') p++;
-            start = p;
-        } else if ((unsigned char)*p == 0xC2 &&
-                   (unsigned char)*(p+1) == 0xA9) {
-            p += 2;
-            while (*p == ' ' || *p == '\t') p++;
-            start = p;
+        if (strncmp(pszPos, "SPDX-FileCopyrightText:", 23) == 0) {
+            pszPos += 23;
+            while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+            pszStart = pszPos;
+        } else if (strncmp(pszPos, "Copyright", 9) == 0 &&
+                   (pszPos[9] == ' ' || pszPos[9] == '\t')) {
+            pszPos += 9;
+            while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+            pszStart = pszPos;
+        } else if ((UCHAR)*pszPos == 0xC2 &&
+                   (UCHAR)*(pszPos+1) == 0xA9) {
+            pszPos += 2;
+            while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
+            pszStart = pszPos;
         } else {
             continue;
         }
 
-        strip_trailing_markers(start);
-        len = strlen(start);
-        if (len > 0) {
-            char *new_result;
-            size_t new_size = (result ? result_len + 1 + len + 1 : len + 1);
-            new_result = (char *)realloc(result, new_size);
-            if (!new_result) {
-                free(result);
-                fclose(f);
-                return SPDX_TAG_ERROR_OUT_OF_MEMORY;
+        strip_trailing_markers(pszStart);
+        cbLen = strlen(pszStart);
+        if (cbLen > 0) {
+            PSZ pszNew;
+            size_t cbNewSize = (pszResult ? cbResultLen + 1 + cbLen + 1
+                                          : cbLen + 1);
+            pszNew = (PSZ)realloc(pszResult, cbNewSize);
+            if (!pszNew) {
+                free(pszResult);
+                fclose(fp);
+                return ERROR_NOT_ENOUGH_MEMORY;
             }
-            result = new_result;
-            if (result_len > 0) {
-                result[result_len++] = '\n';
+            pszResult = pszNew;
+            if (cbResultLen > 0) {
+                pszResult[cbResultLen++] = '\n';
             }
-            memcpy(result + result_len, start, len);
-            result_len += len;
-            result[result_len] = '\0';
+            memcpy(pszResult + cbResultLen, pszStart, cbLen);
+            cbResultLen += cbLen;
+            pszResult[cbResultLen] = '\0';
         }
     }
-    fclose(f);
+    fclose(fp);
 
-    if (!result) return SPDX_TAG_ERROR_NOT_FOUND;
-    *ppszCopyright = result;
-    return SPDX_TAG_NO_ERROR;
-}
+    if (!pszResult) return ERROR_FILE_NOT_FOUND;
 
-/* Append a line to an accumulator with a '\n' separator. */
-static char *append_line(char *acc, size_t *acc_len, const char *line) {
-    size_t llen = strlen(line);
-    char *na;
-    size_t new_size;
-
-    if (llen == 0) return acc;
-
-    new_size = (*acc_len ? *acc_len + 1 : 0) + llen + 1;
-    na = (char*)realloc(acc, new_size);
-    if (!na) return acc;
-
-    if (*acc_len > 0) {
-        na[(*acc_len)++] = '\n';
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)cbResultLen + 1;
+        free(pszResult);
+        return NO_ERROR;
     }
-    memcpy(na + *acc_len, line, llen);
-    *acc_len += llen;
-    na[*acc_len] = '\0';
-    return na;
+    if (ulSize < (ULONG)cbResultLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbResultLen + 1;
+        free(pszResult);
+        return ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuf, pszResult, cbResultLen + 1);
+    if (pulUsed) *pulUsed = (ULONG)cbResultLen;
+    free(pszResult);
+    rc = NO_ERROR;
+    return rc;
 }
 
-APIRET APIENTRY SpdxFileGetSnippets(PCSZ pszFilename,
-                                    SPDXSNIPPETLIST *pOut) {
-    FILE *f;
-    char line[MAX_LINE];
-    int lineno = 0;
-    int first_line = 1;
-    int in_snippet = 0;
-    int snippet_start_line = 0;
-    char *snippet_license = NULL;
-    char *snippet_copyright = NULL;
-    size_t snippet_copyright_len = 0;
-    int ignore = 0;
+/**
+ * @brief Append a line to an accumulator with a '\n' separator.
+ *
+ * @param[in] pszAcc      Accumulator, or NULL.
+ * @param[in] pcbAccLen   Pointer to the used length. Not NULL.
+ * @param[in] pszLine     Line to append. Not NULL.
+ *
+ * @return New accumulator, or NULL on OOM.
+ */
+static PSZ append_line(PSZ pszAcc, size_t *pcbAccLen, PCSZ pszLine) {
+    size_t cbLineLen = strlen(pszLine);
+    PSZ pszNew;
+    size_t cbNewSize;
 
-    if (!pszFilename || !pOut) return SPDX_TAG_ERROR_INVALID_PARAM;
+    if (cbLineLen == 0) return pszAcc;
 
-    SpdxSnippetListInit(pOut);
+    cbNewSize = (*pcbAccLen ? *pcbAccLen + 1 : 0) + cbLineLen + 1;
+    pszNew = (PSZ)realloc(pszAcc, cbNewSize);
+    if (!pszNew) return pszAcc;
 
-    f = fopen(pszFilename, "r");
-    if (!f) return SPDX_TAG_ERROR_OPEN_FAILED;
+    if (*pcbAccLen > 0) {
+        pszNew[(*pcbAccLen)++] = '\n';
+    }
+    memcpy(pszNew + *pcbAccLen, pszLine, cbLineLen);
+    *pcbAccLen += cbLineLen;
+    pszNew[*pcbAccLen] = '\0';
+    return pszNew;
+}
 
-    while (fgets(line, sizeof(line), f)) {
-        char *work = line;
-        int marker;
+/**
+ * @brief Extract all SPDX snippets from a file.
+ *
+ * @param[in]  pszFilename  Path to the file. Not NULL.
+ * @param[out] pOut         List receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success (possibly no snippets).
+ * @retval ERROR_INVALID_PARAMETER  pszFilename or pOut is NULL.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval SPDX_TAG_ERROR_SYNTAX    Nested or unmatched snippet
+ *                                  delimiters.
+ */
+APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
+                                      SPDXSNIPPETLIST *pOut) {
+    FILE *fp;
+    CHAR achLine[MAX_LINE];
+    ULONG ulLineNo = 0;
+    BOOL fFirstLine = TRUE_;
+    BOOL fInSnippet = FALSE_;
+    ULONG ulSnippetStartLine = 0;
+    PSZ pszSnippetLicense = NULL;
+    PSZ pszSnippetCopyright = NULL;
+    size_t cbSnippetCopyrightLen = 0;
+    BOOL fIgnore = FALSE_;
+    APIRET rc;
 
-        lineno++;
+    if (!pszFilename || !pOut) return ERROR_INVALID_PARAMETER;
 
-        if (first_line) {
-            work = (char *)skip_bom(line);
-            first_line = 0;
+    rc = SpdxSnippetListInit(pOut);
+    if (rc != NO_ERROR) return rc;
+
+    fp = fopen(pszFilename, "r");
+    if (!fp) return ERROR_OPEN_FAILED;
+
+    while (fgets(achLine, sizeof(achLine), fp)) {
+        PSZ pszWork = achLine;
+        int nMarker;
+
+        ulLineNo++;
+
+        if (fFirstLine) {
+            pszWork = (PSZ)skip_bom(achLine);
+            fFirstLine = FALSE_;
         }
 
-        marker = line_ignore_marker(work);
-        if (marker == 1) { ignore = 1; continue; }
-        if (marker == 2) { ignore = 0; continue; }
-        if (ignore) continue;
+        nMarker = line_ignore_marker(pszWork);
+        if (nMarker == 1) { fIgnore = TRUE_; continue; }
+        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (fIgnore) continue;
 
-        if (line_starts_with_tag(work, "SPDX-SnippetBegin")) {
-            if (in_snippet) {
-                fprintf(stderr,
-                        "ERROR: %s:%d: nested SPDX-SnippetBegin.\n"
-                        "       Fix one of:\n"
-                        "         - remove the duplicate SPDX-SnippetBegin;\n"
-                        "         - or add a matching SPDX-SnippetEnd "
-                        "before the nested one.\n",
-                        pszFilename, lineno);
-                free(snippet_license);
-                free(snippet_copyright);
+        if (line_starts_with_tag(pszWork, "SPDX-SnippetBegin")) {
+            if (fInSnippet) {
+                free(pszSnippetLicense);
+                free(pszSnippetCopyright);
                 SpdxSnippetListFree(pOut);
-                fclose(f);
+                fclose(fp);
                 return SPDX_TAG_ERROR_SYNTAX;
             }
-            in_snippet = 1;
-            snippet_start_line = lineno;
-            free(snippet_license); snippet_license = NULL;
-            free(snippet_copyright); snippet_copyright = NULL;
-            snippet_copyright_len = 0;
+            fInSnippet = TRUE_;
+            ulSnippetStartLine = ulLineNo;
+            free(pszSnippetLicense); pszSnippetLicense = NULL;
+            free(pszSnippetCopyright); pszSnippetCopyright = NULL;
+            cbSnippetCopyrightLen = 0;
             continue;
         }
 
-        if (line_starts_with_tag(work, "SPDX-SnippetEnd")) {
+        if (line_starts_with_tag(pszWork, "SPDX-SnippetEnd")) {
             PSPDXSNIPPET pS;
-            if (!in_snippet) {
-                fprintf(stderr,
-                        "ERROR: %s:%d: SPDX-SnippetEnd without matching "
-                        "SPDX-SnippetBegin.\n"
-                        "       Fix one of:\n"
-                        "         - remove this SPDX-SnippetEnd;\n"
-                        "         - or add SPDX-SnippetBegin before the "
-                        "snippet.\n",
-                        pszFilename, lineno);
+            if (!fInSnippet) {
                 SpdxSnippetListFree(pOut);
-                fclose(f);
+                fclose(fp);
                 return SPDX_TAG_ERROR_SYNTAX;
             }
-            pS = spdx_snippet_list_add(pOut);
-            if (!pS) {
-                free(snippet_license);
-                free(snippet_copyright);
+            rc = snippetlist_add(pOut, &pS);
+            if (rc != NO_ERROR) {
+                free(pszSnippetLicense);
+                free(pszSnippetCopyright);
                 SpdxSnippetListFree(pOut);
-                fclose(f);
-                return SPDX_TAG_ERROR_OUT_OF_MEMORY;
+                fclose(fp);
+                return rc;
             }
-            pS->nLineStart  = snippet_start_line;
-            pS->nLineEnd    = lineno;
-            pS->pszLicense  = snippet_license;
-            pS->pszCopyright = snippet_copyright;
-            snippet_license = NULL;
-            snippet_copyright = NULL;
-            snippet_copyright_len = 0;
-            in_snippet = 0;
+            pS->ulLineStart = ulSnippetStartLine;
+            pS->ulLineEnd = ulLineNo;
+            pS->pszLicense = pszSnippetLicense;
+            pS->pszCopyright = pszSnippetCopyright;
+            pszSnippetLicense = NULL;
+            pszSnippetCopyright = NULL;
+            cbSnippetCopyrightLen = 0;
+            fInSnippet = FALSE_;
             continue;
         }
 
-        if (!in_snippet) continue;
+        if (!fInSnippet) continue;
 
         {
-            const char *val;
+            PCSZ pszVal;
 
-            val = tag_value(work, "SPDX-SnippetCopyrightText:");
-            if (val) {
-                char tmp[MAX_LINE];
-                size_t l = strlen(val);
-                if (l >= sizeof(tmp)) l = sizeof(tmp) - 1;
-                memcpy(tmp, val, l);
-                tmp[l] = '\0';
-                strip_trailing_markers(tmp);
-                snippet_copyright = append_line(snippet_copyright,
-                                                &snippet_copyright_len,
-                                                tmp);
+            pszVal = tag_value(pszWork, "SPDX-SnippetCopyrightText:");
+            if (pszVal) {
+                CHAR achTmp[MAX_LINE];
+                size_t cbL = strlen(pszVal);
+                if (cbL >= sizeof(achTmp)) cbL = sizeof(achTmp) - 1;
+                memcpy(achTmp, pszVal, cbL);
+                achTmp[cbL] = '\0';
+                strip_trailing_markers(achTmp);
+                pszSnippetCopyright = append_line(pszSnippetCopyright,
+                                                  &cbSnippetCopyrightLen,
+                                                  achTmp);
                 continue;
             }
 
-            val = tag_value(work, "SPDX-License-Identifier:");
-            if (val) {
-                char tmp[MAX_LINE];
-                size_t l = strlen(val);
-                if (l >= sizeof(tmp)) l = sizeof(tmp) - 1;
-                memcpy(tmp, val, l);
-                tmp[l] = '\0';
-                strip_trailing_markers(tmp);
-                free(snippet_license);
-                snippet_license = (char*)malloc(strlen(tmp) + 1);
-                if (snippet_license) strcpy(snippet_license, tmp);
+            pszVal = tag_value(pszWork, "SPDX-License-Identifier:");
+            if (pszVal) {
+                CHAR achTmp[MAX_LINE];
+                size_t cbL = strlen(pszVal);
+                if (cbL >= sizeof(achTmp)) cbL = sizeof(achTmp) - 1;
+                memcpy(achTmp, pszVal, cbL);
+                achTmp[cbL] = '\0';
+                strip_trailing_markers(achTmp);
+                free(pszSnippetLicense);
+                pszSnippetLicense = (PSZ)malloc(strlen(achTmp) + 1);
+                if (pszSnippetLicense) strcpy(pszSnippetLicense, achTmp);
                 continue;
             }
         }
     }
 
-    fclose(f);
+    fclose(fp);
 
-    if (in_snippet) {
-        fprintf(stderr,
-                "ERROR: %s: unclosed SPDX-SnippetBegin at line %d.\n"
-                "       Fix one of:\n"
-                "         - add SPDX-SnippetEnd after the snippet;\n"
-                "         - or remove SPDX-SnippetBegin if the code is not "
-                "a snippet.\n",
-                pszFilename, snippet_start_line);
-        free(snippet_license);
-        free(snippet_copyright);
+    if (fInSnippet) {
+        free(pszSnippetLicense);
+        free(pszSnippetCopyright);
         SpdxSnippetListFree(pOut);
         return SPDX_TAG_ERROR_SYNTAX;
     }
 
-    return SPDX_TAG_NO_ERROR;
+    return NO_ERROR;
 }

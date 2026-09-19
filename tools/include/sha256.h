@@ -14,17 +14,18 @@ extern "C" {
  * @brief SHA-256 hashing.
  *
  * Conforms to:
- *   - FIPS PUB 180-2, "Secure Hash Standard"
+ *   - FIPS PUB 180-2, "Secure Hash Standard".
  *     https://csrc.nist.gov/publications/detail/fips/180/2/archive
- *   - RFC 6234, "US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"
+ *   - RFC 6234, "US Secure Hash Algorithms (SHA and SHA-based HMAC
+ *     and HKDF)".
  *     https://datatracker.ietf.org/doc/html/rfc6234
  *
- * The module provides one-shot hashing of a file or of a NUL-terminated
- * string. Streaming is not exposed.
+ * The module provides one-shot hashing of a file or of a
+ * NUL-terminated string. Streaming is not exposed.
  *
  * @par Buffer size
- * A SHA-256 digest in hex representation is 64 characters. The output
- * buffer must be at least 65 bytes (64 + NUL).
+ * A SHA-256 digest in hex representation is 64 characters. The
+ * output buffer must be at least 65 bytes (64 + NUL).
  */
 
 /* ==================================================================
@@ -52,7 +53,7 @@ extern "C" {
  *                                  without size-query.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
- * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
                            PULONG pulUsed);
@@ -71,7 +72,7 @@ APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
  *                                  without size-query.
- * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha256String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
                              PULONG pulUsed);

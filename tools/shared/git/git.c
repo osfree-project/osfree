@@ -33,22 +33,22 @@
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Check whether a directory contains a .git entry.
+ * @brief Query whether a directory contains a .git entry.
  *
  * Both '/' and '\\' separators are tried.
  *
- * @param[in] path  Directory path. Not NULL.
+ * @param[in] pszPath  Directory path. Not NULL.
  *
- * @return 1 if .git found, 0 otherwise.
+ * @return TRUE_ if .git found, FALSE_ otherwise.
  */
-static int has_git_entry(const char *path) {
-    char p[1024];
+static BOOL has_git_entry(PCSZ pszPath) {
+    CHAR achPath[1024];
     struct stat st;
-    snprintf(p, sizeof(p), "%s/.git", path);
-    if (stat(p, &st) == 0) return 1;
-    snprintf(p, sizeof(p), "%s\\.git", path);
-    if (stat(p, &st) == 0) return 1;
-    return 0;
+    snprintf(achPath, sizeof(achPath), "%s/.git", pszPath);
+    if (stat(achPath, &st) == 0) return TRUE_;
+    snprintf(achPath, sizeof(achPath), "%s\\.git", pszPath);
+    if (stat(achPath, &st) == 0) return TRUE_;
+    return FALSE_;
 }
 
 /**
@@ -60,18 +60,20 @@ static int has_git_entry(const char *path) {
  * "C:" as the current directory of drive C, so the transformation
  * is not required.
  *
- * @param[in,out] s  Path buffer to trim. Not NULL.
+ * @param[in,out] pszPath  Path buffer to trim. Not NULL.
  */
-static void trim_separators(char *s) {
-    size_t len = strlen(s);
+static void trim_separators(PSZ pszPath) {
+    size_t cbLen = strlen(pszPath);
 #ifdef _WIN32
-    if (len == 3 && s[1] == ':' && (s[2] == '\\' || s[2] == '/')) return;
+    if (cbLen == 3 && pszPath[1] == ':' &&
+        (pszPath[2] == '\\' || pszPath[2] == '/')) return;
 #endif
-    while (len > 1 && (s[len-1] == '/' || s[len-1] == '\\')) {
-        s[--len] = '\0';
+    while (cbLen > 1 && (pszPath[cbLen-1] == '/' ||
+                         pszPath[cbLen-1] == '\\')) {
+        pszPath[--cbLen] = '\0';
     }
 #ifdef _WIN32
-    if (len == 2 && s[1] == ':') {
+    if (cbLen == 2 && pszPath[1] == ':') {
         /* Bare drive letter: do not extend to "C:\", the buffer is
          * only len + 1 bytes. See the function comment. */
         return;
@@ -104,78 +106,79 @@ static void trim_separators(char *s) {
  * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success. Root directory returned.
+ * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszStartDir is NULL, or pszBuf is
  *                                  NULL without size-query.
- * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  * @retval ERROR_FILE_NOT_FOUND     No .git entry found.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
-    char *current;
-    size_t found_len;
+    PSZ pszCurrent;
+    size_t cbFoundLen;
 
     if (!pszStartDir) return ERROR_INVALID_PARAMETER;
     if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
-    current = strdup(pszStartDir);
-    if (!current) return ERROR_NOT_ENOUGH_MEMORY;
+    pszCurrent = strdup(pszStartDir);
+    if (!pszCurrent) return ERROR_NOT_ENOUGH_MEMORY;
 
     for (;;) {
-        char *slash;
-        char *backslash;
+        PSZ pszSlash;
+        PSZ pszBackslash;
 
-        trim_separators(current);
+        trim_separators(pszCurrent);
 
-        if (has_git_entry(current)) break;
+        if (has_git_entry(pszCurrent)) break;
 
-        slash = strrchr(current, '/');
-        backslash = strrchr(current, '\\');
-        if (backslash && (!slash || backslash > slash)) slash = backslash;
-        if (!slash) {
-            free(current);
+        pszSlash = strrchr(pszCurrent, '/');
+        pszBackslash = strrchr(pszCurrent, '\\');
+        if (pszBackslash && (!pszSlash || pszBackslash > pszSlash))
+            pszSlash = pszBackslash;
+        if (!pszSlash) {
+            free(pszCurrent);
             return ERROR_FILE_NOT_FOUND;
         }
 
 #ifdef _WIN32
-        if (slash == current + 2 && current[1] == ':') {
-            free(current);
+        if (pszSlash == pszCurrent + 2 && pszCurrent[1] == ':') {
+            free(pszCurrent);
             return ERROR_FILE_NOT_FOUND;
         }
 #endif
-        if (slash == current) {
-            free(current);
+        if (pszSlash == pszCurrent) {
+            free(pszCurrent);
             return ERROR_FILE_NOT_FOUND;
         }
 
-        *slash = '\0';
+        *pszSlash = '\0';
     }
 
-    found_len = strlen(current);
+    cbFoundLen = strlen(pszCurrent);
 
     if (pszBuf == NULL && ulSize == 0) {
-        if (pulUsed) *pulUsed = (ULONG)(found_len + 1);
-        free(current);
+        if (pulUsed) *pulUsed = (ULONG)cbFoundLen + 1;
+        free(pszCurrent);
         return NO_ERROR;
     }
 
-    if (ulSize < found_len + 1) {
-        if (pulUsed) *pulUsed = (ULONG)(found_len + 1);
-        free(current);
+    if (ulSize < (ULONG)cbFoundLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbFoundLen + 1;
+        free(pszCurrent);
         return ERROR_BUFFER_OVERFLOW;
     }
 
-    memcpy(pszBuf, current, found_len);
-    pszBuf[found_len] = '\0';
-    if (pulUsed) *pulUsed = (ULONG)found_len;
+    memcpy(pszBuf, pszCurrent, cbFoundLen);
+    pszBuf[cbFoundLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbFoundLen;
 
-    free(current);
+    free(pszCurrent);
     return NO_ERROR;
 }
 
 /**
- * @brief Check whether a directory is inside a Git repository.
+ * @brief Query whether a directory is inside a Git repository.
  *
  * @param[in]  pszDir     Directory. Not NULL.
  * @param[out] pfIsRepo   Receiver TRUE_ / FALSE_. Not NULL.
@@ -184,7 +187,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszDir or pfIsRepo is NULL.
  */
-APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
+APIRET APIENTRY GitQueryIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
     APIRET rc;
 
     if (!pszDir || !pfIsRepo) return ERROR_INVALID_PARAMETER;
@@ -212,7 +215,7 @@ APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pList is NULL.
  */
-APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList) {
+APIRET APIENTRY GitIgnoreListInit(PGITIGNORELIST pList) {
     if (!pList) return ERROR_INVALID_PARAMETER;
     pList->paItems = NULL;
     pList->ulCount = 0;
@@ -230,14 +233,14 @@ APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList) {
  * @param[in] pList  List. May be NULL.
  *
  * @return APIRET
- * @retval NO_ERROR Success. Also returned for NULL.
+ * @retval NO_ERROR  Success. Also for NULL.
  */
-APIRET APIENTRY GitIgnoreListFree(GITIGNORELIST *pList) {
-    ULONG i;
+APIRET APIENTRY GitIgnoreListFree(PGITIGNORELIST pList) {
+    ULONG ulIdx;
     if (!pList) return NO_ERROR;
-    for (i = 0; i < pList->ulCount; i++) {
-        free(pList->paItems[i].pszPattern);
-        free(pList->paItems[i].pszBaseRel);
+    for (ulIdx = 0; ulIdx < pList->ulCount; ulIdx++) {
+        free(pList->paItems[ulIdx].pszPattern);
+        free(pList->paItems[ulIdx].pszBaseRel);
     }
     free(pList->paItems);
     pList->paItems = NULL;
@@ -253,10 +256,11 @@ APIRET APIENTRY GitIgnoreListFree(GITIGNORELIST *pList) {
  *
  * @return Pointer to the new rule slot, or NULL on OOM.
  */
-static PGITIGNORERULE git_ignore_list_add(GITIGNORELIST *pList) {
+static PGITIGNORERULE git_ignore_list_add(PGITIGNORELIST pList) {
     PGITIGNORERULE pItem;
     if (pList->ulCount >= pList->ulCapacity) {
-        ULONG ulNewCap = (pList->ulCapacity == 0) ? 16 : pList->ulCapacity * 2;
+        ULONG ulNewCap = (pList->ulCapacity == 0) ? 16
+                                                  : pList->ulCapacity * 2;
         PGITIGNORERULE paNew = (PGITIGNORERULE)realloc(pList->paItems,
                               (size_t)ulNewCap * sizeof(GITIGNORERULE));
         if (!paNew) return NULL;
@@ -275,17 +279,18 @@ static PGITIGNORERULE git_ignore_list_add(GITIGNORELIST *pList) {
 /**
  * @brief Remove leading and trailing whitespace in place.
  *
- * @param[in,out] s  String to trim. Not NULL.
+ * @param[in,out] pszStr  String to trim. Not NULL.
  */
-static void trim_inplace(char *s) {
-    char *p = s;
-    char *end;
-    while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++;
-    if (p != s) memmove(s, p, strlen(p) + 1);
-    end = s + strlen(s);
-    while (end > s && (end[-1] == ' ' || end[-1] == '\t' ||
-                       end[-1] == '\r' || end[-1] == '\n')) {
-        *--end = '\0';
+static void trim_inplace(PSZ pszStr) {
+    PSZ pszPos = pszStr;
+    PSZ pszEnd;
+    while (*pszPos == ' ' || *pszPos == '\t' ||
+           *pszPos == '\r' || *pszPos == '\n') pszPos++;
+    if (pszPos != pszStr) memmove(pszStr, pszPos, strlen(pszPos) + 1);
+    pszEnd = pszStr + strlen(pszStr);
+    while (pszEnd > pszStr && (pszEnd[-1] == ' ' || pszEnd[-1] == '\t' ||
+                               pszEnd[-1] == '\r' || pszEnd[-1] == '\n')) {
+        *--pszEnd = '\0';
     }
 }
 
@@ -295,78 +300,78 @@ static void trim_inplace(char *s) {
  * Recognizes negation ('!'), anchored patterns, dir-only patterns,
  * comments ('#'), escaped '#' and '!'.
  *
- * @param[in]  line      Raw line from the file. Not NULL.
- * @param[in]  base_rel  Directory of the .gitignore relative to
- *                       the repository root. May be "".
- * @param[out] out       List to append to. Not NULL.
+ * @param[in]  pszLine   Raw line from the file. Not NULL.
+ * @param[in]  pszBaseRel Directory of the .gitignore relative to
+ *                        the repository root. May be "".
+ * @param[out] pOut      List to append to. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success (including empty/comment).
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET parse_rule(const char *line, const char *base_rel,
-                         GITIGNORELIST *out) {
-    PGITIGNORERULE r;
-    char buf[1024];
-    char *p;
-    size_t len;
+static APIRET parse_rule(PCSZ pszLine, PCSZ pszBaseRel,
+                         PGITIGNORELIST pOut) {
+    PGITIGNORERULE pRule;
+    CHAR achBuf[1024];
+    PSZ pszPos;
+    size_t cbLen;
 
-    if (!line || !line[0]) return NO_ERROR;
+    if (!pszLine || !pszLine[0]) return NO_ERROR;
 
-    strncpy(buf, line, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
-    trim_inplace(buf);
-    if (buf[0] == '\0') return NO_ERROR;
+    strncpy(achBuf, pszLine, sizeof(achBuf) - 1);
+    achBuf[sizeof(achBuf) - 1] = '\0';
+    trim_inplace(achBuf);
+    if (achBuf[0] == '\0') return NO_ERROR;
 
-    p = buf;
+    pszPos = achBuf;
 
     /* Escaped \# and \! */
-    if (p[0] == '\\' && (p[1] == '#' || p[1] == '!')) {
-        p++;
-    } else if (p[0] == '#') {
+    if (pszPos[0] == '\\' && (pszPos[1] == '#' || pszPos[1] == '!')) {
+        pszPos++;
+    } else if (pszPos[0] == '#') {
         return NO_ERROR;   /* Comment */
     }
 
-    r = git_ignore_list_add(out);
-    if (!r) return ERROR_NOT_ENOUGH_MEMORY;
+    pRule = git_ignore_list_add(pOut);
+    if (!pRule) return ERROR_NOT_ENOUGH_MEMORY;
 
-    if (p[0] == '!') {
-        r->fNegate = 1;
-        p++;
+    if (pszPos[0] == '!') {
+        pRule->fNegate = TRUE_;
+        pszPos++;
     }
-    if (p[0] == '/') {
-        r->fAnchored = 1;
-        p++;
+    if (pszPos[0] == '/') {
+        pRule->fAnchored = TRUE_;
+        pszPos++;
     }
 
-    len = strlen(p);
-    if (len > 0 && p[len-1] == '/') {
-        r->fDirOnly = 1;
-        p[len-1] = '\0';
+    cbLen = strlen(pszPos);
+    if (cbLen > 0 && pszPos[cbLen-1] == '/') {
+        pRule->fDirOnly = TRUE_;
+        pszPos[cbLen-1] = '\0';
     }
 
     /* Per gitignore(5): a slash in the middle of a pattern (not only
      * leading or trailing) anchors the pattern to the directory of
      * the .gitignore file. Exception: a leading "**<slash>" means
      * "in any directory" and does not anchor the pattern. */
-    if (!r->fAnchored && strchr(p, '/') != NULL) {
-        if (strncmp(p, "**/", 3) != 0) {
-            r->fAnchored = 1;
+    if (!pRule->fAnchored && strchr(pszPos, '/') != NULL) {
+        if (strncmp(pszPos, "**/", 3) != 0) {
+            pRule->fAnchored = TRUE_;
         }
     }
 
-    if (p[0] == '\0') {
+    if (pszPos[0] == '\0') {
         /* A rule consisting of just '/' is meaningless. */
-        free(r->pszPattern);
-        free(r->pszBaseRel);
-        out->ulCount--;
+        free(pRule->pszPattern);
+        free(pRule->pszBaseRel);
+        pOut->ulCount--;
         return NO_ERROR;
     }
 
-    r->pszPattern = strdup(p);
-    if (!r->pszPattern) return ERROR_NOT_ENOUGH_MEMORY;
-    r->pszBaseRel = strdup(base_rel ? base_rel : "");
-    if (!r->pszBaseRel) return ERROR_NOT_ENOUGH_MEMORY;
+    pRule->pszPattern = strdup(pszPos);
+    if (!pRule->pszPattern) return ERROR_NOT_ENOUGH_MEMORY;
+    pRule->pszBaseRel = strdup(pszBaseRel ? pszBaseRel : "");
+    if (!pRule->pszBaseRel) return ERROR_NOT_ENOUGH_MEMORY;
 
     return NO_ERROR;
 }
@@ -376,36 +381,37 @@ static APIRET parse_rule(const char *line, const char *base_rel,
  *
  * Both '/' and '\\' separators are tried when opening the file.
  *
- * @param[in]  dir       Directory containing the .gitignore. Not NULL.
- * @param[in]  base_rel  Directory relative to the repository root.
- * @param[out] out       List to append to. Not NULL.
+ * @param[in]  pszDir      Directory containing the .gitignore. Not
+ *                         NULL.
+ * @param[in]  pszBaseRel  Directory relative to the repository root.
+ * @param[out] pOut        List to append to. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success (even if no file exists).
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET read_gitignore_file(const char *dir, const char *base_rel,
-                                  GITIGNORELIST *out) {
-    char path[1024];
-    FILE *f;
-    char line[1024];
+static APIRET read_gitignore_file(PCSZ pszDir, PCSZ pszBaseRel,
+                                  PGITIGNORELIST pOut) {
+    CHAR achPath[1024];
+    FILE *fp;
+    CHAR achLine[1024];
     APIRET rc;
 
-    snprintf(path, sizeof(path), "%s/.gitignore", dir);
-    f = fopen(path, "r");
-    if (!f) {
-        snprintf(path, sizeof(path), "%s\\.gitignore", dir);
-        f = fopen(path, "r");
-        if (!f) return NO_ERROR;
+    snprintf(achPath, sizeof(achPath), "%s/.gitignore", pszDir);
+    fp = fopen(achPath, "r");
+    if (!fp) {
+        snprintf(achPath, sizeof(achPath), "%s\\.gitignore", pszDir);
+        fp = fopen(achPath, "r");
+        if (!fp) return NO_ERROR;
     }
-    while (fgets(line, sizeof(line), f)) {
-        rc = parse_rule(line, base_rel, out);
+    while (fgets(achLine, sizeof(achLine), fp)) {
+        rc = parse_rule(achLine, pszBaseRel, pOut);
         if (rc != NO_ERROR) {
-            fclose(f);
+            fclose(fp);
             return rc;
         }
     }
-    fclose(f);
+    fclose(fp);
     return NO_ERROR;
 }
 
@@ -414,22 +420,22 @@ static APIRET read_gitignore_file(const char *dir, const char *base_rel,
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Return the relative path of @p to under @p from.
+ * @brief Return the relative path of @p pszTo under @p pszFrom.
  *
- * @param[in] from  Base path. Not NULL.
- * @param[in] to    Full path. Not NULL.
+ * @param[in] pszFrom  Base path. Not NULL.
+ * @param[in] pszTo    Full path. Not NULL.
  *
- * @return malloc'd relative path, or NULL if @p to is not under
- *         @p from.
+ * @return malloc'd relative path, or NULL if @p pszTo is not under
+ *         @p pszFrom.
  */
-static char *rel_path_from(const char *from, const char *to) {
-    size_t flen = strlen(from);
-    size_t tlen = strlen(to);
-    if (flen > tlen) return NULL;
-    if (strncmp(from, to, flen) != 0) return NULL;
-    if (flen == tlen) return strdup("");
-    if (to[flen] != '/' && to[flen] != '\\') return NULL;
-    return strdup(to + flen + 1);
+static PSZ rel_path_from(PCSZ pszFrom, PCSZ pszTo) {
+    size_t cbFromLen = strlen(pszFrom);
+    size_t cbToLen = strlen(pszTo);
+    if (cbFromLen > cbToLen) return NULL;
+    if (strncmp(pszFrom, pszTo, cbFromLen) != 0) return NULL;
+    if (cbFromLen == cbToLen) return strdup("");
+    if (pszTo[cbFromLen] != '/' && pszTo[cbFromLen] != '\\') return NULL;
+    return strdup(pszTo + cbFromLen + 1);
 }
 
 /**
@@ -454,7 +460,7 @@ static char *rel_path_from(const char *from, const char *to) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
-                                     GITIGNORELIST *pOut) {
+                                     PGITIGNORELIST pOut) {
     APIRET rc;
 
     if (!pszTargetDir || !pOut) return ERROR_INVALID_PARAMETER;
@@ -469,53 +475,59 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
     if (rc != NO_ERROR) return rc;
 
     {
-        char *rel = rel_path_from(pszRepoRoot, pszTargetDir);
-        if (!rel) return NO_ERROR;
+        PSZ pszRel = rel_path_from(pszRepoRoot, pszTargetDir);
+        if (!pszRel) return NO_ERROR;
 
-        if (rel[0] != '\0') {
-            char current[1024];
-            char base_rel[1024];
-            size_t ri = 0;
-            size_t rlen = strlen(rel);
+        if (pszRel[0] != '\0') {
+            CHAR achCurrent[1024];
+            CHAR achBaseRel[1024];
+            size_t cbRi = 0;
+            size_t cbRlen = strlen(pszRel);
 
-            strncpy(current, pszRepoRoot, sizeof(current) - 1);
-            current[sizeof(current) - 1] = '\0';
-            base_rel[0] = '\0';
+            strncpy(achCurrent, pszRepoRoot, sizeof(achCurrent) - 1);
+            achCurrent[sizeof(achCurrent) - 1] = '\0';
+            achBaseRel[0] = '\0';
 
-            while (ri < rlen) {
-                size_t start = ri;
-                size_t seglen;
-                while (ri < rlen && rel[ri] != '/' && rel[ri] != '\\') ri++;
-                seglen = ri - start;
-                if (seglen > 0) {
-                    size_t clen = strlen(current);
-                    size_t blen = strlen(base_rel);
-                    if (clen + 1 + seglen + 1 > sizeof(current)) break;
-                    if (blen + 1 + seglen + 1 > sizeof(base_rel)) break;
+            while (cbRi < cbRlen) {
+                size_t cbStart = cbRi;
+                size_t cbSegLen;
+                while (cbRi < cbRlen && pszRel[cbRi] != '/' &&
+                       pszRel[cbRi] != '\\')
+                    cbRi++;
+                cbSegLen = cbRi - cbStart;
+                if (cbSegLen > 0) {
+                    size_t cbCurrentLen = strlen(achCurrent);
+                    size_t cbBaseRelLen = strlen(achBaseRel);
+                    if (cbCurrentLen + 1 + cbSegLen + 1 > sizeof(achCurrent))
+                        break;
+                    if (cbBaseRelLen + 1 + cbSegLen + 1 > sizeof(achBaseRel))
+                        break;
 
-                    current[clen] = '/';
-                    memcpy(current + clen + 1, rel + start, seglen);
-                    current[clen + 1 + seglen] = '\0';
+                    achCurrent[cbCurrentLen] = '/';
+                    memcpy(achCurrent + cbCurrentLen + 1,
+                           pszRel + cbStart, cbSegLen);
+                    achCurrent[cbCurrentLen + 1 + cbSegLen] = '\0';
 
-                    if (blen == 0) {
-                        memcpy(base_rel, rel + start, seglen);
-                        base_rel[seglen] = '\0';
+                    if (cbBaseRelLen == 0) {
+                        memcpy(achBaseRel, pszRel + cbStart, cbSegLen);
+                        achBaseRel[cbSegLen] = '\0';
                     } else {
-                        base_rel[blen] = '/';
-                        memcpy(base_rel + blen + 1, rel + start, seglen);
-                        base_rel[blen + 1 + seglen] = '\0';
+                        achBaseRel[cbBaseRelLen] = '/';
+                        memcpy(achBaseRel + cbBaseRelLen + 1,
+                               pszRel + cbStart, cbSegLen);
+                        achBaseRel[cbBaseRelLen + 1 + cbSegLen] = '\0';
                     }
 
-                    rc = read_gitignore_file(current, base_rel, pOut);
+                    rc = read_gitignore_file(achCurrent, achBaseRel, pOut);
                     if (rc != NO_ERROR) {
-                        free(rel);
+                        free(pszRel);
                         return rc;
                     }
                 }
-                if (ri < rlen) ri++;
+                if (cbRi < cbRlen) cbRi++;
             }
         }
-        free(rel);
+        free(pszRel);
     }
     return NO_ERROR;
 }
@@ -525,8 +537,9 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Case-folding helper: lowercase on Windows, identity on
- *        Linux.
+ * @brief Case-folding helper.
+ *
+ * Lowercase on Windows, identity on Linux.
  *
  * @param[in] c  Character.
  *
@@ -541,14 +554,15 @@ static int to_lower(int c) {
 }
 
 /**
- * @brief Match a character class starting at @p ppat.
+ * @brief Match a character class starting at @p ppszPat.
  *
- * On entry, @p *ppat points to the opening '['. On success, @p *ppat
- * is advanced past the closing ']', and @p *pmatched receives 1 if
- * @p c matches the class (with negation applied) and 0 otherwise.
+ * On entry, @p *ppszPat points to the opening '['. On success,
+ * @p *ppszPat is advanced past the closing ']', and @p pfMatched
+ * receives TRUE_ if @p c matches the class (with negation applied).
  *
- * If the opening '[' has no matching ']', the function returns 0 and
- * leaves @p *ppat unchanged; the caller treats '[' as a literal.
+ * If the opening '[' has no matching ']', the function returns 0
+ * and leaves @p *ppszPat unchanged; the caller treats '[' as a
+ * literal.
  *
  * Supported syntax:
  *   [abc]    - any of a, b, c
@@ -557,45 +571,43 @@ static int to_lower(int c) {
  *   [^abc]   - same as [!abc]
  *   []abc]   - ']' can be included as the first character
  *
- * @param[in,out] ppat      Pointer to the pattern pointer. Not NULL.
- * @param[in]     c         Character to test.
- * @param[out]    pmatched  Receiver: 1 on match, 0 otherwise.
+ * @param[in,out] ppszPat    Pointer to the pattern pointer. Not NULL.
+ * @param[in]     c          Character to test.
+ * @param[out]    pfMatched  Receiver. Not NULL.
  *
- * @return 1 if a valid class was parsed, 0 if the pattern does not
- *         contain a valid class.
+ * @return 1 if a valid class was parsed, 0 otherwise.
  */
-static int match_class(const char **ppat, int c, int *pmatched) {
-    const char *pat = *ppat;
-    int negate = 0;
-    int matched = 0;
+static int match_class(PCSZ *ppszPat, int c, PBOOL pfMatched) {
+    PCSZ pszPat = *ppszPat;
+    BOOL fNegate = FALSE_;
+    BOOL fMatched = FALSE_;
 
-    if (*pat != '[') return 0;
-    pat++;
-    if (*pat == '!' || *pat == '^') {
-        negate = 1;
-        pat++;
+    if (*pszPat != '[') return 0;
+    pszPat++;
+    if (*pszPat == '!' || *pszPat == '^') {
+        fNegate = TRUE_;
+        pszPat++;
     }
-    if (*pat == ']') {
-        if (c == ']') matched = 1;
-        pat++;
+    if (*pszPat == ']') {
+        if (c == ']') fMatched = TRUE_;
+        pszPat++;
     }
-    while (*pat && *pat != ']') {
-        if (pat[1] == '-' && pat[2] && pat[2] != ']') {
-            if (c >= (unsigned char)pat[0] &&
-                c <= (unsigned char)pat[2])
-                matched = 1;
-            pat += 3;
+    while (*pszPat && *pszPat != ']') {
+        if (pszPat[1] == '-' && pszPat[2] && pszPat[2] != ']') {
+            if (c >= (UCHAR)pszPat[0] && c <= (UCHAR)pszPat[2])
+                fMatched = TRUE_;
+            pszPat += 3;
         } else {
-            if (c == (unsigned char)*pat) matched = 1;
-            pat++;
+            if (c == (UCHAR)*pszPat) fMatched = TRUE_;
+            pszPat++;
         }
     }
-    if (*pat != ']') {
+    if (*pszPat != ']') {
         /* No closing ']'. Treat '[' as a literal. */
         return 0;
     }
-    *ppat = pat + 1;
-    *pmatched = negate ? !matched : matched;
+    *ppszPat = pszPat + 1;
+    *pfMatched = fNegate ? !fMatched : fMatched;
     return 1;
 }
 
@@ -604,36 +616,36 @@ static int match_class(const char **ppat, int c, int *pmatched) {
  *
  * '*', '?' and '[...]' do not cross '/'.
  *
- * @param[in] pat  Pattern component. Not NULL.
- * @param[in] str  Path component. Not NULL.
+ * @param[in] pszPat  Pattern component. Not NULL.
+ * @param[in] pszStr  Path component. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int match_component(const char *pat, const char *str) {
-    if (*pat == '\0') return *str == '\0';
-    if (*pat == '*') {
+static int match_component(PCSZ pszPat, PCSZ pszStr) {
+    if (*pszPat == '\0') return *pszStr == '\0';
+    if (*pszPat == '*') {
         while (1) {
-            if (match_component(pat + 1, str)) return 1;
-            if (*str == '\0' || *str == '/') return 0;
-            str++;
+            if (match_component(pszPat + 1, pszStr)) return 1;
+            if (*pszStr == '\0' || *pszStr == '/') return 0;
+            pszStr++;
         }
     }
-    if (*pat == '?') {
-        if (*str == '\0' || *str == '/') return 0;
-        return match_component(pat + 1, str + 1);
+    if (*pszPat == '?') {
+        if (*pszStr == '\0' || *pszStr == '/') return 0;
+        return match_component(pszPat + 1, pszStr + 1);
     }
-    if (*pat == '[') {
-        int matched;
-        const char *next = pat;
-        if (match_class(&next, (unsigned char)*str, &matched)) {
-            if (*str == '\0' || *str == '/') return 0;
-            if (!matched) return 0;
-            return match_component(next, str + 1);
+    if (*pszPat == '[') {
+        BOOL fMatched = FALSE_;
+        PCSZ pszNext = pszPat;
+        if (match_class(&pszNext, (UCHAR)*pszStr, &fMatched)) {
+            if (*pszStr == '\0' || *pszStr == '/') return 0;
+            if (!fMatched) return 0;
+            return match_component(pszNext, pszStr + 1);
         }
         /* Fall through: '[' has no closing ']', treat as literal. */
     }
-    if (to_lower(*pat) != to_lower(*str)) return 0;
-    return match_component(pat + 1, str + 1);
+    if (to_lower(*pszPat) != to_lower(*pszStr)) return 0;
+    return match_component(pszPat + 1, pszStr + 1);
 }
 
 /**
@@ -641,49 +653,49 @@ static int match_component(const char *pat, const char *str) {
  *
  * A single '*' does not cross '/', a double '**' does.
  *
- * @param[in] pat   Pattern. Not NULL.
- * @param[in] path  Path. Not NULL.
+ * @param[in] pszPat   Pattern. Not NULL.
+ * @param[in] pszPath  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int match_path(const char *pat, const char *path) {
-    if (pat[0] == '*' && pat[1] == '*') {
-        if (pat[2] == '\0') return 1;
-        if (pat[2] == '/') {
-            if (match_path(pat + 3, path)) return 1;
-            while (*path) {
-                if (*path == '/') {
-                    if (match_path(pat + 3, path + 1)) return 1;
+static int match_path(PCSZ pszPat, PCSZ pszPath) {
+    if (pszPat[0] == '*' && pszPat[1] == '*') {
+        if (pszPat[2] == '\0') return 1;
+        if (pszPat[2] == '/') {
+            if (match_path(pszPat + 3, pszPath)) return 1;
+            while (*pszPath) {
+                if (*pszPath == '/') {
+                    if (match_path(pszPat + 3, pszPath + 1)) return 1;
                 }
-                path++;
+                pszPath++;
             }
             return 0;
         }
     }
-    if (*pat == '\0') return *path == '\0';
-    if (*pat == '*') {
+    if (*pszPat == '\0') return *pszPath == '\0';
+    if (*pszPat == '*') {
         while (1) {
-            if (match_path(pat + 1, path)) return 1;
-            if (*path == '\0' || *path == '/') return 0;
-            path++;
+            if (match_path(pszPat + 1, pszPath)) return 1;
+            if (*pszPath == '\0' || *pszPath == '/') return 0;
+            pszPath++;
         }
     }
-    if (*pat == '?') {
-        if (*path == '\0' || *path == '/') return 0;
-        return match_path(pat + 1, path + 1);
+    if (*pszPat == '?') {
+        if (*pszPath == '\0' || *pszPath == '/') return 0;
+        return match_path(pszPat + 1, pszPath + 1);
     }
-    if (*pat == '[') {
-        int matched;
-        const char *next = pat;
-        if (match_class(&next, (unsigned char)*path, &matched)) {
-            if (*path == '\0' || *path == '/') return 0;
-            if (!matched) return 0;
-            return match_path(next, path + 1);
+    if (*pszPat == '[') {
+        BOOL fMatched = FALSE_;
+        PCSZ pszNext = pszPat;
+        if (match_class(&pszNext, (UCHAR)*pszPath, &fMatched)) {
+            if (*pszPath == '\0' || *pszPath == '/') return 0;
+            if (!fMatched) return 0;
+            return match_path(pszNext, pszPath + 1);
         }
         /* Fall through: '[' has no closing ']', treat as literal. */
     }
-    if (to_lower(*pat) != to_lower(*path)) return 0;
-    return match_path(pat + 1, path + 1);
+    if (to_lower(*pszPat) != to_lower(*pszPath)) return 0;
+    return match_path(pszPat + 1, pszPath + 1);
 }
 
 /**
@@ -692,49 +704,49 @@ static int match_path(const char *pat, const char *path) {
  * Used for non-anchored patterns that do not contain a slash in
  * the middle.
  *
- * @param[in] pat   Pattern. Not NULL.
- * @param[in] path  Path. Not NULL.
+ * @param[in] pszPat   Pattern. Not NULL.
+ * @param[in] pszPath  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int match_any_level(const char *pat, const char *path) {
-    if (match_path(pat, path)) return 1;
-    while (*path) {
-        if (*path == '/') {
-            path++;
-            if (match_path(pat, path)) return 1;
+static int match_any_level(PCSZ pszPat, PCSZ pszPath) {
+    if (match_path(pszPat, pszPath)) return 1;
+    while (*pszPath) {
+        if (*pszPath == '/') {
+            pszPath++;
+            if (match_path(pszPat, pszPath)) return 1;
         } else {
-            path++;
+            pszPath++;
         }
     }
     return 0;
 }
 
 /**
- * @brief Check whether any path component matches @p pat.
+ * @brief Query whether any path component matches @p pszPat.
  *
- * If @p include_last is 0, the last component is not checked.
+ * If @p fIncludeLast is FALSE_, the last component is not checked.
  *
- * @param[in] pat           Pattern. Not NULL.
- * @param[in] path          Path. Not NULL.
- * @param[in] include_last  Whether to check the last component.
+ * @param[in] pszPat        Pattern. Not NULL.
+ * @param[in] pszPath       Path. Not NULL.
+ * @param[in] fIncludeLast  Whether to check the last component.
  *
  * @return 1 on match, 0 otherwise.
  */
-static int path_has_matching_dir(const char *pat, const char *path,
-                                 int include_last) {
-    while (*path) {
-        const char *slash = strchr(path, '/');
-        size_t len;
-        char seg[512];
-        if (!slash && !include_last) return 0;
-        len = slash ? (size_t)(slash - path) : strlen(path);
-        if (len >= sizeof(seg)) len = sizeof(seg) - 1;
-        memcpy(seg, path, len);
-        seg[len] = '\0';
-        if (match_component(pat, seg)) return 1;
-        if (!slash) break;
-        path = slash + 1;
+static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
+                                 BOOL fIncludeLast) {
+    while (*pszPath) {
+        PCSZ pszSlash = strchr(pszPath, '/');
+        size_t cbLen;
+        CHAR achSeg[512];
+        if (!pszSlash && !fIncludeLast) return 0;
+        cbLen = pszSlash ? (size_t)(pszSlash - pszPath) : strlen(pszPath);
+        if (cbLen >= sizeof(achSeg)) cbLen = sizeof(achSeg) - 1;
+        memcpy(achSeg, pszPath, cbLen);
+        achSeg[cbLen] = '\0';
+        if (match_component(pszPat, achSeg)) return 1;
+        if (!pszSlash) break;
+        pszPath = pszSlash + 1;
     }
     return 0;
 }
@@ -744,7 +756,7 @@ static int path_has_matching_dir(const char *pat, const char *path,
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Check whether a path is ignored by the collected rules.
+ * @brief Query whether a path is ignored by the collected rules.
  *
  * @p pszRelPath is a path relative to the repository root (or to
  * the directory passed to @ref GitCollectGitignores when
@@ -764,60 +776,67 @@ static int path_has_matching_dir(const char *pat, const char *path,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
-APIRET APIENTRY GitIsIgnored(const GITIGNORELIST *pRules, PCSZ pszRelPath,
-                             BOOL fIsDir, PBOOL pfIgnored) {
-    int ignored = 0;
-    ULONG i;
+APIRET APIENTRY GitQueryIsIgnored(const GITIGNORELIST *pRules,
+                                  PCSZ pszRelPath,
+                                  BOOL fIsDir, PBOOL pfIgnored) {
+    BOOL fIgnored = FALSE_;
+    ULONG ulIdx;
 
     if (!pRules || !pszRelPath || !pfIgnored)
         return ERROR_INVALID_PARAMETER;
     *pfIgnored = FALSE_;
     if (pRules->ulCount == 0) return NO_ERROR;
 
-    for (i = 0; i < pRules->ulCount; i++) {
-        const GITIGNORERULE *r = &pRules->paItems[i];
-        const char *sub = pszRelPath;
-        int matched = 0;
+    for (ulIdx = 0; ulIdx < pRules->ulCount; ulIdx++) {
+        const GITIGNORERULE *pRule = &pRules->paItems[ulIdx];
+        PCSZ pszSub = pszRelPath;
+        BOOL fMatched = FALSE_;
 
-        /* Skip rules belonging to other directories. 'sub' is the
+        /* Skip rules belonging to other directories. 'pszSub' is the
          * path relative to the directory of this rule's .gitignore. */
-        if (r->pszBaseRel && r->pszBaseRel[0]) {
-            size_t blen = strlen(r->pszBaseRel);
-            if (strncmp(pszRelPath, r->pszBaseRel, blen) != 0) continue;
-            if (pszRelPath[blen] != '/' && pszRelPath[blen] != '\\') continue;
-            sub = pszRelPath + blen + 1;
+        if (pRule->pszBaseRel && pRule->pszBaseRel[0]) {
+            size_t cbBaseRel = strlen(pRule->pszBaseRel);
+            if (strncmp(pszRelPath, pRule->pszBaseRel, cbBaseRel) != 0)
+                continue;
+            if (pszRelPath[cbBaseRel] != '/' &&
+                pszRelPath[cbBaseRel] != '\\')
+                continue;
+            pszSub = pszRelPath + cbBaseRel + 1;
         }
 
-        if (r->fDirOnly) {
-            const char *pat = r->pszPattern;
+        if (pRule->fDirOnly) {
+            PCSZ pszPat = pRule->pszPattern;
 
-            if (r->fAnchored) {
-                size_t plen = strlen(pat);
-                if (fIsDir && strcmp(sub, pat) == 0) {
-                    matched = 1;
-                } else if (strncmp(sub, pat, plen) == 0 &&
-                           sub[plen] == '/') {
+            if (pRule->fAnchored) {
+                size_t cbPatLen = strlen(pszPat);
+                if (fIsDir && strcmp(pszSub, pszPat) == 0) {
+                    fMatched = TRUE_;
+                } else if (strncmp(pszSub, pszPat, cbPatLen) == 0 &&
+                           pszSub[cbPatLen] == '/') {
                     /* File or directory inside the matched directory. */
-                    matched = 1;
+                    fMatched = TRUE_;
                 }
             } else {
                 /* "**<slash>foo" - any directory foo at any depth. */
-                if (strncmp(pat, "**/", 3) == 0) pat += 3;
-                matched = path_has_matching_dir(pat, sub, fIsDir);
+                if (strncmp(pszPat, "**/", 3) == 0) pszPat += 3;
+                fMatched = path_has_matching_dir(pszPat, pszSub,
+                                                 fIsDir) ? TRUE_ : FALSE_;
             }
         } else {
-            if (r->fAnchored) {
-                matched = match_path(r->pszPattern, sub);
+            if (pRule->fAnchored) {
+                fMatched = match_path(pRule->pszPattern, pszSub)
+                               ? TRUE_ : FALSE_;
             } else {
-                matched = match_any_level(r->pszPattern, sub);
+                fMatched = match_any_level(pRule->pszPattern, pszSub)
+                               ? TRUE_ : FALSE_;
             }
         }
 
-        if (matched) {
-            ignored = r->fNegate ? 0 : 1;
+        if (fMatched) {
+            fIgnored = pRule->fNegate ? FALSE_ : TRUE_;
         }
     }
 
-    *pfIgnored = ignored ? TRUE_ : FALSE_;
+    *pfIgnored = fIgnored ? TRUE_ : FALSE_;
     return NO_ERROR;
 }

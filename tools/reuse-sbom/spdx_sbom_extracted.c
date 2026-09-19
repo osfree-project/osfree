@@ -1,185 +1,274 @@
-/* spdx_sbom_extracted.c - LicenseRef-* handling (C89) */
+/* spdx_sbom_extracted.c - LicenseRef-* text collection (C89) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "spdx_sbom_extracted.h"
+#include "spdx_sbom_utils.h"
 #include "spdx.h"
 
-static char *dup_str(const char *s) {
-    size_t n;
-    char *p;
-    if (!s) return NULL;
-    n = strlen(s);
-    p = (char*)malloc(n + 1);
-    if (p) memcpy(p, s, n + 1);
-    return p;
-}
+/**
+ * @file spdx_sbom_extracted.c
+ * @brief Implementation of the LicenseRef-* text collection.
+ */
 
-/* Read a whole file into a malloc'd buffer. Returns NULL on failure. */
-static char *read_file_all(const char *path) {
-    char *text = NULL;
-    if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return NULL;
-    return text;
-}
+/* ------------------------------------------------------------------ */
+/* Small helpers                                                       */
+/* ------------------------------------------------------------------ */
 
-void extracted_init(ExtractedLicenseList *list) {
-    list->count = 0;
-    list->capacity = 8;
-    list->items = (ExtractedLicenseInfo*)calloc((size_t)list->capacity,
-                                                sizeof(ExtractedLicenseInfo));
-    if (!list->items) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
+/**
+ * @brief Read a whole file into a heap string.
+ *
+ * Uses the size-query convention of SpdxReadFileAll.
+ *
+ * @param[in] pszPath  Path. Not NULL.
+ *
+ * @return malloc'd NUL-terminated content, or NULL on error.
+ */
+static PSZ read_file_to_heap(PCSZ pszPath) {
+    ULONG ulSize = 0;
+    PSZ pszOut;
+    if (SpdxReadFileAll(pszPath, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    pszOut = (PSZ)malloc(ulSize);
+    if (!pszOut) return NULL;
+    if (SpdxReadFileAll(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
+        free(pszOut);
+        return NULL;
     }
+    return pszOut;
 }
 
-void extracted_free(ExtractedLicenseList *list) {
-    int i;
-    for (i = 0; i < list->count; i++) {
-        free(list->items[i].license_id);
-        free(list->items[i].extracted_text);
-        free(list->items[i].name);
-        free(list->items[i].comment);
+/* ------------------------------------------------------------------ */
+/* Text lookup                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Look up a LicenseRef text in the command-line sources.
+ *
+ * @param[in] paExtra      Array of sources, or NULL.
+ * @param[in] ulExtraCount Number of entries in @p paExtra.
+ * @param[in] pszId        Identifier. Not NULL.
+ *
+ * @return malloc'd text, or NULL if no source matched or on read
+ *         error.
+ */
+static PSZ find_text_in_extra(
+    const SPDXEXTRACTEDLICENSESOURCE *paExtra,
+    ULONG ulExtraCount,
+    PCSZ pszId)
+{
+    ULONG ulIdx;
+    PSZ pszText;
+
+    if (!paExtra) return NULL;
+    for (ulIdx = 0; ulIdx < ulExtraCount; ulIdx++) {
+        if (strcmp(paExtra[ulIdx].achId, pszId) == 0) {
+            pszText = read_file_to_heap(paExtra[ulIdx].achPath);
+            return pszText;
+        }
     }
-    free(list->items);
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
-}
-
-ExtractedLicenseInfo *extracted_lookup(ExtractedLicenseList *list,
-                                       const char *id) {
-    int i;
-    for (i = 0; i < list->count; i++)
-        if (strcmp(list->items[i].license_id, id) == 0)
-            return &list->items[i];
     return NULL;
 }
 
-ExtractedLicenseInfo *extracted_add(ExtractedLicenseList *list,
-                                    const char *id) {
-    ExtractedLicenseInfo *existing = extracted_lookup(list, id);
-    ExtractedLicenseInfo *e;
-    if (existing) return existing;
+/**
+ * @brief Look up a LicenseRef text under <project_dir>/LICENSES/.
+ *
+ * Tries four variants: <id>.txt and <id>, each with '/' and '\\'
+ * as separator.
+ *
+ * @param[in] pszProjectDir  Project root. Not NULL.
+ * @param[in] pszId          Identifier. Not NULL.
+ *
+ * @return malloc'd text, or NULL if no variant matched or on read
+ *         error.
+ */
+static PSZ find_text_in_licenses_dir(PCSZ pszProjectDir, PCSZ pszId) {
+    CHAR achPath[2048];
+    PSZ pszText;
 
-    if (list->count >= list->capacity) {
-        list->capacity *= 2;
-        list->items = (ExtractedLicenseInfo*)realloc(list->items,
-            (size_t)list->capacity * sizeof(ExtractedLicenseInfo));
-        if (!list->items) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
-        }
-        memset(&list->items[list->count], 0,
-               ((size_t)list->capacity - (size_t)list->count) *
-               sizeof(ExtractedLicenseInfo));
-    }
-    e = &list->items[list->count];
-    memset(e, 0, sizeof(*e));
-    e->license_id = dup_str(id);
-    list->count++;
-    return e;
-}
+    snprintf(achPath, sizeof(achPath), "%s/LICENSES/%s.txt",
+             pszProjectDir, pszId);
+    pszText = read_file_to_heap(achPath);
+    if (pszText) return pszText;
 
-/* Look for text in <project_dir>/LICENSES/<id>.txt or without
- * extension. */
-static char *find_text_in_licenses_dir(const char *project_dir,
-                                       const char *id) {
-    char path[2048];
-    char *text;
+    snprintf(achPath, sizeof(achPath), "%s\\LICENSES\\%s.txt",
+             pszProjectDir, pszId);
+    pszText = read_file_to_heap(achPath);
+    if (pszText) return pszText;
 
-    snprintf(path, sizeof(path), "%s/LICENSES/%s.txt", project_dir, id);
-    text = read_file_all(path);
-    if (text) return text;
+    snprintf(achPath, sizeof(achPath), "%s/LICENSES/%s",
+             pszProjectDir, pszId);
+    pszText = read_file_to_heap(achPath);
+    if (pszText) return pszText;
 
-    snprintf(path, sizeof(path), "%s\\LICENSES\\%s.txt", project_dir, id);
-    text = read_file_all(path);
-    if (text) return text;
-
-    snprintf(path, sizeof(path), "%s/LICENSES/%s", project_dir, id);
-    text = read_file_all(path);
-    if (text) return text;
-
-    snprintf(path, sizeof(path), "%s\\LICENSES\\%s", project_dir, id);
-    text = read_file_all(path);
-    if (text) return text;
+    snprintf(achPath, sizeof(achPath), "%s\\LICENSES\\%s",
+             pszProjectDir, pszId);
+    pszText = read_file_to_heap(achPath);
+    if (pszText) return pszText;
 
     return NULL;
 }
 
-/* Look for text in extra (CLI). */
-static char *find_text_in_extra(const ExtractedLicenseSource *extra,
-                                int extra_count, const char *id) {
-    int i;
-    for (i = 0; i < extra_count; i++)
-        if (strcmp(extra[i].id, id) == 0)
-            return read_file_all(extra[i].path);
-    return NULL;
-}
+/* ------------------------------------------------------------------ */
+/* Expression scanning                                                 */
+/* ------------------------------------------------------------------ */
 
-/* Tokenize an SPDX expression: LicenseRef-* tokens are added to
- * the list. */
-static void scan_licenseref_tokens(const char *expr,
-                                   ExtractedLicenseList *list) {
-    const char *p = expr;
-    char tok[256];
+/**
+ * @brief Collect LicenseRef-* identifiers from one expression.
+ *
+ * Tokens are separated by whitespace, '(' and ')'. Only tokens
+ * starting with "LicenseRef-" are collected. Duplicates are
+ * removed by the destination set.
+ *
+ * @param[in] pszExpr  Expression. May be NULL or empty.
+ * @param[in] hIds     Destination set. Not NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_HANDLE     hIds is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET scan_expression_ids(PCSZ pszExpr, HSTRSET hIds) {
+    PCSZ pszPos = pszExpr;
+    CHAR achTok[256];
 
-    if (!expr) return;
-    while (*p) {
-        const char *start;
-        size_t len;
+    if (!pszExpr) return NO_ERROR;
 
-        while (*p && (isspace((unsigned char)*p) || *p == '(' || *p == ')'))
-            p++;
-        if (!*p) break;
+    while (*pszPos) {
+        PCSZ pszStart;
+        size_t cbLen;
+        APIRET rc;
 
-        start = p;
-        while (*p && !isspace((unsigned char)*p) && *p != '(' && *p != ')')
-            p++;
-        len = (size_t)(p - start);
-        if (len == 0 || len >= sizeof(tok)) continue;
-        memcpy(tok, start, len);
-        tok[len] = '\0';
+        while (*pszPos &&
+               (isspace((unsigned char)*pszPos) ||
+                *pszPos == '(' || *pszPos == ')'))
+            pszPos++;
+        if (!*pszPos) break;
 
-        if (strncmp(tok, "LicenseRef-", 11) == 0) {
-            extracted_add(list, tok);
+        pszStart = pszPos;
+        while (*pszPos &&
+               !isspace((unsigned char)*pszPos) &&
+               *pszPos != '(' && *pszPos != ')')
+            pszPos++;
+
+        cbLen = (size_t)(pszPos - pszStart);
+        if (cbLen == 0 || cbLen >= sizeof(achTok)) continue;
+
+        memcpy(achTok, pszStart, cbLen);
+        achTok[cbLen] = '\0';
+
+        if (strncmp(achTok, "LicenseRef-", 11) == 0) {
+            rc = StrSetAdd(hIds, achTok);
+            if (rc != NO_ERROR) return rc;
         }
     }
+    return NO_ERROR;
 }
 
-int extracted_collect_from_files(ExtractedLicenseList *list,
-                                 const FileList *files,
-                                 const char *project_dir,
-                                 const ExtractedLicenseSource *extra,
-                                 int extra_count) {
-    int i;
+/* ------------------------------------------------------------------ */
+/* Public API                                                          */
+/* ------------------------------------------------------------------ */
 
-    for (i = 0; i < files->count; i++)
-        scan_licenseref_tokens(files->items[i].license, list);
+/**
+ * @brief Collect LicenseRef-* texts for the whole file list.
+ *
+ * @param[in] hList          Destination list. Not NULLHANDLE.
+ * @param[in] hFiles         File list to scan. Not NULLHANDLE.
+ * @param[in] pszProjectDir  Project root. Not NULL.
+ * @param[in] paExtra        Array of command-line sources, or NULL.
+ * @param[in] ulExtraCount   Number of entries in @p paExtra.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList or hFiles is NULLHANDLE,
+ *                                  or pszProjectDir is NULL.
+ * @retval ERROR_INVALID_HANDLE     hList or hFiles is not
+ *                                  recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Text not available for one of
+ *                                  the LicenseRef-* identifiers.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCollectExtractedLicenses(
+    HVECTOR hList,
+    HVECTOR hFiles,
+    PCSZ pszProjectDir,
+    const SPDXEXTRACTEDLICENSESOURCE *paExtra,
+    ULONG ulExtraCount)
+{
+    HSTRSET hIds = NULLHANDLE;
+    HSTRSETENUM hEnum = NULLHANDLE;
+    ULONG ulFiles = 0, ulIdx;
+    APIRET rc;
 
-    for (i = 0; i < list->count; i++) {
-        ExtractedLicenseInfo *e = &list->items[i];
-        char *text;
+    if (hList == NULLHANDLE || hFiles == NULLHANDLE || !pszProjectDir)
+        return ERROR_INVALID_PARAMETER;
 
-        if (e->extracted_text) continue;
+    rc = StrSetCreate(&hIds);
+    if (rc != NO_ERROR) return rc;
 
-        text = find_text_in_extra(extra, extra_count, e->license_id);
-        if (!text)
-            text = find_text_in_licenses_dir(project_dir, e->license_id);
-
-        if (!text) {
-            fprintf(stderr,
-                    "ERROR: no text found for %s\n"
-                    "       Fix one of:\n"
-                    "         - create <project-root>/LICENSES/%s.txt with "
-                    "the license text;\n"
-                    "         - or pass --extracted-license=%s:<path>.\n",
-                    e->license_id, e->license_id, e->license_id);
-            return -1;
-        }
-        e->extracted_text = text;
+    rc = VectorGetCount(hFiles, &ulFiles);
+    if (rc != NO_ERROR) {
+        StrSetDestroy(hIds);
+        return rc;
     }
-    return 0;
+
+    /* Phase 1: collect unique LicenseRef-* identifiers. */
+    for (ulIdx = 0; ulIdx < ulFiles; ulIdx++) {
+        SPDXFILEINFO info;
+        if (VectorGetItem(hFiles, ulIdx, &info,
+                          (ULONG)sizeof(info), NULL) != NO_ERROR)
+            continue;
+        rc = scan_expression_ids(info.achLicense, hIds);
+        if (rc != NO_ERROR) {
+            StrSetDestroy(hIds);
+            return rc;
+        }
+    }
+
+    /* Phase 2: resolve text for each identifier. */
+    if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
+        do {
+            CHAR achId[256];
+            PSZ pszText = NULL;
+            SPDXEXTRACTEDLICENSEINFO info;
+
+            if (StrSetEnumGet(hEnum, achId, sizeof(achId), NULL) != NO_ERROR)
+                continue;
+
+            pszText = find_text_in_extra(paExtra, ulExtraCount, achId);
+            if (!pszText)
+                pszText = find_text_in_licenses_dir(pszProjectDir, achId);
+            if (!pszText) {
+                StrSetEnumClose(hEnum);
+                StrSetDestroy(hIds);
+                return ERROR_FILE_NOT_FOUND;
+            }
+
+            memset(&info, 0, sizeof(info));
+            info.pszLicenseId = strdup(achId);
+            info.pszExtractedText = pszText;
+            if (!info.pszLicenseId) {
+                free(pszText);
+                StrSetEnumClose(hEnum);
+                StrSetDestroy(hIds);
+                return ERROR_NOT_ENOUGH_MEMORY;
+            }
+
+            rc = SbomAddExtractedLicense(hList, &info);
+            if (rc != NO_ERROR) {
+                free(info.pszLicenseId);
+                free(pszText);
+                StrSetEnumClose(hEnum);
+                StrSetDestroy(hIds);
+                return rc;
+            }
+        } while (StrSetEnumNext(hEnum) == NO_ERROR);
+        StrSetEnumClose(hEnum);
+    }
+
+    StrSetDestroy(hIds);
+    return NO_ERROR;
 }

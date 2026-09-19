@@ -32,7 +32,6 @@ extern "C" {
  *     Object Module Format), Linux Foundation.
  *     https://refspecs.linuxfoundation.org/elf/elfspec.pdf
  *   - JWasm / OpenWatcom WASM sources (COMENT class usage).
- *
  */
 
 /**

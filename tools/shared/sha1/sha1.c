@@ -10,8 +10,8 @@
  * @brief Implementation of SHA-1.
  *
  * Conforms to:
- *   - FIPS PUB 180-1
- *   - RFC 3174
+ *   - FIPS PUB 180-1.
+ *   - RFC 3174.
  */
 
 /* ==================================================================
@@ -37,9 +37,9 @@
  * FIPS 180-1.
  */
 typedef struct _SHA1CONTEXT {
-    unsigned int  state[5];                     /**< h0..h4.              */
-    unsigned int  count[2];                     /**< Bit count, lo/hi.    */
-    unsigned char buffer[SHA1_BLOCK_SIZE];      /**< Partial block buffer. */
+    ULONG aulState[5];                          /**< h0..h4.               */
+    ULONG aulCount[2];                          /**< Bit count, lo/hi.     */
+    UCHAR auchBuffer[SHA1_BLOCK_SIZE];          /**< Partial block buffer. */
 } SHA1CONTEXT;
 
 /* ==================================================================
@@ -49,15 +49,15 @@ typedef struct _SHA1CONTEXT {
 /**
  * @brief 32-bit left rotation.
  *
- * @param[in] a  Value.
- * @param[in] b  Rotation amount (0..31).
+ * @param[in] ulVal  Value.
+ * @param[in] nBits  Rotation amount (0..31).
  *
  * @return Rotated value.
  */
-static unsigned int sha1_rotl(unsigned int a, unsigned int b) {
-    if (b == 0) return a;
-    if (b >= 32) return a;
-    return (a << b) | (a >> (32 - b));
+static ULONG sha1_rotl(ULONG ulVal, ULONG nBits) {
+    if (nBits == 0) return ulVal;
+    if (nBits >= 32) return ulVal;
+    return (ulVal << nBits) | (ulVal >> (32 - nBits));
 }
 
 /* ==================================================================
@@ -67,64 +67,65 @@ static unsigned int sha1_rotl(unsigned int a, unsigned int b) {
 /**
  * @brief Compression function: process one 64-byte block.
  *
- * Applies the SHA-1 compression function to @p buffer and updates
- * the five working variables in @p state.
+ * Applies the SHA-1 compression function to @p auchBuffer and
+ * updates the five working variables in @p aulState.
  *
- * @param[in,out] state   Current state. Not NULL.
- * @param[in]     buffer  64-byte block. Not NULL.
+ * @param[in,out] aulState    Current state. Not NULL.
+ * @param[in]     auchBuffer  64-byte block. Not NULL.
  */
-static void sha1_transform(unsigned int state[5],
-                           const unsigned char buffer[SHA1_BLOCK_SIZE]) {
-    unsigned int a, b, c, d, e;
-    unsigned int w[80];
-    int i;
+static void sha1_transform(ULONG aulState[5],
+                           const UCHAR auchBuffer[SHA1_BLOCK_SIZE]) {
+    ULONG ulA, ulB, ulC, ulD, ulE;
+    ULONG aulW[80];
+    int nIdx;
 
     /* Prepare the message schedule. */
-    for (i = 0; i < 16; i++) {
-        w[i] = ((unsigned int)buffer[i*4]     << 24) |
-               ((unsigned int)buffer[i*4 + 1] << 16) |
-               ((unsigned int)buffer[i*4 + 2] << 8)  |
-               ((unsigned int)buffer[i*4 + 3]);
+    for (nIdx = 0; nIdx < 16; nIdx++) {
+        aulW[nIdx] = ((ULONG)auchBuffer[nIdx*4]     << 24) |
+                     ((ULONG)auchBuffer[nIdx*4 + 1] << 16) |
+                     ((ULONG)auchBuffer[nIdx*4 + 2] << 8)  |
+                     ((ULONG)auchBuffer[nIdx*4 + 3]);
     }
-    for (i = 16; i < 80; i++) {
-        unsigned int tmp = w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16];
-        w[i] = sha1_rotl(tmp, 1);
+    for (nIdx = 16; nIdx < 80; nIdx++) {
+        ULONG ulTmp = aulW[nIdx-3] ^ aulW[nIdx-8] ^
+                      aulW[nIdx-14] ^ aulW[nIdx-16];
+        aulW[nIdx] = sha1_rotl(ulTmp, 1);
     }
 
-    a = state[0];
-    b = state[1];
-    c = state[2];
-    d = state[3];
-    e = state[4];
+    ulA = aulState[0];
+    ulB = aulState[1];
+    ulC = aulState[2];
+    ulD = aulState[3];
+    ulE = aulState[4];
 
-    for (i = 0; i < 80; i++) {
-        unsigned int f, k, temp;
-        if (i < 20) {
-            f = (b & c) | ((~b) & d);
-            k = 0x5A827999u;
-        } else if (i < 40) {
-            f = b ^ c ^ d;
-            k = 0x6ED9EBA1u;
-        } else if (i < 60) {
-            f = (b & c) | (b & d) | (c & d);
-            k = 0x8F1BBCDCu;
+    for (nIdx = 0; nIdx < 80; nIdx++) {
+        ULONG ulF, ulK, ulTemp;
+        if (nIdx < 20) {
+            ulF = (ulB & ulC) | ((~ulB) & ulD);
+            ulK = 0x5A827999u;
+        } else if (nIdx < 40) {
+            ulF = ulB ^ ulC ^ ulD;
+            ulK = 0x6ED9EBA1u;
+        } else if (nIdx < 60) {
+            ulF = (ulB & ulC) | (ulB & ulD) | (ulC & ulD);
+            ulK = 0x8F1BBCDCu;
         } else {
-            f = b ^ c ^ d;
-            k = 0xCA62C1D6u;
+            ulF = ulB ^ ulC ^ ulD;
+            ulK = 0xCA62C1D6u;
         }
-        temp = sha1_rotl(a, 5) + f + e + k + w[i];
-        e = d;
-        d = c;
-        c = sha1_rotl(b, 30);
-        b = a;
-        a = temp;
+        ulTemp = sha1_rotl(ulA, 5) + ulF + ulE + ulK + aulW[nIdx];
+        ulE = ulD;
+        ulD = ulC;
+        ulC = sha1_rotl(ulB, 30);
+        ulB = ulA;
+        ulA = ulTemp;
     }
 
-    state[0] += a;
-    state[1] += b;
-    state[2] += c;
-    state[3] += d;
-    state[4] += e;
+    aulState[0] += ulA;
+    aulState[1] += ulB;
+    aulState[2] += ulC;
+    aulState[3] += ulD;
+    aulState[4] += ulE;
 }
 
 /**
@@ -133,13 +134,13 @@ static void sha1_transform(unsigned int state[5],
  * @param[out] pCtx  Context to initialize. Not NULL.
  */
 static void sha1_init(SHA1CONTEXT *pCtx) {
-    pCtx->state[0] = 0x67452301u;
-    pCtx->state[1] = 0xEFCDAB89u;
-    pCtx->state[2] = 0x98BADCFEu;
-    pCtx->state[3] = 0x10325476u;
-    pCtx->state[4] = 0xC3D2E1F0u;
-    pCtx->count[0] = 0;
-    pCtx->count[1] = 0;
+    pCtx->aulState[0] = 0x67452301u;
+    pCtx->aulState[1] = 0xEFCDAB89u;
+    pCtx->aulState[2] = 0x98BADCFEu;
+    pCtx->aulState[3] = 0x10325476u;
+    pCtx->aulState[4] = 0xC3D2E1F0u;
+    pCtx->aulCount[0] = 0;
+    pCtx->aulCount[1] = 0;
 }
 
 /**
@@ -148,40 +149,40 @@ static void sha1_init(SHA1CONTEXT *pCtx) {
  * Buffers partial blocks; full blocks are passed to the compression
  * function immediately.
  *
- * @param[in,out] pCtx   Context. Not NULL.
- * @param[in]     pData  Input data. Not NULL.
- * @param[in]     cbLen  Number of bytes to absorb.
+ * @param[in,out] pCtx     Context. Not NULL.
+ * @param[in]     puchData Input data. Not NULL.
+ * @param[in]     cbLen    Number of bytes to absorb.
  */
 static void sha1_update(SHA1CONTEXT *pCtx,
-                        const unsigned char *pData, size_t cbLen) {
-    size_t i, index, partLen;
-    unsigned int bits_lo;
-    unsigned int bits_hi;
-    unsigned int prev;
+                        const UCHAR *puchData, size_t cbLen) {
+    size_t i, cbIndex, cbPartLen;
+    ULONG ulBitsLo;
+    ULONG ulBitsHi;
+    ULONG ulPrev;
 
     /* Compute bit count as (len * 8), split into two 32-bit words.
-     * For len < 2^29 (always true for real read blocks) the result is
-     * correct on any platform. */
-    bits_lo = (unsigned int)cbLen << 3;
-    bits_hi = (unsigned int)(cbLen >> 29);
+     * For len < 2^29 (always true for real read blocks) the result
+     * is correct on any platform. */
+    ulBitsLo = (ULONG)cbLen << 3;
+    ulBitsHi = (ULONG)(cbLen >> 29);
 
-    index = (pCtx->count[0] >> 3) & 0x3F;
-    prev = pCtx->count[0];
-    pCtx->count[0] += bits_lo;
-    if (pCtx->count[0] < prev) pCtx->count[1]++;
-    pCtx->count[1] += bits_hi;
+    cbIndex = (pCtx->aulCount[0] >> 3) & 0x3F;
+    ulPrev = pCtx->aulCount[0];
+    pCtx->aulCount[0] += ulBitsLo;
+    if (pCtx->aulCount[0] < ulPrev) pCtx->aulCount[1]++;
+    pCtx->aulCount[1] += ulBitsHi;
 
-    partLen = SHA1_BLOCK_SIZE - index;
-    if (cbLen >= partLen) {
-        memcpy(&pCtx->buffer[index], pData, partLen);
-        sha1_transform(pCtx->state, pCtx->buffer);
-        for (i = partLen; i + 63 < cbLen; i += SHA1_BLOCK_SIZE)
-            sha1_transform(pCtx->state, &pData[i]);
-        index = 0;
+    cbPartLen = SHA1_BLOCK_SIZE - cbIndex;
+    if (cbLen >= cbPartLen) {
+        memcpy(&pCtx->auchBuffer[cbIndex], puchData, cbPartLen);
+        sha1_transform(pCtx->aulState, pCtx->auchBuffer);
+        for (i = cbPartLen; i + 63 < cbLen; i += SHA1_BLOCK_SIZE)
+            sha1_transform(pCtx->aulState, &puchData[i]);
+        cbIndex = 0;
     } else {
         i = 0;
     }
-    memcpy(&pCtx->buffer[index], &pData[i], cbLen - i);
+    memcpy(&pCtx->auchBuffer[cbIndex], &puchData[i], cbLen - i);
 }
 
 /**
@@ -191,34 +192,34 @@ static void sha1_update(SHA1CONTEXT *pCtx,
  * byte, zero bytes, and the 64-bit message length in bits as an
  * 8-byte big-endian value.
  *
- * @param[in,out] pCtx     Context. Not NULL.
- * @param[out]    pDigest  20-byte output. Not NULL.
+ * @param[in,out] pCtx      Context. Not NULL.
+ * @param[out]    puchDigest  20-byte output. Not NULL.
  */
 static void sha1_final(SHA1CONTEXT *pCtx,
-                       unsigned char pDigest[SHA1_DIGEST_SIZE]) {
-    unsigned char bits[8];
-    unsigned int index, padLen;
-    static const unsigned char padding[SHA1_BLOCK_SIZE] = {0x80};
+                       UCHAR puchDigest[SHA1_DIGEST_SIZE]) {
+    UCHAR auchBits[8];
+    ULONG ulIndex, ulPadLen;
+    static const UCHAR auchPadding[SHA1_BLOCK_SIZE] = {0x80};
 
-    bits[0] = (unsigned char)(pCtx->count[1] >> 24);
-    bits[1] = (unsigned char)(pCtx->count[1] >> 16);
-    bits[2] = (unsigned char)(pCtx->count[1] >> 8);
-    bits[3] = (unsigned char)(pCtx->count[1]);
-    bits[4] = (unsigned char)(pCtx->count[0] >> 24);
-    bits[5] = (unsigned char)(pCtx->count[0] >> 16);
-    bits[6] = (unsigned char)(pCtx->count[0] >> 8);
-    bits[7] = (unsigned char)(pCtx->count[0]);
+    auchBits[0] = (UCHAR)(pCtx->aulCount[1] >> 24);
+    auchBits[1] = (UCHAR)(pCtx->aulCount[1] >> 16);
+    auchBits[2] = (UCHAR)(pCtx->aulCount[1] >> 8);
+    auchBits[3] = (UCHAR)(pCtx->aulCount[1]);
+    auchBits[4] = (UCHAR)(pCtx->aulCount[0] >> 24);
+    auchBits[5] = (UCHAR)(pCtx->aulCount[0] >> 16);
+    auchBits[6] = (UCHAR)(pCtx->aulCount[0] >> 8);
+    auchBits[7] = (UCHAR)(pCtx->aulCount[0]);
 
-    index = (pCtx->count[0] >> 3) & 0x3F;
-    padLen = (index < 56) ? (56 - index) : (120 - index);
-    sha1_update(pCtx, padding, padLen);
-    sha1_update(pCtx, bits, 8);
+    ulIndex = (pCtx->aulCount[0] >> 3) & 0x3F;
+    ulPadLen = (ulIndex < 56) ? (56 - ulIndex) : (120 - ulIndex);
+    sha1_update(pCtx, auchPadding, ulPadLen);
+    sha1_update(pCtx, auchBits, 8);
 
-    for (index = 0; index < 5; index++) {
-        pDigest[index*4]     = (unsigned char)(pCtx->state[index] >> 24);
-        pDigest[index*4 + 1] = (unsigned char)(pCtx->state[index] >> 16);
-        pDigest[index*4 + 2] = (unsigned char)(pCtx->state[index] >> 8);
-        pDigest[index*4 + 3] = (unsigned char)(pCtx->state[index]);
+    for (ulIndex = 0; ulIndex < 5; ulIndex++) {
+        puchDigest[ulIndex*4]     = (UCHAR)(pCtx->aulState[ulIndex] >> 24);
+        puchDigest[ulIndex*4 + 1] = (UCHAR)(pCtx->aulState[ulIndex] >> 16);
+        puchDigest[ulIndex*4 + 2] = (UCHAR)(pCtx->aulState[ulIndex] >> 8);
+        puchDigest[ulIndex*4 + 3] = (UCHAR)(pCtx->aulState[ulIndex]);
     }
 }
 
@@ -226,15 +227,31 @@ static void sha1_final(SHA1CONTEXT *pCtx,
  * Public API
  * ================================================================== */
 
+/**
+ * @brief Compute SHA-1 of a file.
+ *
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
 APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
                          PULONG pulUsed) {
-    FILE *f;
+    FILE *fp;
     SHA1CONTEXT ctx;
-    unsigned char buffer[8192];
-    size_t n;
-    unsigned char digest[SHA1_DIGEST_SIZE];
-    char hex[SHA1_HEX_SIZE];
-    int i;
+    UCHAR auchBuffer[8192];
+    size_t cbRead;
+    UCHAR auchDigest[SHA1_DIGEST_SIZE];
+    CHAR achHex[SHA1_HEX_SIZE];
+    int nIdx;
 
     if (!pszPath) return ERROR_INVALID_PARAMETER;
 
@@ -248,37 +265,51 @@ APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
         return ERROR_BUFFER_OVERFLOW;
     }
 
-    f = fopen(pszPath, "rb");
-    if (!f) return ERROR_OPEN_FAILED;
+    fp = fopen(pszPath, "rb");
+    if (!fp) return ERROR_OPEN_FAILED;
 
     sha1_init(&ctx);
-    while ((n = fread(buffer, 1, sizeof(buffer), f)) > 0) {
-        sha1_update(&ctx, buffer, n);
+    while ((cbRead = fread(auchBuffer, 1, sizeof(auchBuffer), fp)) > 0) {
+        sha1_update(&ctx, auchBuffer, cbRead);
     }
-    if (ferror(f)) {
-        fclose(f);
+    if (ferror(fp)) {
+        fclose(fp);
         return ERROR_READ_FAULT;
     }
-    fclose(f);
+    fclose(fp);
 
-    sha1_final(&ctx, digest);
+    sha1_final(&ctx, auchDigest);
 
-    for (i = 0; i < SHA1_DIGEST_SIZE; i++) {
-        sprintf(hex + i*2, "%02x", digest[i]);
+    for (nIdx = 0; nIdx < SHA1_DIGEST_SIZE; nIdx++) {
+        sprintf(achHex + nIdx*2, "%02x", auchDigest[nIdx]);
     }
-    hex[SHA1_DIGEST_SIZE * 2] = '\0';
+    achHex[SHA1_DIGEST_SIZE * 2] = '\0';
 
-    memcpy(pszBuf, hex, SHA1_HEX_SIZE);
+    memcpy(pszBuf, achHex, SHA1_HEX_SIZE);
     if (pulUsed) *pulUsed = (ULONG)(SHA1_HEX_SIZE - 1);
     return NO_ERROR;
 }
 
+/**
+ * @brief Compute SHA-1 of a NUL-terminated string.
+ *
+ * @param[in]  pszStr   Input string. Not NULL.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
 APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
                            PULONG pulUsed) {
     SHA1CONTEXT ctx;
-    unsigned char digest[SHA1_DIGEST_SIZE];
-    char hex[SHA1_HEX_SIZE];
-    int i;
+    UCHAR auchDigest[SHA1_DIGEST_SIZE];
+    CHAR achHex[SHA1_HEX_SIZE];
+    int nIdx;
 
     if (!pszStr) return ERROR_INVALID_PARAMETER;
 
@@ -293,15 +324,15 @@ APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
     }
 
     sha1_init(&ctx);
-    sha1_update(&ctx, (const unsigned char*)pszStr, strlen(pszStr));
-    sha1_final(&ctx, digest);
+    sha1_update(&ctx, (const UCHAR*)pszStr, strlen(pszStr));
+    sha1_final(&ctx, auchDigest);
 
-    for (i = 0; i < SHA1_DIGEST_SIZE; i++) {
-        sprintf(hex + i*2, "%02x", digest[i]);
+    for (nIdx = 0; nIdx < SHA1_DIGEST_SIZE; nIdx++) {
+        sprintf(achHex + nIdx*2, "%02x", auchDigest[nIdx]);
     }
-    hex[SHA1_DIGEST_SIZE * 2] = '\0';
+    achHex[SHA1_DIGEST_SIZE * 2] = '\0';
 
-    memcpy(pszBuf, hex, SHA1_HEX_SIZE);
+    memcpy(pszBuf, achHex, SHA1_HEX_SIZE);
     if (pulUsed) *pulUsed = (ULONG)(SHA1_HEX_SIZE - 1);
     return NO_ERROR;
 }

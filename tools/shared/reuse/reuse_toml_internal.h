@@ -13,29 +13,38 @@
 typedef struct _REUSEANN     REUSEANN,     *PREUSEANN;
 typedef struct _REUSETOMLDOC REUSETOMLDOC, *PREUSETOMLDOC;
 
-/** @brief One parsed [[annotations]] entry. */
+/**
+ * @struct _REUSEANN
+ * @brief One parsed [[annotations]] entry.
+ *
+ * All string fields are malloc'd and owned by the annotation. They
+ * are released by ann_free.
+ */
 struct _REUSEANN {
-    char     **paPaths;
-    ULONG      ulPathCount;
-    char      *pszLicense;
-    char      *pszCopyright;
-    char     **paContributors;
-    ULONG      ulContributorCount;
-    char      *pszPackageName;
-    char      *pszPackageSupplier;
-    char      *pszPackageDownloadLocation;
-    char      *pszPackageComment;
-    ULONG      ulPrecedence;
-    ULONG      ulOrderInFile;
+    PSZ  *papszPaths;                 /**< Path patterns.                 */
+    ULONG ulPathCount;                /**< Number of patterns.            */
+    PSZ   pszLicense;                 /**< SPDX-License-Identifier.       */
+    PSZ   pszCopyright;               /**< SPDX-FileCopyrightText.        */
+    PSZ  *papszContributors;          /**< SPDX-FileContributor.          */
+    ULONG ulContributorCount;         /**< Number of contributors.        */
+    PSZ   pszPackageName;             /**< SPDX-PackageName.              */
+    PSZ   pszPackageSupplier;         /**< SPDX-PackageSupplier.          */
+    PSZ   pszPackageDownloadLocation; /**< SPDX-PackageDownloadLocation.  */
+    PSZ   pszPackageComment;          /**< SPDX-PackageComment.           */
+    ULONG ulPrecedence;               /**< REUSE_PRECEDENCE_*.            */
+    ULONG ulOrderInFile;              /**< Position in the file.          */
 };
 
-/** @brief Parsed REUSE.toml document. */
+/**
+ * @struct _REUSETOMLDOC
+ * @brief Parsed REUSE.toml document.
+ */
 struct _REUSETOMLDOC {
-    char      *pszSourceDir;
-    LONGLONG   llVersion;
-    REUSEANN  *paAnnotations;
-    ULONG      ulAnnotationCount;
-    ULONG      ulAnnotationCapacity;
+    PSZ       pszSourceDir;         /**< Directory of the file.         */
+    LONGLONG  llVersion;            /**< "version" value.               */
+    REUSEANN *paAnnotations;        /**< Parsed annotations.            */
+    ULONG     ulAnnotationCount;    /**< Number of used entries.        */
+    ULONG     ulAnnotationCapacity; /**< Allocated capacity.            */
 };
 
 #endif /* REUSE_TOML_INTERNAL_H */

@@ -1,117 +1,392 @@
 /* spdx_sbom_utils.c - SPDX SBOM helper functions (C89) */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "spdx_sbom_utils.h"
 
-void sbom_remove_extension(char *str) {
-    char *dot = strrchr(str, '.');
-    if (dot) *dot = '\0';
+/**
+ * @file spdx_sbom_utils.c
+ * @brief Implementation of the SBOM helper functions.
+ *
+ * No function in this module writes to stdout or stderr. All
+ * failures are reported through the returned APIRET code.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Identifier helpers                                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Remove the file extension from a path, in place.
+ *
+ * @param[in,out] pszPath  Path to modify. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL.
+ */
+APIRET APIENTRY SbomRemoveExtension(PSZ pszPath) {
+    PSZ pszDot;
+    if (!pszPath) return ERROR_INVALID_PARAMETER;
+    pszDot = strrchr(pszPath, '.');
+    if (pszDot) *pszDot = '\0';
+    return NO_ERROR;
 }
 
-void sbom_sanitize_id(const char *src, char *dst, size_t dst_size) {
-    size_t i = 0, j = 0, start, end;
-    for (i = 0; src[i] != '\0' && j < dst_size - 1; i++) {
-        unsigned char c = (unsigned char)src[i];
-        if (isalnum(c) || c == '.' || c == '-')
-            dst[j++] = (char)c;
+/**
+ * @brief Sanitize a string for use as an SPDX identifier fragment.
+ *
+ * @param[in]  pszSrc     Source string. Not NULL.
+ * @param[out] pszDst     Destination buffer. Not NULL.
+ * @param[in]  ulDstSize  Size of pszDst in bytes.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszSrc or pszDst is NULL, or
+ *                                  ulDstSize is zero.
+ * @retval ERROR_BUFFER_OVERFLOW    pszDst too small.
+ */
+APIRET APIENTRY SbomSanitizeId(PCSZ pszSrc, PSZ pszDst, ULONG ulDstSize) {
+    ULONG ulSrcIdx = 0, ulDstIdx = 0;
+    ULONG ulStart, ulEnd;
+
+    if (!pszSrc || !pszDst || ulDstSize == 0)
+        return ERROR_INVALID_PARAMETER;
+
+    while (pszSrc[ulSrcIdx] != '\0' && ulDstIdx < ulDstSize - 1) {
+        UCHAR uch = (UCHAR)pszSrc[ulSrcIdx];
+        if (isalnum(uch) || uch == '.' || uch == '-')
+            pszDst[ulDstIdx++] = (CHAR)uch;
         else
-            dst[j++] = '-';
+            pszDst[ulDstIdx++] = '-';
+        ulSrcIdx++;
     }
-    dst[j] = '\0';
-    start = 0;
-    end = j;
-    while (start < end && dst[start] == '-') start++;
-    while (end > start && dst[end - 1] == '-') end--;
-    if (start > 0 || end < j) {
-        memmove(dst, dst + start, end - start);
-        dst[end - start] = '\0';
+    pszDst[ulDstIdx] = '\0';
+
+    if (pszSrc[ulSrcIdx] != '\0') return ERROR_BUFFER_OVERFLOW;
+
+    ulStart = 0;
+    ulEnd = ulDstIdx;
+    while (ulStart < ulEnd && pszDst[ulStart] == '-') ulStart++;
+    while (ulEnd > ulStart && pszDst[ulEnd - 1] == '-') ulEnd--;
+    if (ulStart > 0 || ulEnd < ulDstIdx) {
+        memmove(pszDst, pszDst + ulStart, ulEnd - ulStart);
+        pszDst[ulEnd - ulStart] = '\0';
     }
+    return NO_ERROR;
 }
 
-void sbom_make_package_id(const char *base_name, const char *suffix,
-                          char *buf, size_t buf_size) {
-    char sanitized[256];
-    sbom_sanitize_id(base_name, sanitized, sizeof(sanitized));
-    if (suffix && *suffix)
-        snprintf(buf, buf_size, "SPDXRef-Package-%s-%s", sanitized, suffix);
+/**
+ * @brief Build an SPDX package identifier.
+ *
+ * @param[in]  pszBaseName  Base name. Not NULL.
+ * @param[in]  pszSuffix    Suffix, or NULL.
+ * @param[out] pszBuf       Output buffer. Not NULL.
+ * @param[in]  ulBufSize    Size of pszBuf in bytes.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszBaseName or pszBuf is NULL,
+ *                                  or ulBufSize is zero.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SbomMakePackageId(PCSZ pszBaseName, PCSZ pszSuffix,
+                                  PSZ pszBuf, ULONG ulBufSize) {
+    CHAR achSanitized[256];
+    APIRET rc;
+    LONG lWritten;
+
+    if (!pszBaseName || !pszBuf || ulBufSize == 0)
+        return ERROR_INVALID_PARAMETER;
+
+    rc = SbomSanitizeId(pszBaseName, achSanitized, sizeof(achSanitized));
+    if (rc != NO_ERROR) return rc;
+
+    if (pszSuffix && pszSuffix[0] != '\0')
+        lWritten = (LONG)snprintf(pszBuf, ulBufSize,
+                                  "SPDXRef-Package-%s-%s",
+                                  achSanitized, pszSuffix);
     else
-        snprintf(buf, buf_size, "SPDXRef-Package-%s", sanitized);
+        lWritten = (LONG)snprintf(pszBuf, ulBufSize,
+                                  "SPDXRef-Package-%s", achSanitized);
+
+    if (lWritten < 0 || (ULONG)lWritten >= ulBufSize)
+        return ERROR_BUFFER_OVERFLOW;
+    return NO_ERROR;
 }
 
-const char *sbom_get_file_type(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (!ext) return "OTHER";
-    if (strcmp(ext, ".c") == 0 || strcmp(ext, ".cpp") == 0 ||
-        strcmp(ext, ".h") == 0 || strcmp(ext, ".asm") == 0 ||
-        strcmp(ext, ".rc") == 0) return "SOURCE";
-    if (strcmp(ext, ".ico") == 0 || strcmp(ext, ".bmp") == 0 ||
-        strcmp(ext, ".png") == 0 || strcmp(ext, ".jpg") == 0) return "IMAGE";
-    if (strcmp(ext, ".txt") == 0 || strcmp(ext, ".md") == 0) return "TEXT";
-    if (strcmp(ext, ".exe") == 0 || strcmp(ext, ".dll") == 0 ||
-        strcmp(ext, ".sys") == 0 || strcmp(ext, ".lib") == 0) return "BINARY";
-    return "OTHER";
-}
+/**
+ * @brief Query the SPDX file type for a path.
+ *
+ * @param[in]  pszFilename    Path. Not NULL.
+ * @param[out] ppszFileType   Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename or ppszFileType is
+ *                                  NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ *ppszFileType) {
+    PCSZ pszExt;
+    PCSZ pszValue;
+    PSZ pszCopy;
+    size_t cbLen;
 
-void filelist_init(FileList *list) {
-    list->count = 0;
-    list->capacity = 16;
-    list->items = (FileInfo*)malloc(list->capacity * sizeof(FileInfo));
-    if (!list->items) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(EXIT_FAILURE);
+    if (!pszFilename || !ppszFileType) return ERROR_INVALID_PARAMETER;
+    *ppszFileType = NULL;
+
+    pszExt = strrchr(pszFilename, '.');
+    if (!pszExt) {
+        pszValue = "OTHER";
+    } else if (strcmp(pszExt, ".c") == 0 || strcmp(pszExt, ".cpp") == 0 ||
+               strcmp(pszExt, ".h") == 0 || strcmp(pszExt, ".asm") == 0 ||
+               strcmp(pszExt, ".rc") == 0) {
+        pszValue = "SOURCE";
+    } else if (strcmp(pszExt, ".ico") == 0 || strcmp(pszExt, ".bmp") == 0 ||
+               strcmp(pszExt, ".png") == 0 || strcmp(pszExt, ".jpg") == 0) {
+        pszValue = "IMAGE";
+    } else if (strcmp(pszExt, ".txt") == 0 || strcmp(pszExt, ".md") == 0) {
+        pszValue = "TEXT";
+    } else if (strcmp(pszExt, ".exe") == 0 || strcmp(pszExt, ".dll") == 0 ||
+               strcmp(pszExt, ".sys") == 0 || strcmp(pszExt, ".lib") == 0) {
+        pszValue = "BINARY";
+    } else {
+        pszValue = "OTHER";
     }
+
+    cbLen = strlen(pszValue);
+    pszCopy = (PSZ)malloc(cbLen + 1);
+    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
+    memcpy(pszCopy, pszValue, cbLen + 1);
+    *ppszFileType = pszCopy;
+    return NO_ERROR;
 }
 
-void filelist_add(FileList *list, const FileInfo *info) {
-    if (list->count >= list->capacity) {
-        list->capacity *= 2;
-        list->items = (FileInfo*)realloc(list->items,
-                                         list->capacity * sizeof(FileInfo));
-        if (!list->items) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
+/* ------------------------------------------------------------------ */
+/* File list                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty file list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateFileList(PHVECTOR phList) {
+    if (!phList) return ERROR_INVALID_PARAMETER;
+    return VectorCreate((ULONG)sizeof(SPDXFILEINFO), phList);
+}
+
+/**
+ * @brief Append a copy of a file entry to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pInfo  Entry to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pInfo is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddFile(HVECTOR hList, const SPDXFILEINFO *pInfo) {
+    if (hList == NULLHANDLE || !pInfo) return ERROR_INVALID_PARAMETER;
+    return VectorAdd(hList, (PCVOID)pInfo);
+}
+
+/**
+ * @brief Release a file list.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeFileList(HVECTOR hList) {
+    if (hList == NULLHANDLE) return NO_ERROR;
+    return VectorDestroy(hList);
+}
+
+/* ------------------------------------------------------------------ */
+/* Snippet list                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty snippet list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateSnippetList(PHVECTOR phList) {
+    if (!phList) return ERROR_INVALID_PARAMETER;
+    return VectorCreate((ULONG)sizeof(SPDXSNIPPETINFO), phList);
+}
+
+/**
+ * @brief Append a copy of a snippet entry to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pInfo  Entry to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pInfo is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddSnippet(HVECTOR hList,
+                               const SPDXSNIPPETINFO *pInfo) {
+    if (hList == NULLHANDLE || !pInfo) return ERROR_INVALID_PARAMETER;
+    return VectorAdd(hList, (PCVOID)pInfo);
+}
+
+/**
+ * @brief Release a snippet list.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeSnippetList(HVECTOR hList) {
+    if (hList == NULLHANDLE) return NO_ERROR;
+    return VectorDestroy(hList);
+}
+
+/* ------------------------------------------------------------------ */
+/* Relationship list                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty relationship list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateRelationshipList(PHVECTOR phList) {
+    if (!phList) return ERROR_INVALID_PARAMETER;
+    return VectorCreate((ULONG)sizeof(SPDXRELATIONSHIP), phList);
+}
+
+/**
+ * @brief Append a copy of a relationship to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pRel   Relationship to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pRel is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddRelationship(HVECTOR hList,
+                                    const SPDXRELATIONSHIP *pRel) {
+    if (hList == NULLHANDLE || !pRel) return ERROR_INVALID_PARAMETER;
+    return VectorAdd(hList, (PCVOID)pRel);
+}
+
+/**
+ * @brief Release a relationship list.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeRelationshipList(HVECTOR hList) {
+    if (hList == NULLHANDLE) return NO_ERROR;
+    return VectorDestroy(hList);
+}
+
+/* ------------------------------------------------------------------ */
+/* Extracted license list                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty extracted license list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateExtractedList(PHVECTOR phList) {
+    if (!phList) return ERROR_INVALID_PARAMETER;
+    return VectorCreate((ULONG)sizeof(SPDXEXTRACTEDLICENSEINFO), phList);
+}
+
+/**
+ * @brief Append a copy of an extracted license entry to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pInfo  Entry to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pInfo is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddExtractedLicense(
+    HVECTOR hList, const SPDXEXTRACTEDLICENSEINFO *pInfo) {
+    if (hList == NULLHANDLE || !pInfo) return ERROR_INVALID_PARAMETER;
+    return VectorAdd(hList, (PCVOID)pInfo);
+}
+
+/**
+ * @brief Release an extracted license list.
+ *
+ * Frees every owned string in every entry, then releases the
+ * container.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeExtractedList(HVECTOR hList) {
+    ULONG ulCount = 0;
+    ULONG i;
+    APIRET rc;
+
+    if (hList == NULLHANDLE) return NO_ERROR;
+    if (VectorGetCount(hList, &ulCount) == NO_ERROR) {
+        for (i = 0; i < ulCount; i++) {
+            SPDXEXTRACTEDLICENSEINFO info;
+            if (VectorGetItem(hList, i, &info,
+                              (ULONG)sizeof(info), NULL) == NO_ERROR) {
+                free(info.pszLicenseId);
+                free(info.pszExtractedText);
+                free(info.pszName);
+                free(info.pszComment);
+            }
         }
     }
-    list->items[list->count++] = *info;
-}
-
-void filelist_free(FileList *list) {
-    free(list->items);
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
-}
-
-void snippetlist_init(SnippetList *list) {
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
-}
-
-SnippetInfo *snippetlist_add(SnippetList *list) {
-    SnippetInfo *s;
-    if (list->count >= list->capacity) {
-        int new_cap = list->capacity ? list->capacity * 2 : 4;
-        SnippetInfo *ni = (SnippetInfo*)realloc(list->items,
-            (size_t)new_cap * sizeof(SnippetInfo));
-        if (!ni) {
-            fprintf(stderr, "ERROR: out of memory\n");
-            exit(EXIT_FAILURE);
-        }
-        list->items = ni;
-        list->capacity = new_cap;
-    }
-    s = &list->items[list->count++];
-    memset(s, 0, sizeof(*s));
-    return s;
-}
-
-void snippetlist_free(SnippetList *list) {
-    free(list->items);
-    list->items = NULL;
-    list->count = 0;
-    list->capacity = 0;
+    rc = VectorDestroy(hList);
+    return rc;
 }

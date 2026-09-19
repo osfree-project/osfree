@@ -5,6 +5,8 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+#include "os2types.h"
+#include "os2err.h"
 #include "json.h"
 #include "sha1.h"
 #include "sha256.h"
@@ -19,220 +21,312 @@
  * The merge walks externalDocumentRefs recursively, verifies each
  * checksum, resolves SPDXID collisions by renaming, and outputs the
  * merged document as SPDX 2.3 JSON.
+ *
+ * Conforms to:
+ *   - SPDX 2.3, §6.6 (external document references), §11
+ *     (relationships), Annex I (checksum algorithms).
+ *     https://spdx.github.io/spdx-spec/v2.3/
+ *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 #define MAX_DOCS 100
 
-
-/* ------------------------------------------------------------------ */
-/* Path helpers                                                        */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * File helpers
+ * ================================================================== */
 
 /**
- * @brief Normalize a path to use '/' separators and drop '.' and
- *        '..' components.
+ * @brief Read a whole file into a heap string.
  *
- * @param[in] path  Input path. Not NULL.
+ * Uses the size-query convention of SpdxReadFileAll.
  *
- * @return malloc'd normalized path, or NULL on OOM.
+ * @param[in] pszPath  Path. Not NULL.
+ *
+ * @return malloc'd NUL-terminated content, or NULL on error.
  */
-static char *normalize_path(const char *path) {
-    char *copy = strdup(path);
-    char *out = (char*)malloc(strlen(path) + 3);
-    char *p, *q;
-    if (!copy || !out) { free(copy); free(out); return NULL; }
-    p = copy; q = out;
+static PSZ read_file_to_heap(PCSZ pszPath) {
+    ULONG ulSize = 0;
+    PSZ pszOut;
+    if (SpdxReadFileAll(pszPath, NULL, 0, &ulSize) != NO_ERROR)
+        return NULL;
+    if (ulSize == 0) return NULL;
+    pszOut = (PSZ)malloc(ulSize);
+    if (!pszOut) return NULL;
+    if (SpdxReadFileAll(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
+        free(pszOut);
+        return NULL;
+    }
+    return pszOut;
+}
+
+/* ==================================================================
+ * Path helpers
+ * ================================================================== */
+
+/**
+ * @brief Canonicalize a path.
+ *
+ * Converts backslashes to forward slashes and removes '.' and '..'
+ * components.
+ *
+ * @param[in] pszPath  Input path. Not NULL.
+ *
+ * @return malloc'd normalized path owned by the caller, or NULL on
+ *         allocation failure.
+ */
+static PSZ CanonicalizePath(PCSZ pszPath) {
+    PSZ pszCopy = strdup(pszPath);
+    PSZ pszOut = (PSZ)malloc(strlen(pszPath) + 3);
+    PSZ pszPos, pszQ;
+
+    if (!pszCopy || !pszOut) { free(pszCopy); free(pszOut); return NULL; }
+    pszPos = pszCopy; pszQ = pszOut;
 #ifdef _WIN32
-    if (isalpha((unsigned char)p[0]) && p[1] == ':') {
-        *q++ = *p++; *q++ = *p++;
+    if (isalpha((unsigned char)pszPos[0]) && pszPos[1] == ':') {
+        *pszQ++ = *pszPos++; *pszQ++ = *pszPos++;
     }
 #endif
-    while (*p) {
-        if (*p == '/' || *p == '\\') {
-            *q++ = '/';
-            while (*p == '/' || *p == '\\') p++;
-        } else if (*p == '.') {
-            if (p[1] == '/' || p[1] == '\\' || p[1] == '\0') {
-                p++;
-                while (*p == '/' || *p == '\\') p++;
-            } else if (p[1] == '.' && (p[2] == '/' || p[2] == '\\' || p[2] == '\0')) {
-                p += 2;
-                while (*p == '/' || *p == '\\') p++;
-                if (q > out) {
-                    q--;
-                    while (q > out && *(q - 1) != '/' && *(q - 1) != '\\') q--;
+    while (*pszPos) {
+        if (*pszPos == '/' || *pszPos == '\\') {
+            *pszQ++ = '/';
+            while (*pszPos == '/' || *pszPos == '\\') pszPos++;
+        } else if (*pszPos == '.') {
+            if (pszPos[1] == '/' || pszPos[1] == '\\' ||
+                pszPos[1] == '\0') {
+                pszPos++;
+                while (*pszPos == '/' || *pszPos == '\\') pszPos++;
+            } else if (pszPos[1] == '.' &&
+                       (pszPos[2] == '/' || pszPos[2] == '\\' ||
+                        pszPos[2] == '\0')) {
+                pszPos += 2;
+                while (*pszPos == '/' || *pszPos == '\\') pszPos++;
+                if (pszQ > pszOut) {
+                    pszQ--;
+                    while (pszQ > pszOut && *(pszQ - 1) != '/' &&
+                           *(pszQ - 1) != '\\')
+                        pszQ--;
                 }
             } else {
-                *q++ = *p++;
+                *pszQ++ = *pszPos++;
             }
         } else {
-            *q++ = *p++;
+            *pszQ++ = *pszPos++;
         }
     }
-    *q = '\0';
-    free(copy);
-    return out;
+    *pszQ = '\0';
+    free(pszCopy);
+    return pszOut;
 }
 
 /**
  * @brief Return the directory part of a path.
  *
- * @param[in] filepath  Path. Not NULL.
+ * @param[in] pszFilePath  Path. Not NULL.
  *
- * @return malloc'd directory, or NULL on OOM.
+ * @return malloc'd directory owned by the caller, or NULL on
+ *         allocation failure.
  */
-static char *get_dirname(const char *filepath) {
-    char *slash = strrchr(filepath, '/');
-    char *backslash = strrchr(filepath, '\\');
-    char *last = (backslash && (!slash || backslash > slash)) ? backslash : slash;
-    char *dir;
-    size_t len;
+static PSZ QueryDirName(PCSZ pszFilePath) {
+    PSZ pszSlash = strrchr(pszFilePath, '/');
+    PSZ pszBackslash = strrchr(pszFilePath, '\\');
+    PSZ pszLast = (pszBackslash &&
+                   (!pszSlash || pszBackslash > pszSlash))
+                      ? pszBackslash : pszSlash;
+    PSZ pszDir;
+    size_t cbLen;
 
-    if (!last) return strdup(".");
-    len = (size_t)(last - filepath);
-    if (len == 0) return strdup("/");
-    dir = (char*)malloc(len + 1);
-    if (!dir) return NULL;
-    memcpy(dir, filepath, len);
-    dir[len] = '\0';
-    return dir;
+    if (!pszLast) return strdup(".");
+    cbLen = (size_t)(pszLast - pszFilePath);
+    if (cbLen == 0) return strdup("/");
+    pszDir = (PSZ)malloc(cbLen + 1);
+    if (!pszDir) return NULL;
+    memcpy(pszDir, pszFilePath, cbLen);
+    pszDir[cbLen] = '\0';
+    return pszDir;
 }
 
 /**
  * @brief Join a directory and a relative path.
  *
- * @param[in] dir  Directory. Not NULL.
- * @param[in] rel  Relative path. Not NULL.
+ * @param[in] pszDir  Directory. Not NULL.
+ * @param[in] pszRel  Relative path. Not NULL.
  *
- * @return malloc'd path, or NULL on OOM.
+ * @return malloc'd path owned by the caller, or NULL on allocation
+ *         failure.
  */
-static char *join_path(const char *dir, const char *rel) {
-    size_t len1 = strlen(dir), len2 = strlen(rel);
-    int sep = (len1 > 0 && dir[len1 - 1] != '/' && dir[len1 - 1] != '\\') ? 1 : 0;
-    char *r = (char*)malloc(len1 + sep + len2 + 1);
-    if (!r) return NULL;
-    strcpy(r, dir);
-    if (sep) strcat(r, "/");
-    strcat(r, rel);
-    return r;
+static PSZ JoinPath(PCSZ pszDir, PCSZ pszRel) {
+    size_t cbLen1 = strlen(pszDir), cbLen2 = strlen(pszRel);
+    int fSep = (cbLen1 > 0 && pszDir[cbLen1 - 1] != '/' &&
+                pszDir[cbLen1 - 1] != '\\') ? 1 : 0;
+    PSZ pszResult = (PSZ)malloc(cbLen1 + fSep + cbLen2 + 1);
+    if (!pszResult) return NULL;
+    strcpy(pszResult, pszDir);
+    if (fSep) strcat(pszResult, "/");
+    strcat(pszResult, pszRel);
+    return pszResult;
 }
 
-/* ------------------------------------------------------------------ */
-/* Processed / Rename                                                  */
-/* ------------------------------------------------------------------ */
-
-typedef struct {
-    char **paths;
-    int count;
-} ProcessedList;
-
-typedef struct {
-    char **old_ids;
-    char **new_ids;
-    int count;
-} RenameMap;
+/* ==================================================================
+ * Processed / Rename
+ * ================================================================== */
 
 /**
- * @brief Check whether a path has already been processed.
+ * @struct _SPDXPROCESSEDLIST
+ * @brief List of already-processed file paths.
  */
-static int is_processed(ProcessedList *l, const char *path) {
-    int i;
-    for (i = 0; i < l->count; i++)
-        if (strcmp(l->paths[i], path) == 0) return 1;
-    return 0;
+typedef struct _SPDXPROCESSEDLIST {
+    PSZ  *papszPaths;
+    ULONG ulCount;
+} SPDXPROCESSEDLIST, *PSPDXPROCESSEDLIST;
+
+/**
+ * @struct _SPDXRENAMEMAP
+ * @brief Parallel arrays of old and new SPDX identifiers.
+ */
+typedef struct _SPDXRENAMEMAP {
+    PSZ  *papszOldIds;
+    PSZ  *papszNewIds;
+    ULONG ulCount;
+} SPDXRENAMEMAP, *PSPDXRENAMEMAP;
+
+/**
+ * @brief Query whether a path has already been processed.
+ *
+ * @param[in] pList    List. Not NULL.
+ * @param[in] pszPath  Path. Not NULL.
+ *
+ * @return TRUE_ if already processed.
+ */
+static BOOL IsProcessed(const SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < pList->ulCount; ulIdx++)
+        if (strcmp(pList->papszPaths[ulIdx], pszPath) == 0) return TRUE_;
+    return FALSE_;
 }
 
 /**
  * @brief Record a path as processed.
+ *
+ * Terminates the process on limit overflow or allocation failure.
+ *
+ * @param[in,out] pList    List. Not NULL.
+ * @param[in]     pszPath  Path. Not NULL.
  */
-static void add_processed(ProcessedList *l, const char *path) {
-    if (l->count >= MAX_DOCS) {
+static void AddProcessed(SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
+    if (pList->ulCount >= MAX_DOCS) {
         fprintf(stderr,
                 "ERROR: too many documents to merge (limit: %d).\n"
                 "       Reduce the number of externalDocumentRefs.\n",
                 MAX_DOCS);
         exit(EXIT_FAILURE);
     }
-    l->paths[l->count] = strdup(path);
-    l->count++;
+    pList->papszPaths[pList->ulCount] = strdup(pszPath);
+    pList->ulCount++;
 }
 
 /**
- * @brief Generate a unique replacement for a colliding SPDXID.
+ * @brief Build a unique replacement for a colliding SPDXID.
+ *
+ * @param[in] pszBase     Base identifier. Not NULL.
+ * @param[in] ulCounter   Disambiguating counter.
+ *
+ * @return malloc'd identifier owned by the caller, or NULL on
+ *         allocation failure.
  */
-static char *make_unique_id(const char *base, int counter) {
-    char *r = (char*)malloc(strlen(base) + 24);
-    sprintf(r, "%s-Duplicate%d", base, counter);
-    return r;
+static PSZ MakeUniqueId(PCSZ pszBase, ULONG ulCounter) {
+    PSZ pszResult = (PSZ)malloc(strlen(pszBase) + 24);
+    if (!pszResult) return NULL;
+    sprintf(pszResult, "%s-Duplicate%lu", pszBase,
+            (unsigned long)ulCounter);
+    return pszResult;
 }
 
 /**
- * @brief Record a rename from an old SPDXID to a new one.
+ * @brief Record a rename.
+ *
+ * @param[in,out] pMap        Map. Not NULL.
+ * @param[in]     pszOldId    Old identifier. Not NULL.
+ * @param[in]     pszNewId    New identifier. Not NULL.
  */
-static void add_rename(RenameMap *m, const char *old_id, const char *new_id) {
-    m->old_ids = (char**)realloc(m->old_ids, (m->count + 1) * sizeof(char*));
-    m->new_ids = (char**)realloc(m->new_ids, (m->count + 1) * sizeof(char*));
-    m->old_ids[m->count] = strdup(old_id);
-    m->new_ids[m->count] = strdup(new_id);
-    m->count++;
+static void AddRename(SPDXRENAMEMAP *pMap, PCSZ pszOldId, PCSZ pszNewId) {
+    pMap->papszOldIds = (PSZ*)realloc(pMap->papszOldIds,
+        (pMap->ulCount + 1) * sizeof(PSZ));
+    pMap->papszNewIds = (PSZ*)realloc(pMap->papszNewIds,
+        (pMap->ulCount + 1) * sizeof(PSZ));
+    pMap->papszOldIds[pMap->ulCount] = strdup(pszOldId);
+    pMap->papszNewIds[pMap->ulCount] = strdup(pszNewId);
+    pMap->ulCount++;
 }
 
 /**
- * @brief Return the new ID for an old one, or NULL.
+ * @brief Query the new identifier for an old one.
+ *
+ * @param[in] pMap      Map. Not NULL.
+ * @param[in] pszOldId  Old identifier. Not NULL.
+ *
+ * @return New identifier, or NULL if no rename recorded.
  */
-static const char *get_renamed(const RenameMap *m, const char *old_id) {
-    int i;
-    for (i = 0; i < m->count; i++)
-        if (strcmp(m->old_ids[i], old_id) == 0) return m->new_ids[i];
+static PCSZ QueryRenamed(const SPDXRENAMEMAP *pMap, PCSZ pszOldId) {
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < pMap->ulCount; ulIdx++)
+        if (strcmp(pMap->papszOldIds[ulIdx], pszOldId) == 0)
+            return pMap->papszNewIds[ulIdx];
     return NULL;
 }
 
 /**
- * @brief Release a rename map.
+ * @brief Release all memory owned by a rename map.
+ *
+ * @param[in,out] pMap  Map. Not NULL.
  */
-static void free_rename_map(RenameMap *m) {
-    int i;
-    for (i = 0; i < m->count; i++) {
-        free(m->old_ids[i]);
-        free(m->new_ids[i]);
+static void FreeRenameMap(SPDXRENAMEMAP *pMap) {
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < pMap->ulCount; ulIdx++) {
+        free(pMap->papszOldIds[ulIdx]);
+        free(pMap->papszNewIds[ulIdx]);
     }
-    free(m->old_ids);
-    free(m->new_ids);
-    m->count = 0;
+    free(pMap->papszOldIds);
+    free(pMap->papszNewIds);
+    pMap->ulCount = 0;
 }
 
-/* ------------------------------------------------------------------ */
-/* JSON read helpers                                                   */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * JSON read helpers
+ * ================================================================== */
 
 /**
  * @brief Read a string field into a fixed-size buffer.
  *
- * @param[in]  hNode  Node handle, or NULLHANDLE.
- * @param[out] pszBuf Output buffer. Not NULL.
- * @param[in]  ulSize Size of pszBuf.
+ * @param[in]  hNode    Node handle, or NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
  *
- * @return 0 on success, -1 on error.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hNode is NULLHANDLE.
+ * @retval ERROR_INVALID_DATA       Node is not a string.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-static int json_read_string(HJSONNODE hNode, char *pszBuf, size_t ulSize) {
-    if (hNode == NULLHANDLE) return -1;
-    if (JsonNodeGetString(hNode, pszBuf, (ULONG)ulSize, NULL) != NO_ERROR)
-        return -1;
-    return 0;
+static APIRET ReadJsonString(HJSONNODE hNode, PSZ pszBuf, ULONG ulSize) {
+    if (hNode == NULLHANDLE) return ERROR_INVALID_PARAMETER;
+    return JsonNodeGetString(hNode, pszBuf, ulSize, NULL);
 }
 
-/* ------------------------------------------------------------------ */
-/* DocumentRef- handling                                               */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * DocumentRef- handling
+ * ================================================================== */
 
 /**
  * @brief Strip a leading "DocumentRef-<id>:" prefix in place.
+ *
+ * @param[in,out] pszStr  String to modify. Not NULL.
  */
-static void strip_document_ref(char *str) {
-    char *colon;
-    if (strncmp(str, "DocumentRef-", 12) == 0) {
-        colon = strchr(str, ':');
-        if (colon) memmove(str, colon + 1, strlen(colon + 1) + 1);
+static void StripDocumentRef(PSZ pszStr) {
+    PSZ pszColon;
+    if (strncmp(pszStr, "DocumentRef-", 12) == 0) {
+        pszColon = strchr(pszStr, ':');
+        if (pszColon)
+            memmove(pszStr, pszColon + 1, strlen(pszColon + 1) + 1);
     }
 }
 
@@ -241,280 +335,313 @@ static void strip_document_ref(char *str) {
  *
  * Only string nodes whose key is one of the ID-carrying fields are
  * modified.
+ *
+ * @param[in] hNode  Root of the subtree. Not NULLHANDLE.
+ * @param[in] pMap   Rename map. Not NULL.
  */
-static void replace_ids_in_node(HJSONNODE hNode, const RenameMap *map) {
-    ULONG type = 0;
-    ULONG count = 0;
-    ULONG i;
+static void ReplaceIdsInNode(HJSONNODE hNode, const SPDXRENAMEMAP *pMap) {
+    ULONG ulType = 0;
+    ULONG ulCount = 0;
+    ULONG ulIdx;
 
     if (hNode == NULLHANDLE) return;
-    if (JsonNodeGetType(hNode, &type) != NO_ERROR) return;
+    if (JsonNodeGetType(hNode, &ulType) != NO_ERROR) return;
 
-    if (type == (ULONG)JSON_STRING) {
-        char key[64];
-        if (JsonNodeGetKey(hNode, key, sizeof(key), NULL) == NO_ERROR) {
-            if (strcmp(key, "SPDXID") == 0 ||
-                strcmp(key, "spdxElementId") == 0 ||
-                strcmp(key, "relatedSpdxElement") == 0 ||
-                strcmp(key, "spdxId") == 0 ||
-                strcmp(key, "element") == 0 ||
-                strcmp(key, "relatedElement") == 0) {
-                char val[512];
-                const char *new_id;
-                if (json_read_string(hNode, val, sizeof(val)) == 0) {
-                    strip_document_ref(val);
-                    new_id = get_renamed(map, val);
-                    if (new_id) {
-                        JsonNodeSetValueString(hNode, new_id);
-                    }
+    if (ulType == (ULONG)JSON_STRING) {
+        CHAR achKey[64];
+        if (JsonNodeGetKey(hNode, achKey, sizeof(achKey), NULL) == NO_ERROR) {
+            if (strcmp(achKey, "SPDXID") == 0 ||
+                strcmp(achKey, "spdxElementId") == 0 ||
+                strcmp(achKey, "relatedSpdxElement") == 0 ||
+                strcmp(achKey, "spdxId") == 0 ||
+                strcmp(achKey, "element") == 0 ||
+                strcmp(achKey, "relatedElement") == 0) {
+                CHAR achVal[512];
+                PCSZ pszNewId;
+                if (ReadJsonString(hNode, achVal, sizeof(achVal))
+                        == NO_ERROR) {
+                    StripDocumentRef(achVal);
+                    pszNewId = QueryRenamed(pMap, achVal);
+                    if (pszNewId)
+                        JsonNodeSetValueString(hNode, pszNewId);
                 }
             }
         }
         return;
     }
 
-    if (type != (ULONG)JSON_OBJECT && type != (ULONG)JSON_ARRAY) return;
+    if (ulType != (ULONG)JSON_OBJECT && ulType != (ULONG)JSON_ARRAY) return;
 
-    if (JsonNodeGetCount(hNode, &count) != NO_ERROR) return;
-    for (i = 0; i < count; i++) {
+    if (JsonNodeGetCount(hNode, &ulCount) != NO_ERROR) return;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hChild = NULLHANDLE;
-        if (type == (ULONG)JSON_OBJECT) {
-            char ck[256];
-            if (JsonNodeGetEntry(hNode, i, ck, sizeof(ck), NULL,
+        if (ulType == (ULONG)JSON_OBJECT) {
+            CHAR achChildKey[256];
+            if (JsonNodeGetEntry(hNode, ulIdx, achChildKey,
+                                 sizeof(achChildKey), NULL,
                                  &hChild) != NO_ERROR)
                 continue;
         } else {
-            if (JsonNodeGetElement(hNode, i, &hChild) != NO_ERROR)
+            if (JsonNodeGetElement(hNode, ulIdx, &hChild) != NO_ERROR)
                 continue;
         }
-        replace_ids_in_node(hChild, map);
+        ReplaceIdsInNode(hChild, pMap);
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* Checksum verification                                               */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * Checksum verification
+ * ================================================================== */
 
 /**
  * @brief Verify a checksum against the file content.
  *
- * @param[in] filepath       Path to the file. Not NULL.
- * @param[in] checksum_node  Object with 'algorithm' and
- *                           'checksumValue'. Not NULLHANDLE.
+ * Terminates the process on any mismatch or I/O error.
+ *
+ * @param[in] pszFilePath      Path to the file. Not NULL.
+ * @param[in] hChecksumNode    Object with 'algorithm' and
+ *                             'checksumValue'. Not NULLHANDLE.
  */
-static void verify_checksum(const char *filepath, HJSONNODE checksum_node) {
-    HJSONNODE algo_node = NULLHANDLE;
-    HJSONNODE value_node = NULLHANDLE;
-    char algo[32];
-    char expected[256];
-    char *actual = NULL;
+static void VerifyChecksum(PCSZ pszFilePath, HJSONNODE hChecksumNode) {
+    HJSONNODE hAlgoNode = NULLHANDLE;
+    HJSONNODE hValueNode = NULLHANDLE;
+    CHAR achAlgo[32];
+    CHAR achExpected[256];
+    PSZ pszActual = NULL;
 
-    if (JsonNodeGetChild(checksum_node, "algorithm", &algo_node) != NO_ERROR ||
-        JsonNodeGetChild(checksum_node, "checksumValue", &value_node) != NO_ERROR) {
+    if (JsonNodeGetChild(hChecksumNode, "algorithm", &hAlgoNode)
+            != NO_ERROR ||
+        JsonNodeGetChild(hChecksumNode, "checksumValue", &hValueNode)
+            != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: invalid checksum in externalDocumentRef.\n"
                 "       Both 'algorithm' and 'checksumValue' fields are "
                 "required.\n");
         exit(EXIT_FAILURE);
     }
-    if (json_read_string(algo_node, algo, sizeof(algo)) != 0 ||
-        json_read_string(value_node, expected, sizeof(expected)) != 0) {
+    if (ReadJsonString(hAlgoNode, achAlgo, sizeof(achAlgo)) != NO_ERROR ||
+        ReadJsonString(hValueNode, achExpected, sizeof(achExpected))
+            != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: invalid checksum values in externalDocumentRef.\n"
                 "       'algorithm' and 'checksumValue' must be strings.\n");
         exit(EXIT_FAILURE);
     }
-    if (strcmp(algo, "SHA1") == 0) {
-        char hex[41];
-        if (Sha1File(filepath, hex, sizeof(hex), NULL) == NO_ERROR) {
-            actual = strdup(hex);
-        }
-    }
-    else if (strcmp(algo, "SHA256") == 0) {
-        char hex[65];
-        if (Sha256File(filepath, hex, sizeof(hex), NULL) == NO_ERROR) {
-            actual = strdup(hex);
-        }
-    }
-    else {
+    if (strcmp(achAlgo, "SHA1") == 0) {
+        CHAR achHex[41];
+        if (Sha1File(pszFilePath, achHex, sizeof(achHex), NULL)
+                == NO_ERROR)
+            pszActual = strdup(achHex);
+    } else if (strcmp(achAlgo, "SHA256") == 0) {
+        CHAR achHex[65];
+        if (Sha256File(pszFilePath, achHex, sizeof(achHex), NULL)
+                == NO_ERROR)
+            pszActual = strdup(achHex);
+    } else {
         fprintf(stderr,
                 "ERROR: unsupported checksum algorithm: %s\n"
-                "       Supported: SHA1, SHA256.\n", algo);
+                "       Supported: SHA1, SHA256.\n", achAlgo);
         exit(EXIT_FAILURE);
     }
-    if (!actual) {
+    if (!pszActual) {
         fprintf(stderr,
                 "ERROR: cannot compute %s for %s\n"
                 "       Check that the file exists and is readable.\n",
-                algo, filepath);
+                achAlgo, pszFilePath);
         exit(EXIT_FAILURE);
     }
-    if (strcmp(actual, expected) != 0) {
+    if (strcmp(pszActual, achExpected) != 0) {
         fprintf(stderr,
                 "ERROR: checksum mismatch for %s\n"
                 "       Expected: %s\n"
                 "       Actual:   %s\n"
                 "       The external document has changed since the "
                 "reference was recorded.\n",
-                filepath, expected, actual);
-        free(actual);
+                pszFilePath, achExpected, pszActual);
+        free(pszActual);
         exit(EXIT_FAILURE);
     }
-    free(actual);
+    free(pszActual);
 }
 
-/* ------------------------------------------------------------------ */
-/* Document validation                                                 */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * Document validation
+ * ================================================================== */
 
 /**
  * @brief Collect all local SPDXIDs from packages, files and snippets.
+ *
+ * @param[in] hRoot   Document root. Not NULLHANDLE.
+ * @param[in] hKnown  Destination set. Not NULLHANDLE.
  */
-static void collect_local_spdxids(HJSONNODE hRoot, HSTRSET hKnown) {
-    static const char *sections[] = { "packages", "files", "snippets", NULL };
-    int k;
+static void CollectLocalIds(HJSONNODE hRoot, HSTRSET hKnown) {
+    static PCSZ apszSections[] = { "packages", "files", "snippets", NULL };
+    int nSecIdx;
 
     StrSetAdd(hKnown, "SPDXRef-DOCUMENT");
 
-    for (k = 0; sections[k]; k++) {
+    for (nSecIdx = 0; apszSections[nSecIdx]; nSecIdx++) {
         HJSONNODE hArr = NULLHANDLE;
-        ULONG count = 0, i;
-        if (JsonNodeGetChild(hRoot, sections[k], &hArr) != NO_ERROR) continue;
-        if (JsonNodeGetCount(hArr, &count) != NO_ERROR) continue;
-        for (i = 0; i < count; i++) {
+        ULONG ulCount = 0, ulIdx;
+        if (JsonNodeGetChild(hRoot, apszSections[nSecIdx], &hArr)
+                != NO_ERROR)
+            continue;
+        if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) continue;
+        for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
             HJSONNODE hItem = NULLHANDLE;
             HJSONNODE hId = NULLHANDLE;
-            char id[512];
-            if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
-            if (JsonNodeGetChild(hItem, "SPDXID", &hId) != NO_ERROR) continue;
-            if (json_read_string(hId, id, sizeof(id)) == 0)
-                StrSetAdd(hKnown, id);
+            CHAR achId[512];
+            if (JsonNodeGetElement(hArr, ulIdx, &hItem) != NO_ERROR)
+                continue;
+            if (JsonNodeGetChild(hItem, "SPDXID", &hId) != NO_ERROR)
+                continue;
+            if (ReadJsonString(hId, achId, sizeof(achId)) == NO_ERROR)
+                StrSetAdd(hKnown, achId);
         }
     }
 }
 
 /**
  * @brief Collect all externalDocumentIds from a document.
+ *
+ * @param[in] hRoot        Document root. Not NULLHANDLE.
+ * @param[in] hExternalIds Destination set. Not NULLHANDLE.
  */
-static void collect_external_ids(HJSONNODE hRoot, HSTRSET hExternalIds) {
+static void CollectExternalIds(HJSONNODE hRoot, HSTRSET hExternalIds) {
     HJSONNODE hArr = NULLHANDLE;
-    ULONG count = 0, i;
+    ULONG ulCount = 0, ulIdx;
 
-    if (JsonNodeGetChild(hRoot, "externalDocumentRefs", &hArr) != NO_ERROR)
+    if (JsonNodeGetChild(hRoot, "externalDocumentRefs", &hArr)
+            != NO_ERROR)
         return;
-    if (JsonNodeGetCount(hArr, &count) != NO_ERROR) return;
-    for (i = 0; i < count; i++) {
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) return;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hRef = NULLHANDLE;
         HJSONNODE hId = NULLHANDLE;
-        char id[512];
-        if (JsonNodeGetElement(hArr, i, &hRef) != NO_ERROR) continue;
-        if (JsonNodeGetChild(hRef, "externalDocumentId", &hId) != NO_ERROR)
+        CHAR achId[512];
+        if (JsonNodeGetElement(hArr, ulIdx, &hRef) != NO_ERROR)
             continue;
-        if (json_read_string(hId, id, sizeof(id)) == 0)
-            StrSetAdd(hExternalIds, id);
+        if (JsonNodeGetChild(hRef, "externalDocumentId", &hId)
+                != NO_ERROR)
+            continue;
+        if (ReadJsonString(hId, achId, sizeof(achId)) == NO_ERROR)
+            StrSetAdd(hExternalIds, achId);
     }
 }
 
 /**
- * @brief Check whether a string is present in a set.
+ * @brief Query whether a string is present in a set.
+ *
+ * @param[in] hSet    Set. May be NULLHANDLE.
+ * @param[in] pszStr  String. Not NULL.
+ *
+ * @return TRUE_ if present.
  */
-static int set_has(HSTRSET hSet, const char *str) {
-    BOOL found = FALSE_;
-    if (hSet == NULLHANDLE) return 0;
-    if (StrSetContains(hSet, str, &found) != NO_ERROR) return 0;
-    return found ? 1 : 0;
+static BOOL SetContains(HSTRSET hSet, PCSZ pszStr) {
+    BOOL fFound = FALSE_;
+    if (hSet == NULLHANDLE) return FALSE_;
+    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE_;
+    return fFound ? TRUE_ : FALSE_;
 }
 
 /**
  * @brief Validate relationships in a document.
+ *
+ * Terminates the process on any inconsistency.
+ *
+ * @param[in] hRoot        Document root. Not NULLHANDLE.
+ * @param[in] pszFilePath  Path used in diagnostics. Not NULL.
+ * @param[in] hKnown       Set of local identifiers. Not NULLHANDLE.
+ * @param[in] hExternalIds Set of external identifiers. Not NULLHANDLE.
  */
-static void validate_relationships(HJSONNODE hRoot, const char *filepath,
-                                   HSTRSET hKnown, HSTRSET hExternalIds) {
+static void ValidateRelationships(HJSONNODE hRoot, PCSZ pszFilePath,
+                                  HSTRSET hKnown, HSTRSET hExternalIds) {
     HJSONNODE hArr = NULLHANDLE;
-    ULONG count = 0, i;
+    ULONG ulCount = 0, ulIdx;
 
-    if (JsonNodeGetChild(hRoot, "relationships", &hArr) != NO_ERROR) return;
-    if (JsonNodeGetCount(hArr, &count) != NO_ERROR) return;
+    if (JsonNodeGetChild(hRoot, "relationships", &hArr) != NO_ERROR)
+        return;
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) return;
 
-    for (i = 0; i < count; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hRel = NULLHANDLE;
         HJSONNODE hA = NULLHANDLE;
         HJSONNODE hB = NULLHANDLE;
-        char sa[512], sb[512];
+        CHAR achA[512], achB[512];
 
-        if (JsonNodeGetElement(hArr, i, &hRel) != NO_ERROR) continue;
+        if (JsonNodeGetElement(hArr, ulIdx, &hRel) != NO_ERROR)
+            continue;
 
         if (JsonNodeGetChild(hRel, "spdxElementId", &hA) != NO_ERROR ||
-            JsonNodeGetChild(hRel, "relatedSpdxElement", &hB) != NO_ERROR) {
+            JsonNodeGetChild(hRel, "relatedSpdxElement", &hB)
+                != NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: %s: relationship #%d missing "
+                    "ERROR: %s: relationship #%lu missing "
                     "'spdxElementId' or 'relatedSpdxElement'.\n",
-                    filepath, (int)i);
+                    pszFilePath, (unsigned long)ulIdx);
             exit(EXIT_FAILURE);
         }
-        if (json_read_string(hA, sa, sizeof(sa)) != 0 ||
-            json_read_string(hB, sb, sizeof(sb)) != 0) {
+        if (ReadJsonString(hA, achA, sizeof(achA)) != NO_ERROR ||
+            ReadJsonString(hB, achB, sizeof(achB)) != NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: %s: relationship #%d has non-string IDs.\n",
-                    filepath, (int)i);
-            exit(EXIT_FAILURE);
-        }
-
-        if (strncmp(sa, "DocumentRef-", 12) == 0) {
-            char docref[256];
-            const char *colon = strchr(sa, ':');
-            if (!colon) {
-                fprintf(stderr,
-                        "ERROR: %s: malformed DocumentRef in "
-                        "spdxElementId: %s\n", filepath, sa);
-                exit(EXIT_FAILURE);
-            }
-            {
-                size_t n = (size_t)(colon - sa);
-                if (n >= sizeof(docref)) n = sizeof(docref) - 1;
-                memcpy(docref, sa, n);
-                docref[n] = '\0';
-            }
-            if (!set_has(hExternalIds, docref)) {
-                fprintf(stderr,
-                        "ERROR: %s: relationship references unresolved "
-                        "externalDocumentRef '%s'.\n",
-                        filepath, docref);
-                exit(EXIT_FAILURE);
-            }
-        } else if (!set_has(hKnown, sa)) {
-            fprintf(stderr,
-                    "ERROR: %s: relationship references unknown "
-                    "SPDXID '%s'.\n", filepath, sa);
+                    "ERROR: %s: relationship #%lu has non-string IDs.\n",
+                    pszFilePath, (unsigned long)ulIdx);
             exit(EXIT_FAILURE);
         }
 
-        if (strncmp(sb, "DocumentRef-", 12) == 0) {
-            char docref[256];
-            const char *colon = strchr(sb, ':');
-            if (!colon) {
+        if (strncmp(achA, "DocumentRef-", 12) == 0) {
+            CHAR achDocref[256];
+            PCSZ pszColon = strchr(achA, ':');
+            size_t cbN;
+            if (!pszColon) {
                 fprintf(stderr,
                         "ERROR: %s: malformed DocumentRef in "
-                        "relatedSpdxElement: %s\n", filepath, sb);
+                        "spdxElementId: %s\n", pszFilePath, achA);
                 exit(EXIT_FAILURE);
             }
-            {
-                size_t n = (size_t)(colon - sb);
-                if (n >= sizeof(docref)) n = sizeof(docref) - 1;
-                memcpy(docref, sb, n);
-                docref[n] = '\0';
-            }
-            if (!set_has(hExternalIds, docref)) {
+            cbN = (size_t)(pszColon - achA);
+            if (cbN >= sizeof(achDocref)) cbN = sizeof(achDocref) - 1;
+            memcpy(achDocref, achA, cbN);
+            achDocref[cbN] = '\0';
+            if (!SetContains(hExternalIds, achDocref)) {
                 fprintf(stderr,
                         "ERROR: %s: relationship references unresolved "
                         "externalDocumentRef '%s'.\n",
-                        filepath, docref);
+                        pszFilePath, achDocref);
                 exit(EXIT_FAILURE);
             }
-        } else if (!set_has(hKnown, sb)) {
+        } else if (!SetContains(hKnown, achA)) {
             fprintf(stderr,
                     "ERROR: %s: relationship references unknown "
-                    "SPDXID '%s'.\n", filepath, sb);
+                    "SPDXID '%s'.\n", pszFilePath, achA);
+            exit(EXIT_FAILURE);
+        }
+
+        if (strncmp(achB, "DocumentRef-", 12) == 0) {
+            CHAR achDocref[256];
+            PCSZ pszColon = strchr(achB, ':');
+            size_t cbN;
+            if (!pszColon) {
+                fprintf(stderr,
+                        "ERROR: %s: malformed DocumentRef in "
+                        "relatedSpdxElement: %s\n", pszFilePath, achB);
+                exit(EXIT_FAILURE);
+            }
+            cbN = (size_t)(pszColon - achB);
+            if (cbN >= sizeof(achDocref)) cbN = sizeof(achDocref) - 1;
+            memcpy(achDocref, achB, cbN);
+            achDocref[cbN] = '\0';
+            if (!SetContains(hExternalIds, achDocref)) {
+                fprintf(stderr,
+                        "ERROR: %s: relationship references unresolved "
+                        "externalDocumentRef '%s'.\n",
+                        pszFilePath, achDocref);
+                exit(EXIT_FAILURE);
+            }
+        } else if (!SetContains(hKnown, achB)) {
+            fprintf(stderr,
+                    "ERROR: %s: relationship references unknown "
+                    "SPDXID '%s'.\n", pszFilePath, achB);
             exit(EXIT_FAILURE);
         }
     }
@@ -522,29 +649,37 @@ static void validate_relationships(HJSONNODE hRoot, const char *filepath,
 
 /**
  * @brief Validate one SPDX license expression in a document field.
+ *
+ * Terminates the process on any violation.
+ *
+ * @param[in] pszFilePath  Path used in diagnostics. Not NULL.
+ * @param[in] pszField     Field name. Not NULL.
+ * @param[in] pszValue     Value, or NULL to skip.
  */
-static void validate_license_field(const char *filepath, const char *field,
-                                   const char *value) {
-    const char *bad = NULL;
-    int rc;
+static void ValidateLicenseField(PCSZ pszFilePath, PCSZ pszField,
+                                 PCSZ pszValue) {
+    PCSZ pszBad = NULL;
+    APIRET rc;
 
-    if (!value) return;
-    rc = spdx_expression_validate(value, &bad);
+    if (!pszValue) return;
+    rc = SpdxQueryExpression(pszValue, &pszBad);
     if (rc == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
                 "ERROR: %s: invalid SPDX expression in %s: '%s'\n"
                 "       See https://spdx.github.io/spdx-spec/v2.3/"
                 "SPDX-license-expressions/ for the grammar.\n",
-                filepath, field, value);
+                pszFilePath, pszField, pszValue);
         exit(EXIT_FAILURE);
     }
     if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
-        const char *p = bad;
-        while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
+        PCSZ pszPos = pszBad;
+        while (*pszPos && *pszPos != ' ' && *pszPos != '(' &&
+               *pszPos != ')')
+            pszPos++;
         fprintf(stderr,
                 "ERROR: %s: unknown SPDX identifier in %s: '",
-                filepath, field);
-        fwrite(bad, 1, (size_t)(p - bad), stderr);
+                pszFilePath, pszField);
+        fwrite(pszBad, 1, (size_t)(pszPos - pszBad), stderr);
         fprintf(stderr,
                 "'\n"
                 "       See https://spdx.org/licenses/ for the full list.\n");
@@ -554,12 +689,17 @@ static void validate_license_field(const char *filepath, const char *field,
 
 /**
  * @brief Validate one whole document.
+ *
+ * Terminates the process on any inconsistency.
+ *
+ * @param[in] hRoot        Document root. Not NULLHANDLE.
+ * @param[in] pszFilePath  Path used in diagnostics. Not NULL.
  */
-static void validate_document(HJSONNODE hRoot, const char *filepath) {
+static void ValidateDocument(HJSONNODE hRoot, PCSZ pszFilePath) {
     HSTRSET hKnown = NULLHANDLE;
     HSTRSET hExternalIds = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
-    ULONG count = 0, i;
+    ULONG ulCount = 0, ulIdx;
 
     if (StrSetCreate(&hKnown) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory\n");
@@ -571,65 +711,75 @@ static void validate_document(HJSONNODE hRoot, const char *filepath) {
         exit(EXIT_FAILURE);
     }
 
-    collect_local_spdxids(hRoot, hKnown);
-    collect_external_ids(hRoot, hExternalIds);
+    CollectLocalIds(hRoot, hKnown);
+    CollectExternalIds(hRoot, hExternalIds);
 
     if (JsonNodeGetChild(hRoot, "packages", &hArr) == NO_ERROR &&
-        JsonNodeGetCount(hArr, &count) == NO_ERROR) {
-        for (i = 0; i < count; i++) {
+        JsonNodeGetCount(hArr, &ulCount) == NO_ERROR) {
+        for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
             HJSONNODE hItem = NULLHANDLE;
             HJSONNODE hField = NULLHANDLE;
-            char val[512];
-            if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
-            if (JsonNodeGetChild(hItem, "licenseConcluded", &hField) == NO_ERROR &&
-                json_read_string(hField, val, sizeof(val)) == 0)
-                validate_license_field(filepath, "package.licenseConcluded", val);
-            if (JsonNodeGetChild(hItem, "licenseDeclared", &hField) == NO_ERROR &&
-                json_read_string(hField, val, sizeof(val)) == 0)
-                validate_license_field(filepath, "package.licenseDeclared", val);
+            CHAR achVal[512];
+            if (JsonNodeGetElement(hArr, ulIdx, &hItem) != NO_ERROR)
+                continue;
+            if (JsonNodeGetChild(hItem, "licenseConcluded", &hField)
+                    == NO_ERROR &&
+                ReadJsonString(hField, achVal, sizeof(achVal)) == NO_ERROR)
+                ValidateLicenseField(pszFilePath,
+                                     "package.licenseConcluded", achVal);
+            if (JsonNodeGetChild(hItem, "licenseDeclared", &hField)
+                    == NO_ERROR &&
+                ReadJsonString(hField, achVal, sizeof(achVal)) == NO_ERROR)
+                ValidateLicenseField(pszFilePath,
+                                     "package.licenseDeclared", achVal);
         }
     }
 
     if (JsonNodeGetChild(hRoot, "files", &hArr) == NO_ERROR &&
-        JsonNodeGetCount(hArr, &count) == NO_ERROR) {
-        for (i = 0; i < count; i++) {
+        JsonNodeGetCount(hArr, &ulCount) == NO_ERROR) {
+        for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
             HJSONNODE hItem = NULLHANDLE;
             HJSONNODE hField = NULLHANDLE;
-            char val[512];
-            if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
-            if (JsonNodeGetChild(hItem, "licenseConcluded", &hField) == NO_ERROR &&
-                json_read_string(hField, val, sizeof(val)) == 0)
-                validate_license_field(filepath, "file.licenseConcluded", val);
-            if (JsonNodeGetChild(hItem, "licenseInfoInFiles", &hField) == NO_ERROR) {
-                ULONG lic_count = 0, j;
-                if (JsonNodeGetCount(hField, &lic_count) == NO_ERROR) {
-                    for (j = 0; j < lic_count; j++) {
+            CHAR achVal[512];
+            if (JsonNodeGetElement(hArr, ulIdx, &hItem) != NO_ERROR)
+                continue;
+            if (JsonNodeGetChild(hItem, "licenseConcluded", &hField)
+                    == NO_ERROR &&
+                ReadJsonString(hField, achVal, sizeof(achVal)) == NO_ERROR)
+                ValidateLicenseField(pszFilePath,
+                                     "file.licenseConcluded", achVal);
+            if (JsonNodeGetChild(hItem, "licenseInfoInFiles", &hField)
+                    == NO_ERROR) {
+                ULONG ulLic = 0, ulJ;
+                if (JsonNodeGetCount(hField, &ulLic) == NO_ERROR) {
+                    for (ulJ = 0; ulJ < ulLic; ulJ++) {
                         HJSONNODE hElem = NULLHANDLE;
-                        if (JsonNodeGetElement(hField, j, &hElem) != NO_ERROR)
+                        if (JsonNodeGetElement(hField, ulJ, &hElem)
+                                != NO_ERROR)
                             continue;
-                        if (json_read_string(hElem, val, sizeof(val)) == 0)
-                            validate_license_field(filepath,
-                                                   "file.licenseInfoInFiles",
-                                                   val);
+                        if (ReadJsonString(hElem, achVal, sizeof(achVal))
+                                == NO_ERROR)
+                            ValidateLicenseField(pszFilePath,
+                                                 "file.licenseInfoInFiles",
+                                                 achVal);
                     }
                 }
             }
         }
     }
 
-    validate_relationships(hRoot, filepath, hKnown, hExternalIds);
+    ValidateRelationships(hRoot, pszFilePath, hKnown, hExternalIds);
 
     StrSetDestroy(hKnown);
     StrSetDestroy(hExternalIds);
 }
 
-/* ------------------------------------------------------------------ */
-/* Merge                                                               */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * Merge
+ * ================================================================== */
 
 /**
- * @brief Copy a top-level array from source into merged_root, if not
- *        already present.
+ * @brief Ensure that a merged array exists at a section.
  *
  * @param[in]  hDocMerged    Merged document. Not NULLHANDLE.
  * @param[in]  hMergedRoot   Merged root object. Not NULLHANDLE.
@@ -637,9 +787,13 @@ static void validate_document(HJSONNODE hRoot, const char *filepath) {
  * @param[out] phMergedArr   Receiver for the merged array. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET ensure_merged_array(HJSONDOC hDocMerged, HJSONNODE hMergedRoot,
-                                  PCSZ pszSection, HJSONNODE *phMergedArr) {
+static APIRET EnsureMergedArray(HJSONDOC hDocMerged,
+                                HJSONNODE hMergedRoot,
+                                PCSZ pszSection,
+                                HJSONNODE *phMergedArr) {
     APIRET rc;
     if (JsonNodeGetChild(hMergedRoot, pszSection, phMergedArr) == NO_ERROR)
         return NO_ERROR;
@@ -655,64 +809,78 @@ static APIRET ensure_merged_array(HJSONDOC hDocMerged, HJSONNODE hMergedRoot,
  * already-merged array. On collision, the element is cloned with a
  * new unique SPDXID and the rename is recorded.
  *
- * @param[in]  hDocMerged    Merged document. Not NULLHANDLE.
- * @param[in]  hSrcArr       Source array. Not NULLHANDLE.
- * @param[in]  hMergedArr    Destination array. Not NULLHANDLE.
- * @param[in]  rename_map    Rename map. Not NULL.
- * @param[in]  filepath      Source file path, for messages. Not NULL.
+ * @param[in] hDocMerged   Merged document. Not NULLHANDLE.
+ * @param[in] hSrcArr      Source array. Not NULLHANDLE.
+ * @param[in] hMergedArr   Destination array. Not NULLHANDLE.
+ * @param[in] pMap         Rename map. Not NULL.
+ * @param[in] pszFilePath  Source file path. Not NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_DATA       Source element lacks a valid SPDXID.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET merge_section(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
-                            HJSONNODE hMergedArr, RenameMap *rename_map,
-                            const char *filepath) {
-    ULONG count = 0, i;
-    if (JsonNodeGetCount(hSrcArr, &count) != NO_ERROR) return NO_ERROR;
+static APIRET MergeSection(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
+                           HJSONNODE hMergedArr, SPDXRENAMEMAP *pMap,
+                           PCSZ pszFilePath) {
+    ULONG ulCount = 0, ulIdx;
+    if (JsonNodeGetCount(hSrcArr, &ulCount) != NO_ERROR) return NO_ERROR;
 
-    for (i = 0; i < count; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hItem = NULLHANDLE;
         HJSONNODE hId = NULLHANDLE;
-        char old_id[512];
-        const char *new_id_existing;
+        CHAR achOldId[512];
+        PCSZ pszExisting;
 
-        if (JsonNodeGetElement(hSrcArr, i, &hItem) != NO_ERROR) continue;
+        if (JsonNodeGetElement(hSrcArr, ulIdx, &hItem) != NO_ERROR)
+            continue;
         if (JsonNodeGetChild(hItem, "SPDXID", &hId) != NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: %s: element without SPDXID.\n", filepath);
+                    "ERROR: %s: element without SPDXID.\n", pszFilePath);
             return ERROR_INVALID_DATA;
         }
-        if (json_read_string(hId, old_id, sizeof(old_id)) != 0) {
+        if (ReadJsonString(hId, achOldId, sizeof(achOldId)) != NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: %s: invalid SPDXID.\n", filepath);
+                    "ERROR: %s: invalid SPDXID.\n", pszFilePath);
             return ERROR_INVALID_DATA;
         }
 
-        new_id_existing = get_renamed(rename_map, old_id);
-        if (new_id_existing == NULL) {
-            int exists = 0;
-            ULONG j, mcount = 0;
-            if (JsonNodeGetCount(hMergedArr, &mcount) == NO_ERROR) {
-                for (j = 0; j < mcount; j++) {
+        pszExisting = QueryRenamed(pMap, achOldId);
+        if (pszExisting == NULL) {
+            BOOL fExists = FALSE_;
+            ULONG ulJ, ulMCount = 0;
+            if (JsonNodeGetCount(hMergedArr, &ulMCount) == NO_ERROR) {
+                for (ulJ = 0; ulJ < ulMCount; ulJ++) {
                     HJSONNODE hEx = NULLHANDLE;
                     HJSONNODE hExId = NULLHANDLE;
-                    char exs[512];
-                    if (JsonNodeGetElement(hMergedArr, j, &hEx) != NO_ERROR) continue;
-                    if (JsonNodeGetChild(hEx, "SPDXID", &hExId) != NO_ERROR) continue;
-                    if (json_read_string(hExId, exs, sizeof(exs)) != 0) continue;
-                    if (strcmp(exs, old_id) == 0) { exists = 1; break; }
+                    CHAR achEx[512];
+                    if (JsonNodeGetElement(hMergedArr, ulJ, &hEx)
+                            != NO_ERROR)
+                        continue;
+                    if (JsonNodeGetChild(hEx, "SPDXID", &hExId)
+                            != NO_ERROR)
+                        continue;
+                    if (ReadJsonString(hExId, achEx, sizeof(achEx))
+                            != NO_ERROR)
+                        continue;
+                    if (strcmp(achEx, achOldId) == 0) {
+                        fExists = TRUE_;
+                        break;
+                    }
                 }
             }
-            if (exists) {
-                char *new_id = make_unique_id(old_id, (int)i);
+            if (fExists) {
+                PSZ pszNewId = MakeUniqueId(achOldId, ulIdx);
                 HJSONNODE hClone = NULLHANDLE;
                 APIRET rc;
-                add_rename(rename_map, old_id, new_id);
+                AddRename(pMap, achOldId, pszNewId);
                 rc = JsonCloneNode(hDocMerged, hItem, &hClone);
-                if (rc != NO_ERROR) { free(new_id); return rc; }
-                rc = JsonNodeSetString(hDocMerged, hClone, "SPDXID", new_id);
-                if (rc != NO_ERROR) { free(new_id); return rc; }
+                if (rc != NO_ERROR) { free(pszNewId); return rc; }
+                rc = JsonNodeSetString(hDocMerged, hClone, "SPDXID",
+                                       pszNewId);
+                if (rc != NO_ERROR) { free(pszNewId); return rc; }
                 rc = JsonArrayAppend(hMergedArr, hClone);
-                free(new_id);
+                free(pszNewId);
                 if (rc != NO_ERROR) return rc;
             } else {
                 HJSONNODE hClone = NULLHANDLE;
@@ -725,7 +893,8 @@ static APIRET merge_section(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
             HJSONNODE hClone = NULLHANDLE;
             APIRET rc = JsonCloneNode(hDocMerged, hItem, &hClone);
             if (rc != NO_ERROR) return rc;
-            rc = JsonNodeSetString(hDocMerged, hClone, "SPDXID", new_id_existing);
+            rc = JsonNodeSetString(hDocMerged, hClone, "SPDXID",
+                                   pszExisting);
             if (rc != NO_ERROR) return rc;
             rc = JsonArrayAppend(hMergedArr, hClone);
             if (rc != NO_ERROR) return rc;
@@ -737,27 +906,34 @@ static APIRET merge_section(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
 /**
  * @brief Merge relationships from a source document.
  *
- * Relationships are cloned, their IDs are rewritten through the
- * rename map, and appended to the merged relationships array.
+ * @param[in] hDocMerged   Merged document. Not NULLHANDLE.
+ * @param[in] hSrcRoot     Source root object. Not NULLHANDLE.
+ * @param[in] hMergedArr   Destination array. Not NULLHANDLE.
+ * @param[in] pMap         Rename map. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-static APIRET merge_relationships(HJSONDOC hDocMerged, HJSONNODE hSrcRoot,
-                                  HJSONNODE hMergedArr,
-                                  RenameMap *rename_map) {
+static APIRET MergeRelationships(HJSONDOC hDocMerged, HJSONNODE hSrcRoot,
+                                 HJSONNODE hMergedArr,
+                                 SPDXRENAMEMAP *pMap) {
     HJSONNODE hArr = NULLHANDLE;
-    ULONG count = 0, i;
+    ULONG ulCount = 0, ulIdx;
 
     if (JsonNodeGetChild(hSrcRoot, "relationships", &hArr) != NO_ERROR)
         return NO_ERROR;
-    if (JsonNodeGetCount(hArr, &count) != NO_ERROR) return NO_ERROR;
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) return NO_ERROR;
 
-    for (i = 0; i < count; i++) {
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
         HJSONNODE hRel = NULLHANDLE;
         HJSONNODE hClone = NULLHANDLE;
         APIRET rc;
-        if (JsonNodeGetElement(hArr, i, &hRel) != NO_ERROR) continue;
+        if (JsonNodeGetElement(hArr, ulIdx, &hRel) != NO_ERROR)
+            continue;
         rc = JsonCloneNode(hDocMerged, hRel, &hClone);
         if (rc != NO_ERROR) return rc;
-        replace_ids_in_node(hClone, rename_map);
+        ReplaceIdsInNode(hClone, pMap);
         rc = JsonArrayAppend(hMergedArr, hClone);
         if (rc != NO_ERROR) return rc;
     }
@@ -766,177 +942,198 @@ static APIRET merge_relationships(HJSONDOC hDocMerged, HJSONNODE hSrcRoot,
 
 /**
  * @brief Recursively process one SPDX document.
+ *
+ * Terminates the process on any error.
+ *
+ * @param[in] pszFilePath  File path. Not NULL.
+ * @param[in] hRoot        Document root. Not NULLHANDLE.
+ * @param[in] hDocMerged   Destination document. Not NULLHANDLE.
+ * @param[in] hMergedRoot  Destination root. Not NULLHANDLE.
+ * @param[in] pList        Processed-path list. Not NULL.
+ * @param[in] pMap         Rename map. Not NULL.
  */
-static void process_document(const char *filepath, HJSONNODE hRoot,
-                             HJSONDOC hDocMerged, HJSONNODE hMergedRoot,
-                             ProcessedList *processed, RenameMap *rename_map) {
+static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
+                            HJSONDOC hDocMerged, HJSONNODE hMergedRoot,
+                            SPDXPROCESSEDLIST *pList,
+                            SPDXRENAMEMAP *pMap) {
     HJSONNODE hExtRefs = NULLHANDLE;
     HJSONNODE hPackages = NULLHANDLE;
     HJSONNODE hFiles = NULLHANDLE;
     HJSONNODE hSnippets = NULLHANDLE;
     HJSONNODE hMergedArr = NULLHANDLE;
-    char *abs_path;
-    ULONG count = 0, i;
+    PSZ pszAbsPath;
+    ULONG ulCount = 0, ulIdx;
     APIRET rc;
 
-    abs_path = normalize_path(filepath);
-    if (!abs_path) {
-        fprintf(stderr, "ERROR: cannot normalize path: %s\n", filepath);
+    pszAbsPath = CanonicalizePath(pszFilePath);
+    if (!pszAbsPath) {
+        fprintf(stderr, "ERROR: cannot normalize path: %s\n", pszFilePath);
         exit(EXIT_FAILURE);
     }
-    if (is_processed(processed, abs_path)) { free(abs_path); return; }
-    add_processed(processed, abs_path);
+    if (IsProcessed(pList, pszAbsPath)) { free(pszAbsPath); return; }
+    AddProcessed(pList, pszAbsPath);
 
-    validate_document(hRoot, filepath);
+    ValidateDocument(hRoot, pszFilePath);
 
-    /* externalDocumentRefs */
-    if (JsonNodeGetChild(hRoot, "externalDocumentRefs", &hExtRefs) == NO_ERROR &&
-        JsonNodeGetCount(hExtRefs, &count) == NO_ERROR) {
-        for (i = 0; i < count; i++) {
+    if (JsonNodeGetChild(hRoot, "externalDocumentRefs", &hExtRefs)
+            == NO_ERROR &&
+        JsonNodeGetCount(hExtRefs, &ulCount) == NO_ERROR) {
+        for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
             HJSONNODE hRef = NULLHANDLE;
             HJSONNODE hIdNode = NULLHANDLE;
             HJSONNODE hDocNode = NULLHANDLE;
             HJSONNODE hChkNode = NULLHANDLE;
-            char doc_uri[2048];
-            char *full_doc_path;
-            char *doc_text = NULL;
+            CHAR achDocUri[2048];
+            PSZ pszFullDocPath;
+            PSZ pszDocText = NULL;
             HJSONDOC hExtDoc = NULLHANDLE;
             HJSONNODE hExtRoot = NULLHANDLE;
 
-            if (JsonNodeGetElement(hExtRefs, i, &hRef) != NO_ERROR) continue;
-            if (JsonNodeGetChild(hRef, "externalDocumentId", &hIdNode) != NO_ERROR ||
-                JsonNodeGetChild(hRef, "spdxDocument", &hDocNode) != NO_ERROR) {
+            if (JsonNodeGetElement(hExtRefs, ulIdx, &hRef) != NO_ERROR)
+                continue;
+            if (JsonNodeGetChild(hRef, "externalDocumentId", &hIdNode)
+                    != NO_ERROR ||
+                JsonNodeGetChild(hRef, "spdxDocument", &hDocNode)
+                    != NO_ERROR) {
                 fprintf(stderr,
                         "ERROR: invalid externalDocumentRef in %s\n"
                         "       Both 'externalDocumentId' and "
-                        "'spdxDocument' are required.\n", filepath);
+                        "'spdxDocument' are required.\n", pszFilePath);
                 exit(EXIT_FAILURE);
             }
-            if (json_read_string(hDocNode, doc_uri, sizeof(doc_uri)) != 0) {
+            if (ReadJsonString(hDocNode, achDocUri, sizeof(achDocUri))
+                    != NO_ERROR) {
                 fprintf(stderr,
                         "ERROR: %s: 'spdxDocument' must be a string.\n",
-                        filepath);
+                        pszFilePath);
                 exit(EXIT_FAILURE);
             }
-            if (strncmp(doc_uri, "http://", 7) == 0 ||
-                strncmp(doc_uri, "https://", 8) == 0) {
+            if (strncmp(achDocUri, "http://", 7) == 0 ||
+                strncmp(achDocUri, "https://", 8) == 0) {
                 fprintf(stderr,
                         "ERROR: %s: remote URIs are not supported: %s\n"
                         "       Use a local file path instead.\n",
-                        filepath, doc_uri);
+                        pszFilePath, achDocUri);
                 exit(EXIT_FAILURE);
             }
 
-            if (doc_uri[0] == '/' || doc_uri[0] == '\\' ||
-                (isalpha((unsigned char)doc_uri[0]) && doc_uri[1] == ':')) {
-                full_doc_path = strdup(doc_uri);
+            if (achDocUri[0] == '/' || achDocUri[0] == '\\' ||
+                (isalpha((unsigned char)achDocUri[0]) &&
+                 achDocUri[1] == ':')) {
+                pszFullDocPath = strdup(achDocUri);
             } else {
-                char *dir = get_dirname(filepath);
-                full_doc_path = join_path(dir, doc_uri);
-                free(dir);
+                PSZ pszDir = QueryDirName(pszFilePath);
+                pszFullDocPath = JoinPath(pszDir, achDocUri);
+                free(pszDir);
             }
-            if (!full_doc_path) {
+            if (!pszFullDocPath) {
                 fprintf(stderr, "ERROR: %s: cannot resolve path: %s\n",
-                        filepath, doc_uri);
+                        pszFilePath, achDocUri);
                 exit(EXIT_FAILURE);
             }
 
             if (JsonNodeGetChild(hRef, "checksum", &hChkNode) == NO_ERROR)
-                verify_checksum(full_doc_path, hChkNode);
+                VerifyChecksum(pszFullDocPath, hChkNode);
             else {
                 fprintf(stderr,
                         "ERROR: %s: missing checksum for external "
                         "document: %s\n"
                         "       Each externalDocumentRef must include a "
-                        "checksum.\n", filepath, doc_uri);
+                        "checksum.\n", pszFilePath, achDocUri);
                 exit(EXIT_FAILURE);
             }
 
-            if (SpdxReadFileAll(full_doc_path, &doc_text, NULL) != NO_ERROR ||
-                !doc_text) {
+            pszDocText = read_file_to_heap(pszFullDocPath);
+            if (!pszDocText) {
                 fprintf(stderr,
                         "ERROR: cannot read external document: %s\n"
                         "       Check that the file exists and is "
-                        "readable.\n", full_doc_path);
-                free(full_doc_path);
+                        "readable.\n", pszFullDocPath);
+                free(pszFullDocPath);
                 exit(EXIT_FAILURE);
             }
-            if (JsonParse(doc_text, &hExtDoc) != NO_ERROR) {
+            if (JsonParse(pszDocText, &hExtDoc) != NO_ERROR) {
                 fprintf(stderr,
                         "ERROR: invalid JSON in external document: %s\n",
-                        full_doc_path);
-                free(doc_text);
-                free(full_doc_path);
+                        pszFullDocPath);
+                free(pszDocText);
+                free(pszFullDocPath);
                 exit(EXIT_FAILURE);
             }
-            free(doc_text);
+            free(pszDocText);
 
             if (JsonRoot(hExtDoc, &hExtRoot) != NO_ERROR) {
                 fprintf(stderr,
-                        "ERROR: cannot obtain root of: %s\n", full_doc_path);
+                        "ERROR: cannot obtain root of: %s\n",
+                        pszFullDocPath);
                 JsonClose(hExtDoc);
-                free(full_doc_path);
+                free(pszFullDocPath);
                 exit(EXIT_FAILURE);
             }
 
-            process_document(full_doc_path, hExtRoot, hDocMerged,
-                             hMergedRoot, processed, rename_map);
+            ProcessDocument(pszFullDocPath, hExtRoot, hDocMerged,
+                            hMergedRoot, pList, pMap);
             JsonClose(hExtDoc);
-            free(full_doc_path);
+            free(pszFullDocPath);
         }
     }
 
-    /* packages */
     if (JsonNodeGetChild(hRoot, "packages", &hPackages) == NO_ERROR) {
-        rc = ensure_merged_array(hDocMerged, hMergedRoot, "packages", &hMergedArr);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
-        rc = merge_section(hDocMerged, hPackages, hMergedArr, rename_map, filepath);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
+        rc = EnsureMergedArray(hDocMerged, hMergedRoot, "packages",
+                               &hMergedArr);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        rc = MergeSection(hDocMerged, hPackages, hMergedArr, pMap,
+                          pszFilePath);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
     }
 
-    /* files */
     if (JsonNodeGetChild(hRoot, "files", &hFiles) == NO_ERROR) {
-        rc = ensure_merged_array(hDocMerged, hMergedRoot, "files", &hMergedArr);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
-        rc = merge_section(hDocMerged, hFiles, hMergedArr, rename_map, filepath);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
+        rc = EnsureMergedArray(hDocMerged, hMergedRoot, "files",
+                               &hMergedArr);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        rc = MergeSection(hDocMerged, hFiles, hMergedArr, pMap,
+                          pszFilePath);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
     }
 
-    /* snippets */
     if (JsonNodeGetChild(hRoot, "snippets", &hSnippets) == NO_ERROR) {
-        ULONG snip_count = 0;
-        if (JsonNodeGetCount(hSnippets, &snip_count) == NO_ERROR &&
-            snip_count > 0) {
-            rc = ensure_merged_array(hDocMerged, hMergedRoot, "snippets",
-                                     &hMergedArr);
-            if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
-            rc = merge_section(hDocMerged, hSnippets, hMergedArr,
-                               rename_map, filepath);
-            if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
+        ULONG ulSnipCount = 0;
+        if (JsonNodeGetCount(hSnippets, &ulSnipCount) == NO_ERROR &&
+            ulSnipCount > 0) {
+            rc = EnsureMergedArray(hDocMerged, hMergedRoot, "snippets",
+                                   &hMergedArr);
+            if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+            rc = MergeSection(hDocMerged, hSnippets, hMergedArr, pMap,
+                              pszFilePath);
+            if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
         }
     }
 
-    /* relationships */
     {
-        rc = ensure_merged_array(hDocMerged, hMergedRoot, "relationships",
-                                 &hMergedArr);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
-        rc = merge_relationships(hDocMerged, hRoot, hMergedArr, rename_map);
-        if (rc != NO_ERROR) { free(abs_path); exit(EXIT_FAILURE); }
+        rc = EnsureMergedArray(hDocMerged, hMergedRoot, "relationships",
+                               &hMergedArr);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        rc = MergeRelationships(hDocMerged, hRoot, hMergedArr, pMap);
+        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
     }
 
-    free(abs_path);
+    free(pszAbsPath);
 }
 
-/* ------------------------------------------------------------------ */
-/* CLI                                                                 */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+ * CLI
+ * ================================================================== */
 
-static void print_help(void) {
-    printf("Usage: spdx-merge --input=<file> [--output=<file>] [options]\n"
+/**
+ * @brief Print command line usage.
+ */
+static void PrintHelp(void) {
+    printf("Usage: spdx-merge --input=<file> [--output=<file>] "
+           "[options]\n"
            "\n"
            "Required:\n"
-           "  --input=<file>             Root SPDX JSON document to merge\n"
+           "  --input=<file>             Root SPDX JSON document to "
+           "merge\n"
            "  --spdx-db=<path>           SPDX database root "
            "(licenses.json,\n"
            "                             exceptions.json, details/, "
@@ -953,39 +1150,47 @@ static void print_help(void) {
            "checksum, and resolves SPDXID collisions by renaming.\n");
 }
 
+/**
+ * @brief Entry point of the SPDX merge tool.
+ *
+ * @param[in] argc  Argument count.
+ * @param[in] argv  Argument vector.
+ *
+ * @return 0 on success, 1 on error.
+ */
 int main(int argc, char *argv[]) {
-    const char *input_file = NULL;
-    const char *output_file = NULL;
-    const char *spdx_db_root = NULL;
-    const char *cache_file = NULL;
+    PCSZ pszInputFile = NULL;
+    PCSZ pszOutputFile = NULL;
+    PCSZ pszSpdxDbRoot = NULL;
+    PCSZ pszCacheFile = NULL;
     int i;
-    char *root_text = NULL;
+    PSZ pszRootText = NULL;
     HJSONDOC hSrcDoc = NULLHANDLE;
     HJSONNODE hSrcRoot = NULLHANDLE;
     HJSONDOC hDocMerged = NULLHANDLE;
     HJSONNODE hMergedRoot = NULLHANDLE;
     HJSONNODE hCreation = NULLHANDLE;
-    ProcessedList processed;
-    RenameMap rename_map;
-    time_t now;
-    struct tm *tm;
-    char date[32];
-    int db_errs;
+    SPDXPROCESSEDLIST processed;
+    SPDXRENAMEMAP renameMap;
+    time_t tNow;
+    struct tm *ptm;
+    CHAR achDate[32];
+    APIRET rcDb;
     APIRET rc;
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            print_help();
+            PrintHelp();
             return 0;
         }
         else if (strncmp(argv[i], "--input=", 8) == 0)
-            input_file = argv[i] + 8;
+            pszInputFile = argv[i] + 8;
         else if (strncmp(argv[i], "--output=", 9) == 0)
-            output_file = argv[i] + 9;
+            pszOutputFile = argv[i] + 9;
         else if (strncmp(argv[i], "--spdx-db=", 10) == 0)
-            spdx_db_root = argv[i] + 10;
+            pszSpdxDbRoot = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
-            cache_file = argv[i] + 8;
+            pszCacheFile = argv[i] + 8;
         else {
             fprintf(stderr,
                     "ERROR: unknown option: %s\n"
@@ -995,79 +1200,79 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!input_file) {
+    if (!pszInputFile) {
         fprintf(stderr,
                 "ERROR: --input=<file> is required.\n"
                 "       Run 'spdx-merge --help' for usage.\n");
         return 1;
     }
-    if (!spdx_db_root) {
+    if (!pszSpdxDbRoot) {
         fprintf(stderr,
                 "ERROR: --spdx-db=<path> is required.\n"
                 "       Run 'spdx-merge --help' for usage.\n");
         return 1;
     }
 
-    db_errs = spdx_db_init(spdx_db_root, cache_file);
-    if (db_errs & SPDX_DB_ERR_LICENSES) {
+    rcDb = SpdxOpenDatabase(pszSpdxDbRoot, pszCacheFile);
+    if (rcDb & SPDXDB_ERROR_LICENSES) {
         fprintf(stderr,
                 "ERROR: SPDX license database is unavailable "
                 "(licenses.json not loaded).\n"
                 "       Expected at <spdx-db>/licenses.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
-    if (db_errs & SPDX_DB_ERR_EXCEPTIONS) {
+    if (rcDb & SPDXDB_ERROR_EXCEPTIONS) {
         fprintf(stderr,
                 "ERROR: SPDX exceptions database is unavailable "
                 "(exceptions.json not loaded).\n"
                 "       Expected at <spdx-db>/exceptions.json.\n"
                 "       Cannot validate SPDX identifiers. Aborting.\n");
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
-    if (db_errs & SPDX_DB_ERR_CACHE)
+    if (rcDb & SPDXDB_ERROR_CACHE)
         fprintf(stderr,
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    if (SpdxReadFileAll(input_file, &root_text, NULL) != NO_ERROR ||
-        !root_text) {
+    pszRootText = read_file_to_heap(pszInputFile);
+    if (!pszRootText) {
         fprintf(stderr,
                 "ERROR: cannot read input file: %s\n"
                 "       Check that the file exists and is readable.\n",
-                input_file);
-        spdx_db_free();
+                pszInputFile);
+        SpdxCloseDatabase();
         return 1;
     }
-    if (JsonParse(root_text, &hSrcDoc) != NO_ERROR) {
+    if (JsonParse(pszRootText, &hSrcDoc) != NO_ERROR) {
         fprintf(stderr,
-                "ERROR: invalid JSON in input file: %s\n", input_file);
-        free(root_text);
-        spdx_db_free();
+                "ERROR: invalid JSON in input file: %s\n", pszInputFile);
+        free(pszRootText);
+        SpdxCloseDatabase();
         return 1;
     }
-    free(root_text);
+    free(pszRootText);
 
     if (JsonRoot(hSrcDoc, &hSrcRoot) != NO_ERROR) {
         fprintf(stderr, "ERROR: cannot obtain root of input file.\n");
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
 
-    processed.paths = (char**)malloc(MAX_DOCS * sizeof(char*));
-    processed.count = 0;
-    rename_map.old_ids = NULL;
-    rename_map.new_ids = NULL;
-    rename_map.count = 0;
+    processed.papszPaths = (PSZ*)malloc(MAX_DOCS * sizeof(PSZ));
+    processed.ulCount = 0;
+    renameMap.papszOldIds = NULL;
+    renameMap.papszNewIds = NULL;
+    renameMap.ulCount = 0;
 
     rc = JsonNewDoc(&hDocMerged);
     if (rc != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory\n");
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
 
@@ -1076,44 +1281,53 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "ERROR: out of memory\n");
         JsonClose(hDocMerged);
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
 
-    now = time(NULL);
-    tm = gmtime(&now);
-    strftime(date, sizeof(date), "%Y-%m-%dT%H:%M:%SZ", tm);
+    tNow = time(NULL);
+    ptm = gmtime(&tNow);
+    if (ptm)
+        strftime(achDate, sizeof(achDate), "%Y-%m-%dT%H:%M:%SZ", ptm);
+    else
+        achDate[0] = '\0';
 
-    if (JsonNodeSetString(hDocMerged, hMergedRoot, "spdxVersion", "SPDX-2.3") != NO_ERROR ||
-        JsonNodeSetString(hDocMerged, hMergedRoot, "SPDXID", "SPDXRef-DOCUMENT") != NO_ERROR ||
-        JsonNodeSetString(hDocMerged, hMergedRoot, "name", "Merged SPDX Document") != NO_ERROR ||
-        JsonNodeSetString(hDocMerged, hMergedRoot, "dataLicense", "CC0-1.0") != NO_ERROR) {
+    if (JsonNodeSetString(hDocMerged, hMergedRoot, "spdxVersion",
+                          "SPDX-2.3") != NO_ERROR ||
+        JsonNodeSetString(hDocMerged, hMergedRoot, "SPDXID",
+                          "SPDXRef-DOCUMENT") != NO_ERROR ||
+        JsonNodeSetString(hDocMerged, hMergedRoot, "name",
+                          "Merged SPDX Document") != NO_ERROR ||
+        JsonNodeSetString(hDocMerged, hMergedRoot, "dataLicense",
+                          "CC0-1.0") != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory\n");
         JsonClose(hDocMerged);
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
 
     {
-        char ns[256];
-        sprintf(ns, "https://osfree.org/spdxdocs/merged-%ld", (long)now);
+        CHAR achNs[256];
+        sprintf(achNs, "https://osfree.org/spdxdocs/merged-%ld",
+                (long)tNow);
         if (JsonNodeSetString(hDocMerged, hMergedRoot,
-                              "documentNamespace", ns) != NO_ERROR) {
+                              "documentNamespace", achNs) != NO_ERROR) {
             fprintf(stderr, "ERROR: out of memory\n");
             JsonClose(hDocMerged);
             JsonClose(hSrcDoc);
-            spdx_db_free();
+            SpdxCloseDatabase();
             return 1;
         }
     }
 
     if (JsonNewObject(hDocMerged, &hCreation) != NO_ERROR ||
-        JsonNodeSetString(hDocMerged, hCreation, "created", date) != NO_ERROR) {
+        JsonNodeSetString(hDocMerged, hCreation, "created",
+                          achDate) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory\n");
         JsonClose(hDocMerged);
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
     {
@@ -1124,27 +1338,28 @@ int main(int argc, char *argv[]) {
                           &hToolName) != NO_ERROR ||
             JsonArrayAppend(hCreators, hToolName) != NO_ERROR ||
             JsonObjectSet(hCreation, "creators", hCreators) != NO_ERROR ||
-            JsonObjectSet(hMergedRoot, "creationInfo", hCreation) != NO_ERROR) {
+            JsonObjectSet(hMergedRoot, "creationInfo",
+                          hCreation) != NO_ERROR) {
             fprintf(stderr, "ERROR: out of memory\n");
             JsonClose(hDocMerged);
             JsonClose(hSrcDoc);
-            spdx_db_free();
+            SpdxCloseDatabase();
             return 1;
         }
     }
 
-    process_document(input_file, hSrcRoot, hDocMerged, hMergedRoot,
-                     &processed, &rename_map);
+    ProcessDocument(pszInputFile, hSrcRoot, hDocMerged, hMergedRoot,
+                    &processed, &renameMap);
 
-    if (output_file) {
-        if (!freopen(output_file, "w", stdout)) {
+    if (pszOutputFile) {
+        if (!freopen(pszOutputFile, "w", stdout)) {
             fprintf(stderr,
                     "ERROR: cannot open output file: %s\n"
                     "       Check directory permissions.\n",
-                    output_file);
+                    pszOutputFile);
             JsonClose(hDocMerged);
             JsonClose(hSrcDoc);
-            spdx_db_free();
+            SpdxCloseDatabase();
             return 1;
         }
     }
@@ -1154,15 +1369,16 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "ERROR: cannot serialize merged document.\n");
         JsonClose(hDocMerged);
         JsonClose(hSrcDoc);
-        spdx_db_free();
+        SpdxCloseDatabase();
         return 1;
     }
 
     JsonClose(hDocMerged);
     JsonClose(hSrcDoc);
-    free_rename_map(&rename_map);
-    for (i = 0; i < processed.count; i++) free(processed.paths[i]);
-    free(processed.paths);
-    spdx_db_free();
+    FreeRenameMap(&renameMap);
+    for (i = 0; i < (int)processed.ulCount; i++)
+        free(processed.papszPaths[i]);
+    free(processed.papszPaths);
+    SpdxCloseDatabase();
     return 0;
 }

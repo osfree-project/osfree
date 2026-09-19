@@ -12,262 +12,291 @@
 #include "spdx_tag.h"
 #include "sha1.h"
 
-#define PATH_BUF 1024
+/**
+ * @file spdx_sbom_scan.c
+ * @brief Implementation of the SBOM file and snippet collection.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Small helpers                                                       */
+/* ------------------------------------------------------------------ */
 
 /**
- * @brief Fill basic FileInfo: name, SHA-1, file type.
+ * @brief Copy a NUL-terminated string into a fixed buffer.
  *
- * Computes the SHA-1 hash of the file, stores it in @c out->sha1,
- * and sets @c out->file_type from the file extension.
+ * If @p pszSrc is NULL, the destination is set to an empty string.
+ * If the source does not fit, it is truncated.
  *
- * @todo (SPDX 2.3 Annex I) Support additional checksum algorithms
- *       (SHA-224, SHA-256, SHA-384, SHA-512, MD2, MD4, MD5, MD6,
- *       SHA3-256/384/512, BLAKE2b-256/384/512, BLAKE3, ADLER32).
- *       Storage should become SpdxChecksumList rather than a single
- *       sha1 field. SHA-1 remains mandatory per SPDX 2.3 §8.4.
- *
- * @param[in]  fullpath      Path to the file. Not NULL.
- * @param[in]  display_name  Base name to store. Not NULL.
- * @param[out] out           Receiver. Not NULL.
- *
- * @return 0 on success, -1 on error.
+ * @param[out] pszDst     Destination buffer. Not NULL.
+ * @param[in]  ulDstSize  Size of pszDst in bytes. Must be > 0.
+ * @param[in]  pszSrc     Source string, or NULL.
  */
-int sbom_fill_file_basic(const char *fullpath,
-                         const char *display_name,
-                         FileInfo *out) {
-    char hex[41];
-
-    memset(out, 0, sizeof(*out));
-    strncpy(out->name, display_name, sizeof(out->name) - 1);
-
-    if (Sha1File(fullpath, hex, sizeof(hex), NULL) != NO_ERROR) {
-        fprintf(stderr,
-                "ERROR: cannot compute SHA1 for %s\n"
-                "       Check that the file exists and is readable.\n",
-                fullpath);
-        return -1;
-    }
-    strncpy(out->sha1, hex, sizeof(out->sha1) - 1);
-
-    strncpy(out->file_type, sbom_get_file_type(display_name),
-            sizeof(out->file_type) - 1);
-    return 0;
+static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
+    if (!pszSrc) { pszDst[0] = '\0'; return; }
+    strncpy(pszDst, pszSrc, ulDstSize - 1);
+    pszDst[ulDstSize - 1] = '\0';
 }
 
-static int validate_license(const char *fullpath, REUSELICENSEINFO *lic) {
-    const char *bad = NULL;
-    int rc;
+/* ------------------------------------------------------------------ */
+/* License validation                                                  */
+/* ------------------------------------------------------------------ */
 
-    if (lic->license[0] == '\0') {
-        fprintf(stderr,
-                "ERROR: no license information for file: %s\n"
-                "       Fix one of:\n"
-                "         - add 'SPDX-License-Identifier: <id>' tag in the "
-                "file;\n"
-                "         - or create '<file>.license' sidecar;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
-        return -1;
-    }
+/**
+ * @brief Validate the license expression of one file.
+ *
+ * @param[in] pszFullPath  File path. Not NULL.
+ * @param[in] pLic         Resolved license information. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     License is empty.
+ * @retval ERROR_INVALID_DATA       Expression is invalid.
+ */
+static APIRET validate_license(PCSZ pszFullPath,
+                               const REUSELICENSEINFO *pLic) {
+    PCSZ pszBad = NULL;
+    APIRET rc;
 
-    rc = spdx_expression_validate(lic->license, &bad);
-    if (rc == SPDX_EXPR_SYNTAX_ERROR) {
-        fprintf(stderr,
-                "ERROR: %s: invalid SPDX license expression: '%s'\n"
-                "       Fix the expression according to the SPDX grammar:\n"
-                "         https://spdx.github.io/spdx-spec/v2.3/"
-                "SPDX-license-expressions/\n",
-                fullpath, lic->license);
-        return -1;
-    }
-    if (rc == SPDX_EXPR_UNKNOWN_TOKEN) {
-        const char *p = bad;
-        while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-        fprintf(stderr,
-                "ERROR: %s: unknown SPDX identifier: '", fullpath);
-        fwrite(bad, 1, (size_t)(p - bad), stderr);
-        fprintf(stderr,
-                "'\n"
-                "       Not present in SPDX License List. Fix one of:\n"
-                "         - correct the identifier;\n"
-                "         - or use a 'LicenseRef-' identifier for a custom "
-                "license.\n"
-                "       See https://spdx.org/licenses/ for the full list.\n");
-        return -1;
+    if (pLic->achLicense[0] == '\0') {
+        return ERROR_FILE_NOT_FOUND;
     }
 
-    {
-        char buf[256];
-        char *p;
-        strncpy(buf, lic->license, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        p = strtok(buf, " \t()");
-        while (p) {
-            if (strcmp(p, "AND") != 0 &&
-                strcmp(p, "OR")  != 0 &&
-                strcmp(p, "WITH") != 0) {
-                if (spdx_license_is_deprecated(p) ||
-                    spdx_exception_is_deprecated(p)) {
-                    fprintf(stderr,
-                            "WARNING: %s: deprecated SPDX identifier '%s'.\n"
-                            "         The SPDX License List marks this "
-                            "identifier deprecated.\n"
-                            "         Replace it with the current identifier\n"
-                            "         (usually a '-only' or '-or-later' "
-                            "variant).\n"
-                            "         See https://spdx.org/licenses/ for the "
-                            "recommended replacement.\n",
-                            fullpath, p);
-                }
-            }
-            p = strtok(NULL, " \t()");
-        }
-    }
-    return 0;
+    rc = SpdxQueryExpression(pLic->achLicense, &pszBad);
+    if (rc != NO_ERROR) return ERROR_INVALID_DATA;
+
+    (void)pszFullPath;
+    return NO_ERROR;
 }
 
-/* Collect all snippets of one file into the shared SBOM list.
- * For each snippet, verify that a license is present (error if not)
- * and fill the SnippetInfo fields. */
-static int collect_file_snippets(const char *fullpath,
-                                 const char *display_name,
-                                 SnippetList *snippets) {
+/* ------------------------------------------------------------------ */
+/* Snippet collection                                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Collect all snippets of one file into the snippet list.
+ *
+ * For each snippet, the function requires an SPDX-License-Identifier
+ * and validates it. Snippets without a license are rejected.
+ *
+ * @param[in] pszFullPath     Path to the file on disk. Not NULL.
+ * @param[in] pszDisplayName  Base name to store. Not NULL.
+ * @param[in] hSnippets       Destination snippet list. Not
+ *                            NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     A snippet has no license.
+ * @retval ERROR_INVALID_DATA       A snippet license is invalid.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET collect_file_snippets(PCSZ pszFullPath,
+                                    PCSZ pszDisplayName,
+                                    HVECTOR hSnippets) {
     SPDXSNIPPETLIST raw;
-    int i;
-    int rc = 0;
+    APIRET rc = NO_ERROR;
+    ULONG ulIdx;
 
-    if (SpdxFileGetSnippets(fullpath, &raw) != SPDX_TAG_NO_ERROR) {
-        return -1;
-    }
+    if (SpdxQueryFileSnippets(pszFullPath, &raw) != NO_ERROR)
+        return NO_ERROR;
 
-    for (i = 0; i < raw.nCount; i++) {
-        SPDXSNIPPET *rs = &raw.paItems[i];
-        SnippetInfo *s;
+    for (ulIdx = 0; ulIdx < raw.ulCount; ulIdx++) {
+        PSPDXSNIPPET pRaw = &raw.pItems[ulIdx];
+        SPDXSNIPPETINFO info;
+        PCSZ pszBad = NULL;
+        APIRET rcVal;
 
-        if (!rs->pszLicense || rs->pszLicense[0] == '\0') {
-            fprintf(stderr,
-                    "ERROR: %s:%d-%d: snippet has no "
-                    "SPDX-License-Identifier.\n"
-                    "       Fix one of:\n"
-                    "         - add 'SPDX-License-Identifier: <id>' inside "
-                    "the snippet block;\n"
-                    "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
-                    "if the code is not a snippet.\n",
-                    fullpath, rs->nLineStart, rs->nLineEnd);
-            rc = -1;
-            continue;
+        if (!pRaw->pszLicense || pRaw->pszLicense[0] == '\0') {
+            rc = ERROR_FILE_NOT_FOUND;
+            break;
+        }
+        rcVal = SpdxQueryExpression(pRaw->pszLicense, &pszBad);
+        if (rcVal != NO_ERROR) {
+            rc = ERROR_INVALID_DATA;
+            break;
         }
 
-        {
-            const char *bad = NULL;
-            int vrc = spdx_expression_validate(rs->pszLicense, &bad);
-            if (vrc != SPDX_EXPR_OK) {
-                const char *p = bad;
-                fprintf(stderr,
-                        "ERROR: %s:%d-%d: invalid SPDX license expression: '",
-                        fullpath, rs->nLineStart, rs->nLineEnd);
-                if (bad) {
-                    while (*p && *p != ' ' && *p != '(' && *p != ')') p++;
-                    fwrite(bad, 1, (size_t)(p - bad), stderr);
-                }
-                fprintf(stderr,
-                        "'\n"
-                        "       See https://spdx.github.io/spdx-spec/v2.3/"
-                        "SPDX-license-expressions/\n");
-                rc = -1;
-                continue;
-            }
-        }
+        memset(&info, 0, sizeof(info));
+        snprintf(info.achSpdxId, sizeof(info.achSpdxId),
+                 "SPDXRef-Snippet-%lu", (unsigned long)ulIdx);
+        snprintf(info.achFromFileId, sizeof(info.achFromFileId),
+                 "SPDXRef-File-%s", pszDisplayName);
+        copy_field(info.achFromFileName, sizeof(info.achFromFileName),
+                   pszDisplayName);
+        info.ulLineStart = pRaw->ulLineStart;
+        info.ulLineEnd   = pRaw->ulLineEnd;
+        copy_field(info.achLicense, sizeof(info.achLicense),
+                   pRaw->pszLicense);
+        if (pRaw->pszCopyright)
+            copy_field(info.achCopyright, sizeof(info.achCopyright),
+                       pRaw->pszCopyright);
 
-        s = snippetlist_add(snippets);
-        snprintf(s->spdx_id, sizeof(s->spdx_id),
-                 "SPDXRef-Snippet-%d", snippets->count);
-        snprintf(s->from_file_id, sizeof(s->from_file_id),
-                 "SPDXRef-File-%s", display_name);
-        strncpy(s->from_file_name, display_name,
-                sizeof(s->from_file_name) - 1);
-        s->line_start = rs->nLineStart;
-        s->line_end   = rs->nLineEnd;
-        strncpy(s->license, rs->pszLicense, sizeof(s->license) - 1);
-        if (rs->pszCopyright)
-            strncpy(s->copyright, rs->pszCopyright,
-                    sizeof(s->copyright) - 1);
+        rc = SbomAddSnippet(hSnippets, &info);
+        if (rc != NO_ERROR) break;
     }
 
     SpdxSnippetListFree(&raw);
     return rc;
 }
 
-static int process_one_file(const char *fullpath,
-                            const char *display_name,
-                            HREUSETREE hTree,
-                            const char *default_license,
-                            const char *default_copyright,
-                            FileList *out,
-                            SnippetList *snippets) {
-    FileInfo info;
-    REUSELICENSEINFO lic;
+/* ------------------------------------------------------------------ */
+/* Public API                                                          */
+/* ------------------------------------------------------------------ */
 
-    if (sbom_fill_file_basic(fullpath, display_name, &info) != 0)
-        return -1;
+/**
+ * @brief Fill the basic fields of a file entry.
+ *
+ * @param[in]  pszFullPath     Path to the file on disk. Not NULL.
+ * @param[in]  pszDisplayName  Base name to store. Not NULL.
+ * @param[out] pInfo           Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error while hashing.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomFillFileBasic(
+    PCSZ pszFullPath,
+    PCSZ pszDisplayName,
+    PSPDXFILEINFO pInfo)
+{
+    CHAR achHex[41];
+    PSZ pszFileType = NULL;
+    APIRET rc;
 
-    if (ReuseResolveLicense(hTree, fullpath,
-                            default_license, default_copyright,
-                            &lic) != REUSE_NO_ERROR) {
-        fprintf(stderr,
-                "ERROR: no license information for file: %s\n"
-                "       Fix one of:\n"
-                "         - add 'SPDX-License-Identifier: <id>' tag in the "
-                "file;\n"
-                "         - or create '<file>.license' sidecar;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml.\n",
-                fullpath);
-        return -1;
+    if (!pszFullPath || !pszDisplayName || !pInfo)
+        return ERROR_INVALID_PARAMETER;
+
+    memset(pInfo, 0, sizeof(*pInfo));
+    copy_field(pInfo->achName, sizeof(pInfo->achName), pszDisplayName);
+
+    rc = Sha1File(pszFullPath, achHex, sizeof(achHex), NULL);
+    if (rc != NO_ERROR) return rc;
+
+    copy_field(pInfo->achSha1, sizeof(pInfo->achSha1), achHex);
+
+    rc = SbomQueryFileType(pszDisplayName, &pszFileType);
+    if (rc != NO_ERROR) return rc;
+    if (pszFileType) {
+        copy_field(pInfo->achFileType, sizeof(pInfo->achFileType),
+                   pszFileType);
+        free(pszFileType);
     }
-
-    if (validate_license(fullpath, &lic) != 0)
-        return -1;
-
-    strncpy(info.license, lic.license, sizeof(info.license) - 1);
-    strncpy(info.copyright, lic.copyright, sizeof(info.copyright) - 1);
-
-    filelist_add(out, &info);
-
-    if (snippets) {
-        if (collect_file_snippets(fullpath, display_name, snippets) != 0)
-            return -1;
-    }
-    return 0;
+    return NO_ERROR;
 }
 
-int sbom_collect_files(HSTRSET hPaths,
-                       HREUSETREE hTree,
-                       const char *default_license,
-                       const char *default_copyright,
-                       FileList *out,
-                       SnippetList *snippets) {
-    HSTRSETENUM hEnum = NULLHANDLE;
-    int rc = 0;
+/**
+ * @brief Process one file: fill, resolve, validate, append.
+ *
+ * @param[in] pszFullPath           Path to the file on disk.
+ * @param[in] pszDisplayName        Base name to store.
+ * @param[in] hTree                 REUSE project handle, or
+ *                                  NULLHANDLE.
+ * @param[in] pszDefaultLicense     Fallback license, or NULL.
+ * @param[in] pszDefaultCopyright   Fallback copyright, or NULL.
+ * @param[in] hFiles                Destination file list.
+ * @param[in] hSnippets             Destination snippet list, or
+ *                                  NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     File has no license information.
+ * @retval ERROR_INVALID_DATA       License expression is invalid.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET process_one_file(
+    PCSZ pszFullPath,
+    PCSZ pszDisplayName,
+    HREUSETREE hTree,
+    PCSZ pszDefaultLicense,
+    PCSZ pszDefaultCopyright,
+    HVECTOR hFiles,
+    HVECTOR hSnippets)
+{
+    SPDXFILEINFO info;
+    REUSELICENSEINFO lic;
+    APIRET rc;
 
-    if (hPaths == NULLHANDLE) return -1;
-    if (StrSetEnumFirst(hPaths, &hEnum) != NO_ERROR) return 0;
+    rc = SbomFillFileBasic(pszFullPath, pszDisplayName, &info);
+    if (rc != NO_ERROR) return rc;
+
+    rc = ReuseResolveLicense(hTree, pszFullPath,
+                             pszDefaultLicense, pszDefaultCopyright,
+                             &lic);
+    if (rc != NO_ERROR) return ERROR_FILE_NOT_FOUND;
+
+    rc = validate_license(pszFullPath, &lic);
+    if (rc != NO_ERROR) return rc;
+
+    copy_field(info.achLicense, sizeof(info.achLicense), lic.achLicense);
+    copy_field(info.achCopyright, sizeof(info.achCopyright),
+               lic.achCopyright);
+
+    rc = SbomAddFile(hFiles, &info);
+    if (rc != NO_ERROR) return rc;
+
+    if (hSnippets != NULLHANDLE) {
+        rc = collect_file_snippets(pszFullPath, pszDisplayName, hSnippets);
+        if (rc != NO_ERROR) return rc;
+    }
+    return NO_ERROR;
+}
+
+/**
+ * @brief Collect all files and snippets for the SBOM.
+ *
+ * @param[in] hPaths              Set of file paths. Not NULLHANDLE.
+ * @param[in] hTree               REUSE project handle, or
+ *                                NULLHANDLE.
+ * @param[in] pszDefaultLicense   Fallback license, or NULL.
+ * @param[in] pszDefaultCopyright Fallback copyright, or NULL.
+ * @param[in] hFiles              Destination file list. Not
+ *                                NULLHANDLE.
+ * @param[in] hSnippets           Destination snippet list, or
+ *                                NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hPaths or hFiles is NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE     hPaths or hFiles is not
+ *                                  recognized.
+ * @retval ERROR_FILE_NOT_FOUND     A file has no license information.
+ * @retval ERROR_INVALID_DATA       A license expression is invalid.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCollectFiles(
+    HSTRSET hPaths,
+    HREUSETREE hTree,
+    PCSZ pszDefaultLicense,
+    PCSZ pszDefaultCopyright,
+    HVECTOR hFiles,
+    HVECTOR hSnippets)
+{
+    HSTRSETENUM hEnum = NULLHANDLE;
+    APIRET rc = NO_ERROR;
+
+    if (hPaths == NULLHANDLE || hFiles == NULLHANDLE)
+        return ERROR_INVALID_PARAMETER;
+
+    if (StrSetEnumFirst(hPaths, &hEnum) != NO_ERROR)
+        return NO_ERROR;
 
     do {
-        char full[PATH_BUF];
-        const char *name;
+        CHAR achFull[1024];
+        PCSZ pszName;
 
-        if (StrSetEnumGet(hEnum, full, sizeof(full), NULL) != NO_ERROR)
+        if (StrSetEnumGet(hEnum, achFull, sizeof(achFull), NULL)
+                != NO_ERROR)
             continue;
 
-        name = SpdxGetFileName(full);
-        if (process_one_file(full, name, hTree,
-                             default_license, default_copyright,
-                             out, snippets) != 0) {
-            rc = -1;
-            break;
-        }
+        pszName = SpdxGetFileName(achFull);
+        rc = process_one_file(achFull, pszName, hTree,
+                              pszDefaultLicense, pszDefaultCopyright,
+                              hFiles, hSnippets);
+        if (rc != NO_ERROR) break;
     } while (StrSetEnumNext(hEnum) == NO_ERROR);
-    StrSetEnumClose(hEnum);
 
+    StrSetEnumClose(hEnum);
     return rc;
 }
