@@ -1,19 +1,39 @@
-/* spdx_db.c - библиотека SPDX license list (C89, OpenWatcom) */
+/* spdx_db.c - SPDX license list database (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "spdx_db.h"
-#include "json_parser.h"
+#include "json.h"
 #include "sha1.h"
 #include "spdx.h"
+
+/**
+ * @file spdx_db.c
+ * @brief Implementation of the SPDX license list database.
+ *
+ * Conforms to:
+ *   - SPDX License List.
+ *     https://spdx.org/licenses/
+ *   - SPDX 2.3, Annex D.2 (case-insensitive identifier comparison).
+ *   - SPDX 2.3, Annex D (license expression grammar).
+ *
+ * The database is loaded from a directory that contains:
+ *   - licenses.json
+ *   - exceptions.json
+ *   - details/<id>.json
+ *   - exceptions/<id>.json
+ *
+ * A binary cache stores both the index and the details to avoid
+ * re-parsing the JSON files on every run.
+ */
 
 #define CACHE_MAGIC   "SPDXDB06"
 #define CACHE_VERSION 7
 
 /* ------------------------------------------------------------------ */
-/* Структуры                                                           */
+/* Internal structures                                                 */
 /* ------------------------------------------------------------------ */
 
 typedef struct {
@@ -36,18 +56,34 @@ static char  *g_details_dir = NULL;
 static char  *g_exceptions_dir = NULL;
 
 /* ------------------------------------------------------------------ */
-/* Утилиты                                                             */
+/* Utilities                                                           */
 /* ------------------------------------------------------------------ */
 
-
-/* SPDX 2.3 Annex D.2: license и exception идентификаторы
- * сопоставляются регистронезависимо. Используем ASCII-lowercase,
- * а не tolower(), чтобы результат не зависел от локали. */
+/**
+ * @brief Lower-case an ASCII letter.
+ *
+ * Unlike tolower(), the result does not depend on the current locale.
+ * SPDX 2.3 Annex D.2 requires case-insensitive identifier comparison
+ * on ASCII characters only.
+ *
+ * @param[in] c  Character.
+ *
+ * @return Lower-case equivalent for A-Z, unchanged otherwise.
+ */
 static int ascii_lower(int c) {
     if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
     return c;
 }
 
+/**
+ * @brief Case-insensitive comparison of two ASCII strings.
+ *
+ * @param[in] a  First string. Not NULL.
+ * @param[in] b  Second string. Not NULL.
+ *
+ * @return Negative, zero or positive, following the usual ordering
+ *         contract.
+ */
 static int id_cmp_ci(const char *a, const char *b) {
     while (*a && *b) {
         int ca = ascii_lower((unsigned char)*a);
@@ -59,6 +95,13 @@ static int id_cmp_ci(const char *a, const char *b) {
     return (int)(unsigned char)*a - (int)(unsigned char)*b;
 }
 
+/**
+ * @brief Duplicate a NUL-terminated string.
+ *
+ * @param[in] s  Source string, or NULL.
+ *
+ * @return malloc'd copy, or NULL on OOM or if @p s is NULL.
+ */
 static char *dup_str(const char *s) {
     size_t n;
     char *p;
@@ -69,6 +112,11 @@ static char *dup_str(const char *s) {
     return p;
 }
 
+/**
+ * @brief Free a NULL-terminated array of strings.
+ *
+ * @param[in] list  Array, or NULL.
+ */
 static void free_strlist(char **list) {
     int i;
     if (!list) return;
@@ -77,9 +125,16 @@ static void free_strlist(char **list) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Динамические массивы                                                */
+/* License and exception lists                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Initialize an empty license list.
+ *
+ * On OOM the process is terminated.
+ *
+ * @param[out] l  List. Not NULL.
+ */
 static void license_list_init(LicenseList *l) {
     l->count = 0;
     l->capacity = 16;
@@ -88,6 +143,15 @@ static void license_list_init(LicenseList *l) {
     if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
 }
 
+/**
+ * @brief Append a new entry to a license list, growing it if needed.
+ *
+ * On OOM the process is terminated.
+ *
+ * @param[in,out] l  List. Not NULL.
+ *
+ * @return Pointer to the new entry, zero-filled.
+ */
 static SpdxLicenseEntry *license_list_add(LicenseList *l) {
     SpdxLicenseEntry *e;
     if (l->count >= l->capacity) {
@@ -101,6 +165,11 @@ static SpdxLicenseEntry *license_list_add(LicenseList *l) {
     return e;
 }
 
+/**
+ * @brief Release all memory owned by a license list.
+ *
+ * @param[in,out] l  List. Not NULL.
+ */
 static void license_list_free(LicenseList *l) {
     int i;
     for (i = 0; i < l->count; i++) {
@@ -118,6 +187,13 @@ static void license_list_free(LicenseList *l) {
     l->capacity = 0;
 }
 
+/**
+ * @brief Initialize an empty exception list.
+ *
+ * On OOM the process is terminated.
+ *
+ * @param[out] l  List. Not NULL.
+ */
 static void exception_list_init(ExceptionList *l) {
     l->count = 0;
     l->capacity = 16;
@@ -126,19 +202,33 @@ static void exception_list_init(ExceptionList *l) {
     if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
 }
 
+/**
+ * @brief Append a new entry to an exception list, growing it if needed.
+ *
+ * On OOM the process is terminated.
+ *
+ * @param[in,out] l  List. Not NULL.
+ *
+ * @return Pointer to the new entry, zero-filled.
+ */
 static SpdxExceptionEntry *exception_list_add(ExceptionList *l) {
     SpdxExceptionEntry *e;
     if (l->count >= l->capacity) {
         l->capacity *= 2;
         l->items = (SpdxExceptionEntry*)realloc(l->items,
             (size_t)l->capacity * sizeof(SpdxExceptionEntry));
-    if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
+        if (!l->items) { fprintf(stderr, "ERROR: out of memory\n"); exit(EXIT_FAILURE); }
     }
     e = &l->items[l->count++];
     memset(e, 0, sizeof(*e));
     return e;
 }
 
+/**
+ * @brief Release all memory owned by an exception list.
+ *
+ * @param[in,out] l  List. Not NULL.
+ */
 static void exception_list_free(ExceptionList *l) {
     int i;
     for (i = 0; i < l->count; i++) {
@@ -157,18 +247,32 @@ static void exception_list_free(ExceptionList *l) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Сортировка и бинарный поиск                                         */
+/* Sorting and binary search                                           */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief qsort comparator for license entries.
+ */
 static int cmp_lic(const void *a, const void *b) {
     return id_cmp_ci(((const SpdxLicenseEntry*)a)->id,
                      ((const SpdxLicenseEntry*)b)->id);
 }
+
+/**
+ * @brief qsort comparator for exception entries.
+ */
 static int cmp_exc(const void *a, const void *b) {
     return id_cmp_ci(((const SpdxExceptionEntry*)a)->id,
                      ((const SpdxExceptionEntry*)b)->id);
 }
 
+/**
+ * @brief Binary search lower bound in the license list.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return Index of the first entry not less than @p id.
+ */
 static int lic_lower_bound(const char *id) {
     int lo = 0, hi = g_licenses.count;
     while (lo < hi) {
@@ -179,6 +283,13 @@ static int lic_lower_bound(const char *id) {
     return lo;
 }
 
+/**
+ * @brief Binary search lower bound in the exception list.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return Index of the first entry not less than @p id.
+ */
 static int exc_lower_bound(const char *id) {
     int lo = 0, hi = g_exceptions.count;
     while (lo < hi) {
@@ -190,94 +301,219 @@ static int exc_lower_bound(const char *id) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Разбор JSON-индекса                                                 */
+/* JSON helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-static char **parse_string_array(JsonNode *arr) {
-    int n, i;
-    char **out;
-    if (!arr || arr->type != JSON_ARRAY) return NULL;
-    n = arr->child_count;
-    out = (char**)malloc((size_t)(n + 1) * sizeof(char*));
-    if (!out) return NULL;
-    for (i = 0; i < n; i++) {
-        const char *s = json_get_string(arr->children[i]);
-        out[i] = s ? dup_str(s) : NULL;
+/**
+ * @brief Duplicate a JSON string node into a fresh buffer.
+ *
+ * @param[in] hNode  Node handle. May be NULLHANDLE.
+ *
+ * @return malloc'd string, or NULL if the node is absent, not a
+ *         string, or on OOM.
+ */
+static char *json_dup_string(HJSONNODE hNode) {
+    ULONG ulSize = 0;
+    char *buf;
+    if (hNode == NULLHANDLE) return NULL;
+    if (JsonNodeGetString(hNode, NULL, 0, &ulSize) != NO_ERROR) return NULL;
+    if (ulSize == 0) return NULL;
+    buf = (char*)malloc(ulSize);
+    if (!buf) return NULL;
+    if (JsonNodeGetString(hNode, buf, ulSize, NULL) != NO_ERROR) {
+        free(buf);
+        return NULL;
     }
-    out[n] = NULL;
+    return buf;
+}
+
+/**
+ * @brief Read a boolean field from a JSON object.
+ *
+ * @param[in]  hParent  Object handle. Not NULLHANDLE.
+ * @param[in]  pszKey   Field name. Not NULL.
+ * @param[out] pfValue  Receiver. Not NULL.
+ *
+ * @return 1 if the field exists and is a boolean, 0 otherwise.
+ */
+static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
+    HJSONNODE hChild = NULLHANDLE;
+    BOOL fVal = FALSE_;
+    if (hParent == NULLHANDLE) return 0;
+    if (JsonNodeGetChild(hParent, pszKey, &hChild) != NO_ERROR) return 0;
+    if (JsonNodeGetBoolean(hChild, &fVal) != NO_ERROR) return 0;
+    *pfValue = fVal;
+    return 1;
+}
+
+/**
+ * @brief Convert a JSON array of strings into a NULL-terminated
+ *        array of malloc'd strings.
+ *
+ * @param[in] hArr  Array node, or NULLHANDLE.
+ *
+ * @return malloc'd array, or NULL if @p hArr is absent or not an
+ *         array.
+ */
+static char **parse_string_array(HJSONNODE hArr) {
+    ULONG ulCount, ulType, i;
+    char **out;
+    if (hArr == NULLHANDLE) return NULL;
+    if (JsonNodeGetType(hArr, &ulType) != NO_ERROR) return NULL;
+    if (ulType != (ULONG)JSON_ARRAY) return NULL;
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) return NULL;
+    out = (char**)malloc((size_t)(ulCount + 1) * sizeof(char*));
+    if (!out) return NULL;
+    for (i = 0; i < ulCount; i++) {
+        HJSONNODE hElem = NULLHANDLE;
+        out[i] = NULL;
+        if (JsonNodeGetElement(hArr, i, &hElem) == NO_ERROR) {
+            out[i] = json_dup_string(hElem);
+        }
+    }
+    out[ulCount] = NULL;
     return out;
 }
 
+/* ------------------------------------------------------------------ */
+/* Index loading                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Load the licenses index from licenses.json.
+ *
+ * @param[in] path  Path to licenses.json. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int load_licenses_index(const char *path) {
     char *text = NULL;
-    JsonNode *root, *arr;
-    int i;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hArr = NULLHANDLE;
+    ULONG ulCount = 0;
+    ULONG i;
+
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    arr = json_find_child(root, "licenses");
-    if (!arr || arr->type != JSON_ARRAY) { json_free(root); return -1; }
-    for (i = 0; i < arr->child_count; i++) {
-        JsonNode *item = arr->children[i];
-        JsonNode *id_n  = json_find_child(item, "licenseId");
-        JsonNode *nm_n  = json_find_child(item, "name");
-        JsonNode *osi_n = json_find_child(item, "isOsiApproved");
-        JsonNode *fsf_n = json_find_child(item, "isFsfLibre");
-        JsonNode *dep_n = json_find_child(item, "isDeprecatedLicenseId");
-        JsonNode *see_n = json_find_child(item, "seeAlso");
-        SpdxLicenseEntry *e;
-        const char *id = id_n ? json_get_string(id_n) : NULL;
-        if (!id) continue;
-        e = license_list_add(&g_licenses);
-        e->id = dup_str(id);
-        if (nm_n) e->name = dup_str(json_get_string(nm_n));
-        if (osi_n && osi_n->type == JSON_BOOLEAN && osi_n->bool_value)
-            e->flags |= SPDX_DB_FLAG_OSI;
-        if (fsf_n && fsf_n->type == JSON_BOOLEAN && fsf_n->bool_value)
-            e->flags |= SPDX_DB_FLAG_FSF_LIBRE;
-        if (dep_n && dep_n->type == JSON_BOOLEAN && dep_n->bool_value)
-            e->flags |= SPDX_DB_FLAG_DEPRECATED;
-        e->see_also = parse_string_array(see_n);
+
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+    if (JsonNodeGetChild(hRoot, "licenses", &hArr) != NO_ERROR) {
+        JsonClose(hDoc);
+        return -1;
     }
-    json_free(root);
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) {
+        JsonClose(hDoc);
+        return -1;
+    }
+
+    for (i = 0; i < ulCount; i++) {
+        HJSONNODE hItem = NULLHANDLE;
+        HJSONNODE hChild = NULLHANDLE;
+        SpdxLicenseEntry *e;
+        char *id;
+
+        if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
+        if (JsonNodeGetChild(hItem, "licenseId", &hChild) != NO_ERROR)
+            continue;
+        id = json_dup_string(hChild);
+        if (!id) continue;
+
+        e = license_list_add(&g_licenses);
+        e->id = id;
+
+        if (JsonNodeGetChild(hItem, "name", &hChild) == NO_ERROR)
+            e->name = json_dup_string(hChild);
+
+        {
+            BOOL fVal = FALSE_;
+            if (json_get_bool(hItem, "isOsiApproved", &fVal) && fVal)
+                e->flags |= SPDX_DB_FLAG_OSI;
+            if (json_get_bool(hItem, "isFsfLibre", &fVal) && fVal)
+                e->flags |= SPDX_DB_FLAG_FSF_LIBRE;
+            if (json_get_bool(hItem, "isDeprecatedLicenseId", &fVal) && fVal)
+                e->flags |= SPDX_DB_FLAG_DEPRECATED;
+        }
+
+        if (JsonNodeGetChild(hItem, "seeAlso", &hChild) == NO_ERROR)
+            e->see_also = parse_string_array(hChild);
+    }
+
+    JsonClose(hDoc);
     return 0;
 }
 
+/**
+ * @brief Load the exceptions index from exceptions.json.
+ *
+ * @param[in] path  Path to exceptions.json. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int load_exceptions_index(const char *path) {
     char *text = NULL;
-    JsonNode *root, *arr;
-    int i;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hArr = NULLHANDLE;
+    ULONG ulCount = 0;
+    ULONG i;
+
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    arr = json_find_child(root, "exceptions");
-    if (!arr || arr->type != JSON_ARRAY) { json_free(root); return -1; }
-    for (i = 0; i < arr->child_count; i++) {
-        JsonNode *item = arr->children[i];
-        JsonNode *id_n  = json_find_child(item, "licenseExceptionId");
-        JsonNode *nm_n  = json_find_child(item, "name");
-        JsonNode *dep_n = json_find_child(item, "isDeprecatedLicenseId");
-        JsonNode *see_n = json_find_child(item, "seeAlso");
-        SpdxExceptionEntry *e;
-        const char *id = id_n ? json_get_string(id_n) : NULL;
-        if (!id) continue;
-        e = exception_list_add(&g_exceptions);
-        e->id = dup_str(id);
-        if (nm_n) e->name = dup_str(json_get_string(nm_n));
-        if (dep_n && dep_n->type == JSON_BOOLEAN && dep_n->bool_value)
-            e->flags |= SPDX_DB_FLAG_DEPRECATED;
-        e->see_also = parse_string_array(see_n);
+
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+    if (JsonNodeGetChild(hRoot, "exceptions", &hArr) != NO_ERROR) {
+        JsonClose(hDoc);
+        return -1;
     }
-    json_free(root);
+    if (JsonNodeGetCount(hArr, &ulCount) != NO_ERROR) {
+        JsonClose(hDoc);
+        return -1;
+    }
+
+    for (i = 0; i < ulCount; i++) {
+        HJSONNODE hItem = NULLHANDLE;
+        HJSONNODE hChild = NULLHANDLE;
+        SpdxExceptionEntry *e;
+        char *id;
+
+        if (JsonNodeGetElement(hArr, i, &hItem) != NO_ERROR) continue;
+        if (JsonNodeGetChild(hItem, "licenseExceptionId", &hChild) != NO_ERROR)
+            continue;
+        id = json_dup_string(hChild);
+        if (!id) continue;
+
+        e = exception_list_add(&g_exceptions);
+        e->id = id;
+
+        if (JsonNodeGetChild(hItem, "name", &hChild) == NO_ERROR)
+            e->name = json_dup_string(hChild);
+
+        {
+            BOOL fVal = FALSE_;
+            if (json_get_bool(hItem, "isDeprecatedLicenseId", &fVal) && fVal)
+                e->flags |= SPDX_DB_FLAG_DEPRECATED;
+        }
+
+        if (JsonNodeGetChild(hItem, "seeAlso", &hChild) == NO_ERROR)
+            e->see_also = parse_string_array(hChild);
+    }
+
+    JsonClose(hDoc);
     return 0;
 }
 
 /* ------------------------------------------------------------------ */
-/* Бинарные примитивы                                                  */
+/* Binary cache primitives                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Write a 32-bit value in little-endian order.
+ */
 static int write_u32(FILE *f, unsigned long v) {
     unsigned char b[4];
     b[0] = (unsigned char)(v & 0xFF);
@@ -286,6 +522,10 @@ static int write_u32(FILE *f, unsigned long v) {
     b[3] = (unsigned char)((v >> 24) & 0xFF);
     return fwrite(b, 1, 4, f) == 4 ? 0 : -1;
 }
+
+/**
+ * @brief Read a 32-bit little-endian value.
+ */
 static int read_u32(FILE *f, unsigned long *out) {
     unsigned char b[4];
     if (fread(b, 1, 4, f) != 4) return -1;
@@ -295,13 +535,24 @@ static int read_u32(FILE *f, unsigned long *out) {
            ((unsigned long)b[3] << 24);
     return 0;
 }
+
+/**
+ * @brief Write one byte.
+ */
 static int write_u8v(FILE *f, unsigned char v) {
     return fwrite(&v, 1, 1, f) == 1 ? 0 : -1;
 }
+
+/**
+ * @brief Read one byte.
+ */
 static int read_u8v(FILE *f, unsigned char *v) {
     return fread(v, 1, 1, f) == 1 ? 0 : -1;
 }
 
+/**
+ * @brief Write a length-prefixed string.
+ */
 static int write_str32(FILE *f, const char *s) {
     size_t n = s ? strlen(s) : 0;
     if (write_u32(f, (unsigned long)n) != 0) return -1;
@@ -309,6 +560,14 @@ static int write_str32(FILE *f, const char *s) {
     return 0;
 }
 
+/**
+ * @brief Read a length-prefixed string.
+ *
+ * @param[in]  f    File. Not NULL.
+ * @param[out] out  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int read_str32(FILE *f, char **out) {
     unsigned long n;
     char *s;
@@ -322,9 +581,21 @@ static int read_str32(FILE *f, char **out) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Запись кеш-файла                                                    */
+/* Cache writing                                                       */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Write a detail block (text + template + html) to the cache.
+ *
+ * @param[in]  f           File. Not NULL.
+ * @param[in]  text        License text, or NULL.
+ * @param[in]  tmpl        Standard template, or NULL.
+ * @param[in]  html        HTML text, or NULL.
+ * @param[out] out_offset  Offset of the block. Not NULL.
+ * @param[out] out_size    Size of the block. Not NULL.
+ *
+ * @return 0 on success, -1 on write error.
+ */
 static int write_detail_block(FILE *f, const char *text,
                               const char *tmpl, const char *html,
                               unsigned long *out_offset,
@@ -346,6 +617,9 @@ static int write_detail_block(FILE *f, const char *text,
     return 0;
 }
 
+/**
+ * @brief Write one license index record to the cache.
+ */
 static int write_index_record(FILE *f, const SpdxLicenseEntry *e) {
     int i;
     if (write_str32(f, e->id) != 0) return -1;
@@ -363,6 +637,9 @@ static int write_index_record(FILE *f, const SpdxLicenseEntry *e) {
     return 0;
 }
 
+/**
+ * @brief Write one exception index record to the cache.
+ */
 static int write_index_record_exc(FILE *f, const SpdxExceptionEntry *e) {
     int i;
     if (write_str32(f, e->id) != 0) return -1;
@@ -380,68 +657,96 @@ static int write_index_record_exc(FILE *f, const SpdxExceptionEntry *e) {
     return 0;
 }
 
+/**
+ * @brief Read a license detail from details/<id>.json and write it
+ *        to the cache.
+ */
 static int write_license_detail_from_json(FILE *f, const char *id,
                                           unsigned long *out_offset,
                                           unsigned long *out_size) {
     char path[2048];
     char *text = NULL;
-    JsonNode *root, *n;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hChild = NULLHANDLE;
+    char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
+    int rc = -1;
 
     snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, id);
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    {
-        const char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
-        n = json_find_child(root, "licenseText");
-        if (n) s_text = json_get_string(n);
-        n = json_find_child(root, "standardLicenseTemplate");
-        if (n) s_tmpl = json_get_string(n);
-        n = json_find_child(root, "licenseTextHtml");
-        if (n) s_html = json_get_string(n);
 
-        if (write_detail_block(f, s_text, s_tmpl, s_html,
-                               out_offset, out_size) != 0) {
-            json_free(root);
-            return -1;
-        }
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+
+    if (JsonNodeGetChild(hRoot, "licenseText", &hChild) == NO_ERROR)
+        s_text = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild) == NO_ERROR)
+        s_tmpl = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseTextHtml", &hChild) == NO_ERROR)
+        s_html = json_dup_string(hChild);
+
+    if (write_detail_block(f, s_text, s_tmpl, s_html,
+                           out_offset, out_size) == 0) {
+        rc = 0;
     }
-    json_free(root);
-    return 0;
+
+    free(s_text);
+    free(s_tmpl);
+    free(s_html);
+    JsonClose(hDoc);
+    return rc;
 }
 
+/**
+ * @brief Read an exception detail from exceptions/<id>.json and
+ *        write it to the cache.
+ */
 static int write_exception_detail_from_json(FILE *f, const char *id,
                                             unsigned long *out_offset,
                                             unsigned long *out_size) {
     char path[2048];
     char *text = NULL;
-    JsonNode *root, *n;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hChild = NULLHANDLE;
+    char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
+    int rc = -1;
 
     snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, id);
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    {
-        const char *s_text = NULL, *s_tmpl = NULL, *s_html = NULL;
-        n = json_find_child(root, "licenseExceptionText");
-        if (n) s_text = json_get_string(n);
-        n = json_find_child(root, "licenseExceptionTemplate");
-        if (n) s_tmpl = json_get_string(n);
-        n = json_find_child(root, "exceptionTextHtml");
-        if (n) s_html = json_get_string(n);
 
-        if (write_detail_block(f, s_text, s_tmpl, s_html,
-                               out_offset, out_size) != 0) {
-            json_free(root);
-            return -1;
-        }
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+
+    if (JsonNodeGetChild(hRoot, "licenseExceptionText", &hChild) == NO_ERROR)
+        s_text = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild) == NO_ERROR)
+        s_tmpl = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "exceptionTextHtml", &hChild) == NO_ERROR)
+        s_html = json_dup_string(hChild);
+
+    if (write_detail_block(f, s_text, s_tmpl, s_html,
+                           out_offset, out_size) == 0) {
+        rc = 0;
     }
-    json_free(root);
-    return 0;
+
+    free(s_text);
+    free(s_tmpl);
+    free(s_html);
+    JsonClose(hDoc);
+    return rc;
 }
 
+/**
+ * @brief Compute a raw 20-byte SHA-1 of a file.
+ *
+ * @param[in]  path  Path to the file. Not NULL.
+ * @param[out] out   20-byte digest.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int compute_sha1_raw(const char *path, unsigned char out[20]) {
     char hex[41];
     int i;
@@ -456,6 +761,15 @@ static int compute_sha1_raw(const char *path, unsigned char out[20]) {
     return 0;
 }
 
+/**
+ * @brief Build the binary cache file.
+ *
+ * @param[in] cache_path   Cache file path. Not NULL.
+ * @param[in] sha1_lic     SHA-1 of licenses.json.
+ * @param[in] sha1_exc     SHA-1 of exceptions.json.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int build_cache(const char *cache_path,
                        const unsigned char sha1_lic[20],
                        const unsigned char sha1_exc[20]) {
@@ -533,9 +847,12 @@ static int build_cache(const char *cache_path,
 }
 
 /* ------------------------------------------------------------------ */
-/* Чтение кеш-файла                                                    */
+/* Cache reading                                                       */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Read one license index record from the cache.
+ */
 static int read_license_index_record(FILE *f, SpdxLicenseEntry *e) {
     unsigned long cnt, i;
     if (read_str32(f, &e->id) != 0) return -1;
@@ -559,6 +876,9 @@ static int read_license_index_record(FILE *f, SpdxLicenseEntry *e) {
     return 0;
 }
 
+/**
+ * @brief Read one exception index record from the cache.
+ */
 static int read_exception_index_record(FILE *f, SpdxExceptionEntry *e) {
     unsigned long cnt, i;
     if (read_str32(f, &e->id) != 0) return -1;
@@ -582,6 +902,16 @@ static int read_exception_index_record(FILE *f, SpdxExceptionEntry *e) {
     return 0;
 }
 
+/**
+ * @brief Load the binary cache file if its content matches the
+ *        expected source hashes.
+ *
+ * @param[in] path         Cache file path. Not NULL.
+ * @param[in] expect_lic   Expected SHA-1 of licenses.json.
+ * @param[in] expect_exc   Expected SHA-1 of exceptions.json.
+ *
+ * @return 0 on success, -1 on error or mismatch.
+ */
 static int load_cache(const char *path,
                       const unsigned char expect_lic[20],
                       const unsigned char expect_exc[20]) {
@@ -626,9 +956,12 @@ static int load_cache(const char *path,
 }
 
 /* ------------------------------------------------------------------ */
-/* Ленивое чтение деталей из кеша                                      */
+/* Lazy detail loading                                                 */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Read a detail block from the cache.
+ */
 static int read_detail_from_cache(unsigned long offset, unsigned long size,
                                   char **out_text, char **out_tmpl,
                                   char **out_html) {
@@ -698,48 +1031,78 @@ static int read_detail_from_cache(unsigned long offset, unsigned long size,
     return 0;
 }
 
+/**
+ * @brief Read a license detail from details/<id>.json.
+ */
 static int read_license_detail_from_dir(SpdxLicenseEntry *e) {
     char path[2048];
     char *text = NULL;
-    JsonNode *root, *n;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hChild = NULLHANDLE;
+
     snprintf(path, sizeof(path), "%s/%s.json", g_details_dir, e->id);
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    n = json_find_child(root, "licenseText");
-    if (n) e->text = dup_str(json_get_string(n));
-    n = json_find_child(root, "standardLicenseTemplate");
-    if (n) e->template = dup_str(json_get_string(n));
-    n = json_find_child(root, "licenseTextHtml");
-    if (n) e->text_html = dup_str(json_get_string(n));
-    json_free(root);
+
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+
+    if (JsonNodeGetChild(hRoot, "licenseText", &hChild) == NO_ERROR)
+        e->text = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "standardLicenseTemplate", &hChild) == NO_ERROR)
+        e->template = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseTextHtml", &hChild) == NO_ERROR)
+        e->text_html = json_dup_string(hChild);
+
+    JsonClose(hDoc);
     return 0;
 }
 
+/**
+ * @brief Read an exception detail from exceptions/<id>.json.
+ */
 static int read_exception_detail_from_dir(SpdxExceptionEntry *e) {
     char path[2048];
     char *text = NULL;
-    JsonNode *root, *n;
+    HJSONDOC hDoc = NULLHANDLE;
+    HJSONNODE hRoot = NULLHANDLE;
+    HJSONNODE hChild = NULLHANDLE;
+
     snprintf(path, sizeof(path), "%s/%s.json", g_exceptions_dir, e->id);
     if (SpdxReadFileAll(path, &text, NULL) != NO_ERROR) return -1;
-    root = json_parse(text);
+    if (JsonParse(text, &hDoc) != NO_ERROR) { free(text); return -1; }
     free(text);
-    if (!root) return -1;
-    n = json_find_child(root, "licenseExceptionText");
-    if (n) e->text = dup_str(json_get_string(n));
-    n = json_find_child(root, "licenseExceptionTemplate");
-    if (n) e->template = dup_str(json_get_string(n));
-    n = json_find_child(root, "exceptionTextHtml");
-    if (n) e->text_html = dup_str(json_get_string(n));
-    json_free(root);
+
+    if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
+
+    if (JsonNodeGetChild(hRoot, "licenseExceptionText", &hChild) == NO_ERROR)
+        e->text = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "licenseExceptionTemplate", &hChild) == NO_ERROR)
+        e->template = json_dup_string(hChild);
+    if (JsonNodeGetChild(hRoot, "exceptionTextHtml", &hChild) == NO_ERROR)
+        e->text_html = json_dup_string(hChild);
+
+    JsonClose(hDoc);
     return 0;
 }
 
 /* ------------------------------------------------------------------ */
-/* Публичный API                                                       */
+/* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @brief Initialize the SPDX license database.
+ *
+ * Reads the licenses and exceptions indexes, either from a binary
+ * cache (if the source hashes match) or directly from the JSON
+ * files. Details are loaded lazily.
+ *
+ * @param[in] spdx_db_root  Database root directory. Not NULL.
+ * @param[in] cache_file    Cache file path, or NULL for no caching.
+ *
+ * @return Bitmask of SPDX_DB_ERR_* flags. Zero on full success.
+ */
 int spdx_db_init(const char *spdx_db_root, const char *cache_file) {
     unsigned char sha1_lic[20], sha1_exc[20];
     int errs = 0;
@@ -803,6 +1166,9 @@ int spdx_db_init(const char *spdx_db_root, const char *cache_file) {
     return errs;
 }
 
+/**
+ * @brief Release all memory owned by the database.
+ */
 void spdx_db_free(void) {
     license_list_free(&g_licenses);
     exception_list_free(&g_exceptions);
@@ -811,6 +1177,13 @@ void spdx_db_free(void) {
     free(g_exceptions_dir); g_exceptions_dir = NULL;
 }
 
+/**
+ * @brief Look up a license entry by identifier.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return Pointer to the entry, or NULL if not found.
+ */
 const SpdxLicenseEntry *spdx_license_lookup(const char *id) {
     int idx;
     if (!id || g_licenses.count == 0) return NULL;
@@ -821,6 +1194,13 @@ const SpdxLicenseEntry *spdx_license_lookup(const char *id) {
     return NULL;
 }
 
+/**
+ * @brief Look up an exception entry by identifier.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return Pointer to the entry, or NULL if not found.
+ */
 const SpdxExceptionEntry *spdx_exception_lookup(const char *id) {
     int idx;
     if (!id || g_exceptions.count == 0) return NULL;
@@ -831,6 +1211,15 @@ const SpdxExceptionEntry *spdx_exception_lookup(const char *id) {
     return NULL;
 }
 
+/**
+ * @brief Get the canonical license text.
+ *
+ * Loads the detail on demand.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return NUL-terminated text, or NULL if unavailable.
+ */
 const char *spdx_license_get_text(const char *id) {
     int idx;
     SpdxLicenseEntry *e;
@@ -845,6 +1234,13 @@ const char *spdx_license_get_text(const char *id) {
     return e->text;
 }
 
+/**
+ * @brief Get the canonical exception text.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return NUL-terminated text, or NULL if unavailable.
+ */
 const char *spdx_exception_get_text(const char *id) {
     int idx;
     SpdxExceptionEntry *e;
@@ -859,6 +1255,13 @@ const char *spdx_exception_get_text(const char *id) {
     return e->text;
 }
 
+/**
+ * @brief Load a license detail on demand.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int spdx_license_load_detail(const char *id) {
     int idx;
     SpdxLicenseEntry *e;
@@ -884,6 +1287,13 @@ int spdx_license_load_detail(const char *id) {
     return -1;
 }
 
+/**
+ * @brief Load an exception detail on demand.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int spdx_exception_load_detail(const char *id) {
     int idx;
     SpdxExceptionEntry *e;
@@ -909,6 +1319,13 @@ int spdx_exception_load_detail(const char *id) {
     return -1;
 }
 
+/**
+ * @brief Check whether an identifier is a valid SPDX license.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if valid, 0 otherwise.
+ */
 int spdx_license_is_valid(const char *id) {
     if (!id || id[0] == '\0') return 0;
     if (strncmp(id, "LicenseRef-", 11) == 0) return 1;
@@ -921,42 +1338,91 @@ int spdx_license_is_valid(const char *id) {
     return spdx_license_lookup(id) != NULL;
 }
 
+/**
+ * @brief Check whether an identifier is a valid SPDX exception.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if valid, 0 otherwise.
+ */
 int spdx_exception_is_valid(const char *id) {
     if (!id || id[0] == '\0') return 0;
     if (g_exceptions.count == 0) return 1;
     return spdx_exception_lookup(id) != NULL;
 }
 
+/**
+ * @brief Check whether a license identifier is deprecated.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if deprecated, 0 otherwise.
+ */
 int spdx_license_is_deprecated(const char *id) {
     const SpdxLicenseEntry *e = spdx_license_lookup(id);
     return e && (e->flags & SPDX_DB_FLAG_DEPRECATED) ? 1 : 0;
 }
+
+/**
+ * @brief Check whether an exception identifier is deprecated.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if deprecated, 0 otherwise.
+ */
 int spdx_exception_is_deprecated(const char *id) {
     const SpdxExceptionEntry *e = spdx_exception_lookup(id);
     return e && (e->flags & SPDX_DB_FLAG_DEPRECATED) ? 1 : 0;
 }
+
+/**
+ * @brief Check whether a license is OSI-approved.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if OSI-approved, 0 otherwise.
+ */
 int spdx_license_is_osi_approved(const char *id) {
     const SpdxLicenseEntry *e = spdx_license_lookup(id);
     return e && (e->flags & SPDX_DB_FLAG_OSI) ? 1 : 0;
 }
+
+/**
+ * @brief Check whether a license is FSF-libre.
+ *
+ * @param[in] id  Identifier. Not NULL.
+ *
+ * @return 1 if FSF-libre, 0 otherwise.
+ */
 int spdx_license_is_fsf_libre(const char *id) {
     const SpdxLicenseEntry *e = spdx_license_lookup(id);
     return e && (e->flags & SPDX_DB_FLAG_FSF_LIBRE) ? 1 : 0;
 }
 
 /* ------------------------------------------------------------------ */
-/* Разбор SPDX-выражений                                               */
+/* SPDX expression parser                                              */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @struct _EXPRPARSER
+ * @brief Recursive descent parser state for SPDX expressions.
+ */
 typedef struct {
-    const char *p;
-    const char *bad_token_start;
-    int err;
-} ExprParser;
+    const char *p;                 /**< Current position.              */
+    const char *bad_token_start;   /**< Start of the offending token.  */
+    int         err;               /**< SPDX_EXPR_* error code.        */
+} EXPRPARSER;
 
-static void skip_ws(ExprParser *pp) {
+/**
+ * @brief Skip whitespace.
+ */
+static void skip_ws(EXPRPARSER *pp) {
     while (*pp->p && isspace((unsigned char)*pp->p)) pp->p++;
 }
+
+/**
+ * @brief Check whether a keyword appears at @p p.
+ */
 static int is_kw_at(const char *p, const char *kw, int kwlen) {
     if (strncmp(p, kw, kwlen) != 0) return 0;
     if (p[kwlen] == '\0') return 1;
@@ -965,9 +1431,12 @@ static int is_kw_at(const char *p, const char *kw, int kwlen) {
     return 0;
 }
 
-static int parse_expression(ExprParser *pp);
+static int parse_expression(EXPRPARSER *pp);
 
-static int parse_term(ExprParser *pp) {
+/**
+ * @brief Parse one term.
+ */
+static int parse_term(EXPRPARSER *pp) {
     skip_ws(pp);
     if (*pp->p == '(') {
         pp->p++;
@@ -1031,7 +1500,10 @@ static int parse_term(ExprParser *pp) {
     return 1;
 }
 
-static int parse_expression(ExprParser *pp) {
+/**
+ * @brief Parse a full expression (terms joined by AND/OR).
+ */
+static int parse_expression(EXPRPARSER *pp) {
     if (!parse_term(pp)) return 0;
     while (1) {
         const char *save;
@@ -1051,8 +1523,19 @@ static int parse_expression(ExprParser *pp) {
     return 1;
 }
 
+/**
+ * @brief Validate an SPDX license expression.
+ *
+ * @param[in]  expr       Expression. Not NULL.
+ * @param[out] bad_token  Optional. On SPDX_EXPR_UNKNOWN_TOKEN, receives
+ *                        a pointer to the offending token inside
+ *                        @p expr. May be NULL.
+ *
+ * @return SPDX_EXPR_OK, SPDX_EXPR_SYNTAX_ERROR or
+ *         SPDX_EXPR_UNKNOWN_TOKEN.
+ */
 int spdx_expression_validate(const char *expr, const char **bad_token) {
-    ExprParser pp;
+    EXPRPARSER pp;
     if (bad_token) *bad_token = NULL;
     if (!expr) return SPDX_EXPR_SYNTAX_ERROR;
     pp.p = expr;
@@ -1069,15 +1552,22 @@ int spdx_expression_validate(const char *expr, const char **bad_token) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Нормализация SPDX-выражений                                         */
+/* SPDX expression normalization                                       */
 /* ------------------------------------------------------------------ */
 
-/* Возвращает каноническую форму выражения SPDX: каждый идентификатор
- * из SPDX License List / SPDX Exceptions заменяется на канонический
- * регистр (например, 'BSD-3-clause' -> 'BSD-3-Clause').
+/**
+ * @brief Normalize an SPDX license expression to canonical case.
  *
- * Операторы AND/OR/WITH, скобки и пробелы сохраняются как есть.
- * LicenseRef-* и DocumentRef-* остаются без изменений. */
+ * Every identifier from the SPDX License List or the SPDX Exceptions
+ * list is replaced with its canonical case (for example,
+ * 'BSD-3-clause' becomes 'BSD-3-Clause'). AND/OR/WITH, parentheses and
+ * whitespace are preserved as-is. LicenseRef-* and DocumentRef-*
+ * identifiers are left unchanged.
+ *
+ * @param[in] expr  Expression, or NULL.
+ *
+ * @return malloc'd normalized string, or NULL on OOM or NULL input.
+ */
 char *spdx_normalize_license_expression(const char *expr) {
     size_t cap = 128;
     size_t len = 0;
