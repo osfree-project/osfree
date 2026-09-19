@@ -5,7 +5,6 @@
 #include <string.h>
 #include "reuse_lic.h"
 #include "spdx_tag.h"
-#include "spdx_utils.h"
 #include "spdx_db.h"
 
 #ifdef __LINUX__

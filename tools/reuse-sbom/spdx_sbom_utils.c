@@ -5,7 +5,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "spdx_sbom_utils.h"
-#include "spdx_utils.h"
 
 void sbom_remove_extension(char *str) {
     char *dot = strrchr(str, '.');
