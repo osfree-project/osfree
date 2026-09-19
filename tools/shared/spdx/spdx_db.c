@@ -443,17 +443,16 @@ static int write_exception_detail_from_json(FILE *f, const char *id,
 }
 
 static int compute_sha1_raw(const char *path, unsigned char out[20]) {
-    char *hex = NULL;
+    char hex[41];
     int i;
     memset(out, 0, 20);
     if (!path) return 0;
-    if (Sha1File(path, &hex) != SHA1_NO_ERROR) return -1;
+    if (Sha1File(path, hex, sizeof(hex), NULL) != NO_ERROR) return -1;
     for (i = 0; i < 20; i++) {
         char b[3];
         b[0] = hex[i*2]; b[1] = hex[i*2+1]; b[2] = '\0';
         out[i] = (unsigned char)strtol(b, NULL, 16);
     }
-    free(hex);
     return 0;
 }
 

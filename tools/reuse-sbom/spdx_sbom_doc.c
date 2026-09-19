@@ -125,9 +125,21 @@ static void add_unique_license(PackageInfo *pkg, const char *lic) {
     pkg->license_info_count++;
 }
 
-/* Computes PackageVerificationCode and collects
- * PackageLicenseInfoFromFiles. Both values are derived from the
- * package's file list, so they are computed in one function. */
+/**
+ * @brief Compute PackageVerificationCode and collect
+ *        PackageLicenseInfoFromFiles.
+ *
+ * PackageVerificationCode is defined by SPDX 2.3 §7.9: it is the
+ * SHA-1 hash of the concatenation of the SHA-1 hashes of every file
+ * in the package, sorted by file name. SHA-1 is mandatory here and
+ * cannot be replaced with another algorithm.
+ *
+ * @todo (SPDX 2.3 Annex I) Support additional checksum algorithms
+ *       (SHA-224, SHA-256, SHA-384, SHA-512, MD2, MD4, MD5, MD6,
+ *       SHA3-256/384/512, BLAKE2b-256/384/512, BLAKE3, ADLER32) when
+ *       they appear in imported SBOMs. The per-file storage should
+ *       become SpdxChecksumList rather than the single sha1 field.
+ */
 void sbom_doc_compute_verification(SpdxDocument *doc) {
     FileInfo *sorted;
     size_t total_len;
@@ -189,7 +201,13 @@ void sbom_doc_compute_verification(SpdxDocument *doc) {
     for (i = 0; i < doc->files.count; i++)
         strcat(concat, sorted[i].sha1);
 
-    Sha1String(concat, combined);
+    if (Sha1String(concat, combined, sizeof(combined), NULL) != NO_ERROR) {
+        free(concat);
+        free(sorted);
+        fprintf(stderr,
+                "ERROR: cannot compute SHA1 for PackageVerificationCode\n");
+        exit(EXIT_FAILURE);
+    }
     free(concat);
     free(sorted);
 
@@ -282,6 +300,16 @@ void sbom_doc_build_relationships(SpdxDocument *doc,
     }
 }
 
+/**
+ * @brief Set an external reference to the source SBOM.
+ *
+ * The checksum algorithm is currently fixed to SHA-1 by the caller.
+ *
+ * @todo (SPDX 2.3 §6.6) externalDocumentRef.checksum allows any
+ *       algorithm from the Annex I list. Extend the signature or
+ *       accept SpdxChecksum { algorithm, value } instead of the
+ *       single checksum_sha1 string.
+ */
 void sbom_doc_set_external(SpdxDocument *doc,
                            const char *source_sbom_path,
                            const char *source_package_id,

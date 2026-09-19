@@ -14,23 +14,40 @@
 
 #define PATH_BUF 1024
 
+/**
+ * @brief Fill basic FileInfo: name, SHA-1, file type.
+ *
+ * Computes the SHA-1 hash of the file, stores it in @c out->sha1,
+ * and sets @c out->file_type from the file extension.
+ *
+ * @todo (SPDX 2.3 Annex I) Support additional checksum algorithms
+ *       (SHA-224, SHA-256, SHA-384, SHA-512, MD2, MD4, MD5, MD6,
+ *       SHA3-256/384/512, BLAKE2b-256/384/512, BLAKE3, ADLER32).
+ *       Storage should become SpdxChecksumList rather than a single
+ *       sha1 field. SHA-1 remains mandatory per SPDX 2.3 §8.4.
+ *
+ * @param[in]  fullpath      Path to the file. Not NULL.
+ * @param[in]  display_name  Base name to store. Not NULL.
+ * @param[out] out           Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int sbom_fill_file_basic(const char *fullpath,
                          const char *display_name,
                          FileInfo *out) {
-    char *sha1 = NULL;
+    char hex[41];
 
     memset(out, 0, sizeof(*out));
     strncpy(out->name, display_name, sizeof(out->name) - 1);
 
-    if (Sha1File(fullpath, &sha1) != SHA1_NO_ERROR || !sha1) {
+    if (Sha1File(fullpath, hex, sizeof(hex), NULL) != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot compute SHA1 for %s\n"
                 "       Check that the file exists and is readable.\n",
                 fullpath);
         return -1;
     }
-    strncpy(out->sha1, sha1, sizeof(out->sha1) - 1);
-    free(sha1);
+    strncpy(out->sha1, hex, sizeof(out->sha1) - 1);
 
     strncpy(out->file_type, sbom_get_file_type(display_name),
             sizeof(out->file_type) - 1);

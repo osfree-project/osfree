@@ -16,7 +16,7 @@
 #include "ccl.h"
 #include "spdx.h"
 #include "spdx_db.h"
-#include "spdx_discover.h"
+#include "reuse_discover.h"
 #include "reuse_lic.h"
 #include "spdx_tag.h"
 #include "git.h"
@@ -304,7 +304,7 @@ static void check_licenses_dir(const char *project_dir,
                                HSTRSET hUsedLicenses) {
     char lic_path[1024];
     char example_path[1100];
-    SpdxWalkOptions opts;
+    REUSEDISCOVEROPTIONS opts;
     HSTRSET hPaths = NULLHANDLE;
     HSTRSET hFilesInLic = NULLHANDLE;
     int dir_exists;
@@ -340,7 +340,7 @@ static void check_licenses_dir(const char *project_dir,
         opts.skip_license_files    = 0;
 
         if (StrSetCreate(&hPaths) == NO_ERROR) {
-            if (spdx_walk_tree(lic_path, &opts, hPaths) == 0) {
+            if (ReuseDiscoverWalkTree(lic_path, &opts, hPaths) == NO_ERROR) {
                 HSTRSETENUM hEnum = NULLHANDLE;
                 if (StrSetEnumFirst(hPaths, &hEnum) == NO_ERROR) {
                     do {
@@ -591,7 +591,7 @@ int main(int argc, char *argv[]) {
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     int db_errs;
-    SpdxWalkOptions walk_opts;
+    REUSEDISCOVEROPTIONS walk_opts;
     char *repo_root = NULL;
     GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
@@ -671,8 +671,22 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "WARNING: cache could not be written.\n"
                         "         Next run will re-parse JSON indexes.\n");
 
-    if (GitFindRepoRoot(dir, &repo_root) != GIT_NO_ERROR) {
-        repo_root = NULL;
+    /* Two-phase GitFindRepoRoot call: first query the size, then
+     * allocate and query the value. If there is no repository, the
+     * target directory is used as the base for .gitignore lookups. */
+    {
+        ULONG ulSize = 0;
+        if (GitFindRepoRoot(dir, NULL, 0, &ulSize) == NO_ERROR &&
+            ulSize > 0) {
+            repo_root = (char*)malloc(ulSize);
+            if (repo_root) {
+                if (GitFindRepoRoot(dir, repo_root, ulSize, NULL)
+                        != NO_ERROR) {
+                    free(repo_root);
+                    repo_root = NULL;
+                }
+            }
+        }
     }
 
     {
@@ -695,7 +709,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!no_gitignore) {
-        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == GIT_NO_ERROR &&
+        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
@@ -710,7 +724,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    spdx_walk_options_default(&walk_opts);
+    ReuseDiscoverOptionsDefault(&walk_opts);
     walk_opts.recursive = 0;
     if (has_gitignore) {
         walk_opts.use_gitignore   = 1;
@@ -728,7 +742,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (spdx_walk_tree(dir, &walk_opts, hPaths) != 0) {
+    if (ReuseDiscoverWalkTree(dir, &walk_opts, hPaths) != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot walk tree: %s\n"
                 "       Check that the directory exists and is readable.\n",

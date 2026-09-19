@@ -16,6 +16,7 @@
  *   '*'  - any characters except '/'
  *   '**' - any characters including '/'
  *   '?'  - a single character except '/'
+ *   '[abc]', '[a-z]', '[!abc]', '[^abc]' - character classes
  *   leading '/'  - anchored to the directory of the .gitignore file
  *   trailing '/' - matches directories only
  *   '/' in the middle - anchored, unless the pattern starts with
@@ -27,26 +28,18 @@
  * Rules are applied top-to-bottom; the last matching rule wins.
  * Case sensitivity follows the host platform: case-sensitive on
  * Linux, case-insensitive on Windows.
+ *
+ * References:
+ *   - gitignore(5).
+ *     https://git-scm.com/docs/gitignore
  */
 
 #include "os2types.h"
+#include "os2err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* ==================================================================
- * Error codes
- * ================================================================== */
-
-/** @def GIT_NO_ERROR @brief Success. */
-#define GIT_NO_ERROR            0
-/** @def GIT_ERROR_INVALID_PARAM @brief Invalid parameter. */
-#define GIT_ERROR_INVALID_PARAM 1
-/** @def GIT_ERROR_OUT_OF_MEMORY @brief Memory allocation failure. */
-#define GIT_ERROR_OUT_OF_MEMORY 2
-/** @def GIT_ERROR_NOT_FOUND @brief Requested item not found. */
-#define GIT_ERROR_NOT_FOUND     3
 
 /* ==================================================================
  * Types
@@ -94,8 +87,8 @@ typedef struct _GITIGNORELIST {
  * @param[in] pList  List. Not NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR            Success.
- * @retval GIT_ERROR_INVALID_PARAM pList is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pList is NULL.
  */
 APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList);
 
@@ -109,7 +102,7 @@ APIRET APIENTRY GitIgnoreListInit(GITIGNORELIST *pList);
  * @param[in] pList  List. May be NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR Success. Also returned for NULL.
+ * @retval NO_ERROR Success. Also returned for NULL.
  */
 APIRET APIENTRY GitIgnoreListFree(GITIGNORELIST *pList);
 
@@ -124,20 +117,29 @@ APIRET APIENTRY GitIgnoreListFree(GITIGNORELIST *pList);
  * (directory or file). Both '/' and '\\' are treated as path
  * separators.
  *
- * On success, @p *ppszRoot receives a malloc'd string owned by the
- * caller and must be freed with @c free. On any failure,
- * @p *ppszRoot is set to NULL.
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *     NUL) is written.
+ *   - ulSize large enough: value copied and NUL-terminated;
+ *     *pulUsed is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
  *
  * @param[in]  pszStartDir  Starting directory. Not NULL.
- * @param[out] ppszRoot     Receiver. Not NULL. Set to NULL on error.
+ * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize       Size of pszBuf in bytes.
+ * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR            Success. Root directory returned.
- * @retval GIT_ERROR_INVALID_PARAM pszStartDir or ppszRoot is NULL.
- * @retval GIT_ERROR_OUT_OF_MEMORY Memory allocation failure.
- * @retval GIT_ERROR_NOT_FOUND     No .git entry found.
+ * @retval NO_ERROR                 Success. Root directory returned.
+ * @retval ERROR_INVALID_PARAMETER  pszStartDir is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_FILE_NOT_FOUND     No .git entry found.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir, PSZ *ppszRoot);
+APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
+                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
 
 /**
  * @brief Check whether a directory is inside a Git repository.
@@ -146,8 +148,8 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir, PSZ *ppszRoot);
  * @param[out] pfIsRepo   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR            Success.
- * @retval GIT_ERROR_INVALID_PARAM pszDir or pfIsRepo is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszDir or pfIsRepo is NULL.
  */
 APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
 
@@ -171,10 +173,10 @@ APIRET APIENTRY GitIsRepo(PCSZ pszDir, PBOOL pfIsRepo);
  * @param[out] pOut         Receiver. Not NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR            Success (even if no .gitignore
- *                                 files were found).
- * @retval GIT_ERROR_INVALID_PARAM pszTargetDir or pOut is NULL.
- * @retval GIT_ERROR_OUT_OF_MEMORY Memory allocation failure.
+ * @retval NO_ERROR                 Success (even if no .gitignore
+ *                                  files were found).
+ * @retval ERROR_INVALID_PARAMETER  pszTargetDir or pOut is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
                                      GITIGNORELIST *pOut);
@@ -201,8 +203,8 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
  * @param[out] pfIgnored   Receiver TRUE_ / FALSE_. Not NULL.
  *
  * @return APIRET
- * @retval GIT_NO_ERROR            Success.
- * @retval GIT_ERROR_INVALID_PARAM Any parameter is NULL.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
 APIRET APIENTRY GitIsIgnored(const GITIGNORELIST *pRules, PCSZ pszRelPath,
                              BOOL fIsDir, PBOOL pfIgnored);

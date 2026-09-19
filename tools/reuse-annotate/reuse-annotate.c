@@ -15,7 +15,7 @@
 #include "ccl.h"
 #include "spdx.h"
 #include "spdx_db.h"
-#include "spdx_discover.h"
+#include "reuse_discover.h"
 #include "git.h"
 #include "spdx_tag.h"
 #include "reuse_lic.h"
@@ -747,7 +747,7 @@ int main(int argc, char *argv[]) {
     int db_errs;
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
-    SpdxWalkOptions walk_opts;
+    REUSEDISCOVEROPTIONS walk_opts;
     char *repo_root = NULL;
     GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
@@ -855,8 +855,22 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (GitFindRepoRoot(dir, &repo_root) != GIT_NO_ERROR) {
-        repo_root = NULL;
+    /* Two-phase GitFindRepoRoot call: first query the size, then
+     * allocate and query the value. If there is no repository, the
+     * target directory is used as the base for .gitignore lookups. */
+    {
+        ULONG ulSize = 0;
+        if (GitFindRepoRoot(dir, NULL, 0, &ulSize) == NO_ERROR &&
+            ulSize > 0) {
+            repo_root = (char*)malloc(ulSize);
+            if (repo_root) {
+                if (GitFindRepoRoot(dir, repo_root, ulSize, NULL)
+                        != NO_ERROR) {
+                    free(repo_root);
+                    repo_root = NULL;
+                }
+            }
+        }
     }
 
     {
@@ -879,13 +893,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (!no_gitignore) {
-        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == GIT_NO_ERROR &&
+        if (GitCollectGitignores(repo_root, dir, &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
     }
 
-    spdx_walk_options_default(&walk_opts);
+    ReuseDiscoverOptionsDefault(&walk_opts);
     walk_opts.recursive             = 0;
     walk_opts.skip_hidden           = 1;
     walk_opts.skip_vcs_dirs         = 1;
@@ -910,7 +924,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (spdx_walk_tree(dir, &walk_opts, hPaths) != 0) {
+    if (ReuseDiscoverWalkTree(dir, &walk_opts, hPaths) != NO_ERROR) {
         printf("ERROR: cannot walk tree: %s\n"
                "       Check that the directory exists and is readable.\n",
                dir);

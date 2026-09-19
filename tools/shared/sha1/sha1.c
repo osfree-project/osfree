@@ -1,36 +1,85 @@
-/* sha1.c - SHA1 implementation (C89) */
+/* sha1.c - SHA-1 implementation (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sha1.h"
 
+/**
+ * @file sha1.c
+ * @brief Implementation of SHA-1.
+ *
+ * Conforms to:
+ *   - FIPS PUB 180-1
+ *   - RFC 3174
+ */
+
 /* ==================================================================
- * Internal context (private)
+ * Internal constants and types
  * ================================================================== */
 
-typedef struct {
-    unsigned int  state[5];
-    unsigned int  count[2];
-    unsigned char buffer[64];
+/** @brief SHA-1 block size in bytes. */
+#define SHA1_BLOCK_SIZE  64
+
+/** @brief SHA-1 digest size in bytes. */
+#define SHA1_DIGEST_SIZE 20
+
+/** @brief Hex representation length including NUL. */
+#define SHA1_HEX_SIZE    (SHA1_DIGEST_SIZE * 2 + 1)
+
+/**
+ * @struct _SHA1CONTEXT
+ * @brief Working state of the SHA-1 algorithm.
+ *
+ * The message length is tracked as two 32-bit counters: count[0]
+ * (low 32 bits of bit count) and count[1] (high 32 bits of bit
+ * count). This matches the 64-bit length field required by
+ * FIPS 180-1.
+ */
+typedef struct _SHA1CONTEXT {
+    unsigned int  state[5];                     /**< h0..h4.              */
+    unsigned int  count[2];                     /**< Bit count, lo/hi.    */
+    unsigned char buffer[SHA1_BLOCK_SIZE];      /**< Partial block buffer. */
 } SHA1CONTEXT;
 
 /* ==================================================================
- * Internal helpers (private)
+ * Internal bit helpers
  * ================================================================== */
 
+/**
+ * @brief 32-bit left rotation.
+ *
+ * @param[in] a  Value.
+ * @param[in] b  Rotation amount (0..31).
+ *
+ * @return Rotated value.
+ */
 static unsigned int sha1_rotl(unsigned int a, unsigned int b) {
     if (b == 0) return a;
     if (b >= 32) return a;
     return (a << b) | (a >> (32 - b));
 }
 
+/* ==================================================================
+ * Core algorithm
+ * ================================================================== */
+
+/**
+ * @brief Compression function: process one 64-byte block.
+ *
+ * Applies the SHA-1 compression function to @p buffer and updates
+ * the five working variables in @p state.
+ *
+ * @param[in,out] state   Current state. Not NULL.
+ * @param[in]     buffer  64-byte block. Not NULL.
+ */
 static void sha1_transform(unsigned int state[5],
-                           const unsigned char buffer[64]) {
+                           const unsigned char buffer[SHA1_BLOCK_SIZE]) {
     unsigned int a, b, c, d, e;
     unsigned int w[80];
     int i;
 
+    /* Prepare the message schedule. */
     for (i = 0; i < 16; i++) {
         w[i] = ((unsigned int)buffer[i*4]     << 24) |
                ((unsigned int)buffer[i*4 + 1] << 16) |
@@ -78,6 +127,11 @@ static void sha1_transform(unsigned int state[5],
     state[4] += e;
 }
 
+/**
+ * @brief Initialize the working state with FIPS 180-1 initial values.
+ *
+ * @param[out] pCtx  Context to initialize. Not NULL.
+ */
 static void sha1_init(SHA1CONTEXT *pCtx) {
     pCtx->state[0] = 0x67452301u;
     pCtx->state[1] = 0xEFCDAB89u;
@@ -88,6 +142,16 @@ static void sha1_init(SHA1CONTEXT *pCtx) {
     pCtx->count[1] = 0;
 }
 
+/**
+ * @brief Absorb more input data into the context.
+ *
+ * Buffers partial blocks; full blocks are passed to the compression
+ * function immediately.
+ *
+ * @param[in,out] pCtx   Context. Not NULL.
+ * @param[in]     pData  Input data. Not NULL.
+ * @param[in]     cbLen  Number of bytes to absorb.
+ */
 static void sha1_update(SHA1CONTEXT *pCtx,
                         const unsigned char *pData, size_t cbLen) {
     size_t i, index, partLen;
@@ -107,11 +171,11 @@ static void sha1_update(SHA1CONTEXT *pCtx,
     if (pCtx->count[0] < prev) pCtx->count[1]++;
     pCtx->count[1] += bits_hi;
 
-    partLen = 64 - index;
+    partLen = SHA1_BLOCK_SIZE - index;
     if (cbLen >= partLen) {
         memcpy(&pCtx->buffer[index], pData, partLen);
         sha1_transform(pCtx->state, pCtx->buffer);
-        for (i = partLen; i + 63 < cbLen; i += 64)
+        for (i = partLen; i + 63 < cbLen; i += SHA1_BLOCK_SIZE)
             sha1_transform(pCtx->state, &pData[i]);
         index = 0;
     } else {
@@ -120,10 +184,21 @@ static void sha1_update(SHA1CONTEXT *pCtx,
     memcpy(&pCtx->buffer[index], &pData[i], cbLen - i);
 }
 
-static void sha1_final(SHA1CONTEXT *pCtx, unsigned char pDigest[20]) {
+/**
+ * @brief Finish the hash and produce the digest.
+ *
+ * Applies the padding scheme from FIPS 180-1 §4: a single 0x80
+ * byte, zero bytes, and the 64-bit message length in bits as an
+ * 8-byte big-endian value.
+ *
+ * @param[in,out] pCtx     Context. Not NULL.
+ * @param[out]    pDigest  20-byte output. Not NULL.
+ */
+static void sha1_final(SHA1CONTEXT *pCtx,
+                       unsigned char pDigest[SHA1_DIGEST_SIZE]) {
     unsigned char bits[8];
     unsigned int index, padLen;
-    static const unsigned char padding[64] = {0x80};
+    static const unsigned char padding[SHA1_BLOCK_SIZE] = {0x80};
 
     bits[0] = (unsigned char)(pCtx->count[1] >> 24);
     bits[1] = (unsigned char)(pCtx->count[1] >> 16);
@@ -151,53 +226,82 @@ static void sha1_final(SHA1CONTEXT *pCtx, unsigned char pDigest[20]) {
  * Public API
  * ================================================================== */
 
-APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ *ppszHex) {
+APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
+                         PULONG pulUsed) {
     FILE *f;
     SHA1CONTEXT ctx;
     unsigned char buffer[8192];
     size_t n;
-    unsigned char digest[20];
-    char *hex;
+    unsigned char digest[SHA1_DIGEST_SIZE];
+    char hex[SHA1_HEX_SIZE];
     int i;
 
-    if (!pszPath || !ppszHex) return SHA1_ERROR_INVALID_PARAM;
-    *ppszHex = NULL;
+    if (!pszPath) return ERROR_INVALID_PARAMETER;
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)SHA1_HEX_SIZE;
+        return NO_ERROR;
+    }
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < SHA1_HEX_SIZE) {
+        if (pulUsed) *pulUsed = (ULONG)SHA1_HEX_SIZE;
+        return ERROR_BUFFER_OVERFLOW;
+    }
 
     f = fopen(pszPath, "rb");
-    if (!f) return SHA1_ERROR_OPEN_FAILED;
+    if (!f) return ERROR_OPEN_FAILED;
 
     sha1_init(&ctx);
     while ((n = fread(buffer, 1, sizeof(buffer), f)) > 0) {
         sha1_update(&ctx, buffer, n);
     }
-    if (ferror(f)) { fclose(f); return SHA1_ERROR_READ_FAILED; }
+    if (ferror(f)) {
+        fclose(f);
+        return ERROR_READ_FAULT;
+    }
     fclose(f);
+
     sha1_final(&ctx, digest);
 
-    hex = (char *)malloc(41);
-    if (!hex) return SHA1_ERROR_OUT_OF_MEMORY;
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < SHA1_DIGEST_SIZE; i++) {
         sprintf(hex + i*2, "%02x", digest[i]);
     }
-    hex[40] = '\0';
-    *ppszHex = hex;
-    return SHA1_NO_ERROR;
+    hex[SHA1_DIGEST_SIZE * 2] = '\0';
+
+    memcpy(pszBuf, hex, SHA1_HEX_SIZE);
+    if (pulUsed) *pulUsed = (ULONG)(SHA1_HEX_SIZE - 1);
+    return NO_ERROR;
 }
 
-APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszHex) {
+APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
+                           PULONG pulUsed) {
     SHA1CONTEXT ctx;
-    unsigned char digest[20];
+    unsigned char digest[SHA1_DIGEST_SIZE];
+    char hex[SHA1_HEX_SIZE];
     int i;
 
-    if (!pszStr || !pszHex) return SHA1_ERROR_INVALID_PARAM;
+    if (!pszStr) return ERROR_INVALID_PARAMETER;
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)SHA1_HEX_SIZE;
+        return NO_ERROR;
+    }
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < SHA1_HEX_SIZE) {
+        if (pulUsed) *pulUsed = (ULONG)SHA1_HEX_SIZE;
+        return ERROR_BUFFER_OVERFLOW;
+    }
 
     sha1_init(&ctx);
-    sha1_update(&ctx, (const unsigned char *)pszStr, strlen(pszStr));
+    sha1_update(&ctx, (const unsigned char*)pszStr, strlen(pszStr));
     sha1_final(&ctx, digest);
 
-    for (i = 0; i < 20; i++) {
-        sprintf(pszHex + i*2, "%02x", digest[i]);
+    for (i = 0; i < SHA1_DIGEST_SIZE; i++) {
+        sprintf(hex + i*2, "%02x", digest[i]);
     }
-    pszHex[40] = '\0';
-    return SHA1_NO_ERROR;
+    hex[SHA1_DIGEST_SIZE * 2] = '\0';
+
+    memcpy(pszBuf, hex, SHA1_HEX_SIZE);
+    if (pulUsed) *pulUsed = (ULONG)(SHA1_HEX_SIZE - 1);
+    return NO_ERROR;
 }

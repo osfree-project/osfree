@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include "json_parser.h"
 #include "sha1.h"
-#include "sha256_utils.h"
+#include "sha256.h"
 #include "spdx_db.h"
 #include "spdx.h"
 #include "ccl.h"
@@ -298,11 +298,17 @@ static void verify_checksum(const char *filepath, JsonNode *checksum_node) {
         exit(EXIT_FAILURE);
     }
     if (strcmp(algo, "SHA1") == 0) {
-        if (Sha1File(filepath, &actual) != SHA1_NO_ERROR)
-            actual = NULL;
+        char hex[41];
+        if (Sha1File(filepath, hex, sizeof(hex), NULL) == NO_ERROR) {
+            actual = strdup(hex);
+        }
     }
-    else if (strcmp(algo, "SHA256") == 0)
-        actual = sha256_file(filepath);
+    else if (strcmp(algo, "SHA256") == 0) {
+        char hex[65];
+        if (Sha256File(filepath, hex, sizeof(hex), NULL) == NO_ERROR) {
+            actual = strdup(hex);
+        }
+    }
     else {
         fprintf(stderr,
                 "ERROR: unsupported checksum algorithm: %s\n"

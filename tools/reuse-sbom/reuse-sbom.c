@@ -20,7 +20,7 @@
 #include "spdx_sbom_extracted.h"
 #include "spdx_sbom_out.h"
 
-#include "spdx_discover.h"
+#include "reuse_discover.h"
 
 /**
  * @brief Check whether the SBOM describes a binary artifact.
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
     HREUSETREE hTree = NULLHANDLE;
     SpdxDocument doc;
     HSTRSET hPaths = NULLHANDLE;
-    SpdxWalkOptions walk_opts;
+    REUSEDISCOVEROPTIONS walk_opts;
     GITIGNORELIST gitignore_rules;
     int has_gitignore = 0;
     char *repo_root = NULL;
@@ -236,8 +236,22 @@ int main(int argc, char *argv[]) {
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    if (GitFindRepoRoot(opts.dir, &repo_root) != GIT_NO_ERROR) {
-        repo_root = NULL;
+    /* Two-phase GitFindRepoRoot call: first query the size, then
+     * allocate and query the value. If there is no repository, the
+     * target directory is used as the base for .gitignore lookups. */
+    {
+        ULONG ulSize = 0;
+        if (GitFindRepoRoot(opts.dir, NULL, 0, &ulSize) == NO_ERROR &&
+            ulSize > 0) {
+            repo_root = (char*)malloc(ulSize);
+            if (repo_root) {
+                if (GitFindRepoRoot(opts.dir, repo_root, ulSize, NULL)
+                        != NO_ERROR) {
+                    free(repo_root);
+                    repo_root = NULL;
+                }
+            }
+        }
     }
 
     {
@@ -272,7 +286,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!opts.no_gitignore) {
-        if (GitCollectGitignores(repo_root, opts.dir, &gitignore_rules) == GIT_NO_ERROR &&
+        if (GitCollectGitignores(repo_root, opts.dir, &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
             has_gitignore = 1;
         }
@@ -320,7 +334,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     } else {
-        spdx_walk_options_default(&walk_opts);
+        ReuseDiscoverOptionsDefault(&walk_opts);
         if (has_gitignore) {
             walk_opts.use_gitignore   = 1;
             walk_opts.repo_root       = repo_root ? repo_root : opts.dir;
@@ -337,10 +351,10 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        if (spdx_discover(opts.dir,
-                          opts.object_files, opts.object_count,
-                          opts.res_files, opts.res_count,
-                          &walk_opts, hPaths) != 0) {
+        if (ReuseDiscover(opts.dir,
+                          opts.object_files, (ULONG)opts.object_count,
+                          opts.res_files, (ULONG)opts.res_count,
+                          &walk_opts, hPaths) != NO_ERROR) {
             StrSetDestroy(hPaths);
             sbom_doc_free(&doc);
             if (pkg_license_is_heap) free((void*)pkg_license);
@@ -395,10 +409,17 @@ int main(int argc, char *argv[]) {
 
     if (binary_mode && opts.source_sbom_path) {
         char src_pkg_id[256];
-        char *checksum = NULL;
+        char sha1_hex[41];
         sbom_make_package_id(base_no_ext, "Source",
                              src_pkg_id, sizeof(src_pkg_id));
-        if (Sha1File(opts.source_sbom_path, &checksum) != SHA1_NO_ERROR) {
+
+        /**
+         * @todo (SPDX 2.3 §6.6) externalDocumentRef.checksum allows
+         *       any algorithm from Annex I. Extend to accept a
+         *       user-selected algorithm, not just SHA-1.
+         */
+        if (Sha1File(opts.source_sbom_path, sha1_hex, sizeof(sha1_hex),
+                     NULL) != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot compute SHA1 for source SBOM: %s\n"
                     "       Check that the file exists and is readable.\n",
@@ -413,8 +434,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         sbom_doc_set_external(&doc, opts.source_sbom_path,
-                              src_pkg_id, checksum);
-        free(checksum);
+                              src_pkg_id, sha1_hex);
     }
 
     if (opts.output) {
