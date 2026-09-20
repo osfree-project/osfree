@@ -12,7 +12,7 @@
 !ifdef PROJ
 
 !ifdef withsources
-!include $(withsources)
+#!include $(withsources)
 MAKEOPT += withsources=$(withsources)
 !ifndef SOURCES
 SOURCES=
