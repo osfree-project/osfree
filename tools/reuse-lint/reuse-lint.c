@@ -394,6 +394,21 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
         g_ulWarningCount++;
     }
 
+    if (lic.fLicenseTruncated) {
+        fprintf(stderr,
+                "WARNING: %s: license value was truncated.\n"
+                "         The value is longer than the internal buffer.\n",
+                pszFullPath);
+        g_ulWarningCount++;
+    }
+    if (lic.fCopyrightTruncated) {
+        fprintf(stderr,
+                "WARNING: %s: copyright value was truncated.\n"
+                "         The value is longer than the internal buffer.\n",
+                pszFullPath);
+        g_ulWarningCount++;
+    }
+
     if (lic.achLicense[0] != '\0') {
         g_ulFilesWithLicense++;
     } else {

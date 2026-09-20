@@ -50,6 +50,8 @@ extern "C" {
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error while hashing.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_BUFFER_OVERFLOW    File type name does not fit the
+ *                                  fixed buffer.
  */
 APIRET APIENTRY SbomFillFileBasic(
     PCSZ pszFullPath,

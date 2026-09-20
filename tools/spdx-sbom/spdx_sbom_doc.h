@@ -32,7 +32,6 @@ extern "C" {
  * Conforms to:
  *   - SPDX 2.3, §6.5, §6.6, §6.9, §7.9, §11.
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /* ==================================================================

@@ -18,7 +18,6 @@ extern "C" {
  * are "spdx-json" for SPDX 2.3 JSON and "spdx-tag" for SPDX 2.3
  * tag-value.
  *
- * @par Output stream
  * Both serializers write the finished document to stdout. This is
  * their functional output, not diagnostics; no other code path in
  * this module writes to stdout or stderr.
@@ -26,7 +25,6 @@ extern "C" {
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /* ==================================================================

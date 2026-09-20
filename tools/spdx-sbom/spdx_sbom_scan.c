@@ -74,27 +74,40 @@ static APIRET validate_license(PCSZ pszLicense) {
  * For each snippet, the function requires an SPDX-License-Identifier
  * and validates it. Snippets without a license are rejected.
  *
+ * A file that parses cleanly but contains no snippets is not an
+ * error. A file that fails to parse (nested or unmatched snippet
+ * delimiters, unreadable file, out of memory) is reported through
+ * the return value.
+ *
  * @param[in] pszFullPath     Path to the file on disk. Not NULL.
  * @param[in] pszDisplayName  Base name to store. Not NULL.
  * @param[in] hSnippets       Destination snippet list. Not
  *                            NULLHANDLE.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
+ * @retval NO_ERROR                 Success (possibly no snippets).
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_FILE_NOT_FOUND     A snippet has no license.
- * @retval ERROR_INVALID_DATA       A snippet license is invalid.
+ * @retval ERROR_INVALID_DATA       A snippet license is invalid, or
+ *                                  the snippet structure is broken.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET collect_file_snippets(PCSZ pszFullPath,
                                     PCSZ pszDisplayName,
                                     HVECTOR hSnippets) {
     SPDXSNIPPETLIST raw;
-    APIRET rc = NO_ERROR;
+    APIRET rc;
     ULONG ulIdx;
 
-    if (SpdxQueryFileSnippets(pszFullPath, &raw) != NO_ERROR)
-        return NO_ERROR;
+    rc = SpdxQueryFileSnippets(pszFullPath, &raw);
+    if (rc != NO_ERROR) {
+        /* Parse error, unreadable file, or OOM: propagate. A file
+         * with no snippets at all is NOT an error and is handled
+         * below (raw.ulCount == 0). */
+        return rc;
+    }
 
+    rc = NO_ERROR;
     for (ulIdx = 0; ulIdx < raw.ulCount; ulIdx++) {
         PSPDXSNIPPET pRaw = &raw.pItems[ulIdx];
         SPDXSNIPPETINFO info;

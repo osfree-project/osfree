@@ -28,7 +28,6 @@ extern "C" {
  * Conforms to:
  *   - SPDX 2.3, §10 (Other Licensing Information Detected).
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /* ==================================================================
