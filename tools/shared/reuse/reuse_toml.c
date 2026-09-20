@@ -14,39 +14,16 @@
  *
  * Conforms to:
  *   - https://reuse.software/spec-3.3/
+ *
+ * @todo Split this file into several translation units:
+ *       reuse_toml_read (field extraction), reuse_toml_build
+ *       (annotation construction), reuse_toml_api (public
+ *       interface).
  */
 
 /* ==================================================================
  * Small helpers
  * ================================================================== */
-
-/**
- * @brief Duplicate a byte range into a fresh NUL-terminated string.
- *
- * @param[in] pszSrc  Source bytes. Not NULL.
- * @param[in] cbLen   Number of bytes to copy.
- *
- * @return malloc'd string, or NULL on allocation failure.
- */
-static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
-    PSZ pszOut;
-    pszOut = (PSZ)malloc(cbLen + 1);
-    if (!pszOut) return NULL;
-    memcpy(pszOut, pszSrc, cbLen);
-    pszOut[cbLen] = '\0';
-    return pszOut;
-}
-
-/**
- * @brief Duplicate a NUL-terminated string.
- *
- * @param[in] pszSrc  Source string. Not NULL.
- *
- * @return malloc'd copy, or NULL on allocation failure.
- */
-static PSZ dup_str(PCSZ pszSrc) {
-    return dup_n(pszSrc, strlen(pszSrc));
-}
 
 /**
  * @brief Convert a TOML node holding a string into a malloc'd string.
@@ -90,7 +67,8 @@ static PSZ read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
 }
 
 /**
- * @brief Read a value that is either a string or an array of strings.
+ * @brief Read a value that is either a string or an array of
+ *        strings.
  *
  * Array elements are joined with @p pszSep.
  *
@@ -161,7 +139,7 @@ static int add_path(REUSEANN *pAnn, PCSZ pszVal) {
         ((size_t)pAnn->ulPathCount + 1) * sizeof(PSZ));
     if (!papszNew) return -1;
     pAnn->papszPaths = papszNew;
-    pAnn->papszPaths[pAnn->ulPathCount] = dup_str(pszVal);
+    pAnn->papszPaths[pAnn->ulPathCount] = strdup(pszVal);
     if (!pAnn->papszPaths[pAnn->ulPathCount]) return -1;
     pAnn->ulPathCount++;
     return 0;
@@ -425,7 +403,8 @@ static APIRET copy_field_out(PCSZ pszValue,
  * ================================================================== */
 
 /**
- * @brief Translate a public document handle into the internal pointer.
+ * @brief Translate a public document handle into the internal
+ *        pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
@@ -434,7 +413,8 @@ static APIRET copy_field_out(PCSZ pszValue,
 static PREUSETOMLDOC as_doc(HREUSETOML h) { return (PREUSETOMLDOC)h; }
 
 /**
- * @brief Translate a public annotation handle into the internal pointer.
+ * @brief Translate a public annotation handle into the internal
+ *        pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
@@ -521,7 +501,7 @@ APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml) {
     if (!pd) { TomlClose(hDoc); return ERROR_NOT_ENOUGH_MEMORY; }
     pd->llVersion = llVersion;
 
-    pd->pszSourceDir = dup_str(pszPath);
+    pd->pszSourceDir = strdup(pszPath);
     if (pd->pszSourceDir) {
         PSZ pszSlash = strrchr(pd->pszSourceDir, '/');
         PSZ pszBackslash = strrchr(pd->pszSourceDir, '\\');
@@ -583,6 +563,9 @@ APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml) {
  * @return APIRET
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
+ *
+ * @warning Do not call ReuseClose twice with the same handle.
+ * @see ReuseOpen
  */
 APIRET APIENTRY ReuseClose(HREUSETOML hToml) {
     PREUSETOMLDOC pd;
@@ -658,7 +641,8 @@ APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount) {
 /**
  * @brief Obtain a borrowed handle to one [[annotations]] entry.
  *
- * The handle is valid until ReuseClose.
+ * The handle is valid until ReuseClose. It does not need to be
+ * released separately.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based annotation index.
@@ -681,7 +665,8 @@ APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
 }
 
 /**
- * @brief Query the number of patterns in the "path" list.
+ * @brief Query the number of patterns in the "path" list of an
+ *        annotation.
  *
  * @param[in]  hAnn      Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
@@ -700,6 +685,8 @@ APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount) {
 
 /**
  * @brief Retrieve one path pattern by index.
+ *
+ * If pszBuf is NULL and ulSize is 0, performs a size query only.
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based index.
@@ -778,7 +765,7 @@ APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
 }
 
 /**
- * @brief Retrieve SPDX-PackageName.
+ * @brief Retrieve SPDX-PackageName (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
  * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
@@ -802,7 +789,7 @@ APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
 }
 
 /**
- * @brief Retrieve SPDX-PackageSupplier.
+ * @brief Retrieve SPDX-PackageSupplier (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
  * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
@@ -826,7 +813,7 @@ APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
 }
 
 /**
- * @brief Retrieve SPDX-PackageDownloadLocation.
+ * @brief Retrieve SPDX-PackageDownloadLocation (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
  * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
@@ -851,7 +838,7 @@ APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
 }
 
 /**
- * @brief Retrieve SPDX-PackageComment.
+ * @brief Retrieve SPDX-PackageComment (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
  * @param[out] pszBuf   Output buffer. Not NULL unless size-query.

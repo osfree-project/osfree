@@ -18,6 +18,10 @@
  * All nodes created during a document's lifetime are tracked in a
  * single list owned by the document, so that JsonClose can release
  * them regardless of whether they were attached to a parent.
+ *
+ * @todo Split this file into several translation units:
+ *       json_parse (scanner), json_build (tree construction),
+ *       json_read (accessors), json_out (serialization).
  */
 
 /* ==================================================================
@@ -40,9 +44,9 @@ typedef struct _JSONDOC  JSONDOC,  *PJSONDOC;
  * @struct _JSONNODE
  * @brief One JSON value inside a document.
  *
- * A node may be detached (not attached to any parent) or attached to
- * an object or array. In an object, @c pszKey holds the field name;
- * in an array it is NULL.
+ * A node may be detached (not attached to any parent) or attached
+ * to an object or array. In an object, @c pszKey holds the field
+ * name; in an array it is NULL.
  */
 struct _JSONNODE {
     JSONTYPE   type;           /**< Value type.                  */
@@ -60,8 +64,8 @@ struct _JSONNODE {
  * @struct _JSONDOC
  * @brief One open JSON document.
  *
- * All nodes created for this document are stored in @c pAllNodes so
- * that JsonClose can release them.
+ * All nodes created for this document are stored in @c pAllNodes
+ * so that JsonClose can release them.
  */
 struct _JSONDOC {
     PJSONNODE  pRoot;          /**< Root node, or NULL.          */
@@ -73,39 +77,6 @@ struct _JSONDOC {
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
-
-/**
- * @brief Duplicate a NUL-terminated string.
- *
- * @param[in] pszSrc  Source string, or NULL.
- *
- * @return malloc'd copy, or NULL on OOM.
- */
-static PSZ dup_str(PCSZ pszSrc) {
-    size_t cbLen;
-    PSZ pszCopy;
-    if (!pszSrc) return NULL;
-    cbLen = strlen(pszSrc);
-    pszCopy = (PSZ)malloc(cbLen + 1);
-    if (pszCopy) memcpy(pszCopy, pszSrc, cbLen + 1);
-    return pszCopy;
-}
-
-/**
- * @brief Duplicate a byte range with a terminating NUL.
- *
- * @param[in] pszSrc  Source bytes. Not NULL.
- * @param[in] cbLen   Number of bytes.
- *
- * @return malloc'd string, or NULL on OOM.
- */
-static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
-    PSZ pszCopy = (PSZ)malloc(cbLen + 1);
-    if (!pszCopy) return NULL;
-    memcpy(pszCopy, pszSrc, cbLen);
-    pszCopy[cbLen] = '\0';
-    return pszCopy;
-}
 
 /**
  * @brief Register a node in its document.
@@ -273,7 +244,8 @@ static BOOL validate_utf8(PCSZ pszStr) {
  *
  * @param[in]  ulCp   Codepoint. Must be <= U+10FFFF and not a
  *                    surrogate.
- * @param[out] pszOut Output buffer. Must have room for up to 4 bytes.
+ * @param[out] pszOut Output buffer. Must have room for up to 4
+ *                    bytes.
  *
  * @return Number of bytes written (1..4).
  */
@@ -723,7 +695,7 @@ static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
  * @retval ERROR_INVALID_PARAMETER  pszText or phDoc is NULL.
  * @retval ERROR_INVALID_DATA       Malformed JSON, invalid UTF-8,
  *                                  or trailing bytes after the value.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY JsonParse(PCSZ pszText, HJSONDOC *phDoc) {
     PCSZ pszPos = pszText;
@@ -902,7 +874,7 @@ APIRET APIENTRY JsonNewString(HJSONDOC hDoc, PCSZ pszValue,
     if (hDoc == NULLHANDLE || !pszValue || !phNode)
         return ERROR_INVALID_PARAMETER;
     *phNode = NULLHANDLE;
-    pszCopy = dup_str(pszValue);
+    pszCopy = strdup(pszValue);
     if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
     pNode = node_new((PJSONDOC)hDoc, JSON_STRING);
     if (!pNode) { free(pszCopy); return ERROR_NOT_ENOUGH_MEMORY; }
@@ -1014,7 +986,7 @@ APIRET APIENTRY JsonObjectSet(HJSONNODE hObj, PCSZ pszKey,
     pObj = (PJSONNODE)hObj;
     pVal = (PJSONNODE)hValue;
     if (pObj->type != JSON_OBJECT) return ERROR_INVALID_DATA;
-    pszCopy = dup_str(pszKey);
+    pszCopy = strdup(pszKey);
     if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
     pVal->pszKey = pszCopy;
     if (node_add_child(pObj, pVal) != 0) {
@@ -1318,8 +1290,8 @@ APIRET APIENTRY JsonNodeGetNumber(HJSONNODE hNode, double *pdValue) {
 /**
  * @brief Retrieve the key of a node.
  *
- * For a child of an object, this is the field name. For a child of an
- * array, or for the root node, the key is empty.
+ * For a child of an object, this is the field name. For a child of
+ * an array, or for the root node, the key is empty.
  *
  * Size-query convention as for JsonNodeGetString.
  *
@@ -1385,7 +1357,7 @@ APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
     if (hNode == NULLHANDLE || !pszVal) return ERROR_INVALID_PARAMETER;
     if (pNode->type != JSON_STRING) return ERROR_INVALID_DATA;
 
-    pszCopy = dup_str(pszVal);
+    pszCopy = strdup(pszVal);
     if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
 
     free(pNode->pszStringValue);
@@ -1396,9 +1368,9 @@ APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
 /**
  * @brief Set or replace a string field on an object.
  *
- * If the object already has a child with the given key and that child
- * is a string, its value is replaced. Otherwise a new string child
- * is appended.
+ * If the object already has a child with the given key and that
+ * child is a string, its value is replaced. Otherwise a new string
+ * child is appended.
  *
  * @param[in] hDoc    Document handle. Not NULLHANDLE.
  * @param[in] hObj    Object handle. Not NULLHANDLE.
@@ -1471,11 +1443,11 @@ APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
     if (!pNodeDst) return ERROR_NOT_ENOUGH_MEMORY;
 
     if (pNodeSrc->pszKey) {
-        pNodeDst->pszKey = dup_str(pNodeSrc->pszKey);
+        pNodeDst->pszKey = strdup(pNodeSrc->pszKey);
         if (!pNodeDst->pszKey) return ERROR_NOT_ENOUGH_MEMORY;
     }
     if (pNodeSrc->pszStringValue) {
-        pNodeDst->pszStringValue = dup_str(pNodeSrc->pszStringValue);
+        pNodeDst->pszStringValue = strdup(pNodeSrc->pszStringValue);
         if (!pNodeDst->pszStringValue) return ERROR_NOT_ENOUGH_MEMORY;
     }
     pNodeDst->dblNumberValue = pNodeSrc->dblNumberValue;
@@ -1541,7 +1513,7 @@ static void sbuf_free(SBUF *pBuf) {
 /**
  * @brief Append bytes to a string buffer.
  *
- * @param[in,out] pBuf   Buffer. Not NULL.
+ * @param[in,out] pBuf     Buffer. Not NULL.
  * @param[in]     pszData  Bytes to append. Not NULL.
  * @param[in]     cbLen    Number of bytes.
  */
@@ -1709,7 +1681,8 @@ static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
  *     required size including NUL.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[in]  fIndent   TRUE_ for pretty-printed output.
+ * @param[in]  fIndent   TRUE_ for pretty-printed output with two-space
+ *                       indentation; FALSE_ for compact output.
  * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize    Size of pszBuf.
  * @param[out] pulUsed   Optional. May be NULL.
@@ -1720,6 +1693,7 @@ static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
  *                                  without size-query.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
                            PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
@@ -1762,7 +1736,8 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * When @p pszPath is NULL, the output is written to stdout.
  *
  * @param[in] hNode    Node handle. Not NULLHANDLE.
- * @param[in] fIndent  TRUE_ for pretty-printed output.
+ * @param[in] fIndent  TRUE_ for pretty-printed output; FALSE_ for
+ *                     compact output.
  * @param[in] pszPath  Output file path, or NULL for stdout.
  *
  * @return APIRET
@@ -1771,6 +1746,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_OPEN_FAILED        Cannot open output file.
  * @retval ERROR_READ_FAULT         Write error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
                               PCSZ pszPath) {

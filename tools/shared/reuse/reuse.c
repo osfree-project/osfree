@@ -41,33 +41,6 @@
  * ================================================================== */
 
 /**
- * @brief Duplicate a byte range into a fresh NUL-terminated string.
- *
- * @param[in] pszSrc  Source bytes. Not NULL.
- * @param[in] cbLen   Number of bytes to copy.
- *
- * @return malloc'd string, or NULL on allocation failure.
- */
-static PSZ dup_n(PCSZ pszSrc, size_t cbLen) {
-    PSZ pszOut = (PSZ)malloc(cbLen + 1);
-    if (!pszOut) return NULL;
-    memcpy(pszOut, pszSrc, cbLen);
-    pszOut[cbLen] = '\0';
-    return pszOut;
-}
-
-/**
- * @brief Duplicate a NUL-terminated string.
- *
- * @param[in] pszSrc  Source string. Not NULL.
- *
- * @return malloc'd copy, or NULL on allocation failure.
- */
-static PSZ dup_str(PCSZ pszSrc) {
-    return dup_n(pszSrc, strlen(pszSrc));
-}
-
-/**
  * @brief Free a heap block through a pointer-to-pointer and clear it.
  *
  * Passing NULL or a pointer to a NULL value is a no-op.
@@ -358,7 +331,7 @@ static int cfg_add(PREUSETREE pd, int nKind, PCSZ pszSourceDir, int nDepth,
     pCfg = &pd->paCfgs[pd->ulCount++];
     memset(pCfg, 0, sizeof(*pCfg));
     pCfg->nKind = nKind;
-    pCfg->pszSourceDir = dup_str(pszSourceDir);
+    pCfg->pszSourceDir = strdup(pszSourceDir);
     pCfg->nDepth = nDepth;
     pCfg->hToml = hToml;
     pCfg->hDep5 = hDep5;
@@ -922,8 +895,8 @@ static int cfg_find_best(REUSECFG *pCfg, PCSZ pszPath, MATCH *pMatch) {
 static PSZ aggregate_licenses(PCSZ pszA, PCSZ pszB) {
     size_t cbALen, cbBLen;
     PSZ pszResult;
-    if (!pszA) return pszB ? dup_str(pszB) : NULL;
-    if (!pszB) return dup_str(pszA);
+    if (!pszA) return pszB ? strdup(pszB) : NULL;
+    if (!pszB) return strdup(pszA);
     cbALen = strlen(pszA);
     cbBLen = strlen(pszB);
     pszResult = (PSZ)malloc(cbALen + cbBLen + 8);
@@ -943,8 +916,8 @@ static PSZ aggregate_licenses(PCSZ pszA, PCSZ pszB) {
 static PSZ aggregate_copyrights(PCSZ pszA, PCSZ pszB) {
     size_t cbALen, cbBLen;
     PSZ pszResult;
-    if (!pszA) return pszB ? dup_str(pszB) : NULL;
-    if (!pszB) return dup_str(pszA);
+    if (!pszA) return pszB ? strdup(pszB) : NULL;
+    if (!pszB) return strdup(pszA);
     cbALen = strlen(pszA);
     cbBLen = strlen(pszB);
     pszResult = (PSZ)malloc(cbALen + cbBLen + 2);
@@ -990,8 +963,8 @@ static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
     PCSZ pszPos;
 
     if (!pszA && !pszB) return NULL;
-    if (!pszA) return dup_str(pszB);
-    if (!pszB) return dup_str(pszA);
+    if (!pszA) return strdup(pszB);
+    if (!pszB) return strdup(pszA);
 
     cbALen = strlen(pszA);
     cbBLen = strlen(pszB);
@@ -1129,22 +1102,22 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
     if (fHaveOverride) {
         pFile->ulPrecedence = REUSE_PRECEDENCE_OVERRIDE;
         if (bestOverride.pszLicense)
-            pFile->pszLicense = dup_str(bestOverride.pszLicense);
+            pFile->pszLicense = strdup(bestOverride.pszLicense);
         if (bestOverride.pszCopyright)
-            pFile->pszCopyright = dup_str(bestOverride.pszCopyright);
+            pFile->pszCopyright = strdup(bestOverride.pszCopyright);
         if (bestOverride.pszContributors)
-            pFile->pszContributors = dup_str(bestOverride.pszContributors);
+            pFile->pszContributors = strdup(bestOverride.pszContributors);
         if (bestOverride.pszPackageName)
-            pFile->pszPackageName = dup_str(bestOverride.pszPackageName);
+            pFile->pszPackageName = strdup(bestOverride.pszPackageName);
         if (bestOverride.pszPackageSupplier)
             pFile->pszPackageSupplier =
-                dup_str(bestOverride.pszPackageSupplier);
+                strdup(bestOverride.pszPackageSupplier);
         if (bestOverride.pszPackageDownloadLocation)
             pFile->pszPackageDownloadLocation =
-                dup_str(bestOverride.pszPackageDownloadLocation);
+                strdup(bestOverride.pszPackageDownloadLocation);
         if (bestOverride.pszPackageComment)
             pFile->pszPackageComment =
-                dup_str(bestOverride.pszPackageComment);
+                strdup(bestOverride.pszPackageComment);
     } else {
         PCSZ pszBaseLicense = fHaveClosest ? bestClosest.pszLicense : NULL;
         PCSZ pszBaseCopyright = fHaveClosest ? bestClosest.pszCopyright
@@ -1156,25 +1129,25 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
             pFile->ulPrecedence = (pszBaseLicense || pszBaseCopyright ||
                                    fHaveClosest)
                 ? REUSE_PRECEDENCE_CLOSEST : 0;
-            if (pszBaseLicense) pFile->pszLicense = dup_str(pszBaseLicense);
+            if (pszBaseLicense) pFile->pszLicense = strdup(pszBaseLicense);
             if (pszBaseCopyright)
-                pFile->pszCopyright = dup_str(pszBaseCopyright);
+                pFile->pszCopyright = strdup(pszBaseCopyright);
             if (fHaveClosest) {
                 if (bestClosest.pszContributors)
                     pFile->pszContributors =
-                        dup_str(bestClosest.pszContributors);
+                        strdup(bestClosest.pszContributors);
                 if (bestClosest.pszPackageName)
                     pFile->pszPackageName =
-                        dup_str(bestClosest.pszPackageName);
+                        strdup(bestClosest.pszPackageName);
                 if (bestClosest.pszPackageSupplier)
                     pFile->pszPackageSupplier =
-                        dup_str(bestClosest.pszPackageSupplier);
+                        strdup(bestClosest.pszPackageSupplier);
                 if (bestClosest.pszPackageDownloadLocation)
                     pFile->pszPackageDownloadLocation =
-                        dup_str(bestClosest.pszPackageDownloadLocation);
+                        strdup(bestClosest.pszPackageDownloadLocation);
                 if (bestClosest.pszPackageComment)
                     pFile->pszPackageComment =
-                        dup_str(bestClosest.pszPackageComment);
+                        strdup(bestClosest.pszPackageComment);
             }
         } else {
             pFile->ulPrecedence = REUSE_PRECEDENCE_AGGREGATE;
@@ -1183,17 +1156,17 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
                 pFile->pszLicense = aggregate_licenses(
                     pszBaseLicense, bestAggregate.pszLicense);
             else if (pszBaseLicense)
-                pFile->pszLicense = dup_str(pszBaseLicense);
+                pFile->pszLicense = strdup(pszBaseLicense);
             else if (bestAggregate.pszLicense)
-                pFile->pszLicense = dup_str(bestAggregate.pszLicense);
+                pFile->pszLicense = strdup(bestAggregate.pszLicense);
 
             if (pszBaseCopyright && bestAggregate.pszCopyright)
                 pFile->pszCopyright = aggregate_copyrights(
                     pszBaseCopyright, bestAggregate.pszCopyright);
             else if (pszBaseCopyright)
-                pFile->pszCopyright = dup_str(pszBaseCopyright);
+                pFile->pszCopyright = strdup(pszBaseCopyright);
             else if (bestAggregate.pszCopyright)
-                pFile->pszCopyright = dup_str(bestAggregate.pszCopyright);
+                pFile->pszCopyright = strdup(bestAggregate.pszCopyright);
 
             {
                 PCSZ pszA = fHaveClosest
@@ -1201,38 +1174,38 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
                 PCSZ pszB = bestAggregate.pszContributors;
                 if (pszA && pszB) pFile->pszContributors =
                     join_lines_dedup(pszA, pszB);
-                else if (pszA) pFile->pszContributors = dup_str(pszA);
-                else if (pszB) pFile->pszContributors = dup_str(pszB);
+                else if (pszA) pFile->pszContributors = strdup(pszA);
+                else if (pszB) pFile->pszContributors = strdup(pszB);
             }
 
             if (fHaveClosest && bestClosest.pszPackageName)
                 pFile->pszPackageName =
-                    dup_str(bestClosest.pszPackageName);
+                    strdup(bestClosest.pszPackageName);
             else if (bestAggregate.pszPackageName)
                 pFile->pszPackageName =
-                    dup_str(bestAggregate.pszPackageName);
+                    strdup(bestAggregate.pszPackageName);
 
             if (fHaveClosest && bestClosest.pszPackageSupplier)
                 pFile->pszPackageSupplier =
-                    dup_str(bestClosest.pszPackageSupplier);
+                    strdup(bestClosest.pszPackageSupplier);
             else if (bestAggregate.pszPackageSupplier)
                 pFile->pszPackageSupplier =
-                    dup_str(bestAggregate.pszPackageSupplier);
+                    strdup(bestAggregate.pszPackageSupplier);
 
             if (fHaveClosest &&
                 bestClosest.pszPackageDownloadLocation)
                 pFile->pszPackageDownloadLocation =
-                    dup_str(bestClosest.pszPackageDownloadLocation);
+                    strdup(bestClosest.pszPackageDownloadLocation);
             else if (bestAggregate.pszPackageDownloadLocation)
                 pFile->pszPackageDownloadLocation =
-                    dup_str(bestAggregate.pszPackageDownloadLocation);
+                    strdup(bestAggregate.pszPackageDownloadLocation);
 
             if (fHaveClosest && bestClosest.pszPackageComment)
                 pFile->pszPackageComment =
-                    dup_str(bestClosest.pszPackageComment);
+                    strdup(bestClosest.pszPackageComment);
             else if (bestAggregate.pszPackageComment)
                 pFile->pszPackageComment =
-                    dup_str(bestAggregate.pszPackageComment);
+                    strdup(bestAggregate.pszPackageComment);
         }
     }
 
@@ -1281,13 +1254,26 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
 /**
  * @brief Open a REUSE project rooted at a directory.
  *
+ * Scans the Git repository that contains pszDir (if any) and
+ * collects every REUSE.toml file from the repository root down to
+ * pszDir, in increasing depth order. Also reads .reuse/dep5 at the
+ * repository root, if present.
+ *
+ * Parse errors in discovered files are recorded as REUSEERR
+ * entries in the project handle; the offending source is skipped.
+ *
  * @param[in]  pszDir  Target directory. Not NULL.
- * @param[out] phDoc   Handle receiver. Not NULL.
+ * @param[out] phDoc   Handle receiver. Not NULL. Set to NULLHANDLE on
+ *                     error.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
+ * @retval NO_ERROR                 Success (possibly with recorded
+ *                                  diagnostics).
  * @retval ERROR_INVALID_PARAMETER  pszDir or phDoc is NULL.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_OPEN_FAILED        Directory cannot be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ *
+ * @see ReuseTreeGetError, ReuseTreeClose
  */
 APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
     PREUSETREE pd;
@@ -1299,7 +1285,7 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
     pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
     if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
 
-    pd->pszProjectDir = dup_str(pszDir);
+    pd->pszProjectDir = strdup(pszDir);
     if (!pd->pszProjectDir) {
         doc_free(pd);
         return ERROR_NOT_ENOUGH_MEMORY;
@@ -1339,11 +1325,16 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
 /**
  * @brief Close a project and release all associated memory.
  *
+ * All HREUSETREEFILE handles and REUSEERR records obtained from this
+ * project become invalid.
+ *
  * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval NO_ERROR                Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE    Handle not recognized.
+ * @retval NO_ERROR                 Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ *
+ * @warning Do not call ReuseTreeClose twice with the same handle.
  */
 APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
@@ -1356,12 +1347,16 @@ APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
 /**
  * @brief Number of REUSEERR records stored in the project.
  *
- * @param[in]  hDoc      Handle. Not NULLHANDLE.
- * @param[out] pulCount  Receiver. Not NULL.
+ * Errors, warnings and informational records are counted together.
+ * Use ReuseTreeGetError to inspect severity.
+ *
+ * @param[in]  hDoc     Handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
     PREUSETREE pd = ReuseInternalGetDoc(hDoc);
@@ -1373,13 +1368,17 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
 /**
  * @brief Retrieve one diagnostic record by index.
  *
- * @param[in]  hDoc     Handle. Not NULLHANDLE.
- * @param[in]  ulIndex  Zero-based index.
- * @param[out] pErr     Receiver. Not NULL.
+ * The returned REUSEERR is a snapshot; string fields point to data
+ * owned by the project handle and remain valid until ReuseTreeClose.
+ *
+ * @param[in]  hDoc    Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index, < ReuseTreeGetErrorCount.
+ * @param[out] pErr    Receiver. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
 APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
@@ -1394,15 +1393,34 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
 /**
  * @brief Resolve licensing information for one file.
  *
- * @param[in]  hDoc     Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[out] phFile   Handle receiver. Not NULL.
- * @param[out] pErr     Optional. May be NULL.
+ * Algorithm (REUSE 3.3 §4.1.2, §4.1.3):
+ *   1. Read the adjacent <file>.license sidecar, if present.
+ *   2. Read SPDX tags inside the file (outside REUSE-IgnoreStart/End
+ *      regions; snippet bodies are not treated as file-level tags).
+ *   3. Apply precedence across all discovered REUSE.toml files that
+ *      match the file, using sidecar/tag data as the in-file source.
+ *   4. Aggregate results as prescribed by the winning precedence.
+ *
+ * A successful resolution does not imply the file had any licensing
+ * information. Use ReuseTreeFileGetHasReuse to distinguish "no
+ * sources matched" from "sources matched but were empty".
+ *
+ * @param[in]  hDoc    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath Path to the file. May be absolute or relative.
+ * @param[out] phFile  Handle receiver. Not NULL. Set to NULLHANDLE on
+ *                     error.
+ * @param[out] pErr    Optional. May be NULL. If not NULL and a
+ *                     file-specific diagnostic occurred, the first
+ *                     such record is stored here.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc, pszPath or phFile is NULL.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval REUSE_ERROR_SYNTAX       Sidecar contains a syntax error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
                                      HREUSETREEFILE *phFile,
@@ -1427,8 +1445,8 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
  * @param[in] hFile  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval NO_ERROR                Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE    Handle not recognized.
+ * @retval NO_ERROR                 Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
@@ -1492,15 +1510,16 @@ static APIRET copy_out(PCSZ pszVal, PSZ pszBuf, ULONG ulSize,
 /**
  * @brief Retrieve the resolved SPDX license expression.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     The winning sources define no
  *                                  license.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
                                         PSZ pszBuf, ULONG ulSize,
@@ -1513,15 +1532,18 @@ APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
 /**
  * @brief Retrieve the resolved copyright text.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * Multiple notices are joined with '\n'.
+ *
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     The winning sources define no
  *                                  copyright.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
                                           PSZ pszBuf, ULONG ulSize,
@@ -1534,14 +1556,17 @@ APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
 /**
  * @brief Retrieve the resolved SPDX-FileContributor list.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * Multiple contributors are joined with '\n'.
+ *
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     No contributor was defined.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
                                              PSZ pszBuf, ULONG ulSize,
@@ -1554,14 +1579,15 @@ APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
 /**
  * @brief Retrieve SPDX-PackageName.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
                                             PSZ pszBuf, ULONG ulSize,
@@ -1574,14 +1600,15 @@ APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
 /**
  * @brief Retrieve SPDX-PackageSupplier.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
                                                 PSZ pszBuf, ULONG ulSize,
@@ -1594,14 +1621,15 @@ APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
 /**
  * @brief Retrieve SPDX-PackageDownloadLocation.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(
     HREUSETREEFILE hFile, PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
@@ -1614,14 +1642,15 @@ APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(
 /**
  * @brief Retrieve SPDX-PackageComment.
  *
- * @param[in]  hFile     Handle. Not NULLHANDLE.
- * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize    Size of pszBuf in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  hFile    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
                                                PSZ pszBuf, ULONG ulSize,
@@ -1651,10 +1680,12 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
 }
 
 /**
- * @brief Query whether any REUSE.toml, DEP5, sidecar or tag matched.
+ * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched the
+ *        file.
  *
  * @param[in]  hFile       Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfHasReuse  Receiver: TRUE_ if at least one source
+ *                         matched; FALSE_ otherwise. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
