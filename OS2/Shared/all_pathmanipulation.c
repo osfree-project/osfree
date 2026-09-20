@@ -24,15 +24,18 @@
   @return
      pointer to zero terminated string, containing extracted directory
      note that user is responsible for freeing that string memory
-
-  @todo check for NULL when allocation memory, and do something... (what?)
 */
 char* all_GetDirFromPath(char *fileMask)
 {
   int iStrLen,iCounter;
-  char *result=(char*)calloc(1,strlen(fileMask));
+  char *result;
 
   iStrLen=strlen(fileMask);
+
+  /* +2 covers the largest branch below: a two-character "C:" input
+     becomes "C:\", which needs four bytes including the terminator. */
+  result=(char*)calloc(1,(size_t)iStrLen+2);
+  if (result==NULL) return NULL;
 
   if (iStrLen==0)
     return result;
@@ -42,7 +45,7 @@ char* all_GetDirFromPath(char *fileMask)
 
   if (iCounter==0)
   {
-    if ((fileMask[iCounter]=='\\')&&(strlen(fileMask)>1))
+    if ((fileMask[iCounter]=='\\')&&(iStrLen>1))
       strncpy(result,fileMask,1);
     else
     {
@@ -59,7 +62,6 @@ char* all_GetDirFromPath(char *fileMask)
   return result;
 };
 
-
 /*
   Extract file mask part from full-path file mask eg.: extracting from
   c:\dir1\dir2\abc.d will result in abc.d returned
@@ -70,8 +72,6 @@ char* all_GetDirFromPath(char *fileMask)
   @return
      pointer to zero terminated string, containing extracted file mask
      note that user is responsible for freeing that string memory
-
-  @todo check for NULL when allocation memory, and do something... (what?)
 */
 char * all_GetFileFromPath(char *fileMask)
 {
@@ -103,7 +103,8 @@ char * all_GetFileFromPath(char *fileMask)
 
    if (strlen(tmp)==0) return "";
 
-   result=(char*)calloc(1,strlen(tmp)); /* @todo: check is null! */
+   result=(char*)calloc(1,strlen(tmp)+1);
+   if (result==NULL) return NULL;
 
   strcpy(result,tmp);
   return result;
@@ -116,14 +117,14 @@ char * all_GetFileFromPath(char *fileMask)
 
  @return
     pointer to string with full path
-
- @todo error handling!!
 */
 char *all_GetFullPathForFile(char *file)
 {
  char *result=(char *)calloc(1,CCHMAXPATH);    /* resulting string */
 
  APIRET rc;
+
+ if (result==NULL) return NULL;
 
 #ifdef __386__
  rc=DosQueryPathInfo(file,FIL_QUERYFULLNAME,result,CCHMAXPATH);
@@ -132,7 +133,6 @@ char *all_GetFullPathForFile(char *file)
 #endif
  return result;
 };
-
 
 /*!
   Gets current process working path or current path for specified disk
@@ -148,7 +148,7 @@ char *all_GetFullPathForFile(char *file)
 */
 int all_GetCurrentPath(int disk, char **ppath)
 {
- char *path=*ppath;
+ char *path;
  char *buf=NULL;
 #ifdef __386__
  ULONG size=0;
@@ -157,7 +157,11 @@ int all_GetCurrentPath(int disk, char **ppath)
 #endif
  ULONG ulAvail;
  APIRET rc;
- PSZ pszDisk="C:";
+ char szDisk[3]="C:";
+ char *pszDisk=szDisk;
+
+ if (ppath==NULL) return ERROR_INVALID_PARAMETER;
+ path=*ppath;
 
  /* first ask for needed space */
 #ifdef __386__
@@ -179,7 +183,8 @@ int all_GetCurrentPath(int disk, char **ppath)
  /* there is  directory info */
  if (size!=0)
  {
-  buf=(char*)calloc(1,size+5);
+  buf=(char*)calloc(1,(size_t)size+5);
+  if (buf==NULL) return ERROR_NOT_ENOUGH_MEMORY;
   /* the trick is, we'll put disk letter in front of the dir */
 #ifdef __386__
   rc=DosQueryCurrentDir(disk,&buf[3],&size);
@@ -193,20 +198,21 @@ int all_GetCurrentPath(int disk, char **ppath)
   };
   if (path!=NULL) free(path);
   *ppath=buf;
-  buf[0]=pszDisk[0]; // drive letter
-  buf[1]=pszDisk[1]; // ':'
+  buf[0]=pszDisk[0]; /* drive letter */
+  buf[1]=pszDisk[1]; /* ':' */
   buf[2]='\\';
  } else
  {
-  if (path!=NULL) free(path);
-  path=(char *)calloc(1,5);
+  char *newPath=(char *)calloc(1,5);
+  if (newPath==NULL) return ERROR_NOT_ENOUGH_MEMORY;
 #ifdef __386__
-  strcpy(path,pszDisk);
+  strcpy(newPath,pszDisk);
 #else
-  _fstrcpy(path,pszDisk);
+  _fstrcpy(newPath,pszDisk);
 #endif
-  strcat(path,"\\");
-  *ppath=path;
+  strcat(newPath,"\\");
+  if (path!=NULL) free(path);
+  *ppath=newPath;
  };
 
  return 0;
