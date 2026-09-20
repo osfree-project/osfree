@@ -19,6 +19,7 @@
 #include "reuse_toml.h"
 #include "dep5.h"
 #include "git.h"
+#include "path.h"
 #include "spdx_tag.h"
 
 /**
@@ -399,26 +400,6 @@ static void doc_free(PREUSETREE pd) {
  * ================================================================== */
 
 /**
- * @brief Join a directory and a name with the platform separator.
- *
- * @param[out] pszDst      Destination buffer. Not NULL.
- * @param[in]  ulDstSize   Size of @p pszDst.
- * @param[in]  pszDir      Directory. Not NULL.
- * @param[in]  pszName     Entry name. Not NULL.
- */
-static void join_path(PSZ pszDst, size_t ulDstSize,
-                      PCSZ pszDir, PCSZ pszName) {
-    size_t cbLen = strlen(pszDir);
-#ifdef __LINUX__
-    if (cbLen == 0) snprintf(pszDst, ulDstSize, "%s", pszName);
-    else snprintf(pszDst, ulDstSize, "%s/%s", pszDir, pszName);
-#else
-    if (cbLen == 0) snprintf(pszDst, ulDstSize, "%s", pszName);
-    else snprintf(pszDst, ulDstSize, "%s\\%s", pszDir, pszName);
-#endif
-}
-
-/**
  * @brief Register one REUSE.toml file as a config, if it parses.
  *
  * On parse failure, records a diagnostic and returns 0 so that the
@@ -498,13 +479,15 @@ static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
     int nDepth = 0;
 
     if (!pszRepoRoot) {
-        join_path(achPath, sizeof(achPath), pszTarget, "REUSE.toml");
+        PathMakeJoin(pszTarget, "REUSE.toml", achPath, sizeof(achPath),
+                     NULL);
         fp = fopen(achPath, "r");
         if (fp) { fclose(fp); try_add_toml(pd, achPath, pszTarget, 0); }
         return 0;
     }
 
-    join_path(achPath, sizeof(achPath), pszRepoRoot, "REUSE.toml");
+    PathMakeJoin(pszRepoRoot, "REUSE.toml", achPath, sizeof(achPath),
+                 NULL);
     fp = fopen(achPath, "r");
     if (fp) {
         fclose(fp);
@@ -534,7 +517,8 @@ static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
                 memcpy(achCurrent + cbCurLen + 1, pszRel + cbStart, cbSegLen);
                 achCurrent[cbCurLen + 1 + cbSegLen] = '\0';
 
-                join_path(achPath, sizeof(achPath), achCurrent, "REUSE.toml");
+                PathMakeJoin(achCurrent, "REUSE.toml", achPath,
+                             sizeof(achPath), NULL);
                 fp = fopen(achPath, "r");
                 if (fp) {
                     fclose(fp);
@@ -563,11 +547,12 @@ static int discover_dep5(PREUSETREE pd, PCSZ pszRepoRoot) {
     APIRET rc;
 
     if (!pszRepoRoot || !pszRepoRoot[0]) return 0;
-#ifdef __LINUX__
-    snprintf(achPath, sizeof(achPath), "%s/.reuse/dep5", pszRepoRoot);
-#else
-    snprintf(achPath, sizeof(achPath), "%s\\.reuse\\dep5", pszRepoRoot);
-#endif
+    {
+        CHAR achReuseDir[1024];
+        PathMakeJoin(pszRepoRoot, ".reuse", achReuseDir,
+                     sizeof(achReuseDir), NULL);
+        PathMakeJoin(achReuseDir, "dep5", achPath, sizeof(achPath), NULL);
+    }
     fp = fopen(achPath, "r");
     if (!fp) return 0;
     fclose(fp);

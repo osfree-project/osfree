@@ -9,6 +9,7 @@
 #include "res.h"
 #include "ccl.h"
 #include "git.h"
+#include "path.h"
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -398,53 +399,6 @@ static BOOL should_skip_dir(PCSZ pszName,
 }
 
 /* ------------------------------------------------------------------ */
-/* Path normalization and joining                                      */
-/* ------------------------------------------------------------------ */
-
-/**
- * @brief Strip trailing separators from a directory path.
- *
- * @param[in]  pszSrc     Source path. Not NULL.
- * @param[out] pszDst     Destination buffer. Not NULL.
- * @param[in]  ulDstSize  Size of @p pszDst.
- */
-static void normalize_dir(PCSZ pszSrc, PSZ pszDst, ULONG ulDstSize) {
-    size_t cbLen = strlen(pszSrc);
-#ifdef _WIN32
-    if (cbLen >= 2 && pszSrc[1] == ':' &&
-        (cbLen == 2 ||
-         (cbLen == 3 && (pszSrc[2] == '\\' || pszSrc[2] == '/')))) {
-        strncpy(pszDst, pszSrc, ulDstSize - 1);
-        pszDst[ulDstSize - 1] = '\0';
-        return;
-    }
-#endif
-    while (cbLen > 0 &&
-           (pszSrc[cbLen-1] == '/' || pszSrc[cbLen-1] == '\\'))
-        cbLen--;
-    if (cbLen >= ulDstSize) cbLen = ulDstSize - 1;
-    memcpy(pszDst, pszSrc, cbLen);
-    pszDst[cbLen] = '\0';
-}
-
-/**
- * @brief Join a directory and a name with the platform separator.
- *
- * @param[out] pszDst      Destination buffer. Not NULL.
- * @param[in]  ulDstSize   Size of @p pszDst.
- * @param[in]  pszDir      Directory. Not NULL.
- * @param[in]  pszName     Name. Not NULL.
- */
-static void join_path(PSZ pszDst, ULONG ulDstSize,
-                      PCSZ pszDir, PCSZ pszName) {
-#ifdef __LINUX__
-    snprintf(pszDst, ulDstSize, "%s/%s", pszDir, pszName);
-#else
-    snprintf(pszDst, ulDstSize, "%s\\%s", pszDir, pszName);
-#endif
-}
-
-/* ------------------------------------------------------------------ */
 /* Tree walk                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -471,7 +425,10 @@ static APIRET walk_inner(PCSZ pszDirIn,
     struct stat st;
     CHAR achFull[1024];
 
-    normalize_dir(pszDirIn, achDir, sizeof(achDir));
+    strncpy(achDir, pszDirIn, sizeof(achDir) - 1);
+    achDir[sizeof(achDir) - 1] = '\0';
+    PathRemoveTrailingSeparators(achDir);
+
     pDir = opendir(achDir);
     if (!pDir) return ERROR_OPEN_FAILED;
 
@@ -479,7 +436,8 @@ static APIRET walk_inner(PCSZ pszDirIn,
         if (strcmp(pEntry->d_name, ".") == 0 ||
             strcmp(pEntry->d_name, "..") == 0) continue;
 
-        join_path(achFull, sizeof(achFull), achDir, pEntry->d_name);
+        PathMakeJoin(achDir, pEntry->d_name, achFull, sizeof(achFull),
+                     NULL);
         if (stat(achFull, &st) != 0) continue;
 
         if (S_ISLNK(st.st_mode)) continue;
@@ -534,7 +492,10 @@ static APIRET walk_inner(PCSZ pszDirIn,
     CHAR achPattern[1100];
     CHAR achFull[1024];
 
-    normalize_dir(pszDirIn, achDir, sizeof(achDir));
+    strncpy(achDir, pszDirIn, sizeof(achDir) - 1);
+    achDir[sizeof(achDir) - 1] = '\0';
+    PathRemoveTrailingSeparators(achDir);
+
     snprintf(achPattern, sizeof(achPattern), "%s\\*", achDir);
     hFile = _findfirst(achPattern, &fd);
     if (hFile == -1L) return ERROR_OPEN_FAILED;
@@ -543,7 +504,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
         if (strcmp(fd.name, ".") == 0 || strcmp(fd.name, "..") == 0)
             continue;
 
-        join_path(achFull, sizeof(achFull), achDir, fd.name);
+        PathMakeJoin(achDir, fd.name, achFull, sizeof(achFull), NULL);
         if (stat(achFull, &st) != 0) continue;
 
         if (st.st_mode & _S_IFDIR) {

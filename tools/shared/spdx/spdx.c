@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "spdx.h"
+#include "path.h"
 
 /* ==================================================================
  * File helpers
@@ -68,22 +69,18 @@ APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
 /**
  * @brief Return a pointer to the base name inside a path.
  *
+ * The returned pointer refers to data inside @p pszPath; the caller
+ * must not free it. Never returns NULL when @p pszPath is not NULL.
+ *
  * @param[in] pszPath  Path. Not NULL.
  *
  * @return Base name, or NULL if pszPath is NULL.
  */
 PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
-    PCSZ pszSlash;
-    PCSZ pszBackslash;
-
+    PCSZ pszBase = NULL;
     if (!pszPath) return NULL;
-    pszSlash = strrchr(pszPath, '/');
-    pszBackslash = strrchr(pszPath, '\\');
-    if (pszBackslash && (!pszSlash || pszBackslash > pszSlash))
-        return pszBackslash + 1;
-    if (pszSlash)
-        return pszSlash + 1;
-    return pszPath;
+    if (PathGetBaseName(pszPath, &pszBase) != NO_ERROR) return NULL;
+    return pszBase;
 }
 
 /* ==================================================================
@@ -131,15 +128,6 @@ APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut) {
 /* ==================================================================
  * Text helpers
  * ================================================================== */
-
-/**
- * @brief Internal buffer size for the normalization pass.
- *
- * The function processes the input twice: first to compute the
- * normalized length, then to fill the caller's buffer. The first
- * pass uses a growable scratch buffer; the caller's buffer must be
- * large enough for the normalized result.
- */
 
 /**
  * @brief Normalize text into a private scratch buffer.

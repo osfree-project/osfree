@@ -15,6 +15,7 @@
 #endif
 
 #include "git.h"
+#include "path.h"
 
 /**
  * @file git.c
@@ -49,36 +50,6 @@ static BOOL has_git_entry(PCSZ pszPath) {
     snprintf(achPath, sizeof(achPath), "%s\\.git", pszPath);
     if (stat(achPath, &st) == 0) return TRUE_;
     return FALSE_;
-}
-
-/**
- * @brief Remove trailing path separators.
- *
- * A bare drive letter like "C:" is left unchanged: the buffer
- * allocated by strdup has only len + 1 bytes, so appending a
- * separator would require a write past the end. Windows accepts
- * "C:" as the current directory of drive C, so the transformation
- * is not required.
- *
- * @param[in,out] pszPath  Path buffer to trim. Not NULL.
- */
-static void trim_separators(PSZ pszPath) {
-    size_t cbLen = strlen(pszPath);
-#ifdef _WIN32
-    if (cbLen == 3 && pszPath[1] == ':' &&
-        (pszPath[2] == '\\' || pszPath[2] == '/')) return;
-#endif
-    while (cbLen > 1 && (pszPath[cbLen-1] == '/' ||
-                         pszPath[cbLen-1] == '\\')) {
-        pszPath[--cbLen] = '\0';
-    }
-#ifdef _WIN32
-    if (cbLen == 2 && pszPath[1] == ':') {
-        /* Bare drive letter: do not extend to "C:\", the buffer is
-         * only len + 1 bytes. See the function comment. */
-        return;
-    }
-#endif
 }
 
 /* ------------------------------------------------------------------ */
@@ -128,7 +99,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
         PSZ pszSlash;
         PSZ pszBackslash;
 
-        trim_separators(pszCurrent);
+        PathRemoveTrailingSeparators(pszCurrent);
 
         if (has_git_entry(pszCurrent)) break;
 

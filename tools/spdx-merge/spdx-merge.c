@@ -13,6 +13,7 @@
 #include "spdx_db.h"
 #include "spdx.h"
 #include "ccl.h"
+#include "path.h"
 
 /**
  * @file spdx-merge.c
@@ -26,7 +27,6 @@
  *   - SPDX 2.3, §6.6 (external document references), §11
  *     (relationships), Annex I (checksum algorithms).
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 #define MAX_DOCS 100
@@ -57,113 +57,6 @@ static PSZ read_file_to_heap(PCSZ pszPath) {
         return NULL;
     }
     return pszOut;
-}
-
-/* ==================================================================
- * Path helpers
- * ================================================================== */
-
-/**
- * @brief Canonicalize a path.
- *
- * Converts backslashes to forward slashes and removes '.' and '..'
- * components.
- *
- * @param[in] pszPath  Input path. Not NULL.
- *
- * @return malloc'd normalized path owned by the caller, or NULL on
- *         allocation failure.
- */
-static PSZ CanonicalizePath(PCSZ pszPath) {
-    PSZ pszCopy = strdup(pszPath);
-    PSZ pszOut = (PSZ)malloc(strlen(pszPath) + 3);
-    PSZ pszPos, pszQ;
-
-    if (!pszCopy || !pszOut) { free(pszCopy); free(pszOut); return NULL; }
-    pszPos = pszCopy; pszQ = pszOut;
-#ifdef _WIN32
-    if (isalpha((unsigned char)pszPos[0]) && pszPos[1] == ':') {
-        *pszQ++ = *pszPos++; *pszQ++ = *pszPos++;
-    }
-#endif
-    while (*pszPos) {
-        if (*pszPos == '/' || *pszPos == '\\') {
-            *pszQ++ = '/';
-            while (*pszPos == '/' || *pszPos == '\\') pszPos++;
-        } else if (*pszPos == '.') {
-            if (pszPos[1] == '/' || pszPos[1] == '\\' ||
-                pszPos[1] == '\0') {
-                pszPos++;
-                while (*pszPos == '/' || *pszPos == '\\') pszPos++;
-            } else if (pszPos[1] == '.' &&
-                       (pszPos[2] == '/' || pszPos[2] == '\\' ||
-                        pszPos[2] == '\0')) {
-                pszPos += 2;
-                while (*pszPos == '/' || *pszPos == '\\') pszPos++;
-                if (pszQ > pszOut) {
-                    pszQ--;
-                    while (pszQ > pszOut && *(pszQ - 1) != '/' &&
-                           *(pszQ - 1) != '\\')
-                        pszQ--;
-                }
-            } else {
-                *pszQ++ = *pszPos++;
-            }
-        } else {
-            *pszQ++ = *pszPos++;
-        }
-    }
-    *pszQ = '\0';
-    free(pszCopy);
-    return pszOut;
-}
-
-/**
- * @brief Return the directory part of a path.
- *
- * @param[in] pszFilePath  Path. Not NULL.
- *
- * @return malloc'd directory owned by the caller, or NULL on
- *         allocation failure.
- */
-static PSZ QueryDirName(PCSZ pszFilePath) {
-    PSZ pszSlash = strrchr(pszFilePath, '/');
-    PSZ pszBackslash = strrchr(pszFilePath, '\\');
-    PSZ pszLast = (pszBackslash &&
-                   (!pszSlash || pszBackslash > pszSlash))
-                      ? pszBackslash : pszSlash;
-    PSZ pszDir;
-    size_t cbLen;
-
-    if (!pszLast) return strdup(".");
-    cbLen = (size_t)(pszLast - pszFilePath);
-    if (cbLen == 0) return strdup("/");
-    pszDir = (PSZ)malloc(cbLen + 1);
-    if (!pszDir) return NULL;
-    memcpy(pszDir, pszFilePath, cbLen);
-    pszDir[cbLen] = '\0';
-    return pszDir;
-}
-
-/**
- * @brief Join a directory and a relative path.
- *
- * @param[in] pszDir  Directory. Not NULL.
- * @param[in] pszRel  Relative path. Not NULL.
- *
- * @return malloc'd path owned by the caller, or NULL on allocation
- *         failure.
- */
-static PSZ JoinPath(PCSZ pszDir, PCSZ pszRel) {
-    size_t cbLen1 = strlen(pszDir), cbLen2 = strlen(pszRel);
-    int fSep = (cbLen1 > 0 && pszDir[cbLen1 - 1] != '/' &&
-                pszDir[cbLen1 - 1] != '\\') ? 1 : 0;
-    PSZ pszResult = (PSZ)malloc(cbLen1 + fSep + cbLen2 + 1);
-    if (!pszResult) return NULL;
-    strcpy(pszResult, pszDir);
-    if (fSep) strcat(pszResult, "/");
-    strcat(pszResult, pszRel);
-    return pszResult;
 }
 
 /* ==================================================================
@@ -962,16 +855,29 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
     HJSONNODE hSnippets = NULLHANDLE;
     HJSONNODE hMergedArr = NULLHANDLE;
     PSZ pszAbsPath;
+    ULONG ulPathSize = 0;
     ULONG ulCount = 0, ulIdx;
     APIRET rc;
 
-    pszAbsPath = CanonicalizePath(pszFilePath);
-    if (!pszAbsPath) {
+    if (PathNormalize(pszFilePath, NULL, 0, &ulPathSize) != NO_ERROR) {
         fprintf(stderr, "ERROR: cannot normalize path: %s\n", pszFilePath);
         exit(EXIT_FAILURE);
     }
+    pszAbsPath = (PSZ)malloc(ulPathSize);
+    if (!pszAbsPath) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        exit(EXIT_FAILURE);
+    }
+    if (PathNormalize(pszFilePath, pszAbsPath, ulPathSize, NULL)
+            != NO_ERROR) {
+        fprintf(stderr, "ERROR: cannot normalize path: %s\n", pszFilePath);
+        free(pszAbsPath);
+        exit(EXIT_FAILURE);
+    }
+
     if (IsProcessed(pList, pszAbsPath)) { free(pszAbsPath); return; }
     AddProcessed(pList, pszAbsPath);
+    free(pszAbsPath);
 
     ValidateDocument(hRoot, pszFilePath);
 
@@ -1021,15 +927,59 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
                 (isalpha((unsigned char)achDocUri[0]) &&
                  achDocUri[1] == ':')) {
                 pszFullDocPath = strdup(achDocUri);
+                if (!pszFullDocPath) {
+                    fprintf(stderr, "ERROR: out of memory\n");
+                    exit(EXIT_FAILURE);
+                }
             } else {
-                PSZ pszDir = QueryDirName(pszFilePath);
-                pszFullDocPath = JoinPath(pszDir, achDocUri);
+                ULONG ulDirSize = 0, ulJoinSize = 0;
+                PSZ pszDir;
+
+                if (PathGetDirName(pszFilePath, NULL, 0, &ulDirSize)
+                        != NO_ERROR) {
+                    fprintf(stderr,
+                            "ERROR: %s: cannot obtain directory\n",
+                            pszFilePath);
+                    exit(EXIT_FAILURE);
+                }
+                pszDir = (PSZ)malloc(ulDirSize);
+                if (!pszDir) {
+                    fprintf(stderr, "ERROR: out of memory\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (PathGetDirName(pszFilePath, pszDir, ulDirSize, NULL)
+                        != NO_ERROR) {
+                    fprintf(stderr,
+                            "ERROR: %s: cannot obtain directory\n",
+                            pszFilePath);
+                    free(pszDir);
+                    exit(EXIT_FAILURE);
+                }
+
+                if (PathMakeJoin(pszDir, achDocUri, NULL, 0, &ulJoinSize)
+                        != NO_ERROR || ulJoinSize == 0) {
+                    fprintf(stderr,
+                            "ERROR: %s: cannot resolve path: %s\n",
+                            pszFilePath, achDocUri);
+                    free(pszDir);
+                    exit(EXIT_FAILURE);
+                }
+                pszFullDocPath = (PSZ)malloc(ulJoinSize);
+                if (!pszFullDocPath) {
+                    fprintf(stderr, "ERROR: out of memory\n");
+                    free(pszDir);
+                    exit(EXIT_FAILURE);
+                }
+                if (PathMakeJoin(pszDir, achDocUri, pszFullDocPath,
+                                 ulJoinSize, NULL) != NO_ERROR) {
+                    fprintf(stderr,
+                            "ERROR: %s: cannot resolve path: %s\n",
+                            pszFilePath, achDocUri);
+                    free(pszDir);
+                    free(pszFullDocPath);
+                    exit(EXIT_FAILURE);
+                }
                 free(pszDir);
-            }
-            if (!pszFullDocPath) {
-                fprintf(stderr, "ERROR: %s: cannot resolve path: %s\n",
-                        pszFilePath, achDocUri);
-                exit(EXIT_FAILURE);
             }
 
             if (JsonNodeGetChild(hRef, "checksum", &hChkNode) == NO_ERROR)
@@ -1040,6 +990,7 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
                         "document: %s\n"
                         "       Each externalDocumentRef must include a "
                         "checksum.\n", pszFilePath, achDocUri);
+                free(pszFullDocPath);
                 exit(EXIT_FAILURE);
             }
 
@@ -1081,19 +1032,19 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
     if (JsonNodeGetChild(hRoot, "packages", &hPackages) == NO_ERROR) {
         rc = EnsureMergedArray(hDocMerged, hMergedRoot, "packages",
                                &hMergedArr);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
         rc = MergeSection(hDocMerged, hPackages, hMergedArr, pMap,
                           pszFilePath);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
     }
 
     if (JsonNodeGetChild(hRoot, "files", &hFiles) == NO_ERROR) {
         rc = EnsureMergedArray(hDocMerged, hMergedRoot, "files",
                                &hMergedArr);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
         rc = MergeSection(hDocMerged, hFiles, hMergedArr, pMap,
                           pszFilePath);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
     }
 
     if (JsonNodeGetChild(hRoot, "snippets", &hSnippets) == NO_ERROR) {
@@ -1102,22 +1053,20 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
             ulSnipCount > 0) {
             rc = EnsureMergedArray(hDocMerged, hMergedRoot, "snippets",
                                    &hMergedArr);
-            if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+            if (rc != NO_ERROR) exit(EXIT_FAILURE);
             rc = MergeSection(hDocMerged, hSnippets, hMergedArr, pMap,
                               pszFilePath);
-            if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+            if (rc != NO_ERROR) exit(EXIT_FAILURE);
         }
     }
 
     {
         rc = EnsureMergedArray(hDocMerged, hMergedRoot, "relationships",
                                &hMergedArr);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
         rc = MergeRelationships(hDocMerged, hRoot, hMergedArr, pMap);
-        if (rc != NO_ERROR) { free(pszAbsPath); exit(EXIT_FAILURE); }
+        if (rc != NO_ERROR) exit(EXIT_FAILURE);
     }
-
-    free(pszAbsPath);
 }
 
 /* ==================================================================
