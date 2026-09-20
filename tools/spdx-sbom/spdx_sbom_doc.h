@@ -66,7 +66,7 @@ extern "C" {
  * @param[in]  pszBinaryFile  Binary artifact path, or NULL. Used to
  *                            derive the package base name and the
  *                            package SPDXID.
- * @param[in]  fBinaryMode    TRUE_ for a binary artifact, FALSE_ for
+ * @param[in]  fBinaryMode    TRUE for a binary artifact, FALSE for
  *                            a source tree.
  *
  * @return APIRET
@@ -150,7 +150,7 @@ APIRET APIENTRY SbomSetDocumentExternalReference(
  *
  * If the document has no files, both PackageLicenseInfoFromFiles
  * and PackageVerificationCode are left empty and
- * @c package.fFilesAnalyzed is set to FALSE_.
+ * @c package.fFilesAnalyzed is set to FALSE.
  *
  * @param[in,out] pDoc  Document. Not NULL.
  *
@@ -186,7 +186,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc);
  *                                    used to construct the Source
  *                                    package id in binary mode. Not
  *                                    NULL in binary mode.
- * @param[in]     fBinaryMode         TRUE_ for a binary artifact.
+ * @param[in]     fBinaryMode         TRUE for a binary artifact.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

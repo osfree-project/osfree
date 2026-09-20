@@ -274,8 +274,8 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
  * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched the file.
  *
  * @param[in]  hFile      Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse Receiver: TRUE_ if at least one source
- *                        matched; FALSE_ otherwise. Not NULL.
+ * @param[out] pfHasReuse Receiver: TRUE if at least one source
+ *                        matched; FALSE otherwise. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

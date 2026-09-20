@@ -197,7 +197,7 @@ static void skip_whitespace(PARSE *pParser) {
  *
  * @param[in] pszStr  String. Not NULL.
  *
- * @return TRUE_ if valid, FALSE_ otherwise.
+ * @return TRUE if valid, FALSE otherwise.
  */
 static BOOL validate_utf8(PCSZ pszStr) {
     const UCHAR *puchPos = (const UCHAR*)pszStr;
@@ -206,37 +206,37 @@ static BOOL validate_utf8(PCSZ pszStr) {
         if (uch < 0x80) continue;
         if ((uch & 0xE0) == 0xC0) {
             ULONG ulCp;
-            if ((*puchPos & 0xC0) != 0x80) return FALSE_;
+            if ((*puchPos & 0xC0) != 0x80) return FALSE;
             ulCp = ((ULONG)(uch & 0x1F) << 6) |
                    (ULONG)(*puchPos & 0x3F);
-            if (ulCp < 0x80) return FALSE_;
+            if (ulCp < 0x80) return FALSE;
             puchPos++;
         } else if ((uch & 0xF0) == 0xE0) {
             ULONG ulCp;
-            if ((puchPos[0] & 0xC0) != 0x80) return FALSE_;
-            if ((puchPos[1] & 0xC0) != 0x80) return FALSE_;
+            if ((puchPos[0] & 0xC0) != 0x80) return FALSE;
+            if ((puchPos[1] & 0xC0) != 0x80) return FALSE;
             ulCp = ((ULONG)(uch & 0x0F) << 12) |
                    ((ULONG)(puchPos[0] & 0x3F) << 6) |
                    (ULONG)(puchPos[1] & 0x3F);
-            if (ulCp < 0x800) return FALSE_;
-            if (ulCp >= 0xD800 && ulCp <= 0xDFFF) return FALSE_;
+            if (ulCp < 0x800) return FALSE;
+            if (ulCp >= 0xD800 && ulCp <= 0xDFFF) return FALSE;
             puchPos += 2;
         } else if ((uch & 0xF8) == 0xF0) {
             ULONG ulCp;
-            if ((puchPos[0] & 0xC0) != 0x80) return FALSE_;
-            if ((puchPos[1] & 0xC0) != 0x80) return FALSE_;
-            if ((puchPos[2] & 0xC0) != 0x80) return FALSE_;
+            if ((puchPos[0] & 0xC0) != 0x80) return FALSE;
+            if ((puchPos[1] & 0xC0) != 0x80) return FALSE;
+            if ((puchPos[2] & 0xC0) != 0x80) return FALSE;
             ulCp = ((ULONG)(uch & 0x07) << 18) |
                    ((ULONG)(puchPos[0] & 0x3F) << 12) |
                    ((ULONG)(puchPos[1] & 0x3F) << 6) |
                    (ULONG)(puchPos[2] & 0x3F);
-            if (ulCp < 0x10000 || ulCp > 0x10FFFF) return FALSE_;
+            if (ulCp < 0x10000 || ulCp > 0x10FFFF) return FALSE;
             puchPos += 3;
         } else {
-            return FALSE_;
+            return FALSE;
         }
     }
-    return TRUE_;
+    return TRUE;
 }
 
 /**
@@ -292,7 +292,7 @@ static int utf8_encoded_len(ULONG ulCp) {
  * @param[in]  pszPos  Pointer to 4 hex characters. Not NULL.
  * @param[out] pulOut  Receiver. Not NULL.
  *
- * @return TRUE_ on success, FALSE_ on malformed input.
+ * @return TRUE on success, FALSE on malformed input.
  */
 static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
     int i;
@@ -303,11 +303,11 @@ static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
         if (ch >= '0' && ch <= '9') d = ch - '0';
         else if (ch >= 'a' && ch <= 'f') d = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'F') d = ch - 'A' + 10;
-        else return FALSE_;
+        else return FALSE;
         ulVal = (ulVal << 4) | (ULONG)d;
     }
     *pulOut = ulVal;
-    return TRUE_;
+    return TRUE;
 }
 
 /**
@@ -442,7 +442,7 @@ static double pow10_int(int nExp) {
  *                         number. Not NULL.
  * @param[out]    pdOut    Receiver. Not NULL.
  *
- * @return TRUE_ on success, FALSE_ on malformed input.
+ * @return TRUE on success, FALSE on malformed input.
  */
 static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
     PCSZ pszPos = *ppszPos;
@@ -454,20 +454,20 @@ static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
 
     if (*pszPos == '0') {
         pszPos++;
-        if (isdigit((unsigned char)*pszPos)) return FALSE_;
+        if (isdigit((unsigned char)*pszPos)) return FALSE;
     } else if (*pszPos >= '1' && *pszPos <= '9') {
         while (isdigit((unsigned char)*pszPos)) {
             dblVal = dblVal * 10.0 + (double)(*pszPos - '0');
             pszPos++;
         }
     } else {
-        return FALSE_;
+        return FALSE;
     }
 
     if (*pszPos == '.') {
         double dblScale = 0.1;
         pszPos++;
-        if (!isdigit((unsigned char)*pszPos)) return FALSE_;
+        if (!isdigit((unsigned char)*pszPos)) return FALSE;
         while (isdigit((unsigned char)*pszPos)) {
             dblVal += (double)(*pszPos - '0') * dblScale;
             dblScale *= 0.1;
@@ -481,7 +481,7 @@ static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
         pszPos++;
         if (*pszPos == '+') pszPos++;
         else if (*pszPos == '-') { nExpSign = -1; pszPos++; }
-        if (!isdigit((unsigned char)*pszPos)) return FALSE_;
+        if (!isdigit((unsigned char)*pszPos)) return FALSE;
         while (isdigit((unsigned char)*pszPos)) {
             if (nExpVal < 100000)
                 nExpVal = nExpVal * 10 + (*pszPos - '0');
@@ -490,10 +490,10 @@ static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
         dblVal *= pow10_int(nExpSign * nExpVal);
     }
 
-    if (pszPos == pszStart) return FALSE_;
+    if (pszPos == pszStart) return FALSE;
     *ppszPos = pszPos;
     *pdOut = dblSign * dblVal;
-    return TRUE_;
+    return TRUE;
 }
 
 static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut);
@@ -637,7 +637,7 @@ static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
                 pParser->pszPos += 4;
                 pNode = node_new(pParser->pDoc, JSON_BOOLEAN);
                 if (!pNode) return -1;
-                pNode->fBoolValue = TRUE_;
+                pNode->fBoolValue = TRUE;
                 *ppOut = pNode;
                 return 0;
             }
@@ -647,7 +647,7 @@ static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
                 pParser->pszPos += 5;
                 pNode = node_new(pParser->pDoc, JSON_BOOLEAN);
                 if (!pNode) return -1;
-                pNode->fBoolValue = FALSE_;
+                pNode->fBoolValue = FALSE;
                 *ppOut = pNode;
                 return 0;
             }
@@ -913,7 +913,7 @@ APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
  * @brief Create a new boolean node.
  *
  * @param[in]  hDoc    Document handle. Not NULLHANDLE.
- * @param[in]  fValue  TRUE_ or FALSE_.
+ * @param[in]  fValue  TRUE or FALSE.
  * @param[out] phNode  Receiver. Not NULL.
  *
  * @return APIRET
@@ -930,7 +930,7 @@ APIRET APIENTRY JsonNewBoolean(HJSONDOC hDoc, BOOL fValue,
     *phNode = NULLHANDLE;
     pNode = node_new((PJSONDOC)hDoc, JSON_BOOLEAN);
     if (!pNode) return ERROR_NOT_ENOUGH_MEMORY;
-    pNode->fBoolValue = fValue ? TRUE_ : FALSE_;
+    pNode->fBoolValue = fValue ? TRUE : FALSE;
     *phNode = (HJSONNODE)pNode;
     return NO_ERROR;
 }
@@ -1247,7 +1247,7 @@ APIRET APIENTRY JsonNodeGetString(HJSONNODE hNode,
  * @brief Read a boolean value of a node.
  *
  * @param[in]  hNode    Node handle (boolean). Not NULLHANDLE.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue  Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -1681,8 +1681,8 @@ static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
  *     required size including NUL.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[in]  fIndent   TRUE_ for pretty-printed output with two-space
- *                       indentation; FALSE_ for compact output.
+ * @param[in]  fIndent   TRUE for pretty-printed output with two-space
+ *                       indentation; FALSE for compact output.
  * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize    Size of pszBuf.
  * @param[out] pulUsed   Optional. May be NULL.
@@ -1736,7 +1736,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * When @p pszPath is NULL, the output is written to stdout.
  *
  * @param[in] hNode    Node handle. Not NULLHANDLE.
- * @param[in] fIndent  TRUE_ for pretty-printed output; FALSE_ for
+ * @param[in] fIndent  TRUE for pretty-printed output; FALSE for
  *                     compact output.
  * @param[in] pszPath  Output file path, or NULL for stdout.
  *

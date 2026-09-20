@@ -608,7 +608,7 @@ static int license_has_body(PDEP5FIELD pField) {
  * field.
  *
  * @param[in] pStanza   Stanza. Not NULL.
- * @param[in] fIsFirst  TRUE_ if this is the first stanza.
+ * @param[in] fIsFirst  TRUE if this is the first stanza.
  *
  * @return One of DEP5_STANZA_HEADER, DEP5_STANZA_FILES,
  *         DEP5_STANZA_LICENSE, or 0 if unclassified.

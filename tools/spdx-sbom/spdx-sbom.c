@@ -98,12 +98,12 @@ static void print_help(void) {
  *
  * @param[in] pOpts  Parsed options. Not NULL.
  *
- * @return TRUE_ for binary mode, FALSE_ otherwise.
+ * @return TRUE for binary mode, FALSE otherwise.
  */
 static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
     return (pOpts->pszPackagePurpose &&
             strcmp(pOpts->pszPackagePurpose, "SOURCE") != 0)
-               ? TRUE_ : FALSE_;
+               ? TRUE : FALSE;
 }
 
 /**
@@ -123,7 +123,7 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
  *                         malloc'd string owned by the caller, or
  *                         @c pOpts->pszDefaultLicense itself (not to
  *                         be freed). On failure set to NULL.
- * @param[out] pfIsHeap    Receiver: TRUE_ if the returned pointer was
+ * @param[out] pfIsHeap    Receiver: TRUE if the returned pointer was
  *                         allocated and must be freed. Not NULL.
  *
  * @return APIRET
@@ -143,7 +143,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
     PCSZ pszBad = NULL;
 
     *ppszLicense = NULL;
-    *pfIsHeap = FALSE_;
+    *pfIsHeap = FALSE;
 
     if (!pszLic && hTree != NULLHANDLE) {
         HREUSETREEFILE hFile = NULLHANDLE;
@@ -179,7 +179,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
     }
 
     *ppszLicense = (PSZ)pszLic;
-    *pfIsHeap = (pszLic == pszHeap) ? TRUE_ : FALSE_;
+    *pfIsHeap = (pszLic == pszHeap) ? TRUE : FALSE;
     return NO_ERROR;
 }
 
@@ -288,10 +288,10 @@ int main(int argc, char *argv[]) {
     HVECTOR hResolved = NULLHANDLE;
     REUSEDISCOVEROPTIONS walk_opts;
     GITIGNORELIST gitignore_rules;
-    BOOL fHasGitignore = FALSE_;
+    BOOL fHasGitignore = FALSE;
     PSZ pszRepoRoot = NULL;
     PSZ pszPkgLicense = NULL;
-    BOOL fPkgLicenseIsHeap = FALSE_;
+    BOOL fPkgLicenseIsHeap = FALSE;
     BOOL fBinaryMode;
     ULONG ulSkipped = 0;
     CHAR achBaseNoExt[256];
@@ -389,7 +389,7 @@ int main(int argc, char *argv[]) {
         if (GitCollectGitignores(pszRepoRoot, opts.pszDir,
                                  &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
-            fHasGitignore = TRUE_;
+            fHasGitignore = TRUE;
         }
     }
 
@@ -455,7 +455,7 @@ int main(int argc, char *argv[]) {
     } else {
         ReuseSetDiscoverOptionsDefault(&walk_opts);
         if (fHasGitignore) {
-            walk_opts.fUseGitignore   = TRUE_;
+            walk_opts.fUseGitignore   = TRUE;
             walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot
                                                     : opts.pszDir;
             walk_opts.pGitignoreRules = &gitignore_rules;

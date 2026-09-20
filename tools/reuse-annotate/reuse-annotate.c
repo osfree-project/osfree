@@ -135,13 +135,13 @@ static PSZ normalize_to_heap(PCSZ pszSrc) {
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return TRUE_ if the path exists, FALSE_ otherwise.
+ * @return TRUE if the path exists, FALSE otherwise.
  */
 static BOOL FileExists(PCSZ pszPath) {
 #ifdef __LINUX__
-    return (access(pszPath, F_OK) == 0) ? TRUE_ : FALSE_;
+    return (access(pszPath, F_OK) == 0) ? TRUE : FALSE;
 #else
-    return (_access(pszPath, 0) == 0) ? TRUE_ : FALSE_;
+    return (_access(pszPath, 0) == 0) ? TRUE : FALSE;
 #endif
 }
 
@@ -151,20 +151,20 @@ static BOOL FileExists(PCSZ pszPath) {
  *
  * @param[in] pszPath  Path to the file. Not NULL.
  *
- * @return TRUE_ if binary, FALSE_ if text or unreadable.
+ * @return TRUE if binary, FALSE if text or unreadable.
  */
 static BOOL IsBinaryFile(PCSZ pszPath) {
     FILE *fp = fopen(pszPath, "rb");
     UCHAR auchBuf[BINARY_PROBE];
     size_t cbRead, i;
 
-    if (!fp) return FALSE_;
+    if (!fp) return FALSE;
     cbRead = fread(auchBuf, 1, sizeof(auchBuf), fp);
     fclose(fp);
 
     for (i = 0; i < cbRead; i++)
-        if (auchBuf[i] == 0) return TRUE_;
-    return FALSE_;
+        if (auchBuf[i] == 0) return TRUE;
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -331,7 +331,7 @@ static PCSZ StyleName(COMMENTSTYLE style) {
  * @param[in] style            Comment style. Not STYLE_UNKNOWN.
  * @param[in] pszLicense       License expression, or NULL.
  * @param[in] pszCopyright     Copyright text, or NULL.
- * @param[in] fEchoOffPresent  TRUE_ if a leading @echo off was found.
+ * @param[in] fEchoOffPresent  TRUE if a leading @echo off was found.
  *
  * @return malloc'd block, or NULL on OOM.
  */
@@ -518,10 +518,10 @@ static void PrintBlock(PCSZ pszText, PCSZ pszIndent) {
  *
  * @param[in] pszLine  First line. Not NULL.
  *
- * @return TRUE_ if the line starts with "#!".
+ * @return TRUE if the line starts with "#!".
  */
 static BOOL FirstLineIsShebang(PCSZ pszLine) {
-    return (pszLine[0] == '#' && pszLine[1] == '!') ? TRUE_ : FALSE_;
+    return (pszLine[0] == '#' && pszLine[1] == '!') ? TRUE : FALSE;
 }
 
 /**
@@ -529,7 +529,7 @@ static BOOL FirstLineIsShebang(PCSZ pszLine) {
  *
  * @param[in] pszLine  First line. Not NULL.
  *
- * @return TRUE_ if the line is "@echo off" or "echo off".
+ * @return TRUE if the line is "@echo off" or "echo off".
  */
 static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
     PCSZ pszPos = pszLine;
@@ -546,15 +546,15 @@ static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
         tolower((unsigned char)pszPos[5]) != 'o' ||
         tolower((unsigned char)pszPos[6]) != 'f' ||
         tolower((unsigned char)pszPos[7]) != 'f')
-        return FALSE_;
+        return FALSE;
 
     {
         CHAR ch = pszPos[8];
         if (ch == '\0' || ch == ' ' || ch == '\t' ||
             ch == '\r' || ch == '\n')
-            return TRUE_;
+            return TRUE;
     }
-    return FALSE_;
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -567,8 +567,8 @@ static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
  * @param[in] pszFilename   File path. Not NULL.
  * @param[in] pszLicense    License expression. Not NULL.
  * @param[in] pszCopyright  Copyright text. Not NULL.
- * @param[in] fForce        TRUE_ to overwrite existing tags.
- * @param[in] fDryRun       TRUE_ to skip writes.
+ * @param[in] fForce        TRUE to overwrite existing tags.
+ * @param[in] fDryRun       TRUE to skip writes.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -591,8 +591,8 @@ static APIRET AnnotateOne(PCSZ pszFilename,
     CHAR achLine[MAX_LINE];
     CHAR achFirstLine[MAX_LINE];
     BOOL fHas;
-    BOOL fHasShebang = FALSE_;
-    BOOL fHasEchoOff = FALSE_;
+    BOOL fHasShebang = FALSE;
+    BOOL fHasEchoOff = FALSE;
     CHAR achTempName[1024];
 
     declared = DetectStyle(pszFilename);
@@ -634,9 +634,9 @@ static APIRET AnnotateOne(PCSZ pszFilename,
 
     if (style == STYLE_SIDECAR) {
         BOOL fExists;
-        BOOL fEqual = FALSE_;
+        BOOL fEqual = FALSE;
 
-        pszBlock = BuildInsertion(style, pszLicense, pszCopyright, FALSE_);
+        pszBlock = BuildInsertion(style, pszLicense, pszCopyright, FALSE);
         if (!pszBlock) return ERROR_NOT_ENOUGH_MEMORY;
 
         snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszFilename);
@@ -650,7 +650,7 @@ static APIRET AnnotateOne(PCSZ pszFilename,
                 pszN1 = normalize_to_heap(pszExisting);
                 pszN2 = normalize_to_heap(pszBlock);
                 if (pszN1 && pszN2 && strcmp(pszN1, pszN2) == 0)
-                    fEqual = TRUE_;
+                    fEqual = TRUE;
                 free(pszN1); free(pszN2);
                 free(pszExisting);
             }
@@ -701,7 +701,7 @@ static APIRET AnnotateOne(PCSZ pszFilename,
     }
 
     {
-        BOOL fHasTag = FALSE_;
+        BOOL fHasTag = FALSE;
         SpdxQueryFileHasTag(pszFilename, &fHasTag);
         fHas = fHasTag;
     }
@@ -720,9 +720,9 @@ static APIRET AnnotateOne(PCSZ pszFilename,
     }
 
     if (style == STYLE_HASH) {
-        if (FirstLineIsShebang(achFirstLine)) fHasShebang = TRUE_;
+        if (FirstLineIsShebang(achFirstLine)) fHasShebang = TRUE;
     } else if (style == STYLE_REM) {
-        if (FirstLineIsEchoOff(achFirstLine)) fHasEchoOff = TRUE_;
+        if (FirstLineIsEchoOff(achFirstLine)) fHasEchoOff = TRUE;
     }
 
     pszBlock = BuildInsertion(style, pszLicense, pszCopyright, fHasEchoOff);
@@ -913,9 +913,9 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
  */
 int main(int argc, char *argv[]) {
     PCSZ pszDir = ".";
-    BOOL fDryRun = TRUE_;
-    BOOL fForce = FALSE_;
-    BOOL fNoGitignore = FALSE_;
+    BOOL fDryRun = TRUE;
+    BOOL fForce = FALSE;
+    BOOL fNoGitignore = FALSE;
     int i;
     PCSZ pszLicenseOverride = NULL;
     PCSZ pszCopyrightOverride = NULL;
@@ -929,7 +929,7 @@ int main(int argc, char *argv[]) {
     REUSEDISCOVEROPTIONS walk_opts;
     PSZ pszRepoRoot = NULL;
     GITIGNORELIST gitignore_rules;
-    BOOL fHasGitignore = FALSE_;
+    BOOL fHasGitignore = FALSE;
     ULONG ulTotalErrors = 0;
     PCSZ pszWcc;
     int nExit;
@@ -970,13 +970,13 @@ int main(int argc, char *argv[]) {
             return 0;
         }
         if (strcmp(argv[i], "--write") == 0) {
-            fDryRun = FALSE_;
+            fDryRun = FALSE;
         } else if (strcmp(argv[i], "--dry-run") == 0) {
-            fDryRun = TRUE_;
+            fDryRun = TRUE;
         } else if (strcmp(argv[i], "--force") == 0) {
-            fForce = TRUE_;
+            fForce = TRUE;
         } else if (strcmp(argv[i], "--no-gitignore") == 0) {
-            fNoGitignore = TRUE_;
+            fNoGitignore = TRUE;
         } else if (strncmp(argv[i], "--license=", 10) == 0) {
             pszLicenseOverride = argv[i] + 10;
         } else if (strncmp(argv[i], "--copyright=", 12) == 0) {
@@ -1073,21 +1073,21 @@ int main(int argc, char *argv[]) {
     if (!fNoGitignore) {
         if (GitCollectGitignores(pszRepoRoot, pszDir, &gitignore_rules)
                 == NO_ERROR && gitignore_rules.ulCount > 0) {
-            fHasGitignore = TRUE_;
+            fHasGitignore = TRUE;
         }
     }
 
     ReuseSetDiscoverOptionsDefault(&walk_opts);
-    walk_opts.fRecursive             = FALSE_;
-    walk_opts.fSkipHidden            = TRUE_;
-    walk_opts.fSkipVcsDirs           = TRUE_;
-    walk_opts.fSkipLicensesDir       = TRUE_;
-    walk_opts.fSkipReuseDir          = TRUE_;
-    walk_opts.fSkipLicenseSidecars   = TRUE_;
-    walk_opts.fSkipReuseToml         = TRUE_;
-    walk_opts.fSkipLicenseFiles      = TRUE_;
+    walk_opts.fRecursive             = FALSE;
+    walk_opts.fSkipHidden            = TRUE;
+    walk_opts.fSkipVcsDirs           = TRUE;
+    walk_opts.fSkipLicensesDir       = TRUE;
+    walk_opts.fSkipReuseDir          = TRUE;
+    walk_opts.fSkipLicenseSidecars   = TRUE;
+    walk_opts.fSkipReuseToml         = TRUE;
+    walk_opts.fSkipLicenseFiles      = TRUE;
     if (fHasGitignore) {
-        walk_opts.fUseGitignore   = TRUE_;
+        walk_opts.fUseGitignore   = TRUE;
         walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot : pszDir;
         walk_opts.pGitignoreRules = &gitignore_rules;
     }

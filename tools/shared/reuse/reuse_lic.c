@@ -37,10 +37,10 @@
  */
 static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc,
                        PBOOL pfTruncated) {
-    if (pfTruncated) *pfTruncated = FALSE_;
+    if (pfTruncated) *pfTruncated = FALSE;
     if (!pszSrc) { pszDst[0] = '\0'; return; }
     if (strlcpy(pszDst, pszSrc, ulDstSize) >= ulDstSize) {
-        if (pfTruncated) *pfTruncated = TRUE_;
+        if (pfTruncated) *pfTruncated = TRUE;
     }
 }
 
@@ -160,9 +160,9 @@ static APIRET read_sidecar(PCSZ pszFullPath,
 
     snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszFullPath);
 #ifdef __LINUX__
-    fExists = (access(achSidecar, F_OK) == 0) ? TRUE_ : FALSE_;
+    fExists = (access(achSidecar, F_OK) == 0) ? TRUE : FALSE;
 #else
-    fExists = (_access(achSidecar, 0) == 0) ? TRUE_ : FALSE_;
+    fExists = (_access(achSidecar, 0) == 0) ? TRUE : FALSE;
 #endif
     if (!fExists) return ERROR_FILE_NOT_FOUND;
 
@@ -232,7 +232,7 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
     APIRET rc;
 
     pszDst[0] = '\0';
-    if (pfTruncated) *pfTruncated = FALSE_;
+    if (pfTruncated) *pfTruncated = FALSE;
     if (hFile == NULLHANDLE) return;
 
     rc = fnField(hFile, NULL, 0, &ulSize);
@@ -282,7 +282,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     PSZ pszTagLicense = NULL;
     PSZ pszTagCopyright = NULL;
     HREUSETREEFILE hFile = NULLHANDLE;
-    BOOL fHasReuse = FALSE_;
+    BOOL fHasReuse = FALSE;
     ULONG ulPrecedence = 0;
     PSZ pszCanonical = NULL;
     ULONG ulCanonSize = 0;
@@ -298,17 +298,17 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     pOut->achPackageSupplier[0] = '\0';
     pOut->achPackageDownloadLocation[0] = '\0';
     pOut->achPackageComment[0] = '\0';
-    pOut->fHasPackageInfo = FALSE_;
+    pOut->fHasPackageInfo = FALSE;
     pOut->source = REUSE_LICENSE_SRC_NONE;
-    pOut->fLicenseFromDefault = FALSE_;
-    pOut->fCopyrightFromDefault = FALSE_;
-    pOut->fLicenseTruncated = FALSE_;
-    pOut->fCopyrightTruncated = FALSE_;
-    pOut->fContributorsTruncated = FALSE_;
-    pOut->fPackageNameTruncated = FALSE_;
-    pOut->fPackageSupplierTruncated = FALSE_;
-    pOut->fPackageDownloadLocationTruncated = FALSE_;
-    pOut->fPackageCommentTruncated = FALSE_;
+    pOut->fLicenseFromDefault = FALSE;
+    pOut->fCopyrightFromDefault = FALSE;
+    pOut->fLicenseTruncated = FALSE;
+    pOut->fCopyrightTruncated = FALSE;
+    pOut->fContributorsTruncated = FALSE;
+    pOut->fPackageNameTruncated = FALSE;
+    pOut->fPackageSupplierTruncated = FALSE;
+    pOut->fPackageDownloadLocationTruncated = FALSE;
+    pOut->fPackageCommentTruncated = FALSE;
 
     /* 1. Read in-file sources. They are needed by the resolver for
      *    aggregation. Even if a matched annotation has override
@@ -356,14 +356,14 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
                 != NO_ERROR)
             ulPrecedence = 0;
         if (ReuseTreeFileGetHasReuse(hFile, &fHasReuse) != NO_ERROR)
-            fHasReuse = FALSE_;
+            fHasReuse = FALSE;
 
         ReuseTreeFileClose(hFile);
     }
 
     if (pOut->achPackageName[0] || pOut->achPackageSupplier[0] ||
         pOut->achPackageDownloadLocation[0] || pOut->achPackageComment[0]) {
-        pOut->fHasPackageInfo = TRUE_;
+        pOut->fHasPackageInfo = TRUE;
     }
 
     /* 4. Determine the source.
@@ -386,7 +386,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
         pszDefaultLicense && pszDefaultLicense[0]) {
         copy_field(pOut->achLicense, sizeof(pOut->achLicense),
                    pszDefaultLicense, &pOut->fLicenseTruncated);
-        pOut->fLicenseFromDefault = TRUE_;
+        pOut->fLicenseFromDefault = TRUE;
         if (pOut->source == REUSE_LICENSE_SRC_NONE)
             pOut->source = REUSE_LICENSE_SRC_DEFAULT;
     }
@@ -394,7 +394,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
         pszDefaultCopyright && pszDefaultCopyright[0]) {
         copy_field(pOut->achCopyright, sizeof(pOut->achCopyright),
                    pszDefaultCopyright, &pOut->fCopyrightTruncated);
-        pOut->fCopyrightFromDefault = TRUE_;
+        pOut->fCopyrightFromDefault = TRUE;
         if (pOut->source == REUSE_LICENSE_SRC_NONE)
             pOut->source = REUSE_LICENSE_SRC_DEFAULT;
     }

@@ -434,7 +434,7 @@ static PSZ json_dup_string(HJSONNODE hNode) {
  */
 static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
     HJSONNODE hChild = NULLHANDLE;
-    BOOL fVal = FALSE_;
+    BOOL fVal = FALSE;
     if (hParent == NULLHANDLE) return 0;
     if (JsonNodeGetChild(hParent, pszKey, &hChild) != NO_ERROR) return 0;
     if (JsonNodeGetBoolean(hChild, &fVal) != NO_ERROR) return 0;
@@ -556,7 +556,7 @@ parse:
             pEntry->pszName = json_dup_string(hChild);
 
         {
-            BOOL fVal = FALSE_;
+            BOOL fVal = FALSE;
             if (json_get_bool(hItem, "isOsiApproved", &fVal) && fVal)
                 pEntry->uchFlags |= SPDXDB_FLAG_OSI;
             if (json_get_bool(hItem, "isFsfLibre", &fVal) && fVal)
@@ -655,7 +655,7 @@ parse:
             pEntry->pszName = json_dup_string(hChild);
 
         {
-            BOOL fVal = FALSE_;
+            BOOL fVal = FALSE;
             if (json_get_bool(hItem, "isDeprecatedLicenseId", &fVal) && fVal)
                 pEntry->uchFlags |= SPDXDB_FLAG_DEPRECATED;
         }
@@ -1134,7 +1134,7 @@ static int read_license_index_record(FILE *f, PSPDXLICENSEENTRY pEntry) {
     }
     if (read_u32(f, &pEntry->ulDetailOffset) != 0) return -1;
     if (read_u32(f, &pEntry->ulDetailSize) != 0) return -1;
-    pEntry->fDetailLoaded = FALSE_;
+    pEntry->fDetailLoaded = FALSE;
     return 0;
 }
 
@@ -1166,7 +1166,7 @@ static int read_exception_index_record(FILE *f, PSPDXEXCEPTIONENTRY pEntry) {
     }
     if (read_u32(f, &pEntry->ulDetailOffset) != 0) return -1;
     if (read_u32(f, &pEntry->ulDetailSize) != 0) return -1;
-    pEntry->fDetailLoaded = FALSE_;
+    pEntry->fDetailLoaded = FALSE;
     return 0;
 }
 
@@ -1462,13 +1462,13 @@ static int license_load_detail(PCSZ pszId) {
                                    &pEntry->pszText,
                                    &pEntry->pszTemplate,
                                    &pEntry->pszTextHtml) == 0) {
-            pEntry->fDetailLoaded = TRUE_;
+            pEntry->fDetailLoaded = TRUE;
             return 0;
         }
     }
     if (g_pszDetailsDir) {
         if (read_license_detail_from_dir(pEntry) == 0) {
-            pEntry->fDetailLoaded = TRUE_;
+            pEntry->fDetailLoaded = TRUE;
             return 0;
         }
     }
@@ -1499,13 +1499,13 @@ static int exception_load_detail(PCSZ pszId) {
                                    &pEntry->pszText,
                                    &pEntry->pszTemplate,
                                    &pEntry->pszTextHtml) == 0) {
-            pEntry->fDetailLoaded = TRUE_;
+            pEntry->fDetailLoaded = TRUE;
             return 0;
         }
     }
     if (g_pszExceptionsDir) {
         if (read_exception_detail_from_dir(pEntry) == 0) {
-            pEntry->fDetailLoaded = TRUE_;
+            pEntry->fDetailLoaded = TRUE;
             return 0;
         }
     }
@@ -1670,22 +1670,22 @@ APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
  */
 APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
     if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
-    *pfValid = FALSE_;
+    *pfValid = FALSE;
     if (pszId[0] == '\0') return NO_ERROR;
     if (strncmp(pszId, "LicenseRef-", 11) == 0) {
-        *pfValid = TRUE_;
+        *pfValid = TRUE;
         return NO_ERROR;
     }
     if (strncmp(pszId, "DocumentRef-", 12) == 0) {
         PCSZ pszColon = strchr(pszId, ':');
         if (pszColon && strncmp(pszColon + 1, "LicenseRef-", 11) == 0)
-            *pfValid = TRUE_;
+            *pfValid = TRUE;
         return NO_ERROR;
     }
     if (g_Licenses.count == 0) {
         return SPDXDB_ERROR_LICENSES;
     }
-    *pfValid = license_lookup(pszId) ? TRUE_ : FALSE_;
+    *pfValid = license_lookup(pszId) ? TRUE : FALSE;
     return NO_ERROR;
 }
 
@@ -1704,12 +1704,12 @@ APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
  */
 APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid) {
     if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
-    *pfValid = FALSE_;
+    *pfValid = FALSE;
     if (pszId[0] == '\0') return NO_ERROR;
     if (g_Exceptions.count == 0) {
         return SPDXDB_ERROR_EXCEPTIONS;
     }
-    *pfValid = exception_lookup(pszId) ? TRUE_ : FALSE_;
+    *pfValid = exception_lookup(pszId) ? TRUE : FALSE;
     return NO_ERROR;
 }
 
@@ -1726,10 +1726,10 @@ APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid) {
 APIRET APIENTRY SpdxQueryLicenseDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
     PSPDXLICENSEENTRY pLic;
     if (!pszId || !pfDeprecated) return ERROR_INVALID_PARAMETER;
-    *pfDeprecated = FALSE_;
+    *pfDeprecated = FALSE;
     pLic = license_lookup(pszId);
     if (pLic && (pLic->uchFlags & SPDXDB_FLAG_DEPRECATED))
-        *pfDeprecated = TRUE_;
+        *pfDeprecated = TRUE;
     return NO_ERROR;
 }
 
@@ -1746,10 +1746,10 @@ APIRET APIENTRY SpdxQueryLicenseDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
 APIRET APIENTRY SpdxQueryExceptionDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
     PSPDXEXCEPTIONENTRY pExc;
     if (!pszId || !pfDeprecated) return ERROR_INVALID_PARAMETER;
-    *pfDeprecated = FALSE_;
+    *pfDeprecated = FALSE;
     pExc = exception_lookup(pszId);
     if (pExc && (pExc->uchFlags & SPDXDB_FLAG_DEPRECATED))
-        *pfDeprecated = TRUE_;
+        *pfDeprecated = TRUE;
     return NO_ERROR;
 }
 
@@ -1766,10 +1766,10 @@ APIRET APIENTRY SpdxQueryExceptionDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
 APIRET APIENTRY SpdxQueryLicenseOsiApproved(PCSZ pszId, PBOOL pfApproved) {
     PSPDXLICENSEENTRY pLic;
     if (!pszId || !pfApproved) return ERROR_INVALID_PARAMETER;
-    *pfApproved = FALSE_;
+    *pfApproved = FALSE;
     pLic = license_lookup(pszId);
     if (pLic && (pLic->uchFlags & SPDXDB_FLAG_OSI))
-        *pfApproved = TRUE_;
+        *pfApproved = TRUE;
     return NO_ERROR;
 }
 
@@ -1786,10 +1786,10 @@ APIRET APIENTRY SpdxQueryLicenseOsiApproved(PCSZ pszId, PBOOL pfApproved) {
 APIRET APIENTRY SpdxQueryLicenseFsfLibre(PCSZ pszId, PBOOL pfLibre) {
     PSPDXLICENSEENTRY pLic;
     if (!pszId || !pfLibre) return ERROR_INVALID_PARAMETER;
-    *pfLibre = FALSE_;
+    *pfLibre = FALSE;
     pLic = license_lookup(pszId);
     if (pLic && (pLic->uchFlags & SPDXDB_FLAG_FSF_LIBRE))
-        *pfLibre = TRUE_;
+        *pfLibre = TRUE;
     return NO_ERROR;
 }
 
@@ -1937,7 +1937,7 @@ static int parse_term(EXPRPARSER *pParser) {
         int id_len;
         CHAR achId[256];
         PCSZ pszSave;
-        BOOL fValid = FALSE_;
+        BOOL fValid = FALSE;
         while (*pParser->pszPos && !isspace((unsigned char)*pParser->pszPos) &&
                *pParser->pszPos != '(' && *pParser->pszPos != ')')
             pParser->pszPos++;
@@ -1962,7 +1962,7 @@ static int parse_term(EXPRPARSER *pParser) {
             PCSZ pszExcStart;
             int e_len;
             CHAR achExc[256];
-            BOOL fExcValid = FALSE_;
+            BOOL fExcValid = FALSE;
             pParser->pszPos += 4;
             skip_ws(pParser);
             pszExcStart = pParser->pszPos;

@@ -106,12 +106,12 @@ static ULONG read_u32le(const UCHAR *puchPos) {
  * @param[in]  puchBuf        Whole file buffer. Not NULL.
  * @param[in]  cbBufSize      Size of @p puchBuf.
  * @param[in]  cbPos          Start offset of the field.
- * @param[out] pfIsOrdinal    Receiver: TRUE_ if the field is an
+ * @param[out] pfIsOrdinal    Receiver: TRUE if the field is an
  *                            ordinal. May be NULL.
  * @param[out] pulOrdinal     Receiver: ordinal value. May be NULL.
  * @param[in]  pszExpectName  If not NULL, the string is compared
  *                            case-sensitively to this value.
- * @param[out] pfMatched      Receiver: TRUE_ if the string equals
+ * @param[out] pfMatched      Receiver: TRUE if the string equals
  *                            @p pszExpectName. May be NULL.
  *
  * @return Offset just past the field, or 0 on parse error.
@@ -129,8 +129,8 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
     CHAR achNameBuf[256];
     BOOL fIsUtf16;
 
-    if (pfMatched) *pfMatched = FALSE_;
-    if (pfIsOrdinal) *pfIsOrdinal = FALSE_;
+    if (pfMatched) *pfMatched = FALSE;
+    if (pfIsOrdinal) *pfIsOrdinal = FALSE;
     if (pulOrdinal) *pulOrdinal = 0;
 
     if (cbPos + 2 > cbBufSize) return 0;
@@ -138,7 +138,7 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
 
     if (unFirst == 0xFFFF) {
         if (cbPos + 4 > cbBufSize) return 0;
-        if (pfIsOrdinal) *pfIsOrdinal = TRUE_;
+        if (pfIsOrdinal) *pfIsOrdinal = TRUE;
         if (pulOrdinal) *pulOrdinal = read_u16le(puchBuf + cbPos + 2);
         return cbPos + 4;
     }
@@ -149,10 +149,10 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
 
     if (cbPos + (size_t)unWLen * 2 > cbBufSize) return 0;
 
-    fIsUtf16 = TRUE_;
+    fIsUtf16 = TRUE;
     for (cbIdx = 0; cbIdx < unWLen; cbIdx++) {
         if (puchBuf[cbPos + cbIdx * 2 + 1] != 0) {
-            fIsUtf16 = FALSE_;
+            fIsUtf16 = FALSE;
             break;
         }
     }
@@ -164,7 +164,7 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
             achNameBuf[unWLen] = '\0';
             if (pszExpectName && pfMatched) {
                 if (strcmp(achNameBuf, pszExpectName) == 0)
-                    *pfMatched = TRUE_;
+                    *pfMatched = TRUE;
             }
         } else {
             if (cbPos + unWLen > cbBufSize) return 0;
@@ -172,7 +172,7 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
             achNameBuf[unWLen] = '\0';
             if (pszExpectName && pfMatched) {
                 if (strcmp(achNameBuf, pszExpectName) == 0)
-                    *pfMatched = TRUE_;
+                    *pfMatched = TRUE;
             }
         }
     }
@@ -250,7 +250,7 @@ APIRET APIENTRY ResExtractSources(PCSZ pszPath, HSTRSET hOut) {
     long lFileSize;
     size_t cbReadSize;
     size_t cbPos = 0;
-    BOOL fFound = FALSE_;
+    BOOL fFound = FALSE;
     APIRET rc = NO_ERROR;
 
     if (!pszPath || hOut == NULLHANDLE) return ERROR_INVALID_PARAMETER;
@@ -324,7 +324,7 @@ APIRET APIENTRY ResExtractSources(PCSZ pszPath, HSTRSET hOut) {
             rc = parse_depinfo(puchBuf + cbDataStart,
                                (size_t)ulDataSize, hOut);
             if (rc != NO_ERROR) { free(puchBuf); return rc; }
-            fFound = TRUE_;
+            fFound = TRUE;
         }
 
         cbNextPos = cbDataStart + (size_t)ulDataSize;

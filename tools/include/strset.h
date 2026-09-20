@@ -116,7 +116,7 @@ APIRET APIENTRY StrSetAdd(HSTRSET hSet, PCSZ pszStr);
  *
  * @param[in]  hSet    Handle. Not NULLHANDLE.
  * @param[in]  pszStr  String to look for. Not NULL.
- * @param[out] pfFound Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfFound Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

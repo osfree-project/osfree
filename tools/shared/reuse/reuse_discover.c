@@ -44,15 +44,15 @@
 APIRET APIENTRY ReuseSetDiscoverOptionsDefault(PREUSEDISCOVEROPTIONS pOpts) {
     if (!pOpts) return ERROR_INVALID_PARAMETER;
     memset(pOpts, 0, sizeof(*pOpts));
-    pOpts->fRecursive             = TRUE_;
-    pOpts->fSkipHidden            = TRUE_;
-    pOpts->fSkipVcsDirs           = TRUE_;
-    pOpts->fSkipLicensesDir       = TRUE_;
-    pOpts->fSkipReuseDir          = TRUE_;
-    pOpts->fSkipLicenseSidecars   = TRUE_;
-    pOpts->fSkipReuseToml         = TRUE_;
-    pOpts->fSkipLicenseFiles      = TRUE_;
-    pOpts->fUseGitignore          = FALSE_;
+    pOpts->fRecursive             = TRUE;
+    pOpts->fSkipHidden            = TRUE;
+    pOpts->fSkipVcsDirs           = TRUE;
+    pOpts->fSkipLicensesDir       = TRUE;
+    pOpts->fSkipReuseDir          = TRUE;
+    pOpts->fSkipLicenseSidecars   = TRUE;
+    pOpts->fSkipReuseToml         = TRUE;
+    pOpts->fSkipLicenseFiles      = TRUE;
+    pOpts->fUseGitignore          = FALSE;
     pOpts->pszRepoRoot            = NULL;
     pOpts->pGitignoreRules        = NULL;
     return NO_ERROR;
@@ -67,13 +67,13 @@ APIRET APIENTRY ReuseSetDiscoverOptionsDefault(PREUSEDISCOVEROPTIONS pOpts) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if VCS directory, FALSE_ otherwise.
+ * @return TRUE if VCS directory, FALSE otherwise.
  */
 static BOOL is_vcs_dir(PCSZ pszName) {
     return (strcmp(pszName, ".git") == 0 ||
             strcmp(pszName, ".svn") == 0 ||
             strcmp(pszName, ".hg")  == 0 ||
-            strcmp(pszName, ".bzr") == 0) ? TRUE_ : FALSE_;
+            strcmp(pszName, ".bzr") == 0) ? TRUE : FALSE;
 }
 
 /**
@@ -81,10 +81,10 @@ static BOOL is_vcs_dir(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if "LICENSES", FALSE_ otherwise.
+ * @return TRUE if "LICENSES", FALSE otherwise.
  */
 static BOOL is_licenses_dir(PCSZ pszName) {
-    return (strcmp(pszName, "LICENSES") == 0) ? TRUE_ : FALSE_;
+    return (strcmp(pszName, "LICENSES") == 0) ? TRUE : FALSE;
 }
 
 /**
@@ -92,10 +92,10 @@ static BOOL is_licenses_dir(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if ".reuse", FALSE_ otherwise.
+ * @return TRUE if ".reuse", FALSE otherwise.
  */
 static BOOL is_reuse_dir(PCSZ pszName) {
-    return (strcmp(pszName, ".reuse") == 0) ? TRUE_ : FALSE_;
+    return (strcmp(pszName, ".reuse") == 0) ? TRUE : FALSE;
 }
 
 /**
@@ -104,16 +104,16 @@ static BOOL is_reuse_dir(PCSZ pszName) {
  * @param[in] pszA  First string. Not NULL.
  * @param[in] pszB  Second string. Not NULL.
  *
- * @return TRUE_ if equal, FALSE_ otherwise.
+ * @return TRUE if equal, FALSE otherwise.
  */
 static BOOL ieq(PCSZ pszA, PCSZ pszB) {
     while (*pszA && *pszB) {
         if (tolower((unsigned char)*pszA) !=
             tolower((unsigned char)*pszB))
-            return FALSE_;
+            return FALSE;
         pszA++; pszB++;
     }
-    return (*pszA == '\0' && *pszB == '\0') ? TRUE_ : FALSE_;
+    return (*pszA == '\0' && *pszB == '\0') ? TRUE : FALSE;
 }
 
 /**
@@ -123,17 +123,17 @@ static BOOL ieq(PCSZ pszA, PCSZ pszB) {
  * @param[in] pszPrefix  Prefix. Not NULL.
  * @param[in] cbLen      Prefix length.
  *
- * @return TRUE_ if @p pszStr starts with @p pszPrefix, FALSE_ otherwise.
+ * @return TRUE if @p pszStr starts with @p pszPrefix, FALSE otherwise.
  */
 static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     size_t i;
     for (i = 0; i < cbLen; i++) {
-        if (pszStr[i] == '\0') return FALSE_;
+        if (pszStr[i] == '\0') return FALSE;
         if (tolower((unsigned char)pszStr[i]) !=
             tolower((unsigned char)pszPrefix[i]))
-            return FALSE_;
+            return FALSE;
     }
-    return TRUE_;
+    return TRUE;
 }
 
 /**
@@ -144,7 +144,7 @@ static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if license file, FALSE_ otherwise.
+ * @return TRUE if license file, FALSE otherwise.
  */
 static BOOL is_license_file(PCSZ pszName) {
     static PCSZ apszExact[] = {
@@ -152,15 +152,15 @@ static BOOL is_license_file(PCSZ pszName) {
     };
     size_t i;
     for (i = 0; i < sizeof(apszExact)/sizeof(apszExact[0]); i++)
-        if (ieq(pszName, apszExact[i])) return TRUE_;
+        if (ieq(pszName, apszExact[i])) return TRUE;
     if (ieq_prefix(pszName, "license", 7) ||
         ieq_prefix(pszName, "licence", 7) ||
         ieq_prefix(pszName, "copying", 7)) {
         if (pszName[7] == '\0' || pszName[7] == '.' ||
             pszName[7] == '-' || pszName[7] == '_')
-            return TRUE_;
+            return TRUE;
     }
-    return FALSE_;
+    return FALSE;
 }
 
 /**
@@ -168,12 +168,12 @@ static BOOL is_license_file(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if sidecar, FALSE_ otherwise.
+ * @return TRUE if sidecar, FALSE otherwise.
  */
 static BOOL is_license_sidecar(PCSZ pszName) {
     size_t cbLen = strlen(pszName);
     return (cbLen > 8 &&
-            strcmp(pszName + cbLen - 8, ".license") == 0) ? TRUE_ : FALSE_;
+            strcmp(pszName + cbLen - 8, ".license") == 0) ? TRUE : FALSE;
 }
 
 /**
@@ -181,10 +181,10 @@ static BOOL is_license_sidecar(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if "REUSE.toml", FALSE_ otherwise.
+ * @return TRUE if "REUSE.toml", FALSE otherwise.
  */
 static BOOL is_reuse_toml(PCSZ pszName) {
-    return (strcmp(pszName, "REUSE.toml") == 0) ? TRUE_ : FALSE_;
+    return (strcmp(pszName, "REUSE.toml") == 0) ? TRUE : FALSE;
 }
 
 /**
@@ -192,10 +192,10 @@ static BOOL is_reuse_toml(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if hidden, FALSE_ otherwise.
+ * @return TRUE if hidden, FALSE otherwise.
  */
 static BOOL is_hidden(PCSZ pszName) {
-    return (pszName[0] == '.') ? TRUE_ : FALSE_;
+    return (pszName[0] == '.') ? TRUE : FALSE;
 }
 
 /**
@@ -206,7 +206,7 @@ static BOOL is_hidden(PCSZ pszName) {
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if SPDX document, FALSE_ otherwise.
+ * @return TRUE if SPDX document, FALSE otherwise.
  */
 static BOOL is_spdx_document(PCSZ pszName) {
     size_t cbLen = strlen(pszName);
@@ -219,9 +219,9 @@ static BOOL is_spdx_document(PCSZ pszName) {
         size_t cbSuffix = strlen(apszSuffixes[i]);
         if (cbLen >= cbSuffix &&
             strcmp(pszName + cbLen - cbSuffix, apszSuffixes[i]) == 0)
-            return TRUE_;
+            return TRUE;
     }
-    return FALSE_;
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -236,14 +236,14 @@ static BOOL is_spdx_document(PCSZ pszName) {
  * @param[in] nA  First character.
  * @param[in] nB  Second character.
  *
- * @return TRUE_ if equal, FALSE_ otherwise.
+ * @return TRUE if equal, FALSE otherwise.
  */
 static BOOL path_char_eq(int nA, int nB) {
 #ifdef _WIN32
     return (tolower((unsigned char)nA) ==
-            tolower((unsigned char)nB)) ? TRUE_ : FALSE_;
+            tolower((unsigned char)nB)) ? TRUE : FALSE;
 #else
-    return ((unsigned char)nA == (unsigned char)nB) ? TRUE_ : FALSE_;
+    return ((unsigned char)nA == (unsigned char)nB) ? TRUE : FALSE;
 #endif
 }
 
@@ -254,15 +254,15 @@ static BOOL path_char_eq(int nA, int nB) {
  * @param[in] pszPrefix  Prefix. Not NULL.
  * @param[in] cbLen      Prefix length.
  *
- * @return TRUE_ on match, FALSE_ otherwise.
+ * @return TRUE on match, FALSE otherwise.
  */
 static BOOL path_prefix_eq(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     size_t i;
     for (i = 0; i < cbLen; i++) {
-        if (!pszStr[i]) return FALSE_;
-        if (!path_char_eq(pszStr[i], pszPrefix[i])) return FALSE_;
+        if (!pszStr[i]) return FALSE;
+        if (!path_char_eq(pszStr[i], pszPrefix[i])) return FALSE;
     }
-    return TRUE_;
+    return TRUE;
 }
 
 /**
@@ -332,30 +332,30 @@ static PSZ rel_path(PCSZ pszRoot, PCSZ pszFull) {
  *
  * @param[in] pOpts      Walk options. Not NULL.
  * @param[in] pszFull    Full path. Not NULL.
- * @param[in] fIsDir     TRUE_ for directories.
+ * @param[in] fIsDir     TRUE for directories.
  *
- * @return TRUE_ if ignored, FALSE_ otherwise.
+ * @return TRUE if ignored, FALSE otherwise.
  */
 static BOOL should_skip_by_gitignore(const REUSEDISCOVEROPTIONS *pOpts,
                                      PCSZ pszFull, BOOL fIsDir) {
     PSZ pszRel;
-    BOOL fIgnored = FALSE_;
+    BOOL fIgnored = FALSE;
 
-    if (!pOpts->fUseGitignore) return FALSE_;
+    if (!pOpts->fUseGitignore) return FALSE;
     if (!pOpts->pGitignoreRules ||
         pOpts->pGitignoreRules->ulCount == 0)
-        return FALSE_;
-    if (!pOpts->pszRepoRoot) return FALSE_;
+        return FALSE;
+    if (!pOpts->pszRepoRoot) return FALSE;
 
     pszRel = rel_path(pOpts->pszRepoRoot, pszFull);
-    if (!pszRel) return FALSE_;
+    if (!pszRel) return FALSE;
     if (GitQueryIsIgnored(pOpts->pGitignoreRules, pszRel,
-                          fIsDir ? TRUE_ : FALSE_,
+                          fIsDir ? TRUE : FALSE,
                           &fIgnored) != NO_ERROR) {
-        fIgnored = FALSE_;
+        fIgnored = FALSE;
     }
     free(pszRel);
-    return fIgnored ? TRUE_ : FALSE_;
+    return fIgnored ? TRUE : FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -368,17 +368,17 @@ static BOOL should_skip_by_gitignore(const REUSEDISCOVEROPTIONS *pOpts,
  * @param[in] pszName  Base name. Not NULL.
  * @param[in] pOpts    Walk options. Not NULL.
  *
- * @return TRUE_ if skipped, FALSE_ otherwise.
+ * @return TRUE if skipped, FALSE otherwise.
  */
 static BOOL should_skip_file(PCSZ pszName,
                              const REUSEDISCOVEROPTIONS *pOpts) {
-    if (pOpts->fSkipHidden && is_hidden(pszName)) return TRUE_;
+    if (pOpts->fSkipHidden && is_hidden(pszName)) return TRUE;
     if (pOpts->fSkipLicenseSidecars && is_license_sidecar(pszName))
-        return TRUE_;
-    if (pOpts->fSkipReuseToml && is_reuse_toml(pszName)) return TRUE_;
-    if (pOpts->fSkipLicenseFiles && is_license_file(pszName)) return TRUE_;
-    if (is_spdx_document(pszName)) return TRUE_;
-    return FALSE_;
+        return TRUE;
+    if (pOpts->fSkipReuseToml && is_reuse_toml(pszName)) return TRUE;
+    if (pOpts->fSkipLicenseFiles && is_license_file(pszName)) return TRUE;
+    if (is_spdx_document(pszName)) return TRUE;
+    return FALSE;
 }
 
 /**
@@ -387,15 +387,15 @@ static BOOL should_skip_file(PCSZ pszName,
  * @param[in] pszName  Base name. Not NULL.
  * @param[in] pOpts    Walk options. Not NULL.
  *
- * @return TRUE_ if skipped, FALSE_ otherwise.
+ * @return TRUE if skipped, FALSE otherwise.
  */
 static BOOL should_skip_dir(PCSZ pszName,
                             const REUSEDISCOVEROPTIONS *pOpts) {
-    if (pOpts->fSkipHidden && is_hidden(pszName)) return TRUE_;
-    if (pOpts->fSkipVcsDirs && is_vcs_dir(pszName)) return TRUE_;
-    if (pOpts->fSkipLicensesDir && is_licenses_dir(pszName)) return TRUE_;
-    if (pOpts->fSkipReuseDir && is_reuse_dir(pszName)) return TRUE_;
-    return FALSE_;
+    if (pOpts->fSkipHidden && is_hidden(pszName)) return TRUE;
+    if (pOpts->fSkipVcsDirs && is_vcs_dir(pszName)) return TRUE;
+    if (pOpts->fSkipLicensesDir && is_licenses_dir(pszName)) return TRUE;
+    if (pOpts->fSkipReuseDir && is_reuse_dir(pszName)) return TRUE;
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -446,7 +446,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
             APIRET rc;
             if (!pOpts->fRecursive) continue;
             if (should_skip_dir(pEntry->d_name, pOpts)) continue;
-            if (should_skip_by_gitignore(pOpts, achFull, TRUE_)) continue;
+            if (should_skip_by_gitignore(pOpts, achFull, TRUE)) continue;
             rc = walk_inner(achFull, pOpts, hOut);
             if (rc != NO_ERROR) {
                 closedir(pDir);
@@ -456,7 +456,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
             APIRET rc;
             if (st.st_size == 0) continue;
             if (should_skip_file(pEntry->d_name, pOpts)) continue;
-            if (should_skip_by_gitignore(pOpts, achFull, FALSE_)) continue;
+            if (should_skip_by_gitignore(pOpts, achFull, FALSE)) continue;
             rc = StrSetAdd(hOut, achFull);
             if (rc != NO_ERROR) {
                 closedir(pDir);
@@ -511,7 +511,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
             APIRET rc;
             if (!pOpts->fRecursive) continue;
             if (should_skip_dir(fd.name, pOpts)) continue;
-            if (should_skip_by_gitignore(pOpts, achFull, TRUE_)) continue;
+            if (should_skip_by_gitignore(pOpts, achFull, TRUE)) continue;
             rc = walk_inner(achFull, pOpts, hOut);
             if (rc != NO_ERROR) {
                 _findclose(hFile);
@@ -521,7 +521,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
             APIRET rc;
             if (st.st_size == 0) continue;
             if (should_skip_file(fd.name, pOpts)) continue;
-            if (should_skip_by_gitignore(pOpts, achFull, FALSE_)) continue;
+            if (should_skip_by_gitignore(pOpts, achFull, FALSE)) continue;
             rc = StrSetAdd(hOut, achFull);
             if (rc != NO_ERROR) {
                 _findclose(hFile);
@@ -582,14 +582,14 @@ APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
                                            ULONG ulResCount,
                                            HSTRSET hOut) {
     ULONG ulIdx;
-    BOOL fAny = FALSE_;
+    BOOL fAny = FALSE;
 
     if (hOut == NULLHANDLE) return ERROR_INVALID_PARAMETER;
 
     for (ulIdx = 0; ulIdx < ulObjectCount; ulIdx++) {
         APIRET rc = OmfExtractSources(papszObjectFiles[ulIdx], hOut);
         if (rc == NO_ERROR) {
-            fAny = TRUE_;
+            fAny = TRUE;
         } else if (rc == ERROR_NOT_ENOUGH_MEMORY) {
             return rc;
         }
@@ -599,7 +599,7 @@ APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
     for (ulIdx = 0; ulIdx < ulResCount; ulIdx++) {
         APIRET rc = ResExtractSources(papszResFiles[ulIdx], hOut);
         if (rc == NO_ERROR) {
-            fAny = TRUE_;
+            fAny = TRUE;
         } else if (rc == ERROR_NOT_ENOUGH_MEMORY) {
             return rc;
         }

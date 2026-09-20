@@ -1057,7 +1057,7 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
     pszInLicense = pszSideLicense ? pszSideLicense : pszTagLicense;
     pszInCopyright = pszSideCopyright ? pszSideCopyright : pszTagCopyright;
 
-    if (pszInLicense || pszInCopyright) pFile->bHasReuse = TRUE_;
+    if (pszInLicense || pszInCopyright) pFile->bHasReuse = TRUE;
 
     /* 4. For each config, find the best matching annotation, then
      *    classify it by precedence into override/aggregate/closest. */
@@ -1065,7 +1065,7 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
         MATCH m;
         memset(&m, 0, sizeof(m));
         if (cfg_find_best(&pd->paCfgs[ulIdx], pszPath, &m) != 0) continue;
-        pFile->bHasReuse = TRUE_;
+        pFile->bHasReuse = TRUE;
 
         switch (m.nPrecedence) {
             case REUSE_PRECEDENCE_OVERRIDE:
@@ -1684,8 +1684,8 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
  *        file.
  *
  * @param[in]  hFile       Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse  Receiver: TRUE_ if at least one source
- *                         matched; FALSE_ otherwise. Not NULL.
+ * @param[out] pfHasReuse  Receiver: TRUE if at least one source
+ *                         matched; FALSE otherwise. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

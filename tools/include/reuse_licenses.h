@@ -164,7 +164,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  *   - if LICENSES/<id>.txt does not exist, it is created with the
  *     text from the SPDX database;
  *   - if it exists but its text differs from the database, it is
- *     overwritten only when @p fForce is TRUE_;
+ *     overwritten only when @p fForce is TRUE;
  *   - if the text matches, nothing is done.
  *
  * The LICENSES/ directory itself is created if missing.
@@ -172,13 +172,13 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  * Diagnostics are appended to @p hReport. If @p hReport is
  * NULLHANDLE, no diagnostic is collected.
  *
- * In dry-run mode (@p fDryRun TRUE_), no file is written.
+ * In dry-run mode (@p fDryRun TRUE), no file is written.
  *
  * @param[in] hTree          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
- * @param[in] fForce         TRUE_ to overwrite outdated files.
- * @param[in] fDryRun        TRUE_ to skip writes.
+ * @param[in] fForce         TRUE to overwrite outdated files.
+ * @param[in] fDryRun        TRUE to skip writes.
  * @param[in] hReport        Report handle, or NULLHANDLE.
  *
  * @return APIRET

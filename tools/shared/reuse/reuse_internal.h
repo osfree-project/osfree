@@ -83,7 +83,7 @@ struct _REUSETREE {
  * not resolved.
  *
  * ulPrecedence is 0 when nothing matched; otherwise it is one of
- * REUSE_PRECEDENCE_*. bHasReuse is TRUE_ when at least one source
+ * REUSE_PRECEDENCE_*. bHasReuse is TRUE when at least one source
  * matched the file (even if only sidecar or tag data was found).
  * ------------------------------------------------------------------ */
 

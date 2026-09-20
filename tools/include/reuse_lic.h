@@ -49,7 +49,7 @@ typedef enum _REUSELICENSESOURCE {
  *
  * Fixed-size string fields. If a value does not fit, it is
  * truncated and the corresponding @c f*Truncated flag is set to
- * TRUE_. The module itself does not report truncation; the caller
+ * TRUE. The module itself does not report truncation; the caller
  * decides whether to print a warning.
  */
 typedef struct _REUSELICENSEINFO {
@@ -73,13 +73,13 @@ typedef struct _REUSELICENSEINFO {
     CHAR achPackageSupplier[256];
     CHAR achPackageDownloadLocation[512];
     CHAR achPackageComment[512];
-    BOOL fHasPackageInfo;        /**< TRUE_ if any package_* is set.    */
+    BOOL fHasPackageInfo;        /**< TRUE if any package_* is set.    */
 
     REUSELICENSESOURCE source;
     BOOL fLicenseFromDefault;    /**< License came from CLI fallback.   */
     BOOL fCopyrightFromDefault;  /**< Copyright came from CLI fallback. */
 
-    /* Truncation flags: TRUE_ if the corresponding string field was
+    /* Truncation flags: TRUE if the corresponding string field was
        longer than its buffer and got cut. */
     BOOL fLicenseTruncated;
     BOOL fCopyrightTruncated;

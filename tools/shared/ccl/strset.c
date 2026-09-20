@@ -87,26 +87,26 @@ static APIRET get_stored_ptr(STRSETCTL *pCtl, ULONG ulIndex, PCSZ *ppszStr) {
 /**
  * @brief Linear search for a string equal to pszStr.
  *
- * Returns TRUE_ if found and stores the position in *pulIndex.
- * Returns FALSE_ otherwise.
+ * Returns TRUE if found and stores the position in *pulIndex.
+ * Returns FALSE otherwise.
  */
 static BOOL find_string(STRSETCTL *pCtl, PCSZ pszStr, PULONG pulIndex) {
     ULONG ulCount = 0;
     ULONG i;
 
     if (VectorGetCount(pCtl->hVector, &ulCount) != NO_ERROR)
-        return FALSE_;
+        return FALSE;
 
     for (i = 0; i < ulCount; i++) {
         PCSZ pStored = NULL;
         if (get_stored_ptr(pCtl, i, &pStored) != NO_ERROR)
-            return FALSE_;
+            return FALSE;
         if (pStored && strcmp(pStored, pszStr) == 0) {
             if (pulIndex) *pulIndex = i;
-            return TRUE_;
+            return TRUE;
         }
     }
-    return FALSE_;
+    return FALSE;
 }
 
 /**
@@ -232,12 +232,12 @@ APIRET APIENTRY StrSetContains(HSTRSET hSet, PCSZ pszStr, PBOOL pfFound) {
     STRSETCTL *pCtl;
 
     if (!pszStr || !pfFound) return ERROR_INVALID_PARAMETER;
-    *pfFound = FALSE_;
+    *pfFound = FALSE;
 
     pCtl = get_ctl(hSet);
     if (!pCtl) return ERROR_INVALID_HANDLE;
 
-    *pfFound = find_string(pCtl, pszStr, NULL) ? TRUE_ : FALSE_;
+    *pfFound = find_string(pCtl, pszStr, NULL) ? TRUE : FALSE;
     return NO_ERROR;
 }
 

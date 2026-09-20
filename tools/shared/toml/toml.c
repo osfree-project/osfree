@@ -180,7 +180,7 @@ static int skip_to_eol(PARSE *pParser) {
 /**
  * @brief Return positive or negative infinity.
  *
- * @param[in] fNegative  TRUE_ for -inf, FALSE_ for +inf.
+ * @param[in] fNegative  TRUE for -inf, FALSE for +inf.
  *
  * @return The corresponding double value.
  */
@@ -1426,7 +1426,7 @@ static int parse_boolean(PARSE *pParser, PTOMLVALUE *ppValue) {
          !is_bare_key_char(pParser->pszPos[4]))) {
         PTOMLVALUE pValue = value_new(TOML_TYPE_BOOLEAN);
         if (!pValue) return -1;
-        pValue->u.fBoolean = TRUE_;
+        pValue->u.fBoolean = TRUE;
         pParser->pszPos += 4;
         *ppValue = pValue;
         return 0;
@@ -1437,7 +1437,7 @@ static int parse_boolean(PARSE *pParser, PTOMLVALUE *ppValue) {
          !is_bare_key_char(pParser->pszPos[5]))) {
         PTOMLVALUE pValue = value_new(TOML_TYPE_BOOLEAN);
         if (!pValue) return -1;
-        pValue->u.fBoolean = FALSE_;
+        pValue->u.fBoolean = FALSE;
         pParser->pszPos += 5;
         *ppValue = pValue;
         return 0;
@@ -2438,7 +2438,7 @@ APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[in]  pszPath   Path. Not NULL, not empty.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -2455,7 +2455,7 @@ APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
     pValue = find_path(pDoc->pRoot, pszPath);
     if (!pValue) return ERROR_FILE_NOT_FOUND;
     if (pValue->ulType != TOML_TYPE_BOOLEAN) {
-        *pfValue = FALSE_;
+        *pfValue = FALSE;
         return TOML_ERROR_TYPE_MISMATCH;
     }
     *pfValue = pValue->u.fBoolean;
@@ -2644,7 +2644,7 @@ APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[in]  pszPath   Path. Not NULL, not empty.
  * @param[in]  ulIndex   Element index.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -2847,7 +2847,7 @@ APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
  * @brief Query a boolean value of a node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -2858,7 +2858,7 @@ APIRET APIENTRY TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
     PTOMLVALUE pValue = as_node(hNode);
     if (!pValue || !pfValue) return ERROR_INVALID_PARAMETER;
     if (pValue->ulType != TOML_TYPE_BOOLEAN) {
-        *pfValue = FALSE_;
+        *pfValue = FALSE;
         return TOML_ERROR_TYPE_MISMATCH;
     }
     *pfValue = pValue->u.fBoolean;
@@ -3303,7 +3303,7 @@ APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
  * @brief Retrieve the boolean value of the current entry.
  *
  * @param[in]  hFind     Cursor. Not NULLHANDLE.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.

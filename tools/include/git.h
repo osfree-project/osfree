@@ -59,10 +59,10 @@ typedef struct _GITIGNORERULE {
                             and trailing '/'. */
     PSZ  pszBaseRel;   /**< Directory containing the rule, relative
                             to the repository root. "" for root. */
-    BOOL fNegate;      /**< TRUE_ if the rule starts with '!'. */
-    BOOL fAnchored;    /**< TRUE_ if the rule starts with '/' or
+    BOOL fNegate;      /**< TRUE if the rule starts with '!'. */
+    BOOL fAnchored;    /**< TRUE if the rule starts with '/' or
                             contains a '/' in the middle. */
-    BOOL fDirOnly;     /**< TRUE_ if the rule ends with '/'. */
+    BOOL fDirOnly;     /**< TRUE if the rule ends with '/'. */
 } GITIGNORERULE, *PGITIGNORERULE;
 
 /**
@@ -145,7 +145,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
  * @brief Query whether a directory is inside a Git repository.
  *
  * @param[in]  pszDir     Directory. Not NULL.
- * @param[out] pfIsRepo   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfIsRepo   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -199,8 +199,8 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
  *
  * @param[in]  pRules      List of rules. Not NULL.
  * @param[in]  pszRelPath  Relative path. Not NULL.
- * @param[in]  fIsDir      TRUE_ for a directory, FALSE_ for a file.
- * @param[out] pfIgnored   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  fIsDir      TRUE for a directory, FALSE for a file.
+ * @param[out] pfIgnored   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

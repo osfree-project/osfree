@@ -53,8 +53,8 @@ typedef struct _REUSEDISCOVEROPTIONS {
 /**
  * @brief Set walk options to their default values.
  *
- * Defaults: recursive = TRUE_, all REUSE skip flags = TRUE_,
- * use_gitignore = FALSE_, repo_root = NULL, gitignore_rules = NULL.
+ * Defaults: recursive = TRUE, all REUSE skip flags = TRUE,
+ * use_gitignore = FALSE, repo_root = NULL, gitignore_rules = NULL.
  *
  * @param[out] pOpts  Receiver. Not NULL.
  *

@@ -238,7 +238,7 @@ APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[in]  pszPath   Path. Not NULL, not empty.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -357,7 +357,7 @@ APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[in]  pszPath   Path. Not NULL, not empty.
  * @param[in]  ulIndex   Element index.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -474,7 +474,7 @@ APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue);
  * @brief Query a boolean value of a node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.
@@ -702,7 +702,7 @@ APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue);
  * @brief Retrieve the boolean value of the current entry.
  *
  * @param[in]  hFind     Cursor. Not NULLHANDLE.
- * @param[out] pfValue   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                     Success.

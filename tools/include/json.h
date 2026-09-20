@@ -212,7 +212,7 @@ APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
  * @brief Create a new boolean node.
  *
  * @param[in]  hDoc    Document handle. Not NULLHANDLE.
- * @param[in]  fValue  TRUE_ or FALSE_.
+ * @param[in]  fValue  TRUE or FALSE.
  * @param[out] phNode  Receiver. Not NULL.
  *
  * @return APIRET
@@ -407,7 +407,7 @@ APIRET APIENTRY JsonNodeGetString(HJSONNODE hNode,
  * @brief Read a boolean value of a node.
  *
  * @param[in]  hNode    Node handle (boolean). Not NULLHANDLE.
- * @param[out] pfValue  Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfValue  Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -534,8 +534,8 @@ APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
  *     required size including NUL.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[in]  fIndent   TRUE_ for pretty-printed output with two-space
- *                       indentation; FALSE_ for compact output.
+ * @param[in]  fIndent   TRUE for pretty-printed output with two-space
+ *                       indentation; FALSE for compact output.
  * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize    Size of pszBuf.
  * @param[out] pulUsed   Optional. May be NULL.
@@ -557,7 +557,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * When @p pszPath is NULL, the output is written to stdout.
  *
  * @param[in] hNode    Node handle. Not NULLHANDLE.
- * @param[in] fIndent  TRUE_ for pretty-printed output; FALSE_ for
+ * @param[in] fIndent  TRUE for pretty-printed output; FALSE for
  *                     compact output.
  * @param[in] pszPath  Output file path, or NULL for stdout.
  *

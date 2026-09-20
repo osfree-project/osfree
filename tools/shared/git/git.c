@@ -40,16 +40,16 @@
  *
  * @param[in] pszPath  Directory path. Not NULL.
  *
- * @return TRUE_ if .git found, FALSE_ otherwise.
+ * @return TRUE if .git found, FALSE otherwise.
  */
 static BOOL has_git_entry(PCSZ pszPath) {
     CHAR achPath[1024];
     struct stat st;
     snprintf(achPath, sizeof(achPath), "%s/.git", pszPath);
-    if (stat(achPath, &st) == 0) return TRUE_;
+    if (stat(achPath, &st) == 0) return TRUE;
     snprintf(achPath, sizeof(achPath), "%s\\.git", pszPath);
-    if (stat(achPath, &st) == 0) return TRUE_;
-    return FALSE_;
+    if (stat(achPath, &st) == 0) return TRUE;
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------ */
@@ -152,7 +152,7 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
  * @brief Query whether a directory is inside a Git repository.
  *
  * @param[in]  pszDir     Directory. Not NULL.
- * @param[out] pfIsRepo   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[out] pfIsRepo   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -162,11 +162,11 @@ APIRET APIENTRY GitQueryIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
     APIRET rc;
 
     if (!pszDir || !pfIsRepo) return ERROR_INVALID_PARAMETER;
-    *pfIsRepo = FALSE_;
+    *pfIsRepo = FALSE;
 
     rc = GitFindRepoRoot(pszDir, NULL, 0, NULL);
     if (rc == NO_ERROR) {
-        *pfIsRepo = TRUE_;
+        *pfIsRepo = TRUE;
     }
     return NO_ERROR;
 }
@@ -307,17 +307,17 @@ static APIRET parse_rule(PCSZ pszLine, PCSZ pszBaseRel,
     if (!pRule) return ERROR_NOT_ENOUGH_MEMORY;
 
     if (pszPos[0] == '!') {
-        pRule->fNegate = TRUE_;
+        pRule->fNegate = TRUE;
         pszPos++;
     }
     if (pszPos[0] == '/') {
-        pRule->fAnchored = TRUE_;
+        pRule->fAnchored = TRUE;
         pszPos++;
     }
 
     cbLen = strlen(pszPos);
     if (cbLen > 0 && pszPos[cbLen-1] == '/') {
-        pRule->fDirOnly = TRUE_;
+        pRule->fDirOnly = TRUE;
         pszPos[cbLen-1] = '\0';
     }
 
@@ -327,7 +327,7 @@ static APIRET parse_rule(PCSZ pszLine, PCSZ pszBaseRel,
      * "in any directory" and does not anchor the pattern. */
     if (!pRule->fAnchored && strchr(pszPos, '/') != NULL) {
         if (strncmp(pszPos, "**/", 3) != 0) {
-            pRule->fAnchored = TRUE_;
+            pRule->fAnchored = TRUE;
         }
     }
 
@@ -529,7 +529,7 @@ static int to_lower(int c) {
  *
  * On entry, @p *ppszPat points to the opening '['. On success,
  * @p *ppszPat is advanced past the closing ']', and @p pfMatched
- * receives TRUE_ if @p c matches the class (with negation applied).
+ * receives TRUE if @p c matches the class (with negation applied).
  *
  * If the opening '[' has no matching ']', the function returns 0
  * and leaves @p *ppszPat unchanged; the caller treats '[' as a
@@ -550,26 +550,26 @@ static int to_lower(int c) {
  */
 static int match_class(PCSZ *ppszPat, int c, PBOOL pfMatched) {
     PCSZ pszPat = *ppszPat;
-    BOOL fNegate = FALSE_;
-    BOOL fMatched = FALSE_;
+    BOOL fNegate = FALSE;
+    BOOL fMatched = FALSE;
 
     if (*pszPat != '[') return 0;
     pszPat++;
     if (*pszPat == '!' || *pszPat == '^') {
-        fNegate = TRUE_;
+        fNegate = TRUE;
         pszPat++;
     }
     if (*pszPat == ']') {
-        if (c == ']') fMatched = TRUE_;
+        if (c == ']') fMatched = TRUE;
         pszPat++;
     }
     while (*pszPat && *pszPat != ']') {
         if (pszPat[1] == '-' && pszPat[2] && pszPat[2] != ']') {
             if (c >= (UCHAR)pszPat[0] && c <= (UCHAR)pszPat[2])
-                fMatched = TRUE_;
+                fMatched = TRUE;
             pszPat += 3;
         } else {
-            if (c == (UCHAR)*pszPat) fMatched = TRUE_;
+            if (c == (UCHAR)*pszPat) fMatched = TRUE;
             pszPat++;
         }
     }
@@ -606,7 +606,7 @@ static int match_component(PCSZ pszPat, PCSZ pszStr) {
         return match_component(pszPat + 1, pszStr + 1);
     }
     if (*pszPat == '[') {
-        BOOL fMatched = FALSE_;
+        BOOL fMatched = FALSE;
         PCSZ pszNext = pszPat;
         if (match_class(&pszNext, (UCHAR)*pszStr, &fMatched)) {
             if (*pszStr == '\0' || *pszStr == '/') return 0;
@@ -656,7 +656,7 @@ static int match_path(PCSZ pszPat, PCSZ pszPath) {
         return match_path(pszPat + 1, pszPath + 1);
     }
     if (*pszPat == '[') {
-        BOOL fMatched = FALSE_;
+        BOOL fMatched = FALSE;
         PCSZ pszNext = pszPat;
         if (match_class(&pszNext, (UCHAR)*pszPath, &fMatched)) {
             if (*pszPath == '\0' || *pszPath == '/') return 0;
@@ -696,7 +696,7 @@ static int match_any_level(PCSZ pszPat, PCSZ pszPath) {
 /**
  * @brief Query whether any path component matches @p pszPat.
  *
- * If @p fIncludeLast is FALSE_, the last component is not checked.
+ * If @p fIncludeLast is FALSE, the last component is not checked.
  *
  * @param[in] pszPat        Pattern. Not NULL.
  * @param[in] pszPath       Path. Not NULL.
@@ -740,8 +740,8 @@ static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
  *
  * @param[in]  pRules      List of rules. Not NULL.
  * @param[in]  pszRelPath  Relative path. Not NULL.
- * @param[in]  fIsDir      TRUE_ for a directory, FALSE_ for a file.
- * @param[out] pfIgnored   Receiver TRUE_ / FALSE_. Not NULL.
+ * @param[in]  fIsDir      TRUE for a directory, FALSE for a file.
+ * @param[out] pfIgnored   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -750,18 +750,18 @@ static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
 APIRET APIENTRY GitQueryIsIgnored(const GITIGNORELIST *pRules,
                                   PCSZ pszRelPath,
                                   BOOL fIsDir, PBOOL pfIgnored) {
-    BOOL fIgnored = FALSE_;
+    BOOL fIgnored = FALSE;
     ULONG ulIdx;
 
     if (!pRules || !pszRelPath || !pfIgnored)
         return ERROR_INVALID_PARAMETER;
-    *pfIgnored = FALSE_;
+    *pfIgnored = FALSE;
     if (pRules->ulCount == 0) return NO_ERROR;
 
     for (ulIdx = 0; ulIdx < pRules->ulCount; ulIdx++) {
         const GITIGNORERULE *pRule = &pRules->paItems[ulIdx];
         PCSZ pszSub = pszRelPath;
-        BOOL fMatched = FALSE_;
+        BOOL fMatched = FALSE;
 
         /* Skip rules belonging to other directories. 'pszSub' is the
          * path relative to the directory of this rule's .gitignore. */
@@ -781,33 +781,33 @@ APIRET APIENTRY GitQueryIsIgnored(const GITIGNORELIST *pRules,
             if (pRule->fAnchored) {
                 size_t cbPatLen = strlen(pszPat);
                 if (fIsDir && strcmp(pszSub, pszPat) == 0) {
-                    fMatched = TRUE_;
+                    fMatched = TRUE;
                 } else if (strncmp(pszSub, pszPat, cbPatLen) == 0 &&
                            pszSub[cbPatLen] == '/') {
                     /* File or directory inside the matched directory. */
-                    fMatched = TRUE_;
+                    fMatched = TRUE;
                 }
             } else {
                 /* "**<slash>foo" - any directory foo at any depth. */
                 if (strncmp(pszPat, "**/", 3) == 0) pszPat += 3;
                 fMatched = path_has_matching_dir(pszPat, pszSub,
-                                                 fIsDir) ? TRUE_ : FALSE_;
+                                                 fIsDir) ? TRUE : FALSE;
             }
         } else {
             if (pRule->fAnchored) {
                 fMatched = match_path(pRule->pszPattern, pszSub)
-                               ? TRUE_ : FALSE_;
+                               ? TRUE : FALSE;
             } else {
                 fMatched = match_any_level(pRule->pszPattern, pszSub)
-                               ? TRUE_ : FALSE_;
+                               ? TRUE : FALSE;
             }
         }
 
         if (fMatched) {
-            fIgnored = pRule->fNegate ? FALSE_ : TRUE_;
+            fIgnored = pRule->fNegate ? FALSE : TRUE;
         }
     }
 
-    *pfIgnored = fIgnored ? TRUE_ : FALSE_;
+    *pfIgnored = fIgnored ? TRUE : FALSE;
     return NO_ERROR;
 }

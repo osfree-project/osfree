@@ -335,7 +335,7 @@ static APIRET build_package(HJSONDOC hDoc, const SPDXPACKAGEINFO *pPkg,
     if (rc != NO_ERROR) return rc;
 
     if (pPkg->fFilesAnalyzed) {
-        rc = json_set_bool(hDoc, hObj, "filesAnalyzed", TRUE_);
+        rc = json_set_bool(hDoc, hObj, "filesAnalyzed", TRUE);
         if (rc != NO_ERROR) return rc;
         rc = json_set_object(hDoc, hObj, "packageVerificationCode", &hChk);
         if (rc != NO_ERROR) return rc;
@@ -348,7 +348,7 @@ static APIRET build_package(HJSONDOC hDoc, const SPDXPACKAGEINFO *pPkg,
                             &hEmpty);
         if (rc != NO_ERROR) return rc;
     } else {
-        rc = json_set_bool(hDoc, hObj, "filesAnalyzed", FALSE_);
+        rc = json_set_bool(hDoc, hObj, "filesAnalyzed", FALSE);
         if (rc != NO_ERROR) return rc;
     }
 
@@ -649,7 +649,7 @@ APIRET APIENTRY SbomOutputJson(const SPDXDOCUMENT *pDoc) {
     rc = JsonSetRoot(hDoc, hRoot);
     if (rc != NO_ERROR) goto fail;
 
-    rc = JsonWriteFile(hRoot, TRUE_, NULL);
+    rc = JsonWriteFile(hRoot, TRUE, NULL);
     JsonClose(hDoc);
     return rc;
 

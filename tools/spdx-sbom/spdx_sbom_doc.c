@@ -66,7 +66,7 @@ static int cmp_fileinfo(const void *pA, const void *pB) {
  * @param[in]  pszCopyright   Package copyright, or NULL.
  * @param[in]  pszPurpose     Primary package purpose, or NULL.
  * @param[in]  pszBinaryFile  Binary artifact path, or NULL.
- * @param[in]  fBinaryMode    TRUE_ for a binary artifact.
+ * @param[in]  fBinaryMode    TRUE for a binary artifact.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -199,9 +199,9 @@ APIRET APIENTRY SbomCreateDocument(
         copy_field(pDoc->package.achPurpose,
                    sizeof(pDoc->package.achPurpose), pszPurpose);
 
-    pDoc->package.fFilesAnalyzed = FALSE_;
+    pDoc->package.fFilesAnalyzed = FALSE;
     pDoc->package.achVerificationCode[0] = '\0';
-    pDoc->fHasExternalRef = FALSE_;
+    pDoc->fHasExternalRef = FALSE;
 
     return NO_ERROR;
 }
@@ -267,7 +267,7 @@ APIRET APIENTRY SbomSetDocumentExternalReference(
                    sizeof(pDoc->achExternalDocChecksum),
                    pszChecksumSha1);
 
-    pDoc->fHasExternalRef = TRUE_;
+    pDoc->fHasExternalRef = TRUE;
     return NO_ERROR;
 }
 
@@ -302,7 +302,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
     if (rc != NO_ERROR) return rc;
 
     if (ulFiles == 0) {
-        pDoc->package.fFilesAnalyzed = FALSE_;
+        pDoc->package.fFilesAnalyzed = FALSE;
         pDoc->package.achVerificationCode[0] = '\0';
         return NO_ERROR;
     }
@@ -378,7 +378,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
     if (rc != NO_ERROR) return rc;
 
     memcpy(pDoc->package.achVerificationCode, achCombined, 41);
-    pDoc->package.fFilesAnalyzed = TRUE_;
+    pDoc->package.fFilesAnalyzed = TRUE;
     return NO_ERROR;
 }
 
@@ -391,7 +391,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
  *
  * @param[in,out] pDoc              Document. Not NULL.
  * @param[in]     pszBaseNameNoExt  Base name without extension.
- * @param[in]     fBinaryMode       TRUE_ for a binary artifact.
+ * @param[in]     fBinaryMode       TRUE for a binary artifact.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.

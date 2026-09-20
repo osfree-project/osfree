@@ -183,7 +183,7 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
         PCSZ pszArg = argv[i];
 
         if (strcmp(pszArg, "--help") == 0 || strcmp(pszArg, "-h") == 0) {
-            pOpts->fHelpRequested = TRUE_;
+            pOpts->fHelpRequested = TRUE;
             return NO_ERROR;
         }
         else if (strncmp(pszArg, "--output=", 9) == 0)
@@ -234,7 +234,7 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
             }
         }
         else if (strcmp(pszArg, "--no-gitignore") == 0)
-            pOpts->fNoGitignore = TRUE_;
+            pOpts->fNoGitignore = TRUE;
         else if (pszArg[0] != '-')
             pOpts->pszDir = pszArg;
         else {

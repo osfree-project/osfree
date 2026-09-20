@@ -88,13 +88,13 @@ typedef struct _SPDXRENAMEMAP {
  * @param[in] pList    List. Not NULL.
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return TRUE_ if already processed.
+ * @return TRUE if already processed.
  */
 static BOOL IsProcessed(const SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
     ULONG ulIdx;
     for (ulIdx = 0; ulIdx < pList->ulCount; ulIdx++)
-        if (strcmp(pList->papszPaths[ulIdx], pszPath) == 0) return TRUE_;
-    return FALSE_;
+        if (strcmp(pList->papszPaths[ulIdx], pszPath) == 0) return TRUE;
+    return FALSE;
 }
 
 /**
@@ -428,13 +428,13 @@ static void CollectExternalIds(HJSONNODE hRoot, HSTRSET hExternalIds) {
  * @param[in] hSet    Set. May be NULLHANDLE.
  * @param[in] pszStr  String. Not NULL.
  *
- * @return TRUE_ if present.
+ * @return TRUE if present.
  */
 static BOOL SetContains(HSTRSET hSet, PCSZ pszStr) {
-    BOOL fFound = FALSE_;
-    if (hSet == NULLHANDLE) return FALSE_;
-    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE_;
-    return fFound ? TRUE_ : FALSE_;
+    BOOL fFound = FALSE;
+    if (hSet == NULLHANDLE) return FALSE;
+    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE;
+    return fFound ? TRUE : FALSE;
 }
 
 /**
@@ -740,7 +740,7 @@ static APIRET MergeSection(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
 
         pszExisting = QueryRenamed(pMap, achOldId);
         if (pszExisting == NULL) {
-            BOOL fExists = FALSE_;
+            BOOL fExists = FALSE;
             ULONG ulJ, ulMCount = 0;
             if (JsonNodeGetCount(hMergedArr, &ulMCount) == NO_ERROR) {
                 for (ulJ = 0; ulJ < ulMCount; ulJ++) {
@@ -757,7 +757,7 @@ static APIRET MergeSection(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
                             != NO_ERROR)
                         continue;
                     if (strcmp(achEx, achOldId) == 0) {
-                        fExists = TRUE_;
+                        fExists = TRUE;
                         break;
                     }
                 }
@@ -1313,7 +1313,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    rc = JsonWriteFile(hMergedRoot, TRUE_, NULL);
+    rc = JsonWriteFile(hMergedRoot, TRUE, NULL);
     if (rc != NO_ERROR) {
         fprintf(stderr, "ERROR: cannot serialize merged document.\n");
         JsonClose(hDocMerged);

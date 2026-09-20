@@ -118,17 +118,17 @@ static APIRET AppendRecord(HREUSELICENSEREPORT hReport,
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE_ if the name is valid.
+ * @return TRUE if the name is valid.
  */
 static BOOL IsValidSpdxName(PCSZ pszName) {
-    BOOL fValid = FALSE_;
+    BOOL fValid = FALSE;
 
     if (SpdxQueryLicenseValid(pszName, &fValid) == NO_ERROR && fValid)
-        return TRUE_;
-    fValid = FALSE_;
+        return TRUE;
+    fValid = FALSE;
     if (SpdxQueryExceptionValid(pszName, &fValid) == NO_ERROR && fValid)
-        return TRUE_;
-    return FALSE_;
+        return TRUE;
+    return FALSE;
 }
 
 /**
@@ -136,12 +136,12 @@ static BOOL IsValidSpdxName(PCSZ pszName) {
  *
  * @param[in] pszName  File name. Not NULL.
  *
- * @return TRUE_ if the name contains a '.' that is not at position 0.
+ * @return TRUE if the name contains a '.' that is not at position 0.
  */
 static BOOL HasExtension(PCSZ pszName) {
     PCSZ pszDot = strrchr(pszName, '.');
-    if (!pszDot) return FALSE_;
-    return (pszDot != pszName) ? TRUE_ : FALSE_;
+    if (!pszDot) return FALSE;
+    return (pszDot != pszName) ? TRUE : FALSE;
 }
 
 /**
@@ -178,13 +178,13 @@ static void StripLicenseExt(PCSZ pszFname, PSZ pszBase, ULONG ulBaseSize) {
  * @param[in] hSet    Set. May be NULLHANDLE.
  * @param[in] pszStr  String. Not NULL.
  *
- * @return TRUE_ if present.
+ * @return TRUE if present.
  */
 static BOOL StrSetHas(HSTRSET hSet, PCSZ pszStr) {
-    BOOL fFound = FALSE_;
-    if (hSet == NULLHANDLE) return FALSE_;
-    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE_;
-    return fFound ? TRUE_ : FALSE_;
+    BOOL fFound = FALSE;
+    if (hSet == NULLHANDLE) return FALSE;
+    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE;
+    return fFound ? TRUE : FALSE;
 }
 
 /**
@@ -273,13 +273,13 @@ static PSZ GetDbTextHeap(PCSZ pszId) {
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return TRUE_ if the path exists.
+ * @return TRUE if the path exists.
  */
 static BOOL FileExists(PCSZ pszPath) {
 #ifdef __LINUX__
-    return (access(pszPath, F_OK) == 0) ? TRUE_ : FALSE_;
+    return (access(pszPath, F_OK) == 0) ? TRUE : FALSE;
 #else
-    return (_access(pszPath, 0) == 0) ? TRUE_ : FALSE_;
+    return (_access(pszPath, 0) == 0) ? TRUE : FALSE;
 #endif
 }
 
@@ -572,9 +572,9 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
     BuildLicensesPath(achLicPath, sizeof(achLicPath), pszBase);
 
 #ifdef __LINUX__
-    fDirExists = (access(achLicPath, F_OK) == 0) ? TRUE_ : FALSE_;
+    fDirExists = (access(achLicPath, F_OK) == 0) ? TRUE : FALSE;
 #else
-    fDirExists = (_access(achLicPath, 0) == 0) ? TRUE_ : FALSE_;
+    fDirExists = (_access(achLicPath, 0) == 0) ? TRUE : FALSE;
 #endif
 
     rc = StrSetCreate(&hFilesInLic);
@@ -601,8 +601,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
             do {
                 CHAR achFname[512];
                 CHAR achBase[256];
-                BOOL fDepLic = FALSE_;
-                BOOL fDepExc = FALSE_;
+                BOOL fDepLic = FALSE;
+                BOOL fDepExc = FALSE;
 
                 if (StrSetEnumGet(hEnum, achFname, sizeof(achFname), NULL)
                         != NO_ERROR)
@@ -689,8 +689,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
                 CHAR achWithTxt[512];
                 BOOL fIsRef;
                 BOOL fFound;
-                BOOL fIsLicValid = FALSE_;
-                BOOL fIsExcValid = FALSE_;
+                BOOL fIsLicValid = FALSE;
+                BOOL fIsExcValid = FALSE;
 
                 if (StrSetEnumGet(hEnum, achLic, sizeof(achLic), NULL)
                         != NO_ERROR)
@@ -813,8 +813,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  * @param[in] hTree          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
- * @param[in] fForce         TRUE_ to overwrite outdated files.
- * @param[in] fDryRun        TRUE_ to skip writes.
+ * @param[in] fForce         TRUE to overwrite outdated files.
+ * @param[in] fDryRun        TRUE to skip writes.
  * @param[in] hReport        Report handle, or NULLHANDLE.
  *
  * @return APIRET
@@ -843,9 +843,9 @@ APIRET APIENTRY ReuseLicensesEnsure(HREUSETREE hTree,
     BuildLicensesPath(achLicPath, sizeof(achLicPath), pszBase);
 
 #ifdef __LINUX__
-    fDirExists = (access(achLicPath, F_OK) == 0) ? TRUE_ : FALSE_;
+    fDirExists = (access(achLicPath, F_OK) == 0) ? TRUE : FALSE;
 #else
-    fDirExists = (_access(achLicPath, 0) == 0) ? TRUE_ : FALSE_;
+    fDirExists = (_access(achLicPath, 0) == 0) ? TRUE : FALSE;
 #endif
 
     if (!fDirExists) {
@@ -911,13 +911,13 @@ APIRET APIENTRY ReuseLicensesEnsure(HREUSETREE hTree,
                     PSZ pszFileText = ReadFileToHeap(achPath);
                     PSZ pszNf = NULL;
                     PSZ pszNd = NULL;
-                    BOOL fEqual = FALSE_;
+                    BOOL fEqual = FALSE;
 
                     if (pszFileText) {
                         pszNf = NormalizeToHeap(pszFileText);
                         pszNd = NormalizeToHeap(pszDbText);
                         if (pszNf && pszNd && strcmp(pszNf, pszNd) == 0)
-                            fEqual = TRUE_;
+                            fEqual = TRUE;
                         free(pszNf);
                         free(pszNd);
                         free(pszFileText);

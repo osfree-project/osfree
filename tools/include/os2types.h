@@ -61,8 +61,14 @@ typedef BOOL               *PBOOL;
 typedef PSZ                *PPSZ;
 typedef HANDLE             *PHANDLE;
 
-#define TRUE_        1
-#define FALSE_       0
+#ifndef TRUE
+#define TRUE  1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 
 /**
  * @def NULLHANDLE

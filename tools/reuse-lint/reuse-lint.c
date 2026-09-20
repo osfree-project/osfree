@@ -238,8 +238,8 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
         if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
             do {
                 CHAR achId[256];
-                BOOL fDepLic = FALSE_;
-                BOOL fDepExc = FALSE_;
+                BOOL fDepLic = FALSE;
+                BOOL fDepExc = FALSE;
 
                 if (StrSetEnumGet(hEnum, achId, sizeof(achId), NULL)
                         != NO_ERROR)
@@ -486,7 +486,7 @@ int main(int argc, char *argv[]) {
     PCSZ pszDir = ".";
     PCSZ pszSpdxDbRoot = NULL;
     PCSZ pszCacheFile = NULL;
-    BOOL fNoGitignore = FALSE_;
+    BOOL fNoGitignore = FALSE;
     int i;
     HREUSETREE hTree = NULLHANDLE;
     HSTRSET hUsedLicenses = NULLHANDLE;
@@ -496,7 +496,7 @@ int main(int argc, char *argv[]) {
     REUSEDISCOVEROPTIONS walk_opts;
     PSZ pszRepoRoot = NULL;
     GITIGNORELIST gitignore_rules;
-    BOOL fHasGitignore = FALSE_;
+    BOOL fHasGitignore = FALSE;
     int nExit;
 
     GitIgnoreListInit(&gitignore_rules);
@@ -527,7 +527,7 @@ int main(int argc, char *argv[]) {
         else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
             g_pszDefaultCopyright = argv[i] + 20;
         else if (strcmp(argv[i], "--no-gitignore") == 0)
-            fNoGitignore = TRUE_;
+            fNoGitignore = TRUE;
         else if (argv[i][0] != '-')
             pszDir = argv[i];
         else {
@@ -614,7 +614,7 @@ int main(int argc, char *argv[]) {
         if (GitCollectGitignores(pszRepoRoot, pszDir,
                                  &gitignore_rules) == NO_ERROR &&
             gitignore_rules.ulCount > 0) {
-            fHasGitignore = TRUE_;
+            fHasGitignore = TRUE;
         }
     }
 
@@ -628,9 +628,9 @@ int main(int argc, char *argv[]) {
     }
 
     ReuseSetDiscoverOptionsDefault(&walk_opts);
-    walk_opts.fRecursive = FALSE_;
+    walk_opts.fRecursive = FALSE;
     if (fHasGitignore) {
-        walk_opts.fUseGitignore   = TRUE_;
+        walk_opts.fUseGitignore   = TRUE;
         walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot : pszDir;
         walk_opts.pGitignoreRules = &gitignore_rules;
     }

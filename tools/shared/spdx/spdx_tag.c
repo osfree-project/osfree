@@ -225,11 +225,11 @@ static APIRET snippetlist_add(SPDXSNIPPETLIST *pList,
 APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
     FILE *fp;
     CHAR achLine[MAX_LINE];
-    BOOL fIgnore = FALSE_;
-    BOOL fFirstLine = TRUE_;
+    BOOL fIgnore = FALSE;
+    BOOL fFirstLine = TRUE;
 
     if (!pszFilename || !pfHasTag) return ERROR_INVALID_PARAMETER;
-    *pfHasTag = FALSE_;
+    *pfHasTag = FALSE;
 
     fp = fopen(pszFilename, "r");
     if (!fp) return ERROR_OPEN_FAILED;
@@ -239,17 +239,17 @@ APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
 
         if (fFirstLine) {
             pszWork = (PSZ)skip_bom(achLine);
-            fFirstLine = FALSE_;
+            fFirstLine = FALSE;
         }
 
         nMarker = line_ignore_marker(pszWork);
-        if (nMarker == 1) { fIgnore = TRUE_; continue; }
-        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (nMarker == 1) { fIgnore = TRUE; continue; }
+        if (nMarker == 2) { fIgnore = FALSE; continue; }
         if (fIgnore) continue;
 
         if (strstr(pszWork, "SPDX-License-Identifier:")) {
             fclose(fp);
-            *pfHasTag = TRUE_;
+            *pfHasTag = TRUE;
             return NO_ERROR;
         }
     }
@@ -282,8 +282,8 @@ APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
     PSZ pszPos;
     PSZ pszStart;
     size_t cbLen;
-    BOOL fIgnore = FALSE_;
-    BOOL fFirstLine = TRUE_;
+    BOOL fIgnore = FALSE;
+    BOOL fFirstLine = TRUE;
     ULONG ulFound = 0;
 
     if (!pszFilename) return ERROR_INVALID_PARAMETER;
@@ -299,12 +299,12 @@ APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
 
         if (fFirstLine) {
             pszWork = (PSZ)skip_bom(achLine);
-            fFirstLine = FALSE_;
+            fFirstLine = FALSE;
         }
 
         nMarker = line_ignore_marker(pszWork);
-        if (nMarker == 1) { fIgnore = TRUE_; continue; }
-        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (nMarker == 1) { fIgnore = TRUE; continue; }
+        if (nMarker == 2) { fIgnore = FALSE; continue; }
         if (fIgnore) continue;
 
         pszPos = strstr(pszWork, pszNeedle);
@@ -359,8 +359,8 @@ APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
     CHAR achLine[MAX_LINE];
     PSZ pszResult = NULL;
     size_t cbResultLen = 0;
-    BOOL fIgnore = FALSE_;
-    BOOL fFirstLine = TRUE_;
+    BOOL fIgnore = FALSE;
+    BOOL fFirstLine = TRUE;
     APIRET rc;
 
     if (!pszFilename) return ERROR_INVALID_PARAMETER;
@@ -378,14 +378,14 @@ APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
 
         if (fFirstLine) {
             pszPos = (PSZ)skip_bom(achLine);
-            fFirstLine = FALSE_;
+            fFirstLine = FALSE;
         } else {
             pszPos = achLine;
         }
 
         nMarker = line_ignore_marker(pszPos);
-        if (nMarker == 1) { fIgnore = TRUE_; continue; }
-        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (nMarker == 1) { fIgnore = TRUE; continue; }
+        if (nMarker == 2) { fIgnore = FALSE; continue; }
         if (fIgnore) continue;
 
         pszPos = (PSZ)skip_comment_prefix(pszPos);
@@ -498,13 +498,13 @@ APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
     FILE *fp;
     CHAR achLine[MAX_LINE];
     ULONG ulLineNo = 0;
-    BOOL fFirstLine = TRUE_;
-    BOOL fInSnippet = FALSE_;
+    BOOL fFirstLine = TRUE;
+    BOOL fInSnippet = FALSE;
     ULONG ulSnippetStartLine = 0;
     PSZ pszSnippetLicense = NULL;
     PSZ pszSnippetCopyright = NULL;
     size_t cbSnippetCopyrightLen = 0;
-    BOOL fIgnore = FALSE_;
+    BOOL fIgnore = FALSE;
     APIRET rc;
 
     if (!pszFilename || !pOut) return ERROR_INVALID_PARAMETER;
@@ -523,12 +523,12 @@ APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
 
         if (fFirstLine) {
             pszWork = (PSZ)skip_bom(achLine);
-            fFirstLine = FALSE_;
+            fFirstLine = FALSE;
         }
 
         nMarker = line_ignore_marker(pszWork);
-        if (nMarker == 1) { fIgnore = TRUE_; continue; }
-        if (nMarker == 2) { fIgnore = FALSE_; continue; }
+        if (nMarker == 1) { fIgnore = TRUE; continue; }
+        if (nMarker == 2) { fIgnore = FALSE; continue; }
         if (fIgnore) continue;
 
         if (line_starts_with_tag(pszWork, "SPDX-SnippetBegin")) {
@@ -539,7 +539,7 @@ APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
                 fclose(fp);
                 return SPDX_TAG_ERROR_SYNTAX;
             }
-            fInSnippet = TRUE_;
+            fInSnippet = TRUE;
             ulSnippetStartLine = ulLineNo;
             free(pszSnippetLicense); pszSnippetLicense = NULL;
             free(pszSnippetCopyright); pszSnippetCopyright = NULL;
@@ -569,7 +569,7 @@ APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
             pszSnippetLicense = NULL;
             pszSnippetCopyright = NULL;
             cbSnippetCopyrightLen = 0;
-            fInSnippet = FALSE_;
+            fInSnippet = FALSE;
             continue;
         }
 
