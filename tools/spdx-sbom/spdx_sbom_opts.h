@@ -27,7 +27,6 @@ extern "C" {
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /**
@@ -116,30 +115,6 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
  * @retval ERROR_INVALID_PARAMETER  pOpts is NULL.
  */
 APIRET APIENTRY SbomFreeOptions(PSBOMOPTIONS pOpts);
-
-/* ==================================================================
- * Lookups
- * ================================================================== */
-
-/**
- * @brief Look up a LicenseRef text source by identifier.
- *
- * On success, @p *ppszPath receives a malloc'd copy of the path
- * owned by the caller; on failure @p *ppszPath is set to NULL.
- *
- * @param[in]  pOpts     Options. Not NULL.
- * @param[in]  pszId     LicenseRef identifier. Not NULL.
- * @param[out] ppszPath  Receiver. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
- * @retval ERROR_FILE_NOT_FOUND     No source registered with that
- *                                  identifier.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY SbomQueryExtractedPath(const SBOMOPTIONS *pOpts,
-                                       PCSZ pszId, PSZ *ppszPath);
 
 #ifdef __cplusplus
 }

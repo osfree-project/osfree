@@ -1,4 +1,4 @@
-/* reuse-sbom.c - SBOM generator (C89, OpenWatcom) */
+/* spdx-sbom.c - SBOM generator (C89, OpenWatcom) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,17 +23,21 @@
 #include "reuse_discover.h"
 
 /**
- * @file reuse-sbom.c
+ * @file spdx-sbom.c
  * @brief Command line entry point of the SBOM generator.
  *
  * Collects licensing information from the project tree (or from a
  * single binary artifact), builds an in-memory SBOM document, and
  * emits it in the requested format.
  *
+ * In source mode, the CLI resolves licensing information through
+ * the REUSE resolver and hands the result to the SPDX SBOM layer
+ * as a list of SPDXFILEINPUT entries. The SBOM layer does not call
+ * the REUSE resolver itself.
+ *
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /* ==================================================================
@@ -44,7 +48,7 @@
  * @brief Print command line usage to stdout.
  */
 static void print_help(void) {
-    printf("Usage: reuse-sbom [options] [<directory>]\n"
+    printf("Usage: spdx-sbom [options] [<directory>]\n"
            "\n"
            "Required:\n"
            "  --name=<name>              Package name\n"
@@ -179,6 +183,91 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
     return NO_ERROR;
 }
 
+/**
+ * @brief Resolve licensing information for every discovered file.
+ *
+ * For each path in @p hPaths, ReuseResolveLicense is called and the
+ * result is appended to @p hResolved as an SPDXFILEINPUT entry. A
+ * file with no licensing information at all is reported to stderr
+ * and skipped; the SBOM layer would reject it anyway.
+ *
+ * @param[in]  hPaths     Set of file paths. Not NULLHANDLE.
+ * @param[in]  hTree      Project handle. May be NULLHANDLE.
+ * @param[in]  pszDefLic  Fallback license, or NULL.
+ * @param[in]  pszDefCop  Fallback copyright, or NULL.
+ * @param[in]  hResolved  Destination list of SPDXFILEINPUT entries.
+ *                        Not NULLHANDLE.
+ * @param[out] pulSkipped Receiver for the number of skipped files.
+ *                        Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  A parameter is NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE     A container is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+static APIRET resolve_all_files(HSTRSET hPaths,
+                                HREUSETREE hTree,
+                                PCSZ pszDefLic,
+                                PCSZ pszDefCop,
+                                HVECTOR hResolved,
+                                PULONG pulSkipped) {
+    HSTRSETENUM hEnum = NULLHANDLE;
+    APIRET rc;
+
+    *pulSkipped = 0;
+
+    if (hPaths == NULLHANDLE || hResolved == NULLHANDLE)
+        return ERROR_INVALID_PARAMETER;
+
+    if (StrSetEnumFirst(hPaths, &hEnum) != NO_ERROR)
+        return NO_ERROR;
+
+    do {
+        CHAR achFull[1024];
+        REUSELICENSEINFO lic;
+        SPDXFILEINPUT input;
+
+        if (StrSetEnumGet(hEnum, achFull, sizeof(achFull), NULL)
+                != NO_ERROR)
+            continue;
+
+        rc = ReuseResolveLicense(hTree, achFull, pszDefLic, pszDefCop,
+                                 &lic);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "WARNING: %s: no licensing information, skipped.\n"
+                    "         Fix one of:\n"
+                    "           - add SPDX tags in the file header;\n"
+                    "           - or create a sidecar <file>.license;\n"
+                    "           - or add a [[annotations]] entry "
+                    "in REUSE.toml;\n"
+                    "           - or pass --default-license and "
+                    "--default-copyright.\n",
+                    achFull);
+            (*pulSkipped)++;
+            continue;
+        }
+
+        memset(&input, 0, sizeof(input));
+        strncpy(input.achFullPath, achFull,
+                sizeof(input.achFullPath) - 1);
+        strncpy(input.achLicense, lic.achLicense,
+                sizeof(input.achLicense) - 1);
+        strncpy(input.achCopyright, lic.achCopyright,
+                sizeof(input.achCopyright) - 1);
+
+        rc = SbomAddFileInput(hResolved, &input);
+        if (rc != NO_ERROR) {
+            StrSetEnumClose(hEnum);
+            return rc;
+        }
+    } while (StrSetEnumNext(hEnum) == NO_ERROR);
+    StrSetEnumClose(hEnum);
+
+    return NO_ERROR;
+}
+
 /* ==================================================================
  * Entry point
  * ================================================================== */
@@ -196,6 +285,7 @@ int main(int argc, char *argv[]) {
     SPDXDOCUMENT doc;
     HREUSETREE hTree = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
+    HVECTOR hResolved = NULLHANDLE;
     REUSEDISCOVEROPTIONS walk_opts;
     GITIGNORELIST gitignore_rules;
     BOOL fHasGitignore = FALSE_;
@@ -203,6 +293,7 @@ int main(int argc, char *argv[]) {
     PSZ pszPkgLicense = NULL;
     BOOL fPkgLicenseIsHeap = FALSE_;
     BOOL fBinaryMode;
+    ULONG ulSkipped = 0;
     CHAR achBaseNoExt[256];
     APIRET rc;
     APIRET rcDb;
@@ -220,12 +311,12 @@ int main(int argc, char *argv[]) {
         if (opts.pszBadOption)
             fprintf(stderr,
                     "ERROR: bad option: %s\n"
-                    "       Run 'reuse-sbom --help' for usage.\n",
+                    "       Run 'spdx-sbom --help' for usage.\n",
                     opts.pszBadOption);
         else
             fprintf(stderr,
                     "ERROR: invalid command line.\n"
-                    "       Run 'reuse-sbom --help' for usage.\n");
+                    "       Run 'spdx-sbom --help' for usage.\n");
         SbomFreeOptions(&opts);
         return 1;
     }
@@ -305,9 +396,7 @@ int main(int argc, char *argv[]) {
     fBinaryMode = is_binary_mode(&opts);
 
     /* Resolve the package license BEFORE SbomCreateDocument so the
-     * value is fixed inside the package structure. In binary mode
-     * the same resolution path is used: REUSE.toml (path="**") >
-     * --default-license. */
+     * value is fixed inside the package structure. */
     rc = resolve_package_license(&opts, hTree, &pszPkgLicense,
                                  &fPkgLicenseIsHeap);
     if (rc != NO_ERROR) {
@@ -388,11 +477,31 @@ int main(int argc, char *argv[]) {
                     opts.pszDir);
             goto cleanup;
         }
-        rc = SbomCollectFiles(hPaths, hTree,
-                              opts.pszDefaultLicense,
-                              opts.pszDefaultCopyright,
-                              doc.hFiles,
-                              doc.hSnippets);
+
+        /* Resolve licensing information before handing anything to
+         * the SPDX SBOM layer. */
+        rc = SbomCreateFileInputList(&hResolved);
+        if (rc != NO_ERROR) {
+            fprintf(stderr, "ERROR: out of memory\n");
+            goto cleanup;
+        }
+        rc = resolve_all_files(hPaths, hTree,
+                               opts.pszDefaultLicense,
+                               opts.pszDefaultCopyright,
+                               hResolved, &ulSkipped);
+        if (rc != NO_ERROR) {
+            fprintf(stderr,
+                    "ERROR: cannot resolve licensing information "
+                    "(%lu).\n", (unsigned long)rc);
+            goto cleanup;
+        }
+        if (ulSkipped > 0) {
+            fprintf(stderr,
+                    "WARNING: %lu file(s) skipped (no licensing "
+                    "information).\n", (unsigned long)ulSkipped);
+        }
+
+        rc = SbomCollectFiles(hResolved, doc.hFiles, doc.hSnippets);
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: failed to collect files for the SBOM "
@@ -402,6 +511,8 @@ int main(int argc, char *argv[]) {
         }
         StrSetDestroy(hPaths);
         hPaths = NULLHANDLE;
+        SbomFreeFileInputList(hResolved);
+        hResolved = NULLHANDLE;
     }
 
     rc = SbomCollectExtractedLicenses(doc.hExtractedLicenses,
@@ -486,6 +597,7 @@ int main(int argc, char *argv[]) {
 cleanup:
     SbomFreeDocument(&doc);
     if (hPaths != NULLHANDLE) StrSetDestroy(hPaths);
+    if (hResolved != NULLHANDLE) SbomFreeFileInputList(hResolved);
     if (fPkgLicenseIsHeap) free(pszPkgLicense);
     if (hTree != NULLHANDLE) ReuseTreeClose(hTree);
     GitIgnoreListFree(&gitignore_rules);

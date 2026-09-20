@@ -19,7 +19,7 @@ extern "C" {
  * Identifier sanitization, package id construction, file type
  * classification, and lifecycle of the container lists used by
  * the document (files, snippets, relationships, extracted
- * licenses).
+ * licenses, resolved file inputs).
  *
  * @par Containers
  * All lists are HVECTOR containers from the ccl library. The
@@ -34,7 +34,6 @@ extern "C" {
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 /* ==================================================================
@@ -90,16 +89,76 @@ APIRET APIENTRY SbomMakePackageId(PCSZ pszBaseName, PCSZ pszSuffix,
 /**
  * @brief Query the SPDX file type for a path.
  *
- * @param[in]  pszFilename    Path. Not NULL.
- * @param[out] ppszFileType   Receiver. Not NULL.
+ * Size-query convention:
+ *   - pszBuf == NULL, ulSize == 0: only *pulUsed is written.
+ *   - ulSize large enough: value copied and NUL-terminated;
+ *     *pulUsed is the length without NUL.
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *     required size including NUL.
+ *
+ * @param[in]  pszFilename  Path. Not NULL.
+ * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize       Size of pszBuf in bytes.
+ * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszFilename or ppszFileType is
- *                                  NULL.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed);
+
+/* ==================================================================
+ * Resolved file input list
+ *
+ * The list holds SPDXFILEINPUT entries produced by the CLI after
+ * ReuseResolveLicense. It is the boundary between the REUSE
+ * resolver and the SPDX SBOM layer.
+ * ================================================================== */
+
+/**
+ * @brief Create an empty resolved file input list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ *ppszFileType);
+APIRET APIENTRY SbomCreateFileInputList(PHVECTOR phList);
+
+/**
+ * @brief Append a copy of a resolved file input entry to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pIn    Entry to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pIn is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddFileInput(HVECTOR hList,
+                                 const SPDXFILEINPUT *pIn);
+
+/**
+ * @brief Release a resolved file input list.
+ *
+ * The entries own no heap memory, so the container alone is
+ * released.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeFileInputList(HVECTOR hList);
 
 /* ==================================================================
  * File list

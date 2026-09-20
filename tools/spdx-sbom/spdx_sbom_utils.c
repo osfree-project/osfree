@@ -1,5 +1,6 @@
 /* spdx_sbom_utils.c - SPDX SBOM helper functions (C89) */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -8,9 +9,6 @@
 /**
  * @file spdx_sbom_utils.c
  * @brief Implementation of the SBOM helper functions.
- *
- * No function in this module writes to stdout or stderr. All
- * failures are reported through the returned APIRET code.
  */
 
 /* ------------------------------------------------------------------ */
@@ -119,23 +117,26 @@ APIRET APIENTRY SbomMakePackageId(PCSZ pszBaseName, PCSZ pszSuffix,
 /**
  * @brief Query the SPDX file type for a path.
  *
- * @param[in]  pszFilename    Path. Not NULL.
- * @param[out] ppszFileType   Receiver. Not NULL.
+ * @param[in]  pszFilename  Path. Not NULL.
+ * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize       Size of pszBuf in bytes.
+ * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszFilename or ppszFileType is
- *                                  NULL.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
-APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ *ppszFileType) {
+APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ pszBuf,
+                                  ULONG ulSize, PULONG pulUsed) {
     PCSZ pszExt;
     PCSZ pszValue;
-    PSZ pszCopy;
     size_t cbLen;
 
-    if (!pszFilename || !ppszFileType) return ERROR_INVALID_PARAMETER;
-    *ppszFileType = NULL;
+    if (!pszFilename) return ERROR_INVALID_PARAMETER;
+    if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
+    if (pszBuf == NULL && ulSize != 0) return ERROR_INVALID_PARAMETER;
 
     pszExt = strrchr(pszFilename, '.');
     if (!pszExt) {
@@ -157,11 +158,71 @@ APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ *ppszFileType) {
     }
 
     cbLen = strlen(pszValue);
-    pszCopy = (PSZ)malloc(cbLen + 1);
-    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
-    memcpy(pszCopy, pszValue, cbLen + 1);
-    *ppszFileType = pszCopy;
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return NO_ERROR;
+    }
+    if (ulSize < cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuf, pszValue, cbLen);
+    pszBuf[cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
     return NO_ERROR;
+}
+
+/* ------------------------------------------------------------------ */
+/* Resolved file input list                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Create an empty resolved file input list.
+ *
+ * @param[out] phList  Receiver for the HVECTOR. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phList is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomCreateFileInputList(PHVECTOR phList) {
+    if (!phList) return ERROR_INVALID_PARAMETER;
+    return VectorCreate((ULONG)sizeof(SPDXFILEINPUT), phList);
+}
+
+/**
+ * @brief Append a copy of a resolved file input entry to the list.
+ *
+ * @param[in] hList  List. Not NULLHANDLE.
+ * @param[in] pIn    Entry to copy. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hList is NULLHANDLE or pIn is
+ *                                  NULL.
+ * @retval ERROR_INVALID_HANDLE     hList is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SbomAddFileInput(HVECTOR hList,
+                                 const SPDXFILEINPUT *pIn) {
+    if (hList == NULLHANDLE || !pIn) return ERROR_INVALID_PARAMETER;
+    return VectorAdd(hList, (PCVOID)pIn);
+}
+
+/**
+ * @brief Release a resolved file input list.
+ *
+ * @param[in] hList  List. NULLHANDLE is a no-op.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   hList is not recognized.
+ */
+APIRET APIENTRY SbomFreeFileInputList(HVECTOR hList) {
+    if (hList == NULLHANDLE) return NO_ERROR;
+    return VectorDestroy(hList);
 }
 
 /* ------------------------------------------------------------------ */

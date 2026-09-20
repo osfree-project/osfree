@@ -5,7 +5,6 @@
 #include <string.h>
 #include "spdx_sbom_scan.h"
 #include "spdx_sbom_utils.h"
-#include "reuse_lic.h"
 #include "ccl.h"
 #include "spdx.h"
 #include "spdx_db.h"
@@ -42,29 +41,26 @@ static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Validate the license expression of one file.
+ * @brief Validate one SPDX license expression.
  *
- * @param[in] pszFullPath  File path. Not NULL.
- * @param[in] pLic         Resolved license information. Not NULL.
+ * @param[in] pszLicense  Expression. Not NULL. May be empty.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_FILE_NOT_FOUND     License is empty.
+ * @retval NO_ERROR                 Expression is valid.
+ * @retval ERROR_FILE_NOT_FOUND     Expression is empty.
  * @retval ERROR_INVALID_DATA       Expression is invalid.
  */
-static APIRET validate_license(PCSZ pszFullPath,
-                               const REUSELICENSEINFO *pLic) {
+static APIRET validate_license(PCSZ pszLicense) {
     PCSZ pszBad = NULL;
     APIRET rc;
 
-    if (pLic->achLicense[0] == '\0') {
+    if (!pszLicense || pszLicense[0] == '\0') {
         return ERROR_FILE_NOT_FOUND;
     }
 
-    rc = SpdxQueryExpression(pLic->achLicense, &pszBad);
+    rc = SpdxQueryExpression(pszLicense, &pszBad);
     if (rc != NO_ERROR) return ERROR_INVALID_DATA;
 
-    (void)pszFullPath;
     return NO_ERROR;
 }
 
@@ -155,6 +151,8 @@ static APIRET collect_file_snippets(PCSZ pszFullPath,
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error while hashing.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_BUFFER_OVERFLOW    File type name does not fit the
+ *                                  fixed buffer.
  */
 APIRET APIENTRY SbomFillFileBasic(
     PCSZ pszFullPath,
@@ -162,7 +160,6 @@ APIRET APIENTRY SbomFillFileBasic(
     PSPDXFILEINFO pInfo)
 {
     CHAR achHex[41];
-    PSZ pszFileType = NULL;
     APIRET rc;
 
     if (!pszFullPath || !pszDisplayName || !pInfo)
@@ -176,28 +173,21 @@ APIRET APIENTRY SbomFillFileBasic(
 
     copy_field(pInfo->achSha1, sizeof(pInfo->achSha1), achHex);
 
-    rc = SbomQueryFileType(pszDisplayName, &pszFileType);
+    rc = SbomQueryFileType(pszDisplayName,
+                           pInfo->achFileType,
+                           sizeof(pInfo->achFileType),
+                           NULL);
     if (rc != NO_ERROR) return rc;
-    if (pszFileType) {
-        copy_field(pInfo->achFileType, sizeof(pInfo->achFileType),
-                   pszFileType);
-        free(pszFileType);
-    }
+
     return NO_ERROR;
 }
 
 /**
- * @brief Process one file: fill, resolve, validate, append.
+ * @brief Process one resolved file entry.
  *
- * @param[in] pszFullPath           Path to the file on disk.
- * @param[in] pszDisplayName        Base name to store.
- * @param[in] hTree                 REUSE project handle, or
- *                                  NULLHANDLE.
- * @param[in] pszDefaultLicense     Fallback license, or NULL.
- * @param[in] pszDefaultCopyright   Fallback copyright, or NULL.
- * @param[in] hFiles                Destination file list.
- * @param[in] hSnippets             Destination snippet list, or
- *                                  NULLHANDLE.
+ * @param[in] pIn          Resolved file entry. Not NULL.
+ * @param[in] hFiles       Destination file list.
+ * @param[in] hSnippets    Destination snippet list, or NULLHANDLE.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -206,38 +196,32 @@ APIRET APIENTRY SbomFillFileBasic(
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET process_one_file(
-    PCSZ pszFullPath,
-    PCSZ pszDisplayName,
-    HREUSETREE hTree,
-    PCSZ pszDefaultLicense,
-    PCSZ pszDefaultCopyright,
+    const SPDXFILEINPUT *pIn,
     HVECTOR hFiles,
     HVECTOR hSnippets)
 {
     SPDXFILEINFO info;
-    REUSELICENSEINFO lic;
+    PCSZ pszDisplayName;
     APIRET rc;
 
-    rc = SbomFillFileBasic(pszFullPath, pszDisplayName, &info);
+    pszDisplayName = SpdxGetFileName(pIn->achFullPath);
+
+    rc = SbomFillFileBasic(pIn->achFullPath, pszDisplayName, &info);
     if (rc != NO_ERROR) return rc;
 
-    rc = ReuseResolveLicense(hTree, pszFullPath,
-                             pszDefaultLicense, pszDefaultCopyright,
-                             &lic);
-    if (rc != NO_ERROR) return ERROR_FILE_NOT_FOUND;
-
-    rc = validate_license(pszFullPath, &lic);
+    rc = validate_license(pIn->achLicense);
     if (rc != NO_ERROR) return rc;
 
-    copy_field(info.achLicense, sizeof(info.achLicense), lic.achLicense);
+    copy_field(info.achLicense, sizeof(info.achLicense), pIn->achLicense);
     copy_field(info.achCopyright, sizeof(info.achCopyright),
-               lic.achCopyright);
+               pIn->achCopyright);
 
     rc = SbomAddFile(hFiles, &info);
     if (rc != NO_ERROR) return rc;
 
     if (hSnippets != NULLHANDLE) {
-        rc = collect_file_snippets(pszFullPath, pszDisplayName, hSnippets);
+        rc = collect_file_snippets(pIn->achFullPath, pszDisplayName,
+                                   hSnippets);
         if (rc != NO_ERROR) return rc;
     }
     return NO_ERROR;
@@ -246,57 +230,45 @@ static APIRET process_one_file(
 /**
  * @brief Collect all files and snippets for the SBOM.
  *
- * @param[in] hPaths              Set of file paths. Not NULLHANDLE.
- * @param[in] hTree               REUSE project handle, or
- *                                NULLHANDLE.
- * @param[in] pszDefaultLicense   Fallback license, or NULL.
- * @param[in] pszDefaultCopyright Fallback copyright, or NULL.
- * @param[in] hFiles              Destination file list. Not
- *                                NULLHANDLE.
- * @param[in] hSnippets           Destination snippet list, or
- *                                NULLHANDLE.
+ * @param[in] hResolved   List of SPDXFILEINPUT entries. Not
+ *                        NULLHANDLE.
+ * @param[in] hFiles      Destination file list. Not NULLHANDLE.
+ * @param[in] hSnippets   Destination snippet list, or NULLHANDLE.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hPaths or hFiles is NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     hPaths or hFiles is not
+ * @retval ERROR_INVALID_PARAMETER  hResolved or hFiles is NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE     hResolved or hFiles is not
  *                                  recognized.
  * @retval ERROR_FILE_NOT_FOUND     A file has no license information.
  * @retval ERROR_INVALID_DATA       A license expression is invalid.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY SbomCollectFiles(
-    HSTRSET hPaths,
-    HREUSETREE hTree,
-    PCSZ pszDefaultLicense,
-    PCSZ pszDefaultCopyright,
+    HVECTOR hResolved,
     HVECTOR hFiles,
     HVECTOR hSnippets)
 {
-    HSTRSETENUM hEnum = NULLHANDLE;
-    APIRET rc = NO_ERROR;
+    ULONG ulCount = 0;
+    ULONG ulIdx;
+    APIRET rc;
 
-    if (hPaths == NULLHANDLE || hFiles == NULLHANDLE)
+    if (hResolved == NULLHANDLE || hFiles == NULLHANDLE)
         return ERROR_INVALID_PARAMETER;
 
-    if (StrSetEnumFirst(hPaths, &hEnum) != NO_ERROR)
-        return NO_ERROR;
+    rc = VectorGetCount(hResolved, &ulCount);
+    if (rc != NO_ERROR) return rc;
 
-    do {
-        CHAR achFull[1024];
-        PCSZ pszName;
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        SPDXFILEINPUT input;
 
-        if (StrSetEnumGet(hEnum, achFull, sizeof(achFull), NULL)
-                != NO_ERROR)
+        if (VectorGetItem(hResolved, ulIdx, &input,
+                          (ULONG)sizeof(input), NULL) != NO_ERROR)
             continue;
 
-        pszName = SpdxGetFileName(achFull);
-        rc = process_one_file(achFull, pszName, hTree,
-                              pszDefaultLicense, pszDefaultCopyright,
-                              hFiles, hSnippets);
-        if (rc != NO_ERROR) break;
-    } while (StrSetEnumNext(hEnum) == NO_ERROR);
+        rc = process_one_file(&input, hFiles, hSnippets);
+        if (rc != NO_ERROR) return rc;
+    }
 
-    StrSetEnumClose(hEnum);
-    return rc;
+    return NO_ERROR;
 }

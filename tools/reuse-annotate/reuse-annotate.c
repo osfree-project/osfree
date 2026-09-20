@@ -16,6 +16,7 @@
 #include "spdx.h"
 #include "spdx_db.h"
 #include "reuse_discover.h"
+#include "reuse_licenses.h"
 #include "git.h"
 #include "spdx_tag.h"
 #include "reuse_lic.h"
@@ -35,7 +36,6 @@
  *     https://reuse.software/spec-3.3/
  *   - SPDX 2.3, Annex D (license expression grammar).
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 #define MAX_LINE     4096
@@ -126,42 +126,6 @@ static PSZ normalize_to_heap(PCSZ pszSrc) {
     return pszOut;
 }
 
-/**
- * @brief Fetch the license or exception text for an identifier.
- *
- * Tries the license table first, then the exception table.
- *
- * @param[in] pszId  Identifier. Not NULL.
- *
- * @return malloc'd text, or NULL if not found.
- */
-static PSZ get_db_text_heap(PCSZ pszId) {
-    ULONG ulSize = 0;
-    PSZ pszOut;
-    APIRET rc;
-
-    rc = SpdxQueryLicenseText(pszId, NULL, 0, &ulSize);
-    if (rc != NO_ERROR) {
-        rc = SpdxQueryExceptionText(pszId, NULL, 0, &ulSize);
-        if (rc != NO_ERROR) return NULL;
-        pszOut = (PSZ)malloc(ulSize);
-        if (!pszOut) return NULL;
-        if (SpdxQueryExceptionText(pszId, pszOut, ulSize, NULL)
-                != NO_ERROR) {
-            free(pszOut);
-            return NULL;
-        }
-        return pszOut;
-    }
-    pszOut = (PSZ)malloc(ulSize);
-    if (!pszOut) return NULL;
-    if (SpdxQueryLicenseText(pszId, pszOut, ulSize, NULL) != NO_ERROR) {
-        free(pszOut);
-        return NULL;
-    }
-    return pszOut;
-}
-
 /* ------------------------------------------------------------------ */
 /* Filesystem helpers                                                  */
 /* ------------------------------------------------------------------ */
@@ -179,48 +143,6 @@ static BOOL FileExists(PCSZ pszPath) {
 #else
     return (_access(pszPath, 0) == 0) ? TRUE_ : FALSE_;
 #endif
-}
-
-/**
- * @brief Create a directory, ignoring an existing one.
- *
- * @param[in] pszPath  Directory path. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR          Created or already existed.
- * @retval ERROR_OPEN_FAILED Cannot create and does not exist.
- */
-static APIRET MakeDirectory(PCSZ pszPath) {
-#ifdef __LINUX__
-    if (mkdir(pszPath, 0755) == 0) return NO_ERROR;
-    if (access(pszPath, F_OK) == 0) return NO_ERROR;
-#else
-    if (_mkdir(pszPath) == 0) return NO_ERROR;
-    if (_access(pszPath, 0) == 0) return NO_ERROR;
-#endif
-    return ERROR_OPEN_FAILED;
-}
-
-/**
- * @brief Write a text to a file, replacing its content.
- *
- * @param[in] pszPath  Destination path. Not NULL.
- * @param[in] pszText  Text to write, or NULL.
- *
- * @return APIRET
- * @retval NO_ERROR          Success.
- * @retval ERROR_OPEN_FAILED Cannot open for writing.
- * @retval ERROR_READ_FAULT  Write error.
- */
-static APIRET WriteTextFile(PCSZ pszPath, PCSZ pszText) {
-    FILE *fp = fopen(pszPath, "wb");
-    if (!fp) return ERROR_OPEN_FAILED;
-    if (pszText && fputs(pszText, fp) == EOF) {
-        fclose(fp);
-        return ERROR_READ_FAULT;
-    }
-    fclose(fp);
-    return NO_ERROR;
 }
 
 /**
@@ -760,11 +682,16 @@ static APIRET AnnotateOne(PCSZ pszFilename,
             return NO_ERROR;
         }
 
-        if (WriteTextFile(achSidecar, pszBlock) != NO_ERROR) {
-            printf("ERROR: cannot write file: %s\n"
-                   "       Check directory permissions.\n", achSidecar);
-            free(pszBlock);
-            return ERROR_OPEN_FAILED;
+        {
+            FILE *fpW = fopen(achSidecar, "wb");
+            if (!fpW || (pszBlock && fputs(pszBlock, fpW) == EOF)) {
+                if (fpW) fclose(fpW);
+                printf("ERROR: cannot write file: %s\n"
+                       "       Check directory permissions.\n", achSidecar);
+                free(pszBlock);
+                return ERROR_OPEN_FAILED;
+            }
+            fclose(fpW);
         }
         printf("%s %s\n",
                fExists ? "Updated (sidecar):   " : "Created (sidecar):   ",
@@ -870,178 +797,106 @@ static APIRET AnnotateOne(PCSZ pszFilename,
 }
 
 /* ------------------------------------------------------------------ */
-/* LICENSES/ directory                                                 */
+/* LICENSES/ report printing                                           */
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Build the path of the LICENSES/ directory.
+ * @brief Human-readable text for a LICENSES/ reason code.
  *
- * @param[out] pszDst      Destination. Not NULL.
- * @param[in]  ulDstSize   Size of pszDst in bytes.
- * @param[in]  pszRepoRoot Repository root. Not NULL.
+ * @param[in] ulCode  One of REUSE_LICENSES_*.
+ *
+ * @return Static description, or "" for unknown codes.
  */
-static void BuildLicensesPath(PSZ pszDst, ULONG ulDstSize,
-                              PCSZ pszRepoRoot) {
-#ifdef __LINUX__
-    snprintf(pszDst, ulDstSize, "%s/LICENSES", pszRepoRoot);
-#else
-    snprintf(pszDst, ulDstSize, "%s\\LICENSES", pszRepoRoot);
-#endif
+static PCSZ LicensesReasonText(ULONG ulCode) {
+    switch (ulCode) {
+    case REUSE_LICENSES_DIR_MISSING:
+        return "LICENSES/ directory is missing";
+    case REUSE_LICENSES_DIR_CREATED:
+        return "LICENSES/ directory was created";
+    case REUSE_LICENSES_BAD_NAME:
+        return "file name is not a valid SPDX identifier";
+    case REUSE_LICENSES_UNUSED_FILE:
+        return "file is not used by any license";
+    case REUSE_LICENSES_MISSING_FILE:
+        return "used license has no file in LICENSES/";
+    case REUSE_LICENSES_DEPRECATED_ID:
+        return "identifier is deprecated by SPDX";
+    case REUSE_LICENSES_NO_EXTENSION:
+        return "license file has no extension";
+    case REUSE_LICENSES_TEXT_MISMATCH:
+        return "license text does not match the SPDX database";
+    case REUSE_LICENSES_FILE_CREATED:
+        return "license file was created";
+    case REUSE_LICENSES_FILE_UPDATED:
+        return "license file was updated";
+    case REUSE_LICENSES_FILE_UP_TO_DATE:
+        return "license file is up to date";
+    case REUSE_LICENSES_FILE_OUTDATED:
+        return "license file is outdated; use --force";
+    case REUSE_LICENSES_MANUAL_REQUIRED:
+        return "LicenseRef-* requires manual text";
+    case REUSE_LICENSES_NO_DB_TEXT:
+        return "no text in the SPDX database";
+    default:
+        return "";
+    }
 }
 
 /**
- * @brief Build the path of one license text file.
+ * @brief Print every record of a LICENSES/ report to stdout.
  *
- * @param[out] pszDst      Destination. Not NULL.
- * @param[in]  ulDstSize   Size of pszDst in bytes.
- * @param[in]  pszLicPath  LICENSES/ path. Not NULL.
- * @param[in]  pszId       SPDX identifier. Not NULL.
+ * @param[in]  hReport      Report handle, or NULLHANDLE.
+ * @param[out] pulErrors    Receiver for the error count. Not NULL.
+ * @param[out] pulWarnings  Receiver for the warning count. Not NULL.
  */
-static void BuildLicenseFilePath(PSZ pszDst, ULONG ulDstSize,
-                                 PCSZ pszLicPath, PCSZ pszId) {
-#ifdef __LINUX__
-    snprintf(pszDst, ulDstSize, "%s/%s.txt", pszLicPath, pszId);
-#else
-    snprintf(pszDst, ulDstSize, "%s\\%s.txt", pszLicPath, pszId);
-#endif
-}
+static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
+                                PULONG pulErrors, PULONG pulWarnings) {
+    ULONG ulCount = 0, ulIdx;
 
-/**
- * @brief Ensure that LICENSES/ contains a text file for every used
- *        license and exception.
- *
- * @param[in] pszRepoRoot    Repository root. Not NULL.
- * @param[in] hUsedLicenses  Set of used identifiers. Not NULLHANDLE.
- * @param[in] fForce         TRUE_ to overwrite outdated files.
- * @param[in] fDryRun        TRUE_ to skip writes.
- *
- * @return Number of errors encountered.
- */
-static ULONG EnsureLicenses(PCSZ pszRepoRoot,
-                            HSTRSET hUsedLicenses,
-                            BOOL fForce,
-                            BOOL fDryRun) {
-    CHAR achLicPath[1024];
-    CHAR achPath[1200];
-    ULONG ulErrors = 0;
-    BOOL fCreatedDir = FALSE_;
-    ULONG ulLicCount = 0;
-    HSTRSETENUM hEnum = NULLHANDLE;
+    *pulErrors = 0;
+    *pulWarnings = 0;
 
-    BuildLicensesPath(achLicPath, sizeof(achLicPath), pszRepoRoot);
+    if (hReport == NULLHANDLE) return;
+    if (ReuseLicensesReportGetCount(hReport, &ulCount) != NO_ERROR)
+        return;
 
-    if (!FileExists(achLicPath)) {
-        if (fDryRun) {
-            printf("Would create dir:     %s\n", achLicPath);
-        } else {
-            if (MakeDirectory(achLicPath) != NO_ERROR) {
-                printf("ERROR: cannot create directory: %s\n"
-                       "       Check parent directory permissions.\n",
-                       achLicPath);
-                return 1;
-            }
-            printf("Created dir:          %s\n", achLicPath);
-        }
-        fCreatedDir = TRUE_;
-    }
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        REUSEERR err;
+        PCSZ pszSev;
+        PCSZ pszReason;
 
-    if (hUsedLicenses == NULLHANDLE ||
-        StrSetGetCount(hUsedLicenses, &ulLicCount) != NO_ERROR ||
-        ulLicCount == 0) {
-        if (fCreatedDir && fDryRun)
-            printf("    (directory would be created empty)\n");
-        return 0;
-    }
-
-    if (StrSetEnumFirst(hUsedLicenses, &hEnum) != NO_ERROR) {
-        return 0;
-    }
-    do {
-        CHAR achLic[512];
-        PSZ pszDbText = NULL;
-        BOOL fExists;
-
-        if (StrSetEnumGet(hEnum, achLic, sizeof(achLic), NULL) != NO_ERROR)
+        if (ReuseLicensesReportGet(hReport, ulIdx, &err) != NO_ERROR)
             continue;
 
-        if (strncmp(achLic, "LicenseRef-", 11) == 0 ||
-            strncmp(achLic, "DocumentRef-", 12) == 0) {
-            printf("Manual (custom):      %s\n", achLic);
-            printf("    reason:           not in SPDX database\n");
-            continue;
+        switch (err.ulSeverity) {
+        case REUSE_SEV_ERROR:
+            pszSev = "ERROR"; (*pulErrors)++; break;
+        case REUSE_SEV_WARNING:
+            pszSev = "WARNING"; (*pulWarnings)++; break;
+        default:
+            pszSev = ""; break;
         }
 
-        pszDbText = get_db_text_heap(achLic);
-        if (!pszDbText) {
-            printf("ERROR: no text for %s in SPDX database.\n"
-                   "       Expected at <spdx-db>/details/%s.json\n"
-                   "       Check that the SPDX database is complete.\n",
-                   achLic, achLic);
-            ulErrors++;
-            continue;
-        }
+        pszReason = LicensesReasonText(err.ulCode);
+        if (!pszReason[0]) pszReason = err.achDetail;
 
-        BuildLicenseFilePath(achPath, sizeof(achPath), achLicPath, achLic);
-        fExists = FileExists(achPath);
-
-        if (fExists) {
-            PSZ pszFileText = NULL;
-            PSZ pszNf = NULL, pszNd = NULL;
-            BOOL fEqual = FALSE_;
-            pszFileText = read_file_to_heap(achPath);
-            if (pszFileText) {
-                pszNf = normalize_to_heap(pszFileText);
-                pszNd = normalize_to_heap(pszDbText);
-                if (pszNf && pszNd && strcmp(pszNf, pszNd) == 0)
-                    fEqual = TRUE_;
-                free(pszNf); free(pszNd); free(pszFileText);
-            }
-            if (fEqual) {
-                printf("Up to date:           %s\n", achPath);
-                free(pszDbText);
-                continue;
-            }
-            if (!fForce) {
-                printf("Outdated:             %s\n", achPath);
-                printf("    reason:           text differs from SPDX "
-                       "database\n");
-                printf("    action:           use --force to overwrite\n");
-                free(pszDbText);
-                continue;
-            }
-            if (fDryRun) {
-                printf("Would update:         %s\n", achPath);
-                printf("    source:           SPDX database\n");
-            } else {
-                if (WriteTextFile(achPath, pszDbText) != NO_ERROR) {
-                    printf("ERROR: cannot write file: %s\n"
-                           "       Check directory permissions.\n",
-                           achPath);
-                    ulErrors++;
-                } else {
-                    printf("Updated:              %s\n", achPath);
-                }
-            }
-        } else {
-            if (fDryRun) {
-                printf("Would create:         %s\n", achPath);
-                printf("    source:           SPDX database\n");
-            } else {
-                if (WriteTextFile(achPath, pszDbText) != NO_ERROR) {
-                    printf("ERROR: cannot write file: %s\n"
-                           "       Check directory permissions.\n",
-                           achPath);
-                    ulErrors++;
-                } else {
-                    printf("Created:              %s\n", achPath);
-                }
-            }
-        }
-        free(pszDbText);
-    } while (StrSetEnumNext(hEnum) == NO_ERROR);
-    StrSetEnumClose(hEnum);
-
-    return ulErrors;
+        if (err.achFile[0] && err.achDetail[0] &&
+            strcmp(err.achDetail, pszReason) != 0)
+            printf("%s%s%s: %s (%s)\n",
+                   pszSev[0] ? pszSev : "",
+                   pszSev[0] ? ": " : "",
+                   err.achFile, pszReason, err.achDetail);
+        else if (err.achFile[0])
+            printf("%s%s%s: %s\n",
+                   pszSev[0] ? pszSev : "",
+                   pszSev[0] ? ": " : "",
+                   err.achFile, pszReason);
+        else if (err.achDetail[0])
+            printf("%s%s%s\n",
+                   pszSev[0] ? pszSev : "",
+                   pszSev[0] ? ": " : "",
+                   pszReason);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1070,6 +925,7 @@ int main(int argc, char *argv[]) {
     APIRET rcDb;
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
+    HREUSELICENSEREPORT hLicReport = NULLHANDLE;
     REUSEDISCOVEROPTIONS walk_opts;
     PSZ pszRepoRoot = NULL;
     GITIGNORELIST gitignore_rules;
@@ -1432,8 +1288,18 @@ int main(int argc, char *argv[]) {
     StrSetDestroy(hPaths);
 
     printf("\n=== LICENSES/ ===\n");
-    ulTotalErrors += EnsureLicenses(pszRepoRoot ? pszRepoRoot : pszDir,
-                                    hUsedLicenses, fForce, fDryRun);
+    if (ReuseLicensesReportCreate(&hLicReport) == NO_ERROR) {
+        ULONG ulLicErrors = 0;
+        ULONG ulLicWarnings = 0;
+        ReuseLicensesEnsure(hTree, hUsedLicenses, fForce, fDryRun,
+                            hLicReport);
+        PrintLicensesReport(hLicReport, &ulLicErrors, &ulLicWarnings);
+        ulTotalErrors += ulLicErrors;
+        ReuseLicensesReportFree(hLicReport);
+    } else {
+        printf("ERROR: out of memory\n");
+        ulTotalErrors++;
+    }
 
     StrSetDestroy(hUsedLicenses);
     ReuseTreeClose(hTree);

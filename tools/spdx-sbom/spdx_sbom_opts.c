@@ -297,34 +297,3 @@ APIRET APIENTRY SbomFreeOptions(PSBOMOPTIONS pOpts) {
     pOpts->ulExtractedCount = 0;
     return NO_ERROR;
 }
-
-/**
- * @brief Look up a LicenseRef text source by identifier.
- *
- * @param[in]  pOpts     Options. Not NULL.
- * @param[in]  pszId     LicenseRef identifier. Not NULL.
- * @param[out] ppszPath  Receiver. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
- * @retval ERROR_FILE_NOT_FOUND     No source registered with that
- *                                  identifier.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY SbomQueryExtractedPath(const SBOMOPTIONS *pOpts,
-                                       PCSZ pszId, PSZ *ppszPath) {
-    ULONG ulIdx;
-
-    if (!pOpts || !pszId || !ppszPath) return ERROR_INVALID_PARAMETER;
-    *ppszPath = NULL;
-
-    for (ulIdx = 0; ulIdx < pOpts->ulExtractedCount; ulIdx++) {
-        if (strcmp(pOpts->paExtractedSources[ulIdx].achId, pszId) == 0) {
-            *ppszPath = strdup(pOpts->paExtractedSources[ulIdx].achPath);
-            if (!*ppszPath) return ERROR_NOT_ENOUGH_MEMORY;
-            return NO_ERROR;
-        }
-    }
-    return ERROR_FILE_NOT_FOUND;
-}

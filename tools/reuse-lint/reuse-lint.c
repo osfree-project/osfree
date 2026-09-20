@@ -18,6 +18,7 @@
 #include "spdx_db.h"
 #include "reuse_discover.h"
 #include "reuse_lic.h"
+#include "reuse_licenses.h"
 #include "spdx_tag.h"
 #include "git.h"
 
@@ -34,7 +35,6 @@
  *     https://reuse.software/spec-3.3/
  *   - SPDX 2.3, Annex D (license expression grammar).
  *     https://spdx.github.io/spdx-spec/v2.3/
- *   - OS/2 Control Program Interface (naming, types, conventions).
  */
 
 #define PATH_BUF 1024
@@ -62,37 +62,6 @@ static ULONG       g_ulSnippetsWithLicense = 0;
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Check whether a file name has an extension.
- *
- * @param[in] pszName  File name. Not NULL.
- *
- * @return TRUE_ if the name contains a '.' that is not at position 0.
- */
-static BOOL HasExtension(PCSZ pszName) {
-    PCSZ pszDot = strrchr(pszName, '.');
-    if (!pszDot) return FALSE_;
-    return (pszDot != pszName) ? TRUE_ : FALSE_;
-}
-
-/**
- * @brief Check whether a name is a valid SPDX license or exception.
- *
- * @param[in] pszName  Name. Not NULL.
- *
- * @return TRUE_ if the name is valid.
- */
-static BOOL IsValidSpdxName(PCSZ pszName) {
-    BOOL fValid = FALSE_;
-
-    if (SpdxQueryLicenseValid(pszName, &fValid) == NO_ERROR && fValid)
-        return TRUE_;
-    fValid = FALSE_;
-    if (SpdxQueryExceptionValid(pszName, &fValid) == NO_ERROR && fValid)
-        return TRUE_;
-    return FALSE_;
-}
-
-/**
  * @brief Print the offending token of an SPDX expression to stderr.
  *
  * @param[in] pszStart  Start of the token. May be NULL.
@@ -104,6 +73,99 @@ static void PrintBadToken(PCSZ pszStart) {
            *pszPos != '(' && *pszPos != ')')
         pszPos++;
     fwrite(pszStart, 1, (size_t)(pszPos - pszStart), stderr);
+}
+
+/**
+ * @brief Human-readable text for a LICENSES/ reason code.
+ *
+ * @param[in] ulCode  One of REUSE_LICENSES_*.
+ *
+ * @return Static description, or "" for unknown codes.
+ */
+static PCSZ LicensesReasonText(ULONG ulCode) {
+    switch (ulCode) {
+    case REUSE_LICENSES_DIR_MISSING:
+        return "LICENSES/ directory is missing";
+    case REUSE_LICENSES_DIR_CREATED:
+        return "LICENSES/ directory was created";
+    case REUSE_LICENSES_BAD_NAME:
+        return "file name is not a valid SPDX identifier";
+    case REUSE_LICENSES_UNUSED_FILE:
+        return "file is not used by any license";
+    case REUSE_LICENSES_MISSING_FILE:
+        return "used license has no file in LICENSES/";
+    case REUSE_LICENSES_DEPRECATED_ID:
+        return "identifier is deprecated by SPDX";
+    case REUSE_LICENSES_NO_EXTENSION:
+        return "license file has no extension";
+    case REUSE_LICENSES_TEXT_MISMATCH:
+        return "license text does not match the SPDX database";
+    case REUSE_LICENSES_FILE_CREATED:
+        return "license file was created";
+    case REUSE_LICENSES_FILE_UPDATED:
+        return "license file was updated";
+    case REUSE_LICENSES_FILE_UP_TO_DATE:
+        return "license file is up to date";
+    case REUSE_LICENSES_FILE_OUTDATED:
+        return "license file is outdated; use --force";
+    case REUSE_LICENSES_MANUAL_REQUIRED:
+        return "LicenseRef-* requires manual text";
+    case REUSE_LICENSES_NO_DB_TEXT:
+        return "no text in the SPDX database";
+    default:
+        return "";
+    }
+}
+
+/**
+ * @brief Print every record of a LICENSES/ report to stderr.
+ *
+ * @param[in]  hReport      Report handle, or NULLHANDLE.
+ * @param[out] pulErrors    Receiver for the error count. Not NULL.
+ * @param[out] pulWarnings  Receiver for the warning count. Not NULL.
+ */
+static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
+                                PULONG pulErrors, PULONG pulWarnings) {
+    ULONG ulCount = 0, ulIdx;
+
+    *pulErrors = 0;
+    *pulWarnings = 0;
+
+    if (hReport == NULLHANDLE) return;
+    if (ReuseLicensesReportGetCount(hReport, &ulCount) != NO_ERROR)
+        return;
+
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        REUSEERR err;
+        PCSZ pszSev;
+        PCSZ pszReason;
+
+        if (ReuseLicensesReportGet(hReport, ulIdx, &err) != NO_ERROR)
+            continue;
+
+        switch (err.ulSeverity) {
+        case REUSE_SEV_ERROR:
+            pszSev = "ERROR"; (*pulErrors)++; break;
+        case REUSE_SEV_WARNING:
+            pszSev = "WARNING"; (*pulWarnings)++; break;
+        default:
+            pszSev = "INFO"; break;
+        }
+
+        pszReason = LicensesReasonText(err.ulCode);
+        if (!pszReason[0]) pszReason = err.achDetail;
+
+        if (err.achFile[0] && err.achDetail[0] &&
+            strcmp(err.achDetail, pszReason) != 0)
+            fprintf(stderr, "%s: %s: %s (%s)\n",
+                    pszSev, err.achFile, pszReason, err.achDetail);
+        else if (err.achFile[0])
+            fprintf(stderr, "%s: %s: %s\n",
+                    pszSev, err.achFile, pszReason);
+        else if (err.achDetail[0])
+            fprintf(stderr, "%s: %s\n",
+                    pszSev, pszReason);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -373,372 +435,6 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
 }
 
 /* ------------------------------------------------------------------ */
-/* LICENSES/ directory                                                 */
-/* ------------------------------------------------------------------ */
-
-/**
- * @brief Strip the license extension (or recognise the whole name).
- *
- * @param[in]  pszFname   File name. Not NULL.
- * @param[out] pszBase    Base receiver. Not NULL.
- * @param[in]  ulBaseSize Size of pszBase in bytes.
- */
-static void StripLicenseExt(PCSZ pszFname, PSZ pszBase, ULONG ulBaseSize) {
-    PSZ pszDot;
-    size_t cbLen;
-
-    if (IsValidSpdxName(pszFname)) {
-        strncpy(pszBase, pszFname, ulBaseSize - 1);
-        pszBase[ulBaseSize - 1] = '\0';
-        return;
-    }
-    strncpy(pszBase, pszFname, ulBaseSize - 1);
-    pszBase[ulBaseSize - 1] = '\0';
-    pszDot = strrchr(pszBase, '.');
-    if (pszDot) *pszDot = '\0';
-
-    cbLen = strlen(pszBase);
-    if (cbLen == 0) {
-        strncpy(pszBase, pszFname, ulBaseSize - 1);
-        pszBase[ulBaseSize - 1] = '\0';
-    }
-}
-
-/**
- * @brief Check whether a string set contains a string.
- *
- * @param[in] hSet    Set. May be NULLHANDLE.
- * @param[in] pszStr  String. Not NULL.
- *
- * @return TRUE_ if present.
- */
-static BOOL StrSetHas(HSTRSET hSet, PCSZ pszStr) {
-    BOOL fFound = FALSE_;
-    if (hSet == NULLHANDLE) return FALSE_;
-    if (StrSetContains(hSet, pszStr, &fFound) != NO_ERROR) return FALSE_;
-    return fFound ? TRUE_ : FALSE_;
-}
-
-/**
- * @brief Verify the LICENSES/ directory.
- *
- * @param[in] pszProjectDir  Project root. Not NULL.
- * @param[in] hUsedLicenses  Set of used identifiers. Not NULLHANDLE.
- */
-static void CheckLicensesDir(PCSZ pszProjectDir, HSTRSET hUsedLicenses) {
-    CHAR achLicPath[1024];
-    CHAR achExamplePath[1100];
-    REUSEDISCOVEROPTIONS opts;
-    HSTRSET hPaths = NULLHANDLE;
-    HSTRSET hFilesInLic = NULLHANDLE;
-    BOOL fDirExists;
-    PCSZ pszWcc;
-
-#ifdef __LINUX__
-    pszWcc = "_wcc.sh";
-    snprintf(achLicPath, sizeof(achLicPath), "%s/LICENSES", pszProjectDir);
-    fDirExists = (access(achLicPath, F_OK) == 0) ? TRUE_ : FALSE_;
-#else
-    pszWcc = "_wcc.cmd";
-    snprintf(achLicPath, sizeof(achLicPath), "%s\\LICENSES", pszProjectDir);
-    fDirExists = (_access(achLicPath, 0) == 0) ? TRUE_ : FALSE_;
-#endif
-
-    if (StrSetCreate(&hFilesInLic) != NO_ERROR) {
-        fprintf(stderr, "ERROR: out of memory\n");
-        g_ulErrorCount++;
-        return;
-    }
-
-    if (fDirExists) {
-        memset(&opts, 0, sizeof(opts));
-        opts.fRecursive             = FALSE_;
-        opts.fSkipHidden            = TRUE_;
-        opts.fSkipVcsDirs           = FALSE_;
-        opts.fSkipLicensesDir       = FALSE_;
-        opts.fSkipReuseDir          = FALSE_;
-        opts.fSkipLicenseSidecars   = FALSE_;
-        opts.fSkipReuseToml         = FALSE_;
-        opts.fSkipLicenseFiles      = FALSE_;
-
-        if (StrSetCreate(&hPaths) == NO_ERROR) {
-            if (ReuseDiscoverWalkTree(achLicPath, &opts, hPaths)
-                    == NO_ERROR) {
-                HSTRSETENUM hEnum = NULLHANDLE;
-                if (StrSetEnumFirst(hPaths, &hEnum) == NO_ERROR) {
-                    do {
-                        CHAR achFull[PATH_BUF];
-                        if (StrSetEnumGet(hEnum, achFull, sizeof(achFull),
-                                          NULL) != NO_ERROR)
-                            continue;
-                        StrSetAdd(hFilesInLic, SpdxGetFileName(achFull));
-                    } while (StrSetEnumNext(hEnum) == NO_ERROR);
-                    StrSetEnumClose(hEnum);
-                }
-            }
-            StrSetDestroy(hPaths);
-        }
-    } else {
-#ifdef __LINUX__
-        snprintf(achExamplePath, sizeof(achExamplePath),
-                 "%s/<SPDX-id>.txt", achLicPath);
-#else
-        snprintf(achExamplePath, sizeof(achExamplePath),
-                 "%s\\<SPDX-id>.txt", achLicPath);
-#endif
-        fprintf(stderr,
-                "ERROR: %s is missing.\n"
-                "       REUSE requires every license text to be placed in\n"
-                "       %s (REUSE Specification 3.3).\n"
-                "       Fix one of:\n"
-                "         - create the directory and add a text file for "
-                "each\n"
-                "           license declared by any file in the project;\n"
-                "         - or run '%s annotate' to create it "
-                "automatically.\n"
-                "       See https://reuse.software/spec/ for details.\n",
-                achLicPath, achExamplePath, pszWcc);
-        g_ulErrorCount++;
-    }
-
-    /* First pass: validate each file name in LICENSES/. */
-    {
-        HSTRSETENUM hEnum = NULLHANDLE;
-        if (StrSetEnumFirst(hFilesInLic, &hEnum) == NO_ERROR) {
-            do {
-                CHAR achFname[512];
-                CHAR achBase[256];
-
-                if (StrSetEnumGet(hEnum, achFname, sizeof(achFname), NULL)
-                        != NO_ERROR)
-                    continue;
-
-                StripLicenseExt(achFname, achBase, sizeof(achBase));
-
-                if (!IsValidSpdxName(achBase)) {
-                    fprintf(stderr,
-                            "ERROR: bad license file name: %s\n"
-                            "       The name must be a valid SPDX License "
-                            "List\n"
-                            "       identifier or start with 'LicenseRef-'.\n"
-                            "       Fix one of:\n"
-                            "         - rename the file to a valid SPDX "
-                            "identifier\n"
-                            "           (e.g. 'MIT.txt');\n"
-                            "         - or use 'LicenseRef-<name>.txt' for a "
-                            "custom\n"
-                            "           license.\n"
-                            "       See https://spdx.org/licenses/ for the "
-                            "full list.\n",
-                            achFname);
-                    g_ulErrorCount++;
-                } else {
-                    BOOL fDepLic = FALSE_;
-                    BOOL fDepExc = FALSE_;
-
-                    if (!HasExtension(achFname)) {
-                        fprintf(stderr,
-                                "WARNING: license file without extension: "
-                                "%s\n"
-                                "         REUSE convention is to use "
-                                "'.txt'.\n"
-                                "         Rename to '%s.txt' to follow the "
-                                "convention and avoid ambiguity.\n",
-                                achFname, achFname);
-                        g_ulWarningCount++;
-                    }
-                    SpdxQueryLicenseDeprecated(achBase, &fDepLic);
-                    SpdxQueryExceptionDeprecated(achBase, &fDepExc);
-                    if (fDepLic || fDepExc) {
-                        fprintf(stderr,
-                                "WARNING: deprecated license file: %s\n"
-                                "         SPDX License List marks '%s' as "
-                                "deprecated.\n"
-                                "         Rename the file to the current "
-                                "identifier and update\n"
-                                "         all references in source files.\n"
-                                "         See https://spdx.org/licenses/ "
-                                "for the recommended replacement.\n",
-                                achFname, achBase);
-                        g_ulWarningCount++;
-                    }
-                }
-            } while (StrSetEnumNext(hEnum) == NO_ERROR);
-            StrSetEnumClose(hEnum);
-        }
-    }
-
-    /* Second pass: every file must be used. */
-    {
-        HSTRSETENUM hEnum = NULLHANDLE;
-        if (StrSetEnumFirst(hFilesInLic, &hEnum) == NO_ERROR) {
-            do {
-                CHAR achFname[512];
-                CHAR achBase[256];
-
-                if (StrSetEnumGet(hEnum, achFname, sizeof(achFname), NULL)
-                        != NO_ERROR)
-                    continue;
-
-                StripLicenseExt(achFname, achBase, sizeof(achBase));
-
-                if (!StrSetHas(hUsedLicenses, achBase)) {
-                    fprintf(stderr,
-                            "ERROR: unused license file: %s\n"
-                            "       REUSE Specification 3.3 forbids License "
-                            "Files\n"
-                            "       for licenses under which none of the "
-                            "files in\n"
-                            "       the project are licensed.\n"
-                            "       Fix one of:\n"
-                            "         - remove the file if it is no longer "
-                            "needed;\n"
-                            "         - or add 'SPDX-License-Identifier: "
-                            "%s' to the files it applies to;\n"
-                            "         - or add a [[annotations]] entry in "
-                            "REUSE.toml referencing this license.\n",
-                            achFname, achBase);
-                    g_ulErrorCount++;
-                }
-            } while (StrSetEnumNext(hEnum) == NO_ERROR);
-            StrSetEnumClose(hEnum);
-        }
-    }
-
-    /* Third pass: every used identifier has a file, and the text
-     * matches the SPDX database. */
-    {
-        HSTRSETENUM hEnum = NULLHANDLE;
-        if (StrSetEnumFirst(hUsedLicenses, &hEnum) == NO_ERROR) {
-            do {
-                CHAR achLic[512];
-                CHAR achWithTxt[512];
-                CHAR achExpected[1100];
-                CHAR achFullPath[1200];
-                PCSZ pszActualFname = NULL;
-                BOOL fIsRef;
-                BOOL fFound;
-                BOOL fIsLicValid = FALSE_;
-                BOOL fIsExcValid = FALSE_;
-
-                if (StrSetEnumGet(hEnum, achLic, sizeof(achLic), NULL)
-                        != NO_ERROR)
-                    continue;
-
-                fIsRef = (strncmp(achLic, "LicenseRef-", 11) == 0) ||
-                         (strncmp(achLic, "DocumentRef-", 12) == 0);
-
-                snprintf(achWithTxt, sizeof(achWithTxt), "%s.txt", achLic);
-                fFound = StrSetHas(hFilesInLic, achLic) ||
-                         StrSetHas(hFilesInLic, achWithTxt);
-
-                if (!fIsRef) {
-                    SpdxQueryLicenseValid(achLic, &fIsLicValid);
-                    SpdxQueryExceptionValid(achLic, &fIsExcValid);
-                    if (!fIsLicValid && !fIsExcValid) {
-                        fprintf(stderr,
-                                "ERROR: '%s' is not a known SPDX "
-                                "identifier.\n"
-                                "       Check spelling and case against the "
-                                "SPDX License List:\n"
-                                "         https://spdx.org/licenses/\n",
-                                achLic);
-                        g_ulErrorCount++;
-                        continue;
-                    }
-                }
-
-                if (!fFound) {
-#ifdef __LINUX__
-                    snprintf(achExpected, sizeof(achExpected),
-                             "%s/%s.txt", achLicPath, achLic);
-#else
-                    snprintf(achExpected, sizeof(achExpected),
-                             "%s\\%s.txt", achLicPath, achLic);
-#endif
-                    fprintf(stderr,
-                            "ERROR: missing license file for %s.\n"
-                            "       Files declare this license but\n"
-                            "       %s does not exist.\n"
-                            "       REUSE requires the full license text in "
-                            "LICENSES/\n"
-                            "       at the project root (REUSE Specification "
-                            "3.3).\n"
-                            "       Fix one of:\n"
-                            "         - create %s with the license text;\n"
-                            "         - or run '%s annotate' to create it "
-                            "automatically.\n",
-                            achLic, achExpected, achExpected, pszWcc);
-                    g_ulErrorCount++;
-                    continue;
-                }
-
-                if (fIsRef) continue;
-
-                {
-                    CHAR achDbText[16384];
-                    CHAR achFileText[16384];
-                    CHAR achNormFile[16384];
-                    CHAR achNormDb[16384];
-                    ULONG ulDbSize = sizeof(achDbText);
-                    ULONG ulFileSize = sizeof(achFileText);
-                    ULONG ulNormFileSize = sizeof(achNormFile);
-                    ULONG ulNormDbSize = sizeof(achNormDb);
-                    APIRET rcDb;
-                    int fEqual = 0;
-
-                    rcDb = SpdxQueryLicenseText(achLic, achDbText,
-                                                ulDbSize, NULL);
-                    if (rcDb != NO_ERROR)
-                        rcDb = SpdxQueryExceptionText(achLic, achDbText,
-                                                      ulDbSize, NULL);
-                    if (rcDb != NO_ERROR) continue;
-
-                    if (StrSetHas(hFilesInLic, achWithTxt))
-                        pszActualFname = achWithTxt;
-                    else
-                        pszActualFname = achLic;
-
-#ifdef __LINUX__
-                    snprintf(achFullPath, sizeof(achFullPath),
-                             "%s/%s", achLicPath, pszActualFname);
-#else
-                    snprintf(achFullPath, sizeof(achFullPath),
-                             "%s\\%s", achLicPath, pszActualFname);
-#endif
-
-                    if (SpdxReadFileAll(achFullPath, achFileText,
-                                        ulFileSize, &ulFileSize) == NO_ERROR) {
-                        SpdxNormalizeText(achFileText, achNormFile,
-                                          ulNormFileSize,
-                                          &ulNormFileSize);
-                        SpdxNormalizeText(achDbText, achNormDb,
-                                          ulNormDbSize,
-                                          &ulNormDbSize);
-                        if (strcmp(achNormFile, achNormDb) == 0)
-                            fEqual = 1;
-                    }
-
-                    if (!fEqual) {
-                        fprintf(stderr,
-                                "ERROR: license text for %s does not match "
-                                "the SPDX License List.\n"
-                                "       File: %s\n"
-                                "       To update it, run "
-                                "'%s annotate'.\n",
-                                achLic, achFullPath, pszWcc);
-                        g_ulErrorCount++;
-                    }
-                }
-            } while (StrSetEnumNext(hEnum) == NO_ERROR);
-            StrSetEnumClose(hEnum);
-        }
-    }
-
-    StrSetDestroy(hFilesInLic);
-}
-
-/* ------------------------------------------------------------------ */
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -759,6 +455,7 @@ int main(int argc, char *argv[]) {
     HREUSETREE hTree = NULLHANDLE;
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
+    HREUSELICENSEREPORT hLicReport = NULLHANDLE;
     APIRET rcDb;
     REUSEDISCOVEROPTIONS walk_opts;
     PSZ pszRepoRoot = NULL;
@@ -942,7 +639,18 @@ int main(int argc, char *argv[]) {
     StrSetDestroy(hPaths);
 
     fprintf(stderr, "\n=== LICENSES/ ===\n");
-    CheckLicensesDir(pszRepoRoot ? pszRepoRoot : pszDir, hUsedLicenses);
+    if (ReuseLicensesReportCreate(&hLicReport) == NO_ERROR) {
+        ULONG ulLicErrors = 0;
+        ULONG ulLicWarnings = 0;
+        ReuseLicensesValidate(hTree, hUsedLicenses, hLicReport);
+        PrintLicensesReport(hLicReport, &ulLicErrors, &ulLicWarnings);
+        g_ulErrorCount += ulLicErrors;
+        g_ulWarningCount += ulLicWarnings;
+        ReuseLicensesReportFree(hLicReport);
+    } else {
+        fprintf(stderr, "ERROR: out of memory\n");
+        g_ulErrorCount++;
+    }
 
     fprintf(stderr, "\n");
     fprintf(stderr, "REUSE Lint summary for %s:\n", pszDir);

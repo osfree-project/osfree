@@ -17,10 +17,32 @@ extern "C" {
  * license list are stored as HVECTOR containers from the ccl
  * library, each holding its element type by value.
  *
+ * SPDXFILEINPUT is the boundary type between the REUSE resolver
+ * (level 3) and the SPDX SBOM layer (level 2). The CLI resolves
+ * licensing information for every file and hands the result to
+ * the SBOM layer as a list of SPDXFILEINPUT entries. The SBOM
+ * layer never calls the REUSE resolver itself.
+ *
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
  */
+
+/**
+ * @struct _SPDXFILEINPUT
+ * @brief One resolved file entry handed to the SBOM layer.
+ *
+ * Produced by the CLI after ReuseResolveLicense, consumed by
+ * SbomCollectFiles. All fields are fixed-size CHAR arrays; the
+ * structure owns no heap memory.
+ */
+typedef struct _SPDXFILEINPUT {
+    CHAR achFullPath[1024];    /**< Path on disk.            */
+    CHAR achLicense[256];      /**< Resolved SPDX license
+                                    expression, or empty.     */
+    CHAR achCopyright[512];    /**< Resolved copyright, or
+                                    empty.                    */
+} SPDXFILEINPUT, *PSPDXFILEINPUT;
 
 /**
  * @struct _SPDXFILEINFO
@@ -53,7 +75,7 @@ typedef struct _SPDXSNIPPETINFO {
  * @brief One extracted license entry.
  *
  * All string fields are malloc'd and owned by the entry. They are
- * released by SbomExtractedListFree.
+ * released by SbomFreeExtractedList.
  */
 typedef struct _SPDXEXTRACTEDLICENSEINFO {
     PSZ pszLicenseId;            /**< LicenseRef-* identifier. */

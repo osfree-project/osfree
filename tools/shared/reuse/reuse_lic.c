@@ -381,7 +381,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
         pOut->fHasPackageInfo = TRUE_;
     }
 
-    /* 4. Determine the source. */
+    /* 4. Determine the source. 
      *
      * The resolver's bHasReuse is TRUE if any source matched, including
      * sidecar and in-file tags. To attribute a specific origin, prefer
