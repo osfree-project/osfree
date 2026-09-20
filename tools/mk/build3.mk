@@ -38,14 +38,15 @@ TEST_STR = *$(RELDIR)
 
 # Try to delete "*DOS\"
 STRIPPED = $(TEST_STR:*DOS$(SEP)=)
-#!message $(STRIPPED)
+#!message STRIPPED=$(STRIPPED)
 # String changed - so we in DOS tree
 !ifneq TEST_STR $(STRIPPED)
 
 # Now check for WIN16 subtree
-STRIPPED2 = $(STRIPPED:*WIN16$(SEP)=)
-#!message $(STRIPPED2)
-!ifneq STRIPPED $(STRIPPED2)
+TEST_STR2 = *$(STRIPPED)
+STRIPPED2 = $(TEST_STR2:*WIN16$(SEP)=)
+#!message STRIPPED2=$(STRIPPED2)
+!ifneq TEST_STR2 $(STRIPPED2)
 #!message huh
 TARGET_API=WIN
 !else
