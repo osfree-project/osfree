@@ -1665,6 +1665,8 @@ APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded;
+ *                                  the query cannot be answered.
  */
 APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
     if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
@@ -1681,8 +1683,7 @@ APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
         return NO_ERROR;
     }
     if (g_Licenses.count == 0) {
-        *pfValid = TRUE_;
-        return NO_ERROR;
+        return SPDXDB_ERROR_LICENSES;
     }
     *pfValid = license_lookup(pszId) ? TRUE_ : FALSE_;
     return NO_ERROR;
@@ -1697,14 +1698,16 @@ APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not
+ *                                  loaded; the query cannot be
+ *                                  answered.
  */
 APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid) {
     if (!pszId || !pfValid) return ERROR_INVALID_PARAMETER;
     *pfValid = FALSE_;
     if (pszId[0] == '\0') return NO_ERROR;
     if (g_Exceptions.count == 0) {
-        *pfValid = TRUE_;
-        return NO_ERROR;
+        return SPDXDB_ERROR_EXCEPTIONS;
     }
     *pfValid = exception_lookup(pszId) ? TRUE_ : FALSE_;
     return NO_ERROR;
@@ -1908,8 +1911,8 @@ static int is_kw_at(PCSZ pszPos, PCSZ pszKw, int kwlen) {
 static int parse_expression(EXPRPARSER *pParser);
 
 /**
- * @brief Parse one term (identifier [WITH exception] or parenthesized
- *        group).
+ * @brief Parse one term (identifier [WITH exception] or
+ *        parenthesized group).
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *

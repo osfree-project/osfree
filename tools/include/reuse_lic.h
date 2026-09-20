@@ -47,8 +47,10 @@ typedef enum _REUSELICENSESOURCE {
  * @struct _REUSELICENSEINFO
  * @brief Resolution result for a single file.
  *
- * Fixed-size string fields: longer values are truncated with a
- * warning on stderr.
+ * Fixed-size string fields. If a value does not fit, it is
+ * truncated and the corresponding @c f*Truncated flag is set to
+ * TRUE_. The module itself does not report truncation; the caller
+ * decides whether to print a warning.
  */
 typedef struct _REUSELICENSEINFO {
     /* Main fields: license and copyright.
@@ -58,15 +60,15 @@ typedef struct _REUSELICENSEINFO {
     CHAR achCopyright[512];
 
     /* SPDX-FileContributor: '\n'-separated, deduplicated.
-     * Source: REUSE.toml only. REUSE 3.3 (lines 177-182) lists this
-     * key as one of the "other keys" with unspecified semantics; the
-     * project decision is to aggregate contributors from the closest
-     * and aggregate annotations so that people are not lost. */
+     * Source: REUSE.toml only. REUSE 3.3 lists this key as one of
+     * the "other keys" with unspecified semantics; the project
+     * decision is to aggregate contributors from the closest and
+     * aggregate annotations so that people are not lost. */
     CHAR achContributors[1024];
 
     /* SPDX-Package*: filled from REUSE.toml only. REUSE 3.3 lists
-     * them as "other keys" (semantics not defined). Project decision:
-     * closest > aggregate; override wins over everything. */
+     * them as "other keys" (semantics not defined). Project
+     * decision: closest > aggregate; override wins over everything. */
     CHAR achPackageName[256];
     CHAR achPackageSupplier[256];
     CHAR achPackageDownloadLocation[512];
@@ -76,6 +78,16 @@ typedef struct _REUSELICENSEINFO {
     REUSELICENSESOURCE source;
     BOOL fLicenseFromDefault;    /**< License came from CLI fallback.   */
     BOOL fCopyrightFromDefault;  /**< Copyright came from CLI fallback. */
+
+    /* Truncation flags: TRUE_ if the corresponding string field was
+       longer than its buffer and got cut. */
+    BOOL fLicenseTruncated;
+    BOOL fCopyrightTruncated;
+    BOOL fContributorsTruncated;
+    BOOL fPackageNameTruncated;
+    BOOL fPackageSupplierTruncated;
+    BOOL fPackageDownloadLocationTruncated;
+    BOOL fPackageCommentTruncated;
 } REUSELICENSEINFO, *PREUSELICENSEINFO;
 
 /* ==================================================================
@@ -102,11 +114,11 @@ typedef struct _REUSELICENSEINFO {
  *                                  Initialized on entry.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             At least one source produced a
- *                                    non-empty license or copyright.
- * @retval REUSE_ERROR_INVALID_PARAM  pszFullpath or pOut is NULL.
- * @retval REUSE_ERROR_NOT_FOUND      No source matched and no default
- *                                    was provided.
+ * @retval NO_ERROR                 At least one source produced a
+ *                                  non-empty license or copyright.
+ * @retval ERROR_INVALID_PARAMETER  pszFullpath or pOut is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     No source matched and no default
+ *                                  was provided.
  */
 APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
                                     PCSZ pszFullpath,

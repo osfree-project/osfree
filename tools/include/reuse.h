@@ -69,11 +69,11 @@ typedef HANDLE HREUSETREEFILE;
  *                     error.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR            Success (possibly with recorded
- *                                   diagnostics).
- * @retval REUSE_ERROR_INVALID_PARAM pszDir or phDoc is NULL.
- * @retval REUSE_ERROR_OPEN_FAILED   Directory cannot be opened.
- * @retval REUSE_ERROR_OUT_OF_MEMORY Memory allocation failure.
+ * @retval NO_ERROR                 Success (possibly with recorded
+ *                                  diagnostics).
+ * @retval ERROR_INVALID_PARAMETER  pszDir or phDoc is NULL.
+ * @retval ERROR_OPEN_FAILED        Directory cannot be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  *
  * @see ReuseTreeGetError, ReuseTreeClose
  */
@@ -88,8 +88,8 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc);
  * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle not recognized.
  *
  * @warning Do not call ReuseTreeClose twice with the same handle.
  */
@@ -109,9 +109,9 @@ APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc);
  * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount);
 
@@ -126,10 +126,10 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount);
  * @param[out] pErr    Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
- * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
 APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
                                   PREUSEERR pErr);
@@ -162,13 +162,13 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
  *                     such record is stored here.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  hDoc, pszPath or phFile is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
- * @retval REUSE_ERROR_OPEN_FAILED    File cannot be opened.
- * @retval REUSE_ERROR_READ_FAILED    Read error.
- * @retval REUSE_ERROR_SYNTAX         Sidecar contains a syntax error.
- * @retval REUSE_ERROR_OUT_OF_MEMORY  Memory allocation failure.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hDoc, pszPath or phFile is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval REUSE_ERROR_SYNTAX       Sidecar contains a syntax error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
 APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
                                      HREUSETREEFILE *phFile,
@@ -180,8 +180,8 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
  * @param[in] hFile  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile);
 
@@ -193,14 +193,14 @@ APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile);
  *     written, no buffer touched.
  *   - ulSize large enough: value copied and NUL-terminated; *pulUsed
  *     is the length without NUL.
- *   - ulSize too small: REUSE_ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *   - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
  *     required size including NUL.
  * ================================================================== */
 
 /**
  * @brief Retrieve the resolved SPDX license expression.
  *
- * @return REUSE_ERROR_NOT_FOUND if the winning sources define no
+ * @return ERROR_FILE_NOT_FOUND if the winning sources define no
  *         license.
  */
 APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
@@ -212,7 +212,7 @@ APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
  *
  * Multiple notices are joined with '\n'.
  *
- * @return REUSE_ERROR_NOT_FOUND if the winning sources define no
+ * @return ERROR_FILE_NOT_FOUND if the winning sources define no
  *         copyright.
  */
 APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
@@ -224,7 +224,7 @@ APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
  *
  * Multiple contributors are joined with '\n'.
  *
- * @return REUSE_ERROR_NOT_FOUND if no contributor was defined.
+ * @return ERROR_FILE_NOT_FOUND if no contributor was defined.
  */
 APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
                                              PSZ pszBuf, ULONG ulSize,
@@ -263,9 +263,9 @@ APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
  *                            Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
                                            PULONG pulPrecedence);
@@ -278,9 +278,9 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
  *                        matched; FALSE_ otherwise. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
                                          PBOOL pfHasReuse);

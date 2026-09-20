@@ -15,8 +15,7 @@ extern "C" {
  * @brief Error codes and the REUSEERR diagnostic record.
  *
  * Shared by reuse.h and reuse_toml.h. Every function in either
- * module returns APIRET. Common failures use the standard OS/2
- * codes from os2err.h. Codes specific to the REUSE Specification
+ * module returns APIRET. Codes specific to the REUSE Specification
  * are declared here, in the user range 0xFF00 - 0xFFFF as required
  * by the OS/2 Control Program Interface.
  */

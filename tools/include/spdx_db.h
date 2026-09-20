@@ -135,6 +135,8 @@ APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded;
+ *                                  the query cannot be answered.
  */
 APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid);
 
@@ -147,6 +149,9 @@ APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid);
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not
+ *                                  loaded; the query cannot be
+ *                                  answered.
  */
 APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid);
 

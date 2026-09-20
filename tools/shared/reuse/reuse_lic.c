@@ -19,48 +19,29 @@
  */
 
 /* ------------------------------------------------------------------ */
-/* Buffer helpers                                                      */
+/* String helpers                                                      */
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Copy a NUL-terminated string into a fixed buffer.
+ * @brief Copy a NUL-terminated string into a fixed buffer, tracking
+ *        truncation.
  *
- * If @p pszSrc is NULL, the destination is set to an empty string.
+ * Wrapper around strlcpy that also sets *pfTruncated when the
+ * source did not fit. A NULL source is copied as an empty string.
  *
- * @param[out] pszDst     Destination buffer. Not NULL.
- * @param[in]  ulDstSize  Size of pszDst in bytes. Must be > 0.
- * @param[in]  pszSrc     Source string, or NULL.
+ * @param[out] pszDst       Destination buffer. Not NULL.
+ * @param[in]  ulDstSize    Size of pszDst in bytes. Must be > 0.
+ * @param[in]  pszSrc       Source string, or NULL.
+ * @param[out] pfTruncated  Receiver for the truncation flag. May be
+ *                          NULL.
  */
-static void copy_safe(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
+static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc,
+                       PBOOL pfTruncated) {
+    if (pfTruncated) *pfTruncated = FALSE_;
     if (!pszSrc) { pszDst[0] = '\0'; return; }
-    strncpy(pszDst, pszSrc, ulDstSize - 1);
-    pszDst[ulDstSize - 1] = '\0';
-}
-
-/**
- * @brief Copy a NUL-terminated string with a truncation warning.
- *
- * @param[in]  pszFullPath   File path used in the warning. Not NULL.
- * @param[in]  pszFieldName  Field name used in the warning. Not NULL.
- * @param[out] pszDst        Destination buffer. Not NULL.
- * @param[in]  ulDstSize     Size of pszDst in bytes.
- * @param[in]  pszSrc        Source string, or NULL.
- */
-static void copy_safe_warn(PCSZ pszFullPath, PCSZ pszFieldName,
-                           PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
-    size_t cbLen;
-    if (!pszSrc) { pszDst[0] = '\0'; return; }
-    cbLen = strlen(pszSrc);
-    if (cbLen >= ulDstSize) {
-        fprintf(stderr,
-                "WARNING: %s: %s truncated (%u bytes, buffer %u).\n"
-                "         Consider shortening the annotation.\n",
-                pszFullPath, pszFieldName,
-                (unsigned)cbLen, (unsigned)ulDstSize);
-        copy_safe(pszDst, ulDstSize, pszSrc);
-        return;
+    if (strlcpy(pszDst, pszSrc, ulDstSize) >= ulDstSize) {
+        if (pfTruncated) *pfTruncated = TRUE_;
     }
-    memcpy(pszDst, pszSrc, cbLen + 1);
 }
 
 /**
@@ -234,22 +215,24 @@ typedef APIRET (APIENTRY *REUSEFIELDFN)(HREUSETREEFILE, PSZ, ULONG, PULONG);
  * @brief Copy a single string field from a resolver handle into a
  *        fixed buffer.
  *
- * Silent if the field is absent; warns on truncation.
+ * Silent if the field is absent. Sets *pfTruncated if the value did
+ * not fit.
  *
  * @param[in]  hFile         Resolver handle. May be NULLHANDLE.
  * @param[in]  fnField       Field accessor.
- * @param[in]  pszFullPath   File path used in warnings.
- * @param[in]  pszFieldName  Field name used in warnings.
  * @param[out] pszDst        Destination buffer. Not NULL.
  * @param[in]  ulDstSize     Size of pszDst in bytes.
+ * @param[out] pfTruncated   Receiver for the truncation flag. May be
+ *                           NULL.
  */
 static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
-                            PCSZ pszFullPath, PCSZ pszFieldName,
-                            PSZ pszDst, ULONG ulDstSize) {
+                            PSZ pszDst, ULONG ulDstSize,
+                            PBOOL pfTruncated) {
     ULONG ulSize = 0;
     APIRET rc;
 
     pszDst[0] = '\0';
+    if (pfTruncated) *pfTruncated = FALSE_;
     if (hFile == NULLHANDLE) return;
 
     rc = fnField(hFile, NULL, 0, &ulSize);
@@ -261,12 +244,7 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
         if (!pszTmp) return;
         rc = fnField(hFile, pszTmp, ulSize, NULL);
         if (rc == NO_ERROR) {
-            fprintf(stderr,
-                    "WARNING: %s: %s truncated (%u bytes, buffer %u).\n"
-                    "         Consider shortening the annotation.\n",
-                    pszFullPath, pszFieldName,
-                    (unsigned)(ulSize - 1), (unsigned)ulDstSize);
-            copy_safe(pszDst, ulDstSize, pszTmp);
+            copy_field(pszDst, ulDstSize, pszTmp, pfTruncated);
         }
         free(pszTmp);
         return;
@@ -324,6 +302,13 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     pOut->source = REUSE_LICENSE_SRC_NONE;
     pOut->fLicenseFromDefault = FALSE_;
     pOut->fCopyrightFromDefault = FALSE_;
+    pOut->fLicenseTruncated = FALSE_;
+    pOut->fCopyrightTruncated = FALSE_;
+    pOut->fContributorsTruncated = FALSE_;
+    pOut->fPackageNameTruncated = FALSE_;
+    pOut->fPackageSupplierTruncated = FALSE_;
+    pOut->fPackageDownloadLocationTruncated = FALSE_;
+    pOut->fPackageCommentTruncated = FALSE_;
 
     /* 1. Read in-file sources. They are needed by the resolver for
      *    aggregation. Even if a matched annotation has override
@@ -343,29 +328,29 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     /* 3. Copy fields from the resolver handle. */
     if (hFile != NULLHANDLE) {
         copy_file_field(hFile, ReuseTreeFileGetLicense,
-                        pszFullPath, "SPDX-License-Identifier",
-                        pOut->achLicense, sizeof(pOut->achLicense));
+                        pOut->achLicense, sizeof(pOut->achLicense),
+                        &pOut->fLicenseTruncated);
         copy_file_field(hFile, ReuseTreeFileGetCopyright,
-                        pszFullPath, "SPDX-FileCopyrightText",
-                        pOut->achCopyright, sizeof(pOut->achCopyright));
+                        pOut->achCopyright, sizeof(pOut->achCopyright),
+                        &pOut->fCopyrightTruncated);
         copy_file_field(hFile, ReuseTreeFileGetContributors,
-                        pszFullPath, "SPDX-FileContributor",
-                        pOut->achContributors, sizeof(pOut->achContributors));
+                        pOut->achContributors, sizeof(pOut->achContributors),
+                        &pOut->fContributorsTruncated);
         copy_file_field(hFile, ReuseTreeFileGetPackageName,
-                        pszFullPath, "SPDX-PackageName",
-                        pOut->achPackageName, sizeof(pOut->achPackageName));
+                        pOut->achPackageName, sizeof(pOut->achPackageName),
+                        &pOut->fPackageNameTruncated);
         copy_file_field(hFile, ReuseTreeFileGetPackageSupplier,
-                        pszFullPath, "SPDX-PackageSupplier",
                         pOut->achPackageSupplier,
-                        sizeof(pOut->achPackageSupplier));
+                        sizeof(pOut->achPackageSupplier),
+                        &pOut->fPackageSupplierTruncated);
         copy_file_field(hFile, ReuseTreeFileGetPackageDownloadLocation,
-                        pszFullPath, "SPDX-PackageDownloadLocation",
                         pOut->achPackageDownloadLocation,
-                        sizeof(pOut->achPackageDownloadLocation));
+                        sizeof(pOut->achPackageDownloadLocation),
+                        &pOut->fPackageDownloadLocationTruncated);
         copy_file_field(hFile, ReuseTreeFileGetPackageComment,
-                        pszFullPath, "SPDX-PackageComment",
                         pOut->achPackageComment,
-                        sizeof(pOut->achPackageComment));
+                        sizeof(pOut->achPackageComment),
+                        &pOut->fPackageCommentTruncated);
 
         if (ReuseTreeFileGetPrecedence(hFile, &ulPrecedence)
                 != NO_ERROR)
@@ -381,7 +366,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
         pOut->fHasPackageInfo = TRUE_;
     }
 
-    /* 4. Determine the source. 
+    /* 4. Determine the source.
      *
      * The resolver's bHasReuse is TRUE if any source matched, including
      * sidecar and in-file tags. To attribute a specific origin, prefer
@@ -399,16 +384,16 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     /* 5. Fallback to --default-*. */
     if (pOut->achLicense[0] == '\0' &&
         pszDefaultLicense && pszDefaultLicense[0]) {
-        copy_safe(pOut->achLicense, sizeof(pOut->achLicense),
-                  pszDefaultLicense);
+        copy_field(pOut->achLicense, sizeof(pOut->achLicense),
+                   pszDefaultLicense, &pOut->fLicenseTruncated);
         pOut->fLicenseFromDefault = TRUE_;
         if (pOut->source == REUSE_LICENSE_SRC_NONE)
             pOut->source = REUSE_LICENSE_SRC_DEFAULT;
     }
     if (pOut->achCopyright[0] == '\0' &&
         pszDefaultCopyright && pszDefaultCopyright[0]) {
-        copy_safe(pOut->achCopyright, sizeof(pOut->achCopyright),
-                  pszDefaultCopyright);
+        copy_field(pOut->achCopyright, sizeof(pOut->achCopyright),
+                   pszDefaultCopyright, &pOut->fCopyrightTruncated);
         pOut->fCopyrightFromDefault = TRUE_;
         if (pOut->source == REUSE_LICENSE_SRC_NONE)
             pOut->source = REUSE_LICENSE_SRC_DEFAULT;
@@ -425,8 +410,10 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
                                                  pszCanonical,
                                                  ulCanonSize,
                                                  NULL) == NO_ERROR) {
-                    copy_safe(pOut->achLicense, sizeof(pOut->achLicense),
-                              pszCanonical);
+                    copy_field(pOut->achLicense,
+                               sizeof(pOut->achLicense),
+                               pszCanonical,
+                               &pOut->fLicenseTruncated);
                 }
                 free(pszCanonical);
             }

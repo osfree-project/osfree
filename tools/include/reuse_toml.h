@@ -60,22 +60,22 @@ typedef HANDLE HREUSEANN;
  *                      error.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR                 Success.
- * @retval REUSE_ERROR_INVALID_PARAM      pszPath or phToml is NULL.
- * @retval REUSE_ERROR_OPEN_FAILED        File cannot be opened.
- * @retval REUSE_ERROR_READ_FAILED        Read error.
- * @retval REUSE_ERROR_SYNTAX             File content is syntactically
- *                                        invalid.
- * @retval REUSE_ERROR_VERSION_MISSING    "version" key absent.
- * @retval REUSE_ERROR_VERSION_NOT_INT    "version" is not an integer.
- * @retval REUSE_ERROR_VERSION_UNSUP      "version" value is not 1.
- * @retval REUSE_ERROR_ANNOT_NO_PATH      An [[annotations]] entry
- *                                        lacks the "path" key.
- * @retval REUSE_ERROR_ANNOT_BAD_PATH     "path" is neither a string nor
- *                                        an array of strings.
- * @retval REUSE_ERROR_ANNOT_BAD_FIELD    A field in an [[annotations]]
- *                                        entry has an unsupported type.
- * @retval REUSE_ERROR_OUT_OF_MEMORY      Memory allocation failure.
+ * @retval NO_ERROR                      Success.
+ * @retval ERROR_INVALID_PARAMETER       pszPath or phToml is NULL.
+ * @retval ERROR_OPEN_FAILED             File cannot be opened.
+ * @retval ERROR_READ_FAULT              Read error.
+ * @retval REUSE_ERROR_SYNTAX            File content is syntactically
+ *                                       invalid.
+ * @retval REUSE_ERROR_VERSION_MISSING   "version" key absent.
+ * @retval REUSE_ERROR_VERSION_NOT_INT   "version" is not an integer.
+ * @retval REUSE_ERROR_VERSION_UNSUP     "version" value is not 1.
+ * @retval REUSE_ERROR_ANNOT_NO_PATH     An [[annotations]] entry
+ *                                       lacks the "path" key.
+ * @retval REUSE_ERROR_ANNOT_BAD_PATH    "path" is neither a string nor
+ *                                       an array of strings.
+ * @retval REUSE_ERROR_ANNOT_BAD_FIELD   A field in an [[annotations]]
+ *                                       entry has an unsupported type.
+ * @retval ERROR_NOT_ENOUGH_MEMORY       Memory allocation failure.
  *
  * @note Release the handle with ReuseClose.
  * @see ReuseClose
@@ -90,8 +90,8 @@ APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml);
  * @param[in] hToml  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success. Also for NULLHANDLE.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE    Handle not recognized.
  *
  * @warning Do not call ReuseClose twice with the same handle.
  * @see ReuseOpen
@@ -109,9 +109,9 @@ APIRET APIENTRY ReuseClose(HREUSETOML hToml);
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
 
@@ -130,10 +130,10 @@ APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue);
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
                                   ULONG ulSize, PULONG pulUsed);
@@ -145,9 +145,9 @@ APIRET APIENTRY ReuseGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
  * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
 
@@ -166,10 +166,10 @@ APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount);
  * @param[out] phAnn    Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
- * @retval REUSE_ERROR_INDEX_RANGE    Index out of range.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
 APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
                                    HREUSEANN *phAnn);
@@ -185,9 +185,9 @@ APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
  * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
 
@@ -203,11 +203,11 @@ APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount);
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_INDEX_RANGE     Index out of range.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      Index out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
@@ -230,11 +230,11 @@ APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
                                    PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
@@ -253,11 +253,11 @@ APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
                                      PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
@@ -273,11 +273,11 @@ APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
                                        PSZ pszBuf, ULONG ulSize,
@@ -294,11 +294,11 @@ APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
                                            PSZ pszBuf, ULONG ulSize,
@@ -315,11 +315,11 @@ APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
                                                    PSZ pszBuf, ULONG ulSize,
@@ -336,11 +336,11 @@ APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_NOT_FOUND       Field absent.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetPackageComment(HREUSEANN hAnn,
                                           PSZ pszBuf, ULONG ulSize,
@@ -357,9 +357,9 @@ APIRET APIENTRY ReuseAnnGetPackageComment(HREUSEANN hAnn,
  * @param[out] pulCount Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
 
@@ -378,11 +378,11 @@ APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn, PULONG pulCount);
  * @param[out] pulUsed Optional. May be NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR              Success.
- * @retval REUSE_ERROR_INVALID_PARAM   Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE  Handle not recognized.
- * @retval REUSE_ERROR_INDEX_RANGE     Index out of range.
- * @retval REUSE_ERROR_BUFFER_OVERFLOW Buffer too small.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_NO_MORE_ITEMS      Index out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
                                        PSZ pszBuf, ULONG ulSize,
@@ -401,9 +401,9 @@ APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
  * @param[out] pulPrecedence Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
 
@@ -415,9 +415,9 @@ APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn, PULONG pulPrecedence);
  * @param[out] pulOrder Receiver. Not NULL.
  *
  * @return APIRET
- * @retval REUSE_NO_ERROR             Success.
- * @retval REUSE_ERROR_INVALID_PARAM  Any parameter is NULL.
- * @retval REUSE_ERROR_INVALID_HANDLE Handle not recognized.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
 APIRET APIENTRY ReuseAnnGetOrderInFile(HREUSEANN hAnn, PULONG pulOrder);
 
