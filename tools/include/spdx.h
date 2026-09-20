@@ -15,14 +15,14 @@ extern "C" {
  * @file spdx.h
  * @brief Shared SPDX utility functions.
  *
- * File helpers used by the REUSE resolver and the SBOM generator,
- * text normalization for license-text comparison, and a helper
- * that extracts SPDX identifiers from a license expression.
+ * File helpers used by the REUSE resolver and the SBOM generator and
+ * text normalization for license-text comparison.
  *
  * @par History
  * The module formerly held a string-list container as well. That
  * container has moved to the ccl library; callers now use HSTRSET
- * from strset.h directly.
+ * from strset.h directly. SPDX-expression handling (validation,
+ * canonicalization, identifier collection) lives in spdx_db.h.
  *
  * @par Thread safety
  * The module is single threaded. Callers must provide locking if a
@@ -71,31 +71,6 @@ APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
  * @return Base name, or NULL if pszPath is NULL.
  */
 PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath);
-
-/* ==================================================================
- * SPDX expression helpers
- * ================================================================== */
-
-/**
- * @brief Collect the SPDX identifiers from a license expression.
- *
- * AND / OR / WITH and parentheses are stripped; remaining tokens are
- * added to @p hOut with duplicate removal. Case is preserved.
- *
- * The destination is a string set created by StrSetCreate; the
- * caller remains the owner and is responsible for calling
- * StrSetDestroy afterwards.
- *
- * @param[in] pszExpr  Expression. Not NULL.
- * @param[in] hOut     Destination set. Not NULLHANDLE.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL.
- * @retval ERROR_INVALID_HANDLE     hOut is not recognized.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut);
 
 /* ==================================================================
  * Text helpers

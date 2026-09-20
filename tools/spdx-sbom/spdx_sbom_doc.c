@@ -9,6 +9,7 @@
 #include "spdx_sbom_extracted.h"
 #include "ccl.h"
 #include "spdx.h"
+#include "spdx_db.h"
 #include "sha1.h"
 
 /**
@@ -319,7 +320,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
         rc = StrSetCreate(&hIds);
         if (rc != NO_ERROR) return rc;
 
-        rc = SpdxExpressionCollectIds(info.achLicense, hIds);
+        rc = SpdxExpressionCollectIds(info.achLicense, hIds, NULL);
         if (rc != NO_ERROR) {
             StrSetDestroy(hIds);
             return rc;

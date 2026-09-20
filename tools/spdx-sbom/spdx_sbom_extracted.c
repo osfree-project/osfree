@@ -7,6 +7,7 @@
 #include "spdx_sbom_extracted.h"
 #include "spdx_sbom_utils.h"
 #include "spdx.h"
+#include "spdx_db.h"
 
 /**
  * @file spdx_sbom_extracted.c
@@ -119,9 +120,10 @@ static PSZ find_text_in_licenses_dir(PCSZ pszProjectDir, PCSZ pszId) {
 /**
  * @brief Collect LicenseRef-* identifiers from one expression.
  *
- * Tokens are separated by whitespace, '(' and ')'. Only tokens
- * starting with "LicenseRef-" are collected. Duplicates are
- * removed by the destination set.
+ * The expression is first passed through SpdxExpressionCollectIds,
+ * which validates it and gathers every identifier. Tokens that do
+ * not start with "LicenseRef-" are dropped; duplicates are removed
+ * by the destination set.
  *
  * @param[in] pszExpr  Expression. May be NULL or empty.
  * @param[in] hIds     Destination set. Not NULLHANDLE.
@@ -129,42 +131,47 @@ static PSZ find_text_in_licenses_dir(PCSZ pszProjectDir, PCSZ pszId) {
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_HANDLE     hIds is not recognized.
+ * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
+ * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
+ * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not loaded.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET scan_expression_ids(PCSZ pszExpr, HSTRSET hIds) {
-    PCSZ pszPos = pszExpr;
-    CHAR achTok[256];
+    HSTRSET hAll = NULLHANDLE;
+    HSTRSETENUM hEnum = NULLHANDLE;
+    APIRET rc;
 
-    if (!pszExpr) return NO_ERROR;
+    if (!pszExpr || !pszExpr[0]) return NO_ERROR;
 
-    while (*pszPos) {
-        PCSZ pszStart;
-        size_t cbLen;
-        APIRET rc;
+    rc = StrSetCreate(&hAll);
+    if (rc != NO_ERROR) return rc;
 
-        while (*pszPos &&
-               (isspace((unsigned char)*pszPos) ||
-                *pszPos == '(' || *pszPos == ')'))
-            pszPos++;
-        if (!*pszPos) break;
-
-        pszStart = pszPos;
-        while (*pszPos &&
-               !isspace((unsigned char)*pszPos) &&
-               *pszPos != '(' && *pszPos != ')')
-            pszPos++;
-
-        cbLen = (size_t)(pszPos - pszStart);
-        if (cbLen == 0 || cbLen >= sizeof(achTok)) continue;
-
-        memcpy(achTok, pszStart, cbLen);
-        achTok[cbLen] = '\0';
-
-        if (strncmp(achTok, "LicenseRef-", 11) == 0) {
-            rc = StrSetAdd(hIds, achTok);
-            if (rc != NO_ERROR) return rc;
-        }
+    rc = SpdxExpressionCollectIds(pszExpr, hAll, NULL);
+    if (rc != NO_ERROR) {
+        StrSetDestroy(hAll);
+        return rc;
     }
+
+    if (StrSetEnumFirst(hAll, &hEnum) == NO_ERROR) {
+        do {
+            CHAR achTok[256];
+            if (StrSetEnumGet(hEnum, achTok, sizeof(achTok), NULL)
+                    != NO_ERROR)
+                continue;
+            if (strncmp(achTok, "LicenseRef-", 11) == 0) {
+                rc = StrSetAdd(hIds, achTok);
+                if (rc != NO_ERROR) {
+                    StrSetEnumClose(hEnum);
+                    StrSetDestroy(hAll);
+                    return rc;
+                }
+            }
+        } while (StrSetEnumNext(hEnum) == NO_ERROR);
+        StrSetEnumClose(hEnum);
+    }
+
+    StrSetDestroy(hAll);
     return NO_ERROR;
 }
 

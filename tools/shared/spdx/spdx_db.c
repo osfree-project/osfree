@@ -2169,3 +2169,89 @@ APIRET APIENTRY SpdxQueryExpressionCanonical(PCSZ pszExpr, PSZ pszBuf,
     free(pszHeap);
     return rc;
 }
+
+/* ------------------------------------------------------------------ */
+/* Expression identifier collection                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Check whether a token is one of the SPDX operators.
+ *
+ * @param[in] pszTok  Token. Not NULL.
+ * @param[in] cbLen   Token length.
+ *
+ * @return 1 if the token is AND / OR / WITH, 0 otherwise.
+ */
+static int is_operator_token(PCSZ pszTok, size_t cbLen) {
+    if (cbLen == 3 && strncmp(pszTok, "AND", 3) == 0) return 1;
+    if (cbLen == 2 && strncmp(pszTok, "OR",  2) == 0) return 1;
+    if (cbLen == 4 && strncmp(pszTok, "WITH", 4) == 0) return 1;
+    return 0;
+}
+
+/**
+ * @brief Collect the SPDX identifiers from a license expression.
+ *
+ * Validates the expression first, then extracts every identifier
+ * that is not one of the operators AND / OR / WITH and not a
+ * parenthesis. Duplicates are removed by the destination set.
+ *
+ * @param[in]  pszExpr       Expression. Not NULL.
+ * @param[in]  hOut          Destination set. Not NULLHANDLE.
+ * @param[out] ppszBadToken  Optional. May be NULL. On
+ *                           SPDX_EXPR_UNKNOWN_TOKEN, receives a
+ *                           pointer to the offending token inside
+ *                           @p pszExpr.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL.
+ * @retval ERROR_INVALID_HANDLE     hOut is not recognized.
+ * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
+ * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
+ * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not loaded.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut,
+                                         PCSZ *ppszBadToken) {
+    PCSZ pszPos;
+    APIRET rc;
+    CHAR achTok[256];
+
+    if (!pszExpr) return ERROR_INVALID_PARAMETER;
+    if (hOut == NULLHANDLE) return ERROR_INVALID_HANDLE;
+
+    rc = SpdxQueryExpression(pszExpr, ppszBadToken);
+    if (rc != NO_ERROR) return rc;
+
+    pszPos = pszExpr;
+    while (*pszPos) {
+        PCSZ pszStart;
+        size_t cbLen;
+
+        if (*pszPos == ' ' || *pszPos == '\t' ||
+            *pszPos == '(' || *pszPos == ')') {
+            pszPos++;
+            continue;
+        }
+
+        pszStart = pszPos;
+        while (*pszPos && !isspace((unsigned char)*pszPos) &&
+               *pszPos != '(' && *pszPos != ')')
+            pszPos++;
+        cbLen = (size_t)(pszPos - pszStart);
+        if (cbLen == 0) continue;
+        if (cbLen >= sizeof(achTok)) cbLen = sizeof(achTok) - 1;
+
+        memcpy(achTok, pszStart, cbLen);
+        achTok[cbLen] = '\0';
+
+        if (is_operator_token(achTok, cbLen)) continue;
+
+        rc = StrSetAdd(hOut, achTok);
+        if (rc != NO_ERROR) return rc;
+    }
+
+    return NO_ERROR;
+}

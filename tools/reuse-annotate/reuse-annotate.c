@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[]) {
                     HSTRSET hIds = NULLHANDLE;
                     HSTRSETENUM hIdEnum = NULLHANDLE;
                     if (StrSetCreate(&hIds) == NO_ERROR) {
-                        SpdxExpressionCollectIds(pszLicense, hIds);
+                        SpdxExpressionCollectIds(pszLicense, hIds, NULL);
                         if (StrSetEnumFirst(hIds, &hIdEnum) == NO_ERROR) {
                             do {
                                 CHAR achId[256];

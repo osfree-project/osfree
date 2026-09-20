@@ -10,6 +10,7 @@
 
 #include "os2types.h"
 #include "os2err.h"
+#include "strset.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -306,6 +307,33 @@ APIRET APIENTRY SpdxQueryExpression(PCSZ pszExpr, PCSZ *ppszBadToken);
  */
 APIRET APIENTRY SpdxQueryExpressionCanonical(PCSZ pszExpr, PSZ pszBuf,
                                              ULONG ulSize, PULONG pulUsed);
+
+/**
+ * @brief Collect the SPDX identifiers from a license expression.
+ *
+ * Validates the expression first, then extracts every identifier
+ * that is not one of the operators AND / OR / WITH and not a
+ * parenthesis. Duplicates are removed by the destination set.
+ *
+ * @param[in]  pszExpr       Expression. Not NULL.
+ * @param[in]  hOut          Destination set. Not NULLHANDLE.
+ * @param[out] ppszBadToken  Optional. May be NULL. On
+ *                           SPDX_EXPR_UNKNOWN_TOKEN, receives a
+ *                           pointer to the offending token inside
+ *                           @p pszExpr.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL.
+ * @retval ERROR_INVALID_HANDLE     hOut is not recognized.
+ * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
+ * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
+ * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded.
+ * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not loaded.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ */
+APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut,
+                                         PCSZ *ppszBadToken);
 
 #ifdef __cplusplus
 }

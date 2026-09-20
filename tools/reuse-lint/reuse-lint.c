@@ -175,6 +175,11 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 /**
  * @brief Validate one SPDX expression and collect its identifiers.
  *
+ * Uses SpdxExpressionCollectIds, which validates the expression and
+ * returns both a diagnostic (via @p ppszBadToken) and the set of
+ * identifiers in one pass. If hUsedIds is not NULLHANDLE, every
+ * identifier is appended to it and checked for deprecation.
+ *
  * @param[in] pszFullPath  File path used in diagnostics. Not NULL.
  * @param[in] pszLicense   Expression. Not NULL.
  * @param[in] hUsedIds     Set of used identifiers. May be NULLHANDLE.
@@ -182,7 +187,17 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
                                    HSTRSET hUsedIds) {
     PCSZ pszBad = NULL;
-    APIRET rcExpr = SpdxQueryExpression(pszLicense, &pszBad);
+    HSTRSET hIds = NULLHANDLE;
+    HSTRSETENUM hEnum = NULLHANDLE;
+    APIRET rcExpr;
+
+    if (StrSetCreate(&hIds) != NO_ERROR) {
+        fprintf(stderr, "ERROR: out of memory\n");
+        g_ulErrorCount++;
+        return;
+    }
+
+    rcExpr = SpdxExpressionCollectIds(pszLicense, hIds, &pszBad);
 
     if (rcExpr == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
@@ -205,47 +220,53 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
                 "         - or add a [[annotations]] entry in REUSE.toml.\n"
                 "       See https://spdx.org/licenses/ for the full list.\n");
         g_ulErrorCount++;
+    } else if (rcExpr == SPDXDB_ERROR_LICENSES ||
+               rcExpr == SPDXDB_ERROR_EXCEPTIONS) {
+        fprintf(stderr,
+                "ERROR: %s: SPDX database is not loaded.\n"
+                "       Cannot validate SPDX identifiers.\n",
+                pszFullPath);
+        g_ulErrorCount++;
+    } else if (rcExpr != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: %s: cannot validate SPDX expression (code %lu).\n",
+                pszFullPath, (unsigned long)rcExpr);
+        g_ulErrorCount++;
     }
 
-    if (hUsedIds != NULLHANDLE) {
-        HSTRSET hIds = NULLHANDLE;
-        HSTRSETENUM hEnum = NULLHANDLE;
-        if (StrSetCreate(&hIds) == NO_ERROR) {
-            SpdxExpressionCollectIds(pszLicense, hIds);
-            if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
-                do {
-                    CHAR achId[256];
-                    BOOL fDepLic = FALSE_;
-                    BOOL fDepExc = FALSE_;
+    if (rcExpr == NO_ERROR && hUsedIds != NULLHANDLE) {
+        if (StrSetEnumFirst(hIds, &hEnum) == NO_ERROR) {
+            do {
+                CHAR achId[256];
+                BOOL fDepLic = FALSE_;
+                BOOL fDepExc = FALSE_;
 
-                    if (StrSetEnumGet(hEnum, achId, sizeof(achId), NULL)
-                            != NO_ERROR)
-                        continue;
-                    if (rcExpr == NO_ERROR) {
-                        StrSetAdd(hUsedIds, achId);
-                    }
-                    SpdxQueryLicenseDeprecated(achId, &fDepLic);
-                    SpdxQueryExceptionDeprecated(achId, &fDepExc);
-                    if (fDepLic || fDepExc) {
-                        fprintf(stderr,
-                                "WARNING: %s: deprecated SPDX identifier "
-                                "'%s'.\n"
-                                "         The SPDX License List marks this "
-                                "identifier deprecated.\n"
-                                "         Replace it with the current "
-                                "identifier (usually a '-only' or "
-                                "'-or-later' variant).\n"
-                                "         See https://spdx.org/licenses/ "
-                                "for the recommended replacement.\n",
-                                pszFullPath, achId);
-                        g_ulWarningCount++;
-                    }
-                } while (StrSetEnumNext(hEnum) == NO_ERROR);
-                StrSetEnumClose(hEnum);
-            }
-            StrSetDestroy(hIds);
+                if (StrSetEnumGet(hEnum, achId, sizeof(achId), NULL)
+                        != NO_ERROR)
+                    continue;
+                StrSetAdd(hUsedIds, achId);
+                SpdxQueryLicenseDeprecated(achId, &fDepLic);
+                SpdxQueryExceptionDeprecated(achId, &fDepExc);
+                if (fDepLic || fDepExc) {
+                    fprintf(stderr,
+                            "WARNING: %s: deprecated SPDX identifier "
+                            "'%s'.\n"
+                            "         The SPDX License List marks this "
+                            "identifier deprecated.\n"
+                            "         Replace it with the current "
+                            "identifier (usually a '-only' or "
+                            "'-or-later' variant).\n"
+                            "         See https://spdx.org/licenses/ "
+                            "for the recommended replacement.\n",
+                            pszFullPath, achId);
+                    g_ulWarningCount++;
+                }
+            } while (StrSetEnumNext(hEnum) == NO_ERROR);
+            StrSetEnumClose(hEnum);
         }
     }
+
+    StrSetDestroy(hIds);
 }
 
 /* ------------------------------------------------------------------ */

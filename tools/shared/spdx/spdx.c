@@ -28,6 +28,12 @@
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is
+ *                                  NULL without size-query.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
                                 ULONG ulSize, PULONG pulUsed) {
@@ -69,9 +75,6 @@ APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
 /**
  * @brief Return a pointer to the base name inside a path.
  *
- * The returned pointer refers to data inside @p pszPath; the caller
- * must not free it. Never returns NULL when @p pszPath is not NULL.
- *
  * @param[in] pszPath  Path. Not NULL.
  *
  * @return Base name, or NULL if pszPath is NULL.
@@ -81,48 +84,6 @@ PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
     if (!pszPath) return NULL;
     if (PathGetBaseName(pszPath, &pszBase) != NO_ERROR) return NULL;
     return pszBase;
-}
-
-/* ==================================================================
- * SPDX expression helpers
- * ================================================================== */
-
-/**
- * @brief Collect the SPDX identifiers from a license expression.
- *
- * @param[in] pszExpr  Expression. Not NULL.
- * @param[in] hOut     Destination set. Not NULLHANDLE.
- *
- * @return APIRET
- */
-APIRET APIENTRY SpdxExpressionCollectIds(PCSZ pszExpr, HSTRSET hOut) {
-    PCSZ pszDelims = " \t()";
-    PSZ pszCopy;
-    PSZ pszTok;
-    APIRET rc;
-
-    if (!pszExpr) return ERROR_INVALID_PARAMETER;
-    if (hOut == NULLHANDLE) return ERROR_INVALID_HANDLE;
-
-    pszCopy = strdup(pszExpr);
-    if (!pszCopy) return ERROR_NOT_ENOUGH_MEMORY;
-
-    pszTok = strtok(pszCopy, pszDelims);
-    while (pszTok) {
-        if (strcmp(pszTok, "AND") != 0 &&
-            strcmp(pszTok, "OR")  != 0 &&
-            strcmp(pszTok, "WITH") != 0 &&
-            pszTok[0] != '\0') {
-            rc = StrSetAdd(hOut, pszTok);
-            if (rc != NO_ERROR) {
-                free(pszCopy);
-                return rc;
-            }
-        }
-        pszTok = strtok(NULL, pszDelims);
-    }
-    free(pszCopy);
-    return NO_ERROR;
 }
 
 /* ==================================================================
@@ -206,6 +167,11 @@ static APIRET normalize_to_heap(PCSZ pszSrc, PSZ *ppszOut) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
+ *                                  without size-query.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY SpdxNormalizeText(PCSZ pszSrc, PSZ pszBuf,
                                   ULONG ulSize, PULONG pulUsed) {
