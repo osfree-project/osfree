@@ -43,6 +43,7 @@ $(mf): $(MYDIR)makefile .always
  @%append $(mf) $# don't edit!
  @%append $(mf) $#
  @%append $(mf)
+ @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
  @if exist $(PATH)_proj.mk @%append $(mf) !include $(PATH)_proj.mk
  @if exist $(PATH)_sources.mk @%append $(mf) !include $(PATH)_sources.mk
  @%append $(mf) !include $$(%ROOT)$(RELDIR:\=/)makefile

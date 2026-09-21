@@ -50,11 +50,10 @@ depsall prepall subdirs clean annotate annotate-write: .SYMBOLIC
 
 #generate project name
 gen_proj_name: .SYMBOLIC
- @$(REXX) mdhier.cmd $(PATH)
+ #@$(REXX) mdhier.cmd $(PATH)
  #change dir to set correct value of dir4. Magic!
  @cd ..
  #Save project name for future usage (will not start project detection from build dir)
- @if not exist $(PATH)$(dir4)$(SEP)_proj.mk @%append $(PATH)$(dir4)$(SEP)_proj.mk PROJ=$(dir4)
  # dir4 must be userd on a single line: if the expression is split
  # across lines, dir4 ends up empty instead of holding the last path
  # component. -f $(CWD)$(SEP)$(dir4)$(SEP)$(__MAKEFILE__)

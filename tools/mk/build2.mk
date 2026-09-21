@@ -89,7 +89,9 @@ gen_sources: .symbolic gen_sources_files
 
 !else
 
+!ifdef PLATFORM
 MAKEOPT += PLATFORM=$(PLATFORM)
+!endif
 
 # If we don't have SOURCES, NOLIBS, but DIRS, then just use old all.mk
 !ifeq SOURCES
