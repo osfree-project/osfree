@@ -4,13 +4,14 @@
 #
 
 DESCRIPTION = Message binder
-SOURCES = bind 
+SOURCES = bind
 LIBS = tools_shared
 
 !ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
 SRC  = $(MYDIR)
 !else
+TARGET_API = OS2
 ADD_COPT = -bt=os2
 DEST = os2tk45$(SEP)bin
 SRC  = $(MYDIR)..$(SEP)..$(SEP)bind$(SEP)
@@ -31,8 +32,5 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-!ifdef TARGETBLD
-TARGET_API = OS2
-!endif
 
 !include $(%ROOT)tools/mk/build.mk

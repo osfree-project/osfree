@@ -59,8 +59,12 @@ subdirs: .symbolic
  $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d $(verbose)$(CD) $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
 !endif
 
+!ifndef SRCDIR
+SRCDIR = $(MYDIR)
+!endif
+
 !ifdef srcfile
-_name2 = $(srcfile:$(MYDIR)=)
+_name2 = $(srcfile:$(SRCDIR)=)
 _name3 = $(_name2:$(ext)=)
 !endif
 
@@ -74,9 +78,9 @@ gen_sources_files: .symbolic
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
 !ifneq TARGET_LANG pascal
- @for %f in ($(MYDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
- @for %f in ($(MYDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
- @for %f in ($(MYDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
+ @for %f in ($(SRCDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
+ @for %f in ($(SRCDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
+ @for %f in ($(SRCDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
 !endif
 
 gen_sources: .symbolic gen_sources_files

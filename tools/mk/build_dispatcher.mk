@@ -539,6 +539,11 @@ TARGET_MK=appsos2v1
 
 !ifeq TARGET_CLASS APPLICATION
 
+!ifdef LIBS
+ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!endif
+
+
 !ifeq TARGET_SUBCLASS CONSOLE
 TARGET_MK=appsos2
 !else ifeq TARGET_SUBCLASS GUI
