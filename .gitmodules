@@ -20,25 +20,25 @@
         branch = master
 [submodule "OS2/WPS/xworkplace"]
         path = OS2/WPS/xworkplace
-        url = https://github.com/rousseaux/netlabs.xworkplace
+        url = https://github.com/rousseaux/netlabs.xworkplace.git
         branch = master
 [submodule "DOS"]
         path = DOS
-        url = https://github.com/osfree-project/DOS
+        url = https://github.com/osfree-project/DOS.git
         branch = master
 [submodule "OS2/CMD/rspinst/tpro"]
         path = OS2/CMD/rspinst/tpro
-        url = https://github.com/osfree-project/tpro
+        url = https://github.com/osfree-project/tpro.git
         branch = main
 [submodule "tools/UNI"]
         path = tools/UNI
-        url = https://github.com/osfree-project/UNI
+        url = https://github.com/osfree-project/UNI.git
         branch = main
 [submodule "shared"]
         path = shared
-        url = https://github.com/osfree-project/SUB
+        url = https://github.com/osfree-project/SUB.git
         branch = main
 [submodule "dual"]
         path = dual
-        url = https://github.com/osfree-project/FamilyApp
+        url = https://github.com/osfree-project/FamilyApp.git
         branch = main
