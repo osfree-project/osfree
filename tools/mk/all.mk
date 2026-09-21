@@ -490,15 +490,15 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  @$(SAY) PPC      $^. $(LOG)
  $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG2)
 
-.lnk.exe: .autodepend
+.lnk.exe: 
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
-.lnk.com: .autodepend
+.lnk.com: 
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
-.lnk.dll: .autodepend
+.lnk.dll: 
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
@@ -601,6 +601,10 @@ _apply_symbolic = 1
 !ifeq TARGET_SUBCLASS STATIC
 _apply_symbolic = 0
 !endif
+!endif
+
+!ifeq TARGET_CLASS APPLICATION
+_apply_symbolic = 0
 !endif
 
 !ifneq TRGT ""

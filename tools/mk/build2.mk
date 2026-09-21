@@ -12,7 +12,9 @@
 !ifdef PROJ
 
 !ifdef withsources
-#!include $(withsources)
+!ifndef SOURCES
+!include $(withsources)
+!endif
 MAKEOPT += withsources=$(withsources)
 !ifndef SOURCES
 SOURCES=
@@ -77,11 +79,14 @@ gen_sources_files: .symbolic
 # @echo GS_CMD: $(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
+ @%append $(PATH)_sources.mk !ifndef __$(PROJ)_sources_mk__
+ @%append $(PATH)_sources.mk !define __$(PROJ)_sources_mk__
 !ifneq TARGET_LANG pascal
  @for %f in ($(SRCDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
  @for %f in ($(SRCDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
  @for %f in ($(SRCDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
 !endif
+ @%append $(PATH)_sources.mk !endif
 
 gen_sources: .symbolic gen_sources_files
  @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk

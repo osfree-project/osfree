@@ -65,6 +65,83 @@ MAKEOPT += PLATFORM=$(PLATFORM)
 !include $(%ROOT)tools/mk/build_proj.mk
 
 # ------------------------------------------------------------
+# ============================================================
+# Autodetect TARGET_API depending on directory tree
+# ============================================================
+
+!ifndef TARGET_API
+
+#!!!!!!!!!!!!! Тут проблема с DEST!!!!! Его надо определить до dirs.mk... Поэтому
+# приходится дублировать макросы
+
+!include $(%ROOT)/tools/mk/site.mk
+
+!ifeq UNIX FALSE
+CWD         = $(%cdrive):$(%cwd)$(SEP)
+!else
+CWD         = $(%cwd)$(SEP)
+!endif
+
+ROOT        = $(%ROOT)
+BLD         = $(%ROOT)build$(SEP)
+
+RD          = $(CWD:$(%ROOT)=)
+RELDIR_PWD  = $(RD:build$(SEP)=)
+RELDIR      = $(RELDIR_PWD:host$(SEP)$(%HOST)$(SEP)=)
+
+# Add symbol to begining to mark start of path
+TEST_STR = *$(RELDIR)
+
+# Try to delete "*DOS\"
+STRIPPED = $(TEST_STR:*DOS$(SEP)=)
+#!message STRIPPED=$(STRIPPED)
+# String changed - so we in DOS tree
+!ifneq TEST_STR $(STRIPPED)
+
+# Now check for WIN16 subtree
+TEST_STR2 = *$(STRIPPED)
+STRIPPED2 = $(TEST_STR2:*WIN16$(SEP)=)
+#!message STRIPPED2=$(STRIPPED2)
+!ifneq TEST_STR2 $(STRIPPED2)
+#!message huh
+TARGET_API=WIN
+!else
+TARGET_API=DOS
+!endif
+
+!endif
+
+# Try same for OS/2. Try to delete "*OS2\"
+STRIPPED = $(TEST_STR:*OS2$(SEP)=)
+
+# String changed - so we in OS/2 tree
+!ifneq TEST_STR $(STRIPPED)
+TARGET_API=OS2
+!endif
+
+# Try same for tools. Try to delete "*tools\"
+STRIPPED = $(TEST_STR:*tools$(SEP)=)
+
+# String changed - so we in toolstree
+!ifneq TEST_STR $(STRIPPED)
+TARGET_API=HOST
+!endif
+
+
+!endif
+
+!ifndef TARGET_API
+!error TARGET_API must be set
+!endif
+
+
+!ifndef PLATFORM
+!ifeq TARGET_API HOST
+PLATFORM = host$(SEP)$(%HOST)$(SEP)
+!endif
+!endif
+
+# ------------------------------------------------------------
 # Goto Stage 2 
 # ------------------------------------------------------------
 
