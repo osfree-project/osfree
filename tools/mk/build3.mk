@@ -171,7 +171,8 @@ gen_deps_wrapper: .symbolic
         @%create $(PATH)_deps.mk
         @%append $(PATH)_deps.mk !ifndef __$(PROJ)_deps_mk__
         @%append $(PATH)_deps.mk !define __$(PROJ)_deps_mk__
-        @%append $(PATH)_deps.mk $(BLD)lib$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
+        @%append $(PATH)_deps.mk $(DEST:build$(SEP)bin$(SEP)..$(SEP)..$(SEP)build=build)$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
+#        @%append $(PATH)_deps.mk $(BLD)lib$(SEP)$(TRGT): $(OBJS) $(ADDLIBS)
 	@%append $(PATH)_deps.mk    @$(CD) $(PATH) && $(MAKE) $(MAKEOPT) && cd $(CWD)
         @for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" pth=$(pth) gen_dep_obj
 !ifdef LIBS
