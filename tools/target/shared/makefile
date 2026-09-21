@@ -4,11 +4,11 @@
 
 32_BITS  = 1
 
-DIRS = path ccl toml dep5 reuse spdx sha1 sha256 json omf lib exe res git z
+DIRS = path ccl toml dep5 reuse spdx sha1 sha256 json omf lib exe res git
 
 PROJ = tools_shared
 TARGET_CLASS = LIBRARY
-LIBS = z toml reuse spdx sha1 sha256 json omf lib exe res git dep5 ccl path
+LIBS = toml reuse spdx sha1 sha256 json omf lib exe res git dep5 ccl path
 PLATFORM = host$(SEP)$(%HOST)$(SEP)
 
 !include $(%ROOT)tools/mk/build.mk

@@ -61,6 +61,28 @@ typedef BOOL               *PBOOL;
 typedef PSZ                *PPSZ;
 typedef HANDLE             *PHANDLE;
 
+/**
+ * @typedef BYTE
+ * @brief Unsigned 8-bit integer, OS/2 style.
+ */
+typedef unsigned char       BYTE;
+
+/**
+ * @typedef WORD
+ * @brief Unsigned 16-bit integer, OS/2 style.
+ */
+typedef unsigned short      WORD;
+
+/**
+ * @typedef DWORD
+ * @brief Unsigned 32-bit integer, OS/2 style.
+ */
+typedef unsigned long       DWORD;
+
+typedef BYTE               *PBYTE;
+typedef WORD               *PWORD;
+typedef DWORD              *PDWORD;
+
 #ifndef TRUE
 #define TRUE  1
 #endif
@@ -68,7 +90,6 @@ typedef HANDLE             *PHANDLE;
 #ifndef FALSE
 #define FALSE 0
 #endif
-
 
 /**
  * @def NULLHANDLE

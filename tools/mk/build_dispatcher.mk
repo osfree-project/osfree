@@ -7,15 +7,16 @@
 # BIOS           ERROR (reserved)       ERROR (reserved)       ERROR (reserved)
 # ABIOS          ERROR (reserved)       ERROR (reserved)       ERROR (reserved)
 # UEFI           ERROR (reserved)       ERROR (reserved)       ERROR (reserved)
-# DOS            --> DOS_CLASS          appsdos.mk             ERROR (reserved)
-# DPMI           appsdos.mk (default)   appsdos.mk             ERROR (reserved)
+# DOS            --> DOS_CLASS          ERROR (reserved)       ERROR (reserved)
+# DPMI           ERROR (reserved)       --> ERROR (reserved)   ERROR (reserved)
 # WIN            --> WIN16_CLASS        --> WIN32_CLASS        ERROR (reserved)
 # OS2            --> OS2_16_CLASS       --> OS2_32_CLASS (def) ERROR (reserved)
-# HOST           tools.mk               tools.mk               tools.mk
+# HOST           --> HOST_CLASS         --> HOST_CLASS         --> HOST_CLASS
 #
-# Note: For HOST, default TARGET_BITS is taken from %HOST_BITS%.
+# Note: For HOST, TARGET_BITS is not defaulted in this file.
 #       "default" marks the TARGET_BITS used when not explicitly set.
 #       Entries with "--> TABLE" defer to class/subclass sub-tables below.
+#       DOS, DPMI and HOST do not validate TARGET_BITS explicitly.
 
 # ============================================================
 # Default TARGET_BITS per TARGET_API
@@ -166,20 +167,19 @@ TRGT = $(PROJ).$(TARGET_EXT)
 # TARGET_CLASS   TARGET_SUBCLASS   Included .mk       Remarks
 # -------------  ---------------  -----------------  -----------------------------------
 # APPLICATION    CONSOLE (def)    appsdos.mk         Standard DOS application
-# LIBRARY        STATIC (default) ERROR (reserved)   Not yet implemented
+# LIBRARY        STATIC (default) libsdos.mk         Static library
 # LIBRARY        DYNAMIC          ERROR              Not supported on DOS
 # DRIVER         (any)            ERROR (reserved)   Single DOS driver type, not yet implemented
+
 !ifeq TARGET_CLASS APPLICATION
 !ifneq TARGET_SUBCLASS CONSOLE
 !error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DOS APPLICATION. Only CONSOLE allowed.
 !endif
-!include $(%ROOT)tools/mk/appsdos.mk
+TARGET_MK=appsdos
 !else ifeq TARGET_CLASS LIBRARY
 !ifeq TARGET_SUBCLASS STATIC
 TARGETS  = $(PATH)$(PROJ).lib
-!include $(%ROOT)tools/mk/libsdos.mk
-#$(TARGETS): $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+TARGET_MK=libsdos
 
 !else ifeq TARGET_SUBCLASS DYNAMIC
 !error LIBRARY DYNAMIC is not supported on DOS
@@ -201,18 +201,19 @@ TARGETS  = $(PATH)$(PROJ).lib
 # -------------  ---------------  -----------------  -----------------------------------
 # APPLICATION    CONSOLE (def)    appsdos.mk         DPMI application
 # LIBRARY        DYNAMIC (default) ERROR (reserved)   Not yet implemented
-# LIBRARY        STATIC           ERROR (reserved)   Not yet implemented
+# LIBRARY        STATIC           libsdos.mk         Static library
 # DRIVER         any              ERROR              Not supported on DPMI
+
 !ifeq TARGET_CLASS APPLICATION
 !ifneq TARGET_SUBCLASS CONSOLE
 !error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DPMI APPLICATION. Only CONSOLE allowed.
 !endif
-!include $(%ROOT)tools/mk/appsdos.mk
+TARGET_MK=appsdos
 !else ifeq TARGET_CLASS LIBRARY
 !ifeq TARGET_SUBCLASS DYNAMIC
 !error LIBRARY DYNAMIC is reserved and not yet implemented for DPMI
 !else ifeq TARGET_SUBCLASS STATIC
-!include $(%ROOT)tools/mk/libsdos.mk
+TARGET_MK=libsdos
 !else
 !error Unknown TARGET_SUBCLASS for DPMI LIBRARY: $(TARGET_SUBCLASS)
 !endif
@@ -225,9 +226,19 @@ TARGETS  = $(PATH)$(PROJ).lib
 # --- HOST ---
 !else ifeq TARGET_API HOST
 
+# ============================================================
+# HOST classes (TARGET_API=HOST)
+# ============================================================
+# TARGET_CLASS   TARGET_SUBCLASS   Included .mk       Remarks
+# -------------  ---------------  -----------------  -----------------------------------
+# APPLICATION    CONSOLE (def)    tools.mk           Host tool (TARGET_LANG pascal: toolspas.mk)
+# LIBRARY        DYNAMIC          tools.mk           DLL (DLL=1)
+# LIBRARY        STATIC (default) libs.mk            Static library
+# DRIVER         any              ERROR              Not supported on HOST
+
 !ifeq TARGET_CLASS APPLICATION
 !ifeq TARGET_LANG pascal
-!include $(%ROOT)tools/mk/toolspas.mk
+TARGET_MK=toolspas
 !else
 
 !ifdef LIBS
@@ -241,17 +252,13 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
 
-!include $(%ROOT)tools/mk/tools.mk
+TARGET_MK=tools
 !endif
 !else ifeq TARGET_CLASS LIBRARY
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
-!include $(%ROOT)tools/mk/tools.mk
+TARGET_MK=tools
 !else ifeq TARGET_SUBCLASS STATIC
-#TARGETS  = $(PATH)$(PROJ).lib
-#!include $(%ROOT)tools/mk/libs.mk
-#$(TARGETS): $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 
 
 ##############################
@@ -267,10 +274,7 @@ ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 
-!include $(%ROOT)tools/mk/libs.mk
-#$(TARGETS): $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
-
+TARGET_MK=libs
 
 ##############################
 
@@ -296,9 +300,10 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 # APPLICATION    FAMILY           ERROR              Not supported on Win16
 # APPLICATION    DUAL             ERROR              Not supported on Win16
 # LIBRARY        DYNAMIC          appsw16.mk         DLL (DLL=1)
-# LIBRARY        STATIC           ERROR (reserved)
+# LIBRARY        STATIC           libsw16.mk         Static library
 # DRIVER         PHYSICAL         appsw16.mk         Physical driver DLL (DLL=1)
 # DRIVER         VIRTUAL          ERROR (reserved)   Virtual driver (VxD)
+
 !ifeq TARGET_BITS 16
 
 # Require add SPDX tags
@@ -326,9 +331,9 @@ ADD_COPT = $(ADD_COPT) -sg
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
 !ifeq TARGET_SUBCLASS GUI
-!include $(%ROOT)tools/mk/appsw16.mk
+TARGET_MK=appsw16
 !else ifeq TARGET_SUBCLASS HYBRID
-!include $(%ROOT)tools/mk/appshybrid.mk
+TARGET_MK=appshybrid
 !else ifeq TARGET_SUBCLASS CONSOLE
 !error CONSOLE is not supported on 16-bit Windows
 !else ifeq TARGET_SUBCLASS FAMILY
@@ -356,7 +361,7 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
 !endif
 
-!include $(%ROOT)tools/mk/appsw16.mk
+TARGET_MK=appsw16
 
 !else ifeq TARGET_SUBCLASS STATIC
 TRGT = $(PROJ).lib
@@ -371,9 +376,7 @@ ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
 pth=$(%ROOT)build$(SEP)lib$(SEP)
 !endif
 
-!include $(%ROOT)tools/mk/libsw16.mk
-#$(TARGETS): $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+TARGET_MK=libsw16
 
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit Windows LIBRARY: $(TARGET_SUBCLASS)
@@ -383,7 +386,7 @@ pth=$(%ROOT)build$(SEP)lib$(SEP)
 
 !ifeq TARGET_SUBCLASS PHYSICAL
 DLL = 1
-!include $(%ROOT)tools/mk/appsw16.mk
+TARGET_MK=appsw16
 !else ifeq TARGET_SUBCLASS VIRTUAL
 !error DRIVER VIRTUAL is reserved and not yet implemented for 16-bit Windows
 !else
@@ -400,8 +403,8 @@ DLL = 1
 # ============================================================
 # TARGET_CLASS   TARGET_SUBCLASS   Included .mk       Remarks
 # -------------  ---------------  -----------------  -----------------------------------
-# APPLICATION    GUI (default)    appsw16.mk         GUI application (WIN_GUI=1)
-# APPLICATION    CONSOLE          appsw16.mk         Console application (WIN_CONSOLE=1)
+# APPLICATION    GUI (default)    appsw32.mk         GUI application (WIN_GUI=1)
+# APPLICATION    CONSOLE          appsw32.mk         Console application (WIN_CONSOLE=1)
 # APPLICATION    FAMILY           ERROR (reserved)
 # APPLICATION    DUAL             ERROR (reserved)
 # APPLICATION    HYBRID           ERROR (reserved)
@@ -413,10 +416,10 @@ DLL = 1
 
 !ifeq TARGET_SUBCLASS GUI
 WIN_GUI = 1
-!include $(%ROOT)tools/mk/appsw32.mk
+TARGET_MK=appsw32
 !else ifeq TARGET_SUBCLASS CONSOLE
 WIN_CONSOLE = 1
-!include $(%ROOT)tools/mk/appsw32.mk
+TARGET_MK=appsw32
 !else ifeq TARGET_SUBCLASS FAMILY
 !error FAMILY for Win32 is reserved and not yet implemented
 !else ifeq TARGET_SUBCLASS DUAL
@@ -431,7 +434,7 @@ WIN_CONSOLE = 1
 
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
-!include $(%ROOT)tools/mk/appsw16.mk
+TARGET_MK=appsw16
 !else ifeq TARGET_SUBCLASS STATIC
 !error LIBRARY STATIC is reserved and not yet implemented for 32-bit Windows
 !else
@@ -469,21 +472,22 @@ DLL = 1
 # LIBRARY        STATIC           ERROR (reserved)
 # DRIVER         PHYSICAL         appsos2v1.mk       Physical device driver (PHYSDEVICE=1)
 # DRIVER         VIRTUAL          appsos2v1.mk       Virtual device driver (VIRTDEVICE=1)
+
 !ifeq TARGET_BITS 16
 
 !ifeq TARGET_CLASS APPLICATION
 
 !ifeq TARGET_SUBCLASS CONSOLE
-!include $(%ROOT)tools/mk/appsos2v1.mk
+TARGET_MK=appsos2v1
 !else ifeq TARGET_SUBCLASS GUI
 PM = 1
-!include $(%ROOT)tools/mk/appsos2v1.mk
+TARGET_MK=appsos2v1
 !else ifeq TARGET_SUBCLASS FAMILY
-!include $(%ROOT)tools/mk/appsfapi.mk
+TARGET_MK=appsfapi
 !else ifeq TARGET_SUBCLASS DUAL
-!include $(%ROOT)tools/mk/appsdual.mk
+TARGET_MK=appsdual
 !else ifeq TARGET_SUBCLASS HYBRID
-!include $(%ROOT)tools/mk/appshybrid.mk
+TARGET_MK=appshybrid
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
 !endif
@@ -492,7 +496,7 @@ PM = 1
 
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
-!include $(%ROOT)tools/mk/appsos2v1.mk
+TARGET_MK=appsos2v1
 !else ifeq TARGET_SUBCLASS STATIC
 !error LIBRARY STATIC is reserved and not yet implemented for 16-bit OS/2
 !else
@@ -503,10 +507,10 @@ DLL = 1
 
 !ifeq TARGET_SUBCLASS PHYSICAL
 PHYSDEVICE = 1
-!include $(%ROOT)tools/mk/appsos2v1.mk
+TARGET_MK=appsos2v1
 !else ifeq TARGET_SUBCLASS VIRTUAL
 VIRTDEVICE = 1
-!include $(%ROOT)tools/mk/appsos2v1.mk
+TARGET_MK=appsos2v1
 !else
 !error Unknown TARGET_SUBCLASS for 16-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
 !endif
@@ -529,23 +533,23 @@ VIRTDEVICE = 1
 # APPLICATION    DUAL             appsdual.mk        DOS stub + OS/2 32-bit (same sources)
 # APPLICATION    HYBRID           appshybrid.mk      DOS stub + OS/2 32-bit (diff sources)
 # LIBRARY        DYNAMIC          appsos2.mk         DLL (DLL=1)
-# LIBRARY        STATIC           ERROR (reserved)
+# LIBRARY        STATIC           libsos2.mk
 # DRIVER         PHYSICAL         appsos2.mk         Physical device driver (PHYSDEVICE=1)
 # DRIVER         VIRTUAL          appsos2.mk         Virtual device driver (VIRTDEVICE=1)
 
 !ifeq TARGET_CLASS APPLICATION
 
 !ifeq TARGET_SUBCLASS CONSOLE
-!include $(%ROOT)tools/mk/appsos2.mk
+TARGET_MK=appsos2
 !else ifeq TARGET_SUBCLASS GUI
 PM = 1
-!include $(%ROOT)tools/mk/appsos2.mk
+TARGET_MK=appsos2
 !else ifeq TARGET_SUBCLASS FAMILY
 !error FAMILY for 32-bit OS/2 is reserved and not yet implemented
 !else ifeq TARGET_SUBCLASS DUAL
-!include $(%ROOT)tools/mk/appsdual.mk
+TARGET_MK=appsdual
 !else ifeq TARGET_SUBCLASS HYBRID
-!include $(%ROOT)tools/mk/appshybrid.mk
+TARGET_MK=appshybrid
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
 !endif
@@ -554,9 +558,22 @@ PM = 1
 
 !ifeq TARGET_SUBCLASS DYNAMIC
 DLL = 1
-!include $(%ROOT)tools/mk/appsos2.mk
+TARGET_MK=appsos2
 !else ifeq TARGET_SUBCLASS STATIC
-!error LIBRARY STATIC is reserved and not yet implemented for 32-bit OS/2
+
+TRGT = $(PROJ).lib
+
+!ifdef LIBS
+pth=$$(pth)
+!ifndef ADDLIBS
+ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
+!else
+ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!endif
+pth=$(%ROOT)build$(SEP)lib$(SEP)
+!endif
+
+TARGET_MK=libsos2
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
 !endif
@@ -565,10 +582,10 @@ DLL = 1
 
 !ifeq TARGET_SUBCLASS PHYSICAL
 PHYSDEVICE = 1
-!include $(%ROOT)tools/mk/appsos2.mk
+TARGET_MK=appsos2
 !else ifeq TARGET_SUBCLASS VIRTUAL
 VIRTDEVICE = 1
-!include $(%ROOT)tools/mk/appsos2.mk
+TARGET_MK=appsos2
 !else
 !error Unknown TARGET_SUBCLASS for 32-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
 !endif
@@ -587,3 +604,5 @@ VIRTDEVICE = 1
 !else
 !error Unknown TARGET_API: $(TARGET_API)
 !endif
+
+!include $(%ROOT)tools/mk/$(TARGET_MK).mk

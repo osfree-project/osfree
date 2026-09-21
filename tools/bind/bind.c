@@ -1,11 +1,15 @@
-/*!
- *  @brief FamilyAPI Binder
+/*! bind.c - FamilyAPI Binder
  *
  *  (c) osFree Project 2024, <https://www.osfree.org>
  *  for licence see licence.txt in root directory, or project website
  *
  *  @author Yuri Prokushev <yuri.prokushev@gmail.com>
  *
+ *  Uses the following osFree libraries:
+ *    - ccl.h       Common Collection Library (HVECTOR, HSTRSET)
+ *    - omf.h       OMF record parsing and generation
+ *    - lib.h       OMF library (.LIB) reader
+ *    - newexe.h    New Executable (NE) reader and binder
  */
 
 #include <stdlib.h>
@@ -18,926 +22,725 @@
 #include <direct.h>
 #endif
 
-#ifndef DWORD
-#define DWORD unsigned long
-#endif
-
-#ifndef WORD
-#define WORD unsigned short
-#endif
-
-#ifndef BYTE
-#define BYTE unsigned char
-#endif
-
-#ifndef HANDLE
-#define HANDLE WORD
-#endif
-
-#ifndef HGLOBAL
-#define HGLOBAL HANDLE
-#endif
-
+#include "os2types.h"
+#include "os2err.h"
+#include "ccl.h"
 #include "newexe.h"
 #include "omf.h"
+#include "lib.h"
 
-char func[255];
+/*! @file bind.c
+ *  @brief FamilyAPI Binder implementation.
+ *
+ *  The binder performs three major steps:
+ *    1. Reads the dynamic-link entry points from an OS/2 NE
+ *       executable and builds a vector of imported functions.
+ *    2. Generates a temporary OMF object file (tmp.obj) that
+ *       declares those functions as EXTDEF records, then invokes
+ *       WLINK to link the object with API.LIB and any additional
+ *       libraries.
+ *    3. Merges the DOS real-mode stub produced by WLINK with the
+ *       original OS/2 protected-mode NE image into a single file
+ *       that runs in either mode.
+ *
+ *  The imported-function list and the module-name list are kept in
+ *  CCL vectors (HVECTOR). No hand-rolled containers are used.
+ */
+
+/*! @brief One imported function entry.
+ *
+ *  Stored by value in a CCL vector; the vector is not a linked
+ *  list, so no @c next field is present.
+ */
 typedef struct _apientry {
-	char mod[9];				/*!< Module name */
-	WORD ord;					/*!< Function ordinal */
-	char func[21];				/*!< Function name */
-	DWORD offset;	  			/*!< Offset of pointer to fixup */
-	struct _apientry * next;	/*!< Next entry */
+    char mod[9];    /*!< Module name (NUL padded, max 8 chars). */
+    WORD ord;       /*!< Function ordinal (informational). */
+    char func[21];  /*!< Function name (NUL padded, max 20 chars). */
 } apientry;
 
+/*! @brief One module-name entry.
+ *
+ *  The NE module reference table gives at most 255-char names, but
+ *  in practice they are short. A fixed buffer avoids per-element
+ *  dynamic allocation; the vector stores these structs by value.
+ */
+typedef struct _modname {
+    char name[256]; /*!< NUL-terminated module name. */
+} modname;
+
+/*! @brief Binder options.
+ *
+ *  Populated from the command line before any work begins.
+ */
 typedef struct _opts {
-	int quiet;					/*!< Quiet mode */
-	int logo;					/*!< Show logo */
-	char outfile[_MAX_PATH];	/*!< Output filename */
-	char infile[_MAX_PATH];		/*!< Input filename */
-	char mapfile[_MAX_PATH];	/*!< MAP filename */
-	char libpath[_MAX_PATH];	/*!< Additional library search path */
-	int map;					/*!< Generate MAP file for DOS stub */
-	int dosformat;				/*!< Options in DOS format (not UNIX) */
-	int DoscallsLIB;			/*!< Use DOSCALLS.LIB instead of OS2.LIB */
-	int MouAPI;					/*!< Mouse functions found */
-	int KbdAPI;					/*!< Keyboard functions found */
-	int VioAPI;					/*!< Video functions found */
-	int DLLAPI;					/*!< Library functions found */
+    int quiet;                  /*!< Quiet mode (no banner). */
+    int logo;                   /*!< Show logo banner. */
+    char outfile[_MAX_PATH];    /*!< Output filename. */
+    char infile[_MAX_PATH];     /*!< Input filename. */
+    char mapfile[_MAX_PATH];    /*!< MAP filename. */
+    char libpath[_MAX_PATH];    /*!< Additional library search path. */
+    int map;                    /*!< Generate MAP file for DOS stub. */
+    int dosformat;              /*!< Options in DOS format. */
+    int DoscallsLIB;            /*!< Use DOSCALLS.LIB instead of OS2.LIB. */
+    int MouAPI;                 /*!< Mouse API used. */
+    int KbdAPI;                 /*!< Keyboard API used. */
+    int VioAPI;                 /*!< Video API used. */
+    int DLLAPI;                 /*!< DLL API used. */
 } opts;
 
-apientry * apiroot;
-opts options;
+/*! @brief LNAMES index assignments for tmp.obj.
+ *
+ *  The order matches the sequence of OmfWriteLnames calls in
+ *  generate_imptable. Adding or reordering names requires updating
+ *  this enum accordingly.
+ */
+enum {
+    LNAME_EMPTY  = 1,   /*!< "" (empty, required at index 1). */
+    LNAME_CODE   = 2,   /*!< "CODE". */
+    LNAME_DATA   = 3,   /*!< "DATA". */
+    LNAME_BSS    = 4,   /*!< "BSS". */
+    LNAME_TLS    = 5,   /*!< "TLS". */
+    LNAME_DGROUP = 6,   /*!< "DGROUP". */
+    LNAME_TEXT   = 7,   /*!< "_TEXT". */
+    LNAME_CONST  = 8,   /*!< "CONST". */
+    LNAME_CONST2 = 9,   /*!< "CONST2". */
+    LNAME_DATA_  = 10   /*!< "_DATA". */
+};
 
-/*! @brief Output usage help information */
+/*! @brief SEGDEF indices for tmp.obj. */
+enum {
+    SEGDEF_TEXT   = 1,  /*!< _TEXT segment. */
+    SEGDEF_CONST  = 2,  /*!< CONST segment. */
+    SEGDEF_CONST2 = 3,  /*!< CONST2 segment. */
+    SEGDEF_DATA   = 4   /*!< _DATA segment (import table). */
+};
+
+HVECTOR hvApi = NULLHANDLE;     /*!< Vector of apientry. */
+opts options;                   /*!< Global binder options. */
+
+/* Forward declarations of file-local helpers. */
 void printhlp(void);
-/*! @brief Check required environment to run */
 int check_environment(void);
-/*! @brief Add imported function info to linked list */
 int addtolist(char * mod, char * func);
-/*! @brief Bind stub file to NE executable */
 int bind(char * fname);
-/*! @brief Find function name in lib by ordinal and module name */
-char * findfunctionname(char * module, WORD ordinal, char * lib);
-/*! @brief Search library in lib paths */
 int searchlib(char * libname, char * fullpath);
-/*! @brief Concatecate path separator */
 char * addpathsep(char * buf);
-/*! @brief Create and return temporary directory */
 char * mktmpdir(char *tmpdir);
-/*! @brief Create imptable object file */
 void generate_imptable(void);
-/*! @brief Generate lnk file */
 void generate_lnk(void);
 
+/* ------------------------------------------------------------------ */
+/* Path utilities                                                      */
+/* ------------------------------------------------------------------ */
 
-/*! @brief Concatecate path separator */
+/*! @brief Append a path separator to a buffer.
+ *
+ *  @param[in,out] buf  Buffer to append to. Not NULL.
+ *
+ *  @return @p buf, for convenient chaining.
+ */
 char * addpathsep(char * buf)
 {
 #if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
-    return strncat(buf,"\\", 1);
+    return strncat(buf, "\\", 1);
 #else
-    return strncat(buf,"/", 1);
+    return strncat(buf, "/", 1);
 #endif
 }
 
-/*! @brief Create and return temporary directory */
+/*! @brief Create and return a unique temporary directory path.
+ *
+ *  @param[out] tmpdir  Buffer of at least _MAX_PATH bytes. Not NULL.
+ *
+ *  @return @p tmpdir on success, or NULL on failure.
+ */
 char * mktmpdir(char *tmpdir)
 {
-    char name2[_MAX_PATH];
-    tmpnam(name2);
-#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
-    tmpdir = getenv("TMP");
-    if (!tmpdir) tmpdir = "C:\\TEMP";
-#else
-    tmpdir = "/tmp";
-#endif
-	addpathsep(tmpdir);
-    strcat(tmpdir,&name2);
-#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
-	mkdir(tmpdir);
-#else
-	mkdir(tmpdir, S_IRWXU);
-#endif
-	return addpathsep(tmpdir);
+    const char *base;
+    size_t cbBase;
 
-
-    // FIXED: Безопасное создание временного пути
-    strncpy(name2, tmpdir, sizeof(name2) - 1);
-    name2[sizeof(name2) - 1] = '\0';
-    addpathsep(name2);
-    strncat(name2, "bindtmpX", sizeof(name2) - strlen(name2) - 1);
-#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
-	mkdir(name2);
+#if defined(__UNIX__)
+    base = getenv("TMPDIR");
+    if (!base) base = "/tmp";
 #else
-	mkdir(name2, S_IRWXU);
+    base = getenv("TMP");
+    if (!base) base = getenv("TEMP");
+    if (!base) base = "C:\\TEMP";
 #endif
-    return addpathsep(name2);
+
+    cbBase = strlen(base);
+    if (cbBase == 0 || cbBase + 16 >= _MAX_PATH) return NULL;
+
+    strncpy(tmpdir, base, _MAX_PATH - 1);
+    tmpdir[_MAX_PATH - 1] = '\0';
+
+    if (tmpdir[cbBase - 1] != '/' && tmpdir[cbBase - 1] != '\\')
+        addpathsep(tmpdir);
+
+#if defined(_WIN32) || defined(__OS2__) || defined(__DOS__)
+    strncat(tmpdir, "bndXXXXXX", _MAX_PATH - strlen(tmpdir) - 1);
+    if (_mktemp(tmpdir) == NULL) return NULL;
+    if (_mkdir(tmpdir) != 0) return NULL;
+#else
+    strncat(tmpdir, "bndXXXXXX", _MAX_PATH - strlen(tmpdir) - 1);
+    if (mkdtemp(tmpdir) == NULL) return NULL;
+#endif
+
+    return addpathsep(tmpdir);
 }
 
-/*! @brief Generate lnk file */
+/* ------------------------------------------------------------------ */
+/* LNK file generation                                                 */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Generate the WLINK response file (bind.lnk). */
 void generate_lnk(void)
 {
-	FILE * f;
+    FILE * f;
 
-    // Generate link file
-    f=fopen("bind.lnk", "w");
-    fputs("system dos\n",f);
-    fputs("name fstub.exe\n" , f); 
+    f = fopen("bind.lnk", "w");
+    if (!f) return;
+    fputs("system dos\n", f);
+    fputs("name fstub.exe\n", f);
     fputs("file tmp.obj\n", f);
-    if (options.map) 
-	{
-		fputs("op m=", f);
-		fputs(options.mapfile, f);
-		fputs("\n", f);
-	}
+    if (options.map) {
+        fputs("op m=", f);
+        fputs(options.mapfile, f);
+        fputs("\n", f);
+    }
     fputs("lib api.lib\n", f);
     if (options.DLLAPI) fputs("lib dll.lib\n", f);
-    if (options.VioAPI==1) fputs("lib vios.lib\n", f);
-    if (options.VioAPI==2) fputs("lib viof.lib\n", f);
-    if (options.MouAPI==1) fputs("lib mous.lib\n", f);
-    if (options.MouAPI==2) fputs("lib mouf.lib\n", f);
-    if (options.KbdAPI==1) fputs("lib kbds.lib\n", f);
-    if (options.KbdAPI==2) fputs("lib kbdf.lib\n", f);
+    if (options.VioAPI == 1) fputs("lib vios.lib\n", f);
+    if (options.VioAPI == 2) fputs("lib viof.lib\n", f);
+    if (options.MouAPI == 1) fputs("lib mous.lib\n", f);
+    if (options.MouAPI == 2) fputs("lib mouf.lib\n", f);
+    if (options.KbdAPI == 1) fputs("lib kbds.lib\n", f);
+    if (options.KbdAPI == 2) fputs("lib kbdf.lib\n", f);
     fclose(f);
 }
 
-/*! @brief Create imptable object file */
+/* ------------------------------------------------------------------ */
+/* tmp.obj generation                                                  */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Generate the temporary import object file (tmp.obj).
+ *
+ *  Iterates the CCL vector of imported functions and emits EXTDEF,
+ *  LEDATA, FIXUPP and footer records through the OmfWrite* API. All
+ *  record bytes are produced by the OMF library, not by hard-coded
+ *  byte arrays.
+ */
 void generate_imptable(void)
 {
-	FILE * f;
-	BYTE hdr[0xef]={
-		// THEADR
-		0x80,
-		0x27, 0x00,
-		0x25,
-		'D',':','\\','o','s','f',
-		'r','e','e','\\','d','u',
-		'a','l','\\','f','a','p',
-		'i','\\','l','o','a','d',
-		'e','r','\\','i','m','p',
-		't','a','b','l','e','.','c',
-		0xca,
+    HOMFFILE hFile;
+    APIRET rc;
+    ULONG cEntries;
+    ULONG i;
+    UCHAR * puchLedata;
+    USHORT usDataLen;
+    OMF_FIXUPP_FIXUP * paFixups;
+    const char ** ppszNames;
 
-		// COMMENT
-		0x88,
-		0x03, 0x00,
-		// CodeView debug info
-		0x80,
-		0xa1,
-		0x54,
+    if (VectorGetCount(hvApi, &cEntries) != NO_ERROR) return;
+    if (cEntries == 0) return;
 
-		// COMMENT
-		0x88,
-		0x08, 0x00,
-		// Watcom options
-		0x80,
-		0x9b,
-		0x30, 0x73, 0x4F, 0x65, 0x64, 0x9A, 
+    /* LEDATA payload is 34 bytes per entry. */
+    usDataLen = (USHORT)(cEntries * 34);
+    puchLedata = (UCHAR *)malloc(usDataLen);
+    if (!puchLedata) return;
+    memset(puchLedata, 0, usDataLen);
 
-		// COMMENT
-		0x88, 
-		0x2D, 0x00, 
-		// Borland Dependency
-		0x80, 
-		0xE9,
-		0x8C, 0x4C, 0x50, 0x59, 0x25, 
-		'D', ':', '\\', 'o', 's', 'f',
-		'r', 'e', 'e', '\\', 'd', 'u',
-		'a', 'l', '\\', 'f', 'a', 'p', 
-		'i', '\\', 'l', 'o', 'a', 'd',
-		'e', 'r', '\\', 'i', 'm', 'p',
-		't', 'a', 'b', 'l', 'e', '.', 'c',
-		0xD2, 
+    /* Fill LEDATA buffer: 9 mod + 21 func + 4 far pointer placeholder. */
+    for (i = 0; i < cEntries; i++) {
+        apientry entry;
+        UCHAR * q = &puchLedata[i * 34];
 
-		// COMMENT
-		0x88, 
-		0x03, 0x00, 
-		// Borland Dependency
-		0x80, 0xE9,
-		0x0C, 
+        if (VectorGetItem(hvApi, i, &entry, sizeof(entry), NULL)
+            != NO_ERROR) {
+            free(puchLedata);
+            return;
+        }
+        memcpy(q, entry.mod, 9);
+        memcpy(q + 9, entry.func, 21);
+        /* 4-byte far pointer left zero. */
+    }
 
-		// LNAMES
-		0x96, 
-		0x21, 0x00, 
-		0x00, 
-		0x04, 'C', 'O', 'D', 'E', 
-		0x04, 'D', 'A', 'T', 'A', 
-		0x03, 'B', 'S', 'S', 
-		0x03, 'T', 'L', 'S', 
-		0x06, 'D', 'G', 'R', 'O', 'U', 'P', 
-		0x05, '_', 'T', 'E', 'X', 'T', 
-		0xAB, 
+    /* FIXUPP: one subrecord per entry. */
+    paFixups = (OMF_FIXUPP_FIXUP *)
+        malloc(cEntries * sizeof(OMF_FIXUPP_FIXUP));
+    if (!paFixups) {
+        free(puchLedata);
+        return;
+    }
+    for (i = 0; i < cEntries; i++) {
+        USHORT usOffset = (USHORT)(34 * i + 30);
 
-		// SEGDEF
-		0x98, 
-		0x07, 0x00, 
-		0x28, 0x00, 0x00, 0x07, 0x02, 0x01, 
-		0x2F, 
+        paFixups[i].usLocat =
+            (USHORT)((((0xCC + ((usOffset >> 8) & 0xFF)) << 8)
+                      | (usOffset & 0xFF)));
+        paFixups[i].uchFixDat =
+            OMF_FIXDAT_FRAME_TARGET |
+            OMF_FIXDAT_P_8BIT |
+            OMF_FIXDAT_TARGET_EXTDEF;
+        paFixups[i].uchFrameDatum = 0;
+        paFixups[i].usTargetDatum = (USHORT)(i + 1);
+        paFixups[i].usTargetDisp = 0;
+    }
 
-		// COMMENT
-		0x88,
-		0x05, 0x00, 
-		// Optimize far call
-		0x80, 0xFE, 0x4F, 0x01, 
-		0xA5, 
+    /* EXTDEF name array, built on the fly from the vector. */
+    ppszNames = (const char **)malloc(cEntries * sizeof(char *));
+    if (!ppszNames) {
+        free(paFixups);
+        free(puchLedata);
+        return;
+    }
+    for (i = 0; i < cEntries; i++) {
+        apientry entry;
+        if (VectorGetItem(hvApi, i, &entry, sizeof(entry), NULL)
+            != NO_ERROR) {
+            free((void *)ppszNames);
+            free(paFixups);
+            free(puchLedata);
+            return;
+        }
+        ppszNames[i] = entry.func;
+    }
 
-		// LNAMES
-		0x96, 
-		0x07, 0x00, 
-		0x05, 'C', 'O', 'N', 'S', 'T', 
-		0xD7, 
+    /* Open the output file. */
+    rc = OmfOpen("tmp.obj", &hFile,
+                 OMF_OPEN_WRITE | OMF_OPEN_TRUNCATE);
+    if (rc != NO_ERROR) {
+        free((void *)ppszNames);
+        free(paFixups);
+        free(puchLedata);
+        return;
+    }
 
-		// SEGDEF
-		0x98, 
-		0x07, 0x00, 
-		0x48, 0x00, 0x00, 0x08, 0x03, 0x01, 
-		0x0D, 
+    /* ---- Header records ---- */
 
-		// LNAMES
-		0x96, 
-		0x08, 0x00, 
-		0x06, 'C', 'O', 'N', 'S', 'T', '2', 
-		0xA3, 
+    OmfWriteTheadr(hFile,
+        "D:\\osfree\\dual\\fap\\i\\loader\\imptable.c");
+    OmfWriteComentCodeView(hFile);
 
-		// SEGDEF
-		0x98, 
-		0x07, 0x00, 
-		0x48, 0x00, 0x00, 0x09, 0x03, 0x01, 
-		0x0C,
+    {
+        static const UCHAR auchWopt[5] = {
+            0x30, 0x73, 0x4F, 0x65, 0x64
+        };
+        OmfWriteComentWatcomOptions(hFile, auchWopt, 5);
+    }
 
-		// LNAMES
-		0x96, 
-		0x07, 0x00, 
-		0x05, '_', 'D', 'A', 'T', 'A', 
-		0xE5, 
+    OmfWriteComentBorlandDependency(hFile,
+        "D:\\osfree\\dual\\fap\\i\\loader\\imptable.c");
+    OmfWriteComentBorlandDependency(hFile, NULL);
 
-		// SEGDEF
-		0x98, 
-		0x07, 0x00, 
-		0x48, 0x44, 0x00, 0x0A, 0x03, 0x01, 
-		0xC7, 
+    /* ---- LNAMES + SEGDEF ---- */
 
-		// GRPDEF
-		0x9A, 
-		0x08, 0x00, 
-		0x06, 0xFF, 0x02, 0xFF, 0x03, 0xFF, 0x04, 
-		0x52
-	};
+    {
+        static const char * const apszNames1[] = {
+            "", "CODE", "DATA", "BSS", "TLS", "DGROUP", "_TEXT"
+        };
+        OmfWriteLnames(hFile, apszNames1, 7);
+    }
+    OmfWriteSegdef(hFile,
+                   OMF_ACBP_ALIGN_BYTE | OMF_ACBP_BIG_BIT,
+                   0x0000, LNAME_TEXT, LNAME_CODE, LNAME_EMPTY);
 
-	BYTE ftr[48]={
-		// PUBDEF
-		0x90, 
-		0x10, 0x00,
-		0x01, 0x04, 
-		0x09, '_', 'i', 'm', 'p', 't', 'a', 'b', 'l', 'e', 
-		0x00, 0x00, 0x00, 
-		0xA5,
+    OmfWriteComentOptimizeFarCall(hFile, 0x00);
 
-		// COMMENT
-		0x88, 
-		0x0A, 0x00, 
-		// Default library
-		0x80, 0x9F, 'm', 'a', 't', 'h', '8', '7', 's', 
-		0xC3, 
+    {
+        static const char * const apszNames2[] = { "CONST" };
+        OmfWriteLnames(hFile, apszNames2, 1);
+    }
+    OmfWriteSegdef(hFile,
+                   OMF_ACBP_ALIGN_WORD | OMF_ACBP_BIG_BIT,
+                   0x0000, LNAME_CONST, LNAME_DATA, LNAME_EMPTY);
 
-		// COMMENT
-		0x88, 
-		0x08, 0x00,
-		// Default library
-		0x80, 0x9F, 'e', 'm', 'u', '8', '7', 
-		0x9B, 
+    {
+        static const char * const apszNames3[] = { "CONST2" };
+        OmfWriteLnames(hFile, apszNames3, 1);
+    }
+    OmfWriteSegdef(hFile,
+                   OMF_ACBP_ALIGN_WORD | OMF_ACBP_BIG_BIT,
+                   0x0000, LNAME_CONST2, LNAME_DATA, LNAME_EMPTY);
 
-		// MODEND
-		0x8A, 
-		0x02, 0x00, 
-		0x00, 
-		0x74								  
-	};
+    {
+        static const char * const apszNames4[] = { "_DATA" };
+        OmfWriteLnames(hFile, apszNames4, 1);
+    }
+    OmfWriteSegdef(hFile,
+                   OMF_ACBP_ALIGN_WORD | OMF_ACBP_BIG_BIT,
+                   usDataLen, LNAME_DATA_, LNAME_DATA, LNAME_EMPTY);
 
-	BYTE buf[1024];
+    {
+        static const UCHAR auchMembers[6] = {
+            OMF_GRPDEF_MEMBER_SEGMENT, SEGDEF_CONST,
+            OMF_GRPDEF_MEMBER_SEGMENT, SEGDEF_CONST2,
+            OMF_GRPDEF_MEMBER_SEGMENT, SEGDEF_DATA
+        };
+        OmfWriteGrpdef(hFile, LNAME_DGROUP, auchMembers, 6);
+    }
 
-	apientry * current=apiroot;
-	BYTE * curbuf=&buf[3];
-	int i=1;
+    /* ---- EXTDEF ---- */
 
-    // Generate import table object file:
-	
-    // Open file for write
-    f=fopen("tmp.obj", "wb");
-    // Write header part
-	fwrite(hdr, 1, sizeof(hdr), f);
-	
-    // Write table struct part:
-	
-	// Generate EXDEF object
-	memset(buf, 0, sizeof(buf));
-	buf[0]=0x8c;
-	buf[1]=1; //size of chksum
-	buf[2]=0;
+    OmfWriteExtdef(hFile, ppszNames, cEntries);
+    free((void *)ppszNames);
 
-	while (current)
-	{
-		// 1 byte len + string size bytes + 1 byte zero
-		*((WORD *)&buf[1])=*((WORD *)&buf[1])+strlen(current->func)+1+1;
-		*curbuf=strlen(current->func);
-		curbuf++;
-		strcpy(curbuf,current->func);
-		curbuf=curbuf+strlen(current->func);
-		*curbuf=0; // index (always 0)
-		curbuf++;
-		current=current->next;
-	}
-	// buf[(curbuf-&buf)]=0xa4; Checksum
-    fwrite(buf, 1, (curbuf-&buf)+1, f);
-	
-	// Generate LEDATA object (actual import table)
-	memset(buf, 0, sizeof(buf));
-	buf[0]=0xa0;
-	buf[1]=0x4; // Checksum+segmet+offset
-	buf[2]=0x00;
-	buf[3]=0x04; // Segment
-	buf[4]=0x00; // offset
-	buf[5]=0x00;
-	
-	current=apiroot;
+    /* ---- LEDATA ---- */
 
-	while (current)
-	{
-		// copy modname
-		strcpy(&buf[*((WORD *)&buf[1])+2],current->mod);
-		// copy funcname
-		strcpy(&buf[*((WORD *)&buf[1])+2+9],current->func);
-		// 9 modname 21 funcname 4 far pointer
-		*((WORD *)&buf[1])=*((WORD *)&buf[1])+9+21+4;
-		// Store offset for fixup
-		current->offset=*((WORD *)&buf[1])-4-4;
-		current=current->next;
-	}
-	
-	// buf[*((WORD *)&buf[1])+2]=0xe4; checksum
-    fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
+    OmfWriteLedata(hFile, SEGDEF_DATA, 0x0000,
+                   puchLedata, usDataLen);
+    free(puchLedata);
 
-	fseek(f, 0xde, SEEK_SET);
-	{
-		WORD a=*((WORD *)&buf[1])-1;
-	    fwrite(&a,1, 2,f);
-	}
-	fseek(f, 0, SEEK_END);
-	
-	// Generate FIXUPP object
-	memset(buf, 0, sizeof(buf));
-	buf[0]=0x9c;
-	buf[1]=0x1;  // Checksum
-	buf[2]=0x00;
-	
-	current=apiroot;
+    /* ---- FIXUPP ---- */
 
-	while (current)
-	{
-		buf[*((WORD *)&buf[1])+2]=0xCC+((current->offset & 0xFF00) >> 8);
-		buf[*((WORD *)&buf[1])+2+1]=current->offset & 0xFF;
-		buf[*((WORD *)&buf[1])+2+2]=0x56;
-		buf[*((WORD *)&buf[1])+2+3]=i;
-		i++;
-		*((WORD *)&buf[1])=*((WORD *)&buf[1])+4;
-		current=current->next;
-	}
-	// buf[*((WORD *)&buf[1])+2]=0x80; Checksum
-    fwrite(&buf, 1, *((WORD *)&buf[1])+3, f);
-	
+    OmfWriteFixupp(hFile, paFixups, cEntries);
+    free(paFixups);
 
-    // Write end part
-	fwrite(ftr, 1, sizeof(ftr), f);
-    // Close file
-	fclose(f);
+    /* ---- Footer ---- */
+
+    OmfWritePubdef(hFile, 0x01, SEGDEF_DATA, "_imptable", 0x0000);
+    OmfWriteComentDefaultLibrary(hFile, "math87s");
+    OmfWriteComentDefaultLibrary(hFile, "emu87");
+    OmfWriteModend(hFile, 0x00);
+
+    OmfClose(hFile);
 }
 
+/* ------------------------------------------------------------------ */
+/* Import list                                                         */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Add an imported function to the global vector.
+ *
+ *  Duplicates (same module and same function) are ignored. The
+ *  module name and function name are truncated to the fixed field
+ *  widths (8 and 20 characters respectively) before storage.
+ *
+ *  @param[in] mod   Module name. Not NULL.
+ *  @param[in] func  Function name. Not NULL.
+ *
+ *  @return 0 on success, -1 on failure.
+ */
 int addtolist(char * mod, char * func)
 {
-	apientry * current;
-	
-	if (apiroot)
-	{
-		current=apiroot;
-		
-		// Search is exists
-		while (current)
-		{
-			// Exit if found
-			if ((!strcmp(current->mod, mod))&&(!strcmp(current->func, func))) return 0;
-			// next entry
-			if (current->next) current=current->next; else break;
-		}
+    apientry entry;
+    ULONG cCount;
+    ULONG i;
 
-		current->next=malloc(sizeof(apientry));
-		current=current->next;
-		memset(current, 0, sizeof(apientry));
-		strcpy(current->mod, mod);
-		strcpy(current->func, func);
-	} else {
-		apiroot=malloc(sizeof(apientry));
-		memset(apiroot, 0, sizeof(apientry));
-		strcpy(apiroot->mod, mod);
-		strcpy(apiroot->func, func);
-	};
-	return 0;
+    if (hvApi == NULLHANDLE) return -1;
+
+    if (VectorGetCount(hvApi, &cCount) != NO_ERROR) return -1;
+
+    for (i = 0; i < cCount; i++) {
+        apientry existing;
+
+        if (VectorGetItem(hvApi, i, &existing, sizeof(existing),
+                          NULL) != NO_ERROR)
+            return -1;
+        if (strcmp(existing.mod, mod) == 0 &&
+            strcmp(existing.func, func) == 0)
+            return 0;
+    }
+
+    memset(&entry, 0, sizeof(entry));
+    strncpy(entry.mod, mod, sizeof(entry.mod) - 1);
+    strncpy(entry.func, func, sizeof(entry.func) - 1);
+    entry.ord = 0;
+
+    if (VectorAdd(hvApi, &entry) != NO_ERROR) return -1;
+    return 0;
 }
 
+/* ------------------------------------------------------------------ */
+/* Bind step                                                           */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Bind the DOS stub and the NE image into a FamilyAPI file.
+ *
+ *  @param[in] fname  Path to the NE executable to bind. Not NULL.
+ *
+ *  @return 0 on success, 1 on failure.
+ */
 int bind(char * fname)
 {
-  FILE * f;
-  FILE * fin;
-  long end, pos;
-  signed long delta;
-  char buffer[1024];
-  size_t bytes;
-  struct exe_hdr MZHeader;
-  struct new_exe NEHeader;
-  int rc=1;
-  struct new_seg seg;
-  int i;
-  char tmpdir[_MAX_PATH];
-  char tmpexe[_MAX_PATH];
-  
-  strncpy(tmpdir, mktmpdir(tmpdir), sizeof(tmpdir));
-  strncat(tmpexe, tmpdir, sizeof(tmpexe));
-  strncat(tmpexe, "tmp.exe", sizeof(tmpexe));
+    char tmpdir[_MAX_PATH];
+    char tmpexe[_MAX_PATH];
+    APIRET rc;
 
-  // Open tmp.exe for write
-  if (f=fopen(tmpexe, "wb"))
-  {
-    // @todo check file format
-    // Open fstub.exe for read
-    if (fin=fopen("fstub.exe", "rb"))
-    {
-      // Copy fstub.exe to tmp.exe
-      while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
-        fwrite(buffer, 1, bytes, f);
-
-      // Close fstub.exe
-      fclose(fin);
-
-      // Remove temporary file
-      remove("fstub.exe");
-
-            // Open exe for read
-            if (fin=fopen(fname, "rb"))
-            {
-              // Read MZ header
-              if (fread(&MZHeader, 1, sizeof(struct exe_hdr), fin)==sizeof(struct exe_hdr))
-              {
-                // Seek to NE
-                if (!fseek(fin, E_LFANEW(MZHeader), SEEK_SET))
-                {
-				  // Read NE
-                  fread(&NEHeader, 1, sizeof(NEHeader), fin);
-
-				  // Pad to ne_align
-				  fgetpos(f, &pos);
-				  memset(buffer, 0, sizeof(buffer));
-				  fwrite(buffer, 1, ((pos>>NEHeader.ne_align+1)<<NEHeader.ne_align)-pos, f);
-
-				  fgetpos(f, &end);
-		          fseek(f, 0x3c, SEEK_SET);
-                  // Write offset
-                  fwrite(&end, 1, sizeof(DWORD), f);
-                  // Seek to end of tmp.exe
-                  fseek(f, end, SEEK_SET);
-				  // Delta for segment start offset
-                  delta=(E_LFANEW(MZHeader)>>NEHeader.ne_align)-(end>>NEHeader.ne_align);
-				  //printf("%d %d %d\n", E_LFANEW(MZHeader), end, delta);
-                  // Seek to start of NE
-                  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
-
-                  // Copy from NE to eof
-                  while (0 < (bytes = fread(buffer, 1, sizeof(buffer), fin)))
-                    fwrite(buffer, 1, bytes, f);
-
-				  
-				  // Fix segment table for new offsets
-                  fseek(fin, E_LFANEW(MZHeader), SEEK_SET);
-                  for (i = NE_CSEG(NEHeader); i > 0; i--)
-                  {
-                    // Seek segment table entry
-                    fseek(fin, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
-                    // Read segment table entry
-                    fread(&seg, 1, sizeof(struct new_seg), fin);
-                    //printf("%d\n", seg.ns_sector);
-					if (seg.ns_sector)
-					{
-					  // Set new segment offset
-					  seg.ns_sector=seg.ns_sector-delta;
-
-                      // Seek segment table entry
-                      fseek(f, end+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET);
-                      // Write segment table entry
-                      fwrite(&seg, 1, sizeof(struct new_seg), f);
-					}
-				  }
-				  
-				  // Fix non-resident name table offset
-				  fseek(f, end+0x2c, SEEK_SET);
-				  delta=NEHeader.ne_nrestab-(E_LFANEW(MZHeader)-end);
-				  fwrite(&delta, 1, 4, f);
-			  
-                  // Close exe
-                  fclose(fin);
-                  // Close tmp
-                  fclose(f);
-                  // Delete exe 
-				  // @todo: if infile and outfile differs, then don't delete infile
-                  if (!remove(options.outfile))
-                  {
-                    // Rename tmp.exe to exe
-                    if (!rename(tmpexe, options.outfile))
-                    {
-                      // Success
-	                  rc=0;
-                    } else {
-                      printf( "Error: File rename\n" );
-                    }
-                  } else {
-                    printf( "Error: Delete file\n" );
-                  }
-                } else {
-                  printf( "Error: Seek input file\n" );
-                }
-              } else {
-                printf( "Error: Read input file\n" );
-              }
-            } else {
-              printf( "Error: Open input file\n" );
-            }
-    } else {
-      printf( "Error: Open output file\n" );
+    if (!mktmpdir(tmpdir)) {
+        printf("Error: Cannot create temp directory\n");
+        return 1;
     }
-  } else {
-    printf( "Error: Open input file\n" );
-  }
-  return rc;
+    strncpy(tmpexe, tmpdir, sizeof(tmpexe) - 1);
+    tmpexe[sizeof(tmpexe) - 1] = '\0';
+    strncat(tmpexe, "tmp.exe", sizeof(tmpexe) - strlen(tmpexe) - 1);
+
+    rc = NeBind("fstub.exe", fname, tmpexe);
+    if (rc != NO_ERROR) {
+        printf("Error: NeBind failed (%lu)\n", (unsigned long)rc);
+        return 1;
+    }
+
+    remove("fstub.exe");
+    remove(options.outfile);
+    if (rename(tmpexe, options.outfile) != 0) {
+        printf("Error: File rename\n");
+        return 1;
+    }
+    return 0;
 }
 
-char * findfunctionname(char * module, WORD ordinal, char * lib)
-{
-  FILE * f;
-  omf_record_header head;
-  int result;
-  char buf[512];
-  int i;
-  long pos;
-  char mod[255];
-  WORD ord;
-  
-  // Open os2.lib/doscalls.lib for read
-  if(f=fopen(lib, "rb"))
-  {
-    for (;1;)
-    {
-      if ( (result = fread(&head, 1, sizeof(head), f)) == sizeof(head) )
-      {
-        //printf ("type=%02x length=%d\n", head.type, head.length);
-        fread(&buf, 1, head.length, f);
+/* ------------------------------------------------------------------ */
+/* Library search                                                      */
+/* ------------------------------------------------------------------ */
 
-        if (head.type==0x88) // comment
-        {
-          if (buf[1]==0xa0) // comment class
-          {
-            if (buf[2]==0x01) // impdef
-            {
-              if (buf[3]!=0)
-              {
-#if 0
-                memcpy(&func, &buf[5], buf[4]);   // function name
-                func[buf[4]]=0;
-                memcpy(&mod, &buf[5+buf[4]+1], buf[5+buf[4]]); // module name
-                mod[buf[5+buf[4]]]=0;
-                ord=buf[5+buf[4]+1+buf[5+buf[4]]]+0xff*buf[5+buf[4]+1+buf[5+buf[4]]+1];                       // ordinal
-#else
-                                // FIXED: Правильное чтение ординала
-                                int name_len = buf[4];
-                                int mod_offset = 5 + name_len;
-                                
-                                if (mod_offset < head.length) {
-                                    int mod_len = buf[mod_offset];
-                                    int ord_offset = mod_offset + 1 + mod_len;
-                                    
-                                    // Проверка границ
-                                    if (ord_offset + 1 < head.length) {
-                                        // Копирование имени функции
-                                        memcpy(func, &buf[5], name_len);
-                                        func[name_len] = '\0';
-                                        
-                                        // Копирование имени модуля
-                                        memcpy(mod, &buf[mod_offset + 1], mod_len);
-                                        mod[mod_len] = '\0';
-                                        
-                                        // Чтение ординала
-                                        ord = *(WORD*)(buf + ord_offset);
-#endif
-                if ((!strcmp(mod, module)) && (ord==ordinal)) 
-                {
-                  fclose(f);
-
-                  return func;//printf("%s %s %d\n", func, mod, ord);
-                                        }
-                                    }
-                }
-              } else {
-                printf("panic!\n");
-              }
-            }
-          }
-        }
-
-        if (head.type==0xf1) break; // End of lib
-
-        if (head.type==0x8a) // end of obj
-        {
-          fgetpos(f, &pos);
-          if ((16-pos%16)!=16) fread(&buf, 1, 16-pos%16, f);
-        }
-      }
-    }
-    fclose(f);
-  }
-  return NULL;
-}
-
-/*! @brief Search library in lib paths */
-/* First search in current directory. If not found, then search
- * in /LIBPATH paths. If not found, then search in LIB paths. */
+/*! @brief Search for a library file along a search path.
+ *
+ *  @param[in]  libname   Library file name.
+ *  @param[out] fullpath  Receives the full path, or an empty string.
+ *
+ *  @return 1 if found, 0 otherwise.
+ */
 int searchlib(char * libname, char * fullpath)
 {
-  _searchenv(libname, ".", fullpath);
-  if(fullpath[0] == '\0')
-  {
-	_searchenv(libname, options.libpath, fullpath);
-	if(fullpath[0] == '\0')
-	{
-	  _searchenv(libname, "LIB", fullpath);
-	}
-  }
-  return (fullpath[0] == '\0')?0:1;
+    _searchenv(libname, ".", fullpath);
+    if (fullpath[0] == '\0') {
+        _searchenv(libname, options.libpath, fullpath);
+        if (fullpath[0] == '\0') {
+            _searchenv(libname, "LIB", fullpath);
+        }
+    }
+    return (fullpath[0] == '\0') ? 0 : 1;
 }
 
-/*! @brief Check required environment to run */
+/* ------------------------------------------------------------------ */
+/* Environment check                                                   */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Verify that the build environment is usable.
+ *
+ *  @return 0 if usable, 1 otherwise.
+ */
 int check_environment(void)
 {
-  char full_path[ _MAX_PATH ];
+    char full_path[_MAX_PATH];
 
-  // Check presense of required files
-  // wlink.exe, doscalls.lib/os2.lib, api.lib etc.
-
-  // Check presense of WATCOM environment variable
-  if (!getenv("WATCOM"))
-  {
-	  printf( "Error: WATCOM environment variable not set\n" );
-	  return 1;
-  }
-
-  // Check presense of wlink.lnk in path
-  _searchenv( "wlink.lnk", "PATH", full_path );
-  if(full_path[0] == '\0') 
-  {
-	  printf( "Error: Unable to find wlink.lnk file\n" );
-	  return 1;
-  }
-
-  // Check wlink.exe
-  _searchenv( "wlink.exe", "PATH", full_path );
-  if(full_path[0] == '\0') 
-  {
-	  printf( "Error: Unable to find wlink.exe file\n" );
-	  return 1;
-  }
-
-  // Check os2.lib
-  if(!searchlib( "os2.lib", full_path))
-  {
-    // Try doscalls.lib instead
-    if (searchlib( "doscalls.lib", full_path)) options.DoscallsLIB=1;
-  }
-
-  if (full_path[0] == '\0')
-  {
-      printf( "Error: Unable to find nor os2.lib nor doscalls.lib file\n" );
-	  return 1;
-  }
-
-  // Check api.lib
-  if(!searchlib( "api.lib", full_path ))
-  {
-	  printf( "Error: Unable to find api.lib file\n" );
-	  return 1;
-  }
-
-  // Check presense of subsystem  required files
-  // dll.lib, vios.lib, viof.lib, mous.lib, mouf.lib, kbds.lib, kbdf.lib
-    if (!searchlib( "dll.lib", full_path ))
-    {
-      printf( "Error: Unable to find dll.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "vios.lib", full_path ))
-    {
-      printf( "Error: Unable to find vios.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "viof.lib", full_path ))
-    {
-      printf( "Error: Unable to find viof.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "mous.lib", full_path ))
-    {
-      printf( "Error: Unable to find mous.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "mouf.lib", full_path ))
-    {
-      printf( "Error: Unable to find mouf.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "kbds.lib", full_path ))
-    {
-      printf( "Error: Unable to find kbds.lib file\n" );
-      return 1;
-    }
-  
-    if (!searchlib( "kbdf.lib", full_path ))
-    {
-      printf( "Error: Unable to find kbdf.lib file\n" );
-      return 1;
+    if (!getenv("WATCOM")) {
+        printf("Error: WATCOM environment variable not set\n");
+        return 1;
     }
 
-    if (!searchlib( "apilmr.obj", full_path ))
-    {
-      printf( "Error: Unable to find apilmr.obj file\n" );
-      return 1;
+    _searchenv("wlink.lnk", "PATH", full_path);
+    if (full_path[0] == '\0') {
+        printf("Error: Unable to find wlink.lnk file\n");
+        return 1;
     }
 
-	return 0;
+    _searchenv("wlink.exe", "PATH", full_path);
+    if (full_path[0] == '\0') {
+        printf("Error: Unable to find wlink.exe file\n");
+        return 1;
+    }
+
+    if (!searchlib("os2.lib", full_path)) {
+        if (searchlib("doscalls.lib", full_path))
+            options.DoscallsLIB = 1;
+    }
+
+    if (full_path[0] == '\0') {
+        printf("Error: Unable to find nor os2.lib nor doscalls.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("api.lib", full_path)) {
+        printf("Error: Unable to find api.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("dll.lib", full_path)) {
+        printf("Error: Unable to find dll.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("vios.lib", full_path)) {
+        printf("Error: Unable to find vios.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("viof.lib", full_path)) {
+        printf("Error: Unable to find viof.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("mous.lib", full_path)) {
+        printf("Error: Unable to find mous.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("mouf.lib", full_path)) {
+        printf("Error: Unable to find mouf.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("kbds.lib", full_path)) {
+        printf("Error: Unable to find kbds.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("kbdf.lib", full_path)) {
+        printf("Error: Unable to find kbdf.lib file\n");
+        return 1;
+    }
+
+    if (!searchlib("apilmr.obj", full_path)) {
+        printf("Error: Unable to find apilmr.obj file\n");
+        return 1;
+    }
+
+    return 0;
 }
 
-/*! @brief Output usage help information */
+/* ------------------------------------------------------------------ */
+/* Help                                                                */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Print command-line usage information. */
 void printhlp(void)
 {
-  printf("BIND infile [implibs] [linklibs] [options]\n\n");
-
-  printf("/HELP       Displays Help\n");
-  printf("/?          Displays Help\n\n");
-  printf("/L[IBPATH]  Add to library search path\n");
-  printf("/M[AP]      Generates Link Map File\n");
-  printf("/N[AMES]    Specifies Protected-Mode Functions\n");
-  printf("/NOLOGO     Suppresses Sign-On Banner\n");
-  printf("/O[UTFILE]  Specifies Name of Bound Program\n");
-  printf("/Q          Quiet\n");
+    printf("BIND infile [implibs] [linklibs] [options]\n\n");
+    printf("/HELP       Displays Help\n");
+    printf("/?          Displays Help\n\n");
+    printf("/L[IBPATH]  Add to library search path\n");
+    printf("/M[AP]      Generates Link Map File\n");
+    printf("/N[AMES]    Specifies Protected-Mode Functions\n");
+    printf("/NOLOGO     Suppresses Sign-On Banner\n");
+    printf("/O[UTFILE]  Specifies Name of Bound Program\n");
+    printf("/Q          Quiet\n");
 }
 
+/* ------------------------------------------------------------------ */
+/* Main                                                                */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Program entry point.
+ *
+ *  @param[in] argc  Argument count.
+ *  @param[in] argv  Argument vector. Not NULL.
+ *
+ *  @return Process exit status.
+ */
 int main(int argc, char *argv[])
 {
-  FILE * f;
-  struct exe_hdr MZHeader;
-  struct new_exe NEHeader;
-  int result;
-  int i;
-  char ** mods = NULL;
-  char full_path[ _MAX_PATH ];
-  WORD offset;
-  BYTE len;
-  WORD count;
-  struct new_seg seg;
-  int j;
-  struct new_rlc rlc;
-  int rc=1; // Error exit code by default
-  signed char ch;
+    HNE hNe = NULLHANDLE;
+    HOMFLIB hLib = NULLHANDLE;
+    HVECTOR hvMods = NULLHANDLE;
+    struct exe_hdr MZHeader;
+    struct new_exe NEHeader;
+    char full_path[_MAX_PATH];
+    USHORT usModCount;
+    USHORT usSegCount;
+    USHORT usRelocCount;
+    USHORT k;
+    struct new_seg seg;
+    struct new_rlc rlc;
+    int rc = 1;
+    signed char ch;
+    APIRET ar;
 
-	// Configure initial options
-	options.quiet=0;
-	options.logo=1;
-	options.outfile[0]=0;;
-	options.infile[0]=0;;
-	options.mapfile[0]=0;;
-	options.libpath[0]=0;;
-	options.map=0;
-	options.dosformat=0;
-	options.DoscallsLIB=0;
-	options.MouAPI = 0;
-	options.KbdAPI = 0;
-	options.VioAPI = 0;
-	options.DLLAPI = 0;
+    options.quiet = 0;
+    options.logo = 1;
+    options.outfile[0] = 0;
+    options.infile[0] = 0;
+    options.mapfile[0] = 0;
+    options.libpath[0] = 0;
+    options.map = 0;
+    options.dosformat = 0;
+    options.DoscallsLIB = 0;
+    options.MouAPI = 0;
+    options.KbdAPI = 0;
+    options.VioAPI = 0;
+    options.DLLAPI = 0;
 
+    if (check_environment()) {
+        printf("Environment not configured");
+        return 1;
+    }
 
-  if (check_environment())
-  {
-	  printf("Environment not configured");
-	  return 1;
-  };
-
-    // no args - print usage and exit
-    if (argc == 1)
-    {
+    if (argc == 1) {
         printhlp();
         exit(1);
     }
 
 #ifndef __UNIX__
-    if ((*argv[1] != '-') && (*argv[1] != '/')) // first arg prefix - or / ?
+    if (argc > 1 && argv[1][0] != '-' && argv[1][0] != '/')
 #else
-    if (*argv[1] != '-') // first arg prefix -  ?
+    if (argc > 1 && argv[1][0] != '-')
 #endif
     {
-		optind++;
-        strncpy(options.infile, argv[optind], sizeof(options.infile)-1);
-		options.dosformat=1;
+        strncpy(options.infile, argv[1], sizeof(options.infile) - 1);
+        options.infile[sizeof(options.infile) - 1] = '\0';
+        options.dosformat = 1;
+        optind = 2;
     }
 
-    // Get program arguments using getopt()
-    while ((ch = getopt(argc, argv, "?h:H:m:M:n:N:q:Q:o:O")) != -1)
-    {
-        switch (ch)
-        {
+    while ((ch = getopt(argc, argv, "?h:H:m:M:n:N:q:Q:o:O")) != -1) {
+        switch (ch) {
         case 'l':
         case 'L':
             if (!strnicmp(optarg, "IBPATH", 6))
-            {
-				strcpy(options.libpath, argv[optind]);
-            } else
-			{
-				strcpy(options.libpath, optarg);
-			}
+                strcpy(options.libpath, argv[optind]);
+            else
+                strcpy(options.libpath, optarg);
             break;
 
         case 'm':
         case 'M':
-		    // todo: default mapfile using input filename
-			// todo: default extenwion is a BM
-			// todo: check is it really filename or next option
             if (!strnicmp(optarg, "AP", 2))
-            {
-				strcpy(options.mapfile, argv[optind]);
-            } else
-			{
-				strcpy(options.mapfile, optarg);
-			}
-            options.map=1;
+                strcpy(options.mapfile, argv[optind]);
+            else
+                strcpy(options.mapfile, optarg);
+            options.map = 1;
             break;
 
         case 'n':
         case 'N':
-            if (!strncmp(_strupr(optarg), "OLOGO", 5))
-            {
-                options.logo=0;
+            if (!strncmp(_strupr(optarg), "OLOGO", 5)) {
+                options.logo = 0;
                 break;
             }
-
-			// todo: add NAMES support and /NAMES @list support
-            if (!strncmp(_strupr(optarg), "AMES", 4))
-            {
+            if (!strncmp(_strupr(optarg), "AMES", 4)) {
                 printf("NAMES\n");
                 break;
             }
-			exit(1);
-
+            exit(1);
 
         case 'q':
         case 'Q':
-            if (!strncmp(_strupr(optarg), "UIET", 4))
-            {
-                options.quiet=1;
+            if (!strncmp(_strupr(optarg), "UIET", 4)) {
+                options.quiet = 1;
                 break;
             }
-            if (!strlen(optarg))
-			{
-				options.quiet=1;
+            if (!strlen(optarg)) {
+                options.quiet = 1;
                 break;
-			}
+            }
             exit(1);
 
         case 'o':
         case 'O':
             if (!strnicmp(optarg, "UTFILE", 6))
-            {
-				strcpy(options.outfile, argv[optind]);
-            } else
-			{
-				strcpy(options.outfile, optarg);
-			}
+                strcpy(options.outfile, argv[optind]);
+            else
+                strcpy(options.outfile, optarg);
             break;
 
         case 'h':
         case 'H':
-            if (!strncmp(_strupr(optarg), "ELP", 3))
-            {
+            if (!strncmp(_strupr(optarg), "ELP", 3)) {
                 printhlp();
                 exit(0);
             }
+            /* fall through */
 
         case '?':
             printhlp();
@@ -949,250 +752,213 @@ int main(int argc, char *argv[])
         }
     }
 
-  if (options.logo&&!options.quiet) printf("osFree FamilyAPI Binder v.0.9\n\n");
+    if (options.logo && !options.quiet)
+        printf("osFree FamilyAPI Binder v.0.9\n\n");
 
-    // check for input file - getopt compatable cmd line
-    // we either have in/out files or it is error
-    if ((argc == optind) && !options.dosformat)
-	{
-        printf("BIND: no input file\n");
-		exit(1);
-	}
-
-    // if dosformat is false then using new format
-    // so we need to get input file and maybe the output file
-    if (!options.dosformat)
-    {
-        strncpy(options.infile, argv[optind], sizeof(options.infile)-1);
-        if (!strlen(options.outfile)) strncpy(options.outfile, argv[optind], sizeof(options.outfile)-1);
-        optind++;
-	}
-  
-        // Open exe for read
-        if(f=fopen(options.infile, "rb"))
-        {
-          // Read old Executable header
-          if (fread(&MZHeader, 1, sizeof(MZHeader), f) == sizeof(MZHeader))
-          {
-            // Check MZ Header magic
-            if (E_MAGIC(MZHeader) == EMAGIC)
-            {
-              // Seek New Executable header
-              if (!fseek(f, E_LFANEW(MZHeader), SEEK_SET))
-              {
-                // Read New Executable header
-                if (fread(&NEHeader, 1, sizeof(NEHeader), f) == sizeof(NEHeader))
-                {
-                  // Check NE Header magic
-                  if (NE_MAGIC(NEHeader) == NEMAGIC)
-                  {
-                    /* check for OS/2 program */
-                    if (NE_EXETYP(NEHeader) == NE_OS2)
-                    {
-                      // seek to Module table
-                      if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader), SEEK_SET))
-                      {
-                        //Allocate memory for mod table
-                        if (mods=(char**)malloc(NE_CMOD(NEHeader)*sizeof(char*)))
-                        {
-                          // Read mod table
-                          for (i=NE_CMOD(NEHeader); i >0 ; i-- )
-                          {
-                            // Seek to module table
-                            if (!fseek(f, E_LFANEW(MZHeader)+NE_MODTAB(NEHeader)+2*(NE_CMOD(NEHeader)-i), SEEK_SET))
-                            {
-                              // Read offset of module name
-                              if (fread(&offset, 1, sizeof(WORD), f)==sizeof(WORD))
-                              {
-                                // Seek to module name
-                                if (!fseek(f, E_LFANEW(MZHeader)+NE_IMPTAB(NEHeader)+offset, SEEK_SET))
-                                {
-                                  // Read module name length
-                                  if (fread(&len, 1, sizeof(BYTE), f)==sizeof(BYTE))
-                                  {
-                                    // Allocate memory for module name
-                                    if (mods[NE_CMOD(NEHeader)-i]=malloc(len+1))
-                                    {
-                                      // Read module name
-                                      if (fread(mods[NE_CMOD(NEHeader)-i], 1, len, f)==len)
-                                      {
-                                        // Convert to ASCIIZ
-                                        mods[NE_CMOD(NEHeader)-i][len]=0;
-                                        //printf("%d %s\n", i, mods[NE_CMOD(NEHeader)-i]);
-                                      } else {
-                                        printf( "Error: Read name\n" );
-                                        return 1;
-                                      }
-                                    } else {
-                                      printf( "Error: Allocate name memory\n" );
-                                      return 1;
-                                    }
-                                  } else {
-                                    printf( "Error: Read name length\n" );
-                                    return 1;
-                                  }
-                                } else {
-                                  printf( "Error: Seek to name table\n" );
-                                  return 1;
-                                }
-                              } else {
-                                printf( "Error: Read module name offset\n" );
-                                return 1;
-                              }
-                            } else {
-                              printf( "Error: Seek to module table\n" );
-                              return 1;
-                            }
-                          }
-	  
-
-                          // Now read segments fixup tables and build list of imported functions
-                          for (i = NE_CSEG(NEHeader); i > 0; i--)
-                          {
-                            // Seek segment table entry
-                            if (!fseek(f, E_LFANEW(MZHeader)+NE_SEGTAB(NEHeader)+(NE_CSEG(NEHeader)-i)*sizeof(struct new_seg), SEEK_SET))
-                            {
-                              // Read segment table entry
-                              if (fread(&seg, 1, sizeof(struct new_seg), f)==sizeof(struct new_seg))
-                              {
-                                // Seek relocation table
-                                if (!fseek(f, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), SEEK_SET))
-                                {
-                                  // Read relocation table size
-                                  if (fread(&count, 1, sizeof(WORD), f)==sizeof(WORD))
-                                  {
-                                    //printf("%d pos=%d %d\n", i, (seg.ns_sector<<NEHeader.ne_align)+(seg.ns_cbseg?seg.ns_cbseg:0x10000), count);
-                                    for (j = 0; j < count; j++)
-                                    {
-                                      // Read relocation table entry
-                                      if (fread(&rlc, 1, sizeof(struct new_rlc), f)==sizeof(struct new_rlc))
-                                      {
-                                        if (((rlc.nr_flags & NRRTYP)==NRRORD) || ((rlc.nr_flags & NRRTYP)==NRRNAM))
-                                        {
-                                          if ((rlc.nr_flags & NRRTYP)==NRRNAM)
-                                          {
-                                            // not supported yet...
-                                            printf("Panic!\n");
-                                            return 1;
-                                          } else {
-                                            char * fname;
-	  								  
-                                            fname=findfunctionname(mods[rlc.nr_union.nr_import.nr_mod-1],rlc.nr_union.nr_import.nr_proc, options.DoscallsLIB?"doscalls.lib":"os2.lib");
-                                            
-                                            // Collect in list
-                                            if (fname) {
-						addtolist(mods[rlc.nr_union.nr_import.nr_mod-1], fname);
-					}
-	  								  
-                                            // If any Mou* used, then turn on Mou API
-                                            if (!strncmp(fname, "MOU",3)) options.MouAPI=1;
-                                            
-                                            // If any Kbd* used, then turn on Kbd API
-                                            if (!strncmp(fname, "KBD",3)) options.KbdAPI=1;
-	  								  
-                                            // If any Vio* used, then turn on Vio API
-                                            if (!strncmp(fname, "VIO",3)) options.VioAPI=1;
-	  								  
-                                            // If VioRegister used, then turn full VIO API and DLL API
-                                            if (!strcmp(fname, "VIOREGISTER"))
-                                            {
-                                              options.VioAPI=2;
-                                              options.DLLAPI=1;
-                                            }
-                                            // If MouRegister used, then turn full Mou API and DLL API
-                                            if (!strcmp(fname, "MOUREGISTER"))
-                                            {
-                                              options.MouAPI=2;
-                                              options.DLLAPI=1;
-                                            }
-                                            // If KbdRegister used, then turn full Kbd API and DLL API
-                                            if (!strcmp(fname, "KBDREGISTER"))
-                                            {
-                                              options.KbdAPI=2;
-                                              options.DLLAPI=1;
-                                            }
-                                            // If DosLoadModule used, then turn on DLL API
-                                            if (!strcmp(fname, "DOSLOADMODULE")) options.DLLAPI=1;
-                                          }
-                                        }       
-                                      } else 
-                                      {
-                                        printf( "Error: Read relocation table entry\n" );
-                                        return 1;
-                                      }
-                                    }
-                                  } else 
-                                  {
-                                    printf( "Error: Read relocation table size\n" );
-                                    return 1;
-                                  }
-                                } else 
-                                {
-                                  printf( "Error: Seek relocation table\n" );
-                                  return 1;
-                                }
-                              } else 
-                            {
-                                printf( "Error: Read segment table entry\n" );
-                                return 1;
-                              }
-                            } else 
-                            {
-                              printf( "Error: Seek segment table entry\n" );
-                              return 1;
-                            }
-                          }
-        
-
-                          if (!fclose(f))
-                          {
-							  // Generate temporary imptable.obj
-							  generate_imptable();
-							  // Generate LNK file
-							  generate_lnk();
-							  // Call linker
-                              system("wlink.exe op q op fullh @bind.lnk");
-
-                              // remove temporary files
-                              remove("bind.lnk");
-							  //return 0;
-                              remove("tmp.obj");
-
-                              // Change standard DOS stub to FamilyAPI stub:
-						      rc=bind(options.infile);
-
-                              // Exit
-                          } else {
-                            printf("Error: Close file\n");
-                          }
-                          free(mods);
-                        } else {
-                          printf( "Error: Memory allocate\n");
-                        }
-                      } else {
-                        printf( "Error: Seek module reference table\n");
-                      }
-                    } else {
-                      printf( "Error: Target OS not OS/2\n");
-                    }
-                  } else {
-                    printf( "Error: Bad NE header\n");
-                  }
-                } else {
-                  printf( "Error: Read NE Header\n");
-                }
-              } else {
-                printf( "Error: Seek to NE header\n");
-              }
-            } else {
-              printf( "Error: Bad MZ header\n");
-            }
-          } else {
-            printf( "Error: Read MZ Header\n");
-          }
-	  	fclose(f);
-        } else {
-          printf( "Error: File open\n");
+    if (options.infile[0] == '\0') {
+        if (optind < argc) {
+            strncpy(options.infile, argv[optind],
+                    sizeof(options.infile) - 1);
+            options.infile[sizeof(options.infile) - 1] = '\0';
+            optind++;
         }
-  return rc;  // Exit with error code
+    }
+
+    if (options.infile[0] == '\0') {
+        printf("BIND: no input file\n");
+        exit(1);
+    }
+
+    if (options.outfile[0] == '\0') {
+        strncpy(options.outfile, options.infile,
+                sizeof(options.outfile) - 1);
+        options.outfile[sizeof(options.outfile) - 1] = '\0';
+    }
+
+    /* ---- Create CCL vectors ---- */
+
+    ar = VectorCreate(sizeof(apientry), &hvApi);
+    if (ar != NO_ERROR) {
+        printf("Error: Cannot create import vector (%lu)\n",
+               (unsigned long)ar);
+        return 1;
+    }
+
+    ar = VectorCreate(sizeof(modname), &hvMods);
+    if (ar != NO_ERROR) {
+        printf("Error: Cannot create module vector (%lu)\n",
+               (unsigned long)ar);
+        VectorDestroy(hvApi);
+        hvApi = NULLHANDLE;
+        return 1;
+    }
+
+    /* ---- Open NE file ---- */
+
+    ar = NeOpen(options.infile, &hNe);
+    if (ar != NO_ERROR) {
+        printf("Error: Open input file (%lu)\n", (unsigned long)ar);
+        goto error_cleanup;
+    }
+
+    ar = NeQueryMZHeader(hNe, &MZHeader);
+    if (ar != NO_ERROR) {
+        printf("Error: Read MZ Header\n");
+        goto error_cleanup;
+    }
+    ar = NeQueryHeader(hNe, &NEHeader);
+    if (ar != NO_ERROR) {
+        printf("Error: Read NE Header\n");
+        goto error_cleanup;
+    }
+    if (NE_EXETYP(NEHeader) != NE_OS2) {
+        printf("Error: Target OS not OS/2\n");
+        goto error_cleanup;
+    }
+
+    /* ---- Open library ---- */
+
+    ar = LibOpen(options.DoscallsLIB ? "doscalls.lib" : "os2.lib",
+                 &hLib);
+    if (ar != NO_ERROR) {
+        printf("Error: Open library (%lu)\n", (unsigned long)ar);
+        goto error_cleanup;
+    }
+
+    /* ---- Read module names into hvMods ---- */
+
+    ar = NeQueryModuleCount(hNe, &usModCount);
+    if (ar != NO_ERROR || usModCount == 0) {
+        printf("Error: Module count\n");
+        goto error_cleanup;
+    }
+
+    for (k = 1; k <= usModCount; k++) {
+        modname mn;
+        char szName[256];
+
+        memset(&mn, 0, sizeof(mn));
+        ar = NeQueryModuleName(hNe, k, szName, sizeof(szName));
+        if (ar != NO_ERROR) {
+            printf("Error: Read module name %u\n", (unsigned)k);
+            goto error_cleanup;
+        }
+        strncpy(mn.name, szName, sizeof(mn.name) - 1);
+        if (VectorAdd(hvMods, &mn) != NO_ERROR) {
+            printf("Error: VectorAdd module\n");
+            goto error_cleanup;
+        }
+    }
+
+    /* ---- Walk segments and relocations ---- */
+
+    ar = NeQuerySegmentCount(hNe, &usSegCount);
+    if (ar != NO_ERROR) {
+        printf("Error: Segment count\n");
+        goto error_cleanup;
+    }
+
+    for (k = 1; k <= usSegCount; k++) {
+        USHORT j;
+
+        ar = NeQuerySegment(hNe, k, &seg);
+        if (ar != NO_ERROR) {
+            printf("Error: Read segment %u\n", (unsigned)k);
+            goto error_cleanup;
+        }
+        ar = NeQueryRelocCount(hNe, k, &usRelocCount);
+        if (ar != NO_ERROR) {
+            printf("Error: Read relocation table size\n");
+            goto error_cleanup;
+        }
+
+        for (j = 0; j < usRelocCount; j++) {
+            USHORT usMod;
+            USHORT usOrd;
+            char szFunc[256];
+            modname mn;
+
+            ar = NeQueryReloc(hNe, k, j, &rlc);
+            if (ar != NO_ERROR) {
+                printf("Error: Read relocation entry\n");
+                goto error_cleanup;
+            }
+
+            if ((rlc.nr_flags & NRRTYP) == NRRNAM) {
+                printf("Panic!\n");
+                goto error_cleanup;
+            }
+            if ((rlc.nr_flags & NRRTYP) != NRRORD)
+                continue;
+
+            usMod = rlc.nr_union.nr_import.nr_mod;
+            usOrd = rlc.nr_union.nr_import.nr_proc;
+            if (usMod == 0 || usMod > usModCount)
+                continue;
+
+            memset(&mn, 0, sizeof(mn));
+            if (VectorGetItem(hvMods, (ULONG)(usMod - 1),
+                              &mn, sizeof(mn), NULL) != NO_ERROR)
+                continue;
+
+            ar = LibQueryFunction(hLib, mn.name, usOrd,
+                                  szFunc, sizeof(szFunc));
+            if (ar != NO_ERROR)
+                continue;
+
+            addtolist(mn.name, szFunc);
+
+            if (!strncmp(szFunc, "MOU", 3)) options.MouAPI = 1;
+            if (!strncmp(szFunc, "KBD", 3)) options.KbdAPI = 1;
+            if (!strncmp(szFunc, "VIO", 3)) options.VioAPI = 1;
+
+            if (!strcmp(szFunc, "VIOREGISTER")) {
+                options.VioAPI = 2;
+                options.DLLAPI = 1;
+            }
+            if (!strcmp(szFunc, "MOUREGISTER")) {
+                options.MouAPI = 2;
+                options.DLLAPI = 1;
+            }
+            if (!strcmp(szFunc, "KBDREGISTER")) {
+                options.KbdAPI = 2;
+                options.DLLAPI = 1;
+            }
+            if (!strcmp(szFunc, "DOSLOADMODULE")) options.DLLAPI = 1;
+        }
+    }
+
+    /* ---- Cleanup library and NE handles ---- */
+
+    LibClose(hLib);
+    hLib = NULLHANDLE;
+    NeClose(hNe);
+    hNe = NULLHANDLE;
+
+    VectorDestroy(hvMods);
+    hvMods = NULLHANDLE;
+
+    /* ---- Generate tmp.obj, LNK, run linker ---- */
+
+    generate_imptable();
+    generate_lnk();
+    system("wlink.exe op q op fullh @bind.lnk");
+    remove("bind.lnk");
+    remove("tmp.obj");
+
+    /* ---- Bind ---- */
+
+    rc = bind(options.infile);
+
+    VectorDestroy(hvApi);
+    hvApi = NULLHANDLE;
+    return rc;
+
+error_cleanup:
+    if (hLib) LibClose(hLib);
+    if (hNe) NeClose(hNe);
+    if (hvMods) VectorDestroy(hvMods);
+    if (hvApi) VectorDestroy(hvApi);
+    hvApi = NULLHANDLE;
+    return 1;
 }

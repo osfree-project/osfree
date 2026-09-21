@@ -14,7 +14,4 @@ ADD_COPT =
 
 !include $(%ROOT)tools/mk/libsos2v1.mk
 
-#$(PATH)$(PROJ).lib: $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
-
 .c: $(MYDIR)..

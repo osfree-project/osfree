@@ -10,5 +10,3 @@ DIRS = libmmap os2386 os2 GBM GDLib JpegLib libflac libmad libogg libojpeg libti
 
 !include $(%ROOT)tools/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all

@@ -47,6 +47,10 @@ extern "C" {
 /** @brief The data is invalid. Value: 13. */
 #define ERROR_INVALID_DATA          13
 
+/** @brief The system cannot write to the specified device.
+ *  Value: 29. */
+#define ERROR_WRITE_FAULT           29
+
 /** @brief The system cannot read from the specified device.
  *  Value: 30. */
 #define ERROR_READ_FAULT            30

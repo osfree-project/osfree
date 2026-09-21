@@ -16,8 +16,3 @@ NOLIBS      = 1
 
 !include $(%ROOT)tools/mk/libsos2.mk
 
-#TARGETS  = $(PATH)$(PROJ).lib # subdirs
-#TARGET = all
-
-#$(PATH)$(PROJ).lib: $(OBJS)
-# @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

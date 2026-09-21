@@ -1,15 +1,11 @@
 #
 # A Makefile for BIND
-# (c) osFree project,
-# author, date
+# (c) osFree project
 #
 
 DESCRIPTION = Message binder
-#defines object file names in format $(p)objname$(e)
 SOURCES = bind 
-# defines additional options for C compiler
-#ADD_COPT = -sg #-I$(%OS2TK)$(SEP)h #-p
-
+LIBS = tools_shared
 
 !ifndef TARGETBLD
 DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)bin
@@ -19,6 +15,8 @@ ADD_COPT = -bt=os2
 DEST = os2tk45$(SEP)bin
 SRC  = $(MYDIR)..$(SEP)..$(SEP)bind$(SEP)
 !endif
+
+ADD_COPT = -i=$(SRC)..$(SEP)include
 
 !ifeq %OS OS2
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
