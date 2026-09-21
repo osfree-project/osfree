@@ -30,7 +30,11 @@ EXT = bin
 !endif
 !else
 comf = 
+!ifndef EXT
+EXT = exe
 !endif
+!endif
+
 
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
