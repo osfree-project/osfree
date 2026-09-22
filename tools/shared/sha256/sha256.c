@@ -1,33 +1,39 @@
-/* sha256.c - SHA-256 hashing (C89, OpenWatcom) */
+/*!
+ *
+ * @file sha256.c
+ *
+ * @brief Implementation of SHA-256.
+ *
+ * SHA-256 hashing (C89, OpenWatcom). Conforms to:
+ *   - FIPS PUB 180-2.
+ *   - RFC 6234.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sha256.h"
 
-/**
- * @file sha256.c
- * @brief Implementation of SHA-256.
- *
- * Conforms to:
- *   - FIPS PUB 180-2.
- *   - RFC 6234.
- */
-
 /* ==================================================================
  * Internal constants and types
  * ================================================================== */
 
-/** @brief SHA-256 block size in bytes. */
+/*!
+ * @brief SHA-256 block size in bytes.
+ */
 #define SHA256_BLOCK_SIZE  64
 
-/** @brief SHA-256 digest size in bytes. */
+/*!
+ * @brief SHA-256 digest size in bytes.
+ */
 #define SHA256_DIGEST_SIZE 32
 
-/** @brief Hex representation length including NUL. */
+/*!
+ * @brief Hex representation length including NUL.
+ */
 #define SHA256_HEX_SIZE    (SHA256_DIGEST_SIZE * 2 + 1)
 
-/**
+/*!
  * @struct _SHA256CTX
  * @brief Working state of the SHA-256 algorithm.
  *
@@ -37,14 +43,14 @@
  * FIPS 180-2.
  */
 typedef struct _SHA256CTX {
-    ULONG aulState[8];                       /**< h0..h7.               */
-    ULONG ulCountLo;                         /**< Byte count, low 32.   */
-    ULONG ulCountHi;                         /**< Byte count, high 32.  */
-    UCHAR auchBuffer[SHA256_BLOCK_SIZE];     /**< Partial block buffer. */
-    ULONG ulBufLen;                          /**< Bytes used in buffer. */
+    ULONG aulState[8];                    /*!< h0..h7.               */
+    ULONG ulCountLo;                      /*!< Byte count, low 32.   */
+    ULONG ulCountHi;                      /*!< Byte count, high 32.  */
+    UCHAR auchBuffer[SHA256_BLOCK_SIZE];  /*!< Partial block buffer. */
+    ULONG ulBufLen;                       /*!< Bytes used in buffer. */
 } SHA256CTX;
 
-/**
+/*!
  * @brief Round constants K[0..63] from FIPS 180-2 §4.2.2.
  *
  * First 32 bits of the fractional parts of the cube roots of the
@@ -73,7 +79,7 @@ static const ULONG aulK[64] = {
  * Internal bit helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief 32-bit right rotation.
  *
  * @param[in] ulVal  Value.
@@ -86,7 +92,7 @@ static ULONG rotr(ULONG ulVal, ULONG nBits) {
     return (ulVal >> nBits) | (ulVal << (32 - nBits));
 }
 
-/**
+/*!
  * @brief 32-bit logical right shift.
  *
  * @param[in] ulVal  Value.
@@ -98,7 +104,7 @@ static ULONG shr(ULONG ulVal, ULONG nBits) {
     return ulVal >> nBits;
 }
 
-/**
+/*!
  * @brief Choose function Ch(x, y, z) = (x & y) ^ (~x & z).
  *
  * @param[in] ulX  First operand.
@@ -111,7 +117,7 @@ static ULONG ch(ULONG ulX, ULONG ulY, ULONG ulZ) {
     return (ulX & ulY) ^ (~ulX & ulZ);
 }
 
-/**
+/*!
  * @brief Majority function Maj(x, y, z) = (x&y) ^ (x&z) ^ (y&z).
  *
  * @param[in] ulX  First operand.
@@ -124,7 +130,7 @@ static ULONG maj(ULONG ulX, ULONG ulY, ULONG ulZ) {
     return (ulX & ulY) ^ (ulX & ulZ) ^ (ulY & ulZ);
 }
 
-/**
+/*!
  * @brief Upper-case sigma-0 used in the compression function.
  *
  * sigma_0(x) = ROTR^2(x) ^ ROTR^13(x) ^ ROTR^22(x).
@@ -137,7 +143,7 @@ static ULONG sigma0(ULONG ulX) {
     return rotr(ulX, 2) ^ rotr(ulX, 13) ^ rotr(ulX, 22);
 }
 
-/**
+/*!
  * @brief Upper-case sigma-1 used in the compression function.
  *
  * sigma_1(x) = ROTR^6(x) ^ ROTR^11(x) ^ ROTR^25(x).
@@ -150,7 +156,7 @@ static ULONG sigma1(ULONG ulX) {
     return rotr(ulX, 6) ^ rotr(ulX, 11) ^ rotr(ulX, 25);
 }
 
-/**
+/*!
  * @brief Lower-case sigma-0 used in message schedule expansion.
  *
  * sigma_0(x) = ROTR^7(x) ^ ROTR^18(x) ^ SHR^3(x).
@@ -163,7 +169,7 @@ static ULONG sigma0_small(ULONG ulX) {
     return rotr(ulX, 7) ^ rotr(ulX, 18) ^ shr(ulX, 3);
 }
 
-/**
+/*!
  * @brief Lower-case sigma-1 used in message schedule expansion.
  *
  * sigma_1(x) = ROTR^17(x) ^ ROTR^19(x) ^ SHR^10(x).
@@ -180,7 +186,7 @@ static ULONG sigma1_small(ULONG ulX) {
  * Core algorithm
  * ================================================================== */
 
-/**
+/*!
  * @brief Compression function: process one 64-byte block.
  *
  * Applies the SHA-256 compression function to @p puchData and
@@ -232,7 +238,7 @@ static void sha256_transform(SHA256CTX *pCtx,
     pCtx->aulState[6] += ulG; pCtx->aulState[7] += ulH;
 }
 
-/**
+/*!
  * @brief Initialize the working state with FIPS 180-2 initial values.
  *
  * @param[out] pCtx  Context to initialize. Not NULL.
@@ -251,15 +257,15 @@ static void sha256_init(SHA256CTX *pCtx) {
     pCtx->ulBufLen = 0;
 }
 
-/**
+/*!
  * @brief Absorb more input data into the context.
  *
  * Buffers partial blocks; full blocks are passed to the compression
  * function immediately.
  *
- * @param[in,out] pCtx     Context. Not NULL.
- * @param[in]     puchData Input data. Not NULL.
- * @param[in]     cbLen    Number of bytes to absorb.
+ * @param[in,out] pCtx      Context. Not NULL.
+ * @param[in]     puchData  Input data. Not NULL.
+ * @param[in]     cbLen     Number of bytes to absorb.
  */
 static void sha256_update(SHA256CTX *pCtx,
                           const UCHAR *puchData, size_t cbLen) {
@@ -300,7 +306,7 @@ static void sha256_update(SHA256CTX *pCtx,
     }
 }
 
-/**
+/*!
  * @brief Finish the hash and produce the digest.
  *
  * Applies the padding scheme from FIPS 180-2 §5.1.1: a single 0x80
@@ -357,7 +363,7 @@ static void sha256_final(SHA256CTX *pCtx,
  * Public API
  * ================================================================== */
 
-/**
+/*!
  * @brief Compute SHA-256 of a file.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
@@ -366,9 +372,10 @@ static void sha256_final(SHA256CTX *pCtx,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is NULL
- *                                  without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is
+ *                                  NULL without size-query.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
@@ -420,7 +427,7 @@ APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Compute SHA-256 of a NUL-terminated string.
  *
  * @param[in]  pszStr   Input string. Not NULL.
@@ -429,9 +436,10 @@ APIRET APIENTRY Sha256File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
- *                                  without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is
+ *                                  NULL without size-query.
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha256String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
