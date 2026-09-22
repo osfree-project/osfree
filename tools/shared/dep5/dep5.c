@@ -1,5 +1,13 @@
-/* dep5.c - Debian Copyright Format 1.0 (DEP5) parser
- * (C89 + Watcom extensions) */
+/*!
+ *
+ * @file dep5.c
+ *
+ * @brief Implementation of the DEP5 parser.
+ *
+ * Debian Copyright Format 1.0 (DEP5) parser (C89 + Watcom
+ * extensions). Conforms to:
+ *   - https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,25 +16,20 @@
 #include "dep5.h"
 #include "dep5_internal.h"
 
-/**
- * @file dep5.c
- * @brief Implementation of the DEP5 parser.
- *
- * Conforms to:
- *   - https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
- */
-
 /* ==================================================================
  * Small helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Read the whole file into a malloc buffer.
  *
  * @param[in]  pszPath   Path to the file. Not NULL.
  * @param[out] ppszText  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Open, seek or read error, or allocation failure.
  */
 static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
     FILE *fp;
@@ -54,22 +57,25 @@ static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
  * String buffer accumulator
  * ================================================================== */
 
-/**
+/*!
  * @struct _SBUF
  * @brief Growable string buffer.
  */
 typedef struct _SBUF {
-    PSZ    pszBuf;  /**< Backing storage, or NULL. */
-    size_t cbCap;   /**< Allocated bytes.          */
-    size_t cbLen;   /**< Used bytes, excluding NUL.*/
+    PSZ    pszBuf;  /*!< Backing storage, or NULL. */
+    size_t cbCap;   /*!< Allocated bytes.          */
+    size_t cbLen;   /*!< Used bytes, excluding NUL.*/
 } SBUF;
 
-/**
+/*!
  * @brief Initialize a string buffer with a small initial capacity.
  *
  * @param[out] pBuf  Buffer to initialize. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_init(SBUF *pBuf) {
     pBuf->cbCap = 64;
@@ -80,7 +86,7 @@ static int sbuf_init(SBUF *pBuf) {
     return 0;
 }
 
-/**
+/*!
  * @brief Release the backing storage of a string buffer.
  *
  * The structure is reset to an empty state; the buffer can be
@@ -95,7 +101,7 @@ static void sbuf_free(SBUF *pBuf) {
     pBuf->cbLen = 0;
 }
 
-/**
+/*!
  * @brief Append a byte range to a string buffer.
  *
  * The buffer is grown as needed. A NUL terminator is always kept
@@ -106,6 +112,9 @@ static void sbuf_free(SBUF *pBuf) {
  * @param[in]     cbLen   Number of bytes.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_put(SBUF *pBuf, PCSZ pszData, size_t cbLen) {
     if (pBuf->cbLen + cbLen + 1 > pBuf->cbCap) {
@@ -121,25 +130,31 @@ static int sbuf_put(SBUF *pBuf, PCSZ pszData, size_t cbLen) {
     return 0;
 }
 
-/**
+/*!
  * @brief Append one character to a string buffer.
  *
  * @param[in,out] pBuf  Buffer. Not NULL.
  * @param[in]     ch    Character.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_putc(SBUF *pBuf, CHAR ch) {
     return sbuf_put(pBuf, &ch, 1);
 }
 
-/**
+/*!
  * @brief Append a NUL-terminated string to a string buffer.
  *
  * @param[in,out] pBuf    Buffer. Not NULL.
  * @param[in]     pszStr  String. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
     return sbuf_put(pBuf, pszStr, strlen(pszStr));
@@ -154,7 +169,7 @@ static int sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
  *   - Trailing whitespace on any line is removed.
  * ================================================================== */
 
-/**
+/*!
  * @brief Normalize a field value in place.
  *
  * Replaces a line consisting of a single '.' with a blank line,
@@ -164,6 +179,9 @@ static int sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
  * @param[in,out] pBuf  Buffer to normalize. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int normalize_field_value(SBUF *pBuf) {
     PSZ pszSrc = pBuf->pszBuf;
@@ -213,12 +231,15 @@ static int normalize_field_value(SBUF *pBuf) {
  * Stanza builder
  * ================================================================== */
 
-/**
+/*!
  * @brief Grow the field array of a stanza if needed.
  *
  * @param[in,out] pStanza  Stanza. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int stanza_grow(PDEP5STANZA pStanza) {
     ULONG ulNewCap;
@@ -233,12 +254,14 @@ static int stanza_grow(PDEP5STANZA pStanza) {
     return 0;
 }
 
-/**
+/*!
  * @brief Append a zero-filled field slot to a stanza.
  *
  * @param[in,out] pStanza  Stanza. Not NULL.
  *
  * @return Pointer to the new field, or NULL on allocation failure.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PDEP5FIELD stanza_add_field(PDEP5STANZA pStanza) {
     PDEP5FIELD pField;
@@ -248,13 +271,15 @@ static PDEP5FIELD stanza_add_field(PDEP5STANZA pStanza) {
     return pField;
 }
 
-/**
+/*!
  * @brief Find a field by name (case-insensitive).
  *
  * @param[in] pStanza  Stanza. May be NULL.
  * @param[in] pszName  Field name. Not NULL.
  *
  * @return Pointer to the field, or NULL if not found.
+ *
+ * @retval NULL  Not found, or pStanza is NULL.
  */
 static PDEP5FIELD stanza_find_field(PDEP5STANZA pStanza, PCSZ pszName) {
     ULONG ulIdx;
@@ -266,7 +291,7 @@ static PDEP5FIELD stanza_find_field(PDEP5STANZA pStanza, PCSZ pszName) {
     return NULL;
 }
 
-/**
+/*!
  * @brief Release all memory owned by one stanza.
  *
  * @param[in,out] pStanza  Stanza. May be NULL.
@@ -286,12 +311,15 @@ static void stanza_free(PDEP5STANZA pStanza) {
  * Document builder
  * ================================================================== */
 
-/**
+/*!
  * @brief Grow the stanza array of a document if needed.
  *
  * @param[in,out] pDoc  Document. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int doc_grow(PDEP5DOC pDoc) {
     ULONG ulNewCap;
@@ -306,12 +334,14 @@ static int doc_grow(PDEP5DOC pDoc) {
     return 0;
 }
 
-/**
+/*!
  * @brief Append a zero-filled stanza slot to a document.
  *
  * @param[in,out] pDoc  Document. Not NULL.
  *
  * @return Pointer to the new stanza, or NULL on allocation failure.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PDEP5STANZA doc_add_stanza(PDEP5DOC pDoc) {
     PDEP5STANZA pStanza;
@@ -321,7 +351,7 @@ static PDEP5STANZA doc_add_stanza(PDEP5DOC pDoc) {
     return pStanza;
 }
 
-/**
+/*!
  * @brief Release a document and all owned stanzas.
  *
  * @param[in] pDoc  Document. May be NULL.
@@ -342,7 +372,7 @@ static void doc_free(PDEP5DOC pDoc) {
  * Trailing slash is optional.
  * ================================================================== */
 
-/**
+/*!
  * @brief Query whether a Format field value is valid.
  *
  * Both http and https forms of the DEP5 URL are accepted, with or
@@ -351,6 +381,9 @@ static void doc_free(PDEP5DOC pDoc) {
  * @param[in] pszValue  Field value. May be NULL.
  *
  * @return 1 if valid, 0 otherwise.
+ *
+ * @retval 1  Valid.
+ * @retval 0  Invalid, or pszValue is NULL.
  */
 static int format_is_valid(PCSZ pszValue) {
     static PCSZ apszPrefixes[] = {
@@ -380,7 +413,7 @@ static int format_is_valid(PCSZ pszValue) {
  * character cannot be escaped.
  * ================================================================== */
 
-/**
+/*!
  * @brief Unescape one pattern token.
  *
  * Recognized escape sequences: \*, \?, \\. Any other escape is
@@ -392,6 +425,9 @@ static int format_is_valid(PCSZ pszValue) {
  *                       Not NULL.
  *
  * @return 0 on success, -1 on invalid escape or allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid escape sequence or allocation failure.
  */
 static int unescape_pattern(PCSZ pszToken, size_t cbToken,
                             PSZ *ppszOut) {
@@ -419,7 +455,7 @@ fail:
     return -1;
 }
 
-/**
+/*!
  * @brief Parse a Files field into an array of unescaped patterns.
  *
  * @param[in]  pszValue     Files field value. Not NULL.
@@ -428,6 +464,9 @@ fail:
  * @param[out] pulCount     Receiver for the pattern count. Not NULL.
  *
  * @return 0 on success, -1 on invalid escape or allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid escape sequence or allocation failure.
  */
 static int parse_files_patterns(PCSZ pszValue, PSZ **ppapszOut,
                                 PULONG pulCount) {
@@ -490,7 +529,7 @@ fail:
  * already done by normalize_field_value at parse time.
  * ================================================================== */
 
-/**
+/*!
  * @brief Split a License field value into synopsis and body.
  *
  * The synopsis is the first line, with trailing whitespace
@@ -503,6 +542,9 @@ fail:
  *                           NULL if there is no body. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int split_license(PSZ pszValue, PSZ *ppszShortName,
                          PSZ *ppszBody) {
@@ -546,7 +588,7 @@ static int split_license(PSZ pszValue, PSZ *ppszShortName,
  * License short-name helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Query whether a License field's synopsis equals a name.
  *
  * Comparison is case-insensitive. Trailing whitespace on the
@@ -556,6 +598,9 @@ static int split_license(PSZ pszValue, PSZ *ppszShortName,
  * @param[in] pszName  Name to compare. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  The synopsis equals the name.
+ * @retval 0  No match, or pField is NULL.
  */
 static int license_shortname_is(PDEP5FIELD pField, PCSZ pszName) {
     PCSZ pszValue;
@@ -580,13 +625,16 @@ static int license_shortname_is(PDEP5FIELD pField, PCSZ pszName) {
     return 1;
 }
 
-/**
+/*!
  * @brief Query whether a License field has a body after the first
  *        newline.
  *
  * @param[in] pField  License field. May be NULL.
  *
  * @return 1 if a body is present, 0 otherwise.
+ *
+ * @retval 1  A body is present.
+ * @retval 0  No body, or pField is NULL.
  */
 static int license_has_body(PDEP5FIELD pField) {
     PCSZ pszEol;
@@ -600,7 +648,7 @@ static int license_has_body(PDEP5FIELD pField) {
  * Stanza classification and validation
  * ================================================================== */
 
-/**
+/*!
  * @brief Classify a stanza by its fields.
  *
  * The first stanza in a file is always the header. Subsequent
@@ -612,6 +660,11 @@ static int license_has_body(PDEP5FIELD pField) {
  *
  * @return One of DEP5_STANZA_HEADER, DEP5_STANZA_FILES,
  *         DEP5_STANZA_LICENSE, or 0 if unclassified.
+ *
+ * @retval DEP5_STANZA_HEADER   First stanza in the file.
+ * @retval DEP5_STANZA_FILES    Has a Files field.
+ * @retval DEP5_STANZA_LICENSE  Has a License field only.
+ * @retval 0                    Unclassified.
  */
 static ULONG classify_stanza(PDEP5STANZA pStanza, int fIsFirst)
 {
@@ -621,7 +674,7 @@ static ULONG classify_stanza(PDEP5STANZA pStanza, int fIsFirst)
     return 0;
 }
 
-/**
+/*!
  * @brief Validate the header stanza.
  *
  * Requires the mandatory "Format" field with a valid DEP5 URL.
@@ -629,6 +682,9 @@ static ULONG classify_stanza(PDEP5STANZA pStanza, int fIsFirst)
  * @param[in] pStanza  Stanza. Not NULL.
  *
  * @return 0 if valid, -1 otherwise.
+ *
+ * @retval 0   Valid.
+ * @retval -1  Missing or invalid Format field.
  */
 static int validate_header(PDEP5STANZA pStanza) {
     PDEP5FIELD pField = stanza_find_field(pStanza, "Format");
@@ -637,7 +693,7 @@ static int validate_header(PDEP5STANZA pStanza) {
     return 0;
 }
 
-/**
+/*!
  * @brief Validate a Files stanza.
  *
  * Requires Files, Copyright and License. A public-domain license
@@ -646,6 +702,10 @@ static int validate_header(PDEP5STANZA pStanza) {
  * @param[in] pStanza  Stanza. Not NULL.
  *
  * @return 0 if valid, -1 otherwise.
+ *
+ * @retval 0   Valid.
+ * @retval -1  Missing required field, or public-domain without
+ *             body.
  */
 static int validate_files(PDEP5STANZA pStanza) {
     PDEP5FIELD pField;
@@ -662,7 +722,7 @@ static int validate_files(PDEP5STANZA pStanza) {
     return 0;
 }
 
-/**
+/*!
  * @brief Validate a stand-alone License stanza.
  *
  * Requires the License field. A public-domain license must have a
@@ -671,6 +731,10 @@ static int validate_files(PDEP5STANZA pStanza) {
  * @param[in] pStanza  Stanza. Not NULL.
  *
  * @return 0 if valid, -1 otherwise.
+ *
+ * @retval 0   Valid.
+ * @retval -1  Missing License field, or public-domain without
+ *             body.
  */
 static int validate_license(PDEP5STANZA pStanza) {
     PDEP5FIELD pField = stanza_find_field(pStanza, "License");
@@ -694,7 +758,7 @@ static int validate_license(PDEP5STANZA pStanza) {
  * continuation line is stripped; the rest is content.
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse a whole DEP5 text into a document structure.
  *
  * Splits the text into stanzas and fields, normalizes field
@@ -706,6 +770,7 @@ static int validate_license(PDEP5STANZA pStanza) {
  *                        a static error description.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  * @retval DEP5_ERROR_INVALID_SYNTAX    Syntax or structural error.
@@ -1014,32 +1079,38 @@ fail:
  * Handle helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Translate a public document handle into the internal
  *        pointer.
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
  * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ *
+ * @retval NULL  hDoc is NULLHANDLE.
  */
 PDEP5DOC Dep5InternalGetDoc(HDEP5DOC hDoc) { return (PDEP5DOC)hDoc; }
 
-/**
+/*!
  * @brief Translate a public cursor handle into the internal pointer.
  *
  * @param[in] hFind  Handle. May be NULLHANDLE.
  *
  * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ *
+ * @retval NULL  hFind is NULLHANDLE.
  */
 PDEP5FIND Dep5InternalGetFind(HDEP5FIND hFind) { return (PDEP5FIND)hFind; }
 
-/**
+/*!
  * @brief Find the index of the first stanza of a given kind.
  *
  * @param[in] pDoc   Document. Not NULL.
  * @param[in] ulKind One of DEP5_STANZA_*.
  *
  * @return Stanza index, or DEP5_NO_HEADER if not found.
+ *
+ * @retval DEP5_NO_HEADER  Not found.
  */
 static ULONG doc_find_first_index(PDEP5DOC pDoc, ULONG ulKind) {
     ULONG ulIdx;
@@ -1049,7 +1120,7 @@ static ULONG doc_find_first_index(PDEP5DOC pDoc, ULONG ulKind) {
     return DEP5_NO_HEADER;
 }
 
-/**
+/*!
  * @brief Find the index of the next stanza of a given kind.
  *
  * @param[in] pDoc   Document. Not NULL.
@@ -1057,6 +1128,8 @@ static ULONG doc_find_first_index(PDEP5DOC pDoc, ULONG ulKind) {
  * @param[in] ulFrom Starting index (exclusive).
  *
  * @return Stanza index, or DEP5_NO_HEADER if not found.
+ *
+ * @retval DEP5_NO_HEADER  Not found.
  */
 static ULONG doc_find_next_index(PDEP5DOC pDoc, ULONG ulKind,
                                  ULONG ulFrom) {
@@ -1071,7 +1144,7 @@ static ULONG doc_find_next_index(PDEP5DOC pDoc, ULONG ulKind,
  * Public API
  * ================================================================== */
 
-/**
+/*!
  * @brief Open and parse a debian/copyright file.
  *
  * Reads the file, splits it into stanzas, classifies each stanza,
@@ -1083,6 +1156,7 @@ static ULONG doc_find_next_index(PDEP5DOC pDoc, ULONG ulKind,
  *                      on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      pszPath or phDoc is NULL.
  * @retval ERROR_OPEN_FAILED            File cannot be opened.
@@ -1117,7 +1191,7 @@ APIRET APIENTRY Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close a document.
  *
  * Releases all internal buffers, including any active Files and
@@ -1128,6 +1202,7 @@ APIRET APIENTRY Dep5Open(PCSZ pszPath, HDEP5DOC *phDoc) {
  *                  treated as a no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
@@ -1145,7 +1220,7 @@ APIRET APIENTRY Dep5Close(HDEP5DOC hDoc) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve a field value from the header stanza.
  *
  * Supported fields (case-insensitive):
@@ -1171,6 +1246,7 @@ APIRET APIENTRY Dep5Close(HDEP5DOC hDoc) {
  *                        required size including NUL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL or field
  *                                  name empty.
@@ -1212,7 +1288,7 @@ APIRET APIENTRY Dep5HeaderGetField(HDEP5DOC hDoc, PCSZ pszField,
  * Files stanza enumeration
  * ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Release per-stanza derived data cached in a cursor.
  *
  * @param[in,out] pFind  Cursor. May be NULL.
@@ -1228,7 +1304,7 @@ static void find_free_cache(PDEP5FIND pFind) {
     free(pFind->pszLicenseText);  pFind->pszLicenseText = NULL;
 }
 
-/**
+/*!
  * @brief Release the cache of a cursor (internal helper for dep5.c
  *        and dep5_internal.h consumers).
  *
@@ -1236,7 +1312,7 @@ static void find_free_cache(PDEP5FIND pFind) {
  */
 void Dep5InternalFindFreeCache(PDEP5FIND pFind) { find_free_cache(pFind); }
 
-/**
+/*!
  * @brief Load and cache derived data for the current stanza.
  *
  * Patterns for Files stanzas, and license synopsis and body for
@@ -1245,6 +1321,9 @@ void Dep5InternalFindFreeCache(PDEP5FIND pFind) { find_free_cache(pFind); }
  * @param[in,out] pFind  Cursor. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int find_load_cache(PDEP5FIND pFind) {
     PDEP5STANZA pStanza = &pFind->pDoc->paStanzas[pFind->ulCurrent];
@@ -1270,7 +1349,7 @@ static int find_load_cache(PDEP5FIND pFind) {
     return 0;
 }
 
-/**
+/*!
  * @brief Start enumerating Files stanzas.
  *
  * Creates a cursor and positions it on the first Files stanza. The
@@ -1285,6 +1364,7 @@ static int find_load_cache(PDEP5FIND pFind) {
  *                       the total number of Files stanzas.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc or phFind is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1326,15 +1406,17 @@ APIRET APIENTRY Dep5FilesFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Advance the cursor to the next Files stanza.
  *
  * @param[in] hFind  Cursor from Dep5FilesFindFirst. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_NO_MORE_ITEMS      No more Files stanzas.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  *
  * @see Dep5FilesFindFirst, Dep5FilesFindClose
  */
@@ -1354,13 +1436,14 @@ APIRET APIENTRY Dep5FilesFindNext(HDEP5FIND hFind) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close a Files enumeration cursor.
  *
  * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
  *                   no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
@@ -1377,7 +1460,7 @@ APIRET APIENTRY Dep5FilesFindClose(HDEP5FIND hFind) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve a field value from the current Files stanza.
  *
  * Supported fields (case-insensitive):
@@ -1406,6 +1489,7 @@ APIRET APIENTRY Dep5FilesFindClose(HDEP5FIND hFind) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1461,7 +1545,7 @@ APIRET APIENTRY Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Number of patterns in the Files field of the current
  *        stanza.
  *
@@ -1474,6 +1558,7 @@ APIRET APIENTRY Dep5FilesGetField(HDEP5FIND hFind, PCSZ pszField,
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hFind or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1487,7 +1572,7 @@ APIRET APIENTRY Dep5FilesGetPatternCount(HDEP5FIND hFind,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve one pattern from the Files field by index.
  *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
@@ -1497,6 +1582,7 @@ APIRET APIENTRY Dep5FilesGetPatternCount(HDEP5FIND hFind,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1529,7 +1615,7 @@ APIRET APIENTRY Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
  * Stand-alone License stanza enumeration
  * ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Start enumerating stand-alone License stanzas.
  *
  * @param[in]  hDoc      Handle. Not NULLHANDLE.
@@ -1540,6 +1626,7 @@ APIRET APIENTRY Dep5FilesGetPattern(HDEP5FIND hFind, ULONG ulIndex,
  *                       the total number of License stanzas.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc or phFind is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1581,16 +1668,18 @@ APIRET APIENTRY Dep5LicenseFindFirst(HDEP5DOC hDoc, HDEP5FIND *phFind,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Advance the cursor to the next License stanza.
  *
  * @param[in] hFind  Cursor from Dep5LicenseFindFirst. Not
  *                   NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_NO_MORE_ITEMS      No more License stanzas.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  *
  * @see Dep5LicenseFindFirst, Dep5LicenseFindClose
  */
@@ -1610,13 +1699,14 @@ APIRET APIENTRY Dep5LicenseFindNext(HDEP5FIND hFind) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close a License enumeration cursor.
  *
  * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
  *                   no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
@@ -1631,13 +1721,13 @@ APIRET APIENTRY Dep5LicenseFindClose(HDEP5FIND hFind) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the short name from the current License stanza.
  *
- * The short name is the first line of the License field, up to the
- * first whitespace. For example, for a stanza beginning with
- * "License: GPL-2+ with OpenSSL exception", the short name is
- * "GPL-2+ with OpenSSL exception".
+ * The short name is the first line of the License field. For
+ * example, for a stanza beginning with "License: GPL-2+ with
+ * OpenSSL exception", the short name is "GPL-2+ with OpenSSL
+ * exception".
  *
  * If the stanza is missing the License field (which the parser
  * does not allow), ERROR_FILE_NOT_FOUND is returned.
@@ -1648,6 +1738,7 @@ APIRET APIENTRY Dep5LicenseFindClose(HDEP5FIND hFind) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1673,7 +1764,7 @@ APIRET APIENTRY Dep5LicenseGetShortName(HDEP5FIND hFind,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the license text from the current License stanza.
  *
  * The license text is the body of the License field (all lines
@@ -1690,6 +1781,7 @@ APIRET APIENTRY Dep5LicenseGetShortName(HDEP5FIND hFind,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
