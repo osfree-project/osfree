@@ -9,7 +9,7 @@
 # 1. UniAPI must come first here because used to produce API headers
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
-DIRS = shared sed UNI dos2unix &
+DIRS = doxy-lint shared sed UNI dos2unix &
        yacc lex jwasm awk &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        qemu-img hlldump mapsym renmodul &

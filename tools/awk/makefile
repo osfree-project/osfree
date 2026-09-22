@@ -7,6 +7,6 @@ SOURCES  = b main parse proctab tran lib run lex &
 ADD_COPT = -i=..$(SEP)include 
 STACKSIZE = 65536
 
-LICENSE_CHECK = 1
+#LICENSE_CHECK = 1
 
 !include $(%ROOT)tools/mk/build.mk

@@ -1,12 +1,18 @@
 /*! @file doxy-lint.c
  *  @brief Checks C/C++ source files for missing Doxygen documentation.
  *
- *  Style: Qt only ("/*!" and "//!" without a following '<').  Javadoc
- *  style is not recognized.
+ *  Style: Qt only.  Recognized forms:
+ *    - leading:  /*! ... *\/   or  //! ...
+ *    - trailing: /*!< ... *\/  or  //!< ...
+ *  Trailing forms document the preceding declaration.  Javadoc style
+ *  ("/**", "///") and Javadoc trailing forms ("/**<", "///<") are
+ *  reported as wrong style.  Banner comments like "/*****" and
+ *  "/////..." are treated as ordinary comments.
  *
  *  Enforces:
  *    - @file   required in every source and header file;
- *    - @brief  required before every top-level declaration;
+ *    - @brief  required before (or trailing after) every top-level
+ *             declaration;
  *    - @param  required for every named function parameter;
  *    - @return required for every non-void function;
  *    - @retval required for every integer literal returned by a body.
@@ -44,15 +50,17 @@
 #define EXPRLEN  128
 #define PATHBUF  1024
 
-#define T_EOF     0
-#define T_IDENT   1
-#define T_NUMBER  2
-#define T_STRING  3
-#define T_CHARLIT 4
-#define T_PUNCT   5
-#define T_DOC     6
-#define T_COMMENT 7
-#define T_PREPROC 8
+#define T_EOF           0
+#define T_IDENT         1
+#define T_NUMBER        2
+#define T_STRING        3
+#define T_CHARLIT       4
+#define T_PUNCT         5
+#define T_DOC           6
+#define T_COMMENT       7
+#define T_PREPROC       8
+#define T_DOC_JAVADOC   9
+#define T_DOC_TRAILING 10
 
 /*! @brief One lexical token: type, text position and source line. */
 typedef struct {
@@ -161,31 +169,51 @@ static void tokenize(void)
 
         line_start = 0;
 
+        /* Line comment: //!<  //!  ///<  ///  // */
         if (c == '/' && i + 1 < srclen && src[i + 1] == '/') {
             int sl = line;
-            int is_doc = (i + 2 < srclen && src[i + 2] == '!' &&
-                          !(i + 3 < srclen && src[i + 3] == '<'));
-            if (is_doc) {
-                long cs = i + 3;
-                i += 3;
-                while (i < srclen && src[i] != '\n') i++;
-                add_tok(T_DOC, src + cs, (int)(i - cs), sl);
-            } else {
-                i += 2;
-                while (i < srclen && src[i] != '\n') i++;
-                add_tok(T_COMMENT, src + i, 0, sl);
+            int kind = 0; /* 0=plain, 1=qt, 2=qt_trailing, 3=javadoc */
+            long cs;
+
+            if (i + 2 < srclen && src[i + 2] == '!') {
+                if (i + 3 < srclen && src[i + 3] == '<') kind = 2;
+                else kind = 1;
+            } else if (i + 2 < srclen && src[i + 2] == '/') {
+                if (i + 3 < srclen && src[i + 3] == '/') kind = 0;
+                else kind = 3;
             }
+            i += 2;
+            if (kind == 1 || kind == 2) i++;
+            cs = i;
+            while (i < srclen && src[i] != '\n') i++;
+            if (kind == 1)
+                add_tok(T_DOC, src + cs, (int)(i - cs), sl);
+            else if (kind == 2)
+                add_tok(T_DOC_TRAILING, src + cs, (int)(i - cs), sl);
+            else if (kind == 3)
+                add_tok(T_DOC_JAVADOC, src + cs, (int)(i - cs), sl);
+            else
+                add_tok(T_COMMENT, src + cs, (int)(i - cs), sl);
             continue;
         }
 
+        /* Block comment: /*!< ... *\/  /*! ... *\/  /** ... *\/  /* ... *\/ */
         if (c == '/' && i + 1 < srclen && src[i + 1] == '*') {
             int sl = line;
-            int is_doc = (i + 2 < srclen && src[i + 2] == '!' &&
-                          !(i + 3 < srclen && src[i + 3] == '<'));
+            int kind = 0;
             long cs, ce;
 
+            if (i + 2 < srclen && src[i + 2] == '!') {
+                if (i + 3 < srclen && src[i + 3] == '<') kind = 2;
+                else kind = 1;
+            } else if (i + 2 < srclen && src[i + 2] == '*') {
+                if (i + 3 >= srclen) kind = 0;
+                else if (src[i + 3] == '/') kind = 0;   /* empty */
+                else if (src[i + 3] == '*') kind = 0;   /* banner */
+                else kind = 3;
+            }
             i += 2;
-            if (is_doc) i++;
+            if (kind == 1 || kind == 2) i++;
             cs = i;
             while (i + 1 < srclen && !(src[i] == '*' && src[i + 1] == '/')) {
                 if (src[i] == '\n') line++;
@@ -194,7 +222,22 @@ static void tokenize(void)
             ce = i;
             if (i + 1 < srclen) i += 2;
             else i = srclen;
-            add_tok(is_doc ? T_DOC : T_COMMENT, src + cs, (int)(ce - cs), sl);
+            if (kind == 1)
+                add_tok(T_DOC, src + cs, (int)(ce - cs), sl);
+            else if (kind == 2)
+                add_tok(T_DOC_TRAILING, src + cs, (int)(ce - cs), sl);
+            else if (kind == 3)
+                add_tok(T_DOC_JAVADOC, src + cs, (int)(ce - cs), sl);
+            else
+                add_tok(T_COMMENT, src + cs, (int)(ce - cs), sl);
+            continue;
+        }
+
+        /* Orphan closing sequence of a comment that started inside a
+         * preprocessor line without a line continuation.  Not a
+         * punctuator.  Also guards against a stray "*"+"/" in code. */
+        if (c == '*' && i + 1 < srclen && src[i + 1] == '/') {
+            i += 2;
             continue;
         }
 
@@ -642,6 +685,7 @@ static int check_file(const char *fname)
     int i;
     int pending_start;
     int pending_end;
+    int pending_bad_style;
     int saw_file_doc;
 
     src = slurp(fname, &srclen);
@@ -654,11 +698,14 @@ static int check_file(const char *fname)
 
     pending_start = -1;
     pending_end = -1;
+    pending_bad_style = 0;
     saw_file_doc = 0;
     i = 0;
     while (toks[i].type != T_EOF) {
         DocInfo di;
-        if (toks[i].type == T_COMMENT || toks[i].type == T_PREPROC) {
+        if (toks[i].type == T_COMMENT || toks[i].type == T_PREPROC ||
+            toks[i].type == T_DOC_JAVADOC ||
+            toks[i].type == T_DOC_TRAILING) {
             i++;
             continue;
         }
@@ -681,6 +728,18 @@ static int check_file(const char *fname)
     i = 0;
     while (toks[i].type != T_EOF) {
 
+        if (toks[i].type == T_DOC_JAVADOC) {
+            while (toks[i].type == T_DOC_JAVADOC) {
+                printf("%s:%d: warning: wrong Doxygen style; "
+                       "Qt style required (/*! ... */ or //! ...)\n",
+                       fname, toks[i].line);
+                errors++;
+                i++;
+            }
+            pending_bad_style = 1;
+            continue;
+        }
+
         if (toks[i].type == T_DOC) {
             int rs = i;
             DocInfo di;
@@ -693,6 +752,11 @@ static int check_file(const char *fname)
                 pending_start = rs;
                 pending_end = i;
             }
+            continue;
+        }
+
+        if (toks[i].type == T_DOC_TRAILING) {
+            i++;
             continue;
         }
 
@@ -785,6 +849,7 @@ static int check_file(const char *fname)
             {
                 DocInfo di;
                 int has_doc = (pending_start >= 0);
+                int bad_style_here = pending_bad_style;
                 int decl_line = toks[dstart].line;
                 int k;
 
@@ -796,6 +861,15 @@ static int check_file(const char *fname)
                 }
                 pending_start = -1;
                 pending_end = -1;
+                pending_bad_style = 0;
+
+                if (toks[i].type == T_DOC_TRAILING) {
+                    while (toks[i].type == T_DOC_TRAILING) {
+                        parse_doc_into(toks[i].p, toks[i].len, &di);
+                        i++;
+                    }
+                    has_doc = 1;
+                }
 
                 if (fn_name_idx >= 0 && !saw_eq) {
                     char fname_buf[NAMELEN];
@@ -806,9 +880,11 @@ static int check_file(const char *fname)
                     fname_buf[nl] = 0;
 
                     if (!has_doc) {
-                        printf("%s:%d: warning: function '%s': missing Doxygen comment\n",
-                               fname, decl_line, fname_buf);
-                        errors++;
+                        if (!bad_style_here) {
+                            printf("%s:%d: warning: function '%s': missing Doxygen comment\n",
+                                   fname, decl_line, fname_buf);
+                            errors++;
+                        }
                     } else {
                         if (!di.has_brief) {
                             printf("%s:%d: warning: function '%s': missing @brief\n",
@@ -869,9 +945,11 @@ static int check_file(const char *fname)
                     }
                 } else {
                     if (!has_doc) {
-                        printf("%s:%d: warning: missing Doxygen comment\n",
-                               fname, decl_line);
-                        errors++;
+                        if (!bad_style_here) {
+                            printf("%s:%d: warning: missing Doxygen comment\n",
+                                   fname, decl_line);
+                            errors++;
+                        }
                     } else if (!di.has_brief) {
                         printf("%s:%d: warning: missing @brief\n",
                                fname, decl_line);
