@@ -1,20 +1,28 @@
-/*! omf_write.c - OMF record generation (C89)
+/*!
+ * @file omf_write.c
  *
- *  Appends complete OMF records to a file opened by OmfOpen with
- *  OMF_OPEN_WRITE. See omf.h for the public API and omf.c for the
- *  extraction side.
+ * @brief Implementation of OMF record generation.
  *
- *  Every record is emitted with a checksum computed over the entire
- *  record (header and payload) so that the byte-wise sum of the
- *  complete record is zero modulo 256.
+ * OMF record generation (C89). Appends complete OMF records to a
+ * file opened by OmfOpen with OMF_OPEN_WRITE. See omf.h for the
+ * public API and omf.c for the extraction side.
  *
- *  References:
- *    - TIS Portable Formats Specification, Version 1.1 (Relocatable
- *      Object Module Format), Linux Foundation.
- *      https://refspecs.linuxfoundation.org/elf/elfspec.pdf
- *    - JWasm / OpenWatcom WASM sources (COMENT class usage).
- *    - Microsoft OMF specification, "Relocatable Object Module
- *      Format", version 1.1.
+ * Every record is emitted with a checksum computed over the entire
+ * record (header and payload) so that the byte-wise sum of the
+ * complete record is zero modulo 256.
+ *
+ * All record generation functions declared in omf.h are implemented
+ * here. The internal record layout follows the 16-bit OMF variant
+ * (even record type bytes), which is what the OS/2 BIND tool and
+ * WLINK produce and consume for the temporary import object.
+ *
+ * References:
+ *   - TIS Portable Formats Specification, Version 1.1 (Relocatable
+ *     Object Module Format), Linux Foundation.
+ *     https://refspecs.linuxfoundation.org/elf/elfspec.pdf
+ *   - JWasm / OpenWatcom WASM sources (COMENT class usage).
+ *   - Microsoft OMF specification, "Relocatable Object Module
+ *     Format", version 1.1.
  */
 
 #include <stdio.h>
@@ -22,35 +30,28 @@
 #include "omf.h"
 #include "omf_private.h"
 
-/*! @file omf_write.c
- *  @brief Implementation of OMF record generation.
- *
- *  All record generation functions declared in omf.h are implemented
- *  here. The internal record layout follows the 16-bit OMF variant
- *  (even record type bytes), which is what the OS/2 BIND tool and
- *  WLINK produce and consume for the temporary import object.
- */
-
 /* ------------------------------------------------------------------ */
 /* Static helpers                                                      */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Begin a record: write header and start the checksum sum.
+/*!
+ * @brief Begin a record: write header and start the checksum sum.
  *
- *  Writes the 3-byte OMF record header [type:1][length:2] in
- *  little-endian order and initializes @p psum with the sum of those
- *  three bytes. All subsequent payload bytes must be written through
- *  omf_put, omf_putb or omf_putw so that the running sum stays
- *  correct.
+ * Writes the 3-byte OMF record header [type:1][length:2] in
+ * little-endian order and initializes @p psum with the sum of those
+ * three bytes. All subsequent payload bytes must be written through
+ * omf_put, omf_putb or omf_putw so that the running sum stays
+ * correct.
  *
- *  @param[in]  fp        Output file. Not NULL.
- *  @param[in]  uchType   Record type (OMF_TYPE_*).
- *  @param[in]  usLength  Payload length, excluding the header.
- *  @param[out] psum      Receives the initial checksum sum.
+ * @param[in]  fp        Output file. Not NULL.
+ * @param[in]  uchType   Record type (OMF_TYPE_*).
+ * @param[in]  usLength  Payload length, excluding the header.
+ * @param[out] psum      Receives the initial checksum sum.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_begin(FILE *fp, UCHAR uchType, USHORT usLength,
                         unsigned int *psum)
@@ -65,18 +66,20 @@ static APIRET omf_begin(FILE *fp, UCHAR uchType, USHORT usLength,
     return NO_ERROR;
 }
 
-/*! @brief Write @p cbLen bytes and accumulate their sum.
+/*!
+ * @brief Write @p cbLen bytes and accumulate their sum.
  *
- *  @param[in]  fp     Output file. Not NULL.
- *  @param[in]  pv     Source bytes. May be NULL if @p cbLen is 0.
- *  @param[in]  cbLen  Number of bytes.
- *  @param[out] psum   Running checksum sum. Not NULL.
+ * @param[in]  fp     Output file. Not NULL.
+ * @param[in]  pv     Source bytes. May be NULL if @p cbLen is 0.
+ * @param[in]  cbLen  Number of bytes.
+ * @param[out] psum   Running checksum sum. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  @p pv is NULL with non-zero
- *                                   length.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p pv is NULL with non-zero
+ *                                  length.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 static APIRET omf_put(FILE *fp, const void *pv, ULONG cbLen,
                       unsigned int *psum)
@@ -91,14 +94,16 @@ static APIRET omf_put(FILE *fp, const void *pv, ULONG cbLen,
     return NO_ERROR;
 }
 
-/*! @brief Write the checksum byte that makes the record sum zero.
+/*!
+ * @brief Write the checksum byte that makes the record sum zero.
  *
- *  @param[in] fp   Output file. Not NULL.
- *  @param[in] sum  Running sum from prior omf_put* calls.
+ * @param[in] fp   Output file. Not NULL.
+ * @param[in] sum  Running sum from prior omf_put* calls.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_end(FILE *fp, unsigned int sum)
 {
@@ -108,15 +113,17 @@ static APIRET omf_end(FILE *fp, unsigned int sum)
     return NO_ERROR;
 }
 
-/*! @brief Write a single byte with sum tracking.
+/*!
+ * @brief Write a single byte with sum tracking.
  *
- *  @param[in]  fp    Output file. Not NULL.
- *  @param[in]  b     Byte value.
- *  @param[out] psum  Running checksum sum. Not NULL.
+ * @param[in]  fp    Output file. Not NULL.
+ * @param[in]  b     Byte value.
+ * @param[out] psum  Running checksum sum. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_putb(FILE *fp, UCHAR b, unsigned int *psum)
 {
@@ -125,15 +132,17 @@ static APIRET omf_putb(FILE *fp, UCHAR b, unsigned int *psum)
     return NO_ERROR;
 }
 
-/*! @brief Write a little-endian 16-bit value with sum tracking.
+/*!
+ * @brief Write a little-endian 16-bit value with sum tracking.
  *
- *  @param[in]  fp    Output file. Not NULL.
- *  @param[in]  w     Value.
- *  @param[out] psum  Running checksum sum. Not NULL.
+ * @param[in]  fp    Output file. Not NULL.
+ * @param[in]  w     Value.
+ * @param[out] psum  Running checksum sum. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_putw(FILE *fp, USHORT w, unsigned int *psum)
 {
@@ -146,20 +155,22 @@ static APIRET omf_putw(FILE *fp, USHORT w, unsigned int *psum)
     return NO_ERROR;
 }
 
-/*! @brief Write a name index in 1 or 2 bytes.
+/*!
+ * @brief Write a name index in 1 or 2 bytes.
  *
- *  Indexes below 128 are written as a single byte. Larger indexes
- *  are written as two bytes in little-endian order. This matches
- *  the compact form produced by WLINK for OMF-16 records, where
- *  name indexes commonly fit in one byte.
+ * Indexes below 128 are written as a single byte. Larger indexes
+ * are written as two bytes in little-endian order. This matches
+ * the compact form produced by WLINK for OMF-16 records, where
+ * name indexes commonly fit in one byte.
  *
- *  @param[in]  fp       Output file. Not NULL.
- *  @param[in]  usIndex  Index value.
- *  @param[out] psum     Running checksum sum. Not NULL.
+ * @param[in]  fp       Output file. Not NULL.
+ * @param[in]  usIndex  Index value.
+ * @param[out] psum     Running checksum sum. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_put_index(FILE *fp, USHORT usIndex,
                             unsigned int *psum)
@@ -168,40 +179,46 @@ static APIRET omf_put_index(FILE *fp, USHORT usIndex,
     return omf_putw(fp, usIndex, psum);
 }
 
-/*! @brief Length in bytes of a name index as written by
- *         omf_put_index.
+/*!
+ * @brief Length in bytes of a name index as written by
+ *        omf_put_index.
  *
- *  @param[in] usIndex  Index value.
+ * @param[in] usIndex  Index value.
  *
- *  @return 1 if the index is below 128, otherwise 2.
+ * @return 1 if the index is below 128, otherwise 2.
+ *
+ * @retval 1  One-byte form.
+ * @retval 2  Two-byte form.
  */
 static USHORT omf_index_len(USHORT usIndex)
 {
     return (usIndex < 0x80) ? 1 : 2;
 }
 
-/*! @brief Write one FIXUP subrecord.
+/*!
+ * @brief Write one FIXUP subrecord.
  *
- *  Serializes a single FIXUP subrecord according to the bits of its
- *  FixDat byte:
- *    - bit 7 (F): when set, a frame datum byte follows.
- *    - bits 6-4 : frame method (not interpreted here).
- *    - bit 3 (T): when set, a target displacement follows.
- *    - bit 2 (P): 0 = 2-byte displacement, 1 = 1-byte.
- *    - bits 1-0: target method; 0/1 = 2-byte segment or group index,
- *      2 = external index written in 1 byte if it fits, otherwise in
- *      2 bytes.
+ * Serializes a single FIXUP subrecord according to the bits of its
+ * FixDat byte:
+ *   - bit 7 (F): when set, a frame datum byte follows.
+ *   - bits 6-4 : frame method (not interpreted here).
+ *   - bit 3 (T): when set, a target displacement follows.
+ *   - bit 2 (P): 0 = 2-byte displacement, 1 = 1-byte.
+ *   - bits 1-0: target method; 0/1 = 2-byte segment or group index,
+ *     2 = external index written in 1 byte if it fits, otherwise in
+ *     2 bytes.
  *
- *  The Locat field is written high byte first, matching the byte
- *  order produced by the historical BIND tool for WLINK.
+ * The Locat field is written high byte first, matching the byte
+ * order produced by the historical BIND tool for WLINK.
  *
- *  @param[in]  fp    Output file. Not NULL.
- *  @param[in]  pFix  Fixup subrecord. Not NULL.
- *  @param[out] psum  Running checksum sum. Not NULL.
+ * @param[in]  fp    Output file. Not NULL.
+ * @param[in]  pFix  Fixup subrecord. Not NULL.
+ * @param[out] psum  Running checksum sum. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR          Success.
- *  @retval ERROR_WRITE_FAULT Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR          Success.
+ * @retval ERROR_WRITE_FAULT Write error.
  */
 static APIRET omf_write_fixup(FILE *fp, const OMF_FIXUPP_FIXUP *pFix,
                               unsigned int *psum)
@@ -264,21 +281,23 @@ static APIRET omf_write_fixup(FILE *fp, const OMF_FIXUPP_FIXUP *pFix,
 /* Public API - raw record header                                      */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a raw OMF record header (type + length).
+/*!
+ * @brief Append a raw OMF record header (type + length).
  *
- *  Writes [type:1][length:2] in little-endian order. Does not append
- *  a checksum. Used internally by the other OmfWrite* functions and
- *  available for callers that need to emit a custom record.
+ * Writes [type:1][length:2] in little-endian order. Does not append
+ * a checksum. Used internally by the other OmfWrite* functions and
+ * available for callers that need to emit a custom record.
  *
- *  @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE, and
- *                       opened with OMF_OPEN_WRITE.
- *  @param[in] uchType   Record type (OMF_TYPE_*).
- *  @param[in] usLength  Payload length, excluding this 3-byte header.
+ * @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE, and
+ *                      opened with OMF_OPEN_WRITE.
+ * @param[in] uchType   Record type (OMF_TYPE_*).
+ * @param[in] usLength  Payload length, excluding this 3-byte header.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or wrong mode.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or wrong mode.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteRecordHeader(HOMFFILE hFile, UCHAR uchType,
                             USHORT usLength)
@@ -298,18 +317,20 @@ APIRET OmfWriteRecordHeader(HOMFFILE hFile, UCHAR uchType,
 /* Public API - THEADR                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a THEADR record (0x80).
+/*!
+ * @brief Append a THEADR record (0x80).
  *
- *  Layout: [name_len:1][name:name_len][checksum:1].
+ * Layout: [name_len:1][name:name_len][checksum:1].
  *
- *  @param[in] hFile    Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] pszName  Module name, 1..255 chars. Not NULL.
+ * @param[in] hFile    Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] pszName  Module name, 1..255 chars. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, NULL name, or name
- *                                   length out of range.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL name, or name
+ *                                  length out of range.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteTheadr(HOMFFILE hFile, PCSZ pszName)
 {
@@ -337,29 +358,31 @@ APIRET OmfWriteTheadr(HOMFFILE hFile, PCSZ pszName)
 /* Public API - COMENT raw and semantic helpers                        */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a COMENT record (0x88) with raw payload.
+/*!
+ * @brief Append a COMENT record (0x88) with raw payload.
  *
- *  Prefer the semantic helpers below (OmfWriteComentCodeView,
- *  OmfWriteComentWatcomOptions, OmfWriteComentBorlandDependency,
- *  OmfWriteComentOptimizeFarCall, OmfWriteComentDefaultLibrary)
- *  unless the caller needs to emit a vendor-specific class with a
- *  payload whose format is not covered by the library.
+ * Prefer the semantic helpers below (OmfWriteComentCodeView,
+ * OmfWriteComentWatcomOptions, OmfWriteComentBorlandDependency,
+ * OmfWriteComentOptimizeFarCall, OmfWriteComentDefaultLibrary)
+ * unless the caller needs to emit a vendor-specific class with a
+ * payload whose format is not covered by the library.
  *
- *  Layout: [comment_type:1][comment_class:1][payload][checksum:1].
+ * Layout: [comment_type:1][comment_class:1][payload][checksum:1].
  *
- *  @param[in] hFile         Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchType       Comment type (OMF_COMENT_TYPE_*).
- *  @param[in] uchClass      Comment class (OMF_COMENT_CLASS_* or
- *                           vendor-specific).
- *  @param[in] puchPayload   Payload bytes; NULL only if
- *                           @p usPayloadLen is 0.
- *  @param[in] usPayloadLen  Payload length.
+ * @param[in] hFile         Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchType       Comment type (OMF_COMENT_TYPE_*).
+ * @param[in] uchClass      Comment class (OMF_COMENT_CLASS_* or
+ *                          vendor-specific).
+ * @param[in] puchPayload   Payload bytes; NULL only if
+ *                          @p usPayloadLen is 0.
+ * @param[in] usPayloadLen  Payload length.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
- *                                   non-zero length.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
+ *                                  non-zero length.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComent(HOMFFILE hFile, UCHAR uchType, UCHAR uchClass,
                       const UCHAR *puchPayload, USHORT usPayloadLen)
@@ -385,19 +408,21 @@ APIRET OmfWriteComent(HOMFFILE hFile, UCHAR uchType, UCHAR uchClass,
     return omf_end(fp, sum);
 }
 
-/*! @brief Append a CodeView COMENT (class 0xA1) with no payload.
+/*!
+ * @brief Append a CodeView COMENT (class 0xA1) with no payload.
  *
- *  Emits a no-echo COMENT whose class is
- *  OMF_COMENT_CLASS_CODEVIEW and whose payload is empty, matching
- *  the record produced by WLINK when building the temporary import
- *  object.
+ * Emits a no-echo COMENT whose class is
+ * OMF_COMENT_CLASS_CODEVIEW and whose payload is empty, matching
+ * the record produced by WLINK when building the temporary import
+ * object.
  *
- *  @param[in] hFile  Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] hFile  Handle from OmfOpen. Not NULLHANDLE.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComentCodeView(HOMFFILE hFile)
 {
@@ -405,21 +430,23 @@ APIRET OmfWriteComentCodeView(HOMFFILE hFile)
                           OMF_COMENT_CLASS_CODEVIEW, NULL, 0);
 }
 
-/*! @brief Append a Watcom options COMENT (class 0x9B).
+/*!
+ * @brief Append a Watcom options COMENT (class 0x9B).
  *
- *  The payload is the vendor-specific Watcom option blob supplied by
- *  the caller. The exact byte sequence is defined by the Watcom
- *  toolchain; the library only adds the record header and checksum.
+ * The payload is the vendor-specific Watcom option blob supplied by
+ * the caller. The exact byte sequence is defined by the Watcom
+ * toolchain; the library only adds the record header and checksum.
  *
- *  @param[in] hFile    Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] puchOpt  Option bytes. Not NULL.
- *  @param[in] usLen    Option bytes length; must be greater than 0.
+ * @param[in] hFile    Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] puchOpt  Option bytes. Not NULL.
+ * @param[in] usLen    Option bytes length; must be greater than 0.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, NULL payload, or
- *                                   zero length.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL payload, or
+ *                                  zero length.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComentWatcomOptions(HOMFFILE hFile,
                                    const UCHAR *puchOpt, USHORT usLen)
@@ -430,25 +457,27 @@ APIRET OmfWriteComentWatcomOptions(HOMFFILE hFile,
                           puchOpt, usLen);
 }
 
-/*! @brief Append a Borland auto-dependency COMENT (class 0xE9).
+/*!
+ * @brief Append a Borland auto-dependency COMENT (class 0xE9).
  *
- *  The payload consists of a 4-byte timestamp followed by one or
- *  more [len:1][name:len] entries. This helper writes a single
- *  entry. If @p pszFileName is NULL, the record carries no payload
- *  at all, matching the empty variant emitted by WLINK.
+ * The payload consists of a 4-byte timestamp followed by one or
+ * more [len:1][name:len] entries. This helper writes a single
+ * entry. If @p pszFileName is NULL, the record carries no payload
+ * at all, matching the empty variant emitted by WLINK.
  *
- *  The timestamp value is fixed at the byte sequence historically
- *  produced by the BIND tool; its content is a DOS date/time blob
- *  whose exact value does not affect WLINK.
+ * The timestamp value is fixed at the byte sequence historically
+ * produced by the BIND tool; its content is a DOS date/time blob
+ * whose exact value does not affect WLINK.
  *
- *  @param[in] hFile        Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] pszFileName  File name, or NULL for an empty record.
+ * @param[in] hFile        Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] pszFileName  File name, or NULL for an empty record.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, or the file name is
- *                                   empty or longer than 255 bytes.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, or the file name is
+ *                                  empty or longer than 255 bytes.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComentBorlandDependency(HOMFFILE hFile,
                                        PCSZ pszFileName)
@@ -481,22 +510,24 @@ APIRET OmfWriteComentBorlandDependency(HOMFFILE hFile,
                           auchPayload, (USHORT)(p - auchPayload));
 }
 
-/*! @brief Append an optimize-far-call COMENT (class 0xFE).
+/*!
+ * @brief Append an optimize-far-call COMENT (class 0xFE).
  *
- *  The payload is the two-byte sequence historically produced by
- *  WLINK. The high bit of @p uchFlags is OR'd into the second
- *  payload byte; its exact meaning is defined by WLINK and is not
- *  interpreted by this library.
+ * The payload is the two-byte sequence historically produced by
+ * WLINK. The high bit of @p uchFlags is OR'd into the second
+ * payload byte; its exact meaning is defined by WLINK and is not
+ * interpreted by this library.
  *
- *  @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchFlags  Flags byte. The high bit (0x80) is preserved
- *                       in the payload; semantics are defined by
- *                       WLINK.
+ * @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchFlags  Flags byte. The high bit (0x80) is preserved
+ *                      in the payload; semantics are defined by
+ *                      WLINK.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComentOptimizeFarCall(HOMFFILE hFile, UCHAR uchFlags)
 {
@@ -513,19 +544,21 @@ APIRET OmfWriteComentOptimizeFarCall(HOMFFILE hFile, UCHAR uchFlags)
                           auchOpt, 2);
 }
 
-/*! @brief Append a default-library COMENT (class 0x9F).
+/*!
+ * @brief Append a default-library COMENT (class 0x9F).
  *
- *  Records the name of a library that the linker should include by
- *  default, as produced by the INCLUDELIB directive. The payload is
- *  exactly the library name, without a length prefix.
+ * Records the name of a library that the linker should include by
+ * default, as produced by the INCLUDELIB directive. The payload is
+ * exactly the library name, without a length prefix.
  *
- *  @param[in] hFile       Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] pszLibName  Library name, 1..255 chars. Not NULL.
+ * @param[in] hFile       Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] pszLibName  Library name, 1..255 chars. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL/empty name.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or NULL/empty name.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteComentDefaultLibrary(HOMFFILE hFile, PCSZ pszLibName)
 {
@@ -544,23 +577,25 @@ APIRET OmfWriteComentDefaultLibrary(HOMFFILE hFile, PCSZ pszLibName)
 /* Public API - EXTDEF                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append an EXTDEF record (0x8C) with one or more names.
+/*!
+ * @brief Append an EXTDEF record (0x8C) with one or more names.
  *
- *  Layout of each entry: [name_len:1][name:name_len][type:1]. The
- *  Type Index is written in its one-byte form (value 0), matching
- *  the record produced by WLINK. The record is terminated by a
- *  checksum byte.
+ * Layout of each entry: [name_len:1][name:name_len][type:1]. The
+ * Type Index is written in its one-byte form (value 0), matching
+ * the record produced by WLINK. The record is terminated by a
+ * checksum byte.
  *
- *  @param[in] hFile      Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] ppszNames  Array of external names. Not NULL if
- *                        @p cNames is greater than 0.
- *  @param[in] cNames     Number of names; must be greater than 0.
+ * @param[in] hFile      Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] ppszNames  Array of external names. Not NULL if
+ *                       @p cNames is greater than 0.
+ * @param[in] cNames     Number of names; must be greater than 0.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array, zero
- *                                   count, NULL/empty/oversized name.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array, zero
+ *                                  count, NULL/empty/oversized name.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteExtdef(HOMFFILE hFile,
                       const char * const *ppszNames,
@@ -604,22 +639,24 @@ APIRET OmfWriteExtdef(HOMFFILE hFile,
 /* Public API - LEDATA                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a LEDATA record (0xA0).
+/*!
+ * @brief Append a LEDATA record (0xA0).
  *
- *  Layout: [segment_index:2][offset:2][data][checksum:1].
+ * Layout: [segment_index:2][offset:2][data][checksum:1].
  *
- *  @param[in] hFile           Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] usSegmentIndex  Segment index (1-based).
- *  @param[in] usOffset        Offset within the segment.
- *  @param[in] puchData        Data bytes; NULL only if @p usDataLen
- *                             is 0.
- *  @param[in] usDataLen       Data length.
+ * @param[in] hFile           Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] usSegmentIndex  Segment index (1-based).
+ * @param[in] usOffset        Offset within the segment.
+ * @param[in] puchData        Data bytes; NULL only if @p usDataLen
+ *                            is 0.
+ * @param[in] usDataLen       Data length.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
- *                                   non-zero length.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
+ *                                  non-zero length.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteLedata(HOMFFILE hFile, USHORT usSegmentIndex,
                       USHORT usOffset,
@@ -649,25 +686,27 @@ APIRET OmfWriteLedata(HOMFFILE hFile, USHORT usSegmentIndex,
 /* Public API - FIXUPP                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a FIXUPP record (0x9C) from an array of fixups.
+/*!
+ * @brief Append a FIXUPP record (0x9C) from an array of fixups.
  *
- *  Layout: [thread/fixup subrecords][checksum:1]. The caller
- *  supplies the already-assembled subrecords in the form of an
- *  array of OMF_FIXUPP_FIXUP structures; this function serializes
- *  each one and appends the checksum byte.
+ * Layout: [thread/fixup subrecords][checksum:1]. The caller
+ * supplies the already-assembled subrecords in the form of an
+ * array of OMF_FIXUPP_FIXUP structures; this function serializes
+ * each one and appends the checksum byte.
  *
- *  The payload length is computed from the FixDat flags of each
- *  subrecord, so the caller does not need to pre-compute it.
+ * The payload length is computed from the FixDat flags of each
+ * subrecord, so the caller does not need to pre-compute it.
  *
- *  @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] paFixups  Array of fixup subrecords. Not NULL.
- *  @param[in] cFixups   Number of subrecords; must be greater than 0.
+ * @param[in] hFile     Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] paFixups  Array of fixup subrecords. Not NULL.
+ * @param[in] cFixups   Number of subrecords; must be greater than 0.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array, or zero
- *                                   count.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array, or zero
+ *                                  count.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteFixupp(HOMFFILE hFile,
                       const OMF_FIXUPP_FIXUP *paFixups,
@@ -716,17 +755,19 @@ APIRET OmfWriteFixupp(HOMFFILE hFile,
 /* Public API - MODEND                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a MODEND record (0x8A) without start address.
+/*!
+ * @brief Append a MODEND record (0x8A) without start address.
  *
- *  Layout: [module_type:1][checksum:1].
+ * Layout: [module_type:1][checksum:1].
  *
- *  @param[in] hFile          Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchModuleType  Module type byte (OMF_MODEND_*).
+ * @param[in] hFile          Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchModuleType  Module type byte (OMF_MODEND_*).
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteModend(HOMFFILE hFile, UCHAR uchModuleType)
 {
@@ -746,23 +787,25 @@ APIRET OmfWriteModend(HOMFFILE hFile, UCHAR uchModuleType)
 /* Public API - LNAMES                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append an LNAMES record (0x96).
+/*!
+ * @brief Append an LNAMES record (0x96).
  *
- *  Layout: [len:1][name:len]...[checksum:1]. Names are added in
- *  order and become visible to later records at 1-based indices
- *  matching their position in this record.
+ * Layout: [len:1][name:len]...[checksum:1]. Names are added in
+ * order and become visible to later records at 1-based indices
+ * matching their position in this record.
  *
- *  @param[in] hFile      Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] ppszNames  Array of names. Not NULL if @p cNames is
- *                        greater than 0.
- *  @param[in] cNames     Number of names.
+ * @param[in] hFile      Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] ppszNames  Array of names. Not NULL if @p cNames is
+ *                       greater than 0.
+ * @param[in] cNames     Number of names.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array with
- *                                   non-zero count, NULL or oversized
- *                                   name.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL array with
+ *                                  non-zero count, NULL or oversized
+ *                                  name.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteLnames(HOMFFILE hFile,
                       const char * const *ppszNames,
@@ -803,25 +846,27 @@ APIRET OmfWriteLnames(HOMFFILE hFile,
 /* Public API - SEGDEF                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a SEGDEF record (0x98).
+/*!
+ * @brief Append a SEGDEF record (0x98).
  *
- *  Name indexes are written in one byte if their value is less than
- *  128, otherwise in two bytes with the high bit of the first byte
- *  set. This matches the compact form produced by WLINK for OMF-16
- *  records.
+ * Name indexes are written in one byte if their value is less than
+ * 128, otherwise in two bytes with the high bit of the first byte
+ * set. This matches the compact form produced by WLINK for OMF-16
+ * records.
  *
- *  @param[in] hFile             Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchACBP           ACBP byte (OMF_ACBP_*).
- *  @param[in] usLength          Segment length in bytes.
- *  @param[in] usSegmentNameIdx  LNAMES index of the segment name.
- *  @param[in] usClassNameIdx    LNAMES index of the class name.
- *  @param[in] usOverlayNameIdx  LNAMES index of the overlay name,
- *                               or 0.
+ * @param[in] hFile             Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchACBP           ACBP byte (OMF_ACBP_*).
+ * @param[in] usLength          Segment length in bytes.
+ * @param[in] usSegmentNameIdx  LNAMES index of the segment name.
+ * @param[in] usClassNameIdx    LNAMES index of the class name.
+ * @param[in] usOverlayNameIdx  LNAMES index of the overlay name,
+ *                              or 0.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteSegdef(HOMFFILE hFile, UCHAR uchACBP,
                       USHORT usLength,
@@ -861,23 +906,25 @@ APIRET OmfWriteSegdef(HOMFFILE hFile, UCHAR uchACBP,
 /* Public API - GRPDEF                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a GRPDEF record (0x9A).
+/*!
+ * @brief Append a GRPDEF record (0x9A).
  *
- *  Layout: [group_name:1][members...][checksum:1]. The member bytes
- *  are caller-supplied and must already be in their OMF form (each
- *  member is [type:1][index:1 or 2]).
+ * Layout: [group_name:1][members...][checksum:1]. The member bytes
+ * are caller-supplied and must already be in their OMF form (each
+ * member is [type:1][index:1 or 2]).
  *
- *  @param[in] hFile         Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchGroupName  LNAMES index of the group name.
- *  @param[in] puchMembers   Member bytes; NULL only if
- *                           @p usMembersLen is 0.
- *  @param[in] usMembersLen  Member bytes length.
+ * @param[in] hFile         Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchGroupName  LNAMES index of the group name.
+ * @param[in] puchMembers   Member bytes; NULL only if
+ *                          @p usMembersLen is 0.
+ * @param[in] usMembersLen  Member bytes length.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
- *                                   non-zero length.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or NULL payload with
+ *                                  non-zero length.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWriteGrpdef(HOMFFILE hFile, UCHAR uchGroupName,
                       const UCHAR *puchMembers,
@@ -905,24 +952,26 @@ APIRET OmfWriteGrpdef(HOMFFILE hFile, UCHAR uchGroupName,
 /* Public API - PUBDEF                                                 */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Append a PUBDEF record (0x90) with one public name.
+/*!
+ * @brief Append a PUBDEF record (0x90) with one public name.
  *
- *  Layout: [group:1][segment:1][name_len:1][name:name_len]
- *          [offset:2][type:1][checksum:1]. One-byte group and
- *          segment indices and a one-byte (zero) type index are
- *          used, matching the records produced by the OS/2 BIND
- *          tool.
+ * Layout: [group:1][segment:1][name_len:1][name:name_len]
+ *         [offset:2][type:1][checksum:1]. One-byte group and
+ *         segment indices and a one-byte (zero) type index are
+ *         used, matching the records produced by the OS/2 BIND
+ *         tool.
  *
- *  @param[in] hFile       Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] uchGroup    Group index (0 if none).
- *  @param[in] uchSegment  Segment index.
- *  @param[in] pszName     Public name, 1..255 chars. Not NULL.
- *  @param[in] usOffset    Offset within the segment.
+ * @param[in] hFile       Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] uchGroup    Group index (0 if none).
+ * @param[in] uchSegment  Segment index.
+ * @param[in] pszName     Public name, 1..255 chars. Not NULL.
+ * @param[in] usOffset    Offset within the segment.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL/empty name.
- *  @retval ERROR_WRITE_FAULT        Write error.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle or NULL/empty name.
+ * @retval ERROR_WRITE_FAULT        Write error.
  */
 APIRET OmfWritePubdef(HOMFFILE hFile, UCHAR uchGroup,
                       UCHAR uchSegment, PCSZ pszName,

@@ -1,25 +1,39 @@
-/*! omf.c - OMF file open/close and source extraction (C89)
+/*!
+ * @file omf.c
  *
- *  OMF (Relocatable Object Module Format) records scanned for source
- *  names:
- *    - THEADR (0x80) - module name, usually the original source file.
- *    - COMENT (0x88) - comment records with vendor-specific classes
- *      carrying dependency file lists.
+ * @brief Implementation of the OMF file open/close and source
+ *        extractor.
  *
- *  Vendor-specific COMENT classes recognized:
- *    - 0xE9 - Borland auto-dependency: timestamp (4 bytes) followed
- *      by repeated [len][name] entries.
- *    - 0xFB - OpenWatcom auto-dependency: same layout as 0xE9.
- *    - 0x88 - additional dependency class found in OpenWatcom output.
- *    - 0xE8 - Borland source file name: single [len][name] entry.
+ * OMF file open/close and source extraction (C89).
  *
- *  References:
- *    - TIS Portable Formats Specification, Version 1.1 (Relocatable
- *      Object Module Format), Linux Foundation.
- *      https://refspecs.linuxfoundation.org/elf/elfspec.pdf
- *    - JWasm / OpenWatcom WASM sources (COMENT class usage).
- *    - Microsoft OMF specification, "Relocatable Object Module
- *      Format", version 1.1.
+ * Provides OmfOpen / OmfClose for opening an OMF file with a given
+ * access and action mode, and OmfQuerySources for extracting source
+ * file names from an OMF object opened for reading.
+ *
+ * OMF (Relocatable Object Module Format) records scanned for source
+ * names:
+ *   - THEADR (0x80) - module name, usually the original source file.
+ *   - COMENT (0x88) - comment records with vendor-specific classes
+ *     carrying dependency file lists.
+ *
+ * Vendor-specific COMENT classes recognized:
+ *   - 0xE9 - Borland auto-dependency: timestamp (4 bytes) followed
+ *     by repeated [len][name] entries.
+ *   - 0xFB - OpenWatcom auto-dependency: same layout as 0xE9.
+ *   - 0x88 - additional dependency class found in OpenWatcom output.
+ *   - 0xE8 - Borland source file name: single [len][name] entry.
+ *
+ * References:
+ *   - TIS Portable Formats Specification, Version 1.1 (Relocatable
+ *     Object Module Format), Linux Foundation.
+ *     https://refspecs.linuxfoundation.org/elf/elfspec.pdf
+ *   - JWasm / OpenWatcom WASM sources (COMENT class usage).
+ *   - Microsoft OMF specification, "Relocatable Object Module
+ *     Format", version 1.1.
+ *
+ * @see OmfOpen
+ * @see OmfClose
+ * @see OmfQuerySources
  */
 
 #include <stdio.h>
@@ -28,42 +42,33 @@
 #include "omf.h"
 #include "omf_private.h"
 
-/*! @file omf.c
- *  @brief Implementation of the OMF file open/close and source
- *         extractor.
- *
- *  Provides OmfOpen / OmfClose for opening an OMF file with a given
- *  access and action mode, and OmfQuerySources for extracting source
- *  file names from an OMF object opened for reading.
- *
- *  @see OmfOpen
- *  @see OmfClose
- *  @see OmfQuerySources
+/*!
+ * @brief Maximum length of a single extracted name.
  */
-
-/*! @brief Maximum length of a single extracted name. */
 #define OMF_NAME_MAX 512
 
 /* ------------------------------------------------------------------ */
 /* Private accessor                                                    */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Fetch the stream pointer if the handle is valid and has
- *         the expected access mode.
+/*!
+ * @brief Fetch the stream pointer if the handle is valid and has
+ *        the expected access mode.
  *
- *  The access mode is compared against the low two bits of
- *  OMFFILE::flMode. A handle opened with OMF_OPEN_READ does not
- *  satisfy a request for OMF_OPEN_WRITE, and vice versa.
+ * The access mode is compared against the low two bits of
+ * OMFFILE::flMode. A handle opened with OMF_OPEN_READ does not
+ * satisfy a request for OMF_OPEN_WRITE, and vice versa.
  *
- *  @param[in] hFile       Handle from OmfOpen.
- *  @param[in] flExpected  Expected access mode: OMF_OPEN_READ or
- *                         OMF_OPEN_WRITE.
+ * @param[in] hFile       Handle from OmfOpen.
+ * @param[in] flExpected  Expected access mode: OMF_OPEN_READ or
+ *                        OMF_OPEN_WRITE.
  *
- *  @return The underlying FILE pointer, or NULL if @p hFile is
- *          NULLHANDLE, the access mode does not match, or the
- *          stream is missing.
+ * @return The underlying FILE pointer, or NULL on failure.
  *
- *  @see OmfOpen
+ * @retval NULL  @p hFile is NULLHANDLE, the access mode does not
+ *               match, or the stream is missing.
+ *
+ * @see OmfOpen
  */
 FILE *omf_get_fp(HOMFFILE hFile, ULONG flExpected)
 {
@@ -79,28 +84,30 @@ FILE *omf_get_fp(HOMFFILE hFile, ULONG flExpected)
 /* Open / close                                                        */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Open an OMF file for reading or writing.
+/*!
+ * @brief Open an OMF file for reading or writing.
  *
- *  The access flag (OMF_OPEN_READ or OMF_OPEN_WRITE) must be combined
- *  with exactly one action flag (OMF_OPEN_EXISTING, OMF_OPEN_CREATE
- *  or OMF_OPEN_TRUNCATE). For reading, OMF_OPEN_EXISTING is the only
- *  valid action. For writing, use OMF_OPEN_CREATE or
- *  OMF_OPEN_TRUNCATE.
+ * The access flag (OMF_OPEN_READ or OMF_OPEN_WRITE) must be combined
+ * with exactly one action flag (OMF_OPEN_EXISTING, OMF_OPEN_CREATE
+ * or OMF_OPEN_TRUNCATE). For reading, OMF_OPEN_EXISTING is the only
+ * valid action. For writing, use OMF_OPEN_CREATE or
+ * OMF_OPEN_TRUNCATE.
  *
- *  @param[in]  pszPath  File path. Not NULL.
- *  @param[out] phFile   Receives the handle. Not NULL. Set to
- *                       NULLHANDLE on failure.
- *  @param[in]  flOpen   Access and action flags (OMF_OPEN_*).
+ * @param[in]  pszPath  File path. Not NULL.
+ * @param[out] phFile   Receives the handle. Not NULL. Set to
+ *                      NULLHANDLE on failure.
+ * @param[in]  flOpen   Access and action flags (OMF_OPEN_*).
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success.
- *  @retval ERROR_INVALID_PARAMETER  @p pszPath or @p phFile is NULL,
- *                                   or the flag combination is
- *                                   invalid.
- *  @retval ERROR_OPEN_FAILED        File cannot be opened.
- *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @return APIRET
  *
- *  @see OmfClose
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p pszPath or @p phFile is NULL,
+ *                                  or the flag combination is
+ *                                  invalid.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *
+ * @see OmfClose
  */
 APIRET APIENTRY OmfOpen(PCSZ pszPath, HOMFFILE *phFile,
                         ULONG flOpen)
@@ -151,17 +158,19 @@ APIRET APIENTRY OmfOpen(PCSZ pszPath, HOMFFILE *phFile,
     return NO_ERROR;
 }
 
-/*! @brief Close an OMF file.
+/*!
+ * @brief Close an OMF file.
  *
- *  Flushes and closes the underlying stream and releases the handle.
- *  Idempotent: passing NULLHANDLE returns NO_ERROR.
+ * Flushes and closes the underlying stream and releases the handle.
+ * Idempotent: passing NULLHANDLE returns NO_ERROR.
  *
- *  @param[in] hFile  Handle from OmfOpen. NULLHANDLE is accepted.
+ * @param[in] hFile  Handle from OmfOpen. NULLHANDLE is accepted.
  *
- *  @return APIRET
- *  @retval NO_ERROR  Always.
+ * @return APIRET
  *
- *  @see OmfOpen
+ * @retval NO_ERROR  Always.
+ *
+ * @see OmfOpen
  */
 APIRET APIENTRY OmfClose(HOMFFILE hFile)
 {
@@ -178,14 +187,15 @@ APIRET APIENTRY OmfClose(HOMFFILE hFile)
 /* Source extraction                                                   */
 /* ------------------------------------------------------------------ */
 
-/*! @brief Read a 2-byte little-endian unsigned integer.
+/*!
+ * @brief Read a 2-byte little-endian unsigned integer.
  *
- *  Reads two bytes from @p puchPos and returns their value in
- *  little-endian order: @c puchPos[0] | (puchPos[1] << 8).
+ * Reads two bytes from @p puchPos and returns their value in
+ * little-endian order: @c puchPos[0] | (puchPos[1] << 8).
  *
- *  @param[in] puchPos  Pointer to two bytes. Not NULL.
+ * @param[in] puchPos  Pointer to two bytes. Not NULL.
  *
- *  @return Value in the range [0, 65535].
+ * @return Value in the range [0, 65535].
  */
 static unsigned int omf_read_u16(const UCHAR *puchPos)
 {
@@ -193,22 +203,24 @@ static unsigned int omf_read_u16(const UCHAR *puchPos)
            ((unsigned int)puchPos[1] << 8);
 }
 
-/*! @brief Append a name of length @p cbLen to the destination set.
+/*!
+ * @brief Append a name of length @p cbLen to the destination set.
  *
- *  The name is copied into a temporary NUL-terminated buffer before
- *  being handed to StrSetAdd. Names longer than the internal buffer
- *  are rejected with ERROR_INVALID_PARAMETER.
+ * The name is copied into a temporary NUL-terminated buffer before
+ * being handed to StrSetAdd. Names longer than the internal buffer
+ * are rejected with ERROR_INVALID_PARAMETER.
  *
- *  @param[in] hOut     Destination set. Not NULLHANDLE.
- *  @param[in] puchStr  Source bytes. Not NULL.
- *  @param[in] cbLen    Number of bytes.
+ * @param[in] hOut     Destination set. Not NULLHANDLE.
+ * @param[in] puchStr  Source bytes. Not NULL.
+ * @param[in] cbLen    Number of bytes.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success (including cbLen == 0).
- *  @retval ERROR_INVALID_PARAMETER  @p cbLen exceeds the internal
- *                                   buffer size.
- *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure inside
- *                                   StrSetAdd.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success (including cbLen == 0).
+ * @retval ERROR_INVALID_PARAMETER  @p cbLen exceeds the internal
+ *                                  buffer size.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure inside
+ *                                  StrSetAdd.
  */
 static APIRET omf_add_name(HSTRSET hOut, const UCHAR *puchStr,
                            ULONG cbLen)
@@ -222,23 +234,25 @@ static APIRET omf_add_name(HSTRSET hOut, const UCHAR *puchStr,
     return StrSetAdd(hOut, achBuf);
 }
 
-/*! @brief Process a THEADR record (0x80).
+/*!
+ * @brief Process a THEADR record (0x80).
  *
- *  Layout: [name_len:1][name:name_len]. A zero-length name is
- *  silently ignored. A name that would extend past the payload end
- *  is also ignored (the record is treated as malformed). Malformed
- *  records are not reported as errors so that a single damaged
- *  record does not abort the whole extraction.
+ * Layout: [name_len:1][name:name_len]. A zero-length name is
+ * silently ignored. A name that would extend past the payload end
+ * is also ignored (the record is treated as malformed). Malformed
+ * records are not reported as errors so that a single damaged
+ * record does not abort the whole extraction.
  *
- *  @param[in] puchData  Record payload. Not NULL.
- *  @param[in] cbLen     Payload length.
- *  @param[in] hOut      Destination set. Not NULLHANDLE.
+ * @param[in] puchData  Record payload. Not NULL.
+ * @param[in] cbLen     Payload length.
+ * @param[in] hOut      Destination set. Not NULLHANDLE.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success (including malformed).
- *  @retval ERROR_INVALID_PARAMETER  Name too long for the internal
- *                                   buffer.
- *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success (including malformed).
+ * @retval ERROR_INVALID_PARAMETER  Name too long for the internal
+ *                                  buffer.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET omf_process_theadr(const UCHAR *puchData, ULONG cbLen,
                                  HSTRSET hOut)
@@ -254,32 +268,34 @@ static APIRET omf_process_theadr(const UCHAR *puchData, ULONG cbLen,
     return NO_ERROR;
 }
 
-/*! @brief Process a COMENT record (0x88).
+/*!
+ * @brief Process a COMENT record (0x88).
  *
- *  Layout: [comment_type:1][comment_class:1][payload]. The payload
- *  layout depends on the comment class:
+ * Layout: [comment_type:1][comment_class:1][payload]. The payload
+ * layout depends on the comment class:
  *
- *    - OMF_COMENT_CLASS_BORLAND_DEP (0xE9) and
- *      OMF_COMENT_CLASS_WATCOM_DEP (0xFB): a 4-byte timestamp
- *      followed by repeated [len:1][name:len] entries.
- *    - OMF_COMENT_CLASS_EXTRA_DEP (0x88): a 4-byte timestamp
- *      followed by a single [len:1][name:len] entry.
- *    - OMF_COMENT_CLASS_BORLAND_SRC (0xE8): a single
- *      [len:1][name:len] entry without a timestamp.
+ *   - OMF_COMENT_CLASS_BORLAND_DEP (0xE9) and
+ *     OMF_COMENT_CLASS_WATCOM_DEP (0xFB): a 4-byte timestamp
+ *     followed by repeated [len:1][name:len] entries.
+ *   - OMF_COMENT_CLASS_EXTRA_DEP (0x88): a 4-byte timestamp
+ *     followed by a single [len:1][name:len] entry.
+ *   - OMF_COMENT_CLASS_BORLAND_SRC (0xE8): a single
+ *     [len:1][name:len] entry without a timestamp.
  *
- *  Unknown classes are silently ignored. Malformed records are also
- *  ignored rather than treated as errors, so that a single damaged
- *  dependency list does not abort the whole extraction.
+ * Unknown classes are silently ignored. Malformed records are also
+ * ignored rather than treated as errors, so that a single damaged
+ * dependency list does not abort the whole extraction.
  *
- *  @param[in] puchData  Record payload. Not NULL.
- *  @param[in] cbLen     Payload length.
- *  @param[in] hOut      Destination set. Not NULLHANDLE.
+ * @param[in] puchData  Record payload. Not NULL.
+ * @param[in] cbLen     Payload length.
+ * @param[in] hOut      Destination set. Not NULLHANDLE.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Success (including malformed).
- *  @retval ERROR_INVALID_PARAMETER  A name is too long for the
- *                                   internal buffer.
- *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success (including malformed).
+ * @retval ERROR_INVALID_PARAMETER  A name is too long for the
+ *                                  internal buffer.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET omf_process_coment(const UCHAR *puchData, ULONG cbLen,
                                  HSTRSET hOut)
@@ -351,46 +367,48 @@ static APIRET omf_process_coment(const UCHAR *puchData, ULONG cbLen,
     return NO_ERROR;
 }
 
-/*! @brief Extract source file names from an OMF object file.
+/*!
+ * @brief Extract source file names from an OMF object file.
  *
- *  The handle must have been opened with OMF_OPEN_READ. The function
- *  reads the whole file into memory, walks it as a stream of OMF
- *  records, and appends every source name it recognizes to @p hOut:
+ * The handle must have been opened with OMF_OPEN_READ. The function
+ * reads the whole file into memory, walks it as a stream of OMF
+ * records, and appends every source name it recognizes to @p hOut:
  *
- *    - every THEADR record contributes its module name;
- *    - every COMENT record whose class is one of
- *      OMF_COMENT_CLASS_BORLAND_DEP, OMF_COMENT_CLASS_WATCOM_DEP,
- *      OMF_COMENT_CLASS_EXTRA_DEP or OMF_COMENT_CLASS_BORLAND_SRC
- *      contributes the names it carries.
+ *   - every THEADR record contributes its module name;
+ *   - every COMENT record whose class is one of
+ *     OMF_COMENT_CLASS_BORLAND_DEP, OMF_COMENT_CLASS_WATCOM_DEP,
+ *     OMF_COMENT_CLASS_EXTRA_DEP or OMF_COMENT_CLASS_BORLAND_SRC
+ *     contributes the names it carries.
  *
- *  Duplicates are handled by the set implementation; the same name
- *  may be appended twice without error.
+ * Duplicates are handled by the set implementation; the same name
+ * may be appended twice without error.
  *
- *  If the file contains no recognizable source names at all, the
- *  function returns ERROR_FILE_NOT_FOUND. This allows callers to
- *  distinguish "processed but empty" from "processed and found
- *  names".
+ * If the file contains no recognizable source names at all, the
+ * function returns ERROR_FILE_NOT_FOUND. This allows callers to
+ * distinguish "processed but empty" from "processed and found
+ * names".
  *
- *  @param[in] hFile  Handle from OmfOpen. Not NULLHANDLE.
- *  @param[in] hOut   Destination string set. Not NULLHANDLE.
+ * @param[in] hFile  Handle from OmfOpen. Not NULLHANDLE.
+ * @param[in] hOut   Destination string set. Not NULLHANDLE.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 At least one name was added.
- *  @retval ERROR_INVALID_PARAMETER  @p hFile is NULLHANDLE or not
- *                                   opened for reading, or @p hOut is
- *                                   NULLHANDLE, or a name inside a
- *                                   THEADR/COMENT record is longer
- *                                   than the internal buffer.
- *  @retval ERROR_READ_FAULT         File size is zero, or read error.
- *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- *  @retval ERROR_FILE_NOT_FOUND     No source names found.
+ * @return APIRET
  *
- *  @note The caller owns @p hOut and must release it with
- *        StrSetDestroy.
+ * @retval NO_ERROR                 At least one name was added.
+ * @retval ERROR_INVALID_PARAMETER  @p hFile is NULLHANDLE or not
+ *                                  opened for reading, or @p hOut is
+ *                                  NULLHANDLE, or a name inside a
+ *                                  THEADR/COMENT record is longer
+ *                                  than the internal buffer.
+ * @retval ERROR_READ_FAULT         File size is zero, or read error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval ERROR_FILE_NOT_FOUND     No source names found.
  *
- *  @see OmfOpen
- *  @see OmfWriteTheadr
- *  @see OmfWriteComent
+ * @note The caller owns @p hOut and must release it with
+ *       StrSetDestroy.
+ *
+ * @see OmfOpen
+ * @see OmfWriteTheadr
+ * @see OmfWriteComent
  */
 APIRET APIENTRY OmfQuerySources(HOMFFILE hFile, HSTRSET hOut)
 {
