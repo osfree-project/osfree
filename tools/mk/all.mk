@@ -9,11 +9,14 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: precopy spdx-lint install spdx-sbom .symbolic
+all: precopy spdx-lint doxy-lint install spdx-sbom .symbolic
 
 !include $(%ROOT)tools/mk/dirs.mk
 !include $(%ROOT)tools/mk/genrules.mk
 !include $(%ROOT)tools/mk/spdx.mk
+
+doxy-lint: .SYMBOLIC
+    $(verbose)doxy-lint.exe $(MYDIR)
 
 print_vars: .symbolic
         @echo __MAKEFILES__     $(__MAKEFILES__) 
