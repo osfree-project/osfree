@@ -1,4 +1,13 @@
-/* toml.c - TOML v1.0.0 parser (C89 + Watcom extensions) */
+/*!
+ *
+ * @file toml.c
+ *
+ * @brief Implementation of the TOML v1.0.0 parser.
+ *
+ * Conforms to:
+ *   - https://toml.io/en/v1.0.0
+ *   - https://github.com/toml-lang/toml/blob/1.0.0/toml.abnf
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,34 +18,25 @@
 #include "toml.h"
 #include "toml_internal.h"
 
-/**
- * @file toml.c
- * @brief Implementation of the TOML v1.0.0 parser.
- *
- * Conforms to:
- *   - https://toml.io/en/v1.0.0
- *   - https://github.com/toml-lang/toml/blob/1.0.0/toml.abnf
- */
-
 /* ==================================================================
  * Parser state
  * ================================================================== */
 
-/**
+/*!
  * @struct _PARSE
  * @brief Parser cursor.
  */
 typedef struct _PARSE {
-    PCSZ pszPos;    /**< Current position.          */
-    PCSZ pszEnd;    /**< End of input.              */
-    PCSZ pszError;  /**< Static error description.  */
+    PCSZ pszPos;    /*!< Current position.         */
+    PCSZ pszEnd;    /*!< End of input.             */
+    PCSZ pszError;  /*!< Static error description. */
 } PARSE;
 
 /* ==================================================================
  * Small helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Record a static error description.
  *
  * The first recorded message wins; later calls are ignored. This
@@ -49,7 +49,7 @@ static void set_error(PARSE *pParser, PCSZ pszMsg) {
     if (pParser->pszError == NULL) pParser->pszError = pszMsg;
 }
 
-/**
+/*!
  * @brief Skip spaces and tabs.
  *
  * @param[in,out] pParser  Parser. Not NULL.
@@ -60,30 +60,36 @@ static void skip_ws(PARSE *pParser) {
         pParser->pszPos++;
 }
 
-/**
+/*!
  * @brief Query whether a character is an ASCII digit.
  *
  * @param[in] c  Character.
  *
  * @return 1 if digit, 0 otherwise.
+ *
+ * @retval 1  The character is '0'..'9'.
+ * @retval 0  Otherwise.
  */
 static int is_digit_c(int c) {
     return c >= '0' && c <= '9';
 }
 
-/**
+/*!
  * @brief Query whether a character may appear in a bare key.
  *
  * @param[in] c  Character.
  *
  * @return 1 if allowed, 0 otherwise.
+ *
+ * @retval 1  The character is A-Z, a-z, 0-9, '_' or '-'.
+ * @retval 0  Otherwise.
  */
 static int is_bare_key_char(int c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
            (c >= '0' && c <= '9') || c == '_' || c == '-';
 }
 
-/**
+/*!
  * @brief Skip a comment starting at '#'.
  *
  * Comment body may contain any character except control characters
@@ -92,6 +98,9 @@ static int is_bare_key_char(int c) {
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid control character in the comment.
  */
 static int skip_comment(PARSE *pParser) {
     if (pParser->pszPos >= pParser->pszEnd ||
@@ -107,7 +116,7 @@ static int skip_comment(PARSE *pParser) {
     return 0;
 }
 
-/**
+/*!
  * @brief Consume one newline: '\n' or '\r\n'.
  *
  * A lone '\r' is an error.
@@ -115,6 +124,9 @@ static int skip_comment(PARSE *pParser) {
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Lone '\r' or end of input.
  */
 static int consume_newline(PARSE *pParser) {
     if (pParser->pszPos < pParser->pszEnd && *pParser->pszPos == '\r') {
@@ -130,12 +142,15 @@ static int consume_newline(PARSE *pParser) {
     return -1;
 }
 
-/**
+/*!
  * @brief Skip whitespace, newlines and comments.
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid comment character or lone '\r'.
  */
 static int skip_ws_nl_comments(PARSE *pParser) {
     for (;;) {
@@ -155,13 +170,16 @@ static int skip_ws_nl_comments(PARSE *pParser) {
     return 0;
 }
 
-/**
+/*!
  * @brief Skip whitespace and an optional comment, then require a
  *        newline or end of input.
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid comment character or missing newline.
  */
 static int skip_to_eol(PARSE *pParser) {
     skip_ws(pParser);
@@ -177,7 +195,7 @@ static int skip_to_eol(PARSE *pParser) {
  * IEEE 754 helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Return positive or negative infinity.
  *
  * @param[in] fNegative  TRUE for -inf, FALSE for +inf.
@@ -188,7 +206,7 @@ static double toml_inf(int fNegative) {
     return fNegative ? -HUGE_VAL : HUGE_VAL;
 }
 
-/**
+/*!
  * @brief Return a NaN value.
  *
  * @return A quiet NaN.
@@ -212,12 +230,15 @@ static double toml_nan(void) {
  * UTF-8 validation (RFC 3629)
  * ================================================================== */
 
-/**
+/*!
  * @brief Validate a NUL-terminated UTF-8 string.
  *
  * @param[in] pszStr  String. Not NULL.
  *
  * @return 1 if valid, 0 otherwise.
+ *
+ * @retval 1  The string is valid UTF-8.
+ * @retval 0  The string is not valid UTF-8.
  */
 static int valid_utf8(PCSZ pszStr) {
     const UCHAR *puchPos;
@@ -262,12 +283,14 @@ static int valid_utf8(PCSZ pszStr) {
  * Tree primitives
  * ================================================================== */
 
-/**
+/*!
  * @brief Create a new value node of the given type.
  *
  * @param[in] ulType  One of TOML_TYPE_*.
  *
  * @return New value, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PTOMLVALUE value_new(ULONG ulType) {
     PTOMLVALUE pValue;
@@ -276,10 +299,12 @@ static PTOMLVALUE value_new(ULONG ulType) {
     return pValue;
 }
 
-/**
+/*!
  * @brief Create a new empty table.
  *
  * @return New table, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PTOMLTABLE table_new(void) {
     PTOMLTABLE pTable;
@@ -293,20 +318,39 @@ static PTOMLTABLE table_new(void) {
     return pTable;
 }
 
-/**
+/*!
  * @brief Create a new empty array.
  *
  * @return New array, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PTOMLARRAY array_new(void) {
     return (PTOMLARRAY)calloc(1, sizeof(TOMLARRAY));
 }
 
+/*!
+ * @brief Forward declaration of the value destructor.
+ *
+ * @param[in] pValue  Value. May be NULL.
+ */
 static void value_free(PTOMLVALUE pValue);
+
+/*!
+ * @brief Forward declaration of the table destructor.
+ *
+ * @param[in] pTable  Table. May be NULL.
+ */
 static void table_free(PTOMLTABLE pTable);
+
+/*!
+ * @brief Forward declaration of the array destructor.
+ *
+ * @param[in] pArray  Array. May be NULL.
+ */
 static void array_free(PTOMLARRAY pArray);
 
-/**
+/*!
  * @brief Release an array and all its items.
  *
  * @param[in] pArray  Array. May be NULL.
@@ -320,7 +364,7 @@ static void array_free(PTOMLARRAY pArray) {
     free(pArray);
 }
 
-/**
+/*!
  * @brief Release a table and all its entries.
  *
  * @param[in] pTable  Table. May be NULL.
@@ -346,7 +390,7 @@ static void table_free(PTOMLTABLE pTable) {
     free(pTable);
 }
 
-/**
+/*!
  * @brief Release a value and its owned resources.
  *
  * @param[in] pValue  Value. May be NULL.
@@ -363,7 +407,7 @@ static void value_free(PTOMLVALUE pValue) {
     free(pValue);
 }
 
-/**
+/*!
  * @brief Release a tree built by TomlInternalParse.
  *
  * @param[in] pRoot  Root table. May be NULL.
@@ -372,12 +416,15 @@ void TomlInternalFreeTree(PTOMLTABLE pRoot) {
     table_free(pRoot);
 }
 
-/**
+/*!
  * @brief Grow an array's backing storage if needed.
  *
  * @param[in,out] pArray  Array. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int array_grow(PTOMLARRAY pArray) {
     ULONG ulNewCap;
@@ -392,7 +439,7 @@ static int array_grow(PTOMLARRAY pArray) {
     return 0;
 }
 
-/**
+/*!
  * @brief Find a table entry by key.
  *
  * @param[in]  pTable  Table. Not NULL.
@@ -401,6 +448,9 @@ static int array_grow(PTOMLARRAY pArray) {
  *                     entry on success.
  *
  * @return 1 if found, 0 otherwise.
+ *
+ * @retval 1  The entry was found.
+ * @retval 0  Not found.
  */
 static int table_find_copy(PTOMLTABLE pTable, PCSZ pszKey,
                            PTOMLENTRY pEntry) {
@@ -421,13 +471,15 @@ static int table_find_copy(PTOMLTABLE pTable, PCSZ pszKey,
     return 0;
 }
 
-/**
+/*!
  * @brief Find a value in a table by key.
  *
  * @param[in] pTable  Table. Not NULL.
  * @param[in] pszKey  Key. Not NULL.
  *
  * @return Pointer to the value, or NULL if not found.
+ *
+ * @retval NULL  Not found.
  */
 static PTOMLVALUE table_find_value(PTOMLTABLE pTable, PCSZ pszKey) {
     TOMLENTRY entry;
@@ -435,19 +487,22 @@ static PTOMLVALUE table_find_value(PTOMLTABLE pTable, PCSZ pszKey) {
     return NULL;
 }
 
-/**
+/*!
  * @brief Query whether a table contains a key.
  *
  * @param[in] pTable  Table. Not NULL.
  * @param[in] pszKey  Key. Not NULL.
  *
  * @return 1 if present, 0 otherwise.
+ *
+ * @retval 1  Present.
+ * @retval 0  Not present.
  */
 static int table_has_key(PTOMLTABLE pTable, PCSZ pszKey) {
     return table_find_copy(pTable, pszKey, NULL);
 }
 
-/**
+/*!
  * @brief Append a key/value pair to a table.
  *
  * @param[in] pTable  Table. Not NULL.
@@ -455,6 +510,9 @@ static int table_has_key(PTOMLTABLE pTable, PCSZ pszKey) {
  * @param[in] pValue  Value. Ownership transfers to the table.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int table_add(PTOMLTABLE pTable, PSZ pszKey, PTOMLVALUE pValue) {
     TOMLENTRY entry;
@@ -464,13 +522,16 @@ static int table_add(PTOMLTABLE pTable, PSZ pszKey, PTOMLVALUE pValue) {
     return 0;
 }
 
-/**
+/*!
  * @brief Append a value to an array.
  *
  * @param[in] pArray  Array. Not NULL.
  * @param[in] pValue  Value. Ownership transfers to the array.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int array_add(PTOMLARRAY pArray, PTOMLVALUE pValue) {
     if (array_grow(pArray) != 0) return -1;
@@ -478,12 +539,14 @@ static int array_add(PTOMLARRAY pArray, PTOMLVALUE pValue) {
     return 0;
 }
 
-/**
+/*!
  * @brief Wrap a table in a value node.
  *
  * @param[in] pTable  Table. Not NULL.
  *
  * @return New value, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PTOMLVALUE value_table(PTOMLTABLE pTable) {
     PTOMLVALUE pValue = value_new(TOML_TYPE_TABLE);
@@ -492,12 +555,14 @@ static PTOMLVALUE value_table(PTOMLTABLE pTable) {
     return pValue;
 }
 
-/**
+/*!
  * @brief Wrap an array in a value node.
  *
  * @param[in] pArray  Array. Not NULL.
  *
  * @return New value, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PTOMLVALUE value_array(PTOMLARRAY pArray) {
     PTOMLVALUE pValue = value_new(TOML_TYPE_ARRAY);
@@ -510,12 +575,14 @@ static PTOMLVALUE value_array(PTOMLARRAY pArray) {
  * String parsing
  * ================================================================== */
 
-/**
+/*!
  * @brief Return the value of a single hex digit.
  *
  * @param[in] c  Character.
  *
  * @return Value in [0, 15], or -1 if not a hex digit.
+ *
+ * @retval -1  Not a hex digit.
  */
 static int hex_digit(int c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -524,7 +591,7 @@ static int hex_digit(int c) {
     return -1;
 }
 
-/**
+/*!
  * @brief Encode a Unicode scalar value as UTF-8.
  *
  * @param[in]  ulCp    Codepoint.
@@ -532,6 +599,12 @@ static int hex_digit(int c) {
  *                     bytes.
  *
  * @return Number of bytes written (1..4), or 0 on invalid input.
+ *
+ * @retval 1  One-byte sequence written.
+ * @retval 2  Two-byte sequence written.
+ * @retval 3  Three-byte sequence written.
+ * @retval 4  Four-byte sequence written.
+ * @retval 0  Invalid scalar value.
  */
 static int utf8_emit(ULONG ulCp, PSZ pszOut) {
     if (ulCp < 0x80) { pszOut[0] = (CHAR)ulCp; return 1; }
@@ -557,7 +630,7 @@ static int utf8_emit(ULONG ulCp, PSZ pszOut) {
     return 0;
 }
 
-/**
+/*!
  * @brief Append bytes to a growable buffer.
  *
  * @param[in,out] ppszBuf  Pointer to the buffer pointer. Not NULL.
@@ -567,6 +640,9 @@ static int utf8_emit(ULONG ulCp, PSZ pszOut) {
  * @param[in]     cbLen    Number of bytes.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_put(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
                     PCSZ pszData, size_t cbLen) {
@@ -583,7 +659,7 @@ static int sbuf_put(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
     return 0;
 }
 
-/**
+/*!
  * @brief Append one byte to a growable buffer.
  *
  * @param[in,out] ppszBuf  Pointer to the buffer pointer. Not NULL.
@@ -592,13 +668,16 @@ static int sbuf_put(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
  * @param[in]     ch       Byte.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_putc(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
                      CHAR ch) {
     return sbuf_put(ppszBuf, pcbCap, pcbLen, &ch, 1);
 }
 
-/**
+/*!
  * @brief Parse a \uXXXX or \UXXXXXXXX escape.
  *
  * @param[in,out] pParser   Parser at the 'u' or 'U'. Not NULL.
@@ -606,6 +685,9 @@ static int sbuf_putc(PSZ *ppszBuf, size_t *pcbCap, size_t *pcbLen,
  * @param[out]    pnBytes   Number of bytes written.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Invalid hex digits or invalid scalar value.
  */
 static int parse_hex_escape(PARSE *pParser, PSZ pszUbuf, int *pnBytes) {
     int nHex = (*pParser->pszPos == 'u') ? 4 : 8;
@@ -624,12 +706,14 @@ static int parse_hex_escape(PARSE *pParser, PSZ pszUbuf, int *pnBytes) {
     return (*pnBytes == 0) ? -1 : 0;
 }
 
-/**
+/*!
  * @brief Parse a basic string: "..." .
  *
  * @param[in,out] pParser  Parser at the opening '"'. Not NULL.
  *
  * @return malloc'd string, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_basic_string(PARSE *pParser) {
     size_t cbCap = 64, cbLen = 0;
@@ -681,12 +765,14 @@ fail:
     return NULL;
 }
 
-/**
+/*!
  * @brief Parse a multi-line basic string: """...""" .
  *
  * @param[in,out] pParser  Parser at the opening '"""'. Not NULL.
  *
  * @return malloc'd string, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_multiline_basic_string(PARSE *pParser) {
     size_t cbCap = 64, cbLen = 0;
@@ -792,12 +878,14 @@ fail:
     return NULL;
 }
 
-/**
+/*!
  * @brief Parse a literal string: '...' .
  *
  * @param[in,out] pParser  Parser at the opening '\''. Not NULL.
  *
  * @return malloc'd string, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_literal_string(PARSE *pParser) {
     PCSZ pszStart;
@@ -825,12 +913,14 @@ static PSZ parse_literal_string(PARSE *pParser) {
     }
 }
 
-/**
+/*!
  * @brief Parse a multi-line literal string: '''...''' .
  *
  * @param[in,out] pParser  Parser at the opening "'''". Not NULL.
  *
  * @return malloc'd string, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_multiline_literal_string(PARSE *pParser) {
     PCSZ pszStart;
@@ -891,7 +981,7 @@ static PSZ parse_multiline_literal_string(PARSE *pParser) {
  * Date/time validation (TOML v1.0.0 grammar)
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse two decimal digits into an integer value.
  *
  * @param[in] pszPos  Pointer to two digits. Not NULL.
@@ -902,13 +992,15 @@ static int parse_2digit(PCSZ pszPos) {
     return (pszPos[0] - '0') * 10 + (pszPos[1] - '0');
 }
 
-/**
+/*!
  * @brief Days in a month, taking leap years into account.
  *
  * @param[in] nYear   Full year.
  * @param[in] nMonth  Month, 1-based.
  *
  * @return Number of days in the month, or 0 on invalid month.
+ *
+ * @retval 0  Invalid month.
  */
 static int days_in_month(int nYear, int nMonth) {
     static const int anDim[] = {
@@ -923,7 +1015,7 @@ static int days_in_month(int nYear, int nMonth) {
     return anDim[nMonth];
 }
 
-/**
+/*!
  * @brief Validate a date/time token against the TOML v1.0.0 grammar
  *        (RFC 3339 subset).
  *
@@ -931,6 +1023,9 @@ static int days_in_month(int nYear, int nMonth) {
  * @param[in] cbLen   Token length.
  *
  * @return 1 if valid, 0 otherwise.
+ *
+ * @retval 1  Valid.
+ * @retval 0  Invalid.
  */
 static int validate_datetime(PCSZ pszStr, size_t cbLen) {
     size_t cbPos = 0;
@@ -1000,7 +1095,7 @@ static int validate_datetime(PCSZ pszStr, size_t cbLen) {
     return cbPos == cbLen && (fHaveDate || fHaveTime);
 }
 
-/**
+/*!
  * @brief Quick syntactic check: does the token look like a date or a
  *        time?
  *
@@ -1008,6 +1103,9 @@ static int validate_datetime(PCSZ pszStr, size_t cbLen) {
  * @param[in] pszEnd  End of the input. Not NULL.
  *
  * @return 1 if it looks like a date or time, 0 otherwise.
+ *
+ * @retval 1  Looks like a date or time.
+ * @retval 0  Otherwise.
  */
 static int looks_like_datetime(PCSZ pszPos, PCSZ pszEnd) {
     if (pszPos + 5 <= pszEnd &&
@@ -1024,13 +1122,15 @@ static int looks_like_datetime(PCSZ pszPos, PCSZ pszEnd) {
  * Number parsing
  * ================================================================== */
 
-/**
+/*!
  * @brief Return the value of a digit in the given base.
  *
  * @param[in] c      Character.
  * @param[in] nBase  Base (2, 8, 10 or 16).
  *
  * @return Value, or -1 if not a valid digit in that base.
+ *
+ * @retval -1  Not a valid digit in that base.
  */
 static int digit_value(int c, int nBase) {
     if (c >= '0' && c <= '9') {
@@ -1043,7 +1143,7 @@ static int digit_value(int c, int nBase) {
     return -1;
 }
 
-/**
+/*!
  * @brief Parse an integer token.
  *
  * @param[in]  pszStart  Start of the token. Not NULL.
@@ -1051,6 +1151,9 @@ static int digit_value(int c, int nBase) {
  * @param[out] pllOut    Receiver. Not NULL.
  *
  * @return 1 on success, 0 on syntax error.
+ *
+ * @retval 1  Success.
+ * @retval 0  Syntax error or overflow.
  */
 static int parse_integer_token(PCSZ pszStart, PCSZ pszEnd,
                                PLONGLONG pllOut) {
@@ -1130,13 +1233,16 @@ static int parse_integer_token(PCSZ pszStart, PCSZ pszEnd,
     return 1;
 }
 
-/**
+/*!
  * @brief Query whether the cursor starts a number token.
  *
  * @param[in] pszPos  Start. Not NULL.
  * @param[in] pszEnd  End of the input. Not NULL.
  *
  * @return 1 if so, 0 otherwise.
+ *
+ * @retval 1  Starts a number token.
+ * @retval 0  Otherwise.
  */
 static int is_number_token_start(PCSZ pszPos, PCSZ pszEnd) {
     if (pszPos >= pszEnd) return 0;
@@ -1149,12 +1255,15 @@ static int is_number_token_start(PCSZ pszPos, PCSZ pszEnd) {
     return 0;
 }
 
-/**
+/*!
  * @brief Validate a float token (underscores already stripped).
  *
  * @param[in] pszStr  Token. Not NULL.
  *
  * @return 1 if valid, 0 otherwise.
+ *
+ * @retval 1  Valid float.
+ * @retval 0  Invalid float.
  */
 static int validate_float_clean(PCSZ pszStr) {
     size_t i = 0, cbLen = strlen(pszStr);
@@ -1195,13 +1304,16 @@ static int validate_float_clean(PCSZ pszStr) {
     return 1;
 }
 
-/**
+/*!
  * @brief Parse a number or date/time token.
  *
  * @param[in,out] pParser  Parser. Not NULL.
  * @param[out]    ppValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_number_or_datetime(PARSE *pParser, PTOMLVALUE *ppValue) {
     PCSZ pszStart = pParser->pszPos;
@@ -1411,13 +1523,16 @@ static int parse_number_or_datetime(PARSE *pParser, PTOMLVALUE *ppValue) {
  * Boolean
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse a boolean token (true / false).
  *
  * @param[in,out] pParser  Parser. Not NULL.
  * @param[out]    ppValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_boolean(PARSE *pParser, PTOMLVALUE *ppValue) {
     if (pParser->pszPos + 4 <= pParser->pszEnd &&
@@ -1449,11 +1564,35 @@ static int parse_boolean(PARSE *pParser, PTOMLVALUE *ppValue) {
  * Arrays and inline tables
  * ================================================================== */
 
+/*!
+ * @brief Forward declaration of the value parser.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[out]    ppValue  Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
+ */
 static int parse_value(PARSE *pParser, PTOMLVALUE *ppValue);
+
+/*!
+ * @brief Forward declaration of the key path parser.
+ *
+ * @param[in,out] pParser     Parser. Not NULL.
+ * @param[out]    ppapszKeys  Receiver for the key array. Not NULL.
+ * @param[out]    pulCount    Receiver for the count. Not NULL.
+ *
+ * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
+ */
 static int parse_key_path(PARSE *pParser, PSZ **ppapszKeys,
                           PULONG pulCount);
 
-/**
+/*!
  * @brief Release a parsed key path.
  *
  * @param[in] papszKeys  Array of keys. May be NULL.
@@ -1466,13 +1605,16 @@ static void free_key_path(PSZ *papszKeys, ULONG ulCount) {
     free(papszKeys);
 }
 
-/**
+/*!
  * @brief Parse a TOML array.
  *
  * @param[in,out] pParser  Parser at the opening '['. Not NULL.
  * @param[out]    ppValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_array(PARSE *pParser, PTOMLVALUE *ppValue) {
     PTOMLARRAY pArray = array_new();
@@ -1511,7 +1653,7 @@ static int parse_array(PARSE *pParser, PTOMLVALUE *ppValue) {
     return 0;
 }
 
-/**
+/*!
  * @brief Assign a value to a dotted key path inside an inline table.
  *
  * @param[in] pTable    Table. Not NULL.
@@ -1520,6 +1662,9 @@ static int parse_array(PARSE *pParser, PTOMLVALUE *ppValue) {
  * @param[in] pValue    Value. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Duplicate key or allocation failure.
  */
 static int inline_assign(PTOMLTABLE pTable, PSZ *papszKeys,
                          ULONG ulNKeys, PTOMLVALUE pValue) {
@@ -1554,13 +1699,16 @@ static int inline_assign(PTOMLTABLE pTable, PSZ *papszKeys,
     return 0;
 }
 
-/**
+/*!
  * @brief Parse an inline table.
  *
  * @param[in,out] pParser  Parser at the opening '{'. Not NULL.
  * @param[out]    ppValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_inline_table(PARSE *pParser, PTOMLVALUE *ppValue) {
     PTOMLTABLE pTable = table_new();
@@ -1619,13 +1767,16 @@ static int parse_inline_table(PARSE *pParser, PTOMLVALUE *ppValue) {
     return 0;
 }
 
-/**
+/*!
  * @brief Parse one TOML value.
  *
  * @param[in,out] pParser  Parser. Not NULL.
  * @param[out]    ppValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_value(PARSE *pParser, PTOMLVALUE *ppValue) {
     skip_ws(pParser);
@@ -1676,12 +1827,14 @@ static int parse_value(PARSE *pParser, PTOMLVALUE *ppValue) {
  * Keys
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse one key part (bare, basic or literal string).
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return malloc'd key, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_key_part(PARSE *pParser) {
     skip_ws(pParser);
@@ -1705,7 +1858,7 @@ static PSZ parse_key_part(PARSE *pParser) {
     }
 }
 
-/**
+/*!
  * @brief Parse a dotted key path.
  *
  * @param[in,out] pParser     Parser. Not NULL.
@@ -1713,6 +1866,9 @@ static PSZ parse_key_part(PARSE *pParser) {
  * @param[out]    pulCount    Receiver for the count. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_key_path(PARSE *pParser, PSZ **ppapszKeys,
                           PULONG pulCount) {
@@ -1754,7 +1910,7 @@ fail:
  * Table navigation
  * ================================================================== */
 
-/**
+/*!
  * @brief Descend into a table by a key path, creating tables as
  *        needed.
  *
@@ -1765,6 +1921,9 @@ fail:
  * @param[in] ulFinalFlags         Flags for the final table.
  *
  * @return Final table, or NULL on error.
+ *
+ * @retval NULL  Conflict with an existing value or allocation
+ *               failure.
  */
 static PTOMLTABLE descend(PTOMLTABLE pRoot, PSZ *papszKeys,
                           ULONG ulCount, ULONG ulIntermediateFlags,
@@ -1820,7 +1979,7 @@ static PTOMLTABLE descend(PTOMLTABLE pRoot, PSZ *papszKeys,
  * Main parse
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse TOML text and build the tree.
  *
  * @param[in]  pszText    NUL-terminated UTF-8 TOML text. Not NULL.
@@ -1829,6 +1988,7 @@ static PTOMLTABLE descend(PTOMLTABLE pRoot, PSZ *papszKeys,
  *                        error description on failure.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      pszText or ppRoot is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY      Memory allocation failure.
@@ -2072,32 +2232,39 @@ done:
  * Handles and file helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Translate a public document handle into the internal
  *        pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
  * @return Internal pointer, or NULL if h is NULLHANDLE.
+ *
+ * @retval NULL  h is NULLHANDLE.
  */
 static PTOMLDOC as_doc(HTOMLDOC h) { return (PTOMLDOC)h; }
 
-/**
+/*!
  * @brief Translate a public find handle into the internal pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
  * @return Internal pointer, or NULL if h is NULLHANDLE.
+ *
+ * @retval NULL  h is NULLHANDLE.
  */
 static PTOMLFIND as_find(HTOMLFIND h) { return (PTOMLFIND)h; }
 
-/**
+/*!
  * @brief Read the whole file into a malloc buffer.
  *
  * @param[in]  pszPath   Path to the file. Not NULL.
  * @param[out] ppszText  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Open, seek or read error, or allocation failure.
  */
 static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
     FILE *fp;
@@ -2121,7 +2288,7 @@ static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
     return 0;
 }
 
-/**
+/*!
  * @brief Open a TOML document from a file.
  *
  * Reads the file, parses TOML v1.0.0, allocates all internal
@@ -2133,6 +2300,7 @@ static int read_file_all(PCSZ pszPath, PSZ *ppszText) {
  *                      on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      pszPath or phToml is NULL.
  * @retval ERROR_OPEN_FAILED            File cannot be opened.
@@ -2178,7 +2346,7 @@ APIRET APIENTRY TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close a document.
  *
  * Releases all internal buffers, including any active Find cursors
@@ -2189,6 +2357,7 @@ APIRET APIENTRY TomlOpen(PCSZ pszPath, HTOMLDOC *phToml) {
  *                   treated as a no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
@@ -2221,13 +2390,15 @@ APIRET APIENTRY TomlClose(HTOMLDOC hToml) {
  * Path navigation
  * ================================================================== */
 
-/**
+/*!
  * @brief Find a value by dotted path.
  *
  * @param[in] pRoot    Root table. Not NULL.
  * @param[in] pszPath  Path. Not NULL.
  *
  * @return Pointer to the value, or NULL if not found.
+ *
+ * @retval NULL  Not found or allocation failure.
  */
 static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
     PSZ pszCopy, pszTok, pszPos;
@@ -2263,7 +2434,7 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
  * Query API
  * ================================================================== */
 
-/**
+/*!
  * @brief Query the type of a value by dotted path.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
@@ -2271,6 +2442,7 @@ static PTOMLVALUE find_path(PTOMLTABLE pRoot, PCSZ pszPath) {
  * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL or path
  *                                  empty.
@@ -2288,7 +2460,7 @@ APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Copy a string into a caller-supplied buffer following the
  *        size-query convention.
  *
@@ -2298,6 +2470,7 @@ APIRET APIENTRY TomlQueryType(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pulSize  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
@@ -2314,7 +2487,7 @@ static APIRET copy_string_out(PCSZ pszSrc, PSZ pszDst, ULONG ulSize,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a string value by dotted path.
  *
  * Copies the string into the caller-supplied buffer and appends
@@ -2331,6 +2504,7 @@ static APIRET copy_string_out(PCSZ pszSrc, PSZ pszDst, ULONG ulSize,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2372,7 +2546,7 @@ APIRET APIENTRY TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query an integer value by dotted path.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
@@ -2380,6 +2554,7 @@ APIRET APIENTRY TomlQueryString(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2401,7 +2576,7 @@ APIRET APIENTRY TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a floating-point value by dotted path.
  *
  * @param[in]  hToml       Handle. Not NULLHANDLE.
@@ -2409,6 +2584,7 @@ APIRET APIENTRY TomlQueryInteger(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2433,7 +2609,7 @@ APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a boolean value by dotted path.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
@@ -2441,6 +2617,7 @@ APIRET APIENTRY TomlQueryFloat(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2462,7 +2639,7 @@ APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the number of elements in an array by dotted path.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
@@ -2470,6 +2647,7 @@ APIRET APIENTRY TomlQueryBoolean(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2488,7 +2666,7 @@ APIRET APIENTRY TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the type of one array element by index.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
@@ -2497,6 +2675,7 @@ APIRET APIENTRY TomlQueryArrayCount(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pulType   Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2518,7 +2697,7 @@ APIRET APIENTRY TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a string element of an array by index.
  *
  * If pszBuffer is NULL and ulBufSize is 0, performs a size query
@@ -2532,6 +2711,7 @@ APIRET APIENTRY TomlQueryArrayType(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2576,7 +2756,7 @@ APIRET APIENTRY TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query an integer element of an array by index.
  *
  * @param[in]  hToml      Handle. Not NULLHANDLE.
@@ -2585,6 +2765,7 @@ APIRET APIENTRY TomlQueryArrayString(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pllValue   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2607,7 +2788,7 @@ APIRET APIENTRY TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a floating-point element of an array by index.
  *
  * @param[in]  hToml       Handle. Not NULLHANDLE.
@@ -2616,6 +2797,7 @@ APIRET APIENTRY TomlQueryArrayInteger(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2638,7 +2820,7 @@ APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a boolean element of an array by index.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
@@ -2647,6 +2829,7 @@ APIRET APIENTRY TomlQueryArrayFloat(HTOMLDOC hToml, PCSZ pszPath,
  * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -2673,16 +2856,18 @@ APIRET APIENTRY TomlQueryArrayBoolean(HTOMLDOC hToml, PCSZ pszPath,
  * DOM-style traversal
  * ================================================================== */
 
-/**
+/*!
  * @brief Translate a public node handle into the internal pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
  * @return Internal pointer, or NULL if h is NULLHANDLE.
+ *
+ * @retval NULL  h is NULLHANDLE.
  */
 static PTOMLVALUE as_node(HTOMLNODE h) { return (PTOMLVALUE)h; }
 
-/**
+/*!
  * @brief Obtain a node handle for a value by dotted path.
  *
  * A node handle refers to a value inside the document tree. Use ""
@@ -2695,6 +2880,7 @@ static PTOMLVALUE as_node(HTOMLNODE h) { return (PTOMLVALUE)h; }
  *                      error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -2718,13 +2904,14 @@ APIRET APIENTRY TomlQueryNode(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Obtain a node handle for the root table.
  *
  * @param[in]  hToml    Handle. Not NULLHANDLE.
  * @param[out] phNode   Node receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -2738,13 +2925,14 @@ APIRET APIENTRY TomlQueryRootNode(HTOMLDOC hToml, HTOMLNODE *phNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the type of a node.
  *
  * @param[in]  hNode    Node handle. Not NULLHANDLE.
  * @param[out] pulType  Receiver of TOML_TYPE_*. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
@@ -2755,7 +2943,7 @@ APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a string value of a node.
  *
  * If pszBuffer is NULL and ulBufSize is 0, performs a size query
@@ -2767,6 +2955,7 @@ APIRET APIENTRY TomlNodeGetType(HTOMLNODE hNode, PULONG pulType) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_BUFFER_OVERFLOW        Buffer too small.
@@ -2799,13 +2988,14 @@ APIRET APIENTRY TomlNodeGetString(HTOMLNODE hNode, PSZ pszBuffer,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query an integer value of a node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH     Node is not INTEGER.
@@ -2821,13 +3011,14 @@ APIRET APIENTRY TomlNodeGetInteger(HTOMLNODE hNode, PLONGLONG pllValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a floating-point value of a node.
  *
  * @param[in]  hNode       Node handle. Not NULLHANDLE.
  * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH     Node is not FLOAT.
@@ -2843,13 +3034,14 @@ APIRET APIENTRY TomlNodeGetFloat(HTOMLNODE hNode, double *pdblValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a boolean value of a node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH     Node is not BOOLEAN.
@@ -2865,13 +3057,14 @@ APIRET APIENTRY TomlNodeGetBoolean(HTOMLNODE hNode, PBOOL pfValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the number of elements in an array node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval TOML_ERROR_TYPE_MISMATCH     Node is not ARRAY.
@@ -2884,7 +3077,7 @@ APIRET APIENTRY TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query an array element by index.
  *
  * @param[in]  hNode     Node handle (array). Not NULLHANDLE.
@@ -2893,6 +3086,7 @@ APIRET APIENTRY TomlNodeGetArrayCount(HTOMLNODE hNode, PULONG pulCount) {
  *                       NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_NO_MORE_ITEMS          Index out of range.
@@ -2911,13 +3105,14 @@ APIRET APIENTRY TomlNodeGetArrayElement(HTOMLNODE hNode, ULONG ulIndex,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the number of entries in a table node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Internal container is not
@@ -2935,7 +3130,7 @@ APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a table entry by key.
  *
  * @param[in]  hNode     Node handle (table). Not NULLHANDLE.
@@ -2944,6 +3139,7 @@ APIRET APIENTRY TomlNodeGetTableCount(HTOMLNODE hNode, PULONG pulCount) {
  *                       NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_FILE_NOT_FOUND         Key not found.
@@ -2962,7 +3158,7 @@ APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query a table entry by index.
  *
  * The order of entries corresponds to the order of definition in
@@ -2977,6 +3173,7 @@ APIRET APIENTRY TomlNodeGetTableEntryByKey(HTOMLNODE hNode, PCSZ pszKey,
  *                            NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Internal container is not
@@ -3022,7 +3219,7 @@ APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode,
  * Find API
  * ================================================================== */
 
-/**
+/*!
  * @brief Wildcard matcher for Find patterns.
  *
  * Supports '*' (any sequence) and '?' (any single character).
@@ -3031,6 +3228,9 @@ APIRET APIENTRY TomlNodeGetTableEntryByIndex(HTOMLNODE hNode,
  * @param[in] pszTxt  Text. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Match.
+ * @retval 0  No match.
  */
 static int glob_match(PCSZ pszPat, PCSZ pszTxt) {
     while (*pszPat) {
@@ -3054,7 +3254,7 @@ static int glob_match(PCSZ pszPat, PCSZ pszTxt) {
     return *pszTxt == '\0';
 }
 
-/**
+/*!
  * @brief Find the next entry in a table matching a pattern.
  *
  * @param[in]  pTable      Table. Not NULL.
@@ -3065,6 +3265,9 @@ static int glob_match(PCSZ pszPat, PCSZ pszTxt) {
  * @param[out] ppValue     Receiver for the value. Not NULL.
  *
  * @return 0 on success, -1 if no match.
+ *
+ * @retval 0   Match found.
+ * @retval -1  No match or container access failure.
  */
 static int find_next_match(PTOMLTABLE pTable, ULONG ulStart,
                            PCSZ pszPattern, PULONG pulNext,
@@ -3087,7 +3290,7 @@ static int find_next_match(PTOMLTABLE pTable, ULONG ulStart,
     return -1;
 }
 
-/**
+/*!
  * @brief Start enumerating entries in a table.
  *
  * Creates a cursor and positions it on the first entry matching the
@@ -3102,12 +3305,13 @@ static int find_next_match(PTOMLTABLE pTable, ULONG ulStart,
  * @param[in]  pszPath     Path to the table. Not NULL. Use "" for
  *                         root.
  * @param[in]  pszPattern  Pattern. Not NULL.
- * @param[out] phFind      Cursor receiver. Not NULL. Set to NULLHANDLE
- *                         on error or when there are no matching
- *                         entries.
+ * @param[out] phFind      Cursor receiver. Not NULL. Set to
+ *                         NULLHANDLE on error or when there are no
+ *                         matching entries.
  * @param[out] pulType     Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success. Cursor positioned on
  *                                      the first entry.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
@@ -3167,13 +3371,14 @@ APIRET APIENTRY TomlFindFirst(HTOMLDOC hToml, PCSZ pszPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Advance the cursor to the next matching entry.
  *
  * @param[in]  hFind    Cursor from TomlFindFirst. Not NULLHANDLE.
  * @param[out] pulType  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_NO_MORE_ITEMS      No more matching entries.
@@ -3196,7 +3401,7 @@ APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the key of the current entry.
  *
  * Copies the key into the caller-supplied buffer and appends NUL.
@@ -3207,6 +3412,7 @@ APIRET APIENTRY TomlFindNext(HTOMLFIND hFind, PULONG pulType) {
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -3223,7 +3429,7 @@ APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
                            pulSize);
 }
 
-/**
+/*!
  * @brief Retrieve the string value of the current entry.
  *
  * @param[in]  hFind      Cursor. Not NULLHANDLE.
@@ -3232,6 +3438,7 @@ APIRET APIENTRY TomlFindKey(HTOMLFIND hFind,
  * @param[out] pulSize    Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -3253,13 +3460,14 @@ APIRET APIENTRY TomlFindString(HTOMLFIND hFind,
                            pszBuffer, ulBufSize, pulSize);
 }
 
-/**
+/*!
  * @brief Retrieve the integer value of the current entry.
  *
  * @param[in]  hFind     Cursor. Not NULLHANDLE.
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -3276,13 +3484,14 @@ APIRET APIENTRY TomlFindInteger(HTOMLFIND hFind, PLONGLONG pllValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the floating-point value of the current entry.
  *
  * @param[in]  hFind       Cursor. Not NULLHANDLE.
  * @param[out] pdblValue   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -3299,13 +3508,14 @@ APIRET APIENTRY TomlFindFloat(HTOMLFIND hFind, double *pdblValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the boolean value of the current entry.
  *
  * @param[in]  hFind     Cursor. Not NULLHANDLE.
  * @param[out] pfValue   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval ERROR_INVALID_PARAMETER      Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         Handle is not recognized.
@@ -3322,13 +3532,14 @@ APIRET APIENTRY TomlFindBoolean(HTOMLFIND hFind, PBOOL pfValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close an enumeration cursor.
  *
  * @param[in] hFind  Cursor. NULLHANDLE is accepted and treated as a
  *                   no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
