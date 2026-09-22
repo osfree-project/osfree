@@ -1,6 +1,14 @@
-/*! newexe.c - New Executable (NE) file access (C89)
+/*!
+ * @file newexe.c
  *
- *  See newexe.h for the public API.
+ * @brief Implementation of the NE file access library.
+ *
+ * New Executable (NE) file access (C89). See newexe.h for the
+ * public API.
+ *
+ * All public functions declared in newexe.h are implemented here.
+ * The internal representation of HNE is defined in this translation
+ * unit only; callers see it as an opaque HANDLE.
  */
 
 #include <stdio.h>
@@ -8,29 +16,41 @@
 #include <string.h>
 #include "newexe.h"
 
-/*! @file newexe.c
- *  @brief Implementation of the NE file access library.
+/*!
+ * @struct _NE
+ * @brief Internal representation behind HNE.
  *
- *  All public functions declared in newexe.h are implemented here.
- *  The internal representation of HNE is defined in this translation
- *  unit only; callers see it as an opaque HANDLE.
- */
-
-/*! @brief Internal representation behind HNE.
- *
- *  Not exposed to callers. newexe.h declares the handle as HANDLE,
- *  so the layout of this structure may change freely.
+ * Not exposed to callers. newexe.h declares the handle as HANDLE,
+ * so the layout of this structure may change freely.
  */
 struct _NE {
-    FILE          *fp;        /*!< Underlying file stream. */
-    long           lNeOffset; /*!< File offset of the NE header. */
-    struct exe_hdr mz;        /*!< Cached MZ header. */
-    struct new_exe ne;        /*!< Cached NE header. */
+    FILE          *fp;        /*!< Underlying file stream.      */
+    long           lNeOffset; /*!< File offset of NE header.    */
+    struct exe_hdr mz;        /*!< Cached MZ header.            */
+    struct new_exe ne;        /*!< Cached NE header.            */
 };
 
-/*! @brief Open an NE executable file.
+/*!
+ * @brief Open an NE executable file.
  *
- *  @copydetails NeOpen
+ * Reads and caches the MZ header and the NE header. The handle
+ * returned in @p *phNe owns the underlying FILE stream and must be
+ * released with NeClose.
+ *
+ * @param[in]  pszPath  Path to the NE file. Not NULL.
+ * @param[out] phNe     Handle receiver. Not NULL. Set to NULLHANDLE
+ *                      on failure.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p pszPath or @p phNe is NULL.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error, bad MZ magic, bad
+ *                                  NE magic, or invalid e_lfanew.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *
+ * @see NeClose
  */
 APIRET APIENTRY NeOpen(PCSZ pszPath, HNE *phNe)
 {
@@ -85,9 +105,19 @@ APIRET APIENTRY NeOpen(PCSZ pszPath, HNE *phNe)
     return NO_ERROR;
 }
 
-/*! @brief Close an NE executable.
+/*!
+ * @brief Close an NE executable.
  *
- *  @copydetails NeClose
+ * Flushes and closes the underlying stream and releases the handle.
+ * Idempotent: passing NULLHANDLE returns NO_ERROR.
+ *
+ * @param[in] hNe  Handle from NeOpen. NULLHANDLE is accepted.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR  Always.
+ *
+ * @see NeOpen
  */
 APIRET APIENTRY NeClose(HNE hNe)
 {
@@ -100,9 +130,22 @@ APIRET APIENTRY NeClose(HNE hNe)
     return NO_ERROR;
 }
 
-/*! @brief Retrieve the cached MZ header.
+/*!
+ * @brief Retrieve the cached MZ header.
  *
- *  @copydetails NeQueryMZHeader
+ * Copies the MZ header cached at open time into @p pMZ. No file I/O
+ * is performed.
+ *
+ * @param[in]  hNe   Handle from NeOpen. Not NULLHANDLE.
+ * @param[out] pMZ   Receiver. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE or @p pMZ is
+ *                                  NULL.
+ *
+ * @see NeQueryHeader
  */
 APIRET APIENTRY NeQueryMZHeader(HNE hNe, struct exe_hdr *pMZ)
 {
@@ -114,9 +157,22 @@ APIRET APIENTRY NeQueryMZHeader(HNE hNe, struct exe_hdr *pMZ)
     return NO_ERROR;
 }
 
-/*! @brief Retrieve the cached NE header.
+/*!
+ * @brief Retrieve the cached NE header.
  *
- *  @copydetails NeQueryHeader
+ * Copies the NE header cached at open time into @p pNE. No file I/O
+ * is performed.
+ *
+ * @param[in]  hNe   Handle from NeOpen. Not NULLHANDLE.
+ * @param[out] pNE   Receiver. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE or @p pNE is
+ *                                  NULL.
+ *
+ * @see NeQueryMZHeader
  */
 APIRET APIENTRY NeQueryHeader(HNE hNe, struct new_exe *pNE)
 {
@@ -128,9 +184,19 @@ APIRET APIENTRY NeQueryHeader(HNE hNe, struct new_exe *pNE)
     return NO_ERROR;
 }
 
-/*! @brief Return the number of module references.
+/*!
+ * @brief Return the number of module references.
  *
- *  @copydetails NeQueryModuleCount
+ * @param[in]  hNe       Handle from NeOpen. Not NULLHANDLE.
+ * @param[out] pusCount  Receiver for the module count. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE or
+ *                                  @p pusCount is NULL.
+ *
+ * @see NeQueryModuleName
  */
 APIRET APIENTRY NeQueryModuleCount(HNE hNe, PUSHORT pusCount)
 {
@@ -142,9 +208,28 @@ APIRET APIENTRY NeQueryModuleCount(HNE hNe, PUSHORT pusCount)
     return NO_ERROR;
 }
 
-/*! @brief Return the name of a module reference.
+/*!
+ * @brief Return the name of a module reference.
  *
- *  @copydetails NeQueryModuleName
+ * Reads one entry from the module reference table and resolves it
+ * through the imported names table.
+ *
+ * @param[in]  hNe       Handle from NeOpen. Not NULLHANDLE.
+ * @param[in]  usIndex   1-based module index, in [1, ne_cmod].
+ * @param[out] pszName   Output buffer. Not NULL.
+ * @param[in]  cbName    Size of @p pszName in bytes.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE, @p pszName
+ *                                  is NULL, @p cbName is zero,
+ *                                  @p usIndex is out of range, or
+ *                                  the name does not fit in
+ *                                  @p pszName.
+ * @retval ERROR_READ_FAULT         Read error.
+ *
+ * @see NeQueryModuleCount
  */
 APIRET APIENTRY NeQueryModuleName(HNE hNe, USHORT usIndex,
                                   PSZ pszName, ULONG cbName)
@@ -185,9 +270,19 @@ APIRET APIENTRY NeQueryModuleName(HNE hNe, USHORT usIndex,
     return NO_ERROR;
 }
 
-/*! @brief Return the number of segments.
+/*!
+ * @brief Return the number of segments.
  *
- *  @copydetails NeQuerySegmentCount
+ * @param[in]  hNe       Handle from NeOpen. Not NULLHANDLE.
+ * @param[out] pusCount  Receiver for the segment count. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE or
+ *                                  @p pusCount is NULL.
+ *
+ * @see NeQuerySegment
  */
 APIRET APIENTRY NeQuerySegmentCount(HNE hNe, PUSHORT pusCount)
 {
@@ -199,9 +294,22 @@ APIRET APIENTRY NeQuerySegmentCount(HNE hNe, PUSHORT pusCount)
     return NO_ERROR;
 }
 
-/*! @brief Return one segment table entry.
+/*!
+ * @brief Return one segment table entry.
  *
- *  @copydetails NeQuerySegment
+ * @param[in]  hNe      Handle from NeOpen. Not NULLHANDLE.
+ * @param[in]  usIndex  1-based segment index, in [1, ne_cseg].
+ * @param[out] pSeg     Receiver. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE, @p pSeg is
+ *                                  NULL, or @p usIndex is out of
+ *                                  range.
+ * @retval ERROR_READ_FAULT         Read error.
+ *
+ * @see NeQuerySegmentCount
  */
 APIRET APIENTRY NeQuerySegment(HNE hNe, USHORT usIndex,
                                struct new_seg *pSeg)
@@ -223,9 +331,26 @@ APIRET APIENTRY NeQuerySegment(HNE hNe, USHORT usIndex,
     return NO_ERROR;
 }
 
-/*! @brief Return the number of relocations for a segment.
+/*!
+ * @brief Return the number of relocations for a segment.
  *
- *  @copydetails NeQueryRelocCount
+ * The relocation table follows the segment data at the offset
+ * computed from the segment's sector and length fields.
+ *
+ * @param[in]  hNe        Handle from NeOpen. Not NULLHANDLE.
+ * @param[in]  usSegment  1-based segment index.
+ * @param[out] pusCount   Receiver for the relocation count. Not
+ *                        NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE,
+ *                                  @p pusCount is NULL, or
+ *                                  @p usSegment is out of range.
+ * @retval ERROR_READ_FAULT         Read error.
+ *
+ * @see NeQueryReloc
  */
 APIRET APIENTRY NeQueryRelocCount(HNE hNe, USHORT usSegment,
                                   PUSHORT pusCount)
@@ -255,9 +380,23 @@ APIRET APIENTRY NeQueryRelocCount(HNE hNe, USHORT usSegment,
     return NO_ERROR;
 }
 
-/*! @brief Return one relocation table entry.
+/*!
+ * @brief Return one relocation table entry.
  *
- *  @copydetails NeQueryReloc
+ * @param[in]  hNe        Handle from NeOpen. Not NULLHANDLE.
+ * @param[in]  usSegment  1-based segment index.
+ * @param[in]  usIndex    0-based relocation index.
+ * @param[out] pRlc       Receiver. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p hNe is NULLHANDLE, @p pRlc is
+ *                                  NULL, or @p usSegment is out of
+ *                                  range.
+ * @retval ERROR_READ_FAULT         Read error.
+ *
+ * @see NeQueryRelocCount
  */
 APIRET APIENTRY NeQueryReloc(HNE hNe, USHORT usSegment,
                              USHORT usIndex,
@@ -285,9 +424,26 @@ APIRET APIENTRY NeQueryReloc(HNE hNe, USHORT usSegment,
     return NO_ERROR;
 }
 
-/*! @brief Bind a DOS stub and an NE image into one file.
+/*!
+ * @brief Bind a DOS stub and an NE image into one file.
  *
- *  @copydetails NeBind
+ * Copies @p pszStub into @p pszOutput, pads the output to the NE
+ * segment alignment, copies the NE image from @p pszInput, and
+ * patches the e_lfanew field of the MZ header, the segment sector
+ * offsets, and the non-resident name table offset.
+ *
+ * @param[in] pszStub    Path to the DOS stub file. Not NULL.
+ * @param[in] pszInput   Path to the input NE file. Not NULL.
+ * @param[in] pszOutput  Path to the output file. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_OPEN_FAILED        A file cannot be opened.
+ * @retval ERROR_READ_FAULT         Read error in stub or input, or
+ *                                  invalid e_lfanew in the input.
+ * @retval ERROR_WRITE_FAULT        Write error in the output.
  */
 APIRET APIENTRY NeBind(PCSZ pszStub, PCSZ pszInput,
                        PCSZ pszOutput)
