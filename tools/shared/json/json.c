@@ -1,16 +1,10 @@
-/* json.c - JSON parsing, building and serialization (C89) */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include "json.h"
-
-/**
+/*!
+ *
  * @file json.c
+ *
  * @brief Implementation of the JSON module.
  *
- * Conforms to:
+ * JSON parsing, building and serialization (C89). Conforms to:
  *   - RFC 8259, "The JavaScript Object Notation (JSON) Data
  *     Interchange Format".
  *   - ECMA-404, "The JSON Data Interchange Syntax".
@@ -24,23 +18,42 @@
  *       json_read (accessors), json_out (serialization).
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "json.h"
+
 /* ==================================================================
  * Internal structures
  * ================================================================== */
 
-/** @brief Maximum nesting depth accepted by the parser. */
+/*!
+ * @brief Maximum nesting depth accepted by the parser.
+ */
 #define JSON_MAX_DEPTH 100
 
-/** @brief Initial capacity of a node's child list. */
+/*!
+ * @brief Initial capacity of a node's child list.
+ */
 #define JSON_CHILD_INIT 4
 
-/** @brief Initial capacity of a document's node list. */
+/*!
+ * @brief Initial capacity of a document's node list.
+ */
 #define JSON_NODE_INIT 16
 
+/*!
+ * @brief Forward declaration of a value node.
+ */
 typedef struct _JSONNODE JSONNODE, *PJSONNODE;
+
+/*!
+ * @brief Forward declaration of an open document.
+ */
 typedef struct _JSONDOC  JSONDOC,  *PJSONDOC;
 
-/**
+/*!
  * @struct _JSONNODE
  * @brief One JSON value inside a document.
  *
@@ -49,18 +62,18 @@ typedef struct _JSONDOC  JSONDOC,  *PJSONDOC;
  * name; in an array it is NULL.
  */
 struct _JSONNODE {
-    JSONTYPE   type;           /**< Value type.                  */
-    PSZ        pszKey;         /**< Field name, or NULL.         */
-    PSZ        pszStringValue; /**< String value, or NULL.       */
-    double     dblNumberValue; /**< Numeric value.               */
-    BOOL       fBoolValue;     /**< Boolean value.               */
+    JSONTYPE   type;            /*!< Value type.             */
+    PSZ        pszKey;          /*!< Field name, or NULL.    */
+    PSZ        pszStringValue;  /*!< String value, or NULL.  */
+    double     dblNumberValue;  /*!< Numeric value.          */
+    BOOL       fBoolValue;      /*!< Boolean value.          */
 
-    PJSONNODE *pChildren;      /**< Children, or NULL.           */
-    ULONG      ulChildCount;   /**< Used children.               */
-    ULONG      ulChildCapacity;/**< Allocated child slots.       */
+    PJSONNODE *pChildren;       /*!< Children, or NULL.      */
+    ULONG      ulChildCount;    /*!< Used children.          */
+    ULONG      ulChildCapacity; /*!< Allocated child slots.  */
 };
 
-/**
+/*!
  * @struct _JSONDOC
  * @brief One open JSON document.
  *
@@ -68,23 +81,26 @@ struct _JSONNODE {
  * so that JsonClose can release them.
  */
 struct _JSONDOC {
-    PJSONNODE  pRoot;          /**< Root node, or NULL.          */
-    PJSONNODE *pAllNodes;      /**< All nodes in the document.   */
-    ULONG      ulNodeCount;    /**< Used node slots.             */
-    ULONG      ulNodeCapacity; /**< Allocated node slots.        */
+    PJSONNODE  pRoot;          /*!< Root node, or NULL.        */
+    PJSONNODE *pAllNodes;      /*!< All nodes in the document. */
+    ULONG      ulNodeCount;    /*!< Used node slots.           */
+    ULONG      ulNodeCapacity; /*!< Allocated node slots.      */
 };
 
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Register a node in its document.
  *
  * @param[in,out] pDoc   Document. Not NULL.
  * @param[in]     pNode  Node. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int doc_track_node(PJSONDOC pDoc, PJSONNODE pNode) {
     if (pDoc->ulNodeCount >= pDoc->ulNodeCapacity) {
@@ -100,13 +116,15 @@ static int doc_track_node(PJSONDOC pDoc, PJSONNODE pNode) {
     return 0;
 }
 
-/**
+/*!
  * @brief Create and register a new node with a given type.
  *
  * @param[in] pDoc   Document. Not NULL.
  * @param[in] type   Value type.
  *
  * @return New node, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PJSONNODE node_new(PJSONDOC pDoc, JSONTYPE type) {
     PJSONNODE pNode = (PJSONNODE)calloc(1, sizeof(JSONNODE));
@@ -122,13 +140,16 @@ static PJSONNODE node_new(PJSONDOC pDoc, JSONTYPE type) {
     return pNode;
 }
 
-/**
+/*!
  * @brief Append a child node to a parent.
  *
  * @param[in,out] pParent  Parent node. Not NULL.
  * @param[in]     pChild   Child node. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int node_add_child(PJSONNODE pParent, PJSONNODE pChild) {
     if (pParent->ulChildCount >= pParent->ulChildCapacity) {
@@ -145,7 +166,7 @@ static int node_add_child(PJSONNODE pParent, PJSONNODE pChild) {
     return 0;
 }
 
-/**
+/*!
  * @brief Release a document and every node in it.
  *
  * @param[in] pDoc  Document. May be NULL.
@@ -169,16 +190,16 @@ static void doc_free(PJSONDOC pDoc) {
  * Parser
  * ================================================================== */
 
-/**
+/*!
  * @struct _PARSE
  * @brief Parser cursor.
  */
 typedef struct _PARSE {
-    PCSZ      pszPos;  /**< Current position in the input text.  */
-    PJSONDOC  pDoc;    /**< Owning document.                     */
+    PCSZ      pszPos;  /*!< Current position in the input text. */
+    PJSONDOC  pDoc;    /*!< Owning document.                    */
 } PARSE;
 
-/**
+/*!
  * @brief Skip whitespace in the input.
  *
  * @param[in,out] pParser  Parser. Not NULL.
@@ -189,7 +210,7 @@ static void skip_whitespace(PARSE *pParser) {
         pParser->pszPos++;
 }
 
-/**
+/*!
  * @brief Validate a NUL-terminated UTF-8 string (RFC 3629).
  *
  * Rejects overlong encodings, surrogates and codepoints above
@@ -198,6 +219,9 @@ static void skip_whitespace(PARSE *pParser) {
  * @param[in] pszStr  String. Not NULL.
  *
  * @return TRUE if valid, FALSE otherwise.
+ *
+ * @retval TRUE   Valid UTF-8.
+ * @retval FALSE  Invalid UTF-8.
  */
 static BOOL validate_utf8(PCSZ pszStr) {
     const UCHAR *puchPos = (const UCHAR*)pszStr;
@@ -239,7 +263,7 @@ static BOOL validate_utf8(PCSZ pszStr) {
     return TRUE;
 }
 
-/**
+/*!
  * @brief Encode a Unicode scalar value as UTF-8.
  *
  * @param[in]  ulCp   Codepoint. Must be <= U+10FFFF and not a
@@ -248,6 +272,11 @@ static BOOL validate_utf8(PCSZ pszStr) {
  *                    bytes.
  *
  * @return Number of bytes written (1..4).
+ *
+ * @retval 1  One-byte sequence written.
+ * @retval 2  Two-byte sequence written.
+ * @retval 3  Three-byte sequence written.
+ * @retval 4  Four-byte sequence written.
  */
 static int utf8_encode(ULONG ulCp, PSZ pszOut) {
     if (ulCp < 0x80) {
@@ -272,12 +301,17 @@ static int utf8_encode(ULONG ulCp, PSZ pszOut) {
     return 4;
 }
 
-/**
+/*!
  * @brief Number of bytes utf8_encode will write for @p ulCp.
  *
  * @param[in] ulCp  Codepoint.
  *
  * @return 1, 2, 3 or 4.
+ *
+ * @retval 1  One-byte sequence.
+ * @retval 2  Two-byte sequence.
+ * @retval 3  Three-byte sequence.
+ * @retval 4  Four-byte sequence.
  */
 static int utf8_encoded_len(ULONG ulCp) {
     if (ulCp < 0x80) return 1;
@@ -286,13 +320,16 @@ static int utf8_encoded_len(ULONG ulCp) {
     return 4;
 }
 
-/**
+/*!
  * @brief Read 4 hex digits.
  *
  * @param[in]  pszPos  Pointer to 4 hex characters. Not NULL.
  * @param[out] pulOut  Receiver. Not NULL.
  *
  * @return TRUE on success, FALSE on malformed input.
+ *
+ * @retval TRUE   All four characters were hex digits.
+ * @retval FALSE  Malformed input.
  */
 static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
     int i;
@@ -310,7 +347,7 @@ static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
     return TRUE;
 }
 
-/**
+/*!
  * @brief Parse a JSON string.
  *
  * @param[in,out] ppszPos  Cursor pointing at the opening '"'. On
@@ -318,6 +355,8 @@ static BOOL hex4(PCSZ pszPos, PULONG pulOut) {
  *                         Not NULL.
  *
  * @return malloc'd NUL-terminated string, or NULL on error.
+ *
+ * @retval NULL  Syntax error or allocation failure.
  */
 static PSZ parse_string(PCSZ *ppszPos) {
     PCSZ pszStart;
@@ -417,7 +456,7 @@ static PSZ parse_string(PCSZ *ppszPos) {
     return pszResult;
 }
 
-/**
+/*!
  * @brief Return 10 raised to integer power @p nExp.
  *
  * @param[in] nExp  Exponent.
@@ -435,7 +474,7 @@ static double pow10_int(int nExp) {
     return dResult;
 }
 
-/**
+/*!
  * @brief Parse a JSON number (RFC 8259 §6).
  *
  * @param[in,out] ppszPos  Cursor. On success, advanced past the
@@ -443,6 +482,9 @@ static double pow10_int(int nExp) {
  * @param[out]    pdOut    Receiver. Not NULL.
  *
  * @return TRUE on success, FALSE on malformed input.
+ *
+ * @retval TRUE   Success.
+ * @retval FALSE  Malformed number.
  */
 static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
     PCSZ pszPos = *ppszPos;
@@ -496,9 +538,21 @@ static BOOL parse_number(PCSZ *ppszPos, double *pdOut) {
     return TRUE;
 }
 
+/*!
+ * @brief Forward declaration of the value parser.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ * @param[in]     nDepth   Current nesting depth.
+ * @param[out]    ppOut    Receiver. Not NULL.
+ *
+ * @return 0 on success, -1 on syntax or OOM error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
+ */
 static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut);
 
-/**
+/*!
  * @brief Parse a JSON array.
  *
  * @param[in,out] pParser  Parser. Not NULL.
@@ -506,6 +560,9 @@ static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut);
  * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_array(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
     PJSONNODE pArr;
@@ -542,7 +599,7 @@ static int parse_array(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
     return 0;
 }
 
-/**
+/*!
  * @brief Parse a JSON object.
  *
  * @param[in,out] pParser  Parser. Not NULL.
@@ -550,6 +607,9 @@ static int parse_array(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
  * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_object(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
     PJSONNODE pObj;
@@ -602,7 +662,7 @@ static int parse_object(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
     return 0;
 }
 
-/**
+/*!
  * @brief Parse one JSON value.
  *
  * Dispatches on the current character and recurses into the parser
@@ -613,6 +673,9 @@ static int parse_object(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
  * @param[out]    ppOut    Receiver. Not NULL.
  *
  * @return 0 on success, -1 on syntax or OOM error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Syntax error or allocation failure.
  */
 static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
     PJSONNODE pNode;
@@ -680,17 +743,19 @@ static int parse_value(PARSE *pParser, int nDepth, PJSONNODE *ppOut) {
  * Document lifecycle
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse a NUL-terminated JSON text into a document.
  *
- * On success, @p *phDoc receives a document handle. The input buffer
- * is only read; it is not retained. The caller owns the buffer.
+ * On success, @p *phDoc receives a document handle. The input
+ * buffer is only read; it is not retained. The caller owns the
+ * buffer.
  *
  * @param[in]  pszText  JSON text. Not NULL.
  * @param[out] phDoc    Handle receiver. Not NULL. Set to NULLHANDLE
  *                      on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszText or phDoc is NULL.
  * @retval ERROR_INVALID_DATA       Malformed JSON, invalid UTF-8,
@@ -737,7 +802,7 @@ APIRET APIENTRY JsonParse(PCSZ pszText, HJSONDOC *phDoc) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release a document and all associated nodes.
  *
  * Passing NULLHANDLE is a no-op.
@@ -745,6 +810,7 @@ APIRET APIENTRY JsonParse(PCSZ pszText, HJSONDOC *phDoc) {
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle is not recognized.
  */
@@ -758,7 +824,7 @@ APIRET APIENTRY JsonClose(HJSONDOC hDoc) {
  * Building
  * ================================================================== */
 
-/**
+/*!
  * @brief Create an empty document for building a tree.
  *
  * Nodes created with JsonNew* belong to the document and are
@@ -768,6 +834,7 @@ APIRET APIENTRY JsonClose(HJSONDOC hDoc) {
  * @param[out] phDoc  Handle receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  phDoc is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -785,13 +852,14 @@ APIRET APIENTRY JsonNewDoc(HJSONDOC *phDoc) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Designate the root node of a document.
  *
  * @param[in] hDoc   Document handle. Not NULLHANDLE.
  * @param[in] hNode  Root node. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc or hNode is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -805,13 +873,14 @@ APIRET APIENTRY JsonSetRoot(HJSONDOC hDoc, HJSONNODE hNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new object node.
  *
  * @param[in]  hDoc   Document handle. Not NULLHANDLE.
  * @param[out] phNode Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE or phNode is
  *                                  NULL.
@@ -828,13 +897,14 @@ APIRET APIENTRY JsonNewObject(HJSONDOC hDoc, HJSONNODE *phNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new array node.
  *
  * @param[in]  hDoc   Document handle. Not NULLHANDLE.
  * @param[out] phNode Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE or phNode is
  *                                  NULL.
@@ -851,7 +921,7 @@ APIRET APIENTRY JsonNewArray(HJSONDOC hDoc, HJSONNODE *phNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new string node.
  *
  * The value is copied into the node.
@@ -861,6 +931,7 @@ APIRET APIENTRY JsonNewArray(HJSONDOC hDoc, HJSONNODE *phNode) {
  * @param[out] phNode    Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE, pszValue or
  *                                  phNode is NULL.
@@ -883,7 +954,7 @@ APIRET APIENTRY JsonNewString(HJSONDOC hDoc, PCSZ pszValue,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new number node.
  *
  * @param[in]  hDoc    Document handle. Not NULLHANDLE.
@@ -891,6 +962,7 @@ APIRET APIENTRY JsonNewString(HJSONDOC hDoc, PCSZ pszValue,
  * @param[out] phNode  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE or phNode is
  *                                  NULL.
@@ -909,7 +981,7 @@ APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new boolean node.
  *
  * @param[in]  hDoc    Document handle. Not NULLHANDLE.
@@ -917,6 +989,7 @@ APIRET APIENTRY JsonNewNumber(HJSONDOC hDoc, double dValue,
  * @param[out] phNode  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE or phNode is
  *                                  NULL.
@@ -935,13 +1008,14 @@ APIRET APIENTRY JsonNewBoolean(HJSONDOC hDoc, BOOL fValue,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Create a new null node.
  *
  * @param[in]  hDoc   Document handle. Not NULLHANDLE.
  * @param[out] phNode Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc is NULLHANDLE or phNode is
  *                                  NULL.
@@ -958,7 +1032,7 @@ APIRET APIENTRY JsonNewNull(HJSONDOC hDoc, HJSONNODE *phNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Attach a value to an object under a key.
  *
  * The key is copied into the object. The value node must belong to
@@ -969,6 +1043,7 @@ APIRET APIENTRY JsonNewNull(HJSONDOC hDoc, HJSONNODE *phNode) {
  * @param[in] hValue  Value node. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -997,13 +1072,14 @@ APIRET APIENTRY JsonObjectSet(HJSONNODE hObj, PCSZ pszKey,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a value to an array.
  *
  * @param[in] hArr    Array handle. Not NULLHANDLE.
  * @param[in] hValue  Value node. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hArr or hValue is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1027,13 +1103,14 @@ APIRET APIENTRY JsonArrayAppend(HJSONNODE hArr, HJSONNODE hValue) {
  * Reading values
  * ================================================================== */
 
-/**
+/*!
  * @brief Obtain the root node of a parsed document.
  *
  * @param[in]  hDoc    Document handle. Not NULLHANDLE.
  * @param[out] phNode  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hDoc or phNode is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1048,13 +1125,14 @@ APIRET APIENTRY JsonRoot(HJSONDOC hDoc, HJSONNODE *phNode) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the type of a node.
  *
  * @param[in]  hNode    Node handle. Not NULLHANDLE.
  * @param[out] pulType  Receiver of a JSONTYPE value. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode or pulType is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1066,7 +1144,7 @@ APIRET APIENTRY JsonNodeGetType(HJSONNODE hNode, PULONG pulType) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Obtain a child of an object node by key.
  *
  * @param[in]  hNode    Node handle (object). Not NULLHANDLE.
@@ -1075,6 +1153,7 @@ APIRET APIENTRY JsonNodeGetType(HJSONNODE hNode, PULONG pulType) {
  *                      error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1101,14 +1180,15 @@ APIRET APIENTRY JsonNodeGetChild(HJSONNODE hNode, PCSZ pszKey,
     return ERROR_FILE_NOT_FOUND;
 }
 
-/**
- * @brief Query the number of elements in an array node or entries in
- *        an object node.
+/*!
+ * @brief Query the number of elements in an array node or entries
+ *        in an object node.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1123,7 +1203,7 @@ APIRET APIENTRY JsonNodeGetCount(HJSONNODE hNode, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Obtain an element of an array node by index.
  *
  * @param[in]  hNode    Node handle (array). Not NULLHANDLE.
@@ -1131,6 +1211,7 @@ APIRET APIENTRY JsonNodeGetCount(HJSONNODE hNode, PULONG pulCount) {
  * @param[out] phChild  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1148,7 +1229,7 @@ APIRET APIENTRY JsonNodeGetElement(HJSONNODE hNode, ULONG ulIndex,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Obtain an entry of an object node by index.
  *
  * @param[in]  hNode       Node handle (object). Not NULLHANDLE.
@@ -1159,6 +1240,7 @@ APIRET APIENTRY JsonNodeGetElement(HJSONNODE hNode, ULONG ulIndex,
  * @param[out] phChild     Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any required parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1194,7 +1276,7 @@ APIRET APIENTRY JsonNodeGetEntry(HJSONNODE hNode, ULONG ulIndex,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Read a string value of a node.
  *
  * Size-query convention:
@@ -1209,6 +1291,7 @@ APIRET APIENTRY JsonNodeGetEntry(HJSONNODE hNode, ULONG ulIndex,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1243,13 +1326,14 @@ APIRET APIENTRY JsonNodeGetString(HJSONNODE hNode,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Read a boolean value of a node.
  *
  * @param[in]  hNode    Node handle (boolean). Not NULLHANDLE.
  * @param[out] pfValue  Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1263,13 +1347,14 @@ APIRET APIENTRY JsonNodeGetBoolean(HJSONNODE hNode, PBOOL pfValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Read a number value of a node.
  *
  * @param[in]  hNode    Node handle (number). Not NULLHANDLE.
  * @param[out] pdValue  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1287,7 +1372,7 @@ APIRET APIENTRY JsonNodeGetNumber(HJSONNODE hNode, double *pdValue) {
  * Node modification and cloning
  * ================================================================== */
 
-/**
+/*!
  * @brief Retrieve the key of a node.
  *
  * For a child of an object, this is the field name. For a child of
@@ -1301,6 +1386,7 @@ APIRET APIENTRY JsonNodeGetNumber(HJSONNODE hNode, double *pdValue) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1333,16 +1419,17 @@ APIRET APIENTRY JsonNodeGetKey(HJSONNODE hNode,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Set the string value of an existing string node.
  *
- * The node must be of type JSON_STRING. The new value is copied into
- * the node.
+ * The node must be of type JSON_STRING. The new value is copied
+ * into the node.
  *
  * @param[in] hNode    Node handle (string). Not NULLHANDLE.
  * @param[in] pszVal   New value. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode is NULLHANDLE, or pszVal is
  *                                  NULL.
@@ -1365,7 +1452,7 @@ APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Set or replace a string field on an object.
  *
  * If the object already has a child with the given key and that
@@ -1378,6 +1465,7 @@ APIRET APIENTRY JsonNodeSetValueString(HJSONNODE hNode, PCSZ pszVal) {
  * @param[in] pszVal  Field value. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1411,7 +1499,7 @@ APIRET APIENTRY JsonNodeSetString(HJSONDOC hDoc, HJSONNODE hObj,
     }
 }
 
-/**
+/*!
  * @brief Deep-clone a subtree into a document.
  *
  * The source node must belong to some document; the destination
@@ -1423,6 +1511,7 @@ APIRET APIENTRY JsonNodeSetString(HJSONDOC hDoc, HJSONNODE hObj,
  * @param[out] phDst  Receiver for the new node. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1470,23 +1559,26 @@ APIRET APIENTRY JsonCloneNode(HJSONDOC hDst, HJSONNODE hSrc,
  * Serialization
  * ================================================================== */
 
-/**
+/*!
  * @struct _SBUF
  * @brief Growable string buffer used during serialization.
  */
 typedef struct _SBUF {
-    PSZ    pszBuf;  /**< Backing storage, or NULL.       */
-    size_t cbCap;   /**< Allocated bytes.                */
-    size_t cbLen;   /**< Used bytes, excluding NUL.      */
-    int    nOom;    /**< Non-zero once an OOM occurred.  */
+    PSZ    pszBuf;  /*!< Backing storage, or NULL.      */
+    size_t cbCap;   /*!< Allocated bytes.               */
+    size_t cbLen;   /*!< Used bytes, excluding NUL.     */
+    int    nOom;    /*!< Non-zero once an OOM occurred. */
 } SBUF;
 
-/**
+/*!
  * @brief Initialize a string buffer.
  *
  * @param[out] pBuf  Buffer. Not NULL.
  *
  * @return 0 on success, -1 on OOM.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int sbuf_init(SBUF *pBuf) {
     pBuf->cbCap = 64;
@@ -1498,7 +1590,7 @@ static int sbuf_init(SBUF *pBuf) {
     return 0;
 }
 
-/**
+/*!
  * @brief Release a string buffer.
  *
  * @param[in,out] pBuf  Buffer. Not NULL.
@@ -1510,7 +1602,7 @@ static void sbuf_free(SBUF *pBuf) {
     pBuf->cbLen = 0;
 }
 
-/**
+/*!
  * @brief Append bytes to a string buffer.
  *
  * @param[in,out] pBuf     Buffer. Not NULL.
@@ -1531,7 +1623,7 @@ static void sbuf_put(SBUF *pBuf, PCSZ pszData, size_t cbLen) {
     pBuf->pszBuf[pBuf->cbLen] = '\0';
 }
 
-/**
+/*!
  * @brief Append one character to a string buffer.
  *
  * @param[in,out] pBuf  Buffer. Not NULL.
@@ -1541,7 +1633,7 @@ static void sbuf_putc(SBUF *pBuf, CHAR ch) {
     sbuf_put(pBuf, &ch, 1);
 }
 
-/**
+/*!
  * @brief Append a NUL-terminated string to a string buffer.
  *
  * @param[in,out] pBuf    Buffer. Not NULL.
@@ -1551,7 +1643,7 @@ static void sbuf_puts(SBUF *pBuf, PCSZ pszStr) {
     sbuf_put(pBuf, pszStr, strlen(pszStr));
 }
 
-/**
+/*!
  * @brief Append a JSON-quoted and escaped string.
  *
  * @param[in,out] pBuf    Buffer. Not NULL.
@@ -1591,7 +1683,7 @@ static void sbuf_put_escaped(SBUF *pBuf, PCSZ pszStr) {
     sbuf_putc(pBuf, '"');
 }
 
-/**
+/*!
  * @brief Append a JSON number to a string buffer.
  *
  * @param[in,out] pBuf    Buffer. Not NULL.
@@ -1603,7 +1695,7 @@ static void sbuf_put_number(SBUF *pBuf, double dblVal) {
     sbuf_puts(pBuf, achTmp);
 }
 
-/**
+/*!
  * @brief Append a newline and indentation to a string buffer.
  *
  * @param[in,out] pBuf    Buffer. Not NULL.
@@ -1615,13 +1707,13 @@ static void sbuf_indent(SBUF *pBuf, int nIndent) {
     for (i = 0; i < nIndent * 2; i++) sbuf_putc(pBuf, ' ');
 }
 
-/**
+/*!
  * @brief Serialize a node into a string buffer.
  *
- * @param[in,out] pBuf       Buffer. Not NULL.
- * @param[in]     pNode      Node. Not NULL.
- * @param[in]     fIndent    Non-zero for pretty-printed output.
- * @param[in]     nDepth     Current nesting depth.
+ * @param[in,out] pBuf     Buffer. Not NULL.
+ * @param[in]     pNode    Node. Not NULL.
+ * @param[in]     fIndent  Non-zero for pretty-printed output.
+ * @param[in]     nDepth   Current nesting depth.
  */
 static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
                             int fIndent, int nDepth) {
@@ -1671,7 +1763,7 @@ static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
     }
 }
 
-/**
+/*!
  * @brief Serialize a node into a caller-supplied buffer.
  *
  * Size-query convention:
@@ -1681,13 +1773,15 @@ static void sbuf_write_node(SBUF *pBuf, PJSONNODE pNode,
  *     required size including NUL.
  *
  * @param[in]  hNode     Node handle. Not NULLHANDLE.
- * @param[in]  fIndent   TRUE for pretty-printed output with two-space
- *                       indentation; FALSE for compact output.
+ * @param[in]  fIndent   TRUE for pretty-printed output with
+ *                       two-space indentation; FALSE for compact
+ *                       output.
  * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
  * @param[in]  ulSize    Size of pszBuf.
  * @param[out] pulUsed   Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1730,7 +1824,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Serialize a node into a file or to stdout.
  *
  * When @p pszPath is NULL, the output is written to stdout.
@@ -1741,6 +1835,7 @@ APIRET APIENTRY JsonFormat(HJSONNODE hNode, BOOL fIndent,
  * @param[in] pszPath  Output file path, or NULL for stdout.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hNode is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -1781,7 +1876,7 @@ APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Escape a string for insertion into a JSON value.
  *
  * Applies the escape rules of RFC 8259 §7: quotation mark, reverse
@@ -1797,6 +1892,7 @@ APIRET APIENTRY JsonWriteFile(HJSONNODE hNode, BOOL fIndent,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
  *                                  without size-query.
