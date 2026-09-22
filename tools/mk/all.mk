@@ -16,7 +16,7 @@ all: precopy spdx-lint doxy-lint install spdx-sbom .symbolic
 !include $(%ROOT)tools/mk/spdx.mk
 
 doxy-lint: .SYMBOLIC
-    $(verbose)doxy-lint.exe $(MYDIR)
+    $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe doxy-lint.exe $(MYDIR)
 
 print_vars: .symbolic
         @echo __MAKEFILES__     $(__MAKEFILES__) 

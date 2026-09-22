@@ -4,16 +4,19 @@
  *  Style: Qt only.  Recognized forms:
  *    - leading:  /*! ... *\/   or  //! ...
  *    - trailing: /*!< ... *\/  or  //!< ...
- *  Trailing forms document the preceding declaration.  Javadoc style
- *  ("/**", "///") and Javadoc trailing forms ("/**<", "///<") are
- *  reported as wrong style.  Banner comments like "/*****" and
- *  "/////..." are treated as ordinary comments.
+ *  Trailing forms document the preceding declaration.  If a trailing
+ *  block contains no command at all, its whole text is taken as the
+ *  @brief value.  Javadoc style ("/**", "///") and Javadoc trailing
+ *  forms ("/**<", "///<") are reported as wrong style.  Banner comments
+ *  like "/*****" and "/////..." are treated as ordinary comments.
  *
  *  Enforces:
  *    - @file   required in every source and header file;
  *    - @brief  required before (or trailing after) every top-level
  *             declaration;
  *    - @param  required for every named function parameter;
+ *    - direction qualifier [in]/[out]/[in,out] is mandatory for every
+ *             @param;
  *    - @return required for every non-void function;
  *    - @retval required for every integer literal returned by a body.
  *
@@ -83,10 +86,10 @@ static char *src;
 static long srclen;
 
 /*! @brief Appends a token to the global toks[] array.
- *  @param type Token type constant.
- *  @param p    Pointer into the src buffer.
- *  @param len  Token length in bytes.
- *  @param line Source line where the token starts.
+ *  @param[in] type Token type constant.
+ *  @param[in] p    Pointer into the src buffer.
+ *  @param[in] len  Token length in bytes.
+ *  @param[in] line Source line where the token starts.
  */
 static void add_tok(int type, const char *p, int len, int line)
 {
@@ -102,7 +105,7 @@ static void add_tok(int type, const char *p, int len, int line)
 }
 
 /*! @brief Returns the length of the punctuator starting at p.
- *  @param p Pointer to the first character of the punctuator.
+ *  @param[in] p Pointer to the first character of the punctuator.
  *  @return Number of bytes consumed.
  *  @retval 0 End of string.
  *  @retval 1 Single-character punctuator.
@@ -169,10 +172,9 @@ static void tokenize(void)
 
         line_start = 0;
 
-        /* Line comment: //!<  //!  ///<  ///  // */
         if (c == '/' && i + 1 < srclen && src[i + 1] == '/') {
             int sl = line;
-            int kind = 0; /* 0=plain, 1=qt, 2=qt_trailing, 3=javadoc */
+            int kind = 0;
             long cs;
 
             if (i + 2 < srclen && src[i + 2] == '!') {
@@ -197,7 +199,6 @@ static void tokenize(void)
             continue;
         }
 
-        /* Block comment: /*!< ... *\/  /*! ... *\/  /** ... *\/  /* ... *\/ */
         if (c == '/' && i + 1 < srclen && src[i + 1] == '*') {
             int sl = line;
             int kind = 0;
@@ -208,8 +209,8 @@ static void tokenize(void)
                 else kind = 1;
             } else if (i + 2 < srclen && src[i + 2] == '*') {
                 if (i + 3 >= srclen) kind = 0;
-                else if (src[i + 3] == '/') kind = 0;   /* empty */
-                else if (src[i + 3] == '*') kind = 0;   /* banner */
+                else if (src[i + 3] == '/') kind = 0;
+                else if (src[i + 3] == '*') kind = 0;
                 else kind = 3;
             }
             i += 2;
@@ -233,9 +234,6 @@ static void tokenize(void)
             continue;
         }
 
-        /* Orphan closing sequence of a comment that started inside a
-         * preprocessor line without a line continuation.  Not a
-         * punctuator.  Also guards against a stray "*"+"/" in code. */
         if (c == '*' && i + 1 < srclen && src[i + 1] == '/') {
             i += 2;
             continue;
@@ -292,8 +290,8 @@ static void tokenize(void)
 }
 
 /*! @brief Tests whether token i is the identifier s.
- *  @param i Index into toks[].
- *  @param s Expected identifier text.
+ *  @param[in] i Index into toks[].
+ *  @param[in] s Expected identifier text.
  *  @return Non-zero on match, zero otherwise.
  *  @retval 0 Token is not the given identifier.
  *  @retval 1 Token is the given identifier.
@@ -307,8 +305,8 @@ static int tok_is(int i, const char *s)
 }
 
 /*! @brief Tests whether token i is the punctuator s.
- *  @param i Index into toks[].
- *  @param s Expected punctuator text.
+ *  @param[in] i Index into toks[].
+ *  @param[in] s Expected punctuator text.
  *  @return Non-zero on match, zero otherwise.
  *  @retval 0 Token is not the given punctuator.
  *  @retval 1 Token is the given punctuator.
@@ -322,8 +320,8 @@ static int tok_punct(int i, const char *s)
 }
 
 /*! @brief Tests whether a word is a C or C++ keyword.
- *  @param s   Pointer to the word text.
- *  @param len Word length in bytes.
+ *  @param[in] s   Pointer to the word text.
+ *  @param[in] len Word length in bytes.
  *  @return Non-zero for a keyword.
  *  @retval 0 Not a keyword.
  *  @retval 1 Keyword.
@@ -351,8 +349,8 @@ static int is_keyword(const char *s, int len)
 }
 
 /*! @brief Tests whether a word is a storage-class specifier or qualifier.
- *  @param s   Pointer to the word text.
- *  @param len Word length in bytes.
+ *  @param[in] s   Pointer to the word text.
+ *  @param[in] len Word length in bytes.
  *  @return Non-zero on match.
  *  @retval 0 Not a storage-class specifier or qualifier.
  *  @retval 1 Storage-class specifier or qualifier.
@@ -376,9 +374,9 @@ static int is_storage_or_qualifier(const char *s, int len)
 }
 
 /*! @brief Skips a balanced pair (open ... close).
- *  @param open_idx  Index of the opening token.
- *  @param open_str  Text of the opening punctuator.
- *  @param close_str Text of the closing punctuator.
+ *  @param[in] open_idx  Index of the opening token.
+ *  @param[in] open_str  Text of the opening punctuator.
+ *  @param[in] close_str Text of the closing punctuator.
  *  @return Index of the first token after the closing one.
  */
 static int skip_balanced(int open_idx, const char *open_str,
@@ -402,6 +400,7 @@ typedef struct {
     int has_file;
     int has_brief;
     char params[MAXPARAM][NAMELEN];
+    int  paramdir[MAXPARAM];
     int nparams;
     int has_return;
     char retvals[MAXRET][NAMELEN];
@@ -409,11 +408,16 @@ typedef struct {
 } DocInfo;
 
 /*! @brief Parses the body of a Doxygen comment into info.
- *  @param p    Comment text without delimiters.
- *  @param len  Length of the comment text in bytes.
- *  @param info Destination for @file/@brief/@param/@return/@retval.
+ *  @param[in]     p           Comment text without delimiters.
+ *  @param[in]     len         Length of the comment text in bytes.
+ *  @param[in,out] info        Destination for @file/@brief/@param/@return/@retval.
+ *  @param[in]     is_trailing Non-zero when the comment is a "/*!<" or "//!<"
+ *                             trailing block.  In that case, if no command at
+ *                             all is present, the whole text is treated as the
+ *                             value of @brief.
  */
-static void parse_doc_into(const char *p, int len, DocInfo *info)
+static void parse_doc_into(const char *p, int len, DocInfo *info,
+                           int is_trailing)
 {
     int i = 0;
     int at_line_start = 1;
@@ -421,6 +425,7 @@ static void parse_doc_into(const char *p, int len, DocInfo *info)
     while (i < len) {
         char c = p[i];
         int cs, clen, as, alen;
+        int cur_dir = 0;
 
         if (c == '\n') {
             at_line_start = 1;
@@ -447,9 +452,23 @@ static void parse_doc_into(const char *p, int len, DocInfo *info)
 
             if (clen == 5 && memcmp(p + cs, "param", 5) == 0) {
                 if (i < len && p[i] == '[') {
+                    int bs = i + 1;
+                    int be, jj;
+                    int has_in = 0, has_out = 0;
                     while (i < len && p[i] != ']') i++;
+                    be = i;
                     if (i < len) i++;
                     while (i < len && (p[i] == ' ' || p[i] == '\t')) i++;
+                    for (jj = bs; jj < be; jj++) {
+                        if (jj + 1 < be &&
+                            p[jj] == 'i' && p[jj + 1] == 'n') has_in = 1;
+                        if (jj + 2 < be &&
+                            p[jj] == 'o' && p[jj + 1] == 'u' &&
+                            p[jj + 2] == 't') has_out = 1;
+                    }
+                    if (has_in && has_out) cur_dir = 3;
+                    else if (has_in) cur_dir = 1;
+                    else if (has_out) cur_dir = 2;
                 }
             }
 
@@ -465,6 +484,7 @@ static void parse_doc_into(const char *p, int len, DocInfo *info)
                 if (alen > 0 && alen < NAMELEN && info->nparams < MAXPARAM) {
                     memcpy(info->params[info->nparams], p + as, alen);
                     info->params[info->nparams][alen] = 0;
+                    info->paramdir[info->nparams] = cur_dir;
                     info->nparams++;
                 }
             } else if (clen == 6 && memcmp(p + cs, "return", 6) == 0) {
@@ -482,11 +502,17 @@ static void parse_doc_into(const char *p, int len, DocInfo *info)
         at_line_start = 0;
         while (i < len && p[i] != '\n') i++;
     }
+
+    if (is_trailing &&
+        !info->has_file && !info->has_brief &&
+        info->nparams == 0 && !info->has_return && info->nretvals == 0) {
+        info->has_brief = 1;
+    }
 }
 
 /*! @brief Checks whether the return type is plain "void".
- *  @param start    Index of the first token of the return type.
- *  @param name_idx Index of the function-name token.
+ *  @param[in] start    Index of the first token of the return type.
+ *  @param[in] name_idx Index of the function-name token.
  *  @return Non-zero if the type is void without pointers or qualifiers.
  *  @retval 0 Return type is not plain void.
  *  @retval 1 Return type is plain void.
@@ -511,10 +537,15 @@ static int returns_void(int start, int name_idx)
 }
 
 /*! @brief Extracts the name of one parameter and appends it to names.
- *  @param start  Index of the first token of the parameter.
- *  @param end    Index just past the last token of the parameter.
- *  @param names  Array receiving the parameter names.
- *  @param nnames In/out counter of names already stored.
+ *
+ * A parameter that is a bare type name (a single identifier such as
+ * "phStack", or a type plus "*" with no declarator) has no parameter
+ * name and is skipped silently.
+ *
+ *  @param[in]     start  Index of the first token of the parameter.
+ *  @param[in]     end    Index just past the last token of the parameter.
+ *  @param[in,out] names  Array receiving the parameter names.
+ *  @param[in,out] nnames In/out counter of names already stored.
  */
 static void extract_one_param(int start, int end,
                               char names[][NAMELEN], int *nnames)
@@ -523,6 +554,8 @@ static void extract_one_param(int start, int end,
     int name_idx = -1;
     int in_tag = 0;
     int bdepth = 0;
+    int n_nonkw = 0;
+    int n_other = 0;
 
     if (end <= start) return;
     if (end - start == 1 && tok_is(start, "void")) return;
@@ -535,14 +568,27 @@ static void extract_one_param(int start, int end,
         if (tok_punct(j, "[")) { bdepth++; continue; }
         if (tok_punct(j, "]")) { if (bdepth > 0) bdepth--; continue; }
         if (bdepth > 0) continue;
-        if (toks[j].type != T_IDENT) continue;
+        if (tok_punct(j, "*") || tok_punct(j, "(") || tok_punct(j, ")")) {
+            continue;
+        }
+        if (toks[j].type != T_IDENT) {
+            n_other++;
+            continue;
+        }
         if (tok_is(j, "struct") || tok_is(j, "union") || tok_is(j, "enum") ||
             tok_is(j, "class") || tok_is(j, "namespace")) {
             in_tag = 1;
+            n_other++;
             continue;
         }
-        if (in_tag) { in_tag = 0; continue; }
-        if (!is_keyword(toks[j].p, toks[j].len)) name_idx = j;
+        if (in_tag) { in_tag = 0; n_other++; continue; }
+        if (is_keyword(toks[j].p, toks[j].len)) { n_other++; continue; }
+        name_idx = j;
+        n_nonkw++;
+    }
+
+    if (n_nonkw == 1 && n_other == 0) {
+        name_idx = -1;
     }
 
     if (name_idx >= 0 && *nnames < MAXPARAM) {
@@ -555,10 +601,10 @@ static void extract_one_param(int start, int end,
 }
 
 /*! @brief Extracts all parameter names from a (...) group.
- *  @param open_idx  Index of the '(' token, or -1.
- *  @param close_idx Index of the matching ')'.
- *  @param names     Array receiving the parameter names.
- *  @param nnames    In/out counter of names already stored.
+ *  @param[in]     open_idx  Index of the '(' token, or -1.
+ *  @param[in]     close_idx Index of the matching ')'.
+ *  @param[in,out] names     Array receiving the parameter names.
+ *  @param[in,out] nnames    In/out counter of names already stored.
  */
 static void extract_params(int open_idx, int close_idx,
                            char names[][NAMELEN], int *nnames)
@@ -584,10 +630,10 @@ static void extract_params(int open_idx, int close_idx,
 }
 
 /*! @brief Collects integer literals returned from a function body.
- *  @param body_start Index of the opening '{' of the body.
- *  @param body_end   Index of the matching '}'.
- *  @param exprs      Array receiving the literal strings.
- *  @param nexprs     In/out counter of literals already stored.
+ *  @param[in]     body_start Index of the opening '{' of the body.
+ *  @param[in]     body_end   Index of the matching '}'.
+ *  @param[in,out] exprs      Array receiving the literal strings.
+ *  @param[in,out] nexprs     In/out counter of literals already stored.
  */
 static void collect_returns(int body_start, int body_end,
                             char exprs[][EXPRLEN], int *nexprs)
@@ -646,8 +692,8 @@ static void collect_returns(int body_start, int body_end,
 }
 
 /*! @brief Reads the whole file fname into a heap buffer.
- *  @param fname   Path to the file.
- *  @param out_len Receives the number of bytes read.
+ *  @param[in]  fname   Path to the file.
+ *  @param[out] out_len Receives the number of bytes read.
  *  @return Pointer to the buffer, or NULL on error.
  *  @retval NULL File could not be opened or memory could not be allocated.
  *  @retval buf  Buffer containing the file contents.
@@ -675,7 +721,7 @@ static char *slurp(const char *fname, long *out_len)
 }
 
 /*! @brief Runs all checks on a single source file.
- *  @param fname Path to the source file.
+ *  @param[in] fname Path to the source file.
  *  @return Number of warnings emitted.
  *  @retval 1 The file could not be opened.
  */
@@ -712,7 +758,7 @@ static int check_file(const char *fname)
         if (toks[i].type == T_DOC) {
             memset(&di, 0, sizeof(di));
             while (toks[i].type == T_DOC) {
-                parse_doc_into(toks[i].p, toks[i].len, &di);
+                parse_doc_into(toks[i].p, toks[i].len, &di, 0);
                 i++;
             }
             if (di.has_file) saw_file_doc = 1;
@@ -745,7 +791,7 @@ static int check_file(const char *fname)
             DocInfo di;
             memset(&di, 0, sizeof(di));
             while (toks[i].type == T_DOC) {
-                parse_doc_into(toks[i].p, toks[i].len, &di);
+                parse_doc_into(toks[i].p, toks[i].len, &di, 0);
                 i++;
             }
             if (!di.has_file) {
@@ -856,7 +902,7 @@ static int check_file(const char *fname)
                 memset(&di, 0, sizeof(di));
                 if (has_doc) {
                     for (k = pending_start; k < pending_end; k++) {
-                        parse_doc_into(toks[k].p, toks[k].len, &di);
+                        parse_doc_into(toks[k].p, toks[k].len, &di, 0);
                     }
                 }
                 pending_start = -1;
@@ -865,7 +911,7 @@ static int check_file(const char *fname)
 
                 if (toks[i].type == T_DOC_TRAILING) {
                     while (toks[i].type == T_DOC_TRAILING) {
-                        parse_doc_into(toks[i].p, toks[i].len, &di);
+                        parse_doc_into(toks[i].p, toks[i].len, &di, 1);
                         i++;
                     }
                     has_doc = 1;
@@ -911,6 +957,15 @@ static int check_file(const char *fname)
                                            pnames[k]);
                                     errors++;
                                 }
+                            }
+                        }
+
+                        for (k = 0; k < di.nparams; k++) {
+                            if (di.paramdir[k] == 0) {
+                                printf("%s:%d: warning: function '%s': @param %s lacks direction qualifier [in]/[out]/[in,out]\n",
+                                       fname, decl_line, fname_buf,
+                                       di.params[k]);
+                                errors++;
                             }
                         }
 
@@ -966,8 +1021,8 @@ static int check_file(const char *fname)
 }
 
 /*! @brief Case-insensitive test: does name end with ext?
- *  @param name File name to test.
- *  @param ext  Extension including the leading dot.
+ *  @param[in] name File name to test.
+ *  @param[in] ext  Extension including the leading dot.
  *  @return Non-zero if name ends with ext.
  *  @retval 0 No match.
  *  @retval 1 Match.
@@ -998,7 +1053,7 @@ static const char *const suffixes[] = {
 };
 
 /*! @brief Invokes check_file on every matching file in dirpath.
- *  @param dirpath Directory to scan (non-recursive).
+ *  @param[in] dirpath Directory to scan (non-recursive).
  *  @return Total number of warnings across all processed files.
  *  @retval 0 Directory cannot be opened, or no warnings were emitted.
  */
@@ -1055,8 +1110,8 @@ static int scan_dir(const char *dirpath)
 }
 
 /*! @brief Program entry point.
- *  @param argc Argument count.
- *  @param argv Argument vector; argv[1] is the directory to scan.
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector; argv[1] is the directory to scan.
  *  @return Always 0: the tool never fails the build.
  *  @retval 0 Always.
  */

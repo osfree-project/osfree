@@ -1,19 +1,21 @@
-/* path.c - path manipulation helpers (C89 + Watcom extensions) */
+/*!
+ * @file path.c
+ *
+ * @brief Implementation of the path manipulation helpers.
+ *
+ * (c) osFree Project 2026, <http://www.osFree.org>
+ * for licence see licence.txt in root directory, or project website
+ */
 
 #include <stdlib.h>
 #include <string.h>
 #include "path.h"
 
-/**
- * @file path.c
- * @brief Implementation of the path manipulation helpers.
- */
-
 /* ------------------------------------------------------------------ */
 /* Internal helpers                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Return a pointer to the last separator in a path.
  *
  * @param[in] pszPath  Path. Not NULL.
@@ -32,13 +34,15 @@ static PCSZ find_last_sep(PCSZ pszPath) {
 /* Component extraction                                                */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Return a pointer to the base name inside a path.
  *
- * @param[in]  pszPath  Path. Not NULL.
- * @param[out] ppszBase Receiver. Not NULL.
+ * @param[in]  pszPath   Path. Not NULL.
+ * @param[out] ppszBase  Receiver. Not NULL.
  *
- * @return APIRET
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszPath or ppszBase is NULL.
  */
@@ -51,15 +55,17 @@ APIRET APIENTRY PathGetBaseName(PCSZ pszPath, PCSZ *ppszBase) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Copy the directory part of a path into a caller buffer.
  *
- * @param[in]  pszPath   Path. Not NULL.
- * @param[out] pszDst    Output buffer. Not NULL unless size-query.
- * @param[in]  ulDstSize Size of pszDst in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  pszPath    Path. Not NULL.
+ * @param[out] pszDst     Output buffer. Not NULL unless size-query.
+ * @param[in]  ulDstSize  Size of pszDst in bytes.
+ * @param[out] pulUsed    Optional. May be NULL.
  *
- * @return APIRET
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszDst is
  *                                  NULL without size-query.
@@ -127,16 +133,18 @@ APIRET APIENTRY PathGetDirName(PCSZ pszPath, PSZ pszDst,
 /* Construction                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Join a directory and a name with the platform separator.
  *
- * @param[in]  pszDir    Directory. Not NULL. May be empty.
- * @param[in]  pszName   Entry name. Not NULL.
- * @param[out] pszDst    Output buffer. Not NULL unless size-query.
- * @param[in]  ulDstSize Size of pszDst in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  pszDir     Directory. Not NULL. May be empty.
+ * @param[in]  pszName    Entry name. Not NULL.
+ * @param[out] pszDst     Output buffer. Not NULL unless size-query.
+ * @param[in]  ulDstSize  Size of pszDst in bytes.
+ * @param[out] pulUsed    Optional. May be NULL.
  *
- * @return APIRET
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszDir or pszName is NULL, or
  *                                  pszDst is NULL without
@@ -192,12 +200,14 @@ APIRET APIENTRY PathMakeJoin(PCSZ pszDir, PCSZ pszName, PSZ pszDst,
 /* Normalization                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Remove trailing path separators in place.
  *
  * @param[in,out] pszPath  Path to trim. Not NULL.
  *
- * @return APIRET
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszPath is NULL.
  */
@@ -218,15 +228,17 @@ APIRET APIENTRY PathRemoveTrailingSeparators(PSZ pszPath) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Normalize a path.
  *
- * @param[in]  pszSrc    Input path. Not NULL.
- * @param[out] pszDst    Output buffer. Not NULL unless size-query.
- * @param[in]  ulDstSize Size of pszDst in bytes.
- * @param[out] pulUsed   Optional. May be NULL.
+ * @param[in]  pszSrc     Input path. Not NULL.
+ * @param[out] pszDst     Output buffer. Not NULL unless size-query.
+ * @param[in]  ulDstSize  Size of pszDst in bytes.
+ * @param[out] pulUsed    Optional. May be NULL.
  *
- * @return APIRET
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszDst is
  *                                  NULL without size-query.

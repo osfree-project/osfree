@@ -30,10 +30,27 @@
    ignored here.
 */
 
+/*!
+    @brief Allocate a stack node.
+
+    Wraps LinkedNodeAlloc, supplying zero for the size and tag fields
+    that all_dlist does not use.
+
+    @param pElem  User data pointer to store in the node.
+
+    @return A pointer to the new node, or NULL on allocation failure.
+*/
 static stack_cmp *node_alloc(void *pElem) {
     return (stack_cmp *)LinkedNodeAlloc(pElem, 0, 0);
 }
 
+/*!
+    @brief Release a stack node.
+
+    Does not touch the user data pointer stored in the node.
+
+    @param pNode  Node to release.
+*/
 static void node_free(stack_cmp *pNode) {
     LinkedNodeFree((PLINKED_NODE)pNode);
 }
@@ -43,10 +60,12 @@ static void node_free(stack_cmp *pNode) {
 */
 
 /*!
-    Initialization of the dynamic stack. It allocates a new stack handle
-    (hStack) and returns it to the caller.
+    @brief Initialize a dynamic stack.
 
-    @return A pointer to a stack handle, or NULL on error
+    Allocates a new stack handle (hStack) and returns it to the
+    caller.
+
+    @return A pointer to a stack handle, or NULL on error.
 */
 phStack stack_init(void)
 {
@@ -63,17 +82,21 @@ phStack stack_init(void)
 }
 
 /*!
-    Push a new element on the stack. The element can be of any kind
-    (variable, structure, etc). Allocation of the memory for the
-    element is done by the user code.
+    @brief Push a new element on the stack.
 
-    @param pph      A pointer to a stack handle
-    @param content  A pointer to the new element
+    The element can be of any kind (variable, structure, etc).
+    Allocation of the memory for the element is done by the user
+    code.
 
-    @return
-        - ERROR_NOT_ENOUGH_MEMORY if memory allocation failed
-        - ERROR_INVALID_PARAMETER if pph is NULL
-        - NO_ERROR if there are no errors
+    @param pph      A pointer to a stack handle.
+    @param content  A pointer to the new element.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  pph is NULL.
+    @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failed.
 */
 unsigned long stack_push(phStack pph, void *content)
 {
@@ -97,17 +120,20 @@ unsigned long stack_push(phStack pph, void *content)
 }
 
 /*!
-    Pop the top element of the stack. When the user is done with the
-    returned element, the user is responsible for deallocating its
-    memory.
+    @brief Pop the top element of the stack.
 
-    @param pph      A pointer to a stack handle
-    @param content  A pointer to a pointer to the element
+    When the user is done with the returned element, the user is
+    responsible for deallocating its memory.
 
-    @return
-        - all_RC_DLIST_NULL if the stack is empty
-        - ERROR_INVALID_PARAMETER if pph or content is NULL
-        - NO_ERROR if there are no errors
+    @param pph      A pointer to a stack handle.
+    @param content  A pointer to a pointer to the element.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  pph or content is NULL.
+    @retval all_RC_DLIST_NULL        The stack is empty.
 */
 unsigned long stack_pop(phStack pph, void **content)
 {
@@ -140,13 +166,12 @@ unsigned long stack_pop(phStack pph, void **content)
 }
 
 /*!
-    Returns the top element of the stack, without removing it.
+    @brief Return the top element of the stack, without removing it.
 
-    @param pph      A pointer to a stack handle
+    @param pph  A pointer to a stack handle.
 
-    @return
-        - NULL if the stack is empty
-        - A pointer to the top element if there are no errors
+    @return A pointer to the top element, or NULL if the stack is
+            empty or pph is NULL.
 */
 void *stack_top(phStack pph)
 {
@@ -157,17 +182,21 @@ void *stack_top(phStack pph)
 }
 
 /*!
-    Removes an element in the middle of the stack; does not affect
-    the stack pointer, unless the removed element is the current top,
-    in which case the pointer moves to the previous element.
+    @brief Remove an arbitrary component from the stack.
 
-    @param pph        A pointer to a stack handle
-    @param component  A pointer to the stack element to remove
+    Does not affect the stack pointer, unless the removed element is
+    the current top, in which case the pointer moves to the previous
+    element.
 
-    @return
-        - all_RC_DLIST_NULL if component is NULL
-        - ERROR_INVALID_PARAMETER if pph is NULL
-        - NO_ERROR if there are no errors
+    @param pph        A pointer to a stack handle.
+    @param component  A pointer to the stack element to remove.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  pph is NULL.
+    @retval all_RC_DLIST_NULL        component is NULL.
 */
 unsigned long stack_remove(phStack pph, void *component)
 {
@@ -200,10 +229,11 @@ unsigned long stack_remove(phStack pph, void *component)
 */
 
 /*!
-    Initialization of the dynamic list. It allocates a new list handle
-    (hList) and returns it to the caller.
+    @brief Initialize a dynamic list.
 
-    @return A pointer to a list handle, or NULL on error
+    Allocates a new list handle (hList) and returns it to the caller.
+
+    @return A pointer to a list handle, or NULL on error.
 */
 phList list_init(void)
 {
@@ -220,13 +250,12 @@ phList list_init(void)
 }
 
 /*!
-    Returns the current element of the list.
+    @brief Return the current element of the list.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - NULL if the list is empty
-        - A pointer to the current list element if there are no errors
+    @return A pointer to the current list element, or NULL if the
+            list is empty or ppl is NULL.
 */
 void *list_get(phList ppl)
 {
@@ -237,17 +266,20 @@ void *list_get(phList ppl)
 }
 
 /*!
-    Inserts a new list element after the current element. Allocation
-    of the memory for the element is done by the user code. The cursor
-    moves to the newly inserted element.
+    @brief Insert a new list element after the current element.
 
-    @param ppl      A pointer to a list handle
-    @param content  A pointer to the new element
+    Allocation of the memory for the element is done by the user
+    code. The cursor moves to the newly inserted element.
 
-    @return
-        - ERROR_NOT_ENOUGH_MEMORY if memory allocation failed
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @param ppl      A pointer to a list handle.
+    @param content  A pointer to the new element.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failed.
 */
 unsigned long list_insert(phList ppl, void *content)
 {
@@ -279,17 +311,20 @@ unsigned long list_insert(phList ppl, void *content)
 }
 
 /*!
-    Removes the current element from the list. Does @a not deallocate
-    memory for the element. The user is responsible for doing it. The
-    cursor moves to the next element, or to the previous one if there
-    is no next element.
+    @brief Remove the current element from the list.
 
-    @param ppl      A pointer to a list handle
+    Does @a not deallocate memory for the element. The user is
+    responsible for doing it. The cursor moves to the next element,
+    or to the previous one if there is no next element.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @param ppl  A pointer to a list handle.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
 */
 unsigned long list_remove(phList ppl)
 {
@@ -323,16 +358,20 @@ unsigned long list_remove(phList ppl)
 }
 
 /*!
-    Adds an element to the end of the list. The cursor moves to the
-    newly added element, matching the original implementation.
+    @brief Add an element to the end of the list.
 
-    @param ppl      A pointer to a list handle
-    @param content  A pointer to the new element
+    The cursor moves to the newly added element, matching the
+    original implementation.
 
-    @return
-        - ERROR_NOT_ENOUGH_MEMORY if memory allocation failed
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @param ppl      A pointer to a list handle.
+    @param content  A pointer to the new element.
+
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failed.
 */
 unsigned long list_add(phList ppl, void *content)
 {
@@ -363,14 +402,16 @@ unsigned long list_add(phList ppl, void *content)
 }
 
 /*!
-    Moves current position to the start of the list.
+    @brief Move current position to the start of the list.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
 */
 unsigned long list_set_start(phList ppl)
 {
@@ -386,14 +427,16 @@ unsigned long list_set_start(phList ppl)
 }
 
 /*!
-    Moves current position to the end of the list.
+    @brief Move current position to the end of the list.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
 */
 unsigned long list_set_end(phList ppl)
 {
@@ -409,15 +452,18 @@ unsigned long list_set_end(phList ppl)
 }
 
 /*!
-    Moves current position to the previous element.
+    @brief Move current position to the previous element.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - all_RC_DLIST_END if trying to go beyond the start of the list
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
+    @retval all_RC_DLIST_END         Trying to go beyond the start of
+                                     the list.
 */
 unsigned long list_prev(phList ppl)
 {
@@ -434,15 +480,18 @@ unsigned long list_prev(phList ppl)
 }
 
 /*!
-    Moves current position to the next element.
+    @brief Move current position to the next element.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - all_RC_DLIST_END if trying to go beyond the end of the list
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
+    @retval all_RC_DLIST_END         Trying to go beyond the end of
+                                     the list.
 */
 unsigned long list_next(phList ppl)
 {
@@ -459,16 +508,18 @@ unsigned long list_next(phList ppl)
 }
 
 /*!
-    Deallocates all the memory used by the list.
+    @brief Deallocate all the memory used by the list.
 
     @warning This deallocates all the memory for the contents also!
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - all_RC_DLIST_NULL if the list is empty
-        - ERROR_INVALID_PARAMETER if ppl is NULL
-        - NO_ERROR if there are no errors
+    @return NO_ERROR on success, or one of the error codes listed
+            below.
+
+    @retval NO_ERROR                 Success.
+    @retval ERROR_INVALID_PARAMETER  ppl is NULL.
+    @retval all_RC_DLIST_NULL        The list is empty.
 */
 unsigned long list_free(phList ppl)
 {
@@ -496,17 +547,18 @@ unsigned long list_free(phList ppl)
 }
 
 /*!
-    Determines if the list is empty or not.
+    @brief Determine whether the list is empty.
 
-    @param ppl      A pointer to a list handle
+    @param ppl  A pointer to a list handle.
 
-    @return
-        - FALSE if the list contains at least one element
-        - TRUE if the list contains nothing
+    @return TRUE if the list is empty or ppl is NULL, FALSE otherwise.
+
+    @retval TRUE   The list is empty, or ppl is NULL.
+    @retval FALSE  The list contains at least one element.
 */
 BOOL list_isempty(phList ppl)
 {
-    if (ppl == NULL) return 1;
-    if (*ppl == NULL) return 1;
-    return 0;
+    if (ppl == NULL) return TRUE;
+    if (*ppl == NULL) return TRUE;
+    return FALSE;
 }
