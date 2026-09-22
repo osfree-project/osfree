@@ -2,6 +2,7 @@
 #
 
 TARGET_CLASS = LIBRARY
+LIBS = omf
 
 !ifndef TARGETBLD
 SRCDIR     = $(MYDIR)

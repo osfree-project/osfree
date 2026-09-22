@@ -1,14 +1,21 @@
-/*! lib.c - OMF library (.LIB) reader (C89)
+/*!
+ * @file lib.c
  *
- *  See lib.h for the public API.
+ * @brief Implementation of the OMF library reader.
  *
- *  References:
- *    - TIS Portable Formats Specification, Version 1.1 (Relocatable
- *      Object Module Format), Linux Foundation.
- *      https://refspecs.linuxfoundation.org/elf/elfspec.pdf
- *    - OpenWatcom WLIB librarian sources.
- *    - Microsoft OMF specification, "Relocatable Object Module
- *      Format", version 1.1.
+ * OMF library (.LIB) reader (C89). See lib.h for the public API.
+ *
+ * All public functions declared in lib.h are implemented here. The
+ * internal representation of HOMFLIB is defined in this translation
+ * unit only; callers see it as an opaque HANDLE.
+ *
+ * References:
+ *   - TIS Portable Formats Specification, Version 1.1 (Relocatable
+ *     Object Module Format), Linux Foundation.
+ *     https://refspecs.linuxfoundation.org/elf/elfspec.pdf
+ *   - OpenWatcom WLIB librarian sources.
+ *   - Microsoft OMF specification, "Relocatable Object Module
+ *     Format", version 1.1.
  */
 
 #include <stdio.h>
@@ -17,59 +24,58 @@
 #include "lib.h"
 #include "omf.h"
 
-/*! @file lib.c
- *  @brief Implementation of the OMF library reader.
- *
- *  All public functions declared in lib.h are implemented here. The
- *  internal representation of HOMFLIB is defined in this translation
- *  unit only; callers see it as an opaque HANDLE.
+/*!
+ * @brief Maximum size of an OMF record processed by the reader.
  */
-
-/*! @brief Maximum size of an OMF record processed by the reader. */
 #define LIB_RECORD_MAX 512
 
-/*! @brief Internal representation behind HOMFLIB.
+/*!
+ * @struct OMFLIB
+ * @brief Internal representation behind HOMFLIB.
  *
- *  Not exposed to callers. lib.h declares the handle as HANDLE, so
- *  the layout of this structure may change freely.
+ * Not exposed to callers. lib.h declares the handle as HANDLE, so
+ * the layout of this structure may change freely.
  */
 struct OMFLIB {
     FILE *fp;   /*!< Underlying file stream. */
 };
 
-/*! @brief Inspect one COMENT payload as a possible IMPDEF record.
+/*!
+ * @brief Inspect one COMENT payload as a possible IMPDEF record.
  *
- *  An IMPDEF record maps a (module, ordinal) pair to a function
- *  name. The payload layout recognized by this function is:
- *  @verbatim
-    [type:1][class:1][subtype:1][ord_flag:1][name_len:1]
-    [name:name_len][mod_len:1][module:mod_len][ordinal:2]
-    @endverbatim
- *  The @c type byte must be OMF_COMENT_TYPE_NOECHO or
- *  OMF_COMENT_TYPE_NORMAL, @c class must be
- *  LIB_COMENT_CLASS_IMPDEF, @c subtype must be
- *  LIB_IMPDEF_SUBTYPE_IMPORT, and @c ord_flag must be non-zero
- *  (ordinal form).
+ * An IMPDEF record maps a (module, ordinal) pair to a function
+ * name. The payload layout recognized by this function is:
+ * @verbatim
+   [type:1][class:1][subtype:1][ord_flag:1][name_len:1]
+   [name:name_len][mod_len:1][module:mod_len][ordinal:2]
+   @endverbatim
+ * The @c type byte must be OMF_COMENT_TYPE_NOECHO or
+ * OMF_COMENT_TYPE_NORMAL, @c class must be
+ * LIB_COMENT_CLASS_IMPDEF, @c subtype must be
+ * LIB_IMPDEF_SUBTYPE_IMPORT, and @c ord_flag must be non-zero
+ * (ordinal form).
  *
- *  On a successful match the function name is copied into
- *  @p pszName and @p pfMatched is set to 1. On a non-match
- *  @p pfMatched is set to 0 and the function returns NO_ERROR.
+ * On a successful match the function name is copied into
+ * @p pszName and @p pfMatched is set to 1. On a non-match
+ * @p pfMatched is set to 0 and the function returns NO_ERROR.
  *
- *  @param[in]  puchBuf    Record payload (after the OMF header).
- *                         Not NULL.
- *  @param[in]  cbLen      Payload length in bytes.
- *  @param[in]  pszModule  Module name to match. Not NULL.
- *  @param[in]  usOrdinal  Ordinal to match.
- *  @param[out] pszName    Output buffer for the function name.
- *                         Not NULL.
- *  @param[in]  cbName     Size of @p pszName in bytes, including
- *                         space for the NUL terminator.
- *  @param[out] pfMatched  Set to 1 on match, 0 otherwise. Not NULL.
+ * @param[in]  puchBuf    Record payload (after the OMF header).
+ *                        Not NULL.
+ * @param[in]  cbLen      Payload length in bytes.
+ * @param[in]  pszModule  Module name to match. Not NULL.
+ * @param[in]  usOrdinal  Ordinal to match.
+ * @param[out] pszName    Output buffer for the function name.
+ *                        Not NULL.
+ * @param[in]  cbName     Size of @p pszName in bytes, including
+ *                        space for the NUL terminator.
+ * @param[out] pfMatched  Set to 1 on match, 0 otherwise. Not NULL.
  *
- *  @return APIRET
- *  @retval NO_ERROR                 Record processed (matched or not).
- *  @retval ERROR_INVALID_PARAMETER  Match found but the name does not
- *                                   fit in @p pszName.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Record processed (matched or
+ *                                  not).
+ * @retval ERROR_INVALID_PARAMETER  Match found but the name does
+ *                                  not fit in @p pszName.
  */
 static APIRET lib_check_impdef(const UCHAR *puchBuf, ULONG cbLen,
                                PCSZ pszModule, USHORT usOrdinal,
@@ -122,9 +128,25 @@ static APIRET lib_check_impdef(const UCHAR *puchBuf, ULONG cbLen,
     return NO_ERROR;
 }
 
-/*! @brief Open an OMF library file.
+/*!
+ * @brief Open an OMF library file.
  *
- *  @copydetails LibOpen
+ * Opens @p pszPath for reading and returns a handle to be used
+ * with the other LibQuery* functions. The handle owns the
+ * underlying FILE stream and must be released with LibClose.
+ *
+ * @param[in]  pszPath  Path to the .LIB file. Not NULL.
+ * @param[out] phLib    Handle receiver. Not NULL. Set to NULLHANDLE
+ *                      on failure.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @p pszPath or @p phLib is NULL.
+ * @retval ERROR_OPEN_FAILED        File cannot be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *
+ * @see LibClose
  */
 APIRET APIENTRY LibOpen(PCSZ pszPath, HOMFLIB *phLib)
 {
@@ -147,9 +169,19 @@ APIRET APIENTRY LibOpen(PCSZ pszPath, HOMFLIB *phLib)
     return NO_ERROR;
 }
 
-/*! @brief Close an OMF library.
+/*!
+ * @brief Close an OMF library.
  *
- *  @copydetails LibClose
+ * Flushes and closes the underlying stream and releases the handle.
+ * Idempotent: passing NULLHANDLE returns NO_ERROR.
+ *
+ * @param[in] hLib  Handle from LibOpen. NULLHANDLE is accepted.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR  Always.
+ *
+ * @see LibOpen
  */
 APIRET APIENTRY LibClose(HOMFLIB hLib)
 {
@@ -162,9 +194,33 @@ APIRET APIENTRY LibClose(HOMFLIB hLib)
     return NO_ERROR;
 }
 
-/*! @brief Look up a function name by module and ordinal.
+/*!
+ * @brief Look up a function name by module and ordinal.
  *
- *  @copydetails LibQueryFunction
+ * Scans the library from the beginning and inspects every COMENT
+ * record whose class identifies it as an IMPDEF record. The first
+ * record whose module name and ordinal match @p pszModule and
+ * @p usOrdinal provides the answer; the function name is copied
+ * into @p pszName.
+ *
+ * @param[in]  hLib       Handle from LibOpen. Not NULLHANDLE.
+ * @param[in]  pszModule  Module name to match. Not NULL.
+ * @param[in]  usOrdinal  Ordinal to match.
+ * @param[out] pszName    Output buffer. Not NULL.
+ * @param[in]  cbName     Size of @p pszName in bytes, including
+ *                        space for the NUL terminator.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 A matching record was found and
+ *                                  the name was copied.
+ * @retval ERROR_INVALID_PARAMETER  Bad handle, NULL argument, zero
+ *                                  buffer size, or the name does
+ *                                  not fit in @p pszName.
+ * @retval ERROR_READ_FAULT         Read error or seek error.
+ * @retval ERROR_FILE_NOT_FOUND     No matching record was found.
+ *
+ * @see LibOpen
  */
 APIRET APIENTRY LibQueryFunction(HOMFLIB hLib, PCSZ pszModule,
                                  USHORT usOrdinal,
