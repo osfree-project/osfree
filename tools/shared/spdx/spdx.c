@@ -1,9 +1,9 @@
-/* spdx.c - shared SPDX utility functions.
- * Part of the reuse support layer. */
-
-/**
+/*!
  * @file spdx.c
+ *
  * @brief Implementation of the shared SPDX utility functions.
+ *
+ * Shared SPDX utility functions. Part of the reuse support layer.
  *
  * Copyright (c) osFree Project 2026, <http://www.osFree.org>
  *   for licence see licence.txt in root directory, or project website
@@ -19,7 +19,7 @@
  * File helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Read an entire file into a caller-supplied buffer.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
@@ -28,6 +28,7 @@
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is
  *                                  NULL without size-query.
@@ -72,12 +73,14 @@ APIRET APIENTRY SpdxReadFileAll(PCSZ pszPath, PSZ pszBuf,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Return a pointer to the base name inside a path.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return Base name, or NULL if pszPath is NULL.
+ * @return Base name, or NULL on failure.
+ *
+ * @retval NULL  pszPath is NULL, or PathGetBaseName failed.
  */
 PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
     PCSZ pszBase = NULL;
@@ -90,7 +93,7 @@ PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
  * Text helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Normalize text into a private scratch buffer.
  *
  * @param[in]  pszSrc   Input text. Not NULL.
@@ -98,6 +101,7 @@ PCSZ APIENTRY SpdxGetFileName(PCSZ pszPath) {
  *                      Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -158,7 +162,7 @@ static APIRET normalize_to_heap(PCSZ pszSrc, PSZ *ppszOut) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Normalize text for comparison.
  *
  * @param[in]  pszSrc   Input text. Not NULL.
@@ -167,6 +171,7 @@ static APIRET normalize_to_heap(PCSZ pszSrc, PSZ *ppszOut) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
  *                                  without size-query.

@@ -1,18 +1,24 @@
-/* spdx_tag.c - SPDX tags and snippet parser (C89) */
+/*!
+ * @file spdx_tag.c
+ *
+ * @brief Implementation of the SPDX tags and snippet parser.
+ *
+ * SPDX tags and snippet parser (C89).
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "spdx_tag.h"
 
-/**
- * @file spdx_tag.c
- * @brief Implementation of the SPDX tags and snippet parser.
+/*!
+ * @brief Maximum line length accepted by the tag scanner.
+ *
+ * Raised from 4096 to avoid truncating long copyright expressions.
  */
-
-/* Raised from 4096 to avoid truncating long copyright expressions. */
 #define MAX_LINE 16384
 
-/**
+/*!
  * @brief Skip a UTF-8 BOM at the start of the buffer.
  *
  * @param[in] pszPos  Buffer. Not NULL.
@@ -28,7 +34,7 @@ static PCSZ skip_bom(PCSZ pszPos) {
     return pszPos;
 }
 
-/**
+/*!
  * @brief Skip leading whitespace and a comment marker.
  *
  * @param[in] pszPos  Start of line. Not NULL.
@@ -48,13 +54,17 @@ static PCSZ skip_comment_prefix(PCSZ pszPos) {
     return pszPos;
 }
 
-/**
+/*!
  * @brief Check whether the meaningful part of a line starts with
  *        REUSE-IgnoreStart or REUSE-IgnoreEnd.
  *
  * @param[in] pszLine  Line. Not NULL.
  *
  * @return 1 for Start, 2 for End, 0 otherwise.
+ *
+ * @retval 1  Line begins with REUSE-IgnoreStart.
+ * @retval 2  Line begins with REUSE-IgnoreEnd.
+ * @retval 0  Neither marker.
  */
 static int line_ignore_marker(PCSZ pszLine) {
     PCSZ pszPos = skip_comment_prefix(pszLine);
@@ -73,7 +83,7 @@ static int line_ignore_marker(PCSZ pszLine) {
     return 0;
 }
 
-/**
+/*!
  * @brief Check whether the meaningful part of a line starts with the
  *        given tag.
  *
@@ -81,6 +91,9 @@ static int line_ignore_marker(PCSZ pszLine) {
  * @param[in] pszTag   Tag. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Tag present at the start of the meaningful part.
+ * @retval 0  No match.
  */
 static int line_starts_with_tag(PCSZ pszLine, PCSZ pszTag) {
     size_t tlen = strlen(pszTag);
@@ -94,13 +107,15 @@ static int line_starts_with_tag(PCSZ pszLine, PCSZ pszTag) {
     return 0;
 }
 
-/**
+/*!
  * @brief Return a pointer to the value after the tag.
  *
- * @param[in] pszLine         Line. Not NULL.
+ * @param[in] pszLine          Line. Not NULL.
  * @param[in] pszTagWithColon  Tag with trailing ':'. Not NULL.
  *
- * @return Pointer to the value, or NULL if the tag is not found.
+ * @return Pointer to the value, or NULL on failure.
+ *
+ * @retval NULL  Tag not found at the start of the line.
  */
 static PCSZ tag_value(PCSZ pszLine, PCSZ pszTagWithColon) {
     size_t tlen = strlen(pszTagWithColon);
@@ -111,7 +126,7 @@ static PCSZ tag_value(PCSZ pszLine, PCSZ pszTagWithColon) {
     return pszPos;
 }
 
-/**
+/*!
  * @brief Strip trailing whitespace, newlines and comment-closing
  *        markers.
  *
@@ -139,12 +154,13 @@ static void strip_trailing_markers(PSZ pszStr) {
 /* Snippet list                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Initialize a snippet list.
  *
  * @param[in] pList  List. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pList is NULL.
  */
@@ -156,12 +172,13 @@ APIRET APIENTRY SpdxSnippetListInit(SPDXSNIPPETLIST *pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release all memory owned by a snippet list.
  *
  * @param[in] pList  List. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR  Success. Also for NULL.
  */
 APIRET APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList) {
@@ -178,13 +195,14 @@ APIRET APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a zero-filled entry to a snippet list.
  *
  * @param[in,out] pList    List. Not NULL.
  * @param[out]    ppEntry  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pList or ppEntry is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -210,7 +228,7 @@ static APIRET snippetlist_add(SPDXSNIPPETLIST *pList,
 /* Public functions                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a file contains an SPDX-License-Identifier
  *        tag.
  *
@@ -218,6 +236,7 @@ static APIRET snippetlist_add(SPDXSNIPPETLIST *pList,
  * @param[out] pfHasTag     Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszFilename or pfHasTag is NULL.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
@@ -257,7 +276,7 @@ APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the value of the SPDX-License-Identifier tag.
  *
  * @param[in]  pszFilename  Path to the file. Not NULL.
@@ -266,6 +285,7 @@ APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag) {
  * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
  *                                  NULL without size-query.
@@ -284,7 +304,6 @@ APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
     size_t cbLen;
     BOOL fIgnore = FALSE;
     BOOL fFirstLine = TRUE;
-    ULONG ulFound = 0;
 
     if (!pszFilename) return ERROR_INVALID_PARAMETER;
     if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
@@ -330,13 +349,12 @@ APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
                 return NO_ERROR;
             }
         }
-        ulFound = ulFound;
     }
     fclose(fp);
     return ERROR_FILE_NOT_FOUND;
 }
 
-/**
+/*!
  * @brief Query the concatenated SPDX-FileCopyrightText values.
  *
  * @param[in]  pszFilename  Path to the file. Not NULL.
@@ -345,6 +363,7 @@ APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
  * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
  *                                  NULL without size-query.
@@ -361,7 +380,6 @@ APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
     size_t cbResultLen = 0;
     BOOL fIgnore = FALSE;
     BOOL fFirstLine = TRUE;
-    APIRET rc;
 
     if (!pszFilename) return ERROR_INVALID_PARAMETER;
     if (pszBuf != NULL && ulSize == 0) return ERROR_INVALID_PARAMETER;
@@ -446,11 +464,10 @@ APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
     memcpy(pszBuf, pszResult, cbResultLen + 1);
     if (pulUsed) *pulUsed = (ULONG)cbResultLen;
     free(pszResult);
-    rc = NO_ERROR;
-    return rc;
+    return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a line to an accumulator with a '\n' separator.
  *
  * @param[in] pszAcc      Accumulator, or NULL.
@@ -458,6 +475,8 @@ APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
  * @param[in] pszLine     Line to append. Not NULL.
  *
  * @return New accumulator, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PSZ append_line(PSZ pszAcc, size_t *pcbAccLen, PCSZ pszLine) {
     size_t cbLineLen = strlen(pszLine);
@@ -479,13 +498,14 @@ static PSZ append_line(PSZ pszAcc, size_t *pcbAccLen, PCSZ pszLine) {
     return pszNew;
 }
 
-/**
+/*!
  * @brief Extract all SPDX snippets from a file.
  *
  * @param[in]  pszFilename  Path to the file. Not NULL.
  * @param[out] pOut         List receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success (possibly no snippets).
  * @retval ERROR_INVALID_PARAMETER  pszFilename or pOut is NULL.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.

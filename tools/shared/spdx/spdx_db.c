@@ -1,19 +1,9 @@
-/* spdx_db.c - SPDX license list database (C89, OpenWatcom) */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include "spdx_db_private.h"
-#include "json.h"
-#include "sha1.h"
-#include "spdx.h"
-
-/**
+/*!
  * @file spdx_db.c
+ *
  * @brief Implementation of the SPDX license list database.
  *
- * Conforms to:
+ * SPDX license list database (C89, OpenWatcom). Conforms to:
  *   - SPDX License List.
  *     https://spdx.org/licenses/
  *   - SPDX 2.3, Annex D.2 (case-insensitive identifier comparison).
@@ -29,45 +19,61 @@
  * re-parsing the JSON files on every run.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include "spdx_db_private.h"
+#include "json.h"
+#include "sha1.h"
+#include "spdx.h"
+
+/*!
+ * @brief Cache file magic string.
+ */
 #define CACHE_MAGIC   "SPDXDB06"
+
+/*!
+ * @brief Cache file format version.
+ */
 #define CACHE_VERSION 7
 
 /* ------------------------------------------------------------------ */
 /* Internal structures                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @struct _LICENSELLIST
  * @brief Growable array of SPDXLICENSEENTRY records.
  */
 typedef struct _LICENSELLIST {
-    SPDXLICENSEENTRY *pItems;   /**< Backing array.        */
-    int               count;    /**< Used entries.         */
-    int               capacity; /**< Allocated entries.    */
+    SPDXLICENSEENTRY *pItems;   /*!< Backing array.     */
+    int               count;    /*!< Used entries.      */
+    int               capacity; /*!< Allocated entries. */
 } LICENSELLIST;
 
-/**
+/*!
  * @struct _EXCEPTIONLIST
  * @brief Growable array of SPDXEXCEPTIONENTRY records.
  */
 typedef struct _EXCEPTIONLIST {
-    SPDXEXCEPTIONENTRY *pItems; /**< Backing array.        */
-    int                 count;  /**< Used entries.         */
-    int                 capacity;/**< Allocated entries.   */
+    SPDXEXCEPTIONENTRY *pItems; /*!< Backing array.     */
+    int                 count;  /*!< Used entries.      */
+    int                 capacity;/*!< Allocated entries. */
 } EXCEPTIONLIST;
 
-static LICENSELLIST   g_Licenses;       /**< Loaded license index.    */
-static EXCEPTIONLIST  g_Exceptions;     /**< Loaded exception index.  */
+static LICENSELLIST   g_Licenses;       /*!< Loaded license index.    */
+static EXCEPTIONLIST  g_Exceptions;     /*!< Loaded exception index.  */
 
-static FILE  *g_pCacheFp = NULL;        /**< Open cache file, or NULL.*/
-static PSZ    g_pszDetailsDir = NULL;   /**< <db>/details.            */
-static PSZ    g_pszExceptionsDir = NULL;/**< <db>/exceptions.         */
+static FILE  *g_pCacheFp = NULL;        /*!< Open cache file, or NULL.*/
+static PSZ    g_pszDetailsDir = NULL;   /*!< <db>/details.            */
+static PSZ    g_pszExceptionsDir = NULL;/*!< <db>/exceptions.         */
 
 /* ------------------------------------------------------------------ */
 /* Utilities                                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Lower-case an ASCII letter.
  *
  * Unlike tolower(), the result does not depend on the current locale.
@@ -83,7 +89,7 @@ static int ascii_lower(int c) {
     return c;
 }
 
-/**
+/*!
  * @brief Case-insensitive comparison of two ASCII strings.
  *
  * @param[in] pszA  First string. Not NULL.
@@ -103,7 +109,7 @@ static int id_cmp_ci(PCSZ pszA, PCSZ pszB) {
     return (int)(unsigned char)*pszA - (int)(unsigned char)*pszB;
 }
 
-/**
+/*!
  * @brief Copy a NUL-terminated string into a caller-supplied buffer
  *        following the size-query convention.
  *
@@ -113,6 +119,7 @@ static int id_cmp_ci(PCSZ pszA, PCSZ pszB) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszSrc is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -139,7 +146,7 @@ static APIRET copy_out(PCSZ pszSrc, PSZ pszBuf,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Free a NULL-terminated array of strings.
  *
  * @param[in] papszList  Array, or NULL.
@@ -155,12 +162,13 @@ static void free_strlist(PSZ *papszList) {
 /* License and exception lists                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Initialize an empty license list.
  *
  * @param[out] pList  List. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -173,13 +181,14 @@ static APIRET license_list_init(LICENSELLIST *pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a new entry to a license list, growing it if needed.
  *
  * @param[in,out] pList    List. Not NULL.
  * @param[out]    ppEntry  Receiver. Not NULL. Set to NULL on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -200,7 +209,7 @@ static APIRET license_list_add(LICENSELLIST *pList,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release all memory owned by a license list.
  *
  * @param[in,out] pList  List. Not NULL.
@@ -222,12 +231,13 @@ static void license_list_free(LICENSELLIST *pList) {
     pList->capacity = 0;
 }
 
-/**
+/*!
  * @brief Initialize an empty exception list.
  *
  * @param[out] pList  List. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -240,7 +250,7 @@ static APIRET exception_list_init(EXCEPTIONLIST *pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a new entry to an exception list, growing it if
  *        needed.
  *
@@ -248,6 +258,7 @@ static APIRET exception_list_init(EXCEPTIONLIST *pList) {
  * @param[out]    ppEntry  Receiver. Not NULL. Set to NULL on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -268,7 +279,7 @@ static APIRET exception_list_add(EXCEPTIONLIST *pList,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release all memory owned by an exception list.
  *
  * @param[in,out] pList  List. Not NULL.
@@ -294,7 +305,7 @@ static void exception_list_free(EXCEPTIONLIST *pList) {
 /* Sorting and binary search                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief qsort comparator for license entries (case-insensitive).
  *
  * @param[in] pA  First entry.
@@ -307,7 +318,7 @@ static int cmp_lic(const void *pA, const void *pB) {
                      ((const SPDXLICENSEENTRY*)pB)->pszId);
 }
 
-/**
+/*!
  * @brief qsort comparator for exception entries (case-insensitive).
  *
  * @param[in] pA  First entry.
@@ -320,7 +331,7 @@ static int cmp_exc(const void *pA, const void *pB) {
                      ((const SPDXEXCEPTIONENTRY*)pB)->pszId);
 }
 
-/**
+/*!
  * @brief Binary search lower bound in the license list.
  *
  * @param[in] pszId  Identifier. Not NULL.
@@ -339,7 +350,7 @@ static int lic_lower_bound(PCSZ pszId) {
     return lo;
 }
 
-/**
+/*!
  * @brief Binary search lower bound in the exception list.
  *
  * @param[in] pszId  Identifier. Not NULL.
@@ -362,12 +373,14 @@ static int exc_lower_bound(PCSZ pszId) {
 /* Internal lookups                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Find a license entry by identifier.
  *
  * @param[in] pszId  Identifier. Not NULL.
  *
  * @return Pointer to the entry, or NULL if not found.
+ *
+ * @retval NULL  Not found.
  */
 static PSPDXLICENSEENTRY license_lookup(PCSZ pszId) {
     int idx;
@@ -379,12 +392,14 @@ static PSPDXLICENSEENTRY license_lookup(PCSZ pszId) {
     return NULL;
 }
 
-/**
+/*!
  * @brief Find an exception entry by identifier.
  *
  * @param[in] pszId  Identifier. Not NULL.
  *
  * @return Pointer to the entry, or NULL if not found.
+ *
+ * @retval NULL  Not found.
  */
 static PSPDXEXCEPTIONENTRY exception_lookup(PCSZ pszId) {
     int idx;
@@ -400,13 +415,15 @@ static PSPDXEXCEPTIONENTRY exception_lookup(PCSZ pszId) {
 /* JSON helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Duplicate a JSON string node into a fresh buffer.
  *
  * @param[in] hNode  Node handle. May be NULLHANDLE.
  *
  * @return malloc'd string, or NULL if the node is absent, not a
  *         string, or on OOM.
+ *
+ * @retval NULL  Node is absent, not a string, or allocation failed.
  */
 static PSZ json_dup_string(HJSONNODE hNode) {
     ULONG ulSize = 0;
@@ -423,7 +440,7 @@ static PSZ json_dup_string(HJSONNODE hNode) {
     return pszBuf;
 }
 
-/**
+/*!
  * @brief Read a boolean field from a JSON object.
  *
  * @param[in]  hParent  Object handle. Not NULLHANDLE.
@@ -431,6 +448,9 @@ static PSZ json_dup_string(HJSONNODE hNode) {
  * @param[out] pfValue  Receiver. Not NULL.
  *
  * @return 1 if the field exists and is a boolean, 0 otherwise.
+ *
+ * @retval 1  Field present and boolean.
+ * @retval 0  Field missing or wrong type.
  */
 static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
     HJSONNODE hChild = NULLHANDLE;
@@ -442,7 +462,7 @@ static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
     return 1;
 }
 
-/**
+/*!
  * @brief Convert a JSON array of strings into a NULL-terminated
  *        array of malloc'd strings.
  *
@@ -450,6 +470,8 @@ static int json_get_bool(HJSONNODE hParent, PCSZ pszKey, PBOOL pfValue) {
  *
  * @return malloc'd array, or NULL if @p hArr is absent or not an
  *         array.
+ *
+ * @retval NULL  Array absent, wrong type, or allocation failure.
  */
 static PSZ *parse_string_array(HJSONNODE hArr) {
     ULONG ulCount, ulType, i;
@@ -475,12 +497,13 @@ static PSZ *parse_string_array(HJSONNODE hArr) {
 /* Index loading                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Load the licenses index from licenses.json.
  *
  * @param[in] pszPath  Path to licenses.json. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
@@ -562,12 +585,13 @@ static APIRET load_licenses_index(PCSZ pszPath) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Load the exceptions index from exceptions.json.
  *
  * @param[in] pszPath  Path to exceptions.json. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
@@ -650,13 +674,16 @@ static APIRET load_exceptions_index(PCSZ pszPath) {
 /* Binary cache primitives                                             */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Write a 32-bit value in little-endian order.
  *
  * @param[in] f        File. Not NULL.
  * @param[in] ulValue  Value to write.
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_u32(FILE *f, ULONG ulValue) {
     unsigned char b[4];
@@ -667,13 +694,16 @@ static int write_u32(FILE *f, ULONG ulValue) {
     return fwrite(b, 1, 4, f) == 4 ? 0 : -1;
 }
 
-/**
+/*!
  * @brief Read a 32-bit little-endian value.
  *
  * @param[in]  f        File. Not NULL.
  * @param[out] pulOut   Receiver. Not NULL.
  *
  * @return 0 on success, -1 on read error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error.
  */
 static int read_u32(FILE *f, PULONG pulOut) {
     unsigned char b[4];
@@ -685,37 +715,46 @@ static int read_u32(FILE *f, PULONG pulOut) {
     return 0;
 }
 
-/**
+/*!
  * @brief Write one byte.
  *
  * @param[in] f         File. Not NULL.
  * @param[in] uchValue  Byte to write.
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_u8v(FILE *f, UCHAR uchValue) {
     return fwrite(&uchValue, 1, 1, f) == 1 ? 0 : -1;
 }
 
-/**
+/*!
  * @brief Read one byte.
  *
  * @param[in]  f          File. Not NULL.
  * @param[out] puchValue  Receiver. Not NULL.
  *
  * @return 0 on success, -1 on read error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error.
  */
 static int read_u8v(FILE *f, PUCHAR puchValue) {
     return fread(puchValue, 1, 1, f) == 1 ? 0 : -1;
 }
 
-/**
+/*!
  * @brief Write a length-prefixed string.
  *
  * @param[in] f       File. Not NULL.
  * @param[in] pszStr  String, or NULL (treated as "").
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_str32(FILE *f, PCSZ pszStr) {
     size_t n = pszStr ? strlen(pszStr) : 0;
@@ -724,13 +763,16 @@ static int write_str32(FILE *f, PCSZ pszStr) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read a length-prefixed string.
  *
  * @param[in]  f         File. Not NULL.
  * @param[out] ppszOut   Receiver. Not NULL. Set to NULL on error.
  *
  * @return 0 on success, -1 on read error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error.
  */
 static int read_str32(FILE *f, PSZ *ppszOut) {
     ULONG ulLen;
@@ -752,7 +794,7 @@ static int read_str32(FILE *f, PSZ *ppszOut) {
 /* Cache writing                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Write a detail block (text + template + html) to the cache.
  *
  * @param[in]  f           File. Not NULL.
@@ -763,6 +805,9 @@ static int read_str32(FILE *f, PSZ *ppszOut) {
  * @param[out] pulSize     Size of the block. Not NULL.
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_detail_block(FILE *f, PCSZ pszText,
                               PCSZ pszTmpl, PCSZ pszHtml,
@@ -782,13 +827,16 @@ static int write_detail_block(FILE *f, PCSZ pszText,
     return 0;
 }
 
-/**
+/*!
  * @brief Write one license index record to the cache.
  *
  * @param[in] f       File. Not NULL.
  * @param[in] pEntry  Entry. Not NULL.
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_index_record(FILE *f, const SPDXLICENSEENTRY *pEntry) {
     int i;
@@ -809,13 +857,16 @@ static int write_index_record(FILE *f, const SPDXLICENSEENTRY *pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Write one exception index record to the cache.
  *
  * @param[in] f       File. Not NULL.
  * @param[in] pEntry  Entry. Not NULL.
  *
  * @return 0 on success, -1 on write error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int write_index_record_exc(FILE *f, const SPDXEXCEPTIONENTRY *pEntry) {
     int i;
@@ -836,7 +887,7 @@ static int write_index_record_exc(FILE *f, const SPDXEXCEPTIONENTRY *pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read a license detail from details/<id>.json and write it
  *        to the cache.
  *
@@ -846,6 +897,9 @@ static int write_index_record_exc(FILE *f, const SPDXEXCEPTIONENTRY *pEntry) {
  * @param[out] pulSize     Size of the block. Not NULL.
  *
  * @return 0 on success, -1 on any error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Any error.
  */
 static int write_license_detail_from_json(FILE *f, PCSZ pszId,
                                           PULONG pulOffset,
@@ -899,7 +953,7 @@ static int write_license_detail_from_json(FILE *f, PCSZ pszId,
     return rc;
 }
 
-/**
+/*!
  * @brief Read an exception detail from exceptions/<id>.json and
  *        write it to the cache.
  *
@@ -909,6 +963,9 @@ static int write_license_detail_from_json(FILE *f, PCSZ pszId,
  * @param[out] pulSize     Size of the block. Not NULL.
  *
  * @return 0 on success, -1 on any error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Any error.
  */
 static int write_exception_detail_from_json(FILE *f, PCSZ pszId,
                                             PULONG pulOffset,
@@ -962,13 +1019,16 @@ static int write_exception_detail_from_json(FILE *f, PCSZ pszId,
     return rc;
 }
 
-/**
+/*!
  * @brief Compute a raw 20-byte SHA-1 of a file.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
  * @param[out] puchOut  20-byte digest.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read or hash error.
  */
 static int compute_sha1_raw(PCSZ pszPath, UCHAR puchOut[20]) {
     CHAR achHex[41];
@@ -985,7 +1045,7 @@ static int compute_sha1_raw(PCSZ pszPath, UCHAR puchOut[20]) {
     return 0;
 }
 
-/**
+/*!
  * @brief Build the binary cache file.
  *
  * @param[in] pszCachePath  Cache file path. Not NULL.
@@ -993,6 +1053,9 @@ static int compute_sha1_raw(PCSZ pszPath, UCHAR puchOut[20]) {
  * @param[in] puchSha1Exc   SHA-1 of exceptions.json.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Write error.
  */
 static int build_cache(PCSZ pszCachePath,
                        const UCHAR puchSha1Lic[20],
@@ -1074,13 +1137,16 @@ static int build_cache(PCSZ pszCachePath,
 /* Cache reading                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read one license index record from the cache.
  *
  * @param[in]  f       File. Not NULL.
  * @param[out] pEntry  Entry receiver. Not NULL.
  *
  * @return 0 on success, -1 on read error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error.
  */
 static int read_license_index_record(FILE *f, PSPDXLICENSEENTRY pEntry) {
     ULONG ulCount, i;
@@ -1106,13 +1172,16 @@ static int read_license_index_record(FILE *f, PSPDXLICENSEENTRY pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read one exception index record from the cache.
  *
  * @param[in]  f       File. Not NULL.
  * @param[out] pEntry  Entry receiver. Not NULL.
  *
  * @return 0 on success, -1 on read error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error.
  */
 static int read_exception_index_record(FILE *f, PSPDXEXCEPTIONENTRY pEntry) {
     ULONG ulCount, i;
@@ -1138,7 +1207,7 @@ static int read_exception_index_record(FILE *f, PSPDXEXCEPTIONENTRY pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Load the binary cache file if its content matches the
  *        expected source hashes.
  *
@@ -1147,6 +1216,9 @@ static int read_exception_index_record(FILE *f, PSPDXEXCEPTIONENTRY pEntry) {
  * @param[in] puchExpectExc  Expected SHA-1 of exceptions.json.
  *
  * @return 0 on success, -1 on error or mismatch.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error, format mismatch, or hash mismatch.
  */
 static int load_cache(PCSZ pszPath,
                       const UCHAR puchExpectLic[20],
@@ -1210,7 +1282,7 @@ static int load_cache(PCSZ pszPath,
 /* Lazy detail loading                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read a detail block from the cache.
  *
  * @param[in]  ulOffset   Block offset.
@@ -1220,6 +1292,9 @@ static int load_cache(PCSZ pszPath,
  * @param[out] ppszHtml   Receiver for the HTML. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error or malformed block.
  */
 static int read_detail_from_cache(ULONG ulOffset, ULONG ulSize,
                                   PSZ *ppszText, PSZ *ppszTmpl,
@@ -1302,12 +1377,15 @@ static int read_detail_from_cache(ULONG ulOffset, ULONG ulSize,
     return 0;
 }
 
-/**
+/*!
  * @brief Read a license detail from details/<id>.json.
  *
  * @param[in,out] pEntry  License entry. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error or malformed JSON.
  */
 static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
     CHAR achPath[2048];
@@ -1349,12 +1427,15 @@ static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read an exception detail from exceptions/<id>.json.
  *
  * @param[in,out] pEntry  Exception entry. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Read error or malformed JSON.
  */
 static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
     CHAR achPath[2048];
@@ -1396,7 +1477,7 @@ static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
     return 0;
 }
 
-/**
+/*!
  * @brief Load a license detail on demand.
  *
  * Tries the open cache first, then details/<id>.json.
@@ -1404,6 +1485,9 @@ static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
  * @param[in] pszId  Identifier. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Identifier not found or read failure.
  */
 static int license_load_detail(PCSZ pszId) {
     int idx;
@@ -1433,7 +1517,7 @@ static int license_load_detail(PCSZ pszId) {
     return -1;
 }
 
-/**
+/*!
  * @brief Load an exception detail on demand.
  *
  * Tries the open cache first, then exceptions/<id>.json.
@@ -1441,6 +1525,9 @@ static int license_load_detail(PCSZ pszId) {
  * @param[in] pszId  Identifier. Not NULL.
  *
  * @return 0 on success, -1 on error.
+ *
+ * @retval 0   Success.
+ * @retval -1  Identifier not found or read failure.
  */
 static int exception_load_detail(PCSZ pszId) {
     int idx;
@@ -1474,7 +1561,7 @@ static int exception_load_detail(PCSZ pszId) {
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Open the SPDX database.
  *
  * Reads the licenses and exceptions indexes, either from a binary
@@ -1492,6 +1579,7 @@ static int exception_load_detail(PCSZ pszId) {
  *                         cache.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Full success.
  * @retval ERROR_INVALID_PARAMETER  pszDbRoot is NULL or empty.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
@@ -1561,13 +1649,14 @@ APIRET APIENTRY SpdxOpenDatabase(PCSZ pszDbRoot, PCSZ pszCacheFile) {
     return rc;
 }
 
-/**
+/*!
  * @brief Close the SPDX database.
  *
  * Releases every resource owned by the module, including
  * lazy-loaded details and the open cache file.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR  Always.
  */
 APIRET APIENTRY SpdxCloseDatabase(void) {
@@ -1579,7 +1668,7 @@ APIRET APIENTRY SpdxCloseDatabase(void) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the canonical form of an SPDX identifier.
  *
  * @param[in]  pszId    Identifier. Not NULL.
@@ -1588,6 +1677,7 @@ APIRET APIENTRY SpdxCloseDatabase(void) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1611,7 +1701,7 @@ APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
     return ERROR_FILE_NOT_FOUND;
 }
 
-/**
+/*!
  * @brief Query whether an identifier is a known SPDX license.
  *
  * LicenseRef-* and DocumentRef-<id>:LicenseRef-* are accepted as
@@ -1621,6 +1711,7 @@ APIRET APIENTRY SpdxQueryCanonicalId(PCSZ pszId, PSZ pszBuf,
  * @param[out] pfValid  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
  * @retval SPDXDB_ERROR_LICENSES    The license index is not loaded;
@@ -1647,13 +1738,14 @@ APIRET APIENTRY SpdxQueryLicenseValid(PCSZ pszId, PBOOL pfValid) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether an identifier is a known SPDX exception.
  *
  * @param[in]  pszId    Identifier. Not NULL.
  * @param[out] pfValid  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfValid is NULL.
  * @retval SPDXDB_ERROR_EXCEPTIONS  The exception index is not
@@ -1671,13 +1763,14 @@ APIRET APIENTRY SpdxQueryExceptionValid(PCSZ pszId, PBOOL pfValid) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether a license identifier is deprecated.
  *
  * @param[in]  pszId         Identifier. Not NULL.
  * @param[out] pfDeprecated  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
  */
@@ -1691,13 +1784,14 @@ APIRET APIENTRY SpdxQueryLicenseDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether an exception identifier is deprecated.
  *
  * @param[in]  pszId         Identifier. Not NULL.
  * @param[out] pfDeprecated  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfDeprecated is NULL.
  */
@@ -1711,13 +1805,14 @@ APIRET APIENTRY SpdxQueryExceptionDeprecated(PCSZ pszId, PBOOL pfDeprecated) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether a license is OSI-approved.
  *
  * @param[in]  pszId       Identifier. Not NULL.
  * @param[out] pfApproved  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfApproved is NULL.
  */
@@ -1731,13 +1826,14 @@ APIRET APIENTRY SpdxQueryLicenseOsiApproved(PCSZ pszId, PBOOL pfApproved) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether a license is FSF-libre.
  *
  * @param[in]  pszId    Identifier. Not NULL.
  * @param[out] pfLibre  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId or pfLibre is NULL.
  */
@@ -1751,7 +1847,7 @@ APIRET APIENTRY SpdxQueryLicenseFsfLibre(PCSZ pszId, PBOOL pfLibre) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the license text of a known license.
  *
  * The detail is lazy-loaded.
@@ -1762,6 +1858,7 @@ APIRET APIENTRY SpdxQueryLicenseFsfLibre(PCSZ pszId, PBOOL pfLibre) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1788,7 +1885,7 @@ APIRET APIENTRY SpdxQueryLicenseText(PCSZ pszId, PSZ pszBuf,
     return copy_out(pEntry->pszText, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Query the exception text of a known exception.
  *
  * The detail is lazy-loaded.
@@ -1799,6 +1896,7 @@ APIRET APIENTRY SpdxQueryLicenseText(PCSZ pszId, PSZ pszBuf,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszId is NULL, or pszBuf is NULL
  *                                  without size-query.
@@ -1829,17 +1927,17 @@ APIRET APIENTRY SpdxQueryExceptionText(PCSZ pszId, PSZ pszBuf,
 /* SPDX expression parser                                              */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @struct _EXPRPARSER
  * @brief Recursive descent parser state for SPDX expressions.
  */
 typedef struct _EXPRPARSER {
-    PCSZ   pszPos;           /**< Current position.              */
-    PCSZ   pszBadTokenStart; /**< Start of offending token.      */
-    APIRET ulErr;            /**< One of the SPDX_EXPR_* codes.  */
+    PCSZ   pszPos;           /*!< Current position.             */
+    PCSZ   pszBadTokenStart; /*!< Start of offending token.     */
+    APIRET ulErr;            /*!< One of the SPDX_EXPR_* codes. */
 } EXPRPARSER;
 
-/**
+/*!
  * @brief Skip whitespace in the parser input.
  *
  * @param[in,out] pParser  Parser. Not NULL.
@@ -1849,7 +1947,7 @@ static void skip_ws(EXPRPARSER *pParser) {
         pParser->pszPos++;
 }
 
-/**
+/*!
  * @brief Check whether a keyword appears at @p pszPos.
  *
  * @param[in] pszPos  Position. Not NULL.
@@ -1857,6 +1955,9 @@ static void skip_ws(EXPRPARSER *pParser) {
  * @param[in] kwlen   Keyword length.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Keyword present.
+ * @retval 0  No match.
  */
 static int is_kw_at(PCSZ pszPos, PCSZ pszKw, int kwlen) {
     if (strncmp(pszPos, pszKw, kwlen) != 0) return 0;
@@ -1866,15 +1967,28 @@ static int is_kw_at(PCSZ pszPos, PCSZ pszKw, int kwlen) {
     return 0;
 }
 
+/*!
+ * @brief Forward declaration of the expression parser.
+ *
+ * @param[in,out] pParser  Parser. Not NULL.
+ *
+ * @return 1 on success, 0 on error.
+ *
+ * @retval 1  Expression parsed.
+ * @retval 0  Syntax error (code stored in the parser).
+ */
 static int parse_expression(EXPRPARSER *pParser);
 
-/**
+/*!
  * @brief Parse one term (identifier [WITH exception] or
  *        parenthesized group).
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 1 on success, 0 on error (error code in parser).
+ *
+ * @retval 1  Term parsed.
+ * @retval 0  Syntax error.
  */
 static int parse_term(EXPRPARSER *pParser) {
     skip_ws(pParser);
@@ -1950,12 +2064,15 @@ static int parse_term(EXPRPARSER *pParser) {
     return 1;
 }
 
-/**
+/*!
  * @brief Parse a full expression (terms joined by AND / OR).
  *
  * @param[in,out] pParser  Parser. Not NULL.
  *
  * @return 1 on success, 0 on error.
+ *
+ * @retval 1  Expression parsed.
+ * @retval 0  Syntax error.
  */
 static int parse_expression(EXPRPARSER *pParser) {
     if (!parse_term(pParser)) return 0;
@@ -1977,13 +2094,14 @@ static int parse_expression(EXPRPARSER *pParser) {
     return 1;
 }
 
-/**
+/*!
  * @brief Query the validity of an SPDX license expression.
  *
  * @param[in]  pszExpr       Expression. Not NULL.
  * @param[out] ppszBadToken  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Expression is valid.
  * @retval SPDX_EXPR_SYNTAX_ERROR   Grammar violation.
  * @retval SPDX_EXPR_UNKNOWN_TOKEN  Unknown SPDX identifier.
@@ -2006,7 +2124,7 @@ APIRET APIENTRY SpdxQueryExpression(PCSZ pszExpr, PCSZ *ppszBadToken) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build the canonical form of an SPDX expression in a heap
  *        buffer.
  *
@@ -2020,6 +2138,7 @@ APIRET APIENTRY SpdxQueryExpression(PCSZ pszExpr, PCSZ *ppszBadToken) {
  * @param[out] ppszOut   Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -2098,7 +2217,7 @@ static APIRET canonical_to_heap(PCSZ pszExpr, PSZ *ppszOut) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the canonical form of an SPDX license expression.
  *
  * @param[in]  pszExpr  Expression. Not NULL.
@@ -2107,6 +2226,7 @@ static APIRET canonical_to_heap(PCSZ pszExpr, PSZ *ppszOut) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL, or pszBuf is
  *                                  NULL without size-query.
@@ -2132,13 +2252,16 @@ APIRET APIENTRY SpdxQueryExpressionCanonical(PCSZ pszExpr, PSZ pszBuf,
 /* Expression identifier collection                                    */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Check whether a token is one of the SPDX operators.
  *
  * @param[in] pszTok  Token. Not NULL.
  * @param[in] cbLen   Token length.
  *
  * @return 1 if the token is AND / OR / WITH, 0 otherwise.
+ *
+ * @retval 1  Operator token.
+ * @retval 0  Not an operator.
  */
 static int is_operator_token(PCSZ pszTok, size_t cbLen) {
     if (cbLen == 3 && strncmp(pszTok, "AND", 3) == 0) return 1;
@@ -2147,7 +2270,7 @@ static int is_operator_token(PCSZ pszTok, size_t cbLen) {
     return 0;
 }
 
-/**
+/*!
  * @brief Collect the SPDX identifiers from a license expression.
  *
  * Validates the expression first, then extracts every identifier
@@ -2162,6 +2285,7 @@ static int is_operator_token(PCSZ pszTok, size_t cbLen) {
  *                           @p pszExpr.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszExpr is NULL.
  * @retval ERROR_INVALID_HANDLE     hOut is not recognized.
