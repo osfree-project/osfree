@@ -18,7 +18,18 @@
  *    - direction qualifier [in]/[out]/[in,out] is mandatory for every
  *             @param;
  *    - @return required for every non-void function;
- *    - @retval required for every integer literal returned by a body.
+ *    - @retval required for every simple value returned by a body.  A
+ *             value is taken as a return code when it is an integer
+ *             literal, a signed integer literal, or an all-uppercase
+ *             identifier (the project convention for return
+ *             constants).  Function calls and other complex
+ *             expressions are not checked.  @retval is not applicable
+ *             to void functions and is reported as an error.
+ *
+ *  A function is considered to return void when the keyword "void"
+ *  occurs in the return type and is not followed by "*".  Calling
+ *  convention modifiers (APIENTRY, EXPENTRY, _System, _Optlink, ...)
+ *  are not enumerated: the presence of "void" alone decides.
  *
  *  Usage: doxy-lint <directory>
  *
@@ -348,29 +359,60 @@ static int is_keyword(const char *s, int len)
     return 0;
 }
 
-/*! @brief Tests whether a word is a storage-class specifier or qualifier.
- *  @param[in] s   Pointer to the word text.
- *  @param[in] len Word length in bytes.
- *  @return Non-zero on match.
- *  @retval 0 Not a storage-class specifier or qualifier.
- *  @retval 1 Storage-class specifier or qualifier.
+/*! @brief Tests whether an identifier looks like a return constant.
+ *
+ * True when every character is an uppercase letter, a digit or an
+ * underscore, and at least one letter is present.  Function calls
+ * ("NAME(...)") are never matched because they are not a single token.
+ *
+ *  @param[in] s   Pointer to the identifier text.
+ *  @param[in] len Length in bytes.
+ *  @return Non-zero when the identifier is an uppercase constant.
+ *  @retval 0 Not an uppercase return constant.
+ *  @retval 1 Uppercase return constant.
  */
-static int is_storage_or_qualifier(const char *s, int len)
+static int is_upper_constant(const char *s, int len)
 {
-    static const char *kw[] = {
-        "static", "extern", "inline", "register", "auto",
-        "const", "volatile", "restrict",
-        "__inline", "__inline__", "__restrict", "__restrict__",
-        "__cdecl", "__stdcall", "__fastcall", "__pascal",
-        "_cdecl", "_stdcall", "_fastcall", "_pascal",
-        "near", "far", "huge",
-        NULL
-    };
     int i;
-    for (i = 0; kw[i] != NULL; i++) {
-        if ((int)strlen(kw[i]) == len && memcmp(kw[i], s, len) == 0) return 1;
+    int has_letter = 0;
+
+    if (len <= 0) return 0;
+    for (i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (c >= 'A' && c <= 'Z') { has_letter = 1; continue; }
+        if (c >= '0' && c <= '9') continue;
+        if (c == '_') continue;
+        return 0;
     }
-    return 0;
+    return has_letter;
+}
+
+/*! @brief Checks whether the return type is plain "void".
+ *
+ * A function returns void when the keyword "void" appears among the
+ * tokens of its return type and is not followed by "*".  Calling
+ * convention modifiers (APIENTRY, EXPENTRY, _System, _Optlink, PASCAL,
+ * SYSTEM, FAR16, ...) are not enumerated: in valid C the keyword "void"
+ * cannot be combined with any other type keyword, so its mere presence
+ * settles the question.
+ *
+ *  @param[in] start    Index of the first token of the return type.
+ *  @param[in] name_idx Index of the function-name token.
+ *  @return Non-zero if the return type is plain void.
+ *  @retval 0 Return type is not plain void.
+ *  @retval 1 Return type is plain void.
+ */
+static int returns_void(int start, int name_idx)
+{
+    int j;
+    int saw_void = 0;
+    int star_after_void = 0;
+
+    for (j = start; j < name_idx; j++) {
+        if (tok_is(j, "void")) { saw_void = 1; continue; }
+        if (saw_void && tok_punct(j, "*")) { star_after_void = 1; }
+    }
+    return saw_void && !star_after_void;
 }
 
 /*! @brief Skips a balanced pair (open ... close).
@@ -510,32 +552,6 @@ static void parse_doc_into(const char *p, int len, DocInfo *info,
     }
 }
 
-/*! @brief Checks whether the return type is plain "void".
- *  @param[in] start    Index of the first token of the return type.
- *  @param[in] name_idx Index of the function-name token.
- *  @return Non-zero if the type is void without pointers or qualifiers.
- *  @retval 0 Return type is not plain void.
- *  @retval 1 Return type is plain void.
- */
-static int returns_void(int start, int name_idx)
-{
-    int j;
-    int saw_void = 0;
-    int saw_other = 0;
-
-    for (j = start; j < name_idx; j++) {
-        if (tok_punct(j, "*")) {
-            if (saw_void) return 0;
-            continue;
-        }
-        if (toks[j].type != T_IDENT) continue;
-        if (is_storage_or_qualifier(toks[j].p, toks[j].len)) continue;
-        if (tok_is(j, "void")) { saw_void = 1; continue; }
-        saw_other = 1;
-    }
-    return saw_void && !saw_other;
-}
-
 /*! @brief Extracts the name of one parameter and appends it to names.
  *
  * A parameter that is a bare type name (a single identifier such as
@@ -629,11 +645,18 @@ static void extract_params(int open_idx, int close_idx,
     if (start < close_idx) extract_one_param(start, close_idx, names, nnames);
 }
 
-/*! @brief Collects integer literals returned from a function body.
+/*! @brief Collects simple return values from a function body.
+ *
+ * A value is collected when a return statement yields one of:
+ *   - an integer literal;
+ *   - a sign followed by an integer literal;
+ *   - an all-uppercase identifier (the project convention for return
+ *     constants).
+ *
  *  @param[in]     body_start Index of the opening '{' of the body.
  *  @param[in]     body_end   Index of the matching '}'.
- *  @param[in,out] exprs      Array receiving the literal strings.
- *  @param[in,out] nexprs     In/out counter of literals already stored.
+ *  @param[in,out] exprs      Array receiving the value strings.
+ *  @param[in,out] nexprs     In/out counter of values already stored.
  */
 static void collect_returns(int body_start, int body_end,
                             char exprs[][EXPRLEN], int *nexprs)
@@ -661,6 +684,12 @@ static void collect_returns(int body_start, int body_end,
         if (ee <= es) continue;
 
         if (ee - es == 1 && toks[es].type == T_NUMBER) {
+            int len = toks[es].len;
+            if (len >= EXPRLEN) len = EXPRLEN - 1;
+            memcpy(buf, toks[es].p, len);
+            buf[len] = 0;
+        } else if (ee - es == 1 && toks[es].type == T_IDENT &&
+                   is_upper_constant(toks[es].p, toks[es].len)) {
             int len = toks[es].len;
             if (len >= EXPRLEN) len = EXPRLEN - 1;
             memcpy(buf, toks[es].p, len);
@@ -920,6 +949,7 @@ static int check_file(const char *fname)
                 if (fn_name_idx >= 0 && !saw_eq) {
                     char fname_buf[NAMELEN];
                     int nl = toks[fn_name_idx].len;
+                    int is_void;
 
                     if (nl >= NAMELEN) nl = NAMELEN - 1;
                     memcpy(fname_buf, toks[fn_name_idx].p, nl);
@@ -969,7 +999,20 @@ static int check_file(const char *fname)
                             }
                         }
 
-                        if (!returns_void(dstart, fn_name_idx)) {
+                        is_void = returns_void(dstart, fn_name_idx);
+
+                        if (is_void) {
+                            if (di.has_return) {
+                                printf("%s:%d: warning: function '%s': @return not applicable to void function\n",
+                                       fname, decl_line, fname_buf);
+                                errors++;
+                            }
+                            if (di.nretvals > 0) {
+                                printf("%s:%d: warning: function '%s': @retval not applicable to void function\n",
+                                       fname, decl_line, fname_buf);
+                                errors++;
+                            }
+                        } else {
                             if (!di.has_return) {
                                 printf("%s:%d: warning: function '%s': missing @return\n",
                                        fname, decl_line, fname_buf);

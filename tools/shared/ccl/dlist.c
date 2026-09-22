@@ -1,9 +1,10 @@
-/* Dlist.c - IBM Dlist container implementation.
- * Part of the ccl container library. */
-
-/**
- * @file Dlist.c
+/*!
+ *
+ * @file dlist.c
+ *
  * @brief Implementation of the IBM Dlist interface.
+ *
+ * Part of the ccl container library.
  *
  * @par Interface origin
  * The types, function names, error codes and signatures of the
@@ -40,25 +41,36 @@
  * Internal control block
  * ================================================================== */
 
-/** @brief Magic value identifying a valid Dlist control block. */
+/*!
+ * @brief Magic value identifying a valid Dlist control block.
+ */
 #define CCL_DLIST_MAGIC 0x444C5354UL  /* "DLST" */
 
-/**
+/*!
  * @struct _DLISTCTL
  * @brief Control block of an open list.
  */
 typedef struct _DLISTCTL {
-    unsigned long ulMagic;      /**< CCL_DLIST_MAGIC.                    */
-    PLINKED_NODE  pHead;        /**< First node, or NULL.                */
-    PLINKED_NODE  pTail;        /**< Last node, or NULL.                 */
-    PLINKED_NODE  pCurrent;     /**< Current node, or NULL when empty.   */
-    CARDINAL32    ulCount;      /**< Number of nodes.                    */
+    unsigned long ulMagic;      /*!< CCL_DLIST_MAGIC.                  */
+    PLINKED_NODE  pHead;        /*!< First node, or NULL.              */
+    PLINKED_NODE  pTail;        /*!< Last node, or NULL.               */
+    PLINKED_NODE  pCurrent;     /*!< Current node, or NULL when empty. */
+    CARDINAL32    ulCount;      /*!< Number of nodes.                  */
 } DLISTCTL;
 
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
 
+/*!
+ * @brief Return the control block behind a list handle.
+ *
+ * @param[in] hList  List handle.
+ *
+ * @return The control block, or NULL on failure.
+ *
+ * @retval NULL  hList is NULL, or its magic value does not match.
+ */
 static DLISTCTL *get_ctl(DLIST hList) {
     DLISTCTL *pCtl;
     if (hList == NULL) return NULL;
@@ -67,6 +79,19 @@ static DLISTCTL *get_ctl(DLIST hList) {
     return pCtl;
 }
 
+/*!
+ * @brief Find a link node in the list.
+ *
+ * If @p Handle is NULL the current node is returned without a
+ * search.
+ *
+ * @param[in] pCtl    Control block.
+ * @param[in] Handle  Node handle, or NULL for the current node.
+ *
+ * @return The matching node, or NULL if not found.
+ *
+ * @retval NULL  No node matched.
+ */
 static PLINKED_NODE find_node(DLISTCTL *pCtl, ADDRESS Handle) {
     PLINKED_NODE pWalk;
     if (Handle == NULL) return pCtl->pCurrent;
@@ -78,6 +103,14 @@ static PLINKED_NODE find_node(DLISTCTL *pCtl, ADDRESS Handle) {
     return NULL;
 }
 
+/*!
+ * @brief Detach a node from the list.
+ *
+ * Adjusts head, tail and count. Does not free the node or its data.
+ *
+ * @param[in,out] pCtl   Control block.
+ * @param[in]     pNode  Node to unlink.
+ */
 static void unlink_node(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     if (pNode->prev) pNode->prev->next = pNode->next;
     else pCtl->pHead = pNode->next;
@@ -86,6 +119,12 @@ static void unlink_node(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     pCtl->ulCount--;
 }
 
+/*!
+ * @brief Insert a node at the start of the list.
+ *
+ * @param[in,out] pCtl   Control block.
+ * @param[in]     pNode  Node to insert.
+ */
 static void insert_at_start(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     pNode->prev = NULL;
     pNode->next = pCtl->pHead;
@@ -96,6 +135,12 @@ static void insert_at_start(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     if (pCtl->pCurrent == NULL) pCtl->pCurrent = pNode;
 }
 
+/*!
+ * @brief Insert a node at the end of the list.
+ *
+ * @param[in,out] pCtl   Control block.
+ * @param[in]     pNode  Node to insert.
+ */
 static void insert_at_end(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     pNode->prev = pCtl->pTail;
     pNode->next = NULL;
@@ -106,6 +151,13 @@ static void insert_at_end(DLISTCTL *pCtl, PLINKED_NODE pNode) {
     if (pCtl->pCurrent == NULL) pCtl->pCurrent = pNode;
 }
 
+/*!
+ * @brief Insert a node before a reference node.
+ *
+ * @param[in,out] pCtl   Control block.
+ * @param[in]     pRef   Reference node.
+ * @param[in]     pNode  Node to insert.
+ */
 static void insert_before(DLISTCTL *pCtl, PLINKED_NODE pRef,
                           PLINKED_NODE pNode) {
     pNode->next = pRef;
@@ -116,6 +168,13 @@ static void insert_before(DLISTCTL *pCtl, PLINKED_NODE pRef,
     pCtl->ulCount++;
 }
 
+/*!
+ * @brief Insert a node after a reference node.
+ *
+ * @param[in,out] pCtl   Control block.
+ * @param[in]     pRef   Reference node.
+ * @param[in]     pNode  Node to insert.
+ */
 static void insert_after(DLISTCTL *pCtl, PLINKED_NODE pRef,
                          PLINKED_NODE pNode) {
     pNode->prev = pRef;
@@ -126,7 +185,34 @@ static void insert_after(DLISTCTL *pCtl, PLINKED_NODE pRef,
     pCtl->ulCount++;
 }
 
-/* Common body of InsertItem and InsertObject. */
+/*!
+ * @brief Common body of InsertItem and InsertObject.
+ *
+ * Validates arguments, allocates or stores the data block, creates
+ * the link node and links it into the list at the requested position.
+ *
+ * @param[in]  ListToAddTo   List handle.
+ * @param[in]  ItemSize      Item size in bytes.
+ * @param[in]  ItemLocation  Caller data pointer.
+ * @param[in]  ItemTag       Item tag.
+ * @param[in]  TargetHandle  Reference item, or NULL for the current
+ *                           item.
+ * @param[in]  Insert_Mode   Insertion mode.
+ * @param[in]  MakeCurrent   Make the new item current.
+ * @param[in]  fCopy         TRUE to copy data (InsertItem), FALSE to
+ *                           store the pointer (InsertObject).
+ * @param[out] Error         Return code. Not NULL. On success
+ *                           DLIST_SUCCESS; on failure one of
+ *                           DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                           DLIST_ITEM_SIZE_ZERO,
+ *                           DLIST_BAD_ITEM_POINTER,
+ *                           DLIST_INVALID_INSERTION_MODE,
+ *                           DLIST_BAD_HANDLE, DLIST_OUT_OF_MEMORY.
+ *
+ * @return Handle to the new item, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 static ADDRESS insert_common(DLIST           ListToAddTo,
                              CARDINAL32      ItemSize,
                              ADDRESS         ItemLocation,
@@ -202,6 +288,13 @@ static ADDRESS insert_common(DLIST           ListToAddTo,
  * Lifecycle
  * ================================================================== */
 
+/*!
+ * @brief Create a default list without a node pool.
+ *
+ * @return A new list handle, or NULL on allocation failure.
+ *
+ * @retval NULL  Allocation failed.
+ */
 static DLIST create_default(void) {
     DLISTCTL *pCtl;
 
@@ -212,6 +305,20 @@ static DLIST create_default(void) {
 }
 
 #ifdef USE_POOLMAN
+/*!
+ * @brief Create a new list (pool variant).
+ *
+ * ccl does not maintain a node pool: the parameters are accepted
+ * for interface compatibility and ignored.
+ *
+ * @param[in] InitialPoolSize  Ignored.
+ * @param[in] MaximumPoolSize  Ignored.
+ * @param[in] PoolIncrement    Ignored.
+ *
+ * @return A new list handle, or NULL on allocation failure.
+ *
+ * @retval NULL  Allocation failed.
+ */
 DLIST APIENTRY CreateList(CARDINAL32 InitialPoolSize,
                           CARDINAL32 MaximumPoolSize,
                           CARDINAL32 PoolIncrement)
@@ -224,12 +331,32 @@ DLIST APIENTRY CreateList(CARDINAL32 InitialPoolSize,
     return create_default();
 }
 #else
+/*!
+ * @brief Create a new list.
+ *
+ * @return A new list handle, or NULL on allocation failure.
+ *
+ * @retval NULL  Allocation failed.
+ */
 DLIST APIENTRY CreateList(void)
 {
     return create_default();
 }
 #endif
 
+/*!
+ * @brief Destroy a list.
+ *
+ * Releases the internal structures. If @p FreeItemMemory is TRUE
+ * the stored data of every element is also released.
+ *
+ * @param[in,out] ListToDestroy   Pointer to the list handle. Not
+ *                                NULL. On success set to NULL.
+ * @param[in]     FreeItemMemory  Free the stored elements as well.
+ * @param[out]    Error           Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED.
+ */
 void APIENTRY DestroyList(DLIST * ListToDestroy,
                           BOOLEAN FreeItemMemory,
                           CARDINAL32 * Error)
@@ -263,6 +390,29 @@ void APIENTRY DestroyList(DLIST * ListToDestroy,
  * Insert
  * ================================================================== */
 
+/*!
+ * @brief Insert a copy of caller data into a list.
+ *
+ * @param[in]  ListToAddTo   List handle.
+ * @param[in]  ItemSize      Size of the caller's data in bytes.
+ * @param[in]  ItemLocation  Pointer to the caller's data.
+ * @param[in]  ItemTag       Tag for the new item.
+ * @param[in]  TargetHandle  Reference item, or NULL for the current
+ *                           item.
+ * @param[in]  Insert_Mode   Position relative to the reference item.
+ * @param[in]  MakeCurrent   Make the new item the current item.
+ * @param[out] Error         Return code. Not NULL. On success
+ *                           DLIST_SUCCESS; on failure one of
+ *                           DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                           DLIST_ITEM_SIZE_ZERO,
+ *                           DLIST_BAD_ITEM_POINTER,
+ *                           DLIST_INVALID_INSERTION_MODE,
+ *                           DLIST_BAD_HANDLE, DLIST_OUT_OF_MEMORY.
+ *
+ * @return Handle to the new item, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY InsertItem(DLIST           ListToAddTo,
                             CARDINAL32      ItemSize,
                             ADDRESS         ItemLocation,
@@ -278,6 +428,32 @@ ADDRESS APIENTRY InsertItem(DLIST           ListToAddTo,
                          TRUE, Error);
 }
 
+/*!
+ * @brief Insert a caller-supplied object into a list.
+ *
+ * The pointer @p ItemLocation is stored as-is; ownership of the
+ * pointed-to block transfers to the list.
+ *
+ * @param[in]  ListToAddTo   List handle.
+ * @param[in]  ItemSize      Size of the caller's data in bytes.
+ * @param[in]  ItemLocation  Pointer to the caller's data.
+ * @param[in]  ItemTag       Tag for the new item.
+ * @param[in]  TargetHandle  Reference item, or NULL for the current
+ *                           item.
+ * @param[in]  Insert_Mode   Position relative to the reference item.
+ * @param[in]  MakeCurrent   Make the new item the current item.
+ * @param[out] Error         Return code. Not NULL. On success
+ *                           DLIST_SUCCESS; on failure one of
+ *                           DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                           DLIST_ITEM_SIZE_ZERO,
+ *                           DLIST_BAD_ITEM_POINTER,
+ *                           DLIST_INVALID_INSERTION_MODE,
+ *                           DLIST_BAD_HANDLE, DLIST_OUT_OF_MEMORY.
+ *
+ * @return Handle to the new item, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY InsertObject(DLIST           ListToAddTo,
                               CARDINAL32      ItemSize,
                               ADDRESS         ItemLocation,
@@ -297,6 +473,21 @@ ADDRESS APIENTRY InsertObject(DLIST           ListToAddTo,
  * Delete
  * ================================================================== */
 
+/*!
+ * @brief Delete an item from a list.
+ *
+ * If @p Handle is NULL the current item is deleted. When the
+ * deleted item is the current item, the cursor moves to the next
+ * item if one exists, otherwise to the previous one.
+ *
+ * @param[in,out] ListToDeleteFrom  List handle.
+ * @param[in]     FreeMemory        Free the stored data memory.
+ * @param[in]     Handle            Item handle, or NULL for current.
+ * @param[out]    Error             Return code. Not NULL. On success
+ *                                  DLIST_SUCCESS; on failure one of
+ *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                  DLIST_EMPTY, DLIST_BAD_HANDLE.
+ */
 void APIENTRY DeleteItem(DLIST        ListToDeleteFrom,
                          BOOLEAN      FreeMemory,
                          ADDRESS      Handle,
@@ -330,6 +521,16 @@ void APIENTRY DeleteItem(DLIST        ListToDeleteFrom,
     pCtl->pCurrent = pNewCurrent;
 }
 
+/*!
+ * @brief Delete every item in the list.
+ *
+ * @param[in,out] ListToDeleteFrom  List handle.
+ * @param[in]     FreeMemory        Free the stored data memory.
+ * @param[out]    Error             Return code. Not NULL. On success
+ *                                  DLIST_SUCCESS; on failure one of
+ *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                  DLIST_EMPTY.
+ */
 void APIENTRY DeleteAllItems(DLIST        ListToDeleteFrom,
                              BOOLEAN      FreeMemory,
                              CARDINAL32 * Error)
@@ -363,6 +564,23 @@ void APIENTRY DeleteAllItems(DLIST        ListToDeleteFrom,
  * Get (copy)
  * ================================================================== */
 
+/*!
+ * @brief Copy the current or selected item into a caller buffer.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[out] ItemLocation       Destination buffer. Not NULL.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[in]  Handle             Item handle, or NULL for current.
+ * @param[in]  MakeCurrent        Make the item current on success.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_ITEM_POINTER,
+ *                                DLIST_BAD_HANDLE.
+ */
 void APIENTRY GetItem(DLIST          ListToGetItemFrom,
                       CARDINAL32     ItemSize,
                       ADDRESS        ItemLocation,
@@ -398,6 +616,21 @@ void APIENTRY GetItem(DLIST          ListToGetItemFrom,
     if (MakeCurrent) pCtl->pCurrent = pNode;
 }
 
+/*!
+ * @brief Move the cursor to the next item and copy it.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[out] ItemLocation       Destination buffer. Not NULL.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_END_OF_LIST,
+ *                                DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_ITEM_POINTER.
+ */
 void APIENTRY GetNextItem(DLIST          ListToGetItemFrom,
                           CARDINAL32     ItemSize,
                           ADDRESS        ItemLocation,
@@ -432,6 +665,21 @@ void APIENTRY GetNextItem(DLIST          ListToGetItemFrom,
     pCtl->pCurrent = pNode;
 }
 
+/*!
+ * @brief Move the cursor to the previous item and copy it.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[out] ItemLocation       Destination buffer. Not NULL.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_ALREADY_AT_START,
+ *                                DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_ITEM_POINTER.
+ */
 void APIENTRY GetPreviousItem(DLIST          ListToGetItemFrom,
                               CARDINAL32     ItemSize,
                               ADDRESS        ItemLocation,
@@ -472,6 +720,25 @@ void APIENTRY GetPreviousItem(DLIST          ListToGetItemFrom,
  * Get (pointer)
  * ================================================================== */
 
+/*!
+ * @brief Return a pointer to the stored data of an item.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[in]  Handle             Item handle, or NULL for current.
+ * @param[in]  MakeCurrent        Make the item current on success.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_HANDLE.
+ *
+ * @return The stored data pointer, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY GetObject(DLIST          ListToGetItemFrom,
                            CARDINAL32     ItemSize,
                            TAG            ItemTag,
@@ -504,6 +771,24 @@ ADDRESS APIENTRY GetObject(DLIST          ListToGetItemFrom,
     return pNode->elemt;
 }
 
+/*!
+ * @brief Move the cursor to the next item and return its data
+ *        pointer.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_END_OF_LIST,
+ *                                DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG.
+ *
+ * @return The stored data pointer, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY GetNextObject(DLIST          ListToGetItemFrom,
                                CARDINAL32     ItemSize,
                                TAG            ItemTag,
@@ -534,6 +819,25 @@ ADDRESS APIENTRY GetNextObject(DLIST          ListToGetItemFrom,
     return pNode->elemt;
 }
 
+/*!
+ * @brief Move the cursor to the previous item and return its data
+ *        pointer.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY,
+ *                                DLIST_ALREADY_AT_START,
+ *                                DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG.
+ *
+ * @return The stored data pointer, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY GetPreviousObject(DLIST          ListToGetItemFrom,
                                    CARDINAL32     ItemSize,
                                    TAG            ItemTag,
@@ -570,6 +874,24 @@ ADDRESS APIENTRY GetPreviousObject(DLIST          ListToGetItemFrom,
  * Extract
  * ================================================================== */
 
+/*!
+ * @brief Remove an item and copy its data into a caller buffer.
+ *
+ * The stored data memory is released by this function.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[out] ItemLocation       Destination buffer. Not NULL.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[in]  Handle             Item handle, or NULL for current.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_ITEM_POINTER,
+ *                                DLIST_BAD_HANDLE.
+ */
 void APIENTRY ExtractItem(DLIST          ListToGetItemFrom,
                           CARDINAL32     ItemSize,
                           ADDRESS        ItemLocation,
@@ -614,6 +936,25 @@ void APIENTRY ExtractItem(DLIST          ListToGetItemFrom,
     pCtl->pCurrent = pNewCurrent;
 }
 
+/*!
+ * @brief Remove an item and return ownership of its data.
+ *
+ * @param[in]  ListToGetItemFrom  List handle.
+ * @param[in]  ItemSize           Expected size of the item.
+ * @param[in]  ItemTag            Expected tag of the item.
+ * @param[in]  Handle             Item handle, or NULL for current.
+ * @param[out] Error              Return code. Not NULL. On success
+ *                                DLIST_SUCCESS; on failure one of
+ *                                DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                DLIST_EMPTY, DLIST_ITEM_SIZE_WRONG,
+ *                                DLIST_ITEM_TAG_WRONG,
+ *                                DLIST_BAD_HANDLE.
+ *
+ * @return The stored data pointer, or NULL on failure. Ownership
+ *         passes to the caller.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY ExtractObject(DLIST          ListToGetItemFrom,
                                CARDINAL32     ItemSize,
                                TAG            ItemTag,
@@ -661,6 +1002,23 @@ ADDRESS APIENTRY ExtractObject(DLIST          ListToGetItemFrom,
  * Replace
  * ================================================================== */
 
+/*!
+ * @brief Replace the stored data of an item with a copy.
+ *
+ * @param[in]  ListToReplaceItemIn  List handle.
+ * @param[in]  ItemSize             Size of the new data.
+ * @param[in]  ItemLocation         Pointer to the new data.
+ * @param[in]  ItemTag              New tag.
+ * @param[in]  Handle               Item handle, or NULL for current.
+ * @param[in]  MakeCurrent          Make the item current on success.
+ * @param[out] Error                Return code. Not NULL. On success
+ *                                  DLIST_SUCCESS; on failure one of
+ *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                  DLIST_EMPTY, DLIST_ITEM_SIZE_ZERO,
+ *                                  DLIST_BAD_ITEM_POINTER,
+ *                                  DLIST_BAD_HANDLE,
+ *                                  DLIST_OUT_OF_MEMORY.
+ */
 void APIENTRY ReplaceItem(DLIST         ListToReplaceItemIn,
                           CARDINAL32    ItemSize,
                           ADDRESS       ItemLocation,
@@ -699,6 +1057,33 @@ void APIENTRY ReplaceItem(DLIST         ListToReplaceItemIn,
     if (MakeCurrent) pCtl->pCurrent = pNode;
 }
 
+/*!
+ * @brief Replace the stored pointer of an item with a caller pointer.
+ *
+ * @param[in]     ListToReplaceItemIn  List handle.
+ * @param[in,out] ItemSize             In: size of the new data.
+ *                                     Out: size of the replaced data.
+ * @param[in]     ItemLocation         Pointer to the new data.
+ * @param[in,out] ItemTag              In: new tag. Out: tag of the
+ *                                     replaced data.
+ * @param[in]     Handle               Item handle, or NULL for
+ *                                     current.
+ * @param[in]     MakeCurrent          Make the item current on
+ *                                     success.
+ * @param[out]    Error                Return code. Not NULL. On
+ *                                     success DLIST_SUCCESS; on
+ *                                     failure one of DLIST_BAD,
+ *                                     DLIST_NOT_INITIALIZED,
+ *                                     DLIST_EMPTY,
+ *                                     DLIST_ITEM_SIZE_ZERO,
+ *                                     DLIST_BAD_ITEM_POINTER,
+ *                                     DLIST_BAD_HANDLE.
+ *
+ * @return Pointer to the replaced data, or NULL on failure.
+ *         Ownership passes to the caller.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY ReplaceObject(DLIST         ListToReplaceItemIn,
                                CARDINAL32 *  ItemSize,
                                ADDRESS       ItemLocation,
@@ -749,6 +1134,21 @@ ADDRESS APIENTRY ReplaceObject(DLIST         ListToReplaceItemIn,
  * Metadata
  * ================================================================== */
 
+/*!
+ * @brief Return the tag and size of an item.
+ *
+ * @param[in]  ListToGetTagFrom  List handle.
+ * @param[in]  Handle            Item handle, or NULL for current.
+ * @param[out] ItemSize          Receives the item size. Not NULL.
+ * @param[out] Error             Return code. Not NULL. On success
+ *                               DLIST_SUCCESS; on failure one of
+ *                               DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                               DLIST_EMPTY, DLIST_BAD_HANDLE.
+ *
+ * @return The tag of the item, or zero on failure.
+ *
+ * @retval 0  On failure; see @p Error.
+ */
 TAG APIENTRY GetTag(DLIST        ListToGetTagFrom,
                     ADDRESS      Handle,
                     CARDINAL32 * ItemSize,
@@ -773,6 +1173,19 @@ TAG APIENTRY GetTag(DLIST        ListToGetTagFrom,
     return (TAG)pNode->tag;
 }
 
+/*!
+ * @brief Return a handle to the current item.
+ *
+ * @param[in]  ListToGetHandleFrom  List handle.
+ * @param[out] Error                Return code. Not NULL. On success
+ *                                  DLIST_SUCCESS; on failure one of
+ *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                  DLIST_EMPTY.
+ *
+ * @return Handle to the current item, or NULL on failure.
+ *
+ * @retval NULL  On failure; see @p Error.
+ */
 ADDRESS APIENTRY GetHandle(DLIST        ListToGetHandleFrom,
                            CARDINAL32 * Error)
 {
@@ -790,6 +1203,18 @@ ADDRESS APIENTRY GetHandle(DLIST        ListToGetHandleFrom,
     return (ADDRESS)pCtl->pCurrent;
 }
 
+/*!
+ * @brief Return the number of items in the list.
+ *
+ * @param[in]  ListToGetSizeOf  List handle.
+ * @param[out] Error            Return code. Not NULL. On success
+ *                              DLIST_SUCCESS; on failure one of
+ *                              DLIST_BAD, DLIST_NOT_INITIALIZED.
+ *
+ * @return The number of items, or zero on failure.
+ *
+ * @retval 0  On failure; see @p Error.
+ */
 CARDINAL32 APIENTRY GetListSize(DLIST        ListToGetSizeOf,
                                 CARDINAL32 * Error)
 {
@@ -805,6 +1230,19 @@ CARDINAL32 APIENTRY GetListSize(DLIST        ListToGetSizeOf,
     return pCtl->ulCount;
 }
 
+/*!
+ * @brief Test whether the list is empty.
+ *
+ * @param[in]  ListToCheck  List handle.
+ * @param[out] Error        Return code. Not NULL. On success
+ *                          DLIST_SUCCESS; on failure one of
+ *                          DLIST_BAD, DLIST_NOT_INITIALIZED.
+ *
+ * @return TRUE if the list is empty, FALSE otherwise.
+ *
+ * @retval TRUE   The list is empty, or an argument is invalid.
+ * @retval FALSE  The list contains at least one item.
+ */
 BOOLEAN APIENTRY ListEmpty(DLIST        ListToCheck,
                            CARDINAL32 * Error)
 {
@@ -820,6 +1258,20 @@ BOOLEAN APIENTRY ListEmpty(DLIST        ListToCheck,
     return (pCtl->ulCount == 0) ? TRUE : FALSE;
 }
 
+/*!
+ * @brief Test whether the cursor is on the last item.
+ *
+ * @param[in]  ListToCheck  List handle.
+ * @param[out] Error        Return code. Not NULL. On success
+ *                          DLIST_SUCCESS; on failure one of
+ *                          DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                          DLIST_EMPTY.
+ *
+ * @return TRUE if the cursor is on the last item, FALSE otherwise.
+ *
+ * @retval TRUE   The cursor is on the last item.
+ * @retval FALSE  Otherwise, or on failure.
+ */
 BOOLEAN APIENTRY AtEndOfList(DLIST        ListToCheck,
                              CARDINAL32 * Error)
 {
@@ -836,6 +1288,20 @@ BOOLEAN APIENTRY AtEndOfList(DLIST        ListToCheck,
     return (pCtl->pCurrent == pCtl->pTail) ? TRUE : FALSE;
 }
 
+/*!
+ * @brief Test whether the cursor is on the first item.
+ *
+ * @param[in]  ListToCheck  List handle.
+ * @param[out] Error        Return code. Not NULL. On success
+ *                          DLIST_SUCCESS; on failure one of
+ *                          DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                          DLIST_EMPTY.
+ *
+ * @return TRUE if the cursor is on the first item, FALSE otherwise.
+ *
+ * @retval TRUE   The cursor is on the first item.
+ * @retval FALSE  Otherwise, or on failure.
+ */
 BOOLEAN APIENTRY AtStartOfList(DLIST        ListToCheck,
                                CARDINAL32 * Error)
 {
@@ -856,6 +1322,15 @@ BOOLEAN APIENTRY AtStartOfList(DLIST        ListToCheck,
  * Cursor movement
  * ================================================================== */
 
+/*!
+ * @brief Move the cursor to the next item.
+ *
+ * @param[in,out] ListToAdvance  List handle.
+ * @param[out]    Error          Return code. Not NULL. On success
+ *                               DLIST_SUCCESS; on failure one of
+ *                               DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                               DLIST_EMPTY, DLIST_END_OF_LIST.
+ */
 void APIENTRY NextItem(DLIST        ListToAdvance,
                        CARDINAL32 * Error)
 {
@@ -875,6 +1350,16 @@ void APIENTRY NextItem(DLIST        ListToAdvance,
     pCtl->pCurrent = pCtl->pCurrent->next;
 }
 
+/*!
+ * @brief Move the cursor to the previous item.
+ *
+ * @param[in,out] ListToChange  List handle.
+ * @param[out]    Error         Return code. Not NULL. On success
+ *                              DLIST_SUCCESS; on failure one of
+ *                              DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                              DLIST_EMPTY,
+ *                              DLIST_ALREADY_AT_START.
+ */
 void APIENTRY PreviousItem(DLIST        ListToChange,
                            CARDINAL32 * Error)
 {
@@ -894,6 +1379,15 @@ void APIENTRY PreviousItem(DLIST        ListToChange,
     pCtl->pCurrent = pCtl->pCurrent->prev;
 }
 
+/*!
+ * @brief Move the cursor to the first item.
+ *
+ * @param[in,out] ListToReset  List handle.
+ * @param[out]    Error        Return code. Not NULL. On success
+ *                             DLIST_SUCCESS; on failure one of
+ *                             DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                             DLIST_EMPTY.
+ */
 void APIENTRY GoToStartOfList(DLIST        ListToReset,
                               CARDINAL32 * Error)
 {
@@ -910,6 +1404,15 @@ void APIENTRY GoToStartOfList(DLIST        ListToReset,
     pCtl->pCurrent = pCtl->pHead;
 }
 
+/*!
+ * @brief Move the cursor to the last item.
+ *
+ * @param[in,out] ListToSet  List handle.
+ * @param[out]    Error      Return code. Not NULL. On success
+ *                           DLIST_SUCCESS; on failure one of
+ *                           DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                           DLIST_EMPTY.
+ */
 void APIENTRY GoToEndOfList(DLIST        ListToSet,
                             CARDINAL32 * Error)
 {
@@ -926,6 +1429,17 @@ void APIENTRY GoToEndOfList(DLIST        ListToSet,
     pCtl->pCurrent = pCtl->pTail;
 }
 
+/*!
+ * @brief Move the cursor to the item identified by @p Handle.
+ *
+ * @param[in,out] ListToReposition  List handle.
+ * @param[in]     Handle            Item handle, or NULL for the
+ *                                  current item.
+ * @param[out]    Error             Return code. Not NULL. On success
+ *                                  DLIST_SUCCESS; on failure one of
+ *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                                  DLIST_BAD_HANDLE.
+ */
 void APIENTRY GoToSpecifiedItem(DLIST        ListToReposition,
                                 ADDRESS      Handle,
                                 CARDINAL32 * Error)
@@ -950,6 +1464,23 @@ void APIENTRY GoToSpecifiedItem(DLIST        ListToReposition,
  * Sorting and traversal
  * ================================================================== */
 
+/*!
+ * @brief Sort the list in place.
+ *
+ * The comparison function returns negative, zero or positive
+ * following the usual ordering contract. The sort is stable.
+ *
+ * If the comparison function writes a non-zero value into @p Error
+ * the sort stops and the caller receives that value; the order of
+ * the items is then undefined.
+ *
+ * @param[in,out] ListToSort  List handle.
+ * @param[in]     Compare     Comparison function.
+ * @param[out]    Error       Return code. Not NULL. On success
+ *                            DLIST_SUCCESS; on failure one of
+ *                            DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                            DLIST_OUT_OF_MEMORY.
+ */
 void APIENTRY SortList(DLIST        ListToSort,
                        INTEGER32 (APIENTRY * Compare)(ADDRESS Object1,
                                                      TAG Object1Tag,
@@ -1033,6 +1564,26 @@ void APIENTRY SortList(DLIST        ListToSort,
     free(paB);
 }
 
+/*!
+ * @brief Call a user function once for each item.
+ *
+ * The callback receives the item's data pointer, tag, size, handle,
+ * the caller-supplied @p Parameters value, and the address of the
+ * *Error variable.
+ *
+ * The traversal stops early when the callback writes a non-zero
+ * value into *Error. The caller then receives that value, except
+ * when it is DLIST_SEARCH_COMPLETE, in which case the caller
+ * receives DLIST_SUCCESS. The callback must not modify the list.
+ *
+ * @param[in]  ListToProcess  List handle.
+ * @param[in]  ProcessItem    Callback.
+ * @param[in]  Parameters     Value passed to the callback untouched.
+ * @param[in]  Forward        TRUE start-to-end, FALSE end-to-start.
+ * @param[out] Error          Return code. Not NULL. On success
+ *                            DLIST_SUCCESS; on failure one of
+ *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
+ */
 void APIENTRY ForEachItem(DLIST        ListToProcess,
                           void (APIENTRY * ProcessItem)(ADDRESS Object,
                                                         TAG ObjectTag,
@@ -1084,6 +1635,24 @@ void APIENTRY ForEachItem(DLIST        ListToProcess,
     }
 }
 
+/*!
+ * @brief Examine every item and optionally delete it.
+ *
+ * The callback returns TRUE if the item should be removed. When it
+ * does, the BOOLEAN* parameter it receives decides whether the
+ * item's data memory is released by PruneList or left to the
+ * caller.
+ *
+ * The traversal can be aborted the same way as in ForEachItem. The
+ * callback must not modify the list directly.
+ *
+ * @param[in]  ListToProcess  List handle.
+ * @param[in]  KillItem       Callback.
+ * @param[in]  Parameters     Value passed to the callback untouched.
+ * @param[out] Error          Return code. Not NULL. On success
+ *                            DLIST_SUCCESS; on failure one of
+ *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
+ */
 void APIENTRY PruneList(DLIST        ListToProcess,
                         BOOLEAN (APIENTRY * KillItem)(ADDRESS Object,
                                                       TAG ObjectTag,
@@ -1142,6 +1711,19 @@ void APIENTRY PruneList(DLIST        ListToProcess,
  * Combination
  * ================================================================== */
 
+/*!
+ * @brief Move all items from @p SourceList to the end of
+ *        @p TargetList.
+ *
+ * On success @p SourceList is empty and @p TargetList contains its
+ * own items followed by the moved ones.
+ *
+ * @param[in,out] TargetList  Target list handle.
+ * @param[in,out] SourceList  Source list handle.
+ * @param[out]    Error       Return code. Not NULL. On success
+ *                            DLIST_SUCCESS; on failure one of
+ *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
+ */
 void APIENTRY AppendList(DLIST        TargetList,
                          DLIST        SourceList,
                          CARDINAL32 * Error)
@@ -1176,6 +1758,32 @@ void APIENTRY AppendList(DLIST        TargetList,
     pSource->ulCount = 0;
 }
 
+/*!
+ * @brief Move a single item between lists.
+ *
+ * @p SourceHandle identifies the item in @p SourceList (NULL means
+ * the current item). @p TargetHandle identifies the reference item
+ * in @p TargetList (NULL means the current item, and is not
+ * consulted for InsertAtStart or AppendToList). @p TransferMode
+ * selects the position inside @p TargetList. @p MakeCurrent selects
+ * whether the transferred item becomes current in @p TargetList.
+ *
+ * @param[in,out] SourceList    Source list handle.
+ * @param[in]     SourceHandle  Item handle in the source list, or
+ *                              NULL.
+ * @param[in,out] TargetList    Target list handle.
+ * @param[in]     TargetHandle  Reference item in the target list, or
+ *                              NULL.
+ * @param[in]     TransferMode  Insertion mode in the target list.
+ * @param[in]     MakeCurrent   Make the item current in the target
+ *                              list.
+ * @param[out]    Error         Return code. Not NULL. On success
+ *                              DLIST_SUCCESS; on failure one of
+ *                              DLIST_BAD, DLIST_NOT_INITIALIZED,
+ *                              DLIST_EMPTY,
+ *                              DLIST_INVALID_INSERTION_MODE,
+ *                              DLIST_BAD_HANDLE.
+ */
 void APIENTRY TransferItem(DLIST             SourceList,
                            ADDRESS           SourceHandle,
                            DLIST             TargetList,
@@ -1237,6 +1845,19 @@ void APIENTRY TransferItem(DLIST             SourceList,
  * Integrity
  * ================================================================== */
 
+/*!
+ * @brief Verify the internal consistency of a list.
+ *
+ * Every link is checked, as are the control-block fields. Intended
+ * for debugging and tests; the module itself does not call it.
+ *
+ * @param[in] ListToCheck  List handle.
+ *
+ * @return TRUE if the list is consistent, FALSE otherwise.
+ *
+ * @retval TRUE   The list is consistent.
+ * @retval FALSE  The list is inconsistent or the handle is invalid.
+ */
 BOOLEAN APIENTRY CheckListIntegrity(DLIST ListToCheck)
 {
     DLISTCTL    *pCtl;

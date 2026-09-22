@@ -1,12 +1,15 @@
-/* strset.c - set of strings built on top of vector.
- * Part of the ccl container library. */
-
-/**
+/*!
+ *
  * @file strset.c
+ *
  * @brief Implementation of the string set container.
  *
- * Copyright (c) osFree Project 2026, <http://www.osFree.org>
- *   for licence see licence.txt in root directory, or project website
+ * (c) osFree Project 2026, <http://www.osFree.org>
+ * for licence see licence.txt in root directory, or project website
+ *
+ * The string set is built on top of the ccl vector container. It
+ * stores unique NUL-terminated strings owned by the set, and offers
+ * enumeration cursors that stay valid across set mutations.
  */
 
 #include <stdlib.h>
@@ -18,39 +21,60 @@
  * Internal control blocks
  * ================================================================== */
 
-/** @brief Magic value identifying a valid string-set handle. */
+/*!
+ * @brief Magic value identifying a valid string-set handle.
+ */
 #define CCL_STRSET_MAGIC       0x53535453UL  /* "SSTS" */
-/** @brief Magic value identifying a valid enumeration cursor. */
+
+/*!
+ * @brief Magic value identifying a valid enumeration cursor.
+ */
 #define CCL_STRSETENUM_MAGIC   0x53454E55UL  /* "SENU" */
 
+/*!
+ * @brief Forward declaration of the string-set control block.
+ */
 typedef struct _STRSETCTL   STRSETCTL;
+
+/*!
+ * @brief Forward declaration of the enumeration cursor control block.
+ */
 typedef struct _STRSETENUM  STRSETENUM;
 
-/**
+/*!
  * @struct _STRSETCTL
  * @brief Control block of an open string set.
  */
 struct _STRSETCTL {
-    unsigned long ulMagic;      /**< CCL_STRSET_MAGIC.                 */
-    HVECTOR       hVector;      /**< Underlying vector (char*).        */
-    STRSETENUM   *pFirstEnum;   /**< Head of open cursors, or NULL.    */
+    unsigned long ulMagic;      /*!< CCL_STRSET_MAGIC.              */
+    HVECTOR       hVector;      /*!< Underlying vector (char*).     */
+    STRSETENUM   *pFirstEnum;   /*!< Head of open cursors, or NULL. */
 };
 
-/**
+/*!
  * @struct _STRSETENUM
  * @brief Control block of an open enumeration cursor.
  */
 struct _STRSETENUM {
-    unsigned long ulMagic;      /**< CCL_STRSETENUM_MAGIC.             */
-    STRSETCTL    *pSet;         /**< Owning set.                       */
-    ULONG         ulIndex;      /**< Current position.                 */
-    STRSETENUM   *pNext;        /**< Next cursor of the owning set.    */
+    unsigned long ulMagic;      /*!< CCL_STRSETENUM_MAGIC.          */
+    STRSETCTL    *pSet;         /*!< Owning set.                    */
+    ULONG         ulIndex;      /*!< Current position.              */
+    STRSETENUM   *pNext;        /*!< Next cursor of the owning set. */
 };
 
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
 
+/*!
+ * @brief Return the control block behind a string-set handle.
+ *
+ * @param[in] hSet  String-set handle.
+ *
+ * @return The control block, or NULL on failure.
+ *
+ * @retval NULL  hSet is NULL, or its magic value does not match.
+ */
 static STRSETCTL *get_ctl(HSTRSET hSet) {
     STRSETCTL *pCtl;
     if (hSet == NULLHANDLE) return NULL;
@@ -59,6 +83,15 @@ static STRSETCTL *get_ctl(HSTRSET hSet) {
     return pCtl;
 }
 
+/*!
+ * @brief Return the control block behind an enumeration cursor.
+ *
+ * @param[in] hEnum  Cursor handle.
+ *
+ * @return The cursor control block, or NULL on failure.
+ *
+ * @retval NULL  hEnum is NULL, or its magic value does not match.
+ */
 static STRSETENUM *get_enum(HSTRSETENUM hEnum) {
     STRSETENUM *pEnum;
     if (hEnum == NULLHANDLE) return NULL;
@@ -67,11 +100,21 @@ static STRSETENUM *get_enum(HSTRSETENUM hEnum) {
     return pEnum;
 }
 
-/**
+/*!
  * @brief Copy the stored pointer at ulIndex into *ppszStr.
  *
- * Returns NO_ERROR on success. On any failure *ppszStr is set to
- * NULL.
+ * @param[in]  pCtl      Control block.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] ppszStr   Receives the stored pointer. Not NULL. On
+ *                       failure set to NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR               Success.
+ * @retval ERROR_INVALID_HANDLE   The underlying vector handle is
+ *                                invalid.
+ * @retval ERROR_NO_MORE_ITEMS    ulIndex is beyond the last element.
  */
 static APIRET get_stored_ptr(STRSETCTL *pCtl, ULONG ulIndex, PCSZ *ppszStr) {
     PCSZ pStored = NULL;
@@ -84,11 +127,18 @@ static APIRET get_stored_ptr(STRSETCTL *pCtl, ULONG ulIndex, PCSZ *ppszStr) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Linear search for a string equal to pszStr.
  *
- * Returns TRUE if found and stores the position in *pulIndex.
- * Returns FALSE otherwise.
+ * @param[in]  pCtl       Control block.
+ * @param[in]  pszStr     String to find.
+ * @param[out] pulIndex   Optional. Receives the position when found.
+ *
+ * @return TRUE if the string is found, FALSE otherwise.
+ *
+ * @retval TRUE   The string is present; *pulIndex holds its position.
+ * @retval FALSE  The string is not present, or the count could not
+ *                be obtained.
  */
 static BOOL find_string(STRSETCTL *pCtl, PCSZ pszStr, PULONG pulIndex) {
     ULONG ulCount = 0;
@@ -109,11 +159,26 @@ static BOOL find_string(STRSETCTL *pCtl, PCSZ pszStr, PULONG pulIndex) {
     return FALSE;
 }
 
-/**
+/*!
  * @brief Common implementation of StrSetGetItem and StrSetEnumGet.
  *
  * Copies the string stored at ulIndex into the caller's buffer,
  * following the size-query convention.
+ *
+ * @param[in]  pCtl      Control block.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pszBuf    Destination buffer, or NULL for size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. Receives the used or required size.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
+ * @retval ERROR_NO_MORE_ITEMS      ulIndex is beyond the last string,
+ *                                  or the stored pointer is NULL.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf is too small.
  */
 static APIRET copy_index_string(STRSETCTL *pCtl, ULONG ulIndex,
                                 PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
@@ -145,6 +210,18 @@ static APIRET copy_index_string(STRSETCTL *pCtl, ULONG ulIndex,
  * Lifecycle
  * ================================================================== */
 
+/*!
+ * @brief Create a new string set.
+ *
+ * @param[out] phSet  Receives the new set handle. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phSet is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY StrSetCreate(PHSTRSET phSet) {
     STRSETCTL *pCtl;
     APIRET rc;
@@ -166,6 +243,20 @@ APIRET APIENTRY StrSetCreate(PHSTRSET phSet) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a string set.
+ *
+ * Releases every stored string, every open cursor of the set, and
+ * the set itself. A NULL handle is accepted and treated as success.
+ *
+ * @param[in] hSet  String-set handle.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR               Success (including NULL handle).
+ * @retval ERROR_INVALID_HANDLE   The handle is not a valid set.
+ */
 APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
     STRSETCTL *pCtl;
     ULONG ulCount = 0;
@@ -205,6 +296,22 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
  * Operations
  * ================================================================== */
 
+/*!
+ * @brief Add a string to the set.
+ *
+ * The string is copied. If an equal string is already present, the
+ * call is a no-op. An empty string is ignored.
+ *
+ * @param[in,out] hSet    String-set handle.
+ * @param[in]     pszStr  String to add. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success (including empty string).
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid set.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY StrSetAdd(HSTRSET hSet, PCSZ pszStr) {
     STRSETCTL *pCtl;
     char *copy;
@@ -228,6 +335,20 @@ APIRET APIENTRY StrSetAdd(HSTRSET hSet, PCSZ pszStr) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Test whether the set contains a given string.
+ *
+ * @param[in]  hSet     String-set handle.
+ * @param[in]  pszStr   String to look for. Not NULL.
+ * @param[out] pfFound  Receives TRUE or FALSE. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszStr or pfFound is NULL.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid set.
+ */
 APIRET APIENTRY StrSetContains(HSTRSET hSet, PCSZ pszStr, PBOOL pfFound) {
     STRSETCTL *pCtl;
 
@@ -241,6 +362,19 @@ APIRET APIENTRY StrSetContains(HSTRSET hSet, PCSZ pszStr, PBOOL pfFound) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Return the number of strings in the set.
+ *
+ * @param[in]  hSet      String-set handle.
+ * @param[out] pulCount  Receives the count. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pulCount is NULL.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid set.
+ */
 APIRET APIENTRY StrSetGetCount(HSTRSET hSet, PULONG pulCount) {
     STRSETCTL *pCtl;
 
@@ -251,6 +385,24 @@ APIRET APIENTRY StrSetGetCount(HSTRSET hSet, PULONG pulCount) {
     return VectorGetCount(pCtl->hVector, pulCount);
 }
 
+/*!
+ * @brief Copy the string at a given index into a caller buffer.
+ *
+ * @param[in]  hSet      String-set handle.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pszBuf    Destination buffer, or NULL for size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. Receives the used or required size.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid set.
+ * @retval ERROR_NO_MORE_ITEMS      ulIndex is beyond the last string.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf is too small.
+ */
 APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     STRSETCTL *pCtl;
@@ -265,6 +417,21 @@ APIRET APIENTRY StrSetGetItem(HSTRSET hSet, ULONG ulIndex,
  * Enumeration
  * ================================================================== */
 
+/*!
+ * @brief Open an enumeration cursor on the first string of the set.
+ *
+ * @param[in]  hSet     String-set handle.
+ * @param[out] phEnum   Receives the cursor handle. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phEnum is NULL.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid set.
+ * @retval ERROR_NO_MORE_ITEMS      The set is empty.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY StrSetEnumFirst(HSTRSET hSet, HSTRSETENUM *phEnum) {
     STRSETCTL *pCtl;
     STRSETENUM *pEnum;
@@ -293,6 +460,20 @@ APIRET APIENTRY StrSetEnumFirst(HSTRSET hSet, HSTRSETENUM *phEnum) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Advance an enumeration cursor to the next string.
+ *
+ * @param[in,out] hEnum  Cursor handle.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR               Success.
+ * @retval ERROR_INVALID_HANDLE   The handle is not a valid cursor,
+ *                                or its owning set is gone.
+ * @retval ERROR_NO_MORE_ITEMS    The cursor is already on the last
+ *                                string.
+ */
 APIRET APIENTRY StrSetEnumNext(HSTRSETENUM hEnum) {
     STRSETENUM *pEnum = get_enum(hEnum);
     ULONG ulCount = 0;
@@ -310,6 +491,23 @@ APIRET APIENTRY StrSetEnumNext(HSTRSETENUM hEnum) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Copy the string at the cursor position.
+ *
+ * @param[in]  hEnum     Cursor handle.
+ * @param[out] pszBuf    Destination buffer, or NULL for size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. Receives the used or required size.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid cursor.
+ * @retval ERROR_NO_MORE_ITEMS      The cursor position is invalid.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf is too small.
+ */
 APIRET APIENTRY StrSetEnumGet(HSTRSETENUM hEnum,
                               PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
     STRSETENUM *pEnum = get_enum(hEnum);
@@ -321,6 +519,17 @@ APIRET APIENTRY StrSetEnumGet(HSTRSETENUM hEnum,
                              pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Close an enumeration cursor.
+ *
+ * A NULL handle is accepted and treated as success.
+ *
+ * @param[in] hEnum  Cursor handle.
+ *
+ * @return NO_ERROR on success.
+ *
+ * @retval NO_ERROR  Success (including NULL handle).
+ */
 APIRET APIENTRY StrSetEnumClose(HSTRSETENUM hEnum) {
     STRSETENUM *pEnum = get_enum(hEnum);
 

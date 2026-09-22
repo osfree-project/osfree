@@ -1,12 +1,11 @@
-/* vector.c - dynamic array of fixed-size elements.
- * Part of the ccl container library. */
-
-/**
+/*!
+ *
  * @file vector.c
+ *
  * @brief Implementation of the vector container.
  *
- * Copyright (c) osFree Project 2026, <http://www.osFree.org>
- *   for licence see licence.txt in root directory, or project website
+ * (c) osFree Project 2026, <http://www.osFree.org>
+ * for licence see licence.txt in root directory, or project website
  */
 
 #include <stdlib.h>
@@ -17,25 +16,36 @@
  * Internal control block
  * ================================================================== */
 
-/** @brief Magic value identifying a valid vector control block. */
+/*!
+ * @brief Magic value identifying a valid vector control block.
+ */
 #define CCL_VECTOR_MAGIC 0x56454354UL  /* "VECT" */
 
-/**
+/*!
  * @struct _VECTORCTL
  * @brief Control block of an open vector.
  */
 typedef struct _VECTORCTL {
-    unsigned long ulMagic;       /**< CCL_VECTOR_MAGIC.                 */
-    unsigned long ulElemSize;    /**< Size of one element in bytes.     */
-    unsigned long ulCount;       /**< Number of elements stored.        */
-    unsigned long ulCapacity;    /**< Allocated element slots.          */
-    unsigned char *pbData;       /**< Element storage, or NULL.         */
+    unsigned long ulMagic;       /*!< CCL_VECTOR_MAGIC.              */
+    unsigned long ulElemSize;    /*!< Size of one element in bytes.  */
+    unsigned long ulCount;       /*!< Number of elements stored.     */
+    unsigned long ulCapacity;    /*!< Allocated element slots.       */
+    unsigned char *pbData;       /*!< Element storage, or NULL.      */
 } VECTORCTL;
 
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
 
+/*!
+ * @brief Return the control block behind a vector handle.
+ *
+ * @param[in] hVector  Vector handle.
+ *
+ * @return The control block, or NULL on failure.
+ *
+ * @retval NULL  hVector is NULL, or its magic value does not match.
+ */
 static VECTORCTL *get_ctl(HVECTOR hVector) {
     VECTORCTL *pCtl;
     if (hVector == NULLHANDLE) return NULL;
@@ -44,12 +54,35 @@ static VECTORCTL *get_ctl(HVECTOR hVector) {
     return pCtl;
 }
 
+/*!
+ * @brief Return the address of an element inside the storage block.
+ *
+ * No bounds check is performed; the caller must ensure that ulIndex
+ * is below ulCount.
+ *
+ * @param[in] pCtl     Control block.
+ * @param[in] ulIndex  Element index.
+ *
+ * @return A pointer to the element inside pbData.
+ */
 static unsigned char *element_at(VECTORCTL *pCtl, unsigned long ulIndex) {
     return pCtl->pbData + (size_t)ulIndex * (size_t)pCtl->ulElemSize;
 }
 
-/**
+/*!
  * @brief Ensure that at least ulNeeded element slots are allocated.
+ *
+ * Grows the storage block if necessary. Capacity is doubled until
+ * the requested size is reached, starting at 8 slots.
+ *
+ * @param[in,out] pCtl      Control block.
+ * @param[in]     ulNeeded  Minimum number of element slots required.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
  */
 static APIRET vector_reserve(VECTORCTL *pCtl, unsigned long ulNeeded) {
     unsigned long ulNewCapacity;
@@ -80,6 +113,21 @@ static APIRET vector_reserve(VECTORCTL *pCtl, unsigned long ulNeeded) {
  * Lifecycle
  * ================================================================== */
 
+/*!
+ * @brief Create a new vector.
+ *
+ * @param[in]  ulElemSize  Size of one element in bytes. Must be
+ *                         nonzero.
+ * @param[out] phVector    Receives the new vector handle. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  phVector is NULL, or ulElemSize
+ *                                  is zero.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY VectorCreate(ULONG ulElemSize, PHVECTOR phVector) {
     VECTORCTL *pCtl;
 
@@ -97,6 +145,22 @@ APIRET APIENTRY VectorCreate(ULONG ulElemSize, PHVECTOR phVector) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a vector.
+ *
+ * Releases the storage block and the control block. Does not touch
+ * element contents; the caller must have released any owned memory
+ * first.
+ *
+ * @param[in] hVector  Vector handle. NULL is accepted and treated as
+ *                     success.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR               Success (including NULL handle).
+ * @retval ERROR_INVALID_HANDLE   The handle is not a valid vector.
+ */
 APIRET APIENTRY VectorDestroy(HVECTOR hVector) {
     VECTORCTL *pCtl;
 
@@ -114,6 +178,23 @@ APIRET APIENTRY VectorDestroy(HVECTOR hVector) {
  * Adding elements
  * ================================================================== */
 
+/*!
+ * @brief Append one element to the vector.
+ *
+ * The element is copied into the vector's storage; the caller keeps
+ * ownership of the source buffer.
+ *
+ * @param[in,out] hVector  Vector handle.
+ * @param[in]     pElem    Pointer to the element to copy. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pElem is NULL.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid vector.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY VectorAdd(HVECTOR hVector, PCVOID pElem) {
     VECTORCTL *pCtl;
     APIRET rc;
@@ -135,6 +216,19 @@ APIRET APIENTRY VectorAdd(HVECTOR hVector, PCVOID pElem) {
  * Access
  * ================================================================== */
 
+/*!
+ * @brief Return the number of elements stored in the vector.
+ *
+ * @param[in]  hVector   Vector handle.
+ * @param[out] pulCount  Receives the count. Not NULL.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pulCount is NULL.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid vector.
+ */
 APIRET APIENTRY VectorGetCount(HVECTOR hVector, PULONG pulCount) {
     VECTORCTL *pCtl;
 
@@ -146,6 +240,29 @@ APIRET APIENTRY VectorGetCount(HVECTOR hVector, PULONG pulCount) {
     return NO_ERROR;
 }
 
+/*!
+ * @brief Copy the element at the given index into a caller buffer.
+ *
+ * Follows the size-query convention: when pBuf is NULL and ulSize is
+ * zero, only *pulUsed is filled in. When the buffer is too small,
+ * *pulUsed receives the required size and ERROR_BUFFER_OVERFLOW is
+ * returned.
+ *
+ * @param[in]  hVector   Vector handle.
+ * @param[in]  ulIndex   Element index.
+ * @param[out] pBuf      Destination buffer, or NULL for size-query.
+ * @param[in]  ulSize    Size of pBuf in bytes.
+ * @param[out] pulUsed   Optional. Receives the used or required size.
+ *
+ * @return NO_ERROR on success, or one of the error codes listed
+ *         below.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pBuf is NULL without size-query.
+ * @retval ERROR_INVALID_HANDLE     The handle is not a valid vector.
+ * @retval ERROR_NO_MORE_ITEMS      ulIndex is beyond the last element.
+ * @retval ERROR_BUFFER_OVERFLOW    pBuf is too small.
+ */
 APIRET APIENTRY VectorGetItem(HVECTOR hVector, ULONG ulIndex,
                               PVOID pBuf, ULONG ulSize, PULONG pulUsed) {
     VECTORCTL *pCtl;
