@@ -1,5 +1,17 @@
-/* git.c - Git repository helpers for file filtering
- * (C89 + Watcom extensions) */
+/*!
+ *
+ * @file git.c
+ *
+ * @brief Implementation of the Git helper module.
+ *
+ * Git repository helpers for file filtering (C89 + Watcom
+ * extensions). Locates Git repositories and applies .gitignore
+ * rules without invoking the Git binary.
+ *
+ * References:
+ *   - gitignore(5).
+ *     https://git-scm.com/docs/gitignore
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,23 +29,11 @@
 #include "git.h"
 #include "path.h"
 
-/**
- * @file git.c
- * @brief Implementation of the Git helper module.
- *
- * Locates Git repositories and applies .gitignore rules without
- * invoking the Git binary.
- *
- * References:
- *   - gitignore(5).
- *     https://git-scm.com/docs/gitignore
- */
-
 /* ------------------------------------------------------------------ */
 /* Utilities                                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a directory contains a .git entry.
  *
  * Both '/' and '\\' separators are tried.
@@ -41,6 +41,9 @@
  * @param[in] pszPath  Directory path. Not NULL.
  *
  * @return TRUE if .git found, FALSE otherwise.
+ *
+ * @retval TRUE   A .git entry was found.
+ * @retval FALSE  No .git entry.
  */
 static BOOL has_git_entry(PCSZ pszPath) {
     CHAR achPath[1024];
@@ -56,7 +59,7 @@ static BOOL has_git_entry(PCSZ pszPath) {
 /* Repository root discovery                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Find the root of the Git repository containing a directory.
  *
  * Walks up from @p pszStartDir looking for an entry named ".git"
@@ -72,14 +75,16 @@ static BOOL has_git_entry(PCSZ pszPath) {
  *     required size including NUL.
  *
  * @param[in]  pszStartDir  Starting directory. Not NULL.
- * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
+ * @param[out] pszBuf       Output buffer. Not NULL unless
+ *                          size-query.
  * @param[in]  ulSize       Size of pszBuf in bytes.
  * @param[out] pulUsed      Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszStartDir is NULL, or pszBuf is
- *                                  NULL without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszStartDir is NULL, or pszBuf
+ *                                  is NULL without size-query.
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  * @retval ERROR_FILE_NOT_FOUND     No .git entry found.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -148,13 +153,14 @@ APIRET APIENTRY GitFindRepoRoot(PCSZ pszStartDir,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether a directory is inside a Git repository.
  *
  * @param[in]  pszDir     Directory. Not NULL.
  * @param[out] pfIsRepo   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszDir or pfIsRepo is NULL.
  */
@@ -175,7 +181,7 @@ APIRET APIENTRY GitQueryIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
 /* Rule list                                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Initialize a rule list.
  *
  * Sets all fields to zero. No memory is allocated.
@@ -183,6 +189,7 @@ APIRET APIENTRY GitQueryIsRepo(PCSZ pszDir, PBOOL pfIsRepo) {
  * @param[in] pList  List. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pList is NULL.
  */
@@ -194,16 +201,17 @@ APIRET APIENTRY GitIgnoreListInit(PGITIGNORELIST pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release all memory owned by a rule list.
  *
  * Frees the pattern and base_rel strings of every rule, then the
- * backing array, and reinitializes the structure. Passing NULL is a
- * no-op.
+ * backing array, and reinitializes the structure. Passing NULL is
+ * a no-op.
  *
  * @param[in] pList  List. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR  Success. Also for NULL.
  */
 APIRET APIENTRY GitIgnoreListFree(PGITIGNORELIST pList) {
@@ -220,12 +228,14 @@ APIRET APIENTRY GitIgnoreListFree(PGITIGNORELIST pList) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append one rule to a list, growing it if necessary.
  *
  * @param[in,out] pList  List. Not NULL.
  *
  * @return Pointer to the new rule slot, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failed.
  */
 static PGITIGNORERULE git_ignore_list_add(PGITIGNORELIST pList) {
     PGITIGNORERULE pItem;
@@ -247,7 +257,7 @@ static PGITIGNORERULE git_ignore_list_add(PGITIGNORELIST pList) {
 /* Parsing a single .gitignore line                                    */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Remove leading and trailing whitespace in place.
  *
  * @param[in,out] pszStr  String to trim. Not NULL.
@@ -265,19 +275,21 @@ static void trim_inplace(PSZ pszStr) {
     }
 }
 
-/**
+/*!
  * @brief Parse one .gitignore line into a rule.
  *
  * Recognizes negation ('!'), anchored patterns, dir-only patterns,
  * comments ('#'), escaped '#' and '!'.
  *
- * @param[in]  pszLine   Raw line from the file. Not NULL.
- * @param[in]  pszBaseRel Directory of the .gitignore relative to
- *                        the repository root. May be "".
- * @param[out] pOut      List to append to. Not NULL.
+ * @param[in]  pszLine     Raw line from the file. Not NULL.
+ * @param[in]  pszBaseRel  Directory of the .gitignore relative to
+ *                         the repository root. May be "".
+ * @param[out] pOut        List to append to. Not NULL.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success (including empty/comment).
+ *
+ * @retval NO_ERROR                 Success (including empty or
+ *                                  comment line).
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET parse_rule(PCSZ pszLine, PCSZ pszBaseRel,
@@ -347,17 +359,19 @@ static APIRET parse_rule(PCSZ pszLine, PCSZ pszBaseRel,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Read a .gitignore file and append its rules to a list.
  *
  * Both '/' and '\\' separators are tried when opening the file.
  *
  * @param[in]  pszDir      Directory containing the .gitignore. Not
  *                         NULL.
- * @param[in]  pszBaseRel  Directory relative to the repository root.
+ * @param[in]  pszBaseRel  Directory relative to the repository
+ *                         root.
  * @param[out] pOut        List to append to. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success (even if no file exists).
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -390,7 +404,7 @@ static APIRET read_gitignore_file(PCSZ pszDir, PCSZ pszBaseRel,
 /* Paths                                                               */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Return the relative path of @p pszTo under @p pszFrom.
  *
  * @param[in] pszFrom  Base path. Not NULL.
@@ -398,6 +412,8 @@ static APIRET read_gitignore_file(PCSZ pszDir, PCSZ pszBaseRel,
  *
  * @return malloc'd relative path, or NULL if @p pszTo is not under
  *         @p pszFrom.
+ *
+ * @retval NULL  pszTo is not under pszFrom, or allocation failure.
  */
 static PSZ rel_path_from(PCSZ pszFrom, PCSZ pszTo) {
     size_t cbFromLen = strlen(pszFrom);
@@ -409,7 +425,7 @@ static PSZ rel_path_from(PCSZ pszFrom, PCSZ pszTo) {
     return strdup(pszTo + cbFromLen + 1);
 }
 
-/**
+/*!
  * @brief Collect .gitignore rules from a directory tree.
  *
  * Reads .gitignore from @p pszRepoRoot, then from every directory
@@ -425,6 +441,7 @@ static PSZ rel_path_from(PCSZ pszFrom, PCSZ pszTo) {
  * @param[out] pOut         Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success (even if no .gitignore
  *                                  files were found).
  * @retval ERROR_INVALID_PARAMETER  pszTargetDir or pOut is NULL.
@@ -507,7 +524,7 @@ APIRET APIENTRY GitCollectGitignores(PCSZ pszRepoRoot, PCSZ pszTargetDir,
 /* Matching                                                            */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Case-folding helper.
  *
  * Lowercase on Windows, identity on Linux.
@@ -524,7 +541,7 @@ static int to_lower(int c) {
 #endif
 }
 
-/**
+/*!
  * @brief Match a character class starting at @p ppszPat.
  *
  * On entry, @p *ppszPat points to the opening '['. On success,
@@ -542,11 +559,15 @@ static int to_lower(int c) {
  *   [^abc]   - same as [!abc]
  *   []abc]   - ']' can be included as the first character
  *
- * @param[in,out] ppszPat    Pointer to the pattern pointer. Not NULL.
+ * @param[in,out] ppszPat    Pointer to the pattern pointer. Not
+ *                           NULL.
  * @param[in]     c          Character to test.
  * @param[out]    pfMatched  Receiver. Not NULL.
  *
  * @return 1 if a valid class was parsed, 0 otherwise.
+ *
+ * @retval 1  A valid character class was parsed.
+ * @retval 0  No closing ']' (treated as a literal '[').
  */
 static int match_class(PCSZ *ppszPat, int c, PBOOL pfMatched) {
     PCSZ pszPat = *ppszPat;
@@ -582,7 +603,7 @@ static int match_class(PCSZ *ppszPat, int c, PBOOL pfMatched) {
     return 1;
 }
 
-/**
+/*!
  * @brief Compare one path component.
  *
  * '*', '?' and '[...]' do not cross '/'.
@@ -591,6 +612,9 @@ static int match_class(PCSZ *ppszPat, int c, PBOOL pfMatched) {
  * @param[in] pszStr  Path component. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Match.
+ * @retval 0  No match.
  */
 static int match_component(PCSZ pszPat, PCSZ pszStr) {
     if (*pszPat == '\0') return *pszStr == '\0';
@@ -619,7 +643,7 @@ static int match_component(PCSZ pszPat, PCSZ pszStr) {
     return match_component(pszPat + 1, pszStr + 1);
 }
 
-/**
+/*!
  * @brief Full-pattern match against a path.
  *
  * A single '*' does not cross '/', a double '**' does.
@@ -628,6 +652,9 @@ static int match_component(PCSZ pszPat, PCSZ pszStr) {
  * @param[in] pszPath  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Match.
+ * @retval 0  No match.
  */
 static int match_path(PCSZ pszPat, PCSZ pszPath) {
     if (pszPat[0] == '*' && pszPat[1] == '*') {
@@ -669,7 +696,7 @@ static int match_path(PCSZ pszPat, PCSZ pszPath) {
     return match_path(pszPat + 1, pszPath + 1);
 }
 
-/**
+/*!
  * @brief Try a pattern at every level of the path.
  *
  * Used for non-anchored patterns that do not contain a slash in
@@ -679,6 +706,9 @@ static int match_path(PCSZ pszPat, PCSZ pszPath) {
  * @param[in] pszPath  Path. Not NULL.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Match.
+ * @retval 0  No match.
  */
 static int match_any_level(PCSZ pszPat, PCSZ pszPath) {
     if (match_path(pszPat, pszPath)) return 1;
@@ -693,7 +723,7 @@ static int match_any_level(PCSZ pszPat, PCSZ pszPath) {
     return 0;
 }
 
-/**
+/*!
  * @brief Query whether any path component matches @p pszPat.
  *
  * If @p fIncludeLast is FALSE, the last component is not checked.
@@ -703,6 +733,9 @@ static int match_any_level(PCSZ pszPat, PCSZ pszPath) {
  * @param[in] fIncludeLast  Whether to check the last component.
  *
  * @return 1 on match, 0 otherwise.
+ *
+ * @retval 1  Match.
+ * @retval 0  No match.
  */
 static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
                                  BOOL fIncludeLast) {
@@ -726,7 +759,7 @@ static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
 /* Applying the rules                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a path is ignored by the collected rules.
  *
  * @p pszRelPath is a path relative to the repository root (or to
@@ -744,6 +777,7 @@ static int path_has_matching_dir(PCSZ pszPat, PCSZ pszPath,
  * @param[out] pfIgnored   Receiver TRUE / FALSE. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  */
