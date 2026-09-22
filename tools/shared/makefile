@@ -4,7 +4,7 @@
 
 32_BITS  = 1
 
-DIRS = path ccl toml dep5 git spdx sha1 sha256 json reuse omf lib exe res z
+DIRS = path ccl toml dep5 git sha1 sha256 json spdx reuse omf lib exe res z
 
 PROJ = tools_shared
 TARGET_CLASS = LIBRARY

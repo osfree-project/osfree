@@ -1,33 +1,39 @@
-/* sha1.c - SHA-1 implementation (C89, OpenWatcom) */
+/*!
+ *
+ * @file sha1.c
+ *
+ * @brief Implementation of SHA-1.
+ *
+ * SHA-1 implementation (C89, OpenWatcom). Conforms to:
+ *   - FIPS PUB 180-1.
+ *   - RFC 3174.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sha1.h"
 
-/**
- * @file sha1.c
- * @brief Implementation of SHA-1.
- *
- * Conforms to:
- *   - FIPS PUB 180-1.
- *   - RFC 3174.
- */
-
 /* ==================================================================
  * Internal constants and types
  * ================================================================== */
 
-/** @brief SHA-1 block size in bytes. */
+/*!
+ * @brief SHA-1 block size in bytes.
+ */
 #define SHA1_BLOCK_SIZE  64
 
-/** @brief SHA-1 digest size in bytes. */
+/*!
+ * @brief SHA-1 digest size in bytes.
+ */
 #define SHA1_DIGEST_SIZE 20
 
-/** @brief Hex representation length including NUL. */
+/*!
+ * @brief Hex representation length including NUL.
+ */
 #define SHA1_HEX_SIZE    (SHA1_DIGEST_SIZE * 2 + 1)
 
-/**
+/*!
  * @struct _SHA1CONTEXT
  * @brief Working state of the SHA-1 algorithm.
  *
@@ -37,16 +43,16 @@
  * FIPS 180-1.
  */
 typedef struct _SHA1CONTEXT {
-    ULONG aulState[5];                          /**< h0..h4.               */
-    ULONG aulCount[2];                          /**< Bit count, lo/hi.     */
-    UCHAR auchBuffer[SHA1_BLOCK_SIZE];          /**< Partial block buffer. */
+    ULONG aulState[5];                  /*!< h0..h4.               */
+    ULONG aulCount[2];                  /*!< Bit count, lo/hi.     */
+    UCHAR auchBuffer[SHA1_BLOCK_SIZE];  /*!< Partial block buffer. */
 } SHA1CONTEXT;
 
 /* ==================================================================
  * Internal bit helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief 32-bit left rotation.
  *
  * @param[in] ulVal  Value.
@@ -64,7 +70,7 @@ static ULONG sha1_rotl(ULONG ulVal, ULONG nBits) {
  * Core algorithm
  * ================================================================== */
 
-/**
+/*!
  * @brief Compression function: process one 64-byte block.
  *
  * Applies the SHA-1 compression function to @p auchBuffer and
@@ -128,7 +134,7 @@ static void sha1_transform(ULONG aulState[5],
     aulState[4] += ulE;
 }
 
-/**
+/*!
  * @brief Initialize the working state with FIPS 180-1 initial values.
  *
  * @param[out] pCtx  Context to initialize. Not NULL.
@@ -143,15 +149,15 @@ static void sha1_init(SHA1CONTEXT *pCtx) {
     pCtx->aulCount[1] = 0;
 }
 
-/**
+/*!
  * @brief Absorb more input data into the context.
  *
  * Buffers partial blocks; full blocks are passed to the compression
  * function immediately.
  *
- * @param[in,out] pCtx     Context. Not NULL.
- * @param[in]     puchData Input data. Not NULL.
- * @param[in]     cbLen    Number of bytes to absorb.
+ * @param[in,out] pCtx      Context. Not NULL.
+ * @param[in]     puchData  Input data. Not NULL.
+ * @param[in]     cbLen     Number of bytes to absorb.
  */
 static void sha1_update(SHA1CONTEXT *pCtx,
                         const UCHAR *puchData, size_t cbLen) {
@@ -185,14 +191,14 @@ static void sha1_update(SHA1CONTEXT *pCtx,
     memcpy(&pCtx->auchBuffer[cbIndex], &puchData[i], cbLen - i);
 }
 
-/**
+/*!
  * @brief Finish the hash and produce the digest.
  *
  * Applies the padding scheme from FIPS 180-1 §4: a single 0x80
  * byte, zero bytes, and the 64-bit message length in bits as an
  * 8-byte big-endian value.
  *
- * @param[in,out] pCtx      Context. Not NULL.
+ * @param[in,out] pCtx        Context. Not NULL.
  * @param[out]    puchDigest  20-byte output. Not NULL.
  */
 static void sha1_final(SHA1CONTEXT *pCtx,
@@ -227,7 +233,7 @@ static void sha1_final(SHA1CONTEXT *pCtx,
  * Public API
  * ================================================================== */
 
-/**
+/*!
  * @brief Compute SHA-1 of a file.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
@@ -236,9 +242,10 @@ static void sha1_final(SHA1CONTEXT *pCtx,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is NULL
- *                                  without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or pszBuf is
+ *                                  NULL without size-query.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_READ_FAULT         Read error.
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
@@ -290,7 +297,7 @@ APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Compute SHA-1 of a NUL-terminated string.
  *
  * @param[in]  pszStr   Input string. Not NULL.
@@ -299,9 +306,10 @@ APIRET APIENTRY Sha1File(PCSZ pszPath, PSZ pszBuf, ULONG ulSize,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is NULL
- *                                  without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszStr is NULL, or pszBuf is
+ *                                  NULL without size-query.
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY Sha1String(PCSZ pszStr, PSZ pszBuf, ULONG ulSize,
