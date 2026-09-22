@@ -39,6 +39,12 @@
 
 #define PATH_BUF 1024
 
+#ifdef __LINUX__
+#define WCC_CMD "_wcc.sh"
+#else
+#define WCC_CMD "_wcc.cmd"
+#endif
+
 /* ------------------------------------------------------------------ */
 /* Global state                                                        */
 /* ------------------------------------------------------------------ */
@@ -91,7 +97,9 @@ static PCSZ LicensesReasonText(ULONG ulCode) {
     case REUSE_LICENSES_BAD_NAME:
         return "file name is not a valid SPDX identifier";
     case REUSE_LICENSES_UNUSED_FILE:
-        return "file is not used by any license";
+        return "license file is not used by any source file";
+    case REUSE_LICENSES_BAD_ID:
+        return "identifier is not in the SPDX License List";
     case REUSE_LICENSES_MISSING_FILE:
         return "used license has no file in LICENSES/";
     case REUSE_LICENSES_DEPRECATED_ID:
@@ -112,6 +120,39 @@ static PCSZ LicensesReasonText(ULONG ulCode) {
         return "LicenseRef-* requires manual text";
     case REUSE_LICENSES_NO_DB_TEXT:
         return "no text in the SPDX database";
+    default:
+        return "";
+    }
+}
+
+/**
+ * @brief Specification reference for a LICENSES/ reason code.
+ *
+ * @param[in] ulCode  One of REUSE_LICENSES_*.
+ *
+ * @return Static reference text, or "" for unknown codes.
+ */
+static PCSZ LicensesSpecRef(ULONG ulCode) {
+    switch (ulCode) {
+    case REUSE_LICENSES_DIR_MISSING:
+    case REUSE_LICENSES_DIR_CREATED:
+    case REUSE_LICENSES_BAD_NAME:
+    case REUSE_LICENSES_UNUSED_FILE:
+    case REUSE_LICENSES_MISSING_FILE:
+    case REUSE_LICENSES_NO_EXTENSION:
+    case REUSE_LICENSES_TEXT_MISMATCH:
+    case REUSE_LICENSES_FILE_CREATED:
+    case REUSE_LICENSES_FILE_UPDATED:
+    case REUSE_LICENSES_FILE_UP_TO_DATE:
+    case REUSE_LICENSES_FILE_OUTDATED:
+    case REUSE_LICENSES_MANUAL_REQUIRED:
+        return "REUSE 3.3 License Files";
+    case REUSE_LICENSES_BAD_ID:
+        return "REUSE 3.3 Licensing Information";
+    case REUSE_LICENSES_DEPRECATED_ID:
+        return "SPDX 2.3 License List";
+    case REUSE_LICENSES_NO_DB_TEXT:
+        return "not in spec";
     default:
         return "";
     }
@@ -139,6 +180,7 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
         REUSEERR err;
         PCSZ pszSev;
         PCSZ pszReason;
+        PCSZ pszRef;
 
         if (ReuseLicensesReportGet(hReport, ulIdx, &err) != NO_ERROR)
             continue;
@@ -163,8 +205,18 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
             fprintf(stderr, "%s: %s: %s\n",
                     pszSev, err.achFile, pszReason);
         else if (err.achDetail[0])
-            fprintf(stderr, "%s: %s\n",
-                    pszSev, pszReason);
+            fprintf(stderr, "%s: %s: %s\n",
+                    pszSev, err.achDetail, pszReason);
+
+        pszRef = LicensesSpecRef(err.ulCode);
+        if (pszRef[0])
+            fprintf(stderr, "       [%s]\n", pszRef);
+
+        if (err.ulCode == REUSE_LICENSES_DIR_MISSING) {
+            fprintf(stderr,
+                    "       Run '%s annotate' to create it.\n",
+                    WCC_CMD);
+        }
     }
 }
 
@@ -174,11 +226,6 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 
 /**
  * @brief Validate one SPDX expression and collect its identifiers.
- *
- * Uses SpdxExpressionCollectIds, which validates the expression and
- * returns both a diagnostic (via @p ppszBadToken) and the set of
- * identifiers in one pass. If hUsedIds is not NULLHANDLE, every
- * identifier is appended to it and checked for deprecation.
  *
  * @param[in] pszFullPath  File path used in diagnostics. Not NULL.
  * @param[in] pszLicense   Expression. Not NULL.
@@ -192,7 +239,7 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
     APIRET rcExpr;
 
     if (StrSetCreate(&hIds) != NO_ERROR) {
-        fprintf(stderr, "ERROR: out of memory\n");
+        fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         g_ulErrorCount++;
         return;
     }
@@ -202,9 +249,7 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
     if (rcExpr == SPDX_EXPR_SYNTAX_ERROR) {
         fprintf(stderr,
                 "ERROR: %s: invalid SPDX license expression: '%s'\n"
-                "       Fix the expression according to the SPDX grammar:\n"
-                "         https://spdx.github.io/spdx-spec/v2.3/"
-                "SPDX-license-expressions/\n",
+                "       [SPDX 2.3 Annex D]\n",
                 pszFullPath, pszLicense);
         g_ulErrorCount++;
     } else if (rcExpr == SPDX_EXPR_UNKNOWN_TOKEN) {
@@ -213,23 +258,19 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
         PrintBadToken(pszBad);
         fprintf(stderr,
                 "'\n"
-                "       Not present in SPDX License List. Fix one of:\n"
-                "         - correct the identifier;\n"
-                "         - if it is a custom license, prefix it with "
-                "'LicenseRef-' and add the text to LICENSES/;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml.\n"
-                "       See https://spdx.org/licenses/ for the full list.\n");
+                "       [SPDX 2.3 Annex D]\n");
         g_ulErrorCount++;
     } else if (rcExpr == SPDXDB_ERROR_LICENSES ||
                rcExpr == SPDXDB_ERROR_EXCEPTIONS) {
         fprintf(stderr,
-                "ERROR: %s: SPDX database is not loaded.\n"
-                "       Cannot validate SPDX identifiers.\n",
+                "ERROR: %s: SPDX database is not loaded. "
+                "Cannot validate SPDX identifiers. [not in spec]\n",
                 pszFullPath);
         g_ulErrorCount++;
     } else if (rcExpr != NO_ERROR) {
         fprintf(stderr,
-                "ERROR: %s: cannot validate SPDX expression (code %lu).\n",
+                "ERROR: %s: cannot validate SPDX expression "
+                "(code %lu). [not in spec]\n",
                 pszFullPath, (unsigned long)rcExpr);
         g_ulErrorCount++;
     }
@@ -250,14 +291,7 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
                 if (fDepLic || fDepExc) {
                     fprintf(stderr,
                             "WARNING: %s: deprecated SPDX identifier "
-                            "'%s'.\n"
-                            "         The SPDX License List marks this "
-                            "identifier deprecated.\n"
-                            "         Replace it with the current "
-                            "identifier (usually a '-only' or "
-                            "'-or-later' variant).\n"
-                            "         See https://spdx.org/licenses/ "
-                            "for the recommended replacement.\n",
+                            "'%s'. [SPDX 2.3 License List]\n",
                             pszFullPath, achId);
                     g_ulWarningCount++;
                 }
@@ -296,12 +330,8 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses) {
         if (!pS->pszLicense || pS->pszLicense[0] == '\0') {
             fprintf(stderr,
                     "ERROR: %s:%lu-%lu: snippet has no "
-                    "SPDX-License-Identifier.\n"
-                    "       Fix one of:\n"
-                    "         - add 'SPDX-License-Identifier: <id>' inside "
-                    "the snippet block;\n"
-                    "         - or remove SPDX-SnippetBegin/SPDX-SnippetEnd "
-                    "if the code is not a snippet.\n",
+                    "SPDX-License-Identifier. "
+                    "[REUSE 3.3 In-line Snippet comments]\n",
                     pszFullPath,
                     (unsigned long)pS->ulLineStart,
                     (unsigned long)pS->ulLineEnd);
@@ -323,9 +353,8 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses) {
         if (!pS->pszCopyright || pS->pszCopyright[0] == '\0') {
             fprintf(stderr,
                     "WARNING: %s:%lu-%lu: snippet has no "
-                    "SPDX-SnippetCopyrightText.\n"
-                    "         REUSE recommends adding a copyright notice\n"
-                    "         inside the snippet.\n",
+                    "SPDX-SnippetCopyrightText. "
+                    "[REUSE 3.3 In-line Snippet comments]\n",
                     pszFullPath,
                     (unsigned long)pS->ulLineStart,
                     (unsigned long)pS->ulLineEnd);
@@ -351,22 +380,13 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
                         HSTRSET hUsedLicenses) {
     REUSELICENSEINFO lic;
     FILE *fp;
-    PCSZ pszWcc;
-
-#ifdef __LINUX__
-    pszWcc = "_wcc.sh";
-#else
-    pszWcc = "_wcc.cmd";
-#endif
 
     g_ulTotalFiles++;
 
     fp = fopen(pszFullPath, "rb");
     if (!fp) {
         fprintf(stderr,
-                "ERROR: cannot read file: %s\n"
-                "       Fix file permissions or remove it from the "
-                "project.\n",
+                "ERROR: cannot read file: %s [not in spec]\n",
                 pszFullPath);
         g_ulErrorCount++;
         g_ulReadErrors++;
@@ -378,88 +398,89 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
                             g_pszDefaultLicense, g_pszDefaultCopyright,
                             &lic) != NO_ERROR) {
         fprintf(stderr,
-                "ERROR: %s has no licensing information at all.\n"
-                "       REUSE requires each file to carry both license and\n"
-                "       copyright information.\n"
-                "       Fix one of:\n"
-                "         - add 'SPDX-License-Identifier' and "
-                "'SPDX-FileCopyrightText' tags in the file header;\n"
-                "         - or create a sidecar '<file>.license' next to it;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate' to write them.\n"
-                "       See https://reuse.software/spec/ for details.\n",
-                pszFullPath, pszWcc);
+                "ERROR: %s: license and copyright are missing.\n"
+                "       Run '%s annotate' to write the license\n"
+                "       \"%s\"\n"
+                "       and the copyright\n"
+                "       \"%s\"\n"
+                "       into the file, or add a sidecar/REUSE.toml "
+                "entry.\n"
+                "       [REUSE 3.3 Licensing Information]\n",
+                pszFullPath, WCC_CMD,
+                g_pszDefaultLicense ? g_pszDefaultLicense : "",
+                g_pszDefaultCopyright ? g_pszDefaultCopyright : "");
         g_ulErrorCount++;
         return;
     }
 
     if (lic.fLicenseFromDefault) {
         fprintf(stderr,
-                "WARNING: %s: license is taken from --default-license.\n"
-                "         REUSE does not allow a global CLI fallback.\n"
+                "WARNING: %s: license is missing.\n"
                 "         Run '%s annotate' to write the license\n"
+                "         \"%s\"\n"
                 "         into the file, or add a sidecar/REUSE.toml "
-                "entry.\n",
-                pszFullPath, pszWcc);
+                "entry.\n"
+                "         [REUSE 3.3 Licensing Information]\n",
+                pszFullPath, WCC_CMD,
+                g_pszDefaultLicense ? g_pszDefaultLicense : "");
         g_ulWarningCount++;
     }
     if (lic.fCopyrightFromDefault) {
         fprintf(stderr,
-                "WARNING: %s: copyright is taken from "
-                "--default-copyright.\n"
-                "         REUSE does not allow a global CLI fallback.\n"
+                "WARNING: %s: copyright is missing.\n"
                 "         Run '%s annotate' to write the copyright\n"
+                "         \"%s\"\n"
                 "         into the file, or add a sidecar/REUSE.toml "
-                "entry.\n",
-                pszFullPath, pszWcc);
+                "entry.\n"
+                "         [REUSE 3.3 Licensing Information]\n",
+                pszFullPath, WCC_CMD,
+                g_pszDefaultCopyright ? g_pszDefaultCopyright : "");
         g_ulWarningCount++;
     }
 
     if (lic.fLicenseTruncated) {
         fprintf(stderr,
-                "WARNING: %s: license value was truncated.\n"
-                "         The value is longer than the internal buffer.\n",
+                "WARNING: %s: license value was truncated. "
+                "[not in spec]\n",
                 pszFullPath);
         g_ulWarningCount++;
     }
     if (lic.fCopyrightTruncated) {
         fprintf(stderr,
-                "WARNING: %s: copyright value was truncated.\n"
-                "         The value is longer than the internal buffer.\n",
+                "WARNING: %s: copyright value was truncated. "
+                "[not in spec]\n",
                 pszFullPath);
         g_ulWarningCount++;
     }
 
     if (lic.achLicense[0] != '\0') {
-        g_ulFilesWithLicense++;
+        if (!lic.fLicenseFromDefault)
+            g_ulFilesWithLicense++;
     } else {
         fprintf(stderr,
-                "ERROR: %s has copyright information but no license "
-                "information.\n"
-                "       REUSE requires both.\n"
-                "       Fix one of:\n"
-                "         - add 'SPDX-License-Identifier: <id>' in the "
-                "file header;\n"
-                "         - or create '<file>.license' with the same tag;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate'.\n",
-                pszFullPath, pszWcc);
+                "ERROR: %s: license is missing.\n"
+                "       Run '%s annotate' to write the license\n"
+                "       \"%s\"\n"
+                "       into the file, or add a sidecar/REUSE.toml "
+                "entry.\n"
+                "       [REUSE 3.3 Licensing Information]\n",
+                pszFullPath, WCC_CMD,
+                g_pszDefaultLicense ? g_pszDefaultLicense : "");
         g_ulErrorCount++;
     }
     if (lic.achCopyright[0] != '\0') {
-        g_ulFilesWithCopyright++;
+        if (!lic.fCopyrightFromDefault)
+            g_ulFilesWithCopyright++;
     } else {
         fprintf(stderr,
-                "ERROR: %s has license information but no copyright "
-                "information.\n"
-                "       REUSE requires both.\n"
-                "       Fix one of:\n"
-                "         - add 'SPDX-FileCopyrightText: <holder>' in the "
-                "file header;\n"
-                "         - or create '<file>.license' with the same tag;\n"
-                "         - or add a [[annotations]] entry in REUSE.toml;\n"
-                "         - or run '%s annotate'.\n",
-                pszFullPath, pszWcc);
+                "ERROR: %s: copyright is missing.\n"
+                "       Run '%s annotate' to write the copyright\n"
+                "       \"%s\"\n"
+                "       into the file, or add a sidecar/REUSE.toml "
+                "entry.\n"
+                "       [REUSE 3.3 Licensing Information]\n",
+                pszFullPath, WCC_CMD,
+                g_pszDefaultCopyright ? g_pszDefaultCopyright : "");
         g_ulErrorCount++;
     }
 
@@ -532,7 +553,7 @@ int main(int argc, char *argv[]) {
             pszDir = argv[i];
         else {
             fprintf(stderr,
-                    "ERROR: unknown option: %s\n"
+                    "ERROR: unknown option: %s [not in spec]\n"
                     "       Run 'reuse-lint --help' for usage.\n",
                     argv[i]);
             GitIgnoreListFree(&gitignore_rules);
@@ -542,9 +563,9 @@ int main(int argc, char *argv[]) {
 
     if (!pszSpdxDbRoot) {
         fprintf(stderr,
-                "ERROR: SPDX database is not configured.\n"
+                "ERROR: SPDX database is not configured. "
+                "[not in spec]\n"
                 "       --spdx-db=<path> is required.\n"
-                "       Cannot validate SPDX identifiers. Aborting.\n"
                 "       Run 'reuse-lint --help' for usage.\n");
         GitIgnoreListFree(&gitignore_rules);
         return 1;
@@ -554,9 +575,8 @@ int main(int argc, char *argv[]) {
     if (rcDb & SPDXDB_ERROR_LICENSES) {
         fprintf(stderr,
                 "ERROR: SPDX license database is unavailable "
-                "(licenses.json not loaded).\n"
-                "       Expected at <spdx-db>/licenses.json.\n"
-                "       Cannot validate SPDX identifiers. Aborting.\n");
+                "(licenses.json not loaded). [not in spec]\n"
+                "       Expected at <spdx-db>/licenses.json.\n");
         SpdxCloseDatabase();
         GitIgnoreListFree(&gitignore_rules);
         return 1;
@@ -564,16 +584,15 @@ int main(int argc, char *argv[]) {
     if (rcDb & SPDXDB_ERROR_EXCEPTIONS) {
         fprintf(stderr,
                 "ERROR: SPDX exceptions database is unavailable "
-                "(exceptions.json not loaded).\n"
-                "       Expected at <spdx-db>/exceptions.json.\n"
-                "       Cannot validate SPDX identifiers. Aborting.\n");
+                "(exceptions.json not loaded). [not in spec]\n"
+                "       Expected at <spdx-db>/exceptions.json.\n");
         SpdxCloseDatabase();
         GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
     if (rcDb & SPDXDB_ERROR_CACHE)
         fprintf(stderr,
-                "WARNING: cache could not be written.\n"
+                "WARNING: cache could not be written. [not in spec]\n"
                 "         Next run will re-parse JSON indexes.\n");
 
     {
@@ -595,7 +614,8 @@ int main(int argc, char *argv[]) {
         APIRET rc = ReuseTreeOpen(pszDir, &hTree);
         if (rc != NO_ERROR) {
             fprintf(stderr,
-                    "ERROR: cannot open REUSE project at %s\n"
+                    "ERROR: cannot open REUSE project at %s. "
+                    "[not in spec]\n"
                     "       The directory is missing or unreadable.\n",
                     pszDir);
             GitIgnoreListFree(&gitignore_rules);
@@ -619,7 +639,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (StrSetCreate(&hUsedLicenses) != NO_ERROR) {
-        fprintf(stderr, "ERROR: out of memory\n");
+        fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
@@ -636,7 +656,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (StrSetCreate(&hPaths) != NO_ERROR) {
-        fprintf(stderr, "ERROR: out of memory\n");
+        fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         StrSetDestroy(hUsedLicenses);
         ReuseTreeClose(hTree);
         GitIgnoreListFree(&gitignore_rules);
@@ -647,7 +667,7 @@ int main(int argc, char *argv[]) {
 
     if (ReuseDiscoverWalkTree(pszDir, &walk_opts, hPaths) != NO_ERROR) {
         fprintf(stderr,
-                "ERROR: cannot walk tree: %s\n"
+                "ERROR: cannot walk tree: %s [not in spec]\n"
                 "       Check that the directory exists and is "
                 "readable.\n",
                 pszDir);
@@ -684,7 +704,7 @@ int main(int argc, char *argv[]) {
         g_ulWarningCount += ulLicWarnings;
         ReuseLicensesReportFree(hLicReport);
     } else {
-        fprintf(stderr, "ERROR: out of memory\n");
+        fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         g_ulErrorCount++;
     }
 

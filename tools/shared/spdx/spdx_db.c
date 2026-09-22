@@ -488,7 +488,7 @@ static PSZ *parse_string_array(HJSONNODE hArr) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET load_licenses_index(PCSZ pszPath) {
-    CHAR achBuf[65536];
+    PSZ pszHeap;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
@@ -500,29 +500,18 @@ static APIRET load_licenses_index(PCSZ pszPath) {
     rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
     if (rc != NO_ERROR) return rc;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        rc = SpdxReadFileAll(pszPath, achBuf, sizeof(achBuf), NULL);
-        if (rc != NO_ERROR) return rc;
-    } else {
-        PSZ pszHeap;
-        rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
-        if (rc != NO_ERROR) return rc;
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
-        rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
-        if (rc != NO_ERROR) { free(pszHeap); return rc; }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
 
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return ERROR_INVALID_DATA;
-        }
+    rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
+    if (rc != NO_ERROR) { free(pszHeap); return rc; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
-        goto parse;
+        return ERROR_INVALID_DATA;
     }
+    free(pszHeap);
 
-    if (JsonParse(achBuf, &hDoc) != NO_ERROR) return ERROR_INVALID_DATA;
-
-parse:
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) {
         JsonClose(hDoc);
         return ERROR_INVALID_DATA;
@@ -586,7 +575,7 @@ parse:
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET load_exceptions_index(PCSZ pszPath) {
-    CHAR achBuf[65536];
+    PSZ pszHeap;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
     HJSONNODE hArr = NULLHANDLE;
@@ -598,29 +587,18 @@ static APIRET load_exceptions_index(PCSZ pszPath) {
     rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
     if (rc != NO_ERROR) return rc;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        rc = SpdxReadFileAll(pszPath, achBuf, sizeof(achBuf), NULL);
-        if (rc != NO_ERROR) return rc;
-    } else {
-        PSZ pszHeap;
-        rc = SpdxReadFileAll(pszPath, NULL, 0, &ulNeeded);
-        if (rc != NO_ERROR) return rc;
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
-        rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
-        if (rc != NO_ERROR) { free(pszHeap); return rc; }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return ERROR_NOT_ENOUGH_MEMORY;
 
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return ERROR_INVALID_DATA;
-        }
+    rc = SpdxReadFileAll(pszPath, pszHeap, ulNeeded, NULL);
+    if (rc != NO_ERROR) { free(pszHeap); return rc; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
-        goto parse;
+        return ERROR_INVALID_DATA;
     }
+    free(pszHeap);
 
-    if (JsonParse(achBuf, &hDoc) != NO_ERROR) return ERROR_INVALID_DATA;
-
-parse:
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) {
         JsonClose(hDoc);
         return ERROR_INVALID_DATA;
@@ -873,7 +851,6 @@ static int write_license_detail_from_json(FILE *f, PCSZ pszId,
                                           PULONG pulOffset,
                                           PULONG pulSize) {
     CHAR achPath[2048];
-    CHAR achBuf[65536];
     ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
@@ -888,21 +865,17 @@ static int write_license_detail_from_json(FILE *f, PCSZ pszId,
     arc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
     if (arc != NO_ERROR) return -1;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        arc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
-        if (arc != NO_ERROR) return -1;
-        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
-    } else {
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return -1;
-        arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
-        if (arc != NO_ERROR) { free(pszHeap); return -1; }
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return -1;
-        }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return -1;
+
+    arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+    if (arc != NO_ERROR) { free(pszHeap); return -1; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
+        return -1;
     }
+    free(pszHeap);
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
@@ -941,7 +914,6 @@ static int write_exception_detail_from_json(FILE *f, PCSZ pszId,
                                             PULONG pulOffset,
                                             PULONG pulSize) {
     CHAR achPath[2048];
-    CHAR achBuf[65536];
     ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
@@ -956,21 +928,17 @@ static int write_exception_detail_from_json(FILE *f, PCSZ pszId,
     arc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
     if (arc != NO_ERROR) return -1;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        arc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
-        if (arc != NO_ERROR) return -1;
-        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
-    } else {
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return -1;
-        arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
-        if (arc != NO_ERROR) { free(pszHeap); return -1; }
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return -1;
-        }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return -1;
+
+    arc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+    if (arc != NO_ERROR) { free(pszHeap); return -1; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
+        return -1;
     }
+    free(pszHeap);
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
@@ -1343,7 +1311,6 @@ static int read_detail_from_cache(ULONG ulOffset, ULONG ulSize,
  */
 static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
     CHAR achPath[2048];
-    CHAR achBuf[65536];
     ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
@@ -1356,21 +1323,17 @@ static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
     rc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
     if (rc != NO_ERROR) return -1;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        rc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
-        if (rc != NO_ERROR) return -1;
-        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
-    } else {
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return -1;
-        rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
-        if (rc != NO_ERROR) { free(pszHeap); return -1; }
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return -1;
-        }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return -1;
+
+    rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+    if (rc != NO_ERROR) { free(pszHeap); return -1; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
+        return -1;
     }
+    free(pszHeap);
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 
@@ -1395,7 +1358,6 @@ static int read_license_detail_from_dir(PSPDXLICENSEENTRY pEntry) {
  */
 static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
     CHAR achPath[2048];
-    CHAR achBuf[65536];
     ULONG ulNeeded = 0;
     HJSONDOC hDoc = NULLHANDLE;
     HJSONNODE hRoot = NULLHANDLE;
@@ -1408,21 +1370,17 @@ static int read_exception_detail_from_dir(PSPDXEXCEPTIONENTRY pEntry) {
     rc = SpdxReadFileAll(achPath, NULL, 0, &ulNeeded);
     if (rc != NO_ERROR) return -1;
 
-    if (ulNeeded <= sizeof(achBuf)) {
-        rc = SpdxReadFileAll(achPath, achBuf, sizeof(achBuf), NULL);
-        if (rc != NO_ERROR) return -1;
-        if (JsonParse(achBuf, &hDoc) != NO_ERROR) return -1;
-    } else {
-        pszHeap = (PSZ)malloc(ulNeeded);
-        if (!pszHeap) return -1;
-        rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
-        if (rc != NO_ERROR) { free(pszHeap); return -1; }
-        if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
-            free(pszHeap);
-            return -1;
-        }
+    pszHeap = (PSZ)malloc(ulNeeded);
+    if (!pszHeap) return -1;
+
+    rc = SpdxReadFileAll(achPath, pszHeap, ulNeeded, NULL);
+    if (rc != NO_ERROR) { free(pszHeap); return -1; }
+
+    if (JsonParse(pszHeap, &hDoc) != NO_ERROR) {
         free(pszHeap);
+        return -1;
     }
+    free(pszHeap);
 
     if (JsonRoot(hDoc, &hRoot) != NO_ERROR) { JsonClose(hDoc); return -1; }
 

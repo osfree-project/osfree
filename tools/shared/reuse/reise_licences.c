@@ -601,6 +601,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
             do {
                 CHAR achFname[512];
                 CHAR achBase[256];
+                CHAR achFullPath[1200];
                 BOOL fDepLic = FALSE;
                 BOOL fDepExc = FALSE;
 
@@ -608,12 +609,19 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
                         != NO_ERROR)
                     continue;
 
+#ifdef __LINUX__
+                snprintf(achFullPath, sizeof(achFullPath), "%s/%s",
+                         achLicPath, achFname);
+#else
+                snprintf(achFullPath, sizeof(achFullPath), "%s\\%s",
+                         achLicPath, achFname);
+#endif
+
                 StripLicenseExt(achFname, achBase, sizeof(achBase));
 
                 if (!IsValidSpdxName(achBase)) {
                     rc = AppendRecord(hReport, REUSE_LICENSES_BAD_NAME,
-                                      REUSE_SEV_ERROR, achFname,
-                                      "name is not a valid SPDX identifier");
+                                      REUSE_SEV_ERROR, achFullPath, "");
                     if (rc != NO_ERROR) {
                         StrSetEnumClose(hEnum);
                         StrSetDestroy(hFilesInLic);
@@ -624,8 +632,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
 
                 if (!HasExtension(achFname)) {
                     rc = AppendRecord(hReport, REUSE_LICENSES_NO_EXTENSION,
-                                      REUSE_SEV_WARNING, achFname,
-                                      "license file has no extension");
+                                      REUSE_SEV_WARNING, achFullPath, "");
                     if (rc != NO_ERROR) {
                         StrSetEnumClose(hEnum);
                         StrSetDestroy(hFilesInLic);
@@ -637,8 +644,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
                 SpdxQueryExceptionDeprecated(achBase, &fDepExc);
                 if (fDepLic || fDepExc) {
                     rc = AppendRecord(hReport, REUSE_LICENSES_DEPRECATED_ID,
-                                      REUSE_SEV_WARNING, achFname,
-                                      "identifier is deprecated by SPDX");
+                                      REUSE_SEV_WARNING, achFullPath, achBase);
                     if (rc != NO_ERROR) {
                         StrSetEnumClose(hEnum);
                         StrSetDestroy(hFilesInLic);
@@ -657,17 +663,25 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
             do {
                 CHAR achFname[512];
                 CHAR achBase[256];
+                CHAR achFullPath[1200];
 
                 if (StrSetEnumGet(hEnum, achFname, sizeof(achFname), NULL)
                         != NO_ERROR)
                     continue;
 
+#ifdef __LINUX__
+                snprintf(achFullPath, sizeof(achFullPath), "%s/%s",
+                         achLicPath, achFname);
+#else
+                snprintf(achFullPath, sizeof(achFullPath), "%s\\%s",
+                         achLicPath, achFname);
+#endif
+
                 StripLicenseExt(achFname, achBase, sizeof(achBase));
 
                 if (!StrSetHas(hUsedLicenses, achBase)) {
                     rc = AppendRecord(hReport, REUSE_LICENSES_UNUSED_FILE,
-                                      REUSE_SEV_ERROR, achFname,
-                                      "file is not used by any license");
+                                      REUSE_SEV_ERROR, achFullPath, "");
                     if (rc != NO_ERROR) {
                         StrSetEnumClose(hEnum);
                         StrSetDestroy(hFilesInLic);
@@ -708,7 +722,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
                     SpdxQueryExceptionValid(achLic, &fIsExcValid);
                     if (!fIsLicValid && !fIsExcValid) {
                         rc = AppendRecord(hReport,
-                                          REUSE_LICENSES_BAD_NAME,
+                                          REUSE_LICENSES_BAD_ID,
                                           REUSE_SEV_ERROR, "",
                                           achLic);
                         if (rc != NO_ERROR) {

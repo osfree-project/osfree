@@ -2,13 +2,17 @@
 
 SPDX_LINT     = reuse-lint.exe
 SPDX_ANNOTATE = reuse-annotate.exe
-SPDX_SBOM     = reuse-sbom.exe
+SPDX_SBOM     = spdx-sbom.exe
 SPDX_MERGE    = spdx-merge.exe
 
-SPDX_DB       = $(ROOT)licenses
+SPDX_DB       = $(ROOT)licenses_db
 
 !ifndef COPYRIGHT
-COPYRIGHT = Copyright (C) 2025 osFree Project
+COPYRIGHT = Copyright (C) 2026 osFree Project
+!endif
+
+!ifndef LICENSE
+LICENSE = BSD-3-Clause
 !endif
 
 # ------------------------------------------------------------
