@@ -1,4 +1,9 @@
-/* res.c - extract source file names from .res files (C89)
+/*!
+ * @file res.c
+ *
+ * @brief Implementation of the .res source extractor.
+ *
+ * Extract source file names from .res files (C89).
  *
  * Resource file format (Microsoft Resource Compiler, also used by
  * OpenWatcom and Borland):
@@ -12,8 +17,8 @@
  *
  *   ResourceType / ResourceName:
  *     - If the first WORD is 0xFFFF: ordinal (next WORD is the value).
- *     - Otherwise: length (WORD) followed by a string. Usually UTF-16,
- *       but ASCII is also possible.
+ *     - Otherwise: length (WORD) followed by a string. Usually
+ *       UTF-16, but ASCII is also possible.
  *
  *   After the header come DataSize bytes of resource data, followed
  *   by padding to a 4-byte boundary.
@@ -28,6 +33,9 @@
  *   char  name[len]
  *
  * Terminated by a record with time = 0 and len = 0.
+ *
+ * See the file header for the resource format description and
+ * references.
  *
  * References:
  *   - Microsoft Resource File Formats.
@@ -45,28 +53,26 @@
 #include <stddef.h>
 #include "res.h"
 
-/**
- * @file res.c
- * @brief Implementation of the .res source extractor.
- *
- * See the file header for the resource format description and
- * references.
+/*!
+ * @brief Resource type carrying the dependency list.
  */
-
-/** @brief Resource type carrying the dependency list. */
 #define DEP_LIST_TYPE 0x0079
 
-/** @brief Resource name carrying the dependency list. */
+/*!
+ * @brief Resource name carrying the dependency list.
+ */
 static const CHAR achDepListName[] = "EBWF_XFMMTUPPE";
 
-/** @brief Maximum length of a single extracted name. */
+/*!
+ * @brief Maximum length of a single extracted name.
+ */
 #define RES_NAME_MAX 512
 
 /* ------------------------------------------------------------------ */
 /* Little-endian readers                                               */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read a 2-byte little-endian unsigned integer.
  *
  * @param[in] puchPos  Pointer to two bytes. Not NULL.
@@ -78,7 +84,7 @@ static unsigned int read_u16le(const UCHAR *puchPos) {
            ((unsigned int)puchPos[1] << 8);
 }
 
-/**
+/*!
  * @brief Read a 4-byte little-endian unsigned integer.
  *
  * @param[in] puchPos  Pointer to four bytes. Not NULL.
@@ -96,7 +102,7 @@ static ULONG read_u32le(const UCHAR *puchPos) {
 /* Resource header parsing                                             */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read a resource header field (type or name).
  *
  * A field is either an ordinal (first WORD == 0xFFFF) or a
@@ -115,6 +121,8 @@ static ULONG read_u32le(const UCHAR *puchPos) {
  *                            @p pszExpectName. May be NULL.
  *
  * @return Offset just past the field, or 0 on parse error.
+ *
+ * @retval 0  Parse error or truncated field.
  */
 static size_t read_res_header_field(const UCHAR *puchBuf,
                                     size_t cbBufSize,
@@ -184,7 +192,7 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
 /* DepInfo parsing                                                     */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Parse the DepInfo records of the dependency resource.
  *
  * @param[in] puchData     Payload bytes. Not NULL.
@@ -192,6 +200,7 @@ static size_t read_res_header_field(const UCHAR *puchBuf,
  * @param[in] hOut         Destination set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
@@ -229,13 +238,14 @@ static APIRET parse_depinfo(const UCHAR *puchData, size_t cbDataSize,
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Extract source file names from a .res file.
  *
  * @param[in] pszPath  Path to the .res file. Not NULL.
  * @param[in] hOut     Destination string set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszPath is NULL, or hOut is
  *                                  NULLHANDLE.
