@@ -1,5 +1,14 @@
-/* reuse_licenses.c - LICENSES/ directory handling, REUSE 3.3
- * (C89 + Watcom extensions) */
+/*!
+ * @file reuse_licences.c
+ *
+ * @brief Implementation of the LICENSES/ directory handling.
+ *
+ * LICENSES/ directory handling, REUSE 3.3 (C89 + Watcom extensions).
+ *
+ * Conforms to:
+ *   - REUSE Specification 3.3, §3.2.
+ *     https://reuse.software/spec-3.3/
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,43 +28,38 @@
 #include <sys/stat.h>
 #endif
 
-/**
- * @file reuse_licenses.c
- * @brief Implementation of the LICENSES/ directory handling.
- *
- * Conforms to:
- *   - REUSE Specification 3.3, §3.2.
- *     https://reuse.software/spec-3.3/
- */
-
 /* ==================================================================
  * Internal control block
  * ================================================================== */
 
-/** @brief Magic value identifying a valid report handle. */
+/*!
+ * @brief Magic value identifying a valid report handle.
+ */
 #define CCL_REUSELICREP_MAGIC 0x524C4350UL  /* "RLCP" */
 
-/**
+/*!
  * @struct _REUSELICREPORT
  * @brief Control block of an open report.
  */
 typedef struct _REUSELICREPORT {
-    unsigned long ulMagic;      /**< CCL_REUSELICREP_MAGIC.          */
-    REUSEERR     *paRecords;    /**< Backing array, or NULL.         */
-    ULONG         ulCount;      /**< Used entries.                   */
-    ULONG         ulCapacity;   /**< Allocated entries.              */
+    unsigned long ulMagic;      /*!< CCL_REUSELICREP_MAGIC. */
+    REUSEERR     *paRecords;    /*!< Backing array, or NULL. */
+    ULONG         ulCount;      /*!< Used entries.          */
+    ULONG         ulCapacity;   /*!< Allocated entries.     */
 } REUSELICREPORT;
 
 /* ==================================================================
  * Internal helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Translate a public report handle into the internal pointer.
  *
  * @param[in] hReport  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL if the handle is invalid.
+ * @return Internal pointer, or NULL on failure.
+ *
+ * @retval NULL  hReport is NULLHANDLE or its magic does not match.
  */
 static REUSELICREPORT *get_report(HREUSELICENSEREPORT hReport) {
     REUSELICREPORT *pCtl;
@@ -65,7 +69,7 @@ static REUSELICREPORT *get_report(HREUSELICENSEREPORT hReport) {
     return pCtl;
 }
 
-/**
+/*!
  * @brief Append one record to a report.
  *
  * A NULLHANDLE report is accepted; the record is dropped.
@@ -78,6 +82,7 @@ static REUSELICREPORT *get_report(HREUSELICENSEREPORT hReport) {
  * @param[in] pszDetail  Human-readable detail, or NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success, or hReport is
  *                                  NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
@@ -113,12 +118,15 @@ static APIRET AppendRecord(HREUSELICENSEREPORT hReport,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query whether a name is a valid SPDX license or exception.
  *
  * @param[in] pszName  Name. Not NULL.
  *
- * @return TRUE if the name is valid.
+ * @return TRUE if the name is valid, FALSE otherwise.
+ *
+ * @retval TRUE   Known license or exception.
+ * @retval FALSE  Not found in either list.
  */
 static BOOL IsValidSpdxName(PCSZ pszName) {
     BOOL fValid = FALSE;
@@ -131,12 +139,15 @@ static BOOL IsValidSpdxName(PCSZ pszName) {
     return FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a file name has an extension.
  *
  * @param[in] pszName  File name. Not NULL.
  *
  * @return TRUE if the name contains a '.' that is not at position 0.
+ *
+ * @retval TRUE   Contains a dot not at position 0.
+ * @retval FALSE  No dot, or dot at position 0.
  */
 static BOOL HasExtension(PCSZ pszName) {
     PCSZ pszDot = strrchr(pszName, '.');
@@ -144,7 +155,7 @@ static BOOL HasExtension(PCSZ pszName) {
     return (pszDot != pszName) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Strip the license extension, or recognise the whole name.
  *
  * @param[in]  pszFname   File name. Not NULL.
@@ -172,13 +183,16 @@ static void StripLicenseExt(PCSZ pszFname, PSZ pszBase, ULONG ulBaseSize) {
     }
 }
 
-/**
+/*!
  * @brief Query whether a string set contains a string.
  *
  * @param[in] hSet    Set. May be NULLHANDLE.
  * @param[in] pszStr  String. Not NULL.
  *
- * @return TRUE if present.
+ * @return TRUE if present, FALSE otherwise.
+ *
+ * @retval TRUE   The set contains the string.
+ * @retval FALSE  Not present, or hSet is NULLHANDLE.
  */
 static BOOL StrSetHas(HSTRSET hSet, PCSZ pszStr) {
     BOOL fFound = FALSE;
@@ -187,12 +201,14 @@ static BOOL StrSetHas(HSTRSET hSet, PCSZ pszStr) {
     return fFound ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Read a whole file into a heap string.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return malloc'd NUL-terminated content, or NULL on error.
+ * @return malloc'd NUL-terminated content, or NULL on failure.
+ *
+ * @retval NULL  Read error or allocation failure.
  */
 static PSZ ReadFileToHeap(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -209,12 +225,14 @@ static PSZ ReadFileToHeap(PCSZ pszPath) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Normalize text into a heap string.
  *
  * @param[in] pszSrc  Source text. Not NULL.
  *
- * @return malloc'd normalized text, or NULL on error.
+ * @return malloc'd normalized text, or NULL on failure.
+ *
+ * @retval NULL  Normalization error or allocation failure.
  */
 static PSZ NormalizeToHeap(PCSZ pszSrc) {
     ULONG ulSize = 0;
@@ -231,7 +249,7 @@ static PSZ NormalizeToHeap(PCSZ pszSrc) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Fetch the license or exception text for an identifier.
  *
  * Tries the license table first, then the exception table. Internal
@@ -240,6 +258,8 @@ static PSZ NormalizeToHeap(PCSZ pszSrc) {
  * @param[in] pszId  Identifier. Not NULL.
  *
  * @return malloc'd text, or NULL if not found.
+ *
+ * @retval NULL  Not found in either table, or allocation failure.
  */
 static PSZ GetDbTextHeap(PCSZ pszId) {
     ULONG ulSize = 0;
@@ -268,12 +288,15 @@ static PSZ GetDbTextHeap(PCSZ pszId) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Query whether a path exists.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return TRUE if the path exists.
+ * @return TRUE if the path exists, FALSE otherwise.
+ *
+ * @retval TRUE   Path exists.
+ * @retval FALSE  Path does not exist.
  */
 static BOOL FileExists(PCSZ pszPath) {
 #ifdef __LINUX__
@@ -283,12 +306,13 @@ static BOOL FileExists(PCSZ pszPath) {
 #endif
 }
 
-/**
+/*!
  * @brief Create a directory, ignoring an existing one.
  *
  * @param[in] pszPath  Directory path. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR          Created or already existed.
  * @retval ERROR_OPEN_FAILED Cannot create and does not exist.
  */
@@ -303,13 +327,14 @@ static APIRET MakeDirectory(PCSZ pszPath) {
     return ERROR_OPEN_FAILED;
 }
 
-/**
+/*!
  * @brief Write a text to a file, replacing its content.
  *
  * @param[in] pszPath  Destination path. Not NULL.
  * @param[in] pszText  Text to write, or NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR          Success.
  * @retval ERROR_OPEN_FAILED Cannot open for writing.
  * @retval ERROR_READ_FAULT  Write error.
@@ -325,7 +350,7 @@ static APIRET WriteTextFile(PCSZ pszPath, PCSZ pszText) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build the path of the LICENSES/ directory.
  *
  * @param[out] pszDst     Destination. Not NULL.
@@ -340,7 +365,7 @@ static void BuildLicensesPath(PSZ pszDst, ULONG ulDstSize, PCSZ pszBase) {
 #endif
 }
 
-/**
+/*!
  * @brief Build the path of one license text file.
  *
  * @param[out] pszDst      Destination. Not NULL.
@@ -357,7 +382,7 @@ static void BuildLicenseFilePath(PSZ pszDst, ULONG ulDstSize,
 #endif
 }
 
-/**
+/*!
  * @brief Collect base names of all files in LICENSES/.
  *
  * The directory is flat (REUSE 3.3 §3.2); subdirectories are not
@@ -367,6 +392,7 @@ static void BuildLicenseFilePath(PSZ pszDst, ULONG ulDstSize,
  * @param[in]  hOut        Destination set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hOut is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     hOut is not recognized.
@@ -429,7 +455,7 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
 #endif
 }
 
-/**
+/*!
  * @brief Return the project root for the given handle.
  *
  * Uses the git repository root when available, otherwise the
@@ -437,8 +463,9 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
  *
  * @param[in] hTree  Project handle. Not NULLHANDLE.
  *
- * @return Path owned by the project handle, or NULL if the handle
- *         is invalid.
+ * @return Path owned by the project handle, or NULL on failure.
+ *
+ * @retval NULL  Handle is not recognized.
  */
 static PCSZ ProjectRoot(HREUSETREE hTree) {
     PREUSETREE pd = ReuseInternalGetDoc(hTree);
@@ -450,12 +477,13 @@ static PCSZ ProjectRoot(HREUSETREE hTree) {
  * Report lifecycle
  * ================================================================== */
 
-/**
+/*!
  * @brief Create an empty report.
  *
  * @param[out] phReport  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  phReport is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -473,12 +501,13 @@ APIRET APIENTRY ReuseLicensesReportCreate(PHREUSELICENSEREPORT phReport) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release a report.
  *
  * @param[in] hReport  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   hReport is not recognized.
  */
@@ -493,13 +522,14 @@ APIRET APIENTRY ReuseLicensesReportFree(HREUSELICENSEREPORT hReport) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Number of records in the report.
  *
  * @param[in]  hReport   Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hReport or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
@@ -512,7 +542,7 @@ APIRET APIENTRY ReuseLicensesReportGetCount(HREUSELICENSEREPORT hReport,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve one record by index.
  *
  * @param[in]  hReport  Handle. Not NULLHANDLE.
@@ -520,6 +550,7 @@ APIRET APIENTRY ReuseLicensesReportGetCount(HREUSELICENSEREPORT hReport,
  * @param[out] pErr     Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hReport or pErr is NULL.
  * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
@@ -539,7 +570,7 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
  * Validation
  * ================================================================== */
 
-/**
+/*!
  * @brief Validate the LICENSES/ directory of a project.
  *
  * @param[in] hTree          Project handle. Not NULLHANDLE.
@@ -548,6 +579,7 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
  * @param[in] hReport        Report handle, or NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Validation completed.
  * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
  *                                  NULLHANDLE.
@@ -821,7 +853,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  * Creation and update
  * ================================================================== */
 
-/**
+/*!
  * @brief Create or update the LICENSES/ directory of a project.
  *
  * @param[in] hTree          Project handle. Not NULLHANDLE.
@@ -832,6 +864,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  * @param[in] hReport        Report handle, or NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Completed.
  * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
  *                                  NULLHANDLE.

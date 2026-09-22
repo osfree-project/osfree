@@ -1,4 +1,12 @@
-/* reuse_discover.c - REUSE file discovery with .gitignore filtering (C89) */
+/*!
+ * @file reuse_discover.c
+ *
+ * @brief Implementation of the REUSE file discovery module.
+ *
+ * REUSE file discovery with .gitignore filtering (C89). See
+ * reuse_discover.h for the description of skip rules and
+ * references.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,24 +28,17 @@
 #include <io.h>
 #endif
 
-/**
- * @file reuse_discover.c
- * @brief Implementation of the REUSE file discovery module.
- *
- * See reuse_discover.h for the description of skip rules and
- * references.
- */
-
 /* ------------------------------------------------------------------ */
 /* Options                                                             */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Set walk options to their default values.
  *
  * @param[out] pOpts  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pOpts is NULL.
  */
@@ -62,12 +63,15 @@ APIRET APIENTRY ReuseSetDiscoverOptionsDefault(PREUSEDISCOVEROPTIONS pOpts) {
 /* Name checks                                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a name is a VCS directory.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if VCS directory, FALSE otherwise.
+ *
+ * @retval TRUE   Name is .git, .svn, .hg or .bzr.
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_vcs_dir(PCSZ pszName) {
     return (strcmp(pszName, ".git") == 0 ||
@@ -76,35 +80,44 @@ static BOOL is_vcs_dir(PCSZ pszName) {
             strcmp(pszName, ".bzr") == 0) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name is the LICENSES directory.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if "LICENSES", FALSE otherwise.
+ *
+ * @retval TRUE   Name is "LICENSES".
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_licenses_dir(PCSZ pszName) {
     return (strcmp(pszName, "LICENSES") == 0) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name is the .reuse directory.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if ".reuse", FALSE otherwise.
+ *
+ * @retval TRUE   Name is ".reuse".
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_reuse_dir(PCSZ pszName) {
     return (strcmp(pszName, ".reuse") == 0) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Case-insensitive string equality.
  *
  * @param[in] pszA  First string. Not NULL.
  * @param[in] pszB  Second string. Not NULL.
  *
  * @return TRUE if equal, FALSE otherwise.
+ *
+ * @retval TRUE   Equal under case-insensitive comparison.
+ * @retval FALSE  Otherwise.
  */
 static BOOL ieq(PCSZ pszA, PCSZ pszB) {
     while (*pszA && *pszB) {
@@ -116,14 +129,18 @@ static BOOL ieq(PCSZ pszA, PCSZ pszB) {
     return (*pszA == '\0' && *pszB == '\0') ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Case-insensitive prefix comparison.
  *
  * @param[in] pszStr     String to test. Not NULL.
  * @param[in] pszPrefix  Prefix. Not NULL.
  * @param[in] cbLen      Prefix length.
  *
- * @return TRUE if @p pszStr starts with @p pszPrefix, FALSE otherwise.
+ * @return TRUE if @p pszStr starts with @p pszPrefix, FALSE
+ *         otherwise.
+ *
+ * @retval TRUE   Prefix matches.
+ * @retval FALSE  Otherwise.
  */
 static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     size_t i;
@@ -136,7 +153,7 @@ static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     return TRUE;
 }
 
-/**
+/*!
  * @brief Query whether a name denotes a license text file.
  *
  * Recognized names: LICENSE, LICENCE, COPYING, UNLICENSE, COPYRIGHT
@@ -145,6 +162,9 @@ static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if license file, FALSE otherwise.
+ *
+ * @retval TRUE   Name is a license file.
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_license_file(PCSZ pszName) {
     static PCSZ apszExact[] = {
@@ -163,12 +183,15 @@ static BOOL is_license_file(PCSZ pszName) {
     return FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name denotes a .license sidecar file.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if sidecar, FALSE otherwise.
+ *
+ * @retval TRUE   Name ends with ".license".
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_license_sidecar(PCSZ pszName) {
     size_t cbLen = strlen(pszName);
@@ -176,29 +199,35 @@ static BOOL is_license_sidecar(PCSZ pszName) {
             strcmp(pszName + cbLen - 8, ".license") == 0) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name is REUSE.toml.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if "REUSE.toml", FALSE otherwise.
+ *
+ * @retval TRUE   Name is "REUSE.toml".
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_reuse_toml(PCSZ pszName) {
     return (strcmp(pszName, "REUSE.toml") == 0) ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name is hidden (starts with '.').
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if hidden, FALSE otherwise.
+ *
+ * @retval TRUE   Name starts with '.'.
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_hidden(PCSZ pszName) {
     return (pszName[0] == '.') ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a name denotes an SPDX document.
  *
  * Recognized suffixes: .spdx, .spdx.json, .spdx.yaml, .spdx.yml,
@@ -207,6 +236,9 @@ static BOOL is_hidden(PCSZ pszName) {
  * @param[in] pszName  Name. Not NULL.
  *
  * @return TRUE if SPDX document, FALSE otherwise.
+ *
+ * @retval TRUE   Name has an SPDX document suffix.
+ * @retval FALSE  Otherwise.
  */
 static BOOL is_spdx_document(PCSZ pszName) {
     size_t cbLen = strlen(pszName);
@@ -228,7 +260,7 @@ static BOOL is_spdx_document(PCSZ pszName) {
 /* Git filtering                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Path character comparison.
  *
  * Case-sensitive on Linux, case-insensitive on Windows.
@@ -237,6 +269,9 @@ static BOOL is_spdx_document(PCSZ pszName) {
  * @param[in] nB  Second character.
  *
  * @return TRUE if equal, FALSE otherwise.
+ *
+ * @retval TRUE   Equal under the platform rules.
+ * @retval FALSE  Otherwise.
  */
 static BOOL path_char_eq(int nA, int nB) {
 #ifdef _WIN32
@@ -247,7 +282,7 @@ static BOOL path_char_eq(int nA, int nB) {
 #endif
 }
 
-/**
+/*!
  * @brief Path prefix comparison using path_char_eq.
  *
  * @param[in] pszStr     String to test. Not NULL.
@@ -255,6 +290,9 @@ static BOOL path_char_eq(int nA, int nB) {
  * @param[in] cbLen      Prefix length.
  *
  * @return TRUE on match, FALSE otherwise.
+ *
+ * @retval TRUE   Prefix matches.
+ * @retval FALSE  Otherwise.
  */
 static BOOL path_prefix_eq(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     size_t i;
@@ -265,12 +303,14 @@ static BOOL path_prefix_eq(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
     return TRUE;
 }
 
-/**
+/*!
  * @brief Normalize a path to use '/' separators.
  *
  * @param[in] pszPath  Path to normalize. Not NULL.
  *
  * @return malloc'd normalized path, or NULL on OOM.
+ *
+ * @retval NULL  Allocation failure.
  */
 static PSZ to_slash(PCSZ pszPath) {
     size_t i;
@@ -283,14 +323,16 @@ static PSZ to_slash(PCSZ pszPath) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Return the path of @p pszFull relative to @p pszRoot.
  *
  * @param[in] pszRoot  Root directory. Not NULL.
  * @param[in] pszFull  Full path. Not NULL.
  *
- * @return malloc'd relative path, or NULL if @p pszFull is not under
- *         @p pszRoot or on OOM.
+ * @return malloc'd relative path, or NULL on failure.
+ *
+ * @retval NULL  @p pszFull is not under @p pszRoot, or allocation
+ *               failure.
  */
 static PSZ rel_path(PCSZ pszRoot, PCSZ pszFull) {
     size_t cbRootLen, cbFullLen;
@@ -327,7 +369,7 @@ static PSZ rel_path(PCSZ pszRoot, PCSZ pszFull) {
     return pszResult;
 }
 
-/**
+/*!
  * @brief Query whether a path should be skipped by .gitignore rules.
  *
  * @param[in] pOpts      Walk options. Not NULL.
@@ -335,6 +377,9 @@ static PSZ rel_path(PCSZ pszRoot, PCSZ pszFull) {
  * @param[in] fIsDir     TRUE for directories.
  *
  * @return TRUE if ignored, FALSE otherwise.
+ *
+ * @retval TRUE   Path is ignored.
+ * @retval FALSE  Otherwise.
  */
 static BOOL should_skip_by_gitignore(const REUSEDISCOVEROPTIONS *pOpts,
                                      PCSZ pszFull, BOOL fIsDir) {
@@ -362,13 +407,16 @@ static BOOL should_skip_by_gitignore(const REUSEDISCOVEROPTIONS *pOpts,
 /* Other filters                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a file should be skipped.
  *
  * @param[in] pszName  Base name. Not NULL.
  * @param[in] pOpts    Walk options. Not NULL.
  *
  * @return TRUE if skipped, FALSE otherwise.
+ *
+ * @retval TRUE   File is skipped.
+ * @retval FALSE  Otherwise.
  */
 static BOOL should_skip_file(PCSZ pszName,
                              const REUSEDISCOVEROPTIONS *pOpts) {
@@ -381,13 +429,16 @@ static BOOL should_skip_file(PCSZ pszName,
     return FALSE;
 }
 
-/**
+/*!
  * @brief Query whether a directory should be skipped.
  *
  * @param[in] pszName  Base name. Not NULL.
  * @param[in] pOpts    Walk options. Not NULL.
  *
  * @return TRUE if skipped, FALSE otherwise.
+ *
+ * @retval TRUE   Directory is skipped.
+ * @retval FALSE  Otherwise.
  */
 static BOOL should_skip_dir(PCSZ pszName,
                             const REUSEDISCOVEROPTIONS *pOpts) {
@@ -404,7 +455,7 @@ static BOOL should_skip_dir(PCSZ pszName,
 
 #ifdef __LINUX__
 
-/**
+/*!
  * @brief Walk a directory tree on Linux.
  *
  * @param[in] pszDirIn  Directory. Not NULL.
@@ -412,6 +463,7 @@ static BOOL should_skip_dir(PCSZ pszName,
  * @param[in] hOut      Destination string set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_OPEN_FAILED        Directory cannot be opened.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -470,7 +522,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
 
 #else
 
-/**
+/*!
  * @brief Walk a directory tree on Windows.
  *
  * @param[in] pszDirIn  Directory. Not NULL.
@@ -478,6 +530,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
  * @param[in] hOut      Destination string set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_OPEN_FAILED        Directory cannot be opened.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -535,7 +588,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
 
 #endif
 
-/**
+/*!
  * @brief Walk a directory tree and collect file paths.
  *
  * @param[in] pszDir  Root directory. Not NULL.
@@ -543,6 +596,7 @@ static APIRET walk_inner(PCSZ pszDirIn,
  * @param[in] hOut    Destination string set. Not NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszDir or pOpts is NULL, or hOut
  *                                  is NULLHANDLE.
@@ -561,19 +615,22 @@ APIRET APIENTRY ReuseDiscoverWalkTree(PCSZ pszDir,
 /* Build artifacts                                                     */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Collect source names from OMF objects and .res files.
  *
  * @param[in] papszObjectFiles  Array of OMF object paths.
  * @param[in] ulObjectCount     Number of entries.
  * @param[in] papszResFiles     Array of .res paths.
  * @param[in] ulResCount        Number of entries.
- * @param[in] hOut              Destination string set. Not NULLHANDLE.
+ * @param[in] hOut              Destination string set. Not
+ *                              NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 At least one source name found.
  * @retval ERROR_INVALID_PARAMETER  hOut is NULLHANDLE.
- * @retval ERROR_FILE_NOT_FOUND     No source names found in any file.
+ * @retval ERROR_FILE_NOT_FOUND     No source names found in any
+ *                                  file.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
@@ -612,7 +669,7 @@ APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
 /* Orchestrator                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Discover source files in a project.
  *
  * When object or resource artifacts are supplied, source names are
@@ -624,12 +681,14 @@ APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
  * @param[in] papszResFiles     Array of .res paths, or NULL.
  * @param[in] ulResCount        Number of entries.
  * @param[in] pOpts             Walk options. Not NULL.
- * @param[in] hOut              Destination string set. Not NULLHANDLE.
+ * @param[in] hOut              Destination string set. Not
+ *                              NULLHANDLE.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszProjectDir, pOpts is NULL, or
- *                                  hOut is NULLHANDLE.
+ * @retval ERROR_INVALID_PARAMETER  pszProjectDir or pOpts is NULL,
+ *                                  or hOut is NULLHANDLE.
  * @retval ERROR_OPEN_FAILED        A directory cannot be opened.
  * @retval ERROR_FILE_NOT_FOUND     No sources discovered.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.

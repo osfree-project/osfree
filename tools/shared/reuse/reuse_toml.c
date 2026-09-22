@@ -1,16 +1,9 @@
-/* reuse_toml.c - REUSE.toml parser, OS/2 API style
- * (C89 + Watcom extensions) */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "reuse_toml.h"
-#include "reuse_toml_internal.h"
-#include "toml.h"
-
-/**
+/*!
  * @file reuse_toml.c
+ *
  * @brief Implementation of the REUSE.toml parser.
+ *
+ * REUSE.toml parser, OS/2 API style (C89 + Watcom extensions).
  *
  * Conforms to:
  *   - https://reuse.software/spec-3.3/
@@ -21,16 +14,25 @@
  *       interface).
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "reuse_toml.h"
+#include "reuse_toml_internal.h"
+#include "toml.h"
+
 /* ==================================================================
  * Small helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Convert a TOML node holding a string into a malloc'd string.
  *
  * @param[in] hNode  TOML node. Not NULLHANDLE.
  *
  * @return malloc'd string, or NULL on failure.
+ *
+ * @retval NULL  Node is not a string or allocation failed.
  */
 static PSZ node_to_str(HTOMLNODE hNode) {
     ULONG ulSize = 0;
@@ -51,13 +53,15 @@ static PSZ node_to_str(HTOMLNODE hNode) {
  * Field reading
  * ================================================================== */
 
-/**
+/*!
  * @brief Read a scalar string value from a TOML table.
  *
  * @param[in] hTable  TOML table. Not NULLHANDLE.
  * @param[in] pszKey  Key. Not NULL.
  *
- * @return malloc'd string, or NULL if absent or on failure.
+ * @return malloc'd string, or NULL on failure.
+ *
+ * @retval NULL  Key absent, wrong type, or allocation failed.
  */
 static PSZ read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
     HTOMLNODE hChild = NULLHANDLE;
@@ -66,7 +70,7 @@ static PSZ read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
     return node_to_str(hChild);
 }
 
-/**
+/*!
  * @brief Read a value that is either a string or an array of
  *        strings.
  *
@@ -76,7 +80,9 @@ static PSZ read_scalar_string(HTOMLNODE hTable, PCSZ pszKey) {
  * @param[in] pszKey  Key. Not NULL.
  * @param[in] pszSep  Separator. Not NULL.
  *
- * @return malloc'd string, or NULL if absent or on failure.
+ * @return malloc'd string, or NULL on failure.
+ *
+ * @retval NULL  Key absent, wrong type, or allocation failed.
  */
 static PSZ read_string_or_join(HTOMLNODE hTable, PCSZ pszKey,
                                PCSZ pszSep) {
@@ -126,13 +132,16 @@ static PSZ read_string_or_join(HTOMLNODE hTable, PCSZ pszKey,
     return pszResult;
 }
 
-/**
+/*!
  * @brief Append one path entry to an annotation.
  *
  * @param[in,out] pAnn    Annotation. Not NULL.
  * @param[in]     pszVal  Path value. Not NULL.
  *
  * @return 0 on success, -1 on allocation failure.
+ *
+ * @retval 0   Success.
+ * @retval -1  Allocation failed.
  */
 static int add_path(REUSEANN *pAnn, PCSZ pszVal) {
     PSZ *papszNew = (PSZ*)realloc(pAnn->papszPaths,
@@ -145,7 +154,7 @@ static int add_path(REUSEANN *pAnn, PCSZ pszVal) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read the "path" field of an annotation.
  *
  * Returns:
@@ -158,6 +167,11 @@ static int add_path(REUSEANN *pAnn, PCSZ pszVal) {
  * @param[out] pAnn    Annotation receiver. Not NULL.
  *
  * @return 0, -1, -2 or -3.
+ *
+ * @retval  0  Success.
+ * @retval -1  "path" key is absent.
+ * @retval -2  "path" has an unsupported type.
+ * @retval -3  Allocation failure.
  */
 static int read_paths_into(HTOMLNODE hTable, REUSEANN *pAnn) {
     HTOMLNODE hChild = NULLHANDLE;
@@ -194,13 +208,17 @@ static int read_paths_into(HTOMLNODE hTable, REUSEANN *pAnn) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read the "SPDX-FileContributor" field of an annotation.
  *
  * @param[in]  hTable  TOML table. Not NULLHANDLE.
  * @param[out] pAnn    Annotation receiver. Not NULL.
  *
  * @return 0 on success, -1 on wrong type, -2 on allocation failure.
+ *
+ * @retval  0  Success (field absent or parsed).
+ * @retval -1  Field has an unsupported type.
+ * @retval -2  Allocation failure.
  */
 static int read_contributors_into(HTOMLNODE hTable, REUSEANN *pAnn) {
     HTOMLNODE hChild = NULLHANDLE;
@@ -244,13 +262,15 @@ static int read_contributors_into(HTOMLNODE hTable, REUSEANN *pAnn) {
     return 0;
 }
 
-/**
+/*!
  * @brief Read the "precedence" field of an annotation.
  *
  * @param[in]  hTable  TOML table. Not NULLHANDLE.
  * @param[out] pAnn    Annotation receiver. Not NULL.
  *
  * @return 0 on success.
+ *
+ * @retval 0  Always.
  */
 static int read_precedence(HTOMLNODE hTable, REUSEANN *pAnn) {
     PSZ pszStr = read_scalar_string(hTable, "precedence");
@@ -265,17 +285,20 @@ static int read_precedence(HTOMLNODE hTable, REUSEANN *pAnn) {
     return 0;
 }
 
-/**
+/*!
  * @brief Parse one [[annotations]] entry.
  *
  * @param[in]  hItem  TOML table for the entry. Not NULLHANDLE.
  * @param[out] pAnn   Annotation receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                     Success.
  * @retval REUSE_ERROR_ANNOT_NO_PATH    "path" key absent.
- * @retval REUSE_ERROR_ANNOT_BAD_PATH   "path" has an unsupported type.
- * @retval REUSE_ERROR_ANNOT_BAD_FIELD  A field has an unsupported type.
+ * @retval REUSE_ERROR_ANNOT_BAD_PATH   "path" has an unsupported
+ *                                      type.
+ * @retval REUSE_ERROR_ANNOT_BAD_FIELD  A field has an unsupported
+ *                                      type.
  * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 static APIRET parse_one_annotation(HTOMLNODE hItem, REUSEANN *pAnn) {
@@ -316,7 +339,7 @@ static APIRET parse_one_annotation(HTOMLNODE hItem, REUSEANN *pAnn) {
  * Free helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Release all memory owned by one annotation.
  *
  * @param[in,out] pAnn  Annotation. Not NULL.
@@ -339,7 +362,7 @@ static void ann_free(REUSEANN *pAnn) {
     memset(pAnn, 0, sizeof(*pAnn));
 }
 
-/**
+/*!
  * @brief Release a parsed document and all its annotations.
  *
  * @param[in] pd  Document. May be NULL.
@@ -358,7 +381,7 @@ static void doc_free(PREUSETOMLDOC pd) {
  * Common scalar-out helper
  * ================================================================== */
 
-/**
+/*!
  * @brief Copy a string into a caller-supplied buffer.
  *
  * Size-query convention:
@@ -373,9 +396,11 @@ static void doc_free(PREUSETOMLDOC pd) {
  * @param[out] pulUsed   Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     pszValue is NULL.
- * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without
+ *                                  size-query.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 static APIRET copy_field_out(PCSZ pszValue,
@@ -402,23 +427,27 @@ static APIRET copy_field_out(PCSZ pszValue,
  * Handle helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Translate a public document handle into the internal
  *        pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL if h is NULLHANDLE.
+ * @return Internal pointer, or NULL on failure.
+ *
+ * @retval NULL  h is NULLHANDLE.
  */
 static PREUSETOMLDOC as_doc(HREUSETOML h) { return (PREUSETOMLDOC)h; }
 
-/**
+/*!
  * @brief Translate a public annotation handle into the internal
  *        pointer.
  *
  * @param[in] h  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL if h is NULLHANDLE.
+ * @return Internal pointer, or NULL on failure.
+ *
+ * @retval NULL  h is NULLHANDLE.
  */
 static PREUSEANN as_ann(HREUSEANN h) { return (PREUSEANN)h; }
 
@@ -426,7 +455,7 @@ static PREUSEANN as_ann(HREUSEANN h) { return (PREUSEANN)h; }
  * Public API
  * ================================================================== */
 
-/**
+/*!
  * @brief Open and parse a REUSE.toml file.
  *
  * Reads the file, verifies the mandatory "version = 1" key
@@ -437,6 +466,7 @@ static PREUSEANN as_ann(HREUSEANN h) { return (PREUSEANN)h; }
  *                      on error.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                      Success.
  * @retval ERROR_INVALID_PARAMETER       pszPath or phToml is NULL.
  * @retval ERROR_OPEN_FAILED             File cannot be opened.
@@ -553,7 +583,7 @@ APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Close a document and release all associated memory.
  *
  * All HREUSEANN handles obtained from this document become invalid.
@@ -561,6 +591,7 @@ APIRET APIENTRY ReuseOpen(PCSZ pszPath, HREUSETOML *phToml) {
  * @param[in] hToml  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE    Handle is not recognized.
  *
@@ -576,13 +607,14 @@ APIRET APIENTRY ReuseClose(HREUSETOML hToml) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the parsed "version" value (always 1 on success).
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[out] pllValue  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hToml or pllValue is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -594,7 +626,7 @@ APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the directory containing the REUSE.toml file.
  *
  * The value is the file path with the last path component removed.
@@ -606,6 +638,7 @@ APIRET APIENTRY ReuseGetVersion(HREUSETOML hToml, PLONGLONG pllValue) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hToml is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -620,13 +653,14 @@ APIRET APIENTRY ReuseGetSourceDir(HREUSETOML hToml, PSZ pszBuf,
     return copy_field_out(pd->pszSourceDir, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Query the number of [[annotations]] entries.
  *
  * @param[in]  hToml     Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hToml or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -638,7 +672,7 @@ APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Obtain a borrowed handle to one [[annotations]] entry.
  *
  * The handle is valid until ReuseClose. It does not need to be
@@ -649,6 +683,7 @@ APIRET APIENTRY ReuseGetAnnotationCount(HREUSETOML hToml, PULONG pulCount) {
  * @param[out] phAnn    Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hToml or phAnn is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -664,7 +699,7 @@ APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the number of patterns in the "path" list of an
  *        annotation.
  *
@@ -672,6 +707,7 @@ APIRET APIENTRY ReuseGetAnnotation(HREUSETOML hToml, ULONG ulIndex,
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -683,7 +719,7 @@ APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve one path pattern by index.
  *
  * If pszBuf is NULL and ulSize is 0, performs a size query only.
@@ -695,6 +731,7 @@ APIRET APIENTRY ReuseAnnGetPathCount(HREUSEANN hAnn, PULONG pulCount) {
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -711,7 +748,7 @@ APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
     return copy_field_out(pa->papszPaths[ulIndex], pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve the SPDX-License-Identifier field.
  *
  * If the key's value in the file was an array, elements are joined
@@ -723,6 +760,7 @@ APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -731,13 +769,14 @@ APIRET APIENTRY ReuseAnnGetPath(HREUSEANN hAnn, ULONG ulIndex,
  * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
  */
 APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
-                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+                                   PSZ pszBuf, ULONG ulSize,
+                                   PULONG pulUsed) {
     PREUSEANN pa = as_ann(hAnn);
     if (!pa) return ERROR_INVALID_PARAMETER;
     return copy_field_out(pa->pszLicense, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve the SPDX-FileCopyrightText field.
  *
  * If the key's value in the file was an array, elements are joined
@@ -749,6 +788,7 @@ APIRET APIENTRY ReuseAnnGetLicense(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -764,7 +804,7 @@ APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
     return copy_field_out(pa->pszCopyright, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve SPDX-PackageName (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
@@ -773,6 +813,7 @@ APIRET APIENTRY ReuseAnnGetCopyright(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -788,7 +829,7 @@ APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
     return copy_field_out(pa->pszPackageName, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve SPDX-PackageSupplier (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
@@ -797,6 +838,7 @@ APIRET APIENTRY ReuseAnnGetPackageName(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -812,7 +854,7 @@ APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
     return copy_field_out(pa->pszPackageSupplier, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve SPDX-PackageDownloadLocation (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
@@ -821,6 +863,7 @@ APIRET APIENTRY ReuseAnnGetPackageSupplier(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -837,7 +880,7 @@ APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
                           pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve SPDX-PackageComment (scalar string).
  *
  * @param[in]  hAnn     Handle. Not NULLHANDLE.
@@ -846,6 +889,7 @@ APIRET APIENTRY ReuseAnnGetPackageDownloadLocation(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -861,13 +905,14 @@ APIRET APIENTRY ReuseAnnGetPackageComment(HREUSEANN hAnn,
     return copy_field_out(pa->pszPackageComment, pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Query the number of entries in SPDX-FileContributor.
  *
  * @param[in]  hAnn      Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -880,7 +925,7 @@ APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve one contributor by index.
  *
  * If the value in the file was a scalar string, it becomes a single
@@ -893,6 +938,7 @@ APIRET APIENTRY ReuseAnnGetContributorCount(HREUSEANN hAnn,
  * @param[out] pulUsed  Optional. May be NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn is NULLHANDLE, or pszBuf is
  *                                  NULL without size-query.
@@ -911,7 +957,7 @@ APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
                           pszBuf, ulSize, pulUsed);
 }
 
-/**
+/*!
  * @brief Retrieve the "precedence" value.
  *
  * If the key was absent, REUSE_PRECEDENCE_CLOSEST is returned.
@@ -920,6 +966,7 @@ APIRET APIENTRY ReuseAnnGetContributor(HREUSEANN hAnn, ULONG ulIndex,
  * @param[out] pulPrecedence  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn or pulPrecedence is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
@@ -932,7 +979,7 @@ APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Retrieve the zero-based position of the annotation in the
  *        file (order of appearance).
  *
@@ -940,6 +987,7 @@ APIRET APIENTRY ReuseAnnGetPrecedence(HREUSEANN hAnn,
  * @param[out] pulOrder  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hAnn or pulOrder is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.

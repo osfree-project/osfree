@@ -10,5 +10,6 @@ defs =
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include $(defs)
 
 TARGET_CLASS = LIBRARY
+LIBS = path json sha1
 
 !include $(%ROOT)tools/mk/build.mk

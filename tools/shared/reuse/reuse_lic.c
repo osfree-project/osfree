@@ -1,4 +1,10 @@
-/* reuse_lic.c - per-file license/copyright resolution (C89) */
+/*!
+ * @file reuse_lic.c
+ *
+ * @brief Implementation of the per-file license resolution.
+ *
+ * Per-file license/copyright resolution (C89).
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,16 +19,11 @@
 #include <io.h>
 #endif
 
-/**
- * @file reuse_lic.c
- * @brief Implementation of the per-file license resolution.
- */
-
 /* ------------------------------------------------------------------ */
 /* String helpers                                                      */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Copy a NUL-terminated string into a fixed buffer, tracking
  *        truncation.
  *
@@ -44,7 +45,7 @@ static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc,
     }
 }
 
-/**
+/*!
  * @brief Remove trailing whitespace and comment-closing markers.
  *
  * @param[in,out] pszStr  String to modify. Not NULL.
@@ -86,7 +87,7 @@ static void strip_trailing_comments(PSZ pszStr) {
 /* In-file sources                                                     */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read the license tag from a file into a heap buffer.
  *
  * Uses the size-query convention of SpdxQueryFileLicense.
@@ -94,6 +95,8 @@ static void strip_trailing_comments(PSZ pszStr) {
  * @param[in] pszPath  Path to the file. Not NULL.
  *
  * @return malloc'd value, or NULL if absent or on error.
+ *
+ * @retval NULL  Tag absent or allocation failure.
  */
 static PSZ read_license_value(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -111,7 +114,7 @@ static PSZ read_license_value(PCSZ pszPath) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Read the copyright tags from a file into a heap buffer.
  *
  * Uses the size-query convention of SpdxQueryFileCopyright.
@@ -119,6 +122,8 @@ static PSZ read_license_value(PCSZ pszPath) {
  * @param[in] pszPath  Path to the file. Not NULL.
  *
  * @return malloc'd value, or NULL if absent or on error.
+ *
+ * @retval NULL  Tag absent or allocation failure.
  */
 static PSZ read_copyright_value(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -136,7 +141,7 @@ static PSZ read_copyright_value(PCSZ pszPath) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Read the adjacent <file>.license sidecar.
  *
  * @param[in]  pszFullPath     File path. Not NULL.
@@ -146,6 +151,7 @@ static PSZ read_copyright_value(PCSZ pszPath) {
  *                             Set to NULL on failure.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR             At least one field was read.
  * @retval ERROR_FILE_NOT_FOUND Sidecar absent or empty.
  */
@@ -176,7 +182,7 @@ static APIRET read_sidecar(PCSZ pszFullPath,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Read in-file SPDX tags.
  *
  * @param[in]  pszFullPath     File path. Not NULL.
@@ -184,6 +190,7 @@ static APIRET read_sidecar(PCSZ pszFullPath,
  * @param[out] ppszCopyright   Receiver for the copyright, or NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR             At least one tag was read.
  * @retval ERROR_FILE_NOT_FOUND No tags present.
  */
@@ -208,10 +215,24 @@ static APIRET read_tags(PCSZ pszFullPath,
 /* Resolver field extraction                                           */
 /* ------------------------------------------------------------------ */
 
-/** @brief Field accessor signature for resolver getters. */
+/*!
+ * @brief Field accessor signature for resolver getters.
+ *
+ * Each implementation is one of the ReuseTreeFileGet* functions and
+ * follows the size-query convention.
+ *
+ * @param[in] REUSEFIELDFN  Function-pointer type name.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     Field absent.
+ * @retval ERROR_INVALID_PARAMETER  Bad arguments.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 typedef APIRET (APIENTRY *REUSEFIELDFN)(HREUSETREEFILE, PSZ, ULONG, PULONG);
 
-/**
+/*!
  * @brief Copy a single string field from a resolver handle into a
  *        fixed buffer.
  *
@@ -257,7 +278,7 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
 /* Main function                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Resolve license and copyright for one file.
  *
  * @param[in]  hTree                Project handle, or NULLHANDLE.
@@ -267,6 +288,7 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  * @param[out] pOut                 Result receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszFullPath or pOut is NULL.
  * @retval ERROR_FILE_NOT_FOUND     No source matched.

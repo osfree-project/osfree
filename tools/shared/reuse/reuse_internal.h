@@ -1,5 +1,12 @@
-/* reuse_internal.h - internal structures of the REUSE project resolver.
- * Do not include from consumer code. */
+/*!
+ * @file reuse_internal.h
+ *
+ * @brief Private interface of the REUSE project resolver.
+ *
+ * Internal structures of the REUSE project resolver. Do not include
+ * from consumer code.
+ */
+
 #ifndef REUSE_INTERNAL_H
 #define REUSE_INTERNAL_H
 
@@ -9,13 +16,19 @@
 #include "reuse_toml.h"
 #include "dep5.h"
 
-/**
- * @file reuse_internal.h
- * @brief Private interface of the REUSE project resolver.
+/*!
+ * @brief Forward declaration of one configuration source.
  */
-
 typedef struct _REUSECFG       REUSECFG,       *PREUSECFG;
+
+/*!
+ * @brief Forward declaration of an open project.
+ */
 typedef struct _REUSETREE      REUSETREE,      *PREUSETREE;
+
+/*!
+ * @brief Forward declaration of a per-file resolution result.
+ */
 typedef struct _REUSETREEFILE  REUSETREEFILE,  *PREUSETREEFILE;
 
 /* ------------------------------------------------------------------
@@ -32,22 +45,29 @@ typedef struct _REUSETREEFILE  REUSETREEFILE,  *PREUSETREEFILE;
  *     value lower than any TOML entry.
  * ------------------------------------------------------------------ */
 
-/** @def REUSECFG_KIND_TOML @brief Config entry holds a REUSE.toml. */
+/*!
+ * @def REUSECFG_KIND_TOML
+ * @brief Config entry holds a REUSE.toml.
+ */
 #define REUSECFG_KIND_TOML  1
-/** @def REUSECFG_KIND_DEP5 @brief Config entry holds a .reuse/dep5. */
+
+/*!
+ * @def REUSECFG_KIND_DEP5
+ * @brief Config entry holds a .reuse/dep5.
+ */
 #define REUSECFG_KIND_DEP5  2
 
-/**
+/*!
  * @struct _REUSECFG
  * @brief One configuration source.
  */
 struct _REUSECFG {
-    int         nKind;         /**< REUSECFG_KIND_*.              */
-    PSZ         pszSourceDir;  /**< Scope for pattern matching.   */
-    int         nDepth;        /**< Smaller = closer to the root. */
+    int         nKind;         /*!< REUSECFG_KIND_*.              */
+    PSZ         pszSourceDir;  /*!< Scope for pattern matching.   */
+    int         nDepth;        /*!< Smaller = closer to the root. */
 
-    HREUSETOML  hToml;         /**< Valid if nKind == TOML.       */
-    HDEP5DOC    hDep5;         /**< Valid if nKind == DEP5.       */
+    HREUSETOML  hToml;         /*!< Valid if nKind == TOML.       */
+    HDEP5DOC    hDep5;         /*!< Valid if nKind == DEP5.       */
 };
 
 /* ------------------------------------------------------------------
@@ -58,21 +78,21 @@ struct _REUSECFG {
  * the paErrors array; the corresponding sources are skipped.
  * ------------------------------------------------------------------ */
 
-/**
+/*!
  * @struct _REUSETREE
  * @brief Open project handle.
  */
 struct _REUSETREE {
-    REUSECFG   *paCfgs;            /**< Configuration sources.    */
-    ULONG       ulCount;           /**< Number of used entries.   */
-    ULONG       ulCapacity;        /**< Allocated capacity.       */
+    REUSECFG   *paCfgs;            /*!< Configuration sources.    */
+    ULONG       ulCount;           /*!< Number of used entries.   */
+    ULONG       ulCapacity;        /*!< Allocated capacity.       */
 
-    REUSEERR   *paErrors;          /**< Recorded diagnostics.     */
-    ULONG       ulErrorCount;      /**< Number of used entries.   */
-    ULONG       ulErrorCapacity;   /**< Allocated capacity.       */
+    REUSEERR   *paErrors;          /*!< Recorded diagnostics.     */
+    ULONG       ulErrorCount;      /*!< Number of used entries.   */
+    ULONG       ulErrorCapacity;   /*!< Allocated capacity.       */
 
-    PSZ         pszProjectDir;     /**< Argument to ReuseTreeOpen.*/
-    PSZ         pszRepoRoot;       /**< Git repo root, or NULL.   */
+    PSZ         pszProjectDir;     /*!< Argument to ReuseTreeOpen.*/
+    PSZ         pszRepoRoot;       /*!< Git repo root, or NULL.   */
 };
 
 /* ------------------------------------------------------------------
@@ -87,41 +107,45 @@ struct _REUSETREE {
  * matched the file (even if only sidecar or tag data was found).
  * ------------------------------------------------------------------ */
 
-/**
+/*!
  * @struct _REUSETREEFILE
  * @brief Per-file resolution result.
  */
 struct _REUSETREEFILE {
-    PSZ         pszLicense;                /**< SPDX license expr.   */
-    PSZ         pszCopyright;              /**< Copyright text.      */
-    PSZ         pszContributors;           /**< '\n'-separated.      */
-    PSZ         pszPackageName;            /**< SPDX-PackageName.    */
-    PSZ         pszPackageSupplier;        /**< SPDX-PackageSupplier.*/
-    PSZ         pszPackageDownloadLocation;/**< Download location.   */
-    PSZ         pszPackageComment;         /**< Package comment.     */
-    ULONG       ulPrecedence;              /**< REUSE_PRECEDENCE_*.  */
-    BOOL        bHasReuse;                 /**< Any source matched.  */
+    PSZ         pszLicense;                /*!< SPDX license expr.   */
+    PSZ         pszCopyright;              /*!< Copyright text.      */
+    PSZ         pszContributors;           /*!< '\n'-separated.      */
+    PSZ         pszPackageName;            /*!< SPDX-PackageName.    */
+    PSZ         pszPackageSupplier;        /*!< SPDX-PackageSupplier.*/
+    PSZ         pszPackageDownloadLocation;/*!< Download location.   */
+    PSZ         pszPackageComment;         /*!< Package comment.     */
+    ULONG       ulPrecedence;              /*!< REUSE_PRECEDENCE_*.  */
+    BOOL        bHasReuse;                 /*!< Any source matched.  */
 };
 
 /* ------------------------------------------------------------------
  * Internal helpers (used by reuse.c and reuse_lic.c).
  * ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Translate a public project handle into the internal pointer.
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ * @return Internal pointer, or NULL on failure.
+ *
+ * @retval NULL  hDoc is NULLHANDLE.
  */
 PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc);
 
-/**
+/*!
  * @brief Translate a public file handle into the internal pointer.
  *
  * @param[in] hFile  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL if the handle is NULLHANDLE.
+ * @return Internal pointer, or NULL on failure.
+ *
+ * @retval NULL  hFile is NULLHANDLE.
  */
 PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile);
 
