@@ -17,10 +17,13 @@
  *
  *  Two-pass analysis.
  *
- *  Pass 1 reads the file exactly as written by the author.  Return
- *  statements are collected from this text, so an identifier like
- *  TRUE or DLIST_SUCCESS is seen as an identifier, and a numeric
- *  literal like 0 is seen as a number.  Values are stored by line.
+ *  Pass 1 reads the file exactly as written by the author.  Two kinds
+ *  of information are collected here:
+ *    - return statements, so that an identifier like TRUE or
+ *      DLIST_SUCCESS is seen as an identifier and a numeric literal
+ *      like 0 is seen as a number;
+ *    - top-level #define directives that carry a body or parameters,
+ *      because the preprocessor removes them from its output.
  *
  *  Pass 2 runs the file through the Open Watcom preprocessor
  *  (wcc386 for C, wpp386 for C++) with -pcl: preprocess, preserve
@@ -28,17 +31,21 @@
  *  visible (for instance an initializer macro such as INIT is no
  *  longer mistaken for a function name).  Only lines whose #line
  *  names the original file are kept; lines that came from an
- *  #include'd header are dropped.  Structural analysis - locating
- *  declarations, function bodies, parameters - uses this text.
- *
- *  @retval is verified by cross-referencing the two passes: for a
- *  function body identified in pass 2, the return values are read
- *  from pass 1 by the line numbers of the body.
+ *  #include'd header are dropped.  Function and variable declarations
+ *  are located in this pass.
  *
  *  Enforces:
  *    - @file   required in every source and header file;
  *    - @brief  required before (or trailing after) every top-level
  *             declaration;
+ *    - @def   required in the doc block of every #define that has a
+ *             body or parameters; the argument of @def must match the
+ *             macro name.  Object-like macros without a body are not
+ *             checked: include guards and similar markers carry no
+ *             value worth documenting;
+ *    - @param  required for every named parameter of a function-like
+ *             macro (#define NAME(p1, p2) ...), even when its body is
+ *             empty;
  *    - @param  required for every named function parameter;
  *    - direction qualifier [in]/[out]/[in,out] is mandatory for every
  *             @param;
@@ -489,6 +496,8 @@ static int skip_balanced(int open_idx, const char *open_str,
 typedef struct {
     int has_file;
     int has_brief;
+    int has_def;
+    char def_name[NAMELEN];
     char params[MAXPARAM][NAMELEN];
     int  paramdir[MAXPARAM];
     int nparams;
@@ -500,7 +509,7 @@ typedef struct {
 /*! @brief Parses the body of a Doxygen comment into info.
  *  @param[in]     p           Comment text without delimiters.
  *  @param[in]     len         Length of the comment text in bytes.
- *  @param[in,out] info        Destination for @file/@brief/@param/@return/@retval.
+ *  @param[in,out] info        Destination for @file/@brief/@def/@param/@return/@retval.
  *  @param[in]     is_trailing Non-zero when the comment is a "/*!<" or "//!<"
  *                             trailing block.  In that case, if no command at
  *                             all is present, the whole text is treated as the
@@ -570,6 +579,12 @@ static void parse_doc_into(const char *p, int len, DocInfo *info,
                 info->has_file = 1;
             } else if (clen == 5 && memcmp(p + cs, "brief", 5) == 0) {
                 info->has_brief = 1;
+            } else if (clen == 3 && memcmp(p + cs, "def", 3) == 0) {
+                info->has_def = 1;
+                if (alen > 0 && alen < NAMELEN) {
+                    memcpy(info->def_name, p + as, alen);
+                    info->def_name[alen] = 0;
+                }
             } else if (clen == 5 && memcmp(p + cs, "param", 5) == 0) {
                 if (alen > 0 && alen < NAMELEN && info->nparams < MAXPARAM) {
                     memcpy(info->params[info->nparams], p + as, alen);
@@ -594,7 +609,7 @@ static void parse_doc_into(const char *p, int len, DocInfo *info,
     }
 
     if (is_trailing &&
-        !info->has_file && !info->has_brief &&
+        !info->has_file && !info->has_brief && !info->has_def &&
         info->nparams == 0 && !info->has_return && info->nretvals == 0) {
         info->has_brief = 1;
     }
@@ -890,6 +905,240 @@ static const char *preproc_compiler(const char *fname)
     return "wcc386";
 }
 
+/*! @brief Extracts the macro name and parameters from a #define token.
+ *
+ * The token text begins with '#', possibly followed by whitespace,
+ * then "define", then whitespace, then the macro name.  For a
+ * function-like macro the name is followed by '(' and a
+ * comma-separated list of parameter names; each name is copied into
+ * params[].  Variadic macros are handled: the "..." is skipped and
+ * does not produce a parameter.
+ *
+ * An object-like macro without a body is skipped: include guards and
+ * similar markers carry no value worth documenting.  A function-like
+ * macro with parameters is checked even when its body is empty: the
+ * parameter list itself is part of the interface.  Other directives
+ * ('#include', '#ifdef', ...) also return 0.
+ *
+ *  @param[in]  p       Preprocessor token text.
+ *  @param[in]  len     Token length in bytes.
+ *  @param[out] name    Buffer for the macro name.
+ *  @param[in]  size    Size of name in bytes.
+ *  @param[out] params  Array receiving macro parameter names.
+ *  @param[out] nparams Receives the number of parameters.
+ *  @return 1 if the token is a #define to be checked; 0 otherwise.
+ *  @retval 0 Not a #define, object-like macro without body, or name
+ *           too long.
+ *  @retval 1 Parsed successfully.
+ */
+static int preproc_define_name(const char *p, int len,
+                               char *name, int size,
+                               char params[][NAMELEN], int *nparams)
+{
+    int i = 0, n = 0;
+    int j;
+    int saw_paren = 0;
+
+    *nparams = 0;
+
+    if (len < 7) return 0;
+    if (p[0] != '#') return 0;
+    i = 1;
+    while (i < len && (p[i] == ' ' || p[i] == '\t')) i++;
+    if (i + 6 > len) return 0;
+    if (memcmp(p + i, "define", 6) != 0) return 0;
+    i += 6;
+    if (i >= len || (p[i] != ' ' && p[i] != '\t')) return 0;
+    while (i < len && (p[i] == ' ' || p[i] == '\t')) i++;
+    if (i >= len) return 0;
+    if (!isalpha((unsigned char)p[i]) && p[i] != '_') return 0;
+    while (i < len && (isalnum((unsigned char)p[i]) || p[i] == '_')) {
+        if (n < size - 1) name[n] = p[i];
+        n++;
+        i++;
+    }
+    if (n == 0 || n >= size) return 0;
+    name[n] = 0;
+
+    if (i < len && p[i] == '(') {
+        saw_paren = 1;
+        i++;
+        for (;;) {
+            int pn = 0;
+            while (i < len && (p[i] == ' ' || p[i] == '\t')) i++;
+            if (i >= len || p[i] == ')') break;
+            if (p[i] == '.') {
+                while (i < len && p[i] != ')' && p[i] != ',') i++;
+            } else if (isalpha((unsigned char)p[i]) || p[i] == '_') {
+                while (i < len &&
+                       (isalnum((unsigned char)p[i]) || p[i] == '_')) {
+                    if (pn < NAMELEN - 1) params[*nparams][pn] = p[i];
+                    pn++;
+                    i++;
+                }
+                if (pn > 0 && pn < NAMELEN && *nparams < MAXPARAM) {
+                    params[*nparams][pn] = 0;
+                    (*nparams)++;
+                }
+            } else {
+                break;
+            }
+            while (i < len && (p[i] == ' ' || p[i] == '\t')) i++;
+            if (i < len && p[i] == ',') {
+                i++;
+                continue;
+            }
+            break;
+        }
+        if (i < len && p[i] == ')') i++;
+    }
+
+    /* Skip whitespace and line continuations; if nothing is left,
+       the macro has no body. */
+    j = i;
+    while (j < len) {
+        unsigned char c = (unsigned char)p[j];
+        if (c == ' ' || c == '\t' || c == '\r' || c == '\n') { j++; continue; }
+        if (c == '\\') {
+            int k = j + 1;
+            while (k < len && (p[k] == ' ' || p[k] == '\t')) k++;
+            if (k < len && p[k] == '\n') { j = k + 1; continue; }
+            /* Backslash not a continuation: there is a body. */
+            return 1;
+        }
+        /* Any other character means there is a body. */
+        return 1;
+    }
+
+    /* No body.  Object-like macros without a body (include guards and
+       similar markers) are skipped.  Function-like macros with
+       parameters are kept: the parameter list is part of the
+       interface. */
+    if (saw_paren) return 1;
+    return 0;
+}
+
+/*! @brief Checks documentation of top-level #define directives.
+ *
+ * Operates on the raw-file tokens (pass 1), because the preprocessor
+ * removes #define directives from its output.  Every #define at file
+ * scope that has a body or parameters must be preceded by a Qt-style
+ * doc block containing @brief and @def; the argument of @def must
+ * match the macro name.  For a function-like macro each parameter
+ * must have a matching @param.  Object-like macros without a body
+ * are skipped by preproc_define_name().
+ *
+ *  @param[in] fname File name, used in diagnostics. Not NULL.
+ *  @return Number of warnings emitted.
+ */
+static int check_defines_raw(const char *fname)
+{
+    int errors = 0;
+    int i = 0;
+    int pending_start = -1;
+    int pending_end = -1;
+
+    while (toks[i].type != T_EOF) {
+
+        if (toks[i].type == T_DOC_JAVADOC ||
+            toks[i].type == T_DOC_TRAILING ||
+            toks[i].type == T_COMMENT) {
+            i++;
+            continue;
+        }
+
+        if (toks[i].type == T_DOC) {
+            int rs = -1;
+            int re = i;
+            int has_file_in_block = 0;
+            DocInfo one;
+
+            while (toks[i].type == T_DOC) {
+                memset(&one, 0, sizeof(one));
+                parse_doc_into(toks[i].p, toks[i].len, &one, 0);
+                if (one.has_file) has_file_in_block = 1;
+                if (rs < 0) rs = i;
+                i++;
+                re = i;
+            }
+            if (!has_file_in_block && rs >= 0) {
+                pending_start = rs;
+                pending_end = re;
+            }
+            continue;
+        }
+
+        if (toks[i].type == T_PREPROC) {
+            char macname[NAMELEN];
+            char mparams[MAXPARAM][NAMELEN];
+            int nmparams = 0;
+
+            if (preproc_define_name(toks[i].p, toks[i].len,
+                                    macname, NAMELEN,
+                                    mparams, &nmparams)) {
+                DocInfo di;
+                int has_doc = (pending_start >= 0);
+                int decl_line = toks[i].line;
+                int k;
+
+                memset(&di, 0, sizeof(di));
+                if (has_doc) {
+                    for (k = pending_start; k < pending_end; k++) {
+                        parse_doc_into(toks[k].p, toks[k].len, &di, 0);
+                    }
+                }
+
+                if (!has_doc) {
+                    printf("%s:%d: warning: macro '%s': missing Doxygen comment\n",
+                           fname, decl_line, macname);
+                    errors++;
+                } else {
+                    if (!di.has_brief) {
+                        printf("%s:%d: warning: macro '%s': missing @brief\n",
+                               fname, decl_line, macname);
+                        errors++;
+                    }
+                    if (!di.has_def) {
+                        printf("%s:%d: warning: macro '%s': missing @def\n",
+                               fname, decl_line, macname);
+                        errors++;
+                    } else if (di.def_name[0] != 0 &&
+                               strcmp(di.def_name, macname) != 0) {
+                        printf("%s:%d: warning: macro '%s': @def name '%s' does not match\n",
+                               fname, decl_line, macname, di.def_name);
+                        errors++;
+                    }
+                    for (k = 0; k < nmparams; k++) {
+                        int m, found = 0;
+                        for (m = 0; m < di.nparams; m++) {
+                            if (strcmp(mparams[k], di.params[m]) == 0) {
+                                found = 1; break;
+                            }
+                        }
+                        if (!found) {
+                            printf("%s:%d: warning: macro '%s': missing @param %s\n",
+                                   fname, decl_line, macname, mparams[k]);
+                            errors++;
+                        }
+                    }
+                }
+            }
+
+            pending_start = -1;
+            pending_end = -1;
+            i++;
+            continue;
+        }
+
+        /* Any other significant token breaks the pending chain. */
+        pending_start = -1;
+        pending_end = -1;
+        i++;
+    }
+
+    return errors;
+}
+
 /*! @brief Run the Open Watcom preprocessor and keep original-file lines.
  *
  * Invokes "<compiler> -pcl [extra options] -fo=<temp> <fname>", where
@@ -1042,7 +1291,7 @@ static int check_file(const char *fname)
     int pending_bad_style;
     int saw_file_doc;
 
-    /* Pass 1: raw file, for return values. */
+    /* Pass 1: raw file, for return values and #define checks. */
     raw_returns_reset();
     src = slurp(fname, &srclen);
     if (src == NULL) {
@@ -1052,10 +1301,11 @@ static int check_file(const char *fname)
     ntok = 0;
     tokenize();
     collect_raw_returns();
+    errors += check_defines_raw(fname);
     free(src);
     src = NULL;
 
-    /* Pass 2: preprocessed file, for structure. */
+    /* Pass 2: preprocessed file, for structural checks. */
     src = preprocess_file(fname, &srclen);
     if (src == NULL) {
         if (!wpp_warned) {
@@ -1148,7 +1398,12 @@ static int check_file(const char *fname)
             continue;
         }
 
-        if (toks[i].type == T_COMMENT || toks[i].type == T_PREPROC) {
+        if (toks[i].type == T_PREPROC) {
+            i++;
+            continue;
+        }
+
+        if (toks[i].type == T_COMMENT) {
             i++;
             continue;
         }
