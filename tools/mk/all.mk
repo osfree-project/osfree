@@ -9,7 +9,7 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: precopy spdx-lint doxy-lint install spdx-sbom .symbolic
+all: precopy spdx-lint install spdx-sbom .symbolic
 
 !include $(%ROOT)tools/mk/dirs.mk
 !include $(%ROOT)tools/mk/genrules.mk
@@ -394,7 +394,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .ipf: $(MYDIR)
 
-.l.c: .autodepend
+.l.c:
  @$(SAY) LEX      $^. $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^@ $(BLACKHOLE)
@@ -404,7 +404,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  $(verbose)$(%INTERP)lex.exe -t $[@ >$^@ $(LOG2)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
-.y.c: .autodepend
+.y.c:
  @$(SAY) YACC     $^. $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^*.h $(BLACKHOLE)
@@ -415,7 +415,7 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 !endif
  $(verbose)$(%INTERP)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
-.y.h: .autodepend
+.y.h:
  @$(SAY) YACC     $^. $(LOG)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $^*.h $(BLACKHOLE)
@@ -444,10 +444,12 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .c16.o16: .AUTODEPEND
  @$(SAY) CC16     $^. $(LOG)
+ $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
  $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.obj: .AUTODEPEND
  @$(SAY) CC       $^. $(LOG)
+ $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.obj: .AUTODEPEND
@@ -460,26 +462,28 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .cpp.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
+ $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .cc.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
+ $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
-.wmp.map: .AUTODEPEND
+.wmp.map:
  @$(SAY) WMP2MAP  $^. $(LOG)
  $(verbose)$(AWK) -f $(FILESDIR)$(SEP)host$(SEP)bin$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG2)
 
-.map.sym: .AUTODEPEND
+.map.sym:
  @$(SAY) MAPSYM   $^. $(LOG)
  $(verbose)$(MAPSYM) $[@ $(LOG2)
  $(verbose)$(RN) $^. $^: $(LOG2)
 
-.ipf.inf: .AUTODEPEND
+.ipf.inf:
  @$(SAY) IPFC     $^. $(LOG)
  $(verbose)$(HC) -i $[@ -o $^@ $(LOG2)
 
-.ipf.hlp: .AUTODEPEND
+.ipf.hlp:
  @$(SAY) IPFC     $^. $(LOG)
  $(verbose)$(HC) $[@ -o $^@ $(LOG2)
 
@@ -503,27 +507,27 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
-.rexx.exe: .AUTODEPEND
+.rexx.exe:
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)$(%INTERP)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
 
-.idl.ih: .AUTODEPEND
+.idl.ih:
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: $(ADD_SCOPT)
 
-.idl.xih: .AUTODEPEND
+.idl.xih:
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxih $< -o $^: $(ADD_SCOPT)
 
-.idl.xh: .AUTODEPEND
+.idl.xh:
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)
 
-.idl.h: .AUTODEPEND
+.idl.h:
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT)
 
-.idl.api: .AUTODEPEND
+.idl.api:
  @$(SAY) SC       $^. $(LOG)
  $(verbose)$(%INTERP)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sapi $< -o $^: $(ADD_SCOPT)
 
@@ -688,11 +692,6 @@ prep: .symbolic
 
 !ifdef DEBUG
 ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
-!endif
-
-!ifndef __build_mk__
-doxy-lint: .SYMBOLIC
-    @%null
 !endif
 
 !endif

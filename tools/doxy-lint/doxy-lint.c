@@ -68,22 +68,17 @@
  *  occurs in the return type and is not followed by "*".
  *
  *  Usage:
- *    doxy-lint <directory> [preprocessor options...]
+ *    doxy-lint <file>... [preprocessor options...]
  *
- *  The first argument is the directory to scan.  Every argument after
- *  it is passed through to the Watcom preprocessor unchanged.  This is
- *  used to add include paths and defines so that #include'd headers
- *  of the project are found:
+ *  Every argument that begins with '-' is passed through to the
+ *  Watcom preprocessor unchanged.  All other arguments are treated as
+ *  source files and checked in order.  There is no directory scan:
+ *  the build system is expected to pass exactly the files that were
+ *  given to the compiler.
  *
- *    doxy-lint tools\shared\ccl -i=tools\shared\ccl -i=tools\shared\os2
- *    doxy-lint tools\emxdoc -i=tools\emxdoc -d=DEBUG
+ *    doxy-lint qemu-img.c block.c aes.c \
+ *        -zq -q -d__WATCOM__ -i=tools\qemu-img -i=build\host\win32\tools\qemu-img
  *
- *  Scanned extensions (case-insensitive):
- *    .c .h
- *    .cpp .hpp .cxx .hxx .cc .hh .c++ .h++
- *    .ipp .tcc .tpp .inl .inc
- *
- *  All matching files in the given directory are scanned (non-recursive).
  *  Diagnostics go to stdout.  Exit status is always 0.
  *
  *  Targets: Linux, Win32, OS/2.  Compiler: Open Watcom 1.9.
@@ -95,7 +90,6 @@
 #include <ctype.h>
 
 #if defined(__LINUX__)
-#  include <dirent.h>
 #  include <unistd.h>
 #  define DIRSEP '/'
 #  define PLATFORM_CHDIR(p)     chdir(p)
@@ -158,7 +152,7 @@ static int wpp_warned = 0;
 
 /*! @brief Options passed to the Watcom preprocessor.
  *
- * Built in main() from every argument after the directory.  Passed
+ * Built in main() from every argument that begins with '-'.  Passed
  * through to wcc386/wpp386 unchanged, before -fo= and the file name.
  */
 static char preproc_opts[PATHBUF * 4] = "";
@@ -171,18 +165,13 @@ static char preproc_opts[PATHBUF * 4] = "";
  */
 static char *raw_returns[MAX_LINE_NO];
 
-/*! @brief Counter used to build unique temporary file names.
- *
- * Combined with the process id, gives names that do not collide
- * between parallel runs of doxy-lint.
- */
+/*! @brief Counter used to build unique temporary file names. */
 static int temp_counter = 0;
 
 /*! @brief Returns the platform temp directory, or 0 on failure.
  *
  * Linux: $TMPDIR, otherwise /tmp.  Win32 / OS-2: %TEMP%, otherwise
- * %TMP%.  Never falls back to the current directory: a missing temp
- * directory is an error, and the caller falls back to the raw file.
+ * %TMP%.  Never falls back to the current directory.
  *
  *  @param[out] buf     Receiver for the directory path.
  *  @param[in]  bufsize Size of buf in bytes.
@@ -211,8 +200,7 @@ static int get_temp_dir(char *buf, size_t bufsize)
 /*! @brief Turns a path into an absolute one using the current directory.
  *
  * Paths that already start with '/' or '\\', or with a drive letter
- * followed by ':', are returned unchanged.  Anything else is prefixed
- * with the current working directory.
+ * followed by ':', are returned unchanged.
  *
  *  @param[in]  path    Input path. Not NULL.
  *  @param[out] out     Receiver for the absolute path.
@@ -1247,12 +1235,6 @@ static int check_defines_raw(const char *fname)
  * afterwards.  If no temp directory is available, or the preprocessor
  * fails, NULL is returned and the caller falls back to the raw file.
  *
- * Reads the output, tracks #line directives, and produces a buffer
- * with the same line numbering as the original file.  Lines whose
- * #line names another file (i.e. content expanded from an #include)
- * are replaced by empty lines so that the tokenizer's line counter
- * matches the source file.
- *
  *  @param[in]  fname   Source file to preprocess. Not NULL.
  *  @param[out] out_len Receives the buffer length in bytes.
  *  @return Buffer, or NULL when preprocessing is unavailable or fails.
@@ -1309,7 +1291,6 @@ static char *preprocess_file(const char *fname, long *out_len)
     if (!get_temp_dir(tmpdir, sizeof(tmpdir))) return NULL;
     if (!make_absolute(tmpdir, tmpabs, sizeof(tmpabs))) return NULL;
 
-    /* Ensure trailing separator. */
     {
         size_t dlen = strlen(tmpabs);
         if (dlen == 0 ||
@@ -1800,103 +1781,12 @@ static int check_file(const char *fname)
     return errors;
 }
 
-/*! @brief Case-insensitive test: does name end with ext?
- *  @param[in] name File name to test.
- *  @param[in] ext  Extension including the leading dot.
- *  @return Non-zero if name ends with ext.
- *  @retval 0 No match.
- *  @retval 1 Match.
- */
-static int ext_matches(const char *name, const char *ext)
-{
-    size_t nlen = strlen(name);
-    size_t elen = strlen(ext);
-    size_t i;
-
-    if (nlen < elen) return 0;
-    for (i = 0; i < elen; i++) {
-        char a = name[nlen - elen + i];
-        char b = ext[i];
-        if (tolower((unsigned char)a) != tolower((unsigned char)b)) return 0;
-    }
-    return 1;
-}
-
-/*! @brief Extensions of files that are checked. */
-static const char *const suffixes[] = {
-    ".c",   ".h",
-    ".cpp", ".hpp",
-    ".cxx", ".hxx",
-    ".cc",  ".hh",
-    ".c++", ".h++",
-    ".ipp", ".tcc",
-    ".tpp", ".inl",
-    ".inc",
-    NULL
-};
-
-/*! @brief Invokes check_file on every matching file in dirpath.
- *  @param[in] dirpath Directory to scan (non-recursive).
- *  @return Total number of warnings across all processed files.
- *  @retval 0 Directory cannot be opened, or no warnings were emitted.
- */
-static int scan_dir(const char *dirpath)
-{
-    DIR *dp;
-    struct dirent *de;
-    int total = 0;
-    char path[PATHBUF];
-    size_t dlen;
-    int need_sep;
-
-    dp = opendir(dirpath);
-    if (dp == NULL) {
-        printf("%s: cannot open directory\n", dirpath);
-        return 0;
-    }
-
-    dlen = strlen(dirpath);
-    need_sep = 1;
-    if (dlen > 0 &&
-        (dirpath[dlen - 1] == '/' || dirpath[dlen - 1] == '\\')) {
-        need_sep = 0;
-    }
-
-    while ((de = readdir(dp)) != NULL) {
-        const char *name = de->d_name;
-        size_t nlen = strlen(name);
-        int s;
-
-        for (s = 0; suffixes[s] != NULL; s++) {
-            if (ext_matches(name, suffixes[s])) {
-                size_t need = dlen + (need_sep ? 1 : 0) + nlen + 1;
-                if (need > sizeof(path)) {
-                    printf("%s%c%s: path too long, skipped\n",
-                           dirpath, need_sep ? DIRSEP : ' ', name);
-                    break;
-                }
-                memcpy(path, dirpath, dlen);
-                if (need_sep) {
-                    path[dlen] = DIRSEP;
-                    memcpy(path + dlen + 1, name, nlen + 1);
-                } else {
-                    memcpy(path + dlen, name, nlen + 1);
-                }
-                total += check_file(path);
-                break;
-            }
-        }
-    }
-
-    closedir(dp);
-    return total;
-}
-
 /*! @brief Program entry point.
  *  @param[in] argc Argument count.
- *  @param[in] argv Argument vector; argv[1] is the directory to scan.
- *                  argv[2..] are passed verbatim to the Watcom
- *                  preprocessor (for example -i=path or -d=symbol).
+ *  @param[in] argv Argument vector.  Every argument that begins with
+ *                  '-' is appended to the preprocessor options; every
+ *                  other argument is treated as a source file to
+ *                  check.
  *  @return Always 0: the tool never fails the build.
  *  @retval 0 Always.
  */
@@ -1907,19 +1797,23 @@ int main(int argc, char *argv[])
     size_t pos;
 
     if (argc < 2) {
-        printf("Usage: %s <directory> [preprocessor options...]\n", prog);
-        printf("  All arguments after the directory are passed to the\n");
-        printf("  Watcom preprocessor as-is, for example:\n");
-        printf("    %s tools\\shared\\ccl -i=tools\\shared\\ccl -i=tools\\shared\\os2\n",
-               prog);
-        printf("    %s tools\\emxdoc -i=tools\\emxdoc -d=DEBUG\n", prog);
+        printf("Usage: %s <file>... [preprocessor options...]\n", prog);
+        printf("  Arguments beginning with '-' are passed to the\n");
+        printf("  Watcom preprocessor as-is.  All other arguments are\n");
+        printf("  treated as source files and checked in order.\n");
+        printf("  Example:\n");
+        printf("    %s foo.c bar.c -zq -q -d__WATCOM__ "
+               "-i=tools\\shared -i=build\\host\\win32\\tools\n", prog);
         return 0;
     }
 
+    /* Pass 1: collect options. */
     pos = 0;
     preproc_opts[0] = 0;
-    for (i = 2; i < argc; i++) {
-        size_t alen = strlen(argv[i]);
+    for (i = 1; i < argc; i++) {
+        size_t alen;
+        if (argv[i][0] != '-') continue;
+        alen = strlen(argv[i]);
         if (pos + alen + 2 >= sizeof(preproc_opts)) break;
         if (pos > 0) preproc_opts[pos++] = ' ';
         memcpy(preproc_opts + pos, argv[i], alen);
@@ -1927,6 +1821,11 @@ int main(int argc, char *argv[])
         preproc_opts[pos] = 0;
     }
 
-    scan_dir(argv[1]);
+    /* Pass 2: check files, in the order they were given. */
+    for (i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') continue;
+        check_file(argv[i]);
+    }
+
     return 0;
 }
