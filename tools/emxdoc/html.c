@@ -1,22 +1,26 @@
-/* html.c -- HTML output
-   Copyright (c) 1999 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file html.c
+ * @brief HTML output.
+ *
+ * Copyright (c) 1999 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -28,14 +32,38 @@ Boston, MA 02111-1307, USA.  */
 #include "html.h"
 #include "xref.h"
 
+/*!
+ * @brief Number of index entries collected so far.
+ */
 static int index_count;
+/*!
+ * @brief Array of index word pointers being sorted.
+ */
 static struct word **index_v;
+/*!
+ * @brief Number of entries currently stored in index_v.
+ */
 static int index_n;
+/*!
+ * @brief Current top-level index word.
+ */
 static struct word *index_wp1;
+/*!
+ * @brief Case-folding map used while sorting the index.
+ */
 static const uchar *index_map;
 
+/*!
+ * @brief Emit the collected index to the output file.
+ */
 static void html_write_index (void);
 
+/*!
+ * @brief Write a string, escaping HTML metacharacters.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 void html_output (const uchar *p, int may_break)
 {
   const uchar *q;
@@ -77,12 +105,21 @@ void html_output (const uchar *p, int may_break)
   write_string (p);
 }
 
+/*!
+ * @brief Start a new HTML paragraph.
+ */
 static void html_para (void)
 {
   write_break ();
   write_string ("<P>");
 }
 
+/*!
+ * @brief Open a hyperlink to a document anchor.
+ *
+ * @param[in] database Database name, or NULL for the current file.
+ * @param[in] ref      Anchor reference number.
+ */
 static void html_begin_link (const uchar *database, int ref)
 {
   write_fmt ("<A HREF=\"%s%s#%d\">",
@@ -91,12 +128,20 @@ static void html_begin_link (const uchar *database, int ref)
 }
 
 
+/*!
+ * @brief Close a hyperlink opened by html_begin_link().
+ */
 static void html_end_link (void)
 {
   write_string ("</A>");
 }
 
 
+/*!
+ * @brief Render the current element list.
+ *
+ * @param[in] style Default style to apply.
+ */
 void html_elements (enum style style)
 {
   const struct element *ep;
@@ -154,6 +199,9 @@ void html_elements (enum style style)
       }
 }
 
+/*!
+ * @brief Emit the opening tag for the current highlight.
+ */
 void html_start_hilite (void)
 {
   if (hl_stack[hl_sp] & HL_TT)
@@ -165,6 +213,9 @@ void html_start_hilite (void)
 }
 
 
+/*!
+ * @brief Emit the closing tag for the current highlight.
+ */
 void html_end_hilite (void)
 {
   if (hl_stack[hl_sp] & HL_TT)
@@ -176,6 +227,9 @@ void html_end_hilite (void)
 }
 
 
+/*!
+ * @brief Emit the closing tags of the current environment.
+ */
 void html_end_env (void)
 {
   switch (env_stack[env_sp].env)
@@ -207,11 +261,20 @@ void html_end_env (void)
 }
 
 
+/*!
+ * @brief Begin the table of contents.
+ */
 void html_toc_start (void)
 {
 }
 
 
+/*!
+ * @brief Emit one table-of-contents entry.
+ *
+ * @param[in] s  Section number text.
+ * @param[in] tp Table-of-contents entry.
+ */
 void html_toc_line (const uchar *s, const struct toc *tp)
 {
   format_string (s, STYLE_NORMAL, FALSE);
@@ -222,11 +285,19 @@ void html_toc_line (const uchar *s, const struct toc *tp)
 }
 
 
+/*!
+ * @brief End the table of contents.
+ */
 void html_toc_end (void)
 {
   write_line ("<HR>");
 }
 
+/*!
+ * @brief Emit the anchor of a level-1 heading.
+ *
+ * @param[in] ref Section reference number.
+ */
 void html_heading1 (int ref)
 {
   write_break ();
@@ -235,6 +306,11 @@ void html_heading1 (int ref)
 }
 
 
+/*!
+ * @brief Emit a level-2 heading.
+ *
+ * @param[in] s Heading text. Not NULL.
+ */
 void html_heading2 (const uchar *s)
 {
 /*   if (para_flag) */
@@ -258,6 +334,9 @@ void html_heading2 (const uchar *s)
 }
 
 
+/*!
+ * @brief Begin a description list environment.
+ */
 void html_description (void)
 {
   write_break ();
@@ -266,6 +345,9 @@ void html_description (void)
 }
 
 
+/*!
+ * @brief Begin an ordered list environment.
+ */
 void html_enumerate (void)
 {
   write_break ();
@@ -274,6 +356,9 @@ void html_enumerate (void)
 }
 
 
+/*!
+ * @brief Begin an unordered list environment.
+ */
 void html_itemize (void)
 {
   write_break ();
@@ -282,6 +367,9 @@ void html_itemize (void)
 }
 
 
+/*!
+ * @brief Begin an indented block.
+ */
 void html_indent (void)
 {
   write_break ();
@@ -289,6 +377,9 @@ void html_indent (void)
 }
 
 
+/*!
+ * @brief Begin a list environment.
+ */
 void html_list (void)
 {
   write_break ();
@@ -296,6 +387,11 @@ void html_list (void)
 }
 
 
+/*!
+ * @brief Begin a verbatim block.
+ *
+ * @param[in] tag_end Tag that terminates the block.
+ */
 void html_verbatim_start (enum tag tag_end)
 {
   write_break ();
@@ -320,12 +416,20 @@ void html_verbatim_start (enum tag tag_end)
   write_line ("<PRE>");
 }
 
+/*!
+ * @brief Emit one verbatim line.
+ */
 void html_verbatim_line (void)
 {
   html_output (input, FALSE);
   write_nl ();
 }
 
+/*!
+ * @brief End a verbatim block.
+ *
+ * @param[in] tag_end Tag that terminated the block.
+ */
 void html_verbatim_end (enum tag tag_end)
 {
   write_line ("</PRE>");
@@ -344,6 +448,11 @@ void html_verbatim_end (enum tag tag_end)
 }
 
 
+/*!
+ * @brief Emit a description-list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void html_description_item (const uchar *s)
 {
   write_break ();
@@ -354,6 +463,9 @@ void html_description_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit an ordered-list item.
+ */
 void html_enumerate_item (void)
 {
   write_break ();
@@ -361,6 +473,9 @@ void html_enumerate_item (void)
 }
 
 
+/*!
+ * @brief Emit an unordered-list item.
+ */
 void html_itemize_item (void)
 {
   write_break ();
@@ -368,6 +483,11 @@ void html_itemize_item (void)
 }
 
 
+/*!
+ * @brief Emit a list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void html_list_item (const uchar *s)
 {
   write_break ();
@@ -378,6 +498,9 @@ void html_list_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a paragraph of normal text.
+ */
 void html_copy (void)
 {
   if (para_flag)
@@ -394,6 +517,9 @@ void html_copy (void)
 }
 
 
+/*!
+ * @brief Emit the HTML document prologue.
+ */
 void html_start (void)
 {
   write_line ("<HTML><HEAD>");
@@ -407,6 +533,9 @@ void html_start (void)
 }
 
 
+/*!
+ * @brief Emit the HTML document epilogue and the index.
+ */
 void html_end (void)
 {
   if (index_count != 0)
@@ -419,6 +548,9 @@ void html_end (void)
     }
 }
 
+/*!
+ * @brief Begin a prototype block.
+ */
 void html_prototype_start (void)
 {
   if (para_flag)
@@ -429,6 +561,11 @@ void html_prototype_start (void)
   html_para ();
 }
 
+/*!
+ * @brief End a prototype block.
+ *
+ * @param[in,out] compat Compatibility note buffer.
+ */
 void html_prototype_end (uchar *compat)
 {
   html_elements (STYLE_TTY);
@@ -444,6 +581,9 @@ void html_prototype_end (uchar *compat)
   format_string ("Description:", STYLE_BOLD, FALSE);
 }
 
+/*!
+ * @brief Begin a "See also" paragraph.
+ */
 void html_see_also_start (void)
 {
   if (para_flag)
@@ -451,6 +591,12 @@ void html_see_also_start (void)
   format_string ("See also: ", STYLE_BOLD, FALSE);
 }
 
+/*!
+ * @brief Emit one "See also" reference.
+ *
+ * @param[in] word Reference text. Not NULL.
+ * @param[in] s    Remaining list text. Not NULL.
+ */
 void html_see_also_word (const uchar *word, const uchar *s)
 {
   struct word *wp;
@@ -475,6 +621,11 @@ void html_see_also_word (const uchar *word, const uchar *s)
     }
 }
 
+/*!
+ * @brief Emit a sample-file reference.
+ *
+ * @param[in] s Sample file name. Not NULL.
+ */
 void html_sample_file (const uchar *s)
 {
   html_libref_section ("Example");
@@ -483,6 +634,11 @@ void html_sample_file (const uchar *s)
   para_flag = TRUE;
 }
 
+/*!
+ * @brief Emit a library-reference section heading.
+ *
+ * @param[in] s Section title. Not NULL.
+ */
 void html_libref_section (const uchar *s)
 {
   if (para_flag)
@@ -492,6 +648,11 @@ void html_libref_section (const uchar *s)
   para_flag = TRUE;
 }
 
+/*!
+ * @brief Begin a function documentation block.
+ *
+ * @param[in] tp Table-of-contents entry for the function.
+ */
 void html_function_start (const struct toc *tp)
 {
   write_line ("<HR>");
@@ -501,12 +662,23 @@ void html_function_start (const struct toc *tp)
   write_line ("</H2>");
 }
 
+/*!
+ * @brief Emit one function name within a function block.
+ *
+ * @param[in] tp Table-of-contents entry for the function.
+ * @param[in] s  Function name. Not NULL.
+ */
 void html_function_function (const struct toc *tp, const uchar *s)
 {
   if (index_wp1 != NULL)
     html_index (tp, s, 2);
 }
 
+/*!
+ * @brief Emit a mini table of contents.
+ *
+ * @param[in] tp Current table-of-contents entry.
+ */
 void html_minitoc (const struct toc *tp)
 {
   int level;
@@ -532,6 +704,13 @@ void html_minitoc (const struct toc *tp)
 }
 
 
+/*!
+ * @brief Register an index entry.
+ *
+ * @param[in] tp    Table-of-contents entry the entry refers to.
+ * @param[in] s     Index entry text. Not NULL.
+ * @param[in] level Index level: 0 for main, 1 for i1, 2 for i2.
+ */
 void html_index (const struct toc *tp, const uchar *s, int level)
 {
   struct word *wp;
@@ -584,6 +763,13 @@ void html_index (const struct toc *tp, const uchar *s, int level)
 }
 
 
+/*!
+ * @brief Callback: collect index words that have entries.
+ *
+ * @param[in] wp Word to examine. Not NULL.
+ *
+ * @return Always 0.
+ */
 static int index_add (struct word *wp)
 {
   if (wp->idx != 0 || wp->subidx != NULL)
@@ -594,6 +780,9 @@ static int index_add (struct word *wp)
   return 0;
 }
 
+/*!
+ * @brief Case-folding map for ASCII.
+ */
 static const uchar map_ascii[256] =
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
@@ -612,6 +801,9 @@ static const uchar map_ascii[256] =
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff";
 
+/*!
+ * @brief Case-folding map for code page 850.
+ */
 static const uchar map_cp850[256] =
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
@@ -630,6 +822,9 @@ static const uchar map_cp850[256] =
   "\x6f\x80\x6f\x6f\x6f\x6f\xff\xff\xff\x75\x75\x75\x79\x79\xff\xff"
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff";
 
+/*!
+ * @brief Case-folding map for ISO 8859-1.
+ */
 static const uchar map_iso8859_1[256] =
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
@@ -648,6 +843,17 @@ static const uchar map_iso8859_1[256] =
   "\x61\x61\x61\x61\x61\x61\x61\x63\x65\x65\x65\x65\x69\x69\x69\x69"
   "\xff\x6e\x6f\x6f\x6f\x6f\x6f\xff\x6f\x75\x75\x75\x75\x79\xff\x79";
 
+/*!
+ * @brief Compare two strings using a case-folding map.
+ *
+ * @param[in] s1  First string. Not NULL.
+ * @param[in] n1  Length of @p s1.
+ * @param[in] s2  Second string. Not NULL.
+ * @param[in] n2  Length of @p s2.
+ * @param[in] map Case-folding map.
+ *
+ * @return Negative, zero, or positive, following the qsort convention.
+ */
 static int compare1 (const uchar *s1, size_t n1,
                      const uchar *s2, size_t n2,
                      const uchar *map)
@@ -690,6 +896,14 @@ static int compare1 (const uchar *s1, size_t n1,
   return 0;
 }
 
+/*!
+ * @brief qsort callback comparing two index entries.
+ *
+ * @param[in] p1 Pointer to first entry.
+ * @param[in] p2 Pointer to second entry.
+ *
+ * @return Negative, zero, or positive, following the qsort convention.
+ */
 static int index_compare (const void *p1, const void *p2)
 {
   const struct word *wp1 = *(const struct word **)p1;
@@ -701,6 +915,12 @@ static int index_compare (const void *p1, const void *p2)
   return strcmp (wp1->str, wp2->str);
 }
 
+/*!
+ * @brief Recursively emit an index table.
+ *
+ * @param[in] wt    Word table to emit. Not NULL.
+ * @param[in] level Current nesting level.
+ */
 static void index_recurse (struct word_table *wt, int level)
 {
   int i, j, n;
@@ -735,6 +955,9 @@ static void index_recurse (struct word_table *wt, int level)
   free (v);
 }
 
+/*!
+ * @brief Emit the collected index to the output file.
+ */
 static void html_write_index (void)
 {
   if (index_count != 0)
@@ -749,6 +972,11 @@ static void html_write_index (void)
     }
 }
 
+/*!
+ * @brief Emit an HTML fragment anchor.
+ *
+ * @param[in] s Anchor name. Not NULL.
+ */
 void html_fragment (const uchar *s)
 {
   write_break ();

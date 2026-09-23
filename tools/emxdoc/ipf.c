@@ -1,22 +1,26 @@
-/* ipf.c -- IPF output
-   Copyright (c) 1993-2000 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file ipf.c
+ * @brief IPF output.
+ *
+ * Copyright (c) 1993-2000 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -27,12 +31,26 @@ Boston, MA 02111-1307, USA.  */
 #include "ipf.h"
 #include "xref.h"
 
+/*!
+ * @brief Horizontal bar character in a table line.
+ */
 #define HBAR   0xc4
+/*!
+ * @brief Vertical bar character in a table line.
+ */
 #define VBAR   0xb3
 
+/*!
+ * @brief Current index reference ID.
+ */
 static int idx_refid;
 
 
+/*!
+ * @brief Change the current IPF highlighting.
+ *
+ * @param[in] new New highlight bits.
+ */
 void ipf_hilite (int new)
 {
   int diff, font_changed;
@@ -106,6 +124,12 @@ void ipf_hilite (int new)
 }
 
 
+/*!
+ * @brief Write a string, escaping IPF metacharacters.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 static void ipf_string (const uchar *p, int may_break)
 {
   const uchar *q;
@@ -142,6 +166,12 @@ static void ipf_string (const uchar *p, int may_break)
 }
 
 
+/*!
+ * @brief Write a string with the current IPF highlighting.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 void ipf_output (const uchar *p, int may_break)
 {
   ipf_hilite (hl_stack[hl_sp]);
@@ -149,6 +179,9 @@ void ipf_output (const uchar *p, int may_break)
 }
 
 
+/*!
+ * @brief Start a new IPF paragraph.
+ */
 void ipf_para (void)
 {
   write_break ();
@@ -156,6 +189,11 @@ void ipf_para (void)
 }
 
 
+/*!
+ * @brief Set the current IPF left margin.
+ *
+ * @param[in] margin Margin in characters.
+ */
 void ipf_margin (int margin)
 {
   if (out && mode == 'I')
@@ -166,12 +204,22 @@ void ipf_margin (int margin)
 }
 
 
+/*!
+ * @brief Set the IPF margin from an environment stack entry.
+ *
+ * @param[in] sp Environment stack index.
+ */
 void ipf_env_margin (int sp)
 {
   ipf_margin (env_stack[sp].imargin);
 }
 
 
+/*!
+ * @brief Render the current element list.
+ *
+ * @param[in] style Default style to apply.
+ */
 void ipf_elements (enum style style)
 {
   const struct element *ep;
@@ -225,6 +273,12 @@ void ipf_elements (enum style style)
 }
 
 
+/*!
+ * @brief Open an IPF hyperlink.
+ *
+ * @param[in] database Database name, or NULL for the current file.
+ * @param[in] ref      Reference number.
+ */
 void ipf_begin_link (const uchar *database, int ref)
 {
   ipf_hilite (hl_stack[hl_sp]);
@@ -243,12 +297,18 @@ void ipf_begin_link (const uchar *database, int ref)
 }
 
 
+/*!
+ * @brief Close an IPF hyperlink.
+ */
 void ipf_end_link (void)
 {
   write_string (":elink.");
 }
 
 
+/*!
+ * @brief Emit the closing tags of the current environment.
+ */
 void ipf_end_env (void)
 {
   switch (env_stack[env_sp].env)
@@ -277,12 +337,21 @@ void ipf_end_env (void)
 }
 
 
+/*!
+ * @brief Begin an IPF table of contents.
+ */
 void ipf_toc_start (void)
 {
   write_line (":lines align=left.");
 }
 
 
+/*!
+ * @brief Emit one table-of-contents entry.
+ *
+ * @param[in] s  Section number text.
+ * @param[in] tp Table-of-contents entry.
+ */
 void ipf_toc_line (const uchar *s, const struct toc *tp)
 {
   format_string (s, STYLE_NORMAL, FALSE);
@@ -293,12 +362,23 @@ void ipf_toc_line (const uchar *s, const struct toc *tp)
 }
 
 
+/*!
+ * @brief End an IPF table of contents.
+ */
 void ipf_toc_end (void)
 {
   write_line (":elines.");
 }
 
 
+/*!
+ * @brief Emit a level-1 heading.
+ *
+ * @param[in] level  Heading level.
+ * @param[in] ref    Section reference number.
+ * @param[in] global Non-zero if the section is global.
+ * @param[in] flags  Heading flags.
+ */
 void ipf_heading1 (int level, int ref, int global, unsigned flags)
 {
   if (hl_sp != 0)
@@ -315,6 +395,11 @@ void ipf_heading1 (int level, int ref, int global, unsigned flags)
 }
 
 
+/*!
+ * @brief Emit a level-2 heading.
+ *
+ * @param[in] s Heading text. Not NULL.
+ */
 void ipf_heading2 (const uchar *s)
 {
   if (tg_level == 0)
@@ -333,6 +418,9 @@ void ipf_heading2 (const uchar *s)
 }
 
 
+/*!
+ * @brief Begin an IPF description list.
+ */
 void ipf_description (void)
 {
   write_fmt (":dl break=fit tsize=%d.", IPF_DESCRIPTION_INDENT);
@@ -340,18 +428,29 @@ void ipf_description (void)
 }
 
 
+/*!
+ * @brief Begin an IPF ordered list.
+ */
 void ipf_enumerate (void)
 {
   write_line (":ol.");
 }
 
 
+/*!
+ * @brief Begin an IPF unordered list.
+ */
 void ipf_itemize (void)
 {
   write_line (":ul.");
 }
 
 
+/*!
+ * @brief Begin an IPF verbatim block.
+ *
+ * @param[in] tag_end Tag that terminates the block.
+ */
 void ipf_verbatim_start (enum tag tag_end)
 {
   switch (tag_end)
@@ -375,6 +474,9 @@ void ipf_verbatim_start (enum tag tag_end)
 }
 
 
+/*!
+ * @brief Emit one verbatim line.
+ */
 void ipf_verbatim_line (void)
 {
   format_output (input, FALSE);
@@ -382,6 +484,11 @@ void ipf_verbatim_line (void)
 }
 
 
+/*!
+ * @brief End an IPF verbatim block.
+ *
+ * @param[in] tag_end Tag that terminated the block.
+ */
 void ipf_verbatim_end (enum tag tag_end)
 {
   write_line (":ecgraphic.");
@@ -399,6 +506,11 @@ void ipf_verbatim_end (enum tag tag_end)
 }
 
 
+/*!
+ * @brief Emit a description-list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void ipf_description_item (const uchar *s)
 {
   write_break ();
@@ -410,6 +522,9 @@ void ipf_description_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit an ordered-list item.
+ */
 void ipf_enumerate_item (void)
 {
   write_break ();
@@ -418,6 +533,9 @@ void ipf_enumerate_item (void)
 }
 
 
+/*!
+ * @brief Emit an unordered-list item.
+ */
 void ipf_itemize_item (void)
 {
   write_break ();
@@ -426,6 +544,11 @@ void ipf_itemize_item (void)
 }
 
 
+/*!
+ * @brief Emit a list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void ipf_list_item (const uchar *s)
 {
   ipf_env_margin (env_sp-1);
@@ -437,6 +560,9 @@ void ipf_list_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Begin a prototype block.
+ */
 void ipf_prototype_start (void)
 {
   if (para_flag)
@@ -448,6 +574,11 @@ void ipf_prototype_start (void)
 }
 
 
+/*!
+ * @brief End a prototype block.
+ *
+ * @param[in,out] compat Compatibility note buffer.
+ */
 void ipf_prototype_end (uchar *compat)
 {
   ipf_elements (STYLE_TTY);
@@ -464,6 +595,9 @@ void ipf_prototype_end (uchar *compat)
 }
 
 
+/*!
+ * @brief Emit the IPF document prologue.
+ */
 void ipf_start (void)
 {
   write_line (":userdoc.");
@@ -480,6 +614,13 @@ void ipf_start (void)
 }
 
 
+/*!
+ * @brief Begin an IPF table.
+ *
+ * @param[in] do_indent Non-zero to indent the table.
+ * @param[in] widths    Column widths. May be NULL if @p wn is 0.
+ * @param[in] wn        Number of column widths.
+ */
 void ipf_table_start (int do_indent, int *widths, int wn)
 {
   int wi;
@@ -503,6 +644,12 @@ void ipf_table_start (int do_indent, int *widths, int wn)
 }
 
 
+/*!
+ * @brief Emit one IPF table line.
+ *
+ * @param[in] s  Line text. Not NULL.
+ * @param[in] wn Expected number of columns.
+ */
 void ipf_table_line (const uchar *s, int wn)
 {
   int wi;
@@ -538,6 +685,11 @@ void ipf_table_line (const uchar *s, int wn)
 }
 
 
+/*!
+ * @brief End an IPF table.
+ *
+ * @param[in] do_indent Non-zero if the table was indented.
+ */
 void ipf_table_end (int do_indent)
 {
   write_line (":etable.");
@@ -552,6 +704,11 @@ void ipf_table_end (int do_indent)
 }
 
 
+/*!
+ * @brief Register an IPF index entry.
+ *
+ * @param[in] s Index entry text. Not NULL.
+ */
 void ipf_index (const uchar *s)
 {
   struct word *wp;
@@ -596,6 +753,9 @@ void ipf_index (const uchar *s)
 }
 
 
+/*!
+ * @brief Begin a "See also" paragraph.
+ */
 void ipf_see_also_start (void)
 {
   if (para_flag)
@@ -604,6 +764,12 @@ void ipf_see_also_start (void)
 }
 
 
+/*!
+ * @brief Emit one "See also" reference.
+ *
+ * @param[in] word Reference text. Not NULL.
+ * @param[in] s    Remaining list text. Not NULL.
+ */
 void ipf_see_also_word (const uchar *word, const uchar *s)
 {
   struct word *wp;
@@ -629,6 +795,11 @@ void ipf_see_also_word (const uchar *word, const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a sample-file reference.
+ *
+ * @param[in] s Sample file name. Not NULL.
+ */
 void ipf_sample_file (const uchar *s)
 {
   if (para_flag)
@@ -640,6 +811,11 @@ void ipf_sample_file (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a library-reference section heading.
+ *
+ * @param[in] s Section title. Not NULL.
+ */
 void ipf_libref_section (const uchar *s)
 {
   if (para_flag)
@@ -650,6 +826,11 @@ void ipf_libref_section (const uchar *s)
 }
 
 
+/*!
+ * @brief Begin a function documentation block.
+ *
+ * @param[in] tp Table-of-contents entry for the function.
+ */
 void ipf_function_start (const struct toc *tp)
 {
   ipf_heading1 (2, tp->ref, tp->global, 0);
@@ -661,6 +842,11 @@ void ipf_function_start (const struct toc *tp)
 }
 
 
+/*!
+ * @brief Emit one function name within a function block.
+ *
+ * @param[in] s Function name. Not NULL.
+ */
 void ipf_function_function (const uchar *s)
 {
   if (out)
@@ -673,6 +859,9 @@ void ipf_function_function (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a paragraph of normal text.
+ */
 void ipf_copy (void)
 {
   if (para_flag)
@@ -689,6 +878,11 @@ void ipf_copy (void)
 }
 
 
+/*!
+ * @brief Emit an IPF mini table of contents.
+ *
+ * @param[in] tp Current table-of-contents entry.
+ */
 void ipf_minitoc (const struct toc *tp)
 {
   int level, any;
@@ -725,6 +919,9 @@ void ipf_minitoc (const struct toc *tp)
 }
 
 
+/*!
+ * @brief Emit the IPF document epilogue.
+ */
 void ipf_end (void)
 {
   if (out)

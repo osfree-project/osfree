@@ -1,22 +1,29 @@
-/* cond.c -- Conditional expressions
-   Copyright (c) 1993-1999 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file cond.c
+ * @brief Conditional expressions.
+ *
+ * Parses and evaluates boolean conditional expressions used by
+ * emxdoc's \c if / \c else / \c endif preprocessing directives.
+ *
+ * Copyright (c) 1993-1999 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -26,6 +33,9 @@ Boston, MA 02111-1307, USA.  */
 #include "emxdoc.h"
 #include "cond.h"
 
+/*!
+ * @brief Lexical tokens produced by cond_fetch().
+ */
 enum ctok
 {
   CTOK_END,
@@ -37,6 +47,9 @@ enum ctok
   CTOK_CONST
 };
 
+/*!
+ * @brief A named boolean variable set by cond_set().
+ */
 struct cond_var
 {
   struct cond_var *next;
@@ -44,17 +57,51 @@ struct cond_var
   int value;
 };
 
+/*!
+ * @brief Current parse position.
+ */
 static const uchar *cond_ptr;
+/*!
+ * @brief Current token.
+ */
 static enum ctok ct_token;
+/*!
+ * @brief Value of the current constant token.
+ */
 static int ct_value;
+/*!
+ * @brief Head of the list of conditional variables.
+ */
 static struct cond_var *cond_vars = NULL;
 
 
+/*!
+ * @brief Parse and evaluate an "or" expression.
+ *
+ * @return Result of the expression.
+ */
 static int cond_or (void);
+/*!
+ * @brief Fetch the next token into ct_token.
+ */
 static void cond_fetch (void);
+/*!
+ * @brief Find a variable by name.
+ *
+ * @param[in] name Variable name. Not NULL.
+ *
+ * @return Pointer to the variable, or NULL if not found.
+ */
 static struct cond_var *cond_find (const uchar *name);
 
 
+/*!
+ * @brief Evaluate a conditional expression.
+ *
+ * @param[in] p Expression text. Not NULL.
+ *
+ * @return Non-zero if the expression is true, zero otherwise.
+ */
 int condition (const uchar *p)
 {
   int result;
@@ -69,6 +116,12 @@ int condition (const uchar *p)
 }
 
 
+/*!
+ * @brief Assign a value to a conditional variable.
+ *
+ * @param[in] name  Variable name. Not NULL.
+ * @param[in] value New value.
+ */
 void cond_set (const uchar *name, int value)
 {
   struct cond_var *v;
@@ -85,6 +138,13 @@ void cond_set (const uchar *name, int value)
 }
 
 
+/*!
+ * @brief Find a variable by name.
+ *
+ * @param[in] name Variable name. Not NULL.
+ *
+ * @return Pointer to the variable, or NULL if not found.
+ */
 static struct cond_var *cond_find (const uchar *name)
 {
   struct cond_var *v;
@@ -96,6 +156,9 @@ static struct cond_var *cond_find (const uchar *name)
 }
 
 
+/*!
+ * @brief Fetch the next token into ct_token.
+ */
 static void cond_fetch (void)
 {
   static uchar name[512];
@@ -191,6 +254,11 @@ static void cond_fetch (void)
 }
 
 
+/*!
+ * @brief Parse a primary factor.
+ *
+ * @return Value of the factor.
+ */
 static int cond_factor (void)
 {
   int result;
@@ -222,6 +290,11 @@ static int cond_factor (void)
 }
 
 
+/*!
+ * @brief Parse a "not" expression.
+ *
+ * @return Result of the expression.
+ */
 static int cond_not (void)
 {
   if (ct_token == CTOK_NOT)
@@ -234,6 +307,11 @@ static int cond_not (void)
 }
 
 
+/*!
+ * @brief Parse an "and" expression.
+ *
+ * @return Result of the expression.
+ */
 static int cond_and (void)
 {
   int result;
@@ -249,6 +327,11 @@ static int cond_and (void)
 }
 
 
+/*!
+ * @brief Parse an "or" expression.
+ *
+ * @return Result of the expression.
+ */
 static int cond_or (void)
 {
   int result;

@@ -1,22 +1,26 @@
-/* emxdoc.c -- Main module of emxdoc
-   Copyright (c) 1993-2001 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file emxdoc.c
+ * @brief Main module of emxdoc.
+ *
+ * Copyright (c) 1993-2001 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <assert.h>
@@ -40,69 +44,155 @@ Boston, MA 02111-1307, USA.  */
 #include "xref.h"
 #include "cond.h"
 
+/*!
+ * @brief Version string of emxdoc.
+ */
 #define VERSION "0.9d"
 
+/*!
+ * @brief Hash table of strings.
+ */
 struct word_table
 {
-  unsigned hash_size;           /* hash size */
-  struct word **hash_table;     /* hash table */
-  int count;                    /* number of elements */
+  unsigned hash_size;           /*!< Hash size. */
+  struct word **hash_table;     /*!< Hash table. */
+  int count;                    /*!< Number of elements. */
 };
 
+/*!
+ * @brief Saved local style binding for a word.
+ */
 struct local
 {
-  struct word *wp;
-  enum style style;
+  struct word *wp;              /*!< The word. */
+  enum style style;             /*!< Its saved style. */
 };
 
-/* This is the return code of the program.  It is initially 0.
-   nonfatal() sets it to 1. */
+/*!
+ * @brief Return code of the program, initially 0.
+ *
+ * nonfatal() sets it to 1.
+ */
 static int history = 0;
 
-static int opt_r = FALSE;       /* Make output file read-only */
+/*!
+ * @brief Non-zero to make output file read-only.
+ */
+static int opt_r = FALSE;
 
+/*!
+ * @brief Cross-reference file name, or NULL.
+ */
 static const char *xref_fname = NULL;
 
+/*!
+ * @brief Output file name, or NULL.
+ */
 static const char *output_fname = NULL;
+/*!
+ * @brief Non-zero if an output file is being written.
+ */
 static int output_flag = FALSE;
 
+/*!
+ * @brief Hyphenation table file name, or NULL.
+ */
 static const char *hyphenation_fname = NULL;
 
+/*!
+ * @brief Current input line buffer.
+ */
 static uchar *line;
+/*!
+ * @brief Allocated size of line[].
+ */
 static size_t line_size = 0;
+/*!
+ * @brief Current length of line[].
+ */
 static size_t line_len = 0;
 
-/* Temporary output buffer. */
+/*!
+ * @brief Temporary output buffer.
+ */
 static uchar output[512];
 
-/* Syntax style. */
+/*!
+ * @brief Syntax style.
+ */
 static enum syntax syntax_style;
 
+/*!
+ * @brief Allocated element capacity.
+ */
 static size_t elements_size = 0;
+/*!
+ * @brief Number of elements in use.
+ */
 static size_t elements_count = 0;
 
+/*!
+ * @brief Maximum output line width.
+ */
 static int max_width;
 
+/*!
+ * @brief Stack of local word-style bindings.
+ */
 static struct local *local_stack = NULL;
+/*!
+ * @brief Allocated capacity of local_stack.
+ */
 static int local_size = 0;
+/*!
+ * @brief Current stack pointer for local_stack.
+ */
 static int local_sp;
 
+/*!
+ * @brief Per-level section counters.
+ */
 static int section_numbers[SECTION_LEVELS];
 
+/*!
+ * @brief Head of the table of contents list.
+ */
 static struct toc *toc_head = NULL;
+/*!
+ * @brief Current entry in the table of contents.
+ */
 static struct toc *toc_ptr = NULL;
+/*!
+ * @brief Where to append the next TOC entry.
+ */
 static struct toc **toc_add = &toc_head;
+/*!
+ * @brief Current indentation width for TOC output.
+ */
 static int toc_indent = 0;
 
+/*!
+ * @brief Compatibility note buffer.
+ */
 static uchar compat[128];
 
+/*!
+ * @brief Non-zero if text is expected at the current position.
+ */
 static int copy_flag;
 
+/*!
+ * @brief Print usage and exit.
+ */
 static void usage (void) NORETURN2;
 
 
-/* Display an error message and stop. */
-
+/*!
+ * @brief Display an error message and stop.
+ *
+ * @param[in] fmt Format string. Not NULL.
+ * @param[in] ... Format arguments.
+ */
 void fatal (const char *fmt, ...)
 {
   va_list arg_ptr;
@@ -114,8 +204,14 @@ void fatal (const char *fmt, ...)
 }
 
 
-/* Display an error message and set history to 1.  Don't stop. */
-
+/*!
+ * @brief Display an error message and set history to 1.
+ *
+ * Does not stop.
+ *
+ * @param[in] fmt Format string. Not NULL.
+ * @param[in] ... Format arguments.
+ */
 void nonfatal (const char *fmt, ...)
 {
   va_list arg_ptr;
@@ -127,9 +223,15 @@ void nonfatal (const char *fmt, ...)
 }
 
 
-/* Display a warning message if opt_w is equal to or greater than
-   LEVEL.  Don't change history and don't stop. */
-
+/*!
+ * @brief Display a warning message if opt_w is at least @p level.
+ *
+ * Does not change history and does not stop.
+ *
+ * @param[in] level Minimum warning level.
+ * @param[in] fmt   Format string. Not NULL.
+ * @param[in] ...   Format arguments.
+ */
 void warning (int level, const char *fmt, ...)
 {
   va_list arg_ptr;
@@ -143,9 +245,13 @@ void warning (int level, const char *fmt, ...)
 }
 
 
-/* Allocate N bytes of memory.  Quit on failure.  This function is
-   used like malloc(), but we don't have to check the return value. */
-
+/*!
+ * @brief Allocate memory, quitting on failure.
+ *
+ * @param[in] n Number of bytes.
+ *
+ * @return Pointer to the allocated block.
+ */
 void *xmalloc (size_t n)
 {
   void *p;
@@ -157,10 +263,14 @@ void *xmalloc (size_t n)
 }
 
 
-/* Change the allocation of PTR to N bytes.  Quit on failure.  This
-   function is used like realloc(), but we don't have to check the
-   return value. */
-
+/*!
+ * @brief Change the allocation of @p ptr to @p n bytes, quitting on failure.
+ *
+ * @param[in] ptr Previously allocated block.
+ * @param[in] n   New size in bytes.
+ *
+ * @return Pointer to the reallocated block.
+ */
 static void *xrealloc (void *ptr, size_t n)
 {
   void *p;
@@ -172,10 +282,13 @@ static void *xrealloc (void *ptr, size_t n)
 }
 
 
-/* Create a duplicate of the string S on the heap.  Quit on failure.
-   This function is used like strdup(), but we don't have to check the
-   return value. */
-
+/*!
+ * @brief Create a heap duplicate of a string, quitting on failure.
+ *
+ * @param[in] s String. Not NULL.
+ *
+ * @return Pointer to the duplicate.
+ */
 uchar *xstrdup (const uchar *s)
 {
   char *p;
@@ -186,6 +299,9 @@ uchar *xstrdup (const uchar *s)
 }
 
 
+/*!
+ * @brief Print usage text and exit.
+ */
 static void usage (void)
 {
   fputs ("emxdoc " VERSION " -- "
@@ -222,6 +338,11 @@ static void usage (void)
 }
 
 
+/*!
+ * @brief Convert a string to upper case in place.
+ *
+ * @param[in,out] s String to convert. Not NULL.
+ */
 static void upcase (uchar *s)
 {
   while (*s != 0)
@@ -232,6 +353,11 @@ static void upcase (uchar *s)
 }
 
 
+/*!
+ * @brief Convert a string to lower case in place.
+ *
+ * @param[in,out] s String to convert. Not NULL.
+ */
 static void downcase (uchar *s)
 {
   while (*s != 0)
@@ -242,6 +368,9 @@ static void downcase (uchar *s)
 }
 
 
+/*!
+ * @brief Write a newline to the output file, tracking line length.
+ */
 void write_nl (void)
 {
   if (output_flag)
@@ -261,6 +390,9 @@ void write_nl (void)
 }
 
 
+/*!
+ * @brief Write a newline if the current line is not empty.
+ */
 void write_break (void)
 {
   if (output_x != 0)
@@ -268,8 +400,12 @@ void write_break (void)
 }
 
 
-/* P must not contain \n! */
-
+/*!
+ * @brief Write a string of given length to the output file.
+ *
+ * @param[in] p String. Must not contain a newline. Not NULL.
+ * @param[in] n Length in bytes.
+ */
 void write_nstring (const uchar *p, size_t n)
 {
   if (output_flag)
@@ -280,24 +416,35 @@ void write_nstring (const uchar *p, size_t n)
 }
 
 
-/* P must not contain \n! */
-
+/*!
+ * @brief Write a NUL-terminated string to the output file.
+ *
+ * @param[in] p String. Must not contain a newline. Not NULL.
+ */
 void write_string (const uchar *p)
 {
   write_nstring (p, strlen (p));
 }
 
 
-/* P must not contain \n! */
-
+/*!
+ * @brief Write a string followed by a newline.
+ *
+ * @param[in] p String. Must not contain a newline. Not NULL.
+ */
 void write_line (const uchar *p)
 {
   write_string (p);
   write_nl ();
 }
 
-/* Output must not contain \n! */
 
+/*!
+ * @brief Write a formatted string to the output file.
+ *
+ * @param[in] fmt Format string. Not NULL.
+ * @param[in] ... Format arguments.
+ */
 void write_fmt (const char *fmt, ...)
 {
   va_list arg_ptr;
@@ -310,6 +457,9 @@ void write_fmt (const char *fmt, ...)
 }
 
 
+/*!
+ * @brief Write a single space, breaking the line if it is too long.
+ */
 void write_space (void)
 {
   if (output_x >= 60)
@@ -318,6 +468,13 @@ void write_space (void)
     write_string (" ");
 }
 
+/*!
+ * @brief Allocate a new word table.
+ *
+ * @param[in] hash_size Number of hash buckets.
+ *
+ * @return Pointer to the new table.
+ */
 struct word_table *wt_new (unsigned hash_size)
 {
   unsigned i;
@@ -331,6 +488,14 @@ struct word_table *wt_new (unsigned hash_size)
   return wt;
 }
 
+/*!
+ * @brief Compute the hash value of a string in a table.
+ *
+ * @param[in] wt  Word table. Not NULL.
+ * @param[in] str String to hash. Not NULL.
+ *
+ * @return Hash value in the range 0..hash_size-1.
+ */
 unsigned wt_hash (struct word_table *wt, const uchar *str)
 {
   unsigned h;
@@ -345,6 +510,15 @@ unsigned wt_hash (struct word_table *wt, const uchar *str)
 }
 
 
+/*!
+ * @brief Find a word in a table by hash.
+ *
+ * @param[in] wt   Word table. Not NULL.
+ * @param[in] str  String to search for. Not NULL.
+ * @param[in] hash Hash value of @p str.
+ *
+ * @return Pointer to the word, or NULL if not found.
+ */
 struct word *wt_find (struct word_table *wt, const uchar *str, unsigned hash)
 {
   struct word *wp;
@@ -356,6 +530,14 @@ struct word *wt_find (struct word_table *wt, const uchar *str, unsigned hash)
 }
 
 
+/*!
+ * @brief Find or add a word in a table.
+ *
+ * @param[in] wt  Word table. Not NULL.
+ * @param[in] str String. Not NULL.
+ *
+ * @return Pointer to the (possibly newly created) word.
+ */
 struct word *wt_add (struct word_table *wt, const uchar *str)
 {
   struct word *wp;
@@ -381,6 +563,14 @@ struct word *wt_add (struct word_table *wt, const uchar *str)
   return wp;
 }
 
+/*!
+ * @brief Call a function for each word in a table.
+ *
+ * @param[in] wt       Word table. Not NULL.
+ * @param[in] callback Function to call for each word. Not NULL.
+ *
+ * @return Result of the callback for the last word, or 0.
+ */
 int wt_walk (struct word_table *wt, int (*callback)(struct word *))
 {
   int x = 0;
@@ -397,38 +587,78 @@ int wt_walk (struct word_table *wt, int (*callback)(struct word *))
   return x;
 }
 
+/*!
+ * @brief Return the number of words in a table.
+ *
+ * @param[in] wt Word table. Not NULL.
+ *
+ * @return Number of words.
+ */
 int wt_count (const struct word_table *wt)
 {
   return wt->count;
 }
 
+/*!
+ * @brief Hash a string in the global word table.
+ *
+ * @param[in] str String. Not NULL.
+ *
+ * @return Hash value.
+ */
 unsigned word_hash (const uchar *str)
 {
   return wt_hash (word_top, str);
 }
 
+/*!
+ * @brief Find a word in the global word table.
+ *
+ * @param[in] str  String. Not NULL.
+ * @param[in] hash Hash value of @p str.
+ *
+ * @return Pointer to the word, or NULL if not found.
+ */
 struct word *word_find (const uchar *str, unsigned hash)
 {
   return wt_find (word_top, str, hash);
 }
 
+/*!
+ * @brief Find or add a word in the global word table.
+ *
+ * @param[in] str String. Not NULL.
+ *
+ * @return Pointer to the (possibly newly created) word.
+ */
 struct word *word_add (const uchar *str)
 {
   return wt_add (word_top, str);
 }
 
+/*!
+ * @brief Call a function for each word in the global word table.
+ *
+ * @param[in] callback Function to call for each word. Not NULL.
+ *
+ * @return Result of the callback for the last word, or 0.
+ */
 int word_walk (int (*callback)(struct word *))
 {
   return wt_walk (word_top, callback);
 }
 
-/* We do not really nest local blocks */
-
+/*!
+ * @brief Begin a local word-style scope.
+ */
 static void local_begin (void)
 {
 }
 
 
+/*!
+ * @brief End the current local word-style scope.
+ */
 static void local_end (void)
 {
   while (local_sp > 0)
@@ -439,6 +669,11 @@ static void local_end (void)
 }
 
 
+/*!
+ * @brief Bind a word's current style on the local stack.
+ *
+ * @param[in] wp Word to save. Not NULL.
+ */
 static void local_add (struct word *wp)
 {
   if (local_sp >= local_size)
@@ -452,6 +687,12 @@ static void local_add (struct word *wp)
 }
 
 
+/*!
+ * @brief Dispatch output of a string to the current backend.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] may_break Non-zero if the backend may insert a line break.
+ */
 void format_output (const uchar *p, int may_break)
 {
   switch (mode)
@@ -472,6 +713,11 @@ void format_output (const uchar *p, int may_break)
 }
 
 
+/*!
+ * @brief Push a highlighting attribute onto the stack.
+ *
+ * @param[in] hilite Highlight bit to push.
+ */
 void start_hilite (int hilite)
 {
   if (hl_sp >= HL_STACK_SIZE - 1)
@@ -491,6 +737,9 @@ void start_hilite (int hilite)
 }
 
 
+/*!
+ * @brief Pop a highlighting attribute from the stack.
+ */
 void end_hilite (void)
 {
   if (hl_sp == 0)
@@ -509,6 +758,12 @@ void end_hilite (void)
 }
 
 
+/*!
+ * @brief Append text to the current line buffer.
+ *
+ * @param[in] src Source bytes. Not NULL.
+ * @param[in] len Number of bytes.
+ */
 static void line_add (const uchar *src, size_t len)
 {
   if (line_len + len + 1 > line_size)
@@ -522,6 +777,11 @@ static void line_add (const uchar *src, size_t len)
 }
 
 
+/*!
+ * @brief Allocate a new element in the element array.
+ *
+ * @return Pointer to the new element.
+ */
 static struct element *add_element (void)
 {
   if (elements_count >= elements_size)
@@ -533,6 +793,14 @@ static struct element *add_element (void)
 }
 
 
+/*!
+ * @brief Append a word element.
+ *
+ * @param[in] word Word string. Not NULL.
+ * @param[in] el   Element kind.
+ *
+ * @return Pointer to the new element.
+ */
 static struct element *add_word (const uchar *word, enum el el)
 {
   struct element *ep;
@@ -545,6 +813,11 @@ static struct element *add_word (const uchar *word, enum el el)
 }
 
 
+/*!
+ * @brief Build the element list from an input string.
+ *
+ * @param[in] p Input string. Not NULL.
+ */
 static void make_elements_internal (const uchar *p)
 {
   uchar word[512], *d, start, end, *h1;
@@ -748,12 +1021,18 @@ static void make_elements_internal (const uchar *p)
 }
 
 
+/*!
+ * @brief Reset the element list for a new string.
+ */
 static void make_elements_start (void)
 {
   elements_count = 0;
 }
 
 
+/*!
+ * @brief Terminate the element list.
+ */
 static void make_elements_end (void)
 {
   struct element *ep;
@@ -763,6 +1042,11 @@ static void make_elements_end (void)
 }
 
 
+/*!
+ * @brief Build an element list from a string.
+ *
+ * @param[in] p Input string. Not NULL.
+ */
 void make_elements (const uchar *p)
 {
   make_elements_start ();
@@ -771,9 +1055,19 @@ void make_elements (const uchar *p)
 }
 
 
+/*!
+ * @brief Test whether a character is a syntax placeholder.
+ */
 #define ISSYNTAXARG(C) ((C) == '*' || (C) == '#' \
                         || (syntax_style == SYNTAX_DVIDRV && (C) == '+'))
 
+/*!
+ * @brief Format a string with a given style.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] sty       Style.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 void format_string (const uchar *p, int sty, int may_break)
 {
   uchar syntax[512], *d;
@@ -884,6 +1178,13 @@ void format_string (const uchar *p, int sty, int may_break)
 }
 
 
+/*!
+ * @brief Format a run of spaces.
+ *
+ * @param[in] n         Number of spaces.
+ * @param[in] style     Style.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 void format_spaces (int n, enum style style, int may_break)
 {
   uchar *p;
@@ -895,6 +1196,13 @@ void format_spaces (int n, enum style style, int may_break)
 }
 
 
+/*!
+ * @brief Push a new environment onto the stack.
+ *
+ * @param[in] env     Environment kind.
+ * @param[in] tindent Top-margin increment.
+ * @param[in] iindent Inner-margin increment.
+ */
 static void start_env (int env, int tindent, int iindent)
 {
   if (env_sp >= ENV_STACK_SIZE - 1)
@@ -908,6 +1216,11 @@ static void start_env (int env, int tindent, int iindent)
 }
 
 
+/*!
+ * @brief Pop an environment from the stack.
+ *
+ * @param[in] env Expected environment kind.
+ */
 static void end_env (int env)
 {
   const char *name;
@@ -957,6 +1270,9 @@ static void end_env (int env)
 }
 
 
+/*!
+ * @brief Warn if text was expected at the current position.
+ */
 static void check_copy (void)
 {
   if (out && !copy_flag)
@@ -965,6 +1281,11 @@ static void check_copy (void)
 }
 
 
+/*!
+ * @brief End an environment and read the next line.
+ *
+ * @param[in] env Environment kind.
+ */
 static void do_end_env (int env)
 {
   end_env (env);
@@ -973,6 +1294,11 @@ static void do_end_env (int env)
 }
 
 
+/*!
+ * @brief Process a %format tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_format (const uchar *p)
 {
   const uchar *q;
@@ -1055,6 +1381,11 @@ static void do_format (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %special tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_special (const uchar *p)
 {
   const uchar *q;
@@ -1123,6 +1454,11 @@ static void do_special (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %replace tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_replace (const uchar *p)
 {
   const uchar *q;
@@ -1148,6 +1484,11 @@ static void do_replace (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %set tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_set (const uchar *p)
 {
   int len, value;
@@ -1175,6 +1516,11 @@ static void do_set (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %language tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_language (const uchar *p)
 {
   if (!out)
@@ -1190,6 +1536,11 @@ static void do_language (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %syntax tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_syntax (const uchar *p)
 {
   if (strcmp (p, "emx") == 0)
@@ -1202,6 +1553,12 @@ static void do_syntax (const uchar *p)
 }
 
 
+/*!
+ * @brief Create a new TOC section.
+ *
+ * @param[in] level Section level.
+ * @param[in] flags Heading flags.
+ */
 static void new_section (int level, unsigned flags)
 {
   struct toc *tp;
@@ -1241,6 +1598,11 @@ static void new_section (int level, unsigned flags)
 }
 
 
+/*!
+ * @brief Define a section while not producing output.
+ *
+ * @param[in] p Heading text. Not NULL.
+ */
 static void do_heading_def (const uchar *p)
 {
   if (tg_level > 0)
@@ -1251,6 +1613,11 @@ static void do_heading_def (const uchar *p)
     }
 }
 
+/*!
+ * @brief Emit a section heading to the output.
+ *
+ * @param[in] p Heading text. Not NULL.
+ */
 static void do_heading_out (const uchar *p)
 {
   check_copy ();
@@ -1305,6 +1672,11 @@ static void do_heading_out (const uchar *p)
 }
 
 
+/*!
+ * @brief Emit the table of contents to the output.
+ *
+ * @param[in] p Tag argument (unused).
+ */
 static void do_toc_out (const uchar *p)
 {
   struct toc *tp;
@@ -1361,6 +1733,9 @@ static void do_toc_out (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %description tag.
+ */
 static void do_description (void)
 {
   check_copy ();
@@ -1383,6 +1758,9 @@ static void do_description (void)
 }
 
 
+/*!
+ * @brief Process an %enumerate tag.
+ */
 static void do_enumerate (void)
 {
   check_copy ();
@@ -1405,6 +1783,9 @@ static void do_enumerate (void)
 }
 
 
+/*!
+ * @brief Process an %itemize tag.
+ */
 static void do_itemize (void)
 {
   check_copy ();
@@ -1427,6 +1808,11 @@ static void do_itemize (void)
 }
 
 
+/*!
+ * @brief Process an %indent or %typewriter tag.
+ *
+ * @param[in] env Environment kind.
+ */
 static void do_indent (int env)
 {
   check_copy ();
@@ -1446,6 +1832,9 @@ static void do_indent (int env)
 }
 
 
+/*!
+ * @brief Process a %list tag.
+ */
 static void do_list (void)
 {
   check_copy ();
@@ -1464,6 +1853,11 @@ static void do_list (void)
 }
 
 
+/*!
+ * @brief Process a verbatim block.
+ *
+ * @param[in] tag_end Ending tag to look for.
+ */
 static void do_verbatim (enum tag tag_end)
 {
   int start_line, tmargin;
@@ -1554,6 +1948,11 @@ static void do_verbatim (enum tag tag_end)
 }
 
 
+/*!
+ * @brief Process a %table block.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_table (const uchar *p)
 {
   int start_line, tmargin, wn;
@@ -1648,6 +2047,9 @@ static void do_table (const uchar *p)
 }
 
 
+/*!
+ * @brief Process an %ipf block.
+ */
 static void do_ipf (void)
 {
   int start_line;
@@ -1672,6 +2074,9 @@ static void do_ipf (void)
 }
 
 
+/*!
+ * @brief Process a %text block.
+ */
 static void do_text (void)
 {
   int start_line;
@@ -1696,6 +2101,9 @@ static void do_text (void)
 }
 
 
+/*!
+ * @brief Process a %latex block.
+ */
 static void do_latex (void)
 {
   int start_line;
@@ -1720,6 +2128,9 @@ static void do_latex (void)
 }
 
 
+/*!
+ * @brief Process a %html block.
+ */
 static void do_html (void)
 {
   int start_line;
@@ -1744,6 +2155,11 @@ static void do_html (void)
 }
 
 
+/*!
+ * @brief Process a %label tag.
+ *
+ * @param[in] p Label name. Not NULL.
+ */
 static void do_label (const uchar *p)
 {
   if (!out)
@@ -1757,6 +2173,11 @@ static void do_label (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %index tag.
+ *
+ * @param[in] p Index text. Not NULL.
+ */
 static void do_index (const uchar *p)
 {
   if (toc_ptr == NULL)
@@ -1778,6 +2199,11 @@ static void do_index (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %keyword tag.
+ *
+ * @param[in] p Keyword text. Not NULL.
+ */
 static void do_keyword (const uchar *p)
 {
   switch (mode)
@@ -1790,6 +2216,11 @@ static void do_keyword (const uchar *p)
 }
 
 
+/*!
+ * @brief Process an %item tag.
+ *
+ * @param[in] p Item text. Not NULL.
+ */
 static void do_item (const uchar *p)
 {
   switch (env_stack[env_sp].env)
@@ -1884,6 +2315,9 @@ static void do_item (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %prototype block.
+ */
 static void do_prototype (void)
 {
   int start_line, tmargin;
@@ -1960,6 +2394,11 @@ static void do_prototype (void)
 }
 
 
+/*!
+ * @brief Process a %seealso tag.
+ *
+ * @param[in] p Comma separated word list. Not NULL.
+ */
 static void do_see_also (const uchar *p)
 {
   uchar word[512], *d, *o;
@@ -2023,6 +2462,11 @@ static void do_see_also (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %param tag.
+ *
+ * @param[in] p Whitespace separated parameter names. Not NULL.
+ */
 static void do_param (const uchar *p)
 {
   uchar word[512], *d;
@@ -2047,6 +2491,11 @@ static void do_param (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %samplefile tag.
+ *
+ * @param[in] p File name. Not NULL.
+ */
 static void do_sample_file (const uchar *p)
 {
   if (out)
@@ -2073,6 +2522,11 @@ static void do_sample_file (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a libref section heading tag.
+ *
+ * @param[in] text Section title. Not NULL.
+ */
 static void do_libref_section (const uchar *text)
 {
   if (out)
@@ -2097,6 +2551,11 @@ static void do_libref_section (const uchar *text)
 }
 
 
+/*!
+ * @brief Process a %function tag.
+ *
+ * @param[in] p Whitespace separated function names. Not NULL.
+ */
 static void do_function (const uchar *p)
 {
   uchar word[512], *d, *o;
@@ -2181,6 +2640,11 @@ static void do_function (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a %compat tag.
+ *
+ * @param[in] p Compatibility text. Not NULL.
+ */
 static void do_compat (const uchar *p)
 {
   while (isspace (*p))
@@ -2190,6 +2654,11 @@ static void do_compat (const uchar *p)
 }
 
 
+/*!
+ * @brief Dispatch a parsed tag.
+ *
+ * @param[in] p Tag argument. Not NULL.
+ */
 static void do_tag (const uchar *p)
 {
   switch (tg_tag)
@@ -2430,6 +2899,9 @@ static void do_tag (const uchar *p)
 }
 
 
+/*!
+ * @brief Process a paragraph of plain text.
+ */
 static void do_copy (void)
 {
   size_t len;
@@ -2487,12 +2959,18 @@ static void do_copy (void)
 }
 
 
+/*!
+ * @brief Process an empty input line.
+ */
 static void do_empty_line (void)
 {
   read_line ();
 }
 
 
+/*!
+ * @brief Emit the index heading.
+ */
 void start_index (void)
 {
   const char *text = "Index";
@@ -2505,12 +2983,18 @@ void start_index (void)
 }
 
 
+/*!
+ * @brief One-time global initialization.
+ */
 static void init (void)
 {
   word_top = wt_new (997);
 }
 
 
+/*!
+ * @brief Initialize state before processing a file.
+ */
 void init_file (void)
 {
   int i;
@@ -2551,6 +3035,9 @@ void init_file (void)
 }
 
 
+/*!
+ * @brief Finalize output after a file has been processed.
+ */
 static void end_file (void)
 {
   switch (mode)
@@ -2571,6 +3058,11 @@ static void end_file (void)
 }
 
 
+/*!
+ * @brief Read and process one input file.
+ *
+ * @param[in] name File name. Not NULL.
+ */
 static void read_file (const char *name)
 {
   const uchar *p;
@@ -2595,6 +3087,9 @@ static void read_file (const char *name)
 }
 
 
+/*!
+ * @brief Remove a partially written output file, if any.
+ */
 static void cleanup (void)
 {
   if (output_fname != NULL && output_file != stdout && output_file != NULL)
@@ -2607,6 +3102,11 @@ static void cleanup (void)
 }
 
 
+/*!
+ * @brief Parse an integer option argument.
+ *
+ * @return The parsed integer value.
+ */
 static int opt_number (void)
 {
   int result;
@@ -2619,6 +3119,11 @@ static int opt_number (void)
   return result;
 }
 
+/*!
+ * @brief Parse an encoding option argument.
+ *
+ * @return The encoding enum value.
+ */
 static enum enc opt_encoding (void)
 {
   if (strcmp (optarg, "cp850") == 0)
@@ -2629,6 +3134,14 @@ static enum enc opt_encoding (void)
     fatal ("Invalid encoding: %s", optarg);
 }
 
+/*!
+ * @brief Program entry point.
+ *
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ *
+ * @return Process exit status.
+ */
 int main (int argc, char *argv[])
 {
   int c, i;

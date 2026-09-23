@@ -1,22 +1,26 @@
-/* input.c -- Read and tokenize the input file
-   Copyright (c) 1993-1999 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file input.c
+ * @brief Read and tokenize the input file.
+ *
+ * Copyright (c) 1993-1999 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -26,25 +30,43 @@ Boston, MA 02111-1307, USA.  */
 #include "emxdoc.h"
 #include "cond.h"
 
+/*!
+ * @brief Maximum nesting depth of conditionals.
+ */
 #define COND_STACK_SIZE         8
 
+/*!
+ * @brief One nested conditional on the conditional stack.
+ */
 struct cond
 {
-  int start_line;
-  int true;
-  int else_seen;
+  int start_line;               /*!< Line of the matching %cif. */
+  int true;                     /*!< Non-zero if the current branch is active. */
+  int else_seen;                /*!< Non-zero if %celse was already seen. */
 };
 
+/*!
+ * @brief Precomputed recoding table from one encoding to another.
+ */
 struct recode_table
 {
-  enum enc inp;
-  enum enc out;
-  uchar tab[256];
+  enum enc inp;                 /*!< Input encoding. */
+  enum enc out;                 /*!< Output encoding. */
+  uchar tab[256];               /*!< Translation table. */
 };
 
+/*!
+ * @brief The conditional stack.
+ */
 static struct cond cond_stack[COND_STACK_SIZE];
+/*!
+ * @brief Stack pointer for cond_stack; -1 when no conditional is active.
+ */
 static int cond_sp;
 
+/*!
+ * @brief Character repertoire tables for the supported encodings.
+ */
 static const uchar *char_table[ENCODINGS] =
 {
   /* ENC_CP850 */
@@ -64,8 +86,19 @@ static const uchar *char_table[ENCODINGS] =
   "\xb6\xa7\xf7\xb7\xb9\xb3\xb2"
 };
 
+/*!
+ * @brief Empty placeholder for the ISO 8859-1 encoding.
+ */
 static const uchar chars_iso8859_1[] = "";
 
+/*!
+ * @brief Build a recoding table from one encoding to another.
+ *
+ * @param[in] inp Input encoding.
+ * @param[in] out Output encoding.
+ *
+ * @return Pointer to the newly built recoding table.
+ */
 static const struct recode_table *build_recode_table (enum enc inp,
                                                       enum enc out)
 {
@@ -97,6 +130,15 @@ static const struct recode_table *build_recode_table (enum enc inp,
   return p;
 }
 
+/*!
+ * @brief Recode a string in place from one encoding to another.
+ *
+ * @param[in,out] s   String to recode. Not NULL.
+ * @param[in]     inp Input encoding.
+ * @param[in]     out Output encoding.
+ *
+ * @return 0 on success, or the first unsupported input character.
+ */
 static int recode (uchar *s, enum enc inp, enum enc out)
 {
   static const struct recode_table *rt;
@@ -117,6 +159,13 @@ static int recode (uchar *s, enum enc inp, enum enc out)
   return 0;
 }
 
+/*!
+ * @brief Determine the encoding of a string.
+ *
+ * @param[in] s String to inspect. Not NULL.
+ *
+ * @return The encoding, or ENC_DEFAULT, ENC_AMBIGUOUS or ENC_UNSUPPORTED.
+ */
 static enum enc find_encoding (const uchar *s)
 {
   char pos[ENCODINGS];
@@ -158,6 +207,11 @@ static enum enc find_encoding (const uchar *s)
   return (enum enc)j;
 }
 
+/*!
+ * @brief Choose input and output encodings based on the input.
+ *
+ * @param[in] s First input line. Not NULL.
+ */
 static void choose_encoding (const uchar *s)
 {
   enum enc e = find_encoding (s);
@@ -173,13 +227,31 @@ static void choose_encoding (const uchar *s)
     }
 }
 
+/*!
+ * @brief Test whether a character starts a tag argument.
+ */
 #define ISARG(C) ((C) == '{' || (C) == '[')
+/*!
+ * @brief Test whether a character can start a tag argument.
+ */
 #define ISARGW(C) (isspace (C) || ISARG (C))
+/*!
+ * @brief Test whether a character can end a tag name.
+ */
 #define ISENDW(C) (isspace (C) || (C) == 0)
 
+/*!
+ * @brief Advance @p P by @p AT and skip one following space.
+ */
 #define SKIP1W(P,AT) do { (P) += (AT); if (isspace (*(P))) ++(P); } while (0)
+/*!
+ * @brief Advance @p P by @p AT and skip any following whitespace.
+ */
 #define SKIPW(P,AT) do { (P) += (AT); while (isspace (*(P))) ++(P); } while (0)
 
+/*!
+ * @brief Read and preprocess the next input line.
+ */
 void read_line (void)
 {
   uchar *p;
@@ -270,6 +342,11 @@ redo:
 }
 
 
+/*!
+ * @brief Open an input file.
+ *
+ * @param[in] name File name. Not NULL.
+ */
 void open_input (const char *name)
 {
 
@@ -284,12 +361,22 @@ void open_input (const char *name)
 }
 
 
+/*!
+ * @brief Report an invalid tag and stop.
+ */
 static void invalid_tag (void)
 {
   fatal ("%s:%d: Invalid tag", input_fname, line_no);
 }
 
 
+/*!
+ * @brief Parse a tag at the start of a line.
+ *
+ * @param[in,out] ptr Pointer to the input pointer. Not NULL.
+ *
+ * @return Non-zero if a tag was parsed, zero otherwise.
+ */
 int parse_tag (const uchar **ptr)
 {
   const uchar *p;
