@@ -34,6 +34,15 @@
  *  #include'd header are dropped.  Function and variable declarations
  *  are located in this pass.
  *
+ *  The command line sent to the preprocessor is built from the raw
+ *  command line of doxy-lint itself, obtained with getcmd().  The
+ *  tokens that begin with '-' are forwarded verbatim, quotes and all,
+ *  so that a value such as -dVER_DATE="2026-08-27" keeps its quotes
+ *  and the hyphens inside the value are not mistaken for separate
+ *  options.  The same code path is used on Linux, Win32 and OS/2, so
+ *  there is no per-platform quoting to get wrong.  Set
+ *  DOXY_LINT_DEBUG=1 to print the command line before running it.
+ *
  *  Before invoking the preprocessor, the current directory is changed
  *  to the directory of the source file, so that relative -i= options
  *  and #include "..." behave exactly as in the project's makefiles.
@@ -72,12 +81,7 @@
  *
  *  Every argument that begins with '-' is passed through to the
  *  Watcom preprocessor unchanged.  All other arguments are treated as
- *  source files and checked in order.  There is no directory scan:
- *  the build system is expected to pass exactly the files that were
- *  given to the compiler.
- *
- *    doxy-lint qemu-img.c block.c aes.c \
- *        -zq -q -d__WATCOM__ -i=tools\qemu-img -i=build\host\win32\tools\qemu-img
+ *  source files and checked in order.
  *
  *  Diagnostics go to stdout.  Exit status is always 0.
  *
@@ -88,32 +92,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <process.h>
 
 #if defined(__LINUX__)
 #  include <unistd.h>
+#  include <sys/types.h>
+#  include <sys/wait.h>
 #  define DIRSEP '/'
 #  define PLATFORM_CHDIR(p)     chdir(p)
 #  define PLATFORM_GETCWD(b,s)  getcwd(b,s)
-#  define PLATFORM_GETPID()     ((int)getpid())
 #elif defined(__NT__) || defined(__OS2__)
 #  include <direct.h>
-#  include <process.h>
 #  define DIRSEP '\\'
 #  define PLATFORM_CHDIR(p)     _chdir(p)
 #  define PLATFORM_GETCWD(b,s)  _getcwd(b,s)
-#  define PLATFORM_GETPID()     ((int)getpid())
 #else
 #  error "Unsupported target: expected Linux, Win32 or OS/2"
 #endif
 
-#define MAXTOK      65536
-#define MAXPARAM    128
-#define MAXRET      128
-#define NAMELEN     64
-#define EXPRLEN     128
-#define PATHBUF     1024
-#define PRELINE     8192
-#define MAX_LINE_NO 65536
+#define MAXTOK       65536
+#define MAXPARAM     128
+#define MAXRET       128
+#define NAMELEN      64
+#define EXPRLEN      128
+#define PATHBUF      1024
+#define PRELINE      8192
+#define MAX_LINE_NO  65536
 
 #define T_EOF           0
 #define T_IDENT         1
@@ -150,12 +154,15 @@ static long srclen;
 /*! @brief Non-zero after the one-time preprocessing warning. */
 static int wpp_warned = 0;
 
-/*! @brief Options passed to the Watcom preprocessor.
+/*! @brief Raw option text of doxy-lint's own command line.
  *
- * Built in main() from every argument that begins with '-'.  Passed
- * through to wcc386/wpp386 unchanged, before -fo= and the file name.
+ * Filled once in main() from getcmd().  Contains the tokens of the
+ * original command line that begin with '-', copied verbatim, quotes
+ * and all, separated by single spaces.  Forwarded as is to the
+ * preprocessor, so that the characters the user typed reach Watcom
+ * unchanged.
  */
-static char preproc_opts[PATHBUF * 4] = "";
+static char raw_opts[PRELINE];
 
 /*! @brief Simple return value of the raw file, indexed by line.
  *
@@ -167,6 +174,61 @@ static char *raw_returns[MAX_LINE_NO];
 
 /*! @brief Counter used to build unique temporary file names. */
 static int temp_counter = 0;
+
+/*! @brief Copies the option tokens of a raw command line into out.
+ *
+ * Walks raw, splitting it into tokens with the rules the C run-time
+ * uses: whitespace separates tokens, a double quote starts a grouped
+ * token, a backslash escapes the next character inside a group.  A
+ * token that begins with '-' is an option; it is copied into out
+ * verbatim, including any inner double quotes.  Tokens that do not
+ * begin with '-' are ignored.  Copied tokens are separated by a
+ * single space.
+ *
+ *  @param[in]  raw     Raw command line, without the program name.
+ *  @param[out] out     Receiver for the option tokens.
+ *  @param[in]  outsize Size of out in bytes.
+ */
+static void extract_raw_opts(const char *raw, char *out, size_t outsize)
+{
+    const char *p = raw;
+    size_t outlen = 0;
+
+    out[0] = 0;
+
+    while (*p != 0) {
+        const char *tok_start;
+        size_t tok_len;
+
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == 0) break;
+
+        tok_start = p;
+        while (*p != 0) {
+            if (*p == '"') {
+                p++;
+                while (*p != 0 && *p != '"') {
+                    if (*p == '\\' && p[1] != 0) p++;
+                    p++;
+                }
+                if (*p == '"') p++;
+            } else if (*p == ' ' || *p == '\t') {
+                break;
+            } else {
+                p++;
+            }
+        }
+        tok_len = (size_t)(p - tok_start);
+
+        if (tok_start[0] == '-') {
+            if (outlen + tok_len + 2 > outsize) break;
+            if (outlen > 0) out[outlen++] = ' ';
+            memcpy(out + outlen, tok_start, tok_len);
+            outlen += tok_len;
+            out[outlen] = 0;
+        }
+    }
+}
 
 /*! @brief Returns the platform temp directory, or 0 on failure.
  *
@@ -198,9 +260,6 @@ static int get_temp_dir(char *buf, size_t bufsize)
 }
 
 /*! @brief Turns a path into an absolute one using the current directory.
- *
- * Paths that already start with '/' or '\\', or with a drive letter
- * followed by ':', are returned unchanged.
  *
  *  @param[in]  path    Input path. Not NULL.
  *  @param[out] out     Receiver for the absolute path.
@@ -1074,8 +1133,6 @@ static int preproc_define_name(const char *p, int len,
         if (i < len && p[i] == ')') i++;
     }
 
-    /* Skip whitespace and line continuations; if nothing is left,
-       the macro has no body. */
     j = i;
     while (j < len) {
         unsigned char c = (unsigned char)p[j];
@@ -1084,17 +1141,11 @@ static int preproc_define_name(const char *p, int len,
             int k = j + 1;
             while (k < len && (p[k] == ' ' || p[k] == '\t')) k++;
             if (k < len && p[k] == '\n') { j = k + 1; continue; }
-            /* Backslash not a continuation: there is a body. */
             return 1;
         }
-        /* Any other character means there is a body. */
         return 1;
     }
 
-    /* No body.  Object-like macros without a body (include guards and
-       similar markers) are skipped.  Function-like macros with
-       parameters are kept: the parameter list is part of the
-       interface. */
     if (saw_paren) return 1;
     return 0;
 }
@@ -1211,7 +1262,6 @@ static int check_defines_raw(const char *fname)
             continue;
         }
 
-        /* Any other significant token breaks the pending chain. */
         pending_start = -1;
         pending_end = -1;
         i++;
@@ -1220,20 +1270,17 @@ static int check_defines_raw(const char *fname)
     return errors;
 }
 
-/*! @brief Run the Open Watcom preprocessor and keep original-file lines.
+/*! @brief Runs the preprocessor and keeps the original file's lines.
  *
- * Invokes "<compiler> -pcl -fr=<err> [extra options] -fo=<out>
- * <base>", where -pcl means preprocess, preserve comments and insert
- * #line directives, <err> and <out> are absolute paths in the
- * platform temp directory, and <base> is the base name of the source
- * file.  The current directory is switched to the source directory
- * first, so that relative -i= options and #include "..." behave as in
- * the project's makefiles; the original directory is restored before
- * returning.
- *
- * Temp files are always written outside the source tree and removed
- * afterwards.  If no temp directory is available, or the preprocessor
- * fails, NULL is returned and the caller falls back to the raw file.
+ * Builds a single command line for the preprocessor and runs it with
+ * system().  The option text comes from raw_opts, which main() filled
+ * from the raw command line of doxy-lint via getcmd(); it is inserted
+ * verbatim, so the characters the user typed reach Watcom unchanged.
+ * Temporary output (.i) and error (.err) files live in the platform
+ * temp directory and are always removed.  The current directory is
+ * changed to the source file's directory first, so relative -i=
+ * options and #include "..." behave exactly as in the project's
+ * makefiles.
  *
  *  @param[in]  fname   Source file to preprocess. Not NULL.
  *  @param[out] out_len Receives the buffer length in bytes.
@@ -1248,10 +1295,10 @@ static char *preprocess_file(const char *fname, long *out_len)
     char tmpabs[PATHBUF];
     char tmpout[PATHBUF];
     char tmperr[PATHBUF];
-    char cmd[PATHBUF * 5 + 128];
     char dirpart[PATHBUF];
     char basepart[PATHBUF];
     char savedcwd[PATHBUF];
+    char cmd[PRELINE + PATHBUF * 4];
     const char *slash1, *slash2, *slash;
     const char *cc;
     FILE *fp;
@@ -1265,7 +1312,6 @@ static char *preprocess_file(const char *fname, long *out_len)
     int rc;
     int uniq;
 
-    /* Split fname into directory and base name. */
     slash1 = strrchr(fname, '/');
     slash2 = strrchr(fname, '\\');
     slash = slash1;
@@ -1284,10 +1330,6 @@ static char *preprocess_file(const char *fname, long *out_len)
         basepart[PATHBUF - 1] = 0;
     }
 
-    /* Pick a writable temp directory.  Never use the current or source
-       directory: everything goes to $TMPDIR / %TEMP% / %TMP%.  If none
-       is available, give up and let the caller fall back to the raw
-       file. */
     if (!get_temp_dir(tmpdir, sizeof(tmpdir))) return NULL;
     if (!make_absolute(tmpdir, tmpabs, sizeof(tmpabs))) return NULL;
 
@@ -1302,24 +1344,26 @@ static char *preprocess_file(const char *fname, long *out_len)
     }
 
     uniq = ++temp_counter;
-    sprintf(tmpout, "%sdoxy-lint-%d-%d.i",   tmpabs, PLATFORM_GETPID(), uniq);
-    sprintf(tmperr, "%sdoxy-lint-%d-%d.err", tmpabs, PLATFORM_GETPID(), uniq);
+    sprintf(tmpout, "%sdoxy-lint-%d-%d.i",
+            tmpabs, (int)getpid(), uniq);
+    sprintf(tmperr, "%sdoxy-lint-%d-%d.err",
+            tmpabs, (int)getpid(), uniq);
 
-    /* Switch to the source directory so that relative -i= options and
-       #include "..." resolve the same way they do during the build. */
+    cc = preproc_compiler(fname);
+
+    snprintf(cmd, sizeof(cmd),
+             "%s -pcl -fr=\"%s\" %s -fo=\"%s\" \"%s\"",
+             cc, tmperr, raw_opts, tmpout, basepart);
+
+    if (getenv("DOXY_LINT_DEBUG") != NULL) {
+        fprintf(stderr, "doxy-lint: %s\n", cmd);
+    }
+
     have_cwd = 0;
     if (dirpart[0] != 0) {
         if (PLATFORM_GETCWD(savedcwd, PATHBUF) != NULL) have_cwd = 1;
         if (PLATFORM_CHDIR(dirpart) != 0) have_cwd = 0;
     }
-
-    cc = preproc_compiler(fname);
-    if (preproc_opts[0] != 0)
-        sprintf(cmd, "%s -pcl -fr=%s %s -fo=%s \"%s\"",
-                cc, tmperr, preproc_opts, tmpout, basepart);
-    else
-        sprintf(cmd, "%s -pcl -fr=%s -fo=%s \"%s\"",
-                cc, tmperr, tmpout, basepart);
 
     rc = system(cmd);
 
@@ -1440,7 +1484,6 @@ static int check_file(const char *fname)
     int pending_bad_style;
     int saw_file_doc;
 
-    /* Pass 1: raw file, for return values and #define checks. */
     raw_returns_reset();
     src = slurp(fname, &srclen);
     if (src == NULL) {
@@ -1454,7 +1497,6 @@ static int check_file(const char *fname)
     free(src);
     src = NULL;
 
-    /* Pass 2: preprocessed file, for structural checks. */
     src = preprocess_file(fname, &srclen);
     if (src == NULL) {
         if (!wpp_warned) {
@@ -1793,8 +1835,8 @@ static int check_file(const char *fname)
 int main(int argc, char *argv[])
 {
     const char *prog = (argc > 0 && argv[0] != NULL) ? argv[0] : "doxy-lint";
+    char raw_cmd[PRELINE];
     int i;
-    size_t pos;
 
     if (argc < 2) {
         printf("Usage: %s <file>... [preprocessor options...]\n", prog);
@@ -1807,21 +1849,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    /* Pass 1: collect options. */
-    pos = 0;
-    preproc_opts[0] = 0;
-    for (i = 1; i < argc; i++) {
-        size_t alen;
-        if (argv[i][0] != '-') continue;
-        alen = strlen(argv[i]);
-        if (pos + alen + 2 >= sizeof(preproc_opts)) break;
-        if (pos > 0) preproc_opts[pos++] = ' ';
-        memcpy(preproc_opts + pos, argv[i], alen);
-        pos += alen;
-        preproc_opts[pos] = 0;
-    }
+    raw_cmd[0] = 0;
+    if (getcmd(raw_cmd) == NULL) raw_cmd[0] = 0;
+    extract_raw_opts(raw_cmd, raw_opts, sizeof(raw_opts));
 
-    /* Pass 2: check files, in the order they were given. */
     for (i = 1; i < argc; i++) {
         if (argv[i][0] == '-') continue;
         check_file(argv[i]);
