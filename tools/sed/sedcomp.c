@@ -1,18 +1,28 @@
-/* sedcomp.c -- stream editor main and compilation phase
-
-   The stream editor compiles its command input  (from files or -e options)
-into an internal form using compile() then executes the compiled form using
-execute(). Main() just initializes data structures, interprets command line
-options, and calls compile() and execute() in appropriate sequence.
-   The data structure produced by compile() is an array of compiled-command
-structures (type sedcmd).  These contain several pointers into pool[], the
-regular-expression and text-data pool, plus a command code and g & p flags.
-In the special case that the command is a label the struct  will hold a ptr
-into the labels array labels[] during most of the compile,  until resolve()
-resolves references at the end.
-   The operation of execute() is described in its source module.
-
-==== Written for the GNU operating system by Eric S. Raymond ==== */
+/*!
+ * @file sedcomp.c
+ *
+ * @brief Stream editor main and compilation phase.
+ *
+ * sedcomp.c -- stream editor main and compilation phase.
+ *
+ * The stream editor compiles its command input (from files or -e
+ * options) into an internal form using compile() then executes the
+ * compiled form using execute(). main() just initializes data
+ * structures, interprets command line options, and calls compile()
+ * and execute() in appropriate sequence.
+ *
+ * The data structure produced by compile() is an array of
+ * compiled-command structures (type sedcmd). These contain several
+ * pointers into pool[], the regular-expression and text-data pool,
+ * plus a command code and g & p flags. In the special case that the
+ * command is a label the struct will hold a ptr into the labels
+ * array labels[] during most of the compile, until resolve()
+ * resolves references at the end.
+ *
+ * The operation of execute() is described in its source module.
+ *
+ * ==== Written for the GNU operating system by Eric S. Raymond ====
+ */
 
 #include <assert.h>
 #include <ctype.h>                      /* isdigit(), isspace() */
@@ -22,55 +32,190 @@ resolves references at the end.
 #include <string.h>                     /* imported string functions */
 #include "sed.h"                        /* command type struct & name defines */
 
-#define MAXCMDS         400             /* max number of compiled commands */
-#define MAXLINES        256             /* max number of numeric addresses */
+/*!
+ * @brief Maximum number of compiled commands.
+ */
+#define MAXCMDS         400
+
+/*!
+ * @brief Maximum number of numeric addresses.
+ */
+#define MAXLINES        256
 
                                         /* main data areas */
-char            linebuf[MAXBUF + 3];    /* current-line buffer */
-sedcmd          cmds[MAXCMDS + 1];      /* hold compiled commands */
-long            linenum[MAXLINES];      /* numeric-addresses table */
+/*!
+ * @brief Current-line buffer.
+ */
+char            linebuf[MAXBUF + 3];
+
+/*!
+ * @brief Compiled-command table.
+ */
+sedcmd          cmds[MAXCMDS + 1];
+
+/*!
+ * @brief Numeric-addresses table.
+ */
+long            linenum[MAXLINES];
 
                                         /* miscellaneous shared variables */
-int             nflag = 0;              /* -n option flag */
-int             eargc;                  /* scratch copy of argument count */
+/*!
+ * @brief -n option flag.
+ */
+int             nflag = 0;
+
+/*!
+ * @brief Scratch copy of the argument count.
+ */
+int             eargc;
+
+/*!
+ * @brief Bitmask table.
+ */
 char const      bits[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
                                         /***** module common stuff *****/
 
-#define POOLSIZE        10000           /* size of string-pool space */
-#define WFILES          10              /* max number of w output files */
-#define RELIMIT         256             /* max chars in compiled RE */
-#define MAXDEPTH        20              /* maximum {}-nesting level */
-#define MAXLABS         50              /* max number of labels */
+/*!
+ * @brief Size of string-pool space.
+ */
+#define POOLSIZE        10000
 
+/*!
+ * @brief Maximum number of w output files.
+ */
+#define WFILES          10
+
+/*!
+ * @brief Maximum number of characters in a compiled regular
+ *        expression.
+ */
+#define RELIMIT         256
+
+/*!
+ * @brief Maximum {}-nesting level.
+ */
+#define MAXDEPTH        20
+
+/*!
+ * @brief Maximum number of labels.
+ */
+#define MAXLABS         50
+
+/*!
+ * @brief Advance the pointer @p pc past whitespace.
+ */
 #define SKIPWS(pc)      while( isspace( *pc ) ) pc++
+
+/*!
+ * @brief Print @p msg with the current line buffer and exit with
+ *        status 2.
+ */
 #define ABORT(msg)      fprintf( stderr, msg, linebuf ), myexit( 2 )
+
+/*!
+ * @brief Consume one character @p v from @p x, leaving the cursor
+ *        past it.
+ */
 #define IFEQ(x, v)      if( *x == v ) x++ , /* do expression */
 
                                         /* error messages */
+/*!
+ * @brief Error message: garbled address.
+ */
 static char const       AGMSG[] = "sed: garbled address %s\n";
+/*!
+ * @brief Error message: garbled command.
+ */
 static char const       CGMSG[] = "sed: garbled command %s\n";
+/*!
+ * @brief Error message: too much text.
+ */
 static char const       TMTXT[] = "sed: too much text: %s\n";
+/*!
+ * @brief Error message: no addresses allowed for this command.
+ */
 static char const       AD1NG[] = "sed: no addresses allowed for %s\n";
+/*!
+ * @brief Error message: only one address allowed for this command.
+ */
 static char const       AD2NG[] = "sed: only one address allowed for %s\n";
+/*!
+ * @brief Error message: too many commands.
+ */
 static char const       TMCDS[] = "sed: too many commands, last was %s\n";
+/*!
+ * @brief Error message: cannot open command-file.
+ */
 static char const       COCFI[] = "sed: cannot open command-file %s\n";
+/*!
+ * @brief Error message: unknown flag.
+ */
 static char const       UFLAG[] = "sed: unknown flag %c\n";
+/*!
+ * @brief Error message: cannot create output file.
+ */
 static char const       CCOFI[] = "sed: cannot create %s\n";
+/*!
+ * @brief Error message: undefined label.
+ */
 static char const       ULABL[] = "sed: undefined label \":%s\"\n";
+/*!
+ * @brief Error message: too many opening braces.
+ */
 static char const       TMLBR[] = "sed: too many {'s\n";
+/*!
+ * @brief Error message: no such command.
+ */
 static char const       NSCAX[] = "sed: no such command as %s\n";
+/*!
+ * @brief Error message: too many closing braces.
+ */
 static char const       TMRBR[] = "sed: too many }'s\n";
+/*!
+ * @brief Error message: duplicate label.
+ */
 static char const       DLABL[] = "sed: duplicate label \"%s\"\n";
+/*!
+ * @brief Error message: too many labels.
+ */
 static char const       TMLAB[] = "sed: too many labels \"%s\"\n";
+/*!
+ * @brief Error message: too many w files.
+ */
 static char const       TMWFI[] = "sed: too many w files\n";
+/*!
+ * @brief Error message: regular expression too long.
+ */
 static char const       REITL[] = "sed: RE too long: %s\n";
+/*!
+ * @brief Error message: too many line numbers.
+ */
 static char const       TMLNR[] = "sed: too many line numbers\n";
+/*!
+ * @brief Error message: trailing garbage after command.
+ */
 static char const       TRAIL[] = "sed: command \"%s\" has trailing garbage\n";
+/*!
+ * @brief Error message: need more bytes in command.
+ */
 static char const       NEEDB[] = "sed: error processing: %s\n";
+/*!
+ * @brief Error message: internal error.
+ */
 static char const       INERR[] = "sed: internal error: %s\n";
+/*!
+ * @brief Error message: bad value for match count.
+ */
 static char const       SMCNT[] = "sed: bad value for match count on s command %s\n";
+/*!
+ * @brief Error message: invalid character class name.
+ */
 static char const       UNCLS[] = "sed: invalid character class name %s\n";
+
+/*!
+ * @brief Usage text printed when the argument list cannot be parsed.
+ */
 static char const       *USAGE[] = {
     "Usage: sed [-g] [-n] script file ...",
     "       sed [-g] [-n] -e script ... -f script_file ... file ...",
@@ -105,51 +250,217 @@ static char const       *USAGE[] = {
     NULL
 };
 
+/*!
+ * @struct label
+ * @brief Represent a command label.
+ */
 typedef struct                          /* represent a command label */
 {
-    char        *name;                  /* the label name */
-    sedcmd      *last;                  /* it's on the label search list */
-    sedcmd      *link;                  /* pointer to the cmd it labels */
+    char        *name;                  /*!< The label name.                  */
+    sedcmd      *last;                  /*!< It's on the label search list.   */
+    sedcmd      *link;                  /*!< Pointer to the cmd it labels.    */
 }               label;
 
                                         /* label handling */
-static label    labels[MAXLABS];        /* here's the label table */
-                                        /* first label is end of script */
+/*!
+ * @brief Here's the label table.
+ */
+static label    labels[MAXLABS];
+
+/*!
+ * @brief First label is end of script.
+ */
 static label    *curlab = labels + 1;   /* pointer to current label */
+/*!
+ * @brief Header for the search list.
+ */
 static label    *lablst = labels;       /* header for search list */
 
                                         /* string pool for REs, etc. */
-static char     pool[POOLSIZE];         /* the pool */
-static char     *fp     = pool;         /* current pool pointer */
-static char     *poolend  = pool + POOLSIZE;    /* pointer past pool end */
+/*!
+ * @brief The string pool.
+ */
+static char     pool[POOLSIZE];
+/*!
+ * @brief Current pool pointer.
+ */
+static char     *fp     = pool;
+/*!
+ * @brief Pointer past pool end.
+ */
+static char     *poolend  = pool + POOLSIZE;
 
                                         /* compilation state */
-static FILE     *cmdf   = NULL;         /* current command source */
-static char     *cp     = NULL;         /* compile pointer */
-static sedcmd   *cmdp   = cmds;         /* current compiled-cmd ptr */
-static int      bdepth  = 0;            /* current {}-nesting level */
-static int      bcount  = 0;            /* # tagged patterns in current RE */
-static char     **eargv;                /* scratch copy of argument list */
+/*!
+ * @brief Current command source.
+ */
+static FILE     *cmdf   = NULL;
+/*!
+ * @brief Compile pointer.
+ */
+static char     *cp     = NULL;
+/*!
+ * @brief Current compiled-cmd pointer.
+ */
+static sedcmd   *cmdp   = cmds;
+/*!
+ * @brief Current {}-nesting level.
+ */
+static int      bdepth  = 0;
+/*!
+ * @brief Number of tagged patterns in the current RE.
+ */
+static int      bcount  = 0;
+/*!
+ * @brief Scratch copy of the argument list.
+ */
+static char     **eargv;
 
 /* compilation flags */
-static int      eflag = 0;              /* -e option flag */
-static int      gflag = 0;              /* -g option flag */
+/*!
+ * @brief -e option flag.
+ */
+static int      eflag = 0;
+/*!
+ * @brief -g option flag.
+ */
+static int      gflag = 0;
 
+/*!
+ * @brief Compiles the sed script from the current command source.
+ */
 static void     compile( void );
+
+/*!
+ * @brief Compiles a single command.
+ *
+ * @param[in] cchar Character name of the command.
+ *
+ * @return 1 if the caller should skip reading the next line of
+ *         script; otherwise 0.
+ *
+ * @retval 1  Caller must skip the next line read.
+ * @retval 0  Otherwise.
+ */
 static int      cmdcomp( register char cchar );
+
+/*!
+ * @brief Generates the replacement string for the right-hand side
+ *        of the s command.
+ *
+ * @param[in] rhsp  Place to compile the expression to. Not NULL.
+ * @param[in] delim RE end-marker to find.
+ *
+ * @return Pointer just past the replacement string, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Invalid backreference or missing end delimiter.
+ */
 static char     *rhscomp( register char *rhsp, register char delim );
+
+/*!
+ * @brief Compiles a regular expression to internal form.
+ *
+ * @param[in] expbuf  Place to compile the expression to. Not NULL.
+ * @param[in] redelim RE end-marker to look for.
+ *
+ * @return Pointer just past the compiled expression, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Malformed regular expression.
+ */
 static char     *recomp( char *expbuf, char redelim );
+
+/*!
+ * @brief Reads the next command from an -e argument or a command
+ *        file.
+ *
+ * @param[in] cbuf Destination buffer. Not NULL.
+ *
+ * @return 1 on success, 0 when there are no more commands.
+ *
+ * @retval 1  A command line was read.
+ * @retval 0  End of input.
+ */
 static int      cmdline( register char *cbuf );
+
+/*!
+ * @brief Expands an address at *cp into expbuf and returns the
+ *        pointer to the following character.
+ *
+ * @param[in] expbuf Destination buffer for the compiled address.
+ *                   Not NULL.
+ *
+ * @return Pointer just past the address, NULL when no legal address
+ *         was found, or BAD on a malformed regular expression.
+ *
+ * @retval NULL  No legal address was found.
+ * @retval BAD   Malformed regular expression.
+ */
 static char     *getaddress( register char *expbuf );
+
+/*!
+ * @brief Accepts multiline input from *cp to *fp, optionally
+ *        skipping leading whitespace.
+ *
+ * @param[in] accept_whitespace Non-zero to keep leading whitespace.
+ */
 static void     gettext( int accept_whitespace );
+
+/*!
+ * @brief Finds the label matching curlab->name.
+ *
+ * @return Pointer to the matching label, or NULL when no label in
+ *         the table matches.
+ *
+ * @retval NULL  No matching label.
+ */
 static label    *search( void );
+
+/*!
+ * @brief Writes label links into the compiled-command space.
+ */
 static void     resolve( void );
+
+/*!
+ * @brief Compiles a y (transliterate) command.
+ *
+ * @param[in] ep    Where to compile the table to. Not NULL.
+ * @param[in] delim End delimiter to look for.
+ *
+ * @return Pointer just past the translation table, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Malformed y command, or unequal string lengths.
+ */
 static char     *ycomp( register char *ep, char delim );
+
+/*!
+ * @brief Exits the stream editor on an error condition.
+ *
+ * @param[in] status Non-zero process exit status.
+ */
 static void     myexit( int status );
+
+/*!
+ * @brief Prints the usage text and exits with status 2.
+ */
 static void     usage( void );
 
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
 #ifndef isblank // OW defines isblank without defining __STDC_VERSION__ W.Briscoe 20041008
+/*!
+ * @brief Query whether a character is a blank (space or tab).
+ *
+ * Provided for platforms whose libc does not define isblank().
+ *
+ * @param[in] c  Character.
+ *
+ * @return Non-zero if @p c is a space or a tab, zero otherwise.
+ *
+ * @retval 1  @p c is a space or a tab.
+ * @retval 0  Otherwise.
+ */
 static int isblank( int c )
 {
     return( c == ' ' || c == '\t' );
@@ -157,7 +468,24 @@ static int isblank( int c )
 #endif
 #endif
 
-/* main sequence of the stream editor */
+/*!
+ * @brief Main sequence of the stream editor.
+ *
+ * Initializes the label table and compilation state, interprets the
+ * command line options, compiles the script (from -e arguments,
+ * -f files, or the first non-option argument), resolves labels and
+ * runs the compiled script over each input file in turn.
+ *
+ * @param[in] argc  Argument count.
+ * @param[in] argv  Argument vector.
+ *
+ * @return Process exit status.
+ *
+ * @retval 0  Success.
+ *
+ * @note Errors print a diagnostic to stderr and terminate the
+ *       process via myexit(2).
+ */
 int main( int argc, char *argv[] )
 {
     static char dummy_name[] = "progend\n";
@@ -250,7 +578,16 @@ int main( int argc, char *argv[] )
     return( 0 );                /* everything was O.K. if we got here */
 }
 
-/* precompile sed commands out of a file */
+/*!
+ * @brief Precompile sed commands out of a file.
+ *
+ * Reads command lines from the current command source (an -e
+ * argument, a -f file, or the first non-option argument), parses
+ * addresses, negation, the command character and any arguments,
+ * and fills the cmds[] table until end of input is reached.
+ *
+ * @note Terminates via ABORT on any parse error.
+ */
 static void compile( void )
 {
     #define H       0x80        /* 128 bit, on if there's code for command */
@@ -340,7 +677,23 @@ static void compile( void )
     }
 }
 
-/* compile a single command */
+/*!
+ * @brief Compile a single command.
+ *
+ * Fills in the current command slot (cmdp) for the command whose
+ * character is @p cchar and consumes any command-specific
+ * arguments from the compile pointer cp.
+ *
+ * @param[in] cchar  Character name of the command.
+ *
+ * @return 1 if the caller should skip reading the next line of
+ *         script (used by { and }), 0 otherwise.
+ *
+ * @retval 1  Caller must skip the next line read.
+ * @retval 0  Otherwise.
+ *
+ * @note Terminates via ABORT on any parse error.
+ */
 static int cmdcomp( register char cchar ) /* character name of command */
 {
     static sedcmd       **cmpstk[MAXDEPTH]; /* current cmd stack for {} */
@@ -515,7 +868,24 @@ static int cmdcomp( register char cchar ) /* character name of command */
     return( 0 );                        /* interpreted one command */
 }
 
-/* generate replacement string for substitute command right hand side */
+/*!
+ * @brief Generate replacement string for the substitute command
+ *        right hand side.
+ *
+ * Copies the replacement expression from cp to @p rhsp, marking
+ * backreferences with bit 0x80 and terminating the string at the
+ * RE delimiter @p delim.
+ *
+ * @param[in]  rhsp   Place to compile the expression to. Not NULL.
+ * @param[in]  delim  RE end-marker to find.
+ *
+ * @return Pointer just past the replacement string, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Invalid backreference or missing end delimiter.
+ *
+ * @note Uses the shared bcount variable.
+ */
 static char *rhscomp(
     register char       *rhsp,          /* place to compile expression to */
     register char       delim )         /* RE end-mark to find */
@@ -538,7 +908,24 @@ static char *rhscomp(
             return( BAD );
 }
 
-/* compile a regular expression to internal form */
+/*!
+ * @brief Compile a regular expression to internal form.
+ *
+ * Reads a regular expression from cp, terminated by @p redelim,
+ * and writes the internal compiled form to @p expbuf. Handles
+ * tagged subexpressions, *, +, \{n,m\}, character classes and the
+ * standard escape sequences.
+ *
+ * @param[in] expbuf   Place to compile the expression to. Not NULL.
+ * @param[in] redelim  RE end-marker to look for.
+ *
+ * @return Pointer just past the compiled expression, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Malformed regular expression.
+ *
+ * @note Uses the shared cp and bcount variables; updates them.
+ */
 static char *recomp(
     char            *expbuf,            /* place to compile it to */
     char            redelim )           /* RE end-marker to look for */
@@ -831,7 +1218,24 @@ static char *recomp(
     } /* for( ;; ) */
 }
 
-/* read next command from -e argument or command file */
+/*!
+ * @brief Read the next command from an -e argument or a command
+ *        file.
+ *
+ * Copies the next line of script into @p cbuf and terminates it
+ * with NUL. Tracks the multi-argument -e state via the eflag
+ * variable, and reads from the -f command file otherwise.
+ *
+ * @param[out] cbuf  Destination buffer. Not NULL.
+ *
+ * @return 1 on success, 0 when there are no more commands.
+ *
+ * @retval 1  A command line was read.
+ * @retval 0  End of input.
+ *
+ * @note Uses eflag, eargc, cmdf. Terminates via myexit on missing
+ *       -e/-f argument.
+ */
 static int cmdline( register char *cbuf ) /* uses eflag, eargc, cmdf */
 {
     register int        inc;            /* not char because must hold EOF */
@@ -899,7 +1303,26 @@ static int cmdline( register char *cbuf ) /* uses eflag, eargc, cmdf */
     return( *++cbuf = '\0', cbuf >= cp+1 );       /* end-of-file, no more chars */
 }
 
-/* expand an address at *cp... into expbuf, return ptr at following char */
+/*!
+ * @brief Expand an address at *cp into expbuf and return the
+ *        pointer to the following character.
+ *
+ * Recognizes $ (end of source), a regular-expression address
+ * (introduced by \\ or /), and a decimal numeric address. Numeric
+ * addresses are stored in the linenum[] table.
+ *
+ * @param[in] expbuf  Destination buffer for the compiled address.
+ *                    Not NULL.
+ *
+ * @return Pointer just past the address, NULL when no legal address
+ *         was found, or BAD on a malformed regular expression.
+ *
+ * @retval NULL  No legal address was found.
+ * @retval BAD   Malformed regular expression.
+ *
+ * @note Uses cp and linenum. Terminates via ABORT when the
+ *       linenum[] table overflows.
+ */
 static char *getaddress( register char *expbuf ) /* uses cp, linenum */
 {
     static int          numl = 0;       /* current ind in addr-number table */
@@ -937,9 +1360,18 @@ static char *getaddress( register char *expbuf ) /* uses cp, linenum */
     return( NULL );                     /* no legal address was found */
 }
 
-/*
- * accept multiline input from *cp... to *fp... ,
- * optionally skipping leading whitespace
+/*!
+ * @brief Accept multiline input from *cp to *fp, optionally skipping
+ *        leading whitespace.
+ *
+ * Copies text from the compile pointer cp into the string pool at
+ * fp, handling backslash escapes and embedded newlines, until a NUL
+ * byte is copied. When @p accept_whitespace is zero, leading
+ * whitespace at the start is skipped.
+ *
+ * @param[in] accept_whitespace  Non-zero to keep leading whitespace.
+ *
+ * @note Uses cp and fp; updates them.
  */
 static void gettext( int accept_whitespace )
 {
@@ -964,7 +1396,16 @@ static void gettext( int accept_whitespace )
     return;
 }
 
-/* find the label matching *ptr, return NULL if none */
+/*!
+ * @brief Find the label matching curlab->name.
+ *
+ * @return Pointer to the matching label, or NULL when no label in
+ *         the table matches.
+ *
+ * @retval NULL  No matching label.
+ *
+ * @note Uses the globals lablst and curlab.
+ */
 static label *search( void )            /* uses globals lablst and curlab */
 {
     register label      *rp;
@@ -975,7 +1416,15 @@ static label *search( void )            /* uses globals lablst and curlab */
     return( NULL );
 }
 
-/* write label links into the compiled-command space */
+/*!
+ * @brief Write label links into the compiled-command space.
+ *
+ * Walks the label table and patches every forward branch whose
+ * target was not yet known at parse time. Terminates via myexit(2)
+ * if a label was never defined.
+ *
+ * @note Uses the global lablst.
+ */
 static void resolve( void )             /* uses global lablst */
 {
     register label const        *rp;
@@ -992,7 +1441,21 @@ static void resolve( void )             /* uses global lablst */
         }
 }
 
-/* compile a y (transliterate) command */
+/*!
+ * @brief Compile a y (transliterate) command.
+ *
+ * Builds the 128-byte translation table from the two strings
+ * separated by @p delim, fills any unmapped entries as identity
+ * mappings and returns a pointer past the table in the string pool.
+ *
+ * @param[in] ep     Where to compile the table to. Not NULL.
+ * @param[in] delim  End delimiter to look for.
+ *
+ * @return Pointer just past the translation table, or BAD on
+ *         failure.
+ *
+ * @retval BAD  Malformed y command, or unequal string lengths.
+ */
 static char *ycomp(
     register char       *ep,            /* where to compile to */
     char                delim )         /* end delimiter to look for */
@@ -1060,7 +1523,18 @@ static char *ycomp(
     return( ep + 0x80 );                /* first free location past table end */
 }
 
-/* Avoid race condition with calls like echo hello | fail */
+/*!
+ * @brief Exit the stream editor on an error condition.
+ *
+ * Drains any remaining lines from stdin when stdin is not a
+ * terminal, to avoid a race condition with callers such as
+ * "echo hello | fail", then calls exit().
+ *
+ * @param[in] status  Non-zero process exit status.
+ *
+ * @note The status argument must be non-zero; the assert catches
+ *       misuse. This function does not return.
+ */
 static void myexit( int status )
 {
     assert( status != 0 );              /* Call only needed for failures */
@@ -1069,6 +1543,11 @@ static void myexit( int status )
     exit( status );
 }
 
+/*!
+ * @brief Print the usage text and exit with status 2.
+ *
+ * @note This function does not return.
+ */
 static void usage( void )
 {
     const char * const *cpp;

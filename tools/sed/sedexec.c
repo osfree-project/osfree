@@ -1,21 +1,25 @@
-/*
-sedexec.c -- execute compiled form of stream editor commands
-
-   The single entry point of this module is the function execute(). It
-may take a string argument (the name of a file to be used as text)  or
-the argument NULL which tells it to filter standard input. It executes
-the compiled commands in cmds[] on each line in turn.
-   The function command() does most of the work. Match() and advance()
-are used for matching text against precompiled regular expressions and
-dosub() does right-hand-side substitution.  Getline() does text input;
-readout() and memeql() are output and string-comparison utilities.
-
-==== Written for the GNU operating system by Eric S. Raymond ====
-
-18NOV86 Fixed bug in 'selected()' that prevented address ranges from
-    working.                - Billy G. Allie.
-21FEB88 Refixed bug in 'selected()'     - Charles Marslett
-*/
+/*!
+ * @file sedexec.c
+ * @brief Execute compiled form of stream editor commands.
+ *
+ * The single entry point of this module is the function execute().
+ * It may take a string argument (the name of a file to be used as
+ * text) or the argument NULL which tells it to filter standard
+ * input. It executes the compiled commands in cmds[] on each line
+ * in turn.
+ *
+ * The function command() does most of the work. Match() and
+ * advance() are used for matching text against precompiled regular
+ * expressions and dosub() does right-hand-side substitution.
+ * Getline() does text input; readout() and memeql() are output and
+ * string-comparison utilities.
+ *
+ * ==== Written for the GNU operating system by Eric S. Raymond ====
+ *
+ * 18NOV86 Fixed bug in 'selected()' that prevented address ranges from
+ *     working.                - Billy G. Allie.
+ * 21FEB88 Refixed bug in 'selected()'     - Charles Marslett
+ */
 
 #include <assert.h>
 #include <unistd.h>                     /* isatty() */
@@ -24,10 +28,22 @@ readout() and memeql() are output and string-comparison utilities.
 #include <stdlib.h>                     /* for exit() */
 #include "sed.h"                        /* command structures & constants */
 
-#define MAXHOLD         MAXBUF          /* size of the hold space */
-#define GENSIZ          MAXBUF          /* maximum genbuf size */
+/*!
+ * @brief Size of the hold space.
+ */
+#define MAXHOLD         MAXBUF
+/*!
+ * @brief Maximum genbuf size.
+ */
+#define GENSIZ          MAXBUF
 
+/*!
+ * @brief Boolean true value.
+ */
 #define TRUE            1
+/*!
+ * @brief Boolean false value.
+ */
 #define FALSE           0
 
 #if 0
@@ -36,47 +52,206 @@ static char const       LTLMSG[] = "sed: line too long \"%.*s\"\n";
 #define ABORTEX(msg) fprintf( stderr, msg, sizeof genbuf, genbuf ), exit( 2 )
 #endif
 
+/*!
+ * @brief Error message: first RE must be non-null.
+ */
 static char const       FRENUL[] = "sed: first RE must be non-null\n";
+/*!
+ * @brief Error message: genbuf has no more room.
+ */
 static char const       NOROOM[] = "sed: can only fit %d bytes at line %ld\n";
+/*!
+ * @brief Error message: internal error.
+ */
 static char const       INTERR[] = "sed: internal error: %s\n";
 
-static char     *spend;                 /* current end-of-line-buffer pointer */
-static long     lnum = 0L;              /* current source line number */
+/*!
+ * @brief Current end-of-line-buffer pointer.
+ */
+static char     *spend;
+/*!
+ * @brief Current source line number.
+ */
+static long     lnum = 0L;
 
                                         /* append buffer maintenance */
-static sedcmd   *appends[MAXAPPENDS];   /* array of ptrs to a,i,c commands */
-static sedcmd   **aptr = appends;       /* ptr to current append */
+/*!
+ * @brief Array of ptrs to a,i,c commands.
+ */
+static sedcmd   *appends[MAXAPPENDS];
+/*!
+ * @brief Ptr to current append.
+ */
+static sedcmd   **aptr = appends;
 
                                         /* genbuf and its pointers */
+/*!
+ * @brief General-purpose buffer.
+ */
 static char     genbuf[GENSIZ];
-static char     *loc1;                  /* Where match() tried to find a BRE */
-static char     *loc2;                  /* Immediately after advance() completing match() or last character to remove in dosub() */
-static char     *locs;                  /* match() sets this as a backtrack backstop */
+/*!
+ * @brief Where match() tried to find a BRE.
+ */
+static char     *loc1;
+/*!
+ * @brief Immediately after advance() completing match() or last
+ *        character to remove in dosub().
+ */
+static char     *loc2;
+/*!
+ * @brief match() sets this as a backtrack backstop.
+ */
+static char     *locs;
 
                                         /* command-logic flags */
-static int      lastline;               /* do-line flag */
-static int      jump;                   /* jump to cmd's link address if set */
-static int      delete;                 /* delete command flag */
+/*!
+ * @brief Do-line flag.
+ */
+static int      lastline;
+/*!
+ * @brief Jump to cmd's link address if set.
+ */
+static int      jump;
+/*!
+ * @brief Delete command flag.
+ */
+static int      delete;
 
                                         /* tagged-pattern tracking */
-static char     *bracend[MAXTAGS+1];    /* tagged pattern start pointers */
-static char     *brastart[MAXTAGS+1];   /* tagged pattern end pointers */
-static sedcmd   *pending = NULL;        /* next command to be executed */
+/*!
+ * @brief Tagged pattern start pointers.
+ */
+static char     *bracend[MAXTAGS+1];
+/*!
+ * @brief Tagged pattern end pointers.
+ */
+static char     *brastart[MAXTAGS+1];
+/*!
+ * @brief Next command to be executed.
+ */
+static sedcmd   *pending = NULL;
 
+/*!
+ * @brief Checks whether the current command is selected by its addresses.
+ *
+ * @param[in] ipc Compiled command.
+ *
+ * @return Non-zero if the command is selected, zero otherwise.
+ *
+ * @retval 1  The command is selected.
+ * @retval 0  The command is not selected.
+ */
 static int      selected( sedcmd *ipc );
+
+/*!
+ * @brief Matches a regular expression against linebuf.
+ *
+ * @param[in] expbuf Compiled regular expression.
+ * @param[in] gf     If set, copy linebuf from genbuf.
+ * @param[in] is_cnt Non-zero if continuing a match from loc2.
+ *
+ * @return Non-zero on match, zero otherwise.
+ *
+ * @retval 1  The pattern matched.
+ * @retval 0  The pattern did not match.
+ */
 static int      match( char *expbuf, int gf, int is_cnt );
+
+/*!
+ * @brief Attempts to advance the match pointer by one pattern element.
+ *
+ * @param[in] lp Source (linebuf) pointer.
+ * @param[in] ep Regular expression element pointer.
+ *
+ * @return Non-zero on success, zero otherwise.
+ *
+ * @retval 1  The element matched.
+ * @retval 0  The element did not match.
+ */
 static int      advance( register char *lp, register char *ep );
+
+/*!
+ * @brief Performs the s command.
+ *
+ * @param[in] ipc Pointer to the s command structure.
+ *
+ * @return Non-zero if a substitution was made, zero otherwise.
+ *
+ * @retval 1  A substitution was performed.
+ * @retval 0  No substitution was performed.
+ */
 static int      substitute( sedcmd const *ipc );
+
+/*!
+ * @brief Generates the substituted right-hand side of the s command.
+ *
+ * @param[in] rhsbuf Where to put the result.
+ */
 static void     dosub( char const *rhsbuf );
+
+/*!
+ * @brief Places characters at *al1...*(al1 - 1) at asp... in genbuf[].
+ *
+ * @param[in] asp Destination pointer in genbuf.
+ * @param[in] al1 Start of the source range.
+ * @param[in] al2 End of the source range.
+ *
+ * @return Updated destination pointer.
+ */
 static char     *place( register char *asp, register char const *al1,
     register char const *al2 );
+
+/*!
+ * @brief Writes a hex dump expansion of *p1... to fp.
+ *
+ * @param[in] p1 The source string.
+ * @param[in] fp Output stream to write to.
+ */
 static void     listto( register char const *p1, FILE *fp );
+
+/*!
+ * @brief Executes the compiled command pointed at by ipc.
+ *
+ * @param[in] ipc Pointer to the command to execute.
+ */
 static void     command( sedcmd *ipc );
+
+/*!
+ * @brief Gets the next line of text to be filtered.
+ *
+ * @param[in] buf Where to send the input.
+ *
+ * @return Pointer to the terminating null, or BAD on end of input.
+ *
+ * @retval BAD  End of input was reached.
+ */
 static char     *getline( register char *buf );
+
+/*!
+ * @brief Compares two strings for a given number of characters.
+ *
+ * @param[in] a     First string.
+ * @param[in] b     Second string.
+ * @param[in] count Number of characters to compare.
+ *
+ * @return TRUE if equal, FALSE otherwise.
+ *
+ * @retval TRUE   The strings are equal.
+ * @retval FALSE  The strings are not equal.
+ */
 static int      memeql( register char const *a, register char const *b, int count );
+
+/*!
+ * @brief Writes the file indicated by the r command to output.
+ */
 static void     readout( void );
 
-/* execute the compiled commands in cmds[] on a file */
+/*!
+ * @brief Executes the compiled commands in cmds[] on a file.
+ *
+ * @param[in] file Name of the text source file to filter, or NULL
+ *                 to read from standard input.
+ */
 void execute( const char *file )        /* name of text source file to filter */
 {
     register char const *p1;            /* dummy copy ptrs */
@@ -139,7 +314,16 @@ void execute( const char *file )        /* name of text source file to filter */
     }
 }
 
-/* is current command selected */
+/*!
+ * @brief Is current command selected.
+ *
+ * @param[in] ipc Compiled command.
+ *
+ * @return Non-zero if the command is selected, zero otherwise.
+ *
+ * @retval 1  The command is selected.
+ * @retval 0  The command is not selected.
+ */
 static int selected( sedcmd *ipc )
 {
     register char               *p1 = ipc->addr1;       /* first address */
@@ -182,7 +366,19 @@ static int selected( sedcmd *ipc )
     return( !allbut );
 }
 
-/* match RE at expbuf against linebuf; if gf set, copy linebuf from genbuf */
+/*!
+ * @brief Match RE at expbuf against linebuf; if gf set, copy linebuf
+ *        from genbuf.
+ *
+ * @param[in] expbuf Compiled regular expression.
+ * @param[in] gf     If set, copy linebuf from genbuf.
+ * @param[in] is_cnt Non-zero if continuing a match from loc2.
+ *
+ * @return Non-zero on match, zero otherwise.
+ *
+ * @retval 1  The pattern matched.
+ * @retval 0  The pattern did not match.
+ */
 static int match(
     char                *expbuf,
     int                 gf,
@@ -239,7 +435,17 @@ static int match(
     return( FALSE );
 }
 
-/* attempt to advance match pointer by one pattern element */
+/*!
+ * @brief Attempt to advance match pointer by one pattern element.
+ *
+ * @param[in] lp Source (linebuf) ptr.
+ * @param[in] ep Regular expression element ptr.
+ *
+ * @return Non-zero on success, zero otherwise.
+ *
+ * @retval 1  The element matched.
+ * @retval 0  The element did not match.
+ */
 static int advance(
     register char       *lp,            /* source (linebuf) ptr */
     register char       *ep )           /* regular expression element ptr */
@@ -503,7 +709,16 @@ static int advance(
         } /* switch( *ep++ ) */
 }
 
-/* perform s command */
+/*!
+ * @brief Perform s command.
+ *
+ * @param[in] ipc Ptr to s command struct.
+ *
+ * @return Non-zero if a substitution was made, zero otherwise.
+ *
+ * @retval 1  A substitution was performed.
+ * @retval 0  No substitution was performed.
+ */
 static int substitute( sedcmd const *ipc ) /* ptr to s command struct */
 {
     int fcnt = ipc->flags.nthone;
@@ -526,7 +741,13 @@ static int substitute( sedcmd const *ipc ) /* ptr to s command struct */
     return( TRUE );                     /* we succeeded */
 }
 
-/* generate substituted right-hand side (of s command) */
+/*!
+ * @brief Generate substituted right-hand side (of s command).
+ *
+ * @param[in] rhsbuf Where to put the result.
+ *
+ * @note Uses linebuf, genbuf, spend.
+ */
 static void dosub( char const *rhsbuf ) /* where to put the result */
                                         /* uses linebuf, genbuf, spend */
 {
@@ -572,7 +793,15 @@ static void dosub( char const *rhsbuf ) /* where to put the result */
     spend = lp - 1;
 }
 
-/* place chars at *al1...*(al1 - 1) at asp... in genbuf[] */
+/*!
+ * @brief Place chars at *al1...*(al1 - 1) at asp... in genbuf[].
+ *
+ * @param[in] asp Destination pointer in genbuf.
+ * @param[in] al1 Start of source range.
+ * @param[in] al2 End of source range.
+ *
+ * @return Updated destination pointer.
+ */
 static char *place(
     register char       *asp,
     register char const *al1,
@@ -588,7 +817,12 @@ static char *place(
     return( asp );
 }
 
-/* write a hex dump expansion of *p1... to fp */
+/*!
+ * @brief Write a hex dump expansion of *p1... to fp.
+ *
+ * @param[in] p1 The source.
+ * @param[in] fp Output stream to write to.
+ */
 static void listto(
     register char const *p1,            /* the source */
     FILE                *fp )           /* output stream to write to */
@@ -639,7 +873,11 @@ static void listto(
     putc( '\n', fp );
 }
 
-/* execute compiled command pointed at by ipc */
+/*!
+ * @brief Execute compiled command pointed at by ipc.
+ *
+ * @param[in] ipc Pointer to the command to execute.
+ */
 static void command( sedcmd *ipc )
 {
     static int      didsub;             /* true if last s succeeded */
@@ -837,7 +1075,15 @@ static void command( sedcmd *ipc )
     }
 }
 
-/* get next line of text to be filtered */
+/*!
+ * @brief Get next line of text to be filtered.
+ *
+ * @param[in] buf Where to send the input.
+ *
+ * @return Pointer to the terminating null, or BAD on end of input.
+ *
+ * @retval BAD  End of input was reached.
+ */
 static char *getline( register char *buf )  /* where to send the input */
 {
     static char const * const   linebufend = linebuf + MAXBUF + 2;
@@ -870,7 +1116,19 @@ static char *getline( register char *buf )  /* where to send the input */
     }
 }
 
-/* return TRUE if *a... == *b... for count chars, FALSE otherwise */
+/*!
+ * @brief Return TRUE if *a... == *b... for count chars, FALSE
+ *        otherwise.
+ *
+ * @param[in] a     First string.
+ * @param[in] b     Second string.
+ * @param[in] count Number of characters to compare.
+ *
+ * @return TRUE if equal, FALSE otherwise.
+ *
+ * @retval TRUE   The strings are equal.
+ * @retval FALSE  The strings are not equal.
+ */
 static int memeql(
     register char const *a,
     register char const *b,
@@ -882,7 +1140,9 @@ static int memeql(
     return( TRUE );                     /* compare succeeded */
 }
 
-/* write file indicated by r command to output */
+/*!
+ * @brief Write file indicated by r command to output.
+ */
 static void readout( void )
 {
     register int        t;              /* hold input char or EOF */
