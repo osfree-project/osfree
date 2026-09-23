@@ -9,9 +9,16 @@
 !ifndef __build_mk__
 !define __build_mk__
 
-#!message $(%CWD)
-#!message $(SOURCES)
-#!message $(__MAKEFILES__)
+!ifdef __LOADDLL__
+! loaddll wcc wccd
+! loaddll wccaxp wccdaxp
+! loaddll wcc386 wccd386
+! loaddll wpp wppdi86
+! loaddll wppaxp wppdaxp
+! loaddll wpp386 wppd386
+! loaddll wlink wlinkd
+! loaddll wlib wlibd
+!endif
 
 # ------------------------------------------------------------
 # Aliases

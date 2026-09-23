@@ -23,9 +23,6 @@
 
 !include $(%ROOT)tools/mk/dirs.mk
 
-# Hack to get called makefile name into __MAKEFILE__
-#!inject $(__MAKEFILES__) __MAKEFILE__
-
 all install: .SYMBOLIC gen_proj_name
 prepall:     .SYMBOLIC prep
 depsall:     .SYMBOLIC deps
@@ -41,23 +38,22 @@ dir4=$(dir3:$(SEP)=)
 # pass some targets recursively
 depsall prepall subdirs clean annotate annotate-write: .SYMBOLIC
  #change dir to set correct value of dir4. Magic!
- @cd ..
+ $(verbose)cd ..
  # dir4 must be userd on a single line: if the expression is split
  # across lines, dir4 ends up empty instead of holding the last path
- # component. -f $(CWD)$(SEP)$(dir4)$(SEP)$(__MAKEFILE__)
- @cd $(dir4) && $(MAKE) -f $(CWD)$(SEP)$(dir4)$(SEP)makefile $(MAKEOPT) $^@ PROJ=$(dir4)
+ # component.
+ $(verbose)cd $(dir4) && $(MAKE) -f $(CWD)$(dir4)$(SEP)makefile $(MAKEOPT) $^@ PROJ=$(dir4)
  @%quit
 
 #generate project name
 gen_proj_name: .SYMBOLIC
- #@$(REXX) mdhier.cmd $(PATH)
  #change dir to set correct value of dir4. Magic!
- @cd ..
+ $(verbose)cd ..
  #Save project name for future usage (will not start project detection from build dir)
  # dir4 must be userd on a single line: if the expression is split
  # across lines, dir4 ends up empty instead of holding the last path
- # component. -f $(CWD)$(SEP)$(dir4)$(SEP)$(__MAKEFILE__)
- @cd $(dir4) && $(MAKE) -f $(CWD)$(SEP)$(dir4)$(SEP)makefile $(MAKEOPT) PROJ=$(dir4)
+ # component.
+ $(verbose)cd $(dir4) && $(MAKE) -f $(CWD)$(dir4)$(SEP)makefile $(MAKEOPT) PROJ=$(dir4)
  @%quit
 
 !endif

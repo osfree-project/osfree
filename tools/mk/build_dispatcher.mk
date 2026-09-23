@@ -610,15 +610,4 @@ TARGET_MK=appsos2
 !error Unknown TARGET_API: $(TARGET_API)
 !endif
 
-!ifdef __LOADDLL__
-! loaddll wcc wccd
-! loaddll wccaxp wccdaxp
-! loaddll wcc386 wccd386
-! loaddll wpp wppdi86
-! loaddll wppaxp wppdaxp
-! loaddll wpp386 wppd386
-! loaddll wlink wlinkd
-! loaddll wlib wlibd
-!endif
-
 !include $(%ROOT)tools/mk/$(TARGET_MK).mk
