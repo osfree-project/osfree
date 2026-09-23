@@ -187,4 +187,7 @@ gen_deps_wrapper: .symbolic
 #	@for %o in ($(OBJS)) do @$(MAKE) $(MAKEOPT) trgt="%o" deps="$(PATH)$(PROJ).inc" gen_deps
 #!endif
 
+doxy-lint: .SYMBOLIC
+    $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $(MYDIR) $(COPT)
+
 !endif  

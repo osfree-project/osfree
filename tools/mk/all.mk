@@ -690,7 +690,9 @@ prep: .symbolic
 ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
 !endif
 
+!ifndef __build_mk__
 doxy-lint: .SYMBOLIC
-    $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $(MYDIR) $(COPT)
+    @%null
+!endif
 
 !endif

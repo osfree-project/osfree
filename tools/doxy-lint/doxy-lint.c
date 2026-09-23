@@ -34,6 +34,13 @@
  *  #include'd header are dropped.  Function and variable declarations
  *  are located in this pass.
  *
+ *  Before invoking the preprocessor, the current directory is changed
+ *  to the directory of the source file, so that relative -i= options
+ *  and #include "..." behave exactly as in the project's makefiles.
+ *  Temporary files (.i and .err) are written to $TMPDIR / %TEMP% /
+ *  %TMP% and always removed; nothing is ever written into the current
+ *  or source directory.
+ *
  *  Enforces:
  *    - @file   required in every source and header file;
  *    - @brief  required before (or trailing after) every top-level
@@ -89,10 +96,18 @@
 
 #if defined(__LINUX__)
 #  include <dirent.h>
+#  include <unistd.h>
 #  define DIRSEP '/'
+#  define PLATFORM_CHDIR(p)     chdir(p)
+#  define PLATFORM_GETCWD(b,s)  getcwd(b,s)
+#  define PLATFORM_GETPID()     ((int)getpid())
 #elif defined(__NT__) || defined(__OS2__)
 #  include <direct.h>
+#  include <process.h>
 #  define DIRSEP '\\'
+#  define PLATFORM_CHDIR(p)     _chdir(p)
+#  define PLATFORM_GETCWD(b,s)  _getcwd(b,s)
+#  define PLATFORM_GETPID()     ((int)getpid())
 #else
 #  error "Unsupported target: expected Linux, Win32 or OS/2"
 #endif
@@ -155,6 +170,84 @@ static char preproc_opts[PATHBUF * 4] = "";
  * line; a second simple return on the same line is ignored.
  */
 static char *raw_returns[MAX_LINE_NO];
+
+/*! @brief Counter used to build unique temporary file names.
+ *
+ * Combined with the process id, gives names that do not collide
+ * between parallel runs of doxy-lint.
+ */
+static int temp_counter = 0;
+
+/*! @brief Returns the platform temp directory, or 0 on failure.
+ *
+ * Linux: $TMPDIR, otherwise /tmp.  Win32 / OS-2: %TEMP%, otherwise
+ * %TMP%.  Never falls back to the current directory: a missing temp
+ * directory is an error, and the caller falls back to the raw file.
+ *
+ *  @param[out] buf     Receiver for the directory path.
+ *  @param[in]  bufsize Size of buf in bytes.
+ *  @return Non-zero on success.
+ *  @retval 0 No temp directory available, or the path does not fit.
+ *  @retval 1 Directory path copied into buf.
+ */
+static int get_temp_dir(char *buf, size_t bufsize)
+{
+#if defined(__LINUX__)
+    const char *t = getenv("TMPDIR");
+    if (t == NULL || t[0] == 0) t = "/tmp";
+    if (strlen(t) + 1 > bufsize) return 0;
+    strcpy(buf, t);
+    return 1;
+#else
+    const char *t = getenv("TEMP");
+    if (t == NULL || t[0] == 0) t = getenv("TMP");
+    if (t == NULL || t[0] == 0) return 0;
+    if (strlen(t) + 1 > bufsize) return 0;
+    strcpy(buf, t);
+    return 1;
+#endif
+}
+
+/*! @brief Turns a path into an absolute one using the current directory.
+ *
+ * Paths that already start with '/' or '\\', or with a drive letter
+ * followed by ':', are returned unchanged.  Anything else is prefixed
+ * with the current working directory.
+ *
+ *  @param[in]  path    Input path. Not NULL.
+ *  @param[out] out     Receiver for the absolute path.
+ *  @param[in]  outsize Size of out in bytes.
+ *  @return Non-zero on success.
+ *  @retval 0 Path could not be made absolute, or does not fit.
+ *  @retval 1 Absolute path copied into out.
+ */
+static int make_absolute(const char *path, char *out, size_t outsize)
+{
+    char cwd[PATHBUF];
+    size_t clen, plen;
+
+    if (path[0] == '\0') return 0;
+    if (path[0] == '/' || path[0] == '\\') {
+        if (strlen(path) + 1 > outsize) return 0;
+        strcpy(out, path);
+        return 1;
+    }
+    if (isalpha((unsigned char)path[0]) && path[1] == ':') {
+        if (strlen(path) + 1 > outsize) return 0;
+        strcpy(out, path);
+        return 1;
+    }
+    if (PLATFORM_GETCWD(cwd, PATHBUF) == NULL) return 0;
+    clen = strlen(cwd);
+    plen = strlen(path);
+    if (clen + 1 + plen + 1 > outsize) return 0;
+    memcpy(out, cwd, clen);
+    if (clen > 0 && cwd[clen - 1] != '/' && cwd[clen - 1] != '\\') {
+        out[clen++] = DIRSEP;
+    }
+    memcpy(out + clen, path, plen + 1);
+    return 1;
+}
 
 /*! @brief Appends a token to the global toks[] array.
  *  @param[in] type Token type constant.
@@ -1141,26 +1234,43 @@ static int check_defines_raw(const char *fname)
 
 /*! @brief Run the Open Watcom preprocessor and keep original-file lines.
  *
- * Invokes "<compiler> -pcl [extra options] -fo=<temp> <fname>", where
- * -pcl means preprocess, preserve comments and insert #line directives,
- * and the extra options come from the doxy-lint command line.  Reads
- * the output, tracks #line directives, and produces a buffer with the
- * same line numbering as the original file.  Lines whose #line names
- * another file (i.e. content expanded from an #include) are replaced
- * by empty lines so that the tokenizer's line counter matches the
- * source file.
+ * Invokes "<compiler> -pcl -fr=<err> [extra options] -fo=<out>
+ * <base>", where -pcl means preprocess, preserve comments and insert
+ * #line directives, <err> and <out> are absolute paths in the
+ * platform temp directory, and <base> is the base name of the source
+ * file.  The current directory is switched to the source directory
+ * first, so that relative -i= options and #include "..." behave as in
+ * the project's makefiles; the original directory is restored before
+ * returning.
+ *
+ * Temp files are always written outside the source tree and removed
+ * afterwards.  If no temp directory is available, or the preprocessor
+ * fails, NULL is returned and the caller falls back to the raw file.
+ *
+ * Reads the output, tracks #line directives, and produces a buffer
+ * with the same line numbering as the original file.  Lines whose
+ * #line names another file (i.e. content expanded from an #include)
+ * are replaced by empty lines so that the tokenizer's line counter
+ * matches the source file.
  *
  *  @param[in]  fname   Source file to preprocess. Not NULL.
  *  @param[out] out_len Receives the buffer length in bytes.
  *  @return Buffer, or NULL when preprocessing is unavailable or fails.
- *  @retval NULL Compiler failed, temp file could not be read, or
- *               memory could not be allocated.
+ *  @retval NULL No temp directory, compiler failed, temp file could
+ *               not be read, or memory could not be allocated.
  *  @retval buf  Buffer with preprocessed source of fname.
  */
 static char *preprocess_file(const char *fname, long *out_len)
 {
-    char tmpname[L_tmpnam];
-    char cmd[PATHBUF * 5 + 64];
+    char tmpdir[PATHBUF];
+    char tmpabs[PATHBUF];
+    char tmpout[PATHBUF];
+    char tmperr[PATHBUF];
+    char cmd[PATHBUF * 5 + 128];
+    char dirpart[PATHBUF];
+    char basepart[PATHBUF];
+    char savedcwd[PATHBUF];
+    const char *slash1, *slash2, *slash;
     const char *cc;
     FILE *fp;
     char line[PRELINE];
@@ -1169,29 +1279,87 @@ static char *preprocess_file(const char *fname, long *out_len)
     long src_line;
     int in_orig;
     char cur_file[PATHBUF];
+    int have_cwd;
+    int rc;
+    int uniq;
 
-    if (tmpnam(tmpname) == NULL) return NULL;
+    /* Split fname into directory and base name. */
+    slash1 = strrchr(fname, '/');
+    slash2 = strrchr(fname, '\\');
+    slash = slash1;
+    if (slash2 != NULL && (slash == NULL || slash2 > slash)) slash = slash2;
+
+    if (slash == NULL) {
+        dirpart[0] = 0;
+        strncpy(basepart, fname, PATHBUF - 1);
+        basepart[PATHBUF - 1] = 0;
+    } else {
+        size_t dlen = (size_t)(slash - fname);
+        if (dlen >= PATHBUF) dlen = PATHBUF - 1;
+        memcpy(dirpart, fname, dlen);
+        dirpart[dlen] = 0;
+        strncpy(basepart, slash + 1, PATHBUF - 1);
+        basepart[PATHBUF - 1] = 0;
+    }
+
+    /* Pick a writable temp directory.  Never use the current or source
+       directory: everything goes to $TMPDIR / %TEMP% / %TMP%.  If none
+       is available, give up and let the caller fall back to the raw
+       file. */
+    if (!get_temp_dir(tmpdir, sizeof(tmpdir))) return NULL;
+    if (!make_absolute(tmpdir, tmpabs, sizeof(tmpabs))) return NULL;
+
+    /* Ensure trailing separator. */
+    {
+        size_t dlen = strlen(tmpabs);
+        if (dlen == 0 ||
+            (tmpabs[dlen - 1] != '/' && tmpabs[dlen - 1] != '\\')) {
+            if (dlen + 2 > sizeof(tmpabs)) return NULL;
+            tmpabs[dlen] = DIRSEP;
+            tmpabs[dlen + 1] = 0;
+        }
+    }
+
+    uniq = ++temp_counter;
+    sprintf(tmpout, "%sdoxy-lint-%d-%d.i",   tmpabs, PLATFORM_GETPID(), uniq);
+    sprintf(tmperr, "%sdoxy-lint-%d-%d.err", tmpabs, PLATFORM_GETPID(), uniq);
+
+    /* Switch to the source directory so that relative -i= options and
+       #include "..." resolve the same way they do during the build. */
+    have_cwd = 0;
+    if (dirpart[0] != 0) {
+        if (PLATFORM_GETCWD(savedcwd, PATHBUF) != NULL) have_cwd = 1;
+        if (PLATFORM_CHDIR(dirpart) != 0) have_cwd = 0;
+    }
 
     cc = preproc_compiler(fname);
     if (preproc_opts[0] != 0)
-        sprintf(cmd, "%s -pcl %s -fo=%s \"%s\"",
-                cc, preproc_opts, tmpname, fname);
+        sprintf(cmd, "%s -pcl -fr=%s %s -fo=%s \"%s\"",
+                cc, tmperr, preproc_opts, tmpout, basepart);
     else
-        sprintf(cmd, "%s -pcl -fo=%s \"%s\"", cc, tmpname, fname);
-    if (system(cmd) != 0) {
-        remove(tmpname);
+        sprintf(cmd, "%s -pcl -fr=%s -fo=%s \"%s\"",
+                cc, tmperr, tmpout, basepart);
+
+    rc = system(cmd);
+
+    if (have_cwd) PLATFORM_CHDIR(savedcwd);
+
+    if (rc != 0) {
+        remove(tmpout);
+        remove(tmperr);
         return NULL;
     }
+    remove(tmperr);
 
-    fp = fopen(tmpname, "rb");
+    fp = fopen(tmpout, "rb");
     if (fp == NULL) {
-        remove(tmpname);
+        remove(tmpout);
         return NULL;
     }
 
     cap = 65536;
     result = (char *)malloc(cap);
-    if (result == NULL) { fclose(fp); remove(tmpname); return NULL; }
+    if (result == NULL) { fclose(fp); remove(tmpout); return NULL; }
     result[0] = 0;
     len = 0;
     emitted_lines = 0;
@@ -1248,7 +1416,7 @@ static char *preprocess_file(const char *fname, long *out_len)
                 cap *= 2;
                 result = (char *)realloc(result, cap);
                 if (result == NULL) {
-                    fclose(fp); remove(tmpname); return NULL;
+                    fclose(fp); remove(tmpout); return NULL;
                 }
             }
             result[len++] = '\n';
@@ -1260,7 +1428,7 @@ static char *preprocess_file(const char *fname, long *out_len)
             while (len + linelen + 1 > cap) cap *= 2;
             result = (char *)realloc(result, cap);
             if (result == NULL) {
-                fclose(fp); remove(tmpname); return NULL;
+                fclose(fp); remove(tmpout); return NULL;
             }
         }
         memcpy(result + len, line, linelen);
@@ -1271,7 +1439,7 @@ static char *preprocess_file(const char *fname, long *out_len)
     }
 
     fclose(fp);
-    remove(tmpname);
+    remove(tmpout);
 
     *out_len = (long)len;
     return result;
@@ -1309,7 +1477,8 @@ static int check_file(const char *fname)
     src = preprocess_file(fname, &srclen);
     if (src == NULL) {
         if (!wpp_warned) {
-            printf("doxy-lint: preprocessing failed, using raw file\n");
+            printf("doxy-lint: preprocessing unavailable, "
+                   "using raw files\n");
             wpp_warned = 1;
         }
         src = slurp(fname, &srclen);
