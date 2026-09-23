@@ -1,22 +1,26 @@
-/* text.c -- Text output
-   Copyright (c) 1993-1999 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file text.c
+ * @brief Text output.
+ *
+ * Copyright (c) 1993-1999 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -27,12 +31,32 @@ Boston, MA 02111-1307, USA.  */
 #include "text.h"
 #include "lb.h"
 
+/*!
+ * @brief Target output width for text mode.
+ */
 static int text_width = 70;
+/*!
+ * @brief Current formatting width.
+ */
 static int format_width;
+/*!
+ * @brief Current formatting margin.
+ */
 static int format_margin;
+/*!
+ * @brief Current line-breaking state.
+ */
 static struct lb *lb;
+/*!
+ * @brief Hyphenation dictionary or NULL.
+ */
 static struct lbh *lbh = NULL;
 
+/*!
+ * @brief Emit spaces so the output column reaches @p margin.
+ *
+ * @param[in] margin Target column.
+ */
 static void text_indent (int margin)
 {
   uchar *s;
@@ -48,6 +72,9 @@ static void text_indent (int margin)
 }
 
 
+/*!
+ * @brief Finish the current paragraph if one is pending.
+ */
 static void text_para (void)
 {
   if (para_flag)
@@ -58,6 +85,16 @@ static void text_para (void)
 }
 
 
+/*!
+ * @brief Test whether a string consists only of spaces.
+ *
+ * @param[in] p String to test. Not NULL.
+ *
+ * @return TRUE if all characters are spaces, FALSE otherwise.
+ *
+ * @retval TRUE   The string consists only of spaces.
+ * @retval FALSE  Otherwise.
+ */
 static int isblank (const uchar *p)
 {
   while (*p != 0)
@@ -67,6 +104,12 @@ static int isblank (const uchar *p)
 }
 
 
+/*!
+ * @brief Write a string with the current formatting.
+ *
+ * @param[in] p         String. Not NULL.
+ * @param[in] may_break Non-zero if a line break may be inserted.
+ */
 void text_output (const uchar *p, int may_break)
 {
   if (opt_b == 0)
@@ -90,6 +133,15 @@ void text_output (const uchar *p, int may_break)
 }
 
 
+/*!
+ * @brief Render the current element list.
+ *
+ * @param[in] margin   Left margin.
+ * @param[in] width    Right margin.
+ * @param[in] newline  Non-zero to finish the paragraph with a newline.
+ *
+ * @return Number of output lines generated.
+ */
 static int text_elements (int margin, int width, int newline)
 {
   const struct element *ep, *ep2;
@@ -218,6 +270,9 @@ static int text_elements (int margin, int width, int newline)
 }
 
 
+/*!
+ * @brief Emit the start of a level-1 heading.
+ */
 void text_heading1 (void)
 {
   env_stack[0].tmargin = 0;
@@ -226,6 +281,11 @@ void text_heading1 (void)
 }
 
 
+/*!
+ * @brief Emit a heading.
+ *
+ * @param[in,out] s Heading text; overwritten with the underline.
+ */
 void text_heading2 (uchar *s)
 {
   if (tg_level == 0)
@@ -240,6 +300,9 @@ void text_heading2 (uchar *s)
 }
 
 
+/*!
+ * @brief Begin a "See also" paragraph.
+ */
 void text_see_also_start (void)
 {
   if (para_flag)
@@ -247,6 +310,11 @@ void text_see_also_start (void)
 }
 
 
+/*!
+ * @brief Emit the "See also" list.
+ *
+ * @param[in] s Comma separated reference list. Not NULL.
+ */
 void text_see_also_end (const uchar *s)
 {
   write_string ("  See also: ");
@@ -255,6 +323,11 @@ void text_see_also_end (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a description-list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void text_description_item (const uchar *s)
 {
   write_nl ();
@@ -268,6 +341,9 @@ void text_description_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit an enumerated-list item.
+ */
 void text_enumerate_item (void)
 {
   write_nl ();
@@ -277,6 +353,9 @@ void text_enumerate_item (void)
 }
 
 
+/*!
+ * @brief Emit an itemized-list item.
+ */
 void text_itemize_item (void)
 {
   write_nl ();
@@ -286,6 +365,11 @@ void text_itemize_item (void)
 }
 
 
+/*!
+ * @brief Emit a list item.
+ *
+ * @param[in] s Item label text. Not NULL.
+ */
 void text_list_item (const uchar *s)
 {
   write_nl ();
@@ -296,6 +380,9 @@ void text_list_item (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a paragraph of normal text.
+ */
 void text_copy (void)
 {
   if (para_flag)
@@ -304,6 +391,12 @@ void text_copy (void)
 }
 
 
+/*!
+ * @brief Begin a text verbatim block.
+ *
+ * @param[in]     tag_end  Tag that terminates the block.
+ * @param[in,out] ptmargin Top-margin pointer to adjust. Not NULL.
+ */
 void text_verbatim_start (enum tag tag_end, int *ptmargin)
 {
   switch (tag_end)
@@ -326,6 +419,12 @@ void text_verbatim_start (enum tag tag_end, int *ptmargin)
 }
 
 
+/*!
+ * @brief Append a compatibility note to a line.
+ *
+ * @param[in,out] dst    Line buffer. Not NULL.
+ * @param[in,out] compat Compatibility text. Cleared on output. Not NULL.
+ */
 static void add_compat (uchar *dst, uchar *compat)
 {
   int i, len;
@@ -344,6 +443,13 @@ static void add_compat (uchar *dst, uchar *compat)
 }
 
 
+/*!
+ * @brief Emit one verbatim line.
+ *
+ * @param[in]     tag_end Tag that terminates the block.
+ * @param[in]     tmargin Top margin.
+ * @param[in,out] compat  Compatibility buffer. Not NULL.
+ */
 void text_verbatim_line (enum tag tag_end, int tmargin, uchar *compat)
 {
   uchar buf[512];
@@ -356,6 +462,9 @@ void text_verbatim_line (enum tag tag_end, int tmargin, uchar *compat)
 }
 
 
+/*!
+ * @brief Emit a function documentation separator.
+ */
 void text_function (void)
 {
   env_stack[0].tmargin = 0;
@@ -365,6 +474,11 @@ void text_function (void)
 }
 
 
+/*!
+ * @brief Begin a prototype block.
+ *
+ * @param[in,out] compat Compatibility buffer. Not NULL.
+ */
 void text_prototype_start (uchar *compat)
 {
   uchar buf[512];
@@ -379,6 +493,9 @@ void text_prototype_start (uchar *compat)
 }
 
 
+/*!
+ * @brief End a prototype block.
+ */
 void text_prototype_end (void)
 {
   text_elements (0, 78, TRUE);
@@ -386,6 +503,12 @@ void text_prototype_end (void)
 }
 
 
+/*!
+ * @brief Emit one table-of-contents entry.
+ *
+ * @param[in] s  Section number text.
+ * @param[in] tp Table-of-contents entry.
+ */
 void text_toc_line (const uchar *s, const struct toc *tp)
 {
   write_string (s);
@@ -393,6 +516,12 @@ void text_toc_line (const uchar *s, const struct toc *tp)
 }
 
 
+/*!
+ * @brief Begin a text table.
+ *
+ * @param[in]     do_indent Non-zero to indent the table.
+ * @param[in,out] ptmargin  Top-margin pointer to adjust. Not NULL.
+ */
 void text_table_start (int do_indent, int *ptmargin)
 {
   if (do_indent)
@@ -401,6 +530,12 @@ void text_table_start (int do_indent, int *ptmargin)
 }
 
 
+/*!
+ * @brief Emit one table line.
+ *
+ * @param[in] s       Line text. Not NULL.
+ * @param[in] tmargin Top margin.
+ */
 void text_table_line (const uchar *s, int tmargin)
 {
   make_elements (s);
@@ -409,6 +544,11 @@ void text_table_line (const uchar *s, int tmargin)
 }
 
 
+/*!
+ * @brief Emit a sample-file reference.
+ *
+ * @param[in] s Sample file name. Not NULL.
+ */
 void text_sample_file (const uchar *s)
 {
   if (para_flag)
@@ -418,6 +558,11 @@ void text_sample_file (const uchar *s)
 }
 
 
+/*!
+ * @brief Emit a library-reference section heading.
+ *
+ * @param[in] s Section title. Not NULL.
+ */
 void text_libref_section (const uchar *s)
 {
   if (para_flag)
@@ -428,6 +573,11 @@ void text_libref_section (const uchar *s)
 }
 
 
+/*!
+ * @brief Load a hyphenation table.
+ *
+ * @param[in] name File name. Not NULL.
+ */
 void text_hyphenation (const char *name)
 {
   FILE *f;

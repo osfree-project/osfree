@@ -1,22 +1,26 @@
-/* lb.c -- Line breaking
-   Copyright (c) 1993-1996 Eberhard Mattes
-
-This file is part of emxdoc.
-
-emxdoc is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-emxdoc is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with emxdoc; see the file COPYING.  If not, write to
-the Free Software Foundation, 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ * @file lb.c
+ * @brief Line breaking.
+ *
+ * Copyright (c) 1993-1996 Eberhard Mattes
+ *
+ * This file is part of emxdoc.
+ *
+ * emxdoc is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * emxdoc is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with emxdoc; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 
 #include <stdio.h>
@@ -24,68 +28,133 @@ Boston, MA 02111-1307, USA.  */
 #include <string.h>
 #include "lb.h"
 
+/*!
+ * @brief Boolean false value.
+ */
 #define FALSE   0
+/*!
+ * @brief Boolean true value.
+ */
 #define TRUE    1
 
+/*!
+ * @brief Word node type.
+ */
 #define NODE_WORD       1
+/*!
+ * @brief Glue node type.
+ */
 #define NODE_GLUE       2
+/*!
+ * @brief Penalty node type.
+ */
 #define NODE_PENALTY    3
+/*!
+ * @brief Discretionary hyphen node type.
+ */
 #define NODE_DISCR      4
+/*!
+ * @brief Pre-hyphen fragment node type.
+ */
 #define NODE_PRE        5
+/*!
+ * @brief Post-hyphen fragment node type.
+ */
 #define NODE_POST       6
+/*!
+ * @brief Newline node type.
+ */
 #define NODE_NEWLINE    7
 
+/*!
+ * @brief Hash table size for hyphenation words.
+ */
 #define HASH_SIZE       997
 
+/*!
+ * @brief Penalty added at a discretionary hyphen.
+ */
 #define HYPHEN_PENALTY  18
 
+/*!
+ * @brief One node in the paragraph node list.
+ */
 struct node
 {
-  struct node *next;
-  char *word, *pre, *post;
-  const void *info;
-  int value, value_pre, value_post;
-  char type;
+  struct node *next;            /*!< Next node. */
+  char *word, *pre, *post;      /*!< Text fragments. */
+  const void *info;             /*!< Caller information. */
+  int value, value_pre, value_post; /*!< Widths. */
+  char type;                    /*!< Node type. */
 };
 
+/*!
+ * @brief One possible break point.
+ */
 struct brkp
 {
-  struct node *node;
-  int chain;
-  int cost;
-  char special;
+  struct node *node;            /*!< Node at the break point. */
+  int chain;                    /*!< Previous break point index. */
+  int cost;                     /*!< Accumulated cost. */
+  char special;                 /*!< Dijkstra visited flag. */
 };
 
+/*!
+ * @brief One hyphenation dictionary word.
+ */
 struct hword
 {
-  struct hword *next;
-  char *str;
+  struct hword *next;           /*!< Next word in bucket. */
+  char *str;                    /*!< The word text. */
 };
 
+/*!
+ * @brief Hyphenation dictionary.
+ */
 struct lbh
 {
-  struct hword *hash_table[HASH_SIZE];
+  struct hword *hash_table[HASH_SIZE]; /*!< Hash table. */
 };
 
+/*!
+ * @brief Line-breaking state.
+ */
 struct lb
 {
-  int lmargin;
-  int rmargin;
-  int lmargin_1;
-  int rmargin_1;
-  int brkp_count;
-  const struct lbh *hyphenation;
-  const struct node *cur_node;
-  struct node *node_list;
-  struct node **node_add;
-  struct brkp *brkps;
-  int *distance;
+  int lmargin;                  /*!< Left margin. */
+  int rmargin;                  /*!< Right margin. */
+  int lmargin_1;                /*!< Left margin of the first line. */
+  int rmargin_1;                /*!< Right margin of the first line. */
+  int brkp_count;               /*!< Number of break points. */
+  const struct lbh *hyphenation; /*!< Hyphenation dictionary or NULL. */
+  const struct node *cur_node;  /*!< Current node during iteration. */
+  struct node *node_list;       /*!< Head of the node list. */
+  struct node **node_add;       /*!< Where to append the next node. */
+  struct brkp *brkps;           /*!< Array of break points. */
+  int *distance;                /*!< Distance matrix. */
 };
 
 
+/*!
+ * @brief Find a hyphenation word.
+ *
+ * @param[in] p Hyphenation dictionary. Not NULL.
+ * @param[in] s Word to look up. Not NULL.
+ *
+ * @return Pointer to the word, or NULL if not found.
+ */
 static const struct hword *lbh_find (const struct lbh *p, const char *s);
 
 
+/*!
+ * @brief Initialize a line-breaking state.
+ *
+ * @param[out] pp      Receives the new state. Not NULL.
+ * @param[in]  lmargin Left margin.
+ * @param[in]  rmargin Right margin.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_init (struct lb **pp, int lmargin, int rmargin)
 {
   struct lb *p;
@@ -109,6 +178,11 @@ int lb_init (struct lb **pp, int lmargin, int rmargin)
 }
 
 
+/*!
+ * @brief Free one node and its allocated strings.
+ *
+ * @param[in] n1 Node to free. Not NULL.
+ */
 static void lb_free_node (struct node *n1)
 {
   if (n1->word != NULL) free (n1->word);
@@ -118,6 +192,13 @@ static void lb_free_node (struct node *n1)
 }
 
 
+/*!
+ * @brief Free a line-breaking state.
+ *
+ * @param[in,out] pp State to free; set to NULL. Not NULL.
+ *
+ * @return Always 0.
+ */
 int lb_exit (struct lb **pp)
 {
   struct lb *p;
@@ -139,6 +220,17 @@ int lb_exit (struct lb **pp)
 }
 
 
+/*!
+ * @brief Allocate a new node.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] type  Node type.
+ * @param[in] value Node width.
+ * @param[in] word  Node text or NULL.
+ * @param[in] info  Caller information.
+ *
+ * @return Pointer to the new node, or NULL on failure.
+ */
 static struct node * lb_new (struct lb *p, char type, int value,
                              const char *word, const void *info)
 {
@@ -169,6 +261,21 @@ static struct node * lb_new (struct lb *p, char type, int value,
 }
 
 
+/*!
+ * @brief Append a node to the node list.
+ *
+ * @param[in] p         Line-breaking state. Not NULL.
+ * @param[in] type      Node type.
+ * @param[in] value     Node width.
+ * @param[in] word      Node text or NULL.
+ * @param[in] value_pre Pre-hyphen width.
+ * @param[in] pre       Pre-hyphen text or NULL.
+ * @param[in] value_post Post-hyphen width.
+ * @param[in] post      Post-hyphen text or NULL.
+ * @param[in] info      Caller information.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_add (struct lb *p, char type, int value, const char *word,
                    int value_pre, char *pre, int value_post, char *post,
                    const void *info)
@@ -187,18 +294,50 @@ static int lb_add (struct lb *p, char type, int value, const char *word,
 }
 
 
+/*!
+ * @brief Append a penalty node.
+ *
+ * @param[in] p       Line-breaking state. Not NULL.
+ * @param[in] penalty Penalty value.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_penalty (struct lb *p, int penalty)
 {
   return lb_add (p, NODE_PENALTY, penalty, NULL, 0, NULL, 0, NULL, NULL);
 }
 
 
+/*!
+ * @brief Append a word node.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] width Word width.
+ * @param[in] word  Word text. Not NULL.
+ * @param[in] info  Caller information.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_word (struct lb *p, int width, const char *word, const void *info)
 {
   return lb_add (p, NODE_WORD, width, word, 0, NULL, 0, NULL, info);
 }
 
 
+/*!
+ * @brief Append a discretionary hyphenation point.
+ *
+ * @param[in] p           Line-breaking state. Not NULL.
+ * @param[in] width_word  Whole-word width.
+ * @param[in] word        Word text. Not NULL.
+ * @param[in] width_pre   Pre-hyphen width.
+ * @param[in] pre         Pre-hyphen text or NULL.
+ * @param[in] width_post  Post-hyphen width.
+ * @param[in] post        Post-hyphen text or NULL.
+ * @param[in] info        Caller information.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_discr (struct lb *p, int width_word, const char *word,
               int width_pre, const char *pre, int width_post, const char *post,
               const void *info)
@@ -236,18 +375,44 @@ int lb_discr (struct lb *p, int width_word, const char *word,
 }
 
 
+/*!
+ * @brief Append a discretionary hyphen.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] width Hyphen width.
+ * @param[in] info  Caller information.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_hyphen (struct lb *p, int width, const void *info)
 {
   return lb_discr (p, 0, "", width, "-", 0, "", info);
 }
 
 
+/*!
+ * @brief Append a glue node.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] width Glue width.
+ * @param[in] info  Caller information.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_glue (struct lb *p, int width, const void *info)
 {
   return lb_add (p, NODE_GLUE, width, NULL, 0, NULL, 0, NULL, info);
 }
 
 
+/*!
+ * @brief Set the right margin of the first line.
+ *
+ * @param[in] p      Line-breaking state. Not NULL.
+ * @param[in] margin Margin in characters.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_first_rmargin (struct lb *p, int margin)
 {
   if (margin < 1)
@@ -257,6 +422,14 @@ int lb_first_rmargin (struct lb *p, int margin)
 }
 
 
+/*!
+ * @brief Set the left margin of the first line.
+ *
+ * @param[in] p      Line-breaking state. Not NULL.
+ * @param[in] margin Margin in characters.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_first_lmargin (struct lb *p, int margin)
 {
   if (margin < 0)
@@ -266,6 +439,14 @@ int lb_first_lmargin (struct lb *p, int margin)
 }
 
 
+/*!
+ * @brief Attach a hyphenation dictionary.
+ *
+ * @param[in] p Line-breaking state. Not NULL.
+ * @param[in] h Hyphenation dictionary. Not NULL.
+ *
+ * @return Always 0.
+ */
 int lb_use_hyphenation (struct lb *p, const struct lbh *h)
 {
   p->hyphenation = h;
@@ -273,6 +454,13 @@ int lb_use_hyphenation (struct lb *p, const struct lbh *h)
 }
 
 
+/*!
+ * @brief Apply the hyphenation dictionary to the node list.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_hyphenation (struct lb *p)
 {
   struct node *n1, *n2, *n3;
@@ -325,6 +513,13 @@ static int lb_hyphenation (struct lb *p)
 }
 
 
+/*!
+ * @brief Record one break point.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] n1    Node at the break point. Not NULL.
+ * @param[in] store Non-zero to store the node pointer.
+ */
 static void lb_add_brkp (struct lb *p, struct node *n1, int store)
 {
   if (store)
@@ -333,6 +528,14 @@ static void lb_add_brkp (struct lb *p, struct node *n1, int store)
 }
 
 
+/*!
+ * @brief Locate all possible break points.
+ *
+ * @param[in] p     Line-breaking state. Not NULL.
+ * @param[in] store Non-zero to store the node pointers.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_find_brkps (struct lb *p, int store)
 {
   struct node *n1;
@@ -368,6 +571,14 @@ static int lb_find_brkps (struct lb *p, int store)
 }
 
 
+/*!
+ * @brief Add two costs, saturating at LB_INFINITY.
+ *
+ * @param[in] c1 First cost.
+ * @param[in] c2 Second cost.
+ *
+ * @return Sum, or LB_INFINITY.
+ */
 static int cost_add (int c1, int c2)
 {
   if (c1 >= LB_INFINITY || c2 >= LB_INFINITY || c1 + c2 >= LB_INFINITY)
@@ -377,8 +588,18 @@ static int cost_add (int c1, int c2)
 }
 
 
+/*!
+ * @brief Access the distance matrix.
+ */
 #define DISTANCE(P,B1,B2) ((P)->distance[(B1) * (P)->brkp_count + (B2)])
 
+/*!
+ * @brief Compute the distance matrix between break points.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_compute_distance (struct lb *p)
 {
   int i, j, c, w, w0, hc;
@@ -472,6 +693,13 @@ static int lb_compute_distance (struct lb *p)
 }
 
 
+/*!
+ * @brief Run Dijkstra's shortest-path algorithm over the break points.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return Always 0.
+ */
 static int lb_dijkstra (struct lb *p)
 {
   int i, j, n, best, bcost, c;
@@ -512,6 +740,13 @@ static int lb_dijkstra (struct lb *p)
 }
 
 
+/*!
+ * @brief Reverse the chain of break points.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_reverse (struct lb *p)
 {
   int i, j, k;
@@ -537,6 +772,13 @@ static int lb_reverse (struct lb *p)
 }
 
 
+/*!
+ * @brief Insert newline nodes at the chosen break points.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 static int lb_break (struct lb *p)
 {
   int i;
@@ -598,6 +840,13 @@ static int lb_break (struct lb *p)
 }
 
 
+/*!
+ * @brief Compute the optimal line break positions.
+ *
+ * @param[in,out] p Line-breaking state. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_format (struct lb *p)
 {
   int rc;
@@ -635,6 +884,14 @@ int lb_format (struct lb *p)
 }
 
 
+/*!
+ * @brief Retrieve the next output line-break element.
+ *
+ * @param[in,out] p   Line-breaking state. Not NULL.
+ * @param[out]    dst Receives the next element. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lb_next (struct lb *p, struct lb_node *dst)
 {
   const struct node *n1;
@@ -683,6 +940,13 @@ redo:
 }
 
 
+/*!
+ * @brief Initialize a hyphenation dictionary.
+ *
+ * @param[out] pp Receives the new dictionary. Not NULL.
+ *
+ * @return 0 on success, or an LB_* error code.
+ */
 int lbh_init (struct lbh **pp)
 {
   struct lbh *p;
@@ -698,6 +962,13 @@ int lbh_init (struct lbh **pp)
 }
 
 
+/*!
+ * @brief Free a hyphenation dictionary.
+ *
+ * @param[in,out] pp Dictionary to free; set to NULL. Not NULL.
+ *
+ * @return Always 0.
+ */
 int lbh_exit (struct lbh **pp)
 {
   struct lbh *p;
@@ -720,6 +991,13 @@ int lbh_exit (struct lbh **pp)
 }
 
 
+/*!
+ * @brief Compute the hash value of a hyphenation word.
+ *
+ * @param[in] s Word text. Not NULL.
+ *
+ * @return Hash value in the range 0..HASH_SIZE-1.
+ */
 static unsigned lbh_hash (const char *s)
 {
   const unsigned char *u;
@@ -733,6 +1011,14 @@ static unsigned lbh_hash (const char *s)
 }
 
 
+/*!
+ * @brief Compare two hyphenation words, ignoring hyphens.
+ *
+ * @param[in] s1 First word. Not NULL.
+ * @param[in] s2 Second word. Not NULL.
+ *
+ * @return TRUE if equal, FALSE otherwise.
+ */
 static int lbh_equal (const char *s1, const char *s2)
 {
   while (*s1 != 0 || *s2 != 0)
@@ -750,6 +1036,15 @@ static int lbh_equal (const char *s1, const char *s2)
 }
 
 
+/*!
+ * @brief Add a hyphenation word.
+ *
+ * @param[in] p Dictionary. Not NULL.
+ * @param[in] s Word text. Not NULL.
+ *
+ * @return 0 on success, LB_INVAL on duplicate with different hyphenation,
+ *         or an LB_* error code.
+ */
 int lbh_word (struct lbh *p, const char *s)
 {
   unsigned h;
@@ -773,6 +1068,14 @@ int lbh_word (struct lbh *p, const char *s)
 }
 
 
+/*!
+ * @brief Find a hyphenation word.
+ *
+ * @param[in] p Dictionary. Not NULL.
+ * @param[in] s Word to look up. Not NULL.
+ *
+ * @return Pointer to the word, or NULL if not found.
+ */
 static const struct hword *lbh_find (const struct lbh *p, const char *s)
 {
   unsigned h;

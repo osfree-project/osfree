@@ -853,6 +853,10 @@ static const uchar map_iso8859_1[256] =
  * @param[in] map Case-folding map.
  *
  * @return Negative, zero, or positive, following the qsort convention.
+ *
+ * @retval -1  @p s1 sorts before @p s2.
+ * @retval  0  @p s1 and @p s2 compare equal.
+ * @retval  1  @p s1 sorts after @p s2.
  */
 static int compare1 (const uchar *s1, size_t n1,
                      const uchar *s2, size_t n2,

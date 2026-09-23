@@ -15,8 +15,6 @@ all: precopy spdx-lint doxy-lint install spdx-sbom .symbolic
 !include $(%ROOT)tools/mk/genrules.mk
 !include $(%ROOT)tools/mk/spdx.mk
 
-doxy-lint: .SYMBOLIC
-    $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $(MYDIR)
 
 print_vars: .symbolic
         @echo __MAKEFILES__     $(__MAKEFILES__) 
@@ -691,5 +689,8 @@ prep: .symbolic
 !ifdef DEBUG
 ADD_LINKOPT = DEBUG $(DEBUG) $(ADD_LINKOPT)
 !endif
+
+doxy-lint: .SYMBOLIC
+    $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $(MYDIR) $(COPT)
 
 !endif

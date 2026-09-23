@@ -41,6 +41,9 @@
 #include "ipf.h"
 #include "latex.h"
 #include "text.h"
+#include "man.h"
+#include "md.h"
+#include "dokuwiki.h"
 #include "xref.h"
 #include "cond.h"
 
@@ -310,6 +313,9 @@ static void usage (void)
   fputs ("  emxdoc -H [-o <output>] [-x <xref>] <input>\n", stderr);
   fputs ("  emxdoc -T [-fr] [-o <output>] <input>\n", stderr);
   fputs ("  emxdoc -L [-fr] [-o <output>] <input>\n", stderr);
+  fputs ("  emxdoc -N [-fr] [-o <output>] <input>\n", stderr);
+  fputs ("  emxdoc -G [-fr] [-o <output>] <input>\n", stderr);
+  fputs ("  emxdoc -W [-fr] [-o <output>] <input>\n", stderr);
   fputs ("  emxdoc -I [-acfgr] [-n <start>] [-o <output>] [-x <xref>] <input>\n", stderr);
   fputs ("  emxdoc -K [-o <output>] <input>\n", stderr);
   fputs ("  emxdoc -M [-o <output>] <input>...\n", stderr);
@@ -319,7 +325,10 @@ static void usage (void)
   fputs ("  -K         Generate index file\n", stderr);
   fputs ("  -L         Generate LaTeX file\n", stderr);
   fputs ("  -M         Merge directory files\n", stderr);
+  fputs ("  -N         Generate man (roff) page\n", stderr);
+  fputs ("  -G         Generate Markdown file\n", stderr);
   fputs ("  -T         Generate text file\n", stderr);
+  fputs ("  -W         Generate DokuWiki file\n", stderr);
   fputs ("\nOptions:\n\n", stderr);
   fputs ("  -a         Concatenate instead of call .INF files\n", stderr);
   fputs ("  -b<number> Select line breaking algorithm for -t\n", stderr);
@@ -706,6 +715,15 @@ void format_output (const uchar *p, int may_break)
     case 'L':
       latex_output (p, may_break);
       break;
+    case 'N':
+      man_output (p, may_break);
+      break;
+    case 'G':
+      md_output (p, may_break);
+      break;
+    case 'W':
+      dw_output (p, may_break);
+      break;
     case 'T':
       text_output (p, may_break);
       break;
@@ -733,6 +751,15 @@ void start_hilite (int hilite)
       case 'L':
         latex_start_hilite ();
         break;
+      case 'N':
+        man_start_hilite ();
+        break;
+      case 'G':
+        md_start_hilite ();
+        break;
+      case 'W':
+        dw_start_hilite ();
+        break;
       }
 }
 
@@ -752,6 +779,15 @@ void end_hilite (void)
         break;
       case 'L':
         latex_end_hilite ();
+        break;
+      case 'N':
+        man_end_hilite ();
+        break;
+      case 'G':
+        md_end_hilite ();
+        break;
+      case 'W':
+        dw_end_hilite ();
         break;
       }
   --hl_sp;
@@ -916,6 +952,9 @@ static void make_elements_internal (const uchar *p)
                       ep->n = 1;
                     }
                   break;
+                case 'N':
+                case 'G':
+                case 'W':
                 case 'T':
                 case 'L':
                   make_elements_internal (word); /* Recursive! */
@@ -1264,6 +1303,15 @@ static void end_env (int env)
         break;
       case 'L':
         latex_end_env ();
+        break;
+      case 'N':
+        man_end_env ();
+        break;
+      case 'G':
+        md_end_env ();
+        break;
+      case 'W':
+        dw_end_env ();
         break;
       }
   --env_sp;
@@ -1645,6 +1693,15 @@ static void do_heading_out (const uchar *p)
         case 'L':
           latex_heading1 ();
           break;
+        case 'N':
+          man_heading1 ();
+          break;
+        case 'G':
+          md_heading1 ();
+          break;
+        case 'W':
+          dw_heading1 ();
+          break;
         case 'T':
           text_heading1 ();
           break;
@@ -1663,6 +1720,15 @@ static void do_heading_out (const uchar *p)
       break;
     case 'L':
       latex_heading2 (p);
+      break;
+    case 'N':
+      man_heading2 (output);
+      break;
+    case 'G':
+      md_heading2 (output);
+      break;
+    case 'W':
+      dw_heading2 (output);
       break;
     case 'T':
       text_heading2 (output);
@@ -1721,6 +1787,18 @@ static void do_toc_out (const uchar *p)
           case 'I':
             ipf_toc_line (output, tp);
             break;
+          case 'N':
+            if (!(tp->flags & HF_UNNUMBERED))
+              man_toc_line (output, tp);
+            break;
+          case 'G':
+            if (!(tp->flags & HF_UNNUMBERED))
+              md_toc_line (output, tp);
+            break;
+          case 'W':
+            if (!(tp->flags & HF_UNNUMBERED))
+              dw_toc_line (output, tp);
+            break;
           case 'T':
             if (!(tp->flags & HF_UNNUMBERED))
               text_toc_line (output, tp);
@@ -1753,6 +1831,15 @@ static void do_description (void)
       case 'L':
         latex_description ();
         break;
+      case 'N':
+        man_description ();
+        break;
+      case 'G':
+        md_description ();
+        break;
+      case 'W':
+        dw_description ();
+        break;
       }
   read_line ();
 }
@@ -1777,6 +1864,15 @@ static void do_enumerate (void)
         break;
       case 'L':
         latex_enumerate ();
+        break;
+      case 'N':
+        man_enumerate ();
+        break;
+      case 'G':
+        md_enumerate ();
+        break;
+      case 'W':
+        dw_enumerate ();
         break;
       }
   read_line ();
@@ -1803,6 +1899,15 @@ static void do_itemize (void)
       case 'L':
         latex_itemize ();
         break;
+      case 'N':
+        man_itemize ();
+        break;
+      case 'G':
+        md_itemize ();
+        break;
+      case 'W':
+        dw_itemize ();
+        break;
       }
   read_line ();
 }
@@ -1827,6 +1932,15 @@ static void do_indent (int env)
       case 'L':
         latex_indent ();
         break;
+      case 'N':
+        man_indent ();
+        break;
+      case 'G':
+        md_indent ();
+        break;
+      case 'W':
+        dw_indent ();
+        break;
       }
   read_line ();
 }
@@ -1847,6 +1961,15 @@ static void do_list (void)
         break;
       case 'L':
         latex_description ();
+        break;
+      case 'N':
+        man_list ();
+        break;
+      case 'G':
+        md_list ();
+        break;
+      case 'W':
+        dw_list ();
         break;
       }
   read_line ();
@@ -1878,6 +2001,15 @@ static void do_verbatim (enum tag tag_end)
         break;
       case 'L':
         latex_verbatim_start (tag_end);
+        break;
+      case 'N':
+        man_verbatim_start (tag_end, &tmargin);
+        break;
+      case 'G':
+        md_verbatim_start (tag_end, &tmargin);
+        break;
+      case 'W':
+        dw_verbatim_start (tag_end, &tmargin);
         break;
       case 'T':
         text_verbatim_start (tag_end, &tmargin);
@@ -1925,6 +2057,15 @@ static void do_verbatim (enum tag tag_end)
             case 'T':
               text_verbatim_line (tag_end, tmargin, compat);
               break;
+            case 'N':
+              man_verbatim_line (tag_end, tmargin, compat);
+              break;
+            case 'G':
+              md_verbatim_line (tag_end, tmargin, compat);
+              break;
+            case 'W':
+              dw_verbatim_line (tag_end, tmargin, compat);
+              break;
             }
         }
     }
@@ -1939,6 +2080,15 @@ static void do_verbatim (enum tag tag_end)
         break;
       case 'L':
         latex_verbatim_end (tag_end);
+        break;
+      case 'N':
+        man_verbatim_end (tag_end);
+        break;
+      case 'G':
+        md_verbatim_end (tag_end);
+        break;
+      case 'W':
+        dw_verbatim_end (tag_end);
         break;
       case 'T':
         para_flag = TRUE;
@@ -2001,6 +2151,12 @@ static void do_table (const uchar *p)
         break;
       case 'L':
         fatal ("%ctable not yet implemented for LaTeX", escape);
+      case 'N':
+        fatal ("%ctable not yet implemented for man", escape);
+      case 'G':
+        fatal ("%ctable not yet implemented for Markdown", escape);
+      case 'W':
+        fatal ("%ctable not yet implemented for DokuWiki", escape);
       case 'T':
         text_table_start (do_indent, &tmargin);
         break;
@@ -2239,6 +2395,15 @@ static void do_item (const uchar *p)
           case 'L':
             latex_description_item (p);
             break;
+          case 'N':
+            man_description_item (p);
+            break;
+          case 'G':
+            md_description_item (p);
+            break;
+          case 'W':
+            dw_description_item (p);
+            break;
           case 'T':
             text_description_item (p);
             break;
@@ -2260,6 +2425,15 @@ static void do_item (const uchar *p)
             break;
           case 'L':
             latex_enumerate_item ();
+            break;
+          case 'N':
+            man_enumerate_item ();
+            break;
+          case 'G':
+            md_enumerate_item ();
+            break;
+          case 'W':
+            dw_enumerate_item ();
             break;
           case 'T':
             text_enumerate_item ();
@@ -2283,6 +2457,15 @@ static void do_item (const uchar *p)
           case 'L':
             latex_itemize_item ();
             break;
+          case 'N':
+            man_itemize_item ();
+            break;
+          case 'G':
+            md_itemize_item ();
+            break;
+          case 'W':
+            dw_itemize_item ();
+            break;
           case 'T':
             text_itemize_item ();
             break;
@@ -2301,6 +2484,15 @@ static void do_item (const uchar *p)
             break;
           case 'L':
             latex_list_item (p);
+            break;
+          case 'N':
+            man_list_item (p);
+            break;
+          case 'G':
+            md_list_item (p);
+            break;
+          case 'W':
+            dw_list_item (p);
             break;
           case 'T':
             text_list_item (p);
@@ -2340,6 +2532,15 @@ static void do_prototype (void)
           break;
         case 'L':
           latex_prototype_start ();
+          break;
+        case 'N':
+          man_prototype_start (compat);
+          break;
+        case 'G':
+          md_prototype_start (compat);
+          break;
+        case 'W':
+          dw_prototype_start (compat);
           break;
         case 'T':
           text_prototype_start (compat);
@@ -2383,6 +2584,15 @@ static void do_prototype (void)
         case 'L':
           latex_prototype_end (compat);
           break;
+        case 'N':
+          man_prototype_end ();
+          break;
+        case 'G':
+          md_prototype_end ();
+          break;
+        case 'W':
+          dw_prototype_end ();
+          break;
         case 'T':
           text_prototype_end ();
           break;
@@ -2419,6 +2629,15 @@ static void do_see_also (const uchar *p)
         case 'L':
           latex_see_also_start ();
           break;
+        case 'N':
+          man_see_also_start ();
+          break;
+        case 'G':
+          md_see_also_start ();
+          break;
+        case 'W':
+          dw_see_also_start ();
+          break;
         case 'T':
           text_see_also_start ();
           break;
@@ -2442,7 +2661,10 @@ static void do_see_also (const uchar *p)
             case 'L':
               latex_see_also_word (word, p);
               break;
+            case 'G':
+            case 'N':
             case 'T':
+            case 'W':
               strcpy (o, word);
               if (*p != 0)
                 strcat (o, ", ");
@@ -2452,6 +2674,15 @@ static void do_see_also (const uchar *p)
         }
       switch (mode)
         {
+        case 'N':
+          man_see_also_end (output);
+          break;
+        case 'G':
+          md_see_also_end (output);
+          break;
+        case 'W':
+          dw_see_also_end (output);
+          break;
         case 'T':
           text_see_also_end (output);
           break;
@@ -2513,6 +2744,15 @@ static void do_sample_file (const uchar *p)
         case 'L':
           latex_sample_file (p);
           break;
+        case 'N':
+          man_sample_file (p);
+          break;
+        case 'G':
+          md_sample_file (p);
+          break;
+        case 'W':
+          dw_sample_file (p);
+          break;
         case 'T':
           text_sample_file (p);
           break;
@@ -2541,6 +2781,15 @@ static void do_libref_section (const uchar *text)
           break;
         case 'L':
           latex_libref_section (text);
+          break;
+        case 'N':
+          man_libref_section (text);
+          break;
+        case 'G':
+          md_libref_section (text);
+          break;
+        case 'W':
+          dw_libref_section (text);
           break;
         case 'T':
           text_libref_section (text);
@@ -2577,6 +2826,15 @@ static void do_function (const uchar *p)
           break;
         case 'L':
           latex_function_start (toc_ptr);
+          break;
+        case 'N':
+          man_function (toc_ptr);
+          break;
+        case 'G':
+          md_function (toc_ptr);
+          break;
+        case 'W':
+          dw_function (toc_ptr);
           break;
         case 'T':
           text_function ();
@@ -2950,6 +3208,15 @@ static void do_copy (void)
         case 'L':
           latex_copy ();
           break;
+        case 'N':
+          man_copy ();
+          break;
+        case 'G':
+          md_copy ();
+          break;
+        case 'W':
+          dw_copy ();
+          break;
         case 'T':
           text_copy ();
           break;
@@ -3015,6 +3282,15 @@ void init_file (void)
       case 'L':
         latex_start ();
         break;
+      case 'N':
+        man_start ();
+        break;
+      case 'G':
+        md_start ();
+        break;
+      case 'W':
+        dw_start ();
+        break;
       }
 
   para_flag = FALSE;
@@ -3050,6 +3326,15 @@ static void end_file (void)
       break;
     case 'L':
       latex_end ();
+      break;
+    case 'N':
+      man_end ();
+      break;
+    case 'G':
+      md_end ();
+      break;
+    case 'W':
+      dw_end ();
       break;
     }
   if (env_sp != 0)
@@ -3148,17 +3433,20 @@ int main (int argc, char *argv[])
 
   init ();
 
-  while ((c = getopt (argc, argv, ":?HIKLMTab:ce:fgh:i:j:n:o:rw:x:")) != EOF)
+  while ((c = getopt (argc, argv, ":?GHIKLMNTWab:ce:fgh:i:j:n:o:rw:x:")) != EOF)
     switch (c)
       {
       case '?':
         usage ();
+      case 'G':
       case 'H':
       case 'I':
       case 'K':
       case 'L':
       case 'M':
+      case 'N':
       case 'T':
+      case 'W':
         mode = (char)c;
         break;
       case 'a':
@@ -3221,9 +3509,11 @@ int main (int argc, char *argv[])
 
   if (mode == 0)
     usage ();
-  if (mode != 'I' && (opt_c || opt_g))
+  if (mode != 'I' && mode != 'N' && mode != 'G' && mode != 'W'
+      && (opt_c || opt_g))
     usage ();
-  if (mode != 'I' && mode != 'H' && xref_fname != NULL)
+  if (mode != 'I' && mode != 'H' && mode != 'N'
+      && mode != 'G' && mode != 'W' && xref_fname != NULL)
     usage ();
   if ((mode == 'H' || mode == 'I') && output_encoding != ENC_DEFAULT)
     warning (0, "Output encoding ignored for -H and -I");
@@ -3262,6 +3552,22 @@ int main (int argc, char *argv[])
       if (output_encoding == ENC_DEFAULT)
         output_encoding = input_encoding;
       break;
+    case 'N':
+      max_width = 4096;
+      output_flag = TRUE;
+      if (output_encoding == ENC_DEFAULT)
+        output_encoding = input_encoding;
+      break;
+    case 'G':
+      max_width = 4096;
+      output_flag = TRUE;
+      output_encoding = ENC_ISO8859_1;
+      break;
+    case 'W':
+      max_width = 4096;
+      output_flag = TRUE;
+      output_encoding = ENC_ISO8859_1;
+      break;
     case 'K':
     case 'M':
       output_flag = FALSE;
@@ -3294,10 +3600,13 @@ int main (int argc, char *argv[])
 
   switch (mode)
     {
+    case 'G':
     case 'H':
     case 'I':
+    case 'N':
     case 'T':
     case 'L':
+    case 'W':
       out = FALSE;
       read_file (argv[0]);
       out = TRUE;
