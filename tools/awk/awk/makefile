@@ -3,6 +3,7 @@
 
 TARGET_CLASS = LIBRARY
 SOURCES = ytab
+
 !include $(%ROOT)tools/mk/build.mk
 
 $(PATH)ytab.c: ytab.y
