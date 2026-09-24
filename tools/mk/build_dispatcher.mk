@@ -90,31 +90,31 @@
 # LIBRARY         DYNAMIC (DOS, HOST: STATIC)
 # DRIVER          (required except DOS: no subtype needed)
 !ifndef TARGET_CLASS
-TARGET_CLASS = APPLICATION
+!  define TARGET_CLASS APPLICATION
 !endif
 
 !ifndef TARGET_SUBCLASS
-!ifeq TARGET_CLASS APPLICATION
-!ifeq TARGET_API WIN
-TARGET_SUBCLASS = GUI
-!else
-TARGET_SUBCLASS = CONSOLE
-!endif
-!else ifeq TARGET_CLASS LIBRARY
-!ifeq TARGET_API DOS
-TARGET_SUBCLASS = STATIC
-!else ifeq TARGET_API HOST
-TARGET_SUBCLASS = STATIC
-!else
-TARGET_SUBCLASS = DYNAMIC
-!endif
-!else ifeq TARGET_CLASS DRIVER
-!ifneq TARGET_API DOS
-!error TARGET_SUBCLASS is required for DRIVER class on $(TARGET_API)
-!endif
-!else
-!error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
-!endif
+!  ifeq TARGET_CLASS APPLICATION
+!    ifeq TARGET_API WIN
+!      define TARGET_SUBCLASS GUI
+!    else
+!      define TARGET_SUBCLASS CONSOLE
+!    endif
+!  else ifeq TARGET_CLASS LIBRARY
+!    ifeq TARGET_API DOS
+!      define TARGET_SUBCLASS STATIC
+!    else ifeq TARGET_API HOST
+!      define TARGET_SUBCLASS STATIC
+!    else
+!      define TARGET_SUBCLASS DYNAMIC
+!    endif
+!  else ifeq TARGET_CLASS DRIVER
+!    ifneq TARGET_API DOS
+!      error TARGET_SUBCLASS is required for DRIVER class on $(TARGET_API)
+!    endif
+!  else
+!    error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
+!  endif
 !endif
 
 # -------------------------------------------------------------
@@ -122,9 +122,9 @@ TARGET_SUBCLASS = DYNAMIC
 # -------------------------------------------------------------
 
 !ifeq TARGET_CLASS LIBRARY
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
-!endif
+!  ifeq TARGET_SUBCLASS DYNAMIC
+!    define DLL 1
+!  endif
 !endif
 
 # -------------------------------------------------------------
